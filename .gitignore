@@ -1,0 +1,28 @@
+# ---- データ実体はGit外(出典・ライセンスは docs/data-license-ledger.md) ----
+data/
+runs/
+out/
+*.parquet
+
+# ---- Python ----
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# ---- Claude / エディタ ----
+.claude/worktrees/
+.claude/settings.local.json
+.vscode/
+
+# ---- スクラッチ・一時 ----
+scratch/
+scratchpad/
+*.log
+*.tmp
+
+# ---- 秘密(APIキー等は環境変数のみの原則) ----
+.env
+*.key
+*.secret

@@ -1,0 +1,282 @@
+<meta charset="utf-8">
+<title>渋谷v2 統合設計図</title>
+<style>
+  :root {
+    --ink:#1a1a2e; --sub:#5a5a72; --acc:#e63946; --bg:#fafafa; --card:#fff; --line:#e5e5ee;
+    --engine:#34568F; --engine-bg:#eaeff7;
+    --role:#0E7A63;   --role-bg:#e6f2ee;
+    --prec:#6C4BB8;   --prec-bg:#efeaf8;
+    --mind:#A9660F;   --mind-bg:#f8efdd;
+    --obs:#4d5670;    --obs-bg:#eceef3;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:"Hiragino Sans","Yu Gothic",Meiryo,sans-serif; background:#333; color:var(--ink); }
+  .slide { width:min(1280px, 100vw - 16px); aspect-ratio:16/9; container-type:inline-size;
+           margin:24px auto; background:var(--bg); padding:4.4cqi 5.6cqi;
+           position:relative; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.4); page-break-after:always; }
+  .no { position:absolute; bottom:1.6cqi; right:2.2cqi; color:#bbb; font-size:1.1cqi; }
+  h1 { font-size:4.2cqi; line-height:1.3; }
+  h2 { font-size:2.8cqi; margin-bottom:2.2cqi; border-left:0.8cqi solid var(--acc); padding-left:1.4cqi; line-height:1.35; }
+  h3 { font-size:1.9cqi; margin:1.4cqi 0 0.8cqi; }
+  p, li { font-size:1.72cqi; line-height:1.65; color:var(--ink); }
+  ul { margin-left:2.2cqi; }
+  .sub { color:var(--sub); font-size:1.56cqi; }
+  .big { font-size:7.5cqi; font-weight:800; color:var(--acc); line-height:1.1; }
+  .row { display:flex; gap:2.2cqi; margin-top:1.9cqi; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:0.9cqi; padding:1.7cqi 2cqi; flex:1; }
+  .num { font-size:3.4cqi; font-weight:800; color:var(--ink); }
+  .num small { font-size:1.4cqi; color:var(--sub); font-weight:400; }
+  .x { color:var(--acc); font-weight:800; }
+  .foot { position:absolute; bottom:1.6cqi; left:5.6cqi; color:#999; font-size:1.1cqi; }
+  .tagline { font-size:2cqi; font-weight:700; }
+  /* 帯(アーキ図用) */
+  .zone { border-radius:0.9cqi; padding:1.2cqi 1.6cqi; border:1px solid var(--line); }
+  .zone .zt { font-size:1.5cqi; font-weight:800; letter-spacing:0.06em; margin-bottom:0.6cqi; }
+  .zone .zd { font-size:1.3cqi; color:var(--sub); }
+  .mini { display:inline-block; background:#fff; border:1px solid var(--line); border-radius:0.5cqi;
+          padding:0.35cqi 0.9cqi; font-size:1.3cqi; margin:0.25cqi 0.15cqi; }
+  .arrowline { text-align:center; color:var(--sub); font-size:1.3cqi; padding:0.35cqi 0; }
+  /* フロー図 */
+  .flow { display:flex; align-items:stretch; gap:0.7cqi; margin-top:2cqi; }
+  .fbox { flex:1; background:#fff; border:2px solid var(--ink); border-radius:0.8cqi; padding:1.1cqi 1cqi;
+          text-align:center; display:flex; flex-direction:column; justify-content:center; }
+  .fbox b { font-size:1.6cqi; }
+  .fbox span { font-size:1.15cqi; color:var(--sub); display:block; margin-top:0.4cqi; line-height:1.5; }
+  .farrow { display:flex; align-items:center; font-size:2cqi; color:var(--sub); }
+  /* フェーズ梯子 */
+  .steps { display:flex; gap:0.8cqi; margin-top:2.2cqi; align-items:flex-end; }
+  .step { flex:1; background:#fff; border:1px solid var(--line); border-top:0.5cqi solid var(--engine);
+          border-radius:0.7cqi; padding:1cqi 1.1cqi; }
+  .step .sn { font-size:1.1cqi; color:var(--sub); letter-spacing:0.1em; font-weight:700; }
+  .step b { display:block; font-size:1.6cqi; margin:0.2cqi 0 0.4cqi; }
+  .step .g { font-size:1.15cqi; color:var(--sub); border-top:1px dashed var(--line); padding-top:0.5cqi; margin-top:0.5cqi; line-height:1.5; }
+  .step .g::before { content:"ゲート "; color:var(--role); font-weight:800; }
+  .step.now { border-top-color:var(--acc); box-shadow:0 0 0 0.25cqi rgba(230,57,70,.25); }
+  .deadline-big { display:flex; gap:2.2cqi; margin-top:2cqi; }
+  .dl { flex:1; background:#fff; border:2px solid var(--acc); border-radius:0.9cqi; padding:1.8cqi 2cqi; }
+  .dl .d { font-size:3cqi; font-weight:800; color:var(--acc); }
+  .dl h3 { margin-top:0.4cqi; }
+  @page { size: 1280px 720px; margin: 0; }
+  @media print {
+    body { background:#fff; }
+    .slide { margin:0; box-shadow:none; width:1280px; }
+  }
+</style>
+
+<!-- 1 表紙 -->
+<div class="slide">
+  <div style="margin-top:11cqi">
+    <p class="sub" style="font-size:1.9cqi">shibuya-simulation v2 — 統合設計図(レビュー用スライド)</p>
+    <h1 style="margin-top:1.2cqi">世界そのものがプロダクト<br><span style="font-size:2.7cqi;color:var(--sub)">— 現実の渋谷を仮想空間に再現する。v2の全体設計と、短期・中期・長期のロードマップ</span></h1>
+    <p class="sub" style="margin-top:3.2cqi">2026-09-02 ｜ 全決定は仮=この場で何度でも変更できる</p>
+  </div>
+  <div class="no">1</div>
+</div>
+
+<!-- 2 なぜ作り直すか -->
+<div class="slide">
+  <h2>出発点: v1が実証したこと、v1が壊れていたところ</h2>
+  <div class="row">
+    <div class="card" style="flex:1.1">
+      <h3 style="margin-top:0">実証(本選・対照実験)</h3>
+      <div style="display:flex; gap:2cqi; margin-top:0.8cqi">
+        <div><div class="num">×125</div><p class="sub">人づての信念伝達</p></div>
+        <div><div class="num">×25</div><p class="sub">実発話</p></div>
+        <div><div class="num">40万<small>体</small></div><p class="sub">実データの渋谷で</p></div>
+      </div>
+      <p class="sub" style="margin-top:1cqi">社会は「心」を入れた瞬間にだけ立ち上がる。世界で起きることは同一(救急6件一致)。</p>
+    </div>
+    <div class="card" style="flex:1">
+      <h3 style="margin-top:0">構造矛盾(監査28件→根は3本)</h3>
+      <p class="sub" style="margin-top:0.8cqi">① 計算資源が世界の物理法則になっている<br>② 経済が循環定義(倒産なし・金が湧く)<br>③ 心と世界が相互に見えない(実文なき会話)</p>
+    </div>
+  </div>
+  <p style="margin-top:2.4cqi"><b>v2はこの3本を「憲法」に裏返してゼロベースで作り直す</b>——<span class="sub">打ち切りでなく解像度(LOD)・実フロー経済・心と世界の相互可視、+解像度は較正とペア・知覚されない細部は作らない・粗くする場所は宣言する(全6条)。</span></p>
+  <div class="no">2</div>
+</div>
+
+<!-- 3 背骨 -->
+<div class="slide">
+  <div style="margin-top:8cqi; text-align:center">
+    <p class="sub" style="font-size:1.9cqi">v2の背骨は一行で書ける</p>
+    <h1 style="margin-top:2cqi; font-size:4.8cqi">状態と集約はエンジン、<br><span class="x">意思決定と発話だけLLM。</span></h1>
+    <p class="sub" style="margin-top:3cqi; font-size:1.72cqi">経済・会話・人流・制度——独立に走らせた4本のリサーチ答申が、すべて同じ分業に収束した。<br>研究観測(k*・組織形成・語彙創発)は、この世界の上で走るアプリケーションである。</p>
+  </div>
+  <div class="no">3</div>
+</div>
+
+<!-- 4 全体アーキ -->
+<div class="slide">
+  <h2>全体アーキテクチャ: 三つの面</h2>
+  <div class="zone" style="background:var(--obs-bg); border-color:var(--obs)">
+    <div class="zt" style="color:var(--obs)">観測・実験面 — すべてを記録し、何も変えない</div>
+    <span class="mini">全員の伝記(全LLM入出力)</span><span class="mini">checkpoint</span><span class="mini">忠実度計器盤</span><span class="mini">データ契約 (t_ns, seq)</span><span class="mini">観測射影 L-OBS/L-REC</span><span class="mini">run manifest+アンサンブル</span>
+  </div>
+  <div class="arrowline">▲ 読むだけ(乱数消費0本) ｜ 介入も「記録される実験条件」としてログに同居 ▼</div>
+  <div style="display:flex; gap:1.6cqi">
+    <div style="flex:1.15; display:flex; flex-direction:column; gap:0.7cqi">
+      <div class="zone" style="background:var(--prec-bg); border-color:var(--prec)"><div class="zt" style="color:var(--prec)">層3 裁定と判例</div><div class="zd">未定義の行動をGMが裁定→判例に結晶化</div></div>
+      <div class="zone" style="background:var(--role-bg); border-color:var(--role)"><div class="zt" style="color:var(--role)">層2 役割の知識</div><div class="zd">手順は書かない。本人のLLM世界知識から</div></div>
+      <div class="zone" style="background:var(--engine-bg); border-color:var(--engine)"><div class="zt" style="color:var(--engine)">層1 エンジン=破れない法則</div><div class="zd">保存則・台帳・物理(GPU)・三層の時計</div></div>
+    </div>
+    <div style="display:flex; flex-direction:column; justify-content:center; gap:1cqi; text-align:center">
+      <span class="sub" style="font-size:1.3cqi">知覚契約 ▶</span>
+      <span class="sub" style="font-size:1.3cqi">◀ 行動契約</span>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:0.7cqi">
+      <div class="zone" style="background:var(--mind-bg); border-color:var(--mind)"><div class="zt" style="color:var(--mind)">心 T2 遅い思考(大モデル)</div><div class="zd">0.5-2回/人/日・夜間監査で自己較正</div></div>
+      <div class="zone" style="background:var(--mind-bg); border-color:var(--mind)"><div class="zt" style="color:var(--mind)">心 T1 速い思考(小モデル)</div><div class="zd">5-20回/人/日・予測誤差で発火</div></div>
+      <div class="zone" style="background:var(--mind-bg); border-color:var(--mind)"><div class="zt" style="color:var(--mind)">心 T0 習慣(LLMなし)</div><div class="zd">本人が自書した条件付き習慣</div></div>
+    </div>
+  </div>
+  <div class="arrowline" style="margin-top:0.3cqi">▼ 世界を閉じる基盤: <b>境界</b>(街の外)・<b>経済SFC</b>・<b>制度5プリミティブ</b>・<b>適応3ループ</b></div>
+  <div class="no">4</div>
+</div>
+
+<!-- 5 世界の三層 -->
+<div class="slide">
+  <h2>世界の三層: 手続きを書かず、基盤を書く</h2>
+  <p class="sub">v1は世界の手続き(接客手順・返還率…)を1つずつコード化した——書いた場所しか動かない。LLMは手続きを既に知っている。v2は逆にする。</p>
+  <div class="row">
+    <div class="card" style="border-top:0.5cqi solid var(--engine)"><h3 style="margin-top:0; color:var(--engine)">層1 破れない法則</h3><p class="sub">保存則(金・モノ・身体・空間・時間)・物理・台帳だけをエンジンに。数十規則で閉じる有限の仕事。</p></div>
+    <div class="card" style="border-top:0.5cqi solid var(--role)"><h3 style="margin-top:0; color:var(--role)">層2 役割の知識</h3><p class="sub">「あなたは店員だ」+基本動作(渡す・受け取る・断る)だけ配る。手順は本人のLLM世界知識から。役割名簿=センサス9,872社。</p></div>
+    <div class="card" style="border-top:0.5cqi solid var(--prec)"><h3 style="margin-top:0; color:var(--prec)">層3 裁定と判例</h3><p class="sub">エンジンにない行動は却下せずGM的LLMが裁定。検証済みの裁定は<b>判例に結晶化=ルールブックが自己成長</b>。</p></div>
+  </div>
+  <p style="margin-top:2cqi"><b>安全装置:</b> 裁定の出力は自由文でなく<b>スキーマ検証済みの状態差分だけ</b>(保存則を破る差分は機械が拒否)。判例は違反ゼロ×複数回再現でのみ昇格+失効再審。</p>
+  <p style="margin-top:1cqi" class="sub"><b>判例結晶化ループは先行研究ゼロの領域</b>——ヒット率・裁定コスト・矛盾率を最初から計測し、それ自体を論文にする。</p>
+  <div class="no">5</div>
+</div>
+
+<!-- 6 心 -->
+<div class="slide">
+  <h2>住民の心: 全員が常に考える。ただし、粗く考える</h2>
+  <p class="sub">v1の「予算切れ=思考ゼロ」を追放。遠い・重要でない場面は粗い層が受け、重要な場面だけ深い層に上がる。</p>
+  <div class="row">
+    <div class="card"><h3 style="margin-top:0">T0 習慣 <span class="sub">LLMなし</span></h3><p class="sub">本人がT2の熟考で自書した条件付き習慣(「平日昼は駅前・雨の日除く」)。~64スロット・同一文脈は置換=無限に増えない。</p></div>
+    <div class="card"><h3 style="margin-top:0">T1 速い思考 <span class="sub">小モデル・5-20回/人/日</span></h3><p class="sub">習慣の前提が破れた時(予測誤差)・話しかけられた時に発火。</p></div>
+    <div class="card"><h3 style="margin-top:0">T2 遅い思考 <span class="sub">大モデル・0.5-2回/人/日</span></h3><p class="sub">難しい判断+夜間にその日の自分を監査→習慣を書き換える(自己較正)。</p></div>
+  </div>
+  <div class="row">
+    <div class="card" style="flex:1.2"><h3 style="margin-top:0">境界規則「言葉は必ず心を通る」</h3><p class="sub">発話は最低T1=実文のない会話が世界を動かすことは構造的に不可能(v1最大の欠陥の再発防止)。</p></div>
+    <div class="card" style="flex:1.2"><h3 style="margin-top:0">思考は時間を消費する</h3><p class="sub">δ = max(0.2秒, α×出力token)。熟考α=0.04秒/tokは人間の実測(CRT 19-25秒)と定量一致。<b>長く考える人は反応が遅い</b>という現実のトレードオフが自然に生まれる。</p></div>
+  </div>
+  <div class="no">6</div>
+</div>
+
+<!-- 7 基盤4つ -->
+<div class="slide">
+  <h2>世界を閉じる4つの基盤(各リサーチ答申済み)</h2>
+  <div class="row">
+    <div class="card"><h3 style="margin-top:0">境界 — 街の外</h3><p class="sub">名簿≒100-150万人で在場40万人。流入は5類型(通勤・通学・買物・観光・通過)を実データで固定。出た人は低解像度の外界で暮らし、戻ってくる。<b>境界の歪みは集計でなく構造(k*)に出る</b>→感度ゲートで監視。</p></div>
+    <div class="card"><h3 style="margin-top:0">経済 — SFC会計</h3><p class="sub">5部門+域外のバランスシート。全ての金は誰かの支出から来る——<b>売上を計算で作れない型設計</b>にして、v1の循環定義を構造的に不可能化。倒産・失業は世界の正当な出来事。</p></div>
+  </div>
+  <div class="row">
+    <div class="card"><h3 style="margin-top:0">制度 — 最小の足場5つ</h3><p class="sub">エンジンが保証するのは台帳・時計・集計・資格判定・配信のみ。動機・遵守・説得は住民に任せる。<b>足場を1つずつ抜く実験(先行ゼロ)</b>で「制度が立ち上がる条件」を測る。</p></div>
+    <div class="card"><h3 style="margin-top:0">適応 — 3つの学習ループ</h3><p class="sub">記憶(個人):習慣(個人):判例(世界)=時定数1:5:25で分離。全員に一斉に効く判例を最も遅くして、世界の暴走を防ぐ。</p></div>
+  </div>
+  <div class="no">7</div>
+</div>
+
+<!-- 8 観測 -->
+<div class="slide">
+  <h2>観測: 世界を1バイトも変えずに、全員の伝記を記録する</h2>
+  <div class="row">
+    <div class="card"><div class="num">~5GB<small>/シミュ日</small></div><p class="sub"><b>①恒久記録=全員の伝記。</b>全行動イベント+全LLM入出力。抽選なし・コホートなし、40万人全員。</p></div>
+    <div class="card"><div class="num">6時間<small>ごと</small></div><p class="sub"><b>②世界スナップショット。</b>checkpointがそのまま世界状態(~17GB/日)。任意時刻へ飛べる再生の土台。</p></div>
+    <div class="card"><div class="num">37→<small>成長</small></div><p class="sub"><b>③忠実度計器盤。</b>現実整合アンカー台帳とのライブ照合=「世界に近づいているか」が北極星KPI。</p></div>
+  </div>
+  <p style="margin-top:2cqi"><b>記録形式:</b> 全イベントに(時刻ナノ秒, 連番)の全順序をつけた新データ契約。N本のランを1つのテーブルとして横断分析できる。</p>
+  <p style="margin-top:1cqi"><b>その先の独自能力——観測射影:</b> シムは全員の真実を持つ。そこに「現実の観測者が取れるデータ」(SNS公開分だけ・基地局粒度の位置だけ…)のフィルタを掛け、<b>「どこまで粗い観測から何が復元できるか」の限界を正解つきで測る</b>。現実のデータでは原理的に不可能な測定=先行ゼロ。</p>
+  <div class="no">8</div>
+</div>
+
+<!-- 9 データの一巡 -->
+<div class="slide">
+  <h2>ひとつの行動が世界を通る道</h2>
+  <div class="flow">
+    <div class="fbox"><b>知覚</b><span>身体感覚・見聞き<br>(知覚契約)</span></div>
+    <div class="farrow">▶</div>
+    <div class="fbox" style="border-color:var(--mind)"><b>心 3層</b><span>T0照合→T1→T2<br>思考は時間を消費</span></div>
+    <div class="farrow">▶</div>
+    <div class="fbox"><b>行動</b><span>表現形・宛先は<br>LLM出力から</span></div>
+    <div class="farrow">▶</div>
+    <div class="fbox" style="border-color:var(--engine)"><b>検証・実行</b><span>保存則・台帳<br>(層1)</span></div>
+    <div class="farrow">▶</div>
+    <div class="fbox" style="border-color:var(--obs)"><b>記録</b><span>イベントログ<br>(t_ns, seq)</span></div>
+  </div>
+  <div class="row" style="margin-top:2.4cqi">
+    <div class="card" style="border-left:0.5cqi solid var(--prec)"><h3 style="margin-top:0; color:var(--prec)">語彙にない行動は?</h3><p class="sub">検証の手前で分岐→層3のGM裁定へ。裁定が繰り返し再現されれば判例になり、次から普通のエンジン処理になる(世界が学ぶ)。</p></div>
+    <div class="card" style="border-left:0.5cqi solid var(--mind)"><h3 style="margin-top:0; color:var(--mind)">夜は?</h3><p class="sub">T2がその日の自分の決定を監査し、習慣を書き換える(本人が学ぶ)。記憶の統合もここで行う。</p></div>
+  </div>
+  <div class="no">9</div>
+</div>
+
+<!-- 10 フェーズ -->
+<div class="slide">
+  <h2>作り方: 日付ではなく、ゲートが支配する</h2>
+  <p class="sub">v1の失敗5件は全て文献上の既知の失敗型で、処方箋が存在する。各段階は検証可能な条件(ゲート)を通るまで先に進まない。</p>
+  <div class="steps">
+    <div class="step now"><span class="sn">PHASE 0</span><b>設計</b><div class="g">パターン台帳~30本+研究質問1文</div></div>
+    <div class="step"><span class="sn">PHASE 1</span><b>紙上検証</b><div class="g">経済SFCが紙上で閉じる</div></div>
+    <div class="step"><span class="sn">PHASE 2</span><b>最小骨格</b><div class="g">数千体CPU・全テスト緑+予算内</div></div>
+    <div class="step"><span class="sn">PHASE 3</span><b>GPU+較正</b><div class="g">人流較正合格・holdout非接触</div></div>
+    <div class="step"><span class="sn">PHASE 4</span><b>認知+三層</b><div class="g">検証レポート+ablation</div></div>
+    <div class="step"><span class="sn">PHASE 5</span><b>スケール</b><div class="g">40万体アンサンブル</div></div>
+  </div>
+  <p style="margin-top:2.4cqi"><b>契約ファースト:</b> 知覚契約・行動契約・LLM挿入点を最初に固定し、Phase 2で「細い縦切り」(数百体+実LLM 1本)を貫通させて接続の誤りを早期に検出する。<span class="sub">物理の目安: ORCA-GPUは2015年級GPUで50万体33ms/frameの査読済み実測——40万体の物理はミリ秒に落ちる規模。</span></p>
+  <div class="no">10</div>
+</div>
+
+<!-- 11 短期 -->
+<div class="slide">
+  <h2>短期(いま〜9/24): 取り返しがつかないのは2つだけ</h2>
+  <div class="deadline-big">
+    <div class="dl"><div class="d">9/10</div><h3>サーバー返却前の実測</h3><p class="sub">vLLM艦隊ベンチ(設計済み・Go待ち)+未踏応募書類で示す実測データの確保。<b>返却後は同じ環境で二度と測れない=短期で唯一の不可逆項目。</b></p></div>
+    <div class="dl"><div class="d">9/24<span style="font-size:1.5cqi"> 13:00</span></div><h3>未踏アドバンスト エントリー</h3><p class="sub">年齢制限なし・個人可・1名上限800万円。委託費は開発工数(GPU代は対象外)として提案設計。書類提出は9/25 13:00。</p></div>
+  </div>
+  <p style="margin-top:2.2cqi"><b>並行タスク(締切なし・今週〜9月中):</b></p>
+  <p class="sub" style="margin-top:0.6cqi">設計レビュー決着(この資料+判断待ち16件)→ パターン台帳の選定(収集済み44本→約30本)→ 新リポ作成 ｜ 資金の即応手=さくらDOK個人契約・AWS Activate申請 ｜ 出版の入口=arXivエンドースメント確保・ESSA加入(年€50)</p>
+  <div class="no">11</div>
+</div>
+
+<!-- 12 中期 -->
+<div class="slide">
+  <h2>中期(10〜12月): 年内に最初のフルスケール・アンサンブル</h2>
+  <div class="row">
+    <div class="card"><h3 style="margin-top:0">10月</h3><p class="sub">Phase 1 紙上SFC(数日)→ Phase 2 最小骨格: 数千体CPU・mock LLM・保存則テスト・忠実度計器盤・縦切り貫通</p></div>
+    <div class="card"><h3 style="margin-top:0">10-11月</h3><p class="sub">Phase 3 GPU化+人流較正——v1で昼80分/stepだった物理を秒級へ</p></div>
+    <div class="card"><h3 style="margin-top:0">11-12月</h3><p class="sub">Phase 4 認知3層+三層世界+検証——<b>判例結晶化ループの世界初の実測データ</b></p></div>
+    <div class="card"><h3 style="margin-top:0">12月</h3><p class="sub">Phase 5入り: 10万→40万・<b>初のアンサンブル実験</b>(フルスケールまでの目安~2ヶ月)</p></div>
+  </div>
+  <p style="margin-top:2.2cqi"><b>完了判定:</b> Phase 4ゲート通過+忠実度計器盤が毎ランで現実整合アンカーを照合している状態。</p>
+  <p class="sub" style="margin-top:1cqi"><b>資金の分岐(実測で決める):</b> まず従量API($0.12/1M tokens級)で実効スループットを測り、GPU稼働率で自前vLLM移行を判断。1実験の実費は調達先で3.7万円〜153万円(42倍差)——アルゴリズムより調達先選定が効く。国内最安=ABCI開発加速206円/GPU時。</p>
+  <div class="no">12</div>
+</div>
+
+<!-- 13 長期 -->
+<div class="slide">
+  <h2>長期(2027〜): 論文4本と、恒久的な基盤</h2>
+  <div class="row">
+    <div class="card"><h3 style="margin-top:0">世界の運用</h3><p class="sub">アンサンブル予報の常時運用(単一の予言はしない)。<b>アンカー台帳の成長=北極星KPI</b>、歪む場所は宣言し続ける。100万体+(実測後にFLAME GPU 2 / torch多GPUを判断)・渋谷の外へ任意タイル拡張。</p></div>
+    <div class="card"><h3 style="margin-top:0">研究の出口(4方向)</h3><p class="sub">EPJ Data Science(純holdout検証)・JASSS(判例結晶化)・ICWSM(A/B大規模対照)・NeurIPS E&D 2027(観測射影・締切5月上旬)。入口=arXivエンドースメント+ESSA。</p></div>
+    <div class="card"><h3 style="margin-top:0">基盤の恒久化</h3><p class="sub"><b>法人化 or 大学客員研究員</b>が共通鍵——ABCI・科研費・NVIDIA Inception・倫理審査(人間評価)を一挙に解錠。アドバイザー3レーン(本選ネットワーク/研究者/未踏メンター)。</p></div>
+  </div>
+  <p style="margin-top:2.2cqi"><b>完了判定:</b> 査読付き初出版+外部資金1本+100万体級の実行実績。</p>
+  <p class="sub" style="margin-top:1cqi">常設レーン: 三層方式の代替案リサーチ・ゲーム/VR産業の技術輸入(ゲームは作らない=知見を輸入する)。</p>
+  <div class="no">13</div>
+</div>
+
+<!-- 14 いま決めること -->
+<div class="slide">
+  <h2>いま決めるのは、順番に3つ</h2>
+  <div class="flow" style="margin-top:2.6cqi">
+    <div class="fbox" style="border-color:var(--acc)"><b style="font-size:2cqi">① この設計図の承認</b><span style="font-size:1.4cqi">本スライドの方向で行くか、直す場所はどこか(全て仮=後から変更可)</span></div>
+    <div class="farrow">▶</div>
+    <div class="fbox"><b style="font-size:2cqi">② パターン台帳の選定</b><span style="font-size:1.4cqi">再現すべき現実パターン、収集済み44本から約30本を一緒に選ぶ(Phase 0ゲートの実体)</span></div>
+    <div class="farrow">▶</div>
+    <div class="fbox"><b style="font-size:2cqi">③ 新リポ作成</b><span style="font-size:1.4cqi">名称を決めて作成。初日にPhase 0文書一式が揃った状態で開始</span></div>
+  </div>
+  <p style="margin-top:2.6cqi">残りの判断待ち13件(記憶方式・習慣の初期値・スマートオブジェクト採否など)は、全てに推奨案を用意済み——<b>一括で回答できる形</b>にしてある。</p>
+  <p style="margin-top:1.4cqi; font-size:2cqi"><b>「ルールが再現できるのは人流まで。社会は、内面からしか生まれない。」</b>——その内面が壊れず育つ世界を、今度は最初から正しく作る。</p>
+  <div class="no">14</div>
+</div>
