@@ -286,7 +286,7 @@ F1 = [
             constraints=[dict(kind="ordinance", desc="23時以降の住宅前で大声を出すのは規制基準50デシベルに反する",
                               violating_regex="大声|叫ぶ|騒(ぐ|ご)|歌(う|お)",
                               scope=["行動", "ひと言"],
-                              exempt_regex="静かに|小声|やめ|抑え")],
+                              exempt_regex="静かに|小声|やめ|抑え|(大声|叫|騒)[^。]{0,6}(な(よ|い)?|ないで|禁止|ダメ|だめ)")],  # v0.1: 「大声で言うなよ」型の否定命令を免除(summary_metric_B.md 手動裁定1件)
             gold_answer=None, termination_signal=None, consistency_pair_id=None),
     ),
     dict(

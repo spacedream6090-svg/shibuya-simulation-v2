@@ -3,6 +3,7 @@
 > 起草: 2026-09-05 / 対象サーバー: borrowed-2026-09(RTX A5000×7・9/10返却)
 > 起草の根拠: `scratchpad/quality_probe_research.md` §4「v0起草への設計含意」
 > 問題セットの版: `item_set_hash.txt` を参照(probes.jsonl のバイト列 sha256)
+> **v0.1(2026-09-08・ソースのみ・凍結済み probes*.jsonl は再生成していない)**: ①`scorer.py` の `ja_char_ratio`/`kana_ratio` の分母から数字・ASCII記号(時刻・金額・dB・セルID)を除外(閾値0.85の転用不能問題への対処。旧値との比較は不可=次回測定から新定義)。②`build_probes.py` F1-07 の exempt_regex に「大声で言うなよ」型の否定命令を追加(手動裁定1件の偽陽性)。次に `build_probes.py` を再実行した時点で item_set_hash が変わる=新版として台帳に記録すること。
 
 ---
 

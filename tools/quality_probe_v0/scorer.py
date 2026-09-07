@@ -187,13 +187,19 @@ def script_ratios(text):
         return dict(ja_char_ratio=0.0, kana_ratio=0.0, latin_ratio=0.0,
                     other_script_ratio=0.0, n_chars=0)
     c = Counter(_cls(ch) for ch in t)
-    n = len(t)
+    # v0.1(2026-09-08): 分母から "other"(数字・ASCII記号・セルID/時刻/金額の桁)を除く。
+    # v0では時刻・金額・デシベル値・セルIDが分母に入り、定型出力で閾値0.85が転用不能だった(summary.md §5)。
+    n_all = len(t)
+    n = n_all - c["other"]
+    if n <= 0:
+        return dict(ja_char_ratio=0.0, kana_ratio=0.0, latin_ratio=0.0,
+                    other_script_ratio=0.0, n_chars=n_all)
     ja = c["hira"] + c["kata"] + c["kanji"] + c["jpunct"]
     return dict(ja_char_ratio=round(ja / n, 4),
                 kana_ratio=round((c["hira"] + c["kata"]) / n, 4),
                 latin_ratio=round(c["latin"] / n, 4),
                 other_script_ratio=round(c["other_script"] / n, 4),
-                n_chars=n)
+                n_chars=n_all)
 
 
 # ---------------------------------------------------------------------------

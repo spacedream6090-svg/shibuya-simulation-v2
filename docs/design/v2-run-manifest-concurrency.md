@@ -32,7 +32,7 @@ ODD(モデル記述)とmanifest(実行記述)を分離し、manifestはODD文書
 | エンジン層(物理・経済・スケジューリング・繰り延べ・保存則) | **bit再現(numerical identity)** | 同一manifest・同一機・LLM応答は録画テープで固定・順序固定 | T2: 同一manifest×2で全checkpointハッシュ一致 |
 | LLM層(発話・行動選択) | **分布同値(distributional equivalence)** | 同一manifest・同一機・同一vLLM版・温度0.7・DP7 | T7: 行動分布JSD≤帰無95th・制約違反率差の95%CI上限≤0.05(指標Bの装置) |
 | 結合系 | **関係整合+分布同値** | アンサンブルN本(master_seedのみ変更) | T8: 台帳照合指標のN本分布が合格基準を満たす |
-- **bit再現はテープリプレイ(デバッグ・検死)専用**。検証ラン(mode: holdout)=BATCH_INVARIANT=1・TP1・温度0・固定ルーティング・sha256_cborでLLM層のbit再現もあり得るが、**本番(温度0.7)では主張しない**。Wilensky & Rand 2007の3水準に対応。
+- **bit再現はテープリプレイ(デバッグ・検死)専用**。検証ラン(mode: holdout)=BATCH_INVARIANT=1・TP1(32B AWQ TP4は温度0でも非再現=品質プローブv0 summary §5-1・R16注記)・温度0・固定ルーティング・sha256_cborでLLM層のbit再現もあり得るが、**本番(温度0.7)では主張しない**。Wilensky & Rand 2007の3水準に対応。
 - **B14(自検証・09-07実測)**: BATCH_INVARIANT=1でT6a(温度0・単独vs混在c64)32/32一致・logprobs 32/32・T6b(温度0.7+seed・充填順変更)32/32一致・スループット差なし(6.09 vs 5.94呼/s)。OFFでは3/32・logprobs 0/32・温度0.7で3/32。**A5000(CC 8.6)で不変性は成立=T6合格**。公式env_vars頁の「>=9.0」は実測と矛盾(features頁「8.0+」が実態)。[docs/bench/b14_batch_invariance/README.md](../bench/b14_batch_invariance/README.md)
 
 ### 1.4 テスト(T1-T9)
