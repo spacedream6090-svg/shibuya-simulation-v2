@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **3 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **5 / 10**
 > 第1〜第100(2026-09-01〜09-08)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 2026-09-08 第101 R7群衆物理の答申を親検収→設計書草案(U15-1〜U15-8)提示・engine_spike READMEにFLAME GPU注記
@@ -18,3 +18,13 @@
 - 実施: 実装計画書§9.5を決定(仮)へ・着手ゲート行/PENDING更新。用紙のディスク版を再確認=判定欄空欄・mtime 09-06のまま(VSCodeの未保存バッファと推定)→保存を依頼。/goalの前提確認(CLIバージョン・hooks有効・評価器env未設定)。
 - 次: 目視結果の受領→quality_probe台帳へ記録(第103コミットに同梱)。評価器差し替え試験→ブランチ作成→ユーザーが/goalにC0条件文を投入。
 - 追記(同交換・ユーザー「VS Code内の保存コマンドを実行できる？」): 保存操作は不可→**hot-exitバックアップ(%APPDATA%/Code/Backups・02:03:58)から判定を復元**。結果=1位 32B 7/14B 3/8B 2・✗ 32B 3/14B 3/8B 2(✗列は順位行の並びに対応と解釈=F1-07/F4-02で1位に✗は不合理)。docs/bench/quality_probe_v0/visual_review_12_result.md+復元原本を収載・summary §6-2・決定台帳・PENDING更新。第103コミット。
+
+## 2026-09-08 第104 無人運転(制限中断の自動再開)+二重監視(別Fable/OpenAI)の構成案=§9.6草案
+- ユーザー: 「5時間の制限が切れても解除後に続きから再開して欲しい・面倒を見る必要がなるべくないように」「もう一つのFable5.1もしくはOpenAIのモデルが君を監視する二重構造は？できれば最後まで作って欲しい」。
+- 実施: claude-code-guideサブ+親の原典実読(interactive-mode/goal/hooks/costs/settings-reference/scheduled-tasks 英語.md)。確認: 制限中断の自動継続=v2.1.234+公式・既定ON・セッション開放+PC非スリープ+自動モードが条件・週次制限は手動/ /goalは一時的エラーで消えない・再開時復元(2.1.239+)・待機中チェックイン(2.1.236+)/評価器モデル=ANTHROPIC_DEFAULT_HAIKU_MODEL(背景機能にも効く)またはprompt型hookの`model`フィールド/agent型hook(実験的・Read/Grep/Glob)。サブ報告の「/goalが自動再開する」は推論→原典文言に訂正。現CLI 2.1.179=更新必須。実装計画書§9.6草案(a-e)・PENDING更新。
+- 次: §9.6(特に(d)コミット規律・層3 OpenAIの採否・使用量クレジット)のユーザー回答→claude update→C0〜C4通しの/goal条件文→開始。
+
+## 2026-09-08 第105 §9.5(f)改定(層2合格後は親がブランチへコミット)・層3 OpenAI不採用・使用量クレジット説明・claude update 2.1.179→2.1.263・C0〜C4通しgoal条件文
+- ユーザー: 「1.お願いする 2.現時点では使わない 3.説明して 君の方でclaude updateできる？」。
+- 実施: `claude update` 成功(2.1.179→2.1.263)。VS Code拡張は既に2.1.263(同梱バイナリ)=自動継続要件を満たす。§9.5(f)改定・§9.6状態更新・docs/ops/goal_c0_c4.md(条件文約2,600字+開始前チェック)・PENDING更新。使用量クレジット=support記事を親実読(Pro/Max 5x/20x・前払い・標準API料金・制限到達後のみ消費・月間上限/自動リロード・日本は2026-09-10以降購入分が6か月で失効・Claude Codeにも適用)+costs原典(クレジット消費中はプロンプトキャッシュ寿命が1時間→5分)。
+- 次: 層1 Stop hook(prompt/agent型)の契約を原典で確認→設定・ブランチ作成→ユーザーがgoal投入。
