@@ -1,7 +1,7 @@
 # STATUS(索引)
 
-- 現在地: **Phase 0ゲート通過(2026-09-01)→ 詳細設計ラウンドR2〜R17進行中(実装はラウンド完了後)** — 決定台帳 [docs/design/v2-redesign.md](docs/design/v2-redesign.md)
+- 現在地: **詳細設計ラウンド完了(2026-09-08・R16モデル選定のみ運用持越し)→ 構築工程C0着手待ち(/goal運用細目の確認中)** — 決定台帳 [docs/design/v2-redesign.md](docs/design/v2-redesign.md)
 - 完了実装: [IMPLEMENTED.md](IMPLEMENTED.md)
 - 未実装・判断待ち: [PENDING.md](PENDING.md)
 - 開発ログ: [docs/log/devlog.md](docs/log/devlog.md)
-- 最終更新: 2026-09-08(第97 世界データ構築仕様v1(D-W1〜22承認)+工程§9承認(工程ごとに/goal)+CLAUDE.md §7緩和(公的ドメインのデータ取得可)。着手=設計・リサーチ完全終了後(ユーザー)。残: 残ラウンド地図(R6/R7/R8/R14/R15/R16/R17+未決項)→順次決定→着手。未踏可否・9/9返却チェックリスト)
+- 最終更新: 2026-09-08(第102 U15-1〜8決定=群衆物理設計書v1+Jülichデータ複写・R15決定・R16未定・着手ゲート行=設計・リサーチ地図完了宣言・/goal運用細目§9.5草案・目視12問実施済み判定未受領)

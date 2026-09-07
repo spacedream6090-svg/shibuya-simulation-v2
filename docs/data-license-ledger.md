@@ -25,13 +25,14 @@
 | data/realworld/osm/street_features_overpass_20260907.json(2026-09-07取得) | Overpass APIで取得した街路地物2,009要素(横断歩道612・樹木384・交通信号166・駐車場130・乗降場128・バス停127・自販機54・街灯51・消火栓50・ベンチ38ほか・同bbox) | OpenStreetMap | ODbL 1.0 | △ | 世界カタログ写像(W18)と可視物・待ち行列・交通信号の入力。出力にOSM生値を載せない・attic=取得日 |
 | data/realworld/road_census_r3/(2026-09-08親取得・§7緩和後) | 令和3年度 道路交通センサス 東京都「箇所別基本表」kasyo13.csv(2.28MB・cp932)+ヘッダ定義 KasyoFormat.xlsx+説明資料 kasyorep.pdf | 国土交通省 https://www.mlit.go.jp/road/census/r3/ | 公共データ利用規約1.0/政府標準利用規約2.0(出典表示: 「令和3年度全国道路・街路交通情勢調査」(国土交通省)を加工して作成) | ○ | W10静的騒音場の交通量・旅行速度・車線数入力。区間↔OSM klass対応表はC1で作成 |
 | data/realworld/tokyo_noise/(2026-09-08親取得) | 東京都環境局 令和5年度 自動車交通騒音・振動調査結果(調査結果xlsx・常時監視測定地点csv・項目説明csv・概要pdf) | 東京都環境局 https://www.kankyo.metro.tokyo.lg.jp/vehicle/noise/result/cyousakekka/reiwa5 | 東京都オープンデータ(利用規約=出典表示) | ○ | W10較正点の時点更新(H23→R5)。渋谷区行の有無はC1で確認 |
+| data/juelich_ped | 歩行者実験の軌跡データ(2009 bottleneck/unidirectional open・closed・2013 unidirectional/crossing_90=軌跡txt zip 5本+metadata json 5本・146MB) | Pedestrian Dynamics Data Archive, Forschungszentrum Jülich(DOI 10.34735/ped.da)・**v1リポの取得済み資産をローカル複写(09-08・Web取得ではない)** | **CC BY 4.0** | ○ | 出典表示必須。用途=U15-5較正(段階1: 幾何ごとに独立)・U15-6検証(基本図RMSE・比流量)。Zhang 2011「施設が違えば基本図は比較不能」のため渋谷屋外流への直接適用はしない(設計書U15-5) |
 
 ## 持ち込まなかったもの(意図的)
 
 | 資産 | 理由 |
 |---|---|
 | data/odpt_challenge(73件) | **チャレンジ限定ライセンス=用途限定**・事業化に使えない可能性大→本番構成から除外(答申推奨) |
-| data/juelich_ped(146MB) | 群衆物理の較正ベンチ。U15(ORCA/SFM)判断まで保留・必要時にv1からコピー |
+| ~~data/juelich_ped(146MB)~~ | →**09-08 U15-8承認で複写済み(上表に行追加)**。旧: U15判断まで保留 |
 | v1の runs/・Chronicle成果物 | v1リポに残置(参照専用) |
 
 ## モデル方針(答申の要約)
