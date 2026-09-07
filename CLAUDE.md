@@ -50,4 +50,4 @@
 - **秘密スキャン**: `python tools/scan_secrets.py <対象ファイル...>` — **対象ファイルを引数で渡す**こと(引数なしは何も検査しない)。標準は `git diff --cached --name-only` の全ファイル。HITはexit 1=コミット中止。検出パターンはスクリプト内PATが正(本書には書かない=自己HIT回避)。
 - APIキー(ODPT等)は**環境変数のみ**。リポにキー・サーバー名・IP・個人メールを書かない。
 - `git add -A` 禁止。**明示パスのみステージ**。データ実体・秘密・スクラッチはgitignoreを解除しない。
-- 論文リンクは正規ドメイン(arxiv.org・doi.org等)を安全確認してから記載。Webからのファイルダウンロード実行はしない(読むだけ)。
+- 論文リンクは正規ドメイン(arxiv.org・doi.org等)を安全確認してから記載。Webからのファイルダウンロード実行はしない(読むだけ)。**(2026-09-08緩和・ユーザー決定)例外: 政府・公的機関ドメイン(mlit.go.jp・e-stat.go.jp・metro.tokyo.lg.jp・geospatial.jp・data.jma.go.jp・jma.go.jp・env.go.jp・wbgt.env.go.jp・tokyo-pt.jp)のデータファイル(CSV/xlsx/JSON/PDF)は読み取り目的で gitignore 下の data/ へ取得可。取得ごとにライセンス台帳へ行を追加(出典URL・取得日・利用規約)。実行ファイル・アーカイブ(zip/exe)は対象外。**

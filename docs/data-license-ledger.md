@@ -23,6 +23,8 @@
 | data/realworld/pt_tokyo/H30_zonecode.xlsx(2026-09-07ユーザー取得) | 第6回PTゾーンコード表(市区町村別一覧1,660行・都県別シート・大/中/計画基本/小ゾーン+該当町丁字名) | 東京都市圏交通計画協議会 tokyo-pt.jp/data/01_01 | PDL1.0準拠(協議会利用規約・出典表示) | ○ | 渋谷区=計画基本ゾーン0240-0243・小ゾーン10。派生集計 docs/bench/pt_shibuya/*.json(集計値のみ・出典表示つき)はリポ収載可 |
 | data/realworld/osm/poi_opening_hours_overpass_20260907.json(2026-09-07取得) | Overpass APIで取得した飲食・物販POIのタグ(bbox 35.6505-35.6685/139.6905-139.7115・2,164件・opening_hours 565件=26.1%・price系14件) | OpenStreetMap | ODbL 1.0 | △ | W7営業時間の上書き入力(取得分のみmechanism)。出力にOSM生値を載せない・attic日=取得日で凍結 |
 | data/realworld/osm/street_features_overpass_20260907.json(2026-09-07取得) | Overpass APIで取得した街路地物2,009要素(横断歩道612・樹木384・交通信号166・駐車場130・乗降場128・バス停127・自販機54・街灯51・消火栓50・ベンチ38ほか・同bbox) | OpenStreetMap | ODbL 1.0 | △ | 世界カタログ写像(W18)と可視物・待ち行列・交通信号の入力。出力にOSM生値を載せない・attic=取得日 |
+| data/realworld/road_census_r3/(2026-09-08親取得・§7緩和後) | 令和3年度 道路交通センサス 東京都「箇所別基本表」kasyo13.csv(2.28MB・cp932)+ヘッダ定義 KasyoFormat.xlsx+説明資料 kasyorep.pdf | 国土交通省 https://www.mlit.go.jp/road/census/r3/ | 公共データ利用規約1.0/政府標準利用規約2.0(出典表示: 「令和3年度全国道路・街路交通情勢調査」(国土交通省)を加工して作成) | ○ | W10静的騒音場の交通量・旅行速度・車線数入力。区間↔OSM klass対応表はC1で作成 |
+| data/realworld/tokyo_noise/(2026-09-08親取得) | 東京都環境局 令和5年度 自動車交通騒音・振動調査結果(調査結果xlsx・常時監視測定地点csv・項目説明csv・概要pdf) | 東京都環境局 https://www.kankyo.metro.tokyo.lg.jp/vehicle/noise/result/cyousakekka/reiwa5 | 東京都オープンデータ(利用規約=出典表示) | ○ | W10較正点の時点更新(H23→R5)。渋谷区行の有無はC1で確認 |
 
 ## 持ち込まなかったもの(意図的)
 
