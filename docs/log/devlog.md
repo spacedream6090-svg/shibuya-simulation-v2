@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **4 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **5 / 10**
 > 第1〜第110(2026-09-01〜09-08)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 2026-09-08 第111 【工程出口】C4(世界過程第1陣+経済+物)完了・層2合格(修正1点反映)・コミット=C0〜C4 の /goal 達成
@@ -28,3 +28,11 @@
 - PLATEAU: Downloads には索引図 13113_indexmap_op.pdf(07-06)のみ・元の展開フォルダ(Desktop/13113_shibuya-ku_pref_2025_citygml_1_op)と zip は消失(C: 全検索)。**Unreal プロジェクト PLATEAU_SDK_test に SDK が複写した udx 一式が残存**(2.3 GB・メッシュ 53393585/86/95/96=v1 と同じ中心 4 タイル・製品仕様書 5.0・codelists 付き・metadata なし)。tran/bldg/dem/ubld/frn/brid/codelists を data/realworld/plateau_2025/ へ複写(1.6 GB)・台帳行追加。
 - tran 実査(grep): Road 3,248・TrafficArea 4,053・lod3MultiSurface 5,782・RoadStructureAttribute=sectionType のみ・**TrafficVolumeAttribute/sectionID/routeName/width/numberOfLanes=0**→W10 区間突合には使えない(D-1 は (a) Overpass のまま)。**訂正 2 件**: ①第113 の説明「現在の高さは 23 区版 2020」は誤り(v1 index=2025 年度版 4 タイル・spec F15/取得レーン表に訂正注記) ②「交通量属性があれば区間 ID 直結」は本データでは不成立。U-7 を 2025 年度版フル zip(追加タイル・任意)に書き換え。
 - 次: ユーザー=PR #1 マージ・U-2(返却延長)・D-1〜D-15・(任意)U-7。実装は合図待ち。
+
+## 2026-09-09 第115 【工程開始】/goal C5〜C8 投入・ブランチ build/c5-c8・サブ J(W16)/K(D-13)起動・U-2 延長あり・U-7 フル zip 受領・goal_c5_c8.md
+- 依頼: 「Merge できてる?」「PLATEAU の zip を置いた。3D Tiles/MVT(v5) と CityGML(v5) はどちら?」「次の実装に進んで」→「CityGML(v5)を置いた・サーバー延長できた(短期間)・無人で C6〜C8 まで」+/goal 投入(短縮形)。
+- 状態: PR #1=MERGED(origin/main d413d61・CI 2 回 success)。local main 同期→ブランチ build/c5-c8 作成。回答: CityGML を推奨(属性=高さ・階数・用途・道路面種別が完全/v1 パーサが GML 直読/手元 4 タイルと同形式)。
+- 実施: サブ J(Opus)=W16 母集団合成(build/pop・純 Python Shapefile・床面積按分・IPF・二層抽出・agents/population 結線・tests/build_pop・登録簿)/サブ K(Opus)=D-13 店舗参入資本の経済センサス按分(economy/entry_capital・cli 既定・登録簿)を並列起動。docs/ops/goal_c5_c8.md(条件文・停止句 a-e・300 ターン)を起草→ユーザーが短縮形で投入。
+- PLATEAU: ユーザー配置の zip を検証(sha256 f7437469…・649 MB・4.79 GB 展開・bldg 29 メッシュ/tran 30・中心 4 タイル tran は CRC 一致=同一版 v1_op)→data/realworld/plateau_2025/13113_shibuya-ku_pref_2025_citygml_1_op/ へ展開(背景)・台帳行更新。U-7 完了→PENDING から削除。
+- サーバー: 疎通 OK・7 GPU 空き・HF hub に Qwen3-8B/8B-AWQ/8B.w8a8・14B/14B-AWQ/14B.w8a8・32B-AWQ・Swallow-8B。vllm は ~/venvs/vllm-bench(要確認)・~/bench/scripts に launch*.sh/dp7_run*.py。U-2=延長あり(短期間)→PENDING から削除・C7 24h ランを最優先。
+- 次: サブ J/K の完了→親検収(pytest・実データ W16・5,000 体 mock ラン)→層2(別 Fable)→コミット=C5-a 出口→C5-b(W14/W15=32B AWQ TP4・W17=8B INT8 DP7・艦隊起動は親)。
