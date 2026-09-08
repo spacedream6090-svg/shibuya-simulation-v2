@@ -1,0 +1,9 @@
+# 改行コードを LF に固定(Windows の core.autocrlf=true による CRLF 化を防ぐ。世界カタログの凍結SHAは LF バイト列に依存)
+* text=auto eol=lf
+*.png binary
+*.webp binary
+*.npz binary
+*.parquet binary
+*.zip binary
+*.pdf binary
+*.xlsx binary

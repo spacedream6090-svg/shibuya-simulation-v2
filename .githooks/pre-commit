@@ -1,0 +1,10 @@
+#!/bin/sh
+# 秘密スキャン(CLAUDE.md §7): ステージ済みファイルを引数で渡す(引数なしは何も検査しない)。
+# 有効化: git config core.hooksPath .githooks
+# data/ のステージは拒否(gitignore 解除の事故防止)。ファイル名は NUL 区切りで扱う(空白入りでも分裂しない)。
+if git diff --cached --name-only --diff-filter=ACM -z | tr '\000' '\n' | grep -q '^data/'; then
+  echo "pre-commit: data/ はコミット禁止"; exit 1
+fi
+n=$(git diff --cached --name-only --diff-filter=ACM -z | tr -cd '\000' | wc -c)
+[ "$n" -eq 0 ] && exit 0
+git diff --cached --name-only --diff-filter=ACM -z | xargs -0 python tools/scan_secrets.py

@@ -1,0 +1,226 @@
+# U8 run manifest の例(13節・mode=smoke)。
+# 正典: docs/design/v2-run-manifest-concurrency.md §1.2。
+# 注意: identity.run_id は**プレースホルダ**。テストは compute_run_id で再計算する。
+# 注意: blake3 欄・commit 欄はこのファイル用の作り値(実資産のハッシュではない)。
+
+identity:
+  schema_version: "u8.1"
+  run_id: "PLACEHOLDER-recomputed-by-canonical.with_run_id"
+  label: "C0 骨格スモーク 5,000体×1シミュ日"
+  mode: "smoke"
+  created_utc: "2026-09-08T00:00:00Z"
+  tz: "Asia/Tokyo"
+
+preregistration:
+  hypothesis: "5,000体×1シミュ日のスモークで診断行4列と保存則2検算が全tickに出力される。"
+  metrics:
+    - "deferred_rate"
+    - "tape_miss_rate"
+    - "llm_calls_per_agent_day"
+  thresholds:
+    deferred_rate: 0.2
+    tape_miss_rate: 0.0
+    llm_calls_per_agent_day: 10.0
+  ablation_id: null
+  sealed_at: "2026-09-08T00:00:00Z"
+
+code:
+  repo: "shibuya-simulation-v2"
+  commit: "0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f60718293"
+  describe: "v0.0.1-92-g0c1d2e3"
+  dirty: false
+  odd_doc:
+    path: "docs/design/v2-redesign.md"
+    blake3: "1f0a3c5e7b9d2f4608a1b2c3d4e5f6071f0a3c5e7b9d2f4608a1b2c3d4e5f607"
+  contracts:
+    perception:
+      path: "docs/design/v2-perception-contract.md"
+      blake3: "9a8b7c6d5e4f30219a8b7c6d5e4f30219a8b7c6d5e4f30219a8b7c6d5e4f3021"
+    action:
+      path: "docs/design/v2-action-contract.md"
+      blake3: "3021d5e4f9a8b7c63021d5e4f9a8b7c63021d5e4f9a8b7c63021d5e4f9a8b7c6"
+
+settings:
+  fidelity_profile:
+    name: "standard"
+    blake3: "5e4f30219a8b7c6d5e4f30219a8b7c6d5e4f30219a8b7c6d5e4f30219a8b7c6d"
+  normalized_blake3: "7c6d5e4f30219a8b7c6d5e4f30219a8b7c6d5e4f30219a8b7c6d5e4f30219a8b"
+  tick_seconds: 60
+  n_agents: 5000
+  sim_days: 1
+  start_sim_datetime: "2024-10-15T04:00:00+09:00"
+
+rng:
+  master_seed: 20260908
+  scheme: "numpy-philox4x64"
+  domain_table_version: "domains-v1"
+
+data_assets:
+  - id: "osm_shibuya"
+    version: "2024-10-01"
+    blake3: "a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90"
+    bytes: 412839221
+    records: 1842330
+    license_row: "L-001"
+  - id: "plateau_bldg"
+    version: "2023"
+    blake3: "b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90a1"
+    bytes: 2938471002
+    records: 21877
+    license_row: "L-002"
+  - id: "persona_pool"
+    version: "v0.3"
+    blake3: "c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2"
+    bytes: 91827364
+    records: 400000
+    license_row: "L-003"
+  - id: "kddi_stay_population"
+    version: "2024-10"
+    blake3: "d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3"
+    bytes: 1048576
+    records: 120
+    license_row: "L-004"
+  - id: "visibility_table"
+    version: "grid2.5m-v1"
+    blake3: "e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4"
+    bytes: 483183820
+    records: 45301744
+    license_row: "L-005"
+  - id: "station_exits"
+    version: "2024-10"
+    blake3: "f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5"
+    bytes: 20480
+    records: 45
+    license_row: "L-006"
+  - id: "estat_population"
+    version: "2020-census"
+    blake3: "0718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f6"
+    bytes: 6291456
+    records: 1834
+    license_row: "L-007"
+
+holdout_seal:
+  seal_scheme: "S"
+  layers:
+    - name: "kddi_shape_5metrics"
+      member_hash: "11223344556677889900aabbccddeeff11223344556677889900aabbccddeeff"
+      sealed_utc: "2026-09-07T00:00:00Z"
+      opened: false
+    - name: "estat_daytime_population"
+      member_hash: "ffeeddccbbaa00998877665544332211ffeeddccbbaa00998877665544332211"
+      sealed_utc: "2026-09-07T00:00:00Z"
+      opened: false
+
+llm_fleet:
+  engine:
+    name: "vllm"
+    version: "0.28.0"
+    torch: "2.8.0+cu128"
+    cuda_driver: "570.86"
+    attention_backend: "FLASH_ATTN"
+  env:
+    VLLM_BATCH_INVARIANT: "1"
+    VLLM_MARLIN_USE_ATOMIC_ADD: "0"
+    VLLM_USE_V1: "1"
+  replicas:
+    - tier: "T1"
+      model: "Qwen/Qwen3-14B"
+      revision: "main"
+      quant: "int8"
+      weights_blake3: "8f90a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e"
+      tp: 1
+      dp: 1
+      gpus: [0]
+      max_num_seqs: 64
+      max_model_len: 2048
+      gpu_memory_utilization: 0.9
+      in_flight_cap: 64
+  routing:
+    rule: "xxhash(call_id) mod n_replicas; least-in-flight on imbalance"
+    cell_affinity: false
+  decoding:
+    T1:
+      temperature: 0.7
+      top_p: 0.95
+      max_tokens: 64
+      seed: 20260908
+    T2:
+      temperature: 0.7
+      top_p: 0.95
+      max_tokens: 512
+      seed: 20260908
+  prompt_contract:
+    version: "pc-v1"
+    static_tok: 750
+    cell_tok: 250
+    individual_tok: 300
+  prefix_caching_hash_algo: "sha256_cbor"
+  cache_salt: "smoke"
+
+concurrency:
+  scheduler:
+    name: "two-phase-commit"
+    version: "u9-v1"
+  phases:
+    - "read_intent"
+    - "arbitrate"
+    - "commit"
+  priority_key: "(ceil_ns(t_notice), blake3(run_salt||tick||resource_id||agent_id))"
+  tiebreak_key: "(t_sim_ns, class_rank, blake3(run_salt||t_sim_ns||subject_id), subject_id)"
+  class_rank:
+    institution: -1
+    conversation: 0
+    plan_boundary: 1
+    individual: 2
+    cell: 3
+  llm_apply:
+    policy: "pending_apply"
+    order: "(t_apply, event_class, blake3(run_salt||t_apply||agent_id))"
+    overdue: "defer_to_arbiter"
+    missing: "agent_waits"
+  retry_rounds: 1
+  arbiter:
+    rule: "4class_fixed_rank+promotion+merge+degrade"
+    promotion_T_max_min: 30.0
+    degrade_enabled: true
+
+budget:
+  source:
+    path: "docs/design/v2-budget-declaration.md"
+    commit: "0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f60718293"
+    blake3: "2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90a1b"
+  effective:
+    W1: 24
+    L4: 4000000
+    L6: 64
+    M8: 24
+    M11: 1300
+    P6: 2.0
+    P4: "declared-loops-only"
+
+hardware:
+  profile: "local-1gpu"
+  gpus:
+    - "NVIDIA RTX A5000 24GB (CC 8.6)"
+  cpu: "x86-64 16C/32T"
+  ram_gb: 64.0
+  os: "Windows 11 + WSL2 Ubuntu 24.04"
+
+output:
+  journal: "runs/{run_id}/journal.parquet"
+  checkpoints: "runs/{run_id}/checkpoints/"
+  llm_tape: "runs/{run_id}/tape.parquet"
+  diagnostics:
+    columns:
+      - "deferred"
+      - "promoted"
+      - "degraded"
+      - "suppressed"
+      - "conservation_transfer_residual"
+      - "conservation_stock_residual"
+      - "tape_miss"
+      - "unresolved"
+      - "overdue_applies"
+
+lineage:
+  parent_run: null

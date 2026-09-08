@@ -1,0 +1,52 @@
+{
+ "label": "BATCH_INVARIANT=1",
+ "model": "Qwen3-8B-int8",
+ "n_core": 32,
+ "n_fill": 90,
+ "T6a_temp0": {
+  "same_text": 32,
+  "same_logprobs": 32,
+  "n": 32,
+  "solo_s": 37.1,
+  "mixed_s": 20.0
+ },
+ "T6b_temp07_seed": {
+  "same_text": 32,
+  "n": 32
+ },
+ "T6c_hashes": {
+  "F1-01": "7984a5b03b6fec27",
+  "F1-02": "f52f423fd501acec",
+  "F1-03": "70cc21e31ab98099",
+  "F1-04": "3364d8bfe7cd8b34",
+  "F1-05": "cadf5dd28dc7b694",
+  "F1-06": "f6c72cec13737c63",
+  "F1-07": "32eff835db4007af",
+  "F1-08": "a3003b9801b431b1",
+  "F2-01": "26889ab1a738fad5",
+  "F2-02": "7c3fbaa84bcc4eb0",
+  "F2-03": "25c72cdb3daa245e",
+  "F2-04": "aa6eacb53276fbdc",
+  "F2-05": "f208515b27a3da27",
+  "F2-06": "9b318ab84f66e3ae",
+  "F6-01v1": "9367afa16d6f5100",
+  "F6-02v1": "e6899cc4bb070c13",
+  "F6-03v1": "a04d20f652aa1994",
+  "F6-04v1": "73ca41d3560dfcd7",
+  "F6-05v1": "78b969f64fe5fbf8",
+  "F6-06v1": "d0efc3a13695ea23",
+  "F6-07v1": "3e03b5526947b147",
+  "F6-08v1": "723a177b7082fbb1",
+  "F6-09v1": "7e8446657160cac2",
+  "F6-10v1": "c19b5ed15cc22187",
+  "F6-11v1": "b10cf1ca9c76bc31",
+  "F6-12v1": "a0cc025a87b05b51",
+  "F6-13v1": "533dfff742d295e8",
+  "F6-14v1": "7429687709c3f2ae",
+  "F6-15v1": "ee07f1dc8dedc371",
+  "F6-16v1": "f290c3e2cffdad7a",
+  "F6-17v1": "74c786241b46dc92",
+  "F6-18v1": "14b89b674b78a9b0"
+ },
+ "throughput_calls_per_s_mixed_c64": 6.09
+}
