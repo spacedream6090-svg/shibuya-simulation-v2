@@ -79,6 +79,28 @@ engine単一プロセス(GIL干渉未実測)/P6のxxhash×453で≤2ms(未実測
 - pre-commit 秘密スキャン=`.githooks/pre-commit`+`git config core.hooksPath .githooks`(ローカル設定・pre-commit フレームワーク不使用)。CI は ubuntu の GPU なし段のみ(自己ホスト段は C2 以降)。
 - (層2レビュー指摘で追記・09-08) 正規化本文の符号化=`json.dumps(sort_keys=True, ensure_ascii=False, separators=(",",":"))` の UTF-8(run_id の値を決める規約)・`normalized_yaml` は `width=4096`・`Identity.run_id` は押印前 None 許容・規則(d)は IPv4 に加え `http` 始まり文字列(大小無視)も拒否・規則(c)に `VLLM_MARLIN_USE_ATOMIC_ADD=0` を追加・`Concurrency.phases` は `(read_intent, arbitrate, commit)` 固定。`core.budget`: 環境変数 `SHIBUYA_BUDGET_MD` で表の場所を上書き可・`## 6.` 以降は読まない・見出しセルは固定タプル。凍結 JSON の書式(indent=1・ensure_ascii=False・末尾 LF・追加キー source/rule)は byte 一致テストの対象=書式自体が凍結。pyproject: `filterwarnings=error::DeprecationWarning:shibuya.*`・`addopts="-q -p no:cacheprovider"`。改行コードは `.gitattributes`(`* text=auto eol=lf`)で LF 固定(凍結 SHA が LF バイト列に依存するため)。
 
+
+**C2 第1弾(core/engine・2026-09-08)で導入した自前規約(追記のみ)**:
+- `core.types`: ID幅 int32・`INVALID_*`=−1番兵・t_sim_ns は int64(60秒tickで|tick|≤153,722,867)・EventClass=class_rank(制度−1/会話0/計画境界1/個体2/セル3)。**RNGカウンタとして使うときは class_rank+1**(core.rng は非負のみ)。
+- `core.hashing`: priority_key/apply_key/wake_key のバイト配置=`run_salt ‖ 3バイト用途タグ(pk/ak/wk) ‖ int64-LE 欄`・既知解固定・配列版は要素ごとの blake3 逐次ループ(≈2.0M件/s・P4宣言)。`sha256_cbor` は vLLM と算法名を揃えただけでバイト一致は主張しない。
+- `core.soa`: 個体バイト上限=予算行 M1(≤30KB/体=30,000 B・KBは10進)・セルの上限行なし(None)・属性アクセスは自前規約(正典は `reg.arrays`)。
+- `core.growth`: 正典=D-R2-6 の5欄(per_agent_bytes/per_cell_bytes/per_day_growth/retention/worst_case_ops_per_tick)。外挿は線形(24step→1日/30日)・retention があるとき実効期間=min(地平, retention)。
+- `core.serialize`: 形式=zstd(非圧縮 npz)+`__meta__` JSON・level 3。**M7 の分母=非圧縮直列化長**(RAM/ファイル比も併記)。
+- `engine.scheduler`: 地平 HORIZON_TICKS=1,440(設計書はHを与えない)・整列鍵から挿入順 seq を除外(T3)・取り消しは tombstone+全走査 O(地平)。DeferralQueue は入れる/数える/出すのみ(裁定規則は第2弾)。
+- `engine.tape`: ディレクトリ2ファイル(行+共有ブロック)・block_id=blake3先頭16B・テープ外は `TapeMiss` 例外(黙って実LLMへ落とさない)。
+- `llm`: `LLMClient`/`TapeLookup` Protocol(依存性逆転で engine.tape を import しない)・prompt_hash/params_hash=sha256_cbor・トークン見積り=文字数÷2・**12語定数の置き場所は当面 llm(C3 で行動パーサ側に一本化)**・MockLLM の語句表と一様抽選は意図的に無根拠(mockを暗黙のモデルにしない)。
+
+**C2 第2弾(agents/world/engine 二相コミット・アービタ・resolve・変化検出・mock 1日・2026-09-08)で導入した自前規約(追記のみ)**:
+- 合成小世界(CI 用)=1セル1ノードの4近傍格子・1 tick=1ノード(100 m/分)。実資産では1 tick=1ノードは歩行より遅い(ノード間隔<100 m)=実速度は U15(群衆物理)で置換。ノード→セルは格子式 floor(x/100)(W1 に place_id 欄なし)。
+- 合成 POI(1セル2件・3カテゴリ・300/800/1,500円・在庫32-96・受入4件/tick)・営業時間一律10-22時(W7 未結線)・noise_stage 0(W10 未結線)。B4 欄=密度段・騒音段・営業中POI数の3つ(構造物・顕著行為は C3)。
+- 内受容: 段の刻み(4/7/9)・ヒステリシス幅1・自然変動(30 tick ごと+1/休憩−3/購入−4/睡眠−2)=C4 の世界過程までの駆動源。
+- アービタ: T_MAX(会話3/計画境界10/個体30/セル60 tick)・昇格=待ち時間からの純関数(累積・starvation-free)・DEGRADE_COST_FACTOR 0.5・δ_perc は予期クラス別の定数(σ_ln 0.20 と m_att は C3)・δ_think=0→t_apply=tick+1(認知設計書 L1)。**`DeferralQueue.promote()`(list.index の逐次)は設計規模で使えず未使用**=昇格は待ち時間の純関数で再定義。診断計数の読み: deferred=新規繰り延べ件数・promoted=昇格事象数。
+- 資源ID名前空間=POI→会話相手→就寝スロット(容量200/セル)の連番。会話相手=同一セルの起床者の最小id(招待の資源競合を起こすため)。「対象」はエンジンが文脈から導く(対象パーサは C3)。
+- 書き込みガード `freeze()/thaw()/writable()` を agents/state.py と world/state.py に二重配置(world|agents は相互 import 禁止)・静的検査は AST(`writable` 呼び出しが engine/resolve.py 以外に無い)。
+- 変化検出 P6: 変化セル→在席個体の圧縮に numba カーネル1本(NumPy 参照実装と byte 一致テスト)。ベンチは 453 セル(予算行 P6 の「139セル」より厳しい側)。
+- 成長宣言の cap(16/16/32/64 MB・5 GB)は S1/M8 から親が按分した見積り(予算表に個別行なし)。テープ 400 B/呼(実装計画書の上端)。mock 日課=1日5境界・平日/休日2パターン。
+- **C2 未実装(C3/C4 へ)**: 会話の継続・終了(max_turns)・記憶転写・関係辺/通報・断るは記録のみ/手伝いは BAD_TARGET/B5 は内受容のみ(知人・近接・被注視・傍受は C3)/相手別不応期(同一相手60分・同一話者30分=関係辺依存)/録画テープの実書き出し(見積りのみ)/Phase B 第2ラウンドは空回り(第2希望なし)/40万体フルランは未実測(4万体 18.2 s・arbiter 支配)。
+- (層2レビュー指摘で追記・09-08) 密度段の境界 `DENSITY_STAGE_EDGES=(1,5,20,60,150,400,1000)`(人/セル・expedient)・初期内受容 hunger 2/fatigue 2/thermal 5・行バイト見積り pending_apply 128/arbiter 32/intent 32/diag 128 B・起床条件→予期クラス写像 `_CONDITION_EXPECTATION`(commit.py)・**縮退の適用範囲=予算超過 tick では下位2クラスの選抜全件を縮退**(予算内に収まる分も)・クラス内順序=待ち tick 降順(許容遅延比ではない)・LLM へ渡す wake_class=昇格後の実効クラス(テープ鍵の第3要素も実効クラス=C3 で確定)・`one_per_agent` の優先=LLM由来>エンジン継続・checkpoint_every=360・`DIAG_RUN_COLUMNS` 運用列・AgentKind 5値・ResultCode 追加(LOST_ARBITRATION/UNDEFINED_ACTION/BAD_TARGET)・n_conflicts=初回裁定の落選数(再試行で二重計上しない・修正済み)・書き込みガードは構築直後は非凍結で run.py が freeze する規律(AST 検査は writable と thaw の呼び出し元を固定)。
 ## §9 構築工程(決定(仮)・2026-09-08・ユーザー「承認・完成まで漕ぎ着けて」・実行形=工程ごとに/goal+自動モード・出口でユーザー判断)
 
 > 前提: CLAUDE.md §2-2「全て決めてから構築」。着手ゲート=世界データ構築仕様書(D-W1〜D-W22)+本§9の承認。**所要日数は親の推測**(サブ実装+親検収込み・並列度2)。GPU: サーバー返却(9/10)後はローカル1GPUのみ→C5後半以降(艦隊必須)は再借用/クラウドが前提。

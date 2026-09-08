@@ -1,0 +1,321 @@
+"""engine.tape — LLM 録画テープ(1呼=1行 Parquet/zstd)と完全一致リプレイ。
+
+正典
+- 実装計画書 §3: 「録画テープ: **1呼=1行Parquet(zstd)**、共有ブロックは ``block_id`` で intern。
+  リプレイは**完全一致**・テープ外は失敗。」
+- 運用設計書 §2.5: 「録画リプレイ=LLMテープ(1呼=1行・共有ブロックはID化・``params_hash``)から
+  **(agent_id, tick, wake_class, prompt_hash) 完全一致**で引く。テープ外は失敗
+  (**黙って実LLMへ落とさない**)・テープ外率を診断行へ。」
+- 運用設計書 §1.3: bit 再現はテープリプレイ(デバッグ・検死)専用。
+
+ファイル構成(自前規約=expedient・設計書は「1呼=1行Parquet(zstd)」までしか定めていない)
+    <dir>/calls.parquet   1呼=1行(下記スキーマ)
+    <dir>/blocks.parquet  共有プロンプトブロック(block_id → text)。``block_id`` は
+                          ``blake3(text)`` の先頭16バイト=32桁16進(内容アドレス=重複排除が自明)。
+
+calls.parquet のスキーマ(列順も規約)
+    call_id(string) / agent_id(int32) / tick(int64) / wake_class(int8) /
+    prompt_hash(string) / block_ids(list<string>) / params_hash(string) /
+    response(string) / tokens_in(int32) / tokens_out(int32)
+
+逐次ループ宣言(P4)
+- ``TapeWriter.append`` / ``flush``: 1呼ごとの Python 呼び出しと、バッファ行数ぶんの
+  列組み立てループ(LLM 呼び出し自体が 1件/呼で、1呼=数十〜数百 ms のため律速にならない)。
+  行は ``flush_rows`` ごとに Arrow へ一括変換する。
+- ``Replay.__init__``: テープ行数ぶんのループ1本(索引作成)。リプレイ=デバッグ・検死専用
+  (§1.3)であり本番ランの経路ではない。
+
+expedient
+- ``block_id`` の長さ(16バイト)・``call_id`` を文字列にした点(§7 のルーティング
+  ``xxhash(call_id) mod 7`` が文字列前提)。
+- テープ外を ``TapeMiss`` 例外にした点(「失敗」の具体形は設計書に規定なし)。
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Iterable, Iterator, Mapping
+
+import pyarrow as pa
+import pyarrow.parquet as pq
+
+from shibuya.core.hashing import blake3_hex
+
+__all__ = [
+    "CALLS_FILENAME",
+    "BLOCKS_FILENAME",
+    "TAPE_COMPRESSION",
+    "CALLS_SCHEMA",
+    "BLOCKS_SCHEMA",
+    "TapeMiss",
+    "TapeRow",
+    "TapeWriter",
+    "Tape",
+    "Replay",
+    "block_id_for",
+]
+
+CALLS_FILENAME = "calls.parquet"
+BLOCKS_FILENAME = "blocks.parquet"
+TAPE_COMPRESSION = "zstd"
+BLOCK_ID_BYTES = 16
+
+CALLS_SCHEMA = pa.schema(
+    [
+        pa.field("call_id", pa.string(), nullable=False),
+        pa.field("agent_id", pa.int32(), nullable=False),
+        pa.field("tick", pa.int64(), nullable=False),
+        pa.field("wake_class", pa.int8(), nullable=False),
+        pa.field("prompt_hash", pa.string(), nullable=False),
+        pa.field("block_ids", pa.list_(pa.string()), nullable=False),
+        pa.field("params_hash", pa.string(), nullable=False),
+        pa.field("response", pa.string(), nullable=False),
+        pa.field("tokens_in", pa.int32(), nullable=False),
+        pa.field("tokens_out", pa.int32(), nullable=False),
+    ]
+)
+
+BLOCKS_SCHEMA = pa.schema(
+    [
+        pa.field("block_id", pa.string(), nullable=False),
+        pa.field("text", pa.string(), nullable=False),
+        pa.field("tokens", pa.int32(), nullable=False),
+    ]
+)
+
+
+class TapeMiss(LookupError):
+    """テープに無い呼び出しを引いた(=リプレイ失敗。実LLMへは落とさない)。"""
+
+
+def block_id_for(text: str) -> str:
+    """共有プロンプトブロックの内容アドレス ``blake3(text)[:16]`` の16進32桁。"""
+    return blake3_hex(text.encode("utf-8"), length=BLOCK_ID_BYTES)
+
+
+@dataclass(frozen=True)
+class TapeRow:
+    """1呼=1行。"""
+
+    call_id: str
+    agent_id: int
+    tick: int
+    wake_class: int
+    prompt_hash: str
+    block_ids: tuple[str, ...]
+    params_hash: str
+    response: str
+    tokens_in: int = 0
+    tokens_out: int = 0
+
+    @property
+    def key(self) -> tuple[int, int, int, str]:
+        """リプレイ鍵 (agent_id, tick, wake_class, prompt_hash)。"""
+        return (int(self.agent_id), int(self.tick), int(self.wake_class), self.prompt_hash)
+
+
+@dataclass
+class TapeWriter:
+    """テープ書き出し(Parquet/zstd)。``with`` で使うか ``close()`` を呼ぶこと。
+
+    Example:
+        >>> with TapeWriter(dir_path) as w:               # doctest: +SKIP
+        ...     bid = w.intern_block("共有静的ブロック")
+        ...     w.append(TapeRow("c0", 1, 0, 0, "ph", (bid,), "pa", "理由: …"))
+    """
+
+    path: Path
+    flush_rows: int = 4_096
+    _rows: list[TapeRow] = field(default_factory=list, init=False, repr=False)
+    _blocks: dict[str, tuple[str, int]] = field(default_factory=dict, init=False, repr=False)
+    _writer: pq.ParquetWriter | None = field(default=None, init=False, repr=False)
+    _n_written: int = field(default=0, init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        self.path = Path(self.path)
+        self.path.mkdir(parents=True, exist_ok=True)
+
+    # ---- ブロック intern ----
+    def intern_block(self, text: str, tokens: int = -1) -> str:
+        """共有プロンプトブロックを登録して ``block_id`` を返す(同一本文は1回だけ保存)。"""
+        bid = block_id_for(text)
+        if bid not in self._blocks:
+            self._blocks[bid] = (text, int(tokens))
+        return bid
+
+    @property
+    def n_blocks(self) -> int:
+        return len(self._blocks)
+
+    @property
+    def n_rows(self) -> int:
+        """書き出し済み+バッファ中の行数。"""
+        return self._n_written + len(self._rows)
+
+    # ---- 行の追加 ----
+    def append(self, row: TapeRow) -> None:
+        """1呼を追加する。"""
+        self._rows.append(row)
+        if len(self._rows) >= self.flush_rows:
+            self.flush()
+
+    def extend(self, rows: Iterable[TapeRow]) -> None:
+        for r in rows:
+            self.append(r)
+
+    def flush(self) -> None:
+        """バッファを Parquet へ書き出す。"""
+        if not self._rows:
+            return
+        table = pa.Table.from_pydict(
+            {
+                "call_id": [r.call_id for r in self._rows],
+                "agent_id": [int(r.agent_id) for r in self._rows],
+                "tick": [int(r.tick) for r in self._rows],
+                "wake_class": [int(r.wake_class) for r in self._rows],
+                "prompt_hash": [r.prompt_hash for r in self._rows],
+                "block_ids": [list(r.block_ids) for r in self._rows],
+                "params_hash": [r.params_hash for r in self._rows],
+                "response": [r.response for r in self._rows],
+                "tokens_in": [int(r.tokens_in) for r in self._rows],
+                "tokens_out": [int(r.tokens_out) for r in self._rows],
+            },
+            schema=CALLS_SCHEMA,
+        )
+        if self._writer is None:
+            self._writer = pq.ParquetWriter(
+                self.path / CALLS_FILENAME, CALLS_SCHEMA, compression=TAPE_COMPRESSION
+            )
+        self._writer.write_table(table)
+        self._n_written += len(self._rows)
+        self._rows.clear()
+
+    def close(self) -> None:
+        """バッファを吐き、ブロック表を書いて閉じる。"""
+        self.flush()
+        if self._writer is not None:
+            self._writer.close()
+            self._writer = None
+        elif not (self.path / CALLS_FILENAME).exists():
+            pq.write_table(
+                CALLS_SCHEMA.empty_table(),
+                self.path / CALLS_FILENAME,
+                compression=TAPE_COMPRESSION,
+            )
+        ids = sorted(self._blocks)
+        blocks = pa.Table.from_pydict(
+            {
+                "block_id": ids,
+                "text": [self._blocks[b][0] for b in ids],
+                "tokens": [self._blocks[b][1] for b in ids],
+            },
+            schema=BLOCKS_SCHEMA,
+        )
+        pq.write_table(blocks, self.path / BLOCKS_FILENAME, compression=TAPE_COMPRESSION)
+
+    def __enter__(self) -> "TapeWriter":
+        return self
+
+    def __exit__(self, *exc: Any) -> None:
+        self.close()
+
+
+class Tape:
+    """テープの読み出し(``calls.parquet`` + ``blocks.parquet``)。"""
+
+    def __init__(self, path: str | Path) -> None:
+        self.path = Path(path)
+        calls_path = self.path / CALLS_FILENAME
+        if not calls_path.exists():
+            raise FileNotFoundError(f"テープが無い: {calls_path}")
+        self.calls: pa.Table = pq.read_table(calls_path)
+        blocks_path = self.path / BLOCKS_FILENAME
+        self.blocks: pa.Table = (
+            pq.read_table(blocks_path) if blocks_path.exists() else BLOCKS_SCHEMA.empty_table()
+        )
+        self._block_text: dict[str, str] = dict(
+            zip(self.blocks.column("block_id").to_pylist(), self.blocks.column("text").to_pylist())
+        )
+
+    def __len__(self) -> int:
+        return self.calls.num_rows
+
+    @property
+    def n_blocks(self) -> int:
+        return self.blocks.num_rows
+
+    def block_text(self, block_id: str) -> str:
+        """``block_id`` → 本文。未知なら KeyError。"""
+        return self._block_text[block_id]
+
+    def rows(self) -> Iterator[TapeRow]:
+        """全行を ``TapeRow`` として返す(逐次ループ宣言: 行数ぶん・検死用)。"""
+        cols = {name: self.calls.column(name).to_pylist() for name in CALLS_SCHEMA.names}
+        for i in range(self.calls.num_rows):
+            yield TapeRow(
+                call_id=cols["call_id"][i],
+                agent_id=cols["agent_id"][i],
+                tick=cols["tick"][i],
+                wake_class=cols["wake_class"][i],
+                prompt_hash=cols["prompt_hash"][i],
+                block_ids=tuple(cols["block_ids"][i]),
+                params_hash=cols["params_hash"][i],
+                response=cols["response"][i],
+                tokens_in=cols["tokens_in"][i],
+                tokens_out=cols["tokens_out"][i],
+            )
+
+
+class Replay:
+    """テープからの完全一致リプレイ。**テープ外は必ず失敗**(実LLMへ落とさない)。
+
+    Attributes:
+        hits: 一致した回数。
+        misses: テープ外だった回数(診断行「テープ外率」の分子)。
+    """
+
+    def __init__(self, tape: Tape | str | Path) -> None:
+        self.tape = tape if isinstance(tape, Tape) else Tape(tape)
+        self._index: dict[tuple[int, int, int, str], str] = {}
+        self._duplicates = 0
+        # 逐次ループ宣言: テープ行数ぶんの索引作成(検死・デバッグ用の経路)
+        for row in self.tape.rows():
+            if row.key in self._index:
+                self._duplicates += 1
+            self._index[row.key] = row.response
+        self.hits = 0
+        self.misses = 0
+
+    def __len__(self) -> int:
+        return len(self._index)
+
+    @property
+    def duplicates(self) -> int:
+        """同一鍵が複数回記録されていた件数(後勝ち)。0 でないランは順序の再現に注意。"""
+        return self._duplicates
+
+    @property
+    def miss_rate(self) -> float:
+        """テープ外率(診断行へ載せる値)。"""
+        total = self.hits + self.misses
+        return (self.misses / total) if total else 0.0
+
+    def lookup(self, agent_id: int, tick: int, wake_class: int, prompt_hash: str) -> str:
+        """(agent_id, tick, wake_class, prompt_hash) 完全一致で応答を引く。
+
+        Raises:
+            TapeMiss: 一致する行が無い(**黙って実LLMへ落とさない**)。
+        """
+        key = (int(agent_id), int(tick), int(wake_class), prompt_hash)
+        try:
+            response = self._index[key]
+        except KeyError:
+            self.misses += 1
+            raise TapeMiss(f"テープ外: agent={agent_id} tick={tick} class={wake_class} prompt={prompt_hash}") from None
+        self.hits += 1
+        return response
+
+    def counters(self) -> Mapping[str, float]:
+        """診断行に載せる計数。"""
+        return {"tape_hits": self.hits, "tape_misses": self.misses, "tape_miss_rate": self.miss_rate}

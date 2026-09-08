@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **6 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **8 / 10**
 > 第1〜第100(2026-09-01〜09-08)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 2026-09-08 第101 R7群衆物理の答申を親検収→設計書草案(U15-1〜U15-8)提示・engine_spike READMEにFLAME GPU注記
@@ -33,3 +33,11 @@
 - 実施(親): 条件文全文を会話に表示→世界カタログ凍結SHAの規則を第92の凍結スクリプトから復元(表の見出し行〜最初の空行のSHA-256先頭16桁=34f9fa9d316587be 再現・停止句(b)回避)→.venv+部品表インストール→骨格10パッケージ・pyproject(層契約5本)・CI・.githooks pre-commit・core.rng+hypothesis 6本・README開発手順・層2チェックリスト。サブA(Opus: manifest 13節pydantic・正規化・run_id自己ハッシュ・17テスト)・サブB(Opus: 予算表読取34行・カタログ凍結→frozen/JSON・約30テスト)を親が再実行で検収(53 passed・lint-imports 5 kept/0 broken・scan CLEAN 190ファイル・data/未追跡)。サブBの指摘: I1行の包含=採用/パッケージ内 data/ が gitignore に衝突→ frozen/ に改名(gitignoreは緩めない)。
 - 記録: 受入報告 docs/ops/build-report-C0.md・expedient登録簿(実装計画書§8 C0節)・IMPLEMENTED行・PENDING/STATUS更新。TRACE更新: 要素5(実装検証=pytest二段CI+T1)・要素2(モデル記述=層契約の機械化)。
 - 次: 層2レビュー(別Fable・チェックリスト)→合格でブランチへコミット→C1∥C2開始。
+## 2026-09-08 第107 【工程内マイルストーン】C1 地理側(W0-W6/W11)・場境界側(W7/W10/W12/W13)完了・C2 第1弾完了・W13 欠測を etrn で補完・W10 区間突合=ユーザー判断へ
+- 実施(親検収=自分で再実行): C1-subA 全ゲートPASS(W1 総延長186,741 m差0・W2 785ペア/街区1,242・W4 3,531棟/中央値14.3・W5 出口45・W6 68.8%/9,872・build_hash再現)・C1-subB(W7 PlanSpec 2,337/法規上限超過0/OSM上書き477・W12 外界ノード10/メトロ実ダイヤ1,596行・W10 街路点356,732)・C2-subC(177テスト・P3 1.79M events/s・M7 1.000x)。W13の欠測28日→気象庁 etrn 時別値35日分を親レーンで取得(§7例外・1req/2s・台帳行)し301時間補完→PASS。W10 区間突合0/202=OSM辺に道路名なし・PLATEAU元GMLはローカルに無し→Overpass再取得は公的ドメイン外=停止句(c)相当としてPENDINGに記録(推奨=再取得)。他工程は継続。
+- 起動中: C1-subC(W8可視性・W9影・W18被覆指標・W19凍結・W20検収パック)・C2-subD(二相コミット・アービタ・resolve・変化検出P6・5,000体×1日mock)。
+- 次: 両サブの検収→層2レビュー→C1/C2出口コミット→C3(知覚・LLM接続層)。
+## 2026-09-08 第108 【工程出口】C2(エンジン核)完了・層2検収合格・ブランチへコミット
+- 実施(親検収=再実行): 368 passed・lint 5 kept・scan CLEAN・5,000体×1日 mock 3.17 s(実資産520セル)・P2 0.081 ms・P6 1.26 ms@40万体・保存則一致・成長宣言30日外挿OK。サブDの矛盾7件を裁定(セル数139/453/520=PENDING台帳整合・promote()逐次→純関数昇格・書き込みガード二重配置・降車=NO_STOPへ親修正・相手別不応期=C3・Registry.kind衝突=回帰テスト・L4上限と平均は40万体で同値)。層2レビュー(別Fable)合格: 指摘=thaw公開→AST検査追加・n_conflicts二重計上→修正・縮退範囲/expedient11件→登録簿・C3前の設計解釈3件(落選再起床/M7分母/テープ鍵)→PENDING(親推奨つき)。
+- TRACE更新: 要素5(実装検証=T1/T2/T4/T3型性質・書き込み口AST)・要素2(二相コミット・アービタの機械化)。
+- 次: C1 残(W8/W9/W18-W20=サブC進行中)→C1出口→C3。
