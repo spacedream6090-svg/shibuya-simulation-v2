@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **3 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **4 / 10**
 > 第1〜第110(2026-09-01〜09-08)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 2026-09-08 第111 【工程出口】C4(世界過程第1陣+経済+物)完了・層2合格(修正1点反映)・コミット=C0〜C4 の /goal 達成
@@ -21,3 +21,10 @@
 - U-7(PLATEAU 渋谷区 2023 年度)の一次確認: G空間情報センター plateau-13113-shibuya-ku-2023=CityGML v4 zip 636 MB(udx: bldg/brid/dem/fld/frn/lsld/luse/tran/ubld/urf/veg・製品仕様書 4.1 版・2025-04-18 v4 公開・最終更新 2026-04-03)・関連データ 42 kB(GeoJSON: station/railway/border 等)・ライセンス=PLATEAU サイトポリシー §3(PDL1.0)。目録に tran の属性記述なし→交通量属性(uro:TrafficVolumeAttribute=センサス区間 ID)の有無は開くまで不明。仕様書 PDF は 10 MB 超で親未読。
 - U-3(main マージ)の状況: main=第105b・build/c0-c4 は 7 コミット先行・fast-forward 可・origin には main のみ(ブランチ未 push)。CI(ci.yml)=push(main・build/**)と PR で起動: 秘密スキャン全追跡ファイル・lint-imports・pytest(not gpu/slow・data 依存テストは skipif)・data/ 非追跡検査。
 - 次: ユーザー=U-2(返却延長)・U-3 の方式選択(ブランチ push→PR か ff マージ)・U-7 取得の要否・D-1〜D-15。実装は合図待ち。
+
+## 2026-09-08 第114 【データ/運用】push・PR #1・CI 緑+PLATEAU 渋谷区 2025 年度版の中心 4 タイルを発見・複写(交通量属性なし)
+- 依頼: push の許可/「前に落とした渋谷の PLATEAU(2025 年?)が PC に残っていないか Downloads を確認」。
+- push: 全追跡ファイル秘密スキャン CLEAN→origin/build/c0-c4・PR #1 作成。origin/main は第1+v1 参照の 2 コミットのみ(第20〜105 も本 PR で入る・ff 可)。CI run 34235883583=**success**(秘密スキャン・lint-imports・pytest・data 非追跡の 4 段)。マージ=ユーザー。
+- PLATEAU: Downloads には索引図 13113_indexmap_op.pdf(07-06)のみ・元の展開フォルダ(Desktop/13113_shibuya-ku_pref_2025_citygml_1_op)と zip は消失(C: 全検索)。**Unreal プロジェクト PLATEAU_SDK_test に SDK が複写した udx 一式が残存**(2.3 GB・メッシュ 53393585/86/95/96=v1 と同じ中心 4 タイル・製品仕様書 5.0・codelists 付き・metadata なし)。tran/bldg/dem/ubld/frn/brid/codelists を data/realworld/plateau_2025/ へ複写(1.6 GB)・台帳行追加。
+- tran 実査(grep): Road 3,248・TrafficArea 4,053・lod3MultiSurface 5,782・RoadStructureAttribute=sectionType のみ・**TrafficVolumeAttribute/sectionID/routeName/width/numberOfLanes=0**→W10 区間突合には使えない(D-1 は (a) Overpass のまま)。**訂正 2 件**: ①第113 の説明「現在の高さは 23 区版 2020」は誤り(v1 index=2025 年度版 4 タイル・spec F15/取得レーン表に訂正注記) ②「交通量属性があれば区間 ID 直結」は本データでは不成立。U-7 を 2025 年度版フル zip(追加タイル・任意)に書き換え。
+- 次: ユーザー=PR #1 マージ・U-2(返却延長)・D-1〜D-15・(任意)U-7。実装は合図待ち。
