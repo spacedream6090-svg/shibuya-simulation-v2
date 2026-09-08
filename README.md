@@ -17,6 +17,20 @@
 
 `data/` はGit外(gitignore済み)。内容物・出典・ライセンス・商用可否は [docs/data-license-ledger.md](docs/data-license-ledger.md) を正とする。
 
+## 開発(C0 骨格・2026-09-08)
+
+```powershell
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -e ".[dev]"
+.venv\Scripts\lint-imports.exe        # 層契約(実装計画書 §3)
+.venv\Scripts\python.exe -m pytest -q  # 単体・性質テスト
+git config core.hooksPath .githooks     # コミット前の秘密スキャン(CLAUDE.md §7)
+```
+
+- パッケージ構成 `src/shibuya/{manifest,build,core,world,agents,perception,llm,engine,economy,census}` と依存規則は [実装計画書 §3](docs/design/v2-implementation-plan.md)。
+- 構築工程(C0〜C8)と無人運転の規律は同 §9。工程ごとの受入結果は `docs/ops/build-report-Cn.md`。
+- CI: `.github/workflows/ci.yml`(GPU なし段)。GPU 必須テストは `@pytest.mark.gpu`(セルフホスト)。
+
 ## ライセンス
 
 未定(法務答申 [docs/research/v2-legal-licensing-deep-research.md](docs/research/v2-legal-licensing-deep-research.md) に基づき決定予定)。それまで All rights reserved。

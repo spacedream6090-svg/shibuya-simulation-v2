@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **5 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **6 / 10**
 > 第1〜第100(2026-09-01〜09-08)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 2026-09-08 第101 R7群衆物理の答申を親検収→設計書草案(U15-1〜U15-8)提示・engine_spike READMEにFLAME GPU注記
@@ -28,3 +28,8 @@
 - ユーザー: 「1.お願いする 2.現時点では使わない 3.説明して 君の方でclaude updateできる？」。
 - 実施: `claude update` 成功(2.1.179→2.1.263)。VS Code拡張は既に2.1.263(同梱バイナリ)=自動継続要件を満たす。§9.5(f)改定・§9.6状態更新・docs/ops/goal_c0_c4.md(条件文約2,600字+開始前チェック)・PENDING更新。使用量クレジット=support記事を親実読(Pro/Max 5x/20x・前払い・標準API料金・制限到達後のみ消費・月間上限/自動リロード・日本は2026-09-10以降購入分が6か月で失効・Claude Codeにも適用)+costs原典(クレジット消費中はプロンプトキャッシュ寿命が1時間→5分)。
 - 次: 層1 Stop hook(prompt/agent型)の契約を原典で確認→設定・ブランチ作成→ユーザーがgoal投入。
+## 2026-09-08 第106 【工程出口】C0(骨格)完了・受入報告・層2検収へ
+- ユーザー: /goal投入(短縮形・C0〜C4通し・200ターン上限)。回答: 使用量クレジット=有効にしない/画面オフのみ/自動モード/リモートコントロール。
+- 実施(親): 条件文全文を会話に表示→世界カタログ凍結SHAの規則を第92の凍結スクリプトから復元(表の見出し行〜最初の空行のSHA-256先頭16桁=34f9fa9d316587be 再現・停止句(b)回避)→.venv+部品表インストール→骨格10パッケージ・pyproject(層契約5本)・CI・.githooks pre-commit・core.rng+hypothesis 6本・README開発手順・層2チェックリスト。サブA(Opus: manifest 13節pydantic・正規化・run_id自己ハッシュ・17テスト)・サブB(Opus: 予算表読取34行・カタログ凍結→frozen/JSON・約30テスト)を親が再実行で検収(53 passed・lint-imports 5 kept/0 broken・scan CLEAN 190ファイル・data/未追跡)。サブBの指摘: I1行の包含=採用/パッケージ内 data/ が gitignore に衝突→ frozen/ に改名(gitignoreは緩めない)。
+- 記録: 受入報告 docs/ops/build-report-C0.md・expedient登録簿(実装計画書§8 C0節)・IMPLEMENTED行・PENDING/STATUS更新。TRACE更新: 要素5(実装検証=pytest二段CI+T1)・要素2(モデル記述=層契約の機械化)。
+- 次: 層2レビュー(別Fable・チェックリスト)→合格でブランチへコミット→C1∥C2開始。

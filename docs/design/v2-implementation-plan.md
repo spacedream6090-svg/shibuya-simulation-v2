@@ -70,6 +70,15 @@ economy: 台帳/transfer/検算/センサス(engineのtransfer単一API経由の
 ## §8 expedient登録簿(本書分)
 engine単一プロセス(GIL干渉未実測)/P6のxxhash×453で≤2ms(未実測)/CI相対ゲート比1.10/P4のAST機械化/LLMタイムアウト既定/ルーティングmod 7/経済transfer 20取引/体/日の見積り/checkpoint増分案/Warp第一(大規模ABMの公開事例未確認)/sm_120対応未確認/Ruriスループット未計測。
 
+**C0(骨格・2026-09-08)で導入した自前規約(追記のみ・決定項は変更していない)**:
+- `core.rng` 鍵導出=blake3(UTF-8 `"i:<seed>"`または`"s:<run_id>"` ‖ 0x1F ‖ domain) の16バイト→Philox4x64鍵(k0,k1)・カウンタ=最大4語(個体ID/tick/抽選番号)。ドメイン表は manifest.rng.domain_table_version で版管理(本モジュールは表を持たない)。
+- `manifest.canonical`: run_id は正規化本文から **キーごと除去**して blake3(with_run_id は冪等)・辞書キーは再帰ソート・**リスト順序は保持**(replicas/phases/data_assets/diagnostics.columns の順序は本文の一部)・datetime 欄は datetime 型(YAMLの暗黙時刻と引用文字列を同一正規形へ)。
+- `manifest.schema`: 診断列名 `DIAG_COLUMNS=("deferred","promoted","degraded","suppressed")`・保存則検算名 `CONSERVATION_CHECKS=("conservation_transfer_residual","conservation_stock_residual")`(命名は未リサーチ・C4で確定)・規則(d)のIPv4判定は4成分の版番号も弾く安全側・`output.s3_uri` 欄は持たない(extra=forbid)・`decoding.T1/T2` の下位欄=(temperature, top_p, max_tokens, seed)。
+- `core.budget`: 予算表の行ID正規表現は `^[WPMLSI]\d+$`(I1 初期化予算を含む=34行・W/P/M/L/S の33行は別テストで固定)・`parse_limit` は比較子(≤≥<>)付きの太字を優先する best-effort(L4/L6/S3/S4/I1 は None)。
+- 世界カタログ分母: 凍結規則=「見出し行 `| # | 型 |` から最初の空行までを UTF-8 で SHA-256 し先頭16桁」(第92の凍結スクリプトから復元・34f9fa9d316587be を再現)・成果物は `src/shibuya/manifest/frozen/world_catalog_v0_2.json`(ディレクトリ名 `frozen/` は .gitignore の `data/` と衝突しないための命名)。
+- pre-commit 秘密スキャン=`.githooks/pre-commit`+`git config core.hooksPath .githooks`(ローカル設定・pre-commit フレームワーク不使用)。CI は ubuntu の GPU なし段のみ(自己ホスト段は C2 以降)。
+- (層2レビュー指摘で追記・09-08) 正規化本文の符号化=`json.dumps(sort_keys=True, ensure_ascii=False, separators=(",",":"))` の UTF-8(run_id の値を決める規約)・`normalized_yaml` は `width=4096`・`Identity.run_id` は押印前 None 許容・規則(d)は IPv4 に加え `http` 始まり文字列(大小無視)も拒否・規則(c)に `VLLM_MARLIN_USE_ATOMIC_ADD=0` を追加・`Concurrency.phases` は `(read_intent, arbitrate, commit)` 固定。`core.budget`: 環境変数 `SHIBUYA_BUDGET_MD` で表の場所を上書き可・`## 6.` 以降は読まない・見出しセルは固定タプル。凍結 JSON の書式(indent=1・ensure_ascii=False・末尾 LF・追加キー source/rule)は byte 一致テストの対象=書式自体が凍結。pyproject: `filterwarnings=error::DeprecationWarning:shibuya.*`・`addopts="-q -p no:cacheprovider"`。改行コードは `.gitattributes`(`* text=auto eol=lf`)で LF 固定(凍結 SHA が LF バイト列に依存するため)。
+
 ## §9 構築工程(決定(仮)・2026-09-08・ユーザー「承認・完成まで漕ぎ着けて」・実行形=工程ごとに/goal+自動モード・出口でユーザー判断)
 
 > 前提: CLAUDE.md §2-2「全て決めてから構築」。着手ゲート=世界データ構築仕様書(D-W1〜D-W22)+本§9の承認。**所要日数は親の推測**(サブ実装+親検収込み・並列度2)。GPU: サーバー返却(9/10)後はローカル1GPUのみ→C5後半以降(艦隊必須)は再借用/クラウドが前提。

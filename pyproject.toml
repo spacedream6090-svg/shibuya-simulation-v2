@@ -1,0 +1,93 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shibuya-sim"
+version = "0.0.1"
+description = "shibuya-simulation-v2: LLM社会シミュレーション第2世代(エンジン)。設計正典は docs/design/。"
+requires-python = ">=3.12"
+license = { text = "Proprietary" }
+# 部品表 = docs/design/v2-implementation-plan.md §2(下限固定/固定)。GPU(warp-lang/cupy)は C0 では入れない(§9.4)。
+dependencies = [
+  "numpy>=2.1",
+  "numba>=0.61",
+  "pydantic>=2.7",
+  "pyyaml>=6.0",
+  "blake3>=1.0",
+  "xxhash>=3.4",
+  "cbor2>=5.6",
+  "pyarrow>=17",
+  "duckdb>=1.0",
+  "zstandard>=0.22",
+  "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "pytest-benchmark>=4",
+  "hypothesis>=6.100",
+  "import-linter>=2.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"shibuya.manifest" = ["frozen/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q -p no:cacheprovider"
+markers = [
+  "gpu: GPU必須(セルフホストランナーのみ・CIでは除外)",
+  "slow: 5,000体縮小ラン級(CIでは nightly)",
+]
+filterwarnings = ["error::DeprecationWarning:shibuya.*"]
+
+# ---- 層契約(実装計画書 §3): 上→下の import のみ・循環禁止 ----
+[tool.importlinter]
+root_package = "shibuya"
+include_external_packages = false
+
+[[tool.importlinter.contracts]]
+name = "layers: census > economy > engine > (perception | llm) > (world | agents) > core > manifest"
+type = "layers"
+layers = [
+  "shibuya.census",
+  "shibuya.economy",
+  "shibuya.engine",
+  "shibuya.perception | shibuya.llm",
+  "shibuya.world | shibuya.agents",
+  "shibuya.core",
+  "shibuya.manifest",
+]
+
+[[tool.importlinter.contracts]]
+name = "core は何にも依存しない(manifest も import しない)"
+type = "forbidden"
+source_modules = ["shibuya.core"]
+forbidden_modules = ["shibuya.manifest"]
+
+[[tool.importlinter.contracts]]
+name = "llm は world/agents を import しない(mock LLM が成立する)"
+type = "forbidden"
+source_modules = ["shibuya.llm"]
+forbidden_modules = ["shibuya.world", "shibuya.agents", "shibuya.perception", "shibuya.engine", "shibuya.economy", "shibuya.census"]
+
+[[tool.importlinter.contracts]]
+name = "build は実行時に import されない"
+type = "forbidden"
+source_modules = [
+  "shibuya.manifest", "shibuya.core", "shibuya.world", "shibuya.agents",
+  "shibuya.perception", "shibuya.llm", "shibuya.engine", "shibuya.economy", "shibuya.census",
+]
+forbidden_modules = ["shibuya.build"]
+
+[[tool.importlinter.contracts]]
+name = "economy は engine の transfer 単一API経由のみ(world/agents 直接書き込み禁止)"
+type = "forbidden"
+source_modules = ["shibuya.economy"]
+forbidden_modules = ["shibuya.world", "shibuya.agents", "shibuya.perception", "shibuya.llm"]
