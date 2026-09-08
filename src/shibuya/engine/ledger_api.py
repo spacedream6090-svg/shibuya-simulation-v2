@@ -30,9 +30,9 @@ expedient(本モジュール分)
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import IntEnum
-from typing import Any, ContextManager, NamedTuple, Protocol, runtime_checkable
+from typing import Any, Callable, ContextManager, Mapping, NamedTuple, Protocol, runtime_checkable
 
 import numpy as np
 
@@ -48,6 +48,7 @@ __all__ = [
     "EntityRef",
     "MoneyLedger",
     "GoodsLedger",
+    "DayCloses",
     "LedgerBundle",
 ]
 
@@ -134,7 +135,20 @@ class MoneyLedger(Protocol):
         ...
 
     def on_day_end(self, day: int) -> Any:
-        """日次の畳み込み(取引行列の集約・生ログの保持窓・D-R2-6)。"""
+        """日次の畳み込み(取引行列の集約・生ログの保持窓・D-R2-6)。**締めを返す**。"""
+        ...
+
+    def close_for(self, day: int) -> Any:
+        """``day`` が直近に畳んだ日ならその締めを返す(日次センサスが読む)。"""
+        ...
+
+    def growth_declarations(self) -> Mapping[str, Any]:
+        """D-R2-6 の宣言(``growth_measured`` と同じ鍵)。engine が economy を import
+        できないので**台帳自身が名乗る**(依存逆転)。"""
+        ...
+
+    def growth_measured(self) -> Mapping[str, int]:
+        """D-R2-6 の実測増分バイト。"""
         ...
 
 
@@ -153,6 +167,36 @@ class GoodsLedger(Protocol):
         """販売(棚→世帯・1 行 1 個)。行ごとの成否 bool を返す。"""
         ...
 
+    def restock_many(
+        self,
+        stores: np.ndarray,
+        qty: np.ndarray,
+        tick: int,
+        *,
+        money: Any | None = None,
+        slot: np.ndarray | None = None,
+    ) -> np.ndarray:
+        """補充・納品(外界→棚・faucet 域外仕入)。``money`` を渡すと代金も transfer する。"""
+        ...
+
+    def to_bin_many(
+        self, stores: np.ndarray, qty: np.ndarray, tick: int, slot: np.ndarray | None = None
+    ) -> np.ndarray:
+        """売れ残りを廃棄ビンへ(棚→ビン・C 類排出)。"""
+        ...
+
+    def collect_waste(self, stores: np.ndarray | None, tick: int) -> float:
+        """廃棄物収集(ビン→bbox 外・sink)。搬出質量[g]。"""
+        ...
+
+    def consume_many(self, sku_ids: np.ndarray, qty: np.ndarray, tick: int) -> np.ndarray:
+        """世帯の消費(所持→sink)。"""
+        ...
+
+    def waste_band(self, days: int | None = None) -> Any:
+        """廃棄 sink の t/日 band 判定(検算②・台帳行 W1)。"""
+        ...
+
     def aggregate_stock(self, stores: np.ndarray | None = None) -> np.ndarray:
         """店舗の棚在庫合計(``world.pois.stock`` はこの写しであり、書くのは resolve だけ)。"""
         ...
@@ -160,17 +204,93 @@ class GoodsLedger(Protocol):
     def on_day_end(self, day: int) -> Any:
         ...
 
+    def close_for(self, day: int) -> Any:
+        ...
+
+    def growth_declarations(self) -> Mapping[str, Any]:
+        ...
+
+    def growth_measured(self) -> Mapping[str, int]:
+        ...
+
+
+class DayCloses(NamedTuple):
+    """``LedgerBundle.end_of_day`` の戻り(その日の締め)。
+
+    Attributes:
+        day: 畳んだ日。
+        money: ``MoneyLedger.on_day_end`` の戻り(``economy.ledger.DayClose``)。
+        goods: ``GoodsLedger.on_day_end`` の戻り(締め辞書)。
+    """
+
+    day: int
+    money: Any | None
+    goods: Any | None
+
 
 @dataclass(frozen=True)
 class LedgerBundle:
-    """resolve / run へ注入する台帳の束(金・物)。どちらも ``None`` 可(C2 互換経路)。"""
+    """resolve / run へ注入する台帳の束(金・物)。どちらも ``None`` 可(C2 互換経路)。
+
+    Attributes:
+        census: 日次(軽量)センサス行を作る呼び出し可能(``day -> 行の Mapping``)。
+            **engine は economy を import できない**(層契約 ``economy > engine``)ので、
+            ``economy.census.daily_census`` はここへ**注入**する(依存逆転)。
+            ``None`` なら ``engine.run`` はセンサス行を持たない(``census_pass=False``)。
+    """
 
     money: MoneyLedger | None = None
     goods: GoodsLedger | None = None
+    census: Callable[[int], Mapping[str, Any]] | None = None
+    #: ``end_of_day`` が畳んだ**直近の締め**(``daily_census`` が読む用の控え)。
+    #: frozen dataclass なので中身だけ差し替える(比較・ハッシュからは外す)。
+    last_close: dict[str, Any] = field(default_factory=dict, compare=False, repr=False)
 
-    def end_of_day(self, day: int) -> None:
-        """日次の畳み込みを両台帳へ流す。"""
-        if self.money is not None:
-            self.money.on_day_end(day)
-        if self.goods is not None:
-            self.goods.on_day_end(day)
+    def end_of_day(self, day: int) -> DayCloses:
+        """日次の畳み込みを両台帳へ流し、**その日の締めを返す**。
+
+        締めると取引フロー行列も当日の廃棄も 0 に戻る。日次センサスを「締めたあとに
+        現在値で」回すと faucet/sink/廃棄が全部 0 の空虚な行になりゲートが素通りするので、
+        締めは捨てずにここで保持する(層2レビュー指摘の固定)。
+        """
+        close = self.money.on_day_end(day) if self.money is not None else None
+        goods_close = self.goods.on_day_end(day) if self.goods is not None else None
+        closes = DayCloses(int(day), close, goods_close)
+        self.last_close.clear()
+        self.last_close.update(day=closes.day, money=closes.money, goods=closes.goods)
+        return closes
+
+    def daily_census(self, day: int) -> Mapping[str, Any] | None:
+        """注入された日次センサスを回す(境界・経済設計書 §2.4)。
+
+        ``day`` が ``end_of_day`` で畳んだ日なら、行は**締めた日の実数**になる
+        (``economy.census.daily_census`` が台帳の ``close_for(day)`` から締めを引く)。
+
+        ゲート失敗は**例外にしない**(呼び出し側が診断の赤として扱う)。行の作成そのものが
+        失敗したときも ``None`` を返して**ランを止めない**(センサスは観測であって世界ではない)。
+        """
+        if self.census is None:
+            return None
+        return self.census(int(day))
+
+    def growth_parts(self) -> tuple[dict[str, Any], dict[str, int]]:
+        """両台帳の D-R2-6(宣言, 実測増分バイト)を 1 組に畳む。
+
+        engine は economy を import できない(層契約)ので、``engine.run`` の成長ゲートは
+        **台帳自身が名乗る**宣言をここで受け取る(依存逆転)。宣言と実測は必ず同じ鍵で返す
+        (片方だけだと ``core.growth.check_growth`` が「未測定」として落とす)。
+        """
+        decls: dict[str, Any] = {}
+        measured: dict[str, int] = {}
+        for led in (self.money, self.goods):
+            if led is None:
+                continue
+            d = getattr(led, "growth_declarations", None)
+            m = getattr(led, "growth_measured", None)
+            if d is None or m is None:
+                continue
+            got_d, got_m = dict(d()), {k: int(v) for k, v in m().items()}
+            keys = set(got_d) & set(got_m)
+            decls.update({k: got_d[k] for k in keys})
+            measured.update({k: got_m[k] for k in keys})
+        return decls, measured

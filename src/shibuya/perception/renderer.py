@@ -29,7 +29,9 @@ expedient(本モジュール分)
 - 内受容の閾値 ``INTERO_UP_EDGES=(4,7,9)``(``engine.change_detect`` と同値の二重定義。
   層契約により import できない)。
 - 「いま可能な行動3語」の表 ``RESULT_OPTIONS``(契約書は「3語」としか書かない)。
-- B4b は C3 では**固定の空文言**(サブセル 25 m 級のデータが無い)。
+- B4b は C3 では**固定の空文言**(サブセル 25 m 級のデータが無い)。C4 で**待ち行列だけ**
+  差し込み口を付けた(``prepare_tick(queues=…)``)。行列は POI 単位=**セル共有**なので
+  規約⑧(B0-B4b に個体依存語を置かない)は保たれる。行列が無いセルは従来の固定文言のまま。
 - 流れ(B4)は既定 0(「一定です」)。方向データが無い。
 - 天候が W13 に無い日付は**その時刻の最頻値**へ落とす(決定論)。
 
@@ -438,6 +440,8 @@ class _TickCache:
     flow: np.ndarray = field(default_factory=lambda: np.zeros(0, np.uint8))
     salient: Mapping[int, tuple[str, ...]] = field(default_factory=dict)
     salient_digest: np.ndarray = field(default_factory=lambda: np.zeros(0, np.int32))
+    #: セル → B4b「近景」の描画バイト(行列がある セルだけ。無ければ固定文言)。
+    b4b: Mapping[int, bytes] = field(default_factory=dict)
     #: ``hashes.b4_field_row`` の生欄 ``(n_cells, 4)`` int32(エンジンの変化検出器が読む)。
     b4_field_rows: np.ndarray = field(default_factory=lambda: np.zeros((0, 4), np.int32))
     b4_field_hash: np.ndarray = field(default_factory=lambda: np.zeros(0, np.uint64))
@@ -519,8 +523,15 @@ class Renderer:
         flow: np.ndarray | None = None,
         density: np.ndarray | None = None,
         noise_stage: np.ndarray | None = None,
+        queues: Sequence[tuple[int, str, int]] | None = None,
     ) -> None:
-        """この tick のセル配列とハッシュを作る(**セル数ぶんの xxh64 が 1 本**)。"""
+        """この tick のセル配列とハッシュを作る(**セル数ぶんの xxh64 が 1 本**)。
+
+        Args:
+            queues: B4b の材料 ``(POI, 表示名, 人数)`` の列
+                (``engine.processes.crowd.CrowdProcess.queue_rows``)。セルあたり上位 1 件を
+                「<店名>の行列に<人数>人」として ``B4b.near`` に載せる。
+        """
         w = self.world
         n = w.n_cells
         when = self.clock_fn(int(tick))
@@ -549,6 +560,15 @@ class Renderer:
                 sal[int(c)] = lines
                 digest[int(c)] = int(xxh64("\x1f".join(lines).encode("utf-8")) & 0x7FFF_FFFF)
 
+        # B4b(行列)は**セル動的**なので、変化検出器が読む欄(``b4_field_row`` の第4列)へ
+        # 混ぜる。混ぜないと「B4b の文面が変わったのに起床条件(i) が鳴らない」取りこぼしが
+        # 生まれる(C3 で B4 について潰した穴と同じ形)。列を増やすと ``hashes.b4_field_row``
+        # の凍結形が動くので、**同じ列にダイジェストを畳む**(行列が無ければ従来どおり 0)。
+        b4b = self._b4b_lines(queues)
+        for c, blob in b4b.items():
+            mixed = int(xxh64(blob) & 0x7FFF_FFFF)
+            digest[int(c)] = int((int(digest[int(c)]) * 31 + mixed) & 0x7FFF_FFFF)
+
         rows = H.b4_field_row(los, ns, fl, digest)
         self._tickc = _TickCache(
             tick=int(tick),
@@ -559,6 +579,7 @@ class Renderer:
             flow=fl,
             salient=sal,
             salient_digest=digest,
+            b4b=b4b,
             b4_field_rows=rows,
             b4_field_hash=H.field_row_hashes(rows),
             **_cell_index(self.agents.cell, n),
@@ -612,7 +633,7 @@ class Renderer:
         blocks["B2"] = self._b2(cell, trunc)
         blocks["B3"] = self._b3(tc)
         blocks["B4"] = self._b4(cell, tc, trunc)
-        blocks["B4b"] = self._b4b
+        blocks["B4b"] = tc.b4b.get(cell, self._b4b)
         blocks["B5"] = self._b5(i, cell, tc, trunc)
         blocks["B6"] = self._b6(i, wake_reason, last_result, cell, tc, last_action)
 
@@ -753,6 +774,40 @@ class Renderer:
         ]
         out = N.join_lines(lines).encode("utf-8")
         self._b3_cache[tc.band5] = out
+        return out
+
+    def _b4b_lines(
+        self, queues: Sequence[tuple[int, str, int]] | None
+    ) -> dict[int, bytes]:
+        """待ち行列 → セル別の B4b 描画バイト(セルあたり上位 1 件)。
+
+        Note:
+            逐次ループ宣言(P4): **行列行数**ぶん(``queue_rows(k)`` の k・既定 1-3)。
+            セル数・個体数には比例しない。
+        """
+        if not queues:
+            return {}
+        poi_cell = np.asarray(self.world.pois.cell, dtype=np.int64)
+        best: dict[int, tuple[int, str]] = {}
+        for poi, name, count in queues:  # 逐次: 行列行数ぶん
+            j = int(poi)
+            if not (0 <= j < poi_cell.size) or int(count) <= 0:
+                continue
+            c = int(poi_cell[j])
+            if c < 0:
+                continue
+            prev = best.get(c)
+            if prev is None or int(count) > prev[0]:
+                best[c] = (int(count), str(name))
+        out: dict[int, bytes] = {}
+        for c, (count, name) in best.items():
+            item = f"{name}の行列に{count}人"
+            kept, _ = ch.truncate_lines([item], "B4b.near")
+            if not kept:
+                continue
+            out[c] = N.canonical_whitespace(
+                T.TEMPLATES["B4b.near"].format(items=N.LIST_SEPARATOR.join(kept))
+            ).encode("utf-8")
         return out
 
     def _b4(self, cell: int, tc: _TickCache, trunc: list[ch.TruncationReport]) -> bytes:

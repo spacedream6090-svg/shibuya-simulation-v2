@@ -92,8 +92,20 @@ __all__ = [
     "set_refractory",
     "advance_body",
     "restock",
+    "discard_to_bin",
     "collect_waste",
     "consume",
+    # ---- C4(世界過程 第1陣)の書き戻し口 ----
+    "set_thermal",
+    "set_notice_state",
+    "set_open_flags",
+    "place_at_external",
+    "rail_arrive",
+    "rail_depart",
+    "sync_transit_activity",
+    "release_indoor",
+    "balk_queue",
+    "request_open_close",
 ]
 
 #: 内受容の自然変動の周期[tick](expedient)。
@@ -101,6 +113,9 @@ BODY_TICK_PERIOD: Final[int] = 30
 REST_FATIGUE_RELIEF: Final[int] = 3
 BUY_HUNGER_RELIEF: Final[int] = 4
 SLEEP_FATIGUE_RELIEF: Final[int] = 2
+
+#: 物の台帳の払い出しスロットを回す最大回数(``_apply_buy`` の注記・expedient)。
+_SELL_SLOT_RETRIES: Final[int] = 8
 
 _REFRACTORY_TICKS: Final[np.ndarray] = np.asarray(REFRACTORY_MINUTES, dtype=np.int32)
 
@@ -150,6 +165,22 @@ class ResolveOutcome:
     ledger: LedgerBundle | None = None
     #: 台帳が金の脚を却下した件数(診断行・通常は 0)。
     n_ledger_rejected: int = 0
+    #: 鉄道運行(``engine.processes.rail.RailProcess``)。``None`` なら乗車は ``NO_TRAIN``(C2 互換)。
+    rail: object | None = None
+    #: 混雑場(``engine.processes.crowd.CrowdProcess``)。``None`` なら屋内占有を見ない(C2 互換)。
+    crowd: object | None = None
+    #: 乗車が成立した件数。
+    n_boarded: int = 0
+    #: 降車が成立した件数。
+    n_alighted: int = 0
+    #: 支払われた運賃の合計[円](保存則: Σmoney+Σrevenue+Σ運賃 が不変)。
+    fare_paid: int = 0
+    #: 満席で待ち行列へ入った件数(購入の「待ち時間」コスト・行動契約書 §2.1)。
+    n_queued: int = 0
+    #: ホテル客室在庫(``engine.processes.civic.HotelProcess``)。``None`` なら就寝は自宅のみ。
+    hotel: object | None = None
+    #: ホテルで就寝した件数(§7.2 ホテル客室在庫)。
+    n_hotel_sleep: int = 0
 
     def add_result(self, code: int, n: int) -> None:
         if n:
@@ -261,6 +292,9 @@ def apply(
     *,
     schedule=None,
     ledger: LedgerBundle | None = None,
+    rail: object | None = None,
+    crowd: object | None = None,
+    hotel: object | None = None,
 ) -> ResolveOutcome:
     """Phase C: 確定した intent だけを世界へ適用する(**唯一の書き手**)。
 
@@ -271,12 +305,22 @@ def apply(
         tick: 現在 tick。
         schedule: mock 日課(就寝可否の判定に自宅セルを使う)。
         ledger: 金/物の台帳(``None`` なら C2 と同じ直接更新の経路)。
+        rail: 鉄道運行(C4 世界過程)。``None`` なら乗車=``NO_TRAIN``・降車=``NO_STOP``。
+        crowd: 混雑場(C4 世界過程)。``None`` なら屋内占有・待ち行列を見ない。
+        hotel: ホテル客室在庫(C4 世界過程)。``has_bed(agent_ids, cells)`` を持つものを渡すと、
+            チェックイン済みの来街者は**自宅でなくても就寝できる**(§7.2 ホテル客室在庫)。
 
     Returns:
         ``ResolveOutcome``。
     """
     out = ResolveOutcome(
-        tick=int(tick), n_confirmed=len(plan_confirmed), n_losers=len(losers), ledger=ledger
+        tick=int(tick),
+        n_confirmed=len(plan_confirmed),
+        n_losers=len(losers),
+        ledger=ledger,
+        rail=rail,
+        crowd=crowd,
+        hotel=hotel,
     )
     r = agents.registry
     with agents.writable(), world.writable():
@@ -387,15 +431,117 @@ def _apply_move(agents, world, aid, tgt, tick, out, schedule) -> None:
     _fail(agents, aid[~good], ResultCode.UNREACHABLE, tick, out)
 
 
-def _apply_no_train(agents, world, aid, tgt, tick, out, schedule) -> None:
-    """乗車: C2 に列車が無いので必ず「列車なし」(行動契約書 §2.1・C4 で実装)。"""
-    _fail(agents, aid, ResultCode.NO_TRAIN, tick, out)
+def _apply_board(agents, world, aid, tgt, tick, out, schedule) -> None:
+    """乗車(行動契約書 §2.1 + 運用設計書 §2.6)。
+
+    前提条件(契約書逐語): 「同一セルに停車中・運賃≦残高orIC・**定員に空き**」。
+    §2.6 の改訂で「定員」は座席定員ではなく**詰め込み上限**(混雑率の実測上限)になった
+    ので、受容は ``rail.accept_quota``(混雑率→受容率)が決める。失敗の意味論は
+    満員=``TRAIN_FULL`` / 運賃不足=``FARE_SHORT`` / 列車なし=``NO_TRAIN``。
+
+    Note:
+        逐次ループ宣言(P4): **この tick に停車中の列車数**ぶんのループ 1 本
+        (路線 8 × 方向 2 = 高々 16 級)。個体数には比例しない。
+    """
+    r = agents.registry
+    if aid.size == 0:
+        return
+    if out.rail is None:
+        _fail(agents, aid, ResultCode.NO_TRAIN, tick, out)  # C2 互換(列車が無い世界)
+        return
+    trains = np.asarray(out.rail.trains_at_platform(int(tick)), dtype=np.int64)
+    can_try = r.transit_state[aid] == 0
+    if trains.size == 0 or not can_try.any():
+        _fail(agents, aid, ResultCode.NO_TRAIN, tick, out)
+        return
+    plat = np.asarray(out.rail.platform_cell, dtype=np.int64)[trains]
+    cell = r.cell[aid].astype(np.int64)
+    fare = int(out.rail.fare_yen)
+    boarded: list[tuple[int, np.ndarray]] = []
+    full: list[np.ndarray] = []
+    poor: list[np.ndarray] = []
+    served = np.zeros(aid.size, dtype=bool)
+    # 逐次ループ宣言: 停車中の列車ぶん(≤ 路線×方向)
+    for k in range(trains.size):
+        here = can_try & (~served) & (cell == plat[k])
+        if not here.any():
+            continue
+        served |= here
+        idx = np.flatnonzero(here)
+        idx = idx[np.argsort(aid[idx], kind="stable")]  # 決定論(agent_id 昇順)
+        pay_ok = r.money[aid[idx]].astype(np.int64) >= fare
+        poor.append(aid[idx[~pay_ok]])
+        idx = idx[pay_ok]
+        if idx.size == 0:
+            continue
+        quota = int(out.rail.accept_quota(int(trains[k]), int(idx.size)))
+        boarded.append((int(trains[k]), aid[idx[:quota]]))
+        full.append(aid[idx[quota:]])
+    _fail(agents, aid[~served], ResultCode.NO_TRAIN, tick, out)
+    for arr in poor:
+        _fail(agents, arr, ResultCode.FARE_SHORT, tick, out)
+    for arr in full:
+        _fail(agents, arr, ResultCode.TRAIN_FULL, tick, out)
+    boarded = [(t, a) for t, a in boarded if a.size]
+    if not boarded:
+        return
+    riders = np.concatenate([a for _, a in boarded]).astype(np.int64)
+    train_of = np.concatenate([np.full(a.size, t, dtype=np.int64) for t, a in boarded])
+    led = out.ledger
+    if led is not None and led.money is not None:
+        # 運賃 = 世帯 → 外界(持ち出し=sink)。鉄道事業者は第1陣の6部門に無い(§2.1)ので
+        # 許された部門対(H,W)/科目「持ち出し」に載せる=**科目の意味の拡張は台帳側の宣言事項**。
+        status = np.asarray(out.rail.pay_fares(led.money, riders, fare, int(tick)))
+        ok = status == 0
+        if not ok.all():
+            _fail(agents, riders[~ok], ResultCode.FARE_SHORT, tick, out)
+            out.n_ledger_rejected += int((~ok).sum())
+            riders, train_of = riders[ok], train_of[ok]
+            if riders.size == 0:
+                return
+    else:
+        r.money[riders] = (r.money[riders].astype(np.int64) - fare).astype(np.int32)
+    out.fare_paid += int(fare) * int(riders.size)
+    r.activity[riders] = int(Activity.RIDING)
+    r.transit_state[riders] = 1
+    r.transit_ref[riders] = train_of.astype(np.int32)
+    r.node[riders] = -1  # ホームを離れて車内へ(セルは apply の末尾で -1 になる)
+    r.target_node[riders] = -1
+    r.poi_ref[riders] = -1
+    r.queue_poi[riders] = -1
+    out.n_boarded += int(riders.size)
+    out.rail.on_board(train_of)
+    _ok(agents, riders, tick, out)
 
 
-def _apply_no_stop(agents, world, aid, tgt, tick, out, schedule) -> None:
-    """降車: 行動契約書 §2.1 の失敗語は「その駅には止まらない」(NO_STOP)。C2 では乗車中の個体が
-    存在しないため常にこの失敗になる(列車は C4)。"""
-    _fail(agents, aid, ResultCode.NO_STOP, tick, out)
+def _apply_alight(agents, world, aid, tgt, tick, out, schedule) -> None:
+    """降車(行動契約書 §2.1): 前提=「乗車中・当該駅に停車」・失敗=「その駅には止まらない」。"""
+    r = agents.registry
+    if aid.size == 0:
+        return
+    if out.rail is None:
+        _fail(agents, aid, ResultCode.NO_STOP, tick, out)
+        return
+    riding = r.transit_state[aid] == 1
+    train = r.transit_ref[aid].astype(np.int64)
+    stops = np.zeros(aid.size, dtype=bool)
+    if riding.any():
+        stops[riding] = np.asarray(
+            out.rail.is_at_platform(train[riding], int(tick)), dtype=bool
+        )
+    _fail(agents, aid[~stops], ResultCode.NO_STOP, tick, out)
+    win = aid[stops]
+    if win.size == 0:
+        return
+    cell = np.asarray(out.rail.platform_cell, dtype=np.int64)[train[stops]]
+    r.activity[win] = int(Activity.IDLE)
+    r.transit_state[win] = 0
+    out.rail.on_alight(train[stops])
+    r.transit_ref[win] = -1
+    r.node[win] = world.assets.cell_rep_node[cell].astype(r.node.dtype)
+    r.target_node[win] = -1
+    out.n_alighted += int(win.size)
+    _ok(agents, win, tick, out)
 
 
 def _apply_buy(agents, world, aid, tgt, tick, out, schedule) -> None:
@@ -421,6 +567,21 @@ def _apply_buy(agents, world, aid, tgt, tick, out, schedule) -> None:
     _fail(agents, aid[is_open & ~in_stock], ResultCode.OUT_OF_STOCK, tick, out)
     _fail(agents, aid[in_stock & ~can_pay], ResultCode.MONEY_SHORT, tick, out)
 
+    # ---- 屋内占有(16行表 行2・容量 c の M/M/c 近似): 満席なら待ち行列へ ----
+    if out.crowd is not None and can_pay.any():
+        room = np.zeros(aid.size, dtype=bool)
+        sel = np.flatnonzero(can_pay)
+        room[sel] = np.asarray(out.crowd.can_admit(poi[sel]), dtype=bool)
+        queued = aid[can_pay & ~room]
+        if queued.size:
+            # 契約書 §2.1「購入」のコスト欄「価格・**待ち時間**」= 満席時は並ぶ(失敗ではない)
+            r.activity[queued] = int(Activity.WAITING)
+            r.queue_poi[queued] = poi[can_pay & ~room].astype(np.int32)
+            r.queue_since[queued] = int(tick)
+            out.n_queued += int(queued.size)
+            _ok(agents, queued, tick, out)
+        can_pay = can_pay & room
+
     win = np.flatnonzero(can_pay)
     if win.size == 0:
         return
@@ -439,8 +600,23 @@ def _apply_buy(agents, world, aid, tgt, tick, out, schedule) -> None:
     else:
         r.money[buyers] = (r.money[buyers].astype(np.int64) - paid).astype(np.int32)
     if led is not None and led.goods is not None:
-        sold = np.asarray(led.goods.sell_many(bought, tick))
-        if not sold.all():  # can_sell 済みなので通常は起きない(防御)
+        # ``GoodsLedger.sell_many`` は「**最初の非空スロット**」からしか払い出さない
+        # (``_first_nonempty_slot``)。同一 tick に同一 POI へ複数人が来ると、先頭スロットの
+        # 残りを超えた行は他スロットに在庫があっても失敗する。``can_sell`` は棚の**合計**で
+        # 判定しているので、これは台帳側の粒度の食い違い(economy は本サブの読み取り専用領域)。
+        # ここで**失敗行だけを次のスロットへ回す**ことで ``can_sell`` の意味に合わせる。
+        # 逐次ループ宣言(P4): **スロット数**ぶん(≤8)。購入行数には比例しない。
+        sold = np.zeros(bought.size, dtype=bool)
+        pending = np.arange(bought.size, dtype=np.int64)
+        for _ in range(_SELL_SLOT_RETRIES):
+            if pending.size == 0:
+                break
+            got = np.asarray(led.goods.sell_many(bought[pending], tick), dtype=bool)
+            sold[pending[got]] = True
+            pending = pending[~got]
+            if not got.any():
+                break  # 進捗なし = 本当に在庫切れ
+        if not sold.all():
             _fail(agents, buyers[~sold], ResultCode.OUT_OF_STOCK, tick, out)
             out.n_ledger_rejected += int((~sold).sum())
             buyers, bought, paid = buyers[sold], bought[sold], paid[sold]
@@ -459,6 +635,12 @@ def _apply_buy(agents, world, aid, tgt, tick, out, schedule) -> None:
         r.hunger[buyers].astype(np.int16) - BUY_HUNGER_RELIEF, 0
     ).astype(np.uint8)
     r.activity[buyers] = int(Activity.SHOPPING)
+    if out.crowd is not None:
+        # 在席の登録(屋内占有の集約=人物②「行列・人だかり」の素)
+        r.poi_ref[buyers] = bought.astype(np.int32)
+        r.poi_since[buyers] = int(tick)
+        r.queue_poi[buyers] = -1
+        out.crowd.on_admit(bought)
     out.n_purchases += int(win.size)
     out.revenue_delta += int(paid.sum())
     _ok(agents, buyers, tick, out)
@@ -544,6 +726,18 @@ def _apply_sleep(agents, world, aid, tgt, tick, out, schedule) -> None:
         )
     else:
         ok = (tgt >= 0) & (tgt < world.n_cells) & (r.cell[aid].astype(np.int64) == tgt)
+    # ホテル客室(§7.2): チェックイン済みの来街者は自宅でなくても寝られる。
+    # 満室でチェックインできなかった個体はここへ来ても ``NO_BED``(契約書 §2.1 の失敗語彙)。
+    n_hotel = 0
+    if out.hotel is not None and (~ok).any():
+        bed = np.zeros(aid.size, dtype=bool)
+        rest = np.flatnonzero(~ok)
+        bed[rest] = np.asarray(
+            out.hotel.has_bed(aid[rest], r.cell[aid[rest]].astype(np.int64)), dtype=bool
+        )
+        n_hotel = int(np.count_nonzero(bed))
+        ok = ok | bed
+    out.n_hotel_sleep += n_hotel
     _fail(agents, aid[~ok], ResultCode.NO_BED, tick, out)
     win = aid[ok]
     if win.size == 0:
@@ -578,6 +772,35 @@ def restock(
     ok = ledger.goods.restock_many(s, qty, tick, money=ledger.money, slot=slot)
     with world.writable():
         touched = s[np.asarray(ok)]
+        if touched.size:
+            world.pois.stock[touched] = ledger.goods.aggregate_stock(touched).astype(
+                world.pois.stock.dtype
+            )
+    return ok
+
+
+def discard_to_bin(
+    world: World,
+    ledger: LedgerBundle,
+    stores: np.ndarray,
+    qty: np.ndarray,
+    tick: int,
+    *,
+    slot: np.ndarray | None = None,
+) -> np.ndarray:
+    """売れ残りを廃棄ビンへ(棚→ビン)。**棚が減るので写しの書き戻しが要る**。
+
+    世界過程設計書 §7.1 の C 類排出(店舗側)。搬出(ビン→bbox 外)は ``collect_waste``。
+
+    Returns:
+        行ごとの成否 bool。
+    """
+    if ledger.goods is None:
+        raise ValueError("物の台帳が注入されていない")
+    s = np.asarray(stores, dtype=np.int64).ravel()
+    ok = np.asarray(ledger.goods.to_bin_many(s, qty, tick, slot), dtype=bool)
+    with world.writable():
+        touched = s[ok]
         if touched.size:
             world.pois.stock[touched] = ledger.goods.aggregate_stock(touched).astype(
                 world.pois.stock.dtype
@@ -621,11 +844,215 @@ def collect_waste(
     return float(ledger.goods.collect_waste(stores, tick))
 
 
+# ---------------------------------------------------------------- C4: 世界過程の書き戻し口
+# 世界過程設計書 §3 実装原則3「世界状態への書き込み口は1本(答申原則5=resolve 経由)。
+# **世界過程も例外にしない**」。``engine/processes/*`` は状態を直接触らず、以下の口だけを呼ぶ。
+def set_thermal(agents: AgentState, thermal) -> None:
+    """体感温度(内受容3変数の1本)を一括代入する(知覚契約書 §3 内受容・日陰係数0.86)。
+
+    Args:
+        agents: 個体状態。
+        thermal: ``(n,)`` の 0-10 値(呼び出し側で丸め・クリップ済み)。
+    """
+    v = np.asarray(thermal)
+    with agents.writable():
+        agents.registry.thermal[:] = np.clip(v, 0, 10).astype(np.uint8)
+
+
+def set_notice_state(pstate, heading, task_flag, indices=None) -> None:
+    """知覚側 SoA(M12: 向き量子化+課題従事フラグ)を書く(**書き込み口は resolve 一本**)。
+
+    ``perception.state.PerceptionState`` は ``agents``/``world`` と同じ凍結規律を持ち、
+    ``writable()`` を呼んでよいのは本ファイルだけ(``tests/engine/test_two_phase.py``)。
+    p_notice(知覚契約書 §3.1)の ``m_ecc``/``m_load`` はこの 2 byte/体を読む。
+
+    Args:
+        pstate: ``PerceptionState``(型は import しない=engine→perception の依存を増やさない)。
+        heading: 量子化した向き(0..15)。
+        task_flag: ``perception.p_notice.TaskLoad``。
+        indices: 書く行(``None`` なら全行)。
+    """
+    h = np.asarray(heading, dtype=np.uint8)
+    t = np.asarray(task_flag, dtype=np.uint8)
+    with pstate.writable():
+        if indices is None:
+            pstate.heading[:] = h
+            pstate.task_flag[:] = t
+        else:
+            idx = np.asarray(indices, dtype=np.int64)
+            if idx.size:
+                pstate.heading[idx] = h
+                pstate.task_flag[idx] = t
+
+
+def set_open_flags(world: World, open_now, indices=None) -> None:
+    """POI の営業フラグ上書き欄を書く(-1=上書きなし / 0=閉 / 1=開)。
+
+    Args:
+        world: 世界。
+        open_now: 全 POI ぶんの値、または ``indices`` と同じ長さの値。
+        indices: 書く行(``None`` なら全行)。
+    """
+    v = np.asarray(open_now, dtype=np.int8)
+    with world.writable():
+        if indices is None:
+            world.pois.open_now[:] = v
+        else:
+            idx = np.asarray(indices, dtype=np.int64)
+            if idx.size:
+                world.pois.open_now[idx] = v
+
+
+def place_at_external(agents: AgentState, agent_ids, external_ref) -> None:
+    """域外ノードに個体を置く(U10 §1.1「域外は方面別の外界ノード」・ランの最初)。
+
+    位置は持たない(``cell=node=-1``)。``transit_state=2`` が「域外滞在」の唯一の印。
+    """
+    a = np.asarray(agent_ids, dtype=np.int64).ravel()
+    if a.size == 0:
+        return
+    ref = np.asarray(external_ref, dtype=np.int64).ravel()
+    with agents.writable():
+        r = agents.registry
+        r.transit_state[a] = 2
+        r.transit_ref[a] = ref.astype(np.int32)
+        r.cell[a] = -1
+        r.node[a] = -1
+        r.target_node[a] = -1
+        r.activity[a] = int(Activity.WAITING)
+
+
+def rail_arrive(agents: AgentState, world: World, agent_ids, cells) -> None:
+    """列車の到着で域外ノードの個体をホームのセルへ降ろす(域外→bbox)。"""
+    a = np.asarray(agent_ids, dtype=np.int64).ravel()
+    if a.size == 0:
+        return
+    c = np.asarray(cells, dtype=np.int64).ravel()
+    with agents.writable():
+        r = agents.registry
+        r.transit_state[a] = 0
+        r.transit_ref[a] = -1
+        r.node[a] = world.assets.cell_rep_node[c].astype(r.node.dtype)
+        r.cell[a] = c.astype(r.cell.dtype)
+        r.band[a] = world.assets.cell_band[c].astype(r.band.dtype)
+        r.xy[a] = world.assets.node_xy[r.node[a]]
+        r.activity[a] = int(Activity.IDLE)
+        r.target_node[a] = -1
+
+
+def rail_depart(agents: AgentState, agent_ids, external_ref) -> None:
+    """列車の発車で乗客を域外ノードへ運び出す(bbox→域外)。"""
+    a = np.asarray(agent_ids, dtype=np.int64).ravel()
+    if a.size == 0:
+        return
+    ref = np.asarray(external_ref, dtype=np.int64).ravel()
+    with agents.writable():
+        r = agents.registry
+        r.transit_state[a] = 2
+        r.transit_ref[a] = ref.astype(np.int32)
+        r.cell[a] = -1
+        r.node[a] = -1
+        r.target_node[a] = -1
+        r.activity[a] = int(Activity.WAITING)
+
+
+def sync_transit_activity(agents: AgentState) -> None:
+    """``transit_state`` を正として ``activity`` を整える(乗車中=``RIDING``)。
+
+    「待機」「休憩」「退去」は**失敗しない行動**(契約書 §2.1)なので車内でも通り、
+    ``activity`` を上書きしてしまう。乗客の同定は ``transit_state`` が持つので世界は壊れないが、
+    観測に出る ``activity`` が実態とずれるため毎 tick 貼り直す(ベクトル1本)。
+    """
+    with agents.writable():
+        r = agents.registry
+        riding = r.transit_state == 1
+        if riding.any():
+            r.activity[riding] = int(Activity.RIDING)
+
+
+def release_indoor(agents: AgentState, agent_ids) -> None:
+    """在席の解除(回転率=滞在上限・16行表 行2 の expedient)。"""
+    a = np.asarray(agent_ids, dtype=np.int64).ravel()
+    if a.size == 0:
+        return
+    with agents.writable():
+        r = agents.registry
+        r.poi_ref[a] = -1
+        r.poi_since[a] = -1
+        r.activity[a] = np.where(
+            r.activity[a] == int(Activity.SHOPPING), int(Activity.IDLE), r.activity[a]
+        ).astype(r.activity.dtype)
+
+
+def balk_queue(agents: AgentState, agent_ids, tick: int) -> None:
+    """待ち行列からの離脱(離脱閾値・``INTERRUPTED``=「途中打ち切り(混雑・閉鎖)」)。"""
+    a = np.asarray(agent_ids, dtype=np.int64).ravel()
+    if a.size == 0:
+        return
+    with agents.writable():
+        r = agents.registry
+        r.queue_poi[a] = -1
+        r.queue_since[a] = -1
+        r.activity[a] = int(Activity.IDLE)
+        r.last_result[a] = int(ResultCode.INTERRUPTED)
+        r.last_result_tick[a] = int(tick)
+        r.fail_streak[a] = np.minimum(r.fail_streak[a].astype(np.int16) + 1, 255).astype(np.uint8)
+
+
+def request_open_close(
+    agents: AgentState,
+    world: World,
+    agent_ids,
+    poi_ids,
+    want_open,
+    tick: int,
+    *,
+    permitted=None,
+) -> np.ndarray:
+    """役割行動「開閉店」(行動契約書 §2.2)。権限=当該 POI の担当従業者だけ。
+
+    Args:
+        agents / world: 状態。
+        agent_ids: 行為者。
+        poi_ids: 対象 POI。
+        want_open: 開けるなら True。
+        tick: 現在 tick。
+        permitted: 行ごとの権限 bool(``None`` なら全て権限なし=``NO_PERMISSION``)。
+
+    Returns:
+        行ごとの ``ResultCode``(0=OK / 14=権限なし)。
+
+    Note:
+        効果は PlanSpec の**実績確定**(``ActualLog``)であり、フラグの反映もここで行う。
+        契約書は失敗の意味論を「権限なし」の 1 つだけ与えている。
+    """
+    a = np.asarray(agent_ids, dtype=np.int64).ravel()
+    p = np.asarray(poi_ids, dtype=np.int64).ravel()
+    w = np.asarray(want_open, dtype=bool).ravel()
+    out_code = np.full(a.size, int(ResultCode.NO_PERMISSION), dtype=np.int64)
+    if a.size == 0:
+        return out_code
+    ok = (
+        np.zeros(a.size, dtype=bool) if permitted is None else np.asarray(permitted, dtype=bool)
+    )
+    with agents.writable(), world.writable():
+        r = agents.registry
+        if ok.any():
+            world.pois.open_now[p[ok]] = w[ok].astype(np.int8)
+            out_code[ok] = int(ResultCode.OK)
+            r.last_result[a[ok]] = int(ResultCode.OK)
+            r.fail_streak[a[ok]] = 0
+        if (~ok).any():
+            r.last_result[a[~ok]] = int(ResultCode.NO_PERMISSION)
+        r.last_result_tick[a] = int(tick)
+    return out_code
+
+
 _APPLY: Final[dict[int, object]] = {
     ENGINE_STEP: _apply_engine_step,
     ACT_MOVE: _apply_move,
-    ACT_BOARD: _apply_no_train,
-    ACT_ALIGHT: _apply_no_stop,
+    ACT_BOARD: _apply_board,
+    ACT_ALIGHT: _apply_alight,
     ACT_BUY: _apply_buy,
     ACT_WAIT: _apply_wait,
     ACT_TALK: _apply_talk,

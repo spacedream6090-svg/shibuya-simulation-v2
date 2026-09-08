@@ -42,7 +42,22 @@ expedient(本モジュール分)
   実装と違い、待ち続ければ必ず最上位に達する=starvation-free が算術で保証できる。
 - ``DEGRADE_COST_FACTOR = 0.5``(縮退実行1呼を通常呼 0.5 呼ぶんとして予算に数える)。
   契約書は「小モデル・T1短縮・観測ブロック削減」としか言わず**コスト比を与えていない**。
+  この係数は**トークン/計算量の予算**にだけ効き、**呼数の上限(L4)には効かない**
+  (下の「L4 は呼数の硬い上限」)。
 - 縮退は「予算が足りないときだけ」下位2クラス(個体変化・セル変化)に適用する。
+- ``POOL_CAP_TICKS = 2``(端数繰越の上限を 2 tick ぶんに切る)。L4 は 1 日総量の行なので
+  tick ごとの床(``floor``)で捨てると総量が届かない。繰越を無制限にすると夜間に溜めた枠で
+  昼に暴発するので、繰越の在庫に蓋をした(**expedient**: 契約書は繰越を規定していない)。
+
+**L4 は呼数の硬い上限(バグ修正・2026-09-08)**
+    予算行 L4 は「**上限400万呼/日**(=憲法1の監査点)」。実測ランは 5,000 体で 56,488 呼
+    = 11.30 呼/体/日 で、按分上限 50,000 呼(34.72 呼/tick × 1,440)を **13% 超えていた**。
+    原因は本モジュールの ⑤ で、縮退実行を ``cost=0.5`` として**累積コスト**で切っていたこと
+    (縮退呼が 2 件で 1 枠 → 呼数は上限の最大 2 倍まで通る)。縮退が減らすのは 1 呼あたりの
+    トークン/計算量であって**呼の本数ではない**ので、L4 の監査点としては誤り。
+    修正: 選抜数を ``floor(その tick に使える呼数)`` で**必ず**頭打ちにする
+    (``n_sel = min(コスト基準, 呼数基準)``)。会話ターンは④の固定優先で先頭に並ぶので、
+    上限が効いても会話は予算の中で最優先のまま(設計どおり呼数の約45%を占める)。
 """
 
 from __future__ import annotations
@@ -61,6 +76,7 @@ __all__ = [
     "T_MAX_TICKS",
     "DEGRADE_COST_FACTOR",
     "DEGRADE_CLASSES",
+    "POOL_CAP_TICKS",
     "L4_CALLS_PER_DAY",
     "L4_REFERENCE_AGENTS",
     "call_budget_per_tick",
@@ -81,6 +97,8 @@ T_MAX_TICKS: Final[dict[int, int]] = {
 DEGRADE_COST_FACTOR: Final[float] = 0.5
 #: 縮退の対象=下位2クラス(知覚契約書 §6)。
 DEGRADE_CLASSES: Final[tuple[int, ...]] = (int(EventClass.INDIVIDUAL), int(EventClass.CELL))
+#: 端数の繰越に許す在庫[tick ぶん](expedient)。
+POOL_CAP_TICKS: Final[float] = 2.0
 
 #: 予算行 L4(呼/シミュ日・40万体基準)。
 L4_CALLS_PER_DAY: Final[int] = 4_000_000
@@ -298,7 +316,10 @@ def arbitrate(
         degrade = np.isin(eff_class, np.asarray(DEGRADE_CLASSES, dtype=np.int64))
         cost = np.where(degrade, DEGRADE_COST_FACTOR, 1.0)
     n_sel = int(np.searchsorted(np.cumsum(cost), float(budget) + 1e-9, side="right"))
-    n_sel = min(n_sel, agent.size)
+    # **L4 は呼数の硬い上限**: 縮退は 1 呼あたりのトークン/計算量を下げるだけで、呼の本数は
+    # 減らさない。コスト基準だけで切ると縮退呼が 2 件で 1 枠になり、Σ呼/日が上限を超える
+    # (実測 11.30 呼/体/日 > 10)。呼数基準 ``floor(budget)`` で必ず頭打ちにする。
+    n_sel = min(n_sel, int(np.floor(float(budget) + 1e-9)), agent.size)
     sel = slice(0, n_sel)
     rest = slice(n_sel, agent.size)
 
@@ -344,8 +365,8 @@ class Arbiter:
         >>> c = WakeCandidates(np.array([1, 2, 3]), np.array([10, 10, 10], dtype=np.int8),
         ...                    np.array([3, 3, 3]), np.array([0, 0, 0]))
         >>> d = arb.step(0, c)
-        >>> d.n_calls   # 3件>予算2 → 下位クラスは縮退(0.5呼)扱いで 3 件とも通る
-        3
+        >>> d.n_calls   # 3件>予算2 → 縮退印は付くが**呼数は L4 の硬い上限**で 2 件
+        2
     """
 
     def __init__(
@@ -361,6 +382,11 @@ class Arbiter:
         self.budget = float(budget) if budget is not None else call_budget_per_tick(n_agents)
         self.queue = DeferralQueue(classes)
         self.classes = tuple(classes)
+        #: 端数の繰越在庫[呼](L4 は 1 日総量の行なので tick ごとの floor で捨てない)。
+        self._pool = 0.0
+        self._pool_cap = float(self.budget) * POOL_CAP_TICKS
+        #: 使えたのに使わなかった枠の累計(診断)。
+        self.budget_unused = 0.0
         self._pending = WakeCandidates.empty()
         self._last_tick = 0
         self._diag_total = np.zeros((len(DIAG_COLUMNS), len(self.classes)), dtype=np.int64)
@@ -398,7 +424,11 @@ class Arbiter:
         """新規候補と保留を合わせて裁定し、落選分を保留に積む。"""
         self._last_tick = int(tick)
         merged_in = WakeCandidates.concat([self._pending, candidates])
-        decision = arbitrate(merged_in, tick, self.budget, self.run_salt, refractory_until)
+        # L4 の総量を落とさずに呼数を硬く切るため、端数を繰り越す(在庫は 2 tick ぶんで頭打ち)。
+        self._pool = min(self._pool + self.budget, self._pool_cap)
+        decision = arbitrate(merged_in, tick, self._pool, self.run_salt, refractory_until)
+        self._pool -= float(decision.n_calls)
+        self.budget_unused = max(0.0, self._pool)
         self._store(decision.deferred)
         self._diag_total += decision.diag
         self._merged_total += decision.merged_per_class

@@ -43,7 +43,23 @@ def test_state_growth_declaration_passes(small_run):
     """D-R2-6: 24step→1日/30日 外挿が予算 M 行の内側。"""
     rep = small_run.growth_report
     assert rep is not None and rep.ok, rep.as_text()
-    assert set(small_run.growth_measured) == set(GD.declarations())
+    # エンジン 5 バッファは**必ず**測る。O(t) ログ(ActualLog 等)は世界過程・台帳が
+    # 付いているランでだけ増える(層2レビュー指摘の追加分)。
+    assert set(GD.declarations()) <= set(small_run.growth_measured)
+    assert not rep.missing and not rep.unknown, rep.as_text()
+
+
+def test_o_t_logs_are_measured_not_just_the_engine_buffers(small_run):
+    """層2レビュー指摘: D-R2-6 が名指しした O(t) ログ本体を実測に載せる。
+
+    ``ActualLog``(世界過程)は台帳が無くても回るので、ここで押さえる。台帳側
+    (transfer_log / delivery_log)は ``tests/engine/test_ledger_wiring.py`` が押さえる。
+    """
+    m = small_run.growth_measured
+    assert "actual_log_raw" in m and m["actual_log_raw"] > 0, m
+    assert "actual_log_daily" in m
+    names = {r.name for r in small_run.growth_report.rows}
+    assert "actual_log_raw" in names
 
 
 def test_engine_actually_moves_and_wakes(small_run):

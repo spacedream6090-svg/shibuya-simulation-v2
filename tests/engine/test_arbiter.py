@@ -172,8 +172,10 @@ def test_no_starvation_under_sustained_overload():
 def test_degrade_applies_only_to_the_lower_two_classes_and_only_when_over_budget():
     c = _cands(list(range(10)), [EventClass.CELL] * 10)
     d = arbitrate(c, tick=0, budget=4.0, run_salt=SALT)
-    # 縮退で 1 呼 0.5 → 予算 4 で 8 件通る
-    assert d.n_calls == int(4.0 / DEGRADE_COST_FACTOR)
+    # 縮退印は付くが**呼数は L4 の硬い上限**(floor(budget))で切れる。
+    # 縮退が減らすのは 1 呼あたりのトークン/計算量であって呼の本数ではない(2026-09-08 修正)。
+    assert d.n_calls == 4
+    assert d.n_calls < int(4.0 / DEGRADE_COST_FACTOR)
     assert d.selected_degraded.all()
     row = DIAG_COLUMNS.index("degraded")
     assert int(d.diag[row].sum()) == d.n_calls
@@ -220,10 +222,12 @@ def test_deferred_items_come_back_next_tick():
     arb = Arbiter(10, SALT, budget=1.0)
     c = _cands([1, 2, 3], [EventClass.CELL] * 3)
     d0 = arb.step(0, c)
-    assert d0.n_calls == 2  # 3 件 > 予算 1 → 縮退(0.5)で 2 件
-    assert arb.n_pending() == 1
+    assert d0.n_calls == 1  # 3 件 > 予算 1 → 呼数上限で 1 件(縮退は呼数を増やさない)
+    assert arb.n_pending() == 2
     d1 = arb.step(1, WakeCandidates.empty())
-    assert d1.n_calls == 1 and arb.n_pending() == 0
+    assert d1.n_calls == 1 and arb.n_pending() == 1
+    d2 = arb.step(2, WakeCandidates.empty())
+    assert d2.n_calls == 1 and arb.n_pending() == 0
 
 
 def test_counters_shape_matches_deferral_queue():

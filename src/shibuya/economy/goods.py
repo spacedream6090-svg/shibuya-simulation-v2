@@ -29,7 +29,9 @@
 expedient(本モジュール分)
 - SKU 粒度(カテゴリあたり 1-3 品目)・質量[g]・標準原価。設計書 §7.2 が「SKU粒度・棚卸閾値・
   初期在庫・補充閾値/ロット」を expedient に挙げている通り、出典は無い。
-- 販売時の払い出し規則 = **最初の非空スロット**(スロット選択の根拠は無い)。
+- 販売時の払い出し規則 = **スロット順の前置数**(``sell_many`` は同一 tick・同一店舗の
+  複数行をスロットをまたいで払い出す。2026-09-08 のバグ修正前は「最初の非空スロット」
+  だけを見ていた)。スロットの並び順そのものに根拠は無い(expedient)。
 - 在庫評価は**標準原価**(移動平均法ではない)。原価 = 価格 ÷ k(内生フロア・§8 H-2)。
 - 棚卸差異の閾値 = 流量の 1%(``STOCKTAKE_THRESHOLD_RATIO``)。
 - 退蔵(売れ残り)の判定日数 = 14 日。
@@ -327,6 +329,8 @@ class GoodsLedger:
         self._open_stock = self.inside_stock_by_sku()
         self._day_waste_g = 0.0
         self._waste_g_daily: list[float] = []
+        #: 直近に畳んだ日の締め(``on_day_end`` の戻り)。**1 件だけ**保持する。
+        self._last_close: dict[str, object] | None = None
 
         self.unit_cost = np.asarray(unit_cost, dtype=np.int64).ravel()
         if self.unit_cost.size != self.n_poi:
@@ -548,25 +552,37 @@ class GoodsLedger:
         """販売(棚→世帯・1 行 1 個)。行ごとの成否 bool。
 
         同一 POI が複数行に現れる場合は**行順の前置数**で在庫を割り当てる(決定論)。
+        前置数は**店舗ごと**に数え、スロットは棚の累積在庫で決める=1 呼で**全スロットを
+        またいで払い出す**(``can_sell`` が棚の**合計**で判定するのと粒度を合わせる)。
+
+        Note:
+            バグ修正(2026-09-08): 以前は ``_first_nonempty_slot`` の**先頭スロットだけ**から
+            払い出していたため、同一 tick に同一 POI へ来た客が先頭スロットの残数を超えると、
+            他スロットに在庫があっても ``OUT_OF_STOCK`` になっていた
+            (``engine.resolve._apply_buy`` が ≤8 回のスロット再試行で埋め合わせていた)。
+            再試行は**保険として残す**が、正しい払い出しはここで完結する。
+
+            逐次ループ宣言(P4): なし(スロット数ぶんの累積和 1 本。行数・個体数に比例しない)。
         """
         s = np.asarray(stores, dtype=np.int64).ravel()
         out = np.zeros(s.size, dtype=bool)
         if s.size == 0:
             return out
         valid = (s >= 0) & (s < self.n_poi)
-        slot = np.zeros(s.size, dtype=np.int64)
-        slot[valid] = self._first_nonempty_slot(s[valid])
-        have = np.zeros(s.size, dtype=np.int64)
-        have[valid] = self._shelf[s[valid], slot[valid]].astype(np.int64)
-        # 同一(POI, スロット)の重複は**行順の前置数**で消化する(決定論)
-        key = s * self.slots + slot
+        sv = np.where(valid, s, 0)  # 索引用(無効行は 0 で当たり障りなく引く)
+        key = np.where(valid, s, -1)  # 前置数用(無効行は別の群に落とす)
+        # 同一店舗の重複は**行順の前置数**で消化する(決定論)
         order = np.argsort(key, kind="stable")
-        sorted_key = key[order]
-        start = np.searchsorted(sorted_key, sorted_key, side="left")
-        rank_sorted = np.arange(key.size, dtype=np.int64) - start
+        sorted_store = key[order]
+        start = np.searchsorted(sorted_store, sorted_store, side="left")
+        rank_sorted = np.arange(sv.size, dtype=np.int64) - start
         rank = np.empty_like(rank_sorted)
         rank[order] = rank_sorted
-        ok = valid & (have > rank)
+        # 棚をスロット順に積み上げ、前置数がどのスロットに落ちるかを二分探索なしで決める
+        cum = np.cumsum(self._shelf[sv].astype(np.int64), axis=1)  # (n_rows, slots)
+        total = cum[:, -1]
+        slot = np.minimum((cum <= rank[:, None]).sum(axis=1), self.slots - 1)
+        ok = valid & (rank < total) & (self.poi_sku[sv, slot] >= 0)
         if not ok.any():
             return out
         with self._open():
@@ -796,6 +812,10 @@ class GoodsLedger:
             "outflow": int(bal["outflow"].sum()),
             "waste_g": self._day_waste_g,
             "delivery_rows_kept": int(self._dl_pos - self._dl_head),
+            # 締めると当日欄(_inflow/_outflow/_residual)は 0 に戻るので、
+            # 棚卸差異は**締める前の値**をここに載せる(日次センサスが読む)。
+            "residual_units": int(np.abs(bal["residual"]).sum()),
+            "shelf_units": int(self.aggregate_stock().sum()),
         }
         with self._open():
             self._shelf_age += 1
@@ -815,7 +835,38 @@ class GoodsLedger:
                 self.n_delivery_dropped += int(marked_pos - self._dl_head)
                 self._dl_head = marked_pos
         self._dl_marks = [m for m in self._dl_marks if m[0] > cutoff]
+        self._last_close = out
         return out
+
+    @property
+    def last_close(self) -> dict[str, object] | None:
+        """直近に畳んだ日の締め(``on_day_end`` の戻り)。"""
+        return self._last_close
+
+    def close_for(self, day: int) -> dict[str, object] | None:
+        """``day`` が**直近に畳んだ日**ならその締めを返す(違えば ``None``)。
+
+        金の台帳の ``Ledger.close_for`` と同じ理由——締めたあとは当日欄が 0 に戻るので、
+        日次センサスは締めた日の実数をここから読む(層2レビュー指摘)。
+        """
+        c = self._last_close
+        if c is None or int(c["day"]) != int(day):  # type: ignore[arg-type]
+            return None
+        return c
+
+    # ---------------------------------------------------------------- D-R2-6
+    def growth_declarations(self) -> Mapping[str, GrowthDeclaration]:
+        """この台帳の状態成長宣言(``growth_measured`` と**同じ鍵**で返す)。"""
+        decls = growth_declarations(
+            delivery_capacity=int(self._dl_tick.size),
+            retention_days=self.retention_days,
+            slots=self.slots,
+        )
+        return {"delivery_log": decls["delivery_log"]}
+
+    def growth_measured(self) -> Mapping[str, int]:
+        """D-R2-6 の**実測増分バイト**(保持窓の中に残っている納品ログ)。"""
+        return {"delivery_log": int(self._dl_pos - self._dl_head) * DELIVERY_ROW_BYTES}
 
     # ---------------------------------------------------------------- 納品ログ
     def _log(self, tick: int, poi: int, slot: int, qty: int, code: GoodsCode) -> None:

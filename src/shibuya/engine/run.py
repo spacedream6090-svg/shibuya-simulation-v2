@@ -50,7 +50,7 @@ from __future__ import annotations
 import argparse
 import time
 from dataclasses import dataclass, field
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Final
 
@@ -74,6 +74,7 @@ from shibuya.engine.arbiter import Arbiter, WakeCandidates, call_budget_per_tick
 from shibuya.engine.change_detect import ChangeDetector
 from shibuya.engine.conversation import ConversationManager
 from shibuya.engine.ledger_api import LedgerBundle
+from shibuya.engine.processes.runner import WorldProcessRunner
 from shibuya.engine.llm_bridge import (
     DEFAULT_LANE,
     LLMBridge,
@@ -89,6 +90,7 @@ from shibuya.perception.renderer import (
     PerceptionAssets,
     Renderer as PerceptionRenderer,
 )
+from shibuya.world.assets import load_process_assets_or_synthetic
 from shibuya.world.state import World
 
 __all__ = [
@@ -190,6 +192,49 @@ class RunResult:
     tape_path: str = ""
     #: ``record`` / ``replay``。
     mode: str = "record"
+    # ---- C4: 世界過程(第1陣) ----
+    #: 世界側台帳の blake3(manifest の同定欄・``WorldRegistry.registry_hash``)。
+    registry_hash: str = ""
+    #: 憲法5(D-R2-4)のビルド時検査を通ったか。
+    constitution_ok: bool = False
+    #: 気象の再生実日(D-W15 実日ブートストラップ)。世界過程が無ければ空。
+    replay_date: str = ""
+    #: 過程別の壁時計[秒]。
+    process_seconds: dict[str, float] = field(default_factory=dict)
+    #: 過程別の診断カウンタ(``<過程>.<欄>``)。
+    process_counters: dict[str, float] = field(default_factory=dict)
+    #: 支払われた運賃の合計[円](世帯→外界の sink)。
+    fares_paid: int = 0
+    #: 乗車・降車・待ち行列の件数。
+    n_boarded: int = 0
+    n_alighted: int = 0
+    n_queued: int = 0
+    #: PlanSpec の遵守率(``ActualLog`` の SCHEDULED 率)。
+    compliance_rate: float = float("nan")
+    #: ``ActualLog`` の追記総件数。
+    actual_log_rows: int = 0
+    # ---- C4 後半 ----
+    #: 日次センサスの 1 行(``economy.census.daily_census``。注入されたときだけ埋まる)。
+    #: **締めた日の実数**(faucet/sink/廃棄は締める前の当日値)。
+    census_row: dict[str, Any] = field(default_factory=dict)
+    #: ``census_row`` が指す日(``LedgerBundle.end_of_day`` で畳んだ日)。-1=台帳なし。
+    day_closed: int = -1
+    #: 日次ゲートの合否(§2.4「残差>閾値・純資産≠実物資産はゲート失敗」)。**例外にしない**。
+    census_pass: bool = False
+    #: 顕著行為(人物③)の件数と、``p_notice`` で気づいた延べ人数。
+    salient_events: int = 0
+    noticed: int = 0
+    #: 公共サービスの出動件数。
+    dispatches: int = 0
+    #: 補充・納品・宅配・バス到着・ホテル泊の件数(受入報告の数値欄)。
+    restocks: int = 0
+    deliveries: int = 0
+    parcels: int = 0
+    bus_arrivals: int = 0
+    hotel_checkins: int = 0
+    #: その日の廃棄 sink[t/日](物の台帳 + 街路清掃)と W1 band。
+    waste_tonnes_per_day: float = 0.0
+    waste_band: tuple[float, float] = (0.0, 0.0)
 
     # ---- 便利参照 ----
     def column(self, name: str) -> np.ndarray:
@@ -231,9 +276,55 @@ class RunResult:
         return self.checkpoints[-1].combined if self.checkpoints else ""
 
     @property
+    def waste_band_ok(self) -> bool:
+        lo, hi = self.waste_band
+        return bool(hi > 0.0 and lo <= self.waste_tonnes_per_day <= hi)
+
+    def run_manifest_fields(self) -> dict[str, Any]:
+        """ラン manifest の同定欄(C6 が読む)。
+
+        Returns:
+            ``registry_hash``(世界側台帳)・``replay_date``(D-W15 の実日)・
+            ``template_sha256``(知覚テンプレ v1 の凍結ハッシュ)・
+            ``catalog_sha16``(世界カタログ v0.2 の凍結 SHA)・
+            ``process_ids``(実際に回した過程 id の昇順)・``ablations``(切った過程/感度試験 id)。
+        """
+        from shibuya.perception import templates as _T
+
+        runner = getattr(self, "runner", None)
+        catalog_sha16 = ""
+        process_ids: tuple[str, ...] = ()
+        ablations: tuple[str, ...] = ()
+        if runner is not None:
+            catalog_sha16 = str(getattr(runner.registry.catalog, "sha16", ""))
+            process_ids = tuple(
+                sorted(
+                    {
+                        pid
+                        for key in runner.enabled
+                        for pid in getattr(runner._procs[key], "process_ids", ())
+                    }
+                )
+            )
+            ablations = tuple(sorted(runner.disabled_ids))
+        return {
+            "registry_hash": self.registry_hash,
+            "replay_date": self.replay_date,
+            "template_sha256": _T.template_sha256(),
+            "catalog_sha16": catalog_sha16,
+            "process_ids": process_ids,
+            "ablations": ablations,
+        }
+
+    @property
     def conserved(self) -> bool:
-        """保存則: Σ所持金 + Σ売上 が不変。"""
-        return self.money_start == self.money_end + self.revenue_end
+        """保存則: Σ所持金 + Σ売上 + **Σ運賃(外界への sink)** が不変。
+
+        運賃は境界・経済設計書 §2.2 の sink(世帯→外界・科目「持ち出し」)なので、
+        bbox 内の現金合計からは正しく消える。C4 以前(列車なし)は ``fares_paid=0`` で
+        C2 の等式そのまま。
+        """
+        return self.money_start == self.money_end + self.revenue_end + self.fares_paid
 
     @property
     def movement_ms_per_tick(self) -> float:
@@ -250,10 +341,45 @@ class RunResult:
             f"  LLM呼 {int(calls):,} = {calls / max(1, self.n_agents):.2f} 呼/体/日 "
             f"(L4 制御目標 10)",
             f"  保存則 Σmoney {self.money_end:,} + Σrevenue {self.revenue_end:,} "
-            f"= {self.money_end + self.revenue_end:,} (初期 {self.money_start:,}) "
+            f"+ Σ運賃 {self.fares_paid:,} "
+            f"= {self.money_end + self.revenue_end + self.fares_paid:,} "
+            f"(初期 {self.money_start:,}) "
             f"{'OK' if self.conserved else 'NG'} / 最小在庫 {self.min_stock}",
             f"  checkpoint {len(self.checkpoints)} 点 最終 {self.final_hash[:16]}…",
         ]
+        if self.registry_hash:
+            lines.append(
+                f"  世界過程 台帳 {self.registry_hash[:16]}… 憲法5 "
+                f"{'OK' if self.constitution_ok else 'NG'} / 再生日 "
+                f"{self.replay_date or '(合成)'} / 乗車 {self.n_boarded:,} 降車 "
+                f"{self.n_alighted:,} 待ち行列 {self.n_queued:,} 乗り残し "
+                f"{int(self.process_counters.get('rail.left_behind', 0)):,}"
+                f"({self.process_counters.get('rail.left_behind_rate', 0.0):.4f}) / ActualLog "
+                f"{self.actual_log_rows:,} 行 遵守率 {self.compliance_rate:.3f}"
+            )
+            lines.append(
+                f"  C4後半: 補充 {self.restocks:,} / 納品 {self.deliveries:,} / 宅配 "
+                f"{self.parcels:,} / バス到着 {self.bus_arrivals:,} / ホテル泊 "
+                f"{self.hotel_checkins:,} / 顕著行為 {self.salient_events:,}(気づき "
+                f"{self.noticed:,}・出動 {self.dispatches:,}) / 廃棄 "
+                f"{self.waste_tonnes_per_day:.3f} t/日 (band {self.waste_band[0]:.1f}-"
+                f"{self.waste_band[1]:.1f}) {'OK' if self.waste_band_ok else 'NG'}"
+            )
+            if self.census_row:
+                lines.append(
+                    f"  日次センサス(§2.4・締めた day={self.day_closed}): 残差 "
+                    f"{self.census_row.get('residual', 0):,} / 貨幣供給 "
+                    f"{self.census_row.get('money_supply', 0):,} / faucet "
+                    f"{self.census_row.get('faucet_total', 0):,} / sink "
+                    f"{self.census_row.get('sink_total', 0):,} / 棚卸差異 "
+                    f"{self.census_row.get('goods_residual_units', 0):,} / 廃棄 "
+                    f"{self.census_row.get('waste_g', 0.0):,.0f}g / ゲート "
+                    f"{'PASS' if self.census_pass else 'FAIL(診断の赤)'}"
+                )
+            lines.append(
+                "  過程別[s]: "
+                + ", ".join(f"{k}={v:.3f}" for k, v in sorted(self.process_seconds.items()))
+            )
         if self.renderer_counters:
             c = self.renderer_counters
             lines.append(
@@ -298,6 +424,11 @@ def run_day(
     conversations: bool = True,
     lane: str = DEFAULT_LANE,
     ledger: "LedgerBundle | None" = None,
+    processes: bool = True,
+    processes_enabled: "list[str] | tuple[str, ...] | None" = None,
+    processes_disabled: "list[str] | tuple[str, ...] | None" = None,
+    p_notice_ablation: str | int = "A4",
+    salient_rate_per_10k: float | None = None,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -325,6 +456,16 @@ def run_day(
             ``None`` なら C2 と同じ直接更新の経路。世帯の現金は**個体 SoA の ``money``
             そのもの**を採用するので、run は ``AgentState`` を作った直後に
             ``attach_household_cash`` を呼ぶ(台帳の世帯数は ``n_agents`` と一致が必要)。
+        processes: 世界過程(C4 第1陣)を回すか(既定 True)。資産が無い合成世界では
+            混雑場だけが動き、他の過程は「休む」。
+        processes_enabled / processes_disabled: 過程 id か感度試験 id(``AB-*``)で
+            過程単位に切る(ablation)。
+        p_notice_ablation: 顕著行為の到達 ``p_notice`` の ablation(知覚契約書 §3.1 の
+            ``A0``-``A4``。既定 ``A4``=完成形)。``processes_enabled`` に
+            ``AB-PNOTICE-A2`` のように書いても効く。
+        salient_rate_per_10k: 「倒れる」の発生率[件/10,000体/日](``None`` で既定
+            ``salient.COLLAPSE_PER_10K_PER_DAY``=3.0)。5,000 体・1 日では期待値 1.5 件なので
+            **引かない日がある**(P(0)=22%)。感度試験・結線テストで上げるための口。
 
     Returns:
         ``RunResult``。
@@ -344,12 +485,32 @@ def run_day(
     agents.freeze()
     world.freeze()
 
+    # ---- ⓪a 世界過程(C4 第1陣・世界過程設計書 §3 実装原則3=書き込みは resolve 経由) ----
+    runner: WorldProcessRunner | None = None
+    if processes:
+        runner = WorldProcessRunner(
+            world=world,
+            agents=agents,
+            assets=load_process_assets_or_synthetic(world_dir, world.assets),
+            seed=seed,
+            day_index=day_index,
+            tick_seconds=tick_seconds,
+            schedule=schedule,
+            ledger=ledger,
+            enabled=processes_enabled,
+            disabled=processes_disabled,
+            p_notice_ablation=p_notice_ablation,
+            salient_rate_per_10k=salient_rate_per_10k,
+        )
+
     # ---- 知覚レンダラ(C3 結線・B0-B6 の本物) ----
     perception: PerceptionRendererAdapter | None = None
     if renderer is None:
         assets = PerceptionAssets.load_or_synthetic(world_dir, world)
-        # 世界内日時 = 既定の開始日 + day_index 日 + tick 分(決定論・expedient)
+        # 世界内日時 = 気象の再生実日(D-W15)。世界過程が無ければ既定の開始日 + day_index。
         start = DEFAULT_START_DATETIME + timedelta(days=int(day_index))
+        if runner is not None and runner.replay_date:
+            start = datetime.fromisoformat(runner.replay_date)
         perception = PerceptionRendererAdapter(
             PerceptionRenderer(
                 world, agents, assets,
@@ -427,14 +588,24 @@ def run_day(
     for tick in range(ticks):
         R.advance_body(agents, tick)
 
+        # ---- ⓪a 世界過程(昼夜・天候・鉄道・営業時間・混雑場・断面交通) ----
+        # 流れ(B4 の「流れ方向」欄)を作るのが混雑場なので、**⓪ の前**に置く。
+        # 親指示は「⓪ の直後」だったが、それだと同じ tick の流れが描画に載らない(報告済み)。
+        if runner is not None:
+            runner.step(tick)
+
         # ---- ⓪ 知覚の tick 前計算(セル配列+B4 描画欄・**1 tick 1 回**) ----
-        # 顕著行為(salient_events)は C4(世界過程)が入るまで空。騒音段は
+        # 顕著行為(salient_events)は人物③(第2陣)が入るまで空。騒音段は
         # ``world.noise_stage_for_tick``(W10 静的昼夜場 or 動的上書き)を**1 本**渡し、
         # 描画と変化検出が同じ値を見るようにする。
         field_rows = None
         if perception is not None:
             perception.prepare_tick(
-                tick, salient_events=None, noise_stage=world.noise_stage_for_tick(tick, tick_seconds)
+                tick,
+                salient_events=None if runner is None else runner.salient_events,
+                flow=None if runner is None else runner.flow,
+                noise_stage=world.noise_stage_for_tick(tick, tick_seconds),
+                queues=None if runner is None else runner.queue_rows(3),
             )
             field_rows = perception.b4_field_rows
 
@@ -496,11 +667,23 @@ def run_day(
             c_cond = np.empty(0, dtype=np.int8)
             c_class = np.empty(0, dtype=np.int64)
 
+        # ---- 顕著行為の到達(起床条件 (i)・知覚契約書 §6)----
+        # **アービタを通す**=顕著行為由来の呼も L4 の予算の中に入る(呼の抜け道を作らない)。
+        if runner is not None:
+            s_agent, s_cond, s_class = runner.salient_wake_candidates(tick)
+        else:
+            s_agent = np.empty(0, dtype=np.int64)
+            s_cond = np.empty(0, dtype=np.int8)
+            s_class = np.empty(0, dtype=np.int64)
+
         cands = WakeCandidates(
-            np.concatenate([p_agent, d_agent, c_agent]),
-            np.concatenate([p_cond, d_cond.astype(np.int8), c_cond]),
-            np.concatenate([p_class, d_class, c_class]),
-            np.full(p_agent.size + d_agent.size + c_agent.size, tick, dtype=np.int64),
+            np.concatenate([p_agent, d_agent, c_agent, s_agent]),
+            np.concatenate([p_cond, d_cond.astype(np.int8), c_cond, s_cond]),
+            np.concatenate([p_class, d_class, c_class, s_class]),
+            np.full(
+                p_agent.size + d_agent.size + c_agent.size + s_agent.size,
+                tick, dtype=np.int64,
+            ),
         )
 
         # ---- ③ 繰り延べアービタ(§6) ----
@@ -557,10 +740,23 @@ def run_day(
         # ---- ⑦ Phase C(resolve=唯一の書き手) ----
         t0 = time.perf_counter()
         outcome = R.apply(
-            plan.confirmed, plan.losers, agents, world, tick, schedule=schedule, ledger=ledger
+            plan.confirmed,
+            plan.losers,
+            agents,
+            world,
+            tick,
+            schedule=schedule,
+            ledger=ledger,
+            rail=None if runner is None or not runner.is_enabled("rail") else runner.rail,
+            crowd=None if runner is None or not runner.is_enabled("crowd") else runner.crowd,
+            hotel=None if runner is None or not runner.is_enabled("hotel") else runner.hotel,
         )
         phase["phase_c"] += time.perf_counter() - t0
         phase["movement"] += outcome.movement_seconds
+        result.fares_paid += outcome.fare_paid
+        result.n_boarded += outcome.n_boarded
+        result.n_alighted += outcome.n_alighted
+        result.n_queued += outcome.n_queued
 
         # ---- 会話セッション(行動契約書 §3): resolve の会話成立を招待として受ける ----
         if conv is not None:
@@ -593,7 +789,15 @@ def run_day(
                         reverted.append(inviter)
                 if reverted:
                     R.revert_conversation(agents, np.array(reverted, dtype=np.int64))
-            conv.step(tick, cell=agents.registry.cell)
+            finished = conv.step(tick, cell=agents.registry.cell)
+            if finished:
+                # 終了したセッションの参加者を解放する(行動契約書 §3「終了はエンジン」)。
+                # C3 では CLOSING→TERMINAL のあと ``activity`` が CONVERSING のまま残っていた
+                # (退去でしか解けなかった)=会話状態の取り残し。書き手は resolve。
+                done = np.array(
+                    sorted({int(p) for s in finished for p in s.participants}), dtype=np.int64
+                )
+                R.revert_conversation(agents, done)
             conv.purge_terminal()
 
         diag_rows.append(
@@ -630,9 +834,46 @@ def run_day(
             phase["checkpoint"] += time.perf_counter() - t0
 
     bridge.close()
+    result.runner = runner  # type: ignore[attr-defined]
+    if runner is not None:
+        # D-R2-6: ActualLog は O(t) が本質 → 保持窓を過ぎた生ログを日次集約行へ畳む
+        runner.end_of_day(max(0, ticks - 1))
+        result.registry_hash = runner.registry_hash
+        result.constitution_ok = runner.constitution_ok
+        result.replay_date = runner.replay_date
+        result.process_seconds = dict(runner.phase_seconds)
+        result.process_counters = runner.counters()
+        result.actual_log_rows = int(runner.log.n_appended)
+        result.compliance_rate = float(runner.compliance().rate)
+        result.salient_events = int(runner.salient.n_events)
+        result.noticed = int(runner.salient.n_noticed)
+        result.dispatches = int(runner.dispatch.n_dispatched)
+        result.restocks = int(runner.shelf.n_role_actions + runner.shelf.n_fallback)
+        result.deliveries = int(runner.delivery_inbound.n_runs)
+        result.parcels = int(runner.last_mile.delivered.sum())
+        result.bus_arrivals = int(runner.bus_taxi.n_arrivals)
+        result.hotel_checkins = int(runner.hotel.n_checkin)
+        result.waste_tonnes_per_day = float(runner.projected_waste_tonnes_per_day())
+        band = runner.waste_band_report()
+        if band is not None:
+            result.waste_band = (float(band.low), float(band.high))
+    ledger_growth: tuple[dict[str, Any], dict[str, int]] = ({}, {})
     if ledger is not None:
-        # 日次の畳み込み(D-R2-6: 生ログは保持窓・取引行列は日次集約行へ)
-        ledger.end_of_day(day_index)
+        # 日次の畳み込み(D-R2-6: 生ログは保持窓・取引行列は日次集約行へ)。
+        # **締めを捨てない**——締めると取引行列も当日の廃棄も 0 に戻るので、締めたあとに
+        # 現在値でセンサスを回すと faucet/sink/廃棄が全部 0 の空虚な行になり、ゲートが
+        # 素通りする(層2レビュー指摘)。``daily_census`` は ``day_index`` の締めを読む。
+        closes = ledger.end_of_day(day_index)
+        result.day_closed = int(closes.day)
+        ledger_growth = ledger.growth_parts()
+        # 日次(軽量)センサス+ゲート(境界・経済設計書 §2.4)。
+        # engine は economy を import できない(層契約)ので、行の作り手は
+        # ``LedgerBundle.census``(economy 側が注入する呼び出し可能)。**失敗しても raise しない**
+        # =診断の赤(§2.4「ゲート失敗=較正・holdout 照合に使わない」)。
+        row = ledger.daily_census(day_index)
+        if row is not None:
+            result.census_row = dict(row)
+            result.census_pass = bool(row.get("gate_ok", False))
     result.bridge_counters = dict(bridge.counters())
     result.conversation_counters = dict(conv.counters()) if conv is not None else {}
     if conv is not None:
@@ -653,16 +894,36 @@ def run_day(
     result.min_stock = int(world.pois.stock.min()) if world.n_poi else 0
 
     # ---- 状態成長宣言の検査(D-R2-6) ----
-    measured = {
+    # エンジンの 5 バッファ + **O(t) ログ本体**(ActualLog・取引ログ・納品ログ)。
+    # 層2レビュー指摘: 5 バッファだけを外挿しても、D-R2-6 が名指しした「O(t) が本質」の
+    # ログ(ActualLog と同型)は 1 バイトも測っていなかった。診断表(``diagnostics_rows``)は
+    # 元から測っている(tick あたり 1 行)。
+    declarations: dict[str, Any] = dict(GD.declarations())
+    measured: dict[str, int] = {
         "pending_apply": peak_pending * GD.PENDING_APPLY_ROW_BYTES,
         "arbiter_backlog": peak_backlog * GD.ARBITER_PENDING_ROW_BYTES,
         "intent_buffer": peak_intents * GD.INTENT_ROW_BYTES,
         "diagnostics_rows": len(diag_rows) * GD.DIAG_ROW_BYTES,
         "tape_rows": result.llm_calls * GD.TAPE_ROW_BYTES,
     }
+    if runner is not None:
+        log_decls = dict(runner.log.growth_declarations())
+        raw = log_decls.get(f"{runner.log.log_id}_raw")
+        agg = log_decls.get(f"{runner.log.log_id}_daily")
+        raw_bytes = len(runner.log) * int(raw.bytes_per_unit) if raw is not None else 0
+        if raw is not None:
+            declarations[raw.name] = raw
+            measured[raw.name] = raw_bytes
+        if agg is not None:
+            # ``ActualLog.nbytes`` = 生ログ+索引+日次集約行。生ログぶんを引けば畳み先の実測。
+            declarations[agg.name] = agg
+            measured[agg.name] = max(0, int(runner.log.nbytes) - raw_bytes)
+    led_decls, led_measured = ledger_growth
+    declarations.update(led_decls)
+    measured.update(led_measured)
     result.growth_measured = measured
     result.growth_report = check_growth(
-        GD.declarations(),
+        declarations,
         measured,
         steps=ticks,
         minutes_per_step=max(1, tick_seconds // 60),
@@ -688,6 +949,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--checkpoint-every", type=int, default=360)
     ap.add_argument("--day", type=int, default=0, help="曜日(0=月曜)")
     ap.add_argument("--growth-yaml", action="store_true", help="状態成長宣言 YAML を出力して終了")
+    ap.add_argument("--no-processes", action="store_true",
+                    help="世界過程(C4 第1陣)を止める(ablation の下限対照)")
+    ap.add_argument("--ablate", action="append", default=[],
+                    help="止める過程(過程 id か AB-* の感度試験 id・複数可)")
     args = ap.parse_args(argv)
 
     if args.growth_yaml:
@@ -703,6 +968,8 @@ def main(argv: list[str] | None = None) -> int:
         checkpoint_every=args.checkpoint_every,
         day_index=args.day,
         world_dir=args.world,
+        processes=not args.no_processes,
+        processes_disabled=tuple(args.ablate) or None,
     )
     print(res.summary())
     return 0 if (res.conserved and res.min_stock >= 0) else 1

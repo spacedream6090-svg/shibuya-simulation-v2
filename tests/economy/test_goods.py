@@ -208,3 +208,54 @@ def test_deliver_is_an_alias_of_restock():
     g = _goods(n_poi=1, stock=0)
     assert list(g.deliver(np.array([0]), np.array([4]), tick=0)) == [True]
     assert int(g.aggregate_stock()[0]) == 4
+
+
+# ---------------------------------------------------------------- sell_many のスロット跨ぎ
+def test_sell_many_dispenses_across_all_slots():
+    """回帰: 先頭スロットの残りを超えても、他スロットに在庫があれば売れる。
+
+    バグ(C4 前半): ``_first_nonempty_slot`` の**先頭スロットだけ**から払い出していたため、
+    同一 tick に同一 POI へ来た客が先頭スロットの残数を超えると、店の棚合計(``can_sell``)は
+    足りているのに ``OUT_OF_STOCK`` になっていた。``engine.resolve._apply_buy`` が
+    ≤8 回のスロット再試行で埋め合わせていた(保険としては残す)。
+    """
+    g = _goods(n_poi=1, stock=0)
+    # コンビニ(3 SKU)の棚を 2 / 3 / 1 に作る
+    for slot, qty in enumerate((2, 3, 1)):
+        assert g.restock_many(np.array([0]), np.array([qty]), tick=0,
+                              slot=np.array([slot]))[0]
+    assert int(g.aggregate_stock()[0]) == 6
+    ok = g.sell_many(np.zeros(6, dtype=np.int64), tick=1)
+    assert list(ok) == [True] * 6, "スロットを跨いで払い出せていない"
+    assert int(g.aggregate_stock()[0]) == 0
+    assert g.sku_balanced()
+    # 世帯側は SKU 別に 2/3/1 で増えている(スロット順=決定論)
+    hh = g.inside_stock_by_sku() - g.stock_by_sku()
+    assert list(hh[:3]) == [2, 3, 1]
+
+
+def test_sell_many_still_refuses_when_the_whole_shelf_is_empty():
+    g = _goods(n_poi=1, stock=0)
+    assert g.restock_many(np.array([0]), np.array([2]), tick=0, slot=np.array([1]))[0]
+    ok = g.sell_many(np.zeros(4, dtype=np.int64), tick=1)
+    assert list(ok) == [True, True, False, False]
+    assert int(g.aggregate_stock()[0]) == 0
+
+
+def test_sell_many_is_row_order_deterministic_across_slots():
+    g = _goods(n_poi=2, stock=0)
+    for slot, qty in enumerate((1, 1, 1)):
+        g.restock_many(np.array([0]), np.array([qty]), tick=0, slot=np.array([slot]))
+    g.restock_many(np.array([1]), np.array([2]), tick=0, slot=np.array([0]))
+    stores = np.array([0, 1, 0, 1, 0, 1], dtype=np.int64)
+    ok = g.sell_many(stores, tick=2)
+    assert list(ok) == [True, True, True, True, True, False]
+    assert int(g.aggregate_stock().sum()) == 0
+
+
+def test_sell_many_ignores_out_of_range_rows_without_shifting_the_rank():
+    g = _goods(n_poi=1, stock=0)
+    g.restock_many(np.array([0]), np.array([2]), tick=0, slot=np.array([0]))
+    ok = g.sell_many(np.array([-1, 0, 99, 0], dtype=np.int64), tick=1)
+    assert list(ok) == [False, True, False, True]
+    assert int(g.aggregate_stock()[0]) == 0

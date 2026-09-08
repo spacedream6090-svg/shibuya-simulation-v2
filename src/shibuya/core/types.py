@@ -184,10 +184,15 @@ def t_sim_ns(tick: int, offset_ns: int = 0, tick_seconds: int = DEFAULT_TICK_SEC
 
 
 def max_tick(tick_seconds: int = DEFAULT_TICK_SECONDS) -> int:
-    """t_sim_ns が int64 に収まる tick の絶対値上限。"""
+    """t_sim_ns が **tick 内のどのオフセットでも** int64 に収まる tick の絶対値上限。
+
+    hypothesis が見つけた境界(C4・09-08): 旧定義 ``INT64_MAX // span`` は offset=0 でしか
+    成立せず、offset が大きいと ``tick*span+offset`` が INT64_MAX を 1 超えた。
+    """
     if tick_seconds <= 0:
         raise ValueError("tick_seconds は正の整数")
-    return INT64_MAX // (tick_seconds * NS_PER_SECOND)
+    span = tick_seconds * NS_PER_SECOND
+    return (INT64_MAX - (span - 1)) // span
 
 
 def split_t_sim_ns(value: int, tick_seconds: int = DEFAULT_TICK_SECONDS) -> tuple[int, int]:

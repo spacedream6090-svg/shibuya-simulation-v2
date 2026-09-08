@@ -62,9 +62,11 @@ def test_t_sim_ns_rejects_out_of_range_offset():
 
 def test_t_sim_ns_overflow_is_loud():
     """int64 の限界(60秒tickで約 292 年)を黙って回さない。"""
-    assert T.max_tick() == 153_722_867
+    assert T.max_tick() == 153_722_866  # 全オフセットで int64 に収まる上限(境界修正 09-08)
+    span = T.DEFAULT_TICK_SECONDS * T.NS_PER_SECOND
+    T.t_sim_ns(T.max_tick(), span - 1)  # 上限 tick は最大オフセットでも収まる
     with pytest.raises(OverflowError):
-        T.t_sim_ns(T.max_tick() + 1)
+        T.t_sim_ns(T.max_tick() + 1, span - 1)  # 1 つ上は最大オフセットで溢れる
 
 
 def test_id_range_checks():

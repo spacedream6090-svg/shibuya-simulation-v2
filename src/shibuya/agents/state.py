@@ -263,6 +263,21 @@ class AgentState:
                   doc="会話中の相手 agent_id(-1=なし・行動契約書 §3)")
         r.declare("invocation_distance", np.uint16, byte_budget_per_agent=2, mechanism=False,
                   doc="次の計画境界までの残時間[分](M12・知覚契約書 §6 三役・expedient)")
+        # ---- 交通(C4 鉄道運行・行動契約書 §2.1 乗車/降車・運用設計書 §2.6) ----
+        r.declare("transit_state", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="0=bbox 内 / 1=乗車中 / 2=域外ノード滞在(U10 §1.1)。"
+                      "**乗客の保存則の分母**: 3 値の件数和 = 個体数")
+        r.declare("transit_ref", np.int32, byte_budget_per_agent=4, mechanism=True,
+                  doc="乗車中=列車索引 / 域外滞在=外界ノード索引(路線索引)。-1=なし")
+        # ---- 屋内占有・待ち行列(C4 混雑場・16行表 行2) ----
+        r.declare("poi_ref", np.int32, byte_budget_per_agent=4, mechanism=False,
+                  doc="在席中の POI 索引(-1=なし)。屋内占有の集約に使う(席数換算は expedient)")
+        r.declare("poi_since", np.int32, byte_budget_per_agent=4, mechanism=False,
+                  doc="在席を始めた tick(回転率=滞在上限の判定・expedient)")
+        r.declare("queue_poi", np.int32, byte_budget_per_agent=4, mechanism=False,
+                  doc="並んでいる POI 索引(-1=並んでいない)。M/M/c 近似の待ち行列")
+        r.declare("queue_since", np.int32, byte_budget_per_agent=4, mechanism=False,
+                  doc="並び始めた tick(離脱閾値の判定・expedient)")
         # ---- 起床機構(知覚契約書 §6) ----
         r.declare("refractory_until", np.int32, (N_WAKE_CONDITIONS,),
                   byte_budget_per_agent=4 * N_WAKE_CONDITIONS, mechanism=True,
@@ -289,6 +304,11 @@ class AgentState:
         self.registry.wake_pending_class[:] = -1
         self.registry.last_result_tick[:] = -1
         self.registry.last_action[:] = LAST_ACTION_NONE
+        self.registry.transit_ref[:] = -1
+        self.registry.poi_ref[:] = -1
+        self.registry.poi_since[:] = -1
+        self.registry.queue_poi[:] = -1
+        self.registry.queue_since[:] = -1
         self._frozen = False
 
     # ---- フィールドの素通し(``st.money`` で配列を引く) ----

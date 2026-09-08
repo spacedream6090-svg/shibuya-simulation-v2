@@ -88,6 +88,10 @@ class World:
                           doc="開店 tick(W7 PlanSpec が無いので既定 10:00)")
         self.pois.declare("open_to", np.int16, byte_budget_per_agent=2, mechanism=False,
                           doc="閉店 tick(W7 PlanSpec が無いので既定 22:00)")
+        self.pois.declare("open_now", np.int8, byte_budget_per_agent=1, mechanism=True,
+                          doc="営業フラグの**動的上書き欄**(-1=上書きなし / 0=閉 / 1=開)。"
+                              "C4 の営業時間過程(W7 PlanSpec・複数区間・日跨ぎ)が書く。"
+                              "``open_mask`` が優先順を決める(``noise_stage`` と同型)")
 
         self.pois.cell[:] = assets.poi_cell
         self.pois.node[:] = assets.poi_node
@@ -96,6 +100,7 @@ class World:
         self.pois.capacity[:] = assets.poi_capacity
         self.pois.open_from[:] = assets.poi_open_from
         self.pois.open_to[:] = assets.poi_open_to
+        self.pois.open_now[:] = -1  # 上書きなし(C2 と同じ 10:00-22:00 の既定へ落ちる)
         self._frozen = False
 
     # ---- 生成 ----
@@ -157,7 +162,16 @@ class World:
         return np.searchsorted(np.asarray(DENSITY_STAGE_EDGES), d, side="right").astype(np.uint8)
 
     def open_mask(self, tick: int) -> np.ndarray:
-        """その tick に営業している POI の bool マスク(1 日 1,440 tick で剰余を取る)。"""
+        """その tick に営業している POI の bool マスク(1 日 1,440 tick で剰余を取る)。
+
+        優先順(``noise_stage_for_tick`` と同型・黙って一本化しない):
+          1. ``pois.open_now`` に 0 以上がある → **C4 の営業時間過程による上書き**
+             (W7 PlanSpec の複数区間・日跨ぎを 1 本の欄で表す)。
+          2. それ以外 → C2 の単一区間 ``open_from``/``open_to``(既定 10:00-22:00)。
+        """
+        now = self.pois.open_now
+        if now.size and bool(np.any(now >= 0)):
+            return np.asarray(now > 0)
         t = int(tick) % 1_440
         return (self.pois.open_from <= t) & (t < self.pois.open_to)
 

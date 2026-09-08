@@ -5,8 +5,12 @@
 - 世界過程設計書 §7.1: move_goods 単一API・SKU 別収支。
 - 運用設計書 §1.4 T2(録画リプレイ回帰=同じ入力なら同じ状態ハッシュ)・予算行 W2。
 
-**設計上の要**: 台帳を注入しても**状態ハッシュが変わらない**こと。世帯の現金は
-``agents.money`` そのものであり、台帳は帳簿(取引行列・部門別残高)を足すだけだから。
+**C3 まで成り立っていた不変(C4 後半で条件つきになった)**: 「台帳を注入しても状態ハッシュが
+変わらない」。C4 後半で **物の世界過程**(補充・納品・廃棄物収集)が入り、これらは物の台帳が
+無いと動かない=台帳の有無が世界を変える。したがって不変は
+「**物の過程を切れば**ハッシュは変わらない」に狭まる(``GOODS_PROCESS_IDS`` を ablate)。
+物の過程を入れると棚在庫が動くことは ``test_goods_processes_change_the_world`` が正の側から押さえる。
+世帯の現金が ``agents.money`` そのもの(写しでない)ことは変わらない。
 """
 
 from __future__ import annotations
@@ -31,15 +35,29 @@ from shibuya.world.state import World
 
 W2_REPORT_SECONDS = 60.0
 
+#: 物の台帳が無いと動かない世界過程(C4 後半)。ハッシュ不変の比較ではこれを切る。
+GOODS_PROCESS_IDS = (
+    "shelf_stock_restock",
+    "delivery_inbound",
+    "waste_collection",
+    "street_cleaning",
+)
+
 
 def _bundle(world: World, n_agents: int) -> LedgerBundle:
-    """合成世界 + 個体数から台帳2本を作る(POI のカテゴリは索引で回す=expedient)。"""
+    """合成世界 + 個体数から台帳2本を作る(POI のカテゴリは索引で回す=expedient)。
+
+    ``census`` も注入する(``cli.build_ledger_bundle`` と同じ形)。``RunResult.census_row``
+    が締めた日の実数を持つことを押さえるのに要る。
+    """
     led = Ledger(n_agents, world.n_poi)
     cats = np.arange(world.n_poi) % 3
     goods = GoodsLedger.from_pois(
         cats, np.asarray(world.pois.stock), np.asarray(world.pois.price)
     )
-    return LedgerBundle(money=led, goods=goods)
+    return LedgerBundle(
+        money=led, goods=goods, census=lambda d: CS.daily_census(led, goods, day=d)
+    )
 
 
 @pytest.fixture(scope="module")
@@ -52,13 +70,27 @@ def wired():
 
 
 # ---------------------------------------------------------------- 決定論(T2)
-def test_wiring_does_not_change_the_state_hashes(wired):
-    """台帳を注入しても checkpoint ハッシュは同じ(帳簿を足すだけで世界は変えない)。"""
-    res, _ = wired
-    plain = run_day(n_agents=500, seed=2, ticks=1_440, checkpoint_every=360, n_cells=64)
+def test_wiring_does_not_change_the_state_hashes_when_goods_processes_are_off():
+    """物の過程を切れば、台帳を注入しても checkpoint ハッシュは同じ(帳簿を足すだけ)。"""
+    world = World.synthetic(n_cells=64, seed=2)
+    bundle = _bundle(world, 500)
+    kw = dict(ticks=1_440, checkpoint_every=360, processes_disabled=GOODS_PROCESS_IDS)
+    res = run_day(n_agents=500, seed=2, world=world, ledger=bundle, **kw)
+    plain = run_day(n_agents=500, seed=2, n_cells=64, **kw)
     assert [c.combined for c in res.checkpoints] == [c.combined for c in plain.checkpoints]
     assert res.money_end == plain.money_end and res.revenue_end == plain.revenue_end
     assert int(res.column("purchases").sum()) == int(plain.column("purchases").sum())
+
+
+def test_goods_processes_change_the_world(wired):
+    """逆向き: 物の過程を入れると棚が動く(=台帳の有無が世界を変える・C4 後半)。"""
+    res, bundle = wired
+    runner = res.runner  # type: ignore[attr-defined]
+    assert runner.delivery_inbound.n_runs > 0  # 納品便が立つ
+    assert runner.waste.n_bin_rows > 0  # 売れ残りがビンへ落ちる
+    assert int(bundle.goods.aggregate_stock().sum()) != int(
+        np.asarray(res.world.assets.poi_stock0, dtype=np.int64).sum()  # type: ignore[attr-defined]
+    )
 
 
 def test_two_wired_runs_are_identical():
@@ -107,11 +139,56 @@ def test_check_two_holds_after_the_run(wired):
 
 
 def test_census_gate_passes_for_a_wired_day(wired):
+    """日次センサスは**締めた日**(day 0)を評価する。
+
+    層2レビュー指摘の固定: ``run_day`` は ``end_of_day`` で日を畳んでからセンサスを回す。
+    畳むと取引フロー行列も当日の廃棄も 0 に戻るので、締め後に「現在値」を読むと
+    faucet/sink/廃棄が全部 0 の**空虚な行**になりゲートが素通りしていた。``day=0`` を渡すと
+    台帳の ``close_for(0)`` から締めが引かれ、締めた日の実数が出る。
+    """
     res, bundle = wired
-    row = CS.daily_census(bundle.money, bundle.goods)
+    row = CS.daily_census(bundle.money, bundle.goods, day=res.day_closed)
+    assert res.day_closed == 0
     assert row["gate_ok"], row
     assert row["net_worth_ok"] and row["flow_ok"] and row["goods_balanced"]
     assert row["money_supply"] > 0
+    # 締めた日の実数が載っている(0 の空虚な行ではない)
+    assert row["faucet_total"] > 0
+    assert row["waste_g"] > 0
+
+
+def test_run_result_census_row_is_the_closed_day(wired):
+    """``RunResult.census_row`` = 締めた日の行(faucet/sink/廃棄が実数)。"""
+    res, bundle = wired
+    row = res.census_row
+    assert row and res.census_pass, row
+    assert int(row["day"]) == res.day_closed == 0
+    close = bundle.money.close_for(0)
+    goods_close = bundle.goods.close_for(0)
+    assert close is not None and goods_close is not None
+    # faucet = 来街者持込 + 参入資本(まっさらなランの初日)/ sink = 域外仕入 + 持ち出し
+    fs = CK.faucet_sink_totals(bundle.money, close.flow)
+    assert row["faucet_total"] == int(sum(fs["FAUCET"].values())) > 0
+    assert row["sink_total"] == int(sum(fs["SINK"].values()))
+    assert set(fs["FAUCET"]) <= {"来街者持込", "参入資本"}, fs["FAUCET"]
+    assert set(fs["SINK"]) <= {"域外仕入", "持ち出し"}, fs["SINK"]
+    # 廃棄はその日の搬出質量(締めた瞬間に凍らせた値 = _waste_g_daily の末尾)
+    assert row["waste_g"] == float(goods_close["waste_g"]) > 0
+    assert row["waste_g"] == bundle.goods.waste_band(days=1).tonnes * 1_000_000.0
+    # 締め後に現在値で読むと 0 の空虚な行になる(=固定前の挙動)。同じ関数で再現できる。
+    stale = CS.daily_census(bundle.money, bundle.goods)
+    assert stale["faucet_total"] == 0 and stale["waste_g"] == 0.0
+
+
+def test_o_t_logs_of_both_ledgers_are_measured(wired):
+    """D-R2-6: 台帳の O(t) ログ(取引ログ・納品ログ)が成長ゲートの実測に載る。"""
+    res, _ = wired
+    m = res.growth_measured
+    for name in ("transfer_log", "delivery_log", "actual_log_raw"):
+        assert name in m and m[name] > 0, (name, m)
+    assert res.growth_report is not None
+    assert {"transfer_log", "delivery_log"} <= {r.name for r in res.growth_report.rows}
+    assert not res.growth_report.missing and not res.growth_report.unknown
 
 
 def test_world_stock_is_a_mirror_of_the_shelf(wired):
@@ -244,10 +321,21 @@ def test_w2_five_thousand_agents_with_the_ledger_wired():
     )
     print("  " + bundle.money.summary())
     print("  " + bundle.goods.summary())
-    assert res.final_hash == plain.final_hash  # T2: 台帳はハッシュを変えない
+    # T2: **物の過程を切れば**台帳はハッシュを変えない(C4 後半で条件つきになった)
+    plain_goods = run_day(
+        n_agents=5_000, seed=1, world=World.synthetic(n_cells=139, seed=1), ticks=1_440,
+        checkpoint_every=360, ledger=_bundle(World.synthetic(n_cells=139, seed=1), 5_000),
+        processes_disabled=GOODS_PROCESS_IDS,
+    )
+    plain_off = run_day(
+        n_agents=5_000, seed=1, ticks=1_440, checkpoint_every=360, n_cells=139,
+        processes_disabled=GOODS_PROCESS_IDS,
+    )
+    assert plain_goods.final_hash == plain_off.final_hash
     assert wall <= W2_REPORT_SECONDS
     assert res.conserved and res.min_stock >= 0
     assert int(bundle.money.sector_totals(BalanceLine.CASH).sum()) == 0
     assert CK.net_worth_equals_real_assets(bundle.money, bundle.goods).ok
-    assert CS.daily_census(bundle.money, bundle.goods)["gate_ok"]
+    assert CS.daily_census(bundle.money, bundle.goods, day=res.day_closed)["gate_ok"]
+    assert res.census_pass and res.census_row["faucet_total"] > 0
     assert res.growth_report is not None and res.growth_report.ok

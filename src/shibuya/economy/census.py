@@ -15,6 +15,14 @@
 - ``daily_census``: 科目数(15)ぶんの辞書組み立て。
 - ``monthly_mer``: 日数 × 科目数。個体数には比例しない。
 
+**締めた日を評価する**(2026-09-08・層2レビュー指摘の固定)
+    ``engine.run`` は ``LedgerBundle.end_of_day`` で日を畳んでから日次センサスを回す。
+    畳むと取引フロー行列も当日の廃棄も 0 に戻るので、締め後に「現在値」で行を作ると
+    faucet/sink/廃棄が全部 0 の**空虚な行**になり、ゲートが素通りしていた。``day`` に
+    畳んだ日を渡せば、台帳の ``close_for(day)`` から締め(``DayClose`` / 締め辞書)を
+    自動で引いて**締めた日の実数**で行とゲートを作る(明示の ``close`` / ``goods_close``
+    が優先)。畳んでいない日を渡したときは従来どおり当日ぶんの現在値。
+
 expedient(本モジュール分)
 - 日次行に検算②の成否と廃棄質量を足したこと(設計書の「残差・貨幣供給量のみ」より広い)。
   ゲートを日次で回すのに必要なため。狭めたい場合は ``light=True`` で 2 列に落とせる。
@@ -81,12 +89,27 @@ class CensusGate:
         return head if self.ok else head + " / " + " ; ".join(self.reasons)
 
 
+def _close_for(ledger, day: int | None):
+    """``day`` が**既に畳まれた日**ならその締めを返す(そうでなければ ``None``)。
+
+    層2レビュー指摘の固定: ``engine.run`` は ``end_of_day`` で日を畳んでから日次センサスを
+    回す。締めると取引フロー行列も当日の廃棄も 0 に戻るので、締め後に「現在値」を読むと
+    faucet/sink/廃棄が全部 0 の**空虚な行**になり、ゲートが素通りする。台帳が
+    ``close_for(day)`` を持つなら、その日の締め(``DayClose`` / 締め辞書)を使う。
+    """
+    if ledger is None or day is None:
+        return None
+    fn = getattr(ledger, "close_for", None)
+    return None if fn is None else fn(int(day))
+
+
 def daily_census(
     ledger,
     goods=None,
     close=None,
     day: int | None = None,
     *,
+    goods_close=None,
     light: bool = False,
 ) -> dict[str, Any]:
     """日次(軽量)センサスの1行。
@@ -94,13 +117,20 @@ def daily_census(
     Args:
         ledger: 金の台帳。
         goods: 物の台帳(``None`` 可)。
-        close: ``Ledger.on_day_end`` の戻り(``None`` なら当日ぶんの現在値)。
+        close: ``Ledger.on_day_end`` の戻り(``DayClose``)。``None`` かつ ``day`` が
+            **その台帳が直近に畳んだ日**なら、締めを台帳から自動で引く
+            (``Ledger.close_for``)。どちらでもなければ当日ぶんの現在値。
         day: 行の日付(``None`` なら台帳の現在日)。
+        goods_close: ``GoodsLedger.on_day_end`` の戻り(同上・自動で引ける)。
         light: True なら §2.4 の「残差・貨幣供給量のみ」の2列に落とす。
 
     Returns:
         ``DAILY_COLUMNS`` を全て含む辞書(``light`` なら ``LIGHT_COLUMNS`` のみ)。
     """
+    if close is None:
+        close = _close_for(ledger, day)
+    if goods_close is None:
+        goods_close = _close_for(goods, day)
     rep = CK.check_all(ledger, goods, close)
     fs = rep.faucet_sink
     faucet = int(sum(fs.get(FlowKind.FAUCET.name, {}).values()))
@@ -109,7 +139,13 @@ def daily_census(
     if light:
         return {"residual": rep.residual_amount, "money_supply": int(ledger.money_supply())}
 
-    if goods is not None:
+    if goods_close is not None:
+        # 締めた日の実数(締めた瞬間に凍らせた値)。
+        goods_residual = int(goods_close["residual_units"])
+        goods_balanced = bool(goods_close["sku_balanced"])
+        waste_g = float(goods_close["waste_g"])
+        shelf_units = int(goods_close["shelf_units"])
+    elif goods is not None:
         g_bal = goods.sku_balance()
         goods_residual = int(np.abs(g_bal["residual"]).sum())
         goods_balanced = bool((g_bal["diff"] == 0).all())
@@ -118,7 +154,7 @@ def daily_census(
     else:
         goods_residual, goods_balanced, waste_g, shelf_units = 0, True, 0.0, 0
 
-    gate = census_gate(rep, goods, day=d)
+    gate = census_gate(rep, goods, day=d, goods_close=goods_close)
     return {
         "day": d,
         "residual": int(rep.residual_amount),
@@ -140,10 +176,23 @@ def daily_census(
     }
 
 
-def census_gate(report: "CK.CheckReport", goods=None, day: int = 0) -> CensusGate:
-    """ゲート判定(残差超・検算②不成立・棚卸差異超で失敗)。"""
+def census_gate(
+    report: "CK.CheckReport", goods=None, day: int = 0, *, goods_close=None
+) -> CensusGate:
+    """ゲート判定(残差超・検算②不成立・棚卸差異超で失敗)。
+
+    Args:
+        goods_close: ``GoodsLedger.on_day_end`` の戻り。渡すと**締めた日の**棚卸差異・
+            検算①でゲートする(締め後の現在値は 0 に戻っているので素通りしてしまう)。
+    """
     reasons = list(report.reasons())
-    if goods is not None:
+    if goods_close is not None:
+        if not bool(goods_close["stocktake_ok"]):
+            ratio = float(goods_close["stocktake_ratio"])
+            reasons.append(f"棚卸差異が閾値超(流量比 {ratio:.4f})")
+        if not bool(goods_close["sku_balanced"]):
+            reasons.append("物の検算①: 期首+流入−流出+残差 ≠ 期末")
+    elif goods is not None:
         ok, ratio = goods.stocktake_gate()
         if not ok:
             reasons.append(f"棚卸差異が閾値超(流量比 {ratio:.4f})")

@@ -201,6 +201,9 @@ class Ledger:
         ]
         self._day = 0
         self._snap = self._financial_snapshot()
+        #: 直近に畳んだ日の締め(``on_day_end`` の戻り)。**1 件だけ**保持する
+        #: (日次センサスが「畳んだ当日の実数」を読むため・D-R2-6 の有界性を壊さない)。
+        self._last_close: DayClose | None = None
 
         # 生ログ(リングバッファ)
         self.raw_capacity = int(raw_capacity)
@@ -292,7 +295,13 @@ class Ledger:
             raise ValueError("既に世帯現金が動いている台帳には attach できない")
         self._lines[int(BalanceLine.CASH)][int(Sector.HOUSEHOLD)] = arr
         self._foreign_cash = True
-        self._snap = self._financial_snapshot()
+        # 期首スナップは**世帯の行だけ**差し替える。全部門を撮り直すと、attach より前に
+        # 立っていた取引(``endow_stores`` の参入資本など)が期首へ吸い込まれて
+        # ``_flow`` にだけ残り、締めた日の検算①(部門ごとの列和 = Δ現金)が落ちる
+        # (層2レビューで日次センサスが締めた日を見るようになって初めて現れた)。
+        snap_cash = self._snap["cash"].copy()
+        snap_cash[int(Sector.HOUSEHOLD)] = int(arr.astype(np.int64).sum())
+        self._snap["cash"] = snap_cash
 
     def last_change_day(self, sector: int) -> np.ndarray:
         """部門ごとの「最後に現金/預金が動いた日」(退蔵項の計上に使う)。"""
@@ -678,7 +687,25 @@ class Ledger:
                 self.n_raw_dropped += int(marked_pos - self._raw_head)
                 self._raw_head = marked_pos
         self._day_marks = [m for m in self._day_marks if m[0] > cutoff_day]
+        self._last_close = close
         return close
+
+    @property
+    def last_close(self) -> "DayClose | None":
+        """直近に畳んだ日の ``DayClose``(まだ 1 日も畳んでいなければ ``None``)。"""
+        return self._last_close
+
+    def close_for(self, day: int) -> "DayClose | None":
+        """``day`` が**直近に畳んだ日**ならその ``DayClose`` を返す(違えば ``None``)。
+
+        日次センサス(``economy.census.daily_census``)が「締めたあとに締めた日を評価する」
+        ために使う。締めると ``self._flow`` は 0 に戻るので、締め後に現在値を読むと
+        faucet/sink/残差が全部 0 の**空虚な行**になってしまう(層2レビュー指摘)。
+        """
+        c = self._last_close
+        if c is None or int(c.day) != int(day):
+            return None
+        return c
 
     @property
     def day(self) -> int:
@@ -709,6 +736,25 @@ class Ledger:
         own += int(self._flow.nbytes) + sum(int(f.nbytes) for f in self._flow_daily)
         own += self._raw_tick.size * RAW_ROW_BYTES
         return own
+
+    # ---------------------------------------------------------------- D-R2-6
+    def growth_declarations(self) -> Mapping[str, GrowthDeclaration]:
+        """この台帳の状態成長宣言(``growth_measured`` と**同じ鍵**で返す)。
+
+        engine は economy を import できない(層契約)ので、``engine.run`` の D-R2-6 ゲートは
+        ``LedgerBundle`` 経由でこの 2 本を受け取る(依存逆転)。
+        """
+        decls = growth_declarations(
+            raw_capacity=self.raw_capacity, retention_days=self.retention_days
+        )
+        return {k: decls[k] for k in ("transfer_log", "flow_matrix_daily")}
+
+    def growth_measured(self) -> Mapping[str, int]:
+        """D-R2-6 の**実測増分バイト**(保持窓の中に残っている生ログ+集約行)。"""
+        return {
+            "transfer_log": int(self._raw_pos - self._raw_head) * RAW_ROW_BYTES,
+            "flow_matrix_daily": sum(int(f.nbytes) for f in self._flow_daily),
+        }
 
     def summary(self) -> str:
         cash = self.sector_totals(BalanceLine.CASH)
