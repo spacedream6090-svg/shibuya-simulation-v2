@@ -101,6 +101,46 @@ engine単一プロセス(GIL干渉未実測)/P6のxxhash×453で≤2ms(未実測
 - 成長宣言の cap(16/16/32/64 MB・5 GB)は S1/M8 から親が按分した見積り(予算表に個別行なし)。テープ 400 B/呼(実装計画書の上端)。mock 日課=1日5境界・平日/休日2パターン。
 - **C2 未実装(C3/C4 へ)**: 会話の継続・終了(max_turns)・記憶転写・関係辺/通報・断るは記録のみ/手伝いは BAD_TARGET/B5 は内受容のみ(知人・近接・被注視・傍受は C3)/相手別不応期(同一相手60分・同一話者30分=関係辺依存)/録画テープの実書き出し(見積りのみ)/Phase B 第2ラウンドは空回り(第2希望なし)/40万体フルランは未実測(4万体 18.2 s・arbiter 支配)。
 - (層2レビュー指摘で追記・09-08) 密度段の境界 `DENSITY_STAGE_EDGES=(1,5,20,60,150,400,1000)`(人/セル・expedient)・初期内受容 hunger 2/fatigue 2/thermal 5・行バイト見積り pending_apply 128/arbiter 32/intent 32/diag 128 B・起床条件→予期クラス写像 `_CONDITION_EXPECTATION`(commit.py)・**縮退の適用範囲=予算超過 tick では下位2クラスの選抜全件を縮退**(予算内に収まる分も)・クラス内順序=待ち tick 降順(許容遅延比ではない)・LLM へ渡す wake_class=昇格後の実効クラス(テープ鍵の第3要素も実効クラス=C3 で確定)・`one_per_agent` の優先=LLM由来>エンジン継続・checkpoint_every=360・`DIAG_RUN_COLUMNS` 運用列・AgentKind 5値・ResultCode 追加(LOST_ARBITRATION/UNDEFINED_ACTION/BAD_TARGET)・n_conflicts=初回裁定の落選数(再試行で二重計上しない・修正済み)・書き込みガードは構築直後は非凍結で run.py が freeze する規律(AST 検査は writable と thaw の呼び出し元を固定)。
+
+**C3 契約側(llm/contract・parser・undefined・engine/conversation・llm_bridge・2026-09-08)で導入した自前規約(追記のみ)**:
+- `llm.contract`=行動語彙の唯一の正典(12語+種別固有12語=24語・§2.2 の 指示/並ぶ/撮影を含む・発車/停車 と 並ぶ/撮影 は1行2語を分割)。種別固有語の target_kind は推定(§2.2 に対象列なし・`target_declared=False`)・前提条件IDは自前識別子(日本語逐語は `precondition_text`)・対象の表層形(C-0117 / g<ix>_<iy>_<GL|UG|DECK> / P-204 / 整数 / …駅)。
+- `llm.parser`: ラベル別名表・行動ラベル完全欠落時のみ自由文フォールバック・`<think>` 除去・値は次ラベルか改行まで・`format_ok`(書式)と `action`(語彙一致)を別指標。
+- `llm.undefined`: 同義語表 v0(版付き)・最長部分文字列フォールバック・N=10・ログ上限 4,096・段3 キーワード(保存則/在庫/所持金/性能/予算/売上/faucet/sink)・裁定プロンプト文面。
+- `engine.conversation`: d_talk≈1 m は同一セルで代替(セル内座標なし)・受諾 0.8・招待者先行の交互発話・話題数=max_turns・沈黙 5 tick・セッション TTL 60 tick・拒否記憶 60 tick(無順序対)・定型の相槌/締め文・招待の RNG カウンタ=(tick, inviter)(§2.5 順・親修正)・resolve が招待側のみ CONVERSING にするため被招待側の離脱はセルで検出(C4 で両側更新)。
+- `engine.llm_bridge`: StubRenderer(prompt_hash=agent/cell/tick//5/wake_class)・call_id="<tick>:<agent>:<class>"・δ_think=ceil(レーン秒/60)=L0 0/L1 1/L2 2/L3 5 tick(認知設計書 §1)・種別固有語は当面 待機 に写像+計数・TapeMiss→空応答→未定義→待機(実LLMへ落とさない)。
+- `engine.run`: 診断の日次行 8(deferred/promoted/degraded/suppressed/parse_errors/undefined_actions/tape_misses/conversations_opened・率は RunResult 属性)・会話招待は resolve の 会話 成功を入口とし `partner_idle=True` を前提(resolve が適用時に検査済み)。
+- 手伝いの失敗「能力不足」= `ResultCode.INSUFFICIENT_ABILITY`(親追加)。
+
+**C3 知覚側(perception templates/normalize/channels/p_notice/attention/hashes/state/renderer・2026-09-08)で導入した自前規約(追記のみ)**:
+- テンプレ v1=品質プローブ v0 の文面を 2 行形と v2 ID 形式へ適応(template_sha256=161fe181bc325f00…固定)。B1 から 年代・性別 を外す(個体依存語=規約⑧・C5 で B5 自己状態へ)。LOS 文面は v0 流用(境界のみ Fruin)。空要素の定型句・[B6 問い]・対象欄の説明文は自前。
+- **規約⑧の読み**=「B0-B4 に個体を同定する語を入れない」・バイト一致検査は (セル, 5分帯, 種別) 単位(B1=種別ブロックのため種別が違えば B1 は異なる=文面どおりの⑧は構造的に不成立)。
+- B0 は v0 文面(条例適用規則を含む)で 603 tok=行予算 300 の 2 倍・共有静的の群予算 644/750 内(実効ゲートは群予算 750/250/300=BN-5 の実測単位)=PENDING(ユーザー判断)。§3.2 のチャネル上限は**内容**に適用し、ラベル+素性タグの固定オーバーヘッド(≈24 tok)はブロック総量側で数える。
+- normalize: 略語ブラックリスト・個体依存語の正規表現・5 分丸めは floor・規約⑥は列挙行にのみ適用。channels: トークン=chars//2・切り詰めは行単位で末尾から・単一ランキング腕は呼び出し側の順序を受けるスタブ(ablation ①)。
+- p_notice: 一発ベルヌーイを段1・段2の独立 2 抽選で実装(合成確率は同値・N は段1後に依存)・社会項の近傍数は 4e6 対を超えると 3×3 バケット近似(計数)・向きは 16 セクタ量子化(E2=6.22° より粗い=保守側)。attention: 中小媒体 p_see=0.27(0.14-0.40 の中点)・顕著性の重み 1.0/1.0/0.5/0.5・床 0.05・命令文除去の正規表現(文単位・保守的・除去件数を報告)・既定注視 0.48 s(Fotios 中央値)。
+- hashes: prefix_key のバイト配置(tag‖block ids‖u64 LE→xxh64)・b4_field_row の 4 欄(LOS 6 段/騒音段/流れ/顕著行為ダイジェスト)=**エンジンの変化検出(density 8 段/人・セル)との不一致で描画バイト変化の約 48% を取りこぼす→C3 結線で engine.change_detect を知覚側の行に切替**。
+- state(M12): 向き 1 B+課題 1 B+再送ハッシュ 8+8 B=18 B/体(自前上限 24 B/体・予算表に知覚行なし)。renderer: 密度の分母=歩行可能面積(実資産=W10 街路点×6.25 m²・合成=セル面積×0.15)・k=3/2/1 は LOS A-B/C-D/E-F・B4b は定型空文・流れ 0・W13 欠日はその時刻の最頻値・看板=最も可視な POI の営業時間・[B2 路面]は層と街路点の有無のみ。内受容閾値 (4,7,9)・騒音段語彙・行動語彙は層契約のため複製(等価テストで保護)。
+
+**C4 経済側(economy accounts/ledger/goods/checks/census/pricing/anchors・engine/ledger_api・2026-09-08)で導入した自前規約(追記のみ)**:
+- 依存性逆転: engine は `engine.ledger_api` の Protocol(MoneyLedger/GoodsLedger/LedgerBundle)だけを知り、economy が実装(engine→economy の import なし・AST 検査)。世帯現金=`agents.money` を参照で採用(写しなし)・`world.pois.stock` は SKU 別棚の写し(resolve のみが書く)。台帳結線は状態ハッシュ中立(結線前後で同 seed 同ハッシュ)。
+- accounts: 減価償却=自己ループ transfer(payer==payee・現金不動・固定資産と純資産が減る)/退蔵項=enum に置くが transfer 不能の測度(checks.hoard_report)/**逸脱比例コスト=15 番目の科目(店舗→政府・sink)**/外界・銀行・政府は負残高可(faucet の相手勘定)/税は第1陣「税 sink のみ」。**初期財布は外界から `CARRY_IN`(来街者持込)で注入=住民には誤ラベル→PENDING(初期保有の科目)**。
+- ledger: 同一支払者の重複行は前置和で判定・生ログ 24 B×262,144 行・保持窓 1 日→日次集約(D-R2-6)・貨幣供給量 M=世帯+店舗+雇用主の現金+預金・成長宣言係数 3 transfer/体/日・cap(6.29/16/512 MB)は親按分=要 delta。検算①=行和 0・**列和=Δ現金**(Caiani の Δ行を陽に持たない形)+Δ預金−Δ借入=0。
+- goods: SKU=カテゴリあたり 1-3 品目(質量 g・廃棄率)・払い出しは最初の非空スロット・在庫評価=標準原価(価格÷k)・初期在庫は均等割・棚卸差異閾値=流量の 1%・棚の退蔵=14 日・廃棄 band ±30%・カテゴリ→k(コンビニ 5.0/飲食 3.3/物販 2.9)・世帯は SKU 別合計のみ(M1 非搭載)。内部移動の科目 SALE/TO_BIN/STOCKTAKE を追加(§7.1 は faucet/sink のみ列挙)。
+- pricing: 種別→k・β=0.5(E7 アンカー未取得)・月次 Calvo→日次 1−(1−p)^(1/30.44)・clearing=min。anchors: 種別→日消費・財布=対数正規(中央値=日消費×3 日・σ0.6・1,000〜2,000,000 円)・来街者 7.1 万円÷5・月次賃金=時間×最低賃金×割増 1.0。checks: 残差閾値=M×1e-6・退蔵=30 日不動。census: 日次行に検算②成否・廃棄質量を追加(設計より広い)・Parquet zstd。
+- **書き込みガードの穴**: numpy の `np.add.at` は writeable=False を無視(numpy 2.5.3 実証)→台帳は明示フラグで防御・engine 側は C3 結線で静的検査(add.at の第1引数が world./agents. なら resolve.py のみ)を追加。
+
+**C3 結線(レンダラ→bridge・直前行動・W10 騒音段・変化検出の切替・書き込みガード・2026-09-08)で導入した自前規約(追記のみ)**:
+- **prompt_hash は 2 種で役割が違う**: テープの完全一致鍵=`LLMRequest.prompt_hash`=sha256_cbor(プロンプト本文)(vLLM と算法名を揃える)/prefix キー=`Rendered.prompt_hash`=blake3(ブロック連結)(BridgeResult.prompt_hash)。両方を記録し役割で使い分ける(統一しない)。
+- `last_action`(int8・+1 B/体)は resolve のみが書く(12 語と落選時・ENGINE_STEP は書かない=移動の継続)。`last_result` はレンダラが SoA から読む(bridge は渡さない=「未実行」分岐を壊さないため)。
+- W10 騒音段=街路点の**最頻値**でセル集約(perception._street_aggregate とバイト一致・world/assets.py に複製)・昼夜 2 配列を World に持ち `noise_stage_for_tick`・`cells.noise_stage` は動的上書き枠(0=静的場)。合成世界は 0。
+- 変化検出(起床条件(i)・dormant 抑止)の B4 行=知覚側 `b4_field_row`(LOS 6 段/m²・騒音段・流れ・顕著行為ダイジェスト)に切替→描画バイト変化の取りこぼし 1,387/2,878→0・過検出 42→0。**開閉店(open_count)は B4 行から外す**(描画バイトを変えず・知覚契約 §6(i) に無い)=開閉店は起床源でない(pin テスト)。P6 は 0.80/1.03/1.36 ms/tick(≤2 ms)。
+- run_day の世界時計=DEFAULT_START_DATETIME+日+分(start_sim_datetime 欄は C6 で manifest から)・salient_events=空・flow=0(世界過程は C4)。テープ共有ブロックの intern は xxh64 で去重。
+- 書き込みガード: numpy ufunc.at は writeable=False を無視→`_require_thawed` を resolve の一括更新前に置き、`np.*.at` の第 1 引数が world./agents. の呼び出しは resolve.py のみ(AST 検査・別名は module レベルの単純解決)。
+
+**C4 世界側台帳(world/processes records/relations/registry/constitution/first_batch/actual_log/deletion_candidates・2026-09-08)で導入した自前規約(追記のみ)**:
+- ProcessKind に AGENT_FALLBACK(conf 宣言つきフォールバックを型で可視化)・DeviationVocab に DELAY(delay_minutes≠0⇔DELAY)・軸2(可変性・改訂権者)は自由文・conf は executor=engine_rule 行のみ・保留チャネル(嗅覚)と封印行(S1-S3)の参照は違反・破棄行(D2/D3)は不存在扱い・`registry_hash` は to_json 書式依存・coverage_report のフォールバック比率=行数割合・WorldProcess 自身にも executor(fallback 台帳を1本で引く)。
+- ActualLog: 1 行 31 B(23+索引 8)・1 対象 1 日 4 件の見積り・cap 512 MB/16 MB は S1 からの按分(予算表に行なし=delta 要)・`per_day_growth=O(N)`(日次増分の位数・累積が O(t)=D-R2-6 の趣旨)・保持窓 7 日→日次集約・compliance_rate=SCHEDULED の割合。
+- 第1陣の宣言 21 過程(llm_agent 9/none 7/engine_rule 5=フォールバック台帳 5 行: rail 0.6・store_opening 0.5・vehicle_cross_section 0.4・hotel 0.4・large_event 0.3)+PlanSpec 2+細部 3+関係 13・各行に感度試験 id(AB-*)と返済期限・カタログ被覆(宣言)23/57・憲法5 検査 OK(実 doc の id 集合: 知覚チャネル 15 行・パターン台帳 48 行・観測出力 cog_* 5)・削除候補 0。B3 の届き先は PROPOSED(PENDING)。
+- (C3 層2レビュー指摘で追記・09-08) 近接チャネルの件数上限は解除(max_items=len(near)・100 tok 上限は維持)・prefix_key は共有 B0-B4b のみで合成(修正)・B2 可視物の順序=可視視点数降順→ID 昇順(規約②の読み)・セルあたり可視 POI 上限 8・地物 4・未知 kind→来街者・未知 wake_reason→一般活動文・規約⑥は B4/B4b/B5 に描画経路で検査(B2 の OSM 固有名詞「…等」は対象外)・run の既定デコード temperature 0.0(Phase 2 は 0.7 で再測=事前登録)・裁定呼 temperature 0/max_tokens 256・役割語の失敗コード写像(接客/放送/遅延報告/並ぶ/撮影→BAD_TARGET・発車/停車→INTERRUPTED・指示→UNREACHABLE=親の推定)・walk_over_ticks=0 既定・不応答/却下の招待側は resolve.revert_conversation で IDLE へ戻す(修正)・`fail_streak` の 4 回打ち切り(行動契約 §6)は未消費・起床(ii)は内受容のみ(知人/近接入替/被注視/傍受は部品のみ)・注意ゲート段1-3/p_notice/dormant 抑止/PerceptionState は部品完成(結線は C4 の世界過程と同時)。
 ## §9 構築工程(決定(仮)・2026-09-08・ユーザー「承認・完成まで漕ぎ着けて」・実行形=工程ごとに/goal+自動モード・出口でユーザー判断)
 
 > 前提: CLAUDE.md §2-2「全て決めてから構築」。着手ゲート=世界データ構築仕様書(D-W1〜D-W22)+本§9の承認。**所要日数は親の推測**(サブ実装+親検収込み・並列度2)。GPU: サーバー返却(9/10)後はローカル1GPUのみ→C5後半以降(艦隊必須)は再借用/クラウドが前提。

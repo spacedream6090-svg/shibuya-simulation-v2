@@ -29,8 +29,12 @@
    numba が無い環境では NumPy 版へ自動で落ちる(結果は**バイト一致**・テストで検査)。
 
 expedient(本モジュール分)
-- B4 に載せる欄は C2 では **密度段階・騒音段階・営業中POI数** の 3 つだけ(構造物・顕著行為は
-  C3/C4)。欄が増えるとハッシュが変わる=**B4 の版**は C3 のレンダラで凍結する。
+- (C3 結線で解消) B4 の欄は **知覚側の描画欄**(``perception.hashes.b4_field_row`` =
+  LOS 6 段・騒音段・流れ・顕著行為ダイジェスト)に切り替えた。C2 の「密度段8値・騒音段・
+  営業中POI数」は描画の欄と別物で、描画バイト変化の 48% を取りこぼしていた
+  (``docs/ops/build-report-C3.md`` §2)。**営業中POI数は欄から外した**(描画に出ないため
+  起床させるのは過検出。契約書 §6 (i) の列挙にも無い)。
+- 流れ・顕著行為ダイジェストは C3 では常に 0(方向データと顕著行為の到達判定は C4)。
 - 内受容の段の刻み ``INTERO_UP_EDGES``(4/7/9)とヒステリシス幅 1。契約書は「閾値」としか
   言わず値を与えていない。
 - (ii) のうち **知人出現・近接入替・被注視・傍受** は C2 では検出しない(関係辺 M5・
@@ -45,13 +49,19 @@ from typing import Final
 import numpy as np
 
 from shibuya.agents.state import WAKE_CONDITION_CLASS, AgentState, WakeCondition
-from shibuya.core.hashing import xxh64
+from shibuya.perception import hashes as PH
+from shibuya.perception import normalize as PN
+from shibuya.perception import templates as PT
+from shibuya.perception.renderer import WALKABLE_FRACTION_SYNTHETIC
+from shibuya.world.assets import CELL_SIZE_M
 from shibuya.world.state import World
 
 __all__ = [
     "INTERO_UP_EDGES",
     "INTERO_HYSTERESIS",
     "INTERO_VARS",
+    "B4_FIELD_COLUMNS",
+    "DEFAULT_WALKABLE_AREA_M2",
     "B5Crossing",
     "DetectResult",
     "b4_block_raw",
@@ -70,8 +80,15 @@ INTERO_VARS: Final[tuple[tuple[str, str], ...]] = (
     ("thermal", "thermal_stage"),
 )
 
-_B4_COLS: Final[int] = 3  # 密度段階・騒音段階・営業中POI数
-_B4_ROW_BYTES: Final[int] = _B4_COLS * 4  # int32 × 3
+#: B4 の**描画に使う欄**の並び(``perception.hashes.b4_field_row`` と 1 対 1)。
+B4_FIELD_COLUMNS: Final[tuple[str, ...]] = (
+    "los_stage",  # 歩行者密度 LOS 6 段(人/m²・分母=歩行可能面積)
+    "noise_stage",  # 騒音段階 4 段(W10 昼夜場 or 動的上書き)
+    "flow",  # 流れ 3 値(方向データが入るまで 0)
+    "salient_digest",  # 顕著行為の到達(行の xxh64 下位 31 bit・無ければ 0)
+)
+#: 歩行可能面積が与えられないときの分母[m²](``perception.renderer`` の合成世界と同値)。
+DEFAULT_WALKABLE_AREA_M2: Final[float] = CELL_SIZE_M * CELL_SIZE_M * WALKABLE_FRACTION_SYNTHETIC
 
 
 def _cell_wake_numpy(cell: np.ndarray, cell_mask: np.ndarray, out: np.ndarray) -> int:
@@ -105,38 +122,64 @@ def _make_cell_wake():
 _CELL_WAKE, CELL_WAKE_USES_NUMBA = _make_cell_wake()
 
 
-def b4_block_raw(world: World, tick: int) -> np.ndarray:
-    """セル動的ブロック B4 の生欄 ``(n_cells, 3)`` int32(密度段・騒音段・営業中POI数)。"""
-    raw = np.empty((world.n_cells, _B4_COLS), dtype=np.int32)
-    raw[:, 0] = world.density_stage()
-    raw[:, 1] = world.cells.noise_stage
-    raw[:, 2] = world.open_count_per_cell(tick)
-    return raw
+def b4_block_raw(
+    world: World,
+    tick: int,
+    *,
+    walkable_area_m2: np.ndarray | float | None = None,
+    noise_stage: np.ndarray | None = None,
+    flow: np.ndarray | None = None,
+    salient_digest: np.ndarray | None = None,
+) -> np.ndarray:
+    """セル動的ブロック B4 の**描画欄** ``(n_cells, 4)`` int32(``B4_FIELD_COLUMNS`` の順)。
+
+    知覚契約書 §2.2/§5 の三役は「**描画バイト列**のハッシュ」を要求する。C2 は安い代理として
+    「密度段8値・騒音段・営業中POI数」を使っていたが、これは描画の欄と**別物**で、
+    描画バイト変化の 48% を取りこぼしていた(``docs/ops/build-report-C3.md`` §2)。
+    C3 の結線でこの関数を ``perception.hashes.b4_field_row``(描画がそれ**だけ**に依存する欄)
+    へ切り替えた。欄ハッシュはこれで描画バイトの refinement になる。
+
+    Args:
+        world: セル状態。
+        tick: 現在 tick(騒音の昼夜切替に使う)。
+        walkable_area_m2: 密度→人/m² の分母。None なら ``DEFAULT_WALKABLE_AREA_M2``。
+        noise_stage: 騒音段(None なら ``world.noise_stage_for_tick(tick)``)。
+        flow: 流れ 0-2(None なら 0)。
+        salient_digest: 顕著行為ダイジェスト(None なら 0)。
+
+    Note:
+        **営業中POI数は欄から外した**。店が開いても B4 の描画バイトは変わらない
+        (営業時間は B2 の看板=セル固定)ので、起床条件 (i)「B4 ハッシュ変化」に載せると
+        過検出になる。知覚契約書 §6 (i) の列挙(密度段階の跨ぎ・騒音段階・構造物・
+        顕著行為の到達)にも営業中POI数は無い。
+    """
+    n = world.n_cells
+    area = DEFAULT_WALKABLE_AREA_M2 if walkable_area_m2 is None else walkable_area_m2
+    per_m2 = np.asarray(world.cells.density, dtype=np.float64) / np.maximum(
+        np.asarray(area, dtype=np.float64), 1.0
+    )
+    los = PN.peg_stage_array(per_m2, PT.DENSITY_LOS_EDGES_PER_M2)
+    ns = world.noise_stage_for_tick(tick) if noise_stage is None else np.asarray(noise_stage)
+    fl = np.zeros(n, dtype=np.uint8) if flow is None else np.asarray(flow)
+    sal = np.zeros(n, dtype=np.int32) if salient_digest is None else np.asarray(salient_digest)
+    return PH.b4_field_row(los, ns, fl, sal)
 
 
 def b4_block_hashes(raw: np.ndarray, rows: np.ndarray | None = None) -> np.ndarray:
-    """B4 生欄の行ごとの xxh64。
+    """B4 描画欄の行ごとの xxh64(``perception.hashes.field_row_hashes`` に委譲)。
 
     Args:
-        raw: ``(n_cells, 3)`` int32(C 連続)。
+        raw: ``(n_cells, len(B4_FIELD_COLUMNS))`` int32(C 連続)。
         rows: 計算する行の索引(None なら全行)。
 
     Returns:
         ``rows`` と同じ長さの uint64 配列。
 
     Note:
-        逐次ループ宣言1: **行数ぶんの xxh64 ループ**(上限=セル数)。実装計画書 §3 が
-        「xxhash で 453 回(宣言済みの小ループ)」と明示的に許した形。
+        逐次ループ宣言1: **行数ぶんの xxh64 ループ**(上限=セル数 453/520。
+        実装計画書が明示的に許した形)。実体は知覚側にある=**ハッシュの定義は 1 か所**。
     """
-    flat = memoryview(np.ascontiguousarray(raw).reshape(-1).view(np.uint8))
-    idx = np.arange(raw.shape[0]) if rows is None else np.asarray(rows, dtype=np.int64)
-    if idx.size == 0:
-        return np.empty(0, dtype=np.uint64)
-    return np.fromiter(
-        (xxh64(flat[int(i) * _B4_ROW_BYTES : (int(i) + 1) * _B4_ROW_BYTES]) for i in idx),
-        dtype=np.uint64,
-        count=int(idx.size),
-    )
+    return PH.field_row_hashes(raw, rows)
 
 
 @dataclass(frozen=True)
@@ -212,9 +255,22 @@ class ChangeDetector:
         0
     """
 
-    def __init__(self, n_agents: int, n_cells: int) -> None:
+    def __init__(
+        self,
+        n_agents: int,
+        n_cells: int,
+        walkable_area_m2: np.ndarray | float | None = None,
+    ) -> None:
+        """
+        Args:
+            n_agents / n_cells: 規模。
+            walkable_area_m2: 密度→人/m² の分母(知覚側 ``PerceptionAssets.walkable_area_m2``)。
+                None なら ``DEFAULT_WALKABLE_AREA_M2``。**レンダラと同じ分母**を渡すこと
+                (違う分母だと LOS 段がずれ、起床条件 (i) が描画バイトと食い違う)。
+        """
         self.n_agents = int(n_agents)
         self.n_cells = int(n_cells)
+        self.walkable_area_m2 = walkable_area_m2
         self._prev_raw: np.ndarray | None = None
         # scratch(1 tick ごとの確保を避ける=Windows のページフォルトが P6 を食う)
         self._b1 = np.empty(self.n_agents, dtype=bool)
@@ -228,8 +284,13 @@ class ChangeDetector:
         self._wake_buf = np.empty(self.n_agents, dtype=np.int64)
 
     # ---- (i) セル ----
-    def _cell_changes(self, world: World, tick: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        raw = b4_block_raw(world, tick)
+    def _cell_changes(
+        self, world: World, tick: int, field_rows: np.ndarray | None = None
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        if field_rows is None:
+            raw = b4_block_raw(world, tick, walkable_area_m2=self.walkable_area_m2)
+        else:
+            raw = np.ascontiguousarray(np.asarray(field_rows, dtype=np.int32))
         if self._prev_raw is None or self._prev_raw.shape != raw.shape:
             rows = np.arange(raw.shape[0], dtype=np.int64)
         else:
@@ -284,18 +345,29 @@ class ChangeDetector:
         return tuple(out)
 
     # ---- 本体 ----
-    def detect(self, world: World, agents: AgentState, tick: int) -> DetectResult:
+    def detect(
+        self,
+        world: World,
+        agents: AgentState,
+        tick: int,
+        *,
+        field_rows: np.ndarray | None = None,
+    ) -> DetectResult:
         """1 tick 分の変化検出(**書き込みなし**)。
 
         Args:
             world: セル状態(``density`` は前 tick の Phase C で更新済み)。
             agents: 個体状態。
             tick: 現在 tick。
+            field_rows: ``(n_cells, 4)`` int32 の B4 描画欄。**レンダラが既に作っていれば
+                それを渡す**(``engine.run`` はそうする)= 検出器と描画が同じ 1 本の欄を見る
+                =「起床条件 (i) が鳴らないのに文面が変わる」取りこぼしが構造的に 0 になる。
+                None なら ``b4_block_raw`` が world から作る(単体運転・ベンチ用)。
 
         Returns:
             ``DetectResult``。
         """
-        _, changed_cells, changed_hash = self._cell_changes(world, tick)
+        _, changed_cells, changed_hash = self._cell_changes(world, tick, field_rows)
         if changed_cells.size:
             self._cell_mask[:] = False
             self._cell_mask[changed_cells] = True

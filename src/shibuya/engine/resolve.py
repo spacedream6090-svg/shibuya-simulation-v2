@@ -32,6 +32,16 @@ expedient(本モジュール分)
 - 乗車は**列車が無い**ので必ず ``NO_TRAIN``、降車は契約書どおり ``NO_STOP``(その駅には止まらない)(列車は C4・§2.6 の混雑率受容関数もそこ)。
 - 会話は**セッションレコードを作るだけ**(発話ブロック・終了判定・記憶転写は C3/C4)。
 - 日次内省(T2)は「就寝で発火」を**記録するだけ**(実際の内省呼は C3)。
+
+**C4 の結線(台帳)**
+- ``ledger``(``engine.ledger_api.LedgerBundle``)を注入すると、購入の
+  **金は ``MoneyLedger.purchase_many``・物は ``GoodsLedger.sell_many``** を通る
+  (境界・経済設計書 §2.3「transfer 単一API・残高の直接代入は静的に禁止」/
+  世界過程設計書 §7.1「move_goods 単一API・在庫の直接代入は静的禁止」)。
+  注入しなければ C2 と同じ直接更新の経路に落ちる(既存テストの互換)。
+- 世帯の現金は ``agents.money`` **そのもの**(台帳は写しを持たない)。したがって台帳への
+  書き込みも ``with agents.writable()`` の中でしか成立しない=書き込み口は resolve 1本のまま。
+- ``world.pois.stock`` は物の台帳の**写し**。真値は棚(SKU 別)にあり、resolve が書き戻す。
 """
 
 from __future__ import annotations
@@ -50,6 +60,7 @@ from shibuya.agents.state import (
     ResultCode,
 )
 from shibuya.engine.change_detect import DetectResult
+from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.commit import (
     ACT_ALIGHT,
     ACT_BOARD,
@@ -69,6 +80,7 @@ from shibuya.engine.commit import (
 from shibuya.world.state import World
 
 __all__ = [
+    "revert_conversation",
     "BODY_TICK_PERIOD",
     "REST_FATIGUE_RELIEF",
     "BUY_HUNGER_RELIEF",
@@ -79,6 +91,9 @@ __all__ = [
     "apply",
     "set_refractory",
     "advance_body",
+    "restock",
+    "collect_waste",
+    "consume",
 ]
 
 #: 内受容の自然変動の周期[tick](expedient)。
@@ -88,6 +103,29 @@ BUY_HUNGER_RELIEF: Final[int] = 4
 SLEEP_FATIGUE_RELIEF: Final[int] = 2
 
 _REFRACTORY_TICKS: Final[np.ndarray] = np.asarray(REFRACTORY_MINUTES, dtype=np.int32)
+
+
+def _require_thawed(*states: object) -> None:
+    """``ufunc.at`` を撃つ前の**穴埋めガード**(層2レビュー指摘・C3 結線で追加)。
+
+    NumPy の ``np.add.at`` / ``np.maximum.at`` は **``flags.writeable=False`` を見ない**
+    (`ufunc.at` は buffer protocol を経由せずに書く)。つまり ``freeze()`` だけでは
+    「resolve 以外からの一括加算」を止められない。そこで ``AgentState``/``World`` が持つ
+    ``_frozen`` フラグ(``frozen`` プロパティ)を**明示的に**検査する。
+
+    Raises:
+        ValueError: 凍結中の状態へ ``ufunc.at`` を撃とうとした(=書き込み窓の外)。
+
+    Note:
+        静的側の相方は ``tests/engine/test_add_at_guard.py``
+        (``world.``/``agents.`` 由来の配列への ``np.<ufunc>.at`` は resolve.py にしか書けない)。
+    """
+    for s in states:
+        if bool(getattr(s, "frozen", False)):
+            raise ValueError(
+                "凍結中の状態へ ufunc.at(np.add.at 等)を撃とうとした。"
+                "書き込みは resolve の writable() 窓の中だけ(運用設計書 §2.2)"
+            )
 
 
 @dataclass
@@ -107,6 +145,11 @@ class ResolveOutcome:
     per_result: dict[int, int] = field(default_factory=dict)
     #: 移動+密度更新の壁時計[秒](予算行 P2)。
     movement_seconds: float = 0.0
+    #: この tick で使う台帳(``apply`` が入れる**呼びごとの文脈**。行動語の適用関数へ
+    #: 引数を1本増やさずに渡すための欄=注入点は ``apply(..., ledger=...)`` の1か所だけ)。
+    ledger: LedgerBundle | None = None
+    #: 台帳が金の脚を却下した件数(診断行・通常は 0)。
+    n_ledger_rejected: int = 0
 
     def add_result(self, code: int, n: int) -> None:
         if n:
@@ -120,10 +163,14 @@ def initialize(
     schedule,
     *,
     day_index: int = 0,
+    ledger: LedgerBundle | None = None,
 ) -> None:
     """個体を自宅セルに置き、所持金・種別・内受容の初期段を設定する(**ランの最初に1回**)。
 
     ここも書き込みなので resolve に置く(``run.py`` は初期化後に ``freeze()`` する)。
+
+    ``ledger`` を渡した場合、初期財布は**直接代入ではなく外界からの transfer**で入れる
+    (境界・経済設計書 §2.3 ex nihilo 禁止)。金額は同じなので状態ハッシュは変わらない。
     """
     from shibuya.engine.change_detect import INTERO_UP_EDGES
 
@@ -135,7 +182,13 @@ def initialize(
         agents.registry.band[:] = world.assets.cell_band[home]
         agents.registry.xy[:] = world.assets.node_xy[agents.registry.node]
         agents.registry.field("kind")[:] = np.asarray(schedule.kind)[:n]
-        agents.registry.money[:] = np.asarray(schedule.initial_money, dtype=np.int64)[:n]
+        money0 = np.asarray(schedule.initial_money, dtype=np.int64)[:n]
+        if ledger is not None and ledger.money is not None:
+            # 台帳経路: 外界 → 世帯の transfer(来街者持込)で入れる(残高の直接代入をしない)
+            agents.registry.money[:] = 0
+            ledger.money.endow_households(money0, 0)
+        else:
+            agents.registry.money[:] = money0
         agents.registry.activity[:] = int(Activity.SLEEPING)
         agents.registry.hunger[:] = 2
         agents.registry.fatigue[:] = 2
@@ -177,6 +230,7 @@ def set_refractory(agents: AgentState, agent_id, condition, tick: int) -> None:
     c = np.asarray(condition, dtype=np.int64)
     until = (int(tick) + _REFRACTORY_TICKS[c]).astype(np.int32)
     with agents.writable():
+        _require_thawed(agents)
         cur = agents.registry.refractory_until
         np.maximum.at(cur, (a, c), until)
 
@@ -206,6 +260,7 @@ def apply(
     tick: int,
     *,
     schedule=None,
+    ledger: LedgerBundle | None = None,
 ) -> ResolveOutcome:
     """Phase C: 確定した intent だけを世界へ適用する(**唯一の書き手**)。
 
@@ -215,11 +270,14 @@ def apply(
         agents / world: 書き込み対象。
         tick: 現在 tick。
         schedule: mock 日課(就寝可否の判定に自宅セルを使う)。
+        ledger: 金/物の台帳(``None`` なら C2 と同じ直接更新の経路)。
 
     Returns:
         ``ResolveOutcome``。
     """
-    out = ResolveOutcome(tick=int(tick), n_confirmed=len(plan_confirmed), n_losers=len(losers))
+    out = ResolveOutcome(
+        tick=int(tick), n_confirmed=len(plan_confirmed), n_losers=len(losers), ledger=ledger
+    )
     r = agents.registry
     with agents.writable(), world.writable():
         code = plan_confirmed.action_code.astype(np.int64)
@@ -235,11 +293,19 @@ def apply(
             if sel.size == 0:
                 continue
             out.per_action[int(action)] = out.per_action.get(int(action), 0) + int(sel.size)
+            if action != ENGINE_STEP:
+                # 「直前に**試みた**行動」= B6 の主語(成功・失敗を問わず書く)。
+                # エンジン継続は新しく試みた行動ではない(移動の続き)ので書かない。
+                r.last_action[aid[sel]] = np.int8(action)
             _APPLY[action](agents, world, aid[sel], tgt[sel], tick, out, schedule)
 
         # 落選者(行動契約書 §2「落選者には失敗の意味論」)
         if len(losers):
             la = losers.agent_id.astype(np.int64)
+            lc = losers.action_code.astype(np.int64)
+            keep = lc != ENGINE_STEP
+            if keep.any():
+                r.last_action[la[keep]] = lc[keep].astype(np.int8)
             r.last_result[la] = int(ResultCode.LOST_ARBITRATION)
             r.last_result_tick[la] = int(tick)
             r.fail_streak[la] = np.minimum(r.fail_streak[la].astype(np.int16) + 1, 255).astype(
@@ -333,14 +399,21 @@ def _apply_no_stop(agents, world, aid, tgt, tick, out, schedule) -> None:
 
 
 def _apply_buy(agents, world, aid, tgt, tick, out, schedule) -> None:
-    """購入: 営業中・在庫>0・所持金≧価格 → 在庫−1・所持金−価格・所持+1・**売上+同額**。"""
+    """購入: 営業中・在庫>0・所持金≧価格 → 在庫−1・所持金−価格・所持+1・**売上+同額**。
+
+    台帳(``out.ledger``)があるときは金=``purchase_many``・物=``sell_many`` を通し、
+    ``world.pois.stock`` は棚(真値)の写しとして書き戻す。
+    """
     r = agents.registry
+    led = out.ledger
     has_target = (tgt >= 0) & (tgt < world.n_poi)
     poi = np.clip(tgt, 0, max(0, world.n_poi - 1))
     open_mask = world.open_mask(tick)
     is_open = has_target & open_mask[poi]
     price = world.pois.price[poi].astype(np.int64)
     in_stock = is_open & (world.pois.stock[poi] > 0)
+    if led is not None and led.goods is not None and in_stock.any():
+        in_stock = in_stock & led.goods.can_sell(poi)  # 棚(SKU 別)が真値
     can_pay = in_stock & (r.money[aid].astype(np.int64) >= price)
 
     _fail(agents, aid[~has_target], ResultCode.BAD_TARGET, tick, out)
@@ -354,9 +427,33 @@ def _apply_buy(agents, world, aid, tgt, tick, out, schedule) -> None:
     buyers = aid[win]
     bought = poi[win]
     paid = price[win]
-    np.add.at(world.pois.stock, bought, -1)
+    if led is not None and led.money is not None:
+        status = led.money.purchase_many(buyers, bought, paid, tick)
+        ok = np.asarray(status) == 0
+        if not ok.all():
+            _fail(agents, buyers[~ok], ResultCode.MONEY_SHORT, tick, out)
+            out.n_ledger_rejected += int((~ok).sum())
+            buyers, bought, paid = buyers[ok], bought[ok], paid[ok]
+            if buyers.size == 0:
+                return
+    else:
+        r.money[buyers] = (r.money[buyers].astype(np.int64) - paid).astype(np.int32)
+    if led is not None and led.goods is not None:
+        sold = np.asarray(led.goods.sell_many(bought, tick))
+        if not sold.all():  # can_sell 済みなので通常は起きない(防御)
+            _fail(agents, buyers[~sold], ResultCode.OUT_OF_STOCK, tick, out)
+            out.n_ledger_rejected += int((~sold).sum())
+            buyers, bought, paid = buyers[sold], bought[sold], paid[sold]
+            if buyers.size == 0:
+                return
+        world.pois.stock[bought] = led.goods.aggregate_stock(bought).astype(
+            world.pois.stock.dtype
+        )
+    else:
+        _require_thawed(world)
+        np.add.at(world.pois.stock, bought, -1)
+    _require_thawed(world)
     np.add.at(world.pois.revenue, bought, paid)
-    r.money[buyers] = (r.money[buyers].astype(np.int64) - paid).astype(np.int32)
     r.holdings[buyers] = np.minimum(r.holdings[buyers].astype(np.int16) + 1, 255).astype(np.uint8)
     r.hunger[buyers] = np.maximum(
         r.hunger[buyers].astype(np.int16) - BUY_HUNGER_RELIEF, 0
@@ -371,6 +468,22 @@ def _apply_wait(agents, world, aid, tgt, tick, out, schedule) -> None:
     """待機: **常に可能=安全弁**(失敗しない)。"""
     agents.registry.activity[aid] = int(Activity.WAITING)
     _ok(agents, aid, tick, out)
+
+
+def revert_conversation(agents, agent_ids: np.ndarray) -> None:
+    """招待が不応答/ゲート却下だったとき、resolve が CONVERSING にした招待側を IDLE へ戻す。
+
+    行動契約書 §3「不応答は『無視された』イベント(呼を消費しない)」。層2レビュー(C3)の指摘:
+    resolve が先に CONVERSING を書き、ConversationManager.invite が後で None を返すため
+    セッション無しの CONVERSING が残っていた。世界状態への書き込みは resolve のみ(本関数はその内側)。
+    """
+    ids = np.asarray(agent_ids, dtype=np.int64)
+    if ids.size == 0:
+        return
+    with agents.writable():
+        r = agents.registry
+        r.activity[ids] = int(Activity.IDLE)
+        r.talk_partner[ids] = -1
 
 
 def _apply_talk(agents, world, aid, tgt, tick, out, schedule) -> None:
@@ -439,6 +552,73 @@ def _apply_sleep(agents, world, aid, tgt, tick, out, schedule) -> None:
     r.target_node[win] = -1
     out.n_reflections += int(win.size)
     _ok(agents, win, tick, out)
+
+
+# ---------------------------------------------------------------- 物の操作(U-Goods・§7.2)
+def restock(
+    world: World,
+    ledger: LedgerBundle,
+    stores: np.ndarray,
+    qty: np.ndarray,
+    tick: int,
+    *,
+    slot: np.ndarray | None = None,
+) -> np.ndarray:
+    """店舗補充・納品(外界→棚)。代金は域外仕入(店舗→外界)で払う。
+
+    起動するのは店員・納品ドライバーの行動(C4-subH)。ここは**世界への書き戻し口**として
+    ``world.pois.stock``(棚の写し)を更新する役だけを持つ。
+
+    Returns:
+        行ごとの成否 bool。
+    """
+    if ledger.goods is None:
+        raise ValueError("物の台帳が注入されていない")
+    s = np.asarray(stores, dtype=np.int64).ravel()
+    ok = ledger.goods.restock_many(s, qty, tick, money=ledger.money, slot=slot)
+    with world.writable():
+        touched = s[np.asarray(ok)]
+        if touched.size:
+            world.pois.stock[touched] = ledger.goods.aggregate_stock(touched).astype(
+                world.pois.stock.dtype
+            )
+    return ok
+
+
+def consume(
+    agents: AgentState,
+    ledger: LedgerBundle,
+    agent_id: np.ndarray,
+    sku: np.ndarray,
+    qty: np.ndarray,
+    tick: int,
+) -> np.ndarray:
+    """消費(世帯の所持 → sink)。個体側は ``holdings``(個数)、SKU 別は台帳側の合計。
+
+    設計書 §7.1「SKU別在庫は店舗POI側に置き**個体M1には載せない**」に従い、
+    「誰が何を持っているか」は持たない——個体は個数だけ、SKU 別は全世帯合計だけ。
+    """
+    if ledger.goods is None:
+        raise ValueError("物の台帳が注入されていない")
+    a = np.asarray(agent_id, dtype=np.int64).ravel()
+    q = np.asarray(qty, dtype=np.int64).ravel()
+    with agents.writable():
+        holdings = agents.registry.holdings
+        have = holdings[a].astype(np.int64) >= q
+        ok = np.asarray(ledger.goods.consume_many(sku, np.where(have, q, 0), tick))
+        if ok.any():
+            _require_thawed(agents)
+            np.add.at(holdings, a[ok], (-q[ok]).astype(holdings.dtype))
+    return ok
+
+
+def collect_waste(
+    world: World, ledger: LedgerBundle, stores: np.ndarray | None, tick: int
+) -> float:
+    """廃棄物収集(店舗の廃棄ビン→bbox 外)。搬出質量[g]を返す(棚は動かない)。"""
+    if ledger.goods is None:
+        raise ValueError("物の台帳が注入されていない")
+    return float(ledger.goods.collect_waste(stores, tick))
 
 
 _APPLY: Final[dict[int, object]] = {

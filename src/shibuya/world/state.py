@@ -18,7 +18,9 @@
 expedient(本モジュール分)
 - 密度段階 ``DENSITY_STAGE_EDGES``(人/セル)は自前。知覚契約書は「密度段階の跨ぎ」としか
   言わず段の刻みを与えていない(B4 の段は C3 のレンダラで確定する)。
-- 騒音段階 ``noise_stage`` は W10(静的騒音場)が資産に無いので **全セル 0** で始める。
+- 騒音段階: 静的な W10 昼夜場は ``assets.noise_stage_day/night``(不変・セル別最頻値)に持ち、
+  ``cells.noise_stage`` は**動的上書き欄**(0=上書きなし)として残す。どちらを読むかは
+  ``noise_stage_for_tick`` が一本で決める(合成世界は全セル 0)。
 - 営業時間は W7(PlanSpec)が資産に無いので POI 一律 10:00-22:00(``assets`` の既定値)。
 - 書き込みガードの実装を agents.state と二重に持つ(層契約により共有モジュールを作れない)。
 """
@@ -62,7 +64,8 @@ class World:
         self.cells.declare("density_stage", np.uint8, byte_budget_per_agent=1, mechanism=False,
                            doc="密度段階(DENSITY_STAGE_EDGES・expedient=刻みは自前)")
         self.cells.declare("noise_stage", np.uint8, byte_budget_per_agent=1, mechanism=False,
-                           doc="静的騒音段階(W10 資産があれば注入・無ければ 0)")
+                           doc="騒音段階の**動的上書き欄**(0=静的 W10 昼夜場を使う・"
+                               "``noise_stage_for_tick`` が優先順を決める)")
         self.cells.declare("open_count", np.int32, byte_budget_per_agent=4, mechanism=True,
                            doc="そのセルで営業中の POI 数(B4 の構成要素)")
         self.cells.declare("b4_hash", np.uint64, byte_budget_per_agent=8, mechanism=True,
@@ -159,11 +162,33 @@ class World:
         return (self.pois.open_from <= t) & (t < self.pois.open_to)
 
     def open_count_per_cell(self, tick: int) -> np.ndarray:
-        """セル別の営業中 POI 数(B4 の構成要素)。"""
+        """セル別の営業中 POI 数(B4 の構成要素**ではない**=描画には出ない。C4 の在庫/混雑用)。"""
         m = self.open_mask(tick)
         cells = self.pois.cell[m].astype(np.int64)
         cells = cells[(cells >= 0) & (cells < self.n_cells)]
         return np.bincount(cells, minlength=self.n_cells).astype(np.int32)
+
+    def noise_stage_for_tick(self, tick: int, tick_seconds: int = 60) -> np.ndarray:
+        """その tick に使うセル別騒音段階(**W4-C3 結線の単一の出所**)。
+
+        優先順(黙って一本化しない・親へ報告済みの決定):
+          1. ``cells.noise_stage`` に 0 以外がある → **動的上書き**(C4 の世界過程が書く欄)。
+          2. それ以外 → 資産 W10 の**静的昼夜場**(環境基準の昼 6-22 時 / 夜 22-6 時)。
+
+        「2 本のセル配列を World に持ち、時刻でどちらを読むか決める」形を採った(親が挙げた
+        2 案のうち**単純な方**)。``cells.noise_stage`` を 6:00/22:00 に書き換える案は
+        resolve の書き込み窓を毎日 2 回開ける必要があり、静的資産のために単一書き手の
+        規律を使うのは割に合わない。
+
+        Args:
+            tick: 現在 tick。
+            tick_seconds: 1 tick の秒数(既定 60=1 分)。
+        """
+        dyn = self.cells.noise_stage
+        if dyn.size and bool(np.any(dyn)):
+            return np.asarray(dyn, dtype=np.uint8)
+        hour = int(int(tick) * int(tick_seconds) // 3_600) % 24
+        return self.assets.noise_stage_for_hour(hour)
 
     # ---- 書き込みガード ----
     @property

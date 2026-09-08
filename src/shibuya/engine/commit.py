@@ -39,7 +39,10 @@ import numpy as np
 from shibuya.agents.state import WakeCondition
 from shibuya.core.hashing import priority_key_array
 from shibuya.core.types import DEFAULT_TICK_SECONDS, NS_PER_SECOND
-from shibuya.llm import ACTION_VOCAB_12
+from shibuya.llm.contract import ACTION_CODES as _CONTRACT_ACTION_CODES
+from shibuya.llm.contract import ACTION_VOCAB_12
+from shibuya.llm.contract import UNDEFINED_ACTION
+from shibuya.llm.parser import parse_two_line
 
 __all__ = [
     "UNDEFINED_ACTION",
@@ -72,10 +75,10 @@ __all__ = [
     "arbitrate_resources",
 ]
 
-#: 行動語(行動契約書 §2.1 の 12 語・順序=表の出現順)。
+#: 行動語(行動契約書 §2.1 の 12 語・順序=表の出現順)。**正典は ``llm.contract``**。
 ACTION_WORDS: Final[tuple[str, ...]] = ACTION_VOCAB_12
-#: 行動語 → コード。
-ACTION_CODES: Final[dict[str, int]] = {w: i for i, w in enumerate(ACTION_WORDS)}
+#: 行動語 → コード(``llm.contract.ACTION_CODES`` と**同一の値**。二重定義を作らない)。
+ACTION_CODES: Final[dict[str, int]] = dict(_CONTRACT_ACTION_CODES)
 
 ACT_MOVE: Final[int] = ACTION_CODES["移動"]
 ACT_BOARD: Final[int] = ACTION_CODES["乗車"]
@@ -346,33 +349,29 @@ def tick_start_ns(tick: int, tick_seconds: int = DEFAULT_TICK_SECONDS) -> int:
 
 # ------------------------------------------------------------------ Phase A(intent 収集)
 #: パーサが行動語を取れなかったときのコード(行動契約書 §7 段1「未定義行動レコード」)。
-UNDEFINED_ACTION: Final[int] = -2
-
-_TWO_LINE_ACTION_PREFIX: Final[str] = "行動: "
+#: **正典は ``llm.contract.UNDEFINED_ACTION``**(値 −2)を import している。
 
 
 def parse_action(text: str) -> int:
-    """2行形の 2 行目から行動語を取り出してコードにする(**寛容行指向**)。
+    """2行形から行動語を取り出してコードにする(**正典パーサへの薄い委譲**)。
 
     Returns:
-        ``ACTION_CODES`` の値。行が無い/語彙外なら ``UNDEFINED_ACTION``。
+        ``ACTION_CODES`` の値(12 語)。取れない/12 語の外(役割語を含む)なら
+        ``UNDEFINED_ACTION``。
 
     Note:
-        行動契約書 §7「未定義行動の受理」段0(辞書写像)相当。段2以降(裁定 LLM で契約行を
-        生成)は C3/C4。C2 は **段1(記録+失敗フィードバック+計数)まで**で、
-        ``resolve`` が「待機」に落とす。
-        正典のパーサ(ラベル基準・寛容行指向・知覚契約書 §2.5)は C3 の ``perception``/``llm``
-        側に置かれる。ここにあるのは**エンジンが intent を組むための最小写像**。
+        C2 ではここに最小写像を置いていたが、C3 で正典のパーサ
+        (``llm.parser.parse_two_line``・ラベル基準の寛容行指向・知覚契約書 §2.5)が入ったので
+        **委譲に置き換えた**(パーサを2つ持たない)。§2.2 の役割語は ``_APPLY`` に対応分岐が
+        無い(効果先は C4)ため、ここでは 12 語だけをコード化し、他は未定義扱い=``resolve`` が
+        「待機」に落とす(§2 共通必須事項③の安全弁)。
     """
     if not text:
         return UNDEFINED_ACTION
-    for line in text.splitlines():
-        if line.startswith(_TWO_LINE_ACTION_PREFIX):
-            rest = line[len(_TWO_LINE_ACTION_PREFIX) :].strip()
-            word = rest.split(" ", 1)[0] if rest else ""
-            code = ACTION_CODES.get(word)
-            return UNDEFINED_ACTION if code is None else int(code)
-    return UNDEFINED_ACTION
+    word = parse_two_line(text).action
+    if word is None:
+        return UNDEFINED_ACTION
+    return int(ACTION_CODES.get(word, UNDEFINED_ACTION))
 
 
 def pair_partners(agent_id: np.ndarray, cell: np.ndarray) -> np.ndarray:

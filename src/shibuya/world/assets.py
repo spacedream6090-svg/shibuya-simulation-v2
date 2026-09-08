@@ -18,6 +18,7 @@
 逐次ループ宣言(P4)
 1. ``load_assets``: POI 数(2,337)ぶんの ``place_id`` 文字列→セル索引の辞書引き。
 2. ``synthetic_assets``: セル数ぶんの BFS(next-hop 表の構築・139/453 規模)。
+3. ``_noise_stage_per_cell``: **昼/夜の 2 回**(W10 街路点 356,732 点の集約は ``bincount`` 1 本)。
 いずれも個体数・tick 数には比例しない。
 
 expedient(本モジュール分)
@@ -44,6 +45,8 @@ __all__ = [
     "BAND_CODES",
     "CELL_SIZE_M",
     "GRID_ORIGIN_XY",
+    "NOISE_DAY_HOURS",
+    "N_NOISE_STAGES",
     "WorldAssets",
     "assets_available",
     "load_assets",
@@ -74,6 +77,11 @@ SYNTHETIC_POI_CAPACITY: Final[int] = 4
 #: 合成 POI の営業時間(W7 PlanSpec が無いときの既定・10:00-22:00)。
 DEFAULT_OPEN_FROM_TICK: Final[int] = 600
 DEFAULT_OPEN_TO_TICK: Final[int] = 1_320
+
+#: 騒音の「昼」時間帯(環境基準の昼 6:00-22:00 / 夜 22:00-6:00)。**mechanism**(法定)。
+NOISE_DAY_HOURS: Final[tuple[int, int]] = (6, 22)
+#: 騒音段階の段数(``perception.templates.NOISE_STAGE_VOCAB`` と同じ 4 段)。
+N_NOISE_STAGES: Final[int] = 4
 
 
 @dataclass(frozen=True)
@@ -120,6 +128,30 @@ class WorldAssets:
     poi_open_from: np.ndarray
     poi_open_to: np.ndarray
     poi_cat: tuple[str, ...]
+    #: セル別の静的騒音段階(W10 街路点の**最頻値**・昼 6-22 時)。資産に無ければ ``None``。
+    noise_stage_day: np.ndarray | None = None
+    #: 同 夜(22-6 時)。
+    noise_stage_night: np.ndarray | None = None
+
+    @property
+    def has_noise_field(self) -> bool:
+        """W10 の静的騒音場(セル別・昼夜)を持っているか。"""
+        return (
+            self.noise_stage_day is not None
+            and self.noise_stage_night is not None
+            and int(self.noise_stage_day.size) == self.n_cells
+        )
+
+    def noise_stage_for_hour(self, hour: int) -> np.ndarray:
+        """世界内の**時**(0-23)→ セル別騒音段階(環境基準の昼 6-22 時 / 夜 22-6 時)。
+
+        資産に W10 が無ければ全セル 0(=「静か」)。
+        """
+        if not self.has_noise_field:
+            return np.zeros(self.n_cells, dtype=np.uint8)
+        lo, hi = NOISE_DAY_HOURS
+        day = lo <= int(hour) < hi
+        return self.noise_stage_day if day else self.noise_stage_night  # type: ignore[return-value]
 
     @property
     def n_nodes(self) -> int:
@@ -238,6 +270,8 @@ def load_assets(path: str | Path) -> WorldAssets:
     poi_open_from = np.full(n_poi, DEFAULT_OPEN_FROM_TICK, dtype=np.int16)
     poi_open_to = np.full(n_poi, DEFAULT_OPEN_TO_TICK, dtype=np.int16)
 
+    ns_day, ns_night = _noise_stage_per_cell(p, cell_ix, cell_iy, cell_band)
+
     return WorldAssets(
         source=str(p),
         node_xy=node_xy,
@@ -261,7 +295,62 @@ def load_assets(path: str | Path) -> WorldAssets:
         poi_open_from=poi_open_from,
         poi_open_to=poi_open_to,
         poi_cat=cats,
+        noise_stage_day=ns_day,
+        noise_stage_night=ns_night,
     )
+
+
+def _noise_stage_per_cell(
+    path: Path, cell_ix: np.ndarray, cell_iy: np.ndarray, cell_band: np.ndarray
+) -> tuple[np.ndarray | None, np.ndarray | None]:
+    """W10(街路点 2.5 m 格子)の騒音段階 → セル別の**最頻値**(昼/夜)。
+
+    ``perception.renderer._street_aggregate`` と**同じ集約規則**(セル×段の度数の argmax=
+    同数なら小さい段)を使う。層契約(perception → world の一方向)により共有関数を作れないので
+    二重定義になる。一致は ``tests/engine/test_renderer_wiring.py`` が実データで機械検査する。
+
+    Returns:
+        ``(昼, 夜)``。W10 が無ければ ``(None, None)``。
+
+    Note:
+        逐次ループ宣言(P4): **昼/夜の 2 回**のループのみ(点数 356,732 の集約は ``bincount``
+        1 本=ベクトル演算)。起動時 1 回。
+    """
+    import pyarrow.parquet as pq
+
+    pts = path / "w10_street_points.parquet"
+    files = ("w10_noise_stage_day.npy", "w10_noise_stage_night.npy")
+    if not pts.exists() or not all((path / f).exists() for f in files):
+        return None, None
+
+    d = pq.read_table(pts, columns=["x", "y", "band"]).to_pydict()
+    sx = np.asarray(d["x"], dtype=np.float64)
+    sy = np.asarray(d["y"], dtype=np.float64)
+    sb = np.array([BAND_CODES[str(b)] for b in d["band"]], dtype=np.int8)
+    ix = np.floor((sx - GRID_ORIGIN_XY[0]) / CELL_SIZE_M).astype(np.int32)
+    iy = np.floor((sy - GRID_ORIGIN_XY[1]) / CELL_SIZE_M).astype(np.int32)
+
+    n_cells = int(cell_ix.size)
+    keys = _cell_key(cell_ix, cell_iy, cell_band)
+    order = np.argsort(keys, kind="stable")
+    skeys = keys[order]
+    q = _cell_key(ix, iy, sb)
+    pos = np.clip(np.searchsorted(skeys, q), 0, max(0, skeys.size - 1))
+    hit = skeys[pos] == q
+    cell_of_point = np.where(hit, order[pos], -1)
+    valid = cell_of_point >= 0
+
+    out: list[np.ndarray] = []
+    for name in files:  # 逐次ループ宣言: 昼/夜の 2 回
+        stage = np.load(path / name)
+        flat = cell_of_point[valid] * N_NOISE_STAGES + np.clip(
+            stage[valid].astype(np.int64), 0, N_NOISE_STAGES - 1
+        )
+        tab = np.bincount(flat, minlength=n_cells * N_NOISE_STAGES).reshape(
+            n_cells, N_NOISE_STAGES
+        )
+        out.append(tab.argmax(axis=1).astype(np.uint8))
+    return out[0], out[1]
 
 
 def hash_free_cat_code(cat: str) -> int:

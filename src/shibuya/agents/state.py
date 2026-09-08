@@ -24,6 +24,10 @@ expedient(本モジュール分)
 - ``refractory_until`` を「条件ごとに次に起床してよい tick」で持つ形(表は分で与えられている)。
   「同一相手60分」「同一話者30分」の**相手別**不応期は C2 では持たない(相手表が C3 の
   関係辺・傍受ゲートに依存するため)。持たないことを本書の未実装として登録。
+- ``last_action``(1 byte)は「直前に**試みた**行動」。``activity``(現在の状態)では
+  B6「直前の結果」の主語を復元できない(失敗した行動は状態に残らない)ので追加した
+  (C3 結線・書き手は ``engine.resolve`` のみ)。**エンジン継続(``ENGINE_STEP``)は書かない**
+  ——「移動の続き」は新しく試みた行動ではないので、直前の 移動 が主語のまま残るのが正しい。
 - ``last_result`` を 1 byte のコードにし、失敗の詳細(残高・次回開店時刻)は**持たない**
   (行動契約書 §6 は「残高/価格・次回開店時刻」を返せと言う=C3 のプロンプト側で
   現在値から再構成する。C2 は「どの失敗か」だけを保持)。
@@ -45,6 +49,7 @@ from shibuya.core.types import EventClass
 __all__ = [
     "AgentKind",
     "Activity",
+    "LAST_ACTION_NONE",
     "ResultCode",
     "WakeCondition",
     "N_WAKE_CONDITIONS",
@@ -53,6 +58,12 @@ __all__ = [
     "RESULT_TEXT",
     "AgentState",
 ]
+
+
+#: ``last_action`` の「まだ何も試みていない」値(**行動コードと衝突しない負値**)。
+#: ``engine.commit.ENGINE_STEP`` も −1 だが、エンジン継続は「直前に試みた行動」ではない
+#: (移動の続き)ので ``resolve`` は ENGINE_STEP を ``last_action`` に**書かない**。
+LAST_ACTION_NONE: Final[int] = -1
 
 
 class AgentKind(IntEnum):
@@ -101,7 +112,8 @@ class ResultCode(IntEnum):
     NO_PERMISSION = 14  # 権限なし
     LOST_ARBITRATION = 15  # 資源競合に落選(二相コミット Phase B)
     UNDEFINED_ACTION = 16  # 未定義行動(§7 段1)
-    BAD_TARGET = 17  # 対象が不正/特定不能
+    BAD_TARGET = 17
+    INSUFFICIENT_ABILITY = 18  # 能力不足(手伝い・行動契約書 §2.1)
 
 
 #: 契約書の文言(「直前の結果」の 50 tok 欄で使う短句)。
@@ -124,6 +136,7 @@ RESULT_TEXT: Final[dict[int, str]] = {
     ResultCode.LOST_ARBITRATION: "先に取られた",
     ResultCode.UNDEFINED_ACTION: "未定義の行動",
     ResultCode.BAD_TARGET: "対象を特定できない",
+    ResultCode.INSUFFICIENT_ABILITY: "能力不足",
 }
 
 
@@ -257,6 +270,9 @@ class AgentState:
         r.declare("wake_pending_class", np.int8, byte_budget_per_agent=1, mechanism=True,
                   doc="保留中の起床クラス(EventClass・-1=なし)")
         # ---- 直前の結果(行動契約書 §6) ----
+        r.declare("last_action", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="直前に**試みた**行動コード(llm.contract.ACTION_CODES・§6「直前の結果」の"
+                      "主語。-1=まだ何も試みていない=LAST_ACTION_NONE)")
         r.declare("last_result", np.int8, byte_budget_per_agent=1, mechanism=True,
                   doc="ResultCode(直前の行動の成否・§6 の 50 tok 欄の素材)")
         r.declare("last_result_tick", np.int32, byte_budget_per_agent=4, mechanism=True,
@@ -272,6 +288,7 @@ class AgentState:
         self.registry.talk_partner[:] = -1
         self.registry.wake_pending_class[:] = -1
         self.registry.last_result_tick[:] = -1
+        self.registry.last_action[:] = LAST_ACTION_NONE
         self._frozen = False
 
     # ---- フィールドの素通し(``st.money`` で配列を引く) ----
