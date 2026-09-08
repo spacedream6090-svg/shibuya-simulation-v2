@@ -4,4 +4,4 @@
 - 完了実装: [IMPLEMENTED.md](IMPLEMENTED.md)
 - 未実装・判断待ち: [PENDING.md](PENDING.md)
 - 開発ログ: [docs/log/devlog.md](docs/log/devlog.md)
-- 最終更新: 2026-09-08(第111 工程C4完了・C0〜C4 の /goal 達成。ユーザー判断待ちの一覧は PENDING.md 冒頭)
+- 最終更新: 2026-09-08(第112 PENDING 全面整理=番号制 U/D/F・R16 仮決定・実装再開はユーザー合図待ち。ユーザー作業=PENDING §1・設計判断=§2)
