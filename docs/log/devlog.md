@@ -1,7 +1,14 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **3 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **4 / 10**
 > 第1〜第120(2026-09-01〜09-09)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
+
+## 第124 D-50 穴台帳(実行できなかった行動を数える仕組み)の起案+軽リサーチ(2026-09-09)
+
+- **依頼**: ユーザー発案「エージェントに足りない実装を報告させる/実行できなかった行動を自動診断・収集する仕組み」→親の評価=報告させる(作話・設計者の口・費用)は不採用、エンジン側で躓きを数える形を推奨→ユーザー「載せて。軽くリサーチし、実装時に深くリサーチするメモも」。
+- **実施**: PENDING D-50 起案(既存信号の束ね方・型 5 種・日次センサス形集計・順位規則・出口=提案まで・弱点)。軽リサーチ 4 検索(MATSim stuckAndAbort/DRT 拒否・BDI-ABM・Voyager・Affordable Generative Agents 飽和曲線・Emergence World M11・失敗分類学 MAST/AgentErrorTaxonomy/ACCORD)=未一次確認と明記。直接の先行研究なし。実装時の深掘り義務をメモ。
+- **C7**: c7-day-2 継続中(tape 38 MB@22:3x)。
+- **次**: C7 完了待ち→受入。
 
 ## 第123 C7 受入の前準備: 受入計器ドライラン+cli --checkpoints-out/--replay+売上試算(2026-09-09)
 
