@@ -1,7 +1,15 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **6 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **7 / 10**
 > 第1〜第120(2026-09-01〜09-09)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
+
+## 第127 C7 本番ラン完走・受入開始(2026-09-10)
+
+- **依頼**: /goal 続行(ユーザー: モデル確認=Fable 5.1 に復帰・Remote Control も同一セッション)。
+- **事実**: c7-day-2 は 09-10 05:39 完走(壁時計 9 h 10 m・見込み 14.4 h より早い=tape の呼あたりバイトが c6 より小さかった)。W1 9.17 h/M8 1.53 GB/S1 0.165 GB/L4 3,900,670=10.00 呼/体/日/保存則・センサス・憲法5 OK/DIAG 4 列。受入表 9/16 行 PASS・0 不合格。
+- **実施**: Git Bash の ssh がエイリアス解決不能→Windows OpenSSH(PowerShell・/c/Windows/System32/OpenSSH/ssh.exe)に切替。HEAD(第126)の src/tools/tests をサーバーへ同期(sha256 一致)。T2-c(テープ再生・CPU)と T2-a(5,000 体×2・実 LLM)を tmux acc-c/acc-ab で 07:54 起動・Monitor 常設。T2-b は回さない(D-54)。在圏系列 5 エリア 138 ha 作成。報告書 §1 結果表・§1d 要約・§2a ログを記入。
+- **発見→PENDING**: D-51 乗車 75/降車 0(変換極小)・D-52 廃棄 17.9 t が帯外(全母集団でも)・D-53 状態成長 NG(transfer_log cap 頭打ち)・D-54 T2-b は時刻依存の繰り延べで測れない→再生で代替・D-55 艦隊が律速(fleet_wait 84%・繰り延べ 33.8%)。
+- **次**: T2 完了→c7_accept 全行→holdout 開封 1 回(D-43)→報告書→層2 検収→C7 出口コミット→IMPLEMENTED #17。艦隊が空いたら C8 ablation ⑥→① (5,000 体)。
 
 ## 第126 現状report+完成度の見積り(2026-09-10)
 
