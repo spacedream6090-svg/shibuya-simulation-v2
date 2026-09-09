@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **9 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **10 / 10**(次で圧縮)
 > 第1〜第110(2026-09-01〜09-08)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 2026-09-08 第111 【工程出口】C4(世界過程第1陣+経済+物)完了・層2合格(修正1点反映)・コミット=C0〜C4 の /goal 達成
@@ -62,3 +62,10 @@
 - 受入表(§9.1 C6): 艦隊接続 ○・24step スモーク ○・T3-T9 ○(T8 アンサンブルは C8)・指標 B 再測=**不合格(8B 違反率 0.123 vs 14B 0.003・JSD 0.29)→R16 材料 D-37**・ablation① ○(JSD 0.040)・書式エラー率 実効 0.007 ○(厳密 0.38)・役割語率 **0**(D-38)・L4/L6 ○。所見: 購入 49%・会話 3/日・昇格 146k・P2 壁/CPU=GIL 競合(§4 移行条件 D-35)。
 - PENDING: D-23〜D-38(JSD 合格線・fleet_wait・不応期免除・書式率定義・発話語・制約種・ID 撹拌・テープ intern・行動分布・L4 需要・P2 物差し・会話 expedient・指標 B 不合格・役割語率 0)。
 - 次: C7=40 万体×1 日(サーバー・7 レプリカ・fleet_wait でペーシング)→受入(壁時計 ≤24h・M8・S1・T2 代替・WC-6・holdout 5 指標=サブ S のツール)→C8。
+
+## 2026-09-09 第120 【工程内】C7 開始: 本番ラン c7-day-1(19:39)→性能問題(60 s/tick)を profile で特定→renderer 近接候補のベクトル化(サブ R・24.5×・バイト不変)+在圏 journal フック→c7-day-2 として再起動(20:29)。C7 受入計器(サブ S)・C8 基盤(サブ T)着手
+- 12 tick mock @390,067: llm 46,079 ms/tick=1 呼 17 ms→cProfile で `renderer._nearby_items` の Python 反復(1 呼 13,663 回)を特定。R が (tick,セル) 前計算+連続配列+逆置換で 0.26 ms/呼へ(final_hash・golden・5,000 体 checkpoint d5d79337 不変・照合テスト 7 本)。サーバー 3 tick mock: llm 1,624 ms/tick・合計 3.49 s/tick(→エンジン 1.4 h/日)。
+- 親: engine/run.py+cli に在圏 journal(`--occupancy-every 60 --occupancy-out`・毎正時 セル別×種別別 int32・既定 off)を追加(holdout 照合の入力)。tmux 操作ミス(`kill-window -t c5:c7` の前方一致)で mock ドレスリハーサルを消失=本番ランで代替。
+- サブ S: tools/c7(occupancy_series・holdout_compare=開封 1 回規律・c7_accept 受入表・area_axes_v0 セル→5 エリア写像 expedient)+tests/c7 58 本。事前登録案 H1-H5(H3 平日休日比は KDDI に曜日軸なし→深夜残存率で代替)・T2 の 3 脚代替・KIND_TO_ATTR の方向差(W16 勤務 55.6% vs KDDI 36.4%)。→PENDING D-39〜D-43。
+- c7-day-2: 7 レプリカ飽和(gen ≈500 tok/s/GPU・run 52-64)=LLM 律速・見込み ≈15 h(→09-10 昼)。コミット 第120(4fdbe6d)・push。C6 は PR #2。サブ T=C8 基盤(ablation 腕定義・expedient 感度台帳・計器盤・アンサンブル設計)を並行。
+- 次: C7 完了→受入表(壁時計・M8・S1・T2 代替・WC-6・診断)→holdout 開封 1 回(D-43)→C7 出口コミット→C8(ablation 6 本は延長期間内に入る分だけ)。
