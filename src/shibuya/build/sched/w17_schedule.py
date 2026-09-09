@@ -94,8 +94,13 @@ SEED_MOD: Final[int] = (1 << 53) - 1
 GATE_MODIFIED_RATE: Final[float] = 0.20
 #: 応答が読めた体の割合の下限(自前・これを割ったら艦隊側の失敗を疑う)。
 GATE_RESPONSE_RATE: Final[float] = 0.99
-#: raking が動かせる活動の割合の上限(自前・修正率 20% の内枠として 12% に置く)。
+#: raking が動かせる活動の割合の**固定**上限(自前・**ablation/フォールバック用**)。
+#: 本番は下の ``ADAPTIVE_MODIFIED_TARGET`` からの適応予算を使う。
 RAKE_MAX_FRAC: Final[float] = 0.12
+#: **適応予算の目標**: 修復ぶんを差し引いて、総修正率がこの値を超えないところまで raking する。
+#: 出所= 設計ゲート(§1 W17「修正率<20%」)からの逆算で、1 ポイントの余裕を取った自前の値。
+#: 本番第1回(390,067 体)は 修復だけで 9.2% だったため固定 12% だと 21.2% でゲートを割った。
+ADAPTIVE_MODIFIED_TARGET: Final[float] = 0.19
 #: 移動後に確保する最小の活動長[分](自前)。
 MIN_ACT_MINUTES: Final[int] = 10
 #: 1 日あたりの活動数の上限(自前・暴走出力の打ち切り)。
@@ -1237,6 +1242,7 @@ class RakeReport:
     n_moved: int = 0
     n_candidates: int = 0
     rolled_back: bool = False
+    budget_rows: int = 0
 
     @property
     def max_before(self) -> float:
@@ -1289,6 +1295,7 @@ def rake(
     curves: dict[str, np.ndarray],
     *,
     max_frac: float = RAKE_MAX_FRAC,
+    budget_rows: int | None = None,
 ) -> RakeReport:
     """目的別の**開始時刻分布**を時間帯カーブへ寄せる(配列は in-place で書き換える)。
 
@@ -1302,7 +1309,9 @@ def rake(
         **重なりも並びの入れ替えも起こらない**(修復をやり直す必要がない)。
         隙間の中だけで動かす案は、LLM が隙間なく書いた日には何もできない=不採用。
       - 1 つの (体, 曜日) は**全目的を通して 1 回まで**動かす。
-      - 動かせる総量は**行数**で ``max_frac``(既定 12%)まで= 修正率 20% の内枠。
+      - 動かせる総量は**行数**で ``budget_rows``(与えられなければ ``max_frac`` × 全活動数)。
+        本番は ``ingest`` が **修復ぶんを差し引いた適応予算**を渡す
+        (``ADAPTIVE_MODIFIED_TARGET`` − 修復による修正率)。予算 0 なら raking しない。
       - 平行移動は PlanSpec 窓(段2 規則4)を最大 1-2 時間はみ出しうる。窓の値自体が
         プールの既定値(09:00-18:00 一律)= expedient なので、**較正カーブを優先する**。
       - 全目的の JSD の最大値が下がらなかったら**丸ごと巻き戻す**(較正が悪化した
@@ -1343,7 +1352,13 @@ def rake(
 
     saved_start, saved_end = start.copy(), end.copy()
     shifted = np.zeros(n_groups, dtype=bool)
-    budget_rows = int(max_frac * n)
+    budget = int(max_frac * n) if budget_rows is None else max(0, int(budget_rows))
+    rep.budget_rows = budget
+    if budget <= 0:  # 修復だけでゲートの枠を使い切った=raking しない
+        for pt, rows in rows_of.items():
+            rep.jsd_after[pt] = rep.jsd_before[pt]
+        return rep
+    budget_rows = budget
     # 予算は**目的の候補数に比例**して割る(先に回った目的が使い切らないように)。
     total_cand = sum(int(r.size) for r in rows_of.values()) or 1
     quota = {pt: int(budget_rows * r.size / total_cand) for pt, r in rows_of.items()}
@@ -1455,6 +1470,7 @@ class IngestReport:
     n_considered: int = 0
     n_activities: int = 0
     n_modified: int = 0
+    n_repair_modified: int = 0
     n_dropped: int = 0
     parse_bad: dict[str, int] = field(default_factory=dict)
     repair: RepairCounters = field(default_factory=RepairCounters)
@@ -1511,6 +1527,10 @@ class IngestReport:
             "n_activities": self.n_activities,
             "activities_per_agent": round(self.n_activities / max(1, self.n_agents), 3),
             "n_modified": self.n_modified,
+            "n_repair_modified": self.n_repair_modified,
+            "repair_modified_rate": round(
+                self.n_repair_modified / max(1, self.n_considered), 6
+            ),
             "n_dropped": self.n_dropped,
             "modified_rate": round(self.modified_rate, 6),
             "parse_fail_rate": round(self.parse_fail_rate, 6),
@@ -1524,6 +1544,7 @@ class IngestReport:
                 "n_moved": self.rake.n_moved,
                 "n_candidates": self.rake.n_candidates,
                 "rolled_back": self.rake.rolled_back,
+                "budget_rows": self.rake.budget_rows,
             },
             "completion_tokens": self.token_stats(),
             "responses": self.responses,
@@ -1586,9 +1607,14 @@ def ingest(
     responses: Sequence[Path] | None = None,
     share: np.ndarray | None = None,
     curves: dict[str, np.ndarray] | None = None,
+    rake_budget_rows: int | None = None,
     chunk: int = 1 << 20,
 ) -> tuple[IngestReport, dict[str, np.ndarray]]:
     """応答を**ストリーミングで**読み、行パーサ → 整合修復 → raking を通して SoA を作る。
+
+    ``rake_budget_rows`` を与えると raking の行数予算を固定する(``None``=**適応**:
+    ``ADAPTIVE_MODIFIED_TARGET × n_considered − 修復ぶんの修正``)。適応予算は集計値だけから
+    決まるので決定論。
 
     Returns:
         ``(IngestReport, 列辞書)``。列= ``agent_id``/``day``/``seq``/``start_min``/
@@ -1672,7 +1698,13 @@ def ingest(
     modified = np.frombuffer(b_mod, dtype=np.int8).astype(bool)
     del b_agent, b_day, b_start, b_end, b_act, b_place, b_mod
 
-    rep.rake = rake(agent_row, day, start, end, activity, modified, cv)
+    # --- raking の予算は**修復ぶんを差し引いた適応値**(§1 W17「修正率<20%」の内枠) ---
+    # この時点の ``modified`` は修復が立てたフラグだけ。raking はここから
+    # ``ADAPTIVE_MODIFIED_TARGET`` に届くまでしか動かさない。集計値だけで決まるので決定論。
+    rep.n_repair_modified = int(modified.sum()) + rep.n_dropped
+    room = ADAPTIVE_MODIFIED_TARGET * rep.n_considered - rep.n_repair_modified
+    budget = int(max(0.0, room)) if rake_budget_rows is None else int(rake_budget_rows)
+    rep.rake = rake(agent_row, day, start, end, activity, modified, cv, budget_rows=budget)
     rep.n_activities = int(agent_row.size)
     rep.n_modified = int(modified.sum()) + rep.n_dropped
 
@@ -1868,6 +1900,7 @@ def run(ctx: C.Ctx, *, shard: int = 0, n_shards: int = 1) -> C.StageResult:
                 "activity_synonyms": V.ACTIVITY_SYNONYMS,
                 "place_synonyms": V.PLACE_SYNONYMS,
                 "rake_max_frac": RAKE_MAX_FRAC,
+                "adaptive_modified_target": ADAPTIVE_MODIFIED_TARGET,
                 "open_share_min": OPEN_SHARE_MIN,
                 "max_acts_per_day": MAX_ACTS_PER_DAY,
                 "min_sleep_minutes": MIN_SLEEP_MINUTES,

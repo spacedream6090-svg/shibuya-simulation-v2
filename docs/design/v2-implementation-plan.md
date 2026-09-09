@@ -182,6 +182,64 @@ engine単一プロセス(GIL干渉未実測)/P6のxxhash×453で≤2ms(未実測
 - **凍結文のレンダラ結線**: `PerceptionAssets.poi_signage`/`cell_static`/`frozen_sources`。切替は world_dir のファイル有無のみ・行が無ければ従来の合成文・**テンプレ本体と `template_sha256=161fe181…` は不変**。W15 の枠 45 tok は「B2 予算 150 − 実資産での他行最大」から導出(§3.2 の `B2.visible` 60 をそのまま使うと最悪セルで B2=165 tok)。
 - **テスト**: `tests/build_lang/`(33+22+15 本)。最小の合成 world_dir(セル 3・POI 4)で段階を回し、実資産テストは skipif。hypothesis 2 本=①入力が生成文を含むなら違反ゼロ(偽陽性で世界を壊さない側の保証)②入力に無いカタカナ語は必ず捕まる。
 
+**C6-a 艦隊接続(llm/fleet・engine/run 結線・2026-09-09)で導入した自前規約(追記のみ)**:
+- **in-flight の分母(親決定 09-09)**: 予算行 L6 の文面どおり **per-replica 64**(=64 in-flight/GPU)。**合計 = 64 × レプリカ数**(既定艦隊 7 本なら 448)。実装計画書 §2 部品表「レプリカごとに AsyncClient+Limits(64,64,None)+Semaphore(64)」と整合。値は `core.budget` で**表から読む**(コード側に複製しない)。`FleetConfig(max_in_flight=…)` で合計を明示上書きできる。
+- **L4 の呼数=発射数(親決定 09-09)**: 「上限 400 万呼/日」は**発射した呼の数**で数える(繰り延べからの再送も 1 呼)。`RunResult.llm_calls` は選抜数=発射数のまま。再送の実数は診断行 `fleet_resent` に**別計上**する(呼数上限の分母を膨らませない)。
+- **繰り延べ呼の不応期は免除(親決定 (a)・09-09)**: 繰り延べは「答えが来なかった」であって起床の抑止対象ではない(憲法1 破棄禁止の帰結)。`engine.resolve.clear_refractory`(**単一書き込み口**に置いた)で `refractory_until[個体, 条件] = 0` に戻してから起床候補へ再投入する。戻し方は expedient=同じ (個体, 条件) に別の呼が張った不応期も一緒に消える(実運用では最後の呼=いま繰り延べた呼なので実害なし・**一般には過剰に戻す**)。再投入は `since_tick` を保つ(昇格が巻き戻らない)。診断行 `fleet_reinjected`。
+- **呼を捨てないの恒等式**(engine 側の監査点): `fleet_deferred_timeout + fleet_deferred_queue_full + fleet_error_other == fleet_reinjected + RunResult.fleet_unanswered_at_end`。クライアント側は `fleet_accounted == fleet_calls`。**(層2 軽-2 で訂正・09-09)** `fleet_unanswered_at_end` は**ラン終端で答えが返らなかった呼の計数**であって、次ランへ引き継ぐ仕組みはまだ無い(ラン内の状態なので**捨てられる**)。同様に終端 `drain` で拾えた応答(`fleet_drained_at_end`)は**テープには入るが世界には適用されない**(tick ループが終わっているため `pending` に積んだまま)。どちらも「1 日ランの末尾に取り残しがどれだけあるか」を測る診断で、0 を目標にする(`--fleet-wait-s` と TTL の調整点)。
+- タイムアウト値 60 s/300 s は §7 の expedient をそのまま。**TTFT の定義**=「最初の `data:` 行が届くまで」→ 実測のため既定 `stream=True`(親決定 09-09: 維持。T3 は既定経路で測り、外れたら非ストリーミングでも測る)。非ストリーミングでは TTFT は e2e に潰れる。
+- 接続エラーの類別: 送受信例外(`httpx.NetworkError`/`ConnectTimeout`/`PoolTimeout`/`RemoteProtocolError`)+ HTTP 5xx + 429。4xx(429 以外)と本文不正は再試行せず `error_other`(=繰り延べ)。§7 は「接続エラー」としか書いていない。
+- **別レプリカ = `(primary + 1) mod N`**(`tools/gen/fleet_gen.py` の先例)。N=1 では退化=`fleet_no_alternate_replica` に計数。
+- least-in-flight の発動条件 = 「割当先が per-replica 上限に達している」または「最小との差 ≥ 8」。閾値 8 は出所なし。判定に使う in-flight は**予約(発射済み+未完了)**であって実並行数ではない。
+- グループ化の粒度 = `(cell, 5分帯)`(`TIME_BUCKET_TICKS=5`・知覚契約書 §2.4 ⑨)。同一 GPU 回避は `xxhash(call_id) mod N` を第一とし、**衝突した後続だけ**を次の空きレプリカへずらす最小補正(§7 の配分規則を壊さない)。グループ員数 > N なら使用集合を畳んで再開。`group_spread=False` で純 mod N に戻せる(ablation)。
+- seed 導出 = `xxh64(call_id, seed=run_seed) & 0x7fffffff`(呼び出し順非依存)。
+- **`cache_salt` 導出**(親決定 09-09: ランが導出して押す)= `blake3("shibuya.cache_salt" ‖ 0x1F ‖ mode ‖ 0x1F ‖ run_id)` の先頭 16 B(32 桁)。`FleetConfig.manifest_fields()` を `RunResult.fleet_fields` へ入れ、`run_manifest_fields()["fleet"]` に出す。`manifest.schema` 側の欄追加はしない(dict のまま)。mock/tape ランでは空 dict(欄は常にある)。
+- 待ち行列容量 = 合計 in-flight 上限 × 4(既定)。レイテンシ標本は直近 50,000 件のリング(p50/p99)。
+- **再生成のテープ表現**(親決定 09-09): 書式エラーの温度 0 再生成は**最終応答 1 行だけ**がテープに残る。再生成の事実は診断カウンタ(`fleet_format_retry` / `fleet_format_retry_ok`)にしかない=**リプレイでは 1 回生成に見える**。
+- 診断行(艦隊分・21+3N 列+engine 側 2 列): `fleet_calls / ok / format_retry(_ok,_rate) / answered / deferred_timeout / deferred_queue_full / deferred_rate / error_retried_ok / error_other / conn_retry_same / conn_retry_other / no_alternate_replica / infra_clip / tokens_in / tokens_out / ttft_p50 / ttft_p99 / e2e_p50 / e2e_p99 / outstanding / accounted` + レプリカ別 `in_flight_r{i} / peak_in_flight_r{i} / calls_r{i}` + engine 側 `fleet_reinjected / fleet_resent`。終端計数は**排他**(接続再試行と書式再生成が重なった呼は FORMAT_RETRY_OK 側に数え、接続再試行の事実は `conn_retry_*` に残す)。
+- 層契約の回避策(`llm` は engine/perception/world/agents を import 不可): 入口は自前 `LLMCall`(engine 側が `RenderedPrompt` から詰める)・テープは `TapeSink` プロトコル + `tape_row_factory`(engine が `engine.tape.TapeRow` を渡す=`llm.TapeLookup` と同じ依存性逆転)・`ResultCode` 写像と `t_apply` の tick 換算は engine に残す・`LANE_THINK_TOKENS` は複製し**等価テストで固定**(`tests/llm/test_fleet_contract.py`)。`llm.fleet` は `manifest.schema.Mode` を import する(層順で下向き=契約に触れない)。
+- `system`/`user` の割り方 = 描画本文の先頭が B0 ブロックで始まればそこで切る、始まらなければ `("", 本文全体)`(**推測で切らない**)。テープ鍵は割る前の連結本文の `sha256_cbor`(mock ランと同鍵=艦隊ランのテープが既存 `Replay`/`TapeLLM` でそのまま再生できる)。
+- 結果の返る順は**非決定**(レプリカの速さで前後)。決定性は `apply_key=(t_apply, event_class, blake3(…))` 昇順の適用(運用設計書 §2.4)が担保する。到着が遅れた応答は `max(t_apply, tick+1)` で**破棄せず**適用へ回す(締切超過=繰り延べの趣旨)。
+- **`run_day(fleet_wait_s=0.0)`**(expedient): ④′ で未応答が残っているとき最大この秒数だけ待つ。既定 0=純非ブロッキング。本番(予算行 W1: 1 シミュ日 ≤24 h ⇒ 1 tick ≈ 37 秒の壁時計)では LLM の往復が 1 tick に収まるので 0 でよい。**スモーク/テストのようにエンジンが LLM より桁違いに速いラン**では、0 のままだと応答が全部ラン終端に届き δ_think の契約が観測できないので艦隊に歩調を合わせる。**本番経路は変えない**。
+- 同期 1 呼経路(`FleetClient.complete`・`LLMClient` 契約)の繰り延べは `FleetDeferredError` で送出。空応答を返すと `engine.llm_bridge` が未定義→待機に落として**呼が消える**(憲法1 違反)ため。この経路はスモーク/デバッグ専用で、本番は `submit`/`poll`/`drain`。
+- 役割語は `engine.llm_bridge` と同じく当面 待機 に写像+計数。
+- **退化検査**(09-09 実測): mock 経路は 1 バイトも変わらない=`python -m shibuya.cli --agents 5000 --seed 1 --ticks 1440`(実資産・母集団・世界過程・台帳あり)で最終 checkpoint `combined=fbad9b8119fcc2870bc726ce2098444f4d9a5b34792cbdba9d36e76a1b3871d4`・呼数 50,000(10.00 呼/体=L4 の制御目標)・保存則 OK。
+- **(C6 初回スモークを受けた追補・09-09)二重指標**: C6 スモーク(5,000 体×24 tick・実艦隊 7 本・温度 0)で書式エラー率 **0.176**(受入 ≤0.10)が出た。原因はラベル言い換え(「目的地:」「目的:」)と語彙外の行動語(探索・観察・調査)で、**応答の中身は正しかった**。`llm.parser` の別名許容(サブ Q)を受けて、指標を 2 本立てにする:
+    - **実効**(主・`parse_error_rate` / `fleet_*` の `parse_errors`): C6 別名を許容した後=**世界に実際に届いた intent の書式健全性**。**温度 0 の再生成の判定もこちら**(別名で読めたら再生成しない=無駄な 1 呼を出さない)。
+    - **厳密**(併記・`parse_error_rate_strict` / `fleet_format_strict_errors`): C6 以前の別名表だけで見た判定=**B11 実測 1.000 と同じ物差し**。知覚契約書 §2 卒業条件表の「書式エラー率 ≤0.10」はこの物差しで定義されたので、**受入をどちらで読むかは親判断=D-28(PENDING へ載せる)**。本節は「実効を主・厳密を併記」で実装し、判定は保留する。
+    - 併せて `label_alias_used`/`label_alias_rate`(別名で読めた割合)・`dictionary_mapped`(件数は `undefined.counters()` が正典)/`dictionary_mapped_rate`(§7 段0 の辞書で救えた割合)を診断行へ。艦隊側は `fleet_label_alias_used`/`fleet_label_alias_rate`/`fleet_dictionary_mapped`/`fleet_dictionary_mapped_rate`。要約行=`書式エラー率 実効 x / 厳密 y (受入 ≤0.10) ・別名 z ・辞書写像 w`、`[艦隊書式]` 行に同じ内訳+温度 0 再生成の回数。
+    - **`ParseResult.with_dictionary_mapping` は bridge から呼ばない**(親判断待ち): 段0 で救えた語を `parse.action` に載せると ①`BridgeResult.parse` は「生の応答の記述」という既存の契約テスト(`tests/engine/test_undefined_action.py`)が壊れる ②`engine.run` が会話ターンで `conv.utterance(action=res.parse.action)` を呼ぶので**発話ブロックの中身が変わる**(mock 経路不変の約束に触れる)。救えた事実は `action_code`・`undefined_stage=0`・診断行に残る。
+- **(同・追補)デコード設定のフラグ化**: `--temperature`(既定 **0.7**)・`--max-tokens`(既定 **96**)を `add_fleet_args` に追加し、`FleetConfig` の既定も `DEFAULT_TEMPERATURE`/`DEFAULT_T1_MAX_TOKENS` に一本化、`fleet` dict の `decoding{T1,T2}`(運用設計書 §1.2 と同じ欄形・下位欄 temperature/top_p/max_tokens/seed)へ記録する。
+    - **温度 0.7 の出所**: 運用設計書 §1.2 の設定節は `decoding{T1,T2}` の**欄形しか定めておらず数値を持たない**。数値の根拠は 知覚契約書 §2.5「温度0.7・実データ場面での再測は Phase 2=事前登録」/同 §2 卒業条件表「Phase 2 実データ・温度0.7 で再確認|≤0.10」/運用設計書 §1.3「本番(温度0.7)」の 3 か所(いずれも 0.7)。C3 の `engine.run` 既定 0.0 は **mock ランの決定論**のための値で実艦隊には適用しない。
+    - **max_tokens 96 は expedient**: 2 行形の最大= 理由 40 字 + 行動語 + 対象 + ひと言 20 字 + ラベル ≒ 70 tok。認知設計書 §1 の「出力 64 tok」は**思考 0 の帯**であって出力上限の下限ではなく、64 では長い対象(`g<ix>_<iy>_<GL|UG|DECK>`)で切れ得る。切れたら `finish_reason=="length"`=`fleet_infra_clip` に出る。T2 側は U19 ③ の式(`ceil(1.5*B_world)+96`)のままで `t1_max_tokens` に依らない。
+    - seed は既存どおり `xxh64(call_id, run_seed)`(呼び出し順非依存)。**mock 経路は不変**(T2 ハッシュ `fbad9b81…` を `cli --agents 5000 --ticks 1440` で再確認・09-09)。
+    - `FleetBridge` の `params`(=テープ列 `params_hash`)は**艦隊の実デコード設定**から作る(mock の `{max_tokens:64, temperature:0.0}` を引きずらない)。
+- **(同・追補)`run_day(fleet_wait_s=)`** は `add_fleet_args` の `--fleet-wait-s` から渡す(既定 0=純非ブロッキング)。
+- **(C6 1 日ラン追調査・09-09)書式デバッグ jsonl**: `--fleet-debug-dir <dir>`(既定 off・診断のみ)。**初回パースが実効または厳密で落ちた呼だけ**を `format_debug.jsonl` へ 1 行 1 呼で落とす(`call_id`/`agent_id`/`tick`/`replica`/`system`/`user`/`first_raw`/`retry_raw`/`first_effective_ok`/`first_strict_ok`/`final_*`/`errors`/`alias_surfaces`/`raw_action`/`labels_found`/`reason`)。**テープ形式は一切変えない**(テープは最終応答 1 行のまま=運用設計書 §2.5)ので、温度 0 再生成の**初回の生応答**はここからしか採れない=`LLMResult.first_text` に保持する。行数上限 `DEFAULT_DEBUG_MAX_ROWS=5,000`(超過は `fleet_debug_skipped`)。`reason` の分類(`no_labels`/`unknown_action_word`/`missing_label:…`/`label_alias:…`/`no_action_field`/`other`)は**expedient**。
+- **(同)会話ゼロの切り分け**: 読み取り専用の検死道具 `tests/engine/tape_analysis.py`(`python tests/engine/tape_analysis.py <tape_dir>`)。行動分布・対象の型・別名/語彙外の内訳・**会話を選んだ呼が「同 tick・同共有ブロック(≒同セル・同 5 分帯)」に他の呼を持っていたか**を数える。`tools/` 直下でも `tools/c6/` でもない場所に置いたのは、前者が運搬役(`fleet_gen`)の場所・後者がサブ P の作業域だから。
+    - **グループの近似**: テープにセル欄が無いので、共有ブロック集合の一致を「同(セル, 5 分帯, 種別)」の代理にする(規約⑧=知覚レンダラは同一(セル,5分帯,種別)で同じ共有ブロックを引く)。近似であることを出力に明記する。
+    - **判明した土台**(結線テストで確認): `engine.commit.pair_partners` は**同じ適用バッチの同セル最小 id** を相手にする=LLM が書いた `対象` 欄は **会話 では使われない**。相手が同じ tick の同じセルの呼に居なければ `target=-1` で不成立。さらに **tick 0 は真夜中で全員 SLEEPING** なので、短いランは全員が「会話」と答えても 1 件も開かないことがある。`tests/engine/test_fleet_wiring.py` の 3 本(艦隊/mock 対照/夜間対照)で **(c) 艦隊経路の結線ずれは除外**した(艦隊経路でも `sessions_opened>0`・`utterance_blocks>0`)。
+- **(同・サブ Q 第2弾の結線 09-09)** `ParseResult.dictionary_candidate` があれば**温度 0 の再生成をしない**(語彙外でも §7 段0 の辞書で確実に救えるため・C6 実測で初回失敗の 30% が語彙外=無駄な 1 呼を出さない)。`fleet_dictionary_mapped` に計上し `fleet_format_retry` からは外す。`positional_used`(ラベルを省いた並びを位置で読んだ)を `fleet_positional_used`/`fleet_positional_rate`・engine 側 `positional_used`/`positional_rate` と要約行へ。
+- **(同)P2(movement)の切り分け**: `phase_seconds` に `fleet_wait`(`--fleet-wait-s` の待ち・`llm` から分離)と **`movement_cpu`**(movement 区間の `time.thread_time`=**スレッド CPU 時間**)を追加し、要約に「内訳[ms/tick]」行と「movement 壁 x / CPU y ・待ち割合 z」行を出す。壁時計と CPU の差=**仕事が増えたのではなく待たされた**の証拠(実装計画書 §4「httpx イベントループと計算の干渉。出たら LLM クライアントを別プロセスへ」の判定材料)。`time.thread_time` は Windows では解像度 ≈15.6 ms で小さいランでは 0 になる=**実測は Linux サーバー側**。
+    - **ローカル実測(5,000 体×24 tick・139 セル・stub レンダラ・偽艦隊 7 本)**: 素の numpy 0.020 / mock 0.081 / mock+アイドル艦隊スレッド 0.126 / 艦隊 wait=0 0.294 / 艦隊 wait=1 0.498 ms/tick。**同じ numpy 仕事で 3〜6 倍**に膨らむ=`movement` に新しい仕事は入っていない。
+- テスト: `tests/llm/test_fleet.py`(27)・`tests/llm/test_fleet_contract.py`(16・hypothesis 2)・`tests/engine/test_fleet_wiring.py`(20)。偽 vLLM は**プロセス内**(`http.server.ThreadingHTTPServer`+`httpx.MockTransport`)で、実サーバー(SSH)へは繋がない。
+- **退化検査ハッシュの履歴(親・09-09)**: 艦隊結線単独では mock 実資産ランの checkpoint は fbad9b8119fcc287…(C5-b と同一)。その後の「C6 会話招待の設計準拠」(両側 CONVERSING・0.8 抽選廃止・フォールバックの blake3 撹拌)で **eb7e07ccab05ec72…/sessions 67** へ変化(HEAD 版で旧値を再現済み・層2 中-3)。以後の変更で再度変わる場合は同じ書式で追記する。
+
+**C6 会話招待の設計準拠(engine/commit・conversation・resolve・run・2026-09-09)**:
+- **対象スロットを使う**(行動契約書 §1-2)。`engine.commit.talk_partners` を新設: ①LLM が書いた `対象: P-<id>` が範囲内・自分でない・**同一セル**(知覚契約書 §3.7 の雑談可聴 1-2.5 m を C3 と同じくセルで代理)なら**その個体**を相手にする ②さもなければ `pair_partners`(同じ適用バッチの同セル最小 id)へフォールバック(**expedient のまま**・計数) ③どちらも無ければ相手なし。C3 の「対象はエンジンが文脈から導く」は expedient で、**LLM の対象欄を無視していた**=設計との差だった。
+- **承諾は Phase C の前に消費する**(層2 中-1・09-09)。被招待 B の承諾「会話 対象: P-A」を intent のまま Phase C へ流すと、A は招待して CONVERSING なので `resolve._apply_talk` が `PARTNER_BUSY` を書き、**B の「直前の結果」(B6)に偽の失敗**が載る(層2 再現: 200 体 1 セル 700 tick で 51 セッション中 45 件)。`engine.run._settle_pending_invites` を Phase A の直後(`intents_from_responses` の**前**)に置き、承諾した行を intent から外す(承諾は新しい招待ではない)。第三者名指しは**外さない**(C への新規招待として通す)。
+- **二相の招待**(知覚契約書 §6 起床(ii) の被招待)。相手がその tick の適用バッチに居ない=**まだ招待を見ていない**ので、その tick の相手の応答は招待への返事ではない。よって `ConversationManager.register_pending` に積み、**次 tick に `WakeCondition.CONVERSATION_TURN` で起床**させて本人の呼で答えさせる。返事が 会話 なら `resolve_pending(accepted=True)` で成立、それ以外は不成立→招待側は `revert_conversation`。**相互指名**(お互いが相手を名指し)はその場で成立させる。
+- **応答確率 0.8 の抽選をやめた**。`ConversationManager.invite(answered=…)` を足し、答えが分かる場面では抽選を引かない(`ACCEPT_PROBABILITY` は**較正の目標値であって機構ではない**)。抽選が残るのは `answered=None` の直接呼び出し(単体テスト・旧経路)だけ。
+- **両側 CONVERSING**。`resolve.set_conversing` を新設し、成立時に招待側と被招待側の `activity`/`talk_partner` を同時に書く(C4 の既知の穴「resolve が招待側のみ CONVERSING」を閉じた)。解放は従来どおり `conv.step` の終了時に `revert_conversation` が両側へ。**すでに別セッションに入っている個体は戻さない**(相互招待 A→B・B→C で B が引き剥がされる穴を塞いだ)。
+- **相手別不応期**(**expedient**・層2 中-5①)。`agents.state.refractory_until` は体×条件で**相手別を持てない**(C2 で未実装として登録済み)ので、対の表は `ConversationManager` が持つ: `PAIR_INVITE_REFRACTORY_TICKS=60`・`SPEAKER_INVITE_REFRACTORY_TICKS=30`。**値は知覚契約書 §6 不応期表の「知人出現 60 分」「傍受 30 分」からの転用**で、同表に「被招待」の行は無い=**根拠のある値ではない**(ablation 対象)。招待は成否によらず刻む(`stamp_invite_refractory`)。**相互指名の経路も検査・刻印する**(層2 軽-5・09-09 追加)。
+- **承諾の対象規則**(**expedient**・層2 中-5②): 返事が 会話 かつ 対象が**招待者**または**名指しなし**なら承諾。第三者を名指した 会話 は招待者への**拒否**として扱い、その返事は intent に残して**第三者への新規招待**として通す。行動契約書 §3 に承諾の対象規則は無い(「1 呼 1 発話ブロック」までしか定めていない)ので、対象スロット(§1-2)の素直な読みを採った。
+- **`_apply_talk` の「相手 idle」を緩めた**(**expedient**): C3 は相手が `Activity.IDLE` であることを要求していたため、移動中・待機中・買い物中の相手に声をかけられず、**C6 の 1 日ランで会話が 1 件も成立しなかった**。声をかけられない相手を `_UNADDRESSABLE=(CONVERSING, SLEEPING)` に限る(会話中=§2.1 の `PARTNER_BUSY`・就寝中=応答できない)。「話しかけられる状態」の正典は無い=ablation 対象。
+- `PENDING_INVITE_TTL_TICKS=3`(expedient・δ_think L1 1 tick + 繰り延べ 1 tick の余裕)。期限切れは「無視された」= 呼を消費しない(§3)。
+- 診断行: `conv_invites` / `conv_accepted` / `conv_declined` / `conv_pending_expired` / `conv_pending_open` / `conv_invite_refractory_blocked` と、相手の由来 `conv_target_named` / `conv_fallback_same_batch` / `conv_target_absent`。
+- **mock の T2 ハッシュは変わる**。理由は ①両側 CONVERSING(被招待側の `activity` が動く) ②0.8 抽選の廃止(MockLLM は文脈を読まないので被招待として 会話 と答えるのは 1/12)。**MockLLM は「対象: なし」しか書かない**ので `conv_target_named=0`=名指し経路は mock では通らない(実測で確認)。stub レンダラ・5,000 体×1,440 tick の対照: **`8b18eec7…`(C6 前・呼 43,612・sessions 195)→ `8428cc73…`(現在・呼 43,845・sessions 43・invites 572/accepted 43/declined 244/expired 262)**。**セッション数の減少は結線の不具合ではなく「相手が自分で決める」ようにした帰結**(親判断: mock day を下限対照として使うなら抽選を戻す口が要る)。
+- **ID 順バイアスの是正**(T5・サブ P のテストが検出): フォールバックの「セル内**最小 id**」は ID 順の規則で、被招待も起床するようになった C6 では **`wake_count` の ID 相関 |r|≈0.10**(受入 ≤0.05)を作った(v1 C-8 の再来)。`pair_partners(order_key=)` を足し、`intents_from_responses(run_salt=)` から `core.hashing.wake_tiebreak_array`(blake3 撹拌)を渡す形へ。**修正後 |r|=0.0017**(T5 8 本 合格)。`order_key=None`(=ID 順)は単体テストと後方互換のためだけに残す。
+- テスト: `tests/engine/test_conversation_invite.py`(15・純関数/返事待ち/不応期/両側 CONVERSING/通し 2 本)。
+
 **C5-a(build/pop・W16 母集団合成・agents/population・2026-09-09)で導入した自前規約(追記のみ)**:
 - `build.pop.shapefile`: ESRI Shapefile の**最小パーサ**(部品表に geopandas/pyshp/shapely が無い)。対応は shapeType **0/5 のみ**・.dbf は dBASE III の C/N 型・**cp932 固定**・削除行は落とす。範囲外の shapeType は黙って読まず `ValueError`。点包含=レイキャスティングの**全パート交差数の偶奇**(穴つきでも正しい)。逐次ループは「リングの辺数」「ポリゴン数」「レコード数」で、点数・体数には比例しない(P4 宣言)。
 - `build.pop.fitting`: SRMSE の定義を `sqrt(K·Σ(p_sim−p_obs)²)`(割合ベース・答申の出典と同型。性別 K=2 では片側 0.5 ポイントで 0.01 = 決定台帳のラインちょうど)。IPF は 2 次元・反復上限 200・収束 tol 1e-9(周辺の最大絶対残差/総和)。**種が全 0 の行/列は一様種で埋める**(構造的ゼロと標本ゼロを区別できないため)。整数配分は最大剰余法・同点は添字の小さい方(決定論)。
@@ -276,6 +334,187 @@ engine単一プロセス(GIL干渉未実測)/P6のxxhash×453で≤2ms(未実測
 - **rep 不一致の実体(親の記録用)**: `g-4_4_GL` rep0「見えるもの: 地上に街区があり、夜間営業の飲食店belami、Zarigzu cafeが並ぶ。」/ rep1「見えるもの: 地上に街区があり事務所が多い。夜間営業の飲食店belami、Zarigzu cafeが見える。」、`g-7_-4_GL` rep0「見えるもの: 地上に飲食店が集まり、学校と物販店が見られる。」/ rep1「見えるもの: 地上に飲食店が集まる街区、学校(8号館)、物販店(マルエツプチ)が見える。」。文の構造ごと違うので丸め誤差ではなく**バッチ非決定性**(温度 0 でも並行度・KV の状態で分岐する既知の現象)。
 
 **C5 W14/W15 I1 偽陽性の修正(build/lang・2026-09-09・親承認)**: `check_individual_words` の I1(一人称・二人称の語)を **`allowed` に現れる語を除いた残り**に掛ける(`check_abbreviation` と同じ扱い)。POI 名の「**私**立青山学院中等部」「陳家**私**菜」で「私」が当たる偽陽性が第3回で 10 件(W14 7・W15 3・**すべて入力由来**)出たため。I2(`assert_no_agent_dependent_words`: 人ID・所持金・内受容)は**本文そのもの**に掛けたまま(入力で免罪しない)。併せて `INDIVIDUAL_WORDS` に W15 の system が名指しで禁じている「僕/ぼく/俺/おれ/我々/われわれ/私たち」を追加(入力由来の語は先に除くので「俺のフレンチ」型の店名は落ちない)。**再 ingest のみ・再生成なし・プロンプト不変**。効果: **W14 凍結 2,295 → 2,302(+7)**・fail_rate 0.017972 → **0.014976**、**W15 凍結 512 → 514(+2)**・fail_rate 0.015385 → **0.011538**。残る不合格は W14 35(too_long 30・E1 2・N1/N2/N7 各 1)・W15 6(rep_mismatch 2・A1 1・E3 1・I1 1・N2+N5 1)でいずれも真陽性。**未修正で親 PENDING へ**: W15 の `E3_imperative` 1 件(「見渡せる」が `perception/attention.py` の `IMPERATIVE_PATTERNS` の「渡せ」に語境界なしで一致)。知覚契約側の管轄なので触っていない。**現状の拒否は正しい挙動**(描画時に `strip_imperatives` がその文を落として本文が空になるため、凍結すると文面凍結が壊れる)。
+
+**C6-b 検証ハーネス(`tests/c6`・`tools/c6`・2026-09-09)**:
+- **部品**: `tools/c6/c6lib.py`(純関数=統計・場面抽出・採点・出力・記録クライアント)+ 実行器 6 本
+  (`run_hash.py`=T3 の子プロセス / `t6_bit_reproduce.py` / `t7_distribution.py` /
+  `metric_b_rerun.py` / `ablation1_fixed_vs_ranking.py` / `format_role_rates.py`)。
+  全実行器が `--endpoints --world --agents --ticks --out`(+`--seed --model`)を受け、
+  `<out>/<名前>.json` と `.md` を書く。新依存なし(numpy/httpx/pyarrow は既存)。
+  `tools/c6` はパッケージにせず、各スクリプトが自分のディレクトリと `src` を `sys.path` へ足す
+  (サーバーで `python tools/c6/xxx.py` と直接叩けるように)。`tests/c6/conftest.py` が同じ道を通す。
+- **T3 の測り方(自前)**: 設計書は「スレッド 1/8/32 で同一結果」だが、**ラン時のエンジンに並列度の口は無い**
+  (`prange`/`parallel=True` は `build.geo`/`build.vis` だけ・`engine.change_detect` の numba は
+  nogil の逐次カーネル)。よって T3 = `NUMBA_NUM_THREADS`/`OMP_NUM_THREADS`/`MKL_NUM_THREADS` を
+  **1 と 8** にした 2 プロセスで `run_hash.py` を回し checkpoint ハッシュを突き合わせる形にした
+  (32 は同じ仕掛けで増やせるが CI 時間のため既定は 1/8=expedient)。
+  「engine に `prange` が無いこと」自体をテストで釘付け(増えたら測り方を見直す合図)。
+- **T5 の 3 量と検出力(自前)**: 閾値 **|r| ≤ 0.05 は設計書 §1.4 の逐語**。測る量は
+  ①アービタで選ばれた回数 ②呼ばれた tick の平均(いずれも `RecordingLLM` が控える)
+  ③起床(候補)回数=**`budget` を外したラン**の呼数で代用(expedient)。
+  Pearson と Spearman の両方を出す。**検出力**: |r| の SE ≈ 1/√呼数なので、
+  2,000 体×24 tick(呼 333)では seed 次第で ±0.16 まで揺れて判定にならない。
+  標準ケースは **5,000 体 × 24 tick × 3 seed**(呼 833・SE≈0.035)とし、呼 <400 なら判定しない。
+  ID 写像の反転対照は W16 母集団の行を逆順にした `Population` で回し、
+  個体別呼数の分布を **KS p>0.05 か JSD<0.01** で見る(この 2 択も自前)。
+- **場面抽出の規則(自前・指標B)**: 「答えが決まる場面」= **駆動因が 1 つ以上ある場面**
+  (①B5 内受容が空文言でない=閾値割れが描かれている ②B6 起床理由が計画境界
+  ③B6 に「…で失敗しました」がある)。品質プローブv0 の mid 層(閉店間際・段階・条例=
+  駆動因を必ず 1 つ入れた場面)の実データ版で、文献根拠は無い。
+  制約種は `agents.state.RESULT_TEXT` の失敗語 18 種を全部分類したうえで、
+  **事前登録の 5 種= 営業時間外/所持金不足/満員/移動不能(到達不能)/会話拒否(断られた)**。
+  契約書 §8 は「5 種」としか書かないので**どの 5 種かは本ハーネスの選択**(`--kinds` で差し替え可)。
+  抽出は `sha256(agent_id,tick,wake_class,prompt_hash)` 昇順の決定論、制約枠と「決まる場面」枠は
+  重複させない。違反判定は**制約種→禁じ手 1 語**の固定表(営業時間外/所持金不足/在庫切れ→購入、
+  満員/運賃不足/列車なし→乗車、止まらない→降車、到達不能→移動、断られた/会話中/去った→会話、
+  寝る場所なし→就寝)。表に無い種(対象を特定できない等)は違反にしない。
+- **帰無参照の定義(自前)**: 契約書 §8「同分布 2 標本のブートストラップ」を、
+  **2 標本を混ぜた分布から同じ標本数を多項分布で 2 本引いた JSD の分位点**(既定 2,000 反復)
+  として実装した。指標B ではこれに加えて **同モデル seed 違いの 1 パス**も実測の帰無として出す
+  (親指示)。Δ違反率の CI は場面を復元抽出する対応ありブートストラップ(4,000 反復)。
+  JSD の単位は bits(品質プローブv0 と同じ)。χ² は自前の不完全ガンマ(scipy 非依存)。
+- **親判断待ち(C6-b で判明したもの)**:
+  1. **T7 の合格線が無い(D-25)**。§1.3 の「JSD ≤ 帰無95th」は**指標B(v0 vs v1)**の閾値であり、
+     「seed 違い 2 ラン」の合否線は設計書に無い(2 ランは定義上同分布=帰無そのものが期待値)。
+     `t7_distribution.py` は JSD・帰無 p50/p95・χ² p・呼数比を**報告値**として出し、合否を付けない。
+  2. **ablation ① の切替口が実装されていない**。`perception.channels.BudgetMode.SINGLE_RANKING` は
+     Enum の枠だけで、`Renderer` は `self.budget_mode` を保持するのみ(どこでも読んでいない)。
+     `ablation1_fixed_vs_ranking.py --probe-only` の実測 = **24 場面すべてバイト同一(差 0)**。
+     `run_day`/CLI にもモードのフラグは無く、レンダラは `run_day` 内部で `AgentState` を作ってから
+     組むので外から差し替える口も無い。**単一ランキングの実装と run_day/CLI のフラグ**が要る。
+  3. **録画テープから場面を再呼できない**。テープの共有ブロックは
+     `engine.llm_bridge.SHARED_BLOCK_IDS` = B0-B4b で、**B5/B6(個体固有)は intern されない**。
+     指標B は `RecordingLLM`(`llm=` を包む)が出す `scenes.jsonl`(プロンプト全文)を使う形にした。
+     テープ列に個体ブロックを足すかは親判断。なお **`fleet=` を渡したランは `llm=` を通らない**ので、
+     実 LLM 走行中の全文採取の口は現状ない(収集は mock ランで行う)。
+  4. **会話相手の選び方に ID 順バイアスがある**。`engine.commit.pair_partners` は docstring どおり
+     「セル内の**最小 id** を相手にする」(C3 の expedient)。240 tick・予算無制限の診断ランで
+     **会話ターン起床(class 0)だけ r ≈ −0.14**(class 2 は +0.006・class 3 は −0.027)。
+     24 step のスモークでは会話成立が数件しか出ないため T5 の閾値には掛からず**合格する**が、
+     v1 の C-8(ID 順バイアス)と同種の穴。修正するかは親判断
+     (`test_t5_conversation_partner_rule_is_the_known_min_id_expedient` が現状の規則を釘付け)。
+  5. **指標B の在庫が足りない**(mock 収集・実データ 5,000 体×1 日 = 50,000 呼の実測):
+     営業時間外 1,375・到達不能 126 は足りるが、**所持金不足 0・満員 0・断られた 0**。
+     実際に多いのは 対象を特定できない 6,862(mock が「対象」を出さないため)・
+     その駅には止まらない 3,708・列車なし 3,604・相手が会話中 762・寝る場所がない 696。
+     事前登録の 5 種を維持するなら**呼を実 LLM にする/ラン長を伸ばす**、
+     維持しないなら 5 種の差し替えが要る(`--kinds`)。在庫表は全 18 種を出す。
+- **L6 の検査**: `tests/c6/_fake_vllm.py`(プロセス内の最小 OpenAI 互換面・非ストリーミング)へ
+  24step スモークを流し、`fleet_peak_in_flight_r*` と**サーバー側で数えた同時実行数**の両方が
+  L6(64/GPU)以下であることを見る(実サーバーには繋がない)。艦隊そのものの挙動
+  (SSE・再試行・タイムアウト)は `tests/llm/test_fleet.py` に任せて重複させない。
+  親がサーバーで回した診断行は `SHIBUYA_C6_FLEET_COUNTERS`(JSON パス)で渡すと同じ検査が走る。
+- **書式エラー率の判定**: 率 ≤0.10 **かつ n ≥ 59**(B11 の標本数)を満たしたときだけ「合格」と書く。
+  n<59 は「標本不足」。サブ Q のラベル別名許容(`llm.parser`)が入ったので、**実効を主・厳密を併記**
+  (親判断 **D-28**): 実効=C6 別名を許した `ParseResult.format_ok`(再生成の要否と同じ基準)、
+  厳密=C6 以前の別名表だけで見た `strict_format_ok`(B11 n=59 と地続き)。
+  `alias_used` の率と表層の内訳も出す。**未定義行動率は段0 辞書
+  (`llm.undefined.map_synonym`)で救えなかった分だけ**を数え、救えた分は
+  `dictionary_mapped_rate` に分けて行動分布では**写像先の契約語**として数える
+  (エンジンの `UndefinedActionRegistry.observe` と同じ扱い)。
+  役割語率は `llm.contract.is_role_action` で数え、受入表には
+  §9.1 が名指しする 5 語(補充・開閉店・発車・停車・指示)を個別行で出す。
+- **テスト**: `tests/c6` は **86 本**(T3 4・T5 8・T9 5・L4/L6 8・c6lib と各ツールの純関数 61)。
+  実データ/長地平は `@pytest.mark.slow`、実資産が無い環境は skipif。
+  ツール 3 本(T6/T7/書式・役割語)は偽艦隊 2 本に対する端から端までの実行も確認済み
+  (`route=cli.run(fleet=…)`・`fleet_accounted=fleet_calls`)。
+
+**C6 パーサ許容(`llm/parser`・`llm/undefined`・2026-09-09)**: 初回実 LLM スモーク(5,000 体×24 tick・Qwen3-8B INT8・温度 0・呼 833)の **書式エラー率 0.176**(受入 ≤0.10)・書式再生成 154/833・未定義行動 43 が根拠。親がテープで確認した中身=モデルは 2 行形をほぼ守るが **①ラベルを言い換える**(「対象:」の代わりに「目的地:」「目的:」)**②語彙外の行動語**(探索・観察・調査・探す・調べる)が混じる。**設計書の決定項は書き換えていない**(行動契約書 §1 の 2 行形・§2 の 12 語+役割語は不変)。①は**パーサ側の許容**、②は §7 段 0「辞書写像」の**枠内での表の拡張**として受ける。
+
+- **ラベル別名表(C6 追加分・`parser.LABEL_ALIASES_C6`・expedient)**
+
+| 追加した表層 | 正準ラベル | 根拠 |
+|---|---|---|
+| 目的地 / 目的 | 対象 | スモークのテープに実在(最多) |
+| 場所 / 対象物 | 対象 | 同系の言い換え(予防・未実測) |
+| コメント / セリフ / 台詞 | ひと言 | 同上(`一言`/`ひとこと`/`発話` は C6 以前から) |
+| 根拠 / わけ | 理由 | 同上 |
+| アクション / 行為 | 行動 | 同上 |
+
+  C6 以前の別名は `parser.LABEL_ALIASES_V0` として**凍結**(理由/reason・行動/action・対象/行き先/行先/相手/target/destination・ひと言/一言/ひとこと/発話/utterance/comment)。`LABEL_ALIASES = V0 ∪ C6`。
+  吸収する表記ゆれ: 全角/半角コロン・ラベル前後の空白(全角空白を含む)・`**`/`[]`/`【】` の飾り・**行末の空白**・**行末の literal `\n`**(本文に実改行が無いときだけ改行として読み、値の末尾に残ったものは落とす=テープに `…ため  \n行動:` の形で出た)。
+
+- **二重指標(受入の分母を動かさないための措置)**: `ParseResult.format_ok` は C6 別名を含む**寛容**判定(=**書式再生成の要否**はこちらで決まる)/`ParseResult.strict_format_ok` は `LABEL_ALIASES_V0` だけで走査した**従来定義**(=**受入の「書式エラー率」はこちらで数え続ける**)。C6 別名を 1 つも使っていない応答では両者は必ず一致する(その場合は 2 回目の走査をしない短絡実装)。辞書写像・役割語の扱いは従来どおり両指標の外(語彙の問題であって書式の問題ではない)。
+
+- **段 0 辞書写像の追加(`undefined.SYNONYMS_C6`)**: `SYNONYM_TABLE_VERSION` を `undefined-synonyms-v0` → **`undefined-synonyms-v1`**。方針は既存表のアンカー(「様子を見る」→待機)に合わせ、**移動を伴う探索 → 移動**・**その場の観察/確認 → 待機**(待機=行動契約書 §2 共通必須事項③「失敗しない行動」)。**対象は付けない**(`TARGET_HINTS` を足さない=対象の決定はエンジンの仕事)。
+
+| 追加した表層 | 写像先 | 備考 |
+|---|---|---|
+| 探す / 探し / 探索 / 探る | 移動 | `探し` は「探して/探した/探しに行く」の部分一致の受け皿 |
+| 見回る / 歩き回る / うろつく / 散策 | 移動 | 同方針の近縁語(予防・未実測) |
+| 観察 / 眺める / 見物 / 見学 | 待機 | スモークで実在=観察 |
+| 確認 / 調べる / 調べ / 調査 / チェック | 待機 | スモークで実在=調査・調べる |
+
+- **診断フィールド(実装済み・エンジン側への結線は親)**
+
+| 置き場 | 名前 | 意味 |
+|---|---|---|
+| `llm.parser.ParseResult` | `strict_format_ok` | 従来定義の書式順守(**受入表はこれで数える**) |
+| 同 | `alias_used`(別名プロパティ `label_alias_used`) | 正準以外のラベル表層を使ったか |
+| 同 | `alias_surfaces` | 使った表層(検出順・重複なし)=どの言い換えが多いかの内訳 |
+| 同 | `dictionary_mapped` | 段 0 の写像を載せたか(`ParseResult.with_dictionary_mapping(word)` を通したときだけ真) |
+| `llm.undefined.UndefinedOutcome` | `action_from_dictionary` | 段 0 の辞書写像で契約語彙が入ったか(段 4 の判例参照は含めない) |
+| `llm.undefined.UndefinedActionRegistry` | `n_dictionary_mapped` / `counters()["dictionary_mapped"]` | 段 0 で救えた件数 |
+
+  現状 `engine/run.py` の `parse_error_rate` と `llm/fleet.py` の `n_parse_errors` は `format_ok` を数えている(=別名を許した後の値)。**受入表の「書式エラー率」を従来定義で出すには `strict_format_ok` を集計する結線が要る**(engine/fleet は別サブ作業中のため本作業では触っていない)。
+
+- **昇格条件 / ablation**: 別名表・辞書追加はともに **expedient**。昇格条件=**テンプレ v1.1 で「対象:」固定を強調**して同じスモークを再測し、(a) `alias_used` 率が十分下がる(ラベル言い換えがテンプレで消える)なら別名表は**保険**として残し受入は `strict_format_ok` のみで判定、(b) 下がらないなら別名は**モデルの安定した挙動**として扱い、受入指標の定義そのものを親が再決定する。`alias_surfaces` と `dictionary_mapped` の内訳を再測の比較量にする。
+
+**C6 パーサ許容 第2弾(位置引数・辞書 v2・2026-09-09 夕)**: 根拠=`--fleet-debug-dir`(60 tick・2,083 呼・失敗 531)の内訳 **`missing_label:対象` 226 / `対象+ひと言` 78 / `ひと言` 6**(=ラベルを省いて**値だけを契約の順序で並べる**「行動: 移動 なし なし」型)・**`unknown_action_word` 96**(探索 50・通勤 16・観察 9・調査 ほか)・**ラベル別名 125**(目的/目的地)。第1弾と同じく決定項は不変。
+
+- **位置引数の許容(`parser._fill_positional`・expedient)**: 行動契約書 §1 で 2 行目の**欄順は固定**(行動→対象→ひと言)なので、欠けたラベルの値を「**直前に在る欄の余りトークン**」として拾う。
+
+| 入力の形 | 読み | 備考 |
+|---|---|---|
+| `行動: <語> <v1> <v2…>` | 対象=v1・ひと言=v2 以降 | ひと言は残り全部を連結(自由文) |
+| `行動: <語> <v1> ひと言: …` | 対象=v1 | 対象だけ欠落の混在形 |
+| `行動: <語> 対象: <t1> <t2…>` | ひと言=t2 以降 | ひと言が対象の値に押し込まれた形 |
+| `行動: <語> <v1>`(v2 なし) | ひと言=**なし**(§1 の既定値) | `errors` に `comment_defaulted` |
+
+  安全弁: **行動ラベルが在り、行動語が先頭トークンにある**ときだけ働く(「行動: すぐに 移動 なし」型は触らない)。余りトークンが 1 つも無ければ何もしない(=欄落ちは欄落ちのまま)。値は自由文なので中身では落とさない(切り詰めは従来どおり)。`raw_action` は**語彙語だけ**に詰め直す(「移動 なし」→「移動」=§7 段 0 が正しく引ける)。判定は `format_ok=True` / `strict_format_ok=False` / `positional_used=True`、`alias_surfaces` に `"positional"`、`errors` に生の欠落(`missing_label:*`)と回収(`positional:*`)の**両方**を残す。`alias_used` はラベル表層の話なので**位置引数では立てない**。
+
+- **実効/厳密の定義(新旧)**
+
+| 指標 | C6 以前 | 現在 | 使い道 |
+|---|---|---|---|
+| `format_ok`(実効) | 4 ラベル(v0 別名可)が揃い行動欄から語彙語が取れた | 左に **C6 別名**と**位置引数**の回収を加えた | **書式再生成の要否**・エンジンが intent にできるか |
+| `strict_format_ok`(厳密) | (無し。当時の `format_ok` がこれ) | v0 別名のみで走査・**位置引数は使わない** | **受入の「書式エラー率」**(0.176 と同じ定義で比較) |
+| 語彙外(`unknown_action_word`) | `format_ok=False` | **`format_ok=False` のまま**(親決定 09-09) | 段 0 で救えるかは `dictionary_candidate` で別に見る |
+
+- **段 0 辞書 v2**(`SYNONYM_TABLE_VERSION` を `undefined-synonyms-v1` → **`v2`**): 通勤 / 通学 / 出勤 / 退勤 / 出社 / 登校 / 進入 → **移動**。`TARGET_HINTS` は足さない(職場・学校セルの印は未定義=**親判断待ち**。`home` に相当する仕組みは要るか)。**`通報`・`退去`・`購入` は §2.1 の 12 語そのもの**なので辞書には入れない(語彙一致で通る)——テストで「辞書のキーが語彙語と衝突しない」を釘付け。
+
+- **追加の診断フィールド**: `ParseResult.positional_used`(位置で読んだか)/ `ParseResult.dictionary_candidate`(語彙外のとき §7 段 0 の辞書で**救える語**=写像先・救えなければ `None`)。後者は**初回判定でも数えられる**ので、`llm/fleet.py` の書式再生成の判定を「語彙外でも `dictionary_candidate` があるなら再生成しない」に変えられる(結線は親/サブ O)。写像そのもの(呼数・計数・段 1〜4・段 4 判例)は従来どおり `UndefinedActionRegistry` の仕事で、パーサは**表を引くだけ**(段 4 判例は見ない)。
+
+- **未処理(親判断)**: 「`行動: 待機 対象: なし`(ひと言が丸ごと無く余りトークンも無い)」は**書式エラーのまま**(実測 6 件)。位置の証拠が無い欄落ちまで既定値で埋めると 4 欄要求が実質 3 欄になるため保守側に倒した。
+
+- **テスト**: `tests/llm/test_parser.py` **68 本**(24→52→68)・`tests/llm/test_undefined.py` **48 本**(18→38→48)=`tests/llm` 124→**202 本**。スモークの実例 3 本・位置引数の 4 形+併用(別名×位置)・陰性(ラベル欠落・3 行+散文・語彙外かつ辞書外・行動語が先頭トークンに無い・余りトークン無し)・v0 別名は `strict_format_ok` 真のまま・全角コロン/空白/行末 literal `\n`・`dictionary_candidate` の陽性/陰性・性質テスト 1 本(**ラベルの順序入替と表層の選び方を変えても読み取りが変わらない**・300 例)。
+
+**C6 ablation①(`perception/renderer`・`perception/channels`・`engine/run`・`cli`・2026-09-09)で導入した自前規約(追記のみ・決定項は変更していない)**:
+知覚契約書 §3.2 は「固定枠 vs **同一総トークンの単一ランキング(最近性×重要度×関連性)**」の ablation を**義務**と書き、§8 第1陣①・§9 完了条件・§10.3 卒業条件(=単一ランキングと行動分布・違反率が同等)がこれを指す。C6-b の実測では `BudgetMode.SINGLE_RANKING` が Enum の枠だけで **24 場面すべてバイト同一(no-op)**=測定不成立だった。本作業はその**切替の実装**であり、契約書の決定項(上限表・ブロック順・テンプレ)は 1 行も書き換えていない(`template_sha256=161fe181bc325f00` 不変)。
+
+- **切替口**: `Renderer(..., budget_mode=BudgetMode.FIXED_SLOTS|SINGLE_RANKING)`(`"fixed"`/`"ranking"` の語も `BudgetMode.parse` で受ける)→ `run_day(budget_mode=…)` → `python -m shibuya.cli --budget-mode {fixed,ranking}`(既定 `fixed`=現行の描画と 1 バイトも変わらない)。腕は `RunResult.budget_mode` と **run manifest 欄 `budget_mode`** に出る(`fixed_slots`/`single_ranking`)。`renderer=` を明示注入したランではフラグは効かない(注入側が持つ)。
+- **単一ランキングの定義(自前・4 点)**:
+  1. **池の単位**=§2.2 の予算グループ。セル依存(B2+B4+B4b)と個体(B5)の 2 本。共有静的(B0/B1/B3)は**両腕で同一バイト**(prefix キャッシュを壊さない)。
+  2. **池の総額**=そのブロック群の**チャネル上限の総和**(セル 150+60+40=**250**・個体 100+40+65+15=**220**)。§3.2 の「同一総トークン」をこの値と読んだ。偶然ではなくグループ予算と一致する(セル 250・個体 300−B6 80=220)。
+  3. **順位**=`attention.rank_by_saliency` そのもの(§4 のフロア付き対数加算 `Σ wᵢ·ln(floor+xᵢ)`・視角=サイズ/距離)。契約書の語への写像は **重要度←視角×局所コントラスト・最近性←動き・関連性←逸脱度**(**expedient**。契約書は 3 語を並べるだけで式も重みも与えない。§4 の顕著性式を再利用したのは、知覚側に別の順位式を 2 本持たせないため)。
+  4. **採り方**=順位順に、行の途中で切らずに、入らなければ**そこで打ち切る**(`channels.take_within_pool`=固定枠 `truncate_lines` と同じ規約)。**チャネル別の上限 tok も件数上限(`max_items`)も使わない**のが腕の差。
+- **チャネル既定素性 `channels.RANKING_PRIORS`(全て expedient)**: (size_m, distance_m, contrast, motion, deviance) = B2.ground(4,2,.5,0,0)/B2.visible(6,20,.5,.1,0)/B2.signage(2,12,.8,.2,0)/B2.landmark(25,100,.4,0,0)/B4.density(20,15,.3,.6,0)/B4.noise(20,15,.2,.2,0)/B4.salient(1.7,12,.5,.9,1.0)/B4b.near(2,6,.5,.3,.2)/B5.near_person(1.7,**実測距離**,.5,.7,0)/B5.intero(1,1,.6,0,**閾値超過度**)/B5.self(1,1,.4,.1,0)/B5.watched(1.7,5,.5,.5,.5)。**非視覚チャネル(内受容・自己状態)は「視角=1.0」を内的信号の既定に置いた**(§4 の顕著性は視覚の式で、非視覚の合成規則は契約書にない)。実測がある 2 項目だけ上書きする(近接人物=同一セル在席者の実距離[m]・内受容=`(値−4)/(10−4)`)。既定素性のスコア表は `renderer.RANKING_PRIOR_SCORES`(起動時 1 回)。
+- **同点処理**: `rank_by_saliency` の `np.lexsort((ids, -score))`= スコア降順→**`item_id` 昇順**(§2.4 ②)。`item_id` は `"<channel_id>#<3桁の入力内順位>"` なので、同スコアではチャネル id 昇順→チャネル内の元の順(可視視点数の降順など資産側で確定済みの順)になる。乱数は 1 つも引かない。
+- **行の並び**: ブロック内は**チャネルの最上位項目のスコア降順**(同点は channel_id 昇順)。1 チャネル=1 行(`B5.self` だけ 2 行)なので、これが「単一ランキングの順序」そのもの。**採った項目が無いチャネル**(空文言を出す行)は既定素性のスコアで並べる。チャネルでない構造行(`B2.place`=現在地)は**常に先頭**。§2.2 の**ブロック順(B0→B6)は両腕で不変**(池はブロックをまたぐが、行はブロックの中に留まる=prefix・ハッシュ三役・グループ会計を壊さないための自前の線引き。**ブロックの壁も外す腕は作っていない=親判断待ち**)。
+- **凍結文(W14/W15)の扱い**: 固定枠と同じ。W15 のセル静的文は `B2.visible` の**1 項目**として(在れば合成の可視物リストを置換して)池に入り、W14 の看板本文は `B2.signage` の**1 項目**として入る。どちらも命令文除去は先に掛かる(憲法6・多重防御)。凍結文が池から落ちればその行は空文言になる(文面の書き換えはしない)。
+- **群予算の担保**: 池の会計はチャネル**内容**のトークンだけを見る(固定枠と同じ)ので、ブロックラベル等の固定オーバーヘッドが乗った描画バイトが §2.2 のグループ予算を超えることがありうる。超えていたら**順位の最下位から 1 件ずつ落として組み直す**(`_pool_render` の収束ループ・候補件数が上限)。これで `strict_group_budget` の例外は構造的に起きない。逐次ループ宣言(P4)は候補件数ぶん(1 セル/1 個体で十数件)で**個体数・セル数に比例しない**。
+- **ablation の対象外(両腕で同じもの)**: 近接 k の密度逓減 3/2/1 と知人常掲(§3 人物④=別 ablation)・注意ゲート段0-3(§4)・p_notice(§3.1)・正規化規約9項・テンプレ本体と `template_sha256`・B0/B1/B3・ブロック順・§2.4 ⑧(**両腕で機械検査**)。
+- **副作用(腕を測るときの注意)**: 単一ランキングでは B4 の内容が B2 の採否を動かすので、セル依存ブロックのキャッシュ鍵が固定枠の `(セル)` から **`(セル, B4 欄ハッシュ)`** になる(=prefix 再利用率が下がる方向)。診断行の `cache_hit_rate` は腕どうしで直接比べない。`truncation_count` も同様(固定枠はキャッシュ**ミス時だけ**切り詰め記録を積むのに対し、単一ランキングは**描画のたびに**チャネル別の記録を返す=分母が違う)。`prefix_key` も腕をまたぐと一致しない(**同じ腕の中では同セル同 tick で一致**)。
+- **感度試験としての位置づけ**: §10.3 の卒業条件は「単一ランキングと**行動分布・違反率が同等**」。同等なら固定枠(E 等級 約130 tok)は「結果を駆動していない」証明が立ち expedient のまま残せる。差が出たら固定枠は**結果を駆動する設計判断**なので、上限表の根拠づけか単一ランキングへの乗り換えを親が決める。測定は `tools/c6/ablation1_fixed_vs_ranking.py`(①切替口の実在確認=レンダラ単体・②24step スモーク 2 構成の行動分布 JSD)。**mock ランでは腕の差は出ない**(`MockLLM` はプロンプト本文を読まないので、300 体×30 tick の 2 腕で `final_hash` も呼数も一致した=実測)。ablation ① の②は**実 LLM(艦隊)でしか測れない**。
+- **テスト**: `tests/perception/test_ablation1.py` **25 本**(既定=固定枠の golden 指紋釘付け・切替が no-op でないこと・両腕で群予算・多セル多個体でも予算・固定枠が切る場面で差(件数枠 B4.salient 2→12・トークン枠 B5.near_person 27→39)・近接人物が距離順・§2.4 ⑧ が両腕で成立・共有静的は両腕同一・決定論 2 回・キャッシュ・池の総額=固定枠の総和・`BudgetMode.parse`・全チャネルに既定素性・`run_day`/`cli.run`/`--budget-mode` と manifest 欄・偽 vLLM 2 本に対するツールの端から端まで)。`tests/c6/test_c6lib_aggregate.py` の no-op 期待は**反転**した(C6-b が「実装が入ったら落ちる=更新の合図」と書いていた 1 本)。
+- **親判断待ち**: (1) 順位式を契約書の語(最近性×重要度×関連性)どおりに**別式**として実装するか(最近性は描画側に信号が無い=エンジンからの受け渡しが要る)。上記の写像は §4 の顕著性の再利用であって、契約書の 3 語の逐語実装ではない。(2) **ブロックの壁も外す腕**(1 本の平坦なランキングとして B2/B4/B4b を混ぜて出す)を作るか。(3) `tools/c6/ablation1_fixed_vs_ranking.py` の②(24step スモーク 2 構成)は**腕にモードを渡していない**(`run_arm` が `c6lib.run_smoke(..., extra={"budget_mode": tag})` を渡せば通る=1 行)。本作業は編集範囲外なので触っていない。現状 ② は 2 本とも `fixed` を回す。
+
+**C5-b W17 本番第1回後の改版=raking 予算の適応化(2026-09-10)**:
+- 本番 390,067 呼の ingest で **修正率 0.2117 > 0.20 = FAIL**(修復だけで 9.58% + 固定 12% の raking)。**設計ゲートは動かさず** raking の行数予算を適応にした。
+- `rake(..., budget_rows=…)` を追加し、`ingest()` が **`max(0, ADAPTIVE_MODIFIED_TARGET(0.19) × n_considered − 修復ぶんの修正)`** を渡す。予算は**集計値だけから決まる純関数**なので決定論は維持。予算 0 なら raking は 1 行も動かさない(JSD は前後同値で報告)。`RAKE_MAX_FRAC=0.12` は固定予算の ablation 用として残す。
+- 再 ingest(103 s)で**全ゲート PASS**: modified_rate **0.187104**(旧 0.2117)・jsd_max_after 0.421132(旧 0.401=固定 12% 時)・raking n_moved 1,188,863(予算 1,188,877)。**JSD +0.020 と引き換えにゲートを通す**のが感度試験の結果。数表は世界データ構築仕様書 §4 の同名節。
+- **修正率の分母**の文言を実装に合わせて訂正(層2 軽-3・実装は不変): 分母は「応答が使えた体=パースできた活動数/使えなかった体=骸格の活動数」で、**修復が足した活動は分母に入らない**(分子だけ)。
+- **テスト**: `tests/build_sched/` は 183 → **192 本**(適応予算 9 本: 明示予算の上限・予算 0 で raking なし・負の予算は 0 に丸める・修復率を 6 通り振って不変条件・固定予算との ablation)。
 
 ## §9 構築工程(決定(仮)・2026-09-08・ユーザー「承認・完成まで漕ぎ着けて」・実行形=工程ごとに/goal+自動モード・出口でユーザー判断)
 

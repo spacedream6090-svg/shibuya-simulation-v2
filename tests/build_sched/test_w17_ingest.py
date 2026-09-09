@@ -344,3 +344,78 @@ def test_pilot_ingest_reports_without_writing_assets(world_dir: Path, data_dir: 
     assert not (world_dir / W17.SCHEDULE_NAME).exists()
     assert not (world_dir / W17.GATES_NAME).exists()
     assert not (world_dir / "W17.header.json").exists()
+
+
+# ---------------------------------------------------------------- 適応 raking 予算
+def _thin_week(n_lines: int) -> str:
+    """1 日 ``n_lines`` 行だけの週(行数を減らすほど修復(穴埋め)が増える)。"""
+    rows = [(600 + 60 * j, 630 + 60 * j, V.ACT_MEAL, V.PLACE_FOOD) for j in range(n_lines)]
+    return V.format_schedule(
+        [V.Act(d, s, e, a, p) for d in range(7) for (s, e, a, p) in rows]
+    )
+
+
+@pytest.mark.parametrize("n_lines", [1, 2, 3, 4, 5, 0])
+def test_adaptive_budget_keeps_the_total_under_the_gate(big_world, n_lines: int):
+    """修復率を振っても **raking がゲートを割らせない**(D-W17 (iii) 修正率<20%)。
+
+    ``n_lines=0`` は「素直な応答」(``mock_week``)で修復率が低い場合。それ以外は 1 日
+    ``n_lines`` 行だけの薄い応答で、修復(穴埋め・就寝補い)が重くなる。
+    **不変条件**: 修復率が目標より下なら総修正率はゲート未満。修復率だけで目標を超えたら
+    raking の予算は 0 で、raking は 1 行も動かさない(=悪化させない)。
+    """
+    world, data, n = big_world
+    facts = W17.build_facts(world, data)
+    texts = (
+        [mock_week(facts, i) for i in range(facts.n)]
+        if n_lines == 0
+        else [_thin_week(n_lines)] * facts.n
+    )
+    write_responses(
+        world / "w17_responses.jsonl",
+        [response_row(int(a), t) for a, t in zip(facts.agent_id, texts)],
+    )
+    rep, _ = W17.ingest(world, data, facts=facts)
+    repair_rate = rep.n_repair_modified / rep.n_considered
+    # 予算は「目標 − 修復ぶん」から決まる(集計値だけの純関数=決定論)
+    room = W17.ADAPTIVE_MODIFIED_TARGET * rep.n_considered - rep.n_repair_modified
+    assert rep.rake.budget_rows == int(max(0.0, room))
+    assert rep.rake.n_moved <= rep.rake.budget_rows
+    if repair_rate < W17.ADAPTIVE_MODIFIED_TARGET:
+        assert rep.modified_rate < W17.GATE_MODIFIED_RATE, (
+            f"{n_lines}行/日: 修復 {rep.n_repair_modified} + raking {rep.rake.n_moved} "
+            f"/ {rep.n_considered}"
+        )
+    else:  # 修復だけで枠を使い切った=raking は 1 行も足さない
+        assert rep.rake.budget_rows == 0 and rep.rake.n_moved == 0
+        assert rep.modified_rate == pytest.approx(repair_rate)
+
+
+def test_adaptive_budget_is_zero_when_repair_already_fills_the_gate(big_world):
+    """修復だけで枠を使い切る応答(骸格になる=全件修正)では raking を止める。"""
+    world, data, n = big_world
+    facts = W17.build_facts(world, data)
+    write_responses(
+        world / "w17_responses.jsonl",
+        [response_row(int(a), "作れません") for a in facts.agent_id],
+    )
+    rep, _ = W17.ingest(world, data, facts=facts)
+    assert rep.n_skeleton == n  # 全滅 → 骸格 → 修正率 1.0
+    assert rep.rake.budget_rows == 0 and rep.rake.n_moved == 0
+    assert rep.rake.jsd_after == rep.rake.jsd_before
+
+
+def test_explicit_budget_overrides_the_adaptive_one(big_world):
+    """ablation: 固定予算(旧 12%)を渡すと適応を上書きする(JSD 差の感度試験用)。"""
+    world, data, n = big_world
+    facts = W17.build_facts(world, data)
+    write_responses(
+        world / "w17_responses.jsonl",
+        [response_row(int(a), mock_week(facts, i)) for i, a in enumerate(facts.agent_id)],
+    )
+    fixed, _ = W17.ingest(world, data, facts=facts, rake_budget_rows=0)
+    adaptive, _ = W17.ingest(world, data, facts=facts)
+    assert fixed.rake.n_moved == 0
+    assert adaptive.rake.n_moved > 0
+    assert adaptive.rake.max_after <= fixed.rake.max_after + 1e-12
+    assert adaptive.modified_rate < W17.GATE_MODIFIED_RATE

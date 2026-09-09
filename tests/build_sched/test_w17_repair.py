@@ -319,3 +319,47 @@ def test_day_shift_clamps_the_first_and_last_block():
     assert start.min() >= 0 and end.max() <= V.MINUTES_PER_DAY
     assert np.all(end[:-1] <= start[1:])  # 並びと重なりは壊れない
     assert start[2] == 480  # 勤務が 8 時へ動いた
+
+
+# ---------------------------------------------------------------- 適応予算(本番第1回の FAIL)
+def test_rake_respects_an_explicit_row_budget():
+    n = 700
+    agent_row = np.arange(n, dtype=np.int32)
+    day = np.zeros(n, dtype=np.int32)
+    start = np.full(n, 360, dtype=np.int32)
+    end = np.full(n, 900, dtype=np.int32)
+    activity = np.full(n, V.ACT_WORK, dtype=np.int8)
+    modified = np.zeros(n, dtype=bool)
+    curve = np.zeros(24)
+    curve[8] = 1.0
+    rep = W17.rake(agent_row, day, start, end, activity, modified,
+                   {"自宅－勤務": curve}, budget_rows=50)
+    assert rep.budget_rows == 50
+    assert 0 < rep.n_moved <= 50
+
+
+def test_rake_does_nothing_when_the_budget_is_zero():
+    """修復だけでゲートの枠を使い切ったら raking しない(JSD は据え置き・報告する)。"""
+    n = 100
+    agent_row = np.arange(n, dtype=np.int32)
+    day = np.zeros(n, dtype=np.int32)
+    start = np.full(n, 360, dtype=np.int32)
+    end = np.full(n, 900, dtype=np.int32)
+    activity = np.full(n, V.ACT_WORK, dtype=np.int8)
+    modified = np.zeros(n, dtype=bool)
+    before = start.copy()
+    curve = np.zeros(24)
+    curve[8] = 1.0
+    rep = W17.rake(agent_row, day, start, end, activity, modified,
+                   {"自宅－勤務": curve}, budget_rows=0)
+    assert rep.n_moved == 0 and rep.budget_rows == 0
+    assert not modified.any() and np.array_equal(start, before)
+    assert rep.jsd_after == rep.jsd_before  # 報告値は前後同値で残る
+    assert set(rep.jsd_before) == {"自宅－勤務"}
+
+
+def test_negative_budget_is_clamped_to_zero():
+    rep = W17.rake(np.zeros(1, np.int32), np.zeros(1, np.int32), np.full(1, 360, np.int32),
+                   np.full(1, 900, np.int32), np.full(1, V.ACT_WORK, np.int8),
+                   np.zeros(1, bool), {"自宅－勤務": np.eye(24)[8]}, budget_rows=-5)
+    assert rep.budget_rows == 0 and rep.n_moved == 0
