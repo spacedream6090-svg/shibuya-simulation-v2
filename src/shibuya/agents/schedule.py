@@ -34,7 +34,7 @@ from typing import Final
 
 import numpy as np
 
-from shibuya.agents.state import Activity, AgentKind
+from shibuya.agents.state import MOCK_KIND_COUNT, Activity
 from shibuya.core.rng import philox
 
 __all__ = [
@@ -103,10 +103,12 @@ class MockWeeklySchedule:
         n_agents / n_cells: 規模。
         master_seed: 抽選の親シード。
         home_cell / work_cell / leisure_cell: 拠点セル(place_id 索引)。
-        kind: ``AgentKind``。
+        kind: ``AgentKind``(mock は 0..MOCK_KIND_COUNT-1)。
         initial_money: 初期所持金[円]。
         base_ticks: 形 ``(n, 5)`` の平日の境界 tick(0-1439・昇順)。
         weekend_ticks: 形 ``(n, 5)`` の休日の境界 tick。
+        age / sex / direction_node: W16 母集団の素性(mock 単独では ``None``)。
+        population_hash: W16 母集団の同定ハッシュ(``""``=母集団なし)。
     """
 
     n_agents: int
@@ -119,6 +121,11 @@ class MockWeeklySchedule:
     initial_money: np.ndarray
     base_ticks: np.ndarray
     weekend_ticks: np.ndarray
+    #: 以下は **W16 母集団を載せたときだけ**入る(mock 単独では None / "")。
+    age: np.ndarray | None = None
+    sex: np.ndarray | None = None
+    direction_node: np.ndarray | None = None
+    population_hash: str = ""
 
     # ---- 1 日ぶんの取り出し ----
     def is_weekend(self, day_index: int) -> bool:
@@ -193,7 +200,9 @@ def synthesize(
     home = _spread(w[:, 0], 0, n_cells)
     work = _spread(w[:, 1], 0, n_cells)
     leisure = _spread(w[:, 2], 0, n_cells)
-    kind = (w[:, 3] % np.uint64(len(AgentKind) - 1)).astype(np.int8)  # 指令は mock では出さない
+    # 指令以降(W16 で足した種別を含む)は mock では出さない。``len(AgentKind)`` を使うと
+    # 種別を足したときに既存の mock 乱数列が動くので、定数 MOCK_KIND_COUNT で釘付ける。
+    kind = (w[:, 3] % np.uint64(MOCK_KIND_COUNT)).astype(np.int8)
     money = _spread(w[:, 4], 2_000, 10_001)
 
     # 平日(expedient な時刻帯)

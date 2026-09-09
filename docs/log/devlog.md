@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **5 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **6 / 10**
 > 第1〜第110(2026-09-01〜09-08)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 2026-09-08 第111 【工程出口】C4(世界過程第1陣+経済+物)完了・層2合格(修正1点反映)・コミット=C0〜C4 の /goal 達成
@@ -36,3 +36,9 @@
 - PLATEAU: ユーザー配置の zip を検証(sha256 f7437469…・649 MB・4.79 GB 展開・bldg 29 メッシュ/tran 30・中心 4 タイル tran は CRC 一致=同一版 v1_op)→data/realworld/plateau_2025/13113_shibuya-ku_pref_2025_citygml_1_op/ へ展開(背景)・台帳行更新。U-7 完了→PENDING から削除。
 - サーバー: 疎通 OK・7 GPU 空き・HF hub に Qwen3-8B/8B-AWQ/8B.w8a8・14B/14B-AWQ/14B.w8a8・32B-AWQ・Swallow-8B。vllm は ~/venvs/vllm-bench(要確認)・~/bench/scripts に launch*.sh/dp7_run*.py。U-2=延長あり(短期間)→PENDING から削除・C7 24h ランを最優先。
 - 次: サブ J/K の完了→親検収(pytest・実データ W16・5,000 体 mock ラン)→層2(別 Fable)→コミット=C5-a 出口→C5-b(W14/W15=32B AWQ TP4・W17=8B INT8 DP7・艦隊起動は親)。
+
+## 2026-09-09 第116 【工程出口】C5-a(W16 母集団合成+D-13 参入資本按分)完了・層2合格・コミット
+- 実施(親検収=再実行): サブ J=W16(build/pop 6 モジュール・agents/population・エンジン結線・tests/build_pop 28 本)・サブ K=entry_capital(20+7 テスト)。親: build.run 再構築で build_hash 0100706b… 一致・W16 全ゲート PASS・cli 5,000 体×2 回で保存則/センサス/参入資本比 89.43%/要約一致(T2)・pytest 全体(build_lang 除く)緑・lint 5 kept・scan 41 ファイル CLEAN・data 非追跡。層2(別 Fable)=**合格**(重大 0/中 4/軽 9・自分で pytest 1,165・build ×2・cli ×2・final_hash 一致・設計書は追記のみ 71 行を確認)。
+- 発見→PENDING: D-16 anchors 年商 1/10 転記(層2 も一次確認=生値が正)・D-17 office 写像・D-18 W15 45 tok・D-19 実店名 vs 架空(D-W7③)・D-20 空間支持(区の公的値×セル被覆率→390,188 体)・D-21 KIND_WORDS テンプレ改版(新種別が B1 で来街者=5,000 体の 39%)。層2 中指摘: 定員先取り層 1,316 体(26%@5,000)・年齢 14 階級(親が全 60 分類を再取得済み)・写し定数の等価テスト・CI での W16 再構築。
+- 並行: サブ L=W14/W15 段階コード完了(71 テスト・プロンプト 2,337/520 件生成・SHA b2ac72b4/cebe004a)→RUN_ORDER 統合は親が次コミットで。W14/W15 の生成=Qwen3-32B-AWQ TP2(GPU0-1・KV 83,744 tok・約 3 呼/s)で進行中。サブ N=W17 段階コード実装中。8B INT8 は GPU2-6 で待機(B14: 不変性 ON のコスト差なし=ON 維持)。
+- 次: サブ M(世帯財布 anchors 結線・年齢 16 階級 raking・定員層の機能定員化・等価テスト)→W14/W15 ingest・凍結→W17 生成(DP7)→C5 出口。

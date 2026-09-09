@@ -213,6 +213,11 @@ def initialize(
         agents.registry.band[:] = world.assets.cell_band[home]
         agents.registry.xy[:] = world.assets.node_xy[agents.registry.node]
         agents.registry.field("kind")[:] = np.asarray(schedule.kind)[:n]
+        # W16 母集団を載せたランだけ年齢・性別が入る(mock は既定値 0 / −1 のまま)
+        if getattr(schedule, "age", None) is not None:
+            agents.registry.field("age")[:] = np.asarray(schedule.age)[:n]
+        if getattr(schedule, "sex", None) is not None:
+            agents.registry.field("sex")[:] = np.asarray(schedule.sex)[:n]
         money0 = np.asarray(schedule.initial_money, dtype=np.int64)[:n]
         if ledger is not None and ledger.money is not None:
             # 台帳経路: 外界 → 世帯の transfer(来街者持込)で入れる(残高の直接代入をしない)

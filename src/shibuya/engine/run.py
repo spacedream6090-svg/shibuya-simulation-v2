@@ -57,6 +57,9 @@ from typing import Any, Final
 import blake3 as _blake3
 import numpy as np
 
+import dataclasses
+
+from shibuya.agents.population import Population, load_population, sample_population
 from shibuya.agents.schedule import synthesize
 from shibuya.agents.state import (
     WAKE_CONDITION_CLASS,
@@ -153,10 +156,16 @@ class Checkpoint:
     tick: int
     agents_hash: str
     world_hash: str
+    #: W16 母集団の同定ハッシュ(母集団なしのランは ``""``)。T1/T2 の一致判定に混ぜる。
+    population_hash: str = ""
 
     @property
     def combined(self) -> str:
-        return blake3_hex((self.agents_hash + "\x1f" + self.world_hash).encode("utf-8"))
+        return blake3_hex(
+            "\x1f".join(
+                (self.agents_hash, self.world_hash, self.population_hash)
+            ).encode("utf-8")
+        )
 
 
 @dataclass
@@ -404,6 +413,89 @@ class RunResult:
         return "\n".join(lines)
 
 
+def _resolve_population(
+    population: "Population | bool | None",
+    world_dir: str | Path | None,
+    n_agents: int,
+    seed: int | str,
+    n_cells: int,
+) -> "Population | None":
+    """``population`` 引数 → 実体(``None``=資産が無い/切っている)。
+
+    ``False`` は「母集団を使わない」の明示。``None``(既定)は ``world_dir`` に W16 の
+    出力があれば読む。既に ``Population`` なら体数だけ合わせる(二層抽出)。
+    """
+    if population is False:
+        return None
+    if isinstance(population, Population):
+        pop = population
+        _check_population_fits(pop, n_cells)
+    else:
+        if world_dir is None:
+            return None
+        pop = load_population(world_dir, n=None, seed=seed)
+        if pop is None:
+            return None
+        if not _population_fits(pop, n_cells):
+            # ``world_dir`` は知覚資産の置き場として渡されているが、世界そのものは
+            # 合成小世界(セル数が違う)。**自動読み込みは黙って見送る**
+            # (明示的に population= を渡したときだけ食い違いを例外にする)。
+            return None
+    if pop.n > n_agents:
+        pop = sample_population(pop, n_agents, seed)
+    return pop
+
+
+def _population_fits(pop: "Population", n_cells: int) -> bool:
+    """母集団のセル索引が世界のセル数に収まるか。"""
+    for arr in (pop.home_cell, pop.work_cell, pop.school_cell):
+        if arr.size and int(arr.max()) >= int(n_cells):
+            return False
+    return True
+
+
+def _check_population_fits(pop: "Population", n_cells: int) -> None:
+    if not _population_fits(pop, n_cells):
+        raise ValueError(
+            f"母集団のセル索引が世界のセル数({n_cells})を超える。世界資産と母集団の版が違う"
+        )
+
+
+def _schedule_with_population(schedule, pop: "Population", n_cells: int):
+    """mock 日課の拠点・種別を **W16 母集団**で置き換える(時刻帯は W17 まで mock のまま)。
+
+    体数が母集団より多いときは、足りない分は mock の合成個体のまま残す(縮小ランの保険)。
+    ``home_cell`` を持たない体(域外常住)は ``Population.start_cell`` の規約で置く
+    (勤務→通学→mock の自宅セル)=W17 が入るまでの繋ぎ・expedient。
+    """
+    n = int(schedule.n_agents)
+    m = min(n, pop.n)
+    home = np.asarray(schedule.home_cell).copy()
+    work = np.asarray(schedule.work_cell).copy()
+    kind = np.asarray(schedule.kind).copy()
+    age = np.zeros(n, dtype=np.uint8)
+    sex = np.full(n, -1, dtype=np.int8)
+    direction = np.full(n, -1, dtype=np.int32)
+    start = pop.start_cell(fallback=-1)[:m]
+    home[:m] = np.where(start >= 0, start, home[:m])
+    pw = pop.work_cell[:m]
+    work[:m] = np.where(pw >= 0, pw, work[:m])
+    kind[:m] = pop.kind[:m]
+    age[:m] = pop.age[:m]
+    sex[:m] = pop.sex[:m]
+    direction[:m] = pop.direction_node[:m]
+    return dataclasses.replace(
+        schedule,
+        home_cell=np.clip(home, 0, n_cells - 1).astype(np.int32),
+        work_cell=np.clip(work, 0, n_cells - 1).astype(np.int32),
+        kind=kind,
+        age=age,
+        sex=sex,
+        direction_node=direction,
+        population_hash=pop.population_hash(),
+    )
+
+
 def run_day(
     n_agents: int = 5_000,
     seed: int | str = 1,
@@ -429,6 +521,7 @@ def run_day(
     processes_disabled: "list[str] | tuple[str, ...] | None" = None,
     p_notice_ablation: str | int = "A4",
     salient_rate_per_10k: float | None = None,
+    population: "Population | bool | None" = None,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -463,6 +556,10 @@ def run_day(
         p_notice_ablation: 顕著行為の到達 ``p_notice`` の ablation(知覚契約書 §3.1 の
             ``A0``-``A4``。既定 ``A4``=完成形)。``processes_enabled`` に
             ``AB-PNOTICE-A2`` のように書いても効く。
+        population: W16 母集団(``agents.population.Population``)。``None``(既定)は
+            **``world_dir`` に ``w16_population.parquet`` があれば自動で読む**
+            (``n_agents`` 体へ二層抽出)。``False`` で明示的に切る(合成個体のまま)。
+            資産が無ければ静かに合成個体へ落ちる。
         salient_rate_per_10k: 「倒れる」の発生率[件/10,000体/日](``None`` で既定
             ``salient.COLLAPSE_PER_10K_PER_DAY``=3.0)。5,000 体・1 日では期待値 1.5 件なので
             **引かない日がある**(P(0)=22%)。感度試験・結線テストで上げるための口。
@@ -481,6 +578,9 @@ def run_day(
         # 世帯の現金行 = 個体 SoA の money(写しを作らない・台帳の書き込み窓は resolve が持つ)
         ledger.money.attach_household_cash(agents.registry.money)
     schedule = synthesize(n_agents, seed, world.n_cells)
+    pop = _resolve_population(population, world_dir, n_agents, seed, world.n_cells)
+    if pop is not None:
+        schedule = _schedule_with_population(schedule, pop, world.n_cells)
     R.initialize(agents, world, schedule, day_index=day_index, ledger=ledger)
     agents.freeze()
     world.freeze()
@@ -829,7 +929,10 @@ def run_day(
         if checkpoint_every and ((tick + 1) % checkpoint_every == 0 or tick == ticks - 1):
             t0 = time.perf_counter()
             result.checkpoints.append(
-                Checkpoint(tick, agents.state_hash(), world.state_hash())
+                Checkpoint(
+                    tick, agents.state_hash(), world.state_hash(),
+                    schedule.population_hash,
+                )
             )
             phase["checkpoint"] += time.perf_counter() - t0
 
@@ -951,6 +1054,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--growth-yaml", action="store_true", help="状態成長宣言 YAML を出力して終了")
     ap.add_argument("--no-processes", action="store_true",
                     help="世界過程(C4 第1陣)を止める(ablation の下限対照)")
+    ap.add_argument("--no-population", action="store_true",
+                    help="W16 母集団を使わず合成個体で回す(下限対照)")
     ap.add_argument("--ablate", action="append", default=[],
                     help="止める過程(過程 id か AB-* の感度試験 id・複数可)")
     args = ap.parse_args(argv)
@@ -970,6 +1075,7 @@ def main(argv: list[str] | None = None) -> int:
         world_dir=args.world,
         processes=not args.no_processes,
         processes_disabled=tuple(args.ablate) or None,
+        population=False if args.no_population else None,
     )
     print(res.summary())
     return 0 if (res.conserved and res.min_stock >= 0) else 1

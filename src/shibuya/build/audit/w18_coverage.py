@@ -97,6 +97,21 @@ QUANTITY_MAP: dict[str, dict[str, Any]] = {
                     "note": "カタログの先頭数 2 は DEM の解像度 2m。単位不一致で Q/X から外す。"},
     "昼夜・日照・影": {"stage": "W9", "output": "w9_shadow_planes.parquet", "comparable": False,
                        "unit": "影の面数/日", "note": "カタログ現実数量が「天文計算」= 数値なし。"},
+    "住民・通勤者・来街者・従業者": {
+        "stage": "W16", "output": "w16_population.parquet", "comparable": False, "unit": "体",
+        "note": "カタログの先頭数 243,883 は**区の夜間人口**。本実装は**舞台の1日在圏体数**"
+                "(住民+従業+通学+来街+職務)なので単位が違う=Q/X から外す。"
+                "内訳と出所は w16_cohorts.json。",
+    },
+    "世帯": {
+        "stage": "W16", "output": "w16_households.parquet", "comparable": True, "unit": "世帯",
+        "note": "カタログの 149,967 は渋谷区全域・本実装は舞台(町丁目被覆率で按分)なので"
+                "Q<1 になるのは想定内(事業所の行と同じ bbox 定義差)。",
+    },
+    "乗務員・指令・公共サービス要員": {
+        "stage": "W16", "output": "w16_duty_roster.parquet", "comparable": False, "unit": "体",
+        "note": "カタログ現実数量が「空欄(要員規模未取得)」= 数値なし。",
+    },
 }
 
 _NUM = re.compile(r"(\d[\d,]*(?:\.\d+)?)")

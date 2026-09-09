@@ -507,6 +507,7 @@ def test_stage_order_is_numeric():
         "W11",
         "W12",
         "W13",
+        "W16",
         "W18",
         "W19",
         "W20",
@@ -577,7 +578,13 @@ def test_write_build_manifest_without_stages_run_is_full(tmp_path):
     assert (ctx.out / build_run.MANIFEST_NAME).exists()
     assert not (ctx.out / build_run.PARTIAL_MANIFEST_NAME).exists()
     # **実行順**は別: W8/W9 は W10 の街路格子と W11 の駅出口を入力にするので W13 の後。
-    assert build_run.RUN_ORDER[-5:] == ("W8", "W9", "W18", "W19", "W20")
+    # W16(母集団合成)はさらにその後(監査 W18-W20 の直前)。
+    order = list(build_run.RUN_ORDER)
+    assert build_run.RUN_ORDER[-3:] == ("W18", "W19", "W20")
+    assert order.index("W8") > order.index("W13")
+    assert order.index("W9") > order.index("W8")
+    assert order.index("W13") < order.index("W16") < order.index("W18")
+
     assert set(build_run.RUN_ORDER) == set(build_run.ALL_STAGES)
 
 

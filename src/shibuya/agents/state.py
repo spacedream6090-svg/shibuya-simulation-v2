@@ -48,6 +48,7 @@ from shibuya.core.types import EventClass
 
 __all__ = [
     "AgentKind",
+    "MOCK_KIND_COUNT",
     "Activity",
     "LAST_ACTION_NONE",
     "ResultCode",
@@ -67,13 +68,37 @@ LAST_ACTION_NONE: Final[int] = -1
 
 
 class AgentKind(IntEnum):
-    """個体の種別(母集団 W16 の 7 段は C5。C2 は mock 用の 5 値)。"""
+    """個体の種別。
+
+    0-4 は C2 の mock 用に置いた 5 値、**5-8 は C5(W16 母集団合成)で足した 4 値**。
+    値は**固定**(``economy.anchors.WalletKind`` の写し・``perception.templates.KIND_WORDS``
+    の索引・W16 出力 ``w16_population.parquet`` の ``kind`` 列と 1 対 1)。知覚契約書 §2.2
+    「B1 種別(約10)」の枠内。
+
+    W16 の割り当て規約(``build.pop.w16_population``)
+      - ``RESIDENT``  : 舞台に常住し、舞台内の組織に勤めていない体(域外通勤・在宅・非就業)
+      - ``WORKER``    : 舞台に常住し、舞台内の組織に勤める体(=在区就業)
+      - ``COMMUTER``  : 域外常住・舞台内の組織に勤める体
+      - ``STUDENT``   : 域外常住・舞台内の学校に通う体
+      - ``VISITOR`` / ``FOREIGN_VISITOR`` / ``REGULAR_VISITOR``: 来街者(訪日・定期の別)
+      - ``CREW``      : 乗務員・駅務・警察/消防などの職務者
+      - ``DISPATCHER``: 運行/警備の指令
+    """
 
     COMMUTER = 0  # 通勤者
     VISITOR = 1  # 来街者
     WORKER = 2  # 従業者
     RESIDENT = 3  # 居住者
     DISPATCHER = 4  # 指令(権限行動の観測用・C2 では行動しない)
+    STUDENT = 5  # 通学者(W16)
+    REGULAR_VISITOR = 6  # 定期来街者(W16)
+    FOREIGN_VISITOR = 7  # 訪日来街者(W16)
+    CREW = 8  # 乗務員・職務者(W16)
+
+
+#: C2 の mock 合成日課が引く種別の数(0..3=通勤/来街/従業/居住)。**指令以降は出さない**。
+#: ``len(AgentKind)`` を使うと C5 で種別を足したときに mock の乱数列が動くので定数で釘付ける。
+MOCK_KIND_COUNT: Final[int] = 4
 
 
 class Activity(IntEnum):
@@ -234,7 +259,12 @@ class AgentState:
                   doc="移動の目的ノード(行動語「移動」の対象・M2)。-1=目的なし")
         # ---- 身体・内受容(知覚契約書 §4 内受容第1陣3変数) ----
         r.declare("kind", np.int8, byte_budget_per_agent=1, mechanism=True,
-                  doc="AgentKind(通勤者/来街者/従業者/居住者/指令・M2)")
+                  doc="AgentKind(通勤者/来街者/従業者/居住者/指令/通学者/定期来街/訪日/乗務・M2)")
+        # ---- プロフィール(M6 ≤3KB/体・W16 母集団合成が入れる素性) ----
+        r.declare("age", np.uint8, byte_budget_per_agent=1, mechanism=True,
+                  doc="年齢[歳](W16・国勢調査/経済センサスへ raking 済み・M6)")
+        r.declare("sex", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="性別 0=男 / 1=女 / -1=不明(W16・M6)")
         r.declare("hunger", np.uint8, byte_budget_per_agent=1, mechanism=True,
                   doc="空腹 0-10(内受容3変数・M2)")
         r.declare("fatigue", np.uint8, byte_budget_per_agent=1, mechanism=True,
@@ -309,6 +339,7 @@ class AgentState:
         self.registry.poi_since[:] = -1
         self.registry.queue_poi[:] = -1
         self.registry.queue_since[:] = -1
+        self.registry.sex[:] = -1
         self._frozen = False
 
     # ---- フィールドの素通し(``st.money`` で配列を引く) ----

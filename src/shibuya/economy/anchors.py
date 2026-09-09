@@ -147,6 +147,10 @@ class WalletKind(IntEnum):
     WORKER = 2  # 従業者
     RESIDENT = 3  # 居住者
     DISPATCHER = 4  # 指令
+    STUDENT = 5  # 通学者(W16)
+    REGULAR_VISITOR = 6  # 定期来街者(W16)
+    FOREIGN_VISITOR = 7  # 訪日来街者(W16)
+    CREW = 8  # 乗務員・職務者(W16)
 
 
 #: 種別 → 1日あたり消費支出[円](expedient な写像)。
@@ -156,6 +160,11 @@ DAILY_SPENDING_BY_KIND: Final[tuple[int, ...]] = (
     SPEND_SINGLE_PER_DAY,  # 従業者
     SPEND_MULTI_PERSON_PER_DAY,  # 居住者(二人以上相当)
     SPEND_SINGLE_PER_DAY,  # 指令
+    # --- C5(W16)で足した種別。公的アンカーが別に無いので既存行の写し(expedient)---
+    SPEND_SINGLE_PER_DAY,  # 通学者(単身相当・扶養関係は表現しない)
+    VISITOR_CARRY_IN // 5,  # 定期来街者(来街者と同じ)
+    VISITOR_CARRY_IN // 5,  # 訪日来街者(アンカーは訪日客 7.1 万円/滞在そのもの)
+    SPEND_SINGLE_PER_DAY,  # 乗務員・職務者
 )
 #: 初期財布 = 日消費 × この日数(expedient)。
 WALLET_DAYS: Final[float] = 3.0

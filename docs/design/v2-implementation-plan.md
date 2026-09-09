@@ -162,6 +162,40 @@ engine単一プロセス(GIL干渉未実測)/P6のxxhash×453で≤2ms(未実測
 - `shibuya.cli`=層外の組立入口(engine と economy を束ねる・店舗参入資本 200,000 円/店=expedient)。`python -m shibuya.engine.run` は台帳なしの mock のまま。
 - core.types.max_tick 境界修正(hypothesis)。
 - (C4 層2レビュー指摘で追記・09-08) crowd: 想定床面積表 FLOOR_AREA_M2_BY_CAT(既定 80 m²)・流れ 3 値の閾値 STILL_SHARE 0.20/COHERENT 0.50。goods: SKU の質量/廃棄率(弁当 350 g・5%/飲料 500 g・1%/日用品 200 g・0%/定食 400 g・8%/ドリンク 300 g・2%/衣料 300 g・0%)・納品ログ 16 B×131,072 行・**sell_many は累積スロット払い出し**(旧「最初の非空スロット」を訂正)。goods_flow: DELIVERY_LOT_FACTOR 2。rail: 表に無い線の既定容量 1,200 人/混雑率上限 139%・§2.6(ii)(混雑率→内受容・停車時間)は未実装・(iii)乗り残し率は診断行へ追加(C4-fix)。salient: SALIENCY_BY_KIND 4 組・セル代表距離 25 m・密度 3 値の境界 2/4・d50 放送 60 m。civic: PRESS_BODY 文面・同セル複数ホテルの先頭寄せ。resolve: _SELL_SLOT_RETRIES 8(保険)。logistics: バス位相 stop_cell % headway・宅配端数の小数部降順配分。**日次センサスは閉じた日の DayClose で評価**(修正前は畳んだ後の空行列を見ていた=C4-fix)・D-R2-6 のラン終端ゲートに O(t) ログ(ActualLog/transfer_log/納品ログ)の実測を追加(C4-fix)。B4b の行列は renderer.prepare_tick(queues=) で結線済み(crowd.py の旧注記を訂正)。
+
+**C5 経済側(economy/entry_capital・cli の既定を按分へ・2026-09-09)で導入した自前規約(追記のみ)**:
+- **D-13 の置換**。参入資本[円/店] = 1事業所当たり年商(産業大分類)÷365 × 運転資金日数 k × 原価率 × 母集団比 ρ。年商は経済センサス2021活動調査・渋谷区13113・表章項目 `156-2021`「1事業所当たり売上(収入)金額」[万円]・経営組織=総数(親取得 09-07 の e-Stat JSON から**モジュールへ転記**= `data/` は gitignore 下で CI から読めないため `anchors` と同じ扱い)。注入は従来どおり `Ledger.endow_stores`(外界 → 店舗・科目 ENTRY_CAPITAL)= **ex nihilo 禁止**は不変。
+- **k = 30 日**(出典なし=expedient)。**原価率**は `goods.CATEGORY_K` の逆数(コンビニ 0.20/飲食 0.303/物販 0.345)を再利用=新しい定数を置かない(域外仕入は標準原価で払うので必要額は年商ではなく仕入額)。`pricing.K_BY_KIND` は**業態順**(高級/平均/ドル箱)で並びが違うので使わない。
+- **母集団比 ρ = n/400,000**(`engine.arbiter.L4_REFERENCE_AGENTS` と同分母・等価テストで固定)。ρ を入れずに実スケールの運転資金を入れると 5,000 体のランで店舗現金が貨幣供給の 99.9% を占める。ρ は線形なので**貨幣供給比はスケール不変**。
+- **写像表**(POI カテゴリ 16 値 → 産業大分類・expedient): food/nightlife/hotel→M(宿泊業，飲食サービス業)・shop→I(卸売業，小売業)・office→L(学術研究，専門・技術サービス業)・service→R2・school/education→O2・landmark/leisure/hall/attraction/cinema→N・合成世界の コンビニ/物販→I・飲食→M。未知カテゴリ→N。
+- **丸め=1,000 円単位で切り捨て・下限 10,000 円・上限 50,000,000 円**。運用スケール(5,000〜400,000 体)ではどちらの端も**発動しない**(下限が効くのは約 1,883 体未満)。
+- **従業者数による店規模補正はしない**(POI に従業者欄が無く、`w6_org` との結合鍵 `place_id` は 100 m 格子=店舗単位でない。センサスの「1事業所当たり従業者数」は大分類ごとの定数で年商と同じ情報しか持たない)。**1 店あたり年商の分布形も置かない**(決定論優先・点=大分類の平均。設計書 §2.6 の expedient 欄は空欄のまま)。
+- **実測**(実資産 2,337 店・n=5,000・seed=1・1 シミュ日): 合計参入資本 **286,293,000 円**(tick 0)。貨幣供給比 **93.02% → 89.09%**(tick 0)・**93.26% → 89.46%**(日末)。ρ=1(40 万体)なら合計 22,984,829,000 円。保存則・センサスゲートはどちらの経路でも PASS。
+- `cli`: `--store-capital` は**既定 None=按分**・値を渡したときだけ一律(C4 の 200,000 円/店は `STORE_ENTRY_CAPITAL_YEN` に既定値として残す)。ラン末尾に「[参入資本] 店舗の現金+預金 / 貨幣供給 = %」の検算行を印字。
+- **親判断待ち(本節では解決しない)**: ①`anchors.SALES_PER_ESTABLISHMENT` と設計書 §2.5 の I(卸売・小売)・N(生活関連・娯楽)は**末尾 1 桁落ちの転記**(生値 131,523 万円・22,527 万円 → 表記「1億3,152万円」「2,253万円」。M 宿泊・飲食 8,532 万円は 4 桁なので一致)。②区レベルの**中分類が無い**= shop に卸売業の年商が混ざる。③**町丁目別が無い**(区計 1 行)=立地差が按分に入らない。④売上が公表されない大分類(D/F/G/G1/H/J/O/O1/Q/Q1/R/R1 = `･･･` 調査していないもの、Q2 = `X` 秘匿)→ office を G 情報通信へ寄せられない。
+
+**C5 W14/W15(build/lang・2026-09-09)で導入した自前規約(追記のみ)**:
+- **層契約の例外**: `build.lang` は `shibuya.perception` の `normalize`/`channels`/`attention` を import する(他の build 段階は「manifest と core だけ」)。理由=W14/W15 は**知覚ブロックの文面そのもの**をバイト凍結するので、正規化規約を二重定義すると凍結バイト列と描画バイト列が静かにずれる(文面凍結宣言が壊れる)。`lint-imports` の 5 契約は KEPT(build → perception は層契約にも「build は実行時に import されない」契約にも触れない)。語彙定数の二重定義(騒音段語彙・行動 12 語)とは危険度が違うので**この 3 モジュールだけ**例外にした。
+- **段階=2 相の純関数**: `run` は ①プロンプト jsonl を書く ②応答 jsonl が在れば入力資産として `input_hash` に含めて検証・凍結する。LLM 呼び出しは段階の外(`tools/gen/fleet_gen.py`)。応答が無くても段階は落ちない。プロンプト形式は fleet_gen の入力欄(`id/system/user/max_tokens/temperature/seed/repeat`+`thinking`)に合わせ、jsonl は `canonical_json_bytes` で書く(キー整列・LF 固定=再構築でバイト一致)。
+- **`build.lang.__init__`** は他レーンと同じく `STAGES`(タプル)を持ち、段階名→関数は `run.STAGE_FUNCS`(`__init__.stage_funcs()` が遅延取得)。`build/run.py` への登録は親が行う。
+- **検査器**(自前): 固有名詞 N1-N7・禁止語 E1-E3・個体語 I1-I2・省略記法 A1。詳細と語リストは世界データ構築仕様書 §4 の同名節。
+- **凍結文のレンダラ結線**: `PerceptionAssets.poi_signage`/`cell_static`/`frozen_sources`。切替は world_dir のファイル有無のみ・行が無ければ従来の合成文・**テンプレ本体と `template_sha256=161fe181…` は不変**。W15 の枠 45 tok は「B2 予算 150 − 実資産での他行最大」から導出(§3.2 の `B2.visible` 60 をそのまま使うと最悪セルで B2=165 tok)。
+- **テスト**: `tests/build_lang/`(33+22+15 本)。最小の合成 world_dir(セル 3・POI 4)で段階を回し、実資産テストは skipif。hypothesis 2 本=①入力が生成文を含むなら違反ゼロ(偽陽性で世界を壊さない側の保証)②入力に無いカタカナ語は必ず捕まる。
+
+**C5-a(build/pop・W16 母集団合成・agents/population・2026-09-09)で導入した自前規約(追記のみ)**:
+- `build.pop.shapefile`: ESRI Shapefile の**最小パーサ**(部品表に geopandas/pyshp/shapely が無い)。対応は shapeType **0/5 のみ**・.dbf は dBASE III の C/N 型・**cp932 固定**・削除行は落とす。範囲外の shapeType は黙って読まず `ValueError`。点包含=レイキャスティングの**全パート交差数の偶奇**(穴つきでも正しい)。逐次ループは「リングの辺数」「ポリゴン数」「レコード数」で、点数・体数には比例しない(P4 宣言)。
+- `build.pop.fitting`: SRMSE の定義を `sqrt(K·Σ(p_sim−p_obs)²)`(割合ベース・答申の出典と同型。性別 K=2 では片側 0.5 ポイントで 0.01 = 決定台帳のラインちょうど)。IPF は 2 次元・反復上限 200・収束 tol 1e-9(周辺の最大絶対残差/総和)。**種が全 0 の行/列は一様種で埋める**(構造的ゼロと標本ゼロを区別できないため)。整数配分は最大剰余法・同点は添字の小さい方(決定論)。
+- `build.pop.pool`: ペルソナプール(100 万行 JSONL)から**必要な欄だけ**列化(6 秒級)。`gender` の「男/女」→ 0/1、欠測 −1。
+- `build.pop.w16_population`: 親シード **MASTER_SEED=20260909**(`core.rng` の master_seed・param_hash に載る)。ドメインは `w16.*`(draw/chome/direction/school/seat/sample/dispatcher)。出力は `w16_population/households/duty_roster/chome.parquet` + `w16_gates.json` + `w16_cohorts.json`。カタログ写像=#13/#14/#15。
+- `agents.state.AgentKind` を **5 値 → 9 値**へ拡張(0-4 は不変・5 STUDENT/6 REGULAR_VISITOR/7 FOREIGN_VISITOR/8 CREW)。`economy.anchors.WalletKind` と `DAILY_SPENDING_BY_KIND` も同じ並びで拡張(新種別の日消費は既存行の写し=expedient)。**`perception.templates.KIND_WORDS` は広げていない**(v1 の凍結テンプレ SHA に入っているため=改版は親判断待ち。表に無い種別は renderer が「来街者」へ落ちる)。
+- `agents.schedule`: mock の種別抽選を `len(AgentKind)-1` から定数 **`MOCK_KIND_COUNT=4`** へ置換(種別を足しても既存 mock の乱数列が動かないように釘付け)。`MockWeeklySchedule` に **省略可能欄** `age`/`sex`/`direction_node`/`population_hash` を追加(mock 単独では `None`/`""`)。
+- `agents.state`: `age`(uint8)・`sex`(int8・−1=不明)を SoA へ追加(M6 プロフィール枠)。宣言合計 119→**121 B/体**(M1 30,000 B の内数)。書き込みは `engine.resolve.initialize` のみ。
+- `agents.population`: `Population` は W16 の列そのまま。`start_cell()`=自宅→勤務→通学→fallback(**W17 が入るまでの繋ぎ**・域外常住の体を街に置く規約)。`population_hash()`=blake3(列名・dtype・生バイト)。二層抽出の**定員先取り層**= `pool_layer==5`(プール L5=乗務・駅務・警察/消防・議員)∪ `kind==DISPATCHER`、**統計層**=(種別×年齢階級×性別)の最大剰余法(層の在庫を超えたら余っている層へ押し戻す)。`n` が定員先取り層より小さいときは定員層だけを取る。
+- `engine.run`: `run_day(population=...)`。`None`(既定)は `world_dir` に `w16_population.parquet` があれば**自動で読む**が、**世界のセル数と合わないときは黙って合成個体へ落ちる**(`world_dir` を知覚資産の置き場としてだけ渡す既存の使い方を壊さないため)。明示的に `Population` を渡した場合だけ食い違いを例外にする。`False` で下限対照。`Checkpoint` に `population_hash` 欄を足し、`combined`(T1/T2 の一致判定)に混ぜた。
+- CLI: `python -m shibuya.engine.run --no-population` を追加。`shibuya.cli` は `world_dir` 経由で自動的に母集団を使う(切る口は未追加)。
+- テスト: `tests/build_pop/`(単体 17 本=Shapefile 往復・点包含・穴・最大剰余の性質2本(hypothesis)・IPF 4 本・SRMSE/JSD・二層抽出 5 本、実データ 11 本=ゲート全合格・80 町丁目一致・再構築バイト一致・ローダ・1 日ラン)。5,000 体×1 日は `@pytest.mark.slow`(実測 17.4 s)。
+- 実測(親検収用): W16 単体 **9.2 s / ピーク RSS 720 MB / 390,188 体**、`w16_population.parquet` 4.61 MB(11.8 B/体)。全段階通し 25 s・`build_hash` = `0100706bcaf01078…`。
+
 ## §9 構築工程(決定(仮)・2026-09-08・ユーザー「承認・完成まで漕ぎ着けて」・実行形=工程ごとに/goal+自動モード・出口でユーザー判断)
 
 > 前提: CLAUDE.md §2-2「全て決めてから構築」。着手ゲート=世界データ構築仕様書(D-W1〜D-W22)+本§9の承認。**所要日数は親の推測**(サブ実装+親検収込み・並列度2)。GPU: サーバー返却(9/10)後はローカル1GPUのみ→C5後半以降(艦隊必須)は再借用/クラウドが前提。
