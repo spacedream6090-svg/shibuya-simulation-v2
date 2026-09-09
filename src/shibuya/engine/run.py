@@ -60,6 +60,7 @@ import numpy as np
 import dataclasses
 
 from shibuya.agents.population import Population, load_population, sample_population
+from shibuya.agents.weekly import apply_to_mock_schedule, load_weekly
 from shibuya.agents.schedule import synthesize
 from shibuya.agents.state import (
     WAKE_CONDITION_CLASS,
@@ -158,12 +159,14 @@ class Checkpoint:
     world_hash: str
     #: W16 母集団の同定ハッシュ(母集団なしのランは ``""``)。T1/T2 の一致判定に混ぜる。
     population_hash: str = ""
+    #: W17 週次表の同定ハッシュ(週次表なしのランは ``""``)。版の取り違え検出用。
+    schedule_hash: str = ""
 
     @property
     def combined(self) -> str:
         return blake3_hex(
             "\x1f".join(
-                (self.agents_hash, self.world_hash, self.population_hash)
+                (self.agents_hash, self.world_hash, self.population_hash, self.schedule_hash)
             ).encode("utf-8")
         )
 
@@ -197,6 +200,8 @@ class RunResult:
     renderer_counters: dict[str, float] = field(default_factory=dict)
     #: 使ったレンダラの名前(``perception.Renderer`` / ``StubRenderer`` / 注入クラス名)。
     renderer_name: str = ""
+    #: 凍結静的文の版(W14/W15 の parquet: ファイル名→sha256)。凍結文なしのランは空(層2 指摘 09-09)。
+    frozen_sources: dict[str, str] = field(default_factory=dict)
     #: 録画テープの置き場(記録したときだけ)。
     tape_path: str = ""
     #: ``record`` / ``replay``。
@@ -323,6 +328,7 @@ class RunResult:
             "catalog_sha16": catalog_sha16,
             "process_ids": process_ids,
             "ablations": ablations,
+            "frozen_sources": dict(self.frozen_sources),
         }
 
     @property
@@ -356,6 +362,8 @@ class RunResult:
             f"{'OK' if self.conserved else 'NG'} / 最小在庫 {self.min_stock}",
             f"  checkpoint {len(self.checkpoints)} 点 最終 {self.final_hash[:16]}…",
         ]
+        if self.frozen_sources:
+            lines.append("  凍結静的文 " + " ".join(f"{k}={v[:16]}" for k, v in sorted(self.frozen_sources.items())))
         if self.registry_hash:
             lines.append(
                 f"  世界過程 台帳 {self.registry_hash[:16]}… 憲法5 "
@@ -605,8 +613,10 @@ def run_day(
 
     # ---- 知覚レンダラ(C3 結線・B0-B6 の本物) ----
     perception: PerceptionRendererAdapter | None = None
+    frozen_sources_map: dict[str, str] = {}
     if renderer is None:
         assets = PerceptionAssets.load_or_synthetic(world_dir, world)
+        frozen_sources_map = dict(getattr(assets, "frozen_sources", {}) or {})
         # 世界内日時 = 気象の再生実日(D-W15)。世界過程が無ければ既定の開始日 + day_index。
         start = DEFAULT_START_DATETIME + timedelta(days=int(day_index))
         if runner is not None and runner.replay_date:
@@ -648,19 +658,27 @@ def run_day(
     )
     space = C.ResourceSpace(world.n_poi, n_agents, world.n_cells)
 
-    # 計画境界(mock 日課)を tick でスライスできる形に平坦化
-    b_agent, b_slot, b_tick = schedule.events_of_day(day_index)
+    # 計画境界。W17 週次表(w17_schedule.parquet)があればそれを使い、無ければ mock 日課の 5 境界へ落ちる
+    # (C5-b 結線・09-09)。mock 経路は --no-population と合成世界の下限対照としてそのまま残す。
+    weekly = load_weekly(world_dir) if (world_dir is not None and pop is not None) else None
+    if weekly is not None:
+        weekly = weekly.restrict_to(pop.source_agent_id)
+        b_agent, b_cond, b_tick = weekly.boundary_events(day_index)
+        schedule = apply_to_mock_schedule(schedule, weekly, day_index)  # 拠点セル(自宅/職場)の上書き
+    else:
+        b_agent, b_slot, b_tick = schedule.events_of_day(day_index)
+        b_cond = np.array(
+            [
+                int(WakeCondition.PLAN_GENERAL),
+                int(WakeCondition.PLAN_TRANSIT),
+                int(WakeCondition.PLAN_GENERAL),
+                int(WakeCondition.PLAN_TRANSIT),
+                int(WakeCondition.PLAN_SLEEPING),
+            ],
+            dtype=np.int8,
+        )[b_slot]
     b_start = np.searchsorted(b_tick, np.arange(ticks + 1), side="left")
-    boundary_condition = np.array(
-        [
-            int(WakeCondition.PLAN_GENERAL),
-            int(WakeCondition.PLAN_TRANSIT),
-            int(WakeCondition.PLAN_GENERAL),
-            int(WakeCondition.PLAN_TRANSIT),
-            int(WakeCondition.PLAN_SLEEPING),
-        ],
-        dtype=np.int8,
-    )
+    schedule_hash = weekly.schedule_hash() if weekly is not None else ""
 
     result = RunResult(
         n_agents=n_agents,
@@ -748,7 +766,7 @@ def run_day(
         lo, hi = int(b_start[tick]), int(b_start[tick + 1])
         if hi > lo:
             p_agent = b_agent[lo:hi]
-            p_cond = boundary_condition[b_slot[lo:hi]]
+            p_cond = b_cond[lo:hi]
             p_class = np.fromiter(
                 (int(WAKE_CONDITION_CLASS[int(c)]) for c in p_cond),
                 dtype=np.int64,
@@ -932,6 +950,7 @@ def run_day(
                 Checkpoint(
                     tick, agents.state_hash(), world.state_hash(),
                     schedule.population_hash,
+                    schedule_hash,
                 )
             )
             phase["checkpoint"] += time.perf_counter() - t0
@@ -985,6 +1004,7 @@ def run_day(
             np.count_nonzero(agents.registry.activity == int(Activity.CONVERSING))
         )
     result.renderer_counters = dict(perception.counters()) if perception is not None else {}
+    result.frozen_sources = frozen_sources_map
     result.renderer_name = (
         "perception.Renderer" if perception is not None else type(renderer_obj).__name__
     )

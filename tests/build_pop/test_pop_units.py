@@ -220,11 +220,19 @@ def test_jsd_is_zero_for_identical_and_one_for_disjoint():
 
 # ------------------------------------------------------------------ 二層抽出
 def _fake_population(n: int, n_duty: int = 40) -> Population:
+    """職務者 ``n_duty`` 体のうち **半分だけ**が定員先取り層(残りは統計層)。
+
+    2026-09-09 の訂正前は「プール層 L5 の全件」が定員先取り層だった。役割で決めるように
+    したので、L5 に機能定員でない役割(タクシー運転手)が混ざる形を作る。
+    """
     rng = np.random.default_rng(0)
     kind = rng.integers(0, 4, n).astype(np.int8)
     pool_layer = np.where(np.arange(n) < n_duty, 5, 1).astype(np.int8)
     kind[:10] = 4  # 指令(素材なし)
     pool_layer[:10] = 0
+    role = np.full(n, "", dtype=object)
+    role[:10] = "指令"
+    role[10:n_duty] = ["駅員" if i % 2 else "タクシー運転手" for i in range(n_duty - 10)]
     z = np.zeros(n, dtype=np.int32)
     return Population(
         source=None,
@@ -237,17 +245,45 @@ def _fake_population(n: int, n_duty: int = 40) -> Population:
         household_id=z, home_building=z, org_id=z,
         pool_layer=pool_layer, pool_index=z,
         synthetic=np.zeros(n, dtype=bool), is_foreign=np.zeros(n, dtype=bool),
+        duty_role=role,
     )
 
 
 def test_two_stage_sampling_keeps_the_reserved_layer_whole():
-    """(d) 定員先取り層(職務者+指令)は縮尺しない。"""
+    """(d) 定員先取り層(``RESERVED_ROLES`` の役割+指令)は縮尺しない。"""
     pop = _fake_population(5_000, n_duty=40)
     reserved = int(pop.reserved_mask.sum())
     small = sample_population(pop, 500, seed=11)
     assert len(small) == 500
     assert int(small.reserved_mask.sum()) == reserved  # 1 体も落ちない
-    assert reserved == 40  # プール層 L5(30)+ 指令(10)
+    # 指令 10 + 駅員 15。タクシー運転手 15 は L5 でも**統計層**(答申 §Q6-b の「機能定員」外)
+    assert reserved == 25
+    assert set(small.counts_by_duty_role()) >= {"指令", "駅員"}
+    assert small.counts_by_duty_role().get("タクシー運転手", 0) < 15
+
+
+def test_reserved_layer_is_decided_by_role_not_by_pool_layer():
+    """(層2 中-1) プール層 L5 の全件ではなく役割表で決める。"""
+    pop = _fake_population(1_000, n_duty=100)
+    l5 = int((pop.pool_layer == 5).sum())
+    assert l5 == 90  # L5 の在庫(指令 10 体は pool_layer=0)
+    assert int(pop.reserved_mask.sum()) == 10 + 45  # 指令 + 駅員(L5 の半分)
+    assert int(pop.reserved_mask.sum()) < l5
+    roles = np.asarray(pop.duty_role, dtype=object)
+    assert bool((~pop.reserved_mask[roles == "タクシー運転手"]).all())
+
+
+def test_reserved_roles_table_is_the_functional_minimum():
+    """役割表そのものの釘付け(答申 §Q6-b: 乗務・指令・議員・警察/消防・公共交通)。"""
+    from shibuya.agents.population import RESERVED_ROLES
+
+    assert set(RESERVED_ROLES) == {
+        "駅員", "電車運転士", "車掌", "バス運転士", "指令",
+        "警察官", "消防士", "救急隊員", "議員",
+    }
+    # 統計層に置く役割(縮尺の対象)は表に無い
+    for role in ("タクシー運転手", "路上生活者", "ティッシュ配り", "配信者", "清掃作業員"):
+        assert role not in RESERVED_ROLES
 
 
 def test_two_stage_sampling_is_stratified_and_deterministic():
@@ -297,3 +333,53 @@ def test_start_cell_falls_back_to_work_then_school():
         synthetic=np.zeros(n, bool), is_foreign=np.zeros(n, bool),
     )
     assert pop.start_cell(fallback=9).tolist() == [7, 3, 5, 9]
+
+
+# ------------------------------------------------------------------ 層をまたいで写した定数
+# 層契約(``build`` は ``agents`` を、``agents`` は ``build`` を import しない)のため、
+# 個体種別コード・年齢階級・定員先取り層は**両側に写して**持っている。写しがずれると
+# 母集団の列とランの解釈が静かに食い違うので、ここで釘付ける(層2レビュー 中-3)。
+def test_kind_codes_are_identical_across_the_layer_boundary():
+    from shibuya.agents.state import AgentKind
+
+    for name, member in (
+        ("KIND_COMMUTER", AgentKind.COMMUTER),
+        ("KIND_VISITOR", AgentKind.VISITOR),
+        ("KIND_WORKER", AgentKind.WORKER),
+        ("KIND_RESIDENT", AgentKind.RESIDENT),
+        ("KIND_DISPATCHER", AgentKind.DISPATCHER),
+        ("KIND_STUDENT", AgentKind.STUDENT),
+        ("KIND_REGULAR_VISITOR", AgentKind.REGULAR_VISITOR),
+        ("KIND_FOREIGN_VISITOR", AgentKind.FOREIGN_VISITOR),
+        ("KIND_CREW", AgentKind.CREW),
+    ):
+        assert getattr(W, name) == int(member), name
+    assert len(W.KIND_NAMES) == len(AgentKind)
+
+
+def test_age_edges_are_identical_across_the_layer_boundary():
+    from shibuya.agents import population as PP
+
+    assert W.AGE_EDGES.tolist() == PP.AGE_EDGES.tolist()
+    # 国勢調査の 5 歳階級 0-4 … 70-74 と「75 歳以上」= 16 階級(2026-09-09 に 15→16)
+    assert W.AGE_EDGES.tolist() == [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75]
+    assert len(W.CENSUS_AGE_CATS) == W.AGE_EDGES.size
+    assert len(W.CENSUS_AGE_CATS_MALE) == W.AGE_EDGES.size
+    assert len(W.CENSUS_AGE_CATS_FEMALE) == W.AGE_EDGES.size
+
+
+def test_reserved_kind_matches_the_dispatcher_code():
+    from shibuya.agents import population as PP
+    from shibuya.agents.state import AgentKind
+
+    assert PP.RESERVED_KINDS == (int(AgentKind.DISPATCHER),)
+    assert PP.DUTY_POOL_LAYER == 5  # プール層 L5(判定には使わないが名簿の出所)
+    assert PP.RESERVED_ROLES  # 空の表で「全員が統計層」にならないこと
+
+
+def test_reserved_roles_exist_in_the_build_side_role_vocabulary():
+    """役割名は W16 が publish する語(``RAIL_CREW_ROLES``+指令)と綴りが一致する。"""
+    from shibuya.agents import population as PP
+
+    assert set(W.RAIL_CREW_ROLES) <= set(PP.RESERVED_ROLES)
+    assert "指令" in PP.RESERVED_ROLES

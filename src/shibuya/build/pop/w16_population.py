@@ -5,7 +5,8 @@
   ② 目標体数       : 公的値(国勢調査 2020 小地域・経済センサス 2021 町丁目別・PT 2018)から
                       **舞台(W2 セルの覆う範囲)** のコホート体数を積み上げる。
   ③ 層化抽出+追加生成: 層 L1-L5 から抽出し、不足層(住民・通勤・乗務・指令)は素材を種に生成。
-  ④ 年齢×性別 raking: IPF。住民=国勢調査・従業者=経済センサス(**KDDI 由来は一切使わない**)。
+  ④ 年齢×性別 raking: IPF。住民=国勢調査の **16 階級×性別の結合表**・従業者=経済センサス
+                      (**KDDI 由来は一切使わない**)。
   ⑤ 方面 OD        : ``residence_line`` の一様事前を捨て、W12 の生成用重み(方面×目的)で引く。
   ⑥ セル割当       : 自宅=町丁目人口を**建物床面積按分**(D-W16)/勤務=組織(org)単位/
                       学校=学校 POI。
@@ -19,7 +20,8 @@
 - ``w16_cohorts.json``        層別体数・目標値・出所(1 行 1 出典)
 
 ゲート(決定台帳の合否ライン)
-  SRMSE 性別 <0.01(住民・従業者)/ SRMSE 年齢 <0.13(住民)/ 方面 JSD <0.01 /
+  SRMSE 性別 <0.01(住民・従業者)/ SRMSE 年齢 <0.13(住民)/ SRMSE 年齢×性別 結合 <0.13
+  (閾値は年齢からの流用=expedient)/ 方面 JSD <0.01 /
   空セル 0%(=住居床面積>0 のセルに住民 0 が無い)。加えて構築側の機械検査
   (町丁目 80 件の JINKO 一致・組織の座席が過不足なく埋まる・体数の突き合わせ)。
 
@@ -27,7 +29,7 @@
 封印層のファイルは開かない(W19 の静的検査が本ファイルにも掛かる)。
 
 逐次ループ宣言(P4)
-- ``run``: 町丁目数(80)・年齢階級×性別セル(30)・コホート数(9)・産業キー数(15)ぶんのループ。
+- ``run``: 町丁目数(80)・年齢階級×性別セル(32)・コホート数(9)・産業キー数(15)ぶんのループ。
   **体数に比例するループは無い**(すべて NumPy のベクトル演算)。
 - ``build.pop.shapefile`` / ``build.pop.pool`` の逐次ループはそれぞれの docstring で宣言。
 """
@@ -58,7 +60,13 @@ INPUT_FILES: Final[tuple[tuple[str, ...], ...]] = (
     ("realworld", "estat", "r2ka13113", "r2ka13113.shp"),
     ("realworld", "estat", "r2ka13113", "r2ka13113.dbf"),
     ("realworld", "estat", "国勢調査2020_小地域_男女別人口総数世帯総数_東京都_渋谷区抽出.json"),
-    ("realworld", "estat", "国勢調査2020_小地域_年齢5歳階級男女別人口_東京都_渋谷区抽出.json"),
+    # 2026-09-09 差し替え: 旧「…渋谷区抽出.json」は cat01 が 0-4〜65-69 の 14 階級で切れて
+    # いた(抽出側の欠落)。全 60 分類(総数16+男16+女16+区分12)を再取得したこちらを使う。
+    # 旧ファイルはディスクに残す(取得記録・ライセンス台帳の行はそのまま)が入力にはしない。
+    (
+        "realworld", "estat",
+        "国勢調査2020_小地域_年齢5歳階級男女別人口_東京都_渋谷区_全階級.json",
+    ),
     ("realworld", "estat", "国勢調査2020_昼間人口夜間人口_渋谷区.json"),
     ("realworld", "census_r3", "station_area_industry.json"),
     ("persona_pool_v2", "meta.json"),
@@ -72,14 +80,26 @@ POOL_DIR: Final[tuple[str, ...]] = ("persona_pool_v2",)
 #: 母集団合成の親シード(``core.rng`` の master_seed・param_hash に載る)。
 MASTER_SEED: Final[int] = 20260909
 
-#: 年齢階級の下端(国勢調査 5 歳階級 0-4 … 65-69 と「70 歳以上」)。
+#: 年齢階級の下端(国勢調査 5 歳階級 0-4 … 70-74 と「75 歳以上」= **16 階級**)。
 AGE_EDGES: Final[np.ndarray] = np.array(
-    [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70], dtype=np.int64
+    [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75], dtype=np.int64
 )
-#: 国勢調査 小地域(年齢5歳階級)の cat01 コード 0-4 … 65-69(**14 階級**)。
-CENSUS_AGE_CATS: Final[tuple[str, ...]] = tuple(f"{20 + 10 * i:04d}" for i in range(14))
-#: 同・総数(年齢「不詳」含む)。
+#: 国勢調査 小地域(年齢5歳階級)の cat01: 総数 0-4 … 70-74(0020-0160)+ 75 歳以上(0200)。
+CENSUS_AGE_CATS: Final[tuple[str, ...]] = tuple(
+    [f"{20 + 10 * i:04d}" for i in range(15)] + ["0200"]
+)
+#: 同・**男**の 16 階級(0220-0360 + 0400)。
+CENSUS_AGE_CATS_MALE: Final[tuple[str, ...]] = tuple(
+    [f"{220 + 10 * i:04d}" for i in range(15)] + ["0400"]
+)
+#: 同・**女**の 16 階級(0420-0560 + 0600)。
+CENSUS_AGE_CATS_FEMALE: Final[tuple[str, ...]] = tuple(
+    [f"{420 + 10 * i:04d}" for i in range(15)] + ["0600"]
+)
+#: 同・総数(年齢「不詳」含む)。総数 − Σ階級 = **年齢不詳**(2020 年調査は 25,380 人/区)。
 CENSUS_AGE_TOTAL_CAT: Final[str] = "0010"
+#: 同・男/女の総数(年齢不詳を含む)。不詳の男女内訳を測るためだけに読む。
+CENSUS_AGE_SEX_TOTAL_CATS: Final[tuple[str, str]] = ("0210", "0410")
 #: 男女別人口総数世帯総数の cat01(人口総数・男・女・世帯総数)。
 CENSUS_SEX_CATS: Final[dict[str, str]] = {
     "total": "0010",
@@ -183,7 +203,7 @@ def _stats_data_values(doc: dict[str, Any]) -> dict[str, int]:
 
 
 def _age_bin(age: np.ndarray) -> np.ndarray:
-    """年齢 → ``AGE_EDGES`` の階級番号(70 以上は最終階級)。"""
+    """年齢 → ``AGE_EDGES`` の階級番号(75 以上は最終階級)。"""
     return np.searchsorted(AGE_EDGES[1:], np.asarray(age), side="right").astype(np.int64)
 
 
@@ -242,6 +262,11 @@ def run(ctx: C.Ctx) -> C.StageResult:  # noqa: C901 (段階=1 本の手順書)
     params: dict[str, Any] = {
         "master_seed": MASTER_SEED,
         "age_edges": AGE_EDGES.tolist(),
+        # 住民の raking は 16 階級 × 性別の**結合表**(男女別の値が取れるので周辺ではない)。
+        # 年齢不詳(総数 − Σ階級)は階級を作らず、**既知階級の比率で按分**する
+        #(= 結合表を n へ正規化することと同値)。
+        "age_sex_raking": "joint_16x2",
+        "age_unknown_policy": "prorate_over_known_classes",
         "coverage_step_m": COVERAGE_STEP_M,
         "residential_kinds": list(RESIDENTIAL_KINDS),
         "dispatcher_count": DISPATCHER_COUNT,
@@ -358,7 +383,12 @@ def run(ctx: C.Ctx) -> C.StageResult:  # noqa: C901 (段階=1 本の手順書)
     estat_pop = np.array(
         [sex_vals.get((CENSUS_SEX_CATS["total"], k), -1) for k in keys], dtype=np.int64
     )
-    jinko_match = int((estat_pop == jinko).sum())
+    # 年齢表(全階級・09-09 再取得)の町丁目総数も同じ値であることを**同じゲートで**要求する
+    #(入力を差し替えたので、80 町丁目の突合は新旧どちらの表に対しても成り立たせる)。
+    estat_age_pop = np.array(
+        [age_vals.get((CENSUS_AGE_TOTAL_CAT, k), -1) for k in keys], dtype=np.int64
+    )
+    jinko_match = int(((estat_pop == jinko) & (estat_age_pop == jinko)).sum())
     chome_male = np.array(
         [sex_vals.get((CENSUS_SEX_CATS["male"], k), 0) for k in keys], dtype=np.int64
     )
@@ -400,11 +430,31 @@ def run(ctx: C.Ctx) -> C.StageResult:  # noqa: C901 (段階=1 本の手順書)
     worker_female_share = _overall_female_share(ind_sex)
 
     # ---- ④ 年齢×性別 raking の目標 --------------------------------------
+    # 16 階級 × 性別の**結合表**(区・国勢調査2020)。周辺ではなく結合を種にする。
+    ward_age_sex = np.array(
+        [
+            [
+                age_vals.get((cm, WARD_AREA), 0),
+                age_vals.get((cf, WARD_AREA), 0),
+            ]
+            for cm, cf in zip(CENSUS_AGE_CATS_MALE, CENSUS_AGE_CATS_FEMALE)
+        ],
+        dtype=np.float64,
+    )
     ward_age_counts = np.array(
         [age_vals.get((c, WARD_AREA), 0) for c in CENSUS_AGE_CATS], dtype=np.float64
     )
+    if not np.array_equal(ward_age_counts, ward_age_sex.sum(axis=1)):
+        raise ValueError("年齢表の 総数 と 男+女 が階級ごとに一致しない(入力の版違い)")
     ward_age_total = float(age_vals.get((CENSUS_AGE_TOTAL_CAT, WARD_AREA), 0))
-    ward_age_residual = ward_age_total - float(ward_age_counts.sum())
+    #: 年齢不詳(総数 − Σ階級)。**階級を作らず既知階級の比率で配る**(= 正規化と同値)。
+    ward_age_unknown = ward_age_total - float(ward_age_counts.sum())
+    ward_age_unknown_by_sex = [
+        float(age_vals.get((CENSUS_AGE_SEX_TOTAL_CATS[0], WARD_AREA), 0))
+        - float(ward_age_sex[:, 0].sum()),
+        float(age_vals.get((CENSUS_AGE_SEX_TOTAL_CATS[1], WARD_AREA), 0))
+        - float(ward_age_sex[:, 1].sum()),
+    ]
     ward_male = float(sex_vals.get((CENSUS_SEX_CATS["male"], WARD_AREA), 0))
     ward_female = float(sex_vals.get((CENSUS_SEX_CATS["female"], WARD_AREA), 0))
 
@@ -414,10 +464,13 @@ def run(ctx: C.Ctx) -> C.StageResult:  # noqa: C901 (段階=1 本の手順書)
     l4 = pool.layers["L4"]
     l5 = pool.layers["L5"]
 
-    pool_70plus_share = float((l1.age >= 70).mean())
-    res_age_target = _age_target(n_res_target, ward_age_counts, pool_70plus_share)
+    # 種 = 区の**結合表**そのもの(旧: プール L1 の年齢×性別表)。行の目標 = 16 階級の
+    # 周辺(不詳を按分済み)、列の目標 = 男女別人口総数(不詳のない表)。年齢が不詳の
+    # 25,380 人は男女比が既知層と違う(男 13,538/女 11,842)ので、性別だけは総数表へ
+    # 合わせ直す = IPF が 1 段の補正として吸収する。
+    res_age_target = _age_target(n_res_target, ward_age_counts)
     res_sex_target = _sex_target(n_res_target, ward_male, ward_female)
-    res_table = F.ipf(l1.age_sex_table(AGE_EDGES), res_age_target, res_sex_target)
+    res_table = F.ipf(ward_age_sex, res_age_target, res_sex_target)
     res_counts = _round_table(res_table.table, n_res_target)
 
     residents = _draw_cohort(
@@ -478,7 +531,7 @@ def run(ctx: C.Ctx) -> C.StageResult:  # noqa: C901 (段階=1 本の手順書)
     )
     worker_age_counts = ward_age_counts.copy()
     worker_age_counts[: _age_bin(np.array([RESIDENT_WORK_AGE_MIN]))[0]] = 0.0
-    com_age_target = _age_target(n_commuter, worker_age_counts, 0.0)
+    com_age_target = _age_target(n_commuter, worker_age_counts)
     com_table = F.ipf(l2.age_sex_table(AGE_EDGES), com_age_target, com_sex_target)
     com_counts = _round_table(com_table.table, n_commuter)
     commuters = _draw_cohort(
@@ -591,6 +644,17 @@ def run(ctx: C.Ctx) -> C.StageResult:  # noqa: C901 (段階=1 本の手順書)
     rail_crew = np.isin(crew_roles, np.asarray(RAIL_CREW_ROLES, dtype=object))
     work_cell[crew0 + np.flatnonzero(rail_crew)] = dispatch_cell
 
+    # ---- 職務の役割名(定員先取り層の判定材料・``agents.population`` が読む列)--------
+    # 二層抽出の「定員先取り層」は**役割**で決まる(答申 §Q6-b「機能に必要な最小定員」)。
+    # プール層 L5 には路上生活者・ティッシュ配り・配信者など、機能定員でない役割も入って
+    # いるので、層ではなく役割名を publish して判定は ``agents`` 側の表に持たせる。
+    duty_role = np.full(n_total, "", dtype=object)
+    duty_role[crew0:crew1] = crew_roles
+    duty_role[c0:c1] = np.asarray(l5.col("role"), dtype=object)[council.idx]
+    duty_role[d0:d1] = "指令"
+    _roles, _rc = np.unique(duty_role[duty_role != ""].astype(str), return_counts=True)
+    duty_role_counts = {str(r): int(c) for r, c in sorted(zip(_roles.tolist(), _rc.tolist()))}
+
     # ---- ⑤ 方面 ----------------------------------------------------------
     direction_report: dict[str, Any] = {}
     for name, (a, b) in span.items():
@@ -616,8 +680,17 @@ def run(ctx: C.Ctx) -> C.StageResult:  # noqa: C901 (段階=1 本の手順書)
     srmse_sex_res = F.srmse(
         np.bincount(sex[res_rows].astype(np.int64), minlength=2), [ward_male, ward_female]
     )
-    sim_age = np.bincount(_age_bin(age[res_rows]), minlength=AGE_EDGES.size)[:14]
+    sim_age = np.bincount(_age_bin(age[res_rows]), minlength=AGE_EDGES.size)
     srmse_age_res = F.srmse(sim_age, ward_age_counts)
+    # 結合(16 階級 × 性別 = 32 セル)の一致。閾値は年齢の 0.13 を**流用**(結合の公的な
+    # 合否ラインは答申にない=expedient・SRMSE の定義は周辺と同じ割合ベース)。
+    sim_joint = np.zeros((AGE_EDGES.size, 2), dtype=np.int64)
+    np.add.at(
+        sim_joint,
+        (_age_bin(age[res_rows]), np.clip(sex[res_rows].astype(np.int64), 0, 1)),
+        1,
+    )
+    srmse_joint_res = F.srmse(sim_joint, ward_age_sex)
     w_sex = np.bincount(sex[worker_rows].astype(np.int64), minlength=2)
     srmse_sex_work = F.srmse(
         w_sex, [1.0 - worker_female_share, worker_female_share]
@@ -679,8 +752,10 @@ def run(ctx: C.Ctx) -> C.StageResult:  # noqa: C901 (段階=1 本の手順書)
             "町丁目被覆率=10m 標本格子でのセル被覆面積割合",
             "町丁目→セル=住居系建物の床面積(area_m2×levels)按分(D-W16)",
             "住居系 kind = house?/house/residential/generic(W4 の kind は用途の推定・generic を住居側に入れている)",
-            "年齢 raking は 0-69 の 14 階級のみ(区計の『総数−Σ(0-69)』に 70 歳以上と"
-            "年齢不詳が混在=分離できない)。70 歳以上の割合はプールのまま",
+            "住民の年齢不詳(区計 25,380 人)は階級を作らず**既知階級の比率で按分**"
+            "(男女で不詳率が違う=男 13,538/女 11,842 ので、性別だけは男女別人口総数へ"
+            "IPF で合わせ直す)",
+            "結合 SRMSE の閾値は決定台帳の年齢 0.13 を流用(結合の公的な合否ラインが無い)",
             "従業者の年齢目標=区の 15 歳以上の年齢分布(公的な従業者年齢表は未取得)",
             "来街者・通学者の年齢×性別は raking しない(較正に使える公的表が無い)",
             "通学者・業務来街・私事来街の体数=PT(2018)の目的別到着比を従業者数へ当てた値",
@@ -727,8 +802,11 @@ def run(ctx: C.Ctx) -> C.StageResult:  # noqa: C901 (段階=1 本の手順書)
                 "従業者(区・経済センサス2021)": 516541,
             },
             "worker_female_share_target": round(worker_female_share, 6),
-            "pool_70plus_share_L1": round(pool_70plus_share, 6),
-            "ward_age_residual_70plus_and_unknown": int(ward_age_residual),
+            "ward_age_classes": int(AGE_EDGES.size),
+            "ward_age_unknown": int(ward_age_unknown),
+            "ward_age_unknown_by_sex": [int(v) for v in ward_age_unknown_by_sex],
+            "ward_age_sex_joint": ward_age_sex.astype(np.int64).tolist(),
+            "duty_role_counts": duty_role_counts,
             "direction": direction_report,
             "n_total": n_total,
             "population_bytes": None,
@@ -755,6 +833,7 @@ def run(ctx: C.Ctx) -> C.StageResult:  # noqa: C901 (段階=1 本の手順書)
                 "home_building": home_building.astype(np.int32),
                 "org_id": org_ref.astype(np.int32),
                 "industry_key": pa.array(industry.tolist(), type=pa.string()),
+                "duty_role": pa.array(duty_role.tolist(), type=pa.string()),
                 "pool_layer": pool_layer,
                 "pool_index": pool_index,
                 "synthetic": synthetic,
@@ -791,6 +870,7 @@ def run(ctx: C.Ctx) -> C.StageResult:  # noqa: C901 (段階=1 本の手順書)
     gates_json = {
         "srmse_sex_resident": srmse_sex_res,
         "srmse_age_resident": srmse_age_res,
+        "srmse_age_sex_joint_resident": srmse_joint_res,
         "srmse_sex_worker": srmse_sex_work,
         "jsd_direction_max": jsd_max,
         "empty_residential_cells": empty_cells,
@@ -805,6 +885,7 @@ def run(ctx: C.Ctx) -> C.StageResult:  # noqa: C901 (段階=1 本の手順書)
         "limits": {
             "srmse_sex": GATE_SRMSE_SEX,
             "srmse_age": GATE_SRMSE_AGE,
+            "srmse_age_sex_joint": GATE_SRMSE_AGE,
             "jsd_direction": GATE_JSD_DIRECTION,
         },
     }
@@ -823,6 +904,8 @@ def run(ctx: C.Ctx) -> C.StageResult:  # noqa: C901 (段階=1 本の手順書)
                passed=srmse_sex_res < GATE_SRMSE_SEX),
         C.Gate("srmse_age_resident", round(srmse_age_res, 6), None,
                passed=srmse_age_res < GATE_SRMSE_AGE),
+        C.Gate("srmse_age_sex_joint_resident", round(srmse_joint_res, 6), None,
+               passed=srmse_joint_res < GATE_SRMSE_AGE),
         C.Gate("srmse_sex_worker", round(srmse_sex_work, 6), None,
                passed=srmse_sex_work < GATE_SRMSE_SEX),
         C.Gate("jsd_direction_max", round(jsd_max, 8), None, passed=jsd_max < GATE_JSD_DIRECTION),
@@ -884,18 +967,22 @@ def _direction_stats(assigned: np.ndarray, probs: np.ndarray, n_nodes: int) -> d
     }
 
 
-def _age_target(n: int, ward_age_counts: np.ndarray, share_70plus: float) -> np.ndarray:
-    """``AGE_EDGES`` の階級ごとの目標体数(最後の階級=70 歳以上)。"""
+def _age_target(n: int, ward_age_counts: np.ndarray) -> np.ndarray:
+    """``AGE_EDGES`` の階級ごとの目標体数(最後の階級=75 歳以上)。
+
+    公的表の階級カウントを ``n`` へ正規化するだけ = **年齢不詳を既知階級の比率で按分**した
+    ことと同値(不詳の階級は作らない)。全階級が 0 のときだけ一様に置く。
+    """
     target = np.zeros(AGE_EDGES.size, dtype=np.float64)
     if n <= 0:
         return target
-    known = float(n) * (1.0 - share_70plus)
     counts = np.asarray(ward_age_counts, dtype=np.float64)
+    if counts.size != AGE_EDGES.size:
+        raise ValueError(f"階級数が AGE_EDGES({AGE_EDGES.size})と違う: {counts.size}")
     if counts.sum() > 0:
-        target[: counts.size] = counts / counts.sum() * known
+        target[:] = counts / counts.sum() * float(n)
     else:
-        target[: counts.size] = known / max(counts.size, 1)
-    target[-1] = float(n) * share_70plus
+        target[:] = float(n) / AGE_EDGES.size
     return target
 
 
@@ -929,7 +1016,7 @@ def _draw_cohort(
     syn = np.zeros(n, dtype=bool)
     pos = 0
     all_rows = np.arange(layer.n, dtype=np.int64)
-    for a in range(counts.shape[0]):  # 逐次ループ宣言(P4): 年齢階級×性別 = 30 セル
+    for a in range(counts.shape[0]):  # 逐次ループ宣言(P4): 年齢階級×性別 = 32 セル
         for s in range(counts.shape[1]):
             want = int(counts[a, s])
             if want <= 0:

@@ -7,7 +7,7 @@
 
 入出力
 - 入力 prompts.jsonl: 1 行 1 呼 ``{"id": str, "system": str, "user": str, "max_tokens": int,
-  "temperature": float, "seed": int, "repeat": int(既定 1)}``。``repeat`` は同一プロンプトを何回生成するか
+  "temperature": float, "seed": int, "repeat": int(既定 1), "regex": str(任意=構造化出力)}``。``repeat`` は同一プロンプトを何回生成するか
   (W14 の「同店 2 回生成でバイト一致」ゲート用)。
 - 出力 responses.jsonl: 1 行 1 生成 ``{"id", "rep", "model", "endpoint", "text", "finish_reason",
   "prompt_tokens", "completion_tokens", "latency_s", "request_sha256", "ts"}``。追記型・再実行は済みの
@@ -64,7 +64,7 @@ def request_sha256(payload: dict) -> str:
 
 def build_payload(model: str, item: dict, rep: int) -> dict:
     # seed は rep ごとにずらさない: 「同一 seed・同一プロンプトで 2 回」がバイト一致ゲートの定義。
-    return {
+    payload = {
         "model": model,
         "messages": [
             {"role": "system", "content": item["system"]},
@@ -76,6 +76,11 @@ def build_payload(model: str, item: dict, rep: int) -> dict:
         "top_p": 1.0,
         "chat_template_kwargs": {"enable_thinking": bool(item.get("thinking", False))},
     }
+    # 構造化出力(vLLM structured_outputs・xgrammar)。プロンプト行に "regex" があれば形式を文法で強制する
+    # (W17 の日見出し形・09-09 親検証: 8B INT8 で形式違反 0・行末空白 0)。無ければ自由生成。
+    if item.get("regex"):
+        payload["structured_outputs"] = {"regex": item["regex"]}
+    return payload
 
 
 def call_once(endpoint: str, payload: dict) -> tuple[str, str, int, int]:

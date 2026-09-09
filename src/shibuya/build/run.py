@@ -26,7 +26,9 @@ from .audit import STAGES as AUDIT_STAGES, run as audit_run
 from .field import STAGES as FIELD_STAGES, run as field_run
 from .geo import STAGES as GEO_STAGES, common as C
 from .geo import run as geo_run
+from .lang import STAGES as LANG_STAGES, run as lang_run
 from .pop import STAGES as POP_STAGES, run as pop_run
+from .sched import STAGES as SCHED_STAGES, run as sched_run
 from .vis import STAGES as VIS_STAGES, run as vis_run
 
 __all__ = ["ALL_STAGES", "RUN_ORDER", "stage_order", "run_all", "write_build_manifest", "main"]
@@ -39,7 +41,7 @@ def stage_order(stages: list[str]) -> list[str]:
 
 #: 全段階(W 番号順)。build_hash はこの順の出力 sha256 連結。
 ALL_STAGES: tuple[str, ...] = tuple(
-    stage_order([*GEO_STAGES, *FIELD_STAGES, *VIS_STAGES, *POP_STAGES, *AUDIT_STAGES])
+    stage_order([*GEO_STAGES, *FIELD_STAGES, *VIS_STAGES, *LANG_STAGES, *POP_STAGES, *SCHED_STAGES, *AUDIT_STAGES])
 )
 
 #: **実行順**(build_hash の順=``ALL_STAGES`` とは別)。
@@ -51,10 +53,12 @@ RUN_ORDER: tuple[str, ...] = (
     *[
         s
         for s in ALL_STAGES
-        if s not in VIS_STAGES and s not in AUDIT_STAGES and s not in POP_STAGES
+        if s not in VIS_STAGES and s not in AUDIT_STAGES and s not in POP_STAGES and s not in LANG_STAGES and s not in SCHED_STAGES
     ],
     *VIS_STAGES,
+    *LANG_STAGES,  # W15 は W8 出力(w8_t1_cell)を読むので VIS の後・W16 の前
     *POP_STAGES,
+    *SCHED_STAGES,  # W17 は W16(母集団)・W7(PlanSpec)・W12(時間帯カーブ)を読む
     *AUDIT_STAGES,
 )
 
@@ -76,8 +80,12 @@ def run_all(ctx: C.Ctx, stages: list[str], verbose: bool = True) -> list[C.Stage
             results.extend(field_run.run_stages(ctx, [st], verbose=verbose))
         elif st in VIS_STAGES:
             results.extend(vis_run.run_stages(ctx, [st], verbose=verbose))
+        elif st in LANG_STAGES:
+            results.extend(lang_run.run_stages(ctx, [st], verbose=verbose))
         elif st in POP_STAGES:
             results.extend(pop_run.run_stages(ctx, [st], verbose=verbose))
+        elif st in SCHED_STAGES:
+            results.extend(sched_run.run_stages(ctx, [st], verbose=verbose))
         else:
             results.extend(audit_run.run_stages(ctx, [st], verbose=verbose))
     return results

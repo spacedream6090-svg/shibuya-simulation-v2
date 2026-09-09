@@ -13,6 +13,15 @@ engine は economy を import できない(層契約: economy > engine)。世界
     「1 事業所当たり売上」→日商→運転資金 k 日分ぶんの**按分**。C4 の一律 200,000 円/店は
     ``--store-capital <円>`` を明示したときだけ使う(``STORE_ENTRY_CAPITAL_YEN`` はその既定値)。
     注入は従来どおり ``Ledger.endow_stores``(外界 → 店舗・参入資本科目)=ex nihilo 禁止。
+
+世帯の初期財布(2026-09-09・C5-a 仕上げ)
+    ``agents.schedule.synthesize`` の 2,000〜10,001 円は **mock 専用**(合成日課の一部)。
+    W16 母集団を載せたランでは、種別ごとの日消費アンカーから引いた
+    ``economy.anchors.initial_wallets``(対数正規・中央値=日消費×3 日)を使う。
+    層契約(``agents`` は ``economy`` を import できない)を守るため、**両方を知っている
+    層外の本モジュール**が母集団の ``kind`` を読んで金額を作り、``Ledger.endow_households``
+    の入口で差し替える(注入は従来どおり外界 → 世帯の transfer = ex nihilo 禁止)。
+    ``--no-population``(または母集団資産が無い世界)では mock の値のまま。
 """
 
 from __future__ import annotations
@@ -23,9 +32,13 @@ from typing import Final
 
 import numpy as np
 
+from shibuya.agents import population as POP
+from shibuya.core.rng import stream
 from shibuya.economy import GoodsLedger, Ledger
+from shibuya.economy import anchors as AN
 from shibuya.economy import census as CS
 from shibuya.economy import entry_capital as EC
+from shibuya.economy.accounts import BalanceLine, Sector
 from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.run import MINUTES_PER_SIM_DAY, RunResult, run_day
 from shibuya.world.assets import hash_free_cat_code
@@ -33,8 +46,10 @@ from shibuya.world.state import World
 
 __all__ = [
     "STORE_ENTRY_CAPITAL_YEN",
+    "WALLET_DOMAIN",
     "store_capital_array",
     "store_capital_report",
+    "household_wallets",
     "build_ledger_bundle",
     "run",
     "main",
@@ -43,6 +58,9 @@ __all__ = [
 #: 一律指定(``--store-capital``)を値なしで使ったときの既定[円/店]。C4 の expedient。
 #: **既定の経路ではもう使わない**(D-13 で経済センサス按分に置換)。
 STORE_ENTRY_CAPITAL_YEN: Final[int] = 200_000
+
+#: 初期財布の乱数ドメイン(``core.rng`` の Philox・manifest のドメイン表に載る)。
+WALLET_DOMAIN: Final[str] = "wallet.initial"
 
 
 def store_capital_array(
@@ -75,11 +93,81 @@ def store_capital_report(
     )
 
 
+def household_wallets(
+    world: World,
+    n_agents: int,
+    seed: int | str = 1,
+    world_dir: str | Path | None = None,
+    *, use_population: bool = True,
+) -> np.ndarray | None:
+    """W16 母集団の種別から初期財布[円]を引く(母集団が使えないランは ``None``)。
+
+    ``engine.run._resolve_population`` と**同じ規約**で母集団を解決する(同じ
+    ``world_dir``/``n_agents``/``seed`` なら同じ行が同じ順で返る)。世界のセル数と
+    合わない母集団は engine 側が黙って見送るので、ここでも見送る。
+
+    Returns:
+        長さ ``min(n_agents, 母集団の体数)`` の int64 配列。``None``=母集団なし。
+    """
+    if not use_population or world_dir is None:
+        return None
+    try:
+        pop = POP.load_population(world_dir, n=None, seed=seed)
+    except (OSError, ValueError):
+        return None
+    if pop is None:
+        return None
+    for arr in (pop.home_cell, pop.work_cell, pop.school_cell):
+        if arr.size and int(arr.max()) >= int(world.n_cells):
+            return None  # 合成小世界に実データの母集団は載せない(engine と同じ判断)
+    if pop.n > int(n_agents):
+        pop = POP.sample_population(pop, int(n_agents), seed)
+    kinds = np.asarray(pop.kind, dtype=np.int64)[: int(n_agents)]
+    return AN.initial_wallets(kinds.size, kinds, stream(seed, WALLET_DOMAIN))
+
+
+class _HouseholdWalletLedger(Ledger):
+    """``endow_households`` の金額だけ差し替える ``Ledger``(層外の組立コード)。
+
+    ``engine.resolve.initialize`` は ``schedule.initial_money``(mock の一様乱数)を
+    ``endow_households`` に渡す。engine は economy を import できず、agents は
+    アンカーを知らないので、**注入の入口で**アンカー由来の金額へ置き換える。
+    経路(外界 → 世帯・科目 CARRY_IN)は変えない = ex nihilo 禁止・保存則は不変。
+    """
+
+    def __init__(self, n_households: int, n_stores: int, wallets: np.ndarray) -> None:
+        super().__init__(n_households, n_stores)
+        self.wallets = np.asarray(wallets, dtype=np.int64).ravel()
+
+    def endow_households(self, amounts: np.ndarray, tick: int = 0) -> np.ndarray:
+        a = np.asarray(amounts, dtype=np.int64).ravel().copy()
+        m = min(a.size, self.wallets.size)
+        a[:m] = self.wallets[:m]  # 母集団を超える行(縮小ラン)は mock のまま
+        return super().endow_households(a, tick)
+
+
 def build_ledger_bundle(
-    world: World, n_agents: int, store_capital_yen: int | None = None
+    world: World,
+    n_agents: int,
+    store_capital_yen: int | None = None,
+    *,
+    seed: int | str = 1,
+    world_dir: str | Path | None = None,
+    use_population: bool = True,
 ) -> LedgerBundle:
-    """世界から金/物の台帳とセンサス呼び出しを組み立てる(engine/ledger_api の Protocol を満たす)。"""
-    led = Ledger(n_agents, world.n_poi)
+    """世界から金/物の台帳とセンサス呼び出しを組み立てる(engine/ledger_api の Protocol を満たす)。
+
+    ``world_dir`` に W16 母集団があれば、世帯の初期財布を ``economy.anchors`` の
+    アンカー由来に差し替える(``use_population=False`` で mock のまま)。
+    """
+    wallets = household_wallets(
+        world, n_agents, seed, world_dir, use_population=use_population
+    )
+    led = (
+        Ledger(n_agents, world.n_poi)
+        if wallets is None
+        else _HouseholdWalletLedger(n_agents, world.n_poi, wallets)
+    )
     cats = np.array([hash_free_cat_code(c) for c in world.assets.poi_cat], dtype=np.int64)
     goods = GoodsLedger.from_pois(cats, np.asarray(world.pois.stock), np.asarray(world.pois.price))
     capital = store_capital_array(world, n_agents, store_capital_yen)
@@ -96,22 +184,32 @@ def run(
     ticks: int = MINUTES_PER_SIM_DAY,
     checkpoint_every: int = 360,
     store_capital_yen: int | None = None,
+    use_population: bool = True,
     **kwargs,
 ) -> RunResult:
-    """台帳つきの 1 シミュ日ラン(C4 の標準入口)。"""
+    """台帳つきの 1 シミュ日ラン(C4 の標準入口)。
+
+    ``use_population=False`` は下限対照(``engine.run --no-population`` と同じ意味):
+    W16 母集団を読まず合成個体で回し、世帯の初期財布も mock のままにする。
+    """
     wd = Path(world_dir) if world_dir is not None else None
     world = World.load_or_synthetic(wd, n_cells=n_cells, seed=seed) if wd is not None else World.synthetic(
         n_cells=n_cells, seed=seed
     )
-    bundle = build_ledger_bundle(world, n_agents, store_capital_yen)
+    run_world_dir = wd if (wd is not None and wd.exists()) else None
+    bundle = build_ledger_bundle(
+        world, n_agents, store_capital_yen,
+        seed=seed, world_dir=run_world_dir, use_population=use_population,
+    )
     return run_day(
         n_agents=n_agents,
         seed=seed,
         world=world,
         ticks=ticks,
         checkpoint_every=checkpoint_every,
-        world_dir=wd if (wd is not None and wd.exists()) else None,
+        world_dir=run_world_dir,
         ledger=bundle,
+        population=None if use_population else False,
         **kwargs,
     )
 
@@ -133,6 +231,11 @@ def main(argv: list[str] | None = None) -> int:
         help="店舗の参入資本を一律[円/店]で上書き(既定=経済センサス按分・D-13)",
     )
     ap.add_argument("--ablate", action="append", default=[], help="無効化する過程 id / AB-* id")
+    ap.add_argument(
+        "--no-population",
+        action="store_true",
+        help="W16 母集団を使わず合成個体で回す(下限対照・世帯財布も mock のまま)",
+    )
     args = ap.parse_args(argv)
     res = run(
         n_agents=args.agents,
@@ -142,6 +245,7 @@ def main(argv: list[str] | None = None) -> int:
         ticks=args.ticks,
         checkpoint_every=args.checkpoint_every,
         store_capital_yen=args.store_capital,
+        use_population=not args.no_population,
         processes_disabled=args.ablate or None,
     )
     print(res.summary())
@@ -149,9 +253,21 @@ def main(argv: list[str] | None = None) -> int:
     money = getattr(led, "money", None) if led is not None else None
     if money is not None:
         store, m, share = EC.ledger_entry_capital_share(money)
+        cash = money.sector_totals(BalanceLine.CASH)
+        dep = money.sector_totals(BalanceLine.DEPOSIT)
+        hh = int(cash[int(Sector.HOUSEHOLD)] + dep[int(Sector.HOUSEHOLD)])
         print(
-            f"[参入資本] 店舗の現金+預金 {store:,} 円 / 貨幣供給 {m:,} 円 = {share * 100:.2f}%"
+            f"[参入資本] 店舗の現金+預金 {store:,} 円 / 世帯の現金+預金 {hh:,} 円 /"
+            f" 貨幣供給 {m:,} 円 = 店舗 {share * 100:.2f}%"
             f" ({'一律 ' + format(args.store_capital, ',') + ' 円/店' if args.store_capital is not None else '経済センサス按分'})"
+        )
+        src = "mock 一様" if isinstance(money, Ledger) and not isinstance(
+            money, _HouseholdWalletLedger
+        ) else "anchors 対数正規"
+        print(
+            f"[世帯財布] 世帯の現金+預金 {hh:,} 円 / 貨幣供給 {m:,} 円 = "
+            f"{(hh / m * 100) if m else 0.0:.2f}% ({src}・"
+            f"{'母集団あり' if not args.no_population else '--no-population'})"
         )
     return 0
 

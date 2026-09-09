@@ -1,9 +1,11 @@
 """W16 母集団合成の統合テスト(実データ必須・CI では skip)。
 
 検査
-- 町丁目 **80 件**の ``JINKO`` が e-Stat 小地域(男女別人口総数)と 1 件残らず一致する
-  (dbf 11 桁 KEY_CODE ↔ e-Stat area コードの対応を**仮定せず**、値の一致で確かめる)。
-- 決定台帳の合否ライン(SRMSE 性別 <0.01・年齢 <0.13・方面 JSD <0.01・空セル 0%)。
+- 町丁目 **80 件**の ``JINKO`` が e-Stat 小地域(男女別人口総数**と年齢5歳階級表**)と
+  1 件残らず一致する(dbf 11 桁 KEY_CODE ↔ e-Stat area コードの対応を**仮定せず**、
+  値の一致で確かめる)。
+- 決定台帳の合否ライン(SRMSE 性別 <0.01・年齢 <0.13・**年齢×性別の結合 <0.13**・
+  方面 JSD <0.01・空セル 0%)。
 - 再構築で出力とヘッダが**バイト一致**(D-W20 の T1)。
 - 母集団を載せたランがエンジンの 1 日(短縮)を通り、保存則が保たれる。
 """
@@ -71,7 +73,11 @@ def test_all_gates_pass(built):
 
 
 def test_eighty_chome_match_estat_population(built):
-    """dbf の JINKO と e-Stat 小地域の人口総数が 80 件すべて一致する。"""
+    """dbf の JINKO と e-Stat 小地域の人口総数が 80 件すべて一致する。
+
+    ゲートは**男女別人口総数表と年齢5歳階級表の両方**に対して要求する(2026-09-09 に
+    年齢表を全 60 分類の再取得版へ差し替えたので、突合を新ファイルでも成り立たせる)。
+    """
     _out, res, _dt = built
     assert _gate(res, "chome_jinko_match")["value"] == 80
     assert res.notes["chome_polygons"] == 80
@@ -84,6 +90,9 @@ def test_acceptance_lines_from_the_decision_ledger(built):
     assert gates["srmse_sex_resident"] < 0.01
     assert gates["srmse_sex_worker"] < 0.01
     assert gates["srmse_age_resident"] < 0.13
+    # 結合(16 階級 × 性別 = 32 セル)。閾値は年齢の 0.13 を流用(登録簿に宣言)
+    assert gates["srmse_age_sex_joint_resident"] < gates["limits"]["srmse_age_sex_joint"]
+    assert gates["limits"]["srmse_age_sex_joint"] == 0.13
     assert gates["jsd_direction_max"] < 0.01
     assert gates["empty_residential_cells"] == 0
     assert gates["residents_without_home_cell"] == 0
@@ -143,7 +152,7 @@ def test_output_columns_and_byte_size(built):
     assert {
         "agent_id", "kind", "age", "sex", "home_cell", "work_cell", "school_cell",
         "direction_node", "chome_key", "household_id", "org_id", "industry_key",
-        "pool_layer", "pool_index",
+        "duty_role", "pool_layer", "pool_index",
     } <= names
     n = table.num_rows
     size = (out / "w16_population.parquet").stat().st_size
@@ -180,6 +189,19 @@ def test_loader_reads_the_published_population():
     small = sample_population(pop, 5_000, seed=1)
     assert len(small) == 5_000
     assert int(small.reserved_mask.sum()) == int(pop.reserved_mask.sum())
+    # (層2 中-1) 定員先取り層は**機能定員**=職務者の全件ではない。
+    # 旧実装(プール層 L5 全件 ∪ 指令)は 1,316 体= 5,000 体ランの 26%だった。
+    reserved = int(small.reserved_mask.sum())
+    duty = sum(pop.counts_by_duty_role().values())
+    print(f"\n[二層抽出] n=5,000 の定員先取り層 {reserved} 体 "
+          f"({reserved / 5_000 * 100:.1f}%) / 職務者在庫 {duty} 体")
+    assert reserved < 1_000 and reserved < duty
+    assert reserved / 5_000 < 0.20
+    # 統計層の種別構成比は 40 万体版と一致する(層化=単純無作為ではない)
+    full_stat = pop.take(np.flatnonzero(~pop.reserved_mask))
+    sub_stat = small.take(np.flatnonzero(~small.reserved_mask))
+    for k, cnt in full_stat.counts_by_kind().items():
+        assert abs(cnt / full_stat.n - sub_stat.counts_by_kind().get(k, 0) / sub_stat.n) < 0.01
 
 
 @pytest.mark.skipif(
@@ -225,3 +247,53 @@ def test_population_backed_full_day_5000_agents():
     assert res.conserved
     assert res.min_stock >= 0
     assert dt < 600.0  # 予算行 W2
+
+
+def test_age_raking_uses_all_sixteen_classes_and_prorates_the_unknown(built):
+    """④ raking: 16 階級 × 性別の**結合表**・年齢不詳は階級を作らず按分する。"""
+    out, res, _dt = built
+    import pyarrow.parquet as pq
+
+    assert res.params["age_sex_raking"] == "joint_16x2"
+    assert res.params["age_unknown_policy"] == "prorate_over_known_classes"
+    assert res.notes["ward_age_classes"] == 16
+    # 区の年齢不詳(国勢調査2020)= 総数 243,883 − Σ16 階級 218,503
+    assert res.notes["ward_age_unknown"] == 25_380
+    assert res.notes["ward_age_unknown_by_sex"] == [13_538, 11_842]
+    joint = np.asarray(res.notes["ward_age_sex_joint"], dtype=np.int64)
+    assert joint.shape == (16, 2)
+    assert int(joint.sum()) == 218_503
+    assert int(joint[-1].sum()) == 21_900  # 75 歳以上
+    # 「不詳」という階級は作らない = 合成された住民の年齢は 16 階級に収まる
+    table = pq.read_table(out / "w16_population.parquet", columns=["kind", "age"])
+    age = np.asarray(table.column("age").to_numpy(zero_copy_only=False))
+    assert int(age.max()) < 120
+    # 75 歳以上の割合が**プールの比率ではなく公的値**に寄る(旧 expedient の解消)
+    kind = np.asarray(table.column("kind").to_numpy(zero_copy_only=False))
+    res_age = age[np.isin(kind, [2, 3])]  # 住民(在区就業=WORKER に振り替わった分を含む)
+    share75 = float((res_age >= 75).mean())
+    assert abs(share75 - 21_900 / 218_503) < 0.01
+
+
+def test_duty_role_column_carries_the_functional_roster(built):
+    """定員先取り層の判定材料(役割名)が母集団の列に載っている。"""
+    out, res, _dt = built
+    import pyarrow.parquet as pq
+
+    from shibuya.agents.population import RESERVED_ROLES
+
+    table = pq.read_table(out / "w16_population.parquet", columns=["duty_role"])
+    roles = np.asarray(table.column("duty_role").to_numpy(zero_copy_only=False)).astype(str)
+    counts = res.notes["duty_role_counts"]
+    assert counts == {
+        str(r): int(c)
+        for r, c in zip(*np.unique(roles[roles != ""], return_counts=True))
+    }
+    # 役割表の全語が名簿に実在する(綴り違いで定員層が空になっていない)
+    for role in RESERVED_ROLES:
+        assert counts.get(role, 0) > 0, role
+    # 職務者の総数 = 乗務・職務 1,258 + 指令 24 + 議員 34
+    assert sum(counts.values()) == 1_258 + 24 + 34
+    reserved = sum(counts[r] for r in RESERVED_ROLES)
+    print(f"\n[W16] 定員先取り層 {reserved} 体 / 職務者 {sum(counts.values())} 体")
+    assert reserved < sum(counts.values())  # L5 全件ではない(層2 中-1)

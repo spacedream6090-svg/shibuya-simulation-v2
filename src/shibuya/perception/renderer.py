@@ -34,6 +34,14 @@ expedient(本モジュール分)
   規約⑧(B0-B4b に個体依存語を置かない)は保たれる。行列が無いセルは従来の固定文言のまま。
 - 流れ(B4)は既定 0(「一定です」)。方向データが無い。
 - 天候が W13 に無い日付は**その時刻の最頻値**へ落とす(決定論)。
+- **W14/W15 の凍結静的文への切替**(C5): ``world_dir`` に ``w14_signage.parquet`` /
+  ``w15_cell_static.parquet`` が在ればその文面を使い、無ければ従来の合成文へ落ちる
+  (**テンプレ本体と ``template_sha256`` は不変**)。凍結文の置き場所は
+  W14 → ``B2.signage`` の本文(§3.2 の 25 tok 枠)・W15 → ``B2.visible`` の ``{items}``。
+  W15 を B2 に**足す**と群予算(B2+B4+B4b ≤250)を超えるので、可視物リストを**置き換える**
+  形にした。W15 側の上限は 45 tok(= B2 ブロック予算 150 − 実資産での他行最大)で、
+  仕様 §1 W15 の「150 tok」は B2 ブロック全体の予算と読む(=**親判断待ち**)。
+  どの版の文面で走ったかは ``PerceptionAssets.frozen_sources``(ファイル名→sha256)に出る。
 
 **解決した曖昧点(親へ報告・黙って解決していない)**
 1. §2.4 ⑧「同セル同時間帯の2体で B0-B4 のバイト差分がゼロ」対 §2.2「B1=種別(約10)」。
@@ -185,10 +193,25 @@ class PerceptionAssets:
     #: セル別の騒音段階(昼/夜・W10 街路点の最頻値)
     noise_stage_day: np.ndarray
     noise_stage_night: np.ndarray
+    #: POI → W14 で**凍結された看板(a)文面**(無い POI は空文字=合成文へフォールバック)。
+    poi_signage: tuple[str, ...] = ()
+    #: セル → W15 で**凍結された B2 セル静的文**(無いセルは空文字=合成の可視物リストへ)。
+    cell_static: tuple[str, ...] = ()
+    #: 凍結資産のファイル名 → sha256(**manifest へ記録する値**。切替は「ファイルが在るか」だけで
+    #: 決まるので、どの版の文面で走ったかはこの SHA でしか特定できない)。
+    frozen_sources: Mapping[str, str] = field(default_factory=dict)
 
     @property
     def n_cells(self) -> int:
         return len(self.place_ids)
+
+    @property
+    def uses_frozen_signage(self) -> bool:
+        return any(self.poi_signage)
+
+    @property
+    def uses_frozen_cell_static(self) -> bool:
+        return any(self.cell_static)
 
     def noise_stage_for_tick(self, when: datetime) -> np.ndarray:
         """時刻 → セル別騒音段階(環境基準の昼 6-22 時 / 夜 22-6 時)。"""
@@ -346,6 +369,15 @@ class PerceptionAssets:
         # ---- W10 街路点 → セル別 歩行可能面積・騒音段階(最頻値) ----
         area, has_street, ns_day, ns_night = _street_aggregate(p, world.assets, n)
 
+        # ---- W14/W15 の凍結静的文(在れば使う・無ければ従来の合成文) ----
+        frozen_sources: dict[str, str] = {}
+        poi_signage = _load_frozen_text(
+            p, "w14_signage.parquet", "poi_id", [str(s) for s in poi["poi_id"]], frozen_sources
+        )
+        cell_static = _load_frozen_text(
+            p, "w15_cell_static.parquet", "place_id", list(place_ids), frozen_sources
+        )
+
         # ---- W13 天候 ----
         w13 = pq.read_table(
             p / "w13_weather_hourly.parquet",
@@ -377,7 +409,38 @@ class PerceptionAssets:
             weather_by_hour=by_hour,
             noise_stage_day=ns_day,
             noise_stage_night=ns_night,
+            poi_signage=poi_signage,
+            cell_static=cell_static,
+            frozen_sources=frozen_sources,
         )
+
+
+def _load_frozen_text(
+    path: Path, name: str, key_col: str, keys: Sequence[str], sources: dict[str, str]
+) -> tuple[str, ...]:
+    """W14/W15 の凍結文 parquet → ``keys`` の順に並べた文面(無い鍵は空文字)。
+
+    ファイルが無ければ全部空文字を返す(= **切替は world_dir のファイル有無で決まる**)。
+    在るときは ``sources[name] = sha256`` を記録する(manifest 用)。
+
+    Note:
+        逐次ループ宣言(P4): 行数(POI 2,337 / セル 520)ぶんの辞書化 1 本。**起動時 1 回**。
+    """
+    import hashlib
+
+    import pyarrow.parquet as pq
+
+    f = Path(path) / name
+    if not f.exists():
+        return tuple("" for _ in keys)
+    h = hashlib.sha256()
+    with open(f, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    sources[name] = h.hexdigest()
+    d = pq.read_table(f, columns=[key_col, "text"]).to_pydict()
+    table = {str(k): str(t) for k, t in zip(d[key_col], d["text"])}
+    return tuple(table.get(str(k), "") for k in keys)
 
 
 def _street_aggregate(
@@ -710,15 +773,28 @@ class Renderer:
             trunc.append(rep)
             if kept:
                 lines.append(T.TEMPLATES["B2.ground"].format(ground=kept[0]))
-            # 可視物 上位3(可視視点数の降順→ID 昇順は資産側で確定済み)
-            names = [A.poi_name[j] + "の店頭" for j in A.visible_poi[cell]]
-            kept, rep = ch.truncate_lines(names, "B2.visible")
-            trunc.append(rep)
-            lines.append(
-                T.TEMPLATES["B2.visible"].format(items=N.LIST_SEPARATOR.join(kept))
-                if kept
-                else T.TEMPLATES["B2.visible_empty"]
-            )
+            # 可視物: **W15 の凍結セル静的文が在ればそれ**・無ければ合成の可視物リスト。
+            # 凍結文は ``B2.visible`` の枠(§3.2・60 tok)を占める(生成側の上限は 45 tok=
+            # B2 予算 150 − 実資産での他行最大。枠を超えた文は切り詰めで落ち合成文へ戻る)。
+            # テンプレは変えない。
+            static = A.cell_static[cell] if cell < len(A.cell_static) else ""
+            used_static = False
+            if static:
+                kept, rep = ch.truncate_lines([static], "B2.visible")
+                trunc.append(rep)
+                if kept:
+                    lines.append(T.TEMPLATES["B2.visible"].format(items=kept[0]))
+                    used_static = True
+            if not used_static:
+                # 可視物 上位3(可視視点数の降順→ID 昇順は資産側で確定済み)
+                names = [A.poi_name[j] + "の店頭" for j in A.visible_poi[cell]]
+                kept, rep = ch.truncate_lines(names, "B2.visible")
+                trunc.append(rep)
+                lines.append(
+                    T.TEMPLATES["B2.visible"].format(items=N.LIST_SEPARATOR.join(kept))
+                    if kept
+                    else T.TEMPLATES["B2.visible_empty"]
+                )
             # 看板(a)=店舗基本属性 1 件(素性タグは凍結テンプレ側・命令文除去を掛ける)
             lines.append(self._signage(cell))
             # 地物・ランドマーク・出口
@@ -739,7 +815,12 @@ class Renderer:
         return out
 
     def _signage(self, cell: int) -> str:
-        """看板(a): そのセルで最も可視の店舗 1 件の営業時間表示。
+        """看板(a): そのセルで最も可視の店舗 1 件の店頭表示。
+
+        **W14 で凍結された文面が在ればそれを使い**、無ければ従来の合成文(店名+営業時間)を
+        使う(切替は ``world_dir`` に ``w14_signage.parquet`` が在るかだけで決まる)。
+        凍結文にも命令文除去とチャネル枠の切り詰めを掛ける(憲法6・多重防御。W14 のゲートを
+        通っていれば no-op)。
 
         §3.2 の「看板・広告面1件 25 tok」は**内容**(店名+属性)に掛ける。ブロックラベルと
         凍結された素性タグは全描画に共通の固定オーバーヘッドなので、ブロック総額(B2 150)側で
@@ -750,9 +831,13 @@ class Renderer:
         for j in A.visible_poi[cell]:
             if j >= w.n_poi:
                 continue
-            frm = int(w.pois.open_from[j]) // 60
-            to = int(w.pois.open_to[j]) // 60
-            body = strip_imperatives(f"{A.poi_name[j]}の表示。営業は{frm}時から{to}時。").kept
+            frozen = A.poi_signage[j] if j < len(A.poi_signage) else ""
+            if frozen:
+                body = strip_imperatives(frozen).kept
+            else:
+                frm = int(w.pois.open_from[j]) // 60
+                to = int(w.pois.open_to[j]) // 60
+                body = strip_imperatives(f"{A.poi_name[j]}の表示。営業は{frm}時から{to}時。").kept
             kept, _ = ch.truncate_lines([body], "B2.signage")
             if kept:
                 return T.TEMPLATES["B2.signage"].format(body=kept[0])
@@ -992,13 +1077,21 @@ class Renderer:
         return float(self.cache_hits) / total if total else 0.0
 
     def report(self) -> str:
-        """診断行 1 本。"""
+        """診断行 1 本。
+
+        凍結静的文(W14/W15)を使っているときは**その SHA を出す**(切替はファイルの有無で
+        決まるので、どの版の文面で走ったかはこの値でしか特定できない=manifest へ記録する)。
+        """
+        frozen = "".join(
+            f" {k}={v[:16]}" for k, v in sorted(self.assets.frozen_sources.items())
+        )
         return (
             f"[perception.renderer] renders={self.renders} "
             f"cache_hit_rate={self.cache_hit_rate:.3f} "
             f"(hits={self.cache_hits} misses={self.cache_misses}) "
             f"truncated_channels={self.truncation_count} "
             f"template_sha256={T.template_sha256()[:16]}"
+            f"{frozen}"
         )
 
 
