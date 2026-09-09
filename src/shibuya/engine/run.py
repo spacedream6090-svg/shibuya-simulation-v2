@@ -726,6 +726,8 @@ def run_day(
     budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
     salient_rate_per_10k: float | None = None,
     population: "Population | bool | None" = None,
+    occupancy_every: int = 0,
+    occupancy_path: "str | Path | None" = None,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -928,6 +930,10 @@ def run_day(
         mode=mode,
     )
     result.money_start = int(agents.registry.money.astype(np.int64).sum())
+    # 在圏 journal(C7 受入計器 tools/c7・holdout 照合の入力)。既定 0=書かない(状態・診断・テープに影響なし)。
+    occ_ticks: list[int] = []
+    occ_counts: list[np.ndarray] = []
+    occ_kind: list[np.ndarray] = []
     # ``fleet_wait`` は ``--fleet-wait-s`` の待ち(``llm`` から分離して数える=P2 の切り分け用)。
     # ``movement_cpu`` は movement 区間の**スレッド CPU 時間**(壁時計との差=GIL 待ち)。
     phase = {k: 0.0 for k in ("detect", "arbiter", "llm", "fleet_wait", "phase_a", "phase_b",
@@ -1372,6 +1378,14 @@ def run_day(
         prev_tape_misses = bridge.n_tape_misses
         prev_sessions = conv.n_opened if conv is not None else 0
 
+        if occupancy_every and tick % occupancy_every == 0:
+            occ_ticks.append(int(tick))
+            occ_counts.append(np.asarray(world.cells.density, dtype=np.int32).copy())
+            _k = np.asarray(agents.registry.field("kind"), dtype=np.int64)
+            _c = np.asarray(agents.registry.cell, dtype=np.int64)
+            _ok = (_c >= 0) & (_c < world.n_cells)
+            _kc = np.bincount(_k[_ok] * world.n_cells + _c[_ok], minlength=9 * world.n_cells)[: 9 * world.n_cells]
+            occ_kind.append(_kc.reshape(9, world.n_cells).astype(np.int32))
         if checkpoint_every and ((tick + 1) % checkpoint_every == 0 or tick == ticks - 1):
             t0 = time.perf_counter()
             result.checkpoints.append(
@@ -1523,6 +1537,15 @@ def run_day(
     result.world = world  # type: ignore[attr-defined]
     result.schedule = schedule  # type: ignore[attr-defined]
     result.ledger = ledger  # type: ignore[attr-defined]
+    if occupancy_path and occ_ticks:
+        import json as _json
+        np.savez_compressed(
+            str(occupancy_path),
+            ticks=np.asarray(occ_ticks, dtype=np.int64),
+            cell_counts=np.stack(occ_counts),
+            kind_cell_counts=np.stack(occ_kind),
+            meta=np.asarray(_json.dumps({"tick_seconds": int(tick_seconds), "start_hour": 0, "day_index": int(day_index)}, ensure_ascii=False)),
+        )
     return result
 
 

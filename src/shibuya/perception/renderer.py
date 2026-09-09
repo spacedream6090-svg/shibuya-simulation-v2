@@ -548,6 +548,11 @@ class _TickCache:
     cell_order: np.ndarray = field(default_factory=lambda: np.zeros(0, np.int64))
     cell_start: np.ndarray = field(default_factory=lambda: np.zeros(0, np.int64))
     cell_end: np.ndarray = field(default_factory=lambda: np.zeros(0, np.int64))
+    #: 個体 → ``cell_order`` の位置(逆置換)。自分の行を O(1) で外すために持つ(C7)。
+    cell_pos: np.ndarray = field(default_factory=lambda: np.zeros(0, np.int64))
+    #: ``cell_order`` の順に並べた x / y(**連続配列**)。1 呼あたりの gather を無くす(C7)。
+    cell_x: np.ndarray = field(default_factory=lambda: np.zeros(0, np.float64))
+    cell_y: np.ndarray = field(default_factory=lambda: np.zeros(0, np.float64))
 
 
 class Renderer:
@@ -606,6 +611,8 @@ class Renderer:
         self._b4b = N.canonical_whitespace(
             T.TEMPLATES["B4b.near_empty"]
         ).encode("utf-8")
+        #: 個体 → (知人の集合, 知人の id 配列)。**構築時に固定**なので 1 度作れば使い回せる(C7)。
+        self._acq_cache: dict[int, tuple[frozenset[int], np.ndarray]] = {}
         self._b1_cache: dict[int, bytes] = {}
         self._b2_cache: dict[int, bytes] = {}
         self._b3_cache: dict[int, bytes] = {}
@@ -677,6 +684,11 @@ class Renderer:
             digest[int(c)] = int((int(digest[int(c)]) * 31 + mixed) & 0x7FFF_FFFF)
 
         rows = H.b4_field_row(los, ns, fl, digest)
+        # C7: セル順の連続座標(1 tick 1 回の gather)。個体数ぶんの 3 配列
+        # =24 byte/体(390,067 体で 9.4 MB)。1 呼あたりのセル在席者ぶんの gather を消す。
+        idx = _cell_index(self.agents.cell, n)
+        xy_all = np.asarray(self.agents.xy, dtype=np.float64)
+        order = idx["cell_order"]
         self._tickc = _TickCache(
             tick=int(tick),
             when=when,
@@ -690,7 +702,9 @@ class Renderer:
             b4b_items=b4b_items,
             b4_field_rows=rows,
             b4_field_hash=H.field_row_hashes(rows),
-            **_cell_index(self.agents.cell, n),
+            cell_x=np.ascontiguousarray(xy_all[order, 0]),
+            cell_y=np.ascontiguousarray(xy_all[order, 1]),
+            **idx,
         )
 
     @property
@@ -1071,31 +1085,81 @@ class Renderer:
 
         近接 k の選び方(密度逓減 3/2/1・知人常掲)は §3 人物④の規則なので**両モード共通**。
         ablation ① が外すのは §3.2 のチャネル枠(トークン上限と件数)だけ。
+
+        C7 性能修正(挙動不変): セル在席者ぶんの **Python 反復を全廃**した。
+        以前は ① 距離の辞書(``{id: sqrt(d2)}``)と ② ``set(peers)`` を**毎呼**作っており、
+        390,067 体(セル人口 1.4 万)で 1 呼 17 ms・llm 位相 46 s/tick になっていた
+        (cProfile: 1 呼あたり 13,663 反復)。いまは
+        ③ 座標は ``prepare_tick`` が作ったセル順の**連続配列**から取り(gather 無し)、
+        ④ 自分の行は逆置換 ``cell_pos`` で O(1) に外し、
+        ⑤ 知人の同セル判定は ``cell_pos`` の範囲比較(知人数ぶん)、
+        ⑥ ``sqrt`` は**採った数件だけ**。
+        **順序・同点処理・上位 k・距離の値は 1 ビットも変えていない**
+        (``np.argpartition`` に渡す配列が旧実装と同一=``d2`` の並びまで同じ)。
         """
         a = self.agents
         if not (0 <= cell < tc.los_stage.size) or tc.cell_start.size == 0:
             return []
         lo, hi = int(tc.cell_start[cell]), int(tc.cell_end[cell])
-        peers = tc.cell_order[lo:hi]
-        peers = peers[peers != i]
+        m = hi - lo
+        if m <= 0:
+            return []
+        # d2 は「セル順の連続配列 − 自分」。旧実装の ``((xy[peers]-xy[i])**2).sum(1)`` と
+        # **同じ順序・同じ丸め**(x²+y² の加算順まで同じ)。自分の座標は**2 スカラーだけ**読む
+        # (``np.asarray(a.xy, float64)`` は float32 SoA の**全体コピー**=390,067 体で 1.6 ms/呼)。
+        dx = tc.cell_x[lo:hi] - float(a.xy[i, 0])
+        dy = tc.cell_y[lo:hi] - float(a.xy[i, 1])
+        d2_full = dx * dx + dy * dy
+        ids_full = tc.cell_order[lo:hi]
+        p = int(tc.cell_pos[i]) - lo if 0 <= i < tc.cell_pos.size else -1
+        if 0 <= p < m:  # 自分の行だけ外す(= 旧 ``peers[peers != i]``・順序は保たれる)
+            peers = np.delete(ids_full, p)
+            d2 = np.delete(d2_full, p)
+        else:  # 自分がこの tick のセル索引に居ない(旧実装でも素通り)
+            peers, d2 = ids_full, d2_full
         if peers.size == 0:
             return []
         los = int(tc.los_stage[cell])
         k = 3 if los <= 1 else (2 if los <= 3 else 1)  # 疎3/中2/密1(境界は expedient)
-        xy = np.asarray(a.xy, dtype=np.float64)
-        d2 = ((xy[peers] - xy[i]) ** 2).sum(axis=1)
         take = min(k, peers.size)
         sel = peers[np.argpartition(d2, take - 1)[:take]] if peers.size > take else peers
-        friends = set(int(x) for x in self.acquaintances.get(i, ()))
-        chosen = sorted(set(int(x) for x in sel) | (friends & set(int(x) for x in peers)))
-        dist = {int(pj): float(np.sqrt(d2[t])) for t, pj in enumerate(peers)}
+        friends, friend_ids = self._acquaintances_of(i)
+        chosen_set = {int(x) for x in sel}
+        if friend_ids.size:  # 知人常掲(§3 人物④)= 同セルの知人を足す(知人数ぶん)
+            pf = tc.cell_pos[friend_ids]
+            chosen_set |= {
+                int(x) for x in friend_ids[(pf >= lo) & (pf < hi) & (friend_ids != i)]
+            }
+        chosen = sorted(chosen_set)
+        q = tc.cell_pos[np.asarray(chosen, dtype=np.int64)] - lo
+        if 0 <= p < m:
+            q = q - (q > p)  # 自分の行を外したぶん詰める
+        dist = np.sqrt(d2[q])  # 採った数件だけ sqrt(旧: セル在席者ぶんの辞書)
         return [
             (
                 f"{person_word(j)}({'知人' if j in friends else '未知'})",
-                max(dist.get(int(j), ch.RANKING_PRIORS["B5.near_person"].distance_m), 0.1),
+                max(float(dv), 0.1),
             )
-            for j in chosen
+            for j, dv in zip(chosen, dist)
         ]
+
+    def _acquaintances_of(self, i: int) -> tuple[frozenset[int], np.ndarray]:
+        """個体 → (知人の集合, 知人 id の配列)。**1 度作って使い回す**(C7)。
+
+        知人表は ``Renderer`` の構築時に固定される(§3 人物④「知人は常に掲載」)ので、
+        毎呼 ``set(...)`` を組み直す必要がない。範囲外の id はここで落とす
+        (旧実装では同セル集合との積で自然に落ちていた)。
+        """
+        got = self._acq_cache.get(i)
+        if got is None:
+            names = frozenset(int(x) for x in self.acquaintances.get(i, ()))
+            arr = np.fromiter(sorted(names), dtype=np.int64, count=len(names))
+            n = int(self.agents.n)
+            if arr.size:
+                arr = arr[(arr >= 0) & (arr < n)]
+            got = (names, arr)
+            self._acq_cache[i] = got
+        return got
 
     # ---------------------------------------------------------- ablation ①(単一ランキング)
     def _rank_items(
@@ -1513,8 +1577,11 @@ def _cell_index(cell: np.ndarray, n_cells: int) -> dict[str, np.ndarray]:
     order = np.argsort(c, kind="stable")
     sorted_c = c[order]
     idx = np.arange(n_cells, dtype=np.int64)
+    pos = np.empty(order.size, dtype=np.int64)  # 逆置換: 個体 → order 上の位置(C7)
+    pos[order] = np.arange(order.size, dtype=np.int64)
     return {
         "cell_order": order,
         "cell_start": np.searchsorted(sorted_c, idx, side="left"),
         "cell_end": np.searchsorted(sorted_c, idx, side="right"),
+        "cell_pos": pos,
     }

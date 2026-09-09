@@ -227,6 +227,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--world", type=str, default="data/world/v2")
     ap.add_argument("--cells", type=int, default=139, help="合成世界のセル数")
     ap.add_argument("--ticks", type=int, default=MINUTES_PER_SIM_DAY)
+    ap.add_argument("--occupancy-every", type=int, default=0, help="在圏 journal の記録間隔[tick](0=書かない・C7 受入計器の入力・毎正時なら 60)")
+    ap.add_argument("--occupancy-out", type=str, default="", help="在圏 journal の出力 .npz")
     ap.add_argument("--checkpoint-every", type=int, default=360)
     ap.add_argument(
         "--store-capital",
@@ -267,6 +269,8 @@ def main(argv: list[str] | None = None) -> int:
         fleet=fleet_from_args(args, ap),
         fleet_wait_s=float(getattr(args, "fleet_wait_s", 0.0)),
         fleet_debug_dir=getattr(args, "fleet_debug_dir", "") or None,
+        occupancy_every=int(getattr(args, "occupancy_every", 0) or 0),
+        occupancy_path=getattr(args, "occupancy_out", "") or None,
         tape_path=args.tape or None,
     )
     print(res.summary())
