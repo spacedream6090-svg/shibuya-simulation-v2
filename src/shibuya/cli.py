@@ -40,7 +40,13 @@ from shibuya.economy import census as CS
 from shibuya.economy import entry_capital as EC
 from shibuya.economy.accounts import BalanceLine, Sector
 from shibuya.engine.ledger_api import LedgerBundle
-from shibuya.engine.run import MINUTES_PER_SIM_DAY, RunResult, run_day
+from shibuya.engine.run import (
+    MINUTES_PER_SIM_DAY,
+    RunResult,
+    add_fleet_args,
+    fleet_from_args,
+    run_day,
+)
 from shibuya.world.assets import hash_free_cat_code
 from shibuya.world.state import World
 
@@ -232,10 +238,20 @@ def main(argv: list[str] | None = None) -> int:
     )
     ap.add_argument("--ablate", action="append", default=[], help="無効化する過程 id / AB-* id")
     ap.add_argument(
+        "--budget-mode",
+        choices=("fixed", "ranking"),
+        default="fixed",
+        help="知覚のトークン配分(知覚契約書 §3.2 ablation ①)。fixed=チャネル固定枠(既定)/"
+             "ranking=同一総トークンの単一ランキング",
+    )
+    ap.add_argument(
         "--no-population",
         action="store_true",
         help="W16 母集団を使わず合成個体で回す(下限対照・世帯財布も mock のまま)",
     )
+    # --llm / --endpoints / --model / --mode / --run-id / --tape / --temperature /
+    # --max-tokens / --fleet-wait-s(C6-a)
+    add_fleet_args(ap)
     args = ap.parse_args(argv)
     res = run(
         n_agents=args.agents,
@@ -247,8 +263,44 @@ def main(argv: list[str] | None = None) -> int:
         store_capital_yen=args.store_capital,
         use_population=not args.no_population,
         processes_disabled=args.ablate or None,
+        budget_mode=args.budget_mode,
+        fleet=fleet_from_args(args, ap),
+        fleet_wait_s=float(getattr(args, "fleet_wait_s", 0.0)),
+        fleet_debug_dir=getattr(args, "fleet_debug_dir", "") or None,
+        tape_path=args.tape or None,
     )
     print(res.summary())
+    if res.fleet_fields:
+        c = res.bridge_counters
+        dec = res.fleet_fields.get("decoding", {}).get("T1", {})
+        print(
+            f"[艦隊] 呼 {int(c.get('fleet_calls', 0)):,} / 帳尻 {int(c.get('fleet_accounted', 0)):,}"
+            f" ・繰り延べ {int(c.get('fleet_deferred_timeout', 0) + c.get('fleet_deferred_queue_full', 0)):,}"
+            f"(再投入 {int(c.get('fleet_reinjected', 0)):,}・再送 {int(c.get('fleet_resent', 0)):,})"
+            f" ・TTFT p50/p99 {c.get('fleet_ttft_p50', 0.0):.2f}/{c.get('fleet_ttft_p99', 0.0):.2f}s"
+            f" ・e2e p50/p99 {c.get('fleet_e2e_p50', 0.0):.2f}/{c.get('fleet_e2e_p99', 0.0):.2f}s"
+            f" ・temp {dec.get('temperature', 0.0)} max_tok {dec.get('max_tokens', 0)}"
+            f" ・cache_salt {res.fleet_fields.get('cache_salt', '')[:16]}…"
+            f"({res.fleet_fields.get('mode', '')})"
+        )
+        print(
+            f"[艦隊書式] エラー率 実効 {res.parse_error_rate:.3f} / 厳密 "
+            f"{res.parse_error_rate_strict:.3f} (受入 ≤0.10) ・別名 "
+            f"{res.label_alias_rate:.3f}({int(c.get('fleet_label_alias_used', 0)):,} 呼)"
+            f" ・位置読み {res.positional_rate:.3f}"
+            f"({int(c.get('fleet_positional_used', 0)):,} 呼)"
+            f" ・辞書写像 {res.dictionary_mapped_rate:.3f}"
+            f"({int(c.get('fleet_dictionary_mapped', 0)):,} 呼)"
+            f" ・温度0再生成 {int(c.get('fleet_format_retry', 0)):,}"
+            f"(成功 {int(c.get('fleet_format_retry_ok', 0)):,})"
+            f" ・未定義 {int(c.get('unknown_action', 0)):,}"
+        )
+        if c.get("fleet_debug_rows", 0):
+            print(
+                f"[艦隊書式デバッグ] {int(c['fleet_debug_rows']):,} 行"
+                f"(上限超過で未記録 {int(c.get('fleet_debug_skipped', 0)):,}) → "
+                f"{args.fleet_debug_dir}/format_debug.jsonl"
+            )
     led = getattr(res, "ledger", None)
     money = getattr(led, "money", None) if led is not None else None
     if money is not None:

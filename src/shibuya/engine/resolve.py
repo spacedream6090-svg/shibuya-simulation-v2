@@ -81,6 +81,7 @@ from shibuya.world.state import World
 
 __all__ = [
     "revert_conversation",
+    "set_conversing",
     "BODY_TICK_PERIOD",
     "REST_FATIGUE_RELIEF",
     "BUY_HUNGER_RELIEF",
@@ -90,6 +91,7 @@ __all__ = [
     "apply_detection",
     "apply",
     "set_refractory",
+    "clear_refractory",
     "advance_body",
     "restock",
     "discard_to_bin",
@@ -160,6 +162,11 @@ class ResolveOutcome:
     per_result: dict[int, int] = field(default_factory=dict)
     #: 移動+密度更新の壁時計[秒](予算行 P2)。
     movement_seconds: float = 0.0
+    #: 「位置確定+密度」区間の**このスレッドの CPU 時間**[秒](``time.thread_time``)。
+    #: ``movement_seconds``(壁時計)との差=**GIL 待ち/デスケジュール**。艦隊ランで
+    #: P2(≤5 ms/フレーム)を割ったとき、仕事が増えたのか待たされたのかを 1 本で切り分ける
+    #: (実装計画書 §4「httpx イベントループと numba 計算の干渉。出たら別プロセスへ」の測定点)。
+    movement_cpu_seconds: float = 0.0
     #: この tick で使う台帳(``apply`` が入れる**呼びごとの文脈**。行動語の適用関数へ
     #: 引数を1本増やさずに渡すための欄=注入点は ``apply(..., ledger=...)`` の1か所だけ)。
     ledger: LedgerBundle | None = None
@@ -271,6 +278,30 @@ def set_refractory(agents: AgentState, agent_id, condition, tick: int) -> None:
         np.maximum.at(cur, (a, c), until)
 
 
+def clear_refractory(agents: AgentState, agent_id, condition) -> None:
+    """呼んだ個体×条件の不応期タイマーを**戻す**(艦隊の繰り延べ=「呼が成立しなかった」)。
+
+    正典
+    - 憲法1(打ち切り禁止)+実装計画書 §7「タイムアウト/キュー満杯=**繰り延べ**(破棄禁止)」。
+      不応期は「**呼んだ**から次はしばらく呼ばない」という節約規則(知覚契約書 §6 運用規定②)で
+      あって、「答えが返らなかった呼」に対する抑止ではない。答えが返らなかった呼を次 tick へ
+      再投入するとき不応期が立ったままだと ``suppressed`` に落ちて**呼が消える**。
+
+    expedient(自前規約)
+    - 戻し方は ``refractory_until[agent, condition] = 0``(=どの tick でも起床可)。
+      ``set_refractory`` は ``np.maximum.at`` で伸ばすだけなので、同じ (個体, 条件) に別の
+      呼が張った不応期があってもここで一緒に消える。実運用では「その (個体, 条件) の最後の呼
+      =いま繰り延べになった呼」なので実害はないが、**一般には過剰に戻す**ことを明記する。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    c = np.asarray(condition, dtype=np.int64)
+    with agents.writable():
+        _require_thawed(agents)
+        agents.registry.refractory_until[a, c] = 0
+
+
 # ---------------------------------------------------------------- 身体の自然変動
 def advance_body(agents: AgentState, tick: int) -> None:
     """内受容 3 変数の自然変動(**C4 の世界過程が入るまでの駆動源**・expedient)。"""
@@ -364,6 +395,7 @@ def apply(
 
         # ---- 位置の確定と密度(予算行 P2 の測定対象) ----
         t0 = time.perf_counter()
+        c0 = time.thread_time()
         node = r.node.astype(np.int64)
         valid = node >= 0
         new_cell = np.where(valid, world.assets.node_cell[np.maximum(node, 0)], -1)
@@ -374,6 +406,7 @@ def apply(
         world.cells.density_stage[:] = world.density_stage()
         world.cells.open_count[:] = world.open_count_per_cell(tick)
         out.movement_seconds = time.perf_counter() - t0
+        out.movement_cpu_seconds = time.thread_time() - c0
     return out
 
 
@@ -673,16 +706,48 @@ def revert_conversation(agents, agent_ids: np.ndarray) -> None:
         r.talk_partner[ids] = -1
 
 
+def set_conversing(agents: AgentState, inviters, invitees) -> None:
+    """会話成立時に**両側**を CONVERSING にする(C6・09-09)。
+
+    C3/C4 は招待側だけを CONVERSING にしていた(被招待側の離脱をセルで検出する回避策)。
+    C6 で被招待側が**自分の呼で承諾する**ようになったので、成立した時点で両側を
+    セッション参加状態にする(行動契約書 §3「終了はエンジン」=両側の解放も
+    ``engine.run`` の ``conv.step`` が行う)。世界状態への書き込みは resolve のみ。
+    """
+    a = np.asarray(inviters, dtype=np.int64)
+    b = np.asarray(invitees, dtype=np.int64)
+    if a.size == 0:
+        return
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        r.activity[a] = int(Activity.CONVERSING)
+        r.activity[b] = int(Activity.CONVERSING)
+        r.talk_partner[a] = b.astype(np.int32)
+        r.talk_partner[b] = a.astype(np.int32)
+
+
+#: 声をかけられない相手の状態(C6・09-09)。
+#: **会話中**=行動契約書 §2.1 の失敗「相手が会話中」(``PARTNER_BUSY``)。
+#: **就寝中**=声をかけても応答できない(起床(ii) の被招待で起こす対象にしない)。
+#: C3 は「相手が **IDLE** であること」を要求していたが、それだと移動中・待機中・
+#: 買い物中の相手に声をかけられず、C6 の 1 日ランで会話が 1 件も成立しなかった
+#: (**expedient**: 「話しかけられる状態」の正典は無い。ablation 対象)。
+_UNADDRESSABLE: Final[tuple[int, ...]] = (int(Activity.CONVERSING), int(Activity.SLEEPING))
+
+
 def _apply_talk(agents, world, aid, tgt, tick, out, schedule) -> None:
-    """会話: 同一セル・相手 idle・自分でない → セッション生成(C2 は**記録だけ**)。"""
+    """会話: 同一セル・相手が応答可能・自分でない → 招待成立(成否は被招待の呼が決める)。"""
     r = agents.registry
     has = (tgt >= 0) & (tgt < agents.n) & (tgt != aid)
     partner = np.clip(tgt, 0, max(0, agents.n - 1))
     same_cell = has & (r.cell[aid] == r.cell[partner]) & (r.cell[aid] >= 0)
-    idle = same_cell & (r.activity[partner] == int(Activity.IDLE))
+    pact = r.activity[partner]
+    addressable = same_cell & ~np.isin(pact, _UNADDRESSABLE)
+    idle = addressable
     _fail(agents, aid[~has], ResultCode.BAD_TARGET, tick, out)
     _fail(agents, aid[has & ~same_cell], ResultCode.PARTNER_GONE, tick, out)
-    _fail(agents, aid[same_cell & ~idle], ResultCode.PARTNER_BUSY, tick, out)
+    _fail(agents, aid[same_cell & ~addressable], ResultCode.PARTNER_BUSY, tick, out)
     win = np.flatnonzero(idle)
     if win.size == 0:
         return

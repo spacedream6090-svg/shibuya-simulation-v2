@@ -87,8 +87,17 @@ from shibuya.engine.llm_bridge import (
     delta_think_ticks,
 )
 from shibuya.engine.scheduler import DIAG_COLUMNS
-from shibuya.engine.tape import TapeWriter
+from shibuya.engine.tape import TapeRow, TapeWriter
+from shibuya.llm.contract import TargetKind
+from shibuya.llm.fleet import (
+    Deferred as FleetDeferred,
+    FleetBridge,
+    FleetClient,
+    LLMCall,
+    split_system_user,
+)
 from shibuya.llm.mock import MockLLM
+from shibuya.perception.channels import BudgetMode
 from shibuya.perception.renderer import (
     DEFAULT_START_DATETIME,
     PerceptionAssets,
@@ -105,6 +114,8 @@ __all__ = [
     "RunResult",
     "run_salt_for",
     "run_day",
+    "add_fleet_args",
+    "fleet_from_args",
     "main",
 ]
 
@@ -112,6 +123,10 @@ __all__ = [
 DELTA_THINK_TICKS: Final[int] = delta_think_ticks(DEFAULT_LANE, DEFAULT_TICK_SECONDS)
 
 #: 診断表の列(``DIAG_COLUMNS`` の 4 列 + 運用列)。
+#: 艦隊の順序制御グループ「時間帯」の刻み[tick](知覚契約書 §2.4 ⑨「時刻表記は5分丸め」)。
+#: 同一(セル, 5分帯)の呼は同時に発射し、同一 GPU に寄せない(実装計画書 §7・BN-4)。
+TIME_BUCKET_TICKS: Final[int] = 5
+
 DIAG_RUN_COLUMNS: Final[tuple[str, ...]] = (
     "tick",
     *DIAG_COLUMNS,
@@ -200,6 +215,8 @@ class RunResult:
     renderer_counters: dict[str, float] = field(default_factory=dict)
     #: 使ったレンダラの名前(``perception.Renderer`` / ``StubRenderer`` / 注入クラス名)。
     renderer_name: str = ""
+    #: 知覚のトークン配分(知覚契約書 §3.2 の義務 ablation ①)。``fixed_slots`` / ``single_ranking``。
+    budget_mode: str = BudgetMode.FIXED_SLOTS.value
     #: 凍結静的文の版(W14/W15 の parquet: ファイル名→sha256)。凍結文なしのランは空(層2 指摘 09-09)。
     frozen_sources: dict[str, str] = field(default_factory=dict)
     #: 録画テープの置き場(記録したときだけ)。
@@ -249,6 +266,14 @@ class RunResult:
     #: その日の廃棄 sink[t/日](物の台帳 + 街路清掃)と W1 band。
     waste_tonnes_per_day: float = 0.0
     waste_band: tuple[float, float] = (0.0, 0.0)
+    # ---- C6-a 実艦隊 ----
+    #: ``llm.fleet.FleetConfig.manifest_fields()``(``cache_salt``・``prefix_caching_hash_algo``・
+    #: ルーティング規則・in-flight 上限)。**ランが導出して押す**(親決定 09-09)。
+    fleet_fields: dict[str, Any] = field(default_factory=dict)
+    #: ラン終端の ``drain`` で拾った件数(=最後の tick 以降に届いた応答)。
+    fleet_drained_at_end: int = 0
+    #: ラン終端でも答えが返らなかった呼(**次ランへ持ち越す=破棄しない**の監査点)。
+    fleet_unanswered_at_end: int = 0
 
     # ---- 便利参照 ----
     def column(self, name: str) -> np.ndarray:
@@ -256,10 +281,46 @@ class RunResult:
 
     @property
     def parse_error_rate(self) -> float:
-        """書式エラー率(``format_ok`` が偽だった呼の割合)。MockLLM なら 0.0。"""
+        """**実効**書式エラー率(``format_ok`` が偽だった呼の割合)。MockLLM なら 0.0。
+
+        C6(09-09)で ``llm.parser`` にラベル別名(「目的地:」「目的:」等)の許容が入った。
+        本欄は**別名を許容した後**の率=世界に実際に届いた intent の書式健全性。
+        受入指標の定義を動かさない側は ``parse_error_rate_strict``。
+        """
         calls = int(self.column("calls").sum()) if self.diagnostics.size else 0
         errs = int(self.column("parse_errors").sum()) if self.diagnostics.size else 0
         return (errs / calls) if calls else 0.0
+
+    @property
+    def parse_error_rate_strict(self) -> float:
+        """**厳密**書式エラー率(C6 以前の別名表だけで見た判定=B11 と同じ物差し)。
+
+        知覚契約書 §2 卒業条件表の「書式エラー率 ≤0.10」は**この物差しで定義された**ので、
+        受入判定は実効を主・厳密を併記で読む(親判断 D-28・PENDING)。
+        """
+        c = self.bridge_counters
+        return float(c.get("parse_error_rate_strict", c.get("parse_error_rate", 0.0)))
+
+    @property
+    def label_alias_rate(self) -> float:
+        """C6 ラベル別名で読めた応答の割合(別名許容が実際に効いた量)。"""
+        return float(self.bridge_counters.get("label_alias_rate", 0.0)) or float(
+            self.bridge_counters.get("fleet_label_alias_rate", 0.0)
+        )
+
+    @property
+    def positional_rate(self) -> float:
+        """ラベルを省いた並びを**位置**で読んだ応答の割合(``positional_used``)。"""
+        return float(self.bridge_counters.get("positional_rate", 0.0)) or float(
+            self.bridge_counters.get("fleet_positional_rate", 0.0)
+        )
+
+    @property
+    def dictionary_mapped_rate(self) -> float:
+        """語彙外の行動語を §7 段0 の辞書写像で救えた割合。"""
+        return float(self.bridge_counters.get("dictionary_mapped_rate", 0.0)) or float(
+            self.bridge_counters.get("fleet_dictionary_mapped_rate", 0.0)
+        )
 
     @property
     def tape_miss_count(self) -> int:
@@ -300,6 +361,7 @@ class RunResult:
         Returns:
             ``registry_hash``(世界側台帳)・``replay_date``(D-W15 の実日)・
             ``template_sha256``(知覚テンプレ v1 の凍結ハッシュ)・
+            ``budget_mode``(知覚契約書 §3.2 ablation ① の腕)・
             ``catalog_sha16``(世界カタログ v0.2 の凍結 SHA)・
             ``process_ids``(実際に回した過程 id の昇順)・``ablations``(切った過程/感度試験 id)。
         """
@@ -325,10 +387,13 @@ class RunResult:
             "registry_hash": self.registry_hash,
             "replay_date": self.replay_date,
             "template_sha256": _T.template_sha256(),
+            "budget_mode": self.budget_mode,
             "catalog_sha16": catalog_sha16,
             "process_ids": process_ids,
             "ablations": ablations,
             "frozen_sources": dict(self.frozen_sources),
+            # 実艦隊(C6-a)。mock/tape ランでは空 dict(欄は常にある)。
+            "fleet": dict(self.fleet_fields),
         }
 
     @property
@@ -341,10 +406,48 @@ class RunResult:
         """
         return self.money_start == self.money_end + self.revenue_end + self.fares_paid
 
+    #: ``phase_seconds`` を要約行に出す順(大きい順ではなく **tick の骨格の順**)。
+    PHASE_ORDER: tuple[str, ...] = (
+        "phase_a", "detect", "fleet_wait", "llm", "arbiter", "phase_b", "phase_c",
+        "movement", "checkpoint",
+    )  # ``movement_cpu`` は壁時計の内訳ではないので別行(下の summary)に出す
+
+    def phase_breakdown(self) -> str:
+        """位相別の壁時計[ms/tick](P2 の切り分け=どこに時間が入ったか)。
+
+        ``fleet_wait`` は ``--fleet-wait-s`` の待ちで、``llm``(描画+発射+到着処理)とは
+        別に数える。``movement`` は ``resolve`` の「位置確定+密度」区間(予算行 P2)。
+        """
+        n = max(1, self.ticks)
+        parts = [
+            f"{k} {self.phase_seconds.get(k, 0.0) / n * 1000.0:.2f}"
+            for k in self.PHASE_ORDER
+            if self.phase_seconds.get(k, 0.0) > 0.0
+        ]
+        return " / ".join(parts) + f" / 合計 {self.wall_seconds / n * 1000.0:.2f}"
+
     @property
     def movement_ms_per_tick(self) -> float:
-        """予算行 P2(移動+密度更新)の実測[ms/tick]。"""
+        """予算行 P2(移動+密度更新)の実測[ms/tick]。**壁時計**。"""
         return self.phase_seconds.get("movement", 0.0) / max(1, self.ticks) * 1_000.0
+
+    @property
+    def movement_cpu_ms_per_tick(self) -> float:
+        """同区間の**スレッド CPU 時間**[ms/tick](``time.thread_time``)。
+
+        ``movement_ms_per_tick`` との差が大きい = **仕事が増えたのではなく待たされた**
+        (艦隊クライアントの asyncio スレッドとの GIL 競合)。実装計画書 §4 の
+        「httpx イベントループと計算の干渉が出たら LLM クライアントを別プロセスへ」の判定材料。
+        """
+        return self.phase_seconds.get("movement_cpu", 0.0) / max(1, self.ticks) * 1_000.0
+
+    @property
+    def movement_gil_wait_ratio(self) -> float:
+        """movement 区間の「待ち」割合 = 1 − CPU/壁時計(0 なら純粋に計算だけ)。"""
+        wall = self.phase_seconds.get("movement", 0.0)
+        if wall <= 0.0:
+            return 0.0
+        return max(0.0, 1.0 - self.phase_seconds.get("movement_cpu", 0.0) / wall)
 
     def summary(self) -> str:
         calls = self.column("calls").sum() if self.diagnostics.size else 0
@@ -355,12 +458,20 @@ class RunResult:
             f"移動+密度 {self.movement_ms_per_tick:.3f} ms/tick (P2 上限 5 ms)",
             f"  LLM呼 {int(calls):,} = {calls / max(1, self.n_agents):.2f} 呼/体/日 "
             f"(L4 制御目標 10)",
+            f"  書式エラー率 実効 {self.parse_error_rate:.3f} / 厳密 "
+            f"{self.parse_error_rate_strict:.3f} (受入 ≤0.10) ・別名 "
+            f"{self.label_alias_rate:.3f} ・位置読み {self.positional_rate:.3f}"
+            f" ・辞書写像 {self.dictionary_mapped_rate:.3f}",
             f"  保存則 Σmoney {self.money_end:,} + Σrevenue {self.revenue_end:,} "
             f"+ Σ運賃 {self.fares_paid:,} "
             f"= {self.money_end + self.revenue_end + self.fares_paid:,} "
             f"(初期 {self.money_start:,}) "
             f"{'OK' if self.conserved else 'NG'} / 最小在庫 {self.min_stock}",
             f"  checkpoint {len(self.checkpoints)} 点 最終 {self.final_hash[:16]}…",
+            "  内訳[ms/tick] " + self.phase_breakdown(),
+            f"  movement 壁 {self.movement_ms_per_tick:.3f} / CPU "
+            f"{self.movement_cpu_ms_per_tick:.3f} ms/tick (P2 上限 5) ・待ち割合 "
+            f"{self.movement_gil_wait_ratio:.2f}",
         ]
         if self.frozen_sources:
             lines.append("  凍結静的文 " + " ".join(f"{k}={v[:16]}" for k, v in sorted(self.frozen_sources.items())))
@@ -504,6 +615,87 @@ def _schedule_with_population(schedule, pop: "Population", n_cells: int):
     )
 
 
+def _settle_pending_invites(conv, agents, tick, agent_ids, codes, named, R, np) -> set[int]:
+    """返事待ちの招待を**Phase C の前に**確定する(層2 中-1・09-09)。
+
+    正典
+    - 行動契約書 §1-2 対象スロット: 承諾は「行動: 会話 **対象: 招待者**」。
+    - 同 §6「直前の結果」: 承諾を intent のまま Phase C へ流すと、招待者は待ちで
+      CONVERSING なので ``resolve._apply_talk`` が ``PARTNER_BUSY`` を書き、被招待の
+      B6 に**偽の失敗**が載る(層2 再現: 51 セッション中 45 件)。ここで消費して防ぐ。
+
+    承諾の規則(中-2・**expedient**: 契約書に承諾の対象規則は無い)
+      - 返事が **会話** かつ 対象が **招待者 A**(または **名指しなし**)→ **承諾**。
+      - 返事が 会話 でも 対象が **第三者 C** → A へは**拒否**。B の行は intent に残し、
+        C への新しい招待として通す。
+      - それ以外の行動 → 拒否。
+
+    Returns:
+        **intent から外す**個体(=承諾した被招待。承諾は新しい招待ではない)。
+    """
+    if conv is None or not conv.pending_invites:
+        return set()
+    cell = agents.registry.cell
+    consumed: set[int] = set()
+    accepted: list[tuple[int, int]] = []
+    reverted: list[int] = []
+    # 逐次ループ宣言: この tick に応答した個体のうち返事待ちの数ぶん(≤ 1 tick の呼数)。
+    for k in range(int(agent_ids.size)):
+        b = int(agent_ids[k])
+        if b not in conv.pending_invites:
+            continue
+        a = conv.pending_inviter_of(b)
+        same_cell = bool(a >= 0 and cell[a] == cell[b] and cell[b] >= 0)
+        aimed_at_inviter = int(named[k]) in (a, -1)
+        ok = bool(codes[k] == C.ACT_TALK) and aimed_at_inviter and same_cell
+        opened = conv.resolve_pending(b, tick, accepted=ok)
+        if opened is not None:
+            accepted.append((a, b))
+            consumed.add(b)  # 承諾は新しい招待ではない=intent から外す
+        elif a >= 0 and not conv.is_busy(a):
+            reverted.append(a)
+    if accepted:
+        R.set_conversing(
+            agents,
+            np.array([x for x, _ in accepted], dtype=np.int64),
+            np.array([y for _, y in accepted], dtype=np.int64),
+        )
+    if reverted:
+        R.revert_conversation(agents, np.array(sorted(set(reverted)), dtype=np.int64))
+    return consumed
+
+
+def _inviter_of(conv: Any, agent_id: int, condition: int = -1) -> int:
+    """**返事待ちの招待**があれば招待者の個体 id、無ければ -1(知覚契約書 §6 起床(ii))。
+
+    起床条件では絞らない(``condition`` は診断用に受けるだけ)。``_settle_pending_invites``
+    は**その tick に答えた全員**の中から返事待ちを拾うので、被招待が別の条件
+    (一般活動など)で起きた呼も承諾/拒否として消費される。会話ターン起床に限ると
+    その分の呼に招待者が載らず、**答えようがないのに拒否と数えられる**(実測: 200体600tick で
+    招待文が載った呼は 4 件しかなかった)。
+
+    会話ターン起床には「セッションの話者」と「返事待ちの被招待」の 2 種類が同じ
+    ``WakeCondition.CONVERSATION_TURN`` で来る(``conversation.wake_candidates``)が、
+    話者には返事待ちが無いので ``pending_inviter_of`` が -1 を返して切り分けになる。
+    """
+    if conv is None:
+        return -1
+    return int(conv.pending_inviter_of(int(agent_id)))
+
+
+def _target_person(target: Any) -> int:
+    """``llm.contract.Target`` → 個体 id(``P-nnn`` 以外は ``-1``)。
+
+    行動契約書 §1-2 の「対象: <セルID|物カテゴリ|**個体ID**>」を会話の相手として使う
+    (C6・09-09)。パーサは素の整数も PERSON と読むので、そのまま個体 id にする。
+    """
+    kind = getattr(target, "kind", None)
+    if kind is None or int(kind) != int(TargetKind.PERSON):
+        return -1
+    pid = getattr(target, "person_id", None)
+    return -1 if pid is None else int(pid)
+
+
 def run_day(
     n_agents: int = 5_000,
     seed: int | str = 1,
@@ -512,6 +704,9 @@ def run_day(
     tick_seconds: int = DEFAULT_TICK_SECONDS,
     ticks: int = MINUTES_PER_SIM_DAY,
     llm: Any | None = None,
+    fleet: "FleetClient | None" = None,
+    fleet_wait_s: float = 0.0,
+    fleet_debug_dir: str | Path | None = None,
     checkpoint_every: int = 360,
     day_index: int = 0,
     budget: float | None = None,
@@ -528,6 +723,7 @@ def run_day(
     processes_enabled: "list[str] | tuple[str, ...] | None" = None,
     processes_disabled: "list[str] | tuple[str, ...] | None" = None,
     p_notice_ablation: str | int = "A4",
+    budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
     salient_rate_per_10k: float | None = None,
     population: "Population | bool | None" = None,
 ) -> RunResult:
@@ -540,6 +736,20 @@ def run_day(
         tick_seconds: 1 tick の秒数。
         ticks: tick 数。
         llm: ``LLMClient``(None なら ``MockLLM(seed)``)。
+        fleet: 実 vLLM 艦隊(``llm.fleet.FleetClient``)。**渡すと LLM 経路が非同期になる**:
+            ④ で 1 tick 分をまとめて発射(非ブロッキング)し、④′ で届いた分を拾う。
+            繰り延べ(タイムアウト・キュー満杯・接続エラー枯渇)は**次 tick の起床候補へ
+            再投入**する(不応期は免除=``resolve.clear_refractory``)。``None`` なら従来の
+            同期 1 呼経路(``llm``=mock/tape)で、**挙動は 1 バイトも変わらない**。
+        fleet_wait_s: ④′ で未応答が残っているとき**最大この秒数だけ待つ**。既定 0.0=
+            純非ブロッキング。本番(予算行 W1: 1 シミュ日 ≤24 h ⇒ 1 tick ≈ 37 秒の壁時計)
+            では LLM の往復(数秒)が 1 tick の壁時計に収まるので 0 でよい。**スモークや
+            テストのようにエンジンが LLM より桁違いに速いラン**では、0 のままだと応答が
+            全部ラン終端に届き δ_think の契約(``t_apply``=起床+δ_perc+δ_think)が
+            観測できないので、ここで艦隊に歩調を合わせる(**expedient**・本番経路は変えない)。
+        fleet_debug_dir: 書式の原因分析用 jsonl の置き場(``None``=off が既定)。初回パースが
+            落ちた呼だけ {プロンプト・初回の生応答・再生成の生応答・実効/厳密の判定・理由} を
+            1 行 1 呼で落とす。**テープ形式は変えない**(テープは最終応答 1 行のまま)。
         checkpoint_every: checkpoint 間隔[tick]。
         day_index: 曜日(0=月曜)。
         budget: 1 tick の呼数上限(None なら L4 按分)。
@@ -561,6 +771,10 @@ def run_day(
             混雑場だけが動き、他の過程は「休む」。
         processes_enabled / processes_disabled: 過程 id か感度試験 id(``AB-*``)で
             過程単位に切る(ablation)。
+        budget_mode: 知覚契約書 §3.2 の**義務 ablation ①**「チャネル固定枠 vs 同一総トークンの
+            単一ランキング」の腕。``"fixed"``(既定=現行の描画・1 バイトも変わらない)/
+            ``"ranking"``(チャネル別の上限表を使わず群予算だけを守る)。
+            ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
         p_notice_ablation: 顕著行為の到達 ``p_notice`` の ablation(知覚契約書 §3.1 の
             ``A0``-``A4``。既定 ``A4``=完成形)。``processes_enabled`` に
             ``AB-PNOTICE-A2`` のように書いても効く。
@@ -576,6 +790,7 @@ def run_day(
         ``RunResult``。
     """
     t_start = time.perf_counter()
+    budget_mode_enum = BudgetMode.parse(budget_mode)
     world = world if world is not None else World.synthetic(n_cells=n_cells, seed=seed)
     llm = llm if llm is not None else MockLLM(master_seed=seed)
     salt = run_salt_for(seed)
@@ -626,6 +841,7 @@ def run_day(
                 world, agents, assets,
                 clock_fn=lambda t: start + timedelta(minutes=int(t)),
                 seed=seed,
+                budget_mode=budget_mode_enum,
             )
         )
         renderer_obj: Any = perception
@@ -651,6 +867,28 @@ def run_day(
         tick_seconds=tick_seconds,
         params={"max_tokens": 64, "temperature": 0.0},
     )
+
+    # ---- 実艦隊(C6-a)。テープ・未定義行動台帳・デコード設定は bridge と**同じものを共有** ----
+    # ``params``(=テープ列 ``params_hash``)は**艦隊の実デコード設定**から作る
+    # (``FleetBridge`` の既定)。mock の {max_tokens:64, temperature:0.0} を引きずらない。
+    fleet_bridge = (
+        FleetBridge(
+            fleet,
+            tape=tape_writer,
+            tape_row_factory=TapeRow,
+            undefined=bridge.undefined,
+            debug_dir=fleet_debug_dir,
+        )
+        if fleet is not None
+        else None
+    )
+    #: 艦隊で繰り延べになった呼 ``(agent, condition, class_rank, since_tick)``。
+    #: 次 tick の起床候補へ**そのまま再投入**する(破棄禁止=憲法1)。
+    fleet_deferred: list[tuple[int, int, int, int]] = []
+    n_fleet_reinjected = 0
+    n_fleet_resent = 0
+    #: 繰り延べ中の個体(再送を数えるためだけの集合。呼数 L4 は**発射数**で数える)。
+    fleet_waiting: set[int] = set()
 
     detector = ChangeDetector(n_agents, world.n_cells, walkable_area_m2=walkable)
     arbiter = Arbiter(
@@ -690,11 +928,18 @@ def run_day(
         mode=mode,
     )
     result.money_start = int(agents.registry.money.astype(np.int64).sum())
-    phase = {k: 0.0 for k in ("detect", "arbiter", "llm", "phase_a", "phase_b", "phase_c",
-                              "movement", "checkpoint")}
+    # ``fleet_wait`` は ``--fleet-wait-s`` の待ち(``llm`` から分離して数える=P2 の切り分け用)。
+    # ``movement_cpu`` は movement 区間の**スレッド CPU 時間**(壁時計との差=GIL 待ち)。
+    phase = {k: 0.0 for k in ("detect", "arbiter", "llm", "fleet_wait", "phase_a", "phase_b",
+                              "phase_c", "movement", "movement_cpu", "checkpoint")}
     diag_rows: list[tuple[int, ...]] = []
-    # (t_apply, class, agent, condition, text, action_code)
-    pending: list[tuple[int, int, int, int, str, int]] = []
+    # (t_apply, class, agent, condition, text, action_code, target_person)
+    # ``target_person`` = LLM が「対象」欄に書いた個体 id(-1=名指しなし・C6 09-09)。
+    pending: list[tuple[int, int, int, int, str, int, int]] = []
+    #: この tick に応答を適用した個体 → 行動コード(会話の被招待の返事を読むのに使う)。
+    applied_now: dict[int, int] = {}
+    #: 会話の相手の由来(``conv_*`` 診断行の素材)。
+    talk_stats: dict[str, int] = {}
     prev_tape_misses = 0
     prev_sessions = 0
     peak_pending = 0
@@ -749,10 +994,41 @@ def run_day(
                 )
                 n_undefined = int(np.count_nonzero(codes == C.UNDEFINED_ACTION))
                 n_undefined_total += n_undefined
-                llm_intents = C.intents_from_responses(
-                    agents, world, space, tick, ag[order], cond[order], codes,
-                    home_cell=schedule.home_cell, work_cell=schedule.work_cell,
+                tgt_person = np.fromiter(
+                    (due[int(i)][6] for i in order), dtype=np.int64, count=order.size
                 )
+                agents_in_order = ag[order]
+                # 個体 → (行動コード, **LLM が名指しした**対象)。会話の承諾/相互指名の判定に使う
+                # (エンジンが解決した対象ではない=「誰に向けた返事か」は名指しにしか無い)。
+                applied_now = {
+                    int(agents_in_order[k]): (int(codes[k]), int(tgt_person[k]))
+                    for k in range(order.size)
+                }
+                # ---- ①-b 会話: **返事待ちの解決を Phase C より前に**(層2 中-1) ----
+                # 被招待 B の承諾「会話 対象: P-A」を intent のまま Phase C へ流すと、
+                # A は招待して CONVERSING なので ``_apply_talk`` が PARTNER_BUSY を書き、
+                # B の「直前の結果」(B6)に**偽の失敗**が載る。承諾はここで消費し、
+                # B の行を intent から外す(承諾は新しい招待ではない)。
+                consumed = _settle_pending_invites(
+                    conv, agents, tick, agents_in_order, codes, tgt_person, R, np
+                )
+                keep = (
+                    np.array(
+                        [int(a) not in consumed for a in agents_in_order.tolist()], dtype=bool
+                    )
+                    if consumed
+                    else np.ones(order.size, dtype=bool)
+                )
+                llm_intents = C.intents_from_responses(
+                    agents, world, space, tick, agents_in_order[keep], cond[order][keep],
+                    codes[keep],
+                    home_cell=schedule.home_cell, work_cell=schedule.work_cell,
+                    target_person=tgt_person[keep], stats=talk_stats, run_salt=salt,
+                )
+            else:
+                applied_now = {}
+        else:
+            applied_now = {}
         phase["phase_a"] += time.perf_counter() - t0
 
         # ---- ② 変化検出(P6) ----
@@ -794,13 +1070,74 @@ def run_day(
             s_cond = np.empty(0, dtype=np.int8)
             s_class = np.empty(0, dtype=np.int64)
 
+        # ---- ④′ 艦隊からの到着(前 tick 以前に発射した分)・**非ブロッキング** ----
+        # ③ の前に置く: 繰り延べになった呼をこの tick の起床候補へ合流させるため。
+        n_parse_errors_fleet = 0
+        if fleet_bridge is not None:
+            t0 = time.perf_counter()
+            if fleet_wait_s > 0.0 and fleet_bridge.client.outstanding:
+                fleet_bridge.client.wait_idle(timeout=fleet_wait_s)
+                phase["fleet_wait"] += time.perf_counter() - t0
+                t0 = time.perf_counter()
+            for res in fleet_bridge.poll():
+                if isinstance(res, FleetDeferred):
+                    fleet_deferred.append(
+                        (
+                            int(res.call.agent_id),
+                            int(res.call.condition),
+                            int(res.call.wake_class),
+                            int(res.call.wake_since),
+                        )
+                    )
+                    continue
+                fleet_waiting.discard(int(res.agent_id))
+                # t_apply = 起床 + δ_perc + δ_think(§2.4)。到着が遅れたぶんは
+                # **破棄せず**この tick 以降へ(締切超過=繰り延べアービタの趣旨)。
+                t_apply = res.tick + delta_think_ticks(res.lane, tick_seconds)
+                pending.append((
+                    max(t_apply, tick + 1), res.wake_class, res.agent_id,
+                    res.condition, res.text, res.action_code, _target_person(res.target),
+                ))
+                if not res.format_ok:
+                    n_parse_errors_fleet += 1
+                if conv is not None and res.condition == int(WakeCondition.CONVERSATION_TURN):
+                    conv.utterance(
+                        res.agent_id, tick, action=res.parse.action, comment=res.parse.comment
+                    )
+            phase["llm"] += time.perf_counter() - t0
+
+        # ---- 艦隊の繰り延べを起床候補へ再投入(不応期は免除・親決定 (a)・09-09) ----
+        if fleet_deferred:
+            f_agent = np.fromiter((x[0] for x in fleet_deferred), dtype=np.int64,
+                                  count=len(fleet_deferred))
+            f_cond = np.fromiter((x[1] for x in fleet_deferred), dtype=np.int8,
+                                 count=len(fleet_deferred))
+            f_class = np.fromiter((x[2] for x in fleet_deferred), dtype=np.int64,
+                                  count=len(fleet_deferred))
+            f_since = np.fromiter((x[3] for x in fleet_deferred), dtype=np.int64,
+                                  count=len(fleet_deferred))
+            # 「答えが来なかった」呼は起床の抑止対象ではない=張った不応期を戻す。
+            R.clear_refractory(agents, f_agent, f_cond)
+            n_fleet_reinjected += len(fleet_deferred)
+            fleet_deferred.clear()
+        else:
+            f_agent = np.empty(0, dtype=np.int64)
+            f_cond = np.empty(0, dtype=np.int8)
+            f_class = np.empty(0, dtype=np.int64)
+            f_since = np.empty(0, dtype=np.int64)
+
         cands = WakeCandidates(
-            np.concatenate([p_agent, d_agent, c_agent, s_agent]),
-            np.concatenate([p_cond, d_cond.astype(np.int8), c_cond, s_cond]),
-            np.concatenate([p_class, d_class, c_class, s_class]),
-            np.full(
-                p_agent.size + d_agent.size + c_agent.size + s_agent.size,
-                tick, dtype=np.int64,
+            np.concatenate([p_agent, d_agent, c_agent, s_agent, f_agent]),
+            np.concatenate([p_cond, d_cond.astype(np.int8), c_cond, s_cond, f_cond]),
+            np.concatenate([p_class, d_class, c_class, s_class, f_class]),
+            np.concatenate(
+                [
+                    np.full(
+                        p_agent.size + d_agent.size + c_agent.size + s_agent.size,
+                        tick, dtype=np.int64,
+                    ),
+                    f_since,  # 再投入は**元の待ち始め**を保つ(昇格が巻き戻らない)
+                ]
             ),
         )
 
@@ -819,23 +1156,66 @@ def run_day(
             act = agents.registry.activity
             hun = agents.registry.hunger
             last_act = agents.registry.last_action
-            # 逐次ループ宣言2: 選抜された呼数ぶん(平均 35/tick)
-            for i in range(len(sel)):
-                a = int(sel.agent_id[i])
-                cls = int(decision.selected_eff_class[i])
-                cond = int(sel.condition[i])
-                res = bridge.call(
-                    a, tick, cls, cond,
-                    cell=int(cell[a]), activity=int(act[a]), hunger=int(hun[a]),
-                    last_action=int(last_act[a]),
-                )
-                pending.append((res.t_apply, cls, a, cond, res.text, res.action_code))
-                if not res.format_ok:
-                    n_parse_errors += 1
-                if conv is not None and cond == int(WakeCondition.CONVERSATION_TURN):
-                    # 会話ターンの応答は**発話ブロック**(1呼=1ブロック・§3)
-                    conv.utterance(a, tick, action=res.parse.action, comment=res.parse.comment)
-            result.llm_calls += len(sel)
+            if fleet_bridge is None:
+                # 逐次ループ宣言2: 選抜された呼数ぶん(平均 35/tick)
+                for i in range(len(sel)):
+                    a = int(sel.agent_id[i])
+                    cls = int(decision.selected_eff_class[i])
+                    cond = int(sel.condition[i])
+                    res = bridge.call(
+                        a, tick, cls, cond,
+                        cell=int(cell[a]), activity=int(act[a]), hunger=int(hun[a]),
+                        last_action=int(last_act[a]),
+                        inviter=_inviter_of(conv, a, cond),
+                    )
+                    pending.append((
+                        res.t_apply, cls, a, cond, res.text, res.action_code,
+                        _target_person(res.target),
+                    ))
+                    if not res.format_ok:
+                        n_parse_errors += 1
+                    if conv is not None and cond == int(WakeCondition.CONVERSATION_TURN):
+                        # 会話ターンの応答は**発話ブロック**(1呼=1ブロック・§3)
+                        conv.utterance(a, tick, action=res.parse.action, comment=res.parse.comment)
+            else:
+                # 逐次ループ宣言2′: 同じ呼数ぶん(描画は同じ・往復だけ非同期になる)
+                calls: list[LLMCall] = []
+                for i in range(len(sel)):
+                    a = int(sel.agent_id[i])
+                    cls = int(decision.selected_eff_class[i])
+                    cond = int(sel.condition[i])
+                    rendered = bridge.renderer.render(
+                        agent_id=a, tick=tick, cell=int(cell[a]), activity=int(act[a]),
+                        hunger=int(hun[a]), wake_class=cls, condition=cond,
+                        last_action=int(last_act[a]),
+                        inviter=_inviter_of(conv, a, cond),
+                    )
+                    sys_txt, usr_txt = split_system_user(
+                        rendered.text, rendered.blocks[0][1] if rendered.blocks else ""
+                    )
+                    if a in fleet_waiting:
+                        n_fleet_resent += 1
+                    fleet_waiting.add(a)
+                    calls.append(
+                        LLMCall(
+                            call_id=f"{tick}:{a}:{cls}",
+                            agent_id=a, tick=tick, wake_class=cls, condition=cond,
+                            prompt=rendered.text, system=sys_txt, user=usr_txt,
+                            blocks=rendered.blocks, lane=lane, cell=int(cell[a]),
+                            time_bucket=tick // TIME_BUCKET_TICKS,
+                            since_tick=int(sel.since_tick[i]),
+                            prompt_hash_hint=rendered.prompt_hash,
+                        )
+                    )
+                # 発射は**非ブロッキング**。返るのは「キューに入らなかった」分だけ。
+                for d in fleet_bridge.submit(calls):
+                    fleet_deferred.append(
+                        (int(d.call.agent_id), int(d.call.condition),
+                         int(d.call.wake_class), int(d.call.wake_since))
+                    )
+            result.llm_calls += len(sel)  # L4 の呼数=**発射数**(再送も 1 呼・親決定 09-09)
+        # 艦隊経路の書式エラーは ④′(到着時)で数える=選抜が 0 の tick でも計上する
+        n_parse_errors += n_parse_errors_fleet
         peak_pending = max(peak_pending, len(pending))
         peak_backlog = max(peak_backlog, arbiter.n_pending())
         phase["llm"] += time.perf_counter() - t0
@@ -871,42 +1251,90 @@ def run_day(
         )
         phase["phase_c"] += time.perf_counter() - t0
         phase["movement"] += outcome.movement_seconds
+        phase["movement_cpu"] += outcome.movement_cpu_seconds
         result.fares_paid += outcome.fare_paid
         result.n_boarded += outcome.n_boarded
         result.n_alighted += outcome.n_alighted
         result.n_queued += outcome.n_queued
 
-        # ---- 会話セッション(行動契約書 §3): resolve の会話成立を招待として受ける ----
+        # ---- 会話セッション(行動契約書 §3・C6 で設計準拠化 09-09) ----
+        # ①返事待ちの被招待が答えていれば成立/不成立を確定 → ②新しい招待を捌く
+        # → ③期限切れの返事待ちを落とす。相手は **LLM が「対象」欄で名指しした個体**
+        # (``C.talk_partners``)。相手が同じ適用バッチに居なければ次 tick に
+        # ``WakeCondition.CONVERSATION_TURN`` で起こして本人の呼で答えさせる。
         if conv is not None:
+            cell_now = agents.registry.cell
+            act_now = agents.registry.activity
+            reverted: list[int] = []
+
+            def _revert(a: int) -> None:
+                """招待が流れた側を IDLE へ戻す候補に積む。
+
+                **すでに別のセッションに入っている個体は戻さない**(相互招待で
+                A→B と B→C が同時に立つと、B の招待が流れたときに B が A との
+                セッションから引き剥がされて片側だけ CONVERSING が残る)。
+                """
+                if a >= 0 and not conv.is_busy(int(a)):
+                    reverted.append(int(a))
+
+            # ①(返事待ちの解決)は **Phase C の前**に済んでいる(``_settle_pending_invites``)。
+
+            # ---- ② 新しい招待(resolve が通した 会話 を入口にする) ----
             talk = np.flatnonzero(plan.confirmed.action_code == C.ACT_TALK)
             if talk.size:
                 inviters = plan.confirmed.agent_id[talk].astype(np.int64)
                 invitees = plan.confirmed.target_id[talk].astype(np.int64)
-                cell_now = agents.registry.cell
-                act_now = agents.registry.activity
-                reverted: list[int] = []
-                # 逐次ループ宣言3: 会話成立数ぶん(≤ 1 tick の呼数)。個体数に比例しない。
+                # 逐次ループ宣言3b: 会話成立数ぶん(≤ 1 tick の呼数)。個体数に比例しない。
                 for j in range(inviters.size):
                     inviter = int(inviters[j])
                     invitee = int(invitees[j])
                     if invitee < 0 or invitee >= agents.n:
-                        reverted.append(inviter)
+                        _revert(inviter)
                         continue
                     if int(act_now[inviter]) != int(Activity.CONVERSING):
                         continue  # resolve が失敗させた(相手が会話中/去った)
-                    # 「相手idle」は resolve が §2.1 の前提として**適用時に**検査済み
-                    # (CONVERSING に変えたのは resolve 自身)。ここで再検査すると
-                    # 相互招待が必ず落ちるので、ゲートには通過済みとして渡す。
-                    opened = conv.invite(
-                        inviter, invitee, tick, int(cell_now[inviter]),
-                        same_cell=bool(cell_now[inviter] == cell_now[invitee]),
-                        partner_idle=True,
-                    )
-                    if opened is None:
-                        # 不応答(§3「無視された」)/ゲート却下 → 招待側を IDLE へ戻す(層2指摘)
-                        reverted.append(inviter)
-                if reverted:
-                    R.revert_conversation(agents, np.array(reverted, dtype=np.int64))
+                    same_cell = bool(cell_now[inviter] == cell_now[invitee])
+                    b_code, b_named = applied_now.get(invitee, (-1, -1))
+                    # **相互指名**= 相手も自分の呼で**こちらを名指しして** 会話 と答えた。
+                    # (エンジンが解決した対象ではなく LLM が書いた対象で見る=中-2)
+                    mutual = b_code == C.ACT_TALK and b_named == inviter
+                    if mutual and conv.invite_blocked_by_refractory(inviter, invitee, tick):
+                        conv.n_invite_refractory_blocked += 1  # 軽-5: 相互指名も不応期の対象
+                        _revert(inviter)
+                        continue
+                    if mutual:
+                        # その場で成立。相手の意思は相手自身の呼に出ているので抽選は引かない。
+                        conv.n_invites += 1
+                        conv.stamp_invite_refractory(inviter, invitee, tick)
+                        opened = conv.invite(
+                            inviter, invitee, tick, int(cell_now[inviter]),
+                            same_cell=same_cell, partner_idle=True, answered=True,
+                        )
+                        if opened is None:
+                            _revert(inviter)  # 内訳は ``conv.invite`` が数える
+                        else:
+                            conv.n_accepted += 1
+                            R.set_conversing(
+                                agents,
+                                np.array([inviter], dtype=np.int64),
+                                np.array([invitee], dtype=np.int64),
+                            )
+                    else:
+                        # 相手はまだ**招待を見ていない**(この tick の相手の応答は
+                        # 招待の載っていないプロンプトへの答え)→ **次 tick に被招待で
+                        # 起こして本人に答えさせる**(知覚契約書 §6 起床(ii))。
+                        # 招待側は CONVERSING のまま待つ。
+                        if not conv.register_pending(
+                            inviter, invitee, tick, int(cell_now[inviter]),
+                            same_cell=same_cell,
+                        ):
+                            _revert(inviter)
+
+            # ---- ③ 期限切れの返事待ち(「無視された」=呼を消費しない) ----
+            for stale in conv.expire_pending(tick):
+                _revert(stale)
+            if reverted:
+                R.revert_conversation(agents, np.array(sorted(set(reverted)), dtype=np.int64))
             finished = conv.step(tick, cell=agents.registry.cell)
             if finished:
                 # 終了したセッションの参加者を解放する(行動契約書 §3「終了はエンジン」)。
@@ -955,6 +1383,27 @@ def run_day(
             )
             phase["checkpoint"] += time.perf_counter() - t0
 
+    # ---- 艦隊の残りを吸い切る(**捨てない**)。テープを閉じる前に置く ----
+    if fleet_bridge is not None:
+        n_late = 0
+        for res in fleet_bridge.drain():
+            if isinstance(res, FleetDeferred):
+                fleet_deferred.append(
+                    (int(res.call.agent_id), int(res.call.condition),
+                     int(res.call.wake_class), int(res.call.wake_since))
+                )
+                continue
+            n_late += 1
+            pending.append((
+                res.tick + delta_think_ticks(res.lane, tick_seconds), res.wake_class,
+                res.agent_id, res.condition, res.text, res.action_code,
+                _target_person(res.target),
+            ))
+        result.fleet_drained_at_end = n_late
+        # ラン終端でも答えが返らなかった呼(**次ランへ持ち越す**の監査点。0 が正常)
+        result.fleet_unanswered_at_end = len(fleet_deferred)
+        fleet_bridge.close()
+
     bridge.close()
     result.runner = runner  # type: ignore[attr-defined]
     if runner is not None:
@@ -997,7 +1446,19 @@ def run_day(
             result.census_row = dict(row)
             result.census_pass = bool(row.get("gate_ok", False))
     result.bridge_counters = dict(bridge.counters())
+    if fleet_bridge is not None:
+        result.bridge_counters.update(fleet_bridge.counters())
+        result.bridge_counters["fleet_reinjected"] = float(n_fleet_reinjected)
+        result.bridge_counters["fleet_resent"] = float(n_fleet_resent)
+        result.fleet_fields = dict(fleet.config.manifest_fields())
     result.conversation_counters = dict(conv.counters()) if conv is not None else {}
+    if conv is not None:
+        # 会話の相手の由来(行動契約書 §1-2 の対象スロットが効いているかの監査点)。
+        result.conversation_counters["conv_target_named"] = int(talk_stats.get("talk_named", 0))
+        result.conversation_counters["conv_fallback_same_batch"] = int(
+            talk_stats.get("talk_fallback", 0)
+        )
+        result.conversation_counters["conv_target_absent"] = int(talk_stats.get("talk_absent", 0))
     if conv is not None:
         # 層2指摘の固定: 日末に CONVERSING の個体は活動セッションの参加者だけ(被招待側は C4 まで IDLE)
         result.conversation_counters["conversing_agents_end"] = int(
@@ -1008,6 +1469,12 @@ def run_day(
     result.renderer_name = (
         "perception.Renderer" if perception is not None else type(renderer_obj).__name__
     )
+    # 実際に描いた腕(注入レンダラなら**そちらの値**が正)。§3.2 ablation ① の同定欄。
+    result.budget_mode = BudgetMode.parse(
+        getattr(getattr(perception, "renderer", None), "budget_mode", budget_mode_enum)
+        if perception is not None
+        else budget_mode_enum
+    ).value
     result.diagnostics = np.asarray(diag_rows, dtype=np.int64).reshape(-1, len(DIAG_RUN_COLUMNS))
     result.phase_seconds = phase
     result.wall_seconds = time.perf_counter() - t_start
@@ -1060,6 +1527,73 @@ def run_day(
 
 
 # ------------------------------------------------------------------ CLI
+def add_fleet_args(ap: "argparse.ArgumentParser") -> None:
+    """実艦隊の共通引数(``engine.run`` と ``shibuya.cli`` で同じ綴りにするため 1 か所に置く)。
+
+    ``--mode`` は **run manifest の実行モード**(smoke/calibration/holdout/ablation/production・
+    運用設計書 §1.2)であって、``run_day(mode=...)`` の record/replay ではない。
+    ``cache_salt`` の勘定分離(較正と holdout が prefix キャッシュを共有しない)に効く。
+    """
+    from shibuya.llm.fleet import DEFAULT_T1_MAX_TOKENS, DEFAULT_TEMPERATURE
+    from shibuya.manifest.schema import Mode as _Mode
+
+    ap.add_argument("--llm", choices=("mock", "fleet"), default="mock",
+                    help="LLM 経路(fleet=実 vLLM 艦隊・--endpoints 必須)")
+    ap.add_argument("--endpoints", type=str, default="",
+                    help="カンマ区切り http://host:port(既定艦隊は 7 本=xxhash(call_id) mod 7)")
+    ap.add_argument("--model", type=str, default="",
+                    help="served-model-name(空なら /v1/models の先頭)")
+    ap.add_argument("--mode", choices=[m.value for m in _Mode], default="smoke",
+                    help="実行モード(cache_salt の勘定分離・record/replay とは別物)")
+    ap.add_argument("--run-id", type=str, default="",
+                    help="manifest の run_id(cache_salt の第2要素)")
+    ap.add_argument("--tape", type=str, default="", help="録画テープの出力先ディレクトリ")
+    ap.add_argument(
+        "--temperature", type=float, default=DEFAULT_TEMPERATURE,
+        help=("T1 の温度(既定 0.7=知覚契約書 §2.5/卒業条件表・運用設計書 §1.3 の本番値。"
+              "運用設計書 §1.2 の設定節は欄形だけで数値を持たない)"),
+    )
+    ap.add_argument(
+        "--max-tokens", type=int, default=DEFAULT_T1_MAX_TOKENS,
+        help="T1 の max_tokens(既定 96=2 行形の最大 ≒70 tok に余裕・expedient)",
+    )
+    ap.add_argument(
+        "--fleet-debug-dir", type=str, default="",
+        help=("書式の原因分析用 jsonl の置き場(既定 off・診断のみ)。初回パースが落ちた呼の "
+              "プロンプト/初回の生応答/再生成の生応答/実効・厳密の判定/理由 を 1 行 1 呼で書く"),
+    )
+    ap.add_argument("--fleet-wait-s", type=float, default=0.0,
+                    help="④′ で未応答が残るとき tick ごとに最大この秒数だけ艦隊を待つ(既定 0=純非ブロッキング・スモーク用)")
+
+
+def fleet_from_args(args: Any, ap: "argparse.ArgumentParser | None" = None) -> FleetClient | None:
+    """``add_fleet_args`` の結果 → ``FleetClient``(``--llm mock`` なら ``None``)。"""
+    from shibuya.llm.fleet import FleetConfig
+    from shibuya.manifest.schema import Mode as _Mode
+
+    if getattr(args, "llm", "mock") != "fleet":
+        return None
+    eps = tuple(e.strip() for e in str(args.endpoints).split(",") if e.strip())
+    if not eps:
+        msg = "--llm fleet には --endpoints(カンマ区切り http://host:port)が要る"
+        if ap is not None:
+            ap.error(msg)
+        raise SystemExit(msg)
+    from shibuya.llm.fleet import DEFAULT_T1_MAX_TOKENS, DEFAULT_TEMPERATURE
+
+    return FleetClient(
+        FleetConfig(
+            endpoints=eps,
+            model=str(args.model),
+            mode=_Mode(args.mode),
+            run_id=str(getattr(args, "run_id", "")),
+            run_seed=int(getattr(args, "seed", 0)),
+            temperature=float(getattr(args, "temperature", DEFAULT_TEMPERATURE)),
+            t1_max_tokens=int(getattr(args, "max_tokens", DEFAULT_T1_MAX_TOKENS)),
+        )
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     """``python -m shibuya.engine.run --agents 5000 --seed 1 --world data/world/v2``。"""
     ap = argparse.ArgumentParser(description="C2 エンジンの 1 シミュ日 mock ラン(予算行 W2)")
@@ -1078,6 +1612,7 @@ def main(argv: list[str] | None = None) -> int:
                     help="W16 母集団を使わず合成個体で回す(下限対照)")
     ap.add_argument("--ablate", action="append", default=[],
                     help="止める過程(過程 id か AB-* の感度試験 id・複数可)")
+    add_fleet_args(ap)
     args = ap.parse_args(argv)
 
     if args.growth_yaml:
@@ -1093,6 +1628,10 @@ def main(argv: list[str] | None = None) -> int:
         checkpoint_every=args.checkpoint_every,
         day_index=args.day,
         world_dir=args.world,
+        fleet=fleet_from_args(args, ap),
+        fleet_wait_s=float(args.fleet_wait_s),
+        fleet_debug_dir=args.fleet_debug_dir or None,
+        tape_path=args.tape or None,
         processes=not args.no_processes,
         processes_disabled=tuple(args.ablate) or None,
         population=False if args.no_population else None,

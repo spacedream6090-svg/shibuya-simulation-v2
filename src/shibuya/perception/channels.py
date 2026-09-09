@@ -18,7 +18,11 @@
 §3.2 の宣言(反対証拠の明記)も本モジュールに写す:
     「B5 220>B2 150 は**滞留時間の再現ではなく、クリティカル注視に基づく意図的な歪み**である」。
 そして §3.2 の**義務 ablation**「固定枠 vs 同一総トークンの単一ランキング(最近性×重要度×
-関連性)」を ``BudgetMode`` として実装枠だけ用意する(第1陣 ablation ①)。
+関連性)」を ``BudgetMode`` で切り替える(第1陣 ablation ①)。本モジュールは
+**池の予算**(``pool_token_budget``= そのブロック群のチャネル上限の総和=同一総トークン)・
+**チャネル別の顕著性の既定素性**(``RANKING_PRIORS``)・**順位順の打ち切り**
+(``take_within_pool``)を持ち、顕著性の計算そのものは ``attention.rank_by_saliency``、
+描画への差し込みは ``renderer`` が行う(層内の役割分担)。
 
 逐次ループ宣言(P4): ``truncate_lines``= **行数**ぶんのループ(1チャネル数行)。個体数に比例しない。
 
@@ -28,8 +32,10 @@ expedient(本モジュール分)
   値の一致は ``tests/perception/test_channels.py`` が文字列標本で守る。
 - 切り詰めは**行単位**(行の途中で切らない)。契約書は上限しか与えていない。行を落とすときは
   末尾から落とす(前の行ほど順位が高い=順位づけは呼び出し側の責任)。
-- ``BudgetMode.SINGLE_RANKING`` は枠を捨てて総トークンだけを守る実装。ablation ① 用の枠で、
-  順位づけ関数は呼び出し側が渡す(既定は入力順)。
+- ``BudgetMode.SINGLE_RANKING`` は**チャネル別の枠(上限 tok と件数)を捨て**、群予算だけを
+  守る実装。``RANKING_PRIORS`` の素性(視角・コントラスト・動き・逸脱度)は全て自前で、
+  §4 の顕著性が視覚の式である一方 B5 の内受容・自己状態は非視覚なので「視角=1.0」を
+  内的信号の既定に置いた(登録簿=実装計画書 §8)。
 """
 
 from __future__ import annotations
@@ -46,6 +52,11 @@ __all__ = [
     "CHANNEL_BY_ID",
     "block_channel_total",
     "BudgetMode",
+    "RankingPrior",
+    "RANKING_PRIORS",
+    "RANKING_POOL_BLOCKS",
+    "pool_token_budget",
+    "take_within_pool",
     "truncate_lines",
     "TruncationReport",
     "INTENTIONAL_DISTORTION_NOTE",
@@ -160,6 +171,109 @@ class BudgetMode(str, Enum):
 
     FIXED_SLOTS = "fixed_slots"  # 既定=チャネル別固定枠(§3.2 の表)
     SINGLE_RANKING = "single_ranking"  # ablation ①=枠を捨て総トークンだけ守る
+
+    @classmethod
+    def parse(cls, value: "str | BudgetMode") -> "BudgetMode":
+        """CLI 語(``fixed``/``ranking``)と Enum 値の両方を受ける(既定=``fixed``)。
+
+        Example:
+            >>> BudgetMode.parse("ranking") is BudgetMode.SINGLE_RANKING
+            True
+            >>> BudgetMode.parse("fixed_slots") is BudgetMode.FIXED_SLOTS
+            True
+        """
+        if isinstance(value, cls):
+            return value
+        key = str(value).strip().lower()
+        table = {
+            "fixed": cls.FIXED_SLOTS,
+            "fixed_slots": cls.FIXED_SLOTS,
+            "ranking": cls.SINGLE_RANKING,
+            "single_ranking": cls.SINGLE_RANKING,
+        }
+        got = table.get(key)
+        if got is None:
+            raise ValueError(f"未知の budget_mode: {value!r}({sorted(table)})")
+        return got
+
+
+# ------------------------------------------------------------------ ablation ①(単一ランキング)
+@dataclass(frozen=True)
+class RankingPrior:
+    """単一ランキングでチャネルに与える顕著性の既定素性(**全て expedient**)。
+
+    ``attention.SalientItem`` の素性(視角=``size_m``/``distance_m``・局所コントラスト・
+    動き・逸脱度)へそのまま渡す。§4 の顕著性は**視覚**の式なので、内受容・自己状態のような
+    非視覚チャネルは「視角=1.0(1 m の対象を 1 m で見る)」を内的信号の既定として置いた。
+    契約書 §3.2 の語(最近性×重要度×関連性)への写像は登録簿(実装計画書 §8)に書く。
+    """
+
+    size_m: float
+    distance_m: float
+    contrast: float
+    motion: float = 0.0
+    deviance: float = 0.0
+
+
+#: チャネル → 既定の顕著性素性(**expedient**・実測の距離/逸脱度がある項目は呼び出し側が上書き)。
+RANKING_PRIORS: Final[Mapping[str, RankingPrior]] = {
+    # ---- セル依存(B2/B4/B4b) ----
+    "B2.ground": RankingPrior(4.0, 2.0, 0.5),            # 近路面 <4 m(§3.2 の等級A行)
+    "B2.visible": RankingPrior(6.0, 20.0, 0.5, 0.1),     # 店頭
+    "B2.signage": RankingPrior(2.0, 12.0, 0.8, 0.2),     # 看板=高輝度
+    "B2.landmark": RankingPrior(25.0, 100.0, 0.4),       # 遠くの大きい物
+    "B4.density": RankingPrior(20.0, 15.0, 0.3, 0.6),    # 群集場(ensemble)
+    "B4.noise": RankingPrior(20.0, 15.0, 0.2, 0.2),      # 聴覚=視角の代理
+    "B4.salient": RankingPrior(1.7, 12.0, 0.5, 0.9, 1.0),  # 逸脱度優先(§4 段2)
+    "B4b.near": RankingPrior(2.0, 6.0, 0.5, 0.3, 0.2),   # 直近サブセル
+    # ---- 個体(B5) ----
+    "B5.near_person": RankingPrior(1.7, 10.0, 0.5, 0.7),  # 距離は実測で上書き
+    "B5.intero": RankingPrior(1.0, 1.0, 0.6, 0.0, 0.2),   # 逸脱度=閾値超過で上書き
+    "B5.self": RankingPrior(1.0, 1.0, 0.4, 0.1),
+    "B5.watched": RankingPrior(1.7, 5.0, 0.5, 0.5, 0.5),
+}
+
+#: 予算グループ → 単一ランキングが 1 本の池にまとめるブロック(§2.2 のグループ予算)。
+RANKING_POOL_BLOCKS: Final[Mapping[str, tuple[str, ...]]] = {
+    "cell": ("B2", "B4", "B4b"),
+    "individual": ("B5",),
+}
+
+
+def pool_token_budget(blocks: Sequence[str]) -> int:
+    """§3.2「**同一総トークン**」= そのブロック群のチャネル上限の総和。
+
+    Example:
+        >>> pool_token_budget(("B2", "B4", "B4b"))
+        250
+        >>> pool_token_budget(("B5",))
+        220
+    """
+    return sum(block_channel_total(b) for b in blocks)
+
+
+def take_within_pool(texts: Sequence[str], pool_tokens: int) -> tuple[int, int]:
+    """**順位順**に並んだ行列から、池の予算に収まる**先頭 n 件**を返す。
+
+    固定枠と同じ作法で「行の途中では切らない」「入らなければそこで打ち切る」
+    (``truncate_lines`` と同じ規約=枠だけが池に替わる)。
+
+    Returns:
+        ``(採った件数, 使ったトークン)``。
+
+    Note:
+        逐次ループ宣言(P4): 候補件数ぶんのループ1本(1 セル/1 個体で十数件)。個体数に比例しない。
+    """
+    cap = int(pool_tokens)
+    used = 0
+    n = 0
+    for t in texts:
+        cost = estimate_tokens(t)
+        if used + cost > cap:
+            break
+        used += cost
+        n += 1
+    return n, used
 
 
 @dataclass(frozen=True)

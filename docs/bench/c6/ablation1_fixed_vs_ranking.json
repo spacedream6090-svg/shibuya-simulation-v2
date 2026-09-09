@@ -1,0 +1,59 @@
+{
+ "test": "ablation_1",
+ "switch_probe": {
+  "n_scenes": 24,
+  "n_different": 24,
+  "switch_effective": true,
+  "mean_chars_fixed": 1775.375,
+  "mean_chars_ranking": 1775.375,
+  "note": ""
+ },
+ "arms": [
+  {
+   "arm": "fixed_slots",
+   "route": "cli.run(fleet=…)",
+   "llm_calls": 833,
+   "action_counts": {
+    "退去": 29,
+    "移動": 218,
+    "待機": 432,
+    "乗車": 104,
+    "購入": 40,
+    "会話": 3,
+    "休憩": 6,
+    "通報": 1
+   },
+   "format_error_rate": 0.057623049219687875,
+   "undefined_rate": 0.0,
+   "role_action_rate": 0.0,
+   "prompt_tokens_mean": 900.7863145258103,
+   "tokens_shared_static_mean": 643.9963985594238,
+   "tokens_cell_mean": 145.1752701080432,
+   "tokens_individual_mean": 111.61464585834334,
+   "final_hash": "bf82b48c48e874789eaf3d3fa9785fe1a25f2688f1583631d3377eaab00d50a0"
+  },
+  {
+   "arm": "single_ranking",
+   "route": "cli.run(fleet=…)",
+   "llm_calls": 833,
+   "action_counts": {
+    "移動": 320,
+    "待機": 264,
+    "乗車": 176,
+    "休憩": 2,
+    "退去": 43,
+    "購入": 28
+   },
+   "format_error_rate": 0.03601440576230492,
+   "undefined_rate": 0.0,
+   "role_action_rate": 0.0,
+   "prompt_tokens_mean": 903.1476590636255,
+   "tokens_shared_static_mean": 643.9963985594238,
+   "tokens_cell_mean": 147.54261704681872,
+   "tokens_individual_mean": 111.60864345738295,
+   "final_hash": "c463ae843ca0aeeffe7eca1f3bec232e52bd376d843050f71138816e70e1df4c"
+  }
+ ],
+ "jsd_bits": 0.039679018539075135,
+ "identical_runs": false
+}

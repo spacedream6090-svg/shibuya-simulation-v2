@@ -113,6 +113,21 @@ __all__ = [
     "TapeLookup",
     "MockLLM",
     "TapeLLM",
+    # 実艦隊クライアント(llm.fleet の再輸出・C6-a)
+    "FleetConfig",
+    "FleetClient",
+    "FleetBridge",
+    "FleetBridgeResult",
+    "FleetDeferredError",
+    "LLMCall",
+    "LLMResult",
+    "Deferred",
+    "Outcome",
+    "TapeSink",
+    "cache_salt_for",
+    "plan_batch",
+    "route_primary",
+    "split_system_user",
 ]
 
 
@@ -201,4 +216,24 @@ from shibuya.llm.undefined import (  # noqa: E402
     UndefinedOutcome,
     map_synonym,
     undefined_feedback,
+)
+
+# 艦隊クライアントは**最後**に読む: ``llm.fleet`` が本 ``__init__`` から
+# ``LLMRequest``/``parse_two_line``/``UndefinedActionRegistry`` を引くため、
+# 上の遅延 import が全部済んだ後でなければ循環する。
+from shibuya.llm.fleet import (  # noqa: E402
+    Deferred,
+    FleetBridge,
+    FleetBridgeResult,
+    FleetClient,
+    FleetConfig,
+    FleetDeferredError,
+    LLMCall,
+    LLMResult,
+    Outcome,
+    TapeSink,
+    cache_salt_for,
+    plan_batch,
+    route_primary,
+    split_system_user,
 )

@@ -36,6 +36,8 @@ from typing import Final, Sequence
 
 import numpy as np
 
+from shibuya.core.hashing import wake_tiebreak_array
+
 from shibuya.agents.state import WakeCondition
 from shibuya.core.hashing import priority_key_array
 from shibuya.core.types import DEFAULT_TICK_SECONDS, NS_PER_SECOND
@@ -48,6 +50,7 @@ __all__ = [
     "UNDEFINED_ACTION",
     "parse_action",
     "pair_partners",
+    "talk_partners",
     "engine_continuations",
     "intents_from_responses",
     "ACTION_WORDS",
@@ -374,12 +377,70 @@ def parse_action(text: str) -> int:
     return int(ACTION_CODES.get(word, UNDEFINED_ACTION))
 
 
-def pair_partners(agent_id: np.ndarray, cell: np.ndarray) -> np.ndarray:
+def talk_partners(
+    agent_id: np.ndarray,
+    cell: np.ndarray,
+    named: np.ndarray | None,
+    partner_cell: np.ndarray | None,
+    n_agents: int,
+    order_key: np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
+    """会話の相手を決める(**LLM の「対象」欄を第一**・C6 の設計準拠化 09-09)。
+
+    正典
+    - 行動契約書 §1-2: 2 行形の「対象: <セルID|物カテゴリ|**個体ID**>」= 対象スロット。
+      会話の相手は**モデルが名指しする**(C3 の「エンジンが文脈から導く」は expedient だった)。
+    - 知覚契約書 §3.7 聴覚: 雑談の可聴距離 1-2.5 m → **同一セル**で代理する(C3 と同じ)。
+
+    規則(適用順)
+      1. ``named`` が個体 ID(``P-nnn`` → ``Target.person_id``)で、範囲内・自分でない・
+         **同一セル**なら、その個体を相手にする(``source=0``)。
+      2. さもなければ ``pair_partners``(同じ適用バッチの同セル最小 id)へ**フォールバック**
+         (``source=1``・**expedient のまま**・計数する)。
+      3. フォールバックでも相手が居なければ ``-1``(``source=2``=不成立)。
+
+    Args:
+        agent_id: 呼んだ個体。
+        cell: その個体のセル。
+        named: LLM が名指しした個体 id(``-1``=名指しなし)。``None`` なら全件 ``-1``。
+        partner_cell: 全個体のセル配列(``agents.registry.cell``)。``None`` なら名指しは使えない。
+        n_agents: 個体数(範囲検査)。
+        order_key: フォールバックのセル内の並び順(``pair_partners`` へ素通し)。
+            **ID 順バイアス(T5)を避けるため blake3 撹拌鍵を渡す**。
+
+    Returns:
+        ``(partner, source)``。``source`` は 0=名指し / 1=フォールバック / 2=相手なし。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    c = np.asarray(cell, dtype=np.int64)
+    fallback = pair_partners(a, c, order_key)
+    if named is None or partner_cell is None or a.size == 0:
+        source = np.where(fallback >= 0, 1, 2).astype(np.int8)
+        return fallback, source
+    nm = np.asarray(named, dtype=np.int64)
+    pc = np.asarray(partner_cell, dtype=np.int64)
+    ok = (nm >= 0) & (nm < int(n_agents)) & (nm != a) & (c >= 0)
+    if ok.any():
+        ok = ok & (pc[np.clip(nm, 0, max(0, int(n_agents) - 1))] == c)
+    partner = np.where(ok, nm, fallback)
+    source = np.where(ok, 0, np.where(fallback >= 0, 1, 2)).astype(np.int8)
+    return partner, source
+
+
+def pair_partners(
+    agent_id: np.ndarray, cell: np.ndarray, order_key: np.ndarray | None = None
+) -> np.ndarray:
     """同一セルに居る**起床中の**個体から会話相手を決める(決定論・ループなし)。
 
-    規則(expedient): セル内の最小 id を相手にする。最小 id 本人の相手はセル内の 2 番目。
+    規則(expedient): セル内で ``order_key`` 昇順の先頭を相手にする。先頭本人の相手は 2 番目。
     同じ相手を複数人が指名する=**会話招待の資源競合**が起きる(設計書 §2.2「会話招待=
     1件だけ通し」を Phase B で実際に効かせるための形)。
+
+    Args:
+        order_key: セル内の並び順(``None`` なら ``agent_id`` 昇順)。
+            **``None`` は ID 順バイアスを作る**(運用設計書 §2.5・T5 |r|≤0.05)。C6 で
+            被招待も起床するようになったため、呼び出し側は ``wake_tiebreak_array``
+            (blake3 撹拌)を渡すこと。``None`` は単体テストと後方互換のためだけに残す。
 
     Returns:
         ``agent_id`` と同じ並びの相手 id(単独セルなら -1)。
@@ -389,7 +450,8 @@ def pair_partners(agent_id: np.ndarray, cell: np.ndarray) -> np.ndarray:
     out = np.full(a.shape, -1, dtype=np.int64)
     if a.size == 0:
         return out
-    order = np.lexsort((a, c))
+    key = a if order_key is None else np.asarray(order_key).astype(np.uint64, copy=False)
+    order = np.lexsort((a, key, c)) if order_key is not None else np.lexsort((a, c))
     sa, sc = a[order], c[order]
     starts = np.flatnonzero(np.concatenate(([True], sc[1:] != sc[:-1])))
     counts = np.diff(np.append(starts, sc.size))
@@ -432,6 +494,9 @@ def intents_from_responses(
     *,
     home_cell: np.ndarray | None = None,
     work_cell: np.ndarray | None = None,
+    target_person: np.ndarray | None = None,
+    stats: dict[str, int] | None = None,
+    run_salt: bytes = b"",
 ) -> IntentBatch:
     """Phase A の LLM 由来分: 行動コード → 対象と資源を**エンジンが**決めて intent にする。
 
@@ -446,6 +511,13 @@ def intents_from_responses(
         condition: 起床条件(δ_perc の予期クラスに使う)。
         action_code: ``parse_action`` の結果(``UNDEFINED_ACTION`` を含む)。
         home_cell / work_cell: 移動・就寝の既定の行き先(mock スケジュール由来)。
+        target_person: **LLM が「対象」欄に書いた個体 id**(``-1``=名指しなし・C6 09-09)。
+            会話の相手はここを第一に見る(``talk_partners``)。``None`` なら従来どおり
+            同バッチ最小 id へのフォールバックだけになる。
+        stats: 与えると会話の相手の由来を数える(``talk_named``/``talk_fallback``/
+            ``talk_absent``)。診断行 ``conv_*`` の素材。
+        run_salt: 会話フォールバックのセル内順序を撹拌する塩(運用設計書 §2.5)。
+            **空だと ID 順**になり T5(順序バイアス |r|≤0.05)を割る。
 
     Returns:
         ``IntentBatch``(1 個体 1 件)。
@@ -486,14 +558,29 @@ def intents_from_responses(
         target = np.where(is_buy, poi, target)
         resource = np.where(is_buy & (poi >= 0), space.poi(np.maximum(poi, 0)), resource)
 
-    # 会話: 同一セルの起床者から相手を選ぶ(資源=相手)。
+    # 会話: **LLM が名指しした個体**を第一・同セルでなければ同バッチ最小 id(資源=相手)。
     is_talk = code_out == ACT_TALK
     if np.any(is_talk):
-        partner = pair_partners(a, cell)
+        # セル内の並びは blake3 撹拌(ID 順バイアス=v1 C-8 を断つ・T5 の監査点)。
+        order_key = (
+            wake_tiebreak_array(run_salt, int(tick), np.zeros(n, dtype=np.int64), a)
+            if run_salt
+            else None
+        )
+        partner, source = talk_partners(
+            a, cell, target_person, agents.registry.cell, int(agents.n), order_key
+        )
         target = np.where(is_talk, partner, target)
         resource = np.where(
             is_talk & (partner >= 0), space.partner(np.maximum(partner, 0)), resource
         )
+        if stats is not None:
+            src = source[is_talk]
+            stats["talk_named"] = stats.get("talk_named", 0) + int(np.count_nonzero(src == 0))
+            stats["talk_fallback"] = stats.get("talk_fallback", 0) + int(
+                np.count_nonzero(src == 1)
+            )
+            stats["talk_absent"] = stats.get("talk_absent", 0) + int(np.count_nonzero(src == 2))
 
     # 就寝: 寝床=自宅セル(資源=そのセルの就寝スロット)。
     is_sleep = code_out == ACT_SLEEP

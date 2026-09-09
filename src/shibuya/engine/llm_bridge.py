@@ -16,6 +16,17 @@
 - 行動契約書 §7: 未定義行動は段0(辞書)→段1(記録+フィードバック)。**待機へ落とす**のは
   ``engine.commit.intents_from_responses``(安全弁=§2 共通必須事項③)。
 
+**C6 の段0 辞書写像を ``parse`` に載せない理由(親判断待ち・09-09)**
+    ``llm.parser.ParseResult.with_dictionary_mapping(word)`` は「段0 で救えた語を parse に
+    載せる口」として C6 で足された。だが本 bridge は**呼ばない**:
+      ① 既存の契約テスト(``tests/engine/test_undefined_action.py``)が
+         「``res.parse.action is None`` かつ ``raw_action`` は逐語」を pin している
+         =``BridgeResult.parse`` は**生の応答の記述**という取り決め。
+      ② ``engine.run`` は会話ターンで ``conv.utterance(action=res.parse.action)`` を呼ぶので、
+         ここを埋めると**発話ブロックの中身が変わる**(mock 経路の挙動不変の約束に触れる)。
+    救えた事実は ``action_code`` と ``undefined_stage=0``・診断行 ``dictionary_mapped`` に残る。
+    載せるべきかは親判断(会話発話に写像後の語を使うか)。
+
 **親の指示との差分(黙って解決しない)その2 — prompt_hash が 2 本ある**
     親の指示は「``prompt_hash`` は ``Rendered.prompt_hash`` から取る」。ところが
     **テープの完全一致鍵**(運用設計書 §2.5)を引くのは ``llm.mock.TapeLLM`` で、
@@ -181,6 +192,7 @@ class Renderer(Protocol):
         wake_class: int,
         condition: int,
         last_action: int,
+        inviter: int = -1,
     ) -> RenderedPrompt:  # pragma: no cover - 契約のみ
         ...
 
@@ -214,7 +226,9 @@ class StubRenderer:
         wake_class: int = 0,
         condition: int = 0,
         last_action: int = -1,
+        inviter: int = -1,
     ) -> RenderedPrompt:
+        # ``inviter`` はスタブでは**使わない**(テープ鍵とプロンプト本文を動かさない)。
         bucket = int(tick) // self.time_bucket_ticks
         text = f"[a{int(agent_id)}|c{int(cell)}|t5{bucket}|w{int(wake_class)}]"
         return RenderedPrompt(text=text, blocks=self._blocks)
@@ -278,10 +292,12 @@ class PerceptionRendererAdapter:
         wake_class: int = 0,
         condition: int = 0,
         last_action: int = -1,
+        inviter: int = -1,
     ) -> RenderedPrompt:
         word = ACTION_WORD_BY_CODE.get(int(last_action))
         out = self.renderer.render(
-            int(agent_id), int(tick), wake_reason=int(condition), last_action=word
+            int(agent_id), int(tick), wake_reason=int(condition), last_action=word,
+            inviter=int(inviter) if int(inviter) >= 0 else None,
         )
         blocks: list[tuple[str, str]] = []
         for bid in SHARED_BLOCK_IDS:  # 逐次ループ宣言: 共有ブロック 6 本
@@ -418,7 +434,14 @@ class LLMBridge:
             self.client = llm
         # ---- 計数(診断行) ----
         self.n_calls = 0
+        #: **実効**基準の書式エラー(C6 ラベル別名を許容した後)。
         self.n_parse_errors = 0
+        #: **厳密**基準(C6 以前の別名表だけ)。受入指標の定義を動かさないための併記。
+        self.n_parse_errors_strict = 0
+        #: C6 で足したラベル別名で読めた応答 / §7 段0 の辞書写像で救えた語。
+        self.n_label_alias = 0
+        self.n_positional = 0
+        self.n_dictionary_mapped = 0
         self.n_unknown_action = 0
         self.n_undefined_mapped = 0
         self.n_role_actions = 0
@@ -448,12 +471,16 @@ class LLMBridge:
         last_action: int = -1,
         lane: str | None = None,
         targets: tuple[str, ...] = (),
+        inviter: int = -1,
     ) -> BridgeResult:
         """1呼。**必ず**テープへ書き、必ずパースし、必ず ``t_apply`` を決める。
 
         Args:
             last_action: **直前に試みた**行動コード(``agents.last_action``・-1=なし)。
                 B6「直前の結果」の主語になる(行動契約書 §6)。
+            inviter: 被招待起床(``WakeCondition.CONVERSATION_TURN`` で返事待ち)のとき
+                **招待者の個体 id**。レンダラが B6 起床行で名指す(知覚契約書 §6 起床(ii))。
+                -1=招待なし(描画は 1 バイトも変わらない)。
         """
         lane = lane or self.lane
         rendered = self.renderer.render(
@@ -465,6 +492,7 @@ class LLMBridge:
             wake_class=int(wake_class),
             condition=int(condition),
             last_action=int(last_action),
+            inviter=int(inviter),
         )
         request = LLMRequest(
             agent_id=int(agent_id),
@@ -502,7 +530,13 @@ class LLMBridge:
             # 役割語は effects 先が C4。当面は安全弁(待機)へ落とす(expedient)。
             action_code = int(ACTION_CODES["待機"])
         if not parse.format_ok:
-            self.n_parse_errors += 1
+            self.n_parse_errors += 1  # 実効(別名許容後)
+        if not parse.strict_format_ok:
+            self.n_parse_errors_strict += 1  # 厳密(定義を動かさない受入指標)
+        if parse.alias_used:
+            self.n_label_alias += 1
+        if parse.positional_used:
+            self.n_positional += 1
 
         stage = -1
         feedback = ""
@@ -516,6 +550,9 @@ class LLMBridge:
             if outcome.mapped and outcome.word in ACTION_CODES:
                 action_code = int(ACTION_CODES[outcome.word])
                 self.n_undefined_mapped += 1
+                if outcome.stage == 0:
+                    self.n_dictionary_mapped += 1
+                # **``parse`` は書き換えない**(親判断待ち・下の Note)。
             else:
                 action_code = UNDEFINED_ACTION
 
@@ -566,8 +603,13 @@ class LLMBridge:
     # ---------------------------------------------------------------- 診断
     @property
     def parse_error_rate(self) -> float:
-        """書式エラー率(診断行・B11 実測 1.000 の裏返し)。"""
+        """**実効**書式エラー率(C6 ラベル別名を許容した後・診断行の主指標)。"""
         return (self.n_parse_errors / self.n_calls) if self.n_calls else 0.0
+
+    @property
+    def parse_error_rate_strict(self) -> float:
+        """**厳密**書式エラー率(C6 以前の別名表だけ=B11 実測 1.000 と同じ物差し)。"""
+        return (self.n_parse_errors_strict / self.n_calls) if self.n_calls else 0.0
 
     @property
     def tape_miss_rate(self) -> float:
@@ -576,10 +618,21 @@ class LLMBridge:
 
     def counters(self) -> Mapping[str, float]:
         """診断行に載せる計数。"""
+        n = max(1, self.n_calls)
         out: dict[str, float] = {
             "llm_calls": self.n_calls,
+            # ---- 二重指標(C6・09-09)。主=実効・併記=厳密 ----
             "parse_errors": self.n_parse_errors,
             "parse_error_rate": self.parse_error_rate,
+            "parse_errors_strict": self.n_parse_errors_strict,
+            "parse_error_rate_strict": self.parse_error_rate_strict,
+            "label_alias_used": self.n_label_alias,
+            "label_alias_rate": self.n_label_alias / n,
+            "positional_used": self.n_positional,
+            "positional_rate": self.n_positional / n,
+            # ``dictionary_mapped``(件数)は下の ``undefined.counters()`` が正典。
+            # ここは率だけ出す(同じ台帳を複数 bridge で共有しうるため件数は重複させない)。
+            "dictionary_mapped_rate": self.n_dictionary_mapped / n,
             "unknown_action": self.n_unknown_action,
             "undefined_mapped": self.n_undefined_mapped,
             "role_actions": self.n_role_actions,
