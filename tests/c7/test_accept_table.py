@@ -213,3 +213,40 @@ def test_cli_writes_outputs(accept, tmp_path):
     doc = json.loads((out / "c7_accept.json").read_text(encoding="utf-8"))
     assert doc["n_rows"] == len(doc["rows"])
     assert (out / "c7_accept.md").exists()
+
+
+# ---------------------------------------------------------------- T2-c 再生 final_hash(D-54)
+
+
+def test_selfconsistency_checks_replay_final_hash_prefix(accept):
+    """--full(テープ再生)は本番 summary の 16 桁 final_hash と前方一致することも要求する。"""
+    doc = _ckpt("aaaa", "bbbb", ticks=[359, 719])
+    doc["final_hash"] = "043a630f49a9af30" + "0" * 48
+    assert accept.selfconsistency(doc, expect_final_prefix="043a630f49a9af30")["ok"] is True
+    ng = accept.selfconsistency(doc, expect_final_prefix="deadbeefdeadbeef")
+    assert ng["ok"] is False and "再生 final_hash" in ng["reasons"][0]
+    # final_hash 欄が無ければ最後の combined で判定
+    doc2 = _ckpt("aaaa", "043a630f49a9af30ffff", ticks=[359, 719])
+    assert accept.selfconsistency(doc2, expect_final_prefix="043a630f49a9af30")["ok"] is True
+    # 期待値なし=従来どおり自己整合だけ
+    assert accept.selfconsistency(doc)["ok"] is True
+
+
+def test_cli_full_option_fills_t2c_only(accept, tmp_path):
+    s = tmp_path / "summary.txt"
+    s.write_text(SUMMARY, encoding="utf-8")  # 最終 043a630f49a9af30…
+    full = tmp_path / "replay.json"
+    doc = _ckpt("x1", "x2", "x3", "043a630f49a9af30" + "1" * 48, ticks=[359, 719, 1079, 1439])
+    doc["final_hash"] = "043a630f49a9af30" + "1" * 48
+    full.write_text(json.dumps(doc), encoding="utf-8")
+    out = tmp_path / "out"
+    accept.main(["--summary", str(s), "--full", str(full), "--out-bytes", "1", "--out", str(out)])
+    rows = {r["id"]: r for r in json.loads((out / "c7_accept.json").read_text(encoding="utf-8"))["rows"]}
+    assert rows["T2-c"]["judge"] is True
+    assert rows["T2-b"]["judge"] is None  # T2-b は未判定のまま(回していない)
+    # 本番と食い違う再生は FAIL
+    doc["final_hash"] = "f" * 64
+    full.write_text(json.dumps(doc), encoding="utf-8")
+    accept.main(["--summary", str(s), "--full", str(full), "--out-bytes", "1", "--out", str(out)])
+    rows = {r["id"]: r for r in json.loads((out / "c7_accept.json").read_text(encoding="utf-8"))["rows"]}
+    assert rows["T2-c"]["judge"] is False and "再生 final_hash" in rows["T2-c"]["note"]

@@ -100,10 +100,18 @@ def determinism_rows(a: Mapping[str, Any], b: Mapping[str, Any], *, label: str,
             "first_mismatch": next((i for i, (x, y) in enumerate(zip(ca, cb)) if x != y), None)}
 
 
-def selfconsistency(doc: Mapping[str, Any]) -> dict[str, Any]:
-    """T2-c: 本ラン単体の checkpoint 自己整合。"""
+def selfconsistency(doc: Mapping[str, Any], *, expect_final_prefix: str | None = None) -> dict[str, Any]:
+    """T2-c: 本ラン単体の checkpoint 自己整合。
+
+    ``expect_final_prefix`` を渡すと(本番 summary の「最終 …」16 桁)、``doc['final_hash']``
+    がその前方一致であることも要求する=**テープ再生が本番の最終状態を復元した**こと。
+    """
     cps = doc.get("checkpoints") or []
     reasons: list[str] = []
+    if expect_final_prefix:
+        fh = str(doc.get("final_hash") or (cps[-1].get("combined") if cps and isinstance(cps[-1], Mapping) else ""))
+        if not fh.startswith(str(expect_final_prefix)):
+            reasons.append(f"再生 final_hash {fh[:16]}… が本番 summary の {expect_final_prefix}… と一致しない")
     ticks = [c.get("tick") for c in cps if isinstance(c, Mapping)]
     if not cps:
         reasons.append("checkpoint が 0 点")
@@ -281,6 +289,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="T2-a: 5,000体 同seed 2 ランの checkpoint JSON")
     ap.add_argument("--partial", nargs=2, default=None, metavar=("FULL", "HEAD"),
                     help="T2-b: 40万体 本ランと先頭K tick 部分再ランの checkpoint JSON")
+    ap.add_argument("--full", default=None, metavar="FULL",
+                    help="T2-c だけ: 40万体の checkpoint JSON(テープ再生 cli --replay --checkpoints-out)。"
+                         "--summary があれば再生 final_hash と summary の 16 桁の一致も要求(D-54: 繰り延べの"
+                         "ある規模では T2-b でなく再生で代替)")
     ap.add_argument("--holdout", default=None, help="holdout_compare.py の JSON")
     ap.add_argument("--out", default="docs/bench/c7")
     args = ap.parse_args(argv)
@@ -296,10 +308,13 @@ def main(argv: list[str] | None = None) -> int:
     if args.determinism:
         t2a = determinism_rows(_load(args.determinism[0]), _load(args.determinism[1]),
                                label="T2-a 5,000体 完全再ラン")
+    expect = (summary or {}).get("final_hash") if summary else None
     if args.partial:
         full, head = _load(args.partial[0]), _load(args.partial[1])
         t2b = determinism_rows(full, head, label="T2-b 先頭K tick", prefix_ok=True)
-        t2c = selfconsistency(full)
+        t2c = selfconsistency(full, expect_final_prefix=expect)
+    if args.full:
+        t2c = selfconsistency(_load(args.full), expect_final_prefix=expect)
 
     table = build_table(summary, time_v, s1, _load(args.manifest), _load(args.wc),
                         t2a, t2b, t2c, _load(args.holdout))
