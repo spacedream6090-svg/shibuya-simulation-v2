@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **7 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **8 / 10**
 > 第1〜第110(2026-09-01〜09-08)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 2026-09-08 第111 【工程出口】C4(世界過程第1陣+経済+物)完了・層2合格(修正1点反映)・コミット=C0〜C4 の /goal 達成
@@ -50,3 +50,9 @@
 - 親: RUN_ORDER に W14/W15/W17 登録・engine/run.py の計画境界を W17 週次表分岐へ(mock は下限対照)・Checkpoint.schedule_hash・tests(ALL_STAGES/_UPSTREAM)・fleet_gen regex 対応・frozen_sources を RunResult/manifest/要約へ。層2(別 Fable)=条件付き合格→条件 2 点(W17 expedients 文言・STAGE_VERSION 1.2.0)を修正・pin 宣言・再現手順を登録簿へ。親検収: pytest 全緑・lint 5 kept・scan CLEAN・全段ビルド W14-W17 PASS・cli 5,000 体 保存則 OK・checkpoint fbad9b81…(要約に凍結静的文の SHA 行)。
 - サーバー実行環境: Python 3.10 のみ→3.10 venv+3.10 対応依存で v2 が動作(テスト緑・5,000 体ランが PC と同一ハッシュ=機種跨ぎ T2)→PENDING U-8。世界データを複製。C6 艦隊クライアント=サブ O 実装中(新規ファイルのみ)。
 - 次: W17 応答の回収→ingest(修正率・JSD)→W18 再算出→C5 出口(報告・IMPLEMENTED・コミット)。並行して C6-a(艦隊接続)→C6 スモーク。
+
+## 2026-09-09 第118 【工程出口】C5(母集団・生成)完了: W17 本番 390,067 呼(失敗 0)→ingest 修正率 0.187(raking 適応化)・W18 C 0.425・build_hash 4acb4eb3・コミット。C6 は層2 条件付き合格→修正・被招待の提示へ
+- W17: 7 シャード 12:07/12:35→18:05 完了(各 55,724 呼・26M tok・1,410 ctok/s/GPU)。ingest 第1回 modified_rate 0.2117=FAIL(修復 9.6%+raking 固定 12%)→サブ N が raking 予算を適応(0.19−修復率)へ→**0.1871 PASS**・JSD 0.556→0.421・parse 失敗 0.42%・37.4 B/体。親: 全段ビルド PASS(C1 既知 3 件除く)・W18 被覆 C 0.295→0.425・build_hash 4acb4eb3…・5,000 体 mock 1 日が週次表で動作(checkpoint d5d79337…)。
+- C6(並行): サブ O=艦隊接続+結線(§7 失敗の意味論・BN-4・cache_salt・繰り延べ再投入の不応期免除・二重指標・`--fleet-debug-dir`・phase 内訳)/サブ P=T3/T5/T9・L4/L6 テスト+ハーネス 7 本/サブ Q=パーサ許容(別名・位置引数・辞書 v2)/サブ R=ablation① 切替口/サブ O=会話招待の設計準拠(対象 ID で招待→次 tick 被招待起床・blake3 撹拌で T5 回帰を是正)。親の実 LLM 実測: スモーク 4 回(書式 実効 0.176→0.047・厳密 0.229)・1 日ラン(呼 50,000・帳尻・保存則・センサス OK・購入 49%・会話 8・P2 壁 36.9/CPU 2.8 ms=GIL 競合)・T6 833/833 一致・T7 JSD 0.0035・ablation① JSD 0.040・指標 B 場面 5 種×50 収集→8B vs 14B 再呼。層2(別 Fable)=条件付き合格(承諾返事の偽 PARTNER_BUSY・対象無視・不応期転用の宣言)→サブ O 修正済み(1,779 passed)。新所見: 被招待者がプロンプトで招待を知らない(B6 に行なし)→サブ R。
+- サーバー: Python 3.10 venv で v2 稼働(機種跨ぎ T2 一致)・8B×6+14B×1 を配置・世界データ複製・40 万体 mock ドレスリハーサル開始。PENDING: D-23〜D-36 追加。
+- 次: C6 出口(R の B6 提示→再検証→層2 再確認→コミット→PR)・C7(40 万体×1 日 実 LLM)。
