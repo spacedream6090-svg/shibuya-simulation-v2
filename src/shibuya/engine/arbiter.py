@@ -106,6 +106,10 @@ L4_REFERENCE_AGENTS: Final[int] = 400_000
 _TICKS_PER_DAY: Final[int] = 1_440
 
 #: 不応期[tick](= 分。tick_seconds=60 なので 1 分 = 1 tick)。
+#: **参照用の写し**: アービタは ``refractory_until``(体×条件の「次に起床してよい tick」)
+#: しか読まない=タイマーを張るのは ``engine.resolve.set_refractory`` の側。ablation ③
+#: (§8 第1陣「近接入替の不応期 15 分 ±50%」)で振るのは**ランの実効表**
+#: ``engine.resolve.refractory_ticks(scale)`` であって、この定数ではない。
 REFRACTORY_TICKS: Final[np.ndarray] = np.asarray(REFRACTORY_MINUTES, dtype=np.int32)
 
 

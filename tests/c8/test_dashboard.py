@@ -105,7 +105,7 @@ def test_collect_ablations(dashboard, c8lib):
     table = c8lib.load_ablations()
     out = dashboard.collect_ablations(table)
     assert out["n_arms"] == 6
-    assert out["n_ready"] == 1  # --budget-mode だけ実装済み
+    assert out["n_ready"] == 4  # ①(C6)+ ②③⑥(C8・2026-09-09)
     assert out["n_executed"] == 0
     result = {"arm": "AB1-BUDGET-MODE", "executed": True, "comparisons": [{"action_jsd": 0.04, "exceeds_null": True}]}
     out2 = dashboard.collect_ablations(table, [result])

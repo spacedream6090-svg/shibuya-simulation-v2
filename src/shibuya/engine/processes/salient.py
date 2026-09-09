@@ -56,6 +56,8 @@ from shibuya.world.state import World
 __all__ = [
     "COLLAPSE_PER_10K_PER_DAY",
     "ABLATION_IDS",
+    "ablation_name",
+    "check_d50_scale",
     "SalientEvent",
     "SalientProcess",
 ]
@@ -123,6 +125,7 @@ class SalientProcess:
         environment=None,
         ablation: PN.Ablation | int | str = PN.Ablation.A4_SOCIAL,
         rate_per_10k_per_day: float | None = None,
+        d50_scale: float = 1.0,
     ) -> None:
         self.world = world
         self.agents = agents
@@ -133,7 +136,20 @@ class SalientProcess:
         self.press = press
         self.environment = environment
         self.ablation = _as_ablation(ablation)
-        self.params = PN.PNoticeParams(ablation=self.ablation)
+        # ablation ②(知覚契約書 §8 第1陣 ②「p_notice の d50 を 0.5×/2×」)。既定 1.0 =
+        # §3.1 の値そのもの(``PNoticeParams`` の既定と ``D50_BY_KIND`` の表)=バイト不変。
+        # 打ち切り ``cutoff_m``(80 m)は**動かさない**(§3.1 の別の expedient なので
+        # この腕では固定。2.0× のとき d50=80 m=打ち切りと同値になる点は報告に書く)。
+        self.d50_scale = check_d50_scale(d50_scale)
+        self.params = PN.PNoticeParams(
+            ablation=self.ablation, d50_m=PN.D50_DEFAULT_M * self.d50_scale
+        )
+        #: 事象クラス別 d50[m]の**実効表**(既定 = ``D50_BY_KIND`` そのもの)。
+        self.d50_by_kind: dict[str, float] = (
+            dict(D50_BY_KIND)
+            if self.d50_scale == 1.0
+            else {k: v * self.d50_scale for k, v in D50_BY_KIND.items()}
+        )
         self.budget = PN.EventBudget()
         self.pstate = PerceptionState(agents.n)
         self.pstate.freeze()
@@ -218,7 +234,7 @@ class SalientProcess:
                 )],
                 night=night,
                 moving=ev.moving,
-                d50_m=D50_BY_KIND.get(ev.kind),
+                d50_m=self.d50_by_kind.get(ev.kind),
                 seed=self.master_seed,
                 event_id=ev_id,
                 tick=int(tick),
@@ -397,6 +413,7 @@ class SalientProcess:
             "noticed_social": float(c["noticed_social"]),
             "broadcast_lines": float(self.n_broadcast_lines),
             "ablation": float(int(self.ablation)),
+            "d50_scale": float(self.d50_scale),
         }
 
     def summary(self) -> str:
@@ -405,10 +422,27 @@ class SalientProcess:
             f"{self.n_over_cap:,}) / 気づいた延べ {self.n_noticed:,} / 放送行 "
             f"{self.n_broadcast_lines:,} / "
             f"ablation {self.ablation.name}(80m 近傍=同セル+4近傍=expedient)"
+            + (f" / d50 ×{self.d50_scale:g}" if self.d50_scale != 1.0 else "")
         )
 
 
 # ---------------------------------------------------------------- モジュール関数
+def ablation_name(value: PN.Ablation | int | str) -> str:
+    """``p_notice`` の ablation → ``"A0"``…``"A4"``(manifest の同定欄・§3.1)。
+
+    ``PN.Ablation``・``0``-``4``・``"A2"``・``"AB-PNOTICE-A2"`` のどれでも受ける。
+    """
+    return f"A{int(_as_ablation(value))}"
+
+
+def check_d50_scale(value: float) -> float:
+    """``d50_scale`` の検査(ablation ②)。正の有限値だけ許す。"""
+    v = float(value)
+    if not np.isfinite(v) or v <= 0.0:
+        raise ValueError(f"d50_scale は正の有限値(いま {value!r})")
+    return v
+
+
 def _as_ablation(value: PN.Ablation | int | str) -> PN.Ablation:
     if isinstance(value, PN.Ablation):
         return value

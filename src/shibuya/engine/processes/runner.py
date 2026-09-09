@@ -148,6 +148,7 @@ class WorldProcessRunner:
         retention_days: int = 7,
         prefer_shadow_days: bool = True,
         p_notice_ablation: str | int = "A4",
+        p_notice_d50_scale: float = 1.0,
         salient_rate_per_10k: float | None = None,
     ) -> None:
         if world is None or agents is None:
@@ -259,6 +260,7 @@ class WorldProcessRunner:
             environment=self.environment,
             ablation=_p_notice_ablation(p_notice_ablation, enabled),
             rate_per_10k_per_day=salient_rate_per_10k,
+            d50_scale=p_notice_d50_scale,
         )
 
         self._procs: dict[str, Any] = {

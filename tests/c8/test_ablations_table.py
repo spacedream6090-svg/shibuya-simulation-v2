@@ -104,10 +104,18 @@ def test_totals_match_the_arms(table):
     assert t["calls_with_shared_baseline"] == shared * table["default_scale"]["calls_per_run"]
 
 
-def test_ab1_is_the_only_implemented_switch(table):
-    """C6 で入った ``--budget-mode`` だけが実装済み(残り 5 本は親判断待ち)。"""
+def test_only_the_second_wave_arms_are_still_blocked(table):
+    """切替口の実装状況(C6 で ①・**C8 で ②③⑥**=2026-09-09)。
+
+    残るのは ④聴覚 ΔSNR・⑤日次内省で、どちらも**前提機能が §9 第2陣**(聴覚の物理軸は
+    コードに無く同一セル代理・日次内省は就寝で「発火を記録するだけ」)。
+    """
     ready = [a["id"] for a in table["arms"] if a["switch"]["implemented"]]
-    assert ready == ["AB1-BUDGET-MODE"]
+    assert ready == [
+        "AB1-BUDGET-MODE", "AB2-PNOTICE-D50", "AB3-REFRACTORY-PROX", "AB6-AD-ZERO"
+    ]
+    blocked = {a["id"]: a["status"] for a in table["arms"] if not a["switch"]["implemented"]}
+    assert blocked == {"AB4-HEARING-SNR": "blocked_feature", "AB5-INTROSPECTION": "blocked_feature"}
 
 
 def test_mock_ineffective_arms_are_prompt_only(table):
@@ -215,7 +223,7 @@ def test_compare_runs_without_tape(ablation_runner):
 # ------------------------------------------------------------------ 実行器の門
 def test_execute_arm_refuses_unimplemented_switch(ablation_runner, table, tmp_path):
     """切替口が無い腕は**回さず**差分案を印字して返る(src/ を触らないため)。"""
-    arm = ablation_runner.arm_by_id(table, "AB6-AD-ZERO")
+    arm = ablation_runner.arm_by_id(table, "AB4-HEARING-SNR")
     out = ablation_runner.execute_arm(
         arm, agents=8, ticks=1, seed=1, world_dir=None,
         out_dir=tmp_path, fleet=None, tape_root=tmp_path / "t",

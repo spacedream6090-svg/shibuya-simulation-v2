@@ -52,7 +52,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Final
+from typing import Any, Final, Mapping
 
 import blake3 as _blake3
 import numpy as np
@@ -79,6 +79,10 @@ from shibuya.engine.change_detect import ChangeDetector
 from shibuya.engine.conversation import ConversationManager
 from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.processes.runner import WorldProcessRunner
+from shibuya.engine.processes.salient import (
+    ablation_name as _pnotice_ablation_name,
+    check_d50_scale as _check_d50_scale,
+)
 from shibuya.engine.llm_bridge import (
     DEFAULT_LANE,
     LLMBridge,
@@ -217,6 +221,14 @@ class RunResult:
     renderer_name: str = ""
     #: 知覚のトークン配分(知覚契約書 §3.2 の義務 ablation ①)。``fixed_slots`` / ``single_ranking``。
     budget_mode: str = BudgetMode.FIXED_SLOTS.value
+    #: p_notice の ablation(§3.1 A0-A4)。既定 ``A4``=完成形。
+    p_notice_ablation: str = "A4"
+    #: ablation ②(§8 第1陣)。``p_notice`` の d50 の倍率。既定 1.0=§3.1 の 40 m。
+    p_notice_d50_scale: float = 1.0
+    #: ablation ③(§8 第1陣)。§6 不応期表の倍率 ``{条件名: 倍率}``。既定 {}=表どおり。
+    refractory_scale: dict[str, float] = field(default_factory=dict)
+    #: ablation ⑥(§8 第1陣)。看板・広告面(B2.signage)を描いたか。既定 True。
+    signage: bool = True
     #: 凍結静的文の版(W14/W15 の parquet: ファイル名→sha256)。凍結文なしのランは空(層2 指摘 09-09)。
     frozen_sources: dict[str, str] = field(default_factory=dict)
     #: 録画テープの置き場(記録したときだけ)。
@@ -362,6 +374,8 @@ class RunResult:
             ``registry_hash``(世界側台帳)・``replay_date``(D-W15 の実日)・
             ``template_sha256``(知覚テンプレ v1 の凍結ハッシュ)・
             ``budget_mode``(知覚契約書 §3.2 ablation ① の腕)・
+            ``p_notice_ablation``/``p_notice_d50_scale``/``refractory_scale``/``signage``
+            (§8 第1陣 ②③⑥ の腕。既定は ``A4``/``1.0``/``{}``/``True``)・
             ``catalog_sha16``(世界カタログ v0.2 の凍結 SHA)・
             ``process_ids``(実際に回した過程 id の昇順)・``ablations``(切った過程/感度試験 id)。
         """
@@ -388,6 +402,11 @@ class RunResult:
             "replay_date": self.replay_date,
             "template_sha256": _T.template_sha256(),
             "budget_mode": self.budget_mode,
+            # ---- ablation 第1陣(§8)の腕。既定値のランでも欄は常に出る ----
+            "p_notice_ablation": self.p_notice_ablation,
+            "p_notice_d50_scale": float(self.p_notice_d50_scale),
+            "refractory_scale": dict(self.refractory_scale),
+            "signage": bool(self.signage),
             "catalog_sha16": catalog_sha16,
             "process_ids": process_ids,
             "ablations": ablations,
@@ -723,6 +742,9 @@ def run_day(
     processes_enabled: "list[str] | tuple[str, ...] | None" = None,
     processes_disabled: "list[str] | tuple[str, ...] | None" = None,
     p_notice_ablation: str | int = "A4",
+    p_notice_d50_scale: float = 1.0,
+    refractory_scale: Mapping[Any, float] | None = None,
+    signage: bool = True,
     budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
     salient_rate_per_10k: float | None = None,
     population: "Population | bool | None" = None,
@@ -779,7 +801,19 @@ def run_day(
             ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
         p_notice_ablation: 顕著行為の到達 ``p_notice`` の ablation(知覚契約書 §3.1 の
             ``A0``-``A4``。既定 ``A4``=完成形)。``processes_enabled`` に
-            ``AB-PNOTICE-A2`` のように書いても効く。
+            ``AB-PNOTICE-A2`` のように書いても効く。**``--ablate AB-PNOTICE-A0`` は
+            ``salient`` 過程ごと止まる**(過程トグルと id を共有するため)ので、A0-A4 の
+            腕を選ぶときは必ずこの引数を使う。
+        p_notice_d50_scale: 知覚契約書 §8 第1陣 **② の腕**「p_notice の d50 を 0.5×/2×」。
+            §3.1 の d50(既定 40 m・事象クラス別の表も同じ倍率)に掛ける正の倍率。
+            既定 1.0=現行の抽選で**1 ビットも変わらない**。打ち切り 80 m は動かさない
+            (2.0× は d50=打ち切りと同値になる=報告に明記する)。
+        refractory_scale: 知覚契約書 §8 第1陣 **③ の腕**「近接入替の不応期 15 分 ±50%」。
+            ``{起床条件: 倍率}``(鍵は ``WakeCondition``・列番号・条件名)。§6 不応期表を
+            ランごとに振る(``engine.resolve.refractory_ticks``)。既定 ``None``=表どおり。
+        signage: 知覚契約書 §8 第1陣 **⑥ の腕**「広告ゼロ」。``False`` で看板・広告面
+            (B2.signage)を全セルで空にする(W14 凍結文も合成文も載せない)。既定 True。
+            ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
         population: W16 母集団(``agents.population.Population``)。``None``(既定)は
             **``world_dir`` に ``w16_population.parquet`` があれば自動で読む**
             (``n_agents`` 体へ二層抽出)。``False`` で明示的に切る(合成個体のまま)。
@@ -793,6 +827,11 @@ def run_day(
     """
     t_start = time.perf_counter()
     budget_mode_enum = BudgetMode.parse(budget_mode)
+    # ---- ablation ②③: 腕の値をここで検査する(過程を切ったランでも manifest が嘘をつかない) ----
+    p_notice_d50_scale = _check_d50_scale(p_notice_d50_scale)
+    # ---- ablation ③: **ランの実効不応期表**を 1 本組む(既定=§6 の表そのもの) ----
+    refractory_table = R.refractory_ticks(refractory_scale)
+    refractory_scale_norm = R.normalized_refractory_scale(refractory_scale)
     world = world if world is not None else World.synthetic(n_cells=n_cells, seed=seed)
     llm = llm if llm is not None else MockLLM(master_seed=seed)
     salt = run_salt_for(seed)
@@ -825,6 +864,7 @@ def run_day(
             enabled=processes_enabled,
             disabled=processes_disabled,
             p_notice_ablation=p_notice_ablation,
+            p_notice_d50_scale=p_notice_d50_scale,
             salient_rate_per_10k=salient_rate_per_10k,
         )
 
@@ -844,6 +884,7 @@ def run_day(
                 clock_fn=lambda t: start + timedelta(minutes=int(t)),
                 seed=seed,
                 budget_mode=budget_mode_enum,
+                signage_enabled=signage,
             )
         )
         renderer_obj: Any = perception
@@ -1157,7 +1198,7 @@ def run_day(
         sel = decision.selected
         n_parse_errors = 0
         if len(sel):
-            R.set_refractory(agents, sel.agent_id, sel.condition, tick)
+            R.set_refractory(agents, sel.agent_id, sel.condition, tick, refractory_table)
             cell = agents.registry.cell
             act = agents.registry.activity
             hun = agents.registry.hunger
@@ -1489,6 +1530,19 @@ def run_day(
         if perception is not None
         else budget_mode_enum
     ).value
+    # ablation 第1陣 ②③⑥ の腕(manifest の同定欄)。⑥ は**実際に描いた側**が正。
+    result.p_notice_ablation = _pnotice_ablation_name(
+        runner.salient.ablation if runner is not None else p_notice_ablation
+    )
+    result.p_notice_d50_scale = (
+        float(runner.salient.d50_scale) if runner is not None else float(p_notice_d50_scale)
+    )
+    result.refractory_scale = dict(refractory_scale_norm)
+    result.signage = bool(
+        getattr(getattr(perception, "renderer", None), "signage_enabled", signage)
+        if perception is not None
+        else signage
+    )
     result.diagnostics = np.asarray(diag_rows, dtype=np.int64).reshape(-1, len(DIAG_RUN_COLUMNS))
     result.phase_seconds = phase
     result.wall_seconds = time.perf_counter() - t_start

@@ -51,15 +51,15 @@ ALLOWED_KWARGS: frozenset[str] = frozenset(
         "processes_enabled",     # 実装済
         "salient_rate_per_10k",  # 実装済(顕著行為の発生率)
         "use_population",        # 実装済(下限対照)
-        # ---- 差分案(未実装。pending の腕でだけ現れる) ----
-        "p_notice_d50_scale",
-        "refractory_scale",
-        "signage",
+        # ---- C8 切替口 ②③⑥(2026-09-09 実装済・サブ U・親検収) ----
+        "p_notice_d50_scale",    # 実装済(② d50 倍率)
+        "refractory_scale",      # 実装済(③ 不応期倍率表)
+        "signage",               # 実装済(⑥ 看板行の有無)
     }
 )
 
-#: 未実装の切替口(``pending`` の腕が使うキー)。
-PENDING_KWARGS: frozenset[str] = frozenset({"p_notice_d50_scale", "refractory_scale", "signage"})
+#: 未実装の切替口(``pending`` の腕が使うキー)。②③⑥ は 2026-09-09 に実装済=いまは空。
+PENDING_KWARGS: frozenset[str] = frozenset()
 
 
 def arm_by_id(table: Mapping[str, Any], arm_id: str) -> dict[str, Any]:
@@ -205,7 +205,7 @@ def _manifest_fields(res: Any) -> dict[str, Any]:
         f = res.run_manifest_fields()
     except Exception:  # pragma: no cover - mock/stub の結果
         return {}
-    return {k: v for k, v in f.items() if k in ("budget_mode", "ablations", "template_sha256", "catalog_sha16", "replay_date")}
+    return {k: v for k, v in f.items() if k in ("budget_mode", "ablations", "template_sha256", "catalog_sha16", "replay_date", "p_notice_ablation", "p_notice_d50_scale", "refractory_scale", "signage")}
 
 
 def compare_runs(baseline: Mapping[str, Any], arm: Mapping[str, Any]) -> dict[str, Any]:

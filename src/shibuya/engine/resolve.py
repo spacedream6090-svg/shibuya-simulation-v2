@@ -48,7 +48,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from typing import Final
+from typing import Any, Final, Mapping
 
 import numpy as np
 
@@ -58,6 +58,7 @@ from shibuya.agents.state import (
     Activity,
     AgentState,
     ResultCode,
+    WakeCondition,
 )
 from shibuya.engine.change_detect import DetectResult
 from shibuya.engine.ledger_api import LedgerBundle
@@ -92,6 +93,9 @@ __all__ = [
     "apply",
     "set_refractory",
     "clear_refractory",
+    "refractory_ticks",
+    "wake_condition_index",
+    "normalized_refractory_scale",
     "advance_body",
     "restock",
     "discard_to_bin",
@@ -120,6 +124,77 @@ SLEEP_FATIGUE_RELIEF: Final[int] = 2
 _SELL_SLOT_RETRIES: Final[int] = 8
 
 _REFRACTORY_TICKS: Final[np.ndarray] = np.asarray(REFRACTORY_MINUTES, dtype=np.int32)
+_REFRACTORY_TICKS.flags.writeable = False
+
+
+def wake_condition_index(key: WakeCondition | int | str) -> int:
+    """``refractory_scale`` の鍵 → ``WakeCondition`` の列番号。
+
+    ``WakeCondition``・``int``・条件名(``"PROXIMITY_SWAP"``・大小文字と前後空白は無視)を
+    受ける。**日本語の行名は受けない**(表の 11 行と 1 対 1 の対応が崩れるため)。
+    """
+    if isinstance(key, WakeCondition):
+        return int(key)
+    if isinstance(key, (int, np.integer)) and not isinstance(key, bool):
+        idx = int(key)
+    else:
+        name = str(key).strip().upper().replace("-", "_")
+        try:
+            idx = int(WakeCondition[name])
+        except KeyError:
+            raise ValueError(
+                f"未知の起床条件: {key!r}(§6 の 11 行 = {[c.name for c in WakeCondition]})"
+            ) from None
+    if not 0 <= idx < N_WAKE_CONDITIONS:
+        raise ValueError(f"起床条件の列番号は 0..{N_WAKE_CONDITIONS - 1}(いま {key!r})")
+    return idx
+
+
+def refractory_ticks(scale: Mapping[Any, float] | None = None) -> np.ndarray:
+    """**ランの実効不応期表**[tick](知覚契約書 §6 の 11 行)。
+
+    ablation ③(§8 第1陣 ③「近接入替の不応期 15 分 ±50%」)の切替口。モジュール定数を
+    ``import`` 時に焼くのをやめ、``run_day`` が 1 本組んで ``set_refractory`` に渡す。
+
+    Args:
+        scale: ``{起床条件: 倍率}``。``None`` / 空 dict なら **§6 の表そのもの**
+            (``_REFRACTORY_TICKS`` を**そのまま**返す=既定でバイト不変)。鍵は
+            ``WakeCondition``・列番号・条件名のどれでもよい(``wake_condition_index``)。
+
+    Returns:
+        ``(11,)`` int32(書き込み禁止)。tick_seconds=60 なので分=tick。
+
+    expedient(自前規約・設計書に丸めの規定は無い)
+        表は**分の整数**なので、倍率をかけた値は ``floor(x + 0.5)``(half-up)で丸める。
+        15 分 ×0.5 = 7.5 → **8 分**・15 分 ×1.5 = 22.5 → **23 分**。
+        倍率 0 は「床なし」(会話ターンと同じ 0 分)として許す。
+
+    Raises:
+        ValueError: 未知の起床条件・負/非有限の倍率。
+    """
+    if not scale:
+        return _REFRACTORY_TICKS
+    base = np.asarray(REFRACTORY_MINUTES, dtype=np.float64)
+    for key, factor in dict(scale).items():
+        f = float(factor)
+        if not np.isfinite(f) or f < 0.0:
+            raise ValueError(f"不応期の倍率は 0 以上の有限値(いま {key!r}={factor!r})")
+        base[wake_condition_index(key)] *= f
+    out = np.floor(base + 0.5).astype(np.int32)
+    out.flags.writeable = False
+    return out
+
+
+def normalized_refractory_scale(scale: Mapping[Any, float] | None = None) -> dict[str, float]:
+    """``refractory_scale`` を manifest 欄用に正規化する(``{条件名: 倍率}``・名前昇順)。"""
+    if not scale:
+        return {}
+    return {
+        WakeCondition(wake_condition_index(k)).name: float(v)
+        for k, v in sorted(
+            dict(scale).items(), key=lambda kv: WakeCondition(wake_condition_index(kv[0])).name
+        )
+    }
 
 
 def _require_thawed(*states: object) -> None:
@@ -265,13 +340,23 @@ def apply_detection(agents: AgentState, world: World, result: DetectResult) -> N
 
 
 # ---------------------------------------------------------------- 不応期
-def set_refractory(agents: AgentState, agent_id, condition, tick: int) -> None:
-    """呼んだ個体×条件の不応期タイマーを張る(知覚契約書 §6 運用規定②)。"""
+def set_refractory(
+    agents: AgentState, agent_id, condition, tick: int, table: np.ndarray | None = None
+) -> None:
+    """呼んだ個体×条件の不応期タイマーを張る(知覚契約書 §6 運用規定②)。
+
+    Args:
+        table: **ランの実効不応期表**[tick](``refractory_ticks``)。``None`` なら §6 の表
+            そのもの(=既定でバイト不変)。ablation ③ はここに振った表を渡す。
+    """
     a = np.asarray(agent_id, dtype=np.int64)
     if a.size == 0:
         return
     c = np.asarray(condition, dtype=np.int64)
-    until = (int(tick) + _REFRACTORY_TICKS[c]).astype(np.int32)
+    tab = _REFRACTORY_TICKS if table is None else np.asarray(table, dtype=np.int32)
+    if tab.shape != (N_WAKE_CONDITIONS,):
+        raise ValueError(f"不応期表は ({N_WAKE_CONDITIONS},) int32(いま {tab.shape})")
+    until = (int(tick) + tab[c]).astype(np.int32)
     with agents.writable():
         _require_thawed(agents)
         cur = agents.registry.refractory_until

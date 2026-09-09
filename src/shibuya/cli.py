@@ -33,12 +33,14 @@ from typing import Final
 import numpy as np
 
 from shibuya.agents import population as POP
+from shibuya.agents.state import WakeCondition
 from shibuya.core.rng import stream
 from shibuya.economy import GoodsLedger, Ledger
 from shibuya.economy import anchors as AN
 from shibuya.economy import census as CS
 from shibuya.economy import entry_capital as EC
 from shibuya.economy.accounts import BalanceLine, Sector
+from shibuya.engine import resolve as R
 from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.run import (
     MINUTES_PER_SIM_DAY,
@@ -53,6 +55,7 @@ from shibuya.world.state import World
 __all__ = [
     "STORE_ENTRY_CAPITAL_YEN",
     "WALLET_DOMAIN",
+    "parse_refractory_scale",
     "store_capital_array",
     "store_capital_report",
     "household_wallets",
@@ -67,6 +70,39 @@ STORE_ENTRY_CAPITAL_YEN: Final[int] = 200_000
 
 #: 初期財布の乱数ドメイン(``core.rng`` の Philox・manifest のドメイン表に載る)。
 WALLET_DOMAIN: Final[str] = "wallet.initial"
+
+
+def parse_refractory_scale(items: "list[str] | tuple[str, ...] | None") -> dict[str, float]:
+    """``--refractory-scale COND=FACTOR`` の並び → ``{条件名: 倍率}``(ablation ③)。
+
+    条件名は ``agents.state.WakeCondition`` の 11 行(大小文字・``-``/``_`` は吸収)。
+    同じ条件を 2 回書いたら**後が勝つ**。空の並びは空 dict(=§6 の表そのもの)。
+
+    Example:
+        >>> parse_refractory_scale(["PROXIMITY_SWAP=0.5"])
+        {'PROXIMITY_SWAP': 0.5}
+
+    Raises:
+        argparse.ArgumentTypeError: ``=`` が無い・倍率が数でない・未知の条件名。
+    """
+    out: dict[str, float] = {}
+    for raw in items or ():
+        text = str(raw)
+        if "=" not in text:
+            raise argparse.ArgumentTypeError(
+                f"--refractory-scale は COND=FACTOR の形(いま {text!r})"
+            )
+        key, _, val = text.partition("=")
+        try:
+            factor = float(val)
+        except ValueError:
+            raise argparse.ArgumentTypeError(f"倍率が数でない: {text!r}") from None
+        try:
+            idx = R.wake_condition_index(key)
+        except ValueError as exc:
+            raise argparse.ArgumentTypeError(str(exc)) from None
+        out[WakeCondition(idx).name] = factor
+    return out
 
 
 def store_capital_array(
@@ -247,6 +283,29 @@ def main(argv: list[str] | None = None) -> int:
              "ranking=同一総トークンの単一ランキング",
     )
     ap.add_argument(
+        "--pnotice-d50-scale",
+        "--p-notice-d50-scale",
+        dest="pnotice_d50_scale",
+        type=float,
+        default=1.0,
+        metavar="FACTOR",
+        help="p_notice の d50 を倍率で振る(知覚契約書 §8 第1陣 ② の腕。既定 1.0=40 m・"
+             "0.5=20 m・2.0=80 m。2.0 は打ち切り 80 m と同値になる)",
+    )
+    ap.add_argument(
+        "--refractory-scale",
+        action="append",
+        default=[],
+        metavar="COND=FACTOR",
+        help="§6 不応期表を条件ごとに倍率で振る(§8 第1陣 ③ の腕。繰り返し可。"
+             "例 --refractory-scale PROXIMITY_SWAP=0.5。条件名は WakeCondition の 11 行)",
+    )
+    ap.add_argument(
+        "--no-signage",
+        action="store_true",
+        help="看板・広告面(B2.signage)を全セルで空にする(§8 第1陣 ⑥「広告ゼロ」の腕)",
+    )
+    ap.add_argument(
         "--no-population",
         action="store_true",
         help="W16 母集団を使わず合成個体で回す(下限対照・世帯財布も mock のまま)",
@@ -255,6 +314,12 @@ def main(argv: list[str] | None = None) -> int:
     # --max-tokens / --fleet-wait-s(C6-a)
     add_fleet_args(ap)
     args = ap.parse_args(argv)
+    try:
+        refractory_scale = parse_refractory_scale(args.refractory_scale)
+        if float(args.pnotice_d50_scale) <= 0.0:
+            raise argparse.ArgumentTypeError("--pnotice-d50-scale は正の値")
+    except argparse.ArgumentTypeError as exc:  # 使い方の誤りは traceback ではなく usage で返す
+        ap.error(str(exc))
     res = run(
         n_agents=args.agents,
         seed=args.seed,
@@ -266,6 +331,9 @@ def main(argv: list[str] | None = None) -> int:
         use_population=not args.no_population,
         processes_disabled=args.ablate or None,
         budget_mode=args.budget_mode,
+        p_notice_d50_scale=float(args.pnotice_d50_scale),
+        refractory_scale=refractory_scale or None,
+        signage=not args.no_signage,
         fleet=fleet_from_args(args, ap),
         fleet_wait_s=float(getattr(args, "fleet_wait_s", 0.0)),
         fleet_debug_dir=getattr(args, "fleet_debug_dir", "") or None,

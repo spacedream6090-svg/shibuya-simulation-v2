@@ -582,6 +582,7 @@ class Renderer:
         watched_by: np.ndarray | None = None,
         budget_mode: ch.BudgetMode | str = ch.BudgetMode.FIXED_SLOTS,
         strict_group_budget: bool = True,
+        signage_enabled: bool = True,
     ) -> None:
         """
         Args:
@@ -595,6 +596,11 @@ class Renderer:
             budget_mode: §3.2 の義務 ablation の切替(``ch.BudgetMode`` か
                 ``"fixed"``/``"ranking"``)。既定=固定枠(現行の描画)。
             strict_group_budget: True でグループ予算超過を例外にする(既定)。
+            signage_enabled: 看板・広告面(B2.signage)を描くか。知覚契約書 §8 第1陣 **⑥
+                「広告ゼロ」**の切替口。``False`` で W14 凍結文も合成文も載せず、全セルで
+                ``B2.signage_empty``(=「見える表示はありません」)にする。既定 True=
+                現行の描画で**1 バイトも変わらない**。テンプレ本体は触らないので
+                ``template_sha256`` は不変・規約⑧(セルの情報しか使わない)も不変。
         """
         self.world = world
         self.agents = agents
@@ -605,6 +611,7 @@ class Renderer:
         self.watched_by = watched_by
         self.budget_mode = ch.BudgetMode.parse(budget_mode)
         self.strict_group_budget = strict_group_budget
+        self.signage_enabled = bool(signage_enabled)
 
         self._tickc = _TickCache()
         self._b0 = N.canonical_whitespace(T.TEMPLATES["B0.system"]).encode("utf-8")
@@ -919,10 +926,16 @@ class Renderer:
     def _signage_body(self, cell: int) -> str | None:
         """看板(a)の**本文**(命令文除去済み・枠の切り詰め前)。
 
+        ablation ⑥(§8 第1陣「広告ゼロ」)は ``signage_enabled=False`` でここを ``None`` に
+        する。**固定枠と単一ランキングの両方**がこの 1 本を材料にしているので、腕は 1 箇所で
+        効く(固定枠 → ``_signage`` が ``B2.signage_empty``・ランキング → 候補が空列)。
+
         Returns:
             見える表示が**無い**セルは ``None``、在るが命令文除去で本文が消えた場合は ``""``
             (この 2 つは描画が違う=前者は「見える表示はありません」・後者は素性タグだけの行)。
         """
+        if not self.signage_enabled:
+            return None
         A = self.assets
         w = self.world
         for j in A.visible_poi[cell]:
