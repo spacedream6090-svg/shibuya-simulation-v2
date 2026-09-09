@@ -140,3 +140,56 @@ def test_wallets_are_not_used_for_a_synthetic_world():
     """実データの母集団を合成小世界へ載せない(engine の判断と同じ)。"""
     small = World.synthetic(n_cells=16, seed=3)
     assert cli.household_wallets(small, 200, 1, str(WORLD_DIR)) is None
+
+# ---------------------------------------------------------------- --checkpoints-out(C7 T2 の入力)
+
+
+def test_checkpoints_out_writes_the_t2_payload_that_c7_accept_reads(tmp_path, capsys):
+    """``--checkpoints-out`` は checkpoint 列を JSON に出し、final_hash は summary と同じ値。"""
+    import json
+    import sys
+
+    out = tmp_path / "ckpt.json"
+    rc = cli.main([
+        "--agents", "100", "--seed", "1", "--world", "__no_such_dir__", "--cells", "9",
+        "--ticks", "30", "--checkpoint-every", "10", "--checkpoints-out", str(out),
+    ])
+    assert rc == 0
+    doc = json.loads(out.read_text(encoding="utf-8"))
+    cps = doc["checkpoints"]
+    assert [c["tick"] for c in cps] == [9, 19, 29]
+    assert doc["final_hash"] == cps[-1]["combined"] and len(doc["final_hash"]) == 64
+    assert doc["final_hash"][:16] in capsys.readouterr().out
+    assert doc["manifest"]["template_sha256"]
+    # 受入計器がそのまま読める形(tools/c7 は実行スクリプト置き場=sys.path に足す)
+    tools_c7 = str(Path(__file__).resolve().parents[1] / "tools" / "c7")
+    if tools_c7 not in sys.path:
+        sys.path.insert(0, tools_c7)
+    import c7_accept  # noqa: E402
+
+    assert c7_accept.normalize_checkpoints(doc) == [c["combined"] for c in cps]
+    assert c7_accept.selfconsistency(doc) == {"n_checkpoints": 3, "ok": True, "reasons": []}
+
+
+def test_checkpoints_out_is_deterministic_across_two_runs(tmp_path):
+    """同 seed 2 ランの checkpoint 列は全点一致(T2-a の形)。"""
+    import json
+
+    docs = []
+    for k in ("a", "b"):
+        out = tmp_path / f"{k}.json"
+        assert cli.main([
+            "--agents", "100", "--seed", "7", "--world", "__no_such_dir__", "--cells", "9",
+            "--ticks", "20", "--checkpoint-every", "10", "--checkpoints-out", str(out),
+        ]) == 0
+        docs.append(json.loads(out.read_text(encoding="utf-8")))
+    assert [c["combined"] for c in docs[0]["checkpoints"]] == [c["combined"] for c in docs[1]["checkpoints"]]
+    assert docs[0]["final_hash"] == docs[1]["final_hash"]
+
+
+def test_default_run_does_not_write_checkpoints_file(tmp_path, capsys):
+    rc = cli.main(["--agents", "100", "--seed", "1", "--world", "__no_such_dir__", "--cells", "9", "--ticks", "10"])
+    assert rc == 0
+    assert "checkpoints JSON" not in capsys.readouterr().out
+    assert list(tmp_path.iterdir()) == []
+

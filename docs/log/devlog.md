@@ -1,7 +1,14 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **2 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **3 / 10**
 > 第1〜第120(2026-09-01〜09-09)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
+
+## 第123 C7 受入の前準備: 受入計器ドライラン+cli --checkpoints-out/--replay+売上試算(2026-09-09)
+
+- **依頼**: /goal 続行。ユーザー: 「売上の試算」→3 シナリオ提示。続けて「世界と人の行動まで再現する事業なのに試算が小さすぎないか」→2 層(積み上げ=初年度の請求可能額/到達市場=プラットフォーム化した場合)で再回答。
+- **実施**: 受入計器を mock 2,000 体×180 tick でドライラン(在圏 journal→occupancy_series 5 エリア表→holdout_compare は --open-seal なしで拒否=門番 OK→c7_accept 受入表 8/16 行 PASS)。穴=T2 行の入力(checkpoint 列 JSON)が CLI から出ない→`--checkpoints-out`(JSON)+`--replay`(本番テープの再生で 40 万体の checkpoint 列を復元)を追加。tests/test_cli 3 本追加(73 passed w/ tests/c7)・lint 5 kept・scan CLEAN。既定バイト不変。
+- **C7**: c7-day-2 継続中(Monitor 常設)。完了後の手順: tape+occupancy+log を回収→`--replay` で checkpoint 列(T2-c)→5,000 体×2 実 LLM(T2-a)→先頭 60 tick 部分再ラン(T2-b)→c7_accept→holdout 開封 1 回→報告→層2→コミット。
+- **次**: C7 完了待ち。完了後 ⑥→① の実 LLM ablation(5,000 体)。
 
 ## 第122 C8 ablation 切替口 ②③⑥(サブ U・親検収)+D-48/D-49+ビジネス回答(2026-09-09)
 

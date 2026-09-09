@@ -674,6 +674,8 @@ C7(390,067 体)の実測で **llm 位相 46,079 ms/tick**(呼 2,709/tick)にな�
 
 > 前提: CLAUDE.md §2-2「全て決めてから構築」。着手ゲート=世界データ構築仕様書(D-W1〜D-W22)+本§9の承認。**所要日数は親の推測**(サブ実装+親検収込み・並列度2)。GPU: サーバー返却(9/10)後はローカル1GPUのみ→C5後半以降(艦隊必須)は再借用/クラウドが前提。
 
+- **(2026-09-09 追補・親)`cli --checkpoints-out PATH` / `--replay TAPE_DIR`**: 受入表 T2-a/b/c の入力。checkpoint 列(tick・agents/world/population/schedule ハッシュ・combined)と final_hash(全桁)を JSON へ。`--replay` は本番テープ(calls.parquet)を `mode=replay` で再生し(LLM 呼なし)、40 万体本ランの checkpoint 列を復元する=T2-c(自己整合)と「再生 final_hash = 本番 summary の 16 桁」の照合。既定=書かない・回さない(バイト不変)。tests/test_cli.py 3 本(c7_accept.selfconsistency が読める形・同 seed 2 ラン一致・既定で書かない)。パターン照合: T2 決定論(運用設計書 §1.4)の代替 3 本(E-C7-4)。
+
 ### 9.1 工程表(C0〜C8)
 
 | 工程 | 内容 | 担当 | 検収(親・機械) | 依存 | 推測日数 | GPU |

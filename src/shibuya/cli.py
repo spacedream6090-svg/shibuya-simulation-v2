@@ -27,8 +27,9 @@ engine は economy を import できない(層契約: economy > engine)。世界
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
-from typing import Final
+from typing import Any, Final
 
 import numpy as np
 
@@ -256,6 +257,35 @@ def run(
     )
 
 
+def checkpoints_payload(res: RunResult, *, run_id: str = "") -> dict[str, Any]:
+    """T2(決定論)行の入力 = checkpoint 列を JSON にできる形で返す(**純関数**)。
+
+    受入計器 ``tools/c7/c7_accept.py`` の ``normalize_checkpoints`` / ``selfconsistency``
+    が読む形(``checkpoints[].{tick, combined, population_hash, schedule_hash}``)。
+    ``final_hash`` は summary の「checkpoint N 点 最終 …」と同じ値(16 桁でなく全桁)。
+    """
+    return {
+        "schema": "shibuya.cli/checkpoints/1",
+        "run_id": run_id,
+        "n_agents": int(res.n_agents),
+        "seed": res.seed,
+        "ticks": int(res.ticks),
+        "final_hash": res.final_hash,
+        "checkpoints": [
+            {
+                "tick": int(c.tick),
+                "agents_hash": c.agents_hash,
+                "world_hash": c.world_hash,
+                "population_hash": c.population_hash,
+                "schedule_hash": c.schedule_hash,
+                "combined": c.combined,
+            }
+            for c in res.checkpoints
+        ],
+        "manifest": res.run_manifest_fields(),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="台帳(金/物)+世界過程つきの 1 シミュ日ラン(C4)")
     ap.add_argument("--agents", type=int, default=5_000)
@@ -310,6 +340,20 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="W16 母集団を使わず合成個体で回す(下限対照・世帯財布も mock のまま)",
     )
+    ap.add_argument(
+        "--checkpoints-out",
+        type=str,
+        default="",
+        help="checkpoint 列(tick・agents/world/population/schedule ハッシュ・combined)と"
+             " final_hash を JSON で書く(C7 受入 T2-a/b/c の入力。既定=書かない)",
+    )
+    ap.add_argument(
+        "--replay",
+        type=str,
+        default="",
+        help="録画テープのディレクトリを与えると mode=replay(テープ完全一致・LLM 呼なし)で回す"
+             "(C7 T2-c: 本番テープの再生で checkpoint 列を復元する)",
+    )
     # --llm / --endpoints / --model / --mode / --run-id / --tape / --temperature /
     # --max-tokens / --fleet-wait-s(C6-a)
     add_fleet_args(ap)
@@ -340,8 +384,15 @@ def main(argv: list[str] | None = None) -> int:
         occupancy_every=int(getattr(args, "occupancy_every", 0) or 0),
         occupancy_path=getattr(args, "occupancy_out", "") or None,
         tape_path=args.tape or None,
+        **({"mode": "replay", "replay": args.replay} if args.replay else {}),
     )
     print(res.summary())
+    if args.checkpoints_out:
+        out = Path(args.checkpoints_out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        payload = checkpoints_payload(res, run_id=str(getattr(args, "run_id", "") or ""))
+        out.write_text(json.dumps(payload, ensure_ascii=False, indent=1, default=str) + "\n", encoding="utf-8")
+        print(f"  checkpoints JSON {out} ({len(payload['checkpoints'])} 点)")
     if res.fleet_fields:
         c = res.bridge_counters
         dec = res.fleet_fields.get("decoding", {}).get("T1", {})
