@@ -1,7 +1,10 @@
 # STATUS(索引)
 
-- 現在地: **構築工程 C0〜C5 完了(build/c5-c8・/goal C5〜C8 無人運転)。C6(実 LLM スモーク+運用テスト)完了(受入報告 C6)。C7(40 万体×1 日)準備中** — 決定台帳 [docs/design/v2-redesign.md](docs/design/v2-redesign.md)
+- 現在地: **構築工程 C0〜C6 完了。C7(40 万体×1 シミュ日・実 LLM)を本番ラン中**(c7-day-2・09-09 20:29 開始・09-10 02:17 時点で約 40%・完了見込み 09-10 11 時ごろ)。C8 は基盤(ablation ランナー・感度試験・計器盤・アンサンブル設計)と切替口 4/6 腕まで完成、実ランは C7 完了後 — 決定台帳 [docs/design/v2-redesign.md](docs/design/v2-redesign.md)
+- 進捗の目安: **v2 初版(C0〜C8 完走)= 約 70%** / 第一目標「世界そのものがプロダクト」= 約 3 割(内訳は下記の devlog 第126)
 - 完了実装: [IMPLEMENTED.md](IMPLEMENTED.md)
-- 未実装・判断待ち: [PENDING.md](PENDING.md)
+- 未実装・判断待ち: [PENDING.md](PENDING.md)(D-1〜D-50・U-1〜U-8)
+- 受入報告: [C5](docs/ops/build-report-C5.md)・[C6](docs/ops/build-report-C6.md)・[C7(進行中)](docs/ops/build-report-C7.md)
 - 開発ログ: [docs/log/devlog.md](docs/log/devlog.md)
-- 最終更新: 2026-09-09(第119 工程C6完了。C7 準備中。判断待ち=PENDING §2 D-1〜D-38)
+- ブランチ: `build/c5-c8`(第125 a8647c8 まで push 済み・PR #2 は main へ未マージ=ユーザー判断)
+- 最終更新: 2026-09-10(第126 現状report。C7 ラン中・C8 基盤完成・判断待ち D-1〜D-50)
