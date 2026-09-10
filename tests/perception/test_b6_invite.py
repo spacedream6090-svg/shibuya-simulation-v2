@@ -233,6 +233,8 @@ def test_end_to_end_only_the_real_renderer_lets_the_invitee_accept(capsys):
     # ので、同じセルで 2 人が同時に「会話」を選ぶと相互指名になる。D-62(就寝は計画の実行)で
     # 起きている体が増え、この窓で 358 招待中 **2 件(0.6%)**出るようになった(D-62 前は 147
     # 招待中 0 件)。**招待文を読んだ承諾ではない**ので、率で判定する。
+    # 層2(第137)の指摘で率でなく**絶対値**でも縛る: 差し替えで立つのは高々 2 セッション。
+    assert stub["conv_accepted"] <= 2, stub
     assert stub["conv_accepted"] <= 0.01 * stub["conv_invites"], stub
     assert real_llm.n_prompts_with_invite > 0
     assert real["conv_accepted"] > 0 and real["sessions_opened"] > 0, real
@@ -240,4 +242,6 @@ def test_end_to_end_only_the_real_renderer_lets_the_invitee_accept(capsys):
     # 承諾が立つと発話ブロック(1呼1発話)も回り始める。stub 側に残るのは上の
     # 「同席者への差し替え」で立った 2 セッションぶんだけ(実測 12 / 実レンダラ 1,572)。
     assert real["utterance_blocks"] > 0
-    assert stub["utterance_blocks"] < 0.05 * real["utterance_blocks"], (real, stub)
+    # 差し替えで立ったセッションぶんの発話しか無いこと(1 セッションあたり高々 8 ブロック・
+    # 実測 2 セッションで 12)。実レンダラ側の 5% という相対枠は緩すぎる(層2 第137)。
+    assert stub["utterance_blocks"] <= 8 * max(1, int(stub["conv_accepted"])), (real, stub)

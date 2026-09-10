@@ -267,7 +267,9 @@ def test_c4_second_half_on_the_real_world(capsys):
     # 変えていないので、**在庫が立っていること**(=過程が動く用意があること)まで見る。
     assert runner.is_enabled("hotel")
     assert int(runner.hotel.rooms_total.sum()) > 0
-    assert runner.hotel.counters()["checkin"] == float(res.hotel_checkins)
+    # ``counters()["checkin"] == res.hotel_checkins`` は同一カウンタの同語反復なので置かない
+    # (層2 第137)。過程が動く用意=客室在庫と計数欄の存在までを見る。
+    assert "checkin" in runner.hotel.counters()
     assert res.actual_log_rows > 0
 
     # 前倒し 9 本が「動いた」ことの正の証拠
