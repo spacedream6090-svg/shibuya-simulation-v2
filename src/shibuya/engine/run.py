@@ -1641,6 +1641,10 @@ def add_fleet_args(ap: "argparse.ArgumentParser") -> None:
     )
     ap.add_argument("--fleet-wait-s", type=float, default=0.0,
                     help="④′ で未応答が残るとき tick ごとに最大この秒数だけ艦隊を待つ(既定 0=純非ブロッキング・スモーク用)")
+    ap.add_argument("--fleet-queue-capacity", type=int, default=0,
+                    help=("艦隊の受理待ち+実行中の合計上限(既定 0=FleetConfig の既定 max_in_flight×4)。"
+                          "C7 本番(D-55/D-58): 計画呼数 2,709/tick に対し既定 1,792 だと 33.8% が queue full で"
+                          "繰り延べ→テープに残らず再生不能。計画呼数以上(例 4096)にすると繰り延べ ≈0"))
 
 
 def fleet_from_args(args: Any, ap: "argparse.ArgumentParser | None" = None) -> FleetClient | None:
@@ -1667,6 +1671,8 @@ def fleet_from_args(args: Any, ap: "argparse.ArgumentParser | None" = None) -> F
             run_seed=int(getattr(args, "seed", 0)),
             temperature=float(getattr(args, "temperature", DEFAULT_TEMPERATURE)),
             t1_max_tokens=int(getattr(args, "max_tokens", DEFAULT_T1_MAX_TOKENS)),
+            # 0/未指定なら None=既定(max_in_flight×4)。C7 D-58 の回し直しで計画呼数以上を渡す。
+            queue_capacity=(int(getattr(args, "fleet_queue_capacity", 0) or 0) or None),
         )
     )
 

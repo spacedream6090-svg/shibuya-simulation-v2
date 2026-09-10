@@ -1,7 +1,14 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **8 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **9 / 10**
 > 第1〜第120(2026-09-01〜09-09)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
+
+## 第129 D-58 は (a)・再スタートは保留・Discord C7 報告・queue_capacity の CLI 引数(2026-09-10)
+
+- **依頼**: ユーザー「aかな」「今回の C7 のログと分析を Discord に投げたい」「まだ c7 を再スタートする必要はない」。
+- **実施**: (1) Discord 用 C7 報告(docs/ops/discord_report_c7_2026-09-10.md・2 分割+添付用 summary 抜粋とテープ解析表・IP/パス/名前なし)。(2) `--fleet-queue-capacity`(engine/run.py add_fleet_args→FleetConfig.queue_capacity・既定 0=不変)+manifest_fields に queue_capacity を記録+tests/engine/test_fleet_wiring 1 本。(3) C8 ablation ランナーの不具合 2 件を修正して ⑥→① を 09:20 に再起動(第128b)。(4) PENDING D-58 を (a) 決定・起動は合図待ちに更新。
+- **C7 の回し直し(c7-day-3)は起動していない**(ユーザー指示)。起動時のコマンド: run_c7.sh に `--fleet-queue-capacity 4096` を足す(計画 2,709/tick 以上・再投入の揺らぎ込み)。
+- **次**: ユーザーの合図で c7-day-3 起動(約 14 h)→受入→再生 T2-c→holdout 開封→報告→層2→出口。C8 ⑥→① の結果回収(〜11:40)。
 
 ## 第128 C7 受入 T2 の結果と停止句 (a)(2026-09-10)
 

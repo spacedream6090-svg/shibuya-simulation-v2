@@ -545,6 +545,7 @@ class FleetConfig:
             "n_replicas": self.n_replicas,
             "in_flight_cap_per_replica": self.resolved_per_replica(),
             "in_flight_cap_total": self.resolved_max_in_flight(),
+            "queue_capacity": self.resolved_queue_capacity(),  # 受理待ち枠(C7 D-55/D-58 の律速)
             "ttft_timeout_s": self.ttft_timeout_s,
             "e2e_timeout_s": self.e2e_timeout_s,
             # 運用設計書 §1.2 の ``decoding{T1,T2}`` と同じ欄形(下位欄も同じ 4 つ)。

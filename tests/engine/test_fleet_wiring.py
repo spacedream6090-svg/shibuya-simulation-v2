@@ -524,3 +524,31 @@ def test_movement_cpu_time_is_recorded_alongside_wall_time():
     assert 0.0 <= res.movement_gil_wait_ratio <= 1.0
     line = [x for x in res.summary().splitlines() if "movement 壁" in x]
     assert line and "CPU" in line[0] and "待ち割合" in line[0] and "P2 上限 5" in line[0]
+
+
+# ---------------------------------------------------------------- --fleet-queue-capacity(C7 D-58)
+
+
+def test_fleet_from_args_passes_queue_capacity_through():
+    """CLI の ``--fleet-queue-capacity`` が FleetConfig.queue_capacity に届く。0/未指定は既定(×4)。"""
+    import argparse
+
+    from shibuya.engine.run import fleet_from_args
+
+    base = dict(llm="fleet", endpoints="http://127.0.0.1:1", model="m", mode="smoke", run_id="",
+                seed=1, temperature=0.7, max_tokens=96)
+    c = fleet_from_args(argparse.Namespace(**base, fleet_queue_capacity=4096))
+    try:
+        assert c.queue_capacity == 4096
+    finally:
+        c.close()
+    c0 = fleet_from_args(argparse.Namespace(**base, fleet_queue_capacity=0))
+    try:
+        assert c0.queue_capacity == c0.config.resolved_max_in_flight() * 4
+    finally:
+        c0.close()
+    c1 = fleet_from_args(argparse.Namespace(**base))  # 属性が無くても落ちない
+    try:
+        assert c1.queue_capacity == c1.config.resolved_max_in_flight() * 4
+    finally:
+        c1.close()
