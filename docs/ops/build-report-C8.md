@@ -40,7 +40,7 @@
 | 腕 | 構成 | 状態 | 結果 |
 |---|---|---|---|
 | ⑥ AB6-AD-ZERO | signage_on(baseline)/signage_off | **完走**(09:20〜10:30・各 35 分・呼 50,000/50,000・繰り延べ 0) | 行動分布 **JSD 0.0009 bit**(C6 T7 の帰無 0.0035 以内・ただしその帰無は n=833 の値=n=50,000 には緩すぎる→seed 2 で再測中)。final_hash `176c5527…`→`fceaa5d7…`(切替は効く)。入力 tok 914.2→898.9(看板行 −15 tok)。書式エラー 0.0077→0.0060。**行動の差(pp・off−on)**: 購入 47.36→46.03 **−1.34**・休憩 4.26→5.48 **+1.22**・移動 +0.47・乗車 +0.26・待機 −0.32・会話 0.05→0.04。baseline の final_hash は T2-a(run_id/mode=cache_salt が別)と同値=応答は cache_salt に依存しない |
-| ① AB1-BUDGET-MODE | fixed_slots(baseline)/single_ranking | 待ち | (追記予定) |
+| ① AB1-BUDGET-MODE | fixed_slots(baseline)/single_ranking | **完走**(10:30〜11:42・各 35 分・呼 50,000/50,000・繰り延べ 0) | 行動分布 **JSD 0.0097 bit(帰無 0.0035 を超える)**。final_hash `176c5527…`(=⑥ baseline=T2-a)→`db478c7c…`。入力 tok 914.2→916.3・書式エラー 0.0077→0.0096。**行動の差(pp・ranking−fixed)**: 購入 47.36→43.59 **−3.77**・移動 −2.16・休憩 +2.70・待機 3.25→7.06 **+3.81**・乗車 −1.03・会話 0.05→0.18(3.6 倍)・退去 +0.18。**固定枠は結果を駆動する**(方法論: expedient の感度試験で「駆動する」側)=D-60。C6 24 tick スモークの JSD 0.040 と同じ向き |
 | ② AB2-PNOTICE-D50 | d50 ×0.5/×1.0/×2.0 | 回さない | A4 既定で到達 10,736/10,736/10,737(実資産 2,000 体×90 tick 下見・D-49)=距離項に槓桿なし。A1 併用の距離感度として再定義(判断待ち) |
 | ③ AB3-REFRACTORY-PROX | PROXIMITY_SWAP ×0.5 | 回さない | 起床候補に PROXIMITY_SWAP を出す過程が §9 第2陣で未実装=no-op(D-49)。切替口は CELL_BLOCK で実証 |
 | ④ AB4-HEARING-SNR | — | blocked_feature | 聴覚チャネルの SNR 機能が第2陣(D-45) |
