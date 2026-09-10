@@ -8,4 +8,5 @@
 - 受入報告: [C5](docs/ops/build-report-C5.md)・[C6](docs/ops/build-report-C6.md)・[C7(停止句 (a)・再ラン待ち)](docs/ops/build-report-C7.md)・[C8(進行中)](docs/ops/build-report-C8.md)
 - 開発ログ: [docs/log/devlog.md](docs/log/devlog.md)(第131〜140 は [devlog-compressed.md](docs/log/devlog-compressed.md))
 - ブランチ: `build/c5-c8`(第140 d95142c まで push 済み・PR #2 は main へ未マージ=ユーザー判断)
-- 最終更新: 2026-09-10(第141 台帳の掃除パス)
+- /goal: **停止句 (a) で停止(第142)**=D-66/D-67 が設計書の決定項・パターン台帳に触れる分岐として PENDING に記録済み・実装はユーザー合図待ち
+- 最終更新: 2026-09-10(第142 /goal 停止句 (a))
