@@ -39,12 +39,14 @@
 
 | 腕 | 構成 | 状態 | 結果 |
 |---|---|---|---|
-| ⑥ AB6-AD-ZERO | signage_on(baseline)/signage_off | 実行中(09:20〜) | (追記予定) |
+| ⑥ AB6-AD-ZERO | signage_on(baseline)/signage_off | **完走**(09:20〜10:30・各 35 分・呼 50,000/50,000・繰り延べ 0) | 行動分布 **JSD 0.0009 bit**(C6 T7 の帰無 0.0035 以内・ただしその帰無は n=833 の値=n=50,000 には緩すぎる→seed 2 で再測中)。final_hash `176c5527…`→`fceaa5d7…`(切替は効く)。入力 tok 914.2→898.9(看板行 −15 tok)。書式エラー 0.0077→0.0060。**行動の差(pp・off−on)**: 購入 47.36→46.03 **−1.34**・休憩 4.26→5.48 **+1.22**・移動 +0.47・乗車 +0.26・待機 −0.32・会話 0.05→0.04。baseline の final_hash は T2-a(run_id/mode=cache_salt が別)と同値=応答は cache_salt に依存しない |
 | ① AB1-BUDGET-MODE | fixed_slots(baseline)/single_ranking | 待ち | (追記予定) |
 | ② AB2-PNOTICE-D50 | d50 ×0.5/×1.0/×2.0 | 回さない | A4 既定で到達 10,736/10,736/10,737(実資産 2,000 体×90 tick 下見・D-49)=距離項に槓桿なし。A1 併用の距離感度として再定義(判断待ち) |
 | ③ AB3-REFRACTORY-PROX | PROXIMITY_SWAP ×0.5 | 回さない | 起床候補に PROXIMITY_SWAP を出す過程が §9 第2陣で未実装=no-op(D-49)。切替口は CELL_BLOCK で実証 |
 | ④ AB4-HEARING-SNR | — | blocked_feature | 聴覚チャネルの SNR 機能が第2陣(D-45) |
 | ⑤ AB5-INTROSPECTION | — | blocked_feature | 日次内省が第2陣(D-45) |
+
+**⑥ の読み方(親)**: AD1 封印行 S3 は「広告全消去で購入は絶対 1pp 未満しか動かない」を現実側の期待として置いている。sim 側は **−1.34 pp** で線を超える。ただし同一構成の seed 差(n=50,000)がどれだけ揺れるかを測っていないので、いまは「線を超えるかもしれない」まで。seed 2 の baseline/off を AB1 の後に回して帰無参照を n=50,000 で取る(~/c5/run_c8_s2.sh)。メモリ「LLM の広告過剰反応が最大リスク」に対応する最初の実測=**D-59**。評価は購入だけでなく休憩(+1.22 pp)も動いた点を含める(看板行が消えると休む=注意配分の代替先)。
 
 初回実行(09:05)は 2 腕とも 2 分で落ちた: (1) 1 つの FleetClient を baseline と腕で共有→run_day が終わりに閉じる→2 ラン目「close() 済み」(2) fleet_wait_s 未指定→非ブロッキングで 1,440 tick を駆け抜け応答がほぼ繰り延べ。第128b で修正し 09:20 に再起動。
 

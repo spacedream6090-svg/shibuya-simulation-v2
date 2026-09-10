@@ -1,7 +1,15 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **9 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **10 / 10**
 > 第1〜第120(2026-09-01〜09-09)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
+
+## 第130 C8 ablation ⑥ 広告ゼロの結果(2026-09-10)
+
+- **依頼**: /goal 続行(C8)。
+- **結果**: AB6-AD-ZERO 完走(5,000 体×1 日×2 ラン・各 35 分・繰り延べ 0)。行動分布 JSD 0.0009 bit・final_hash は変わる・入力 tok −15。**購入 −1.34 pp・休憩 +1.22 pp**(off−on)。baseline の final_hash は T2-a と同値(cache_salt 非依存の追加証拠)。テープ 2 本を親が全件パースして数えた(tape_actions.py)。
+- **判断**: AD1 の 1pp 線を超えるが帰無参照が n=833 の値しかない→seed 2 の同構成 2 ラン(AB6 seed 2)を AB1 の後に自動起動する待ち行列を置いた(tmux c8s2wait→run_c8_s2.sh)。PENDING D-59。
+- **記録**: 受入報告 C8 §1b に ⑥ の行と読み方。証拠 docs/bench/c8/ablation/(JSON・MD・行動計数)。devlog カウンタ 10/10=次で圧縮。
+- **次**: AB1(〜11:40)→AB6 seed2(〜12:50)→C8 報告 1b 完成→計器盤。c7-day-3 はユーザー合図待ち。
 
 ## 第129 D-58 は (a)・再スタートは保留・Discord C7 報告・queue_capacity の CLI 引数(2026-09-10)
 
