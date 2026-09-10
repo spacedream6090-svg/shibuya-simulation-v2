@@ -258,9 +258,16 @@ def test_c4_second_half_on_the_real_world(capsys):
     # 新過程の ActualLog 行(**件数が 0 でない**ことまで見る)
     for pid in ("shelf_stock_restock", "delivery_inbound", "waste_collection",
                 "delivery_last_mile", "bus_taxi_operation", "road_works_occupancy",
-                "press_official_release", "large_event", "hotel_room_inventory"):
+                "press_official_release", "large_event"):
         assert pid in runner.log.process_ids, pid
         assert runner.log.compliance_rate([pid]).n_total > 0, pid
+    # ホテル客室在庫だけは **N≈1 の事象**(この fixture で 5,000 体×1 日のチェックインは
+    # 0〜1 件)なので「行が 1 本以上」を要求しない。D-62(就寝は計画の実行)で LLM が
+    # 「就寝」を選ぶ回数が 2,076 → 1,779 に減り、この 1 件が 0 件になった。過程そのものは
+    # 変えていないので、**在庫が立っていること**(=過程が動く用意があること)まで見る。
+    assert runner.is_enabled("hotel")
+    assert int(runner.hotel.rooms_total.sum()) > 0
+    assert runner.hotel.counters()["checkin"] == float(res.hotel_checkins)
     assert res.actual_log_rows > 0
 
     # 前倒し 9 本が「動いた」ことの正の証拠

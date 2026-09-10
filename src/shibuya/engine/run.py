@@ -236,6 +236,15 @@ class RunResult:
     signage: bool = True
     #: D-56 就寝抑止を効かせたか。既定 True(ユーザー決定 (a)・2026-09-10)。
     sleep_suppression: bool = True
+    #: D-62「就寝は計画の実行」を効かせたか。既定 True(ユーザー決定 (a)+(b)・2026-09-10)。
+    plan_sleep: bool = True
+    #: 世界内時刻の**時**別の「起きている割合」(24 要素・D-62 の検証欄)。
+    #: 各 tick の ``activity != SLEEPING`` の割合を、その時の 60 tick で平均した値。
+    wake_rate_by_hour: list[float] = field(default_factory=lambda: [0.0] * 24)
+    #: D-62 の計数(``resolve.begin_planned_sleep`` の内訳 ``slept``/``walking``/``riding``/
+    #: ``outside``/``conversing``/``asleep``/``unreachable`` + ``arrived``(就寝地へ着いて寝た)+
+    #: ``woke``(非就寝の計画境界で起こした))。``plan_sleep=False`` のランは空 dict。
+    planned_sleep_counts: dict[str, int] = field(default_factory=dict)
     #: 凍結静的文の版(W14/W15 の parquet: ファイル名→sha256)。凍結文なしのランは空(層2 指摘 09-09)。
     frozen_sources: dict[str, str] = field(default_factory=dict)
     #: 録画テープの置き場(記録したときだけ)。
@@ -372,6 +381,19 @@ class RunResult:
         cb = list(self.calls_by_hour) + [0] * max(0, 24 - len(self.calls_by_hour))
         return "呼/時 " + " ".join(f"{h:02d}:{int(cb[h])}" for h in range(24))
 
+    def wake_rate_by_hour_text(self) -> str:
+        """``起床率/時`` の 1 行(24 個・**D-62 の検証欄**)。
+
+        「起床率」= その時の各 tick の ``activity != Activity.SLEEPING`` の割合の平均
+        (域外滞在・乗車中も「起きている」に数える=在圏かどうかとは別の量)。
+        東京都 平日の a(h)(令和 3 年社会生活基本調査 第 4-1 表)は
+        0 時 **20.5%** / 1 時 11.1 / 2 時 5.7 / 3 時 **3.5** / 4 時 5.3 / 5 時 15.3 / 6 時 40.7 /
+        12〜19 時 **97.8〜98.9** で、**一律に掛けない**(交替制勤務 12.9%)——ここは
+        照合の材料であって目標値ではない(D-56 の注記と同じ扱い)。
+        """
+        wr = list(self.wake_rate_by_hour) + [0.0] * max(0, 24 - len(self.wake_rate_by_hour))
+        return "起床率/時 " + " ".join(f"{h:02d}:{float(wr[h]):.3f}" for h in range(24))
+
     def diagnostics_day(self) -> dict[str, float]:
         """シミュ日あたりの診断行(``DIAG_DAY_ROWS`` を必ず全て含む)。"""
         out: dict[str, float] = {
@@ -403,6 +425,7 @@ class RunResult:
             ``p_notice_ablation``/``p_notice_d50_scale``/``refractory_scale``/``signage``
             (§8 第1陣 ②③⑥ の腕。既定は ``A4``/``1.0``/``{}``/``True``)・
             ``sleep_suppression``(D-56 就寝抑止の腕。既定 ``True``)・
+            ``plan_sleep``(D-62「就寝は計画の実行」の腕。既定 ``True``)・
             ``catalog_sha16``(世界カタログ v0.2 の凍結 SHA)・
             ``process_ids``(実際に回した過程 id の昇順)・``ablations``(切った過程/感度試験 id)。
         """
@@ -436,6 +459,8 @@ class RunResult:
             "signage": bool(self.signage),
             # ---- D-56 就寝抑止(既定 True)。False = D-56 前の挙動 ----
             "sleep_suppression": bool(self.sleep_suppression),
+            # ---- D-62 就寝は計画の実行(既定 True)。False = D-62 前の挙動 ----
+            "plan_sleep": bool(self.plan_sleep),
             "catalog_sha16": catalog_sha16,
             "process_ids": process_ids,
             "ablations": ablations,
@@ -583,6 +608,19 @@ class RunResult:
             lines.append(f"  診断 {col}: {int(self.column(col).sum()):,}")
         lines.append(f"  診断 sleep_suppressed: {self.sleep_suppressed_count:,}")
         lines.append("  " + self.calls_by_hour_text())
+        lines.append("  " + self.wake_rate_by_hour_text())
+        if self.planned_sleep_counts:
+            c = self.planned_sleep_counts
+            lines.append(
+                f"  D-62 計画就寝 その場 {int(c.get('slept', 0)):,} + 着いて "
+                f"{int(c.get('arrived', 0)):,}(歩行中 {int(c.get('walking', 0)):,})"
+                f" / 計画起床 {int(c.get('woke', 0)):,}"
+                f" / 寝かせなかった 乗車中 {int(c.get('riding', 0)):,}"
+                f"・域外 {int(c.get('outside', 0)):,}"
+                f"・会話中 {int(c.get('conversing', 0)):,}"
+                f"・就寝済 {int(c.get('asleep', 0)):,}"
+                f"・行けない {int(c.get('unreachable', 0)):,}"
+            )
         lines.append(
             f"  診断 parse_error_rate: {self.parse_error_rate:.4f} / "
             f"undefined_action_count: {self.undefined_action_count:,} / "
@@ -794,6 +832,7 @@ def run_day(
     occupancy_every: int = 0,
     occupancy_path: "str | Path | None" = None,
     sleep_suppression: bool = True,
+    plan_sleep: bool = True,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -869,8 +908,18 @@ def run_day(
             Activity.SLEEPING`` の個体の起床候補を、計画境界・顕著行為・会話ターン以外は
             アービタに入れない。``False`` は **D-56 前の挙動**(=ablation の帰無腕)。
             エンジンは tick 0 で全員を ``SLEEPING`` に置く(``resolve.initialize``=世界内
-            00:00 の種)ので、**深夜だけを回す短いラン**は既定のままだと呼が 0 になる。
+            00:00 の種。**週次表があるランは D-62 (b) が 0:00 の活動から立て直す**)ので、
+            **深夜だけを回す短いラン**は既定のままだと呼が 0 になる。
             LLM 配管そのものを見るテスト(艦隊・テープ・パーサ)は ``False`` で回す。
+        plan_sleep: **D-62 就寝は計画の実行**(既定 True=ユーザー決定 (a)+(b))。
+            (a) 計画境界のうち**就寝境界**(``WakeCondition.PLAN_SLEEPING``)はエンジンが
+            実行する——``activity=SLEEPING``(就寝地に居なければ歩かせて着いたら寝る)+
+            **その境界では LLM を呼ばない**(候補にしない)。非就寝の計画境界は逆に
+            ``SLEEPING`` の体を起こしてから呼ぶ。(b) 週次表(W17)があるランは tick 0 の
+            ``activity`` を**0:00 時点の活動**から立てる(``resolve.set_initial_activity``)。
+            ``False`` は **D-62 前の挙動**(=帰無腕。就寝境界も LLM に判断させ、tick 0 は
+            全員 ``SLEEPING``)。週次表を持たない合成世界/mock 日課でも (a) は効く
+            (mock 日課の第 5 境界=就寝)。
 
     Returns:
         ``RunResult``。
@@ -999,10 +1048,16 @@ def run_day(
     weekly = load_weekly(world_dir) if (world_dir is not None and pop is not None) else None
     if weekly is not None:
         weekly = weekly.restrict_to(pop.source_agent_id)
-        b_agent, b_cond, b_tick = weekly.boundary_events(day_index)
+        # D-62: 就寝境界で「どこで寝るか」が要るので行き先セルも一緒に取る(並びは同じ)
+        b_agent, b_cond, b_tick, b_cell = weekly.boundary_events_full(day_index)
         schedule = apply_to_mock_schedule(schedule, weekly, day_index)  # 拠点セル(自宅/職場)の上書き
+        # ---- D-62 (b): tick 0 の activity を W17 の 0:00 時点の活動から立てる ----
+        # ``initialize`` は全員 SLEEPING(週次表の無い世界の既定)。ここで立て直す。
+        if plan_sleep:
+            R.set_initial_activity(agents, weekly.initial_activity(day_index))
     else:
         b_agent, b_slot, b_tick = schedule.events_of_day(day_index)
+        b_cell = np.full(b_agent.size, -1, dtype=np.int32)  # mock 日課の就寝地=自宅セル
         b_cond = np.array(
             [
                 int(WakeCondition.PLAN_GENERAL),
@@ -1048,6 +1103,13 @@ def run_day(
     peak_intents = 0
     peak_backlog = 0
     n_undefined_total = 0
+    # ---- D-62「就寝は計画の実行」の計数(診断列は増やさない=診断表の形を変えない) ----
+    #: ``resolve.begin_planned_sleep`` の内訳 + ``arrived``(就寝地へ着いて寝た)+
+    #: ``woke``(非就寝の計画境界で起こした)。
+    sleep_counts: dict[str, int] = {}
+    #: 世界内時刻の**時**別「起きている体」の延べ数と tick 数(起床率/時 の分子・分母)。
+    awake_sum = [0] * 24
+    awake_ticks = [0] * 24
 
     # 逐次ループ宣言1: tick 数ぶん
     for tick in range(ticks):
@@ -1145,6 +1207,23 @@ def run_day(
         if hi > lo:
             p_agent = b_agent[lo:hi]
             p_cond = b_cond[lo:hi]
+            # ---- D-62 (a): 就寝境界は**エンジンが実行する**(LLM を呼ばない) ----
+            # 非就寝の境界は逆に「起こしてから呼ぶ」(呼が繰り延べ・抑止で落ちても起きる)。
+            if plan_sleep:
+                to_bed = p_cond == int(WakeCondition.PLAN_SLEEPING)
+                if to_bed.any():
+                    got = R.begin_planned_sleep(
+                        agents, world, p_agent[to_bed], b_cell[lo:hi][to_bed], tick,
+                        schedule=schedule,
+                    )
+                    for k, v in got.items():
+                        sleep_counts[k] = sleep_counts.get(k, 0) + int(v)
+                    p_agent = p_agent[~to_bed]
+                    p_cond = p_cond[~to_bed]
+                if p_agent.size:
+                    sleep_counts["woke"] = sleep_counts.get("woke", 0) + R.wake_from_plan(
+                        agents, p_agent
+                    )
             p_class = np.fromiter(
                 (int(WAKE_CONDITION_CLASS[int(c)]) for c in p_cond),
                 dtype=np.int64,
@@ -1284,11 +1363,13 @@ def run_day(
 
         # ---- ③ 繰り延べアービタ(§6)+ 就寝抑止(D-56) ----
         t0 = time.perf_counter()
-        asleep = (
-            (np.asarray(agents.registry.activity) == int(Activity.SLEEPING))
-            if sleep_suppression
-            else None
-        )
+        asleep_now = np.asarray(agents.registry.activity) == int(Activity.SLEEPING)
+        # ---- 起床率/時 の計測(D-62 の検証欄・a(h) との照合用) ----
+        # 測る場所は**アービタの直前**(この tick の候補を絞る時点の「起きている割合」)。
+        _h = (tick // 60) % 24
+        awake_sum[_h] += n_agents - int(np.count_nonzero(asleep_now))
+        awake_ticks[_h] += 1
+        asleep = asleep_now if sleep_suppression else None
         decision = arbiter.step(
             tick, cands, agents.registry.refractory_until, asleep=asleep
         )
@@ -1541,6 +1622,10 @@ def run_day(
         )
         prev_tape_misses = bridge.n_tape_misses
         prev_sessions = conv.n_opened if conv is not None else 0
+        if outcome.n_planned_sleep:  # 就寝地へ着いて寝たぶん(D-62 意図の保持)
+            sleep_counts["arrived"] = (
+                sleep_counts.get("arrived", 0) + int(outcome.n_planned_sleep)
+            )
 
         if occupancy_every and tick % occupancy_every == 0:
             occ_ticks.append(int(tick))
@@ -1690,6 +1775,12 @@ def run_day(
         else signage
     )
     result.sleep_suppression = bool(sleep_suppression)
+    result.plan_sleep = bool(plan_sleep)
+    result.wake_rate_by_hour = [
+        (awake_sum[h] / (awake_ticks[h] * n_agents)) if (awake_ticks[h] and n_agents) else 0.0
+        for h in range(24)
+    ]
+    result.planned_sleep_counts = dict(sleep_counts)
     result.diagnostics = np.asarray(diag_rows, dtype=np.int64).reshape(-1, len(DIAG_RUN_COLUMNS))
     result.phase_seconds = phase
     result.wall_seconds = time.perf_counter() - t_start
@@ -1844,6 +1935,9 @@ def main(argv: list[str] | None = None) -> int:
                     help="止める過程(過程 id か AB-* の感度試験 id・複数可)")
     ap.add_argument("--no-sleep-suppression", action="store_true",
                     help="D-56 就寝抑止を切る(=D-56 前の挙動・帰無腕)")
+    ap.add_argument("--no-plan-sleep", action="store_true",
+                    help="D-62「就寝は計画の実行」を切る(=D-62 前の挙動・帰無腕。"
+                         "就寝境界も LLM に判断させ・tick 0 は全員 SLEEPING)")
     add_fleet_args(ap)
     args = ap.parse_args(argv)
 
@@ -1868,6 +1962,7 @@ def main(argv: list[str] | None = None) -> int:
         processes_disabled=tuple(args.ablate) or None,
         population=False if args.no_population else None,
         sleep_suppression=not args.no_sleep_suppression,
+        plan_sleep=not args.no_plan_sleep,
     )
     print(res.summary())
     return 0 if (res.conserved and res.min_stock >= 0) else 1

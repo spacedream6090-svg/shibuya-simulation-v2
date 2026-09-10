@@ -346,6 +346,12 @@ def main(argv: list[str] | None = None) -> int:
         help="D-56 就寝抑止を切る(就寝中の個体も内受容/セル変化で呼ぶ=D-56 前の挙動・帰無腕)",
     )
     ap.add_argument(
+        "--no-plan-sleep",
+        action="store_true",
+        help="D-62「就寝は計画の実行」を切る(就寝境界も LLM に判断させ・tick 0 は全員"
+             " SLEEPING=D-62 前の挙動・帰無腕)",
+    )
+    ap.add_argument(
         "--no-population",
         action="store_true",
         help="W16 母集団を使わず合成個体で回す(下限対照・世帯財布も mock のまま)",
@@ -389,6 +395,7 @@ def main(argv: list[str] | None = None) -> int:
         refractory_scale=refractory_scale or None,
         signage=not args.no_signage,
         sleep_suppression=not args.no_sleep_suppression,
+        plan_sleep=not args.no_plan_sleep,
         fleet=fleet_from_args(args, ap),
         fleet_wait_s=float(getattr(args, "fleet_wait_s", 0.0)),
         fleet_debug_dir=getattr(args, "fleet_debug_dir", "") or None,

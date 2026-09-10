@@ -90,6 +90,9 @@ __all__ = [
     "SLEEP_FATIGUE_RELIEF",
     "ResolveOutcome",
     "initialize",
+    "set_initial_activity",
+    "begin_planned_sleep",
+    "wake_from_plan",
     "apply_detection",
     "apply",
     "set_refractory",
@@ -135,6 +138,10 @@ BOARD_WAIT_LIMIT_TICKS: Final[int] = 30
 #: 乗車の意図(``board_line``)を**保つ**行動(これ以外を選んだら意図は落ちる)。
 #: 乗車=張り直し / 待機=ホームで待ち続ける / エンジン継続=ホームへ歩いている途中。
 _BOARD_KEEP_ACTIONS: Final[tuple[int, ...]] = (ACT_BOARD, ACT_WAIT, ENGINE_STEP)
+
+#: 就寝の意図(``sleep_pending``)を**保つ**行動(これ以外を選んだら意図は落ちる・D-62)。
+#: 就寝=張り直し / エンジン継続=就寝地へ歩いている途中。
+_SLEEP_KEEP_ACTIONS: Final[tuple[int, ...]] = (ACT_SLEEP, ENGINE_STEP)
 
 _REFRACTORY_TICKS: Final[np.ndarray] = np.asarray(REFRACTORY_MINUTES, dtype=np.int32)
 _REFRACTORY_TICKS.flags.writeable = False
@@ -280,6 +287,9 @@ class ResolveOutcome:
     hotel: object | None = None
     #: ホテルで就寝した件数(§7.2 ホテル客室在庫)。
     n_hotel_sleep: int = 0
+    #: **就寝地へ着いて寝た**件数(D-62 (a) の意図保持ぶん。就寝境界で即座に寝た件数は
+    #: ``begin_planned_sleep`` の戻り値で数える=あちらは ``apply`` の外で走る)。
+    n_planned_sleep: int = 0
 
     def add_result(self, code: int, n: int) -> None:
         if n:
@@ -341,6 +351,168 @@ def initialize(
         world.cells.density[:] = world.compute_density(agents.registry.cell)
         world.cells.density_stage[:] = world.density_stage()
         world.cells.open_count[:] = world.open_count_per_cell(0)
+
+
+def set_initial_activity(agents: AgentState, activity) -> int:
+    """tick 0 の ``activity`` を**計画(W17)の 0:00 時点の活動**から立てる(D-62 (b))。
+
+    ``initialize`` は全員を ``SLEEPING`` に置く(週次表を持たない合成世界/mock 日課の
+    既定=**従来どおり**)。週次表があるランだけ、この関数で 0:00 の活動から立て直す
+    (``agents.weekly.WeeklySchedule.initial_activity``)。
+
+    ``transit_state != 0``(域外滞在・乗車中)の個体は**触らない**——域外居住者は
+    ``place_at_external`` が ``WAITING`` を立てており、3 値(乗客の保存則の分母)と
+    ``activity`` の整合はそちらが正(D-62 の決定文「rail の事前割当の整合を保つ」)。
+
+    Args:
+        activity: 形 ``(n,)`` の ``Activity`` 値(``int8``)。
+
+    Returns:
+        実際に書いた体数。
+    """
+    act = np.asarray(activity, dtype=np.int8).ravel()
+    with agents.writable():
+        r = agents.registry
+        if act.size != r.activity.size:
+            raise ValueError(f"初期活動の長さが体数と違う({act.size} != {r.activity.size})")
+        free = r.transit_state == 0
+        r.activity[free] = act[free]
+    return int(np.count_nonzero(free))
+
+
+def begin_planned_sleep(
+    agents: AgentState,
+    world: World,
+    agent_id,
+    target_cell,
+    tick: int,
+    *,
+    schedule=None,
+) -> tuple[int, int, int]:
+    """**就寝境界に達した体を寝かせる**(D-62 (a)「就寝は計画の実行」・2026-09-10 決定)。
+
+    正典・位置づけ
+    - 週次表(W17)の就寝境界は、その個体自身が LLM で作った計画の一部。**判断は済んで
+      いる**ので、境界での実行にもう一度 LLM を呼ばない(D-51 乗車の意図保持と同じ
+      「判断1回・実行は世界」)。呼び出し側(``engine.run``)は、この境界の体を
+      起床候補から**外す**。
+    - 就寝地=その活動の ``target_cell``(未解決 ``-1`` なら ``schedule.home_cell``)。
+
+    規則(3 通り)
+    1. 就寝地のセルに**居る** → ``activity=SLEEPING``(``target_node``/乗車の意図を落とす)。
+    2. 居ない・経路がある → 就寝地へ ``target_node`` を張って歩き出し ``sleep_pending=1``。
+       着いた時点で ``_apply_engine_step`` が寝かせる。
+    3. 居ない・経路がない / 乗車中・域外滞在 / 会話中 → **何もしない**(起きたまま)。
+
+    expedient(登録簿 §8 D-62)
+    - 3 の「乗車中・域外滞在」を触らないのは ``transit_state`` が乗客の保存則の分母だから
+      (車内で寝る状態を作らない=第2陣)。「会話中」を触らないのは、片側だけ
+      ``CONVERSING`` が残る事故を作らないため(D-56 の例外③と同じ理由)。
+    - 2 で歩いている間は**起きている**(``MOVING``)。現実の「帰って寝る」は移動が先なので
+      境界の時刻ちょうどに寝ないのは正しいが、経路が長いと就寝が遅れる。
+
+    Returns:
+        計数の辞書 ``{slept, walking, riding, outside, conversing, asleep, unreachable}``
+        (``slept + walking + それ以外の合計 = 体数``)。**触らなかった理由を数える**のは、
+        「その日はもう就寝境界が来ない=起きたままになる」体の量を報告するため。
+    """
+    zero = {
+        "slept": 0, "walking": 0, "riding": 0, "outside": 0,
+        "conversing": 0, "asleep": 0, "unreachable": 0,
+    }
+    a = np.asarray(agent_id, dtype=np.int64).ravel()
+    if a.size == 0:
+        return zero
+    r = agents.registry
+    cell = np.asarray(target_cell, dtype=np.int64).ravel()
+    if cell.size != a.size:
+        raise ValueError(f"就寝地の長さが体数と違う({cell.size} != {a.size})")
+    if schedule is not None:
+        home = np.asarray(schedule.home_cell, dtype=np.int64)[a]
+        cell = np.where(cell >= 0, cell, home)
+    n_at = n_walk = 0
+    with agents.writable():
+        ok_cell = (cell >= 0) & (cell < world.n_cells)
+        st = r.transit_state[a]
+        act0 = r.activity[a]
+        free = (
+            ok_cell
+            & (st == 0)
+            & (act0 != int(Activity.CONVERSING))
+            & (act0 != int(Activity.SLEEPING))
+        )
+        zero["riding"] = int(np.count_nonzero(ok_cell & (st == 1)))
+        zero["outside"] = int(np.count_nonzero(ok_cell & (st == 2)))
+        zero["conversing"] = int(
+            np.count_nonzero(ok_cell & (st == 0) & (act0 == int(Activity.CONVERSING)))
+        )
+        zero["asleep"] = int(
+            np.count_nonzero(ok_cell & (st == 0) & (act0 == int(Activity.SLEEPING)))
+        )
+        zero["unreachable"] = int(np.count_nonzero(~ok_cell))
+        at = free & (r.cell[a].astype(np.int64) == cell)
+        here = a[at]
+        if here.size:
+            r.activity[here] = int(Activity.SLEEPING)
+            r.target_node[here] = -1
+            r.sleep_pending[here] = 0
+            r.board_line[here] = -1  # 乗車の意図は落ちる(幽霊を残さない)
+            r.board_since[here] = -1
+            n_at = int(here.size)
+        far = np.flatnonzero(free & ~at)
+        if far.size:
+            ids = a[far]
+            dest = np.asarray(world.assets.cell_rep_node, dtype=np.int64)[cell[far]]
+            nxt = np.asarray(world.graph.route_next_node(r.node[ids], dest), dtype=np.int64)
+            same = dest == r.node[ids].astype(np.int64)
+            good = (nxt >= 0) | same
+            # ノードは就寝地でもセルが違う(=表現ノードに居る)体は、その場で寝かせる
+            arrive = ids[good & same]
+            if arrive.size:
+                r.activity[arrive] = int(Activity.SLEEPING)
+                r.target_node[arrive] = -1
+                r.sleep_pending[arrive] = 0
+                r.board_line[arrive] = -1
+                r.board_since[arrive] = -1
+                n_at += int(arrive.size)
+            walk = ids[good & ~same]
+            if walk.size:
+                r.activity[walk] = int(Activity.MOVING)
+                r.target_node[walk] = dest[good & ~same].astype(r.target_node.dtype)
+                r.sleep_pending[walk] = 1
+                r.board_line[walk] = -1
+                r.board_since[walk] = -1
+                n_walk = int(walk.size)
+            # 経路が無くて就寝地へ行けない体(行き止まり)も「触らなかった」側に数える
+            zero["unreachable"] += int(np.count_nonzero(~good))
+    zero["slept"] = n_at
+    zero["walking"] = n_walk
+    return zero
+
+
+def wake_from_plan(agents: AgentState, agent_id) -> int:
+    """**非就寝の計画境界に達した体を起こす**(D-62 (a) の対称形)。
+
+    起床は「次の計画境界(``PLAN_WORKING``/``PLAN_GENERAL``/``PLAN_TRANSIT``)か顕著行為」
+    (ユーザー決定 (a))。境界で起こしてから LLM に判断させる——**呼が繰り延べ・抑止で
+    落ちても起きる**(現実の起床は呼ばれ方に依存しない)。就寝の意図(``sleep_pending``)も
+    ここで落ちる。
+
+    Returns:
+        ``SLEEPING`` から起こした体数。
+    """
+    a = np.asarray(agent_id, dtype=np.int64).ravel()
+    if a.size == 0:
+        return 0
+    with agents.writable():
+        r = agents.registry
+        woke = a[r.activity[a] == int(Activity.SLEEPING)]
+        if woke.size:
+            r.activity[woke] = int(Activity.IDLE)
+        drop = a[r.sleep_pending[a] != 0]
+        if drop.size:
+            r.sleep_pending[drop] = 0
+    return int(woke.size)
 
 
 # ---------------------------------------------------------------- 変化検出の書き戻し
@@ -476,6 +648,13 @@ def apply(
                 if drop.size:
                     r.board_line[drop] = -1
                     r.board_since[drop] = -1
+            # D-62: 就寝の意図も同じ(就寝地へ歩く途中で**別の行動**を選んだら意図は落ちる)。
+            other_sleep = ~np.isin(code, _SLEEP_KEEP_ACTIONS)
+            if other_sleep.any():
+                drop = aid[other_sleep]
+                drop = drop[r.sleep_pending[drop] != 0]
+                if drop.size:
+                    r.sleep_pending[drop] = 0
 
         # 逐次ループ宣言: 行動語ぶん(13 分岐)。個体数には比例しない。
         for action in (
@@ -565,6 +744,15 @@ def _apply_engine_step(agents, world, aid, tgt, tick, out, schedule) -> None:
         want = done[r.board_line[done] >= 0]
         if want.size:
             _enter_board_queue(agents, world, want, tick, out)
+        # D-62: 就寝地へ向かっていた体は着いた時点で**寝る**(同じ形。意図は排他=
+        # ``begin_planned_sleep`` が ``board_line`` を落とし、乗車を選べば ``sleep_pending``
+        # が落ちるので、同じ体が両方を持つことはない)。
+        nap = done[r.sleep_pending[done] != 0]
+        if nap.size:
+            r.activity[nap] = int(Activity.SLEEPING)
+            r.target_node[nap] = -1
+            r.sleep_pending[nap] = 0
+            out.n_planned_sleep += int(nap.size)
     if stuck.any():
         _fail(agents, aid[stuck], ResultCode.UNREACHABLE, tick, out)
         r.activity[aid[stuck]] = int(Activity.IDLE)
@@ -572,6 +760,7 @@ def _apply_engine_step(agents, world, aid, tgt, tick, out, schedule) -> None:
         # 行き止まりでホームへ着けない体は乗車の意図も落とす(幽霊を残さない)
         r.board_line[aid[stuck]] = -1
         r.board_since[aid[stuck]] = -1
+        r.sleep_pending[aid[stuck]] = 0  # D-62: 就寝地へ着けない体も同じ(起きたまま)
 
 
 def _apply_move(agents, world, aid, tgt, tick, out, schedule) -> None:

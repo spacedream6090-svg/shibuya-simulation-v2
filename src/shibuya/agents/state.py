@@ -32,6 +32,10 @@ expedient(本モジュール分)
   居ない」体を世界がホームまで運び、着いたら待ち行列に並べるための 2 欄。**待ちは
   ``transit_state=0``(在圏)の中の状態**で、3 値(乗客の保存則の分母)は増やさない。
   待ちの打ち切り時間は ``engine.resolve.BOARD_WAIT_LIMIT_TICKS``(expedient)。
+- ``sleep_pending``(1 B/体・D-62 就寝の意図保持)。週次表(W17)の**就寝境界**に達したが
+  就寝地(自宅セル)に居ない体の印。着いたら ``engine.resolve._apply_engine_step`` が
+  ``SLEEPING`` にする(乗車の意図保持と同じ「判断1回・実行は世界」の形)。**就寝を
+  「計画の実行」にしたので、この境界では LLM を呼ばない**(登録簿 §8 D-62)。
 - ``last_result`` を 1 byte のコードにし、失敗の詳細(残高・次回開店時刻)は**持たない**
   (行動契約書 §6 は「残高/価格・次回開店時刻」を返せと言う=C3 のプロンプト側で
   現在値から再構成する。C2 は「どの失敗か」だけを保持)。
@@ -311,6 +315,10 @@ class AgentState:
         r.declare("board_since", np.int32, byte_budget_per_agent=4, mechanism=False,
                   doc="ホームで待ち始めた tick(-1=まだ待っていない=移動中)。"
                       "打ち切り BOARD_WAIT_LIMIT_TICKS の判定に使う・expedient")
+        # ---- 就寝の意図保持(D-62・2026-09-10 ユーザー決定 (a)) ----
+        r.declare("sleep_pending", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="計画(W17)の就寝境界に達したが就寝地に居ない=1 / 0=なし。"
+                      "着いた時点で世界が寝かせる(登録簿 §8 D-62・乗車の意図保持と同じ形)")
         # ---- 屋内占有・待ち行列(C4 混雑場・16行表 行2) ----
         r.declare("poi_ref", np.int32, byte_budget_per_agent=4, mechanism=False,
                   doc="在席中の POI 索引(-1=なし)。屋内占有の集約に使う(席数換算は expedient)")

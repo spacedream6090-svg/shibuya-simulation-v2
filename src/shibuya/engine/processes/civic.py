@@ -467,6 +467,10 @@ class LargeEventProcess:
         take = outside[: self.visitor_delta]
         cells = self.venue_cells[np.arange(take.size) % self.venue_cells.size]
         R.rail_arrive(self.agents, self.world, take, cells)
+        # **D-61 追補**: 引き込んだ体が鉄道の「帰りの便」を待っていたら、その予約を外す
+        # (外さないと、退場して再び域外に居るときに古い割当が発火して**別の理由で**戻る)。
+        if self.rail is not None:
+            self.rail.drop_from_return_queue(take)
         self._inside = take
         self.n_in += int(take.size)
         if self.log is not None:
@@ -481,6 +485,10 @@ class LargeEventProcess:
             return
         ref = np.asarray(self.agents.registry.transit_ref, dtype=np.int64)[self._inside]
         R.rail_depart(self.agents, self._inside, np.maximum(ref, 0))
+        # **D-61 追補**: この過程は鉄道の発車ブロックを通らずに域外へ出すので、帰りの便を
+        # 自分で頼む(渋谷に家がある体は、次の域内活動に最も近い便で戻る)。
+        if self.rail is not None:
+            self.rail.assign_return_trains(self._inside, int(tick))
         self.n_out += int(self._inside.size)
         self._inside = np.zeros(0, dtype=np.int64)
         if self.log is not None:

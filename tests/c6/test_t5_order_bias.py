@@ -85,6 +85,14 @@ def _run(n_agents, seed, *, ticks=TICKS, world=None, world_dir=None, budget=None
         # T5 が見るのは**選抜の順序バイアス**(``arbitrate`` の lexsort)であって就寝規則
         # ではない(抑止を入れた並び順不変は tests/engine/test_sleep_suppression_d56.py)。
         sleep_suppression=False,
+        # D-62(就寝は計画の実行)の帰無腕。既定だと tick 0 の ``activity`` が W17 週次表の
+        # 0:00 時点の活動から立つので、「24 tick の窓で誰が起こされるか」に**週次表という
+        # 体ごとの共変量**が入る(実測: 層内 |ρ| mean_wake_tick 0.0784 > 0.05。selected_count
+        # 0.0210 / wake_count 0.0219 は閾値内)。これは ``arbitrate`` の並び順のバイアスでは
+        # なく**構成のバイアス**で、種別(kind)の層別では落ちない。T5 が測るのは前者なので
+        # ここは D-62 前の種(全員 SLEEPING)で回す。**親へ報告済み**(W17 を共変量に入れた
+        # 層別にするかは未決)。
+        plan_sleep=False,
     )
     return res, rec
 

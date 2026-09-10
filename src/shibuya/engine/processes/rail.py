@@ -36,6 +36,22 @@
 - 乗車は「ホームに立ってから」ではなく「**選んだら世界がホームまで運ぶ**」形になった
   (実装は ``engine.resolve``。本モジュールは待ち行列の診断カウンタだけを持つ)。
 
+**D-61(2026-09-10・ユーザー決定 (a))で変わった点**
+- D-51 で乗車が成立するようになった結果、**渋谷に家がある個体**(域内居住者)が乗車で域外へ
+  出ると再入場の経路が無く、日末まで域外に溜まった(親調査で mock 5,000 体の 47%。
+  本サブの基線=並行編集込みの同条件で 31.9%=1,597/5,000)。
+- 直し: 発車で運び出した乗客のうち域内居住者(``external_line < 0``)に、
+  **週次表(W17)の次の域内活動(``place_kind != 域外``)の開始時刻に最も近い便**で帰りの便を割り当てる
+  (``_assign_return``)。線は選ばない(**渋谷は 1 駅**=どの線で戻っても同じセルの近傍に降りる。
+  D-51 §8 の「線を選び分ける意味がない」宣言と同じ扱い)。
+- 次の域内活動が無い体・その時刻以降の便が無い体(終電後)は**その日は戻らない**
+  =乗客の保存則の分母(域外滞在)に残る。診断は ``no_return`` / ``return_no_train``。
+- **追補(同日・親判断)**: ① 域内活動の定義を ``target_cell >= 0`` → **``place_kind != 域外``**
+  へ広げた(理由と戻し方は ``agents.weekly.WeeklySchedule.inbound_starts``)。
+  ② 鉄道を迂回して域外へ出す/域外から引き込む過程のために公開口を 2 本足した
+  (``assign_return_trains`` / ``drop_from_return_queue``。使い手は
+  ``engine.processes.civic.LargeEventProcess`` の 18:00 入場・21:00 退場)。
+
 expedient(本モジュール分)
 - 停車時分の線別表: 終端 2 tick は**折返し時分が未取得**(45 秒の最低停車時間 + α)。
   通過型 1 tick は実値 30〜60 秒の**上界**の丸め(1 分 tick では 20〜60 秒を表せない)。
@@ -184,6 +200,9 @@ class RailProcess:
         master_seed: 域外居住の抽選 seed。
         day_index: 曜日(0=月曜)。
         schedule: mock 日課(到着便の割り当てに「外出」境界を使う。``None`` 可)。
+            **D-61**: ``agents.weekly.apply_to_mock_schedule`` がこの実体へ週次表を
+            ``schedule.weekly`` として貼るので、帰りの便はそこから週次表を拾う。
+        weekly: 週次表を**直に**渡す口(テスト用。``None`` なら ``schedule.weekly``)。
         actual_log: ``world.processes.actual_log.ActualLog``(``None`` なら記録しない)。
     """
 
@@ -200,6 +219,7 @@ class RailProcess:
         master_seed: int | str = 1,
         day_index: int = 0,
         schedule=None,
+        weekly=None,
         actual_log=None,
         fare_yen: int = FARE_YEN,
     ) -> None:
@@ -208,6 +228,7 @@ class RailProcess:
         self.assets = passets
         self.master_seed = master_seed
         self.day_index = int(day_index)
+        self.schedule = schedule
         self.log = actual_log
         self.fare_yen = int(fare_yen)
         self.n_departures = 0
@@ -229,6 +250,12 @@ class RailProcess:
         self.n_board_dropped = 0
         #: 待ち行列から実際に乗れた延べ数(``board_success_rate`` の分子)。
         self.n_boarded_from_queue = 0
+        #: D-61 帰りの便: 割り当てた数 / 実際に降りた数 / その日は戻らない数
+        #: (次の域内活動が無い + 終電後)/ うち終電後だけの数。
+        self.n_return_scheduled = 0
+        self.n_return_arrived = 0
+        self.n_no_return = 0
+        self.n_return_no_train = 0
         self.lines: tuple[str, ...] = ()
         #: 便のある線の索引(昇順)と、線索引→渋谷のホームセル(全線ぶん・-1=不明)。
         self.lines_present = np.empty(0, dtype=np.int64)
@@ -247,6 +274,16 @@ class RailProcess:
         self.external_line = np.full(agents.n, -1, dtype=np.int64)
         self._arr_order = np.empty(0, dtype=np.int64)
         self._arr_start = np.empty(0, dtype=np.int64)
+        #: 便がホームへ入る tick(``dep_tick - dwell + 1``)と、その昇順(同着は便索引昇順)。
+        self.enter_tick = np.empty(0, dtype=np.int64)
+        self._enter_order = np.empty(0, dtype=np.int64)
+        self._enter_sorted = np.empty(0, dtype=np.int64)
+        #: D-61 帰りの便の待ち行列: 便索引 → 到着待ちの体の配列(**動的**に増える)。
+        #: 事前割当(域外居住者)の ``_arr_order``/``_arr_start`` は静的なまま触らない。
+        self._return_queue: dict[int, list[np.ndarray]] = {}
+        self._weekly = weekly
+        self._inbound = None
+        self._inbound_ready = False
         self._build_trains()
         self._build_external_home(schedule)
 
@@ -296,6 +333,11 @@ class RailProcess:
         )
         self.occupancy = np.zeros(self.dep_tick.size, dtype=np.int64)
         self.peak_ratio = np.zeros(self.dep_tick.size, dtype=np.float64)
+        # D-61: 「ホームへ入る時刻」の昇順表(帰りの便の二分探索の軸)。``dwell`` が線別なので
+        # ``dep_tick`` が昇順でも ``enter_tick`` は昇順とは限らない=1 回だけ並べ替える。
+        self.enter_tick = self.dep_tick - self.dwell + 1
+        self._enter_order = np.argsort(self.enter_tick, kind="stable")  # 同着は便索引昇順
+        self._enter_sorted = self.enter_tick[self._enter_order]
         # 乗車の意図保持(D-51)が引く「どのホームへ行けばよいか」の表
         self.lines_present = np.unique(self.train_line)
         self.line_cell = np.asarray(a.line_platform_cell, dtype=np.int64)
@@ -340,6 +382,105 @@ class RailProcess:
         self._arr_start = np.searchsorted(
             train[self._arr_order], np.arange(self.dep_tick.size + 1), side="left"
         )
+
+    # ------------------------------------------------------------------ D-61 帰りの便
+    def _inbound_index(self):
+        """週次表の「次の域内活動」索引(初回に 1 回だけ組む)。無ければ ``None``。
+
+        週次表は ``engine.run`` が tick ループの**前**に
+        ``agents.weekly.apply_to_mock_schedule`` で ``schedule.weekly`` へ貼る
+        (=構築時にはまだ無い)ので、**初回の発車で**拾う。
+        """
+        if not self._inbound_ready:
+            self._inbound_ready = True
+            w = self._weekly
+            if w is None:
+                w = getattr(self.schedule, "weekly", None)
+            # 体行 i = 個体 i の対応(``run`` が ``restrict_to(pop.source_agent_id)`` で揃える)。
+            # 体数が足りない表は使わない(取り違えるより戻さない側へ倒す)。
+            if w is not None and int(getattr(w, "n_agents", 0)) >= self.agents.n:
+                self._inbound = w.inbound_starts(self.day_index)
+        return self._inbound
+
+    def attach_weekly(self, weekly) -> None:
+        """週次表を**後から**挿す(``schedule.weekly`` を通さない結線・テスト用)。"""
+        self._weekly = weekly
+        self._inbound = None
+        self._inbound_ready = False
+
+    def assign_return_trains(self, agent_ids, tick: int) -> None:
+        """**他の過程が自前で域外へ出した体**に帰りの便を割り当てる公開口(D-61 追補)。
+
+        ``engine.processes.civic.LargeEventProcess._leave`` のように ``resolve.rail_depart`` を
+        直接呼ぶ過程は、本モジュールの発車ブロックを通らない=帰りの便が付かなかった。
+        その場でこれを呼べば、鉄道で出た体と同じ規則(次の域内活動に最も近い便)で戻る。
+        """
+        self._assign_return(np.asarray(agent_ids, dtype=np.int64).ravel(), int(tick))
+
+    def drop_from_return_queue(self, agent_ids) -> None:
+        """帰りの便を**待っている体を待ち行列から外す**公開口(D-61 追補)。
+
+        ``LargeEventProcess._arrive`` のように、鉄道を通さず域外から体を引き込む過程が使う。
+        外さないと、引き込まれた体の**古い割当**が後で発火して(その体がまた域外に居れば)
+        予定より早く・別の理由で戻ってしまう。実体は「帰りの便の予約印」=``arrival_train``
+        を落とすだけ(到着側が便索引と突き合わせるので、待ち行列の配列は掃除しなくてよい)。
+        **域外居住者の事前割当は触らない**(あちらは ``arrival_train`` が降車セルの引き先)。
+        """
+        a = np.asarray(agent_ids, dtype=np.int64).ravel()
+        if a.size == 0:
+            return
+        self.arrival_train[a[self.external_line[a] < 0]] = -1
+
+    def _assign_return(self, riders: np.ndarray, tick: int) -> None:
+        """域内に家がある乗客へ**帰りの便**を割り当てる(D-61・ユーザー決定 (a))。
+
+        規則: 週次表からその体の「``tick`` **より後**の最初の**域内活動**」の
+        開始分 ``want`` を引き、**ホームへ入る時刻(``dep_tick - dwell + 1``)が ``want`` 以上で
+        最も早い便**に載せる。**線は選ばない**(渋谷は 1 駅=どの線で戻っても同じホームの
+        セル群に降りる)。同着は便索引の昇順=決定論。
+
+        戻らない条件: 次の域内活動が無い / ``want`` 以降にホームへ入る便が無い(終電後)。
+        どちらもその日は域外滞在のまま=乗客の保存則の分母に残る。
+
+        「域内活動」の定義は週次表側(``agents.weekly.WeeklySchedule.inbound_starts``)が持つ=
+        **``place_kind != 域外``**(D-61 追補・expedient。W17 の自宅活動の 84% が
+        ``target_cell = -1`` で、逐語定義「``target_cell >= 0``」だと 27.8% しか戻らなかった)。
+
+        Note:
+            逐次ループ宣言(P4): **割当先の便数**ぶん(≦その tick の乗客数だが、実際は
+            「次の域内活動の時刻」の異なり数で頭打ち。**個体数に比例するループは作らない**)。
+        """
+        r = np.asarray(riders, dtype=np.int64).ravel()
+        if r.size == 0:
+            return
+        home_in = r[self.external_line[r] < 0]
+        if home_in.size == 0:
+            return
+        idx = self._inbound_index()
+        if idx is None:  # 週次表の無いラン(合成世界・--no-population)= D-61 前の挙動
+            self.n_no_return += int(home_in.size)
+            return
+        want = idx.next_after(home_in, int(tick))
+        has = want >= 0
+        rows, want = home_in[has], want[has]
+        pos = np.searchsorted(self._enter_sorted, want, side="left")
+        ok = pos < self._enter_sorted.size
+        self.n_return_no_train += int(np.count_nonzero(~ok))
+        self.n_no_return += int(home_in.size) - int(np.count_nonzero(ok))
+        rows, trains = rows[ok], self._enter_order[pos[ok]]
+        if rows.size == 0:
+            return
+        # ``want > tick`` かつ ``enter_tick >= want`` なので、割当先は**必ずこの tick より後**に
+        # ホームへ入る(この tick の到着処理は step の先頭で済んでいる=取りこぼさない)。
+        self.arrival_train[rows] = trains
+        order = np.argsort(trains, kind="stable")
+        rows, trains = rows[order], trains[order]
+        cuts = np.flatnonzero(np.diff(trains)) + 1
+        lo = np.concatenate(([0], cuts))
+        hi = np.concatenate((cuts, [trains.size]))
+        for s, e in zip(lo.tolist(), hi.tolist()):  # 逐次ループ宣言: 割当先の便数ぶん
+            self._return_queue.setdefault(int(trains[s]), []).append(rows[s:e])
+        self.n_return_scheduled += int(rows.size)
 
     def external_home_agents(self) -> np.ndarray:
         """域外に住む個体(ランの最初に ``resolve.place_at_external`` で外へ置く)。"""
@@ -454,20 +595,39 @@ class RailProcess:
             return
         t = int(tick)
         # ---- 到着: ホームに入る便(停車窓の先頭)に割り当てられた域外居住者を降ろす ----
-        entering = np.flatnonzero(self.dep_tick - self.dwell + 1 == t)
-        if entering.size and self._arr_order.size:
-            picks = [
-                self._arr_order[self._arr_start[k] : self._arr_start[k + 1]] for k in entering
-            ]
-            arriving = np.concatenate(picks) if picks else np.empty(0, dtype=np.int64)
+        entering = np.flatnonzero(self.enter_tick == t)
+        if entering.size:
+            picks: list[np.ndarray] = []  # 事前割当(域外居住者)
+            back: list[np.ndarray] = []  # D-61 帰りの便(域内居住者)
+            back_of: list[np.ndarray] = []  # その待ち行列がどの便のものか(予約の突き合わせ用)
+            for k in entering.tolist():  # 逐次ループ宣言: この tick にホームへ入る便ぶん
+                if self._arr_order.size:
+                    picks.append(self._arr_order[self._arr_start[k] : self._arr_start[k + 1]])
+                q = self._return_queue.pop(int(k), None)
+                if q:
+                    back.extend(q)
+                    back_of.extend(np.full(p.size, k, dtype=np.int64) for p in q)
+            n_back = int(sum(int(p.size) for p in back))
+            allp = picks + back
+            arriving = np.concatenate(allp) if allp else np.empty(0, dtype=np.int64)
             if arriving.size:
-                still_out = arriving[self.agents.registry.transit_state[arriving] == 2]
+                is_back = np.zeros(arriving.size, dtype=bool)
+                still = self.agents.registry.transit_state[arriving] == 2
+                if n_back:
+                    is_back[arriving.size - n_back :] = True  # 連結は 事前割当 → 帰り の順
+                    # **予約の突き合わせ**: 引き込まれて予約が落ちた体(``drop_from_return_queue``)
+                    # と、その後に別の便へ付け替えられた体の**古い行**をここで捨てる。
+                    still[is_back] &= (
+                        self.arrival_train[arriving[is_back]] == np.concatenate(back_of)
+                    )
+                still_out = arriving[still]
                 if still_out.size:
                     cells = np.asarray(self.platform_cell, dtype=np.int64)[
                         self.arrival_train[still_out]
                     ]
                     R.rail_arrive(self.agents, self.world, still_out, cells)
                     self.n_arrivals += int(still_out.size)
+                    self.n_return_arrived += int(np.count_nonzero(is_back[still]))
         # ---- 発車: 乗客を方面別の外界ノードへ運び出す ----
         # 実行器は tick の**先頭**で回るので、``dep_tick`` の tick に確定した乗車
         # (Phase C は tick の末尾)を取りこぼさないよう **1 tick 遅らせて**運び出す。
@@ -484,6 +644,8 @@ class RailProcess:
                         self.agents, on_leaving, self.train_line[ref[on_leaving]]
                     )
                     self.n_departed_riders += int(on_leaving.size)
+                    # D-61: 域内に家がある体には**帰りの便**をここで割り当てる
+                    self._assign_return(on_leaving, t)
             self.occupancy[leaving] = 0
             self.n_departures += int(leaving.size)
             if self.log is not None:
@@ -538,6 +700,11 @@ class RailProcess:
                 if self.n_board_intent
                 else 0.0
             ),
+            # ---- D-61 帰りの便(域内居住者) ----
+            "return_scheduled": float(self.n_return_scheduled),
+            "return_arrived": float(self.n_return_arrived),
+            "no_return": float(self.n_no_return),
+            "return_no_train": float(self.n_return_no_train),
             "external_home_agents": float(int(self.external_home_agents().size)),
             "in_bbox": float(inb),
             "riding": float(riding),
@@ -559,6 +726,8 @@ class RailProcess:
             f" / 乗車意図 {self.n_board_intent:,}(歩き {self.n_board_walking:,}"
             f"・待ち {self.n_board_waiting:,}・成立 {self.n_boarded_from_queue:,}"
             f"・打ち切り {self.n_board_timeout:,}・ホームなし {self.n_board_unreachable:,})"
+            f" / 帰りの便 {self.n_return_scheduled:,}(到着 {self.n_return_arrived:,}"
+            f"・戻らない {self.n_no_return:,}〈終電後 {self.n_return_no_train:,}〉)"
         )
 
 

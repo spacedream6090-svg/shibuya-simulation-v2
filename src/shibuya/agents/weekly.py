@@ -29,7 +29,7 @@ from typing import Final
 
 import numpy as np
 
-from shibuya.agents.state import WakeCondition
+from shibuya.agents.state import Activity, WakeCondition
 from shibuya.core.hashing import blake3_hex
 
 __all__ = [
@@ -40,7 +40,11 @@ __all__ = [
     "PLACE_WORDS",
     "ACTIVITY_TO_ACTION",
     "ACTIVITY_TO_WAKE",
+    "ACTIVITY_TO_STATE",
+    "SLEEP_ACTIVITY_CODE",
     "CELL_UNRESOLVED",
+    "PLACE_KIND_OUTSIDE",
+    "InboundStarts",
     "WeeklySchedule",
     "weekly_available",
     "load_weekly",
@@ -83,13 +87,95 @@ ACTIVITY_TO_WAKE: Final[tuple[int, ...]] = (
     int(WakeCondition.PLAN_GENERAL),  # 交流
     int(WakeCondition.PLAN_GENERAL),  # 休憩
 )
+#: 「就寝」の活動語コード(``ACTIVITY_WORDS`` の索引 0)。
+SLEEP_ACTIVITY_CODE: Final[int] = 0
+#: 活動語コード → ``agents.state.Activity``(**D-62 (b)**「tick 0 の活動は計画から立てる」)。
+#:
+#: expedient(自前の写像・登録簿 §8 D-62)
+#: - 「勤務」「通学」に対応する ``Activity`` が無い(在席を表す語は ``SHOPPING`` しかなく、
+#:   それは店頭滞在の意味)ので ``IDLE`` に落とす。**在席していないという意味ではない**——
+#:   位置は ``target_cell_at`` が別に持つ。
+#: - 「乗車」は tick 0 では列車に乗っていない(``transit_state`` は rail の事前割当が正)ので
+#:   ``MOVING``(=駅へ向かっている途中)に落とす。``target_node`` は張らない。
+#: - 「支度・食事・買物・娯楽・用事・交流」は起きているだけ=``IDLE``、「休憩」は ``RESTING``。
+ACTIVITY_TO_STATE: Final[tuple[int, ...]] = (
+    int(Activity.SLEEPING),  # 就寝
+    int(Activity.IDLE),      # 支度
+    int(Activity.MOVING),    # 移動
+    int(Activity.MOVING),    # 乗車
+    int(Activity.IDLE),      # 勤務
+    int(Activity.IDLE),      # 通学
+    int(Activity.IDLE),      # 食事
+    int(Activity.IDLE),      # 買物
+    int(Activity.IDLE),      # 娯楽
+    int(Activity.IDLE),      # 用事
+    int(Activity.IDLE),      # 交流
+    int(Activity.RESTING),   # 休憩
+)
+
 #: 場所種別だけが決まっていてセルが未解決(店・駅・公園はランが経路と選好から決める)。
 CELL_UNRESOLVED: Final[int] = -1
+
+#: 「域外」の場所種別コード(``PLACE_WORDS`` の索引)。**D-61 追補**の「域内活動」の定義=
+#: ``place_kind != PLACE_KIND_OUTSIDE``(下の ``inbound_starts`` 参照)。
+PLACE_KIND_OUTSIDE: Final[int] = PLACE_WORDS.index("域外")
 
 _COLUMNS: Final[tuple[str, ...]] = (
     "agent_id", "day", "seq", "start_min", "end_min",
     "activity_code", "place_kind", "target_cell",
 )
+
+
+@dataclass(frozen=True)
+class InboundStarts:
+    """その日の**域内活動**(``place_kind != 域外``)の開始分を体行ごとに束ねた索引(D-61)。
+
+    鉄道の「帰りの便」(``engine.processes.rail``)が
+    「いま域外へ出た体は、次にいつ渋谷に居なければならないか」を引くための形。
+    1 日ぶんを 1 回組み、以後は ``next_after`` の ``searchsorted`` 1 本で引く。
+
+    Attributes:
+        n_agents: 体行の数(``WeeklySchedule.n_agents``)。
+        offset: ``(n_agents+1,)`` の CSR 索引。
+        start: 開始分[分](体行ごとに昇順)。
+        key: ``体行*(MINUTES_PER_DAY+1) + start``。**全体で昇順**なので、体ごとの
+            二分探索を 1 本の ``searchsorted`` で済ませられる(``target_cell_at`` と同じ手)。
+
+    Note:
+        逐次ループ宣言(P4): なし。
+    """
+
+    n_agents: int
+    offset: np.ndarray
+    start: np.ndarray
+    key: np.ndarray
+
+    @property
+    def n_starts(self) -> int:
+        return int(self.start.size)
+
+    def next_after(self, rows, minute) -> np.ndarray:
+        """体行 ``rows`` の「``minute`` **より後**の最初の域内活動」の開始分(無ければ ``-1``)。
+
+        Args:
+            rows: 体行(``(k,)``)。範囲外の行は ``-1`` を返す。
+            minute: スカラーか ``(k,)``。0-1440 に丸める。
+
+        Returns:
+            ``(k,)`` の ``int64``。``-1`` = その日はもう域内活動が無い。
+        """
+        r = np.asarray(rows, dtype=np.int64).ravel()
+        out = np.full(r.size, -1, dtype=np.int64)
+        if r.size == 0 or self.start.size == 0:
+            return out
+        ok = (r >= 0) & (r < self.n_agents)
+        safe = np.where(ok, r, 0)
+        m = np.clip(np.asarray(minute, dtype=np.int64), 0, MINUTES_PER_DAY)
+        probe = safe * (MINUTES_PER_DAY + 1) + np.where(ok, m, MINUTES_PER_DAY)
+        pos = np.searchsorted(self.key, probe, side="right")
+        hit = ok & (pos < self.offset[safe + 1])
+        out[hit] = self.start[pos[hit]]
+        return out
 
 
 @dataclass(frozen=True)
@@ -204,14 +290,126 @@ class WeeklySchedule:
         Returns:
             ``(agent_row, condition, tick)``。tick=活動の開始分(0-1439)。
         """
+        rows, cond, tick, _cell = self.boundary_events_full(day_index)
+        return rows, cond, tick
+
+    def boundary_events_full(
+        self, day_index: int = 0
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """``boundary_events`` に**その境界で始まる活動の行き先セル**を足した形(D-62)。
+
+        就寝境界(``WakeCondition.PLAN_SLEEPING``)で「どこで寝るか」をエンジンが知るために
+        要る(D-62 (a)「就寝は計画の実行」)。``boundary_events`` はこの関数の**薄い包み**なので、
+        4 本の並びは常に一致する(並べ替えを二重に書かない)。
+
+        Returns:
+            ``(agent_row, condition, tick, target_cell)``。``target_cell`` は
+            ``CELL_UNRESOLVED``(-1)= その活動の行き先が未解決(呼び出し側の既定へ落とす)。
+        """
         rows, idx, _ = self._day_rows(day_index)
         if idx.size == 0:
             e = np.empty(0, dtype=np.int64)
-            return e, np.empty(0, dtype=np.int8), e
+            return e, np.empty(0, dtype=np.int8), e, np.empty(0, dtype=np.int32)
         tick = self.start_min[idx].astype(np.int64)
         cond = np.asarray(ACTIVITY_TO_WAKE, dtype=np.int8)[self.activity[idx]]
+        cell = np.asarray(self.target_cell, dtype=np.int32)[idx]
         order = np.lexsort((rows, tick))
-        return rows[order], cond[order], tick[order]
+        return rows[order], cond[order], tick[order], cell[order]
+
+    def _row_at(self, day_index: int, minute: int) -> tuple[np.ndarray, np.ndarray]:
+        """その時刻に**進行中**の活動の全体行索引と有効印(``(n_agents,)`` を 2 本)。
+
+        (体行, 開始分)の複合キーは昇順なので、体ごとの「開始 ≤ minute」の最後を
+        **1 回の二分探索**で引ける(ループなし)。``target_cell_at`` / ``activity_at`` の共通部。
+        """
+        rows, idx, counts = self._day_rows(day_index)
+        if idx.size == 0:
+            return (
+                np.zeros(self.n_agents, dtype=np.int64),
+                np.zeros(self.n_agents, dtype=bool),
+            )
+        gkey = rows * (MINUTES_PER_DAY + 1) + self.start_min[idx].astype(np.int64)
+        probe = np.arange(self.n_agents, dtype=np.int64) * (MINUTES_PER_DAY + 1) + int(minute)
+        pos = np.searchsorted(gkey, probe, side="right") - 1
+        base = np.cumsum(counts) - counts
+        ok = (counts > 0) & (pos >= base)
+        pos = np.where(ok, pos, 0)
+        sel = idx[pos]
+        live = ok & (self.start_min[sel] <= minute) & (self.end_min[sel] > minute)
+        return sel, live
+
+    def activity_at(self, day_index: int, minute: int) -> np.ndarray:
+        """その時刻に各体が**していること**(``ACTIVITY_WORDS`` の索引・隙間は ``-1``)。
+
+        Returns:
+            ``(n_agents,)`` の ``int8``。``-1`` = その分を覆う活動がない(その日に 1 件も
+            活動が無い体・活動と活動の隙間)。
+        """
+        out = np.full(self.n_agents, -1, dtype=np.int8)
+        sel, live = self._row_at(day_index, minute)
+        if not live.any():
+            return out
+        out[live] = np.asarray(self.activity, dtype=np.int8)[sel[live]]
+        return out
+
+    def initial_activity(
+        self, day_index: int = 0, *, fallback: int = int(Activity.SLEEPING)
+    ) -> np.ndarray:
+        """その日の **0:00 時点**の ``agents.state.Activity``(D-62 (b) tick 0 の初期化)。
+
+        Args:
+            day_index: 曜日。
+            fallback: 0:00 を覆う活動が無い体に入れる値。既定 ``SLEEPING``=
+                **D-62 前の挙動**(``resolve.initialize`` の一括代入)を隙間にだけ残す
+                (expedient・登録簿 §8 D-62)。
+
+        Returns:
+            ``(n_agents,)`` の ``int8``(``Activity`` の値)。
+        """
+        code = self.activity_at(day_index, 0)
+        out = np.full(self.n_agents, int(fallback), dtype=np.int8)
+        live = code >= 0
+        if live.any():
+            out[live] = np.asarray(ACTIVITY_TO_STATE, dtype=np.int8)[code[live]]
+        return out
+
+    def inbound_starts(self, day_index: int = 0) -> InboundStarts:
+        """その日の**域内活動**(``place_kind != 域外``)の開始分を CSR に束ねる(D-61)。
+
+        **域内活動の定義 = ``place_kind != PLACE_KIND_OUTSIDE``**(D-61 追補・2026-09-10・
+        親判断。**expedient**)。当初の逐語定義は「``target_cell >= 0``(行き先セルが解決)」
+        だったが、W17 の**「自宅」活動の 84% が ``target_cell = -1``**(day0 全 1,805,177 活動の
+        うち解決済みは 26.9% = 職場・自宅の一部・学校だけ)で、10:00 以降に「次の域内活動」を
+        持つ体が 15% しか居らず、決定 (a) の趣旨(住民は戻る)が果たせなかった。
+        セルが未解決でも**渋谷の中の活動**(自宅・駅・飲食店・公園…)なら「その時刻に渋谷に
+        居なければならない」ことは決まっているので、場所種別だけで判定する。
+        **W17 側で自宅セルが解決されれば ``target_cell >= 0`` の条件へ戻せる**(登録簿 §8 D-61)。
+
+        Note:
+            逐次ループ宣言(P4): なし(``_day_rows`` + ``lexsort`` + ``bincount``)。
+        """
+        n = self.n_agents
+        rows, idx, _ = self._day_rows(day_index)
+        if idx.size:
+            keep = np.asarray(self.place_kind)[idx] != PLACE_KIND_OUTSIDE
+            rows, idx = rows[keep], idx[keep]
+        start = (
+            self.start_min[idx].astype(np.int64) if idx.size else np.empty(0, dtype=np.int64)
+        )
+        offset = np.zeros(n + 1, dtype=np.int64)
+        if start.size:
+            # W17 の seq 順を当てにせず (体行, 開始分) 昇順へ揃える(key の全体昇順が前提)
+            order = np.lexsort((start, rows))
+            rows, start = rows[order], start[order]
+            np.cumsum(np.bincount(rows, minlength=n)[:n], out=offset[1:])
+        else:
+            rows = np.empty(0, dtype=np.int64)
+        return InboundStarts(
+            n_agents=n,
+            offset=offset,
+            start=start,
+            key=rows * (MINUTES_PER_DAY + 1) + start,
+        )
 
     def target_cell_at(self, day_index: int, minute: int, fallback: np.ndarray) -> np.ndarray:
         """その時刻に各体が居るべきセル(``-1`` の活動と隙間は ``fallback``)。
@@ -222,19 +420,9 @@ class WeeklySchedule:
             fallback: 形 ``(n_agents,)`` の既定セル(``Population.start_cell`` など)。
         """
         out = np.asarray(fallback, dtype=np.int32).copy()
-        rows, idx, counts = self._day_rows(day_index)
-        if idx.size == 0:
+        sel, live = self._row_at(day_index, minute)
+        if not live.any():
             return out
-        # (体行, 開始分)の複合キーは昇順なので、体ごとの「開始 <= minute」の最後を
-        # 1 回の二分探索で引ける(ループなし)。
-        gkey = rows * (MINUTES_PER_DAY + 1) + self.start_min[idx].astype(np.int64)
-        probe = np.arange(self.n_agents, dtype=np.int64) * (MINUTES_PER_DAY + 1) + int(minute)
-        pos = np.searchsorted(gkey, probe, side="right") - 1
-        base = np.cumsum(counts) - counts
-        ok = (counts > 0) & (pos >= base)
-        pos = np.where(ok, pos, 0)
-        sel = idx[pos]
-        live = ok & (self.start_min[sel] <= minute) & (self.end_min[sel] > minute)
         cell = self.target_cell[sel]
         take = live & (cell >= 0)
         out[take] = cell[take]
@@ -343,6 +531,20 @@ def apply_to_mock_schedule(mock, weekly: WeeklySchedule, day_index: int = 0):
     work_at = weekly.target_cell_at(day_index, 12 * 60, work)  # 正午の行き先
     home[:n] = np.where(home_at[:n] >= 0, home_at[:n], home[:n])
     work[:n] = np.where(work_at[:n] >= 0, work_at[:n], work[:n])
-    return dataclasses.replace(
+    out = dataclasses.replace(
         mock, home_cell=home.astype(np.int32), work_cell=work.astype(np.int32)
     )
+    # ---- D-61 の結線口: 週次表そのものを mock 日課へ**添付**する ----
+    # 鉄道過程(``engine.processes.rail.RailProcess``)は ``WorldProcessRunner`` 経由で
+    # **この mock オブジェクト**を握っており、``engine.run`` は tick ループの前にこの関数を
+    # 1 回呼ぶ。ここで貼っておけば ``run.py`` を書き換えずに週次表が鉄道へ届く
+    # (帰りの便=D-61 が「次の域内活動の開始時刻」を引く先)。
+    # **入力側にも貼る**のは、``dataclasses.replace`` が新しい実体を返すのに対して
+    # runner が握っているのは**置き換え前**の方だから。データクラスの**フィールドではない**ので
+    # ``schedule_hash``・バイト予算・``dataclasses.replace`` の等価性には影響しない。
+    for obj in (mock, out):
+        try:
+            object.__setattr__(obj, "weekly", weekly)
+        except AttributeError:  # ``__slots__`` を持つ差し替え実装(貼れなくても落とさない)
+            pass
+    return out
