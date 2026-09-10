@@ -28,6 +28,10 @@ expedient(本モジュール分)
   B6「直前の結果」の主語を復元できない(失敗した行動は状態に残らない)ので追加した
   (C3 結線・書き手は ``engine.resolve`` のみ)。**エンジン継続(``ENGINE_STEP``)は書かない**
   ——「移動の続き」は新しく試みた行動ではないので、直前の 移動 が主語のまま残るのが正しい。
+- ``board_line`` / ``board_since``(5 B/体・D-51 乗車の意図保持)。「乗車を選んだがホームに
+  居ない」体を世界がホームまで運び、着いたら待ち行列に並べるための 2 欄。**待ちは
+  ``transit_state=0``(在圏)の中の状態**で、3 値(乗客の保存則の分母)は増やさない。
+  待ちの打ち切り時間は ``engine.resolve.BOARD_WAIT_LIMIT_TICKS``(expedient)。
 - ``last_result`` を 1 byte のコードにし、失敗の詳細(残高・次回開店時刻)は**持たない**
   (行動契約書 §6 は「残高/価格・次回開店時刻」を返せと言う=C3 のプロンプト側で
   現在値から再構成する。C2 は「どの失敗か」だけを保持)。
@@ -299,6 +303,14 @@ class AgentState:
                       "**乗客の保存則の分母**: 3 値の件数和 = 個体数")
         r.declare("transit_ref", np.int32, byte_budget_per_agent=4, mechanism=True,
                   doc="乗車中=列車索引 / 域外滞在=外界ノード索引(路線索引)。-1=なし")
+        # ---- 乗車の意図保持(D-51・2026-09-10 ユーザー決定 (c)) ----
+        # **``transit_state`` を増やさない**(3 値は乗客の保存則の分母)。待ちは在圏(0)の中の状態。
+        r.declare("board_line", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="乗ろうとしている路線索引(=そのホーム。-1=乗車の意図なし)。"
+                      "ホーム以外で乗車を選ぶと世界が最寄りホームへ運ぶ(登録簿 §8 D-51)")
+        r.declare("board_since", np.int32, byte_budget_per_agent=4, mechanism=False,
+                  doc="ホームで待ち始めた tick(-1=まだ待っていない=移動中)。"
+                      "打ち切り BOARD_WAIT_LIMIT_TICKS の判定に使う・expedient")
         # ---- 屋内占有・待ち行列(C4 混雑場・16行表 行2) ----
         r.declare("poi_ref", np.int32, byte_budget_per_agent=4, mechanism=False,
                   doc="在席中の POI 索引(-1=なし)。屋内占有の集約に使う(席数換算は expedient)")
@@ -335,6 +347,8 @@ class AgentState:
         self.registry.last_result_tick[:] = -1
         self.registry.last_action[:] = LAST_ACTION_NONE
         self.registry.transit_ref[:] = -1
+        self.registry.board_line[:] = -1
+        self.registry.board_since[:] = -1
         self.registry.poi_ref[:] = -1
         self.registry.poi_since[:] = -1
         self.registry.queue_poi[:] = -1

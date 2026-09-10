@@ -252,6 +252,9 @@ class RunResult:
     n_boarded: int = 0
     n_alighted: int = 0
     n_queued: int = 0
+    #: 乗車待ち(D-51): ホームに立った延べ人数と、列車が来ずに打ち切った件数。
+    n_board_waiting: int = 0
+    n_board_timeout: int = 0
     #: PlanSpec の遵守率(``ActualLog`` の SCHEDULED 率)。
     compliance_rate: float = float("nan")
     #: ``ActualLog`` の追記総件数。
@@ -510,7 +513,8 @@ class RunResult:
                 f"  世界過程 台帳 {self.registry_hash[:16]}… 憲法5 "
                 f"{'OK' if self.constitution_ok else 'NG'} / 再生日 "
                 f"{self.replay_date or '(合成)'} / 乗車 {self.n_boarded:,} 降車 "
-                f"{self.n_alighted:,} 待ち行列 {self.n_queued:,} 乗り残し "
+                f"{self.n_alighted:,} 待ち行列 {self.n_queued:,} 乗車待ち "
+                f"{self.n_board_waiting:,}(打ち切り {self.n_board_timeout:,}) 乗り残し "
                 f"{int(self.process_counters.get('rail.left_behind', 0)):,}"
                 f"({self.process_counters.get('rail.left_behind_rate', 0.0):.4f}) / ActualLog "
                 f"{self.actual_log_rows:,} 行 遵守率 {self.compliance_rate:.3f}"
@@ -1358,6 +1362,8 @@ def run_day(
         result.n_boarded += outcome.n_boarded
         result.n_alighted += outcome.n_alighted
         result.n_queued += outcome.n_queued
+        result.n_board_waiting += outcome.n_board_waiting
+        result.n_board_timeout += outcome.n_board_timeout
 
         # ---- 会話セッション(行動契約書 §3・C6 で設計準拠化 09-09) ----
         # ①返事待ちの被招待が答えていれば成立/不成立を確定 → ②新しい招待を捌く

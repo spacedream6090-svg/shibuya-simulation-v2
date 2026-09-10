@@ -84,6 +84,7 @@ __all__ = [
     "revert_conversation",
     "set_conversing",
     "BODY_TICK_PERIOD",
+    "BOARD_WAIT_LIMIT_TICKS",
     "REST_FATIGUE_RELIEF",
     "BUY_HUNGER_RELIEF",
     "SLEEP_FATIGUE_RELIEF",
@@ -122,6 +123,18 @@ SLEEP_FATIGUE_RELIEF: Final[int] = 2
 
 #: 物の台帳の払い出しスロットを回す最大回数(``_apply_buy`` の注記・expedient)。
 _SELL_SLOT_RETRIES: Final[int] = 8
+
+#: 乗車待ちの打ち切り[tick](**expedient**・D-51 登録簿 §8)。
+#: ホームで待ち始めてからこれだけ経っても列車が来なければ意図を消し「列車なし」を返す
+#: (個体は次の起床で判断し直す)。値の根拠(答申 §3-1 行 4-7・親一次確認):
+#: 渋谷の運転間隔は全線 2.2〜5.0 分・待ち時間 = 間隔の半分 → 最大 5 分の **6 倍**を上限に採る。
+#: メトロ 3 線は **1〜4 時台の運行が 0 本**なので「待っても来ない時間帯」が実在する
+#: (打ち切りが無いと、その時間帯にホームへ来た体が始発まで待ち続けて動かなくなる)。
+BOARD_WAIT_LIMIT_TICKS: Final[int] = 30
+
+#: 乗車の意図(``board_line``)を**保つ**行動(これ以外を選んだら意図は落ちる)。
+#: 乗車=張り直し / 待機=ホームで待ち続ける / エンジン継続=ホームへ歩いている途中。
+_BOARD_KEEP_ACTIONS: Final[tuple[int, ...]] = (ACT_BOARD, ACT_WAIT, ENGINE_STEP)
 
 _REFRACTORY_TICKS: Final[np.ndarray] = np.asarray(REFRACTORY_MINUTES, dtype=np.int32)
 _REFRACTORY_TICKS.flags.writeable = False
@@ -255,6 +268,10 @@ class ResolveOutcome:
     n_boarded: int = 0
     #: 降車が成立した件数。
     n_alighted: int = 0
+    #: 乗車待ちの行列に**新しく入った**件数(D-51・ホームに立った延べ人数)。
+    n_board_waiting: int = 0
+    #: 待ちの打ち切り件数(D-51・``BOARD_WAIT_LIMIT_TICKS`` 超過で意図を落とした)。
+    n_board_timeout: int = 0
     #: 支払われた運賃の合計[円](保存則: Σmoney+Σrevenue+Σ運賃 が不変)。
     fare_paid: int = 0
     #: 満席で待ち行列へ入った件数(購入の「待ち時間」コスト・行動契約書 §2.1)。
@@ -449,6 +466,17 @@ def apply(
         aid = plan_confirmed.agent_id.astype(np.int64)
         tgt = plan_confirmed.target_id.astype(np.int64)
 
+        # D-51: 乗車の意図を持ったまま**別の行動**を選んだ体は、その時点で意図を落とす
+        # (ホームへ歩いている途中で気が変わった=待ち行列に幽霊を残さない)。
+        if code.size:
+            other = ~np.isin(code, _BOARD_KEEP_ACTIONS)
+            if other.any():
+                drop = aid[other]
+                drop = drop[r.board_line[drop] >= 0]
+                if drop.size:
+                    r.board_line[drop] = -1
+                    r.board_since[drop] = -1
+
         # 逐次ループ宣言: 行動語ぶん(13 分岐)。個体数には比例しない。
         for action in (
             ENGINE_STEP, ACT_MOVE, ACT_BOARD, ACT_ALIGHT, ACT_BUY, ACT_WAIT, ACT_TALK,
@@ -477,6 +505,11 @@ def apply(
                 np.uint8
             )
             out.add_result(ResultCode.LOST_ARBITRATION, int(la.size))
+
+        # ---- D-51 乗車待ちの捌き(停車中の列車へ FIFO・打ち切り) ----
+        # **行動語の適用の後・位置確定の前**に置く: この tick にホームへ着いた体(エンジン継続)と
+        # この tick に乗車を選んだ体を同じ列車に乗せるため。
+        _serve_board_queue(agents, world, tick, out)
 
         # ---- 位置の確定と密度(予算行 P2 の測定対象) ----
         t0 = time.perf_counter()
@@ -528,10 +561,17 @@ def _apply_engine_step(agents, world, aid, tgt, tick, out, schedule) -> None:
         r.activity[done] = int(Activity.IDLE)
         r.target_node[done] = -1
         out.n_arrived += int(done.size)
+        # D-51: ホームへ向かっていた体は着いた時点で**待ち行列へ**(判断は 1 回・実行は世界)
+        want = done[r.board_line[done] >= 0]
+        if want.size:
+            _enter_board_queue(agents, world, want, tick, out)
     if stuck.any():
         _fail(agents, aid[stuck], ResultCode.UNREACHABLE, tick, out)
         r.activity[aid[stuck]] = int(Activity.IDLE)
         r.target_node[aid[stuck]] = -1
+        # 行き止まりでホームへ着けない体は乗車の意図も落とす(幽霊を残さない)
+        r.board_line[aid[stuck]] = -1
+        r.board_since[aid[stuck]] = -1
 
 
 def _apply_move(agents, world, aid, tgt, tick, out, schedule) -> None:
@@ -554,60 +594,254 @@ def _apply_move(agents, world, aid, tgt, tick, out, schedule) -> None:
     _fail(agents, aid[~good], ResultCode.UNREACHABLE, tick, out)
 
 
-def _apply_board(agents, world, aid, tgt, tick, out, schedule) -> None:
-    """乗車(行動契約書 §2.1 + 運用設計書 §2.6)。
+def _cell_of_node(world, node) -> np.ndarray:
+    """ノード → セル(**この tick の最新値**)。
 
-    前提条件(契約書逐語): 「同一セルに停車中・運賃≦残高orIC・**定員に空き**」。
-    §2.6 の改訂で「定員」は座席定員ではなく**詰め込み上限**(混雑率の実測上限)になった
-    ので、受容は ``rail.accept_quota``(混雑率→受容率)が決める。失敗の意味論は
-    満員=``TRAIN_FULL`` / 運賃不足=``FARE_SHORT`` / 列車なし=``NO_TRAIN``。
+    ``registry.cell`` は ``apply`` の末尾でまとめて貼り直すので、適用の途中では
+    「前の tick の値」である。同じ tick に歩いて着いた体を正しく扱うため、位置は
+    ``node`` から引く(``world.assets.node_cell`` は静的表)。
+    """
+    n = np.asarray(node, dtype=np.int64)
+    return np.where(n >= 0, world.assets.node_cell[np.maximum(n, 0)], -1).astype(np.int64)
+
+
+def _platform_table(world, rail) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """``(路線索引, ホームセル, ホームの代表ノード)``——**今日 便のある線だけ**(昇順)。"""
+    lines = np.asarray(getattr(rail, "lines_present", ()), dtype=np.int64)
+    if lines.size == 0:
+        return lines, lines, lines
+    cells = np.asarray(rail.line_cell, dtype=np.int64)[lines]
+    nodes = np.where(cells >= 0, world.assets.cell_rep_node[np.maximum(cells, 0)], -1)
+    nodes = nodes.astype(np.int64)
+    keep = (cells >= 0) & (nodes >= 0)
+    return lines[keep], cells[keep], nodes[keep]
+
+
+def _enter_board_queue(agents, world, ids: np.ndarray, tick: int, out: ResolveOutcome) -> None:
+    """ホームに立った体を**乗車待ち**にする(D-51 (a))。
+
+    ``board_since`` は**最初に立った tick**を保つ(FIFO の鍵)。ホームでないセルに居る体
+    (経路の終端がホームでなかった等)は意図を落とす=待ち行列に幽霊を残さない。
+    """
+    r = agents.registry
+    if ids.size == 0:
+        return
+    lines, cells, _ = _platform_table(world, out.rail) if out.rail is not None else (
+        np.empty(0, np.int64), np.empty(0, np.int64), np.empty(0, np.int64)
+    )
+    cell_now = _cell_of_node(world, r.node[ids])
+    line_here = np.full(ids.size, -1, dtype=np.int64)
+    # 逐次ループ宣言(P4): 便のある路線ぶん(≤8)。個体数に比例しない。
+    for j in range(lines.size):
+        hit = (line_here < 0) & (cell_now == cells[j])
+        if hit.any():
+            line_here[hit] = lines[j]
+    on_plat = line_here >= 0
+    if on_plat.any():
+        win = ids[on_plat]
+        fresh = win[r.board_since[win] < 0]
+        r.board_line[win] = line_here[on_plat].astype(r.board_line.dtype)
+        r.activity[win] = int(Activity.WAITING)
+        r.target_node[win] = -1
+        if fresh.size:
+            r.board_since[fresh] = int(tick)
+            out.n_board_waiting += int(fresh.size)
+            if out.rail is not None:
+                out.rail.n_board_waiting += int(fresh.size)
+    if (~on_plat).any():
+        miss = ids[~on_plat]
+        r.board_line[miss] = -1
+        r.board_since[miss] = -1
+
+
+def _apply_board(agents, world, aid, tgt, tick, out, schedule) -> None:
+    """乗車(行動契約書 §2.1 + 運用設計書 §2.6 + **D-51 意図の保持**)。
+
+    契約書の前提条件は「同一セルに停車中・運賃≦残高orIC・**定員に空き**」。D-51
+    (2026-09-10・ユーザー決定 (c))で、この前提の**最初の 1 つ**を「満たすまで世界が運ぶ」
+    に広げた(**判断は 1 回・実行は世界**=MATSim の計画実行と同じ形。意味の拡張は
+    実装計画書 §8 の「D-51 乗車の意図保持」節に登録。設計書本文は書き換えていない)。
+
+    - ホームに居る → **乗車待ち**(``board_line``/``board_since``)に入る。実際に乗せるのは
+      ``_serve_board_queue``(停車中の列車へ FIFO)。
+    - ホーム以外に居る → 最寄りの(**行ける**)ホームへ ``target_node`` を張って歩き出す。
+      到着は ``_apply_engine_step`` が拾い、そのまま待ち行列へ入る。
+    - 乗車中・域外滞在(``transit_state != 0``)→ ``NO_TRAIN``(従来どおり)。
+    - 行けるホームが 1 つも無い → ``NO_TRAIN``(契約書 §2.1 の 3 語に**新語を足さない**。
+      内訳は ``rail.counters()['board_unreachable']`` に出す)。
+
+    Note:
+        逐次ループ宣言(P4): **便のある路線ぶん**のループ 2 本(≤8×2)。個体数に比例しない。
+    """
+    r = agents.registry
+    if aid.size == 0:
+        return
+    rail = out.rail
+    if rail is None or not bool(getattr(rail, "active", False)):
+        _fail(agents, aid, ResultCode.NO_TRAIN, tick, out)  # C2 互換(列車が無い世界)
+        return
+    rail.n_board_intent += int(aid.size)
+    can_try = r.transit_state[aid] == 0
+    _fail(agents, aid[~can_try], ResultCode.NO_TRAIN, tick, out)
+    aid = aid[can_try]
+    if aid.size == 0:
+        return
+    lines, cells, nodes = _platform_table(world, rail)
+    if lines.size == 0:
+        rail.n_board_unreachable += int(aid.size)
+        _fail(agents, aid, ResultCode.NO_TRAIN, tick, out)
+        return
+    node_now = r.node[aid].astype(np.int64)
+    cell_now = _cell_of_node(world, node_now)
+
+    # ---- ① すでにホームに居る → 待ち行列へ ----
+    on_plat = np.zeros(aid.size, dtype=bool)
+    # 逐次ループ宣言: 便のある路線ぶん(≤8)
+    for j in range(lines.size):
+        on_plat |= cell_now == cells[j]
+    if on_plat.any():
+        ids = aid[on_plat]
+        _enter_board_queue(agents, world, ids, tick, out)
+        _ok(agents, ids, tick, out)
+
+    # ---- ② ホーム以外 → 最寄りの行けるホームへ(意図の保持) ----
+    rest = aid[~on_plat]
+    if rest.size == 0:
+        return
+    rnode = node_now[~on_plat]
+    xy = world.assets.node_xy[np.maximum(rnode, 0)].astype(np.float64)
+    pxy = world.assets.node_xy[nodes].astype(np.float64)
+    # 直線距離の昇順(同距離は**路線索引の昇順**=決定論)。経路長ではない=expedient。
+    d2 = ((xy[:, None, :] - pxy[None, :, :]) ** 2).sum(axis=2)
+    order = np.argsort(d2, axis=1, kind="stable")
+    pick = np.full(rest.size, -1, dtype=np.int64)
+    dest = np.full(rest.size, -1, dtype=np.int64)
+    todo = np.arange(rest.size, dtype=np.int64)
+    # 逐次ループ宣言: 路線ぶん(≤8)。近い順に「経路があるか」を見て最初に通ったものを採る。
+    for rank in range(lines.size):
+        if todo.size == 0:
+            break
+        cand = order[todo, rank]
+        dn = nodes[cand]
+        nxt = np.asarray(world.graph.route_next_node(rnode[todo], dn), dtype=np.int64)
+        good = (nxt >= 0) | (dn == rnode[todo])
+        if good.any():
+            pick[todo[good]] = lines[cand[good]]
+            dest[todo[good]] = dn[good]
+        todo = todo[~good]
+    got = pick >= 0
+    if got.any():
+        ids = rest[got]
+        r.board_line[ids] = pick[got].astype(r.board_line.dtype)
+        r.board_since[ids] = -1  # まだホームに立っていない(待ち時間は数えない)
+        dest_got = dest[got]
+        same = dest_got == rnode[got]
+        walk = ids[~same]
+        if walk.size:
+            r.activity[walk] = int(Activity.MOVING)
+            r.target_node[walk] = dest_got[~same].astype(r.target_node.dtype)
+            rail.n_board_walking += int(walk.size)
+        if same.any():
+            _enter_board_queue(agents, world, ids[same], tick, out)
+        _ok(agents, ids, tick, out)
+    if (~got).any():
+        lost = rest[~got]
+        rail.n_board_unreachable += int(lost.size)
+        _fail(agents, lost, ResultCode.NO_TRAIN, tick, out)
+
+
+def _serve_board_queue(agents, world, tick: int, out: ResolveOutcome) -> None:
+    """停車中の列車へ待ち行列から乗せる + 待ちの打ち切り(D-51 (a)(d))。
+
+    順序は ``board_since`` 昇順 → ``agent_id`` 昇順の **FIFO**(決定論)。受容は従来どおり
+    ``rail.accept_quota``(§2.6 の混雑率→受容率)。乗れなかった体は**待ち続ける**
+    (``TRAIN_FULL`` を「直前の結果」に書くだけ)。運賃を払えない体は意図を落とす
+    (待ち続けても払えないため=``FARE_SHORT``)。
+
+    同じホームセルに複数の便が停まっている tick では、**先頭の便で 1 回だけ試す**
+    (満員で断られた体は同じ tick の次の便には乗らない=D-51 前の ``_apply_board`` と同じ
+    規約・expedient)。渋谷の混雑率は全線 200% 未満なので乗り残し自体が通常 0。
 
     Note:
         逐次ループ宣言(P4): **この tick に停車中の列車数**ぶんのループ 1 本
         (路線 8 × 方向 2 = 高々 16 級)。個体数には比例しない。
     """
     r = agents.registry
-    if aid.size == 0:
+    rail = out.rail
+    if rail is None or not bool(getattr(rail, "active", False)):
         return
-    if out.rail is None:
-        _fail(agents, aid, ResultCode.NO_TRAIN, tick, out)  # C2 互換(列車が無い世界)
+    # 全個体を走るのはこの 1 本だけ(以降は「意図を持つ体」だけの小さい添字で回す)
+    held = np.flatnonzero(r.board_line >= 0)
+    if held.size == 0:
         return
-    trains = np.asarray(out.rail.trains_at_platform(int(tick)), dtype=np.int64)
-    can_try = r.transit_state[aid] == 0
-    if trains.size == 0 or not can_try.any():
-        _fail(agents, aid, ResultCode.NO_TRAIN, tick, out)
-        return
-    plat = np.asarray(out.rail.platform_cell, dtype=np.int64)[trains]
-    cell = r.cell[aid].astype(np.int64)
-    fare = int(out.rail.fare_yen)
-    boarded: list[tuple[int, np.ndarray]] = []
-    full: list[np.ndarray] = []
-    poor: list[np.ndarray] = []
-    served = np.zeros(aid.size, dtype=bool)
-    # 逐次ループ宣言: 停車中の列車ぶん(≤ 路線×方向)
-    for k in range(trains.size):
-        here = can_try & (~served) & (cell == plat[k])
-        if not here.any():
-            continue
-        served |= here
-        idx = np.flatnonzero(here)
-        idx = idx[np.argsort(aid[idx], kind="stable")]  # 決定論(agent_id 昇順)
-        pay_ok = r.money[aid[idx]].astype(np.int64) >= fare
-        poor.append(aid[idx[~pay_ok]])
-        idx = idx[pay_ok]
-        if idx.size == 0:
-            continue
-        quota = int(out.rail.accept_quota(int(trains[k]), int(idx.size)))
-        boarded.append((int(trains[k]), aid[idx[:quota]]))
-        full.append(aid[idx[quota:]])
-    _fail(agents, aid[~served], ResultCode.NO_TRAIN, tick, out)
-    for arr in poor:
-        _fail(agents, arr, ResultCode.FARE_SHORT, tick, out)
-    for arr in full:
-        _fail(agents, arr, ResultCode.TRAIN_FULL, tick, out)
-    boarded = [(t, a) for t, a in boarded if a.size]
+    waiting = held[(r.board_since[held] >= 0) & (r.transit_state[held] == 0)]
+    trains = np.asarray(rail.trains_at_platform(int(tick)), dtype=np.int64)
+    if waiting.size and trains.size:
+        cell = _cell_of_node(world, r.node[waiting])
+        plat = np.asarray(rail.platform_cell, dtype=np.int64)[trains]
+        fare = int(rail.fare_yen)
+        served = np.zeros(waiting.size, dtype=bool)
+        boarded: list[tuple[int, np.ndarray]] = []
+        full: list[np.ndarray] = []
+        poor: list[np.ndarray] = []
+        # 逐次ループ宣言: 停車中の列車ぶん(≤ 路線×方向)
+        for k in range(trains.size):
+            here = np.flatnonzero((~served) & (cell == plat[k]))
+            if here.size == 0:
+                continue
+            served[here] = True
+            ids = waiting[here]
+            ids = ids[np.lexsort((ids, r.board_since[ids].astype(np.int64)))]  # FIFO
+            pay_ok = r.money[ids].astype(np.int64) >= fare
+            poor.append(ids[~pay_ok])
+            ids = ids[pay_ok]
+            if ids.size == 0:
+                continue
+            quota = int(rail.accept_quota(int(trains[k]), int(ids.size)))
+            boarded.append((int(trains[k]), ids[:quota]))
+            full.append(ids[quota:])
+        for arr in poor:
+            if arr.size:
+                r.board_line[arr] = -1
+                r.board_since[arr] = -1
+                r.activity[arr] = int(Activity.IDLE)
+                _fail(agents, arr, ResultCode.FARE_SHORT, tick, out)
+        for arr in full:
+            if arr.size:  # 乗れなかった体は**待ち続ける**(意図を落とさない)
+                _fail(agents, arr, ResultCode.TRAIN_FULL, tick, out)
+        _board_riders(agents, world, [(t, a) for t, a in boarded if a.size], tick, out)
+
+    # ---- 打ち切り(列車が来ない時間帯・深夜の 0 本に対応) ----
+    bl = r.board_line[held] >= 0  # 乗れた体はここで落ちている
+    bs = r.board_since[held].astype(np.int64)
+    stale = held[bl & (bs >= 0) & (int(tick) - bs >= BOARD_WAIT_LIMIT_TICKS)]
+    if stale.size:
+        r.board_line[stale] = -1
+        r.board_since[stale] = -1
+        r.activity[stale] = np.where(
+            r.activity[stale] == int(Activity.WAITING), int(Activity.IDLE), r.activity[stale]
+        ).astype(r.activity.dtype)
+        out.n_board_timeout += int(stale.size)
+        rail.n_board_timeout += int(stale.size)
+        _fail(agents, stale, ResultCode.NO_TRAIN, tick, out)
+    # ---- 宙に浮いた意図の掃除 ----
+    # 不変条件: 意図を持つ体は「ホームへ歩いている(MOVING)」か「ホームで待っている
+    # (board_since≥0)」のどちらか。会話に引き込まれる等**自分の行動以外**で歩みが
+    # 止まった体はここで意図を落とす(待ち行列に幽霊を残さない)。失敗は返さない
+    # (本人は何も試みていない)。
+    inert = held[bl & (bs < 0) & (r.activity[held] != int(Activity.MOVING))]
+    if inert.size:
+        r.board_line[inert] = -1
+        r.board_since[inert] = -1
+        rail.n_board_dropped += int(inert.size)
+
+
+def _board_riders(agents, world, boarded, tick: int, out: ResolveOutcome) -> None:
+    """乗車の確定(運賃の金の脚 → 状態遷移 → 列車 SoA)。``boarded`` = ``[(便, 個体列), …]``。"""
     if not boarded:
         return
+    r = agents.registry
+    fare = int(out.rail.fare_yen)
     riders = np.concatenate([a for _, a in boarded]).astype(np.int64)
     train_of = np.concatenate([np.full(a.size, t, dtype=np.int64) for t, a in boarded])
     led = out.ledger
@@ -632,7 +866,10 @@ def _apply_board(agents, world, aid, tgt, tick, out, schedule) -> None:
     r.target_node[riders] = -1
     r.poi_ref[riders] = -1
     r.queue_poi[riders] = -1
+    r.board_line[riders] = -1  # 意図は成立して消える
+    r.board_since[riders] = -1
     out.n_boarded += int(riders.size)
+    out.rail.n_boarded_from_queue += int(riders.size)
     out.rail.on_board(train_of)
     _ok(agents, riders, tick, out)
 
@@ -1075,6 +1312,8 @@ def place_at_external(agents: AgentState, agent_ids, external_ref) -> None:
         r.node[a] = -1
         r.target_node[a] = -1
         r.activity[a] = int(Activity.WAITING)
+        r.board_line[a] = -1  # 域外へ出る体は乗車の意図を持たない(D-51)
+        r.board_since[a] = -1
 
 
 def rail_arrive(agents: AgentState, world: World, agent_ids, cells) -> None:
