@@ -1,0 +1,166 @@
+{
+ "arm": "AB1-BUDGET-MODE",
+ "index": "①",
+ "name": "チャネル固定枠 vs 同一総トークンの単一ランキング(義務)",
+ "design_source": "知覚契約書 §3.2(義務 ablation)・§8 第1陣 ①・§9 完了条件・§10.3 卒業条件",
+ "switch": {
+  "kind": "implemented_flag",
+  "how": "cli.run(budget_mode='fixed'|'ranking') / CLI --budget-mode {fixed,ranking}",
+  "implemented": true,
+  "mock_effective": false,
+  "mock_note": "MockLLM はプロンプト本文を読まないので mock では final_hash も呼数も一致する(C6 実測・登録簿 §8)。腕の差は実 LLM でしか出ない。",
+  "verified": "受入報告 C6 §3(実艦隊 5,000 体×24 tick: 切替 24/24 場面でバイト差・行動分布 JSD 0.0397 bits)"
+ },
+ "status": "ready",
+ "scale": {
+  "agents": 5000,
+  "ticks": 1440,
+  "seed": 2
+ },
+ "route": "fleet",
+ "runs": [
+  {
+   "llm_calls": 50000,
+   "calls_per_agent_day": 10.0,
+   "format_error_rate": 0.00756,
+   "format_error_rate_strict": 0.38298,
+   "undefined_action_count": 2,
+   "conversation_sessions": 2,
+   "prompt_tokens_mean": 914.08834,
+   "group_tokens": {
+    "shared_static": 643.12068,
+    "cell": 143.1862,
+    "individual": 127.78146
+   },
+   "diagnostics_day": {
+    "deferred": 62316.0,
+    "promoted": 147453.0,
+    "degraded": 3629.0,
+    "suppressed": 60716.0,
+    "parse_error_rate": 0.00756,
+    "undefined_action_count": 2.0,
+    "tape_miss_count": 0.0,
+    "conversation_sessions": 2.0
+   },
+   "conserved": true,
+   "census_pass": true,
+   "salient_events": 6,
+   "noticed": 1505,
+   "final_hash": "5de42abfec0bce16cd160e7b194cc0f788a13630c44c5276fa56a8a8ecc107b2",
+   "budget_mode": "fixed_slots",
+   "run_manifest_fields": {
+    "replay_date": "2026-07-28",
+    "template_sha256": "161fe181bc325f003d874fb5c91e6142c01449fb09ac5f8b377b715a945608de",
+    "budget_mode": "fixed_slots",
+    "p_notice_ablation": "A4",
+    "p_notice_d50_scale": 1.0,
+    "refractory_scale": {},
+    "signage": true,
+    "catalog_sha16": "34f9fa9d316587be",
+    "ablations": []
+   },
+   "notice_reach": 250.83333333333334,
+   "action_counts": {
+    "待機": 1591,
+    "移動": 20716,
+    "休憩": 2241,
+    "通報": 92,
+    "退去": 99,
+    "乗車": 1642,
+    "購入": 23599,
+    "降車": 3,
+    "会話": 13,
+    "就寝": 2,
+    "(未定義)": 2
+   },
+   "undefined_rate": 4e-05,
+   "role_action_rate": 0.0,
+   "n_texts": 50000,
+   "tag": "fixed_slots",
+   "kwargs": {
+    "budget_mode": "fixed"
+   },
+   "is_baseline": true,
+   "route": "cli.run(fleet=…)"
+  },
+  {
+   "llm_calls": 50000,
+   "calls_per_agent_day": 10.0,
+   "format_error_rate": 0.01026,
+   "format_error_rate_strict": 0.44328,
+   "undefined_action_count": 1,
+   "conversation_sessions": 8,
+   "prompt_tokens_mean": 916.30434,
+   "group_tokens": {
+    "shared_static": 643.12074,
+    "cell": 145.47194,
+    "individual": 127.71166
+   },
+   "diagnostics_day": {
+    "deferred": 61638.0,
+    "promoted": 146667.0,
+    "degraded": 3803.0,
+    "suppressed": 60620.0,
+    "parse_error_rate": 0.01026,
+    "undefined_action_count": 1.0,
+    "tape_miss_count": 0.0,
+    "conversation_sessions": 8.0
+   },
+   "conserved": true,
+   "census_pass": true,
+   "salient_events": 6,
+   "noticed": 1503,
+   "final_hash": "6480d117b64e43818977f6bac9f91252f9cfa4e9d1043d044f19eecb90ce2557",
+   "budget_mode": "single_ranking",
+   "run_manifest_fields": {
+    "replay_date": "2026-07-28",
+    "template_sha256": "161fe181bc325f003d874fb5c91e6142c01449fb09ac5f8b377b715a945608de",
+    "budget_mode": "single_ranking",
+    "p_notice_ablation": "A4",
+    "p_notice_d50_scale": 1.0,
+    "refractory_scale": {},
+    "signage": true,
+    "catalog_sha16": "34f9fa9d316587be",
+    "ablations": []
+   },
+   "notice_reach": 250.5,
+   "action_counts": {
+    "待機": 3426,
+    "移動": 19857,
+    "休憩": 3454,
+    "通報": 67,
+    "乗車": 1035,
+    "退去": 230,
+    "購入": 21837,
+    "就寝": 9,
+    "会話": 82,
+    "(未定義)": 1,
+    "降車": 2
+   },
+   "undefined_rate": 2e-05,
+   "role_action_rate": 0.0,
+   "n_texts": 50000,
+   "tag": "single_ranking",
+   "kwargs": {
+    "budget_mode": "ranking"
+   },
+   "is_baseline": false,
+   "route": "cli.run(fleet=…)"
+  }
+ ],
+ "notes": [],
+ "executed": true,
+ "comparisons": [
+  {
+   "tag": "single_ranking",
+   "identical_final_hash": false,
+   "d_llm_calls": 0,
+   "d_format_error_rate": 0.0027,
+   "d_notice_reach": -0.3333333333333428,
+   "d_prompt_tokens_mean": 2.216000000000008,
+   "action_jsd": 0.009316277183999092,
+   "null_reference_bits": 0.0035,
+   "exceeds_null": true
+  }
+ ]
+}
