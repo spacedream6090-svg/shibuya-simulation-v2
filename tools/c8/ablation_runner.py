@@ -238,9 +238,20 @@ def execute_arm(
     out_dir: Path,
     fleet: Any | None,
     tape_root: Path,
+    fleet_factory: Any | None = None,
+    fleet_wait_s: float = 0.0,
 ) -> dict[str, Any]:
-    """1 腕を回す(``runs`` の各構成を順に)。**切替口が無ければ回さない**。"""
+    """1 腕を回す(``runs`` の各構成を順に)。**切替口が無ければ回さない**。
+
+    ``fleet_factory``(呼ぶと新しい ``FleetClient`` を返す)を渡すと**ランごとに作って閉じる**。
+    ``run_day`` はランの終わりに艦隊クライアントを閉じる(``FleetBridge.close``)ので、1 つの
+    クライアントを baseline と腕の 2 ランで共有すると 2 ラン目が「close() 済み」で落ちる
+    (C8 初回実行 09-10 の失敗)。``fleet_wait_s`` は本番既定 120(D-26)= tick ごとに応答を
+    待たせないと 1,440 tick を数分で駆け抜けて応答がほぼ全部繰り延べになる。
+    """
     sw = dict(arm.get("switch", {}))
+    if fleet is None and fleet_factory is not None:
+        fleet = fleet_factory  # 経路判定のためだけ(実体はランごとに作る)
     payload: dict[str, Any] = {
         "arm": arm.get("id"),
         "index": arm.get("index"),
@@ -275,15 +286,23 @@ def execute_arm(
             raise ValueError(f"許されない kwargs: {sorted(bad)}")
         tag = str(run.get("tag"))
         tape = tape_root / f"{arm.get('id')}__{tag}"
-        res, route = c6lib.run_smoke(
-            n_agents=agents,
-            seed=seed,
-            ticks=ticks,
-            world_dir=world_dir,
-            tape_path=tape,
-            fleet=fleet,
-            extra=kwargs,
-        )
+        client = fleet_factory() if fleet_factory is not None else fleet
+        extra = dict(kwargs)
+        if client is not None and fleet_wait_s > 0.0:
+            extra["fleet_wait_s"] = float(fleet_wait_s)
+        try:
+            res, route = c6lib.run_smoke(
+                n_agents=agents,
+                seed=seed,
+                ticks=ticks,
+                world_dir=world_dir,
+                tape_path=tape,
+                fleet=client,
+                extra=extra,
+            )
+        finally:
+            if fleet_factory is not None and client is not None and hasattr(client, "close"):
+                client.close()  # 2 回目は no-op(FleetClient.close は冪等)
         m = run_metrics(res, tape)
         m.update({"tag": tag, "kwargs": kwargs, "is_baseline": bool(run.get("is_baseline")), "route": route})
         results.append(m)
@@ -358,6 +377,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     ap.add_argument("--temperature", type=float, default=0.7)
     ap.add_argument("--max-tokens", type=int, default=96)
     ap.add_argument("--tape-dir", default="", help="テープの置き場(既定=--out/c8_tapes)")
+    ap.add_argument("--fleet-wait-s", type=float, default=120.0,
+                    help="tick ごとに艦隊の応答を待つ上限秒(本番既定 120=D-26。0 なら非ブロッキング)")
     args = ap.parse_args(list(argv) if argv is not None else None)
 
     table = c8lib.load_ablations(args.table or None)
@@ -374,28 +395,25 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     arm = arm_by_id(table, args.arm)
     endpoints = c6lib.endpoints_of(args)
-    client = (
-        c6lib.build_fleet_client(
+
+    def _factory() -> Any:  # ランごとに新しいクライアント(run_day が終わりに閉じるため)
+        return c6lib.build_fleet_client(
             endpoints, model=args.model, mode="ablation", run_id=args.run_id,
             run_seed=args.seed, temperature=args.temperature, max_tokens=args.max_tokens,
         )
-        if endpoints
-        else None
+
+    payload = execute_arm(
+        arm,
+        agents=args.agents,
+        ticks=args.ticks,
+        seed=args.seed,
+        world_dir=c6lib.world_dir_of(args),
+        out_dir=Path(args.out),
+        fleet=None,
+        tape_root=Path(args.tape_dir) if args.tape_dir else Path(args.out) / "c8_tapes",
+        fleet_factory=_factory if endpoints else None,
+        fleet_wait_s=float(args.fleet_wait_s),
     )
-    try:
-        payload = execute_arm(
-            arm,
-            agents=args.agents,
-            ticks=args.ticks,
-            seed=args.seed,
-            world_dir=c6lib.world_dir_of(args),
-            out_dir=Path(args.out),
-            fleet=client,
-            tape_root=Path(args.tape_dir) if args.tape_dir else Path(args.out) / "c8_tapes",
-        )
-    finally:
-        if client is not None:
-            client.close()
     md = arm_markdown(payload)
     paths = c8lib.write_outputs(args.out, f"ablation_{arm['id']}", payload, md)
     print(md)
