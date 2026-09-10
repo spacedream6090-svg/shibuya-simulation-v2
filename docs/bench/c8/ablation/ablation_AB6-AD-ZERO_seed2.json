@@ -1,0 +1,166 @@
+{
+ "arm": "AB6-AD-ZERO",
+ "index": "⑥",
+ "name": "広告ゼロ(収益化の主要領域=効果の存在を早期確認)",
+ "design_source": "知覚契約書 §8 第1陣 ⑥・§3.2(B2.signage 25 tok・件数 1 は expedient)・§8 ablation 予約(広告ゼロ)・MEMORY「収益化: 広告・情報伝播領域」",
+ "switch": {
+  "kind": "implemented_flag",
+  "how": "cli.run(signage=False) / CLI --no-signage",
+  "implemented": true,
+  "mock_effective": false,
+  "mock_note": "描画バイトと入力トークン(セル群 −13 tok/呼の実測)は mock でも動くが、MockLLM は本文を読まないので**行動分布・final_hash は動かない**(AB1 と同じ理由)。腕の差は実 LLM でしか出ない。",
+  "diff_proposal": "",
+  "verified": "run_day(signage=…) → Renderer(signage_enabled=…) → _signage_body が None を返す → 固定枠は B2.signage_empty・単一ランキングは候補が空列(**材料が 1 本なので両モードで効く**)。テンプレ本体は 1 文字も足していない=template_sha256 161fe181 不変・固定枠 golden prompt_hash bb23f7c6… 不変・規約⑧ 不変。tests/perception/test_ablation6_signage.py。"
+ },
+ "status": "ready",
+ "scale": {
+  "agents": 5000,
+  "ticks": 1440,
+  "seed": 2
+ },
+ "route": "fleet",
+ "runs": [
+  {
+   "llm_calls": 50000,
+   "calls_per_agent_day": 10.0,
+   "format_error_rate": 0.00756,
+   "format_error_rate_strict": 0.38298,
+   "undefined_action_count": 2,
+   "conversation_sessions": 2,
+   "prompt_tokens_mean": 914.08834,
+   "group_tokens": {
+    "shared_static": 643.12068,
+    "cell": 143.1862,
+    "individual": 127.78146
+   },
+   "diagnostics_day": {
+    "deferred": 62316.0,
+    "promoted": 147453.0,
+    "degraded": 3629.0,
+    "suppressed": 60716.0,
+    "parse_error_rate": 0.00756,
+    "undefined_action_count": 2.0,
+    "tape_miss_count": 0.0,
+    "conversation_sessions": 2.0
+   },
+   "conserved": true,
+   "census_pass": true,
+   "salient_events": 6,
+   "noticed": 1505,
+   "final_hash": "5de42abfec0bce16cd160e7b194cc0f788a13630c44c5276fa56a8a8ecc107b2",
+   "budget_mode": "fixed_slots",
+   "run_manifest_fields": {
+    "replay_date": "2026-07-28",
+    "template_sha256": "161fe181bc325f003d874fb5c91e6142c01449fb09ac5f8b377b715a945608de",
+    "budget_mode": "fixed_slots",
+    "p_notice_ablation": "A4",
+    "p_notice_d50_scale": 1.0,
+    "refractory_scale": {},
+    "signage": true,
+    "catalog_sha16": "34f9fa9d316587be",
+    "ablations": []
+   },
+   "notice_reach": 250.83333333333334,
+   "action_counts": {
+    "待機": 1591,
+    "休憩": 2241,
+    "移動": 20716,
+    "通報": 92,
+    "退去": 99,
+    "乗車": 1642,
+    "購入": 23599,
+    "降車": 3,
+    "会話": 13,
+    "就寝": 2,
+    "(未定義)": 2
+   },
+   "undefined_rate": 4e-05,
+   "role_action_rate": 0.0,
+   "n_texts": 50000,
+   "tag": "signage_on",
+   "kwargs": {
+    "signage": true
+   },
+   "is_baseline": true,
+   "route": "cli.run(fleet=…)"
+  },
+  {
+   "llm_calls": 50000,
+   "calls_per_agent_day": 10.0,
+   "format_error_rate": 0.00652,
+   "format_error_rate_strict": 0.31226,
+   "undefined_action_count": 0,
+   "conversation_sessions": 2,
+   "prompt_tokens_mean": 898.92754,
+   "group_tokens": {
+    "shared_static": 643.12064,
+    "cell": 128.03202,
+    "individual": 127.77488
+   },
+   "diagnostics_day": {
+    "deferred": 62157.0,
+    "promoted": 147997.0,
+    "degraded": 3663.0,
+    "suppressed": 59440.0,
+    "parse_error_rate": 0.00652,
+    "undefined_action_count": 0.0,
+    "tape_miss_count": 0.0,
+    "conversation_sessions": 2.0
+   },
+   "conserved": true,
+   "census_pass": true,
+   "salient_events": 6,
+   "noticed": 1500,
+   "final_hash": "22d4fc15d21f19a3fba87b9119aabdb5be780238d3b87b9bfe3ff48ab66e178c",
+   "budget_mode": "fixed_slots",
+   "run_manifest_fields": {
+    "replay_date": "2026-07-28",
+    "template_sha256": "161fe181bc325f003d874fb5c91e6142c01449fb09ac5f8b377b715a945608de",
+    "budget_mode": "fixed_slots",
+    "p_notice_ablation": "A4",
+    "p_notice_d50_scale": 1.0,
+    "refractory_scale": {},
+    "signage": false,
+    "catalog_sha16": "34f9fa9d316587be",
+    "ablations": []
+   },
+   "notice_reach": 250.0,
+   "action_counts": {
+    "待機": 1398,
+    "移動": 20832,
+    "休憩": 2770,
+    "乗車": 1728,
+    "退去": 91,
+    "通報": 67,
+    "購入": 23088,
+    "降車": 2,
+    "会話": 23,
+    "就寝": 1
+   },
+   "undefined_rate": 0.0,
+   "role_action_rate": 0.0,
+   "n_texts": 50000,
+   "tag": "signage_off",
+   "kwargs": {
+    "signage": false
+   },
+   "is_baseline": false,
+   "route": "cli.run(fleet=…)"
+  }
+ ],
+ "notes": [],
+ "executed": true,
+ "comparisons": [
+  {
+   "tag": "signage_off",
+   "identical_final_hash": false,
+   "d_llm_calls": 0,
+   "d_format_error_rate": -0.0010400000000000001,
+   "d_notice_reach": -0.8333333333333428,
+   "d_prompt_tokens_mean": -15.160799999999995,
+   "action_jsd": 0.0006271729661312194,
+   "null_reference_bits": 0.0035,
+   "exceeds_null": false
+  }
+ ]
+}

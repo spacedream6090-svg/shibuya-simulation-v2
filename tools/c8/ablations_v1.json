@@ -32,7 +32,7 @@
     "note": "既定構成(fixed_slots・p_notice A4・不応期の表どおり・看板あり)。**全腕で 1 本を共有**すると 7 ラン(呼 350,000・3.4 h)で L2 枠(4.8 h)に収まる。"
   },
   "metrics": {
-    "action_jsd": "行動語分布の JSD[bits](tape → c6lib.score_texts → c6lib.jsd_counts)。帰無参照=受入報告 C6 §3 の T7(seed 違い)0.0035 bits",
+    "action_jsd": "行動語分布の JSD[bits](tape → c6lib.score_texts → c6lib.jsd_counts)。帰無参照=受入報告 C6 §3 の T7(seed 違い・n=833)0.0035 bits。**n=50,000(5,000 体×1 日)では 0.0001 bits**(C8 09-10・同構成 seed 1 vs 2・行動別 ≤0.22 pp)=規模ごとの帰無を使うこと",
     "format_error_rate": "書式エラー率(実効・RunResult.parse_error_rate)。受入 ≤0.10",
     "undefined_rate": "未定義行動率(score_texts)",
     "role_action_rate": "役割語率(score_texts)。C6 実測 0.0=D-38",
