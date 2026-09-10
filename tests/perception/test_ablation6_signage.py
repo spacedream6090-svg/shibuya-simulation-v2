@@ -142,8 +142,10 @@ def test_group_budget_only_shrinks():
 
 # ---------------------------------------------------------------- (g) run_day / cli / manifest
 def _run(**kw):
+    # ticks: D-56(就寝抑止)以降、tick 0 は世界内 00:00 で全員 ``SLEEPING`` なので、
+    # 最初の計画境界(合成日課の起床 tick 300-480)を跨ぐ窓にしないと呼が 0 になる。
     return run_day(
-        n_agents=200, seed=1, ticks=30, checkpoint_every=30, n_cells=9,
+        n_agents=200, seed=1, ticks=540, checkpoint_every=540, n_cells=9,
         processes=False, conversations=False, **kw,
     )
 

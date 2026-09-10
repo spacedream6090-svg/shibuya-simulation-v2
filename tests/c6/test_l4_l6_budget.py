@@ -99,6 +99,9 @@ def test_fleet_smoke_keeps_in_flight_within_l6(c6lib, tmp_path, capsys):
             res, route = c6lib.run_smoke(
                 n_agents=300, seed=1, ticks=24, world_dir=None,
                 tape_path=tmp_path / "tape", fleet=client,
+                # D-56 の帰無腕: tick 0 = 世界内 00:00 で全員 ``SLEEPING``。24 tick の
+                # 艦隊スモークは既定のままだと呼が 0 になり L6(同時発射上限)を測れない。
+                extra={"sleep_suppression": False},
             )
         finally:
             client.close()

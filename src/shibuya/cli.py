@@ -341,6 +341,11 @@ def main(argv: list[str] | None = None) -> int:
         help="看板・広告面(B2.signage)を全セルで空にする(§8 第1陣 ⑥「広告ゼロ」の腕)",
     )
     ap.add_argument(
+        "--no-sleep-suppression",
+        action="store_true",
+        help="D-56 就寝抑止を切る(就寝中の個体も内受容/セル変化で呼ぶ=D-56 前の挙動・帰無腕)",
+    )
+    ap.add_argument(
         "--no-population",
         action="store_true",
         help="W16 母集団を使わず合成個体で回す(下限対照・世帯財布も mock のまま)",
@@ -383,6 +388,7 @@ def main(argv: list[str] | None = None) -> int:
         p_notice_d50_scale=float(args.pnotice_d50_scale),
         refractory_scale=refractory_scale or None,
         signage=not args.no_signage,
+        sleep_suppression=not args.no_sleep_suppression,
         fleet=fleet_from_args(args, ap),
         fleet_wait_s=float(getattr(args, "fleet_wait_s", 0.0)),
         fleet_debug_dir=getattr(args, "fleet_debug_dir", "") or None,

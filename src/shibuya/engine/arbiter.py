@@ -58,6 +58,21 @@ expedient(本モジュール分)
     修正: 選抜数を ``floor(その tick に使える呼数)`` で**必ず**頭打ちにする
     (``n_sel = min(コスト基準, 呼数基準)``)。会話ターンは④の固定優先で先頭に並ぶので、
     上限が効いても会話は予算の中で最優先のまま(設計どおり呼数の約45%を占める)。
+
+**就寝抑止(D-56・ユーザー決定 (a)・2026-09-10)**
+    C7 本番(390,067 体)で深夜 0〜5 時の呼が昼と同数(毎時 107,520=按分上限)出ていた。
+    候補の供給(内受容・セル変化)は昼夜で変わらず、アービタは「起きているか」を見ていな
+    かったので、**寝ている住民に移動/購入を選ばせていた**(営業時間外違反・購入偏重の一因)。
+    規則 = ``activity == Activity.SLEEPING`` の個体の候補を、アービタに入る前に落とす。
+    例外(``WakeCandidates.sleep_exempt``)= ①計画境界(``PLAN_*`` の 4 条件=**眠りから
+    覚める境界を含む**)②顕著行為由来(火事・急病などは寝ていても起こす)③会話ターン
+    (``resolve._UNADDRESSABLE`` で就寝中は会話対象から外れているので実際には来ないが、
+    来たら通す=片側だけ CONVERSING が残る事故を作らない)。
+    根拠 = 東京都 平日の起床率 a(h): 0 時 20.5% / 3 時 3.5 / 6 時 40.7 / 12〜19 時 97.8〜98.9
+    (令和 3 年社会生活基本調査 第 4-1 表)。**a(h) は一律に掛けない**(交替制勤務 12.9%・
+    若年層は夜型)。就寝判定は**個体の週次スケジュール**(W17)が付けた ``activity`` で行い、
+    a(h) は**検証**(深夜の呼数の照合)にだけ使う。
+    診断は ``suppressed``(不応期)とは**別列** ``sleep_suppressed``。
 """
 
 from __future__ import annotations
@@ -139,18 +154,29 @@ class WakeCandidates:
         condition: int8(``agents.state.WakeCondition``)。
         class_rank: int64(``core.types.EventClass``)。
         since_tick: int64(**最初に起床条件が立った tick**。待ち時間の基準)。
+        sleep_exempt: bool(**就寝中でも通す**印。D-56。既定=全 False)。
+            立てるのは呼の**源**であって条件ではない(顕著行為由来と変化検出由来は
+            どちらも ``CELL_BLOCK`` なので条件では区別できない)。
     """
 
     agent_id: np.ndarray
     condition: np.ndarray
     class_rank: np.ndarray
     since_tick: np.ndarray
+    sleep_exempt: np.ndarray | None = None
 
     def __post_init__(self) -> None:
         n = self.agent_id.size
         for name in ("condition", "class_rank", "since_tick"):
             if getattr(self, name).size != n:
                 raise ValueError(f"WakeCandidates.{name} の長さが agent_id と違う")
+        if self.sleep_exempt is None:
+            object.__setattr__(self, "sleep_exempt", np.zeros(n, dtype=bool))
+        else:
+            ex = np.asarray(self.sleep_exempt, dtype=bool)
+            if ex.size != n:
+                raise ValueError("WakeCandidates.sleep_exempt の長さが agent_id と違う")
+            object.__setattr__(self, "sleep_exempt", ex)
 
     def __len__(self) -> int:
         return int(self.agent_id.size)
@@ -162,6 +188,7 @@ class WakeCandidates:
             np.empty(0, dtype=np.int8),
             np.empty(0, dtype=np.int64),
             np.empty(0, dtype=np.int64),
+            np.empty(0, dtype=bool),
         )
 
     @classmethod
@@ -174,11 +201,13 @@ class WakeCandidates:
             np.concatenate([p.condition for p in parts]),
             np.concatenate([p.class_rank for p in parts]),
             np.concatenate([p.since_tick for p in parts]),
+            np.concatenate([p.sleep_exempt for p in parts]),
         )
 
     def take(self, idx: np.ndarray) -> "WakeCandidates":
         return WakeCandidates(
-            self.agent_id[idx], self.condition[idx], self.class_rank[idx], self.since_tick[idx]
+            self.agent_id[idx], self.condition[idx], self.class_rank[idx], self.since_tick[idx],
+            np.asarray(self.sleep_exempt)[idx],
         )
 
 
@@ -201,10 +230,29 @@ class ArbiterDecision:
     merged_per_class: np.ndarray
     #: 診断行 4 列 × 4 クラスの増分。
     diag: np.ndarray
+    #: **就寝抑止**(D-56)で落としたもの。``suppressed``(不応期)とは**別列**。
+    sleep_suppressed: "WakeCandidates | None" = None
+    #: 就寝抑止の件数(クラス別)。
+    sleep_suppressed_per_class: np.ndarray | None = None
+
+    def __post_init__(self) -> None:
+        if self.sleep_suppressed is None:
+            object.__setattr__(self, "sleep_suppressed", WakeCandidates.empty())
+        if self.sleep_suppressed_per_class is None:
+            object.__setattr__(
+                self,
+                "sleep_suppressed_per_class",
+                np.zeros(len(DEFERRAL_CLASSES), dtype=np.int64),
+            )
 
     @property
     def n_calls(self) -> int:
         return int(len(self.selected))
+
+    @property
+    def n_sleep_suppressed(self) -> int:
+        """就寝抑止で落とした候補の件数(D-56)。"""
+        return int(len(self.sleep_suppressed)) if self.sleep_suppressed is not None else 0
 
     def counters(self) -> Mapping[str, Mapping[str, int]]:
         return {
@@ -224,6 +272,7 @@ def arbitrate(
     budget: float,
     run_salt: bytes,
     refractory_until: np.ndarray | None = None,
+    asleep: np.ndarray | None = None,
 ) -> ArbiterDecision:
     """繰り延べアービタの**純関数**本体(入力の並び順に依存しない)。
 
@@ -234,6 +283,8 @@ def arbitrate(
         run_salt: タイブレークハッシュの塩。
         refractory_until: ``(n_agents, K)`` int32(体×条件ごとの「次に起床してよい tick」)。
             None なら不応期の抑止をしない。
+        asleep: ``(n_agents,)`` bool(``activity == Activity.SLEEPING``)。**D-56 就寝抑止**。
+            立っている体の候補は ``sleep_exempt`` が立っていない限り落とす。None なら抑止しない。
 
     Returns:
         ``ArbiterDecision``。
@@ -241,12 +292,39 @@ def arbitrate(
     n_classes = len(DEFERRAL_CLASSES)
     diag = np.zeros((len(DIAG_COLUMNS), n_classes), dtype=np.int64)
     merged = np.zeros(n_classes, dtype=np.int64)
+    sleep_per_class = np.zeros(n_classes, dtype=np.int64)
     if len(candidates) == 0:
         empty = WakeCandidates.empty()
         return ArbiterDecision(
             int(tick), empty, np.empty(0, dtype=np.int64), np.empty(0, dtype=bool),
-            empty, empty, merged, diag,
+            empty, empty, merged, diag, empty, sleep_per_class,
         )
+
+    # ---- ⓪ 就寝抑止(D-56・ユーザー決定 (a)・2026-09-10) ----
+    # 「就寝中の個体を起床候補から外す」。例外は候補の**源**で決まる(``sleep_exempt``):
+    # 計画境界(眠りから覚める境界を含む)・顕著行為・会話ターン。不応期(①)より**前**に
+    # 置く=2 つの抑止列が重ならない(``sleep_suppressed`` と ``suppressed`` は排他)。
+    # 抑止は§6 運用規定①と同じく**破棄ではない**(状態トリガは次回起床時に最新値を読む)。
+    sleep_suppressed = WakeCandidates.empty()
+    if asleep is not None:
+        sl = np.asarray(asleep, dtype=bool)
+        ex = np.asarray(candidates.sleep_exempt, dtype=bool)
+        blocked_sleep = sl[candidates.agent_id.astype(np.int64)] & ~ex
+        if blocked_sleep.any():
+            zzz_idx = np.flatnonzero(blocked_sleep)
+            sleep_suppressed = candidates.take(zzz_idx)
+            np.add.at(
+                sleep_per_class,
+                _class_slot(candidates.class_rank[zzz_idx].astype(np.int64)),
+                1,
+            )
+            candidates = candidates.take(np.flatnonzero(~blocked_sleep))
+        if len(candidates) == 0:
+            empty = WakeCandidates.empty()
+            return ArbiterDecision(
+                int(tick), empty, np.empty(0, dtype=np.int64), np.empty(0, dtype=bool),
+                empty, empty, merged, diag, sleep_suppressed, sleep_per_class,
+            )
 
     agent = candidates.agent_id.astype(np.int64)
     cond = candidates.condition.astype(np.int64)
@@ -273,7 +351,7 @@ def arbitrate(
         empty = WakeCandidates.empty()
         return ArbiterDecision(
             int(tick), empty, np.empty(0, dtype=np.int64), np.empty(0, dtype=bool),
-            empty, suppressed, merged, diag,
+            empty, suppressed, merged, diag, sleep_suppressed, sleep_per_class,
         )
 
     # ---- ② T_max 超過で昇格(累積・starvation-free) ----
@@ -353,6 +431,8 @@ def arbitrate(
         suppressed=suppressed,
         merged_per_class=merged,
         diag=diag,
+        sleep_suppressed=sleep_suppressed,
+        sleep_suppressed_per_class=sleep_per_class,
     )
 
 
@@ -395,6 +475,8 @@ class Arbiter:
         self._last_tick = 0
         self._diag_total = np.zeros((len(DIAG_COLUMNS), len(self.classes)), dtype=np.int64)
         self._merged_total = np.zeros(len(self.classes), dtype=np.int64)
+        #: 就寝抑止(D-56)の累計(クラス別)。診断行の ``suppressed`` とは**別列**。
+        self._sleep_total = np.zeros(len(self.classes), dtype=np.int64)
         self.n_calls_total = 0
 
     # ---- 保留 ----
@@ -424,18 +506,26 @@ class Arbiter:
         tick: int,
         candidates: WakeCandidates,
         refractory_until: np.ndarray | None = None,
+        asleep: np.ndarray | None = None,
     ) -> ArbiterDecision:
-        """新規候補と保留を合わせて裁定し、落選分を保留に積む。"""
+        """新規候補と保留を合わせて裁定し、落選分を保留に積む。
+
+        ``asleep``(D-56)は**新規と保留の両方**に効く=就寝に入った個体の分は保留からも
+        消える(``arbitrate`` が合併後の配列に掛けるので、保留の掃除は自動)。
+        """
         self._last_tick = int(tick)
         merged_in = WakeCandidates.concat([self._pending, candidates])
         # L4 の総量を落とさずに呼数を硬く切るため、端数を繰り越す(在庫は 2 tick ぶんで頭打ち)。
         self._pool = min(self._pool + self.budget, self._pool_cap)
-        decision = arbitrate(merged_in, tick, self._pool, self.run_salt, refractory_until)
+        decision = arbitrate(
+            merged_in, tick, self._pool, self.run_salt, refractory_until, asleep
+        )
         self._pool -= float(decision.n_calls)
         self.budget_unused = max(0.0, self._pool)
         self._store(decision.deferred)
         self._diag_total += decision.diag
         self._merged_total += decision.merged_per_class
+        self._sleep_total += np.asarray(decision.sleep_suppressed_per_class, dtype=np.int64)
         self.n_calls_total += decision.n_calls
         return decision
 
@@ -455,3 +545,12 @@ class Arbiter:
     def merged_total(self) -> int:
         """合流(1呼にまとめた)件数の累計。"""
         return int(self._merged_total.sum())
+
+    @property
+    def sleep_suppressed_total(self) -> int:
+        """就寝抑止(D-56)で落とした候補の累計。"""
+        return int(self._sleep_total.sum())
+
+    def sleep_suppressed_counters(self) -> Mapping[str, int]:
+        """就寝抑止の累計(起床クラス別)。"""
+        return {c.name: int(self._sleep_total[i]) for i, c in enumerate(self.classes)}

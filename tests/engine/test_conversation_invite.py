@@ -269,8 +269,8 @@ def test_declining_invitees_do_not_open_sessions_and_the_inviter_is_reverted():
 
 def test_mock_llm_never_names_a_partner_so_the_fallback_path_is_unchanged():
     """MockLLM は「対象: なし」しか書かない=名指し 0・フォールバックのみ(T2 の由来)。"""
-    res = run_day(
-        n_agents=400, seed=1, world=World.synthetic(n_cells=4, seed=1), ticks=200,
+    res = run_day(  # ticks: D-56 以降は最初の計画境界(tick 300-480)を跨ぐ窓が要る
+        n_agents=400, seed=1, world=World.synthetic(n_cells=4, seed=1), ticks=540,
         renderer="stub", processes=False, population=False, world_dir=None,
     )
     c = res.conversation_counters

@@ -338,7 +338,8 @@ def test_tool_runs_end_to_end_against_a_fake_vllm(ab1_tool, tmp_path, capsys):
                 "--endpoints", ",".join(f.endpoint for f in fakes),
                 "--world", str(tmp_path / "no-world"),
                 "--agents", "300",
-                "--ticks", "6",
+                # D-56(就寝抑止)以降、最初の計画境界(tick 300-480)を跨ぐ窓が要る
+                "--ticks", "400",
                 "--seed", "1",
                 "--out", str(tmp_path / "out"),
                 "--tape-dir", str(tmp_path / "tapes"),

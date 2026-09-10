@@ -114,8 +114,15 @@ def test_conservation_over_all_sectors_including_row(wired):
     agents = res.agents  # type: ignore[attr-defined]
     assert int(led.balance(BalanceLine.CASH, Sector.HOUSEHOLD).sum()) == res.money_end
     assert led.balance(BalanceLine.CASH, Sector.HOUSEHOLD) is agents.registry.money
-    # 店舗の現金 = 売上(第1陣は店舗が支出しないので売上と一致する)
-    assert int(led.balance(BalanceLine.CASH, Sector.STORE).sum()) == res.revenue_end
+    # 店舗の現金 = 売上 − 域外仕入(補充の代金は店舗→外界の sink)。
+    # **D-56(就寝抑止)で軌道が変わり、この fixture で初めて 補充 が 1 件成立した**ため、
+    # 「店舗は支出しないので売上と一致」は成り立たなくなった。等式を科目で閉じる形に直す
+    # (第1陣で店舗が現金を出す口は 域外仕入 だけ=下の科目一覧が証拠)。
+    imports = 0
+    for f in led.flow_daily:
+        imports += led.account_totals(f)["域外仕入"]
+    imports += led.account_totals()["域外仕入"]  # 締めていない当日ぶん
+    assert int(led.balance(BalanceLine.CASH, Sector.STORE).sum()) == res.revenue_end - imports
     assert res.conserved
 
 

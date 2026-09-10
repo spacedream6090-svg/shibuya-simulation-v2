@@ -81,6 +81,10 @@ def common(ticks: int) -> dict:
         n_agents=N_AGENTS, seed=1, world=World.synthetic(n_cells=CELLS, seed=1), ticks=ticks,
         renderer="stub", processes=False, population=False, world_dir=None,
         checkpoint_every=max(1, ticks // 4),
+        # D-56(就寝抑止)の帰無腕。tick 0 は世界内 00:00=``resolve.initialize`` が全員を
+        # ``SLEEPING`` に置くので、既定のままでは 8-90 tick の窓に呼が 1 本も立たない。
+        # このファイルが見るのは**艦隊/テープの配管**であって就寝規則ではないので切る。
+        sleep_suppression=False,
     )
 
 
@@ -218,7 +222,8 @@ def test_a_v1_tape_is_still_readable(tmp_path):
 def test_a_v1_tape_replays_a_whole_run(tmp_path):
     """版1 テープでの ``run_day(mode='replay')`` が版2 と同じ結果になる(後方互換)。"""
     small = dict(n_agents=200, seed=1, ticks=90, checkpoint_every=30, n_cells=16,
-                 renderer="stub", processes=False, population=False, world_dir=None)
+                 renderer="stub", processes=False, population=False, world_dir=None,
+                 sleep_suppression=False)  # D-56 の帰無腕(90 tick は全員就寝の窓)
     rec = run_day(tape_path=tmp_path / "v1", **small)
     _downgrade_to_v1(tmp_path / "v1")
     rep = run_day(mode="replay", replay=tmp_path / "v1", llm=BoomLLM(), **small)
@@ -235,7 +240,8 @@ def test_a_v1_tape_replays_a_whole_run(tmp_path):
 def test_a_run_without_deferrals_writes_the_same_rows_as_before(tmp_path):
     """mock ラン(繰り延べ 0)は行数=呼数・全行 deferred 0・observed_tick −1。"""
     small = dict(n_agents=200, seed=1, ticks=90, checkpoint_every=30, n_cells=16,
-                 renderer="stub", processes=False, population=False, world_dir=None)
+                 renderer="stub", processes=False, population=False, world_dir=None,
+                 sleep_suppression=False)  # D-56 の帰無腕(90 tick は全員就寝の窓)
     rec = run_day(tape_path=tmp_path / "plain", **small)
     tape = Tape(tmp_path / "plain")
     rows = list(tape.rows())

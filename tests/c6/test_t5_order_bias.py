@@ -80,6 +80,11 @@ def _run(n_agents, seed, *, ticks=TICKS, world=None, world_dir=None, budget=None
         world_dir=world_dir,
         budget=budget,
         population=population,
+        # D-56(就寝抑止)の帰無腕。tick 0 は世界内 00:00 で全員 ``SLEEPING`` なので、
+        # 既定のままだと 24 tick の窓に呼が 1 本も立たず |r|≤0.05 の検出力が無くなる。
+        # T5 が見るのは**選抜の順序バイアス**(``arbitrate`` の lexsort)であって就寝規則
+        # ではない(抑止を入れた並び順不変は tests/engine/test_sleep_suppression_d56.py)。
+        sleep_suppression=False,
     )
     return res, rec
 

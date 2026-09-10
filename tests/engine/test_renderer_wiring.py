@@ -115,8 +115,8 @@ def _assert_rule8(log, want: int = 50):
 # ================================================================= 規約⑧(合成世界・常に走る)
 def test_rule8_holds_in_situ_on_a_synthetic_world(recording, capsys):
     """走行中のランから拾った実際の起床対で B0-B4b がバイト一致する。"""
-    res, rec = _run(
-        recording, n_agents=400, seed=1, ticks=240, checkpoint_every=120, n_cells=25
+    res, rec = _run(  # ticks: D-56 以降は最初の計画境界(tick 300-480)を跨ぐ窓が要る
+        recording, n_agents=400, seed=1, ticks=540, checkpoint_every=120, n_cells=25
     )
     n_groups, n_checked = _assert_rule8(rec.log)
     with capsys.disabled():
@@ -261,8 +261,8 @@ def test_engine_continuation_does_not_overwrite_the_attempted_action():
 
 def test_b6_names_the_attempted_action_in_a_real_run(recording, capsys):
     """B6「直前の結果」の主語が ``last_action`` の語になっている(結線の突き合わせ)。"""
-    res, rec = _run(
-        recording, n_agents=400, seed=7, ticks=300, checkpoint_every=300, n_cells=25
+    res, rec = _run(  # ticks: D-56 以降は最初の計画境界(tick 300-480)を跨ぐ窓が要る
+        recording, n_agents=400, seed=7, ticks=540, checkpoint_every=540, n_cells=25
     )
     agents = res.agents  # type: ignore[attr-defined]
     words = set(ACTION_WORD_BY_CODE.values())

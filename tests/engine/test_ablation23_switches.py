@@ -175,8 +175,10 @@ def test_set_refractory_refuses_a_wrong_shaped_table():
 
 # ================================================================= run_day / cli / manifest
 def _run(**kw):
+    # ticks: D-56(就寝抑止)以降、tick 0 は世界内 00:00 で全員 ``SLEEPING`` なので
+    # 最初の計画境界(合成日課の「起床」= tick 300-480)を跨ぐ窓にしないと呼が 0 になる。
     return run_day(
-        n_agents=800, seed=2, ticks=180, checkpoint_every=180, n_cells=25,
+        n_agents=800, seed=2, ticks=540, checkpoint_every=540, n_cells=25,
         processes=False, conversations=True, **kw,
     )
 
@@ -192,17 +194,24 @@ def test_defaults_are_byte_identical():
 
 
 def test_refractory_scale_moves_the_run():
-    """**起床規則はエンジン側**なので mock でも動く(§8 ③ が mock で測れる根拠)。"""
+    """**起床規則はエンジン側**なので mock でも動く(§8 ③ が mock で測れる根拠)。
+
+    振る条件が ``CELL_BLOCK`` から ``INTEROCEPTION`` に変わったのは **D-56(就寝抑止)**の
+    副作用。寝ている個体は動かないのでセル動的ブロックがほとんど変化せず、この合成
+    fixture(800体・25セル・過程なし)では ``CELL`` クラスの候補が 0 件になり、
+    ``CELL_BLOCK`` の不応期を振っても 1 ビットも動かない(D-49 の「第2陣まで no-op」に
+    ``CELL_BLOCK`` も並んだ=親へ報告済み)。``INTEROCEPTION``/``PLAN_*`` は動く。
+    """
     base = _run()
-    short = _run(refractory_scale={"CELL_BLOCK": 0.5})
+    short = _run(refractory_scale={"INTEROCEPTION": 0.5})
     assert short.final_hash != base.final_hash
-    assert short.run_manifest_fields()["refractory_scale"] == {"CELL_BLOCK": 0.5}
+    assert short.run_manifest_fields()["refractory_scale"] == {"INTEROCEPTION": 0.5}
 
 
 def test_proximity_swap_arm_is_a_no_op_until_the_second_wave():
     """③ の腕(近接入替 ±50%)は**起床候補を出す側がまだ無い**ので現状 no-op。
 
-    切替口の欠陥ではない(``CELL_BLOCK`` では動く)。近接入替の起床が §9 第2陣で入った
+    切替口の欠陥ではない(``INTEROCEPTION`` では動く)。近接入替の起床が §9 第2陣で入った
     日に、このテストが**落ちて**気づけるようにしておく。
     """
     base = _run()

@@ -68,10 +68,17 @@ def make_world(seed: int = 1) -> World:
     return World.synthetic(n_cells=CELLS, seed=seed)
 
 
+#: D-56(就寝抑止)の帰無腕。tick 0 は世界内 00:00=``resolve.initialize`` が全員を
+#: ``SLEEPING`` に置くので、既定のままでは 24 tick の窓に呼が 1 本も立たない。
+#: このファイルが見るのは**艦隊の配管**であって就寝規則ではないので切る。
+NO_SLEEP_ARM = dict(sleep_suppression=False)
+
+
 def run_mock(**kw):
     return run_day(
         n_agents=N_AGENTS, seed=1, world=make_world(), ticks=TICKS,
-        renderer="stub", processes=False, population=False, world_dir=None, **kw
+        renderer="stub", processes=False, population=False, world_dir=None,
+        **NO_SLEEP_ARM, **kw
     )
 
 
@@ -82,7 +89,8 @@ def run_fleet(client: FleetClient, ticks: int = TICKS, **kw):
     return run_day(
         n_agents=N_AGENTS, seed=1, world=make_world(), ticks=ticks, fleet=client,
         fleet_wait_s=kw.pop("fleet_wait_s", 10.0),
-        renderer="stub", processes=False, population=False, world_dir=None, **kw
+        renderer="stub", processes=False, population=False, world_dir=None,
+        **NO_SLEEP_ARM, **kw
     )
 
 
@@ -419,20 +427,27 @@ def test_conversations_need_awake_partners_so_night_only_runs_barely_open_any():
 
             return LLMResponse(text=TALK, source="scripted")
 
-    def rate(ticks: int) -> tuple[float, int, int]:
+    def rate(ticks: int, **kw) -> tuple[float, int, int]:
         r = run_day(
             n_agents=CONV_AGENTS, seed=1, world=_conv_world(), ticks=ticks,
             llm=ScriptedLLM(), renderer="stub", processes=False, population=False,
-            world_dir=None,
+            world_dir=None, **kw
         )
         opened = r.conversation_counters["sessions_opened"]
         return (opened / max(1, r.llm_calls), opened, r.llm_calls)
 
-    night, n_open, n_calls = rate(60)
-    day, d_open, d_calls = rate(CONV_TICKS)
+    # ① D-56 **前**の挙動(帰無腕)= 真夜中でも呼は立つが、相手が寝ているので成立率が低い。
+    night, n_open, n_calls = rate(60, sleep_suppression=False)
+    day, d_open, d_calls = rate(CONV_TICKS, sleep_suppression=False)
     assert n_calls > 0 and d_calls > 0
     assert d_open > n_open
     assert day > 5.0 * night, (night, day, n_open, d_open)
+
+    # ② D-56(既定)= 真夜中の窓は**呼そのものが立たない**(例外は計画境界だけで、
+    #    mock 日課の最初の境界は tick 300 以降)。上の「成立率が低い」の上位互換。
+    _, z_open, z_calls = rate(60)
+    assert z_calls == 0 and z_open == 0
+    assert rate(CONV_TICKS)[2] > 0  # 朝を含めば既定のままでも呼は立つ
 
 
 def test_fleet_debug_dir_records_the_first_response_of_failed_parses(fleet_servers, tmp_path):

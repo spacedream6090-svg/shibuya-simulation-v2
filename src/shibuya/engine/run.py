@@ -151,6 +151,8 @@ DIAG_RUN_COLUMNS: Final[tuple[str, ...]] = (
     "parse_errors",
     "tape_misses",
     "conversations_opened",
+    #: D-56 就寝抑止(``suppressed``=不応期 とは**別列**)。
+    "sleep_suppressed",
 )
 
 #: 診断行「シミュ日あたり」の必須行(§9.1 C3 受け入れ「診断行5本」+ 運用列)。
@@ -204,6 +206,9 @@ class RunResult:
     phase_seconds: dict[str, float] = field(default_factory=dict)
     wall_seconds: float = 0.0
     llm_calls: int = 0
+    #: 世界内時刻の**時**別の発射数(24 要素・D-56 の検証欄)。Σ = ``llm_calls``。
+    #: 時 = ``(tick // 60) % 24``(開始 00:00=テープ meta の ``start_hour`` と同じ約束)。
+    calls_by_hour: list[int] = field(default_factory=lambda: [0] * 24)
     arbiter_counters: dict[str, Any] = field(default_factory=dict)
     money_start: int = 0
     money_end: int = 0
@@ -229,6 +234,8 @@ class RunResult:
     refractory_scale: dict[str, float] = field(default_factory=dict)
     #: ablation ⑥(§8 第1陣)。看板・広告面(B2.signage)を描いたか。既定 True。
     signage: bool = True
+    #: D-56 就寝抑止を効かせたか。既定 True(ユーザー決定 (a)・2026-09-10)。
+    sleep_suppression: bool = True
     #: 凍結静的文の版(W14/W15 の parquet: ファイル名→sha256)。凍結文なしのランは空(層2 指摘 09-09)。
     frozen_sources: dict[str, str] = field(default_factory=dict)
     #: 録画テープの置き場(記録したときだけ)。
@@ -349,6 +356,22 @@ class RunResult:
     def conversation_sessions(self) -> int:
         return int(self.column("conversations_opened").sum()) if self.diagnostics.size else 0
 
+    @property
+    def sleep_suppressed_count(self) -> int:
+        """就寝抑止(D-56)で落とした候補の総数。"""
+        if not self.diagnostics.size or "sleep_suppressed" not in DIAG_RUN_COLUMNS:
+            return 0
+        return int(self.column("sleep_suppressed").sum())
+
+    def calls_by_hour_text(self) -> str:
+        """``呼/時`` の 1 行(24 個・D-56 の検証欄)。
+
+        受入(``tools/c7``)は深夜 0〜5 時の合計/昼 12〜19 時の合計を取り、東京都の
+        起床率 a(h)(0 時 20.5% … 3 時 3.5% … 12〜19 時 97.8〜98.9%)と並べる。
+        """
+        cb = list(self.calls_by_hour) + [0] * max(0, 24 - len(self.calls_by_hour))
+        return "呼/時 " + " ".join(f"{h:02d}:{int(cb[h])}" for h in range(24))
+
     def diagnostics_day(self) -> dict[str, float]:
         """シミュ日あたりの診断行(``DIAG_DAY_ROWS`` を必ず全て含む)。"""
         out: dict[str, float] = {
@@ -379,6 +402,7 @@ class RunResult:
             ``budget_mode``(知覚契約書 §3.2 ablation ① の腕)・
             ``p_notice_ablation``/``p_notice_d50_scale``/``refractory_scale``/``signage``
             (§8 第1陣 ②③⑥ の腕。既定は ``A4``/``1.0``/``{}``/``True``)・
+            ``sleep_suppression``(D-56 就寝抑止の腕。既定 ``True``)・
             ``catalog_sha16``(世界カタログ v0.2 の凍結 SHA)・
             ``process_ids``(実際に回した過程 id の昇順)・``ablations``(切った過程/感度試験 id)。
         """
@@ -410,6 +434,8 @@ class RunResult:
             "p_notice_d50_scale": float(self.p_notice_d50_scale),
             "refractory_scale": dict(self.refractory_scale),
             "signage": bool(self.signage),
+            # ---- D-56 就寝抑止(既定 True)。False = D-56 前の挙動 ----
+            "sleep_suppression": bool(self.sleep_suppression),
             "catalog_sha16": catalog_sha16,
             "process_ids": process_ids,
             "ablations": ablations,
@@ -555,6 +581,8 @@ class RunResult:
             )
         for col in DIAG_COLUMNS:
             lines.append(f"  診断 {col}: {int(self.column(col).sum()):,}")
+        lines.append(f"  診断 sleep_suppressed: {self.sleep_suppressed_count:,}")
+        lines.append("  " + self.calls_by_hour_text())
         lines.append(
             f"  診断 parse_error_rate: {self.parse_error_rate:.4f} / "
             f"undefined_action_count: {self.undefined_action_count:,} / "
@@ -765,6 +793,7 @@ def run_day(
     population: "Population | bool | None" = None,
     occupancy_every: int = 0,
     occupancy_path: "str | Path | None" = None,
+    sleep_suppression: bool = True,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -836,6 +865,12 @@ def run_day(
         salient_rate_per_10k: 「倒れる」の発生率[件/10,000体/日](``None`` で既定
             ``salient.COLLAPSE_PER_10K_PER_DAY``=3.0)。5,000 体・1 日では期待値 1.5 件なので
             **引かない日がある**(P(0)=22%)。感度試験・結線テストで上げるための口。
+        sleep_suppression: **D-56 就寝抑止**(既定 True=ユーザー決定 (a))。``activity ==
+            Activity.SLEEPING`` の個体の起床候補を、計画境界・顕著行為・会話ターン以外は
+            アービタに入れない。``False`` は **D-56 前の挙動**(=ablation の帰無腕)。
+            エンジンは tick 0 で全員を ``SLEEPING`` に置く(``resolve.initialize``=世界内
+            00:00 の種)ので、**深夜だけを回す短いラン**は既定のままだと呼が 0 になる。
+            LLM 配管そのものを見るテスト(艦隊・テープ・パーサ)は ``False`` で回す。
 
     Returns:
         ``RunResult``。
@@ -1214,6 +1249,15 @@ def run_day(
             f_class = np.empty(0, dtype=np.int64)
             f_since = np.empty(0, dtype=np.int64)
 
+        # ---- 就寝抑止の例外印(D-56・ユーザー決定 (a)・09-10) ----
+        # **源で決める**(条件では区別できない: 顕著行為も変化検出も ``CELL_BLOCK``)。
+        # 計画境界 p / 会話 c / 顕著行為 s = 通す・変化検出 d = 落とす。
+        # 艦隊の再投入 f は源を持ち帰れないので**条件**で判定する(会話ターン 0 と
+        # ``PLAN_*`` 1-4 は通す)。顕著行為由来の再投入は ``CELL_BLOCK`` なので
+        # 就寝中なら落ちる(**過剰抑止をここに明記**・実害は「答えの返らなかった呼を
+        # 寝ている間は蒸し返さない」だけ)。
+        f_exempt = f_cond.astype(np.int64) <= int(WakeCondition.PLAN_TRANSIT)
+
         cands = WakeCandidates(
             np.concatenate([p_agent, d_agent, c_agent, s_agent, f_agent]),
             np.concatenate([p_cond, d_cond.astype(np.int8), c_cond, s_cond, f_cond]),
@@ -1227,11 +1271,27 @@ def run_day(
                     f_since,  # 再投入は**元の待ち始め**を保つ(昇格が巻き戻らない)
                 ]
             ),
+            np.concatenate(
+                [
+                    np.ones(p_agent.size, dtype=bool),    # 計画境界(眠りから覚める境界を含む)
+                    np.zeros(d_agent.size, dtype=bool),   # 変化検出(内受容・セル変化)
+                    np.ones(c_agent.size, dtype=bool),    # 会話ターン
+                    np.ones(s_agent.size, dtype=bool),    # 顕著行為
+                    f_exempt,                             # 艦隊の再投入
+                ]
+            ),
         )
 
-        # ---- ③ 繰り延べアービタ(§6) ----
+        # ---- ③ 繰り延べアービタ(§6)+ 就寝抑止(D-56) ----
         t0 = time.perf_counter()
-        decision = arbiter.step(tick, cands, agents.registry.refractory_until)
+        asleep = (
+            (np.asarray(agents.registry.activity) == int(Activity.SLEEPING))
+            if sleep_suppression
+            else None
+        )
+        decision = arbiter.step(
+            tick, cands, agents.registry.refractory_until, asleep=asleep
+        )
         phase["arbiter"] += time.perf_counter() - t0
 
         # ---- ④ LLM 呼(応答は pending_apply へ) ----
@@ -1320,6 +1380,7 @@ def run_day(
                          int(d.call.wake_class), int(d.call.wake_since))
                     )
             result.llm_calls += len(sel)  # L4 の呼数=**発射数**(再送も 1 呼・親決定 09-09)
+            result.calls_by_hour[(tick // 60) % 24] += len(sel)  # D-56 の検証欄
         # 艦隊経路の書式エラーは ④′(到着時)で数える=選抜が 0 の tick でも計上する
         n_parse_errors += n_parse_errors_fleet
         peak_pending = max(peak_pending, len(pending))
@@ -1475,6 +1536,7 @@ def run_day(
                 n_parse_errors,
                 bridge.n_tape_misses - prev_tape_misses,
                 (conv.n_opened - prev_sessions) if conv is not None else 0,
+                decision.n_sleep_suppressed,  # D-56
             )
         )
         prev_tape_misses = bridge.n_tape_misses
@@ -1627,6 +1689,7 @@ def run_day(
         if perception is not None
         else signage
     )
+    result.sleep_suppression = bool(sleep_suppression)
     result.diagnostics = np.asarray(diag_rows, dtype=np.int64).reshape(-1, len(DIAG_RUN_COLUMNS))
     result.phase_seconds = phase
     result.wall_seconds = time.perf_counter() - t_start
@@ -1779,6 +1842,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="W16 母集団を使わず合成個体で回す(下限対照)")
     ap.add_argument("--ablate", action="append", default=[],
                     help="止める過程(過程 id か AB-* の感度試験 id・複数可)")
+    ap.add_argument("--no-sleep-suppression", action="store_true",
+                    help="D-56 就寝抑止を切る(=D-56 前の挙動・帰無腕)")
     add_fleet_args(ap)
     args = ap.parse_args(argv)
 
@@ -1802,6 +1867,7 @@ def main(argv: list[str] | None = None) -> int:
         processes=not args.no_processes,
         processes_disabled=tuple(args.ablate) or None,
         population=False if args.no_population else None,
+        sleep_suppression=not args.no_sleep_suppression,
     )
     print(res.summary())
     return 0 if (res.conserved and res.min_stock >= 0) else 1

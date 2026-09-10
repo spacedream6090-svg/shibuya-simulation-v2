@@ -36,7 +36,11 @@ def test_t9_the_four_diagnostic_columns_exist_in_the_run_table():
 
 def test_t9_the_four_columns_actually_carry_numbers():
     """「存在するが常にゼロ」を弾く: 需要 > 予算のランでは繰り延べ・縮退が立つ。"""
-    res = run_day(n_agents=5_000, seed=1, ticks=120, checkpoint_every=120, n_cells=139)
+    # ticks: D-56(就寝抑止)以降は 1 シミュ日を回す。tick 0 は世界内 00:00 で全員
+    # ``SLEEPING`` なので、最初の計画境界(合成日課の起床 tick 300-480)を跨いでも、
+    # 縮退(``degraded``= 下位2クラスが予算に押し出される)が立つほど個体変化・セル変化の
+    # 候補が溜まるのは **720 tick 以降**(540 tick では 0・720 で 1,076・1,440 で 4,967)。
+    res = run_day(n_agents=5_000, seed=1, ticks=1_440, checkpoint_every=1_440, n_cells=139)
     day = res.diagnostics_day()
     assert day["deferred"] > 0, day
     assert day["degraded"] > 0, day
