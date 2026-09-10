@@ -247,9 +247,9 @@
      0.001063
     ],
     "null_n_note": "帰無参照の N=重み行数 2,014(重みは確率で件数ではない=expedient)",
-    "seconds": 0.11244119983166456,
+    "seconds": 0.2152912000001379,
     "verdict": "needs_run",
-    "measured_at": "2026-09-09"
+    "measured_at": "2026-09-10"
    }
   },
   {
@@ -309,9 +309,9 @@
     "n_groups": 20,
     "median_headway_min": 3.0,
     "max_abs_delta_trains_per_hour": 12.0,
-    "seconds": 0.18459590012207627,
+    "seconds": 0.0984160999996675,
     "verdict": "not_driving",
-    "measured_at": "2026-09-09"
+    "measured_at": "2026-09-10"
    }
   },
   {
@@ -381,9 +381,9 @@
      "厳しい暑さ": 151.0,
      "危険な暑さ": 74.0
     },
-    "seconds": 0.033918400295078754,
+    "seconds": 0.05820790000143461,
     "verdict": "needs_run",
-    "measured_at": "2026-09-09"
+    "measured_at": "2026-09-10"
    }
   },
   {
@@ -412,9 +412,9 @@
     "unplaced": 0,
     "cells_declared_nonzero": 372,
     "cells_control_nonzero": 400,
-    "seconds": 0.2885091998614371,
+    "seconds": 0.29199509999853035,
     "verdict": "needs_run",
-    "measured_at": "2026-09-09"
+    "measured_at": "2026-09-10"
    }
   },
   {
@@ -473,10 +473,10 @@
     "jsd_bits": 0.020277356472634123,
     "null_p95": null,
     "detected": true,
-    "seconds": 83.72678689984605,
+    "seconds": 60.98954599999888,
     "note": "両側とも決定論の構築設定なので帰無参照(標本ゆらぎ)は無い=差の値そのものが答え。",
     "verdict": "needs_run",
-    "measured_at": "2026-09-09"
+    "measured_at": "2026-09-10"
    }
   },
   {
