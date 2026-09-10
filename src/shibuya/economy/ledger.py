@@ -37,13 +37,16 @@ expedient(本モジュール分)
 - 同一支払者が同じ ``transfer_many`` に複数行で現れたときの判定は**行順の前置和**
   (最初に残高が尽きた行以降は同一支払者の後続行も不足扱い)。金額は行内で増加するので
   結果は行順にのみ依存し、決定論。
-- 生ログの1行 24 B・容量の既定 262,144 行(≈6.3 MB)。保持窓を超えた日は先頭を進める。
+- 生ログの1行 24 B・容量は **N 比例**(``raw_capacity_for`` = 3.0 行/体/日 × N × 保持日数・
+  下限 16,384 行)。保持窓を超えた日は先頭を進める。**D-53(2026-09-10)まで固定 262,144 行**
+  だったので、cap(= 容量 × 24 B)が N に比例せず 390,067 体で「宣言だけで cap 超過」になった。
 - 貨幣供給量 M = 世帯+店舗+雇用主の(現金+預金)。設計書は「貨幣供給量」としか書いていない
   ので、銀行の手元現金と外界の相手勘定を除く定義を自前で置いた。
 """
 
 from __future__ import annotations
 
+import math
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Final, Iterator, Mapping, Sequence
@@ -68,7 +71,9 @@ from shibuya.engine.ledger_api import EntityRef, TransferStatus
 __all__ = [
     "RAW_ROW_BYTES",
     "DEFAULT_RAW_CAPACITY",
+    "MIN_RAW_CAPACITY",
     "DEFAULT_RETENTION_DAYS",
+    "raw_capacity_for",
     "INSIDE_SECTORS",
     "DEFAULT_ASSETS_DIR",
     "EmployerTable",
@@ -83,8 +88,14 @@ DEFAULT_ASSETS_DIR: Final[str] = "data/world/v2"
 
 #: 生ログ 1 行のバイト(tick4+部門1+索引4+部門1+索引4+金額8+科目1 = 23 → 24 に切り上げ)。
 RAW_ROW_BYTES: Final[int] = 24
-#: 生ログのリングバッファ容量[行](expedient)。
+#: 生ログのリングバッファ容量[行]の**据え置き既定**(``raw_capacity_for`` を使わない
+#: 単体呼び出し=モジュール関数 ``growth_declarations()`` の既定値だけに残る・expedient)。
 DEFAULT_RAW_CAPACITY: Final[int] = 262_144
+#: N 比例容量の下限[行](expedient・D-53)。取引行は個体だけでなく**店舗**からも出る
+#: (参入資本 ``endow_stores`` = POI 数ぶん・域外仕入の代金 = 納品数ぶん)ので、
+#: 小さな N では 3.0×N を下回る容量になってリングが一周してしまう。
+#: 16,384 行 = 393,216 B(据え置き既定 6.29 MB の 1/16)。
+MIN_RAW_CAPACITY: Final[int] = 16_384
 #: 生ログの保持窓[日](D-R2-6 「保持窓 N 日で退避」)。
 DEFAULT_RETENTION_DAYS: Final[int] = 1
 #: 1 体あたりの想定 transfer 行数/日(成長宣言の係数・expedient)。
@@ -95,6 +106,28 @@ INSIDE_SECTORS: Final[tuple[Sector, ...]] = (Sector.HOUSEHOLD, Sector.STORE, Sec
 _N_SECTORS: Final[int] = len(Sector)
 _N_CODES: Final[int] = len(AccountCode)
 _TICKS_PER_DAY: Final[int] = 1_440
+
+
+def raw_capacity_for(
+    n_households: int, retention_days: int = DEFAULT_RETENTION_DAYS
+) -> int:
+    """生ログのリングバッファ容量[行]を **N から**決める(D-53・2026-09-10)。
+
+    D-R2-6 の宣言は ``per_day_growth="O(N)"`` × ``72 B/体/日``(3.0 取引 × 24 B)・保持窓
+    ``retention_days`` 日なので、**宣言投影 = 72 × N × 日数**。容量が固定(旧 262,144 行)だと
+    cap = 6.29 MB が N に比例せず、390,067 体では宣言投影 28.1 MB > cap =
+    ``core.growth.check_growth`` の ``declared_over_cap``(宣言だけで cap 超過=失敗)になる。
+    容量を N 比例にして **cap(= 容量 × 24 B)= 宣言投影** に揃える。
+
+    Args:
+        n_households: 世帯数(= 個体数 N・``check_growth(n_entities=…)`` と同じ N)。
+        retention_days: 生ログの保持窓[日]。
+
+    Returns:
+        行数(下限 ``MIN_RAW_CAPACITY``)。
+    """
+    need = TRANSFERS_PER_AGENT_PER_DAY * max(0, int(n_households)) * max(0, int(retention_days))
+    return max(int(MIN_RAW_CAPACITY), int(math.ceil(need)))
 
 
 @dataclass(frozen=True)
@@ -172,7 +205,7 @@ class Ledger:
         n_stores: int,
         n_employers: int = 1,
         *,
-        raw_capacity: int = DEFAULT_RAW_CAPACITY,
+        raw_capacity: int | None = None,
         retention_days: int = DEFAULT_RETENTION_DAYS,
     ) -> None:
         """
@@ -180,7 +213,8 @@ class Ledger:
             n_households: 世帯数(= 個体数)。
             n_stores: 店舗数(= POI 数)。
             n_employers: 雇用主数(組織数。``data/world/v2/w6_org.parquet`` があればその行数)。
-            raw_capacity: 生ログのリングバッファ容量[行]。
+            raw_capacity: 生ログのリングバッファ容量[行]。``None``(既定)= ``raw_capacity_for``
+                (**N 比例**・D-53)。明示した値は宣言の cap にもそのまま出る。
             retention_days: 生ログの保持窓[日](D-R2-6)。
         """
         if min(int(n_households), int(n_stores), int(n_employers)) < 0:
@@ -205,9 +239,13 @@ class Ledger:
         #: (日次センサスが「畳んだ当日の実数」を読むため・D-R2-6 の有界性を壊さない)。
         self._last_close: DayClose | None = None
 
-        # 生ログ(リングバッファ)
-        self.raw_capacity = int(raw_capacity)
+        # 生ログ(リングバッファ)。容量は **N 比例**(D-53)= 宣言投影と等値の cap になる。
         self.retention_days = int(retention_days)
+        self.raw_capacity = (
+            raw_capacity_for(int(n_households), self.retention_days)
+            if raw_capacity is None
+            else int(raw_capacity)
+        )
         cap = max(1, self.raw_capacity)
         self._raw_tick = np.zeros(cap, dtype=np.int32)
         self._raw_ps = np.zeros(cap, dtype=np.int8)
@@ -779,6 +817,11 @@ def growth_declarations(
 
     ``transfer_log`` が O(t) 再発の最有力地点(ActualLog と同型)なので、
     **保持窓 N 日 + 日次集約**を宣言に書き、``engine.run`` の実測と突き合わせる。
+
+    ``raw_capacity`` は ``transfer_log`` の cap(= 容量 × 24 B)になる。台帳インスタンスから
+    呼ぶとき(``Ledger.growth_declarations``)は **N 比例**の実容量が入るので
+    cap = 宣言投影(72 B/体/日 × N × 保持日数)と等値になる(D-53)。引数を省いた単体呼び出しは
+    据え置きの ``DEFAULT_RAW_CAPACITY``(6.29 MB)= **N を知らない場面の目安**。
     """
     rows = (
         GrowthDeclaration(
@@ -795,6 +838,8 @@ def growth_declarations(
             note=(
                 "境界・経済設計書 §2.3 の取引ログ。1 行 24 B・リングバッファで有界化し、"
                 "日次で取引フロー行列へ畳む(D-R2-6 の ActualLog 規律を金の台帳へ適用)。"
+                "容量は N 比例(raw_capacity_for・D-53 2026-09-10)なので cap は 72 B/体/日 × N ×"
+                " 保持日数と等値。"
             ),
             unit="transfer",
             bytes_per_unit=RAW_ROW_BYTES,

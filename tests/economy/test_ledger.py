@@ -16,7 +16,14 @@ from hypothesis import strategies as st
 from shibuya.core.growth import check_growth
 from shibuya.economy import checks as CK
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
-from shibuya.economy.ledger import Ledger, growth_declarations
+from shibuya.economy.ledger import (
+    MIN_RAW_CAPACITY,
+    RAW_ROW_BYTES,
+    TRANSFERS_PER_AGENT_PER_DAY,
+    Ledger,
+    growth_declarations,
+    raw_capacity_for,
+)
 from shibuya.engine.ledger_api import EntityRef, TransferStatus
 
 H, S, E, B, G, W = (
@@ -280,6 +287,54 @@ def test_growth_declarations_pass_the_gate():
     }
     rep = check_growth(decls, measured, steps=1_440, minutes_per_step=1, n_entities=5_000)
     assert rep.ok, rep.as_text()
+
+
+#: C7 本番の規模(390,067 体)。D-53 はこの N で「宣言だけで cap 超過」になった。
+C7_N_AGENTS = 390_067
+#: 実資産 5,000 体 mock 1 日(``cli --agents 5000 --seed 1 --world data/world/v2``)の
+#: 取引ログ実測 = 213,216 B ÷ 24 B。容量がこれを下回るとリングが一周する(= 挙動が変わる)。
+MOCK_5K_TRANSFER_ROWS = 213_216 // RAW_ROW_BYTES
+
+
+def test_raw_capacity_is_proportional_to_n():
+    """D-53: リング容量は **N 比例**(3.0 行/体/日 × N × 保持日数)・下限あり。"""
+    assert raw_capacity_for(0) == MIN_RAW_CAPACITY  # 下限
+    assert raw_capacity_for(1_000) == MIN_RAW_CAPACITY  # 3,000 < 下限
+    assert raw_capacity_for(C7_N_AGENTS) == int(TRANSFERS_PER_AGENT_PER_DAY * C7_N_AGENTS)
+    # 保持窓を伸ばせば容量も伸びる(宣言の retention と同じ日数で数える)
+    assert raw_capacity_for(C7_N_AGENTS, 3) == 3 * raw_capacity_for(C7_N_AGENTS, 1)
+    # 台帳が自分で決める(明示すればその値のまま=既存の呼び出しは不変)
+    assert Ledger(C7_N_AGENTS, 4).raw_capacity == raw_capacity_for(C7_N_AGENTS)
+    assert Ledger(4, 2, raw_capacity=16).raw_capacity == 16
+
+
+def test_5k_mock_day_still_fits_in_the_ring():
+    """既定でバイト不変: 5,000 体では **リングが一周しない**(実測 8,884 行 ≤ 容量)。"""
+    led = Ledger(5_000, 100)
+    assert led.raw_capacity >= MOCK_5K_TRANSFER_ROWS
+    assert led.growth_declarations()["transfer_log"].cap >= 213_216
+
+
+@pytest.mark.parametrize("n_agents", [5_000, C7_N_AGENTS])
+def test_the_declaration_alone_never_exceeds_the_cap(n_agents):
+    """D-53 の回帰: 宣言投影(72 B/体/日 × N)が cap を食い破らない。
+
+    ``check_growth`` は実測を待たずに ``declared_over_cap``(= 設計が破綻している)を出す。
+    C7 本番(390,067 体)はここで落ちた——容量が固定 262,144 行で N に比例しなかったため。
+    """
+    led = Ledger(n_agents, 100)
+    decls = led.growth_declarations()
+    rep = check_growth(
+        decls, dict(led.growth_measured()), steps=1_440, minutes_per_step=1, n_entities=n_agents
+    )
+    assert rep.declared_over_cap == (), rep.as_text()
+    assert rep.ok, rep.as_text()
+    row = decls["transfer_log"]
+    assert row.declared_projected_bytes(30, n_agents) <= row.cap
+    # cap = 容量 × 24 B = 宣言投影(N が下限を超えていれば**等値**)
+    assert row.cap == led.raw_capacity * RAW_ROW_BYTES
+    if n_agents >= MIN_RAW_CAPACITY / TRANSFERS_PER_AGENT_PER_DAY:
+        assert row.cap == int(row.declared_projected_bytes(30, n_agents))
 
 
 def test_employers_come_from_the_world_asset_or_a_synthetic_fallback():

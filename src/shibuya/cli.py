@@ -202,6 +202,9 @@ def build_ledger_bundle(
 
     ``world_dir`` に W16 母集団があれば、世帯の初期財布を ``economy.anchors`` の
     アンカー由来に差し替える(``use_population=False`` で mock のまま)。
+
+    両台帳の O(t) ログ(取引・納品)のリングバッファ容量は **N 比例**(D-53)。金の台帳は
+    世帯数から自分で決められるが、物の台帳は POI 側の器なので ``n_agents`` を渡して決める。
     """
     wallets = household_wallets(
         world, n_agents, seed, world_dir, use_population=use_population
@@ -212,7 +215,9 @@ def build_ledger_bundle(
         else _HouseholdWalletLedger(n_agents, world.n_poi, wallets)
     )
     cats = np.array([hash_free_cat_code(c) for c in world.assets.poi_cat], dtype=np.int64)
-    goods = GoodsLedger.from_pois(cats, np.asarray(world.pois.stock), np.asarray(world.pois.price))
+    goods = GoodsLedger.from_pois(
+        cats, np.asarray(world.pois.stock), np.asarray(world.pois.price), n_agents=n_agents
+    )
     capital = store_capital_array(world, n_agents, store_capital_yen)
     if capital.size and int(capital.sum()) > 0:
         led.endow_stores(capital, tick=0)

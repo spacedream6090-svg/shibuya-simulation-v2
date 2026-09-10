@@ -191,6 +191,32 @@ def test_o_t_logs_of_both_ledgers_are_measured(wired):
     assert not res.growth_report.missing and not res.growth_report.unknown
 
 
+def test_the_bundle_declaration_survives_the_c7_scale(wired):
+    """D-53: **本番規模(390,067 体)でも宣言だけで cap を超えない**(ランは要らない)。
+
+    C7 本番はここで落ちた(``declared_over_cap = ['transfer_log', 'delivery_log']``)——
+    リング容量が固定で N に比例せず、宣言投影 28.1 MB / 12.5 MB が cap 6.29 MB / 2.10 MB を
+    超えたため。容量を N 比例にした後は cap = 宣言投影で通る。
+    """
+    from shibuya.core.growth import check_growth
+
+    n = 390_067
+    led = Ledger(n, 8)
+    goods = GoodsLedger.from_pois(
+        np.zeros(8, dtype=np.int64), np.full(8, 5), np.full(8, 300), n_agents=n
+    )
+    decls, measured = LedgerBundle(money=led, goods=goods).growth_parts()
+    rep = check_growth(decls, measured, steps=1_440, minutes_per_step=1, n_entities=n)
+    assert rep.declared_over_cap == (), rep.as_text()
+    assert rep.ok, rep.as_text()
+    caps = {r.name: r.cap for r in rep.rows}
+    assert caps["transfer_log"] == 28_084_824 and caps["delivery_log"] == 12_482_144
+    # 小さいラン(``wired`` = 500 体×1 日)も同じ宣言で通る(下限容量の側)
+    res, bundle = wired
+    assert res.growth_report is not None and res.growth_report.declared_over_cap == ()
+    assert bundle.money.n_raw_dropped == 0  # リングが一周していない = 生ログを捨てていない
+
+
 def test_world_stock_is_a_mirror_of_the_shelf(wired):
     """``world.pois.stock`` は棚(SKU 別)の写し。真値は物の台帳にある。"""
     res, bundle = wired
