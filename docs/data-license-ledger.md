@@ -53,3 +53,9 @@
 | 第 12 回大都市交通センサス 乗換え調査(本編・概要・駅別乗換え移動時間表)| https://www.mlit.go.jp/common/001179761.pdf ・ 001178977.pdf ・ 001179223.xlsx ほか | 2026-09-10 | 同上 | D-51 ホーム到達時間 |
 | 小林・岩倉(2019)土木学会論文集 D3 75(4) 273-288 | https://www.jstage.jst.go.jp/article/jscejipm/75/4/75_273/_article/-char/ja | 2026-09-10 | J-STAGE 利用規約(閲覧・引用) | 確認時間・終着 45 秒 |
 | 労働者健康状況調査(平成 24 年)第 1 表-2 | e-Stat statInfId 000023628233 | 2026-09-10 | 政府標準利用規約 | 深夜業従事率 21.8% |
+| 第 12 回大都市交通センサス 参考表「利用目的別乗車降車時刻分布」(xlsx・data/research_cache) | https://www.mlit.go.jp/common/001179635.xlsx | 2026-09-10 | 公共データ利用規約(PDL1.0)・出典表示 | D-66 退出時刻の形。リポ time_dist_12.json と同一・脚注「帰宅トリップの補完なし」 |
+| 東京都 令和2年国勢調査による東京都の昼間人口 第11表 町丁・字等別昼間人口(推計)(CSV・data/research_cache) | https://www.toukei.metro.tokyo.lg.jp/tyukanj/2020/tj20zv1100.csv | 2026-09-10 | 東京都統計部サイトポリシー=著作権法上の引用の範囲(二次利用条件の明示なし・オープンデータカタログ同一資源は 403 で未確認) | D-66 139 ha の昼夜比。**数値の引用のみ・ファイルは再配布しない** |
+| 令和3年社会生活基本調査 第4-1表 時刻区分別行動者率(xlsx・data/research_cache) | https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224335&fileKind=0 | 2026-09-10 | 政府標準利用規約(第2.0版) | D-66 東京都平日 24 時間系列(仕事・通勤通学) |
+| 東京都 テレワーク実施率調査 令和7年 1・5・9・12 月(PDF 4 本・data/research_cache) | https://www.hataraku.metro.tokyo.lg.jp/hatarakikata/telework/ 配下 | 2026-09-10 | TOKYO はたらくネット サイトポリシー=著作権法上の引用の範囲 | D-66 出勤率 0.88 の在宅項。**数値の引用のみ・再配布しない** |
+| 厚生労働省 令和7年就労条件総合調査 結果の概要(読み取りのみ・data/ 未保存) | https://www.mhlw.go.jp/toukei/itiran/roudou/jikan/syurou/25/dl/gaiyou01.pdf | 2026-09-10 | 政府標準利用規約 | 年休 付与 18.1/取得 12.1/取得率 66.9% |
+| 内閣府 渋谷駅周辺地域都市再生安全確保計画策定業務 基礎調査 概要版(読み取りのみ・data/ 未保存) | https://www.chisou.go.jp/tiiki/toshisaisei/yuushikisya/anzenkakuho/hojokin/27hojokin/27zigyouhoukoku-shibuya.pdf | 2026-09-10 | 政府標準利用規約(内閣府) | 139 ha 滞留者 14.5 万・乗降 227 万(重複除去)・休日/平日比 0.65 |
