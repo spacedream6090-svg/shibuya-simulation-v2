@@ -492,6 +492,17 @@ class RunResult:
             f"{self.movement_cpu_ms_per_tick:.3f} ms/tick (P2 上限 5) ・待ち割合 "
             f"{self.movement_gil_wait_ratio:.2f}",
         ]
+        # D-58: 繰り延べを記録/再現したランだけ 1 行(mock ランは従来どおり出ない)
+        _bd = float(self.bridge_counters.get("tape_deferred_rows", 0.0)) or float(
+            self.bridge_counters.get("tape_deferred", 0.0)
+        )
+        if _bd:
+            lines.append(
+                f"  テープ繰り延べ行 {int(_bd):,}(D-58・応答なしの呼)/ 再投入 "
+                f"{int(self.bridge_counters.get('fleet_reinjected', 0)):,} / 再送 "
+                f"{int(self.bridge_counters.get('fleet_resent', 0)):,} / 終端未応答 "
+                f"{self.fleet_unanswered_at_end:,}"
+            )
         if self.frozen_sources:
             lines.append("  凍結静的文 " + " ".join(f"{k}={v[:16]}" for k, v in sorted(self.frozen_sources.items())))
         if self.registry_hash:
@@ -932,6 +943,11 @@ def run_day(
     n_fleet_resent = 0
     #: 繰り延べ中の個体(再送を数えるためだけの集合。呼数 L4 は**発射数**で数える)。
     fleet_waiting: set[int] = set()
+    #: **再生モードの艦隊の代役**(D-58)。``observed_tick`` → その tick で「届く」項目。
+    #: 項目は ``(繰り延べか, ペイロード)``。繰り延べは ``(agent, cond, class, since_tick)``、
+    #: 応答は ``BridgeResult`` そのもの。テープが版1(``observed_tick=-1``)なら常に空
+    #: =mock 経路は 1 バイトも変わらない。
+    replay_inbox: dict[int, list[tuple[bool, Any]]] = {}
 
     detector = ChangeDetector(n_agents, world.n_cells, walkable_area_m2=walkable)
     arbiter = Arbiter(
@@ -1120,13 +1136,34 @@ def run_day(
         # ---- ④′ 艦隊からの到着(前 tick 以前に発射した分)・**非ブロッキング** ----
         # ③ の前に置く: 繰り延べになった呼をこの tick の起床候補へ合流させるため。
         n_parse_errors_fleet = 0
+        if fleet_bridge is None and replay_inbox:
+            # ---- ④′-r 再生モードの「到着」(D-58)。**艦隊経路と同じ位置・同じ扱い** ----
+            # 逐次ループ宣言: この tick に届く件数ぶん(本番の poll と同じ件数)。
+            t0 = time.perf_counter()
+            for is_deferred, item in replay_inbox.pop(tick, ()):
+                if is_deferred:
+                    fleet_deferred.append(item)
+                    continue
+                res = item
+                fleet_waiting.discard(int(res.agent_id))
+                pending.append((
+                    max(res.t_apply, tick + 1), res.wake_class, res.agent_id,
+                    res.condition, res.text, res.action_code, _target_person(res.target),
+                ))
+                if not res.format_ok:
+                    n_parse_errors_fleet += 1
+                if conv is not None and res.condition == int(WakeCondition.CONVERSATION_TURN):
+                    conv.utterance(
+                        res.agent_id, tick, action=res.parse.action, comment=res.parse.comment
+                    )
+            phase["llm"] += time.perf_counter() - t0
         if fleet_bridge is not None:
             t0 = time.perf_counter()
             if fleet_wait_s > 0.0 and fleet_bridge.client.outstanding:
                 fleet_bridge.client.wait_idle(timeout=fleet_wait_s)
                 phase["fleet_wait"] += time.perf_counter() - t0
                 t0 = time.perf_counter()
-            for res in fleet_bridge.poll():
+            for res in fleet_bridge.poll(now_tick=tick):
                 if isinstance(res, FleetDeferred):
                     fleet_deferred.append(
                         (
@@ -1215,6 +1252,24 @@ def run_day(
                         last_action=int(last_act[a]),
                         inviter=_inviter_of(conv, a, cond),
                     )
+                    if res.deferred or res.observed_tick >= 0:
+                        # 艦隊で録ったテープの再生(D-58)。本番と同じ「発射→後で届く」形に戻す。
+                        if a in fleet_waiting:
+                            n_fleet_resent += 1
+                        fleet_waiting.add(a)
+                        if res.deferred:
+                            item = (a, cond, cls, int(sel.since_tick[i]))
+                            if res.observed_tick > tick:
+                                # タイムアウト等=**観測した tick** の ④′ で再投入される
+                                replay_inbox.setdefault(res.observed_tick, []).append((True, item))
+                            else:
+                                # キュー満杯=発射のその場で判明 → 翌 tick の再投入枠へ
+                                fleet_deferred.append(item)
+                            continue
+                        if res.observed_tick > tick:
+                            replay_inbox.setdefault(res.observed_tick, []).append((False, res))
+                            continue
+                        fleet_waiting.discard(a)  # 同 tick で届いた=待ちにならない
                     pending.append((
                         res.t_apply, cls, a, cond, res.text, res.action_code,
                         _target_person(res.target),
@@ -1255,7 +1310,7 @@ def run_day(
                         )
                     )
                 # 発射は**非ブロッキング**。返るのは「キューに入らなかった」分だけ。
-                for d in fleet_bridge.submit(calls):
+                for d in fleet_bridge.submit(calls, now_tick=tick):
                     fleet_deferred.append(
                         (int(d.call.agent_id), int(d.call.condition),
                          int(d.call.wake_class), int(d.call.wake_since))
@@ -1441,7 +1496,9 @@ def run_day(
     # ---- 艦隊の残りを吸い切る(**捨てない**)。テープを閉じる前に置く ----
     if fleet_bridge is not None:
         n_late = 0
-        for res in fleet_bridge.drain():
+        # ``now_tick=ticks``= ラン終端(最後の tick の 1 つ先)。再生側はこの値の項目を
+        # 「tick ループ中には届かなかった」として同じ位置で処理する(D-58)。
+        for res in fleet_bridge.drain(now_tick=ticks):
             if isinstance(res, FleetDeferred):
                 fleet_deferred.append(
                     (int(res.call.agent_id), int(res.call.condition),
@@ -1458,6 +1515,22 @@ def run_day(
         # ラン終端でも答えが返らなかった呼(**次ランへ持ち越す**の監査点。0 が正常)
         result.fleet_unanswered_at_end = len(fleet_deferred)
         fleet_bridge.close()
+    elif replay_inbox:
+        # ---- 再生の終端処理(D-58): tick ループ中に届かなかった分=本番の drain 相当 ----
+        n_late = 0
+        for t in sorted(replay_inbox):  # 逐次ループ宣言: 残件数ぶん(通常 0)
+            for is_deferred, item in replay_inbox[t]:
+                if is_deferred:
+                    fleet_deferred.append(item)
+                    continue
+                n_late += 1
+                pending.append((
+                    item.t_apply, item.wake_class, item.agent_id, item.condition,
+                    item.text, item.action_code, _target_person(item.target),
+                ))
+        replay_inbox.clear()
+        result.fleet_drained_at_end = n_late
+        result.fleet_unanswered_at_end = len(fleet_deferred)
 
     bridge.close()
     result.runner = runner  # type: ignore[attr-defined]
@@ -1506,6 +1579,11 @@ def run_day(
         result.bridge_counters["fleet_reinjected"] = float(n_fleet_reinjected)
         result.bridge_counters["fleet_resent"] = float(n_fleet_resent)
         result.fleet_fields = dict(fleet.config.manifest_fields())
+    elif n_fleet_reinjected or n_fleet_resent:
+        # 再生が艦隊テープの繰り延べを再現したときだけ出す(D-58)。
+        # mock ランは従来どおり ``fleet_*`` の欄を持たない(退化検査の約束)。
+        result.bridge_counters["fleet_reinjected"] = float(n_fleet_reinjected)
+        result.bridge_counters["fleet_resent"] = float(n_fleet_resent)
     result.conversation_counters = dict(conv.counters()) if conv is not None else {}
     if conv is not None:
         # 会話の相手の由来(行動契約書 §1-2 の対象スロットが効いているかの監査点)。

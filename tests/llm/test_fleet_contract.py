@@ -93,9 +93,14 @@ def test_bridge_result_fields_mirror_engine_bridge_result():
 
     engine_fields = {f.name for f in fields(BridgeResult)}
     fleet_fields = {f.name for f in fields(FleetBridgeResult)}
-    # ``t_apply``/``tape_miss`` は engine 側の責務(δ_think の tick 換算・リプレイ)
-    missing = engine_fields - fleet_fields - {"t_apply", "tape_miss"}
+    # ``t_apply``/``tape_miss`` は engine 側の責務(δ_think の tick 換算・リプレイ)。
+    # ``deferred``/``deferred_reason``/``observed_tick`` は**再生側の欄**(D-58):
+    # 本番の艦隊は繰り延べを別の型(``Deferred``)で返すので結果型には要らない
+    # (``FleetBridgeResult.deferred`` は常に False を返す property として在る)。
+    replay_only = {"t_apply", "tape_miss", "deferred", "deferred_reason", "observed_tick"}
+    missing = engine_fields - fleet_fields - replay_only
     assert missing == set(), f"engine 側の欄が落ちている: {missing}"
+    assert FleetBridgeResult.deferred.fget is not None  # 「繰り延べでない」は型で言う
 
 
 # ------------------------------------------------------------------ 予算・定数

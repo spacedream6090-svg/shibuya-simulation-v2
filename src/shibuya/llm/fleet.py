@@ -652,7 +652,11 @@ class TapeSink(Protocol):
 
 @dataclass(frozen=True)
 class FleetTapeRow:
-    """``engine.tape.TapeRow`` と**同じ欄名**の既定行(テープ実体を注入しないときの器)。"""
+    """``engine.tape.TapeRow`` と**同じ欄名**の既定行(テープ実体を注入しないときの器)。
+
+    末尾 3 欄は D-58(テープ版2)。``deferred=1`` の行は「答えが返らなかった 1 呼」で、
+    ``observed_tick`` はエンジンがその帰結を**観測した** tick(発射 tick とは別物)。
+    """
 
     call_id: str
     agent_id: int
@@ -664,6 +668,9 @@ class FleetTapeRow:
     response: str
     tokens_in: int = 0
     tokens_out: int = 0
+    deferred: int = 0
+    deferred_reason: str = ""
+    observed_tick: int = -1
 
 
 # ---------------------------------------------------------------- 診断
@@ -1488,6 +1495,12 @@ class FleetBridge:
       ⑤**実応答をテープへ記録**(リプレイのため)
     を通す。``Deferred`` はそのまま返す(**呼を捨てない**=憲法1・アービタが次 tick へ)。
 
+    **D-58(2026-09-10)**: ``Deferred`` も**テープへ 1 行**書く(応答空・``deferred=1``・
+    ``deferred_reason``=``Outcome`` の値・``observed_tick``=呼び出し側が渡す現在 tick)。
+    応答行にも ``observed_tick`` を入れる(艦隊は発射 tick より後に届くので、再生側が
+    ``t_apply``=運用設計書 §2.4 を復元するのに要る)。``now_tick`` を渡さない経路
+    (スモーク・単体テスト)は −1=「同 tick」として記録される。
+
     Args:
         client: ``FleetClient``。
         tape: ``engine.tape.TapeWriter`` 互換(``intern_block``/``append``)。``None``=記録しない。
@@ -1562,35 +1575,56 @@ class FleetBridge:
         self.n_undefined_mapped = 0
         self.n_role_actions = 0
         self.n_deferred = 0
+        #: うちテープへ**繰り延べ行**として書いた数(D-58)。``n_tape_rows`` の内数。
+        self.n_deferred_rows = 0
         self.n_tape_rows = 0
 
     # ------------------------------------------------------------ 発射/回収
-    def submit(self, calls: Sequence[LLMCall]) -> list[FleetBridgeResult | Deferred]:
-        """呼を発射(非ブロッキング)。返るのは「入らなかった」分の ``Deferred`` だけ。"""
+    def submit(
+        self, calls: Sequence[LLMCall], *, now_tick: int = -1
+    ) -> list[FleetBridgeResult | Deferred]:
+        """呼を発射(非ブロッキング)。返るのは「入らなかった」分の ``Deferred`` だけ。
+
+        Args:
+            now_tick: エンジンの**現在 tick**(D-58)。キュー満杯の繰り延べは
+                この tick で観測されたものとしてテープの繰り延べ行に記録する。
+                ``-1``(既定)=呼び出し側が tick を持たない経路(スモーク・単体)。
+        """
         rejected = self.client.submit(calls)
         self.n_deferred += len(rejected)
+        for d in rejected:  # 逐次ループ宣言: 却下件数ぶん(通常 0)
+            self._record_deferred(d, now_tick)  # type: ignore[arg-type]
         return list(rejected)  # type: ignore[arg-type]
 
-    def poll(self) -> list[FleetBridgeResult | Deferred]:
-        """届いた分を解釈して返す(非ブロッキング・順序は非決定)。"""
-        return [self._interpret(r) for r in self.client.poll()]
+    def poll(self, *, now_tick: int = -1) -> list[FleetBridgeResult | Deferred]:
+        """届いた分を解釈して返す(非ブロッキング・順序は非決定)。
 
-    def drain(self, timeout: float | None = None) -> list[FleetBridgeResult | Deferred]:
+        Args:
+            now_tick: エンジンの現在 tick(テープの ``observed_tick`` 列・D-58)。
+        """
+        return [self._interpret(r, now_tick) for r in self.client.poll()]
+
+    def drain(
+        self, timeout: float | None = None, *, now_tick: int = -1
+    ) -> list[FleetBridgeResult | Deferred]:
         """実行中が空になるまで待って全部解釈して返す(スモーク/テスト用)。"""
-        return [self._interpret(r) for r in self.client.drain(timeout=timeout)]
+        return [self._interpret(r, now_tick) for r in self.client.drain(timeout=timeout)]
 
     def submit_and_drain(
-        self, calls: Sequence[LLMCall], timeout: float | None = None
+        self, calls: Sequence[LLMCall], timeout: float | None = None, *, now_tick: int = -1
     ) -> list[FleetBridgeResult | Deferred]:
         """発射→全回収(24 step スモークの単純経路。**tick ループは止まる**)。"""
-        out = self.submit(calls)
-        out.extend(self.drain(timeout=timeout))
+        out = self.submit(calls, now_tick=now_tick)
+        out.extend(self.drain(timeout=timeout, now_tick=now_tick))
         return out
 
     # ------------------------------------------------------------ 解釈
-    def _interpret(self, res: LLMResult | Deferred) -> FleetBridgeResult | Deferred:
+    def _interpret(
+        self, res: LLMResult | Deferred, now_tick: int = -1
+    ) -> FleetBridgeResult | Deferred:
         if isinstance(res, Deferred):
             self.n_deferred += 1
+            self._record_deferred(res, now_tick)
             return res
         call = res.call
         self.n_calls += 1
@@ -1630,7 +1664,7 @@ class FleetBridge:
                 action_code = UNDEFINED_ACTION
             outcome = Outcome.UNDEFINED
 
-        self._record_tape(call, res, tape_prompt_hash)
+        self._record_tape(call, res, tape_prompt_hash, now_tick)
         self._record_debug(call, res, parse)
         return FleetBridgeResult(
             agent_id=int(call.agent_id),
@@ -1704,14 +1738,19 @@ class FleetBridge:
         self._debug_fp.write(json.dumps(row, ensure_ascii=False) + "\n")
         self.n_debug_rows += 1
 
-    def _record_tape(self, call: LLMCall, res: LLMResult, prompt_hash: str) -> None:
-        if self.tape is None:
-            return
+    def _intern_blocks(self, call: LLMCall) -> None:
         for block_id, block_text in call.blocks:  # 逐次ループ宣言: 共有ブロック数(6)
             if block_id in self._interned or not block_text:
                 continue
-            self.tape.intern_block(block_text, estimate_tokens(block_text))
+            self.tape.intern_block(block_text, estimate_tokens(block_text))  # type: ignore[union-attr]
             self._interned.add(block_id)
+
+    def _record_tape(
+        self, call: LLMCall, res: LLMResult, prompt_hash: str, now_tick: int = -1
+    ) -> None:
+        if self.tape is None:
+            return
+        self._intern_blocks(call)
         self.tape.append(
             self.tape_row_factory(
                 call_id=call.call_id,
@@ -1724,9 +1763,48 @@ class FleetBridge:
                 response=res.text,
                 tokens_in=int(res.tokens_in),
                 tokens_out=int(res.tokens_out),
+                deferred=0,
+                deferred_reason="",
+                observed_tick=int(now_tick),
             )
         )
         self.n_tape_rows += 1
+
+    def _record_deferred(self, d: Deferred, now_tick: int = -1) -> None:
+        """**繰り延べ行**を 1 行書く(D-58)。
+
+        運用設計書 §2.5 の「1 呼=1 行」を、答えの返らなかった呼へも広げる
+        (応答空・``tokens=0``・``deferred=1``)。テープ鍵(agent_id, tick, wake_class,
+        prompt_hash)は応答行と同じ作り方=再生は**発射 tick で**この行を引き当てて、
+        本番と同じ tick に同じ繰り延べを起こす。
+
+        ``deferred_reason`` は ``Outcome`` の値(閉じた語彙)。自由文の ``Deferred.reason``
+        (例外型名・HTTP ステータス)はテープへは入れない(列を非決定にしないため・
+        診断行と ``debug_dir`` に残る)。
+        """
+        if self.tape is None:
+            return
+        call = d.call
+        self._intern_blocks(call)
+        self.tape.append(
+            self.tape_row_factory(
+                call_id=call.call_id,
+                agent_id=int(call.agent_id),
+                tick=int(call.tick),
+                wake_class=int(call.wake_class),
+                prompt_hash=sha256_cbor(call.prompt),
+                block_ids=call.block_ids,
+                params_hash=self._params_hash,
+                response="",
+                tokens_in=0,
+                tokens_out=0,
+                deferred=1,
+                deferred_reason=d.outcome.value,
+                observed_tick=int(now_tick),
+            )
+        )
+        self.n_tape_rows += 1
+        self.n_deferred_rows += 1
 
     # ------------------------------------------------------------ 診断行
     @property
@@ -1761,6 +1839,7 @@ class FleetBridge:
             "role_actions": float(self.n_role_actions),
             "fleet_deferred_total": float(self.n_deferred),
             "tape_rows": float(self.n_tape_rows),
+            "tape_deferred_rows": float(self.n_deferred_rows),
             "fleet_debug_rows": float(self.n_debug_rows),
             "fleet_debug_skipped": float(self.n_debug_skipped),
         }

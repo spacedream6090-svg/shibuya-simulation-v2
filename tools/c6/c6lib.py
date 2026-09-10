@@ -792,6 +792,8 @@ def scenes_from_tape(tape: Any) -> list[Scene]:
     t = tape if isinstance(tape, Tape) else Tape(tape)
     out: list[Scene] = []
     for row in t.rows():
+        if getattr(row, "deferred", 0):
+            continue  # D-58: 繰り延べ行は「答えが返らなかった呼」=場面ではない(応答が無い)
         text = "\n".join(t.block_text(b) for b in row.block_ids)
         constraint, determined, drivers = classify_scene(text, int(row.wake_class))
         partial = "[B6" not in text  # B6 が無い = 個体ブロックが落ちている

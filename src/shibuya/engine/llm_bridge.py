@@ -47,6 +47,19 @@
     tick の骨格は「①前tickまでに届いた応答を適用」が「④LLM呼」より前にあるため、
     ``t_apply=tick`` と ``t_apply=tick+1`` は**同じ tick(tick+1)で適用され挙動が一致する**。
 
+**D-58 テープ繰り延べ行(2026-09-10)**
+    艦隊経路では「答えが返らなかった呼」(queue full/タイムアウト)が翌 tick の起床候補へ
+    再投入される(憲法1=破棄禁止)。版1 のテープはこれを記録しなかったので、再生が本番と
+    分岐した(c7-day-2 で tape_miss 98.7%)。版2(``engine.tape``)は繰り延べも 1 行にし、
+    本 bridge は ``mode="replay"`` で
+      - 繰り延べ行を引いたら ``BridgeResult(deferred=True, observed_tick=…)`` を返す
+        (**パースも未定義行動5段も通さない**=本番の ``FleetBridge`` が ``Deferred`` を
+        素通しするのと同じ)。intent は作られない。
+      - 応答行の ``observed_tick``(帰結を観測した tick)をそのまま返す。``t_apply`` を
+        本番と同じに置き直すのは ``engine.run``(艦隊の到着 tick を知っているのはそこ)。
+    どちらも旧テープでは既定値(deferred=0・observed_tick=−1)なので、mock 経路の
+    挙動は 1 バイトも変わらない。
+
 逐次ループ宣言(P4)
 - ``LLMBridge.call``: 1呼=1回(ループなし)。呼数ぶんのループは呼び出し側
   (``engine.run._call_llm`` 相当・宣言済み)にある。
@@ -68,7 +81,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Final, Mapping, Protocol, runtime_checkable
 
-from shibuya.engine.tape import Replay, Tape, TapeMiss, TapeRow, TapeWriter, block_id_for
+from shibuya.engine.tape import (
+    Replay,
+    Tape,
+    TapeMiss,
+    TapeRow,
+    TapeWriter,
+    block_id_for,
+)
 from shibuya.llm import (
     ACTION_CODES,
     UNDEFINED_ACTION,
@@ -351,6 +371,13 @@ class BridgeResult:
         undefined_stage: §7 の段(写ったら 0/4・記録なら 1・裁定を出したら 2・該当なしは -1)。
         role_action: §2.2 の役割語だったか(権限検査待ち=当面 待機 へ落とす)。
         tape_miss: リプレイでテープ外だったか。
+        deferred: リプレイで**繰り延べ行**を引いたか(D-58)。True のとき ``text`` は空・
+            ``parse``/``action_code`` は意味を持たない(呼び出し側は intent を作らず
+            起床候補へ再投入する=本番の艦隊経路と同じ扱い)。
+        deferred_reason: ``llm.fleet.Outcome`` の値(``deferred_queue_full`` 等)。
+        observed_tick: テープが記録した「エンジンが帰結を観測した tick」。−1=同 tick 同期
+            (mock 経路・版1 のテープ)。応答行では ``t_apply`` の再現に、繰り延べ行では
+            再投入 tick の再現に使う。
         source: ``mock`` / ``tape`` / 実艦隊名。
     """
 
@@ -374,6 +401,9 @@ class BridgeResult:
     undefined_feedback: str = ""
     role_action: bool = False
     tape_miss: bool = False
+    deferred: bool = False
+    deferred_reason: str = ""
+    observed_tick: int = -1
     source: str = ""
 
     @property
@@ -446,6 +476,8 @@ class LLMBridge:
         self.n_undefined_mapped = 0
         self.n_role_actions = 0
         self.n_tape_misses = 0
+        #: 再生で**繰り延べ行**を引いた回数(D-58)。record 経路(mock)では常に 0。
+        self.n_deferred = 0
         self.n_tape_rows = 0
         #: すでに intern 済みの共有ブロック id(blake3 の再計算を避ける)。
         self._interned: set[str] = set()
@@ -510,16 +542,69 @@ class LLMBridge:
         tokens_in = estimate_tokens(request.prompt)
         tokens_out = 0
         tape_miss = False
-        try:
-            response = self.client.complete(request)
-            text = response.text
-            source = response.source
-            tokens_in = int(response.tokens_in) or tokens_in
-            tokens_out = int(response.tokens_out)
-        except TapeMiss:
-            tape_miss = True
-            self.n_tape_misses += 1
-            source = "tape_miss"
+        observed_tick = -1
+        if self.replay is not None:
+            # ---- 再生: テープ行を 1 回だけ引く(D-58)----
+            # ``LLMClient`` 契約(``TapeLLM``)は**応答文字列しか運べない**ので、版2 の
+            # ``deferred``/``observed_tick`` を受け取るためにここだけ ``Replay`` を直に引く
+            # (llm 層の契約は変えない=``TapeLLM`` は従来どおり使える)。
+            # 逐次ループ宣言: 追加ループなし(dict 参照 1〜2 回)。再生は検死経路(§1.3)。
+            try:
+                hit = self.replay.lookup_row(
+                    int(agent_id), int(tick), int(wake_class), request.prompt_hash
+                )
+            except TapeMiss:
+                tape_miss = True
+                self.n_tape_misses += 1
+                source = "tape_miss"
+            else:
+                observed_tick = int(hit.observed_tick)
+                if hit.deferred:
+                    # **答えの返らなかった呼**。パースも未定義行動5段も通さない
+                    # (本番の ``FleetBridge._interpret`` が ``Deferred`` を素通しするのと同じ)。
+                    self.n_deferred += 1
+                    self._append_tape(
+                        request,
+                        rendered,
+                        text="",
+                        tokens_in=0,
+                        tokens_out=0,
+                        deferred=1,
+                        deferred_reason=hit.deferred_reason,
+                        observed_tick=observed_tick,
+                    )
+                    return BridgeResult(
+                        agent_id=int(agent_id),
+                        tick=int(tick),
+                        wake_class=int(wake_class),
+                        condition=int(condition),
+                        t_apply=int(tick) + delta_think_ticks(lane, self.tick_seconds),
+                        lane=lane,
+                        text="",
+                        parse=parse_two_line(""),
+                        action_code=UNDEFINED_ACTION,
+                        target=NO_TARGET_VALUE,
+                        prompt_hash=rendered.prompt_hash or request.prompt_hash,
+                        tape_prompt_hash=request.prompt_hash,
+                        deferred=True,
+                        deferred_reason=hit.deferred_reason,
+                        observed_tick=observed_tick,
+                        source="tape_deferred",
+                    )
+                text = hit.response
+                source = getattr(self.client, "source", "tape")
+                tokens_out = estimate_tokens(text)
+        else:
+            try:
+                response = self.client.complete(request)
+                text = response.text
+                source = response.source
+                tokens_in = int(response.tokens_in) or tokens_in
+                tokens_out = int(response.tokens_out)
+            except TapeMiss:  # pragma: no cover - 実クライアントは投げない(保険)
+                tape_miss = True
+                self.n_tape_misses += 1
+                source = "tape_miss"
         self.n_calls += 1
 
         parse = parse_two_line(text)
@@ -556,27 +641,14 @@ class LLMBridge:
             else:
                 action_code = UNDEFINED_ACTION
 
-        if self.tape is not None:
-            for block_id, block_text in rendered.blocks:
-                if block_id in self._interned:
-                    continue  # 共有ブロック表は内容アドレスで一意=2 回目以降は無駄打ち
-                self.tape.intern_block(block_text, estimate_tokens(block_text))
-                self._interned.add(block_id)
-            self.tape.append(
-                TapeRow(
-                    call_id=request.call_id,
-                    agent_id=int(agent_id),
-                    tick=int(tick),
-                    wake_class=int(wake_class),
-                    prompt_hash=request.prompt_hash,
-                    block_ids=request.block_ids,
-                    params_hash=request.params_hash,
-                    response=text,
-                    tokens_in=int(tokens_in),
-                    tokens_out=int(tokens_out),
-                )
-            )
-            self.n_tape_rows += 1
+        self._append_tape(
+            request,
+            rendered,
+            text=text,
+            tokens_in=int(tokens_in),
+            tokens_out=int(tokens_out),
+            observed_tick=observed_tick,
+        )
 
         return BridgeResult(
             agent_id=int(agent_id),
@@ -597,8 +669,52 @@ class LLMBridge:
             undefined_feedback=feedback,
             role_action=role_action,
             tape_miss=tape_miss,
+            observed_tick=observed_tick,
             source=source,
         )
+
+    # ---------------------------------------------------------------- テープ書き出し
+    def _append_tape(
+        self,
+        request: LLMRequest,
+        rendered: RenderedPrompt,
+        *,
+        text: str,
+        tokens_in: int,
+        tokens_out: int,
+        deferred: int = 0,
+        deferred_reason: str = "",
+        observed_tick: int = -1,
+    ) -> None:
+        """1行(応答行 or 繰り延べ行)を書く。``tape`` が無ければ何もしない。
+
+        逐次ループ宣言(P4): 共有ブロック数(≤6)ぶんのループ 1 本(既存と同じ)。
+        """
+        if self.tape is None:
+            return
+        for block_id, block_text in rendered.blocks:
+            if block_id in self._interned:
+                continue  # 共有ブロック表は内容アドレスで一意=2 回目以降は無駄打ち
+            self.tape.intern_block(block_text, estimate_tokens(block_text))
+            self._interned.add(block_id)
+        self.tape.append(
+            TapeRow(
+                call_id=request.call_id,
+                agent_id=int(request.agent_id),
+                tick=int(request.tick),
+                wake_class=int(request.wake_class),
+                prompt_hash=request.prompt_hash,
+                block_ids=request.block_ids,
+                params_hash=request.params_hash,
+                response=text,
+                tokens_in=int(tokens_in),
+                tokens_out=int(tokens_out),
+                deferred=int(deferred),
+                deferred_reason=deferred_reason,
+                observed_tick=int(observed_tick),
+            )
+        )
+        self.n_tape_rows += 1
 
     # ---------------------------------------------------------------- 診断
     @property
@@ -638,6 +754,7 @@ class LLMBridge:
             "role_actions": self.n_role_actions,
             "tape_misses": self.n_tape_misses,
             "tape_miss_rate": self.tape_miss_rate,
+            "tape_deferred": self.n_deferred,
             "tape_rows": self.n_tape_rows,
         }
         out.update({k: float(v) for k, v in self.undefined.counters().items()})

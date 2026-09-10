@@ -180,7 +180,8 @@ def run_metrics(res: Any, tape_path: Path | None) -> dict[str, Any]:
     if tape_path is not None and Path(tape_path).exists():
         from shibuya.engine.tape import Tape
 
-        texts = [str(r.response) for r in Tape(tape_path).rows()]
+        # D-58: 繰り延べ行(応答空)は行動分布・書式の分母に入れない
+        texts = [str(r.response) for r in Tape(tape_path).rows() if not r.deferred]
         sc = c6lib.score_texts(texts)
         out["action_counts"] = sc["action_counts"]
         out["undefined_rate"] = sc["undefined_rate"]

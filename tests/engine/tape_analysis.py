@@ -64,7 +64,13 @@ def analyze(tape_dir: str | Path) -> dict[str, Any]:
     group_calls: dict[tuple[int, tuple[str, ...]], list[int]] = defaultdict(list)
     group_talkers: dict[tuple[int, tuple[str, ...]], list[int]] = defaultdict(list)
 
+    n_deferred = 0
     for row in tape.rows():
+        if row.deferred:
+            # D-58: 繰り延べ行(応答空)は「答えが返らなかった呼」。書式・行動の**分母に入れない**
+            # (版1 のテープには行そのものが無かったのと同じ扱い)。件数だけ別に出す。
+            n_deferred += 1
+            continue
         n += 1
         text = row.response or ""
         if not text.strip():
@@ -108,6 +114,8 @@ def analyze(tape_dir: str | Path) -> dict[str, Any]:
     return {
         "tape": str(tape_dir),
         "rows": n,
+        # D-58: 繰り延べ行は ``rows`` に入れない(応答が無いので率の分母にならない)
+        "deferred_rows": n_deferred,
         "format": {
             "effective_error_rate": (n_effective_bad / n) if n else 0.0,
             "strict_error_rate": (n_strict_bad / n) if n else 0.0,
@@ -146,7 +154,8 @@ def format_report(d: dict[str, Any], top: int = 12) -> str:
     f = d["format"]
     c = d["conversation"]
     lines = [
-        f"[tape] {d['tape']}  行 {d['rows']:,}",
+        f"[tape] {d['tape']}  行 {d['rows']:,}"
+        + (f" (+ 繰り延べ行 {d['deferred_rows']:,}=応答なし・D-58)" if d.get("deferred_rows") else ""),
         f"  書式 実効 {f['effective_error_rate']:.3f} / 厳密 {f['strict_error_rate']:.3f}"
         f" ・別名 {f['alias_rate']:.3f} ・語彙外 {f['unknown_action_rate']:.3f}"
         f" ・空応答 {f['empty_responses']:,}",
