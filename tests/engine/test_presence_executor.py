@@ -90,11 +90,18 @@ def fake_assets(
     )
 
 
-def make_world_agents(n: int, n_cells: int = 9, seed: int = 1):
+def make_world_agents(n: int, n_cells: int = 9, seed: int = 1, home_cell=None):
+    """``resolve.initialize`` と**同じ置き方**(``home_cell < 0`` の体は ``cell = node = -1``)。"""
     w = World.synthetic(n_cells=n_cells, seed=seed)
     a = AgentState(n, plan_columns=True)
-    a.registry.cell[:] = np.arange(n) % n_cells
-    a.registry.node[:] = w.assets.cell_rep_node[a.registry.cell]
+    base = np.arange(n) % n_cells if home_cell is None else np.asarray(
+        home_cell, dtype=np.int64
+    )[:n]
+    ok = base >= 0
+    a.registry.cell[:] = np.where(ok, np.clip(base, 0, n_cells - 1), -1)
+    a.registry.node[:] = np.where(
+        ok, w.assets.cell_rep_node[np.clip(base, 0, n_cells - 1)], -1
+    )
     a.registry.activity[:] = int(Activity.IDLE)
     a.freeze()
     w.freeze()
@@ -114,7 +121,7 @@ def make_layer(
     kind=None,
     with_rail: bool = True,
 ):
-    w, a = make_world_agents(n, n_cells=n_cells)
+    w, a = make_world_agents(n, n_cells=n_cells, home_cell=home_cell)
     pa = assets if assets is not None else fake_assets()
     rail = (
         RailProcess(w, a, pa, master_seed=1, day_index=0, plan_executor=True)
@@ -235,6 +242,62 @@ def test_rider_conservation_holds_on_every_tick():
         layer.step_plan_boundaries(tick)
         assert sum(census(agents)) == n, tick
     assert layer.n_arrivals > 0 and layer.n_departures > 0
+
+
+def test_being_in_the_stage_implies_having_a_cell_on_every_tick():
+    """④-b(§5 I6・層2 指摘 2026-09-11): **在圏(``transit_state==0``)⇒ セルとノードがある**。
+
+    保存則(3 値の和=体数)は遷移が 2 本しか無いので恒真になりやすい。その隣に
+    「舞台に居るのに ``cell = -1``」(=どこにも居ない在圏)が 1 体も出ないことを置く。
+    域外居住(``home_cell < 0``)で 0 時から在圏のブロックを持つ体がこの穴に落ちていた。
+    """
+    n = 24
+    rows = []
+    for i in range(n):
+        if i % 3 == 0:  # 0 時から在圏(``home_cell < 0`` なのでセルが無いまま始まる)
+            rows += [(i, 0, 500, ACT_WORK, PK_WORK, 3), (i, 500, 1_440, ACT_SLEEP, PK_OUT, -1)]
+        else:
+            rows += [
+                (i, 0, 300 + i, ACT_SLEEP, PK_OUT, -1),
+                (i, 300 + i, 900, ACT_WORK, PK_WORK, 3),
+                (i, 900, 1_440, ACT_SLEEP, PK_OUT, -1),
+            ]
+    wk = make_weekly(rows, n)
+    _, agents, _, layer = make_layer(wk, n=n, home_cell=np.full(n, -1, dtype=np.int64))
+    layer.initialize()
+    assert layer.n_placed_at_start == len(range(0, n, 3))
+    r = agents.registry
+    for tick in range(1_000):
+        layer.step(tick)
+        layer.step_plan_boundaries(tick)
+        here = np.asarray(r.transit_state) == 0
+        assert not np.any(here & (np.asarray(r.cell) < 0)), tick
+        assert not np.any(here & (np.asarray(r.node) < 0)), tick
+
+
+def test_a_resident_stays_in_the_stage_when_the_next_row_is_not_outside():
+    """③-b(§10-7 (a)): **域内居住者は「次が域外」のときだけ退出**(隙間では出ない)。"""
+    rows = [
+        # 住民 0: 自宅 → 隙間 → 公園 → 自宅(域外の行が 1 つも無い)= 終日在圏
+        (0, 0, 480, ACT_REST, PK_HOME, 5),
+        (0, 600, 900, ACT_REST, PK_STATION, -1),
+        (0, 900, 1_440, ACT_REST, PK_HOME, 5),
+        # 住民 1: 自宅 → 乗車(駅)→ 域外 → 自宅 = 乗車行を飛ばして「次が域外」を読む
+        (1, 0, 480, ACT_REST, PK_HOME, 5),
+        (1, 480, 540, ACT_RIDE, PK_STATION, -1),
+        (1, 540, 1_000, ACT_WORK, PK_OUT, -1),
+        (1, 1_000, 1_440, ACT_REST, PK_HOME, 5),
+    ]
+    wk = make_weekly(rows, 2)
+    _, agents, _, layer = make_layer(wk, n=2, home_cell=np.array([5, 5]))
+    layer.initialize()
+    assert census(agents) == (2, 0, 0)
+    for tick in range(1_440):
+        layer.step(tick)
+    st = np.asarray(agents.registry.transit_state)
+    assert int(st[0]) == 0  # 住民 0 は一度も出ない(隙間は退出ではない)
+    assert layer.n_departures == 1  # 住民 1 だけが 480 に出る
+    assert int(st[1]) == 0  # 1,000 の在圏ブロックで帰ってくる
 
 
 # ================================================================= ⑤ 決定論(ラン経由)
@@ -397,11 +460,13 @@ def test_no_double_arrival_and_no_double_departure():
 
 # ================================================================= ⑫ civic 干渉(I4)
 def test_pulled_in_agents_do_not_fire_a_stale_arrival():
-    """⑫(§5 I4): 引き込み後に古い ARRIVE が発火しない・押し出しは張り直される。"""
+    """⑫(§5 I4): 引き込み後に古い ARRIVE が発火しない・押し出しは**翌 tick に戻さない**。"""
     wk = make_weekly(
         [
-            (0, 0, 400, ACT_SLEEP, PK_OUT, -1),
-            (0, 480, 1_000, ACT_WORK, PK_WORK, 3),
+            (0, 0, 300, ACT_SLEEP, PK_OUT, -1),
+            (0, 400, 1_000, ACT_WORK, PK_WORK, 3),    # 在圏ブロック 1
+            (0, 1_000, 1_100, ACT_SLEEP, PK_OUT, -1),  # 域外行(ブロックを切る)
+            (0, 1_100, 1_300, ACT_WORK, PK_WORK, 3),   # 在圏ブロック 2
         ],
         1,
     )
@@ -410,17 +475,51 @@ def test_pulled_in_agents_do_not_fire_a_stale_arrival():
     assert layer.candidates_for_pull(0).tolist() == [0]
     R.rail_arrive(agents, layer.world, np.array([0]), np.array([1]))
     layer.notify_pulled_in(np.array([0]), 0)
-    for tick in range(0, 470):
+    for tick in range(0, 600):
         layer.step(tick)
         assert sum(census(agents)) == 1
     assert census(agents)[0] == 1  # 在圏のまま(古い到着で状態が壊れない)
-    # 押し出し(civic の退場)→ 次のブロックへ到着を張り直す
+    assert layer.n_arrive_skipped >= 1
+    # 押し出し(civic の退場)→ **進行中ブロックには張り直さない**
     R.rail_depart(agents, np.array([0]), np.array([0]))
-    layer.notify_pushed_out(np.array([0]), 470)
-    assert layer.n_rearmed == 1
-    for tick in range(470, 1_000):
+    layer.notify_pushed_out(np.array([0]), 600)
+    assert layer.n_pushed_out == 1 and layer.n_rearmed == 0
+    for tick in range(600, 999):
         layer.step(tick)
-    assert layer.n_arrivals >= 1
+        assert sum(census(agents)) == 1
+        assert census(agents)[2] == 1, tick  # 翌 tick に戻らない
+    for tick in range(999, 1_101):
+        layer.step(tick)
+    assert layer.n_depart_dropped == 1  # 進行中ブロック(終了 1,000)の DEPART は落ちた
+    assert layer.n_depart_skipped == 0  # 「在圏でない DEPART」の取り残しも出ない
+    assert census(agents)[0] == 1  # 次のブロックの到着で帰ってくる
+
+
+def test_llm_boarding_is_re_armed_for_the_next_block():
+    """④(§4): LLM が乗車で域外へ出たら、残り DEPART を落として**次のブロックの開始**へ張り直す。"""
+    wk = make_weekly(
+        [
+            (0, 0, 400, ACT_WORK, PK_WORK, 3),        # 在圏ブロック 1(0 時から在圏)
+            (0, 400, 800, ACT_SLEEP, PK_OUT, -1),
+            (0, 800, 1_000, ACT_WORK, PK_WORK, 3),     # 在圏ブロック 2
+        ],
+        1,
+    )
+    _, agents, _, layer = make_layer(wk, n=1, home_cell=np.array([-1]))
+    layer.initialize()
+    assert census(agents)[0] == 1 and int(agents.registry.cell[0]) >= 0  # I6
+    for tick in range(0, 500):
+        layer.step(tick)
+    assert census(agents)[0] == 1  # 400 で退出 → 便 480 で戻っている(ブロック 2 の到着)
+    # 500 tick 目に LLM が乗車して域外へ出た(rail の発車ブロックが層へ通知する経路)
+    R.rail_depart(agents, np.array([0]), np.array([0]))
+    layer.notify_departed_by_llm(np.array([0]), 500)
+    assert layer.n_departed_by_llm == 1 and layer.n_rearmed == 1
+    for tick in range(500, 800):
+        layer.step(tick)
+        assert census(agents)[2] == 1, tick  # 次のブロックの開始まで戻らない
+    layer.step(800)
+    assert census(agents)[0] == 1  # ブロック 2 の開始 tick に張り直された到着で戻る
 
 
 # ================================================================= ⑬ 到着分散
@@ -445,12 +544,13 @@ def test_arrival_spread_never_exceeds_capacity_times_the_cap():
         agent_id=np.arange(n, dtype=np.int64),
         rail=rail, assets=pa, ticks=1_440,
     )
-    per_train = np.bincount(layer.arrival_train[layer.arrival_train >= 0])
+    per_train = np.bincount(layer.arrival_train[layer.arrival_train >= 0], minlength=6)
     assert layer.n_spread_moved > 0
-    # **先頭の便を除く全便**が ``定員 × 混雑率上限`` を超えない(容量ベース backward fill)
-    assert int(per_train[1:].max()) <= 4
-    # 先頭の便だけは溢れを受け切る(上限 k=8 便まで送って行き場が無くなった分・E8 の宣言)
-    assert int(per_train[0]) == n - 4 * (per_train.size - 1)
+    # 両側に散らす(①早い便へ ②溢れた分は遅い便へ)。**最後の便以外**は上限を超えない。
+    assert int(per_train[:-1].max()) <= 4
+    # 席が足りない分(60 体 vs 6 便 × 4 席)は最後の便が受け切る=E8 の宣言どおり
+    assert int(per_train[-1]) == n - 4 * 5
+    assert layer.n_spread_overflow > 0
     assert ARRIVAL_SPREAD_MAX_TRAINS == 8
 
 
@@ -489,6 +589,49 @@ def test_derive_folding_matches_the_parent_verified_counts():
 
 
 # ================================================================= 腕・切替口
+def test_the_real_civic_path_pulls_and_pushes_through_the_layer():
+    """⑫-b(§5 I4): **civic の実経路**(``LargeEventProcess._arrive/_leave``)が層を通る。
+
+    引き込み候補は「その日在圏予定のある域外の体」だけ・退場は翌 tick に戻らない。
+    """
+    from shibuya.engine.processes.civic import EVENT_WINDOW, LargeEventProcess
+
+    n = 12
+    rows = []
+    for i in range(n):
+        if i < 8:  # 来街予定あり(夕方の在圏ブロック)
+            rows += [
+                (i, 0, 1_000, ACT_SLEEP, PK_OUT, -1),
+                (i, 1_000, 1_200, ACT_REST, PK_STATION, -1),
+                (i, 1_200, 1_440, ACT_SLEEP, PK_OUT, -1),
+            ]
+        else:  # 非来街日=終日域外(引き込み候補にしない)
+            rows += [(i, 0, 1_440, ACT_SLEEP, PK_OUT, -1)]
+    wk = make_weekly(rows, n)
+    world, agents, rail, layer = make_layer(
+        wk, n=n, home_cell=np.full(n, -1, dtype=np.int64)
+    )
+    layer.initialize()
+    ev = LargeEventProcess(
+        world, agents, rail=rail, master_seed=1, day_index=0, visitor_delta=4
+    )
+    ev.presence = layer
+    lo, hi = EVENT_WINDOW
+    # 引き込み候補は「その日在圏予定のある域外の体」= 先頭 8 体だけ
+    assert set(layer.candidates_for_pull(lo).tolist()) <= set(range(8))
+    for tick in range(lo, lo + 2):
+        ev.step(tick)
+        layer.step(tick)
+    assert ev.n_in == 4 and layer.n_pulled_in == 4
+    assert census(agents)[0] == 4
+    for tick in range(hi, hi + 30):
+        ev.step(tick)
+        layer.step(tick)
+        assert sum(census(agents)) == n
+    assert ev.n_out == 4 and layer.n_pushed_out == 4
+    assert census(agents)[0] == 0  # 翌 tick に戻らない(進行中ブロックへ張り直さない)
+
+
 def test_native_mode_and_other_exit_modes_are_reserved():
     """§10-1/3: ``mode='native'`` と ``--exit-mode`` の他 2 値は**予約**(NotImplemented)。"""
     wk = make_weekly([(0, 0, 100, ACT_WORK, PK_WORK, 3)], 1)

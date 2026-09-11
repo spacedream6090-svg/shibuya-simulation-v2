@@ -237,6 +237,9 @@ class RailProcess:
         #: ② D-61 帰りの便(``_assign_return``)を**やめる**(層が両方を吸収する)。
         #: 列車の運行・混雑率・受容関数・運賃・D-51 乗車の意図保持はそのまま。
         self.plan_executor = bool(plan_executor)
+        #: 計画実行層(``engine.presence.PlanExecutor``)。``runner.attach_presence`` が挿す。
+        #: 発車で**LLM が乗車を選んだ体**が域外へ出たことを層へ通知する(設計書 §4)。
+        self.presence = None
         self.n_departures = 0
         self.n_arrivals = 0
         self.n_departed_riders = 0
@@ -652,6 +655,10 @@ class RailProcess:
                     self.n_departed_riders += int(on_leaving.size)
                     # D-61: 域内に家がある体には**帰りの便**をここで割り当てる
                     self._assign_return(on_leaving, t)
+                    # D-66 §4: LLM が「乗車」を選んで域外へ出た体は、当日の残り DEPART を
+                    # 落として**次の在圏ブロック**に到着を張り直す(層が持つ)。
+                    if self.presence is not None:
+                        self.presence.notify_departed_by_llm(on_leaving, t)
             self.occupancy[leaving] = 0
             self.n_departures += int(leaving.size)
             if self.log is not None:

@@ -234,6 +234,12 @@ class ArbiterDecision:
     sleep_suppressed: "WakeCandidates | None" = None
     #: 就寝抑止の件数(クラス別)。
     sleep_suppressed_per_class: np.ndarray | None = None
+    #: **域外抑止**(D-66・2026-09-11)で落としたもの。``transit_state != 0`` の体
+    #: (域外滞在・乗車中)は舞台に居らず、B0-B6 の描画欄が全て空になるので**呼ばない**。
+    #: ``suppressed``(不応期)・``sleep_suppressed``(D-56)とは**別列**。
+    outside_suppressed: "WakeCandidates | None" = None
+    #: 域外抑止の件数(クラス別)。
+    outside_suppressed_per_class: np.ndarray | None = None
 
     def __post_init__(self) -> None:
         if self.sleep_suppressed is None:
@@ -242,6 +248,14 @@ class ArbiterDecision:
             object.__setattr__(
                 self,
                 "sleep_suppressed_per_class",
+                np.zeros(len(DEFERRAL_CLASSES), dtype=np.int64),
+            )
+        if self.outside_suppressed is None:
+            object.__setattr__(self, "outside_suppressed", WakeCandidates.empty())
+        if self.outside_suppressed_per_class is None:
+            object.__setattr__(
+                self,
+                "outside_suppressed_per_class",
                 np.zeros(len(DEFERRAL_CLASSES), dtype=np.int64),
             )
 
@@ -253,6 +267,11 @@ class ArbiterDecision:
     def n_sleep_suppressed(self) -> int:
         """就寝抑止で落とした候補の件数(D-56)。"""
         return int(len(self.sleep_suppressed)) if self.sleep_suppressed is not None else 0
+
+    @property
+    def n_outside_suppressed(self) -> int:
+        """域外抑止で落とした候補の件数(D-66)。"""
+        return int(len(self.outside_suppressed)) if self.outside_suppressed is not None else 0
 
     def counters(self) -> Mapping[str, Mapping[str, int]]:
         return {
@@ -273,6 +292,7 @@ def arbitrate(
     run_salt: bytes,
     refractory_until: np.ndarray | None = None,
     asleep: np.ndarray | None = None,
+    outside: np.ndarray | None = None,
 ) -> ArbiterDecision:
     """繰り延べアービタの**純関数**本体(入力の並び順に依存しない)。
 
@@ -285,6 +305,11 @@ def arbitrate(
             None なら不応期の抑止をしない。
         asleep: ``(n_agents,)`` bool(``activity == Activity.SLEEPING``)。**D-56 就寝抑止**。
             立っている体の候補は ``sleep_exempt`` が立っていない限り落とす。None なら抑止しない。
+        outside: ``(n_agents,)`` bool(``transit_state != 0``=域外滞在・乗車中)。
+            **D-66 域外抑止**(2026-09-11)。立っている体の候補は**例外なく**落とす——
+            舞台に居ない体は B0-B6 の描画欄(セル・近景・被注視・流れ)が全部空で、
+            プロンプトが「どこにも居ない」になるため。``sleep_exempt`` は効かない
+            (就寝抑止と違い、計画境界・顕著行為・会話ターンも落ちる)。None なら抑止しない。
 
     Returns:
         ``ArbiterDecision``。
@@ -293,12 +318,39 @@ def arbitrate(
     diag = np.zeros((len(DIAG_COLUMNS), n_classes), dtype=np.int64)
     merged = np.zeros(n_classes, dtype=np.int64)
     sleep_per_class = np.zeros(n_classes, dtype=np.int64)
+    out_per_class = np.zeros(n_classes, dtype=np.int64)
+    outside_suppressed = WakeCandidates.empty()
     if len(candidates) == 0:
         empty = WakeCandidates.empty()
         return ArbiterDecision(
             int(tick), empty, np.empty(0, dtype=np.int64), np.empty(0, dtype=bool),
             empty, empty, merged, diag, empty, sleep_per_class,
+            outside_suppressed, out_per_class,
         )
+
+    # ---- ⓪-a 域外抑止(D-66・2026-09-11): 舞台に居ない体は呼ばない ----
+    # 就寝抑止(⓪-b)より**前**に置く=3 つの抑止列が重ならない
+    # (``outside_suppressed`` / ``sleep_suppressed`` / ``suppressed`` は排他)。
+    # 例外は作らない(``sleep_exempt`` は見ない)。抑止は§6 運用規定①と同じく**破棄ではない**。
+    if outside is not None:
+        og = np.asarray(outside, dtype=bool)
+        blocked_out = og[candidates.agent_id.astype(np.int64)]
+        if blocked_out.any():
+            out_idx = np.flatnonzero(blocked_out)
+            outside_suppressed = candidates.take(out_idx)
+            np.add.at(
+                out_per_class,
+                _class_slot(candidates.class_rank[out_idx].astype(np.int64)),
+                1,
+            )
+            candidates = candidates.take(np.flatnonzero(~blocked_out))
+        if len(candidates) == 0:
+            empty = WakeCandidates.empty()
+            return ArbiterDecision(
+                int(tick), empty, np.empty(0, dtype=np.int64), np.empty(0, dtype=bool),
+                empty, empty, merged, diag, empty, sleep_per_class,
+                outside_suppressed, out_per_class,
+            )
 
     # ---- ⓪ 就寝抑止(D-56・ユーザー決定 (a)・2026-09-10) ----
     # 「就寝中の個体を起床候補から外す」。例外は候補の**源**で決まる(``sleep_exempt``):
@@ -324,6 +376,7 @@ def arbitrate(
             return ArbiterDecision(
                 int(tick), empty, np.empty(0, dtype=np.int64), np.empty(0, dtype=bool),
                 empty, empty, merged, diag, sleep_suppressed, sleep_per_class,
+                outside_suppressed, out_per_class,
             )
 
     agent = candidates.agent_id.astype(np.int64)
@@ -352,6 +405,7 @@ def arbitrate(
         return ArbiterDecision(
             int(tick), empty, np.empty(0, dtype=np.int64), np.empty(0, dtype=bool),
             empty, suppressed, merged, diag, sleep_suppressed, sleep_per_class,
+            outside_suppressed, out_per_class,
         )
 
     # ---- ② T_max 超過で昇格(累積・starvation-free) ----
@@ -433,6 +487,8 @@ def arbitrate(
         diag=diag,
         sleep_suppressed=sleep_suppressed,
         sleep_suppressed_per_class=sleep_per_class,
+        outside_suppressed=outside_suppressed,
+        outside_suppressed_per_class=out_per_class,
     )
 
 
@@ -474,6 +530,8 @@ class Arbiter:
         self._pending = WakeCandidates.empty()
         self._last_tick = 0
         self._diag_total = np.zeros((len(DIAG_COLUMNS), len(self.classes)), dtype=np.int64)
+        #: 域外抑止(D-66)の累計(クラス別)。
+        self._outside_total = np.zeros(len(self.classes), dtype=np.int64)
         self._merged_total = np.zeros(len(self.classes), dtype=np.int64)
         #: 就寝抑止(D-56)の累計(クラス別)。診断行の ``suppressed`` とは**別列**。
         self._sleep_total = np.zeros(len(self.classes), dtype=np.int64)
@@ -507,6 +565,7 @@ class Arbiter:
         candidates: WakeCandidates,
         refractory_until: np.ndarray | None = None,
         asleep: np.ndarray | None = None,
+        outside: np.ndarray | None = None,
     ) -> ArbiterDecision:
         """新規候補と保留を合わせて裁定し、落選分を保留に積む。
 
@@ -518,7 +577,7 @@ class Arbiter:
         # L4 の総量を落とさずに呼数を硬く切るため、端数を繰り越す(在庫は 2 tick ぶんで頭打ち)。
         self._pool = min(self._pool + self.budget, self._pool_cap)
         decision = arbitrate(
-            merged_in, tick, self._pool, self.run_salt, refractory_until, asleep
+            merged_in, tick, self._pool, self.run_salt, refractory_until, asleep, outside
         )
         self._pool -= float(decision.n_calls)
         self.budget_unused = max(0.0, self._pool)
@@ -526,6 +585,7 @@ class Arbiter:
         self._diag_total += decision.diag
         self._merged_total += decision.merged_per_class
         self._sleep_total += np.asarray(decision.sleep_suppressed_per_class, dtype=np.int64)
+        self._outside_total += np.asarray(decision.outside_suppressed_per_class, dtype=np.int64)
         self.n_calls_total += decision.n_calls
         return decision
 
@@ -554,3 +614,12 @@ class Arbiter:
     def sleep_suppressed_counters(self) -> Mapping[str, int]:
         """就寝抑止の累計(起床クラス別)。"""
         return {c.name: int(self._sleep_total[i]) for i, c in enumerate(self.classes)}
+
+    @property
+    def outside_suppressed_total(self) -> int:
+        """域外抑止(D-66)で落とした候補の累計。"""
+        return int(self._outside_total.sum())
+
+    def outside_suppressed_counters(self) -> Mapping[str, int]:
+        """域外抑止の累計(起床クラス別)。"""
+        return {c.name: int(self._outside_total[i]) for i, c in enumerate(self.classes)}

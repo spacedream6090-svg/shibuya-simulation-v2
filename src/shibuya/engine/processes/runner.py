@@ -311,6 +311,7 @@ class WorldProcessRunner:
         self.presence = presence
         self.hotel.external_home = np.asarray(presence.home_out, dtype=bool)
         self.large_event.presence = presence
+        self.rail.presence = presence  # LLM の乗車で域外へ出た体の張り直し(D-66 §4)
 
     # ------------------------------------------------------------------ トグル
     def _names_of(self, key: str) -> tuple[str, ...]:

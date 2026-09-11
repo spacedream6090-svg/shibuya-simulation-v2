@@ -372,6 +372,11 @@ def main(argv: list[str] | None = None) -> int:
              " 1-RATE をその日「終日域外」にする(_mix64(agent_id) の決定論)",
     )
     ap.add_argument(
+        "--no-outside-suppression",
+        action="store_true",
+        help="D-66 域外抑止を切る(域外滞在・乗車中の体にも LLM を呼ぶ=D-66 前の挙動・帰無腕)",
+    )
+    ap.add_argument(
         "--no-population",
         action="store_true",
         help="W16 母集団を使わず合成個体で回す(下限対照・世帯財布も mock のまま)",
@@ -421,6 +426,7 @@ def main(argv: list[str] | None = None) -> int:
         plan_executor=not args.no_plan_executor,
         exit_mode=str(args.exit_mode),
         attendance_rate=float(args.attendance_rate),
+        outside_suppression=not args.no_outside_suppression,
         fleet=fleet_from_args(args, ap),
         fleet_wait_s=float(getattr(args, "fleet_wait_s", 0.0)),
         fleet_debug_dir=getattr(args, "fleet_debug_dir", "") or None,

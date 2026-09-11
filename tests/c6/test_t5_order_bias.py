@@ -93,6 +93,14 @@ def _run(n_agents, seed, *, ticks=TICKS, world=None, world_dir=None, budget=None
         # ここは D-62 前の種(全員 SLEEPING)で回す。**親へ報告済み**(W17 を共変量に入れた
         # 層別にするかは未決)。
         plan_sleep=False,
+        # D-66(計画実行層)の帰無腕。既定だと tick 0 に**域外常住 88.8% が舞台の外**へ置かれ、
+        # さらに域外抑止(``outside_suppression``)でその体の候補が全部落ちるので、24 tick の窓で
+        # 呼ばれるのは在圏の住民・従業者にほぼ限られる=**構成のバイアス**が層内 |ρ| に入る
+        # (実測: 層内 |ρ| mean_wake_tick 0.0960 / selected_count 0.0626 > 0.05・呼 826 のうち
+        #  648 が RESIDENT)。T5 が測るのは ``arbitrate`` の**並び順**のバイアスなので、
+        # ``sleep_suppression``/``plan_sleep`` と同じ理由でここは D-66 前の種で回す。
+        # **親へ報告済み(PENDING D-64 と同じ論点)**。
+        plan_executor=False,
     )
     return res, rec
 

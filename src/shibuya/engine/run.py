@@ -155,6 +155,8 @@ DIAG_RUN_COLUMNS: Final[tuple[str, ...]] = (
     "conversations_opened",
     #: D-56 就寝抑止(``suppressed``=不応期 とは**別列**)。
     "sleep_suppressed",
+    #: D-66 域外抑止(舞台に居ない体を呼ばない。上の 2 列とも**排他**)。
+    "outside_suppressed",
 )
 
 #: 診断行「シミュ日あたり」の必須行(§9.1 C3 受け入れ「診断行5本」+ 運用列)。
@@ -248,6 +250,11 @@ class RunResult:
     attendance_rate: float = 1.0
     #: 計画実行層の診断(``PlanExecutor.counters()``)。層が休んだランは空 dict。
     presence_counters: dict[str, float] = field(default_factory=dict)
+    #: D-66 域外抑止を効かせたか(既定 True)。False = **帰無腕**。
+    outside_suppression: bool = True
+    #: **発射した呼**のうち域外(``transit_state != 0``)の体宛てだった延べ数。
+    #: 抑止が効いていれば 0(監査点)。
+    outside_wake_candidates: int = 0
     #: 計画実行層の要約 1 行(``c7lib.parse_run_summary`` に当たらない書式)。
     presence_summary: str = ""
     #: **在圏の体だけ**で測った「起きている割合」/時(24 要素・D-66 の補助欄)。
@@ -389,6 +396,13 @@ class RunResult:
             return 0
         return int(self.column("sleep_suppressed").sum())
 
+    @property
+    def outside_suppressed_count(self) -> int:
+        """域外抑止(D-66)で落とした候補の総数。"""
+        if not self.diagnostics.size or "outside_suppressed" not in DIAG_RUN_COLUMNS:
+            return 0
+        return int(self.column("outside_suppressed").sum())
+
     def calls_by_hour_text(self) -> str:
         """``呼/時`` の 1 行(24 個・D-56 の検証欄)。
 
@@ -490,6 +504,7 @@ class RunResult:
             "plan_executor": bool(self.plan_executor),
             "exit_mode": str(self.exit_mode),
             "attendance_rate": float(self.attendance_rate),
+            "outside_suppression": bool(self.outside_suppression),
             "catalog_sha16": catalog_sha16,
             "process_ids": process_ids,
             "ablations": ablations,
@@ -636,6 +651,12 @@ class RunResult:
         for col in DIAG_COLUMNS:
             lines.append(f"  診断 {col}: {int(self.column(col).sum()):,}")
         lines.append(f"  診断 sleep_suppressed: {self.sleep_suppressed_count:,}")
+        lines.append(f"  診断 outside_suppressed: {self.outside_suppressed_count:,}")
+        lines.append(
+            f"  域外宛ての呼 {self.outside_wake_candidates:,}"
+            f"(抑止 {self.outside_suppressed_count:,}"
+            f"・抑止腕 {'on' if self.outside_suppression else 'off'})"
+        )
         lines.append("  " + self.calls_by_hour_text())
         lines.append("  " + self.wake_rate_by_hour_text())
         if len(self.wake_rate_in_area_by_hour) == 24:
@@ -884,6 +905,7 @@ def run_day(
     plan_executor: bool = True,
     exit_mode: str = "immediate",
     attendance_rate: float = 1.0,
+    outside_suppression: bool = True,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -983,6 +1005,12 @@ def run_day(
         attendance_rate: 出勤率(D-67 (b)・expedient E6・既定 1.0)。通勤・通学の体のうち
             ``1 - rate`` の割合を ``_mix64(agent_id)`` の決定論でその日「終日域外」にする。
             **1.0 では 1 ビットも変わらない**。
+        outside_suppression: **D-66 域外抑止**(既定 True)。``transit_state != 0``
+            (域外滞在・乗車中)の体の起床候補をアービタに入れない——舞台に居ない体は
+            B0-B6 の描画欄が全て空で、プロンプトが「どこにも居ない」になるため。
+            D-56 の就寝抑止と同型だが**例外を作らない**(計画境界・顕著行為・会話ターンも落ちる)。
+            ``False`` = **帰無腕**(``--no-outside-suppression``)。**計画実行層が立つラン
+            でだけ効く**(``--no-plan-executor`` の帰無腕は現行挙動のまま=checkpoint 不変)。
 
     Returns:
         ``RunResult``。
@@ -1215,6 +1243,8 @@ def run_day(
     peak_intents = 0
     peak_backlog = 0
     n_undefined_total = 0
+    #: D-66: **発射した呼**のうち域外の体宛てだった延べ数(抑止が効いていれば 0)。
+    n_outside_calls = 0
     # ---- D-62「就寝は計画の実行」の計数(診断列は増やさない=診断表の形を変えない) ----
     #: ``resolve.begin_planned_sleep`` の内訳 + ``arrived``(就寝地へ着いて寝た)+
     #: ``woke``(非就寝の計画境界で起こした)。
@@ -1498,14 +1528,27 @@ def run_day(
         awake_sum[_h] += n_agents - int(np.count_nonzero(asleep_now))
         awake_ticks[_h] += 1
         asleep = asleep_now if sleep_suppression else None
+        # D-66 域外抑止: 舞台に居ない体(域外滞在 2 / 乗車中 1)は呼ばない
+        outside_now = np.asarray(agents.registry.transit_state) != 0
+        # **層が立つランだけ**効かせる(帰無腕 ``--no-plan-executor`` は現行挙動のまま=
+        # rail の乱数 12% で外に居る 600 体にも従来どおり呼が出る。checkpoint 不変の約束)。
+        outside_mask = outside_now if (outside_suppression and plan_exec_on) else None
         decision = arbiter.step(
-            tick, cands, agents.registry.refractory_until, asleep=asleep
+            tick, cands, agents.registry.refractory_until, asleep=asleep,
+            outside=outside_mask,
         )
+
         phase["arbiter"] += time.perf_counter() - t0
 
         # ---- ④ LLM 呼(応答は pending_apply へ) ----
         t0 = time.perf_counter()
         sel = decision.selected
+        # D-66 の監査点: **実際に発射した呼**のうち舞台に居ない体宛てだった数
+        # (抑止が効いていれば 0。帰無腕では 53% 前後まで上がる=層2 指摘の実測)。
+        if len(sel):
+            n_outside_calls += int(
+                np.count_nonzero(outside_now[sel.agent_id.astype(np.int64)])
+            )
         n_parse_errors = 0
         if len(sel):
             R.set_refractory(agents, sel.agent_id, sel.condition, tick, refractory_table)
@@ -1746,6 +1789,7 @@ def run_day(
                 bridge.n_tape_misses - prev_tape_misses,
                 (conv.n_opened - prev_sessions) if conv is not None else 0,
                 decision.n_sleep_suppressed,  # D-56
+                decision.n_outside_suppressed,  # D-66
             )
         )
         prev_tape_misses = bridge.n_tape_misses
@@ -1920,6 +1964,8 @@ def run_day(
             sleep_counts[_k] = sleep_counts.get(_k, 0) + int(_v)
     result.planned_sleep_counts = dict(sleep_counts)
     result.plan_executor = bool(plan_exec_on)
+    result.outside_suppression = bool(outside_suppression and plan_exec_on)
+    result.outside_wake_candidates = int(n_outside_calls)
     result.exit_mode = str(exit_mode)
     result.attendance_rate = float(attendance_rate)
     if presence is not None:
@@ -2093,6 +2139,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="退出の実行形(immediate のみ実装・他は予約)")
     ap.add_argument("--attendance-rate", type=float, default=1.0, metavar="RATE",
                     help="出勤率(D-67 (b)・expedient E6・既定 1.0)")
+    ap.add_argument("--no-outside-suppression", action="store_true",
+                    help="D-66 域外抑止を切る(=D-66 前の挙動・帰無腕)")
     add_fleet_args(ap)
     args = ap.parse_args(argv)
 
@@ -2121,6 +2169,7 @@ def main(argv: list[str] | None = None) -> int:
         plan_executor=not args.no_plan_executor,
         exit_mode=str(args.exit_mode),
         attendance_rate=float(args.attendance_rate),
+        outside_suppression=not args.no_outside_suppression,
     )
     print(res.summary())
     return 0 if (res.conserved and res.min_stock >= 0) else 1
