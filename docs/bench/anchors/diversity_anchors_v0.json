@@ -1,0 +1,201 @@
+{
+  "schema": "shibuya.tools.w17/diversity_anchors/1",
+  "version": "v0",
+  "created": "2026-09-11",
+  "purpose": "個体の行動多様性(D-68)を現実と同じ物差しで測るためのアンカー台帳。tools/w17/diversity_yardstick.py が読む唯一の現実側入力。数値はここにしか書かない(ツール側に定数を複製しない)。転記元 docs/research/v2-d68-behavioral-diversity-research.md §1・§6(親一次確認は同 §11)。",
+  "rules": [
+    "全項目に source(出典URL または転記元) / verified_by(親の一次確認) / tag(anchor|estimate|expedient) を持つ。",
+    "tag=anchor は公的一次資料・査読論文の実数。tag=estimate は図の読み取りや推定(幅つき)。tag=expedient は未リサーチの便宜値。",
+    "verified_by が「未確認」で始まる項目は親の一次確認を経ていない=報告に印を出す。数値をここで作らない(答申に書いていないものは入れない)。",
+    "合格線(PASS/FAIL の閾値)は書かない。距離を測るだけ=判定は親がする(CLAUDE.md §2)。"
+  ],
+  "anchors": {
+    "motif_count": {
+      "value": 17,
+      "unit": "個",
+      "scope": "1 日の軌跡を有向ネットワーク(ノード=地点・辺=移動・重みなし・向きのみ)に落としたときの、出現率 0.5% 以上の形の個数。目的・滞在時間・距離・移動回数は捨てた定義",
+      "tag": "anchor",
+      "source": "Schneider, Belik, Couronné, Smoreda & González 2013, J. R. Soc. Interface 10(84):20130246 §2 https://doi.org/10.1098/rsif.2013.0246 / 全文 https://pmc.ncbi.nlm.nih.gov/articles/PMC3673164/",
+      "verified_by": "parent 2026-09-11(答申 §11 #4・6 項目一致)"
+    },
+    "motif_coverage": {
+      "value": 0.9,
+      "unit": "比率",
+      "scope": "17 モチーフが説明する人日(測定トリップ)の上限被覆率。原文 up to 90 per cent = 上限であって中心値ではない",
+      "tag": "anchor",
+      "source": "Schneider 2013 §2 https://pmc.ncbi.nlm.nih.gov/articles/PMC3673164/",
+      "verified_by": "parent 2026-09-11(答申 §11 #4)"
+    },
+    "motif_threshold": {
+      "value": 0.005,
+      "unit": "比率",
+      "scope": "モチーフの操作的定義=「データセット平均で 0.5% 以上出現する日次ネットワーク」。物差しの閾値はこの値を使う",
+      "tag": "anchor",
+      "source": "Schneider 2013 §2 https://pmc.ncbi.nlm.nih.gov/articles/PMC3673164/",
+      "verified_by": "parent 2026-09-11(答申 §11 #4)"
+    },
+    "daily_locations_lt7_share": {
+      "value": 0.9,
+      "unit": "比率",
+      "scope": "1 日に訪れる相異なる地点数が 7 未満の人の割合(90% of the population visit less than seven locations on a daily basis)",
+      "tag": "anchor",
+      "source": "Schneider 2013 §2・Fig.2 https://pmc.ncbi.nlm.nih.gov/articles/PMC3673164/",
+      "verified_by": "parent 2026-09-11(答申 §11 #4)"
+    },
+    "daily_locations_lognormal": {
+      "values": {
+        "mu": 1.0,
+        "mu_err": 0.1,
+        "sigma": 0.5,
+        "sigma_err": 0.1
+      },
+      "unit": "対数正規のパラメータ",
+      "scope": "1 日の訪問地点数 P(N) の対数正規近似。本文に数表は無く図のみ",
+      "tag": "anchor",
+      "source": "Schneider 2013 Fig.2 https://pmc.ncbi.nlm.nih.gov/articles/PMC3673164/ / 転記 docs/research/v2-d68-behavioral-diversity-research.md §1-3",
+      "verified_by": "parent 2026-09-11(第154・PMC 本文「approximated by a log-normal distribution … μ = 1 ± 0.1 and σ = 0.5 ± 0.1」を WebFetch で逐語確認)",
+      "value": {
+        "mu": 1.0,
+        "mu_err": 0.1,
+        "sigma": 0.5,
+        "sigma_err": 0.1
+      }
+    },
+    "tokyo_weekday_depart_on_00_30": {
+      "value": 0.675,
+      "unit": "比率",
+      "scope": "東京都・平日・有業者・男女総数の「出勤」時刻のうち 分が :00 または :30 のビンの合計(15 分刻み 58 区分・一様なら 0.50)",
+      "tag": "anchor",
+      "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224420&fileKind=0",
+      "verified_by": "parent 2026-09-11(答申 §11 #1・再計算 67.54%)"
+    },
+    "tokyo_weekday_depart_top_bin_share": {
+      "value": 0.1193,
+      "unit": "比率",
+      "scope": "同 最頻 15 分ビン(8:00)の占有率",
+      "tag": "anchor",
+      "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224420&fileKind=0",
+      "verified_by": "parent 2026-09-11(答申 §11 #1)"
+    },
+    "tokyo_weekday_depart_top_hour_share": {
+      "value": 0.2931,
+      "unit": "比率",
+      "scope": "同 最頻 時間帯(8 時台)の占有率。M2(上位 1 型占有率)の「近い代理」",
+      "tag": "anchor",
+      "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224420&fileKind=0",
+      "verified_by": "parent 2026-09-11(答申 §11 #1・§6-1 表)"
+    },
+    "tokyo_weekday_depart_entropy_bits": {
+      "value": 4.68,
+      "unit": "bit",
+      "scope": "同 15 分刻み 58 区分のシャノンエントロピー(上限 5.858 bit)",
+      "tag": "anchor",
+      "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224420&fileKind=0",
+      "verified_by": "parent 2026-09-11(答申 §11 #1・再計算 4.680)"
+    },
+    "national_weekday_depart_on_00_30": {
+      "value": 0.664,
+      "unit": "比率",
+      "scope": "全国・平日・有業者の「出勤」の :00+:30 率。東京都との差 1.1pt が「現実の 1 標本 vs 別標本」のフロア代わり(答申 §7-2 運用の原則 2)",
+      "tag": "anchor",
+      "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) / 転記 docs/research/v2-d68-behavioral-diversity-research.md §6-1",
+      "verified_by": "parent 2026-09-11(第154・a030 00_全国 平日 総数 再計算 0.6637)"
+    },
+    "national_weekday_depart_entropy_bits": {
+      "value": 4.631,
+      "unit": "bit",
+      "scope": "同 全国のエントロピー。東京都との差 0.049 bit がフロア代わり",
+      "tag": "anchor",
+      "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) / 転記 docs/research/v2-d68-behavioral-diversity-research.md §6-1",
+      "verified_by": "parent 2026-09-11(第154・再計算 4.631・平均 8:20・行動者率 82.9)"
+    },
+    "depart_on_00_30_band_by_employment": {
+      "low": 0.626,
+      "high": 0.818,
+      "unit": "比率",
+      "scope": "全国・平日・従業上の地位/雇用形態の区分別に見た「出勤」の :00+:30 率の帯(最小=嘱託 62.6%・最大=内職 81.8%)。91.9% に達する区分は一つも無い",
+      "tag": "anchor",
+      "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第31表(statInfId 000032224421) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224421&fileKind=0 / 転記 docs/research/v2-d68-behavioral-diversity-research.md §6-3",
+      "verified_by": "parent 2026-09-11(第154・a031 全国 平日 15 区分を再計算: 最小 嘱託 0.6264・最大 内職 0.8181・正規 0.6557・アルバイト 0.6516)",
+      "value": {
+        "min": 0.626,
+        "max": 0.818,
+        "regular": 0.656,
+        "part_time_arubaito": 0.652
+      }
+    },
+    "song_pi_max": {
+      "value": 0.93,
+      "unit": "比率",
+      "scope": "Song 2010 の予測可能性上限 Π^max。P(Π^max) は 0.93 付近に鋭いピークで、80% 未満の利用者はいない=ばらつきが小さいのが現実",
+      "tag": "anchor",
+      "source": "Song, Qu, Blumm & Barabási 2010, Science 327(5968):1018-1021 Fig.2B https://doi.org/10.1126/science.1177170 / PDF https://barabasi.com/media/2010-Song_et_al-Limits_of_Predctiability-Science.pdf",
+      "verified_by": "parent 2026-09-11(答申 §11 #3・5 引用逐語一致)"
+    },
+    "song_regularity_R": {
+      "value": 0.7,
+      "unit": "比率",
+      "scope": "週を 168 時間区分に割ったときの「その時間の最頻地点にいる確率」R の全利用者平均。夜間 0.9・正午と 18 時台に極小。無作為基準 R_rand ≈ 0.016",
+      "tag": "anchor",
+      "source": "Song 2010 Fig.3A/B https://barabasi.com/media/2010-Song_et_al-Limits_of_Predctiability-Science.pdf",
+      "verified_by": "parent 2026-09-11(答申 §11 #3)"
+    },
+    "song_top2_locations_share": {
+      "value": 0.6,
+      "unit": "比率",
+      "scope": "上位 2 地点(自宅+職場)で説明できる時間の割合(Fig.2D)。M8 の「中身は個別」側の目安",
+      "tag": "anchor",
+      "source": "Song 2010 Fig.2D https://barabasi.com/media/2010-Song_et_al-Limits_of_Predctiability-Science.pdf",
+      "verified_by": "未確認(本文は「the top two locations (n = 2)」で Fig. 2D を参照・数値 0.60 は図のみ=親は逐語で確認できず。使うなら図の読み取りと明記)"
+    },
+    "activity_set_capacity": {
+      "value": 25,
+      "unit": "地点",
+      "scope": "活動集合(2 回以上訪問・週平均 10 分超滞在・直前 20 週窓)の大きさの飽和値。4 標本で一致。個人値の ⟨C_i⟩/σ_{C,i} は 30% 以下=容量の分散は小さい",
+      "tag": "anchor",
+      "source": "Alessandretti, Sapiezynski, Sekara, Lehmann & Baronchelli 2018, Nat. Hum. Behav. 2:485-491 補足図12 https://www.nature.com/articles/s41562-018-0364-x / OA 受理稿 https://openaccess.city.ac.uk/id/eprint/17656/8/1609.03526.pdf",
+      "verified_by": "parent 2026-09-11(第154・arXiv 1609.03526 要旨「a conserved quantity with a typical size of ~25 locations」を確認。λ の 4 値は本文未読=未確認のまま)"
+    },
+    "activity_set_jaccard_decay_lambda": {
+      "values": {
+        "Lifelog": -0.15,
+        "CNS": -0.31,
+        "MDC": -0.49,
+        "RM": -3.0
+      },
+      "unit": "指数",
+      "scope": "週次活動集合の Jaccard 類似度 J ∝ γ^λ の減衰指数(4 標本)。無作為化系列は λ=0(J 一定)。J≈1(完全同一)も J≈0(無関係)も現実ではない、の根拠",
+      "caveat": "設計書 §5 は M6 の参照として答申 §1-5(Schlich & Axhausen「任意の 2 日は必ず共通要素を持つ」「勤務日ほど安定」)を挙げる。λ の数値は答申 §1-4(Alessandretti)側にある=出所が別なので両方を載せる",
+      "tag": "estimate",
+      "source": "Alessandretti 2018 https://openaccess.city.ac.uk/id/eprint/17656/8/1609.03526.pdf / 併記 Schlich & Axhausen 2003, Transportation 30:13-36 https://doi.org/10.1023/A:1021230507071(答申 §1-5)",
+      "verified_by": "未確認(答申 §10 の「補足で確認が望ましいもの」=親一次確認 待ち)"
+    }
+  },
+  "p0_prior": {
+    "_note": "現実アンカーではない。設計書 docs/design/v2-d68-pilot-design.md §5 に載った W17 本番(P0)の前値。物差しの再現性検査(同じ数え方で同じ数字が出るか)にだけ使う。親が独立確認したのは M3a のみ(同 §5 見出し)。",
+    "source": "docs/design/v2-d68-pilot-design.md §5(2026-09-11・サブ実測)",
+    "values": {
+      "m3a_on_00_30": 0.919,
+      "m3a_entropy_bits": 4.241,
+      "m3b_on_00_30": 0.971,
+      "m3b_top_bin": "08:00",
+      "m3b_top_bin_share": 0.558,
+      "m3b_entropy_bits": 2.408,
+      "m3c_on_00_30": 0.993,
+      "m3c_top_bin": "09:00",
+      "m3c_top_bin_share": 0.661,
+      "m3c_entropy_bits": 2.024,
+      "m4a_mean": 5.78,
+      "m4a_sd": 0.46,
+      "m4b_place_kind_mean": 3.28,
+      "m4b_place_kind_sd": 0.66,
+      "m4b_lt7_share": 1.0,
+      "m6_mean": 0.879,
+      "m6_sd": 0.217,
+      "m6_exact_share": 0.73,
+      "m2_commuter_top1_share": 0.137,
+      "m2_commuter_types": 1592,
+      "m2_commuter_type_rate": 0.007
+    }
+  }
+}
