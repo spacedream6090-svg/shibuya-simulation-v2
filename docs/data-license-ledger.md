@@ -59,3 +59,5 @@
 | 東京都 テレワーク実施率調査 令和7年 1・5・9・12 月(PDF 4 本・data/research_cache) | https://www.hataraku.metro.tokyo.lg.jp/hatarakikata/telework/ 配下 | 2026-09-10 | TOKYO はたらくネット サイトポリシー=著作権法上の引用の範囲 | D-66 出勤率 0.88 の在宅項。**数値の引用のみ・再配布しない** |
 | 厚生労働省 令和7年就労条件総合調査 結果の概要(読み取りのみ・data/ 未保存) | https://www.mhlw.go.jp/toukei/itiran/roudou/jikan/syurou/25/dl/gaiyou01.pdf | 2026-09-10 | 政府標準利用規約 | 年休 付与 18.1/取得 12.1/取得率 66.9% |
 | 内閣府 渋谷駅周辺地域都市再生安全確保計画策定業務 基礎調査 概要版(読み取りのみ・data/ 未保存) | https://www.chisou.go.jp/tiiki/toshisaisei/yuushikisya/anzenkakuho/hojokin/27hojokin/27zigyouhoukoku-shibuya.pdf | 2026-09-10 | 政府標準利用規約(内閣府) | 139 ha 滞留者 14.5 万・乗降 227 万(重複除去)・休日/平日比 0.65 |
+| 令和3年社会生活基本調査 平均時刻編 第30・31・35・36表(出勤/帰宅時刻の 15 分区分構成比・xlsx 4 本・data/research_cache/estat_r3_avgtime_*.xlsx) | https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224420 ・ …4421 ・ …4426 ・ …4427 &fileKind=0 | 2026-09-11 | 政府標準利用規約(第2.0版) | D-68 P1 の勤務窓投入(第31表・全国・雇用形態別)と判定(第30表・東京都)。出勤=家を出た時刻(始業ではない) |
+
