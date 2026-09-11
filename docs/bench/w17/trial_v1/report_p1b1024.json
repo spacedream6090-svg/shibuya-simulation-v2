@@ -1,0 +1,200 @@
+{
+ "schema": "shibuya.build.sched/trial_report/1",
+ "trial_version": "0.1.0",
+ "arm": "p1b",
+ "stage": 0,
+ "n_agents": 2000,
+ "n_response_rows": 2000,
+ "n_with_response": 2000,
+ "response_rate": 1.0,
+ "parse": {
+  "n_parsed": 94185,
+  "n_kept": 94185,
+  "fail_rate": 0.009194,
+  "reasons": {
+   "bad_time": 90,
+   "fix_place": 2,
+   "format": 679,
+   "unknown_place": 105
+  }
+ },
+ "checks": {
+  "coverage_mean": 0.640595,
+  "coverage_ge_0999_rate": 0.245214,
+  "n_agent_days": 14000,
+  "gaps": 9478,
+  "overlaps": 4994,
+  "has_sleep_rate": 0.740286,
+  "night_violations": 2257,
+  "night_violation_rate": 0.023963,
+  "block_kind_conflicts": {},
+  "stay_sleep_place_violations": 91,
+  "lines_per_day": {
+   "n": 14000,
+   "mean": 6.728,
+   "sd": 4.1,
+   "p50": 8.0,
+   "p90": 11.0,
+   "max": 12.0
+  },
+  "duty_window_dev_min": {
+   "n": 16068,
+   "mean": 131.093,
+   "sd": 177.377,
+   "p50": 64.0,
+   "p90": 351.0,
+   "max": 950.0
+  },
+  "duty_window_dev_vs_p1_min": {
+   "n": 11492,
+   "mean": 47.581,
+   "sd": 119.774,
+   "p50": 0.0,
+   "p90": 158.0,
+   "max": 1181.0
+  },
+  "reasons": {
+   "night": 2257,
+   "stay_sleep_place": 91
+  }
+ },
+ "modified": {
+  "llm": {
+   "rate": 0.033895,
+   "n_parse_failed": 874,
+   "n_check_failed": 2348,
+   "denominator": 95059,
+   "note": "パース失敗+検査落ち / (パース失敗+パースできた活動)。修復はしない。"
+  },
+  "engine": {
+   "rake_n_moved": 9307,
+   "repair_n_modified": 0,
+   "repair_n_dropped": 0,
+   "denominator": 94185,
+   "rate": 0.098816,
+   "note": "エンジン由来= 修復 + raking。下見は修復しない(P0b の repaired だけ別掲)。"
+  }
+ },
+ "raking": {
+  "0.12": {
+   "budget_rows": 11302,
+   "n_moved": 9307,
+   "n_candidates": 22715,
+   "rolled_back": false,
+   "jsd_before": {
+    "私事": 0.400256,
+    "自宅－勤務": 0.04302,
+    "自宅－私事": 0.44723,
+    "自宅－通学": 0.289965
+   },
+   "jsd_after": {
+    "私事": 0.288277,
+    "自宅－勤務": 0.058036,
+    "自宅－私事": 0.331648,
+    "自宅－通学": 0.224488
+   },
+   "jsd_max_before": 0.44723,
+   "jsd_max_after": 0.331648
+  },
+  "0.00": {
+   "budget_rows": 0,
+   "n_moved": 0,
+   "n_candidates": 22715,
+   "rolled_back": false,
+   "jsd_before": {
+    "私事": 0.400256,
+    "自宅－勤務": 0.04302,
+    "自宅－私事": 0.44723,
+    "自宅－通学": 0.289965
+   },
+   "jsd_after": {
+    "私事": 0.400256,
+    "自宅－勤務": 0.04302,
+    "自宅－私事": 0.44723,
+    "自宅－通学": 0.289965
+   },
+   "jsd_max_before": 0.44723,
+   "jsd_max_after": 0.44723
+  }
+ },
+ "identity": {},
+ "completion_tokens": {
+  "n": 2000,
+  "mean": 760.202,
+  "sd": 333.396,
+  "p50": 952.5,
+  "p90": 1024.0,
+  "max": 1024.0
+ },
+ "window_counters": {
+  "absent_day": 1209,
+  "lead_default": 179,
+  "no_employment_row": 11,
+  "stay_bodies": 88,
+  "window_drawn": 1246,
+  "work_len_clipped": 327
+ },
+ "inputs": [
+  {
+   "path": "w17_trial_p1b_responses.jsonl",
+   "sha256": "dddd4c09257e90951705dfc50a6e134404cd557de3a227c1a5b21b2d55af8e7c",
+   "bytes": 2900245
+  }
+ ],
+ "outputs": [
+  {
+   "path": "C:\\Users\\塚本翔太\\Desktop\\shibuya-simulation-v2\\data\\world\\v2\\trials_p1b1024\\p1b\\w17_trial_p1b_schedule.parquet",
+   "name": "w17_trial_p1b_schedule.parquet",
+   "rows": 94185,
+   "bytes": 240302,
+   "sha256": "bbdb4d0609a5cb3859f496db767120f2c805f1354b0f1dbafa8de1a6e96924fd"
+  }
+ ],
+ "prompts": {
+  "arm": "p1b",
+  "stage": 0,
+  "path": "C:\\Users\\塚本翔太\\Desktop\\shibuya-simulation-v2\\data\\world\\v2\\trials_p1b1024\\p1b\\w17_trial_p1b_prompts.jsonl",
+  "name": "w17_trial_p1b_prompts.jsonl",
+  "rows": 2000,
+  "bytes": 7744506,
+  "sha256": "4c0a8ed7bce6b5c9b455e811ce2aad25f8ce18c6c7f99f939fce291aa045e6bd",
+  "prompts_sha256": "4c0a8ed7bce6b5c9b455e811ce2aad25f8ce18c6c7f99f939fce291aa045e6bd",
+  "system_sha256": {
+   "n_distinct": 9,
+   "shared_prefix_chars": 768,
+   "top": {
+    "4f3f70d96f55c247": 1090,
+    "5c312464a47c927e": 296,
+    "d93b59c44c9a8a4e": 185,
+    "5e35ef3563c852c1": 169,
+    "2f42a31b175d2815": 101,
+    "16a9f64efaf14632": 88,
+    "df25612219a3ee34": 36,
+    "046156316c008db2": 25,
+    "f1cfcbe9f82178a4": 10
+   }
+  },
+  "regex_sha256": {
+   "n_distinct": 35,
+   "sha256_first": "30eccf86e1f20c1a",
+   "chars_first": 1086
+  },
+  "prompt_tokens_mean": 479.14,
+  "prompt_tokens_max": 502,
+  "max_tokens": 600,
+  "temperature": 0.7,
+  "kinds": {
+   "乗務員": 25,
+   "定期来街者": 101,
+   "居住者": 185,
+   "従業者": 36,
+   "指令": 10,
+   "来街者": 296,
+   "訪日来街者": 88,
+   "通勤者": 1090,
+   "通学者": 169
+  }
+ },
+ "elapsed_s": 5.75,
+ "rss_mb": 325.7
+}
