@@ -432,6 +432,9 @@ class LargeEventProcess:
         self.world = world
         self.agents = agents
         self.rail = rail
+        #: **D-66 計画実行層**(``engine.presence.PlanExecutor``)。``None``=帰無腕。
+        #: 引き込み候補を層に選ばせ(その日在圏予定のある域外の体)、I4 の通知を返す。
+        self.presence = None
         self.tick_seconds = int(tick_seconds)
         self.log = actual_log
         self.visitor_delta = int(visitor_delta)
@@ -461,7 +464,12 @@ class LargeEventProcess:
 
     def _arrive(self, tick: int) -> None:
         r = self.agents.registry
-        outside = np.flatnonzero(np.asarray(r.transit_state) == 2)
+        # **D-66 (I4)**: 計画実行層があれば「**その日在圏予定のある**域外の体」から取る
+        # (非来街日の体を引き込まない)。無ければ従来どおり域外の先頭 N 体。
+        if self.presence is not None:
+            outside = np.asarray(self.presence.candidates_for_pull(int(tick)), dtype=np.int64)
+        else:
+            outside = np.flatnonzero(np.asarray(r.transit_state) == 2)
         if outside.size == 0:
             return
         take = outside[: self.visitor_delta]
@@ -471,6 +479,8 @@ class LargeEventProcess:
         # (外さないと、退場して再び域外に居るときに古い割当が発火して**別の理由で**戻る)。
         if self.rail is not None:
             self.rail.drop_from_return_queue(take)
+        if self.presence is not None:
+            self.presence.notify_pulled_in(take, int(tick))
         self._inside = take
         self.n_in += int(take.size)
         if self.log is not None:
@@ -489,6 +499,8 @@ class LargeEventProcess:
         # 自分で頼む(渋谷に家がある体は、次の域内活動に最も近い便で戻る)。
         if self.rail is not None:
             self.rail.assign_return_trains(self._inside, int(tick))
+        if self.presence is not None:
+            self.presence.notify_pushed_out(self._inside, int(tick))
         self.n_out += int(self._inside.size)
         self._inside = np.zeros(0, dtype=np.int64)
         if self.log is not None:

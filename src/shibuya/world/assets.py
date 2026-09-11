@@ -511,6 +511,8 @@ PROCESS_FILES: Final[dict[str, str]] = {
     "weather_hourly": "w13_weather_hourly.parquet",
     "timetables": "w12_timetables.parquet",
     "station_nodes": "w11_station_graph_nodes.parquet",
+    "station_exits": "w11_station_exits.parquet",
+    "external_nodes": "w12_external_nodes.parquet",
     "plan_spec": "w7_plan_spec.parquet",
     "street_points": "w10_street_points.parquet",
     "edges": "w1_edges.parquet",
@@ -574,6 +576,11 @@ class ProcessAssets:
         tt_line_idx / tt_calendar / tt_direction / tt_departure_min: 便ごとの列。
             ``tt_calendar`` は 0=平日 / 1=土休。``tt_departure_min`` は 0-1439(翌日跨ぎは剰余)。
         line_platform_cell: 路線索引 → 渋谷のホームが載るセル索引(-1=不明)。
+        ext_node_line_idx: **方面ノード索引**(W12 ``w12_external_nodes`` の行順=W16
+            ``direction_node``)→ ``tt_lines`` の路線索引(-1=非鉄道ゲート/時刻表に無い線)。
+            複数線の方面(埼京線/湘南新宿ライン)は ``lines[0]`` に畳む(**expedient E2**)。
+        station_exit_cell: W11 駅出口(45)のセル索引(昇順・重複あり。-1 は落とす)。
+            計画実行層(D-66)の**降車セルの分散**に使う。
         plan_poi / plan_day / plan_start / plan_end: W7 営業時間の区間(分・``end`` は 1440 超あり)。
         edge_klass_code / edge_cell / edge_length_m: W1 の辺ごとの道路種別・所属セル・辺長。
         poi_cat_code / poi_cat_names: POI のカテゴリ(席数換算に使う)。
@@ -600,6 +607,8 @@ class ProcessAssets:
     tt_direction: np.ndarray | None = None
     tt_departure_min: np.ndarray | None = None
     line_platform_cell: np.ndarray | None = None
+    ext_node_line_idx: np.ndarray | None = None
+    station_exit_cell: np.ndarray | None = None
     plan_poi: np.ndarray | None = None
     plan_day: np.ndarray | None = None
     plan_start: np.ndarray | None = None
@@ -936,6 +945,39 @@ def load_process_assets(path, assets: WorldAssets) -> ProcessAssets:
             if cell >= 0:
                 line_platform_cell[tt_lines.index(name)] = int(cell)
 
+    # ---- W12/W11: 方面ノード → 路線 / 駅出口 → セル(D-66 計画実行層) ----
+    ext_node_line_idx = None
+    fx = p / PROCESS_FILES["external_nodes"]
+    if fx.exists() and tt_lines:
+        ex = pq.read_table(fx, columns=["node_id", "kind", "lines"]).to_pydict()
+        idx = np.full(len(ex["node_id"]), -1, dtype=np.int16)
+        # 逐次ループ宣言: 方面ノード(10)ぶん。起動時 1 回。
+        for i in range(len(ex["node_id"])):
+            if str(ex["kind"][i]) != "rail":
+                continue
+            try:
+                names = json.loads(str(ex["lines"][i]) or "[]")
+            except ValueError:
+                names = []
+            for name in names:  # 先頭の線に畳む(expedient E2)
+                if str(name) in tt_lines:
+                    idx[i] = tt_lines.index(str(name))
+                    break
+        ext_node_line_idx = idx
+    station_exit_cell = None
+    fe = p / PROCESS_FILES["station_exits"]
+    if fe.exists() and place_to_cell:
+        exits = pq.read_table(fe, columns=["own_grid_place_id", "place_id"]).to_pydict()
+        cells = [
+            place_to_cell.get(
+                str(exits["own_grid_place_id"][i]),
+                place_to_cell.get(str(exits["place_id"][i]), -1),
+            )
+            for i in range(len(exits["place_id"]))
+        ]
+        arr = np.asarray([c for c in cells if 0 <= c < n_cells], dtype=np.int32)
+        station_exit_cell = np.sort(arr)
+
     # ---- W6/W7: POI カテゴリと営業時間 PlanSpec ----
     plan_poi = plan_day = plan_start = plan_end = None
     poi_cat_code = None
@@ -1013,6 +1055,8 @@ def load_process_assets(path, assets: WorldAssets) -> ProcessAssets:
         tt_direction=tt_dir,
         tt_departure_min=tt_dep,
         line_platform_cell=line_platform_cell,
+        ext_node_line_idx=ext_node_line_idx,
+        station_exit_cell=station_exit_cell,
         plan_poi=plan_poi,
         plan_day=plan_day,
         plan_start=plan_start,

@@ -6,7 +6,7 @@
   "docs/design/v2-world-data-build-spec.md §2 D-W1〜D-W22 の『感度: …』14 行(機械抽出=c8lib.scan_build_spec_sensitivities)",
   "docs/design/v2-world-data-build-spec.md §4 expedient 登録簿",
   "docs/design/v2-implementation-plan.md §8 expedient 登録簿",
-  "src/shibuya/engine/processes/*.py の ablation_id(AB-*)21 本"
+  "src/shibuya/engine/processes/*.py と engine/presence.py の ablation_id(AB-*)22 本"
  ],
  "criterion_note": "『結果を駆動していない』の判定は片側。構築対照(入力側)の差が帰無参照(同じ分布から 2 回引いた 2 標本の JSD の 95% 点)以内なら、入力が動かないのだから結果を駆動しえない(not_driving)。超えたときは駆動する『かもしれない』までしか言えず、ラン側の対照が要る(needs_run)。構築段階だけで『駆動している』と結論しない。合格線そのものは設計書に無い=親判断待ち。",
  "rows": [
@@ -555,6 +555,7 @@
    "AB-OCCUPANCY-CAPACITY",
    "AB-OPENING-EXECUTOR",
    "AB-PARCEL-ALLOCATION",
+   "AB-PLAN-EXECUTOR",
    "AB-PNOTICE-A0",
    "AB-PNOTICE-A1",
    "AB-PNOTICE-A2",

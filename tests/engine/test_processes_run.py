@@ -101,7 +101,15 @@ def test_run_day_on_the_real_world_with_all_first_batch_processes(capsys):
     # 乗客の保存則(bbox 内 + 乗車中 + 域外滞在 = 個体数)
     inb, riding, outside = runner.rail.rider_census()
     assert inb + riding + outside == res.n_agents
-    assert runner.rail.n_arrivals > 0, "域外からの到着が 1 件も無い"
+    # **D-66(2026-09-11)で変わった golden**: 域外からの到着の**担い手が変わった**。
+    # 計画実行層(``engine.presence``)が立つランでは rail の事前割当が空になり、
+    # 到着は層の ARRIVE イベントが出す(rail は列車の運行と乗車だけを持つ)。
+    if res.plan_executor:
+        assert int(res.presence_counters["arrivals"]) > 0, "域外からの到着が 1 件も無い"
+        assert int(res.presence_counters["departures"]) > 0, "退出が 1 件も無い"
+        assert runner.rail.n_arrivals == 0  # 乱数 12% の事前割当は降格済み
+    else:
+        assert runner.rail.n_arrivals > 0, "域外からの到着が 1 件も無い"
     assert res.n_boarded > 0, "乗車が 1 件も成立しない"
 
     # 金の保存則(運賃の sink 込み・全部門の現金合計 0)

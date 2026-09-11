@@ -352,6 +352,26 @@ def main(argv: list[str] | None = None) -> int:
              " SLEEPING=D-62 前の挙動・帰無腕)",
     )
     ap.add_argument(
+        "--no-plan-executor",
+        action="store_true",
+        help="D-66 計画実行層(engine.presence)を切る(=rail の乱数 12%% + D-61 帰りの便 +"
+             " D-62 の run.py 発火=現行挙動・帰無腕)",
+    )
+    ap.add_argument(
+        "--exit-mode",
+        choices=("immediate", "board_intent", "walk_to_platform"),
+        default="immediate",
+        help="退出の実行形(設計書 §10-3)。immediate のみ実装・他は予約(NotImplementedError)",
+    )
+    ap.add_argument(
+        "--attendance-rate",
+        type=float,
+        default=1.0,
+        metavar="RATE",
+        help="出勤率(D-67 (b)・expedient E6。既定 1.0=全員来る)。通勤・通学の体のうち"
+             " 1-RATE をその日「終日域外」にする(_mix64(agent_id) の決定論)",
+    )
+    ap.add_argument(
         "--no-population",
         action="store_true",
         help="W16 母集団を使わず合成個体で回す(下限対照・世帯財布も mock のまま)",
@@ -378,6 +398,8 @@ def main(argv: list[str] | None = None) -> int:
         refractory_scale = parse_refractory_scale(args.refractory_scale)
         if float(args.pnotice_d50_scale) <= 0.0:
             raise argparse.ArgumentTypeError("--pnotice-d50-scale は正の値")
+        if not (0.0 <= float(args.attendance_rate) <= 1.0):
+            raise argparse.ArgumentTypeError("--attendance-rate は 0.0〜1.0")
     except argparse.ArgumentTypeError as exc:  # 使い方の誤りは traceback ではなく usage で返す
         ap.error(str(exc))
     res = run(
@@ -396,6 +418,9 @@ def main(argv: list[str] | None = None) -> int:
         signage=not args.no_signage,
         sleep_suppression=not args.no_sleep_suppression,
         plan_sleep=not args.no_plan_sleep,
+        plan_executor=not args.no_plan_executor,
+        exit_mode=str(args.exit_mode),
+        attendance_rate=float(args.attendance_rate),
         fleet=fleet_from_args(args, ap),
         fleet_wait_s=float(getattr(args, "fleet_wait_s", 0.0)),
         fleet_debug_dir=getattr(args, "fleet_debug_dir", "") or None,

@@ -83,6 +83,8 @@ from shibuya.engine.processes.salient import (
     ablation_name as _pnotice_ablation_name,
     check_d50_scale as _check_d50_scale,
 )
+from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
+from shibuya.engine.presence import PlanExecutor
 from shibuya.engine.llm_bridge import (
     DEFAULT_LANE,
     LLMBridge,
@@ -238,6 +240,21 @@ class RunResult:
     sleep_suppression: bool = True
     #: D-62「就寝は計画の実行」を効かせたか。既定 True(ユーザー決定 (a)+(b)・2026-09-10)。
     plan_sleep: bool = True
+    #: D-66 計画実行層(``engine.presence``)が**実際に立ったか**(W16+W17 のあるランだけ)。
+    plan_executor: bool = False
+    #: 退出の実行形(設計書 §10-3)。第1段は ``immediate`` のみ実装。
+    exit_mode: str = "immediate"
+    #: 出勤率(D-67 (b)・expedient E6)。既定 1.0=全員来る。
+    attendance_rate: float = 1.0
+    #: 計画実行層の診断(``PlanExecutor.counters()``)。層が休んだランは空 dict。
+    presence_counters: dict[str, float] = field(default_factory=dict)
+    #: 計画実行層の要約 1 行(``c7lib.parse_run_summary`` に当たらない書式)。
+    presence_summary: str = ""
+    #: **在圏の体だけ**で測った「起きている割合」/時(24 要素・D-66 の補助欄)。
+    #: ``wake_rate_by_hour`` は D-62 の定義で**域外滞在・乗車中も「起きている」に数える**ので、
+    #: 層が入って深夜の 9 割が域外に居るランではその欄が自動的に上がる。a(h)(社会生活基本調査)
+    #: と並べるならこちらが分母の揃った値。層が休んだランは空(``[]``)。
+    wake_rate_in_area_by_hour: list[float] = field(default_factory=list)
     #: 世界内時刻の**時**別の「起きている割合」(24 要素・D-62 の検証欄)。
     #: 各 tick の ``activity != SLEEPING`` の割合を、その時の 60 tick で平均した値。
     wake_rate_by_hour: list[float] = field(default_factory=lambda: [0.0] * 24)
@@ -381,6 +398,12 @@ class RunResult:
         cb = list(self.calls_by_hour) + [0] * max(0, 24 - len(self.calls_by_hour))
         return "呼/時 " + " ".join(f"{h:02d}:{int(cb[h])}" for h in range(24))
 
+    def wake_rate_in_area_by_hour_text(self) -> str:
+        """``起床率(在圏)/時 00:0.xxx …``(D-66 の補助欄・**在圏の体の非就寝率**)。"""
+        return "起床率(在圏)/時 " + " ".join(
+            f"{h:02d}:{self.wake_rate_in_area_by_hour[h]:.3f}" for h in range(24)
+        )
+
     def wake_rate_by_hour_text(self) -> str:
         """``起床率/時`` の 1 行(24 個・**D-62 の検証欄**)。
 
@@ -426,6 +449,8 @@ class RunResult:
             (§8 第1陣 ②③⑥ の腕。既定は ``A4``/``1.0``/``{}``/``True``)・
             ``sleep_suppression``(D-56 就寝抑止の腕。既定 ``True``)・
             ``plan_sleep``(D-62「就寝は計画の実行」の腕。既定 ``True``)・
+            ``plan_executor``/``exit_mode``/``attendance_rate``(D-66 計画実行層の腕。
+            既定 ``True``(ただし W16+W17 のあるランだけ立つ)/``immediate``/``1.0``)・
             ``catalog_sha16``(世界カタログ v0.2 の凍結 SHA)・
             ``process_ids``(実際に回した過程 id の昇順)・``ablations``(切った過程/感度試験 id)。
         """
@@ -461,6 +486,10 @@ class RunResult:
             "sleep_suppression": bool(self.sleep_suppression),
             # ---- D-62 就寝は計画の実行(既定 True)。False = D-62 前の挙動 ----
             "plan_sleep": bool(self.plan_sleep),
+            # ---- D-66 計画実行層(既定 True・W16+W17 のあるランだけ立つ) ----
+            "plan_executor": bool(self.plan_executor),
+            "exit_mode": str(self.exit_mode),
+            "attendance_rate": float(self.attendance_rate),
             "catalog_sha16": catalog_sha16,
             "process_ids": process_ids,
             "ablations": ablations,
@@ -481,8 +510,8 @@ class RunResult:
 
     #: ``phase_seconds`` を要約行に出す順(大きい順ではなく **tick の骨格の順**)。
     PHASE_ORDER: tuple[str, ...] = (
-        "phase_a", "detect", "fleet_wait", "llm", "arbiter", "phase_b", "phase_c",
-        "movement", "checkpoint",
+        "presence", "phase_a", "detect", "fleet_wait", "llm", "arbiter", "phase_b",
+        "phase_c", "movement", "checkpoint",
     )  # ``movement_cpu`` は壁時計の内訳ではないので別行(下の summary)に出す
 
     def phase_breakdown(self) -> str:
@@ -609,6 +638,8 @@ class RunResult:
         lines.append(f"  診断 sleep_suppressed: {self.sleep_suppressed_count:,}")
         lines.append("  " + self.calls_by_hour_text())
         lines.append("  " + self.wake_rate_by_hour_text())
+        if len(self.wake_rate_in_area_by_hour) == 24:
+            lines.append("  " + self.wake_rate_in_area_by_hour_text())
         if self.planned_sleep_counts:
             c = self.planned_sleep_counts
             lines.append(
@@ -621,6 +652,8 @@ class RunResult:
                 f"・就寝済 {int(c.get('asleep', 0)):,}"
                 f"・行けない {int(c.get('unreachable', 0)):,}"
             )
+        if self.presence_summary:
+            lines.append("  " + self.presence_summary)
         lines.append(
             f"  診断 parse_error_rate: {self.parse_error_rate:.4f} / "
             f"undefined_action_count: {self.undefined_action_count:,} / "
@@ -680,12 +713,20 @@ def _check_population_fits(pop: "Population", n_cells: int) -> None:
         )
 
 
-def _schedule_with_population(schedule, pop: "Population", n_cells: int):
+def _schedule_with_population(
+    schedule, pop: "Population", n_cells: int, *, keep_outside_home: bool = False
+):
     """mock 日課の拠点・種別を **W16 母集団**で置き換える(時刻帯は W17 まで mock のまま)。
 
     体数が母集団より多いときは、足りない分は mock の合成個体のまま残す(縮小ランの保険)。
     ``home_cell`` を持たない体(域外常住)は ``Population.start_cell`` の規約で置く
     (勤務→通学→mock の自宅セル)=W17 が入るまでの繋ぎ・expedient。
+
+    Args:
+        keep_outside_home: **D-66 計画実行層のラン**で True。域外常住の ``home_cell`` を
+            ``-1`` のまま残し(=自宅=職場の代入をやめ)、``np.clip`` で −1 を潰さない。
+            自宅のない体は計画実行層が起動時に ``place_at_external`` で外へ置く。
+            既定 False = **帰無腕の挙動そのまま**(1 バイトも変わらない)。
     """
     n = int(schedule.n_agents)
     m = min(n, pop.n)
@@ -695,17 +736,24 @@ def _schedule_with_population(schedule, pop: "Population", n_cells: int):
     age = np.zeros(n, dtype=np.uint8)
     sex = np.full(n, -1, dtype=np.int8)
     direction = np.full(n, -1, dtype=np.int32)
-    start = pop.start_cell(fallback=-1)[:m]
-    home[:m] = np.where(start >= 0, start, home[:m])
+    if keep_outside_home:
+        ph = np.asarray(pop.home_cell, dtype=np.int64)[:m]
+        home[:m] = np.where(ph >= 0, ph, -1)  # 域外常住は −1 のまま(I6 のガードが受ける)
+    else:
+        start = pop.start_cell(fallback=-1)[:m]
+        home[:m] = np.where(start >= 0, start, home[:m])
     pw = pop.work_cell[:m]
     work[:m] = np.where(pw >= 0, pw, work[:m])
     kind[:m] = pop.kind[:m]
     age[:m] = pop.age[:m]
     sex[:m] = pop.sex[:m]
     direction[:m] = pop.direction_node[:m]
+    home_out = np.clip(home, 0, n_cells - 1) if not keep_outside_home else np.where(
+        home >= 0, np.clip(home, 0, n_cells - 1), -1
+    )
     return dataclasses.replace(
         schedule,
-        home_cell=np.clip(home, 0, n_cells - 1).astype(np.int32),
+        home_cell=home_out.astype(np.int32),
         work_cell=np.clip(work, 0, n_cells - 1).astype(np.int32),
         kind=kind,
         age=age,
@@ -833,6 +881,9 @@ def run_day(
     occupancy_path: "str | Path | None" = None,
     sleep_suppression: bool = True,
     plan_sleep: bool = True,
+    plan_executor: bool = True,
+    exit_mode: str = "immediate",
+    attendance_rate: float = 1.0,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -920,6 +971,18 @@ def run_day(
             ``False`` は **D-62 前の挙動**(=帰無腕。就寝境界も LLM に判断させ、tick 0 は
             全員 ``SLEEPING``)。週次表を持たない合成世界/mock 日課でも (a) は効く
             (mock 日課の第 5 境界=就寝)。
+        plan_executor: **D-66 計画実行層**(``engine.presence.PlanExecutor``・既定 True)。
+            W17 週次表を在圏ブロックに畳み、到着・退出・就寝・起床を**エンジンが実行する**。
+            有効になるのは「W16 母集団 + W17 週次表があるラン」だけ(合成世界・
+            ``--no-population`` では静かに休む=既存の下限対照は無傷)。
+            ``False`` = **帰無腕**(rail の乱数 12% + D-61 帰りの便 + D-62 の run.py 発火=
+            現行挙動。checkpoint も 1 バイト変わらない)。
+        exit_mode: 退出の実行形(設計書 §10-3)。``"immediate"`` のみ実装、
+            ``"board_intent"`` / ``"walk_to_platform"`` は**切替口だけ予約**
+            (``NotImplementedError``)。
+        attendance_rate: 出勤率(D-67 (b)・expedient E6・既定 1.0)。通勤・通学の体のうち
+            ``1 - rate`` の割合を ``_mix64(agent_id)`` の決定論でその日「終日域外」にする。
+            **1.0 では 1 ビットも変わらない**。
 
     Returns:
         ``RunResult``。
@@ -928,6 +991,11 @@ def run_day(
     budget_mode_enum = BudgetMode.parse(budget_mode)
     # ---- ablation ②③: 腕の値をここで検査する(過程を切ったランでも manifest が嘘をつかない) ----
     p_notice_d50_scale = _check_d50_scale(p_notice_d50_scale)
+    # ---- D-66 計画実行層の腕: 値の検査は**層が休むランでも**する(manifest が嘘をつかない) ----
+    if str(exit_mode) not in PRESENCE_EXIT_MODES:
+        raise ValueError(f"exit_mode は {PRESENCE_EXIT_MODES} のどれか(いま {exit_mode!r})")
+    if not (0.0 <= float(attendance_rate) <= 1.0):
+        raise ValueError(f"attendance_rate は 0.0〜1.0(いま {attendance_rate})")
     # ---- ablation ③: **ランの実効不応期表**を 1 本組む(既定=§6 の表そのもの) ----
     refractory_table = R.refractory_ticks(refractory_scale)
     refractory_scale_norm = R.normalized_refractory_scale(refractory_scale)
@@ -936,14 +1004,28 @@ def run_day(
     salt = run_salt_for(seed)
     tape_writer = TapeWriter(Path(tape_path)) if tape_path is not None else None
     conv = ConversationManager(seed) if conversations else None
-    agents = AgentState(n_agents)
+    schedule = synthesize(n_agents, seed, world.n_cells)
+    pop = _resolve_population(population, world_dir, n_agents, seed, world.n_cells)
+    # ---- D-66: 週次表(W17)は SoA を確保する前に読む(層の有無で列が 1 本変わるため) ----
+    # ``load_weekly`` / ``restrict_to`` は純粋な読み込み(乱数を 1 語も引かない)なので、
+    # ここへ繰り上げても帰無腕のバイト列は動かない。
+    weekly = load_weekly(world_dir) if (world_dir is not None and pop is not None) else None
+    if weekly is not None:
+        weekly = weekly.restrict_to(pop.source_agent_id)
+    # ``--ablate AB-PLAN-EXECUTOR`` / ``--ablate plan_execution`` でも切れる(台帳の約束)。
+    # 層は ``engine/processes`` の下に居ないので ``WorldProcessRunner`` のトグルには載らない。
+    _ablated = {str(x) for x in (processes_disabled or ())}
+    if _ablated & set(PlanExecutor.process_ids) | (_ablated & {PlanExecutor.ablation_id}):
+        plan_executor = False
+    plan_exec_on = bool(plan_executor) and weekly is not None and pop is not None
+    agents = AgentState(n_agents, plan_columns=plan_exec_on)
     if ledger is not None and ledger.money is not None:
         # 世帯の現金行 = 個体 SoA の money(写しを作らない・台帳の書き込み窓は resolve が持つ)
         ledger.money.attach_household_cash(agents.registry.money)
-    schedule = synthesize(n_agents, seed, world.n_cells)
-    pop = _resolve_population(population, world_dir, n_agents, seed, world.n_cells)
     if pop is not None:
-        schedule = _schedule_with_population(schedule, pop, world.n_cells)
+        schedule = _schedule_with_population(
+            schedule, pop, world.n_cells, keep_outside_home=plan_exec_on
+        )
     R.initialize(agents, world, schedule, day_index=day_index, ledger=ledger)
     agents.freeze()
     world.freeze()
@@ -965,7 +1047,38 @@ def run_day(
             p_notice_ablation=p_notice_ablation,
             p_notice_d50_scale=p_notice_d50_scale,
             salient_rate_per_10k=salient_rate_per_10k,
+            plan_executor=plan_exec_on,
         )
+
+    # ---- ⓪a-2 計画実行層(D-66・engine.presence)。W17 + W16 のあるランだけ立つ ----
+    presence: PlanExecutor | None = None
+    if plan_exec_on:
+        presence = PlanExecutor(
+            world,
+            agents,
+            weekly,
+            day_index=day_index,
+            home_cell=pop.home_cell,
+            direction_node=pop.direction_node,
+            kind=pop.kind,
+            agent_id=pop.source_agent_id,
+            rail=(
+                runner.rail
+                if (runner is not None and runner.is_enabled("rail"))
+                else None
+            ),
+            assets=(
+                runner.assets
+                if runner is not None
+                else load_process_assets_or_synthetic(world_dir, world.assets)
+            ),
+            ticks=ticks,
+            exit_mode=exit_mode,
+            attendance_rate=attendance_rate,
+        )
+        presence.initialize()  # その時刻に在圏でない体を域外へ(I1 の分母)
+        if runner is not None:
+            runner.attach_presence(presence)  # hotel の母数・civic の引き込み候補
 
     # ---- 知覚レンダラ(C3 結線・B0-B6 の本物) ----
     perception: PerceptionRendererAdapter | None = None
@@ -1045,9 +1158,7 @@ def run_day(
 
     # 計画境界。W17 週次表(w17_schedule.parquet)があればそれを使い、無ければ mock 日課の 5 境界へ落ちる
     # (C5-b 結線・09-09)。mock 経路は --no-population と合成世界の下限対照としてそのまま残す。
-    weekly = load_weekly(world_dir) if (world_dir is not None and pop is not None) else None
     if weekly is not None:
-        weekly = weekly.restrict_to(pop.source_agent_id)
         # D-62: 就寝境界で「どこで寝るか」が要るので行き先セルも一緒に取る(並びは同じ)
         b_agent, b_cond, b_tick, b_cell = weekly.boundary_events_full(day_index)
         schedule = apply_to_mock_schedule(schedule, weekly, day_index)  # 拠点セル(自宅/職場)の上書き
@@ -1085,10 +1196,11 @@ def run_day(
     occ_ticks: list[int] = []
     occ_counts: list[np.ndarray] = []
     occ_kind: list[np.ndarray] = []
+    occ_transit: list[np.ndarray] = []
     # ``fleet_wait`` は ``--fleet-wait-s`` の待ち(``llm`` から分離して数える=P2 の切り分け用)。
     # ``movement_cpu`` は movement 区間の**スレッド CPU 時間**(壁時計との差=GIL 待ち)。
-    phase = {k: 0.0 for k in ("detect", "arbiter", "llm", "fleet_wait", "phase_a", "phase_b",
-                              "phase_c", "movement", "movement_cpu", "checkpoint")}
+    phase = {k: 0.0 for k in ("presence", "detect", "arbiter", "llm", "fleet_wait", "phase_a",
+                              "phase_b", "phase_c", "movement", "movement_cpu", "checkpoint")}
     diag_rows: list[tuple[int, ...]] = []
     # (t_apply, class, agent, condition, text, action_code, target_person)
     # ``target_person`` = LLM が「対象」欄に書いた個体 id(-1=名指しなし・C6 09-09)。
@@ -1120,6 +1232,12 @@ def run_day(
         # 親指示は「⓪ の直後」だったが、それだと同じ tick の流れが描画に載らない(報告済み)。
         if runner is not None:
             runner.step(tick)
+
+        # ---- ⓪a-2 計画実行層(D-66): 到着・退出(§3)。世界過程と同じ位置で回す ----
+        if presence is not None:
+            t0 = time.perf_counter()
+            presence.step(tick)
+            phase["presence"] += time.perf_counter() - t0
 
         # ---- ⓪ 知覚の tick 前計算(セル配列+B4 描画欄・**1 tick 1 回**) ----
         # 顕著行為(salient_events)は人物③(第2陣)が入るまで空。騒音段は
@@ -1211,19 +1329,29 @@ def run_day(
             # 非就寝の境界は逆に「起こしてから呼ぶ」(呼が繰り延べ・抑止で落ちても起きる)。
             if plan_sleep:
                 to_bed = p_cond == int(WakeCondition.PLAN_SLEEPING)
-                if to_bed.any():
-                    got = R.begin_planned_sleep(
-                        agents, world, p_agent[to_bed], b_cell[lo:hi][to_bed], tick,
-                        schedule=schedule,
-                    )
-                    for k, v in got.items():
-                        sleep_counts[k] = sleep_counts.get(k, 0) + int(v)
-                    p_agent = p_agent[~to_bed]
-                    p_cond = p_cond[~to_bed]
-                if p_agent.size:
-                    sleep_counts["woke"] = sleep_counts.get("woke", 0) + R.wake_from_plan(
-                        agents, p_agent
-                    )
+                if presence is not None:
+                    # **D-66**: 発火元は計画実行層(同じ位置・同じ resolve の口)。
+                    # 就寝地の既定は層が持つ ``home_cell``(域外常住は −1 のまま=職場で寝ない)。
+                    t0 = time.perf_counter()
+                    presence.step_plan_boundaries(tick)
+                    phase["presence"] += time.perf_counter() - t0
+                    if to_bed.any():
+                        p_agent = p_agent[~to_bed]
+                        p_cond = p_cond[~to_bed]
+                else:
+                    if to_bed.any():
+                        got = R.begin_planned_sleep(
+                            agents, world, p_agent[to_bed], b_cell[lo:hi][to_bed], tick,
+                            schedule=schedule,
+                        )
+                        for k, v in got.items():
+                            sleep_counts[k] = sleep_counts.get(k, 0) + int(v)
+                        p_agent = p_agent[~to_bed]
+                        p_cond = p_cond[~to_bed]
+                    if p_agent.size:
+                        sleep_counts["woke"] = sleep_counts.get("woke", 0) + R.wake_from_plan(
+                            agents, p_agent
+                        )
             p_class = np.fromiter(
                 (int(WAKE_CONDITION_CLASS[int(c)]) for c in p_cond),
                 dtype=np.int64,
@@ -1627,6 +1755,8 @@ def run_day(
                 sleep_counts.get("arrived", 0) + int(outcome.n_planned_sleep)
             )
 
+        if presence is not None:
+            presence.sample(tick)  # 正時の在圏・計画一致率(在圏 journal と同じ位置)
         if occupancy_every and tick % occupancy_every == 0:
             occ_ticks.append(int(tick))
             occ_counts.append(np.asarray(world.cells.density, dtype=np.int32).copy())
@@ -1635,6 +1765,11 @@ def run_day(
             _ok = (_c >= 0) & (_c < world.n_cells)
             _kc = np.bincount(_k[_ok] * world.n_cells + _c[_ok], minlength=9 * world.n_cells)[: 9 * world.n_cells]
             occ_kind.append(_kc.reshape(9, world.n_cells).astype(np.int32))
+            # D-66: 種別 × 在圏/乗車中/域外(9×3)。**既存キーは 1 本も変えない**
+            # (``tools/c7`` は無改造で読める=知らないキーは無視される)。
+            _ts = np.clip(np.asarray(agents.registry.transit_state, dtype=np.int64), 0, 2)
+            _tk = np.bincount(_k * 3 + _ts, minlength=27)[:27]
+            occ_transit.append(_tk.reshape(9, 3).astype(np.int32))
         if checkpoint_every and ((tick + 1) % checkpoint_every == 0 or tick == ticks - 1):
             t0 = time.perf_counter()
             result.checkpoints.append(
@@ -1780,7 +1915,20 @@ def run_day(
         (awake_sum[h] / (awake_ticks[h] * n_agents)) if (awake_ticks[h] and n_agents) else 0.0
         for h in range(24)
     ]
+    if presence is not None:
+        for _k, _v in presence.sleep_counts.items():
+            sleep_counts[_k] = sleep_counts.get(_k, 0) + int(_v)
     result.planned_sleep_counts = dict(sleep_counts)
+    result.plan_executor = bool(plan_exec_on)
+    result.exit_mode = str(exit_mode)
+    result.attendance_rate = float(attendance_rate)
+    if presence is not None:
+        result.presence_counters = dict(presence.counters())
+        result.presence_summary = presence.summary()
+        # 標本の無かった時(短いラン)は NaN のまま来るので 0.0 に落とす(推測で埋めない)
+        result.wake_rate_in_area_by_hour = [
+            (0.0 if v != v else round(float(v), 6)) for v in presence.wake_in_area_by_hour
+        ]
     result.diagnostics = np.asarray(diag_rows, dtype=np.int64).reshape(-1, len(DIAG_RUN_COLUMNS))
     result.phase_seconds = phase
     result.wall_seconds = time.perf_counter() - t_start
@@ -1836,6 +1984,7 @@ def run_day(
             ticks=np.asarray(occ_ticks, dtype=np.int64),
             cell_counts=np.stack(occ_counts),
             kind_cell_counts=np.stack(occ_kind),
+            transit_kind_counts=np.stack(occ_transit),
             meta=np.asarray(_json.dumps({"tick_seconds": int(tick_seconds), "start_hour": 0, "day_index": int(day_index)}, ensure_ascii=False)),
         )
     return result
@@ -1881,7 +2030,7 @@ def add_fleet_args(ap: "argparse.ArgumentParser") -> None:
                     help="④′ で未応答が残るとき tick ごとに最大この秒数だけ艦隊を待つ(既定 0=純非ブロッキング・スモーク用)")
     ap.add_argument("--fleet-queue-capacity", type=int, default=0,
                     help=("艦隊の受理待ち+実行中の合計上限(既定 0=FleetConfig の既定 max_in_flight×4)。"
-                          "C7 本番(D-55/D-58): 計画呼数 2,709/tick に対し既定 1,792 だと 33.8% が queue full で"
+                          "C7 本番(D-55/D-58): 計画呼数 2,709/tick に対し既定 1,792 だと 33.8%% が queue full で"
                           "繰り延べ→テープに残らず再生不能。計画呼数以上(例 4096)にすると繰り延べ ≈0"))
 
 
@@ -1938,6 +2087,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--no-plan-sleep", action="store_true",
                     help="D-62「就寝は計画の実行」を切る(=D-62 前の挙動・帰無腕。"
                          "就寝境界も LLM に判断させ・tick 0 は全員 SLEEPING)")
+    ap.add_argument("--no-plan-executor", action="store_true",
+                    help="D-66 計画実行層(engine.presence)を切る(=現行挙動・帰無腕)")
+    ap.add_argument("--exit-mode", choices=PRESENCE_EXIT_MODES, default="immediate",
+                    help="退出の実行形(immediate のみ実装・他は予約)")
+    ap.add_argument("--attendance-rate", type=float, default=1.0, metavar="RATE",
+                    help="出勤率(D-67 (b)・expedient E6・既定 1.0)")
     add_fleet_args(ap)
     args = ap.parse_args(argv)
 
@@ -1963,6 +2118,9 @@ def main(argv: list[str] | None = None) -> int:
         population=False if args.no_population else None,
         sleep_suppression=not args.no_sleep_suppression,
         plan_sleep=not args.no_plan_sleep,
+        plan_executor=not args.no_plan_executor,
+        exit_mode=str(args.exit_mode),
+        attendance_rate=float(args.attendance_rate),
     )
     print(res.summary())
     return 0 if (res.conserved and res.min_stock >= 0) else 1

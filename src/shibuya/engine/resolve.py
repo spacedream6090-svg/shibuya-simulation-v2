@@ -91,6 +91,7 @@ __all__ = [
     "ResolveOutcome",
     "initialize",
     "set_initial_activity",
+    "set_plan_state",
     "begin_planned_sleep",
     "wake_from_plan",
     "apply_detection",
@@ -317,10 +318,18 @@ def initialize(
     n = agents.n
     with agents.writable(), world.writable():
         home = np.asarray(schedule.home_cell, dtype=np.int64)[:n]
-        agents.registry.cell[:] = home
-        agents.registry.node[:] = world.assets.cell_rep_node[home]
-        agents.registry.band[:] = world.assets.cell_band[home]
-        agents.registry.xy[:] = world.assets.node_xy[agents.registry.node]
+        # I6 −1 ガード(D-66): 域外居住者は ``home_cell < 0`` のまま来る(計画実行層が
+        # 起動直後に ``place_at_external`` で外へ置く)。**セル表を −1 で索引しない**。
+        # 全員が ``home_cell >= 0`` のラン(帰無腕・mock・合成世界)では 1 バイトも変わらない。
+        has_home = home >= 0
+        safe = np.where(has_home, home, 0)
+        agents.registry.cell[:] = np.where(has_home, home, -1)
+        node = np.where(has_home, world.assets.cell_rep_node[safe], -1)
+        agents.registry.node[:] = node
+        agents.registry.band[:] = np.where(has_home, world.assets.cell_band[safe], 0)
+        agents.registry.xy[:] = np.where(
+            has_home[:, None], world.assets.node_xy[np.maximum(node, 0)], 0.0
+        )
         agents.registry.field("kind")[:] = np.asarray(schedule.kind)[:n]
         # W16 母集団を載せたランだけ年齢・性別が入る(mock は既定値 0 / −1 のまま)
         if getattr(schedule, "age", None) is not None:
@@ -380,6 +389,63 @@ def set_initial_activity(agents: AgentState, activity) -> int:
     return int(np.count_nonzero(free))
 
 
+def set_plan_state(
+    agents: AgentState,
+    agent_id=None,
+    *,
+    activity=None,
+    flags=None,
+    flags_set: int | None = None,
+    flags_clear: int | None = None,
+) -> None:
+    """``plan_activity`` / ``plan_flags``(D-66 計画実行層の 2 欄)への**唯一の書き込み口**。
+
+    欄は ``AgentState(plan_columns=True)`` のランにしか無い(帰無腕は欄ごと無い)ので、
+    **欄が無ければ黙って何もしない**=帰無腕・既存テストは 1 バイトも動かない。
+
+    Args:
+        agents: 個体状態。
+        agent_id: 書く体(``None``=全体に一括代入)。
+        activity: ``ACTIVITY_WORDS`` の索引(``agent_id`` と同じ長さかスカラー)。
+        flags: ``plan_flags`` をそのまま置き換える値。
+        flags_set / flags_clear: 立てる/落とすビット(``FLAG_*``)。
+
+    Note:
+        書くのは「計画の写し」であって世界状態ではないが、SoA への書き込みは
+        ``resolve`` 以外から行わない規律(運用設計書 §2.2)に合わせてここに置く。
+    """
+    r = agents.registry
+    if "plan_activity" not in r.arrays:
+        return
+    a = None if agent_id is None else np.asarray(agent_id, dtype=np.int64).ravel()
+    if a is not None and a.size == 0:
+        return
+    with agents.writable():
+        if activity is not None:
+            v = np.asarray(activity, dtype=np.int8)
+            if a is None:
+                r.plan_activity[:] = v
+            else:
+                r.plan_activity[a] = v
+        if flags is not None:
+            v = np.asarray(flags, dtype=np.int8)
+            if a is None:
+                r.plan_flags[:] = v
+            else:
+                r.plan_flags[a] = v
+        if flags_set:
+            if a is None:
+                r.plan_flags[:] = (r.plan_flags | np.int8(flags_set)).astype(np.int8)
+            else:
+                r.plan_flags[a] = (r.plan_flags[a] | np.int8(flags_set)).astype(np.int8)
+        if flags_clear:
+            mask = ~np.int8(int(flags_clear))  # int8 の補数=落とすビットだけ 0
+            if a is None:
+                r.plan_flags[:] = (r.plan_flags & mask).astype(np.int8)
+            else:
+                r.plan_flags[a] = (r.plan_flags[a] & mask).astype(np.int8)
+
+
 def begin_planned_sleep(
     agents: AgentState,
     world: World,
@@ -415,6 +481,9 @@ def begin_planned_sleep(
         計数の辞書 ``{slept, walking, riding, outside, conversing, asleep, unreachable}``
         (``slept + walking + それ以外の合計 = 体数``)。**触らなかった理由を数える**のは、
         「その日はもう就寝境界が来ない=起きたままになる」体の量を報告するため。
+        内訳は ``transit_state`` を先に見る(乗車中 → 域外 → 在圏の中で 会話中/就寝済/
+        セルが無い・経路が無い)ので、**域外の体は ``unreachable`` ではなく ``outside``**
+        に入る(2026-09-11・D-66)。
     """
     zero = {
         "slept": 0, "walking": 0, "riding": 0, "outside": 0,
@@ -441,15 +510,27 @@ def begin_planned_sleep(
             & (act0 != int(Activity.CONVERSING))
             & (act0 != int(Activity.SLEEPING))
         )
-        zero["riding"] = int(np.count_nonzero(ok_cell & (st == 1)))
-        zero["outside"] = int(np.count_nonzero(ok_cell & (st == 2)))
+        # **触らなかった理由は 3 値(``transit_state``)を先に見る**(2026-09-11・D-66 の指摘):
+        # 旧実装は ``ok_cell`` を全ての内訳に掛けていたので、就寝地セルの無い**域外の体**が
+        # ``outside`` ではなく ``unreachable`` に落ちていた(計画実行層のランで 域外常住者の
+        # ``home_cell < 0`` が効き、既定腕の「行けない」が 5,976 件に膨らんだ)。
+        # ``unreachable`` は「**在圏**なのに就寝地のセルが無い/経路が無い」体だけにする。
+        # 内訳の合計は従来どおり体数に一致し、``free``(実際に寝かせる体)は 1 ビットも変えない。
+        in_area = st == 0
+        zero["riding"] = int(np.count_nonzero(st == 1))
+        zero["outside"] = int(np.count_nonzero(st == 2))
         zero["conversing"] = int(
-            np.count_nonzero(ok_cell & (st == 0) & (act0 == int(Activity.CONVERSING)))
+            np.count_nonzero(in_area & (act0 == int(Activity.CONVERSING)))
         )
-        zero["asleep"] = int(
-            np.count_nonzero(ok_cell & (st == 0) & (act0 == int(Activity.SLEEPING)))
+        zero["asleep"] = int(np.count_nonzero(in_area & (act0 == int(Activity.SLEEPING))))
+        zero["unreachable"] = int(
+            np.count_nonzero(
+                in_area
+                & (act0 != int(Activity.CONVERSING))
+                & (act0 != int(Activity.SLEEPING))
+                & ~ok_cell
+            )
         )
-        zero["unreachable"] = int(np.count_nonzero(~ok_cell))
         at = free & (r.cell[a].astype(np.int64) == cell)
         here = a[at]
         if here.size:

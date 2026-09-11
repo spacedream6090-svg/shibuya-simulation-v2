@@ -206,7 +206,8 @@ def _manifest_fields(res: Any) -> dict[str, Any]:
         f = res.run_manifest_fields()
     except Exception:  # pragma: no cover - mock/stub の結果
         return {}
-    return {k: v for k, v in f.items() if k in ("budget_mode", "ablations", "template_sha256", "catalog_sha16", "replay_date", "p_notice_ablation", "p_notice_d50_scale", "refractory_scale", "signage")}
+    # D-66(2026-09-11): 計画実行層の腕 3 つを足した(AB-PLAN-EXECUTOR を C8 で回すため)。
+    return {k: v for k, v in f.items() if k in ("budget_mode", "ablations", "template_sha256", "catalog_sha16", "replay_date", "p_notice_ablation", "p_notice_d50_scale", "refractory_scale", "signage", "plan_executor", "exit_mode", "attendance_rate")}
 
 
 def compare_runs(baseline: Mapping[str, Any], arm: Mapping[str, Any]) -> dict[str, Any]:

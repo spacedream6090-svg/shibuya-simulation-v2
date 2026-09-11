@@ -116,7 +116,7 @@ def test_collect_ablations(dashboard, c8lib):
 def test_collect_sensitivity(dashboard, c8lib):
     out = dashboard.collect_sensitivity(c8lib.load_sensitivity())
     assert out["n_rows"] >= 14
-    assert out["n_process_ablations"] == 21
+    assert out["n_process_ablations"] == 22
     assert out["n_done"] == out["n_not_driving"] + out["n_needs_run"]
 
 

@@ -88,6 +88,15 @@ SUMMARY_TEXT = (
     " 寝かせなかった 乗車中 0・域外 636・会話中 0・就寝済 3,580・行けない 0\n"
 )
 
+#: D-66 計画実行層のランの要約(**``起床率(在圏)/時`` が増える**)。他の行は同じ書式。
+SUMMARY_TEXT_IN_AREA = SUMMARY_TEXT + (
+    "  起床率(在圏)/時 00:0.300 01:0.310 02:0.320 03:0.485 04:0.400 05:0.420 06:0.500"
+    " 07:0.900 08:0.950 09:0.992 10:0.990 11:0.990 12:0.989 13:0.988 14:0.987 15:0.986"
+    " 16:0.985 17:0.984 18:0.983 19:0.982 20:0.981 21:0.980 22:0.900 23:0.700\n"
+    "  計画実行: 域外居住 4,491 / 到着 4,491 / 退出 3,460 / 終日域外 1,107 /"
+    " 計画一致率(在圏) 0.870 / (域外) 0.990 / 昼夜比 09-03 4.27\n"
+)
+
 
 # ---------------------------------------------------------------- 1 アンカー台帳
 
@@ -145,6 +154,55 @@ def test_parse_summary_lines(yard):
     assert yard.parse_n_agents(SUMMARY_TEXT) == 5000
     assert yard.parse_wake_rate("何も無い") is None
     assert yard.parse_planned_sleep("何も無い") is None
+
+
+def test_in_area_wake_rate_line_wins_over_the_d62_line(yard, tmp_path):
+    """**D-66**: ``起床率(在圏)/時`` があれば a(h) との比較にそちらを使う。
+
+    ``起床率/時``(D-62 定義)は**域外滞在・乗車中も「起きている」に数える**ので、計画実行層の
+    ランでは分母が揃わない。行が無い入力(before)では従来どおり ``起床率/時`` を使う。
+    """
+    # 2 本並んでも正規表現が食い合わない(既存行はそのまま読める)
+    assert yard.parse_wake_rate(SUMMARY_TEXT_IN_AREA)[3] == pytest.approx(0.250)
+    ia = yard.parse_wake_rate_in_area(SUMMARY_TEXT_IN_AREA)
+    assert ia is not None and len(ia) == 24
+    assert ia[3] == pytest.approx(0.485) and ia[12] == pytest.approx(0.989)
+    assert yard.parse_wake_rate_in_area(SUMMARY_TEXT) is None  # 在圏行の無い入力
+
+    new_p = tmp_path / "after.txt"
+    new_p.write_text(SUMMARY_TEXT_IN_AREA, encoding="utf-8")
+    old_p = tmp_path / "before.txt"
+    old_p.write_text(SUMMARY_TEXT, encoding="utf-8")
+    s_new = yard.read_summary(str(new_p))
+    s_old = yard.read_summary(str(old_p))
+    assert s_new["wake_rate_basis"] == "in_area"
+    assert s_new["wake_rate"][3] == pytest.approx(0.485)  # 比較に使うのは在圏版
+    assert s_new["wake_rate_plain"][3] == pytest.approx(0.250)  # 既存欄も残る
+    assert s_old["wake_rate_basis"] == "all_agents"
+    assert s_old["wake_rate"][3] == pytest.approx(0.250)
+    assert s_old["wake_rate_in_area"] is None
+
+
+def test_md_and_json_state_which_wake_rate_definition_was_used(
+    yard, anchors, amap, tmp_path
+):
+    """§4 の md/json が**どちらの定義で測ったか**を明記する(前後で定義が違えばその旨も)。"""
+    sp_new = tmp_path / "after.txt"
+    sp_new.write_text(SUMMARY_TEXT_IN_AREA, encoding="utf-8")
+    sp_old = tmp_path / "before.txt"
+    sp_old.write_text(SUMMARY_TEXT, encoding="utf-8")
+    jp = synth_journal(tmp_path / "a.npz", hour_mult({9: 10}))
+    after = yard.presence_from_journal(jp, amap, summary=yard.read_summary(sp_new))
+    before = yard.presence_from_journal(jp, amap, summary=yard.read_summary(sp_old))
+    payload = yard.build_payload(after, anchors, target=1_000, before=before)
+    w = payload["after"]["wake_rate"]
+    assert w["basis"] == "in_area"
+    assert "定義=在圏の体の非就寝率" in w["basis_note"]
+    assert w["run"][3] == pytest.approx(0.485)
+    assert payload["before"]["wake_rate"]["basis"] == "all_agents"
+    md = yard.markdown(payload)
+    assert "定義=在圏の体の非就寝率" in md
+    assert "**before は定義が違う**" in md
 
 
 # ---------------------------------------------------------------- 3 行が出る

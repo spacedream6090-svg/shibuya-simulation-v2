@@ -206,11 +206,22 @@ def scan_engine_ablation_ids(root: str | Path | None = None) -> dict[str, str]:
 
     Returns:
         ``{AB-id: モジュール名}``。
+
+    Note:
+        2026-09-11(D-66): 走査先に ``engine/presence.py``(計画実行層)を足した。
+        層は ``engine/processes/`` の下に居ないが ``--ablate AB-PLAN-EXECUTOR`` /
+        帰無腕 ``--no-plan-executor`` で切れる=台帳の突合対象は同じ(分母 21 → 22)。
     """
     base = Path(root) if root is not None else REPO_ROOT / "src" / "shibuya" / "engine" / "processes"
     pat = re.compile(r'ablation_id:\s*Final\[str\]\s*=\s*(?:ABLATION_IDS\[\d+\]|"(AB-[A-Z0-9-]+)")')
     out: dict[str, str] = {}
-    for f in sorted(base.glob("*.py")):
+    files = sorted(base.glob("*.py"))
+    if root is None:
+        # **D-66 計画実行層**は ``engine/presence.py``(過程ではなく層)に ``ablation_id`` を持つ
+        extra = REPO_ROOT / "src" / "shibuya" / "engine" / "presence.py"
+        if extra.exists():
+            files = files + [extra]
+    for f in files:
         text = f.read_text(encoding="utf-8")
         for m in pat.finditer(text):
             if m.group(1):

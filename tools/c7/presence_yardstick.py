@@ -25,7 +25,10 @@
                            (``ticks``/``cell_counts``/``kind_cell_counts``/``meta``)。**種別行が出る**。
     ``--series RUN.json``  ``occupancy_series.py`` の集計済み JSON(``area_hour_counts`` (24,5))。
                            bbox 全体と種別行は**入っていない**ので空欄になる。
-    ``--summary RUN.txt``  cli の標準出力(``起床率/時`` ``D-62 計画就寝`` ``呼/時`` ``[run] n=``)。
+    ``--summary RUN.txt``  cli の標準出力(``起床率/時`` ``起床率(在圏)/時`` ``D-62 計画就寝``
+                           ``呼/時`` ``[run] n=``)。**``起床率(在圏)/時`` があれば a(h) との
+                           比較にそちらを使う**(D-66 計画実行層のランは域外の体が多く、
+                           D-62 定義の ``起床率/時`` は分母が揃わない)。
 
 例::
 
@@ -112,6 +115,8 @@ def load_anchors(path: str | Path | None = None) -> dict[str, Any]:
 # ---------------------------------------------------------------- 要約テキストの読み
 
 _WAKE_RE = re.compile(r"起床率/時\s+((?:\d{2}:[-0-9.]+\s*)+)")
+#: D-66 の補助欄(**在圏の体だけ**の非就寝率)。あれば a(h) との比較に**こちらを優先**する。
+_WAKE_IN_AREA_RE = re.compile(r"起床率\(在圏\)/時\s+((?:\d{2}:[-0-9.]+\s*)+)")
 _CALLS_RE = re.compile(r"呼/時\s+((?:\d{2}:\d+\s*)+)")
 _PAIR_RE = re.compile(r"(\d{2}):([-0-9.]+)")
 _N_AGENTS_RE = re.compile(r"\[run\]\s+n=(\d+)")
@@ -134,8 +139,23 @@ def _pairs_to_24(blob: str, cast: Any) -> list[Any]:
 
 
 def parse_wake_rate(text: str) -> list[float] | None:
-    """``起床率/時 00:0.185 …`` の 24 値(**割合**)。行が無ければ None。**純関数**。"""
+    """``起床率/時 00:0.185 …`` の 24 値(**割合**)。行が無ければ None。**純関数**。
+
+    D-62 の定義=**域外滞在・乗車中も「起きている」に数える**。D-66 計画実行層が入った
+    ランではこの欄が自動的に上がるので、a(h) と並べるなら ``parse_wake_rate_in_area``
+    を優先する(``read_summary`` がそうしている)。
+    """
     m = _WAKE_RE.search(text)
+    return _pairs_to_24(m.group(1), float) if m else None
+
+
+def parse_wake_rate_in_area(text: str) -> list[float] | None:
+    """``起床率(在圏)/時 00:0.485 …`` の 24 値。行が無ければ None。**純関数**。
+
+    定義 = **在圏(``transit_state == 0``)の体のうち ``activity != SLEEPING`` の割合**
+    (D-66 計画実行層の補助欄・``engine.run.RunResult.wake_rate_in_area_by_hour``)。
+    """
+    m = _WAKE_IN_AREA_RE.search(text)
     return _pairs_to_24(m.group(1), float) if m else None
 
 
@@ -167,12 +187,20 @@ def parse_n_agents(text: str) -> int | None:
 def read_summary(path: str | Path | None) -> dict[str, Any]:
     """要約テキスト → 使う欄だけの辞書(読めない欄は None のまま=推測しない)。"""
     if not path:
-        return {"path": None, "wake_rate": None, "planned_sleep": None,
-                "calls_by_hour": None, "n_agents": None}
+        return {"path": None, "wake_rate": None, "wake_rate_plain": None,
+                "wake_rate_in_area": None, "wake_rate_basis": None,
+                "planned_sleep": None, "calls_by_hour": None, "n_agents": None}
     text = Path(path).read_text(encoding="utf-8", errors="replace")
+    plain = parse_wake_rate(text)
+    in_area = parse_wake_rate_in_area(text)
     return {
         "path": str(path),
-        "wake_rate": parse_wake_rate(text),
+        # a(h) との比較に**実際に使う**系列。在圏版があればそちらが正(分母が揃う)。
+        "wake_rate": in_area if in_area is not None else plain,
+        "wake_rate_plain": plain,
+        "wake_rate_in_area": in_area,
+        "wake_rate_basis": ("in_area" if in_area is not None else
+                            ("all_agents" if plain is not None else None)),
         "planned_sleep": parse_planned_sleep(text),
         "calls_by_hour": parse_calls_by_hour(text),
         "n_agents": parse_n_agents(text),
@@ -354,6 +382,13 @@ def _wake_rows(p: Presence, a: Mapping[str, Any]) -> dict[str, Any] | None:
         "diff_12": diff[NOON_HOUR],
         "anchor_source": a["wake_rate_tokyo_weekday"]["source"],
         "anchor_caveat": a["wake_rate_tokyo_weekday"].get("caveat"),
+        # どちらの系列で測ったか(**分母が違う**ので前後比較のときに要る)
+        "basis": p.summary.get("wake_rate_basis"),
+        "basis_note": (
+            "定義=在圏の体の非就寝率(transit_state==0 の体のうち activity != SLEEPING)"
+            if p.summary.get("wake_rate_basis") == "in_area"
+            else "定義=全体の非就寝率(D-62・域外滞在と乗車中も『起きている』に数える)"
+        ),
     }
 
 
@@ -685,7 +720,10 @@ def markdown(payload: Mapping[str, Any]) -> str:
             ("03 時 差(run − a(3))", (wb or {}).get("diff_03"), wa["diff_03"]),
             ("12 時 差(run − a(12))", (wb or {}).get("diff_12"), wa["diff_12"]),
         ], cm, nd=3))
-        out += ["", f"- a(h) 出典: {wa['anchor_source']}",
+        out += ["", f"- after の {wa['basis_note']}"]
+        if wb is not None and wb.get("basis") != wa.get("basis"):
+            out.append(f"- **before は定義が違う**: {wb['basis_note']}(差は定義差を含む)")
+        out += [f"- a(h) 出典: {wa['anchor_source']}",
                 f"- 注意: {wa['anchor_caveat']}"]
     out += ["", "## 5 計画就寝(D-62 の計数)", ""]
     sa, sb = after.get("planned_sleep"), (before or {}).get("planned_sleep")

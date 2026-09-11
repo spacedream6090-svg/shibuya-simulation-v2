@@ -190,6 +190,27 @@ def test_run_metrics_from_stub(ablation_runner):
     assert m["run_manifest_fields"] == {}  # スタブは manifest を持たない
 
 
+def test_manifest_whitelist_carries_the_arms(ablation_runner):
+    """腕の同定欄が ``run_metrics`` の白リストを通る(D-66 の 3 欄を含む・2026-09-11)。"""
+
+    class _Res(_StubResult):
+        def run_manifest_fields(self):  # type: ignore[override]
+            return {
+                "budget_mode": "fixed_slots", "ablations": (), "template_sha256": "t",
+                "catalog_sha16": "c", "replay_date": "2026-07-28",
+                "p_notice_ablation": "A4", "p_notice_d50_scale": 1.0,
+                "refractory_scale": {}, "signage": True,
+                "plan_executor": True, "exit_mode": "immediate", "attendance_rate": 0.88,
+                "registry_hash": "落とす欄", "fleet": {},
+            }
+
+    f = ablation_runner.run_metrics(_Res(), None)["run_manifest_fields"]
+    for key in ("plan_executor", "exit_mode", "attendance_rate"):
+        assert key in f, f
+    assert f["attendance_rate"] == 0.88 and f["exit_mode"] == "immediate"
+    assert "registry_hash" not in f and "fleet" not in f  # 白リストの外は落ちる
+
+
 def test_run_metrics_handles_zero_salient(ablation_runner):
     m = ablation_runner.run_metrics(_StubResult(salient_events=0, noticed=0), None)
     assert m["notice_reach"] == 0.0

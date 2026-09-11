@@ -222,6 +222,7 @@ class RailProcess:
         weekly=None,
         actual_log=None,
         fare_yen: int = FARE_YEN,
+        plan_executor: bool = False,
     ) -> None:
         self.world = world
         self.agents = agents
@@ -231,6 +232,11 @@ class RailProcess:
         self.schedule = schedule
         self.log = actual_log
         self.fare_yen = int(fare_yen)
+        #: **D-66 計画実行層**(``engine.presence``)が在圏の出入りを持つラン。
+        #: True のとき本モジュールは ① 乱数 12% の域外居住(``_build_external_home``)と
+        #: ② D-61 帰りの便(``_assign_return``)を**やめる**(層が両方を吸収する)。
+        #: 列車の運行・混雑率・受容関数・運賃・D-51 乗車の意図保持はそのまま。
+        self.plan_executor = bool(plan_executor)
         self.n_departures = 0
         self.n_arrivals = 0
         self.n_departed_riders = 0
@@ -349,8 +355,8 @@ class RailProcess:
             逐次ループ宣言(P4): **路線数**(≤8)ぶんの ``searchsorted`` 1 本。起動時 1 回。
         """
         n = self.agents.n
-        if not self.active or n == 0:
-            return
+        if not self.active or n == 0 or self.plan_executor:
+            return  # 計画実行層のランでは乱数 12% を引かない(帰無腕へ降格・設計書 §1)
         raw = np.asarray(
             philox(self.master_seed, RNG_DOMAIN, 0).random_raw(3 * n), dtype=np.uint64
         ).reshape(n, 3)
@@ -451,8 +457,8 @@ class RailProcess:
             「次の域内活動の時刻」の異なり数で頭打ち。**個体数に比例するループは作らない**)。
         """
         r = np.asarray(riders, dtype=np.int64).ravel()
-        if r.size == 0:
-            return
+        if r.size == 0 or self.plan_executor:
+            return  # 帰りの便は計画実行層の DEPART/ARRIVE に吸収された(設計書 §1)
         home_in = r[self.external_line[r] < 0]
         if home_in.size == 0:
             return

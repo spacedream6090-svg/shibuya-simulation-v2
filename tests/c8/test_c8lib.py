@@ -137,10 +137,12 @@ def test_scan_first_wave_arms_is_six(c8lib):
 def test_scan_engine_ablation_ids(c8lib):
     """世界過程は 1 行 1 感度試験 id(AB-*)を持つ。"""
     ids = c8lib.scan_engine_ablation_ids()
-    assert len(ids) == 21
+    assert len(ids) == 22
     assert all(k.startswith("AB-") for k in ids)
     assert {f"AB-PNOTICE-A{k}" for k in range(5)} <= set(ids)
     assert ids["AB-SHELF-REORDER"] == "goods_flow.py"
+    # D-66: 計画実行層は過程ではないが同じ id の規律に乗る(engine/presence.py)
+    assert ids["AB-PLAN-EXECUTOR"] == "presence.py"
 
 
 def test_ledger_gaps(c8lib):
