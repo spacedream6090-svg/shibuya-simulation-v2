@@ -593,6 +593,47 @@ def test_arrival_spread_stays_inside_the_eight_train_window():
     )
 
 
+def test_overflow_on_the_last_train_stays_on_its_own_e1_train():
+    """⑬-c(§3 E8・層2 最終確認): **E1 便が最終便**の体は③(E1 便が受け切り)へ直送する。
+
+    ②の ``carry`` に入れて j=0 から回すと ``far = (0 - e1) > 8`` が偽になり**始発便**に
+    置かれ得る(|便差| が窓を破る潜在経路。390,067 体では未発火)。
+    """
+    n = 40
+    deps = tuple(300 + 10 * k for k in range(12))  # 12 便(最終 410)
+    # 全員のブロックが**最終便の後**に始まる=E1 便は必ず最終便
+    rows = [(i, 0, 400, ACT_SLEEP, PK_OUT, -1) for i in range(n)]
+    rows += [(i, 600, 900, ACT_WORK, PK_WORK, 3) for i in range(n)]
+    wk = make_weekly(rows, n)
+    pa = fake_assets(departures=deps)
+    w, a = make_world_agents(n, home_cell=np.full(n, -1, dtype=np.int64))
+    rail = RailProcess(w, a, pa, master_seed=1, day_index=0, plan_executor=True)
+    rail.capacity100 = np.full(rail.dep_tick.size, 2.0)   # 上限 2 人/便
+    rail.cap_pct = np.full(rail.dep_tick.size, 100.0)
+    layer = PlanExecutor(
+        w, a, wk, day_index=0,
+        home_cell=np.full(n, -1, dtype=np.int64),
+        direction_node=np.zeros(n, dtype=np.int64),
+        kind=np.zeros(n, dtype=np.int64),
+        agent_id=np.arange(n, dtype=np.int64),
+        rail=rail, assets=pa, ticks=1_440,
+    )
+    e1, got = layer.arrival_train_e1, layer.arrival_train
+    sv = np.flatnonzero(e1 >= 0)
+    assert sv.size == n
+    last = int(np.asarray(rail.enter_tick).argmax())
+    assert set(e1[sv].tolist()) == {last}          # E1 便は全員 最終便
+    assert int(np.abs(got[sv] - e1[sv]).max()) <= ARRIVAL_SPREAD_MAX_TRAINS
+    # ①で 8 便ぶん(2 人 × 8 = 16 人)は早い便へ、残りは**自分の E1 便**が受け切る
+    assert np.all(got[sv] <= last) and np.all(got[sv] >= last - ARRIVAL_SPREAD_MAX_TRAINS)
+    assert int(np.count_nonzero(got[sv] == last)) == n - 2 * ARRIVAL_SPREAD_MAX_TRAINS
+    # 受け切り = 全体 − (E1 便の定員 2 + 早い 8 便 × 2)
+    assert layer.n_spread_overflow == n - 2 * (ARRIVAL_SPREAD_MAX_TRAINS + 1)
+    # **始発便には 1 体も置かれない**(窓の外)
+    first = int(np.asarray(rail.enter_tick).argmin())
+    assert int(np.count_nonzero(got[sv] == first)) == 0
+
+
 def test_a_resident_who_boards_in_the_last_block_comes_back(monkeypatch):
     """E12(第3段): **次のブロックが無い**体が LLM 乗車で出たら、``t+60`` 以降の便で戻る。
 

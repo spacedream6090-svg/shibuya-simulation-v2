@@ -666,9 +666,17 @@ class PlanExecutor:
                 o2 = np.lexsort((b_agent[spill], begin))
                 spill, begin = spill[o2], begin[o2]
                 starts2 = np.searchsorted(begin, np.arange(n_slot + 1), side="left")
-                # E1 便が最終便の体(``begin == n_slot``)は前向きに行き場が無い=③へ
-                carry = spill[starts2[n_slot] :]
+                # E1 便が**最終便**の体(``begin == n_slot``)は前向きに行き場が無いので
+                # ③(自分の E1 便が受け切り)へ**直送**する。②の ``carry`` に入れて j=0 から
+                # 回すと ``far = (0 - e1) > 8`` が偽になり**始発便に置かれ得る**
+                # (390,067 体では未発火の潜在経路・層2 最終確認 2026-09-11)。
+                tail = spill[starts2[n_slot] :]
                 spill = spill[: starts2[n_slot]]
+                if tail.size:
+                    out[tail] = slots[e1_slot[tail]]
+                    np.add.at(used, e1_slot[tail], 1)
+                    self.n_spread_overflow += int(tail.size)
+                carry = np.empty(0, dtype=np.int64)
                 for j in range(0, n_slot):  # 逐次: その線の便数ぶん
                     own = spill[starts2[j] : starts2[j + 1]] if j < n_slot else spill[:0]
                     if own.size == 0 and carry.size == 0:
