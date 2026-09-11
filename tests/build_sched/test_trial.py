@@ -362,6 +362,160 @@ def test_p2p_states_time_fidelity_in_system_and_user(trial_world, anchor: dict):
     assert T.arm_system(st1, f, t, i) == T.arm_system(st1p, f, t, i)
 
 
+# ---------------------------------------------------------------- 本番 W17 v2(1 日)
+def _prod(trial_world, anchor, *, days: int = 1):
+    f = _facts(trial_world)
+    rows = T.production_rows(f)
+    t = T.draw_windows(f, anchor, rows=rows)
+    return T.production_spec(days=days), f, t, rows
+
+
+def test_v2_one_day_grammar_and_max_tokens(trial_world, anchor: dict):
+    """1 日モード: 文法・例示・指示が d0 だけ・``max_tokens`` は 320(切断 0 を保つ)。"""
+    spec, f, t, rows = _prod(trial_world, anchor)
+    assert (spec.days, spec.kind_col, spec.stage) == (1, False, 2)
+    assert spec.max_tokens == T.BLOCK_MAX_TOKENS_P2P_1DAY == 320
+    sys1 = T.arm_system(spec, f, t, 0)
+    for token in ("d1", "d6", "1週間"):
+        assert token not in sys1, token
+    for token in ("d0", "月曜日1日", "就寝", "0時台から3時台", T.TIME_FIDELITY_LINE):
+        assert token in sys1, token
+    assert "月曜日1日" in T.arm_user(spec, f, t, 0, identity="いつもどおりです。")
+    rx = re.compile(T.block_regex(spec, f, t, 0).replace("\\n", "\n"))
+    ok = ["0000-0807 就寝 自宅", "0807-1738 勤務 職場", "1738-2400 移動 駅"]
+    assert rx.fullmatch("d0\n" + "\n".join(ok)) is not None
+    assert rx.fullmatch("d0\n" + "\n".join(ok) + "\nd1\n" + "\n".join(ok)) is None  # 2 日は不可
+    assert rx.fullmatch(day_block := "d0\n0000-0230 就寝 自宅\n0230-0300 支度 自宅\n"
+                        "0300-2400 勤務 職場") is None and day_block  # 深夜禁止は据置
+    assert rx.fullmatch("d0\n" + "\n".join(ok[:2])) is None                         # {3,10}
+    # モックも 1 日だけ・自分の文法を満たす
+    text = T.mock_text(spec, f, t, 0)
+    assert text.count("d0") == 1 and "d1" not in text
+    assert rx.fullmatch(text) is not None
+
+
+def test_v2_production_writes_one_row_per_agent_with_safe_names(trial_world, anchor: dict,
+                                                                tmp_path: Path):
+    """本番は**層化なし・行数=体数**・名前は本番 glob に当たらない・隔離先が強制される。"""
+    world, _ = trial_world
+    spec, f, t, rows = _prod(trial_world, anchor)
+    assert rows.size == f.n and np.array_equal(rows, np.arange(f.n))
+    out = tmp_path / "w17v2"
+    r1 = T.write_production_prompts(out, spec, f, t, rows, stage=1)
+    ids = {str(int(a)): "いつもどおりの一日です。" * 5 for a in f.agent_id}
+    r2 = T.write_production_prompts(out, spec, f, t, rows, stage=2, identities=ids)
+    assert r1["rows"] == r2["rows"] == f.n
+    assert (r1["name"], r2["name"]) == (T.V2_STAGE1_PROMPTS, T.V2_STAGE2_PROMPTS)
+    assert r2["n_identity_injected"] == f.n and r1["max_tokens"] == T.IDENTITY_MAX_TOKENS
+    assert T.files_avoid_production_globs([p.name for p in out.rglob("*")]) == []
+    assert r1["prompts_sha256"] != r2["prompts_sha256"]
+    # 1 行の形は本番 fleet_gen と同じ(id/system/user/max_tokens/temperature/seed/repeat)
+    row = json.loads(open(out / T.V2_STAGE2_PROMPTS, encoding="utf-8").readline())
+    assert set(row) >= {"id", "system", "user", "max_tokens", "temperature", "seed",
+                        "repeat", "thinking", "regex"}
+    assert row["max_tokens"] == 320
+    # 隔離の強制: 出力先が world_dir と同じなら拒否
+    with pytest.raises(RuntimeError):
+        T.assert_isolated(world, world)
+    assert T.assert_isolated(out, world) == out.resolve()
+
+
+def test_v2_ingest_adopts_raking_zero_and_reports_twelve(trial_world, anchor: dict,
+                                                         tmp_path: Path):
+    """raking は 12% と 0% の両方を計算し、**採用は 0%**(エンジン由来の修正 0)。"""
+    world, _ = trial_world
+    spec, f, t, rows = _prod(trial_world, anchor)
+    out = tmp_path / "w17v2"
+    resp = T.write_mock_responses(out, spec, f, t, rows)
+    rep, cols = T.ingest_production(world, spec, f, t, rows, [resp])
+    body = rep.to_json()
+    assert set(body["raking"]) == {"0.12", "0.00", "adopted"}
+    assert body["raking"]["adopted"] == "0.00"
+    assert body["raking"]["0.00"]["n_moved"] == 0
+    assert body["modified"]["engine"]["rate"] == 0.0
+    # 採用が 0% = parquet の開始分は raking 前と同じ(12% の結果を書き込んでいない)
+    assert cols["day"].max() == 0 and cols["day"].min() == 0       # 1 日だけ
+    assert cols["agent_id"].size == rep.n_kept
+    assert body["diversity"]["M4a_acts_per_agent_day"]["n"] == f.n
+    assert "M6" in body["diversity"] and "測れない" in body["diversity"]["M6"]
+    # header / gates / parquet を隔離先へ
+    res = T.write_production(out, Path(world), Path(trial_world[1]), spec, f, rep, cols,
+                             [], [resp], time_fact_repair=False)
+    assert res.stage_version == "2.0.0"
+    assert (out / "w17_schedule.parquet").exists() and (out / "W17.header.json").exists()
+    assert (out / "w17_gates.json").exists()
+    assert not (Path(world) / "w17v2_stage1_prompts.jsonl").exists()
+    names = {g.name for g in res.gates}
+    assert {"parse_fail_rate", "coverage_ge_0999_rate", "M3b_depart_proxy",
+            "M4a_acts_per_agent_day", "jsd_max_raking_0", "jsd_max_raking_12",
+            "M6_measurable"} <= names
+    import pyarrow.parquet as pq
+
+    assert pq.read_table(out / "w17_schedule.parquet").schema.names == list(T.PROD_SCHEMA.names)
+
+
+def test_v2_time_fact_repair_switch(trial_world, anchor: dict, tmp_path: Path):
+    """``--time-fact-repair``: 既定オフは**一致率を数えるだけ**・オンで行を動かして計数。"""
+    world, _ = trial_world
+    spec, f, t, rows = _prod(trial_world, anchor)
+    out = tmp_path / "w17v2"
+    # モックは移動行を窓(始業/終業)に合わせるので、出勤/帰宅の**時刻そのもの**とはずれる
+    resp = T.write_mock_responses(out, spec, f, t, rows)
+    off, _ = T.ingest_production(world, spec, f, t, rows, [resp], time_fact_repair=False)
+    on, cols_on = T.ingest_production(world, spec, f, t, rows, [resp], time_fact_repair=True)
+    a, b = off.to_json()["time_fact"], on.to_json()["time_fact"]
+    assert a["time_fact_depart_rows"] > 0 and a["time_fact_depart_rows"] == b["time_fact_depart_rows"]
+    assert "time_fact_moved_rows" not in a          # オフでは 1 行も動かさない
+    assert b["time_fact_moved_rows"] > 0            # オンでは動かす
+    assert a["dev_min"]["n"] > 0 and a["depart_match_rate"] < 1.0
+    assert b["dev_min"]["mean"] > 0
+    # オンにしても被覆は落ちない(端を一緒に動かして切れ目を作らない)
+    assert on.to_json()["checks"]["coverage_mean"] == 1.0
+
+
+def test_v2_promote_backs_up_the_old_assets(tmp_path: Path):
+    """``--promote``: 旧版を ``w17v1_backup/`` へ退避してからコピーする。"""
+    world = tmp_path / "world"
+    src = world / T.V2_DIR
+    src.mkdir(parents=True)
+    (world / "w17_schedule.parquet").write_bytes(b"OLD-parquet")
+    (world / "W17.header.json").write_bytes(b'{"stage_version": "1.2.0"}')
+    (src / "w17_schedule.parquet").write_bytes(b"NEW-parquet")
+    (src / "W17.header.json").write_bytes(b'{"stage_version": "2.0.0"}')
+    (src / "w17_gates.json").write_bytes(b"{}")
+    rec = T.promote(src, world)
+    assert set(rec["promoted"]) == {"w17_schedule.parquet", "W17.header.json", "w17_gates.json"}
+    assert set(rec["backed_up"]) == {"w17_schedule.parquet", "W17.header.json"}
+    backup = world / T.V2_BACKUP_DIR
+    assert (backup / "w17_schedule.parquet").read_bytes() == b"OLD-parquet"
+    assert (world / "w17_schedule.parquet").read_bytes() == b"NEW-parquet"
+    assert b"2.0.0" in (world / "W17.header.json").read_bytes()
+
+
+def test_v2_gate_thresholds_and_one_day_notes(trial_world, anchor: dict, tmp_path: Path):
+    """v2 のゲート: parse 失敗 <0.02・被覆 ≥0.999 は合否・多様性と JSD は報告のみ。"""
+    world, _ = trial_world
+    spec, f, t, rows = _prod(trial_world, anchor)
+    out = tmp_path / "w17v2"
+    resp = T.write_mock_responses(out, spec, f, t, rows)
+    rep, cols = T.ingest_production(world, spec, f, t, rows, [resp])
+    res = T.write_production(out, Path(world), Path(trial_world[1]), spec, f, rep, cols,
+                             [], [resp], time_fact_repair=False)
+    g = {x.name: x.to_json() for x in res.gates}
+    assert (T.V2_GATE_PARSE_FAIL, T.V2_GATE_COVERAGE) == (0.02, 0.999)
+    assert g["parse_fail_rate"]["expected"] == "< 0.02" and g["parse_fail_rate"]["pass"]
+    assert g["coverage_ge_0999_rate"]["expected"] == ">= 0.999" and g["coverage_ge_0999_rate"]["pass"]
+    for report_only in ("M3b_depart_proxy", "M4a_acts_per_agent_day", "jsd_max_raking_0",
+                        "jsd_max_raking_12", "llm_modified_rate", "has_sleep_rate",
+                        "night_violation_day_rate"):
+        assert g[report_only]["expected"] is None, report_only
+        assert g[report_only]["pass"] is True
+    assert g["M6_measurable"]["value"] is False  # 1 日なので測れない
+    assert res.all_passed
+    assert any("1 日モード" in e for e in res.expedients)
+    assert any("採用は 0%" in e for e in res.expedients)
+
+
 # ================================================================= 5. ブロック形式パーサ
 def test_parse_blocks_finds_gap_sleep_and_kind_conflict():
     """パーサ: 切れ目・就寝・``block_kind`` の矛盾を拾う(壊れた行はその行だけ捨てる)。"""

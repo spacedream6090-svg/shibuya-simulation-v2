@@ -747,44 +747,81 @@ TIME_FIDELITY_LINE: Final[str] = (
     "家を出る移動の行の開始=出勤時刻、帰宅の移動の行の終了=帰宅時刻。"
     "他の行の時刻も 00 分・30 分に丸めない。"
 )
-#: P2′ の system 共通部(**全員共通**)。P2 との差は「区分の列が無い」ことと時刻の指示だけ。
-#: 域外/自宅/在圏の区別は**エンジンが居住区分と場所語から導く**(``derive_block_kind``=
-#: 計画実行層の derive と同じ)ので、モデルには書かせない。
-BLOCK3_SYSTEM_COMMON: Final[str] = "\n".join(
-    (
-        "自分の1週間(7日)の過ごし方を表にします。",
-        "書式は2種類の行だけ:",
-        "・曜日の見出し行 = d0 d1 d2 d3 d4 d5 d6 のどれか1つだけを書いた行"
-        "(d0=月曜 d1=火曜 d2=水曜 d3=木曜 d4=金曜 d5=土曜 d6=日曜)。",
-        "・ブロック行 = 「<開始HHMM>-<終了HHMM> <活動語> <場所語>」の3列を"
-        "半角空白1つで区切る。",
-        "活動語は次の12語だけを使う: " + " ".join(V.ACTIVITY_WORDS),
-        "場所語は次の12語だけを使う: " + " ".join(V.PLACE_WORDS),
-        "例:",
-        "d0",
-        "0000-0652 就寝 自宅",
-        "0652-0723 支度 自宅",
-        "0723-0807 移動 駅",
-        "0807-1738 勤務 職場",
-        "1738-1907 食事 飲食店",
-        "1907-2400 休憩 自宅",
-        "d1",
-        "(以下 d6 まで同じ形で続ける)",
-        "規則:",
-        "1. d0 から d6 まで 7 日ぶんの見出し行を必ず書く。各日のブロック行は3行から10行。",
-        "2. 時刻は4桁(0700)。各日は 0000 から始めて 2400 で終える。"
-        "**時間に切れ目を作らない**(前の行の終了時刻=次の行の開始時刻)。",
-        "3. 各日に「就寝」の行を必ず1本以上入れる。",
-        "4. 0時台から3時台に「支度」と「乗車」は置かない。",
-        "5. " + TIME_FIDELITY_LINE,
-        "6. 表以外は何も書かない。前置き・説明・記号・箇条書き・空行を書かない。"
-        "行末に空白を置かない。",
+#: P2′ の 1 日モードの生成上限(1 日 × 最大 10 行 ≈ 153 tok + 余裕。切断 0 を保つ)。
+BLOCK_MAX_TOKENS_P2P_1DAY: Final[int] = 320
+#: P2/P2′ の 1 日あたりの行数(``{3,10}``)。
+LINES3_MIN: Final[int] = 3
+LINES3_MAX: Final[int] = 10
+
+
+def block3_system(days: int = V.N_DAYS) -> str:
+    """P2′ の system 共通部(**全員共通**)。``days`` で 1 日モード(d0 のみ)に切り替わる。
+
+    P2 との差は「区分の列が無い」ことと時刻の指示だけ。域外/自宅/在圏の区別は
+    **エンジンが居住区分と場所語から導く**(``derive_block_kind``= 計画実行層の derive と同じ)。
+
+    Example:
+        >>> "d6" in block3_system(7), "d6" in block3_system(1)
+        (True, False)
+        >>> "月曜日1日" in block3_system(1)
+        True
+    """
+    one = int(days) <= 1
+    head = (
+        "自分の月曜日1日の過ごし方を表にします。" if one
+        else "自分の1週間(7日)の過ごし方を表にします。"
     )
-)
+    day_line = (
+        "・曜日の見出し行 = d0 とだけ書いた行(d0=月曜)。1つだけ書く。" if one
+        else "・曜日の見出し行 = d0 d1 d2 d3 d4 d5 d6 のどれか1つだけを書いた行"
+             "(d0=月曜 d1=火曜 d2=水曜 d3=木曜 d4=金曜 d5=土曜 d6=日曜)。"
+    )
+    rule1 = (
+        f"1. 見出し行 d0 を1つだけ書く。ブロック行は{LINES3_MIN}行から{LINES3_MAX}行。" if one
+        else f"1. d0 から d6 まで 7 日ぶんの見出し行を必ず書く。"
+             f"各日のブロック行は{LINES3_MIN}行から{LINES3_MAX}行。"
+    )
+    rule2 = (
+        "2. 時刻は4桁(0700)。0000 から始めて 2400 で終える。"
+        "**時間に切れ目を作らない**(前の行の終了時刻=次の行の開始時刻)。" if one
+        else "2. 時刻は4桁(0700)。各日は 0000 から始めて 2400 で終える。"
+             "**時間に切れ目を作らない**(前の行の終了時刻=次の行の開始時刻)。"
+    )
+    rule3 = "3. 「就寝」の行を必ず1本以上入れる。" if one else "3. 各日に「就寝」の行を必ず1本以上入れる。"
+    example = [
+        "例:", "d0",
+        "0000-0652 就寝 自宅", "0652-0723 支度 自宅", "0723-0807 移動 駅",
+        "0807-1738 勤務 職場", "1738-1907 食事 飲食店", "1907-2400 休憩 自宅",
+    ]
+    if not one:
+        example += ["d1", "(以下 d6 まで同じ形で続ける)"]
+    return "\n".join(
+        [
+            head,
+            "書式は2種類の行だけ:",
+            day_line,
+            "・ブロック行 = 「<開始HHMM>-<終了HHMM> <活動語> <場所語>」の3列を"
+            "半角空白1つで区切る。",
+            "活動語は次の12語だけを使う: " + " ".join(V.ACTIVITY_WORDS),
+            "場所語は次の12語だけを使う: " + " ".join(V.PLACE_WORDS),
+        ]
+        + example
+        + [
+            "規則:", rule1, rule2, rule3,
+            "4. 0時台から3時台に「支度」と「乗車」は置かない。",
+            "5. " + TIME_FIDELITY_LINE,
+            "6. 表以外は何も書かない。前置き・説明・記号・箇条書き・空行を書かない。"
+            "行末に空白を置かない。",
+        ]
+    )
+
+
 #: P2′ が体ごとに足す 1 行(区分が無いので自宅の所在だけを事実として渡す)。
 BLOCK3_HOME_IN: Final[str] = "あなたの自宅は渋谷の中にある。"
 BLOCK3_HOME_OUT: Final[str] = "あなたの自宅は渋谷の外にある。"
 BLOCK3_STAY: Final[str] = "あなたは渋谷に泊まる。就寝の行は 場所語=宿泊施設 で書く。"
+#: 7 日ぶんの P2′ system(互換の別名)。
+BLOCK3_SYSTEM_COMMON: Final[str] = block3_system(V.N_DAYS)
 
 
 @dataclass(frozen=True)
@@ -812,6 +849,8 @@ class ArmSpec:
     #: ブロック形式で ``block_kind`` の列を**書かせる**か。``False``(P2′)は現行 W17 と
     #: 同じ 3 列に戻し、域外/自宅/在圏は ``derive_block_kind`` でエンジンが導く。
     kind_col: bool = True
+    #: 書かせる日数。``7``=週次(既定)/ ``1``=**月曜 d0 だけ**(W17 v2 の 1 日モード)。
+    days: int = V.N_DAYS
     stage: int = 0
     max_tokens: int = W17.MAX_TOKENS
     temperature: float = W17.TEMPERATURE
@@ -864,8 +903,8 @@ def arm_system(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int) -> str:
         lines = [BLOCK_SYSTEM_COMMON, BLOCK_HOME_IN if home_in else BLOCK_HOME_OUT]
         if bool(t.stay[i]):
             lines.append(BLOCK_STAY)
-    else:  # P2′: 区分の列なし
-        lines = [BLOCK3_SYSTEM_COMMON, BLOCK3_HOME_IN if home_in else BLOCK3_HOME_OUT]
+    else:  # P2′: 区分の列なし(``days`` で 1 日モードへ)
+        lines = [block3_system(spec.days), BLOCK3_HOME_IN if home_in else BLOCK3_HOME_OUT]
         if bool(t.stay[i]):
             lines.append(BLOCK3_STAY)
     lines.append(W17.SYSTEM_KIND_LINE[int(f.kind[i])])
@@ -949,7 +988,8 @@ def arm_user(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int,
         out.extend(IDENTITY_QUESTIONS)
         return "\n".join(out)
     head = [identity.strip(), ""] if identity.strip() else []
-    tail = ["あなたが上で話したとおりの1週間を表にしてください。"]
+    tail = ["あなたが上で話したとおりの月曜日1日を表にしてください。" if spec.days <= 1
+            else "あなたが上で話したとおりの1週間を表にしてください。"]
     if not spec.kind_col:  # P2′: 時刻の忠実さを user 側にも明示
         tail.append(TIME_FIDELITY_LINE)
     return "\n".join(head + out + tail)
@@ -987,12 +1027,9 @@ def block_regex(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int) -> str:
     last = line("", "2400", None)
     lo, hi = spec.lines
     mid_lo, mid_hi = max(0, lo - 2), max(0, hi - 2)
-    visit = int(f.visit_days[i])
     parts: list[str] = []
-    for d in range(V.N_DAYS):
-        if visit and not ((visit >> d) & 1):
-            # 来訪日でない日も**在宅の 1 日**を書かせる(被覆率を測るため見出しだけにしない)
-            pass
+    for d in range(max(1, int(spec.days))):  # 1 日モードは d0 だけ
+        # 来訪日でない日も**在宅の 1 日**を書かせる(被覆率を測るため見出しだけにしない)
         parts.append(f"d{d}(?:\\n{first})(?:\\n{mid}){{{mid_lo},{mid_hi}}}(?:\\n{last})")
     return "\\n".join(parts) + "\\n?"
 
@@ -1362,6 +1399,8 @@ class TrialReport:
     duty_dev_p1: list[int] = field(default_factory=list)
     completion_tokens: list[int] = field(default_factory=list)
     tally: dict[str, int] = field(default_factory=dict)
+    time_fact_dev: list[int] = field(default_factory=list)
+    diversity: dict[str, Any] = field(default_factory=dict)
     identity: dict[str, Any] = field(default_factory=dict)
     raking: dict[str, Any] = field(default_factory=dict)
     engine_modified: dict[str, Any] = field(default_factory=dict)
@@ -1447,6 +1486,17 @@ class TrialReport:
                 },
                 "engine": self.engine_modified,
             },
+            "time_fact": {
+                **{k: v for k, v in sorted(self.tally.items()) if k.startswith("time_fact_")},
+                "depart_match_rate": round(
+                    self.tally.get("time_fact_depart_match", 0)
+                    / max(1, self.tally.get("time_fact_depart_rows", 0)), 6),
+                "arrive_match_rate": round(
+                    self.tally.get("time_fact_arrive_match", 0)
+                    / max(1, self.tally.get("time_fact_arrive_rows", 0)), 6),
+                "dev_min": self._stats(self.time_fact_dev),
+            },
+            "diversity": self.diversity,
             "raking": self.raking,
             "identity": self.identity,
             "completion_tokens": self._stats(self.completion_tokens),
@@ -1671,7 +1721,7 @@ def _check_blocks(
             by_day[b.day].append(b)
     kept: list[Block] = []
     duty = int(f.duty_activity[r])
-    for d in range(V.N_DAYS):  # 逐次: 7 回
+    for d in range(max(1, int(spec.days))):  # 逐次: 7 回(1 日モードは 1 回)
         acts = sorted(by_day[d], key=lambda x: (x.start, x.end))
         if not acts:
             rep.coverage.append(0)
@@ -1846,7 +1896,7 @@ def mock_text(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int) -> str:
     home_word = V.PLACE_WORDS[V.PLACE_HOME]
 
     lines: list[str] = []
-    for d in range(V.N_DAYS):
+    for d in range(max(1, int(spec.days))):  # 1 日モードは d0 だけ
         lines.append(f"d{d}")
         works = duty >= 0 and (days >> d) & 1
         visiting = bool(visit) and bool((visit >> d) & 1)
@@ -1938,6 +1988,419 @@ def write_mock_responses(
     return path
 
 
+# ================================================================= 本番経路(W17 v2・1 日)
+#: 隔離ディレクトリの既定名(``data/world/v2/w17v2``)。**昇格まで本番の隣に置かない**。
+V2_DIR: Final[str] = "w17v2"
+#: 昇格前の退避先。
+V2_BACKUP_DIR: Final[str] = "w17v1_backup"
+#: 本番 v2 のプロンプト名(本番 glob ``w17_prompts*`` / ``w17_responses*`` に**当たらない**)。
+V2_STAGE1_PROMPTS: Final[str] = "w17v2_stage1_prompts.jsonl"
+V2_STAGE2_PROMPTS: Final[str] = "w17v2_stage2_prompts.jsonl"
+#: 昇格の中身(名前は v1 と同じ= そのままコピーできる)。
+V2_STAGE_VERSION: Final[str] = "2.0.0"
+#: v2 のゲート閾値(§4・1 日)。多様性(M3b/M4a)と JSD・修正率は**報告のみ**=合格線は親。
+V2_GATE_PARSE_FAIL: Final[float] = 0.02
+V2_GATE_COVERAGE: Final[float] = 0.999
+#: 本番 v2 の parquet スキーマ(v1 の 8 列 + ``block_kind``= エンジン導出)。
+PROD_SCHEMA: Final[pa.Schema] = pa.schema(
+    [(n, W17._SCHEMA.field(n).type) for n in W17._SCHEMA.names] + [("block_kind", pa.int8())]
+)
+
+
+def production_spec(*, days: int = 1, max_tokens: int | None = None) -> ArmSpec:
+    """本番 v2 の腕(P2′ の型・``days`` 日・段2)。"""
+    base = ARMS["p2p"]
+    return ArmSpec(**{
+        **base.__dict__, "days": int(days), "stage": 2,
+        "max_tokens": int(max_tokens if max_tokens is not None
+                          else (BLOCK_MAX_TOKENS_P2P_1DAY if days <= 1 else base.max_tokens)),
+    })
+
+
+def production_rows(f: W17.AgentFacts) -> np.ndarray:
+    """本番は**全体**(層化しない)= W16 の行順そのまま。"""
+    return np.arange(f.n, dtype=np.int64)
+
+
+def assert_isolated(out_dir: str | Path, world_dir: str | Path) -> Path:
+    """出力先が本番資産のディレクトリと**同じでない**ことを確かめる(凍結資産の保護)。"""
+    out, world = Path(out_dir).resolve(), Path(world_dir).resolve()
+    if out == world:
+        raise RuntimeError(
+            f"本番 v2 の出力先が凍結資産と同じ: {out}。--out に {world / V2_DIR} のような"
+            "隔離先を指定する(昇格は --promote で明示的に行う)"
+        )
+    return out
+
+
+def write_production_prompts(
+    out_dir: str | Path, spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts,
+    rows: Sequence[int] | np.ndarray, *, stage: int, identities: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    """本番 v2 のプロンプト jsonl を**ストリーミングで**書く(39 万行をメモリに載せない)。
+
+    1 行の形は本番 W17(``SchedPrompt.to_json``)と同一= 親が同じ ``fleet_gen`` で流せる。
+
+    Note:
+        逐次ループ宣言(P4): 体数ぶんのループ 1 本(390,067・構築時 1 回・I1 の外)。
+    """
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    name = V2_STAGE1_PROMPTS if stage == 1 else V2_STAGE2_PROMPTS
+    bad = files_avoid_production_globs([name])
+    if bad:  # pragma: no cover - 名前規約を変えたときだけ
+        raise RuntimeError(f"本番 glob に当たる名前: {bad}")
+    use = ArmSpec(**{**spec.__dict__, "stage": int(stage)})
+    ids = identities or {}
+    path = out / name
+    tok_sum = tok_max = n = 0
+    sys_count: dict[str, int] = {}
+    prefix: str | None = None
+    n_identity = 0
+    with open(path, "wb") as fh:
+        for r in rows:  # 逐次ループ宣言(P4): 体数ぶん
+            i = int(r)
+            ident = ids.get(str(int(f.agent_id[i])), "")
+            if ident:
+                n_identity += 1
+            p = arm_prompt_of(use, f, t, i, identity=ident)
+            fh.write(C.canonical_json_bytes(p.to_json()) + b"\n")
+            n += 1
+            tk = W17.estimate_tokens(p.system) + W17.estimate_tokens(p.user)
+            tok_sum += tk
+            tok_max = max(tok_max, tk)
+            h = C.sha256_bytes(p.system.encode("utf-8"))[:16]
+            sys_count[h] = sys_count.get(h, 0) + 1
+            prefix = p.system if prefix is None else os.path.commonprefix([prefix, p.system])
+    sha = C.sha256_file(path)
+    return {
+        "stage": stage, "days": use.days, "path": str(path), "name": name, "rows": n,
+        "bytes": path.stat().st_size, "sha256": sha, "prompts_sha256": sha,
+        "system_sha256": {
+            "n_distinct": len(sys_count),
+            "shared_prefix_chars": len(prefix or ""),
+            "top": dict(sorted(sys_count.items(), key=lambda kv: (-kv[1], kv[0]))[:_SYSTEM_SHA_TOP]),
+        },
+        "regex_sha256": _regex_sha([arm_prompt_of(use, f, t, int(rows[0]))]) if len(rows) else {},
+        "prompt_tokens_mean": round(tok_sum / n, 2) if n else 0.0,
+        "prompt_tokens_max": tok_max,
+        "max_tokens": use.max_tokens if stage == 2 else IDENTITY_MAX_TOKENS,
+        "temperature": use.temperature,
+        "n_identity_injected": n_identity,
+    }
+
+
+def _time_fact_pass(
+    spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, r: int, blocks: Sequence[Block],
+    rep: TrialReport, *, repair: bool,
+) -> list[Block]:
+    """事実行の出勤/帰宅時刻との突き合わせ。``repair`` が False なら**一致率を数えるだけ**。
+
+    - 家を出る移動の行 = 最初の勤務/通学の**直前**の 移動/乗車 → 開始を出勤時刻へ。
+    - 帰宅の移動の行 = 最後の勤務/通学の**直後**の 移動/乗車 → 終了を帰宅時刻へ。
+    直前/直後の行の端も一緒に動かして**切れ目を作らない**。動かした行数と分の分布を計数。
+    """
+    if int(t.duty_open[r]) < 0:
+        return list(blocks)
+    by_day: dict[int, list[Block]] = {}
+    for b in blocks:
+        by_day.setdefault(int(b.day), []).append(b)
+    out: list[Block] = []
+    for d in range(max(1, int(spec.days))):  # 逐次: 日数ぶん
+        acts = sorted(by_day.get(d, []), key=lambda x: (x.start, x.end))
+        if not acts or not ((int(t.work_days[r]) >> d) & 1):
+            out.extend(acts)
+            continue
+        duty_idx = [j for j, b in enumerate(acts) if b.activity in (V.ACT_WORK, V.ACT_SCHOOL)]
+        if not duty_idx:
+            out.extend(acts)
+            continue
+        moves = (V.ACT_MOVE, V.ACT_RIDE)
+        depart = max(0, min(V.MINUTES_PER_DAY - MIN_BLOCK_MIN, int(t.depart[r])))
+        arrive = max(MIN_BLOCK_MIN, min(V.MINUTES_PER_DAY, int(t.arrive[r])))
+        out_j = next((j for j in range(duty_idx[0] - 1, -1, -1) if acts[j].activity in moves), None)
+        back_j = next((j for j in range(duty_idx[-1] + 1, len(acts))
+                       if acts[j].activity in moves), None)
+        for j, target, is_start in ((out_j, depart, True), (back_j, arrive, False)):
+            if j is None:
+                continue
+            key = "depart" if is_start else "arrive"
+            rep.tally[f"time_fact_{key}_rows"] = rep.tally.get(f"time_fact_{key}_rows", 0) + 1
+            cur = acts[j].start if is_start else acts[j].end
+            if cur == target:
+                rep.tally[f"time_fact_{key}_match"] = rep.tally.get(f"time_fact_{key}_match", 0) + 1
+                continue
+            if not repair:
+                rep.time_fact_dev.append(abs(cur - target))
+                continue
+            nb = acts[j - 1] if (is_start and j > 0) else (
+                acts[j + 1] if (not is_start and j + 1 < len(acts)) else None)
+            if is_start:
+                if acts[j].end - target < MIN_BLOCK_MIN or (nb is not None and target - nb.start < MIN_BLOCK_MIN):
+                    continue
+                acts[j] = acts[j]._replace(start=target)
+                if nb is not None:
+                    acts[j - 1] = nb._replace(end=target)
+            else:
+                if target - acts[j].start < MIN_BLOCK_MIN or (nb is not None and nb.end - target < MIN_BLOCK_MIN):
+                    continue
+                acts[j] = acts[j]._replace(end=target)
+                if nb is not None:
+                    acts[j + 1] = nb._replace(start=target)
+            rep.tally["time_fact_moved_rows"] = rep.tally.get("time_fact_moved_rows", 0) + 1
+            rep.time_fact_dev.append(abs(cur - target))
+        out.extend(acts)
+    return out
+
+
+#: 時刻合わせで確保する最小のブロック長[分](``W17.MIN_ACT_MINUTES`` と同値・自前)。
+MIN_BLOCK_MIN: Final[int] = W17.MIN_ACT_MINUTES
+
+
+def ingest_production(
+    world_dir: str | Path, spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts,
+    rows: Sequence[int] | np.ndarray, responses: Sequence[Path], *,
+    time_fact_repair: bool = False, curves: dict[str, np.ndarray] | None = None,
+) -> tuple[TrialReport, dict[str, np.ndarray]]:
+    """本番 v2 の取り込み。**修復なし**・raking は 12%/0% を両方計算し**採用は 0%**。
+
+    Note:
+        逐次ループ宣言(P4): 応答体数ぶんのループ 1 本(390,067・構築時 1 回)。
+    """
+    rows = np.asarray(rows, dtype=np.int64)
+    rep = TrialReport(arm=spec.name, stage=2, n_agents=int(rows.size))
+    rep.counters = dict(t.counters)
+    rep.inputs = [
+        {"path": Path(p).name, "sha256": C.sha256_file(Path(p)), "bytes": Path(p).stat().st_size}
+        for p in responses
+    ]
+    id_to_row = {str(int(f.agent_id[int(r)])): int(r) for r in rows}
+    b_agent: list[int] = []
+    b_day: list[int] = []
+    b_start: list[int] = []
+    b_end: list[int] = []
+    b_act: list[int] = []
+    b_place: list[int] = []
+    b_bk: list[int] = []
+    for rid, text, tok in _response_rows(responses):  # 逐次(P4): 応答体数ぶん
+        r = id_to_row.get(rid)
+        if r is None:
+            continue
+        rep.n_with_response += 1
+        if tok > 0:
+            rep.completion_tokens.append(tok)
+        home_in = int(f.home_cell[r]) >= 0
+        blocks, bad = _to_blocks(spec, text, home_in)
+        for k, v in bad.items():
+            rep.parse_bad[k] = rep.parse_bad.get(k, 0) + v
+        rep.n_parsed += len(blocks)
+        blocks = _time_fact_pass(spec, f, t, r, blocks, rep, repair=time_fact_repair)
+        for b in _check_blocks(rep, spec, f, t, r, blocks, home_in):
+            b_agent.append(r)
+            b_day.append(b.day)
+            b_start.append(b.start)
+            b_end.append(min(b.end, V.MINUTES_PER_DAY))
+            b_act.append(b.activity)
+            b_place.append(b.place)
+            b_bk.append(derive_block_kind(b.activity, b.place, home_in))
+    rep.n_response_rows = rep.n_with_response
+    rep.n_kept = len(b_agent)
+
+    agent_row = np.asarray(b_agent, dtype=np.int32)
+    day = np.asarray(b_day, dtype=np.int32)
+    start = np.asarray(b_start, dtype=np.int32)
+    end = np.asarray(b_end, dtype=np.int32)
+    activity = np.asarray(b_act, dtype=np.int8)
+    place = np.asarray(b_place, dtype=np.int8)
+    bkind = np.asarray(b_bk, dtype=np.int8)
+
+    cv = curves if curves is not None else W17.hour_curves(world_dir)
+    rep.raking = _rake_both(spec, agent_row, day, start, end, activity, cv)
+    rep.raking["adopted"] = "0.00"  # **採用は 0%**= LLM の分布そのまま(12% は併記のみ)
+    rep.engine_modified = {
+        "rake_n_moved": 0, "repair_n_modified": 0, "repair_n_dropped": 0,
+        "denominator": rep.n_kept, "rate": 0.0,
+        "note": "本番 v2 は修復なし・raking 採用 0%= エンジン由来の修正は 0(12% は報告のみ)。",
+    }
+    rep.diversity = _diversity(agent_row, day, start, activity)
+    order = np.lexsort((start, day, agent_row)).astype(np.int64)
+    agent_row, day, start, end = agent_row[order], day[order], start[order], end[order]
+    activity, place, bkind = activity[order], place[order], bkind[order]
+    seq = W17._sequence_within_group(agent_row, day)
+    return rep, {
+        "agent_id": f.agent_id[agent_row].astype(np.int32),
+        "day": day.astype(np.int8),
+        "seq": seq.astype(np.int16),
+        "start_min": start.astype(np.int16),
+        "end_min": end.astype(np.int16),
+        "activity_code": activity.astype(np.int8),
+        "place_kind": place.astype(np.int8),
+        "target_cell": W17._target_cells(f, agent_row, place).astype(np.int32),
+        "block_kind": bkind.astype(np.int8),
+    }
+
+
+def _diversity(agent_row: np.ndarray, day: np.ndarray, start: np.ndarray,
+               activity: np.ndarray) -> dict[str, Any]:
+    """M3b(出勤代理の :00+:30・最頻 15 分ビン・H)と M4a(活動数/体日 の平均±sd)。
+
+    M3b の「出勤代理」= その体のその日の**最初の勤務/通学の直前**にある 移動/乗車 の開始分。
+    M6(個人内一貫性)は **1 日では測れない**ので出さない(設計書 §5)。
+    """
+    out: dict[str, Any] = {"M6": "1 日ランでは測れない(d0 のみ・個人内一貫性は 2 日以上が要る)"}
+    n = int(start.size)
+    if n == 0:
+        return out
+    key = agent_row.astype(np.int64) * V.N_DAYS + day.astype(np.int64)
+    order = np.lexsort((start, key))
+    k, s, a = key[order], start[order], activity[order]
+    new = np.ones(n, dtype=bool)
+    new[1:] = k[1:] != k[:-1]
+    gid = np.cumsum(new) - 1
+    counts = np.bincount(gid)
+    out["M4a_acts_per_agent_day"] = {
+        "n": int(counts.size), "mean": round(float(counts.mean()), 3),
+        "sd": round(float(counts.std()), 3),
+    }
+    duty = (a == V.ACT_WORK) | (a == V.ACT_SCHOOL)
+    move = (a == V.ACT_MOVE) | (a == V.ACT_RIDE)
+    proxy: list[int] = []
+    idx = np.flatnonzero(new)
+    ends = np.append(idx[1:], n)
+    for lo, hi in zip(idx, ends):  # 逐次: (体, 日)群の数
+        dj = np.flatnonzero(duty[lo:hi])
+        if dj.size == 0:
+            continue
+        mj = np.flatnonzero(move[lo:lo + int(dj[0])])
+        if mj.size:
+            proxy.append(int(s[lo + int(mj[-1])]))
+    if proxy:
+        p = np.asarray(proxy, dtype=np.int64)
+        bins = np.bincount(p // 15, minlength=96).astype(np.float64)
+        q = bins / bins.sum()
+        nz = q > 0
+        out["M3b_depart_proxy"] = {
+            "n": int(p.size),
+            "on_00_30": round(float(np.isin(p % 60, (0, 30)).mean()), 6),
+            "mode_bin": f"{int(np.argmax(bins)) * 15 // 60:02d}:{int(np.argmax(bins)) * 15 % 60:02d}",
+            "mode_share": round(float(q.max()), 6),
+            "entropy_bit": round(float(-(q[nz] * np.log2(q[nz])).sum()), 4),
+        }
+    return out
+
+
+def write_production(
+    out_dir: Path, world_dir: Path, data_dir: Path, spec: ArmSpec, f: W17.AgentFacts,
+    rep: TrialReport, columns: dict[str, np.ndarray], prompt_recs: list[dict[str, Any]],
+    responses: Sequence[Path], *, time_fact_repair: bool,
+) -> C.StageResult:
+    """``w17_schedule.parquet`` / ``W17.header.json`` / ``w17_gates.json`` を**隔離先へ**書く。"""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / W17.SCHEDULE_NAME
+    pq.write_table(
+        pa.table({n: pa.array(columns[n], type=PROD_SCHEMA.field(n).type)
+                  for n in PROD_SCHEMA.names}, schema=PROD_SCHEMA),
+        path, compression="zstd", compression_level=3, version="2.6", write_statistics=False,
+    )
+    body = rep.to_json()
+    outputs = list(prompt_recs) + [
+        {"path": path.name, "sha256": C.sha256_file(path), "bytes": path.stat().st_size,
+         "rows": int(columns["agent_id"].size)},
+        C.write_json(out_dir, W17.GATES_NAME, body, rows=rep.n_kept),
+    ]
+    cov = np.asarray(rep.coverage, dtype=np.float64) / V.MINUTES_PER_DAY if rep.coverage else np.zeros(0)
+    cov_rate = float((cov >= V2_GATE_COVERAGE).mean()) if cov.size else 0.0
+    sleep = np.asarray(rep.day_sleep, dtype=np.float64) if rep.day_sleep else np.zeros(0)
+    gates = [
+        C.Gate("n_agents", rep.n_agents),
+        C.Gate("n_with_response", rep.n_with_response),
+        C.Gate("parse_fail_rate", round(rep.parse_fail_rate, 6),
+               f"< {V2_GATE_PARSE_FAIL}", passed=rep.parse_fail_rate < V2_GATE_PARSE_FAIL),
+        C.Gate("coverage_ge_0999_rate", round(cov_rate, 6),
+               f">= {V2_GATE_COVERAGE}", passed=cov_rate >= V2_GATE_COVERAGE),
+        C.Gate("night_violation_day_rate",
+               round(rep.check_fail.get("night", 0) / max(1, len(rep.coverage)), 6)),  # 報告(目標 0)
+        C.Gate("has_sleep_rate", round(float((sleep > 0).mean()), 6) if sleep.size else 0.0),
+        C.Gate("M3b_depart_proxy", rep.diversity.get("M3b_depart_proxy")),      # 報告
+        C.Gate("M4a_acts_per_agent_day", rep.diversity.get("M4a_acts_per_agent_day")),  # 報告
+        C.Gate("jsd_max_raking_0", rep.raking.get("0.00", {}).get("jsd_max_after")),    # 報告
+        C.Gate("jsd_max_raking_12", rep.raking.get("0.12", {}).get("jsd_max_after")),   # 報告
+        C.Gate("llm_modified_rate", round(rep.llm_modified_rate, 6)),                   # 報告
+        C.Gate("engine_modified_rate", rep.engine_modified["rate"], 0.0,
+               passed=rep.engine_modified["rate"] == 0.0),
+        C.Gate("M6_measurable", False, False),  # 1 日ランでは測れない(§4)
+    ]
+    inputs = [world_dir / n for n in W17.INPUT_FILES if (world_dir / n).exists()]
+    for name in PF.LAYERS:
+        inputs += PF.layer_files(Path(data_dir).joinpath(*W17.POOL_DIR), name)
+    inputs += [Path(p) for p in responses]
+    res = C.StageResult(
+        stage=W17.STAGE,
+        stage_version=V2_STAGE_VERSION,
+        input_hash=C.input_hash(inputs),
+        param_hash=C.param_hash({
+            "trial_version": TRIAL_VERSION, "arm": spec.name, "days": spec.days,
+            "kind_col": spec.kind_col, "lines_per_day": list(spec.lines),
+            "max_tokens": spec.max_tokens, "temperature": spec.temperature,
+            "identity_chars": [IDENTITY_CHARS_MIN, IDENTITY_CHARS_MAX],
+            "identity_max_tokens": IDENTITY_MAX_TOKENS,
+            "seed_tag": SEED_TAG_V2.decode("ascii") + "seed/" + spec.seed_tag,
+            "time_fact_repair": bool(time_fact_repair),
+            "raking_adopted": "0.00", "raking_reported": list(spec.rake_fracs),
+            "night_ban_acts": list(NIGHT_BAN_ACTS), "night_end_min": NIGHT_END_MIN,
+            "anchor": ANCHOR_NAME, "employment_mix": sorted(EMPLOYMENT_MIX),
+            "lead_default_min": LEAD_DEFAULT_MIN,
+            "work_len_min_max": [WORK_LEN_MIN_MIN, WORK_LEN_MAX_MIN],
+            "activity_words": list(V.ACTIVITY_WORDS), "place_words": list(V.PLACE_WORDS),
+            "block_kind_words": list(BLOCK_KIND_WORDS),
+            "prompts_sha256": {str(r["stage"]): r["prompts_sha256"] for r in prompt_recs},
+        }),
+        params={
+            "n_agents": rep.n_agents, "days": spec.days, "arm": spec.name,
+            "max_tokens": spec.max_tokens, "temperature": spec.temperature,
+            "time_fact_repair": bool(time_fact_repair),
+            "prompts_sha256": {str(r["stage"]): r["prompts_sha256"] for r in prompt_recs},
+            "system_sha256": {str(r["stage"]): r["system_sha256"] for r in prompt_recs},
+        },
+        outputs=outputs,
+        gates=gates,
+        catalog_classes=["週次活動スケジュール表(v2・1 日)"] if rep.n_kept else [],
+        expedients=[
+            "W17 v2 = D-68 下見 P2′ の型(3 列・block_kind はエンジン導出・時刻忠実の明示)",
+            "1 日モード(月曜 d0 のみ)= C7 を 1 日回すためのユーザー決定",
+            "raking は 12% と 0% を計算し**採用は 0%**(LLM の分布そのまま)",
+            "時刻の整合修復は切替口(既定オフ)。オフでも一致率は計数のみ出す",
+            f"勤務窓は第31/36表の逆関数法({ANCHOR_NAME})・非正規/自営の按分は人数比",
+            "M6(個人内一貫性)は 1 日ランでは測れない=報告しない",
+        ],
+        notes={"report": body, "isolated_dir": str(out_dir)},
+    )
+    C.write_header(out_dir, res)
+    return res
+
+
+def promote(out_dir: str | Path, world_dir: str | Path) -> dict[str, Any]:
+    """``w17v2/`` の parquet と header を本番へ**コピー**し、旧版を退避する(親が実行)。"""
+    import shutil
+
+    src, world = Path(out_dir), Path(world_dir)
+    backup = world / V2_BACKUP_DIR
+    backup.mkdir(parents=True, exist_ok=True)
+    moved: list[str] = []
+    copied: list[str] = []
+    for name in (W17.SCHEDULE_NAME, f"{W17.STAGE}.header.json", W17.GATES_NAME):
+        s = src / name
+        if not s.exists():
+            continue
+        d = world / name
+        if d.exists():
+            shutil.copy2(d, backup / name)
+            moved.append(name)
+        shutil.copy2(s, d)
+        copied.append(name)
+    return {"backup_dir": str(backup), "backed_up": moved, "promoted": copied}
+
+
 # ================================================================= CLI
 def _rss_mb() -> float:
     """常駐セット[MB](報告用・ハッシュ対象には入れない)。"""
@@ -2023,6 +2486,17 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--no-absent", action="store_true", help="行動者率による欠勤を引かない")
     ap.add_argument("--stay-kinds", default="", help="宿泊客とみなす種別(既定 7=訪日)")
     ap.add_argument("--no-parquet", action="store_true", help="parquet を書かない")
+    # --- 本番経路(W17 v2・1 日)---
+    ap.add_argument("--production", action="store_true",
+                    help="全 390,067 体の本番プロンプトを書く(層化しない・出力先は隔離)")
+    ap.add_argument("--days", type=int, default=0, help="段2 の日数(1=月曜 d0 のみ)")
+    ap.add_argument("--max-tokens", type=int, default=0, help="段2 の生成上限を上書き")
+    ap.add_argument("--ingest-production", type=Path, action="append", default=None,
+                    help="本番 v2 の段2 応答 jsonl(修復なし・raking 採用 0%%)")
+    ap.add_argument("--time-fact-repair", action="store_true",
+                    help="家を出る/帰宅の移動行を事実行の時刻へ合わせる(既定オフ=計数のみ)")
+    ap.add_argument("--promote", action="store_true",
+                    help="隔離先の parquet/header を本番へコピーし旧版を退避する")
     args = ap.parse_args(argv)
 
     t0 = time.perf_counter()
@@ -2038,7 +2512,14 @@ def main(argv: list[str] | None = None) -> int:
     if args.model_tag.strip().lower() == "32b" and arm_name == "p2":
         arm_name = "p2_32b"
 
+    if args.promote:
+        rec = promote(out_root, args.world)
+        print(f"[promote] {json.dumps(rec, ensure_ascii=False)}")
+        return 0
+
     facts = W17.build_facts(args.world, args.data)
+    if args.production or args.ingest_production:
+        return _run_production(args, facts, out_root, anchor_file, t0)
     if arm_name == ARM_FROZEN:  # P0 = 凍結資産を読むだけ
         return _report_frozen(args.world, out_root, facts, args)
 
@@ -2087,6 +2568,60 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[{spec.name}] {key} = {json.dumps(body[key], ensure_ascii=False)}")
     print(f"[{spec.name}] report {rpath} ({body['elapsed_s']}s RSS={body['rss_mb']} MB)")
     return 0
+
+
+def _run_production(args, facts: W17.AgentFacts, out_root: Path, anchor_file: Path,
+                    t0: float) -> int:
+    """``--production`` / ``--ingest-production``: W17 v2(1 日)の本番経路。"""
+    out_dir = assert_isolated(out_root, args.world)
+    days = args.days or 1
+    spec = production_spec(days=days, max_tokens=args.max_tokens or None)
+    try:
+        anchor = load_anchor(anchor_file)
+    except FileNotFoundError:
+        print(f"アンカー台帳が無い: {anchor_file}(--build-anchor で作る)", file=sys.stderr)
+        return 2
+    stay = tuple(int(x) for x in args.stay_kinds.split(",") if x.strip()) \
+        if args.stay_kinds else STAY_KINDS_DEFAULT
+    rows = production_rows(facts)
+    tw = time.perf_counter()
+    tf = draw_windows(facts, anchor, rows=rows, absent=not args.no_absent, stay_kinds=stay)
+    print(f"[v2] 勤務窓 {len(rows):,} 体 ({time.perf_counter() - tw:.1f}s) "
+          f"{dict(sorted(tf.counters.items()))}")
+
+    recs: list[dict[str, Any]] = []
+    if args.production:
+        for stage in ((1, 2) if args.stage == 0 else (args.stage,)):
+            ids = _load_identities(args.identity) if (stage == 2 and args.identity) else None
+            if stage == 2 and ids is None:
+                print("[v2] 段2 は --identity <段1 応答> が要る(事実だけの版を書く)")
+            rec = write_production_prompts(out_dir, spec, facts, tf, rows,
+                                           stage=stage, identities=ids)
+            recs.append(rec)
+            print(f"[v2] 段{stage} {rec['name']} rows={rec['rows']:,} "
+                  f"prompts_sha256={rec['prompts_sha256'][:16]}… bytes={rec['bytes']:,} "
+                  f"入力tok 平均={rec['prompt_tokens_mean']} 最大={rec['prompt_tokens_max']} "
+                  f"max_tokens={rec['max_tokens']} system={rec['system_sha256']['n_distinct']}種 "
+                  f"共有prefix={rec['system_sha256']['shared_prefix_chars']}字 "
+                  f"identity投入={rec['n_identity_injected']:,} regex={rec['regex_sha256']}")
+    if not args.ingest_production:
+        print(f"[v2] プロンプトのみ ({time.perf_counter() - t0:.1f}s RSS={_rss_mb()} MB)")
+        return 0
+
+    resp = [Path(p) for p in args.ingest_production]
+    rep, cols = ingest_production(args.world, spec, facts, tf, rows, resp,
+                                  time_fact_repair=args.time_fact_repair)
+    res = write_production(out_dir, Path(args.world), Path(args.data), spec, facts, rep, cols,
+                           recs, resp, time_fact_repair=args.time_fact_repair)
+    body = rep.to_json()
+    for key in ("parse", "checks", "time_fact", "diversity", "raking", "modified"):
+        print(f"[v2] {key} = {json.dumps(body[key], ensure_ascii=False)}")
+    for g in res.gates:
+        j = g.to_json()
+        print(f"[v2 gate] {g.name:26s} {json.dumps(j['value'], ensure_ascii=False)} "
+              f"(期待 {j['expected']}) {'PASS' if j['pass'] else 'FAIL'}")
+    print(f"[v2] 出力 {out_dir} ({time.perf_counter() - t0:.1f}s RSS={_rss_mb()} MB)")
+    return 0 if res.all_passed else 1
 
 
 def _report_frozen(world: Path, out_root: Path, facts: W17.AgentFacts, args) -> int:
