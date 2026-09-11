@@ -330,6 +330,63 @@ def test_parquet_roundtrip_and_outputs(dy, anchors, tmp_path):
     assert Path(paths["json"]).exists() and Path(paths["md"]).exists()
 
 
+def test_parquet_file_path_is_accepted(dy, anchors, tmp_path):
+    """``--parquet`` に**ファイルパス**を渡せる(下見は w17_trial_<arm>_schedule.parquet)。"""
+    p = write_toy_parquet(tmp_path / "trials" / "p1a" / "w17_trial_p1a_schedule.parquet",
+                          block=[2] * len(TOY_ROWS), arm="p1a")
+    s = dy.sample_from_weekly(None, parquet=p, label="P1a")
+    assert s.n_agents == 2 and s.n_rows == len(TOY_ROWS)
+    assert s.arm == "p1a" and s.block_kind is not None
+    assert dy.measure(s, anchors)["arm"] == "p1a"
+    # CLI からも通る(ファイル名が w17_schedule.parquet でなくてよい)
+    rc = dy.main(["--parquet", str(p), "--world", str(tmp_path), "--label", "P1a",
+                  "--out", str(tmp_path / "o")])
+    assert rc == 0
+    doc = json.loads((tmp_path / "o" / "diversity_yardstick.json").read_text(encoding="utf-8"))
+    assert doc["after"]["arm"] == "p1a"
+    with pytest.raises(SystemExit):
+        dy.read_weekly_any(tmp_path / "trials" / "p1a" / "missing.parquet")
+    with pytest.raises(SystemExit):
+        dy.read_weekly_any(tmp_path / "trials" / "p1a" / "w17_trial_p1a_schedule.csv")
+
+
+def test_file_path_and_directory_agree(dy, anchors, tmp_path):
+    """同じ中身なら**ファイル指定とディレクトリ指定で全指標が一致**する。
+
+    余分な列(``block_kind``/``arm``)が増えても M1〜M8 は動かない=場所の判定に使っていない。
+    """
+    d = tmp_path / "w"
+    write_toy_parquet(d / "w17_schedule.parquet")
+    f = write_toy_parquet(tmp_path / "t" / "w17_trial_x_schedule.parquet",
+                          block=[2] * len(TOY_ROWS), arm="x")
+    by_dir = dy.measure(dy.sample_from_weekly(d, label="dir"), anchors)
+    by_file = dy.measure(dy.sample_from_weekly(None, parquet=f, label="file"), anchors)
+    for scope in ("weekday", "all_days"):
+        a = dict(by_dir["scopes"][scope]["overall"])
+        b = dict(by_file["scopes"][scope]["overall"])
+        assert a.pop("harm_block") != b.pop("harm_block")  # block 検査だけ増える
+        assert a == b
+    assert by_dir["scopes"]["weekday"]["overall"]["harm_block"]["present"] is False
+
+
+def test_block_kind_place_mismatch_is_reported(dy, anchors, tmp_path):
+    """``block_kind`` と場所語の矛盾を数える(移動 4 は判定しない・場所判定には使わない)。"""
+    # 行順は TOY_ROWS のまま: 就寝自宅/支度自宅/乗車駅/勤務職場/移動自宅 × 4 日
+    block = []
+    for r in TOY_ROWS:
+        block.append({0: 3, 1: 1, 3: 4, 4: 2, 7: 2}.get(r[4], 2))
+    block[2] = 1   # 乗車 駅 を「自宅」ブロックに=矛盾 1 件
+    block[3] = 0   # 勤務 職場 を「域外」ブロックに=矛盾 1 件
+    f = write_toy_parquet(tmp_path / "w17_trial_b_schedule.parquet", block=block, arm="b")
+    hb = _weekday(dy.measure(dy.sample_from_weekly(None, parquet=f), anchors))["harm_block"]
+    assert hb["present"] and hb["mismatch_rows"] == 2
+    assert hb["by_rule"]["1 自宅なのに場所語が自宅でない"] == 1
+    assert hb["by_rule"]["0 域外なのに場所語が域外でない"] == 1
+    assert hb["n_move_unjudged"] == sum(1 for b in block if b == 4)
+    assert hb["mismatch_share"] == pytest.approx(2 / hb["n"])
+    assert "expedient" in hb["rule"]
+
+
 def test_cli_end_to_end(dy, anchors, tmp_path, capsys):
     """CLI: ``--parquet``/``--before-parquet``/``--floor``/``--out`` が通る。"""
     p = write_toy_parquet(tmp_path / "w17_schedule.parquet")

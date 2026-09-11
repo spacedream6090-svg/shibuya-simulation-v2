@@ -48,6 +48,7 @@ __all__ = [
     "WeeklySchedule",
     "weekly_available",
     "load_weekly",
+    "load_weekly_file",
     "apply_to_mock_schedule",
 ]
 
@@ -470,16 +471,33 @@ def weekly_available(world_dir: str | Path | None) -> bool:
 
 
 def load_weekly(world_dir: str | Path | None) -> WeeklySchedule | None:
-    """W17 週次表を読む。資産が無ければ ``None``。
+    """W17 週次表を読む(``<world_dir>/w17_schedule.parquet``)。資産が無ければ ``None``。
 
     Raises:
         ValueError: 行が ``(agent_id, day, seq)`` 昇順でない(W17 の出力仕様違反)。
     """
     if not weekly_available(world_dir):
         return None
+    return load_weekly_file(Path(world_dir) / WEEKLY_FILE)
+
+
+def load_weekly_file(path: str | Path) -> WeeklySchedule:
+    """**ファイル名を問わず**1 つの parquet から週次表を組む。
+
+    ``load_weekly`` は ``<world_dir>/w17_schedule.parquet`` に固定だが、D-68 の下見は
+    本番 glob を避けて ``data/world/v2/trials/<arm>/w17_trial_<arm>_schedule.parquet``
+    に書く。読むのは ``_COLUMNS`` の 8 列だけなので、``block_kind``/``arm`` のような
+    **余分な列があっても結果は変わらない**(列選択で落ちる)。
+
+    Raises:
+        FileNotFoundError: ファイルが無い。
+        ValueError: 行が ``(agent_id, day)`` 昇順でない。
+    """
     import pyarrow.parquet as pq  # 遅延 import(週次表が無いランに読み込ませない)
 
-    path = Path(world_dir) / WEEKLY_FILE
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(str(path))
     table = pq.read_table(path, columns=list(_COLUMNS))
     cols = {n: np.asarray(table.column(n).to_numpy(zero_copy_only=False)) for n in _COLUMNS}
     aid = cols["agent_id"].astype(np.int64)
@@ -487,7 +505,7 @@ def load_weekly(world_dir: str | Path | None) -> WeeklySchedule | None:
     if aid.size and np.any(
         (aid[1:] < aid[:-1]) | ((aid[1:] == aid[:-1]) & (day[1:] < day[:-1]))
     ):
-        raise ValueError("w17_schedule.parquet が (agent_id, day) 昇順でない")
+        raise ValueError(f"{path.name} が (agent_id, day) 昇順でない")
     agents = np.unique(aid)
     key = np.searchsorted(agents, aid) * N_DAYS + day
     offset = np.zeros(agents.size * N_DAYS + 1, dtype=np.int64)

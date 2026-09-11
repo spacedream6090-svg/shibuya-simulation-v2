@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **4 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **5 / 10**
 > 第1〜第150(2026-09-01〜09-11)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第151 層2 最終確認(第150)=合格→計画実行層を IMPLEMENTED #18 へ・D-66 を PENDING から消す(2026-09-11)
@@ -29,4 +29,12 @@
 - **P0 前値を凍結**: docs/bench/w17/p0_before/。
 - **アンカー一次確認(親)**: 全国 平日 出勤 :00+:30 0.6637/H 4.631(a030 00_全国)・区分別帯 0.626〜0.818(a031 15 区分・嘱託 min・内職 max)・Schneider 訪問地点数の対数正規 μ=1±0.1 σ=0.5±0.1(PMC 逐語)・Alessandretti 容量 ≈25(arXiv 要旨)。未確認のまま=Song 上位 2 地点 60%(図のみ)・Alessandretti λ 4 値(本文未読)。
 - **次**: 5 腕ハーネス(サブ作業中)の検収→艦隊で P0b/P1a/P1b/P2→同じ物差しで後値。
+
+## 第155 D-68 下見の 5 腕ハーネス(サブ・親検収)+物差しの明示パス対応+艦隊で 8B 腕 3 本を開始(2026-09-11)
+
+- **ハーネス** src/shibuya/build/sched/trial.py(1,113 行・別経路・本番経路と凍結資産は不変): 層化 2,000 体(§4)・P1 の勤務窓(第31/36表の逆関数法・ビン内 15 分一様・employment→行・非正規は人数比按分・自営 28:72・始業=出勤+arrival_lead_min(欠損 30 分)・勤務長 [4h,12h]・行動者率で欠勤)・腕の凍結(system/例示/regex/修復/raking)・P2 2 段(面接形式の同一性→本人が書くブロック形式・深夜 0〜4 時の支度/乗車を文法から外す・宿泊客の就寝地=宿泊施設)・取り込み報告(修復なし・被覆/深夜/就寝/矛盾・raking 12%/0%・修正率を LLM 由来/エンジン由来に分離)・出力名は本番 glob 回避(機械検査)。テスト 22 本。pool_facts に employment/name/rank/industry_major/arrival_lead_min(TRIAL_ONLY)。アンカー docs/bench/anchors/commute_time_dist_r3.json(親再計算で検証印)。§8 追記+「親判断待ち ③(L2 全件同一)」の訂正。
+- **親検収**: build_sched 216・w17 27・agents/engine/c7 pass・lint 5 kept・scan CLEAN。P1a sha 8c8b9c93 再現・P2 段1 sha bc3fbdbc 再現(P2 は system=共通/user=個体へ並び替え=共有 prefix 4 字→148/756 字)。employment_mix と自営按分を xlsx から再計算で一致。答申 §6-2 の総数 帰宅 p90 22:00→21:45 を訂正注。
+- **物差し**: `--parquet` がファイルパス可(`agents.weekly.load_weekly_file` 新設・既存 API 不変・schedule_hash 一致)+block_kind 矛盾の弊害欄。P0 の値は第154 と同一。
+- **艦隊**: P0b/P1a/P1b(各 2,000 呼)を 14:20 に開始(8B DP7・conc 8・約 4.7 呼/s=1 腕 7 分)。P2 段1 プロンプトはサーバーに配置済み。
+- **次**: 応答を戻して取り込み→P0 と前後表→P2 段1→段2→32B 比較→採否をユーザーへ。
 

@@ -93,8 +93,12 @@ def make_sample(dy, rows=TOY_ROWS, kinds=(0, 0), label="toy", block=None):
     )
 
 
-def write_toy_parquet(path: Path, rows=TOY_ROWS) -> Path:
-    """合成の ``w17_schedule.parquet``(列は ``agents.weekly._COLUMNS``)を書く。"""
+def write_toy_parquet(path: Path, rows=TOY_ROWS, *, block=None, arm=None) -> Path:
+    """合成の週次表 parquet を書く(列は ``agents.weekly._COLUMNS``)。
+
+    ``block``/``arm`` を渡すと下見の出力形
+    (``w17_trial_<arm>_schedule.parquet`` = 8 列 + ``block_kind`` + ``arm``)になる。
+    """
     import pyarrow as pa
     import pyarrow.parquet as pq
 
@@ -116,6 +120,11 @@ def write_toy_parquet(path: Path, rows=TOY_ROWS) -> Path:
         "place_kind": pa.array(r[:, 5], pa.int8()),
         "target_cell": pa.array(r[:, 6], pa.int32()),
     })
+    if block is not None:
+        table = table.append_column(
+            "block_kind", pa.array(np.asarray(block, dtype=np.int64)[order], pa.int8()))
+    if arm is not None:
+        table = table.append_column("arm", pa.array([arm] * r.shape[0], pa.string()))
     path.parent.mkdir(parents=True, exist_ok=True)
     pq.write_table(table, path)
     return path

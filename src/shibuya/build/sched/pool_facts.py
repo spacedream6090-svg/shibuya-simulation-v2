@@ -32,6 +32,7 @@ import numpy as np
 
 __all__ = [
     "LAYERS",
+    "TRIAL_ONLY_FIELDS",
     "SLEEP_STEP_MINUTES",
     "ALL_DAYS_MASK",
     "WEEKDAY_MASK",
@@ -59,9 +60,17 @@ _DAY_TOKENS: Final[dict[str, int]] = {
 }
 
 #: 引く文字列欄(そのまま保持)。
+#: 末尾 4 欄(``employment`` / ``name`` / ``rank`` / ``industry_major``)は **D-68 下見
+#: (``build.sched.trial``)専用**。本番 W17 の ``user_prompt`` はこれらを読まない
+#: (= 本番プロンプトは不変・``tests/build_sched/test_trial.py`` が機械検査する)。
 _STR_FIELDS: Final[tuple[str, ...]] = (
     "occupation", "work_days", "visit_cadence", "visit_purpose", "school_stage",
     "commute_mode", "role", "post", "residence_line", "subtype",
+    "employment", "name", "rank", "industry_major",
+)
+#: 本番 W17 が読まない欄(下見専用)。テストがこの区別を機械検査する。
+TRIAL_ONLY_FIELDS: Final[tuple[str, ...]] = (
+    "employment", "name", "rank", "industry_major",
 )
 
 
@@ -153,6 +162,8 @@ class PoolFacts:
         duty_rotates: 交代制か。
         bedtime_min: 就寝時刻[分](不明 −1)。
         sleep_min: 睡眠長[分](``sleep_steps`` × 10。不明 −1)。
+        arrival_lead_min: ``arrival_lead_min``(不明 −1)。**D-68 下見専用**(§2-3
+            「始業=出勤+片道通勤時間」の (a) 候補)。本番 W17 は読まない。
         found: その行の素材が実際に読めたか(``pool_index<0`` などは False)。
     """
 
@@ -166,6 +177,7 @@ class PoolFacts:
     duty_rotates: np.ndarray
     bedtime_min: np.ndarray
     sleep_min: np.ndarray
+    arrival_lead_min: np.ndarray
     found: np.ndarray
 
     def col(self, field: str) -> list[str]:
@@ -189,6 +201,7 @@ def _blank(n: int) -> PoolFacts:
         duty_rotates=np.zeros(n, dtype=bool),
         bedtime_min=np.full(n, -1, dtype=np.int16),
         sleep_min=np.full(n, -1, dtype=np.int16),
+        arrival_lead_min=np.full(n, -1, dtype=np.int16),
         found=np.zeros(n, dtype=bool),
     )
 
@@ -218,6 +231,9 @@ def _fill(facts: PoolFacts, row: int, d: dict) -> None:
     steps = d.get("sleep_steps")
     if isinstance(steps, (int, float)):
         facts.sleep_min[row] = min(1439, int(steps) * SLEEP_STEP_MINUTES)
+    lead = d.get("arrival_lead_min")
+    if isinstance(lead, (int, float)) and not isinstance(lead, bool):
+        facts.arrival_lead_min[row] = max(-1, min(1439, int(lead)))
     facts.found[row] = True
 
 

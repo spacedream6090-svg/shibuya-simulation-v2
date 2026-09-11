@@ -79,6 +79,7 @@ from shibuya.agents.weekly import (  # noqa: E402
     PLACE_WORDS,
     WEEKLY_FILE,
     load_weekly,
+    load_weekly_file,
 )
 from shibuya.build.sched import vocab as V  # noqa: E402
 
@@ -100,6 +101,13 @@ ACT_PREP = ACTIVITY_WORDS.index("支度")
 ACT_MOVE = ACTIVITY_WORDS.index("移動")
 ACT_RIDE = ACTIVITY_WORDS.index("乗車")
 ACT_WORK = ACTIVITY_WORDS.index("勤務")
+PLACE_HOME = PLACE_WORDS.index("自宅")
+PLACE_LODGING = PLACE_WORDS.index("宿泊施設")
+PLACE_OUTSIDE = PLACE_WORDS.index("域外")
+
+#: ``block_kind``(計画実行層設計書 §9)= 0 域外 / 1 自宅 / 2 在圏 / 3 就寝 / 4 移動。
+#: 応答 jsonl と、下見が書く ``w17_trial_<arm>_schedule.parquet`` の追加列に出る。
+BLOCK_WORDS: tuple[str, ...] = ("域外", "自宅", "在圏", "就寝", "移動")
 
 #: 開始時刻のビン幅[分](15 分=第30表の刻みに合わせる。96 ビン/日)。
 TIME_BIN_MIN = 15
@@ -183,6 +191,7 @@ class Sample:
     place_kind: np.ndarray
     target_cell: np.ndarray
     block_kind: np.ndarray | None = None
+    arm: str | None = None
     ingest: dict[str, Any] | None = None
 
     @property
@@ -230,13 +239,56 @@ def population_kind_counts(world_dir: str | Path | None) -> np.ndarray | None:
     return np.bincount(np.asarray(pop.kind).astype(np.int64), minlength=N_KINDS)[:N_KINDS]
 
 
-def sample_from_weekly(world_dir: str | Path, *, parquet: str | Path | None = None,
+def read_weekly_any(target: str | Path):
+    """``--parquet`` の引数 → ``(WeeklySchedule, 読んだファイル)``。**純関数**。
+
+    **ファイルパスでもディレクトリでも読む**。下見の出力は本番 glob
+    (``w17_responses*.jsonl``/``w17_schedule.parquet``)に当たらない名前
+    ``data/world/v2/trials/<arm>/w17_trial_<arm>_schedule.parquet`` に置くので、
+    ``load_weekly``(ディレクトリ+固定ファイル名)だけでは読めない。
+    """
+    p = Path(target)
+    if p.is_dir():
+        ws = load_weekly(p)
+        if ws is None:
+            raise SystemExit(f"{p / WEEKLY_FILE} が無い")
+        return ws, p / WEEKLY_FILE
+    if p.suffix != ".parquet":
+        raise SystemExit(f"--parquet は .parquet ファイルか世界資産ディレクトリ: {p}")
+    if not p.exists():
+        raise SystemExit(f"{p} が無い")
+    return load_weekly_file(p), p
+
+
+def read_extra_columns(path: str | Path) -> tuple[np.ndarray | None, str | None]:
+    """``block_kind``/``arm`` 列があれば読む(無ければ ``None``)。行順は ``_COLUMNS`` と同じ。
+
+    **M1〜M8 の場所判定には使わない**(場所は今までどおり ``place_kind``/``target_cell``)。
+    ``block_kind`` は弊害側の「block_kind と場所語の矛盾」の計数にだけ使う。
+    """
+    import pyarrow.parquet as pq
+
+    names = set(pq.read_schema(path).names)
+    block = None
+    if "block_kind" in names:
+        col = pq.read_table(path, columns=["block_kind"]).column("block_kind")
+        block = np.asarray(col.to_numpy(zero_copy_only=False)).astype(np.int64)
+    arm = None
+    if "arm" in names:
+        vals = pq.read_table(path, columns=["arm"]).column("arm").to_pylist()
+        arm = str(vals[0]) if vals else None
+    return block, arm
+
+
+def sample_from_weekly(world_dir: str | Path | None, *, parquet: str | Path | None = None,
                        label: str | None = None, limit_agents: int | None = None) -> Sample:
-    """W17 週次表 parquet → ``Sample``。``load_weekly`` の CSR を行ごとの形に展開する。"""
-    src_dir = Path(parquet).parent if parquet else Path(world_dir)
-    ws = load_weekly(src_dir)
-    if ws is None:
-        raise SystemExit(f"{Path(src_dir) / WEEKLY_FILE} が無い")
+    """W17 週次表 parquet → ``Sample``。``load_weekly`` の CSR を行ごとの形に展開する。
+
+    ``parquet`` は**ファイルでもディレクトリでもよい**(省略時は ``world_dir``)。
+    ``world_dir`` は種別 kind と層化重み w_k の出所で、資産の在り処とは独立。
+    """
+    ws, src_path = read_weekly_any(parquet if parquet else world_dir)
+    block, arm = read_extra_columns(src_path)
     n = ws.n_agents
     counts = np.diff(ws.day_offset)
     cellidx = np.repeat(np.arange(n * N_DAYS, dtype=np.int64), counts)
@@ -244,8 +296,10 @@ def sample_from_weekly(world_dir: str | Path, *, parquet: str | Path | None = No
     row_day = (cellidx % N_DAYS).astype(np.int64)
     s = Sample(
         label=label or "weekly",
-        source=str(ws.source),
+        source=str(src_path),
         input_kind="parquet",
+        block_kind=block,
+        arm=arm,
         agent_id=np.asarray(ws.agent_id, dtype=np.int64),
         kind=_kind_of(np.asarray(ws.agent_id, dtype=np.int64), world_dir),
         row_agent=row_agent,
@@ -271,7 +325,7 @@ def restrict_agents(s: Sample, limit: int) -> Sample:
         start=s.start[keep], end=s.end[keep], activity=s.activity[keep],
         place_kind=s.place_kind[keep], target_cell=s.target_cell[keep],
         block_kind=None if s.block_kind is None else s.block_kind[keep],
-        ingest=s.ingest,
+        arm=s.arm, ingest=s.ingest,
     )
 
 
@@ -557,6 +611,54 @@ def group_digests(values: np.ndarray, offsets: np.ndarray) -> np.ndarray:
     return out
 
 
+def block_consistency(block: np.ndarray | None, place: np.ndarray) -> dict[str, Any]:
+    """``block_kind`` と場所語の矛盾を数える(計画実行層設計書 §9 の検査項目)。**純関数**。
+
+    **expedient(自前の規則)**: 設計書は「``block_kind`` と場所語の矛盾」を検査に挙げるだけで
+    対応表を持たない。ここでは**必ず言える 4 つだけ**を矛盾として数え、それ以外は判定しない:
+
+    ===== ============================================================
+    0 域外 場所語が「域外」でない
+    1 自宅 場所語が「自宅」でない
+    2 在圏 場所語が「域外」である(在圏なのに域外)
+    3 就寝 場所語が「自宅/宿泊施設/域外」のいずれでもない
+    4 移動 **判定しない**。W17 の「移動」行は**行き先**の場所語を持つので、
+           駅・路上に限れない(限ると全行が矛盾になる)
+    ===== ============================================================
+
+    ``block_kind`` が無い(現行形式)なら ``present=False`` だけを返す。
+    """
+    if block is None or block.size == 0:
+        return {"present": False, "n": 0,
+                "note": "block_kind 列が無い(現行形式)=この検査は出せない"}
+    b = np.asarray(block, dtype=np.int64).ravel()
+    pl = np.asarray(place, dtype=np.int64).ravel()
+    known = (b >= 0) & (b < len(BLOCK_WORDS))
+    bad_outside = known & (b == 0) & (pl != PLACE_OUTSIDE)
+    bad_home = known & (b == 1) & (pl != PLACE_HOME)
+    bad_in_area = known & (b == 2) & (pl == PLACE_OUTSIDE)
+    bad_sleep = known & (b == 3) & ~np.isin(pl, (PLACE_HOME, PLACE_LODGING, PLACE_OUTSIDE))
+    judged = known & (b != 4)
+    bad = bad_outside | bad_home | bad_in_area | bad_sleep
+    return {
+        "present": True,
+        "n": int(judged.sum()),
+        "rule": "expedient(自前・移動 4 は判定しない)",
+        "n_rows": int(b.size),
+        "n_unknown_code": int((~known).sum()),
+        "n_move_unjudged": int((known & (b == 4)).sum()),
+        "mismatch_rows": int(bad.sum()),
+        "mismatch_share": (float(bad.sum() / judged.sum()) if judged.any() else None),
+        "by_rule": {
+            "0 域外なのに場所語が域外でない": int(bad_outside.sum()),
+            "1 自宅なのに場所語が自宅でない": int(bad_home.sum()),
+            "2 在圏なのに場所語が域外": int(bad_in_area.sum()),
+            "3 就寝なのに場所語が自宅/宿泊施設/域外でない": int(bad_sleep.sum()),
+        },
+        "counts_by_block": {BLOCK_WORDS[i]: int((b == i).sum()) for i in range(len(BLOCK_WORDS))},
+    }
+
+
 def covered_minutes(gid: np.ndarray, start: np.ndarray, end: np.ndarray,
                     n_groups: int) -> np.ndarray:
     """(体・日)ごとに**重なりを除いた**被覆分。**純関数**・ループなし。
@@ -612,6 +714,8 @@ class ScopeCache:
     commute_proxy: np.ndarray      # (G,) 出勤代理(-1=取れない)
     row_agent: np.ndarray          # スコープ内の行の体行
     row_start: np.ndarray
+    row_place: np.ndarray          # スコープ内の行の場所種別
+    row_block: np.ndarray | None   # 同 block_kind(None=現行形式)
     pairs: list[tuple[int, int]]
     pair_inter: np.ndarray         # (P, n_agents)
     pair_union: np.ndarray         # (P, n_agents)
@@ -796,7 +900,8 @@ def build_scope(s: Sample, days: Sequence[int], *, m8_mask_cap: int = 1024) -> S
         day_coverage=day_coverage, day_has_sleep=day_has_sleep, day_night_bad=day_night_bad,
         motif_labels=labels, motif_of_day=motif, motif_closed=closed, motif_capped=capped,
         work_start=work_start, work_rows_start=st[isw], work_rows_agent=ra[isw],
-        commute_proxy=proxy, row_agent=ra, row_start=st,
+        commute_proxy=proxy, row_agent=ra, row_start=st, row_place=plc,
+        row_block=(s.block_kind[sel] if s.block_kind is not None else None),
         pairs=pairs, pair_inter=pair_inter, pair_union=pair_union, pair_both=pair_both,
         agent_place_mask=agent_place_mask, agent_capacity_cell=agent_capacity_cell,
         sig=sig,
@@ -880,6 +985,8 @@ def measure_group(s: Sample, sc: ScopeCache, agent_mask: np.ndarray,
                                 "cv": (mc["sd"] / mc["mean"]) if mc["mean"] else None},
         "mutual_jaccard_place_kind": _mutual_jaccard(sc.agent_place_mask[asel]),
     }
+    out["harm_block"] = block_consistency(
+        None if sc.row_block is None else sc.row_block[rsel], sc.row_place[rsel])
     cov = sc.day_coverage[dsel]
     out["harm_structural"] = {
         "n": int(dsel.sum()),
@@ -978,6 +1085,7 @@ def measure(s: Sample, anchors: Mapping[str, Any], *,
         "label": s.label,
         "source": s.source,
         "input": s.input_kind,
+        "arm": s.arm,
         "n_agents": s.n_agents,
         "n_rows": s.n_rows,
         "kind_counts": {str(k): n_by_kind[k] for k in kinds_present},
@@ -1062,14 +1170,20 @@ def dig(d: Mapping[str, Any] | None, path: Sequence[str]) -> Any:
 
 
 def _anchor_target(anchors: Mapping[str, Any], key: str | None) -> tuple[Any, Any, str]:
-    """アンカー名 → ``(点の値, 帯, 種別)``。帯は ``(low, high)``。"""
+    """アンカー名 → ``(点の値, 帯, 種別)``。帯は ``(low, high)``。**純関数**。
+
+    ``value`` が**数でない**(区分別の内訳辞書など・第154 で親が
+    ``depart_on_00_30_band_by_employment`` に加えた形)ときは点の目標として使わず、
+    ``low``/``high`` の帯へ落とす。台帳が細かくなっても距離の出し方は変えない。
+    """
     if not key:
         return None, None, "none"
     a = anchors["anchors"].get(key)
     if a is None:
         return None, None, "none"
-    if "value" in a:
-        return float(a["value"]), None, "value"
+    v = a.get("value")
+    if isinstance(v, (int, float)) and not isinstance(v, bool):
+        return float(v), None, "value"
     if "low" in a and "high" in a:
         return None, (float(a["low"]), float(a["high"])), "band"
     return None, None, "none"
@@ -1383,7 +1497,23 @@ def _scope_section(m: Mapping[str, Any], scope: str) -> list[str]:
         ["弊害 深夜違反のある日の割合",
          _num(ov["harm_structural"]["night_violation_day_share"], 5), "—"],
     ]
+    hb = ov.get("harm_block", {})
+    if hb.get("present"):
+        rows += [
+            ["弊害 block_kind と場所語の矛盾(行)", _num(hb["mismatch_rows"]), "—"],
+            ["弊害 同 矛盾率(移動 4 を除く)", _num(hb["mismatch_share"], 5),
+             _num(dig(wt, ("harm_block", "mismatch_share")), 5)],
+        ]
     out.append(markdown_table(head, rows))
+    if hb.get("present"):
+        out += ["", f"- block_kind 内訳: "
+                + " / ".join(f"{k} {v:,}" for k, v in hb["counts_by_block"].items())
+                + f"(判定外 移動 {hb['n_move_unjudged']:,}・未知コード {hb['n_unknown_code']:,})",
+                "- 矛盾の内訳: "
+                + " / ".join(f"{k} {v:,}" for k, v in hb["by_rule"].items())
+                + f"。規則は **{hb['rule']}**(設計書 §9 は対応表を持たない)。",
+                "- **場所の判定には block_kind を使っていない**(M1〜M8 は place_kind / "
+                "target_cell のまま)=この列が増えても既存の値は動かない。"]
     out += ["", f"### {title} — 種別ごと", "",
             markdown_table(
                 ["種別", "体", "w_k", "M3a :00+:30", "M3b :00+:30", "M3b H", "M4a 平均±sd",
@@ -1482,8 +1612,7 @@ def _load_sample(parquet: str | None, responses: Sequence[str] | None, world: st
     if responses:
         return sample_from_responses(responses, world, label=label)
     if parquet or world:
-        return sample_from_weekly(world or Path(parquet).parent, parquet=parquet,
-                                  label=label, limit_agents=limit)
+        return sample_from_weekly(world, parquet=parquet, label=label, limit_agents=limit)
     raise SystemExit("--parquet か --responses か --world のどれかが要る")
 
 
@@ -1492,18 +1621,20 @@ def _load_any(path: str, world: str | None, label: str | None) -> Sample:
     name = label or Path(path).stem
     if str(path).endswith(".jsonl"):
         return sample_from_responses([path], world, label=name)
-    return sample_from_weekly(Path(path).parent, parquet=path, label=name)
+    return sample_from_weekly(world, parquet=path, label=name)
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         description="D-68: W17 の個体多様性を現実アンカーと同じ物差しで測る(前後比較・フロアつき)")
-    ap.add_argument("--parquet", default=None, help="W17 週次表 parquet")
+    ap.add_argument("--parquet", default=None,
+                    help="W17 週次表(.parquet ファイル でも 世界資産ディレクトリ でもよい)")
     ap.add_argument("--responses", nargs="+", default=None, help="下見の応答 jsonl(複数可)")
     ap.add_argument("--world", default="data/world/v2", help="世界資産(種別と層化重みの出所)")
     ap.add_argument("--label", default=None, help="after 側の名前")
     ap.add_argument("--limit-agents", type=int, default=None, help="先頭 N 体だけ測る(小さく回す)")
-    ap.add_argument("--before-parquet", default=None, help="比較元の parquet")
+    ap.add_argument("--before-parquet", default=None,
+                    help="比較元(.parquet ファイル でも ディレクトリ でもよい)")
     ap.add_argument("--before-responses", nargs="+", default=None, help="比較元の応答 jsonl")
     ap.add_argument("--before-label", default="before", help="before 側の名前")
     ap.add_argument("--floor", nargs=2, default=None, metavar=("A", "B"),
