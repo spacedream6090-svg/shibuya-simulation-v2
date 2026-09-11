@@ -76,13 +76,41 @@ def test_m3a_on_00_30_and_entropy(dy, anchors):
     assert w["top_bin"] == "00:00" and w["top_bin_share"] == pytest.approx(0.2)
 
 
+def test_on_00_30_is_the_15min_bin_label_not_the_exact_minute(dy, anchors):
+    """アンカー(平均時刻編)は **15 分ビンのラベル**の集計。分ちょうど版は別欄に併記する。
+
+    合成: 開始分を :07 / :37(ラベル :00 / :30 のビンの**中**)と :20(ラベル :15)に置く。
+    → ビン版 = 2/3、分ちょうど版 = 0/3。最頻ビンとエントロピーは元から 15 分ビンなので不変。
+    """
+    rows = [
+        (0, 0, 0, 427, 0, 0, 5),        # 就寝 自宅(00:00 = 両定義とも :00)
+        (0, 0, 427, 520, 1, 0, 5),      # 支度 07:07 → ラベル 07:00
+        (0, 0, 520, 1440, 2, 0, 5),     # 移動 08:40 → ラベル 08:30
+        (1, 0, 0, 440, 0, 0, 5),
+        (1, 0, 440, 500, 1, 0, 5),      # 支度 07:20 → ラベル 07:15
+        (1, 0, 500, 1440, 2, 0, 5),     # 移動 08:20 → ラベル 08:15
+    ]
+    t = _weekday(dy.measure(make_sample(dy, rows=rows), anchors))["m3a"]
+    assert t["n"] == 6
+    # ラベルが :00/:30 のビン = 00:00 ×2・07:00・08:30 の 4 本
+    assert t["on_00_30"] == pytest.approx(4 / 6)
+    # 分ちょうどが :00/:30 = 00:00 ×2 の 2 本だけ
+    assert t["exact_00_30"] == pytest.approx(2 / 6)
+    assert t["on_00_30"] > t["exact_00_30"]
+    # 最頻ビンと H は 15 分ビンのまま=定義変更の影響を受けない
+    assert t["top_bin"] == "00:00" and t["top_bin_share"] == pytest.approx(2 / 6)
+    # アンカーとの距離は**ビン版**で測り、設計書 §5 の前値突合は**分ちょうど版**を見る
+    assert any(sp["path"] == ("m3b", "on_00_30") for sp in dy.CMP_SPECS)
+    assert any(pm[1] == ("m3a", "exact_00_30") for pm in dy.PRIOR_MAP)
+
+
 def test_m3b_commute_proxy_and_m3c_work_start(dy, anchors):
     """M3b=勤務開始より前の最後の 移動/乗車(=乗車 480/480/480/510)。M3c=勤務開始。"""
     m = dy.measure(make_sample(dy), anchors)
     b, c = _weekday(m)["m3b"], _weekday(m)["m3c"]
     assert b["n"] == 4 and b["top_bin"] == "08:00"
     assert b["top_bin_share"] == pytest.approx(0.75)
-    assert b["on_00_30"] == pytest.approx(1.0)
+    assert b["on_00_30"] == pytest.approx(1.0) and b["exact_00_30"] == pytest.approx(1.0)
     assert b["entropy_bits"] == pytest.approx(-(0.75 * math.log2(0.75) + 0.25 * math.log2(0.25)))
     assert b["n_agent_days_with_work"] == 4 and b["n_missing_proxy"] == 0
     assert c["n"] == 4 and c["top_bin"] == "09:00"
@@ -265,7 +293,7 @@ def test_before_after_delta_sign_and_closer(dy, anchors):
     """時刻をばらした after は M3a の H が上がり、:00+:30 が現実側へ寄る。"""
     before = dy.measure(make_sample(dy, label="before"), anchors)
     spread = [list(r) for r in TOY_ROWS]
-    for i, delta in ((1, 23), (3, 23), (12, 1)):  # 支度 07:23・勤務 09:23・乗車 08:01
+    for i, delta in ((1, 23), (3, 23), (12, 20)):  # 支度 07:23・勤務 09:23・乗車 08:20
         spread[i][2] += delta
     after = dy.measure(make_sample(dy, rows=[tuple(r) for r in spread], label="after"), anchors)
     rows = {r["id"]: r for r in dy.compare(after, before, anchors)}
@@ -283,7 +311,7 @@ def test_floor_rows_absolute_difference(dy, anchors):
     rows = {r["id"]: r for r in dy.floor_rows(a, a)}
     assert rows["m3a_on"]["abs_diff"] == pytest.approx(0.0)
     rows2 = list(TOY_ROWS)
-    rows2 = [(r[0], r[1], r[2] + (7 if r[4] == dy.ACT_WORK else 0), r[3], r[4], r[5], r[6])
+    rows2 = [(r[0], r[1], r[2] + (20 if r[4] == dy.ACT_WORK else 0), r[3], r[4], r[5], r[6])
              for r in rows2]
     b = dy.measure(make_sample(dy, rows=rows2, label="B"), anchors)
     f = {r["id"]: r for r in dy.floor_rows(a, b)}

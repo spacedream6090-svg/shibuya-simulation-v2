@@ -508,15 +508,27 @@ def _or_by_group(group: np.ndarray, bit_source: np.ndarray, n_groups: int,
 def time_stats(starts: np.ndarray) -> dict[str, Any]:
     """開始分の並び → ``:00+:30`` 率・15 分ビンの最頻と占有率・エントロピー。**純関数**。
 
-    エントロピーは **1 日 96 ビン**(15 分刻み)で取る。第30表は 58 区分(4:45-19:00)なので
-    上限が違う(96 ビン=6.585 bit / 58 区分=5.858 bit)。**同じ物差しで前後を比べるための値**で
-    あって、アンカーとの差はこの上限差ぶんだけ甘い——報告にその旨を書く。
+    ``:00+:30`` の 2 つの定義(**両方出す**)
+        ``on_00_30``   **15 分ビンのラベルが :00/:30**= 分が [0,15) か [30,45) に入る割合。
+                       **現実アンカーと同じ定義**——社会生活基本調査 平均時刻編は 15 分刻みの
+                       区分表(8:00 のビン= 8:00〜8:14)なので、東京都 平日 出勤の 0.675 は
+                       「分ちょうどが :00/:30」ではなく「ラベルが :00/:30 のビンの占有率」。
+                       アンカーとの距離はこちらで測る。
+        ``exact_00_30`` **分ちょうど**が :00 か :30 の割合。設計書 §5 の P0 前値(0.919 ほか)は
+                       この定義。W17 は開始分が :00/:15/:30/:45 に限られるので両者はほぼ同じだが、
+                       分を散らす腕(P1 系)では**大きく開く**=どちらが動いたかが帰属の材料になる。
+
+    エントロピーと最頻ビンは元から 15 分ビンなので**不変**。エントロピーは **1 日 96 ビン**で
+    取る。第30表は 58 区分(4:45-19:00)なので上限が違う(96 ビン=6.585 bit / 58 区分=
+    5.858 bit)。**同じ物差しで前後を比べるための値**であって、アンカーとの差はこの上限差
+    ぶんだけ甘い——報告にその旨を書く。
     """
     s = np.asarray(starts, dtype=np.int64).ravel()
     if s.size == 0:
-        return {"n": 0, "on_00_30": None, "entropy_bits": None,
+        return {"n": 0, "on_00_30": None, "exact_00_30": None, "entropy_bits": None,
                 "top_bin": None, "top_bin_share": None, "top_hour": None, "top_hour_share": None}
     mins = s % 60
+    bin_label_min = (mins // TIME_BIN_MIN) * TIME_BIN_MIN
     b = np.bincount(np.clip(s // TIME_BIN_MIN, 0, N_TIME_BINS - 1), minlength=N_TIME_BINS)
     p = b[b > 0] / b.sum()
     hb = np.bincount(np.clip(s // 60, 0, 23), minlength=24)
@@ -524,7 +536,8 @@ def time_stats(starts: np.ndarray) -> dict[str, Any]:
     toph = int(hb.argmax())
     return {
         "n": int(s.size),
-        "on_00_30": float(np.mean((mins == 0) | (mins == 30))),
+        "on_00_30": float(np.mean((bin_label_min == 0) | (bin_label_min == 30))),
+        "exact_00_30": float(np.mean((mins == 0) | (mins == 30))),
         "entropy_bits": float(-(p * np.log2(p)).sum()),
         "entropy_max_bits": float(np.log2(N_TIME_BINS)),
         "top_bin": f"{top * TIME_BIN_MIN // 60:02d}:{top * TIME_BIN_MIN % 60:02d}",
@@ -1120,7 +1133,8 @@ CMP_SPECS: tuple[dict[str, Any], ...] = (
     {"id": "m3a_H", "label": "M3a 全活動 H[bit]",
      "path": ("m3a", "entropy_bits"), "anchor": None, "direction": "higher"},
     {"id": "m3b_on", "label": "M3b 出勤代理 :00+:30",
-     "path": ("m3b", "on_00_30"), "anchor": "tokyo_weekday_depart_on_00_30", "direction": None},
+     "path": ("m3b", "on_00_30"), "anchor": "tokyo_weekday_depart_on_00_30", "direction": None,
+     "note": "15 分ビンのラベルが :00/:30(アンカーと同じ定義)"},
     {"id": "m3b_top", "label": "M3b 出勤代理 最頻ビン占有",
      "path": ("m3b", "top_bin_share"), "anchor": "tokyo_weekday_depart_top_bin_share",
      "direction": None},
@@ -1250,13 +1264,14 @@ def floor_rows(a: Mapping[str, Any], b: Mapping[str, Any],
 
 #: 設計書 §5 の前値との突合(``p0_prior`` の名前 → 指標の経路とスコープ)。
 PRIOR_MAP: tuple[tuple[str, tuple[str, ...], str, str], ...] = (
-    ("m3a_on_00_30", ("m3a", "on_00_30"), "all_days", "M3a :00+:30"),
+    ("m3a_on_00_30", ("m3a", "exact_00_30"), "all_days", "M3a :00+:30(分ちょうど)"),
     ("m3a_entropy_bits", ("m3a", "entropy_bits"), "all_days", "M3a H[bit]"),
-    ("m3b_on_00_30", ("m3b", "on_00_30"), "all_days", "M3b :00+:30"),
+    ("m3b_on_00_30", ("m3b", "exact_00_30"), "all_days", "M3b :00+:30(分ちょうど)"),
     ("m3b_top_bin", ("m3b", "top_bin"), "all_days", "M3b 最頻ビン"),
     ("m3b_top_bin_share", ("m3b", "top_bin_share"), "all_days", "M3b 最頻占有"),
     ("m3b_entropy_bits", ("m3b", "entropy_bits"), "all_days", "M3b H[bit]"),
-    ("m3c_on_00_30", ("m3c_all_work_rows", "on_00_30"), "weekday", "M3c :00+:30(勤務行 全件)"),
+    ("m3c_on_00_30", ("m3c_all_work_rows", "exact_00_30"), "weekday",
+     "M3c :00+:30(分ちょうど・勤務行 全件)"),
     ("m3c_top_bin", ("m3c_all_work_rows", "top_bin"), "weekday", "M3c 最頻ビン"),
     ("m3c_top_bin_share", ("m3c_all_work_rows", "top_bin_share"), "weekday", "M3c 最頻占有"),
     ("m3c_entropy_bits", ("m3c_all_work_rows", "entropy_bits"), "weekday", "M3c H[bit]"),
@@ -1452,18 +1467,24 @@ def _scope_section(m: Mapping[str, Any], scope: str) -> list[str]:
         ["M2 上位1型(時刻なし・d0)", _num(ov["m2"]["day0_untimed"]["top1_share"], 4), "—"],
         ["M2 種類率(時刻込み・d0)", _num(ov["m2"]["day0_timed"]["type_rate"], 5), "—"],
         ["M2 上位1型(時刻込み・d0)", _num(ov["m2"]["day0_timed"]["top1_share"], 4), "—"],
-        ["M3a :00+:30", _num(ov["m3a"]["on_00_30"], 4),
+        ["M3a :00+:30(15 分ビン)", _num(ov["m3a"]["on_00_30"], 4),
          _num(dig(wt, ("m3a", "on_00_30")), 4)],
+        ["M3a :00+:30(分ちょうど)", _num(ov["m3a"]["exact_00_30"], 4),
+         _num(dig(wt, ("m3a", "exact_00_30")), 4)],
         ["M3a H[bit]", _num(ov["m3a"]["entropy_bits"], 4),
          _num(dig(wt, ("m3a", "entropy_bits")), 4)],
-        ["M3b :00+:30", _num(ov["m3b"]["on_00_30"], 4),
+        ["M3b :00+:30(15 分ビン)", _num(ov["m3b"]["on_00_30"], 4),
          _num(dig(wt, ("m3b", "on_00_30")), 4)],
+        ["M3b :00+:30(分ちょうど)", _num(ov["m3b"]["exact_00_30"], 4),
+         _num(dig(wt, ("m3b", "exact_00_30")), 4)],
         ["M3b 最頻ビン/占有", f"{ov['m3b']['top_bin']} / {_num(ov['m3b']['top_bin_share'], 4)}",
          "—"],
         ["M3b H[bit]", _num(ov["m3b"]["entropy_bits"], 4),
          _num(dig(wt, ("m3b", "entropy_bits")), 4)],
-        ["M3c :00+:30(最初の勤務)", _num(ov["m3c"]["on_00_30"], 4),
+        ["M3c :00+:30(15 分ビン・最初の勤務)", _num(ov["m3c"]["on_00_30"], 4),
          _num(dig(wt, ("m3c", "on_00_30")), 4)],
+        ["M3c :00+:30(分ちょうど・最初の勤務)", _num(ov["m3c"]["exact_00_30"], 4),
+         _num(dig(wt, ("m3c", "exact_00_30")), 4)],
         ["M3c 最頻ビン/占有", f"{ov['m3c']['top_bin']} / {_num(ov['m3c']['top_bin_share'], 4)}",
          "—"],
         ["M3c H[bit]", _num(ov["m3c"]["entropy_bits"], 4),
@@ -1583,6 +1604,9 @@ def build_payload(after: Mapping[str, Any], anchors: Mapping[str, Any], *,
                             "超える日は出現順ラベルのまま(capped_share に計上)。",
             "m3_entropy_bins": "H は 1 日 96 ビン(15 分)。第30表は 58 区分=上限が違う"
                                "(6.585 bit vs 5.858 bit)。",
+            "m3_on_00_30": "`on_00_30` は**15 分ビンのラベルが :00/:30**(=分が [0,15) か "
+                           "[30,45))でアンカーと同じ定義。分ちょうどの率は `exact_00_30` に併記"
+                           "(設計書 §5 の前値はこちら)。最頻ビンと H は元から 15 分ビンで不変。",
             "m5": "測れない(7 日では S^real / Π^max が出ない)。",
             "m7": "測らない(同一文脈の選択分散は C7 テープが要る)。",
             "m8": "部分測定(場所種別まで・cell 未解決)。",
