@@ -788,13 +788,10 @@ def block3_system(days: int = V.N_DAYS) -> str:
              "**時間に切れ目を作らない**(前の行の終了時刻=次の行の開始時刻)。"
     )
     rule3 = "3. 「就寝」の行を必ず1本以上入れる。" if one else "3. 各日に「就寝」の行を必ず1本以上入れる。"
-    example = [
-        "例:", "d0",
-        "0000-0652 就寝 自宅", "0652-0723 支度 自宅", "0723-0807 移動 駅",
-        "0807-1738 勤務 職場", "1738-1907 食事 飲食店", "1907-2400 休憩 自宅",
-    ]
-    if not one:
-        example += ["d1", "(以下 d6 まで同じ形で続ける)"]
+    # **例示は system に置かない**(2026-09-12・本番第1回の所見)。全員に同じ例示を見せると
+    # 8B がその時刻をそのまま写す(出勤代理の最頻ビン 07:15 に 32.6% が集中し、例示の
+    # 0723 と一致した)。例示は ``example_block`` が**その体の事実から**組んで user 側へ置く=
+    # 「例を写す」が「事実に従う」に一致する。system は全員共通のまま(共有 prefix を保つ)。
     return "\n".join(
         [
             head,
@@ -804,9 +801,6 @@ def block3_system(days: int = V.N_DAYS) -> str:
             "半角空白1つで区切る。",
             "活動語は次の12語だけを使う: " + " ".join(V.ACTIVITY_WORDS),
             "場所語は次の12語だけを使う: " + " ".join(V.PLACE_WORDS),
-        ]
-        + example
-        + [
             "規則:", rule1, rule2, rule3,
             "4. 0時台から3時台に「支度」と「乗車」は置かない。",
             "5. " + TIME_FIDELITY_LINE,
@@ -822,6 +816,150 @@ BLOCK3_HOME_OUT: Final[str] = "あなたの自宅は渋谷の外にある。"
 BLOCK3_STAY: Final[str] = "あなたは渋谷に泊まる。就寝の行は 場所語=宿泊施設 で書く。"
 #: 7 日ぶんの P2′ system(互換の別名)。
 BLOCK3_SYSTEM_COMMON: Final[str] = block3_system(V.N_DAYS)
+#: 例示の直後に置く 1 行(例示を丸写しさせないための注記)。
+EXAMPLE_NOTE: Final[str] = "上の例は形の見本。時刻は自分の事実行のものを使う。"
+#: 支度にあてる分(出勤の前・expedient)。
+PREP_MINUTES: Final[int] = 30
+
+
+def _ex_jitter(agent_id: int, slot: int) -> int:
+    """``_mix64(agent_id)`` から引く決定論の散らし(0〜58 分)。**事実の無い体の例示用**。
+
+    Example:
+        >>> _ex_jitter(7, 0) == _ex_jitter(7, 0)
+        True
+        >>> 0 <= _ex_jitter(7, 3) <= 58
+        True
+    """
+    h = int(W17._mix64(np.asarray([int(agent_id)], dtype=np.uint64))[0])
+    return int((h >> (7 * (int(slot) % 8))) % 59)
+
+
+def _defuzz(m: int) -> int:
+    """分が ``:00`` / ``:30`` にならないよう 1 分ずらす(丸めた時刻を例示に出さない)。
+
+    Example:
+        >>> _defuzz(480), _defuzz(510), _defuzz(487)
+        (481, 511, 487)
+    """
+    return int(m) + 1 if int(m) % 60 in (0, 30) else int(m)
+
+
+def _cuts_to_lines(cuts: Sequence[tuple[int, str, str]], place_ok: set[str]) -> list[str]:
+    """``(境界分, 活動語, 場所語)`` の列 → 切れ目なしのブロック行(0000〜2400)。
+
+    境界は昇順・最小 ``MIN_BLOCK_MIN`` 分を確保し、届かない区間は落とす。
+    ``place_ok`` に無い場所語は落とす(事実にない場所を例示に出さない)。
+    """
+    rows: list[tuple[int, int, str, str]] = []
+    prev = 0
+    for j, (edge, act, place) in enumerate(cuts):  # 逐次: 高々 8
+        end = V.MINUTES_PER_DAY if j == len(cuts) - 1 else int(edge)
+        end = max(prev + MIN_BLOCK_MIN, min(V.MINUTES_PER_DAY, end))
+        if end - prev < MIN_BLOCK_MIN or place not in place_ok:
+            continue
+        rows.append((prev, end, act, place))
+        prev = end
+        if prev >= V.MINUTES_PER_DAY:
+            break
+    if not rows:
+        return []
+    rows[-1] = (rows[-1][0], V.MINUTES_PER_DAY, rows[-1][2], rows[-1][3])
+    return [f"{s // 60:02d}{s % 60:02d}-{e // 60:02d}{e % 60:02d} {a} {p}" for s, e, a, p in rows]
+
+
+def example_block(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int) -> list[str]:
+    """**その体の事実から組んだ**例示(d0 の 1 日ぶん)。user 側に置く。
+
+    勤務窓を引いた体: 就寝(0000〜出勤−30)→ 支度(出勤−30〜出勤)→ 移動(出勤〜始業)→
+    勤務(始業〜終業)→ 移動(終業〜帰宅)→ 休憩(帰宅〜2400)。**時刻はすべて事実の値**。
+    事実の無い体(非就業・来街者・通学者など)は種別ごとの骨格にし、**時刻は
+    ``_mix64(agent_id)`` で体ごとに散らす**(分は ``:00``/``:30`` にしない)。
+
+    返り値が文法(0000 始まり・2400 終わり・``{3,10}`` 行・深夜の支度/乗車 禁止)を
+    満たさなければ**空**を返す(呼び出し側が例示を省く= 丸写しの種を置かない)。
+    """
+    aid = int(f.agent_id[i])
+    place_ok = set(W17.place_set(f, i))
+    home = V.PLACE_WORDS[V.PLACE_HOME]
+    out_word = V.PLACE_WORDS[V.PLACE_OUTSIDE]
+    stay = bool(t.stay[i])
+    duty = int(f.duty_activity[i])
+    lines: list[str] = []
+
+    if int(t.duty_open[i]) >= 0:  # --- 勤務窓を引いた体= 事実そのまま ---
+        dep = int(t.depart[i])
+        lo, hi = int(t.duty_open[i]), int(t.duty_close[i])
+        arr = min(V.MINUTES_PER_DAY, int(t.arrive[i]))
+        work_place = V.PLACE_WORDS[V.PLACE_WORK]
+        if work_place not in place_ok:
+            work_place = out_word
+        lines = _cuts_to_lines(
+            [
+                (max(MIN_BLOCK_MIN, dep - PREP_MINUTES), "就寝", home),
+                (dep, "支度", home),
+                (lo, "移動", V.PLACE_WORDS[V.PLACE_STATION]),
+                (hi, "勤務", work_place),
+                (arr, "移動", V.PLACE_WORDS[V.PLACE_STATION]),
+                (V.MINUTES_PER_DAY, "休憩", home),
+            ],
+            place_ok,
+        )
+    elif int(f.visit_days[i]):  # --- 来街者(事実なし)= 散らした骨格 ---
+        a = _defuzz(8 * 60 + _ex_jitter(aid, 0))
+        b = _defuzz(a + 45 + _ex_jitter(aid, 1))
+        c = _defuzz(b + 120 + _ex_jitter(aid, 2))
+        d = _defuzz(c + 60 + _ex_jitter(aid, 3))
+        e = _defuzz(d + 45 + _ex_jitter(aid, 4))
+        sleep_place = V.PLACE_WORDS[V.PLACE_HOTEL] if stay else home
+        lines = _cuts_to_lines(
+            [
+                (a, "就寝", sleep_place), (b, "乗車", V.PLACE_WORDS[V.PLACE_STATION]),
+                (c, "買物", V.PLACE_WORDS[V.PLACE_SHOP]),
+                (d, "食事", V.PLACE_WORDS[V.PLACE_FOOD]),
+                (e, "乗車", out_word if out_word in place_ok else V.PLACE_WORDS[V.PLACE_STREET]),
+                (V.MINUTES_PER_DAY, "就寝", sleep_place),
+            ],
+            place_ok,
+        )
+    elif duty >= 0:  # --- 通学など(窓はあるが第31表を引いていない体)---
+        lo = _defuzz(max(5 * 60, int(f.work_open[i])) - 45 - _ex_jitter(aid, 0))
+        st = _defuzz(int(f.work_open[i]) + _ex_jitter(aid, 1) - 29)
+        en = _defuzz(min(V.MINUTES_PER_DAY - 120, int(f.work_close[i])) + _ex_jitter(aid, 2) - 29)
+        back = _defuzz(min(V.MINUTES_PER_DAY - MIN_BLOCK_MIN, en + 40 + _ex_jitter(aid, 3)))
+        word = V.ACTIVITY_WORDS[duty]
+        place = V.PLACE_WORDS[V.PLACE_SCHOOL if duty == V.ACT_SCHOOL else V.PLACE_WORK]
+        if place not in place_ok:
+            place = out_word
+        lines = _cuts_to_lines(
+            [
+                (lo, "就寝", home), (st, "移動", V.PLACE_WORDS[V.PLACE_STATION]),
+                (en, word, place), (back, "移動", V.PLACE_WORDS[V.PLACE_STATION]),
+                (V.MINUTES_PER_DAY, "休憩", home),
+            ],
+            place_ok,
+        )
+    else:  # --- 非就業 ---
+        a = _defuzz(7 * 60 + _ex_jitter(aid, 0))
+        b = _defuzz(a + 40 + _ex_jitter(aid, 1))
+        c = _defuzz(b + 180 + _ex_jitter(aid, 2))
+        d = _defuzz(c + 60 + _ex_jitter(aid, 3))
+        lines = _cuts_to_lines(
+            [
+                (a, "就寝", home), (b, "支度", home), (c, "休憩", home),
+                (d, "食事", V.PLACE_WORDS[V.PLACE_FOOD]),
+                (V.MINUTES_PER_DAY, "休憩", home),
+            ],
+            place_ok,
+        )
+    if not (spec.lines[0] <= len(lines) <= spec.lines[1]):
+        return []
+    if not any(ln.split(" ")[1] == "就寝" for ln in lines):
+        return []
+    for ln in lines:  # 深夜(0〜3 時台)に 支度/乗車 を置かない
+        if int(ln[:2]) < NIGHT_END_MIN // 60 and ln.split(" ")[1] in NIGHT_BAN_ACTS:
+            return []
+    return ["例:", "d0"] + lines + [EXAMPLE_NOTE]
 
 
 @dataclass(frozen=True)
@@ -857,6 +995,8 @@ class ArmSpec:
     repair: bool = False
     rake_fracs: tuple[float, ...] = (0.12, 0.0)
     seed_arm: str = ""
+    #: 生成 seed に足す値。``--seed-bump 1`` で**一度だけ**引き直す(決定論・件数は header へ)。
+    seed_bump: int = 0
     n_total: int | None = None
 
     @property
@@ -990,8 +1130,9 @@ def arm_user(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int,
     head = [identity.strip(), ""] if identity.strip() else []
     tail = ["あなたが上で話したとおりの月曜日1日を表にしてください。" if spec.days <= 1
             else "あなたが上で話したとおりの1週間を表にしてください。"]
-    if not spec.kind_col:  # P2′: 時刻の忠実さを user 側にも明示
-        tail.append(TIME_FIDELITY_LINE)
+    if not spec.kind_col:  # P2′: 例示(体の事実から)と時刻の忠実さを user 側に置く
+        ex = example_block(spec, f, t, i)
+        tail = ([""] + ex if ex else []) + [""] + tail + [TIME_FIDELITY_LINE]
     return "\n".join(head + out + tail)
 
 
@@ -1056,7 +1197,7 @@ def arm_prompt_of(
         id=str(int(f.agent_id[i])),
         system=arm_system(spec, f, t, i),
         user=arm_user(spec, f, t, i, identity=identity),
-        seed=arm_seed(spec.seed_tag, int(f.agent_id[i])),
+        seed=(arm_seed(spec.seed_tag, int(f.agent_id[i])) + int(spec.seed_bump)) % W17.SEED_MOD,
         max_tokens=IDENTITY_MAX_TOKENS if spec.stage == 1 else spec.max_tokens,
         regex=arm_regex(spec, f, t, i),
     )
@@ -1399,6 +1540,8 @@ class TrialReport:
     duty_dev_p1: list[int] = field(default_factory=list)
     completion_tokens: list[int] = field(default_factory=list)
     tally: dict[str, int] = field(default_factory=dict)
+    #: 検査に落ちた体の ``agent_id``(被覆 <0.999・就寝 0・深夜違反)= ``--retry-failed`` の入力。
+    failed_ids: list[int] = field(default_factory=list)
     time_fact_dev: list[int] = field(default_factory=list)
     diversity: dict[str, Any] = field(default_factory=dict)
     identity: dict[str, Any] = field(default_factory=dict)
@@ -1496,6 +1639,8 @@ class TrialReport:
                     / max(1, self.tally.get("time_fact_arrive_rows", 0)), 6),
                 "dev_min": self._stats(self.time_fact_dev),
             },
+            "failed_agent_ids": sorted(self.failed_ids)[:_FAILED_IDS_CAP],
+            "n_failed_agents": len(self.failed_ids),
             "diversity": self.diversity,
             "raking": self.raking,
             "identity": self.identity,
@@ -1721,6 +1866,8 @@ def _check_blocks(
             by_day[b.day].append(b)
     kept: list[Block] = []
     duty = int(f.duty_activity[r])
+    n_fail_before = rep.n_check_failed
+    cov_before = len(rep.coverage)
     for d in range(max(1, int(spec.days))):  # 逐次: 7 回(1 日モードは 1 回)
         acts = sorted(by_day[d], key=lambda x: (x.start, x.end))
         if not acts:
@@ -1778,6 +1925,13 @@ def _check_blocks(
                 if (int(t.work_days[r]) >> d) & 1 and int(t.duty_open[r]) >= 0:
                     rep.duty_dev_p1.append(abs(s - int(t.duty_open[r])))
                     rep.duty_dev_p1.append(abs(e - min(V.MINUTES_PER_DAY, int(t.duty_close[r]))))
+    # この体が検査に落ちたか(被覆 <0.999 / 就寝 0 / 深夜違反)= ``--retry-failed`` の対象
+    cov = rep.coverage[cov_before:]
+    slept = rep.day_sleep[cov_before:]
+    if (rep.n_check_failed > n_fail_before
+            or any(c < V2_GATE_COVERAGE * V.MINUTES_PER_DAY for c in cov)
+            or any(s2 <= 0 for s2 in slept) or not cov):
+        rep.failed_ids.append(int(f.agent_id[r]))
     return kept
 
 
@@ -1996,6 +2150,40 @@ V2_BACKUP_DIR: Final[str] = "w17v1_backup"
 #: 本番 v2 のプロンプト名(本番 glob ``w17_prompts*`` / ``w17_responses*`` に**当たらない**)。
 V2_STAGE1_PROMPTS: Final[str] = "w17v2_stage1_prompts.jsonl"
 V2_STAGE2_PROMPTS: Final[str] = "w17v2_stage2_prompts.jsonl"
+#: 検査に落ちた体の引き直し(``--retry-failed`` + ``--seed-bump``)。**最大 1 回**。
+V2_STAGE2_RETRY_PROMPTS: Final[str] = "w17v2_stage2_retry_prompts.jsonl"
+#: ``failed_agent_ids`` を report に並べる上限(本番 39 万体でも報告が膨れないように)。
+_FAILED_IDS_CAP: Final[int] = 200_000
+
+
+def load_failed_ids(path: str | Path) -> list[int]:
+    """``--retry-failed`` の入力を読む。``w17_gates.json``(report)でも id の羅列でもよい。
+
+    Example:
+        >>> import json, tempfile, pathlib
+        >>> d = pathlib.Path(tempfile.mkdtemp())
+        >>> _ = (d / "ids.txt").write_text("7\\n9\\n7\\n", encoding="utf-8")
+        >>> load_failed_ids(d / "ids.txt")
+        [7, 9]
+    """
+    p = Path(path)
+    raw = p.read_text(encoding="utf-8")
+    try:
+        doc = json.loads(raw)
+    except ValueError:
+        doc = None
+    ids: Iterable[Any]
+    if isinstance(doc, dict):
+        ids = doc.get("failed_agent_ids") or doc.get("notes", {}).get(
+            "report", {}).get("failed_agent_ids", [])
+    elif isinstance(doc, list):
+        ids = doc
+    else:
+        ids = [ln for ln in raw.split() if ln.strip()]
+    seen: dict[int, None] = {}
+    for x in ids:  # 逐次: 落ちた体数ぶん
+        seen.setdefault(int(x), None)
+    return list(seen)
 #: 昇格の中身(名前は v1 と同じ= そのままコピーできる)。
 V2_STAGE_VERSION: Final[str] = "2.0.0"
 #: v2 のゲート閾値(§4・1 日)。多様性(M3b/M4a)と JSD・修正率は**報告のみ**=合格線は親。
@@ -2046,7 +2234,12 @@ def write_production_prompts(
     """
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
-    name = V2_STAGE1_PROMPTS if stage == 1 else V2_STAGE2_PROMPTS
+    if stage == 1:
+        name = V2_STAGE1_PROMPTS
+    elif int(spec.seed_bump):
+        name = V2_STAGE2_RETRY_PROMPTS
+    else:
+        name = V2_STAGE2_PROMPTS
     bad = files_avoid_production_globs([name])
     if bad:  # pragma: no cover - 名前規約を変えたときだけ
         raise RuntimeError(f"本番 glob に当たる名前: {bad}")
@@ -2074,7 +2267,8 @@ def write_production_prompts(
             prefix = p.system if prefix is None else os.path.commonprefix([prefix, p.system])
     sha = C.sha256_file(path)
     return {
-        "stage": stage, "days": use.days, "path": str(path), "name": name, "rows": n,
+        "stage": stage, "days": use.days, "seed_bump": int(use.seed_bump),
+        "path": str(path), "name": name, "rows": n,
         "bytes": path.stat().st_size, "sha256": sha, "prompts_sha256": sha,
         "system_sha256": {
             "n_distinct": len(sys_count),
@@ -2292,7 +2486,7 @@ def _diversity(agent_row: np.ndarray, day: np.ndarray, start: np.ndarray,
 def write_production(
     out_dir: Path, world_dir: Path, data_dir: Path, spec: ArmSpec, f: W17.AgentFacts,
     rep: TrialReport, columns: dict[str, np.ndarray], prompt_recs: list[dict[str, Any]],
-    responses: Sequence[Path], *, time_fact_repair: bool,
+    responses: Sequence[Path], *, time_fact_repair: bool, n_retry: int = 0,
 ) -> C.StageResult:
     """``w17_schedule.parquet`` / ``W17.header.json`` / ``w17_gates.json`` を**隔離先へ**書く。"""
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -2359,6 +2553,9 @@ def write_production(
             "n_agents": rep.n_agents, "days": spec.days, "arm": spec.name,
             "max_tokens": spec.max_tokens, "temperature": spec.temperature,
             "time_fact_repair": bool(time_fact_repair),
+            "seed_bump": int(spec.seed_bump),
+            "n_retry_agents": int(n_retry),
+            "n_failed_agents": len(rep.failed_ids),
             "prompts_sha256": {str(r["stage"]): r["prompts_sha256"] for r in prompt_recs},
             "system_sha256": {str(r["stage"]): r["system_sha256"] for r in prompt_recs},
         },
@@ -2495,6 +2692,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="本番 v2 の段2 応答 jsonl(修復なし・raking 採用 0%%)")
     ap.add_argument("--time-fact-repair", action="store_true",
                     help="家を出る/帰宅の移動行を事実行の時刻へ合わせる(既定オフ=計数のみ)")
+    ap.add_argument("--retry-failed", type=Path, default=None,
+                    help="検査に落ちた体だけ段2 を作り直す(w17_gates.json か id の羅列)")
+    ap.add_argument("--seed-bump", type=int, default=0,
+                    help="引き直しの seed 加算(--retry-failed と併用・最大 1 回)")
     ap.add_argument("--promote", action="store_true",
                     help="隔離先の parquet/header を本番へコピーし旧版を退避する")
     args = ap.parse_args(argv)
@@ -2584,6 +2785,17 @@ def _run_production(args, facts: W17.AgentFacts, out_root: Path, anchor_file: Pa
     stay = tuple(int(x) for x in args.stay_kinds.split(",") if x.strip()) \
         if args.stay_kinds else STAY_KINDS_DEFAULT
     rows = production_rows(facts)
+    n_retry = 0
+    if args.retry_failed is not None:
+        if not 0 <= int(args.seed_bump) <= 1:
+            print("--seed-bump は 0 か 1(引き直しは最大 1 回)", file=sys.stderr)
+            return 2
+        want = set(load_failed_ids(args.retry_failed))
+        keep = np.flatnonzero(np.isin(facts.agent_id, np.asarray(sorted(want), dtype=np.int64)))
+        rows = keep.astype(np.int64)
+        n_retry = int(rows.size)
+        spec = ArmSpec(**{**spec.__dict__, "seed_bump": int(args.seed_bump)})
+        print(f"[v2] 引き直し {n_retry:,} 体(指定 {len(want):,})・seed_bump={args.seed_bump}")
     tw = time.perf_counter()
     tf = draw_windows(facts, anchor, rows=rows, absent=not args.no_absent, stay_kinds=stay)
     print(f"[v2] 勤務窓 {len(rows):,} 体 ({time.perf_counter() - tw:.1f}s) "
@@ -2612,7 +2824,7 @@ def _run_production(args, facts: W17.AgentFacts, out_root: Path, anchor_file: Pa
     rep, cols = ingest_production(args.world, spec, facts, tf, rows, resp,
                                   time_fact_repair=args.time_fact_repair)
     res = write_production(out_dir, Path(args.world), Path(args.data), spec, facts, rep, cols,
-                           recs, resp, time_fact_repair=args.time_fact_repair)
+                           recs, resp, time_fact_repair=args.time_fact_repair, n_retry=n_retry)
     body = rep.to_json()
     for key in ("parse", "checks", "time_fact", "diversity", "raking", "modified"):
         print(f"[v2] {key} = {json.dumps(body[key], ensure_ascii=False)}")

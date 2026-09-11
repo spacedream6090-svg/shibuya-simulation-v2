@@ -307,10 +307,11 @@ def test_p2p_grammar_has_no_block_kind_and_uses_the_current_parser(trial_world, 
     for act in T.NIGHT_BAN_ACTS:
         assert rx.fullmatch(day(["0000-0230 就寝 自宅", f"0230-0300 {act} 駅",
                                  "0300-2400 勤務 職場"])) is None, act
-    # system と例示にも区分が無い(P2 には有る=P2 は不変)
+    # system に区分が無い(P2 には有る=P2 は不変)。例示は system ではなく user 側。
     sys_p2p = T.arm_system(spec, f, t, i)
-    assert "区分" not in sys_p2p and "0000-0652 就寝 自宅" in sys_p2p
+    assert "区分" not in sys_p2p and "例:" not in sys_p2p
     assert "区分" in T.arm_system(T.ARMS["p2"], f, t, i)
+    assert "例:" in T.arm_user(spec, f, t, i)
     # モックは自分の文法を満たし、**現行パーサ**でそのまま読める
     for r in rows:
         j = int(r)
@@ -392,6 +393,93 @@ def test_v2_one_day_grammar_and_max_tokens(trial_world, anchor: dict):
     text = T.mock_text(spec, f, t, 0)
     assert text.count("d0") == 1 and "d1" not in text
     assert rx.fullmatch(text) is not None
+
+
+def test_v2_example_is_built_from_each_body_facts(trial_world, anchor: dict):
+    """例示は **system ではなく user**・時刻は**その体の事実**(出勤/窓/帰宅)そのもの。
+
+    本番第1回で出勤代理の最頻ビンが 07:15 に 32.6% 集中し、全員共通の例示(0723 移動)を
+    写した疑いが出たことへの手当。例示を体ごとにすれば「写す」=「事実に従う」になる。
+    """
+    spec, f, t, rows = _prod(trial_world, anchor)
+    drawn = [int(r) for r in rows if int(t.duty_open[int(r)]) >= 0]
+    assert drawn
+    i = drawn[0]
+    assert "例:" not in T.arm_system(spec, f, t, i)          # system は全員共通のまま
+    ex = T.example_block(spec, f, t, i)
+    assert ex[0] == "例:" and ex[1] == "d0" and ex[-1] == T.EXAMPLE_NOTE
+    body = ex[2:-1]
+    assert T.LINES3_MIN <= len(body) <= T.LINES3_MAX
+    assert body[0].startswith("0000-") and "-2400 " in body[-1]   # 端点は文法どおり
+    assert any(ln.split(" ")[1] == "就寝" for ln in body)
+    dep, lo, hi = int(t.depart[i]), int(t.duty_open[i]), int(t.duty_close[i])
+    arr = min(V.MINUTES_PER_DAY, int(t.arrive[i]))
+    assert f"{W17._hm(dep)}-{W17._hm(lo)} 移動 " in "\n".join(body)   # 出勤〜始業
+    assert f"{W17._hm(lo)}-{W17._hm(hi)} 勤務 " in "\n".join(body)    # 勤務窓そのもの
+    assert f"{W17._hm(hi)}-{W17._hm(arr)} 移動 " in "\n".join(body)   # 終業〜帰宅
+    assert f"-{W17._hm(dep)} 支度 " in "\n".join(body)                # 出勤−30 分〜出勤
+    # 体ごとに違う(全員共通の 0723 のような固定値ではない)
+    heads = {T.example_block(spec, f, t, int(r))[2] for r in drawn[:20]}
+    assert len(heads) > 1
+    # user には例示とその注記が入り、system には入らない
+    user = T.arm_user(spec, f, t, i, identity="いつもどおりです。")
+    assert "\n".join(ex) in user and T.EXAMPLE_NOTE in user
+
+
+def test_v2_example_for_factless_bodies_is_scattered(world_dir: Path, data_dir: Path,
+                                                     anchor: dict):
+    """事実の無い体(非就業・来街・通学)は種別ごとの骨格+``_mix64`` の散らし・分は :00/:30 でない。"""
+    f = W17.build_facts(world_dir, data_dir)
+    rows = T.sample_rows(f, {k: 2 for k in T.TRIAL_N_PER_KIND})
+    t = T.draw_windows(f, anchor, rows=rows)
+    spec = T.production_spec(days=1)
+    factless = [int(r) for r in rows if int(t.duty_open[int(r)]) < 0]
+    assert factless
+    seen: set[str] = set()
+    for i in factless:
+        ex = T.example_block(spec, f, t, i)
+        if not ex:
+            continue
+        body = ex[2:-1]
+        assert body[0].startswith("0000-") and "-2400 " in body[-1]
+        assert any(ln.split(" ")[1] == "就寝" for ln in body)
+        seen.add("\n".join(body))
+        for ln in body:  # 内側の境界の分が :00/:30 でない
+            end = ln.split(" ")[0].split("-")[1]
+            if end != "2400":
+                assert end[2:] not in ("00", "30"), (i, ln)
+            assert not (int(ln[:2]) < 4 and ln.split(" ")[1] in T.NIGHT_BAN_ACTS)
+    assert len(seen) > 1                              # 体ごとに違う
+    assert T._defuzz(480) == 481 and T._defuzz(510) == 511 and T._defuzz(487) == 487
+    assert T._ex_jitter(7, 0) == T._ex_jitter(7, 0)   # 決定論
+
+
+def test_v2_retry_failed_bumps_the_seed_once(trial_world, anchor: dict, tmp_path: Path):
+    """``--retry-failed`` + ``--seed-bump 1``: 落ちた体だけ・seed が +1・名前も別(最大 1 回)。"""
+    spec, f, t, rows = _prod(trial_world, anchor)
+    out = tmp_path / "w17v2"
+    ids = [int(f.agent_id[0]), int(f.agent_id[2]), int(f.agent_id[0])]
+    (tmp_path / "ids.txt").write_text("\n".join(str(x) for x in ids), encoding="utf-8")
+    (tmp_path / "gates.json").write_text(
+        json.dumps({"failed_agent_ids": ids}), encoding="utf-8")
+    assert T.load_failed_ids(tmp_path / "ids.txt") == [ids[0], ids[1]]     # 重複は畳む
+    assert T.load_failed_ids(tmp_path / "gates.json") == [ids[0], ids[1]]
+    keep = np.flatnonzero(np.isin(f.agent_id, np.asarray([ids[0], ids[1]], dtype=np.int64)))
+    bumped = T.ArmSpec(**{**spec.__dict__, "seed_bump": 1})
+    base = T.arm_prompt_of(spec, f, t, int(keep[0]))
+    again = T.arm_prompt_of(bumped, f, t, int(keep[0]))
+    assert again.seed == (base.seed + 1) % W17.SEED_MOD
+    assert again.system == base.system and again.user == base.user   # 文面は不変
+    rec = T.write_production_prompts(out, bumped, f, t, keep, stage=2)
+    assert rec["name"] == T.V2_STAGE2_RETRY_PROMPTS and rec["seed_bump"] == 1
+    assert rec["rows"] == 2
+    assert T.files_avoid_production_globs([rec["name"]]) == []
+    # 取り込みは落ちた体の id を報告する(retry の入力になる)
+    world, _ = trial_world
+    resp = T.write_mock_responses(out, spec, f, t, rows)
+    rep, _cols = T.ingest_production(world, spec, f, t, rows, [resp])
+    body = rep.to_json()
+    assert "failed_agent_ids" in body and body["n_failed_agents"] == len(rep.failed_ids)
 
 
 def test_v2_production_writes_one_row_per_agent_with_safe_names(trial_world, anchor: dict,
