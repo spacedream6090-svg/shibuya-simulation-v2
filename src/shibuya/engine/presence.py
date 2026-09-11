@@ -67,6 +67,13 @@ ARRIVAL_SPREAD_MAX_TRAINS: Final[int] = 8
 #: 退出 tick に会話中だった体を繰り延べる上限[tick](§4・expedient)。
 EXIT_DEFER_LIMIT: Final[int] = 30
 
+#: **E12**(expedient・2026-09-11 第3段): LLM が「乗車/退去」で域外へ出た体が
+#: **進行中の在圏ブロックへ戻る**までの最短の外出時間[分]。次の在圏ブロックが無い体
+#: (その日の最後のブロックの途中で出た体)が当日ずっと帰れない穴を塞ぐ。
+#: 値 60 は自前(D-61 の「次の域内活動の開始に最も近い便」を、次の活動が無い場合へ
+#: 延長したもの)。昇格条件 = PT の私事トリップの滞在時間分布。
+RETURN_MIN_AWAY_MIN: Final[int] = 60
+
 #: 退出の実行形(§10-3)。第1段は ``immediate`` のみ実装(他は ``NotImplementedError``)。
 EXIT_MODES: Final[tuple[str, ...]] = ("immediate", "board_intent", "walk_to_platform")
 
@@ -450,6 +457,9 @@ class PlanExecutor:
         self.n_arrivals = 0
         self.n_departures = 0
         self.n_arrive_skipped = 0
+        self.n_arrive_skipped_in_area = 0
+        self.n_arrive_skipped_pulled = 0
+        self.n_returned_to_block = 0
         self.n_depart_skipped = 0
         self.n_exit_deferred = 0
         self.n_exit_forced = 0
@@ -487,6 +497,8 @@ class PlanExecutor:
         self._extra: dict[int, list[tuple[int, int]]] = {}
         #: **落とす DEPART の tick**(域外へ出た体の進行中ブロックぶん。-1=落とさない)。
         self._skip_depart_at = np.full(n, -1, dtype=np.int32)
+        #: civic に引き込まれた印(``arrive_skipped`` の内訳を分けるため)。
+        self._pulled_in_today = np.zeros(n, dtype=bool)
 
         self._build_events()
 
@@ -566,24 +578,29 @@ class PlanExecutor:
         return train
 
     def _spread_arrivals(self, train: np.ndarray, b_agent: np.ndarray) -> np.ndarray:
-        """到着の山を**容量ベースで前後へ**散らす(E8・§3)。
+        """到着の山を**E1 便の前後 ≤8 便**へ散らす(E8・§3)。
 
-        規則(2026-09-11・層2 指摘で両側化): 便の受け入れ上限 = ``定員 × 混雑率上限``。
+        用語: **E1 便** = そのブロックの「間に合う最も遅い便」(E1 の素の割り当て)。
+        散らす先は **E1 便から ±``ARRIVAL_SPREAD_MAX_TRAINS`` 便の窓**に限る。
+
+        規則(2026-09-11 第3段で窓を厳密化):
         ① **後ろ向き(早い便へ)**: 時刻の降順に走り、溢れた分を ``agent_row`` の大きい方から
-        1 便ずつ早い便へ送る(上限 ``ARRIVAL_SPREAD_MAX_TRAINS`` 便)。**間に合う**側なので
-        こちらが第一。② **前向き(遅い便へ)**: ① で置き切れずに残った分(=最も早い便に
-        山積みになる分)を時刻の昇順に 1 便ずつ遅い便へ送る(同じ上限)。こちらは**遅刻**
-        するので第二。③ それでも置けない分はその便が受け切る(混雑率が上限を超える)。
+           1 便ずつ早い便へ送る。**E1 便から 8 便**離れたらそこで①を降りる(=以後①では
+           運ばない。旧実装は運び続けたので始発まで流れ、|便差| 191 便・09 時開始の体が
+           06 時前に着いていた=層2 実測)。
+        ② **前向き(遅い便へ)**: ①で置けなかった体を、**自分の E1 便の 1 つ後ろ**から
+           遅い方へ 1 便ずつ、同じく **8 便**まで送る(遅刻側)。
+        ③ それでも置けない体は **自分の E1 便が受け切る**(その便の混雑率が上限を超える)。
 
-        ①だけだと 390,067 体の朝ピークで最も早い便に 8 hop 分が山積みになり、実測で
-        混雑率 401%(埼京線 08:41 便 6,641 体)まで跳ねた。
+        したがって **|到着便 − E1 便| ≤ 8 が不変条件**(``tests`` が全体で検査する)。
 
         Note:
-            逐次ループ宣言(P4): **その線の便数**ぶんのループ 2 本(降順と昇順・日次構築
-            1 回)。個体数には比例しない。
+            逐次ループ宣言(P4): **その線の便数**ぶんのループ 2 本(降順・昇順)+ 書き戻し
+            1 本。日次構築 1 回・個体数には比例しない。
         """
         rail = self.rail
         out = train.copy()
+        self.arrival_train_e1 = train.copy()  # E1 の素の割り当て(|便差| の基準)
         if rail is None or not getattr(rail, "active", False):
             return out
         served = np.flatnonzero(train >= 0)
@@ -596,6 +613,8 @@ class PlanExecutor:
         ).astype(np.int64)
         enter = np.asarray(rail.enter_tick, dtype=np.int64)
         tline = np.asarray(rail.train_line, dtype=np.int64)
+        #: ブロック → 自分の E1 便のスロット番号(線の中の時刻順の位置)。
+        e1_slot = np.full(train.size, -1, dtype=np.int64)
         lines = np.unique(tline[train[served]])
         for li in lines.tolist():  # 逐次: 線数(≤8)
             slots = np.flatnonzero(tline == li)
@@ -607,69 +626,67 @@ class PlanExecutor:
             if rowsel.size == 0:
                 continue
             s_idx = slot_of[train[rowsel]]
+            e1_slot[rowsel] = s_idx
             order = np.lexsort((b_agent[rowsel], s_idx))
             rowsel, s_idx = rowsel[order], s_idx[order]
             starts = np.searchsorted(s_idx, np.arange(n_slot + 1), side="left")
             used = np.zeros(n_slot, dtype=np.int64)
-            placed: list[list[np.ndarray]] = [[] for _ in range(n_slot)]
 
-            def _take(pool, hops, j):
-                """便 ``j`` に残容量ぶんだけ載せ、載らなかった分と hop 数を返す。"""
+            def _take(pool, j):
+                """便 ``j`` に残容量ぶんだけ載せ(``agent_row`` 昇順)、残りを返す。"""
                 room = int(max(0, int(cap[slots[j]]) - int(used[j])))
                 keep = np.zeros(pool.size, dtype=bool)
                 if room:
                     keep[np.argsort(b_agent[pool], kind="stable")[:room]] = True
                 if keep.any():
-                    placed[j].append(pool[keep])
+                    out[pool[keep]] = slots[j]
                     used[j] += int(np.count_nonzero(keep))
-                return pool[~keep], hops[~keep]
+                return pool[~keep]
 
-            # ---- ① 後ろ向き(早い便へ) ----
+            # ---- ① 後ろ向き(早い便へ・E1 便から 8 便まで) ----
             carried = np.empty(0, dtype=np.int64)
-            hops = np.empty(0, dtype=np.int64)
+            spill = np.empty(0, dtype=np.int64)
             for j in range(n_slot - 1, -1, -1):  # 逐次: その線の便数ぶん
                 own = rowsel[starts[j] : starts[j + 1]]
                 if own.size == 0 and carried.size == 0:
                     continue
                 pool = np.concatenate([carried, own]) if carried.size else own
-                hp = (
-                    np.concatenate([hops, np.zeros(own.size, dtype=np.int64)])
-                    if carried.size else np.zeros(own.size, dtype=np.int64)
-                )
-                over = hp >= ARRIVAL_SPREAD_MAX_TRAINS
-                rest, rest_h = _take(pool[~over], hp[~over], j)
-                # hop 上限に達した分は①ではもう動かさない(②で前へ送る)
-                carried = np.concatenate([rest, pool[over]])
-                hops = np.concatenate([rest_h + 1, hp[over]])
-                if j == 0:
-                    break
-            left, left_h = carried, np.zeros(carried.size, dtype=np.int64)
-            # ---- ② 前向き(遅い便へ・①で置けなかった分だけ) ----
-            for j in range(0, n_slot):  # 逐次: その線の便数ぶん
-                if left.size == 0:
-                    break
-                over = left_h >= ARRIVAL_SPREAD_MAX_TRAINS
-                if over.any():  # 前後どちらにも行き場が無い=この便が受け切る
-                    placed[j].append(left[over])
-                    used[j] += int(np.count_nonzero(over))
-                    self.n_spread_overflow += int(np.count_nonzero(over))
-                    left, left_h = left[~over], left_h[~over]
-                if left.size == 0:
-                    break
-                left, left_h = _take(left, left_h, j)
-                left_h = left_h + 1
-                if j == n_slot - 1 and left.size:  # 最後の便が受け切る
-                    placed[j].append(left)
-                    used[j] += int(left.size)
-                    self.n_spread_overflow += int(left.size)
-                    left = np.empty(0, dtype=np.int64)
-            for j in range(n_slot):  # 逐次: その線の便数ぶん(書き戻し)
-                if placed[j]:
-                    rows = np.concatenate(placed[j])
-                    self.n_spread_moved += int(
-                        np.count_nonzero(out[rows] != slots[j])
-                    )
-                    out[rows] = slots[j]
+                # **E1 便から 8 便**を超える体は①から降ろす(以後は②が遅刻側で引き取る)
+                far = (e1_slot[pool] - j) > ARRIVAL_SPREAD_MAX_TRAINS
+                if far.any():
+                    spill = np.concatenate([spill, pool[far]])
+                    pool = pool[~far]
+                carried = _take(pool, j) if pool.size else pool
+            if carried.size:
+                spill = np.concatenate([spill, carried])
+
+            # ---- ② 前向き(遅い便へ・自分の E1 便の直後から 8 便まで) ----
+            if spill.size:
+                begin = np.minimum(e1_slot[spill] + 1, n_slot)
+                o2 = np.lexsort((b_agent[spill], begin))
+                spill, begin = spill[o2], begin[o2]
+                starts2 = np.searchsorted(begin, np.arange(n_slot + 1), side="left")
+                # E1 便が最終便の体(``begin == n_slot``)は前向きに行き場が無い=③へ
+                carry = spill[starts2[n_slot] :]
+                spill = spill[: starts2[n_slot]]
+                for j in range(0, n_slot):  # 逐次: その線の便数ぶん
+                    own = spill[starts2[j] : starts2[j + 1]] if j < n_slot else spill[:0]
+                    if own.size == 0 and carry.size == 0:
+                        continue
+                    pool = np.concatenate([carry, own]) if carry.size else own
+                    far = (j - e1_slot[pool]) > ARRIVAL_SPREAD_MAX_TRAINS
+                    if far.any():  # ③ 窓の外=自分の E1 便が受け切る
+                        back = pool[far]
+                        out[back] = slots[e1_slot[back]]
+                        np.add.at(used, e1_slot[back], 1)
+                        self.n_spread_overflow += int(back.size)
+                        pool = pool[~far]
+                    carry = _take(pool, j) if pool.size else pool
+                if carry.size:  # 最後の便まで行っても置けない=③
+                    out[carry] = slots[e1_slot[carry]]
+                    np.add.at(used, e1_slot[carry], 1)
+                    self.n_spread_overflow += int(carry.size)
+        self.n_spread_moved = int(np.count_nonzero(out != train))
         return out
 
     def _build_events(self) -> None:
@@ -957,12 +974,18 @@ class PlanExecutor:
         if ids.size == 0:
             return
         r = self.agents.registry
+        here = np.asarray(r.transit_state)[ids] == 0
         ok = (
             (np.asarray(r.transit_state)[ids] == 2)
             & (cells >= 0)
             & (cells < self.world.n_cells)
         )
-        self.n_arrive_skipped += int(np.count_nonzero(~ok))
+        skipped = ~ok
+        self.n_arrive_skipped += int(np.count_nonzero(skipped))
+        # 内訳(層2 指摘・2026-09-11): **civic に引き込まれた体**か、元から在圏(I2)か
+        pulled = self._pulled_in_today[ids]
+        self.n_arrive_skipped_pulled += int(np.count_nonzero(skipped & here & pulled))
+        self.n_arrive_skipped_in_area += int(np.count_nonzero(skipped & here & ~pulled))
         got = ids[ok]
         if got.size == 0:
             return
@@ -1063,6 +1086,7 @@ class PlanExecutor:
         if a.size == 0:
             return
         R.set_plan_state(self.agents, a, flags_set=FLAG_ARRIVED)
+        self._pulled_in_today[a] = True
         self.n_pulled_in += int(a.size)
 
     def notify_pushed_out(self, agent_ids, tick: int) -> None:
@@ -1070,8 +1094,9 @@ class PlanExecutor:
         a = np.asarray(agent_ids, dtype=np.int64).ravel()
         if a.size == 0:
             return
+        # civic の押し出しは**進行中ブロックへ戻さない**(翌 tick 復帰の再発防止)
         self.n_pushed_out += int(a.size)
-        self._rearm_after_leaving(a, int(tick))
+        self._rearm_after_leaving(a, int(tick), allow_return_to_current=False)
 
     def notify_departed_by_llm(self, agent_ids, tick: int) -> None:
         """**LLM が「乗車」/「退去」を選んで域外へ出た**体(設計書 §4「LLM 優先」)。
@@ -1084,9 +1109,11 @@ class PlanExecutor:
         if a.size == 0:
             return
         self.n_departed_by_llm += int(a.size)
-        self._rearm_after_leaving(a, int(tick))
+        self._rearm_after_leaving(a, int(tick), allow_return_to_current=True)
 
-    def _rearm_after_leaving(self, a: np.ndarray, t: int) -> None:
+    def _rearm_after_leaving(
+        self, a: np.ndarray, t: int, *, allow_return_to_current: bool = False
+    ) -> None:
         """域外へ出た体の**進行中ブロックの DEPART を落とし・次のブロックに ARRIVE を張る**。
 
         「次の」= ``start > tick`` の最初のブロック(**進行中のブロックには張らない**——
@@ -1107,15 +1134,41 @@ class PlanExecutor:
         pos = np.searchsorted(key, a * (MINUTES_PER_DAY + 1) + t, side="right")
         lo = blocks.offset[a]
         hi = blocks.offset[a + 1]
-        # ① 進行中ブロック(start ≤ tick < end)の DEPART を落とす
+        # ① 進行中ブロック(start ≤ tick < end)を見る
         cur = pos - 1
         ok_cur = (cur >= lo) & (cur < hi)
         safe_cur = np.where(ok_cur, cur, 0)
         live_cur = ok_cur & (blocks.end[safe_cur].astype(np.int64) > t)
-        if live_cur.any():
-            self._skip_depart_at[a[live_cur]] = blocks.end[safe_cur[live_cur]].astype(np.int32)
-        # ② **次の**ブロック(start > tick)の到着が過ぎていれば張り直す
         ok_nxt = (pos >= lo) & (pos < hi)
+        # ---- E12: **次のブロックが無い**体は、進行中ブロックへ戻す(残りが十分あれば) ----
+        # 「LLM が最後のブロックの途中で乗車を選ぶ → その日もう帰れない」穴を塞ぐ。
+        # ``t + RETURN_MIN_AWAY_MIN`` 以降に**最も早くホームへ入る便**で戻る(線は選ばない
+        # =渋谷は 1 駅・D-61 と同じ宣言)。civic の押し出しはこの復帰を使わない。
+        back = np.zeros(a.size, dtype=bool)
+        if allow_return_to_current and live_cur.any():
+            end_cur = blocks.end[safe_cur].astype(np.int64)
+            ret_tick = self._earliest_enter_tick(t + RETURN_MIN_AWAY_MIN)
+            back = (
+                live_cur & ~ok_nxt
+                & ((end_cur - t) >= RETURN_MIN_AWAY_MIN)
+                & (ret_tick >= 0) & (ret_tick < end_cur) & (ret_tick < self.ticks)
+            )
+            rows_b = np.flatnonzero(back)
+            if rows_b.size:
+                exits = self._exit_cells()
+                if exits.size:
+                    cells = exits[np.arange(rows_b.size, dtype=np.int64) % exits.size]
+                    for aid, c in zip(a[rows_b].tolist(), cells.tolist()):
+                        # 逐次ループ宣言: **戻す体数**ぶん(1 tick の LLM 乗車数・個体比例でない)
+                        self._extra.setdefault(int(ret_tick), []).append((int(aid), int(c)))
+                        self.n_returned_to_block += 1
+                else:
+                    back = np.zeros(a.size, dtype=bool)
+        # ② 戻らない体は進行中ブロックの DEPART を落とす(在圏でない DEPART の取り残し防止)
+        drop_cur = live_cur & ~back
+        if drop_cur.any():
+            self._skip_depart_at[a[drop_cur]] = blocks.end[safe_cur[drop_cur]].astype(np.int32)
+        # ③ **次の**ブロック(start > tick)の到着が過ぎていれば張り直す
         safe_nxt = np.where(ok_nxt, pos, 0)
         late = ok_nxt & (self.arrival_tick[safe_nxt] <= t)
         rows = np.flatnonzero(late)
@@ -1132,6 +1185,17 @@ class PlanExecutor:
                 # 逐次ループ宣言: **張り直す体数**ぶん(civic の退場 200 体級・個体比例でない)
                 self._extra.setdefault(int(w), []).append((int(aid), int(c)))
                 self.n_rearmed += 1
+
+    def _earliest_enter_tick(self, want: int) -> int:
+        """``want`` 以降に**最も早くホームへ入る便**の tick(無ければ -1)。線は選ばない。"""
+        rail = self.rail
+        if rail is None or not getattr(rail, "active", False):
+            return -1
+        ent = np.asarray(getattr(rail, "_enter_sorted", ()), dtype=np.int64)
+        if ent.size == 0:
+            ent = np.sort(np.asarray(rail.enter_tick, dtype=np.int64))
+        k = int(np.searchsorted(ent, int(want), side="left"))
+        return int(ent[k]) if k < ent.size else -1
 
     # ------------------------------------------------------------------ 診断(§5)
     def sample(self, tick: int) -> None:
@@ -1162,6 +1226,17 @@ class PlanExecutor:
             self.wake_in_area_by_hour[h] = (awake / n_in) if n_in else 0.0
 
     @property
+    def plan_stranded_eod(self) -> int:
+        """**日末に「計画では在圏なのに域外/乗車中」の体**(層2 の監査点・D-61 の後継)。
+
+        ラン終端の状態で数える(``counters`` / ``summary`` はループの後に呼ばれる)。
+        """
+        want = self.blocks.in_area_at(max(0, self.ticks - 1) % MINUTES_PER_DAY)
+        m = min(self.n, want.size)
+        st = np.asarray(self.agents.registry.transit_state)[:m]
+        return int(np.count_nonzero(want[:m] & self.managed[:m] & (st != 0)))
+
+    @property
     def plan_match_in(self) -> float:
         """計画一致率(在圏側)= 計画が在圏と言う体のうち実際に在圏だった割合。"""
         return self.match_in_num / self.match_in_den if self.match_in_den else 0.0
@@ -1188,6 +1263,10 @@ class PlanExecutor:
             "arrivals": float(self.n_arrivals),
             "departures": float(self.n_departures),
             "arrive_skipped": float(self.n_arrive_skipped),
+            "arrive_skipped_in_area": float(self.n_arrive_skipped_in_area),
+            "arrive_skipped_pulled_in": float(self.n_arrive_skipped_pulled),
+            "returned_to_block": float(self.n_returned_to_block),
+            "plan_stranded_eod": float(self.plan_stranded_eod),
             "depart_skipped": float(self.n_depart_skipped),
             "exit_deferred": float(self.n_exit_deferred),
             "exit_forced": float(self.n_exit_forced),
@@ -1223,4 +1302,5 @@ class PlanExecutor:
             f" / 計画一致率(在圏) {self.plan_match_in:.3f}"
             f" / (域外) {self.plan_match_out:.3f}"
             f" / 昼夜比 09-03 {self.day_night_ratio:.2f}"
+            f" / 日末の計画在圏なのに域外 {self.plan_stranded_eod:,}"
         )

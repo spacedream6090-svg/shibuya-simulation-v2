@@ -18,6 +18,7 @@ from shibuya.agents.weekly import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySch
 from shibuya.engine import resolve as R
 from shibuya.engine.presence import (
     ARRIVAL_SPREAD_MAX_TRAINS,
+    RETURN_MIN_AWAY_MIN,
     FLAG_HAS_PLAN,
     FLAG_HOME_OUT,
     PlanBlocks,
@@ -552,6 +553,83 @@ def test_arrival_spread_never_exceeds_capacity_times_the_cap():
     assert int(per_train[-1]) == n - 4 * 5
     assert layer.n_spread_overflow > 0
     assert ARRIVAL_SPREAD_MAX_TRAINS == 8
+
+
+def test_arrival_spread_stays_inside_the_eight_train_window():
+    """⑬-b(§3 E8・第3段): **|到着便 − E1 便| ≤ 8** がどの体でも破れない。
+
+    第2段の実装は①(早い便へ)で hop 上限に達した体を置かずに運び続け、始発まで流して
+    いた(390,067 体で |便差| 最大 191 便・09 時開始の 21,418 体が 06 時前に到着=層2 実測)。
+    """
+    n = 400
+    rows = [(i, 0, 400, ACT_SLEEP, PK_OUT, -1) for i in range(n)]
+    rows += [(i, 500, 900, ACT_WORK, PK_WORK, 3) for i in range(n)]
+    wk = make_weekly(rows, n)
+    deps = tuple(300 + 10 * k for k in range(30))  # 30 便(10 分間隔)
+    pa = fake_assets(departures=deps)
+    w, a = make_world_agents(n, home_cell=np.full(n, -1, dtype=np.int64))
+    rail = RailProcess(w, a, pa, master_seed=1, day_index=0, plan_executor=True)
+    rail.capacity100 = np.full(rail.dep_tick.size, 5.0)
+    rail.cap_pct = np.full(rail.dep_tick.size, 100.0)  # 上限 5 人/便 × 30 便 = 150 席
+    layer = PlanExecutor(
+        w, a, wk, day_index=0,
+        home_cell=np.full(n, -1, dtype=np.int64),
+        direction_node=np.zeros(n, dtype=np.int64),
+        kind=np.zeros(n, dtype=np.int64),
+        agent_id=np.arange(n, dtype=np.int64),
+        rail=rail, assets=pa, ticks=1_440,
+    )
+    e1 = layer.arrival_train_e1
+    got = layer.arrival_train
+    served = np.flatnonzero(e1 >= 0)
+    assert served.size == n
+    # 同一線なので「便索引の差」= スロット差(``_build_trains`` は発車 tick 昇順)
+    diff = np.abs(got[served] - e1[served])
+    assert int(diff.max()) <= ARRIVAL_SPREAD_MAX_TRAINS, int(diff.max())
+    assert layer.n_spread_moved > 0 and layer.n_spread_overflow > 0
+    # 到着はどの体も「E1 便 ± 8 便」の窓に入るので、始発まで流れない
+    assert int(layer.arrival_tick[served].min()) >= int(
+        np.asarray(rail.enter_tick).min()
+    )
+
+
+def test_a_resident_who_boards_in_the_last_block_comes_back(monkeypatch):
+    """E12(第3段): **次のブロックが無い**体が LLM 乗車で出たら、``t+60`` 以降の便で戻る。
+
+    civic の押し出し(``notify_pushed_out``)は**この復帰を使わない**(翌 tick 復帰の再発防止)。
+    """
+    wk = make_weekly(
+        [
+            (0, 0, 200, ACT_SLEEP, PK_OUT, -1),
+            (0, 200, 1_440, ACT_WORK, PK_WORK, 3),  # その日 最後の(唯一の)在圏ブロック
+            (1, 0, 200, ACT_SLEEP, PK_OUT, -1),
+            (1, 200, 1_440, ACT_WORK, PK_WORK, 3),
+        ],
+        2,
+    )
+    deps = tuple(300 + 30 * k for k in range(20))  # 300, 330, … 870
+    _, agents, _, layer = make_layer(
+        wk, n=2, home_cell=np.array([-1, -1]), assets=fake_assets(departures=deps)
+    )
+    layer.initialize()
+    for tick in range(0, 400):
+        layer.step(tick)
+    assert census(agents) == (2, 0, 0)
+    # 体 0 = LLM の乗車で退出 → 進行中ブロックへ戻る / 体 1 = civic の押し出し → 戻らない
+    R.rail_depart(agents, np.array([0, 1]), np.array([0, 0]))
+    layer.notify_departed_by_llm(np.array([0]), 400)
+    layer.notify_pushed_out(np.array([1]), 400)
+    assert layer.n_returned_to_block == 1
+    ret = min(k for k in layer._extra)
+    assert ret >= 400 + RETURN_MIN_AWAY_MIN
+    assert ret == 480  # 480 発の便がホームへ入る tick(通過型は dep_tick と同じ)
+    for tick in range(400, 1_440):
+        layer.step(tick)
+        assert sum(census(agents)) == 2
+    st = np.asarray(agents.registry.transit_state)
+    assert int(st[0]) == 0  # 乗車で出た体は 480 の便で戻り、日末まで在圏
+    assert int(st[1]) == 2  # 押し出された体は戻らない
+    assert layer.plan_stranded_eod == 1  # 計画では 2 体とも在圏のはず → 1 体だけ取り残し
 
 
 # ================================================================= ⑭ derive の畳み方
