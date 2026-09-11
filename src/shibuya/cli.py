@@ -372,6 +372,13 @@ def main(argv: list[str] | None = None) -> int:
              " 1-RATE をその日「終日域外」にする(_mix64(agent_id) の決定論)",
     )
     ap.add_argument(
+        "--derive-rule",
+        choices=("v1", "v2"),
+        default="v2",
+        help="在圏ブロックの読み口(設計書 §2 追補 2026-09-12)。v2=域外居住者の自宅側の行"
+             "(乗車前の「移動 駅」・帰りの乗車後の店)を在圏に読まない。v1=原則のまま",
+    )
+    ap.add_argument(
         "--no-outside-suppression",
         action="store_true",
         help="D-66 域外抑止を切る(域外滞在・乗車中の体にも LLM を呼ぶ=D-66 前の挙動・帰無腕)",
@@ -426,6 +433,7 @@ def main(argv: list[str] | None = None) -> int:
         plan_executor=not args.no_plan_executor,
         exit_mode=str(args.exit_mode),
         attendance_rate=float(args.attendance_rate),
+        derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,
         fleet=fleet_from_args(args, ap),
         fleet_wait_s=float(getattr(args, "fleet_wait_s", 0.0)),

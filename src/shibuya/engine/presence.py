@@ -85,6 +85,26 @@ SLEEP_ACTIVITY_CODE: Final[int] = ACTIVITY_WORDS.index("就寝")
 PLACE_KIND_HOME: Final[int] = PLACE_WORDS.index("自宅")
 #: 「宿泊施設」の場所種別コード(**そこで寝るのは正当**=職場就寝の計数から外す)。
 PLACE_KIND_LODGING: Final[int] = PLACE_WORDS.index("宿泊施設")
+#: 「移動」「支度」の活動語コード(在圏ブロックの読み口 v2 が使う)。
+MOVE_ACTIVITY_CODE: Final[int] = ACTIVITY_WORDS.index("移動")
+PREP_ACTIVITY_CODE: Final[int] = ACTIVITY_WORDS.index("支度")
+
+#: 在圏ブロックの**読み口**(``derive_rule``・設計書 §2 追補 2026-09-12)。
+#: ``"v1"`` = §2 の原則そのまま(域外行・乗車行・域外居住者の自宅行以外は在圏)。
+#: ``"v2"`` = W17 v2 の語彙(場所語が域内/域外を持たない)で、域外居住者の**自宅側の行**
+#: (乗車の前の「移動 駅」・帰りの乗車の後の「食事 飲食店」など)を在圏に読まない。
+#: 域内居住者の読み方は v1 と同一。
+DERIVE_RULES: Final[tuple[str, ...]] = ("v1", "v2")
+DERIVE_RULE_DEFAULT: Final[str] = "v2"
+#: 読み口 v2 の「錨」= 舞台に居るとしか読めない行: ``target_cell ≥ 0`` か、場所が
+#: 職場/学校/宿泊施設(W16 の勤務先・学校・宿は舞台の中)。
+ANCHOR_PLACE_KINDS: Final[tuple[int, ...]] = tuple(
+    PLACE_WORDS.index(w) for w in ("職場", "学校", "宿泊施設")
+)
+#: 読み口 v2 の「滞在」でない活動(乗車・移動・支度)。これだけのランは在圏に採らない。
+NON_STAY_ACTIVITY_CODES: Final[tuple[int, ...]] = (
+    RIDE_ACTIVITY_CODE, MOVE_ACTIVITY_CODE, PREP_ACTIVITY_CODE,
+)
 
 #: 「次の行」を探すときに飛ばせる連続乗車行の上限(逐次ループの上界・expedient)。
 _MAX_RIDE_RUN: Final[int] = 8
@@ -158,6 +178,87 @@ def _day_rows(weekly, day: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     return rows, idx, counts
 
 
+def _apply_derive_v2(rows, live, home_out, act, pk, cell):
+    """読み口 v2(設計書 §2 追補 2026-09-12): 域外居住者の在圏ランを「錨」と「乗車の区切り」で選ぶ。
+
+    入力は (体行, 開始分) 昇順の当日行。``live`` は v1 の在圏行(域外行・乗車行・域外居住者の
+    自宅行を除いた行)。**域内居住者の行は変更しない**。ループなし(bincount / cumsum)。
+
+    規則(域外居住者だけ):
+      - ラン = ``live`` の連続行。乗車区切り = 「乗車」行または「移動・域外」行の連続 1 つ。
+        区間番号 = その行より前(同じ体)に始まった乗車区切りの数(0 = 最初の乗車の前)。
+      - 錨 = ``target_cell ≥ 0`` または 場所 ∈ {職場, 学校, 宿泊施設}。
+        滞在 = 活動 ∉ {乗車, 移動, 支度}。
+      - ランを在圏に採る = 錨を含む、または 滞在を含み**区間番号の偶奇が在圏側**。
+        在圏側 = 錨のある体: 最初の錨ランの偶奇 / 乗車区切りの無い体: 全区間 /
+        それ以外: 奇数(最初の乗車=行き)。ただし奇数側に滞在ランが無く偶数側にあれば偶数
+        (行きの乗車を書かず帰りだけ書いた体の救済)。
+
+    Args:
+        rows / live / act / pk / cell: 当日行の体行・v1 在圏・活動・場所・目標セル。
+        home_out: ``(n_agents,)`` bool。
+
+    Returns:
+        v2 の在圏行 ``(rows.size,)`` bool。
+    """
+    n_rows = int(rows.size)
+    n = int(home_out.size)
+    if n_rows == 0:
+        return live
+    same_prev = np.empty(n_rows, dtype=bool)
+    same_prev[0] = False
+    same_prev[1:] = rows[1:] == rows[:-1]
+    first_of_agent = ~same_prev
+    last_of_agent = np.empty(n_rows, dtype=bool)
+    last_of_agent[-1] = True
+    last_of_agent[:-1] = ~same_prev[1:]
+    # ---- 乗車区切りと区間番号 ----
+    is_ride = (act == RIDE_ACTIVITY_CODE) | (
+        (act == MOVE_ACTIVITY_CODE) & (pk == PLACE_KIND_OUTSIDE)
+    )
+    prev_ride = np.empty(n_rows, dtype=bool)
+    prev_ride[0] = False
+    prev_ride[1:] = is_ride[:-1]
+    ride_start = is_ride & ~(prev_ride & same_prev)
+    g = np.cumsum(ride_start.astype(np.int64))
+    base = np.zeros(n, dtype=np.int64)
+    base[rows[first_of_agent]] = g[first_of_agent] - ride_start[first_of_agent]
+    seg = g - base[rows]
+    n_rides = np.zeros(n, dtype=np.int64)
+    n_rides[rows[last_of_agent]] = seg[last_of_agent]
+    # ---- ラン(v1 在圏の連続行) ----
+    prev_live = np.empty(n_rows, dtype=bool)
+    prev_live[0] = False
+    prev_live[1:] = live[:-1]
+    head = live & ~(prev_live & same_prev)
+    n_runs = int(np.count_nonzero(head))
+    if n_runs == 0:
+        return live
+    run_id = np.cumsum(head.astype(np.int64)) - 1
+    run_agent = rows[head]
+    run_seg = seg[head]
+    anchor = (cell >= 0) | np.isin(pk, np.asarray(ANCHOR_PLACE_KINDS, dtype=pk.dtype))
+    stay = ~np.isin(act, np.asarray(NON_STAY_ACTIVITY_CODES, dtype=act.dtype))
+    run_anchor = np.bincount(run_id[live & anchor], minlength=n_runs) > 0
+    run_stay = np.bincount(run_id[live & stay], minlength=n_runs) > 0
+    # ---- 体ごとの在圏側の偶奇(-1 = 全区間) ----
+    parity_in = np.full(n, -1, dtype=np.int64)
+    first_anchor_run = np.full(n, n_runs, dtype=np.int64)
+    np.minimum.at(first_anchor_run, run_agent[run_anchor], np.flatnonzero(run_anchor))
+    has_anchor = first_anchor_run < n_runs
+    parity_in[has_anchor] = run_seg[first_anchor_run[has_anchor]] % 2
+    odd_stay = np.bincount(run_agent[run_stay & (run_seg % 2 == 1)], minlength=n) > 0
+    even_stay = np.bincount(run_agent[run_stay & (run_seg % 2 == 0)], minlength=n) > 0
+    rides_only = ~has_anchor & (n_rides > 0)
+    parity_in[rides_only] = np.where(odd_stay[rides_only] | ~even_stay[rides_only], 1, 0)
+    ra = run_agent
+    keep = run_anchor | (run_stay & ((parity_in[ra] < 0) | (run_seg % 2 == parity_in[ra])))
+    keep |= ~home_out[ra]  # 域内居住者は v1 のまま
+    out = live.copy()
+    out[live] = keep[run_id[live]]
+    return out
+
+
 @dataclass(frozen=True)
 class PlanBlocks:
     """**在圏ブロック**(その体がその日「舞台に居る」連続区間)の CSR。
@@ -189,6 +290,8 @@ class PlanBlocks:
     next_outside: np.ndarray | None = None
     mode: str = "derive"
     count_transit: bool = False
+    #: 読み口(``DERIVE_RULES``)。v2 = §2 追補(域外居住者の自宅側の行を在圏に読まない)。
+    derive_rule: str = DERIVE_RULE_DEFAULT
 
     @property
     def n_blocks(self) -> int:
@@ -231,6 +334,7 @@ class PlanBlocks:
         mode: str = "derive",
         count_transit: bool = False,
         exclude=None,
+        derive_rule: str = DERIVE_RULE_DEFAULT,
     ) -> "PlanBlocks":
         """W17 週次表 → 在圏ブロック(§2 の読み口)。
 
@@ -241,6 +345,7 @@ class PlanBlocks:
             mode: ``"derive"``(現行 W17 を畳む)/ ``"native"``(``block_kind`` 列を読む・**未実装**)。
             count_transit: True なら「乗車」行も在圏に数える(E5 の帰無側)。
             exclude: ``(n_agents,)`` bool。True の体は**ブロック 0 本**にする(E6 出勤率)。
+            derive_rule: 読み口(``"v1"`` / ``"v2"``・既定 v2・``_apply_derive_v2``)。
 
         Returns:
             ``PlanBlocks``。
@@ -254,6 +359,8 @@ class PlanBlocks:
             )
         if mode != "derive":
             raise ValueError(f"mode は 'derive' / 'native'(いま {mode!r})")
+        if derive_rule not in DERIVE_RULES:
+            raise ValueError(f"derive_rule は {DERIVE_RULES} のどれか(いま {derive_rule!r})")
         n = int(weekly.n_agents)
         ho = np.asarray(home_out, dtype=bool).ravel()
         if ho.size < n:
@@ -279,6 +386,7 @@ class PlanBlocks:
                 next_outside=np.empty(0, dtype=bool),
                 mode=mode,
                 count_transit=count_transit,
+                derive_rule=derive_rule,
             )
         s = np.asarray(weekly.start_min, dtype=np.int64)[idx]
         order = np.lexsort((s, rows))  # (体行, 開始分) 昇順へ揃える
@@ -293,6 +401,8 @@ class PlanBlocks:
             live &= act != RIDE_ACTIVITY_CODE
         live &= ~(ho[rows] & (pk == PLACE_KIND_HOME))  # 域外居住者の「自宅」行は域外
         live &= ~ex[rows]
+        if derive_rule == "v2":
+            live = _apply_derive_v2(rows, live, ho, act, pk, cell)
 
         same = np.empty(rows.size, dtype=bool)
         same[0] = False
@@ -340,6 +450,7 @@ class PlanBlocks:
             next_outside=next_out_row[tail],
             mode=mode,
             count_transit=count_transit,
+            derive_rule=derive_rule,
         )
 
 
@@ -395,7 +506,10 @@ class PlanExecutor:
         exit_mode: str = "immediate",
         attendance_rate: float = 1.0,
         mode: str = "derive",
+        derive_rule: str = DERIVE_RULE_DEFAULT,
     ) -> None:
+        if derive_rule not in DERIVE_RULES:
+            raise ValueError(f"--derive-rule は {DERIVE_RULES} のどれか(いま {derive_rule!r})")
         if exit_mode not in EXIT_MODES:
             raise ValueError(f"--exit-mode は {EXIT_MODES} のどれか(いま {exit_mode!r})")
         if exit_mode != "immediate":
@@ -415,6 +529,7 @@ class PlanExecutor:
         self.exit_mode = str(exit_mode)
         self.attendance_rate = rate
         self.mode = str(mode)
+        self.derive_rule = str(derive_rule)
         n = int(agents.n)
         self.n = n
         m = min(n, int(weekly.n_agents))
@@ -451,7 +566,8 @@ class PlanExecutor:
         exclude = np.zeros(int(weekly.n_agents), dtype=bool)
         exclude[: min(m, exclude.size)] = self.absent[: min(m, exclude.size)]
         self.blocks = PlanBlocks.from_weekly(
-            weekly, self.day_index, self.home_out[:m], mode=self.mode, exclude=exclude
+            weekly, self.day_index, self.home_out[:m], mode=self.mode, exclude=exclude,
+            derive_rule=self.derive_rule,
         )
         # ---- 診断カウンタ ----
         self.n_arrivals = 0

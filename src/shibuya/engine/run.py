@@ -83,6 +83,7 @@ from shibuya.engine.processes.salient import (
     ablation_name as _pnotice_ablation_name,
     check_d50_scale as _check_d50_scale,
 )
+from shibuya.engine.presence import DERIVE_RULES as PRESENCE_DERIVE_RULES
 from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
 from shibuya.engine.presence import PlanExecutor
 from shibuya.engine.llm_bridge import (
@@ -248,6 +249,8 @@ class RunResult:
     exit_mode: str = "immediate"
     #: 出勤率(D-67 (b)・expedient E6)。既定 1.0=全員来る。
     attendance_rate: float = 1.0
+    #: 在圏ブロックの読み口(``engine.presence.DERIVE_RULES``・既定 v2)。
+    derive_rule: str = "v2"
     #: 計画実行層の診断(``PlanExecutor.counters()``)。層が休んだランは空 dict。
     presence_counters: dict[str, float] = field(default_factory=dict)
     #: D-66 域外抑止を効かせたか(既定 True)。False = **帰無腕**。
@@ -504,6 +507,7 @@ class RunResult:
             "plan_executor": bool(self.plan_executor),
             "exit_mode": str(self.exit_mode),
             "attendance_rate": float(self.attendance_rate),
+            "derive_rule": str(self.derive_rule),
             "outside_suppression": bool(self.outside_suppression),
             "catalog_sha16": catalog_sha16,
             "process_ids": process_ids,
@@ -906,6 +910,7 @@ def run_day(
     exit_mode: str = "immediate",
     attendance_rate: float = 1.0,
     outside_suppression: bool = True,
+    derive_rule: str = "v2",
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -1024,6 +1029,8 @@ def run_day(
         raise ValueError(f"exit_mode は {PRESENCE_EXIT_MODES} のどれか(いま {exit_mode!r})")
     if not (0.0 <= float(attendance_rate) <= 1.0):
         raise ValueError(f"attendance_rate は 0.0〜1.0(いま {attendance_rate})")
+    if str(derive_rule) not in PRESENCE_DERIVE_RULES:
+        raise ValueError(f"derive_rule は {PRESENCE_DERIVE_RULES} のどれか(いま {derive_rule!r})")
     # ---- ablation ③: **ランの実効不応期表**を 1 本組む(既定=§6 の表そのもの) ----
     refractory_table = R.refractory_ticks(refractory_scale)
     refractory_scale_norm = R.normalized_refractory_scale(refractory_scale)
@@ -1103,6 +1110,7 @@ def run_day(
             ticks=ticks,
             exit_mode=exit_mode,
             attendance_rate=attendance_rate,
+            derive_rule=str(derive_rule),
         )
         presence.initialize()  # その時刻に在圏でない体を域外へ(I1 の分母)
         if runner is not None:
@@ -1968,6 +1976,7 @@ def run_day(
     result.outside_wake_candidates = int(n_outside_calls)
     result.exit_mode = str(exit_mode)
     result.attendance_rate = float(attendance_rate)
+    result.derive_rule = str(derive_rule)
     if presence is not None:
         result.presence_counters = dict(presence.counters())
         result.presence_summary = presence.summary()
@@ -2139,6 +2148,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="退出の実行形(immediate のみ実装・他は予約)")
     ap.add_argument("--attendance-rate", type=float, default=1.0, metavar="RATE",
                     help="出勤率(D-67 (b)・expedient E6・既定 1.0)")
+    ap.add_argument("--derive-rule", choices=PRESENCE_DERIVE_RULES, default="v2",
+                    help="在圏ブロックの読み口(v2=§2 追補・v1=原則のまま)")
     ap.add_argument("--no-outside-suppression", action="store_true",
                     help="D-66 域外抑止を切る(=D-66 前の挙動・帰無腕)")
     add_fleet_args(ap)
@@ -2169,6 +2180,7 @@ def main(argv: list[str] | None = None) -> int:
         plan_executor=not args.no_plan_executor,
         exit_mode=str(args.exit_mode),
         attendance_rate=float(args.attendance_rate),
+        derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,
     )
     print(res.summary())

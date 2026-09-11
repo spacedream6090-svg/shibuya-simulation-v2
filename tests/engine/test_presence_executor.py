@@ -688,7 +688,7 @@ def test_derive_folding_matches_the_parent_verified_counts():
     full = load_population(WORLD_DIR, n=None, seed=1)
     wk_full = load_weekly(WORLD_DIR)
     ho_full = np.asarray(full.home_cell) < 0
-    per_full = PlanBlocks.from_weekly(wk_full, 0, ho_full).blocks_per_agent()
+    per_full = PlanBlocks.from_weekly(wk_full, 0, ho_full, derive_rule="v1").blocks_per_agent()
     # **親検証値そのもの**(全 390,067 体・day0・定義 B の集計軸=域外居住者)
     assert int(ho_full.sum()) == 346_445
     assert int(per_full[ho_full].sum()) == 306_410
@@ -697,7 +697,7 @@ def test_derive_folding_matches_the_parent_verified_counts():
     pop = sample_population(full, 5_000, 1)
     wk = wk_full.restrict_to(pop.source_agent_id)
     home_out = np.asarray(pop.home_cell) < 0
-    blocks = PlanBlocks.from_weekly(wk, 0, home_out)
+    blocks = PlanBlocks.from_weekly(wk, 0, home_out, derive_rule="v1")  # 読み口 v1 の golden
     per = blocks.blocks_per_agent()
     assert int(home_out.sum()) == 4_491
     assert blocks.n_blocks == 4_918
@@ -705,6 +705,14 @@ def test_derive_folding_matches_the_parent_verified_counts():
     assert int(per[home_out].sum()) == 4_077
     assert int(np.count_nonzero(per[home_out] == 0)) == 1_107
     assert int(per[~home_out].sum()) == 841  # 域内居住者の「自宅」行は在圏に数える
+    # 読み口 v2(既定・§2 追補 2026-09-12)の同じ標本(親再実行値): 域内居住者は同一
+    b2 = PlanBlocks.from_weekly(wk, 0, home_out)
+    per2 = b2.blocks_per_agent()
+    assert b2.derive_rule == "v2"
+    assert b2.n_blocks == 4_021
+    assert int(per2[home_out].sum()) == 3_180
+    assert int(np.count_nonzero(per2[home_out] == 0)) == 1_350
+    assert int(per2[~home_out].sum()) == 841
 
 
 # ================================================================= 腕・切替口
