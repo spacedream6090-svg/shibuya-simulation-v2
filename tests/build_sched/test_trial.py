@@ -279,6 +279,89 @@ def test_current_format_regex_line_bounds_per_arm(trial_world, anchor: dict):
     assert T.arm_regex(T.ARMS["p0b"], f, t, i) == W17.prompt_regex(f, i)
 
 
+# ---------------------------------------------------------------- P2′(p2p)
+def test_p2p_grammar_has_no_block_kind_and_uses_the_current_parser(trial_world, anchor: dict):
+    """P2′: 行は現行 W17 と同じ 3 列・区分の列は文法にも例示にも無い・パーサは ``V.parse_text``。"""
+    spec = T.ARMS["p2p"]
+    assert spec.kind_col is False and spec.block is True and spec.stage == 2
+    f = _facts(trial_world)
+    rows = T.sample_rows(f, {0: 6})
+    t = T.draw_windows(f, anchor, rows=rows)
+    i = int(rows[0])
+    rx = re.compile(T.block_regex(spec, f, t, i).replace("\\n", "\n"))
+
+    def day(lines: list[str]) -> str:
+        return "\n".join(f"d{d}\n" + "\n".join(lines) for d in range(V.N_DAYS))
+
+    ok = ["0000-0807 就寝 自宅", "0807-1738 勤務 職場", "1738-2400 移動 駅"]
+    assert rx.fullmatch(day(ok)) is not None
+    # 区分の列を書いた行は**文法から外れている**
+    assert rx.fullmatch(day(["0000-0807 3 就寝 自宅", "0807-1738 2 勤務 職場",
+                             "1738-2400 4 移動 駅"])) is None
+    # 残した制約: {3,10} 行・0000/2400 の端点・深夜の 支度/乗車 禁止
+    assert rx.fullmatch(day(ok[:2])) is None
+    assert rx.fullmatch(day(["0030-0807 就寝 自宅", "0807-1738 勤務 職場",
+                             "1738-2400 移動 駅"])) is None
+    assert rx.fullmatch(day(["0000-0807 就寝 自宅", "0807-1738 勤務 職場",
+                             "1738-2300 移動 駅"])) is None
+    for act in T.NIGHT_BAN_ACTS:
+        assert rx.fullmatch(day(["0000-0230 就寝 自宅", f"0230-0300 {act} 駅",
+                                 "0300-2400 勤務 職場"])) is None, act
+    # system と例示にも区分が無い(P2 には有る=P2 は不変)
+    sys_p2p = T.arm_system(spec, f, t, i)
+    assert "区分" not in sys_p2p and "0000-0652 就寝 自宅" in sys_p2p
+    assert "区分" in T.arm_system(T.ARMS["p2"], f, t, i)
+    # モックは自分の文法を満たし、**現行パーサ**でそのまま読める
+    for r in rows:
+        j = int(r)
+        text = T.mock_text(spec, f, t, j)
+        rxj = re.compile(T.block_regex(spec, f, t, j).replace("\\n", "\n"))
+        assert rxj.fullmatch(text) is not None, j
+        acts, bad = V.parse_text(text)
+        assert acts and not [k for k in bad if k in V.FAILURE_REASONS]
+    # 区分はエンジンが導く(矛盾を作らない)
+    blocks, _ = T._to_blocks(spec, T.mock_text(spec, f, t, i), int(f.home_cell[i]) >= 0)
+    for b in blocks:
+        assert T.block_kind_conflict(b.block_kind, b.activity, b.place,
+                                     int(f.home_cell[i]) >= 0) == ""
+
+
+def test_p2p_max_tokens_is_1536_and_p2_stays_1024(trial_world, anchor: dict):
+    """P2′ の生成上限は 1,536(P2 の 1,024 で 65% が切断)。P2 は不変。"""
+    assert T.ARMS["p2p"].max_tokens == T.BLOCK_MAX_TOKENS_P2P == 1_536
+    assert T.ARMS["p2"].max_tokens == T.BLOCK_MAX_TOKENS == 1_024
+    f = _facts(trial_world)
+    rows = T.sample_rows(f, {0: 3})
+    t = T.draw_windows(f, anchor, rows=rows)
+    p = T.arm_prompt_of(T.ARMS["p2p"], f, t, int(rows[0]))
+    assert p.to_json()["max_tokens"] == 1_536
+    assert T.arm_prompt_of(T.ARMS["p2"], f, t, int(rows[0])).to_json()["max_tokens"] == 1_024
+
+
+def test_p2p_states_time_fidelity_in_system_and_user(trial_world, anchor: dict):
+    """P2′ の system と user の**両方**に時刻の忠実さの指示が入る(P2 には入らない)。"""
+    f = _facts(trial_world)
+    rows = T.sample_rows(f, {0: N_BODIES})
+    t = T.draw_windows(f, anchor, rows=rows)
+    i = [int(r) for r in rows if int(t.duty_open[int(r)]) >= 0][0]
+    for part in ("事実行の出勤時刻・帰宅時刻は分までそのまま使う",
+                 "家を出る移動の行の開始=出勤時刻", "帰宅の移動の行の終了=帰宅時刻",
+                 "00 分・30 分に丸めない"):
+        assert part in T.TIME_FIDELITY_LINE, part
+    sys_p2p = T.arm_system(T.ARMS["p2p"], f, t, i)
+    user_p2p = T.arm_user(T.ARMS["p2p"], f, t, i, identity="きょうも同じ流れです。")
+    assert T.TIME_FIDELITY_LINE in sys_p2p
+    assert T.TIME_FIDELITY_LINE in user_p2p
+    assert T.TIME_FIDELITY_LINE not in T.arm_system(T.ARMS["p2"], f, t, i)
+    assert T.TIME_FIDELITY_LINE not in T.arm_user(T.ARMS["p2"], f, t, i, identity="同じ流れです。")
+    # 事実行の出勤/帰宅は分単位のまま載っている(丸めない指示の対象)
+    assert f"出勤: {W17._hm(int(t.depart[i]))}" in user_p2p
+    # 段1 は P2 と同一= p2 の段1 応答をそのまま再利用できる
+    st1 = T.ARMS["p2"].__class__(**{**T.ARMS["p2"].__dict__, "stage": 1})
+    st1p = T.ARMS["p2p"].__class__(**{**T.ARMS["p2p"].__dict__, "stage": 1})
+    assert T.arm_system(st1, f, t, i) == T.arm_system(st1p, f, t, i)
+
+
 # ================================================================= 5. ブロック形式パーサ
 def test_parse_blocks_finds_gap_sleep_and_kind_conflict():
     """パーサ: 切れ目・就寝・``block_kind`` の矛盾を拾う(壊れた行はその行だけ捨てる)。"""
@@ -520,6 +603,27 @@ def test_identity_check_catches_the_four_bans():
     assert "number" not in T.check_identity(good + "7時に出ます", "出勤: 7時")
     assert "bullet" in T.check_identity(good + "\n- ひとつ", "事実行")
     assert "greeting" in T.check_identity("こんにちは。" + good, "事実行")
+
+
+def test_identity_char_floor_is_80(tmp_path: Path):
+    """親判断(2026-09-11): 字数下限は**80 字**(失敗を弾く目的)・上限 420 は据置。"""
+    assert (T.IDENTITY_CHARS_MIN, T.IDENTITY_CHARS_MAX) == (80, 420)
+    assert "chars" in T.check_identity("あ" * 79, "事実行")
+    assert T.check_identity("あ" * 80, "事実行") == []
+    assert T.check_identity("あ" * 420, "事実行") == []
+    assert "chars" in T.check_identity("あ" * 421, "事実行")
+    # ``_load_identities`` は**事実行の要らない検査だけ**を掛ける(固有名詞・数字は段1 report 側)
+    assert T.IDENTITY_FACTFREE_REASONS == {"chars", "bullet", "greeting"}
+    path = tmp_path / "stage1.jsonl"
+    rows = [("1", "あ" * 80), ("2", "あ" * 79), ("3", "あ" * 200 + "スターバックスで7時"),
+            ("4", "あ" * 200 + "\n- 箇条書き"), ("5", "こんにちは。" + "あ" * 200)]
+    path.write_text("\n".join(
+        json.dumps({"id": i, "text": t}, ensure_ascii=False) for i, t in rows
+    ) + "\n", encoding="utf-8")
+    got = T._load_identities(path)
+    assert got["1"] and not got["2"]          # 80 字は通る・79 字は空
+    assert got["3"]                           # 固有名詞・数字はここでは弾かない
+    assert not got["4"] and not got["5"]      # 箇条書き・挨拶は弾く
 
 
 # ================================================================= 10. 本番の不変

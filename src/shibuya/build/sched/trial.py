@@ -656,8 +656,13 @@ def _p1_system(kind: int, lines: tuple[int, int]) -> str:
 
 # ---------------------------------------------------------------- P2 段1(同一性)
 IDENTITY_MAX_TOKENS: Final[int] = 320
-IDENTITY_CHARS_MIN: Final[int] = 200
+#: 同一性文の字数下限。設計書 §3 の 250〜350 字に対する検査枠は当初 200 字だったが、
+#: **8B の実応答 2,000 本は p50 198 字・51.6% が 200 字未満**だったため、親判断(2026-09-11)で
+#: **80 字**へ下げた。この下限は「失敗(空文・一言)を弾く」ためのもので、長さの目標ではない。
+IDENTITY_CHARS_MIN: Final[int] = 80
 IDENTITY_CHARS_MAX: Final[int] = 420
+#: ``check_identity`` の理由のうち**事実行が要らない**もの(``_load_identities`` が使う)。
+IDENTITY_FACTFREE_REASONS: Final[frozenset[str]] = frozenset({"chars", "bullet", "greeting"})
 #: §3 の質問 3 つ(**性格・価値観・趣味は聞かない**=設計者の指紋を最小に)。
 IDENTITY_QUESTIONS: Final[tuple[str, ...]] = (
     "ふだんの平日、朝は何時ごろ動き出して、どんな順で一日が進みますか。",
@@ -733,6 +738,54 @@ BLOCK_HOME_IN: Final[str] = "あなたの自宅は渋谷の中にある。自宅
 BLOCK_HOME_OUT: Final[str] = "あなたの自宅は渋谷の外にある。自宅で過ごす行(就寝を除く)の区分は 0。"
 BLOCK_STAY: Final[str] = "あなたは渋谷に泊まる。就寝の行は 場所語=宿泊施設 で書く(区分は 3)。"
 
+# ---------------------------------------------------------------- P2′(p2p)= block_kind なし
+#: P2′ の生成上限(P2 の 1,024 は 32B 比較で 65% が切断されたため)。
+BLOCK_MAX_TOKENS_P2P: Final[int] = 1_536
+#: P2′ の時刻の忠実さの指示(8B が分を :00/:30 へ丸める癖への手当・system と user の両方へ)。
+TIME_FIDELITY_LINE: Final[str] = (
+    "事実行の出勤時刻・帰宅時刻は分までそのまま使う。"
+    "家を出る移動の行の開始=出勤時刻、帰宅の移動の行の終了=帰宅時刻。"
+    "他の行の時刻も 00 分・30 分に丸めない。"
+)
+#: P2′ の system 共通部(**全員共通**)。P2 との差は「区分の列が無い」ことと時刻の指示だけ。
+#: 域外/自宅/在圏の区別は**エンジンが居住区分と場所語から導く**(``derive_block_kind``=
+#: 計画実行層の derive と同じ)ので、モデルには書かせない。
+BLOCK3_SYSTEM_COMMON: Final[str] = "\n".join(
+    (
+        "自分の1週間(7日)の過ごし方を表にします。",
+        "書式は2種類の行だけ:",
+        "・曜日の見出し行 = d0 d1 d2 d3 d4 d5 d6 のどれか1つだけを書いた行"
+        "(d0=月曜 d1=火曜 d2=水曜 d3=木曜 d4=金曜 d5=土曜 d6=日曜)。",
+        "・ブロック行 = 「<開始HHMM>-<終了HHMM> <活動語> <場所語>」の3列を"
+        "半角空白1つで区切る。",
+        "活動語は次の12語だけを使う: " + " ".join(V.ACTIVITY_WORDS),
+        "場所語は次の12語だけを使う: " + " ".join(V.PLACE_WORDS),
+        "例:",
+        "d0",
+        "0000-0652 就寝 自宅",
+        "0652-0723 支度 自宅",
+        "0723-0807 移動 駅",
+        "0807-1738 勤務 職場",
+        "1738-1907 食事 飲食店",
+        "1907-2400 休憩 自宅",
+        "d1",
+        "(以下 d6 まで同じ形で続ける)",
+        "規則:",
+        "1. d0 から d6 まで 7 日ぶんの見出し行を必ず書く。各日のブロック行は3行から10行。",
+        "2. 時刻は4桁(0700)。各日は 0000 から始めて 2400 で終える。"
+        "**時間に切れ目を作らない**(前の行の終了時刻=次の行の開始時刻)。",
+        "3. 各日に「就寝」の行を必ず1本以上入れる。",
+        "4. 0時台から3時台に「支度」と「乗車」は置かない。",
+        "5. " + TIME_FIDELITY_LINE,
+        "6. 表以外は何も書かない。前置き・説明・記号・箇条書き・空行を書かない。"
+        "行末に空白を置かない。",
+    )
+)
+#: P2′ が体ごとに足す 1 行(区分が無いので自宅の所在だけを事実として渡す)。
+BLOCK3_HOME_IN: Final[str] = "あなたの自宅は渋谷の中にある。"
+BLOCK3_HOME_OUT: Final[str] = "あなたの自宅は渋谷の外にある。"
+BLOCK3_STAY: Final[str] = "あなたは渋谷に泊まる。就寝の行は 場所語=宿泊施設 で書く。"
+
 
 @dataclass(frozen=True)
 class ArmSpec:
@@ -756,6 +809,9 @@ class ArmSpec:
     facts: str
     lines: tuple[int, int]
     block: bool = False
+    #: ブロック形式で ``block_kind`` の列を**書かせる**か。``False``(P2′)は現行 W17 と
+    #: 同じ 3 列に戻し、域外/自宅/在圏は ``derive_block_kind`` でエンジンが導く。
+    kind_col: bool = True
     stage: int = 0
     max_tokens: int = W17.MAX_TOKENS
     temperature: float = W17.TEMPERATURE
@@ -776,6 +832,10 @@ ARMS: Final[dict[str, ArmSpec]] = {
     "p1b": ArmSpec(name="p1b", facts="p1", lines=(3, 10)),
     "p2": ArmSpec(name="p2", facts="p2", lines=(3, 10), block=True, stage=2,
                   max_tokens=BLOCK_MAX_TOKENS),
+    # P2′: P2 との差は 3 点だけ(①block_kind を出力から外す ②max_tokens 1536
+    # ③時刻の忠実さを指示に明示)。**段1 は P2 と同一**= p2 の段1 応答を再利用する。
+    "p2p": ArmSpec(name="p2p", facts="p2", lines=(3, 10), block=True, kind_col=False,
+                   stage=2, max_tokens=BLOCK_MAX_TOKENS_P2P),
     "p2_32b": ArmSpec(name="p2_32b", facts="p2", lines=(3, 10), block=True, stage=2,
                       max_tokens=BLOCK_MAX_TOKENS, seed_arm="p2", n_total=TRIAL_N_32B),
 }
@@ -799,10 +859,15 @@ def arm_system(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int) -> str:
         return _p1_system(int(f.kind[i]), spec.lines)
     if spec.stage == 1:
         return IDENTITY_SYSTEM
-    lines = [BLOCK_SYSTEM_COMMON]
-    lines.append(BLOCK_HOME_IN if int(f.home_cell[i]) >= 0 else BLOCK_HOME_OUT)
-    if bool(t.stay[i]):
-        lines.append(BLOCK_STAY)
+    home_in = int(f.home_cell[i]) >= 0
+    if spec.kind_col:
+        lines = [BLOCK_SYSTEM_COMMON, BLOCK_HOME_IN if home_in else BLOCK_HOME_OUT]
+        if bool(t.stay[i]):
+            lines.append(BLOCK_STAY)
+    else:  # P2′: 区分の列なし
+        lines = [BLOCK3_SYSTEM_COMMON, BLOCK3_HOME_IN if home_in else BLOCK3_HOME_OUT]
+        if bool(t.stay[i]):
+            lines.append(BLOCK3_STAY)
     lines.append(W17.SYSTEM_KIND_LINE[int(f.kind[i])])
     return "\n".join(lines)
 
@@ -884,7 +949,10 @@ def arm_user(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int,
         out.extend(IDENTITY_QUESTIONS)
         return "\n".join(out)
     head = [identity.strip(), ""] if identity.strip() else []
-    return "\n".join(head + out + ["あなたが上で話したとおりの1週間を表にしてください。"])
+    tail = ["あなたが上で話したとおりの1週間を表にしてください。"]
+    if not spec.kind_col:  # P2′: 時刻の忠実さを user 側にも明示
+        tail.append(TIME_FIDELITY_LINE)
+    return "\n".join(head + out + tail)
 
 
 def block_regex(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int) -> str:
@@ -895,11 +963,14 @@ def block_regex(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int) -> str:
       **文法で**固定する。内側の連続性は regex では書けないので検査で数える)。
     - **0〜3 時台に始まる行からは 支度/乗車 を外す**(§3・D-63 (iii))。
     - 場所語は ``W17.place_set``(事実にない場所を出せない)。
+    - ``spec.kind_col`` が ``False``(P2′)なら ``<block_kind>`` の列を**文法から外す**
+      (現行 W17 と同じ 3 列。区分はエンジンが ``derive_block_kind`` で導く)。
     """
     acts_all = "|".join(V.ACTIVITY_WORDS)
     acts_night = "|".join(w for w in V.ACTIVITY_WORDS if w not in NIGHT_BAN_ACTS)
     places = "|".join(W17.place_set(f, i))
-    tail = f" [0-4] (?:{{acts}}) (?:{places})"
+    kind = " [0-4]" if spec.kind_col else ""
+    tail = f"{kind} (?:{{acts}}) (?:{places})"
 
     def line(start: str, end: str, night_only: bool | None) -> str:
         if night_only is True:
@@ -1290,6 +1361,7 @@ class TrialReport:
     duty_dev: list[int] = field(default_factory=list)
     duty_dev_p1: list[int] = field(default_factory=list)
     completion_tokens: list[int] = field(default_factory=list)
+    tally: dict[str, int] = field(default_factory=dict)
     identity: dict[str, Any] = field(default_factory=dict)
     raking: dict[str, Any] = field(default_factory=dict)
     engine_modified: dict[str, Any] = field(default_factory=dict)
@@ -1351,6 +1423,11 @@ class TrialReport:
                 "block_kind_conflicts": {
                     k[3:]: v for k, v in sorted(self.check_fail.items()) if k.startswith("bk_")
                 },
+                # P2′(区分を書かせない腕)の観察点= 域外居住者が「自宅」と書いた行の割合。
+                # 検査落ちではない(エンジンが block_kind=0 へ導く)ので**計数のみ**。
+                "outside_resident_home_rows": self.tally.get("outside_resident_home_rows", 0),
+                "outside_resident_home_rate": round(
+                    self.tally.get("outside_resident_home_rows", 0) / max(1, self.n_kept), 6),
                 "stay_sleep_place_violations": self.check_fail.get("stay_sleep_place", 0),
                 "lines_per_day": self._stats(self.lines_per_day),
                 "duty_window_dev_min": self._stats(self.duty_dev),
@@ -1406,8 +1483,12 @@ def _response_rows(paths: Sequence[Path]) -> Iterator[tuple[str, str, int]]:
 def _to_blocks(
     spec: ArmSpec, text: str, home_in: bool
 ) -> tuple[list[Block], dict[str, int]]:
-    """腕に応じたパーサ(現行形式 / ブロック形式)。現行形式は ``block_kind`` を派生させる。"""
-    if spec.block:
+    """腕に応じたパーサ(現行形式 / ブロック形式)。``block_kind`` 列が無い腕は派生させる。
+
+    P2′(``kind_col=False``)は行が現行 W17 と同じ 3 列なので **``V.parse_text`` をそのまま
+    使う**(パーサを二重に持たない)。区分は ``derive_block_kind`` で導く。
+    """
+    if spec.block and spec.kind_col:
         return parse_blocks(text)
     acts, bad = V.parse_text(text)
     return (
@@ -1612,10 +1693,13 @@ def _check_blocks(
             elif b.start > prev_end:
                 rep.gaps += 1
             prev_end = max(prev_end, hi)
+            if b.place == V.PLACE_HOME and not home_in:  # 報告のみ(P2′ の観察点)
+                rep.tally["outside_resident_home_rows"] = \
+                    rep.tally.get("outside_resident_home_rows", 0) + 1
             fail = ""
             if b.start < NIGHT_END_MIN and V.ACTIVITY_WORDS[b.activity] in NIGHT_BAN_ACTS:
                 fail = "night"
-            else:
+            elif spec.kind_col:  # 区分を書かせない腕(P2′)は矛盾の検査対象にしない
                 why = block_kind_conflict(b.block_kind, b.activity, b.place, home_in)
                 if why:
                     fail = "bk_" + why
@@ -1820,8 +1904,12 @@ def mock_text(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int) -> str:
                 continue
             if pl not in place_ok:
                 pl = out_word if out_word in place_ok else home_word
-            bk = derive_block_kind(_ACT_INDEX[act], _PLACE_INDEX[pl], home_in)
-            lines.append(f"{s // 60:02d}{s % 60:02d}-{e // 60:02d}{e % 60:02d} {bk} {act} {pl}")
+            head = f"{s // 60:02d}{s % 60:02d}-{e // 60:02d}{e % 60:02d}"
+            if spec.kind_col:
+                bk = derive_block_kind(_ACT_INDEX[act], _PLACE_INDEX[pl], home_in)
+                lines.append(f"{head} {bk} {act} {pl}")
+            else:  # P2′: 3 列
+                lines.append(f"{head} {act} {pl}")
     return "\n".join(lines)
 
 
@@ -1903,11 +1991,16 @@ def _parse_per_kind(spec: str | None) -> dict[int, int] | None:
 
 
 def _load_identities(path: str | Path) -> dict[str, str]:
-    """段1 の応答 jsonl → ``{agent_id: 本人の言葉}``(検査に落ちた体は空=事実だけで書かせる)。"""
+    """段1 の応答 jsonl → ``{agent_id: 本人の言葉}``(検査に落ちた体は空=事実だけで書かせる)。
+
+    ここで掛けるのは**事実行が要らない検査だけ**(字数 80〜420・箇条書き・挨拶の定型)。
+    固有名詞と数字は「与えられていない」かどうかの判定に事実行が要るので、
+    ここでは判定せず**段1 の report**(``ingest_arm`` が ``arm_user`` を渡す)で数える。
+    """
     out: dict[str, str] = {}
     for rid, text, _tok in _response_rows([Path(path)]):
-        body = V.canonical_text(text)
-        out[rid] = body if not check_identity(text, "") or len(body) >= IDENTITY_CHARS_MIN else ""
+        why = set(check_identity(text, "")) & IDENTITY_FACTFREE_REASONS
+        out[rid] = "" if why else V.canonical_text(text)
     return out
 
 
