@@ -46,6 +46,20 @@ PK_OUT = PLACE_WORDS.index("域外")
 
 WORLD_DIR = Path(__file__).resolve().parents[2] / "data" / "world" / "v2"
 
+#: 実 W17 の golden(親再実行値・2026-09-12・第170)。キー= parquet md5 先頭 12 桁。
+#: 11a7129beaea = W17 v1(w17v1_backup/)/ 3113e9ba7abb = W17 v2(本番 第 2 回・昇格)。
+REAL_GOLDEN = {
+    "11a7129beaea": {"v1": [85_766, 214_998, 45_631, 50], "v2": [97_242, 247_395, 1_808, 0]},
+    "3113e9ba7abb": {"v1": [92, 160_033, 133_575, 47_861], "v2": [1_269, 254_605, 85_421, 5_076]},
+}
+
+
+def _w17_digest() -> str:
+    import hashlib
+
+    p = WORLD_DIR / "w17_schedule.parquet"
+    return hashlib.md5(p.read_bytes()).hexdigest()[:12] if p.exists() else ""
+
 
 def make_weekly(rows, n_agents: int, day: int = 0) -> WeeklySchedule:
     """``rows`` = ``[(agent_row, start, end, activity, place_kind, target_cell), …]``。"""
@@ -233,9 +247,10 @@ def test_in_area_residents_read_exactly_as_v1():
 # ================================================================= 実 W17(v1 表)の golden
 @pytest.mark.skipif(not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="W17 が無い")
 def test_v2_rule_on_the_real_w17_matches_the_parent_verified_counts():
-    """親検証値(2026-09-12・全 390,067 体・day0・現行 W17 v1 表):
-    v1 読み口 = 域外居住者 0..3 本 [85,766 / 214,998 / 45,631 / 50](既存 golden)
-    v2 読み口 = [97,242 / 247,395 / 1,808 / 0]・域内居住者のブロックは v1 と同一。
+    """親検証値(2026-09-12・全 390,067 体・day0)。表ごとに golden を持つ(``REAL_GOLDEN``・第170):
+    W17 v1: v1 読み口 [85,766 / 214,998 / 45,631 / 50] → v2 読み口 [97,242 / 247,395 / 1,808 / 0]
+    W17 v2: v1 読み口 [92 / 160,033 / 133,575 / 47,861] → v2 読み口 [1,269 / 254,605 / 85,421 / 5,076]
+    域内居住者のブロックはどちらの表でも v1 と同一。
     """
     from shibuya.agents.population import load_population
     from shibuya.agents.weekly import load_weekly
@@ -246,8 +261,11 @@ def test_v2_rule_on_the_real_w17_matches_the_parent_verified_counts():
     b1 = PlanBlocks.from_weekly(wk, 0, ho, derive_rule="v1")
     b2 = PlanBlocks.from_weekly(wk, 0, ho, derive_rule="v2")
     p1, p2 = b1.blocks_per_agent(), b2.blocks_per_agent()
-    assert np.bincount(p1[ho])[:4].tolist() == [85_766, 214_998, 45_631, 50]
-    assert np.bincount(p2[ho], minlength=4)[:4].tolist() == [97_242, 247_395, 1_808, 0]
+    g = REAL_GOLDEN.get(_w17_digest())
+    if g is None:
+        pytest.skip(f"実 W17 の golden が無い(md5 {_w17_digest()})=親が再実行して REAL_GOLDEN に足す")
+    assert np.bincount(p1[ho], minlength=4)[:4].tolist() == g["v1"]
+    assert np.bincount(p2[ho], minlength=4)[:4].tolist() == g["v2"]
     assert np.array_equal(p1[~ho], p2[~ho])
     m1, m2 = np.repeat(~ho, p1), np.repeat(~ho, p2)
     assert np.array_equal(b1.start[m1], b2.start[m2])

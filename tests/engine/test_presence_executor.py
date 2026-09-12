@@ -31,6 +31,34 @@ from shibuya.world.assets import ProcessAssets
 from shibuya.world.state import World
 
 WORLD_DIR = Path("data/world/v2")
+
+
+def w17_digest(world_dir: Path = WORLD_DIR) -> str:
+    """実 W17(``w17_schedule.parquet``)の md5 先頭 12 桁。golden は表ごとに持つ(第170・層2 指摘)。"""
+    import hashlib
+
+    p = world_dir / "w17_schedule.parquet"
+    if not p.exists():
+        return ""
+    return hashlib.md5(p.read_bytes()).hexdigest()[:12]
+
+
+#: 実 W17 の golden(親再実行値・2026-09-12)。キー= parquet md5 先頭 12 桁。
+#: 11a7129beaea = W17 v1(週 7 日・第 1 弾・w17v1_backup/)/ 3113e9ba7abb = W17 v2(1 日・本番 第 2 回・第168 昇格)。
+W17_GOLDEN = {
+    "11a7129beaea": {
+        "null_arm_final": "c96baf821c9a046f", "null_arm_llm_calls": 37_111,
+        "v1_outside_blocks": 306_410, "v1_outside_dist": [85_766, 214_998, 45_631, 50],
+        "s5000_v1": {"n_blocks": 4_918, "zero": 1_107, "outside": 4_077, "in": 841},
+        "s5000_v2": {"n_blocks": 4_021, "zero": 1_350, "outside": 3_180, "in": 841},
+    },
+    "3113e9ba7abb": {
+        "null_arm_final": "b4ad8140fe4176db", "null_arm_llm_calls": 41_072,
+        "v1_outside_blocks": 590_430, "v1_outside_dist": [92, 160_033, 133_575, 47_861],
+        "s5000_v1": {"n_blocks": 8_589, "zero": 1, "outside": 7_733, "in": 856},
+        "s5000_v2": {"n_blocks": 6_377, "zero": 150, "outside": 5_521, "in": 856},
+    },
+}
 real_data = pytest.mark.skipif(
     not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="実世界資産が無い"
 )
@@ -195,10 +223,13 @@ def test_null_arm_reproduces_the_recorded_checkpoint():
     res = cli_run(
         n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False
     )
-    assert res.final_hash.startswith("c96baf821c9a046f")
+    g = W17_GOLDEN.get(w17_digest())
+    if g is None:
+        pytest.skip(f"実 W17 の golden が無い(md5 {w17_digest()})=親が再実行して W17_GOLDEN に足す")
+    assert res.final_hash.startswith(g["null_arm_final"])
     assert res.run_manifest_fields()["plan_executor"] is False
     assert res.presence_counters == {}
-    assert res.conserved and int(res.llm_calls) == 37_111
+    assert res.conserved and int(res.llm_calls) == g["null_arm_llm_calls"]
 
 
 # ================================================================= ③ T4 規模不変
@@ -689,30 +720,35 @@ def test_derive_folding_matches_the_parent_verified_counts():
     wk_full = load_weekly(WORLD_DIR)
     ho_full = np.asarray(full.home_cell) < 0
     per_full = PlanBlocks.from_weekly(wk_full, 0, ho_full, derive_rule="v1").blocks_per_agent()
-    # **親検証値そのもの**(全 390,067 体・day0・定義 B の集計軸=域外居住者)
+    # **親検証値そのもの**(全 390,067 体・day0・定義 B の集計軸=域外居住者)。表ごとの golden(第170)
+    g = W17_GOLDEN.get(w17_digest())
+    if g is None:
+        pytest.skip(f"実 W17 の golden が無い(md5 {w17_digest()})=親が再実行して W17_GOLDEN に足す")
     assert int(ho_full.sum()) == 346_445
-    assert int(per_full[ho_full].sum()) == 306_410
-    assert np.bincount(per_full[ho_full])[:4].tolist() == [85_766, 214_998, 45_631, 50]
+    assert int(per_full[ho_full].sum()) == g["v1_outside_blocks"]
+    assert np.bincount(per_full[ho_full], minlength=4)[:4].tolist() == g["v1_outside_dist"]
     # 5,000 体標本(前後測定に使う縮尺)の実測 golden
     pop = sample_population(full, 5_000, 1)
     wk = wk_full.restrict_to(pop.source_agent_id)
     home_out = np.asarray(pop.home_cell) < 0
     blocks = PlanBlocks.from_weekly(wk, 0, home_out, derive_rule="v1")  # 読み口 v1 の golden
     per = blocks.blocks_per_agent()
+    s1 = g["s5000_v1"]
     assert int(home_out.sum()) == 4_491
-    assert blocks.n_blocks == 4_918
-    assert int(np.count_nonzero(per == 0)) == 1_107
-    assert int(per[home_out].sum()) == 4_077
-    assert int(np.count_nonzero(per[home_out] == 0)) == 1_107
-    assert int(per[~home_out].sum()) == 841  # 域内居住者の「自宅」行は在圏に数える
+    assert blocks.n_blocks == s1["n_blocks"]
+    assert int(np.count_nonzero(per == 0)) == s1["zero"]
+    assert int(per[home_out].sum()) == s1["outside"]
+    assert int(np.count_nonzero(per[home_out] == 0)) == s1["zero"]
+    assert int(per[~home_out].sum()) == s1["in"]  # 域内居住者の「自宅」行は在圏に数える
     # 読み口 v2(既定・§2 追補 2026-09-12)の同じ標本(親再実行値): 域内居住者は同一
     b2 = PlanBlocks.from_weekly(wk, 0, home_out)
     per2 = b2.blocks_per_agent()
+    s2 = g["s5000_v2"]
     assert b2.derive_rule == "v2"
-    assert b2.n_blocks == 4_021
-    assert int(per2[home_out].sum()) == 3_180
-    assert int(np.count_nonzero(per2[home_out] == 0)) == 1_350
-    assert int(per2[~home_out].sum()) == 841
+    assert b2.n_blocks == s2["n_blocks"]
+    assert int(per2[home_out].sum()) == s2["outside"]
+    assert int(np.count_nonzero(per2[home_out] == 0)) == s2["zero"]
+    assert int(per2[~home_out].sum()) == s2["in"]
 
 
 # ================================================================= 腕・切替口

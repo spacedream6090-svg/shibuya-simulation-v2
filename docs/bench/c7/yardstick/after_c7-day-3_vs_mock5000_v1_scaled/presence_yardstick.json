@@ -38,7 +38,7 @@
   "label": "c7-day-3",
   "input": "journal",
   "path": "data/runs/c7-day-3/occupancy.npz",
-  "summary_path": "<scratch>/d68/c7-day-3.cli_summary.txt",
+  "summary_path": "<scratch>/d68/c7-day-3.summary.txt",
   "n_agents": 390067,
   "n_agents_source": "summary([run] n=)",
   "scale": {
@@ -512,73 +512,73 @@
  },
  "before": {
   "label": "c7-day-2",
-  "input": "series",
-  "path": "<scratch>/c7/series.json/c7_occupancy.json",
+  "input": "journal",
+  "path": "<scratch>/d66/occ_base.npz",
   "summary_path": "<scratch>/d66/base_summary.txt",
-  "n_agents": 390067,
-  "n_agents_source": "cli",
+  "n_agents": 5000,
+  "n_agents_source": "summary([run] n=)",
   "scale": {
    "target_population": 390067,
-   "factor": 1.0,
+   "factor": 78.0134,
    "tag": "expedient",
    "note": "縮尺は線形(体数に比例)。混雑・待ち行列・容量は非線形なので絶対値の一致は主張しない=向きと桁を見るための列。"
   },
   "presence_by_hour": [
    {
     "hour": 0,
-    "five_area": 208227.0,
-    "bbox": null,
-    "five_area_scaled": 208227.0,
-    "bbox_scaled": null
+    "five_area": 2772.0,
+    "bbox": 4427.0,
+    "five_area_scaled": 216253.1,
+    "bbox_scaled": 345365.3
    },
    {
     "hour": 3,
-    "five_area": 212487.0,
-    "bbox": null,
-    "five_area_scaled": 212487.0,
-    "bbox_scaled": null
+    "five_area": 2834.0,
+    "bbox": 4427.0,
+    "five_area_scaled": 221090.0,
+    "bbox_scaled": 345365.3
    },
    {
     "hour": 6,
-    "five_area": 214896.0,
-    "bbox": null,
-    "five_area_scaled": 214896.0,
-    "bbox_scaled": null
+    "five_area": 2861.0,
+    "bbox": 4431.0,
+    "five_area_scaled": 223196.3,
+    "bbox_scaled": 345677.4
    },
    {
     "hour": 9,
-    "five_area": 253757.0,
-    "bbox": null,
-    "five_area_scaled": 253757.0,
-    "bbox_scaled": null
+    "five_area": 3385.0,
+    "bbox": 4828.0,
+    "five_area_scaled": 264075.4,
+    "bbox_scaled": 376648.7
    },
    {
     "hour": 12,
-    "five_area": 242780.0,
-    "bbox": null,
-    "five_area_scaled": 242780.0,
-    "bbox_scaled": null
+    "five_area": 3069.0,
+    "bbox": 4423.0,
+    "five_area_scaled": 239423.1,
+    "bbox_scaled": 345053.3
    },
    {
     "hour": 15,
-    "five_area": 239688.0,
-    "bbox": null,
-    "five_area_scaled": 239688.0,
-    "bbox_scaled": null
+    "five_area": 2834.0,
+    "bbox": 4100.0,
+    "five_area_scaled": 221090.0,
+    "bbox_scaled": 319854.9
    },
    {
     "hour": 18,
-    "five_area": 242572.0,
-    "bbox": null,
-    "five_area_scaled": 242572.0,
-    "bbox_scaled": null
+    "five_area": 3140.0,
+    "bbox": 4451.0,
+    "five_area_scaled": 244962.1,
+    "bbox_scaled": 347237.6
    },
    {
     "hour": 21,
-    "five_area": 245252.0,
-    "bbox": null,
-    "five_area_scaled": 245252.0,
-    "bbox_scaled": null
+    "five_area": 2826.0,
+    "bbox": 4023.0,
+    "five_area_scaled": 220465.9,
+    "bbox_scaled": 313847.9
    }
   ],
   "area_ids": [
@@ -590,179 +590,278 @@
   ],
   "area_hour_counts": [
    [
-    10808.0,
-    94243.0,
-    29178.0,
-    28081.0,
-    45917.0
+    150.0,
+    1450.0,
+    349.0,
+    305.0,
+    518.0
    ],
    [
-    11071.0,
-    94779.0,
-    29368.0,
-    28249.0,
-    45810.0
+    203.0,
+    1434.0,
+    350.0,
+    296.0,
+    513.0
    ],
    [
-    11299.0,
-    95040.0,
-    29307.0,
-    28448.0,
-    45754.0
+    219.0,
+    1431.0,
+    348.0,
+    298.0,
+    514.0
    ],
    [
-    11961.0,
-    96019.0,
-    29540.0,
-    28850.0,
-    46117.0
+    253.0,
+    1419.0,
+    347.0,
+    299.0,
+    516.0
    ],
    [
-    11890.0,
-    96863.0,
-    29670.0,
-    28663.0,
-    46267.0
+    264.0,
+    1420.0,
+    345.0,
+    295.0,
+    513.0
    ],
    [
-    11770.0,
-    96396.0,
-    29502.0,
-    28657.0,
-    45946.0
+    296.0,
+    1401.0,
+    339.0,
+    295.0,
+    512.0
    ],
    [
-    13932.0,
-    96590.0,
-    29588.0,
-    29088.0,
-    45698.0
+    338.0,
+    1395.0,
+    334.0,
+    290.0,
+    504.0
    ],
    [
-    27220.0,
-    98237.0,
-    29702.0,
-    28793.0,
-    45780.0
+    552.0,
+    1385.0,
+    329.0,
+    292.0,
+    496.0
    ],
    [
-    41107.0,
-    98930.0,
-    30046.0,
-    29248.0,
-    45932.0
+    812.0,
+    1347.0,
+    320.0,
+    280.0,
+    485.0
    ],
    [
-    46506.0,
-    99801.0,
-    30842.0,
-    29804.0,
-    46804.0
+    1013.0,
+    1316.0,
+    314.0,
+    274.0,
+    468.0
    ],
    [
-    35013.0,
-    104654.0,
-    32427.0,
-    30691.0,
-    48837.0
+    987.0,
+    1273.0,
+    307.0,
+    270.0,
+    457.0
    ],
    [
-    31588.0,
-    107326.0,
-    32399.0,
-    31381.0,
-    49012.0
+    928.0,
+    1243.0,
+    297.0,
+    261.0,
+    442.0
    ],
    [
-    23019.0,
-    105947.0,
-    32414.0,
-    31417.0,
-    49983.0
+    895.0,
+    1212.0,
+    285.0,
+    252.0,
+    425.0
    ],
    [
-    20293.0,
-    106209.0,
-    32593.0,
-    31692.0,
-    50242.0
+    787.0,
+    1188.0,
+    285.0,
+    257.0,
+    419.0
    ],
    [
-    16839.0,
-    107782.0,
-    32979.0,
-    31895.0,
-    50886.0
+    816.0,
+    1156.0,
+    276.0,
+    249.0,
+    395.0
    ],
    [
-    14365.0,
-    108787.0,
-    33027.0,
-    32167.0,
-    51342.0
+    792.0,
+    1151.0,
+    268.0,
+    239.0,
+    384.0
    ],
    [
-    13956.0,
-    108617.0,
-    33047.0,
-    32219.0,
-    51250.0
+    844.0,
+    1125.0,
+    266.0,
+    237.0,
+    376.0
    ],
    [
-    14051.0,
-    110825.0,
-    33555.0,
-    32627.0,
-    51241.0
+    877.0,
+    1102.0,
+    263.0,
+    236.0,
+    378.0
    ],
    [
-    13022.0,
-    110806.0,
-    34007.0,
-    33237.0,
-    51500.0
+    1022.0,
+    1100.0,
+    399.0,
+    242.0,
+    377.0
    ],
    [
-    13258.0,
-    110611.0,
-    34129.0,
-    32449.0,
-    51698.0
+    978.0,
+    1111.0,
+    379.0,
+    245.0,
+    377.0
    ],
    [
-    13838.0,
-    112455.0,
-    34379.0,
-    32706.0,
-    52577.0
+    883.0,
+    1081.0,
+    370.0,
+    237.0,
+    388.0
    ],
    [
-    14023.0,
-    111709.0,
-    34182.0,
-    32762.0,
-    52576.0
+    886.0,
+    1060.0,
+    265.0,
+    234.0,
+    381.0
    ],
    [
-    14043.0,
-    110996.0,
-    33597.0,
-    32676.0,
-    52143.0
+    927.0,
+    1065.0,
+    269.0,
+    242.0,
+    384.0
    ],
    [
-    13699.0,
-    109945.0,
-    33455.0,
-    32363.0,
-    52490.0
+    1321.0,
+    1076.0,
+    273.0,
+    240.0,
+    383.0
    ]
   ],
   "ratios": {
-   "r_day_night_09_03": 1.1942,
-   "r_noon_night_12_03": 1.1426
+   "r_day_night_09_03": 1.1944,
+   "r_noon_night_12_03": 1.0829
   },
-  "kind_at_03": null,
+  "kind_at_03": {
+   "hour": 3,
+   "rows": [
+    {
+     "kind": 0,
+     "name": "通勤",
+     "d66": true,
+     "count_five_area": 1667.0,
+     "share_of_five_area": 0.5882,
+     "count_bbox": 2060.0,
+     "count_five_area_scaled": 130048.3
+    },
+    {
+     "kind": 1,
+     "name": "来街",
+     "d66": true,
+     "count_five_area": 222.0,
+     "share_of_five_area": 0.0783,
+     "count_bbox": 565.0,
+     "count_five_area_scaled": 17319.0
+    },
+    {
+     "kind": 2,
+     "name": "従業",
+     "d66": false,
+     "count_five_area": 23.0,
+     "share_of_five_area": 0.0081,
+     "count_bbox": 68.0,
+     "count_five_area_scaled": 1794.3
+    },
+    {
+     "kind": 3,
+     "name": "住民",
+     "d66": false,
+     "count_five_area": 132.0,
+     "share_of_five_area": 0.0466,
+     "count_bbox": 391.0,
+     "count_five_area_scaled": 10297.8
+    },
+    {
+     "kind": 4,
+     "name": "指令",
+     "d66": false,
+     "count_five_area": 20.0,
+     "share_of_five_area": 0.0071,
+     "count_bbox": 20.0,
+     "count_five_area_scaled": 1560.3
+    },
+    {
+     "kind": 5,
+     "name": "通学",
+     "d66": false,
+     "count_five_area": 150.0,
+     "share_of_five_area": 0.0529,
+     "count_bbox": 320.0,
+     "count_five_area_scaled": 11702.0
+    },
+    {
+     "kind": 6,
+     "name": "定期来街",
+     "d66": true,
+     "count_five_area": 69.0,
+     "share_of_five_area": 0.0243,
+     "count_bbox": 200.0,
+     "count_five_area_scaled": 5382.9
+    },
+    {
+     "kind": 7,
+     "name": "訪日",
+     "d66": true,
+     "count_five_area": 66.0,
+     "share_of_five_area": 0.0233,
+     "count_bbox": 167.0,
+     "count_five_area_scaled": 5148.9
+    },
+    {
+     "kind": 8,
+     "name": "乗務",
+     "d66": true,
+     "count_five_area": 485.0,
+     "share_of_five_area": 0.1711,
+     "count_bbox": 636.0,
+     "count_five_area_scaled": 37836.5
+    }
+   ],
+   "five_area_total": 2834.0,
+   "d66_total": {
+    "kinds": [
+     "通勤",
+     "来街",
+     "定期来街",
+     "訪日",
+     "乗務"
+    ],
+    "count_five_area": 2509.0,
+    "share_of_five_area": 0.8853,
+    "count_five_area_scaled": 195735.6,
+    "note": "域外常住のはずの種別が深夜に域内に居る体数=D-66 の直接指標。"
+   }
+  },
   "wake_rate": {
    "run": [
     0.185,
@@ -864,226 +963,200 @@
   },
   "distance": {
    "scaled": true,
-   "day_09_vs_core9_daytime": 1.9495,
-   "day_09_vs_pt_peak": 1.75,
-   "night_03_vs_core9_night": 24.1188,
-   "night_03_vs_estimate_high": 7.0829,
+   "day_09_vs_core9_daytime": 2.0287,
+   "day_09_vs_pt_peak": 1.8212,
+   "night_03_vs_core9_night": 25.0953,
+   "night_03_vs_estimate_high": 7.3697,
    "night_03_in_estimate_band": false,
-   "night_03_band_gap": 182487.0,
+   "night_03_band_gap": 191090.0,
    "values": {
-    "day_09": 253757.0,
-    "night_03": 212487.0
+    "day_09": 264075.4,
+    "night_03": 221090.0
    }
   },
   "meta": {
-   "input": "series",
-   "path": "<scratch>/c7/series.json/c7_occupancy.json",
-   "series_meta": {
-    "source": "journal:<scratch>/c7/occupancy.npz",
+   "input": "journal",
+   "path": "<scratch>/d66/occ_base.npz",
+   "n_samples": 24,
+   "n_cells": 520,
+   "journal_meta": {
     "tick_seconds": 60,
     "start_hour": 0,
     "day_index": 0
-   },
-   "area_attr_counts": [
-    [
-     244388.0,
-     41503.0,
-     162680.0
-    ],
-    [
-     1878963.0,
-     150789.0,
-     463815.0
-    ],
-    [
-     442856.0,
-     62265.0,
-     257812.0
-    ],
-    [
-     624146.0,
-     37499.0,
-     76518.0
-    ],
-    [
-     833468.0,
-     93348.0,
-     248986.0
-    ]
-   ]
+   }
   }
  },
  "comparison": [
   {
    "metric": "在圏 09時 5エリア(換算) 対 昼間人口",
-   "before": 253757.0,
+   "before": 264075.4,
    "after": 172265.0,
-   "delta": -81492.0,
+   "delta": -91810.4,
    "target": 130167.0,
    "band": null,
    "direction": null,
-   "gap_before": 123590.0,
+   "gap_before": 133908.4,
    "gap_after": 42098.0,
    "closer": true,
    "note": "対 昼間人口 130,167(中核9町丁目 1.39 km²・anchor)"
   },
   {
    "metric": "在圏 09時 5エリア(換算) 対 PT ピーク",
-   "before": 253757.0,
+   "before": 264075.4,
    "after": 172265.0,
-   "delta": -81492.0,
+   "delta": -91810.4,
    "target": 145000.0,
    "band": null,
    "direction": null,
-   "gap_before": 108757.0,
+   "gap_before": 119075.4,
    "gap_after": 27265.0,
    "closer": true,
    "note": "対 日中滞在者ピーク 145,000(渋谷駅周辺 約139 ha・anchor)"
   },
   {
    "metric": "在圏 03時 5エリア(換算) 対 常住",
-   "before": 212487.0,
+   "before": 221090.0,
    "after": 29322.0,
-   "delta": -183165.0,
+   "delta": -191768.0,
    "target": 8810.0,
    "band": null,
    "direction": null,
-   "gap_before": 203677.0,
+   "gap_before": 212280.0,
    "gap_after": 20512.0,
    "closer": true,
    "note": "対 常住 8,810(anchor・下限側の目安)"
   },
   {
    "metric": "在圏 03時 5エリア(換算) 対 深夜在圏帯",
-   "before": 212487.0,
+   "before": 221090.0,
    "after": 29322.0,
-   "delta": -183165.0,
+   "delta": -191768.0,
    "target": null,
    "band": [
     15000.0,
     30000.0
    ],
    "direction": null,
-   "gap_before": 182487.0,
+   "gap_before": 191090.0,
    "gap_after": 0.0,
    "closer": true,
    "note": "対 深夜在圏推定 1.5〜3 万人(estimate)"
   },
   {
    "metric": "昼夜比 09/03",
-   "before": 1.1942,
+   "before": 1.1944,
    "after": 5.8749,
-   "delta": 4.6807,
+   "delta": 4.6805,
    "target": 14.8,
    "band": null,
    "direction": null,
-   "gap_before": 13.6058,
+   "gap_before": 13.6056,
    "gap_after": 8.9251,
    "closer": true,
    "note": "対 昼夜間人口比率 14.8(anchor)"
   },
   {
    "metric": "昼夜比 12/03",
-   "before": 1.1426,
+   "before": 1.0829,
    "after": 7.6271,
-   "delta": 6.4845,
+   "delta": 6.5442,
    "target": 14.8,
    "band": null,
    "direction": null,
-   "gap_before": 13.6574,
+   "gap_before": 13.7171,
    "gap_after": 7.1729,
    "closer": true,
    "note": "同上(12時版)"
   },
   {
    "metric": "03時 D-66 種別 在圏(換算)",
-   "before": null,
+   "before": 195735.6,
    "after": 15855.0,
-   "delta": null,
+   "delta": -179880.6,
    "target": null,
    "band": null,
    "direction": "lower",
    "gap_before": null,
    "gap_after": null,
-   "closer": null,
+   "closer": true,
    "note": "通勤+来街3種+乗務。域外常住のはずの種別=減るほど D-66 の意図に近い"
   },
   {
    "metric": "03時 D-66 種別 全体比",
-   "before": null,
+   "before": 0.8853,
    "after": 0.5407,
-   "delta": null,
+   "delta": -0.3446,
    "target": null,
    "band": null,
    "direction": "lower",
    "gap_before": null,
    "gap_after": null,
-   "closer": null,
+   "closer": true,
    "note": "同 5エリア在圏に占める割合"
   },
   {
    "metric": "03時 通勤 在圏(生)",
-   "before": null,
+   "before": 1667.0,
    "after": 2913.0,
-   "delta": null,
+   "delta": 1246.0,
    "target": null,
    "band": null,
    "direction": "lower",
    "gap_before": null,
    "gap_after": null,
-   "closer": null,
+   "closer": false,
    "note": "5エリア内・縮尺前"
   },
   {
    "metric": "03時 来街 在圏(生)",
-   "before": null,
+   "before": 222.0,
    "after": 66.0,
-   "delta": null,
+   "delta": -156.0,
    "target": null,
    "band": null,
    "direction": "lower",
    "gap_before": null,
    "gap_after": null,
-   "closer": null,
+   "closer": true,
    "note": "5エリア内・縮尺前"
   },
   {
    "metric": "03時 定期来街 在圏(生)",
-   "before": null,
+   "before": 69.0,
    "after": 24.0,
-   "delta": null,
+   "delta": -45.0,
    "target": null,
    "band": null,
    "direction": "lower",
    "gap_before": null,
    "gap_after": null,
-   "closer": null,
+   "closer": true,
    "note": "5エリア内・縮尺前"
   },
   {
    "metric": "03時 訪日 在圏(生)",
-   "before": null,
+   "before": 66.0,
    "after": 12843.0,
-   "delta": null,
+   "delta": 12777.0,
    "target": null,
    "band": null,
    "direction": "lower",
    "gap_before": null,
    "gap_after": null,
-   "closer": null,
+   "closer": false,
    "note": "5エリア内・縮尺前"
   },
   {
    "metric": "03時 乗務 在圏(生)",
-   "before": null,
+   "before": 485.0,
    "after": 9.0,
-   "delta": null,
+   "delta": -476.0,
    "target": null,
    "band": null,
    "direction": "lower",
    "gap_before": null,
    "gap_after": null,
-   "closer": null,
+   "closer": true,
    "note": "5エリア内・縮尺前"
   },
   {
@@ -1166,60 +1239,60 @@
   },
   {
    "metric": "距離 09時/現実(core9)",
-   "before": 1.9495,
+   "before": 2.0287,
    "after": 1.3234,
-   "delta": -0.6261,
+   "delta": -0.7053,
    "target": 1.0,
    "band": null,
    "direction": null,
-   "gap_before": 0.9495,
+   "gap_before": 1.0287,
    "gap_after": 0.3234,
    "closer": true,
    "note": "1.0 が一致・>1 が過大"
   },
   {
    "metric": "距離 09時/現実(PT)",
-   "before": 1.75,
+   "before": 1.8212,
    "after": 1.188,
-   "delta": -0.562,
+   "delta": -0.6332,
    "target": 1.0,
    "band": null,
    "direction": null,
-   "gap_before": 0.75,
+   "gap_before": 0.8212,
    "gap_after": 0.188,
    "closer": true,
    "note": "同上"
   },
   {
    "metric": "距離 03時/常住 8,810",
-   "before": 24.1188,
+   "before": 25.0953,
    "after": 3.3283,
-   "delta": -20.7905,
+   "delta": -21.767,
    "target": 1.0,
    "band": null,
    "direction": null,
-   "gap_before": 23.1188,
+   "gap_before": 24.0953,
    "gap_after": 2.3283,
    "closer": true,
    "note": "1.0 が常住と同数"
   },
   {
    "metric": "距離 03時/推定上限 30,000",
-   "before": 7.0829,
+   "before": 7.3697,
    "after": 0.9774,
-   "delta": -6.1055,
+   "delta": -6.3923,
    "target": 1.0,
    "band": null,
    "direction": null,
-   "gap_before": 6.0829,
+   "gap_before": 6.3697,
    "gap_after": 0.0226,
    "closer": true,
    "note": "1.0 が推定帯の上端"
   }
  ],
  "comparison_counts": {
-  "judged": 13,
-  "closer": 12,
-  "unjudged": 10
+  "judged": 20,
+  "closer": 17,
+  "unjudged": 3
  }
 }
