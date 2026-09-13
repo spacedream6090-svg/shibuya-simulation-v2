@@ -1,4 +1,6 @@
-# holdout 照合の事前登録 v1 — 腕集合・指標・開封の手順(2026-09-13・第173)
+# holdout 照合の事前登録 v1.1 — 腕集合・指標・開封の手順(2026-09-13・第173/v1.1 2026-09-14・第176)
+
+> **v1.1(開封前の版上げ・§5)**: 層2 の独立検収(c7-day-4・[accept_c7-day-4/layer2_review.md](accept_c7-day-4/layer2_review.md))の指摘 A への手当て。(1) 開封記録 `holdout_open_record.json` は 2 本目以降の `--force` で上書きせず `previous_openings` に履歴として残す(`holdout_compare.write_open_record`・テスト付き)。(2) SEAL 行の manifest を固定: 主張腕は `--manifest docs/bench/c7/accept_c7-day-4/checkpoints.json --write-manifest --run-id c7-day-4`(受入記録の写しに書く・サーバーの生成物は触らない)。他腕は `--manifest` なし・`--run-id <腕名>`。腕集合・指標・合格線は v1 から変えない。
 
 > 位置づけ: 封印層 `kddi_la`(`data/world/v2/w19_freeze.json` の `holdout_seal`)を **1 回だけ開ける**ときに、何を・どの腕で・どう照合するかを開封前に固定する文書。ユーザー決定 A1 (b)(第172→第173「推奨の順序で」)。本書のコミット後に変えた腕は照合の主張に使えない(§5)。指標の合格線は `tools/c7/c7lib.PREREG_V0`(D-40 (a)・案どおり)を**そのまま**使い、本書で数値を変えない。
 
@@ -32,7 +34,7 @@
 1. c7-day-4 完走 → 受入表 `tools/c7/c7_accept.py`(HOLD/SEAL 以外の判定行が PASS)→ T2-c テープ再生の一致 → 在圏の物差し(c7-day-3 との前後比較)→ 層2(別 Fable)の独立検収(受入表と読み口 v2.1)。
 2. 各腕の series JSON を作る(c7-day-2 は `docs/bench/c7/occupancy_series_c7-day-2.json` が既にある)。
 3. **ユーザーの明示**(「開けてよい」)を待つ。親は実行の直前に確認する(D-43)。
-4. 同一セッションで `tools/c7/holdout_compare.py --open-seal` を **主張腕 c7-day-4 から**呼び(開封記録 `docs/bench/c7/holdout_open_record.json`・manifest へ書く)、続けて c7-day-3・c7-day-2(・回してあれば c7-day-5)を `--force` で呼ぶ。`--force` の理由は「事前登録 v1 の腕集合の同一セッション照合」と登録簿に書く。生データを読む回数は腕の数だけだが、腕は本書で固定済みなので 1 回の開封と同義。
+4. 同一セッションで `tools/c7/holdout_compare.py --open-seal` を **主張腕 c7-day-4 から**呼ぶ(`--run-id c7-day-4 --manifest docs/bench/c7/accept_c7-day-4/checkpoints.json --write-manifest --out docs/bench/c7/holdout/c7-day-4`・開封記録 `docs/bench/c7/holdout_open_record.json` の初回=forced=false)。続けて c7-day-3・c7-day-2(・回してあれば c7-day-5)を `--force --run-id <腕名> --out docs/bench/c7/holdout/<腕名>` で呼ぶ(記録は `previous_openings` に積まれ初回の証跡が残る・v1.1)。`--force` の理由は「事前登録 v1.1 の腕集合の同一セッション照合」と登録簿(PENDING D-43 の行)に書く。生データを読む回数は腕の数だけだが、腕は本書で固定済みなので 1 回の開封と同義。
 5. 結果は `docs/bench/c7/holdout/` に腕ごとの表+腕間の差(c7-day-2→3=計画実行層の効果・3→4=読み口 v2.1 の効果・4→5=出勤率の感度)。受入表 HOLD/SEAL 行を埋める。
 
 ## 4 開封前に書いておく予想(外れたら外れたと書く)

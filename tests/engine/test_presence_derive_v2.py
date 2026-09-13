@@ -314,6 +314,28 @@ def test_v21_a_move_only_anchored_run_without_rides_vanishes():
     assert spans(v21) == []
 
 
+def test_v21_a_move_only_run_next_to_a_ride_on_one_side_only_also_vanishes():
+    """層2 指摘 B(第176): 移動/支度だけのランは**両側とも**乗車行に隣接しない限り消える。"""
+    one_side = [
+        (0, 0, 460, ACT_SLEEP, PK_HOME, -1),
+        (0, 460, 500, ACT_RIDE, PK_OUT, -1),
+        (0, 500, 560, ACT_MOVE, PK_STATION, 7),   # 直前だけ乗車
+        (0, 560, 1_440, ACT_REST, PK_OUT, -1),
+    ]
+    _, v2, v21 = three(one_side)
+    assert spans(v2) == [(500, 560)]
+    assert spans(v21) == []
+    both_sides = [
+        (0, 0, 460, ACT_SLEEP, PK_HOME, -1),
+        (0, 460, 500, ACT_RIDE, PK_OUT, -1),
+        (0, 500, 560, ACT_MOVE, PK_STATION, 7),   # 乗り換えの歩き(両側乗車)
+        (0, 560, 600, ACT_RIDE, PK_OUT, -1),
+        (0, 600, 1_440, ACT_REST, PK_HOME, -1),
+    ]
+    _, v2b, v21b = three(both_sides)
+    assert spans(v2b) == spans(v21b) == [(500, 560)]
+
+
 def test_v21_does_not_touch_mid_run_moves_or_in_area_residents():
     rows = [
         (0, 0, 420, ACT_SLEEP, PK_HOME, -1),

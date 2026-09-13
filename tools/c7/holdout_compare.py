@@ -13,7 +13,7 @@
 1. ``--open-seal`` を**明示**しないと 1 バイトも読まない(付け忘れで開くことがない)。
 2. ``W19`` の封印(``data/world/v2/w19_freeze.json`` の ``holdout_seal``)を先に読み、
    メンバーの **sha256 が封印時と一致**することを確認する(取り違え・差し替えの検出)。
-3. **開封記録**(``holdout_open_record.json``)を書く。既に記録があれば ``--force``
+3. **開封記録**(``holdout_open_record.json``)を書く(既存の記録は ``previous_openings`` に残る・第176)。既に記録があれば ``--force``
    なしでは**拒否**する(=「事後1回のみ」の機械的な担保)。
 4. ``--manifest <run_manifest.json> --write-manifest`` を付けたときだけ、その manifest へ
    ``holdout_open`` 欄を足す。既定は**記録ファイルだけ**を書き、manifest へ入れる断片を印字する。
@@ -163,9 +163,21 @@ def guard_open(record_path: str | Path, *, open_seal: bool, force: bool) -> dict
 
 
 def write_open_record(record_path: str | Path, payload: Mapping[str, Any]) -> Path:
+    """開封記録を書く。**既存の記録は消さず** ``previous_openings``(古い順)に積む。
+
+    第176(層2 指摘 A): 事前登録した腕を同一セッションで続けて照合すると 2 本目以降は ``--force`` で
+    通るが、上書きすると主張腕の初回開封(forced=false)の証跡が消える。最上位は常に最新の開封・
+    ``previous_openings[0]`` が初回。
+    """
     p = Path(record_path)
     p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
+    doc = dict(payload)
+    prev = read_open_record(p)
+    if prev is not None:
+        hist = list(prev.get("previous_openings", []))
+        hist.append({k: v for k, v in prev.items() if k != "previous_openings"})
+        doc["previous_openings"] = hist
+    p.write_text(json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8")
     return p
 
 

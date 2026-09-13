@@ -30,6 +30,22 @@ def test_guard_allows_first_open(hold, tmp_path):
     assert hold.guard_open(tmp_path / "rec.json", open_seal=True, force=False) is None
 
 
+def test_second_write_keeps_the_first_record_in_history(hold, tmp_path):
+    """第176(層2 指摘 A): --force の 2 本目で主張腕の初回開封の証跡が消えない。"""
+    import json
+
+    rec = tmp_path / "rec.json"
+    hold.write_open_record(rec, {"opened_utc": "2026-09-14T00:00:00Z", "run_id": "c7-day-4", "forced": False})
+    assert hold.guard_open(rec, open_seal=True, force=True)["run_id"] == "c7-day-4"
+    hold.write_open_record(rec, {"opened_utc": "2026-09-14T00:10:00Z", "run_id": "c7-day-3", "forced": True})
+    hold.write_open_record(rec, {"opened_utc": "2026-09-14T00:20:00Z", "run_id": "c7-day-2", "forced": True})
+    doc = json.loads(rec.read_text(encoding="utf-8"))
+    assert doc["run_id"] == "c7-day-2" and doc["forced"] is True
+    assert [h["run_id"] for h in doc["previous_openings"]] == ["c7-day-4", "c7-day-3"]
+    assert doc["previous_openings"][0]["forced"] is False
+    assert "previous_openings" not in doc["previous_openings"][1]
+
+
 def test_guard_refuses_second_open(hold, tmp_path):
     rec = tmp_path / "rec.json"
     hold.write_open_record(rec, {"opened_utc": "2026-09-09T00:00:00Z", "run_id": "r1"})

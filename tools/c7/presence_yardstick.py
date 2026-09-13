@@ -107,6 +107,14 @@ def check_anchors(doc: Mapping[str, Any]) -> None:
             raise ValueError(f"アンカー {key} に値(value/values/shares/low)が無い")
 
 
+def display_path(p: str | Path) -> str:
+    """記録に書くパス表記: リポ内なら ``<repo>/`` からの相対(個人ディレクトリ名を記録に残さない・第176)。"""
+    try:
+        return "<repo>/" + Path(p).resolve().relative_to(REPO_ROOT.resolve()).as_posix()
+    except (ValueError, OSError):
+        return str(p)
+
+
 def load_anchors(path: str | Path | None = None) -> dict[str, Any]:
     """アンカー台帳を読む。**必須欄が欠けていたら落とす**(推測で埋めない)。"""
     p = Path(path) if path else DEFAULT_ANCHORS_PATH
@@ -817,7 +825,7 @@ def build_payload(after: Presence, anchors: Mapping[str, Any], *, target: int,
     ma = measures(after, anchors, target=target)
     payload: dict[str, Any] = {
         "schema": "shibuya.tools.c7/presence_yardstick/1",
-        "anchors_path": anchors.get("_path", str(DEFAULT_ANCHORS_PATH)),
+        "anchors_path": display_path(anchors.get("_path", str(DEFAULT_ANCHORS_PATH))),
         "anchors_version": anchors.get("version", "?"),
         "anchors_echo": anchors_echo(anchors),
         "no_pass_line": "合格線は持たない=距離と『近づいたか』の bool のみ(判定は親)。",
