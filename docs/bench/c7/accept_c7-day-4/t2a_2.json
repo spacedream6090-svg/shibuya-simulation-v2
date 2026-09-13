@@ -1,0 +1,87 @@
+{
+ "schema": "shibuya.cli/checkpoints/1",
+ "run_id": "",
+ "n_agents": 5000,
+ "seed": 1,
+ "ticks": 1440,
+ "final_hash": "4fb0f2ec42ee57ab5fa7f82c5c8e123f52fcb82bd2428340c9ee8bd385d2dbcd",
+ "checkpoints": [
+  {
+   "tick": 359,
+   "agents_hash": "f784e8848b96ec07991454f2fbb354169bc6ea87c0aeb6f6cadf3dcf161541ed",
+   "world_hash": "07c61d9985bcf16f9104f223ed6266e55ec31df33fa19c4e0de6cf2e76935fbd",
+   "population_hash": "44e413cccb3386d631d616d2895a2abd9502a24814a19eec8a5c3d2edff3341c",
+   "schedule_hash": "1e964dad5a3b351f0f4113520c80b87455c8a0bc51b8493ec9edcd38ebf3bf99",
+   "combined": "32b7155c125df5eafaacb97dbcfc20fd2eb37c956202aab3804f068cf2f692e7"
+  },
+  {
+   "tick": 719,
+   "agents_hash": "d3163a89c7711ce0344e25b9f705cab0d649af1b526d443e8d57e0407b5d283d",
+   "world_hash": "ea2a761cb1bb576c2392802536f9ca114db5cbae5b8bbc6bfc35ff6dc5679c03",
+   "population_hash": "44e413cccb3386d631d616d2895a2abd9502a24814a19eec8a5c3d2edff3341c",
+   "schedule_hash": "1e964dad5a3b351f0f4113520c80b87455c8a0bc51b8493ec9edcd38ebf3bf99",
+   "combined": "3af458d900b33395aca123ff239d2bbdeb3a45ae3963722ec9ec301896838199"
+  },
+  {
+   "tick": 1079,
+   "agents_hash": "764c4fe9c115d46154bcc968bba93285bfe072ca795e897754d2b83b4ca2df90",
+   "world_hash": "5a20b67da87fffefd8dd288850f7a6c90a9c97a4e8a34787f9db0fb20864f280",
+   "population_hash": "44e413cccb3386d631d616d2895a2abd9502a24814a19eec8a5c3d2edff3341c",
+   "schedule_hash": "1e964dad5a3b351f0f4113520c80b87455c8a0bc51b8493ec9edcd38ebf3bf99",
+   "combined": "a477fb10cf230620fc4382acb6ffec937eb1a16b17d910ab40c3e6df8b0f9cc9"
+  },
+  {
+   "tick": 1439,
+   "agents_hash": "f6766b06b20700a0939e92679af6f411b56f4df71343ca48ddbe2ae27246cca6",
+   "world_hash": "65f9a30bd9b788f0c1d6aa6b91da055af73a7777ebbbf569d2116a42d0363d32",
+   "population_hash": "44e413cccb3386d631d616d2895a2abd9502a24814a19eec8a5c3d2edff3341c",
+   "schedule_hash": "1e964dad5a3b351f0f4113520c80b87455c8a0bc51b8493ec9edcd38ebf3bf99",
+   "combined": "4fb0f2ec42ee57ab5fa7f82c5c8e123f52fcb82bd2428340c9ee8bd385d2dbcd"
+  }
+ ],
+ "manifest": {
+  "registry_hash": "1a5fcb8ce4a7e24fea4edec40a6f3ca84f40601f37abf2320a3a1d7c31095743",
+  "replay_date": "2026-07-28",
+  "template_sha256": "161fe181bc325f003d874fb5c91e6142c01449fb09ac5f8b377b715a945608de",
+  "budget_mode": "fixed_slots",
+  "p_notice_ablation": "A4",
+  "p_notice_d50_scale": 1.0,
+  "refractory_scale": {},
+  "signage": true,
+  "sleep_suppression": true,
+  "plan_sleep": true,
+  "plan_executor": true,
+  "exit_mode": "immediate",
+  "attendance_rate": 1.0,
+  "derive_rule": "v2.1",
+  "outside_suppression": true,
+  "catalog_sha16": "34f9fa9d316587be",
+  "process_ids": [
+   "bus_taxi_operation",
+   "crowd_field",
+   "daynight_solar",
+   "delivery_inbound",
+   "delivery_last_mile",
+   "hotel_room_inventory",
+   "indoor_occupancy",
+   "infra_daily_load",
+   "large_event",
+   "press_official_release",
+   "public_service_dispatch",
+   "rail_operation_static",
+   "road_works_occupancy",
+   "shelf_stock_restock",
+   "store_opening",
+   "street_cleaning",
+   "vehicle_cross_section",
+   "waste_collection",
+   "weather"
+  ],
+  "ablations": [],
+  "frozen_sources": {
+   "w14_signage.parquet": "f2439da625729895b38e3321e393b8297a73b40d2cda5bea26f58100f3fb5f22",
+   "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+  },
+  "fleet": {}
+ }
+}
