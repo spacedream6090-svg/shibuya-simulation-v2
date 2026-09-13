@@ -38,7 +38,7 @@
   "label": "c7-day-3",
   "input": "journal",
   "path": "data/runs/c7-day-3/occupancy.npz",
-  "summary_path": "<scratch>/d68/c7-day-3.cli_summary.txt",
+  "summary_path": "docs/bench/c7/yardstick/after_c7-day-3_vs_c7-day-2/run_summary_c7-day-3.txt",
   "n_agents": 390067,
   "n_agents_source": "summary([run] n=)",
   "scale": {
@@ -293,6 +293,7 @@
      "kind": 0,
      "name": "通勤",
      "d66": true,
+     "lodging": false,
      "count_five_area": 2913.0,
      "share_of_five_area": 0.0993,
      "count_bbox": 3599.0,
@@ -302,6 +303,7 @@
      "kind": 1,
      "name": "来街",
      "d66": true,
+     "lodging": false,
      "count_five_area": 66.0,
      "share_of_five_area": 0.0023,
      "count_bbox": 189.0,
@@ -311,6 +313,7 @@
      "kind": 2,
      "name": "従業",
      "d66": false,
+     "lodging": false,
      "count_five_area": 2283.0,
      "share_of_five_area": 0.0779,
      "count_bbox": 7077.0,
@@ -320,6 +323,7 @@
      "kind": 3,
      "name": "住民",
      "d66": false,
+     "lodging": false,
      "count_five_area": 11093.0,
      "share_of_five_area": 0.3783,
      "count_bbox": 36534.0,
@@ -329,6 +333,7 @@
      "kind": 4,
      "name": "指令",
      "d66": false,
+     "lodging": false,
      "count_five_area": 0.0,
      "share_of_five_area": 0.0,
      "count_bbox": 0.0,
@@ -338,6 +343,7 @@
      "kind": 5,
      "name": "通学",
      "d66": false,
+     "lodging": false,
      "count_five_area": 91.0,
      "share_of_five_area": 0.0031,
      "count_bbox": 174.0,
@@ -347,6 +353,7 @@
      "kind": 6,
      "name": "定期来街",
      "d66": true,
+     "lodging": false,
      "count_five_area": 24.0,
      "share_of_five_area": 0.0008,
      "count_bbox": 65.0,
@@ -355,7 +362,8 @@
     {
      "kind": 7,
      "name": "訪日",
-     "d66": true,
+     "d66": false,
+     "lodging": true,
      "count_five_area": 12843.0,
      "share_of_five_area": 0.438,
      "count_bbox": 17344.0,
@@ -365,6 +373,7 @@
      "kind": 8,
      "name": "乗務",
      "d66": true,
+     "lodging": false,
      "count_five_area": 9.0,
      "share_of_five_area": 0.0003,
      "count_bbox": 12.0,
@@ -377,13 +386,12 @@
      "通勤",
      "来街",
      "定期来街",
-     "訪日",
      "乗務"
     ],
-    "count_five_area": 15855.0,
-    "share_of_five_area": 0.5407,
-    "count_five_area_scaled": 15855.0,
-    "note": "域外常住のはずの種別が深夜に域内に居る体数=D-66 の直接指標。"
+    "count_five_area": 3012.0,
+    "share_of_five_area": 0.1027,
+    "count_five_area_scaled": 3012.0,
+    "note": "域外常住のはずの種別が深夜に域内に居る体数=D-66 の直接指標(訪日は宿泊施設で就寝=参考行・判定外・第173)。"
    }
   },
   "wake_rate": {
@@ -513,8 +521,8 @@
  "before": {
   "label": "c7-day-2",
   "input": "series",
-  "path": "<scratch>/c7/series.json/c7_occupancy.json",
-  "summary_path": "<scratch>/d66/base_summary.txt",
+  "path": "docs/bench/c7/yardstick/after_c7-day-3_vs_c7-day-2/before_series_c7-day-2.json",
+  "summary_path": "C:/Users/塚本翔太/AppData/Local/Temp/claude/c--Users------Desktop-shibuya-simulation-v2/799ea253-f75e-43a9-9c26-1b82afc7aefe/scratchpad/d66/base_summary.txt",
   "n_agents": 390067,
   "n_agents_source": "cli",
   "scale": {
@@ -877,7 +885,7 @@
   },
   "meta": {
    "input": "series",
-   "path": "<scratch>/c7/series.json/c7_occupancy.json",
+   "path": "docs/bench/c7/yardstick/after_c7-day-3_vs_c7-day-2/before_series_c7-day-2.json",
    "series_meta": {
     "source": "journal:<scratch>/c7/occupancy.npz",
     "tick_seconds": 60,
@@ -998,7 +1006,7 @@
   {
    "metric": "03時 D-66 種別 在圏(換算)",
    "before": null,
-   "after": 15855.0,
+   "after": 3012.0,
    "delta": null,
    "target": null,
    "band": null,
@@ -1006,12 +1014,12 @@
    "gap_before": null,
    "gap_after": null,
    "closer": null,
-   "note": "通勤+来街3種+乗務。域外常住のはずの種別=減るほど D-66 の意図に近い"
+   "note": "通勤+来街+定期来街+乗務。域外常住のはずの種別=減るほど D-66 の意図に近い(訪日は宿泊施設で就寝=参考行・第173)"
   },
   {
    "metric": "03時 D-66 種別 全体比",
    "before": null,
-   "after": 0.5407,
+   "after": 0.1027,
    "delta": null,
    "target": null,
    "band": null,
@@ -1061,17 +1069,17 @@
    "note": "5エリア内・縮尺前"
   },
   {
-   "metric": "03時 訪日 在圏(生)",
+   "metric": "03時 訪日 在圏(生・参考)",
    "before": null,
    "after": 12843.0,
    "delta": null,
    "target": null,
    "band": null,
-   "direction": "lower",
+   "direction": null,
    "gap_before": null,
    "gap_after": null,
    "closer": null,
-   "note": "5エリア内・縮尺前"
+   "note": "宿泊施設で就寝する種別(訪日は全員に宿泊施設の就寝行)=舞台の中で寝るのが正当・判定に使わない(第173)"
   },
   {
    "metric": "03時 乗務 在圏(生)",

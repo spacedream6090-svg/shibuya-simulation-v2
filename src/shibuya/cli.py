@@ -373,10 +373,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     ap.add_argument(
         "--derive-rule",
-        choices=("v1", "v2"),
+        choices=("v1", "v2", "v2.1"),
         default="v2",
         help="在圏ブロックの読み口(設計書 §2 追補 2026-09-12)。v2=域外居住者の自宅側の行"
-             "(乗車前の「移動 駅」・帰りの乗車後の店)を在圏に読まない。v1=原則のまま",
+             "(乗車前の「移動 駅」・帰りの乗車後の店)を在圏に読まない。v2.1=v2+乗車に隣接"
+             "しない先頭/末尾の移動・支度をブロックから落とす(移動行=行程全体)。v1=原則のまま",
     )
     ap.add_argument(
         "--no-outside-suppression",

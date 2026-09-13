@@ -49,8 +49,10 @@ WORLD_DIR = Path(__file__).resolve().parents[2] / "data" / "world" / "v2"
 #: 実 W17 の golden(親再実行値・2026-09-12・第170)。キー= parquet md5 先頭 12 桁。
 #: 11a7129beaea = W17 v1(w17v1_backup/)/ 3113e9ba7abb = W17 v2(本番 第 2 回・昇格)。
 REAL_GOLDEN = {
-    "11a7129beaea": {"v1": [85_766, 214_998, 45_631, 50], "v2": [97_242, 247_395, 1_808, 0]},
-    "3113e9ba7abb": {"v1": [92, 160_033, 133_575, 47_861], "v2": [1_269, 254_605, 85_421, 5_076]},
+    "11a7129beaea": {"v1": [85_766, 214_998, 45_631, 50], "v2": [97_242, 247_395, 1_808, 0],
+                     "v2.1": [101_388, 244_874, 183, 0]},
+    "3113e9ba7abb": {"v1": [92, 160_033, 133_575, 47_861], "v2": [1_269, 254_605, 85_421, 5_076],
+                     "v2.1": [1_292, 255_230, 84_895, 4_961]},
 }
 
 
@@ -96,10 +98,16 @@ def both(rows, home_out=True):
     )
 
 
+def three(rows, home_out=True):
+    wk = make_weekly(rows, 1)
+    ho = np.asarray([home_out])
+    return tuple(PlanBlocks.from_weekly(wk, 0, ho, derive_rule=r) for r in ("v1", "v2", "v2.1"))
+
+
 # ================================================================= 既定と切替口
 def test_default_rule_is_v2_and_bad_rules_are_rejected():
     assert DERIVE_RULE_DEFAULT == "v2"
-    assert DERIVE_RULES == ("v1", "v2")
+    assert DERIVE_RULES == ("v1", "v2", "v2.1")
     assert set(ANCHOR_PLACE_KINDS) == {PK_WORK, PLACE_WORDS.index("学校"), PK_LODGING}
     wk = make_weekly([(0, 0, 1_440, ACT_SLEEP, PK_HOME, -1)], 1)
     assert PlanBlocks.from_weekly(wk, 0, np.array([True])).derive_rule == "v2"
@@ -244,13 +252,94 @@ def test_in_area_residents_read_exactly_as_v1():
     assert np.array_equal(v1.next_outside, v2.next_outside)
 
 
+# ================================================================= 読み口 v2.1(第173): 乗車に隣接しない先頭/末尾の移動・支度
+def test_v21_drops_the_journey_rows_of_a_commuter_who_wrote_no_rides():
+    """乗車を書かない域外居住者(本番 v2 表の 55.7%): 移動 駅→勤務*→移動 商業 は v2 で 1 本
+    (移動の頭から尻まで)・v2.1 は勤務の行だけ(移動行=行程全体=舞台の外)。"""
+    rows = [
+        (0, 0, 400, ACT_SLEEP, PK_HOME, -1),
+        (0, 400, 430, ACT_PREP, PK_HOME, -1),
+        (0, 430, 470, ACT_MOVE, PK_STATION, -1),   # 自宅→渋谷の行程
+        (0, 480, 1_050, ACT_WORK, PK_WORK, 3),
+        (0, 1_050, 1_090, ACT_MOVE, PK_SHOP, -1),   # 渋谷→自宅の行程
+        (0, 1_100, 1_440, ACT_REST, PK_HOME, -1),
+    ]
+    v1, v2, v21 = three(rows)
+    assert spans(v1) == spans(v2) == [(430, 1_090)]
+    assert spans(v21) == [(480, 1_050)]
+    assert v21.derive_rule == "v2.1"
+
+
+def test_v21_keeps_the_walk_from_and_to_the_station_when_rides_are_written():
+    """乗車→移動 駅→勤務*→移動 駅→乗車: 駅からの歩きは舞台の中=v2 と同じ 1 本。"""
+    rows = [
+        (0, 0, 400, ACT_SLEEP, PK_HOME, -1),
+        (0, 400, 430, ACT_MOVE, PK_STATION, -1),   # 自宅側の駅(v2 で落ちる)
+        (0, 430, 470, ACT_RIDE, PK_OUT, -1),
+        (0, 470, 480, ACT_MOVE, PK_STATION, -1),   # 渋谷駅から歩く(残す)
+        (0, 480, 1_050, ACT_WORK, PK_WORK, 3),
+        (0, 1_050, 1_060, ACT_MOVE, PK_STATION, -1),  # 渋谷駅へ歩く(残す)
+        (0, 1_060, 1_100, ACT_RIDE, PK_OUT, -1),
+        (0, 1_100, 1_440, ACT_REST, PK_HOME, -1),
+    ]
+    _, v2, v21 = three(rows)
+    assert spans(v2) == spans(v21) == [(470, 1_060)]
+
+
+def test_v21_trims_only_the_side_that_is_not_next_to_a_ride():
+    """行きは乗車を書き、帰りは書かない: 先頭は残し末尾の移動だけ落とす。支度も落とす。"""
+    rows = [
+        (0, 0, 400, ACT_SLEEP, PK_HOME, -1),
+        (0, 400, 440, ACT_RIDE, PK_OUT, -1),
+        (0, 440, 450, ACT_MOVE, PK_STATION, -1),
+        (0, 450, 1_000, ACT_SHOP, PK_SHOP, -1),
+        (0, 1_000, 1_020, ACT_PREP, PK_SHOP, -1),   # 末尾の支度(落とす)
+        (0, 1_020, 1_060, ACT_MOVE, PK_STATION, -1),  # 末尾の移動(落とす)
+        (0, 1_060, 1_440, ACT_REST, PK_HOME, -1),
+    ]
+    _, v2, v21 = three(rows)
+    assert spans(v2) == [(440, 1_060)]
+    assert spans(v21) == [(440, 1_000)]
+
+
+def test_v21_a_move_only_anchored_run_without_rides_vanishes():
+    """移動だけのラン(錨=cell≥0)で乗車に隣接しない: v2 は錨で残す・v2.1 は行程として落とす。"""
+    rows = [
+        (0, 0, 500, ACT_SLEEP, PK_HOME, -1),
+        (0, 500, 560, ACT_MOVE, PK_STATION, 7),
+        (0, 560, 1_440, ACT_REST, PK_OUT, -1),
+    ]
+    _, v2, v21 = three(rows)
+    assert spans(v2) == [(500, 560)]
+    assert spans(v21) == []
+
+
+def test_v21_does_not_touch_mid_run_moves_or_in_area_residents():
+    rows = [
+        (0, 0, 420, ACT_SLEEP, PK_HOME, -1),
+        (0, 420, 450, ACT_MOVE, PK_STATION, -1),
+        (0, 450, 700, ACT_SHOP, PK_SHOP, -1),
+        (0, 700, 730, ACT_MOVE, PK_FOOD, -1),      # ラン内の移動(触らない)
+        (0, 730, 900, ACT_EAT, PK_FOOD, -1),
+        (0, 900, 940, ACT_MOVE, PK_STATION, -1),
+        (0, 940, 1_440, ACT_REST, PK_HOME, -1),
+    ]
+    _, v2, v21 = three(rows)
+    assert spans(v2) == [(420, 940)]
+    assert spans(v21) == [(450, 900)]
+    v1i, v2i, v21i = three(rows, home_out=False)
+    assert spans(v1i) == spans(v2i) == spans(v21i) == [(0, 1_440)]
+    assert np.array_equal(v1i.next_outside, v21i.next_outside)
+
+
 # ================================================================= 実 W17(v1 表)の golden
 @pytest.mark.skipif(not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="W17 が無い")
 def test_v2_rule_on_the_real_w17_matches_the_parent_verified_counts():
     """親検証値(2026-09-12・全 390,067 体・day0)。表ごとに golden を持つ(``REAL_GOLDEN``・第170):
     W17 v1: v1 読み口 [85,766 / 214,998 / 45,631 / 50] → v2 読み口 [97,242 / 247,395 / 1,808 / 0]
     W17 v2: v1 読み口 [92 / 160,033 / 133,575 / 47,861] → v2 読み口 [1,269 / 254,605 / 85,421 / 5,076]
-    域内居住者のブロックはどちらの表でも v1 と同一。
+    v2.1(第173): W17 v1 [101,388 / 244,874 / 183 / 0]・W17 v2 [1,292 / 255,230 / 84,895 / 4,961]
+    域内居住者のブロックはどの表・どの読み口でも v1 と同一。
     """
     from shibuya.agents.population import load_population
     from shibuya.agents.weekly import load_weekly
@@ -260,13 +349,20 @@ def test_v2_rule_on_the_real_w17_matches_the_parent_verified_counts():
     ho = np.asarray(full.home_cell) < 0
     b1 = PlanBlocks.from_weekly(wk, 0, ho, derive_rule="v1")
     b2 = PlanBlocks.from_weekly(wk, 0, ho, derive_rule="v2")
-    p1, p2 = b1.blocks_per_agent(), b2.blocks_per_agent()
+    b3 = PlanBlocks.from_weekly(wk, 0, ho, derive_rule="v2.1")
+    p1, p2, p3 = b1.blocks_per_agent(), b2.blocks_per_agent(), b3.blocks_per_agent()
     g = REAL_GOLDEN.get(_w17_digest())
     if g is None:
         pytest.skip(f"実 W17 の golden が無い(md5 {_w17_digest()})=親が再実行して REAL_GOLDEN に足す")
     assert np.bincount(p1[ho], minlength=4)[:4].tolist() == g["v1"]
     assert np.bincount(p2[ho], minlength=4)[:4].tolist() == g["v2"]
+    assert np.bincount(p3[ho], minlength=4)[:4].tolist() == g["v2.1"]
     assert np.array_equal(p1[~ho], p2[~ho])
-    m1, m2 = np.repeat(~ho, p1), np.repeat(~ho, p2)
+    assert np.array_equal(p1[~ho], p3[~ho])
+    m1, m2, m3 = np.repeat(~ho, p1), np.repeat(~ho, p2), np.repeat(~ho, p3)
     assert np.array_equal(b1.start[m1], b2.start[m2])
     assert np.array_equal(b1.end[m1], b2.end[m2])
+    assert np.array_equal(b1.start[m1], b3.start[m3])
+    assert np.array_equal(b1.end[m1], b3.end[m3])
+    # v2.1 は v2 のブロックを縮める方向にしか動かない(域外居住者・本数は減るか同じ)
+    assert int(p3[ho].sum()) <= int(p2[ho].sum())

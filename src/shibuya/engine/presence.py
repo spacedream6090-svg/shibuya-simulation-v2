@@ -94,7 +94,11 @@ PREP_ACTIVITY_CODE: Final[int] = ACTIVITY_WORDS.index("支度")
 #: ``"v2"`` = W17 v2 の語彙(場所語が域内/域外を持たない)で、域外居住者の**自宅側の行**
 #: (乗車の前の「移動 駅」・帰りの乗車の後の「食事 飲食店」など)を在圏に読まない。
 #: 域内居住者の読み方は v1 と同一。
-DERIVE_RULES: Final[tuple[str, ...]] = ("v1", "v2")
+#: ``"v2.1"`` = v2 に加えて、域外居住者のランの**先頭/末尾の非滞在行(移動・支度)で乗車行に
+#: 隣接しないもの**をブロックから落とす(移動行は「行程全体」と読む=着いた時刻が行の終わり・
+#: 発つ時刻が行の始まり)。第170 の計測: 本番 v2 表のブロック 440,971 本のうち先頭が乗車なしの
+#: 移動 48.4%(中央値 40 分早く在圏に入る)・末尾が乗車なしの移動 26.3%(40 分遅く出る)。
+DERIVE_RULES: Final[tuple[str, ...]] = ("v1", "v2", "v2.1")
 DERIVE_RULE_DEFAULT: Final[str] = "v2"
 #: 読み口 v2 の「錨」= 舞台に居るとしか読めない行: ``target_cell ≥ 0`` か、場所が
 #: 職場/学校/宿泊施設(W16 の勤務先・学校・宿は舞台の中)。
@@ -105,6 +109,8 @@ ANCHOR_PLACE_KINDS: Final[tuple[int, ...]] = tuple(
 NON_STAY_ACTIVITY_CODES: Final[tuple[int, ...]] = (
     RIDE_ACTIVITY_CODE, MOVE_ACTIVITY_CODE, PREP_ACTIVITY_CODE,
 )
+#: 読み口 v2.1 がランの先頭/末尾から落とす活動(移動・支度)。乗車行は v1 の時点で在圏でない。
+EDGE_TRIM_ACTIVITY_CODES: Final[tuple[int, ...]] = (MOVE_ACTIVITY_CODE, PREP_ACTIVITY_CODE)
 
 #: 「次の行」を探すときに飛ばせる連続乗車行の上限(逐次ループの上界・expedient)。
 _MAX_RIDE_RUN: Final[int] = 8
@@ -259,6 +265,82 @@ def _apply_derive_v2(rows, live, home_out, act, pk, cell):
     return out
 
 
+def _trim_nonstay_edges(rows, live, home_out, act, pk):
+    """読み口 v2.1: 域外居住者のランの先頭/末尾の非滞在行(移動・支度)で**乗車行に隣接しない**
+    ものを落とす。
+
+    入力は (体行, 開始分) 昇順の当日行。``live`` は v2 までを適用した在圏行。
+    **域内居住者の行は変更しない**。ループなし(cumsum / bincount)。
+
+    規則(域外居住者だけ):
+      - ラン = ``live`` の連続行。先頭側 = ランの頭から続く 移動/支度 の行。末尾側 = ランの尻から
+        続く 移動/支度 の行。ランが全部 移動/支度 なら両側が全行。
+      - 直前の行(同じ体)が乗車行(「乗車」または「移動・域外」)なら先頭側は残す
+        (駅から歩いた=舞台の中)。直後の行が乗車行なら末尾側は残す。それ以外は落とす
+        (自宅から舞台までの行程・舞台から自宅までの行程=舞台の外)。
+      - 落とした結果ランが空になることがある(移動だけのランで錨(cell≥0)があった場合)。
+
+    Args:
+        rows / live / act / pk: 当日行の体行・在圏・活動・場所。
+        home_out: ``(n_agents,)`` bool。
+
+    Returns:
+        v2.1 の在圏行 ``(rows.size,)`` bool。
+    """
+    n_rows = int(rows.size)
+    if n_rows == 0:
+        return live
+    same_prev = np.empty(n_rows, dtype=bool)
+    same_prev[0] = False
+    same_prev[1:] = rows[1:] == rows[:-1]
+    same_next = np.empty(n_rows, dtype=bool)
+    same_next[-1] = False
+    same_next[:-1] = same_prev[1:]
+    is_ride = (act == RIDE_ACTIVITY_CODE) | (
+        (act == MOVE_ACTIVITY_CODE) & (pk == PLACE_KIND_OUTSIDE)
+    )
+    prev_ride = np.empty(n_rows, dtype=bool)
+    prev_ride[0] = False
+    prev_ride[1:] = is_ride[:-1]
+    prev_ride &= same_prev
+    next_ride = np.empty(n_rows, dtype=bool)
+    next_ride[-1] = False
+    next_ride[:-1] = is_ride[1:]
+    next_ride &= same_next
+    # ---- ラン(在圏の連続行)と、ラン内の「滞在行の累積数」 ----
+    prev_live = np.empty(n_rows, dtype=bool)
+    prev_live[0] = False
+    prev_live[1:] = live[:-1]
+    head = live & ~(prev_live & same_prev)
+    n_runs = int(np.count_nonzero(head))
+    if n_runs == 0:
+        return live
+    run_id = np.cumsum(head.astype(np.int64)) - 1
+    next_live = np.empty(n_rows, dtype=bool)
+    next_live[-1] = False
+    next_live[:-1] = live[1:]
+    tail = live & ~(next_live & same_next)
+    edge_act = np.isin(act, np.asarray(EDGE_TRIM_ACTIVITY_CODES, dtype=act.dtype))
+    stay_row = live & ~edge_act
+    c = np.cumsum(stay_row.astype(np.int64))
+    rid = np.where(live, run_id, 0)
+    c_head = np.zeros(n_runs, dtype=np.int64)
+    c_head[run_id[head]] = c[head] - stay_row[head]
+    c_rel = np.where(live, c - c_head[rid], 0)
+    run_total = np.bincount(run_id[stay_row], minlength=n_runs)
+    leading = live & edge_act & (c_rel == 0)
+    trailing = live & edge_act & (c_rel == run_total[rid])
+    run_prev_ride = np.zeros(n_runs, dtype=bool)
+    run_prev_ride[run_id[head]] = prev_ride[head]
+    run_next_ride = np.zeros(n_runs, dtype=bool)
+    run_next_ride[run_id[tail]] = next_ride[tail]
+    drop = (leading & ~run_prev_ride[rid]) | (trailing & ~run_next_ride[rid])
+    drop &= home_out[rows]  # 域内居住者は触らない
+    out = live.copy()
+    out[drop] = False
+    return out
+
+
 @dataclass(frozen=True)
 class PlanBlocks:
     """**在圏ブロック**(その体がその日「舞台に居る」連続区間)の CSR。
@@ -290,7 +372,8 @@ class PlanBlocks:
     next_outside: np.ndarray | None = None
     mode: str = "derive"
     count_transit: bool = False
-    #: 読み口(``DERIVE_RULES``)。v2 = §2 追補(域外居住者の自宅側の行を在圏に読まない)。
+    #: 読み口(``DERIVE_RULES``)。v2 = §2 追補(域外居住者の自宅側の行を在圏に読まない)・
+    #: v2.1 = v2+乗車に隣接しない先頭/末尾の移動・支度を落とす(``_trim_nonstay_edges``)。
     derive_rule: str = DERIVE_RULE_DEFAULT
 
     @property
@@ -345,7 +428,8 @@ class PlanBlocks:
             mode: ``"derive"``(現行 W17 を畳む)/ ``"native"``(``block_kind`` 列を読む・**未実装**)。
             count_transit: True なら「乗車」行も在圏に数える(E5 の帰無側)。
             exclude: ``(n_agents,)`` bool。True の体は**ブロック 0 本**にする(E6 出勤率)。
-            derive_rule: 読み口(``"v1"`` / ``"v2"``・既定 v2・``_apply_derive_v2``)。
+            derive_rule: 読み口(``"v1"`` / ``"v2"`` / ``"v2.1"``・既定 v2・
+                ``_apply_derive_v2`` / ``_trim_nonstay_edges``)。
 
         Returns:
             ``PlanBlocks``。
@@ -401,8 +485,10 @@ class PlanBlocks:
             live &= act != RIDE_ACTIVITY_CODE
         live &= ~(ho[rows] & (pk == PLACE_KIND_HOME))  # 域外居住者の「自宅」行は域外
         live &= ~ex[rows]
-        if derive_rule == "v2":
+        if derive_rule in ("v2", "v2.1"):
             live = _apply_derive_v2(rows, live, ho, act, pk, cell)
+        if derive_rule == "v2.1":
+            live = _trim_nonstay_edges(rows, live, ho, act, pk)
 
         same = np.empty(rows.size, dtype=bool)
         same[0] = False

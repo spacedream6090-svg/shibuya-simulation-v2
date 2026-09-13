@@ -243,7 +243,7 @@ def test_kind_at_03_breakdown(yard, anchors, amap, tmp_path):
         assert row["count_five_area"] == pytest.approx(float(KIND_W[i] * 6))
         assert row["count_bbox"] == pytest.approx(float(KIND_W[i] * 11))
         assert row["d66"] == (i in yard.D66_KINDS)
-    d66 = float(KIND_W[list(yard.D66_KINDS)].sum() * 6)   # (3+2+1+1+2)*6 = 54
+    d66 = float(KIND_W[list(yard.D66_KINDS)].sum() * 6)   # (3+2+1+2)*6 = 48(訪日は外す・第173)
     assert k["d66_total"]["count_five_area"] == pytest.approx(d66)
     assert k["d66_total"]["share_of_five_area"] == pytest.approx(d66 / 96.0, rel=1e-3)
 
@@ -309,10 +309,13 @@ def test_before_after_delta_and_closer(yard, anchors, amap, tmp_path):
     assert day["gap_after"] < day["gap_before"]
     # 03 時の D-66 種別は 0 になった → 減った=近づいた
     d66 = rows["03時 D-66 種別 在圏(換算)"]
-    assert d66["before"] == pytest.approx(54.0)
+    assert d66["before"] == pytest.approx(48.0)
     assert d66["after"] == pytest.approx(0.0)
     assert d66["delta"] < 0 and d66["closer"] is True
     assert rows["03時 通勤 在圏(生)"]["closer"] is True
+    # 訪日は宿泊施設で就寝=参考行(判定外・第173): 行は出るが closer は None
+    assert "03時 訪日 在圏(生)" not in rows
+    assert rows["03時 訪日 在圏(生・参考)"]["closer"] is None
     # 判定できない行(アンカー無し)は closer=None
     assert payload["comparison_counts"]["judged"] < len(payload["comparison"]) or True
     assert payload["comparison_counts"]["closer"] >= 3

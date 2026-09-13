@@ -68,9 +68,13 @@ KIND_JA: tuple[str, ...] = (
 )
 N_KINDS = len(KIND_JA)
 
-#: D-66 の直接指標になる種別 = **域外常住のはずの種別**(通勤・来街3種・乗務)。
+#: D-66 の直接指標になる種別 = **域外常住のはずの種別**(通勤・来街・定期来街・乗務)。
 #: 深夜に域内に居れば居るほど「域外常住者が帰っていない」。
-D66_KINDS: tuple[int, ...] = (0, 1, 6, 7, 8)
+#: **訪日(7)は含めない**(第170 層2 指摘→第173 ユーザー決定 A3): W16 の訪日 17,404 体は全員に
+#: 宿泊施設の就寝行があり、舞台の中で寝るのが正当。参考行(``LODGING_KINDS``)として別掲し判定に使わない。
+D66_KINDS: tuple[int, ...] = (0, 1, 6, 8)
+#: 宿泊施設で就寝する種別(参考行・判定外)。
+LODGING_KINDS: tuple[int, ...] = (7,)
 
 #: 表に出す時刻(3 時間刻み)。
 REPORT_HOURS: tuple[int, ...] = (0, 3, 6, 9, 12, 15, 18, 21)
@@ -344,6 +348,7 @@ def _kind_rows(p: Presence, f: float | None) -> dict[str, Any] | None:
             "kind": i,
             "name": KIND_JA[i],
             "d66": i in D66_KINDS,
+            "lodging": i in LODGING_KINDS,
             "count_five_area": round(float(k5[i]), 1),
             "share_of_five_area": round(float(k5[i]) / tot5, 4) if tot5 > 0 else None,
             "count_bbox": None if kb is None else round(float(kb[i]), 1),
@@ -359,7 +364,8 @@ def _kind_rows(p: Presence, f: float | None) -> dict[str, Any] | None:
             "count_five_area": round(d66, 1),
             "share_of_five_area": round(d66 / tot5, 4) if tot5 > 0 else None,
             "count_five_area_scaled": None if f is None else round(d66 * f, 1),
-            "note": "域外常住のはずの種別が深夜に域内に居る体数=D-66 の直接指標。",
+            "note": "域外常住のはずの種別が深夜に域内に居る体数=D-66 の直接指標"
+                    "(訪日は宿泊施設で就寝=参考行・判定外・第173)。",
         },
     }
 
@@ -505,7 +511,8 @@ def metric_entries(m: Mapping[str, Any], anchors: Mapping[str, Any]) -> list[dic
             "value": (d["count_five_area_scaled"] if d["count_five_area_scaled"] is not None
                       else d["count_five_area"]),
             "direction": "lower",
-            "note": "通勤+来街3種+乗務。域外常住のはずの種別=減るほど D-66 の意図に近い"})
+            "note": "通勤+来街+定期来街+乗務。域外常住のはずの種別=減るほど D-66 の意図に近い"
+                    "(訪日は宿泊施設で就寝=参考行・第173)"})
         ent.append({"metric": "03時 D-66 種別 全体比", "value": d["share_of_five_area"],
                     "direction": "lower", "note": "同 5エリア在圏に占める割合"})
         for row in k["rows"]:
@@ -513,6 +520,11 @@ def metric_entries(m: Mapping[str, Any], anchors: Mapping[str, Any]) -> list[dic
                 ent.append({"metric": f"03時 {row['name']} 在圏(生)",
                             "value": row["count_five_area"], "direction": "lower",
                             "note": "5エリア内・縮尺前"})
+            elif row.get("lodging"):
+                ent.append({"metric": f"03時 {row['name']} 在圏(生・参考)",
+                            "value": row["count_five_area"],
+                            "note": "宿泊施設で就寝する種別(訪日は全員に宿泊施設の就寝行)"
+                                    "=舞台の中で寝るのが正当・判定に使わない(第173)"})
     w = m.get("wake_rate")
     if w:
         ent += [
@@ -693,18 +705,21 @@ def markdown(payload: Mapping[str, Any]) -> str:
         bmap = {r["name"]: r for r in (kb or {}).get("rows", [])}
         if cm and kb:
             head = ["種別", "D-66", "before", "after", "差", "before 全体比", "after 全体比"]
-            rows = [[r["name"], "★" if r["d66"] else "", _num(bmap.get(r["name"], {}).get(
+            rows = [[r["name"], "★" if r["d66"] else ("宿" if r.get("lodging") else ""),
+                     _num(bmap.get(r["name"], {}).get(
                 "count_five_area")), _num(r["count_five_area"]),
                 _delta(bmap.get(r["name"], {}).get("count_five_area"), r["count_five_area"]),
                 _num(bmap.get(r["name"], {}).get("share_of_five_area"), 4),
                 _num(r["share_of_five_area"], 4)] for r in ka["rows"]]
         else:
             head = ["種別", "D-66", "03時 5エリア", "全体比", f"{tgt:,}体換算", "bbox 全体"]
-            rows = [[r["name"], "★" if r["d66"] else "", _num(r["count_five_area"]),
+            rows = [[r["name"], "★" if r["d66"] else ("宿" if r.get("lodging") else ""),
+                     _num(r["count_five_area"]),
                      _num(r["share_of_five_area"], 4), _num(r["count_five_area_scaled"]),
                      _num(r["count_bbox"])] for r in ka["rows"]]
         out += [c7lib.markdown_table(head, rows), "",
-                f"★ = D-66 の直接指標(域外常住のはずの種別)。合計 "
+                f"★ = D-66 の直接指標(域外常住のはずの種別)・宿 = 宿泊施設で就寝する種別"
+                f"(参考・判定外・第173)。★ 合計 "
                 f"{_num(ka['d66_total']['count_five_area'])} 体 = 全体比 "
                 f"{_num(ka['d66_total']['share_of_five_area'], 4)}"
                 + (f"(before {_num(kb['d66_total']['count_five_area'])} 体・"
