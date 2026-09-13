@@ -155,14 +155,14 @@
  ],
  "outputs": [
   {
-   "path": "C:\\Users\\塚本翔太\\Desktop\\shibuya-simulation-v2\\data\\world\\v2\\trials\\p0b\\w17_trial_p0b_schedule.parquet",
+   "path": "<repo>/data\\world\\v2\\trials\\p0b\\w17_trial_p0b_schedule.parquet",
    "name": "w17_trial_p0b_schedule.parquet",
    "rows": 64919,
    "bytes": 99801,
    "sha256": "1c4b9b69e555f50c5119544fe749e2e4e9cc07da849f83b7d1c7eca7ee981aa9"
   },
   {
-   "path": "C:\\Users\\塚本翔太\\Desktop\\shibuya-simulation-v2\\data\\world\\v2\\trials\\p0b\\w17_trial_p0b_repaired_schedule.parquet",
+   "path": "<repo>/data\\world\\v2\\trials\\p0b\\w17_trial_p0b_repaired_schedule.parquet",
    "name": "w17_trial_p0b_repaired_schedule.parquet",
    "rows": 64555,
    "bytes": 103014,
@@ -172,7 +172,7 @@
  "prompts": {
   "arm": "p0b",
   "stage": 0,
-  "path": "C:\\Users\\塚本翔太\\Desktop\\shibuya-simulation-v2\\data\\world\\v2\\trials\\p0b\\w17_trial_p0b_prompts.jsonl",
+  "path": "<repo>/data\\world\\v2\\trials\\p0b\\w17_trial_p0b_prompts.jsonl",
   "name": "w17_trial_p0b_prompts.jsonl",
   "rows": 2000,
   "bytes": 7641214,

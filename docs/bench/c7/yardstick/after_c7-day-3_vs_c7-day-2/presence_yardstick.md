@@ -1,6 +1,6 @@
 # 在圏の物差し(presence yardstick) — c7-day-3 vs c7-day-2
 
-- アンカー台帳: `C:\Users\塚本翔太\Desktop\shibuya-simulation-v2\docs\bench\anchors\presence_anchors_v0.json`(v0)
+- アンカー台帳: `<repo>/docs\bench\anchors\presence_anchors_v0.json`(v0)
 - after: `data/runs/c7-day-3/occupancy.npz`(入力 journal・n_agents 390,067[summary([run] n=)]・縮尺 ×1.0000 → 390,067 体換算・**expedient**=線形)
 - before: `docs/bench/c7/yardstick/after_c7-day-3_vs_c7-day-2/before_series_c7-day-2.json`(入力 series・n_agents 390,067[cli]・縮尺 ×1.0000)
 - 現実側: 昼間人口 130,167 / 常住 8,810 / 昼夜比 14.8(中核9町丁目 1.39 km²)・PT 日中ピーク 145,000(約139 ha)・深夜在圏推定 15,000〜30,000(estimate)

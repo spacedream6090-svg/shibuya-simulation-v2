@@ -1,6 +1,6 @@
 {
  "schema": "shibuya.tools.c7/presence_yardstick/1",
- "anchors_path": "C:\\Users\\塚本翔太\\Desktop\\shibuya-simulation-v2\\docs\\bench\\anchors\\presence_anchors_v0.json",
+ "anchors_path": "<repo>/docs\\bench\\anchors\\presence_anchors_v0.json",
  "anchors_version": "v0",
  "anchors_echo": {
   "core9_daytime_population": 130167,
@@ -306,7 +306,7 @@
    "input": "series",
    "path": "docs/bench/c7/occupancy_series_c7-day-2.json",
    "series_meta": {
-    "source": "journal:C:/Users/塚本翔太/AppData/Local/Temp/claude/c--Users------Desktop-shibuya-simulation-v2/799ea253-f75e-43a9-9c26-1b82afc7aefe/scratchpad/c7/occupancy.npz",
+    "source": "journal:<scratch>/c7/occupancy.npz",
     "tick_seconds": 60,
     "start_hour": 0,
     "day_index": 0

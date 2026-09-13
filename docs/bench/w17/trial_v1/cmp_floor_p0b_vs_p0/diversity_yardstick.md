@@ -1,6 +1,6 @@
 # 行動多様性の物差し(diversity yardstick) — P0b_repaired vs P0_sub2000
 
-- アンカー台帳: `C:\Users\塚本翔太\Desktop\shibuya-simulation-v2\docs\bench\anchors\diversity_anchors_v0.json`(v0)・親一次確認**未**の項目 2 件: activity_set_jaccard_decay_lambda, song_top2_locations_share
+- アンカー台帳: `<repo>/docs\bench\anchors\diversity_anchors_v0.json`(v0)・親一次確認**未**の項目 2 件: activity_set_jaccard_decay_lambda, song_top2_locations_share
 - after: `data\world\v2\trials\p0b\w17_trial_p0b_repaired_schedule.parquet`(入力 parquet・体 2,000・行 64,555・種別不明 0)
 - before: `data\world\v2\trials\p0\w17_trial_p0_sub2000_schedule.parquet`(入力 parquet・体 2,000・行 64,655)
 - **合格線は書かない**。距離と「前より現実側へ近づいたか」の bool だけ(判定は親)。

@@ -1,6 +1,6 @@
 # 在圏の物差し(presence yardstick) — base(mock5000)
 
-- アンカー台帳: `C:\Users\塚本翔太\Desktop\shibuya-simulation-v2\docs\bench\anchors\presence_anchors_v0.json`(v0)
+- アンカー台帳: `<repo>/docs\bench\anchors\presence_anchors_v0.json`(v0)
 - after: `<scratch>/occ_base.npz`(入力 journal・n_agents 5,000[summary([run] n=)]・縮尺 ×78.0134 → 390,067 体換算・**expedient**=線形)
 - 現実側: 昼間人口 130,167 / 常住 8,810 / 昼夜比 14.8(中核9町丁目 1.39 km²)・PT 日中ピーク 145,000(約139 ha)・深夜在圏推定 15,000〜30,000(estimate)
 - **合格線は書かない**。距離と「前より現実側へ近づいたか」の bool だけを出す(判定は親)。

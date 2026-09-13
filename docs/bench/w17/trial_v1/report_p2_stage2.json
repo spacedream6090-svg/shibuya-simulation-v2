@@ -155,7 +155,7 @@
  ],
  "outputs": [
   {
-   "path": "C:\\Users\\塚本翔太\\Desktop\\shibuya-simulation-v2\\data\\world\\v2\\trials\\p2\\w17_trial_p2_schedule.parquet",
+   "path": "<repo>/data\\world\\v2\\trials\\p2\\w17_trial_p2_schedule.parquet",
    "name": "w17_trial_p2_schedule.parquet",
    "rows": 102422,
    "bytes": 220823,
@@ -165,7 +165,7 @@
  "prompts": {
   "arm": "p2",
   "stage": 2,
-  "path": "C:\\Users\\塚本翔太\\Desktop\\shibuya-simulation-v2\\data\\world\\v2\\trials\\p2\\w17_trial_p2_stage2_prompts.jsonl",
+  "path": "<repo>/data\\world\\v2\\trials\\p2\\w17_trial_p2_stage2_prompts.jsonl",
   "name": "w17_trial_p2_stage2_prompts.jsonl",
   "rows": 2000,
   "bytes": 22162120,

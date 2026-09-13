@@ -142,7 +142,7 @@
  ],
  "outputs": [
   {
-   "path": "C:\\Users\\塚本翔太\\Desktop\\shibuya-simulation-v2\\data\\world\\v2\\trials\\p1a\\w17_trial_p1a_schedule.parquet",
+   "path": "<repo>/data\\world\\v2\\trials\\p1a\\w17_trial_p1a_schedule.parquet",
    "name": "w17_trial_p1a_schedule.parquet",
    "rows": 59704,
    "bytes": 144630,
@@ -152,7 +152,7 @@
  "prompts": {
   "arm": "p1a",
   "stage": 0,
-  "path": "C:\\Users\\塚本翔太\\Desktop\\shibuya-simulation-v2\\data\\world\\v2\\trials\\p1a\\w17_trial_p1a_prompts.jsonl",
+  "path": "<repo>/data\\world\\v2\\trials\\p1a\\w17_trial_p1a_prompts.jsonl",
   "name": "w17_trial_p1a_prompts.jsonl",
   "rows": 2000,
   "bytes": 7731320,

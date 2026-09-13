@@ -1,6 +1,6 @@
 # 在圏の物差し(presence yardstick) — p2_default vs null
 
-- アンカー台帳: `C:\Users\塚本翔太\Desktop\shibuya-simulation-v2\docs\bench\anchors\presence_anchors_v0.json`(v0)
+- アンカー台帳: `<repo>/docs\bench\anchors\presence_anchors_v0.json`(v0)
 - after: `<scratch>/p3_default.npz`(入力 journal・n_agents 5,000[summary([run] n=)]・縮尺 ×78.0134 → 390,067 体換算・**expedient**=線形)
 - before: `<scratch>/p3_null.npz`(入力 journal・n_agents 5,000[summary([run] n=)]・縮尺 ×78.0134)
 - 現実側: 昼間人口 130,167 / 常住 8,810 / 昼夜比 14.8(中核9町丁目 1.39 km²)・PT 日中ピーク 145,000(約139 ha)・深夜在圏推定 15,000〜30,000(estimate)

@@ -101,7 +101,7 @@
  "prompts": {
   "arm": "p2",
   "stage": 1,
-  "path": "C:\\Users\\塚本翔太\\Desktop\\shibuya-simulation-v2\\data\\world\\v2\\trials\\p2\\w17_trial_p2_stage1_prompts.jsonl",
+  "path": "<repo>/data\\world\\v2\\trials\\p2\\w17_trial_p2_stage1_prompts.jsonl",
   "name": "w17_trial_p2_stage1_prompts.jsonl",
   "rows": 2000,
   "bytes": 2092753,

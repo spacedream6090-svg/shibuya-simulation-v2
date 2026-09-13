@@ -1,6 +1,6 @@
 # 行動多様性の物差し(diversity yardstick) — P0
 
-- アンカー台帳: `C:\Users\塚本翔太\Desktop\shibuya-simulation-v2\docs\bench\anchors\diversity_anchors_v0.json`(v0)・親一次確認**未**の項目 2 件: activity_set_jaccard_decay_lambda, song_top2_locations_share
+- アンカー台帳: `<repo>/docs\bench\anchors\diversity_anchors_v0.json`(v0)・親一次確認**未**の項目 2 件: activity_set_jaccard_decay_lambda, song_top2_locations_share
 - after: `data\world\v2\w17_schedule.parquet`(入力 parquet・体 390,067・行 12,565,687・種別不明 0)
 - **合格線は書かない**。距離と「前より現実側へ近づいたか」の bool だけ(判定は親)。
 - 主スコープ=**平日(day<5)**。設計書 §5 の前値は**全 7 日**で測られているので、突合表だけ `all_days` を併記する。

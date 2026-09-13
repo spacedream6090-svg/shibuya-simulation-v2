@@ -1,6 +1,6 @@
 # 行動多様性の物差し(diversity yardstick) — P2p_raw vs P2_raw
 
-- アンカー台帳: `C:\Users\塚本翔太\Desktop\shibuya-simulation-v2\docs\bench\anchors\diversity_anchors_v0.json`(v0)・親一次確認**未**の項目 2 件: activity_set_jaccard_decay_lambda, song_top2_locations_share
+- アンカー台帳: `<repo>/docs\bench\anchors\diversity_anchors_v0.json`(v0)・親一次確認**未**の項目 2 件: activity_set_jaccard_decay_lambda, song_top2_locations_share
 - after: `data\world\v2\trials\p2p\w17_trial_p2p_schedule.parquet`(入力 parquet・体 2,000・行 126,335・種別不明 0)
 - before: `data\world\v2\trials\p2\w17_trial_p2_schedule.parquet`(入力 parquet・体 2,000・行 102,422)
 - **合格線は書かない**。距離と「前より現実側へ近づいたか」の bool だけ(判定は親)。

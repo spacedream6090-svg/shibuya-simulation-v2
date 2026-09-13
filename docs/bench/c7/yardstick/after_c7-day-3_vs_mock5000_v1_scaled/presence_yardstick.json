@@ -1,6 +1,6 @@
 {
  "schema": "shibuya.tools.c7/presence_yardstick/1",
- "anchors_path": "C:\\Users\\塚本翔太\\Desktop\\shibuya-simulation-v2\\docs\\bench\\anchors\\presence_anchors_v0.json",
+ "anchors_path": "<repo>/docs\\bench\\anchors\\presence_anchors_v0.json",
  "anchors_version": "v0",
  "anchors_echo": {
   "core9_daytime_population": 130167,
