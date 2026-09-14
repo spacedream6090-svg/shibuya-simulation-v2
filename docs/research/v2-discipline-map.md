@@ -87,3 +87,60 @@ C0 から C7 までで実装済みの部分が、実際に依存している分�
 - 各分野について「**日本の公的データに錨があるか**」を確かめる(無ければ海外値の移送になる=expedient 宣言が要る)。
 - 「この repo が既に採用した形」と「その分野の標準的な形」のずれを列挙する。
 - 第2陣の決定アジェンダに写す(どの分野を、どの順で、どこまで入れるか)。
+
+---
+
+## 6. 付録: v1 のリサーチ資産との突き合わせ(2026-09-14・第181)
+
+> ユーザーの問い「v1 でどのような分野をリサーチしていたか」。v1 リポ(参照専用)の `docs/` を親が実読して照合した。
+
+### 6-1 v1 にあるもの(実数)
+
+| 置き場 | 本数 | 中身 |
+|---|---|---|
+| `docs/research/` | **160**(うち 33 は v2 答申の初出) | 個別テーマの調査。v1 固有は **127 本** |
+| `docs/lit/` | **44** | 1 論文 1 メモの文献コーパス(主張・機構・効く seam・批判の定型) |
+| `docs/references.md` | 1 | クラスタ別の読書リスト。リンク検証の作法つき |
+| **`docs/research-scope.md`** | 1 | **分野選定と実装重要度の地図そのもの**(v0.1・P0/P1/P2) |
+
+### 6-2 v1 の分野マップ(`research-scope.md`)
+
+v1 は分野を **Object(観察対象)/ Method(方法)/ 経済・制度・基盤 / 生命・ビジョン** に分け、P0(第1実験の必須)・P1・P2 で優先度を付けていた。**P0 の 8 分野**は 性格・動機づけ心理学 / 集合行為・社会運動論 / 文化進化・社会言語学 / ネットワーク科学・拡散理論 / 複雑系・自己組織化 / マルチエージェント AI・ABM / 計測・心理測定 / 制度経済学・ガバナンス。第2フェーズで **建築・都市計画(Lynch)・社会存在論(Searle)・環境知覚心理(Gibson/Tolman)・PLATEAU 可視化・分散システム(actor)** が P0 に昇格した。第2フェーズでは「世界2.0 の 30 分野」を均等に一巡している(群①substrate / ②engagement / ③build・viz / ④哲学)。
+
+### 6-3 v1 と v2 で分野選定が違う理由
+
+**問いが違う**。v1 の問いは「**世界改変者(agency)の創発は規模のどこで起きるか**」(k\* 相転移の測定)。v2 の問いは「**現実の渋谷をどこまで再現でき、それをどう検証するか**」。だから v1 は創発を測る分野(集合行為・文化進化・拡散・複雑系・社会存在論・価値論)を厚く、v2 は現実に釘付けする分野(人口学・交通工学・時間利用・音響・気象・SFC 経済・法学)を厚くしている。**どちらが正しいという話ではなく、上位の問いの差**。
+
+### 6-4 v2 の「答申が無い 4 分野」に v1 の素材があるか
+
+| v2 の穴 | v1 の該当資産 | 使えるか |
+|---|---|---|
+| **社会ネットワーク科学** | `lit/network__diffusion-overview.md`(Centola & Macy 2007 complex contagion・Granovetter 1978 閾値・Watts 2002 global cascades)・`research/community-detection.md`・`relations-formation-map.md`・`initial-relations-improvement.md` | **使える**。ただし v1 は「ラベルと運動の伝播」の文脈。v2 の会話と情報の届き方へ**読み替え**が要る |
+| **不確実性の伝播(UQ)** | `research/uncertainty-audit.md`(揺らぎの所在を全数把握+運/実力の分散分解) | **部分的**。v1 は「シムの中の揺らぎの監査」で、v2 が要るのは「入力の誤差が指標へどう伝わるか」。**別物だが出発点になる** |
+| **科学哲学(モデルの認識論)** | `lit/measurement__validation-overview.md`(operational validity・LLM-judge の循環・face validity の限界)・`lit/value__axiology-overview.md`・`lit/systems__gst-overview.md`・`lit/ontology__searle1995_institutional-facts.md` | **部分的**。「妥当とは何か」の実務側は v1 にある。哲学側は断片 |
+| **物質フロー分析(都市代謝)** | `research/economy-goods-services.md`・`retail-inventory-empirics.md`・`ownership-asset-models.md`(廃棄の言及はあるが主題ではない) | **ほぼ無い**。ここは新規リサーチ |
+
+**注記(重要)**: v1 の `measurement__validation-overview.md` は Larooij & Törnberg「Validation is the central challenge」(AI Review 2025)を既に出典にしている。これは有志の 17 件まとめの #11 と同じ論文で、[research-backlog](research-backlog.md) の R-2 で「本文実読が残る」としたもの。**v1 に読解メモがある**ので、R-2 の一部は v1 の再読で前倒しできる。
+
+### 6-5 v1 の答申 127 本の分野内訳(親の粗い分類)
+
+| 分野の束 | おおよその本数 | 代表 |
+|---|---|---|
+| 都市・人流・母集団(渋谷の実データ) | 約 21 | `shibuya-population` `shibuya-inflow` `rail-shibuya` `odpt-integration` `sumo-integration-research` `poi-reality-check` |
+| 検証・計測・方法論 | 約 17 | `ablation-ladder` `uncertainty-audit` `pimmur-compliance` `p4-calibration-research` `scale-audit-100days` |
+| 認知・記憶・動機・LOD | 約 15 | `memory-cognitive-research` `deep-reflection-triggers` `reflection-drift` `agent-lod-deepdive` `self-concept-identity` |
+| 経済・小売・組織 | 約 13 | `economy-abm-research` `retail-pricing-empirics` `org-book-census` `ownership-asset-models` |
+| LLM・モデル選択・推論 | 約 11 | `llm-model-selection` `constrained-decoding` `token-budgets` `llm-human-fidelity` |
+| エンジン・基盤・データ | 約 10 | `engine-baseline` `framework-architecture` `data-pipeline-lit` `server-deployment` |
+| 可視化・3D・群衆物理 | 約 9 | `3d-visualization` `shibuya-3d-highfidelity` `social-force-crowd` `physics-engine-selection` `vision-los` |
+| デジタルツイン・世界モデル | 約 7 | `dt-landscape` `dt-reduction` `world-models` `ontology-extensions` |
+| 社会関係・会話 | 約 6 | `community-detection` `relations-formation-map` `conversation-pipeline` `dialogue-coherence-and-model` |
+| 生活・日課・イベント | 約 5 | `daily-plan-framework` `interstitial-life` `l2-work-reality` `weather-generator-design` |
+| 事業・発表 | 約 5 | `ai-crossover-ideas` `unique-data-candidates` `finals-llm-budget` |
+| 制度・権利・犯罪 | 約 3 | `crime-llm-cognition` `rights-institutions-gap` `council-vs-reality` |
+
+### 6-6 提案(未実施・ユーザー判断)
+
+1. **v1 答申の棚卸し**を [research-backlog](research-backlog.md) に足す。127 本のうち「v2 の問いでも生きるもの」「読み替えが要るもの」「v1 の問い固有で捨てるもの」を仕分ける。1 本ずつ開くのではなく、まず §6-5 の束ごとに当たりを付ける。
+2. **社会ネットワーク科学は v1 の読み替えから始める**(新規リサーチより安い)。
+3. **v1 の `lit/` の定型**(主張・機構・効く seam・批判・コスト含意)は v2 の答申より短くて扱いやすい。第2陣の文献メモはこの形に戻すことを検討する。

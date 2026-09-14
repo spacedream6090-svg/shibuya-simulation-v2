@@ -14,6 +14,7 @@
 | R-2 | **LLM 社会シミュ文献 17 件の本文実読**: #4 同一性漂流・#5 議論バイアス・#6 StateAct・#8 状態表現・#10 GAMA(計算費の表)・#11 Larooij & Törnberg(PMC 全文)・#12 2603.00113(処方側の記述)・#13 頑健性監査(事前登録の推奨の有無)・#15 Causal Agent Replay・#17 Steering Geometry・#18 Procedural Graphs。各件を「採用済み/第2陣で採用/該当せず」に確定し決定アジェンダへ写す。#14(2026-06 事前登録)の実体探索 | いまは抄録レベルの確認だけ(未正典化) | [v2-llm-social-sim-timeline-seed.md](v2-llm-social-sim-timeline-seed.md) §4 |
 | R-3 | **個体の同質性の残 10 件**: 日本の始業時刻分布表・片道通勤時間の分布(令和3年の表 ID)・Schneider 2013 Fig.3 の p(ID) 数値・Schlich & Axhausen 2003 原典・inverse scaling と REAL Sampling の本文・2604.01520 の扱い・Song 2010 の追試値・交替制の出勤時刻・日本 PT へのモチーフ適用研究・TrajLLM の定量評価 | D-68 経路 3(記憶・習慣)の設計に直接効く | [v2-d68-behavioral-diversity-research.md](v2-d68-behavioral-diversity-research.md) §8 |
 | R-4 | **ミクロ観察の先行例**: エージェント個体の追跡・検査 UI(Generative Agents の replay/inspect・Concordia の GM ログ・AgentTorch ほか)。抽出規則(逸話を結論にしない作法)の先行 | 第177 M1 の設計判断の材料。自前設計の比重が高いかを先に知る | devlog 第177 |
+| R-4b | **v1 リサーチ資産の棚卸し**(第181): v1 固有の答申 127 本+文献メモ 44 本を「v2 の問いでも生きる/読み替えが要る/v1 固有で捨てる」に仕分ける。**社会ネットワーク科学・UQ・科学哲学の 3 つは v1 に素材がある**([v2-discipline-map.md](v2-discipline-map.md) §6-4) | 新規リサーチより安い。R-2 の一部(Larooij & Törnberg)も v1 の読解メモで前倒しできる | devlog 第181 |
 | R-5 | **40 万体の可視化手法**: deck.gl / Cesium / Unity DOTS / UE5 Mass の実績と限界の**再確認**(答申 v2-game-frontend-research は 09 月初旬・UE5 City Sample 35,000 人が公開実績上限との記載) | 第177 M2 の段階案を決める | [v2-game-frontend-research.md](v2-game-frontend-research.md) |
 
 ---
@@ -60,10 +61,10 @@
 
 | 分野 | なぜ要る | 優先 |
 |---|---|---|
-| **社会ネットワーク科学** | 会話 0.04%・情報が広がらない。関係の構造と伝播の形が無い | 高(測れている弱点に直結) |
+| **社会ネットワーク科学** | 会話 0.04%・情報が広がらない。関係の構造と伝播の形が無い | 高。**v1 に素材あり**(R-4b で読み替え) |
 | **物質フロー分析(都市代謝)** | 廃棄が現実の帯の 1/9(D-52)。発生源の台帳が店舗の期限切れ在庫だけ | 高(同上) |
-| **不確実性の伝播(UQ)** | 受入表は点の判定しかしない。誤差がどう伝わるかの設計が無い | 中(主張の強さを決める) |
-| **科学哲学(モデルの認識論)** | 「妥当」「再現」が何を言うことかの整理。第一目標の言葉そのもの | 中(同上) |
+| **不確実性の伝播(UQ)** | 受入表は点の判定しかしない。誤差がどう伝わるかの設計が無い | 中。v1 `uncertainty-audit` が出発点 |
+| **科学哲学(モデルの認識論)** | 「妥当」「再現」が何を言うことかの整理。第一目標の言葉そのもの | 中。v1 `measurement__validation-overview` が実務側を押さえている |
 
 ---
 
