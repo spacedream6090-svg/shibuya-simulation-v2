@@ -45,4 +45,7 @@
 
 ## 索引
 
-(まだ空。最初のメモは R-2 の本文実読から作る)
+| メモ | 分野 | 一次確認 | 何のために引くか |
+|---|---|---|---|
+| [compute__agentsociety2025_parallel_framework](compute__agentsociety2025_parallel_framework.md) | 計算機科学(並列)#28 / 計算社会科学 #25 | **実読** | この分野が「実用」と主張するときの基準(実時間比 > 1)と、GPU 時間/体日での正規化比較 |
+| [compute__matsim2020_hermes](compute__matsim2020_hermes.md) | 計算機科学(並列)#28 / 人間移動科学 | **実読** | 「非実用」の判定は 1 本の時間でなく `必要ラン数 × 1 本の時間` で下されるという枠組み |
