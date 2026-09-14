@@ -1,5 +1,10 @@
 # レーンI答申: 実装スタック(言語・ランタイム・ABM基盤・エンジン構造・データ層・CI)
 
+<!-- hdr:v1 -->
+- **分野**: ソフトウェア工学 #29 / 計算機科学(並列・決定論) #28 | **重要度**: P1(親判断・2026-09-15 第191)
+- **一次確認**: **B** = 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) — 出典痕跡 55 件。空欄節あり
+- **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
+
 > **親検収(Fable・2026-09-07)**: 出典を親が一次確認した。✔=親が実読して一致。
 > - ✔ NVIDIA/numba-cuda README(実読): 「Numba-CUDA is in maintenance mode. Moving forward, we intend to support only security issues and critical bug fixes through the lifetime of CUDA 13.」(新機能はNumba-CUDA-MLIRへ)→A3のGPU実装手段を`numba.cuda`以外(Warp第一・CuPy第二)にする根拠は事実。
 > - ✔ AMBER(arXiv 2601.16292・抄録実読): 列指向Python ABM・「speedups of up to 1118×」vs Mesa・最大の空間SIRベンチでAgents.jlを上回る(**1.2倍という数値は抄録に無い=本文値・親未再読**)。
@@ -9,7 +14,6 @@
 > - S2(checkpoint≤17GB/日)とM1(12GB)×M7(≤2.0x)×4回/日=生24GB/日の算術的緊張は事実(予算書の改訂候補)。
 > - 空欄(RTX 5070 sm_120のwheel対応・Ruriスループット・blake3/xxhashライセンス・Mesa 3大規模ベンチ・numba vs Rust同一ABM査読ベンチ)は答申の申告どおり。
 > - 正典化: docs/research/v2-implementation-stack-research.md(実装計画ラウンドの根拠)。
-
 
 > 作成: 2026-09-07 / リサーチサブ(Opus 5) / 親=Fable検収・決定=ユーザー
 > 規律遵守: 子サブ未起動。出典は正規ドメインのみ。**実読ページからの引用のみ**を「引用」として提示。

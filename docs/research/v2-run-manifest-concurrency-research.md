@@ -1,12 +1,16 @@
 # レーンM答申: run manifest形式(U8)と並行実行の意味論(U9)
 
+<!-- hdr:v1 -->
+- **分野**: ソフトウェア工学 #29 / 計算機科学(並列・決定論) #28 | **重要度**: P1(親判断・2026-09-15 第191)
+- **一次確認**: **B** = 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) — 出典痕跡 102 件。空欄節あり
+- **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
+
 > **親検収(Fable・2026-09-07)**: 出典を親が一次確認した。✔=親が実読して一致。
 > - ✔ vLLM公式docs(実読): features/batch_invariance「NVIDIA GPUs with compute capability 8.0 or higher」・有効化=`VLLM_BATCH_INVARIANT=1`・「disables custom all-reduce operations in tensor parallel mode」。configuration/env_vars「Requires NVIDIA GPU with compute capability >= 9.0」。**答申の「公式内で8.0+と9.0の矛盾」は事実**(借用サーバーのA5000=8.6は境界=自検証テストT6が必要)。
 > - ✔ Thinking Machines「Defeating Nondeterminism in LLM Inference」(実読): Qwen3-8B・1GPU・1,000系列(出力90-110tok)で既定26秒/決定的55秒/改良注意カーネル42秒。「the primary reason nearly all LLM inference endpoints are nondeterministic is that the load (and thus batch-size) nondeterministically varies」・forward passはatomic addを要する演算を含まない。**リポのベンチ「BATCH_INVARIANT=1のコスト−2%以下」との乖離は版差か負荷形状差(v2はprefill律速)=要説明(答申の指摘は妥当)**。
 > - 既決「R16検証ランはTP1」は公式のcustom all-reduce無効化記述と整合(TP4の4.1%非再現の機構と一致)。
 > - ACM DL/Elsevier/IEEE 1516の13件は403/有料で未読=答申の申告どおり書誌のみ(主張の根拠に使っていない)。FLAME GPU 2・Wilensky & Rand 2007・JASSSは答申が実読と申告(親は未再読)。
 > - 正典化: docs/research/v2-run-manifest-concurrency-research.md(U8/U9の根拠)。
-
 
 > 作成: 2026-09-07 / リサーチサブ(Opus 5) / 親=Fable検収・決定=ユーザー
 > 規律遵守: 子サブ未起動。出典は正規ドメインのみ・**実読ページからの引用のみ**を「引用」として提示。

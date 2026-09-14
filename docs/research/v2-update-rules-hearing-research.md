@@ -1,5 +1,10 @@
 # Lane C 答申 — 更新規則(不応期・日次内省・繰り延べ)と聴覚未確認数値
 
+<!-- hdr:v1 -->
+- **分野**: 認知科学(記憶・習慣) #12 / 環境音響学 #6 | **重要度**: P0(親判断・2026-09-15 第191)
+- **一次確認**: **B** = 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) — 出典痕跡 125 件。空欄節あり
+- **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
+
 > **親検収(Fable・2026-09-06)**: 出典を親が一次確認した。✔=親が実読して数値一致。
 > - ✔ GATSim(arXiv 2506.23306v2実読): 計画再考トリガ4種・「global minimum intervals of 30 minutes for general activities and extended intervals of 150 minutes for work activities」は周期再考(reflection frequencies)に掛かる床。答申の解釈(イベント駆動には床なし)は本文と整合。
 > - ✔ Lipari EDF講義資料(PDF実読): 「In case of overhead (U > 1), we can have the domino effect with EDF: it means that all tasks miss their deadlines」「FP is more predictable: only lower priority tasks miss their deadlines!」逐語一致。
@@ -10,7 +15,6 @@
 > - ✔ ScaleSim(arXiv 2601.21473実在・HTML実読): invocation distance定義・最大1.74×・TTFT 48-68%改善(vs HiCache)。**訂正**: 「active agent rate is around 20%」は**実験設定値**であり、プロファイル実測値ではない(sparse activationの主張自体はPiao et al. 2025のプロファイルを引用)。
 > - Forssbergは空欄のまま(答申の推測=Lazarus 1986/1987が原典の可能性)。不応期の値は先例1件(GATSim)からの拡張=expedient(答申自身が宣言)。
 > - 正典化: docs/research/v2-update-rules-hearing-research.md(R3-8 §6・§3聴覚暫定値の根拠)。
-
 
 対象: R3-8 §6(更新規則)・§3(聴覚の暫定数値)
 作成: 2026-09-06 / リサーチサブ(Opus 5) / 子サブ未起動

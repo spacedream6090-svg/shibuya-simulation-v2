@@ -43,9 +43,20 @@
 - 代わりに、**答申を読み直す用事が出たときに、その論文のメモを本フォルダへ切り出す**(残務台帳 R-2・R-10 から R-16 の一次確認がその機会)。
 - v1 の `docs/lit/` 44 本のうち v2 でも生きるものは、**読み替えのうえ複写**する(残務台帳 R-4b の棚卸しで仕分ける)。
 
+## 一次確認の 3 段階(索引の欄)
+
+- **実読** = 親が原典(PDF・本文)を開いて数値を直接読んだ。
+- **二次(v1 メモ経由)** = 親が v1 の読解メモを実読したが、**原典は未読**。v1 メモは出典 URL を検証済みと記載しているが、親自身は確かめていない。→ [残務台帳](../research-backlog.md)・[進行状況](../RESEARCH-STATE.md) に原典確認の行がある。
+- **抄録のみ** = 抄録・検索要約までしか見ていない。
+
+**二次のメモを新しい決定の根拠にしてはいけない。**機構(どういう形か)の議論には使ってよいが、数値は原典を読んでから使う。
+
 ## 索引
 
 | メモ | 分野 | 一次確認 | 何のために引くか |
 |---|---|---|---|
 | [compute__agentsociety2025_parallel_framework](compute__agentsociety2025_parallel_framework.md) | 計算機科学(並列)#28 / 計算社会科学 #25 | **実読** | この分野が「実用」と主張するときの基準(実時間比 > 1)と、GPU 時間/体日での正規化比較 |
 | [compute__matsim2020_hermes](compute__matsim2020_hermes.md) | 計算機科学(並列)#28 / 人間移動科学 | **実読** | 「非実用」の判定は 1 本の時間でなく `必要ラン数 × 1 本の時間` で下されるという枠組み |
+| [stats__lorscheid2012_replication-doe](stats__lorscheid2012_replication-doe.md) | 統計学・因果推論 #23 | 二次(v1 メモ経由・原典未読) | **反復回数は CV 収束で決める**。G-8 の expedient を解消する道。**D-70 の答えを決める測定** |
+| [network__complex-contagion-overview](network__complex-contagion-overview.md) | 社会ネットワーク科学 #14 | 二次(v1 メモ経由・原典未読) | **行動・規範は 1 接触で伝わらない**(complex contagion)。会話 410/日 と第2陣の主題に直結 |
+| [validation__operational-validity-overview](validation__operational-validity-overview.md) | 検証とV&V #22 / 科学哲学 #26 | 二次(v1 メモ経由・原典未読) | 妥当性は多 seed のマクロ分布で見る / **LLM は効果量を大きく出す** / 既知結果の再現を先に |

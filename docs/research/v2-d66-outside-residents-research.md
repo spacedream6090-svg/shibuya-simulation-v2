@@ -1,5 +1,10 @@
 # v2 D-66 域外居住者の到着・退出 現実側アンカー答申(2026-09-10・Opus リサーチサブ)
 
+<!-- hdr:v1 -->
+- **分野**: 交通工学(活動ベース) #2 / 人間移動科学 #3 | **重要度**: P0(親判断・2026-09-15 第191)
+- **一次確認**: **B** = 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) — 出典痕跡 47 件。空欄節あり
+- **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
+
 > 対象: PENDING D-66「域外居住者 346,445 体の到着=週次表の最初の域内活動に間に合う便/退出=最後の域内活動の終了で世界が乗車を実行」。
 > 本書は**現実側のアンカー**だけを集める。実装案は §7 に限る。数値には必ず出典 URL とページ内の表名・行名を添えた。
 > **holdout 封印**: `data/realworld/kddi_la`・`shibuya_jinryu`・`boundary_counts.json` は開いていない。渋谷区 SHIBUYA CITY DASHBOARD(KDDI 由来)・都医学研の滞留人口モニタリングも数値を採っていない。

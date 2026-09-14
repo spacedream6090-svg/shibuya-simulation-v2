@@ -1,5 +1,10 @@
 # レーンU 答申: 境界(U10・来街の決定)と経済SFC(U11) — R4リサーチ
 
+<!-- hdr:v1 -->
+- **分野**: SFCマクロ経済学 #10 / 人口学・合成人口論 #1 | **重要度**: P0(親判断・2026-09-15 第191)
+- **一次確認**: **B** = 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) — 出典痕跡 64 件。空欄節あり
+- **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
+
 > **親検収(Fable・2026-09-06)**: 出典を親が一次確認した。✔=親が実読して数値一致。
 > - ✔ TF Resource(実読): 「There are no applicable criteria guidelines for checks of external travel models.」逐語一致。同ページの±10%(0.90-1.10)は域内の発生集中バランスの目安であって外部交通ではない→**コードン照合の許容誤差はv2の自前宣言(expedient)**。既存台帳の「±10%が典型的合格条件」は要修正。
 > - ✔ Caiani et al. 2016 JEDC(PDF実読): 「the sum of the net worth of all the agents in the economy (including government and central bank) is exactly equal to the values of real assets in every simulation round」逐語一致・主体数=家計8,000/消費財企業100/資本財企業20/銀行10/公務員1,360(パラメータ表)・「stocks seem to appear ex-nihilo rather than be realized through a transfer of resources」(倒産後の参入に関する不整合の警告)逐語一致。
@@ -8,7 +13,6 @@
 > - ✔ GATSim(arXiv 2506.23306v2実読): 「A synthetic population of 70 individuals is generated using GPT-4o」・大規模実験なし・呼数/トークンの記載なし。
 > - 呼数試算(来街判断≈8.1万呼/日=予算の2%)は答申の推測(パラメータ仮)。expedient 8件(E-a〜E-h)は答申自身が宣言。**用語訂正**: MER=EVE Onlineの月次経済レポート(Robuxではない)。
 > - 正典化: docs/research/v2-boundary-economy-u10-u11-research.md(U10境界・U11経済SFCの根拠)。
-
 
 作成: 2026-09-06 / 担当: リサーチサブ(Opus 5) / 検収: 親(Fable) / 決定: ユーザー
 規律遵守: 子サブ未起動・出典は実読ページのみ引用・未読は「空欄(未確認)」・ダウンロード実行なし(WebFetchのPDF読解のみ)・リポジトリ非書込

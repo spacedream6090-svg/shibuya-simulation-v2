@@ -1,5 +1,10 @@
 # R5 認知詳細レーン答申(δ_think上限 / U19思考トークン方式 / T0-T1-T2昇格条件 / 記憶U1細部)
 
+<!-- hdr:v1 -->
+- **分野**: 認知科学(記憶・習慣) #12 | **重要度**: P0(親判断・2026-09-15 第191)
+- **一次確認**: **B** = 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) — 出典痕跡 139 件。空欄節あり
+- **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
+
 > **親検収(Fable・2026-09-07)**: 出典を親が一次確認した。✔=親が実読して数値一致。
 > - ✔ Rubinstein 2007 Economic Journal(PDF実読): Ex.1 n=2,029 中央値41秒(T 37/B 50)・Ex.2 n=2,543 96秒(A 64/B 161/C 76/D 83)・Ex.4 Cat.A 126(22選択者157)/B 89/C 70・Ex.5 n=1,361(132/80/163/123秒)。「読解込みの応答時間」の定義文は抽出で見つからず(答申が引用した文言は親未確認)。同一問題内の選択肢差分=純熟慮増分13/56/83秒の算術は妥当。
 > - ✔ Anthropic公式(実読): 「The budget is a target rather than a strict cap. … `max_tokens` remains the hard ceiling on total output.」(世界規則予算/生成制御/インフラ上限の3層分離の先例)。
@@ -8,7 +13,6 @@
 > - ✔ cl-nagoya/ruri-v3-30m(HF実読): 256次元・37Mパラメータ・Apache-2.0・JMTEB平均74.51・最大8,192トークン。
 > - 既存台帳の「熟慮30-75秒」がForssbergの避難前時間由来という指摘は、既存台帳側の記述と整合(用途外流用=答申の判断は妥当)。Hoyer 1984の「13秒」は空欄のまま。arXiv 2506.07712・2604.10739・UCCI・FrugalGPT/RouteLLMは答申が実読と申告(親は未再読)。
 > - 正典化: docs/research/v2-cognition-detail-research.md(R5の根拠)。
-
 
 > 2026-09-07・Opus 5 リサーチサブ・全出典URL付き。**未確認は「空欄(未確認)」と明記**。推測は【推測】。
 > リポジトリは読み取りのみ。子サブ未起動。

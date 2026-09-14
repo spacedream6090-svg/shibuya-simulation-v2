@@ -1,5 +1,10 @@
 # D-R2-3 リサーチ答申: エンジン/LLM線引き16行の詳細決定材料
 
+<!-- hdr:v1 -->
+- **分野**: 都市代謝論・MFA #19 / SFCマクロ経済学 #10 | **重要度**: P0(親判断・2026-09-15 第191)
+- **一次確認**: **B** = 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) — 出典痕跡 218 件。空欄節あり
+- **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
+
 > **親検収(Fable・2026-09-06)**: 出典を親が一次確認した。✔=親が実読して数値一致。
 > - ✔ Fish, Gonczarowski & Shorrer 2024(arXiv 2404.00806 HTML実読): 「LLM-based pricing agents quickly and autonomously reach supracompetitive prices and profits」・実験環境の価格上限=独占価格の2.34倍(試行ごとにU(1.5,2.5)から抽選)・複占300期。
 > - ✔ EconAgent(arXiv 2310.10436 HTML実読): 価格 P←P(1+φ_P), φ_P〜sign(φ̄)U(0, α_P|φ̄|)・α_P=0.10/賃金 α_w=0.05/LLMは労働性向p^w(Bernoulli)と消費性向p^c∈[0,1]のみ。
@@ -10,7 +15,6 @@
 > - GA(α=1・0.995・閾値150「in our implementation」・2-3回/日)は本日別答申で親確認済み。**注**: 行15の「反省80-120万呼(20-30%)」はGAの2-3回/日を掛けた試算。契約書§6で日次内省=就寝同期1.05回/日(42万呼=10.5%)を決定済みなので、この費目は既に解消されている。
 > - 空欄8項目(LLM価格の桁外れ頻度の直接報告・AI Town系・Ebbinghaus代表値・渋谷の実店舗席数・暗数調査の罪種別申告率・辺更新規則の先行実装・最低賃金2026改定・行13/14先行研究)は答申の申告どおり。
 > - 正典化: docs/research/v2-world-process-rows-research.md(D-R2-3の根拠)。
-
 
 作成: 2026-09-06 / レーンD / リサーチサブ(Opus 5) / 親検収前の草案
 
