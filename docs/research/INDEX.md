@@ -10,7 +10,7 @@
 | 等級 | 意味 | 本数 |
 |---|---|---|
 | **A** | 親検収済(逐語引用または再計算つき) | 2 |
-| **B** | 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) | 35 |
+| **B** | 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) | 36 |
 | **C** | 出典あり・空欄は未整理 | 1 |
 | **D** | **出典 URL なし(2026-09-02 の規律導入前)**=一次確認が丸ごと残る | 33 |
 | **E** | 出典不要(親自身の一次作業) | 2 |
@@ -85,9 +85,9 @@ CLAUDE.md §5 に「リサーチサブは子サブを起動しない」「答申
 | 6 | **環境音響学** | [density-hearing-verification](v2-density-hearing-verification.md) P0 ・ [update-rules-hearing-research](v2-update-rules-hearing-research.md) P0 ・ [world-data-build-round2-research](v2-world-data-build-round2-research.md) P0 ・ [hearing-numbers-and-d1-coverage](v2-hearing-numbers-and-d1-coverage.md) P1 | B |
 | 7 | **建築環境工学** | [world-data-build-round2-research](v2-world-data-build-round2-research.md) P0 | B |
 | 8 | **気象学・生気象学** | [world-data-build-round2-research](v2-world-data-build-round2-research.md) P0 | B |
-| 9 | **地理情報科学** | [area-boundary-definition](v2-area-boundary-definition.md) P0 ・ [world-data-build-research](v2-world-data-build-research.md) P0 ・ [area-boundary-map-reading](v2-area-boundary-map-reading.md) P1 ・ [cell-granularity-research](v2-cell-granularity-research.md) P1 | B |
+| 9 | **地理情報科学** | [area-boundary-definition](v2-area-boundary-definition.md) P0 ・ [w7-law-primary-check-research](v2-w7-law-primary-check-research.md) P0 ・ [world-data-build-research](v2-world-data-build-research.md) P0 ・ [area-boundary-map-reading](v2-area-boundary-map-reading.md) P1 ・ [cell-granularity-research](v2-cell-granularity-research.md) P1 | B |
 | 10 | **SFCマクロ経済学** | [boundary-economy-u10-u11-research](v2-boundary-economy-u10-u11-research.md) P0 ・ [world-process-rows-research](v2-world-process-rows-research.md) P0 ・ [economy-sfc-deep-research](v2-economy-sfc-deep-research.md) P1 ・ [ugc-platform-import](v2-ugc-platform-import.md) P1 | B |
-| 11 | **法学(業法・条例)** | [institutions-deep-research](v2-institutions-deep-research.md) P1 ・ [precedent-system-deep-research](v2-precedent-system-deep-research.md) P1 | D |
+| 11 | **法学(業法・条例)** | [w7-law-primary-check-research](v2-w7-law-primary-check-research.md) P0 ・ [institutions-deep-research](v2-institutions-deep-research.md) P1 ・ [precedent-system-deep-research](v2-precedent-system-deep-research.md) P1 | B |
 | 12 | **認知科学(記憶・習慣)** | [action-conversation-contract-research](v2-action-conversation-contract-research.md) P0 ・ [cognition-detail-research](v2-cognition-detail-research.md) P0 ・ [update-rules-hearing-research](v2-update-rules-hearing-research.md) P0 ・ [memory-retrieval-research](v2-memory-retrieval-research.md) P1 ・ [prediction-module-deep-research](v2-prediction-module-deep-research.md) P1 | B |
 | 13 | **人格心理学** | [d68-behavioral-diversity-research](v2-d68-behavioral-diversity-research.md) P0 ・ [persona-dynamics-research](v2-persona-dynamics-research.md) P0 ・ [persona-population-deep-research](v2-persona-population-deep-research.md) P1 | B |
 | 14 | **社会ネットワーク科学** | [ad-information-research](v2-ad-information-research.md) P0 | C |
@@ -119,9 +119,9 @@ CLAUDE.md §5 に「リサーチサブは子サブを起動しない」「答申
 
 ## 3. 全 73 本(重要度 → 日付順)
 
-合計 18,677 行。P0 27 / P1 37 / P2 9。
+合計 18,757 行。P0 28 / P1 37 / P2 9。
 
-### P0(27 本)
+### P0(28 本)
 
 | 日付 | 答申 | 行 | 一次確認 | 分野 | 役割 |
 |---|---|---|---|---|---|
@@ -152,6 +152,7 @@ CLAUDE.md §5 に「リサーチサブは子サブを起動しない」「答申
 | 09-10 | [d66-outside-residents-research](v2-d66-outside-residents-research.md) | 502 | **B** | 交通工学(活動ベース) #2 / 人間移動科学 #3 | 域外居住者の到着・退出アンカー。v2.1 読み口の根拠 |
 | 09-11 | [d68-behavioral-diversity-research](v2-d68-behavioral-diversity-research.md) | 437 | **B** | 人間移動科学 #3 / 時間利用研究 #4 / 人格心理学 #13 | 行動の多様性。17モチーフ・予測可能性93%・同質化 |
 | 09-12 | [llm-social-sim-timeline-seed](v2-llm-social-sim-timeline-seed.md) | 64 | **B** | 計算社会科学 #25 | LLM 社会シミュの現在地(未正典化)。R-2 の対象 17 件 |
+| 09-16 | [w7-law-primary-check-research](v2-w7-law-primary-check-research.md) | 80 | **B** | 法学(業法・条例) #11 / 地理情報科学 #9 | W7 法規の条文一次確認とコード突合(L-24)。法学 #11 を D→B。D-72 の出所 |
 
 ### P1(37 本)
 

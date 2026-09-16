@@ -99,6 +99,7 @@ C = {
  'v2-world-model-relation-research.md':         ([25],    'P2', '世界モデル(Genie 等)との関係'),
  'v2-world-process-inventory-research.md':      ([19,20], 'P0', '世界過程の棚卸しと拡張ロードマップ。陣分けの出所'),
  'v2-world-process-rows-research.md':           ([19,10], 'P0', 'エンジン/LLM 線引き16行の詳細決定材料'),
+ 'v2-w7-law-primary-check-research.md':         ([11,9],  'P0', 'W7 法規の条文一次確認とコード突合(L-24)。法学 #11 を D→B。D-72 の出所'),
 }
 
 # 一次確認の等級を上書きする例外(親が中身を見て判断)

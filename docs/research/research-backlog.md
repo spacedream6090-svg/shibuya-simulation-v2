@@ -37,7 +37,7 @@
 | R-10 | **知覚 §10.2 の残**: 日本語成人の最大読書速度(cpm)の正典値・中小媒体の p_see(0.14-0.40 は英仏流用)・ISO 9921 数表と Lazarus 原典・Milgram 1969 原典・Hyman 2010 の群別 n | F-5 として登録済み | [v2-perception-contract.md](../design/v2-perception-contract.md) §10.2 |
 | R-11 | **p_notice 系の 10 件**: Simons & Chabris の内訳・Haun 2021 の E2(孫引きの疑い→原典 JOV)・周辺視の運動検出閾値・Bouma 定数・視覚探索スロープ・Johnson 原典のサイクル数・ANSI S3.5-1997 の発声努力 SPL・IEC/EN 62676-4 の DORI・夜間の認識距離・群衆遮蔽度の 4 段 | **サーチスニペットのみ/規格本文未確認**が大半 | [v2-p-notice-research.md](v2-p-notice-research.md) 補足 |
 | R-12 | **会話契約の二次引用**: Mastroianni 2021 PNAS(原典 403・持続時間の分布は空欄)・Sellen 1995・Robbins & Karan 2020(press release 経由)・Zhou 2005(要旨のみ)・Mollenhorst 2014(原典未読=内層の年間入替率が空欄)・ALFWorld の "Nothing happens." | 行動・会話契約書が依存 | [v2-action-conversation-contract-research.md](v2-action-conversation-contract-research.md) 空欄一覧 |
-| R-13 | **聴覚**: hearing_verification の汚染除去版の正典化・Forssberg(原典不明のまま空欄)・消防法条文の e-Gov 直接確認(API 404) | F-6 として登録済み | PENDING F-6 |
+| R-13 | **聴覚**: hearing_verification の汚染除去版の正典化・Forssberg(原典不明のまま空欄)・消防法条文の e-Gov 直接確認(~~API 404~~ → **第199: e-Gov API v1 は生きている**=`/api/1/articles;lawId=…;article=…`。HTML は JS で本文が取れない) | F-6 として登録済み | PENDING F-6 |
 | R-14 | **計器盤**: Augusiak 2014 要旨・Siepe 2024 の反復回数式・ECMWF 原文・History Matching for ABM(2501.00616)・LLM エージェント評価サーベイ(2507.21504)・2022 年の評価記述標準プロトコル | 面2(予測)の指標選定が依存 | [v2-dashboard-verification-orchestration.md](../design/v2-dashboard-verification-orchestration.md) §4 |
 | R-15 | **倫理・公開**: OASIS 付録 I 全文・Generative Agents §8.3 の残り・日本心理学会倫理規程・Five Safes 原文・EU AI Act 50 条(2) 原文・HF データセットカード原文・犯罪学 ABM の倫理 | 公開・論文化の段で要る | [v2-ethics-safety-operations.md](../design/v2-ethics-safety-operations.md) §4 |
 | R-16 | **F-8 サーベイ由来の 4 件**: PIMMUR 6 原則の準拠表・Unawareness 監査の実 LLM 出力での自己言及率・数日連続稼働のドリフト観察・行動分散アンカー(2604.01520 考察節は本文未読) | ユーザー判断待ち | PENDING F-8 |
@@ -51,7 +51,7 @@
 | # | 何を | なぜ要る | 状態 |
 |---|---|---|---|
 | **R-23** | **2026-08-30〜09-01 の答申 33 本の一次確認**。この 33 本は **URL を 1 件も含まない**(出典痕跡の合計 0〜17・うち 9 本は完全にゼロ)。09-02 以降の 40 本は中央値 62 件。断層の理由は **2026-09-03 のサブ捏造申告事件**で CLAUDE.md §5(親一次確認)が入る**前**のバッチだから | これらを根拠に新しい決定をしないため。**救い: 33 本に P0 は 1 本も無い**(P1 24・P2 9)。P0 の答申はすべて 09-02 以降 | **未着手**(web 復帰後・[B-2 実行票](RESEARCH-STATE.md)) |
-| **R-24** | **法学(業法・条例)#11 の答申 2 本がどちらも D 等級**(institutions-deep / precedent-system-deep)。営業時間の法定上限・立入制限・許容地域は**世界に実装されている**のに、根拠の答申に出典が無い | W7 営業時間・風営法の扱いが依存。分野別で最良等級が D なのはこの 1 分野だけ | **未着手**・優先は R-23 の中で最上位 |
+| **R-24** | ~~法学 #11 の答申 2 本が D 等級~~ → **第199 で再診断**: W7 はその 2 本に**依存していない**(両本に風営法の言及ゼロ)。実際の根拠は world-data-build-spec F13/D-W8 と round2-research B5(URL は巻末一括・条文ごとの紐付けなし)。**答申 [v2-w7-law-primary-check-research.md](v2-w7-law-primary-check-research.md) で法学 #11 を D→B に上げた**。残務=都条例・規則・青少年条例の逐語を親が再取得して A へ/告示番号・告示日/施行令 8・22 条/特定遊興 許容地域 2/用途地域の機械可読レイヤ | 突合で **D-72(コードと条文の不一致 6 件)** が出た | **部分完了**(第199) |
 | **R-25** | **統計学・因果推論 #23 と犯罪学 #32 に答申が 1 本も無い**(索引で数え直した結果。第180 の「答申が無い 4 分野」とは数え方が違う=第180 は主題として扱った答申、索引は紐づく答申) | #23 は事前登録・共通乱数・反実仮想の出所。**D-70(N を減らす設計)が直接ここに依存する** | **未着手** |
 | **R-26** | **C 等級 1 本**(ad-information・痕跡 143 件だが空欄節が無い)。空欄が無いのか未整理なのか未判定 | 社会ネットワーク科学 #14 の唯一の答申 | 読めば済む(web 不要) |
 
