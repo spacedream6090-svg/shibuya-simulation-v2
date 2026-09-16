@@ -1,0 +1,404 @@
+{
+ "arm": "AB7-OPEN-INTENT",
+ "index": "⑦",
+ "name": "24 語のホワイトリストを見せる vs 自由文の意図(入口は自由・効果は閉じる)",
+ "design_source": "docs/design/v2-open-intent-arm-spec.md §1-§2(自由意図の腕・2026-09-16 ユーザー承認)・行動契約書 §7 段0〜1(未定義行動の接地)",
+ "switch": {
+  "kind": "implemented_flag",
+  "how": "cli.run(intent_mode='vocab'|'open') / CLI --intent-mode {vocab,open}",
+  "implemented": true,
+  "mock_effective": false,
+  "mock_note": "MockLLM はプロンプト本文を読まないので、B0 のバイトが変わっても mock では行動分布も final_hash も呼数も動かない(AB1・AB6 と同じ理由・C6 実測)。腕の差は実 LLM でしか出ない。",
+  "verified": "run_day(intent_mode=…) → Renderer(intent_mode=…) → templates.b0_system(mode) で B0 の system ブロックだけが入れ替わる。OUTPUT_SPEC_OPEN は OUTPUT_SPEC の『行動:』断片 1 つの置換で作るので、理由・対象・ひと言・2 行形・JSON 禁止は構成から同文。既定 vocab は TEMPLATES['B0.system'] と**同一オブジェクト**=template_sha256 161fe181… 不変・mock 実資産 5,000 体×1 日の checkpoint 不変(**親が第200 で再検収**: v2 既定 ba01bd0b…・v2.1 4fb0f2ec…・--intent-mode open も ba01bd0b… で mock では不変・lint-imports 5 kept・runner の mock 通し実行 executed)。tests/perception/test_intent_mode_open.py・tests/engine/test_intent_mode_open.py・tests/test_cli_intent_mode.py・tests/c8/test_ablations_ab7.py。"
+ },
+ "status": "ready",
+ "scale": {
+  "agents": 5000,
+  "ticks": 1440,
+  "seed": 1
+ },
+ "route": "fleet",
+ "runs": [
+  {
+   "llm_calls": 36906,
+   "calls_per_agent_day": 7.3812,
+   "format_error_rate": 0.005012735056630358,
+   "format_error_rate_strict": 0.45125453855741615,
+   "undefined_action_count": 2,
+   "conversation_sessions": 3,
+   "prompt_tokens_mean": 920.8270741884788,
+   "group_tokens": {
+    "shared_static": 642.8718907494716,
+    "cell": 147.52338373164255,
+    "individual": 130.43179970736466
+   },
+   "diagnostics_day": {
+    "deferred": 40236.0,
+    "promoted": 28354.0,
+    "degraded": 8170.0,
+    "suppressed": 50055.0,
+    "parse_error_rate": 0.005012735056630358,
+    "undefined_action_count": 2.0,
+    "tape_miss_count": 0.0,
+    "conversation_sessions": 3.0
+   },
+   "conserved": true,
+   "census_pass": true,
+   "salient_events": 0,
+   "noticed": 0,
+   "final_hash": "0f56385bc798eacb2b17b36c0795608068ec7d56ccfb7bed4fa14e23dda021a2",
+   "budget_mode": "fixed_slots",
+   "intent_mode": "vocab",
+   "run_manifest_fields": {
+    "replay_date": "2026-07-28",
+    "template_sha256": "161fe181bc325f003d874fb5c91e6142c01449fb09ac5f8b377b715a945608de",
+    "budget_mode": "fixed_slots",
+    "p_notice_ablation": "A4",
+    "p_notice_d50_scale": 1.0,
+    "refractory_scale": {},
+    "signage": true,
+    "intent_mode": "vocab",
+    "plan_executor": true,
+    "exit_mode": "immediate",
+    "attendance_rate": 1.0,
+    "catalog_sha16": "34f9fa9d316587be",
+    "ablations": []
+   },
+   "notice_reach": 0.0,
+   "undefined_registry": {
+    "n_calls": 36906,
+    "denominator": "bridge_counters['llm_calls'](=解釈まで進んだ呼・発射数ではない)",
+    "counters": {
+     "undefined_records": 2,
+     "undefined_words": 1,
+     "undefined_dropped": 0,
+     "dictionary_mapped": 183,
+     "proposals": 0,
+     "needs_parent_review": 0,
+     "adopted": 0,
+     "adjudication_calls": 0
+    },
+    "undefined_rate": 5.419173034194982e-05,
+    "dictionary_rate": 0.004958543326288409,
+    "grounded_direct": 0.9949872649433696,
+    "threshold_agents": 10,
+    "top_k": 30,
+    "top_words": [
+     {
+      "word": "通貨",
+      "count": 2,
+      "distinct_agents": 2,
+      "reached_threshold": false
+     }
+    ],
+    "n_reached_threshold": 0
+   },
+   "action_counts": {
+    "待機": 1359,
+    "移動": 16781,
+    "退去": 29,
+    "乗車": 907,
+    "購入": 16169,
+    "休憩": 1616,
+    "会話": 25,
+    "(未定義)": 2,
+    "通報": 18
+   },
+   "undefined_rate": 5.419173034194982e-05,
+   "role_action_rate": 0.0,
+   "n_texts": 36906,
+   "grounding": {
+    "n": 36906,
+    "denominator": "非繰り延べのテープ行(D-58)",
+    "n_direct": 36721,
+    "n_dictionary": 183,
+    "n_undefined": 2,
+    "grounded_direct": 0.9949872649433696,
+    "grounded_dictionary": 0.004958543326288409,
+    "grounded_total": 0.9999458082696581,
+    "undefined_rate": 5.419173034194982e-05
+   },
+   "tag": "vocab",
+   "kwargs": {
+    "intent_mode": "vocab"
+   },
+   "is_baseline": true,
+   "route": "cli.run(fleet=…)"
+  },
+  {
+   "llm_calls": 36868,
+   "calls_per_agent_day": 7.3736,
+   "format_error_rate": 0.9455354236736465,
+   "format_error_rate_strict": 0.9468102419442335,
+   "undefined_action_count": 603,
+   "conversation_sessions": 0,
+   "prompt_tokens_mean": 899.6048605837041,
+   "group_tokens": {
+    "shared_static": 621.8682597374417,
+    "cell": 147.11614408158837,
+    "individual": 130.62045676467397
+   },
+   "diagnostics_day": {
+    "deferred": 40232.0,
+    "promoted": 27103.0,
+    "degraded": 8637.0,
+    "suppressed": 50221.0,
+    "parse_error_rate": 0.9455354236736465,
+    "undefined_action_count": 603.0,
+    "tape_miss_count": 0.0,
+    "conversation_sessions": 0.0
+   },
+   "conserved": true,
+   "census_pass": true,
+   "salient_events": 0,
+   "noticed": 0,
+   "final_hash": "138a6963fcde3bcada894c752068018a4367b0dd870ff89e99e1cae4aa92d647",
+   "budget_mode": "fixed_slots",
+   "intent_mode": "open",
+   "run_manifest_fields": {
+    "replay_date": "2026-07-28",
+    "template_sha256": "161fe181bc325f003d874fb5c91e6142c01449fb09ac5f8b377b715a945608de",
+    "budget_mode": "fixed_slots",
+    "p_notice_ablation": "A4",
+    "p_notice_d50_scale": 1.0,
+    "refractory_scale": {},
+    "signage": true,
+    "intent_mode": "open",
+    "plan_executor": true,
+    "exit_mode": "immediate",
+    "attendance_rate": 1.0,
+    "catalog_sha16": "34f9fa9d316587be",
+    "ablations": []
+   },
+   "notice_reach": 0.0,
+   "undefined_registry": {
+    "n_calls": 36868,
+    "denominator": "bridge_counters['llm_calls'](=解釈まで進んだ呼・発射数ではない)",
+    "counters": {
+     "undefined_records": 603,
+     "undefined_words": 26,
+     "undefined_dropped": 0,
+     "dictionary_mapped": 34274,
+     "proposals": 0,
+     "needs_parent_review": 0,
+     "adopted": 0,
+     "adjudication_calls": 0
+    },
+    "undefined_rate": 0.01635564717370077,
+    "dictionary_rate": 0.9296408809807963,
+    "grounded_direct": 0.05400347184550287,
+    "threshold_agents": 10,
+    "top_k": 30,
+    "top_words": [
+     {
+      "word": "食事",
+      "count": 328,
+      "distinct_agents": 309,
+      "reached_threshold": true
+     },
+     {
+      "word": "行動",
+      "count": 90,
+      "distinct_agents": 90,
+      "reached_threshold": true
+     },
+     {
+      "word": "近づく",
+      "count": 49,
+      "distinct_agents": 45,
+      "reached_threshold": true
+     },
+     {
+      "word": "見る",
+      "count": 33,
+      "distinct_agents": 31,
+      "reached_threshold": true
+     },
+     {
+      "word": "近寄る",
+      "count": 30,
+      "distinct_agents": 29,
+      "reached_threshold": true
+     },
+     {
+      "word": "進む",
+      "count": 10,
+      "distinct_agents": 10,
+      "reached_threshold": true
+     },
+     {
+      "word": "飲食",
+      "count": 10,
+      "distinct_agents": 9,
+      "reached_threshold": false
+     },
+     {
+      "word": "取る",
+      "count": 9,
+      "distinct_agents": 8,
+      "reached_threshold": false
+     },
+     {
+      "word": "避雨",
+      "count": 8,
+      "distinct_agents": 8,
+      "reached_threshold": false
+     },
+     {
+      "word": "持つ",
+      "count": 6,
+      "distinct_agents": 6,
+      "reached_threshold": false
+     },
+     {
+      "word": "走る",
+      "count": 5,
+      "distinct_agents": 5,
+      "reached_threshold": false
+     },
+     {
+      "word": "避難",
+      "count": 4,
+      "distinct_agents": 4,
+      "reached_threshold": false
+     },
+     {
+      "word": "近寄",
+      "count": 3,
+      "distinct_agents": 3,
+      "reached_threshold": false
+     },
+     {
+      "word": "冷たい飲み物",
+      "count": 3,
+      "distinct_agents": 3,
+      "reached_threshold": false
+     },
+     {
+      "word": "喫茶",
+      "count": 2,
+      "distinct_agents": 2,
+      "reached_threshold": false
+     },
+     {
+      "word": "探",
+      "count": 2,
+      "distinct_agents": 2,
+      "reached_threshold": false
+     },
+     {
+      "word": "持つ 水筒",
+      "count": 2,
+      "distinct_agents": 2,
+      "reached_threshold": false
+     },
+     {
+      "word": "飲食店",
+      "count": 1,
+      "distinct_agents": 1,
+      "reached_threshold": false
+     },
+     {
+      "word": "飲み物 取り出し",
+      "count": 1,
+      "distinct_agents": 1,
+      "reached_threshold": false
+     },
+     {
+      "word": "電話",
+      "count": 1,
+      "distinct_agents": 1,
+      "reached_threshold": false
+     },
+     {
+      "word": "求める",
+      "count": 1,
+      "distinct_agents": 1,
+      "reached_threshold": false
+     },
+     {
+      "word": "聞く",
+      "count": 1,
+      "distinct_agents": 1,
+      "reached_threshold": false
+     },
+     {
+      "word": "行動 目的",
+      "count": 1,
+      "distinct_agents": 1,
+      "reached_threshold": false
+     },
+     {
+      "word": "飲み",
+      "count": 1,
+      "distinct_agents": 1,
+      "reached_threshold": false
+     },
+     {
+      "word": "返す",
+      "count": 1,
+      "distinct_agents": 1,
+      "reached_threshold": false
+     },
+     {
+      "word": "前進",
+      "count": 1,
+      "distinct_agents": 1,
+      "reached_threshold": false
+     }
+    ],
+    "n_reached_threshold": 6
+   },
+   "action_counts": {
+    "移動": 22306,
+    "退去": 1,
+    "待機": 225,
+    "休憩": 202,
+    "購入": 13521,
+    "(未定義)": 603,
+    "並ぶ": 2,
+    "乗車": 1,
+    "会話": 7
+   },
+   "undefined_rate": 0.01635564717370077,
+   "role_action_rate": 5.424758598242378e-05,
+   "n_texts": 36868,
+   "grounding": {
+    "n": 36868,
+    "denominator": "非繰り延べのテープ行(D-58)",
+    "n_direct": 1991,
+    "n_dictionary": 34274,
+    "n_undefined": 603,
+    "grounded_direct": 0.05400347184550287,
+    "grounded_dictionary": 0.9296408809807963,
+    "grounded_total": 0.9836443528262993,
+    "undefined_rate": 0.01635564717370077
+   },
+   "tag": "open",
+   "kwargs": {
+    "intent_mode": "open"
+   },
+   "is_baseline": false,
+   "route": "cli.run(fleet=…)"
+  }
+ ],
+ "notes": [],
+ "executed": true,
+ "comparisons": [
+  {
+   "tag": "open",
+   "identical_final_hash": false,
+   "d_llm_calls": -38,
+   "d_format_error_rate": 0.9405226886170162,
+   "d_notice_reach": 0.0,
+   "d_prompt_tokens_mean": -21.222213604774765,
+   "action_jsd": 0.0518216754022346,
+   "null_reference_bits": 0.0035,
+   "exceeds_null": true,
+   "d_grounded_direct": -0.9409837930978667,
+   "d_grounded_dictionary": 0.9246823376545079,
+   "d_grounded_total": -0.016301455443358814,
+   "d_undefined_rate": 0.01630145544335882
+  }
+ ]
+}
