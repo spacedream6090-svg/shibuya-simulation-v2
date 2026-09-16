@@ -101,6 +101,8 @@ C = {
  'v2-world-process-rows-research.md':           ([19,10], 'P0', 'エンジン/LLM 線引き16行の詳細決定材料'),
  'v2-w7-law-primary-check-research.md':         ([11,9],  'P0', 'W7 法規の条文一次確認とコード突合(L-24)。法学 #11 を D→A。D-72 の出所'),
  'v2-replication-count-research.md':            ([23,21], 'P0', '反復回数(seed 数)の文献手続き 7 系譜と「初回 8 seed」の位置(L-B)。D-70/D-44/G-8 の材料。統計 #23 の最初の答申'),
+ 'v2-r2-llm-social-sim-fulltext-check.md':      ([25,22,27,23,28], 'P1', 'LLM 社会シミュ文献 12 件の本文実読の判定表(R-2)。lit 12 本の親。OASIS 超線形・事前登録の外部根拠・TRAILS-R の空白=D-75/D-70 の出所'),
+ 'v2-r23-primary-check-batch1.md':              ([22,25,21], 'P1', '出典 URL ゼロの答申 33 本の一次確認 第1批(設計書が引く 8 本・28 主張)。D-74(値を直す 4 件)の出所・写し検査の提案(R-23)'),
 }
 
 # 一次確認の等級を上書きする例外(親が中身を見て判断)
@@ -111,6 +113,9 @@ OVERRIDE = {
  # 09-16 第200: 引用条文(風営法 13/22/32・都条例 4条の2/4条の3/5/11/13/15・規則 5/6・青少年条例 15条の4/16/26)を親が全て再取得し逐語一致を確認。告示 PDF のみ親未再取得
  'v2-w7-law-primary-check-research.md': ('A', '親再取得(2026-09-16・第200)。逐語一致つき。空欄 6 件(§4)・告示 PDF は親未再取得'),
  'v2-replication-count-research.md': ('A', '親再取得(2026-09-16・第200)。9 出典を親が再取得(4 Web+5 PDF)・全数値を再計算。空欄 5 件(§4: Lorscheid 原典・Law 教科書原文・Secchi 式(2) 係数・Leutbecher 査読版・ECMWF「51」の根拠文書)'),
+ # 09-16 第202: サブ実読+親が 3 主張を原典で再確認(Goel 2016 PDF「on average」・Law in Silico HTML に precedent なし・Ruri カード 71.53<71.65)。Dunbar 1995(有料)・UE5 の不在は親未確認
+ 'v2-r2-llm-social-sim-fulltext-check.md': ('B', 'サブ実読 12 件(2026-09-16・第202)+親が 4 件を原典で確認(OASIS Table 2・GAMA Table 3・Ye 事前登録の不在・Larooij PDF 逐語)。残り 8 件は親未確認・空欄 18 行(§3)'),
+ 'v2-r23-primary-check-batch1.md': ('B', 'サブ実読(2026-09-16・第202)+親が 3/28 主張を原典で確認。Dunbar 1995・UE5 不在は親未確認。答申本体の等級は動かしていない(確認済み主張は本文に印)'),
  'v2-area-boundary-map-reading.md': ('E', '親自身の地図読み取り。外部出典が本質的に不要'),
  'v2-kddi-attribute-shares-2024.md': ('E', '親が手元生データ la_raw.json から再集計。外部出典不要'),
 }

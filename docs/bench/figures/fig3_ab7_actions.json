@@ -1,0 +1,373 @@
+{
+ "schema": "shibuya.tools.fig/ab7_actions/1",
+ "figure": "fig3_ab7_actions",
+ "what": "AB7-OPEN-INTENT seed 1 の行動語分布(vocab vs open)と open 腕の生表層。",
+ "inputs": {
+  "tape_root": "data/tape/c8_ab7_s1",
+  "arm": "AB7-OPEN-INTENT"
+ },
+ "vocab_size": 24,
+ "words_shown": [
+  "移動",
+  "購入",
+  "待機",
+  "休憩",
+  "乗車",
+  "会話",
+  "退去",
+  "通報",
+  "並ぶ"
+ ],
+ "words_all_zero": [
+  "降車",
+  "手伝い",
+  "断る",
+  "就寝",
+  "接客",
+  "補充",
+  "開閉店",
+  "価格改定",
+  "発車",
+  "停車",
+  "放送",
+  "遅延報告",
+  "計画改訂",
+  "指示",
+  "撮影"
+ ],
+ "jsd_bits": {
+  "action_counts": 0.051822,
+  "resolved": 0.036354
+ },
+ "runner": {
+  "path": "docs/bench/c8/ablation/ablation_AB7-OPEN-INTENT_s1.json",
+  "action_jsd": 0.0518216754022346,
+  "null_reference_bits": 0.0035,
+  "exceeds_null": true,
+  "llm_calls": {
+   "vocab": 36906,
+   "open": 36868
+  },
+  "scale": {
+   "agents": 5000,
+   "ticks": 1440,
+   "seed": 1
+  }
+ },
+ "arms": {
+  "vocab": {
+   "label": "vocab(24 語を見せる)",
+   "path": "data/tape/c8_ab7_s1/AB7-OPEN-INTENT__vocab",
+   "n_rows": 36906,
+   "n_live": 36906,
+   "deferred": 0,
+   "action_counts": {
+    "待機": 1359,
+    "移動": 16781,
+    "退去": 29,
+    "乗車": 907,
+    "購入": 16169,
+    "休憩": 1616,
+    "会話": 25,
+    "通報": 18,
+    "(未定義)": 2
+   },
+   "resolved": {
+    "待機": 1361,
+    "移動": 16781,
+    "退去": 29,
+    "乗車": 907,
+    "購入": 16169,
+    "休憩": 1616,
+    "会話": 25,
+    "通報": 18
+   },
+   "n_undefined": 2,
+   "empty_action_rows": 0,
+   "entropy_resolved_bits": 1.5638,
+   "entropy_excl_undefined_bits": 1.5637,
+   "format_error_rate": 0.005013,
+   "top_surfaces": [
+    {
+     "surface": "移動",
+     "count": 16401,
+     "route": "direct",
+     "to": "移動"
+    },
+    {
+     "surface": "購入",
+     "count": 16148,
+     "route": "direct",
+     "to": "購入"
+    },
+    {
+     "surface": "休憩",
+     "count": 1616,
+     "route": "direct",
+     "to": "休憩"
+    },
+    {
+     "surface": "待機",
+     "count": 1343,
+     "route": "direct",
+     "to": "待機"
+    },
+    {
+     "surface": "乗車",
+     "count": 906,
+     "route": "direct",
+     "to": "乗車"
+    },
+    {
+     "surface": "探索",
+     "count": 117,
+     "route": "stage0",
+     "to": "移動"
+    },
+    {
+     "surface": "移動 food1954",
+     "count": 80,
+     "route": "direct",
+     "to": "移動"
+    },
+    {
+     "surface": "移動 に",
+     "count": 72,
+     "route": "direct",
+     "to": "移動"
+    },
+    {
+     "surface": "退去",
+     "count": 29,
+     "route": "direct",
+     "to": "退去"
+    },
+    {
+     "surface": "通勤",
+     "count": 29,
+     "route": "stage0",
+     "to": "移動"
+    },
+    {
+     "surface": "会話",
+     "count": 25,
+     "route": "direct",
+     "to": "会話"
+    },
+    {
+     "surface": "移動 shop0052",
+     "count": 23,
+     "route": "direct",
+     "to": "移動"
+    },
+    {
+     "surface": "通報",
+     "count": 18,
+     "route": "direct",
+     "to": "通報"
+    },
+    {
+     "surface": "購入 food1954",
+     "count": 15,
+     "route": "direct",
+     "to": "購入"
+    },
+    {
+     "surface": "観察",
+     "count": 14,
+     "route": "stage0",
+     "to": "待機"
+    },
+    {
+     "surface": "探す",
+     "count": 13,
+     "route": "stage0",
+     "to": "移動"
+    },
+    {
+     "surface": "移動 目標: カフェ",
+     "count": 7,
+     "route": "direct",
+     "to": "移動"
+    },
+    {
+     "surface": "進入",
+     "count": 7,
+     "route": "stage0",
+     "to": "移動"
+    },
+    {
+     "surface": "移動 行動",
+     "count": 5,
+     "route": "direct",
+     "to": "移動"
+    },
+    {
+     "surface": "移動 目標: 物のカテゴリ",
+     "count": 3,
+     "route": "direct",
+     "to": "移動"
+    }
+   ]
+  },
+  "open": {
+   "label": "open(自由文の意図)",
+   "path": "data/tape/c8_ab7_s1/AB7-OPEN-INTENT__open",
+   "n_rows": 36868,
+   "n_live": 36868,
+   "deferred": 0,
+   "action_counts": {
+    "移動": 22306,
+    "退去": 1,
+    "待機": 225,
+    "休憩": 202,
+    "購入": 13521,
+    "並ぶ": 2,
+    "乗車": 1,
+    "会話": 7,
+    "(未定義)": 603
+   },
+   "resolved": {
+    "移動": 22306,
+    "退去": 1,
+    "待機": 828,
+    "休憩": 202,
+    "購入": 13521,
+    "並ぶ": 2,
+    "乗車": 1,
+    "会話": 7
+   },
+   "n_undefined": 603,
+   "empty_action_rows": 0,
+   "entropy_resolved_bits": 1.1374,
+   "entropy_excl_undefined_bits": 1.0532,
+   "format_error_rate": 0.945997,
+   "top_surfaces": [
+    {
+     "surface": "行く",
+     "count": 20508,
+     "route": "stage0",
+     "to": "移動"
+    },
+    {
+     "surface": "食べる",
+     "count": 12594,
+     "route": "stage0",
+     "to": "購入"
+    },
+    {
+     "surface": "移動",
+     "count": 1352,
+     "route": "direct",
+     "to": "移動"
+    },
+    {
+     "surface": "買う",
+     "count": 548,
+     "route": "stage0",
+     "to": "購入"
+    },
+    {
+     "surface": "食事",
+     "count": 328,
+     "route": "undefined",
+     "to": "待機"
+    },
+    {
+     "surface": "購入",
+     "count": 229,
+     "route": "direct",
+     "to": "購入"
+    },
+    {
+     "surface": "探す",
+     "count": 212,
+     "route": "stage0",
+     "to": "移動"
+    },
+    {
+     "surface": "休憩",
+     "count": 177,
+     "route": "direct",
+     "to": "休憩"
+    },
+    {
+     "surface": "待機",
+     "count": 131,
+     "route": "direct",
+     "to": "待機"
+    },
+    {
+     "surface": "行動",
+     "count": 90,
+     "route": "undefined",
+     "to": "待機"
+    },
+    {
+     "surface": "探索",
+     "count": 86,
+     "route": "stage0",
+     "to": "移動"
+    },
+    {
+     "surface": "観察",
+     "count": 80,
+     "route": "stage0",
+     "to": "待機"
+    },
+    {
+     "surface": "行動 移動",
+     "count": 60,
+     "route": "direct",
+     "to": "移動"
+    },
+    {
+     "surface": "買い物",
+     "count": 52,
+     "route": "stage0",
+     "to": "購入"
+    },
+    {
+     "surface": "近づく",
+     "count": 49,
+     "route": "undefined",
+     "to": "待機"
+    },
+    {
+     "surface": "飲む",
+     "count": 44,
+     "route": "stage0",
+     "to": "購入"
+    },
+    {
+     "surface": "見る",
+     "count": 33,
+     "route": "undefined",
+     "to": "待機"
+    },
+    {
+     "surface": "近寄る",
+     "count": 30,
+     "route": "undefined",
+     "to": "待機"
+    },
+    {
+     "surface": "歩く",
+     "count": 24,
+     "route": "stage0",
+     "to": "移動"
+    },
+    {
+     "surface": "休む",
+     "count": 23,
+     "route": "stage0",
+     "to": "休憩"
+    }
+   ]
+  }
+ },
+ "outputs": {
+  "png": "docs/bench/figures/fig3_ab7_actions.png",
+  "svg": "docs/bench/figures/fig3_ab7_actions.svg"
+ }
+}

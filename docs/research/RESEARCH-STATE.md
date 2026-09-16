@@ -5,6 +5,7 @@
 - **一次確認**: 本書自体は状態の記録であって主張をしない。**各行の状態が正**
 - **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **v1 資産**: [v1-asset-triage.md](v1-asset-triage.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
 
+> 最終更新 **2026-09-16(第202)**: **R-23 第1批 完了**(設計書が引く 8 本・28 主張・答申 [v2-r23-primary-check-batch1.md](v2-r23-primary-check-batch1.md)・親確認 3 件 → PENDING D-74)。**R-2 完了**(lit 12 本+答申 [v2-r2-llm-social-sim-fulltext-check.md](v2-r2-llm-social-sim-fulltext-check.md)・親確認 4 件=OASIS/GAMA/Ye/Larooij・新発見 3: OASIS は超線形 N^1.5・事前登録の外部根拠は Larooij の 1 行のみ・TRAILS-R 5 次元が v2 に空白=v1 S-16 の置換忘れ → PENDING D-75・D-70 追記)。
 > 最終更新 **2026-09-16(第200)**: §0 の Web 停止は **09-16 08 時に復旧**(第197)。R-24(法学)と A-3(反復回数=L-B)は第199〜200 で完了。
 > 最終更新 **2026-09-15(第191)**。ユーザー指示 09-15「調べきれなかったところ・不明なところをきちんと明示して、進行状況を次のエージェントが理解できるようにしておいてほしい」。
 
@@ -28,7 +29,7 @@ WebFetch  → 同一のエラー
 
 1. **R-23 の P1 24 本のうち、いま決定に効いているものから**([INDEX.md](INDEX.md) §1 の表)。~~特に R-24 = 法学 #11 の 2 本~~ → **R-24 は第199〜200 で完了**(W7 はその 2 本に依存していなかった・法学 #11 は答申 `v2-w7-law-primary-check-research.md` で A 等級・副産物 D-72)。
 2. **第190 の未確認 4 件**(§2-A)。1 件あたり 1 回の取得で済む。
-3. **R-2 の 11 件**(§2-B)。arXiv ID は判明済みなので機械的に消化できる。
+3. **R-2 の 11 件**(§2-B)。arXiv ID は判明済みなので機械的に消化できる。→ **第202 完了**(12 件・答申 [v2-r2-llm-social-sim-fulltext-check.md](v2-r2-llm-social-sim-fulltext-check.md)・lit 12 本・親確認 4 件)。
 
 ---
 
@@ -69,19 +70,19 @@ Web を使わずに進められる分だけを実行した。
 
 | # | 論文 | ID | 本文で確かめること | 状態 |
 |---|---|---|---|---|
-| B-1 | Examining Identity Drift(Choi et al.) | arXiv 2412.00804 | 「大きいモデルほど漂う」の効果量。D-68 の同一性設計へ | 未着手 |
-| B-2 | Systematic Biases in LLM Simulations of Debates(Taubenfeld・EMNLP 2024) | arXiv 2402.04049 | 党派ペルソナの基底回帰の大きさ。広告の過剰反応(D-56 系)と同根かの判定 | 未着手 |
-| B-3 | StateAct(Rozanov & Rei) | arXiv 2410.02810 | 状態を「LLM の出力の中に書く」方式の効果。知覚テンプレの状態欄へ | 未着手 |
-| B-4 | The Effect of State Representation(Goodyear et al.) | arXiv 2506.15624 | どの書き方が均衡に近づくか。知覚テンプレ 3 層の設計変数 | 未着手 |
-| B-5 | GAMA + Agno(都市モビリティ) | arXiv 2607.02716 | **表 3 の計算費**(有志の「3〜5 倍」は抄録に無い)。D-70 の比較表に 4 例目として入る可能性 | 未着手 |
-| B-6 | Larooij & Törnberg「検証が中心課題」 | AI Review 2025-11-18・**PMC で全文公開** | face-validity 依存とデータ漏洩の警告の具体。holdout の作法の外部根拠 | 未着手 |
-| B-7 | AI Agents Alone Are Not (Yet) Sufficient | arXiv 2603.00113 | **処方側の記述**があるか(親は脆さ側で読んだ・有志は処方側で読んだ) | 未着手 |
-| B-8 | 頑健性監査(Ye et al.) | arXiv 2605.18890 | **事前登録の推奨が本文にあるか**(#14 の実体探索を兼ねる)。TRAILS 3 層を C8 ablation へ写すか | 未着手 |
-| B-9 | Causal Agent Replay(Shah) | arXiv 2606.08275 | 介入再生の手続き。この repo はテープ再生で同一確認済みだが**介入再生は未実装** | 未着手 |
-| B-10 | Steering Geometry | arXiv 2609.06289 | 指示微調整後の劣化の程度。採らない道の確認 | 未着手 |
-| B-11 | Procedural Graphs(Lu et al.) | arXiv 2609.09153 | 手続き知識グラフ。第2陣の記憶/習慣の表現候補 | 未着手 |
+| B-1 | Examining Identity Drift(Choi et al.) | arXiv 2412.00804 | 「大きいモデルほど漂う」の効果量。D-68 の同一性設計へ | **完了(第202)** |
+| B-2 | Systematic Biases in LLM Simulations of Debates(Taubenfeld・EMNLP 2024) | arXiv 2402.04049 | 党派ペルソナの基底回帰の大きさ。広告の過剰反応(D-56 系)と同根かの判定 | **完了(第202)** |
+| B-3 | StateAct(Rozanov & Rei) | arXiv 2410.02810 | 状態を「LLM の出力の中に書く」方式の効果。知覚テンプレの状態欄へ | **完了(第202)** |
+| B-4 | The Effect of State Representation(Goodyear et al.) | arXiv 2506.15624 | どの書き方が均衡に近づくか。知覚テンプレ 3 層の設計変数 | **完了(第202)** |
+| B-5 | GAMA + Agno(都市モビリティ) | arXiv 2607.02716 | **表 3 の計算費**(有志の「3〜5 倍」は抄録に無い)。D-70 の比較表に 4 例目として入る可能性 | **完了(第202)** |
+| B-6 | Larooij & Törnberg「検証が中心課題」 | AI Review 2025-11-18・**PMC で全文公開** | face-validity 依存とデータ漏洩の警告の具体。holdout の作法の外部根拠 | **完了(第202)** |
+| B-7 | AI Agents Alone Are Not (Yet) Sufficient | arXiv 2603.00113 | **処方側の記述**があるか(親は脆さ側で読んだ・有志は処方側で読んだ) | **完了(第202)** |
+| B-8 | 頑健性監査(Ye et al.) | arXiv 2605.18890 | **事前登録の推奨が本文にあるか**(#14 の実体探索を兼ねる)。TRAILS 3 層を C8 ablation へ写すか | **完了(第202)** |
+| B-9 | Causal Agent Replay(Shah) | arXiv 2606.08275 | 介入再生の手続き。この repo はテープ再生で同一確認済みだが**介入再生は未実装** | **完了(第202)** |
+| B-10 | Steering Geometry | arXiv 2609.06289 | 指示微調整後の劣化の程度。採らない道の確認 | **完了(第202)** |
+| B-11 | Procedural Graphs(Lu et al.) | arXiv 2609.09153 | 手続き知識グラフ。第2陣の記憶/習慣の表現候補 | **完了(第202)** |
 
-**+ B-12**: OASIS(arXiv 2411.11581)の **1M 体×1step = 18h / A100×27・100k×1step = 3h / A100×5** を一次確認 → [lit/](lit/) へ。**v1 の `docs/lit/mas__yang2024_oasis.md` に既に記録がある**ので、原典と突き合わせるだけで済む。第190 の比較表の 3 例目。
+**+ B-12(完了・第202・親確認)**: OASIS(arXiv 2411.11581)の **1M 体×1step = 18h / A100×27・100k×1step = 3h / A100×5** を一次確認 → [lit/](lit/) へ。**v1 の `docs/lit/mas__yang2024_oasis.md` に既に記録がある**ので、原典と突き合わせるだけで済む。第190 の比較表の 3 例目。
 
 ### C. R-3 — 個体の同質性の残 10 件(D-68 経路3 の設計に効く)
 
@@ -114,7 +115,7 @@ Web を使わずに進められる分だけを実行した。
 
 ### F. R-23〜R-26(第191 で新規)
 
-[research-backlog.md](research-backlog.md) §3b を参照。~~R-24(法学 #11 が両方 D 等級)が最優先~~ → **R-24 完了(第200・等級 A・D-72 8 件へ)**。**L-B も第200 で完了**(答申 [v2-replication-count-research.md](v2-replication-count-research.md)・A)。次の優先は R-23(出典ゼロ 33 本)と R-2(11 件)。
+[research-backlog.md](research-backlog.md) §3b を参照。~~R-24(法学 #11 が両方 D 等級)が最優先~~ → **R-24 完了(第200・等級 A・D-72 8 件へ)**。**L-B も第200 で完了**(答申 [v2-replication-count-research.md](v2-replication-count-research.md)・A)。次の優先は R-23(出典ゼロ 33 本)と R-2(11 件)。→ **第202: R-23 第1批 完了**([研究残務 R-23 行](research-backlog.md) に要約・値を直す 4 件は PENDING D-74)。第2批は背骨の 4 答申(economy-sfc / conversation / llm-mobility / institutions)から。
 
 ---
 
