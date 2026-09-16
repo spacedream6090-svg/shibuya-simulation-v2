@@ -1,4 +1,4 @@
-"""CLI ``--intent-mode {vocab,open}``(AB7-OPEN-INTENT の切替口・仕様書 §2 の表)。
+"""CLI ``--intent-mode {vocab,open,hint}``(AB7 自由意図の腕の切替口・仕様書 §2 の表)。
 
 ``--no-signage`` の往復テスト(``tests/perception/test_ablation6_signage.py``)と同じ書き方:
 ``cli.run`` を差し替えて ``main`` が何を渡したかを見る + 実際に回して run manifest を見る。
@@ -16,12 +16,13 @@ SMALL = dict(
 )
 
 
-def test_cli_run_passes_intent_mode_through_kwargs():
+@pytest.mark.parametrize("mode", ["open", "hint"])
+def test_cli_run_passes_intent_mode_through_kwargs(mode):
     from shibuya import cli
 
-    res = cli.run(intent_mode="open", **SMALL)
-    assert res.run_manifest_fields()["intent_mode"] == "open"
-    assert res.intent_mode == "open"
+    res = cli.run(intent_mode=mode, **SMALL)
+    assert res.run_manifest_fields()["intent_mode"] == mode
+    assert res.intent_mode == mode
 
 
 def test_cli_run_defaults_to_vocab():
@@ -32,7 +33,13 @@ def test_cli_run_defaults_to_vocab():
 
 
 @pytest.mark.parametrize(
-    "argv,expected", [([], "vocab"), (["--intent-mode", "open"], "open"), (["--intent-mode", "vocab"], "vocab")]
+    "argv,expected",
+    [
+        ([], "vocab"),
+        (["--intent-mode", "open"], "open"),
+        (["--intent-mode", "vocab"], "vocab"),
+        (["--intent-mode", "hint"], "hint"),
+    ],
 )
 def test_cli_main_has_the_intent_mode_flag(monkeypatch, argv, expected):
     from shibuya import cli

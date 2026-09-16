@@ -18,15 +18,17 @@
     ② ``--arm <id>`` で 1 腕を回す。既定 5,000 体×1,440 tick(``--ticks 24`` でスモーク)を
        ``shibuya.cli.run`` で走らせ、腕ごとの結果 JSON/Markdown を書く。
     ③ **切替口が無い腕**は回さずに差分案を印字して終わる(自前で src/ を触らない)。
-    ④ mock でも回るが、**プロンプト本文しか変えない腕(①⑥⑦)は mock では差が出ない**
+    ④ mock でも回るが、**プロンプト本文しか変えない腕(①⑥⑦⑦b)は mock では差が出ない**
        (MockLLM が本文を読まない=C6 実測)。その旨を「実 LLM 必須」と印字する。
     ⑤ **M1 接地率(2 段)・M2 未定義率・M3 上位未定義語**を集計する(``_grounding`` /
        ``_undefined_registry`` の docstring に分母・分子の式。``AB7-OPEN-INTENT`` の
        仕様書 ``docs/design/v2-open-intent-arm-spec.md`` §1)。**第1陣の 6 本でも同じ列が出る**
        (列追加のみ・既存の値は動かさない)。
 
-第1陣より後に足した腕(2026-09-16 現在 ``AB7-OPEN-INTENT`` の 1 本)は表の ``first_wave``
-の外にいる。``first_wave_ids`` が第1陣の名指しで、``validate_table`` はそれを使う。
+第1陣より後に足した腕(2026-09-17 現在 ``AB7-OPEN-INTENT`` と ``AB7b-HINT-INTENT`` の
+2 本)は表の ``first_wave`` の外にいる。``first_wave_ids`` が第1陣の名指しで、
+``validate_table`` はそれを使う。``--arm AB7`` は前方一致が 2 本に当たるので**引けない**
+(``--arm AB7-OPEN-INTENT`` / ``--arm AB7b`` のように書き分ける)。
 
 親がサーバーで叩く例::
 
@@ -62,8 +64,8 @@ ALLOWED_KWARGS: frozenset[str] = frozenset(
         "p_notice_d50_scale",    # 実装済(② d50 倍率)
         "refractory_scale",      # 実装済(③ 不応期倍率表)
         "signage",               # 実装済(⑥ 看板行の有無)
-        # ---- AB7-OPEN-INTENT(自由意図の腕・2026-09-16 実装) ----
-        "intent_mode",           # 実装済(vocab | open・B0 の出力規約だけを入れ替える)
+        # ---- AB7-OPEN-INTENT / AB7b-HINT-INTENT(自由意図の腕・2026-09-16/17 実装) ----
+        "intent_mode",           # 実装済(vocab | open | hint・B0 の出力規約だけを入れ替える)
     }
 )
 

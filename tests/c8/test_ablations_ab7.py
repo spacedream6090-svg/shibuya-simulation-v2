@@ -1,9 +1,11 @@
-"""腕 ``AB7-OPEN-INTENT`` の腕定義行と、M1〜M3 の集計(open-intent 仕様書 §1・§4 (d))。
+"""腕 ``AB7-OPEN-INTENT`` / ``AB7b-HINT-INTENT`` の腕定義行と、M1〜M3 の集計
+(open-intent 仕様書 §1・§4 (d))。
 
 見るもの
-(d1) ``ablations_v1.json`` に AB7 が **1 本増えた**(切替口つき・末尾・rank 7)/
-(d2) **既存 6 腕の定義はバイト不変**(``json.dumps(sort_keys=True)`` の SHA256 が
-     AB7 追加前の値のまま)。ここが動いたら第1陣の腕の意味が変わっている=止まる/
+(d1) ``ablations_v1.json`` に AB7 が増え(rank 7)、その後ろに **AB7b が足された**
+     (rank 8・末尾・切替口つき)/
+(d2) **既存 7 腕の定義はバイト不変**(``json.dumps(sort_keys=True)`` の SHA256 が
+     追加前の値のまま)。ここが動いたら既存の腕の意味が変わっている=止まる/
 (d3) ``runs`` の ``kwargs`` が ``intent_mode`` の 2 本で、許可リストを通る/
 (d4) ``run_metrics`` が M1(2 段接地率)・M2(未定義率)・M3(上位未定義語)を出し、
      **既存腕の出力は列追加のみ**(既存の値は動かない)。
@@ -18,8 +20,10 @@ from dataclasses import dataclass, field
 import pytest
 
 ARM_ID = "AB7-OPEN-INTENT"
+#: ヒント腕(2026-09-17・ユーザー決定「24 語を例として見せつつ自由文も許す」)。
+ARM_B_ID = "AB7b-HINT-INTENT"
 
-#: AB7 を足す**前**の腕定義(HEAD 93e1f9d の ``ablations_v1.json``)のカノニカル JSON SHA256。
+#: 腕定義のカノニカル JSON SHA256(第1陣 6 本は AB7 追加前・AB7 は AB7b 追加前の値)。
 #: ``hashlib.sha256(json.dumps(arm, sort_keys=True, ensure_ascii=False).encode()).hexdigest()``。
 FROZEN_ARM_SHA256 = {
     "AB1-BUDGET-MODE": "06e6ca1f1a734210fc7732ed21d0c9390f11c28a270ce5cd9349c15105c9f4d2",
@@ -28,6 +32,8 @@ FROZEN_ARM_SHA256 = {
     "AB4-HEARING-SNR": "a5767a3178a2eec2ada6c54225c68b7747367ae47513a5b0d137da2a0f6dcfcd",
     "AB5-INTROSPECTION": "bc969f25382f5ac88d295a5639d348a58cc18130bdab86c0a13eb517a71d0146",
     "AB6-AD-ZERO": "0b53c0308f45ab27a098ca03ce43bce42039eb7e4ac3ffa93816253aabbe0507",
+    # AB7b を足しても AB7 の定義は 1 バイトも動かない(2026-09-17 に凍結)。
+    "AB7-OPEN-INTENT": "be19b47185476fdd2e5154f61ce5fa31818811a11510f43be738b8af764dde7d",
 }
 
 
@@ -45,7 +51,8 @@ def _canonical_sha256(arm) -> str:
 # ---------------------------------------------------------------- (d1)(d2) 腕定義表
 def test_ab7_is_appended_to_the_table(ablation_runner, table):
     arms = table["arms"]
-    assert [a["id"] for a in arms][-1] == ARM_ID
+    ids = [a["id"] for a in arms]
+    assert ids[-2:] == [ARM_ID, ARM_B_ID]  # AB7 の後ろに AB7b を足した
     assert len(arms) == len(FROZEN_ARM_SHA256) + 1
     arm = ablation_runner.arm_by_id(table, ARM_ID)
     assert arm["rank"] == 7 and arm["index"] == "⑦"
@@ -55,7 +62,7 @@ def test_ab7_is_appended_to_the_table(ablation_runner, table):
 
 
 def test_the_existing_arms_are_byte_identical(table):
-    """**AB7 を足しても第1陣 6 本の定義は 1 バイトも動かない**(golden は追加前の値)。"""
+    """**AB7b を足しても第1陣 6 本と AB7 の定義は 1 バイトも動かない**(golden は追加前の値)。"""
     got = {a["id"]: _canonical_sha256(a) for a in table["arms"] if a["id"] in FROZEN_ARM_SHA256}
     assert got == FROZEN_ARM_SHA256
 
@@ -89,6 +96,62 @@ def test_ab7_kwargs_reach_run_day(ablation_runner, table, tmp_path):
     assert [r["tag"] for r in out["runs"]] == ["vocab", "open"]
     assert [r["intent_mode"] for r in out["runs"]] == ["vocab", "open"]
     assert [r["run_manifest_fields"]["intent_mode"] for r in out["runs"]] == ["vocab", "open"]
+    # mock では本文を読まないので checkpoint は動かない(=腕の差は実 LLM でしか出ない)
+    assert out["comparisons"][0]["identical_final_hash"] is True
+    assert any("実 LLM 必須" in n for n in out["notes"])
+
+
+# ---------------------------------------------------------------- AB7b ヒント腕
+def test_ab7b_is_the_last_arm_with_rank_8(ablation_runner, table):
+    arm = ablation_runner.arm_by_id(table, ARM_B_ID)
+    assert arm["rank"] == 8 and arm["index"] == "⑦b"
+    assert table["arms"][-1]["id"] == ARM_B_ID
+    assert ARM_B_ID not in ablation_runner.first_wave_ids(table), "第1陣は 6 本のまま"
+    assert arm["design_source"].startswith("docs/design/v2-open-intent-arm-spec.md")
+    assert arm["status"] == "ready"
+
+
+def test_ab7b_switch_and_runs(ablation_runner, table):
+    arm = ablation_runner.arm_by_id(table, ARM_B_ID)
+    sw = arm["switch"]
+    assert sw["kind"] == "implemented_flag" and sw["implemented"] is True
+    assert sw["mock_effective"] is False, "MockLLM はプロンプトを読まない=mock では差が出ない"
+    assert "--intent-mode hint" in sw["how"]
+    assert [r["tag"] for r in arm["runs"]] == ["vocab", "hint"]
+    assert [r["kwargs"] for r in arm["runs"]] == [
+        {"intent_mode": "vocab"}, {"intent_mode": "hint"}
+    ]
+    assert arm["runs"][0]["is_baseline"] is True
+    assert "is_baseline" not in arm["runs"][1]
+    for r in arm["runs"]:
+        assert set(r["kwargs"]) <= ablation_runner.ALLOWED_KWARGS
+        assert not (set(r["kwargs"]) & ablation_runner.PENDING_KWARGS)
+    # vocab 対照は AB7 の vocab ランと**同一構成**=共有できる(表の control に明記)
+    ab7 = ablation_runner.arm_by_id(table, ARM_ID)
+    assert arm["runs"][0]["kwargs"] == ab7["runs"][0]["kwargs"]
+    assert "共有" in arm["control"]
+
+
+def test_ab7b_freezes_the_hint_b0_sha256(table, ablation_runner):
+    """腕定義に書いた B0 の指紋が**実装の値と一致する**(文面を変えたら両方が動く)。"""
+    from shibuya.perception.templates import b0_sha256
+
+    arm = ablation_runner.arm_by_id(table, ARM_B_ID)
+    assert b0_sha256("hint") in arm["switch"]["verified"]
+    assert b0_sha256("vocab")[:8] in arm["switch"]["verified"]
+
+
+def test_ab7b_kwargs_reach_run_day(ablation_runner, table, tmp_path):
+    """腕定義の ``kwargs`` が ``cli.run`` → ``run_day`` までそのまま通る(mock・極小)。"""
+    arm = dict(ablation_runner.arm_by_id(table, ARM_B_ID))
+    out = ablation_runner.execute_arm(
+        arm, agents=16, ticks=2, seed=1, world_dir=None,
+        out_dir=tmp_path, fleet=None, tape_root=tmp_path / "t",
+    )
+    assert out["executed"] is True
+    assert [r["tag"] for r in out["runs"]] == ["vocab", "hint"]
+    assert [r["intent_mode"] for r in out["runs"]] == ["vocab", "hint"]
+    assert [r["run_manifest_fields"]["intent_mode"] for r in out["runs"]] == ["vocab", "hint"]
     # mock では本文を読まないので checkpoint は動かない(=腕の差は実 LLM でしか出ない)
     assert out["comparisons"][0]["identical_final_hash"] is True
     assert any("実 LLM 必須" in n for n in out["notes"])

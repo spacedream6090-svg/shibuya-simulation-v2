@@ -1,10 +1,10 @@
-"""AB7-OPEN-INTENT の切替口 — エンジン側(``docs/design/v2-open-intent-arm-spec.md`` §4 (c))。
+"""AB7 自由意図の腕の切替口 — エンジン側(``docs/design/v2-open-intent-arm-spec.md`` §4 (c))。
 
 見るもの
-(c) **段0 辞書写像(行動契約書 §7)は既定でも open 腕でも同じに効く**
+(c) **段0 辞書写像(行動契約書 §7)は既定でも open/hint 腕でも同じに効く**
     (「探索」→「移動」・「買う」→「購入」…)。プロンプトの差は接地の経路を変えない/
-    ``intent_mode`` が ``run_day`` → レンダラ → run manifest まで往復する/
-    既定(vocab)の checkpoint・呼数は open 腕と**同じ**(MockLLM は本文を読まない)。
+    ``intent_mode`` が ``run_day`` → レンダラ → run manifest まで往復する(3 腕とも)/
+    既定(vocab)の checkpoint・呼数は open/hint 腕と**同じ**(MockLLM は本文を読まない)。
 
 台本 mock の書き方は ``tests/engine/test_undefined_action.py`` から流用(同じ ``WordLLM``)。
 """
@@ -77,14 +77,15 @@ def test_intent_mode_round_trips_into_the_run_manifest():
 
 
 def test_default_is_vocab_and_the_mock_actions_do_not_move():
-    """既定は vocab。mock は本文を読まないので open 腕でも checkpoint・呼数は同じ。"""
+    """既定は vocab。mock は本文を読まないので open/hint 腕でも checkpoint・呼数は同じ。"""
     base = run_day(**SMALL)
     vocab = run_day(intent_mode="vocab", **SMALL)
     open_ = run_day(intent_mode="open", **SMALL)
+    hint = run_day(intent_mode="hint", **SMALL)
     assert base.intent_mode == "vocab"
     assert base.llm_calls > 0
-    assert base.final_hash == vocab.final_hash == open_.final_hash
-    assert base.llm_calls == vocab.llm_calls == open_.llm_calls
+    assert base.final_hash == vocab.final_hash == open_.final_hash == hint.final_hash
+    assert base.llm_calls == vocab.llm_calls == open_.llm_calls == hint.llm_calls
 
 
 def test_unknown_intent_mode_is_refused():

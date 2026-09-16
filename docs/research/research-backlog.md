@@ -15,7 +15,7 @@
 | R-3 | **個体の同質性の残 10 件**: 日本の始業時刻分布表・片道通勤時間の分布(令和3年の表 ID)・Schneider 2013 Fig.3 の p(ID) 数値・Schlich & Axhausen 2003 原典・inverse scaling と REAL Sampling の本文・2604.01520 の扱い・Song 2010 の追試値・交替制の出勤時刻・日本 PT へのモチーフ適用研究・TrajLLM の定量評価 | D-68 経路 3(記憶・習慣)の設計に直接効く | [v2-d68-behavioral-diversity-research.md](v2-d68-behavioral-diversity-research.md) §8 |
 | R-4 | **ミクロ観察の先行例**: エージェント個体の追跡・検査 UI(Generative Agents の replay/inspect・Concordia の GM ログ・AgentTorch ほか)。抽出規則(逸話を結論にしない作法)の先行 | 第177 M1 の設計判断の材料。自前設計の比重が高いかを先に知る | devlog 第177 |
 | R-4b | **v1 リサーチ資産の棚卸し**(第181): v1 固有の答申 127 本+文献メモ 44 本を「v2 の問いでも生きる/読み替えが要る/v1 固有で捨てる」に仕分ける。**社会ネットワーク科学・UQ・科学哲学の 3 つは v1 に素材がある**([v2-discipline-map.md](v2-discipline-map.md) §6-4) | 新規リサーチより安い。R-2 の一部(Larooij & Törnberg)も v1 の読解メモで前倒しできる | devlog 第181 |
-| R-5 | **40 万体の可視化手法**: deck.gl / Cesium / Unity DOTS / UE5 Mass の実績と限界の**再確認**(答申 v2-game-frontend-research は 09 月初旬・UE5 City Sample 35,000 人が公開実績上限との記載) | 第177 M2 の段階案を決める | [v2-game-frontend-research.md](v2-game-frontend-research.md) |
+| R-5 | **40 万体の可視化手法**: deck.gl / Cesium / Unity DOTS / UE5 Mass の実績と限界の**再確認**(答申 v2-game-frontend-research は 09 月初旬。**第203 訂正**: 同答申の「UE5 City Sample 35,000 人が公開実績上限」は**出典未確認**=Epic 公式3ページ(City Sample ドキュメント / Matrix Awakens ブログ / UE5.0 リリースノート)に体数の明示が無く"thousands of MetaHuman agents" / "tens of thousands of AI agents" 止まり(答申 [v2-r23-primary-check-batch1.md](v2-r23-primary-check-batch1.md) §2-4 #12)。**本項の残務に「Epic の GDC/Talks を一次で当たる」を追加**) | 第177 M2 の段階案を決める | [v2-game-frontend-research.md](v2-game-frontend-research.md) |
 
 ---
 

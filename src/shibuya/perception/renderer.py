@@ -602,9 +602,11 @@ class Renderer:
                 ``B2.signage_empty``(=「見える表示はありません」)にする。既定 True=
                 現行の描画で**1 バイトも変わらない**。テンプレ本体は触らないので
                 ``template_sha256`` は不変・規約⑧(セルの情報しか使わない)も不変。
-            intent_mode: **AB7-OPEN-INTENT** の切替口(``"vocab"`` | ``"open"``)。
+            intent_mode: **AB7 自由意図の腕**の切替口(``"vocab"`` | ``"open"`` | ``"hint"``)。
                 ``"open"`` で B0 の出力規約を ``templates.OUTPUT_SPEC_OPEN``(``行動:`` の
                 1 行だけが「いま自分がしたいことを10字以内の動詞句で」)に差し替える。
+                ``"hint"``(AB7b)は ``templates.OUTPUT_SPEC_HINT``= 語彙を例として見せた
+                まま「当てはまる語が無いときだけ 10 字以内の動詞句で」を許す中間の腕。
                 既定 ``"vocab"`` は現行の 24 語ホワイトリスト提示=**1 バイトも変わらない**。
                 テンプレ本体(``TEMPLATES``)は触らないので ``template_sha256`` も不変。
                 仕様書 ``docs/design/v2-open-intent-arm-spec.md`` §2。

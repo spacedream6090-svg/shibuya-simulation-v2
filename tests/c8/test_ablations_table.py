@@ -132,15 +132,17 @@ def test_the_added_arms_are_implemented(ablation_runner, table):
     """第1陣より後に足した腕は**切替口つきで足す**(未実装の腕を後ろに積まない)。"""
     wave1 = set(ablation_runner.first_wave_ids(table))
     extra = [a for a in table["arms"] if a["id"] not in wave1]
-    assert [a["id"] for a in extra] == ["AB7-OPEN-INTENT"]
+    assert [a["id"] for a in extra] == ["AB7-OPEN-INTENT", "AB7b-HINT-INTENT"]
     for a in extra:
         assert a["switch"]["implemented"] is True and a["status"] == "ready"
 
 
 def test_mock_ineffective_arms_are_prompt_only(table):
-    """mock で差が出ない腕=**プロンプト本文しか変えない**腕(①⑥と AB7)。"""
+    """mock で差が出ない腕=**プロンプト本文しか変えない**腕(①⑥と AB7・AB7b)。"""
     prompt_only = {a["id"] for a in table["arms"] if not a["switch"]["mock_effective"]}
-    assert prompt_only == {"AB1-BUDGET-MODE", "AB6-AD-ZERO", "AB7-OPEN-INTENT"}
+    assert prompt_only == {
+        "AB1-BUDGET-MODE", "AB6-AD-ZERO", "AB7-OPEN-INTENT", "AB7b-HINT-INTENT",
+    }
 
 
 # ------------------------------------------------------------------ 引き当てと表

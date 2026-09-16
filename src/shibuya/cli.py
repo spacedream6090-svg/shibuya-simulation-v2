@@ -62,6 +62,9 @@ __all__ = [
     "store_capital_report",
     "household_wallets",
     "build_ledger_bundle",
+    "write_census_files",
+    "DAILY_CENSUS_FILENAME",
+    "MONTHLY_MER_FILENAME",
     "run",
     "main",
 ]
@@ -222,7 +225,39 @@ def build_ledger_bundle(
     capital = store_capital_array(world, n_agents, store_capital_yen)
     if capital.size and int(capital.sum()) > 0:
         led.endow_stores(capital, tick=0)
-    return LedgerBundle(money=led, goods=goods, census=lambda d: CS.daily_census(led, goods, day=d))
+    return LedgerBundle(
+        money=led,
+        goods=goods,
+        census=lambda d: CS.daily_census(led, goods, day=d),
+        census_write=lambda d, out: write_census_files(led, goods, d, out),
+    )
+
+
+#: ``--census-out`` が書く 2 ファイルの名(``economy.census`` の書き手は **Parquet** を出す)。
+DAILY_CENSUS_FILENAME: Final[str] = "daily_census.parquet"
+MONTHLY_MER_FILENAME: Final[str] = "monthly_mer.parquet"
+
+
+def write_census_files(ledger, goods, day: int, out_dir: str | Path) -> tuple[str, ...]:
+    """日次センサス(§2.4 軽量)と月次 MER(EVE 型の固定表)を ``out_dir`` へ書く。
+
+    ``engine.run`` は ``census_out`` を渡されたときだけ ``LedgerBundle.write_census``
+    経由でこれを呼ぶ(engine は economy を import できない=層契約の依存逆転)。
+
+    ``day`` は**畳んだ日**を渡す。``daily_census`` が台帳の ``close_for(day)`` から
+    締めを引くので、行は締めた日の実数になる(空虚な行にならない)。1 シミュ日のランでは
+    月次 MER の集計窓も 1 日(``days=1``)=**当日ぶん**。
+
+    Returns:
+        書いたファイルのパス(日次・月次の順)。
+    """
+    d = Path(out_dir)
+    d.mkdir(parents=True, exist_ok=True)
+    row = CS.daily_census(ledger, goods, day=int(day))
+    p_daily = CS.write_daily_census([row], d / DAILY_CENSUS_FILENAME)
+    mer = CS.monthly_mer(ledger, goods, month=0, days=1)
+    p_mer = CS.write_monthly_mer(mer, d / MONTHLY_MER_FILENAME)
+    return (p_daily.as_posix(), p_mer.as_posix())
 
 
 def run(
@@ -301,6 +336,14 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--ticks", type=int, default=MINUTES_PER_SIM_DAY)
     ap.add_argument("--occupancy-every", type=int, default=0, help="在圏 journal の記録間隔[tick](0=書かない・C7 受入計器の入力・毎正時なら 60)")
     ap.add_argument("--occupancy-out", type=str, default="", help="在圏 journal の出力 .npz")
+    ap.add_argument(
+        "--census-out",
+        type=str,
+        default="",
+        help="日次センサス/月次 MER の出力先ディレクトリ(境界・経済設計書 §2.4)。"
+             f"空=書かない(既定・出力は 1 バイトも増えない)。渡すと {DAILY_CENSUS_FILENAME} と "
+             f"{MONTHLY_MER_FILENAME}(どちらも Parquet・zstd)を締めた日のぶんだけ書く",
+    )
     ap.add_argument("--checkpoint-every", type=int, default=360)
     ap.add_argument(
         "--store-capital",
@@ -345,10 +388,12 @@ def main(argv: list[str] | None = None) -> int:
         "--intent-mode",
         choices=INTENT_MODES,
         default=DEFAULT_INTENT_MODE,
-        help="行動の出させ方(AB7-OPEN-INTENT の腕・docs/design/v2-open-intent-arm-spec.md §2)。"
+        help="行動の出させ方(AB7 自由意図の腕・docs/design/v2-open-intent-arm-spec.md §2)。"
              "vocab=24 語のホワイトリストを B0 で見せる(既定・現行のバイト)/"
              "open=語彙を見せず『いま自分がしたいこと』を 10 字以内の動詞句で書かせ、"
-             "接地はエンジン側(行動契約書 §7 段0〜1)に任せる",
+             "接地はエンジン側(行動契約書 §7 段0〜1)に任せる/"
+             "hint=語彙を例として見せたうえで、当てはまる語が無いときだけ 10 字以内の"
+             "自由文を許す(AB7b・vocab と open の中間)",
     )
     ap.add_argument(
         "--no-sleep-suppression",
@@ -452,6 +497,7 @@ def main(argv: list[str] | None = None) -> int:
         fleet_debug_dir=getattr(args, "fleet_debug_dir", "") or None,
         occupancy_every=int(getattr(args, "occupancy_every", 0) or 0),
         occupancy_path=getattr(args, "occupancy_out", "") or None,
+        census_out=getattr(args, "census_out", "") or None,
         tape_path=args.tape or None,
         **({"mode": "replay", "replay": args.replay} if args.replay else {}),
     )
@@ -462,6 +508,11 @@ def main(argv: list[str] | None = None) -> int:
         payload = checkpoints_payload(res, run_id=str(getattr(args, "run_id", "") or ""))
         out.write_text(json.dumps(payload, ensure_ascii=False, indent=1, default=str) + "\n", encoding="utf-8")
         print(f"  checkpoints JSON {out} ({len(payload['checkpoints'])} 点)")
+    census_paths = tuple(getattr(res, "census_paths", ()) or ())
+    if census_paths:
+        # ファイル名だけを出す(記録に絶対パスを残さない=第175 の教訓)。
+        names = " / ".join(sorted(Path(p).name for p in census_paths))
+        print(f"  census {len(census_paths)} ファイル: {names}(day={res.day_closed})")
     if res.fleet_fields:
         c = res.bridge_counters
         dec = res.fleet_fields.get("decoding", {}).get("T1", {})

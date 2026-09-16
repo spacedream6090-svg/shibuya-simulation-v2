@@ -240,7 +240,8 @@ class RunResult:
     refractory_scale: dict[str, float] = field(default_factory=dict)
     #: ablation ⑥(§8 第1陣)。看板・広告面(B2.signage)を描いたか。既定 True。
     signage: bool = True
-    #: **AB7-OPEN-INTENT**(自由意図の腕)。``"vocab"``=24 語提示(既定)/``"open"``=自由文。
+    #: **AB7 自由意図の腕**。``"vocab"``=24 語提示(既定)/``"open"``=自由文/
+    #: ``"hint"``=語彙を例として見せつつ自由文も許す(AB7b)。
     #: 仕様書 docs/design/v2-open-intent-arm-spec.md §2。
     intent_mode: str = INTENT_MODES[0]
     #: D-56 就寝抑止を効かせたか。既定 True(ユーザー決定 (a)・2026-09-10)。
@@ -314,6 +315,9 @@ class RunResult:
     day_closed: int = -1
     #: 日次ゲートの合否(§2.4「残差>閾値・純資産≠実物資産はゲート失敗」)。**例外にしない**。
     census_pass: bool = False
+    #: ``census_out`` を渡したランが書いたファイル(日次センサス・月次 MER)。既定は空
+    #: =**何も書いていない**。run manifest には**載せない**(既定経路のバイトを動かさない)。
+    census_paths: tuple[str, ...] = ()
     #: 顕著行為(人物③)の件数と、``p_notice`` で気づいた延べ人数。
     salient_events: int = 0
     noticed: int = 0
@@ -919,6 +923,7 @@ def run_day(
     attendance_rate: float = 1.0,
     outside_suppression: bool = True,
     derive_rule: str = "v2",
+    census_out: str | Path | None = None,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -960,6 +965,11 @@ def run_day(
             ``None`` なら C2 と同じ直接更新の経路。世帯の現金は**個体 SoA の ``money``
             そのもの**を採用するので、run は ``AgentState`` を作った直後に
             ``attach_household_cash`` を呼ぶ(台帳の世帯数は ``n_agents`` と一致が必要)。
+        census_out: 日次センサス/月次 MER の**出力先ディレクトリ**(境界・経済設計書 §2.4)。
+            ``None``(既定)なら**何も書かない**=manifest・checkpoint・出力ファイルは
+            1 バイトも動かない。渡すと日の締めのあとに ``LedgerBundle.write_census``
+            (economy 側が注入する書き手)を 1 回呼び、書いたパスを
+            ``RunResult.census_paths`` に置く。台帳を渡していないランでは何も起きない。
         processes: 世界過程(C4 第1陣)を回すか(既定 True)。資産が無い合成世界では
             混雑場だけが動き、他の過程は「休む」。
         processes_enabled / processes_disabled: 過程 id か感度試験 id(``AB-*``)で
@@ -983,12 +993,14 @@ def run_day(
         signage: 知覚契約書 §8 第1陣 **⑥ の腕**「広告ゼロ」。``False`` で看板・広告面
             (B2.signage)を全セルで空にする(W14 凍結文も合成文も載せない)。既定 True。
             ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
-        intent_mode: **AB7-OPEN-INTENT**(自由意図の腕・仕様書 §2)。``"vocab"``(既定)は
+        intent_mode: **AB7 自由意図の腕**(仕様書 §2)。``"vocab"``(既定)は
             現行どおり B0 に 24 語のホワイトリストを見せる。``"open"`` は ``行動:`` の 1 行だけを
             「いま自分がしたいことを10字以内の動詞句で」に差し替える(理由・対象・ひと言・
-            2 行形・JSON 禁止は同文)。接地はエンジン側(§7 段0 辞書写像 → 段1 記録+待機)。
+            2 行形・JSON 禁止は同文)。``"hint"``(AB7b)は同じ 1 行を「語彙から選ぶのが基本・
+            当てはまる語が無いときだけ 10 字以内の動詞句」にする中間の腕。接地はどの腕でも
+            エンジン側(§7 段0 辞書写像 → 段1 記録+待機)。
             既定では**1 バイトも変わらない**(テンプレ本体・``template_sha256`` も不変)。
-            ``"vocab"``/``"open"`` 以外は ``ValueError``。
+            ``INTENT_MODES`` 以外は ``ValueError``。
             ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
         population: W16 母集団(``agents.population.Population``)。``None``(既定)は
             **``world_dir`` に ``w16_population.parquet`` があれば自動で読む**
@@ -1934,6 +1946,10 @@ def run_day(
         if row is not None:
             result.census_row = dict(row)
             result.census_pass = bool(row.get("gate_ok", False))
+        # 日次センサス/月次 MER の出力口(§2.4)。**``census_out`` を渡したときだけ**書く。
+        # 書き手は economy 側の注入(engine は economy を import できない=層契約)。
+        if census_out is not None:
+            result.census_paths = ledger.write_census(day_index, str(census_out))
     result.bridge_counters = dict(bridge.counters())
     if fleet_bridge is not None:
         result.bridge_counters.update(fleet_bridge.counters())

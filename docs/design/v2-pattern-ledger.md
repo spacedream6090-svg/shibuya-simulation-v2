@@ -17,6 +17,7 @@
 6. 判定関数はハッシュ固定・変更は旧版を残して新版追加。
 7. attrition表を常設(投入組数→各パターン通過後の残数)。
 8. 「全パターン通過」を成果と呼ばない。通過報告には未使用パターンでの二次予測結果を併記。
+9. **(第203 追加・出典 D-75 (c)=Larooij & Törnberg 2025, Artificial Intelligence Review 59(1) 15 の逐語「Data leakage represents a serious risk for such validation approaches」)** 各パターンに**「訓練データ混入の疑い」欄**(照合値の**公刊年**・**公刊媒体**・**LLM の学習カットオフとの関係**)を持つ。公刊済みの stylized facts(べき則・エコーチェンバー等)は LLM の訓練データに入っている可能性があるので疑い=**高**、**封印 holdout(KDDI 在圏データ=公開文献に無い)はこの疑いが無い側**に置く。現時点の記入は**全行「未記入」**(本条で欄を宣言するのみ・表への列追加と記入は⑥の判定関数ハッシュ固定と同時に行う=親判断)。
 
 ## 1. 採用(34行)
 
@@ -49,7 +50,7 @@
 
 | ID | パターン(照合値) | 強 | 判定型 | split案 | 出典 |
 |---|---|---|---|---|---|
-| C1 | P28 カスケードの99%が1世代で終了・中央値1.3(**k*観測の最重要ヌル仮説**) | ○ | band | holdout | Goel/Watts 10億件 |
+| C1 | P28 カスケード(**第203 訂正・出典 Goel, Anderson, Hofman & Watts 2016 Management Science 62(1):180-196**)= **2本立て**: ①**平均サイズ ≒1.3**(原典逐語「is 1.3—meaning that for every 10 introductions of content, there are on average three additional downstream adoptions」)/②**1世代で終了 >99%**(同論文が Goel et al. 2012 を引く値)(**k*観測の最重要ヌル仮説**)。旧記載「中央値1.3」は誤り——1.3 は**平均**であって中央値ではなく、99%が size 1 である以上**中央値は1** | ○ | band | holdout | Goel/Watts 10億件 |
 | C2 | P29 構造的バイラリティの低さ(サイズ×構造の相関≈0) | | shape | holdout | 同上 |
 | C3 | P26 複雑感染(クラスタ網の方が速い) | | existence | holdout | Centola実験 |
 | C4 | P25 Bass拡散(p≈0.03/q≈0.38) | | band | holdout | Bassメタ分析 |
@@ -98,7 +99,7 @@
 | AD2 | 世 | OOH視認率(VAC): 可視エリア通過者のうち注視する割合=歩行者・大型0.48-0.79/走行・小型0.14 | band | holdout | Lumen×JCDecaux 2018/AM4DOOH(n=464)。**expedientタグ必須**(英仏スウェーデン・スイスの3D仮想環境=渋谷一次でない・感度試験で非駆動証明要) |
 | AD3 | 世 | 注視時間: 注視された場合のdwell=0.9-3.3秒(中心1-2秒)——**プロンプト文字数キャップ(日本語10-20字)の直接根拠** | band | holdout | 同上(対照値: デスクトップ1.1-1.9秒・モバイル0.6-1.7秒) |
 | AD4 | 境 | 広告弾力性の上界: シミュ内で広告ストック倍増→売上変化が長期弾力性0.014(中央値)〜0.24(メタ長期平均)の帯 | band(上界) | **holdout厳守**(売り物の量=較正に使えばburned) | Shapiro, Hitsch & Tuchman(288ブランド・平均0.025・2/3非有意・限界ROI中央-79%)+Sethuraman et al. 2011 JMR(872推定) |
-| AD5 | 人 | カスケードの第2ヌル: 平均サイズ1.14・中央値1——**C1と同クラスタ登録(実効本数を増やさない)**・独立性チェックは運用規則4 | band | holdout | Bakshy, Hofman, Mason & Watts 2011 WSDM(1.6M users・74M events) |
+| AD5 | 人 | カスケードの第2ヌル: 平均サイズ1.14・中央値1——**C1と同クラスタ登録(実効本数を増やさない)**・独立性チェックは運用規則4・**(第203 訂正・整合)C1 も原典は平均1.3/中央値は1**(本行の平均1.14・中央値1 は Bakshy 2011 の値で変更なし) | band | holdout | Bakshy, Hofman, Mason & Watts 2011 WSDM(1.6M users・74M events) |
 
 不採用理由の記録: OAAA/Nielsen想起率(自己申告・対照なし)・ベンダー自社計測のリフト値・POPAI店内決定76%(定義問題)・Roggeveen 2016(業態で符号反転=band化不能。「符号反転の存在」をexistence弱行にする案は保留)。
 

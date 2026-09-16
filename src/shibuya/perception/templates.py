@@ -73,8 +73,10 @@ __all__ = [
     "DEFAULT_INTENT_MODE",
     "OUTPUT_SPEC",
     "OUTPUT_SPEC_OPEN",
+    "OUTPUT_SPEC_HINT",
     "B0_SYSTEM",
     "B0_SYSTEM_OPEN",
+    "B0_SYSTEM_HINT",
     "check_intent_mode",
     "b0_system",
     "b0_sha256",
@@ -255,9 +257,18 @@ B0_SYSTEM: Final[str] = "\n".join((*_B0_HEAD, *_CONSTITUTION, *_ROLE_KNOWLEDGE, 
 #
 # **expedient**(本腕分・仕様書 §6 に登録済み): 自由意図の指示文「いま自分がしたいことを
 # 10 字以内の動詞句で」は親の自前文(先行研究の文面ではない)。語数上限 6/10/20 の副腕は結果次第。
+#
+# ---- AB7b-HINT-INTENT(ヒント腕・2026-09-17 ユーザー承認「24 語を例として見せつつ自由文も許す」)
+# 第 3 の腕 ``"hint"``: **語彙は見せたまま**「当てはまる語が無いときだけ 10 字以内で自由に書く」
+# を許す(vocab と open の中間)。作り方は open と同じ——``OUTPUT_SPEC`` の ``行動:`` 断片
+# 1 つだけを置換する=**理由・対象・ひと言・2 行形・JSON 禁止は 3 腕とも同文**。
+# vocab の B0 は同一オブジェクトのまま(``template_sha256``・``b0_sha256("vocab")`` 不変)。
+# **expedient**: 「…から1語を選ぶのが基本。当てはまる語が無いときだけ10字以内の動詞句で」
+# は親の自前文(先行研究の文面ではない)。AB7 seed 1/2 の実測(自由意図は「行く/食べる」に
+# 90% 集中・D-73)を受けた第 3 の腕で、合否線は無い=報告値。
 
 #: 切替口の値(``engine.run.run_day(intent_mode=...)``・CLI ``--intent-mode``)。
-INTENT_MODES: Final[tuple[str, ...]] = ("vocab", "open")
+INTENT_MODES: Final[tuple[str, ...]] = ("vocab", "open", "hint")
 #: 既定=現行の 24 語ホワイトリスト提示。
 DEFAULT_INTENT_MODE: Final[str] = "vocab"
 
@@ -265,16 +276,35 @@ DEFAULT_INTENT_MODE: Final[str] = "vocab"
 _ACTION_SPEC_VOCAB: Final[str] = "行動: <" + " / ".join(ACTION_WORDS_12) + " から1語> "
 #: 同(open 腕)。語彙を見せず「いましたいこと」を自由文で書かせる。
 _ACTION_SPEC_OPEN: Final[str] = "行動: <いま自分がしたいことを10字以内の動詞句で> "
+#: 同(hint 腕・AB7b)。**語彙は見せたまま**「当てはまる語が無いときだけ自由文」を許す。
+#: vocab の断片の語の並びをそのまま使う(=列挙の位置も並びも vocab と同一)。
+_ACTION_SPEC_HINT: Final[str] = (
+    "行動: <" + " / ".join(ACTION_WORDS_12)
+    + " から1語を選ぶのが基本。当てはまる語が無いときだけ10字以内の動詞句で> "
+)
 
 #: 出力規約(open 腕)。``OUTPUT_SPEC`` から ``行動:`` の 1 断片だけを置換して作る
 #: =**理由・対象・ひと言・2 行形・JSON 禁止が同文であることが構成から保証される**。
 OUTPUT_SPEC_OPEN: Final[str] = OUTPUT_SPEC.replace(_ACTION_SPEC_VOCAB, _ACTION_SPEC_OPEN, 1)
 assert OUTPUT_SPEC_OPEN != OUTPUT_SPEC, "OUTPUT_SPEC の 行動: 断片が変わった(腕の置換が空振り)"
+#: 出力規約(hint 腕)。同じ 1 断片だけの置換=open 腕と同じ位置・同じ作り方。
+OUTPUT_SPEC_HINT: Final[str] = OUTPUT_SPEC.replace(_ACTION_SPEC_VOCAB, _ACTION_SPEC_HINT, 1)
+assert OUTPUT_SPEC_HINT not in (OUTPUT_SPEC, OUTPUT_SPEC_OPEN), "hint 腕の置換が空振り"
 
 #: B0 の全文(open 腕)。``B0_SYSTEM`` の**出力規約の節だけ**を差し替えたもの
 #: =head・憲法 6 条・役割知識 10 行は 1 バイトも変わらない。
 B0_SYSTEM_OPEN: Final[str] = B0_SYSTEM.replace(OUTPUT_SPEC, OUTPUT_SPEC_OPEN, 1)
 assert B0_SYSTEM_OPEN != B0_SYSTEM, "B0_SYSTEM の出力規約節が引けない(腕の置換が空振り)"
+#: B0 の全文(hint 腕)。同上。
+B0_SYSTEM_HINT: Final[str] = B0_SYSTEM.replace(OUTPUT_SPEC, OUTPUT_SPEC_HINT, 1)
+assert B0_SYSTEM_HINT not in (B0_SYSTEM, B0_SYSTEM_OPEN), "B0_SYSTEM(hint)の置換が空振り"
+
+#: 腕 → B0 本文。**``"vocab"`` は ``B0_SYSTEM`` そのもの**(同一オブジェクト=凍結 SHA 不変)。
+_B0_BY_MODE: Final[Mapping[str, str]] = {
+    "vocab": B0_SYSTEM,
+    "open": B0_SYSTEM_OPEN,
+    "hint": B0_SYSTEM_HINT,
+}
 
 
 def check_intent_mode(intent_mode: str) -> str:
@@ -289,9 +319,10 @@ def b0_system(intent_mode: str = DEFAULT_INTENT_MODE) -> str:
     """腕に応じた B0(system ブロック)の全文。
 
     ``"vocab"``(既定)は ``TEMPLATES["B0.system"]`` と**同一の文字列**を返す
-    (=既定経路のバイトは 1 つも動かない)。``"open"`` は ``B0_SYSTEM_OPEN``。
+    (=既定経路のバイトは 1 つも動かない)。``"open"`` は ``B0_SYSTEM_OPEN``・
+    ``"hint"``(AB7b)は ``B0_SYSTEM_HINT``。
     """
-    return B0_SYSTEM_OPEN if check_intent_mode(intent_mode) == "open" else B0_SYSTEM
+    return _B0_BY_MODE[check_intent_mode(intent_mode)]
 
 
 def b0_sha256(intent_mode: str = DEFAULT_INTENT_MODE) -> str:

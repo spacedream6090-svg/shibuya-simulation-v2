@@ -110,7 +110,7 @@ python tools/fig/fig_calls_by_hour.py \
 ## 図 3 — `fig3_ab7_actions.{png,svg,json}`
 
 **何を示すか**
-AB7-OPEN-INTENT(seed 1)の 2 腕——LLM に 24 語のホワイトリストを見せる `vocab` と、
+AB7-OPEN-INTENT(seed 1)の 2 腕——LLM に横断 12 語のホワイトリスト(契約語彙は全 24 語・第203 訂正)を見せる `vocab` と、
 自由文で意図を書かせる `open`——で、エンジンが受け取る行動語の分布がどう変わるか。
 (a) 解決後の分布の比較、(b) `open` 腕の**生の表層**上位 10 とその落ちた先。
 

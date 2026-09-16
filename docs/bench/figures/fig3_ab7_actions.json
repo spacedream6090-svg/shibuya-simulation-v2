@@ -56,7 +56,7 @@
  },
  "arms": {
   "vocab": {
-   "label": "vocab(24 語を見せる)",
+   "label": "vocab(横断 12 語を見せる)",
    "path": "data/tape/c8_ab7_s1/AB7-OPEN-INTENT__vocab",
    "n_rows": 36906,
    "n_live": 36906,

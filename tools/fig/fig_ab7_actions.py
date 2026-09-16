@@ -2,7 +2,7 @@
 """図 3 — 行動分布 vocab vs open(AB7-OPEN-INTENT・seed 1)。
 
 何を示すか
-    LLM に**24 語のホワイトリストを見せる腕(vocab)**と、**自由文で意図を書かせる腕
+    LLM に**横断 12 語のホワイトリストを見せる腕(vocab・契約語彙は全 24 語)**と、**自由文で意図を書かせる腕
     (open)**で、エンジンが最終的に受け取る行動語の分布がどう変わるか。左は解決後の
     分布、右は open 腕の**生の表層**が段0 辞書でどこへ落ちたか。
 
@@ -50,7 +50,7 @@ STEM = "fig3_ab7_actions"
 
 #: 腕の名前(テープの接尾辞)と表示。
 ARMS: tuple[dict[str, str], ...] = (
-    {"tag": "vocab", "ja": "vocab(24 語を見せる)", "en": "vocab (24-word whitelist)",
+    {"tag": "vocab", "ja": "vocab(横断 12 語を見せる)", "en": "vocab (12-word whitelist)",
      "color": st.CAT[0]},
     {"tag": "open", "ja": "open(自由文の意図)", "en": "open (free-text intent)",
      "color": st.CAT[1]},
