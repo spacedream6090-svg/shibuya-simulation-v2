@@ -295,10 +295,17 @@ def test_summary_feeds_wake_and_sleep_rows(yard, anchors, amap, tmp_path):
 # ---------------------------------------------------------------- 4 前後比較
 
 
-def test_display_path_hides_the_personal_directory(yard):
-    """第176: 記録に書く anchors_path はリポ内なら <repo>/ 相対・外ならそのまま。"""
+def test_display_path_hides_the_personal_directory(yard, tmp_path):
+    """第176: 記録に書く anchors_path はリポ内なら <repo>/ 相対・外ならそのまま。
+
+    第204: リポ外の例は ``tmp_path``(どの OS でも絶対パスでリポ外)で作る。以前の
+    ``"Z:/nowhere/..."`` は Linux では相対パスになり、CI(ubuntu)で ``<repo>/Z:/...`` に
+    解決されて落ちていた(PR #2 の CI 赤の原因)。
+    """
     assert yard.display_path(yard.DEFAULT_ANCHORS_PATH) == "<repo>/docs/bench/anchors/presence_anchors_v0.json"
-    assert yard.display_path("Z:/nowhere/anchors.json") == "Z:/nowhere/anchors.json"
+    outside = tmp_path / "anchors.json"
+    assert yard.display_path(outside) == str(outside)
+    assert yard.display_path(str(outside)) == str(outside)
 
 
 def test_before_after_delta_and_closer(yard, anchors, amap, tmp_path):
