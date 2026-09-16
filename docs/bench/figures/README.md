@@ -177,3 +177,15 @@ python tools/fig/fig_ab7_actions.py \
 
 系列の色は**実体に付く**(`c7-day-4` は常に濃い青・`open` は常に橙)。並べ替えや絞り込みで
 色を付け替えない。
+
+---
+
+## 図 4 — `fig4_seed_pair.{png,svg,json}`(第204)
+
+**何を示すか** 同一構成(c7-day-4=390,067 体・v2.1・attendance 1.0・7×Qwen3-8B INT8・温度 0.7)で **seed だけ違う 2 ラン**の 5 エリア合計在圏(上)・相対差(中)・時刻別 CV(n=2)(下)。D-46(アンサンブルの規模)・D-70・G-8(初回 8 seed=expedient)を数字で決めるための図。
+
+**データの出所** `data/server_retrieval/2026-09-16/v2_data/runs/c7-day-4/occupancy.npz`(seed 1)・`data/server_retrieval/2026-09-17/runs/c7-day-4-s2/occupancy.npz`(seed 2)・写像は図 1 と同じ(`occupancy_series.build_map` / `c7lib.area_hour_table`)。
+
+**再現コマンド** `python tools/fig/fig_seed_pair.py --out docs/bench/figures`
+
+**注記** seed 間 CV 中央値 0.38%・最大 3.25%(05 時)。エリア別 24h シェアの JSD 平均 0.000162 bits=事前登録 H1 線の 1/75。N=(CV/r)² は L-B 答申 §5(深夜を 2% で言うなら 3 本)。KDDI holdout は未開封・未使用。数値は `fig4_seed_pair.json`。

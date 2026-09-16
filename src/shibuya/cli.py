@@ -65,6 +65,7 @@ __all__ = [
     "write_census_files",
     "DAILY_CENSUS_FILENAME",
     "MONTHLY_MER_FILENAME",
+    "MONTHLY_MER_SECTORS_FILENAME",
     "run",
     "main",
 ]
@@ -233,13 +234,16 @@ def build_ledger_bundle(
     )
 
 
-#: ``--census-out`` が書く 2 ファイルの名(``economy.census`` の書き手は **Parquet** を出す)。
+#: ``--census-out`` が書く 3 ファイルの名(``economy.census`` の書き手は **Parquet** を出す)。
+#: 3 つ目は月次 MER の**部門軸**(第204・D-76 (a))。固定表 ``monthly_mer.parquet`` は
+#: 列も行順もバイトも変えない=部門軸は**別ファイル**に出す。
 DAILY_CENSUS_FILENAME: Final[str] = "daily_census.parquet"
 MONTHLY_MER_FILENAME: Final[str] = "monthly_mer.parquet"
+MONTHLY_MER_SECTORS_FILENAME: Final[str] = "monthly_mer_sectors.parquet"
 
 
 def write_census_files(ledger, goods, day: int, out_dir: str | Path) -> tuple[str, ...]:
-    """日次センサス(§2.4 軽量)と月次 MER(EVE 型の固定表)を ``out_dir`` へ書く。
+    """日次センサス(§2.4 軽量)と月次 MER(EVE 型の固定表 + 部門軸)を ``out_dir`` へ書く。
 
     ``engine.run`` は ``census_out`` を渡されたときだけ ``LedgerBundle.write_census``
     経由でこれを呼ぶ(engine は economy を import できない=層契約の依存逆転)。
@@ -249,7 +253,7 @@ def write_census_files(ledger, goods, day: int, out_dir: str | Path) -> tuple[st
     月次 MER の集計窓も 1 日(``days=1``)=**当日ぶん**。
 
     Returns:
-        書いたファイルのパス(日次・月次の順)。
+        書いたファイルのパス(日次・月次固定表・月次部門軸の順)。
     """
     d = Path(out_dir)
     d.mkdir(parents=True, exist_ok=True)
@@ -257,7 +261,8 @@ def write_census_files(ledger, goods, day: int, out_dir: str | Path) -> tuple[st
     p_daily = CS.write_daily_census([row], d / DAILY_CENSUS_FILENAME)
     mer = CS.monthly_mer(ledger, goods, month=0, days=1)
     p_mer = CS.write_monthly_mer(mer, d / MONTHLY_MER_FILENAME)
-    return (p_daily.as_posix(), p_mer.as_posix())
+    p_sectors = CS.write_monthly_mer_sectors(mer, d / MONTHLY_MER_SECTORS_FILENAME)
+    return (p_daily.as_posix(), p_mer.as_posix(), p_sectors.as_posix())
 
 
 def run(
@@ -342,7 +347,8 @@ def main(argv: list[str] | None = None) -> int:
         default="",
         help="日次センサス/月次 MER の出力先ディレクトリ(境界・経済設計書 §2.4)。"
              f"空=書かない(既定・出力は 1 バイトも増えない)。渡すと {DAILY_CENSUS_FILENAME} と "
-             f"{MONTHLY_MER_FILENAME}(どちらも Parquet・zstd)を締めた日のぶんだけ書く",
+             f"{MONTHLY_MER_FILENAME} と {MONTHLY_MER_SECTORS_FILENAME}(部門軸・D-76 (a))"
+             "(いずれも Parquet・zstd)を締めた日のぶんだけ書く",
     )
     ap.add_argument("--checkpoint-every", type=int, default=360)
     ap.add_argument(

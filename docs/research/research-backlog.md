@@ -23,7 +23,7 @@
 
 | # | 何を | 発火条件 | 出所 |
 |---|---|---|---|
-| R-6 | **穴台帳(D-50)の深掘り**: affordance grounding・action-space discovery・BDI の失敗意味論・MATSim events 解析・HCI の breakdown analysis・Sid の行動ループ。既に軽リサーチした出典(MATSim `stuckAndAbort`・Voyager・AGA・Emergence World・MAST・AgentErrorTaxonomy・ACCORD)は**未一次確認** | 穴台帳を作ると決めたとき | PENDING D-50 |
+| R-6 | **穴台帳(D-50)の深掘り**: affordance grounding・action-space discovery・BDI の失敗意味論・MATSim events 解析・HCI の breakdown analysis・Sid の行動ループ。既に軽リサーチした出典(MATSim `stuckAndAbort`・Voyager・AGA・Emergence World・MAST・AgentErrorTaxonomy・ACCORD)は**未一次確認**。**第204 追記(L-D71・サブ指摘・親未確認)**: ACCORD(2606.16432)の正式名は Action-Conditioned Contextual Grounding で抄録に affordance の語は無い(D-50 側の言い換え)/ Emergence World(2606.08367)の指標名は **M11=Tool Expansion**(親確認: §5.3「exactly two agent-authored tools」)/ 「試みたが環境が支えない行動」→語彙追加の手続きを書いた先行は LearnAct 1 本のみ | 穴台帳を作ると決めたとき | PENDING D-50 |
 | R-7 | **群衆物理 U15 の空欄**: Weidmann 原典・Burstedde 2001・Hughes 2002・Menge・HyPedSim(LOD 前例)・RiMEA の版とケース数・鉄道総研 2016 の実測歩行速度・Karmakharm の歩行者 GPU・データ駆動系の一次資料・スクランブルの公的信号現示・運輸政策研究 表―1 の単位 | CFSM を実装すると決めたとき(第177 M4) | [v2-crowd-physics.md](../design/v2-crowd-physics.md) §4 |
 | R-8 | **幾何に基づく容量の根拠**(新規・第177 M3): ①セルの歩行可能面積(いま 100 m × 0.15 は expedient)の実測手順=PLATEAU 建物フットプリント+OSM 道路幅員からの差し引き ②店舗の床面積(いま既定 80 m²)の出所候補=経済センサス売場面積・建物階数×フットプリント ③1 席あたり面積(2/4 m²)の業界標準 ④ホーム・改札・階段の実効容量の公表値(鉄道会社・国交省)。U15-5 段階3(改札 56 人/台/分・エスカレーター 95.3/107.8 人/分)は取得済みだが**ホーム滞留の容量は空欄** | 幾何に基づく制約を第2陣の主題にすると決めたとき | 第177・crowd.py・renderer.py の頭注 |
 | R-9 | **VLA・身体性の方向**: 第139 で所見だけ置いた「頭脳ではなく行動ラベル取得/身体化対照群/ロボット住民」を答申にするか | ユーザーが方向を決めたとき | PENDING(判断待ち)・devlog 第139 |

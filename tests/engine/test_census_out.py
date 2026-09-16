@@ -3,8 +3,9 @@
 見るもの
 (i) **既定(``census_out=None``)は何も書かない**——ディレクトリも作らない。
     ``RunResult.census_paths`` は空・run manifest にも欄は増えない/
-(ii) 渡すと 2 ファイル(日次センサス・月次 MER)が出て、日次は ``residual`` /
-     ``money_supply`` / ``gate_ok`` を持ち、MER は科目別 faucet/sink の縦持ちになる/
+(ii) 渡すと 3 ファイル(日次センサス・月次 MER の固定表・月次 MER の**部門軸**)が出て、
+     日次は ``residual`` / ``money_supply`` / ``gate_ok`` を持ち、MER は科目別 faucet/sink の
+     縦持ち、部門軸は ``from_sector``/``to_sector`` の長い表になる(第204・D-76 (a))/
 (iii) **既定 checkpoint が動かない**——``census_out`` を渡したランと渡さないランで
       ``final_hash`` と checkpoint 列が一致する(観測は世界を変えない)。
 
@@ -17,7 +18,7 @@ from __future__ import annotations
 import pyarrow.parquet as pq
 
 from shibuya import cli
-from shibuya.economy.census import DAILY_COLUMNS
+from shibuya.economy.census import DAILY_COLUMNS, SECTOR_FLOW_COLUMNS, SECTORS
 
 #: 合成世界の極小ラン(``tests/test_cli_intent_mode.py`` と同じ書き方)。
 SMALL = dict(
@@ -43,14 +44,19 @@ def test_explicit_none_is_the_same_as_the_default(tmp_path):
     assert list(tmp_path.iterdir()) == []
 
 
-# ------------------------------------------------------------------ (ii) 渡すと 2 ファイル
-def test_census_out_writes_the_two_files(tmp_path):
+# ------------------------------------------------------------------ (ii) 渡すと 3 ファイル
+def test_census_out_writes_the_three_files(tmp_path):
     target = tmp_path / "census"
     res = cli.run(census_out=str(target), **SMALL)
     daily = target / cli.DAILY_CENSUS_FILENAME
     mer = target / cli.MONTHLY_MER_FILENAME
-    assert sorted(p.name for p in target.iterdir()) == sorted([daily.name, mer.name])
-    assert set(res.census_paths) == {daily.as_posix(), mer.as_posix()}
+    sectors = target / cli.MONTHLY_MER_SECTORS_FILENAME
+    assert sorted(p.name for p in target.iterdir()) == sorted(
+        [daily.name, mer.name, sectors.name]
+    )
+    assert set(res.census_paths) == {
+        daily.as_posix(), mer.as_posix(), sectors.as_posix()
+    }
 
     t = pq.read_table(daily)
     assert list(t.column_names) == list(DAILY_COLUMNS)
@@ -70,12 +76,46 @@ def test_census_out_writes_the_two_files(tmp_path):
     kinds = set(m.column("kind").to_pylist())
     assert kinds and kinds <= {"faucet", "sink", "internal"}
     assert set(m.column("money_supply").to_pylist()) == {row["money_supply"]}
+    # 固定表の列は増えていない(部門軸は別ファイル=D-76 (a))。
+    assert list(m.column_names) == [
+        "month", "kind", "account", "amount", "money_supply", "residual", "hoard_amount",
+    ]
+
+    sec = pq.read_table(sectors)
+    assert list(sec.column_names) == list(SECTOR_FLOW_COLUMNS)
+    assert sec.num_rows > 0
+    assert set(sec.column("kind").to_pylist()) <= {
+        "faucet", "sink", "internal", "book", "measure"
+    }
+    # 検算: 区分×科目で畳むと固定表(科目別 faucet/sink/internal)と一致する。
+    got: dict[tuple[str, str], int] = {}
+    for k, a, amt in zip(
+        sec.column("kind").to_pylist(),
+        sec.column("account").to_pylist(),
+        sec.column("amount").to_pylist(),
+    ):
+        if k in ("faucet", "sink", "internal"):
+            got[(k, a)] = got.get((k, a), 0) + int(amt)
+    want = {
+        (k, a): int(amt)
+        for k, a, amt in zip(
+            m.column("kind").to_pylist(),
+            m.column("account").to_pylist(),
+            m.column("amount").to_pylist(),
+        )
+    }
+    assert got == want
+    # 境界は擬似部門へ出ている(faucet の払い手は "faucet")。この極小ランに sink は無い。
+    assert "faucet" in sec.column("from_sector").to_pylist()
+    allowed = set(SECTORS) | {"faucet", "sink"}
+    assert set(sec.column("from_sector").to_pylist()) <= allowed
+    assert set(sec.column("to_sector").to_pylist()) <= allowed
 
 
 def test_census_out_creates_missing_parents(tmp_path):
     target = tmp_path / "a" / "b" / "census"
     res = cli.run(census_out=str(target), **SMALL)
-    assert target.is_dir() and len(res.census_paths) == 2
+    assert target.is_dir() and len(res.census_paths) == 3
 
 
 # ------------------------------------------------------------------ (iii) 既定 checkpoint 不変

@@ -5,6 +5,7 @@
 - **一次確認**: 本書自体は状態の記録であって主張をしない。**各行の状態が正**
 - **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **v1 資産**: [v1-asset-triage.md](v1-asset-triage.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
 
+> 最終更新 **2026-09-17(第204)**: **L-D71 完了**(答申 [v2-d71-vocab-growth-research.md](v2-d71-vocab-growth-research.md)・lit 8 本・親確認 5 件 → 設計アジェンダ [v2-vocab-growth-design.md](../design/v2-vocab-growth-design.md))。空欄 13 件は答申 §3(ATUS 465 の再計数・ASI・Voyager 付録・MAST 14 型 ほか)。
 > 最終更新 **2026-09-16(第202)**: **R-23 第1批 完了**(設計書が引く 8 本・28 主張・答申 [v2-r23-primary-check-batch1.md](v2-r23-primary-check-batch1.md)・親確認 3 件 → PENDING D-74)。**R-2 完了**(lit 12 本+答申 [v2-r2-llm-social-sim-fulltext-check.md](v2-r2-llm-social-sim-fulltext-check.md)・親確認 4 件=OASIS/GAMA/Ye/Larooij・新発見 3: OASIS は超線形 N^1.5・事前登録の外部根拠は Larooij の 1 行のみ・TRAILS-R 5 次元が v2 に空白=v1 S-16 の置換忘れ → PENDING D-75・D-70 追記)。
 > 最終更新 **2026-09-16(第200)**: §0 の Web 停止は **09-16 08 時に復旧**(第197)。R-24(法学)と A-3(反復回数=L-B)は第199〜200 で完了。
 > 最終更新 **2026-09-15(第191)**。ユーザー指示 09-15「調べきれなかったところ・不明なところをきちんと明示して、進行状況を次のエージェントが理解できるようにしておいてほしい」。

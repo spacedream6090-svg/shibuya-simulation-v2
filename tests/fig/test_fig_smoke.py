@@ -248,3 +248,36 @@ def test_fig3_entropy_bits_is_pure():
     assert f3.entropy_bits({"a": 5}) == 0.0
     assert abs(f3.entropy_bits({"a": 1, "b": 1}) - 1.0) < 1e-12
     assert abs(f3.entropy_bits({"a": 1, "b": 1, "c": 1, "d": 1}) - 2.0) < 1e-12
+
+# ---------------------------------------------------------------- 図 4(seed 1 vs seed 2)
+
+
+def _toy_pair():
+    import numpy as np
+    rng = np.random.default_rng(4)
+    base = np.abs(rng.normal(1000, 200, size=(24, 5))) + 50
+    t1 = base.round()
+    t2 = (base * (1 + rng.normal(0, 0.02, size=base.shape))).round()
+    return t1, t2
+
+
+def test_fig4_summarize_is_symmetric_and_bounded(style):
+    import fig_seed_pair as f4
+    t1, t2 = _toy_pair()
+    d = f4.summarize("a", t1, "b", t2, {"a": "x", "b": "y"})
+    assert len(d["cv_hour"]) == 24 and all(0 <= c < 1 for c in d["cv_hour"])
+    assert d["per_area_share_jsd_mean"] >= 0
+    e = f4.summarize("b", t2, "a", t1, {"b": "y", "a": "x"})
+    assert e["cv_hour"] == pytest.approx(d["cv_hour"])
+    same = f4.summarize("a", t1, "a2", t1.copy(), {"a": "x", "a2": "x"})
+    assert max(same["cv_hour"]) == 0 and same["per_area_share_jsd_mean"] == 0
+
+
+def test_fig4_draws(style, tmp_path):
+    import fig_seed_pair as f4
+    t1, t2 = _toy_pair()
+    d = f4.summarize("seed 1", t1, "seed 2", t2, {"seed 1": "x", "seed 2": "y"})
+    fig = f4.draw(d)
+    paths = style.save(fig, tmp_path, f4.STEM)
+    assert (tmp_path / f"{f4.STEM}.png").stat().st_size > 1000
+    assert not Path(paths["png"]).is_absolute()
