@@ -45,7 +45,7 @@ python tools/c8/ablation_runner.py --arm AB7-OPEN-INTENT --run-id ab7_s1 --seed 
 ```
 - 2 腕 × 5,000 体 × 1,440 tick・実 LLM(7×Qwen3-8B INT8)。C8 実績 **35 分/腕**。seed 2 も回す(再現性・帰無 0.0035 bits の参照は T7)。
 - 出力: `docs/bench/c8/ablation_AB7-OPEN-INTENT*.{json,md}`・テープ `c8_tapes/AB7-OPEN-INTENT__{vocab,open}`。記録のパスは `<repo>/`・`~/` にマスク(第175 の教訓)。
-- 親の検収: (1) 既定経路の**バイト不変**=`mock 実資産 5,000 体×1 日` の checkpoint が現行(`d5d79337…` 系・C8 で使った値)と一致 (2) `pytest tests/perception tests/engine tests/llm tests/c8 tests/test_cli*` 緑 (3) `lint-imports` 層契約 (4) 腕 JSON の M1〜M5 を親が calls.parquet から再計算して一致。
+- 親の検収: (1) 既定経路の**バイト不変**=`mock 実資産 5,000 体×1 日`(`python -m shibuya.cli --agents 5000 --seed 1 --world data/world/v2`)の checkpoint が現行 HEAD(1e20cd3 以降 src 変更なし)の値と一致: **v2 既定 `ba01bd0beed19666…`・`--derive-rule v2.1` `4fb0f2ec42ee57ab…`**(第200 親実測・両方一致。第199 版に書いた `d5d79337…` は C6-C8 当時の古い値=訂正)。リダイレクト時は `PYTHONUTF8=1` が要る(summary の「≤」が cp932 で落ちる) (2) `pytest tests/perception tests/engine tests/llm tests/c8 tests/test_cli*` 緑 (3) `lint-imports` 層契約 (4) 腕 JSON の M1〜M5 を親が calls.parquet から再計算して一致。
 
 ## 4. 受入(サブ → 親)
 

@@ -18,8 +18,15 @@
     ② ``--arm <id>`` で 1 腕を回す。既定 5,000 体×1,440 tick(``--ticks 24`` でスモーク)を
        ``shibuya.cli.run`` で走らせ、腕ごとの結果 JSON/Markdown を書く。
     ③ **切替口が無い腕**は回さずに差分案を印字して終わる(自前で src/ を触らない)。
-    ④ mock でも回るが、**プロンプト本文しか変えない腕(①⑥)は mock では差が出ない**
+    ④ mock でも回るが、**プロンプト本文しか変えない腕(①⑥⑦)は mock では差が出ない**
        (MockLLM が本文を読まない=C6 実測)。その旨を「実 LLM 必須」と印字する。
+    ⑤ **M1 接地率(2 段)・M2 未定義率・M3 上位未定義語**を集計する(``_grounding`` /
+       ``_undefined_registry`` の docstring に分母・分子の式。``AB7-OPEN-INTENT`` の
+       仕様書 ``docs/design/v2-open-intent-arm-spec.md`` §1)。**第1陣の 6 本でも同じ列が出る**
+       (列追加のみ・既存の値は動かさない)。
+
+第1陣より後に足した腕(2026-09-16 現在 ``AB7-OPEN-INTENT`` の 1 本)は表の ``first_wave``
+の外にいる。``first_wave_ids`` が第1陣の名指しで、``validate_table`` はそれを使う。
 
 親がサーバーで叩く例::
 
@@ -55,6 +62,8 @@ ALLOWED_KWARGS: frozenset[str] = frozenset(
         "p_notice_d50_scale",    # 実装済(② d50 倍率)
         "refractory_scale",      # 実装済(③ 不応期倍率表)
         "signage",               # 実装済(⑥ 看板行の有無)
+        # ---- AB7-OPEN-INTENT(自由意図の腕・2026-09-16 実装) ----
+        "intent_mode",           # 実装済(vocab | open・B0 の出力規約だけを入れ替える)
     }
 )
 
@@ -77,12 +86,27 @@ def arm_by_id(table: Mapping[str, Any], arm_id: str) -> dict[str, Any]:
     raise KeyError(f"腕 id が引けない: {arm_id!r}(候補 {[a['id'] for a in arms]})")
 
 
+def first_wave_ids(table: Mapping[str, Any]) -> list[str]:
+    """知覚契約書 §8 の**第1陣 6 本**の id(表の ``first_wave.ids`` が正典)。
+
+    第1陣より後に足した腕(``AB7-OPEN-INTENT`` など・別の設計書が出典)は含まない。
+    表に ``first_wave`` が無い旧版では**先頭 6 本**を第1陣とみなす(後方互換)。
+    """
+    fw = table.get("first_wave")
+    if isinstance(fw, Mapping) and fw.get("ids"):
+        return [str(x) for x in fw["ids"]]
+    return [str(a.get("id", "")) for a in list(table.get("arms", ()))[:6]]
+
+
 def validate_table(table: Mapping[str, Any]) -> list[str]:
     """腕定義表の自己検査(テストと ``--list`` が使う)。**問題の一覧を返す**(例外にしない)。"""
     problems: list[str] = []
     arms = list(table.get("arms", ()))
-    if len(arms) != 6:
-        problems.append(f"第1陣は 6 本のはず(いま {len(arms)} 本)")
+    wave1 = first_wave_ids(table)
+    if len(wave1) != 6:
+        problems.append(f"第1陣は 6 本のはず(いま {len(wave1)} 本)")
+    if [str(a.get("id", "")) for a in arms[: len(wave1)]] != wave1:
+        problems.append(f"第1陣 6 本は表の先頭に §8 の順で並ぶはず(いま {[a.get('id') for a in arms]})")
     seen: set[str] = set()
     for a in arms:
         aid = str(a.get("id", ""))
@@ -132,11 +156,14 @@ def table_markdown(table: Mapping[str, Any]) -> str:
                 a.get("status"),
             ]
         )
+    extra = [str(a.get("id")) for a in table.get("arms", ()) if str(a.get("id")) not in set(first_wave_ids(table))]
     md = [
-        "# ablation 第1陣 6 本(知覚契約書 §8)腕定義表",
+        "# ablation 腕定義表(第1陣 6 本=知覚契約書 §8"
+        + (f" ・追加腕 {len(extra)} 本={'・'.join(extra)}" if extra else "")
+        + ")",
         "",
         c8lib.markdown_table(
-            ["順", "§8", "id", "腕", "切替", "切替方法", "mock", "ラン数", "GPU h", "状態"], rows
+            ["順", "番", "id", "腕", "切替", "切替方法", "mock", "ラン数", "GPU h", "状態"], rows
         ),
         "",
         f"- 予算 **L2** {table.get('budget', {}).get('declared', '')}"
@@ -174,9 +201,11 @@ def run_metrics(res: Any, tape_path: Path | None) -> dict[str, Any]:
         "noticed": int(getattr(res, "noticed", 0)),
         "final_hash": str(getattr(res, "final_hash", "")),
         "budget_mode": str(getattr(res, "budget_mode", "")),
+        "intent_mode": str(getattr(res, "intent_mode", "")),
         "run_manifest_fields": _manifest_fields(res),
     }
     out["notice_reach"] = out["noticed"] / max(1, out["salient_events"])
+    out["undefined_registry"] = _undefined_registry(res)  # M2/M3(台帳側)
     if tape_path is not None and Path(tape_path).exists():
         from shibuya.engine.tape import Tape
 
@@ -187,7 +216,123 @@ def run_metrics(res: Any, tape_path: Path | None) -> dict[str, Any]:
         out["undefined_rate"] = sc["undefined_rate"]
         out["role_action_rate"] = sc["role_action_rate"]
         out["n_texts"] = len(texts)
+        out["grounding"] = _grounding(sc)  # M1(2 段)・M2(テープ側)
     return out
+
+
+#: M3 の上位語の本数(open-intent 仕様書 §1「top30」)。
+M3_TOP_K: int = 30
+
+
+def _grounding(sc: Mapping[str, Any]) -> dict[str, Any]:
+    """**M1 接地率(2 段)と M2 未定義率** — テープから再計算できる形(open-intent 仕様書 §1)。
+
+    分母 ``n`` は**繰り延べでないテープ行の応答本文の数**(``Tape(tape).rows()`` のうち
+    ``not r.deferred``・D-58 の分母。``run_metrics`` の ``n_texts`` と同じ)。各行の
+    ``calls.parquet`` の ``response`` 列を ``llm.parser.parse_two_line`` に通し、行動欄を
+    **互いに排他な 3 つ**に分ける(``c6lib.score_texts`` が同じ走査で数えた値を読み直すだけ=
+    採点の定義を 2 つ持たない)。
+
+    ====================  ==========================================================
+    欄                    式(分子 ÷ n)
+    ====================  ==========================================================
+    ``grounded_direct``   ``ParseResult.action is not None`` の行数 ÷ n
+                          = 行動欄が **24 語**(``contract.ALL_ACTION_WORDS`` = 12 語
+                          + 役割語 12)に**直接一致**した割合。ラベル別名・位置引数の
+                          読み取りは parser の判定に従う(書式エラー率と同じ物差し)
+    ``grounded_dictionary``  ``action is None`` かつ ``undefined.map_synonym(raw_action)``
+                          が語を返した行数 ÷ n = **段0 辞書**(``SYNONYMS``)で写せた割合
+    ``undefined_rate``    ``action is None`` かつ ``map_synonym`` も ``None`` の行数 ÷ n
+                          = **M2**。``score_texts`` の ``undefined_rate`` と同値で、
+                          行動分布では ``action_counts["(未定義)"]`` として数えた行
+    ====================  ==========================================================
+
+    3 つの件数の和は厳密に ``n``(同じ 1 行が 2 つに数えられることはない)。
+    ``grounded_total = grounded_direct + grounded_dictionary = 1 − undefined_rate``。
+
+    親の再計算手順: ``calls.parquet`` の ``deferred == 0`` の行の ``response`` を並べ、
+    ``c6lib.score_texts(texts)`` を呼べば ``n`` ・``dictionary_mapped`` ・
+    ``action_counts["(未定義)"]`` が出る=上の 3 式がそのまま再現する。
+    """
+    n = int(sc.get("n", 0))
+    n_dict = int(sc.get("dictionary_mapped", 0))
+    n_undef = int(dict(sc.get("action_counts", {})).get("(未定義)", 0))
+    n_direct = n - n_dict - n_undef
+    den = max(1, n)
+    return {
+        "n": n,
+        "denominator": "非繰り延べのテープ行(D-58)",
+        "n_direct": n_direct,
+        "n_dictionary": n_dict,
+        "n_undefined": n_undef,
+        "grounded_direct": n_direct / den,
+        "grounded_dictionary": n_dict / den,
+        "grounded_total": (n_direct + n_dict) / den,
+        "undefined_rate": n_undef / den,
+    }
+
+
+def _undefined_registry(res: Any, *, k: int = M3_TOP_K) -> dict[str, Any]:
+    """**M2 未定義率と M3 上位未定義語** — ランの台帳側(open-intent 仕様書 §1)。
+
+    出所は ``RunResult.undefined_registry``(``run_day`` が ``bridge.undefined`` を挿す・
+    艦隊経路の ``FleetBridge`` も**同じ台帳を共有**する)。台帳が無い結果(スタブ・旧版)では
+    空辞書を返す=**推測で埋めない**。
+
+    分母 ``n_calls`` は**解釈まで進んだ呼**= ``RunResult.bridge_counters["llm_calls"]``
+    (= ``LLMBridge.n_calls``)。``RunResult.llm_calls`` は**発射数**で繰り延べ・再送を含む
+    ため分母には使わない(D-58)。
+
+    - ``undefined_rate``  = ``counters()["undefined_records"]`` ÷ n_calls(= M2・台帳側)
+    - ``dictionary_rate`` = ``counters()["dictionary_mapped"]`` ÷ n_calls(= M1 の 2 段目)
+    - ``grounded_direct`` = (n_calls − undefined_records − dictionary_mapped) ÷ n_calls
+      (台帳は ``ParseResult.action is None`` のときだけ ``observe`` を通るので、
+      残りが 24 語直接一致=段4 判例が 0 件のとき。判例件数は ``counters()["adopted"]``)
+    - ``top_words``: ``registry.top_words(30)`` の ``(語, 出現数)`` に
+      ``registry.distinct_agents(語)`` を付け、``distinct_agents >= threshold_agents``
+      (行動契約書 §7 段2 の N=10)に ``reached_threshold: true`` の印を付ける(= M3)
+
+    **台帳側 M2 とテープ側 M2 の関係(親確認・第200)**: 同じ値には**ならない**。
+    ``UndefinedActionRegistry.observe`` は**行動欄が空**(書式エラーで ``raw_action`` が
+    None/空)の応答を ``counts`` に入れず stage 1 の結果だけ返す(``undefined.py``
+    ``observe`` 冒頭)。一方テープ側 ``score_texts`` は同じ応答を ``(未定義)`` に数える。
+    したがって **テープ側 undefined_rate = 台帳側 undefined_rate + 行動欄が空の応答の割合**
+    (≒書式エラー率の一部)であり、台帳側 ``grounded_direct`` はその分だけ**過大**。
+    親の照合はこの式で行い、それ以上ずれたら繰り延べ行の扱いかテープの取りこぼしを疑う。
+    台帳の ``undefined_dropped`` は記録リング(``log.maxlen``)の溢れで、``counts`` には
+    影響しない(M2 の分子は ``counts`` 由来)。
+    """
+    reg = getattr(res, "undefined_registry", None)
+    if reg is None or not hasattr(reg, "counters"):
+        return {}
+    counters = {str(a): int(b) for a, b in reg.counters().items()}
+    bc = getattr(res, "bridge_counters", {}) or {}
+    n_calls = int(float(bc.get("llm_calls", 0)) or 0)
+    den = max(1, n_calls)
+    n_undef = counters.get("undefined_records", 0)
+    n_dict = counters.get("dictionary_mapped", 0)
+    threshold = int(getattr(reg, "threshold_agents", 10))
+    top = [
+        {
+            "word": str(w),
+            "count": int(c),
+            "distinct_agents": int(reg.distinct_agents(w)),
+            "reached_threshold": bool(int(reg.distinct_agents(w)) >= threshold),
+        }
+        for w, c in reg.top_words(int(k))
+    ]
+    return {
+        "n_calls": n_calls,
+        "denominator": "bridge_counters['llm_calls'](=解釈まで進んだ呼・発射数ではない)",
+        "counters": counters,
+        "undefined_rate": n_undef / den,
+        "dictionary_rate": n_dict / den,
+        "grounded_direct": (n_calls - n_undef - n_dict) / den,
+        "threshold_agents": threshold,
+        "top_k": int(k),
+        "top_words": top,
+        "n_reached_threshold": sum(1 for r in top if r["reached_threshold"]),
+    }
 
 
 def _diagnostics_day(res: Any) -> dict[str, float]:
@@ -207,7 +352,8 @@ def _manifest_fields(res: Any) -> dict[str, Any]:
     except Exception:  # pragma: no cover - mock/stub の結果
         return {}
     # D-66(2026-09-11): 計画実行層の腕 3 つを足した(AB-PLAN-EXECUTOR を C8 で回すため)。
-    return {k: v for k, v in f.items() if k in ("budget_mode", "ablations", "template_sha256", "catalog_sha16", "replay_date", "p_notice_ablation", "p_notice_d50_scale", "refractory_scale", "signage", "plan_executor", "exit_mode", "attendance_rate")}
+    # AB7(2026-09-16): 自由意図の腕の同定欄 ``intent_mode`` を足した。
+    return {k: v for k, v in f.items() if k in ("budget_mode", "ablations", "template_sha256", "catalog_sha16", "replay_date", "p_notice_ablation", "p_notice_d50_scale", "refractory_scale", "signage", "plan_executor", "exit_mode", "attendance_rate", "intent_mode")}
 
 
 def compare_runs(baseline: Mapping[str, Any], arm: Mapping[str, Any]) -> dict[str, Any]:
@@ -227,6 +373,11 @@ def compare_runs(baseline: Mapping[str, Any], arm: Mapping[str, Any]) -> dict[st
         out["action_jsd"] = c6lib.jsd_counts(dict(a), dict(b))
         out["null_reference_bits"] = 0.0035  # T7(seed 違い)受入報告 C6 §3
         out["exceeds_null"] = bool(out["action_jsd"] > out["null_reference_bits"])
+    # M1/M2 の差(AB7・2026-09-16)。**テープが無い側があれば欄を作らない**=推測で埋めない。
+    gb, ga = baseline.get("grounding"), arm.get("grounding")
+    if isinstance(gb, Mapping) and isinstance(ga, Mapping):
+        for key in ("grounded_direct", "grounded_dictionary", "grounded_total", "undefined_rate"):
+            out[f"d_{key}"] = float(ga.get(key, 0.0)) - float(gb.get(key, 0.0))
     return out
 
 
@@ -345,6 +496,47 @@ def arm_markdown(payload: Mapping[str, Any]) -> str:
                         c8lib.fmt(r["notice_reach"], 3), c8lib.fmt(r["conserved"]), r["final_hash"][:16],
                     ]
                     for r in runs
+                ],
+            ),
+        ]
+    grounded = [r for r in runs if isinstance(r.get("grounding"), Mapping)]
+    if grounded:
+        md += [
+            "",
+            "## M1 接地率(2 段)・M2 未定義率",
+            "",
+            "> 分母=非繰り延べのテープ行(D-58)。直接一致=24 語(12 語+役割語 12)"
+            "・段0=``undefined.map_synonym`` で写せた分。3 つの和は 1.0。",
+            "",
+            c8lib.markdown_table(
+                ["構成", "n", "M1 直接一致", "M1 段0 辞書", "M1 接地計", "M2 未定義率"],
+                [
+                    [
+                        r["tag"], c8lib.fmt(r["grounding"]["n"]),
+                        c8lib.fmt(r["grounding"]["grounded_direct"], 4),
+                        c8lib.fmt(r["grounding"]["grounded_dictionary"], 4),
+                        c8lib.fmt(r["grounding"]["grounded_total"], 4),
+                        c8lib.fmt(r["grounding"]["undefined_rate"], 4),
+                    ]
+                    for r in grounded
+                ],
+            ),
+        ]
+    for r in runs:
+        reg = r.get("undefined_registry")
+        if not isinstance(reg, Mapping) or not reg.get("top_words"):
+            continue
+        md += [
+            "",
+            f"## M3 上位未定義語({r['tag']}・top {reg.get('top_k')}・"
+            f"★=異なる個体 {reg.get('threshold_agents')} 体に到達=§7 段2 の閾値)",
+            "",
+            c8lib.markdown_table(
+                ["語", "出現数", "distinct agents", "閾値到達"],
+                [
+                    [w["word"], c8lib.fmt(w["count"]), c8lib.fmt(w["distinct_agents"]),
+                     "★" if w["reached_threshold"] else ""]
+                    for w in reg["top_words"]
                 ],
             ),
         ]

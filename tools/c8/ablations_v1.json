@@ -43,7 +43,21 @@
     "conserved": "保存則 Σ所持金+Σ売上+Σ運賃 の不変(RunResult.conserved)",
     "census_pass": "日次経済センサスのゲート(残差・純資産=実物資産)",
     "notice_reach": "顕著行為に気づいた延べ人数 ÷ 事象数(RunResult.noticed / salient_events)= §8 ② の『情報到達半径』の代理",
-    "final_hash": "最終 checkpoint(腕の間で一致したら切替が効いていない合図)"
+    "final_hash": "最終 checkpoint(腕の間で一致したら切替が効いていない合図)",
+    "grounding_rate": "**M1 接地率(2 段)**(open-intent 仕様書 §1)。分母=繰り延べでないテープ行(D-58)。grounded_direct=行動欄が 24 語(contract.ALL_ACTION_WORDS=12 語+役割語 12)に**直接一致**した割合 / grounded_dictionary=一致しなかったが段0 辞書(undefined.map_synonym)で写せた割合。grounded_total = direct + dictionary = 1 − undefined_rate",
+    "top_undefined_words": "**M3 上位未定義語**(open-intent 仕様書 §1)。UndefinedActionRegistry.top_words(30) の(語・出現数)に distinct_agents(語) を付け、行動契約書 §7 段2 の閾値 N(registry.threshold_agents=10)に届いた語へ reached_threshold の印を付ける"
+  },
+  "first_wave": {
+    "ids": [
+      "AB1-BUDGET-MODE",
+      "AB2-PNOTICE-D50",
+      "AB3-REFRACTORY-PROX",
+      "AB4-HEARING-SNR",
+      "AB5-INTROSPECTION",
+      "AB6-AD-ZERO"
+    ],
+    "source": "知覚契約書 §8「ablation の優先順位規則(決定 09-06)…第1陣(Phase 2・L2=総 GPU 時間 20% の枠内)=6 本」",
+    "note": "rank 1-6・index ①-⑥ は**第1陣の優先順位規則の順**(本表 priority_rule)。rank 7 以降は別の設計書で足した腕で、§8 の連番ではない(design_source を見ること)。GPU 時間は totals で通算する。"
   },
   "arms": [
     {
@@ -324,18 +338,72 @@
       },
       "acceptance": "合格線なし=報告値。**差が出ない**ことが分かった場合は『広告は効いていない』=収益化レーンへの重要な入力(親→ユーザー)。",
       "status": "ready"
+    },
+    {
+      "id": "AB7-OPEN-INTENT",
+      "rank": 7,
+      "index": "⑦",
+      "name": "24 語のホワイトリストを見せる vs 自由文の意図(入口は自由・効果は閉じる)",
+      "design_source": "docs/design/v2-open-intent-arm-spec.md §1-§2(自由意図の腕・2026-09-16 ユーザー承認)・行動契約書 §7 段0〜1(未定義行動の接地)",
+      "hypothesis": "B0 で 24 語のホワイトリストを見せていること自体が行動分布を作っているのか。見せずに『いま自分がしたいこと』を自由文で出させ、接地をエンジン側(段0 辞書 → 段1 記録+待機)に任せると、接地率・未定義語の顔ぶれ・行動の多様性がどう動くかを測る。**合否は出さない探索的な腕**(仕様書 §1)。",
+      "switch": {
+        "kind": "implemented_flag",
+        "how": "cli.run(intent_mode='vocab'|'open') / CLI --intent-mode {vocab,open}",
+        "implemented": true,
+        "mock_effective": false,
+        "mock_note": "MockLLM はプロンプト本文を読まないので、B0 のバイトが変わっても mock では行動分布も final_hash も呼数も動かない(AB1・AB6 と同じ理由・C6 実測)。腕の差は実 LLM でしか出ない。",
+        "verified": "run_day(intent_mode=…) → Renderer(intent_mode=…) → templates.b0_system(mode) で B0 の system ブロックだけが入れ替わる。OUTPUT_SPEC_OPEN は OUTPUT_SPEC の『行動:』断片 1 つの置換で作るので、理由・対象・ひと言・2 行形・JSON 禁止は構成から同文。既定 vocab は TEMPLATES['B0.system'] と**同一オブジェクト**=template_sha256 161fe181… 不変・mock 実資産 5,000 体×1 日の checkpoint 不変(**親が第200 で再検収**: v2 既定 ba01bd0b…・v2.1 4fb0f2ec…・--intent-mode open も ba01bd0b… で mock では不変・lint-imports 5 kept・runner の mock 通し実行 executed)。tests/perception/test_intent_mode_open.py・tests/engine/test_intent_mode_open.py・tests/test_cli_intent_mode.py・tests/c8/test_ablations_ab7.py。"
+      },
+      "runs": [
+        {
+          "tag": "vocab",
+          "kwargs": {
+            "intent_mode": "vocab"
+          },
+          "is_baseline": true
+        },
+        {
+          "tag": "open",
+          "kwargs": {
+            "intent_mode": "open"
+          }
+        }
+      ],
+      "control": "baseline=vocab(24 語を B0 の出力規約で提示・現行)/対照=open(語彙を見せず 10 字以内の動詞句)。**対象欄の制約(セルID / 物のカテゴリ / 人ID / なし)は両腕で同文**=効果を閉じるのはエンジンの仕事(仕様書 §2 末尾)。",
+      "metrics": [
+        "grounding_rate",
+        "undefined_rate",
+        "top_undefined_words",
+        "action_jsd",
+        "format_error_rate",
+        "llm_calls",
+        "prompt_tokens_mean",
+        "conserved",
+        "final_hash"
+      ],
+      "cost": {
+        "runs": 2,
+        "calls": 100000,
+        "calls_with_shared_baseline": 50000,
+        "gpu_hours": 0.9667,
+        "gpu_hours_with_shared_baseline": 0.4833,
+        "note": "仕様書 §3 の実績見積は 35 分/腕(C8 実測)。ここの GPU 時間は本表の換算式(c8lib.gpu_hours_for_calls・C6 実測 1 点の外挿)に合わせた値で、35 分/腕とは出所が違う。"
+      },
+      "acceptance": "**合否線なし**(仕様書 §1「判定の書き方: 合否は出さない(探索的な腕)」)。事前予想: M1 直接一致は vocab≈1.0 → open で下がる・M3 上位語に『待ち合わせ/会う/探す/見る/帰る』系が出れば §7 段2 の最初の起草材料・M4 は open で上がる・M5 の tokens_out は open で微増。",
+      "status": "ready",
+      "note_parent": "親注(2026-09-16): 第1陣(§8 の 6 本)**ではない**別仕様書の腕。段2(裁定 LLM)は adjudicator=None のため本番で発火しない=この腕では記録と計数のみ(仕様書 §2・§5)。runner が出すのは M1〜M3 で、**M4(行動エントロピー)と M5 の tokens_out 平均は未実装**=親が calls.parquet から算出する。"
     }
   ],
   "totals": {
-    "runs_if_independent": 14,
-    "runs_with_shared_baseline": 7,
-    "calls_with_shared_baseline": 350000,
-    "gpu_hours_with_shared_baseline": 3.3833,
+    "runs_if_independent": 16,
+    "runs_with_shared_baseline": 8,
+    "calls_with_shared_baseline": 400000,
+    "gpu_hours_with_shared_baseline": 3.8667,
     "l2_reserve_hours": 4.8,
     "within_l2": true,
-    "note": "腕ごとに baseline を取り直すと 14 ラン・呼 700,000=6.8 h で L2 枠(4.8 h)を超える。AB4/AB5 は前提機能が未実装で ``runs`` が空なので、共有ベースライン側の 7 ランには最初から入っていない。",
-    "calls_if_independent": 700000,
-    "gpu_hours_if_independent": 6.7667
+    "note": "腕ごとに baseline を取り直すと 16 ラン・呼 800,000=7.7 h で L2 枠(4.8 h)を超える。AB4/AB5 は前提機能が未実装で ``runs`` が空なので、共有ベースライン側の 8 ランには最初から入っていない。AB7 は第1陣(§8 の 6 本)ではないが ablation の取り分(L2)は同じ財布なのでここで通算する。",
+    "calls_if_independent": 800000,
+    "gpu_hours_if_independent": 7.7333
   },
   "open_questions": [
     "6 本すべてで合格線が設計に無い(§8 は指標だけを指定)。報告値のままにするか、①の §10.3『同等』を JSD の帰無参照(T7 seed 違い 0.0035 bits)基準で数値化するか=親判断。",
@@ -343,6 +411,7 @@
     "L2 の分母(総 GPU 時間)が絶対値で宣言されていない。本表は W1 24 h/シミュ日を分母に置いた=expedient。",
     "**②③⑥ の runs は `pending: true` のまま**=実行器 (`ablation_runner.execute_arm`) は飛ばす。回すには tools/c8 側の 2 箇所(`ablation_runner.PENDING_KWARGS` から 3 キーを外す・各 runs の `pending` を落とす)が要る=親判断(実装サブ U は tools/c8 のコードを触っていない)。",
     "③ の腕(近接入替 15 分 ±50%)は**起床候補を出す側が未実装**(近接入替の起床は §9 第2陣)なので、切替口はあっても現状 no-op。腕を意味あるものにするには第2陣が先=親判断。",
-    "② は**合成世界では測れない**(個体がセル中心の街路ノードに固まる)。実資産 2,000 体×90 tick の下見では A4 での到達差は 1 人以下(共在=距離 0 と社会伝播で天井に張り付く)。A1(距離のみ)では 10,749/10,799/10,910 と動く。腕を実 LLM で回す前に「何を測る腕なのか」の再確認=親判断。"
+    "② は**合成世界では測れない**(個体がセル中心の街路ノードに固まる)。実資産 2,000 体×90 tick の下見では A4 での到達差は 1 人以下(共在=距離 0 と社会伝播で天井に張り付く)。A1(距離のみ)では 10,749/10,799/10,910 と動く。腕を実 LLM で回す前に「何を測る腕なのか」の再確認=親判断。",
+    "**AB7-OPEN-INTENT(2026-09-16 追加)**: runner が集計するのは M1〜M3 まで。**M4(行動エントロピー)と M5 の tokens_out 平均・壁時計は未実装**=親が calls.parquet から出す。合否線は仕様書 §1 が『出さない』と決めている=報告値。"
   ]
 }

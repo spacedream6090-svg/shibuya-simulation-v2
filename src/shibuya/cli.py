@@ -50,6 +50,7 @@ from shibuya.engine.run import (
     fleet_from_args,
     run_day,
 )
+from shibuya.perception.templates import DEFAULT_INTENT_MODE, INTENT_MODES
 from shibuya.world.assets import hash_free_cat_code
 from shibuya.world.state import World
 
@@ -341,6 +342,15 @@ def main(argv: list[str] | None = None) -> int:
         help="看板・広告面(B2.signage)を全セルで空にする(§8 第1陣 ⑥「広告ゼロ」の腕)",
     )
     ap.add_argument(
+        "--intent-mode",
+        choices=INTENT_MODES,
+        default=DEFAULT_INTENT_MODE,
+        help="行動の出させ方(AB7-OPEN-INTENT の腕・docs/design/v2-open-intent-arm-spec.md §2)。"
+             "vocab=24 語のホワイトリストを B0 で見せる(既定・現行のバイト)/"
+             "open=語彙を見せず『いま自分がしたいこと』を 10 字以内の動詞句で書かせ、"
+             "接地はエンジン側(行動契約書 §7 段0〜1)に任せる",
+    )
+    ap.add_argument(
         "--no-sleep-suppression",
         action="store_true",
         help="D-56 就寝抑止を切る(就寝中の個体も内受容/セル変化で呼ぶ=D-56 前の挙動・帰無腕)",
@@ -436,6 +446,7 @@ def main(argv: list[str] | None = None) -> int:
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,
+        intent_mode=str(args.intent_mode),
         fleet=fleet_from_args(args, ap),
         fleet_wait_s=float(getattr(args, "fleet_wait_s", 0.0)),
         fleet_debug_dir=getattr(args, "fleet_debug_dir", "") or None,

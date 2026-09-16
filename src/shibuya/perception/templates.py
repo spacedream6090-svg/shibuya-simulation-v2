@@ -68,6 +68,16 @@ __all__ = [
     "TEMPLATES",
     "template_sha256",
     "block_group",
+    # ---- AB7-OPEN-INTENT(自由意図の腕・2026-09-16)。既定 vocab の値は 1 バイトも動かさない ----
+    "INTENT_MODES",
+    "DEFAULT_INTENT_MODE",
+    "OUTPUT_SPEC",
+    "OUTPUT_SPEC_OPEN",
+    "B0_SYSTEM",
+    "B0_SYSTEM_OPEN",
+    "check_intent_mode",
+    "b0_system",
+    "b0_sha256",
 ]
 
 #: テンプレ版(改版は delta+感度試験。値を変えたら ``template_sha256`` も変わる)。
@@ -229,6 +239,69 @@ _B0_HEAD: Final[tuple[str, ...]] = (
 
 #: B0 の全文(system ブロック)。**凍結対象**。
 B0_SYSTEM: Final[str] = "\n".join((*_B0_HEAD, *_CONSTITUTION, *_ROLE_KNOWLEDGE, OUTPUT_SPEC))
+
+
+# ------------------------------------------- AB7-OPEN-INTENT(自由意図の腕・2026-09-16)
+#
+# 仕様: ``docs/design/v2-open-intent-arm-spec.md`` §2「``OUTPUT_SPEC`` は触らない(B0 凍結・
+# SHA 固定)。新たに ``OUTPUT_SPEC_OPEN`` を追加: ``行動:`` の指示を
+# ``<いま自分がしたいことを 10 字以内の動詞句で>`` に置き換え、**それ以外の行(理由・対象・
+# ひと言・2 行形・JSON 禁止)は同文**。``B0_SYSTEM_OPEN`` を組み、レンダラが ``intent_mode``
+# で選ぶ」。
+#
+# **凍結との関係**: ``TEMPLATES``(=``template_sha256`` の payload)には 1 語も足していない。
+# 既定 ``intent_mode="vocab"`` のとき ``b0_system()`` は ``TEMPLATES["B0.system"]`` と
+# **同一オブジェクト**を返す=描画バイトも SHA も動かない(§1 条5 の「改版」に当たらない)。
+#
+# **expedient**(本腕分・仕様書 §6 に登録済み): 自由意図の指示文「いま自分がしたいことを
+# 10 字以内の動詞句で」は親の自前文(先行研究の文面ではない)。語数上限 6/10/20 の副腕は結果次第。
+
+#: 切替口の値(``engine.run.run_day(intent_mode=...)``・CLI ``--intent-mode``)。
+INTENT_MODES: Final[tuple[str, ...]] = ("vocab", "open")
+#: 既定=現行の 24 語ホワイトリスト提示。
+DEFAULT_INTENT_MODE: Final[str] = "vocab"
+
+#: ``OUTPUT_SPEC`` の ``行動:`` 断片(vocab 腕)。**差し替えの起点**=この 1 行だけが腕の差。
+_ACTION_SPEC_VOCAB: Final[str] = "行動: <" + " / ".join(ACTION_WORDS_12) + " から1語> "
+#: 同(open 腕)。語彙を見せず「いましたいこと」を自由文で書かせる。
+_ACTION_SPEC_OPEN: Final[str] = "行動: <いま自分がしたいことを10字以内の動詞句で> "
+
+#: 出力規約(open 腕)。``OUTPUT_SPEC`` から ``行動:`` の 1 断片だけを置換して作る
+#: =**理由・対象・ひと言・2 行形・JSON 禁止が同文であることが構成から保証される**。
+OUTPUT_SPEC_OPEN: Final[str] = OUTPUT_SPEC.replace(_ACTION_SPEC_VOCAB, _ACTION_SPEC_OPEN, 1)
+assert OUTPUT_SPEC_OPEN != OUTPUT_SPEC, "OUTPUT_SPEC の 行動: 断片が変わった(腕の置換が空振り)"
+
+#: B0 の全文(open 腕)。``B0_SYSTEM`` の**出力規約の節だけ**を差し替えたもの
+#: =head・憲法 6 条・役割知識 10 行は 1 バイトも変わらない。
+B0_SYSTEM_OPEN: Final[str] = B0_SYSTEM.replace(OUTPUT_SPEC, OUTPUT_SPEC_OPEN, 1)
+assert B0_SYSTEM_OPEN != B0_SYSTEM, "B0_SYSTEM の出力規約節が引けない(腕の置換が空振り)"
+
+
+def check_intent_mode(intent_mode: str) -> str:
+    """``intent_mode`` を検査して正規化する(不正値は ``ValueError``)。"""
+    mode = str(intent_mode)
+    if mode not in INTENT_MODES:
+        raise ValueError(f"intent_mode は {INTENT_MODES} のどれか(いま {intent_mode!r})")
+    return mode
+
+
+def b0_system(intent_mode: str = DEFAULT_INTENT_MODE) -> str:
+    """腕に応じた B0(system ブロック)の全文。
+
+    ``"vocab"``(既定)は ``TEMPLATES["B0.system"]`` と**同一の文字列**を返す
+    (=既定経路のバイトは 1 つも動かない)。``"open"`` は ``B0_SYSTEM_OPEN``。
+    """
+    return B0_SYSTEM_OPEN if check_intent_mode(intent_mode) == "open" else B0_SYSTEM
+
+
+def b0_sha256(intent_mode: str = DEFAULT_INTENT_MODE) -> str:
+    """B0 本文そのものの版ハッシュ(**腕の切替が効いたかの指紋**)。
+
+    ``template_sha256`` とは別の値(あちらは ``TEMPLATES`` 全体の payload=凍結対象で、
+    本腕では 1 バイトも動かさない)。
+    """
+    mode = check_intent_mode(intent_mode)
+    return sha256_cbor({"b0_system": b0_system(mode), "intent_mode": mode})
 
 
 # --------------------------------------------------------------- B1-B6(1行1事実の行テンプレ)

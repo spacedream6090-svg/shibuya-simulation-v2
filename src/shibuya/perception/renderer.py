@@ -583,6 +583,7 @@ class Renderer:
         budget_mode: ch.BudgetMode | str = ch.BudgetMode.FIXED_SLOTS,
         strict_group_budget: bool = True,
         signage_enabled: bool = True,
+        intent_mode: str = T.DEFAULT_INTENT_MODE,
     ) -> None:
         """
         Args:
@@ -601,6 +602,12 @@ class Renderer:
                 ``B2.signage_empty``(=「見える表示はありません」)にする。既定 True=
                 現行の描画で**1 バイトも変わらない**。テンプレ本体は触らないので
                 ``template_sha256`` は不変・規約⑧(セルの情報しか使わない)も不変。
+            intent_mode: **AB7-OPEN-INTENT** の切替口(``"vocab"`` | ``"open"``)。
+                ``"open"`` で B0 の出力規約を ``templates.OUTPUT_SPEC_OPEN``(``行動:`` の
+                1 行だけが「いま自分がしたいことを10字以内の動詞句で」)に差し替える。
+                既定 ``"vocab"`` は現行の 24 語ホワイトリスト提示=**1 バイトも変わらない**。
+                テンプレ本体(``TEMPLATES``)は触らないので ``template_sha256`` も不変。
+                仕様書 ``docs/design/v2-open-intent-arm-spec.md`` §2。
         """
         self.world = world
         self.agents = agents
@@ -612,9 +619,11 @@ class Renderer:
         self.budget_mode = ch.BudgetMode.parse(budget_mode)
         self.strict_group_budget = strict_group_budget
         self.signage_enabled = bool(signage_enabled)
+        self.intent_mode = T.check_intent_mode(intent_mode)
 
         self._tickc = _TickCache()
-        self._b0 = N.canonical_whitespace(T.TEMPLATES["B0.system"]).encode("utf-8")
+        # 既定(vocab)は ``TEMPLATES["B0.system"]`` と同一文字列=描画バイト不変(AB7)。
+        self._b0 = N.canonical_whitespace(T.b0_system(self.intent_mode)).encode("utf-8")
         self._b4b = N.canonical_whitespace(
             T.TEMPLATES["B4b.near_empty"]
         ).encode("utf-8")

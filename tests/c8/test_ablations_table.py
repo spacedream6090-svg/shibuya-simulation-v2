@@ -18,12 +18,19 @@ def test_table_validates(ablation_runner, table):
     assert ablation_runner.validate_table(table) == []
 
 
-def test_six_arms_in_priority_order(table):
-    """§8「第1陣=6 本」・rank は優先順位規則(expedient の量 × 駆動可能性 ÷ コスト)の順。"""
+def test_six_arms_in_priority_order(ablation_runner, table):
+    """§8「第1陣=6 本」・rank は優先順位規則(expedient の量 × 駆動可能性 ÷ コスト)の順。
+
+    第1陣より後に足した腕(``first_wave`` の外・2026-09-16 の ``AB7-OPEN-INTENT``)は
+    **表の先頭 6 本より後ろ**に並び、rank は 7 以降の通し番号を続ける。
+    """
     arms = table["arms"]
-    assert len(arms) == 6
-    assert [a["rank"] for a in arms] == [1, 2, 3, 4, 5, 6]
-    assert [a["index"] for a in arms] == ["①", "②", "③", "④", "⑤", "⑥"]
+    wave1 = ablation_runner.first_wave_ids(table)
+    assert len(wave1) == 6
+    assert [a["id"] for a in arms[:6]] == wave1
+    assert [a["rank"] for a in arms[:6]] == [1, 2, 3, 4, 5, 6]
+    assert [a["index"] for a in arms[:6]] == ["①", "②", "③", "④", "⑤", "⑥"]
+    assert [a["rank"] for a in arms] == list(range(1, len(arms) + 1))
 
 
 def test_arms_match_design_text(c8lib, table):
@@ -104,24 +111,36 @@ def test_totals_match_the_arms(table):
     assert t["calls_with_shared_baseline"] == shared * table["default_scale"]["calls_per_run"]
 
 
-def test_only_the_second_wave_arms_are_still_blocked(table):
+def test_only_the_second_wave_arms_are_still_blocked(ablation_runner, table):
     """切替口の実装状況(C6 で ①・**C8 で ②③⑥**=2026-09-09)。
 
     残るのは ④聴覚 ΔSNR・⑤日次内省で、どちらも**前提機能が §9 第2陣**(聴覚の物理軸は
-    コードに無く同一セル代理・日次内省は就寝で「発火を記録するだけ」)。
+    コードに無く同一セル代理・日次内省は就寝で「発火を記録するだけ」)。**第1陣の 6 本だけ**
+    を見る(追加腕は下の ``test_the_added_arms_are_implemented``)。
     """
-    ready = [a["id"] for a in table["arms"] if a["switch"]["implemented"]]
+    wave1 = set(ablation_runner.first_wave_ids(table))
+    arms1 = [a for a in table["arms"] if a["id"] in wave1]
+    ready = [a["id"] for a in arms1 if a["switch"]["implemented"]]
     assert ready == [
         "AB1-BUDGET-MODE", "AB2-PNOTICE-D50", "AB3-REFRACTORY-PROX", "AB6-AD-ZERO"
     ]
-    blocked = {a["id"]: a["status"] for a in table["arms"] if not a["switch"]["implemented"]}
+    blocked = {a["id"]: a["status"] for a in arms1 if not a["switch"]["implemented"]}
     assert blocked == {"AB4-HEARING-SNR": "blocked_feature", "AB5-INTROSPECTION": "blocked_feature"}
 
 
+def test_the_added_arms_are_implemented(ablation_runner, table):
+    """第1陣より後に足した腕は**切替口つきで足す**(未実装の腕を後ろに積まない)。"""
+    wave1 = set(ablation_runner.first_wave_ids(table))
+    extra = [a for a in table["arms"] if a["id"] not in wave1]
+    assert [a["id"] for a in extra] == ["AB7-OPEN-INTENT"]
+    for a in extra:
+        assert a["switch"]["implemented"] is True and a["status"] == "ready"
+
+
 def test_mock_ineffective_arms_are_prompt_only(table):
-    """mock で差が出ない腕=**プロンプト本文しか変えない**腕(①⑥)。"""
+    """mock で差が出ない腕=**プロンプト本文しか変えない**腕(①⑥と AB7)。"""
     prompt_only = {a["id"] for a in table["arms"] if not a["switch"]["mock_effective"]}
-    assert prompt_only == {"AB1-BUDGET-MODE", "AB6-AD-ZERO"}
+    assert prompt_only == {"AB1-BUDGET-MODE", "AB6-AD-ZERO", "AB7-OPEN-INTENT"}
 
 
 # ------------------------------------------------------------------ 引き当てと表

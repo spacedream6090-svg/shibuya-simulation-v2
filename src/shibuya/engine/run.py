@@ -110,6 +110,7 @@ from shibuya.perception.renderer import (
     PerceptionAssets,
     Renderer as PerceptionRenderer,
 )
+from shibuya.perception.templates import INTENT_MODES, check_intent_mode
 from shibuya.world.assets import load_process_assets_or_synthetic
 from shibuya.world.state import World
 
@@ -239,6 +240,9 @@ class RunResult:
     refractory_scale: dict[str, float] = field(default_factory=dict)
     #: ablation ⑥(§8 第1陣)。看板・広告面(B2.signage)を描いたか。既定 True。
     signage: bool = True
+    #: **AB7-OPEN-INTENT**(自由意図の腕)。``"vocab"``=24 語提示(既定)/``"open"``=自由文。
+    #: 仕様書 docs/design/v2-open-intent-arm-spec.md §2。
+    intent_mode: str = INTENT_MODES[0]
     #: D-56 就寝抑止を効かせたか。既定 True(ユーザー決定 (a)・2026-09-10)。
     sleep_suppression: bool = True
     #: D-62「就寝は計画の実行」を効かせたか。既定 True(ユーザー決定 (a)+(b)・2026-09-10)。
@@ -464,6 +468,7 @@ class RunResult:
             ``budget_mode``(知覚契約書 §3.2 ablation ① の腕)・
             ``p_notice_ablation``/``p_notice_d50_scale``/``refractory_scale``/``signage``
             (§8 第1陣 ②③⑥ の腕。既定は ``A4``/``1.0``/``{}``/``True``)・
+            ``intent_mode``(AB7 自由意図の腕。既定 ``vocab``)・
             ``sleep_suppression``(D-56 就寝抑止の腕。既定 ``True``)・
             ``plan_sleep``(D-62「就寝は計画の実行」の腕。既定 ``True``)・
             ``plan_executor``/``exit_mode``/``attendance_rate``(D-66 計画実行層の腕。
@@ -499,6 +504,8 @@ class RunResult:
             "p_notice_d50_scale": float(self.p_notice_d50_scale),
             "refractory_scale": dict(self.refractory_scale),
             "signage": bool(self.signage),
+            # ---- AB7 自由意図の腕(既定 vocab)。列追加のみ=既存欄の値は動かない ----
+            "intent_mode": str(self.intent_mode),
             # ---- D-56 就寝抑止(既定 True)。False = D-56 前の挙動 ----
             "sleep_suppression": bool(self.sleep_suppression),
             # ---- D-62 就寝は計画の実行(既定 True)。False = D-62 前の挙動 ----
@@ -899,6 +906,7 @@ def run_day(
     p_notice_d50_scale: float = 1.0,
     refractory_scale: Mapping[Any, float] | None = None,
     signage: bool = True,
+    intent_mode: str = INTENT_MODES[0],
     budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
     salient_rate_per_10k: float | None = None,
     population: "Population | bool | None" = None,
@@ -975,6 +983,13 @@ def run_day(
         signage: 知覚契約書 §8 第1陣 **⑥ の腕**「広告ゼロ」。``False`` で看板・広告面
             (B2.signage)を全セルで空にする(W14 凍結文も合成文も載せない)。既定 True。
             ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
+        intent_mode: **AB7-OPEN-INTENT**(自由意図の腕・仕様書 §2)。``"vocab"``(既定)は
+            現行どおり B0 に 24 語のホワイトリストを見せる。``"open"`` は ``行動:`` の 1 行だけを
+            「いま自分がしたいことを10字以内の動詞句で」に差し替える(理由・対象・ひと言・
+            2 行形・JSON 禁止は同文)。接地はエンジン側(§7 段0 辞書写像 → 段1 記録+待機)。
+            既定では**1 バイトも変わらない**(テンプレ本体・``template_sha256`` も不変)。
+            ``"vocab"``/``"open"`` 以外は ``ValueError``。
+            ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
         population: W16 母集団(``agents.population.Population``)。``None``(既定)は
             **``world_dir`` に ``w16_population.parquet`` があれば自動で読む**
             (``n_agents`` 体へ二層抽出)。``False`` で明示的に切る(合成個体のまま)。
@@ -1031,6 +1046,8 @@ def run_day(
         raise ValueError(f"attendance_rate は 0.0〜1.0(いま {attendance_rate})")
     if str(derive_rule) not in PRESENCE_DERIVE_RULES:
         raise ValueError(f"derive_rule は {PRESENCE_DERIVE_RULES} のどれか(いま {derive_rule!r})")
+    # ---- AB7 自由意図の腕: 値の検査は**レンダラを作る前**にする(manifest が嘘をつかない) ----
+    intent_mode = check_intent_mode(intent_mode)
     # ---- ablation ③: **ランの実効不応期表**を 1 本組む(既定=§6 の表そのもの) ----
     refractory_table = R.refractory_ticks(refractory_scale)
     refractory_scale_norm = R.normalized_refractory_scale(refractory_scale)
@@ -1133,6 +1150,7 @@ def run_day(
                 seed=seed,
                 budget_mode=budget_mode_enum,
                 signage_enabled=signage,
+                intent_mode=intent_mode,
             )
         )
         renderer_obj: Any = perception
@@ -1874,6 +1892,9 @@ def run_day(
 
     bridge.close()
     result.runner = runner  # type: ignore[attr-defined]
+    # AB7 の M1-M3(接地率・未定義率・上位未定義語)は §7 の台帳が持つ。``runner`` と同じく
+    # **後付けの属性**として渡すだけ(RunResult の欄は増やさない=既存の出力は不変)。
+    result.undefined_registry = bridge.undefined  # type: ignore[attr-defined]
     if runner is not None:
         # D-R2-6: ActualLog は O(t) が本質 → 保持窓を過ぎた生ログを日次集約行へ畳む
         runner.end_of_day(max(0, ticks - 1))
@@ -1960,6 +1981,12 @@ def run_day(
         getattr(getattr(perception, "renderer", None), "signage_enabled", signage)
         if perception is not None
         else signage
+    )
+    # AB7: 実際に描いた腕(注入レンダラなら**そちらの値**が正)。
+    result.intent_mode = str(
+        getattr(getattr(perception, "renderer", None), "intent_mode", intent_mode)
+        if perception is not None
+        else intent_mode
     )
     result.sleep_suppression = bool(sleep_suppression)
     result.plan_sleep = bool(plan_sleep)

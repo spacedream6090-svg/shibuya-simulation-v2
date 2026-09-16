@@ -5,6 +5,7 @@
 - **一次確認**: 本書自体は状態の記録であって主張をしない。**各行の状態が正**
 - **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **v1 資産**: [v1-asset-triage.md](v1-asset-triage.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
 
+> 最終更新 **2026-09-16(第200)**: §0 の Web 停止は **09-16 08 時に復旧**(第197)。R-24(法学)と A-3(反復回数=L-B)は第199〜200 で完了。
 > 最終更新 **2026-09-15(第191)**。ユーザー指示 09-15「調べきれなかったところ・不明なところをきちんと明示して、進行状況を次のエージェントが理解できるようにしておいてほしい」。
 
 ---
@@ -25,7 +26,7 @@ WebFetch  → 同一のエラー
 
 **Web が戻ったら最初にやる 3 手**(この順):
 
-1. **R-23 の P1 24 本のうち、いま決定に効いているものから**([INDEX.md](INDEX.md) §1 の表)。特に **R-24 = 法学 #11 の 2 本**(営業時間の法定上限・立入制限が世界に実装されているのに根拠に出典が無い)。
+1. **R-23 の P1 24 本のうち、いま決定に効いているものから**([INDEX.md](INDEX.md) §1 の表)。~~特に R-24 = 法学 #11 の 2 本~~ → **R-24 は第199〜200 で完了**(W7 はその 2 本に依存していなかった・法学 #11 は答申 `v2-w7-law-primary-check-research.md` で A 等級・副産物 D-72)。
 2. **第190 の未確認 4 件**(§2-A)。1 件あたり 1 回の取得で済む。
 3. **R-2 の 11 件**(§2-B)。arXiv ID は判明済みなので機械的に消化できる。
 
@@ -59,8 +60,8 @@ Web を使わずに進められる分だけを実行した。
 |---|---|---|---|---|
 | A-1 | Park et al. 2023 の **「25 体 × 2 日で数千ドル・数日」**の原文 | arxiv.org/abs/2304.03442 の**本文 PDF** の Limitations/Future Work 節(抄録ページには無いことを確認済み) | 第190 の比較表・未踏の位置づけ | 未着手 |
 | A-2 | Balmer et al. 2008 の **23 h(181,693 体)/ 36 h(2.3M 体)** | MATSim の公開 SVN にある `matsim-architecture` PDF(第190 の検索で URL を確認済み・未取得) | [lit/compute__matsim2020_hermes](lit/compute__matsim2020_hermes.md) の批判節 | 未着手 |
-| A-3 | **ABM の反復回数の相場**(Lorscheid et al. 2012 の変動係数法 / Law & Kelton の信頼区間法) | JASSS(jasss.org)の該当論文。第190 では検索の統合のみで原典未読 | **D-70「N を減らす設計」の根拠**。G-8 の「初回 seed 群 8 本」が expedient のままなのを解消する | 未着手 |
-| A-4 | **ECMWF の運用スケジュール**(10 日予報を何時間以内に出す決まりか) | ecmwf.int。**第190 はここで使用上限に当たった** | 「実用」の外部基準をもう 1 つ持つため。計器盤 G-8 のスコアカード様式も ECMWF 由来だが**原文未読**(R-14) | 未着手 |
+| A-3 | **✔ 第200 完了**(答申 [v2-replication-count-research.md](v2-replication-count-research.md)・等級 A・lit 7 本。Lorscheid 原典は有料で未読=二次で確認)← **ABM の反復回数の相場**(Lorscheid et al. 2012 の変動係数法 / Law & Kelton の信頼区間法) | JASSS(jasss.org)の該当論文。第190 では検索の統合のみで原典未読 | **D-70「N を減らす設計」の根拠**。G-8 の「初回 seed 群 8 本」が expedient のままなのを解消する | **完了(第200)** |
+| A-4 | **部分(第200)**: メンバー数 51 の根拠と「小アンサンブル+fair score」は取得済み([lit/ensemble__ecmwf_ensemble-size](lit/ensemble__ecmwf_ensemble-size.md))。**配信時刻の規則値は未取得** ← **ECMWF の運用スケジュール**(10 日予報を何時間以内に出す決まりか) | ecmwf.int。**第190 はここで使用上限に当たった** | 「実用」の外部基準をもう 1 つ持つため。計器盤 G-8 のスコアカード様式も ECMWF 由来だが**原文未読**(R-14) | **部分(第200)**・配信時刻は未着手 |
 
 ### B. R-2 — LLM 社会シミュ文献の本文実読 11 件(arXiv ID は判明済み)
 
@@ -113,7 +114,7 @@ Web を使わずに進められる分だけを実行した。
 
 ### F. R-23〜R-26(第191 で新規)
 
-[research-backlog.md](research-backlog.md) §3b を参照。**R-24(法学 #11 が両方 D 等級)が最優先。**
+[research-backlog.md](research-backlog.md) §3b を参照。~~R-24(法学 #11 が両方 D 等級)が最優先~~ → **R-24 完了(第200・等級 A・D-72 8 件へ)**。**L-B も第200 で完了**(答申 [v2-replication-count-research.md](v2-replication-count-research.md)・A)。次の優先は R-23(出典ゼロ 33 本)と R-2(11 件)。
 
 ---
 

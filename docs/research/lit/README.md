@@ -60,3 +60,10 @@
 | [stats__lorscheid2012_replication-doe](stats__lorscheid2012_replication-doe.md) | 統計学・因果推論 #23 | 二次(v1 メモ経由・原典未読) | **反復回数は CV 収束で決める**。G-8 の expedient を解消する道。**D-70 の答えを決める測定** |
 | [network__complex-contagion-overview](network__complex-contagion-overview.md) | 社会ネットワーク科学 #14 | 二次(v1 メモ経由・原典未読) | **行動・規範は 1 接触で伝わらない**(complex contagion)。会話 410/日 と第2陣の主題に直結 |
 | [validation__operational-validity-overview](validation__operational-validity-overview.md) | 検証とV&V #22 / 科学哲学 #26 | 二次(v1 メモ経由・原典未読) | 妥当性は多 seed のマクロ分布で見る / **LLM は効果量を大きく出す** / 既知結果の再現を先に |
+| [stats__lee2015_abm-output-analysis](stats__lee2015_abm-output-analysis.md) | 統計学・因果推論 #23 / ABM方法論 #21 | **実読**(第200・親再取得) | **Lorscheid の CV 法を逐語で引く二次**・c_V は μ≈0 の指標に不向き・「分散の安定→効果量→n_min」の 2 段 |
+| [stats__siepe2024_simulation-study-template](stats__siepe2024_simulation-study-template.md) | 統計学・因果推論 #23 / 検証とV&V #22 | **実読**(第200・親再取得) | **反復回数は MCSE 目標から逆算し事前登録で宣言**(n=S²/MCSE*²)・分野の実態=中央値 900・根拠あり 8% |
+| [stats__tenbroeke2016_sensitivity-abm](stats__tenbroeke2016_sensitivity-abm.md) | 統計学・因果推論 #23 / ABM方法論 #21 | **実読**(第200・親再取得) | 目的別の反復数(分布推定=数百・感度解析=10/5/0)・**seed 間分散÷条件間分散で追加不要を証明**(0.88%) |
+| [stats__ritter2011_number-of-runs](stats__ritter2011_number-of-runs.md) | 統計学・因果推論 #23 | **実読(著者版 PDF・第200・親 pymupdf)** | 「シミュレーションは理論であって標本でない」・検出力表(power .90: ES 0.8→34・0.5→88・0.2→545)・**8 seed の床 ES≈1.65** |
+| [stats__secchi-seri2017_power-abm](stats__secchi-seri2017_power-abm.md) | 統計学・因果推論 #23 / ABM方法論 #21 | **実読**(第200・親 PDF。式 (2) の係数のみ親未確認) | ABM の標準= α 0.01・power 0.95・経験式 n≃14.091·J^−0.640·ES^−1.986・**多すぎるのも害** |
+| [stats__hoad2007-law2020_replication-ci](stats__hoad2007-law2020_replication-ci.md) | 統計学・因果推論 #23 / OR | **実読**(第200・親 pymupdf。Law 教科書原文は未確認) | 相対精度の逐次停止則+先読み kLimit・**d₈=83.6·CV**・n→4n で半幅 1/2 |
+| [ensemble__ecmwf_ensemble-size](ensemble__ecmwf_ensemble-size.md) | 不確実性定量化 #22 / 気象アンサンブル | **実読**(第200・親再取得+pymupdf。QJRMS 査読版は未読) | **51 の根拠(10→50 で改善・50 超は逓減・資源との妥協)**・交換可能なら CRPS_M=(1+1/M)CRPS_∞・**R&D は 2〜4 で足りる(fair score)**=8 seed を正当化できる唯一の枠 |
