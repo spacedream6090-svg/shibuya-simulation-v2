@@ -37,10 +37,21 @@ from shibuya.core.soa import Registry
 from shibuya.world.assets import WorldAssets, load_assets, synthetic_assets
 from shibuya.world.graph import WalkGraph
 
-__all__ = ["DENSITY_STAGE_EDGES", "World"]
+__all__ = ["DENSITY_STAGE_EDGES", "DENSITY_STAGE_EDGES_PER_M2", "World"]
 
 #: 密度段階の境界[人/セル](expedient・B4 の段は C3 のレンダラで確定する)。
+#: **node 幾何(既定)専用**——``geometry="edge"`` では
+#: ``DENSITY_STAGE_EDGES_PER_M2`` を使う(C9 §4 改訂)。
 DENSITY_STAGE_EDGES: Final[tuple[int, ...]] = (1, 5, 20, 60, 150, 400, 1_000)
+
+#: 密度段階の境界[**人/m²**](Fruin 1971 歩行路 LOS の A/B/C/D/E/F 境界)。
+#: C9 決定アジェンダ §4 改訂: 「現行の密度段階(最上段 1,000 人/セル=0.238 人/m²)は
+#: 7 段すべて Fruin LOS A の内側=**減速が実質 no-op**。段の刻みを人/m² で定義し直す」。
+#: **mechanism**: 段の境界は LOS 定義に釘付け(``perception.templates.DENSITY_LOS_EDGES_PER_M2``
+#: と同値。層契約により二重定義=テストが一致を機械検査)。分母(歩行可能面積)は expedient。
+DENSITY_STAGE_EDGES_PER_M2: Final[tuple[float, ...]] = (
+    0.30754, 0.43056, 0.71760, 1.07640, 2.15279,
+)
 
 
 class World:

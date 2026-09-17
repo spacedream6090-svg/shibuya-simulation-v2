@@ -42,6 +42,17 @@ expedient(本モジュール分)
 - ``ResultCode.NOT_IN_EATERY``(19)は**語彙 v2**(行動語「食事」・D-71 §3 E)で足した
   失敗コード。既存コードに「その種類の店にいない」に当たる行が無い(``BAD_TARGET`` は
   「対象を特定できない」)。**値は末尾に足すだけ**なので v1 の配列も描画も動かない。
+- ``ResultCode.TARGET_GONE``(20)は **C9 G11**(2026-09-17 ユーザー決定)で足した失敗コード。
+  「対象(人・物)が最後に見た位置から居なくなった」= **猶予つき**(最後に見た位置へ向かい、
+  着いてもまだ居なければ失敗)。``PARTNER_GONE``(12・会話相手が去った)とは別で、
+  こちらは**移動・接近の対象**。``UNREACHABLE``(1・経路が無い)は既存の行をそのまま使う。
+  C9a では**コードを足すだけ**(対象=人への接近そのものは C9b の領分)。
+- ``edge_id`` / ``edge_s``(**C9 G1 (b)**・``geometry="edge"`` のランだけ確保・+8 B/体)。
+  体は「辺 ``edge_id`` の上・``node`` から ``edge_s``[m]・向き ``node``→``path_next_node``」に
+  居る。**向きの欄を新設せず、宣言済みだが誰も書いていなかった ``path_next_node``
+  (4 B・「次ホップのノード」)を向きの担い手に使う**(欄を 1 本減らす選択)。既定の
+  ``geometry="node"`` では**欄を確保しない**=``Registry.state_hash`` は 1 バイトも動かない
+  (``plan_columns``=D-66 と同じ形)。
 - 書き込み禁止ガード(``freeze``/``writable``)は agents と world に**同じ実装を二重に置く**。
   層契約(``world | agents`` は同層=相互 import 禁止)のため共有モジュールを作れない。
 """
@@ -151,6 +162,7 @@ class ResultCode(IntEnum):
     BAD_TARGET = 17
     INSUFFICIENT_ABILITY = 18  # 能力不足(手伝い・行動契約書 §2.1)
     NOT_IN_EATERY = 19  # 飲食店にいない(語彙 v2「食事」・D-71 §3 E)
+    TARGET_GONE = 20  # 対象が去った(C9 G11・最後に見た位置へ着いても居なかった)
 
 
 #: 契約書の文言(「直前の結果」の 50 tok 欄で使う短句)。
@@ -175,6 +187,7 @@ RESULT_TEXT: Final[dict[int, str]] = {
     ResultCode.BAD_TARGET: "対象を特定できない",
     ResultCode.INSUFFICIENT_ABILITY: "能力不足",
     ResultCode.NOT_IN_EATERY: "飲食店にいない",
+    ResultCode.TARGET_GONE: "対象が去った",
 }
 
 
@@ -254,6 +267,7 @@ class AgentState:
         cap_bytes: int | None | str = "auto",
         *,
         plan_columns: bool = False,
+        edge_columns: bool = False,
     ) -> None:
         """
         Args:
@@ -265,9 +279,13 @@ class AgentState:
                 (欄を足すと宣言順の全配列を混ぜる ``Registry.state_hash`` が変わるため。
                 設計書 §2 は常設を想定しているが、退化検査の要=親指示を優先した
                 =登録簿 §8「D-66/計画実行層(第1段)」に差分として登録)。
+            edge_columns: **C9 G1 (b) 辺上の連続位置**(``edge_id`` / ``edge_s``・+8 B/体)を
+                確保するか。既定 ``False``=``geometry="node"``(現行の 1 tick=1 ノード)で
+                **checkpoint を 1 バイトも動かさない**。``geometry="edge"`` のランだけ True。
         """
         self.n = int(n)
         self.plan_columns = bool(plan_columns)
+        self.edge_columns = bool(edge_columns)
         self.registry = Registry.for_agents(self.n, per_entity_byte_cap=cap_bytes)
         r = self.registry
         # ---- 位置・運動(M2 位置・運動・身体 ≤128B/体 の内数) ----
@@ -283,6 +301,14 @@ class AgentState:
                   doc="次ホップのノード(next-hop 表の結果・M2)。-1=経路なし")
         r.declare("target_node", np.int32, byte_budget_per_agent=4, mechanism=True,
                   doc="移動の目的ノード(行動語「移動」の対象・M2)。-1=目的なし")
+        # ---- 辺上の連続位置(C9 G1 (b)・geometry="edge" のランだけ・+8 B/体) ----
+        if self.edge_columns:
+            r.declare("edge_id", np.int32, byte_budget_per_agent=4, mechanism=True,
+                      doc="いま乗っている W1 辺の索引(-1=辺上に居ない=ノード上・M2)。"
+                          "向きは ``node``→``path_next_node``(既存欄を使う)")
+            r.declare("edge_s", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="辺上の距離[m](``node`` からの街路長。``xy`` は両端ノードの"
+                          "線形補間=engine.geometry.EdgeGeometry.positions・M2)")
         # ---- 身体・内受容(知覚契約書 §4 内受容第1陣3変数) ----
         r.declare("kind", np.int8, byte_budget_per_agent=1, mechanism=True,
                   doc="AgentKind(通勤者/来街者/従業者/居住者/指令/通学者/定期来街/訪日/乗務・M2)")
@@ -388,6 +414,8 @@ class AgentState:
         self.registry.queue_poi[:] = -1
         self.registry.queue_since[:] = -1
         self.registry.sex[:] = -1
+        if self.edge_columns:
+            self.registry.edge_id[:] = -1
         if self.plan_columns:
             self.registry.plan_activity[:] = -1
         self._frozen = False

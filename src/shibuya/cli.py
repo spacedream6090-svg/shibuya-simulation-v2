@@ -42,6 +42,7 @@ from shibuya.economy import census as CS
 from shibuya.economy import entry_capital as EC
 from shibuya.economy.accounts import BalanceLine, Sector
 from shibuya.engine import resolve as R
+from shibuya.engine.geometry import DEFAULT_GEOMETRY, GEOMETRY_MODES
 from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.run import (
     MINUTES_PER_SIM_DAY,
@@ -582,6 +583,15 @@ def main(argv: list[str] | None = None) -> int:
         help="D-66 域外抑止を切る(域外滞在・乗車中の体にも LLM を呼ぶ=D-66 前の挙動・帰無腕)",
     )
     ap.add_argument(
+        "--geometry",
+        choices=GEOMETRY_MODES,
+        default=DEFAULT_GEOMETRY,
+        help="位置幾何(C9 G1/G2・docs/design/v2-c9-geometry-agenda.md §4)。"
+             "node=現行の 1 tick=1 ノード(既定・checkpoint はバイト不変)/"
+             "edge=辺上の連続位置(edge_id・辺上距離・向き)+希望速度 Uniform(1.00,1.60) m/s"
+             "+Kladek 式の密度減速。edge では密度段が人/m² の Fruin LOS 段になる",
+    )
+    ap.add_argument(
         "--no-population",
         action="store_true",
         help="W16 母集団を使わず合成個体で回す(下限対照・世帯財布も mock のまま)",
@@ -641,6 +651,7 @@ def main(argv: list[str] | None = None) -> int:
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,
+        geometry=str(args.geometry),
         intent_mode=str(args.intent_mode),
         vocab_version=str(args.vocab_version),
         fleet=fleet_from_args(args, ap),

@@ -24,6 +24,11 @@
 
 expedient(本モジュール分)
 - 移動は **1 tick=1 ノード**(``world.graph`` の宣言と同じ)。実速度・群衆物理は U15(C4 以降)。
+  **C9 (2026-09-17)**: ``apply(..., geometry=EdgeGeometry(...))`` を渡すと辺上の連続位置+
+  希望速度+Kladek 減速へ切り替わる(``engine.geometry``)。既定(``None``)は上のまま。
+  なお ``initialize`` は幾何を取らないので **tick 0 の ``density_stage`` だけは人/セルの段**
+  (edge モードでも)。tick 0 の ``apply`` 末尾で人/m² の Fruin LOS 段へ貼り替わる
+  ——tick 0 は全員が自宅で就寝中なので影響は無いが、黙って一本化しないために書いておく。
 - 内受容の自然変動(``advance_body``): 30 tick ごとに空腹+1・疲労+1、休憩で疲労−3、
   購入で空腹−4、就寝中は疲労−2。世界過程(C4)が入るまでの**駆動源**。
   値は自前(契約書に無い)。
@@ -61,6 +66,7 @@ from shibuya.agents.state import (
     WakeCondition,
 )
 from shibuya.engine.change_detect import DetectResult
+from shibuya.engine.geometry import EdgeGeometry
 from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.commit import (
     ACT_ALIGHT,
@@ -312,6 +318,14 @@ class ResolveOutcome:
     n_meals: int = 0
     #: 食事で店舗へ移った金額[円](``revenue_delta`` の内数)。
     meal_yen: int = 0
+    #: **C9 辺上の連続位置**(``engine.geometry.EdgeGeometry``)。``None``=現行の 1 tick=1 ノード。
+    geometry: EdgeGeometry | None = None
+    #: この tick の**ホップ反復**の回数(edge モードの P4 実測=逐次ループの実際の深さ。
+    #: 上限は ``geometry.MAX_HOPS_PER_TICK``)。
+    n_hops: int = 0
+    #: 密度が Kladek の詰め込み密度(5.4 人/m²)以上で**歩けなかった**体の延べ数
+    #: (edge モードの診断・通常は 0。絶対吸収状態の監視点)。
+    n_jammed: int = 0
 
     def add_result(self, code: int, n: int) -> None:
         if n:
@@ -708,6 +722,7 @@ def apply(
     crowd: object | None = None,
     hotel: object | None = None,
     vocab_version: str = DEFAULT_VOCAB_VERSION,
+    geometry: EdgeGeometry | None = None,
 ) -> ResolveOutcome:
     """Phase C: 確定した intent だけを世界へ適用する(**唯一の書き手**)。
 
@@ -724,6 +739,11 @@ def apply(
             チェックイン済みの来街者は**自宅でなくても就寝できる**(§7.2 ホテル客室在庫)。
         vocab_version: 行動語彙の版(D-71 §3 F)。``"v2"`` で「食事」の分岐が増える。
             既定 ``"v1"`` は ``_APPLY``(13 分岐)をそのまま回す=**1 バイトも変わらない**。
+        geometry: **C9 G1 (b) 辺上の連続位置**(``engine.geometry.EdgeGeometry``)。
+            ``None``(既定=``geometry="node"``)は現行の 1 tick=1 ノードで
+            **1 バイトも変わらない**。渡すと ① エンジン継続が「希望速度 × Kladek 減速 ×
+            60 s」の距離だけ辺上を進む ② ``xy`` が両端ノードの線形補間になる
+            ③ セル/層が近い方の端点から決まる ④ 密度段が人/m² の Fruin LOS 段になる。
 
     Returns:
         ``ResolveOutcome``。
@@ -738,6 +758,7 @@ def apply(
         rail=rail,
         crowd=crowd,
         hotel=hotel,
+        geometry=geometry,
     )
     r = agents.registry
     with agents.writable(), world.writable():
@@ -762,6 +783,23 @@ def apply(
                 drop = drop[r.sleep_pending[drop] != 0]
                 if drop.size:
                     r.sleep_pending[drop] = 0
+
+        # ---- C9 edge: 新しい行動を選んだ体は**辺から降りて近い端点に立つ** ----
+        # 以降の適用関数は全て「体はノードに居る」前提で ``node`` からセル・経路を引く
+        # (``_cell_of_node`` / ``_apply_move`` / ``_apply_buy`` …)。ここで 1 回だけ吸着すれば
+        # 個々の適用関数に幾何を配らなくて済む。エンジン継続(移動の続き)は対象外。
+        if geometry is not None and code.size:
+            act = aid[code != ENGINE_STEP]
+            if act.size:
+                act = act[r.path_next_node[act] >= 0]
+            if act.size:
+                nd, nx, s, eid = geometry.snap_to_nearest_node(
+                    r.node[act], r.path_next_node[act], r.edge_s[act], r.edge_id[act]
+                )
+                r.node[act] = nd.astype(np.int32)
+                r.path_next_node[act] = nx.astype(np.int32)
+                r.edge_s[act] = s
+                r.edge_id[act] = eid.astype(np.int32)
 
         # 逐次ループ宣言: 行動語ぶん(v1=13 分岐 / v2=14 分岐)。個体数には比例しない。
         for action in _ACTION_ORDER_BY_VOCAB[ver]:
@@ -797,14 +835,41 @@ def apply(
         # ---- 位置の確定と密度(予算行 P2 の測定対象) ----
         t0 = time.perf_counter()
         c0 = time.thread_time()
-        node = r.node.astype(np.int64)
-        valid = node >= 0
-        new_cell = np.where(valid, world.assets.node_cell[np.maximum(node, 0)], -1)
-        r.cell[:] = new_cell.astype(np.int32)
-        r.band[:] = np.where(valid, world.assets.node_band[np.maximum(node, 0)], 0).astype(np.int8)
-        r.xy[:] = world.assets.node_xy[np.maximum(node, 0)]
-        world.cells.density[:] = world.compute_density(r.cell)
-        world.cells.density_stage[:] = world.density_stage()
+        if geometry is None:
+            node = r.node.astype(np.int64)
+            valid = node >= 0
+            new_cell = np.where(valid, world.assets.node_cell[np.maximum(node, 0)], -1)
+            r.cell[:] = new_cell.astype(np.int32)
+            r.band[:] = np.where(
+                valid, world.assets.node_band[np.maximum(node, 0)], 0
+            ).astype(np.int8)
+            r.xy[:] = world.assets.node_xy[np.maximum(node, 0)]
+            world.cells.density[:] = world.compute_density(r.cell)
+            world.cells.density_stage[:] = world.density_stage()
+        else:
+            # C9 edge: 辺に乗っていてよいのは「移動中かつ目的あり」の体だけ。
+            # 乗車・降車・外界配置などで ``node`` を直に書き換えた体はここで降ろす
+            # (書き換えの度に幾何を配らないための単一の掃除点)。
+            off = np.flatnonzero(
+                (r.path_next_node >= 0)
+                & ((r.activity != int(Activity.MOVING)) | (r.target_node < 0))
+            )
+            if off.size:
+                nd, nx, s, eid = geometry.snap_to_nearest_node(
+                    r.node[off], r.path_next_node[off], r.edge_s[off], r.edge_id[off]
+                )
+                r.node[off] = nd.astype(np.int32)
+                r.path_next_node[off] = nx.astype(np.int32)
+                r.edge_s[off] = s
+                r.edge_id[off] = eid.astype(np.int32)
+            cell, band, xy = geometry.positions(
+                r.node, r.path_next_node, r.edge_s, r.edge_id
+            )
+            r.cell[:] = cell
+            r.band[:] = band
+            r.xy[:] = xy
+            world.cells.density[:] = world.compute_density(r.cell)
+            world.cells.density_stage[:] = geometry.density_stage(world.cells.density)
         world.cells.open_count[:] = world.open_count_per_cell(tick)
         out.movement_seconds = time.perf_counter() - t0
         out.movement_cpu_seconds = time.thread_time() - c0
@@ -833,11 +898,36 @@ def _fail(
 
 
 def _apply_engine_step(agents, world, aid, tgt, tick, out, schedule) -> None:
-    """エンジン継続: next-hop に沿って 1 ノード進む。"""
+    """エンジン継続: next-hop に沿って 1 ノード進む(edge 幾何では**辺上を距離で**進む)。
+
+    逐次ループ宣言(P4): node 幾何=なし。edge 幾何=ホップ数ぶん(≤32・
+    ``engine.geometry.EdgeGeometry.advance``)。**走査するのは移動中の体だけ**
+    (``engine.commit.engine_continuations`` が ``activity==MOVING and target_node>=0``
+    で選んだ集合がそのまま ``aid``)。
+    """
     r = agents.registry
-    new_node, arrived = world.graph.step_once(r.node[aid], tgt)
-    stuck = (new_node.astype(np.int64) == r.node[aid].astype(np.int64)) & (~arrived)
-    r.node[aid] = new_node
+    geom = out.geometry
+    if geom is None:
+        new_node, arrived = world.graph.step_once(r.node[aid], tgt)
+        stuck = (new_node.astype(np.int64) == r.node[aid].astype(np.int64)) & (~arrived)
+        r.node[aid] = new_node
+    else:
+        budget = geom.tick_budget_m(aid, r.cell[aid], world.cells.density)
+        out.n_jammed += int(np.count_nonzero(budget <= 0.0))
+        nd, nx, s, eid, arrived, stuck, n_hops = geom.advance(
+            node=r.node[aid],
+            next_node=r.path_next_node[aid],
+            edge_s=r.edge_s[aid],
+            edge_id=r.edge_id[aid],
+            target=tgt,
+            budget_m=budget,
+            route=world.graph.route_next_node,
+        )
+        r.node[aid] = nd.astype(np.int32)
+        r.path_next_node[aid] = nx.astype(np.int32)
+        r.edge_s[aid] = s
+        r.edge_id[aid] = eid.astype(np.int32)
+        out.n_hops += int(n_hops)
     out.n_moved += int(aid.size)
     if arrived.any():
         done = aid[arrived]

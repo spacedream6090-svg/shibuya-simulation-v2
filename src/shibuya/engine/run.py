@@ -77,6 +77,14 @@ from shibuya.engine import resolve as R
 from shibuya.engine.arbiter import Arbiter, WakeCandidates, call_budget_per_tick
 from shibuya.engine.change_detect import ChangeDetector
 from shibuya.engine.conversation import ConversationManager
+from shibuya.engine.geometry import (
+    DEFAULT_GEOMETRY,
+    DESIRED_SPEED_MAX_MS,
+    DESIRED_SPEED_MIN_MS,
+    GEOMETRY_MODES,
+    EdgeGeometry,
+    check_geometry,
+)
 from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.processes.runner import WorldProcessRunner
 from shibuya.engine.processes.salient import (
@@ -321,6 +329,13 @@ class RunResult:
     attendance_rate: float = 1.0
     #: 在圏ブロックの読み口(``engine.presence.DERIVE_RULES``・既定 v2)。
     derive_rule: str = "v2"
+    #: **C9 位置幾何の腕**(G1・2026-09-17 ユーザー決定)。``"node"``=現行の 1 tick=1 ノード
+    #: (既定・バイト不変)/``"edge"``=辺上の連続位置+希望速度 1.00〜1.60 m/s+Kladek 減速。
+    geometry: str = DEFAULT_GEOMETRY
+    #: edge 幾何の診断(ホップ反復の延べ回数=P4 実測・詰め込み密度で歩けなかった延べ体数)。
+    #: node では 0。
+    geometry_hops: int = 0
+    geometry_jammed: int = 0
     #: 計画実行層の診断(``PlanExecutor.counters()``)。層が休んだランは空 dict。
     presence_counters: dict[str, float] = field(default_factory=dict)
     #: D-66 域外抑止を効かせたか(既定 True)。False = **帰無腕**。
@@ -592,6 +607,8 @@ class RunResult:
             "attendance_rate": float(self.attendance_rate),
             "derive_rule": str(self.derive_rule),
             "outside_suppression": bool(self.outside_suppression),
+            # ---- C9 位置幾何(既定 node=現行のバイト。edge=辺上の連続位置) ----
+            "geometry": str(self.geometry),
             "catalog_sha16": catalog_sha16,
             "process_ids": process_ids,
             "ablations": ablations,
@@ -677,6 +694,13 @@ class RunResult:
             f"{self.movement_cpu_ms_per_tick:.3f} ms/tick (P2 上限 5) ・待ち割合 "
             f"{self.movement_gil_wait_ratio:.2f}",
         ]
+        # C9: edge 幾何のランだけ 1 行(既定 node の summary は 1 文字も変わらない)
+        if str(self.geometry) != DEFAULT_GEOMETRY:
+            lines.append(
+                f"  幾何 {self.geometry}(希望速度 "
+                f"{DESIRED_SPEED_MIN_MS:.2f}〜{DESIRED_SPEED_MAX_MS:.2f} m/s・Kladek 減速)"
+                f"/ ホップ反復 {self.geometry_hops:,} / 詰まり {self.geometry_jammed:,}"
+            )
         # D-58: 繰り延べを記録/再現したランだけ 1 行(mock ランは従来どおり出ない)
         _bd = float(self.bridge_counters.get("tape_deferred_rows", 0.0)) or float(
             self.bridge_counters.get("tape_deferred", 0.0)
@@ -996,6 +1020,7 @@ def run_day(
     attendance_rate: float = 1.0,
     outside_suppression: bool = True,
     derive_rule: str = "v2",
+    geometry: str = DEFAULT_GEOMETRY,
     census_out: str | Path | None = None,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
@@ -1125,6 +1150,14 @@ def run_day(
             D-56 の就寝抑止と同型だが**例外を作らない**(計画境界・顕著行為・会話ターンも落ちる)。
             ``False`` = **帰無腕**(``--no-outside-suppression``)。**計画実行層が立つラン
             でだけ効く**(``--no-plan-executor`` の帰無腕は現行挙動のまま=checkpoint 不変)。
+        geometry: **C9 位置幾何の腕**(G1/G2・2026-09-17 ユーザー決定)。
+            ``"node"``(既定)= 現行の 1 tick=1 ノード(実資産で ≒2.3 km/h)。
+            **checkpoint も manifest 既存欄も 1 バイト動かない**。
+            ``"edge"`` = 体が辺上の連続位置(``edge_id`` / ``edge_s`` / 向き=
+            ``path_next_node``・+8 B/体)を持ち、1 tick に
+            「希望速度 ``Uniform(1.00,1.60)`` m/s × Kladek 減速 × 60 s」の距離だけ進む。
+            ``xy`` は両端ノードの線形補間・セルは近い方の端点・密度段は人/m² の
+            Fruin LOS 段。``GEOMETRY_MODES`` 以外は ``ValueError``。
 
     Returns:
         ``RunResult``。
@@ -1140,6 +1173,8 @@ def run_day(
         raise ValueError(f"attendance_rate は 0.0〜1.0(いま {attendance_rate})")
     if str(derive_rule) not in PRESENCE_DERIVE_RULES:
         raise ValueError(f"derive_rule は {PRESENCE_DERIVE_RULES} のどれか(いま {derive_rule!r})")
+    # ---- C9 位置幾何の腕: 値の検査は**SoA を確保する前**にする(欄が 1 本変わるため) ----
+    geometry = check_geometry(geometry)
     # ---- AB7 自由意図の腕: 値の検査は**レンダラを作る前**にする(manifest が嘘をつかない) ----
     intent_mode = check_intent_mode(intent_mode)
     # ---- 語彙 v2 の版: 同上(mock・レンダラ・bridge の前で確定させる) ----
@@ -1166,7 +1201,9 @@ def run_day(
     if _ablated & set(PlanExecutor.process_ids) | (_ablated & {PlanExecutor.ablation_id}):
         plan_executor = False
     plan_exec_on = bool(plan_executor) and weekly is not None and pop is not None
-    agents = AgentState(n_agents, plan_columns=plan_exec_on)
+    agents = AgentState(
+        n_agents, plan_columns=plan_exec_on, edge_columns=(geometry == "edge")
+    )
     if ledger is not None and ledger.money is not None:
         # 世帯の現金行 = 個体 SoA の money(写しを作らない・台帳の書き込み窓は resolve が持つ)
         ledger.money.attach_household_cash(agents.registry.money)
@@ -1303,6 +1340,22 @@ def run_day(
     replay_inbox: dict[int, list[tuple[bool, Any]]] = {}
 
     detector = ChangeDetector(n_agents, world.n_cells, walkable_area_m2=walkable)
+    # ---- C9 位置幾何(G1 (b))。``node``(既定)では作らない=resolve は現行の経路 ----
+    # 密度の分母(歩行可能面積)は**変化検出と同じ値**を使う(二重定義を作らない)。
+    geom: EdgeGeometry | None = (
+        EdgeGeometry(
+            world.assets,
+            seed=seed,
+            n_agents=n_agents,
+            walkable_area_m2=walkable,
+            tick_seconds=tick_seconds,
+        )
+        if geometry == "edge"
+        else None
+    )
+    #: edge 幾何の診断(ラン通算)。node では 0 のまま。
+    geometry_hops = 0
+    geometry_jammed = 0
     arbiter = Arbiter(
         n_agents, salt, budget if budget is not None else call_budget_per_tick(n_agents)
     )
@@ -1794,10 +1847,13 @@ def run_day(
             crowd=None if runner is None or not runner.is_enabled("crowd") else runner.crowd,
             hotel=None if runner is None or not runner.is_enabled("hotel") else runner.hotel,
             vocab_version=vocab_version,
+            geometry=geom,
         )
         phase["phase_c"] += time.perf_counter() - t0
         phase["movement"] += outcome.movement_seconds
         phase["movement_cpu"] += outcome.movement_cpu_seconds
+        geometry_hops += outcome.n_hops
+        geometry_jammed += outcome.n_jammed
         result.fares_paid += outcome.fare_paid
         result.n_boarded += outcome.n_boarded
         result.n_alighted += outcome.n_alighted
@@ -2117,6 +2173,9 @@ def run_day(
     result.exit_mode = str(exit_mode)
     result.attendance_rate = float(attendance_rate)
     result.derive_rule = str(derive_rule)
+    result.geometry = str(geometry)
+    result.geometry_hops = int(geometry_hops)
+    result.geometry_jammed = int(geometry_jammed)
     if presence is not None:
         result.presence_counters = dict(presence.counters())
         result.presence_summary = presence.summary()
@@ -2292,6 +2351,9 @@ def main(argv: list[str] | None = None) -> int:
                     help="在圏ブロックの読み口(v2=§2 追補・v1=原則のまま)")
     ap.add_argument("--no-outside-suppression", action="store_true",
                     help="D-66 域外抑止を切る(=D-66 前の挙動・帰無腕)")
+    ap.add_argument("--geometry", choices=GEOMETRY_MODES, default=DEFAULT_GEOMETRY,
+                    help="位置幾何(C9 G1/G2)。node=1 tick 1 ノード(既定・バイト不変)/"
+                         "edge=辺上の連続位置+希望速度 1.00〜1.60 m/s+Kladek 減速")
     add_fleet_args(ap)
     args = ap.parse_args(argv)
 
@@ -2322,6 +2384,7 @@ def main(argv: list[str] | None = None) -> int:
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,
+        geometry=str(args.geometry),
     )
     print(res.summary())
     return 0 if (res.conserved and res.min_stock >= 0) else 1

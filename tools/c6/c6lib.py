@@ -641,6 +641,8 @@ FAILURE_WORD_BY_KIND: Mapping[str, str] = {
     "insufficient_ability": "能力不足",
     # 語彙 v2「食事」(D-71 §3 E・2026-09-17)。v1 のランには 1 件も現れない
     "not_in_eatery": "飲食店にいない",
+    # C9 G11(2026-09-17)。``geometry="node"`` のランには 1 件も現れない
+    "target_gone": "対象が去った",
 }
 FAILURE_KIND_BY_WORD: Mapping[str, str] = {v: k for k, v in FAILURE_WORD_BY_KIND.items()}
 
