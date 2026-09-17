@@ -765,6 +765,13 @@ class Target:
 
 #: 「対象なし」を表す唯一のインスタンス。
 NO_TARGET_VALUE: Final[Target] = Target(kind=TargetKind.NONE, raw=NO_TARGET)
+#: テンプレート(``perception.templates`` の「対象: <セルID / 物のカテゴリ / 人ID / なし>」)の説明語。
+#: これを値として写した応答は「対象なし」(第223・D-89)。
+TARGET_PLACEHOLDERS: Final[frozenset[str]] = frozenset({
+    "物のカテゴリ", "物カテゴリ", "セルID", "人ID", "カテゴリ", "セルID/物のカテゴリ/人ID", "セルID/物のカテゴリ/人ID/なし",
+    "セルID|物カテゴリ|人ID|なし", "セルID|物のカテゴリ|人ID|なし",
+})
+_CATEGORY_SUFFIX: Final[str] = "のカテゴリ"
 
 
 #: 目印の固有名を部分一致で引くときの最短字数(C9b・expedient。1 字だと「像」「坂」が
@@ -846,6 +853,15 @@ def parse_target(text: str | None, landmarks: Mapping[str, int] | None = None) -
     if not raw or raw in (NO_TARGET, "無し", "none", "None", "NONE", "-", "—"):
         return NO_TARGET_VALUE
     token = unicodedata.normalize("NFKC", raw)
+    # 第223(D-89 (i)(a)): 観測テンプレートの**欄の説明語**をそのまま値として書いた応答
+    # (実 LLM スモークで「物のカテゴリ」9,055 呼・「セルID」398 呼)は対象なしとして読む。
+    # ``raw`` は残す(診断側が ``kind == NONE and raw != NO_TARGET`` で数えられる)。
+    # 「食品のカテゴリ」のように説明語の型を付けた値は型だけ剥がして中身を読む。
+    if token.replace(" ", "") in TARGET_PLACEHOLDERS:  # 「セルID / 物のカテゴリ / 人ID / なし」の空白差を吸収
+        return Target(TargetKind.NONE, raw)
+    if token.endswith(_CATEGORY_SUFFIX) and len(token) > len(_CATEGORY_SUFFIX):
+        token = token[: -len(_CATEGORY_SUFFIX)].strip()
+        raw = token
 
     m = _CELL_C_RE.match(token)
     if m:

@@ -280,7 +280,8 @@ def test_c6_positional_only_対象_is_missing():
 def test_c6_positional_without_a_second_value_defaults_ひと言_to_なし():
     r = parse_two_line("理由: 腹が減った\n行動: 購入 物のカテゴリ")
     assert r.action == "購入" and r.format_ok and not r.strict_format_ok
-    assert r.target.kind is TargetKind.ITEM_CATEGORY and r.target.category == "物のカテゴリ"
+    # 第223(D-89): 「物のカテゴリ」はテンプレートの欄説明語=対象なしとして読む(raw は残る)。
+    assert r.target.kind is TargetKind.NONE and r.target.raw == "物のカテゴリ"
     assert r.comment == NO_TARGET and "comment_defaulted" in r.errors
 
 
