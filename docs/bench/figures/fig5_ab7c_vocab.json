@@ -1,0 +1,371 @@
+{
+ "schema": "shibuya.tools.fig/ab7c_vocab/1",
+ "figure": "fig5_ab7c_vocab",
+ "what": "AB7c-VOCAB-V2 seed 1 の行動語分布(語彙 v1 / v2 / open_v2)と乗車・休憩の時刻別。",
+ "inputs": {
+  "tape_root": "data/tape/c8_ab7c_s1",
+  "arm": "AB7c-VOCAB-V2"
+ },
+ "words_shown": [
+  "移動",
+  "食事",
+  "購入",
+  "休憩",
+  "待機",
+  "乗車",
+  "(未定義)",
+  "会話",
+  "通報",
+  "退去"
+ ],
+ "words_omitted": [
+  "断る",
+  "並ぶ",
+  "就寝"
+ ],
+ "jsd_bits": {
+  "raw": 0.361077,
+  "meal_folded_into_buy": 0.013206
+ },
+ "runner": {
+  "path": "docs/bench/c8/ablation/ablation_AB7c-VOCAB-V2_s1.json",
+  "per_arm": {
+   "vocab_v1": {
+    "llm_calls": 36906,
+    "action_counts": {
+     "待機": 1359,
+     "移動": 16781,
+     "退去": 29,
+     "乗車": 907,
+     "購入": 16169,
+     "休憩": 1616,
+     "会話": 25,
+     "(未定義)": 2,
+     "通報": 18
+    },
+    "format_error_rate_strict": 0.45125453855741615,
+    "meals": 0,
+    "meal_yen": 0,
+    "prompt_tokens_mean": 920.8270741884788
+   },
+   "vocab_v2": {
+    "llm_calls": 37165,
+    "action_counts": {
+     "待機": 1028,
+     "乗車": 485,
+     "退去": 11,
+     "移動": 13854,
+     "購入": 1811,
+     "食事": 16327,
+     "休憩": 3562,
+     "断る": 16,
+     "通報": 24,
+     "会話": 42,
+     "(未定義)": 4,
+     "並ぶ": 1
+    },
+    "format_error_rate_strict": 0.15646441544463877,
+    "meals": 7024,
+    "meal_yen": 5619200,
+    "prompt_tokens_mean": 925.0238396340643
+   },
+   "open_v2": {
+    "llm_calls": 37100,
+    "action_counts": {
+     "移動": 25057,
+     "退去": 1,
+     "待機": 486,
+     "休憩": 1336,
+     "食事": 9390,
+     "購入": 648,
+     "(未定義)": 173,
+     "会話": 1,
+     "就寝": 4,
+     "並ぶ": 4
+    },
+    "format_error_rate_strict": 0.8947708894878706,
+    "meals": 4386,
+    "meal_yen": 3508800,
+    "prompt_tokens_mean": 901.0423180592992
+   }
+  },
+  "comparisons": [
+   {
+    "tag": "vocab_v2",
+    "identical_final_hash": false,
+    "d_llm_calls": 259,
+    "d_format_error_rate": 0.0011220691946813594,
+    "d_notice_reach": 0.0,
+    "d_prompt_tokens_mean": 4.19676544558547,
+    "action_jsd": 0.3610773822099277,
+    "null_reference_bits": 0.0035,
+    "exceeds_null": true,
+    "d_grounded_direct": -0.0011220691946813854,
+    "d_grounded_dictionary": 0.0010686327802634545,
+    "d_grounded_total": -5.34364144179067e-05,
+    "d_undefined_rate": 5.343641441790489e-05
+   },
+   {
+    "tag": "open_v2",
+    "identical_final_hash": false,
+    "d_llm_calls": 194,
+    "d_format_error_rate": 0.8875748660215368,
+    "d_notice_reach": 0.0,
+    "d_prompt_tokens_mean": -19.78475612917964,
+    "action_jsd": 0.33642432302555064,
+    "null_reference_bits": 0.0035,
+    "exceeds_null": true,
+    "d_grounded_direct": -0.8879522245121028,
+    "d_grounded_dictionary": 0.8833433434661644,
+    "d_grounded_total": -0.004608881045938373,
+    "d_undefined_rate": 0.004608881045938374
+   }
+  ]
+ },
+ "runner_check": {
+  "vocab_v1": {
+   "max_abs_diff": 0,
+   "diffs_nonzero": {}
+  },
+  "vocab_v2": {
+   "max_abs_diff": 0,
+   "diffs_nonzero": {}
+  },
+  "open_v2": {
+   "max_abs_diff": 0,
+   "diffs_nonzero": {}
+  }
+ },
+ "arms": {
+  "vocab_v1": {
+   "label": "語彙 v1(24 語・現行)",
+   "vocab_version": "v1",
+   "path": "data/tape/c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v1",
+   "n_rows": 36906,
+   "n_live": 36906,
+   "deferred": 0,
+   "action_counts": {
+    "待機": 1359,
+    "移動": 16781,
+    "退去": 29,
+    "乗車": 907,
+    "購入": 16169,
+    "休憩": 1616,
+    "会話": 25,
+    "(未定義)": 2,
+    "通報": 18
+   },
+   "entropy_bits": 1.5644,
+   "hourly": {
+    "乗車": [
+     6,
+     5,
+     1,
+     3,
+     12,
+     8,
+     63,
+     102,
+     69,
+     81,
+     69,
+     41,
+     28,
+     30,
+     42,
+     29,
+     40,
+     22,
+     25,
+     30,
+     51,
+     56,
+     53,
+     41
+    ],
+    "休憩": [
+     5,
+     1,
+     13,
+     11,
+     16,
+     16,
+     75,
+     93,
+     90,
+     88,
+     80,
+     135,
+     130,
+     66,
+     63,
+     142,
+     100,
+     127,
+     90,
+     67,
+     31,
+     54,
+     62,
+     61
+    ]
+   }
+  },
+  "vocab_v2": {
+   "label": "語彙 v2(+食事)",
+   "vocab_version": "v2",
+   "path": "data/tape/c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v2",
+   "n_rows": 37165,
+   "n_live": 37165,
+   "deferred": 0,
+   "action_counts": {
+    "待機": 1028,
+    "乗車": 485,
+    "退去": 11,
+    "移動": 13854,
+    "購入": 1811,
+    "食事": 16327,
+    "休憩": 3562,
+    "断る": 16,
+    "通報": 24,
+    "会話": 42,
+    "(未定義)": 4,
+    "並ぶ": 1
+   },
+   "entropy_bits": 1.8416,
+   "hourly": {
+    "乗車": [
+     8,
+     1,
+     0,
+     0,
+     2,
+     9,
+     15,
+     50,
+     36,
+     33,
+     28,
+     20,
+     15,
+     13,
+     15,
+     12,
+     18,
+     32,
+     23,
+     24,
+     46,
+     33,
+     37,
+     15
+    ],
+    "休憩": [
+     1,
+     3,
+     15,
+     6,
+     16,
+     13,
+     55,
+     52,
+     73,
+     57,
+     64,
+     99,
+     134,
+     232,
+     314,
+     366,
+     254,
+     302,
+     283,
+     264,
+     182,
+     335,
+     324,
+     118
+    ]
+   }
+  },
+  "open_v2": {
+   "label": "自由文 + v2 辞書",
+   "vocab_version": "v2",
+   "path": "data/tape/c8_ab7c_s1/AB7c-VOCAB-V2__open_v2",
+   "n_rows": 37100,
+   "n_live": 37100,
+   "deferred": 0,
+   "action_counts": {
+    "移動": 25057,
+    "退去": 1,
+    "待機": 486,
+    "休憩": 1336,
+    "食事": 9390,
+    "購入": 648,
+    "(未定義)": 173,
+    "会話": 1,
+    "就寝": 4,
+    "並ぶ": 4
+   },
+   "entropy_bits": 1.2805,
+   "hourly": {
+    "乗車": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "休憩": [
+     2,
+     0,
+     1,
+     0,
+     0,
+     0,
+     2,
+     7,
+     14,
+     5,
+     9,
+     17,
+     16,
+     132,
+     198,
+     137,
+     109,
+     130,
+     103,
+     120,
+     72,
+     116,
+     112,
+     34
+    ]
+   }
+  }
+ },
+ "outputs": {
+  "png": "docs/bench/figures/fig5_ab7c_vocab.png",
+  "svg": "docs/bench/figures/fig5_ab7c_vocab.svg"
+ }
+}

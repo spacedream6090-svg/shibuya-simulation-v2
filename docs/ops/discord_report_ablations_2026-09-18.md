@@ -3,6 +3,8 @@
 > 用途: 09-17 の 2 回の投稿([朝](discord_report_2026-09-17.md)=自由意図の実験・[夜](discord_report_holdout_2026-09-17.md)=holdout 開封)の続報。「実行中」と書いた 3 腕比較(語彙 v2)と、その後に回した看板の注視ゲート 4 腕の結果、テープ診断、いま回している seed 2。1 投稿 2,000 字制限。表は使わず箇条書き。サーバー名・IP・パス・個人名は含めない(CLAUDE.md §7)。数値はシミュレーション内の集計だけ(封印データの値は無い)。出所: [AB7c 親報告](../bench/c8/ablation/ab7c_s1_parent_report.md)・[D-91 診断](../bench/c8/ablation/ab7c_s1_d91_diagnosis.md)・[AB6b 親報告](../bench/c8/ablation/ab6b_s1_parent_report.md)・[腕表](../../tools/c8/ablations_v1.json)。
 >
 > 案 A(推奨)= 2 投稿(語彙 → 看板と学び)。案 B = 1 投稿の短報。seed 2(実行中)の結果は別の続報にする。
+>
+> **添付する図と表**(`docs/bench/figures/`・全て `tools/fig/` のスクリプトから再生成でき、数値はサイドカー JSON。第235): 投稿 1 に **図 5** `fig5_ab7c_vocab.png`(3 腕の行動分布+乗車・休憩の時刻別)・**図 7** `fig7_d91_ride_chain.png`(乗車率の条件別+食後連鎖)・**表 1** `tbl1_ab7c_vocab.png`・**表 3a/3b** `tbl3a_d91_ride_rate.png` / `tbl3b_d91_next_action.png`。投稿 2 に **図 6** `fig6_ab6b_signage.png`(Δ購入 と AD1 の線・会話・休憩)・**表 2** `tbl2_ab6b_signage.png`。Markdown 版の表は `tbl_ablation.md`。
 
 ---
 

@@ -189,3 +189,56 @@ python tools/fig/fig_ab7_actions.py \
 **再現コマンド** `python tools/fig/fig_seed_pair.py --out docs/bench/figures`
 
 **注記** seed 間 CV 中央値 0.38%・最大 3.25%(05 時)。エリア別 24h シェアの JSD 平均 0.000162 bits=事前登録 H1 線の 1/75。N=(CV/r)² は L-B 答申 §5(深夜を 2% で言うなら 3 本)。KDDI holdout は未開封・未使用。数値は `fig4_seed_pair.json`。
+
+---
+
+## 図 5 — `fig5_ab7c_vocab.{png,svg,json}`(第235)
+
+**何を示すか** AB7c-VOCAB-V2(seed 1)の 3 腕——語彙 v1(24 語・現行)/ 語彙 v2(+「食事」)/ 自由文+v2 辞書——でエンジンが受け取る行動語の分布 (a) と、乗車 (b)・休憩 (c) の時刻別(v1 vs v2)。第227 親報告と D-91 診断(第235)の数字。
+
+**データの出所** テープ `data/tape/c8_ab7c_s1/AB7c-VOCAB-V2__{vocab_v1,vocab_v2,open_v2}/`(gitignore)・runner 出力 `docs/bench/c8/ablation/ablation_AB7c-VOCAB-V2_s1.json`(照合先・実現した食事 7,024 と書式エラー率)・解決の関数は図 3 と同じ(`parse_two_line(vocab_version=腕の版)` + `map_synonym(vocab_version=腕の版)`)・JSD は `c6lib.jsd_counts`。
+
+**再現コマンド** `python tools/fig/fig_ab7c_vocab.py --out docs/bench/figures`(約 10 秒・3 腕のテープを全行なめる)。
+
+**注記**
+- **自己検査**: 腕ごとの計数を runner の `action_counts` と語ごとに突き合わせ、最大絶対差をサイドカー `runner_check` に書く(3 腕とも **0**=段0 辞書を当てると runner と同じ数になる)。
+- JSD v1 vs v2 = **0.3611 bits**、食事を購入に畳むと **0.0132 bits**(差の大半は購入→食事の付け替え)。エントロピー 1.564 / 1.842 / 1.280 bits。
+- 色は実体に付く: vocab 系=青・v2=aqua(slot 3)・open=橙(図 3 の open と同じ)。青/橙/aqua の隣接 2 組は図 2 の検査で PASS 済み(青-aqua は未検査=直接ラベルで補う)。
+- (b)(c) の乗車半減・休憩倍増の原因は図 7。
+
+---
+
+## 図 6 — `fig6_ab6b_signage.{png,svg,json}`(第235)
+
+**何を示すか** 看板あり腕に対する**購入シェアの差 Δ[pp]**を、09-10 の広告ゼロ腕(AB6-AD-ZERO・C7 期のコード・seed 1/2)と 09-17 の注視ゲート腕(AB6b-AD-NOTICE・HEAD 667ceb5・在る seed ぶん)で並べる (a)。AD1 の線(±1 pp)と、同構成 seed 差の幅(看板あり腕 seed 1 vs 2 の購入差 0.17 pp)を同じ軸に置く。(b) 会話の呼数、(c) 休憩シェア(09-17 seed 1 の 4 腕・実測注視率つき)。
+
+**データの出所** runner 出力だけ: `docs/bench/c8/ablation/ablation_AB6-AD-ZERO{,_seed2}.json`・`ablation_AB6b-AD-NOTICE_s{N}.json`(seed 1〜3 の在るぶんを自動で読む)。購入シェア = `action_counts["購入"] / n_texts`。AD1 の線 = パターン台帳 第3封印行 S3/AD1。
+
+**再現コマンド** `python tools/fig/fig_ab6b_signage.py --out docs/bench/figures`(1 秒未満)。
+
+**注記**
+- 正 = 看板を消す/減らすと購入が**増える**。09-10 は −1.34 / −1.02 pp(線超え)・09-17 は +0.51 / +0.48 / +0.61 pp(線の内側・符号が逆)。
+- 09-10 と 09-17 は呼数が違う(50,000 vs ≈36,900/腕)= C7 期と現行で予算配分が違うためで、シェアで比べる。
+- 色は実体に付く: 現行コード=青・C7 期=灰(`MUTED`)・AD1 の線=赤(slot 8)。seed 2 以降の JSON を置けば行が増える(コードは変えない)。
+
+---
+
+## 図 7 — `fig7_d91_ride_chain.{png,svg,json}`(第235)
+
+**何を示すか** D-91 (a) 診断([診断書](../c8/ablation/ab7c_s1_d91_diagnosis.md))。(a) 朝 06〜10 時の呼のうち「乗車」を選んだ率を条件(通勤者×駅の可視・起床クラス 4・全体)で切って v1 と v2 で並べる=どの条件でも同じ比(0.42〜0.45)で薄まる。(b) 直前の行動が 購入(v1)/ 食事(v2)/ 購入(v2)だった呼の次手分布=食事のあとは休憩が 22%(購入のあとは 7%)。
+
+**データの出所** 図 5 と同じテープ(v1・v2 の 2 腕)。種別 = B1 ブロック(`tape.block_text`)・駅の可視 = B2 ブロックに「駅」を含む・起床クラス = `wake_class`(`EventClass`)・行動語は図 5 と同じ手順。
+
+**再現コマンド** `python tools/fig/fig_d91_ride_chain.py --out docs/bench/figures`(約 8 秒)。
+
+**注記**
+- 朝に乗車を選んだ体は v1 380 / v2 162 / 共通 25。B5(空腹)と B6(直前の結果)はテープに無いので条件にできない(限界)。
+- (b) の色は 7 色(移動=青・休憩=橙・待機=黄・購入=aqua・食事=magenta・乗車=violet・その他=灰)。隣接の検査は未実施=区切り線と直接ラベルで補う。
+
+---
+
+## 表 1〜3 — `tbl{1,2,3a,3b}_*.{png,svg}` + `tbl_ablation.{md,json}`(第235)
+
+**何を示すか** 図 5〜7 の**サイドカー JSON だけ**から組んだ結果表(数値の出所を 1 つにする)。表 1 = 3 腕の行動分布・エントロピー・書式エラー率・実現した食事・入力トークン。表 2 = 看板の腕(09-10 seed 1/2・09-17 seed 在るぶん)の購入・Δ購入・会話・休憩・注視率・入力トークン。表 3a = 朝の乗車率の条件別。表 3b = 直前の行動別の次手。Discord は表を描けないので PNG を添付し、Markdown(`tbl_ablation.md`)は文書用。
+
+**再現コマンド** `python tools/fig/tbl_ablation.py --out docs/bench/figures`(図 5〜7 を先に作る)。

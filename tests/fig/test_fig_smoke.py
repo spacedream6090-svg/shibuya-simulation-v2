@@ -281,3 +281,148 @@ def test_fig4_draws(style, tmp_path):
     paths = style.save(fig, tmp_path, f4.STEM)
     assert (tmp_path / f"{f4.STEM}.png").stat().st_size > 1000
     assert not Path(paths["png"]).is_absolute()
+
+
+# ---------------------------------------------------------------- 図 5〜7・表(第235・合成データ)
+
+
+def _toy_ab7c() -> dict:
+    import fig_ab7c_vocab as f5
+    per = {}
+    for k, (tag, spec) in enumerate(((a["tag"], a) for a in f5.ARMS)):
+        counts = {"移動": 1000 + 10 * k, "購入": 900 if spec["vocab"] == "v1" else 50,
+                  "食事": 0 if spec["vocab"] == "v1" else 850, "休憩": 100 + 60 * k, "乗車": 60 - 15 * k}
+        per[tag] = {"n_rows": 2200, "n_live": 2200, "deferred": 0, "action_counts": counts,
+                    "hourly": {w: [(h * (k + 1)) % 7 for h in HOURS] for w in f5.HOURLY_WORDS},
+                    "entropy_bits": 1.5 - 0.1 * k, "path": "toy", "ja": spec["ja"], "en": spec["en"],
+                    "color": spec["color"], "vocab": spec["vocab"]}
+    return {"arms": [dict(a) for a in f5.ARMS], "per_arm": per,
+            "words_shown": ["移動", "購入", "食事", "休憩", "乗車"], "words_omitted": [],
+            "jsd_bits": {"raw": 0.3, "meal_folded_into_buy": 0.01},
+            "runner": {"per_arm": {"vocab_v2": {"meals": 700}}}, "runner_check": None,
+            "inputs": {"tape_root": "toy", "arm": "toy"}}
+
+
+def test_fig5_fold_meal_and_entropy_are_pure():
+    import fig_ab7c_vocab as f5
+    assert f5.fold_meal({"購入": 10, "食事": 5, "移動": 1}) == {"購入": 15, "移動": 1}
+    assert f5.fold_meal({"移動": 1}) == {"移動": 1}
+    assert f5.entropy_bits({"a": 1, "b": 1}) == pytest.approx(1.0)
+    assert f5.entropy_bits({}) == 0.0
+
+
+def test_fig5_draws(style, tmp_path):
+    import fig_ab7c_vocab as f5
+    fig = f5.draw(_toy_ab7c())
+    paths = style.save(fig, tmp_path, f5.STEM)
+    _png_ok(tmp_path / f"{f5.STEM}.png")
+    assert not Path(paths["png"]).is_absolute()
+
+
+def _toy_ab6b() -> dict:
+    def run(group, seed, tag, ja, delta, talk, rest, gate):
+        return {"group": group, "seed": seed, "code": "toy", "tag": tag, "ja": ja, "en": ja,
+                "delta_buy_pp": delta, "jsd": 0.001, "path": "toy", "n_texts": 1000, "llm_calls": 1000,
+                "buy_pct": 44.0 + delta, "rest_pct": rest, "move_pct": 40.0, "wait_pct": 3.0, "ride": 10,
+                "talk": talk, "prompt_tokens_mean": 900.0, "signage_p_see": 1.0, "shown_rate": gate,
+                "gate_draws": 1000 if gate is not None else 0, "conserved": True}
+    runs = [run("legacy", 1, "signage_on", "看板あり", 0.0, 20, 4.0, None),
+            run("legacy", 1, "signage_off", "看板なし", -1.3, 22, 5.0, None),
+            run("current", 1, "p_see_1_00", "現行(p_see 1.0)", 0.0, 25, 4.4, None),
+            run("current", 1, "ad_zero", "看板なし", 0.5, 108, 5.7, None),
+            run("current", 1, "p_see_0_30", "p_see 0.30", 0.48, 69, 5.4, 0.30),
+            run("current", 1, "p_see_0_14", "p_see 0.14", 0.61, 47, 5.5, 0.14)]
+    rows = [r for r in runs if r["delta_buy_pp"] != 0.0]
+    return {"rows": rows, "runs": runs, "ad1_line_pp": 1.0, "null_seed_pp": {"legacy": 0.17, "current": None},
+            "current_seeds_found": [1]}
+
+
+def test_fig6_share_pct_is_pure():
+    import fig_ab6b_signage as f6
+    assert f6.share_pct({"n_texts": 200, "action_counts": {"購入": 50}}, "購入") == pytest.approx(25.0)
+    assert f6.share_pct({"n_texts": 0, "action_counts": {"購入": 50}}, "購入") == 0.0
+    s = f6.summarize_run({"n_texts": 100, "llm_calls": 100, "action_counts": {"購入": 40, "会話": 3},
+                          "signage_gate": {"draws": 10, "shown": 3, "shown_rate": 0.3}})
+    assert s["buy_pct"] == pytest.approx(40.0) and s["talk"] == 3 and s["shown_rate"] == 0.3
+
+
+def test_fig6_draws(style, tmp_path):
+    import fig_ab6b_signage as f6
+    fig = f6.draw(_toy_ab6b())
+    paths = style.save(fig, tmp_path, f6.STEM)
+    _png_ok(tmp_path / f"{f6.STEM}.png")
+    assert not Path(paths["png"]).is_absolute()
+
+
+def _toy_d91_rows() -> dict:
+    rows = {}
+    for k, tag in enumerate(("vocab_v1", "vocab_v2")):
+        lst = []
+        for agent in range(40):
+            for j in range(6):
+                hour = 6 + (agent + j) % 5
+                action = "乗車" if (agent + j + k) % (5 + 3 * k) == 0 else ("食事" if k else "購入")
+                if j == 5:
+                    action = "休憩" if (agent % 4 == 0 and k) else "移動"
+                lst.append({"agent": agent, "tick": hour * 60 + j, "hour": hour,
+                            "kind": "通勤者" if agent % 2 == 0 else "居住者", "station": agent % 3 == 0,
+                            "wc": j % 4, "action": action})
+        lst.sort(key=lambda x: (x["agent"], x["tick"]))
+        prev = {}
+        for x in lst:
+            x["prev"] = prev.get(x["agent"], "(初回)")
+            prev[x["agent"]] = x["action"]
+        rows[tag] = lst
+    return rows
+
+
+def test_fig7_summarize_is_consistent():
+    import fig_d91_ride_chain as f7
+    rows = _toy_d91_rows()
+    d = f7.summarize(rows)
+    allc = next(c for c in d["conditions"] if c["key"] == "all")
+    for tag in rows:
+        mor = [r for r in rows[tag] if 6 <= r["hour"] <= 10]
+        assert allc[tag]["n"] == len(mor)
+        assert allc[tag]["ride"] == sum(1 for r in mor if r["action"] == "乗車")
+    for ch in d["chains"]:
+        assert sum(ch["counts"].values()) == ch["n"]
+        if ch["n"]:
+            assert sum(ch["share_pct"].values()) == pytest.approx(100.0, abs=0.05)
+    assert d["overlap"]["common"] <= min(d["overlap"]["vocab_v1"], d["overlap"]["vocab_v2"])
+
+
+def test_fig7_draws(style, tmp_path):
+    import fig_d91_ride_chain as f7
+    d = f7.summarize(_toy_d91_rows())
+    d["arms"] = [dict(a) for a in f7.ARMS]
+    d["n_live"] = {"vocab_v1": 240, "vocab_v2": 240}
+    d["inputs"] = {"tape_root": "toy", "arm": "toy", "morning_hours": [6, 10]}
+    fig = f7.draw(d)
+    paths = style.save(fig, tmp_path, f7.STEM)
+    _png_ok(tmp_path / f"{f7.STEM}.png")
+    assert not Path(paths["png"]).is_absolute()
+
+
+def test_tables_build_markdown_and_render(style, tmp_path):
+    import fig_d91_ride_chain as f7
+    import tbl_ablation as tb
+    fig5 = _toy_ab7c()
+    fig5 = {"arms": {t: {"label": p["ja"], "action_counts": p["action_counts"], "n_live": p["n_live"],
+                         "entropy_bits": p["entropy_bits"]} for t, p in fig5["per_arm"].items()},
+            "runner": fig5["runner"], "jsd_bits": fig5["jsd_bits"]}
+    fig6 = _toy_ab6b()
+    d7 = f7.summarize(_toy_d91_rows())
+    d7["arms"] = [dict(a) for a in f7.ARMS]
+    d7["inputs"] = {"morning_hours": [6, 10]}
+    specs = tb.build_tables(fig5, fig6, d7)
+    assert [s["stem"] for s in specs] == ["tbl1_ab7c_vocab", "tbl2_ab6b_signage", "tbl3a_d91_ride_rate",
+                                          "tbl3b_d91_next_action"]
+    for s in specs:
+        md = tb.to_markdown(s)
+        assert md.count("|") >= 3 * (len(s["rows"]) + 2)
+        assert all(len(r) == len(s["columns"]) for r in s["rows"])
+        fig = tb.render_table(s)
+        paths = style.save(fig, tmp_path, s["stem"])
+        _png_ok(tmp_path / f"{s['stem']}.png")
+        assert not Path(paths["png"]).is_absolute()

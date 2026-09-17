@@ -1,0 +1,220 @@
+{
+ "schema": "shibuya.tools.fig/d91_ride_chain/1",
+ "figure": "fig7_d91_ride_chain",
+ "what": "AB7c seed 1: 朝の乗車率の条件別(v1 vs v2)と、直前行動別の次手分布(食後連鎖)。",
+ "inputs": {
+  "tape_root": "data/tape/c8_ab7c_s1",
+  "arm": "AB7c-VOCAB-V2",
+  "morning_hours": [
+   6,
+   10
+  ]
+ },
+ "arms": [
+  {
+   "tag": "vocab_v1",
+   "vocab": "v1",
+   "ja": "語彙 v1",
+   "en": "vocab v1",
+   "color": "#2a78d6"
+  },
+  {
+   "tag": "vocab_v2",
+   "vocab": "v2",
+   "ja": "語彙 v2(+食事)",
+   "en": "vocab v2 (+ eat)",
+   "color": "#1baf7a"
+  }
+ ],
+ "n_live": {
+  "vocab_v1": 36906,
+  "vocab_v2": 37165
+ },
+ "conditions": [
+  {
+   "key": "commuter_station",
+   "ja": "通勤者 × 駅が見える",
+   "en": "commuter x station visible",
+   "vocab_v1": {
+    "n": 790,
+    "ride": 41,
+    "rate_pct": 5.1899
+   },
+   "vocab_v2": {
+    "n": 766,
+    "ride": 17,
+    "rate_pct": 2.2193
+   }
+  },
+  {
+   "key": "commuter_nostation",
+   "ja": "通勤者 × 駅が見えない",
+   "en": "commuter x no station",
+   "vocab_v1": {
+    "n": 4645,
+    "ride": 186,
+    "rate_pct": 4.0043
+   },
+   "vocab_v2": {
+    "n": 4609,
+    "ride": 81,
+    "rate_pct": 1.7574
+   }
+  },
+  {
+   "key": "wake_0",
+   "ja": "起床: 会話",
+   "en": "wake: conversation",
+   "vocab_v1": {
+    "n": 3992,
+    "ride": 149,
+    "rate_pct": 3.7325
+   },
+   "vocab_v2": {
+    "n": 4006,
+    "ride": 67,
+    "rate_pct": 1.6725
+   }
+  },
+  {
+   "key": "wake_1",
+   "ja": "起床: 計画境界",
+   "en": "wake: plan boundary",
+   "vocab_v1": {
+    "n": 4620,
+    "ride": 195,
+    "rate_pct": 4.2208
+   },
+   "vocab_v2": {
+    "n": 4612,
+    "ride": 82,
+    "rate_pct": 1.778
+   }
+  },
+  {
+   "key": "wake_2",
+   "ja": "起床: 個体",
+   "en": "wake: individual",
+   "vocab_v1": {
+    "n": 460,
+    "ride": 16,
+    "rate_pct": 3.4783
+   },
+   "vocab_v2": {
+    "n": 370,
+    "ride": 3,
+    "rate_pct": 0.8108
+   }
+  },
+  {
+   "key": "wake_3",
+   "ja": "起床: セル",
+   "en": "wake: cell",
+   "vocab_v1": {
+    "n": 694,
+    "ride": 24,
+    "rate_pct": 3.4582
+   },
+   "vocab_v2": {
+    "n": 679,
+    "ride": 10,
+    "rate_pct": 1.4728
+   }
+  },
+  {
+   "key": "all",
+   "ja": "朝の呼 全体",
+   "en": "all morning calls",
+   "vocab_v1": {
+    "n": 9766,
+    "ride": 384,
+    "rate_pct": 3.932
+   },
+   "vocab_v2": {
+    "n": 9667,
+    "ride": 162,
+    "rate_pct": 1.6758
+   }
+  }
+ ],
+ "chains": [
+  {
+   "tag": "vocab_v1",
+   "prev": "購入",
+   "n": 14352,
+   "share_pct": {
+    "移動": 62.0192,
+    "休憩": 7.1628,
+    "待機": 6.3475,
+    "購入": 22.3174,
+    "食事": 0.0,
+    "乗車": 1.8464,
+    "その他": 0.3066
+   },
+   "counts": {
+    "移動": 8901,
+    "休憩": 1028,
+    "待機": 911,
+    "購入": 3203,
+    "食事": 0,
+    "乗車": 265,
+    "その他": 44
+   }
+  },
+  {
+   "tag": "vocab_v2",
+   "prev": "食事",
+   "n": 14349,
+   "share_pct": {
+    "移動": 65.8652,
+    "休憩": 21.9806,
+    "待機": 5.4777,
+    "購入": 3.847,
+    "食事": 1.1917,
+    "乗車": 1.3172,
+    "その他": 0.3206
+   },
+   "counts": {
+    "移動": 9451,
+    "休憩": 3154,
+    "待機": 786,
+    "購入": 552,
+    "食事": 171,
+    "乗車": 189,
+    "その他": 46
+   }
+  },
+  {
+   "tag": "vocab_v2",
+   "prev": "購入",
+   "n": 1632,
+   "share_pct": {
+    "移動": 28.6765,
+    "休憩": 7.6593,
+    "待機": 2.0221,
+    "購入": 5.6373,
+    "食事": 55.0245,
+    "乗車": 0.674,
+    "その他": 0.3064
+   },
+   "counts": {
+    "移動": 468,
+    "休憩": 125,
+    "待機": 33,
+    "購入": 92,
+    "食事": 898,
+    "乗車": 11,
+    "その他": 5
+   }
+  }
+ ],
+ "overlap": {
+  "vocab_v1": 380,
+  "vocab_v2": 162,
+  "common": 25
+ },
+ "outputs": {
+  "png": "docs/bench/figures/fig7_d91_ride_chain.png",
+  "svg": "docs/bench/figures/fig7_d91_ride_chain.svg"
+ }
+}
