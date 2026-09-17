@@ -107,7 +107,8 @@ def test_monthly_mer_is_a_fixed_table(tmp_path):
 
 
 # ------------------------------------------------------------------ 部門軸(第204・D-76 (a))
-#: 固定表(``monthly_mer`` の戻り)のキー。部門軸を足しても**1 つも変えない**。
+#: 固定表(``monthly_mer`` の戻り)のキー。部門軸(D-76 (a))・T3(D-85 (a))を足しても
+#: **1 つも変えない**(足した鍵は下の比較で除く=固定表そのものは動いていない)。
 _MER_FIXED_KEYS = frozenset({
     "month", "days", "faucet", "sink", "internal", "faucet_total", "sink_total",
     "money_supply", "residual", "hoard_entities", "hoard_amount", "per_account",
@@ -166,7 +167,7 @@ def test_the_sector_axis_does_not_move_the_fixed_table(tmp_path):
         led.on_day_end(d)
         g.on_day_end(d)
     mer = CS.monthly_mer(led, g, month=0, days=5)
-    assert set(mer) - {"per_sector", "flows"} == _MER_FIXED_KEYS
+    assert set(mer) - {"per_sector", "flows", "t3_ok", "t3"} == _MER_FIXED_KEYS
     assert mer["faucet"]["来街者持込"] == 6 * 20_000
     assert mer["sink"]["域外仕入"] == 1_000
     assert mer["internal"]["消費支出"] == 3_500

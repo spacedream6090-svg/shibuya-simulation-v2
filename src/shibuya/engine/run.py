@@ -427,6 +427,12 @@ class RunResult:
     #: ``census_out`` を渡したランが書いたファイル(日次センサス・月次 MER)。既定は空
     #: =**何も書いていない**。run manifest には**載せない**(既定経路のバイトを動かさない)。
     census_paths: tuple[str, ...] = ()
+    #: T3(SFC の冗長方程式の検算・D-85 (a))の合否。``None``=**未実行**
+    #: (月次センサスが立たなかったラン=1 日ランなど・台帳の無いラン)。manifest に出る。
+    t3_ok: bool | None = None
+    #: T3 の内訳(3検査の合否と残差の大きさ・``economy.checks.T3Check.as_dict``)。
+    #: 未実行なら空 dict。manifest には合否(``t3_ok``)だけを載せる。
+    t3_report: dict[str, Any] = field(default_factory=dict)
     #: 顕著行為(人物③)の件数と、``p_notice`` で気づいた延べ人数。
     salient_events: int = 0
     noticed: int = 0
@@ -589,7 +595,8 @@ class RunResult:
             ``plan_sleep``(D-62「就寝は計画の実行」の腕。既定 ``True``)・
             ``plan_executor``/``exit_mode``/``attendance_rate``(D-66 計画実行層の腕。
             既定 ``True``(ただし W16+W17 のあるランだけ立つ)/``immediate``/``1.0``)・
-            ``catalog_sha16``(世界カタログ v0.2 の凍結 SHA)・
+            ``t3_ok``(T3=冗長方程式の検算の合否。``None``=月次センサスが立たなかった
+            ラン=**未実行**。D-85 (a))・``catalog_sha16``(世界カタログ v0.2 の凍結 SHA)・
             ``process_ids``(実際に回した過程 id の昇順)・``ablations``(切った過程/感度試験 id)。
         """
         from shibuya.perception import templates as _T
@@ -645,6 +652,8 @@ class RunResult:
             "seat_area_retail_m2": self.seat_area_retail_m2,
             # ---- C9b 対象と注意(edge × 語彙 v2 の積でだけ立つ・G3/G4/G5/G6/G7) ----
             "attention": bool(self.attention),
+            # ---- T3(冗長方程式の毎期検算・D-85 (a))。None=月次センサスが立たなかったラン ----
+            "t3_ok": self.t3_ok,
             "catalog_sha16": catalog_sha16,
             "process_ids": process_ids,
             "ablations": ablations,
@@ -2292,6 +2301,13 @@ def run_day(
         if row is not None:
             result.census_row = dict(row)
             result.census_pass = bool(row.get("gate_ok", False))
+        # 月次センサスの T3(冗長方程式の検算・D-85 (a)・ユーザー決定 2026-09-17)。
+        # 月次が立たない日は None(=未実行)。**``census_out`` とは無関係に**毎日呼ぶ
+        # ——書き出しの有無で manifest が動くと「観測が世界を変えない」が崩れるため。
+        t3 = ledger.monthly_t3(day_index)
+        if t3 is not None:
+            result.t3_report = dict(t3)
+            result.t3_ok = bool(t3.get("ok", False))
         # 日次センサス/月次 MER の出力口(§2.4)。**``census_out`` を渡したときだけ**書く。
         # 書き手は economy 側の注入(engine は economy を import できない=層契約)。
         if census_out is not None:

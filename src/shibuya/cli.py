@@ -239,6 +239,7 @@ def build_ledger_bundle(
         goods=goods,
         census=lambda d: CS.daily_census(led, goods, day=d),
         census_write=lambda d, out: write_census_files(led, goods, d, out),
+        monthly_check=lambda d: CS.monthly_census_t3(led, d),
     )
 
 

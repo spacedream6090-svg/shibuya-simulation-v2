@@ -11,9 +11,20 @@
 (検算②の成否・棚卸差異・廃棄質量)を足した固定列で出す。列は固定
 (``DAILY_COLUMNS``)——後から列が増えると Parquet の追記が壊れるため。
 
+**T3(冗長方程式)の毎期検算**(D-85 (a)・ユーザー決定 2026-09-17)
+    設計書 §2.3 の空欄 T3 = 「冗長方程式を**検算値**として毎期assert」。全規模で毎期走って
+    いたのは検算②(Σ純資産=Σ実物資産)だけで、これは集計の恒等式=部門間で誤差が相殺すると
+    通ってしまう。そこで**月次センサスの時点**(``monthly_mer`` が呼ばれる時点)で検算①の
+    3検査を実データに対して走らせ(``checks.t3_check``)、``t3_ok`` を月次 MER の戻りと
+    run manifest に載せる。**検査が増えるだけ**で世界は 1 バイトも変わらない。
+
+    月次 MER の**固定表 parquet は変えない**(§2.4「固定表は列も行順もバイトも変えない」)
+    ——``t3_ok`` / ``t3`` は ``monthly_mer()`` の戻り(辞書)と run manifest に出る。
+
 逐次ループ宣言(P4)
 - ``daily_census``: 科目数(15)ぶんの辞書組み立て。
 - ``monthly_mer``: 日数 × 科目数。個体数には比例しない。
+- ``monthly_t3``: ``checks.t3_check`` = 部門×科目(90)+ 窓を畳む日数ぶん。個体数に比例しない。
 - ``monthly_mer`` の**部門軸**(第204・D-76 (a)): 取引フロー行列の**非零要素**ぶん
   (上限は 部門×部門×科目 = 6×6×15 = 540)。個体数にも tick 数にも比例しない。
 
@@ -57,6 +68,7 @@ __all__ = [
     "SINK_LABEL",
     "OTHER_SECTOR",
     "SECTOR_FLOW_COLUMNS",
+    "MONTH_DAYS",
     "CensusGate",
     "daily_census",
     "write_daily_census",
@@ -65,6 +77,9 @@ __all__ = [
     "flow_row_kind",
     "write_monthly_mer_sectors",
     "census_gate",
+    "is_month_end",
+    "monthly_t3",
+    "monthly_census_t3",
 ]
 
 #: 日次(軽量)の必須2列(§2.4「日次(軽量): 残差・貨幣供給量のみ」)。
@@ -316,6 +331,44 @@ def _sector_axis(
     return per, [[src, dst, name, amt] for (src, dst, name), amt in rows.items()]
 
 
+# --------------------------------------------------------------- T3(D-85 (a))
+#: 月次センサスの「1 か月」= 台帳が畳んだ日数(**expedient**: 設計書は「月次」としか
+#: 書いていない。30 日は ``checks.HOARD_DAYS`` と同じ据え置きの区切り)。
+#: 判定は ``Ledger.flow_daily`` の長さで見る——暦日ではなく**台帳が畳んだ日数**なので、
+#: 何日目から始めたランでも「30 日ぶん畳んだところ」で月次センサスが立つ。
+MONTH_DAYS: Final[int] = 30
+
+
+def is_month_end(n_days_folded: int) -> bool:
+    """畳んだ日数が 1 か月ぶんの区切りに達したか(0 日=まだ月次センサスは走らない)。"""
+    n = int(n_days_folded)
+    return n > 0 and n % MONTH_DAYS == 0
+
+
+def monthly_t3(ledger, day: int | None = None) -> dict[str, Any]:
+    """T3(冗長方程式)の検算を走らせて**記録できる形**で返す(D-85 (a))。
+
+    中身は ``checks.t3_check``(= 検算①の3検査を期首→現在の窓で走らせたもの)。
+    ``day`` は行に添える日付(``None`` なら台帳の現在日)。
+    """
+    rep = CK.t3_check(ledger)
+    out = rep.as_dict()
+    out["day"] = int(getattr(ledger, "day", 0) if day is None else day)
+    return out
+
+
+def monthly_census_t3(ledger, day: int) -> dict[str, Any] | None:
+    """**月次センサスが立つ日だけ** T3 を走らせる(engine への注入口・D-85 (a))。
+
+    Returns:
+        月末(畳んだ日数が ``MONTH_DAYS`` の倍数)なら ``monthly_t3`` の辞書。
+        そうでなければ ``None`` = **未実行**(1 日ランの manifest は ``t3_ok=None``)。
+    """
+    if not is_month_end(len(getattr(ledger, "flow_daily", ()) or ())):
+        return None
+    return monthly_t3(ledger, day)
+
+
 def monthly_mer(
     ledger, goods=None, *, month: int = 0, days: int | None = None
 ) -> dict[str, Any]:
@@ -328,6 +381,8 @@ def monthly_mer(
       4. 残差
       5. 退蔵残高
       6.(物)廃棄 sink の t/日 と W1 band 判定
+      7. **T3**(冗長方程式の検算・D-85 (a)): ``t3_ok`` と内訳 ``t3``(3検査の合否と
+         残差の大きさ)。**固定表 parquet の列は増やさない**(§2.4)。
 
     ``ledger.flow_daily`` の**全期間**を合算する(日次で畳んだ集約行=D-R2-6 の運用)。
 
@@ -369,6 +424,11 @@ def monthly_mer(
         },
     }
     out["per_sector"], out["flows"] = _sector_axis(total)
+    # T3(D-85 (a)): 月次センサスの時点で検算①の3検査を実データに対して走らせる。
+    # **固定表 parquet には出さない**(§2.4「固定表は列も行順もバイトも変えない」)。
+    t3 = CK.t3_check(ledger)
+    out["t3_ok"] = bool(t3.ok)
+    out["t3"] = t3.as_dict()
     if goods is not None:
         band = goods.waste_band(days=max(1, n_days))
         out["waste_tonnes"] = band.tonnes

@@ -235,6 +235,10 @@ class Ledger:
         ]
         self._day = 0
         self._snap = self._financial_snapshot()
+        #: **期首**(台帳の生成時)の金融スナップ。T3(冗長方程式・D-85 (a))が
+        #: 「期首→現在」の窓で検算①を走らせるのに使う。日ごとの増減を貯めると
+        #: D-R2-6 の成長宣言(flow_matrix_daily)が動くので、**定数サイズ**のこれで済ませる。
+        self._snap0 = self._financial_snapshot()
         #: 直近に畳んだ日の締め(``on_day_end`` の戻り)。**1 件だけ**保持する
         #: (日次センサスが「畳んだ当日の実数」を読むため・D-R2-6 の有界性を壊さない)。
         self._last_close: DayClose | None = None
@@ -337,9 +341,17 @@ class Ledger:
         # 立っていた取引(``endow_stores`` の参入資本など)が期首へ吸い込まれて
         # ``_flow`` にだけ残り、締めた日の検算①(部門ごとの列和 = Δ現金)が落ちる
         # (層2レビューで日次センサスが締めた日を見るようになって初めて現れた)。
+        adopted = int(arr.astype(np.int64).sum())
         snap_cash = self._snap["cash"].copy()
-        snap_cash[int(Sector.HOUSEHOLD)] = int(arr.astype(np.int64).sum())
+        snap_cash[int(Sector.HOUSEHOLD)] = adopted
         self._snap["cash"] = snap_cash
+        # 期首スナップ(T3 の窓の左端)にも**同じ段差**を入れる。入れないと、採用した配列に
+        # 既に載っていた現金が「フローの無い残高増」として T3 に出てしまう(日次の検算①は
+        # 上の _snap のずらしで既に除いている)。既定経路では採用時点の money は 0 なので
+        # 段差も 0 =1 バイトも変わらない。
+        snap0_cash = self._snap0["cash"].copy()
+        snap0_cash[int(Sector.HOUSEHOLD)] += adopted - int(cur.astype(np.int64).sum())
+        self._snap0["cash"] = snap0_cash
 
     def last_change_day(self, sector: int) -> np.ndarray:
         """部門ごとの「最後に現金/預金が動いた日」(退蔵項の計上に使う)。"""
@@ -727,6 +739,33 @@ class Ledger:
         self._day_marks = [m for m in self._day_marks if m[0] > cutoff_day]
         self._last_close = close
         return close
+
+    def cumulative_close(self) -> DayClose:
+        """**期首(台帳の生成時)から現在まで**を 1 つの締めに畳んだ ``DayClose``。
+
+        T3(冗長方程式・D-85 (a))の窓。日次の締め(``on_day_end``)と同じ形で返すので、
+        検算①(``checks.flow_matrix_balanced``)を**そのまま**走らせられる(再実装しない)。
+
+        - 取引フロー行列 = 畳んだ日の集約行(``flow_daily``)+ **まだ畳んでいない当日**。
+        - 部門別の増減 = 現在の残高 − 期首スナップ(``_snap0``)。
+          日ごとの増減は望遠鏡的に畳まれるので、これは各日の ``DayClose`` の増減の総和に等しい。
+
+        逐次ループ宣言(P4): 畳んだ日数ぶんの (6,6,15) 加算。**個体数にも tick 数にも
+        比例しない**(保持窓 400 日 × 540 要素が上限)。
+        """
+        flow = np.zeros_like(self._flow)
+        for f in self._flow_daily:
+            flow += f
+        flow += self._flow
+        now = self._financial_snapshot()
+        return DayClose(
+            day=self._day,
+            flow=flow,
+            d_cash=now["cash"] - self._snap0["cash"],
+            d_deposit=now["deposit"] - self._snap0["deposit"],
+            d_loan=now["loan"] - self._snap0["loan"],
+            raw_rows_kept=int(self._raw_pos - self._raw_head),
+        )
 
     @property
     def last_close(self) -> "DayClose | None":
