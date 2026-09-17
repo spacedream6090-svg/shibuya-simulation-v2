@@ -104,10 +104,10 @@ def test_collect_quality_empty(dashboard):
 def test_collect_ablations(dashboard, c8lib):
     table = c8lib.load_ablations()
     out = dashboard.collect_ablations(table)
-    # 第1陣 6 本 + AB7-OPEN-INTENT(2026-09-16)+ AB7b-HINT-INTENT(2026-09-17)
-    assert out["n_arms"] == 8
-    # ①(C6)+ ②③⑥(C8・2026-09-09)+ ⑦(2026-09-16)+ ⑦b(2026-09-17)
-    assert out["n_ready"] == 6
+    # 第1陣 6 本 + AB7-OPEN-INTENT(09-16)+ AB7b-HINT-INTENT(09-17)+ AB7c-VOCAB-V2(09-17)
+    assert out["n_arms"] == 9
+    # ①(C6)+ ②③⑥(C8・09-09)+ ⑦(09-16)+ ⑦b・⑦c(09-17)
+    assert out["n_ready"] == 7
     assert out["n_executed"] == 0
     result = {"arm": "AB1-BUDGET-MODE", "executed": True, "comparisons": [{"action_jsd": 0.04, "exceeds_null": True}]}
     out2 = dashboard.collect_ablations(table, [result])

@@ -639,6 +639,8 @@ FAILURE_WORD_BY_KIND: Mapping[str, str] = {
     "undefined_action": "未定義の行動",
     "bad_target": "対象を特定できない",
     "insufficient_ability": "能力不足",
+    # 語彙 v2「食事」(D-71 §3 E・2026-09-17)。v1 のランには 1 件も現れない
+    "not_in_eatery": "飲食店にいない",
 }
 FAILURE_KIND_BY_WORD: Mapping[str, str] = {v: k for k, v in FAILURE_WORD_BY_KIND.items()}
 
@@ -872,11 +874,19 @@ def select_metric_b_scenes(
 # ================================================================ 応答の採点
 
 
-def score_texts(texts: Sequence[str]) -> dict[str, Any]:
+def score_texts(texts: Sequence[str], vocab_version: str = "v1") -> dict[str, Any]:
     """応答本文の並び → 書式エラー率(実効/厳密)・別名率・行動分布・役割語率・未定義率。
 
     ``shibuya.llm.parser.parse_two_line`` と ``shibuya.llm.undefined.map_synonym`` を使う
     (採点の定義を 2 つ持たない)。
+
+    Args:
+        texts: 応答本文の並び。
+        vocab_version: **そのランの行動語彙の版**(D-71 §3 F・``"v1"`` 既定 / ``"v2"``)。
+            テープは「そのランの語彙で採点する」のが正しい——v2 のランを v1 で採点すると
+            「食事」が未定義に数えられ、M1 接地率と M2 未定義率が嘘になる。既定 ``"v1"``
+            では**1 件も結果が変わらない**(同じ表・同じ辞書)。版をまたいで分布を比べる
+            ときは ``llm.contract.compat_word`` で新語を旧語彙へ畳んでから比べる。
 
     書式エラー率は**二重**に出す(サブ Q のラベル別名許容が入ったため・親判断 **D-28**)
       - ``format_error_rate``(**実効**・受入表の主): C6 で足した別名ラベルを許した判定
@@ -900,7 +910,7 @@ def score_texts(texts: Sequence[str]) -> dict[str, Any]:
     n_format_err = n_strict_err = n_alias = 0
     n_role = n_undefined = n_mapped = n_strict_two_line = 0
     for t in texts:
-        p = parse_two_line(t)
+        p = parse_two_line(t, vocab_version)
         if not p.format_ok:
             n_format_err += 1
         if not getattr(p, "strict_format_ok", p.format_ok):
@@ -912,7 +922,7 @@ def score_texts(texts: Sequence[str]) -> dict[str, Any]:
             n_strict_two_line += 1
         word = p.action
         if word is None:
-            mapped, _hint = map_synonym(p.raw_action)
+            mapped, _hint = map_synonym(p.raw_action, None, vocab_version)
             if mapped is None:
                 n_undefined += 1
                 actions["(未定義)"] += 1

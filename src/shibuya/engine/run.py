@@ -110,7 +110,12 @@ from shibuya.perception.renderer import (
     PerceptionAssets,
     Renderer as PerceptionRenderer,
 )
-from shibuya.perception.templates import INTENT_MODES, check_intent_mode
+from shibuya.perception.templates import (
+    INTENT_MODES,
+    VOCAB_VERSIONS,
+    check_intent_mode,
+    check_vocab_version,
+)
 from shibuya.world.assets import load_process_assets_or_synthetic
 from shibuya.world.state import World
 
@@ -129,6 +134,9 @@ __all__ = [
 
 #: δ_think(分tickへ切り上げ後)。既定レーン L1=2.6 秒 → 1 tick(認知設計書 §1)。
 DELTA_THINK_TICKS: Final[int] = delta_think_ticks(DEFAULT_LANE, DEFAULT_TICK_SECONDS)
+
+#: ``action_usage`` で ``ENGINE_STEP``(−1)に付ける名(行動語ではない=括弧つき)。
+ENGINE_STEP_LABEL: Final[str] = "(エンジン継続)"
 
 #: 診断表の列(``DIAG_COLUMNS`` の 4 列 + 運用列)。
 #: 艦隊の順序制御グループ「時間帯」の刻み[tick](知覚契約書 §2.4 ⑨「時刻表記は5分丸め」)。
@@ -169,6 +177,53 @@ DIAG_DAY_ROWS: Final[tuple[str, ...]] = (
     "tape_miss_count",
     "conversation_sessions",
 )
+
+
+def _default_mock(seed: int | str, vocab_version: str) -> Any:
+    """``llm`` を注入しないランの既定 mock(``MockLLM``)。**語彙版に語彙を合わせる**。
+
+    ``MockLLM`` はプロンプト本文を読まない(=B0 に 13 語目を載せても出力は変わらない)ので、
+    語彙 v2 のランで「食事」を 1 件も出せない。mock は**書式と決定論を通す配管**であって
+    振る舞いのモデルではない(``llm.mock`` の expedient 節)から、**提示した語彙から一様に
+    引く**という既存の規約をそのまま版に従わせる。既定 ``"v1"`` では
+    ``MockLLM(master_seed=seed)`` と**同一**(引数も乱数列も同じ)。
+    """
+    from shibuya.llm.contract import cross_action_words
+
+    if str(vocab_version) == VOCAB_VERSIONS[0]:
+        return MockLLM(master_seed=seed)
+    return MockLLM(master_seed=seed, vocab=cross_action_words(vocab_version))
+
+
+def _synonym_table_version(vocab_version: str) -> str:
+    """語彙版 → 段0 辞書の版文字列(``llm.undefined`` の表が正典)。"""
+    from shibuya.llm.undefined import synonym_table_version
+
+    return synonym_table_version(str(vocab_version))
+
+
+def _action_usage(per_action: Mapping[int, int], vocab_version: str) -> dict[str, int]:
+    """``ResolveOutcome.per_action``(コード別)→ **行動語別**の件数(D-71 §3 J)。
+
+    ``ENGINE_STEP``(−1・経路の1歩)は行動語ではないので ``"(エンジン継続)"`` の名で残す
+    (落とすと合計が ``n_confirmed`` と合わなくなる)。並びは**契約表の順**に固定する
+    (dict の挿入順=再実行でバイト一致)。
+
+    逐次ループ宣言(P4): 行動語ぶん(v1=13 / v2=14)。個体数にも tick 数にも比例しない。
+    """
+    from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE
+
+    out: dict[str, int] = {}
+    order = R._ACTION_ORDER_BY_VOCAB[check_vocab_version(vocab_version)]
+    for code in order:
+        n = int(per_action.get(int(code), 0))
+        if not n:
+            continue
+        out[ACTION_WORD_BY_CODE.get(int(code), ENGINE_STEP_LABEL)] = n
+    for code, n in sorted(per_action.items()):  # 表に無いコード(将来の語)も落とさない
+        if int(code) not in order and int(n):
+            out[ACTION_WORD_BY_CODE.get(int(code), f"({int(code)})")] = int(n)
+    return out
 
 
 def run_salt_for(master_seed: int | str) -> bytes:
@@ -244,6 +299,16 @@ class RunResult:
     #: ``"hint"``=語彙を例として見せつつ自由文も許す(AB7b)。
     #: 仕様書 docs/design/v2-open-intent-arm-spec.md §2。
     intent_mode: str = INTENT_MODES[0]
+    #: **行動語彙の版**(D-71 §3 F・2026-09-17 ユーザー決定)。``"v1"``=現行 24 語(既定)/
+    #: ``"v2"``=24 語 + 横断語「食事」(飲食店オブジェクトの affordance)。
+    vocab_version: str = VOCAB_VERSIONS[0]
+    #: 語彙 v2「食事」が成立した件数(v1 のランでは常に 0)。
+    meals: int = 0
+    #: 食事で店舗へ移った金額[円](売上の内数)。
+    meal_yen: int = 0
+    #: **解決後の行動語ごとの件数**(D-71 §3 J「語ごとの使用率」の分子)。
+    #: 鍵は行動語(``ENGINE_STEP`` は ``"(エンジン継続)"``)・値は ``resolve`` が適用した件数。
+    action_usage: dict[str, int] = field(default_factory=dict)
     #: D-56 就寝抑止を効かせたか。既定 True(ユーザー決定 (a)・2026-09-10)。
     sleep_suppression: bool = True
     #: D-62「就寝は計画の実行」を効かせたか。既定 True(ユーザー決定 (a)+(b)・2026-09-10)。
@@ -473,6 +538,9 @@ class RunResult:
             ``p_notice_ablation``/``p_notice_d50_scale``/``refractory_scale``/``signage``
             (§8 第1陣 ②③⑥ の腕。既定は ``A4``/``1.0``/``{}``/``True``)・
             ``intent_mode``(AB7 自由意図の腕。既定 ``vocab``)・
+            ``vocab_version``/``synonym_table_version``/``action_usage``
+            (語彙 v2 の版・段0 辞書の版・語ごとの使用件数。D-71 §3 F/J。既定は
+            ``v1``/``undefined-synonyms-v2``)・
             ``sleep_suppression``(D-56 就寝抑止の腕。既定 ``True``)・
             ``plan_sleep``(D-62「就寝は計画の実行」の腕。既定 ``True``)・
             ``plan_executor``/``exit_mode``/``attendance_rate``(D-66 計画実行層の腕。
@@ -510,6 +578,10 @@ class RunResult:
             "signage": bool(self.signage),
             # ---- AB7 自由意図の腕(既定 vocab)。列追加のみ=既存欄の値は動かない ----
             "intent_mode": str(self.intent_mode),
+            # ---- 語彙 v2(D-71 §3 F/J)。既定 v1 では語彙も辞書も現行のまま ----
+            "vocab_version": str(self.vocab_version),
+            "synonym_table_version": _synonym_table_version(self.vocab_version),
+            "action_usage": dict(self.action_usage),
             # ---- D-56 就寝抑止(既定 True)。False = D-56 前の挙動 ----
             "sleep_suppression": bool(self.sleep_suppression),
             # ---- D-62 就寝は計画の実行(既定 True)。False = D-62 前の挙動 ----
@@ -911,6 +983,7 @@ def run_day(
     refractory_scale: Mapping[Any, float] | None = None,
     signage: bool = True,
     intent_mode: str = INTENT_MODES[0],
+    vocab_version: str = VOCAB_VERSIONS[0],
     budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
     salient_rate_per_10k: float | None = None,
     population: "Population | bool | None" = None,
@@ -1002,6 +1075,15 @@ def run_day(
             既定では**1 バイトも変わらない**(テンプレ本体・``template_sha256`` も不変)。
             ``INTENT_MODES`` 以外は ``ValueError``。
             ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
+        vocab_version: **行動語彙の版**(D-71 §3 F・2026-09-17 ユーザー決定)。
+            ``"v1"``(既定)は現行の 24 語(横断 12 + 役割 12)で、**1 バイトも変わらない**。
+            ``"v2"`` は横断語「食事」(飲食店オブジェクトの affordance・コード 24)を足し、
+            ① B0 の出力規約が 13 語提示になる ② 段0 辞書が v3 になる
+            (``食べる``/``飲む`` → ``食事``)③ ``resolve`` に「食事」の分岐が増える。
+            **``llm`` を注入しないランでは mock の語彙もこの版に従う**(``MockLLM`` は
+            プロンプトを読まないので、ここを合わせないと mock では「食事」が 1 件も出ない)。
+            ``renderer`` を明示注入したランでは B0 側だけ注入側が持つ。
+            ``VOCAB_VERSIONS`` 以外は ``ValueError``。
         population: W16 母集団(``agents.population.Population``)。``None``(既定)は
             **``world_dir`` に ``w16_population.parquet`` があれば自動で読む**
             (``n_agents`` 体へ二層抽出)。``False`` で明示的に切る(合成個体のまま)。
@@ -1060,11 +1142,13 @@ def run_day(
         raise ValueError(f"derive_rule は {PRESENCE_DERIVE_RULES} のどれか(いま {derive_rule!r})")
     # ---- AB7 自由意図の腕: 値の検査は**レンダラを作る前**にする(manifest が嘘をつかない) ----
     intent_mode = check_intent_mode(intent_mode)
+    # ---- 語彙 v2 の版: 同上(mock・レンダラ・bridge の前で確定させる) ----
+    vocab_version = check_vocab_version(vocab_version)
     # ---- ablation ③: **ランの実効不応期表**を 1 本組む(既定=§6 の表そのもの) ----
     refractory_table = R.refractory_ticks(refractory_scale)
     refractory_scale_norm = R.normalized_refractory_scale(refractory_scale)
     world = world if world is not None else World.synthetic(n_cells=n_cells, seed=seed)
-    llm = llm if llm is not None else MockLLM(master_seed=seed)
+    llm = llm if llm is not None else _default_mock(seed, vocab_version)
     salt = run_salt_for(seed)
     tape_writer = TapeWriter(Path(tape_path)) if tape_path is not None else None
     conv = ConversationManager(seed) if conversations else None
@@ -1163,6 +1247,7 @@ def run_day(
                 budget_mode=budget_mode_enum,
                 signage_enabled=signage,
                 intent_mode=intent_mode,
+                vocab_version=vocab_version,
             )
         )
         renderer_obj: Any = perception
@@ -1187,6 +1272,7 @@ def run_day(
         lane=lane,
         tick_seconds=tick_seconds,
         params={"max_tokens": 64, "temperature": 0.0},
+        vocab_version=vocab_version,
     )
 
     # ---- 実艦隊(C6-a)。テープ・未定義行動台帳・デコード設定は bridge と**同じものを共有** ----
@@ -1258,6 +1344,8 @@ def run_day(
         mode=mode,
     )
     result.money_start = int(agents.registry.money.astype(np.int64).sum())
+    #: D-71 §3 J: 行動コード別の適用件数(``ResolveOutcome.per_action`` のラン合計)。
+    per_action_total: dict[int, int] = {}
     # 在圏 journal(C7 受入計器 tools/c7・holdout 照合の入力)。既定 0=書かない(状態・診断・テープに影響なし)。
     occ_ticks: list[int] = []
     occ_counts: list[np.ndarray] = []
@@ -1705,6 +1793,7 @@ def run_day(
             rail=None if runner is None or not runner.is_enabled("rail") else runner.rail,
             crowd=None if runner is None or not runner.is_enabled("crowd") else runner.crowd,
             hotel=None if runner is None or not runner.is_enabled("hotel") else runner.hotel,
+            vocab_version=vocab_version,
         )
         phase["phase_c"] += time.perf_counter() - t0
         phase["movement"] += outcome.movement_seconds
@@ -1715,6 +1804,11 @@ def run_day(
         result.n_queued += outcome.n_queued
         result.n_board_waiting += outcome.n_board_waiting
         result.n_board_timeout += outcome.n_board_timeout
+        result.meals += outcome.n_meals
+        result.meal_yen += outcome.meal_yen
+        # D-71 §3 J: 語ごとの使用件数(**解決後**=エンジンが適用した行動)。
+        for _code, _n in outcome.per_action.items():
+            per_action_total[int(_code)] = per_action_total.get(int(_code), 0) + int(_n)
 
         # ---- 会話セッション(行動契約書 §3・C6 で設計準拠化 09-09) ----
         # ①返事待ちの被招待が答えていれば成立/不成立を確定 → ②新しい招待を捌く
@@ -2004,6 +2098,9 @@ def run_day(
         if perception is not None
         else intent_mode
     )
+    # 語彙 v2: 実際に使った版(注入レンダラでも**エンジン側の版**が正=行動の解決はこちら)。
+    result.vocab_version = str(vocab_version)
+    result.action_usage = _action_usage(per_action_total, vocab_version)
     result.sleep_suppression = bool(sleep_suppression)
     result.plan_sleep = bool(plan_sleep)
     result.wake_rate_by_hour = [

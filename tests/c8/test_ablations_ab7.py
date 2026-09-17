@@ -34,7 +34,12 @@ FROZEN_ARM_SHA256 = {
     "AB6-AD-ZERO": "0b53c0308f45ab27a098ca03ce43bce42039eb7e4ac3ffa93816253aabbe0507",
     # AB7b を足しても AB7 の定義は 1 バイトも動かない(2026-09-17 に凍結)。
     "AB7-OPEN-INTENT": "be19b47185476fdd2e5154f61ce5fa31818811a11510f43be738b8af764dde7d",
+    # AB7c(語彙 v2)を足しても AB7b の定義は 1 バイトも動かない(2026-09-17 に凍結)。
+    "AB7b-HINT-INTENT": "e53d363aa18533228c0e9754d0a287ccd617937347cce3cd8af3113a88a3d7f0",
 }
+
+#: 語彙 v2 の腕(``tests/c8/test_ablations_ab7c.py`` が本体を見る。ここでは**並び**だけ)。
+ARM_C_ID = "AB7c-VOCAB-V2"
 
 
 @pytest.fixture(scope="module")
@@ -52,7 +57,8 @@ def _canonical_sha256(arm) -> str:
 def test_ab7_is_appended_to_the_table(ablation_runner, table):
     arms = table["arms"]
     ids = [a["id"] for a in arms]
-    assert ids[-2:] == [ARM_ID, ARM_B_ID]  # AB7 の後ろに AB7b を足した
+    # AB7 の後ろに AB7b、その後ろに AB7c(語彙 v2・2026-09-17)を足した
+    assert ids[-3:] == [ARM_ID, ARM_B_ID, ARM_C_ID]
     assert len(arms) == len(FROZEN_ARM_SHA256) + 1
     arm = ablation_runner.arm_by_id(table, ARM_ID)
     assert arm["rank"] == 7 and arm["index"] == "⑦"
@@ -105,7 +111,8 @@ def test_ab7_kwargs_reach_run_day(ablation_runner, table, tmp_path):
 def test_ab7b_is_the_last_arm_with_rank_8(ablation_runner, table):
     arm = ablation_runner.arm_by_id(table, ARM_B_ID)
     assert arm["rank"] == 8 and arm["index"] == "⑦b"
-    assert table["arms"][-1]["id"] == ARM_B_ID
+    # 2026-09-17: AB7c(語彙 v2)を後ろに足したので AB7b は**末尾の 1 つ手前**
+    assert table["arms"][-2]["id"] == ARM_B_ID
     assert ARM_B_ID not in ablation_runner.first_wave_ids(table), "第1陣は 6 本のまま"
     assert arm["design_source"].startswith("docs/design/v2-open-intent-arm-spec.md")
     assert arm["status"] == "ready"

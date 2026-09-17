@@ -584,6 +584,7 @@ class Renderer:
         strict_group_budget: bool = True,
         signage_enabled: bool = True,
         intent_mode: str = T.DEFAULT_INTENT_MODE,
+        vocab_version: str = T.DEFAULT_VOCAB_VERSION,
     ) -> None:
         """
         Args:
@@ -610,6 +611,10 @@ class Renderer:
                 既定 ``"vocab"`` は現行の 24 語ホワイトリスト提示=**1 バイトも変わらない**。
                 テンプレ本体(``TEMPLATES``)は触らないので ``template_sha256`` も不変。
                 仕様書 ``docs/design/v2-open-intent-arm-spec.md`` §2。
+            vocab_version: **行動語彙の版**(D-71 §3 F・``"v1"`` | ``"v2"``)。``"v2"`` で
+                B0 の出力規約に 13 語目「食事」が載る(``templates.OUTPUT_SPEC_V2``)。
+                既定 ``"v1"`` は現行の 24 語提示=**1 バイトも変わらない**。``"open"`` 腕は
+                語彙を見せないので v1/v2 で B0 は同一(差は段0 辞書とエンジン側)。
         """
         self.world = world
         self.agents = agents
@@ -622,10 +627,14 @@ class Renderer:
         self.strict_group_budget = strict_group_budget
         self.signage_enabled = bool(signage_enabled)
         self.intent_mode = T.check_intent_mode(intent_mode)
+        self.vocab_version = T.check_vocab_version(vocab_version)
 
         self._tickc = _TickCache()
-        # 既定(vocab)は ``TEMPLATES["B0.system"]`` と同一文字列=描画バイト不変(AB7)。
-        self._b0 = N.canonical_whitespace(T.b0_system(self.intent_mode)).encode("utf-8")
+        # 既定(vocab × v1)は ``TEMPLATES["B0.system"]`` と同一文字列=描画バイト不変
+        # (AB7・語彙 v2)。
+        self._b0 = N.canonical_whitespace(
+            T.b0_system(self.intent_mode, self.vocab_version)
+        ).encode("utf-8")
         self._b4b = N.canonical_whitespace(
             T.TEMPLATES["B4b.near_empty"]
         ).encode("utf-8")

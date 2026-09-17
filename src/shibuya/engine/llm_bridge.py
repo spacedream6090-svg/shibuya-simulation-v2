@@ -100,7 +100,14 @@ from shibuya.llm import (
     estimate_tokens,
     parse_two_line,
 )
-from shibuya.llm.contract import NO_TARGET_VALUE
+from shibuya.llm.contract import (
+    DEFAULT_VOCAB_VERSION,
+    EAT_ACTION_CODE,
+    NO_TARGET_VALUE,
+    ACTION_WORD_EAT,
+    check_vocab_version,
+    engine_action_codes,
+)
 from shibuya.perception import templates as PT
 
 __all__ = [
@@ -121,7 +128,12 @@ __all__ = [
 ]
 
 #: 行動コード → 行動語(``llm.contract.ACTION_CODES`` の逆写像)。B6「直前に試みた行動」用。
-ACTION_WORD_BY_CODE: Final[Mapping[int, str]] = {int(v): k for k, v in ACTION_CODES.items()}
+#: **語彙 v2 の「食事」(24)も入れてある**: コード 24 は v1 のランには 1 件も現れないので
+#: 既定の描画は 1 バイトも動かず、v2 のランでだけ B6 が「直前の食事は…」と言えるようになる。
+ACTION_WORD_BY_CODE: Final[Mapping[int, str]] = {
+    **{int(v): k for k, v in ACTION_CODES.items()},
+    EAT_ACTION_CODE: ACTION_WORD_EAT,
+}
 
 #: テープへ intern する**共有ブロック**(B5/B6 は個体依存なので intern しない)。
 SHARED_BLOCK_IDS: Final[tuple[str, ...]] = tuple(
@@ -424,6 +436,8 @@ class LLMBridge:
         lane: 既定の δ_think レーン。
         tick_seconds: 1 tick の秒数(δ_think の切り上げに使う)。
         undefined: 未定義行動5段の台帳(``None`` なら新規に作る)。
+        vocab_version: 行動語彙の版(D-71 §3 F)。パーサ・段0 辞書・行動コードの解決に効く。
+            既定 ``"v1"`` は**現行と 1 バイトも変わらない**。
 
     Note:
         ``mode="replay"`` で ``TapeMiss`` が出たら**計数して空応答を返す**。実LLMへは落とさない
@@ -442,16 +456,24 @@ class LLMBridge:
         lane: str = DEFAULT_LANE,
         tick_seconds: int = 60,
         undefined: UndefinedActionRegistry | None = None,
+        vocab_version: str = DEFAULT_VOCAB_VERSION,
     ) -> None:
         if mode not in ("record", "replay"):
             raise ValueError("mode は record|replay")
         self.mode = mode
+        self.vocab_version = check_vocab_version(vocab_version)
+        #: その版で**エンジンに適用分岐がある**語 → コード(役割語は含まない)。
+        self._engine_codes = engine_action_codes(self.vocab_version)
         self.renderer: Renderer = renderer if renderer is not None else StubRenderer()
         self.tape = tape
         self.params: Mapping[str, Any] = dict(params or {})
         self.lane = lane
         self.tick_seconds = int(tick_seconds)
-        self.undefined = undefined if undefined is not None else UndefinedActionRegistry()
+        self.undefined = (
+            undefined
+            if undefined is not None
+            else UndefinedActionRegistry(vocab_version=self.vocab_version)
+        )
         self.replay: Replay | None = None
         if mode == "replay":
             if replay is None:
@@ -581,7 +603,7 @@ class LLMBridge:
                         t_apply=int(tick) + delta_think_ticks(lane, self.tick_seconds),
                         lane=lane,
                         text="",
-                        parse=parse_two_line(""),
+                        parse=parse_two_line("", self.vocab_version),
                         action_code=UNDEFINED_ACTION,
                         target=NO_TARGET_VALUE,
                         prompt_hash=rendered.prompt_hash or request.prompt_hash,
@@ -607,13 +629,13 @@ class LLMBridge:
                 source = "tape_miss"
         self.n_calls += 1
 
-        parse = parse_two_line(text)
+        parse = parse_two_line(text, self.vocab_version)
         action_code = parse.action_code
         role_action = bool(parse.is_role_action)
         if role_action:
             self.n_role_actions += 1
             # 役割語は effects 先が C4。当面は安全弁(待機)へ落とす(expedient)。
-            action_code = int(ACTION_CODES["待機"])
+            action_code = int(self._engine_codes["待機"])
         if not parse.format_ok:
             self.n_parse_errors += 1  # 実効(別名許容後)
         if not parse.strict_format_ok:
@@ -632,8 +654,8 @@ class LLMBridge:
             )
             stage = outcome.stage
             feedback = outcome.feedback
-            if outcome.mapped and outcome.word in ACTION_CODES:
-                action_code = int(ACTION_CODES[outcome.word])
+            if outcome.mapped and outcome.word in self._engine_codes:
+                action_code = int(self._engine_codes[outcome.word])
                 self.n_undefined_mapped += 1
                 if outcome.stage == 0:
                     self.n_dictionary_mapped += 1

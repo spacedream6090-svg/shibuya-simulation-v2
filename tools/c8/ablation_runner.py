@@ -66,6 +66,8 @@ ALLOWED_KWARGS: frozenset[str] = frozenset(
         "signage",               # 実装済(⑥ 看板行の有無)
         # ---- AB7-OPEN-INTENT / AB7b-HINT-INTENT(自由意図の腕・2026-09-16/17 実装) ----
         "intent_mode",           # 実装済(vocab | open | hint・B0 の出力規約だけを入れ替える)
+        # ---- AB7c-VOCAB-V2(語彙成長 v0・2026-09-17 実装) ----
+        "vocab_version",         # 実装済(v1 | v2・語彙/段0 辞書/resolve の分岐を版で切る)
     }
 )
 
@@ -204,6 +206,11 @@ def run_metrics(res: Any, tape_path: Path | None) -> dict[str, Any]:
         "final_hash": str(getattr(res, "final_hash", "")),
         "budget_mode": str(getattr(res, "budget_mode", "")),
         "intent_mode": str(getattr(res, "intent_mode", "")),
+        "vocab_version": str(getattr(res, "vocab_version", "")),
+        #: D-71 §3 J「語ごとの使用率」の分子(解決後の行動語ごとの件数)。
+        "action_usage": dict(getattr(res, "action_usage", {}) or {}),
+        "meals": int(getattr(res, "meals", 0) or 0),
+        "meal_yen": int(getattr(res, "meal_yen", 0) or 0),
         "run_manifest_fields": _manifest_fields(res),
     }
     out["notice_reach"] = out["noticed"] / max(1, out["salient_events"])
@@ -213,7 +220,9 @@ def run_metrics(res: Any, tape_path: Path | None) -> dict[str, Any]:
 
         # D-58: 繰り延べ行(応答空)は行動分布・書式の分母に入れない
         texts = [str(r.response) for r in Tape(tape_path).rows() if not r.deferred]
-        sc = c6lib.score_texts(texts)
+        # AB7c: **そのランの語彙の版で採点する**(v2 のテープを v1 で採点すると
+        # 「食事」が未定義に数えられ M1/M2 が嘘になる)。既定 v1 では 1 件も変わらない。
+        sc = c6lib.score_texts(texts, str(getattr(res, "vocab_version", "v1") or "v1"))
         out["action_counts"] = sc["action_counts"]
         out["undefined_rate"] = sc["undefined_rate"]
         out["role_action_rate"] = sc["role_action_rate"]
@@ -355,7 +364,9 @@ def _manifest_fields(res: Any) -> dict[str, Any]:
         return {}
     # D-66(2026-09-11): 計画実行層の腕 3 つを足した(AB-PLAN-EXECUTOR を C8 で回すため)。
     # AB7(2026-09-16): 自由意図の腕の同定欄 ``intent_mode`` を足した。
-    return {k: v for k, v in f.items() if k in ("budget_mode", "ablations", "template_sha256", "catalog_sha16", "replay_date", "p_notice_ablation", "p_notice_d50_scale", "refractory_scale", "signage", "plan_executor", "exit_mode", "attendance_rate", "intent_mode")}
+    # AB7c(2026-09-17): 語彙の版 ``vocab_version`` と段0 辞書の版 ``synonym_table_version``。
+    # **列追加のみ**=既存の腕の出力の値は 1 つも動かない。
+    return {k: v for k, v in f.items() if k in ("budget_mode", "ablations", "template_sha256", "catalog_sha16", "replay_date", "p_notice_ablation", "p_notice_d50_scale", "refractory_scale", "signage", "plan_executor", "exit_mode", "attendance_rate", "intent_mode", "vocab_version", "synonym_table_version")}
 
 
 def compare_runs(baseline: Mapping[str, Any], arm: Mapping[str, Any]) -> dict[str, Any]:

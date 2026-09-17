@@ -43,6 +43,7 @@ from shibuya.core.hashing import priority_key_array
 from shibuya.core.types import DEFAULT_TICK_SECONDS, NS_PER_SECOND
 from shibuya.llm.contract import ACTION_CODES as _CONTRACT_ACTION_CODES
 from shibuya.llm.contract import ACTION_VOCAB_12
+from shibuya.llm.contract import EAT_ACTION_CODE
 from shibuya.llm.contract import UNDEFINED_ACTION
 from shibuya.llm.parser import parse_two_line
 
@@ -68,6 +69,7 @@ __all__ = [
     "ACT_REFUSE",
     "ACT_REST",
     "ACT_SLEEP",
+    "ACT_EAT",
     "DELTA_PERC_BASE_NS",
     "EXPECTATION_K",
     "SLEEP_SLOTS_PER_CELL",
@@ -95,6 +97,10 @@ ACT_HELP: Final[int] = ACTION_CODES["手伝い"]
 ACT_REFUSE: Final[int] = ACTION_CODES["断る"]
 ACT_REST: Final[int] = ACTION_CODES["休憩"]
 ACT_SLEEP: Final[int] = ACTION_CODES["就寝"]
+#: **語彙 v2 の「食事」**(D-71 §3 E・飲食店オブジェクトの affordance)。コードは 24
+#: =既存 24 語の次(``llm.contract.EAT_ACTION_CODE``)。**語彙 v1 のランでは 1 件も立たない**
+#: (パーサが「食事」を語彙語として読まないため)。
+ACT_EAT: Final[int] = EAT_ACTION_CODE
 
 #: エンジン内部の継続(経路の1歩)。LLM 由来ではないので負のコード。
 ENGINE_STEP: Final[int] = -1
@@ -483,6 +489,32 @@ def engine_continuations(agents, space: ResourceSpace, tick: int) -> IntentBatch
     )
 
 
+def _poi_in_cell(world, cell: np.ndarray, keep: np.ndarray | None) -> np.ndarray:
+    """各体のセルにある POI の**最小 id**(無ければ -1)。``keep`` で候補を絞れる。
+
+    C2 から購入の対象決定に使っていた走査をそのまま関数にしたもの(**値は 1 つも動かない**:
+    ``keep=None`` のとき従来と同じ ``lexsort`` + ``searchsorted``)。語彙 v2 の「食事」は
+    ``keep=world.eatery_mask`` で飲食店だけに絞って同じ走査を使う。
+
+    逐次ループ宣言(P4): なし(NumPy の整列と二分探索だけ)。
+    """
+    c = np.asarray(cell, dtype=np.int64)
+    poi_cell = world.pois.cell.astype(np.int64)
+    idx = np.arange(poi_cell.size, dtype=np.int64)
+    if keep is not None:
+        k = np.asarray(keep, dtype=bool)
+        poi_cell = np.where(k, poi_cell, -1)  # 候補外は「セル -1」へ退避(下で -1 は弾く)
+    order = np.lexsort((idx, poi_cell))
+    sorted_cells = poi_cell[order]
+    pos = np.searchsorted(sorted_cells, c, side="left")
+    pos_c = np.clip(pos, 0, max(0, sorted_cells.size - 1))
+    found = (sorted_cells.size > 0) & (sorted_cells[pos_c] == c)
+    # **場外(``cell == -1``)は必ず「見つからない」**。``keep`` で退避した候補外の POI も
+    # セル -1 に寄せてあるので、これを弾かないと域外の体に候補外の POI が当たる
+    # (``keep=None`` の購入では POI のセルに -1 が無いので、この条件は 1 件も変えない)。
+    return np.where(found & (c >= 0), order[pos_c], -1)
+
+
 def intents_from_responses(
     agents,
     world,
@@ -548,15 +580,20 @@ def intents_from_responses(
     # 購入: 現在セルの POI(最小 id)。無ければ -1 → 失敗(在庫切れ扱いでなく対象不正)。
     is_buy = code_out == ACT_BUY
     if np.any(is_buy):
-        poi_cell = world.pois.cell.astype(np.int64)
-        order = np.lexsort((np.arange(poi_cell.size), poi_cell))
-        sorted_cells = poi_cell[order]
-        pos = np.searchsorted(sorted_cells, cell, side="left")
-        pos_c = np.clip(pos, 0, max(0, sorted_cells.size - 1))
-        found = (sorted_cells.size > 0) & (sorted_cells[pos_c] == cell)
-        poi = np.where(found, order[pos_c], -1)
+        poi = _poi_in_cell(world, cell, None)
         target = np.where(is_buy, poi, target)
         resource = np.where(is_buy & (poi >= 0), space.poi(np.maximum(poi, 0)), resource)
+
+    # 食事(語彙 v2): 現在セルの**飲食店** POI(最小 id)。無ければ -1 → ``NOT_IN_EATERY``。
+    # 購入と同じ「セル内の POI を探す」走査だが、候補を ``world.eatery_mask`` で絞る。
+    # 資源も購入と同じ ``space.poi``(店の 1 tick 受け入れ数)= 同じ店の席を奪い合う。
+    is_eat = code_out == ACT_EAT
+    if np.any(is_eat):
+        eat_poi = _poi_in_cell(world, cell, world.eatery_mask)
+        target = np.where(is_eat, eat_poi, target)
+        resource = np.where(
+            is_eat & (eat_poi >= 0), space.poi(np.maximum(eat_poi, 0)), resource
+        )
 
     # 会話: **LLM が名指しした個体**を第一・同セルでなければ同バッチ最小 id(資源=相手)。
     is_talk = code_out == ACT_TALK

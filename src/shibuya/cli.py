@@ -29,7 +29,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Any, Final
+from typing import Any, Final, Mapping
 
 import numpy as np
 
@@ -50,7 +50,12 @@ from shibuya.engine.run import (
     fleet_from_args,
     run_day,
 )
-from shibuya.perception.templates import DEFAULT_INTENT_MODE, INTENT_MODES
+from shibuya.perception.templates import (
+    DEFAULT_INTENT_MODE,
+    DEFAULT_VOCAB_VERSION,
+    INTENT_MODES,
+    VOCAB_VERSIONS,
+)
 from shibuya.world.assets import hash_free_cat_code
 from shibuya.world.state import World
 
@@ -66,6 +71,8 @@ __all__ = [
     "DAILY_CENSUS_FILENAME",
     "MONTHLY_MER_FILENAME",
     "MONTHLY_MER_SECTORS_FILENAME",
+    "UNDEFINED_PAYLOAD_SCHEMA",
+    "undefined_registry_payload",
     "run",
     "main",
 ]
@@ -332,6 +339,125 @@ def checkpoints_payload(res: RunResult, *, run_id: str = "") -> dict[str, Any]:
     }
 
 
+#: ``--undefined-out`` が書く JSON の形の名前(``tools/vocab/*`` が読む鍵)。
+UNDEFINED_PAYLOAD_SCHEMA: Final[str] = "shibuya.vocab/undefined-registry/1"
+
+
+def undefined_registry_payload(
+    registry: Any,
+    *,
+    source: str = "",
+    cells: "Mapping[tuple[int, int], str] | None" = None,
+    n_samples: int = 3,
+) -> dict[str, Any]:
+    """未定義行動台帳(``llm.UndefinedActionRegistry``)→ 段2 起草バッチの入力 JSON(**純関数**)。
+
+    D-71 の段2〜3 は**ラン後のオフライン**(語彙成長の設計 v0 §2)なので、ランは台帳を
+    残すだけでよい。本関数はその「残し方」を 1 か所に決める(``tools/vocab/adjudicate.py``
+    が読み、``tools/vocab/registry_from_tape.py`` がテープから同じ形を作る)。
+
+    Args:
+        registry: ``RunResult.undefined_registry``。``None``(台帳の無いラン)は空の記録で返す。
+        source: 由来の印(``"run_day"`` / ``"tape"``)。
+        cells: ``(agent_id, tick) → セルID``。台帳は**セルを持たない**(``observe`` が受け取る
+            のは ``prompt_hash`` だけ)ので、セルを知っている経路だけが渡す。渡さなければ
+            ``records[].cell`` は ``None``・``words[].distinct_cells`` は 0 になり、
+            ``cell_source`` が ``"unavailable"`` になる(**推測で埋めない**)。
+        n_samples: 語ごとに載せる標本の件数(既定 3)。
+
+    Returns:
+        版・記録リング・語ごとの集計・カウンタを持つ dict(``json.dumps`` 可能・相対パスのみ)。
+
+    Note:
+        ``records[].word`` と ``records[].raw`` は**同じ値**になる。段1 は
+        ``UndefinedActionRecord(word=raw_word.strip())`` しか残さない(生の前後空白より前の
+        形は台帳に無い)ため、欄は 2 つ持つが値は strip 済みの逐語ひとつ。
+        ``records[].stage`` は常に 1(段1 のレコードだけが記録リングに入る)。
+
+    逐次ループ宣言(P4): 記録リング長(``log_limit`` 既定 4,096)ぶんのループ 1 本。ラン後に
+    1 回だけ呼ぶ(ランの毎 tick 経路には入らない)。
+    """
+    from shibuya.llm.undefined import synonym_table_version
+
+    # 語彙版は**ランごと**の値(モジュール定数ではない)= 台帳が持つ版を正とする(第205・親修正)。
+    _vv = str(getattr(registry, "vocab_version", DEFAULT_VOCAB_VERSION))
+    versions: dict[str, Any] = {"vocabulary": _vv, "synonym_table": synonym_table_version(_vv)}
+
+    cell_of = dict(cells or {})
+    records: list[dict[str, Any]] = []
+    counters: dict[str, int] = {}
+    threshold = 10
+    if registry is not None and hasattr(registry, "counters"):
+        counters = {str(k): int(v) for k, v in registry.counters().items()}
+        threshold = int(getattr(registry, "threshold_agents", 10))
+        for rec in getattr(registry, "log", ()):  # 記録リング(deque・古い順)
+            word = str(rec.raw_word)
+            records.append(
+                {
+                    "word": word,
+                    "raw": word,  # 段1 は strip 済みの逐語しか持たない(Note)
+                    "agent_id": int(rec.agent_id),
+                    "tick": int(rec.tick),
+                    "cell": cell_of.get((int(rec.agent_id), int(rec.tick))),
+                    "stage": 1,
+                    "context_hash": str(rec.context_hash),
+                }
+            )
+
+    words: dict[str, dict[str, Any]] = {}
+    for row in records:
+        w = words.setdefault(
+            row["word"],
+            {
+                "n_rows": 0,
+                "distinct_agents": 0,
+                "distinct_cells": 0,
+                "distinct_hours": 0,
+                "first_tick": int(row["tick"]),
+                "samples": [],
+                "_agents": set(),
+                "_cells": set(),
+                "_hours": set(),
+            },
+        )
+        w["n_rows"] += 1
+        w["_agents"].add(int(row["agent_id"]))
+        if row["cell"] is not None:
+            w["_cells"].add(str(row["cell"]))
+        w["_hours"].add(int(row["tick"]) // 60)
+        w["first_tick"] = min(int(w["first_tick"]), int(row["tick"]))
+        if len(w["samples"]) < int(n_samples):
+            w["samples"].append(
+                {"agent_id": row["agent_id"], "tick": row["tick"], "cell": row["cell"]}
+            )
+    for word, w in words.items():
+        w["distinct_agents"] = len(w.pop("_agents"))
+        w["distinct_cells"] = len(w.pop("_cells"))
+        w["distinct_hours"] = len(w.pop("_hours"))
+        if registry is not None and hasattr(registry, "counts"):
+            # 記録リングが溢れた語は ``counts``(有界化の影響を受けない)が正
+            w["n_rows"] = int(registry.counts.get(word, w["n_rows"]))
+            w["distinct_agents"] = int(registry.distinct_agents(word))
+
+    dropped = int(counters.get("undefined_dropped", 0))
+    return {
+        "schema": UNDEFINED_PAYLOAD_SCHEMA,
+        "source": str(source),
+        "versions": versions,
+        "threshold_agents": threshold,
+        "cell_source": "prompt_block" if cell_of else "unavailable",
+        "counters": counters,
+        "dropped": dropped,
+        "summary": {
+            "n_records_kept": len(records),
+            "n_words": len(words),
+            "ring_truncated": bool(dropped),
+        },
+        "records": records,
+        "words": dict(sorted(words.items(), key=lambda kv: (-kv[1]["n_rows"], kv[0]))),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="台帳(金/物)+世界過程つきの 1 シミュ日ラン(C4)")
     ap.add_argument("--agents", type=int, default=5_000)
@@ -402,6 +528,16 @@ def main(argv: list[str] | None = None) -> int:
              "自由文を許す(AB7b・vocab と open の中間)",
     )
     ap.add_argument(
+        "--vocab-version",
+        choices=VOCAB_VERSIONS,
+        default=DEFAULT_VOCAB_VERSION,
+        help="行動語彙の版(語彙成長 v0・docs/design/v2-vocab-growth-design.md §3 F)。"
+             "v1=現行 24 語(既定・バイト不変)/"
+             "v2=24 語 + 横断語「食事」(飲食店オブジェクトの affordance)。"
+             "v2 では B0 の提示が 13 語になり、段0 辞書が v3(食べる/飲む→食事)になり、"
+             "resolve に「食事」の分岐が増える",
+    )
+    ap.add_argument(
         "--no-sleep-suppression",
         action="store_true",
         help="D-56 就寝抑止を切る(就寝中の個体も内受容/セル変化で呼ぶ=D-56 前の挙動・帰無腕)",
@@ -458,6 +594,14 @@ def main(argv: list[str] | None = None) -> int:
              " final_hash を JSON で書く(C7 受入 T2-a/b/c の入力。既定=書かない)",
     )
     ap.add_argument(
+        "--undefined-out",
+        type=str,
+        default="",
+        help="未定義行動台帳(行動契約書 §7 段1)を JSON で書く(D-71 段2 起草バッチ "
+             "tools/vocab/adjudicate.py の入力)。空=書かない(既定・出力は 1 バイトも増えない)。"
+             "**ランの中では裁定しない**(語彙成長の設計 v0 §2: ラン後オフライン)",
+    )
+    ap.add_argument(
         "--replay",
         type=str,
         default="",
@@ -498,6 +642,7 @@ def main(argv: list[str] | None = None) -> int:
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,
         intent_mode=str(args.intent_mode),
+        vocab_version=str(args.vocab_version),
         fleet=fleet_from_args(args, ap),
         fleet_wait_s=float(getattr(args, "fleet_wait_s", 0.0)),
         fleet_debug_dir=getattr(args, "fleet_debug_dir", "") or None,
@@ -514,6 +659,20 @@ def main(argv: list[str] | None = None) -> int:
         payload = checkpoints_payload(res, run_id=str(getattr(args, "run_id", "") or ""))
         out.write_text(json.dumps(payload, ensure_ascii=False, indent=1, default=str) + "\n", encoding="utf-8")
         print(f"  checkpoints JSON {out} ({len(payload['checkpoints'])} 点)")
+    if args.undefined_out:
+        out = Path(args.undefined_out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        payload = undefined_registry_payload(
+            getattr(res, "undefined_registry", None), source="run_day"
+        )
+        out.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
+        )
+        # ファイル名だけを出す(記録に絶対パスを残さない=第175 の教訓)。
+        print(
+            f"  未定義台帳 JSON {out.name}"
+            f"({payload['summary']['n_words']} 語 / {payload['summary']['n_records_kept']} 行)"
+        )
     census_paths = tuple(getattr(res, "census_paths", ()) or ())
     if census_paths:
         # ファイル名だけを出す(記録に絶対パスを残さない=第175 の教訓)。

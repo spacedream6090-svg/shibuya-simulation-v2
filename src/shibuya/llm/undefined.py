@@ -48,15 +48,24 @@ from typing import Any, Final, Iterable, Mapping, Sequence
 
 from shibuya.llm.contract import (
     ACTION_SPECS,
-    ALL_ACTION_WORDS,
+    DEFAULT_VOCAB_VERSION,
     ActionSpec,
     action_code_of,
+    action_words,
+    check_vocab_version,
 )
 
 __all__ = [
     "SYNONYM_TABLE_VERSION",
     "SYNONYMS",
     "SYNONYMS_C6",
+    # ---- 段0 辞書 v3(語彙 v2 用・D-71 §3 E)。v1 の表と版は 1 行も動かさない ----
+    "SYNONYMS_V3_DIFF",
+    "SYNONYMS_V3",
+    "SYNONYM_TABLE_VERSION_V3",
+    "SYNONYM_TABLE_VERSION_BY_VOCAB",
+    "synonym_table_version",
+    "synonym_table",
     "TARGET_HINTS",
     "FALLBACK_ACTIONS",
     "ADJUDICATION_TEMPLATE",
@@ -205,6 +214,70 @@ SYNONYMS_C6: Final[Mapping[str, str]] = {
 #: 段0 辞書写像の全体(``_SYNONYMS_V0`` ∪ ``SYNONYMS_C6``)。
 SYNONYMS: Final[Mapping[str, str]] = {**_SYNONYMS_V0, **SYNONYMS_C6}
 
+# ----------------------------------------------------------- 段0 辞書 v3(語彙 v2 用・D-71)
+#
+# 正典: ``docs/design/v2-synonym-policy-v0.md`` §4-2「★の行(意味の損失)は段2 の裁定と
+# AB7-c(辞書改訂腕)の起草材料。順序は **食事**(食べる・飲む・未定義「食事」)→ …」+
+# ``docs/design/v2-vocab-growth-design.md`` §3 **E**(オブジェクトの affordance)・
+# **F**(版を上げて次ランから)。ユーザー決定 2026-09-17。
+#
+# **v1 の表(``SYNONYMS``)も版(``SYNONYM_TABLE_VERSION``)も 1 行も動かさない**
+# ——語彙政策 v0 §4-1 の 3 点セット(分類と根拠を書く / 版を上げる / manifest に載せる)は
+# **新しい版 v3** の側で満たす。``vocab_version="v1"`` のランは辞書も版も現状のまま。
+#
+# 差分の中身(すべて「食事」へ):
+#   - ``食べる`` / ``飲む``: v1 では **購入** へ写していた★「意味の損失」行(摂食≠購買・
+#     AB7 open seed 1 で 食べる 12,594 行=34.2%・飲む 44 行)。**写像先の付け替え**。
+#   - ``食事`` 系の表層: v2 では ``食事`` が契約語なのでパーサが直接取る。辞書に残すのは
+#     **助詞・活用つきの表層**(``食事する`` など)の受け皿。
+#   - ``飲食``: AB7 の未定義台帳に実測(14 体)。第205 の裁定バッチで 食事 に併合。
+#     (ランチ/昼食/夕食/朝食 は実測に無い自前行だったので第205 で外した=行の追加は観測から。
+#     方法論「自己修正ループ」原則 1・語彙政策 v0 §4-1。)
+#
+# ``飲む`` を 食事 に写すと「飲酒」も食事に畳まれる(条例=公共の場所での飲酒禁止の観測点が
+# 摂食に紛れる)。**分類は「意味の損失(縮小)」**として親へ報告済み・第2陣の再訪対象。
+
+#: 語彙 v2 用の段0 辞書の**差分**(v1 の表にこれを重ねたものが v3)。
+SYNONYMS_V3_DIFF: Final[Mapping[str, str]] = {
+    # v1 で 購入 へ写していた★行の付け替え(語彙政策 v0 §2)
+    "食べる": "食事",
+    "飲む": "食事",
+    # 活用・助詞つきの表層(部分一致の受け皿)
+    "食事する": "食事",
+    "食事を": "食事",
+    # 実測にあった同族語(AB7 台帳「飲食」14 体・第205 の裁定バッチで 食事 に併合)
+    "飲食": "食事",
+    # ランチ/昼食/夕食/朝食 は実測に無い自前行だったので第205(親)で外した=行の追加は観測から(方法論「自己修正ループ」原則 1)
+}
+
+#: 段0 辞書 v3(= ``SYNONYMS`` に ``SYNONYMS_V3_DIFF`` を重ねたもの)。**語彙 v2 専用**。
+SYNONYMS_V3: Final[Mapping[str, str]] = {**SYNONYMS, **SYNONYMS_V3_DIFF}
+
+#: 辞書 v3 の版(語彙政策 v0 §4-1 (ii)「行の追加・変更は版を上げる」)。
+SYNONYM_TABLE_VERSION_V3: Final[str] = "undefined-synonyms-v3"
+
+#: 語彙版 → 段0 辞書の版(manifest に載る値)。**v1 は現行のまま**。
+SYNONYM_TABLE_VERSION_BY_VOCAB: Final[Mapping[str, str]] = {
+    "v1": SYNONYM_TABLE_VERSION,
+    "v2": SYNONYM_TABLE_VERSION_V3,
+}
+
+#: 語彙版 → 段0 辞書の実体。
+_SYNONYMS_BY_VOCAB: Final[Mapping[str, Mapping[str, str]]] = {
+    "v1": SYNONYMS,
+    "v2": SYNONYMS_V3,
+}
+
+
+def synonym_table(vocab_version: str = DEFAULT_VOCAB_VERSION) -> Mapping[str, str]:
+    """語彙版 → 段0 辞書(``"v1"`` は ``SYNONYMS`` と**同一オブジェクト**)。"""
+    return _SYNONYMS_BY_VOCAB[check_vocab_version(vocab_version)]
+
+
+def synonym_table_version(vocab_version: str = DEFAULT_VOCAB_VERSION) -> str:
+    """語彙版 → 段0 辞書の版文字列(run manifest の欄)。"""
+    return SYNONYM_TABLE_VERSION_BY_VOCAB[check_vocab_version(vocab_version)]
+
 #: 語に付随する対象のヒント(**対象の決定はエンジンの仕事**・ここでは印だけ付ける)。
 TARGET_HINTS: Final[Mapping[str, str]] = {
     "帰る": "home",
@@ -324,23 +397,35 @@ def undefined_feedback(word: str, actions: Sequence[str] = FALLBACK_ACTIONS) -> 
 
 
 def map_synonym(
-    raw_word: str, extra: Mapping[str, str] | None = None
+    raw_word: str,
+    extra: Mapping[str, str] | None = None,
+    vocab_version: str = DEFAULT_VOCAB_VERSION,
 ) -> tuple[str | None, str]:
     """段0 辞書写像。完全一致 → 最長部分一致の順に引く。**ゼロ呼**。
 
     Args:
         raw_word: 行動欄の逐語。
         extra: 追加表(段4 の判例)。
+        vocab_version: 語彙版(``"v1"``=既定・``SYNONYMS`` / ``"v2"``=``SYNONYMS_V3``)。
+            **既定では 1 行も変わらない**(同じ表・同じ写像先)。
 
     Returns:
         ``(契約語彙 or None, target_hint)``。
 
     逐次ループ宣言(P4): 表の語数ぶん(数十)。
+
+    Example:
+        >>> map_synonym("食べる")[0]
+        '購入'
+        >>> map_synonym("食べる", vocab_version="v2")[0]
+        '食事'
     """
     if not raw_word:
         return None, ""
     text = raw_word.strip()
-    tables: tuple[Mapping[str, str], ...] = ((extra or {}), SYNONYMS)
+    tables: tuple[Mapping[str, str], ...] = (
+        (extra or {}), synonym_table(vocab_version),
+    )
     for table in tables:
         hit = table.get(text)
         if hit is not None:
@@ -366,6 +451,8 @@ class UndefinedActionRegistry:
         log_limit: 段1 レコードの保持上限(有界化・D-R2-6)。
         adjudicator: 段2 で1呼する ``llm.LLMClient``(None なら段2 に進まない)。
         params: 裁定呼のデコード設定(``LLMRequest.params``)。
+        vocab_version: 語彙版(D-71 §3 F)。``"v2"`` で段0 辞書が v3 になり、
+            行動コードの解決に「食事」が入る。**既定 ``"v1"`` は現行と 1 バイトも変わらない**。
 
     Example:
         >>> reg = UndefinedActionRegistry()
@@ -381,9 +468,11 @@ class UndefinedActionRegistry:
         adjudicator: Any | None = None,
         params: Mapping[str, Any] | None = None,
         review_keywords: Iterable[str] = REVIEW_KEYWORDS,
+        vocab_version: str = DEFAULT_VOCAB_VERSION,
     ) -> None:
         if threshold_agents < 1:
             raise ValueError("threshold_agents は 1 以上")
+        self.vocab_version = check_vocab_version(vocab_version)
         self.threshold_agents = int(threshold_agents)
         self.log_limit = int(log_limit)
         self.adjudicator = adjudicator
@@ -408,9 +497,10 @@ class UndefinedActionRegistry:
     ) -> UndefinedOutcome:
         """未定義行動を1件受ける(段4→段0→段1→段2→段3 の順で判定)。"""
         word = (raw_word or "").strip()
+        ver = self.vocab_version
         if not word:
             return UndefinedOutcome(
-                stage=1, word=None, action_code=action_code_of(""),
+                stage=1, word=None, action_code=action_code_of("", ver),
                 feedback=undefined_feedback(""), source="record",
             )
 
@@ -418,19 +508,19 @@ class UndefinedActionRegistry:
         if word in self.precedents:
             mapped = self.precedents[word]
             return UndefinedOutcome(
-                stage=4, word=mapped, action_code=action_code_of(mapped), source="precedent"
+                stage=4, word=mapped, action_code=action_code_of(mapped, ver), source="precedent"
             )
         if word in self.vocabulary_extension:
             return UndefinedOutcome(
-                stage=4, word=word, action_code=action_code_of(word), source="precedent"
+                stage=4, word=word, action_code=action_code_of(word, ver), source="precedent"
             )
 
         # 段0: 辞書写像(ゼロ呼)
-        mapped, hint = map_synonym(word, self.precedents)
+        mapped, hint = map_synonym(word, self.precedents, ver)
         if mapped is not None:
             self.n_dictionary_mapped += 1
             return UndefinedOutcome(
-                stage=0, word=mapped, action_code=action_code_of(mapped),
+                stage=0, word=mapped, action_code=action_code_of(mapped, ver),
                 target_hint=hint, source="dictionary",
             )
 
@@ -446,7 +536,7 @@ class UndefinedActionRegistry:
         proposal = self._maybe_adjudicate(word, tick)
         stage = 2 if proposal is not None else 1
         return UndefinedOutcome(
-            stage=stage, word=None, action_code=action_code_of(word),
+            stage=stage, word=None, action_code=action_code_of(word, ver),
             feedback=feedback, proposal=proposal, source="record",
         )
 
@@ -472,7 +562,7 @@ class UndefinedActionRegistry:
             word=word,
             count=int(self.counts[word]),
             agents=self.distinct_agents(word),
-            vocab="/".join(ALL_ACTION_WORDS),
+            vocab="/".join(action_words(self.vocab_version)),
         )
         request = LLMRequest(
             agent_id=0,  # 裁定は個体に紐づかない(テープ鍵は tick と語で決まる)

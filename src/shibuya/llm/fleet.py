@@ -93,7 +93,6 @@ import httpx
 from shibuya.core.budget import budget_by_id, load_budget_table
 from shibuya.core.hashing import blake3_hex, sha256_cbor, xxh64
 from shibuya.llm import (
-    ACTION_CODES,
     UNDEFINED_ACTION,
     LLMRequest,
     LLMResponse,
@@ -103,7 +102,12 @@ from shibuya.llm import (
     estimate_tokens,
     parse_two_line,
 )
-from shibuya.llm.contract import NO_TARGET_VALUE
+from shibuya.llm.contract import (
+    DEFAULT_VOCAB_VERSION,
+    NO_TARGET_VALUE,
+    check_vocab_version,
+    engine_action_codes,
+)
 from shibuya.manifest.schema import Mode
 
 __all__ = [
@@ -1507,6 +1511,7 @@ class FleetBridge:
         tape_row_factory: テープ行の作り手(既定 ``FleetTapeRow``。engine 側は
             ``engine.tape.TapeRow`` を渡す=**欄名が同じ**なのでそのまま入る)。
         undefined: 未定義行動5段の台帳(``None`` なら新規)。
+        vocab_version: 行動語彙の版(D-71 §3 F)。パース・段0 辞書・行動コードの解決に効く。
         params: ``params_hash`` に入るデコード設定(テープ列)。
         debug_dir: **書式の原因分析用**の jsonl 置き場(``None``=off が既定)。
             初回パースが実効または厳密で落ちた呼だけを 1 行 1 呼で落とす
@@ -1528,11 +1533,20 @@ class FleetBridge:
         params: Mapping[str, Any] | None = None,
         debug_dir: str | Path | None = None,
         debug_max_rows: int = DEFAULT_DEBUG_MAX_ROWS,
+        vocab_version: str = DEFAULT_VOCAB_VERSION,
     ) -> None:
         self.client = client
         self.tape = tape
         self.tape_row_factory = tape_row_factory
-        self.undefined = undefined if undefined is not None else UndefinedActionRegistry()
+        #: 行動語彙の版(D-71 §3 F)。既定 ``"v1"`` は現行と 1 バイトも変わらない。
+        self.vocab_version = check_vocab_version(vocab_version)
+        #: その版で**エンジンに適用分岐がある**語 → コード(``engine.llm_bridge`` と同規約)。
+        self._engine_codes = engine_action_codes(self.vocab_version)
+        self.undefined = (
+            undefined
+            if undefined is not None
+            else UndefinedActionRegistry(vocab_version=self.vocab_version)
+        )
         self.params: Mapping[str, Any] = dict(
             params
             if params is not None
@@ -1628,13 +1642,13 @@ class FleetBridge:
             return res
         call = res.call
         self.n_calls += 1
-        parse = parse_two_line(res.text)
+        parse = parse_two_line(res.text, self.vocab_version)
         action_code = parse.action_code
         role_action = bool(parse.is_role_action)
         if role_action:
             self.n_role_actions += 1
             # 役割語の効果先は C4。当面は安全弁(待機)へ落とす(``engine.llm_bridge`` と同規約)。
-            action_code = int(ACTION_CODES["待機"])
+            action_code = int(self._engine_codes["待機"])
         if not parse.format_ok:
             self.n_parse_errors += 1  # 実効(別名許容後)=再生成と診断の主指標
         if not parse.strict_format_ok:
@@ -1654,8 +1668,8 @@ class FleetBridge:
             out = self.undefined.observe(parse.raw_action, int(call.agent_id), int(call.tick), tape_prompt_hash)
             stage = out.stage
             feedback = out.feedback
-            if out.mapped and out.word in ACTION_CODES:
-                action_code = int(ACTION_CODES[out.word])
+            if out.mapped and out.word in self._engine_codes:
+                action_code = int(self._engine_codes[out.word])
                 self.n_undefined_mapped += 1
                 if out.stage == 0:
                     self.n_dictionary_mapped += 1
@@ -1701,7 +1715,7 @@ class FleetBridge:
         if self._debug_fp is None:
             return
         first_raw = res.first_text if res.format_retried else res.text
-        first = parse_two_line(first_raw) if res.format_retried else final
+        first = parse_two_line(first_raw, self.vocab_version) if res.format_retried else final
         if first.format_ok and first.strict_format_ok:
             return  # 初回が実効・厳密の両方で通った呼は書かない
         if self.n_debug_rows >= self.debug_max_rows:

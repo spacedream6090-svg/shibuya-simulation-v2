@@ -39,6 +39,9 @@ expedient(本モジュール分)
 - ``last_result`` を 1 byte のコードにし、失敗の詳細(残高・次回開店時刻)は**持たない**
   (行動契約書 §6 は「残高/価格・次回開店時刻」を返せと言う=C3 のプロンプト側で
   現在値から再構成する。C2 は「どの失敗か」だけを保持)。
+- ``ResultCode.NOT_IN_EATERY``(19)は**語彙 v2**(行動語「食事」・D-71 §3 E)で足した
+  失敗コード。既存コードに「その種類の店にいない」に当たる行が無い(``BAD_TARGET`` は
+  「対象を特定できない」)。**値は末尾に足すだけ**なので v1 の配列も描画も動かない。
 - 書き込み禁止ガード(``freeze``/``writable``)は agents と world に**同じ実装を二重に置く**。
   層契約(``world | agents`` は同層=相互 import 禁止)のため共有モジュールを作れない。
 """
@@ -147,6 +150,7 @@ class ResultCode(IntEnum):
     UNDEFINED_ACTION = 16  # 未定義行動(§7 段1)
     BAD_TARGET = 17
     INSUFFICIENT_ABILITY = 18  # 能力不足(手伝い・行動契約書 §2.1)
+    NOT_IN_EATERY = 19  # 飲食店にいない(語彙 v2「食事」・D-71 §3 E)
 
 
 #: 契約書の文言(「直前の結果」の 50 tok 欄で使う短句)。
@@ -170,6 +174,7 @@ RESULT_TEXT: Final[dict[int, str]] = {
     ResultCode.UNDEFINED_ACTION: "未定義の行動",
     ResultCode.BAD_TARGET: "対象を特定できない",
     ResultCode.INSUFFICIENT_ABILITY: "能力不足",
+    ResultCode.NOT_IN_EATERY: "飲食店にいない",
 }
 
 

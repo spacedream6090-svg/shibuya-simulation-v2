@@ -1,0 +1,2950 @@
+{
+ "schema": "shibuya.vocab/drafts/1",
+ "stage": "段2 起草 + 段3 静的検査(動的検査 ①③④ は未実施)",
+ "inputs": [
+  "vocab_in/ab7_open_s1.json",
+  "vocab_in/ab7_open_s2.json"
+ ],
+ "sources": [
+  {
+   "source": "tape",
+   "tag": "ab7_s1_open",
+   "n_words": 26,
+   "n_records_kept": 603,
+   "cell_source": "prompt_block",
+   "versions": {
+    "synonym_table": "undefined-synonyms-v2"
+   }
+  },
+  {
+   "source": "tape",
+   "tag": "ab7_s2_open",
+   "n_words": 30,
+   "n_records_kept": 672,
+   "cell_source": "prompt_block",
+   "versions": {
+    "synonym_table": "undefined-synonyms-v2"
+   }
+  }
+ ],
+ "fingerprints": {
+  "1_thresholds": {
+   "threshold_agents": 10,
+   "batch_budget": 10,
+   "coverage_formula": "distinct_agents × max(1, distinct_cells) × max(1, distinct_hours)",
+   "note": "N は『被覆の下限』に降格(決定 A)。max(1,…) は expedient"
+  },
+  "2_field_order": [
+   "word",
+   "target_class",
+   "affordance",
+   "preconditions",
+   "effects",
+   "cost",
+   "failure_codes",
+   "conservation_accounts",
+   "pattern_ledger_row",
+   "rationale"
+  ],
+  "3_adjudicator": {
+   "client": "fleet",
+   "model": "Qwen3-8B-int8",
+   "temperature": 0.0,
+   "n_endpoints": 7,
+   "prompt_version": "vocab-draft-v0",
+   "prompt_sha256": "6acda67c8c9af25d5bf52db7c77857920cd715598d2741843f62f8f3ae16808d"
+  },
+  "4_pass_lines": {
+   "static": {
+    "required_fields": "全欄そろい型が合うこと",
+    "duplicate_ratio": 0.75,
+    "review_keywords": [
+     "保存則",
+     "在庫",
+     "所持金",
+     "性能",
+     "予算",
+     "売上",
+     "faucet",
+     "sink"
+    ]
+   },
+   "dynamic_not_measured_today": {
+    "conservation_residual": 0,
+    "usage_reduction": 0.5,
+    "state_delta": "非零",
+    "accept_pass_rows": "減らない"
+   }
+  },
+  "5_adoption_order": [
+   "食事",
+   "観察/注意",
+   "知らせる/対応する"
+  ],
+  "6_version_policy": {
+   "synonym_table_version": "undefined-synonyms-v2",
+   "granularity": "ラン単位(版を上げて次ランから有効・決定 F (a))",
+   "mapping_table_required": true
+  }
+ },
+ "summary": {
+  "n_words": 36,
+  "n_rows": 1275,
+  "n_drafted": 10,
+  "n_held_below_threshold": 25,
+  "n_held_budget": 1,
+  "n_rejected": 1,
+  "n_dictionary_row": 1,
+  "n_needs_dynamic": 8
+ },
+ "words": [
+  {
+   "word": "食事",
+   "n_rows": 678,
+   "first_tick": 30,
+   "samples": [
+    {
+     "agent_id": 19,
+     "tick": 30,
+     "cell": "g-3_-4_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 207,
+     "tick": 50,
+     "cell": "g9_7_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 2571,
+     "tick": 180,
+     "cell": "g0_-3_DECK",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 328,
+     "distinct_agents": 309,
+     "distinct_cells": 132,
+     "distinct_hours": 22
+    },
+    "ab7_s2_open": {
+     "n_rows": 350,
+     "distinct_agents": 325,
+     "distinct_cells": 132,
+     "distinct_hours": 21
+    }
+   },
+   "distinct_agents": 634,
+   "distinct_cells": 197,
+   "distinct_hours": 22,
+   "coverage": 2747756,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "返事",
+    "kind": "dictionary",
+    "canonical": "会話",
+    "ratio": 0.5,
+    "policy_class": "軽微"
+   },
+   "rank": 1,
+   "eligible": true,
+   "draft": {
+    "word": "食事",
+    "target_class": "飲食店",
+    "affordance": "order_meal",
+    "preconditions": [
+     "menu_available",
+     "customer_present",
+     "payment_ready"
+    ],
+    "effects": [
+     "satiety+",
+     "money->"
+    ],
+    "cost": {
+     "time_min": 15,
+     "money_yen": 1000
+    },
+    "failure_codes": [
+     "OUT_OF_STOCK",
+     "MONEY_SHORT",
+     "REFUSED"
+    ],
+    "conservation_accounts": [
+     "CONSUMPTION",
+     "WAGE"
+    ],
+    "pattern_ledger_row": "顧客がメニューを確認し、支払いを完了することで食事を提供する",
+    "rationale": "飲食店は顧客がメニューを確認し、支払いを完了することで食事を提供する操作を提供する。"
+   },
+   "draft_raw_len": 468,
+   "checks": {
+    "s5_duplicate": {
+     "nearest": {
+      "surface": "返事",
+      "kind": "dictionary",
+      "canonical": "会話",
+      "ratio": 0.5,
+      "policy_class": "軽微"
+     },
+     "threshold": 0.75,
+     "duplicate": false,
+     "verdict": "新語の候補"
+    },
+    "s6_usage": {
+     "n_rows": 678,
+     "distinct_agents": 634,
+     "share_of_undefined_rows": 0.531765,
+     "note": "②(該当行 −50% 以上)は動的検査。ここは分母と分子の静的見積りだけ"
+    },
+    "s1_fields": {
+     "parsed": true,
+     "order": [
+      "word",
+      "target_class",
+      "affordance",
+      "preconditions",
+      "effects",
+      "cost",
+      "failure_codes",
+      "conservation_accounts",
+      "pattern_ledger_row",
+      "rationale"
+     ],
+     "missing": [],
+     "bad_type": []
+    },
+    "s2_failure_codes": {
+     "codes": [
+      "OUT_OF_STOCK",
+      "MONEY_SHORT",
+      "REFUSED"
+     ],
+     "reused_existing": [
+      "OUT_OF_STOCK",
+      "MONEY_SHORT",
+      "REFUSED"
+     ],
+     "new": [],
+     "bad_name": [],
+     "namespace_collision": []
+    },
+    "s3_accounts": {
+     "accounts": [
+      "CONSUMPTION",
+      "WAGE"
+     ],
+     "unknown": [],
+     "table": "economy/accounts.py AccountCode"
+    },
+    "s4_review_keywords": {
+     "keywords": [
+      "保存則",
+      "在庫",
+      "所持金",
+      "性能",
+      "予算",
+      "売上",
+      "faucet",
+      "sink"
+     ],
+     "hits": []
+    }
+   },
+   "verdict": "NEEDS_DYNAMIC",
+   "reasons": [],
+   "needs_dynamic": true
+  },
+  {
+   "word": "行動",
+   "n_rows": 196,
+   "first_tick": 121,
+   "samples": [
+    {
+     "agent_id": 359,
+     "tick": 121,
+     "cell": "g4_2_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 1004,
+     "tick": 141,
+     "cell": "g5_1_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 1060,
+     "tick": 180,
+     "cell": "g7_2_GL",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 90,
+     "distinct_agents": 90,
+     "distinct_cells": 53,
+     "distinct_hours": 17
+    },
+    "ab7_s2_open": {
+     "n_rows": 106,
+     "distinct_agents": 104,
+     "distinct_cells": 49,
+     "distinct_hours": 16
+    }
+   },
+   "distinct_agents": 194,
+   "distinct_cells": 86,
+   "distinct_hours": 20,
+   "coverage": 333680,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "移動",
+    "kind": "vocab",
+    "canonical": "移動",
+    "ratio": 0.5,
+    "policy_class": "—"
+   },
+   "rank": 2,
+   "eligible": true,
+   "draft": {
+    "word": "乗車",
+    "target_class": "電車",
+    "affordance": "ride_on",
+    "preconditions": [
+     "stop_exists",
+     "seat_available"
+    ],
+    "effects": [
+     "passenger_count+",
+     "location->"
+    ],
+    "cost": {
+     "time_min": 5,
+     "money_yen": 210
+    },
+    "failure_codes": [
+     "TRAIN_FULL",
+     "NO_STOP"
+    ],
+    "conservation_accounts": [
+     "CONSUMPTION",
+     "WAGE"
+    ],
+    "pattern_ledger_row": "乗車行動は移動のための交通手段として、特定の駅で乗車可能かどうかを判断するパターンに該当",
+    "rationale": "乗車は電車が提供する移動手段であり、乗車可能かどうかは駅の状態と席の有無に依存するため、この形で記述する。"
+   },
+   "draft_raw_len": 446,
+   "checks": {
+    "s5_duplicate": {
+     "nearest": {
+      "surface": "移動",
+      "kind": "vocab",
+      "canonical": "移動",
+      "ratio": 0.5,
+      "policy_class": "—"
+     },
+     "threshold": 0.75,
+     "duplicate": false,
+     "verdict": "新語の候補"
+    },
+    "s6_usage": {
+     "n_rows": 196,
+     "distinct_agents": 194,
+     "share_of_undefined_rows": 0.153725,
+     "note": "②(該当行 −50% 以上)は動的検査。ここは分母と分子の静的見積りだけ"
+    },
+    "s1_fields": {
+     "parsed": true,
+     "order": [
+      "word",
+      "target_class",
+      "affordance",
+      "preconditions",
+      "effects",
+      "cost",
+      "failure_codes",
+      "conservation_accounts",
+      "pattern_ledger_row",
+      "rationale"
+     ],
+     "missing": [],
+     "bad_type": []
+    },
+    "s2_failure_codes": {
+     "codes": [
+      "TRAIN_FULL",
+      "NO_STOP"
+     ],
+     "reused_existing": [
+      "TRAIN_FULL",
+      "NO_STOP"
+     ],
+     "new": [],
+     "bad_name": [],
+     "namespace_collision": []
+    },
+    "s3_accounts": {
+     "accounts": [
+      "CONSUMPTION",
+      "WAGE"
+     ],
+     "unknown": [],
+     "table": "economy/accounts.py AccountCode"
+    },
+    "s4_review_keywords": {
+     "keywords": [
+      "保存則",
+      "在庫",
+      "所持金",
+      "性能",
+      "予算",
+      "売上",
+      "faucet",
+      "sink"
+     ],
+     "hits": []
+    }
+   },
+   "verdict": "NEEDS_DYNAMIC",
+   "reasons": [],
+   "needs_dynamic": true
+  },
+  {
+   "word": "近づく",
+   "n_rows": 109,
+   "first_tick": 251,
+   "samples": [
+    {
+     "agent_id": 3082,
+     "tick": 408,
+     "cell": "g9_7_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 2128,
+     "tick": 451,
+     "cell": "g9_7_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 4714,
+     "tick": 451,
+     "cell": "g9_7_GL",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 49,
+     "distinct_agents": 45,
+     "distinct_cells": 18,
+     "distinct_hours": 16
+    },
+    "ab7_s2_open": {
+     "n_rows": 60,
+     "distinct_agents": 56,
+     "distinct_cells": 22,
+     "distinct_hours": 17
+    }
+   },
+   "distinct_agents": 101,
+   "distinct_cells": 34,
+   "distinct_hours": 18,
+   "coverage": 61812,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "歩く",
+    "kind": "dictionary",
+    "canonical": "移動",
+    "ratio": 0.4,
+    "policy_class": "なし"
+   },
+   "rank": 3,
+   "eligible": true,
+   "draft": {
+    "word": "近づく",
+    "target_class": "乗客",
+    "affordance": "approach",
+    "preconditions": [
+     "position_adjacent",
+     "intention_to_move"
+    ],
+    "effects": [
+     "distance->",
+     "attention+"
+    ],
+    "cost": {
+     "time_min": 1,
+     "money_yen": 0
+    },
+    "failure_codes": [
+     "INTERRUPTED",
+     "UNREACHABLE"
+    ],
+    "conservation_accounts": [
+     "CONSUMPTION"
+    ],
+    "pattern_ledger_row": "乗客が移動先に近づく際の基本的な行動パターン",
+    "rationale": "乗客が目的地や他者に近づく行為は、移動や会話などの行動に繋がるため、基本的な操作として定義する。"
+   },
+   "draft_raw_len": 432,
+   "checks": {
+    "s5_duplicate": {
+     "nearest": {
+      "surface": "歩く",
+      "kind": "dictionary",
+      "canonical": "移動",
+      "ratio": 0.4,
+      "policy_class": "なし"
+     },
+     "threshold": 0.75,
+     "duplicate": false,
+     "verdict": "新語の候補"
+    },
+    "s6_usage": {
+     "n_rows": 109,
+     "distinct_agents": 101,
+     "share_of_undefined_rows": 0.08549,
+     "note": "②(該当行 −50% 以上)は動的検査。ここは分母と分子の静的見積りだけ"
+    },
+    "s1_fields": {
+     "parsed": true,
+     "order": [
+      "word",
+      "target_class",
+      "affordance",
+      "preconditions",
+      "effects",
+      "cost",
+      "failure_codes",
+      "conservation_accounts",
+      "pattern_ledger_row",
+      "rationale"
+     ],
+     "missing": [],
+     "bad_type": []
+    },
+    "s2_failure_codes": {
+     "codes": [
+      "INTERRUPTED",
+      "UNREACHABLE"
+     ],
+     "reused_existing": [
+      "INTERRUPTED",
+      "UNREACHABLE"
+     ],
+     "new": [],
+     "bad_name": [],
+     "namespace_collision": []
+    },
+    "s3_accounts": {
+     "accounts": [
+      "CONSUMPTION"
+     ],
+     "unknown": [],
+     "table": "economy/accounts.py AccountCode"
+    },
+    "s4_review_keywords": {
+     "keywords": [
+      "保存則",
+      "在庫",
+      "所持金",
+      "性能",
+      "予算",
+      "売上",
+      "faucet",
+      "sink"
+     ],
+     "hits": []
+    }
+   },
+   "verdict": "NEEDS_DYNAMIC",
+   "reasons": [],
+   "needs_dynamic": true
+  },
+  {
+   "word": "近寄る",
+   "n_rows": 68,
+   "first_tick": 44,
+   "samples": [
+    {
+     "agent_id": 1747,
+     "tick": 120,
+     "cell": "g9_5_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 823,
+     "tick": 620,
+     "cell": "g-4_-4_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 2970,
+     "tick": 643,
+     "cell": "g2_4_GL",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 30,
+     "distinct_agents": 29,
+     "distinct_cells": 25,
+     "distinct_hours": 9
+    },
+    "ab7_s2_open": {
+     "n_rows": 38,
+     "distinct_agents": 36,
+     "distinct_cells": 21,
+     "distinct_hours": 16
+    }
+   },
+   "distinct_agents": 65,
+   "distinct_cells": 39,
+   "distinct_hours": 17,
+   "coverage": 43095,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "乗る",
+    "kind": "dictionary",
+    "canonical": "乗車",
+    "ratio": 0.4,
+    "policy_class": "なし"
+   },
+   "rank": 4,
+   "eligible": true,
+   "draft": {
+    "word": "近寄る",
+    "target_class": "乗客",
+    "affordance": "approach_to_platform",
+    "preconditions": [
+     "platform_open",
+     "not_on_platform"
+    ],
+    "effects": [
+     "position_on_platform+"
+    ],
+    "cost": {
+     "time_min": 2,
+     "money_yen": 0
+    },
+    "failure_codes": [
+     "INTERRUPTED",
+     "NO_STOP"
+    ],
+    "conservation_accounts": [
+     "CONSUMPTION"
+    ],
+    "pattern_ledger_row": "乗客が改札口に近寄る",
+    "rationale": "乗客が改札口に近寄る行動は、改札口の状態と乗客の位置に基づき、時間と労力を消費して位置を変更するプロセスを表す。"
+   },
+   "draft_raw_len": 427,
+   "checks": {
+    "s5_duplicate": {
+     "nearest": {
+      "surface": "乗る",
+      "kind": "dictionary",
+      "canonical": "乗車",
+      "ratio": 0.4,
+      "policy_class": "なし"
+     },
+     "threshold": 0.75,
+     "duplicate": false,
+     "verdict": "新語の候補"
+    },
+    "s6_usage": {
+     "n_rows": 68,
+     "distinct_agents": 65,
+     "share_of_undefined_rows": 0.053333,
+     "note": "②(該当行 −50% 以上)は動的検査。ここは分母と分子の静的見積りだけ"
+    },
+    "s1_fields": {
+     "parsed": true,
+     "order": [
+      "word",
+      "target_class",
+      "affordance",
+      "preconditions",
+      "effects",
+      "cost",
+      "failure_codes",
+      "conservation_accounts",
+      "pattern_ledger_row",
+      "rationale"
+     ],
+     "missing": [],
+     "bad_type": []
+    },
+    "s2_failure_codes": {
+     "codes": [
+      "INTERRUPTED",
+      "NO_STOP"
+     ],
+     "reused_existing": [
+      "INTERRUPTED",
+      "NO_STOP"
+     ],
+     "new": [],
+     "bad_name": [],
+     "namespace_collision": []
+    },
+    "s3_accounts": {
+     "accounts": [
+      "CONSUMPTION"
+     ],
+     "unknown": [],
+     "table": "economy/accounts.py AccountCode"
+    },
+    "s4_review_keywords": {
+     "keywords": [
+      "保存則",
+      "在庫",
+      "所持金",
+      "性能",
+      "予算",
+      "売上",
+      "faucet",
+      "sink"
+     ],
+     "hits": []
+    }
+   },
+   "verdict": "NEEDS_DYNAMIC",
+   "reasons": [],
+   "needs_dynamic": true
+  },
+  {
+   "word": "見る",
+   "n_rows": 69,
+   "first_tick": 71,
+   "samples": [
+    {
+     "agent_id": 4347,
+     "tick": 94,
+     "cell": "g0_-1_DECK",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 2630,
+     "tick": 285,
+     "cell": "g9_7_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 786,
+     "tick": 331,
+     "cell": "g9_6_GL",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 33,
+     "distinct_agents": 31,
+     "distinct_cells": 12,
+     "distinct_hours": 15
+    },
+    "ab7_s2_open": {
+     "n_rows": 36,
+     "distinct_agents": 30,
+     "distinct_cells": 7,
+     "distinct_hours": 14
+    }
+   },
+   "distinct_agents": 61,
+   "distinct_cells": 17,
+   "distinct_hours": 19,
+   "coverage": 19703,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "見回る",
+    "kind": "dictionary",
+    "canonical": "移動",
+    "ratio": 0.8,
+    "policy_class": "対象の損失"
+   },
+   "rank": 5,
+   "eligible": true,
+   "draft": {
+    "word": "見る",
+    "target_class": "ディスプレイ",
+    "affordance": "visual_inspection",
+    "preconditions": [
+     "power_on",
+     "visible"
+    ],
+    "effects": [
+     "knowledge_gain"
+    ],
+    "cost": {
+     "time_min": 1,
+     "money_yen": 0
+    },
+    "failure_codes": [
+     "UNREACHABLE",
+     "BAD_TARGET"
+    ],
+    "conservation_accounts": [
+     "DEVIATION_COST"
+    ],
+    "pattern_ledger_row": "ディスプレイの表示内容を確認する行動が観測された",
+    "rationale": "ディスプレイは情報を提供するため、視覚的な確認が可能であり、時間とお金は必要とされないが、対象が見えない場合に失敗する。"
+   },
+   "draft_raw_len": 431,
+   "checks": {
+    "s5_duplicate": {
+     "nearest": {
+      "surface": "見回る",
+      "kind": "dictionary",
+      "canonical": "移動",
+      "ratio": 0.8,
+      "policy_class": "対象の損失"
+     },
+     "threshold": 0.75,
+     "duplicate": true,
+     "verdict": "辞書行の追加で済む"
+    },
+    "s6_usage": {
+     "n_rows": 69,
+     "distinct_agents": 61,
+     "share_of_undefined_rows": 0.054118,
+     "note": "②(該当行 −50% 以上)は動的検査。ここは分母と分子の静的見積りだけ"
+    },
+    "s1_fields": {
+     "parsed": true,
+     "order": [
+      "word",
+      "target_class",
+      "affordance",
+      "preconditions",
+      "effects",
+      "cost",
+      "failure_codes",
+      "conservation_accounts",
+      "pattern_ledger_row",
+      "rationale"
+     ],
+     "missing": [],
+     "bad_type": []
+    },
+    "s2_failure_codes": {
+     "codes": [
+      "UNREACHABLE",
+      "BAD_TARGET"
+     ],
+     "reused_existing": [
+      "UNREACHABLE",
+      "BAD_TARGET"
+     ],
+     "new": [],
+     "bad_name": [],
+     "namespace_collision": []
+    },
+    "s3_accounts": {
+     "accounts": [
+      "DEVIATION_COST"
+     ],
+     "unknown": [],
+     "table": "economy/accounts.py AccountCode"
+    },
+    "s4_review_keywords": {
+     "keywords": [
+      "保存則",
+      "在庫",
+      "所持金",
+      "性能",
+      "予算",
+      "売上",
+      "faucet",
+      "sink"
+     ],
+     "hits": []
+    }
+   },
+   "verdict": "DICTIONARY_ROW_SUFFICES",
+   "reasons": [
+    "NEAR_EXISTING:見回る"
+   ],
+   "needs_dynamic": false
+  },
+  {
+   "word": "進む",
+   "n_rows": 23,
+   "first_tick": 20,
+   "samples": [
+    {
+     "agent_id": 4347,
+     "tick": 121,
+     "cell": "g0_-1_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 3235,
+     "tick": 915,
+     "cell": "g4_-9_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 1612,
+     "tick": 925,
+     "cell": "g0_-3_GL",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 10,
+     "distinct_agents": 10,
+     "distinct_cells": 9,
+     "distinct_hours": 3
+    },
+    "ab7_s2_open": {
+     "n_rows": 13,
+     "distinct_agents": 13,
+     "distinct_cells": 13,
+     "distinct_hours": 7
+    }
+   },
+   "distinct_agents": 23,
+   "distinct_cells": 22,
+   "distinct_hours": 8,
+   "coverage": 4048,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "休む",
+    "kind": "dictionary",
+    "canonical": "休憩",
+    "ratio": 0.5,
+    "policy_class": "なし"
+   },
+   "rank": 6,
+   "eligible": true,
+   "draft": {
+    "word": "進む",
+    "target_class": "通路",
+    "affordance": "move_along",
+    "preconditions": [
+     "is_open"
+    ],
+    "effects": [
+     "position+"
+    ],
+    "cost": {
+     "time_min": 1,
+     "money_yen": 0
+    },
+    "failure_codes": [
+     "CLOSED"
+    ],
+    "conservation_accounts": [
+     "CONSUMPTION"
+    ],
+    "pattern_ledger_row": "通路を進む",
+    "rationale": "通路は移動可能な空間であり、進む操作を提供する。"
+   },
+   "draft_raw_len": 326,
+   "checks": {
+    "s5_duplicate": {
+     "nearest": {
+      "surface": "休む",
+      "kind": "dictionary",
+      "canonical": "休憩",
+      "ratio": 0.5,
+      "policy_class": "なし"
+     },
+     "threshold": 0.75,
+     "duplicate": false,
+     "verdict": "新語の候補"
+    },
+    "s6_usage": {
+     "n_rows": 23,
+     "distinct_agents": 23,
+     "share_of_undefined_rows": 0.018039,
+     "note": "②(該当行 −50% 以上)は動的検査。ここは分母と分子の静的見積りだけ"
+    },
+    "s1_fields": {
+     "parsed": true,
+     "order": [
+      "word",
+      "target_class",
+      "affordance",
+      "preconditions",
+      "effects",
+      "cost",
+      "failure_codes",
+      "conservation_accounts",
+      "pattern_ledger_row",
+      "rationale"
+     ],
+     "missing": [],
+     "bad_type": []
+    },
+    "s2_failure_codes": {
+     "codes": [
+      "CLOSED"
+     ],
+     "reused_existing": [
+      "CLOSED"
+     ],
+     "new": [],
+     "bad_name": [],
+     "namespace_collision": []
+    },
+    "s3_accounts": {
+     "accounts": [
+      "CONSUMPTION"
+     ],
+     "unknown": [],
+     "table": "economy/accounts.py AccountCode"
+    },
+    "s4_review_keywords": {
+     "keywords": [
+      "保存則",
+      "在庫",
+      "所持金",
+      "性能",
+      "予算",
+      "売上",
+      "faucet",
+      "sink"
+     ],
+     "hits": []
+    }
+   },
+   "verdict": "NEEDS_DYNAMIC",
+   "reasons": [],
+   "needs_dynamic": true
+  },
+  {
+   "word": "持つ",
+   "n_rows": 16,
+   "first_tick": 837,
+   "samples": [
+    {
+     "agent_id": 370,
+     "tick": 897,
+     "cell": "g7_-4_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 468,
+     "tick": 915,
+     "cell": "g4_-11_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 1775,
+     "tick": 980,
+     "cell": "g-1_6_GL",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 6,
+     "distinct_agents": 6,
+     "distinct_cells": 6,
+     "distinct_hours": 5
+    },
+    "ab7_s2_open": {
+     "n_rows": 10,
+     "distinct_agents": 10,
+     "distinct_cells": 8,
+     "distinct_hours": 7
+    }
+   },
+   "distinct_agents": 16,
+   "distinct_cells": 14,
+   "distinct_hours": 8,
+   "coverage": 1792,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "待つ",
+    "kind": "dictionary",
+    "canonical": "待機",
+    "ratio": 0.5,
+    "policy_class": "なし"
+   },
+   "rank": 7,
+   "eligible": true,
+   "draft": {
+    "word": "持つ",
+    "target_class": "荷物",
+    "affordance": "carry_object",
+    "preconditions": [
+     "free_hand",
+     "object_exists"
+    ],
+    "effects": [
+     "carry_in+"
+    ],
+    "cost": {
+     "time_min": 1,
+     "money_yen": 0
+    },
+    "failure_codes": [
+     "NO_PERMISSION",
+     "OUT_OF_STOCK"
+    ],
+    "conservation_accounts": [
+     "CARRY_IN"
+    ],
+    "pattern_ledger_row": "荷物を手に取る",
+    "rationale": "荷物を持ち運ぶ行為は、手の空きと対象の存在を前提とし、運搬行為として記録される"
+   },
+   "draft_raw_len": 384,
+   "checks": {
+    "s5_duplicate": {
+     "nearest": {
+      "surface": "待つ",
+      "kind": "dictionary",
+      "canonical": "待機",
+      "ratio": 0.5,
+      "policy_class": "なし"
+     },
+     "threshold": 0.75,
+     "duplicate": false,
+     "verdict": "新語の候補"
+    },
+    "s6_usage": {
+     "n_rows": 16,
+     "distinct_agents": 16,
+     "share_of_undefined_rows": 0.012549,
+     "note": "②(該当行 −50% 以上)は動的検査。ここは分母と分子の静的見積りだけ"
+    },
+    "s1_fields": {
+     "parsed": true,
+     "order": [
+      "word",
+      "target_class",
+      "affordance",
+      "preconditions",
+      "effects",
+      "cost",
+      "failure_codes",
+      "conservation_accounts",
+      "pattern_ledger_row",
+      "rationale"
+     ],
+     "missing": [],
+     "bad_type": []
+    },
+    "s2_failure_codes": {
+     "codes": [
+      "NO_PERMISSION",
+      "OUT_OF_STOCK"
+     ],
+     "reused_existing": [
+      "NO_PERMISSION",
+      "OUT_OF_STOCK"
+     ],
+     "new": [],
+     "bad_name": [],
+     "namespace_collision": []
+    },
+    "s3_accounts": {
+     "accounts": [
+      "CARRY_IN"
+     ],
+     "unknown": [],
+     "table": "economy/accounts.py AccountCode"
+    },
+    "s4_review_keywords": {
+     "keywords": [
+      "保存則",
+      "在庫",
+      "所持金",
+      "性能",
+      "予算",
+      "売上",
+      "faucet",
+      "sink"
+     ],
+     "hits": []
+    }
+   },
+   "verdict": "NEEDS_DYNAMIC",
+   "reasons": [],
+   "needs_dynamic": true
+  },
+  {
+   "word": "取る",
+   "n_rows": 18,
+   "first_tick": 60,
+   "samples": [
+    {
+     "agent_id": 2898,
+     "tick": 968,
+     "cell": "g2_-6_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 382,
+     "tick": 980,
+     "cell": "g-4_-9_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 329,
+     "tick": 985,
+     "cell": "g-5_-8_GL",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 9,
+     "distinct_agents": 8,
+     "distinct_cells": 6,
+     "distinct_hours": 4
+    },
+    "ab7_s2_open": {
+     "n_rows": 9,
+     "distinct_agents": 9,
+     "distinct_cells": 8,
+     "distinct_hours": 5
+    }
+   },
+   "distinct_agents": 17,
+   "distinct_cells": 12,
+   "distinct_hours": 7,
+   "coverage": 1428,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "乗る",
+    "kind": "dictionary",
+    "canonical": "乗車",
+    "ratio": 0.5,
+    "policy_class": "なし"
+   },
+   "rank": 8,
+   "eligible": true,
+   "draft": {
+    "word": "取る",
+    "target_class": "棚",
+    "affordance": "take_item",
+    "preconditions": [
+     "stock_available"
+    ],
+    "effects": [
+     "consumption+",
+     "money->"
+    ],
+    "cost": {
+     "time_min": 2,
+     "money_yen": 0
+    },
+    "failure_codes": [
+     "OUT_OF_STOCK"
+    ],
+    "conservation_accounts": [
+     "CONSUMPTION"
+    ],
+    "pattern_ledger_row": "棚から商品を取得する",
+    "rationale": "棚は商品を提供するオブジェクトであり、取る操作は商品を取得するための基本的な行動である。"
+   },
+   "draft_raw_len": 377,
+   "checks": {
+    "s5_duplicate": {
+     "nearest": {
+      "surface": "乗る",
+      "kind": "dictionary",
+      "canonical": "乗車",
+      "ratio": 0.5,
+      "policy_class": "なし"
+     },
+     "threshold": 0.75,
+     "duplicate": false,
+     "verdict": "新語の候補"
+    },
+    "s6_usage": {
+     "n_rows": 18,
+     "distinct_agents": 17,
+     "share_of_undefined_rows": 0.014118,
+     "note": "②(該当行 −50% 以上)は動的検査。ここは分母と分子の静的見積りだけ"
+    },
+    "s1_fields": {
+     "parsed": true,
+     "order": [
+      "word",
+      "target_class",
+      "affordance",
+      "preconditions",
+      "effects",
+      "cost",
+      "failure_codes",
+      "conservation_accounts",
+      "pattern_ledger_row",
+      "rationale"
+     ],
+     "missing": [],
+     "bad_type": []
+    },
+    "s2_failure_codes": {
+     "codes": [
+      "OUT_OF_STOCK"
+     ],
+     "reused_existing": [
+      "OUT_OF_STOCK"
+     ],
+     "new": [],
+     "bad_name": [],
+     "namespace_collision": []
+    },
+    "s3_accounts": {
+     "accounts": [
+      "CONSUMPTION"
+     ],
+     "unknown": [],
+     "table": "economy/accounts.py AccountCode"
+    },
+    "s4_review_keywords": {
+     "keywords": [
+      "保存則",
+      "在庫",
+      "所持金",
+      "性能",
+      "予算",
+      "売上",
+      "faucet",
+      "sink"
+     ],
+     "hits": []
+    }
+   },
+   "verdict": "NEEDS_DYNAMIC",
+   "reasons": [],
+   "needs_dynamic": true
+  },
+  {
+   "word": "飲食",
+   "n_rows": 15,
+   "first_tick": 451,
+   "samples": [
+    {
+     "agent_id": 1650,
+     "tick": 451,
+     "cell": "g8_6_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 4998,
+     "tick": 484,
+     "cell": "g5_1_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 444,
+     "tick": 488,
+     "cell": "g-1_2_GL",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 10,
+     "distinct_agents": 9,
+     "distinct_cells": 7,
+     "distinct_hours": 6
+    },
+    "ab7_s2_open": {
+     "n_rows": 5,
+     "distinct_agents": 5,
+     "distinct_cells": 5,
+     "distinct_hours": 5
+    }
+   },
+   "distinct_agents": 14,
+   "distinct_cells": 9,
+   "distinct_hours": 9,
+   "coverage": 1134,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "飲む",
+    "kind": "dictionary",
+    "canonical": "購入",
+    "ratio": 0.5,
+    "policy_class": "意味の損失"
+   },
+   "rank": 9,
+   "eligible": true,
+   "draft": {
+    "word": "飲食",
+    "target_class": "飲食店",
+    "affordance": "serve_food",
+    "preconditions": [
+     "open_status",
+     "available_stock",
+     "customer_present"
+    ],
+    "effects": [
+     "satiety+",
+     "money->"
+    ],
+    "cost": {
+     "time_min": 15,
+     "money_yen": 1000
+    },
+    "failure_codes": [
+     "CLOSED",
+     "OUT_OF_STOCK",
+     "MONEY_SHORT",
+     "UNDEFINED_ACTION"
+    ],
+    "conservation_accounts": [
+     "CONSUMPTION",
+     "WAGE"
+    ],
+    "pattern_ledger_row": "顧客が飲食店で食事をする",
+    "rationale": "飲食店は食事を提供する機能を持ち、顧客がその場所にいること、店舗が開いていること、商品が在庫にあることが条件となる。"
+   },
+   "draft_raw_len": 484,
+   "checks": {
+    "s5_duplicate": {
+     "nearest": {
+      "surface": "飲む",
+      "kind": "dictionary",
+      "canonical": "購入",
+      "ratio": 0.5,
+      "policy_class": "意味の損失"
+     },
+     "threshold": 0.75,
+     "duplicate": false,
+     "verdict": "新語の候補"
+    },
+    "s6_usage": {
+     "n_rows": 15,
+     "distinct_agents": 14,
+     "share_of_undefined_rows": 0.011765,
+     "note": "②(該当行 −50% 以上)は動的検査。ここは分母と分子の静的見積りだけ"
+    },
+    "s1_fields": {
+     "parsed": true,
+     "order": [
+      "word",
+      "target_class",
+      "affordance",
+      "preconditions",
+      "effects",
+      "cost",
+      "failure_codes",
+      "conservation_accounts",
+      "pattern_ledger_row",
+      "rationale"
+     ],
+     "missing": [],
+     "bad_type": []
+    },
+    "s2_failure_codes": {
+     "codes": [
+      "CLOSED",
+      "OUT_OF_STOCK",
+      "MONEY_SHORT",
+      "UNDEFINED_ACTION"
+     ],
+     "reused_existing": [
+      "CLOSED",
+      "OUT_OF_STOCK",
+      "MONEY_SHORT",
+      "UNDEFINED_ACTION"
+     ],
+     "new": [],
+     "bad_name": [],
+     "namespace_collision": []
+    },
+    "s3_accounts": {
+     "accounts": [
+      "CONSUMPTION",
+      "WAGE"
+     ],
+     "unknown": [],
+     "table": "economy/accounts.py AccountCode"
+    },
+    "s4_review_keywords": {
+     "keywords": [
+      "保存則",
+      "在庫",
+      "所持金",
+      "性能",
+      "予算",
+      "売上",
+      "faucet",
+      "sink"
+     ],
+     "hits": [
+      "在庫"
+     ]
+    }
+   },
+   "verdict": "REJECTED",
+   "reasons": [
+    "REVIEW_KEYWORD:在庫"
+   ],
+   "needs_dynamic": false
+  },
+  {
+   "word": "避雨",
+   "n_rows": 18,
+   "first_tick": 903,
+   "samples": [
+    {
+     "agent_id": 4074,
+     "tick": 904,
+     "cell": "g8_-1_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 4005,
+     "tick": 912,
+     "cell": "g-9_-5_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 2708,
+     "tick": 922,
+     "cell": "g-1_-2_GL",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 8,
+     "distinct_agents": 8,
+     "distinct_cells": 8,
+     "distinct_hours": 1
+    },
+    "ab7_s2_open": {
+     "n_rows": 10,
+     "distinct_agents": 10,
+     "distinct_cells": 8,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 18,
+   "distinct_cells": 16,
+   "distinct_hours": 1,
+   "coverage": 288,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "",
+    "kind": "",
+    "canonical": "",
+    "ratio": 0.0,
+    "policy_class": "—"
+   },
+   "rank": 10,
+   "eligible": true,
+   "draft": {
+    "word": "避雨",
+    "target_class": "建物",
+    "affordance": "shelter_from_rain",
+    "preconditions": [
+     "weather_rain"
+    ],
+    "effects": [
+     "wetness->"
+    ],
+    "cost": {
+     "time_min": 0,
+     "money_yen": 0
+    },
+    "failure_codes": [
+     "UNDEFINED_ACTION"
+    ],
+    "conservation_accounts": [
+     "DEVIATION_COST"
+    ],
+    "pattern_ledger_row": "雨が降っているときに建物内に移動する",
+    "rationale": "雨が降っている状況で建物が提供する「避難」の操作を表し、湿気の減少を効果として記録する。"
+   },
+   "draft_raw_len": 384,
+   "checks": {
+    "s5_duplicate": {
+     "nearest": {
+      "surface": "",
+      "kind": "",
+      "canonical": "",
+      "ratio": 0.0,
+      "policy_class": "—"
+     },
+     "threshold": 0.75,
+     "duplicate": false,
+     "verdict": "新語の候補"
+    },
+    "s6_usage": {
+     "n_rows": 18,
+     "distinct_agents": 18,
+     "share_of_undefined_rows": 0.014118,
+     "note": "②(該当行 −50% 以上)は動的検査。ここは分母と分子の静的見積りだけ"
+    },
+    "s1_fields": {
+     "parsed": true,
+     "order": [
+      "word",
+      "target_class",
+      "affordance",
+      "preconditions",
+      "effects",
+      "cost",
+      "failure_codes",
+      "conservation_accounts",
+      "pattern_ledger_row",
+      "rationale"
+     ],
+     "missing": [],
+     "bad_type": []
+    },
+    "s2_failure_codes": {
+     "codes": [
+      "UNDEFINED_ACTION"
+     ],
+     "reused_existing": [
+      "UNDEFINED_ACTION"
+     ],
+     "new": [],
+     "bad_name": [],
+     "namespace_collision": []
+    },
+    "s3_accounts": {
+     "accounts": [
+      "DEVIATION_COST"
+     ],
+     "unknown": [],
+     "table": "economy/accounts.py AccountCode"
+    },
+    "s4_review_keywords": {
+     "keywords": [
+      "保存則",
+      "在庫",
+      "所持金",
+      "性能",
+      "予算",
+      "売上",
+      "faucet",
+      "sink"
+     ],
+     "hits": []
+    }
+   },
+   "verdict": "NEEDS_DYNAMIC",
+   "reasons": [],
+   "needs_dynamic": true
+  },
+  {
+   "word": "避難",
+   "n_rows": 10,
+   "first_tick": 904,
+   "samples": [
+    {
+     "agent_id": 419,
+     "tick": 914,
+     "cell": "g-3_-1_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 218,
+     "tick": 926,
+     "cell": "g6_-6_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 295,
+     "tick": 928,
+     "cell": "g-9_-2_GL",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 4,
+     "distinct_agents": 4,
+     "distinct_cells": 4,
+     "distinct_hours": 1
+    },
+    "ab7_s2_open": {
+     "n_rows": 6,
+     "distinct_agents": 6,
+     "distinct_cells": 6,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 10,
+   "distinct_cells": 10,
+   "distinct_hours": 1,
+   "coverage": 100,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "",
+    "kind": "",
+    "canonical": "",
+    "ratio": 0.0,
+    "policy_class": "—"
+   },
+   "rank": 11,
+   "eligible": true,
+   "verdict": "HELD_BUDGET",
+   "reasons": [
+    "OVER_BUDGET:10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "冷たい飲み物",
+   "n_rows": 5,
+   "first_tick": 586,
+   "samples": [
+    {
+     "agent_id": 30,
+     "tick": 586,
+     "cell": "g5_-7_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 474,
+     "tick": 623,
+     "cell": "g7_1_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 75,
+     "tick": 1105,
+     "cell": "g-7_2_GL",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 3,
+     "distinct_agents": 3,
+     "distinct_cells": 3,
+     "distinct_hours": 3
+    },
+    "ab7_s2_open": {
+     "n_rows": 2,
+     "distinct_agents": 2,
+     "distinct_cells": 2,
+     "distinct_hours": 2
+    }
+   },
+   "distinct_agents": 5,
+   "distinct_cells": 5,
+   "distinct_hours": 4,
+   "coverage": 100,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "買い物",
+    "kind": "dictionary",
+    "canonical": "購入",
+    "ratio": 0.4444,
+    "policy_class": "なし"
+   },
+   "rank": 12,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:5<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "走る",
+   "n_rows": 5,
+   "first_tick": 920,
+   "samples": [
+    {
+     "agent_id": 4088,
+     "tick": 920,
+     "cell": "g8_7_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 82,
+     "tick": 922,
+     "cell": "g7_-3_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 306,
+     "tick": 926,
+     "cell": "g7_-10_GL",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 5,
+     "distinct_agents": 5,
+     "distinct_cells": 5,
+     "distinct_hours": 3
+    }
+   },
+   "distinct_agents": 5,
+   "distinct_cells": 5,
+   "distinct_hours": 3,
+   "coverage": 75,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "乗る",
+    "kind": "dictionary",
+    "canonical": "乗車",
+    "ratio": 0.5,
+    "policy_class": "なし"
+   },
+   "rank": 13,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:5<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "近寄",
+   "n_rows": 4,
+   "first_tick": 300,
+   "samples": [
+    {
+     "agent_id": 2483,
+     "tick": 300,
+     "cell": "g-5_-1_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 3145,
+     "tick": 641,
+     "cell": "g9_-2_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 3125,
+     "tick": 1313,
+     "cell": "g3_-7_GL",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 3,
+     "distinct_agents": 3,
+     "distinct_cells": 3,
+     "distinct_hours": 3
+    },
+    "ab7_s2_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 4,
+   "distinct_cells": 4,
+   "distinct_hours": 4,
+   "coverage": 64,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "",
+    "kind": "",
+    "canonical": "",
+    "ratio": 0.0,
+    "policy_class": "—"
+   },
+   "rank": 14,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:4<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "飲食店",
+   "n_rows": 3,
+   "first_tick": 33,
+   "samples": [
+    {
+     "agent_id": 2483,
+     "tick": 33,
+     "cell": "g1_-2_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 1736,
+     "tick": 515,
+     "cell": "g-3_1_GL",
+     "source": "ab7_s2_open"
+    },
+    {
+     "agent_id": 2951,
+     "tick": 1423,
+     "cell": "g8_-2_GL",
+     "source": "ab7_s2_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    },
+    "ab7_s2_open": {
+     "n_rows": 2,
+     "distinct_agents": 2,
+     "distinct_cells": 2,
+     "distinct_hours": 2
+    }
+   },
+   "distinct_agents": 3,
+   "distinct_cells": 3,
+   "distinct_hours": 3,
+   "coverage": 27,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "閉店",
+    "kind": "dictionary",
+    "canonical": "開閉店",
+    "ratio": 0.4,
+    "policy_class": "なし"
+   },
+   "rank": 15,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:3<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "呼ぶ",
+   "n_rows": 5,
+   "first_tick": 664,
+   "samples": [
+    {
+     "agent_id": 3250,
+     "tick": 664,
+     "cell": "g6_-2_GL",
+     "source": "ab7_s2_open"
+    },
+    {
+     "agent_id": 383,
+     "tick": 1283,
+     "cell": "g1_10_GL",
+     "source": "ab7_s2_open"
+    },
+    {
+     "agent_id": 4460,
+     "tick": 1296,
+     "cell": "g6_-2_GL",
+     "source": "ab7_s2_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s2_open": {
+     "n_rows": 5,
+     "distinct_agents": 4,
+     "distinct_cells": 2,
+     "distinct_hours": 3
+    }
+   },
+   "distinct_agents": 4,
+   "distinct_cells": 2,
+   "distinct_hours": 3,
+   "coverage": 24,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "駅員を呼ぶ",
+    "kind": "dictionary",
+    "canonical": "通報",
+    "ratio": 0.5714,
+    "policy_class": "なし"
+   },
+   "rank": 16,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:4<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "喫茶",
+   "n_rows": 3,
+   "first_tick": 583,
+   "samples": [
+    {
+     "agent_id": 1984,
+     "tick": 583,
+     "cell": "g0_0_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 119,
+     "tick": 1408,
+     "cell": "g3_-5_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 4960,
+     "tick": 1429,
+     "cell": "g1_3_GL",
+     "source": "ab7_s2_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 2,
+     "distinct_agents": 2,
+     "distinct_cells": 2,
+     "distinct_hours": 2
+    },
+    "ab7_s2_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 3,
+   "distinct_cells": 3,
+   "distinct_hours": 2,
+   "coverage": 18,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "",
+    "kind": "",
+    "canonical": "",
+    "ratio": 0.0,
+    "policy_class": "—"
+   },
+   "rank": 17,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:3<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "持つ 水筒",
+   "n_rows": 3,
+   "first_tick": 1025,
+   "samples": [
+    {
+     "agent_id": 3163,
+     "tick": 1025,
+     "cell": "g9_-1_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 2945,
+     "tick": 1118,
+     "cell": "g3_-5_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 3105,
+     "tick": 1083,
+     "cell": "g6_3_GL",
+     "source": "ab7_s2_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 2,
+     "distinct_agents": 2,
+     "distinct_cells": 2,
+     "distinct_hours": 2
+    },
+    "ab7_s2_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 3,
+   "distinct_cells": 3,
+   "distinct_hours": 2,
+   "coverage": 18,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "待つ",
+    "kind": "dictionary",
+    "canonical": "待機",
+    "ratio": 0.2857,
+    "policy_class": "なし"
+   },
+   "rank": 18,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:3<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "避ける",
+   "n_rows": 3,
+   "first_tick": 928,
+   "samples": [
+    {
+     "agent_id": 1026,
+     "tick": 928,
+     "cell": "g-7_-6_GL",
+     "source": "ab7_s2_open"
+    },
+    {
+     "agent_id": 2064,
+     "tick": 943,
+     "cell": "g8_3_GL",
+     "source": "ab7_s2_open"
+    },
+    {
+     "agent_id": 4171,
+     "tick": 1398,
+     "cell": "g5_-7_GL",
+     "source": "ab7_s2_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s2_open": {
+     "n_rows": 3,
+     "distinct_agents": 3,
+     "distinct_cells": 3,
+     "distinct_hours": 2
+    }
+   },
+   "distinct_agents": 3,
+   "distinct_cells": 3,
+   "distinct_hours": 2,
+   "coverage": 18,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "助ける",
+    "kind": "dictionary",
+    "canonical": "手伝い",
+    "ratio": 0.6667,
+    "policy_class": "なし"
+   },
+   "rank": 19,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:3<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "電話",
+   "n_rows": 3,
+   "first_tick": 1064,
+   "samples": [
+    {
+     "agent_id": 462,
+     "tick": 1064,
+     "cell": "g4_-9_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 335,
+     "tick": 1064,
+     "cell": "g7_-10_GL",
+     "source": "ab7_s2_open"
+    },
+    {
+     "agent_id": 398,
+     "tick": 1352,
+     "cell": "g-1_6_GL",
+     "source": "ab7_s2_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    },
+    "ab7_s2_open": {
+     "n_rows": 2,
+     "distinct_agents": 2,
+     "distinct_cells": 2,
+     "distinct_hours": 2
+    }
+   },
+   "distinct_agents": 3,
+   "distinct_cells": 3,
+   "distinct_hours": 2,
+   "coverage": 18,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "会話",
+    "kind": "vocab",
+    "canonical": "会話",
+    "ratio": 0.5,
+    "policy_class": "—"
+   },
+   "rank": 20,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:3<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "返す",
+   "n_rows": 2,
+   "first_tick": 1340,
+   "samples": [
+    {
+     "agent_id": 123,
+     "tick": 1340,
+     "cell": "g-7_5_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 200,
+     "tick": 1409,
+     "cell": "g2_5_GL",
+     "source": "ab7_s2_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    },
+    "ab7_s2_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 2,
+   "distinct_cells": 2,
+   "distinct_hours": 2,
+   "coverage": 8,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "探す",
+    "kind": "dictionary",
+    "canonical": "移動",
+    "ratio": 0.5,
+    "policy_class": "対象の損失"
+   },
+   "rank": 21,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:2<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "飲み物 取り出し",
+   "n_rows": 2,
+   "first_tick": 926,
+   "samples": [
+    {
+     "agent_id": 160,
+     "tick": 987,
+     "cell": "g2_-10_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 199,
+     "tick": 926,
+     "cell": "g-3_2_GL",
+     "source": "ab7_s2_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    },
+    "ab7_s2_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 2,
+   "distinct_cells": 2,
+   "distinct_hours": 2,
+   "coverage": 8,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "品出し",
+    "kind": "dictionary",
+    "canonical": "補充",
+    "ratio": 0.3636,
+    "policy_class": "なし"
+   },
+   "rank": 22,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:2<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "探",
+   "n_rows": 3,
+   "first_tick": 922,
+   "samples": [
+    {
+     "agent_id": 532,
+     "tick": 922,
+     "cell": "g0_4_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 2504,
+     "tick": 925,
+     "cell": "g0_4_GL",
+     "source": "ab7_s1_open"
+    },
+    {
+     "agent_id": 1698,
+     "tick": 946,
+     "cell": "g1_-10_GL",
+     "source": "ab7_s2_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 2,
+     "distinct_agents": 2,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    },
+    "ab7_s2_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 3,
+   "distinct_cells": 2,
+   "distinct_hours": 1,
+   "coverage": 6,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "探し",
+    "kind": "dictionary",
+    "canonical": "移動",
+    "ratio": 0.6667,
+    "policy_class": "対象の損失"
+   },
+   "rank": 23,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:3<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "うつむく",
+   "n_rows": 2,
+   "first_tick": 924,
+   "samples": [
+    {
+     "agent_id": 101,
+     "tick": 924,
+     "cell": "g-1_-1_GL",
+     "source": "ab7_s2_open"
+    },
+    {
+     "agent_id": 242,
+     "tick": 934,
+     "cell": "g1_4_GL",
+     "source": "ab7_s2_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s2_open": {
+     "n_rows": 2,
+     "distinct_agents": 2,
+     "distinct_cells": 2,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 2,
+   "distinct_cells": 2,
+   "distinct_hours": 1,
+   "coverage": 4,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "うろつく",
+    "kind": "dictionary",
+    "canonical": "移動",
+    "ratio": 0.75,
+    "policy_class": "対象の損失"
+   },
+   "rank": 24,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:2<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "前進",
+   "n_rows": 1,
+   "first_tick": 1381,
+   "samples": [
+    {
+     "agent_id": 3608,
+     "tick": 1381,
+     "cell": "g-6_-1_GL",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 1,
+   "distinct_cells": 1,
+   "distinct_hours": 1,
+   "coverage": 1,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "進入",
+    "kind": "dictionary",
+    "canonical": "移動",
+    "ratio": 0.5,
+    "policy_class": "対象の損失"
+   },
+   "rank": 25,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:1<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "持つ 水",
+   "n_rows": 1,
+   "first_tick": 1009,
+   "samples": [
+    {
+     "agent_id": 1091,
+     "tick": 1009,
+     "cell": "g-2_-1_GL",
+     "source": "ab7_s2_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s2_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 1,
+   "distinct_cells": 1,
+   "distinct_hours": 1,
+   "coverage": 1,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "待つ",
+    "kind": "dictionary",
+    "canonical": "待機",
+    "ratio": 0.3333,
+    "policy_class": "なし"
+   },
+   "rank": 26,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:1<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "求める",
+   "n_rows": 1,
+   "first_tick": 1139,
+   "samples": [
+    {
+     "agent_id": 356,
+     "tick": 1139,
+     "cell": "g1_1_DECK",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 1,
+   "distinct_cells": 1,
+   "distinct_hours": 1,
+   "coverage": 1,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "眺める",
+    "kind": "dictionary",
+    "canonical": "待機",
+    "ratio": 0.6667,
+    "policy_class": "意味の損失"
+   },
+   "rank": 27,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:1<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "聞く",
+   "n_rows": 1,
+   "first_tick": 1154,
+   "samples": [
+    {
+     "agent_id": 451,
+     "tick": 1154,
+     "cell": "g6_13_GL",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 1,
+   "distinct_cells": 1,
+   "distinct_hours": 1,
+   "coverage": 1,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "歩く",
+    "kind": "dictionary",
+    "canonical": "移動",
+    "ratio": 0.5,
+    "policy_class": "なし"
+   },
+   "rank": 28,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:1<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "聴く",
+   "n_rows": 1,
+   "first_tick": 1378,
+   "samples": [
+    {
+     "agent_id": 4973,
+     "tick": 1378,
+     "cell": "g7_-8_GL",
+     "source": "ab7_s2_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s2_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 1,
+   "distinct_cells": 1,
+   "distinct_hours": 1,
+   "coverage": 1,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "歩く",
+    "kind": "dictionary",
+    "canonical": "移動",
+    "ratio": 0.5,
+    "policy_class": "なし"
+   },
+   "rank": 29,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:1<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "行動 目的",
+   "n_rows": 1,
+   "first_tick": 1334,
+   "samples": [
+    {
+     "agent_id": 196,
+     "tick": 1334,
+     "cell": "g9_-5_GL",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 1,
+   "distinct_cells": 1,
+   "distinct_hours": 1,
+   "coverage": 1,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "移動",
+    "kind": "vocab",
+    "canonical": "移動",
+    "ratio": 0.2857,
+    "policy_class": "—"
+   },
+   "rank": 30,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:1<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "避く",
+   "n_rows": 1,
+   "first_tick": 912,
+   "samples": [
+    {
+     "agent_id": 761,
+     "tick": 912,
+     "cell": "g3_-3_GL",
+     "source": "ab7_s2_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s2_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 1,
+   "distinct_cells": 1,
+   "distinct_hours": 1,
+   "coverage": 1,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "歩く",
+    "kind": "dictionary",
+    "canonical": "移動",
+    "ratio": 0.5,
+    "policy_class": "なし"
+   },
+   "rank": 31,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:1<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "避け",
+   "n_rows": 1,
+   "first_tick": 937,
+   "samples": [
+    {
+     "agent_id": 1105,
+     "tick": 937,
+     "cell": "g3_6_GL",
+     "source": "ab7_s2_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s2_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 1,
+   "distinct_cells": 1,
+   "distinct_hours": 1,
+   "coverage": 1,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "助ける",
+    "kind": "dictionary",
+    "canonical": "手伝い",
+    "ratio": 0.4,
+    "policy_class": "なし"
+   },
+   "rank": 32,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:1<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "開く",
+   "n_rows": 1,
+   "first_tick": 400,
+   "samples": [
+    {
+     "agent_id": 1870,
+     "tick": 400,
+     "cell": "g0_-3_GL",
+     "source": "ab7_s2_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s2_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 1,
+   "distinct_cells": 1,
+   "distinct_hours": 1,
+   "coverage": 1,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "歩く",
+    "kind": "dictionary",
+    "canonical": "移動",
+    "ratio": 0.5,
+    "policy_class": "なし"
+   },
+   "rank": 33,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:1<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "飲み",
+   "n_rows": 1,
+   "first_tick": 1337,
+   "samples": [
+    {
+     "agent_id": 2627,
+     "tick": 1337,
+     "cell": "g1_-2_GL",
+     "source": "ab7_s1_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s1_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 1,
+   "distinct_cells": 1,
+   "distinct_hours": 1,
+   "coverage": 1,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "飲む",
+    "kind": "dictionary",
+    "canonical": "購入",
+    "ratio": 0.5,
+    "policy_class": "意味の損失"
+   },
+   "rank": 34,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:1<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "飲み物 受取",
+   "n_rows": 1,
+   "first_tick": 1080,
+   "samples": [
+    {
+     "agent_id": 2275,
+     "tick": 1080,
+     "cell": "g-3_2_GL",
+     "source": "ab7_s2_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s2_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 1,
+   "distinct_cells": 1,
+   "distinct_hours": 1,
+   "coverage": 1,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "見物",
+    "kind": "dictionary",
+    "canonical": "待機",
+    "ratio": 0.25,
+    "policy_class": "意味の損失"
+   },
+   "rank": 35,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:1<10"
+   ],
+   "draft": null,
+   "checks": {}
+  },
+  {
+   "word": "飲み物入手",
+   "n_rows": 1,
+   "first_tick": 1364,
+   "samples": [
+    {
+     "agent_id": 363,
+     "tick": 1364,
+     "cell": "g-3_2_GL",
+     "source": "ab7_s2_open"
+    }
+   ],
+   "per_source": {
+    "ab7_s2_open": {
+     "n_rows": 1,
+     "distinct_agents": 1,
+     "distinct_cells": 1,
+     "distinct_hours": 1
+    }
+   },
+   "distinct_agents": 1,
+   "distinct_cells": 1,
+   "distinct_hours": 1,
+   "coverage": 1,
+   "stage0_target": null,
+   "policy_class": "未定義",
+   "nearest_existing": {
+    "surface": "見物",
+    "kind": "dictionary",
+    "canonical": "待機",
+    "ratio": 0.2857,
+    "policy_class": "意味の損失"
+   },
+   "rank": 36,
+   "eligible": false,
+   "verdict": "HELD_BELOW_THRESHOLD",
+   "reasons": [
+    "BELOW_THRESHOLD:1<10"
+   ],
+   "draft": null,
+   "checks": {}
+  }
+ ]
+}

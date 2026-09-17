@@ -80,6 +80,13 @@ __all__ = [
     "check_intent_mode",
     "b0_system",
     "b0_sha256",
+    # ---- 語彙 v2(D-71 §3 E/F・2026-09-17)。既定 v1 の描画バイトは 1 つも動かない ----
+    "VOCAB_VERSIONS",
+    "DEFAULT_VOCAB_VERSION",
+    "ACTION_WORDS_13",
+    "OUTPUT_SPEC_V2",
+    "B0_SYSTEM_V2",
+    "check_vocab_version",
 ]
 
 #: テンプレ版(改版は delta+感度試験。値を変えたら ``template_sha256`` も変わる)。
@@ -307,6 +314,66 @@ _B0_BY_MODE: Final[Mapping[str, str]] = {
 }
 
 
+# ------------------------------------------- 語彙 v2(D-71 §3 E/F・2026-09-17 ユーザー決定)
+#
+# 仕様: ``docs/design/v2-vocab-growth-design.md`` §3 **F**「版を上げて次ランから有効」。
+# **作り方は AB7/AB7b と同じ**——``OUTPUT_SPEC`` の ``行動:`` 断片 1 つだけを置換する。
+# したがって理由・対象・ひと言・2 行形・JSON 禁止は v1/v2 とも同文。
+#
+# **凍結との関係**: ``TEMPLATES``(=``template_sha256`` の payload)には 1 語も足していない。
+# 既定 ``vocab_version="v1"`` のとき ``b0_system()`` は ``TEMPLATES["B0.system"]`` と
+# **同一オブジェクト**を返す=描画バイトも ``template_sha256``(161fe181…)も
+# ``b0_sha256("vocab")``(2b4bfc8a…)も動かない。
+#
+# **open 腕 × v2**: open 腕は語彙を見せないので **B0 の本文は v1 と同一**になる(差は
+# 段0 辞書 v3 とエンジン側だけ)。``b0_sha256`` は「B0 本文そのものの指紋」なので
+# この 2 つは同じ値になる=**それが正しい**(版は run manifest の ``vocab_version`` が持つ)。
+#
+# **expedient**(本節分): 13 語目の綴り「食事」と、それを 12 語の**末尾**に置いたこと
+# (契約表の並びは ``llm.contract.ACTION_VOCAB_13`` が正典・ここは層契約による二重定義)。
+
+#: 語彙の版(``llm.contract.VOCAB_VERSIONS`` と同値・層契約により二重定義=テストで守る)。
+VOCAB_VERSIONS: Final[tuple[str, ...]] = ("v1", "v2")
+#: 既定=現行 24 語(12 語 + 役割語 12)。
+DEFAULT_VOCAB_VERSION: Final[str] = "v1"
+
+#: 語彙 v2 の種別横断 13 語(``llm.contract.ACTION_VOCAB_13`` と同値・層契約により二重定義)。
+ACTION_WORDS_13: Final[tuple[str, ...]] = ACTION_WORDS_12 + ("食事",)
+
+#: ``OUTPUT_SPEC`` の ``行動:`` 断片(vocab 腕 × 語彙 v2)。13 語を提示する。
+_ACTION_SPEC_VOCAB_V2: Final[str] = "行動: <" + " / ".join(ACTION_WORDS_13) + " から1語> "
+#: 同(hint 腕 × 語彙 v2)。
+_ACTION_SPEC_HINT_V2: Final[str] = (
+    "行動: <" + " / ".join(ACTION_WORDS_13)
+    + " から1語を選ぶのが基本。当てはまる語が無いときだけ10字以内の動詞句で> "
+)
+
+#: 出力規約(vocab 腕 × 語彙 v2)。``OUTPUT_SPEC`` の ``行動:`` 断片 1 つだけの置換。
+OUTPUT_SPEC_V2: Final[str] = OUTPUT_SPEC.replace(_ACTION_SPEC_VOCAB, _ACTION_SPEC_VOCAB_V2, 1)
+assert OUTPUT_SPEC_V2 != OUTPUT_SPEC, "語彙 v2 の置換が空振り"
+#: 同(hint 腕 × 語彙 v2)。
+OUTPUT_SPEC_HINT_V2: Final[str] = OUTPUT_SPEC.replace(_ACTION_SPEC_VOCAB, _ACTION_SPEC_HINT_V2, 1)
+assert OUTPUT_SPEC_HINT_V2 not in (OUTPUT_SPEC, OUTPUT_SPEC_HINT), "hint×v2 の置換が空振り"
+
+#: B0 の全文(vocab 腕 × 語彙 v2)。出力規約の節だけを差し替えたもの。
+B0_SYSTEM_V2: Final[str] = B0_SYSTEM.replace(OUTPUT_SPEC, OUTPUT_SPEC_V2, 1)
+assert B0_SYSTEM_V2 != B0_SYSTEM, "B0_SYSTEM(vocab×v2)の置換が空振り"
+#: 同(hint 腕 × 語彙 v2)。
+B0_SYSTEM_HINT_V2: Final[str] = B0_SYSTEM.replace(OUTPUT_SPEC, OUTPUT_SPEC_HINT_V2, 1)
+assert B0_SYSTEM_HINT_V2 not in (B0_SYSTEM, B0_SYSTEM_HINT), "B0_SYSTEM(hint×v2)の置換が空振り"
+
+#: (腕, 語彙版) → B0 本文。**``("vocab", "v1")`` は ``B0_SYSTEM`` そのもの**。
+#: ``("open", "v2")`` は ``("open", "v1")`` と**同じ文字列**(open は語彙を見せない)。
+_B0_BY_MODE_VOCAB: Final[Mapping[tuple[str, str], str]] = {
+    ("vocab", "v1"): B0_SYSTEM,
+    ("open", "v1"): B0_SYSTEM_OPEN,
+    ("hint", "v1"): B0_SYSTEM_HINT,
+    ("vocab", "v2"): B0_SYSTEM_V2,
+    ("open", "v2"): B0_SYSTEM_OPEN,
+    ("hint", "v2"): B0_SYSTEM_HINT_V2,
+}
+
+
 def check_intent_mode(intent_mode: str) -> str:
     """``intent_mode`` を検査して正規化する(不正値は ``ValueError``)。"""
     mode = str(intent_mode)
@@ -315,24 +382,42 @@ def check_intent_mode(intent_mode: str) -> str:
     return mode
 
 
-def b0_system(intent_mode: str = DEFAULT_INTENT_MODE) -> str:
-    """腕に応じた B0(system ブロック)の全文。
+def check_vocab_version(vocab_version: str) -> str:
+    """``vocab_version`` を検査して正規化する(不正値は ``ValueError``)。"""
+    ver = str(vocab_version)
+    if ver not in VOCAB_VERSIONS:
+        raise ValueError(f"vocab_version は {VOCAB_VERSIONS} のどれか(いま {vocab_version!r})")
+    return ver
 
-    ``"vocab"``(既定)は ``TEMPLATES["B0.system"]`` と**同一の文字列**を返す
-    (=既定経路のバイトは 1 つも動かない)。``"open"`` は ``B0_SYSTEM_OPEN``・
-    ``"hint"``(AB7b)は ``B0_SYSTEM_HINT``。
+
+def b0_system(
+    intent_mode: str = DEFAULT_INTENT_MODE, vocab_version: str = DEFAULT_VOCAB_VERSION
+) -> str:
+    """腕(``intent_mode``)と語彙版(``vocab_version``)に応じた B0(system)の全文。
+
+    ``("vocab", "v1")``(既定)は ``TEMPLATES["B0.system"]`` と**同一の文字列**を返す
+    (=既定経路のバイトは 1 つも動かない)。``"open"`` は語彙を見せないので v1/v2 で
+    **同じ本文**になる(語彙 v2 の差は段0 辞書 v3 とエンジン側に出る)。
     """
-    return _B0_BY_MODE[check_intent_mode(intent_mode)]
+    return _B0_BY_MODE_VOCAB[
+        (check_intent_mode(intent_mode), check_vocab_version(vocab_version))
+    ]
 
 
-def b0_sha256(intent_mode: str = DEFAULT_INTENT_MODE) -> str:
+def b0_sha256(
+    intent_mode: str = DEFAULT_INTENT_MODE, vocab_version: str = DEFAULT_VOCAB_VERSION
+) -> str:
     """B0 本文そのものの版ハッシュ(**腕の切替が効いたかの指紋**)。
 
     ``template_sha256`` とは別の値(あちらは ``TEMPLATES`` 全体の payload=凍結対象で、
-    本腕では 1 バイトも動かさない)。
+    本腕では 1 バイトも動かさない)。**payload に ``vocab_version`` は入れない**
+    ——この値は「B0 の本文の指紋」であって「ランの設定の指紋」ではない(設定は run manifest の
+    ``vocab_version`` 欄が持つ)。したがって ``b0_sha256("vocab")`` は 2b4bfc8a… のまま、
+    ``b0_sha256("open","v2") == b0_sha256("open","v1")``(本文が同じ)になる。
     """
     mode = check_intent_mode(intent_mode)
-    return sha256_cbor({"b0_system": b0_system(mode), "intent_mode": mode})
+    ver = check_vocab_version(vocab_version)
+    return sha256_cbor({"b0_system": b0_system(mode, ver), "intent_mode": mode})
 
 
 # --------------------------------------------------------------- B1-B6(1行1事実の行テンプレ)

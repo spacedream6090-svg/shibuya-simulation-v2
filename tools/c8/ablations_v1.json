@@ -446,18 +446,81 @@
       "acceptance": "**合否線なし**(AB7 と同じ探索的な腕)。事前予想: M1 直接一致は vocab と open の間・M4 行動エントロピーは open(1.14)より高く vocab(1.56)寄り・M3 に語彙で表せない語が残れば §7 段2 の起草材料。",
       "status": "ready",
       "note_parent": "親注(2026-09-17): AB7 の第 3 の腕として足した(第1陣ではない)。指示文『…から1語を選ぶのが基本。当てはまる語が無いときだけ10字以内の動詞句で』は**親の自前文=expedient**(先行研究の文面ではない)。M4・M5 の tokens_out は AB7 と同じく runner 未実装=親が calls.parquet から出す。"
+    },
+    {
+      "id": "AB7c-VOCAB-V2",
+      "rank": 9,
+      "index": "⑦c",
+      "name": "語彙 v1(24 語)vs 語彙 v2(24 語 + 横断語「食事」)",
+      "design_source": "docs/design/v2-vocab-growth-design.md §2-§3(語彙成長 v0・ユーザー決定 2026-09-17「A〜K 親推奨どおり」)+ docs/design/v2-synonym-policy-v0.md §2 ★「食べる/飲む→購入=意味の損失」+ 決定台帳 §9「原則 行動はオブジェクトの affordance 由来」+ AB7 seed 1/2 の実測(自由意図の 34% が『食べる』・未定義「食事」328〜350 行 309〜325 体)",
+      "hypothesis": "24 語に**摂食の語が無い**ことが行動分布を歪めているのか。語彙 v2 で「食事」を**飲食店オブジェクトの affordance** として足し(動詞の追加ではない=D-71 §3 E)、段0 辞書 v3 で 食べる/飲む をそこへ写すと、①段0 の★意味の損失行(AB7 open で約 12,700 行=37%)が消える ②未定義台帳の「食事」が消える ③購入(=物の受け渡し)と食事(=摂食)が会計と世界状態で分かれる。**合否は出さない探索的な腕**(AB7 と同じ)。段3 の自動検査(D-71 §3 C)の ①保存則・③状態差分・④非退化は mock で、②未定義台帳の減りは実 LLM で測る。",
+      "switch": {
+        "kind": "implemented_flag",
+        "how": "cli.run(vocab_version='v1'|'v2') / CLI --vocab-version {v1,v2}(intent_mode と直交=掛け合わせて指定できる)",
+        "implemented": true,
+        "mock_effective": true,
+        "mock_note": "**AB7/AB7b と違い mock でも差が出る**。MockLLM はプロンプト本文を読まないが、``llm`` を注入しないランでは mock の抽選語彙が ``vocab_version`` に従う(``engine.run._default_mock``: v2 では 13 語から一様に引く)。したがって v2 の checkpoint は v1 と**別値**になり、mock で「食事」の発火・保存則・状態差分(段3 ①③)まで検査できる。**v1 の checkpoint は 1 ビットも動かない**。",
+        "verified": "run_day(vocab_version=…) → Renderer(vocab_version=…)(B0 の提示 13 語)/ LLMBridge → parser・段0 辞書 v3 / resolve._APPLY_V2(食事の分岐)まで往復する。既定 v1 は templates.b0_system('vocab','v1') が TEMPLATES['B0.system'] と**同一オブジェクト**=template_sha256 161fe181… 不変・b0_sha256('vocab') 2b4bfc8a… 不変・_APPLY(13 分岐)も ACTION_VOCAB_12 も ACTION_CODES も同一オブジェクト。tests/llm/test_vocab_v2.py・tests/perception/test_vocab_v2_templates.py・tests/engine/test_vocab_v2_eat.py・tests/test_cli_vocab_version.py・tests/c8/test_ablations_ab7c.py。"
+      },
+      "runs": [
+        {
+          "tag": "vocab_v1",
+          "kwargs": {
+            "intent_mode": "vocab",
+            "vocab_version": "v1"
+          },
+          "is_baseline": true
+        },
+        {
+          "tag": "vocab_v2",
+          "kwargs": {
+            "intent_mode": "vocab",
+            "vocab_version": "v2"
+          }
+        },
+        {
+          "tag": "open_v2",
+          "kwargs": {
+            "intent_mode": "open",
+            "vocab_version": "v2"
+          }
+        }
+      ],
+      "control": "baseline=vocab_v1(24 語を B0 で提示・**AB7 の vocab ランと同一構成**: v1 は既定なので kwargs を明示しても描画バイトは 1 つも変わらない=同じ seed・同じ規模なら AB7 の vocab ランを対照として共有できる)/対照①=vocab_v2(同じ提示の仕方で 13 語)/対照②=open_v2(語彙を見せない open 腕 × 段0 辞書 v3=**接地だけを v2 にした腕**。B0 の本文は open_v1 と 1 バイト同じで、『食べる』が 購入 でなく 食事 に着地するかだけを見る)。**対象欄の制約は 3 ラン とも同文**。",
+      "metrics": [
+        "grounding_rate",
+        "undefined_rate",
+        "top_undefined_words",
+        "action_jsd",
+        "format_error_rate",
+        "llm_calls",
+        "prompt_tokens_mean",
+        "conserved",
+        "final_hash"
+      ],
+      "cost": {
+        "runs": 3,
+        "calls": 150000,
+        "calls_with_shared_baseline": 100000,
+        "gpu_hours": 1.45,
+        "gpu_hours_with_shared_baseline": 0.9667,
+        "note": "AB7/AB7b と同じ換算(本表の c8lib.gpu_hours_for_calls)。vocab_v1 を AB7 の vocab ランと共有すれば実費は vocab_v2 + open_v2 の 2 ラン=呼 100,000・0.97 h。"
+      },
+      "acceptance": "**合否線なし**(探索的な腕)。ただし D-71 §3 C の段3 検査は数値で見る: ①保存則残差 0(mock・必須)②未定義台帳の『食事』行が −50% 以上(実 LLM)③食事の発火件数と状態差分(所持金・売上・空腹)が非零(mock・必須)④v1 の checkpoint 列と受入表の PASS 行が減らない(mock・必須)。事前予想: M1 直接一致は vocab_v2 で上がる(『食べる』が語彙に入る)・M3 上位語から『食事』が消える・action_jsd は購入↔食事の付け替えぶん動く(**v1 の語彙で読むときは対応表 llm.contract.VOCAB_COMPAT で 食事→購入 に畳んでから比べる**=ラン間比較を壊さないための橋・D-71 §3 F)。",
+      "status": "ready",
+      "note_parent": "親注(2026-09-17): 第1陣(§8 の 6 本)ではない別設計書の腕。**指紋の宣言**(D-71 §3 G): 13 語目の綴り『食事』・飲食店の判定 = world.assets.hash_free_cat_code(cat)==1(nightlife は入らない)・空腹の回復量 = BUY_HUNGER_RELIEF の再利用(新しい数を作らない)・所要時間 20 分は**契約行の宣言値で専用タイマーは未実装**(在店の解除は既存の回転率 crowd.DWELL_MAX_TICKS=30 分)・食事は**棚在庫を減らさない**(摂食≠購買=売上に対応する原価が立たない)・語彙 25 語は §2『種別あたり 24 語』を 1 語超える(封印は D-71 §3 J の使用率計測のあと=いまは封印しない)。M4・M5 は AB7 と同じく runner 未実装=親が calls.parquet から出す。"
     }
   ],
   "totals": {
-    "runs_if_independent": 18,
-    "runs_with_shared_baseline": 9,
-    "calls_with_shared_baseline": 450000,
-    "gpu_hours_with_shared_baseline": 4.35,
+    "runs_if_independent": 21,
+    "runs_with_shared_baseline": 11,
+    "calls_with_shared_baseline": 550000,
+    "gpu_hours_with_shared_baseline": 5.3167,
     "l2_reserve_hours": 4.8,
-    "within_l2": true,
-    "note": "腕ごとに baseline を取り直すと 18 ラン・呼 900,000=8.7 h で L2 枠(4.8 h)を超える。AB4/AB5 は前提機能が未実装で ``runs`` が空なので、共有ベースライン側の 9 ランには最初から入っていない。AB7/AB7b は第1陣(§8 の 6 本)ではないが ablation の取り分(L2)は同じ財布なのでここで通算する。AB7b の vocab 対照を AB7 と共有すれば実費はさらに 1 ランぶん(0.48 h)減る。",
-    "calls_if_independent": 900000,
-    "gpu_hours_if_independent": 8.7
+    "within_l2": false,
+    "note": "腕ごとに baseline を取り直すと 21 ラン・呼 1,050,000=10.15 h。AB4/AB5 は前提機能が未実装で ``runs`` が空なので、共有ベースライン側の数には最初から入っていない。AB7/AB7b/AB7c は第1陣(§8 の 6 本)ではないが ablation の取り分(L2)は同じ財布なのでここで通算する。**共有ベースライン込みの 11 ラン・呼 550,000=5.32 h は、L2 の枠の目安 4.8 h を超える**(within_l2=false・2026-09-17 の AB7c 追加で超過した)。内訳: 第1陣の 9 ラン 4.35 h + AB7b の hint 1 ラン 0.48 h + AB7c の vocab_v2 / open_v2 2 ラン 0.97 h (AB7/AB7b/AB7c の vocab 対照はすでに 1 本に共有済み=これ以上は共有で減らない)。枠は割合宣言で絶対値が無い(budget.note の expedient・親判断待ち)ので、**どの腕を先に回すか・枠の目安を上げるかはユーザー判断**。",
+    "calls_if_independent": 1050000,
+    "gpu_hours_if_independent": 10.15
   },
   "open_questions": [
     "6 本すべてで合格線が設計に無い(§8 は指標だけを指定)。報告値のままにするか、①の §10.3『同等』を JSD の帰無参照(T7 seed 違い 0.0035 bits)基準で数値化するか=親判断。",

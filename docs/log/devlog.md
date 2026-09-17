@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **4 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **5 / 10**
 > 第1〜第200(2026-09-01〜09-16)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第201 ユーザー「回そう(候補 3)」「今後の実装予定」「PDF 読める?・S0〜S5 へ・立ち位置・リサーチ残・グラフ化」+ AB7 seed 1 の結果(2026-09-16)
@@ -46,3 +46,14 @@
 - **サーバー**: AB7b は最初の自動起動が `docs/` 未同期で即死(予算宣言の読み込み)→ `~/v2/docs` をリンク(md5 一致)して 07:28 再起動・実行中(vocab→hint・約 70 分)。
 - **訂正候補(D-50・サブ指摘・親未確認)**: ACCORD(2606.16432)の正式名は Action-Conditioned Contextual Grounding で抄録に affordance の語なし / Emergence World の指標名は M11=Tool Expansion。残務台帳 R-6 に記載。
 - **次**: AB7b 回収→seed 1 の vocab/open と比較(第205)/ D-71 A〜J の決定 → 実装 / 3 seed 目(サーバーが残っていれば 9.1 h)/ PR #2 の push 判断 / 未踏草案(9/20)/ 返却チェックリスト。
+
+## 第205 ユーザー「seed 3 は?・phase 2 は?・決める項目は?」「1 確定・2 (a)・3 後・8 リサーチ・10 詳細を」「D-71 推奨で+足りない語彙も実装」「10 追加可・ただし唯一の手段にしない」(2026-09-17 昼)
+
+- **決定の記録**: D-46=3 seed 確定・事前登録 **v1.2**(§6: 主張腕=c7-day-4 構成×seed 1/2/3・帰無は実測 seed JSD 0.000162・開封前に D-72 ①⑦/D-67/D-52 を歪む場所として宣言)・G-8 の「8 本」を実測で置換・holdout は seed 3 完走後に開封・AB7c は seed 3 の後。**D-71 A〜K 推奨どおり**。方法論に **「自己修正ループ」節**(3 原則+運用 6 点・**運用 ⑤ 人間の直感・仮説による修正は禁じない=並ぶ 2 つの道**)。
+- **seed 3**: AB7b 完了(08:28)→ 08:29 に c7-day-4-s3 自動開始(完走 17:35 頃)。**PR #2**: CI 修正を build/c5-c8 へ cherry-pick+push(3675aa6・ユーザー (a))→ **CI 緑・CLEAN=マージ可**。Discord 草案 [discord_report_2026-09-17.md](../ops/discord_report_2026-09-17.md)。
+- **AB7b(ヒント腕 seed 1)→ 親再計算**([ab7b_s1_parent_report.md](../bench/c8/ablation/ab7b_s1_parent_report.md)): 接地 99.7%・**エントロピー +0.11 bits(9 種)**・乗車 +81%・会話 6 倍・**通報 10 倍**・自由文 0.28%(ほぼ全部が食事の意図・崩れた表層 通る/通貨)・食事の意図は 購入 +1,892 に流れた。計測器は open・hint は本番候補の入口。
+- **D-71 実装(サブ 2 本並走→親検収・IMPLEMENTED #25/#26)**: A=裁定バッチ `tools/vocab/adjudicate.py`+`registry_from_tape.py`+`--undefined-out`(27 テスト・AB7 台帳の再構成が親報告と全欄一致)。B=語彙 v2「食事」(飲食店 affordance・切替口・既定 v1 バイト不変・辞書 v3・対応表・使用率・AB7c 腕・場外バグ修正)。**親修正 2 点**: cli の版の出所を registry へ / 辞書 v3 の自前 4 行(ランチ等)を削除(観測にあった語だけ=原則 1)。**親検収 2,421 passed・checkpoint 4 種(既定 ba01bd0b / v2.1 4fb0f2ec / v2 9c16f77a / undefined+census ba01bd0b)・lint 5 kept・v2 mock 食事 1,351 成立・売上 2,132,400・保存則 OK**。
+- **実 LLM 起草**(8B 艦隊・温度 0・seed 1/2 合算・[report](../bench/vocab/ab7_open_s1s2_fleet/report.md)): 食事=飲食店/order_meal/満腹↑金→店/15 分/1,000 円(サブ B の実装とほぼ同形)。判定案=食事 採用・行動 不採用・飲食 同義・進む 辞書行・近づく/見る/持つ/取る/避雨→C9。**承認待ち**。s5 の「見る→見回る 0.80=辞書行で済む」は誤判定(意味が違う)=決定 I の実例。
+- **サブ B の判断 7 点 → D-77**(L2 超過・25 語・20 分タイマー・原価が立たない・nightlife・飲酒の混入・自前辞書行)。
+- **有償 GPU**([compute-vendors-2026-09-17.md](../ops/compute-vendors-2026-09-17.md)・親が価格ページ実読): RunPod A5000 0.16(Community)/0.27(Secure)$/h → 39 万体 1 日 ≈$10〜17・3 seed ≈$31〜52。vast は動的表示で数値なし。
+- **次**: 食事の承認+D-77 → v2 を本番既定にするか判断 / 17:35 seed 3 回収→3 本の CV→**holdout 開封(「開けてよい」を待つ)**→ AB7c(3 ラン・1.75 h)/ 返却チェックリスト / PR #3。

@@ -1,0 +1,721 @@
+{
+ "schema": "shibuya.vocab/synonym-policy/0",
+ "source": "docs/design/v2-synonym-policy-v0.md §2(語彙政策 v0・D-73 (a))",
+ "synonym_table_version": "undefined-synonyms-v2",
+ "note": "段0 辞書 SYNONYMS(100 行)の写像行ごとの意味損失の分類を機械可読に写したもの。本文が正・本ファイルは写し(tests/vocab が SYNONYMS と照合する)。",
+ "classes": {
+  "なし": "表層は契約語の同義・活用形・様態の違いだけ(歩く→移動)",
+  "軽微": "契約行為の一部工程・最小単位を全体に畳む(注文→購入・挨拶→会話)",
+  "対象の損失": "動詞は同じだが目的地・対象の含意を落とす(帰宅→移動)",
+  "意味の損失": "別の行為に畳む(食べる→購入・観察→待機)。世界の帰結が変わる",
+  "未定義": "段0 辞書に行が無い(=未定義行動台帳に残った語)。本表の外"
+ },
+ "tally": {
+  "なし": 61,
+  "対象の損失": 17,
+  "軽微": 8,
+  "意味の損失": 14
+ },
+ "rows": {
+  "歩く": {
+   "canonical": "移動",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "歩いていく": {
+   "canonical": "移動",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "向かう": {
+   "canonical": "移動",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "行く": {
+   "canonical": "移動",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "移動する": {
+   "canonical": "移動",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "出発": {
+   "canonical": "移動",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "戻る": {
+   "canonical": "移動",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "登る": {
+   "canonical": "移動",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "渡る": {
+   "canonical": "移動",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "帰る": {
+   "canonical": "移動",
+   "class": "対象の損失",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "帰宅": {
+   "canonical": "移動",
+   "class": "対象の損失",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "乗る": {
+   "canonical": "乗車",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "電車に乗る": {
+   "canonical": "乗車",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "改札を通る": {
+   "canonical": "乗車",
+   "class": "軽微",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "降りる": {
+   "canonical": "降車",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "下車": {
+   "canonical": "降車",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "買う": {
+   "canonical": "購入",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "買い物": {
+   "canonical": "購入",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "購入する": {
+   "canonical": "購入",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "注文": {
+   "canonical": "購入",
+   "class": "軽微",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "支払う": {
+   "canonical": "購入",
+   "class": "軽微",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "食べる": {
+   "canonical": "購入",
+   "class": "意味の損失",
+   "policy": false,
+   "star": true,
+   "table": "v0"
+  },
+  "飲む": {
+   "canonical": "購入",
+   "class": "意味の損失",
+   "policy": false,
+   "star": true,
+   "table": "v0"
+  },
+  "待つ": {
+   "canonical": "待機",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "待機する": {
+   "canonical": "待機",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "何もしない": {
+   "canonical": "待機",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "立ち止まる": {
+   "canonical": "待機",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "様子を見る": {
+   "canonical": "待機",
+   "class": "意味の損失",
+   "policy": true,
+   "star": false,
+   "table": "v0"
+  },
+  "話す": {
+   "canonical": "会話",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "話しかける": {
+   "canonical": "会話",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "会話する": {
+   "canonical": "会話",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "声をかける": {
+   "canonical": "会話",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "尋ねる": {
+   "canonical": "会話",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "相談": {
+   "canonical": "会話",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "挨拶": {
+   "canonical": "会話",
+   "class": "軽微",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "返事": {
+   "canonical": "会話",
+   "class": "軽微",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "立ち去る": {
+   "canonical": "退去",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "離れる": {
+   "canonical": "退去",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "その場を離れる": {
+   "canonical": "退去",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "抜ける": {
+   "canonical": "退去",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "通報する": {
+   "canonical": "通報",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "110番": {
+   "canonical": "通報",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "119番": {
+   "canonical": "通報",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "駅員を呼ぶ": {
+   "canonical": "通報",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "救急": {
+   "canonical": "通報",
+   "class": "軽微",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "知らせる": {
+   "canonical": "通報",
+   "class": "意味の損失",
+   "policy": false,
+   "star": true,
+   "table": "v0"
+  },
+  "助ける": {
+   "canonical": "手伝い",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "手伝う": {
+   "canonical": "手伝い",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "手を貸す": {
+   "canonical": "手伝い",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "介抱": {
+   "canonical": "手伝い",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "支える": {
+   "canonical": "手伝い",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "断わる": {
+   "canonical": "断る",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "ことわる": {
+   "canonical": "断る",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "辞退": {
+   "canonical": "断る",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "お断り": {
+   "canonical": "断る",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "拒否": {
+   "canonical": "断る",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "休む": {
+   "canonical": "休憩",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "休憩する": {
+   "canonical": "休憩",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "一息つく": {
+   "canonical": "休憩",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "座る": {
+   "canonical": "休憩",
+   "class": "軽微",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "寝る": {
+   "canonical": "就寝",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "眠る": {
+   "canonical": "就寝",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "就寝する": {
+   "canonical": "就寝",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "横になる": {
+   "canonical": "就寝",
+   "class": "軽微",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "レジを打つ": {
+   "canonical": "接客",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "対応する": {
+   "canonical": "接客",
+   "class": "意味の損失",
+   "policy": false,
+   "star": true,
+   "table": "v0"
+  },
+  "品出し": {
+   "canonical": "補充",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "棚に並べる": {
+   "canonical": "補充",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "開店": {
+   "canonical": "開閉店",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "閉店": {
+   "canonical": "開閉店",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "値上げ": {
+   "canonical": "価格改定",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "値下げ": {
+   "canonical": "価格改定",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "アナウンス": {
+   "canonical": "放送",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "並ぶ列に加わる": {
+   "canonical": "並ぶ",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "写真を撮る": {
+   "canonical": "撮影",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "撮る": {
+   "canonical": "撮影",
+   "class": "なし",
+   "policy": false,
+   "star": false,
+   "table": "v0"
+  },
+  "探す": {
+   "canonical": "移動",
+   "class": "対象の損失",
+   "policy": false,
+   "star": false,
+   "table": "c6"
+  },
+  "探し": {
+   "canonical": "移動",
+   "class": "対象の損失",
+   "policy": false,
+   "star": false,
+   "table": "c6"
+  },
+  "探索": {
+   "canonical": "移動",
+   "class": "対象の損失",
+   "policy": false,
+   "star": false,
+   "table": "c6"
+  },
+  "探る": {
+   "canonical": "移動",
+   "class": "対象の損失",
+   "policy": false,
+   "star": false,
+   "table": "c6"
+  },
+  "見回る": {
+   "canonical": "移動",
+   "class": "対象の損失",
+   "policy": false,
+   "star": false,
+   "table": "c6"
+  },
+  "歩き回る": {
+   "canonical": "移動",
+   "class": "対象の損失",
+   "policy": false,
+   "star": false,
+   "table": "c6"
+  },
+  "うろつく": {
+   "canonical": "移動",
+   "class": "対象の損失",
+   "policy": false,
+   "star": false,
+   "table": "c6"
+  },
+  "散策": {
+   "canonical": "移動",
+   "class": "対象の損失",
+   "policy": false,
+   "star": false,
+   "table": "c6"
+  },
+  "通勤": {
+   "canonical": "移動",
+   "class": "対象の損失",
+   "policy": false,
+   "star": false,
+   "table": "c6"
+  },
+  "通学": {
+   "canonical": "移動",
+   "class": "対象の損失",
+   "policy": false,
+   "star": false,
+   "table": "c6"
+  },
+  "出勤": {
+   "canonical": "移動",
+   "class": "対象の損失",
+   "policy": false,
+   "star": false,
+   "table": "c6"
+  },
+  "退勤": {
+   "canonical": "移動",
+   "class": "対象の損失",
+   "policy": false,
+   "star": false,
+   "table": "c6"
+  },
+  "出社": {
+   "canonical": "移動",
+   "class": "対象の損失",
+   "policy": false,
+   "star": false,
+   "table": "c6"
+  },
+  "登校": {
+   "canonical": "移動",
+   "class": "対象の損失",
+   "policy": false,
+   "star": false,
+   "table": "c6"
+  },
+  "進入": {
+   "canonical": "移動",
+   "class": "対象の損失",
+   "policy": false,
+   "star": false,
+   "table": "c6"
+  },
+  "観察": {
+   "canonical": "待機",
+   "class": "意味の損失",
+   "policy": true,
+   "star": true,
+   "table": "c6"
+  },
+  "眺める": {
+   "canonical": "待機",
+   "class": "意味の損失",
+   "policy": true,
+   "star": true,
+   "table": "c6"
+  },
+  "見物": {
+   "canonical": "待機",
+   "class": "意味の損失",
+   "policy": true,
+   "star": true,
+   "table": "c6"
+  },
+  "見学": {
+   "canonical": "待機",
+   "class": "意味の損失",
+   "policy": true,
+   "star": true,
+   "table": "c6"
+  },
+  "確認": {
+   "canonical": "待機",
+   "class": "意味の損失",
+   "policy": true,
+   "star": true,
+   "table": "c6"
+  },
+  "調べる": {
+   "canonical": "待機",
+   "class": "意味の損失",
+   "policy": true,
+   "star": true,
+   "table": "c6"
+  },
+  "調べ": {
+   "canonical": "待機",
+   "class": "意味の損失",
+   "policy": true,
+   "star": true,
+   "table": "c6"
+  },
+  "調査": {
+   "canonical": "待機",
+   "class": "意味の損失",
+   "policy": true,
+   "star": true,
+   "table": "c6"
+  },
+  "チェック": {
+   "canonical": "待機",
+   "class": "意味の損失",
+   "policy": true,
+   "star": true,
+   "table": "c6"
+  }
+ }
+}

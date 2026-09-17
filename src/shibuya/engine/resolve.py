@@ -66,6 +66,7 @@ from shibuya.engine.commit import (
     ACT_ALIGHT,
     ACT_BOARD,
     ACT_BUY,
+    ACT_EAT,
     ACT_HELP,
     ACT_LEAVE,
     ACT_MOVE,
@@ -78,6 +79,7 @@ from shibuya.engine.commit import (
     ENGINE_STEP,
     IntentBatch,
 )
+from shibuya.llm.contract import DEFAULT_VOCAB_VERSION, check_vocab_version
 from shibuya.world.state import World
 
 __all__ = [
@@ -88,6 +90,8 @@ __all__ = [
     "REST_FATIGUE_RELIEF",
     "BUY_HUNGER_RELIEF",
     "SLEEP_FATIGUE_RELIEF",
+    "EAT_HUNGER_RELIEF",
+    "EAT_DWELL_MINUTES",
     "ResolveOutcome",
     "initialize",
     "set_initial_activity",
@@ -124,6 +128,19 @@ BODY_TICK_PERIOD: Final[int] = 30
 REST_FATIGUE_RELIEF: Final[int] = 3
 BUY_HUNGER_RELIEF: Final[int] = 4
 SLEEP_FATIGUE_RELIEF: Final[int] = 2
+
+# ---- 語彙 v2「食事」(D-71 §3 E・2026-09-17 ユーザー決定) ----
+#: 食事 1 回の空腹の回復量。**``BUY_HUNGER_RELIEF`` の再利用**(新しい数を作らない)。
+#: 語彙 v1 では「食べる/飲む」を 購入 に写して同じ量だけ空腹が下がっていたので、
+#: この値にすると **v1→v2 で身体の駆動が変わらず、変わるのは意味と会計だけ**になる。
+#: 量そのものの較正はユーザー/親判断(D-71 §3 G の指紋として宣言する)。
+EAT_HUNGER_RELIEF: Final[int] = BUY_HUNGER_RELIEF
+#: 食事の所要時間[分](**expedient**・契約行 ``llm.contract._SPEC_EAT`` の宣言値)。
+#: **専用タイマーは置いていない**: 在店は購入と同じ在席機構(``poi_ref``/``poi_since``)で
+#: 表し、解除は既存の回転率(``engine.processes.crowd.DWELL_MAX_TICKS`` = 30 分)に従う。
+#: 20 分ちょうどで解く口を作るには per-tick の新しい走査が要る(P4 宣言が必要)ので、
+#: **作るかどうかは親/ユーザーの判断待ち**=いまは宣言値としてだけ持つ。
+EAT_DWELL_MINUTES: Final[int] = 20
 
 #: 物の台帳の払い出しスロットを回す最大回数(``_apply_buy`` の注記・expedient)。
 _SELL_SLOT_RETRIES: Final[int] = 8
@@ -291,6 +308,10 @@ class ResolveOutcome:
     #: **就寝地へ着いて寝た**件数(D-62 (a) の意図保持ぶん。就寝境界で即座に寝た件数は
     #: ``begin_planned_sleep`` の戻り値で数える=あちらは ``apply`` の外で走る)。
     n_planned_sleep: int = 0
+    #: **語彙 v2「食事」が成立した件数**(v1 のランでは常に 0)。
+    n_meals: int = 0
+    #: 食事で店舗へ移った金額[円](``revenue_delta`` の内数)。
+    meal_yen: int = 0
 
     def add_result(self, code: int, n: int) -> None:
         if n:
@@ -686,6 +707,7 @@ def apply(
     rail: object | None = None,
     crowd: object | None = None,
     hotel: object | None = None,
+    vocab_version: str = DEFAULT_VOCAB_VERSION,
 ) -> ResolveOutcome:
     """Phase C: 確定した intent だけを世界へ適用する(**唯一の書き手**)。
 
@@ -700,10 +722,14 @@ def apply(
         crowd: 混雑場(C4 世界過程)。``None`` なら屋内占有・待ち行列を見ない。
         hotel: ホテル客室在庫(C4 世界過程)。``has_bed(agent_ids, cells)`` を持つものを渡すと、
             チェックイン済みの来街者は**自宅でなくても就寝できる**(§7.2 ホテル客室在庫)。
+        vocab_version: 行動語彙の版(D-71 §3 F)。``"v2"`` で「食事」の分岐が増える。
+            既定 ``"v1"`` は ``_APPLY``(13 分岐)をそのまま回す=**1 バイトも変わらない**。
 
     Returns:
         ``ResolveOutcome``。
     """
+    ver = check_vocab_version(vocab_version)
+    apply_table = _APPLY_BY_VOCAB[ver]
     out = ResolveOutcome(
         tick=int(tick),
         n_confirmed=len(plan_confirmed),
@@ -737,11 +763,8 @@ def apply(
                 if drop.size:
                     r.sleep_pending[drop] = 0
 
-        # 逐次ループ宣言: 行動語ぶん(13 分岐)。個体数には比例しない。
-        for action in (
-            ENGINE_STEP, ACT_MOVE, ACT_BOARD, ACT_ALIGHT, ACT_BUY, ACT_WAIT, ACT_TALK,
-            ACT_LEAVE, ACT_REPORT, ACT_HELP, ACT_REFUSE, ACT_REST, ACT_SLEEP,
-        ):
+        # 逐次ループ宣言: 行動語ぶん(v1=13 分岐 / v2=14 分岐)。個体数には比例しない。
+        for action in _ACTION_ORDER_BY_VOCAB[ver]:
             sel = np.flatnonzero(code == action)
             if sel.size == 0:
                 continue
@@ -750,7 +773,7 @@ def apply(
                 # 「直前に**試みた**行動」= B6 の主語(成功・失敗を問わず書く)。
                 # エンジン継続は新しく試みた行動ではない(移動の続き)ので書かない。
                 r.last_action[aid[sel]] = np.int8(action)
-            _APPLY[action](agents, world, aid[sel], tgt[sel], tick, out, schedule)
+            apply_table[action](agents, world, aid[sel], tgt[sel], tick, out, schedule)
 
         # 落選者(行動契約書 §2「落選者には失敗の意味論」)
         if len(losers):
@@ -1276,6 +1299,88 @@ def _apply_buy(agents, world, aid, tgt, tick, out, schedule) -> None:
     _ok(agents, buyers, tick, out)
 
 
+def _apply_eat(agents, world, aid, tgt, tick, out, schedule) -> None:
+    """**語彙 v2「食事」**(D-71 §3 E: 飲食店オブジェクトの affordance ``eat``)。
+
+    前提=飲食店(``world.eatery_mask``)のセルに居る・営業中・所持金 ≧ 価格 /
+    効果=所持金−価格・**店の売上+同額**(科目は購入と同じ ``消費支出``=保存則を壊さない)・
+    空腹−``EAT_HUNGER_RELIEF``・在店(``Activity.SHOPPING``+在席登録)。
+
+    購入(``_apply_buy``)との違いは 2 つだけ:
+      1. 対象が**飲食店に限られる**(対象決定は ``commit._poi_in_cell(..., eatery_mask)``)。
+      2. **棚在庫も所持品も動かさない**——食事は物の受け渡しではない(摂食≠購買。
+         語彙政策 v0 の★「意味の損失」を解く、というのがこの語の目的)。したがって
+         ``led.goods`` は通さず、``world.pois.stock`` も減らさない。
+         **売上に対応する原価が立たない**ことは親へ報告済み(残差科目・ゲートには触れない)。
+
+    失敗: 飲食店にいない=``NOT_IN_EATERY`` / 営業時間外=``CLOSED`` / 所持金不足=``MONEY_SHORT``。
+    満席(``out.crowd``)は**失敗ではなく待ち行列**(購入と同じ扱い・契約書 §2.1 の「待ち時間」)。
+    """
+    r = agents.registry
+    led = out.ledger
+    poi = np.clip(tgt, 0, max(0, world.n_poi - 1))
+    # 前提「飲食店のセルに居る」= **対象が飲食店であること**まで見る。対象決定
+    # (``commit.intents_from_responses``)は既に飲食店に絞っているが、``apply`` を直に
+    # 呼ぶ経路でも前提が名前どおりに効くようにここでも確かめる(同じ検査を 2 回するだけ)。
+    in_eatery = (tgt >= 0) & (tgt < world.n_poi)
+    if world.n_poi:
+        in_eatery = in_eatery & np.asarray(world.eatery_mask, dtype=bool)[poi]
+    is_open = in_eatery & world.open_mask(tick)[poi]
+    price = world.pois.price[poi].astype(np.int64)
+    can_pay = is_open & (r.money[aid].astype(np.int64) >= price)
+
+    _fail(agents, aid[~in_eatery], ResultCode.NOT_IN_EATERY, tick, out)
+    _fail(agents, aid[in_eatery & ~is_open], ResultCode.CLOSED, tick, out)
+    _fail(agents, aid[is_open & ~can_pay], ResultCode.MONEY_SHORT, tick, out)
+
+    # ---- 屋内占有(購入と同じ 16行表 行2): 満席なら並ぶ ----
+    if out.crowd is not None and can_pay.any():
+        room = np.zeros(aid.size, dtype=bool)
+        sel = np.flatnonzero(can_pay)
+        room[sel] = np.asarray(out.crowd.can_admit(poi[sel]), dtype=bool)
+        queued = aid[can_pay & ~room]
+        if queued.size:
+            r.activity[queued] = int(Activity.WAITING)
+            r.queue_poi[queued] = poi[can_pay & ~room].astype(np.int32)
+            r.queue_since[queued] = int(tick)
+            out.n_queued += int(queued.size)
+            _ok(agents, queued, tick, out)
+        can_pay = can_pay & room
+
+    win = np.flatnonzero(can_pay)
+    if win.size == 0:
+        return
+    eaters = aid[win]
+    shops = poi[win]
+    paid = price[win]
+    if led is not None and led.money is not None:
+        status = led.money.purchase_many(eaters, shops, paid, tick)
+        ok = np.asarray(status) == 0
+        if not ok.all():
+            _fail(agents, eaters[~ok], ResultCode.MONEY_SHORT, tick, out)
+            out.n_ledger_rejected += int((~ok).sum())
+            eaters, shops, paid = eaters[ok], shops[ok], paid[ok]
+            if eaters.size == 0:
+                return
+    else:
+        r.money[eaters] = (r.money[eaters].astype(np.int64) - paid).astype(np.int32)
+    _require_thawed(world)
+    np.add.at(world.pois.revenue, shops, paid)
+    r.hunger[eaters] = np.maximum(
+        r.hunger[eaters].astype(np.int16) - EAT_HUNGER_RELIEF, 0
+    ).astype(np.uint8)
+    r.activity[eaters] = int(Activity.SHOPPING)  # 在店(その tick は移動しない)
+    if out.crowd is not None:
+        r.poi_ref[eaters] = shops.astype(np.int32)
+        r.poi_since[eaters] = int(tick)
+        r.queue_poi[eaters] = -1
+        out.crowd.on_admit(shops)
+    out.n_meals += int(eaters.size)
+    out.meal_yen += int(paid.sum())
+    out.revenue_delta += int(paid.sum())
+    _ok(agents, eaters, tick, out)
+
+
 def _apply_wait(agents, world, aid, tgt, tick, out, schedule) -> None:
     """待機: **常に可能=安全弁**(失敗しない)。"""
     agents.registry.activity[aid] = int(Activity.WAITING)
@@ -1729,4 +1834,22 @@ _APPLY: Final[dict[int, object]] = {
 }
 
 assert len(_APPLY) == 13, "行動語 12 + エンジン継続 1"
+
+#: **語彙 v2** の適用表(v1 の 13 分岐 + 食事)。``_APPLY`` は**そのまま**=v1 の検査も
+#: ``tests/engine/test_parser_contract.py`` の「12 語 + エンジン継続 = 13 分岐」も動かない。
+_APPLY_V2: Final[dict[int, object]] = {**_APPLY, ACT_EAT: _apply_eat}
+assert len(_APPLY_V2) == 14, "語彙 v2 = 13 分岐 + 食事"
+
+#: 語彙版 → 適用表。
+_APPLY_BY_VOCAB: Final[Mapping[str, dict[int, object]]] = {"v1": _APPLY, "v2": _APPLY_V2}
+
+#: 語彙版 → ``apply`` が回す行動の**順序**(決定論のため固定・v2 は末尾に食事を足すだけ)。
+_ACTION_ORDER_V1: Final[tuple[int, ...]] = (
+    ENGINE_STEP, ACT_MOVE, ACT_BOARD, ACT_ALIGHT, ACT_BUY, ACT_WAIT, ACT_TALK,
+    ACT_LEAVE, ACT_REPORT, ACT_HELP, ACT_REFUSE, ACT_REST, ACT_SLEEP,
+)
+_ACTION_ORDER_BY_VOCAB: Final[Mapping[str, tuple[int, ...]]] = {
+    "v1": _ACTION_ORDER_V1,
+    "v2": _ACTION_ORDER_V1 + (ACT_EAT,),
+}
 assert _REFRACTORY_TICKS.size == N_WAKE_CONDITIONS

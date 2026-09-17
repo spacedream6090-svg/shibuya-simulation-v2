@@ -79,6 +79,7 @@
 ### G-8 アンサンブル計器
 - **推奨**: 面2に **CRPS**(予測分布と実測点の距離・reliability/resolution分解)と **spread-skill ratio**(アンサンブル幅/RMSE・≈1が目安)を常設。「ランを増やせば良くなる」ではなく「幅が正しいか」を測る自己点検。レイアウトはECMWFスコアカード様式(行=アンカー・列=時間解像度・セル=有意差の色)。ECMWF原文は未読=様式はexpedient。
 - ラン本数の根拠: Monte Carlo標準誤差から逆算(Siepe et al. 2024の式=未確認→確認までは「初回=seed群8本・spread-skillで再評価」のexpedient)。
+  **→ 第205(2026-09-17・ユーザー決定「3 seed で確定」)**: 初回の seed 群は **3 本**(c7-day-4 構成 × seed 1/2/3)。根拠=seed 1/2 の実測(在圏の時刻別 CV(n=2) 中央値 0.0038・最大 0.0325=深夜)と L-B 答申 §5 の N=(CV/r)²(深夜を 2% で言うのに 2.6 本)。「8 本」は撤回(expedient を実測で置換・§3 の登録簿も同じ)。帰無参照は seed 間の実測 JSD(エリア別 24h シェア 0.000162 bits)に置く。事前登録 [prereg_arms_v1.md](../bench/c7/prereg_arms_v1.md) §6 v1.2。
 - **報告様式=分布(第203 追加・出典 D-75 (a)=Li & Tao 2026「Not (Yet) Sufficient」arXiv 2603.00113 §4 Action 3 の逐語「reported as distributions (e.g., uncertainty intervals and variance decomposition) rather than selected trajectories」+ Larooij & Törnberg 2025, Artificial Intelligence Review 59(1) 15 の提言(iii) の逐語「results reported across multiple runs and, where feasible, limited sensitivity checks for key parameters.」)**: 面1・面2・面3 のいずれも、結果は**不確実性区間+分散分解(seed 間 / 条件間)**の形で報告し、**選んだ1軌跡で出さない**。分散分解は最低 2 成分(seed 間=同一構成の反復・条件間=腕/パラメタの差)に分け、腕の差は「条件間の分散が seed 間の分散を超えているか」で述べる(C8 の帰無参照=T7 seed 違いの JSD と同じ考え方)。**適用は S1 の 8 seed 以降**——それ以前の単一 seed の値は「分布ではない」と明記して出す(現行の C7 受入表・C8 ablation 第1陣の seed 1/2 はここに当たる)。追加費用は無い(報告の形だけ)。
 
 ### G-9 面3(運用)の警報規律
@@ -89,7 +90,7 @@
 - 面2の事前登録ファイル(SHA)がmanifestに記録されていること(T10)。面2の判定がアンサンブル単位で行われること(単一ランで合否を出したら失敗)。seed写像テスト(G-5)。完了済みラン表の再開テスト(中断→再開で状態ハッシュ一致)。面3の赤に対処手順が存在すること(静的検査)。
 
 ## §3 expedient登録簿(本書分)
-3面の分け方/Var_disc初回0/観測誤差不明時の宣言値/EnsembleSpec・SweepSpecの2型/ワークフローエンジン不採用/自前ラン表スキーマ/スコアカード様式/初回seed群8本/面3のしきい値。
+3面の分け方/Var_disc初回0/観測誤差不明時の宣言値/EnsembleSpec・SweepSpecの2型/ワークフローエンジン不採用/自前ラン表スキーマ/スコアカード様式/初回seed群8本(→第205 で 3 本に実測置換)/面3のしきい値。
 
 ## §4 空欄(未確認)
 Augusiak 2014要旨・Siepe 2024の反復回数式・ECMWF原文・History Matching for ABM(2501.00616)・LLMエージェント評価サーベイ(2507.21504)・2022年評価記述標準プロトコル。

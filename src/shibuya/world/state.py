@@ -102,6 +102,9 @@ class World:
         self.pois.open_to[:] = assets.poi_open_to
         self.pois.open_now[:] = -1  # 上書きなし(C2 と同じ 10:00-22:00 の既定へ落ちる)
         self._frozen = False
+        #: 飲食店マスク(``eatery_mask`` の遅延キャッシュ)。**SoA の欄ではない**
+        #: =``Registry.state_hash`` にも checkpoint にも入らない(既定のバイトは動かない)。
+        self._eatery_mask: np.ndarray | None = None
 
     # ---- 生成 ----
     @classmethod
@@ -160,6 +163,32 @@ class World:
         """密度 → 段階(``DENSITY_STAGE_EDGES`` の右側挿入位置)。"""
         d = self.cells.density if density is None else np.asarray(density)
         return np.searchsorted(np.asarray(DENSITY_STAGE_EDGES), d, side="right").astype(np.uint8)
+
+    @property
+    def eatery_mask(self) -> np.ndarray:
+        """飲食店の POI マスク(``(n_poi,)`` bool)。**語彙 v2 の行動語「食事」の前提**。
+
+        判定は ``world.assets.hash_free_cat_code(cat) == 1``(= 価格帯「飲食」)を**そのまま
+        再利用**する。カテゴリ判定の表を 2 つ持たないための選択で、``economy.entry_capital``
+        の価格帯・``economy.goods.CATEGORY_NAMES[1]``(飲食)と同じ線になる。
+
+        Note:
+            ``cat == "nightlife"``(バー・クラブ)は ``hash_free_cat_code`` が 2 を返すので
+            **含まれない**(経済側では大分類 M=宿泊/飲食サービス業だが、価格帯は別)。
+            この食い違いは ``hash_free_cat_code`` 由来で、本 property では直さない
+            (直すならカテゴリ表そのものの改版=親判断)。
+
+        逐次ループ宣言(P4): **初回の 1 回だけ** POI 数ぶんの Python ループ(カテゴリ名の
+        文字列判定)。以後はキャッシュを返す。tick にも個体数にも比例しない。
+        """
+        if self._eatery_mask is None:
+            from shibuya.world.assets import hash_free_cat_code
+
+            cats = tuple(self.assets.poi_cat)
+            self._eatery_mask = np.asarray(
+                [hash_free_cat_code(c) == 1 for c in cats], dtype=bool
+            )
+        return self._eatery_mask
 
     def open_mask(self, tick: int) -> np.ndarray:
         """その tick に営業している POI の bool マスク(1 日 1,440 tick で剰余を取る)。
