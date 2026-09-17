@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **6 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **7 / 10**
 > 第1〜第210(2026-09-01〜09-17)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第211 R-4 ミクロ観察の先行例 帰還・親確認 3 件・D-80 新設(2026-09-17 夕)
@@ -40,3 +40,9 @@
 - **親検収**: tests/c7 124 passed in 0.75s・tests/c8+cli 265 passed・lint 5 kept・既定不変は golden(report 文面・compare の dict)で固定されているのを確認。**親修正 2 件**: (i) v1.3 のトップレベル判定をアンサンブルに(`apply_ensemble_verdict`・`c7_accept.py` の HOLD 行が読むため・seed 1 点判定は `seed1_v12` に保存)(ii) CRPS の係数名を 2 つに分離((1+1/M)=raw の期待膨張 / M/(M−1)=fair の広がり項)。両方とも正しい量で、名前の混同だけが問題だった。
 - prereg §7 に計器注記(確定は seed 3 の後)。
 - **次**: seed 3 → `seed_ensemble.py`(3 seed)→ §7 確定 → 「開けてよい」→ `holdout_compare.py --prereg-version v1.3 --open-seal`。C9c-1 帰還待ち。
+
+## 第217 D-83 ⑦ seed 交換可能性の検査(親実装)・T3 紙上確認(2026-09-17 夕)
+
+- `tools/c7/seed_exchangeability.py`+テスト 7。seed 1/2 の manifest 差は `fleet.cache_salt`(許容)と `intent_mode` None→vocab(AB7 以後の既定名・宣言済み同値)だけ=**交換可能**。**母集団・日課のハッシュは seed 間で同一**(母集団の抽出は seed に依らない=事前登録に書ける強い性質)・00 時の初期配置も同一。世界と状態のハッシュは違って当然。
+- **T3 紙上確認**: 検算①(部門ごとの予算制約)は T3 を含むが開発時のみ・全規模で毎期走る検算②は集計恒等式で部門間相殺を見逃す → 月次センサス時に検算①を走らせれば T3 になる(90 総和/月)。設計書が「新規実装の可否はユーザー判断」と書くので **D-85**。介入 0 検査は介入の記録契約(設計済・未実装)と同時に。
+- 実行中: C9c-1(面積実測化)・決定台帳の根拠対応表(D-83 ④ の材料)。seed 3 テープ 84%(16:11)。
