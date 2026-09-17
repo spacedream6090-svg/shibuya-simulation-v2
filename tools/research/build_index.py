@@ -101,6 +101,8 @@ C = {
  'v2-world-process-rows-research.md':           ([19,10], 'P0', 'エンジン/LLM 線引き16行の詳細決定材料'),
  'v2-w7-law-primary-check-research.md':         ([11,9],  'P0', 'W7 法規の条文一次確認とコード突合(L-24)。法学 #11 を D→A。D-72 の出所'),
  'v2-replication-count-research.md':            ([23,21], 'P0', '反復回数(seed 数)の文献手続き 7 系譜と「初回 8 seed」の位置(L-B)。D-70/D-44/G-8 の材料。統計 #23 の最初の答申'),
+ 'v2-c10-initial-relations-research.md':        ([14,12,21,27], 'P1', 'C10 着手前: 関係の強さは記憶の基底活性(ACT-R・d=0.5 は認知設計 §4 で既決)から導ける=Δ 5 個+半減期は消え、残るのは符号・検索閾値 τ(較正可)・エピソード粒度(Gilbert 2009 β 最終接触 −0.76/初回接触 0.755・Zhao 2012=ACT-R を辺にした唯一の先行)。3 値を LLM に書かせない(Qwen3-8B FR 46.22%)=符号は ResultCode から。ラン前ウォームアップの先行 0 本・世界内では会話率 0.0021/体/日で不可→ 機械的初期化を既定・強制ペアは 5,000 体で先に測る。齟齬 6(半減期 90 vs 30・3 人会話の口が無い ほか)'),
+ 'v2-r23-primary-check-batch3.md':              ([30,29,22,21,12,27,25], 'P0', 'R-23 第3批: D 等級だけを根拠にする決定台帳 18 行の一次確認=支持 9/訂正 9/撤回 0・主張 69・訂正 18(NCP-Bench 20 ターン 42%・0.599^10 導出値・1:5:25 は cascade 制御の実務比で Dunbar でない・L401 強 5 本の陳腐化・Pseudo-PFLOW 学習域・AutoAWQ 非推奨)・L385 三層世界方式の根拠答申は本リポに不在'),
  'v2-personality-traits-research.md':           ([13,12,27], 'P0', '人の構成要素 P2=性格: 規準=川本 2015(N 4,588・TIPI-J M/SD・因子間相関 −.29〜.32・年齢×性別の R² ≤5.35%)・効果量(外向性→会話 |r| .17・協調性→向社会 .12・開放性→移動は負・誠実性→時間厳守は空欄)・LLM 付与(Han 2025「persona は自己申告を動かすが行動は動かない」)→ C 案=入れずに測る(corr(z_E, 会話起点) 目標 .17)・traits 3 次元は設計書で未定義・プールの上側隆起'),
  'v2-hobby-preference-research.md':             ([4,13,1], 'P0', '人の構成要素 P1=趣味・嗜好の公的分布(社会生活基本調査 R3 生活行動編・行動者率 全国 86.3/東京都 91.4・年齢勾配 7 倍・独立抽選は無趣味率で 98 倍ずれる・共起 φ≤0.53)→ 種目 58 bit+コピュラ+稀事象の待ち時間・W6 カタログの欠陥 3(公園が PLACE_PARK に行かない)・先行例ゼロ'),
  'v2-preference-vector-research.md':            ([3,21,13], 'P0', '人の構成要素 P3=選好ベクトルと常連/探索(EPR γ 0.21・Π=f・δ 1.2 / returners k=4・EPR は k≈60 / Schläpfer η≈2 / 外食リピート 77.5%・業態 32〜95.5%・Dubé 状態依存)→ 選好はエンジンの数値・二重計上の整理(戻る=K-1・探す=ρ_i・P3 は初回選択・P1/P2 は掛けない)・repo は店選択が「セル内最小 id」'),
@@ -127,6 +129,8 @@ OVERRIDE = {
  'v2-w7-law-primary-check-research.md': ('A', '親再取得(2026-09-16・第200)。逐語一致つき。空欄 6 件(§4)・告示 PDF は親未再取得'),
  'v2-replication-count-research.md': ('A', '親再取得(2026-09-16・第200)。9 出典を親が再取得(4 Web+5 PDF)・全数値を再計算。空欄 5 件(§4: Lorscheid 原典・Law 教科書原文・Secchi 式(2) 係数・Leutbecher 査読版・ECMWF「51」の根拠文書)'),
  # 09-16 第202: サブ実読+親が 3 主張を原典で再確認(Goel 2016 PDF「on average」・Law in Silico HTML に precedent なし・Ruri カード 71.53<71.65)。Dunbar 1995(有料)・UE5 の不在は親未確認
+ 'v2-c10-initial-relations-research.md': ('B', 'サブ実読 8+読み取り器 4+要約 6(2026-09-17・第230)+親確認 3 件(Gilbert 2009 PDF・Zhao 2012 PDF・Li 2026 HTML)+実物確認 2(会話マネージャ・半減期の齟齬)。Dunbar 2020・内閣官房 R5 は親未確認'),
+ 'v2-r23-primary-check-batch3.md': ('B', 'サブ実読 約 30(本文 14・抄録 16・2026-09-17)+親確認 3 件(NCP-Bench 抄録・0.599^10・ISA 2013 cascade)。訂正 3 反映・15 未反映・空欄 21+8'),
  'v2-personality-traits-research.md': ('B', 'サブ実読(2026-09-17・第222)+親確認 3 件(川本 2015 PDF の N/M/SD/R²/性別係数・TIPI-J 2012 は大学生 902・Serapio-García 抄録)。Thielmann/Harari(有料)・Han 2025・Contreras 2026 は親未確認'),
  'v2-hobby-preference-research.md': ('B', 'サブ実読(2026-09-17・第221)+親確認 3 件(e-Stat API 再取得 86.3/91.4/37.4/43.4・井出安井 2003 7.1/6/0・47,965・φ 0.5268)。平均行動日数の式・CitySim は親未確認'),
  'v2-preference-vector-research.md': ('B', 'サブ実読(2026-09-17・第221)+親確認 4 件(Song 2010 γ/Π=f/δ・Pappalardo 2015 bisector/k=4/67,000/46,000/k≈60/9・ホットペッパー 2018 77.5%/n 2,106/95.5%/60.9%・repo 現状)。Schläpfer 2021・Dubé 2010 は親未確認'),

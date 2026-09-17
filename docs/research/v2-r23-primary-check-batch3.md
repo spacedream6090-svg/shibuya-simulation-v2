@@ -2,7 +2,7 @@
 
 <!-- hdr:v1 -->
 - **分野**: ゲームエンジン工学・CG #30 / ソフトウェア工学 #29 / 検証とV&V・UQ #22 / ABM方法論 #21 / 認知科学 #12 / 自然言語処理 #27 / 計算社会科学 #25 | **重要度**: **P0**
-- **一次確認**: **B** = サブが一次資料を実読(逐語つき)・**親未確認**。本書の逐語・URL・判定はすべて親の再確認を要する。**特に §6 の 8 件は親が自分で当たること**
+- **一次確認**: **B** = サブが一次資料を実読(逐語つき)・**親未確認**。本書の逐語・URL・判定はすべて親の再確認を要する。**特に §6 の 8 件は親が自分で当たること** **→ 親確認 3 件(第229)**: NCP-Bench(arXiv 2608.08160 抄録)「42% survival rate after 20 turns」「100-turn limit」・「30 ターンで無矛盾ほぼゼロ」は無い ✓ / 0.599^10=0.0060(親再計算)✓ / Smuts, ISA 2013 cascade(PDF・親 pymupdf)「inner loop … at least five times faster than the outer loop」「ratios as low as 3:1 to as much as 20:1」✓(非査読の実務者論文)。訂正 3 件(L189/L193/L194)を決定台帳に反映済み・残り 15 件は未反映
 - **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
 
 > 対象: [決定台帳](../design/v2-redesign.md) §9 の 95 行のうち、[evidence map](../design/v2-decision-evidence-map.md) §3-2 が「**D 等級(出典 URL ゼロ)の答申だけを根拠にする**」と判定した **18 行**。
