@@ -87,6 +87,7 @@ from shibuya.engine.geometry import (
     check_geometry,
 )
 from shibuya.engine.ledger_api import LedgerBundle
+from shibuya.engine.processes.crowd import SEAT_AREA_M2
 from shibuya.engine.processes.runner import WorldProcessRunner
 from shibuya.engine.processes.salient import (
     ablation_name as _pnotice_ablation_name,
@@ -125,7 +126,13 @@ from shibuya.perception.templates import (
     check_intent_mode,
     check_vocab_version,
 )
-from shibuya.world.assets import load_process_assets_or_synthetic
+from shibuya.world.assets import (
+    AREA_SOURCES,
+    DEFAULT_AREA_SOURCE,
+    check_area_source,
+    load_process_assets_or_synthetic,
+    load_walkable_area_m2,
+)
 from shibuya.world.state import World
 
 __all__ = [
@@ -337,6 +344,15 @@ class RunResult:
     #: node では 0。
     geometry_hops: int = 0
     geometry_jammed: int = 0
+    #: **C9c-1 歩行可能面積の出所**(G8 (b)・D-84 (c))。``"legacy"``=街路点 × 6.25 m²
+    #: (既定・バイト不変)/``"plateau"``=PLATEAU 歩道部 + OSM × 道路構造令の実測値。
+    area_source: str = DEFAULT_AREA_SOURCE
+    #: 歩行可能面積[m²]の要約(実測に切り替えたランの診断。legacy でも埋まる)。
+    walkable_area_median_m2: float = 0.0
+    walkable_area_min_m2: float = 0.0
+    #: **1 人あたり床面積の感度腕**(``None``=現行の ``crowd.SEAT_AREA_M2`` のまま)。
+    seat_area_eatery_m2: float | None = None
+    seat_area_retail_m2: float | None = None
     #: **C9b 対象と注意**(G3/G4/G7)が立ったか(= ``geometry="edge"`` かつ
     #: ``vocab_version="v2"``)。False のランでは下の 6 本は 0 のまま。
     attention: bool = False
@@ -622,6 +638,11 @@ class RunResult:
             "outside_suppression": bool(self.outside_suppression),
             # ---- C9 位置幾何(既定 node=現行のバイト。edge=辺上の連続位置) ----
             "geometry": str(self.geometry),
+            # ---- C9c-1 歩行可能面積の出所(既定 legacy=現行式。資産 SHA は frozen_sources) ----
+            "area_source": str(self.area_source),
+            # ---- C9c-1 席面積の感度腕(既定 None=現行の 飲食 2.0 / その他 4.0) ----
+            "seat_area_eatery_m2": self.seat_area_eatery_m2,
+            "seat_area_retail_m2": self.seat_area_retail_m2,
             # ---- C9b 対象と注意(edge × 語彙 v2 の積でだけ立つ・G3/G4/G5/G6/G7) ----
             "attention": bool(self.attention),
             "catalog_sha16": catalog_sha16,
@@ -715,6 +736,12 @@ class RunResult:
                 f"  幾何 {self.geometry}(希望速度 "
                 f"{DESIRED_SPEED_MIN_MS:.2f}〜{DESIRED_SPEED_MAX_MS:.2f} m/s・Kladek 減速)"
                 f"/ ホップ反復 {self.geometry_hops:,} / 詰まり {self.geometry_jammed:,}"
+            )
+        # C9c-1: 面積を実測に切り替えたランだけ 1 行(既定 legacy の summary は不変)
+        if str(self.area_source) != DEFAULT_AREA_SOURCE:
+            lines.append(
+                f"  歩行可能面積 {self.area_source}(中央値 {self.walkable_area_median_m2:,.0f}"
+                f" m² / 最小 {self.walkable_area_min_m2:,.1f} m²)"
             )
         # C9b: 対象と注意の腕だけ 1 行(既定の 4 腕では出ない)
         if self.attention:
@@ -1070,6 +1097,9 @@ def run_day(
     outside_suppression: bool = True,
     derive_rule: str = "v2",
     geometry: str = DEFAULT_GEOMETRY,
+    area_source: str = DEFAULT_AREA_SOURCE,
+    seat_area_eatery_m2: float | None = None,
+    seat_area_retail_m2: float | None = None,
     census_out: str | Path | None = None,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
@@ -1207,6 +1237,20 @@ def run_day(
             「希望速度 ``Uniform(1.00,1.60)`` m/s × Kladek 減速 × 60 s」の距離だけ進む。
             ``xy`` は両端ノードの線形補間・セルは近い方の端点・密度段は人/m² の
             Fruin LOS 段。``GEOMETRY_MODES`` 以外は ``ValueError``。
+        area_source: **C9c-1 歩行可能面積の出所**(G8 (b)・D-84 (c)・2026-09-17)。
+            ``"legacy"``(既定)= 現行の「W10 街路点数 × 6.25 m²・床 1,500 m²」
+            (**expedient**・6.25 は 2.5 m 格子の目の面積)。**checkpoint も manifest 既存欄も
+            1 バイト動かない**。``"plateau"`` = ``c9c_walkable_area.parquet``(PLATEAU tran の
+            歩道部の面 + OSM 線 × 道路構造令の既定幅員・``tools/build_geo/walkable_area.py``)
+            を読み、**密度の分母を 1 本だけ差し替える**(``PerceptionAssets.walkable_area_m2``
+            = B4 の LOS 段・``ChangeDetector`` の起床条件 (i)・``EdgeGeometry`` の Kladek 減速が
+            **同じ値**を見る)。読み込みは起動時 1 回で tick ループに新しい逐次ループを作らない。
+        seat_area_eatery_m2 / seat_area_retail_m2: **1 人あたり床面積[m²]の感度腕**
+            (C9c-1・R-8 ③)。``None``(既定)= ``processes.crowd.SEAT_AREA_M2``
+            (飲食 2.0 / 物販その他 4.0)のまま=**1 バイトも変わらない**。法定の帯は
+            ``world.assets.SEAT_AREA_M2_FIRE_CODE``(消防法施行規則 1 条の 3・飲食 **3.0** /
+            物販 **4.0**)と ``SEAT_AREA_M2_BUILDING_NOTICE``(建告1441・飲食 1.43 / 売場 2.0)。
+            ``eatery`` は ``food``/``nightlife``、``retail`` は**表に無い全カテゴリ**に効く。
 
     Returns:
         ``RunResult``。
@@ -1224,6 +1268,16 @@ def run_day(
         raise ValueError(f"derive_rule は {PRESENCE_DERIVE_RULES} のどれか(いま {derive_rule!r})")
     # ---- C9 位置幾何の腕: 値の検査は**SoA を確保する前**にする(欄が 1 本変わるため) ----
     geometry = check_geometry(geometry)
+    # ---- C9c-1 歩行可能面積の出所: 資産を読む前に検査(manifest が嘘をつかない) ----
+    area_source = check_area_source(area_source)
+    # ---- C9c-1 席面積の感度腕: **None なら表に触らない**(既定は 1 バイトも変わらない) ----
+    seat_area_table: dict[str, float] | None = None
+    if seat_area_eatery_m2 is not None:
+        if float(seat_area_eatery_m2) <= 0.0:
+            raise ValueError(f"seat_area_eatery_m2 は正の値(いま {seat_area_eatery_m2})")
+        seat_area_table = {k: float(seat_area_eatery_m2) for k in SEAT_AREA_M2}
+    if seat_area_retail_m2 is not None and float(seat_area_retail_m2) <= 0.0:
+        raise ValueError(f"seat_area_retail_m2 は正の値(いま {seat_area_retail_m2})")
     # ---- AB7 自由意図の腕: 値の検査は**レンダラを作る前**にする(manifest が嘘をつかない) ----
     intent_mode = check_intent_mode(intent_mode)
     # ---- 語彙 v2 の版: 同上(mock・レンダラ・bridge の前で確定させる) ----
@@ -1292,6 +1346,8 @@ def run_day(
             p_notice_d50_scale=p_notice_d50_scale,
             salient_rate_per_10k=salient_rate_per_10k,
             plan_executor=plan_exec_on,
+            seat_area_m2=seat_area_table,
+            default_seat_area_m2=seat_area_retail_m2,
         )
 
     # ---- ⓪a-2 計画実行層(D-66・engine.presence)。W17 + W16 のあるランだけ立つ ----
@@ -1328,9 +1384,19 @@ def run_day(
     # ---- 知覚レンダラ(C3 結線・B0-B6 の本物) ----
     perception: PerceptionRendererAdapter | None = None
     frozen_sources_map: dict[str, str] = {}
+    #: C9c-1: 実測面積の資産 SHA(``area_source="plateau"`` のときだけ入る)。
+    walkable_sources: dict[str, str] = {}
     if renderer is None:
         assets = PerceptionAssets.load_or_synthetic(world_dir, world)
+        # ---- C9c-1: 歩行可能面積を実測に差し替える(**分母は 1 本**=二重定義を作らない) ----
+        # ``PerceptionAssets`` は frozen なので ``dataclasses.replace`` で作り直す。差し替えは
+        # レンダラを作る**前**なので、B4 の LOS 段・起床条件 (i)・Kladek 減速が同じ値を見る。
+        if area_source != DEFAULT_AREA_SOURCE:
+            new_area, area_sha = load_walkable_area_m2(world_dir, assets.place_ids)
+            assets = dataclasses.replace(assets, walkable_area_m2=new_area)
+            walkable_sources = dict(area_sha)
         frozen_sources_map = dict(getattr(assets, "frozen_sources", {}) or {})
+        frozen_sources_map.update(walkable_sources)
         # 世界内日時 = 気象の再生実日(D-W15)。世界過程が無ければ既定の開始日 + day_index。
         start = DEFAULT_START_DATETIME + timedelta(days=int(day_index))
         if runner is not None and runner.replay_date:
@@ -1351,9 +1417,14 @@ def run_day(
     elif isinstance(renderer, str):
         if renderer != "stub":
             raise ValueError("renderer は None / 'stub' / Renderer 実装")
+        if area_source != DEFAULT_AREA_SOURCE:
+            raise ValueError("area_source='plateau' は注入レンダラ('stub')では使えない")
         renderer_obj = StubRenderer()
         walkable = None
     else:
+        if area_source != DEFAULT_AREA_SOURCE:
+            # 注入された資産を黙って書き換えない(呼び手が自分で差し替える口を持っている)。
+            raise ValueError("area_source='plateau' は注入レンダラでは使えない(資産は呼び手のもの)")
         renderer_obj = renderer
         # 注入されたものが本物のアダプタなら、前計算(⓪)と B4 欄の受け渡しも同じ道を通す
         perception = renderer if isinstance(renderer, PerceptionRendererAdapter) else None
@@ -2301,6 +2372,18 @@ def run_day(
     result.geometry = str(geometry)
     result.geometry_hops = int(geometry_hops)
     result.geometry_jammed = int(geometry_jammed)
+    result.area_source = str(area_source)
+    result.seat_area_eatery_m2 = (
+        None if seat_area_eatery_m2 is None else float(seat_area_eatery_m2)
+    )
+    result.seat_area_retail_m2 = (
+        None if seat_area_retail_m2 is None else float(seat_area_retail_m2)
+    )
+    if walkable is not None:
+        _wk = np.asarray(walkable, dtype=np.float64).ravel()
+        if _wk.size:
+            result.walkable_area_median_m2 = float(np.median(_wk))
+            result.walkable_area_min_m2 = float(_wk.min())
     result.attention = bool(attention_on)
     if presence is not None:
         result.presence_counters = dict(presence.counters())
@@ -2480,6 +2563,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--geometry", choices=GEOMETRY_MODES, default=DEFAULT_GEOMETRY,
                     help="位置幾何(C9 G1/G2)。node=1 tick 1 ノード(既定・バイト不変)/"
                          "edge=辺上の連続位置+希望速度 1.00〜1.60 m/s+Kladek 減速")
+    ap.add_argument("--area-source", choices=AREA_SOURCES, default=DEFAULT_AREA_SOURCE,
+                    help="歩行可能面積の出所(C9c-1 G8 (b))。legacy=街路点×6.25 m²(既定・"
+                         "バイト不変)/ plateau=c9c_walkable_area.parquet(PLATEAU 歩道部+"
+                         "OSM×道路構造令の実測)")
     add_fleet_args(ap)
     args = ap.parse_args(argv)
 
@@ -2511,6 +2598,7 @@ def main(argv: list[str] | None = None) -> int:
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,
         geometry=str(args.geometry),
+        area_source=str(args.area_source),
     )
     print(res.summary())
     return 0 if (res.conserved and res.min_stock >= 0) else 1

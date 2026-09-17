@@ -57,7 +57,7 @@ from shibuya.perception.templates import (
     INTENT_MODES,
     VOCAB_VERSIONS,
 )
-from shibuya.world.assets import hash_free_cat_code
+from shibuya.world.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE, hash_free_cat_code
 from shibuya.world.state import World
 
 __all__ = [
@@ -592,6 +592,32 @@ def main(argv: list[str] | None = None) -> int:
              "+Kladek 式の密度減速。edge では密度段が人/m² の Fruin LOS 段になる",
     )
     ap.add_argument(
+        "--area-source",
+        choices=AREA_SOURCES,
+        default=DEFAULT_AREA_SOURCE,
+        help="歩行可能面積の出所(C9c-1・G8 (b)・docs/research/v2-c9-geometry-capacity-"
+             "research.md §2-1)。legacy=W10 街路点数 × 6.25 m²・床 1,500 m²(既定・"
+             "**checkpoint はバイト不変**・6.25 は 2.5 m 格子の目の面積=expedient)/"
+             " plateau=c9c_walkable_area.parquet(PLATEAU tran 歩道部の面 + OSM 線 × 道路"
+             "構造令の既定幅員で実測・tools/build_geo/walkable_area.py が作る)",
+    )
+    ap.add_argument(
+        "--seat-area-eatery",
+        type=float,
+        default=None,
+        metavar="M2",
+        help="飲食(food/nightlife)の 1 人あたり床面積[m²]の感度腕(既定=現行 2.0 のまま)。"
+             "法定: 消防法施行規則 1 条の 3(三)項ロ **3.0** / 建告1441 飲食室 0.7 人/m² **1.43**",
+    )
+    ap.add_argument(
+        "--seat-area-retail",
+        type=float,
+        default=None,
+        metavar="M2",
+        help="物販その他の 1 人あたり床面積[m²]の感度腕(既定=現行 4.0 のまま)。"
+             "法定: 消防法施行規則 1 条の 3(四)項ロ **4.0** / 建告1441 売場 0.5 人/m² **2.0**",
+    )
+    ap.add_argument(
         "--no-population",
         action="store_true",
         help="W16 母集団を使わず合成個体で回す(下限対照・世帯財布も mock のまま)",
@@ -652,6 +678,9 @@ def main(argv: list[str] | None = None) -> int:
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,
         geometry=str(args.geometry),
+        area_source=str(args.area_source),
+        seat_area_eatery_m2=args.seat_area_eatery,
+        seat_area_retail_m2=args.seat_area_retail,
         intent_mode=str(args.intent_mode),
         vocab_version=str(args.vocab_version),
         fleet=fleet_from_args(args, ap),

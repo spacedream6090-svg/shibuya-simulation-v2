@@ -34,7 +34,7 @@ expedient(本モジュール分)
 
 from __future__ import annotations
 
-from typing import Final
+from typing import Final, Mapping
 
 import numpy as np
 
@@ -55,9 +55,16 @@ __all__ = [
     "CrowdProcess",
 ]
 
-#: 1 席あたりの床面積[m²](expedient・16行表 行2「席数換算式=expedient」)。
+#: 1 席あたりの床面積[m²](**expedient**・16行表 行2「席数換算式=expedient」)。
+#: 飲食の 2.0 は **repo にも法令にも出所が無い**(答申 §1-3 c2/c3・R-8 ③ の調査結果)。
+#: 法定の帯は ``world.assets.SEAT_AREA_M2_FIRE_CODE``(消防法施行規則 1 条の 3・飲食 3.0 /
+#: 物販 4.0)と ``SEAT_AREA_M2_BUILDING_NOTICE``(建告1441・飲食 1.43 / 売場 2.0)で、
+#: 現行の 2.0 はその**間**にある。**既定は動かさない**(飲食を 3.0 にすると席数が 1.5 分の 1 =
+#: checkpoint が動く)。感度腕は ``--seat-area-eatery / --seat-area-retail`` で与える。
 SEAT_AREA_M2: Final[dict[str, float]] = {"food": 2.0, "nightlife": 2.0}
 #: それ以外(物販・サービス等)の 1 席あたり面積[m²]。
+#: **4.0 は消防法施行規則 第一条の三(四)項ロ「床面積を四平方メートルで除して得た数」と
+#: 逐語一致する**(答申 §1-3 c2)が、repo 側に由来の記載が無いので偶然かは判定できない。
 DEFAULT_SEAT_AREA_M2: Final[float] = 4.0
 
 #: カテゴリ別の**想定床面積**[m²](expedient・実測は空欄)。
@@ -95,13 +102,32 @@ COHERENT: Final[float] = 0.50
 FLOW_NONE: Final[int] = 8
 
 
-def seats_for_categories(cats) -> np.ndarray:
-    """POI カテゴリ列 → 席数(容量 c)。**全部 expedient**(16行表 行2)。"""
+def seats_for_categories(
+    cats,
+    *,
+    seat_area_m2: Mapping[str, float] | None = None,
+    default_seat_area_m2: float | None = None,
+) -> np.ndarray:
+    """POI カテゴリ列 → 席数(容量 c)。**全部 expedient**(16行表 行2)。
+
+    Args:
+        cats: POI カテゴリ列。
+        seat_area_m2: カテゴリ別の 1 人あたり床面積[m²]の**上書き**(``None``=``SEAT_AREA_M2``)。
+            C9c-1 の感度腕(法定値: 消防 飲食 3.0 / 建告 飲食 1.43)を与えるための口。
+        default_seat_area_m2: 表に無いカテゴリの上書き(``None``=``DEFAULT_SEAT_AREA_M2``)。
+
+    >>> int(seats_for_categories(("food",))[0])          # 60 m² / 2.0
+    30
+    >>> int(seats_for_categories(("food",), seat_area_m2={"food": 3.0})[0])
+    20
+    """
+    table = SEAT_AREA_M2 if seat_area_m2 is None else dict(seat_area_m2)
+    fallback = DEFAULT_SEAT_AREA_M2 if default_seat_area_m2 is None else float(default_seat_area_m2)
     out = np.empty(len(cats), dtype=np.int64)
     for i, c in enumerate(cats):
         name = str(c)
         area = FLOOR_AREA_M2_BY_CAT.get(name, DEFAULT_FLOOR_AREA_M2)
-        per = SEAT_AREA_M2.get(name, DEFAULT_SEAT_AREA_M2)
+        per = table.get(name, fallback)
         out[i] = max(1, int(area // per))
     return out
 
@@ -120,7 +146,15 @@ class CrowdProcess:
     process_ids: Final[tuple[str, ...]] = ("crowd_field", "indoor_occupancy")
     ablation_id: Final[str] = "AB-OCCUPANCY-CAPACITY"
 
-    def __init__(self, world: World, agents: AgentState, *, tick_seconds: int = 60) -> None:
+    def __init__(
+        self,
+        world: World,
+        agents: AgentState,
+        *,
+        tick_seconds: int = 60,
+        seat_area_m2: Mapping[str, float] | None = None,
+        default_seat_area_m2: float | None = None,
+    ) -> None:
         self.world = world
         self.agents = agents
         self.tick_seconds = int(tick_seconds)
@@ -128,7 +162,16 @@ class CrowdProcess:
         self.flow = np.zeros(n, dtype=np.uint8)
         self.flow_dir8 = np.full(n, FLOW_NONE, dtype=np.uint8)
         self.coherence = np.zeros(n, dtype=np.float64)
-        self.seats = seats_for_categories(world.assets.poi_cat)
+        #: 1 人あたり床面積の**実効表**(既定は ``SEAT_AREA_M2``= 1 バイトも変わらない)。
+        self.seat_area_m2 = dict(SEAT_AREA_M2 if seat_area_m2 is None else seat_area_m2)
+        self.default_seat_area_m2 = (
+            DEFAULT_SEAT_AREA_M2 if default_seat_area_m2 is None else float(default_seat_area_m2)
+        )
+        self.seats = seats_for_categories(
+            world.assets.poi_cat,
+            seat_area_m2=self.seat_area_m2,
+            default_seat_area_m2=self.default_seat_area_m2,
+        )
         self.occupancy = np.zeros(world.n_poi, dtype=np.int64)
         self.admitted_this_tick = np.zeros(world.n_poi, dtype=np.int64)
         self.queue_len = np.zeros(world.n_poi, dtype=np.int64)

@@ -26,7 +26,7 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Final, Iterable
+from typing import Any, Final, Iterable, Mapping
 
 import numpy as np
 
@@ -151,6 +151,8 @@ class WorldProcessRunner:
         p_notice_d50_scale: float = 1.0,
         salient_rate_per_10k: float | None = None,
         plan_executor: bool = False,
+        seat_area_m2: Mapping[str, float] | None = None,
+        default_seat_area_m2: float | None = None,
     ) -> None:
         if world is None or agents is None:
             raise ValueError("WorldProcessRunner は world と agents を要る")
@@ -201,7 +203,10 @@ class WorldProcessRunner:
             world, agents, self.assets,
             day_index=self.day_index, tick_seconds=self.tick_seconds, actual_log=self.log,
         )
-        self.crowd = CrowdProcess(world, agents, tick_seconds=self.tick_seconds)
+        self.crowd = CrowdProcess(
+            world, agents, tick_seconds=self.tick_seconds,
+            seat_area_m2=seat_area_m2, default_seat_area_m2=default_seat_area_m2,
+        )
         self.traffic = TrafficProcess(world, self.assets, tick_seconds=self.tick_seconds)
 
         # ---- C4 後半: 物の流れ(補充 → 納品 → 収集 → 街路清掃) ----
