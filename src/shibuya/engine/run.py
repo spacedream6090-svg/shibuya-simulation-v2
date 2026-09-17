@@ -63,6 +63,7 @@ from shibuya.agents.population import Population, load_population, sample_popula
 from shibuya.agents.weekly import apply_to_mock_schedule, load_weekly
 from shibuya.agents.schedule import synthesize
 from shibuya.agents.state import (
+    FOCUS_NONE,
     WAKE_CONDITION_CLASS,
     Activity,
     AgentState,
@@ -336,6 +337,18 @@ class RunResult:
     #: node では 0。
     geometry_hops: int = 0
     geometry_jammed: int = 0
+    #: **C9b 対象と注意**(G3/G4/G7)が立ったか(= ``geometry="edge"`` かつ
+    #: ``vocab_version="v2"``)。False のランでは下の 6 本は 0 のまま。
+    attention: bool = False
+    #: 「近づく」が立った件数 / 対象に届いた件数 / 着いたのに居なかった件数(``TARGET_GONE``)。
+    n_approach: int = 0
+    n_approach_done: int = 0
+    n_target_gone: int = 0
+    #: 注意の焦点を取得した件数 / 消えた件数(寿命切れ+喪失距離)。
+    n_focus: int = 0
+    n_focus_lost: int = 0
+    #: **実距離**で成立した会話招待の件数(G7)。
+    n_talk_by_distance: int = 0
     #: 計画実行層の診断(``PlanExecutor.counters()``)。層が休んだランは空 dict。
     presence_counters: dict[str, float] = field(default_factory=dict)
     #: D-66 域外抑止を効かせたか(既定 True)。False = **帰無腕**。
@@ -609,6 +622,8 @@ class RunResult:
             "outside_suppression": bool(self.outside_suppression),
             # ---- C9 位置幾何(既定 node=現行のバイト。edge=辺上の連続位置) ----
             "geometry": str(self.geometry),
+            # ---- C9b 対象と注意(edge × 語彙 v2 の積でだけ立つ・G3/G4/G5/G6/G7) ----
+            "attention": bool(self.attention),
             "catalog_sha16": catalog_sha16,
             "process_ids": process_ids,
             "ablations": ablations,
@@ -700,6 +715,14 @@ class RunResult:
                 f"  幾何 {self.geometry}(希望速度 "
                 f"{DESIRED_SPEED_MIN_MS:.2f}〜{DESIRED_SPEED_MAX_MS:.2f} m/s・Kladek 減速)"
                 f"/ ホップ反復 {self.geometry_hops:,} / 詰まり {self.geometry_jammed:,}"
+            )
+        # C9b: 対象と注意の腕だけ 1 行(既定の 4 腕では出ない)
+        if self.attention:
+            lines.append(
+                f"  対象と注意(C9b) 近づく {self.n_approach:,}"
+                f"(到達 {self.n_approach_done:,} / 対象不在 {self.n_target_gone:,})"
+                f" / 焦点 取得 {self.n_focus:,} 消失 {self.n_focus_lost:,}"
+                f" / 会話 実距離成立 {self.n_talk_by_distance:,}"
             )
         # D-58: 繰り延べを記録/再現したランだけ 1 行(mock ランは従来どおり出ない)
         _bd = float(self.bridge_counters.get("tape_deferred_rows", 0.0)) or float(
@@ -864,6 +887,10 @@ def _schedule_with_population(
     m = min(n, pop.n)
     home = np.asarray(schedule.home_cell).copy()
     work = np.asarray(schedule.work_cell).copy()
+    # C9b G5: 学校セルは W16 が持っている(mock 側に対応する欄は無い)。対象ヒント
+    # ``school`` の解決先としてそのまま運ぶ(**-1 のまま**=学校なしはヒントが効かない)。
+    school = np.full(n, -1, dtype=np.int32)
+    school[:m] = np.asarray(pop.school_cell, dtype=np.int64)[:m].astype(np.int32)
     kind = np.asarray(schedule.kind).copy()
     age = np.zeros(n, dtype=np.uint8)
     sex = np.full(n, -1, dtype=np.int8)
@@ -887,6 +914,7 @@ def _schedule_with_population(
         schedule,
         home_cell=home_out.astype(np.int32),
         work_cell=np.clip(work, 0, n_cells - 1).astype(np.int32),
+        school_cell=np.where(school >= 0, np.clip(school, 0, n_cells - 1), -1).astype(np.int32),
         kind=kind,
         age=age,
         sex=sex,
@@ -895,7 +923,9 @@ def _schedule_with_population(
     )
 
 
-def _settle_pending_invites(conv, agents, tick, agent_ids, codes, named, R, np) -> set[int]:
+def _settle_pending_invites(
+    conv, agents, tick, agent_ids, codes, named, R, np, by_distance: bool = False
+) -> set[int]:
     """返事待ちの招待を**Phase C の前に**確定する(層2 中-1・09-09)。
 
     正典
@@ -915,7 +945,6 @@ def _settle_pending_invites(conv, agents, tick, agent_ids, codes, named, R, np) 
     """
     if conv is None or not conv.pending_invites:
         return set()
-    cell = agents.registry.cell
     consumed: set[int] = set()
     accepted: list[tuple[int, int]] = []
     reverted: list[int] = []
@@ -925,7 +954,11 @@ def _settle_pending_invites(conv, agents, tick, agent_ids, codes, named, R, np) 
         if b not in conv.pending_invites:
             continue
         a = conv.pending_inviter_of(b)
-        same_cell = bool(a >= 0 and cell[a] == cell[b] and cell[b] >= 0)
+        # C9b G7: ``by_distance`` の腕では「同一セル」に実距離 2 m が加わる。
+        same_cell = bool(
+            a >= 0
+            and R.talk_within_reach(agents, np.int64(a), np.int64(b), by_distance=by_distance)
+        )
         aimed_at_inviter = int(named[k]) in (a, -1)
         ok = bool(codes[k] == C.ACT_TALK) and aimed_at_inviter and same_cell
         opened = conv.resolve_pending(b, tick, accepted=ok)
@@ -974,6 +1007,22 @@ def _target_person(target: Any) -> int:
         return -1
     pid = getattr(target, "person_id", None)
     return -1 if pid is None else int(pid)
+
+
+def _target_poi(target: Any) -> int:
+    """``llm.contract.Target`` → 目印 POI 索引(解決できていなければ ``-1``)。
+
+    C9b G6 a′: ``parse_target(..., landmarks=...)`` を通った応答だけが ``poi_id`` を持つ。
+    """
+    pid = getattr(target, "poi_id", None)
+    return -1 if pid is None else int(pid)
+
+
+def _pending_extra(res: Any) -> tuple[int, int]:
+    """応答 → ``(対象ヒント索引, 目印 POI 索引)``(C9b G5/G6・腕が立っていなければ ``(0, -1)``)。"""
+    return C.target_hint_code(getattr(res, "target_hint", "")), _target_poi(
+        getattr(res, "target", None)
+    )
 
 
 def run_day(
@@ -1201,8 +1250,18 @@ def run_day(
     if _ablated & set(PlanExecutor.process_ids) | (_ablated & {PlanExecutor.ablation_id}):
         plan_executor = False
     plan_exec_on = bool(plan_executor) and weekly is not None and pop is not None
+    # ---- C9b(対象と注意・G3〜G7)が立つ条件 ----
+    # **辺上の連続位置(距離が定義できる)**と**語彙 v2(段0 辞書 v4 が対象ヒントを運ぶ)**の
+    # 両方が要る: 焦点の取得/喪失距離も会話の成立/離脱距離も「距離」抜きには意味が無く、
+    # 「近づく/見る」という対象そのものは辞書 v4 でしか入って来ない。したがって**積**で立てる。
+    # 既定の 4 腕(node/v1・--derive-rule v2.1・--vocab-version v2・--geometry edge)は
+    # どれも片方しか持たないので **checkpoint は 1 バイトも動かない**。
+    attention_on = (geometry == "edge") and (vocab_version == "v2")
     agents = AgentState(
-        n_agents, plan_columns=plan_exec_on, edge_columns=(geometry == "edge")
+        n_agents,
+        plan_columns=plan_exec_on,
+        edge_columns=(geometry == "edge"),
+        attention_columns=attention_on,
     )
     if ledger is not None and ledger.money is not None:
         # 世帯の現金行 = 個体 SoA の money(写しを作らない・台帳の書き込み窓は resolve が持つ)
@@ -1300,6 +1359,9 @@ def run_day(
         perception = renderer if isinstance(renderer, PerceptionRendererAdapter) else None
         walkable = getattr(getattr(renderer, "assets", None), "walkable_area_m2", None)
 
+    # ---- C9b G6 a′: 目印(landmark 56 + attraction 12)の「名 → POI 索引」表 ----
+    # パーサはこれを渡されたときだけ固有名を POI まで解決する(``target.poi_id``)。
+    landmarks = world.landmark_targets() if attention_on else None
     bridge = LLMBridge(
         llm,
         renderer=renderer_obj,
@@ -1310,6 +1372,7 @@ def run_day(
         tick_seconds=tick_seconds,
         params={"max_tokens": 64, "temperature": 0.0},
         vocab_version=vocab_version,
+        landmarks=landmarks,
     )
 
     # ---- 実艦隊(C6-a)。テープ・未定義行動台帳・デコード設定は bridge と**同じものを共有** ----
@@ -1322,6 +1385,8 @@ def run_day(
             tape_row_factory=TapeRow,
             undefined=bridge.undefined,
             debug_dir=fleet_debug_dir,
+            vocab_version=vocab_version,  # 第214: 渡し忘れ=実 LLM の v2 応答が v1 で解析されていた
+            landmarks=landmarks,
         )
         if fleet is not None
         else None
@@ -1409,9 +1474,17 @@ def run_day(
     phase = {k: 0.0 for k in ("presence", "detect", "arbiter", "llm", "fleet_wait", "phase_a",
                               "phase_b", "phase_c", "movement", "movement_cpu", "checkpoint")}
     diag_rows: list[tuple[int, ...]] = []
-    # (t_apply, class, agent, condition, text, action_code, target_person)
+    # (t_apply, class, agent, condition, text, action_code, target_person,
+    #  **target_hint**, **target_poi**)
     # ``target_person`` = LLM が「対象」欄に書いた個体 id(-1=名指しなし・C6 09-09)。
-    pending: list[tuple[int, int, int, int, str, int, int]] = []
+    # ``target_hint`` = 段0 辞書 v4 の対象ヒント索引(C9b G5・0=なし)。
+    # ``target_poi`` = 「対象」欄が目印 POI に解決できたときの索引(C9b G6 a′・-1=なし)。
+    pending: list[tuple[int, int, int, int, str, int, int, int, int]] = []
+    #: C9b G3/G4: この tick に LLM が言った**焦点の要求**(-1=なし)。使い回す 1 本の
+    #: バッファ(毎 tick 触った行だけ戻す=個体数ぶんの確保は 1 回きり)。
+    focus_request = (
+        np.full(n_agents, int(FOCUS_NONE), dtype=np.int64) if attention_on else None
+    )
     #: この tick に応答を適用した個体 → 行動コード(会話の被招待の返事を読むのに使う)。
     applied_now: dict[int, int] = {}
     #: 会話の相手の由来(``conv_*`` 診断行の素材)。
@@ -1488,6 +1561,14 @@ def run_day(
                 tgt_person = np.fromiter(
                     (due[int(i)][6] for i in order), dtype=np.int64, count=order.size
                 )
+                # C9b: 対象ヒント(辞書 v4)と目印 POI。腕が立っていないランでは
+                # 全行 0 / -1 なので ``intents_from_responses`` へは渡さない(=バイト不変)。
+                tgt_hint = np.fromiter(
+                    (due[int(i)][7] for i in order), dtype=np.int64, count=order.size
+                )
+                tgt_poi = np.fromiter(
+                    (due[int(i)][8] for i in order), dtype=np.int64, count=order.size
+                )
                 agents_in_order = ag[order]
                 # 個体 → (行動コード, **LLM が名指しした**対象)。会話の承諾/相互指名の判定に使う
                 # (エンジンが解決した対象ではない=「誰に向けた返事か」は名指しにしか無い)。
@@ -1501,7 +1582,8 @@ def run_day(
                 # B の「直前の結果」(B6)に**偽の失敗**が載る。承諾はここで消費し、
                 # B の行を intent から外す(承諾は新しい招待ではない)。
                 consumed = _settle_pending_invites(
-                    conv, agents, tick, agents_in_order, codes, tgt_person, R, np
+                    conv, agents, tick, agents_in_order, codes, tgt_person, R, np,
+                    attention_on,
                 )
                 keep = (
                     np.array(
@@ -1514,12 +1596,30 @@ def run_day(
                     agents, world, space, tick, agents_in_order[keep], cond[order][keep],
                     codes[keep],
                     home_cell=schedule.home_cell, work_cell=schedule.work_cell,
-                    target_person=tgt_person[keep], stats=talk_stats, run_salt=salt,
+                    school_cell=(
+                        getattr(schedule, "school_cell", None) if attention_on else None
+                    ),
+                    target_person=tgt_person[keep],
+                    target_hint=tgt_hint[keep] if attention_on else None,
+                    target_poi=tgt_poi[keep] if attention_on else None,
+                    stats=talk_stats, run_salt=salt,
                 )
+                # ---- C9b G3/G4: 焦点の要求を 1 本のバッファへ散らす ----
+                if focus_request is not None:
+                    focus_request[:] = int(FOCUS_NONE)
+                    kept_agents = agents_in_order[keep]
+                    if kept_agents.size:
+                        focus_request[kept_agents] = C.focus_codes(
+                            tgt_hint[keep], tgt_person[keep], tgt_poi[keep], int(agents.n)
+                        )
             else:
                 applied_now = {}
+                if focus_request is not None:
+                    focus_request[:] = int(FOCUS_NONE)
         else:
             applied_now = {}
+            if focus_request is not None:
+                focus_request[:] = int(FOCUS_NONE)
         phase["phase_a"] += time.perf_counter() - t0
 
         # ---- ② 変化検出(P6) ----
@@ -1604,6 +1704,7 @@ def run_day(
                 pending.append((
                     max(res.t_apply, tick + 1), res.wake_class, res.agent_id,
                     res.condition, res.text, res.action_code, _target_person(res.target),
+                    *_pending_extra(res),
                 ))
                 if not res.format_ok:
                     n_parse_errors_fleet += 1
@@ -1636,6 +1737,7 @@ def run_day(
                 pending.append((
                     max(t_apply, tick + 1), res.wake_class, res.agent_id,
                     res.condition, res.text, res.action_code, _target_person(res.target),
+                    *_pending_extra(res),
                 ))
                 if not res.format_ok:
                     n_parse_errors_fleet += 1
@@ -1767,7 +1869,7 @@ def run_day(
                         fleet_waiting.discard(a)  # 同 tick で届いた=待ちにならない
                     pending.append((
                         res.t_apply, cls, a, cond, res.text, res.action_code,
-                        _target_person(res.target),
+                        _target_person(res.target), *_pending_extra(res),
                     ))
                     if not res.format_ok:
                         n_parse_errors += 1
@@ -1848,6 +1950,8 @@ def run_day(
             hotel=None if runner is None or not runner.is_enabled("hotel") else runner.hotel,
             vocab_version=vocab_version,
             geometry=geom,
+            focus_request=focus_request,
+            talk_by_distance=attention_on,
         )
         phase["phase_c"] += time.perf_counter() - t0
         phase["movement"] += outcome.movement_seconds
@@ -1862,6 +1966,13 @@ def run_day(
         result.n_board_timeout += outcome.n_board_timeout
         result.meals += outcome.n_meals
         result.meal_yen += outcome.meal_yen
+        # C9b(対象と注意)。腕が立っていないランでは 4 本とも 0 のまま。
+        result.n_approach += outcome.n_approach
+        result.n_approach_done += outcome.n_approach_done
+        result.n_target_gone += outcome.n_target_gone
+        result.n_focus += outcome.n_focus
+        result.n_focus_lost += outcome.n_focus_lost
+        result.n_talk_by_distance += outcome.n_talk_by_distance
         # D-71 §3 J: 語ごとの使用件数(**解決後**=エンジンが適用した行動)。
         for _code, _n in outcome.per_action.items():
             per_action_total[int(_code)] = per_action_total.get(int(_code), 0) + int(_n)
@@ -1902,7 +2013,14 @@ def run_day(
                         continue
                     if int(act_now[inviter]) != int(Activity.CONVERSING):
                         continue  # resolve が失敗させた(相手が会話中/去った)
-                    same_cell = bool(cell_now[inviter] == cell_now[invitee])
+                    same_cell = bool(
+                        R.talk_within_reach(
+                            agents,
+                            np.int64(inviter),
+                            np.int64(invitee),
+                            by_distance=attention_on,
+                        )
+                    )
                     b_code, b_named = applied_now.get(invitee, (-1, -1))
                     # **相互指名**= 相手も自分の呼で**こちらを名指しして** 会話 と答えた。
                     # (エンジンが解決した対象ではなく LLM が書いた対象で見る=中-2)
@@ -1944,7 +2062,13 @@ def run_day(
                 _revert(stale)
             if reverted:
                 R.revert_conversation(agents, np.array(sorted(set(reverted)), dtype=np.int64))
-            finished = conv.step(tick, cell=agents.registry.cell)
+            finished = conv.step(
+                tick,
+                cell=agents.registry.cell,
+                # C9b G7: 離脱は**実距離 3 m**(成立 2 m より広い=ヒステリシス)。
+                xy=agents.registry.xy if attention_on else None,
+                leave_distance_m=R.TALK_LEAVE_METERS if attention_on else None,
+            )
             if finished:
                 # 終了したセッションの参加者を解放する(行動契約書 §3「終了はエンジン」)。
                 # C3 では CLOSING→TERMINAL のあと ``activity`` が CONVERSING のまま残っていた
@@ -2029,7 +2153,7 @@ def run_day(
             pending.append((
                 res.tick + delta_think_ticks(res.lane, tick_seconds), res.wake_class,
                 res.agent_id, res.condition, res.text, res.action_code,
-                _target_person(res.target),
+                _target_person(res.target), *_pending_extra(res),
             ))
         result.fleet_drained_at_end = n_late
         # ラン終端でも答えが返らなかった呼(**次ランへ持ち越す**の監査点。0 が正常)
@@ -2047,6 +2171,7 @@ def run_day(
                 pending.append((
                     item.t_apply, item.wake_class, item.agent_id, item.condition,
                     item.text, item.action_code, _target_person(item.target),
+                    *_pending_extra(item),
                 ))
         replay_inbox.clear()
         result.fleet_drained_at_end = n_late
@@ -2176,6 +2301,7 @@ def run_day(
     result.geometry = str(geometry)
     result.geometry_hops = int(geometry_hops)
     result.geometry_jammed = int(geometry_jammed)
+    result.attention = bool(attention_on)
     if presence is not None:
         result.presence_counters = dict(presence.counters())
         result.presence_summary = presence.summary()

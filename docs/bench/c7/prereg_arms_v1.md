@@ -84,3 +84,5 @@
 
 - 変えないもの: §1 の構成・§2 の指標と線・§4 の予想・§6 の主張腕(3 seed)と「歪む場所」の宣言。
 - 確定手順: c7-day-4-s3 完走 → 帰無参照を 3 対で更新 → 本節を「草案」から「確定」に → ユーザーの「開けてよい」→ 開封。
+
+> **第214 追記**: 事前登録の外部根拠が 1 本増えた——Anthis et al. 2025(ICML Position・arXiv 2504.02234v2)§4.5.2「We have not yet seen, but we encourage, preregistration of LLM simulation predictions」(親確認)。本書は「独自採用」ではなく**分野の推奨の履行**として位置づける(Larooij & Törnberg 2025 提言 (ii) と併せて 2 本)。

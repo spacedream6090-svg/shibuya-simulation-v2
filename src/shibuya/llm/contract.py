@@ -64,6 +64,8 @@ __all__ = [
     "TWO_LINE_RE",
     "format_two_line",
     "parse_target",
+    "LANDMARK_MIN_CHARS",
+    "resolve_landmark",
     "action_code_of",
     "spec_of",
     "is_role_action",
@@ -98,11 +100,19 @@ UNDEFINED_ACTION: Final[int] = -2
 
 
 class TargetKind(IntEnum):
-    """「対象」欄の型(行動契約書 §1 の ``<セルID|物カテゴリ|人ID|なし>`` の一般化)。"""
+    """「対象」欄の型(行動契約書 §1 の ``<セルID|物カテゴリ|人ID|なし>`` の一般化)。
+
+    Note:
+        **C9b(2026-09-17・G6 a′)で型は増やしていない**。目印(landmark/attraction の POI)は
+        ``ITEM_CATEGORY``(=表の「物カテゴリ**(+店ID)**」枠)のまま ``Target.poi_id`` に
+        POI 索引を入れて返す。型を増やすと ``last_action``/テープ/``_target_person`` など
+        「型で分岐している箇所」を全部見直すことになり、**既存の型で表せるものに新しい型を
+        足さない**(決定台帳 :460 の原則「表せるなら世界データを足し、語/型は足さない」)。
+    """
 
     NONE = 0  # なし
     CELL = 1  # セルID
-    ITEM_CATEGORY = 2  # 物カテゴリ(+店ID)
+    ITEM_CATEGORY = 2  # 物カテゴリ(+店ID / **目印 POI**)
     PERSON = 3  # 人ID
     STATION_OR_VEHICLE = 4  # 駅/車両ID
     EVENT = 5  # 事象ID
@@ -732,6 +742,8 @@ class Target:
         band: ``g..._GL`` 形のときの層(GL/UG/DECK)。
         person_id: 人ID の整数。
         category: 物カテゴリ(自由文)。
+        poi_id: 固有名が**世界の POI** に解決できたときの POI 索引(C9b G6 a′・
+            ``parse_target(..., landmarks=...)`` を通したときだけ入る。既定は ``None``)。
     """
 
     kind: TargetKind
@@ -741,6 +753,7 @@ class Target:
     band: str | None = None
     person_id: int | None = None
     category: str | None = None
+    poi_id: int | None = None
 
     @property
     def is_none(self) -> bool:
@@ -754,17 +767,78 @@ class Target:
 NO_TARGET_VALUE: Final[Target] = Target(kind=TargetKind.NONE, raw=NO_TARGET)
 
 
-def parse_target(text: str | None) -> Target:
+#: 目印の固有名を部分一致で引くときの最短字数(C9b・expedient。1 字だと「像」「坂」が
+#: どの目印にも当たる)。
+LANDMARK_MIN_CHARS: Final[int] = 2
+
+
+def resolve_landmark(token: str, landmarks: Mapping[str, int] | None) -> int | None:
+    """固有名 → POI 索引(``None``=解決できない)。
+
+    ``landmarks`` は「**NFKC 正規化済みの POI 名** → POI 索引」の表(作るのは世界側=
+    ``world.state.World.landmark_targets``。``llm`` 層は world を import できないので
+    表を**受け取るだけ**にしてある=import-linter 契約「llm は world を import しない」)。
+
+    照合順(**expedient**・契約書に規則は無い):
+      1. **完全一致**。
+      2. **名 ⊂ 入力** のうち**最長の名**(「忠犬ハチ公像の前」→ 忠犬ハチ公像)。
+      3. **入力 ⊂ 名** のうち**最短の名**(余計な語が最も少ない名)。同長は POI 索引の若い方。
+
+    3 を「最短」にした理由: 実資産には ``忠犬ハチ公像`` のほかに ``ハチ公口``・
+    ``ハチ公口自転車等駐輪場`` が landmark として入っており、最長を採ると「ハチ公」が
+    **駐輪場**に解決してしまう。最短なら ``ハチ公口`` になる。
+    **「ハチ公」の曖昧さ自体は残る**(像か出口か)=実測の表層が出るまで直さない。
+
+    逐次ループ宣言(P4): 目印数ぶん(実資産 68・名 64 件)。完全一致で当たれば 0 回。
+    """
+    if not landmarks or not token:
+        return None
+    hit = landmarks.get(token)
+    if hit is not None:
+        return int(hit)
+    if len(token) < LANDMARK_MIN_CHARS:
+        return None
+    inside: tuple[int, int, str] | None = None   # 名 ⊂ 入力(最長の名)
+    outside: tuple[int, int, str] | None = None  # 入力 ⊂ 名(最短の名)
+    for name, pid in landmarks.items():
+        if len(name) < LANDMARK_MIN_CHARS:
+            continue
+        if name in token:
+            cand = (-len(name), int(pid), name)
+            if inside is None or cand < inside:
+                inside = cand
+        elif token in name:
+            cand = (len(name), int(pid), name)
+            if outside is None or cand < outside:
+                outside = cand
+    best = inside if inside is not None else outside
+    return None if best is None else best[1]
+
+
+def parse_target(text: str | None, landmarks: Mapping[str, int] | None = None) -> Target:
     """「対象」欄の文字列 → ``Target``。**例外を投げない**。
 
     認識順(先に当たったものを採る):
         ``なし``/空 → NONE、``C-0117``/``C0117`` → CELL、``g12_34_GL`` → CELL、
         ``P-204``/``P204`` → PERSON、素の整数 → PERSON、``…駅`` → STATION_OR_VEHICLE、
-        それ以外の自由文 → ITEM_CATEGORY。
+        それ以外の自由文 → ITEM_CATEGORY(``landmarks`` を渡すと**固有名は POI 索引まで
+        解決**して ``poi_id`` に入る=C9b G6 a′)。
+
+    Args:
+        landmarks: 目印(W6 の landmark/attraction)の「名 → POI 索引」表。
+            ``None``(既定)では**1 バイトも挙動が変わらない**(``poi_id`` は常に ``None``)。
+            駅名(``…駅``)の判定は**目印より先**に置いたままにしてある=表を渡しても
+            既存の STATION_OR_VEHICLE の道は動かない。
 
     Note:
         EVENT(事象ID)は表層形が定まっていないため**この関数では出さない**
         (通報・遅延報告の対象は engine 側が文脈から決める)。
+
+    Example:
+        >>> parse_target("ハチ公", {"忠犬ハチ公像": 7}).poi_id
+        7
+        >>> parse_target("ハチ公").poi_id is None
+        True
     """
     if text is None:
         return NO_TARGET_VALUE
@@ -787,4 +861,5 @@ def parse_target(text: str | None) -> Target:
         return Target(TargetKind.PERSON, raw, person_id=int(m.group(1)))
     if _STATION_RE.match(token):
         return Target(TargetKind.STATION_OR_VEHICLE, raw, category=raw)
-    return Target(TargetKind.ITEM_CATEGORY, raw, category=raw)
+    poi = resolve_landmark(token, landmarks)
+    return Target(TargetKind.ITEM_CATEGORY, raw, category=raw, poi_id=poi)

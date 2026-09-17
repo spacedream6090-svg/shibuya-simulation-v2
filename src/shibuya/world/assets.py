@@ -114,6 +114,8 @@ class WorldAssets:
         poi_price / poi_stock0 / poi_capacity: 価格[円]・初期在庫・1 tick 受け入れ数。
         poi_open_from / poi_open_to: 営業 tick 帯(W7 が無いので既定値)。
         poi_cat: カテゴリ名(POI ごと)。
+        poi_name: POI 名(W6 ``name`` 列)。合成世界は空タプル。**C9b G6 a′**
+            (目印の対象解決 ``World.landmark_targets``)のためだけに持つ。
     """
 
     source: str
@@ -138,6 +140,11 @@ class WorldAssets:
     poi_open_from: np.ndarray
     poi_open_to: np.ndarray
     poi_cat: tuple[str, ...]
+    #: POI 名(W6 ``name``)。**既定は空**=名前を持たない世界(合成)。
+    poi_name: tuple[str, ...] = ()
+    #: POI の平面座標 ``(n_poi, 2)`` float32(W6 ``x``/``y``)。``None``=資産が持たない
+    #: (合成世界)→ ``poi_position()`` が最寄ノード座標で代用する。
+    poi_xy: np.ndarray | None = None
     #: セル別の静的騒音段階(W10 街路点の**最頻値**・昼 6-22 時)。資産に無ければ ``None``。
     noise_stage_day: np.ndarray | None = None
     #: 同 夜(22-6 時)。
@@ -162,6 +169,16 @@ class WorldAssets:
         lo, hi = NOISE_DAY_HOURS
         day = lo <= int(hour) < hi
         return self.noise_stage_day if day else self.noise_stage_night  # type: ignore[return-value]
+
+    def poi_position(self) -> np.ndarray:
+        """POI の平面座標 ``(n_poi, 2)``。資産が ``poi_xy`` を持たなければ**最寄ノード座標**。
+
+        C9b G4(注意の焦点の距離判定)が読む 1 本。代用したときの誤差は「POI と最寄ノードの
+        距離」で、W6 の POI は同一セル内の最近ノードに結ばれている(**expedient**)。
+        """
+        if self.poi_xy is not None:
+            return self.poi_xy
+        return self.node_xy[np.maximum(np.asarray(self.poi_node, dtype=np.int64), 0)]
 
     @property
     def n_nodes(self) -> int:
@@ -261,7 +278,9 @@ def load_assets(path: str | Path) -> WorldAssets:
     cell_dist = np.load(p / "w3_cell_dist.npy", mmap_mode="r")
 
     poi = pq.read_table(
-        p / "w6_poi.parquet", columns=["poi_id", "cat", "place_id", "node_id", "x", "y"]
+        p / "w6_poi.parquet",
+        # ``name`` は C9b G6 a′(目印の対象解決)のためだけに読む。数値配列は増えない。
+        columns=["poi_id", "name", "cat", "place_id", "node_id", "x", "y"],
     ).to_pydict()
     # 逐次ループ宣言1: POI 数(2,337)ぶんの辞書引き
     poi_cell = np.array([place_to_cell.get(pid, -1) for pid in poi["place_id"]], dtype=np.int32)
@@ -305,6 +324,8 @@ def load_assets(path: str | Path) -> WorldAssets:
         poi_open_from=poi_open_from,
         poi_open_to=poi_open_to,
         poi_cat=cats,
+        poi_name=tuple(str(s) for s in poi["name"]),
+        poi_xy=poi_xy,
         noise_stage_day=ns_day,
         noise_stage_night=ns_night,
     )

@@ -129,8 +129,12 @@ def test_dictionary_v3_maps_the_eating_family_to_the_new_word(surface):
 
 
 def test_dictionary_v3_is_only_a_diff_on_top_of_v1():
-    """v3 = v1 の表 + 差分。**差分以外の行は 1 つも変わらない**。"""
-    assert synonym_table_version("v2") == "undefined-synonyms-v3"
+    """v3 = v1 の表 + 差分。**差分以外の行は 1 つも変わらない**。
+
+    語彙 v2 が引く版は **C9b(2026-09-17・G5 対象ヒント)で v4 へ上がった**
+    (``undefined-synonyms-v4`` = v3 + ``SYNONYMS_V4_DIFF``)。v3 の中身そのものは不変。
+    """
+    assert synonym_table_version("v2") == "undefined-synonyms-v4"
     changed = {k for k in SYNONYMS if SYNONYMS[k] != SYNONYMS_V3[k]}
     assert changed == {"食べる", "飲む"}, "v1 から写像先が動く行は★の 2 行だけ"
     assert set(SYNONYMS_V3) - set(SYNONYMS) == set(SYNONYMS_V3_DIFF) - set(SYNONYMS)

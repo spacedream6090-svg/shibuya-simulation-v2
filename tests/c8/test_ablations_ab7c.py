@@ -88,7 +88,7 @@ def test_ab7c_kwargs_reach_run_day(ablation_runner, table, tmp_path):
     fields = [r["run_manifest_fields"] for r in out["runs"]]
     assert [f["vocab_version"] for f in fields] == ["v1", "v2", "v2"]
     assert [f["synonym_table_version"] for f in fields] == [
-        "undefined-synonyms-v2", "undefined-synonyms-v3", "undefined-synonyms-v3",
+        "undefined-synonyms-v2", "undefined-synonyms-v4", "undefined-synonyms-v4",
     ]
     for r in out["runs"]:
         assert "action_usage" in r and "meals" in r

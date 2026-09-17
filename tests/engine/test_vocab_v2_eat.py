@@ -215,7 +215,8 @@ def test_action_usage_reaches_the_run_manifest():
     res = run_day(llm=WordLLM("食べる"), vocab_version="v2", **OPEN_HOURS)
     fields = res.run_manifest_fields()
     assert fields["vocab_version"] == "v2"
-    assert fields["synonym_table_version"] == "undefined-synonyms-v3"
+    # C9b(G5 対象ヒント)で段0 辞書は v4 へ(v3 + ``SYNONYMS_V4_DIFF``)
+    assert fields["synonym_table_version"] == "undefined-synonyms-v4"
     assert fields["action_usage"] == res.action_usage
     assert fields["action_usage"][ACTION_WORD_EAT] > 0
     # 合計は「適用された行動の延べ数」=どの語も落ちていない

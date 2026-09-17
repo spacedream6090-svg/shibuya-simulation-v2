@@ -75,7 +75,7 @@ from shibuya.perception import normalize as N
 from shibuya.perception import templates as T
 from shibuya.perception.attention import SalientItem, rank_by_saliency, strip_imperatives
 from shibuya.world.assets import CELL_SIZE_M, WorldAssets
-from shibuya.world.state import World
+from shibuya.world.state import LANDMARK_CATS, World
 
 __all__ = [
     "DEFAULT_START_DATETIME",
@@ -388,7 +388,9 @@ class PerceptionAssets:
                     j = poi_index.get(ref)
                     if j is None:
                         continue
-                    if poi_cat[j] in ("landmark", "attraction"):
+                    # C9b G6 a′: 目印の集合は**世界側と同じ 1 本**
+                    # (``world.state.LANDMARK_CATS`` = ``World.landmark_mask`` の判定)。
+                    if poi_cat[j] in LANDMARK_CATS:
                         if len(lands) < 4:
                             lands.append(poi_name[j])
                     elif len(pois) < 8:
@@ -638,6 +640,14 @@ class Renderer:
         self._b4b = N.canonical_whitespace(
             T.TEMPLATES["B4b.near_empty"]
         ).encode("utf-8")
+        #: **注意の焦点**の欄(C9b G4)。``attention_columns`` のランだけ在る配列を 1 度だけ
+        #: 掴む(``AgentState`` の配列は freeze/thaw で差し替わらない)。``None``= 焦点の無い
+        #: ラン=**B5 の描画は 1 バイトも変わらない**。
+        #: **B2(地物)は共有ブロック**(§2.4 ⑧ + §5 の共有 prefix)なので焦点で並べ替えない
+        #: ——地物の焦点は描画に出さない(親へ報告済みの空欄)。
+        self._focus_target: np.ndarray | None = (
+            agents.focus_target if getattr(agents, "attention_columns", False) else None
+        )
         #: 個体 → (知人の集合, 知人の id 配列)。**構築時に固定**なので 1 度作れば使い回せる(C7)。
         self._acq_cache: dict[int, tuple[frozenset[int], np.ndarray]] = {}
         self._b1_cache: dict[int, bytes] = {}
@@ -1163,7 +1173,21 @@ class Renderer:
             chosen_set |= {
                 int(x) for x in friend_ids[(pf >= lo) & (pf < hi) & (friend_ids != i)]
             }
+        # C9b G4: **注意の焦点**が同じセルの人物なら常に載せ、**先頭に置く**
+        # (UE AI Perception の ``Dominant Sense`` ではなく「焦点は優先して描く」だけ)。
+        # ablation ①(``--budget-mode ranking``)では ``_rank_items`` が顕著性で並べ直すので
+        # 先頭は保たれない——**掲載は保たれる**(順序は ablation の主題そのものなので譲る)。
+        focus = -1
+        if self._focus_target is not None:
+            f = int(self._focus_target[i])
+            if 0 <= f < int(a.n) and f != i:
+                pf = int(tc.cell_pos[f])
+                if lo <= pf < hi:
+                    focus = f
+                    chosen_set.add(f)
         chosen = sorted(chosen_set)
+        if focus >= 0:  # 焦点だけ先頭へ(残りの並びは従来どおり id 昇順)
+            chosen = [focus] + [x for x in chosen if x != focus]
         q = tc.cell_pos[np.asarray(chosen, dtype=np.int64)] - lo
         if 0 <= p < m:
             q = q - (q > p)  # 自分の行を外したぶん詰める

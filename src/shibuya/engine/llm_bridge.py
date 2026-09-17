@@ -381,6 +381,8 @@ class BridgeResult:
         action_code: エンジンの行動コード(``UNDEFINED_ACTION`` を含む)。
         target: 「対象」欄の解釈。
         undefined_stage: §7 の段(写ったら 0/4・記録なら 1・裁定を出したら 2・該当なしは -1)。
+        target_hint: 段0 辞書 v4 が語に付けた**対象のヒント**(C9b G5・``""``=なし)。
+            解決(どのセル/誰/どの POI か)は engine 側の仕事。
         role_action: §2.2 の役割語だったか(権限検査待ち=当面 待機 へ落とす)。
         tape_miss: リプレイでテープ外だったか。
         deferred: リプレイで**繰り延べ行**を引いたか(D-58)。True のとき ``text`` は空・
@@ -411,6 +413,9 @@ class BridgeResult:
     tokens_out: int = 0
     undefined_stage: int = -1
     undefined_feedback: str = ""
+    #: **段0 辞書 v4 の対象ヒント**(``llm.undefined.TARGET_HINT_WORDS`` の語・C9b G5)。
+    #: 語彙 v1・辞書に当たらなかった応答では常に ``""``=**現行のまま**。
+    target_hint: str = ""
     role_action: bool = False
     tape_miss: bool = False
     deferred: bool = False
@@ -421,6 +426,24 @@ class BridgeResult:
     @property
     def format_ok(self) -> bool:
         return self.parse.format_ok
+
+
+def _kept_target(parse: Any, target_hint: str = "") -> Target:
+    """語彙語で読めた応答の「対象」欄を返す(読めなかった応答は ``NO_TARGET_VALUE``)。
+
+    **C9b G5 の例外**: 段0 辞書が**対象ヒントを付けた語**(帰宅→home・近づく→approach・
+    見る→look・探す→category …)は、語彙語として読めていなくても「対象」欄を生かす。
+    ヒントは「対象があるはずの語」の印なので、ここで捨てると
+    「意思=LLM が対象も言う・帰結=エンジン」の線が辞書のところで切れる
+    (語彙政策 v0 §4-2 の★「対象の損失」そのもの)。
+
+    ヒントの付かない未定義語は**従来どおり捨てる**(``parse`` を書き換えない=親判断待ち)。
+    """
+    if getattr(parse, "action", None) is not None:
+        return parse.target
+    if target_hint:
+        return parse.target
+    return NO_TARGET_VALUE
 
 
 class LLMBridge:
@@ -457,11 +480,15 @@ class LLMBridge:
         tick_seconds: int = 60,
         undefined: UndefinedActionRegistry | None = None,
         vocab_version: str = DEFAULT_VOCAB_VERSION,
+        landmarks: Mapping[str, int] | None = None,
     ) -> None:
         if mode not in ("record", "replay"):
             raise ValueError("mode は record|replay")
         self.mode = mode
         self.vocab_version = check_vocab_version(vocab_version)
+        #: **目印の「名 → POI 索引」表**(C9b G6 a′・``world.state.World.landmark_targets``)。
+        #: ``None``(既定)では ``parse_target`` は現行どおり=1 バイトも変わらない。
+        self.landmarks = landmarks
         #: その版で**エンジンに適用分岐がある**語 → コード(役割語は含まない)。
         self._engine_codes = engine_action_codes(self.vocab_version)
         self.renderer: Renderer = renderer if renderer is not None else StubRenderer()
@@ -603,7 +630,7 @@ class LLMBridge:
                         t_apply=int(tick) + delta_think_ticks(lane, self.tick_seconds),
                         lane=lane,
                         text="",
-                        parse=parse_two_line("", self.vocab_version),
+                        parse=parse_two_line("", self.vocab_version, self.landmarks),
                         action_code=UNDEFINED_ACTION,
                         target=NO_TARGET_VALUE,
                         prompt_hash=rendered.prompt_hash or request.prompt_hash,
@@ -629,7 +656,7 @@ class LLMBridge:
                 source = "tape_miss"
         self.n_calls += 1
 
-        parse = parse_two_line(text, self.vocab_version)
+        parse = parse_two_line(text, self.vocab_version, self.landmarks)
         action_code = parse.action_code
         role_action = bool(parse.is_role_action)
         if role_action:
@@ -647,6 +674,7 @@ class LLMBridge:
 
         stage = -1
         feedback = ""
+        target_hint = ""
         if parse.action is None:
             self.n_unknown_action += 1
             outcome = self.undefined.observe(
@@ -654,6 +682,7 @@ class LLMBridge:
             )
             stage = outcome.stage
             feedback = outcome.feedback
+            target_hint = outcome.target_hint
             if outcome.mapped and outcome.word in self._engine_codes:
                 action_code = int(self._engine_codes[outcome.word])
                 self.n_undefined_mapped += 1
@@ -682,13 +711,14 @@ class LLMBridge:
             text=text,
             parse=parse,
             action_code=int(action_code),
-            target=parse.target if parse.action is not None else NO_TARGET_VALUE,
+            target=_kept_target(parse, target_hint),
             prompt_hash=rendered.prompt_hash or request.prompt_hash,
             tape_prompt_hash=request.prompt_hash,
             tokens_in=int(tokens_in),
             tokens_out=int(tokens_out),
             undefined_stage=stage,
             undefined_feedback=feedback,
+            target_hint=target_hint,
             role_action=role_action,
             tape_miss=tape_miss,
             observed_tick=observed_tick,

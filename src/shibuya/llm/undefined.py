@@ -31,6 +31,8 @@ expedient(本モジュール分)
 - 部分一致(完全一致で外れたら**最長一致**の語で写す)。
 - 「帰る/帰宅」は ``移動`` へ写すが、**対象(=自宅セル)はエンジンの仕事**なので
   ``target_hint="home"`` を付けて返すだけ(パーサ側で自宅セルIDを作らない)。
+  **C9b(2026-09-17・G5)**: この印を語彙 v2 で 6 種へ広げた(``TARGET_HINT_WORDS``)。
+  解決は変わらずエンジン側(``engine.commit.intents_from_responses``)。
 - 閾値 **N=10 体**(契約書「初期10体」)・記録簿の上限 ``log_limit=4096`` 行(有界化は
   状態成長宣言 D-R2-6 の要求。契約書に値はない)。
 - 段3 のキーワード表(保存則/在庫/所持金/性能/予算/faucet/sink)。契約書は
@@ -63,6 +65,13 @@ __all__ = [
     "SYNONYMS_V3_DIFF",
     "SYNONYMS_V3",
     "SYNONYM_TABLE_VERSION_V3",
+    # ---- 段0 辞書 v4(C9b G5 対象ヒント)。v1 の表と版は 1 行も動かさない ----
+    "SYNONYMS_V4_DIFF",
+    "SYNONYMS_V4",
+    "SYNONYM_TABLE_VERSION_V4",
+    "TARGET_HINTS_V4",
+    "TARGET_HINT_WORDS",
+    "target_hints",
     "SYNONYM_TABLE_VERSION_BY_VOCAB",
     "synonym_table_version",
     "synonym_table",
@@ -191,7 +200,9 @@ SYNONYMS_C6: Final[Mapping[str, str]] = {
     "うろつく": "移動",
     "散策": "移動",
     # 通勤・通学(目的地つきの locomotion)→ 移動。**対象(職場/学校セル)はエンジンの仕事**
-    # なので ``TARGET_HINTS`` は足さない(``home`` に相当する印は未定義=親判断待ち)。
+    # なので v1 の ``TARGET_HINTS`` には足さない。
+    # **C9b(2026-09-17・G5 決定)**: 印そのものは ``TARGET_HINTS_V4``(辞書 v4・語彙 v2 専用)
+    # で ``work`` / ``school`` として付いた。解決するのは変わらずエンジン(W16 の拠点セル)。
     "通勤": "移動",
     "通学": "移動",
     "出勤": "移動",
@@ -256,16 +267,58 @@ SYNONYMS_V3: Final[Mapping[str, str]] = {**SYNONYMS, **SYNONYMS_V3_DIFF}
 #: 辞書 v3 の版(語彙政策 v0 §4-1 (ii)「行の追加・変更は版を上げる」)。
 SYNONYM_TABLE_VERSION_V3: Final[str] = "undefined-synonyms-v3"
 
+# ----------------------------------------------------------- 段0 辞書 v4(C9b G5 対象ヒント)
+#
+# 正典: ``docs/design/v2-c9-geometry-agenda.md`` §1 **G5**(ユーザー決定 2026-09-17
+# 「G1〜G12 = 親推奨どおり」)=「``TARGET_HINTS`` を**持つ**(帰宅→home・通勤→work・
+# 探す→対象カテゴリ・近づく→人/物)= 辞書行に対象ヒント列。**辞書 v4 として版上げ**」。
+# 出所は ``docs/design/v2-synonym-policy-v0.md`` §4-2 の★「**対象の損失 17 行**」
+# (帰る 2 / 探す系 8 / 通勤系 7 のうち「進入」を除く 6 = 段0 辞書が目的地・対象を捨てていた行)。
+#
+# **v1 の表(``SYNONYMS``)も版(``SYNONYM_TABLE_VERSION``)も 1 行も動かさない**。
+# v4 は **``vocab_version="v2"`` のときだけ**効く(``synonym_table("v2")`` = v3 + v4 差分)。
+#
+# 差分の中身(行の追加は 4 行だけ・残りは**既存の行にヒントを足す**)
+#   - ``近づく`` / ``近寄る`` → **移動**(新しい行。G3: 動詞を足さず「移動の対象=人/物」で表す)。
+#   - ``見る`` → **待機**(新しい行。G4: 「待機の対象=注意の焦点」。既存の ``眺める``
+#     ``観察`` ``見物`` は v1 から 待機 なので写像先は動かず、ヒントだけが付く)。
+#     部分一致は**最長優先**なので ``様子を見る``(5 字)・``見回る``(3 字)・``見学``(2 字・
+#     同長だが先に完全一致で当たる)は従来どおりの写像先のまま。
+#   - ヒントだけ足す行: 通勤/出勤/出社 → ``work`` ・ 通学/登校 → ``school`` ・
+#     探す/探し/探索/探る → ``category``(文中のカテゴリ語=「対象」欄をそのまま使う印)。
+#
+# expedient(本節分)
+# - **``退勤`` にヒントを付けなかった**: 「退勤」は職場を**出る**語で、行き先は自宅とは限らない
+#   (寄り道)。v1 と同じ「ヒントなし」に留める=推測で ``home`` を書かない。
+# - **``見回る`` ``歩き回る`` ``うろつく`` ``散策`` にヒントを付けなかった**: 徘徊であって
+#   「何かを探す」ではない(語彙政策 v0 §4-2 が ``探す`` と同じ行に束ねているのは写像先の話)。
+# - ``category`` / ``approach`` / ``look`` という**ヒントの語そのもの**(契約書にない自前の印)。
+
+#: 語彙 v2 用の段0 辞書の**差分**(v3 の表にこれを重ねたものが v4)。写像先が変わる行は無い。
+SYNONYMS_V4_DIFF: Final[Mapping[str, str]] = {
+    # G3 近づく = 「移動」の対象が人/オブジェクト(動詞は足さない)
+    "近づく": "移動",
+    "近寄る": "移動",
+    # G4 見る = 「待機」の対象=注意の焦点(眺める・観察・見物は v1 から 待機)
+    "見る": "待機",
+}
+
+#: 段0 辞書 v4(= ``SYNONYMS_V3`` に ``SYNONYMS_V4_DIFF`` を重ねたもの)。**語彙 v2 専用**。
+SYNONYMS_V4: Final[Mapping[str, str]] = {**SYNONYMS_V3, **SYNONYMS_V4_DIFF}
+
+#: 辞書 v4 の版(語彙政策 v0 §4-1 (ii)「行の追加・変更は版を上げる」)。
+SYNONYM_TABLE_VERSION_V4: Final[str] = "undefined-synonyms-v4"
+
 #: 語彙版 → 段0 辞書の版(manifest に載る値)。**v1 は現行のまま**。
 SYNONYM_TABLE_VERSION_BY_VOCAB: Final[Mapping[str, str]] = {
     "v1": SYNONYM_TABLE_VERSION,
-    "v2": SYNONYM_TABLE_VERSION_V3,
+    "v2": SYNONYM_TABLE_VERSION_V4,
 }
 
 #: 語彙版 → 段0 辞書の実体。
 _SYNONYMS_BY_VOCAB: Final[Mapping[str, Mapping[str, str]]] = {
     "v1": SYNONYMS,
-    "v2": SYNONYMS_V3,
+    "v2": SYNONYMS_V4,
 }
 
 
@@ -284,6 +337,48 @@ TARGET_HINTS: Final[Mapping[str, str]] = {
     "帰宅": "home",
     "戻る": "home",
 }
+
+#: 対象ヒントの語(**この並びが正典**。エンジンは索引で運ぶ=``engine.commit.TARGET_HINT_*``)。
+#: ``""``=ヒントなし / ``home``/``work``/``school``=W16 の拠点セル(エンジンが解決する) /
+#: ``category``=「対象」欄の物カテゴリをそのまま使う / ``approach``=対象(人/物)に近づく /
+#: ``look``=対象(人/物)を注意の焦点にする。
+TARGET_HINT_WORDS: Final[tuple[str, ...]] = (
+    "", "home", "work", "school", "category", "approach", "look",
+)
+
+#: 語彙 v2 の対象ヒント(**G5・辞書 v4**)。v1 の ``TARGET_HINTS`` 3 行はそのまま残る。
+TARGET_HINTS_V4: Final[Mapping[str, str]] = {
+    **TARGET_HINTS,
+    # 通勤・通学(目的地つきの locomotion)= 語彙政策 v0 §4-2 の「対象の損失(7)」
+    "通勤": "work",
+    "出勤": "work",
+    "出社": "work",
+    "通学": "school",
+    "登校": "school",
+    # 探索(何を探していたかを落とさない)= 同「対象の損失(8)」
+    "探す": "category",
+    "探し": "category",
+    "探索": "category",
+    "探る": "category",
+    # G3 近づく / G4 見る
+    "近づく": "approach",
+    "近寄る": "approach",
+    "見る": "look",
+    "眺める": "look",
+    "観察": "look",
+    "見物": "look",
+}
+
+#: 語彙版 → 対象ヒント表。**``"v1"`` は ``TARGET_HINTS`` と同一オブジェクト**。
+_TARGET_HINTS_BY_VOCAB: Final[Mapping[str, Mapping[str, str]]] = {
+    "v1": TARGET_HINTS,
+    "v2": TARGET_HINTS_V4,
+}
+
+
+def target_hints(vocab_version: str = DEFAULT_VOCAB_VERSION) -> Mapping[str, str]:
+    """語彙版 → 対象ヒント表(``"v1"`` は現行の 3 行・``"v2"`` は G5 の辞書 v4)。"""
+    return _TARGET_HINTS_BY_VOCAB[check_vocab_version(vocab_version)]
 
 #: 失敗フィードバックで提示する「いま可能な行動」3語(行動契約書 §6・安全弁=待機を先頭)。
 FALLBACK_ACTIONS: Final[tuple[str, str, str]] = ("待機", "休憩", "移動")
@@ -406,11 +501,11 @@ def map_synonym(
     Args:
         raw_word: 行動欄の逐語。
         extra: 追加表(段4 の判例)。
-        vocab_version: 語彙版(``"v1"``=既定・``SYNONYMS`` / ``"v2"``=``SYNONYMS_V3``)。
-            **既定では 1 行も変わらない**(同じ表・同じ写像先)。
+        vocab_version: 語彙版(``"v1"``=既定・``SYNONYMS`` / ``"v2"``=``SYNONYMS_V4``)。
+            **既定では 1 行も変わらない**(同じ表・同じ写像先・同じヒント 3 行)。
 
     Returns:
-        ``(契約語彙 or None, target_hint)``。
+        ``(契約語彙 or None, target_hint)``。``target_hint`` は ``TARGET_HINT_WORDS`` の語。
 
     逐次ループ宣言(P4): 表の語数ぶん(数十)。
 
@@ -419,17 +514,22 @@ def map_synonym(
         '購入'
         >>> map_synonym("食べる", vocab_version="v2")[0]
         '食事'
+        >>> map_synonym("帰宅", vocab_version="v2")
+        ('移動', 'home')
+        >>> map_synonym("近づく", vocab_version="v2")
+        ('移動', 'approach')
     """
     if not raw_word:
         return None, ""
     text = raw_word.strip()
+    hints = target_hints(vocab_version)
     tables: tuple[Mapping[str, str], ...] = (
         (extra or {}), synonym_table(vocab_version),
     )
     for table in tables:
         hit = table.get(text)
         if hit is not None:
-            return hit, TARGET_HINTS.get(text, "")
+            return hit, hints.get(text, "")
     # 部分一致(最長優先)
     best: tuple[int, str, str] | None = None
     for table in tables:
@@ -440,7 +540,7 @@ def map_synonym(
                     best = cand
     if best is None:
         return None, ""
-    return best[2], TARGET_HINTS.get(best[1], "")
+    return best[2], hints.get(best[1], "")
 
 
 class UndefinedActionRegistry:
@@ -451,8 +551,9 @@ class UndefinedActionRegistry:
         log_limit: 段1 レコードの保持上限(有界化・D-R2-6)。
         adjudicator: 段2 で1呼する ``llm.LLMClient``(None なら段2 に進まない)。
         params: 裁定呼のデコード設定(``LLMRequest.params``)。
-        vocab_version: 語彙版(D-71 §3 F)。``"v2"`` で段0 辞書が v3 になり、
-            行動コードの解決に「食事」が入る。**既定 ``"v1"`` は現行と 1 バイトも変わらない**。
+        vocab_version: 語彙版(D-71 §3 F)。``"v2"`` で段0 辞書が v4(v3 + C9b G5 の対象
+            ヒント)になり、行動コードの解決に「食事」が入る。
+            **既定 ``"v1"`` は現行と 1 バイトも変わらない**。
 
     Example:
         >>> reg = UndefinedActionRegistry()

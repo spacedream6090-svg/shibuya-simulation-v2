@@ -73,6 +73,12 @@ __all__ = [
     "MOCK_KIND_COUNT",
     "Activity",
     "LAST_ACTION_NONE",
+    "FOCUS_NONE",
+    "focus_code_for_person",
+    "focus_code_for_poi",
+    "focus_is_person",
+    "focus_is_poi",
+    "focus_poi_of",
     "ResultCode",
     "WakeCondition",
     "N_WAKE_CONDITIONS",
@@ -87,6 +93,39 @@ __all__ = [
 #: ``engine.commit.ENGINE_STEP`` も −1 だが、エンジン継続は「直前に試みた行動」ではない
 #: (移動の続き)ので ``resolve`` は ENGINE_STEP を ``last_action`` に**書かない**。
 LAST_ACTION_NONE: Final[int] = -1
+
+#: ``focus_target`` の「焦点なし」(C9b G4)。
+FOCUS_NONE: Final[int] = -1
+
+
+def focus_code_for_person(agent_id) -> np.ndarray:
+    """個体 id → ``focus_target`` の符号化(そのまま=非負)。"""
+    return np.asarray(agent_id, dtype=np.int64)
+
+
+def focus_code_for_poi(poi_id) -> np.ndarray:
+    """POI 索引 → ``focus_target`` の符号化(``-2 - poi_id`` ≤ -2)。
+
+    **欄を 2 本に増やさないための符号化**(4 B/体のまま人とオブジェクトの両方を指す)。
+    ``-1`` は「焦点なし」に取ってあるので POI 0 は ``-2`` になる。
+    """
+    return -2 - np.asarray(poi_id, dtype=np.int64)
+
+
+def focus_is_person(code) -> np.ndarray:
+    """``focus_target`` が個体を指しているか。"""
+    return np.asarray(code, dtype=np.int64) >= 0
+
+
+def focus_is_poi(code) -> np.ndarray:
+    """``focus_target`` が POI を指しているか。"""
+    return np.asarray(code, dtype=np.int64) <= -2
+
+
+def focus_poi_of(code) -> np.ndarray:
+    """``focus_target`` → POI 索引(POI でない要素は ``-1``)。"""
+    c = np.asarray(code, dtype=np.int64)
+    return np.where(c <= -2, -2 - c, -1)
 
 
 class AgentKind(IntEnum):
@@ -268,6 +307,7 @@ class AgentState:
         *,
         plan_columns: bool = False,
         edge_columns: bool = False,
+        attention_columns: bool = False,
     ) -> None:
         """
         Args:
@@ -282,10 +322,18 @@ class AgentState:
             edge_columns: **C9 G1 (b) 辺上の連続位置**(``edge_id`` / ``edge_s``・+8 B/体)を
                 確保するか。既定 ``False``=``geometry="node"``(現行の 1 tick=1 ノード)で
                 **checkpoint を 1 バイトも動かさない**。``geometry="edge"`` のランだけ True。
+            attention_columns: **C9b G3/G4 対象と注意の焦点**(``focus_target`` /
+                ``focus_ttl``・+5 B/体)を確保するか。既定 ``False``。焦点には
+                「取得距離 ≤20 m・喪失距離 >30 m」(UE AI Perception の Sight/Lose Sight 型)
+                が要るので**辺上の連続位置(距離が定義できる)が前提**で、対象を運ぶのは
+                段0 辞書 v4(語彙 v2)なので、``engine.run`` は
+                ``geometry="edge" かつ vocab_version="v2"`` のときだけ True にする
+                = **既定の 4 腕(node/v1・derive v2.1・v2・edge)は 1 バイトも動かない**。
         """
         self.n = int(n)
         self.plan_columns = bool(plan_columns)
         self.edge_columns = bool(edge_columns)
+        self.attention_columns = bool(attention_columns)
         self.registry = Registry.for_agents(self.n, per_entity_byte_cap=cap_bytes)
         r = self.registry
         # ---- 位置・運動(M2 位置・運動・身体 ≤128B/体 の内数) ----
@@ -309,6 +357,15 @@ class AgentState:
             r.declare("edge_s", np.float32, byte_budget_per_agent=4, mechanism=True,
                       doc="辺上の距離[m](``node`` からの街路長。``xy`` は両端ノードの"
                           "線形補間=engine.geometry.EdgeGeometry.positions・M2)")
+        # ---- 注意の焦点(C9b G3/G4・attention_columns のランだけ・+5 B/体) ----
+        if self.attention_columns:
+            r.declare("focus_target", np.int32, byte_budget_per_agent=4, mechanism=True,
+                      doc="注意の焦点(「見る」の対象・「近づく」の相手)。**符号で型を分ける**: "
+                          "≥0=個体 id / ≤-2=POI 索引(``-2-poi_id``) / -1=焦点なし。"
+                          "知覚は次 tick 以降この対象を B ブロックの先頭に置く(M2)")
+            r.declare("focus_ttl", np.uint8, byte_budget_per_agent=1, mechanism=False,
+                      doc="焦点の残り寿命[tick](UE AI Perception の Max Age 型・"
+                          "0=焦点なし。既定 FOCUS_TTL_TICKS・expedient=値の出所は無い)")
         # ---- 身体・内受容(知覚契約書 §4 内受容第1陣3変数) ----
         r.declare("kind", np.int8, byte_budget_per_agent=1, mechanism=True,
                   doc="AgentKind(通勤者/来街者/従業者/居住者/指令/通学者/定期来街/訪日/乗務・M2)")
@@ -416,6 +473,8 @@ class AgentState:
         self.registry.sex[:] = -1
         if self.edge_columns:
             self.registry.edge_id[:] = -1
+        if self.attention_columns:
+            self.registry.focus_target[:] = FOCUS_NONE
         if self.plan_columns:
             self.registry.plan_activity[:] = -1
         self._frozen = False

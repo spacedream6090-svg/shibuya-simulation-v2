@@ -1472,6 +1472,8 @@ class FleetBridgeResult:
     tokens_out: int = 0
     undefined_stage: int = -1
     undefined_feedback: str = ""
+    #: 段0 辞書 v4 の対象ヒント(C9b G5・``engine.llm_bridge.BridgeResult`` と同じ欄)。
+    target_hint: str = ""
     role_action: bool = False
     source: str = ""
     call_id: str = ""
@@ -1534,12 +1536,15 @@ class FleetBridge:
         debug_dir: str | Path | None = None,
         debug_max_rows: int = DEFAULT_DEBUG_MAX_ROWS,
         vocab_version: str = DEFAULT_VOCAB_VERSION,
+        landmarks: Mapping[str, int] | None = None,
     ) -> None:
         self.client = client
         self.tape = tape
         self.tape_row_factory = tape_row_factory
         #: 行動語彙の版(D-71 §3 F)。既定 ``"v1"`` は現行と 1 バイトも変わらない。
         self.vocab_version = check_vocab_version(vocab_version)
+        #: 目印の「名 → POI 索引」表(C9b G6 a′)。``None`` なら現行どおり。
+        self.landmarks = landmarks
         #: その版で**エンジンに適用分岐がある**語 → コード(``engine.llm_bridge`` と同規約)。
         self._engine_codes = engine_action_codes(self.vocab_version)
         self.undefined = (
@@ -1642,7 +1647,7 @@ class FleetBridge:
             return res
         call = res.call
         self.n_calls += 1
-        parse = parse_two_line(res.text, self.vocab_version)
+        parse = parse_two_line(res.text, self.vocab_version, self.landmarks)
         action_code = parse.action_code
         role_action = bool(parse.is_role_action)
         if role_action:
@@ -1661,6 +1666,7 @@ class FleetBridge:
         outcome = res.outcome
         stage = -1
         feedback = ""
+        target_hint = ""
         # テープ鍵の第4要素(``engine.llm_bridge`` と同じ算法=``LLMRequest.prompt_hash``)。
         tape_prompt_hash = sha256_cbor(call.prompt)
         if parse.action is None:
@@ -1668,6 +1674,7 @@ class FleetBridge:
             out = self.undefined.observe(parse.raw_action, int(call.agent_id), int(call.tick), tape_prompt_hash)
             stage = out.stage
             feedback = out.feedback
+            target_hint = out.target_hint
             if out.mapped and out.word in self._engine_codes:
                 action_code = int(self._engine_codes[out.word])
                 self.n_undefined_mapped += 1
@@ -1689,7 +1696,9 @@ class FleetBridge:
             text=res.text,
             parse=parse,
             action_code=int(action_code),
-            target=parse.target if parse.action is not None else NO_TARGET_VALUE,
+            # C9b G5: 段0 辞書が対象ヒントを付けた語は「対象」欄も生かす
+            # (``engine.llm_bridge._kept_target`` と同じ規約)。
+            target=parse.target if (parse.action is not None or target_hint) else NO_TARGET_VALUE,
             prompt_hash=call.prompt_hash_hint or tape_prompt_hash,
             tape_prompt_hash=tape_prompt_hash,
             outcome=outcome,
@@ -1697,6 +1706,7 @@ class FleetBridge:
             tokens_out=int(res.tokens_out),
             undefined_stage=stage,
             undefined_feedback=feedback,
+            target_hint=target_hint,
             role_action=role_action,
             source=res.source,
             call_id=call.call_id,

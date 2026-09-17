@@ -10,10 +10,10 @@
 | 等級 | 意味 | 本数 |
 |---|---|---|
 | **A** | 親検収済(逐語引用または再計算つき) | 4 |
-| **B** | 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) | 44 |
+| **B** | 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) | 45 |
 | **C** | 出典あり・空欄は未整理 | 1 |
 | **D** | **出典 URL なし(2026-09-02 の規律導入前)**=一次確認が丸ごと残る | 33 |
-| **E** | 出典不要(親自身の一次作業) | 2 |
+| **E** | 出典不要(親自身の一次作業) | 4 |
 
 判定は機械的に行った(出典痕跡 = URL + arXiv ID + DOI + ✔ + 「著者 年」表記の総数)。
 例外は 4 本だけ親が中身を見て上書きした(理由は各ファイルのヘッダに書いてある)。
@@ -44,7 +44,7 @@ CLAUDE.md §5 に「リサーチサブは子サブを起動しない」「答申
 | P1 | [v2-memory-retrieval-research](v2-memory-retrieval-research.md) | 69 | 4 | 認知科学(記憶・習慣) #12 |
 | P1 | [v2-mobility-field-research](v2-mobility-field-research.md) | 87 | 13 | 人間移動科学 #3 / 交通工学(活動ベース) #2 |
 | P1 | [v2-prediction-module-deep-research](v2-prediction-module-deep-research.md) | 218 | 17 | 認知科学(記憶・習慣) #12 |
-| P1 | [v2-science-claims-research](v2-science-claims-research.md) | 109 | 8 | 科学哲学 #26 / 計算社会科学 #25 |
+| P1 | [v2-science-claims-research](v2-science-claims-research.md) | 109 | 9 | 科学哲学 #26 / 計算社会科学 #25 |
 | P1 | [v2-small-scale-verification-research](v2-small-scale-verification-research.md) | 82 | 4 | 検証とV&V・UQ #22 |
 | P1 | [v2-boundary-deep-research](v2-boundary-deep-research.md) | 146 | 1 | 人口学・合成人口論 #1 / 交通工学(活動ベース) #2 |
 | P1 | [v2-conversation-deep-research](v2-conversation-deep-research.md) | 86 | 0 | 会話分析・語用論 #15 |
@@ -97,15 +97,15 @@ CLAUDE.md §5 に「リサーチサブは子サブを起動しない」「答申
 | 18 | **歩行者動力学** | [c9-geometry-capacity-research](v2-c9-geometry-capacity-research.md) P0 ・ [c9-position-attention-research](v2-c9-position-attention-research.md) P0 ・ [crowd-physics-research](v2-crowd-physics-research.md) P0 | A |
 | 19 | **都市代謝論・MFA** | [world-process-inventory-research](v2-world-process-inventory-research.md) P0 ・ [world-process-rows-research](v2-world-process-rows-research.md) P0 | B |
 | 20 | **オペレーションズリサーチ** | [world-process-inventory-research](v2-world-process-inventory-research.md) P0 | B |
-| 21 | **ABM方法論** | [d71-vocab-growth-research](v2-d71-vocab-growth-research.md) P0 ・ [replication-count-research](v2-replication-count-research.md) P0 ・ [coupled-adaptation-deep-research](v2-coupled-adaptation-deep-research.md) P1 ・ [micro-observation-research](v2-micro-observation-research.md) P1 ・ [pattern-ledger-deep-research](v2-pattern-ledger-deep-research.md) P1 ・ [r23-primary-check-batch1](v2-r23-primary-check-batch1.md) P1 ・ [world-ledger-verification](v2-world-ledger-verification.md) P1 | A |
+| 21 | **ABM方法論** | [classical-vs-llm-simulation-research](v2-classical-vs-llm-simulation-research.md) P0 ・ [d71-vocab-growth-research](v2-d71-vocab-growth-research.md) P0 ・ [replication-count-research](v2-replication-count-research.md) P0 ・ [research-reflection-audit-p1p2](v2-research-reflection-audit-p1p2.md) P0 ・ [research-reflection-audit](v2-research-reflection-audit.md) P0 ・ [coupled-adaptation-deep-research](v2-coupled-adaptation-deep-research.md) P1 ・ [micro-observation-research](v2-micro-observation-research.md) P1 ・ [pattern-ledger-deep-research](v2-pattern-ledger-deep-research.md) P1 ・ [r23-primary-check-batch1](v2-r23-primary-check-batch1.md) P1 ・ [world-ledger-verification](v2-world-ledger-verification.md) P1 | A |
 | 22 | **検証とV&V・UQ** | [dashboard-verification-orchestration-research](v2-dashboard-verification-orchestration-research.md) P0 ・ [statistics-causal-research](v2-statistics-causal-research.md) P0 ・ [turing-test-validation-research](v2-turing-test-validation-research.md) P0 ・ [world-coverage-index-research](v2-world-coverage-index-research.md) P0 ・ [benchmark-standards-research](v2-benchmark-standards-research.md) P1 ・ [micro-observation-research](v2-micro-observation-research.md) P1 ・ [observation-projection-deep-research](v2-observation-projection-deep-research.md) P1 ・ [r2-llm-social-sim-fulltext-check](v2-r2-llm-social-sim-fulltext-check.md) P1 ・ [r23-primary-check-batch1](v2-r23-primary-check-batch1.md) P1 ・ [small-scale-verification-research](v2-small-scale-verification-research.md) P1 ・ [vlm-reality-check-research](v2-vlm-reality-check-research.md) P1 | A |
 | 23 | **統計学・因果推論** | [replication-count-research](v2-replication-count-research.md) P0 ・ [statistics-causal-research](v2-statistics-causal-research.md) P0 ・ [r2-llm-social-sim-fulltext-check](v2-r2-llm-social-sim-fulltext-check.md) P1 | A |
 | 24 | **予測科学(アンサンブル)** | [dashboard-verification-orchestration-research](v2-dashboard-verification-orchestration-research.md) P0 | A |
-| 25 | **計算社会科学** | [c9-position-attention-research](v2-c9-position-attention-research.md) P0 ・ [llm-social-sim-timeline-seed](v2-llm-social-sim-timeline-seed.md) P0 ・ [r23-primary-check-batch2](v2-r23-primary-check-batch2.md) P0 ・ [digital-twin-landscape-research](v2-digital-twin-landscape-research.md) P1 ・ [engine-llm-boundary-research](v2-engine-llm-boundary-research.md) P1 ・ [r2-llm-social-sim-fulltext-check](v2-r2-llm-social-sim-fulltext-check.md) P1 ・ [r23-primary-check-batch1](v2-r23-primary-check-batch1.md) P1 ・ [science-claims-research](v2-science-claims-research.md) P1 ・ [world-model-relation-research](v2-world-model-relation-research.md) P2 | B |
-| 26 | **科学哲学** | [turing-test-validation-research](v2-turing-test-validation-research.md) P0 ・ [science-claims-research](v2-science-claims-research.md) P1 | B |
+| 25 | **計算社会科学** | [c9-position-attention-research](v2-c9-position-attention-research.md) P0 ・ [classical-vs-llm-simulation-research](v2-classical-vs-llm-simulation-research.md) P0 ・ [llm-social-sim-timeline-seed](v2-llm-social-sim-timeline-seed.md) P0 ・ [r23-primary-check-batch2](v2-r23-primary-check-batch2.md) P0 ・ [digital-twin-landscape-research](v2-digital-twin-landscape-research.md) P1 ・ [engine-llm-boundary-research](v2-engine-llm-boundary-research.md) P1 ・ [r2-llm-social-sim-fulltext-check](v2-r2-llm-social-sim-fulltext-check.md) P1 ・ [r23-primary-check-batch1](v2-r23-primary-check-batch1.md) P1 ・ [science-claims-research](v2-science-claims-research.md) P1 ・ [world-model-relation-research](v2-world-model-relation-research.md) P2 | B |
+| 26 | **科学哲学** | [classical-vs-llm-simulation-research](v2-classical-vs-llm-simulation-research.md) P0 ・ [turing-test-validation-research](v2-turing-test-validation-research.md) P0 ・ [science-claims-research](v2-science-claims-research.md) P1 | B |
 | 27 | **自然言語処理・機械学習** | [d71-vocab-growth-research](v2-d71-vocab-growth-research.md) P0 ・ [observation-format-research](v2-observation-format-research.md) P0 ・ [llm-knowledge-deep-research](v2-llm-knowledge-deep-research.md) P1 ・ [llm-mobility-research](v2-llm-mobility-research.md) P1 ・ [llm-serving-deep-research](v2-llm-serving-deep-research.md) P1 ・ [r2-llm-social-sim-fulltext-check](v2-r2-llm-social-sim-fulltext-check.md) P1 ・ [learned-simulation-research](v2-learned-simulation-research.md) P2 | B |
 | 28 | **計算機科学(並列・決定論)** | [cell-granularity-research](v2-cell-granularity-research.md) P1 ・ [implementation-stack-research](v2-implementation-stack-research.md) P1 ・ [llm-serving-deep-research](v2-llm-serving-deep-research.md) P1 ・ [parallel-execution-deep-research](v2-parallel-execution-deep-research.md) P1 ・ [r2-llm-social-sim-fulltext-check](v2-r2-llm-social-sim-fulltext-check.md) P1 ・ [run-manifest-concurrency-research](v2-run-manifest-concurrency-research.md) P1 | B |
-| 29 | **ソフトウェア工学** | [implementation-stack-research](v2-implementation-stack-research.md) P1 ・ [micro-observation-research](v2-micro-observation-research.md) P1 ・ [run-manifest-concurrency-research](v2-run-manifest-concurrency-research.md) P1 ・ [data-contract-research](v2-data-contract-research.md) P2 ・ [longrun-ops-deep-research](v2-longrun-ops-deep-research.md) P2 | B |
+| 29 | **ソフトウェア工学** | [research-reflection-audit-p1p2](v2-research-reflection-audit-p1p2.md) P0 ・ [research-reflection-audit](v2-research-reflection-audit.md) P0 ・ [implementation-stack-research](v2-implementation-stack-research.md) P1 ・ [micro-observation-research](v2-micro-observation-research.md) P1 ・ [run-manifest-concurrency-research](v2-run-manifest-concurrency-research.md) P1 ・ [data-contract-research](v2-data-contract-research.md) P2 ・ [longrun-ops-deep-research](v2-longrun-ops-deep-research.md) P2 | B |
 | 30 | **ゲームエンジン工学・CG** | [game-frontend-research](v2-game-frontend-research.md) P1 ・ [game-tech-import-research](v2-game-tech-import-research.md) P1 ・ [ugc-platform-import](v2-ugc-platform-import.md) P1 | B |
 | 31 | **研究倫理・情報法** | [ethics-operations-research](v2-ethics-operations-research.md) P1 ・ [legal-licensing-deep-research](v2-legal-licensing-deep-research.md) P1 ・ [content-safety-deep-research](v2-content-safety-deep-research.md) P2 ・ [impact-risk-research](v2-impact-risk-research.md) P2 ・ [publication-ethics-deep-research](v2-publication-ethics-deep-research.md) P2 | B |
 | 32 | **犯罪学** | **なし** | — |
@@ -119,9 +119,9 @@ CLAUDE.md §5 に「リサーチサブは子サブを起動しない」「答申
 
 ## 3. 全 73 本(重要度 → 日付順)
 
-合計 20,628 行。P0 35 / P1 40 / P2 9。
+合計 22,171 行。P0 38 / P1 40 / P2 9。
 
-### P0(35 本)
+### P0(38 本)
 
 | 日付 | 答申 | 行 | 一次確認 | 分野 | 役割 |
 |---|---|---|---|---|---|
@@ -156,8 +156,11 @@ CLAUDE.md §5 に「リサーチサブは子サブを起動しない」「答申
 | 09-16 | [replication-count-research](v2-replication-count-research.md) | 78 | **A** | 統計学・因果推論 #23 / ABM方法論 #21 | 反復回数(seed 数)の文献手続き 7 系譜と「初回 8 seed」の位置(L-B)。D-70/D-44/G-8 の材料。統計 #23 の最初の答申 |
 | 09-16 | [w7-law-primary-check-research](v2-w7-law-primary-check-research.md) | 85 | **A** | 法学(業法・条例) #11 / 地理情報科学 #9 | W7 法規の条文一次確認とコード突合(L-24)。法学 #11 を D→A。D-72 の出所 |
 | 09-17 | [c9-geometry-capacity-research](v2-c9-geometry-capacity-research.md) | 167 | **B** | 交通工学(活動ベース) #2 / 歩行者動力学 #18 / 地理情報科学 #9 / 法学(業法・条例) #11 / 小売科学・商業立地論 #17 | C9 幾何の容量 3 種+ホーム容量の実測化(L-R8): PLATEAU 歩道部面・法定幅員・経済センサス売場面積・建告1441/消防規則の密度・鈴木 2012 のホーム 3.30 人/m²。G8 の置換候補 |
+| 09-17 | [classical-vs-llm-simulation-research](v2-classical-vs-llm-simulation-research.md) | 219 | **B** | 計算社会科学 #25 / ABM方法論 #21 / 科学哲学 #26 | 古典 ABM の要求 × LLM 系の新規性 × 検証の対照表(L-CLS)。「良い LLM 社会シミュレーション」判定基準 10 項(古典由来 6・LLM 由来 1・両方 3)・Axtell 2016 1.2 億体・Edmonds 2019 の 7 目的・観測的同値は Haavelmo 1944 |
 | 09-17 | [d68-remaining-research](v2-d68-remaining-research.md) | 262 | **B** | 人間移動科学 #3 / 時間利用研究 #4 / 認知科学(記憶・習慣) #12 | D-68 経路 3(記憶・習慣)の残 10 件(R-3): 始業時刻の代理=時間帯編 15-4 表・通勤時間=住宅土地統計 58-2-1・交替制の深夜率 4.8〜14 倍・モチーフ 11〜17 型/83〜90%・Lu 2013 Π 0.88・REAL/2605.09995 は別の層 → K-1〜K-5(D-81) |
 | 09-17 | [d71-vocab-growth-research](v2-d71-vocab-growth-research.md) | 140 | **B** | ABM方法論 #21 / 自然言語処理・機械学習 #27 / 認知科学(記憶・習慣) #12 | 観測から行動語彙を育てる仕組みの先行(Voyager/AWM/ASI/LearnAct/SayCan/CBR/活動分類の規模)。D-71 設計アジェンダ v2-vocab-growth-design.md の出所 |
+| 09-17 | [research-reflection-audit-p1p2](v2-research-reflection-audit-p1p2.md) | 648 | **E** | ソフトウェア工学 #29 / ABM方法論 #21 | リサーチ反映の監査 B=P1 40+P2 9 本 244 項(実装済 35.7%・部分 24.6%・未判定 21.3%・設計済未実装 13.9%・未採用 4.5%)・分野別反映率(認知科学 #12 0%) |
+| 09-17 | [research-reflection-audit](v2-research-reflection-audit.md) | 676 | **E** | ソフトウェア工学 #29 / ABM方法論 #21 | リサーチ反映の監査 A=P0 35 本 240 項(実装済 52.9%・設計済未実装 20.0%・部分 18.3%・未採用 4.6%・未判定 4.2%)・逆引き表 42 行・方法論遵守 12 行 |
 | 09-17 | [statistics-causal-research](v2-statistics-causal-research.md) | 239 | **B** | 統計学・因果推論 #23 / 検証とV&V・UQ #22 | 統計学・因果推論 #23 の最初の答申(R-25): 多重比較/同値検定(Sargent 区間検定・TOST)・CRN・反実仮想(SCM・負の対照・S-RCT・History Matching)・GET 大域包絡(seed 3 本では p≥0.25)・CSB スクリーニング → prereg v1.3・D-70・D-44・到達点 C の作法 |
 |  | [c9-position-attention-research](v2-c9-position-attention-research.md) | 180 | **B** | 人間移動科学 #3 / 歩行者動力学 #18 / 認知科学(記憶・習慣) #12 / 計算社会科学 #25 | C9 位置・速度・注意・会話距離・目印の先行(L-C9): LLM 系 4 通り・Weidmann/Kladek 式(γ=1.913)・希望速度 1.00〜1.60 m/s・FOA/UE Perception・Sorokowska 1.35 m・待ち合わせ実証 2 本 |
 

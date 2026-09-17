@@ -318,15 +318,19 @@ def _empty_result(errors: tuple[str, ...]) -> ParseResult:
 
 
 def parse_two_line(
-    text: str | None, vocab_version: str = DEFAULT_VOCAB_VERSION
+    text: str | None,
+    vocab_version: str = DEFAULT_VOCAB_VERSION,
+    landmarks: Mapping[str, int] | None = None,
 ) -> ParseResult:
     """2行形(および4行形)を寛容に読む。**例外を投げない**。
 
     Args:
         text: LLM の応答本文(``None`` や非文字列も受ける)。
         vocab_version: 語彙版(D-71 §3 F)。``"v2"`` で「食事」を語彙語として読み、
-            段0 辞書の候補判定(``dictionary_candidate``)も辞書 v3 で引く。
+            段0 辞書の候補判定(``dictionary_candidate``)も辞書 v4 で引く。
             **既定 ``"v1"`` は 1 バイトも挙動が変わらない**。
+        landmarks: 目印の「名 → POI 索引」表(C9b G6 a′)。``parse_target`` へ素通しする。
+            ``None``(既定)では ``target.poi_id`` が常に ``None``=**現行のまま**。
 
     Returns:
         ``ParseResult``。
@@ -337,12 +341,16 @@ def parse_two_line(
         ('移動', 117, True)
     """
     try:
-        return _parse(text, vocab_version)
+        return _parse(text, vocab_version, landmarks)
     except Exception as exc:  # pragma: no cover - 契約「例外を投げない」の最後の砦
         return _empty_result((f"internal:{type(exc).__name__}",))
 
 
-def _parse(text: str | None, vocab_version: str = DEFAULT_VOCAB_VERSION) -> ParseResult:
+def _parse(
+    text: str | None,
+    vocab_version: str = DEFAULT_VOCAB_VERSION,
+    landmarks: Mapping[str, int] | None = None,
+) -> ParseResult:
     if text is None:
         return _empty_result(("empty_output",))
     if not isinstance(text, str):
@@ -388,7 +396,7 @@ def _parse(text: str | None, vocab_version: str = DEFAULT_VOCAB_VERSION) -> Pars
             dictionary_candidate = map_synonym(raw_action, None, vocab_version)[0]
 
     # ---- 対象・理由・ひと言 ----
-    target = parse_target(labels.get("対象"))
+    target = parse_target(labels.get("対象"), landmarks)
     raw_reason = labels.get("理由", "")
     raw_comment = labels.get("ひと言", NO_TARGET)
     reason = raw_reason[:REASON_MAX_CHARS]

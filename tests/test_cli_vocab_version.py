@@ -21,7 +21,8 @@ def test_cli_run_passes_vocab_version_through_kwargs():
 
     res = cli.run(vocab_version="v2", **SMALL)
     assert res.run_manifest_fields()["vocab_version"] == "v2"
-    assert res.run_manifest_fields()["synonym_table_version"] == "undefined-synonyms-v3"
+    # C9b(G5 対象ヒント)で段0 辞書は v4 へ
+    assert res.run_manifest_fields()["synonym_table_version"] == "undefined-synonyms-v4"
     assert res.vocab_version == "v2"
 
 

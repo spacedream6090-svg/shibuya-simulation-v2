@@ -46,10 +46,21 @@ from shibuya.llm.contract import ACTION_VOCAB_12
 from shibuya.llm.contract import EAT_ACTION_CODE
 from shibuya.llm.contract import UNDEFINED_ACTION
 from shibuya.llm.parser import parse_two_line
+from shibuya.llm.undefined import TARGET_HINT_WORDS
 
 __all__ = [
     "UNDEFINED_ACTION",
     "parse_action",
+    "TARGET_HINT_CODES",
+    "TARGET_HINT_NONE",
+    "TARGET_HINT_HOME",
+    "TARGET_HINT_WORK",
+    "TARGET_HINT_SCHOOL",
+    "TARGET_HINT_CATEGORY",
+    "TARGET_HINT_APPROACH",
+    "TARGET_HINT_LOOK",
+    "target_hint_code",
+    "focus_codes",
     "pair_partners",
     "talk_partners",
     "engine_continuations",
@@ -126,6 +137,49 @@ _CONDITION_EXPECTATION: Final[dict[int, int]] = {
 
 #: 就寝スロットの1セルあたり容量(expedient)。
 SLEEP_SLOTS_PER_CELL: Final[int] = 200
+
+
+# ------------------------------------------------------------------ 対象ヒント(C9b G5)
+#
+# 段0 辞書 v4(``llm.undefined.TARGET_HINTS_V4``)が返す**語**を、エンジンが運ぶ**索引**に
+# 変える。並びの正典は ``llm.undefined.TARGET_HINT_WORDS``(テストが一致を機械検査)。
+# **意思は LLM(何を対象にしたいか)・帰結はエンジン(どのセル/ノードか)** の線を跨がない
+# ための 1 段(C9 決定アジェンダ §1 G5)。
+
+#: 対象ヒントの語 → 索引。
+TARGET_HINT_CODES: Final[dict[str, int]] = {w: i for i, w in enumerate(TARGET_HINT_WORDS)}
+TARGET_HINT_NONE: Final[int] = TARGET_HINT_CODES[""]
+TARGET_HINT_HOME: Final[int] = TARGET_HINT_CODES["home"]
+TARGET_HINT_WORK: Final[int] = TARGET_HINT_CODES["work"]
+TARGET_HINT_SCHOOL: Final[int] = TARGET_HINT_CODES["school"]
+TARGET_HINT_CATEGORY: Final[int] = TARGET_HINT_CODES["category"]
+TARGET_HINT_APPROACH: Final[int] = TARGET_HINT_CODES["approach"]
+TARGET_HINT_LOOK: Final[int] = TARGET_HINT_CODES["look"]
+
+
+def target_hint_code(hint: str) -> int:
+    """対象ヒントの語 → 索引(未知の語は ``TARGET_HINT_NONE``)。"""
+    return int(TARGET_HINT_CODES.get(str(hint or ""), TARGET_HINT_NONE))
+
+
+def focus_codes(target_hint, target_person, target_poi, n_agents: int) -> np.ndarray:
+    """(ヒント, 名指しの個体, 解決した POI) → ``agents.focus_target`` の符号化。
+
+    「近づく」「見る」のときだけ焦点を立てる(``agents.state.focus_code_for_*`` と同じ符号)。
+    人が優先(人と POI の両方が取れることは無いが、順序を決めておく)。
+
+    Returns:
+        ``(k,)`` int64。``-1``=焦点を立てない / ``≥0``=個体 id / ``≤-2``=``-2-poi_id``。
+
+    逐次ループ宣言(P4): なし。
+    """
+    h = np.asarray(target_hint, dtype=np.int64).ravel()
+    p = np.asarray(target_person, dtype=np.int64).ravel()
+    q = np.asarray(target_poi, dtype=np.int64).ravel()
+    want = (h == TARGET_HINT_APPROACH) | (h == TARGET_HINT_LOOK)
+    ok_p = want & (p >= 0) & (p < int(n_agents))
+    ok_q = want & (~ok_p) & (q >= 0)
+    return np.where(ok_p, p, np.where(ok_q, -2 - q, -1)).astype(np.int64)
 
 
 def delta_perc_ns(condition) -> np.ndarray:
@@ -526,7 +580,10 @@ def intents_from_responses(
     *,
     home_cell: np.ndarray | None = None,
     work_cell: np.ndarray | None = None,
+    school_cell: np.ndarray | None = None,
     target_person: np.ndarray | None = None,
+    target_hint: np.ndarray | None = None,
+    target_poi: np.ndarray | None = None,
     stats: dict[str, int] | None = None,
     run_salt: bytes = b"",
 ) -> IntentBatch:
@@ -543,9 +600,18 @@ def intents_from_responses(
         condition: 起床条件(δ_perc の予期クラスに使う)。
         action_code: ``parse_action`` の結果(``UNDEFINED_ACTION`` を含む)。
         home_cell / work_cell: 移動・就寝の既定の行き先(mock スケジュール由来)。
+        school_cell: **W16 の学校セル**(``-1``=学校なし)。対象ヒント ``school`` の解決先。
+            ``None``(既定)なら ``school`` のヒントは**効かない**(=現行の行き先のまま)。
         target_person: **LLM が「対象」欄に書いた個体 id**(``-1``=名指しなし・C6 09-09)。
             会話の相手はここを第一に見る(``talk_partners``)。``None`` なら従来どおり
             同バッチ最小 id へのフォールバックだけになる。
+        target_hint: **段0 辞書 v4 の対象ヒント**(``TARGET_HINT_*`` の索引・C9b G5)。
+            ``None``(既定)では 1 バイトも挙動が変わらない。移動の行き先だけに効く:
+            ``home``/``work``/``school``= 拠点セル / ``approach``= 対象(人/目印)のセル /
+            ``category``・``look``= 行き先には効かない(``category`` は「対象」欄の物カテゴリを
+            そのまま残すための印・``look`` は待機側)。
+        target_poi: 「対象」欄が**目印 POI に解決できた**ときの POI 索引(``-1``=なし・
+            C9b G6 a′)。``approach`` の行き先に使う。
         stats: 与えると会話の相手の由来を数える(``talk_named``/``talk_fallback``/
             ``talk_absent``)。診断行 ``conv_*`` の素材。
         run_salt: 会話フォールバックのセル内順序を撹拌する塩(運用設計書 §2.5)。
@@ -574,7 +640,42 @@ def intents_from_responses(
             wc = np.asarray(work_cell, dtype=np.int64)[a]
             dest = np.where(cell == wc, hc, wc)
         else:
+            hc = wc = None
             dest = cell
+        # ---- C9b G5: 対象ヒントが在れば**LLM が言った行き先**を優先する ----
+        # (「帰宅」と書いた体を職場へ歩かせない=段0 辞書が捨てていた対象を拾う。
+        #  ``target_hint`` が ``None`` の既定では 1 行も通らない=バイト不変)
+        if target_hint is not None:
+            hint = np.asarray(target_hint, dtype=np.int64)
+            if hc is not None:
+                dest = np.where((hint == TARGET_HINT_HOME) & (hc >= 0), hc, dest)
+            if wc is not None:
+                dest = np.where((hint == TARGET_HINT_WORK) & (wc >= 0), wc, dest)
+            if school_cell is not None:
+                sc = np.asarray(school_cell, dtype=np.int64)[a]
+                dest = np.where((hint == TARGET_HINT_SCHOOL) & (sc >= 0), sc, dest)
+            # 「近づく」= 対象(人/目印)の**いまのセル**へ。セルが取れない対象は
+            # ``-1`` のまま渡り ``resolve._apply_move`` が ``UNREACHABLE`` を返す。
+            app = hint == TARGET_HINT_APPROACH
+            if np.any(app):
+                dest_app = np.full(n, -1, dtype=np.int64)
+                if target_person is not None:
+                    tp = np.asarray(target_person, dtype=np.int64)
+                    ok_p = app & (tp >= 0) & (tp < int(agents.n))
+                    if np.any(ok_p):
+                        pc = np.asarray(agents.registry.cell, dtype=np.int64)[
+                            np.clip(tp, 0, max(0, int(agents.n) - 1))
+                        ]
+                        dest_app = np.where(ok_p, pc, dest_app)
+                if target_poi is not None:
+                    tq = np.asarray(target_poi, dtype=np.int64)
+                    ok_q = app & (dest_app < 0) & (tq >= 0) & (tq < int(world.n_poi))
+                    if np.any(ok_q):
+                        qc = np.asarray(world.assets.poi_cell, dtype=np.int64)[
+                            np.clip(tq, 0, max(0, int(world.n_poi) - 1))
+                        ]
+                        dest_app = np.where(ok_q, qc, dest_app)
+                dest = np.where(app, dest_app, dest)
         target = np.where(is_move, dest, target)
 
     # 購入: 現在セルの POI(最小 id)。無ければ -1 → 失敗(在庫切れ扱いでなく対象不正)。
