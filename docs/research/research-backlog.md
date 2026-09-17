@@ -117,6 +117,6 @@
 
 | # | 何を | 出所 | 状態 |
 |---|---|---|---|
-| **R-28** | **監査の取りこぼし候補 62 項+設計済・未実装 82 項**(全 80 答申・484 項の 5 値監査: 実装済 44.2%・部分 21.5%・設計済未実装 16.9%・未採用 4.5%・未判定 12.8%)。上位: 人流の二次モーメント指標(滞留・Zipf・EPR)が計器に 0 件 / 反実仮想渋谷の常設対照ラン / 艦隊バックプレッシャ 3 段・TiDi / T2 内省の実呼 / prereg v1.3 の統計が `holdout_compare.py` に無い / AB2〜AB5 未実施 / 保存則 T3 / seed 交換可能性検査 / 決定台帳に「根拠答申」列が無い | [v2-research-reflection-audit.md](v2-research-reflection-audit.md)・[-p1p2.md](v2-research-reflection-audit-p1p2.md) | PENDING **D-83** で優先順を決める |
+| **R-28** | **監査の取りこぼし候補 62 項+設計済・未実装 82 項**(全 80 答申・484 項の 5 値監査: 実装済 44.2%・部分 21.5%・設計済未実装 16.9%・未採用 4.5%・未判定 12.8%)。上位: 人流の二次モーメント指標(滞留・Zipf・EPR)が計器に 0 件 / 反実仮想渋谷の常設対照ラン / 艦隊バックプレッシャ 3 段・TiDi / T2 内省の実呼 / prereg v1.3 の統計が `holdout_compare.py` に無い / AB2〜AB5 未実施 / 保存則 T3 / seed 交換可能性検査 / 決定台帳に「根拠答申」列が無い | [v2-research-reflection-audit.md](v2-research-reflection-audit.md)・[-p1p2.md](v2-research-reflection-audit-p1p2.md) | **決定(第215)**: ①②④ 今週(① 第215 実装サブ着手)・③⑤ S2・⑥ 第2陣・⑦ 進めてよい範囲 |
 | R-29 | PIMMUR(2509.18052)の引用を版指定つきに直す(v4: 350 論文/576 実験・65.2%・50.6%)。既存答申 science-claims・F-8 | L-CLS 親確認 | 注記済み(答申・F-8)・本文の一括訂正は未 |
 | R-30 | 事前登録の外部根拠+1: Anthis et al. 2025 §4.5.2「we encourage, preregistration of LLM simulation predictions」(親確認)→ prereg を「分野の推奨の履行」へ書換 / Hewitt 2024 と Ashokkumar 2026 が同一研究か未確定 | L-CLS | prereg v1.3 に反映(第214) |
