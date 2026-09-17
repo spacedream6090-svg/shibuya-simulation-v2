@@ -100,3 +100,11 @@
 | [urban__okada2019_station-waiting](urban__okada2019_station-waiting.md) | GIScience #9 / 認知科学 #12 | B(サブ実読・第206・親未確認)・第207 | **待ち合わせの滞留位置 = 可視領域の重なり × 流動からの距離** = W8 で計算できる |
 | [urban__ichimiya2026_meeting-place-amenity](urban__ichimiya2026_meeting-place-amenity.md) | GIScience #9 / 時間利用研究 #4 | B(サブ実読・第206・親未確認)・第207 | **認知性 × 快適性の 2 軸**・**合流後滞在 3〜7 秒 vs 1 分 19〜35 秒**・**待機者の 8 割以上がスマホ** |
 | [psych__sorokowska2017_interpersonal-distance](psych__sorokowska2017_interpersonal-distance.md) | 人格心理学 #13 / 会話分析・語用論 #15 | B(サブ実読・第206・親未確認)・第207 | **見知らぬ人 1.35 m・知人 0.92 m**(N = 8,943・42 か国・**日本は含まれない**)= G7 の 2 m の裏づけ |
+| [validation__sargent2016_interval-test](validation__sargent2016_interval-test.md) | 検証とV&V #22 / 統計学 #23 | **実読**(第209・サブ+親 pymupdf 逐語一致) | **「帯の中にある」を検定する正典**=区間仮説検定・モデル製作者危険 α / 利用者危険 β・α+β=1 の作例 |
+| [stats__lakens2017_tost-equivalence](stats__lakens2017_tost-equivalence.md) | 統計学・因果推論 #23 | B(サブ実読・第208・親未確認)・第209 | **TOST の手続き**・「90% CI が帯の内側」で同値・**3 seed での必要帯 = 偏り + 1.686·CV** |
+| [stats__currie-cheng2016_output-analysis](stats__currie-cheng2016_output-analysis.md) | 統計学・因果推論 #23 / OR | B(サブ実読・第208・親未確認)・第209 | **Bonferroni の作例(5 比較 × 90% → 家族 50%・個別 98% が要る)**+CRN+対応のある差の CI |
+| [causal__lipsitch2010_negative-controls](causal__lipsitch2010_negative-controls.md) | 統計学・因果推論 #23 | B(サブ実読・第208・親未確認)・第209 | **正解が無いときの検証法の原典**・U-comparability・「鋭いが鈍い道具」 |
+| [stats__ogara2025_history-matching-abm](stats__ogara2025_history-matching-abm.md) | 統計学・因果推論 #23 / ABM方法論 #21 | B(サブ実読・第208・親未確認)・第209 | **R-14 の残務を閉じる**・非含意度と閾値 3・4 波で NROY 7.23%→0.82%・**代理なしでは成立しない** |
+| [stats__myllymaki2024_global-envelopes](stats__myllymaki2024_global-envelopes.md) | 統計学・因果推論 #23 | **実読**(第209・サブ+親 pymupdf 逐語一致) | **曲線の同時帯**=Bonferroni を 1 本に畳む道・**p の下限 1/s ⇒ 3 seed では α=0.05 不可**・交換可能性 |
+| [stats__wan2003_controlled-sequential-bifurcation](stats__wan2003_controlled-sequential-bifurcation.md) | 統計学・因果推論 #23 / ABM方法論 #21 | B(サブ実読・第208・親未確認)・第209 | **D-44 の「十分の線」の語彙**=2 閾値 Δ0/Δ1・群スクリーニング・**CRN の有無を問わない** |
+| [validation__hut2026_simulated-rct](validation__hut2026_simulated-rct.md) | 検証とV&V #22 / 計算社会科学 #25 | B(サブ実読・第208・親未確認)・第209 | **到達点 C の物差しの唯一の近い先行**・67 件の逆行検証・**向き 0.70(無内容予測 0.75 に負ける)**・誤差の 2 層分解 |

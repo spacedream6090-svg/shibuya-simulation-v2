@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **8 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **9 / 10**
 > 第1〜第200(2026-09-01〜09-16)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第201 ユーザー「回そう(候補 3)」「今後の実装予定」「PDF 読める?・S0〜S5 へ・立ち位置・リサーチ残・グラフ化」+ AB7 seed 1 の結果(2026-09-16)
@@ -79,3 +79,9 @@
 - **R-23 第2批**([答申](../research/v2-r23-primary-check-batch2.md)・32 主張=一致 22・不一致 2・出典なし 1・原典より強い 6)。**親確認 3 件**: Project Sid §5.2「we establish an existing set of laws…」・§8.3 に法無し条件なし・500 体(`v2_significance.md` の 1000 体は誤り)/ Decoupling=デンマーク住居移転 39,297,646 件・Foursquare 239,788 は補助 / `ACCEPT_PROBABILITY=0.8` は expedient 注記のみ。**「4 答申が独立収束」は引用では独立だが過程では独立でない**(分業は 08-29 の設計前提・依頼文が分業の語で問う)。→ **D-78**(A D4 修正3 / B 独立収束の文言=CLAUDE.md §3 / C 0.8 / D Concordia / E T3 / F Decoupling / G CPC フロア + 検査 2 型)。
 - **R-25(統計・因果)は実行中**。seed 3 実行中(17:35)。
 - **次**: G1〜G12・R1〜R14・D-78・未踏 5 点の決定 → C9 実装サブ / seed 3 回収→holdout 開封 / AB7c。
+## 第209 R-25 統計学・因果推論の第 1 答申 帰還(2026-09-17 午後)
+
+- **親確認 3 件**: Sargent, Goldsman & Yaacoub 2016(WSC・PDF)「model builder's risk α / model user's risk β」「H0: L ≤ D ≤ U」/ Myllymäki & Mrkvička(GET)「p = Σ1(Mi ≤ M1)/s」+交換可能性 / 3 seed の算術(d₃=248.4·CV 単独・573·CV 家族 5・CV 0.0038→±2.2%・0.0325→±18.6%)。**訂正**: 「深夜 2% を家族で言うには 87 本」は親再計算で **≈20 本**。Murphy 2013(CRN −93.6%/−5.6%)は親未確認。
+- **含意**: (1) **第204 の「3 本で深夜 2%」は単独指標の数**=事前登録 v1.2 に開封前の注記(深夜は記述に格下げ・「幅の中」は検定でない・v1.3 案)。(2) CRN は腕間にしか効かない→ D-70 (d) を降ろす候補。(3) 反実仮想は SCM で書け、負の対照(Lipsitch 2010)・S-RCT(向き 0.70 だが無内容予測 0.75 に負ける・A/A を第 1 相)・History Matching(閾値 3=Pukelsheim・R-14 残務解消)。(4) **D-44 の第200 追記「Sobol' なら反復 0/5」は反復数と設計点数の取り違え**(k=122 で Sobol' 7,936 ラン)→ 5,000 体階層+CSB へ。(5) 到達点 C は「向きと桁」に留め基準線を併記。→ **D-79**(prereg v1.3・親推奨=seed 3 が揃った時点で v1.3 に上げてから開封)。
+- lit 8 本・INDEX(80 本)・backlog R-25/R-14・RESEARCH-STATE。本日のレーン 6 本すべて帰還。台帳スクリプトの行抽出ミス(§4 の行形式)で 1 回失敗→修正して再実行。
+- **次**: 判断待ち G1〜G12・R1〜R14・D-78・D-79・未踏 5 点 / seed 3(17:35)→ v1.3 → 開封 / AB7c。devlog 9/10=次で圧縮。

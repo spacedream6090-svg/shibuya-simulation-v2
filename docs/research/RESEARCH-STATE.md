@@ -5,6 +5,7 @@
 - **一次確認**: 本書自体は状態の記録であって主張をしない。**各行の状態が正**
 - **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **v1 資産**: [v1-asset-triage.md](v1-asset-triage.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
 
+> 最終更新 **2026-09-17(第209)**: **R-25 完了**(統計・因果の第 1 答申・親確認 3 件・N≈87 は ≈20 に訂正 → D-79・prereg v1.2 §6 に注記)。本日のレーン 6 本(L-R8・L-C9・R-25・R-23 第2批・C9/C10 材料)すべて帰還。次点=R-3・R-4・A-1/2/4・R-5・R-23 第3批。
 > 最終更新 **2026-09-17(第208)**: **R-23 第2批 完了**(背骨 4 答申・親確認 3 件 → D-78)。**C10 材料集め完了**([v2-c10-relations-brief.md](../design/v2-c10-relations-brief.md))→ アジェンダ R1〜R14。R-25(統計・因果)は実行中。
 > 最終更新 **2026-09-17(第207)**: **L-R8・L-C9 完了**(答申 2 本・lit 13 本・親確認 7 件 → C9 アジェンダ §4 改訂)。R-7 の空欄 2 件解消(単位・γ)。Weidmann 1993 原典と鉄道総研 2016 の数値は取得不能=空欄確定。
 > 最終更新 **2026-09-17(第204)**: **L-D71 完了**(答申 [v2-d71-vocab-growth-research.md](v2-d71-vocab-growth-research.md)・lit 8 本・親確認 5 件 → 設計アジェンダ [v2-vocab-growth-design.md](../design/v2-vocab-growth-design.md))。空欄 13 件は答申 §3(ATUS 465 の再計数・ASI・Voyager 付録・MAST 14 型 ほか)。
