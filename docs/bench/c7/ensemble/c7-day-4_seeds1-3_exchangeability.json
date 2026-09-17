@@ -1,0 +1,135 @@
+{
+ "schema": "shibuya.tools.c7/seed_exchangeability/1",
+ "labels": [
+  "seed 1",
+  "seed 2",
+  "seed 3"
+ ],
+ "n_seeds": 3,
+ "seeds": [
+  1,
+  2,
+  3
+ ],
+ "must_match_failures": [],
+ "checkpoint_ticks": [
+  359,
+  719,
+  1079,
+  1439
+ ],
+ "checkpoint_ticks_match": true,
+ "diff_allowed": [
+  {
+   "key": "final_hash",
+   "values": {
+    "seed 1": "8f8ee7e8e864344b7957957cf15cdf1cba9235bab97b7e714e209a054b492e5c",
+    "seed 2": "55412d3dc9c6d19d3b53d86218debc9a7b3195425579e39b991e8c33848ebb82",
+    "seed 3": "8d851fd01cd5957efb8b90a0c3769c94015738b4f5f7f609b18e228deafbd34d"
+   }
+  },
+  {
+   "key": "manifest.fleet.cache_salt",
+   "values": {
+    "seed 1": "6b34991ffa8668e0abe78657394a4c65",
+    "seed 2": "fdfa5453dc7857d30c359522a85e95a6",
+    "seed 3": "a792ac26693c85f7b21b55c4a43e5df5"
+   }
+  },
+  {
+   "key": "run_id",
+   "values": {
+    "seed 1": "c7-day-4",
+    "seed 2": "c7-day-4-s2",
+    "seed 3": "c7-day-4-s3"
+   }
+  },
+  {
+   "key": "seed",
+   "values": {
+    "seed 1": "1",
+    "seed 2": "2",
+    "seed 3": "3"
+   }
+  }
+ ],
+ "diff_declared_equivalent": [
+  {
+   "key": "manifest.intent_mode",
+   "values": {
+    "seed 1": "None",
+    "seed 2": "vocab",
+    "seed 3": "vocab"
+   },
+   "reason": "AB7(IMPLEMENTED #21)以後の既定名。vocab は AB7 前の挙動と同一(既定 checkpoint ba01bd0b 不変)"
+  }
+ ],
+ "diff_unexplained": [],
+ "hash_identity": {
+  "population_hash": {
+   "identical_all_ticks": true,
+   "identical_by_tick": [
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "schedule_hash": {
+   "identical_all_ticks": true,
+   "identical_by_tick": [
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "world_hash": {
+   "identical_all_ticks": false,
+   "identical_by_tick": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "agents_hash": {
+   "identical_all_ticks": false,
+   "identical_by_tick": [
+    false,
+    false,
+    false,
+    false
+   ]
+  }
+ },
+ "population_seed_independent": true,
+ "exchangeable": true,
+ "note": "交換可能=seed 以外の構成差が無い(未説明の差 0・必須欄一致・tick 列一致)。母集団ハッシュの同一性は報告のみ(同一なら母集団は seed に依らない・別なら抽出が seed に依ることを事前登録に書く)。",
+ "hour0": {
+  "hour0_area_totals": {
+   "seed 1": [
+    6140.0,
+    9703.0,
+    3686.0,
+    2539.0,
+    4183.0
+   ],
+   "seed 2": [
+    6140.0,
+    9703.0,
+    3686.0,
+    2539.0,
+    4183.0
+   ],
+   "seed 3": [
+    6140.0,
+    9703.0,
+    3686.0,
+    2539.0,
+    4183.0
+   ]
+  },
+  "hour0_identical": true
+ }
+}
