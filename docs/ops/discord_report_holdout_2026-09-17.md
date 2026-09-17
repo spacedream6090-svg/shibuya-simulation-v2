@@ -2,7 +2,7 @@
 
 > 用途: 09-17 朝の 2 投稿([discord_report_2026-09-17.md](discord_report_2026-09-17.md)・図 1〜4 は投稿済み)の続報。1 投稿 2,000 字制限。Discord は表を描けないので箇条書きで書く。サーバー名・IP・パス・個人名は含めない(CLAUDE.md §7)。holdout の数値は**シェア・時刻・比だけ**(D1′「値は形状と比のみ」=封印データの絶対値は出さない)。数値の出所: [prereg §8](../bench/c7/prereg_arms_v1.md)・[holdout/c7-day-4](../bench/c7/holdout/c7-day-4/c7_holdout_compare.md)・[C9c-1 記録](../design/v2-c9-geometry-agenda.md)・[C9b 親報告](../bench/c9/c9b_smoke_s1_parent_report.md)・[P1](../research/v2-hobby-preference-research.md)/[P2](../research/v2-personality-traits-research.md)/[P3](../research/v2-preference-vector-research.md)。
 >
-> 3 案。**案 A(推奨)**=2 投稿(結果 → 帰属と今週の発見)。案 B=1 投稿の短報(急ぐとき)。案 C=案 A に図 5(未作成・提案)を添える。
+> **ユーザー決定(09-17 夜・第226): 案 A で報告。** 3 案。**案 A(推奨)**=2 投稿(結果 → 帰属と今週の発見)。案 B=1 投稿の短報(急ぐとき)。案 C=案 A に図 5(未作成・提案)を添える。
 
 ---
 
