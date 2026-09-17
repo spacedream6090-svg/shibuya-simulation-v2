@@ -101,6 +101,7 @@ C = {
  'v2-world-process-rows-research.md':           ([19,10], 'P0', 'エンジン/LLM 線引き16行の詳細決定材料'),
  'v2-w7-law-primary-check-research.md':         ([11,9],  'P0', 'W7 法規の条文一次確認とコード突合(L-24)。法学 #11 を D→A。D-72 の出所'),
  'v2-replication-count-research.md':            ([23,21], 'P0', '反復回数(seed 数)の文献手続き 7 系譜と「初回 8 seed」の位置(L-B)。D-70/D-44/G-8 の材料。統計 #23 の最初の答申'),
+ 'v2-micro-observation-research.md':            ([22,21,29], 'P1', 'ミクロ観察(個体カルテ/場所カルテ)の先行(R-4): GA の replay+無作為抽出・Concordia のログ粒度・Via の agent/facility クエリ・ODD の Observation・de Montjoye 1/10 乗則 → M1 アジェンダ O1〜O20(D-80)'),
  'v2-statistics-causal-research.md':            ([23,22], 'P0', '統計学・因果推論 #23 の最初の答申(R-25): 多重比較/同値検定(Sargent 区間検定・TOST)・CRN・反実仮想(SCM・負の対照・S-RCT・History Matching)・GET 大域包絡(seed 3 本では p≥0.25)・CSB スクリーニング → prereg v1.3・D-70・D-44・到達点 C の作法'),
  'v2-r23-primary-check-batch2.md':              ([25,10,15,3,11], 'P0', '出典ゼロ答申の一次確認 第2批=背骨の 4 答申(経済 SFC・会話・人流・制度)。独立収束は過程レベルで不成立・D4 修正3・0.8・Decoupling・CPC フロア → D-78'),
  'v2-c9-geometry-capacity-research.md':         ([2,18,9,11,17], 'P0', 'C9 幾何の容量 3 種+ホーム容量の実測化(L-R8): PLATEAU 歩道部面・法定幅員・経済センサス売場面積・建告1441/消防規則の密度・鈴木 2012 のホーム 3.30 人/m²。G8 の置換候補'),
@@ -119,6 +120,7 @@ OVERRIDE = {
  'v2-w7-law-primary-check-research.md': ('A', '親再取得(2026-09-16・第200)。逐語一致つき。空欄 6 件(§4)・告示 PDF は親未再取得'),
  'v2-replication-count-research.md': ('A', '親再取得(2026-09-16・第200)。9 出典を親が再取得(4 Web+5 PDF)・全数値を再計算。空欄 5 件(§4: Lorscheid 原典・Law 教科書原文・Secchi 式(2) 係数・Leutbecher 査読版・ECMWF「51」の根拠文書)'),
  # 09-16 第202: サブ実読+親が 3 主張を原典で再確認(Goel 2016 PDF「on average」・Law in Silico HTML に precedent なし・Ruri カード 71.53<71.65)。Dunbar 1995(有料)・UE5 の不在は親未確認
+ 'v2-micro-observation-research.md': ('B', 'サブ実読(2026-09-17・第211)+親確認 3 件(ODD S1・GA §7.1・de Montjoye)。Concordia/Via/AgentSociety は親未確認'),
  'v2-statistics-causal-research.md': ('B', 'サブ実読 8/11(2026-09-17・第209)+親確認 3 件(Sargent 2016・GET p 式・3 seed 算術)。N≈87 は親再計算で ≈20 に訂正。Murphy 2013 は親未確認'),
  'v2-r23-primary-check-batch2.md': ('B', 'サブ実読 32 主張(2026-09-17・第208)+親確認 3 件(Project Sid §5.2/§8.3/500 体・Decoupling 住居移転 39M・0.8 の注記)。残りは親未確認'),
  'v2-c9-geometry-capacity-research.md': ('B', 'サブ実読(2026-09-17・第207)+親確認 4 件(鈴木 2012 逐語・建告1441・消防規則 4 m²・PLATEAU 面積合計)。セル別の比・e-Stat 分位は親未確認'),
