@@ -127,5 +127,5 @@
 |---|---|---|---|
 | **R-31** | **P1 趣味・嗜好**: 公的分布(社会生活基本調査 R3・11 表取得)・種目→POI 写像(1 対 1 は 3 種目・受け皿ゼロ多数・**W6 カタログの欠陥 3=公園が PLACE_PARK に行かない**)・入れ方 案 A(種目 58 bit+コピュラ+稀事象の待ち時間)・穴 6・先行例ゼロ | [v2-hobby-preference-research.md](v2-hobby-preference-research.md)(親確認 3) | 完了・判断 D-88 |
 | **R-32** | **P3 選好ベクトルと常連/探索**: EPR(γ 0.21・Π=f・δ 1.2)・returners k=4・Schläpfer η≈2・外食リピート 77.5%・Dubé 状態依存 → 選好はエンジンの数値・**二重計上の整理**(戻る=K-1・探す=ρ_i・P3 は初回選択の frozen 誤差・P1/P2 は選択確率に掛けない)・**写し訂正 ζ→δ**・repo は店選択が「セル内最小 id」=行き先を選ぶ仕組み自体が無い | [v2-preference-vector-research.md](v2-preference-vector-research.md)(親確認 4) | 完了・判断 D-88 |
-| R-33 | P2 性格(規準分布・効果量・LLM 付与) | 実行中 | — |
+| R-33 | **P2 性格**: 規準=川本 2015(親確認)・効果量表(欧米標本のみ・日本人の性格×行動は 0 件)・LLM 付与 3 件(persona 注入は自己申告だけ動かす)→ **C 案=入れずに測る**・traits 3 次元の設計書定義なし・**ペルソナプールの上側隆起(第 18 分位から跳ね返る・原因未解明)** | [v2-personality-traits-research.md](v2-personality-traits-research.md)(親確認 3) | 完了・判断 D-88 ⑥ |
 | R-34 | 空欄: SSB 趣味種目の共起(匿名個票=決定台帳 L424 の門)・渋谷の来街者リピート率・Pappalardo k=2 人口比(補足 Fig.3)・日本の EPR/returners 研究(存在せず) | P1/P3 §7 | 未 |
