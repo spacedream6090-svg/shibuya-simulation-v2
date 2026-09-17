@@ -101,6 +101,8 @@ C = {
  'v2-world-process-rows-research.md':           ([19,10], 'P0', 'エンジン/LLM 線引き16行の詳細決定材料'),
  'v2-w7-law-primary-check-research.md':         ([11,9],  'P0', 'W7 法規の条文一次確認とコード突合(L-24)。法学 #11 を D→A。D-72 の出所'),
  'v2-replication-count-research.md':            ([23,21], 'P0', '反復回数(seed 数)の文献手続き 7 系譜と「初回 8 seed」の位置(L-B)。D-70/D-44/G-8 の材料。統計 #23 の最初の答申'),
+ 'v2-c9-geometry-capacity-research.md':         ([2,18,9,11,17], 'P0', 'C9 幾何の容量 3 種+ホーム容量の実測化(L-R8): PLATEAU 歩道部面・法定幅員・経済センサス売場面積・建告1441/消防規則の密度・鈴木 2012 のホーム 3.30 人/m²。G8 の置換候補'),
+ 'v2-c9-position-attention-research.md':        ([3,18,12,25], 'P0', 'C9 位置・速度・注意・会話距離・目印の先行(L-C9): LLM 系 4 通り・Weidmann/Kladek 式(γ=1.913)・希望速度 1.00〜1.60 m/s・FOA/UE Perception・Sorokowska 1.35 m・待ち合わせ実証 2 本'),
  'v2-d71-vocab-growth-research.md':             ([21,27,12], 'P0', '観測から行動語彙を育てる仕組みの先行(Voyager/AWM/ASI/LearnAct/SayCan/CBR/活動分類の規模)。D-71 設計アジェンダ v2-vocab-growth-design.md の出所'),
  'v2-r2-llm-social-sim-fulltext-check.md':      ([25,22,27,23,28], 'P1', 'LLM 社会シミュ文献 12 件の本文実読の判定表(R-2)。lit 12 本の親。OASIS 超線形・事前登録の外部根拠・TRAILS-R の空白=D-75/D-70 の出所'),
  'v2-r23-primary-check-batch1.md':              ([22,25,21], 'P1', '出典 URL ゼロの答申 33 本の一次確認 第1批(設計書が引く 8 本・28 主張)。D-74(値を直す 4 件)の出所・写し検査の提案(R-23)'),
@@ -115,6 +117,8 @@ OVERRIDE = {
  'v2-w7-law-primary-check-research.md': ('A', '親再取得(2026-09-16・第200)。逐語一致つき。空欄 6 件(§4)・告示 PDF は親未再取得'),
  'v2-replication-count-research.md': ('A', '親再取得(2026-09-16・第200)。9 出典を親が再取得(4 Web+5 PDF)・全数値を再計算。空欄 5 件(§4: Lorscheid 原典・Law 教科書原文・Secchi 式(2) 係数・Leutbecher 査読版・ECMWF「51」の根拠文書)'),
  # 09-16 第202: サブ実読+親が 3 主張を原典で再確認(Goel 2016 PDF「on average」・Law in Silico HTML に precedent なし・Ruri カード 71.53<71.65)。Dunbar 1995(有料)・UE5 の不在は親未確認
+ 'v2-c9-geometry-capacity-research.md': ('B', 'サブ実読(2026-09-17・第207)+親確認 4 件(鈴木 2012 逐語・建告1441・消防規則 4 m²・PLATEAU 面積合計)。セル別の比・e-Stat 分位は親未確認'),
+ 'v2-c9-position-attention-research.md': ('B', 'サブ実読(2026-09-17・第207)+親確認 3 件(STRC Table 2・Kladek 式の再計算・密度段階)。Sorokowska/Hall/Itti は親未確認'),
  'v2-d71-vocab-growth-research.md': ('B', 'サブ実読(2026-09-17・第204)+親が 5 件を原典で確認(社会生活基本調査 20/6-22-90・ATUS 17・Emergence World 2 tools・Atil 2024)。ATUS 465 の再計数・ASI 等は親未確認'),
  'v2-r2-llm-social-sim-fulltext-check.md': ('B', 'サブ実読 12 件(2026-09-16・第202)+親が 4 件を原典で確認(OASIS Table 2・GAMA Table 3・Ye 事前登録の不在・Larooij PDF 逐語)。残り 8 件は親未確認・空欄 18 行(§3)'),
  'v2-r23-primary-check-batch1.md': ('B', 'サブ実読(2026-09-16・第202)+親が 3/28 主張を原典で確認。Dunbar 1995・UE5 不在は親未確認。答申本体の等級は動かしていない(確認済み主張は本文に印)'),

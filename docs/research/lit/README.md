@@ -87,3 +87,16 @@
 | [agents__ahn2022_saycan](lit/agents__ahn2022_saycan.md) | 自然言語処理 #27 / ABM方法論 #21 | B(サブ実読・第204・親未確認) | **551 = 動詞族 7 × オブジェクト 17**=「オブジェクト由来」原則の定量的裏づけ・affordance = 前提条件の価値関数 |
 | [cbr__aamodt1994_cbr-cycle](lit/cbr__aamodt1994_cbr-cycle.md) | 法学 #11 / ABM方法論 #21 | B(サブ実読・著者版 PDF・第204・親未確認) | **4R の原典**・**「どう解けたかに関わらず事例庫を更新する」=閾値なし全件保持**・失敗も事例 |
 | [nlp__atil2024_nondeterminism](lit/nlp__atil2024_nondeterminism.md) | 計算機科学(並列・決定論)#28 / 自然言語処理 #27 | **実読**(第204・親が abs を再読: 「much less identical output strings」・精度差 up to 15%・TARr/TARa) | **温度 0 は同一出力を保証しない**=段4 の決定論は表参照でしか作れない・**TARr@N / TARa@N** |
+| [transport__suzuki2012_station-facility-capacity](transport__suzuki2012_station-facility-capacity.md) | 交通工学 #2 / 歩行者動力学 #18 | **実読**(第207・サブ+親 pymupdf: 3.30/4.00〜4.50/56.1/65.7 逐語一致) | **ホーム滞留容量 3.30 人/m²**(銀座線渋谷駅を含む実測)と 改札 56.1・ES 63.5 / 53.9% の**一次出所**。表―1 の単位(人/m・分)= R-7 の空欄を閉じる |
+| [law__kokuji1441_occupant-density](law__kokuji1441_occupant-density.md) | 法学 #11 / 建築環境工学 #7 | **実読**(第207・サブ+親 PDF: 売場 0.5/飲食室 0.7/廊下 0.3 逐語一致) | **用途別の法定占有密度**(飲食室 0.7・売場 0.5 人/m²)と**必要滞留面積 0.3 m²/人**。1 席面積の置換と滞留上限の錨 |
+| [law__shobo-kisoku_occupancy](law__shobo-kisoku_occupancy.md) | 法学 #11 | **実読**(第207・サブ+親 e-Gov API: 四平方メートル 逐語一致) | 収容人員の算定(飲食 3 m²/人・物販 4 m²/人)。**現行の 4.0 m²/席 と逐語一致**する唯一の法定値 |
+| [law__doro-kozorei_walkway-width](law__doro-kozorei_walkway-width.md) | 交通工学 #2 / 地理情報科学 #9 | **実読(サブ)・親未確認** | 歩道 3.5 / 2.0 m・自歩道 4 / 3 m・車線 2.75〜3.5 m・細街路の車道 4 m。**OSM の線から面を作るときの既定幅員の出典** |
+| [stats__estat2021_retail-floor-area](stats__estat2021_retail-floor-area.md) | 小売科学 #17 / 人口学 #1 | **実読(サブ・API 取得と再計算)・親未確認** | 店舗床面積の**分布**(特別区部 中央値 80.6 m²)。既定 80 m² の置換 |
+| [crowd__bosina-weidmann2018_fd-generic-model](crowd__bosina-weidmann2018_fd-generic-model.md) | 歩行者動力学 #18 / 人間移動科学 #3 | **実読**(第207・サブ+親 STRC PDF Table 2: 1.00/1.60 m/s 逐語一致) | **「1.00〜1.60」は年齢係数でなく希望歩行速度の m/s 幅**(Table 2 逐語)・体幅/反応時間/Hall 親密距離を 1 表で持つ |
+| [crowd__kretz2015_kladek-formula](crowd__kretz2015_kladek-formula.md) | 歩行者動力学 #18 | B(サブ実読・第206・親未確認)・第207 | **Weidmann の速度−密度式を式番号つきで**(v_f 1.34・γ 1.913・ρmax 5.4)= R-7 の γ 空欄が埋まる |
+| [crowd__morita2004_kobe-luminarie](crowd__morita2004_kobe-luminarie.md) | 歩行者動力学 #18 | B(サブ実読・第206・親未確認)・第207 | **日本の屋外・多方向流の実測**(U15-5 が「実験室データに無い」と宣言した穴)・安全密度 2〜3 人/㎡ |
+| [percep__itti1998_saliency-foa](percep__itti1998_saliency-foa.md) | 知覚心理学 #5 / 認知科学 #12 | B(サブ実読・第206・親未確認)・第207 | **注意の焦点 = 1 個の状態**・**IOR 500–900 ms**・proximity preference = G4 の形の原型 |
+| [gameeng__unreal_ai-perception](gameeng__unreal_ai-perception.md) | ゲームエンジン工学 #30 | B(サブ実読・公式ドキュメント・第206・親未確認)・第207 | **取得半径と喪失半径を分ける**・刺激の寿命(Max Age)・Dominant Sense = G4/G7 の「外れる条件」 |
+| [urban__okada2019_station-waiting](urban__okada2019_station-waiting.md) | GIScience #9 / 認知科学 #12 | B(サブ実読・第206・親未確認)・第207 | **待ち合わせの滞留位置 = 可視領域の重なり × 流動からの距離** = W8 で計算できる |
+| [urban__ichimiya2026_meeting-place-amenity](urban__ichimiya2026_meeting-place-amenity.md) | GIScience #9 / 時間利用研究 #4 | B(サブ実読・第206・親未確認)・第207 | **認知性 × 快適性の 2 軸**・**合流後滞在 3〜7 秒 vs 1 分 19〜35 秒**・**待機者の 8 割以上がスマホ** |
+| [psych__sorokowska2017_interpersonal-distance](psych__sorokowska2017_interpersonal-distance.md) | 人格心理学 #13 / 会話分析・語用論 #15 | B(サブ実読・第206・親未確認)・第207 | **見知らぬ人 1.35 m・知人 0.92 m**(N = 8,943・42 か国・**日本は含まれない**)= G7 の 2 m の裏づけ |
