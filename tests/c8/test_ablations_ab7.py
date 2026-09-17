@@ -36,10 +36,14 @@ FROZEN_ARM_SHA256 = {
     "AB7-OPEN-INTENT": "be19b47185476fdd2e5154f61ce5fa31818811a11510f43be738b8af764dde7d",
     # AB7c(語彙 v2)を足しても AB7b の定義は 1 バイトも動かない(2026-09-17 に凍結)。
     "AB7b-HINT-INTENT": "e53d363aa18533228c0e9754d0a287ccd617937347cce3cd8af3113a88a3d7f0",
+    # AB6b(看板の注視ゲート・D-59 (b))を足しても AB7c の定義は 1 バイトも動かない。
+    "AB7c-VOCAB-V2": "f5cd4a8a84172d379f84e03a3e7e0095847530b90558c3322635ffe0326b66b0",
 }
 
 #: 語彙 v2 の腕(``tests/c8/test_ablations_ab7c.py`` が本体を見る。ここでは**並び**だけ)。
 ARM_C_ID = "AB7c-VOCAB-V2"
+#: 看板の注視ゲートの腕(``tests/c8/test_ablations_ab6b.py`` が本体を見る・2026-09-17 D-59 (b))。
+ARM_AD_NOTICE_ID = "AB6b-AD-NOTICE"
 
 
 @pytest.fixture(scope="module")
@@ -57,8 +61,8 @@ def _canonical_sha256(arm) -> str:
 def test_ab7_is_appended_to_the_table(ablation_runner, table):
     arms = table["arms"]
     ids = [a["id"] for a in arms]
-    # AB7 の後ろに AB7b、その後ろに AB7c(語彙 v2・2026-09-17)を足した
-    assert ids[-3:] == [ARM_ID, ARM_B_ID, ARM_C_ID]
+    # AB7 の後ろに AB7b・AB7c(語彙 v2)、その後ろに AB6b(注視ゲート)を足した
+    assert ids[-4:] == [ARM_ID, ARM_B_ID, ARM_C_ID, ARM_AD_NOTICE_ID]
     assert len(arms) == len(FROZEN_ARM_SHA256) + 1
     arm = ablation_runner.arm_by_id(table, ARM_ID)
     assert arm["rank"] == 7 and arm["index"] == "⑦"
@@ -68,7 +72,11 @@ def test_ab7_is_appended_to_the_table(ablation_runner, table):
 
 
 def test_the_existing_arms_are_byte_identical(table):
-    """**AB7b を足しても第1陣 6 本と AB7 の定義は 1 バイトも動かない**(golden は追加前の値)。"""
+    """**後から腕を足しても既存の腕の定義は 1 バイトも動かない**(golden は追加前の値)。
+
+    2026-09-17 の AB6b(看板の注視ゲート・D-59 (b))追加で AB7c も凍結側に入った
+    =いま凍らせていないのは末尾の AB6b 1 本だけ。
+    """
     got = {a["id"]: _canonical_sha256(a) for a in table["arms"] if a["id"] in FROZEN_ARM_SHA256}
     assert got == FROZEN_ARM_SHA256
 
@@ -108,11 +116,11 @@ def test_ab7_kwargs_reach_run_day(ablation_runner, table, tmp_path):
 
 
 # ---------------------------------------------------------------- AB7b ヒント腕
-def test_ab7b_is_the_last_arm_with_rank_8(ablation_runner, table):
+def test_ab7b_keeps_rank_8(ablation_runner, table):
     arm = ablation_runner.arm_by_id(table, ARM_B_ID)
     assert arm["rank"] == 8 and arm["index"] == "⑦b"
-    # 2026-09-17: AB7c(語彙 v2)を後ろに足したので AB7b は**末尾の 1 つ手前**
-    assert table["arms"][-2]["id"] == ARM_B_ID
+    # 2026-09-17: AB7c(語彙 v2)・AB6b(注視ゲート)を後ろに足したので**末尾の 2 つ手前**
+    assert table["arms"][-3]["id"] == ARM_B_ID
     assert ARM_B_ID not in ablation_runner.first_wave_ids(table), "第1陣は 6 本のまま"
     assert arm["design_source"].startswith("docs/design/v2-open-intent-arm-spec.md")
     assert arm["status"] == "ready"

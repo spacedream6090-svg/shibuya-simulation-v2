@@ -509,18 +509,81 @@
       "acceptance": "**合否線なし**(探索的な腕)。ただし D-71 §3 C の段3 検査は数値で見る: ①保存則残差 0(mock・必須)②未定義台帳の『食事』行が −50% 以上(実 LLM)③食事の発火件数と状態差分(所持金・売上・空腹)が非零(mock・必須)④v1 の checkpoint 列と受入表の PASS 行が減らない(mock・必須)。事前予想: M1 直接一致は vocab_v2 で上がる(『食べる』が語彙に入る)・M3 上位語から『食事』が消える・action_jsd は購入↔食事の付け替えぶん動く(**v1 の語彙で読むときは対応表 llm.contract.VOCAB_COMPAT で 食事→購入 に畳んでから比べる**=ラン間比較を壊さないための橋・D-71 §3 F)。",
       "status": "ready",
       "note_parent": "親注(2026-09-17): 第1陣(§8 の 6 本)ではない別設計書の腕。**指紋の宣言**(D-71 §3 G): 13 語目の綴り『食事』・飲食店の判定 = world.assets.hash_free_cat_code(cat)==1(nightlife は入らない)・空腹の回復量 = BUY_HUNGER_RELIEF の再利用(新しい数を作らない)・所要時間 20 分は**契約行の宣言値で専用タイマーは未実装**(在店の解除は既存の回転率 crowd.DWELL_MAX_TICKS=30 分)・食事は**棚在庫を減らさない**(摂食≠購買=売上に対応する原価が立たない)・語彙 25 語は §2『種別あたり 24 語』を 1 語超える(封印は D-71 §3 J の使用率計測のあと=いまは封印しない)。M4・M5 は AB7 と同じく runner 未実装=親が calls.parquet から出す。"
+    },
+    {
+      "id": "AB6b-AD-NOTICE",
+      "rank": 10,
+      "index": "⑥b",
+      "name": "看板の注視ゲート較正(広告への注視確率 p_see を実測帯の下側へ)",
+      "design_source": "PENDING D-59 (b)(ユーザー決定 2026-09-17「注意ゲートの較正を C8 内で 1 回」)+ 知覚契約書 §4 段1「視認確率 p_see——大型ビジョン 0.70(音声有 0.78/無音 0.63)/中小媒体 0.14-0.40 は英仏流用のまま expedient」・§3.2(B2.signage 25 tok・件数 1 は expedient)・§8 第1陣 ⑥(広告ゼロ)+ パターン台帳 第3封印行 S3/AD1「広告全消去で絶対 1pp 未満」",
+      "hypothesis": "⑥(広告ゼロ)の初回実測で 購入 −1.34 pp(seed 1)/ −1.02 pp(seed 2)= n=50,000 の帰無(seed 1 vs 2 で JSD 0.0001 bit・購入 −0.16 pp)の 6〜8 倍で再現し、**AD1 の 1pp 線を超える**=LLM が広告に過剰反応している徴候。看板行は**在圏セルで常に(確率 1.0 で)観測に入る**のが現行実装で、これは §4 段1 の p_see(実測 0.14-0.79)を 1.0 に置いた expedient。p_see を実測帯の下側(0.30 / 0.14)へ下げて『看板が目に入る頻度』を現実側に寄せたとき、広告ゼロとの差が AD1 の 1pp 未満に入るかを見る。入れば **『過剰反応の正体は曝露頻度の cap』**、入らなければ **『反応の強さそのものが過剰』**=収益化レーンの前提が変わる。",
+      "switch": {
+        "kind": "implemented_flag",
+        "how": "cli.run(signage_p_see=1.0|0.30|0.14|0.0) / CLI --signage-p-see P(⑥ の --no-signage と直交=看板を残したまま『見る頻度』だけを振る)",
+        "implemented": true,
+        "mock_effective": false,
+        "mock_note": "描画バイトと入力トークン(看板行が落ちたぶんセル群が減る)は mock でも動くが、MockLLM は本文を読まないので**行動分布・final_hash は動かない**(①⑥ と同じ理由)。腕の差は実 LLM でしか出ない。",
+        "diff_proposal": "",
+        "verified": "run_day(signage_p_see=…) → Renderer(signage_p_see=…) → _signage_seen(体, セル, tick) が attention.gate_stage1(1, p, seed=ラン seed, domain_counters=(tick, agent_id, poi_id)) を引く(core.rng の Philox4x64・ドメイン perception.attention.p_see)→ 落ちた体は B2.signage_empty・**固定枠では空いた枠を他へ回さない**(単一ランキングは池を分け合う設計なので ⑥ と同じく他チャネルが取りうる)。既定 1.0 では**抽選を 1 回も引かず**描画は 1 バイトも動かない(golden prompt_hash bb23f7c6… 不変・template_sha256 161fe181… 不変)。p<1.0 では §2.4 ⑧(同セル同時間帯の 2 体で B0-B4b バイト一致)は**成り立たない**=同セルの共有 prefix は看板あり/なしの高々 2 変種に分かれる(注視は体ごとの事象だから・親判断待ち)。tests/perception/test_signage_p_see_gate.py・tests/c8/test_ablations_ab6b.py。"
+      },
+      "runs": [
+        {
+          "tag": "p_see_1_00",
+          "kwargs": {
+            "signage_p_see": 1.0
+          },
+          "is_baseline": true
+        },
+        {
+          "tag": "ad_zero",
+          "kwargs": {
+            "signage": false
+          }
+        },
+        {
+          "tag": "p_see_0_30",
+          "kwargs": {
+            "signage_p_see": 0.3
+          }
+        },
+        {
+          "tag": "p_see_0_14",
+          "kwargs": {
+            "signage_p_see": 0.14
+          }
+        }
+      ],
+      "control": "baseline=p_see 1.0(=現行の描画・**⑥ の signage_on ランと 1 バイト同じ構成**なので同 seed・同規模なら共有できる)/対照①=ad_zero(⑥ と同一の腕=看板行を全消去)/対照②=p_see 0.30/対照③=p_see 0.14(§4 段1 の中小媒体帯 0.14-0.40 の下端=帯 0.14-0.79 の下端)。**0.30 と 0.14 の選び方は expedient**(帯の下側という指示だけが決定・親判断待ち)。読み方: 購入の pp 差が p_see とともに単調に縮むか(=曝露頻度で説明できる)、それとも 1.0 と 0.30 の間で階段状に落ちるか(=提示の有無だけが効いている)。",
+      "metrics": [
+        "action_jsd",
+        "prompt_tokens_mean",
+        "group_tokens",
+        "format_error_rate",
+        "conserved"
+      ],
+      "cost": {
+        "runs": 4,
+        "calls": 200000,
+        "calls_with_shared_baseline": 150000,
+        "gpu_hours": 1.9333,
+        "gpu_hours_with_shared_baseline": 1.45,
+        "note": "⑥ と同じ換算(本表の c8lib.gpu_hours_for_calls)。baseline を ⑥ の signage_on と共有すれば実費は 3 ラン=呼 150,000・1.45 h。所要見込み ≈38 分/腕(艦隊 7×A5000 の実測 CALLS_PER_SECOND から)。"
+      },
+      "acceptance": "**合格線は AD1 を借りる**(§8 は指標だけを指定=腕そのものの合否線は無い): baseline と ad_zero の**購入の絶対差が 1pp 未満**に入る p_see が在るか。n=50,000 の帰無参照は C8 09-10 実測(同構成 seed 1 vs 2)で JSD 0.0001 bit・行動別 ≤0.22 pp=**T7 の 0.0035 bit は n=833 の値で n=50,000 には緩すぎる**(JSD は ~1/n)。事前予想: 入力トークンは p_see に比例して減る(セル群 −13 tok/呼 × (1−p_see))・書式エラー率と保存則は動かない。",
+      "status": "ready",
+      "note_parent": "親注(2026-09-17): 第1陣(§8 の 6 本)ではない **⑥ の後追いの腕**(D-59 (b) が出典)。**指紋の宣言**: ① 既定 p_see=1.0 は設計書の数ではなく**現行実装の値**(=「看板は常に見える」という暗黙の cap を明示化しただけ・SIGNAGE_P_SEE_DEFAULT) ② 抽選は**体×看板×tick**(セル単位でも曝露回数単位でもない=選択は expedient) ③ 看板は**セルあたり 1 件**(§3.2 の件数 1 を引き継ぐ)なので poi_id は 1 セル 1 つ ④ 落ちた枠は**他へ回さない**(枠の再配分は D-60 の別議論) ⑤ 不応期・記憶(段3 の効果キャップ 10⁻⁴〜10⁻³/曝露)は**未実装**=この腕は段1 だけを振る。"
     }
   ],
   "totals": {
-    "runs_if_independent": 21,
-    "runs_with_shared_baseline": 11,
-    "calls_with_shared_baseline": 550000,
-    "gpu_hours_with_shared_baseline": 5.3167,
+    "runs_if_independent": 25,
+    "runs_with_shared_baseline": 14,
+    "calls_with_shared_baseline": 700000,
+    "gpu_hours_with_shared_baseline": 6.7667,
     "l2_reserve_hours": 4.8,
     "within_l2": false,
-    "note": "腕ごとに baseline を取り直すと 21 ラン・呼 1,050,000=10.15 h。AB4/AB5 は前提機能が未実装で ``runs`` が空なので、共有ベースライン側の数には最初から入っていない。AB7/AB7b/AB7c は第1陣(§8 の 6 本)ではないが ablation の取り分(L2)は同じ財布なのでここで通算する。**共有ベースライン込みの 11 ラン・呼 550,000=5.32 h は、L2 の枠の目安 4.8 h を超える**(within_l2=false・2026-09-17 の AB7c 追加で超過した)。内訳: 第1陣の 9 ラン 4.35 h + AB7b の hint 1 ラン 0.48 h + AB7c の vocab_v2 / open_v2 2 ラン 0.97 h (AB7/AB7b/AB7c の vocab 対照はすでに 1 本に共有済み=これ以上は共有で減らない)。枠は割合宣言で絶対値が無い(budget.note の expedient・親判断待ち)ので、**どの腕を先に回すか・枠の目安を上げるかはユーザー判断**。",
-    "calls_if_independent": 1050000,
-    "gpu_hours_if_independent": 10.15
+    "note": "腕ごとに baseline を取り直すと 25 ラン・呼 1,250,000=12.08 h。AB4/AB5 は前提機能が未実装で ``runs`` が空なので、共有ベースライン側の数には最初から入っていない。AB7/AB7b/AB7c と AB6b(⑥ の後追い・D-59 (b))は第1陣(§8 の 6 本)ではないが ablation の取り分(L2)は同じ財布なのでここで通算する。**共有ベースライン込みの 14 ラン・呼 700,000=6.77 h は、L2 の枠の目安 4.8 h を超える**(within_l2=false・2026-09-17 の AB7c 追加で超過し、同日の AB6b 追加でさらに 1.45 h ぶん広がった)。内訳: 第1陣の 9 ラン 4.35 h + AB7b の hint 1 ラン 0.48 h + AB7c の vocab_v2 / open_v2 2 ラン 0.97 h + AB6b の ad_zero / p_see 0.30 / p_see 0.14 の 3 ラン 1.45 h(AB6b の baseline は ⑥ の signage_on と、AB7/AB7b/AB7c の vocab 対照は 1 本に、それぞれ共有済み=これ以上は共有で減らない。**AB6b の ad_zero は ⑥ の signage_off と同一構成**なので、⑥ を先に回していればさらに 1 ラン 0.48 h 減らせる=親判断)。枠は割合宣言で絶対値が無い(budget.note の expedient・親判断待ち)ので、**どの腕を先に回すか・枠の目安を上げるかはユーザー判断**。",
+    "calls_if_independent": 1250000,
+    "gpu_hours_if_independent": 12.0833
   },
   "open_questions": [
     "6 本すべてで合格線が設計に無い(§8 は指標だけを指定)。報告値のままにするか、①の §10.3『同等』を JSD の帰無参照(T7 seed 違い 0.0035 bits)基準で数値化するか=親判断。",
@@ -530,6 +593,7 @@
     "③ の腕(近接入替 15 分 ±50%)は**起床候補を出す側が未実装**(近接入替の起床は §9 第2陣)なので、切替口はあっても現状 no-op。腕を意味あるものにするには第2陣が先=親判断。",
     "② は**合成世界では測れない**(個体がセル中心の街路ノードに固まる)。実資産 2,000 体×90 tick の下見では A4 での到達差は 1 人以下(共在=距離 0 と社会伝播で天井に張り付く)。A1(距離のみ)では 10,749/10,799/10,910 と動く。腕を実 LLM で回す前に「何を測る腕なのか」の再確認=親判断。",
     "**AB7-OPEN-INTENT(2026-09-16 追加)**: runner が集計するのは M1〜M3 まで。**M4(行動エントロピー)と M5 の tokens_out 平均・壁時計は未実装**=親が calls.parquet から出す。合否線は仕様書 §1 が『出さない』と決めている=報告値。",
-    "**AB7b-HINT-INTENT(2026-09-17 追加)**: vocab 対照を AB7 と**実際に共有するか**(1 ランで済ませるか、腕ごとに取り直すか)=親判断。表は自己完結する 2 ラン構成で書いてあり、totals もその前提で通算している。また実行器は腕をまたいだラン共有の仕組みを持たない(共有するなら親が hint 1 本を回して AB7 の vocab ランと突き合わせる)。"
+    "**AB7b-HINT-INTENT(2026-09-17 追加)**: vocab 対照を AB7 と**実際に共有するか**(1 ランで済ませるか、腕ごとに取り直すか)=親判断。表は自己完結する 2 ラン構成で書いてあり、totals もその前提で通算している。また実行器は腕をまたいだラン共有の仕組みを持たない(共有するなら親が hint 1 本を回して AB7 の vocab ランと突き合わせる)。",
+    "**AB6b-AD-NOTICE(2026-09-17 追加・D-59 (b))**: ① 較正値 **0.30 / 0.14 の選び方は expedient**(決定は「実測帯 0.14-0.79 の下側へ」だけ。§4 段1 の中小媒体の代表値は ``attention.P_SEE_MEDIUM_DEFAULT`` 0.27=帯の中点で、0.30 はそれより上・0.14 は帯の下端)=親判断。② p<1.0 では **§2.4 ⑧「同セル同時間帯の 2 体で B0-B4b バイト一致」が成り立たない**(注視は体ごとの事象)。同セルの共有 prefix は看板あり/なしの**高々 2 変種**に分かれる=vLLM の prefix 命中率が落ちる側に動く(上限 2 倍の断片化)。規約⑧ の但し書きを設計書へ書くかどうか=親判断。③ **落ちた看板の枠を他へ回さない**(固定枠)。単一ランキング腕(AB1)と重ねると池を分け合う設計なので他チャネルが空きを取る=重ねるなら別腕として宣言が要る。④ ad_zero ランは ⑥ の signage_off と**同一構成**=回す順によっては共有できる。"
   ]
 }

@@ -145,17 +145,18 @@ def test_the_added_arms_are_implemented(ablation_runner, table):
     wave1 = set(ablation_runner.first_wave_ids(table))
     extra = [a for a in table["arms"] if a["id"] not in wave1]
     assert [a["id"] for a in extra] == [
-        "AB7-OPEN-INTENT", "AB7b-HINT-INTENT", "AB7c-VOCAB-V2",
+        "AB7-OPEN-INTENT", "AB7b-HINT-INTENT", "AB7c-VOCAB-V2", "AB6b-AD-NOTICE",
     ]
     for a in extra:
         assert a["switch"]["implemented"] is True and a["status"] == "ready"
 
 
 def test_mock_ineffective_arms_are_prompt_only(table):
-    """mock で差が出ない腕=**プロンプト本文しか変えない**腕(①⑥と AB7・AB7b)。"""
+    """mock で差が出ない腕=**プロンプト本文しか変えない**腕(①⑥⑥bと AB7・AB7b)。"""
     prompt_only = {a["id"] for a in table["arms"] if not a["switch"]["mock_effective"]}
     assert prompt_only == {
-        "AB1-BUDGET-MODE", "AB6-AD-ZERO", "AB7-OPEN-INTENT", "AB7b-HINT-INTENT",
+        "AB1-BUDGET-MODE", "AB6-AD-ZERO", "AB6b-AD-NOTICE",
+        "AB7-OPEN-INTENT", "AB7b-HINT-INTENT",
     }
 
 

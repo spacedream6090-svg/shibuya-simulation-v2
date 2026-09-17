@@ -364,6 +364,17 @@ class PerceptionRendererAdapter:
         }
         for g, v in self.group_token_sums.items():
             out[f"tokens_{g}_mean"] = v / n
+        # D-59 (b) 看板の注視ゲート。**ゲートを引いたランだけ**欄を作る
+        # (既定 p_see=1.0 のランの診断行は 1 欄も増えない)。
+        draws = float(getattr(self.renderer, "signage_gate_draws", 0))
+        if draws > 0.0:
+            shown = float(getattr(self.renderer, "signage_gate_shown", 0))
+            out["signage_gate_draws"] = draws
+            out["signage_gate_shown"] = shown
+            out["signage_shown_rate"] = shown / draws
+            out["signage_p_see"] = float(
+                getattr(self.renderer, "signage_p_see", 1.0)
+            )
         return out
 
 

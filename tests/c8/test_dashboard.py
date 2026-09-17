@@ -105,9 +105,10 @@ def test_collect_ablations(dashboard, c8lib):
     table = c8lib.load_ablations()
     out = dashboard.collect_ablations(table)
     # 第1陣 6 本 + AB7-OPEN-INTENT(09-16)+ AB7b-HINT-INTENT(09-17)+ AB7c-VOCAB-V2(09-17)
-    assert out["n_arms"] == 9
-    # ①(C6)+ ②③⑥(C8・09-09)+ ⑦(09-16)+ ⑦b・⑦c(09-17)
-    assert out["n_ready"] == 7
+    # + AB6b-AD-NOTICE(09-17・看板の注視ゲート・D-59 (b))
+    assert out["n_arms"] == 10
+    # ①(C6)+ ②③⑥(C8・09-09)+ ⑦(09-16)+ ⑦b・⑦c・⑥b(09-17)
+    assert out["n_ready"] == 8
     assert out["n_executed"] == 0
     result = {"arm": "AB1-BUDGET-MODE", "executed": True, "comparisons": [{"action_jsd": 0.04, "exceeds_null": True}]}
     out2 = dashboard.collect_ablations(table, [result])

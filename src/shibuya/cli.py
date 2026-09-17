@@ -51,6 +51,7 @@ from shibuya.engine.run import (
     fleet_from_args,
     run_day,
 )
+from shibuya.perception.renderer import SIGNAGE_P_SEE_DEFAULT
 from shibuya.perception.templates import (
     DEFAULT_INTENT_MODE,
     DEFAULT_VOCAB_VERSION,
@@ -519,6 +520,16 @@ def main(argv: list[str] | None = None) -> int:
         help="看板・広告面(B2.signage)を全セルで空にする(§8 第1陣 ⑥「広告ゼロ」の腕)",
     )
     ap.add_argument(
+        "--signage-p-see",
+        type=float,
+        default=SIGNAGE_P_SEE_DEFAULT,
+        metavar="P",
+        help="看板の注視ゲート(知覚契約書 §4 段1 の視認確率 p_see・D-59 (b)・腕 "
+             "AB6b-AD-NOTICE)。在圏セルの看板行を観測へ入れるかを 体×看板×tick の"
+             "決定論的ベルヌーイで決める。既定 1.0=常に載せる(現行のバイト)・"
+             "0.30/0.14=実測帯 0.14-0.79 の下側・0.0=⑥ 広告ゼロと同じ描画",
+    )
+    ap.add_argument(
         "--intent-mode",
         choices=INTENT_MODES,
         default=DEFAULT_INTENT_MODE,
@@ -655,6 +666,8 @@ def main(argv: list[str] | None = None) -> int:
             raise argparse.ArgumentTypeError("--pnotice-d50-scale は正の値")
         if not (0.0 <= float(args.attendance_rate) <= 1.0):
             raise argparse.ArgumentTypeError("--attendance-rate は 0.0〜1.0")
+        if not (0.0 <= float(args.signage_p_see) <= 1.0):
+            raise argparse.ArgumentTypeError("--signage-p-see は 0.0〜1.0 の確率")
     except argparse.ArgumentTypeError as exc:  # 使い方の誤りは traceback ではなく usage で返す
         ap.error(str(exc))
     res = run(
@@ -671,6 +684,7 @@ def main(argv: list[str] | None = None) -> int:
         p_notice_d50_scale=float(args.pnotice_d50_scale),
         refractory_scale=refractory_scale or None,
         signage=not args.no_signage,
+        signage_p_see=float(args.signage_p_see),
         sleep_suppression=not args.no_sleep_suppression,
         plan_sleep=not args.no_plan_sleep,
         plan_executor=not args.no_plan_executor,

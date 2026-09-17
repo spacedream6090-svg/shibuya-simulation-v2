@@ -1,7 +1,8 @@
 """腕 ``AB7c-VOCAB-V2``(語彙 v1 vs 語彙 v2)の腕定義行 — D-71 §3(2026-09-17 ユーザー決定)。
 
 見るもの
-(d1) ``ablations_v1.json`` の**末尾**に AB7c が足され(rank 9)、切替口つきで ready /
+(d1) ``ablations_v1.json`` に AB7c が足され(rank 9・2026-09-17 の AB6b 追加で
+     **末尾の 1 つ手前**へ移った)、切替口つきで ready /
 (d2) **既存 8 腕の定義はバイト不変**(``tests/c8/test_ablations_ab7.py`` の FROZEN が正典)/
 (d3) ``runs`` の ``kwargs`` が ``intent_mode`` × ``vocab_version`` の 3 本で許可リストを通る/
 (d4) ``kwargs`` が ``cli.run`` → ``run_day`` → run manifest まで往復し、**mock でも差が出る**
@@ -34,10 +35,11 @@ def _canonical_sha256(arm) -> str:
 
 
 # ---------------------------------------------------------------- (d1)(d2) 腕定義表
-def test_ab7c_is_the_last_arm_with_rank_9(ablation_runner, table):
+def test_ab7c_keeps_rank_9(ablation_runner, table):
     arm = ablation_runner.arm_by_id(table, ARM_ID)
     assert arm["rank"] == 9 and arm["index"] == "⑦c"
-    assert table["arms"][-1]["id"] == ARM_ID
+    # 2026-09-17: AB6b(看板の注視ゲート・D-59 (b))を後ろに足した=**末尾の 1 つ手前**
+    assert table["arms"][-2]["id"] == ARM_ID
     assert ARM_ID not in ablation_runner.first_wave_ids(table), "第1陣は 6 本のまま"
     assert arm["design_source"].startswith("docs/design/v2-vocab-growth-design.md")
     assert arm["status"] == "ready"

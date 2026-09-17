@@ -25,10 +25,13 @@
        仕様書 ``docs/design/v2-open-intent-arm-spec.md`` §1)。**第1陣の 6 本でも同じ列が出る**
        (列追加のみ・既存の値は動かさない)。
 
-第1陣より後に足した腕(2026-09-17 現在 ``AB7-OPEN-INTENT`` と ``AB7b-HINT-INTENT`` の
-2 本)は表の ``first_wave`` の外にいる。``first_wave_ids`` が第1陣の名指しで、
-``validate_table`` はそれを使う。``--arm AB7`` は前方一致が 2 本に当たるので**引けない**
-(``--arm AB7-OPEN-INTENT`` / ``--arm AB7b`` のように書き分ける)。
+第1陣より後に足した腕(2026-09-17 現在 ``AB7-OPEN-INTENT``・``AB7b-HINT-INTENT``・
+``AB7c-VOCAB-V2``・``AB6b-AD-NOTICE`` の 4 本)は表の ``first_wave`` の外にいる。
+``first_wave_ids`` が第1陣の名指しで、``validate_table`` はそれを使う。``--arm AB7`` は
+前方一致が 3 本に当たるので**引けない**(``--arm AB7-OPEN-INTENT`` / ``--arm AB7b`` /
+``--arm AB7c`` のように書き分ける)。``--arm AB6`` も 2 本(``AB6-AD-ZERO`` と
+``AB6b-AD-NOTICE``)に当たるが、**完全一致が優先される**ので ``AB6-AD-ZERO`` はそのまま
+引ける(注視ゲートの腕は ``--arm AB6b`` と書く)。
 
 親がサーバーで叩く例::
 
@@ -68,6 +71,8 @@ ALLOWED_KWARGS: frozenset[str] = frozenset(
         "intent_mode",           # 実装済(vocab | open | hint・B0 の出力規約だけを入れ替える)
         # ---- AB7c-VOCAB-V2(語彙成長 v0・2026-09-17 実装) ----
         "vocab_version",         # 実装済(v1 | v2・語彙/段0 辞書/resolve の分岐を版で切る)
+        # ---- AB6b-AD-NOTICE(看板の注視ゲート・D-59 (b)・2026-09-17 実装) ----
+        "signage_p_see",         # 実装済(§4 段1 の p_see・体×看板×tick の決定論ベルヌーイ)
     }
 )
 
@@ -207,6 +212,8 @@ def run_metrics(res: Any, tape_path: Path | None) -> dict[str, Any]:
         "budget_mode": str(getattr(res, "budget_mode", "")),
         "intent_mode": str(getattr(res, "intent_mode", "")),
         "vocab_version": str(getattr(res, "vocab_version", "")),
+        #: D-59 (b) 看板の注視ゲート(§4 段1 の p_see)。既定 1.0=現行の描画。
+        "signage_p_see": float(getattr(res, "signage_p_see", 1.0)),
         #: D-71 §3 J「語ごとの使用率」の分子(解決後の行動語ごとの件数)。
         "action_usage": dict(getattr(res, "action_usage", {}) or {}),
         "meals": int(getattr(res, "meals", 0) or 0),
@@ -214,6 +221,14 @@ def run_metrics(res: Any, tape_path: Path | None) -> dict[str, Any]:
         "run_manifest_fields": _manifest_fields(res),
     }
     out["notice_reach"] = out["noticed"] / max(1, out["salient_events"])
+    # AB6b(D-59 (b)): 看板の注視ゲートの実測。**引いたランだけ**欄を作る
+    # (既定 p_see=1.0 のランの JSON は 1 欄も増えない=推測で埋めない)。
+    if "signage_gate_draws" in rc:
+        out["signage_gate"] = {
+            "draws": int(rc["signage_gate_draws"]),
+            "shown": int(rc["signage_gate_shown"]),
+            "shown_rate": float(rc["signage_shown_rate"]),
+        }
     out["undefined_registry"] = _undefined_registry(res)  # M2/M3(台帳側)
     if tape_path is not None and Path(tape_path).exists():
         from shibuya.engine.tape import Tape
@@ -365,8 +380,9 @@ def _manifest_fields(res: Any) -> dict[str, Any]:
     # D-66(2026-09-11): 計画実行層の腕 3 つを足した(AB-PLAN-EXECUTOR を C8 で回すため)。
     # AB7(2026-09-16): 自由意図の腕の同定欄 ``intent_mode`` を足した。
     # AB7c(2026-09-17): 語彙の版 ``vocab_version`` と段0 辞書の版 ``synonym_table_version``。
+    # AB6b(2026-09-17): 看板の注視ゲート ``signage_p_see``(D-59 (b))。
     # **列追加のみ**=既存の腕の出力の値は 1 つも動かない。
-    return {k: v for k, v in f.items() if k in ("budget_mode", "ablations", "template_sha256", "catalog_sha16", "replay_date", "p_notice_ablation", "p_notice_d50_scale", "refractory_scale", "signage", "plan_executor", "exit_mode", "attendance_rate", "intent_mode", "vocab_version", "synonym_table_version")}
+    return {k: v for k, v in f.items() if k in ("budget_mode", "ablations", "template_sha256", "catalog_sha16", "replay_date", "p_notice_ablation", "p_notice_d50_scale", "refractory_scale", "signage", "signage_p_see", "plan_executor", "exit_mode", "attendance_rate", "intent_mode", "vocab_version", "synonym_table_version")}
 
 
 def compare_runs(baseline: Mapping[str, Any], arm: Mapping[str, Any]) -> dict[str, Any]:
@@ -381,6 +397,9 @@ def compare_runs(baseline: Mapping[str, Any], arm: Mapping[str, Any]) -> dict[st
         "d_notice_reach": float(arm.get("notice_reach", 0.0)) - float(baseline.get("notice_reach", 0.0)),
         "d_prompt_tokens_mean": float(arm.get("prompt_tokens_mean", float("nan"))) - float(baseline.get("prompt_tokens_mean", float("nan"))),
     }
+    # AB6b(D-59 (b)): 看板の注視ゲートの差。**両方に欄があるときだけ**作る。
+    if "signage_p_see" in baseline and "signage_p_see" in arm:
+        out["d_signage_p_see"] = float(arm["signage_p_see"]) - float(baseline["signage_p_see"])
     a, b = baseline.get("action_counts"), arm.get("action_counts")
     if isinstance(a, Mapping) and isinstance(b, Mapping) and a and b:
         out["action_jsd"] = c6lib.jsd_counts(dict(a), dict(b))
@@ -509,6 +528,36 @@ def arm_markdown(payload: Mapping[str, Any]) -> str:
                         c8lib.fmt(r["notice_reach"], 3), c8lib.fmt(r["conserved"]), r["final_hash"][:16],
                     ]
                     for r in runs
+                ],
+            ),
+        ]
+    # AB6b / AB6(看板の腕)だけに出す節。**他の腕の Markdown は 1 バイトも変わらない**。
+    gate = [
+        r for r in runs
+        if {"signage_p_see", "signage"} & set(dict(r.get("kwargs", {})))
+    ]
+    if gate:
+        md += [
+            "",
+            "## 看板の注視ゲート(D-59 (b)・知覚契約書 §4 段1 の p_see)",
+            "",
+            "> p_see=1.0 は現行の描画(在圏セルの看板行が必ず入る)。抽選は **体×看板×tick** の"
+            "決定論ベルヌーイ(core.rng Philox・ドメイン perception.attention.p_see・"
+            "カウンタ (tick, agent_id, poi_id))。signage=False は ⑥ 広告ゼロ(看板そのものが無い)。",
+            "",
+            c8lib.markdown_table(
+                ["構成", "p_see", "看板あり", "実現した注視率", "抽選回数", "入力tok平均", "セル群tok平均"],
+                [
+                    [
+                        r["tag"],
+                        c8lib.fmt(r.get("run_manifest_fields", {}).get("signage_p_see"), 2),
+                        c8lib.fmt(r.get("run_manifest_fields", {}).get("signage")),
+                        c8lib.fmt(r.get("signage_gate", {}).get("shown_rate"), 4),
+                        c8lib.fmt(r.get("signage_gate", {}).get("draws")),
+                        c8lib.fmt(r["prompt_tokens_mean"], 1),
+                        c8lib.fmt(r["group_tokens"]["cell"], 1),
+                    ]
+                    for r in gate
                 ],
             ),
         ]

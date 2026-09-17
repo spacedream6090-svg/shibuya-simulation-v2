@@ -117,8 +117,10 @@ from shibuya.llm.mock import MockLLM
 from shibuya.perception.channels import BudgetMode
 from shibuya.perception.renderer import (
     DEFAULT_START_DATETIME,
+    SIGNAGE_P_SEE_DEFAULT,
     PerceptionAssets,
     Renderer as PerceptionRenderer,
+    check_signage_p_see,
 )
 from shibuya.perception.templates import (
     INTENT_MODES,
@@ -311,6 +313,9 @@ class RunResult:
     refractory_scale: dict[str, float] = field(default_factory=dict)
     #: ablation ⑥(§8 第1陣)。看板・広告面(B2.signage)を描いたか。既定 True。
     signage: bool = True
+    #: **看板の注視ゲート**(知覚契約書 §4 段1 の p_see・D-59 (b)・腕 AB6b-AD-NOTICE)。
+    #: 既定 1.0=在圏セルの看板行が必ず観測に入る(=現行のバイト)。
+    signage_p_see: float = SIGNAGE_P_SEE_DEFAULT
     #: **AB7 自由意図の腕**。``"vocab"``=24 語提示(既定)/``"open"``=自由文/
     #: ``"hint"``=語彙を例として見せつつ自由文も許す(AB7b)。
     #: 仕様書 docs/design/v2-open-intent-arm-spec.md §2。
@@ -587,6 +592,8 @@ class RunResult:
             ``budget_mode``(知覚契約書 §3.2 ablation ① の腕)・
             ``p_notice_ablation``/``p_notice_d50_scale``/``refractory_scale``/``signage``
             (§8 第1陣 ②③⑥ の腕。既定は ``A4``/``1.0``/``{}``/``True``)・
+            ``signage_p_see``(看板の注視ゲート=§4 段1 の p_see・D-59 (b)・腕
+            AB6b-AD-NOTICE。既定 ``1.0``=常に見る=現行のバイト)・
             ``intent_mode``(AB7 自由意図の腕。既定 ``vocab``)・
             ``vocab_version``/``synonym_table_version``/``action_usage``
             (語彙 v2 の版・段0 辞書の版・語ごとの使用件数。D-71 §3 F/J。既定は
@@ -627,6 +634,8 @@ class RunResult:
             "p_notice_d50_scale": float(self.p_notice_d50_scale),
             "refractory_scale": dict(self.refractory_scale),
             "signage": bool(self.signage),
+            # ---- D-59 (b) 看板の注視ゲート(既定 1.0=現行)。腕 AB6b-AD-NOTICE ----
+            "signage_p_see": float(self.signage_p_see),
             # ---- AB7 自由意図の腕(既定 vocab)。列追加のみ=既存欄の値は動かない ----
             "intent_mode": str(self.intent_mode),
             # ---- 語彙 v2(D-71 §3 F/J)。既定 v1 では語彙も辞書も現行のまま ----
@@ -1091,6 +1100,7 @@ def run_day(
     p_notice_d50_scale: float = 1.0,
     refractory_scale: Mapping[Any, float] | None = None,
     signage: bool = True,
+    signage_p_see: float = SIGNAGE_P_SEE_DEFAULT,
     intent_mode: str = INTENT_MODES[0],
     vocab_version: str = VOCAB_VERSIONS[0],
     budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
@@ -1179,6 +1189,15 @@ def run_day(
         signage: 知覚契約書 §8 第1陣 **⑥ の腕**「広告ゼロ」。``False`` で看板・広告面
             (B2.signage)を全セルで空にする(W14 凍結文も合成文も載せない)。既定 True。
             ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
+        signage_p_see: **看板の注視ゲート**(知覚契約書 §4 段1 の視認確率 p_see・
+            D-59 (b) ユーザー決定 2026-09-17・腕 ``AB6b-AD-NOTICE``)。在圏セルの
+            看板行を観測へ入れるかを**体×看板×tick の決定論的ベルヌーイ**で決める
+            (``core.rng`` の Philox・ドメイン ``perception.attention.p_see``・
+            カウンタ ``(tick, agent_id, poi_id)``=テープから再現できる)。
+            既定 1.0=常に載せる=**1 バイトも変わらない**(抽選も引かない)。
+            0.0 は ⑥「広告ゼロ」と同じ描画になる(ただし ⑥ は ``signage=False`` が正典)。
+            0.0〜1.0 の外は ``ValueError``。``renderer`` を明示注入したランでは
+            **効かない**(注入側が持つ)。
         intent_mode: **AB7 自由意図の腕**(仕様書 §2)。``"vocab"``(既定)は
             現行どおり B0 に 24 語のホワイトリストを見せる。``"open"`` は ``行動:`` の 1 行だけを
             「いま自分がしたいことを10字以内の動詞句で」に差し替える(理由・対象・ひと言・
@@ -1287,6 +1306,8 @@ def run_day(
         seat_area_table = {k: float(seat_area_eatery_m2) for k in SEAT_AREA_M2}
     if seat_area_retail_m2 is not None and float(seat_area_retail_m2) <= 0.0:
         raise ValueError(f"seat_area_retail_m2 は正の値(いま {seat_area_retail_m2})")
+    # ---- D-59 (b) 看板の注視ゲート: 同上(過程を切ったランでも腕の値を検査する) ----
+    signage_p_see = check_signage_p_see(signage_p_see)
     # ---- AB7 自由意図の腕: 値の検査は**レンダラを作る前**にする(manifest が嘘をつかない) ----
     intent_mode = check_intent_mode(intent_mode)
     # ---- 語彙 v2 の版: 同上(mock・レンダラ・bridge の前で確定させる) ----
@@ -1417,6 +1438,7 @@ def run_day(
                 seed=seed,
                 budget_mode=budget_mode_enum,
                 signage_enabled=signage,
+                signage_p_see=signage_p_see,
                 intent_mode=intent_mode,
                 vocab_version=vocab_version,
             )
@@ -2359,6 +2381,12 @@ def run_day(
         getattr(getattr(perception, "renderer", None), "signage_enabled", signage)
         if perception is not None
         else signage
+    )
+    # D-59 (b): 注視ゲートも**実際に描いた側**が正(注入レンダラならそちらの値)。
+    result.signage_p_see = float(
+        getattr(getattr(perception, "renderer", None), "signage_p_see", signage_p_see)
+        if perception is not None
+        else signage_p_see
     )
     # AB7: 実際に描いた腕(注入レンダラなら**そちらの値**が正)。
     result.intent_mode = str(
