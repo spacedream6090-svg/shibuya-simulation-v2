@@ -88,3 +88,22 @@
 > **第214 追記**: 事前登録の外部根拠が 1 本増えた——Anthis et al. 2025(ICML Position・arXiv 2504.02234v2)§4.5.2「We have not yet seen, but we encourage, preregistration of LLM simulation predictions」(親確認)。本書は「独自採用」ではなく**分野の推奨の履行**として位置づける(Larooij & Törnberg 2025 提言 (ii) と併せて 2 本)。
 
 > **第216 計器注記**: §7 の統計は `tools/c7/holdout_compare.py --prereg-version v1.3 --occupancy <seed1> --occupancy <seed2> --occupancy <seed3>` で計算する(IMPLEMENTED #30)。同値判定は pass / fail / **undecided**(区間が線をまたぐ=検出力不足・追加 seed でしか解けない)の 3 値で、undecided は合格に数えない。H3 は記述欄・H1 の判定は 6〜23 時の窓。帰無参照(3 対の平均)は `tools/c7/seed_ensemble.py`。**本節の「草案→確定」は seed 3 完走後に帰無参照を入れて行う。**
+
+## 8 開封結果(2026-09-17 第224・**追記のみ**=§5 の規律・ユーザー決定 D-87「開封」)
+
+- **開封**: 2026-09-17 10:19 UTC・`tools/c7/holdout_compare.py --open-seal --prereg-version v1.3`・主張腕 c7-day-4 × seed {1,2,3}・封印 sha256 一致・初回 forced=false → [holdout_open_record.json](holdout_open_record.json)・manifest [accept_c7-day-4/checkpoints.json](accept_c7-day-4/checkpoints.json) の `holdout_open`。比較腕 c7-day-3・c7-day-2 は同一セッションで `--force`(§3 手順 4=腕集合の同一セッション照合・記録は `previous_openings`)。c7-day-5 は未実行(空欄)。表: [holdout/c7-day-4](holdout/c7-day-4/c7_holdout_compare.md)・[c7-day-3](holdout/c7-day-3/c7_holdout_compare.md)・[c7-day-2](holdout/c7-day-2/c7_holdout_compare.md)。
+- **判定(v1.3・家族 95%・同値検定・H3 は記述): 0/4 = NOT PASS**(undecided 0・fail 4)。v1.2 の点判定(seed 1)も 0/5。**停止則**: 主張はここで固定。以後の seed 追加・較正ランは本 holdout への主張に使えない。次の主張には新しい封印データ(`shibuya_jinryu` 層・`boundary_counts` 層は未開封)が要る。
+
+| 指標(24 h・v1.2 点) | c7-day-2 | c7-day-3 | c7-day-4 seed 1 | **c7-day-4 3 seed(v1.3・平均 ± 半幅)** | 線 | v1.3 判定 |
+|---|---|---|---|---|---|---|
+| H1 JSD 平均 | 0.0748 | 0.0185 | 0.0231 | 24 h 0.0230 ± 0.0043 / **判定窓 6〜23 時 0.0221 ± 0.0037** | ≤0.0122 | fail |
+| H1 r | 0.276 | 0.850 | 0.818 | 24 h 0.818 ± 0.012(線の上=記述)/ **6〜23 時 0.699 ± 0.015** | ≥0.8 | fail |
+| H2 ±1h 一致 / τ | 1/5 / −0.50 | 0/5 / −0.44 | 0/5 / −0.50 | 0/5(3 seed とも・SD 0)/ −0.74 ± 1.18 | 5/5 / ≥0.6 | fail |
+| H4 JSD / 最大 Δ | 0.0272 / 0.103 | 0.0099 / 0.060 | 0.0090 / 0.057 | 0.0089 ± 0.0011 / 0.0571 ± 0.0070 | ≤0.0122 / ≤0.05 | JSD **pass(同値)**・Δ fail → fail |
+| H5 JSD 平均 / 最大 Δ | 0.0953 / 0.463 | 0.0843 / 0.409 | 0.0805 / 0.395 | 0.0807 ± 0.0035 / 0.395 ± 0.008 | ≤0.02 / ≤0.1 | fail |
+| H3 深夜残存 最大 Δ(記述) | 0.724 | 0.248 | 0.245 | 0.239 ± 0.116 | (≤0.05) | 記述 |
+| GET 包絡の内側 / fair CRPS | — | — | — | 2/120 セル / 0.01038(raw 0.01049) | 記述 | — |
+
+- **構造の所見(記述・値はシェアと時刻のみ)**: ① **ピーク時刻**: sim 10〜13 時(central 10・nw 11・ne 11・se 11・sw 13・3 seed 同一)vs KDDI 18・18・15・17・16 時=**5 エリア全部で 3〜8 時間早い**。② **属性**: 来街者比 sim 0.14〜0.39 vs KDDI 0.40〜0.76・従業者比 sim 0.53〜0.76 vs KDDI 0.19〜0.47=**来街者が半分以下・従業者が約 2 倍**(①と同じ向き=夕方に来る来街者が居ない)。③ **深夜残存**: central sim 0.385 vs 0.140(中央に残りすぎ)・northwest 0.220 vs 0.325(北西は足りない)。④ **エリア構成**は最も近い(JSD 同値 pass・southwest +0.057 / northeast −0.047 / southeast +0.030)。⑤ seed 幅(包絡幅 0.0006〜0.0024)は holdout との差より 1 桁小さい=**差は seed ではなく構造**。
+- **§4 の予想の答え合わせ**(外れは外れと書く): c7-day-2 は H1・H2 を落とす → **当たり**(JSD 0.075・r 0.28・深夜残存 0.92=平ら)。c7-day-3→4 で H1 JSD は下がる見込み → **外れ**(0.0185→0.0231・r 0.850→0.818=読み口 v2.1 は形状を**悪化**させた)。H2 の朝側ピークは遅れる方向 → **外れ**(nw/ne 12→11 と早まる・他は不変)。H5 は W16 の構成差で落ちる=落ちたら D-67 (c) の根拠 → **当たり**(最大 Δ 0.395)。§6「外れるなら構造であって seed ではない」→ **当たり**。c7-day-5(出勤率 0.88)は未実行=検証できず。
+- 本節は追記のみ。線 H1〜H5・§1 の腕・§4 の予想は変えない。

@@ -120,23 +120,23 @@
   {
    "id": "HOLD",
    "item": "KDDI 形状5指標(事後1回)",
-   "measured": null,
-   "limit": "5 指標",
-   "judge": null,
-   "note": "未照合"
+   "measured": "0/4 合格",
+   "limit": "5 指標(うち H3 は測定不能→代替)",
+   "judge": false,
+   "note": "事前登録の合格線は**案**(親判断待ち)"
   },
   {
    "id": "SEAL",
    "item": "manifest の開封記録",
-   "measured": false,
+   "measured": true,
    "limit": "照合したなら有ること",
-   "judge": null,
+   "judge": true,
    "note": ""
   }
  ],
  "n_rows": 16,
- "n_judged": 11,
- "n_pass": 11,
- "n_fail": 0,
- "pass": true
+ "n_judged": 13,
+ "n_pass": 12,
+ "n_fail": 1,
+ "pass": false
 }

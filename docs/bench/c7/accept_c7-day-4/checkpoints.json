@@ -113,5 +113,50 @@
    "stream": true,
    "format_retry": true
   }
+ },
+ "holdout_open": {
+  "schema": "shibuya.tools.c7/holdout_open_record/1",
+  "layer": "kddi_la",
+  "opened_utc": "2026-09-17T10:19:21Z",
+  "run_id": "c7-day-4-s1+s2+s3",
+  "tool": "tools/c7/holdout_compare.py",
+  "member_hash": "7aa66af1fdff44e2862d53b0ddbd07ab41f6dcb88d19962d5d013393334af8b0",
+  "sealed_utc": "2026-09-08T00:00:00Z",
+  "files": [
+   {
+    "path": "realworld/kddi_la/la_raw_powerbi_2024.json",
+    "sha256": "5b4ef600e4267790274af1f9199a59ab1b3747878c728d15632de52725b14130",
+    "bytes": 6797973
+   }
+  ],
+  "forced": false,
+  "prereg_version": "v1.3",
+  "occupancy_files": [
+   {
+    "path": "docs/bench/c7/occupancy/c7-day-4-s1/c7_occupancy.json",
+    "sha256": "c64f0231cf7d6d05dcb2c1e967589e603ee19e9e6717427f4eca8596e1939f2a"
+   },
+   {
+    "path": "docs/bench/c7/occupancy/c7-day-4-s2/c7_occupancy.json",
+    "sha256": "f87ccdffb2fba9b3a553d4f94625148b6d5835bdc82f24fb8590362688dfbf65"
+   },
+   {
+    "path": "docs/bench/c7/occupancy/c7-day-4-s3/c7_occupancy.json",
+    "sha256": "66830a1cc69209d4acf697567fbabeae1f77a91c21064d511782c33607b034e7"
+   }
+  ],
+  "result": {
+   "n_pass": 0,
+   "n_measured": 4,
+   "pass": false,
+   "source": "v1.3 ensemble(H3 は記述・undecided は合格にしない)"
+  },
+  "result_v13": {
+   "n_pass": 0,
+   "n_measured": 4,
+   "n_undecided": 0,
+   "n_fail": 4,
+   "pass": false
+  }
  }
 }
