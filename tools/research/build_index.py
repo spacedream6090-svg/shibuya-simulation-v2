@@ -101,6 +101,8 @@ C = {
  'v2-world-process-rows-research.md':           ([19,10], 'P0', 'エンジン/LLM 線引き16行の詳細決定材料'),
  'v2-w7-law-primary-check-research.md':         ([11,9],  'P0', 'W7 法規の条文一次確認とコード突合(L-24)。法学 #11 を D→A。D-72 の出所'),
  'v2-replication-count-research.md':            ([23,21], 'P0', '反復回数(seed 数)の文献手続き 7 系譜と「初回 8 seed」の位置(L-B)。D-70/D-44/G-8 の材料。統計 #23 の最初の答申'),
+ 'v2-hobby-preference-research.md':             ([4,13,1], 'P0', '人の構成要素 P1=趣味・嗜好の公的分布(社会生活基本調査 R3 生活行動編・行動者率 全国 86.3/東京都 91.4・年齢勾配 7 倍・独立抽選は無趣味率で 98 倍ずれる・共起 φ≤0.53)→ 種目 58 bit+コピュラ+稀事象の待ち時間・W6 カタログの欠陥 3(公園が PLACE_PARK に行かない)・先行例ゼロ'),
+ 'v2-preference-vector-research.md':            ([3,21,13], 'P0', '人の構成要素 P3=選好ベクトルと常連/探索(EPR γ 0.21・Π=f・δ 1.2 / returners k=4・EPR は k≈60 / Schläpfer η≈2 / 外食リピート 77.5%・業態 32〜95.5%・Dubé 状態依存)→ 選好はエンジンの数値・二重計上の整理(戻る=K-1・探す=ρ_i・P3 は初回選択・P1/P2 は掛けない)・repo は店選択が「セル内最小 id」'),
  'v2-classical-vs-llm-simulation-research.md':  ([25,21,26], 'P0', '古典 ABM の要求 × LLM 系の新規性 × 検証の対照表(L-CLS)。「良い LLM 社会シミュレーション」判定基準 10 項(古典由来 6・LLM 由来 1・両方 3)・Axtell 2016 1.2 億体・Edmonds 2019 の 7 目的・観測的同値は Haavelmo 1944'),
  'v2-research-reflection-audit.md':             ([29,21], 'P0', 'リサーチ反映の監査 A=P0 35 本 240 項(実装済 52.9%・設計済未実装 20.0%・部分 18.3%・未採用 4.6%・未判定 4.2%)・逆引き表 42 行・方法論遵守 12 行'),
  'v2-research-reflection-audit-p1p2.md':        ([29,21], 'P0', 'リサーチ反映の監査 B=P1 40+P2 9 本 244 項(実装済 35.7%・部分 24.6%・未判定 21.3%・設計済未実装 13.9%・未採用 4.5%)・分野別反映率(認知科学 #12 0%)'),
@@ -124,6 +126,8 @@ OVERRIDE = {
  'v2-w7-law-primary-check-research.md': ('A', '親再取得(2026-09-16・第200)。逐語一致つき。空欄 6 件(§4)・告示 PDF は親未再取得'),
  'v2-replication-count-research.md': ('A', '親再取得(2026-09-16・第200)。9 出典を親が再取得(4 Web+5 PDF)・全数値を再計算。空欄 5 件(§4: Lorscheid 原典・Law 教科書原文・Secchi 式(2) 係数・Leutbecher 査読版・ECMWF「51」の根拠文書)'),
  # 09-16 第202: サブ実読+親が 3 主張を原典で再確認(Goel 2016 PDF「on average」・Law in Silico HTML に precedent なし・Ruri カード 71.53<71.65)。Dunbar 1995(有料)・UE5 の不在は親未確認
+ 'v2-hobby-preference-research.md': ('B', 'サブ実読(2026-09-17・第221)+親確認 3 件(e-Stat API 再取得 86.3/91.4/37.4/43.4・井出安井 2003 7.1/6/0・47,965・φ 0.5268)。平均行動日数の式・CitySim は親未確認'),
+ 'v2-preference-vector-research.md': ('B', 'サブ実読(2026-09-17・第221)+親確認 4 件(Song 2010 γ/Π=f/δ・Pappalardo 2015 bisector/k=4/67,000/46,000/k≈60/9・ホットペッパー 2018 77.5%/n 2,106/95.5%/60.9%・repo 現状)。Schläpfer 2021・Dubé 2010 は親未確認'),
  'v2-classical-vs-llm-simulation-research.md': ('B', 'サブ実読 14/17(2026-09-17・第214)+親確認 3 件(PIMMUR v4・Anthis §4.5.2・Sid §5.2/§8.3/§5.3)。Schelling 1971 は二次・Horton/Aher/Gao は抄録のみ'),
  'v2-research-reflection-audit.md': ('E', 'repo 内監査(2026-09-17・第214)・親が上位 4 判定を再確認。外部出典は本質的に不要'),
  'v2-research-reflection-audit-p1p2.md': ('E', 'repo 内監査(2026-09-17・第214)・親が #5(D4 修正3)を誤りと確認・T3 は確認済み。外部出典は本質的に不要'),

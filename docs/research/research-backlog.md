@@ -120,3 +120,12 @@
 | **R-28** | **監査の取りこぼし候補 62 項+設計済・未実装 82 項**(全 80 答申・484 項の 5 値監査: 実装済 44.2%・部分 21.5%・設計済未実装 16.9%・未採用 4.5%・未判定 12.8%)。上位: 人流の二次モーメント指標(滞留・Zipf・EPR)が計器に 0 件 / 反実仮想渋谷の常設対照ラン / 艦隊バックプレッシャ 3 段・TiDi / T2 内省の実呼 / prereg v1.3 の統計が `holdout_compare.py` に無い / AB2〜AB5 未実施 / 保存則 T3 / seed 交換可能性検査 / 決定台帳に「根拠答申」列が無い | [v2-research-reflection-audit.md](v2-research-reflection-audit.md)・[-p1p2.md](v2-research-reflection-audit-p1p2.md) | **決定(第215)**: ①②④ 今週(① 第215 実装サブ着手)・③⑤ S2・⑥ 第2陣・⑦ 進めてよい範囲 |
 | R-29 | PIMMUR(2509.18052)の引用を版指定つきに直す(v4: 350 論文/576 実験・65.2%・50.6%)。既存答申 science-claims・F-8 | L-CLS 親確認 | 注記済み(答申・F-8)・本文の一括訂正は未 |
 | R-30 | 事前登録の外部根拠+1: Anthis et al. 2025 §4.5.2「we encourage, preregistration of LLM simulation predictions」(親確認)→ prereg を「分野の推奨の履行」へ書換 / Hewitt 2024 と Ashokkumar 2026 が同一研究か未確定 | L-CLS | prereg v1.3 に反映(第214) |
+
+## 3d. 人の構成要素ラウンド(2026-09-17・第221)
+
+| # | 何を | 出所 | 状態 |
+|---|---|---|---|
+| **R-31** | **P1 趣味・嗜好**: 公的分布(社会生活基本調査 R3・11 表取得)・種目→POI 写像(1 対 1 は 3 種目・受け皿ゼロ多数・**W6 カタログの欠陥 3=公園が PLACE_PARK に行かない**)・入れ方 案 A(種目 58 bit+コピュラ+稀事象の待ち時間)・穴 6・先行例ゼロ | [v2-hobby-preference-research.md](v2-hobby-preference-research.md)(親確認 3) | 完了・判断 D-88 |
+| **R-32** | **P3 選好ベクトルと常連/探索**: EPR(γ 0.21・Π=f・δ 1.2)・returners k=4・Schläpfer η≈2・外食リピート 77.5%・Dubé 状態依存 → 選好はエンジンの数値・**二重計上の整理**(戻る=K-1・探す=ρ_i・P3 は初回選択の frozen 誤差・P1/P2 は選択確率に掛けない)・**写し訂正 ζ→δ**・repo は店選択が「セル内最小 id」=行き先を選ぶ仕組み自体が無い | [v2-preference-vector-research.md](v2-preference-vector-research.md)(親確認 4) | 完了・判断 D-88 |
+| R-33 | P2 性格(規準分布・効果量・LLM 付与) | 実行中 | — |
+| R-34 | 空欄: SSB 趣味種目の共起(匿名個票=決定台帳 L424 の門)・渋谷の来街者リピート率・Pappalardo k=2 人口比(補足 Fig.3)・日本の EPR/returners 研究(存在せず) | P1/P3 §7 | 未 |

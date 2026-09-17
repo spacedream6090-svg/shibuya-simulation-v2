@@ -135,3 +135,11 @@
 | [css__anthis2025_llm-social-simulations](css__anthis2025_llm-social-simulations.md) | 計算社会科学 #25 / 検証とV&V #22 | **実読**(第214・サブ+親 WebFetch 逐語一致) | **事前登録の外部根拠 2 本目**(§4.5.2)・**5 つの壁**・「使えるのは予備・探索まで」・訓練カットオフとの前後で分布外を測れ |
 | [css__argyle2023_algorithmic-fidelity](css__argyle2023_algorithmic-fidelity.md) | 計算社会科学 #25 / 人格心理学 #13 | B(サブ実読・arXiv HTML の §3/§4/§6/§7/§9・親未確認)・第214 | **algorithmic fidelity の 4 条件**と silicon sampling=「LLM が新しく可能にしたこと」の原点・**合格線は著者自身が提案していない**・「特定個人は模擬できない」 |
 | [css__projectsid2024_de-novo-limit](css__projectsid2024_de-novo-limit.md) | 計算社会科学 #25 / 科学哲学 #26 | **実読**(第214・サブ+親 WebFetch 逐語一致) | **「de novo の社会的革新は模擬できない」の逐語と節(§7)**・宗教は 500 体中 20 体の注入(§5.3)・**分析に使ったのは 500 体 1 本**(抄録の 1000+ は分析外)・既存答申 §2 の 3 主張の一次確認 |
+| [mobility__song2010_epr](mobility__song2010_epr.md) | 人間移動科学 #3 | **実読**(サブ・親未確認) | 「戻る/探す」を 2 式で書く(P_new=ρS^-γ・Π=f)。ρ=0.6/γ=0.21/δ=1+γ の出所 |
+| [mobility__pappalardo2015_returners-explorers](mobility__pappalardo2015_returners-explorers.md) | 人間移動科学 #3 | **実読**(サブ・親未確認) | 常連/探索の二分の判定関数(r_g^(k)>r_g/2)と、EPR 素では二分が出ない証拠(k=60 vs 4) |
+| [mobility__schlapfer2021_visitation-law](mobility__schlapfer2021_visitation-law.md) | 人間移動科学 #3 / 都市科学 | **実読**(サブ・親未確認) | 常連率を 1 本の指数で照合する装置 ρ(r,f)=μ/(rf)^2(η=2.05±0.018・R²=0.993) |
+| [retail__hotpepper2018_repeat-rate](retail__hotpepper2018_repeat-rate.md) | 消費者行動 / 商業統計 | **実読**(サブ・親未確認) | 日本・首都圏の常連率アンカー(回数ベース 77.5%・業態別 32〜95.5%)。公刊=holdout 不可 |
+| [retail__dube2010_state-dependence](retail__dube2010_state-dependence.md) | 消費者行動 / 計量経済 | **実読**(サブ・親未確認) | 選好(切片)と習慣(直前選択)を分ける正典の式と、順序無作為化という負の対照 |
+| [timeuse__estat2021_leisure-participation](timeuse__estat2021_leisure-participation.md) | 時間利用研究 #4 / 人格心理学 #13 | **実読(サブ・2026-09-17・e-Stat API 取得と再計算)・親未確認** | 趣味・スポーツ・学習の**種目別行動者率と平均行動日数**。「年 1 回でも 1」という定義と、日次確率への変換式(行動者率×日数/365)。**無趣味率 8.6%(東京)= 独立抽選を落とす門** |
+| [leisure__ide-yasui2003_activity-cooccurrence](leisure__ide-yasui2003_activity-cooccurrence.md) | 時間利用研究 #4 / 統計学 #23 | **実読(サブ・2026-09-17・PDF 全 7 頁)・親未確認** | 趣味の**共起構造**の唯一の個票ベース一次資料。種類数 平均7.1/最頻値0(ゼロ過剰)・2種目相関の**最大 φ=0.5268**・下位はほぼ独立。コピュラの形と上限を決める |
+| [leisure__bougie2025_citysim-shibuya-poi](leisure__bougie2025_citysim-shibuya-poi.md) | 計算社会科学 #25 / 小売科学・商業立地論 #17 | **実読(サブ・2026-09-17・PDF 全 13 頁)・親未確認** | **渋谷の POI 人気を LLM エージェントで予測した唯一の先行**。趣味をペルソナに持たせるが出所は非公開調査。**「ブランド POI への正のバイアス」= 我々の L6 照合行の既知の汚染源** |
