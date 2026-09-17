@@ -10,7 +10,7 @@
 - 対ごとのエリア別 24 h シェア JSD(bits)→ **全対の平均=帰無参照**(v1.2 の 0.000162 は 1 対)
 - 家族 95%(5 指標・Bonferroni α=0.01/指標・両側)の平均の区間半幅 = t(0.995, n−1)·CV/√n
   を 昼(6〜23 時・CV 中央値)と 深夜(0〜5 時・CV 最大)で(第209 の親再計算と同じ式)
-- fair CRPS の係数 (1+1/M)・N=(CV/r)²(L-B 答申 §5)
+- raw CRPS の期待膨張 (1+1/M) と fair CRPS の広がり項係数 M/(M−1)・N=(CV/r)²(L-B 答申 §5)
 """
 from __future__ import annotations
 
@@ -161,7 +161,10 @@ def summarize_ensemble(tables: Mapping[str, np.ndarray], inputs: Mapping[str, st
         "null_reference_jsd_bits_max_pair": float(pair_means.max()),
         "prereg_h1_line_bits": 0.0122,
         "family95": family,
-        "fair_crps_factor": 1.0 + 1.0 / n,
+        # 較正済みアンサンブルの raw CRPS は期待値で (1+1/M) 倍に膨らむ(Ferro 2008・M=3 で +33.3%)。
+        # fair CRPS はその補正=広がり項に M/(M−1) を掛ける(Ferro 2014・tools/c7/prereg_v13.crps_fair_terms)。
+        "raw_crps_inflation_if_calibrated": 1.0 + 1.0 / n,
+        "fair_crps_spread_term_factor": n / (n - 1.0),
         "n_needed": {
             "formula": "N=(CV/r)^2 (L-B 答申 §5)",
             "median": {f"r={r}": (cv_med / r) ** 2 for r in (0.01, 0.02, 0.05)},
@@ -203,7 +206,7 @@ def main(argv: list[str] | None = None) -> int:
           f"cv_max={d['cv_hour_max']:.4f}@{d['cv_hour_argmax']:02d}h "
           f"null_jsd={d['null_reference_jsd_bits']:.6f} (max pair {d['null_reference_jsd_bits_max_pair']:.6f}) "
           f"family95 day ±{f['day']['half_width_pct_median']:.2f}% night ±{f['night']['half_width_pct_max']:.1f}% "
-          f"fairCRPS x{d['fair_crps_factor']:.3f}")
+          f"rawCRPS inflation x{d['raw_crps_inflation_if_calibrated']:.3f} (fair spread factor x{d['fair_crps_spread_term_factor']:.2f})")
     return 0
 
 

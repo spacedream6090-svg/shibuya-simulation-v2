@@ -86,3 +86,5 @@
 - 確定手順: c7-day-4-s3 完走 → 帰無参照を 3 対で更新 → 本節を「草案」から「確定」に → ユーザーの「開けてよい」→ 開封。
 
 > **第214 追記**: 事前登録の外部根拠が 1 本増えた——Anthis et al. 2025(ICML Position・arXiv 2504.02234v2)§4.5.2「We have not yet seen, but we encourage, preregistration of LLM simulation predictions」(親確認)。本書は「独自採用」ではなく**分野の推奨の履行**として位置づける(Larooij & Törnberg 2025 提言 (ii) と併せて 2 本)。
+
+> **第216 計器注記**: §7 の統計は `tools/c7/holdout_compare.py --prereg-version v1.3 --occupancy <seed1> --occupancy <seed2> --occupancy <seed3>` で計算する(IMPLEMENTED #30)。同値判定は pass / fail / **undecided**(区間が線をまたぐ=検出力不足・追加 seed でしか解けない)の 3 値で、undecided は合格に数えない。H3 は記述欄・H1 の判定は 6〜23 時の窓。帰無参照(3 対の平均)は `tools/c7/seed_ensemble.py`。**本節の「草案→確定」は seed 3 完走後に帰無参照を入れて行う。**

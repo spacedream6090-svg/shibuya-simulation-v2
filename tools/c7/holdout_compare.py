@@ -30,13 +30,28 @@
     欄名は ``--field-map`` で差し替えられる(既定は別名表による best-effort)。
     **合わなければ例外で止まる**=推測で埋めない(CLAUDE.md §5)。
 
-テストは合成 holdout(同じ形の偽データ)で行う(``tests/c7/test_holdout_compare.py``)。
+事前登録の版(``--prereg-version``)
+    既定 ``v1.2`` = **1 ランの点**を 5 指標の線で合否にする(従来の挙動・1 バイトも変えない)。
+    ``v1.3`` = ``docs/bench/c7/prereg_arms_v1.md`` §7 の **seed アンサンブル判定**。
+    ``--occupancy`` を seed の本数だけ並べる(2 本以上が必須)。計算は ``prereg_v13.py``
+    (家族 95% の区間・同値検定・H3 の格下げ・H1 の昼窓・GET 包絡・fair CRPS)。
+    **合格線 H1〜H5 の値は v1.2 と同じ**——変わるのは線の当て方だけ。
+
+テストは合成 holdout(同じ形の偽データ)で行う(``tests/c7/test_holdout_compare.py``・
+``tests/c7/test_prereg_v13.py``)。
 
 例(親・サーバー)::
 
     python tools/c7/holdout_compare.py --open-seal \\
         --occupancy docs/bench/c7/c7_occupancy.json \\
         --data-root data --world data/world/v2 --out docs/bench/c7 --run-id <run_id>
+
+    # v1.3(3 seed のアンサンブル)
+    python tools/c7/holdout_compare.py --open-seal --prereg-version v1.3 \\
+        --occupancy docs/bench/c7/occupancy_c7-day-4.json \\
+        --occupancy docs/bench/c7/occupancy_c7-day-4-s2.json \\
+        --occupancy docs/bench/c7/occupancy_c7-day-4-s3.json \\
+        --data-root data --world data/world/v2 --out docs/bench/c7/holdout/c7-day-4
 """
 
 from __future__ import annotations
@@ -56,6 +71,7 @@ import numpy as np
 sys.path.insert(0, str(Path(os.path.abspath(__file__)).parent))
 
 import c7lib  # noqa: E402
+import prereg_v13  # noqa: E402
 
 AREA_IDS = c7lib.AREA_IDS
 ATTR_IDS = c7lib.ATTR_IDS
@@ -65,6 +81,9 @@ LAYER = "kddi_la"
 
 #: 開封記録の既定の置き場。
 DEFAULT_RECORD = "docs/bench/c7/holdout_open_record.json"
+
+#: 事前登録の版。``v1.2``=1 ランの点判定(既定・従来どおり)/``v1.3``=seed アンサンブル判定。
+PREREG_VERSIONS: tuple[str, ...] = ("v1.2", "v1.3")
 
 #: 欄名の別名(生データの実欄名が分からないので best-effort・**expedient**)。
 FIELD_ALIASES: dict[str, tuple[str, ...]] = {
@@ -417,7 +436,10 @@ def compare(sim_table: np.ndarray, holdout: Mapping[str, Any],
     )
 
 
-def report(res: Mapping[str, Any], seal: Mapping[str, Any], meta: Mapping[str, Any]) -> str:
+def report(res: Mapping[str, Any], seal: Mapping[str, Any], meta: Mapping[str, Any],
+           v13_section: str | None = None) -> str:
+    """照合の Markdown。``v13_section`` は ``--prereg-version v1.3`` のときだけ末尾に足す
+    (既定 None = v1.2 の出力は 1 バイトも変わらない)。"""
     lines = [
         "# C7 holdout 照合(KDDI 形状5指標・**事後1回のみ**)",
         "",
@@ -433,7 +455,32 @@ def report(res: Mapping[str, Any], seal: Mapping[str, Any], meta: Mapping[str, A
         f"総合: {res['n_pass']}/{res['n_measured']} 合格 → "
         f"**{'PASS' if res['pass'] else 'FAIL'}**",
     ]
+    if v13_section:
+        lines += ["", v13_section]
     return "\n".join(lines)
+
+
+def validate_prereg_version(prereg_version: str, occupancy_paths: Sequence[str]) -> str:
+    """版と ``--occupancy`` の本数の整合。**ファイルには一切触らない**(封印の前に呼ぶ)。
+
+    - ``v1.3`` は seed アンサンブル判定なので ``--occupancy`` が **2 本以上**必要。
+    - ``v1.2`` は 1 ランの点判定なので **1 本だけ**(複数渡すなら版を上げる)。
+    """
+    if prereg_version not in PREREG_VERSIONS:
+        raise ValueError(f"--prereg-version は {PREREG_VERSIONS} のどれか: {prereg_version!r}")
+    n = len(list(occupancy_paths))
+    if n == 0:
+        raise ValueError("--occupancy が 1 本も無い")
+    if prereg_version == "v1.3" and n < 2:
+        raise ValueError(
+            "--prereg-version v1.3 は seed アンサンブル判定なので --occupancy が 2 本以上必要"
+            f"(渡されたのは {n} 本)。1 本で照合するなら --prereg-version v1.2"
+            "(事前登録 v1.3 §7)。")
+    if prereg_version == "v1.2" and n > 1:
+        raise ValueError(
+            f"--prereg-version v1.2 は 1 ランの点判定なので --occupancy は 1 本"
+            f"(渡されたのは {n} 本)。複数 seed を照合するなら --prereg-version v1.3。")
+    return prereg_version
 
 
 # ---------------------------------------------------------------- CLI
@@ -447,7 +494,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--force", action="store_true", help="開封記録があっても開く(理由を登録簿へ)")
     ap.add_argument("--data-root", default="data", help="data 根(封印パスの起点)")
     ap.add_argument("--world", default="data/world/v2", help="w19_freeze.json のある場所")
-    ap.add_argument("--occupancy", required=True, help="occupancy_series.py が出した JSON")
+    ap.add_argument("--occupancy", action="append", required=True, metavar="JSON",
+                    help="occupancy_series.py が出した JSON。v1.3 は seed の本数だけ並べる")
+    ap.add_argument("--prereg-version", choices=PREREG_VERSIONS, default="v1.2",
+                    help="事前登録の版(既定 v1.2=1 ランの点判定・v1.3=seed アンサンブル判定)")
     ap.add_argument("--field-map", default=None, help="生データの欄名対応 JSON")
     ap.add_argument("--prereg", default=None, help="事前登録の合格線 JSON(既定 PREREG_V0)")
     ap.add_argument("--record", default=DEFAULT_RECORD, help="開封記録の置き場")
@@ -457,6 +507,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--run-id", default="", help="照合したランの run_id")
     ap.add_argument("--out", default="docs/bench/c7", help="出力ディレクトリ")
     args = ap.parse_args(argv)
+
+    # 版と本数の整合は**封印に触る前**に見る(ここは一切 IO をしない=開封の門番より先で安全)。
+    occ_paths = list(args.occupancy)
+    try:
+        validate_prereg_version(args.prereg_version, occ_paths)
+    except ValueError as exc:
+        ap.error(str(exc))
 
     guard_open(args.record, open_seal=args.open_seal, force=args.force)
 
@@ -474,9 +531,20 @@ def main(argv: list[str] | None = None) -> int:
     target = Path(args.data_root) / seal_layer["member_files"][0]["path"]
     holdout = read_holdout(target, field_map)
 
-    occ = json.loads(Path(args.occupancy).read_text(encoding="utf-8"))
-    sim_table, sim_attr = sim_from_occupancy(occ)
-    res = compare(sim_table, holdout, sim_attr, prereg)
+    per_seed: list[dict[str, Any]] = []
+    per_seed_h1_day: list[dict[str, Any]] = []
+    sim_shares: list[np.ndarray] = []
+    occ_files: list[dict[str, Any]] = []
+    for path in occ_paths:
+        occ = json.loads(Path(path).read_text(encoding="utf-8"))
+        sim_table, sim_attr = sim_from_occupancy(occ)
+        per_seed.append(compare(sim_table, holdout, sim_attr, prereg))
+        occ_files.append({"path": path, "sha256": sha256_file(path)})
+        if args.prereg_version == "v1.3":
+            per_seed_h1_day.append(prereg_v13.h1_day_window(
+                sim_table, holdout["obs_hour_share"], prereg=prereg))
+            sim_shares.append(c7lib.hour_share(sim_table))
+    res = per_seed[0]   # v1.2 の表は 1 本目(主張腕)のまま出す
 
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -484,7 +552,7 @@ def main(argv: list[str] | None = None) -> int:
         "schema": "shibuya.tools.c7/holdout_compare/1",
         "seal": seal,
         "holdout_meta": holdout["meta"],
-        "occupancy": args.occupancy,
+        "occupancy": occ_paths[0],
         "run_id": args.run_id,
         "metrics": {k: res[k] for k in ("H1", "H2", "H3", "H4", "H5")},
         "prereg": res["prereg"],
@@ -492,9 +560,23 @@ def main(argv: list[str] | None = None) -> int:
         "n_pass": res["n_pass"],
         "pass": res["pass"],
     }
+    v13_md: str | None = None
+    v13: dict[str, Any] | None = None
+    if args.prereg_version == "v1.3":
+        v13 = prereg_v13.ensemble_verdict(
+            per_seed, prereg=res["prereg"], per_seed_h1_day=per_seed_h1_day, labels=occ_paths)
+        envelope = prereg_v13.get_envelope(sim_shares, holdout["obs_hour_share"])
+        crps = prereg_v13.fair_crps_table(sim_shares, holdout["obs_hour_share"])
+        v13_md = prereg_v13.report_v13(v13, envelope, crps, labels=occ_paths)
+        payload["prereg_version"] = args.prereg_version
+        payload["occupancy_seeds"] = occ_paths
+        payload["per_seed_metrics"] = [
+            {k: r[k] for k in ("H1", "H2", "H3", "H4", "H5")} for r in per_seed]
+        payload["v13"] = {"verdict": v13, "envelope": envelope, "fair_crps": crps}
+        payload = prereg_v13.apply_ensemble_verdict(payload, v13)  # 受入表(c7_accept)が読むトップレベルを v1.3 に(第216)
     (out_dir / "c7_holdout_compare.json").write_text(
         json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
-    md = report(res, seal, holdout["meta"])
+    md = report(res, seal, holdout["meta"], v13_md)
     (out_dir / "c7_holdout_compare.md").write_text(md, encoding="utf-8")
 
     record = {
@@ -508,8 +590,17 @@ def main(argv: list[str] | None = None) -> int:
         "files": [{"path": f["path"], "sha256": f["sha256_now"], "bytes": f["bytes"]}
                   for f in seal["files"]],
         "forced": bool(args.force),
-        "result": {"n_pass": res["n_pass"], "n_measured": res["n_measured"], "pass": res["pass"]},
+        "prereg_version": args.prereg_version,
+        # seed ごとの occupancy パス+sha256(どのランを照合したかを開封記録だけで追える)。
+        "occupancy_files": occ_files,
+        "result": {"n_pass": payload["n_pass"], "n_measured": payload["n_measured"], "pass": payload["pass"],
+                   "source": payload.get("verdict_source", "v1.2 point")},
     }
+    if v13 is not None:
+        record["result_v13"] = {
+            "n_pass": v13["n_pass"], "n_measured": v13["n_measured"],
+            "n_undecided": v13["n_undecided"], "n_fail": v13["n_fail"], "pass": v13["pass"],
+        }
     write_open_record(args.record, record)
 
     if args.manifest:
@@ -524,6 +615,9 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps({"holdout_open": record}, ensure_ascii=False, indent=1))
 
     print(md)
+    if v13 is not None:
+        # v1.3 はアンサンブルの判定が総合(undecided は合格にしない)。
+        return 0 if v13["pass"] else 1
     return 0 if res["pass"] else 1
 
 

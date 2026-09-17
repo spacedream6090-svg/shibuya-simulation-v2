@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **5 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **6 / 10**
 > 第1〜第210(2026-09-01〜09-17)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第211 R-4 ミクロ観察の先行例 帰還・親確認 3 件・D-80 新設(2026-09-17 夕)
@@ -33,3 +33,10 @@
 - **着手**: D-83 ① `holdout_compare.py` の v1.3(複数 occupancy・家族 95% 区間・同値判定 pass/fail/undecided・H3 記述格下げ・GET 包絡・fair CRPS・既定 v1.2 不変)を実装サブ(Opus)へ。
 - ユーザーの問い「第二陣はいつ始められるか」「実装のみ/判断のみのものは」に回答(C9c は今すぐ・C10 は指紋 3 つの確認後・記憶は材料集めの後)。
 - **次**: seed 3 → 3 seed 帰無参照 → v1.3 確定 → 「開けてよい」。C9c 実装サブ。
+
+## 第216 D-83 ① 帰還・親検収(事前登録 v1.3 の計器)(2026-09-17 夕)
+
+- **サブ(Opus 5)**: `tools/c7/prereg_v13.py` 689 行+`holdout_compare.py` +100/−8+テスト 39(合成のみ・`--open-seal` 不使用)。判定統計量は `five_metrics` の pass 式から機械的に取り、線は `res[H*]["limit"]`(prereg 側と鍵名が食い違う H1 の写し事故を回避)。expedient 11 件を docstring に明記(tau 未定義は fail・Bonferroni 分母 5・fail 優先 AND・H1 昼窓は観測を再正規化・α は 0.01 のみ・N は 3..10・v1.2 に複数 occupancy はエラー・v1.3 の exit code はアンサンブル判定・開封記録の欄追加・CRPS raw は c8 流用)。
+- **親検収**: tests/c7 124 passed in 0.75s・tests/c8+cli 265 passed・lint 5 kept・既定不変は golden(report 文面・compare の dict)で固定されているのを確認。**親修正 2 件**: (i) v1.3 のトップレベル判定をアンサンブルに(`apply_ensemble_verdict`・`c7_accept.py` の HOLD 行が読むため・seed 1 点判定は `seed1_v12` に保存)(ii) CRPS の係数名を 2 つに分離((1+1/M)=raw の期待膨張 / M/(M−1)=fair の広がり項)。両方とも正しい量で、名前の混同だけが問題だった。
+- prereg §7 に計器注記(確定は seed 3 の後)。
+- **次**: seed 3 → `seed_ensemble.py`(3 seed)→ §7 確定 → 「開けてよい」→ `holdout_compare.py --prereg-version v1.3 --open-seal`。C9c-1 帰還待ち。

@@ -41,7 +41,8 @@ def test_three_seeds_cv_and_pairwise_null_reference():
     pair_means = [p["jsd_area_mean_bits"] for p in d["pairs"]]
     assert math.isclose(d["null_reference_jsd_bits"], float(np.mean(pair_means)))
     assert d["null_reference_jsd_bits_max_pair"] == max(pair_means)
-    assert math.isclose(d["fair_crps_factor"], 4.0 / 3.0)
+    assert math.isclose(d["raw_crps_inflation_if_calibrated"], 4.0 / 3.0)  # (1+1/M)
+    assert math.isclose(d["fair_crps_spread_term_factor"], 1.5)  # M/(M−1)
     # 家族 95%(5 指標・α=0.01)は t(0.995, 2)=9.925 → 半幅 = 9.925·CV/√3
     fam = d["family95"]
     assert math.isclose(fam["t_quantile"], 9.925, rel_tol=1e-3)
