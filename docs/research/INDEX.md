@@ -79,8 +79,8 @@ CLAUDE.md §5 に「リサーチサブは子サブを起動しない」「答申
 |---|---|---|---|
 | 1 | **人口学・合成人口論** | [boundary-economy-u10-u11-research](v2-boundary-economy-u10-u11-research.md) P0 ・ [population-synthesis-research](v2-population-synthesis-research.md) P0 ・ [boundary-deep-research](v2-boundary-deep-research.md) P1 ・ [kddi-attribute-shares-2024](v2-kddi-attribute-shares-2024.md) P1 ・ [persona-population-deep-research](v2-persona-population-deep-research.md) P1 | B |
 | 2 | **交通工学(活動ベース)** | [c9-geometry-capacity-research](v2-c9-geometry-capacity-research.md) P0 ・ [d66-outside-residents-research](v2-d66-outside-residents-research.md) P0 ・ [boundary-deep-research](v2-boundary-deep-research.md) P1 ・ [mobility-field-research](v2-mobility-field-research.md) P1 | B |
-| 3 | **人間移動科学** | [c7-fix-research](v2-c7-fix-research.md) P0 ・ [c9-position-attention-research](v2-c9-position-attention-research.md) P0 ・ [d66-outside-residents-research](v2-d66-outside-residents-research.md) P0 ・ [d68-behavioral-diversity-research](v2-d68-behavioral-diversity-research.md) P0 ・ [r23-primary-check-batch2](v2-r23-primary-check-batch2.md) P0 ・ [d1-reacquisition](v2-d1-reacquisition.md) P1 ・ [llm-mobility-research](v2-llm-mobility-research.md) P1 ・ [mobility-field-research](v2-mobility-field-research.md) P1 | B |
-| 4 | **時間利用研究** | [c7-fix-research](v2-c7-fix-research.md) P0 ・ [d68-behavioral-diversity-research](v2-d68-behavioral-diversity-research.md) P0 | B |
+| 3 | **人間移動科学** | [c7-fix-research](v2-c7-fix-research.md) P0 ・ [c9-position-attention-research](v2-c9-position-attention-research.md) P0 ・ [d66-outside-residents-research](v2-d66-outside-residents-research.md) P0 ・ [d68-behavioral-diversity-research](v2-d68-behavioral-diversity-research.md) P0 ・ [d68-remaining-research](v2-d68-remaining-research.md) P0 ・ [r23-primary-check-batch2](v2-r23-primary-check-batch2.md) P0 ・ [d1-reacquisition](v2-d1-reacquisition.md) P1 ・ [llm-mobility-research](v2-llm-mobility-research.md) P1 ・ [mobility-field-research](v2-mobility-field-research.md) P1 | B |
+| 4 | **時間利用研究** | [c7-fix-research](v2-c7-fix-research.md) P0 ・ [d68-behavioral-diversity-research](v2-d68-behavioral-diversity-research.md) P0 ・ [d68-remaining-research](v2-d68-remaining-research.md) P0 | B |
 | 5 | **知覚心理学・精神物理学** | [channel-budget-attention-research](v2-channel-budget-attention-research.md) P0 ・ [density-hearing-verification](v2-density-hearing-verification.md) P0 ・ [observation-format-research](v2-observation-format-research.md) P0 ・ [p-notice-research](v2-p-notice-research.md) P0 ・ [perception-latency-research](v2-perception-latency-research.md) P0 ・ [perception-timing-research](v2-perception-timing-research.md) P0 ・ [perception-u17-research](v2-perception-u17-research.md) P0 ・ [person-perception-verification](v2-person-perception-verification.md) P1 | B |
 | 6 | **環境音響学** | [density-hearing-verification](v2-density-hearing-verification.md) P0 ・ [update-rules-hearing-research](v2-update-rules-hearing-research.md) P0 ・ [world-data-build-round2-research](v2-world-data-build-round2-research.md) P0 ・ [hearing-numbers-and-d1-coverage](v2-hearing-numbers-and-d1-coverage.md) P1 | B |
 | 7 | **建築環境工学** | [world-data-build-round2-research](v2-world-data-build-round2-research.md) P0 | B |
@@ -88,7 +88,7 @@ CLAUDE.md §5 に「リサーチサブは子サブを起動しない」「答申
 | 9 | **地理情報科学** | [area-boundary-definition](v2-area-boundary-definition.md) P0 ・ [c9-geometry-capacity-research](v2-c9-geometry-capacity-research.md) P0 ・ [w7-law-primary-check-research](v2-w7-law-primary-check-research.md) P0 ・ [world-data-build-research](v2-world-data-build-research.md) P0 ・ [area-boundary-map-reading](v2-area-boundary-map-reading.md) P1 ・ [cell-granularity-research](v2-cell-granularity-research.md) P1 | A |
 | 10 | **SFCマクロ経済学** | [boundary-economy-u10-u11-research](v2-boundary-economy-u10-u11-research.md) P0 ・ [r23-primary-check-batch2](v2-r23-primary-check-batch2.md) P0 ・ [world-process-rows-research](v2-world-process-rows-research.md) P0 ・ [economy-sfc-deep-research](v2-economy-sfc-deep-research.md) P1 ・ [ugc-platform-import](v2-ugc-platform-import.md) P1 | B |
 | 11 | **法学(業法・条例)** | [c9-geometry-capacity-research](v2-c9-geometry-capacity-research.md) P0 ・ [r23-primary-check-batch2](v2-r23-primary-check-batch2.md) P0 ・ [w7-law-primary-check-research](v2-w7-law-primary-check-research.md) P0 ・ [institutions-deep-research](v2-institutions-deep-research.md) P1 ・ [precedent-system-deep-research](v2-precedent-system-deep-research.md) P1 | A |
-| 12 | **認知科学(記憶・習慣)** | [action-conversation-contract-research](v2-action-conversation-contract-research.md) P0 ・ [c9-position-attention-research](v2-c9-position-attention-research.md) P0 ・ [cognition-detail-research](v2-cognition-detail-research.md) P0 ・ [d71-vocab-growth-research](v2-d71-vocab-growth-research.md) P0 ・ [update-rules-hearing-research](v2-update-rules-hearing-research.md) P0 ・ [memory-retrieval-research](v2-memory-retrieval-research.md) P1 ・ [prediction-module-deep-research](v2-prediction-module-deep-research.md) P1 | B |
+| 12 | **認知科学(記憶・習慣)** | [action-conversation-contract-research](v2-action-conversation-contract-research.md) P0 ・ [c9-position-attention-research](v2-c9-position-attention-research.md) P0 ・ [cognition-detail-research](v2-cognition-detail-research.md) P0 ・ [d68-remaining-research](v2-d68-remaining-research.md) P0 ・ [d71-vocab-growth-research](v2-d71-vocab-growth-research.md) P0 ・ [update-rules-hearing-research](v2-update-rules-hearing-research.md) P0 ・ [memory-retrieval-research](v2-memory-retrieval-research.md) P1 ・ [prediction-module-deep-research](v2-prediction-module-deep-research.md) P1 | B |
 | 13 | **人格心理学** | [d68-behavioral-diversity-research](v2-d68-behavioral-diversity-research.md) P0 ・ [persona-dynamics-research](v2-persona-dynamics-research.md) P0 ・ [persona-population-deep-research](v2-persona-population-deep-research.md) P1 | B |
 | 14 | **社会ネットワーク科学** | [ad-information-research](v2-ad-information-research.md) P0 | C |
 | 15 | **会話分析・語用論** | [action-conversation-contract-research](v2-action-conversation-contract-research.md) P0 ・ [r23-primary-check-batch2](v2-r23-primary-check-batch2.md) P0 ・ [conversation-deep-research](v2-conversation-deep-research.md) P1 | B |
@@ -119,9 +119,9 @@ CLAUDE.md §5 に「リサーチサブは子サブを起動しない」「答申
 
 ## 3. 全 73 本(重要度 → 日付順)
 
-合計 20,628 行。P0 34 / P1 40 / P2 10。
+合計 20,628 行。P0 35 / P1 40 / P2 9。
 
-### P0(34 本)
+### P0(35 本)
 
 | 日付 | 答申 | 行 | 一次確認 | 分野 | 役割 |
 |---|---|---|---|---|---|
@@ -156,6 +156,7 @@ CLAUDE.md §5 に「リサーチサブは子サブを起動しない」「答申
 | 09-16 | [replication-count-research](v2-replication-count-research.md) | 78 | **A** | 統計学・因果推論 #23 / ABM方法論 #21 | 反復回数(seed 数)の文献手続き 7 系譜と「初回 8 seed」の位置(L-B)。D-70/D-44/G-8 の材料。統計 #23 の最初の答申 |
 | 09-16 | [w7-law-primary-check-research](v2-w7-law-primary-check-research.md) | 85 | **A** | 法学(業法・条例) #11 / 地理情報科学 #9 | W7 法規の条文一次確認とコード突合(L-24)。法学 #11 を D→A。D-72 の出所 |
 | 09-17 | [c9-geometry-capacity-research](v2-c9-geometry-capacity-research.md) | 167 | **B** | 交通工学(活動ベース) #2 / 歩行者動力学 #18 / 地理情報科学 #9 / 法学(業法・条例) #11 / 小売科学・商業立地論 #17 | C9 幾何の容量 3 種+ホーム容量の実測化(L-R8): PLATEAU 歩道部面・法定幅員・経済センサス売場面積・建告1441/消防規則の密度・鈴木 2012 のホーム 3.30 人/m²。G8 の置換候補 |
+| 09-17 | [d68-remaining-research](v2-d68-remaining-research.md) | 262 | **B** | 人間移動科学 #3 / 時間利用研究 #4 / 認知科学(記憶・習慣) #12 | D-68 経路 3(記憶・習慣)の残 10 件(R-3): 始業時刻の代理=時間帯編 15-4 表・通勤時間=住宅土地統計 58-2-1・交替制の深夜率 4.8〜14 倍・モチーフ 11〜17 型/83〜90%・Lu 2013 Π 0.88・REAL/2605.09995 は別の層 → K-1〜K-5(D-81) |
 | 09-17 | [d71-vocab-growth-research](v2-d71-vocab-growth-research.md) | 140 | **B** | ABM方法論 #21 / 自然言語処理・機械学習 #27 / 認知科学(記憶・習慣) #12 | 観測から行動語彙を育てる仕組みの先行(Voyager/AWM/ASI/LearnAct/SayCan/CBR/活動分類の規模)。D-71 設計アジェンダ v2-vocab-growth-design.md の出所 |
 | 09-17 | [statistics-causal-research](v2-statistics-causal-research.md) | 239 | **B** | 統計学・因果推論 #23 / 検証とV&V・UQ #22 | 統計学・因果推論 #23 の最初の答申(R-25): 多重比較/同値検定(Sargent 区間検定・TOST)・CRN・反実仮想(SCM・負の対照・S-RCT・History Matching)・GET 大域包絡(seed 3 本では p≥0.25)・CSB スクリーニング → prereg v1.3・D-70・D-44・到達点 C の作法 |
 |  | [c9-position-attention-research](v2-c9-position-attention-research.md) | 180 | **B** | 人間移動科学 #3 / 歩行者動力学 #18 / 認知科学(記憶・習慣) #12 / 計算社会科学 #25 | C9 位置・速度・注意・会話距離・目印の先行(L-C9): LLM 系 4 通り・Weidmann/Kladek 式(γ=1.913)・希望速度 1.00〜1.60 m/s・FOA/UE Perception・Sorokowska 1.35 m・待ち合わせ実証 2 本 |
@@ -205,7 +206,7 @@ CLAUDE.md §5 に「リサーチサブは子サブを起動しない」「答申
 | 09-16 | [r23-primary-check-batch1](v2-r23-primary-check-batch1.md) | 216 | **B** | 検証とV&V・UQ #22 / 計算社会科学 #25 / ABM方法論 #21 | 出典 URL ゼロの答申 33 本の一次確認 第1批(設計書が引く 8 本・28 主張)。D-74(値を直す 4 件)の出所・写し検査の提案(R-23) |
 | 09-17 | [micro-observation-research](v2-micro-observation-research.md) | 202 | **B** | 検証とV&V・UQ #22 / ABM方法論 #21 / ソフトウェア工学 #29 | ミクロ観察(個体カルテ/場所カルテ)の先行(R-4): GA の replay+無作為抽出・Concordia のログ粒度・Via の agent/facility クエリ・ODD の Observation・de Montjoye 1/10 乗則 → M1 アジェンダ O1〜O20(D-80) |
 
-### P2(10 本)
+### P2(9 本)
 
 | 日付 | 答申 | 行 | 一次確認 | 分野 | 役割 |
 |---|---|---|---|---|---|
@@ -218,7 +219,6 @@ CLAUDE.md §5 に「リサーチサブは子サブを起動しない」「答申
 | 09-01 | [funding-deep-research](v2-funding-deep-research.md) | 103 | **D** | 分野外(事業・資金) #0 | 資金調達の実務 |
 | 09-01 | [longrun-ops-deep-research](v2-longrun-ops-deep-research.md) | 88 | **D** | ソフトウェア工学 #29 | 長期運用 SRE・ストレージ・観測 I/O |
 | 09-01 | [publication-ethics-deep-research](v2-publication-ethics-deep-research.md) | 80 | **D** | 研究倫理・情報法 #31 | 出版戦略と倫理審査 |
-| 09-17 | [d68-remaining-research](v2-d68-remaining-research.md) | 262 | **B** | 分野外(事業・資金) #0 | (未分類) |
 
 ---
 

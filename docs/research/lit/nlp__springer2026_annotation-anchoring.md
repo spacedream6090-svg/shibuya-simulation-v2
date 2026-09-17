@@ -1,0 +1,21 @@
+# Springer ほか 2026 — Annotations Mitigate Post-Training Mode Collapse(ICML 2026)
+
+- リンク: https://arxiv.org/abs/2605.09995 | 分野: 自然言語処理 #27 / 人格心理学 #13 | 重要度: P0
+- **一次確認**: **実読(サブ・2026-09-17・arXiv HTML v1 の §1・§3・§5・付録 E.1)・親未確認**
+- 主張(claim): **ベースモデルは大きいほど意味的に多様。事後学習(SFT)後は大きいほど単調になる**(inverse scaling)。そしてこの差は**プロンプトの工夫では埋まらない**。
+- 機構(mechanism): 事後学習データの意味エントロピーが事前学習分布より低いと、尤度最適化がその少数の意味モードに確率質量を集める。**大きいモデルほど訓練分布によく当てはまる**ので、その集中がより強く起きる。反直感的な系として、**事後学習の例数を増やすとさらに多様性が下がる**(実測で確認)。
+- 効く箇所(seam): D-68 の「8B か 32B か」の判断。W17 と第2陣の同一性・記憶の生成で**モデルを大きくして多様性を得る道が塞がっている**ことの一次根拠。
+- 「結論でなく機構として」の入れ方: 「32B にしない」という結論だけを持ち込まず、**「単調さの原因は事後学習データの意味エントロピーであって規模ではない」**という機構を持ち込む。⇒ v2 が触れるのは**プロンプトが引き出す意味の幅**であり、そこには上限がある(下の逐語)ことを前提に、個体固有の事実側で稼ぐ。
+- 数値(節・図番号まで):
+  - 逐語(抄録): 「Post-training … often induces semantic mode collapse by biasing models toward low-entropy fine-tuning data … **Crucially, we find this trade-off worsens with scale.**」「can attain **6×** less diversity collapse than models trained with SFT, and improve with scale」
+  - 逐語(§3・見出し): 「**Larger base models are not less diverse, but larger post-trained models are.**」
+  - 逐語(§1): 「This is not because base models are less diverse: **before post-training, diversity increases with model size.**」
+  - 逐語(§2・出所): 「Building on the **inverse-scaling effect first reported by NoveltyBench** (Zhang et al., 2025b), we reproduce and broaden the finding」
+  - 逐語(§3・プロンプトでは埋まらない): 「while alternative prompting—especially sampling multiple responses in a shared context—raises semantic entropy, **it does not close the gap** between base and post-trained models, nor does it remove the residual inverse scaling with respect to model size」
+  - 実験対象: **Qwen2.5(0.5B / 3B / 14B / 72B)と Llama 3(1B / 3B / 8B / 70B)**。各サイズで公開ベースと公式 instruct を対にする(アーキテクチャと事前学習データを固定)
+  - 指標: Stories = **意味エントロピー**(Qwen3-30B-A3B-Instruct を判定器にカテゴリラベル化 → 経験分布のエントロピーをカテゴリ平均)。NoveltyBench / WildChat / InfinityChat = **Qwen3-Embedding-0.6B の平均ペア余弦非類似度**
+  - 提案手法: Stories で 2.5B 版がベースとの意味的多様性の差を**約 85% 埋める**
+  - **サイズ別の数値表は本文に無い**(Figure 3 / Figure 5 のみ)= 8B と 70B の具体値は未取得
+- コスト/スケール含意: 提案手法は**事前学習からやり直す**(注釈つきコーパス)ので v2 では採用不能。**「採らない道」として記録**し、v2 が採るのは推論時の条件づけ側のみ。
+- 批判・限界: ①Stories の意味ラベルは LLM 判定器に依存(判定器自身が単調なら多様性を過小評価しうる)②評価は英語の創作・対話③「6×」は提案手法の効果であって v2 には効かない④ICML 2026 accepted の preprint 版で査読版は未確認⑤**8B が 70B より多様であるという直接の数値は図からしか読めない**。
+- 関連: [[nlp__chang2024_real-sampling]](**逆向きの結果だが測っている層が違う**)・[[nlp__choi2025_identity-drift]]・[[mas__wang2026_s-researcher]]・既存答申 v2-d68-behavioral-diversity-research §3-4(2507.16076 の 7B > 70B と同方向)

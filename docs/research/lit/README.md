@@ -114,3 +114,11 @@
 | [abm__grimm-railsback2012_pom-multiscope](abm__grimm-railsback2012_pom-multiscope.md) | ABM方法論 #21 / 科学哲学 #26 | B(サブ実読・PMC 本文・第211・親未確認) | **「1 つのパターンは間違った理由でも合う」**(equifinality)・**弱いパターンは束ねて効く**・**パターン = 却下のフィルタ**。Grimm 2005 *Science* の代替(原典は有料未読) |
 | [transport__matsim-via_agent-facility-queries](transport__matsim-via_agent-facility-queries.md) | 交通工学 #2 / ソフトウェア工学 #29 | **実読(サブ・pymupdf 216 頁)・親未確認** | **個体カルテ(agent plan クエリ)と場所カルテ(Select Facility Analysis)を同じイベント列から引く先行**・**場所カルテの列の型**(到着/出発/滞在 × 時刻 × 属性)・「記録がある」と「読める」は別 |
 | [ethics__demontjoye2013_unicity](ethics__demontjoye2013_unicity.md) | 研究倫理・情報法 #31 / 人間移動科学 #3 | **実読**(第211・サブ+親 pymupdf/Europe PMC 逐語一致) | **4 点で 95% が一意**・**粗化は 1/10 乗でしか効かない**=**「粒度を落として公開」は効かない道**。個体カルテ公開の線を引く唯一の数値 |
+| [timeuse__estat2021_timeslot-shiftwork](timeuse__estat2021_timeslot-shiftwork.md) | 時間利用研究 #4 / 人口学 #1 | **実読(サブ・xlsx 取得と再計算)・親未確認** | **日本に始業時刻の分布表は無い**ことの全数確認と、唯一の代理(時間帯編 第15-4表)。**交替制の深夜率は固定の 4.8〜14.0 倍** |
+| [stats__estat2023_commute-time](stats__estat2023_commute-time.md) | 人口学 #1 / 交通工学 #2 | **実読(サブ・API 取得と再計算)・親未確認** | 片道通勤時間の**分布**(東京都 p50 43.7 分 / 渋谷区 33.0 分)。`arrival_lead_min` の裏づけ。社会生活基本調査は平成23年で終了 |
+| [mobility__lu2013_predictability-civ](mobility__lu2013_predictability-civ.md) | 人間移動科学 #3 | **実読(サブ)・親未確認** | **Π_max = 0.93 は上限でなく設定依存**(0.88 / 0.85)。**実アルゴリズムは 0.91 まで届く**=規則性の下限側の門番 |
+| [mobility__pflow2022_japan-motifs](mobility__pflow2022_japan-motifs.md) | 人間移動科学 #3 / GIScience #9 | **実読(サブ・PDF)・親未確認** | **日本の PT にモチーフを当てた唯一の公開実例**。「**都市圏では差が出ず役割で差が出る**」= 多様性は地理でなく属性から |
+| [mobility__trajllm2025_demo-eval](mobility__trajllm2025_demo-eval.md) | 人間移動科学 #3 / 自然言語処理 #27 | **実読(サブ・全文)・親未確認** | **定量評価が存在しない**ことの確定。記憶の重みが著者自身の申告で expedient = 採らない道の基準線 |
+| [nlp__chang2024_real-sampling](nlp__chang2024_real-sampling.md) | 自然言語処理 #27 | **実読(サブ・HTML 付録 J)・親未確認** | 「大きいほどエントロピーが低い」は**ベースの次トークン**の話(90.2% / 9M トークン)。意味的多様性とは別層 |
+| [nlp__springer2026_annotation-anchoring](nlp__springer2026_annotation-anchoring.md) | 自然言語処理 #27 / 人格心理学 #13 | **実読(サブ・HTML)・親未確認** | **ベースは大きいほど多様・事後学習後は大きいほど単調**(inverse scaling)。**プロンプトでは埋まらない**=8B 据置の最強の根拠 |
+| [mas__wang2026_s-researcher](mas__wang2026_s-researcher.md) | 計算社会科学 #25 / ABM方法論 #21 | **実読(サブ・HTML)・親未確認** | **「LLM の応答分散は人間の 20–300 倍小さい」の唯一の出所**(考察節・裏づけ表なし)。裾の研究には人間を入れよ |
