@@ -22,6 +22,7 @@ from shibuya.build.field import w7_planspec as w7
 from shibuya.build.field import w10_noise as w10
 from shibuya.build.field import w12_external_nodes as w12
 from shibuya.build.field import w13_weather as w13
+from shibuya.build.geo import poi_class
 from shibuya.build import run as build_run
 
 # --- W7 opening_hours パーサ ---------------------------------------------------------------
@@ -260,6 +261,61 @@ def test_violability_rule_is_unchanged_so_the_parquet_does_not_move():
         assert w7.LAW_CAPS[key]["closed_windows_min"] == ()
     for key in ("settai_inshoku", "pachinko_mahjong", "game_center", "tokutei_yukyo"):
         assert w7.LAW_CAPS[key]["closed_windows_min"] != ()
+
+
+# --- W7 カテゴリ既定表の被覆(W6 subcat 改訂 2026-09-17)-------------------------------------
+
+
+def test_category_defaults_cover_every_catsub_pair_w6_can_emit():
+    """W6 が出しうる (cat, subcat) 対は全部 CATEGORY_DEFAULTS にある。
+
+    ここが欠けると W7 は ``CATEGORY_DEFAULTS[(cat, subcat)]`` で KeyError になり、
+    ゲート ``category_defaults_cover_all_catsub`` に届く前に落ちる。
+    """
+    missing = sorted(p for p in poi_class.CATSUB_PAIRS if p not in w7.CATEGORY_DEFAULTS)
+    assert missing == []
+
+
+def test_new_subcat_rows_inherit_the_parent_cat_row():
+    """足した subcat 行は親 cat の行をそのまま継ぐ。
+
+    = 「subcat が付いた」というだけでは営業窓も価格帯も 1 つも動かない。公園を
+    0-1440/free に、図書館を公立図書館の窓にするような実態合わせは**別の判断**
+    (親決定待ち・docs/design/v2-hobby-affordance-map.md §6 #5)。
+    """
+    added = (
+        ("attraction", ("gallery", "museum")),
+        ("hall", ("events_venue", "music_venue", "theatre")),
+        ("leisure", ("gym", "park", "sports_centre")),
+        ("service", ("library",)),
+        (
+            "shop",
+            (
+                "art_supply",
+                "bicycle",
+                "books",
+                "florist",
+                "hobby",
+                "music_shop",
+                "musical_instrument",
+                "photo",
+                "sports_shop",
+                "stationery",
+                "video_games",
+            ),
+        ),
+    )
+    for cat, subs in added:
+        parent = w7.CATEGORY_DEFAULTS[(cat, None)]
+        for sub in subs:
+            assert w7.CATEGORY_DEFAULTS[(cat, sub)] == parent, (cat, sub)
+
+
+def test_law_key_for_new_subcats_falls_back_to_the_cat():
+    """新しい subcat は法規上限表に行を持たない=cat の行に落ちる(上限は動かない)。"""
+    for sub in ("park", "books", "library", "theatre", "museum"):
+        cat = poi_class.SUBCAT_TOPCAT[sub]
+        assert w7.law_key_for(cat, sub, {}) == w7.law_key_for(cat, None, {})
 
 
 # --- W10 ASJ RTN-Model 2018 -----------------------------------------------------------------

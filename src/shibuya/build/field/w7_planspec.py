@@ -13,7 +13,7 @@
 出力: ``w7_plan_spec.parquet``(世界過程設計書 §2 の PlanSpec 型の列を持つ)。
 
 expedient(全文は ``EXPEDIENTS``=段階ヘッダに載る台帳。ここは要旨)
-- カテゴリ既定営業時間・価格帯(cat×subcat 24行)。
+- カテゴリ既定営業時間・価格帯(cat×subcat 44行。うち 20 行は W6 subcat 改訂 2026-09-17 で現れた対で、親 cat の行をそのまま継ぐ=営業窓も価格帯も動かさない)。
 - 改訂権者=``store_manager`` 固定(店主エージェントが開け閉めする=世界過程設計書 §1-1)。
 - 違反可能性=法規上限のある業態は ``enforced``・それ以外の自主営業時間は ``unenforced``(軸4)。
 - ラブホテル(subcat=love_hotel)は旅館業法営業か店舗型性風俗特殊営業かが OSM タグから
@@ -175,7 +175,7 @@ OSM_TAG_LAW_OVERRIDE: tuple[tuple[str, str, str], ...] = (
 # 記録だけの表(生成値には触れない)。法規側の 4 行は 2026-09-17(D-72 (a))に足したもので、
 # 出典は ``docs/research/v2-w7-law-primary-check-research.md``(等級A・親が条文を一次確認)。
 EXPEDIENTS: tuple[str, ...] = (
-    "カテゴリ既定営業時間・価格帯(cat×subcat 24行・感度=既定±2h対照)",
+    "カテゴリ既定営業時間・価格帯(cat×subcat 44行・感度=既定±2h対照)",
     "18歳未満の立入制限(青少年条例16条)は営業時間の窓として当てない(D-W8 の閉店上限欄=—)",
     "改訂権者=store_manager 固定",
     "違反可能性の割当(法規上限のある業態=enforced・それ以外=unenforced)",
@@ -234,6 +234,40 @@ CATEGORY_DEFAULTS: dict[tuple[str, str | None], dict[str, Any]] = {
     ("shop", None): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
     ("shop", "convenience"): {"open": 0, "close": 1440, "closed_days": (), "price_tier": "low"},
     ("shop", "pachinko"): {"open": 600, "close": 1380, "closed_days": (), "price_tier": "mid"},
+    # --- W6 の subcat 改訂(2026-09-17・geo/poi_class.py)で現れる対 ---
+    # **親 cat の行をそのまま継ぐ**(= 既定の営業窓・価格帯は 1 件も動かない
+    # → w7_plan_spec.parquet はバイト不変)。公園を 0-1440/free に、図書館を
+    # 公立図書館の窓にするなどの**実態に合わせた改訂は別の判断**(親決定待ち)。
+    ("attraction", "gallery"): {"open": 600, "close": 1200, "closed_days": (), "price_tier": "mid"},
+    ("attraction", "museum"): {"open": 600, "close": 1200, "closed_days": (), "price_tier": "mid"},
+    ("hall", "events_venue"): {"open": 600, "close": 1320, "closed_days": (), "price_tier": "high"},
+    ("hall", "music_venue"): {"open": 600, "close": 1320, "closed_days": (), "price_tier": "high"},
+    ("hall", "theatre"): {"open": 600, "close": 1320, "closed_days": (), "price_tier": "high"},
+    ("leisure", "gym"): {"open": 600, "close": 1320, "closed_days": (), "price_tier": "mid"},
+    ("leisure", "park"): {"open": 600, "close": 1320, "closed_days": (), "price_tier": "mid"},
+    ("leisure", "sports_centre"): {
+        "open": 600,
+        "close": 1320,
+        "closed_days": (),
+        "price_tier": "mid",
+    },
+    ("service", "library"): {"open": 540, "close": 1080, "closed_days": (5, 6), "price_tier": "mid"},
+    ("shop", "art_supply"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "bicycle"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "books"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "florist"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "hobby"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "music_shop"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "musical_instrument"): {
+        "open": 660,
+        "close": 1260,
+        "closed_days": (),
+        "price_tier": "mid",
+    },
+    ("shop", "photo"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "sports_shop"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "stationery"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "video_games"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
 }
 
 #: D-W8 段(2)「チェーン公式営業時間表の手入力」。**未取得=空表**(法務レーン確認前)。

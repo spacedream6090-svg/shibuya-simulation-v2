@@ -85,6 +85,47 @@ def test_spec_numbers(built):
     assert _gate(manifest, "W11", "floorguide_connections")["value"] == 22
 
 
+def test_w6_subcat_is_rebuilt_from_raw_osm_tags(built):
+    """W6 subcat 改訂(2026-09-17)を実データで固定する。
+
+    - 生タグで決めた subcat が v8 の凍結値と食い違う件数は 0(規則の移植が正しい)。
+    - ``PLACE_PARK`` へ写る POI が **0 件ではなくなった**(欠陥の本体)。
+    - subcat が付いた POI は 255 → 393 件。
+    """
+    _out, manifest, _dt = built
+    assert _gate(manifest, "W6", "poi_subcat_tag_vs_frozen_mismatch")["value"] == 0
+    assert _gate(manifest, "W6", "poi_subcat_topcat_conflict")["value"] == 0
+    assert _gate(manifest, "W6", "poi_catsub_pairs_in_closure")["value"] is True
+    assert _gate(manifest, "W6", "poi_subcat_park")["value"] == 27
+    assert _gate(manifest, "W6", "poi_subcat_total")["value"] == 393
+    # 一次(生タグ)が多数派で、名前一致(expedient)は少数にとどまる。
+    notes = next(h for h in manifest["stages"] if h["stage"] == "W6")["notes"]
+    src = notes["poi_subcat_source_counts"]
+    assert src["osm_tag"] == 274 and src["frozen"] == 98 and src["name"] == 21
+    assert notes["poi_raw_tags_matched"] == 1889
+    # cat は 1 件も動かない(語彙 13 種・件数も改訂前と同じ)。
+    assert notes["poi_cat_counts"] == {
+        "attraction": 12,
+        "cinema": 7,
+        "education": 1,
+        "food": 823,
+        "hall": 18,
+        "hotel": 89,
+        "landmark": 56,
+        "leisure": 42,
+        "nightlife": 259,
+        "office": 124,
+        "school": 71,
+        "service": 114,
+        "shop": 721,
+    }
+    # 答申 §5-2 が「名前でしか引けない」と書いた 3 種が subcat で引ける。
+    counts = notes["poi_subcat_counts"]
+    assert counts["books"] == 10
+    assert counts["musical_instrument"] == 8
+    assert counts["library"] == 1
+
+
 def test_outputs_exist_and_hashes_match(built):
     out, manifest, _dt = built
     for h in manifest["stages"]:
