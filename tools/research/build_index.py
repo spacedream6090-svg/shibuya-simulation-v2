@@ -117,6 +117,10 @@ C = {
  'v2-c9-geometry-capacity-research.md':         ([2,18,9,11,17], 'P0', 'C9 幾何の容量 3 種+ホーム容量の実測化(L-R8): PLATEAU 歩道部面・法定幅員・経済センサス売場面積・建告1441/消防規則の密度・鈴木 2012 のホーム 3.30 人/m²。G8 の置換候補'),
  'v2-c9-position-attention-research.md':        ([3,18,12,25], 'P0', 'C9 位置・速度・注意・会話距離・目印の先行(L-C9): LLM 系 4 通り・Weidmann/Kladek 式(γ=1.913)・希望速度 1.00〜1.60 m/s・FOA/UE Perception・Sorokowska 1.35 m・待ち合わせ実証 2 本'),
  'v2-d71-vocab-growth-research.md':             ([21,27,12], 'P0', '観測から行動語彙を育てる仕組みの先行(Voyager/AWM/ASI/LearnAct/SayCan/CBR/活動分類の規模)。D-71 設計アジェンダ v2-vocab-growth-design.md の出所'),
+ 'v2-jev-system-one-note.md':                  ([27,29], 'P1', 'Jev(TypeSafe System One)の親一次ノート(第238): 文字列を生成せず Choice(≤255)/Score(2〜10)/Noul の型付き確率判断を並列で返す・RLCD 非公開・数値はベンダー測定・一致率 67.8% は LLM 平均との一致・当てはめは行動語/行き先/起床。第242 訂正: 文脈長 64k/32k・レート 1,200 req/min は公開済み'),
+ 'v2-thought-frequency-anchors-note.md':       ([12,4,15], 'P0', '現実の人の思考・判断・会話の頻度の錨(第240・親一次読み): 思考の切り替わり 6.5 回/分=約 6,240/日(Tseng & Poppenk 2020)・思考の分節 5 秒=約 4,000/日(Klinger 1978)・内言 26%(Heavey & Hurlburt 2008)・心のさまよい 46.9%・会話 覚醒の 27.9%(Mehl & Pennebaker 2003)・活動エピソード 13.9/日(CTUR)vs シミュ LLM 呼 6.9/日・会話 0.0021/日・計画ブロック 8.9/日=思考 580〜900 分の 1・会話ゼロ・活動切替だけ桁が合う → D-101'),
+ 'v2-r39-judgment-share-research.md':          ([12,27,21], 'P0', 'R-39 人の思考のうち判断の割合(第242): 直接測った研究は無い・最も近い一次値は Hofmann 2012(欲求あり 49.9%・葛藤 47%・抵抗 42%=派生 約 21%)・熟考の引き金は強度でなく葛藤(B=0.53 vs p=.17)・Type 1/2 の定義は速さでなく作業記憶(Evans & Stanovich 2013)・Type 2 は既定では発火しない(De Neys 正答 <20%・CRT 平均 1.24/3)が監視は常時走る・速い層に任せる条件は高妥当性環境+学習機会(Kahneman & Klein 2009)・系の最適個数は環境のばらつきとメタ推論コスト(Milli 2017)・FrugalGPT 最大 98% 削減・社会シミュでの毎決定ルーティング先行なし'),
+ 'v2-r40-jev-details-research.md':             ([27,29,31], 'P0', 'R-40 Jev の詳細(第242): 文脈長 64k/32k・レート 250,000 tok/s・1,200 req/min・1 リクエスト=1 state・バッチ API なし・timeout 10 s・日本語は精度低下明記・jaggedness ページ(context rot・Noul と Choice の算術非整合)・決定論の保証なし(温度/seed なし・std 0.0102 は uid 可変)・CEO が「ゼロショット分類器」に同意・アーキテクチャ非公開・MCA §2.3(f) ベンチマーク公表禁止・Telemetry 無制限・オンプレ不可・SLA なし・Vercel/Cloudflare 経由の入口・独立検証は小規模 2 件'),
  'v2-r2-llm-social-sim-fulltext-check.md':      ([25,22,27,23,28], 'P1', 'LLM 社会シミュ文献 12 件の本文実読の判定表(R-2)。lit 12 本の親。OASIS 超線形・事前登録の外部根拠・TRAILS-R の空白=D-75/D-70 の出所'),
  'v2-r23-primary-check-batch1.md':              ([22,25,21], 'P1', '出典 URL ゼロの答申 33 本の一次確認 第1批(設計書が引く 8 本・28 主張)。D-74(値を直す 4 件)の出所・写し検査の提案(R-23)'),
 }
@@ -132,6 +136,10 @@ OVERRIDE = {
  # 09-16 第202: サブ実読+親が 3 主張を原典で再確認(Goel 2016 PDF「on average」・Law in Silico HTML に precedent なし・Ruri カード 71.53<71.65)。Dunbar 1995(有料)・UE5 の不在は親未確認
  'v2-destination-choice-llm-research.md': ('B', 'サブ実読 12+抄録 3(2026-09-17・第232)+親確認 3(When Plausible §5.1 HTML・LLM-Move Table II/IV HTML・nightlife マスク=コード)。付録 B.5 の 3–5/γ・Honka・Zheng・Turpin は親未確認'),
  'v2-c10-initial-relations-research.md': ('B', 'サブ実読 8+読み取り器 4+要約 6(2026-09-17・第230)+親確認 3 件(Gilbert 2009 PDF・Zhao 2012 PDF・Li 2026 HTML)+実物確認 2(会話マネージャ・半減期の齟齬)。Dunbar 2020・内閣官房 R5 は親未確認'),
+ 'v2-jev-system-one-note.md': ('A', '親の一次読み(2026-09-18・第238): ブログ・docs 5 頁・評価ページ・adapter README 実読+二次 4 本。第242 で R-40 の訂正を反映'),
+ 'v2-thought-frequency-anchors-note.md': ('A', '親の一次読み(2026-09-18・第240): Tseng & Poppenk 2020 PMC 本文・Heavey & Hurlburt 2008 PDF・Mehl & Pennebaker 2003 Table 1・CTUR 2020 PDF は原典。Klinger 1978・Killingsworth 2010・Mehl 2007 は二次'),
+ 'v2-r39-judgment-share-research.md': ('B', 'サブ実読(PDF 6 本・2026-09-18・第242)+親確認 4 件(Hofmann/De Neys/Kahneman & Klein の抄録一致・Milli 2017 PDF 逐語一致)。Frederick 2005 Table 1・Evans & Stanovich Table 1・Klinger 2013 逐語は親未確認'),
+ 'v2-r40-jev-details-research.md': ('B', 'サブ実読(docs .md 全頁・HN・MCA・2026-09-18・第242)+親確認 8 件(models/state/jaggedness/primitives/constants の逐語・HN 3 コメント本文・MCA 3 条項・Every・Cloudflare)。Vercel changelog・cookbook std・OpenRouter 不在は親未確認'),
  'v2-r23-primary-check-batch3.md': ('B', 'サブ実読 約 30(本文 14・抄録 16・2026-09-17)+親確認 3 件(NCP-Bench 抄録・0.599^10・ISA 2013 cascade)。訂正 3 反映・15 未反映・空欄 21+8'),
  'v2-personality-traits-research.md': ('B', 'サブ実読(2026-09-17・第222)+親確認 3 件(川本 2015 PDF の N/M/SD/R²/性別係数・TIPI-J 2012 は大学生 902・Serapio-García 抄録)。Thielmann/Harari(有料)・Han 2025・Contreras 2026 は親未確認'),
  'v2-hobby-preference-research.md': ('B', 'サブ実読(2026-09-17・第221)+親確認 3 件(e-Stat API 再取得 86.3/91.4/37.4/43.4・井出安井 2003 7.1/6/0・47,965・φ 0.5268)。平均行動日数の式・CitySim は親未確認'),
