@@ -2103,12 +2103,12 @@ L -3.5 0
 " style="stroke: #898781; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="#m679a6a079a" x="172.368" y="85.858229" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
+       <use xlink:href="#m679a6a079a" x="172.368" y="78.443751" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_9">
       <!-- 09-10 seed 1  看板なし -->
-      <g style="fill: #52514e" transform="translate(70.335031 89.817702) scale(0.09 -0.09)">
+      <g style="fill: #52514e" transform="translate(70.335031 82.403224) scale(0.09 -0.09)">
        <defs>
         <path id="YuGothic-Regular-1c" d="M 934 825 
 Q 1153 403 1594 403 
@@ -2326,12 +2326,12 @@ z
     <g id="ytick_2">
      <g id="line2d_16">
       <g>
-       <use xlink:href="#m679a6a079a" x="172.368" y="146.609115" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
+       <use xlink:href="#m679a6a079a" x="172.368" y="115.276965" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_10">
       <!-- 09-10 seed 2  看板なし -->
-      <g style="fill: #52514e" transform="translate(70.335031 150.568587) scale(0.09 -0.09)">
+      <g style="fill: #52514e" transform="translate(70.335031 119.236438) scale(0.09 -0.09)">
        <defs>
         <path id="YuGothic-Regular-15" d="M 459 3597 
 Q 588 4228 988 4541 
@@ -2379,12 +2379,12 @@ z
     <g id="ytick_3">
      <g id="line2d_17">
       <g>
-       <use xlink:href="#m679a6a079a" x="172.368" y="207.36" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
+       <use xlink:href="#m679a6a079a" x="172.368" y="152.110179" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_11">
       <!-- 09-17 seed 1  看板なし -->
-      <g style="fill: #52514e" transform="translate(70.335031 211.319473) scale(0.09 -0.09)">
+      <g style="fill: #52514e" transform="translate(70.335031 156.069652) scale(0.09 -0.09)">
        <defs>
         <path id="YuGothic-Regular-1a" d="M 3091 4728 
 L 3091 4406 
@@ -2423,12 +2423,12 @@ z
     <g id="ytick_4">
      <g id="line2d_18">
       <g>
-       <use xlink:href="#m679a6a079a" x="172.368" y="268.110885" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
+       <use xlink:href="#m679a6a079a" x="172.368" y="188.943393" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_12">
       <!-- 09-17 seed 1  p_see 0.30 -->
-      <g style="fill: #52514e" transform="translate(62.087375 272.070358) scale(0.09 -0.09)">
+      <g style="fill: #52514e" transform="translate(62.087375 192.902866) scale(0.09 -0.09)">
        <defs>
         <path id="YuGothic-Regular-42" d="M 3200 -525 
 L 3200 -769 
@@ -2500,12 +2500,12 @@ z
     <g id="ytick_5">
      <g id="line2d_19">
       <g>
-       <use xlink:href="#m679a6a079a" x="172.368" y="328.861771" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
+       <use xlink:href="#m679a6a079a" x="172.368" y="225.776607" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_13">
       <!-- 09-17 seed 1  p_see 0.14 -->
-      <g style="fill: #52514e" transform="translate(62.087375 332.821244) scale(0.09 -0.09)">
+      <g style="fill: #52514e" transform="translate(62.087375 229.73608) scale(0.09 -0.09)">
        <defs>
         <path id="YuGothic-Regular-17" d="M 2553 4788 
 L 2553 1572 
@@ -2557,6 +2557,108 @@ z
       </g>
      </g>
     </g>
+    <g id="ytick_6">
+     <g id="line2d_20">
+      <g>
+       <use xlink:href="#m679a6a079a" x="172.368" y="262.609821" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_14">
+      <!-- 09-17 seed 2  看板なし -->
+      <g style="fill: #52514e" transform="translate(70.335031 266.569294) scale(0.09 -0.09)">
+       <use xlink:href="#YuGothic-Regular-13"/>
+       <use xlink:href="#YuGothic-Regular-1c" transform="translate(55.609375 0)"/>
+       <use xlink:href="#YuGothic-Regular-10" transform="translate(111.21875 0)"/>
+       <use xlink:href="#YuGothic-Regular-14" transform="translate(154.71875 0)"/>
+       <use xlink:href="#YuGothic-Regular-1a" transform="translate(210.328125 0)"/>
+       <use xlink:href="#YuGothic-Regular-3" transform="translate(265.9375 0)"/>
+       <use xlink:href="#YuGothic-Regular-56" transform="translate(294.453125 0)"/>
+       <use xlink:href="#YuGothic-Regular-48" transform="translate(345.328125 0)"/>
+       <use xlink:href="#YuGothic-Regular-48" transform="translate(401.140625 0)"/>
+       <use xlink:href="#YuGothic-Regular-47" transform="translate(456.953125 0)"/>
+       <use xlink:href="#YuGothic-Regular-3" transform="translate(514.765625 0)"/>
+       <use xlink:href="#YuGothic-Regular-15" transform="translate(543.28125 0)"/>
+       <use xlink:href="#YuGothic-Regular-3" transform="translate(598.890625 0)"/>
+       <use xlink:href="#YuGothic-Regular-3" transform="translate(627.40625 0)"/>
+       <use xlink:href="#YuGothic-Regular-605" transform="translate(655.921875 0)"/>
+       <use xlink:href="#YuGothic-Regular-d5a" transform="translate(755.921875 0)"/>
+       <use xlink:href="#YuGothic-Regular-375" transform="translate(855.921875 0)"/>
+       <use xlink:href="#YuGothic-Regular-362" transform="translate(955.921875 0)"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_7">
+     <g id="line2d_21">
+      <g>
+       <use xlink:href="#m679a6a079a" x="172.368" y="299.443035" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_15">
+      <!-- 09-17 seed 2  p_see 0.30 -->
+      <g style="fill: #52514e" transform="translate(62.087375 303.402508) scale(0.09 -0.09)">
+       <use xlink:href="#YuGothic-Regular-13"/>
+       <use xlink:href="#YuGothic-Regular-1c" transform="translate(55.609375 0)"/>
+       <use xlink:href="#YuGothic-Regular-10" transform="translate(111.21875 0)"/>
+       <use xlink:href="#YuGothic-Regular-14" transform="translate(154.71875 0)"/>
+       <use xlink:href="#YuGothic-Regular-1a" transform="translate(210.328125 0)"/>
+       <use xlink:href="#YuGothic-Regular-3" transform="translate(265.9375 0)"/>
+       <use xlink:href="#YuGothic-Regular-56" transform="translate(294.453125 0)"/>
+       <use xlink:href="#YuGothic-Regular-48" transform="translate(345.328125 0)"/>
+       <use xlink:href="#YuGothic-Regular-48" transform="translate(401.140625 0)"/>
+       <use xlink:href="#YuGothic-Regular-47" transform="translate(456.953125 0)"/>
+       <use xlink:href="#YuGothic-Regular-3" transform="translate(514.765625 0)"/>
+       <use xlink:href="#YuGothic-Regular-15" transform="translate(543.28125 0)"/>
+       <use xlink:href="#YuGothic-Regular-3" transform="translate(598.890625 0)"/>
+       <use xlink:href="#YuGothic-Regular-3" transform="translate(627.40625 0)"/>
+       <use xlink:href="#YuGothic-Regular-53" transform="translate(655.921875 0)"/>
+       <use xlink:href="#YuGothic-Regular-42" transform="translate(713.9375 0)"/>
+       <use xlink:href="#YuGothic-Regular-56" transform="translate(763.9375 0)"/>
+       <use xlink:href="#YuGothic-Regular-48" transform="translate(814.8125 0)"/>
+       <use xlink:href="#YuGothic-Regular-48" transform="translate(870.625 0)"/>
+       <use xlink:href="#YuGothic-Regular-3" transform="translate(926.4375 0)"/>
+       <use xlink:href="#YuGothic-Regular-13" transform="translate(954.953125 0)"/>
+       <use xlink:href="#YuGothic-Regular-11" transform="translate(1010.5625 0)"/>
+       <use xlink:href="#YuGothic-Regular-16" transform="translate(1036.34375 0)"/>
+       <use xlink:href="#YuGothic-Regular-13" transform="translate(1091.953125 0)"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_8">
+     <g id="line2d_22">
+      <g>
+       <use xlink:href="#m679a6a079a" x="172.368" y="336.276249" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_16">
+      <!-- 09-17 seed 2  p_see 0.14 -->
+      <g style="fill: #52514e" transform="translate(62.087375 340.235722) scale(0.09 -0.09)">
+       <use xlink:href="#YuGothic-Regular-13"/>
+       <use xlink:href="#YuGothic-Regular-1c" transform="translate(55.609375 0)"/>
+       <use xlink:href="#YuGothic-Regular-10" transform="translate(111.21875 0)"/>
+       <use xlink:href="#YuGothic-Regular-14" transform="translate(154.71875 0)"/>
+       <use xlink:href="#YuGothic-Regular-1a" transform="translate(210.328125 0)"/>
+       <use xlink:href="#YuGothic-Regular-3" transform="translate(265.9375 0)"/>
+       <use xlink:href="#YuGothic-Regular-56" transform="translate(294.453125 0)"/>
+       <use xlink:href="#YuGothic-Regular-48" transform="translate(345.328125 0)"/>
+       <use xlink:href="#YuGothic-Regular-48" transform="translate(401.140625 0)"/>
+       <use xlink:href="#YuGothic-Regular-47" transform="translate(456.953125 0)"/>
+       <use xlink:href="#YuGothic-Regular-3" transform="translate(514.765625 0)"/>
+       <use xlink:href="#YuGothic-Regular-15" transform="translate(543.28125 0)"/>
+       <use xlink:href="#YuGothic-Regular-3" transform="translate(598.890625 0)"/>
+       <use xlink:href="#YuGothic-Regular-3" transform="translate(627.40625 0)"/>
+       <use xlink:href="#YuGothic-Regular-53" transform="translate(655.921875 0)"/>
+       <use xlink:href="#YuGothic-Regular-42" transform="translate(713.9375 0)"/>
+       <use xlink:href="#YuGothic-Regular-56" transform="translate(763.9375 0)"/>
+       <use xlink:href="#YuGothic-Regular-48" transform="translate(814.8125 0)"/>
+       <use xlink:href="#YuGothic-Regular-48" transform="translate(870.625 0)"/>
+       <use xlink:href="#YuGothic-Regular-3" transform="translate(926.4375 0)"/>
+       <use xlink:href="#YuGothic-Regular-13" transform="translate(954.953125 0)"/>
+       <use xlink:href="#YuGothic-Regular-11" transform="translate(1010.5625 0)"/>
+       <use xlink:href="#YuGothic-Regular-14" transform="translate(1036.34375 0)"/>
+       <use xlink:href="#YuGothic-Regular-17" transform="translate(1091.953125 0)"/>
+      </g>
+     </g>
+    </g>
    </g>
    <g id="patch_3">
     <path d="M 336.103776 361.728 
@@ -2566,17 +2668,17 @@ L 336.103776 52.992
 z
 " clip-path="url(#pb09cf2a961)" style="fill: #e1e0d9; stroke: #e1e0d9; stroke-linejoin: miter"/>
    </g>
-   <g id="line2d_20">
+   <g id="line2d_23">
     <path d="M 352.674 361.728 
 L 352.674 52.992 
 " clip-path="url(#pb09cf2a961)" style="fill: none; stroke: #c3c2b7; stroke-width: 0.9; stroke-linecap: square"/>
    </g>
-   <g id="line2d_21">
+   <g id="line2d_24">
     <path d="M 252.853372 361.728 
 L 252.853372 52.992 
 " clip-path="url(#pb09cf2a961)" style="fill: none; stroke: #e34948; stroke-width: 1.2; stroke-linecap: square"/>
    </g>
-   <g id="line2d_22">
+   <g id="line2d_25">
     <path d="M 452.494628 361.728 
 L 452.494628 52.992 
 " clip-path="url(#pb09cf2a961)" style="fill: none; stroke: #e34948; stroke-width: 1.2; stroke-linecap: square"/>
@@ -2594,46 +2696,70 @@ L 532.98 361.728
    <g id="patch_6">
     <path d="M 352.674 67.025455 
 L 219.114 67.025455 
-L 219.114 104.691004 
-L 352.674 104.691004 
+L 219.114 89.862047 
+L 352.674 89.862047 
 z
 " clip-path="url(#pb09cf2a961)" style="fill: #898781; stroke: #fcfcfb; stroke-linejoin: miter"/>
    </g>
    <g id="patch_7">
-    <path d="M 352.674 127.77634 
-L 250.657318 127.77634 
-L 250.657318 165.441889 
-L 352.674 165.441889 
+    <path d="M 352.674 103.858669 
+L 250.657318 103.858669 
+L 250.657318 126.695261 
+L 352.674 126.695261 
 z
 " clip-path="url(#pb09cf2a961)" style="fill: #898781; stroke: #fcfcfb; stroke-linejoin: miter"/>
    </g>
    <g id="patch_8">
-    <path d="M 352.674 188.527226 
-L 403.901946 188.527226 
-L 403.901946 226.192774 
-L 352.674 226.192774 
+    <path d="M 352.674 140.691883 
+L 403.901946 140.691883 
+L 403.901946 163.528475 
+L 352.674 163.528475 
 z
 " clip-path="url(#pb09cf2a961)" style="fill: #2a78d6; stroke: #fcfcfb; stroke-linejoin: miter"/>
    </g>
    <g id="patch_9">
-    <path d="M 352.674 249.278111 
-L 400.158673 249.278111 
-L 400.158673 286.94366 
-L 352.674 286.94366 
+    <path d="M 352.674 177.525097 
+L 400.158673 177.525097 
+L 400.158673 200.361689 
+L 352.674 200.361689 
 z
 " clip-path="url(#pb09cf2a961)" style="fill: #2a78d6; stroke: #fcfcfb; stroke-linejoin: miter"/>
    </g>
    <g id="patch_10">
-    <path d="M 352.674 310.028996 
-L 413.504691 310.028996 
-L 413.504691 347.694545 
+    <path d="M 352.674 214.358311 
+L 413.504691 214.358311 
+L 413.504691 237.194903 
+L 352.674 237.194903 
+z
+" clip-path="url(#pb09cf2a961)" style="fill: #2a78d6; stroke: #fcfcfb; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 352.674 251.191525 
+L 380.274404 251.191525 
+L 380.274404 274.028117 
+L 352.674 274.028117 
+z
+" clip-path="url(#pb09cf2a961)" style="fill: #2a78d6; stroke: #fcfcfb; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 352.674 288.024739 
+L 366.908422 288.024739 
+L 366.908422 310.861331 
+L 352.674 310.861331 
+z
+" clip-path="url(#pb09cf2a961)" style="fill: #2a78d6; stroke: #fcfcfb; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_13">
+    <path d="M 352.674 324.857953 
+L 358.483561 324.857953 
+L 358.483561 347.694545 
 L 352.674 347.694545 
 z
 " clip-path="url(#pb09cf2a961)" style="fill: #2a78d6; stroke: #fcfcfb; stroke-linejoin: miter"/>
    </g>
-   <g id="text_14">
+   <g id="text_17">
     <!-- AD1 の線 ±1 pp -->
-    <g style="fill: #e34948" transform="translate(455.494628 51.00327) scale(0.078 -0.078)">
+    <g style="fill: #e34948" transform="translate(455.494628 58.417748) scale(0.078 -0.078)">
      <defs>
       <path id="YuGothic-Regular-24" d="M 2350 4806 
 L 3891 141 
@@ -2877,7 +3003,7 @@ z
      <use xlink:href="#YuGothic-Regular-53" transform="translate(694.1875 0)"/>
     </g>
    </g>
-   <g id="text_15">
+   <g id="text_18">
     <!-- (a) 看板を消す/見る頻度を下げたときの購入の動き -->
     <g style="fill: #0b0b0b" transform="translate(172.368 46.992) scale(0.1 -0.1)">
      <defs>
@@ -4503,9 +4629,9 @@ z
      <use xlink:href="#YuGothic-Bold-358" transform="translate(2214.109375 0)"/>
     </g>
    </g>
-   <g id="text_16">
+   <g id="text_19">
     <!-- -1.34 -->
-    <g style="fill: #0b0b0b" transform="translate(194.280812 89.049245) scale(0.084 -0.084)">
+    <g style="fill: #0b0b0b" transform="translate(194.280812 81.634767) scale(0.084 -0.084)">
      <use xlink:href="#YuGothic-Regular-10"/>
      <use xlink:href="#YuGothic-Regular-14" transform="translate(43.5 0)"/>
      <use xlink:href="#YuGothic-Regular-11" transform="translate(99.109375 0)"/>
@@ -4513,9 +4639,9 @@ z
      <use xlink:href="#YuGothic-Regular-17" transform="translate(180.5 0)"/>
     </g>
    </g>
-   <g id="text_17">
+   <g id="text_20">
     <!-- -1.02 -->
-    <g style="fill: #0b0b0b" transform="translate(225.824131 149.80013) scale(0.084 -0.084)">
+    <g style="fill: #0b0b0b" transform="translate(225.824131 118.467981) scale(0.084 -0.084)">
      <use xlink:href="#YuGothic-Regular-10"/>
      <use xlink:href="#YuGothic-Regular-14" transform="translate(43.5 0)"/>
      <use xlink:href="#YuGothic-Regular-11" transform="translate(99.109375 0)"/>
@@ -4523,9 +4649,9 @@ z
      <use xlink:href="#YuGothic-Regular-15" transform="translate(180.5 0)"/>
     </g>
    </g>
-   <g id="text_18">
+   <g id="text_21">
     <!-- +0.51 -->
-    <g style="fill: #0b0b0b" transform="translate(408.901946 210.551016) scale(0.084 -0.084)">
+    <g style="fill: #0b0b0b" transform="translate(408.901946 155.301195) scale(0.084 -0.084)">
      <defs>
       <path id="YuGothic-Regular-e" d="M 519 2081 
 L 2163 2081 
@@ -4550,9 +4676,9 @@ z
      <use xlink:href="#YuGothic-Regular-14" transform="translate(209.40625 0)"/>
     </g>
    </g>
-   <g id="text_19">
+   <g id="text_22">
     <!-- +0.48 -->
-    <g style="fill: #0b0b0b" transform="translate(405.158673 271.301901) scale(0.084 -0.084)">
+    <g style="fill: #0b0b0b" transform="translate(405.158673 192.134409) scale(0.084 -0.084)">
      <defs>
       <path id="YuGothic-Regular-1b" d="M 2144 2578 
 Q 2753 2309 2988 1978 
@@ -4603,9 +4729,9 @@ z
      <use xlink:href="#YuGothic-Regular-1b" transform="translate(209.40625 0)"/>
     </g>
    </g>
-   <g id="text_20">
+   <g id="text_23">
     <!-- +0.61 -->
-    <g style="fill: #0b0b0b" transform="translate(418.504691 332.052787) scale(0.084 -0.084)">
+    <g style="fill: #0b0b0b" transform="translate(418.504691 228.967623) scale(0.084 -0.084)">
      <defs>
       <path id="YuGothic-Regular-19" d="M 3041 4206 
 L 2656 4019 
@@ -4640,8 +4766,38 @@ z
      <use xlink:href="#YuGothic-Regular-14" transform="translate(209.40625 0)"/>
     </g>
    </g>
+   <g id="text_24">
+    <!-- +0.28 -->
+    <g style="fill: #0b0b0b" transform="translate(385.274404 265.800837) scale(0.084 -0.084)">
+     <use xlink:href="#YuGothic-Regular-e"/>
+     <use xlink:href="#YuGothic-Regular-13" transform="translate(72.40625 0)"/>
+     <use xlink:href="#YuGothic-Regular-11" transform="translate(128.015625 0)"/>
+     <use xlink:href="#YuGothic-Regular-15" transform="translate(153.796875 0)"/>
+     <use xlink:href="#YuGothic-Regular-1b" transform="translate(209.40625 0)"/>
+    </g>
+   </g>
+   <g id="text_25">
+    <!-- +0.14 -->
+    <g style="fill: #0b0b0b" transform="translate(371.908422 302.634051) scale(0.084 -0.084)">
+     <use xlink:href="#YuGothic-Regular-e"/>
+     <use xlink:href="#YuGothic-Regular-13" transform="translate(72.40625 0)"/>
+     <use xlink:href="#YuGothic-Regular-11" transform="translate(128.015625 0)"/>
+     <use xlink:href="#YuGothic-Regular-14" transform="translate(153.796875 0)"/>
+     <use xlink:href="#YuGothic-Regular-17" transform="translate(209.40625 0)"/>
+    </g>
+   </g>
+   <g id="text_26">
+    <!-- +0.06 -->
+    <g style="fill: #0b0b0b" transform="translate(363.483561 339.467265) scale(0.084 -0.084)">
+     <use xlink:href="#YuGothic-Regular-e"/>
+     <use xlink:href="#YuGothic-Regular-13" transform="translate(72.40625 0)"/>
+     <use xlink:href="#YuGothic-Regular-11" transform="translate(128.015625 0)"/>
+     <use xlink:href="#YuGothic-Regular-13" transform="translate(153.796875 0)"/>
+     <use xlink:href="#YuGothic-Regular-19" transform="translate(209.40625 0)"/>
+    </g>
+   </g>
    <g id="legend_1">
-    <g id="patch_11">
+    <g id="patch_14">
      <path d="M 180.468 339.046945 
 L 193.068 339.046945 
 L 193.068 332.746945 
@@ -4649,7 +4805,7 @@ L 180.468 332.746945
 z
 " style="fill: #898781; stroke: #898781; stroke-linejoin: miter"/>
     </g>
-    <g id="text_21">
+    <g id="text_27">
      <!-- 09-10 の腕(C7 期のコード・看板なし) -->
      <g style="fill: #52514e" transform="translate(200.268 339.046945) scale(0.09 -0.09)">
       <defs>
@@ -5063,7 +5219,7 @@ z
       <use xlink:href="#YuGothic-Regular-c" transform="translate(1685.421875 0)"/>
      </g>
     </g>
-    <g id="patch_12">
+    <g id="patch_15">
      <path d="M 180.468 352.546945 
 L 193.068 352.546945 
 L 193.068 346.246945 
@@ -5071,7 +5227,7 @@ L 180.468 346.246945
 z
 " style="fill: #2a78d6; stroke: #2a78d6; stroke-linejoin: miter"/>
     </g>
-    <g id="text_22">
+    <g id="text_28">
      <!-- 09-17 の腕(現行コード・注視ゲート) -->
      <g style="fill: #52514e" transform="translate(200.268 352.546945) scale(0.09 -0.09)">
       <defs>
@@ -5562,7 +5718,7 @@ z
      </g>
     </g>
    </g>
-   <g id="text_23">
+   <g id="text_29">
     <!-- seed 差 ±0.17 pp -->
     <g style="fill: #52514e" transform="translate(355.412523 238.311) rotate(-90) scale(0.076 -0.076)">
      <use xlink:href="#YuGothic-Regular-56"/>
@@ -5584,7 +5740,7 @@ z
    </g>
   </g>
   <g id="axes_2">
-   <g id="patch_13">
+   <g id="patch_16">
     <path d="M 627.052696 174.064941 
 L 893.592 174.064941 
 L 893.592 52.992 
@@ -5594,12 +5750,12 @@ z
    </g>
    <g id="matplotlib.axis_3">
     <g id="xtick_8">
-     <g id="line2d_23">
+     <g id="line2d_26">
       <g>
        <use xlink:href="#md0a4e669df" x="659.91829" y="174.064941" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_24">
+     <g id="text_30">
       <!-- 現行(p_see 1.0) -->
       <g style="fill: #52514e" transform="translate(630.673759 188.27998) scale(0.082 -0.082)">
        <use xlink:href="#YuGothic-Regular-773"/>
@@ -5619,12 +5775,12 @@ z
      </g>
     </g>
     <g id="xtick_9">
-     <g id="line2d_24">
+     <g id="line2d_27">
       <g>
        <use xlink:href="#md0a4e669df" x="726.854329" y="174.064941" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_25">
+     <g id="text_31">
       <!-- 看板なし -->
       <g style="fill: #52514e" transform="translate(710.454329 188.27998) scale(0.082 -0.082)">
        <use xlink:href="#YuGothic-Regular-605"/>
@@ -5635,12 +5791,12 @@ z
      </g>
     </g>
     <g id="xtick_10">
-     <g id="line2d_25">
+     <g id="line2d_28">
       <g>
        <use xlink:href="#md0a4e669df" x="793.790367" y="174.064941" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_26">
+     <g id="text_32">
       <!-- p_see 0.30 -->
       <g style="fill: #52514e" transform="translate(773.633101 188.27998) scale(0.082 -0.082)">
        <use xlink:href="#YuGothic-Regular-53"/>
@@ -5657,12 +5813,12 @@ z
      </g>
     </g>
     <g id="xtick_11">
-     <g id="line2d_26">
+     <g id="line2d_29">
       <g>
        <use xlink:href="#md0a4e669df" x="860.726405" y="174.064941" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_27">
+     <g id="text_33">
       <!-- p_see 0.14 -->
       <g style="fill: #52514e" transform="translate(840.56914 188.27998) scale(0.082 -0.082)">
        <use xlink:href="#YuGothic-Regular-53"/>
@@ -5680,36 +5836,36 @@ z
     </g>
    </g>
    <g id="matplotlib.axis_4">
-    <g id="ytick_6">
-     <g id="line2d_27">
+    <g id="ytick_9">
+     <g id="line2d_30">
       <path d="M 627.052696 174.064941 
 L 893.592 174.064941 
 " clip-path="url(#p35fc0f4dc2)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.7; stroke-linecap: square"/>
      </g>
-     <g id="line2d_28">
+     <g id="line2d_31">
       <g>
        <use xlink:href="#m679a6a079a" x="627.052696" y="174.064941" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_28">
+     <g id="text_34">
       <!-- 0 -->
       <g style="fill: #52514e" transform="translate(615.047852 178.024414) scale(0.09 -0.09)">
        <use xlink:href="#YuGothic-Regular-13"/>
       </g>
      </g>
     </g>
-    <g id="ytick_7">
-     <g id="line2d_29">
+    <g id="ytick_10">
+     <g id="line2d_32">
       <path d="M 627.052696 152.169516 
 L 893.592 152.169516 
 " clip-path="url(#p35fc0f4dc2)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.7; stroke-linecap: square"/>
      </g>
-     <g id="line2d_30">
+     <g id="line2d_33">
       <g>
        <use xlink:href="#m679a6a079a" x="627.052696" y="152.169516" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_29">
+     <g id="text_35">
       <!-- 25 -->
       <g style="fill: #52514e" transform="translate(610.043008 156.128989) scale(0.09 -0.09)">
        <use xlink:href="#YuGothic-Regular-15"/>
@@ -5717,18 +5873,18 @@ L 893.592 152.169516
       </g>
      </g>
     </g>
-    <g id="ytick_8">
-     <g id="line2d_31">
+    <g id="ytick_11">
+     <g id="line2d_34">
       <path d="M 627.052696 130.274092 
 L 893.592 130.274092 
 " clip-path="url(#p35fc0f4dc2)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.7; stroke-linecap: square"/>
      </g>
-     <g id="line2d_32">
+     <g id="line2d_35">
       <g>
        <use xlink:href="#m679a6a079a" x="627.052696" y="130.274092" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_30">
+     <g id="text_36">
       <!-- 50 -->
       <g style="fill: #52514e" transform="translate(610.043008 134.233564) scale(0.09 -0.09)">
        <use xlink:href="#YuGothic-Regular-18"/>
@@ -5736,18 +5892,18 @@ L 893.592 130.274092
       </g>
      </g>
     </g>
-    <g id="ytick_9">
-     <g id="line2d_33">
+    <g id="ytick_12">
+     <g id="line2d_36">
       <path d="M 627.052696 108.378667 
 L 893.592 108.378667 
 " clip-path="url(#p35fc0f4dc2)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.7; stroke-linecap: square"/>
      </g>
-     <g id="line2d_34">
+     <g id="line2d_37">
       <g>
        <use xlink:href="#m679a6a079a" x="627.052696" y="108.378667" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_31">
+     <g id="text_37">
       <!-- 75 -->
       <g style="fill: #52514e" transform="translate(610.043008 112.338139) scale(0.09 -0.09)">
        <use xlink:href="#YuGothic-Regular-1a"/>
@@ -5755,18 +5911,18 @@ L 893.592 108.378667
       </g>
      </g>
     </g>
-    <g id="ytick_10">
-     <g id="line2d_35">
+    <g id="ytick_13">
+     <g id="line2d_38">
       <path d="M 627.052696 86.483242 
 L 893.592 86.483242 
 " clip-path="url(#p35fc0f4dc2)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.7; stroke-linecap: square"/>
      </g>
-     <g id="line2d_36">
+     <g id="line2d_39">
       <g>
        <use xlink:href="#m679a6a079a" x="627.052696" y="86.483242" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_32">
+     <g id="text_38">
       <!-- 100 -->
       <g style="fill: #52514e" transform="translate(605.038164 90.442714) scale(0.09 -0.09)">
        <use xlink:href="#YuGothic-Regular-14"/>
@@ -5775,18 +5931,18 @@ L 893.592 86.483242
       </g>
      </g>
     </g>
-    <g id="ytick_11">
-     <g id="line2d_37">
+    <g id="ytick_14">
+     <g id="line2d_40">
       <path d="M 627.052696 64.587817 
 L 893.592 64.587817 
 " clip-path="url(#p35fc0f4dc2)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.7; stroke-linecap: square"/>
      </g>
-     <g id="line2d_38">
+     <g id="line2d_41">
       <g>
        <use xlink:href="#m679a6a079a" x="627.052696" y="64.587817" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_33">
+     <g id="text_39">
       <!-- 125 -->
       <g style="fill: #52514e" transform="translate(605.038164 68.54729) scale(0.09 -0.09)">
        <use xlink:href="#YuGothic-Regular-14"/>
@@ -5795,7 +5951,7 @@ L 893.592 64.587817
       </g>
      </g>
     </g>
-    <g id="text_34">
+    <g id="text_40">
      <!-- 呼 -->
      <g style="fill: #52514e" transform="translate(599.836993 118.528471) rotate(-90) scale(0.1 -0.1)">
       <defs>
@@ -5902,17 +6058,17 @@ z
      </g>
     </g>
    </g>
-   <g id="patch_14">
+   <g id="patch_17">
     <path d="M 627.052696 174.064941 
 L 627.052696 52.992 
 " style="fill: none; stroke: #c3c2b7; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
-   <g id="patch_15">
+   <g id="patch_18">
     <path d="M 627.052696 174.064941 
 L 893.592 174.064941 
 " style="fill: none; stroke: #c3c2b7; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
-   <g id="patch_16">
+   <g id="patch_19">
     <path d="M 639.168119 174.064941 
 L 680.668462 174.064941 
 L 680.668462 152.169516 
@@ -5920,7 +6076,7 @@ L 639.168119 152.169516
 z
 " clip-path="url(#p35fc0f4dc2)" style="fill: #2a78d6; stroke: #fcfcfb; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_17">
+   <g id="patch_20">
     <path d="M 706.104157 174.064941 
 L 747.604501 174.064941 
 L 747.604501 79.476706 
@@ -5928,7 +6084,7 @@ L 706.104157 79.476706
 z
 " clip-path="url(#p35fc0f4dc2)" style="fill: #2a78d6; stroke: #fcfcfb; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_18">
+   <g id="patch_21">
     <path d="M 773.040195 174.064941 
 L 814.540539 174.064941 
 L 814.540539 113.633569 
@@ -5936,7 +6092,7 @@ L 773.040195 113.633569
 z
 " clip-path="url(#p35fc0f4dc2)" style="fill: #2a78d6; stroke: #fcfcfb; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_19">
+   <g id="patch_22">
     <path d="M 839.976233 174.064941 
 L 881.476577 174.064941 
 L 881.476577 132.901542 
@@ -5944,14 +6100,14 @@ L 839.976233 132.901542
 z
 " clip-path="url(#p35fc0f4dc2)" style="fill: #2a78d6; stroke: #fcfcfb; stroke-linejoin: miter"/>
    </g>
-   <g id="text_35">
+   <g id="text_41">
     <!-- 25 -->
     <g style="fill: #0b0b0b" transform="translate(655.358322 148.184555) scale(0.082 -0.082)">
      <use xlink:href="#YuGothic-Regular-15"/>
      <use xlink:href="#YuGothic-Regular-18" transform="translate(55.609375 0)"/>
     </g>
    </g>
-   <g id="text_36">
+   <g id="text_42">
     <!-- 108 -->
     <g style="fill: #0b0b0b" transform="translate(720.014376 75.491745) scale(0.082 -0.082)">
      <use xlink:href="#YuGothic-Regular-14"/>
@@ -5959,21 +6115,21 @@ z
      <use xlink:href="#YuGothic-Regular-1b" transform="translate(111.21875 0)"/>
     </g>
    </g>
-   <g id="text_37">
+   <g id="text_43">
     <!-- 69 -->
     <g style="fill: #0b0b0b" transform="translate(789.230398 109.648608) scale(0.082 -0.082)">
      <use xlink:href="#YuGothic-Regular-19"/>
      <use xlink:href="#YuGothic-Regular-1c" transform="translate(55.609375 0)"/>
     </g>
    </g>
-   <g id="text_38">
+   <g id="text_44">
     <!-- 47 -->
     <g style="fill: #0b0b0b" transform="translate(856.166436 128.916582) scale(0.082 -0.082)">
      <use xlink:href="#YuGothic-Regular-17"/>
      <use xlink:href="#YuGothic-Regular-1a" transform="translate(55.609375 0)"/>
     </g>
    </g>
-   <g id="text_39">
+   <g id="text_45">
     <!-- (b) 会話の呼数(09-17 seed 1) -->
     <g style="fill: #0b0b0b" transform="translate(627.052696 46.992) scale(0.1 -0.1)">
      <defs>
@@ -6692,7 +6848,7 @@ z
    </g>
   </g>
   <g id="axes_3">
-   <g id="patch_20">
+   <g id="patch_23">
     <path d="M 627.052696 361.728 
 L 893.592 361.728 
 L 893.592 240.655059 
@@ -6702,12 +6858,12 @@ z
    </g>
    <g id="matplotlib.axis_5">
     <g id="xtick_12">
-     <g id="line2d_39">
+     <g id="line2d_42">
       <g>
        <use xlink:href="#md0a4e669df" x="659.91829" y="361.728" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_40">
+     <g id="text_46">
       <!-- 現行(p_see 1.0) -->
       <g style="fill: #52514e" transform="translate(630.673759 375.943039) scale(0.082 -0.082)">
        <use xlink:href="#YuGothic-Regular-773"/>
@@ -6727,12 +6883,12 @@ z
      </g>
     </g>
     <g id="xtick_13">
-     <g id="line2d_40">
+     <g id="line2d_43">
       <g>
        <use xlink:href="#md0a4e669df" x="726.854329" y="361.728" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_41">
+     <g id="text_47">
       <!-- 看板なし -->
       <g style="fill: #52514e" transform="translate(710.454329 375.943039) scale(0.082 -0.082)">
        <use xlink:href="#YuGothic-Regular-605"/>
@@ -6743,12 +6899,12 @@ z
      </g>
     </g>
     <g id="xtick_14">
-     <g id="line2d_41">
+     <g id="line2d_44">
       <g>
        <use xlink:href="#md0a4e669df" x="793.790367" y="361.728" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_42">
+     <g id="text_48">
       <!-- p_see 0.30 -->
       <g style="fill: #52514e" transform="translate(773.633101 375.943039) scale(0.082 -0.082)">
        <use xlink:href="#YuGothic-Regular-53"/>
@@ -6765,12 +6921,12 @@ z
      </g>
     </g>
     <g id="xtick_15">
-     <g id="line2d_42">
+     <g id="line2d_45">
       <g>
        <use xlink:href="#md0a4e669df" x="860.726405" y="361.728" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_43">
+     <g id="text_49">
       <!-- p_see 0.14 -->
       <g style="fill: #52514e" transform="translate(840.56914 375.943039) scale(0.082 -0.082)">
        <use xlink:href="#YuGothic-Regular-53"/>
@@ -6788,79 +6944,79 @@ z
     </g>
    </g>
    <g id="matplotlib.axis_6">
-    <g id="ytick_12">
-     <g id="line2d_43">
+    <g id="ytick_15">
+     <g id="line2d_46">
       <path d="M 627.052696 361.728 
 L 893.592 361.728 
 " clip-path="url(#pf7c35275ca)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.7; stroke-linecap: square"/>
      </g>
-     <g id="line2d_44">
+     <g id="line2d_47">
       <g>
        <use xlink:href="#m679a6a079a" x="627.052696" y="361.728" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_44">
+     <g id="text_50">
       <!-- 0 -->
       <g style="fill: #52514e" transform="translate(615.047852 365.687473) scale(0.09 -0.09)">
        <use xlink:href="#YuGothic-Regular-13"/>
       </g>
      </g>
     </g>
-    <g id="ytick_13">
-     <g id="line2d_45">
+    <g id="ytick_16">
+     <g id="line2d_48">
       <path d="M 627.052696 328.827172 
 L 893.592 328.827172 
 " clip-path="url(#pf7c35275ca)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.7; stroke-linecap: square"/>
      </g>
-     <g id="line2d_46">
+     <g id="line2d_49">
       <g>
        <use xlink:href="#m679a6a079a" x="627.052696" y="328.827172" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_45">
+     <g id="text_51">
       <!-- 2 -->
       <g style="fill: #52514e" transform="translate(615.047852 332.786645) scale(0.09 -0.09)">
        <use xlink:href="#YuGothic-Regular-15"/>
       </g>
      </g>
     </g>
-    <g id="ytick_14">
-     <g id="line2d_47">
+    <g id="ytick_17">
+     <g id="line2d_50">
       <path d="M 627.052696 295.926344 
 L 893.592 295.926344 
 " clip-path="url(#pf7c35275ca)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.7; stroke-linecap: square"/>
      </g>
-     <g id="line2d_48">
+     <g id="line2d_51">
       <g>
        <use xlink:href="#m679a6a079a" x="627.052696" y="295.926344" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_46">
+     <g id="text_52">
       <!-- 4 -->
       <g style="fill: #52514e" transform="translate(615.047852 299.885817) scale(0.09 -0.09)">
        <use xlink:href="#YuGothic-Regular-17"/>
       </g>
      </g>
     </g>
-    <g id="ytick_15">
-     <g id="line2d_49">
+    <g id="ytick_18">
+     <g id="line2d_52">
       <path d="M 627.052696 263.025516 
 L 893.592 263.025516 
 " clip-path="url(#pf7c35275ca)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.7; stroke-linecap: square"/>
      </g>
-     <g id="line2d_50">
+     <g id="line2d_53">
       <g>
        <use xlink:href="#m679a6a079a" x="627.052696" y="263.025516" style="fill: #898781; stroke: #898781; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="text_47">
+     <g id="text_53">
       <!-- 6 -->
       <g style="fill: #52514e" transform="translate(615.047852 266.984989) scale(0.09 -0.09)">
        <use xlink:href="#YuGothic-Regular-19"/>
       </g>
      </g>
     </g>
-    <g id="text_48">
+    <g id="text_54">
      <!-- % -->
      <g style="fill: #52514e" transform="translate(609.84668 305.200123) rotate(-90) scale(0.1 -0.1)">
       <defs>
@@ -6908,17 +7064,17 @@ z
      </g>
     </g>
    </g>
-   <g id="patch_21">
+   <g id="patch_24">
     <path d="M 627.052696 361.728 
 L 627.052696 240.655059 
 " style="fill: none; stroke: #c3c2b7; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
-   <g id="patch_22">
+   <g id="patch_25">
     <path d="M 627.052696 361.728 
 L 893.592 361.728 
 " style="fill: none; stroke: #c3c2b7; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
-   <g id="patch_23">
+   <g id="patch_26">
     <path d="M 639.168119 361.728 
 L 680.668462 361.728 
 L 680.668462 289.696572 
@@ -6926,7 +7082,7 @@ L 639.168119 289.696572
 z
 " clip-path="url(#pf7c35275ca)" style="fill: #2a78d6; stroke: #fcfcfb; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_24">
+   <g id="patch_27">
     <path d="M 706.104157 361.728 
 L 747.604501 361.728 
 L 747.604501 267.139765 
@@ -6934,7 +7090,7 @@ L 706.104157 267.139765
 z
 " clip-path="url(#pf7c35275ca)" style="fill: #2a78d6; stroke: #fcfcfb; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_25">
+   <g id="patch_28">
     <path d="M 773.040195 361.728 
 L 814.540539 361.728 
 L 814.540539 273.585037 
@@ -6942,7 +7098,7 @@ L 773.040195 273.585037
 z
 " clip-path="url(#pf7c35275ca)" style="fill: #2a78d6; stroke: #fcfcfb; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_26">
+   <g id="patch_29">
     <path d="M 839.976233 361.728 
 L 881.476577 361.728 
 L 881.476577 270.836173 
@@ -6950,7 +7106,7 @@ L 839.976233 270.836173
 z
 " clip-path="url(#pf7c35275ca)" style="fill: #2a78d6; stroke: #fcfcfb; stroke-linejoin: miter"/>
    </g>
-   <g id="text_49">
+   <g id="text_55">
     <!-- 4.38% -->
     <g style="fill: #0b0b0b" transform="translate(648.734259 285.711611) scale(0.082 -0.082)">
      <use xlink:href="#YuGothic-Regular-17"/>
@@ -6960,7 +7116,7 @@ z
      <use xlink:href="#YuGothic-Regular-8" transform="translate(192.609375 0)"/>
     </g>
    </g>
-   <g id="text_50">
+   <g id="text_56">
     <!-- 5.75% -->
     <g style="fill: #0b0b0b" transform="translate(715.670297 263.154804) scale(0.082 -0.082)">
      <use xlink:href="#YuGothic-Regular-18"/>
@@ -6970,7 +7126,7 @@ z
      <use xlink:href="#YuGothic-Regular-8" transform="translate(192.609375 0)"/>
     </g>
    </g>
-   <g id="text_51">
+   <g id="text_57">
     <!-- 5.36% -->
     <g style="fill: #0b0b0b" transform="translate(782.606336 269.600076) scale(0.082 -0.082)">
      <use xlink:href="#YuGothic-Regular-18"/>
@@ -6980,7 +7136,7 @@ z
      <use xlink:href="#YuGothic-Regular-8" transform="translate(192.609375 0)"/>
     </g>
    </g>
-   <g id="text_52">
+   <g id="text_58">
     <!-- 5.53% -->
     <g style="fill: #0b0b0b" transform="translate(849.542374 266.851212) scale(0.082 -0.082)">
      <use xlink:href="#YuGothic-Regular-18"/>
@@ -6990,7 +7146,7 @@ z
      <use xlink:href="#YuGothic-Regular-8" transform="translate(192.609375 0)"/>
     </g>
    </g>
-   <g id="text_53">
+   <g id="text_59">
     <!-- 実測注視率 0.304 -->
     <g style="fill: #52514e" transform="translate(765.051195 394.239133) scale(0.074 -0.074)">
      <defs>
@@ -7389,7 +7545,7 @@ z
      <use xlink:href="#YuGothic-Regular-17" transform="translate(721.125 0)"/>
     </g>
    </g>
-   <g id="text_54">
+   <g id="text_60">
     <!-- 実測注視率 0.138 -->
     <g style="fill: #52514e" transform="translate(831.987233 394.239133) scale(0.074 -0.074)">
      <use xlink:href="#YuGothic-Regular-8f0"/>
@@ -7405,7 +7561,7 @@ z
      <use xlink:href="#YuGothic-Regular-1b" transform="translate(721.125 0)"/>
     </g>
    </g>
-   <g id="text_55">
+   <g id="text_61">
     <!-- (c) 休憩シェア(09-17 seed 1) -->
     <g style="fill: #0b0b0b" transform="translate(627.052696 234.655059) scale(0.1 -0.1)">
      <defs>
@@ -7805,7 +7961,7 @@ z
     </g>
    </g>
   </g>
-  <g id="text_56">
+  <g id="text_62">
    <!-- 図6 看板(広告)は購入をどれだけ動かすか — 09-10 と 09-17 で符号が逆(AB6-AD-ZERO / AB6b-AD-NOTICE) -->
    <g style="fill: #0b0b0b" transform="translate(7.2576 17.470594) scale(0.12 -0.12)">
     <defs>
@@ -9167,8 +9323,8 @@ z
     <use xlink:href="#YuGothic-Bold-c" transform="translate(4973.015625 0)"/>
    </g>
   </g>
-  <g id="text_57">
-   <!-- 購入シェア = action_counts[購入] / n_texts(runner 出力)。AD1 の線 = パターン台帳 第3封印行 S3/AD1「広告全消去で絶対 1pp 未満」。帯 = 看板あり腕の seed 1 vs 2 の購入差。 -->
+  <g id="text_63">
+   <!-- 購入シェア = action_counts[購入] / n_texts(runner 出力)。AD1 の線 = パターン台帳 第3封印行 S3/AD1「広告全消去で絶対 1pp 未満」。帯 = 看板あり腕の seed 1 vs 2 の購入差(09-17 は 0.15 pp)。 -->
    <g style="fill: #52514e" transform="translate(7.2576 429.447619) scale(0.076 -0.076)">
     <defs>
      <path id="YuGothic-Regular-44" d="M 550 2597 
@@ -10923,6 +11079,75 @@ L 2484 3341
 L 2888 3341 
 z
 " transform="scale(0.015625)"/>
+     <path id="YuGothic-Regular-37a" d="M 4263 1275 
+Q 4209 2147 4209 3169 
+Q 3759 3138 3366 3138 
+Q 3053 3138 2744 3156 
+Q 2700 3156 2694 3200 
+Q 2675 3413 2675 3478 
+Q 3034 3447 3409 3447 
+Q 3788 3447 4203 3478 
+L 4209 4238 
+Q 4209 4544 4153 4781 
+Q 4422 4750 4563 4700 
+Q 4613 4678 4613 4634 
+Q 4613 4606 4594 4559 
+Q 4547 4469 4538 4225 
+Q 4522 3753 4522 3503 
+Q 5047 3550 5572 3675 
+Q 5613 3675 5619 3644 
+Q 5638 3566 5638 3425 
+Q 5638 3372 5606 3363 
+Q 5097 3244 4522 3200 
+Q 4534 1997 4588 1178 
+Q 5209 928 5706 522 
+Q 5728 503 5728 491 
+Q 5728 481 5719 456 
+Q 5666 334 5584 244 
+Q 5566 225 5556 225 
+Q 5547 225 5528 238 
+Q 5000 681 4588 853 
+Q 4559 -31 3544 -31 
+Q 3078 -31 2828 163 
+Q 2597 341 2597 647 
+Q 2597 1009 2928 1213 
+Q 3188 1372 3538 1372 
+Q 3888 1372 4263 1275 
+z
+M 4263 969 
+Q 3906 1103 3519 1103 
+Q 3203 1103 3028 966 
+Q 2872 844 2872 641 
+Q 2872 441 3078 334 
+Q 3250 244 3525 244 
+Q 4263 244 4263 847 
+Q 4263 928 4263 969 
+z
+M 1297 4738 
+Q 1569 4675 1694 4597 
+Q 1753 4559 1753 4516 
+Q 1753 4488 1731 4456 
+Q 1641 4319 1603 4150 
+Q 1297 2534 1297 1775 
+Q 1297 994 1369 566 
+Q 1469 822 1828 1659 
+Q 1878 1525 1950 1441 
+Q 1975 1416 1975 1388 
+Q 1975 1363 1956 1325 
+Q 1591 497 1559 297 
+Q 1544 184 1544 125 
+Q 1544 72 1553 34 
+Q 1559 6 1559 -6 
+Q 1559 -38 1534 -50 
+Q 1441 -100 1303 -125 
+Q 1294 -128 1288 -128 
+Q 1259 -128 1241 -81 
+Q 991 547 991 1756 
+Q 991 2494 1272 4150 
+Q 1309 4388 1309 4569 
+Q 1309 4666 1297 4738 
+z
+" transform="scale(0.015625)"/>
     </defs>
     <use xlink:href="#YuGothic-Regular-7ec"/>
     <use xlink:href="#YuGothic-Regular-cd8" transform="translate(100 0)"/>
@@ -11044,7 +11269,24 @@ z
     <use xlink:href="#YuGothic-Regular-7ec" transform="translate(7756.84375 0)"/>
     <use xlink:href="#YuGothic-Regular-cd8" transform="translate(7856.84375 0)"/>
     <use xlink:href="#YuGothic-Regular-82b" transform="translate(7956.84375 0)"/>
-    <use xlink:href="#YuGothic-Regular-27d" transform="translate(8056.84375 0)"/>
+    <use xlink:href="#YuGothic-Regular-b" transform="translate(8056.84375 0)"/>
+    <use xlink:href="#YuGothic-Regular-13" transform="translate(8095.46875 0)"/>
+    <use xlink:href="#YuGothic-Regular-1c" transform="translate(8151.078125 0)"/>
+    <use xlink:href="#YuGothic-Regular-10" transform="translate(8206.6875 0)"/>
+    <use xlink:href="#YuGothic-Regular-14" transform="translate(8250.1875 0)"/>
+    <use xlink:href="#YuGothic-Regular-1a" transform="translate(8305.796875 0)"/>
+    <use xlink:href="#YuGothic-Regular-3" transform="translate(8361.40625 0)"/>
+    <use xlink:href="#YuGothic-Regular-37a" transform="translate(8389.921875 0)"/>
+    <use xlink:href="#YuGothic-Regular-3" transform="translate(8489.921875 0)"/>
+    <use xlink:href="#YuGothic-Regular-13" transform="translate(8518.4375 0)"/>
+    <use xlink:href="#YuGothic-Regular-11" transform="translate(8574.046875 0)"/>
+    <use xlink:href="#YuGothic-Regular-14" transform="translate(8599.828125 0)"/>
+    <use xlink:href="#YuGothic-Regular-18" transform="translate(8655.4375 0)"/>
+    <use xlink:href="#YuGothic-Regular-3" transform="translate(8711.046875 0)"/>
+    <use xlink:href="#YuGothic-Regular-53" transform="translate(8739.5625 0)"/>
+    <use xlink:href="#YuGothic-Regular-53" transform="translate(8797.578125 0)"/>
+    <use xlink:href="#YuGothic-Regular-c" transform="translate(8855.59375 0)"/>
+    <use xlink:href="#YuGothic-Regular-27d" transform="translate(8894.21875 0)"/>
    </g>
    <!-- 09-10 = 5,000 体×1 日・呼 50,000/腕・C7 期のコード(計画実行層・W17 v2・C9・第214 修正の前)。09-17 = 同規模・呼 ≈36,900/腕・HEAD 667ceb5(注視ゲート - -signage-p-see・既定 1.0 は現行と 1 バイト同じ)。 -->
    <g style="fill: #52514e" transform="translate(7.2576 440.847619) scale(0.076 -0.076)">
@@ -12420,75 +12662,6 @@ L 684 4500
 Q 684 4538 728 4538 
 L 1625 4525 
 L 3006 4525 
-z
-" transform="scale(0.015625)"/>
-     <path id="YuGothic-Regular-37a" d="M 4263 1275 
-Q 4209 2147 4209 3169 
-Q 3759 3138 3366 3138 
-Q 3053 3138 2744 3156 
-Q 2700 3156 2694 3200 
-Q 2675 3413 2675 3478 
-Q 3034 3447 3409 3447 
-Q 3788 3447 4203 3478 
-L 4209 4238 
-Q 4209 4544 4153 4781 
-Q 4422 4750 4563 4700 
-Q 4613 4678 4613 4634 
-Q 4613 4606 4594 4559 
-Q 4547 4469 4538 4225 
-Q 4522 3753 4522 3503 
-Q 5047 3550 5572 3675 
-Q 5613 3675 5619 3644 
-Q 5638 3566 5638 3425 
-Q 5638 3372 5606 3363 
-Q 5097 3244 4522 3200 
-Q 4534 1997 4588 1178 
-Q 5209 928 5706 522 
-Q 5728 503 5728 491 
-Q 5728 481 5719 456 
-Q 5666 334 5584 244 
-Q 5566 225 5556 225 
-Q 5547 225 5528 238 
-Q 5000 681 4588 853 
-Q 4559 -31 3544 -31 
-Q 3078 -31 2828 163 
-Q 2597 341 2597 647 
-Q 2597 1009 2928 1213 
-Q 3188 1372 3538 1372 
-Q 3888 1372 4263 1275 
-z
-M 4263 969 
-Q 3906 1103 3519 1103 
-Q 3203 1103 3028 966 
-Q 2872 844 2872 641 
-Q 2872 441 3078 334 
-Q 3250 244 3525 244 
-Q 4263 244 4263 847 
-Q 4263 928 4263 969 
-z
-M 1297 4738 
-Q 1569 4675 1694 4597 
-Q 1753 4559 1753 4516 
-Q 1753 4488 1731 4456 
-Q 1641 4319 1603 4150 
-Q 1297 2534 1297 1775 
-Q 1297 994 1369 566 
-Q 1469 822 1828 1659 
-Q 1878 1525 1950 1441 
-Q 1975 1416 1975 1388 
-Q 1975 1363 1956 1325 
-Q 1591 497 1559 297 
-Q 1544 184 1544 125 
-Q 1544 72 1553 34 
-Q 1559 6 1559 -6 
-Q 1559 -38 1534 -50 
-Q 1441 -100 1303 -125 
-Q 1294 -128 1288 -128 
-Q 1259 -128 1241 -81 
-Q 991 547 991 1756 
-Q 991 2494 1272 4150 
-Q 1309 4388 1309 4569 
-Q 1309 4666 1297 4738 
 z
 " transform="scale(0.015625)"/>
      <path id="YuGothic-Regular-3ce" d="M 4491 4281 

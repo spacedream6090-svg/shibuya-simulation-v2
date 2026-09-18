@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="604.08pt" height="272.88pt" viewBox="0 0 604.08 272.88" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="604.08pt" height="359.28pt" viewBox="0 0 604.08 359.28" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
@@ -20,8 +20,8 @@
  </defs>
  <g id="figure_1">
   <g id="patch_1">
-   <path d="M 0 272.88 
-L 604.08 272.88 
+   <path d="M 0 359.28 
+L 604.08 359.28 
 L 604.08 0 
 L 0 0 
 z
@@ -4856,11 +4856,664 @@ z
       <use xlink:href="#YuGothic-Regular-1a" transform="translate(192.609375 0)"/>
      </g>
     </g>
+    <g id="patch_83">
+     <path d="M 6.0408 255.6 
+L 104.7072 255.6 
+L 104.7072 234 
+L 6.0408 234 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_82">
+     <!-- 09-17(現行) -->
+     <g style="fill: #0b0b0b" transform="translate(9.987456 248.066992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-13"/>
+      <use xlink:href="#YuGothic-Regular-1c" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-10" transform="translate(111.21875 0)"/>
+      <use xlink:href="#YuGothic-Regular-14" transform="translate(154.71875 0)"/>
+      <use xlink:href="#YuGothic-Regular-1a" transform="translate(210.328125 0)"/>
+      <use xlink:href="#YuGothic-Regular-b" transform="translate(265.9375 0)"/>
+      <use xlink:href="#YuGothic-Regular-773" transform="translate(304.5625 0)"/>
+      <use xlink:href="#YuGothic-Regular-7e8" transform="translate(404.5625 0)"/>
+      <use xlink:href="#YuGothic-Regular-c" transform="translate(504.5625 0)"/>
+     </g>
+    </g>
+    <g id="patch_84">
+     <path d="M 104.7072 255.6 
+L 140.585891 255.6 
+L 140.585891 234 
+L 104.7072 234 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_83">
+     <!-- 2 -->
+     <g style="fill: #0b0b0b" transform="translate(134.368337 248.066992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-15"/>
+     </g>
+    </g>
+    <g id="patch_85">
+     <path d="M 140.585891 255.6 
+L 257.191636 255.6 
+L 257.191636 234 
+L 140.585891 234 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_84">
+     <!-- 現行(p_see 1.0) -->
+     <g style="fill: #0b0b0b" transform="translate(145.250121 247.898855) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-773"/>
+      <use xlink:href="#YuGothic-Regular-7e8" transform="translate(100 0)"/>
+      <use xlink:href="#YuGothic-Regular-b" transform="translate(200 0)"/>
+      <use xlink:href="#YuGothic-Regular-53" transform="translate(238.625 0)"/>
+      <use xlink:href="#YuGothic-Regular-42" transform="translate(296.640625 0)"/>
+      <use xlink:href="#YuGothic-Regular-56" transform="translate(346.640625 0)"/>
+      <use xlink:href="#YuGothic-Regular-48" transform="translate(397.515625 0)"/>
+      <use xlink:href="#YuGothic-Regular-48" transform="translate(453.328125 0)"/>
+      <use xlink:href="#YuGothic-Regular-3" transform="translate(509.140625 0)"/>
+      <use xlink:href="#YuGothic-Regular-14" transform="translate(537.65625 0)"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(593.265625 0)"/>
+      <use xlink:href="#YuGothic-Regular-13" transform="translate(619.046875 0)"/>
+      <use xlink:href="#YuGothic-Regular-c" transform="translate(674.65625 0)"/>
+     </g>
+    </g>
+    <g id="patch_86">
+     <path d="M 257.191636 255.6 
+L 311.009673 255.6 
+L 311.009673 234 
+L 257.191636 234 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_85">
+     <!-- 43.96% -->
+     <g style="fill: #0b0b0b" transform="translate(280.615358 248.066992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-17"/>
+      <use xlink:href="#YuGothic-Regular-16" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(111.21875 0)"/>
+      <use xlink:href="#YuGothic-Regular-1c" transform="translate(137 0)"/>
+      <use xlink:href="#YuGothic-Regular-19" transform="translate(192.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-8" transform="translate(248.21875 0)"/>
+     </g>
+    </g>
+    <g id="patch_87">
+     <path d="M 311.009673 255.6 
+L 382.767055 255.6 
+L 382.767055 234 
+L 311.009673 234 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_86">
+     <!-- 0(基準) -->
+     <g style="fill: #0b0b0b" transform="translate(351.270853 248.066992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-13"/>
+      <use xlink:href="#YuGothic-Regular-b" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-62e" transform="translate(94.234375 0)"/>
+      <use xlink:href="#YuGothic-Regular-96c" transform="translate(194.234375 0)"/>
+      <use xlink:href="#YuGothic-Regular-c" transform="translate(294.234375 0)"/>
+     </g>
+    </g>
+    <g id="patch_88">
+     <path d="M 382.767055 255.6 
+L 436.585091 255.6 
+L 436.585091 234 
+L 382.767055 234 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_87">
+     <!-- 28 -->
+     <g style="fill: #0b0b0b" transform="translate(424.867557 248.066992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-15"/>
+      <use xlink:href="#YuGothic-Regular-1b" transform="translate(55.609375 0)"/>
+     </g>
+    </g>
+    <g id="patch_89">
+     <path d="M 436.585091 255.6 
+L 481.433455 255.6 
+L 481.433455 234 
+L 436.585091 234 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_88">
+     <!-- 4.33% -->
+     <g style="fill: #0b0b0b" transform="translate(456.180333 248.066992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-17"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-16" transform="translate(81.390625 0)"/>
+      <use xlink:href="#YuGothic-Regular-16" transform="translate(137 0)"/>
+      <use xlink:href="#YuGothic-Regular-8" transform="translate(192.609375 0)"/>
+     </g>
+    </g>
+    <g id="patch_90">
+     <path d="M 481.433455 255.6 
+L 544.221164 255.6 
+L 544.221164 234 
+L 481.433455 234 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_89">
+     <!-- 1.000 -->
+     <g style="fill: #0b0b0b" transform="translate(520.362843 248.066992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-14"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-13" transform="translate(81.390625 0)"/>
+      <use xlink:href="#YuGothic-Regular-13" transform="translate(137 0)"/>
+      <use xlink:href="#YuGothic-Regular-13" transform="translate(192.609375 0)"/>
+     </g>
+    </g>
+    <g id="patch_91">
+     <path d="M 544.221164 255.6 
+L 598.0392 255.6 
+L 598.0392 234 
+L 544.221164 234 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_90">
+     <!-- 920.8 -->
+     <g style="fill: #0b0b0b" transform="translate(574.539666 248.066992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-1c"/>
+      <use xlink:href="#YuGothic-Regular-15" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-13" transform="translate(111.21875 0)"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(166.828125 0)"/>
+      <use xlink:href="#YuGothic-Regular-1b" transform="translate(192.609375 0)"/>
+     </g>
+    </g>
+    <g id="patch_92">
+     <path d="M 6.0408 277.2 
+L 104.7072 277.2 
+L 104.7072 255.6 
+L 6.0408 255.6 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_91">
+     <!-- 09-17(現行) -->
+     <g style="fill: #0b0b0b" transform="translate(9.987456 269.666992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-13"/>
+      <use xlink:href="#YuGothic-Regular-1c" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-10" transform="translate(111.21875 0)"/>
+      <use xlink:href="#YuGothic-Regular-14" transform="translate(154.71875 0)"/>
+      <use xlink:href="#YuGothic-Regular-1a" transform="translate(210.328125 0)"/>
+      <use xlink:href="#YuGothic-Regular-b" transform="translate(265.9375 0)"/>
+      <use xlink:href="#YuGothic-Regular-773" transform="translate(304.5625 0)"/>
+      <use xlink:href="#YuGothic-Regular-7e8" transform="translate(404.5625 0)"/>
+      <use xlink:href="#YuGothic-Regular-c" transform="translate(504.5625 0)"/>
+     </g>
+    </g>
+    <g id="patch_93">
+     <path d="M 104.7072 277.2 
+L 140.585891 277.2 
+L 140.585891 255.6 
+L 104.7072 255.6 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_92">
+     <!-- 2 -->
+     <g style="fill: #0b0b0b" transform="translate(134.368337 269.666992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-15"/>
+     </g>
+    </g>
+    <g id="patch_94">
+     <path d="M 140.585891 277.2 
+L 257.191636 277.2 
+L 257.191636 255.6 
+L 140.585891 255.6 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_93">
+     <!-- 看板なし -->
+     <g style="fill: #0b0b0b" transform="translate(145.250121 269.666992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-605"/>
+      <use xlink:href="#YuGothic-Regular-d5a" transform="translate(100 0)"/>
+      <use xlink:href="#YuGothic-Regular-375" transform="translate(200 0)"/>
+      <use xlink:href="#YuGothic-Regular-362" transform="translate(300 0)"/>
+     </g>
+    </g>
+    <g id="patch_95">
+     <path d="M 257.191636 277.2 
+L 311.009673 277.2 
+L 311.009673 255.6 
+L 257.191636 255.6 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_94">
+     <!-- 44.24% -->
+     <g style="fill: #0b0b0b" transform="translate(280.615358 269.666992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-17"/>
+      <use xlink:href="#YuGothic-Regular-17" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(111.21875 0)"/>
+      <use xlink:href="#YuGothic-Regular-15" transform="translate(137 0)"/>
+      <use xlink:href="#YuGothic-Regular-17" transform="translate(192.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-8" transform="translate(248.21875 0)"/>
+     </g>
+    </g>
+    <g id="patch_96">
+     <path d="M 311.009673 277.2 
+L 382.767055 277.2 
+L 382.767055 255.6 
+L 311.009673 255.6 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_95">
+     <!-- +0.28 -->
+     <g style="fill: #0b0b0b" transform="translate(357.105416 269.666992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-e"/>
+      <use xlink:href="#YuGothic-Regular-13" transform="translate(72.40625 0)"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(128.015625 0)"/>
+      <use xlink:href="#YuGothic-Regular-15" transform="translate(153.796875 0)"/>
+      <use xlink:href="#YuGothic-Regular-1b" transform="translate(209.40625 0)"/>
+     </g>
+    </g>
+    <g id="patch_97">
+     <path d="M 382.767055 277.2 
+L 436.585091 277.2 
+L 436.585091 255.6 
+L 382.767055 255.6 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_96">
+     <!-- 89 -->
+     <g style="fill: #0b0b0b" transform="translate(424.867557 269.666992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-1b"/>
+      <use xlink:href="#YuGothic-Regular-1c" transform="translate(55.609375 0)"/>
+     </g>
+    </g>
+    <g id="patch_98">
+     <path d="M 436.585091 277.2 
+L 481.433455 277.2 
+L 481.433455 255.6 
+L 436.585091 255.6 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_97">
+     <!-- 5.92% -->
+     <g style="fill: #0b0b0b" transform="translate(456.180333 269.666992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-18"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-1c" transform="translate(81.390625 0)"/>
+      <use xlink:href="#YuGothic-Regular-15" transform="translate(137 0)"/>
+      <use xlink:href="#YuGothic-Regular-8" transform="translate(192.609375 0)"/>
+     </g>
+    </g>
+    <g id="patch_99">
+     <path d="M 481.433455 277.2 
+L 544.221164 277.2 
+L 544.221164 255.6 
+L 481.433455 255.6 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_98">
+     <!-- — -->
+     <g style="fill: #0b0b0b" transform="translate(533.109655 269.666992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-8c"/>
+     </g>
+    </g>
+    <g id="patch_100">
+     <path d="M 544.221164 277.2 
+L 598.0392 277.2 
+L 598.0392 255.6 
+L 544.221164 255.6 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_99">
+     <!-- 904.5 -->
+     <g style="fill: #0b0b0b" transform="translate(574.539666 269.666992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-1c"/>
+      <use xlink:href="#YuGothic-Regular-13" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-17" transform="translate(111.21875 0)"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(166.828125 0)"/>
+      <use xlink:href="#YuGothic-Regular-18" transform="translate(192.609375 0)"/>
+     </g>
+    </g>
+    <g id="patch_101">
+     <path d="M 6.0408 298.8 
+L 104.7072 298.8 
+L 104.7072 277.2 
+L 6.0408 277.2 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_100">
+     <!-- 09-17(現行) -->
+     <g style="fill: #0b0b0b" transform="translate(9.987456 291.266992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-13"/>
+      <use xlink:href="#YuGothic-Regular-1c" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-10" transform="translate(111.21875 0)"/>
+      <use xlink:href="#YuGothic-Regular-14" transform="translate(154.71875 0)"/>
+      <use xlink:href="#YuGothic-Regular-1a" transform="translate(210.328125 0)"/>
+      <use xlink:href="#YuGothic-Regular-b" transform="translate(265.9375 0)"/>
+      <use xlink:href="#YuGothic-Regular-773" transform="translate(304.5625 0)"/>
+      <use xlink:href="#YuGothic-Regular-7e8" transform="translate(404.5625 0)"/>
+      <use xlink:href="#YuGothic-Regular-c" transform="translate(504.5625 0)"/>
+     </g>
+    </g>
+    <g id="patch_102">
+     <path d="M 104.7072 298.8 
+L 140.585891 298.8 
+L 140.585891 277.2 
+L 104.7072 277.2 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_101">
+     <!-- 2 -->
+     <g style="fill: #0b0b0b" transform="translate(134.368337 291.266992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-15"/>
+     </g>
+    </g>
+    <g id="patch_103">
+     <path d="M 140.585891 298.8 
+L 257.191636 298.8 
+L 257.191636 277.2 
+L 140.585891 277.2 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_102">
+     <!-- p_see 0.30 -->
+     <g style="fill: #0b0b0b" transform="translate(145.250121 291.098855) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-53"/>
+      <use xlink:href="#YuGothic-Regular-42" transform="translate(58.015625 0)"/>
+      <use xlink:href="#YuGothic-Regular-56" transform="translate(108.015625 0)"/>
+      <use xlink:href="#YuGothic-Regular-48" transform="translate(158.890625 0)"/>
+      <use xlink:href="#YuGothic-Regular-48" transform="translate(214.703125 0)"/>
+      <use xlink:href="#YuGothic-Regular-3" transform="translate(270.515625 0)"/>
+      <use xlink:href="#YuGothic-Regular-13" transform="translate(299.03125 0)"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(354.640625 0)"/>
+      <use xlink:href="#YuGothic-Regular-16" transform="translate(380.421875 0)"/>
+      <use xlink:href="#YuGothic-Regular-13" transform="translate(436.03125 0)"/>
+     </g>
+    </g>
+    <g id="patch_104">
+     <path d="M 257.191636 298.8 
+L 311.009673 298.8 
+L 311.009673 277.2 
+L 257.191636 277.2 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_103">
+     <!-- 44.10% -->
+     <g style="fill: #0b0b0b" transform="translate(280.615358 291.266992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-17"/>
+      <use xlink:href="#YuGothic-Regular-17" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(111.21875 0)"/>
+      <use xlink:href="#YuGothic-Regular-14" transform="translate(137 0)"/>
+      <use xlink:href="#YuGothic-Regular-13" transform="translate(192.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-8" transform="translate(248.21875 0)"/>
+     </g>
+    </g>
+    <g id="patch_105">
+     <path d="M 311.009673 298.8 
+L 382.767055 298.8 
+L 382.767055 277.2 
+L 311.009673 277.2 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_104">
+     <!-- +0.14 -->
+     <g style="fill: #0b0b0b" transform="translate(357.105416 291.266992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-e"/>
+      <use xlink:href="#YuGothic-Regular-13" transform="translate(72.40625 0)"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(128.015625 0)"/>
+      <use xlink:href="#YuGothic-Regular-14" transform="translate(153.796875 0)"/>
+      <use xlink:href="#YuGothic-Regular-17" transform="translate(209.40625 0)"/>
+     </g>
+    </g>
+    <g id="patch_106">
+     <path d="M 382.767055 298.8 
+L 436.585091 298.8 
+L 436.585091 277.2 
+L 382.767055 277.2 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_105">
+     <!-- 44 -->
+     <g style="fill: #0b0b0b" transform="translate(424.867557 291.266992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-17"/>
+      <use xlink:href="#YuGothic-Regular-17" transform="translate(55.609375 0)"/>
+     </g>
+    </g>
+    <g id="patch_107">
+     <path d="M 436.585091 298.8 
+L 481.433455 298.8 
+L 481.433455 277.2 
+L 436.585091 277.2 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_106">
+     <!-- 5.61% -->
+     <g style="fill: #0b0b0b" transform="translate(456.180333 291.266992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-18"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-19" transform="translate(81.390625 0)"/>
+      <use xlink:href="#YuGothic-Regular-14" transform="translate(137 0)"/>
+      <use xlink:href="#YuGothic-Regular-8" transform="translate(192.609375 0)"/>
+     </g>
+    </g>
+    <g id="patch_108">
+     <path d="M 481.433455 298.8 
+L 544.221164 298.8 
+L 544.221164 277.2 
+L 481.433455 277.2 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_107">
+     <!-- 0.299 -->
+     <g style="fill: #0b0b0b" transform="translate(520.362843 291.266992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-13"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-15" transform="translate(81.390625 0)"/>
+      <use xlink:href="#YuGothic-Regular-1c" transform="translate(137 0)"/>
+      <use xlink:href="#YuGothic-Regular-1c" transform="translate(192.609375 0)"/>
+     </g>
+    </g>
+    <g id="patch_109">
+     <path d="M 544.221164 298.8 
+L 598.0392 298.8 
+L 598.0392 277.2 
+L 544.221164 277.2 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_108">
+     <!-- 909.4 -->
+     <g style="fill: #0b0b0b" transform="translate(574.539666 291.266992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-1c"/>
+      <use xlink:href="#YuGothic-Regular-13" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-1c" transform="translate(111.21875 0)"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(166.828125 0)"/>
+      <use xlink:href="#YuGothic-Regular-17" transform="translate(192.609375 0)"/>
+     </g>
+    </g>
+    <g id="patch_110">
+     <path d="M 6.0408 320.4 
+L 104.7072 320.4 
+L 104.7072 298.8 
+L 6.0408 298.8 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_109">
+     <!-- 09-17(現行) -->
+     <g style="fill: #0b0b0b" transform="translate(9.987456 312.866992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-13"/>
+      <use xlink:href="#YuGothic-Regular-1c" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-10" transform="translate(111.21875 0)"/>
+      <use xlink:href="#YuGothic-Regular-14" transform="translate(154.71875 0)"/>
+      <use xlink:href="#YuGothic-Regular-1a" transform="translate(210.328125 0)"/>
+      <use xlink:href="#YuGothic-Regular-b" transform="translate(265.9375 0)"/>
+      <use xlink:href="#YuGothic-Regular-773" transform="translate(304.5625 0)"/>
+      <use xlink:href="#YuGothic-Regular-7e8" transform="translate(404.5625 0)"/>
+      <use xlink:href="#YuGothic-Regular-c" transform="translate(504.5625 0)"/>
+     </g>
+    </g>
+    <g id="patch_111">
+     <path d="M 104.7072 320.4 
+L 140.585891 320.4 
+L 140.585891 298.8 
+L 104.7072 298.8 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_110">
+     <!-- 2 -->
+     <g style="fill: #0b0b0b" transform="translate(134.368337 312.866992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-15"/>
+     </g>
+    </g>
+    <g id="patch_112">
+     <path d="M 140.585891 320.4 
+L 257.191636 320.4 
+L 257.191636 298.8 
+L 140.585891 298.8 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_111">
+     <!-- p_see 0.14 -->
+     <g style="fill: #0b0b0b" transform="translate(145.250121 312.698855) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-53"/>
+      <use xlink:href="#YuGothic-Regular-42" transform="translate(58.015625 0)"/>
+      <use xlink:href="#YuGothic-Regular-56" transform="translate(108.015625 0)"/>
+      <use xlink:href="#YuGothic-Regular-48" transform="translate(158.890625 0)"/>
+      <use xlink:href="#YuGothic-Regular-48" transform="translate(214.703125 0)"/>
+      <use xlink:href="#YuGothic-Regular-3" transform="translate(270.515625 0)"/>
+      <use xlink:href="#YuGothic-Regular-13" transform="translate(299.03125 0)"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(354.640625 0)"/>
+      <use xlink:href="#YuGothic-Regular-14" transform="translate(380.421875 0)"/>
+      <use xlink:href="#YuGothic-Regular-17" transform="translate(436.03125 0)"/>
+     </g>
+    </g>
+    <g id="patch_113">
+     <path d="M 257.191636 320.4 
+L 311.009673 320.4 
+L 311.009673 298.8 
+L 257.191636 298.8 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_112">
+     <!-- 44.02% -->
+     <g style="fill: #0b0b0b" transform="translate(280.615358 312.866992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-17"/>
+      <use xlink:href="#YuGothic-Regular-17" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(111.21875 0)"/>
+      <use xlink:href="#YuGothic-Regular-13" transform="translate(137 0)"/>
+      <use xlink:href="#YuGothic-Regular-15" transform="translate(192.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-8" transform="translate(248.21875 0)"/>
+     </g>
+    </g>
+    <g id="patch_114">
+     <path d="M 311.009673 320.4 
+L 382.767055 320.4 
+L 382.767055 298.8 
+L 311.009673 298.8 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_113">
+     <!-- +0.06 -->
+     <g style="fill: #0b0b0b" transform="translate(357.105416 312.866992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-e"/>
+      <use xlink:href="#YuGothic-Regular-13" transform="translate(72.40625 0)"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(128.015625 0)"/>
+      <use xlink:href="#YuGothic-Regular-13" transform="translate(153.796875 0)"/>
+      <use xlink:href="#YuGothic-Regular-19" transform="translate(209.40625 0)"/>
+     </g>
+    </g>
+    <g id="patch_115">
+     <path d="M 382.767055 320.4 
+L 436.585091 320.4 
+L 436.585091 298.8 
+L 382.767055 298.8 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_114">
+     <!-- 81 -->
+     <g style="fill: #0b0b0b" transform="translate(424.867557 312.866992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-1b"/>
+      <use xlink:href="#YuGothic-Regular-14" transform="translate(55.609375 0)"/>
+     </g>
+    </g>
+    <g id="patch_116">
+     <path d="M 436.585091 320.4 
+L 481.433455 320.4 
+L 481.433455 298.8 
+L 436.585091 298.8 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_115">
+     <!-- 5.76% -->
+     <g style="fill: #0b0b0b" transform="translate(456.180333 312.866992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-18"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-1a" transform="translate(81.390625 0)"/>
+      <use xlink:href="#YuGothic-Regular-19" transform="translate(137 0)"/>
+      <use xlink:href="#YuGothic-Regular-8" transform="translate(192.609375 0)"/>
+     </g>
+    </g>
+    <g id="patch_117">
+     <path d="M 481.433455 320.4 
+L 544.221164 320.4 
+L 544.221164 298.8 
+L 481.433455 298.8 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_116">
+     <!-- 0.139 -->
+     <g style="fill: #0b0b0b" transform="translate(520.362843 312.866992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-13"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-14" transform="translate(81.390625 0)"/>
+      <use xlink:href="#YuGothic-Regular-16" transform="translate(137 0)"/>
+      <use xlink:href="#YuGothic-Regular-1c" transform="translate(192.609375 0)"/>
+     </g>
+    </g>
+    <g id="patch_118">
+     <path d="M 544.221164 320.4 
+L 598.0392 320.4 
+L 598.0392 298.8 
+L 544.221164 298.8 
+z
+" style="fill: #fcfcfb; stroke: #e1e0d9; stroke-width: 0.7; stroke-linejoin: miter"/>
+    </g>
+    <g id="text_117">
+     <!-- 906.8 -->
+     <g style="fill: #0b0b0b" transform="translate(574.539666 312.866992) scale(0.086 -0.086)">
+      <use xlink:href="#YuGothic-Regular-1c"/>
+      <use xlink:href="#YuGothic-Regular-13" transform="translate(55.609375 0)"/>
+      <use xlink:href="#YuGothic-Regular-19" transform="translate(111.21875 0)"/>
+      <use xlink:href="#YuGothic-Regular-11" transform="translate(166.828125 0)"/>
+      <use xlink:href="#YuGothic-Regular-1b" transform="translate(192.609375 0)"/>
+     </g>
+    </g>
    </g>
   </g>
-  <g id="text_82">
+  <g id="text_118">
    <!-- 表2 看板(広告)の腕: 購入・会話・休憩(09-10 AB6-AD-ZERO / 09-17 AB6b-AD-NOTICE) -->
-   <g style="fill: #0b0b0b" transform="translate(6.0408 13.771911) scale(0.11 -0.11)">
+   <g style="fill: #0b0b0b" transform="translate(6.0408 15.067911) scale(0.11 -0.11)">
     <defs>
      <path id="YuGothic-Bold-db1" d="M 1197 2138 
 L 397 2125 
@@ -5764,9 +6417,9 @@ z
     <use xlink:href="#YuGothic-Bold-c" transform="translate(4049.484375 0)"/>
    </g>
   </g>
-  <g id="text_83">
+  <g id="text_119">
    <!-- Δ購入 = 購入シェア − 看板あり(同コード・同 seed)。正=看板を消す/減らすと購入が増える。AD1 の線 ±1 pp。seed -->
-   <g style="fill: #52514e" transform="translate(4.83264 252.999619) scale(0.076 -0.076)">
+   <g style="fill: #52514e" transform="translate(4.83264 337.671619) scale(0.076 -0.076)">
     <defs>
      <path id="YuGothic-Regular-3f8" d="M 5056 141 
 L 1344 141 
@@ -7512,8 +8165,8 @@ z
     <use xlink:href="#YuGothic-Regular-48" transform="translate(5288.234375 0)"/>
     <use xlink:href="#YuGothic-Regular-47" transform="translate(5344.046875 0)"/>
    </g>
-   <!-- 差の幅(看板あり腕・seed 1 vs 2): 09-10 0.17 pp。出典 fig6_ab6b_signage.json。 -->
-   <g style="fill: #52514e" transform="translate(4.83264 264.399619) scale(0.076 -0.076)">
+   <!-- 差の幅(看板あり腕・seed 1 vs 2): 09-10 0.17 pp・09-17 0.15 pp。出典 fig6_ab6b_signage.json。 -->
+   <g style="fill: #52514e" transform="translate(4.83264 349.071619) scale(0.076 -0.076)">
     <defs>
      <path id="YuGothic-Regular-82b" d="M 3019 2625 
 L 3019 3303 
@@ -8321,32 +8974,46 @@ z
     <use xlink:href="#YuGothic-Regular-3" transform="translate(2038.078125 0)"/>
     <use xlink:href="#YuGothic-Regular-53" transform="translate(2066.59375 0)"/>
     <use xlink:href="#YuGothic-Regular-53" transform="translate(2124.609375 0)"/>
-    <use xlink:href="#YuGothic-Regular-27d" transform="translate(2182.625 0)"/>
-    <use xlink:href="#YuGothic-Regular-95c" transform="translate(2282.625 0)"/>
-    <use xlink:href="#YuGothic-Regular-c31" transform="translate(2382.625 0)"/>
-    <use xlink:href="#YuGothic-Regular-3" transform="translate(2482.625 0)"/>
-    <use xlink:href="#YuGothic-Regular-72" transform="translate(2511.140625 0)"/>
-    <use xlink:href="#YuGothic-Regular-4a" transform="translate(2571.828125 0)"/>
-    <use xlink:href="#YuGothic-Regular-19" transform="translate(2626.609375 0)"/>
-    <use xlink:href="#YuGothic-Regular-42" transform="translate(2682.21875 0)"/>
-    <use xlink:href="#YuGothic-Regular-44" transform="translate(2732.21875 0)"/>
-    <use xlink:href="#YuGothic-Regular-45" transform="translate(2788.03125 0)"/>
-    <use xlink:href="#YuGothic-Regular-19" transform="translate(2846.046875 0)"/>
-    <use xlink:href="#YuGothic-Regular-45" transform="translate(2901.65625 0)"/>
-    <use xlink:href="#YuGothic-Regular-42" transform="translate(2959.671875 0)"/>
-    <use xlink:href="#YuGothic-Regular-56" transform="translate(3009.671875 0)"/>
-    <use xlink:href="#YuGothic-Regular-4c" transform="translate(3060.546875 0)"/>
-    <use xlink:href="#YuGothic-Regular-4a" transform="translate(3086.765625 0)"/>
-    <use xlink:href="#YuGothic-Regular-51" transform="translate(3141.546875 0)"/>
-    <use xlink:href="#YuGothic-Regular-44" transform="translate(3199.5625 0)"/>
-    <use xlink:href="#YuGothic-Regular-4a" transform="translate(3255.375 0)"/>
-    <use xlink:href="#YuGothic-Regular-48" transform="translate(3310.15625 0)"/>
-    <use xlink:href="#YuGothic-Regular-11" transform="translate(3365.96875 0)"/>
-    <use xlink:href="#YuGothic-Regular-4d" transform="translate(3391.75 0)"/>
-    <use xlink:href="#YuGothic-Regular-56" transform="translate(3421.140625 0)"/>
-    <use xlink:href="#YuGothic-Regular-52" transform="translate(3472.015625 0)"/>
-    <use xlink:href="#YuGothic-Regular-51" transform="translate(3528.125 0)"/>
-    <use xlink:href="#YuGothic-Regular-27d" transform="translate(3586.140625 0)"/>
+    <use xlink:href="#YuGothic-Regular-280" transform="translate(2182.625 0)"/>
+    <use xlink:href="#YuGothic-Regular-13" transform="translate(2282.625 0)"/>
+    <use xlink:href="#YuGothic-Regular-1c" transform="translate(2338.234375 0)"/>
+    <use xlink:href="#YuGothic-Regular-10" transform="translate(2393.84375 0)"/>
+    <use xlink:href="#YuGothic-Regular-14" transform="translate(2437.34375 0)"/>
+    <use xlink:href="#YuGothic-Regular-1a" transform="translate(2492.953125 0)"/>
+    <use xlink:href="#YuGothic-Regular-3" transform="translate(2548.5625 0)"/>
+    <use xlink:href="#YuGothic-Regular-13" transform="translate(2577.078125 0)"/>
+    <use xlink:href="#YuGothic-Regular-11" transform="translate(2632.6875 0)"/>
+    <use xlink:href="#YuGothic-Regular-14" transform="translate(2658.46875 0)"/>
+    <use xlink:href="#YuGothic-Regular-18" transform="translate(2714.078125 0)"/>
+    <use xlink:href="#YuGothic-Regular-3" transform="translate(2769.6875 0)"/>
+    <use xlink:href="#YuGothic-Regular-53" transform="translate(2798.203125 0)"/>
+    <use xlink:href="#YuGothic-Regular-53" transform="translate(2856.21875 0)"/>
+    <use xlink:href="#YuGothic-Regular-27d" transform="translate(2914.234375 0)"/>
+    <use xlink:href="#YuGothic-Regular-95c" transform="translate(3014.234375 0)"/>
+    <use xlink:href="#YuGothic-Regular-c31" transform="translate(3114.234375 0)"/>
+    <use xlink:href="#YuGothic-Regular-3" transform="translate(3214.234375 0)"/>
+    <use xlink:href="#YuGothic-Regular-72" transform="translate(3242.75 0)"/>
+    <use xlink:href="#YuGothic-Regular-4a" transform="translate(3303.4375 0)"/>
+    <use xlink:href="#YuGothic-Regular-19" transform="translate(3358.21875 0)"/>
+    <use xlink:href="#YuGothic-Regular-42" transform="translate(3413.828125 0)"/>
+    <use xlink:href="#YuGothic-Regular-44" transform="translate(3463.828125 0)"/>
+    <use xlink:href="#YuGothic-Regular-45" transform="translate(3519.640625 0)"/>
+    <use xlink:href="#YuGothic-Regular-19" transform="translate(3577.65625 0)"/>
+    <use xlink:href="#YuGothic-Regular-45" transform="translate(3633.265625 0)"/>
+    <use xlink:href="#YuGothic-Regular-42" transform="translate(3691.28125 0)"/>
+    <use xlink:href="#YuGothic-Regular-56" transform="translate(3741.28125 0)"/>
+    <use xlink:href="#YuGothic-Regular-4c" transform="translate(3792.15625 0)"/>
+    <use xlink:href="#YuGothic-Regular-4a" transform="translate(3818.375 0)"/>
+    <use xlink:href="#YuGothic-Regular-51" transform="translate(3873.15625 0)"/>
+    <use xlink:href="#YuGothic-Regular-44" transform="translate(3931.171875 0)"/>
+    <use xlink:href="#YuGothic-Regular-4a" transform="translate(3986.984375 0)"/>
+    <use xlink:href="#YuGothic-Regular-48" transform="translate(4041.765625 0)"/>
+    <use xlink:href="#YuGothic-Regular-11" transform="translate(4097.578125 0)"/>
+    <use xlink:href="#YuGothic-Regular-4d" transform="translate(4123.359375 0)"/>
+    <use xlink:href="#YuGothic-Regular-56" transform="translate(4152.75 0)"/>
+    <use xlink:href="#YuGothic-Regular-52" transform="translate(4203.625 0)"/>
+    <use xlink:href="#YuGothic-Regular-51" transform="translate(4259.734375 0)"/>
+    <use xlink:href="#YuGothic-Regular-27d" transform="translate(4317.75 0)"/>
    </g>
   </g>
  </g>
