@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **2 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **3 / 10**
 > 第1〜第240(2026-09-01〜09-18)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第241 思考と判断の分離(System 1/2 層)・R-39/R-40 起動(2026-09-18 午後)
@@ -15,3 +15,10 @@
 - **R-40 Jev 詳細**([答申](../research/v2-r40-jev-details-research.md)・親確認 8=docs 逐語・HN 3 コメント本文・MCA 3 条項・Every・Cloudflare): 文脈長 64k/32k・**1,200 req/min**(現行腕 40 分は 104% 超過)・**1 リクエスト=1 state**・バッチなし・日本語は精度低下明記・jaggedness(context rot・Noul/Choice 非整合)・決定論の保証なし・**CEO「exactly right!」=ゼロショット分類器**・**MCA §2.3(f) ベンチマーク公表禁止・Telemetry 無制限・オンプレ不可・SLA なし**。第238 ノートの「未公開」を訂正伝播(ノート・devlog-compressed)。
 - 台帳: D-101 親推奨を更新(判断器は自前インターフェース+自前艦隊を既定・Jev は見送りか公表しない内部比較・門番は葛藤/驚きで定義・confidence 閾値は較正後のみ・最低頻度保証)。backlog R-38(未起動)/R-39/R-40 完了。INDEX に 4 件登録(Jev ノート A・思考頻度ノート A・R-39 B・R-40 B)。lit 行 36 は答申内に留置(lit note 未作成)。
 - 次: ユーザー判断=D-101(層と目標頻度)・D-99(AB8)・D-98/D-100・型付き判断の腕(自前艦隊)・Jev の扱い(見送り推奨)。
+
+## 第243 構造の説明 簡略版・詳細版(2026-09-19)
+
+- **依頼**: 「現在のシミュレーションの構造の説明をサブ(Opus 5)で簡略版と詳細版の 2 つ。図や表で視覚的に」。
+- **成果**: [簡略版](../design/v2-architecture-overview-simple.md)(119 行・Mermaid 3・表 2)/ [詳細版](../design/v2-architecture-overview-detailed.md)(552 行・Mermaid 7・表 12: 三層・モジュール地図・W0〜W20・1 tick sequence・アービタ・契約 B0〜B6/24 語/ResultCode 21・W17 と計画実行層・経済 SFC・予算 12 行・検証 C6/C7/C8/holdout・切替口・穴 10・D-98〜101・未確認 6)。
+- **親検収**: 既存ファイル不変・絶対パス/サーバー名なし・Mermaid ラベルに括弧なし(機械検査)・世界過程 18 本=`PROCESS_ORDER` 一致・L4/M11/o64 は予算宣言表と一致・W1 9.167 h=受入報告と一致・**訂正 1**: holdout 表の H1 が 24 h の記述値(0.0230/0.818)になっていたのを判定窓 6〜23 時の値(0.0221 ± 0.0037 / 0.699 ± 0.015)に直し H2 の τ に ±1.18 を補った。サブの確認事項 8 件(`per_tick_budget` は実在せず `call_budget_per_tick`・390,067 を採用・87.6% は 5,000 体の値と明記・テスト 2,268 本・W18 V=0.0 は構築時値・P2 未実測・経済図は例示・行数は raw)は答申どおりで妥当。
+- **提示**: 2 本を 1 枚の HTML(タブ切替・Mermaid 描画)にして Artifact として公開(scratch 変換器・リポ外)。
