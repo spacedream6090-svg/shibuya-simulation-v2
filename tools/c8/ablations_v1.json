@@ -45,6 +45,7 @@
     "notice_reach": "顕著行為に気づいた延べ人数 ÷ 事象数(RunResult.noticed / salient_events)= §8 ② の『情報到達半径』の代理",
     "final_hash": "最終 checkpoint(腕の間で一致したら切替が効いていない合図)",
     "grounding_rate": "**M1 接地率(2 段)**(open-intent 仕様書 §1)。分母=繰り延べでないテープ行(D-58)。grounded_direct=行動欄が 24 語(contract.ALL_ACTION_WORDS=12 語+役割語 12)に**直接一致**した割合 / grounded_dictionary=一致しなかったが段0 辞書(undefined.map_synonym)で写せた割合。grounded_total = direct + dictionary = 1 − undefined_rate",
+    "realized": "**実現量**(第245・2026-09-19)。1 ランで世界に実際に起きた量: 乗車/降車/乗車待ち/待ち打切(RunResult.n_boarded・n_alighted・n_board_waiting・n_board_timeout)・購入(診断列 purchases の日合計)・食事/食事円(語彙 v2)・売上(revenue_end)・運賃(fares_paid)・会話(conversation_sessions)。指標 JSON では realized と realized_per_agent_day(÷体数)の 2 段で出る",
     "top_undefined_words": "**M3 上位未定義語**(open-intent 仕様書 §1)。UndefinedActionRegistry.top_words(30) の(語・出現数)に distinct_agents(語) を付け、行動契約書 §7 段2 の閾値 N(registry.threshold_agents=10)に届いた語へ reached_threshold の印を付ける"
   },
   "first_wave": {
@@ -572,18 +573,150 @@
       "acceptance": "**合格線は AD1 を借りる**(§8 は指標だけを指定=腕そのものの合否線は無い): baseline と ad_zero の**購入の絶対差が 1pp 未満**に入る p_see が在るか。n=50,000 の帰無参照は C8 09-10 実測(同構成 seed 1 vs 2)で JSD 0.0001 bit・行動別 ≤0.22 pp=**T7 の 0.0035 bit は n=833 の値で n=50,000 には緩すぎる**(JSD は ~1/n)。事前予想: 入力トークンは p_see に比例して減る(セル群 −13 tok/呼 × (1−p_see))・書式エラー率と保存則は動かない。",
       "status": "ready",
       "note_parent": "親注(2026-09-17): 第1陣(§8 の 6 本)ではない **⑥ の後追いの腕**(D-59 (b) が出典)。**指紋の宣言**: ① 既定 p_see=1.0 は設計書の数ではなく**現行実装の値**(=「看板は常に見える」という暗黙の cap を明示化しただけ・SIGNAGE_P_SEE_DEFAULT) ② 抽選は**体×看板×tick**(セル単位でも曝露回数単位でもない=選択は expedient) ③ 看板は**セルあたり 1 件**(§3.2 の件数 1 を引き継ぐ)なので poi_id は 1 セル 1 つ ④ 落ちた枠は**他へ回さない**(枠の再配分は D-60 の別議論) ⑤ 不応期・記憶(段3 の効果キャップ 10⁻⁴〜10⁻³/曝露)は**未実装**=この腕は段1 だけを振る。"
+    },
+    {
+      "id": "AB8-L4-SCALE",
+      "rank": 11,
+      "index": "⑧",
+      "name": "L4 呼数予算の感度(1 tick の呼数上限を 0.5×/1×/2×/無制限で振る)",
+      "design_source": "PENDING D-99 (a)(2026-09-18)L4 の感度腕",
+      "hypothesis": "予算行 L4「上限 400 万呼/日(40 万体基準)=平均 10 呼/体/日」は**予算の宣言であって現実の観測値ではない**(engine.arbiter の docstring も『制御目標』と書く)。5,000 体では 34.72 呼/tick が硬い上限になり、起床候補はここで切られて繰り延べに積まれる=**いま観測している世界は「呼数が足りない世界」かもしれない**。倍率を 0.5/2.0 と無制限(1 tick の上限=体数)で振り、① 呼数と繰り延べ・抑止がどう動くか ② **実現量**(乗車・購入・会話・売上)が呼数に比例して増えるのか頭打ちになるのか を見る。比例するなら L4 は**結果を駆動している**=感度試験の対象(方法論「expedient は結果を駆動していない証明が要る」)。頭打ちなら現行の予算で世界は飽和している。",
+      "switch": {
+        "kind": "implemented_flag",
+        "how": "cli.run(l4_scale=1.0|0.5|2.0|0) / CLI --l4-scale FACTOR(0=無制限=1 tick の上限を体数に置く)",
+        "implemented": true,
+        "mock_effective": true,
+        "mock_note": "予算は**エンジン側の量**(プロンプト本文ではない)ので mock でも動く。MockLLM は本文を読まないから行動の『質』は変わらないが、この腕が測るのは『何呼まで許すか』なので繰り延べ・抑止・呼数・final_hash はすべて動く(合成世界 n=200・24 tick・sleep_suppression=False で 呼 33→203・繰り延べ 199→0 を実測)。",
+        "diff_proposal": "",
+        "verified": "cli.run(l4_scale=…) が budget を作り(倍率>0 なら engine.arbiter.call_budget_per_tick(n_agents)×倍率・0 なら float(n_agents))→ run_day(budget=…) → Arbiter(n_agents, salt, budget) → arbitrate ⑤ の n_sel = min(コスト基準, floor(budget), agent.size)。**0=無制限**が成り立つ根拠は ③ 同一体の合流(arbitrate の『代表の選び方』)で候補が**体あたり高々 1 件**に畳まれること=合流後の agent.size ≤ n_agents なので budget=n_agents なら 1 tick に全員を起こせる。inf は Arbiter._pool_cap(budget×POOL_CAP_TICKS)と int(np.floor(budget)) を壊すので**使わない**。既定 1.0 では budget=None のまま run_day へ渡す=現行の経路・final_hash 不変(実資産 5,000 体 checkpoint 4 = ba01bd0b…)。tests/c8/test_ablations_ab8.py・tests/test_cli_l4_scale.py"
+      },
+      "runs": [
+        {
+          "tag": "l4_x1",
+          "kwargs": {
+            "l4_scale": 1.0
+          },
+          "is_baseline": true
+        },
+        {
+          "tag": "l4_x0.5",
+          "kwargs": {
+            "l4_scale": 0.5
+          }
+        },
+        {
+          "tag": "l4_x2",
+          "kwargs": {
+            "l4_scale": 2.0
+          }
+        },
+        {
+          "tag": "l4_unlimited",
+          "kwargs": {
+            "l4_scale": 0.0
+          }
+        }
+      ],
+      "control": "baseline=l4_x1(=L4 の宣言どおり 34.72 呼/tick・現行のバイト)/対照①=l4_x0.5(半分)/対照②=l4_x2(倍)/対照③=l4_unlimited(上限なし=起床候補を 1 件も繰り延べない)。読み方: 実現量(realized)が倍率に**比例**するなら L4 が結果を駆動している・**頭打ち**なら候補の供給側(起床条件・就寝抑止・域外抑止)が律速。",
+      "metrics": [
+        "action_jsd",
+        "prompt_tokens_mean",
+        "group_tokens",
+        "format_error_rate",
+        "conserved",
+        "realized"
+      ],
+      "cost": {
+        "runs": 4,
+        "calls": 200000,
+        "calls_with_shared_baseline": 150000,
+        "gpu_hours": 1.9333,
+        "gpu_hours_with_shared_baseline": 1.45,
+        "note": "本表の規約(1 ラン=5,000 体×1,440 tick=呼 50,000・c8lib.gpu_hours_for_calls)で通算した**枠の見積り**。**実際の呼数は腕ごとに違う**のがこの腕の中身で、l4_x0.5 は約半分・l4_x2 は最大 2 倍・l4_unlimited は上限が外れるぶん更に多い(上限=合流後の起床候補数)。**無制限腕は約 1 h/本の見込み**(艦隊 7×A5000 の実測 CALLS_PER_SECOND 換算)。実費は回してから実測で置き換える=いまの数は枠取りのための宣言。"
+      },
+      "acceptance": "**合格線は無い**(§8 と同じく指標の報告。D-99 (a) も線を決めていない)。報告するもの: ① 呼数・呼/体/日 と 診断行 4 列(繰り延べ・昇格・縮退・抑止)の倍率依存 ② realized(乗車・購入・会話・売上)の倍率依存 ③ 行動分布 JSD(帰無参照は n=50,000 で 0.0001 bits=C8 09-10 実測) ④ 入力トークン平均と保存則(動かないはず)。",
+      "status": "ready",
+      "note_parent": "親注(2026-09-19): **指紋の宣言** ① 『無制限』は inf ではなく **budget=体数**(有限値)。合流後の候補が体あたり 1 件に畳まれるので 1 tick に全員を起こせる=実質無制限だが、**候補が体数を超える設計に変わったらこの等式は崩れる**(arbitrate ③ を変えるときは本腕の定義も見直す) ② 倍率は L4 の**按分式**に掛かる(call_budget_per_tick の calls_per_day/reference_agents は動かさない) ③ 端数の繰越在庫 POOL_CAP_TICKS=2 は倍率と一緒に伸び縮みする(_pool_cap = budget×2)=倍率は『瞬間の上限』と『繰越の在庫』の両方を同時に動かす expedient ④ 就寝抑止(D-56)・域外抑止(D-66)・不応期は**この腕では動かさない**=候補の供給側は据え置き。"
+    },
+    {
+      "id": "AB6c-AD-NOTICE-UNCAPPED",
+      "rank": 12,
+      "index": "⑥c",
+      "name": "看板の注視ゲート較正を**呼数制限なし**で再検証(⑥b の無制限版)",
+      "design_source": "PENDING D-59 第245 ユーザー指示(2026-09-19)呼数制限なしで看板の腕を再検証",
+      "hypothesis": "⑥b(看板の注視ゲート)は L4 の呼数上限(5,000 体で 34.72 呼/tick)の下で回る。上限が効いている世界では、看板行の有無が**誰が呼ばれるか**(アービタの整列とこぼれ方)にも間接的に効きうるので、購入の pp 差が『注視の効果』なのか『予算で削られた起床の並び替え』なのかが分離できない。同じ 4 構成を **l4_scale=0(無制限)**で回し、⑥b の結論(p_see を下げると広告ゼロとの差が AD1 の 1pp 線に入るか)が**呼数制限の有無に関わらず再現するか**を見る。再現すれば ⑥b の読みはそのまま・再現しなければ『⑥b で見ていた差の一部は予算の副作用』=収益化レーンの前提が変わる。",
+      "switch": {
+        "kind": "implemented_flag",
+        "how": "cli.run(l4_scale=0, signage_p_see=1.0|0.30|0.14 / signage=False) / CLI --l4-scale 0 --signage-p-see P(⑥b と同じ口に --l4-scale 0 を重ねるだけ=新しい切替口は作らない)",
+        "implemented": true,
+        "mock_effective": false,
+        "mock_note": "l4_scale の側は mock でも動くが、**4 ランとも l4_scale=0 で同じ**なので腕の中の差は看板だけ=MockLLM は本文を読まないので行動分布・final_hash は動かない(⑥b と同じ理由)。",
+        "diff_proposal": "",
+        "verified": "⑥b の経路(run_day(signage_p_see=…) → Renderer → attention.gate_stage1・ドメイン perception.attention.p_see・カウンタ (tick, agent_id, poi_id))に、⑧ の経路(cli.run(l4_scale=0) → budget=float(n_agents) → Arbiter)を重ねただけ。どちらも実装済の口で、**src/ には 1 行も足していない**。tests/c8/test_ablations_ab8.py"
+      },
+      "runs": [
+        {
+          "tag": "p_see_1_00",
+          "kwargs": {
+            "l4_scale": 0.0,
+            "signage_p_see": 1.0
+          },
+          "is_baseline": true
+        },
+        {
+          "tag": "ad_zero",
+          "kwargs": {
+            "l4_scale": 0.0,
+            "signage": false
+          }
+        },
+        {
+          "tag": "p_see_0_30",
+          "kwargs": {
+            "l4_scale": 0.0,
+            "signage_p_see": 0.3
+          }
+        },
+        {
+          "tag": "p_see_0_14",
+          "kwargs": {
+            "l4_scale": 0.0,
+            "signage_p_see": 0.14
+          }
+        }
+      ],
+      "control": "⑥b と**同じ 4 構成**(baseline=p_see 1.0 / ad_zero / 0.30 / 0.14)に l4_scale=0 を重ねたもの。対照は腕の中で閉じる(⑥b のランとは呼数が違うので**直接は比べない**——比べるのは『腕の中の差』どうし)。",
+      "metrics": [
+        "action_jsd",
+        "prompt_tokens_mean",
+        "group_tokens",
+        "format_error_rate",
+        "conserved",
+        "realized"
+      ],
+      "cost": {
+        "runs": 4,
+        "calls": 200000,
+        "calls_with_shared_baseline": 150000,
+        "gpu_hours": 1.9333,
+        "gpu_hours_with_shared_baseline": 1.45,
+        "note": "本表の規約(1 ラン=5,000 体×1,440 tick=呼 50,000)で通算した**枠の見積り**。**4 ランとも無制限腕なので実際の呼数はこれを上回る**(上限=合流後の起床候補数)。**約 1 h/本の見込み**。⑥b の baseline(p_see 1.0)とは呼数上限が違うので**共有できない**(この腕の baseline は腕の中で取り直す)。"
+      },
+      "acceptance": "**合格線は ⑥b と同じく AD1 を借りる**: baseline と ad_zero の**購入の絶対差が 1pp 未満**に入る p_see が在るか。読み方は ⑥b と同じで、加えて『⑥b と同じ順序・同じ符号で並ぶか』を見る(並ばなければ予算の副作用)。帰無参照は n が変わるので**この腕の中で取り直す**(JSD は ~1/n)。",
+      "status": "ready",
+      "note_parent": "親注(2026-09-19): ユーザー指示(第245)。**指紋の宣言** ① 較正値 0.30 / 0.14 は ⑥b から**そのまま持ってきた**(帯の下側という決定だけが正典・値は expedient) ② 呼数上限を外すと 1 呼/体/tick まで出るので、**この腕は ⑥b と呼数が違う=絶対値は比べない**(比べるのは腕の中の差) ③ 無制限でも就寝抑止・域外抑止・不応期は効いたまま=『全員が毎分 LLM を呼ぶ』世界ではない ④ 実現量(realized)を両腕で並べると、看板の差が購入以外(乗車・会話)へ波及しているかが読める。"
     }
   ],
   "totals": {
-    "runs_if_independent": 25,
-    "runs_with_shared_baseline": 14,
-    "calls_with_shared_baseline": 700000,
-    "gpu_hours_with_shared_baseline": 6.7667,
+    "runs_if_independent": 33,
+    "runs_with_shared_baseline": 20,
+    "calls_with_shared_baseline": 1000000,
+    "gpu_hours_with_shared_baseline": 9.6667,
     "l2_reserve_hours": 4.8,
     "within_l2": false,
-    "note": "腕ごとに baseline を取り直すと 25 ラン・呼 1,250,000=12.08 h。AB4/AB5 は前提機能が未実装で ``runs`` が空なので、共有ベースライン側の数には最初から入っていない。AB7/AB7b/AB7c と AB6b(⑥ の後追い・D-59 (b))は第1陣(§8 の 6 本)ではないが ablation の取り分(L2)は同じ財布なのでここで通算する。**共有ベースライン込みの 14 ラン・呼 700,000=6.77 h は、L2 の枠の目安 4.8 h を超える**(within_l2=false・2026-09-17 の AB7c 追加で超過し、同日の AB6b 追加でさらに 1.45 h ぶん広がった)。内訳: 第1陣の 9 ラン 4.35 h + AB7b の hint 1 ラン 0.48 h + AB7c の vocab_v2 / open_v2 2 ラン 0.97 h + AB6b の ad_zero / p_see 0.30 / p_see 0.14 の 3 ラン 1.45 h(AB6b の baseline は ⑥ の signage_on と、AB7/AB7b/AB7c の vocab 対照は 1 本に、それぞれ共有済み=これ以上は共有で減らない。**AB6b の ad_zero は ⑥ の signage_off と同一構成**なので、⑥ を先に回していればさらに 1 ラン 0.48 h 減らせる=親判断)。枠は割合宣言で絶対値が無い(budget.note の expedient・親判断待ち)ので、**どの腕を先に回すか・枠の目安を上げるかはユーザー判断**。",
-    "calls_if_independent": 1250000,
-    "gpu_hours_if_independent": 12.0833
+    "note": "腕ごとに baseline を取り直すと 25 ラン・呼 1,250,000=12.08 h。AB4/AB5 は前提機能が未実装で ``runs`` が空なので、共有ベースライン側の数には最初から入っていない。AB7/AB7b/AB7c と AB6b(⑥ の後追い・D-59 (b))は第1陣(§8 の 6 本)ではないが ablation の取り分(L2)は同じ財布なのでここで通算する。**共有ベースライン込みの 20 ラン・呼 1,000,000=9.67 h は、L2 の枠の目安 4.8 h を超える**(within_l2=false・2026-09-17 の AB7c 追加で超過し、同日の AB6b 追加でさらに 1.45 h ぶん広がった)。内訳: 第1陣の 9 ラン 4.35 h + AB7b の hint 1 ラン 0.48 h + AB7c の vocab_v2 / open_v2 2 ラン 0.97 h + AB6b の ad_zero / p_see 0.30 / p_see 0.14 の 3 ラン 1.45 h(AB6b の baseline は ⑥ の signage_on と、AB7/AB7b/AB7c の vocab 対照は 1 本に、それぞれ共有済み=これ以上は共有で減らない。**AB6b の ad_zero は ⑥ の signage_off と同一構成**なので、⑥ を先に回していればさらに 1 ラン 0.48 h 減らせる=親判断)。2026-09-19 に ⑧(L4 の感度・4 ラン 1.93 h)と ⑥c(看板を呼数制限なしで再検証・4 ラン 1.93 h)を足して 9.67 h(共有後 6 ラン 2.90 h ぶんの増)。**⑧ と ⑥c は呼数上限を振る腕なので、本表の『1 ラン=呼 50,000』の規約では実費を表せない**(l4_unlimited と ⑥c の 4 ランは上限が外れるぶん呼数が増える=**約 1 h/本の見込み**・実測で置き換える)。枠は割合宣言で絶対値が無い(budget.note の expedient・親判断待ち)ので、**どの腕を先に回すか・枠の目安を上げるかはユーザー判断**。",
+    "calls_if_independent": 1650000,
+    "gpu_hours_if_independent": 15.95
   },
   "open_questions": [
     "6 本すべてで合格線が設計に無い(§8 は指標だけを指定)。報告値のままにするか、①の §10.3『同等』を JSD の帰無参照(T7 seed 違い 0.0035 bits)基準で数値化するか=親判断。",
@@ -594,6 +727,8 @@
     "② は**合成世界では測れない**(個体がセル中心の街路ノードに固まる)。実資産 2,000 体×90 tick の下見では A4 での到達差は 1 人以下(共在=距離 0 と社会伝播で天井に張り付く)。A1(距離のみ)では 10,749/10,799/10,910 と動く。腕を実 LLM で回す前に「何を測る腕なのか」の再確認=親判断。",
     "**AB7-OPEN-INTENT(2026-09-16 追加)**: runner が集計するのは M1〜M3 まで。**M4(行動エントロピー)と M5 の tokens_out 平均・壁時計は未実装**=親が calls.parquet から出す。合否線は仕様書 §1 が『出さない』と決めている=報告値。",
     "**AB7b-HINT-INTENT(2026-09-17 追加)**: vocab 対照を AB7 と**実際に共有するか**(1 ランで済ませるか、腕ごとに取り直すか)=親判断。表は自己完結する 2 ラン構成で書いてあり、totals もその前提で通算している。また実行器は腕をまたいだラン共有の仕組みを持たない(共有するなら親が hint 1 本を回して AB7 の vocab ランと突き合わせる)。",
-    "**AB6b-AD-NOTICE(2026-09-17 追加・D-59 (b))**: ① 較正値 **0.30 / 0.14 の選び方は expedient**(決定は「実測帯 0.14-0.79 の下側へ」だけ。§4 段1 の中小媒体の代表値は ``attention.P_SEE_MEDIUM_DEFAULT`` 0.27=帯の中点で、0.30 はそれより上・0.14 は帯の下端)=親判断。② p<1.0 では **§2.4 ⑧「同セル同時間帯の 2 体で B0-B4b バイト一致」が成り立たない**(注視は体ごとの事象)。同セルの共有 prefix は看板あり/なしの**高々 2 変種**に分かれる=vLLM の prefix 命中率が落ちる側に動く(上限 2 倍の断片化)。規約⑧ の但し書きを設計書へ書くかどうか=親判断。③ **落ちた看板の枠を他へ回さない**(固定枠)。単一ランキング腕(AB1)と重ねると池を分け合う設計なので他チャネルが空きを取る=重ねるなら別腕として宣言が要る。④ ad_zero ランは ⑥ の signage_off と**同一構成**=回す順によっては共有できる。"
+    "**AB6b-AD-NOTICE(2026-09-17 追加・D-59 (b))**: ① 較正値 **0.30 / 0.14 の選び方は expedient**(決定は「実測帯 0.14-0.79 の下側へ」だけ。§4 段1 の中小媒体の代表値は ``attention.P_SEE_MEDIUM_DEFAULT`` 0.27=帯の中点で、0.30 はそれより上・0.14 は帯の下端)=親判断。② p<1.0 では **§2.4 ⑧「同セル同時間帯の 2 体で B0-B4b バイト一致」が成り立たない**(注視は体ごとの事象)。同セルの共有 prefix は看板あり/なしの**高々 2 変種**に分かれる=vLLM の prefix 命中率が落ちる側に動く(上限 2 倍の断片化)。規約⑧ の但し書きを設計書へ書くかどうか=親判断。③ **落ちた看板の枠を他へ回さない**(固定枠)。単一ランキング腕(AB1)と重ねると池を分け合う設計なので他チャネルが空きを取る=重ねるなら別腕として宣言が要る。④ ad_zero ランは ⑥ の signage_off と**同一構成**=回す順によっては共有できる。",
+    "**AB8-L4-SCALE(2026-09-19 追加・D-99 (a))**: ① **『無制限』の置き方が expedient**=budget に inf を入れられない(Arbiter._pool_cap と floor が壊れる)ので **体数**を置いた。合流後の候補が体あたり高々 1 件という arbitrate ③ の性質に寄りかかった等式なので、候補の作り方を変えるときは本腕も見直す=親判断。② 倍率は **1 tick の上限と繰越在庫(POOL_CAP_TICKS=2 ぶん)の両方**を同時に動かす。片方だけ振る腕を別に立てるか=親判断。③ **合格線が無い**(D-99 (a) は感度腕とだけ決めた)。realized が倍率に比例したときに L4 の宣言そのものを見直すのか、それとも『予算内で回る世界』を正とするのか=ユーザー判断。④ 無制限腕の**実費が読めない**(呼数上限が外れるので 1 ラン=呼 50,000 の規約の外)。先に mock かごく短い実 LLM ランで呼数を実測してから枠を確定するか=親判断。",
+    "**AB6c-AD-NOTICE-UNCAPPED(2026-09-19 追加・第245 ユーザー指示)**: ① ⑥b と**呼数が違う**ので 2 腕の絶対値は比べられない(比べるのは腕の中の差)。この読み方でユーザーの問い『呼数制限なしで看板の腕を再検証』に答えたことになるか=確認待ち。② 4 ランとも無制限=この腕だけで**約 4 h** かかる見込みで、L2 の枠(4.8 h)をほぼ 1 腕で使う。⑥b と ⑥c のどちらを先に回すか=ユーザー判断。③ 較正値 0.30/0.14 は ⑥b から持ち越した expedient(⑥b の open_question と同じ)。"
   ]
 }

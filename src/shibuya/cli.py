@@ -42,6 +42,7 @@ from shibuya.economy import census as CS
 from shibuya.economy import entry_capital as EC
 from shibuya.economy.accounts import BalanceLine, Sector
 from shibuya.engine import resolve as R
+from shibuya.engine.arbiter import call_budget_per_tick
 from shibuya.engine.geometry import DEFAULT_GEOMETRY, GEOMETRY_MODES
 from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.run import (
@@ -284,13 +285,33 @@ def run(
     checkpoint_every: int = 360,
     store_capital_yen: int | None = None,
     use_population: bool = True,
+    l4_scale: float = 1.0,
     **kwargs,
 ) -> RunResult:
     """台帳つきの 1 シミュ日ラン(C4 の標準入口)。
 
     ``use_population=False`` は下限対照(``engine.run --no-population`` と同じ意味):
     W16 母集団を読まず合成個体で回し、世帯の初期財布も mock のままにする。
+
+    ``l4_scale`` は**予算行 L4(呼数)の倍率**(PENDING D-99 (a)・腕 AB8-L4-SCALE)::
+
+        倍率 > 0 → budget = call_budget_per_tick(n_agents) × 倍率
+        倍率 = 0 → budget = float(n_agents)  # **無制限**
+
+    ``0`` を「無制限」と書けるのは、アービタが ③(同一体の合流)で**体あたり高々 1 件**に
+    畳んでから ⑤ の予算で切るため(``engine.arbiter.arbitrate``: 合流後の ``agent.size`` は
+    体数を超えず、``n_sel = min(…, floor(budget), agent.size)``)。``budget`` に ``inf`` を
+    入れると ``Arbiter._pool_cap`` と ``int(np.floor(...))`` が壊れるので**有限値で置く**。
+
+    既定 ``1.0`` では ``budget=None`` のまま ``run_day`` に渡す=**現行の経路・現行のバイト**。
+    ``budget`` を直に渡した呼び出しは倍率より優先される(倍率は manifest に 1.0 と載る)。
     """
+    scale = float(l4_scale)
+    if scale < 0.0:
+        raise ValueError("l4_scale は 0 以上(0=無制限)")
+    budget = kwargs.pop("budget", None)
+    if budget is None and scale != 1.0:
+        budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
     wd = Path(world_dir) if world_dir is not None else None
     world = World.load_or_synthetic(wd, n_cells=n_cells, seed=seed) if wd is not None else World.synthetic(
         n_cells=n_cells, seed=seed
@@ -309,6 +330,8 @@ def run(
         world_dir=run_world_dir,
         ledger=bundle,
         population=None if use_population else False,
+        budget=budget,
+        l4_scale=scale,
         **kwargs,
     )
 
@@ -530,6 +553,15 @@ def main(argv: list[str] | None = None) -> int:
              "0.30/0.14=実測帯 0.14-0.79 の下側・0.0=⑥ 広告ゼロと同じ描画",
     )
     ap.add_argument(
+        "--l4-scale",
+        type=float,
+        default=1.0,
+        metavar="FACTOR",
+        help="L4 呼数予算の倍率。1.0=宣言どおり(400 万呼/日を体数按分)・"
+             "0.5/2.0=半分/倍・**0=無制限**(1 tick の上限を体数=起床候補の理論上限にする)。"
+             "PENDING D-99 AB8 の腕",
+    )
+    ap.add_argument(
         "--intent-mode",
         choices=INTENT_MODES,
         default=DEFAULT_INTENT_MODE,
@@ -668,6 +700,8 @@ def main(argv: list[str] | None = None) -> int:
             raise argparse.ArgumentTypeError("--attendance-rate は 0.0〜1.0")
         if not (0.0 <= float(args.signage_p_see) <= 1.0):
             raise argparse.ArgumentTypeError("--signage-p-see は 0.0〜1.0 の確率")
+        if float(args.l4_scale) < 0.0:
+            raise argparse.ArgumentTypeError("--l4-scale は 0 以上(0=無制限)")
     except argparse.ArgumentTypeError as exc:  # 使い方の誤りは traceback ではなく usage で返す
         ap.error(str(exc))
     res = run(
@@ -685,6 +719,7 @@ def main(argv: list[str] | None = None) -> int:
         refractory_scale=refractory_scale or None,
         signage=not args.no_signage,
         signage_p_see=float(args.signage_p_see),
+        l4_scale=float(args.l4_scale),
         sleep_suppression=not args.no_sleep_suppression,
         plan_sleep=not args.no_plan_sleep,
         plan_executor=not args.no_plan_executor,

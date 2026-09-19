@@ -18,20 +18,21 @@
     ② ``--arm <id>`` で 1 腕を回す。既定 5,000 体×1,440 tick(``--ticks 24`` でスモーク)を
        ``shibuya.cli.run`` で走らせ、腕ごとの結果 JSON/Markdown を書く。
     ③ **切替口が無い腕**は回さずに差分案を印字して終わる(自前で src/ を触らない)。
-    ④ mock でも回るが、**プロンプト本文しか変えない腕(①⑥⑦⑦b)は mock では差が出ない**
+    ④ mock でも回るが、**プロンプト本文しか変えない腕(①⑥⑥b⑥c⑦⑦b)は mock では差が出ない**
        (MockLLM が本文を読まない=C6 実測)。その旨を「実 LLM 必須」と印字する。
     ⑤ **M1 接地率(2 段)・M2 未定義率・M3 上位未定義語**を集計する(``_grounding`` /
        ``_undefined_registry`` の docstring に分母・分子の式。``AB7-OPEN-INTENT`` の
        仕様書 ``docs/design/v2-open-intent-arm-spec.md`` §1)。**第1陣の 6 本でも同じ列が出る**
        (列追加のみ・既存の値は動かさない)。
 
-第1陣より後に足した腕(2026-09-17 現在 ``AB7-OPEN-INTENT``・``AB7b-HINT-INTENT``・
-``AB7c-VOCAB-V2``・``AB6b-AD-NOTICE`` の 4 本)は表の ``first_wave`` の外にいる。
+第1陣より後に足した腕(2026-09-19 現在 ``AB7-OPEN-INTENT``・``AB7b-HINT-INTENT``・
+``AB7c-VOCAB-V2``・``AB6b-AD-NOTICE``・``AB8-L4-SCALE``・``AB6c-AD-NOTICE-UNCAPPED``
+の 6 本)は表の ``first_wave`` の外にいる。
 ``first_wave_ids`` が第1陣の名指しで、``validate_table`` はそれを使う。``--arm AB7`` は
 前方一致が 3 本に当たるので**引けない**(``--arm AB7-OPEN-INTENT`` / ``--arm AB7b`` /
-``--arm AB7c`` のように書き分ける)。``--arm AB6`` も 2 本(``AB6-AD-ZERO`` と
-``AB6b-AD-NOTICE``)に当たるが、**完全一致が優先される**ので ``AB6-AD-ZERO`` はそのまま
-引ける(注視ゲートの腕は ``--arm AB6b`` と書く)。
+``--arm AB7c`` のように書き分ける)。``--arm AB6`` も 3 本(``AB6-AD-ZERO``・
+``AB6b-AD-NOTICE``・``AB6c-AD-NOTICE-UNCAPPED``)に当たるが、**完全一致が優先される**ので
+``AB6-AD-ZERO`` はそのまま引ける(注視ゲートの腕は ``--arm AB6b`` / ``--arm AB6c`` と書く)。
 
 親がサーバーで叩く例::
 
@@ -73,7 +74,30 @@ ALLOWED_KWARGS: frozenset[str] = frozenset(
         "vocab_version",         # 実装済(v1 | v2・語彙/段0 辞書/resolve の分岐を版で切る)
         # ---- AB6b-AD-NOTICE(看板の注視ゲート・D-59 (b)・2026-09-17 実装) ----
         "signage_p_see",         # 実装済(§4 段1 の p_see・体×看板×tick の決定論ベルヌーイ)
+        # ---- AB8-L4-SCALE / AB6c-AD-NOTICE-UNCAPPED(L4 呼数予算の倍率・D-99 (a)・2026-09-19) ----
+        "l4_scale",              # 実装済(1.0=按分どおり・0=無制限=1 tick の上限を体数に置く)
     }
+)
+
+#: **実現量**の欄(D-99 (a)・第245 ユーザー指示 2026-09-19)。腕の比較で「呼数と書式」だけでなく
+#: 「世界で実際に何が起きたか」を JSON に出す。``purchases`` だけは ``RunResult`` の属性ではなく
+#: 診断列(``engine.run.DIAG_RUN_COLUMNS``)なので ``_purchases`` が列和を取る。
+REALIZED_FIELDS: tuple[str, ...] = (
+    "n_boarded",
+    "n_alighted",
+    "n_board_waiting",
+    "n_board_timeout",
+    "purchases",
+    "meals",
+    "meal_yen",
+    "revenue_end",
+    "fares_paid",
+    "conversation_sessions",
+)
+
+#: ``arm_markdown`` の実現量表の見出し(``REALIZED_FIELDS`` と同じ並び)。
+REALIZED_LABELS: tuple[str, ...] = (
+    "乗車", "降車", "乗車待ち", "待ち打切", "購入", "食事", "食事円", "売上", "運賃", "会話",
 )
 
 #: 未実装の切替口(``pending`` の腕が使うキー)。②③⑥ は 2026-09-09 に実装済=いまは空。
@@ -187,6 +211,31 @@ def table_markdown(table: Mapping[str, Any]) -> str:
     return "\n".join(md)
 
 
+def _purchases(res: Any) -> int:
+    """購入件数。``RunResult`` は属性を持たず**診断列**にあるので列和を取る(無ければ 0)。"""
+    v = getattr(res, "purchases", None)
+    if v is not None:
+        return int(v)
+    try:
+        diag = getattr(res, "diagnostics", None)
+        if diag is not None and int(getattr(diag, "size", 0)):
+            return int(res.column("purchases").sum())
+    except Exception:  # pragma: no cover - スタブ結果・旧版の列名
+        return 0
+    return 0
+
+
+def _realized(res: Any) -> dict[str, int]:
+    """**実現量**(``REALIZED_FIELDS``)。欄の無い結果は 0=**推測で埋めない**。"""
+    out: dict[str, int] = {}
+    for name in REALIZED_FIELDS:
+        if name == "purchases":
+            out[name] = _purchases(res)
+            continue
+        out[name] = int(getattr(res, name, 0) or 0)
+    return out
+
+
 def run_metrics(res: Any, tape_path: Path | None) -> dict[str, Any]:
     """1 ランの結果 → 指標辞書(**腕の比較はこの辞書の上で行う**)。"""
     rc = {k: float(v) for k, v in getattr(res, "renderer_counters", {}).items()}
@@ -218,8 +267,16 @@ def run_metrics(res: Any, tape_path: Path | None) -> dict[str, Any]:
         "action_usage": dict(getattr(res, "action_usage", {}) or {}),
         "meals": int(getattr(res, "meals", 0) or 0),
         "meal_yen": int(getattr(res, "meal_yen", 0) or 0),
+        #: D-99 (a) L4 呼数予算の腕(既定 1.0=宣言どおりの按分)。腕 AB8-L4-SCALE。
+        "l4_scale": float(getattr(res, "l4_scale", 1.0)),
+        "budget_per_tick": float(getattr(res, "budget_per_tick", 0.0)),
         "run_manifest_fields": _manifest_fields(res),
     }
+    #: **実現量**(第245・2026-09-19)。列追加のみ=既存の欄の値は 1 つも動かない。
+    realized = _realized(res)
+    n_ag = max(1, int(getattr(res, "n_agents", 1) or 1))
+    out["realized"] = realized
+    out["realized_per_agent_day"] = {k: float(v) / n_ag for k, v in realized.items()}
     out["notice_reach"] = out["noticed"] / max(1, out["salient_events"])
     # AB6b(D-59 (b)): 看板の注視ゲートの実測。**引いたランだけ**欄を作る
     # (既定 p_see=1.0 のランの JSON は 1 欄も増えない=推測で埋めない)。
@@ -381,8 +438,9 @@ def _manifest_fields(res: Any) -> dict[str, Any]:
     # AB7(2026-09-16): 自由意図の腕の同定欄 ``intent_mode`` を足した。
     # AB7c(2026-09-17): 語彙の版 ``vocab_version`` と段0 辞書の版 ``synonym_table_version``。
     # AB6b(2026-09-17): 看板の注視ゲート ``signage_p_see``(D-59 (b))。
+    # AB8(2026-09-19): L4 呼数予算の倍率 ``l4_scale`` と実効の ``budget_per_tick``(D-99 (a))。
     # **列追加のみ**=既存の腕の出力の値は 1 つも動かない。
-    return {k: v for k, v in f.items() if k in ("budget_mode", "ablations", "template_sha256", "catalog_sha16", "replay_date", "p_notice_ablation", "p_notice_d50_scale", "refractory_scale", "signage", "signage_p_see", "plan_executor", "exit_mode", "attendance_rate", "intent_mode", "vocab_version", "synonym_table_version")}
+    return {k: v for k, v in f.items() if k in ("budget_mode", "ablations", "template_sha256", "catalog_sha16", "replay_date", "p_notice_ablation", "p_notice_d50_scale", "refractory_scale", "signage", "signage_p_see", "plan_executor", "exit_mode", "attendance_rate", "intent_mode", "vocab_version", "synonym_table_version", "l4_scale", "budget_per_tick")}
 
 
 def compare_runs(baseline: Mapping[str, Any], arm: Mapping[str, Any]) -> dict[str, Any]:
@@ -405,6 +463,12 @@ def compare_runs(baseline: Mapping[str, Any], arm: Mapping[str, Any]) -> dict[st
         out["action_jsd"] = c6lib.jsd_counts(dict(a), dict(b))
         out["null_reference_bits"] = 0.0035  # T7(seed 違い)受入報告 C6 §3
         out["exceeds_null"] = bool(out["action_jsd"] > out["null_reference_bits"])
+    # 実現量の差(第245・2026-09-19)。**両方に欄があるときだけ**作る。
+    rb, ra = baseline.get("realized"), arm.get("realized")
+    if isinstance(rb, Mapping) and isinstance(ra, Mapping):
+        out["d_realized"] = {
+            k: int(ra.get(k, 0)) - int(rb.get(k, 0)) for k in REALIZED_FIELDS
+        }
     # M1/M2 の差(AB7・2026-09-16)。**テープが無い側があれば欄を作らない**=推測で埋めない。
     gb, ga = baseline.get("grounding"), arm.get("grounding")
     if isinstance(gb, Mapping) and isinstance(ga, Mapping):
@@ -528,6 +592,30 @@ def arm_markdown(payload: Mapping[str, Any]) -> str:
                         c8lib.fmt(r["notice_reach"], 3), c8lib.fmt(r["conserved"]), r["final_hash"][:16],
                     ]
                     for r in runs
+                ],
+            ),
+        ]
+    # 実現量の表(第245・2026-09-19)。**全ての腕に出る**(列追加のみ=既存の表は不変)。
+    realized = [r for r in runs if isinstance(r.get("realized"), Mapping)]
+    if realized:
+        md += [
+            "",
+            "## 実現量(世界で実際に起きたこと)",
+            "",
+            "> 呼数と書式だけでは腕の良し悪しが読めないので、1 ランの**実現量**を並べる"
+            "(購入は診断列の日合計・売上は日末の残高・会話は開いたセッション数)。"
+            "``呼/tick`` は ``RunResult.budget_per_tick``=アービタが実際に使った上限。",
+            "",
+            c8lib.markdown_table(
+                ["構成", "L4 倍率", "呼/tick", *REALIZED_LABELS],
+                [
+                    [
+                        r["tag"],
+                        c8lib.fmt(r.get("l4_scale"), 2),
+                        c8lib.fmt(r.get("budget_per_tick"), 2),
+                        *[c8lib.fmt(r["realized"].get(k, 0)) for k in REALIZED_FIELDS],
+                    ]
+                    for r in realized
                 ],
             ),
         ]

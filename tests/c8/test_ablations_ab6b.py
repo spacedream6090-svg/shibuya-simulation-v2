@@ -41,9 +41,15 @@ def _canonical_sha256(arm) -> str:
 
 # ---------------------------------------------------------------- (d1) 腕定義表
 def test_ab6b_is_the_last_arm_with_rank_10(ablation_runner, table):
+    """2026-09-19: AB6b の**後ろに** AB8(L4 の感度)と AB6c(⑥b の無制限版)を足した。
+
+    腕そのものは rank 10・index ⑥b のまま(定義はバイト不変=``test_ablations_ab8`` の
+    FROZEN が見る)。ここが見るのは「AB6b の位置が動いていないこと」に変わった。
+    """
     arm = ablation_runner.arm_by_id(table, ARM_ID)
     assert arm["rank"] == 10 and arm["index"] == "⑥b"
-    assert table["arms"][-1]["id"] == ARM_ID
+    ids = [a["id"] for a in table["arms"]]
+    assert ids[-3:] == [ARM_ID, "AB8-L4-SCALE", "AB6c-AD-NOTICE-UNCAPPED"]
     assert ARM_ID not in ablation_runner.first_wave_ids(table), "第1陣は 6 本のまま"
     assert arm["design_source"].startswith("PENDING D-59 (b)")
     assert arm["status"] == "ready"

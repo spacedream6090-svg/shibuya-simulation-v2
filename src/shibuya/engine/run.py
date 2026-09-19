@@ -305,6 +305,14 @@ class RunResult:
     renderer_name: str = ""
     #: 知覚のトークン配分(知覚契約書 §3.2 の義務 ablation ①)。``fixed_slots`` / ``single_ranking``。
     budget_mode: str = BudgetMode.FIXED_SLOTS.value
+    #: **L4 呼数予算の倍率**(PENDING D-99 (a)・腕 AB8-L4-SCALE)。``1.0``=予算宣言表 L4 の
+    #: とおり(400 万呼/日を体数按分=既定・現行のバイト)/``0.5``・``2.0``=半分・倍/
+    #: ``0.0``=**無制限**(1 tick の上限を体数に置く=起床候補は合流後に高々 1 件/体なので
+    #: 繰り延べが起きない)。``budget`` を直に渡したランでは倍率は 1.0 のまま。
+    l4_scale: float = 1.0
+    #: このランで**実際に使った** 1 tick の呼数上限(``Arbiter.budget``)。既定のランでは
+    #: ``arbiter.call_budget_per_tick(n_agents)``(5,000 体で 34.72)。
+    budget_per_tick: float = 0.0
     #: p_notice の ablation(§3.1 A0-A4)。既定 ``A4``=完成形。
     p_notice_ablation: str = "A4"
     #: ablation ②(§8 第1陣)。``p_notice`` の d50 の倍率。既定 1.0=§3.1 の 40 m。
@@ -590,6 +598,8 @@ class RunResult:
             ``registry_hash``(世界側台帳)・``replay_date``(D-W15 の実日)・
             ``template_sha256``(知覚テンプレ v1 の凍結ハッシュ)・
             ``budget_mode``(知覚契約書 §3.2 ablation ① の腕)・
+            ``l4_scale``/``budget_per_tick``(L4 呼数予算の腕=D-99 (a)・AB8-L4-SCALE。
+            既定 ``1.0`` と ``call_budget_per_tick(n_agents)``)・
             ``p_notice_ablation``/``p_notice_d50_scale``/``refractory_scale``/``signage``
             (§8 第1陣 ②③⑥ の腕。既定は ``A4``/``1.0``/``{}``/``True``)・
             ``signage_p_see``(看板の注視ゲート=§4 段1 の p_see・D-59 (b)・腕
@@ -629,6 +639,9 @@ class RunResult:
             "replay_date": self.replay_date,
             "template_sha256": _T.template_sha256(),
             "budget_mode": self.budget_mode,
+            # ---- D-99 (a) L4 呼数予算の腕(既定 1.0=宣言どおりの按分)。腕 AB8-L4-SCALE ----
+            "l4_scale": float(self.l4_scale),
+            "budget_per_tick": float(self.budget_per_tick),
             # ---- ablation 第1陣(§8)の腕。既定値のランでも欄は常に出る ----
             "p_notice_ablation": self.p_notice_ablation,
             "p_notice_d50_scale": float(self.p_notice_d50_scale),
@@ -1084,6 +1097,7 @@ def run_day(
     checkpoint_every: int = 360,
     day_index: int = 0,
     budget: float | None = None,
+    l4_scale: float = 1.0,
     n_cells: int = 139,
     mode: str = "record",
     tape_path: str | Path | None = None,
@@ -1147,6 +1161,10 @@ def run_day(
         checkpoint_every: checkpoint 間隔[tick]。
         day_index: 曜日(0=月曜)。
         budget: 1 tick の呼数上限(None なら L4 按分)。
+        l4_scale: **manifest に載せるだけ**の同定欄(PENDING D-99 (a)・腕 AB8-L4-SCALE)。
+            倍率から ``budget`` を作るのは ``cli.run``(``l4_scale>0`` なら
+            ``call_budget_per_tick(n_agents)×倍率``・``0`` なら ``n_agents``=無制限)。
+            ここでは**計算に一切使わない**=既定 1.0 のランのバイトは 1 つも動かない。
         n_cells: 合成世界を作るときのセル数。
         mode: ``"record"``(``llm`` を呼ぶ)/ ``"replay"``(テープ完全一致・テープ外は計数)。
         tape_path: 録画テープの出力先(None なら記録しない)。
@@ -1523,9 +1541,9 @@ def run_day(
     #: edge 幾何の診断(ラン通算)。node では 0 のまま。
     geometry_hops = 0
     geometry_jammed = 0
-    arbiter = Arbiter(
-        n_agents, salt, budget if budget is not None else call_budget_per_tick(n_agents)
-    )
+    #: このランの 1 tick の呼数上限(``None`` なら L4 按分)。manifest の ``budget_per_tick``。
+    effective_budget = float(budget) if budget is not None else call_budget_per_tick(n_agents)
+    arbiter = Arbiter(n_agents, salt, effective_budget)
     space = C.ResourceSpace(world.n_poi, n_agents, world.n_cells)
 
     # 計画境界。W17 週次表(w17_schedule.parquet)があればそれを使い、無ければ mock 日課の 5 境界へ落ちる
@@ -2369,6 +2387,9 @@ def run_day(
         if perception is not None
         else budget_mode_enum
     ).value
+    # D-99 (a): L4 呼数予算の腕(倍率は申告・``budget_per_tick`` は**実際に使った値**)。
+    result.l4_scale = float(l4_scale)
+    result.budget_per_tick = float(arbiter.budget)
     # ablation 第1陣 ②③⑥ の腕(manifest の同定欄)。⑥ は**実際に描いた側**が正。
     result.p_notice_ablation = _pnotice_ablation_name(
         runner.salient.ablation if runner is not None else p_notice_ablation

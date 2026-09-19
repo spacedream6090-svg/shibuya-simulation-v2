@@ -146,16 +146,23 @@ def test_the_added_arms_are_implemented(ablation_runner, table):
     extra = [a for a in table["arms"] if a["id"] not in wave1]
     assert [a["id"] for a in extra] == [
         "AB7-OPEN-INTENT", "AB7b-HINT-INTENT", "AB7c-VOCAB-V2", "AB6b-AD-NOTICE",
+        # 2026-09-19: ⑧ L4 の感度(D-99 (a))・⑥c ⑥b の無制限版(第245 ユーザー指示)
+        "AB8-L4-SCALE", "AB6c-AD-NOTICE-UNCAPPED",
     ]
     for a in extra:
         assert a["switch"]["implemented"] is True and a["status"] == "ready"
 
 
 def test_mock_ineffective_arms_are_prompt_only(table):
-    """mock で差が出ない腕=**プロンプト本文しか変えない**腕(①⑥⑥bと AB7・AB7b)。"""
+    """mock で差が出ない腕=**プロンプト本文しか変えない**腕(①⑥⑥b⑥cと AB7・AB7b)。
+
+    ⑥c(2026-09-19)は 4 ランとも ``l4_scale=0`` で**予算は腕の中で同じ**=腕の中の差は
+    看板だけなので ⑥b と同じく mock では出ない。⑧(L4 の感度)は逆に予算そのものを振る
+    =エンジン側の量なので mock でも動く(``mock_effective: true``)。
+    """
     prompt_only = {a["id"] for a in table["arms"] if not a["switch"]["mock_effective"]}
     assert prompt_only == {
-        "AB1-BUDGET-MODE", "AB6-AD-ZERO", "AB6b-AD-NOTICE",
+        "AB1-BUDGET-MODE", "AB6-AD-ZERO", "AB6b-AD-NOTICE", "AB6c-AD-NOTICE-UNCAPPED",
         "AB7-OPEN-INTENT", "AB7b-HINT-INTENT",
     }
 
