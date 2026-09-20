@@ -54,3 +54,9 @@
 - **腕**: `AB8-L4-SCALE`(rank 11・⑧: l4_x1 基準/l4_x0.5/l4_x2/l4_unlimited・mock で変異)・`AB6c-AD-NOTICE-UNCAPPED`(rank 12・⑥c: ⑥b の 4 構成+`l4_scale 0`)。既存 10 腕は FROZEN SHA 不変・`validate_table` []・totals 算術一致・L2 超過は note に宣言(無制限腕の実費は実測で置換)。
 - **テスト**: +34(`tests/c8/test_ablations_ab8.py` 21・`tests/test_cli_l4_scale.py` 13)。並び/本数の assert 6 か所を更新(中身の assert は無傷)。親検収: c8+cli+P6 200 passed・実資産 5,000 体の checkpoint 4 既定=`ba01bd0b`・`--l4-scale 2.0`=`728dcfa2`(繰り延べ 20,798=変異検出)。サブの全テスト 2,814 本で P6 性能 1 件が負荷で落ちたが親の再実行で通過。
 - **切替口の扱い**: 既定 OFF 相当(1.0)。D-99 (a)・D-59 の「呼数制限なしで再検証」(ユーザー 2026-09-19)。
+
+### #39 図 8・図 9(第248・2026-09-20・親)
+
+- `tools/fig/fig_ab8_budget.py` → `docs/bench/figures/fig8_ab8_budget.{png,svg,json}`: AB8-L4-SCALE の 4 ラン(×0.5/×1/×2/無制限)を横軸=実際の呼/体/日で並べ、(a) 実現購入/体/日 (b) 売上 円/体 (c) 実現乗車/体/日 (d) 会話セッション (e) 購入シェア % (f) 購入/千呼。runner JSON の `realized.*` だけから作る(割り算のみ)。
+- `tools/fig/fig_ab6c_uncapped.py` → `fig9_ab6c_uncapped.{png,svg,json}`: 看板あり腕に対する Δ購入[pp] を上限あり(AB6b s1/s2)と無制限(AB6c s1)で並べ(AD1 線・seed 差の帯)、(b) 会話呼 (c) 休憩シェアを 4 腕×2 条件で並べる。腕定義・購入シェアの式は図 6 のモジュールを再利用。
+- 作法は図 5〜7 と同じ(`_style.py`・dpi 150・再現バイト・相対パス・`T(ja,en)`)。テスト `tests/fig/test_fig_smoke.py` +4(純関数・描画・図 6 定義の再利用)=fig 24 passed。README に図 8/図 9 の節。

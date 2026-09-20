@@ -237,6 +237,36 @@ python tools/fig/fig_ab7_actions.py \
 
 ---
 
+## 図 8 — `fig8_ab8_budget.{png,svg,json}`(第248)
+
+**何を示すか** LLM 呼数の予算(L4)を ×0.5 / ×1(現行)/ ×2 / 無制限にした同構成 4 ラン(AB8-L4-SCALE・5,000 体×1 日・seed 1)を、横軸=**実際の呼/体/日**で並べる。(a) 実現した購入/体/日 (b) 売上 円/体 (c) 実現した乗車/体/日 (d) 会話セッション/日(青=世界で実現した量)、(e) 購入シェア[%](LLM の選択)(f) 購入/千呼(灰=選択・効率)。現行の点は赤の縁。
+
+**データの出所** runner 出力だけ: `docs/bench/c8/ablation/ablation_AB8-L4-SCALE_s{N}.json`(在る seed ぶんを読み、図は最小 seed)。実現量は `realized.*`(第245 で足した欄)。購入シェア = `action_counts["購入"] / n_texts`。
+
+**再現コマンド** `python tools/fig/fig_ab8_budget.py --out docs/bench/figures`(1 秒未満)。
+
+**注記**
+- 実現購入は 0.78→1.32→1.84→1.92/体/日(×2 で飽和・現行は飽和の 69%)、売上 630→1,632 円/体。**乗車は逆に減る**(0.130→0.081)。会話は無制限でも 31 セッション/日。
+- (e) の購入シェアが 50→36% と落ちるのは、増えた呼がセル/個体起床(購入の少ない起床)だから=選択の % は起床構成に依存する(D-98)。
+- ×1 は AB6b seed 1 の看板あり腕と final_hash まで一致(艦隊ランの決定論)。出典 `ab8_s1_parent_report.md`。
+
+---
+
+## 図 9 — `fig9_ab6c_uncapped.{png,svg,json}`(第248)
+
+**何を示すか** 看板(広告)の効果が呼数の上限を外しても残るか。(a) 看板あり腕に対する**購入シェアの差 Δ[pp]**を、上限あり(AB6b・L4 ×1・seed 1/2・青)と無制限(AB6c・`--l4-scale 0`・seed 1・アクア)で並べ、AD1 の線(±1 pp)と上限あり腕の seed 差の帯(0.15 pp)を同じ軸に置く。(b) 会話の呼数 (c) 休憩シェア を seed 1 の 4 腕で上限あり/無制限を並べる。
+
+**データの出所** runner 出力だけ: `ablation_AB6b-AD-NOTICE_s{N}.json`・`ablation_AB6c-AD-NOTICE-UNCAPPED_s{N}.json`(在る seed ぶん)。腕の定義と購入シェアの式は図 6 のモジュールを再利用(`fig_ab6b_signage.CURRENT_ARMS`・`summarize_run`)。
+
+**再現コマンド** `python tools/fig/fig_ab6c_uncapped.py --out docs/bench/figures`(1 秒未満)。
+
+**注記**
+- 無制限では Δ購入 −0.11 / 0.00 / −0.08 pp = ゼロ。上限ありの +0.3〜0.6 pp は予算の影(図 8 の起床構成の差)。AD1 は上限の有無とも内側。
+- 会話 ×2.6・休憩 +2 pp は無制限でも残る=呼数枠の取り合いではなく文面の中の注意配分の効果(D-60・C10 の材料)。
+- 色は実体に付く: 上限あり=青(slot 1)・無制限=アクア(slot 3)・AD1 の線=赤(slot 8)。出典 `ab6c_s1_parent_report.md`。
+
+---
+
 ## 表 1〜3 — `tbl{1,2,3a,3b}_*.{png,svg}` + `tbl_ablation.{md,json}`(第235)
 
 **何を示すか** 図 5〜7 の**サイドカー JSON だけ**から組んだ結果表(数値の出所を 1 つにする)。表 1 = 3 腕の行動分布・エントロピー・書式エラー率・実現した食事・入力トークン。表 2 = 看板の腕(09-10 seed 1/2・09-17 seed 在るぶん)の購入・Δ購入・会話・休憩・注視率・入力トークン。表 3a = 朝の乗車率の条件別。表 3b = 直前の行動別の次手。Discord は表を描けないので PNG を添付し、Markdown(`tbl_ablation.md`)は文書用。

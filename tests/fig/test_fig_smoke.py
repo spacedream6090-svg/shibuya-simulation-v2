@@ -426,3 +426,80 @@ def test_tables_build_markdown_and_render(style, tmp_path):
         paths = style.save(fig, tmp_path, s["stem"])
         _png_ok(tmp_path / f"{s['stem']}.png")
         assert not Path(paths["png"]).is_absolute()
+
+
+# ---------------------------------------------------------------- 図 8 / 図 9(第248)
+
+
+def _toy_ab8() -> dict:
+    rows = []
+    for tag, ja, scale, calls, buy, rev, board, sess, share in (
+        ("l4_x0.5", "×0.5", 0.5, 20000, 3900, 3_150_000, 465, 0, 50.3),
+        ("l4_x1", "×1(現行)", 1.0, 37000, 6600, 5_490_000, 648, 3, 43.8),
+        ("l4_x2", "×2", 2.0, 61000, 9200, 7_770_000, 530, 18, 37.9),
+        ("l4_unlimited", "無制限", 0.0, 77000, 9600, 8_160_000, 407, 31, 36.4),
+    ):
+        rows.append({"seed": 1, "tag": tag, "ja": ja, "en": ja, "scale": scale, "path": "toy", "n_agents": 5000,
+                     "llm_calls": calls, "calls_per_agent_day": calls / 5000, "budget_per_tick": 1.0,
+                     "l4_scale": scale, "purchases": buy, "purchases_per_agent_day": buy / 5000,
+                     "purchases_per_1k_calls": 1000 * buy / calls, "revenue_yen": rev,
+                     "revenue_yen_per_agent": rev / 5000, "boarded": board, "boarded_per_agent_day": board / 5000,
+                     "conversation_sessions": sess, "buy_share_pct": share, "deferred": 0, "conserved": True,
+                     "final_hash": "toy"})
+    return {"rows": rows, "seed": 1, "seeds_found": [1], "all_rows": rows}
+
+
+def test_fig8_summarize_is_pure_division():
+    import fig_ab8_budget as f8
+    s = f8.summarize_run({"llm_calls": 1000, "n_texts": 900, "action_counts": {"購入": 450},
+                          "realized": {"purchases": 200, "revenue_end": 50000, "n_boarded": 25},
+                          "conversation_sessions": 4, "diagnostics_day": {"deferred": 7}}, n_agents=100)
+    assert s["calls_per_agent_day"] == pytest.approx(10.0)
+    assert s["purchases_per_agent_day"] == pytest.approx(2.0)
+    assert s["purchases_per_1k_calls"] == pytest.approx(200.0)
+    assert s["revenue_yen_per_agent"] == pytest.approx(500.0)
+    assert s["boarded_per_agent_day"] == pytest.approx(0.25)
+    assert s["buy_share_pct"] == pytest.approx(50.0) and s["deferred"] == 7
+    z = f8.summarize_run({"llm_calls": 0, "n_texts": 0}, n_agents=10)
+    assert z["purchases_per_1k_calls"] is None and z["buy_share_pct"] is None
+
+
+def test_fig8_draws(style, tmp_path):
+    import fig_ab8_budget as f8
+    fig = f8.draw(_toy_ab8())
+    paths = style.save(fig, tmp_path, f8.STEM)
+    _png_ok(tmp_path / f"{f8.STEM}.png")
+    assert not Path(paths["png"]).is_absolute()
+
+
+def _toy_ab6c() -> dict:
+    def run(group, seed, tag, ja, delta, talk, rest):
+        return {"group": group, "seed": seed, "tag": tag, "ja": ja, "en": ja, "delta_buy_pp": delta,
+                "delta_rest_pp": rest - 4.4, "jsd": 0.001, "path": "toy", "boarded": 400, "purchases": 9000,
+                "revenue_yen": 8_000_000, "sessions": 10, "n_texts": 1000, "llm_calls": 1000,
+                "buy_pct": 44.0 + delta, "rest_pct": rest, "move_pct": 40.0, "wait_pct": 3.0, "ride": 10,
+                "talk": talk, "prompt_tokens_mean": 900.0, "signage_p_see": 1.0, "shown_rate": None,
+                "gate_draws": 0, "conserved": True}
+    runs = []
+    for group, base_talk in (("capped", 25), ("uncapped", 190)):
+        runs += [run(group, 1, "p_see_1_00", "現行(p_see 1.0)", 0.0, base_talk, 4.4),
+                 run(group, 1, "ad_zero", "看板なし", 0.5 if group == "capped" else -0.1, base_talk * 3, 6.0),
+                 run(group, 1, "p_see_0_30", "p_see 0.30", 0.48, base_talk * 2, 5.5),
+                 run(group, 1, "p_see_0_14", "p_see 0.14", 0.61, base_talk * 2, 5.6)]
+    rows = [r for r in runs if r["tag"] != "p_see_1_00"]
+    return {"rows": rows, "runs": runs, "ad1_line_pp": 1.0, "null_seed_pp": {"capped": 0.15, "uncapped": None},
+            "capped_seeds_found": [1], "uncapped_seeds_found": [1]}
+
+
+def test_fig9_draws(style, tmp_path):
+    import fig_ab6c_uncapped as f9
+    fig = f9.draw(_toy_ab6c())
+    paths = style.save(fig, tmp_path, f9.STEM)
+    _png_ok(tmp_path / f"{f9.STEM}.png")
+    assert not Path(paths["png"]).is_absolute()
+
+
+def test_fig9_reuses_fig6_arm_definitions():
+    import fig_ab6b_signage as f6
+    import fig_ab6c_uncapped as f9
+    assert f9.CURRENT_ARMS is f6.CURRENT_ARMS and f9.AD1_LINE_PP == f6.AD1_LINE_PP
