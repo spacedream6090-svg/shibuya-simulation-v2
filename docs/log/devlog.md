@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **9 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **10 / 10**
 > 第1〜第240(2026-09-01〜09-18)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第241 思考と判断の分離(System 1/2 層)・R-39/R-40 起動(2026-09-18 午後)
@@ -64,3 +64,11 @@
 - **実施**: 腕 AB7d-VOCAB-UNCAPPED(rank 13)・AB1b-BUDGET-MODE-UNCAPPED(rank 14)を表に追加(既存 12 腕 canonical 不変・totals 再計算・open_questions)。`arm_by_id` の AB1/AB1b 曖昧解消。テスト 7 か所更新+3 行=c8+cli_l4 102 passed。IMPLEMENTED #40。連鎖スクリプト `run_chain_A.sh`(AB8 s2→AB6c s2)・`run_chain_B.sh`(AB7d→AB1b・A の完了を待つ)・`sync_249.sh` を用意。
 - **障害**: サーバーが **公開鍵認証を拒否**(`Permission denied (publickey,password)`・TCP は確立・ホスト鍵は同じ・09-20 04:54 の AB8 完走時までは通っていた)。親からは直せない → ユーザーに確認依頼(返却/再セットアップ/authorized_keys)。
 - **次**: 繋がったら `sync_249.sh`(checkpoint ba01bd0b 一致を確認)→ tmux で連鎖 A → 連鎖 B。回収・親検収は第250〜。
+
+## 第250 GPU サーバーの利用終了と在庫確認(2026-09-22 夜)
+
+- **事実**: ユーザー「多分使用できなくなったと思う」。09-22 の SSH は TCP 確立・**公開鍵認証で拒否**。最後に通ったのは 09-20 04:54(AB8 seed 1 完走)。見張りは停止。
+- **在庫確認(親)**: 世界資産 `data/world/v2` 9.3 GB(117 ファイル)・ablation テープ 10 本 85 MB(AB6b s1/s2・AB6c s1・AB7 s1/s2・AB7b・AB7c s1/s2・AB8 s1・c7-day-3)・サーバー回収物 3.0 GB(09-16/09-17)・退避 1.1 GB・c7 の occupancy/holdout/受入・図表 一式。**解析に要るものは全部ローカル**=完了済みの成果は 1 つも失われていない。
+- **止まるもの**: 準備済み未実行の 4 ラン(AB8 s2・AB6c s2・AB7d・AB1b)・39 万体・実 LLM スモーク全部・W17 再生成(390k 呼)。**止まらないもの**: mock ラン・テープ再集計・図表・W6 再生成(LLM 不要)・記憶/判断層の実装とモック検証・文書・未踏起草。
+- **未処理**: 返却前チェックリスト(HF キャッシュ削除・~/bench/~/c5/~/v2 の退避)は実行できないまま=管理者への消去依頼はユーザー判断。リポの秘密は無く API キーは環境変数のみ。
+- **次**: 代替計算資源の判断(手元 RTX 5070+WSL2 / 時間借り / 当面止める)。最優先は未踏(エントリー 9/24 13:00)。
