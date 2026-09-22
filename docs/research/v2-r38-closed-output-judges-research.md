@@ -5,7 +5,7 @@
 - **分野**: 自然言語処理・機械学習 #27 / LLM サービング #31 / ABM方法論 #21 | **重要度**: P0(判断層の実装候補を決めるため)
 - **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
 - **担当**: リサーチサブ(Opus 5)・**子サブ不使用**・Web は**読むだけ**(ダウンロード実行なし)・**コミットせず**・**台帳を編集せず**
-- **制約の前提**(2026-09-22 確定): GPU サーバー喪失。使えるのは **CPU** と **RTX 5070(12 GB)1 枚**のみ。§3 の比較表に評価軸として入れた。
+- **制約の前提**(2026-09-22 確定): GPU サーバー喪失。使えるのは **CPU** と **RTX 5070(12 GB)1 枚**のみ。§3 の比較表に評価軸として入れた。 **(第254 撤回・ユーザー指示 09-23「計算資源は設計判断の軸にしない」)**: §3 の「RTX 5070 で動くか」列は**資源の事実としてのみ残し、候補の順位には使わない**。
 - **依頼外**: Jev / Open-Jev(TypeSafe 社)は**親の担当**。本答申では調査していない(§5 参照)。
 
 > **設計は書かない**。事実と、事実から直接出る含意だけを書く。
@@ -17,7 +17,7 @@
 > **親検収(2026-09-23・第253・Fable 5.1)**: サブの申告どおり原典に当たり、**結論を変える 4 件を親が逐語で確認した**。
 > - **✓ GenWorld(arXiv:2606.27650)**: abs で 題名「GenWorld: Empirically Grounded Urban Simulation Infrastructure for Scalable LLM-Agent Studies」・投稿 2026-06-26・「grounds **196,608** synthetic residents」「**Higashihiroshima, Japan**」「**offline compilation of LLM-derived decision signals into lookup policies**」を確認。本文(HTML v1)で **教師 = Gemma 3 27B**(「a single teacher model (Gemma 3 27B)」)・**K=10–30**・意図空間「fixed to {home, duty, leisure, maintenance}」・**「Python lookup achieves 1.85M queries/s (0.54μs per query)」「Intel Core i5-14600K CPU」**・「N=200,000 agents … T=96 and thus **1.92×10^7 calls** for a single day」・**端から端の高速化は未報告**(「profiling under varying agent counts is **ongoing work**」)を逐語確認。**サブの記述と一致**。
 > - **✓ Light Society(arXiv:2506.12078)**: abs で 題名「Modeling Earth-Scale Human-Like Societies with One Billion Agents」・著者 13 名・**v1 2025-06-07 / v2 2026-06-28**・「**mixture-of-models engine that combines full LLMs with distilled surrogates**」「over **one billion** agents」を確認。**ただし routing policies(all-LLM / all-surrogate / per-sample weighted)・macro F1 0.84〜0.85・教師 Gemini 2.0 Flash は abstract に無い=本文の主張**で、**親は本文を未確認**(サブは v2 実読と申告)。設計書に写すときは親が本文を読むこと。
-> - **✓ vLLM の logprob(最重要)**: 公式 FAQ に逐語 **「vLLM does not guarantee stable log probabilities (logprobs) for the output tokens.」** を確認。原因は「numerical instability in Torch operations」と**バッチの組み方の違い**で、「can lead to slightly different logit/logprob values at each step」→「Once a different token is sampled, further divergence is likely」。緩和は float32・float16・request seeds のみで、**完全な決定論・bit 再現は謳っていない**。→ **v2 の受入「同 seed で bit 一致」と正面から衝突する**(§5 の含意を参照)。
+> - **✓ vLLM の logprob(最重要)**: 公式 FAQ に逐語 **「vLLM does not guarantee stable log probabilities (logprobs) for the output tokens.」** を確認。原因は「numerical instability in Torch operations」と**バッチの組み方の違い**で、「can lead to slightly different logit/logprob values at each step」→「Once a different token is sampled, further divergence is likely」。緩和は float32・float16・request seeds のみで、**完全な決定論・bit 再現は謳っていない**。→ ~~**v2 の受入「同 seed で bit 一致」と正面から衝突する**~~ **第254 訂正(親)**: v2 の艦隊は `VLLM_BATCH_INVARIANT=1` で起動し(検証ランは manifest 規則 (c) で必須)、[B14](../bench/b14_batch_invariance/README.md)(09-07・A5000・vLLM 0.28.0・8B INT8)で **logprobs の一致 32/32(OFF では 0/32)**を実測済み。FAQ の非保証は既定モードの話で、**v2 の構成では衝突しない**。第253 の判定は親が既存ベンチを確認せずに書いた誤り(§2-4)。§5 の含意もこの訂正で読むこと。
 > - **✓ 日本語ゼロショットの実在**: `Formzu/bert-base-japanese-jsnli` のモデルカードで **JSNLI 評価 Accuracy 0.9288**・**cc-by-sa-4.0**・base `cl-tohoku/bert-base-japanese-v2`・zero-shot パイプラインの例と **hypothesis_template「この例は{}です。」** を逐語確認。**サブの記述と一致**。
 > - **△ 未確認 1 件**: `akiFQC/bert-base-japanese-v3-nli-jsnli-jnli-jsick`(JNLI val 0.914)は **HF が HTTP 401 を返し親は読めなかった**。モデルが存在しないという意味ではない=**親未確認**として扱う。
 >
