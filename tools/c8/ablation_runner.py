@@ -112,6 +112,12 @@ def arm_by_id(table: Mapping[str, Any], arm_id: str) -> dict[str, Any]:
     if exact:
         return dict(exact[0])
     pref = [a for a in arms if str(a.get("id", "")).upper().startswith(key)]
+    if len(pref) > 1:
+        # 2026-09-22: ``AB1`` は ``AB1-BUDGET-MODE`` と ``AB1b-BUDGET-MODE-UNCAPPED`` の両方に
+        # 前方一致する。腕コードそのもの(キーの直後が ``-``)を優先して曖昧さを消す。
+        whole = [a for a in pref if str(a.get("id", "")).upper()[len(key):len(key) + 1] == "-"]
+        if len(whole) == 1:
+            pref = whole
     idx = [a for a in arms if str(a.get("index", "")) == arm_id]
     hit = pref or idx
     if len(hit) == 1:

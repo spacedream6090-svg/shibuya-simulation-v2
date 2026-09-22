@@ -239,7 +239,8 @@ def test_the_markdown_carries_the_realized_table(ablation_runner, table, tmp_pat
 # ------------------------------------------------------------ (t5) 腕定義表
 def test_the_two_arms_are_appended(ablation_runner, table):
     ids = [a["id"] for a in table["arms"]]
-    assert ids[-2:] == [ARM_ID, ARM_UNCAPPED_ID]
+    # 2026-09-22: AB7d・AB1b が末尾に付いた=この 2 腕は末尾の 2 つ手前
+    assert ids[-4:-2] == [ARM_ID, ARM_UNCAPPED_ID]
     a8 = ablation_runner.arm_by_id(table, ARM_ID)
     a6c = ablation_runner.arm_by_id(table, ARM_UNCAPPED_ID)
     assert (a8["rank"], a8["index"]) == (11, "⑧")
@@ -337,7 +338,7 @@ def test_the_cost_and_totals_are_arithmetic(c8lib, table, ablation_runner):
         # 無制限腕は本表の「1 ラン=呼 50,000」の規約の外=note で宣言する
         assert "約 1 h/本" in c["note"] or "無制限" in c["note"]
     t = table["totals"]
-    assert t["runs_if_independent"] == sum(a["cost"]["runs"] for a in table["arms"]) == 33
+    assert t["runs_if_independent"] == sum(a["cost"]["runs"] for a in table["arms"]) == 38  # 2026-09-22: +AB7d 3 +AB1b 2
     assert t["within_l2"] is (t["gpu_hours_with_shared_baseline"] <= t["l2_reserve_hours"])
     if not t["within_l2"]:
         assert "L2" in t["note"]

@@ -60,3 +60,9 @@
 - `tools/fig/fig_ab8_budget.py` → `docs/bench/figures/fig8_ab8_budget.{png,svg,json}`: AB8-L4-SCALE の 4 ラン(×0.5/×1/×2/無制限)を横軸=実際の呼/体/日で並べ、(a) 実現購入/体/日 (b) 売上 円/体 (c) 実現乗車/体/日 (d) 会話セッション (e) 購入シェア % (f) 購入/千呼。runner JSON の `realized.*` だけから作る(割り算のみ)。
 - `tools/fig/fig_ab6c_uncapped.py` → `fig9_ab6c_uncapped.{png,svg,json}`: 看板あり腕に対する Δ購入[pp] を上限あり(AB6b s1/s2)と無制限(AB6c s1)で並べ(AD1 線・seed 差の帯)、(b) 会話呼 (c) 休憩シェアを 4 腕×2 条件で並べる。腕定義・購入シェアの式は図 6 のモジュールを再利用。
 - 作法は図 5〜7 と同じ(`_style.py`・dpi 150・再現バイト・相対パス・`T(ja,en)`)。テスト `tests/fig/test_fig_smoke.py` +4(純関数・描画・図 6 定義の再利用)=fig 24 passed。README に図 8/図 9 の節。
+
+### #40 腕 AB7d-VOCAB-UNCAPPED・AB1b-BUDGET-MODE-UNCAPPED(第249・2026-09-22・親)
+
+- `tools/c8/ablations_v1.json` 末尾に 2 腕(rank 13 ⑦d・rank 14 ①b・ready)。⑦d = ⑦c の 3 構成(vocab_v1 基準 / vocab_v2 / open_v2)に `l4_scale 0`。①b = ① の 2 構成(fixed_slots 基準 / single_ranking)に `l4_scale 0`。切替口は既存の口の重ね合わせ(src/ 変更なし)。既存 12 腕は canonical JSON 不変(スクリプトで検査)。totals 再計算(独立 38 ラン・共有後 23 ラン 1,150,000 呼 11.12 h・L2 超過は note に宣言)。open_questions に 2 腕の baseline が ⑧ l4_unlimited と同一構成(final_hash 一致の見込み)を記録。
+- `ablation_runner.arm_by_id`: 前方一致が複数(`AB1` → AB1-… と AB1b-…)のとき腕コードそのもの(キー直後が `-`)を優先。既存の引き方は不変。
+- テスト: 位置/本数の assert 7 か所を更新・`test_arm_by_id_forms` に ab1b/①b/ab7d の 3 行。c8+cli_l4 102 passed。

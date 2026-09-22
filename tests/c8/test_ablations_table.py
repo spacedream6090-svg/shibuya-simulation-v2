@@ -148,6 +148,8 @@ def test_the_added_arms_are_implemented(ablation_runner, table):
         "AB7-OPEN-INTENT", "AB7b-HINT-INTENT", "AB7c-VOCAB-V2", "AB6b-AD-NOTICE",
         # 2026-09-19: ⑧ L4 の感度(D-99 (a))・⑥c ⑥b の無制限版(第245 ユーザー指示)
         "AB8-L4-SCALE", "AB6c-AD-NOTICE-UNCAPPED",
+        # 2026-09-22: ⑦d 語彙の無制限版(D-91)・①b 固定枠の無制限版(D-60)=第249 ユーザー「B まで回そう」
+        "AB7d-VOCAB-UNCAPPED", "AB1b-BUDGET-MODE-UNCAPPED",
     ]
     for a in extra:
         assert a["switch"]["implemented"] is True and a["status"] == "ready"
@@ -164,6 +166,8 @@ def test_mock_ineffective_arms_are_prompt_only(table):
     assert prompt_only == {
         "AB1-BUDGET-MODE", "AB6-AD-ZERO", "AB6b-AD-NOTICE", "AB6c-AD-NOTICE-UNCAPPED",
         "AB7-OPEN-INTENT", "AB7b-HINT-INTENT",
+        # 2026-09-22: ⑦d・①b も予算は腕の中で同じ(l4_scale=0)=文面だけの差
+        "AB7d-VOCAB-UNCAPPED", "AB1b-BUDGET-MODE-UNCAPPED",
     }
 
 
@@ -171,6 +175,10 @@ def test_mock_ineffective_arms_are_prompt_only(table):
 def test_arm_by_id_forms(ablation_runner, table):
     assert ablation_runner.arm_by_id(table, "AB1-BUDGET-MODE")["rank"] == 1
     assert ablation_runner.arm_by_id(table, "ab1")["rank"] == 1
+    # 2026-09-22: ``AB1`` は ``AB1b-BUDGET-MODE-UNCAPPED`` にも前方一致するが、腕コードそのものが優先
+    assert ablation_runner.arm_by_id(table, "ab1b")["id"] == "AB1b-BUDGET-MODE-UNCAPPED"
+    assert ablation_runner.arm_by_id(table, "①b")["id"] == "AB1b-BUDGET-MODE-UNCAPPED"
+    assert ablation_runner.arm_by_id(table, "ab7d")["index"] == "⑦d"
     assert ablation_runner.arm_by_id(table, "③")["id"] == "AB3-REFRACTORY-PROX"
     with pytest.raises(KeyError):
         ablation_runner.arm_by_id(table, "AB9")

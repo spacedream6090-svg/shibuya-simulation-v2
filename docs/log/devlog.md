@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **8 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **9 / 10**
 > 第1〜第240(2026-09-01〜09-18)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第241 思考と判断の分離(System 1/2 層)・R-39/R-40 起動(2026-09-18 午後)
@@ -57,3 +57,10 @@
 - **依頼**: 「Discord 投稿用の画像を、今回の検証ランの分も作って」。
 - **成果**: 図 8 `fig8_ab8_budget`(L4 予算 vs 実現量 6 面)・図 9 `fig9_ab6c_uncapped`(看板の効果 上限あり vs 無制限)。tools/fig に 2 本・テスト +4(24 passed)・README 2 節=IMPLEMENTED #39。図 9 は凡例と帯ラベルの重なりを 2 回直した(親が PNG を目視)。
 - **次**: ユーザーの Discord 投稿(図 8・図 9 を添付)。D-99 の上限の判断・D-59 閉じる・詳説文書への返答。
+
+## 第249 「B まで回そう」→ 腕 2 本追加・連鎖準備・サーバー鍵拒否(2026-09-22)
+
+- **依頼**: 第248 後の問い「いま回せる検証ランはない?」→ 親が A(既存腕の seed 2: AB8・AB6c)/ B(腕定義を足す: AB7d 語彙 v1/v2 無制限・AB1b 固定枠/ランキング無制限)/ C(39 万体・要明示)を提示 → ユーザー「B まで回そう」。
+- **実施**: 腕 AB7d-VOCAB-UNCAPPED(rank 13)・AB1b-BUDGET-MODE-UNCAPPED(rank 14)を表に追加(既存 12 腕 canonical 不変・totals 再計算・open_questions)。`arm_by_id` の AB1/AB1b 曖昧解消。テスト 7 か所更新+3 行=c8+cli_l4 102 passed。IMPLEMENTED #40。連鎖スクリプト `run_chain_A.sh`(AB8 s2→AB6c s2)・`run_chain_B.sh`(AB7d→AB1b・A の完了を待つ)・`sync_249.sh` を用意。
+- **障害**: サーバーが **公開鍵認証を拒否**(`Permission denied (publickey,password)`・TCP は確立・ホスト鍵は同じ・09-20 04:54 の AB8 完走時までは通っていた)。親からは直せない → ユーザーに確認依頼(返却/再セットアップ/authorized_keys)。
+- **次**: 繋がったら `sync_249.sh`(checkpoint ba01bd0b 一致を確認)→ tmux で連鎖 A → 連鎖 B。回収・親検収は第250〜。

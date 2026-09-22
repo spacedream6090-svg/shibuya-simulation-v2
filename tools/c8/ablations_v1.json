@@ -705,18 +705,140 @@
       "acceptance": "**合格線は ⑥b と同じく AD1 を借りる**: baseline と ad_zero の**購入の絶対差が 1pp 未満**に入る p_see が在るか。読み方は ⑥b と同じで、加えて『⑥b と同じ順序・同じ符号で並ぶか』を見る(並ばなければ予算の副作用)。帰無参照は n が変わるので**この腕の中で取り直す**(JSD は ~1/n)。",
       "status": "ready",
       "note_parent": "親注(2026-09-19): ユーザー指示(第245)。**指紋の宣言** ① 較正値 0.30 / 0.14 は ⑥b から**そのまま持ってきた**(帯の下側という決定だけが正典・値は expedient) ② 呼数上限を外すと 1 呼/体/tick まで出るので、**この腕は ⑥b と呼数が違う=絶対値は比べない**(比べるのは腕の中の差) ③ 無制限でも就寝抑止・域外抑止・不応期は効いたまま=『全員が毎分 LLM を呼ぶ』世界ではない ④ 実現量(realized)を両腕で並べると、看板の差が購入以外(乗車・会話)へ波及しているかが読める。"
+    },
+    {
+      "id": "AB7d-VOCAB-UNCAPPED",
+      "rank": 13,
+      "index": "⑦d",
+      "name": "語彙 v1 / v2 / 自由意図を**呼数制限なし**で(⑦c の無制限版)",
+      "design_source": "PENDING D-91 第249 ユーザー指示(2026-09-22)「B まで回そう」= 語彙 v2 の付随変化(乗車 −48%・休憩 ×2.2)が L4 上限の影か文面の効果かを切り分ける",
+      "hypothesis": "⑦c(語彙 v2)で見えた乗車半減・休憩倍増は、同じ呼の中の選択率の変化(第235 診断)だが、上限ありでは『誰が呼ばれるか』が予算の並び替えで決まる。同じ 3 構成を l4_scale=0 で回し、(i) 選択率の差(乗車 3.9→1.7%・食事→休憩 22%)が再現するか (ii) 実現した乗車・食事・購入・売上(realized)が v1/v2 でどう違うか を見る。再現すれば文面の効果=D-91 の判断材料はそのまま・再現しなければ予算の副作用。",
+      "switch": {
+        "kind": "implemented_flag",
+        "how": "cli.run(l4_scale=0, intent_mode='vocab'|'open', vocab_version='v1'|'v2') / CLI --l4-scale 0 --intent-mode M --vocab-version V(⑦c と同じ口に --l4-scale 0 を重ねるだけ=新しい切替口は作らない)",
+        "implemented": true,
+        "mock_effective": false,
+        "mock_note": "3 ランとも l4_scale=0 で同じなので腕の中の差は文面だけ=MockLLM は本文を読まないので行動分布・final_hash は動かない(⑦c と同じ理由)。",
+        "diff_proposal": "",
+        "verified": "⑦c の経路(vocab_version → contract/templates/undefined)に ⑧ の経路(cli.run(l4_scale=0) → budget=float(n_agents))を重ねただけ。src/ には 1 行も足していない。tests/c8/test_ablations_ab7d.py"
+      },
+      "runs": [
+        {
+          "tag": "vocab_v1",
+          "kwargs": {
+            "l4_scale": 0.0,
+            "intent_mode": "vocab",
+            "vocab_version": "v1"
+          },
+          "is_baseline": true
+        },
+        {
+          "tag": "vocab_v2",
+          "kwargs": {
+            "l4_scale": 0.0,
+            "intent_mode": "vocab",
+            "vocab_version": "v2"
+          }
+        },
+        {
+          "tag": "open_v2",
+          "kwargs": {
+            "l4_scale": 0.0,
+            "intent_mode": "open",
+            "vocab_version": "v2"
+          }
+        }
+      ],
+      "control": "⑦c と同じ 3 構成(baseline=vocab_v1 / vocab_v2 / open_v2)に l4_scale=0 を重ねたもの。対照は腕の中で閉じる(⑦c とは呼数が違うので直接は比べない)。**vocab_v1 の無制限ランは ⑧ l4_unlimited・⑥c p_see_1_00 と同一構成**(既定に l4_scale=0 だけ)=final_hash が一致するはず(艦隊ランの決定論の再確認)。",
+      "metrics": [
+        "grounding_rate",
+        "undefined_rate",
+        "top_undefined_words",
+        "action_jsd",
+        "format_error_rate",
+        "llm_calls",
+        "prompt_tokens_mean",
+        "conserved",
+        "final_hash",
+        "realized"
+      ],
+      "cost": {
+        "runs": 3,
+        "calls": 150000,
+        "calls_with_shared_baseline": 100000,
+        "gpu_hours": 1.45,
+        "gpu_hours_with_shared_baseline": 0.9667,
+        "note": "本表の規約(1 ラン=呼 50,000)の枠の見積り。3 ランとも無制限なので実際の呼数は上回る(⑥c 実測 ≈77,300 呼/ラン・約 37 分/ラン=上限ありと同じ壁時計)。baseline は ⑧ l4_unlimited と同一構成なので共有可(実行器は腕をまたいだ共有を持たないので、回すなら親判断)。"
+      },
+      "acceptance": "合格線は置かない(⑦c と同じく報告値)。読み方: (i) v1→v2 の乗車の選択率・食事→休憩の連鎖率が ⑦c の seed 1/2 と同じ向き・同じ桁か (ii) realized の乗車・食事・購入・売上の v1/v2 差。D-91(v2 既定化)の材料。",
+      "status": "ready",
+      "note_parent": "親注(2026-09-22): ユーザー「B まで回そう」(第249)。指紋の宣言 ① 3 構成は ⑦c から持ち越し(値の選択なし) ② 無制限の置き方は ⑧ と同じ expedient(体数) ③ 比べるのは腕の中の差。"
+    },
+    {
+      "id": "AB1b-BUDGET-MODE-UNCAPPED",
+      "rank": 14,
+      "index": "①b",
+      "name": "チャネル固定枠 vs 単一ランキングを**呼数制限なし**で(① の無制限版)",
+      "design_source": "PENDING D-60 第249 ユーザー指示(2026-09-22)「B まで回そう」= ①(固定枠が結果を駆動・購入 −3.7 pp)が L4 上限の影か文面の効果かを切り分ける",
+      "hypothesis": "①(09-10・C7 期)で単一ランキングにすると購入 −3.7 pp 動いた。固定枠 vs ランキングは**観測の文面**の差で、上限の有無とは独立のはずだが、上限ありでは誰が呼ばれるかも変わる。同じ 2 構成を l4_scale=0・現行コードで回し、差の大きさと向きが残るかを見る。残れば D-60 の所見は文面の効果・消えれば予算の副作用。",
+      "switch": {
+        "kind": "implemented_flag",
+        "how": "cli.run(l4_scale=0, budget_mode='fixed'|'ranking') / CLI --l4-scale 0 --budget-mode {fixed,ranking}(① と同じ口に --l4-scale 0 を重ねるだけ)",
+        "implemented": true,
+        "mock_effective": false,
+        "mock_note": "budget_mode は文面(トークン配分)を変えるだけ=MockLLM では動かない(① と同じ理由)。",
+        "diff_proposal": "",
+        "verified": "① の経路(budget_mode → perception.renderer のトークン配分)に ⑧ の経路を重ねただけ。src/ には 1 行も足していない。tests/c8/test_ablations_ab7d.py"
+      },
+      "runs": [
+        {
+          "tag": "fixed_slots",
+          "kwargs": {
+            "l4_scale": 0.0,
+            "budget_mode": "fixed"
+          },
+          "is_baseline": true
+        },
+        {
+          "tag": "single_ranking",
+          "kwargs": {
+            "l4_scale": 0.0,
+            "budget_mode": "ranking"
+          }
+        }
+      ],
+      "control": "① と同じ 2 構成に l4_scale=0 を重ねたもの。**fixed_slots の無制限ランは ⑧ l4_unlimited と同一構成**=final_hash が一致するはず。① は C7 期のコード(09-10)なので現行コードでの上限あり対照は無い(比べるのは腕の中の差と ① の向き)。",
+      "metrics": [
+        "action_jsd",
+        "prompt_tokens_mean",
+        "group_tokens",
+        "format_error_rate",
+        "conserved",
+        "realized"
+      ],
+      "cost": {
+        "runs": 2,
+        "calls": 100000,
+        "calls_with_shared_baseline": 50000,
+        "gpu_hours": 0.9667,
+        "gpu_hours_with_shared_baseline": 0.4833,
+        "note": "本表の規約の枠の見積り。2 ランとも無制限(実測 ≈77,300 呼・約 37 分/ラン)。baseline は ⑧ l4_unlimited と同一構成。"
+      },
+      "acceptance": "合格線は置かない(① と同じく §10.3『同等』の数値化は親判断待ち)。読み方: 単一ランキングで購入・会話・実現量がどれだけ動くか、① の −3.7 pp と向きが同じか。",
+      "status": "ready",
+      "note_parent": "親注(2026-09-22): ユーザー「B まで回そう」(第249)。① の 09-10 ランは C7 期のコードなので、現行コードの上限あり対照が要るなら別腕(親判断)。"
     }
   ],
   "totals": {
-    "runs_if_independent": 33,
-    "runs_with_shared_baseline": 20,
-    "calls_with_shared_baseline": 1000000,
-    "gpu_hours_with_shared_baseline": 9.6667,
+    "runs_if_independent": 38,
+    "runs_with_shared_baseline": 23,
+    "calls_with_shared_baseline": 1150000,
+    "gpu_hours_with_shared_baseline": 11.1167,
     "l2_reserve_hours": 4.8,
     "within_l2": false,
-    "note": "腕ごとに baseline を取り直すと 25 ラン・呼 1,250,000=12.08 h。AB4/AB5 は前提機能が未実装で ``runs`` が空なので、共有ベースライン側の数には最初から入っていない。AB7/AB7b/AB7c と AB6b(⑥ の後追い・D-59 (b))は第1陣(§8 の 6 本)ではないが ablation の取り分(L2)は同じ財布なのでここで通算する。**共有ベースライン込みの 20 ラン・呼 1,000,000=9.67 h は、L2 の枠の目安 4.8 h を超える**(within_l2=false・2026-09-17 の AB7c 追加で超過し、同日の AB6b 追加でさらに 1.45 h ぶん広がった)。内訳: 第1陣の 9 ラン 4.35 h + AB7b の hint 1 ラン 0.48 h + AB7c の vocab_v2 / open_v2 2 ラン 0.97 h + AB6b の ad_zero / p_see 0.30 / p_see 0.14 の 3 ラン 1.45 h(AB6b の baseline は ⑥ の signage_on と、AB7/AB7b/AB7c の vocab 対照は 1 本に、それぞれ共有済み=これ以上は共有で減らない。**AB6b の ad_zero は ⑥ の signage_off と同一構成**なので、⑥ を先に回していればさらに 1 ラン 0.48 h 減らせる=親判断)。2026-09-19 に ⑧(L4 の感度・4 ラン 1.93 h)と ⑥c(看板を呼数制限なしで再検証・4 ラン 1.93 h)を足して 9.67 h(共有後 6 ラン 2.90 h ぶんの増)。**⑧ と ⑥c は呼数上限を振る腕なので、本表の『1 ラン=呼 50,000』の規約では実費を表せない**(l4_unlimited と ⑥c の 4 ランは上限が外れるぶん呼数が増える=**約 1 h/本の見込み**・実測で置き換える)。枠は割合宣言で絶対値が無い(budget.note の expedient・親判断待ち)ので、**どの腕を先に回すか・枠の目安を上げるかはユーザー判断**。",
-    "calls_if_independent": 1650000,
-    "gpu_hours_if_independent": 15.95
+    "note": "腕ごとに baseline を取り直すと 25 ラン・呼 1,250,000=12.08 h。AB4/AB5 は前提機能が未実装で ``runs`` が空なので、共有ベースライン側の数には最初から入っていない。AB7/AB7b/AB7c と AB6b(⑥ の後追い・D-59 (b))は第1陣(§8 の 6 本)ではないが ablation の取り分(L2)は同じ財布なのでここで通算する。**共有ベースライン込みの 20 ラン・呼 1,000,000=9.67 h は、L2 の枠の目安 4.8 h を超える**(within_l2=false・2026-09-17 の AB7c 追加で超過し、同日の AB6b 追加でさらに 1.45 h ぶん広がった)。内訳: 第1陣の 9 ラン 4.35 h + AB7b の hint 1 ラン 0.48 h + AB7c の vocab_v2 / open_v2 2 ラン 0.97 h + AB6b の ad_zero / p_see 0.30 / p_see 0.14 の 3 ラン 1.45 h(AB6b の baseline は ⑥ の signage_on と、AB7/AB7b/AB7c の vocab 対照は 1 本に、それぞれ共有済み=これ以上は共有で減らない。**AB6b の ad_zero は ⑥ の signage_off と同一構成**なので、⑥ を先に回していればさらに 1 ラン 0.48 h 減らせる=親判断)。2026-09-19 に ⑧(L4 の感度・4 ラン 1.93 h)と ⑥c(看板を呼数制限なしで再検証・4 ラン 1.93 h)を足して 9.67 h(共有後 6 ラン 2.90 h ぶんの増)。**⑧ と ⑥c は呼数上限を振る腕なので、本表の『1 ラン=呼 50,000』の規約では実費を表せない**(l4_unlimited と ⑥c の 4 ランは上限が外れるぶん呼数が増える=**約 1 h/本の見込み**・実測で置き換える)。枠は割合宣言で絶対値が無い(budget.note の expedient・親判断待ち)ので、**どの腕を先に回すか・枠の目安を上げるかはユーザー判断**。**2026-09-22 に ⑦d(語彙 v1/v2/open を無制限で・3 ラン)と ①b(固定枠/ランキングを無制限で・2 ラン)を足した**(ユーザー「B まで回そう」・第249)。2 腕の baseline は ⑧ l4_unlimited と同一構成なので共有後は +3 ラン(呼 150,000・1.45 h)=共有後 23 ラン・呼 1,150,000・11.12 h。無制限腕の実費は ⑥c/⑧ の実測(≈77,300 呼・約 37 分/ラン)で読み替える。",
+    "calls_if_independent": 1900000,
+    "gpu_hours_if_independent": 18.3667
   },
   "open_questions": [
     "6 本すべてで合格線が設計に無い(§8 は指標だけを指定)。報告値のままにするか、①の §10.3『同等』を JSD の帰無参照(T7 seed 違い 0.0035 bits)基準で数値化するか=親判断。",
@@ -729,6 +851,7 @@
     "**AB7b-HINT-INTENT(2026-09-17 追加)**: vocab 対照を AB7 と**実際に共有するか**(1 ランで済ませるか、腕ごとに取り直すか)=親判断。表は自己完結する 2 ラン構成で書いてあり、totals もその前提で通算している。また実行器は腕をまたいだラン共有の仕組みを持たない(共有するなら親が hint 1 本を回して AB7 の vocab ランと突き合わせる)。",
     "**AB6b-AD-NOTICE(2026-09-17 追加・D-59 (b))**: ① 較正値 **0.30 / 0.14 の選び方は expedient**(決定は「実測帯 0.14-0.79 の下側へ」だけ。§4 段1 の中小媒体の代表値は ``attention.P_SEE_MEDIUM_DEFAULT`` 0.27=帯の中点で、0.30 はそれより上・0.14 は帯の下端)=親判断。② p<1.0 では **§2.4 ⑧「同セル同時間帯の 2 体で B0-B4b バイト一致」が成り立たない**(注視は体ごとの事象)。同セルの共有 prefix は看板あり/なしの**高々 2 変種**に分かれる=vLLM の prefix 命中率が落ちる側に動く(上限 2 倍の断片化)。規約⑧ の但し書きを設計書へ書くかどうか=親判断。③ **落ちた看板の枠を他へ回さない**(固定枠)。単一ランキング腕(AB1)と重ねると池を分け合う設計なので他チャネルが空きを取る=重ねるなら別腕として宣言が要る。④ ad_zero ランは ⑥ の signage_off と**同一構成**=回す順によっては共有できる。",
     "**AB8-L4-SCALE(2026-09-19 追加・D-99 (a))**: ① **『無制限』の置き方が expedient**=budget に inf を入れられない(Arbiter._pool_cap と floor が壊れる)ので **体数**を置いた。合流後の候補が体あたり高々 1 件という arbitrate ③ の性質に寄りかかった等式なので、候補の作り方を変えるときは本腕も見直す=親判断。② 倍率は **1 tick の上限と繰越在庫(POOL_CAP_TICKS=2 ぶん)の両方**を同時に動かす。片方だけ振る腕を別に立てるか=親判断。③ **合格線が無い**(D-99 (a) は感度腕とだけ決めた)。realized が倍率に比例したときに L4 の宣言そのものを見直すのか、それとも『予算内で回る世界』を正とするのか=ユーザー判断。④ 無制限腕の**実費が読めない**(呼数上限が外れるので 1 ラン=呼 50,000 の規約の外)。先に mock かごく短い実 LLM ランで呼数を実測してから枠を確定するか=親判断。",
-    "**AB6c-AD-NOTICE-UNCAPPED(2026-09-19 追加・第245 ユーザー指示)**: ① ⑥b と**呼数が違う**ので 2 腕の絶対値は比べられない(比べるのは腕の中の差)。この読み方でユーザーの問い『呼数制限なしで看板の腕を再検証』に答えたことになるか=確認待ち。② 4 ランとも無制限=この腕だけで**約 4 h** かかる見込みで、L2 の枠(4.8 h)をほぼ 1 腕で使う。⑥b と ⑥c のどちらを先に回すか=ユーザー判断。③ 較正値 0.30/0.14 は ⑥b から持ち越した expedient(⑥b の open_question と同じ)。"
+    "**AB6c-AD-NOTICE-UNCAPPED(2026-09-19 追加・第245 ユーザー指示)**: ① ⑥b と**呼数が違う**ので 2 腕の絶対値は比べられない(比べるのは腕の中の差)。この読み方でユーザーの問い『呼数制限なしで看板の腕を再検証』に答えたことになるか=確認待ち。② 4 ランとも無制限=この腕だけで**約 4 h** かかる見込みで、L2 の枠(4.8 h)をほぼ 1 腕で使う。⑥b と ⑥c のどちらを先に回すか=ユーザー判断。③ 較正値 0.30/0.14 は ⑥b から持ち越した expedient(⑥b の open_question と同じ)。",
+    "**AB7d-VOCAB-UNCAPPED / AB1b-BUDGET-MODE-UNCAPPED(2026-09-22 追加・第249)**: ① 2 腕の baseline(vocab_v1 / fixed_slots に l4_scale=0)は ⑧ l4_unlimited・⑥c p_see_1_00 と同一構成=final_hash が一致するはず。実行器は腕をまたいだ共有を持たないので回し直す(37 分×2)=決定論の再確認に使う。② ①b の上限あり対照(現行コード)は無い(① は C7 期)。要るなら別腕=親判断。"
   ]
 }

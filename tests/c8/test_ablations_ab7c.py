@@ -40,7 +40,8 @@ def test_ab7c_keeps_rank_9(ablation_runner, table):
     assert arm["rank"] == 9 and arm["index"] == "⑦c"
     # 2026-09-17: AB6b(看板の注視ゲート・D-59 (b))を、2026-09-19: AB8(L4 の感度)と
     # AB6c(⑥b の無制限版)を後ろに足した=**末尾の 3 つ手前**
-    assert table["arms"][-4]["id"] == ARM_ID
+    # 2026-09-22: AB7d・AB1b が末尾に付いた=**末尾の 5 つ手前**
+    assert table["arms"][-6]["id"] == ARM_ID
     assert ARM_ID not in ablation_runner.first_wave_ids(table), "第1陣は 6 本のまま"
     assert arm["design_source"].startswith("docs/design/v2-vocab-growth-design.md")
     assert arm["status"] == "ready"

@@ -63,11 +63,12 @@ def test_ab7_is_appended_to_the_table(ablation_runner, table):
     ids = [a["id"] for a in arms]
     # AB7 の後ろに AB7b・AB7c(語彙 v2)、その後ろに AB6b(注視ゲート)を足した。
     # 2026-09-19: さらに AB8(L4 の感度)と AB6c(⑥b の無制限版)が末尾に付いた。
-    assert ids[-6:] == [
+    # 2026-09-22: AB7d(語彙の無制限版)・AB1b(固定枠の無制限版)も末尾に付いた。
+    assert ids[-8:] == [
         ARM_ID, ARM_B_ID, ARM_C_ID, ARM_AD_NOTICE_ID,
-        "AB8-L4-SCALE", "AB6c-AD-NOTICE-UNCAPPED",
+        "AB8-L4-SCALE", "AB6c-AD-NOTICE-UNCAPPED", "AB7d-VOCAB-UNCAPPED", "AB1b-BUDGET-MODE-UNCAPPED",
     ]
-    assert len(arms) == len(FROZEN_ARM_SHA256) + 3
+    assert len(arms) == len(FROZEN_ARM_SHA256) + 5
     arm = ablation_runner.arm_by_id(table, ARM_ID)
     assert arm["rank"] == 7 and arm["index"] == "⑦"
     assert arm["design_source"].startswith("docs/design/v2-open-intent-arm-spec.md")
@@ -125,7 +126,8 @@ def test_ab7b_keeps_rank_8(ablation_runner, table):
     assert arm["rank"] == 8 and arm["index"] == "⑦b"
     # 2026-09-17: AB7c(語彙 v2)・AB6b(注視ゲート)を後ろに足し、
     # 2026-09-19: さらに AB8(L4 の感度)・AB6c(⑥b の無制限版)を足した=**末尾の 4 つ手前**
-    assert table["arms"][-5]["id"] == ARM_B_ID
+    # 2026-09-22: AB7d・AB1b が末尾に付いた=**末尾の 6 つ手前**
+    assert table["arms"][-7]["id"] == ARM_B_ID
     assert ARM_B_ID not in ablation_runner.first_wave_ids(table), "第1陣は 6 本のまま"
     assert arm["design_source"].startswith("docs/design/v2-open-intent-arm-spec.md")
     assert arm["status"] == "ready"

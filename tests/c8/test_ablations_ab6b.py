@@ -49,7 +49,8 @@ def test_ab6b_is_the_last_arm_with_rank_10(ablation_runner, table):
     arm = ablation_runner.arm_by_id(table, ARM_ID)
     assert arm["rank"] == 10 and arm["index"] == "⑥b"
     ids = [a["id"] for a in table["arms"]]
-    assert ids[-3:] == [ARM_ID, "AB8-L4-SCALE", "AB6c-AD-NOTICE-UNCAPPED"]
+    # 2026-09-22: さらに AB7d(語彙の無制限版)・AB1b(固定枠の無制限版)が末尾に付いた
+    assert ids[-5:] == [ARM_ID, "AB8-L4-SCALE", "AB6c-AD-NOTICE-UNCAPPED", "AB7d-VOCAB-UNCAPPED", "AB1b-BUDGET-MODE-UNCAPPED"]
     assert ARM_ID not in ablation_runner.first_wave_ids(table), "第1陣は 6 本のまま"
     assert arm["design_source"].startswith("PENDING D-59 (b)")
     assert arm["status"] == "ready"
