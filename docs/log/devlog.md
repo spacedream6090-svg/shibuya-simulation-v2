@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **2 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **3 / 10**
 > 第1〜第250(2026-09-01〜09-22)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第251 サーバー運用の知見を実装に織り込む形でまとめる(2026-09-22 夜)
@@ -18,3 +18,13 @@
 - **§11 の中身**: 11-1 再開と checkpoint(未保存状態 15 件+5 族・再開で二重発火 29→44・ウォームキャッシュ消失で呼数と行動が変わる・日中 flush で未走査区間が永久消失・正常終了ランへの再開で日次締め二重・受入 `resume==straight`)/ 11-2 状態の成長で死ぬ(SNS 推薦の二乗爆発で step 95 に 10 時間/step・finalize 一括 concat 42.7 GB で「書き終わり」に落ちる・beliefs 4.2〜6.4 TiB・RAM 13.6 倍・性能の誤帰属・**壁は LLM でなく解析と RAM**)/ 11-3 1 呼のハードデッドライン欠落(1 呼 1h47m 張り付き・ソケット timeout は無通信しか測れない)と見張りが健全ランを 2 回殺した話 / 11-4 **mock が `where` を返さないためクラッシュが完全に潜在化**していた実例 / 11-5 「直線移動」の正体はログが最終座標のみ=記録の穴 / 11-6 層別クォータ・データの保持期限・サブ同時死・YAML 重複キー。
 - **露呈(親の確認)**: v2 のランは**すべて 1 日**で、**再開の実装がどこにも無い**(`manifest/schema.py` に `parent_run` の欄だけ)。一方 記憶の合格線 M15 は「複数日ランが前提」。→ **新規 D-102**(親推奨 (a)=複数日の前に再開の口を設計し `resume==straight` を最初の受入条件にする。**実 LLM が無くてもモックで着手できる**)。
 - **次**: D-102 の判断。未踏の要素 .md が来たら起草。
+
+## 第253 BERT 系 / Open-Jev の調査(2026-09-23)
+
+- **依頼**(ユーザー): 「BERT 系 / Open-Jev の調査をしてほしい」。
+- **分担**: 閉じた出力の判断器の系譜(Q1〜Q4)= サブ Opus 5 の答申 R-38 / **Jev・Open-Jev の実在確認 = 親**(存在しないものをサブに探させると捏造の危険があるため)。
+- **Open-Jev(親の一次読み・[ノート](../research/v2-openjev-note.md)・等級 A)**: **実在する**。`razorback16/openjev`・Apache-2.0・**TypeSafe とは無関係の独立実装**(README に明記)。土台は Google の拡散型 **DiffusionGemma 26B-A4B**(Apache-2.0・総 25.2B/活性 3.8B・canvas 256・最大 48 denoising steps)。**v2 が採らない 3 理由**=① vLLM 経路は 24 GB 以上が要る(手元は RTX 5070 12 GB)② 精度の数値が無く、素の DiffusionGemma は自己回帰版 Gemma より軒並み低い(MMLU Pro 77.6 vs 82.6)③ 決定論の保証が無い(エントロピー 0.1 超で最大 4 回読み直して平均)。`confidence` は 1−H(p)/ln K の計算式で **RLCD の較正ではない**。**注意**: Open-Jev が拡散モデルなのは **Jev が拡散モデルである証拠ではない**(TypeSafe 公式は "parallel sampler" としか書かない)。
+- **R-38(サブ・等級 B・原典 18 群)+親検収 4 件**: ① **vLLM 公式 FAQ に逐語「vLLM does not guarantee stable log probabilities (logprobs)」**(親確認)=**logprob 方式は v2 の bit 一致の受入と衝突** ② 自己申告 confidence での振り分けは原典で否定(Xiong ICLR2024・ECE×100 が GPT-4 でも 18.0)・効くのは別学習のスコアラ(FrugalGPT) ③ **GenWorld(arXiv:2606.27650・日本の東広島・196,608 体)** が教師 Gemma 3 27B を **lookup 表にコンパイル**し **CPU で 1.85M queries/s = 0.54 μs/件**(親が本文逐語確認・端から端の高速化は未報告) ④ 日本語ゼロショットは実在(`Formzu/bert-base-japanese-jsnli`・JSNLI 0.9288・親確認)。**R-39 の「先行なし」は狭める**=毎決定の蒸留代理は在る/実行時の学習ルータは無い。
+- **親推奨の更新(D-101)**: 判断層の第一候補を **蒸留 lookup 表(GenWorld 方式)**へ。**GPU が要らない・完全に決定論・先行が同条件・教師は既存テープで足りる見込み**。次の一歩は「テープ 10 本から (文脈キー→行動分布) を作り被覆率と鋭さを測る」下見(GPU 不要)。
+- **未確認**: Light Society の routing policies と macro F1(本文・親未確認)・`akiFQC` の JNLI 0.914(HF が 401)。
+- **次**: D-101 の判断(下見に進むか)。

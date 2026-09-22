@@ -11,6 +11,8 @@
 
 > **訂正(第242・R-40 親検収)**: §1「文脈長・レート制限は未公開」は誤り(models.md に公開)。§4 の外部 API 項にレート・費用・契約条項を追記。詳細は [R-40 答申](v2-r40-jev-details-research.md)。
 
+> **続報(第253・2026-09-23)**: 独立の互換実装 **Open-Jev**(`razorback16/openjev`・Apache-2.0・TypeSafe とは無関係)が実在する。土台は Google の拡散型 **DiffusionGemma 26B-A4B**。詳細と v2 が採らない 3 理由(24 GB 必要・精度の数値なし・決定論の保証なし)は [v2-openjev-note.md](v2-openjev-note.md)。**注意**: Open-Jev が拡散モデルであることは **Jev が拡散モデルである証拠ではない**(TypeSafe 公式は "parallel sampler" としか書かず、non-autoregressive / diffusion の語を使っていない)。
+
 ## 0. 一次確認の範囲
 
 | 種別 | 読んだもの | 位置づけ |
