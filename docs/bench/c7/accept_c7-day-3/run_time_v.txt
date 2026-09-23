@@ -1,0 +1,24 @@
+	Command being timed: "~/venvs/v2/bin/python -m shibuya.cli --agents 390067 --seed 1 --ticks 1440 --world data/world/v2 --llm fleet --endpoints http://x.x.x.x:8200,http://x.x.x.x:8201,http://x.x.x.x:8202,http://x.x.x.x:8203,http://x.x.x.x:8204,http://x.x.x.x:8205,http://x.x.x.x:8206 --model Qwen3-8B-int8 --mode production --run-id c7-day-3 --tape data/tape/c7-day-3 --fleet-wait-s 120 --fleet-queue-capacity 4096 --temperature 0.7 --max-tokens 96 --occupancy-every 60 --occupancy-out data/runs/c7-day-3/occupancy.npz --checkpoints-out data/runs/c7-day-3/checkpoints.json"
+	User time (seconds): 23036.41
+	System time (seconds): 983.49
+	Percent of CPU this job got: 70%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 9:29:43
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1578092
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 204825845
+	Voluntary context switches: 20850263
+	Involuntary context switches: 313252
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 386616
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+C7_DONE 2026-09-12 13:04:58 exit=0

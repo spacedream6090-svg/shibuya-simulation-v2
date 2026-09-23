@@ -1,0 +1,140 @@
+{
+ "schema": "shibuya.build.sched/trial_report/1",
+ "trial_version": "0.1.0",
+ "arm": "p2",
+ "stage": 1,
+ "n_agents": 2000,
+ "n_response_rows": 2000,
+ "n_with_response": 2000,
+ "response_rate": 1.0,
+ "parse": {
+  "n_parsed": 0,
+  "n_kept": 0,
+  "fail_rate": 0.0,
+  "reasons": {}
+ },
+ "checks": {
+  "coverage_mean": 0.0,
+  "coverage_ge_0999_rate": 0.0,
+  "n_agent_days": 0,
+  "gaps": 0,
+  "overlaps": 0,
+  "has_sleep_rate": 0.0,
+  "night_violations": 0,
+  "night_violation_rate": 0.0,
+  "block_kind_conflicts": {},
+  "stay_sleep_place_violations": 0,
+  "lines_per_day": {
+   "n": 0,
+   "mean": 0.0,
+   "sd": 0.0,
+   "p50": 0.0,
+   "p90": 0.0,
+   "max": 0.0
+  },
+  "duty_window_dev_min": {
+   "n": 0,
+   "mean": 0.0,
+   "sd": 0.0,
+   "p50": 0.0,
+   "p90": 0.0,
+   "max": 0.0
+  },
+  "duty_window_dev_vs_p1_min": {
+   "n": 0,
+   "mean": 0.0,
+   "sd": 0.0,
+   "p50": 0.0,
+   "p90": 0.0,
+   "max": 0.0
+  },
+  "reasons": {}
+ },
+ "modified": {
+  "llm": {
+   "rate": 0.0,
+   "n_parse_failed": 0,
+   "n_check_failed": 0,
+   "denominator": 0,
+   "note": "パース失敗+検査落ち / (パース失敗+パースできた活動)。修復はしない。"
+  },
+  "engine": {}
+ },
+ "raking": {},
+ "identity": {
+  "n_checked": 2000,
+  "pass_rate": 1.0,
+  "reasons": {},
+  "chars": {
+   "n": 2000,
+   "mean": 203.0,
+   "sd": 0.0,
+   "p50": 203.0,
+   "p90": 203.0,
+   "max": 203.0
+  }
+ },
+ "completion_tokens": {
+  "n": 2000,
+  "mean": 102.0,
+  "sd": 0.0,
+  "p50": 102.0,
+  "p90": 102.0,
+  "max": 102.0
+ },
+ "window_counters": {
+  "absent_day": 1209,
+  "lead_default": 179,
+  "no_employment_row": 11,
+  "stay_bodies": 88,
+  "window_drawn": 1246,
+  "work_len_clipped": 327
+ },
+ "inputs": [
+  {
+   "path": "w17_trial_p2_stage1_mock_responses.jsonl",
+   "sha256": "90908a14612319e2f458a8a146cdf346e850857e6d9070fb265a0ee9f7f282d2",
+   "bytes": 1555437
+  }
+ ],
+ "outputs": [],
+ "prompts": {
+  "arm": "p2",
+  "stage": 1,
+  "path": "<repo>/data\\world\\v2\\trials\\p2\\w17_trial_p2_stage1_prompts.jsonl",
+  "name": "w17_trial_p2_stage1_prompts.jsonl",
+  "rows": 2000,
+  "bytes": 2092753,
+  "sha256": "bc3fbdbc30d98cab6b3b65dfb64f5b9cc1213794c7085eeb608b3500bbdd621a",
+  "prompts_sha256": "bc3fbdbc30d98cab6b3b65dfb64f5b9cc1213794c7085eeb608b3500bbdd621a",
+  "system_sha256": {
+   "n_distinct": 1,
+   "shared_prefix_chars": 148,
+   "top": {
+    "e0ec06723ed7e15a": 2000
+   }
+  },
+  "regex_sha256": {
+   "n_distinct": 1,
+   "sha256_first": "",
+   "chars_first": 0
+  },
+  "prompt_tokens_mean": 180.04,
+  "prompt_tokens_max": 199,
+  "max_tokens": 320,
+  "temperature": 0.7,
+  "kinds": {
+   "乗務員": 25,
+   "定期来街者": 101,
+   "居住者": 185,
+   "従業者": 36,
+   "指令": 10,
+   "来街者": 296,
+   "訪日来街者": 88,
+   "通勤者": 1090,
+   "通学者": 169
+  }
+ },
+ "elapsed_s": 5.3,
+ "rss_mb": 345.4
+}

@@ -1,5 +1,10 @@
 # R14 忠実度計器盤・検収戦略・実験オーケストレーション — 事前リサーチ答申(正典化)
 
+<!-- hdr:v1 -->
+- **分野**: 検証とV&V・UQ #22 / 予測科学(アンサンブル) #24 | **重要度**: P0(親判断・2026-09-15 第191)
+- **一次確認**: **A** = 親検収済(逐語引用または再計算つき) — 親検収(2026-09-08)。逐語引用つき。空欄 6 件(R-14)
+- **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
+
 > **親検収(Fable・2026-09-08)**: サブ(Opus 5・子サブなし・リポ書込なし・ハーネスがファイル書込を遮断=テキスト返答を親が保存)の最重要5件を親が原典で確認した。✔=一致。
 > - ✔ **TRACE 8要素(Grimm et al. 2014, Ecol. Model. 280:129-139・無料PDF親抽出)**: 1 Problem formulation(意思決定の文脈・利害関係者・問い・適用範囲)/2 Model description(ODD推奨)/3 Data evaluation("The quality and sources of numerical and qualitative data used to parameterize the model, both directly and inversely via calibration, and of the observed patterns that were used to design the overall model structure")/4 Conceptual model evaluation(単純化仮定の批判的評価)/5 Implementation verification/6 Model output verification/7 Model analysis("(1) How sensitive model output is to changes in model parameters (sensitivity analysis), and (2) how well the emergence of model output has been understood")/8 Model output corroboration("How model predictions compare to independent data and patterns that were not used, and preferably not even known, while the model was developed, parameterized, and verified")。「六つのevaludation要素はAugusiak et al. (2014)参照」=要素3-8がevaludationの6要素。Augusiak 2014の要旨自体はScienceDirect 403・Semantic Scholarで要旨非公開=未読(TRACE本文の定義で代替)。
 > - ✔ **hmer(arXiv 2209.05265・Iskauskas et al.・PDF親抽出)**: 実行不能度 "I²_i(x) = (E_Di[f_i(x)] − z_i)² / (Var_Di[f_i(x)] + Var[e_i] + Var[ε_i])"(Vernon et al. 2014)・多出力は最大値 I_M(x)=max_i I_i(x)・"if I(x) is 'small' then we cannot rule out the possibility that x would give rise to a good match to data; x is deemed non-implausible, or not-yet-ruled-out (NROY)"・カットオフ "We may appeal to Pukelsheim's 3σ rule (Pukelsheim 1994), which suggests that for a unimodal continuous distribution 95% of the probability mass is within 3σ of the mean, to suggest a good starting point for a cut-off is I = 3"・波 "We apply a series of iterations, called waves, which discard regions of the parameter space at each wave"。

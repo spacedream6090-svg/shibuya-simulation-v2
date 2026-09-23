@@ -15,12 +15,16 @@ from shibuya.economy import checks as CK
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.anchors import WASTE_TONNES_PER_DAY
 from shibuya.economy.goods import (
+    DELIVERY_ROW_BYTES,
     GOODS_FAUCET_SINK,
+    MIN_DELIVERY_CAPACITY,
+    MOVES_PER_AGENT_PER_DAY,
     GoodsCode,
     GoodsLedger,
     GoodsRef,
     NodeKind,
     SkuRegistry,
+    delivery_capacity_for,
     goods_flow_kind,
     goods_is_allowed,
     growth_declarations,
@@ -202,6 +206,56 @@ def test_delivery_log_is_bounded_and_declared():
         steps=1_440, minutes_per_step=1, n_entities=5_000,
     )
     assert rep.ok, rep.as_text()
+
+
+#: C7 本番の規模(390,067 体)。D-53 はこの N で「宣言だけで cap 超過」になった。
+C7_N_AGENTS = 390_067
+#: 実資産 5,000 体 mock 1 日の納品ログ実測 = 71,296 B ÷ 16 B。
+MOCK_5K_DELIVERY_ROWS = 71_296 // DELIVERY_ROW_BYTES
+
+
+def test_delivery_capacity_is_proportional_to_n():
+    """D-53: 納品ログの容量も **N(個体数)比例**。物の台帳は POI 側の器だが、
+    ``check_growth`` の N は個体数なので容量もそれで決める。"""
+    assert delivery_capacity_for(0) == MIN_DELIVERY_CAPACITY
+    assert delivery_capacity_for(1_000) == MIN_DELIVERY_CAPACITY  # 2,000 < 下限
+    assert delivery_capacity_for(C7_N_AGENTS) == int(MOVES_PER_AGENT_PER_DAY * C7_N_AGENTS)
+    # n_agents を渡さない台帳(単体テスト・第三者の呼び出し)は下限のまま
+    assert _goods(n_poi=4).growth_declarations()["delivery_log"].cap == (
+        MIN_DELIVERY_CAPACITY * DELIVERY_ROW_BYTES
+    )
+    big = GoodsLedger.from_pois(
+        np.zeros(4, dtype=np.int64), np.full(4, 5), np.full(4, 300), n_agents=C7_N_AGENTS
+    )
+    assert big.growth_declarations()["delivery_log"].cap == (
+        delivery_capacity_for(C7_N_AGENTS) * DELIVERY_ROW_BYTES
+    )
+    # 明示した容量はそのまま(既存の呼び出しは不変)
+    assert GoodsLedger.from_pois(
+        np.zeros(2, dtype=np.int64), np.full(2, 5), np.full(2, 300), delivery_capacity=8
+    ).growth_declarations()["delivery_log"].cap == 8 * DELIVERY_ROW_BYTES
+
+
+@pytest.mark.parametrize("n_agents", [5_000, C7_N_AGENTS])
+def test_the_delivery_declaration_alone_never_exceeds_the_cap(n_agents):
+    """D-53 の回帰: 宣言投影(32 B/体/日 × N)が cap を食い破らない。"""
+    g = GoodsLedger.from_pois(
+        np.zeros(8, dtype=np.int64), np.full(8, 5), np.full(8, 300), n_agents=n_agents
+    )
+    decls = g.growth_declarations()
+    rep = check_growth(
+        decls, dict(g.growth_measured()), steps=1_440, minutes_per_step=1, n_entities=n_agents
+    )
+    assert rep.declared_over_cap == (), rep.as_text()
+    assert rep.ok, rep.as_text()
+    row = decls["delivery_log"]
+    assert row.declared_projected_bytes(30, n_agents) <= row.cap
+    if n_agents >= MIN_DELIVERY_CAPACITY / MOVES_PER_AGENT_PER_DAY:
+        # cap = 容量 × 16 B = 宣言投影(下限より上なら**等値**)
+        assert row.cap == int(row.declared_projected_bytes(30, n_agents))
+    else:  # 既定でバイト不変: 5,000 体の実測 4,456 行は一周せずに入る
+        assert delivery_capacity_for(n_agents) >= MOCK_5K_DELIVERY_ROWS
+        assert row.cap >= 71_296
 
 
 def test_deliver_is_an_alias_of_restock():

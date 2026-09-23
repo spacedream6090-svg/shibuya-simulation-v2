@@ -148,7 +148,9 @@ class WorldProcessRunner:
         retention_days: int = 7,
         prefer_shadow_days: bool = True,
         p_notice_ablation: str | int = "A4",
+        p_notice_d50_scale: float = 1.0,
         salient_rate_per_10k: float | None = None,
+        plan_executor: bool = False,
     ) -> None:
         if world is None or agents is None:
             raise ValueError("WorldProcessRunner は world と agents を要る")
@@ -161,6 +163,11 @@ class WorldProcessRunner:
         self.day_index = int(day_index)
         self.tick_seconds = int(tick_seconds)
         self.ledger = ledger
+        #: **D-66 計画実行層**のラン(``engine.presence.PlanExecutor`` が在圏の出入りを持つ)。
+        #: rail の乱数 12% と D-61 帰りの便を止め、起動時の域外配置も層に任せる。
+        self.plan_executor = bool(plan_executor)
+        #: 層の実体(``attach_presence`` で後から挿す。``None``=帰無腕)。
+        self.presence: Any | None = None
 
         # ---- 門前条件: 憲法5(D-R2-4)を起動時に通す(通らなければ動かさない) ----
         report = self.registry.check_constitution5()
@@ -188,6 +195,7 @@ class WorldProcessRunner:
             world, agents, self.assets,
             master_seed=self.master_seed, day_index=self.day_index,
             schedule=schedule, actual_log=self.log,
+            plan_executor=self.plan_executor,
         )
         self.opening = OpeningProcess(
             world, agents, self.assets,
@@ -259,6 +267,7 @@ class WorldProcessRunner:
             environment=self.environment,
             ablation=_p_notice_ablation(p_notice_ablation, enabled),
             rate_per_10k_per_day=salient_rate_per_10k,
+            d50_scale=p_notice_d50_scale,
         )
 
         self._procs: dict[str, Any] = {
@@ -285,11 +294,24 @@ class WorldProcessRunner:
         self.phase_seconds: dict[str, float] = {k: 0.0 for k in PROCESS_ORDER}
         self.n_steps = 0
 
-        # 域外に住む個体をランの最初に外へ置く(U10 §1.1・書き込みは resolve の口)
-        if self.is_enabled("rail") and self.rail.active:
+        # 域外に住む個体をランの最初に外へ置く(U10 §1.1・書き込みは resolve の口)。
+        # **計画実行層のラン**では母数も配置も層が決める(``PlanExecutor.initialize``)。
+        if not self.plan_executor and self.is_enabled("rail") and self.rail.active:
             ext = self.rail.external_home_agents()
             if ext.size:
                 R.place_at_external(agents, ext, self.rail.external_line[ext])
+
+    # ------------------------------------------------------------------ 計画実行層(D-66)
+    def attach_presence(self, presence: Any) -> None:
+        """計画実行層を挿す(``engine.run`` が週次表を読んだ後に 1 回だけ呼ぶ)。
+
+        層が持つ ``home_out``(域外居住)を**ホテル**へ渡し(母数 12% → 88.8%)、
+        **大規模イベント**へ層そのものを渡す(引き込み候補と I4 の通知)。
+        """
+        self.presence = presence
+        self.hotel.external_home = np.asarray(presence.home_out, dtype=bool)
+        self.large_event.presence = presence
+        self.rail.presence = presence  # LLM の乗車で域外へ出た体の張り直し(D-66 §4)
 
     # ------------------------------------------------------------------ トグル
     def _names_of(self, key: str) -> tuple[str, ...]:

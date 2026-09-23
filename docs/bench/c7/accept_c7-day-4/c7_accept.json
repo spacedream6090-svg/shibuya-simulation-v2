@@ -1,0 +1,142 @@
+{
+ "rows": [
+  {
+   "id": "W1",
+   "item": "壁時計/シミュ日",
+   "measured": 9.167,
+   "limit": 24.0,
+   "judge": true,
+   "note": "単位=時間。予算表 W1 の文面が正典"
+  },
+  {
+   "id": "M8",
+   "item": "RSS 総額(1ラン)",
+   "measured": 1.53,
+   "limit": 24.0,
+   "judge": true,
+   "note": "/usr/bin/time -v の Maximum resident set size"
+  },
+  {
+   "id": "S1",
+   "item": "恒久記録(出力バイト)",
+   "measured": 0.175,
+   "limit": 5.0,
+   "judge": true,
+   "note": "出力ディレクトリのファイル合計"
+  },
+  {
+   "id": "P2",
+   "item": "移動+密度[ms/tick]",
+   "measured": 129.622,
+   "limit": 5.0,
+   "judge": null,
+   "note": "**参考**: P2 の宣言は 5千体の行。40万体は別行が要る=親判断"
+  },
+  {
+   "id": "L4",
+   "item": "LLM 呼数(シミュ日)",
+   "measured": 2706593,
+   "limit": 4000000,
+   "judge": true,
+   "note": "平均 6.940 呼/体/日(制御目標 10)"
+  },
+  {
+   "id": "T2-a",
+   "item": "5,000体 同seed 再ラン一致",
+   "measured": true,
+   "limit": true,
+   "judge": true,
+   "note": "4 点 vs 4 点"
+  },
+  {
+   "id": "T2-b",
+   "item": "40万体 先頭K tick 部分再ラン一致",
+   "measured": null,
+   "limit": true,
+   "judge": null,
+   "note": ""
+  },
+  {
+   "id": "T2-c",
+   "item": "40万体 checkpoint 自己整合",
+   "measured": true,
+   "limit": true,
+   "judge": true,
+   "note": ""
+  },
+  {
+   "id": "DIAG",
+   "item": "診断行(繰り延べ/昇格/縮退/抑止)",
+   "measured": {
+    "deferred": 2400061,
+    "promoted": 1492972,
+    "degraded": 992389,
+    "suppressed": 3765119
+   },
+   "limit": "4 列とも出ること",
+   "judge": true,
+   "note": ""
+  },
+  {
+   "id": "CONS-1",
+   "item": "保存則(Σmoney+Σrevenue+Σ運賃 不変)",
+   "measured": true,
+   "limit": true,
+   "judge": true,
+   "note": ""
+  },
+  {
+   "id": "CONS-2",
+   "item": "日次センサス ゲート(残差・純資産=実物資産)",
+   "measured": true,
+   "limit": true,
+   "judge": true,
+   "note": "残差 0"
+  },
+  {
+   "id": "CONST-5",
+   "item": "憲法5 のビルド時検査",
+   "measured": true,
+   "limit": true,
+   "judge": true,
+   "note": ""
+  },
+  {
+   "id": "WC-6",
+   "item": "世界被覆 孤児(reaches宣言あり∧実読0)",
+   "measured": 0,
+   "limit": 0,
+   "judge": true,
+   "note": "方法論: WC-5/WC-6 のみゲート"
+  },
+  {
+   "id": "WC-5",
+   "item": "世界被覆 過剰 X",
+   "measured": 0.004056,
+   "limit": "前ランより悪化で警告",
+   "judge": null,
+   "note": "報告のみ(絶対の合格線は無い)"
+  },
+  {
+   "id": "HOLD",
+   "item": "KDDI 形状5指標(事後1回)",
+   "measured": null,
+   "limit": "5 指標",
+   "judge": null,
+   "note": "未照合"
+  },
+  {
+   "id": "SEAL",
+   "item": "manifest の開封記録",
+   "measured": false,
+   "limit": "照合したなら有ること",
+   "judge": null,
+   "note": ""
+  }
+ ],
+ "n_rows": 16,
+ "n_judged": 11,
+ "n_pass": 11,
+ "n_fail": 0,
+ "pass": true
+}

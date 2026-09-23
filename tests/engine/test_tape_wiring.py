@@ -25,7 +25,8 @@ from shibuya.engine.tape import BLOCKS_FILENAME, CALLS_FILENAME, Replay, Tape, T
 from shibuya.llm import MockLLM
 from shibuya.llm.mock import MOCK_RNG_DOMAIN
 
-SMALL = dict(n_agents=400, seed=1, ticks=180, checkpoint_every=60, n_cells=25)
+#: ticks は D-56(就寝抑止)以降、最初の計画境界(tick 300-480)を跨ぐ窓にする。
+SMALL = dict(n_agents=400, seed=1, ticks=540, checkpoint_every=60, n_cells=25)
 
 
 class BoomLLM:

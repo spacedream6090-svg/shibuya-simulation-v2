@@ -1,0 +1,5441 @@
+{
+ "schema": "shibuya.tools.w17/diversity_yardstick/1",
+ "anchors_path": "<repo>/docs\\bench\\anchors\\diversity_anchors_v0.json",
+ "anchors_version": "v0",
+ "anchors_echo": {
+  "motif_count": {
+   "value": 17,
+   "tag": "anchor",
+   "verified_by": "parent 2026-09-11(答申 §11 #4・6 項目一致)",
+   "source": "Schneider, Belik, Couronné, Smoreda & González 2013, J. R. Soc. Interface 10(84):20130246 §2 https://doi.org/10.1098/rsif.2013.0246 / 全文 https://pmc.ncbi.nlm.nih.gov/articles/PMC3673164/",
+   "scope": "1 日の軌跡を有向ネットワーク(ノード=地点・辺=移動・重みなし・向きのみ)に落としたときの、出現率 0.5% 以上の形の個数。目的・滞在時間・距離・移動回数は捨てた定義"
+  },
+  "motif_coverage": {
+   "value": 0.9,
+   "tag": "anchor",
+   "verified_by": "parent 2026-09-11(答申 §11 #4)",
+   "source": "Schneider 2013 §2 https://pmc.ncbi.nlm.nih.gov/articles/PMC3673164/",
+   "scope": "17 モチーフが説明する人日(測定トリップ)の上限被覆率。原文 up to 90 per cent = 上限であって中心値ではない"
+  },
+  "motif_threshold": {
+   "value": 0.005,
+   "tag": "anchor",
+   "verified_by": "parent 2026-09-11(答申 §11 #4)",
+   "source": "Schneider 2013 §2 https://pmc.ncbi.nlm.nih.gov/articles/PMC3673164/",
+   "scope": "モチーフの操作的定義=「データセット平均で 0.5% 以上出現する日次ネットワーク」。物差しの閾値はこの値を使う"
+  },
+  "daily_locations_lt7_share": {
+   "value": 0.9,
+   "tag": "anchor",
+   "verified_by": "parent 2026-09-11(答申 §11 #4)",
+   "source": "Schneider 2013 §2・Fig.2 https://pmc.ncbi.nlm.nih.gov/articles/PMC3673164/",
+   "scope": "1 日に訪れる相異なる地点数が 7 未満の人の割合(90% of the population visit less than seven locations on a daily basis)"
+  },
+  "daily_locations_lognormal": {
+   "value": {
+    "mu": 1.0,
+    "mu_err": 0.1,
+    "sigma": 0.5,
+    "sigma_err": 0.1
+   },
+   "tag": "anchor",
+   "verified_by": "parent 2026-09-11(第154・PMC 本文「approximated by a log-normal distribution … μ = 1 ± 0.1 and σ = 0.5 ± 0.1」を WebFetch で逐語確認)",
+   "source": "Schneider 2013 Fig.2 https://pmc.ncbi.nlm.nih.gov/articles/PMC3673164/ / 転記 docs/research/v2-d68-behavioral-diversity-research.md §1-3",
+   "scope": "1 日の訪問地点数 P(N) の対数正規近似。本文に数表は無く図のみ"
+  },
+  "tokyo_weekday_depart_on_00_30": {
+   "value": 0.675,
+   "tag": "anchor",
+   "verified_by": "parent 2026-09-11(答申 §11 #1・再計算 67.54%)",
+   "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224420&fileKind=0",
+   "scope": "東京都・平日・有業者・男女総数の「出勤」時刻のうち 分が :00 または :30 のビンの合計(15 分刻み 58 区分・一様なら 0.50)"
+  },
+  "tokyo_weekday_depart_top_bin_share": {
+   "value": 0.1193,
+   "tag": "anchor",
+   "verified_by": "parent 2026-09-11(答申 §11 #1)",
+   "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224420&fileKind=0",
+   "scope": "同 最頻 15 分ビン(8:00)の占有率"
+  },
+  "tokyo_weekday_depart_top_hour_share": {
+   "value": 0.2931,
+   "tag": "anchor",
+   "verified_by": "parent 2026-09-11(答申 §11 #1・§6-1 表)",
+   "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224420&fileKind=0",
+   "scope": "同 最頻 時間帯(8 時台)の占有率。M2(上位 1 型占有率)の「近い代理」"
+  },
+  "tokyo_weekday_depart_entropy_bits": {
+   "value": 4.68,
+   "tag": "anchor",
+   "verified_by": "parent 2026-09-11(答申 §11 #1・再計算 4.680)",
+   "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224420&fileKind=0",
+   "scope": "同 15 分刻み 58 区分のシャノンエントロピー(上限 5.858 bit)"
+  },
+  "national_weekday_depart_on_00_30": {
+   "value": 0.664,
+   "tag": "anchor",
+   "verified_by": "parent 2026-09-11(第154・a030 00_全国 平日 総数 再計算 0.6637)",
+   "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) / 転記 docs/research/v2-d68-behavioral-diversity-research.md §6-1",
+   "scope": "全国・平日・有業者の「出勤」の :00+:30 率。東京都との差 1.1pt が「現実の 1 標本 vs 別標本」のフロア代わり(答申 §7-2 運用の原則 2)"
+  },
+  "national_weekday_depart_entropy_bits": {
+   "value": 4.631,
+   "tag": "anchor",
+   "verified_by": "parent 2026-09-11(第154・再計算 4.631・平均 8:20・行動者率 82.9)",
+   "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) / 転記 docs/research/v2-d68-behavioral-diversity-research.md §6-1",
+   "scope": "同 全国のエントロピー。東京都との差 0.049 bit がフロア代わり"
+  },
+  "depart_on_00_30_band_by_employment": {
+   "value": {
+    "min": 0.626,
+    "max": 0.818,
+    "regular": 0.656,
+    "part_time_arubaito": 0.652
+   },
+   "tag": "anchor",
+   "verified_by": "parent 2026-09-11(第154・a031 全国 平日 15 区分を再計算: 最小 嘱託 0.6264・最大 内職 0.8181・正規 0.6557・アルバイト 0.6516)",
+   "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第31表(statInfId 000032224421) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224421&fileKind=0 / 転記 docs/research/v2-d68-behavioral-diversity-research.md §6-3",
+   "scope": "全国・平日・従業上の地位/雇用形態の区分別に見た「出勤」の :00+:30 率の帯(最小=嘱託 62.6%・最大=内職 81.8%)。91.9% に達する区分は一つも無い"
+  },
+  "song_pi_max": {
+   "value": 0.93,
+   "tag": "anchor",
+   "verified_by": "parent 2026-09-11(答申 §11 #3・5 引用逐語一致)",
+   "source": "Song, Qu, Blumm & Barabási 2010, Science 327(5968):1018-1021 Fig.2B https://doi.org/10.1126/science.1177170 / PDF https://barabasi.com/media/2010-Song_et_al-Limits_of_Predctiability-Science.pdf",
+   "scope": "Song 2010 の予測可能性上限 Π^max。P(Π^max) は 0.93 付近に鋭いピークで、80% 未満の利用者はいない=ばらつきが小さいのが現実"
+  },
+  "song_regularity_R": {
+   "value": 0.7,
+   "tag": "anchor",
+   "verified_by": "parent 2026-09-11(答申 §11 #3)",
+   "source": "Song 2010 Fig.3A/B https://barabasi.com/media/2010-Song_et_al-Limits_of_Predctiability-Science.pdf",
+   "scope": "週を 168 時間区分に割ったときの「その時間の最頻地点にいる確率」R の全利用者平均。夜間 0.9・正午と 18 時台に極小。無作為基準 R_rand ≈ 0.016"
+  },
+  "song_top2_locations_share": {
+   "value": 0.6,
+   "tag": "anchor",
+   "verified_by": "未確認(本文は「the top two locations (n = 2)」で Fig. 2D を参照・数値 0.60 は図のみ=親は逐語で確認できず。使うなら図の読み取りと明記)",
+   "source": "Song 2010 Fig.2D https://barabasi.com/media/2010-Song_et_al-Limits_of_Predctiability-Science.pdf",
+   "scope": "上位 2 地点(自宅+職場)で説明できる時間の割合(Fig.2D)。M8 の「中身は個別」側の目安"
+  },
+  "activity_set_capacity": {
+   "value": 25,
+   "tag": "anchor",
+   "verified_by": "parent 2026-09-11(第154・arXiv 1609.03526 要旨「a conserved quantity with a typical size of ~25 locations」を確認。λ の 4 値は本文未読=未確認のまま)",
+   "source": "Alessandretti, Sapiezynski, Sekara, Lehmann & Baronchelli 2018, Nat. Hum. Behav. 2:485-491 補足図12 https://www.nature.com/articles/s41562-018-0364-x / OA 受理稿 https://openaccess.city.ac.uk/id/eprint/17656/8/1609.03526.pdf",
+   "scope": "活動集合(2 回以上訪問・週平均 10 分超滞在・直前 20 週窓)の大きさの飽和値。4 標本で一致。個人値の ⟨C_i⟩/σ_{C,i} は 30% 以下=容量の分散は小さい"
+  },
+  "activity_set_jaccard_decay_lambda": {
+   "value": {
+    "Lifelog": -0.15,
+    "CNS": -0.31,
+    "MDC": -0.49,
+    "RM": -3.0
+   },
+   "tag": "estimate",
+   "verified_by": "未確認(答申 §10 の「補足で確認が望ましいもの」=親一次確認 待ち)",
+   "source": "Alessandretti 2018 https://openaccess.city.ac.uk/id/eprint/17656/8/1609.03526.pdf / 併記 Schlich & Axhausen 2003, Transportation 30:13-36 https://doi.org/10.1023/A:1021230507071(答申 §1-5)",
+   "scope": "週次活動集合の Jaccard 類似度 J ∝ γ^λ の減衰指数(4 標本)。無作為化系列は λ=0(J 一定)。J≈1(完全同一)も J≈0(無関係)も現実ではない、の根拠"
+  }
+ },
+ "anchors_unverified": [
+  "activity_set_jaccard_decay_lambda",
+  "song_top2_locations_share"
+ ],
+ "no_pass_line": "合格線は持たない=距離と『近づいたか』の bool のみ(判定は親)。",
+ "approximations": {
+  "m1_place": "場所=(place_kind, target_cell)。店・駅・公園は target_cell=-1 なので同種別が 1 節点に潰れる=モチーフ個数・節点数は**下振れ**する近似。",
+  "m1_canonical": "節点数 7 以下は全順列で正準化(同型判定)。超える日は出現順ラベルのまま(capped_share に計上)。",
+  "m3_entropy_bins": "H は 1 日 96 ビン(15 分)。第30表は 58 区分=上限が違う(6.585 bit vs 5.858 bit)。",
+  "m3_on_00_30": "`on_00_30` は**15 分ビンのラベルが :00/:30**(=分が [0,15) か [30,45))でアンカーと同じ定義。分ちょうどの率は `exact_00_30` に併記(設計書 §5 の前値はこちら)。最頻ビンと H は元から 15 分ビンで不変。",
+  "m5": "測れない(7 日では S^real / Π^max が出ない)。",
+  "m7": "測らない(同一文脈の選択分散は C7 テープが要る)。",
+  "m8": "部分測定(場所種別まで・cell 未解決)。"
+ },
+ "after": {
+  "label": "P0",
+  "source": "data\\world\\v2\\w17_schedule.parquet",
+  "input": "parquet",
+  "arm": null,
+  "n_agents": 390067,
+  "n_rows": 12565687,
+  "kind_counts": {
+   "0": 215772,
+   "1": 58602,
+   "2": 7077,
+   "3": 36545,
+   "4": 24,
+   "5": 33385,
+   "6": 20000,
+   "7": 17404,
+   "8": 1258
+  },
+  "kind_unknown": 0,
+  "weights": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "5": 1.0,
+   "6": 1.0,
+   "7": 1.0,
+   "8": 1.0
+  },
+  "weights_note": "w_k = W16 母集団の種別体数 ÷ 標本の種別体数(設計書 §4)。全件を測ったランでは 1.0 になる。",
+  "scopes": {
+   "weekday": {
+    "days": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "overall": {
+     "n_agents": 390067,
+     "n_agent_days": 1558001,
+     "n_rows": 9046266,
+     "m1": {
+      "n_day_graphs": 1558001,
+      "n_distinct": 69,
+      "n_motifs_ge_threshold": 10,
+      "threshold": 0.005,
+      "coverage_ge_threshold": 0.9770943664349381,
+      "closed_share": 0.8392369452907925,
+      "capped_share": 0.0,
+      "top": [
+       {
+        "motif": "N3:0>1,1>2,2>0",
+        "n": 576169,
+        "share": 0.3698129847156709
+       },
+       {
+        "motif": "N4:0>1,1>2,2>3,3>0",
+        "n": 490070,
+        "share": 0.3145505041395994
+       },
+       {
+        "motif": "N3:0>1,0>2,1>0,2>0",
+        "n": 181290,
+        "share": 0.11636064418443891
+       },
+       {
+        "motif": "N4:0>1,1>2,2>3",
+        "n": 68473,
+        "share": 0.04394926575785253
+       },
+       {
+        "motif": "N3:0>1,1>2",
+        "n": 62286,
+        "share": 0.03997815149027504
+       },
+       {
+        "motif": "N2:0>1,1>0",
+        "n": 47080,
+        "share": 0.030218209102561552
+       },
+       {
+        "motif": "N4:0>1,0>2,1>0,2>3,3>2",
+        "n": 36581,
+        "share": 0.02347944577699244
+       },
+       {
+        "motif": "N3:0>1,0>2,1>0",
+        "n": 23227,
+        "share": 0.014908206092293907
+       },
+       {
+        "motif": "N3:0>1,1>0,2>0",
+        "n": 19788,
+        "share": 0.012700890435885471
+       },
+       {
+        "motif": "N1:",
+        "n": 17350,
+        "share": 0.011136064739367946
+       },
+       {
+        "motif": "N5:0>1,0>2,1>0,2>3,3>4",
+        "n": 6847,
+        "share": 0.004394734021351719
+       },
+       {
+        "motif": "N4:0>1,0>2,1>0,2>3",
+        "n": 4761,
+        "share": 0.003055838860180449
+       }
+      ],
+      "place_basis": "(place_kind, target_cell)"
+     },
+     "m2": {
+      "scope_untimed": {
+       "n_agents": 390067,
+       "n_types": 12122,
+       "type_rate": 0.03107671246221803,
+       "top1_share": 0.17369836463992083
+      },
+      "scope_timed": {
+       "n_agents": 390067,
+       "n_types": 48419,
+       "type_rate": 0.12412995716120565,
+       "top1_share": 0.07467178715451447
+      },
+      "day0_untimed": {
+       "n_agents": 390067,
+       "n_types": 3746,
+       "type_rate": 0.00960347837679168,
+       "top1_share": 0.20155768111632105
+      },
+      "day0_timed": {
+       "n_agents": 390067,
+       "n_types": 29230,
+       "type_rate": 0.07493584435494414,
+       "top1_share": 0.20155768111632105
+      }
+     },
+     "m3a": {
+      "n": 9046266,
+      "on_00_30": 0.9630153479899883,
+      "exact_00_30": 0.9183779252124579,
+      "entropy_bits": 4.294332707797533,
+      "entropy_max_bits": 6.584962500721156,
+      "top_bin": "00:00",
+      "top_bin_share": 0.15675473173130217,
+      "top_hour": "07時台",
+      "top_hour_share": 0.1821225464738711
+     },
+     "m3b": {
+      "n": 1234192,
+      "on_00_30": 0.9882700584674021,
+      "exact_00_30": 0.9710701414366646,
+      "entropy_bits": 2.407960166927633,
+      "entropy_max_bits": 6.584962500721156,
+      "top_bin": "08:00",
+      "top_bin_share": 0.5576263660759428,
+      "top_hour": "08時台",
+      "top_hour_share": 0.7287861207980606,
+      "n_agent_days_with_work": 1260656,
+      "n_missing_proxy": 26464
+     },
+     "m3c": {
+      "n": 1260656,
+      "on_00_30": 0.9959798707974261,
+      "exact_00_30": 0.9940602353060629,
+      "entropy_bits": 1.9653584437030756,
+      "entropy_max_bits": 6.584962500721156,
+      "top_bin": "09:00",
+      "top_bin_share": 0.6691198867891003,
+      "top_hour": "09時台",
+      "top_hour_share": 0.6993089312231092
+     },
+     "m3c_all_work_rows": {
+      "n": 1275961,
+      "on_00_30": 0.9956205558006866,
+      "exact_00_30": 0.9934269150859627,
+      "entropy_bits": 2.0235550509092017,
+      "entropy_max_bits": 6.584962500721156,
+      "top_bin": "09:00",
+      "top_bin_share": 0.6611440318316939,
+      "top_hour": "09時台",
+      "top_hour_share": 0.6912139164128057
+     },
+     "m4a": {
+      "n": 1558001,
+      "mean": 5.8063287507517645,
+      "sd": 0.4328084317495635
+     },
+     "m4b": {
+      "place_kind": {
+       "n": 1558001,
+       "mean": 3.357561387958031,
+       "sd": 0.6178121792222059,
+       "lt7_share": 0.9999967907594411
+      },
+      "place_cell": {
+       "n": 1558001,
+       "mean": 3.357561387958031,
+       "sd": 0.6178121792222059,
+       "lt7_share": 0.9999967907594411
+      }
+     },
+     "m6": {
+      "n": 2950032,
+      "mean": 0.9851513298892599,
+      "sd": 0.07959468369881417,
+      "exact_share": 0.9625065084039767,
+      "n_day_pairs": 10,
+      "pairs": [
+       "d0-d1",
+       "d0-d2",
+       "d0-d3",
+       "d0-d4",
+       "d1-d2",
+       "d1-d3",
+       "d1-d4",
+       "d2-d3"
+      ]
+     },
+     "m6_from_d0": {
+      "n": 1180003,
+      "mean": 0.984115064934796,
+      "sd": 0.08351167063310524,
+      "exact_share": 0.9603162025859256,
+      "n_day_pairs": 4,
+      "pairs": [
+       "d0-d1",
+       "d0-d2",
+       "d0-d3",
+       "d0-d4"
+      ]
+     },
+     "m8_partial": {
+      "measurable": "partial",
+      "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+      "capacity_place_kind": {
+       "n": 372335,
+       "mean": 3.4979252554822944,
+       "sd": 0.7702140034622756,
+       "cv": 0.22019166997783046
+      },
+      "capacity_place_cell": {
+       "n": 372335,
+       "mean": 3.4979252554822944,
+       "sd": 0.7702140034622756,
+       "cv": 0.22019166997783046
+      },
+      "mutual_jaccard_place_kind": {
+       "n_agents": 372335,
+       "mean": 0.5877366679746785,
+       "exact": true
+      }
+     },
+     "harm_block": {
+      "present": false,
+      "n": 0,
+      "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+     },
+     "harm_structural": {
+      "n": 1558001,
+      "coverage_mean": 0.7261613425900669,
+      "coverage_ge_0999_share": 0.02448714731248568,
+      "sleep_line_share": 0.9338139064095594,
+      "night_violation_rows": 296425,
+      "night_violation_day_share": 0.15382981140576932,
+      "lines_per_day": {
+       "n": 1558001,
+       "mean": 5.8063287507517645,
+       "sd": 0.4328084317495635
+      },
+      "lines_per_day_min": 2,
+      "lines_per_day_max": 7
+     }
+    },
+    "overall_weighted": {
+     "n_agents": null,
+     "n_agent_days": null,
+     "n_rows": null,
+     "m1": {
+      "n_day_graphs": null,
+      "n_distinct": null,
+      "n_motifs_ge_threshold": null,
+      "threshold": null,
+      "coverage_ge_threshold": null,
+      "closed_share": null,
+      "capped_share": null,
+      "top": null,
+      "place_basis": "(place_kind, target_cell)"
+     },
+     "m2": {
+      "scope_untimed": {
+       "n_agents": null,
+       "n_types": null,
+       "type_rate": null,
+       "top1_share": null
+      },
+      "scope_timed": {
+       "n_agents": null,
+       "n_types": null,
+       "type_rate": null,
+       "top1_share": null
+      },
+      "day0_untimed": {
+       "n_agents": null,
+       "n_types": null,
+       "type_rate": null,
+       "top1_share": null
+      },
+      "day0_timed": {
+       "n_agents": null,
+       "n_types": null,
+       "type_rate": null,
+       "top1_share": null
+      }
+     },
+     "m3a": {
+      "n": 9046266,
+      "on_00_30": 0.9630153479899883,
+      "exact_00_30": 0.9183779252124579,
+      "entropy_bits": 4.166916598663788,
+      "entropy_max_bits": 6.584962500721156,
+      "top_bin": null,
+      "top_bin_share": 0.1638464975493756,
+      "top_hour": null,
+      "top_hour_share": 0.1837991498370709
+     },
+     "m3b": {
+      "n": 1234192,
+      "on_00_30": 0.9882700584674021,
+      "exact_00_30": 0.9710701414366646,
+      "entropy_bits": 2.2845381639766154,
+      "entropy_max_bits": 6.584962500721156,
+      "top_bin": null,
+      "top_bin_share": 0.5582567380115898,
+      "top_hour": null,
+      "top_hour_share": 0.7357882728133062,
+      "n_agent_days_with_work": 781545.6651153143,
+      "n_missing_proxy": 20116.232422508005
+     },
+     "m3c": {
+      "n": 1260656,
+      "on_00_30": 0.9959798707974261,
+      "exact_00_30": 0.9940602353060629,
+      "entropy_bits": 1.8593808658775641,
+      "entropy_max_bits": 6.584962500721157,
+      "top_bin": null,
+      "top_bin_share": 0.6705429554136894,
+      "top_hour": null,
+      "top_hour_share": 0.7007145486159587
+     },
+     "m3c_all_work_rows": {
+      "n": 1275961,
+      "on_00_30": 0.9956205558006866,
+      "exact_00_30": 0.9934269150859627,
+      "entropy_bits": 1.9176327289812476,
+      "entropy_max_bits": 6.584962500721156,
+      "top_bin": null,
+      "top_bin_share": 0.6625492471948594,
+      "top_hour": null,
+      "top_hour_share": 0.6926018898696747
+     },
+     "m4a": {
+      "n": 1558001,
+      "mean": 5.8063287507517645,
+      "sd": 0.42352747128977924
+     },
+     "m4b": {
+      "place_kind": {
+       "n": 1558001,
+       "mean": 3.357561387958031,
+       "sd": 0.5786468465937071,
+       "lt7_share": 0.9999967907594411
+      },
+      "place_cell": {
+       "n": 1558001,
+       "mean": 3.357561387958031,
+       "sd": 0.5786468465937071,
+       "lt7_share": 0.9999967907594411
+      }
+     },
+     "m6": {
+      "n": 2950032,
+      "mean": 0.9851513298892598,
+      "sd": 0.07035846444454195,
+      "exact_share": 0.9625065084039767,
+      "n_day_pairs": 10.0,
+      "pairs": null
+     },
+     "m6_from_d0": {
+      "n": 1180003,
+      "mean": 0.9841150649347957,
+      "sd": 0.0758077225244657,
+      "exact_share": 0.9603162025859256,
+      "n_day_pairs": 4.0,
+      "pairs": null
+     },
+     "m8_partial": {
+      "measurable": "partial",
+      "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+      "capacity_place_kind": {
+       "n": 372335,
+       "mean": 3.4979252554822944,
+       "sd": 0.691034952188111,
+       "cv": 0.1975821346428026
+      },
+      "capacity_place_cell": {
+       "n": 372335,
+       "mean": 3.4979252554822944,
+       "sd": 0.691034952188111,
+       "cv": 0.1975821346428026
+      },
+      "mutual_jaccard_place_kind": {
+       "n_agents": null,
+       "mean": null,
+       "exact": null
+      }
+     },
+     "harm_block": {
+      "present": null,
+      "n": 0,
+      "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+     },
+     "harm_structural": {
+      "n": 1558001,
+      "coverage_mean": 0.7261613425900666,
+      "coverage_ge_0999_share": 0.02448714731248568,
+      "sleep_line_share": 0.9338139064095594,
+      "night_violation_rows": 125098.80291219325,
+      "night_violation_day_share": 0.15382981140576932,
+      "lines_per_day": {
+       "n": 1558001,
+       "mean": 5.8063287507517645,
+       "sd": 0.42352747128977924
+      },
+      "lines_per_day_min": 2.5627082395967653,
+      "lines_per_day_max": 6.888745257544764
+     }
+    },
+    "by_kind": {
+     "0": {
+      "n_agents": 215772,
+      "n_agent_days": 1078860,
+      "n_rows": 6266194,
+      "m1": {
+       "n_day_graphs": 1078860,
+       "n_distinct": 37,
+       "n_motifs_ge_threshold": 7,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 0.9850008342138924,
+       "closed_share": 0.8744712010826242,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N3:0>1,1>2,2>0",
+         "n": 430250,
+         "share": 0.39880058580353334
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3,3>0",
+         "n": 382957,
+         "share": 0.35496449956435494
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 108015,
+         "share": 0.10011957065791668
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 58471,
+         "share": 0.054197022783308305
+        },
+        {
+         "motif": "N3:0>1,1>2",
+         "n": 47939,
+         "share": 0.04443486643308678
+        },
+        {
+         "motif": "N2:0>1,1>0",
+         "n": 19414,
+         "share": 0.01799492056429935
+        },
+        {
+         "motif": "N3:0>1,1>0,2>0",
+         "n": 15632,
+         "share": 0.014489368407392988
+        },
+        {
+         "motif": "N5:0>1,1>2,2>3,3>4",
+         "n": 2927,
+         "share": 0.002713048959086443
+        },
+        {
+         "motif": "N4:0>1,1>2,2>0,3>0",
+         "n": 2557,
+         "share": 0.0023700943588602784
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,2>3,3>0",
+         "n": 1900,
+         "share": 0.0017611182173776023
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 1870,
+         "share": 0.0017333110876295349
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,3>0",
+         "n": 1852,
+         "share": 0.0017166268097806945
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 215772,
+        "n_types": 3715,
+        "type_rate": 0.017217247835678403,
+        "top1_share": 0.3140073781584265
+       },
+       "scope_timed": {
+        "n_agents": 215772,
+        "n_types": 15440,
+        "type_rate": 0.07155701388502679,
+        "top1_share": 0.1346560258050164
+       },
+       "day0_untimed": {
+        "n_agents": 215772,
+        "n_types": 1592,
+        "type_rate": 0.007378158426487218,
+        "top1_share": 0.31437813988840074
+       },
+       "day0_timed": {
+        "n_agents": 215772,
+        "n_types": 12736,
+        "type_rate": 0.059025267411897744,
+        "top1_share": 0.13731624121758151
+       }
+      },
+      "m3a": {
+       "n": 6266194,
+       "on_00_30": 0.972501170567014,
+       "exact_00_30": 0.9384243449851696,
+       "entropy_bits": 4.134180603593776,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "00:00",
+       "top_bin_share": 0.16231926429344512,
+       "top_hour": "07時台",
+       "top_hour_share": 0.18048036814691662
+      },
+      "m3b": {
+       "n": 954795,
+       "on_00_30": 0.9866463481689787,
+       "exact_00_30": 0.9675029718421232,
+       "entropy_bits": 2.4475615726238784,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.5259411706177766,
+       "top_hour": "08時台",
+       "top_hour_share": 0.729613163034997,
+       "n_agent_days_with_work": 980770,
+       "n_missing_proxy": 25975
+      },
+      "m3c": {
+       "n": 980770,
+       "on_00_30": 0.99575639548518,
+       "exact_00_30": 0.9940679262212343,
+       "entropy_bits": 2.06057601081715,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.6312040539576047,
+       "top_hour": "09時台",
+       "top_hour_share": 0.6586702284939384
+      },
+      "m3c_all_work_rows": {
+       "n": 995748,
+       "on_00_30": 0.995298007126301,
+       "exact_00_30": 0.9932543173574037,
+       "entropy_bits": 2.130800387567687,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.6217717735812676,
+       "top_hour": "09時台",
+       "top_hour_share": 0.6491270883797908
+      },
+      "m4a": {
+       "n": 1078860,
+       "mean": 5.808162319485382,
+       "sd": 0.424346340690301
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 1078860,
+        "mean": 3.402634262091467,
+        "sd": 0.536776887382009,
+        "lt7_share": 1.0
+       },
+       "place_cell": {
+        "n": 1078860,
+        "mean": 3.402634262091467,
+        "sd": 0.536776887382009,
+        "lt7_share": 1.0
+       }
+      },
+      "m6": {
+       "n": 2157720,
+       "mean": 0.9934409129021846,
+       "sd": 0.05785828025557071,
+       "exact_share": 0.984545724190349,
+       "n_day_pairs": 10,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d1-d2",
+        "d1-d3",
+        "d1-d4",
+        "d2-d3"
+       ]
+      },
+      "m6_from_d0": {
+       "n": 863088,
+       "mean": 0.9919573638171567,
+       "sd": 0.06583510363970768,
+       "exact_share": 0.9819068275772574,
+       "n_day_pairs": 4,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4"
+       ]
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 215772,
+        "mean": 3.4263759894703667,
+        "sd": 0.595213097915073,
+        "cv": 0.17371505629978407
+       },
+       "capacity_place_cell": {
+        "n": 215772,
+        "mean": 3.4263759894703667,
+        "sd": 0.595213097915073,
+        "cv": 0.17371505629978407
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 215772,
+        "mean": 0.7956825272856777,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 1078860,
+       "coverage_mean": 0.7483661933790194,
+       "coverage_ge_0999_share": 0.031007730382069963,
+       "sleep_line_share": 0.9864848080381143,
+       "night_violation_rows": 162497,
+       "night_violation_day_share": 0.10804182192314109,
+       "lines_per_day": {
+        "n": 1078860,
+        "mean": 5.808162319485382,
+        "sd": 0.424346340690301
+       },
+       "lines_per_day_min": 2,
+       "lines_per_day_max": 7
+      }
+     },
+     "1": {
+      "n_agents": 58602,
+      "n_agent_days": 46838,
+      "n_rows": 266257,
+      "m1": {
+       "n_day_graphs": 46838,
+       "n_distinct": 64,
+       "n_motifs_ge_threshold": 10,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 0.9658824031769078,
+       "closed_share": 0.01513728169435074,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N4:0>1,0>2,1>0,2>3,3>2",
+         "n": 23809,
+         "share": 0.5083265724411803
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 11033,
+         "share": 0.23555659934241427
+        },
+        {
+         "motif": "N5:0>1,0>2,1>0,2>3,3>4",
+         "n": 3116,
+         "share": 0.06652717878645545
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,2>3",
+         "n": 2354,
+         "share": 0.050258337247534056
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 1207,
+         "share": 0.025769674196165507
+        },
+        {
+         "motif": "N3:0>1,1>2",
+         "n": 1041,
+         "share": 0.022225543362227252
+        },
+        {
+         "motif": "N4:0>1,0>2,0>3,1>0,2>0",
+         "n": 1039,
+         "share": 0.02218284299073402
+        },
+        {
+         "motif": "N3:0>1,1>2,2>0",
+         "n": 713,
+         "share": 0.015222682437337204
+        },
+        {
+         "motif": "N5:0>1,1>2,2>3,3>4",
+         "n": 472,
+         "share": 0.01007728767240275
+        },
+        {
+         "motif": "N6:0>1,1>2,2>3,3>4,4>5",
+         "n": 456,
+         "share": 0.009735684700456894
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,3>0",
+         "n": 227,
+         "share": 0.004846492164481831
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 218,
+         "share": 0.0046543404927622874
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 58602,
+        "n_types": 1376,
+        "type_rate": 0.02348042728917102,
+        "top1_share": 0.20074400191119757
+       },
+       "scope_timed": {
+        "n_agents": 58602,
+        "n_types": 8926,
+        "type_rate": 0.15231562062728235,
+        "top1_share": 0.20074400191119757
+       },
+       "day0_untimed": {
+        "n_agents": 58602,
+        "n_types": 436,
+        "type_rate": 0.0074400191119757,
+        "top1_share": 0.8409781236135285
+       },
+       "day0_timed": {
+        "n_agents": 58602,
+        "n_types": 3138,
+        "type_rate": 0.05354766048940309,
+        "top1_share": 0.8409781236135285
+       }
+      },
+      "m3a": {
+       "n": 266257,
+       "on_00_30": 0.9718354822596214,
+       "exact_00_30": 0.9053207990775829,
+       "entropy_bits": 4.138521011028046,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "07:00",
+       "top_bin_share": 0.14806371287891024,
+       "top_hour": "07時台",
+       "top_hour_share": 0.168577727533924
+      },
+      "m3b": {
+       "n": 6039,
+       "on_00_30": 0.9961914224209306,
+       "exact_00_30": 0.9662195727769498,
+       "entropy_bits": 2.3277325222660896,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.4565325384997516,
+       "top_hour": "09時台",
+       "top_hour_share": 0.4643152839874151,
+       "n_agent_days_with_work": 6039,
+       "n_missing_proxy": 0
+      },
+      "m3c": {
+       "n": 6039,
+       "on_00_30": 0.9983440967047524,
+       "exact_00_30": 0.9728431859579401,
+       "entropy_bits": 2.9104044798546047,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "12:00",
+       "top_bin_share": 0.4038748137108793,
+       "top_hour": "12時台",
+       "top_hour_share": 0.4065242589832754
+      },
+      "m3c_all_work_rows": {
+       "n": 6078,
+       "on_00_30": 0.9983547219480092,
+       "exact_00_30": 0.9730174399473511,
+       "entropy_bits": 2.9349265841206034,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "12:00",
+       "top_bin_share": 0.4014478446857519,
+       "top_hour": "12時台",
+       "top_hour_share": 0.40408028956893716
+      },
+      "m4a": {
+       "n": 46838,
+       "mean": 5.684636406336735,
+       "sd": 0.5714047248864214
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 46838,
+        "mean": 3.799521755839276,
+        "sd": 0.6273426872503445,
+        "lt7_share": 0.9999786498142533
+       },
+       "place_cell": {
+        "n": 46838,
+        "mean": 3.799521755839276,
+        "sd": 0.6273426872503445,
+        "lt7_share": 0.9999786498142533
+       }
+      },
+      "m6": {
+       "n": 0,
+       "mean": null,
+       "sd": null,
+       "exact_share": null,
+       "n_day_pairs": 10
+      },
+      "m6_from_d0": {
+       "n": 0,
+       "mean": null,
+       "sd": null,
+       "exact_share": null,
+       "n_day_pairs": 4
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 46838,
+        "mean": 3.799521755839276,
+        "sd": 0.6273426872503445,
+        "cv": 0.16511096068504305
+       },
+       "capacity_place_cell": {
+        "n": 46838,
+        "mean": 3.799521755839276,
+        "sd": 0.6273426872503445,
+        "cv": 0.16511096068504305
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 46838,
+        "mean": 0.7193058026021298,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 46838,
+       "coverage_mean": 0.314741354360894,
+       "coverage_ge_0999_share": 0.0,
+       "sleep_line_share": 0.0,
+       "night_violation_rows": 4581,
+       "night_violation_day_share": 0.049767282975361885,
+       "lines_per_day": {
+        "n": 46838,
+        "mean": 5.684636406336735,
+        "sd": 0.5714047248864214
+       },
+       "lines_per_day_min": 3,
+       "lines_per_day_max": 7
+      }
+     },
+     "2": {
+      "n_agents": 7077,
+      "n_agent_days": 35385,
+      "n_rows": 205372,
+      "m1": {
+       "n_day_graphs": 35385,
+       "n_distinct": 10,
+       "n_motifs_ge_threshold": 6,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 0.9929348594037021,
+       "closed_share": 0.8615232443125618,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N3:0>1,1>2,2>0",
+         "n": 18454,
+         "share": 0.5215204182563233
+        },
+        {
+         "motif": "N2:0>1,1>0",
+         "n": 11022,
+         "share": 0.3114879186095803
+        },
+        {
+         "motif": "N3:0>1,1>2",
+         "n": 4365,
+         "share": 0.12335735481136074
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3,3>0",
+         "n": 538,
+         "share": 0.015204182563233009
+        },
+        {
+         "motif": "N1:",
+         "n": 452,
+         "share": 0.012773774198106541
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 304,
+         "share": 0.008591210965098205
+        },
+        {
+         "motif": "N2:0>1",
+         "n": 165,
+         "share": 0.0046629927935565915
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 39,
+         "share": 0.0011021619330224672
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 36,
+         "share": 0.0010173802458668928
+        },
+        {
+         "motif": "N3:0>1,1>0,2>0",
+         "n": 10,
+         "share": 0.00028260562385191464
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 7077,
+        "n_types": 311,
+        "type_rate": 0.04394517450897273,
+        "top1_share": 0.49187508831425747
+       },
+       "scope_timed": {
+        "n_agents": 7077,
+        "n_types": 1059,
+        "type_rate": 0.1496396778295888,
+        "top1_share": 0.0685318637840893
+       },
+       "day0_untimed": {
+        "n_agents": 7077,
+        "n_types": 170,
+        "type_rate": 0.024021478027412745,
+        "top1_share": 0.49187508831425747
+       },
+       "day0_timed": {
+        "n_agents": 7077,
+        "n_types": 978,
+        "type_rate": 0.13819415006358626,
+        "top1_share": 0.0685318637840893
+       }
+      },
+      "m3a": {
+       "n": 205372,
+       "on_00_30": 0.9395097676411585,
+       "exact_00_30": 0.8766530977932727,
+       "entropy_bits": 4.150733331530315,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "00:00",
+       "top_bin_share": 0.1708363360146466,
+       "top_hour": "00時台",
+       "top_hour_share": 0.19734433126229475
+      },
+      "m3b": {
+       "n": 32468,
+       "on_00_30": 0.9943636811629912,
+       "exact_00_30": 0.9886349636565234,
+       "entropy_bits": 2.633594371633145,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.2809843538253049,
+       "top_hour": "07時台",
+       "top_hour_share": 0.5273808057163977,
+       "n_agent_days_with_work": 32493,
+       "n_missing_proxy": 25
+      },
+      "m3c": {
+       "n": 32493,
+       "on_00_30": 0.9983073277321269,
+       "exact_00_30": 0.9981534484350475,
+       "entropy_bits": 1.1607034094285307,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.8076201027913704,
+       "top_hour": "09時台",
+       "top_hour_share": 0.8077739820884499
+      },
+      "m3c_all_work_rows": {
+       "n": 32503,
+       "on_00_30": 0.9983078485062917,
+       "exact_00_30": 0.9981540165523183,
+       "entropy_bits": 1.1639556270987534,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.8073716272344091,
+       "top_hour": "09時台",
+       "top_hour_share": 0.807679291142356
+      },
+      "m4a": {
+       "n": 35385,
+       "mean": 5.803928218171541,
+       "sd": 0.4058235808764317
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 35385,
+        "mean": 2.6746078846969055,
+        "sd": 0.5269462249512716,
+        "lt7_share": 1.0
+       },
+       "place_cell": {
+        "n": 35385,
+        "mean": 2.6746078846969055,
+        "sd": 0.5269462249512716,
+        "lt7_share": 1.0
+       }
+      },
+      "m6": {
+       "n": 70770,
+       "mean": 0.9887870162901955,
+       "sd": 0.06667364719831578,
+       "exact_share": 0.9712590080542602,
+       "n_day_pairs": 10,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d1-d2",
+        "d1-d3",
+        "d1-d4",
+        "d2-d3"
+       ]
+      },
+      "m6_from_d0": {
+       "n": 28308,
+       "mean": 0.9893666269673053,
+       "sd": 0.06613252100395221,
+       "exact_share": 0.9736823512787904,
+       "n_day_pairs": 4,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4"
+       ]
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 7077,
+        "mean": 2.761339550657058,
+        "sd": 0.7904601555183974,
+        "cv": 0.2862596725311482
+       },
+       "capacity_place_cell": {
+        "n": 7077,
+        "mean": 2.761339550657058,
+        "sd": 0.7904601555183974,
+        "cv": 0.2862596725311482
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 7077,
+        "mean": 0.7834406171322557,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 35385,
+       "coverage_mean": 0.7544448565776459,
+       "coverage_ge_0999_share": 0.004097781545852762,
+       "sleep_line_share": 1.0,
+       "night_violation_rows": 11035,
+       "night_violation_day_share": 0.3118553059205878,
+       "lines_per_day": {
+        "n": 35385,
+        "mean": 5.803928218171541,
+        "sd": 0.4058235808764317
+       },
+       "lines_per_day_min": 4,
+       "lines_per_day_max": 7
+      }
+     },
+     "3": {
+      "n_agents": 36545,
+      "n_agent_days": 182725,
+      "n_rows": 1056389,
+      "m1": {
+       "n_day_graphs": 182725,
+       "n_distinct": 20,
+       "n_motifs_ge_threshold": 8,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 0.9909043644821454,
+       "closed_share": 0.9220084826925709,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N3:0>1,1>2,2>0",
+         "n": 72921,
+         "share": 0.39907511287453823
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3,3>0",
+         "n": 61660,
+         "share": 0.33744698317143246
+        },
+        {
+         "motif": "N1:",
+         "n": 15791,
+         "share": 0.08641948282938842
+        },
+        {
+         "motif": "N2:0>1,1>0",
+         "n": 10171,
+         "share": 0.055662881379121634
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 8066,
+         "share": 0.044142837597482554
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 6062,
+         "share": 0.03317553700916678
+        },
+        {
+         "motif": "N3:0>1,1>2",
+         "n": 5082,
+         "share": 0.027812286222465454
+        },
+        {
+         "motif": "N2:0>1",
+         "n": 1310,
+         "share": 0.007169243398549734
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 500,
+         "share": 0.0027363524421945545
+        },
+        {
+         "motif": "N3:0>1,1>0,2>0",
+         "n": 455,
+         "share": 0.002490080722397045
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>1",
+         "n": 403,
+         "share": 0.002205500068408811
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,2>3",
+         "n": 172,
+         "share": 0.0009413052401149268
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 36545,
+        "n_types": 3602,
+        "type_rate": 0.09856341496784786,
+        "top1_share": 0.2643590094404159
+       },
+       "scope_timed": {
+        "n_agents": 36545,
+        "n_types": 9864,
+        "type_rate": 0.2699138048980709,
+        "top1_share": 0.032672048159802985
+       },
+       "day0_untimed": {
+        "n_agents": 36545,
+        "n_types": 977,
+        "type_rate": 0.026734163360240797,
+        "top1_share": 0.26444110001368176
+       },
+       "day0_timed": {
+        "n_agents": 36545,
+        "n_types": 6676,
+        "type_rate": 0.18267888904090848,
+        "top1_share": 0.03269941168422493
+       }
+      },
+      "m3a": {
+       "n": 1056389,
+       "on_00_30": 0.9312241986616673,
+       "exact_00_30": 0.8566134255468393,
+       "entropy_bits": 4.343368437476522,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "00:00",
+       "top_bin_share": 0.17460992115593782,
+       "top_hour": "00時台",
+       "top_hour_share": 0.19691988462583385
+      },
+      "m3b": {
+       "n": 115757,
+       "on_00_30": 0.9936591307653101,
+       "exact_00_30": 0.987707006919668,
+       "entropy_bits": 1.7392704649767436,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.7124147999689003,
+       "top_hour": "08時台",
+       "top_hour_share": 0.7244313518836873,
+       "n_agent_days_with_work": 115952,
+       "n_missing_proxy": 195
+      },
+      "m3c": {
+       "n": 115952,
+       "on_00_30": 0.9997757692838416,
+       "exact_00_30": 0.999318683593211,
+       "entropy_bits": 0.8694079787713749,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.867859114116186,
+       "top_hour": "09時台",
+       "top_hour_share": 0.8763712570718918
+      },
+      "m3c_all_work_rows": {
+       "n": 115971,
+       "on_00_30": 0.9997758060204707,
+       "exact_00_30": 0.9993187952160454,
+       "entropy_bits": 0.8702978353708233,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.867716929232308,
+       "top_hour": "09時台",
+       "top_hour_share": 0.8762621689905234
+      },
+      "m4a": {
+       "n": 182725,
+       "mean": 5.781305240114927,
+       "sd": 0.460446693119541
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 182725,
+        "mean": 3.136664386372965,
+        "sd": 0.8730789695610919,
+        "lt7_share": 1.0
+       },
+       "place_cell": {
+        "n": 182725,
+        "mean": 3.136664386372965,
+        "sd": 0.8730789695610919,
+        "lt7_share": 1.0
+       }
+      },
+      "m6": {
+       "n": 365450,
+       "mean": 0.9407194359204895,
+       "sd": 0.14075533330612924,
+       "exact_share": 0.8419619647010534,
+       "n_day_pairs": 10,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d1-d2",
+        "d1-d3",
+        "d1-d4",
+        "d2-d3"
+       ]
+      },
+      "m6_from_d0": {
+       "n": 146180,
+       "mean": 0.9404733645407815,
+       "sd": 0.13992694115819201,
+       "exact_share": 0.8393145437132302,
+       "n_day_pairs": 4,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4"
+       ]
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 36545,
+        "mean": 3.5986318237789026,
+        "sd": 1.444941843918921,
+        "cv": 0.40152533370351734
+       },
+       "capacity_place_cell": {
+        "n": 36545,
+        "mean": 3.5986318237789026,
+        "sd": 1.444941843918921,
+        "cv": 0.40152533370351734
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 36545,
+        "mean": 0.5115470403584355,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 182725,
+       "coverage_mean": 0.7485669874279808,
+       "coverage_ge_0999_share": 0.024435627308797375,
+       "sleep_line_share": 1.0,
+       "night_violation_rows": 54517,
+       "night_violation_day_share": 0.28681351758106444,
+       "lines_per_day": {
+        "n": 182725,
+        "mean": 5.781305240114927,
+        "sd": 0.460446693119541
+       },
+       "lines_per_day_min": 4,
+       "lines_per_day_max": 7
+      }
+     },
+     "4": {
+      "n_agents": 24,
+      "n_agent_days": 120,
+      "n_rows": 682,
+      "m1": {
+       "n_day_graphs": 120,
+       "n_distinct": 7,
+       "n_motifs_ge_threshold": 7,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 1.0,
+       "closed_share": 0.75,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N3:0>1,1>2,2>0",
+         "n": 37,
+         "share": 0.30833333333333335
+        },
+        {
+         "motif": "N2:0>1,1>0",
+         "n": 27,
+         "share": 0.225
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 23,
+         "share": 0.19166666666666668
+        },
+        {
+         "motif": "N3:0>1,1>0,2>0",
+         "n": 21,
+         "share": 0.175
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3,3>0",
+         "n": 6,
+         "share": 0.05
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 4,
+         "share": 0.03333333333333333
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 2,
+         "share": 0.016666666666666666
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 24,
+        "n_types": 23,
+        "type_rate": 0.9583333333333334,
+        "top1_share": 0.08333333333333333
+       },
+       "scope_timed": {
+        "n_agents": 24,
+        "n_types": 24,
+        "type_rate": 1.0,
+        "top1_share": 0.041666666666666664
+       },
+       "day0_untimed": {
+        "n_agents": 24,
+        "n_types": 15,
+        "type_rate": 0.625,
+        "top1_share": 0.20833333333333334
+       },
+       "day0_timed": {
+        "n_agents": 24,
+        "n_types": 19,
+        "type_rate": 0.7916666666666666,
+        "top1_share": 0.20833333333333334
+       }
+      },
+      "m3a": {
+       "n": 682,
+       "on_00_30": 1.0,
+       "exact_00_30": 1.0,
+       "entropy_bits": 3.513194236250654,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "00:00",
+       "top_bin_share": 0.16422287390029325,
+       "top_hour": "07時台",
+       "top_hour_share": 0.16715542521994134
+      },
+      "m3b": {
+       "n": 33,
+       "on_00_30": 1.0,
+       "exact_00_30": 1.0,
+       "entropy_bits": 1.1775401875798155,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.7575757575757576,
+       "top_hour": "08時台",
+       "top_hour_share": 0.7575757575757576,
+       "n_agent_days_with_work": 56,
+       "n_missing_proxy": 23
+      },
+      "m3c": {
+       "n": 56,
+       "on_00_30": 1.0,
+       "exact_00_30": 1.0,
+       "entropy_bits": 2.1277488966948397,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.4107142857142857,
+       "top_hour": "08時台",
+       "top_hour_share": 0.4107142857142857
+      },
+      "m3c_all_work_rows": {
+       "n": 56,
+       "on_00_30": 1.0,
+       "exact_00_30": 1.0,
+       "entropy_bits": 2.1277488966948397,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.4107142857142857,
+       "top_hour": "08時台",
+       "top_hour_share": 0.4107142857142857
+      },
+      "m4a": {
+       "n": 120,
+       "mean": 5.683333333333334,
+       "sd": 0.5771096564393594
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 120,
+        "mean": 2.8583333333333334,
+        "sd": 0.536902122261487,
+        "lt7_share": 1.0
+       },
+       "place_cell": {
+        "n": 120,
+        "mean": 2.8583333333333334,
+        "sd": 0.536902122261487,
+        "lt7_share": 1.0
+       }
+      },
+      "m6": {
+       "n": 240,
+       "mean": 0.811111111111111,
+       "sd": 0.17616455550786586,
+       "exact_share": 0.44583333333333336,
+       "n_day_pairs": 10,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d1-d2",
+        "d1-d3",
+        "d1-d4",
+        "d2-d3"
+       ]
+      },
+      "m6_from_d0": {
+       "n": 96,
+       "mean": 0.8121527777777778,
+       "sd": 0.18296173145625053,
+       "exact_share": 0.4583333333333333,
+       "n_day_pairs": 4,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4"
+       ]
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 24,
+        "mean": 3.0416666666666665,
+        "sd": 0.5384519993050035,
+        "cv": 0.17702531484000117
+       },
+       "capacity_place_cell": {
+        "n": 24,
+        "mean": 3.0416666666666665,
+        "sd": 0.5384519993050035,
+        "cv": 0.17702531484000117
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 24,
+        "mean": 0.5003623188405798,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 120,
+       "coverage_mean": 0.7383680555555555,
+       "coverage_ge_0999_share": 0.0,
+       "sleep_line_share": 0.9416666666666667,
+       "night_violation_rows": 11,
+       "night_violation_day_share": 0.09166666666666666,
+       "lines_per_day": {
+        "n": 120,
+        "mean": 5.683333333333334,
+        "sd": 0.5771096564393594
+       },
+       "lines_per_day_min": 4,
+       "lines_per_day_max": 6
+      }
+     },
+     "5": {
+      "n_agents": 33385,
+      "n_agent_days": 166925,
+      "n_rows": 987208,
+      "m1": {
+       "n_day_graphs": 166925,
+       "n_distinct": 15,
+       "n_motifs_ge_threshold": 7,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 0.9990295042683839,
+       "closed_share": 0.9545125056162947,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 58564,
+         "share": 0.35084019769357494
+        },
+        {
+         "motif": "N3:0>1,1>2,2>0",
+         "n": 52503,
+         "share": 0.3145304777594728
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3,3>0",
+         "n": 44714,
+         "share": 0.26786880335480007
+        },
+        {
+         "motif": "N2:0>1,1>0",
+         "n": 3497,
+         "share": 0.020949528231241576
+        },
+        {
+         "motif": "N3:0>1,1>0,2>0",
+         "n": 2894,
+         "share": 0.017337127452448704
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 2305,
+         "share": 0.013808596675153512
+        },
+        {
+         "motif": "N3:0>1,1>2",
+         "n": 2286,
+         "share": 0.013694773101692377
+        },
+        {
+         "motif": "N1:",
+         "n": 53,
+         "share": 0.0003175078628126404
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,3>0",
+         "n": 34,
+         "share": 0.00020368428935150517
+        },
+        {
+         "motif": "N2:0>1",
+         "n": 27,
+         "share": 0.00016174928860266587
+        },
+        {
+         "motif": "N4:0>1,1>2,2>0,3>0",
+         "n": 20,
+         "share": 0.00011981428785382657
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 15,
+         "share": 8.986071589036993e-05
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 33385,
+        "n_types": 306,
+        "type_rate": 0.009165793020817733,
+        "top1_share": 0.26634716189905644
+       },
+       "scope_timed": {
+        "n_agents": 33385,
+        "n_types": 3044,
+        "type_rate": 0.09117867305676201,
+        "top1_share": 0.05469522240527183
+       },
+       "day0_untimed": {
+        "n_agents": 33385,
+        "n_types": 202,
+        "type_rate": 0.006050621536618242,
+        "top1_share": 0.26637711547101994
+       },
+       "day0_timed": {
+        "n_agents": 33385,
+        "n_types": 2648,
+        "type_rate": 0.07931705855923318,
+        "top1_share": 0.05574359742399281
+       }
+      },
+      "m3a": {
+       "n": 987208,
+       "on_00_30": 0.9411198045396715,
+       "exact_00_30": 0.8789474963736112,
+       "entropy_bits": 4.113539141750651,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "00:00",
+       "top_bin_share": 0.17185638690124067,
+       "top_hour": "07時台",
+       "top_hour_share": 0.19878992066514858
+      },
+      "m3b": {
+       "n": 116610,
+       "on_00_30": 0.993559729011234,
+       "exact_00_30": 0.9783037475345168,
+       "entropy_bits": 1.3584583941672959,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.7607923848726524,
+       "top_hour": "08時台",
+       "top_hour_share": 0.8877712031558186,
+       "n_agent_days_with_work": 116629,
+       "n_missing_proxy": 19
+      },
+      "m3c": {
+       "n": 116629,
+       "on_00_30": 0.9933892942578604,
+       "exact_00_30": 0.9894537379211003,
+       "entropy_bits": 1.2039993119331405,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.8019189052465511,
+       "top_hour": "09時台",
+       "top_hour_share": 0.887635150777251
+      },
+      "m3c_all_work_rows": {
+       "n": 116629,
+       "on_00_30": 0.9933892942578604,
+       "exact_00_30": 0.9894537379211003,
+       "entropy_bits": 1.2039993119331405,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.8019189052465511,
+       "top_hour": "09時台",
+       "top_hour_share": 0.887635150777251
+      },
+      "m4a": {
+       "n": 166925,
+       "mean": 5.914081174180021,
+       "sd": 0.28192785258597697
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 166925,
+        "mean": 3.260356447506365,
+        "sd": 0.4865660239679055,
+        "lt7_share": 1.0
+       },
+       "place_cell": {
+        "n": 166925,
+        "mean": 3.260356447506365,
+        "sd": 0.4865660239679055,
+        "lt7_share": 1.0
+       }
+      },
+      "m6": {
+       "n": 333850,
+       "mean": 0.9904493820292832,
+       "sd": 0.06591171304083349,
+       "exact_share": 0.9788437921222106,
+       "n_day_pairs": 10,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d1-d2",
+        "d1-d3",
+        "d1-d4",
+        "d2-d3"
+       ]
+      },
+      "m6_from_d0": {
+       "n": 133540,
+       "mean": 0.9910471804417439,
+       "sd": 0.06371050629151706,
+       "exact_share": 0.9797963157106485,
+       "n_day_pairs": 4,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4"
+       ]
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 33385,
+        "mean": 3.27365583345814,
+        "sd": 0.49414363637415276,
+        "cv": 0.1509455060375611
+       },
+       "capacity_place_cell": {
+        "n": 33385,
+        "mean": 3.27365583345814,
+        "sd": 0.49414363637415276,
+        "cv": 0.1509455060375611
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 33385,
+        "mean": 0.8629370884590398,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 166925,
+       "coverage_mean": 0.7571922436889489,
+       "coverage_ge_0999_share": 0.0,
+       "sleep_line_share": 0.99953272427737,
+       "night_violation_rows": 52674,
+       "night_violation_day_share": 0.30239329039988017,
+       "lines_per_day": {
+        "n": 166925,
+        "mean": 5.914081174180021,
+        "sd": 0.28192785258597697
+       },
+       "lines_per_day_min": 4,
+       "lines_per_day_max": 6
+      }
+     },
+     "6": {
+      "n_agents": 20000,
+      "n_agent_days": 28454,
+      "n_rows": 157286,
+      "m1": {
+       "n_day_graphs": 28454,
+       "n_distinct": 58,
+       "n_motifs_ge_threshold": 13,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 0.9742039783510227,
+       "closed_share": 0.02200042173332396,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 9347,
+         "share": 0.3284951149223308
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,2>3,3>2",
+         "n": 5802,
+         "share": 0.2039080621353764
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 4320,
+         "share": 0.1518239966261334
+        },
+        {
+         "motif": "N5:0>1,0>2,1>0,2>3,3>4",
+         "n": 2799,
+         "share": 0.0983692978140156
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,2>3",
+         "n": 1051,
+         "share": 0.0369368102902931
+        },
+        {
+         "motif": "N3:0>1,1>2",
+         "n": 1012,
+         "share": 0.03556617698741829
+        },
+        {
+         "motif": "N5:0>1,1>2,2>3,3>4",
+         "n": 811,
+         "share": 0.02850214381106347
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 635,
+         "share": 0.022316721726295074
+        },
+        {
+         "motif": "N3:0>1,1>2,2>0",
+         "n": 602,
+         "share": 0.021156955085400997
+        },
+        {
+         "motif": "N6:0>1,1>2,2>3,3>4,4>5",
+         "n": 489,
+         "share": 0.017185632951430378
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,1>2,2>0",
+         "n": 344,
+         "share": 0.012089688620229142
+        },
+        {
+         "motif": "N4:0>1,0>2,0>3,1>0,2>0",
+         "n": 262,
+         "share": 0.009207844239825683
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 20000,
+        "n_types": 1750,
+        "type_rate": 0.0875,
+        "top1_share": 0.096
+       },
+       "scope_timed": {
+        "n_agents": 20000,
+        "n_types": 7259,
+        "type_rate": 0.36295,
+        "top1_share": 0.0484
+       },
+       "day0_untimed": {
+        "n_agents": 20000,
+        "n_types": 225,
+        "type_rate": 0.01125,
+        "top1_share": 0.71915
+       },
+       "day0_timed": {
+        "n_agents": 20000,
+        "n_types": 1748,
+        "type_rate": 0.0874,
+        "top1_share": 0.71915
+       }
+      },
+      "m3a": {
+       "n": 157286,
+       "on_00_30": 0.9520936383403481,
+       "exact_00_30": 0.8641710005976374,
+       "entropy_bits": 4.579148740352961,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "07:00",
+       "top_bin_share": 0.13046933611383085,
+       "top_hour": "07時台",
+       "top_hour_share": 0.15298246506364202
+      },
+      "m3b": {
+       "n": 3411,
+       "on_00_30": 0.9950161243037232,
+       "exact_00_30": 0.969803576663735,
+       "entropy_bits": 2.5012251502107463,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.5895631779536793,
+       "top_hour": "08時台",
+       "top_hour_share": 0.6250366461448256,
+       "n_agent_days_with_work": 3411,
+       "n_missing_proxy": 0
+      },
+      "m3c": {
+       "n": 3411,
+       "on_00_30": 0.999413661682791,
+       "exact_00_30": 0.9824098504837291,
+       "entropy_bits": 2.522688520786078,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.5705071826443858,
+       "top_hour": "09時台",
+       "top_hour_share": 0.5795954265611257
+      },
+      "m3c_all_work_rows": {
+       "n": 3425,
+       "on_00_30": 0.9994160583941606,
+       "exact_00_30": 0.9824817518248176,
+       "entropy_bits": 2.5487900240109,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.5681751824817518,
+       "top_hour": "09時台",
+       "top_hour_share": 0.5772262773722627
+      },
+      "m4a": {
+       "n": 28454,
+       "mean": 5.527728966050468,
+       "sd": 0.6638509121182894
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 28454,
+        "mean": 3.600161664440852,
+        "sd": 0.7905313889188361,
+        "lt7_share": 1.0
+       },
+       "place_cell": {
+        "n": 28454,
+        "mean": 3.600161664440852,
+        "sd": 0.7905313889188361,
+        "lt7_share": 1.0
+       }
+      },
+      "m6": {
+       "n": 9422,
+       "mean": 0.8672752979349244,
+       "sd": 0.1903582599475688,
+       "exact_share": 0.6423264699639143,
+       "n_day_pairs": 10,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d1-d2",
+        "d1-d3",
+        "d1-d4",
+        "d2-d3"
+       ]
+      },
+      "m6_from_d0": {
+       "n": 3759,
+       "mean": 0.8700974803329152,
+       "sd": 0.19197242460896263,
+       "exact_share": 0.644586326150572,
+       "n_day_pairs": 4,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4"
+       ]
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 19032,
+        "mean": 3.6616750735603194,
+        "sd": 0.8754547787901676,
+        "cv": 0.23908587223140626
+       },
+       "capacity_place_cell": {
+        "n": 19032,
+        "mean": 3.6616750735603194,
+        "sd": 0.8754547787901676,
+        "cv": 0.23908587223140626
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 19032,
+        "mean": 0.7477123644638565,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 28454,
+       "coverage_mean": 0.390054879025015,
+       "coverage_ge_0999_share": 0.0,
+       "sleep_line_share": 0.00014057777465382724,
+       "night_violation_rows": 6900,
+       "night_violation_day_share": 0.12216208617417586,
+       "lines_per_day": {
+        "n": 28454,
+        "mean": 5.527728966050468,
+        "sd": 0.6638509121182894
+       },
+       "lines_per_day_min": 3,
+       "lines_per_day_max": 7
+      }
+     },
+     "7": {
+      "n_agents": 17404,
+      "n_agent_days": 12404,
+      "n_rows": 72349,
+      "m1": {
+       "n_day_graphs": 12404,
+       "n_distinct": 45,
+       "n_motifs_ge_threshold": 14,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 0.9695259593679458,
+       "closed_share": 0.004917768461786521,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N4:0>1,0>2,1>0,2>3,3>2",
+         "n": 6962,
+         "share": 0.5612705578845534
+        },
+        {
+         "motif": "N5:0>1,0>2,1>0,2>3,3>4",
+         "n": 926,
+         "share": 0.07465333763302161
+        },
+        {
+         "motif": "N5:0>1,0>2,1>3,2>4,3>0",
+         "n": 813,
+         "share": 0.06554337310544986
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,2>3",
+         "n": 626,
+         "share": 0.05046759109964528
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,1>3,2>1",
+         "n": 454,
+         "share": 0.036601096420509516
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 451,
+         "share": 0.03635923895517575
+        },
+        {
+         "motif": "N5:0>1,1>2,2>3,3>4",
+         "n": 424,
+         "share": 0.03418252176717188
+        },
+        {
+         "motif": "N4:0>1,0>2,1>3,3>0",
+         "n": 391,
+         "share": 0.031522089648500486
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 334,
+         "share": 0.02692679780715898
+        },
+        {
+         "motif": "N3:0>1,1>2",
+         "n": 245,
+         "share": 0.019751693002257337
+        },
+        {
+         "motif": "N6:0>1,1>2,2>3,3>4,4>5",
+         "n": 142,
+         "share": 0.01144792002579813
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 110,
+         "share": 0.008868107062237987
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 17404,
+        "n_types": 744,
+        "type_rate": 0.04274879338083199,
+        "top1_share": 0.2872902780969892
+       },
+       "scope_timed": {
+        "n_agents": 17404,
+        "n_types": 4121,
+        "type_rate": 0.2367846472075385,
+        "top1_share": 0.2872902780969892
+       },
+       "day0_untimed": {
+        "n_agents": 17404,
+        "n_types": 175,
+        "type_rate": 0.010055159733394622,
+        "top1_share": 0.8592852217880947
+       },
+       "day0_timed": {
+        "n_agents": 17404,
+        "n_types": 1212,
+        "type_rate": 0.06963916341071018,
+        "top1_share": 0.8592852217880947
+       }
+      },
+      "m3a": {
+       "n": 72349,
+       "on_00_30": 0.9715821918754924,
+       "exact_00_30": 0.9193216215842651,
+       "entropy_bits": 4.2927707250917155,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "07:00",
+       "top_bin_share": 0.1413979460669809,
+       "top_hour": "07時台",
+       "top_hour_share": 0.15403115454256452
+      },
+      "m3b": {
+       "n": 1148,
+       "on_00_30": 0.9939024390243902,
+       "exact_00_30": 0.980836236933798,
+       "entropy_bits": 2.7861621790916242,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.35801393728222997,
+       "top_hour": "08時台",
+       "top_hour_share": 0.45121951219512196,
+       "n_agent_days_with_work": 1148,
+       "n_missing_proxy": 0
+      },
+      "m3c": {
+       "n": 1148,
+       "on_00_30": 0.9956445993031359,
+       "exact_00_30": 0.985191637630662,
+       "entropy_bits": 3.4185568875906767,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.30662020905923343,
+       "top_hour": "09時台",
+       "top_hour_share": 0.3344947735191638
+      },
+      "m3c_all_work_rows": {
+       "n": 1166,
+       "on_00_30": 0.9957118353344768,
+       "exact_00_30": 0.9854202401372213,
+       "entropy_bits": 3.4689335019159646,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.3018867924528302,
+       "top_hour": "09時台",
+       "top_hour_share": 0.3293310463121784
+      },
+      "m4a": {
+       "n": 12404,
+       "mean": 5.832715253144147,
+       "sd": 0.5327007474038252
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 12404,
+        "mean": 4.150838439213157,
+        "sd": 0.5326172864577499,
+        "lt7_share": 0.999677523379555
+       },
+       "place_cell": {
+        "n": 12404,
+        "mean": 4.150838439213157,
+        "sd": 0.5326172864577499,
+        "lt7_share": 0.999677523379555
+       }
+      },
+      "m6": {
+       "n": 0,
+       "mean": null,
+       "sd": null,
+       "exact_share": null,
+       "n_day_pairs": 10
+      },
+      "m6_from_d0": {
+       "n": 0,
+       "mean": null,
+       "sd": null,
+       "exact_share": null,
+       "n_day_pairs": 4
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 12404,
+        "mean": 4.150838439213157,
+        "sd": 0.5326172864577499,
+        "cv": 0.12831559075537377
+       },
+       "capacity_place_cell": {
+        "n": 12404,
+        "mean": 4.150838439213157,
+        "sd": 0.5326172864577499,
+        "cv": 0.12831559075537377
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 12404,
+        "mean": 0.6586868030592851,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 12404,
+       "coverage_mean": 0.3547864264215844,
+       "coverage_ge_0999_share": 0.0,
+       "sleep_line_share": 0.0,
+       "night_violation_rows": 1712,
+       "night_violation_day_share": 0.07046114156723637,
+       "lines_per_day": {
+        "n": 12404,
+        "mean": 5.832715253144147,
+        "sd": 0.5327007474038252
+       },
+       "lines_per_day_min": 4,
+       "lines_per_day_max": 7
+      }
+     },
+     "8": {
+      "n_agents": 1258,
+      "n_agent_days": 6290,
+      "n_rows": 34529,
+      "m1": {
+       "n_day_graphs": 6290,
+       "n_distinct": 24,
+       "n_motifs_ge_threshold": 13,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 0.9930047694753575,
+       "closed_share": 0.687281399046105,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N2:0>1,1>0",
+         "n": 2801,
+         "share": 0.4453100158982512
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 681,
+         "share": 0.1082670906200318
+        },
+        {
+         "motif": "N3:0>1,1>2,2>0",
+         "n": 629,
+         "share": 0.1
+        },
+        {
+         "motif": "N2:0>1",
+         "n": 523,
+         "share": 0.08314785373608903
+        },
+        {
+         "motif": "N3:0>1,1>0,2>0",
+         "n": 448,
+         "share": 0.0712241653418124
+        },
+        {
+         "motif": "N3:0>1,1>2",
+         "n": 316,
+         "share": 0.05023847376788553
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 288,
+         "share": 0.045786963434022256
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3,3>0",
+         "n": 190,
+         "share": 0.030206677265500796
+        },
+        {
+         "motif": "N1:",
+         "n": 156,
+         "share": 0.02480127186009539
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 90,
+         "share": 0.014308426073131956
+        },
+        {
+         "motif": "N4:0>1,1>2,2>0,3>0",
+         "n": 51,
+         "share": 0.008108108108108109
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>1",
+         "n": 38,
+         "share": 0.006041335453100159
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 1258,
+        "n_types": 979,
+        "type_rate": 0.7782193958664547,
+        "top1_share": 0.009538950715421303
+       },
+       "scope_timed": {
+        "n_agents": 1258,
+        "n_types": 1233,
+        "type_rate": 0.980127186009539,
+        "top1_share": 0.0023847376788553257
+       },
+       "day0_untimed": {
+        "n_agents": 1258,
+        "n_types": 397,
+        "type_rate": 0.31558028616852146,
+        "top1_share": 0.03815580286168521
+       },
+       "day0_timed": {
+        "n_agents": 1258,
+        "n_types": 1044,
+        "type_rate": 0.8298887122416534,
+        "top1_share": 0.005564387917329093
+       }
+      },
+      "m3a": {
+       "n": 34529,
+       "on_00_30": 0.9430623533841119,
+       "exact_00_30": 0.8896000463378609,
+       "entropy_bits": 4.422039960472351,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "00:00",
+       "top_bin_share": 0.16189290161892902,
+       "top_hour": "00時台",
+       "top_hour_share": 0.19595122940137277
+      },
+      "m3b": {
+       "n": 3931,
+       "on_00_30": 0.9969473416433478,
+       "exact_00_30": 0.9933859068939201,
+       "entropy_bits": 2.941449663633521,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "07:00",
+       "top_bin_share": 0.33579241923174763,
+       "top_hour": "07時台",
+       "top_hour_share": 0.37903841261765453,
+       "n_agent_days_with_work": 4158,
+       "n_missing_proxy": 227
+      },
+      "m3c": {
+       "n": 4158,
+       "on_00_30": 0.9911014911014911,
+       "exact_00_30": 0.9855699855699855,
+       "entropy_bits": 3.347394105985597,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "22:00",
+       "top_bin_share": 0.26430976430976433,
+       "top_hour": "22時台",
+       "top_hour_share": 0.2715247715247715
+      },
+      "m3c_all_work_rows": {
+       "n": 4385,
+       "on_00_30": 0.9915621436716078,
+       "exact_00_30": 0.9863169897377423,
+       "entropy_bits": 3.4594605261324576,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "22:00",
+       "top_bin_share": 0.25062713797035346,
+       "top_hour": "22時台",
+       "top_hour_share": 0.2574686431014823
+      },
+      "m4a": {
+       "n": 6290,
+       "mean": 5.489507154213037,
+       "sd": 0.6614297122576542
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 6290,
+        "mean": 2.5220985691573925,
+        "sd": 0.7118604902182195,
+        "lt7_share": 1.0
+       },
+       "place_cell": {
+        "n": 6290,
+        "mean": 2.5220985691573925,
+        "sd": 0.7118604902182195,
+        "lt7_share": 1.0
+       }
+      },
+      "m6": {
+       "n": 12580,
+       "mean": 0.7846252555076083,
+       "sd": 0.21619730707718868,
+       "exact_share": 0.45103338632750395,
+       "n_day_pairs": 10,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d1-d2",
+        "d1-d3",
+        "d1-d4",
+        "d2-d3"
+       ]
+      },
+      "m6_from_d0": {
+       "n": 5032,
+       "mean": 0.781745085421556,
+       "sd": 0.21028671070560923,
+       "exact_share": 0.4254769475357711,
+       "n_day_pairs": 4,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4"
+       ]
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 1258,
+        "mean": 2.8044515103338634,
+        "sd": 1.0374141876677552,
+        "cv": 0.3699169637432075
+       },
+       "capacity_place_cell": {
+        "n": 1258,
+        "mean": 2.8044515103338634,
+        "sd": 1.0374141876677552,
+        "cv": 0.3699169637432075
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 1258,
+        "mean": 0.4641970883442173,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 6290,
+       "coverage_mean": 0.6002615483130189,
+       "coverage_ge_0999_share": 0.013990461049284579,
+       "sleep_line_share": 0.8791732909379968,
+       "night_violation_rows": 2498,
+       "night_violation_day_share": 0.39634340222575515,
+       "lines_per_day": {
+        "n": 6290,
+        "mean": 5.489507154213037,
+        "sd": 0.6614297122576542
+       },
+       "lines_per_day_min": 3,
+       "lines_per_day_max": 6
+      }
+     }
+    }
+   },
+   "all_days": {
+    "days": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ],
+    "overall": {
+     "n_agents": 390067,
+     "n_agent_days": 2174433,
+     "n_rows": 12565687,
+     "m1": {
+      "n_day_graphs": 2174433,
+      "n_distinct": 71,
+      "n_motifs_ge_threshold": 10,
+      "threshold": 0.005,
+      "coverage_ge_threshold": 0.974926337118688,
+      "closed_share": 0.8409107109761488,
+      "capped_share": 0.0,
+      "top": [
+       {
+        "motif": "N3:0>1,1>2,2>0",
+        "n": 809905,
+        "share": 0.37246721329192484
+       },
+       {
+        "motif": "N4:0>1,1>2,2>3,3>0",
+        "n": 589010,
+        "share": 0.27087981096681296
+       },
+       {
+        "motif": "N3:0>1,0>2,1>0,2>0",
+        "n": 267226,
+        "share": 0.12289456607768554
+       },
+       {
+        "motif": "N2:0>1,1>0",
+        "n": 144690,
+        "share": 0.06654148460771153
+       },
+       {
+        "motif": "N4:0>1,1>2,2>3",
+        "n": 88326,
+        "share": 0.040620244449932466
+       },
+       {
+        "motif": "N3:0>1,1>2",
+        "n": 86617,
+        "share": 0.03983429243393565
+       },
+       {
+        "motif": "N4:0>1,0>2,1>0,2>3,3>2",
+        "n": 50018,
+        "share": 0.0230027781955112
+       },
+       {
+        "motif": "N3:0>1,0>2,1>0",
+        "n": 32558,
+        "share": 0.014973098734244744
+       },
+       {
+        "motif": "N3:0>1,1>0,2>0",
+        "n": 26649,
+        "share": 0.012255608703510295
+       },
+       {
+        "motif": "N1:",
+        "n": 24913,
+        "share": 0.011457239657418739
+       },
+       {
+        "motif": "N5:0>1,0>2,1>0,2>3,3>4",
+        "n": 9180,
+        "share": 0.004221790232212259
+       },
+       {
+        "motif": "N5:0>1,1>2,2>3,3>4",
+        "n": 7903,
+        "share": 0.003634510697731317
+       }
+      ],
+      "place_basis": "(place_kind, target_cell)"
+     },
+     "m2": {
+      "scope_untimed": {
+       "n_agents": 390067,
+       "n_types": 50259,
+       "type_rate": 0.12884709549897838,
+       "top1_share": 0.05863095314394706
+      },
+      "scope_timed": {
+       "n_agents": 390067,
+       "n_types": 121450,
+       "type_rate": 0.3113567669144019,
+       "top1_share": 0.018840353067549935
+      },
+      "day0_untimed": {
+       "n_agents": 390067,
+       "n_types": 3746,
+       "type_rate": 0.00960347837679168,
+       "top1_share": 0.20155768111632105
+      },
+      "day0_timed": {
+       "n_agents": 390067,
+       "n_types": 29230,
+       "type_rate": 0.07493584435494414,
+       "top1_share": 0.20155768111632105
+      }
+     },
+     "m3a": {
+      "n": 12565687,
+      "on_00_30": 0.9634528537914402,
+      "exact_00_30": 0.9189544511175552,
+      "entropy_bits": 4.2406100252615895,
+      "entropy_max_bits": 6.584962500721156,
+      "top_bin": "00:00",
+      "top_bin_share": 0.15780744817215325,
+      "top_hour": "07時台",
+      "top_hour_share": 0.18556573946175803
+     },
+     "m3b": {
+      "n": 1367645,
+      "on_00_30": 0.9881964983603201,
+      "exact_00_30": 0.9709983219329578,
+      "entropy_bits": 2.4290924520980357,
+      "entropy_max_bits": 6.584962500721156,
+      "top_bin": "08:00",
+      "top_bin_share": 0.5495073648497966,
+      "top_hour": "08時台",
+      "top_hour_share": 0.7268179973604262,
+      "n_agent_days_with_work": 1400578,
+      "n_missing_proxy": 32933
+     },
+     "m3c": {
+      "n": 1400578,
+      "on_00_30": 0.9962429796841018,
+      "exact_00_30": 0.994290214468598,
+      "entropy_bits": 2.024663571694649,
+      "entropy_max_bits": 6.584962500721156,
+      "top_bin": "09:00",
+      "top_bin_share": 0.6492612335764234,
+      "top_hour": "09時台",
+      "top_hour_share": 0.6819991460668381
+     },
+     "m3c_all_work_rows": {
+      "n": 1418780,
+      "on_00_30": 0.9958013222627892,
+      "exact_00_30": 0.9935197846036736,
+      "entropy_bits": 2.085054803144286,
+      "entropy_max_bits": 6.584962500721156,
+      "top_bin": "09:00",
+      "top_bin_share": 0.6409781643383752,
+      "top_hour": "09時台",
+      "top_hour_share": 0.6735575635405067
+     },
+     "m4a": {
+      "n": 2174433,
+      "mean": 5.778833838522502,
+      "sd": 0.4580170679801632
+     },
+     "m4b": {
+      "place_kind": {
+       "n": 2174433,
+       "mean": 3.27609174437658,
+       "sd": 0.6554201331332201,
+       "lt7_share": 0.9999977005499825
+      },
+      "place_cell": {
+       "n": 2174433,
+       "mean": 3.27609174437658,
+       "sd": 0.6554201331332201,
+       "lt7_share": 0.9999977005499825
+      }
+     },
+     "m6": {
+      "n": 6195281,
+      "mean": 0.8211801106495633,
+      "sd": 0.2451160265992207,
+      "exact_share": 0.6051602824795195,
+      "n_day_pairs": 21,
+      "pairs": [
+       "d0-d1",
+       "d0-d2",
+       "d0-d3",
+       "d0-d4",
+       "d0-d5",
+       "d0-d6",
+       "d1-d2",
+       "d1-d3"
+      ]
+     },
+     "m6_from_d0": {
+      "n": 1769983,
+      "mean": 0.8783301086792137,
+      "sd": 0.21734816949646846,
+      "exact_share": 0.728868017376438,
+      "n_day_pairs": 6,
+      "pairs": [
+       "d0-d1",
+       "d0-d2",
+       "d0-d3",
+       "d0-d4",
+       "d0-d5",
+       "d0-d6"
+      ]
+     },
+     "m8_partial": {
+      "measurable": "partial",
+      "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+      "capacity_place_kind": {
+       "n": 390067,
+       "mean": 4.049599171424396,
+       "sd": 1.2083826573746894,
+       "cv": 0.2983956204607914
+      },
+      "capacity_place_cell": {
+       "n": 390067,
+       "mean": 4.049599171424396,
+       "sd": 1.2083826573746894,
+       "cv": 0.2983956204607914
+      },
+      "mutual_jaccard_place_kind": {
+       "n_agents": 390067,
+       "mean": 0.5279839513913284,
+       "exact": true
+      }
+     },
+     "harm_block": {
+      "present": false,
+      "n": 0,
+      "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+     },
+     "harm_structural": {
+      "n": 2174433,
+      "coverage_mean": 0.7130101387350173,
+      "coverage_ge_0999_share": 0.024579741017543424,
+      "sleep_line_share": 0.9350221414042189,
+      "night_violation_rows": 370876,
+      "night_violation_day_share": 0.14217223524477415,
+      "lines_per_day": {
+       "n": 2174433,
+       "mean": 5.778833838522502,
+       "sd": 0.4580170679801632
+      },
+      "lines_per_day_min": 2,
+      "lines_per_day_max": 7
+     }
+    },
+    "overall_weighted": {
+     "n_agents": null,
+     "n_agent_days": null,
+     "n_rows": null,
+     "m1": {
+      "n_day_graphs": null,
+      "n_distinct": null,
+      "n_motifs_ge_threshold": null,
+      "threshold": null,
+      "coverage_ge_threshold": null,
+      "closed_share": null,
+      "capped_share": null,
+      "top": null,
+      "place_basis": "(place_kind, target_cell)"
+     },
+     "m2": {
+      "scope_untimed": {
+       "n_agents": null,
+       "n_types": null,
+       "type_rate": null,
+       "top1_share": null
+      },
+      "scope_timed": {
+       "n_agents": null,
+       "n_types": null,
+       "type_rate": null,
+       "top1_share": null
+      },
+      "day0_untimed": {
+       "n_agents": null,
+       "n_types": null,
+       "type_rate": null,
+       "top1_share": null
+      },
+      "day0_timed": {
+       "n_agents": null,
+       "n_types": null,
+       "type_rate": null,
+       "top1_share": null
+      }
+     },
+     "m3a": {
+      "n": 12565687,
+      "on_00_30": 0.9634528537914402,
+      "exact_00_30": 0.9189544511175552,
+      "entropy_bits": 4.124800649381887,
+      "entropy_max_bits": 6.584962500721155,
+      "top_bin": null,
+      "top_bin_share": 0.1646120900512642,
+      "top_hour": null,
+      "top_hour_share": 0.1869479957602
+     },
+     "m3b": {
+      "n": 1367645,
+      "on_00_30": 0.9881964983603201,
+      "exact_00_30": 0.9709983219329578,
+      "entropy_bits": 2.314461012469879,
+      "entropy_max_bits": 6.584962500721155,
+      "top_bin": null,
+      "top_bin_share": 0.5495439240446168,
+      "top_hour": null,
+      "top_hour_share": 0.7327859203228908,
+      "n_agent_days_with_work": 905525.3012565395,
+      "n_missing_proxy": 25673.69285596774
+     },
+     "m3c": {
+      "n": 1400578,
+      "on_00_30": 0.9962429796841018,
+      "exact_00_30": 0.994290214468598,
+      "entropy_bits": 1.916021258421304,
+      "entropy_max_bits": 6.584962500721156,
+      "top_bin": null,
+      "top_bin_share": 0.6498731238103126,
+      "top_hour": null,
+      "top_hour_share": 0.6826367399744963
+     },
+     "m3c_all_work_rows": {
+      "n": 1418780,
+      "on_00_30": 0.9958013222627892,
+      "exact_00_30": 0.9935197846036736,
+      "entropy_bits": 1.976453176249238,
+      "entropy_max_bits": 6.584962500721157,
+      "top_bin": null,
+      "top_bin_share": 0.6415822044291575,
+      "top_hour": null,
+      "top_hour_share": 0.6741869775440872
+     },
+     "m4a": {
+      "n": 2174433,
+      "mean": 5.778833838522502,
+      "sd": 0.44963807850763865
+     },
+     "m4b": {
+      "place_kind": {
+       "n": 2174433,
+       "mean": 3.27609174437658,
+       "sd": 0.6147920626655903,
+       "lt7_share": 0.9999977005499825
+      },
+      "place_cell": {
+       "n": 2174433,
+       "mean": 3.27609174437658,
+       "sd": 0.6147920626655903,
+       "lt7_share": 0.9999977005499825
+      }
+     },
+     "m6": {
+      "n": 6195281,
+      "mean": 0.8211801106495633,
+      "sd": 0.24409206683770332,
+      "exact_share": 0.6051602824795195,
+      "n_day_pairs": 21.0,
+      "pairs": null
+     },
+     "m6_from_d0": {
+      "n": 1769983,
+      "mean": 0.8783301086792138,
+      "sd": 0.21649825844673828,
+      "exact_share": 0.728868017376438,
+      "n_day_pairs": 6.0,
+      "pairs": null
+     },
+     "m8_partial": {
+      "measurable": "partial",
+      "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+      "capacity_place_kind": {
+       "n": 390067,
+       "mean": 4.049599171424396,
+       "sd": 1.1433393500330078,
+       "cv": 0.28168980311207154
+      },
+      "capacity_place_cell": {
+       "n": 390067,
+       "mean": 4.049599171424396,
+       "sd": 1.1433393500330078,
+       "cv": 0.28168980311207154
+      },
+      "mutual_jaccard_place_kind": {
+       "n_agents": null,
+       "mean": null,
+       "exact": null
+      }
+     },
+     "harm_block": {
+      "present": null,
+      "n": 0,
+      "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+     },
+     "harm_structural": {
+      "n": 2174433,
+      "coverage_mean": 0.7130101387350174,
+      "coverage_ge_0999_share": 0.024579741017543424,
+      "sleep_line_share": 0.9350221414042189,
+      "night_violation_rows": 146477.5752750257,
+      "night_violation_day_share": 0.14217223524477415,
+      "lines_per_day": {
+       "n": 2174433,
+       "mean": 5.778833838522502,
+       "sd": 0.44963807850763865
+      },
+      "lines_per_day_min": 2.218597215917897,
+      "lines_per_day_max": 6.888398952738484
+     }
+    },
+    "by_kind": {
+     "0": {
+      "n_agents": 215772,
+      "n_agent_days": 1510404,
+      "n_rows": 8719984,
+      "m1": {
+       "n_day_graphs": 1510404,
+       "n_distinct": 41,
+       "n_motifs_ge_threshold": 7,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 0.9806773551976822,
+       "closed_share": 0.8720567477310707,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N3:0>1,1>2,2>0",
+         "n": 610505,
+         "share": 0.4041998034962831
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3,3>0",
+         "n": 472417,
+         "share": 0.31277525748078
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 157280,
+         "share": 0.10413108016133432
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 77022,
+         "share": 0.05099430351084875
+        },
+        {
+         "motif": "N2:0>1,1>0",
+         "n": 72954,
+         "share": 0.04830098437239308
+        },
+        {
+         "motif": "N3:0>1,1>2",
+         "n": 69097,
+         "share": 0.04574736295719556
+        },
+        {
+         "motif": "N3:0>1,1>0,2>0",
+         "n": 21944,
+         "share": 0.014528563218847408
+        },
+        {
+         "motif": "N5:0>1,1>2,2>3,3>4",
+         "n": 5326,
+         "share": 0.0035262088818620715
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 4161,
+         "share": 0.0027548920686121066
+        },
+        {
+         "motif": "N4:0>1,1>2,2>0,3>0",
+         "n": 3896,
+         "share": 0.002579442321392157
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,2>3,3>0",
+         "n": 2784,
+         "share": 0.0018432154575861823
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,3>0",
+         "n": 2527,
+         "share": 0.0016730623065087222
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 215772,
+        "n_types": 32882,
+        "type_rate": 0.15239234006265873,
+        "top1_share": 0.10599150955638359
+       },
+       "scope_timed": {
+        "n_agents": 215772,
+        "n_types": 70461,
+        "type_rate": 0.32655302819642956,
+        "top1_share": 0.03405909941975789
+       },
+       "day0_untimed": {
+        "n_agents": 215772,
+        "n_types": 1592,
+        "type_rate": 0.007378158426487218,
+        "top1_share": 0.31437813988840074
+       },
+       "day0_timed": {
+        "n_agents": 215772,
+        "n_types": 12736,
+        "type_rate": 0.059025267411897744,
+        "top1_share": 0.13731624121758151
+       }
+      },
+      "m3a": {
+       "n": 8719984,
+       "on_00_30": 0.972858436437498,
+       "exact_00_30": 0.938859635522267,
+       "entropy_bits": 4.085764514409277,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "00:00",
+       "top_bin_share": 0.16324020778019777,
+       "top_hour": "07時台",
+       "top_hour_share": 0.18429380145651644
+      },
+      "m3b": {
+       "n": 1084051,
+       "on_00_30": 0.9867128022574584,
+       "exact_00_30": 0.9677699665421645,
+       "entropy_bits": 2.466212886725595,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.5191526966904694,
+       "top_hour": "08時台",
+       "top_hour_share": 0.72720102651997,
+       "n_agent_days_with_work": 1116416,
+       "n_missing_proxy": 32365
+      },
+      "m3c": {
+       "n": 1116416,
+       "on_00_30": 0.9961080815753267,
+       "exact_00_30": 0.9943667951731254,
+       "entropy_bits": 2.104274221227622,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.6114011264618207,
+       "top_hour": "09時台",
+       "top_hour_share": 0.642485417622105
+      },
+      "m3c_all_work_rows": {
+       "n": 1134249,
+       "on_00_30": 0.9955565312378499,
+       "exact_00_30": 0.9934000382632032,
+       "entropy_bits": 2.1755169713780016,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.6018449211769197,
+       "top_hour": "09時台",
+       "top_hour_share": 0.6327596497770772
+      },
+      "m4a": {
+       "n": 1510404,
+       "mean": 5.773279202120757,
+       "sd": 0.4555514008657181
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 1510404,
+        "mean": 3.3314636348950346,
+        "sd": 0.5787960660639854,
+        "lt7_share": 1.0
+       },
+       "place_cell": {
+        "n": 1510404,
+        "mean": 3.3314636348950346,
+        "sd": 0.5787960660639854,
+        "lt7_share": 1.0
+       }
+      },
+      "m6": {
+       "n": 4531212,
+       "mean": 0.8288638922192925,
+       "sd": 0.2548901062516415,
+       "exact_share": 0.6460386316067313,
+       "n_day_pairs": 21,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d0-d5",
+        "d0-d6",
+        "d1-d2",
+        "d1-d3"
+       ]
+      },
+      "m6_from_d0": {
+       "n": 1294632,
+       "mean": 0.8871358780470597,
+       "sd": 0.22201762141304263,
+       "exact_share": 0.7656082964116444,
+       "n_day_pairs": 6,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d0-d5",
+        "d0-d6"
+       ]
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 215772,
+        "mean": 4.231818771666388,
+        "sd": 1.29666554361302,
+        "cv": 0.3064085712494783
+       },
+       "capacity_place_cell": {
+        "n": 215772,
+        "mean": 4.231818771666388,
+        "sd": 1.29666554361302,
+        "cv": 0.3064085712494783
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 215772,
+        "mean": 0.6537082649891128,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 1510404,
+       "coverage_mean": 0.7303548807692068,
+       "coverage_ge_0999_share": 0.03095529408025932,
+       "sleep_line_share": 0.98427440605295,
+       "night_violation_rows": 186188,
+       "night_violation_day_share": 0.09278047462798032,
+       "lines_per_day": {
+        "n": 1510404,
+        "mean": 5.773279202120757,
+        "sd": 0.4555514008657181
+       },
+       "lines_per_day_min": 2,
+       "lines_per_day_max": 7
+      }
+     },
+     "1": {
+      "n_agents": 58602,
+      "n_agent_days": 58602,
+      "n_rows": 335761,
+      "m1": {
+       "n_day_graphs": 58602,
+       "n_distinct": 64,
+       "n_motifs_ge_threshold": 12,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 0.9747960820449816,
+       "closed_share": 0.01571618716084775,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N4:0>1,0>2,1>0,2>3,3>2",
+         "n": 31103,
+         "share": 0.5307498037609638
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 11498,
+         "share": 0.19620490768233165
+        },
+        {
+         "motif": "N5:0>1,0>2,1>0,2>3,3>4",
+         "n": 3932,
+         "share": 0.06709668611992765
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,2>3",
+         "n": 2840,
+         "share": 0.04846250981195181
+        },
+        {
+         "motif": "N4:0>1,0>2,0>3,1>0,2>0",
+         "n": 1885,
+         "share": 0.0321661376744821
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 1462,
+         "share": 0.024947953994744206
+        },
+        {
+         "motif": "N3:0>1,1>2",
+         "n": 1161,
+         "share": 0.019811610525238048
+        },
+        {
+         "motif": "N6:0>1,1>2,2>3,3>4,4>5",
+         "n": 946,
+         "share": 0.016142793761305074
+        },
+        {
+         "motif": "N3:0>1,1>2,2>0",
+         "n": 920,
+         "share": 0.01569912289682946
+        },
+        {
+         "motif": "N5:0>1,1>2,2>3,3>4",
+         "n": 713,
+         "share": 0.012166820245042832
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,3>0",
+         "n": 371,
+         "share": 0.006330841950786662
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 294,
+         "share": 0.00501689362137811
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 58602,
+        "n_types": 1525,
+        "type_rate": 0.026023002627896658,
+        "top1_share": 0.18427698713354493
+       },
+       "scope_timed": {
+        "n_agents": 58602,
+        "n_types": 10829,
+        "type_rate": 0.18478891505409373,
+        "top1_share": 0.022695471144329547
+       },
+       "day0_untimed": {
+        "n_agents": 58602,
+        "n_types": 436,
+        "type_rate": 0.0074400191119757,
+        "top1_share": 0.8409781236135285
+       },
+       "day0_timed": {
+        "n_agents": 58602,
+        "n_types": 3138,
+        "type_rate": 0.05354766048940309,
+        "top1_share": 0.8409781236135285
+       }
+      },
+      "m3a": {
+       "n": 335761,
+       "on_00_30": 0.972194507402587,
+       "exact_00_30": 0.907368634236853,
+       "entropy_bits": 4.206920236333016,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "07:00",
+       "top_bin_share": 0.1460235107710544,
+       "top_hour": "07時台",
+       "top_hour_share": 0.16726183207698334
+      },
+      "m3b": {
+       "n": 7640,
+       "on_00_30": 0.9968586387434555,
+       "exact_00_30": 0.9722513089005236,
+       "entropy_bits": 2.1915232507124314,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.4629581151832461,
+       "top_hour": "08時台",
+       "top_hour_share": 0.49908376963350787,
+       "n_agent_days_with_work": 7640,
+       "n_missing_proxy": 0
+      },
+      "m3c": {
+       "n": 7640,
+       "on_00_30": 0.9986910994764397,
+       "exact_00_30": 0.9780104712041885,
+       "entropy_bits": 2.7715224515590613,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.34293193717277487,
+       "top_hour": "09時台",
+       "top_hour_share": 0.3517015706806283
+      },
+      "m3c_all_work_rows": {
+       "n": 7679,
+       "on_00_30": 0.9986977471024873,
+       "exact_00_30": 0.9781221513217867,
+       "entropy_bits": 2.792709092895203,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.34145070972782915,
+       "top_hour": "09時台",
+       "top_hour_share": 0.3501758041411642
+      },
+      "m4a": {
+       "n": 58602,
+       "mean": 5.729514351046039,
+       "sd": 0.5460209102992208
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 58602,
+        "mean": 3.8552438483328215,
+        "sd": 0.6356344483506957,
+        "lt7_share": 0.9999829357359817
+       },
+       "place_cell": {
+        "n": 58602,
+        "mean": 3.8552438483328215,
+        "sd": 0.6356344483506957,
+        "lt7_share": 0.9999829357359817
+       }
+      },
+      "m6": {
+       "n": 0,
+       "mean": null,
+       "sd": null,
+       "exact_share": null,
+       "n_day_pairs": 21
+      },
+      "m6_from_d0": {
+       "n": 0,
+       "mean": null,
+       "sd": null,
+       "exact_share": null,
+       "n_day_pairs": 6
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 58602,
+        "mean": 3.8552438483328215,
+        "sd": 0.6356344483506957,
+        "cv": 0.16487529021687494
+       },
+       "capacity_place_cell": {
+        "n": 58602,
+        "mean": 3.8552438483328215,
+        "sd": 0.6356344483506957,
+        "cv": 0.16487529021687494
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 58602,
+        "mean": 0.7121747888628991,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 58602,
+       "coverage_mean": 0.3165250214251315,
+       "coverage_ge_0999_share": 0.0,
+       "sleep_line_share": 0.0,
+       "night_violation_rows": 8082,
+       "night_violation_day_share": 0.06378621890037883,
+       "lines_per_day": {
+        "n": 58602,
+        "mean": 5.729514351046039,
+        "sd": 0.5460209102992208
+       },
+       "lines_per_day_min": 3,
+       "lines_per_day_max": 7
+      }
+     },
+     "2": {
+      "n_agents": 7077,
+      "n_agent_days": 49539,
+      "n_rows": 282788,
+      "m1": {
+       "n_day_graphs": 49539,
+       "n_distinct": 14,
+       "n_motifs_ge_threshold": 8,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 0.9982034356769414,
+       "closed_share": 0.8775106481761844,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N2:0>1,1>0",
+         "n": 19312,
+         "share": 0.38983427198772685
+        },
+        {
+         "motif": "N3:0>1,1>2,2>0",
+         "n": 19062,
+         "share": 0.3847877429903712
+        },
+        {
+         "motif": "N3:0>1,1>2",
+         "n": 4518,
+         "share": 0.09120087204021074
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 4090,
+         "share": 0.08256121439673793
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 812,
+         "share": 0.01639112618341105
+        },
+        {
+         "motif": "N1:",
+         "n": 698,
+         "share": 0.014089908960616888
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3,3>0",
+         "n": 659,
+         "share": 0.013302650437029412
+        },
+        {
+         "motif": "N2:0>1",
+         "n": 299,
+         "share": 0.00603564868083732
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 67,
+         "share": 0.0013524697712913058
+        },
+        {
+         "motif": "N3:0>1,1>0,2>0",
+         "n": 16,
+         "share": 0.0003229778558307596
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,2>3,3>0",
+         "n": 3,
+         "share": 6.0558347968267426e-05
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>1",
+         "n": 1,
+         "share": 2.0186115989422476e-05
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 7077,
+        "n_types": 862,
+        "type_rate": 0.12180302388017522,
+        "top1_share": 0.44595167443832134
+       },
+       "scope_timed": {
+        "n_agents": 7077,
+        "n_types": 1917,
+        "type_rate": 0.2708774904620602,
+        "top1_share": 0.05977108944467995
+       },
+       "day0_untimed": {
+        "n_agents": 7077,
+        "n_types": 170,
+        "type_rate": 0.024021478027412745,
+        "top1_share": 0.49187508831425747
+       },
+       "day0_timed": {
+        "n_agents": 7077,
+        "n_types": 978,
+        "type_rate": 0.13819415006358626,
+        "top1_share": 0.0685318637840893
+       }
+      },
+      "m3a": {
+       "n": 282788,
+       "on_00_30": 0.9389436609757132,
+       "exact_00_30": 0.874308669391912,
+       "entropy_bits": 4.103178143957413,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "00:00",
+       "top_bin_share": 0.17295995586800006,
+       "top_hour": "07時台",
+       "top_hour_share": 0.2058609276206911
+      },
+      "m3b": {
+       "n": 32468,
+       "on_00_30": 0.9943636811629912,
+       "exact_00_30": 0.9886349636565234,
+       "entropy_bits": 2.633594371633145,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.2809843538253049,
+       "top_hour": "07時台",
+       "top_hour_share": 0.5273808057163977,
+       "n_agent_days_with_work": 32493,
+       "n_missing_proxy": 25
+      },
+      "m3c": {
+       "n": 32493,
+       "on_00_30": 0.9983073277321269,
+       "exact_00_30": 0.9981534484350475,
+       "entropy_bits": 1.1607034094285307,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.8076201027913704,
+       "top_hour": "09時台",
+       "top_hour_share": 0.8077739820884499
+      },
+      "m3c_all_work_rows": {
+       "n": 32503,
+       "on_00_30": 0.9983078485062917,
+       "exact_00_30": 0.9981540165523183,
+       "entropy_bits": 1.1639556270987534,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.8073716272344091,
+       "top_hour": "09時台",
+       "top_hour_share": 0.807679291142356
+      },
+      "m4a": {
+       "n": 49539,
+       "mean": 5.708391368416803,
+       "sd": 0.5042347107611576
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 49539,
+        "mean": 2.590726498314459,
+        "sd": 0.5473037241471352,
+        "lt7_share": 1.0
+       },
+       "place_cell": {
+        "n": 49539,
+        "mean": 2.590726498314459,
+        "sd": 0.5473037241471352,
+        "lt7_share": 1.0
+       }
+      },
+      "m6": {
+       "n": 148617,
+       "mean": 0.7927454997510912,
+       "sd": 0.21903491407962983,
+       "exact_share": 0.48855110788133255,
+       "n_day_pairs": 21,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d0-d5",
+        "d0-d6",
+        "d1-d2",
+        "d1-d3"
+       ]
+      },
+      "m6_from_d0": {
+       "n": 42462,
+       "mean": 0.85844475882451,
+       "sd": 0.20648580169035846,
+       "exact_share": 0.658895012010739,
+       "n_day_pairs": 6,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d0-d5",
+        "d0-d6"
+       ]
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 7077,
+        "mean": 2.996043521266073,
+        "sd": 1.0430800535461788,
+        "cv": 0.3481525038412634
+       },
+       "capacity_place_cell": {
+        "n": 7077,
+        "mean": 2.996043521266073,
+        "sd": 1.0430800535461788,
+        "cv": 0.3481525038412634
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 7077,
+        "mean": 0.7346438009176344,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 49539,
+       "coverage_mean": 0.7577963405936063,
+       "coverage_ge_0999_share": 0.004198712125799875,
+       "sleep_line_share": 0.9999798138840106,
+       "night_violation_rows": 14393,
+       "night_violation_day_share": 0.2905387674357577,
+       "lines_per_day": {
+        "n": 49539,
+        "mean": 5.708391368416803,
+        "sd": 0.5042347107611576
+       },
+       "lines_per_day_min": 4,
+       "lines_per_day_max": 7
+      }
+     },
+     "3": {
+      "n_agents": 36545,
+      "n_agent_days": 255815,
+      "n_rows": 1474599,
+      "m1": {
+       "n_day_graphs": 255815,
+       "n_distinct": 35,
+       "n_motifs_ge_threshold": 9,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 0.9935187537869163,
+       "closed_share": 0.9255008502237946,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N3:0>1,1>2,2>0",
+         "n": 95009,
+         "share": 0.37139729882923206
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3,3>0",
+         "n": 64600,
+         "share": 0.2525262396653832
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 31439,
+         "share": 0.12289740632879229
+        },
+        {
+         "motif": "N2:0>1,1>0",
+         "n": 23629,
+         "share": 0.09236753122373591
+        },
+        {
+         "motif": "N1:",
+         "n": 22430,
+         "share": 0.08768055039774837
+        },
+        {
+         "motif": "N3:0>1,1>2",
+         "n": 6848,
+         "share": 0.026769345034497585
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 6336,
+         "share": 0.02476789867677814
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 2009,
+         "share": 0.007853331509098373
+        },
+        {
+         "motif": "N2:0>1",
+         "n": 1857,
+         "share": 0.007259152121650412
+        },
+        {
+         "motif": "N3:0>1,1>0,2>0",
+         "n": 576,
+         "share": 0.0022516271524343763
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>1",
+         "n": 538,
+         "share": 0.0021030823055723864
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,2>3",
+         "n": 201,
+         "share": 0.0007857240584015793
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 36545,
+        "n_types": 7383,
+        "type_rate": 0.20202490080722396,
+        "top1_share": 0.11372280749760569
+       },
+       "scope_timed": {
+        "n_agents": 36545,
+        "n_types": 15306,
+        "type_rate": 0.41882610480229854,
+        "top1_share": 0.017430565056779312
+       },
+       "day0_untimed": {
+        "n_agents": 36545,
+        "n_types": 977,
+        "type_rate": 0.026734163360240797,
+        "top1_share": 0.26444110001368176
+       },
+       "day0_timed": {
+        "n_agents": 36545,
+        "n_types": 6676,
+        "type_rate": 0.18267888904090848,
+        "top1_share": 0.03269941168422493
+       }
+      },
+      "m3a": {
+       "n": 1474599,
+       "on_00_30": 0.931249105689072,
+       "exact_00_30": 0.8564504655163878,
+       "entropy_bits": 4.31554948289287,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "00:00",
+       "top_bin_share": 0.17509302529026535,
+       "top_hour": "00時台",
+       "top_hour_share": 0.19759473592481752
+      },
+      "m3b": {
+       "n": 115757,
+       "on_00_30": 0.9936591307653101,
+       "exact_00_30": 0.987707006919668,
+       "entropy_bits": 1.7392704649767436,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.7124147999689003,
+       "top_hour": "08時台",
+       "top_hour_share": 0.7244313518836873,
+       "n_agent_days_with_work": 115952,
+       "n_missing_proxy": 195
+      },
+      "m3c": {
+       "n": 115952,
+       "on_00_30": 0.9997757692838416,
+       "exact_00_30": 0.999318683593211,
+       "entropy_bits": 0.8694079787713749,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.867859114116186,
+       "top_hour": "09時台",
+       "top_hour_share": 0.8763712570718918
+      },
+      "m3c_all_work_rows": {
+       "n": 115971,
+       "on_00_30": 0.9997758060204707,
+       "exact_00_30": 0.9993187952160454,
+       "entropy_bits": 0.8702978353708233,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.867716929232308,
+       "top_hour": "09時台",
+       "top_hour_share": 0.8762621689905234
+      },
+      "m4a": {
+       "n": 255815,
+       "mean": 5.764317964153783,
+       "sd": 0.47920824135214585
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 255815,
+        "mean": 3.004690889900905,
+        "sd": 0.8547284031599625,
+        "lt7_share": 1.0
+       },
+       "place_cell": {
+        "n": 255815,
+        "mean": 3.004690889900905,
+        "sd": 0.8547284031599625,
+        "lt7_share": 1.0
+       }
+      },
+      "m6": {
+       "n": 767445,
+       "mean": 0.7980452546777821,
+       "sd": 0.2121107612995202,
+       "exact_share": 0.48400080787548294,
+       "n_day_pairs": 21,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d0-d5",
+        "d0-d6",
+        "d1-d2",
+        "d1-d3"
+       ]
+      },
+      "m6_from_d0": {
+       "n": 219270,
+       "mean": 0.8454540372419016,
+       "sd": 0.20220934113075983,
+       "exact_share": 0.6020978702056825,
+       "n_day_pairs": 6,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d0-d5",
+        "d0-d6"
+       ]
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 36545,
+        "mean": 3.906964016965385,
+        "sd": 1.5898817917001753,
+        "cv": 0.4069353556358237
+       },
+       "capacity_place_cell": {
+        "n": 36545,
+        "mean": 3.906964016965385,
+        "sd": 1.5898817917001753,
+        "cv": 0.4069353556358237
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 36545,
+        "mean": 0.4826072595913904,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 255815,
+       "coverage_mean": 0.7379211539589156,
+       "coverage_ge_0999_share": 0.024779625901530402,
+       "sleep_line_share": 0.9997185466059457,
+       "night_violation_rows": 73999,
+       "night_violation_day_share": 0.2809960322889588,
+       "lines_per_day": {
+        "n": 255815,
+        "mean": 5.764317964153783,
+        "sd": 0.47920824135214585
+       },
+       "lines_per_day_min": 2,
+       "lines_per_day_max": 7
+      }
+     },
+     "4": {
+      "n_agents": 24,
+      "n_agent_days": 168,
+      "n_rows": 942,
+      "m1": {
+       "n_day_graphs": 168,
+       "n_distinct": 10,
+       "n_motifs_ge_threshold": 10,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 1.0,
+       "closed_share": 0.7380952380952381,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N3:0>1,1>2,2>0",
+         "n": 48,
+         "share": 0.2857142857142857
+        },
+        {
+         "motif": "N2:0>1,1>0",
+         "n": 44,
+         "share": 0.2619047619047619
+        },
+        {
+         "motif": "N3:0>1,1>0,2>0",
+         "n": 26,
+         "share": 0.15476190476190477
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 26,
+         "share": 0.15476190476190477
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 7,
+         "share": 0.041666666666666664
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3,3>0",
+         "n": 7,
+         "share": 0.041666666666666664
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 4,
+         "share": 0.023809523809523808
+        },
+        {
+         "motif": "N1:",
+         "n": 2,
+         "share": 0.011904761904761904
+        },
+        {
+         "motif": "N3:0>1,1>2",
+         "n": 2,
+         "share": 0.011904761904761904
+        },
+        {
+         "motif": "N2:0>1",
+         "n": 2,
+         "share": 0.011904761904761904
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 24,
+        "n_types": 23,
+        "type_rate": 0.9583333333333334,
+        "top1_share": 0.08333333333333333
+       },
+       "scope_timed": {
+        "n_agents": 24,
+        "n_types": 24,
+        "type_rate": 1.0,
+        "top1_share": 0.041666666666666664
+       },
+       "day0_untimed": {
+        "n_agents": 24,
+        "n_types": 15,
+        "type_rate": 0.625,
+        "top1_share": 0.20833333333333334
+       },
+       "day0_timed": {
+        "n_agents": 24,
+        "n_types": 19,
+        "type_rate": 0.7916666666666666,
+        "top1_share": 0.20833333333333334
+       }
+      },
+      "m3a": {
+       "n": 942,
+       "on_00_30": 1.0,
+       "exact_00_30": 1.0,
+       "entropy_bits": 3.4742356107119816,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "00:00",
+       "top_bin_share": 0.16878980891719744,
+       "top_hour": "07時台",
+       "top_hour_share": 0.1751592356687898
+      },
+      "m3b": {
+       "n": 48,
+       "on_00_30": 1.0,
+       "exact_00_30": 1.0,
+       "entropy_bits": 1.2202820417537683,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.7708333333333334,
+       "top_hour": "08時台",
+       "top_hour_share": 0.7708333333333334,
+       "n_agent_days_with_work": 79,
+       "n_missing_proxy": 31
+      },
+      "m3c": {
+       "n": 79,
+       "on_00_30": 1.0,
+       "exact_00_30": 1.0,
+       "entropy_bits": 2.080354687197377,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.3924050632911392,
+       "top_hour": "08時台",
+       "top_hour_share": 0.3924050632911392
+      },
+      "m3c_all_work_rows": {
+       "n": 79,
+       "on_00_30": 1.0,
+       "exact_00_30": 1.0,
+       "entropy_bits": 2.080354687197377,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.3924050632911392,
+       "top_hour": "08時台",
+       "top_hour_share": 0.3924050632911392
+      },
+      "m4a": {
+       "n": 168,
+       "mean": 5.607142857142857,
+       "sd": 0.6175577309210922
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 168,
+        "mean": 2.7857142857142856,
+        "sd": 0.5990355059718631,
+        "lt7_share": 1.0
+       },
+       "place_cell": {
+        "n": 168,
+        "mean": 2.7857142857142856,
+        "sd": 0.5990355059718631,
+        "lt7_share": 1.0
+       }
+      },
+      "m6": {
+       "n": 504,
+       "mean": 0.7569397203325774,
+       "sd": 0.20890724673161537,
+       "exact_share": 0.3551587301587302,
+       "n_day_pairs": 21,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d0-d5",
+        "d0-d6",
+        "d1-d2",
+        "d1-d3"
+       ]
+      },
+      "m6_from_d0": {
+       "n": 144,
+       "mean": 0.77255291005291,
+       "sd": 0.2066509821047553,
+       "exact_share": 0.3958333333333333,
+       "n_day_pairs": 6,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d0-d5",
+        "d0-d6"
+       ]
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 24,
+        "mean": 3.1666666666666665,
+        "sd": 0.6236095644623235,
+        "cv": 0.19692933614599692
+       },
+       "capacity_place_cell": {
+        "n": 24,
+        "mean": 3.1666666666666665,
+        "sd": 0.6236095644623235,
+        "cv": 0.19692933614599692
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 24,
+        "mean": 0.47554347826086957,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 168,
+       "coverage_mean": 0.7337549603174603,
+       "coverage_ge_0999_share": 0.0,
+       "sleep_line_share": 0.9523809523809523,
+       "night_violation_rows": 11,
+       "night_violation_day_share": 0.06547619047619048,
+       "lines_per_day": {
+        "n": 168,
+        "mean": 5.607142857142857,
+        "sd": 0.6175577309210922
+       },
+       "lines_per_day_min": 4,
+       "lines_per_day_max": 6
+      }
+     },
+     "5": {
+      "n_agents": 33385,
+      "n_agent_days": 233695,
+      "n_rows": 1380238,
+      "m1": {
+       "n_day_graphs": 233695,
+       "n_distinct": 24,
+       "n_motifs_ge_threshold": 7,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 0.9957551509446073,
+       "closed_share": 0.9554718757354672,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N3:0>1,1>2,2>0",
+         "n": 82695,
+         "share": 0.35385866193114957
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 65769,
+         "share": 0.2814309249235114
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3,3>0",
+         "n": 51054,
+         "share": 0.2184642375746165
+        },
+        {
+         "motif": "N2:0>1,1>0",
+         "n": 24595,
+         "share": 0.10524401463445944
+        },
+        {
+         "motif": "N3:0>1,1>0,2>0",
+         "n": 3033,
+         "share": 0.012978454823594856
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 2908,
+         "share": 0.012443569609961702
+        },
+        {
+         "motif": "N3:0>1,1>2",
+         "n": 2649,
+         "share": 0.011335287447313807
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 443,
+         "share": 0.001895633197115899
+        },
+        {
+         "motif": "N5:0>1,1>2,2>3,3>4",
+         "n": 136,
+         "share": 0.0005819551124328719
+        },
+        {
+         "motif": "N1:",
+         "n": 90,
+         "share": 0.0003851173538158711
+        },
+        {
+         "motif": "N4:0>1,1>2,2>0,3>0",
+         "n": 82,
+         "share": 0.00035088470014334926
+        },
+        {
+         "motif": "N4:0>1,0>2,1>3,3>0",
+         "n": 76,
+         "share": 0.0003252102098889578
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 33385,
+        "n_types": 3703,
+        "type_rate": 0.11091807698067994,
+        "top1_share": 0.23016324696720084
+       },
+       "scope_timed": {
+        "n_agents": 33385,
+        "n_types": 9803,
+        "type_rate": 0.29363486595776545,
+        "top1_share": 0.04091657930208177
+       },
+       "day0_untimed": {
+        "n_agents": 33385,
+        "n_types": 202,
+        "type_rate": 0.006050621536618242,
+        "top1_share": 0.26637711547101994
+       },
+       "day0_timed": {
+        "n_agents": 33385,
+        "n_types": 2648,
+        "type_rate": 0.07931705855923318,
+        "top1_share": 0.05574359742399281
+       }
+      },
+      "m3a": {
+       "n": 1380238,
+       "on_00_30": 0.9425599063349944,
+       "exact_00_30": 0.8803402021970124,
+       "entropy_bits": 4.062776122949238,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "00:00",
+       "top_bin_share": 0.17174356886276135,
+       "top_hour": "07時台",
+       "top_hour_share": 0.2007313231486164
+      },
+      "m3b": {
+       "n": 116610,
+       "on_00_30": 0.993559729011234,
+       "exact_00_30": 0.9783037475345168,
+       "entropy_bits": 1.3584583941672959,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.7607923848726524,
+       "top_hour": "08時台",
+       "top_hour_share": 0.8877712031558186,
+       "n_agent_days_with_work": 116629,
+       "n_missing_proxy": 19
+      },
+      "m3c": {
+       "n": 116629,
+       "on_00_30": 0.9933892942578604,
+       "exact_00_30": 0.9894537379211003,
+       "entropy_bits": 1.2039993119331405,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.8019189052465511,
+       "top_hour": "09時台",
+       "top_hour_share": 0.887635150777251
+      },
+      "m3c_all_work_rows": {
+       "n": 116629,
+       "on_00_30": 0.9933892942578604,
+       "exact_00_30": 0.9894537379211003,
+       "entropy_bits": 1.2039993119331405,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.8019189052465511,
+       "top_hour": "09時台",
+       "top_hour_share": 0.887635150777251
+      },
+      "m4a": {
+       "n": 233695,
+       "mean": 5.906151179956781,
+       "sd": 0.29523489554490445
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 233695,
+        "mean": 3.127067331350692,
+        "sd": 0.5704736180516711,
+        "lt7_share": 1.0
+       },
+       "place_cell": {
+        "n": 233695,
+        "mean": 3.127067331350692,
+        "sd": 0.5704736180516711,
+        "lt7_share": 1.0
+       }
+      },
+      "m6": {
+       "n": 701085,
+       "mean": 0.8061289026951535,
+       "sd": 0.2158478760952044,
+       "exact_share": 0.5090709400429334,
+       "n_day_pairs": 21,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d0-d5",
+        "d0-d6",
+        "d1-d2",
+        "d1-d3"
+       ]
+      },
+      "m6_from_d0": {
+       "n": 200310,
+       "mean": 0.8668568540191276,
+       "sd": 0.1987108317965991,
+       "exact_share": 0.6608207278717987,
+       "n_day_pairs": 6,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d0-d5",
+        "d0-d6"
+       ]
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 33385,
+        "mean": 3.761479706454995,
+        "sd": 1.0047910227137176,
+        "cv": 0.2671265302825952
+       },
+       "capacity_place_cell": {
+        "n": 33385,
+        "mean": 3.761479706454995,
+        "sd": 1.0047910227137176,
+        "cv": 0.2671265302825952
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 33385,
+        "mean": 0.7484485296272306,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 233695,
+       "coverage_mean": 0.7501194874135566,
+       "coverage_ge_0999_share": 0.00010697704272663087,
+       "sleep_line_share": 0.9983268790517555,
+       "night_violation_rows": 71346,
+       "night_violation_day_share": 0.29587710477331564,
+       "lines_per_day": {
+        "n": 233695,
+        "mean": 5.906151179956781,
+        "sd": 0.29523489554490445
+       },
+       "lines_per_day_min": 3,
+       "lines_per_day_max": 6
+      }
+     },
+     "6": {
+      "n_agents": 20000,
+      "n_agent_days": 40000,
+      "n_rows": 221536,
+      "m1": {
+       "n_day_graphs": 40000,
+       "n_distinct": 59,
+       "n_motifs_ge_threshold": 13,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 0.9702750000000001,
+       "closed_share": 0.018975,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 13032,
+         "share": 0.3258
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,2>3,3>2",
+         "n": 8677,
+         "share": 0.216925
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 6078,
+         "share": 0.15195
+        },
+        {
+         "motif": "N5:0>1,0>2,1>0,2>3,3>4",
+         "n": 3671,
+         "share": 0.091775
+        },
+        {
+         "motif": "N3:0>1,1>2",
+         "n": 1588,
+         "share": 0.0397
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,2>3",
+         "n": 1333,
+         "share": 0.033325
+        },
+        {
+         "motif": "N5:0>1,1>2,2>3,3>4",
+         "n": 1065,
+         "share": 0.026625
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 764,
+         "share": 0.0191
+        },
+        {
+         "motif": "N3:0>1,1>2,2>0",
+         "n": 729,
+         "share": 0.018225
+        },
+        {
+         "motif": "N6:0>1,1>2,2>3,3>4,4>5",
+         "n": 553,
+         "share": 0.013825
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,1>2,2>0",
+         "n": 514,
+         "share": 0.01285
+        },
+        {
+         "motif": "N4:0>1,0>2,0>3,1>0,2>0",
+         "n": 431,
+         "share": 0.010775
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 20000,
+        "n_types": 2417,
+        "type_rate": 0.12085,
+        "top1_share": 0.1039
+       },
+       "scope_timed": {
+        "n_agents": 20000,
+        "n_types": 8368,
+        "type_rate": 0.4184,
+        "top1_share": 0.0219
+       },
+       "day0_untimed": {
+        "n_agents": 20000,
+        "n_types": 225,
+        "type_rate": 0.01125,
+        "top1_share": 0.71915
+       },
+       "day0_timed": {
+        "n_agents": 20000,
+        "n_types": 1748,
+        "type_rate": 0.0874,
+        "top1_share": 0.71915
+       }
+      },
+      "m3a": {
+       "n": 221536,
+       "on_00_30": 0.9554022822475805,
+       "exact_00_30": 0.8696961216235736,
+       "entropy_bits": 4.5444767853339885,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "07:00",
+       "top_bin_share": 0.13251119456882854,
+       "top_hour": "07時台",
+       "top_hour_share": 0.15293225480283115
+      },
+      "m3b": {
+       "n": 4124,
+       "on_00_30": 0.9941804073714839,
+       "exact_00_30": 0.9684772065955383,
+       "entropy_bits": 2.518017836786507,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.5909311348205626,
+       "top_hour": "08時台",
+       "top_hour_share": 0.6491270611057226,
+       "n_agent_days_with_work": 4124,
+       "n_missing_proxy": 0
+      },
+      "m3c": {
+       "n": 4124,
+       "on_00_30": 0.9995150339476236,
+       "exact_00_30": 0.9825412221144519,
+       "entropy_bits": 2.5053834690053027,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.5846265761396702,
+       "top_hour": "09時台",
+       "top_hour_share": 0.5940834141610087
+      },
+      "m3c_all_work_rows": {
+       "n": 4143,
+       "on_00_30": 0.9995172580255853,
+       "exact_00_30": 0.9826212889210717,
+       "entropy_bits": 2.531311982603174,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.5819454501568911,
+       "top_hour": "09時台",
+       "top_hour_share": 0.5913589186579773
+      },
+      "m4a": {
+       "n": 40000,
+       "mean": 5.5384,
+       "sd": 0.6592992037004141
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 40000,
+        "mean": 3.583675,
+        "sd": 0.7700314892100192,
+        "lt7_share": 1.0
+       },
+       "place_cell": {
+        "n": 40000,
+        "mean": 3.583675,
+        "sd": 0.7700314892100192,
+        "lt7_share": 1.0
+       }
+      },
+      "m6": {
+       "n": 20000,
+       "mean": 0.809004963924964,
+       "sd": 0.21215591108149293,
+       "exact_share": 0.51285,
+       "n_day_pairs": 21,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d0-d5",
+        "d0-d6",
+        "d1-d2",
+        "d1-d3"
+       ]
+      },
+      "m6_from_d0": {
+       "n": 5617,
+       "mean": 0.8593859768107586,
+       "sd": 0.19825963682151582,
+       "exact_share": 0.6254228235713014,
+       "n_day_pairs": 6,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d0-d5",
+        "d0-d6"
+       ]
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 20000,
+        "mean": 3.7506,
+        "sd": 0.9685554398174634,
+        "cv": 0.2582401321968387
+       },
+       "capacity_place_cell": {
+        "n": 20000,
+        "mean": 3.7506,
+        "sd": 0.9685554398174634,
+        "cv": 0.2582401321968387
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 20000,
+        "mean": 0.7331926660856851,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 40000,
+       "coverage_mean": 0.38632390624999996,
+       "coverage_ge_0999_share": 0.0,
+       "sleep_line_share": 0.00015,
+       "night_violation_rows": 10233,
+       "night_violation_day_share": 0.125425,
+       "lines_per_day": {
+        "n": 40000,
+        "mean": 5.5384,
+        "sd": 0.6592992037004141
+       },
+       "lines_per_day_min": 3,
+       "lines_per_day_max": 7
+      }
+     },
+     "7": {
+      "n_agents": 17404,
+      "n_agent_days": 17404,
+      "n_rows": 101920,
+      "m1": {
+       "n_day_graphs": 17404,
+       "n_distinct": 45,
+       "n_motifs_ge_threshold": 14,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 0.9744311652493679,
+       "closed_share": 0.004596644449551827,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N4:0>1,0>2,1>0,2>3,3>2",
+         "n": 10216,
+         "share": 0.5869914962077684
+        },
+        {
+         "motif": "N5:0>1,0>2,1>0,2>3,3>4",
+         "n": 1192,
+         "share": 0.06849000229832222
+        },
+        {
+         "motif": "N5:0>1,0>2,1>3,2>4,3>0",
+         "n": 1113,
+         "share": 0.0639508159043898
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,2>3",
+         "n": 852,
+         "share": 0.04895426338772696
+        },
+        {
+         "motif": "N4:0>1,0>2,1>0,1>3,2>1",
+         "n": 625,
+         "share": 0.03591128476212365
+        },
+        {
+         "motif": "N5:0>1,1>2,2>3,3>4",
+         "n": 597,
+         "share": 0.03430245920478051
+        },
+        {
+         "motif": "N4:0>1,0>2,1>3,3>0",
+         "n": 570,
+         "share": 0.03275109170305677
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 533,
+         "share": 0.030625143645139047
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 417,
+         "share": 0.0239600091932889
+        },
+        {
+         "motif": "N3:0>1,1>2",
+         "n": 272,
+         "share": 0.015628591128476213
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 204,
+         "share": 0.01172144334635716
+        },
+        {
+         "motif": "N6:0>1,1>2,2>3,3>4,4>5",
+         "n": 179,
+         "share": 0.010284991955872213
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 17404,
+        "n_types": 829,
+        "type_rate": 0.04763272810848081,
+        "top1_share": 0.2104688577338543
+       },
+       "scope_timed": {
+        "n_agents": 17404,
+        "n_types": 5206,
+        "type_rate": 0.29912663755458513,
+        "top1_share": 0.019823029188692255
+       },
+       "day0_untimed": {
+        "n_agents": 17404,
+        "n_types": 175,
+        "type_rate": 0.010055159733394622,
+        "top1_share": 0.8592852217880947
+       },
+       "day0_timed": {
+        "n_agents": 17404,
+        "n_types": 1212,
+        "type_rate": 0.06963916341071018,
+        "top1_share": 0.8592852217880947
+       }
+      },
+      "m3a": {
+       "n": 101920,
+       "on_00_30": 0.9731456043956044,
+       "exact_00_30": 0.9245290423861853,
+       "entropy_bits": 4.298769323743128,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "07:00",
+       "top_bin_share": 0.142611852433281,
+       "top_hour": "07時台",
+       "top_hour_share": 0.15570054945054945
+      },
+      "m3b": {
+       "n": 1626,
+       "on_00_30": 0.993849938499385,
+       "exact_00_30": 0.982779827798278,
+       "entropy_bits": 2.498841455621636,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "08:00",
+       "top_bin_share": 0.45202952029520294,
+       "top_hour": "08時台",
+       "top_hour_share": 0.531980319803198,
+       "n_agent_days_with_work": 1626,
+       "n_missing_proxy": 0
+      },
+      "m3c": {
+       "n": 1626,
+       "on_00_30": 0.9969249692496925,
+       "exact_00_30": 0.9883148831488315,
+       "entropy_bits": 3.0963931158645916,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.4022140221402214,
+       "top_hour": "09時台",
+       "top_hour_share": 0.4323493234932349
+      },
+      "m3c_all_work_rows": {
+       "n": 1644,
+       "on_00_30": 0.9969586374695864,
+       "exact_00_30": 0.9884428223844283,
+       "entropy_bits": 3.13990847754545,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "09:00",
+       "top_bin_share": 0.3978102189781022,
+       "top_hour": "09時台",
+       "top_hour_share": 0.4276155717761557
+      },
+      "m4a": {
+       "n": 17404,
+       "mean": 5.856125028729028,
+       "sd": 0.4904123912459385
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 17404,
+        "mean": 4.143300390714778,
+        "sd": 0.5151468555500611,
+        "lt7_share": 0.9997701677775224
+       },
+       "place_cell": {
+        "n": 17404,
+        "mean": 4.143300390714778,
+        "sd": 0.5151468555500611,
+        "lt7_share": 0.9997701677775224
+       }
+      },
+      "m6": {
+       "n": 0,
+       "mean": null,
+       "sd": null,
+       "exact_share": null,
+       "n_day_pairs": 21
+      },
+      "m6_from_d0": {
+       "n": 0,
+       "mean": null,
+       "sd": null,
+       "exact_share": null,
+       "n_day_pairs": 6
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 17404,
+        "mean": 4.143300390714778,
+        "sd": 0.5151468555500611,
+        "cv": 0.12433249027864741
+       },
+       "capacity_place_cell": {
+        "n": 17404,
+        "mean": 4.143300390714778,
+        "sd": 0.5151468555500611,
+        "cv": 0.12433249027864741
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 17404,
+        "mean": 0.6665791483499537,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 17404,
+       "coverage_mean": 0.3585233439311525,
+       "coverage_ge_0999_share": 5.745805561939784e-05,
+       "sleep_line_share": 0.0,
+       "night_violation_rows": 3376,
+       "night_violation_day_share": 0.09078372787864859,
+       "lines_per_day": {
+        "n": 17404,
+        "mean": 5.856125028729028,
+        "sd": 0.4904123912459385
+       },
+       "lines_per_day_min": 4,
+       "lines_per_day_max": 7
+      }
+     },
+     "8": {
+      "n_agents": 1258,
+      "n_agent_days": 8806,
+      "n_rows": 47919,
+      "m1": {
+       "n_day_graphs": 8806,
+       "n_distinct": 27,
+       "n_motifs_ge_threshold": 13,
+       "threshold": 0.005,
+       "coverage_ge_threshold": 0.9901203724733136,
+       "closed_share": 0.6751078809902339,
+       "capped_share": 0.0,
+       "top": [
+        {
+         "motif": "N2:0>1,1>0",
+         "n": 3873,
+         "share": 0.4398137633431751
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>0",
+         "n": 878,
+         "share": 0.09970474676357029
+        },
+        {
+         "motif": "N3:0>1,1>2,2>0",
+         "n": 857,
+         "share": 0.09732000908471497
+        },
+        {
+         "motif": "N2:0>1",
+         "n": 755,
+         "share": 0.08573699750170338
+        },
+        {
+         "motif": "N3:0>1,1>0,2>0",
+         "n": 584,
+         "share": 0.06631841925959572
+        },
+        {
+         "motif": "N3:0>1,1>2",
+         "n": 482,
+         "share": 0.05473540767658415
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3",
+         "n": 395,
+         "share": 0.0448557801498978
+        },
+        {
+         "motif": "N1:",
+         "n": 268,
+         "share": 0.03043379513967749
+        },
+        {
+         "motif": "N4:0>1,1>2,2>3,3>0",
+         "n": 265,
+         "share": 0.030093118328412445
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0",
+         "n": 182,
+         "share": 0.02066772655007949
+        },
+        {
+         "motif": "N4:0>1,1>2,2>0,3>0",
+         "n": 72,
+         "share": 0.008176243470361118
+        },
+        {
+         "motif": "N3:0>1,0>2,1>0,2>1",
+         "n": 59,
+         "share": 0.0066999772882125825
+        }
+       ],
+       "place_basis": "(place_kind, target_cell)"
+      },
+      "m2": {
+       "scope_untimed": {
+        "n_agents": 1258,
+        "n_types": 1076,
+        "type_rate": 0.8553259141494436,
+        "top1_share": 0.009538950715421303
+       },
+       "scope_timed": {
+        "n_agents": 1258,
+        "n_types": 1245,
+        "type_rate": 0.9896661367249603,
+        "top1_share": 0.001589825119236884
+       },
+       "day0_untimed": {
+        "n_agents": 1258,
+        "n_types": 397,
+        "type_rate": 0.31558028616852146,
+        "top1_share": 0.03815580286168521
+       },
+       "day0_timed": {
+        "n_agents": 1258,
+        "n_types": 1044,
+        "type_rate": 0.8298887122416534,
+        "top1_share": 0.005564387917329093
+       }
+      },
+      "m3a": {
+       "n": 47919,
+       "on_00_30": 0.9439470773597112,
+       "exact_00_30": 0.8913165967570275,
+       "entropy_bits": 4.399757232403414,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "00:00",
+       "top_bin_share": 0.16241991694317495,
+       "top_hour": "00時台",
+       "top_hour_share": 0.19558004131972703
+      },
+      "m3b": {
+       "n": 5321,
+       "on_00_30": 0.9975568502161248,
+       "exact_00_30": 0.9937981582409322,
+       "entropy_bits": 2.886890767911904,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "07:00",
+       "top_bin_share": 0.3271941364405187,
+       "top_hour": "07時台",
+       "top_hour_share": 0.3706070287539936,
+       "n_agent_days_with_work": 5619,
+       "n_missing_proxy": 298
+      },
+      "m3c": {
+       "n": 5619,
+       "on_00_30": 0.99145755472504,
+       "exact_00_30": 0.9857625912084,
+       "entropy_bits": 3.3174108097265163,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "22:00",
+       "top_bin_share": 0.26784125289197364,
+       "top_hour": "22時台",
+       "top_hour_share": 0.27513792489766864
+      },
+      "m3c_all_work_rows": {
+       "n": 5883,
+       "on_00_30": 0.9918408975012749,
+       "exact_00_30": 0.9864014958354581,
+       "entropy_bits": 3.4222159000333003,
+       "entropy_max_bits": 6.584962500721156,
+       "top_bin": "22:00",
+       "top_bin_share": 0.2558218595954445,
+       "top_hour": "22時台",
+       "top_hour_share": 0.2627910929797722
+      },
+      "m4a": {
+       "n": 8806,
+       "mean": 5.441630706336588,
+       "sd": 0.6892558356510247
+      },
+      "m4b": {
+       "place_kind": {
+        "n": 8806,
+        "mean": 2.5174880763116056,
+        "sd": 0.7278258761865971,
+        "lt7_share": 1.0
+       },
+       "place_cell": {
+        "n": 8806,
+        "mean": 2.5174880763116056,
+        "sd": 0.7278258761865971,
+        "lt7_share": 1.0
+       }
+      },
+      "m6": {
+       "n": 26418,
+       "mean": 0.7451641016767068,
+       "sd": 0.23643217064763655,
+       "exact_share": 0.39408736467559996,
+       "n_day_pairs": 21,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d0-d5",
+        "d0-d6",
+        "d1-d2",
+        "d1-d3"
+       ]
+      },
+      "m6_from_d0": {
+       "n": 7548,
+       "mean": 0.7554797970239147,
+       "sd": 0.22704405874124098,
+       "exact_share": 0.39268680445151033,
+       "n_day_pairs": 6,
+       "pairs": [
+        "d0-d1",
+        "d0-d2",
+        "d0-d3",
+        "d0-d4",
+        "d0-d5",
+        "d0-d6"
+       ]
+      },
+      "m8_partial": {
+       "measurable": "partial",
+       "note": "場所種別までの部分測定。店・駅・公園の target_cell が未解決(-1)なので「馴染みの場所」の中身は比べられない(設計書 §7 自宅セル解決率 ≥0.95 が前提)。",
+       "capacity_place_kind": {
+        "n": 1258,
+        "mean": 3.0397456279809223,
+        "sd": 1.2437483472122193,
+        "cv": 0.4091619824249403
+       },
+       "capacity_place_cell": {
+        "n": 1258,
+        "mean": 3.0397456279809223,
+        "sd": 1.2437483472122193,
+        "cv": 0.4091619824249403
+       },
+       "mutual_jaccard_place_kind": {
+        "n_agents": 1258,
+        "mean": 0.44064820986763986,
+        "exact": true
+       }
+      },
+      "harm_block": {
+       "present": false,
+       "n": 0,
+       "note": "block_kind 列が無い(現行形式)=この検査は出せない"
+      },
+      "harm_structural": {
+       "n": 8806,
+       "coverage_mean": 0.6002644188305952,
+       "coverage_ge_0999_share": 0.013513513513513514,
+       "sleep_line_share": 0.8789461730638202,
+       "night_violation_rows": 3248,
+       "night_violation_day_share": 0.36804451510333863,
+       "lines_per_day": {
+        "n": 8806,
+        "mean": 5.441630706336588,
+        "sd": 0.6892558356510247
+       },
+       "lines_per_day_min": 3,
+       "lines_per_day_max": 6
+      }
+     }
+    }
+   }
+  },
+  "ingest": null
+ },
+ "prior_check": [
+  {
+   "key": "m3a_on_00_30",
+   "metric": "M3a :00+:30(分ちょうど)",
+   "scope": "all_days",
+   "group": "全体",
+   "prior": 0.919,
+   "measured": 0.9189544511175552,
+   "diff": -4.554888244479027e-05,
+   "match": true
+  },
+  {
+   "key": "m3a_entropy_bits",
+   "metric": "M3a H[bit]",
+   "scope": "all_days",
+   "group": "全体",
+   "prior": 4.241,
+   "measured": 4.2406100252615895,
+   "diff": -0.0003899747384101815,
+   "match": true
+  },
+  {
+   "key": "m3b_on_00_30",
+   "metric": "M3b :00+:30(分ちょうど)",
+   "scope": "all_days",
+   "group": "全体",
+   "prior": 0.971,
+   "measured": 0.9709983219329578,
+   "diff": -1.678067042210074e-06,
+   "match": true
+  },
+  {
+   "key": "m3b_top_bin",
+   "metric": "M3b 最頻ビン",
+   "scope": "all_days",
+   "group": "全体",
+   "prior": "08:00",
+   "measured": "08:00",
+   "diff": null,
+   "match": true
+  },
+  {
+   "key": "m3b_top_bin_share",
+   "metric": "M3b 最頻占有",
+   "scope": "all_days",
+   "group": "全体",
+   "prior": 0.558,
+   "measured": 0.5495073648497966,
+   "diff": -0.008492635150203487,
+   "match": false
+  },
+  {
+   "key": "m3b_entropy_bits",
+   "metric": "M3b H[bit]",
+   "scope": "all_days",
+   "group": "全体",
+   "prior": 2.408,
+   "measured": 2.4290924520980357,
+   "diff": 0.021092452098035785,
+   "match": false
+  },
+  {
+   "key": "m3c_on_00_30",
+   "metric": "M3c :00+:30(分ちょうど・勤務行 全件)",
+   "scope": "weekday",
+   "group": "全体",
+   "prior": 0.993,
+   "measured": 0.9934269150859627,
+   "diff": 0.0004269150859627091,
+   "match": true
+  },
+  {
+   "key": "m3c_top_bin",
+   "metric": "M3c 最頻ビン",
+   "scope": "weekday",
+   "group": "全体",
+   "prior": "09:00",
+   "measured": "09:00",
+   "diff": null,
+   "match": true
+  },
+  {
+   "key": "m3c_top_bin_share",
+   "metric": "M3c 最頻占有",
+   "scope": "weekday",
+   "group": "全体",
+   "prior": 0.661,
+   "measured": 0.6611440318316939,
+   "diff": 0.00014403183169386935,
+   "match": true
+  },
+  {
+   "key": "m3c_entropy_bits",
+   "metric": "M3c H[bit]",
+   "scope": "weekday",
+   "group": "全体",
+   "prior": 2.024,
+   "measured": 2.0235550509092017,
+   "diff": -0.0004449490907982856,
+   "match": true
+  },
+  {
+   "key": "m4a_mean",
+   "metric": "M4a 活動数 平均",
+   "scope": "all_days",
+   "group": "全体",
+   "prior": 5.78,
+   "measured": 5.778833838522502,
+   "diff": -0.001166161477498484,
+   "match": true
+  },
+  {
+   "key": "m4a_sd",
+   "metric": "M4a 活動数 sd",
+   "scope": "all_days",
+   "group": "全体",
+   "prior": 0.46,
+   "measured": 0.4580170679801632,
+   "diff": -0.001982932019836847,
+   "match": true
+  },
+  {
+   "key": "m4b_place_kind_mean",
+   "metric": "M4b 場所種別数 平均",
+   "scope": "all_days",
+   "group": "全体",
+   "prior": 3.28,
+   "measured": 3.27609174437658,
+   "diff": -0.003908255623419787,
+   "match": true
+  },
+  {
+   "key": "m4b_place_kind_sd",
+   "metric": "M4b 場所種別数 sd",
+   "scope": "all_days",
+   "group": "全体",
+   "prior": 0.66,
+   "measured": 0.6554201331332201,
+   "diff": -0.004579866866779914,
+   "match": true
+  },
+  {
+   "key": "m4b_lt7_share",
+   "metric": "M4b 7 未満の割合",
+   "scope": "all_days",
+   "group": "全体",
+   "prior": 1.0,
+   "measured": 0.9999977005499825,
+   "diff": -2.2994500175066435e-06,
+   "match": true
+  },
+  {
+   "key": "m6_mean",
+   "metric": "M6 J(d0,d) 平均",
+   "scope": "all_days",
+   "group": "全体",
+   "prior": 0.879,
+   "measured": 0.8783301086792137,
+   "diff": -0.00066989132078632,
+   "match": true
+  },
+  {
+   "key": "m6_sd",
+   "metric": "M6 J(d0,d) sd",
+   "scope": "all_days",
+   "group": "全体",
+   "prior": 0.217,
+   "measured": 0.21734816949646846,
+   "diff": 0.00034816949646845896,
+   "match": true
+  },
+  {
+   "key": "m6_exact_share",
+   "metric": "M6 J(d0,d) 完全一致率",
+   "scope": "all_days",
+   "group": "全体",
+   "prior": 0.73,
+   "measured": 0.728868017376438,
+   "diff": -0.0011319826235619557,
+   "match": true
+  },
+  {
+   "key": "m2_commuter_top1_share",
+   "metric": "M2 上位1型(時刻込み・d0・通勤)",
+   "scope": "weekday",
+   "group": "通勤",
+   "prior": 0.137,
+   "measured": 0.13731624121758151,
+   "diff": 0.00031624121758150325,
+   "match": true
+  },
+  {
+   "key": "m2_commuter_types",
+   "metric": "M2 種類数(時刻なし・d0・通勤)",
+   "scope": "weekday",
+   "group": "通勤",
+   "prior": 1592,
+   "measured": 1592,
+   "diff": 0.0,
+   "match": true
+  },
+  {
+   "key": "m2_commuter_type_rate",
+   "metric": "M2 種類率(時刻なし・d0・通勤)",
+   "scope": "weekday",
+   "group": "通勤",
+   "prior": 0.007,
+   "measured": 0.007378158426487218,
+   "diff": 0.0003781584264872179,
+   "match": true
+  }
+ ]
+}

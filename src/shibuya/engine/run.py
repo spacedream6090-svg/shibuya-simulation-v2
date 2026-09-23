@@ -52,11 +52,15 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Final
+from typing import Any, Final, Mapping
 
 import blake3 as _blake3
 import numpy as np
 
+import dataclasses
+
+from shibuya.agents.population import Population, load_population, sample_population
+from shibuya.agents.weekly import apply_to_mock_schedule, load_weekly
 from shibuya.agents.schedule import synthesize
 from shibuya.agents.state import (
     WAKE_CONDITION_CLASS,
@@ -75,6 +79,13 @@ from shibuya.engine.change_detect import ChangeDetector
 from shibuya.engine.conversation import ConversationManager
 from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.processes.runner import WorldProcessRunner
+from shibuya.engine.processes.salient import (
+    ablation_name as _pnotice_ablation_name,
+    check_d50_scale as _check_d50_scale,
+)
+from shibuya.engine.presence import DERIVE_RULES as PRESENCE_DERIVE_RULES
+from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
+from shibuya.engine.presence import PlanExecutor
 from shibuya.engine.llm_bridge import (
     DEFAULT_LANE,
     LLMBridge,
@@ -83,8 +94,17 @@ from shibuya.engine.llm_bridge import (
     delta_think_ticks,
 )
 from shibuya.engine.scheduler import DIAG_COLUMNS
-from shibuya.engine.tape import TapeWriter
+from shibuya.engine.tape import TapeRow, TapeWriter
+from shibuya.llm.contract import TargetKind
+from shibuya.llm.fleet import (
+    Deferred as FleetDeferred,
+    FleetBridge,
+    FleetClient,
+    LLMCall,
+    split_system_user,
+)
 from shibuya.llm.mock import MockLLM
+from shibuya.perception.channels import BudgetMode
 from shibuya.perception.renderer import (
     DEFAULT_START_DATETIME,
     PerceptionAssets,
@@ -101,6 +121,8 @@ __all__ = [
     "RunResult",
     "run_salt_for",
     "run_day",
+    "add_fleet_args",
+    "fleet_from_args",
     "main",
 ]
 
@@ -108,6 +130,10 @@ __all__ = [
 DELTA_THINK_TICKS: Final[int] = delta_think_ticks(DEFAULT_LANE, DEFAULT_TICK_SECONDS)
 
 #: 診断表の列(``DIAG_COLUMNS`` の 4 列 + 運用列)。
+#: 艦隊の順序制御グループ「時間帯」の刻み[tick](知覚契約書 §2.4 ⑨「時刻表記は5分丸め」)。
+#: 同一(セル, 5分帯)の呼は同時に発射し、同一 GPU に寄せない(実装計画書 §7・BN-4)。
+TIME_BUCKET_TICKS: Final[int] = 5
+
 DIAG_RUN_COLUMNS: Final[tuple[str, ...]] = (
     "tick",
     *DIAG_COLUMNS,
@@ -128,6 +154,10 @@ DIAG_RUN_COLUMNS: Final[tuple[str, ...]] = (
     "parse_errors",
     "tape_misses",
     "conversations_opened",
+    #: D-56 就寝抑止(``suppressed``=不応期 とは**別列**)。
+    "sleep_suppressed",
+    #: D-66 域外抑止(舞台に居ない体を呼ばない。上の 2 列とも**排他**)。
+    "outside_suppressed",
 )
 
 #: 診断行「シミュ日あたり」の必須行(§9.1 C3 受け入れ「診断行5本」+ 運用列)。
@@ -153,10 +183,18 @@ class Checkpoint:
     tick: int
     agents_hash: str
     world_hash: str
+    #: W16 母集団の同定ハッシュ(母集団なしのランは ``""``)。T1/T2 の一致判定に混ぜる。
+    population_hash: str = ""
+    #: W17 週次表の同定ハッシュ(週次表なしのランは ``""``)。版の取り違え検出用。
+    schedule_hash: str = ""
 
     @property
     def combined(self) -> str:
-        return blake3_hex((self.agents_hash + "\x1f" + self.world_hash).encode("utf-8"))
+        return blake3_hex(
+            "\x1f".join(
+                (self.agents_hash, self.world_hash, self.population_hash, self.schedule_hash)
+            ).encode("utf-8")
+        )
 
 
 @dataclass
@@ -173,6 +211,9 @@ class RunResult:
     phase_seconds: dict[str, float] = field(default_factory=dict)
     wall_seconds: float = 0.0
     llm_calls: int = 0
+    #: 世界内時刻の**時**別の発射数(24 要素・D-56 の検証欄)。Σ = ``llm_calls``。
+    #: 時 = ``(tick // 60) % 24``(開始 00:00=テープ meta の ``start_hour`` と同じ約束)。
+    calls_by_hour: list[int] = field(default_factory=lambda: [0] * 24)
     arbiter_counters: dict[str, Any] = field(default_factory=dict)
     money_start: int = 0
     money_end: int = 0
@@ -188,6 +229,51 @@ class RunResult:
     renderer_counters: dict[str, float] = field(default_factory=dict)
     #: 使ったレンダラの名前(``perception.Renderer`` / ``StubRenderer`` / 注入クラス名)。
     renderer_name: str = ""
+    #: 知覚のトークン配分(知覚契約書 §3.2 の義務 ablation ①)。``fixed_slots`` / ``single_ranking``。
+    budget_mode: str = BudgetMode.FIXED_SLOTS.value
+    #: p_notice の ablation(§3.1 A0-A4)。既定 ``A4``=完成形。
+    p_notice_ablation: str = "A4"
+    #: ablation ②(§8 第1陣)。``p_notice`` の d50 の倍率。既定 1.0=§3.1 の 40 m。
+    p_notice_d50_scale: float = 1.0
+    #: ablation ③(§8 第1陣)。§6 不応期表の倍率 ``{条件名: 倍率}``。既定 {}=表どおり。
+    refractory_scale: dict[str, float] = field(default_factory=dict)
+    #: ablation ⑥(§8 第1陣)。看板・広告面(B2.signage)を描いたか。既定 True。
+    signage: bool = True
+    #: D-56 就寝抑止を効かせたか。既定 True(ユーザー決定 (a)・2026-09-10)。
+    sleep_suppression: bool = True
+    #: D-62「就寝は計画の実行」を効かせたか。既定 True(ユーザー決定 (a)+(b)・2026-09-10)。
+    plan_sleep: bool = True
+    #: D-66 計画実行層(``engine.presence``)が**実際に立ったか**(W16+W17 のあるランだけ)。
+    plan_executor: bool = False
+    #: 退出の実行形(設計書 §10-3)。第1段は ``immediate`` のみ実装。
+    exit_mode: str = "immediate"
+    #: 出勤率(D-67 (b)・expedient E6)。既定 1.0=全員来る。
+    attendance_rate: float = 1.0
+    #: 在圏ブロックの読み口(``engine.presence.DERIVE_RULES``・既定 v2)。
+    derive_rule: str = "v2"
+    #: 計画実行層の診断(``PlanExecutor.counters()``)。層が休んだランは空 dict。
+    presence_counters: dict[str, float] = field(default_factory=dict)
+    #: D-66 域外抑止を効かせたか(既定 True)。False = **帰無腕**。
+    outside_suppression: bool = True
+    #: **発射した呼**のうち域外(``transit_state != 0``)の体宛てだった延べ数。
+    #: 抑止が効いていれば 0(監査点)。
+    outside_wake_candidates: int = 0
+    #: 計画実行層の要約 1 行(``c7lib.parse_run_summary`` に当たらない書式)。
+    presence_summary: str = ""
+    #: **在圏の体だけ**で測った「起きている割合」/時(24 要素・D-66 の補助欄)。
+    #: ``wake_rate_by_hour`` は D-62 の定義で**域外滞在・乗車中も「起きている」に数える**ので、
+    #: 層が入って深夜の 9 割が域外に居るランではその欄が自動的に上がる。a(h)(社会生活基本調査)
+    #: と並べるならこちらが分母の揃った値。層が休んだランは空(``[]``)。
+    wake_rate_in_area_by_hour: list[float] = field(default_factory=list)
+    #: 世界内時刻の**時**別の「起きている割合」(24 要素・D-62 の検証欄)。
+    #: 各 tick の ``activity != SLEEPING`` の割合を、その時の 60 tick で平均した値。
+    wake_rate_by_hour: list[float] = field(default_factory=lambda: [0.0] * 24)
+    #: D-62 の計数(``resolve.begin_planned_sleep`` の内訳 ``slept``/``walking``/``riding``/
+    #: ``outside``/``conversing``/``asleep``/``unreachable`` + ``arrived``(就寝地へ着いて寝た)+
+    #: ``woke``(非就寝の計画境界で起こした))。``plan_sleep=False`` のランは空 dict。
+    planned_sleep_counts: dict[str, int] = field(default_factory=dict)
+    #: 凍結静的文の版(W14/W15 の parquet: ファイル名→sha256)。凍結文なしのランは空(層2 指摘 09-09)。
+    frozen_sources: dict[str, str] = field(default_factory=dict)
     #: 録画テープの置き場(記録したときだけ)。
     tape_path: str = ""
     #: ``record`` / ``replay``。
@@ -209,6 +295,9 @@ class RunResult:
     n_boarded: int = 0
     n_alighted: int = 0
     n_queued: int = 0
+    #: 乗車待ち(D-51): ホームに立った延べ人数と、列車が来ずに打ち切った件数。
+    n_board_waiting: int = 0
+    n_board_timeout: int = 0
     #: PlanSpec の遵守率(``ActualLog`` の SCHEDULED 率)。
     compliance_rate: float = float("nan")
     #: ``ActualLog`` の追記総件数。
@@ -235,6 +324,14 @@ class RunResult:
     #: その日の廃棄 sink[t/日](物の台帳 + 街路清掃)と W1 band。
     waste_tonnes_per_day: float = 0.0
     waste_band: tuple[float, float] = (0.0, 0.0)
+    # ---- C6-a 実艦隊 ----
+    #: ``llm.fleet.FleetConfig.manifest_fields()``(``cache_salt``・``prefix_caching_hash_algo``・
+    #: ルーティング規則・in-flight 上限)。**ランが導出して押す**(親決定 09-09)。
+    fleet_fields: dict[str, Any] = field(default_factory=dict)
+    #: ラン終端の ``drain`` で拾った件数(=最後の tick 以降に届いた応答)。
+    fleet_drained_at_end: int = 0
+    #: ラン終端でも答えが返らなかった呼(**次ランへ持ち越す=破棄しない**の監査点)。
+    fleet_unanswered_at_end: int = 0
 
     # ---- 便利参照 ----
     def column(self, name: str) -> np.ndarray:
@@ -242,10 +339,46 @@ class RunResult:
 
     @property
     def parse_error_rate(self) -> float:
-        """書式エラー率(``format_ok`` が偽だった呼の割合)。MockLLM なら 0.0。"""
+        """**実効**書式エラー率(``format_ok`` が偽だった呼の割合)。MockLLM なら 0.0。
+
+        C6(09-09)で ``llm.parser`` にラベル別名(「目的地:」「目的:」等)の許容が入った。
+        本欄は**別名を許容した後**の率=世界に実際に届いた intent の書式健全性。
+        受入指標の定義を動かさない側は ``parse_error_rate_strict``。
+        """
         calls = int(self.column("calls").sum()) if self.diagnostics.size else 0
         errs = int(self.column("parse_errors").sum()) if self.diagnostics.size else 0
         return (errs / calls) if calls else 0.0
+
+    @property
+    def parse_error_rate_strict(self) -> float:
+        """**厳密**書式エラー率(C6 以前の別名表だけで見た判定=B11 と同じ物差し)。
+
+        知覚契約書 §2 卒業条件表の「書式エラー率 ≤0.10」は**この物差しで定義された**ので、
+        受入判定は実効を主・厳密を併記で読む(親判断 D-28・PENDING)。
+        """
+        c = self.bridge_counters
+        return float(c.get("parse_error_rate_strict", c.get("parse_error_rate", 0.0)))
+
+    @property
+    def label_alias_rate(self) -> float:
+        """C6 ラベル別名で読めた応答の割合(別名許容が実際に効いた量)。"""
+        return float(self.bridge_counters.get("label_alias_rate", 0.0)) or float(
+            self.bridge_counters.get("fleet_label_alias_rate", 0.0)
+        )
+
+    @property
+    def positional_rate(self) -> float:
+        """ラベルを省いた並びを**位置**で読んだ応答の割合(``positional_used``)。"""
+        return float(self.bridge_counters.get("positional_rate", 0.0)) or float(
+            self.bridge_counters.get("fleet_positional_rate", 0.0)
+        )
+
+    @property
+    def dictionary_mapped_rate(self) -> float:
+        """語彙外の行動語を §7 段0 の辞書写像で救えた割合。"""
+        return float(self.bridge_counters.get("dictionary_mapped_rate", 0.0)) or float(
+            self.bridge_counters.get("fleet_dictionary_mapped_rate", 0.0)
+        )
 
     @property
     def tape_miss_count(self) -> int:
@@ -258,6 +391,48 @@ class RunResult:
     @property
     def conversation_sessions(self) -> int:
         return int(self.column("conversations_opened").sum()) if self.diagnostics.size else 0
+
+    @property
+    def sleep_suppressed_count(self) -> int:
+        """就寝抑止(D-56)で落とした候補の総数。"""
+        if not self.diagnostics.size or "sleep_suppressed" not in DIAG_RUN_COLUMNS:
+            return 0
+        return int(self.column("sleep_suppressed").sum())
+
+    @property
+    def outside_suppressed_count(self) -> int:
+        """域外抑止(D-66)で落とした候補の総数。"""
+        if not self.diagnostics.size or "outside_suppressed" not in DIAG_RUN_COLUMNS:
+            return 0
+        return int(self.column("outside_suppressed").sum())
+
+    def calls_by_hour_text(self) -> str:
+        """``呼/時`` の 1 行(24 個・D-56 の検証欄)。
+
+        受入(``tools/c7``)は深夜 0〜5 時の合計/昼 12〜19 時の合計を取り、東京都の
+        起床率 a(h)(0 時 20.5% … 3 時 3.5% … 12〜19 時 97.8〜98.9%)と並べる。
+        """
+        cb = list(self.calls_by_hour) + [0] * max(0, 24 - len(self.calls_by_hour))
+        return "呼/時 " + " ".join(f"{h:02d}:{int(cb[h])}" for h in range(24))
+
+    def wake_rate_in_area_by_hour_text(self) -> str:
+        """``起床率(在圏)/時 00:0.xxx …``(D-66 の補助欄・**在圏の体の非就寝率**)。"""
+        return "起床率(在圏)/時 " + " ".join(
+            f"{h:02d}:{self.wake_rate_in_area_by_hour[h]:.3f}" for h in range(24)
+        )
+
+    def wake_rate_by_hour_text(self) -> str:
+        """``起床率/時`` の 1 行(24 個・**D-62 の検証欄**)。
+
+        「起床率」= その時の各 tick の ``activity != Activity.SLEEPING`` の割合の平均
+        (域外滞在・乗車中も「起きている」に数える=在圏かどうかとは別の量)。
+        東京都 平日の a(h)(令和 3 年社会生活基本調査 第 4-1 表)は
+        0 時 **20.5%** / 1 時 11.1 / 2 時 5.7 / 3 時 **3.5** / 4 時 5.3 / 5 時 15.3 / 6 時 40.7 /
+        12〜19 時 **97.8〜98.9** で、**一律に掛けない**(交替制勤務 12.9%)——ここは
+        照合の材料であって目標値ではない(D-56 の注記と同じ扱い)。
+        """
+        wr = list(self.wake_rate_by_hour) + [0.0] * max(0, 24 - len(self.wake_rate_by_hour))
+        return "起床率/時 " + " ".join(f"{h:02d}:{float(wr[h]):.3f}" for h in range(24))
 
     def diagnostics_day(self) -> dict[str, float]:
         """シミュ日あたりの診断行(``DIAG_DAY_ROWS`` を必ず全て含む)。"""
@@ -286,6 +461,13 @@ class RunResult:
         Returns:
             ``registry_hash``(世界側台帳)・``replay_date``(D-W15 の実日)・
             ``template_sha256``(知覚テンプレ v1 の凍結ハッシュ)・
+            ``budget_mode``(知覚契約書 §3.2 ablation ① の腕)・
+            ``p_notice_ablation``/``p_notice_d50_scale``/``refractory_scale``/``signage``
+            (§8 第1陣 ②③⑥ の腕。既定は ``A4``/``1.0``/``{}``/``True``)・
+            ``sleep_suppression``(D-56 就寝抑止の腕。既定 ``True``)・
+            ``plan_sleep``(D-62「就寝は計画の実行」の腕。既定 ``True``)・
+            ``plan_executor``/``exit_mode``/``attendance_rate``(D-66 計画実行層の腕。
+            既定 ``True``(ただし W16+W17 のあるランだけ立つ)/``immediate``/``1.0``)・
             ``catalog_sha16``(世界カタログ v0.2 の凍結 SHA)・
             ``process_ids``(実際に回した過程 id の昇順)・``ablations``(切った過程/感度試験 id)。
         """
@@ -311,9 +493,28 @@ class RunResult:
             "registry_hash": self.registry_hash,
             "replay_date": self.replay_date,
             "template_sha256": _T.template_sha256(),
+            "budget_mode": self.budget_mode,
+            # ---- ablation 第1陣(§8)の腕。既定値のランでも欄は常に出る ----
+            "p_notice_ablation": self.p_notice_ablation,
+            "p_notice_d50_scale": float(self.p_notice_d50_scale),
+            "refractory_scale": dict(self.refractory_scale),
+            "signage": bool(self.signage),
+            # ---- D-56 就寝抑止(既定 True)。False = D-56 前の挙動 ----
+            "sleep_suppression": bool(self.sleep_suppression),
+            # ---- D-62 就寝は計画の実行(既定 True)。False = D-62 前の挙動 ----
+            "plan_sleep": bool(self.plan_sleep),
+            # ---- D-66 計画実行層(既定 True・W16+W17 のあるランだけ立つ) ----
+            "plan_executor": bool(self.plan_executor),
+            "exit_mode": str(self.exit_mode),
+            "attendance_rate": float(self.attendance_rate),
+            "derive_rule": str(self.derive_rule),
+            "outside_suppression": bool(self.outside_suppression),
             "catalog_sha16": catalog_sha16,
             "process_ids": process_ids,
             "ablations": ablations,
+            "frozen_sources": dict(self.frozen_sources),
+            # 実艦隊(C6-a)。mock/tape ランでは空 dict(欄は常にある)。
+            "fleet": dict(self.fleet_fields),
         }
 
     @property
@@ -326,10 +527,48 @@ class RunResult:
         """
         return self.money_start == self.money_end + self.revenue_end + self.fares_paid
 
+    #: ``phase_seconds`` を要約行に出す順(大きい順ではなく **tick の骨格の順**)。
+    PHASE_ORDER: tuple[str, ...] = (
+        "presence", "phase_a", "detect", "fleet_wait", "llm", "arbiter", "phase_b",
+        "phase_c", "movement", "checkpoint",
+    )  # ``movement_cpu`` は壁時計の内訳ではないので別行(下の summary)に出す
+
+    def phase_breakdown(self) -> str:
+        """位相別の壁時計[ms/tick](P2 の切り分け=どこに時間が入ったか)。
+
+        ``fleet_wait`` は ``--fleet-wait-s`` の待ちで、``llm``(描画+発射+到着処理)とは
+        別に数える。``movement`` は ``resolve`` の「位置確定+密度」区間(予算行 P2)。
+        """
+        n = max(1, self.ticks)
+        parts = [
+            f"{k} {self.phase_seconds.get(k, 0.0) / n * 1000.0:.2f}"
+            for k in self.PHASE_ORDER
+            if self.phase_seconds.get(k, 0.0) > 0.0
+        ]
+        return " / ".join(parts) + f" / 合計 {self.wall_seconds / n * 1000.0:.2f}"
+
     @property
     def movement_ms_per_tick(self) -> float:
-        """予算行 P2(移動+密度更新)の実測[ms/tick]。"""
+        """予算行 P2(移動+密度更新)の実測[ms/tick]。**壁時計**。"""
         return self.phase_seconds.get("movement", 0.0) / max(1, self.ticks) * 1_000.0
+
+    @property
+    def movement_cpu_ms_per_tick(self) -> float:
+        """同区間の**スレッド CPU 時間**[ms/tick](``time.thread_time``)。
+
+        ``movement_ms_per_tick`` との差が大きい = **仕事が増えたのではなく待たされた**
+        (艦隊クライアントの asyncio スレッドとの GIL 競合)。実装計画書 §4 の
+        「httpx イベントループと計算の干渉が出たら LLM クライアントを別プロセスへ」の判定材料。
+        """
+        return self.phase_seconds.get("movement_cpu", 0.0) / max(1, self.ticks) * 1_000.0
+
+    @property
+    def movement_gil_wait_ratio(self) -> float:
+        """movement 区間の「待ち」割合 = 1 − CPU/壁時計(0 なら純粋に計算だけ)。"""
+        wall = self.phase_seconds.get("movement", 0.0)
+        if wall <= 0.0:
+            return 0.0
+        return max(0.0, 1.0 - self.phase_seconds.get("movement_cpu", 0.0) / wall)
 
     def summary(self) -> str:
         calls = self.column("calls").sum() if self.diagnostics.size else 0
@@ -340,19 +579,41 @@ class RunResult:
             f"移動+密度 {self.movement_ms_per_tick:.3f} ms/tick (P2 上限 5 ms)",
             f"  LLM呼 {int(calls):,} = {calls / max(1, self.n_agents):.2f} 呼/体/日 "
             f"(L4 制御目標 10)",
+            f"  書式エラー率 実効 {self.parse_error_rate:.3f} / 厳密 "
+            f"{self.parse_error_rate_strict:.3f} (受入 ≤0.10) ・別名 "
+            f"{self.label_alias_rate:.3f} ・位置読み {self.positional_rate:.3f}"
+            f" ・辞書写像 {self.dictionary_mapped_rate:.3f}",
             f"  保存則 Σmoney {self.money_end:,} + Σrevenue {self.revenue_end:,} "
             f"+ Σ運賃 {self.fares_paid:,} "
             f"= {self.money_end + self.revenue_end + self.fares_paid:,} "
             f"(初期 {self.money_start:,}) "
             f"{'OK' if self.conserved else 'NG'} / 最小在庫 {self.min_stock}",
             f"  checkpoint {len(self.checkpoints)} 点 最終 {self.final_hash[:16]}…",
+            "  内訳[ms/tick] " + self.phase_breakdown(),
+            f"  movement 壁 {self.movement_ms_per_tick:.3f} / CPU "
+            f"{self.movement_cpu_ms_per_tick:.3f} ms/tick (P2 上限 5) ・待ち割合 "
+            f"{self.movement_gil_wait_ratio:.2f}",
         ]
+        # D-58: 繰り延べを記録/再現したランだけ 1 行(mock ランは従来どおり出ない)
+        _bd = float(self.bridge_counters.get("tape_deferred_rows", 0.0)) or float(
+            self.bridge_counters.get("tape_deferred", 0.0)
+        )
+        if _bd:
+            lines.append(
+                f"  テープ繰り延べ行 {int(_bd):,}(D-58・応答なしの呼)/ 再投入 "
+                f"{int(self.bridge_counters.get('fleet_reinjected', 0)):,} / 再送 "
+                f"{int(self.bridge_counters.get('fleet_resent', 0)):,} / 終端未応答 "
+                f"{self.fleet_unanswered_at_end:,}"
+            )
+        if self.frozen_sources:
+            lines.append("  凍結静的文 " + " ".join(f"{k}={v[:16]}" for k, v in sorted(self.frozen_sources.items())))
         if self.registry_hash:
             lines.append(
                 f"  世界過程 台帳 {self.registry_hash[:16]}… 憲法5 "
                 f"{'OK' if self.constitution_ok else 'NG'} / 再生日 "
                 f"{self.replay_date or '(合成)'} / 乗車 {self.n_boarded:,} 降車 "
-                f"{self.n_alighted:,} 待ち行列 {self.n_queued:,} 乗り残し "
+                f"{self.n_alighted:,} 待ち行列 {self.n_queued:,} 乗車待ち "
+                f"{self.n_board_waiting:,}(打ち切り {self.n_board_timeout:,}) 乗り残し "
                 f"{int(self.process_counters.get('rail.left_behind', 0)):,}"
                 f"({self.process_counters.get('rail.left_behind_rate', 0.0):.4f}) / ActualLog "
                 f"{self.actual_log_rows:,} 行 遵守率 {self.compliance_rate:.3f}"
@@ -393,6 +654,31 @@ class RunResult:
             )
         for col in DIAG_COLUMNS:
             lines.append(f"  診断 {col}: {int(self.column(col).sum()):,}")
+        lines.append(f"  診断 sleep_suppressed: {self.sleep_suppressed_count:,}")
+        lines.append(f"  診断 outside_suppressed: {self.outside_suppressed_count:,}")
+        lines.append(
+            f"  域外宛ての呼 {self.outside_wake_candidates:,}"
+            f"(抑止 {self.outside_suppressed_count:,}"
+            f"・抑止腕 {'on' if self.outside_suppression else 'off'})"
+        )
+        lines.append("  " + self.calls_by_hour_text())
+        lines.append("  " + self.wake_rate_by_hour_text())
+        if len(self.wake_rate_in_area_by_hour) == 24:
+            lines.append("  " + self.wake_rate_in_area_by_hour_text())
+        if self.planned_sleep_counts:
+            c = self.planned_sleep_counts
+            lines.append(
+                f"  D-62 計画就寝 その場 {int(c.get('slept', 0)):,} + 着いて "
+                f"{int(c.get('arrived', 0)):,}(歩行中 {int(c.get('walking', 0)):,})"
+                f" / 計画起床 {int(c.get('woke', 0)):,}"
+                f" / 寝かせなかった 乗車中 {int(c.get('riding', 0)):,}"
+                f"・域外 {int(c.get('outside', 0)):,}"
+                f"・会話中 {int(c.get('conversing', 0)):,}"
+                f"・就寝済 {int(c.get('asleep', 0)):,}"
+                f"・行けない {int(c.get('unreachable', 0)):,}"
+            )
+        if self.presence_summary:
+            lines.append("  " + self.presence_summary)
         lines.append(
             f"  診断 parse_error_rate: {self.parse_error_rate:.4f} / "
             f"undefined_action_count: {self.undefined_action_count:,} / "
@@ -404,6 +690,185 @@ class RunResult:
         return "\n".join(lines)
 
 
+def _resolve_population(
+    population: "Population | bool | None",
+    world_dir: str | Path | None,
+    n_agents: int,
+    seed: int | str,
+    n_cells: int,
+) -> "Population | None":
+    """``population`` 引数 → 実体(``None``=資産が無い/切っている)。
+
+    ``False`` は「母集団を使わない」の明示。``None``(既定)は ``world_dir`` に W16 の
+    出力があれば読む。既に ``Population`` なら体数だけ合わせる(二層抽出)。
+    """
+    if population is False:
+        return None
+    if isinstance(population, Population):
+        pop = population
+        _check_population_fits(pop, n_cells)
+    else:
+        if world_dir is None:
+            return None
+        pop = load_population(world_dir, n=None, seed=seed)
+        if pop is None:
+            return None
+        if not _population_fits(pop, n_cells):
+            # ``world_dir`` は知覚資産の置き場として渡されているが、世界そのものは
+            # 合成小世界(セル数が違う)。**自動読み込みは黙って見送る**
+            # (明示的に population= を渡したときだけ食い違いを例外にする)。
+            return None
+    if pop.n > n_agents:
+        pop = sample_population(pop, n_agents, seed)
+    return pop
+
+
+def _population_fits(pop: "Population", n_cells: int) -> bool:
+    """母集団のセル索引が世界のセル数に収まるか。"""
+    for arr in (pop.home_cell, pop.work_cell, pop.school_cell):
+        if arr.size and int(arr.max()) >= int(n_cells):
+            return False
+    return True
+
+
+def _check_population_fits(pop: "Population", n_cells: int) -> None:
+    if not _population_fits(pop, n_cells):
+        raise ValueError(
+            f"母集団のセル索引が世界のセル数({n_cells})を超える。世界資産と母集団の版が違う"
+        )
+
+
+def _schedule_with_population(
+    schedule, pop: "Population", n_cells: int, *, keep_outside_home: bool = False
+):
+    """mock 日課の拠点・種別を **W16 母集団**で置き換える(時刻帯は W17 まで mock のまま)。
+
+    体数が母集団より多いときは、足りない分は mock の合成個体のまま残す(縮小ランの保険)。
+    ``home_cell`` を持たない体(域外常住)は ``Population.start_cell`` の規約で置く
+    (勤務→通学→mock の自宅セル)=W17 が入るまでの繋ぎ・expedient。
+
+    Args:
+        keep_outside_home: **D-66 計画実行層のラン**で True。域外常住の ``home_cell`` を
+            ``-1`` のまま残し(=自宅=職場の代入をやめ)、``np.clip`` で −1 を潰さない。
+            自宅のない体は計画実行層が起動時に ``place_at_external`` で外へ置く。
+            既定 False = **帰無腕の挙動そのまま**(1 バイトも変わらない)。
+    """
+    n = int(schedule.n_agents)
+    m = min(n, pop.n)
+    home = np.asarray(schedule.home_cell).copy()
+    work = np.asarray(schedule.work_cell).copy()
+    kind = np.asarray(schedule.kind).copy()
+    age = np.zeros(n, dtype=np.uint8)
+    sex = np.full(n, -1, dtype=np.int8)
+    direction = np.full(n, -1, dtype=np.int32)
+    if keep_outside_home:
+        ph = np.asarray(pop.home_cell, dtype=np.int64)[:m]
+        home[:m] = np.where(ph >= 0, ph, -1)  # 域外常住は −1 のまま(I6 のガードが受ける)
+    else:
+        start = pop.start_cell(fallback=-1)[:m]
+        home[:m] = np.where(start >= 0, start, home[:m])
+    pw = pop.work_cell[:m]
+    work[:m] = np.where(pw >= 0, pw, work[:m])
+    kind[:m] = pop.kind[:m]
+    age[:m] = pop.age[:m]
+    sex[:m] = pop.sex[:m]
+    direction[:m] = pop.direction_node[:m]
+    home_out = np.clip(home, 0, n_cells - 1) if not keep_outside_home else np.where(
+        home >= 0, np.clip(home, 0, n_cells - 1), -1
+    )
+    return dataclasses.replace(
+        schedule,
+        home_cell=home_out.astype(np.int32),
+        work_cell=np.clip(work, 0, n_cells - 1).astype(np.int32),
+        kind=kind,
+        age=age,
+        sex=sex,
+        direction_node=direction,
+        population_hash=pop.population_hash(),
+    )
+
+
+def _settle_pending_invites(conv, agents, tick, agent_ids, codes, named, R, np) -> set[int]:
+    """返事待ちの招待を**Phase C の前に**確定する(層2 中-1・09-09)。
+
+    正典
+    - 行動契約書 §1-2 対象スロット: 承諾は「行動: 会話 **対象: 招待者**」。
+    - 同 §6「直前の結果」: 承諾を intent のまま Phase C へ流すと、招待者は待ちで
+      CONVERSING なので ``resolve._apply_talk`` が ``PARTNER_BUSY`` を書き、被招待の
+      B6 に**偽の失敗**が載る(層2 再現: 51 セッション中 45 件)。ここで消費して防ぐ。
+
+    承諾の規則(中-2・**expedient**: 契約書に承諾の対象規則は無い)
+      - 返事が **会話** かつ 対象が **招待者 A**(または **名指しなし**)→ **承諾**。
+      - 返事が 会話 でも 対象が **第三者 C** → A へは**拒否**。B の行は intent に残し、
+        C への新しい招待として通す。
+      - それ以外の行動 → 拒否。
+
+    Returns:
+        **intent から外す**個体(=承諾した被招待。承諾は新しい招待ではない)。
+    """
+    if conv is None or not conv.pending_invites:
+        return set()
+    cell = agents.registry.cell
+    consumed: set[int] = set()
+    accepted: list[tuple[int, int]] = []
+    reverted: list[int] = []
+    # 逐次ループ宣言: この tick に応答した個体のうち返事待ちの数ぶん(≤ 1 tick の呼数)。
+    for k in range(int(agent_ids.size)):
+        b = int(agent_ids[k])
+        if b not in conv.pending_invites:
+            continue
+        a = conv.pending_inviter_of(b)
+        same_cell = bool(a >= 0 and cell[a] == cell[b] and cell[b] >= 0)
+        aimed_at_inviter = int(named[k]) in (a, -1)
+        ok = bool(codes[k] == C.ACT_TALK) and aimed_at_inviter and same_cell
+        opened = conv.resolve_pending(b, tick, accepted=ok)
+        if opened is not None:
+            accepted.append((a, b))
+            consumed.add(b)  # 承諾は新しい招待ではない=intent から外す
+        elif a >= 0 and not conv.is_busy(a):
+            reverted.append(a)
+    if accepted:
+        R.set_conversing(
+            agents,
+            np.array([x for x, _ in accepted], dtype=np.int64),
+            np.array([y for _, y in accepted], dtype=np.int64),
+        )
+    if reverted:
+        R.revert_conversation(agents, np.array(sorted(set(reverted)), dtype=np.int64))
+    return consumed
+
+
+def _inviter_of(conv: Any, agent_id: int, condition: int = -1) -> int:
+    """**返事待ちの招待**があれば招待者の個体 id、無ければ -1(知覚契約書 §6 起床(ii))。
+
+    起床条件では絞らない(``condition`` は診断用に受けるだけ)。``_settle_pending_invites``
+    は**その tick に答えた全員**の中から返事待ちを拾うので、被招待が別の条件
+    (一般活動など)で起きた呼も承諾/拒否として消費される。会話ターン起床に限ると
+    その分の呼に招待者が載らず、**答えようがないのに拒否と数えられる**(実測: 200体600tick で
+    招待文が載った呼は 4 件しかなかった)。
+
+    会話ターン起床には「セッションの話者」と「返事待ちの被招待」の 2 種類が同じ
+    ``WakeCondition.CONVERSATION_TURN`` で来る(``conversation.wake_candidates``)が、
+    話者には返事待ちが無いので ``pending_inviter_of`` が -1 を返して切り分けになる。
+    """
+    if conv is None:
+        return -1
+    return int(conv.pending_inviter_of(int(agent_id)))
+
+
+def _target_person(target: Any) -> int:
+    """``llm.contract.Target`` → 個体 id(``P-nnn`` 以外は ``-1``)。
+
+    行動契約書 §1-2 の「対象: <セルID|物カテゴリ|**個体ID**>」を会話の相手として使う
+    (C6・09-09)。パーサは素の整数も PERSON と読むので、そのまま個体 id にする。
+    """
+    kind = getattr(target, "kind", None)
+    if kind is None or int(kind) != int(TargetKind.PERSON):
+        return -1
+    pid = getattr(target, "person_id", None)
+    return -1 if pid is None else int(pid)
+
+
 def run_day(
     n_agents: int = 5_000,
     seed: int | str = 1,
@@ -412,6 +877,9 @@ def run_day(
     tick_seconds: int = DEFAULT_TICK_SECONDS,
     ticks: int = MINUTES_PER_SIM_DAY,
     llm: Any | None = None,
+    fleet: "FleetClient | None" = None,
+    fleet_wait_s: float = 0.0,
+    fleet_debug_dir: str | Path | None = None,
     checkpoint_every: int = 360,
     day_index: int = 0,
     budget: float | None = None,
@@ -428,7 +896,21 @@ def run_day(
     processes_enabled: "list[str] | tuple[str, ...] | None" = None,
     processes_disabled: "list[str] | tuple[str, ...] | None" = None,
     p_notice_ablation: str | int = "A4",
+    p_notice_d50_scale: float = 1.0,
+    refractory_scale: Mapping[Any, float] | None = None,
+    signage: bool = True,
+    budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
     salient_rate_per_10k: float | None = None,
+    population: "Population | bool | None" = None,
+    occupancy_every: int = 0,
+    occupancy_path: "str | Path | None" = None,
+    sleep_suppression: bool = True,
+    plan_sleep: bool = True,
+    plan_executor: bool = True,
+    exit_mode: str = "immediate",
+    attendance_rate: float = 1.0,
+    outside_suppression: bool = True,
+    derive_rule: str = "v2",
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -439,6 +921,20 @@ def run_day(
         tick_seconds: 1 tick の秒数。
         ticks: tick 数。
         llm: ``LLMClient``(None なら ``MockLLM(seed)``)。
+        fleet: 実 vLLM 艦隊(``llm.fleet.FleetClient``)。**渡すと LLM 経路が非同期になる**:
+            ④ で 1 tick 分をまとめて発射(非ブロッキング)し、④′ で届いた分を拾う。
+            繰り延べ(タイムアウト・キュー満杯・接続エラー枯渇)は**次 tick の起床候補へ
+            再投入**する(不応期は免除=``resolve.clear_refractory``)。``None`` なら従来の
+            同期 1 呼経路(``llm``=mock/tape)で、**挙動は 1 バイトも変わらない**。
+        fleet_wait_s: ④′ で未応答が残っているとき**最大この秒数だけ待つ**。既定 0.0=
+            純非ブロッキング。本番(予算行 W1: 1 シミュ日 ≤24 h ⇒ 1 tick ≈ 37 秒の壁時計)
+            では LLM の往復(数秒)が 1 tick の壁時計に収まるので 0 でよい。**スモークや
+            テストのようにエンジンが LLM より桁違いに速いラン**では、0 のままだと応答が
+            全部ラン終端に届き δ_think の契約(``t_apply``=起床+δ_perc+δ_think)が
+            観測できないので、ここで艦隊に歩調を合わせる(**expedient**・本番経路は変えない)。
+        fleet_debug_dir: 書式の原因分析用 jsonl の置き場(``None``=off が既定)。初回パースが
+            落ちた呼だけ {プロンプト・初回の生応答・再生成の生応答・実効/厳密の判定・理由} を
+            1 行 1 呼で落とす。**テープ形式は変えない**(テープは最終応答 1 行のまま)。
         checkpoint_every: checkpoint 間隔[tick]。
         day_index: 曜日(0=月曜)。
         budget: 1 tick の呼数上限(None なら L4 按分)。
@@ -460,27 +956,111 @@ def run_day(
             混雑場だけが動き、他の過程は「休む」。
         processes_enabled / processes_disabled: 過程 id か感度試験 id(``AB-*``)で
             過程単位に切る(ablation)。
+        budget_mode: 知覚契約書 §3.2 の**義務 ablation ①**「チャネル固定枠 vs 同一総トークンの
+            単一ランキング」の腕。``"fixed"``(既定=現行の描画・1 バイトも変わらない)/
+            ``"ranking"``(チャネル別の上限表を使わず群予算だけを守る)。
+            ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
         p_notice_ablation: 顕著行為の到達 ``p_notice`` の ablation(知覚契約書 §3.1 の
             ``A0``-``A4``。既定 ``A4``=完成形)。``processes_enabled`` に
-            ``AB-PNOTICE-A2`` のように書いても効く。
+            ``AB-PNOTICE-A2`` のように書いても効く。**``--ablate AB-PNOTICE-A0`` は
+            ``salient`` 過程ごと止まる**(過程トグルと id を共有するため)ので、A0-A4 の
+            腕を選ぶときは必ずこの引数を使う。
+        p_notice_d50_scale: 知覚契約書 §8 第1陣 **② の腕**「p_notice の d50 を 0.5×/2×」。
+            §3.1 の d50(既定 40 m・事象クラス別の表も同じ倍率)に掛ける正の倍率。
+            既定 1.0=現行の抽選で**1 ビットも変わらない**。打ち切り 80 m は動かさない
+            (2.0× は d50=打ち切りと同値になる=報告に明記する)。
+        refractory_scale: 知覚契約書 §8 第1陣 **③ の腕**「近接入替の不応期 15 分 ±50%」。
+            ``{起床条件: 倍率}``(鍵は ``WakeCondition``・列番号・条件名)。§6 不応期表を
+            ランごとに振る(``engine.resolve.refractory_ticks``)。既定 ``None``=表どおり。
+        signage: 知覚契約書 §8 第1陣 **⑥ の腕**「広告ゼロ」。``False`` で看板・広告面
+            (B2.signage)を全セルで空にする(W14 凍結文も合成文も載せない)。既定 True。
+            ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
+        population: W16 母集団(``agents.population.Population``)。``None``(既定)は
+            **``world_dir`` に ``w16_population.parquet`` があれば自動で読む**
+            (``n_agents`` 体へ二層抽出)。``False`` で明示的に切る(合成個体のまま)。
+            資産が無ければ静かに合成個体へ落ちる。
         salient_rate_per_10k: 「倒れる」の発生率[件/10,000体/日](``None`` で既定
             ``salient.COLLAPSE_PER_10K_PER_DAY``=3.0)。5,000 体・1 日では期待値 1.5 件なので
             **引かない日がある**(P(0)=22%)。感度試験・結線テストで上げるための口。
+        sleep_suppression: **D-56 就寝抑止**(既定 True=ユーザー決定 (a))。``activity ==
+            Activity.SLEEPING`` の個体の起床候補を、計画境界・顕著行為・会話ターン以外は
+            アービタに入れない。``False`` は **D-56 前の挙動**(=ablation の帰無腕)。
+            エンジンは tick 0 で全員を ``SLEEPING`` に置く(``resolve.initialize``=世界内
+            00:00 の種。**週次表があるランは D-62 (b) が 0:00 の活動から立て直す**)ので、
+            **深夜だけを回す短いラン**は既定のままだと呼が 0 になる。
+            LLM 配管そのものを見るテスト(艦隊・テープ・パーサ)は ``False`` で回す。
+        plan_sleep: **D-62 就寝は計画の実行**(既定 True=ユーザー決定 (a)+(b))。
+            (a) 計画境界のうち**就寝境界**(``WakeCondition.PLAN_SLEEPING``)はエンジンが
+            実行する——``activity=SLEEPING``(就寝地に居なければ歩かせて着いたら寝る)+
+            **その境界では LLM を呼ばない**(候補にしない)。非就寝の計画境界は逆に
+            ``SLEEPING`` の体を起こしてから呼ぶ。(b) 週次表(W17)があるランは tick 0 の
+            ``activity`` を**0:00 時点の活動**から立てる(``resolve.set_initial_activity``)。
+            ``False`` は **D-62 前の挙動**(=帰無腕。就寝境界も LLM に判断させ、tick 0 は
+            全員 ``SLEEPING``)。週次表を持たない合成世界/mock 日課でも (a) は効く
+            (mock 日課の第 5 境界=就寝)。
+        plan_executor: **D-66 計画実行層**(``engine.presence.PlanExecutor``・既定 True)。
+            W17 週次表を在圏ブロックに畳み、到着・退出・就寝・起床を**エンジンが実行する**。
+            有効になるのは「W16 母集団 + W17 週次表があるラン」だけ(合成世界・
+            ``--no-population`` では静かに休む=既存の下限対照は無傷)。
+            ``False`` = **帰無腕**(rail の乱数 12% + D-61 帰りの便 + D-62 の run.py 発火=
+            現行挙動。checkpoint も 1 バイト変わらない)。
+        exit_mode: 退出の実行形(設計書 §10-3)。``"immediate"`` のみ実装、
+            ``"board_intent"`` / ``"walk_to_platform"`` は**切替口だけ予約**
+            (``NotImplementedError``)。
+        attendance_rate: 出勤率(D-67 (b)・expedient E6・既定 1.0)。通勤・通学の体のうち
+            ``1 - rate`` の割合を ``_mix64(agent_id)`` の決定論でその日「終日域外」にする。
+            **1.0 では 1 ビットも変わらない**。
+        outside_suppression: **D-66 域外抑止**(既定 True)。``transit_state != 0``
+            (域外滞在・乗車中)の体の起床候補をアービタに入れない——舞台に居ない体は
+            B0-B6 の描画欄が全て空で、プロンプトが「どこにも居ない」になるため。
+            D-56 の就寝抑止と同型だが**例外を作らない**(計画境界・顕著行為・会話ターンも落ちる)。
+            ``False`` = **帰無腕**(``--no-outside-suppression``)。**計画実行層が立つラン
+            でだけ効く**(``--no-plan-executor`` の帰無腕は現行挙動のまま=checkpoint 不変)。
 
     Returns:
         ``RunResult``。
     """
     t_start = time.perf_counter()
+    budget_mode_enum = BudgetMode.parse(budget_mode)
+    # ---- ablation ②③: 腕の値をここで検査する(過程を切ったランでも manifest が嘘をつかない) ----
+    p_notice_d50_scale = _check_d50_scale(p_notice_d50_scale)
+    # ---- D-66 計画実行層の腕: 値の検査は**層が休むランでも**する(manifest が嘘をつかない) ----
+    if str(exit_mode) not in PRESENCE_EXIT_MODES:
+        raise ValueError(f"exit_mode は {PRESENCE_EXIT_MODES} のどれか(いま {exit_mode!r})")
+    if not (0.0 <= float(attendance_rate) <= 1.0):
+        raise ValueError(f"attendance_rate は 0.0〜1.0(いま {attendance_rate})")
+    if str(derive_rule) not in PRESENCE_DERIVE_RULES:
+        raise ValueError(f"derive_rule は {PRESENCE_DERIVE_RULES} のどれか(いま {derive_rule!r})")
+    # ---- ablation ③: **ランの実効不応期表**を 1 本組む(既定=§6 の表そのもの) ----
+    refractory_table = R.refractory_ticks(refractory_scale)
+    refractory_scale_norm = R.normalized_refractory_scale(refractory_scale)
     world = world if world is not None else World.synthetic(n_cells=n_cells, seed=seed)
     llm = llm if llm is not None else MockLLM(master_seed=seed)
     salt = run_salt_for(seed)
     tape_writer = TapeWriter(Path(tape_path)) if tape_path is not None else None
     conv = ConversationManager(seed) if conversations else None
-    agents = AgentState(n_agents)
+    schedule = synthesize(n_agents, seed, world.n_cells)
+    pop = _resolve_population(population, world_dir, n_agents, seed, world.n_cells)
+    # ---- D-66: 週次表(W17)は SoA を確保する前に読む(層の有無で列が 1 本変わるため) ----
+    # ``load_weekly`` / ``restrict_to`` は純粋な読み込み(乱数を 1 語も引かない)なので、
+    # ここへ繰り上げても帰無腕のバイト列は動かない。
+    weekly = load_weekly(world_dir) if (world_dir is not None and pop is not None) else None
+    if weekly is not None:
+        weekly = weekly.restrict_to(pop.source_agent_id)
+    # ``--ablate AB-PLAN-EXECUTOR`` / ``--ablate plan_execution`` でも切れる(台帳の約束)。
+    # 層は ``engine/processes`` の下に居ないので ``WorldProcessRunner`` のトグルには載らない。
+    _ablated = {str(x) for x in (processes_disabled or ())}
+    if _ablated & set(PlanExecutor.process_ids) | (_ablated & {PlanExecutor.ablation_id}):
+        plan_executor = False
+    plan_exec_on = bool(plan_executor) and weekly is not None and pop is not None
+    agents = AgentState(n_agents, plan_columns=plan_exec_on)
     if ledger is not None and ledger.money is not None:
         # 世帯の現金行 = 個体 SoA の money(写しを作らない・台帳の書き込み窓は resolve が持つ)
         ledger.money.attach_household_cash(agents.registry.money)
-    schedule = synthesize(n_agents, seed, world.n_cells)
+    if pop is not None:
+        schedule = _schedule_with_population(
+            schedule, pop, world.n_cells, keep_outside_home=plan_exec_on
+        )
     R.initialize(agents, world, schedule, day_index=day_index, ledger=ledger)
     agents.freeze()
     world.freeze()
@@ -500,13 +1080,48 @@ def run_day(
             enabled=processes_enabled,
             disabled=processes_disabled,
             p_notice_ablation=p_notice_ablation,
+            p_notice_d50_scale=p_notice_d50_scale,
             salient_rate_per_10k=salient_rate_per_10k,
+            plan_executor=plan_exec_on,
         )
+
+    # ---- ⓪a-2 計画実行層(D-66・engine.presence)。W17 + W16 のあるランだけ立つ ----
+    presence: PlanExecutor | None = None
+    if plan_exec_on:
+        presence = PlanExecutor(
+            world,
+            agents,
+            weekly,
+            day_index=day_index,
+            home_cell=pop.home_cell,
+            direction_node=pop.direction_node,
+            kind=pop.kind,
+            agent_id=pop.source_agent_id,
+            rail=(
+                runner.rail
+                if (runner is not None and runner.is_enabled("rail"))
+                else None
+            ),
+            assets=(
+                runner.assets
+                if runner is not None
+                else load_process_assets_or_synthetic(world_dir, world.assets)
+            ),
+            ticks=ticks,
+            exit_mode=exit_mode,
+            attendance_rate=attendance_rate,
+            derive_rule=str(derive_rule),
+        )
+        presence.initialize()  # その時刻に在圏でない体を域外へ(I1 の分母)
+        if runner is not None:
+            runner.attach_presence(presence)  # hotel の母数・civic の引き込み候補
 
     # ---- 知覚レンダラ(C3 結線・B0-B6 の本物) ----
     perception: PerceptionRendererAdapter | None = None
+    frozen_sources_map: dict[str, str] = {}
     if renderer is None:
         assets = PerceptionAssets.load_or_synthetic(world_dir, world)
+        frozen_sources_map = dict(getattr(assets, "frozen_sources", {}) or {})
         # 世界内日時 = 気象の再生実日(D-W15)。世界過程が無ければ既定の開始日 + day_index。
         start = DEFAULT_START_DATETIME + timedelta(days=int(day_index))
         if runner is not None and runner.replay_date:
@@ -516,6 +1131,8 @@ def run_day(
                 world, agents, assets,
                 clock_fn=lambda t: start + timedelta(minutes=int(t)),
                 seed=seed,
+                budget_mode=budget_mode_enum,
+                signage_enabled=signage,
             )
         )
         renderer_obj: Any = perception
@@ -542,25 +1159,64 @@ def run_day(
         params={"max_tokens": 64, "temperature": 0.0},
     )
 
+    # ---- 実艦隊(C6-a)。テープ・未定義行動台帳・デコード設定は bridge と**同じものを共有** ----
+    # ``params``(=テープ列 ``params_hash``)は**艦隊の実デコード設定**から作る
+    # (``FleetBridge`` の既定)。mock の {max_tokens:64, temperature:0.0} を引きずらない。
+    fleet_bridge = (
+        FleetBridge(
+            fleet,
+            tape=tape_writer,
+            tape_row_factory=TapeRow,
+            undefined=bridge.undefined,
+            debug_dir=fleet_debug_dir,
+        )
+        if fleet is not None
+        else None
+    )
+    #: 艦隊で繰り延べになった呼 ``(agent, condition, class_rank, since_tick)``。
+    #: 次 tick の起床候補へ**そのまま再投入**する(破棄禁止=憲法1)。
+    fleet_deferred: list[tuple[int, int, int, int]] = []
+    n_fleet_reinjected = 0
+    n_fleet_resent = 0
+    #: 繰り延べ中の個体(再送を数えるためだけの集合。呼数 L4 は**発射数**で数える)。
+    fleet_waiting: set[int] = set()
+    #: **再生モードの艦隊の代役**(D-58)。``observed_tick`` → その tick で「届く」項目。
+    #: 項目は ``(繰り延べか, ペイロード)``。繰り延べは ``(agent, cond, class, since_tick)``、
+    #: 応答は ``BridgeResult`` そのもの。テープが版1(``observed_tick=-1``)なら常に空
+    #: =mock 経路は 1 バイトも変わらない。
+    replay_inbox: dict[int, list[tuple[bool, Any]]] = {}
+
     detector = ChangeDetector(n_agents, world.n_cells, walkable_area_m2=walkable)
     arbiter = Arbiter(
         n_agents, salt, budget if budget is not None else call_budget_per_tick(n_agents)
     )
     space = C.ResourceSpace(world.n_poi, n_agents, world.n_cells)
 
-    # 計画境界(mock 日課)を tick でスライスできる形に平坦化
-    b_agent, b_slot, b_tick = schedule.events_of_day(day_index)
+    # 計画境界。W17 週次表(w17_schedule.parquet)があればそれを使い、無ければ mock 日課の 5 境界へ落ちる
+    # (C5-b 結線・09-09)。mock 経路は --no-population と合成世界の下限対照としてそのまま残す。
+    if weekly is not None:
+        # D-62: 就寝境界で「どこで寝るか」が要るので行き先セルも一緒に取る(並びは同じ)
+        b_agent, b_cond, b_tick, b_cell = weekly.boundary_events_full(day_index)
+        schedule = apply_to_mock_schedule(schedule, weekly, day_index)  # 拠点セル(自宅/職場)の上書き
+        # ---- D-62 (b): tick 0 の activity を W17 の 0:00 時点の活動から立てる ----
+        # ``initialize`` は全員 SLEEPING(週次表の無い世界の既定)。ここで立て直す。
+        if plan_sleep:
+            R.set_initial_activity(agents, weekly.initial_activity(day_index))
+    else:
+        b_agent, b_slot, b_tick = schedule.events_of_day(day_index)
+        b_cell = np.full(b_agent.size, -1, dtype=np.int32)  # mock 日課の就寝地=自宅セル
+        b_cond = np.array(
+            [
+                int(WakeCondition.PLAN_GENERAL),
+                int(WakeCondition.PLAN_TRANSIT),
+                int(WakeCondition.PLAN_GENERAL),
+                int(WakeCondition.PLAN_TRANSIT),
+                int(WakeCondition.PLAN_SLEEPING),
+            ],
+            dtype=np.int8,
+        )[b_slot]
     b_start = np.searchsorted(b_tick, np.arange(ticks + 1), side="left")
-    boundary_condition = np.array(
-        [
-            int(WakeCondition.PLAN_GENERAL),
-            int(WakeCondition.PLAN_TRANSIT),
-            int(WakeCondition.PLAN_GENERAL),
-            int(WakeCondition.PLAN_TRANSIT),
-            int(WakeCondition.PLAN_SLEEPING),
-        ],
-        dtype=np.int8,
-    )
+    schedule_hash = weekly.schedule_hash() if weekly is not None else ""
 
     result = RunResult(
         n_agents=n_agents,
@@ -572,17 +1228,38 @@ def run_day(
         mode=mode,
     )
     result.money_start = int(agents.registry.money.astype(np.int64).sum())
-    phase = {k: 0.0 for k in ("detect", "arbiter", "llm", "phase_a", "phase_b", "phase_c",
-                              "movement", "checkpoint")}
+    # 在圏 journal(C7 受入計器 tools/c7・holdout 照合の入力)。既定 0=書かない(状態・診断・テープに影響なし)。
+    occ_ticks: list[int] = []
+    occ_counts: list[np.ndarray] = []
+    occ_kind: list[np.ndarray] = []
+    occ_transit: list[np.ndarray] = []
+    # ``fleet_wait`` は ``--fleet-wait-s`` の待ち(``llm`` から分離して数える=P2 の切り分け用)。
+    # ``movement_cpu`` は movement 区間の**スレッド CPU 時間**(壁時計との差=GIL 待ち)。
+    phase = {k: 0.0 for k in ("presence", "detect", "arbiter", "llm", "fleet_wait", "phase_a",
+                              "phase_b", "phase_c", "movement", "movement_cpu", "checkpoint")}
     diag_rows: list[tuple[int, ...]] = []
-    # (t_apply, class, agent, condition, text, action_code)
-    pending: list[tuple[int, int, int, int, str, int]] = []
+    # (t_apply, class, agent, condition, text, action_code, target_person)
+    # ``target_person`` = LLM が「対象」欄に書いた個体 id(-1=名指しなし・C6 09-09)。
+    pending: list[tuple[int, int, int, int, str, int, int]] = []
+    #: この tick に応答を適用した個体 → 行動コード(会話の被招待の返事を読むのに使う)。
+    applied_now: dict[int, int] = {}
+    #: 会話の相手の由来(``conv_*`` 診断行の素材)。
+    talk_stats: dict[str, int] = {}
     prev_tape_misses = 0
     prev_sessions = 0
     peak_pending = 0
     peak_intents = 0
     peak_backlog = 0
     n_undefined_total = 0
+    #: D-66: **発射した呼**のうち域外の体宛てだった延べ数(抑止が効いていれば 0)。
+    n_outside_calls = 0
+    # ---- D-62「就寝は計画の実行」の計数(診断列は増やさない=診断表の形を変えない) ----
+    #: ``resolve.begin_planned_sleep`` の内訳 + ``arrived``(就寝地へ着いて寝た)+
+    #: ``woke``(非就寝の計画境界で起こした)。
+    sleep_counts: dict[str, int] = {}
+    #: 世界内時刻の**時**別「起きている体」の延べ数と tick 数(起床率/時 の分子・分母)。
+    awake_sum = [0] * 24
+    awake_ticks = [0] * 24
 
     # 逐次ループ宣言1: tick 数ぶん
     for tick in range(ticks):
@@ -593,6 +1270,12 @@ def run_day(
         # 親指示は「⓪ の直後」だったが、それだと同じ tick の流れが描画に載らない(報告済み)。
         if runner is not None:
             runner.step(tick)
+
+        # ---- ⓪a-2 計画実行層(D-66): 到着・退出(§3)。世界過程と同じ位置で回す ----
+        if presence is not None:
+            t0 = time.perf_counter()
+            presence.step(tick)
+            phase["presence"] += time.perf_counter() - t0
 
         # ---- ⓪ 知覚の tick 前計算(セル配列+B4 描画欄・**1 tick 1 回**) ----
         # 顕著行為(salient_events)は人物③(第2陣)が入るまで空。騒音段は
@@ -631,10 +1314,41 @@ def run_day(
                 )
                 n_undefined = int(np.count_nonzero(codes == C.UNDEFINED_ACTION))
                 n_undefined_total += n_undefined
-                llm_intents = C.intents_from_responses(
-                    agents, world, space, tick, ag[order], cond[order], codes,
-                    home_cell=schedule.home_cell, work_cell=schedule.work_cell,
+                tgt_person = np.fromiter(
+                    (due[int(i)][6] for i in order), dtype=np.int64, count=order.size
                 )
+                agents_in_order = ag[order]
+                # 個体 → (行動コード, **LLM が名指しした**対象)。会話の承諾/相互指名の判定に使う
+                # (エンジンが解決した対象ではない=「誰に向けた返事か」は名指しにしか無い)。
+                applied_now = {
+                    int(agents_in_order[k]): (int(codes[k]), int(tgt_person[k]))
+                    for k in range(order.size)
+                }
+                # ---- ①-b 会話: **返事待ちの解決を Phase C より前に**(層2 中-1) ----
+                # 被招待 B の承諾「会話 対象: P-A」を intent のまま Phase C へ流すと、
+                # A は招待して CONVERSING なので ``_apply_talk`` が PARTNER_BUSY を書き、
+                # B の「直前の結果」(B6)に**偽の失敗**が載る。承諾はここで消費し、
+                # B の行を intent から外す(承諾は新しい招待ではない)。
+                consumed = _settle_pending_invites(
+                    conv, agents, tick, agents_in_order, codes, tgt_person, R, np
+                )
+                keep = (
+                    np.array(
+                        [int(a) not in consumed for a in agents_in_order.tolist()], dtype=bool
+                    )
+                    if consumed
+                    else np.ones(order.size, dtype=bool)
+                )
+                llm_intents = C.intents_from_responses(
+                    agents, world, space, tick, agents_in_order[keep], cond[order][keep],
+                    codes[keep],
+                    home_cell=schedule.home_cell, work_cell=schedule.work_cell,
+                    target_person=tgt_person[keep], stats=talk_stats, run_salt=salt,
+                )
+            else:
+                applied_now = {}
+        else:
+            applied_now = {}
         phase["phase_a"] += time.perf_counter() - t0
 
         # ---- ② 変化検出(P6) ----
@@ -648,7 +1362,34 @@ def run_day(
         lo, hi = int(b_start[tick]), int(b_start[tick + 1])
         if hi > lo:
             p_agent = b_agent[lo:hi]
-            p_cond = boundary_condition[b_slot[lo:hi]]
+            p_cond = b_cond[lo:hi]
+            # ---- D-62 (a): 就寝境界は**エンジンが実行する**(LLM を呼ばない) ----
+            # 非就寝の境界は逆に「起こしてから呼ぶ」(呼が繰り延べ・抑止で落ちても起きる)。
+            if plan_sleep:
+                to_bed = p_cond == int(WakeCondition.PLAN_SLEEPING)
+                if presence is not None:
+                    # **D-66**: 発火元は計画実行層(同じ位置・同じ resolve の口)。
+                    # 就寝地の既定は層が持つ ``home_cell``(域外常住は −1 のまま=職場で寝ない)。
+                    t0 = time.perf_counter()
+                    presence.step_plan_boundaries(tick)
+                    phase["presence"] += time.perf_counter() - t0
+                    if to_bed.any():
+                        p_agent = p_agent[~to_bed]
+                        p_cond = p_cond[~to_bed]
+                else:
+                    if to_bed.any():
+                        got = R.begin_planned_sleep(
+                            agents, world, p_agent[to_bed], b_cell[lo:hi][to_bed], tick,
+                            schedule=schedule,
+                        )
+                        for k, v in got.items():
+                            sleep_counts[k] = sleep_counts.get(k, 0) + int(v)
+                        p_agent = p_agent[~to_bed]
+                        p_cond = p_cond[~to_bed]
+                    if p_agent.size:
+                        sleep_counts["woke"] = sleep_counts.get("woke", 0) + R.wake_from_plan(
+                            agents, p_agent
+                        )
             p_class = np.fromiter(
                 (int(WAKE_CONDITION_CLASS[int(c)]) for c in p_cond),
                 dtype=np.int64,
@@ -676,48 +1417,232 @@ def run_day(
             s_cond = np.empty(0, dtype=np.int8)
             s_class = np.empty(0, dtype=np.int64)
 
+        # ---- ④′ 艦隊からの到着(前 tick 以前に発射した分)・**非ブロッキング** ----
+        # ③ の前に置く: 繰り延べになった呼をこの tick の起床候補へ合流させるため。
+        n_parse_errors_fleet = 0
+        if fleet_bridge is None and replay_inbox:
+            # ---- ④′-r 再生モードの「到着」(D-58)。**艦隊経路と同じ位置・同じ扱い** ----
+            # 逐次ループ宣言: この tick に届く件数ぶん(本番の poll と同じ件数)。
+            t0 = time.perf_counter()
+            for is_deferred, item in replay_inbox.pop(tick, ()):
+                if is_deferred:
+                    fleet_deferred.append(item)
+                    continue
+                res = item
+                fleet_waiting.discard(int(res.agent_id))
+                pending.append((
+                    max(res.t_apply, tick + 1), res.wake_class, res.agent_id,
+                    res.condition, res.text, res.action_code, _target_person(res.target),
+                ))
+                if not res.format_ok:
+                    n_parse_errors_fleet += 1
+                if conv is not None and res.condition == int(WakeCondition.CONVERSATION_TURN):
+                    conv.utterance(
+                        res.agent_id, tick, action=res.parse.action, comment=res.parse.comment
+                    )
+            phase["llm"] += time.perf_counter() - t0
+        if fleet_bridge is not None:
+            t0 = time.perf_counter()
+            if fleet_wait_s > 0.0 and fleet_bridge.client.outstanding:
+                fleet_bridge.client.wait_idle(timeout=fleet_wait_s)
+                phase["fleet_wait"] += time.perf_counter() - t0
+                t0 = time.perf_counter()
+            for res in fleet_bridge.poll(now_tick=tick):
+                if isinstance(res, FleetDeferred):
+                    fleet_deferred.append(
+                        (
+                            int(res.call.agent_id),
+                            int(res.call.condition),
+                            int(res.call.wake_class),
+                            int(res.call.wake_since),
+                        )
+                    )
+                    continue
+                fleet_waiting.discard(int(res.agent_id))
+                # t_apply = 起床 + δ_perc + δ_think(§2.4)。到着が遅れたぶんは
+                # **破棄せず**この tick 以降へ(締切超過=繰り延べアービタの趣旨)。
+                t_apply = res.tick + delta_think_ticks(res.lane, tick_seconds)
+                pending.append((
+                    max(t_apply, tick + 1), res.wake_class, res.agent_id,
+                    res.condition, res.text, res.action_code, _target_person(res.target),
+                ))
+                if not res.format_ok:
+                    n_parse_errors_fleet += 1
+                if conv is not None and res.condition == int(WakeCondition.CONVERSATION_TURN):
+                    conv.utterance(
+                        res.agent_id, tick, action=res.parse.action, comment=res.parse.comment
+                    )
+            phase["llm"] += time.perf_counter() - t0
+
+        # ---- 艦隊の繰り延べを起床候補へ再投入(不応期は免除・親決定 (a)・09-09) ----
+        if fleet_deferred:
+            f_agent = np.fromiter((x[0] for x in fleet_deferred), dtype=np.int64,
+                                  count=len(fleet_deferred))
+            f_cond = np.fromiter((x[1] for x in fleet_deferred), dtype=np.int8,
+                                 count=len(fleet_deferred))
+            f_class = np.fromiter((x[2] for x in fleet_deferred), dtype=np.int64,
+                                  count=len(fleet_deferred))
+            f_since = np.fromiter((x[3] for x in fleet_deferred), dtype=np.int64,
+                                  count=len(fleet_deferred))
+            # 「答えが来なかった」呼は起床の抑止対象ではない=張った不応期を戻す。
+            R.clear_refractory(agents, f_agent, f_cond)
+            n_fleet_reinjected += len(fleet_deferred)
+            fleet_deferred.clear()
+        else:
+            f_agent = np.empty(0, dtype=np.int64)
+            f_cond = np.empty(0, dtype=np.int8)
+            f_class = np.empty(0, dtype=np.int64)
+            f_since = np.empty(0, dtype=np.int64)
+
+        # ---- 就寝抑止の例外印(D-56・ユーザー決定 (a)・09-10) ----
+        # **源で決める**(条件では区別できない: 顕著行為も変化検出も ``CELL_BLOCK``)。
+        # 計画境界 p / 会話 c / 顕著行為 s = 通す・変化検出 d = 落とす。
+        # 艦隊の再投入 f は源を持ち帰れないので**条件**で判定する(会話ターン 0 と
+        # ``PLAN_*`` 1-4 は通す)。顕著行為由来の再投入は ``CELL_BLOCK`` なので
+        # 就寝中なら落ちる(**過剰抑止をここに明記**・実害は「答えの返らなかった呼を
+        # 寝ている間は蒸し返さない」だけ)。
+        f_exempt = f_cond.astype(np.int64) <= int(WakeCondition.PLAN_TRANSIT)
+
         cands = WakeCandidates(
-            np.concatenate([p_agent, d_agent, c_agent, s_agent]),
-            np.concatenate([p_cond, d_cond.astype(np.int8), c_cond, s_cond]),
-            np.concatenate([p_class, d_class, c_class, s_class]),
-            np.full(
-                p_agent.size + d_agent.size + c_agent.size + s_agent.size,
-                tick, dtype=np.int64,
+            np.concatenate([p_agent, d_agent, c_agent, s_agent, f_agent]),
+            np.concatenate([p_cond, d_cond.astype(np.int8), c_cond, s_cond, f_cond]),
+            np.concatenate([p_class, d_class, c_class, s_class, f_class]),
+            np.concatenate(
+                [
+                    np.full(
+                        p_agent.size + d_agent.size + c_agent.size + s_agent.size,
+                        tick, dtype=np.int64,
+                    ),
+                    f_since,  # 再投入は**元の待ち始め**を保つ(昇格が巻き戻らない)
+                ]
+            ),
+            np.concatenate(
+                [
+                    np.ones(p_agent.size, dtype=bool),    # 計画境界(眠りから覚める境界を含む)
+                    np.zeros(d_agent.size, dtype=bool),   # 変化検出(内受容・セル変化)
+                    np.ones(c_agent.size, dtype=bool),    # 会話ターン
+                    np.ones(s_agent.size, dtype=bool),    # 顕著行為
+                    f_exempt,                             # 艦隊の再投入
+                ]
             ),
         )
 
-        # ---- ③ 繰り延べアービタ(§6) ----
+        # ---- ③ 繰り延べアービタ(§6)+ 就寝抑止(D-56) ----
         t0 = time.perf_counter()
-        decision = arbiter.step(tick, cands, agents.registry.refractory_until)
+        asleep_now = np.asarray(agents.registry.activity) == int(Activity.SLEEPING)
+        # ---- 起床率/時 の計測(D-62 の検証欄・a(h) との照合用) ----
+        # 測る場所は**アービタの直前**(この tick の候補を絞る時点の「起きている割合」)。
+        _h = (tick // 60) % 24
+        awake_sum[_h] += n_agents - int(np.count_nonzero(asleep_now))
+        awake_ticks[_h] += 1
+        asleep = asleep_now if sleep_suppression else None
+        # D-66 域外抑止: 舞台に居ない体(域外滞在 2 / 乗車中 1)は呼ばない
+        outside_now = np.asarray(agents.registry.transit_state) != 0
+        # **層が立つランだけ**効かせる(帰無腕 ``--no-plan-executor`` は現行挙動のまま=
+        # rail の乱数 12% で外に居る 600 体にも従来どおり呼が出る。checkpoint 不変の約束)。
+        outside_mask = outside_now if (outside_suppression and plan_exec_on) else None
+        decision = arbiter.step(
+            tick, cands, agents.registry.refractory_until, asleep=asleep,
+            outside=outside_mask,
+        )
+
         phase["arbiter"] += time.perf_counter() - t0
 
         # ---- ④ LLM 呼(応答は pending_apply へ) ----
         t0 = time.perf_counter()
         sel = decision.selected
+        # D-66 の監査点: **実際に発射した呼**のうち舞台に居ない体宛てだった数
+        # (抑止が効いていれば 0。帰無腕では 53% 前後まで上がる=層2 指摘の実測)。
+        if len(sel):
+            n_outside_calls += int(
+                np.count_nonzero(outside_now[sel.agent_id.astype(np.int64)])
+            )
         n_parse_errors = 0
         if len(sel):
-            R.set_refractory(agents, sel.agent_id, sel.condition, tick)
+            R.set_refractory(agents, sel.agent_id, sel.condition, tick, refractory_table)
             cell = agents.registry.cell
             act = agents.registry.activity
             hun = agents.registry.hunger
             last_act = agents.registry.last_action
-            # 逐次ループ宣言2: 選抜された呼数ぶん(平均 35/tick)
-            for i in range(len(sel)):
-                a = int(sel.agent_id[i])
-                cls = int(decision.selected_eff_class[i])
-                cond = int(sel.condition[i])
-                res = bridge.call(
-                    a, tick, cls, cond,
-                    cell=int(cell[a]), activity=int(act[a]), hunger=int(hun[a]),
-                    last_action=int(last_act[a]),
-                )
-                pending.append((res.t_apply, cls, a, cond, res.text, res.action_code))
-                if not res.format_ok:
-                    n_parse_errors += 1
-                if conv is not None and cond == int(WakeCondition.CONVERSATION_TURN):
-                    # 会話ターンの応答は**発話ブロック**(1呼=1ブロック・§3)
-                    conv.utterance(a, tick, action=res.parse.action, comment=res.parse.comment)
-            result.llm_calls += len(sel)
+            if fleet_bridge is None:
+                # 逐次ループ宣言2: 選抜された呼数ぶん(平均 35/tick)
+                for i in range(len(sel)):
+                    a = int(sel.agent_id[i])
+                    cls = int(decision.selected_eff_class[i])
+                    cond = int(sel.condition[i])
+                    res = bridge.call(
+                        a, tick, cls, cond,
+                        cell=int(cell[a]), activity=int(act[a]), hunger=int(hun[a]),
+                        last_action=int(last_act[a]),
+                        inviter=_inviter_of(conv, a, cond),
+                    )
+                    if res.deferred or res.observed_tick >= 0:
+                        # 艦隊で録ったテープの再生(D-58)。本番と同じ「発射→後で届く」形に戻す。
+                        if a in fleet_waiting:
+                            n_fleet_resent += 1
+                        fleet_waiting.add(a)
+                        if res.deferred:
+                            item = (a, cond, cls, int(sel.since_tick[i]))
+                            if res.observed_tick > tick:
+                                # タイムアウト等=**観測した tick** の ④′ で再投入される
+                                replay_inbox.setdefault(res.observed_tick, []).append((True, item))
+                            else:
+                                # キュー満杯=発射のその場で判明 → 翌 tick の再投入枠へ
+                                fleet_deferred.append(item)
+                            continue
+                        if res.observed_tick > tick:
+                            replay_inbox.setdefault(res.observed_tick, []).append((False, res))
+                            continue
+                        fleet_waiting.discard(a)  # 同 tick で届いた=待ちにならない
+                    pending.append((
+                        res.t_apply, cls, a, cond, res.text, res.action_code,
+                        _target_person(res.target),
+                    ))
+                    if not res.format_ok:
+                        n_parse_errors += 1
+                    if conv is not None and cond == int(WakeCondition.CONVERSATION_TURN):
+                        # 会話ターンの応答は**発話ブロック**(1呼=1ブロック・§3)
+                        conv.utterance(a, tick, action=res.parse.action, comment=res.parse.comment)
+            else:
+                # 逐次ループ宣言2′: 同じ呼数ぶん(描画は同じ・往復だけ非同期になる)
+                calls: list[LLMCall] = []
+                for i in range(len(sel)):
+                    a = int(sel.agent_id[i])
+                    cls = int(decision.selected_eff_class[i])
+                    cond = int(sel.condition[i])
+                    rendered = bridge.renderer.render(
+                        agent_id=a, tick=tick, cell=int(cell[a]), activity=int(act[a]),
+                        hunger=int(hun[a]), wake_class=cls, condition=cond,
+                        last_action=int(last_act[a]),
+                        inviter=_inviter_of(conv, a, cond),
+                    )
+                    sys_txt, usr_txt = split_system_user(
+                        rendered.text, rendered.blocks[0][1] if rendered.blocks else ""
+                    )
+                    if a in fleet_waiting:
+                        n_fleet_resent += 1
+                    fleet_waiting.add(a)
+                    calls.append(
+                        LLMCall(
+                            call_id=f"{tick}:{a}:{cls}",
+                            agent_id=a, tick=tick, wake_class=cls, condition=cond,
+                            prompt=rendered.text, system=sys_txt, user=usr_txt,
+                            blocks=rendered.blocks, lane=lane, cell=int(cell[a]),
+                            time_bucket=tick // TIME_BUCKET_TICKS,
+                            since_tick=int(sel.since_tick[i]),
+                            prompt_hash_hint=rendered.prompt_hash,
+                        )
+                    )
+                # 発射は**非ブロッキング**。返るのは「キューに入らなかった」分だけ。
+                for d in fleet_bridge.submit(calls, now_tick=tick):
+                    fleet_deferred.append(
+                        (int(d.call.agent_id), int(d.call.condition),
+                         int(d.call.wake_class), int(d.call.wake_since))
+                    )
+            result.llm_calls += len(sel)  # L4 の呼数=**発射数**(再送も 1 呼・親決定 09-09)
+            result.calls_by_hour[(tick // 60) % 24] += len(sel)  # D-56 の検証欄
+        # 艦隊経路の書式エラーは ④′(到着時)で数える=選抜が 0 の tick でも計上する
+        n_parse_errors += n_parse_errors_fleet
         peak_pending = max(peak_pending, len(pending))
         peak_backlog = max(peak_backlog, arbiter.n_pending())
         phase["llm"] += time.perf_counter() - t0
@@ -753,42 +1678,92 @@ def run_day(
         )
         phase["phase_c"] += time.perf_counter() - t0
         phase["movement"] += outcome.movement_seconds
+        phase["movement_cpu"] += outcome.movement_cpu_seconds
         result.fares_paid += outcome.fare_paid
         result.n_boarded += outcome.n_boarded
         result.n_alighted += outcome.n_alighted
         result.n_queued += outcome.n_queued
+        result.n_board_waiting += outcome.n_board_waiting
+        result.n_board_timeout += outcome.n_board_timeout
 
-        # ---- 会話セッション(行動契約書 §3): resolve の会話成立を招待として受ける ----
+        # ---- 会話セッション(行動契約書 §3・C6 で設計準拠化 09-09) ----
+        # ①返事待ちの被招待が答えていれば成立/不成立を確定 → ②新しい招待を捌く
+        # → ③期限切れの返事待ちを落とす。相手は **LLM が「対象」欄で名指しした個体**
+        # (``C.talk_partners``)。相手が同じ適用バッチに居なければ次 tick に
+        # ``WakeCondition.CONVERSATION_TURN`` で起こして本人の呼で答えさせる。
         if conv is not None:
+            cell_now = agents.registry.cell
+            act_now = agents.registry.activity
+            reverted: list[int] = []
+
+            def _revert(a: int) -> None:
+                """招待が流れた側を IDLE へ戻す候補に積む。
+
+                **すでに別のセッションに入っている個体は戻さない**(相互招待で
+                A→B と B→C が同時に立つと、B の招待が流れたときに B が A との
+                セッションから引き剥がされて片側だけ CONVERSING が残る)。
+                """
+                if a >= 0 and not conv.is_busy(int(a)):
+                    reverted.append(int(a))
+
+            # ①(返事待ちの解決)は **Phase C の前**に済んでいる(``_settle_pending_invites``)。
+
+            # ---- ② 新しい招待(resolve が通した 会話 を入口にする) ----
             talk = np.flatnonzero(plan.confirmed.action_code == C.ACT_TALK)
             if talk.size:
                 inviters = plan.confirmed.agent_id[talk].astype(np.int64)
                 invitees = plan.confirmed.target_id[talk].astype(np.int64)
-                cell_now = agents.registry.cell
-                act_now = agents.registry.activity
-                reverted: list[int] = []
-                # 逐次ループ宣言3: 会話成立数ぶん(≤ 1 tick の呼数)。個体数に比例しない。
+                # 逐次ループ宣言3b: 会話成立数ぶん(≤ 1 tick の呼数)。個体数に比例しない。
                 for j in range(inviters.size):
                     inviter = int(inviters[j])
                     invitee = int(invitees[j])
                     if invitee < 0 or invitee >= agents.n:
-                        reverted.append(inviter)
+                        _revert(inviter)
                         continue
                     if int(act_now[inviter]) != int(Activity.CONVERSING):
                         continue  # resolve が失敗させた(相手が会話中/去った)
-                    # 「相手idle」は resolve が §2.1 の前提として**適用時に**検査済み
-                    # (CONVERSING に変えたのは resolve 自身)。ここで再検査すると
-                    # 相互招待が必ず落ちるので、ゲートには通過済みとして渡す。
-                    opened = conv.invite(
-                        inviter, invitee, tick, int(cell_now[inviter]),
-                        same_cell=bool(cell_now[inviter] == cell_now[invitee]),
-                        partner_idle=True,
-                    )
-                    if opened is None:
-                        # 不応答(§3「無視された」)/ゲート却下 → 招待側を IDLE へ戻す(層2指摘)
-                        reverted.append(inviter)
-                if reverted:
-                    R.revert_conversation(agents, np.array(reverted, dtype=np.int64))
+                    same_cell = bool(cell_now[inviter] == cell_now[invitee])
+                    b_code, b_named = applied_now.get(invitee, (-1, -1))
+                    # **相互指名**= 相手も自分の呼で**こちらを名指しして** 会話 と答えた。
+                    # (エンジンが解決した対象ではなく LLM が書いた対象で見る=中-2)
+                    mutual = b_code == C.ACT_TALK and b_named == inviter
+                    if mutual and conv.invite_blocked_by_refractory(inviter, invitee, tick):
+                        conv.n_invite_refractory_blocked += 1  # 軽-5: 相互指名も不応期の対象
+                        _revert(inviter)
+                        continue
+                    if mutual:
+                        # その場で成立。相手の意思は相手自身の呼に出ているので抽選は引かない。
+                        conv.n_invites += 1
+                        conv.stamp_invite_refractory(inviter, invitee, tick)
+                        opened = conv.invite(
+                            inviter, invitee, tick, int(cell_now[inviter]),
+                            same_cell=same_cell, partner_idle=True, answered=True,
+                        )
+                        if opened is None:
+                            _revert(inviter)  # 内訳は ``conv.invite`` が数える
+                        else:
+                            conv.n_accepted += 1
+                            R.set_conversing(
+                                agents,
+                                np.array([inviter], dtype=np.int64),
+                                np.array([invitee], dtype=np.int64),
+                            )
+                    else:
+                        # 相手はまだ**招待を見ていない**(この tick の相手の応答は
+                        # 招待の載っていないプロンプトへの答え)→ **次 tick に被招待で
+                        # 起こして本人に答えさせる**(知覚契約書 §6 起床(ii))。
+                        # 招待側は CONVERSING のまま待つ。
+                        if not conv.register_pending(
+                            inviter, invitee, tick, int(cell_now[inviter]),
+                            same_cell=same_cell,
+                        ):
+                            _revert(inviter)
+
+            # ---- ③ 期限切れの返事待ち(「無視された」=呼を消費しない) ----
+            for stale in conv.expire_pending(tick):
+                _revert(stale)
+            if reverted:
+                R.revert_conversation(agents, np.array(sorted(set(reverted)), dtype=np.int64))
             finished = conv.step(tick, cell=agents.registry.cell)
             if finished:
                 # 終了したセッションの参加者を解放する(行動契約書 §3「終了はエンジン」)。
@@ -821,17 +1796,81 @@ def run_day(
                 n_parse_errors,
                 bridge.n_tape_misses - prev_tape_misses,
                 (conv.n_opened - prev_sessions) if conv is not None else 0,
+                decision.n_sleep_suppressed,  # D-56
+                decision.n_outside_suppressed,  # D-66
             )
         )
         prev_tape_misses = bridge.n_tape_misses
         prev_sessions = conv.n_opened if conv is not None else 0
+        if outcome.n_planned_sleep:  # 就寝地へ着いて寝たぶん(D-62 意図の保持)
+            sleep_counts["arrived"] = (
+                sleep_counts.get("arrived", 0) + int(outcome.n_planned_sleep)
+            )
 
+        if presence is not None:
+            presence.sample(tick)  # 正時の在圏・計画一致率(在圏 journal と同じ位置)
+        if occupancy_every and tick % occupancy_every == 0:
+            occ_ticks.append(int(tick))
+            occ_counts.append(np.asarray(world.cells.density, dtype=np.int32).copy())
+            _k = np.asarray(agents.registry.field("kind"), dtype=np.int64)
+            _c = np.asarray(agents.registry.cell, dtype=np.int64)
+            _ok = (_c >= 0) & (_c < world.n_cells)
+            _kc = np.bincount(_k[_ok] * world.n_cells + _c[_ok], minlength=9 * world.n_cells)[: 9 * world.n_cells]
+            occ_kind.append(_kc.reshape(9, world.n_cells).astype(np.int32))
+            # D-66: 種別 × 在圏/乗車中/域外(9×3)。**既存キーは 1 本も変えない**
+            # (``tools/c7`` は無改造で読める=知らないキーは無視される)。
+            _ts = np.clip(np.asarray(agents.registry.transit_state, dtype=np.int64), 0, 2)
+            _tk = np.bincount(_k * 3 + _ts, minlength=27)[:27]
+            occ_transit.append(_tk.reshape(9, 3).astype(np.int32))
         if checkpoint_every and ((tick + 1) % checkpoint_every == 0 or tick == ticks - 1):
             t0 = time.perf_counter()
             result.checkpoints.append(
-                Checkpoint(tick, agents.state_hash(), world.state_hash())
+                Checkpoint(
+                    tick, agents.state_hash(), world.state_hash(),
+                    schedule.population_hash,
+                    schedule_hash,
+                )
             )
             phase["checkpoint"] += time.perf_counter() - t0
+
+    # ---- 艦隊の残りを吸い切る(**捨てない**)。テープを閉じる前に置く ----
+    if fleet_bridge is not None:
+        n_late = 0
+        # ``now_tick=ticks``= ラン終端(最後の tick の 1 つ先)。再生側はこの値の項目を
+        # 「tick ループ中には届かなかった」として同じ位置で処理する(D-58)。
+        for res in fleet_bridge.drain(now_tick=ticks):
+            if isinstance(res, FleetDeferred):
+                fleet_deferred.append(
+                    (int(res.call.agent_id), int(res.call.condition),
+                     int(res.call.wake_class), int(res.call.wake_since))
+                )
+                continue
+            n_late += 1
+            pending.append((
+                res.tick + delta_think_ticks(res.lane, tick_seconds), res.wake_class,
+                res.agent_id, res.condition, res.text, res.action_code,
+                _target_person(res.target),
+            ))
+        result.fleet_drained_at_end = n_late
+        # ラン終端でも答えが返らなかった呼(**次ランへ持ち越す**の監査点。0 が正常)
+        result.fleet_unanswered_at_end = len(fleet_deferred)
+        fleet_bridge.close()
+    elif replay_inbox:
+        # ---- 再生の終端処理(D-58): tick ループ中に届かなかった分=本番の drain 相当 ----
+        n_late = 0
+        for t in sorted(replay_inbox):  # 逐次ループ宣言: 残件数ぶん(通常 0)
+            for is_deferred, item in replay_inbox[t]:
+                if is_deferred:
+                    fleet_deferred.append(item)
+                    continue
+                n_late += 1
+                pending.append((
+                    item.t_apply, item.wake_class, item.agent_id, item.condition,
+                    item.text, item.action_code, _target_person(item.target),
+                ))
+        replay_inbox.clear()
+        result.fleet_drained_at_end = n_late
+        result.fleet_unanswered_at_end = len(fleet_deferred)
 
     bridge.close()
     result.runner = runner  # type: ignore[attr-defined]
@@ -875,16 +1914,76 @@ def run_day(
             result.census_row = dict(row)
             result.census_pass = bool(row.get("gate_ok", False))
     result.bridge_counters = dict(bridge.counters())
+    if fleet_bridge is not None:
+        result.bridge_counters.update(fleet_bridge.counters())
+        result.bridge_counters["fleet_reinjected"] = float(n_fleet_reinjected)
+        result.bridge_counters["fleet_resent"] = float(n_fleet_resent)
+        result.fleet_fields = dict(fleet.config.manifest_fields())
+    elif n_fleet_reinjected or n_fleet_resent:
+        # 再生が艦隊テープの繰り延べを再現したときだけ出す(D-58)。
+        # mock ランは従来どおり ``fleet_*`` の欄を持たない(退化検査の約束)。
+        result.bridge_counters["fleet_reinjected"] = float(n_fleet_reinjected)
+        result.bridge_counters["fleet_resent"] = float(n_fleet_resent)
     result.conversation_counters = dict(conv.counters()) if conv is not None else {}
+    if conv is not None:
+        # 会話の相手の由来(行動契約書 §1-2 の対象スロットが効いているかの監査点)。
+        result.conversation_counters["conv_target_named"] = int(talk_stats.get("talk_named", 0))
+        result.conversation_counters["conv_fallback_same_batch"] = int(
+            talk_stats.get("talk_fallback", 0)
+        )
+        result.conversation_counters["conv_target_absent"] = int(talk_stats.get("talk_absent", 0))
     if conv is not None:
         # 層2指摘の固定: 日末に CONVERSING の個体は活動セッションの参加者だけ(被招待側は C4 まで IDLE)
         result.conversation_counters["conversing_agents_end"] = int(
             np.count_nonzero(agents.registry.activity == int(Activity.CONVERSING))
         )
     result.renderer_counters = dict(perception.counters()) if perception is not None else {}
+    result.frozen_sources = frozen_sources_map
     result.renderer_name = (
         "perception.Renderer" if perception is not None else type(renderer_obj).__name__
     )
+    # 実際に描いた腕(注入レンダラなら**そちらの値**が正)。§3.2 ablation ① の同定欄。
+    result.budget_mode = BudgetMode.parse(
+        getattr(getattr(perception, "renderer", None), "budget_mode", budget_mode_enum)
+        if perception is not None
+        else budget_mode_enum
+    ).value
+    # ablation 第1陣 ②③⑥ の腕(manifest の同定欄)。⑥ は**実際に描いた側**が正。
+    result.p_notice_ablation = _pnotice_ablation_name(
+        runner.salient.ablation if runner is not None else p_notice_ablation
+    )
+    result.p_notice_d50_scale = (
+        float(runner.salient.d50_scale) if runner is not None else float(p_notice_d50_scale)
+    )
+    result.refractory_scale = dict(refractory_scale_norm)
+    result.signage = bool(
+        getattr(getattr(perception, "renderer", None), "signage_enabled", signage)
+        if perception is not None
+        else signage
+    )
+    result.sleep_suppression = bool(sleep_suppression)
+    result.plan_sleep = bool(plan_sleep)
+    result.wake_rate_by_hour = [
+        (awake_sum[h] / (awake_ticks[h] * n_agents)) if (awake_ticks[h] and n_agents) else 0.0
+        for h in range(24)
+    ]
+    if presence is not None:
+        for _k, _v in presence.sleep_counts.items():
+            sleep_counts[_k] = sleep_counts.get(_k, 0) + int(_v)
+    result.planned_sleep_counts = dict(sleep_counts)
+    result.plan_executor = bool(plan_exec_on)
+    result.outside_suppression = bool(outside_suppression and plan_exec_on)
+    result.outside_wake_candidates = int(n_outside_calls)
+    result.exit_mode = str(exit_mode)
+    result.attendance_rate = float(attendance_rate)
+    result.derive_rule = str(derive_rule)
+    if presence is not None:
+        result.presence_counters = dict(presence.counters())
+        result.presence_summary = presence.summary()
+        # 標本の無かった時(短いラン)は NaN のまま来るので 0.0 に落とす(推測で埋めない)
+        result.wake_rate_in_area_by_hour = [
+            (0.0 if v != v else round(float(v), 6)) for v in presence.wake_in_area_by_hour
+        ]
     result.diagnostics = np.asarray(diag_rows, dtype=np.int64).reshape(-1, len(DIAG_RUN_COLUMNS))
     result.phase_seconds = phase
     result.wall_seconds = time.perf_counter() - t_start
@@ -933,10 +2032,93 @@ def run_day(
     result.world = world  # type: ignore[attr-defined]
     result.schedule = schedule  # type: ignore[attr-defined]
     result.ledger = ledger  # type: ignore[attr-defined]
+    if occupancy_path and occ_ticks:
+        import json as _json
+        np.savez_compressed(
+            str(occupancy_path),
+            ticks=np.asarray(occ_ticks, dtype=np.int64),
+            cell_counts=np.stack(occ_counts),
+            kind_cell_counts=np.stack(occ_kind),
+            transit_kind_counts=np.stack(occ_transit),
+            meta=np.asarray(_json.dumps({"tick_seconds": int(tick_seconds), "start_hour": 0, "day_index": int(day_index)}, ensure_ascii=False)),
+        )
     return result
 
 
 # ------------------------------------------------------------------ CLI
+def add_fleet_args(ap: "argparse.ArgumentParser") -> None:
+    """実艦隊の共通引数(``engine.run`` と ``shibuya.cli`` で同じ綴りにするため 1 か所に置く)。
+
+    ``--mode`` は **run manifest の実行モード**(smoke/calibration/holdout/ablation/production・
+    運用設計書 §1.2)であって、``run_day(mode=...)`` の record/replay ではない。
+    ``cache_salt`` の勘定分離(較正と holdout が prefix キャッシュを共有しない)に効く。
+    """
+    from shibuya.llm.fleet import DEFAULT_T1_MAX_TOKENS, DEFAULT_TEMPERATURE
+    from shibuya.manifest.schema import Mode as _Mode
+
+    ap.add_argument("--llm", choices=("mock", "fleet"), default="mock",
+                    help="LLM 経路(fleet=実 vLLM 艦隊・--endpoints 必須)")
+    ap.add_argument("--endpoints", type=str, default="",
+                    help="カンマ区切り http://host:port(既定艦隊は 7 本=xxhash(call_id) mod 7)")
+    ap.add_argument("--model", type=str, default="",
+                    help="served-model-name(空なら /v1/models の先頭)")
+    ap.add_argument("--mode", choices=[m.value for m in _Mode], default="smoke",
+                    help="実行モード(cache_salt の勘定分離・record/replay とは別物)")
+    ap.add_argument("--run-id", type=str, default="",
+                    help="manifest の run_id(cache_salt の第2要素)")
+    ap.add_argument("--tape", type=str, default="", help="録画テープの出力先ディレクトリ")
+    ap.add_argument(
+        "--temperature", type=float, default=DEFAULT_TEMPERATURE,
+        help=("T1 の温度(既定 0.7=知覚契約書 §2.5/卒業条件表・運用設計書 §1.3 の本番値。"
+              "運用設計書 §1.2 の設定節は欄形だけで数値を持たない)"),
+    )
+    ap.add_argument(
+        "--max-tokens", type=int, default=DEFAULT_T1_MAX_TOKENS,
+        help="T1 の max_tokens(既定 96=2 行形の最大 ≒70 tok に余裕・expedient)",
+    )
+    ap.add_argument(
+        "--fleet-debug-dir", type=str, default="",
+        help=("書式の原因分析用 jsonl の置き場(既定 off・診断のみ)。初回パースが落ちた呼の "
+              "プロンプト/初回の生応答/再生成の生応答/実効・厳密の判定/理由 を 1 行 1 呼で書く"),
+    )
+    ap.add_argument("--fleet-wait-s", type=float, default=0.0,
+                    help="④′ で未応答が残るとき tick ごとに最大この秒数だけ艦隊を待つ(既定 0=純非ブロッキング・スモーク用)")
+    ap.add_argument("--fleet-queue-capacity", type=int, default=0,
+                    help=("艦隊の受理待ち+実行中の合計上限(既定 0=FleetConfig の既定 max_in_flight×4)。"
+                          "C7 本番(D-55/D-58): 計画呼数 2,709/tick に対し既定 1,792 だと 33.8%% が queue full で"
+                          "繰り延べ→テープに残らず再生不能。計画呼数以上(例 4096)にすると繰り延べ ≈0"))
+
+
+def fleet_from_args(args: Any, ap: "argparse.ArgumentParser | None" = None) -> FleetClient | None:
+    """``add_fleet_args`` の結果 → ``FleetClient``(``--llm mock`` なら ``None``)。"""
+    from shibuya.llm.fleet import FleetConfig
+    from shibuya.manifest.schema import Mode as _Mode
+
+    if getattr(args, "llm", "mock") != "fleet":
+        return None
+    eps = tuple(e.strip() for e in str(args.endpoints).split(",") if e.strip())
+    if not eps:
+        msg = "--llm fleet には --endpoints(カンマ区切り http://host:port)が要る"
+        if ap is not None:
+            ap.error(msg)
+        raise SystemExit(msg)
+    from shibuya.llm.fleet import DEFAULT_T1_MAX_TOKENS, DEFAULT_TEMPERATURE
+
+    return FleetClient(
+        FleetConfig(
+            endpoints=eps,
+            model=str(args.model),
+            mode=_Mode(args.mode),
+            run_id=str(getattr(args, "run_id", "")),
+            run_seed=int(getattr(args, "seed", 0)),
+            temperature=float(getattr(args, "temperature", DEFAULT_TEMPERATURE)),
+            t1_max_tokens=int(getattr(args, "max_tokens", DEFAULT_T1_MAX_TOKENS)),
+            # 0/未指定なら None=既定(max_in_flight×4)。C7 D-58 の回し直しで計画呼数以上を渡す。
+            queue_capacity=(int(getattr(args, "fleet_queue_capacity", 0) or 0) or None),
+        )
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     """``python -m shibuya.engine.run --agents 5000 --seed 1 --world data/world/v2``。"""
     ap = argparse.ArgumentParser(description="C2 エンジンの 1 シミュ日 mock ラン(予算行 W2)")
@@ -951,8 +2133,26 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--growth-yaml", action="store_true", help="状態成長宣言 YAML を出力して終了")
     ap.add_argument("--no-processes", action="store_true",
                     help="世界過程(C4 第1陣)を止める(ablation の下限対照)")
+    ap.add_argument("--no-population", action="store_true",
+                    help="W16 母集団を使わず合成個体で回す(下限対照)")
     ap.add_argument("--ablate", action="append", default=[],
                     help="止める過程(過程 id か AB-* の感度試験 id・複数可)")
+    ap.add_argument("--no-sleep-suppression", action="store_true",
+                    help="D-56 就寝抑止を切る(=D-56 前の挙動・帰無腕)")
+    ap.add_argument("--no-plan-sleep", action="store_true",
+                    help="D-62「就寝は計画の実行」を切る(=D-62 前の挙動・帰無腕。"
+                         "就寝境界も LLM に判断させ・tick 0 は全員 SLEEPING)")
+    ap.add_argument("--no-plan-executor", action="store_true",
+                    help="D-66 計画実行層(engine.presence)を切る(=現行挙動・帰無腕)")
+    ap.add_argument("--exit-mode", choices=PRESENCE_EXIT_MODES, default="immediate",
+                    help="退出の実行形(immediate のみ実装・他は予約)")
+    ap.add_argument("--attendance-rate", type=float, default=1.0, metavar="RATE",
+                    help="出勤率(D-67 (b)・expedient E6・既定 1.0)")
+    ap.add_argument("--derive-rule", choices=PRESENCE_DERIVE_RULES, default="v2",
+                    help="在圏ブロックの読み口(v2=§2 追補・v1=原則のまま)")
+    ap.add_argument("--no-outside-suppression", action="store_true",
+                    help="D-66 域外抑止を切る(=D-66 前の挙動・帰無腕)")
+    add_fleet_args(ap)
     args = ap.parse_args(argv)
 
     if args.growth_yaml:
@@ -968,8 +2168,20 @@ def main(argv: list[str] | None = None) -> int:
         checkpoint_every=args.checkpoint_every,
         day_index=args.day,
         world_dir=args.world,
+        fleet=fleet_from_args(args, ap),
+        fleet_wait_s=float(args.fleet_wait_s),
+        fleet_debug_dir=args.fleet_debug_dir or None,
+        tape_path=args.tape or None,
         processes=not args.no_processes,
         processes_disabled=tuple(args.ablate) or None,
+        population=False if args.no_population else None,
+        sleep_suppression=not args.no_sleep_suppression,
+        plan_sleep=not args.no_plan_sleep,
+        plan_executor=not args.no_plan_executor,
+        exit_mode=str(args.exit_mode),
+        attendance_rate=float(args.attendance_rate),
+        derive_rule=str(args.derive_rule),
+        outside_suppression=not args.no_outside_suppression,
     )
     print(res.summary())
     return 0 if (res.conserved and res.min_stock >= 0) else 1

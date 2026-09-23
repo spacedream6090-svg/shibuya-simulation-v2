@@ -1,5 +1,10 @@
 # KDDI Location Analyzer 属性構成(2024年・手元生データla_raw.jsonから親が再集計・2026-09-03)
 
+<!-- hdr:v1 -->
+- **分野**: 人口学・合成人口論 #1 | **重要度**: P1(親判断・2026-09-15 第191)
+- **一次確認**: **E** = 出典不要(親自身の一次作業) — 親が手元生データ la_raw.json から再集計。外部出典不要
+- **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
+
 > 滞在人口=5エリア/通行人口=3街路。値=年合算のシェア。台帳アンカー候補(弱・holdout)。ダッシュボード表示値との突合済み(月別総計一致)。
 
 ## 滞在×性別

@@ -40,7 +40,17 @@ W8_PRECOMPUTE_BUDGET_S = 300.0
 #: 予算書 M10。
 M10_BYTES = 512 * 1024 * 1024
 #: W8/W9 の前段(可視性・監査レーンを除く全段階)。
-_UPSTREAM = [s for s in build_run.RUN_ORDER if s not in ("W8", "W9", "W18", "W19", "W20")]
+# W8 の上流=地理(GEO)と場(FIELD)の段階だけ。可視性(VIS)・静的言語化(LANG・W15 は W8 出力を読む)・
+# 母集団(POP)・監査(AUDIT)は W8 の下流なので除く(09-09: W14/W15 登録で明示化)。
+_UPSTREAM = [
+    s
+    for s in build_run.RUN_ORDER
+    if s not in build_run.VIS_STAGES
+    and s not in build_run.LANG_STAGES
+    and s not in build_run.POP_STAGES
+    and s not in build_run.SCHED_STAGES
+    and s not in build_run.AUDIT_STAGES
+]
 
 
 @pytest.fixture(scope="module")

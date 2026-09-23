@@ -15,6 +15,15 @@
   1呼=1回で個体数・tick 数に比例しない。裁定(段2)は「新しい語が閾値に達したとき」だけ
   1呼(``LLMClient.complete``)で、常設の逐次ループではない。
 
+C6 段0 の拡張(2026-09-09・実 LLM スモークのテープが根拠)
+- 初回スモーク(5,000体×24tick・Qwen3-8B INT8・温度0)で**未定義行動 43 件**。中身は語彙外の
+  行動語(探索・観察・調査・探す・調べる)。契約書 §7 段0「辞書写像」の**枠内**で表を広げた
+  (``SYNONYMS_C6``・語彙12語+役割語は不変)。方針は既存表に合わせ、
+  **移動を伴う探索**は ``移動``・**その場の観察/確認**は ``待機``(既存の「様子を見る→待機」に接続)。
+- 第2弾(``--fleet-debug-dir``・60tick・2,083呼): ``unknown_action_word`` 96 の内訳は
+  探索 50・**通勤 16**・観察 9・調査 ほか。通勤系(通勤/通学/出勤/退勤/出社/登校)を ``移動`` へ。
+  **``通報``・``退去``・``購入`` は §2.1 の12語そのもの**なので辞書には入れない(語彙一致で通る)。
+
 expedient(本モジュール分)
 - **辞書表(段0)の中身と版**(``SYNONYM_TABLE_VERSION``)。契約書は「辞書写像」としか
   言わず語を与えていない。品質プローブv0 ``tools/quality_probe_v0/scorer.py`` の
@@ -47,6 +56,7 @@ from shibuya.llm.contract import (
 __all__ = [
     "SYNONYM_TABLE_VERSION",
     "SYNONYMS",
+    "SYNONYMS_C6",
     "TARGET_HINTS",
     "FALLBACK_ACTIONS",
     "ADJUDICATION_TEMPLATE",
@@ -62,10 +72,12 @@ __all__ = [
 ]
 
 #: 辞書表の版(**expedient**・表を変えたら上げる。ランの manifest に載せる想定)。
-SYNONYM_TABLE_VERSION: Final[str] = "undefined-synonyms-v0"
+#: v1 = C6 初回スモークの語彙外行動語(探索・観察・調査・探す・調べる)を足した版。
+#: v2 = ``--fleet-debug-dir`` の実測(``unknown_action_word`` 96)で出た通勤系を足した版。
+SYNONYM_TABLE_VERSION: Final[str] = "undefined-synonyms-v2"
 
 #: 段0 辞書写像(表層の言い換え → 契約語彙)。**ゼロ呼**。
-SYNONYMS: Final[Mapping[str, str]] = {
+_SYNONYMS_V0: Final[Mapping[str, str]] = {
     # 移動
     "歩く": "移動",
     "歩いていく": "移動",
@@ -155,6 +167,43 @@ SYNONYMS: Final[Mapping[str, str]] = {
     "写真を撮る": "撮影",
     "撮る": "撮影",
 }
+
+#: C6 で足した段0 の写像(**expedient**・実スモークの語彙外行動語)。
+#: 方針: **移動を伴う探索 → 移動**(対象はエンジンが決める=ヒントは付けない) /
+#: **その場の観察・確認 → 待機**(既存の「様子を見る→待機」と同じ扱い・失敗しない行)。
+SYNONYMS_C6: Final[Mapping[str, str]] = {
+    # 探索(locomotion を伴う)→ 移動
+    "探す": "移動",
+    "探し": "移動",  # 探して/探した/探しに行く(部分一致の受け皿)
+    "探索": "移動",
+    "探る": "移動",
+    "見回る": "移動",
+    "歩き回る": "移動",
+    "うろつく": "移動",
+    "散策": "移動",
+    # 通勤・通学(目的地つきの locomotion)→ 移動。**対象(職場/学校セル)はエンジンの仕事**
+    # なので ``TARGET_HINTS`` は足さない(``home`` に相当する印は未定義=親判断待ち)。
+    "通勤": "移動",
+    "通学": "移動",
+    "出勤": "移動",
+    "退勤": "移動",
+    "出社": "移動",
+    "登校": "移動",
+    "進入": "移動",  # ``退去`` は §2.1 の語彙なので辞書に要らない(対になる語だけ足す)
+    # 観察・確認(その場に留まる)→ 待機
+    "観察": "待機",
+    "眺める": "待機",
+    "見物": "待機",
+    "見学": "待機",
+    "確認": "待機",
+    "調べる": "待機",
+    "調べ": "待機",  # 調べて/調べた
+    "調査": "待機",
+    "チェック": "待機",
+}
+
+#: 段0 辞書写像の全体(``_SYNONYMS_V0`` ∪ ``SYNONYMS_C6``)。
+SYNONYMS: Final[Mapping[str, str]] = {**_SYNONYMS_V0, **SYNONYMS_C6}
 
 #: 語に付随する対象のヒント(**対象の決定はエンジンの仕事**・ここでは印だけ付ける)。
 TARGET_HINTS: Final[Mapping[str, str]] = {
@@ -263,6 +312,11 @@ class UndefinedOutcome:
     def mapped(self) -> bool:
         return self.word is not None
 
+    @property
+    def action_from_dictionary(self) -> bool:
+        """段0 の**辞書写像**で契約語彙が入ったか(段4 の判例参照は含めない・C6 診断名)。"""
+        return self.stage == 0 and self.source == "dictionary" and self.word is not None
+
 
 def undefined_feedback(word: str, actions: Sequence[str] = FALLBACK_ACTIONS) -> str:
     """段1 の失敗フィードバック文面(**文面凍結**)。"""
@@ -345,6 +399,8 @@ class UndefinedActionRegistry:
         self._agents: dict[str, set[int]] = {}
         self.n_dropped_records = 0
         self.n_adjudication_calls = 0
+        #: 段0 の辞書写像で救えた件数(C6 診断・``counters()["dictionary_mapped"]``)。
+        self.n_dictionary_mapped = 0
 
     # ---------------------------------------------------------------- 観測
     def observe(
@@ -372,6 +428,7 @@ class UndefinedActionRegistry:
         # 段0: 辞書写像(ゼロ呼)
         mapped, hint = map_synonym(word, self.precedents)
         if mapped is not None:
+            self.n_dictionary_mapped += 1
             return UndefinedOutcome(
                 stage=0, word=mapped, action_code=action_code_of(mapped),
                 target_hint=hint, source="dictionary",
@@ -497,6 +554,7 @@ class UndefinedActionRegistry:
             "undefined_records": int(sum(self.counts.values())),
             "undefined_words": len(self.counts),
             "undefined_dropped": int(self.n_dropped_records),
+            "dictionary_mapped": int(self.n_dictionary_mapped),
             "proposals": len(self.proposals),
             "needs_parent_review": sum(
                 1 for p in self.proposals.values() if p.needs_parent_review

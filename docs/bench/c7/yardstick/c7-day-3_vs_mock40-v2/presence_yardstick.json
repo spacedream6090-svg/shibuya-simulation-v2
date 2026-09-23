@@ -1,0 +1,1314 @@
+{
+ "schema": "shibuya.tools.c7/presence_yardstick/1",
+ "anchors_path": "<repo>/docs\\bench\\anchors\\presence_anchors_v0.json",
+ "anchors_version": "v0",
+ "anchors_echo": {
+  "core9_daytime_population": 130167,
+  "core9_night_population": 8810,
+  "core9_day_night_ratio": 14.8,
+  "pt_area_daytime_peak": 145000,
+  "night_presence_low": 15000,
+  "night_presence_high": 30000,
+  "attendance_rate": 0.88,
+  "sources": {
+   "core9_daytime_population": "東京都 令和2年国勢調査による東京都の昼間人口 第11表(推計) https://www.toukei.metro.tokyo.lg.jp/tyukanj/2020/tj20zv1100.csv",
+   "core9_night_population": "東京都 令和2年国勢調査による東京都の昼間人口 第11表(推計) https://www.toukei.metro.tokyo.lg.jp/tyukanj/2020/tj20zv1100.csv",
+   "core9_day_night_ratio": "東京都 令和2年国勢調査による東京都の昼間人口 第11表(推計) https://www.toukei.metro.tokyo.lg.jp/tyukanj/2020/tj20zv1100.csv",
+   "pt_area_daytime_peak": "内閣府 渋谷駅周辺地域都市再生安全確保計画策定業務 基礎調査 概要版 p.8 https://www.chisou.go.jp/tiiki/toshisaisei/yuushikisya/anzenkakuho/hojokin/27hojokin/27zigyouhoukoku-shibuya.pdf",
+   "night_presence_estimate": "docs/research/v2-d66-outside-residents-research.md §6-B(推定・限界3点を同節に明記)",
+   "wake_rate_tokyo_weekday": "総務省統計局 令和3年社会生活基本調査 調査票A 時間帯編 第4-1表(statInfId 000032224335) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224335&fileKind=0 / 転記元 docs/research/v2-c7-fix-research.md §2-A(親再計算済み)",
+   "homebound_boarding_time_dist_2015": "国土交通省 大都市交通センサス 第12回 https://www.mlit.go.jp/sogoseisaku/transport/sosei_transport_tk_000007.html (data/realworld/transport_census/time_dist_12.json より転記)",
+   "attendance_rate": "docs/research/v2-d66-outside-residents-research.md §5-C(推定・expedient)",
+   "full_population": "data/world/v2/acceptance/gate_table.md W16/W17 n_agents=390067"
+  },
+  "tags": {
+   "core9_daytime_population": "anchor",
+   "core9_night_population": "anchor",
+   "core9_day_night_ratio": "anchor",
+   "pt_area_daytime_peak": "anchor",
+   "night_presence_estimate": "estimate",
+   "wake_rate_tokyo_weekday": "anchor",
+   "homebound_boarding_time_dist_2015": "anchor",
+   "attendance_rate": "expedient",
+   "full_population": "anchor"
+  }
+ },
+ "no_pass_line": "合格線は持たない=距離と『近づいたか』の bool のみ(判定は親)。",
+ "after": {
+  "label": "c7-day-3",
+  "input": "journal",
+  "path": "data/runs/c7-day-3/occupancy.npz",
+  "summary_path": "docs/bench/c7/yardstick/after_c7-day-3_vs_c7-day-2/run_summary_c7-day-3.txt",
+  "n_agents": 390067,
+  "n_agents_source": "summary([run] n=)",
+  "scale": {
+   "target_population": 390067,
+   "factor": 1.0,
+   "tag": "expedient",
+   "note": "縮尺は線形(体数に比例)。混雑・待ち行列・容量は非線形なので絶対値の一致は主張しない=向きと桁を見るための列。"
+  },
+  "presence_by_hour": [
+   {
+    "hour": 0,
+    "five_area": 26254.0,
+    "bbox": 61382.0,
+    "five_area_scaled": 26254.0,
+    "bbox_scaled": 61382.0
+   },
+   {
+    "hour": 3,
+    "five_area": 29322.0,
+    "bbox": 64994.0,
+    "five_area_scaled": 29322.0,
+    "bbox_scaled": 64994.0
+   },
+   {
+    "hour": 6,
+    "five_area": 35964.0,
+    "bbox": 73153.0,
+    "five_area_scaled": 35964.0,
+    "bbox_scaled": 73153.0
+   },
+   {
+    "hour": 9,
+    "five_area": 172265.0,
+    "bbox": 232636.0,
+    "five_area_scaled": 172265.0,
+    "bbox_scaled": 232636.0
+   },
+   {
+    "hour": 12,
+    "five_area": 223643.0,
+    "bbox": 317597.0,
+    "five_area_scaled": 223643.0,
+    "bbox_scaled": 317597.0
+   },
+   {
+    "hour": 15,
+    "five_area": 190412.0,
+    "bbox": 272751.0,
+    "five_area_scaled": 190412.0,
+    "bbox_scaled": 272751.0
+   },
+   {
+    "hour": 18,
+    "five_area": 162142.0,
+    "bbox": 235954.0,
+    "five_area_scaled": 162142.0,
+    "bbox_scaled": 235954.0
+   },
+   {
+    "hour": 21,
+    "five_area": 92747.0,
+    "bbox": 147039.0,
+    "five_area_scaled": 92747.0,
+    "bbox_scaled": 147039.0
+   }
+  ],
+  "area_ids": [
+   "central",
+   "northwest",
+   "northeast",
+   "southeast",
+   "southwest"
+  ],
+  "area_hour_counts": [
+   [
+    6142.0,
+    9702.0,
+    3688.0,
+    2539.0,
+    4183.0
+   ],
+   [
+    7329.0,
+    10949.0,
+    4146.0,
+    2862.0,
+    4388.0
+   ],
+   [
+    6926.0,
+    11153.0,
+    4158.0,
+    3011.0,
+    4634.0
+   ],
+   [
+    5851.0,
+    11266.0,
+    4226.0,
+    3099.0,
+    4880.0
+   ],
+   [
+    5759.0,
+    11353.0,
+    4289.0,
+    3123.0,
+    4801.0
+   ],
+   [
+    5975.0,
+    11638.0,
+    4349.0,
+    3198.0,
+    4413.0
+   ],
+   [
+    8244.0,
+    13685.0,
+    5121.0,
+    3952.0,
+    4962.0
+   ],
+   [
+    12811.0,
+    22420.0,
+    7046.0,
+    5636.0,
+    6823.0
+   ],
+   [
+    31722.0,
+    48682.0,
+    13337.0,
+    13186.0,
+    11305.0
+   ],
+   [
+    40290.0,
+    71776.0,
+    20619.0,
+    20296.0,
+    19284.0
+   ],
+   [
+    45350.0,
+    93239.0,
+    28176.0,
+    26937.0,
+    28313.0
+   ],
+   [
+    39736.0,
+    98068.0,
+    28568.0,
+    28801.0,
+    32794.0
+   ],
+   [
+    32696.0,
+    98086.0,
+    29114.0,
+    27845.0,
+    35902.0
+   ],
+   [
+    22114.0,
+    92732.0,
+    29113.0,
+    27592.0,
+    38056.0
+   ],
+   [
+    17528.0,
+    86980.0,
+    26602.0,
+    26202.0,
+    36989.0
+   ],
+   [
+    16356.0,
+    85495.0,
+    25891.0,
+    25946.0,
+    36724.0
+   ],
+   [
+    13820.0,
+    84824.0,
+    25908.0,
+    25714.0,
+    37038.0
+   ],
+   [
+    13766.0,
+    82143.0,
+    25048.0,
+    24987.0,
+    36364.0
+   ],
+   [
+    14163.0,
+    72509.0,
+    22319.0,
+    21663.0,
+    31488.0
+   ],
+   [
+    15703.0,
+    58738.0,
+    18012.0,
+    17466.0,
+    23620.0
+   ],
+   [
+    14062.0,
+    49528.0,
+    15300.0,
+    14114.0,
+    19378.0
+   ],
+   [
+    10475.0,
+    41070.0,
+    12698.0,
+    11381.0,
+    17123.0
+   ],
+   [
+    7647.0,
+    32041.0,
+    10346.0,
+    8820.0,
+    14190.0
+   ],
+   [
+    5904.0,
+    26771.0,
+    8416.0,
+    7087.0,
+    11773.0
+   ]
+  ],
+  "ratios": {
+   "r_day_night_09_03": 5.8749,
+   "r_noon_night_12_03": 7.6271
+  },
+  "kind_at_03": {
+   "hour": 3,
+   "rows": [
+    {
+     "kind": 0,
+     "name": "通勤",
+     "d66": true,
+     "lodging": false,
+     "count_five_area": 2913.0,
+     "share_of_five_area": 0.0993,
+     "count_bbox": 3599.0,
+     "count_five_area_scaled": 2913.0
+    },
+    {
+     "kind": 1,
+     "name": "来街",
+     "d66": true,
+     "lodging": false,
+     "count_five_area": 66.0,
+     "share_of_five_area": 0.0023,
+     "count_bbox": 189.0,
+     "count_five_area_scaled": 66.0
+    },
+    {
+     "kind": 2,
+     "name": "従業",
+     "d66": false,
+     "lodging": false,
+     "count_five_area": 2283.0,
+     "share_of_five_area": 0.0779,
+     "count_bbox": 7077.0,
+     "count_five_area_scaled": 2283.0
+    },
+    {
+     "kind": 3,
+     "name": "住民",
+     "d66": false,
+     "lodging": false,
+     "count_five_area": 11093.0,
+     "share_of_five_area": 0.3783,
+     "count_bbox": 36534.0,
+     "count_five_area_scaled": 11093.0
+    },
+    {
+     "kind": 4,
+     "name": "指令",
+     "d66": false,
+     "lodging": false,
+     "count_five_area": 0.0,
+     "share_of_five_area": 0.0,
+     "count_bbox": 0.0,
+     "count_five_area_scaled": 0.0
+    },
+    {
+     "kind": 5,
+     "name": "通学",
+     "d66": false,
+     "lodging": false,
+     "count_five_area": 91.0,
+     "share_of_five_area": 0.0031,
+     "count_bbox": 174.0,
+     "count_five_area_scaled": 91.0
+    },
+    {
+     "kind": 6,
+     "name": "定期来街",
+     "d66": true,
+     "lodging": false,
+     "count_five_area": 24.0,
+     "share_of_five_area": 0.0008,
+     "count_bbox": 65.0,
+     "count_five_area_scaled": 24.0
+    },
+    {
+     "kind": 7,
+     "name": "訪日",
+     "d66": false,
+     "lodging": true,
+     "count_five_area": 12843.0,
+     "share_of_five_area": 0.438,
+     "count_bbox": 17344.0,
+     "count_five_area_scaled": 12843.0
+    },
+    {
+     "kind": 8,
+     "name": "乗務",
+     "d66": true,
+     "lodging": false,
+     "count_five_area": 9.0,
+     "share_of_five_area": 0.0003,
+     "count_bbox": 12.0,
+     "count_five_area_scaled": 9.0
+    }
+   ],
+   "five_area_total": 29322.0,
+   "d66_total": {
+    "kinds": [
+     "通勤",
+     "来街",
+     "定期来街",
+     "乗務"
+    ],
+    "count_five_area": 3012.0,
+    "share_of_five_area": 0.1027,
+    "count_five_area_scaled": 3012.0,
+    "note": "域外常住のはずの種別が深夜に域内に居る体数=D-66 の直接指標(訪日は宿泊施設で就寝=参考行・判定外・第173)。"
+   }
+  },
+  "wake_rate": {
+   "run": [
+    0.01,
+    0.103,
+    0.152,
+    0.163,
+    0.166,
+    0.195,
+    0.316,
+    0.632,
+    0.915,
+    0.988,
+    0.994,
+    0.996,
+    0.997,
+    0.997,
+    0.997,
+    0.998,
+    0.998,
+    0.999,
+    0.999,
+    1.0,
+    1.0,
+    0.999,
+    0.994,
+    0.98
+   ],
+   "anchor": [
+    0.205,
+    0.111,
+    0.057,
+    0.035,
+    0.053,
+    0.153,
+    0.407,
+    0.722,
+    0.867,
+    0.925,
+    0.952,
+    0.965,
+    0.978,
+    0.978,
+    0.978,
+    0.981,
+    0.985,
+    0.985,
+    0.989,
+    0.989,
+    0.977,
+    0.914,
+    0.749,
+    0.462
+   ],
+   "diff": [
+    -0.195,
+    -0.008,
+    0.095,
+    0.128,
+    0.113,
+    0.042,
+    -0.091,
+    -0.09,
+    0.048,
+    0.063,
+    0.042,
+    0.031,
+    0.019,
+    0.019,
+    0.019,
+    0.017,
+    0.013,
+    0.014,
+    0.01,
+    0.011,
+    0.023,
+    0.085,
+    0.245,
+    0.518
+   ],
+   "max_abs_diff": 0.518,
+   "max_abs_hour": 23,
+   "diff_03": 0.128,
+   "diff_12": 0.019,
+   "anchor_source": "総務省統計局 令和3年社会生活基本調査 調査票A 時間帯編 第4-1表(statInfId 000032224335) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224335&fileKind=0 / 転記元 docs/research/v2-c7-fix-research.md §2-A(親再計算済み)",
+   "anchor_caveat": "全個体に一律に掛ける値ではない(交替制勤務など 12.9% は 3 時の覚醒率 11.5%)。照合の材料であって目標値ではない。",
+   "basis": "in_area",
+   "basis_note": "定義=在圏の体の非就寝率(transit_state==0 の体のうち activity != SLEEPING)"
+  },
+  "planned_sleep": {
+   "slept": 2902,
+   "arrived": 1645,
+   "walking": 4618,
+   "woke": 41514,
+   "riding": 0,
+   "outside": 410876,
+   "conversing": 2,
+   "asleep": 61578,
+   "unreachable": 13498
+  },
+  "distance": {
+   "scaled": true,
+   "day_09_vs_core9_daytime": 1.3234,
+   "day_09_vs_pt_peak": 1.188,
+   "night_03_vs_core9_night": 3.3283,
+   "night_03_vs_estimate_high": 0.9774,
+   "night_03_in_estimate_band": true,
+   "night_03_band_gap": 0.0,
+   "values": {
+    "day_09": 172265.0,
+    "night_03": 29322.0
+   }
+  },
+  "meta": {
+   "input": "journal",
+   "path": "data/runs/c7-day-3/occupancy.npz",
+   "n_samples": 24,
+   "n_cells": 520,
+   "journal_meta": {
+    "tick_seconds": 60,
+    "start_hour": 0,
+    "day_index": 0
+   }
+  }
+ },
+ "before": {
+  "label": "mock40-v2",
+  "input": "journal",
+  "path": "data/runs/mock40-v2/occupancy.npz",
+  "summary_path": "data/runs/mock40-v2/summary.txt",
+  "n_agents": 390067,
+  "n_agents_source": "summary([run] n=)",
+  "scale": {
+   "target_population": 390067,
+   "factor": 1.0,
+   "tag": "expedient",
+   "note": "縮尺は線形(体数に比例)。混雑・待ち行列・容量は非線形なので絶対値の一致は主張しない=向きと桁を見るための列。"
+  },
+  "presence_by_hour": [
+   {
+    "hour": 0,
+    "five_area": 26254.0,
+    "bbox": 61382.0,
+    "five_area_scaled": 26254.0,
+    "bbox_scaled": 61382.0
+   },
+   {
+    "hour": 3,
+    "five_area": 29866.0,
+    "bbox": 65003.0,
+    "five_area_scaled": 29866.0,
+    "bbox_scaled": 65003.0
+   },
+   {
+    "hour": 6,
+    "five_area": 36320.0,
+    "bbox": 72418.0,
+    "five_area_scaled": 36320.0,
+    "bbox_scaled": 72418.0
+   },
+   {
+    "hour": 9,
+    "five_area": 162282.0,
+    "bbox": 224239.0,
+    "five_area_scaled": 162282.0,
+    "bbox_scaled": 224239.0
+   },
+   {
+    "hour": 12,
+    "five_area": 221481.0,
+    "bbox": 301269.0,
+    "five_area_scaled": 221481.0,
+    "bbox_scaled": 301269.0
+   },
+   {
+    "hour": 15,
+    "five_area": 186882.0,
+    "bbox": 252451.0,
+    "five_area_scaled": 186882.0,
+    "bbox_scaled": 252451.0
+   },
+   {
+    "hour": 18,
+    "five_area": 163603.0,
+    "bbox": 219702.0,
+    "five_area_scaled": 163603.0,
+    "bbox_scaled": 219702.0
+   },
+   {
+    "hour": 21,
+    "five_area": 100614.0,
+    "bbox": 137964.0,
+    "five_area_scaled": 100614.0,
+    "bbox_scaled": 137964.0
+   }
+  ],
+  "area_ids": [
+   "central",
+   "northwest",
+   "northeast",
+   "southeast",
+   "southwest"
+  ],
+  "area_hour_counts": [
+   [
+    6142.0,
+    9702.0,
+    3688.0,
+    2539.0,
+    4183.0
+   ],
+   [
+    7526.0,
+    10857.0,
+    4001.0,
+    2827.0,
+    4224.0
+   ],
+   [
+    7716.0,
+    10899.0,
+    3966.0,
+    2836.0,
+    4325.0
+   ],
+   [
+    8124.0,
+    10677.0,
+    3940.0,
+    2806.0,
+    4319.0
+   ],
+   [
+    8405.0,
+    10611.0,
+    3922.0,
+    2803.0,
+    4340.0
+   ],
+   [
+    8607.0,
+    10713.0,
+    3964.0,
+    2831.0,
+    4322.0
+   ],
+   [
+    10900.0,
+    12926.0,
+    4699.0,
+    3441.0,
+    4354.0
+   ],
+   [
+    17953.0,
+    19099.0,
+    6511.0,
+    4789.0,
+    4557.0
+   ],
+   [
+    41471.0,
+    40799.0,
+    12541.0,
+    11127.0,
+    5300.0
+   ],
+   [
+    61861.0,
+    59631.0,
+    18110.0,
+    16507.0,
+    6173.0
+   ],
+   [
+    81666.0,
+    79123.0,
+    23899.0,
+    22128.0,
+    7368.0
+   ],
+   [
+    83581.0,
+    83554.0,
+    24923.0,
+    23406.0,
+    8394.0
+   ],
+   [
+    80687.0,
+    82654.0,
+    24890.0,
+    23843.0,
+    9407.0
+   ],
+   [
+    75650.0,
+    80353.0,
+    23948.0,
+    22812.0,
+    10229.0
+   ],
+   [
+    67121.0,
+    73224.0,
+    21874.0,
+    21119.0,
+    10553.0
+   ],
+   [
+    63355.0,
+    71403.0,
+    20905.0,
+    20596.0,
+    10623.0
+   ],
+   [
+    59278.0,
+    72312.0,
+    20008.0,
+    20625.0,
+    11016.0
+   ],
+   [
+    60868.0,
+    72110.0,
+    18818.0,
+    20629.0,
+    10757.0
+   ],
+   [
+    54449.0,
+    64210.0,
+    17167.0,
+    18114.0,
+    9663.0
+   ],
+   [
+    46706.0,
+    53428.0,
+    14680.0,
+    14607.0,
+    7515.0
+   ],
+   [
+    41435.0,
+    45716.0,
+    13086.0,
+    12118.0,
+    6182.0
+   ],
+   [
+    35885.0,
+    37713.0,
+    11503.0,
+    10229.0,
+    5284.0
+   ],
+   [
+    32895.0,
+    31123.0,
+    8909.0,
+    8798.0,
+    4613.0
+   ],
+   [
+    27109.0,
+    25906.0,
+    7775.0,
+    6927.0,
+    4103.0
+   ]
+  ],
+  "ratios": {
+   "r_day_night_09_03": 5.4337,
+   "r_noon_night_12_03": 7.4158
+  },
+  "kind_at_03": {
+   "hour": 3,
+   "rows": [
+    {
+     "kind": 0,
+     "name": "通勤",
+     "d66": true,
+     "lodging": false,
+     "count_five_area": 2936.0,
+     "share_of_five_area": 0.0983,
+     "count_bbox": 3608.0,
+     "count_five_area_scaled": 2936.0
+    },
+    {
+     "kind": 1,
+     "name": "来街",
+     "d66": true,
+     "lodging": false,
+     "count_five_area": 139.0,
+     "share_of_five_area": 0.0047,
+     "count_bbox": 189.0,
+     "count_five_area_scaled": 139.0
+    },
+    {
+     "kind": 2,
+     "name": "従業",
+     "d66": false,
+     "lodging": false,
+     "count_five_area": 2207.0,
+     "share_of_five_area": 0.0739,
+     "count_bbox": 7077.0,
+     "count_five_area_scaled": 2207.0
+    },
+    {
+     "kind": 3,
+     "name": "住民",
+     "d66": false,
+     "lodging": false,
+     "count_five_area": 11150.0,
+     "share_of_five_area": 0.3733,
+     "count_bbox": 36534.0,
+     "count_five_area_scaled": 11150.0
+    },
+    {
+     "kind": 4,
+     "name": "指令",
+     "d66": false,
+     "lodging": false,
+     "count_five_area": 0.0,
+     "share_of_five_area": 0.0,
+     "count_bbox": 0.0,
+     "count_five_area_scaled": 0.0
+    },
+    {
+     "kind": 5,
+     "name": "通学",
+     "d66": false,
+     "lodging": false,
+     "count_five_area": 128.0,
+     "share_of_five_area": 0.0043,
+     "count_bbox": 174.0,
+     "count_five_area_scaled": 128.0
+    },
+    {
+     "kind": 6,
+     "name": "定期来街",
+     "d66": true,
+     "lodging": false,
+     "count_five_area": 45.0,
+     "share_of_five_area": 0.0015,
+     "count_bbox": 65.0,
+     "count_five_area_scaled": 45.0
+    },
+    {
+     "kind": 7,
+     "name": "訪日",
+     "d66": false,
+     "lodging": true,
+     "count_five_area": 13250.0,
+     "share_of_five_area": 0.4436,
+     "count_bbox": 17344.0,
+     "count_five_area_scaled": 13250.0
+    },
+    {
+     "kind": 8,
+     "name": "乗務",
+     "d66": true,
+     "lodging": false,
+     "count_five_area": 11.0,
+     "share_of_five_area": 0.0004,
+     "count_bbox": 12.0,
+     "count_five_area_scaled": 11.0
+    }
+   ],
+   "five_area_total": 29866.0,
+   "d66_total": {
+    "kinds": [
+     "通勤",
+     "来街",
+     "定期来街",
+     "乗務"
+    ],
+    "count_five_area": 3131.0,
+    "share_of_five_area": 0.1048,
+    "count_five_area_scaled": 3131.0,
+    "note": "域外常住のはずの種別が深夜に域内に居る体数=D-66 の直接指標(訪日は宿泊施設で就寝=参考行・判定外・第173)。"
+   }
+  },
+  "wake_rate": {
+   "run": [
+    0.01,
+    0.094,
+    0.135,
+    0.133,
+    0.135,
+    0.15,
+    0.268,
+    0.591,
+    0.893,
+    0.98,
+    0.989,
+    0.989,
+    0.989,
+    0.989,
+    0.988,
+    0.987,
+    0.988,
+    0.99,
+    0.992,
+    0.994,
+    0.994,
+    0.992,
+    0.987,
+    0.977
+   ],
+   "anchor": [
+    0.205,
+    0.111,
+    0.057,
+    0.035,
+    0.053,
+    0.153,
+    0.407,
+    0.722,
+    0.867,
+    0.925,
+    0.952,
+    0.965,
+    0.978,
+    0.978,
+    0.978,
+    0.981,
+    0.985,
+    0.985,
+    0.989,
+    0.989,
+    0.977,
+    0.914,
+    0.749,
+    0.462
+   ],
+   "diff": [
+    -0.195,
+    -0.017,
+    0.078,
+    0.098,
+    0.082,
+    -0.003,
+    -0.139,
+    -0.131,
+    0.026,
+    0.055,
+    0.037,
+    0.024,
+    0.011,
+    0.011,
+    0.01,
+    0.006,
+    0.003,
+    0.005,
+    0.003,
+    0.005,
+    0.017,
+    0.078,
+    0.238,
+    0.515
+   ],
+   "max_abs_diff": 0.515,
+   "max_abs_hour": 23,
+   "diff_03": 0.098,
+   "diff_12": 0.011,
+   "anchor_source": "総務省統計局 令和3年社会生活基本調査 調査票A 時間帯編 第4-1表(statInfId 000032224335) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224335&fileKind=0 / 転記元 docs/research/v2-c7-fix-research.md §2-A(親再計算済み)",
+   "anchor_caveat": "全個体に一律に掛ける値ではない(交替制勤務など 12.9% は 3 時の覚醒率 11.5%)。照合の材料であって目標値ではない。",
+   "basis": "in_area",
+   "basis_note": "定義=在圏の体の非就寝率(transit_state==0 の体のうち activity != SLEEPING)"
+  },
+  "planned_sleep": {
+   "slept": 1137,
+   "arrived": 1075,
+   "walking": 5938,
+   "woke": 55963,
+   "riding": 3,
+   "outside": 411672,
+   "conversing": 13,
+   "asleep": 61773,
+   "unreachable": 12938
+  },
+  "distance": {
+   "scaled": true,
+   "day_09_vs_core9_daytime": 1.2467,
+   "day_09_vs_pt_peak": 1.1192,
+   "night_03_vs_core9_night": 3.39,
+   "night_03_vs_estimate_high": 0.9955,
+   "night_03_in_estimate_band": true,
+   "night_03_band_gap": 0.0,
+   "values": {
+    "day_09": 162282.0,
+    "night_03": 29866.0
+   }
+  },
+  "meta": {
+   "input": "journal",
+   "path": "data/runs/mock40-v2/occupancy.npz",
+   "n_samples": 24,
+   "n_cells": 520,
+   "journal_meta": {
+    "tick_seconds": 60,
+    "start_hour": 0,
+    "day_index": 0
+   }
+  }
+ },
+ "comparison": [
+  {
+   "metric": "在圏 09時 5エリア(換算) 対 昼間人口",
+   "before": 162282.0,
+   "after": 172265.0,
+   "delta": 9983.0,
+   "target": 130167.0,
+   "band": null,
+   "direction": null,
+   "gap_before": 32115.0,
+   "gap_after": 42098.0,
+   "closer": false,
+   "note": "対 昼間人口 130,167(中核9町丁目 1.39 km²・anchor)"
+  },
+  {
+   "metric": "在圏 09時 5エリア(換算) 対 PT ピーク",
+   "before": 162282.0,
+   "after": 172265.0,
+   "delta": 9983.0,
+   "target": 145000.0,
+   "band": null,
+   "direction": null,
+   "gap_before": 17282.0,
+   "gap_after": 27265.0,
+   "closer": false,
+   "note": "対 日中滞在者ピーク 145,000(渋谷駅周辺 約139 ha・anchor)"
+  },
+  {
+   "metric": "在圏 03時 5エリア(換算) 対 常住",
+   "before": 29866.0,
+   "after": 29322.0,
+   "delta": -544.0,
+   "target": 8810.0,
+   "band": null,
+   "direction": null,
+   "gap_before": 21056.0,
+   "gap_after": 20512.0,
+   "closer": true,
+   "note": "対 常住 8,810(anchor・下限側の目安)"
+  },
+  {
+   "metric": "在圏 03時 5エリア(換算) 対 深夜在圏帯",
+   "before": 29866.0,
+   "after": 29322.0,
+   "delta": -544.0,
+   "target": null,
+   "band": [
+    15000.0,
+    30000.0
+   ],
+   "direction": null,
+   "gap_before": 0.0,
+   "gap_after": 0.0,
+   "closer": false,
+   "note": "対 深夜在圏推定 1.5〜3 万人(estimate)"
+  },
+  {
+   "metric": "昼夜比 09/03",
+   "before": 5.4337,
+   "after": 5.8749,
+   "delta": 0.4412,
+   "target": 14.8,
+   "band": null,
+   "direction": null,
+   "gap_before": 9.3663,
+   "gap_after": 8.9251,
+   "closer": true,
+   "note": "対 昼夜間人口比率 14.8(anchor)"
+  },
+  {
+   "metric": "昼夜比 12/03",
+   "before": 7.4158,
+   "after": 7.6271,
+   "delta": 0.2113,
+   "target": 14.8,
+   "band": null,
+   "direction": null,
+   "gap_before": 7.3842,
+   "gap_after": 7.1729,
+   "closer": true,
+   "note": "同上(12時版)"
+  },
+  {
+   "metric": "03時 D-66 種別 在圏(換算)",
+   "before": 3131.0,
+   "after": 3012.0,
+   "delta": -119.0,
+   "target": null,
+   "band": null,
+   "direction": "lower",
+   "gap_before": null,
+   "gap_after": null,
+   "closer": true,
+   "note": "通勤+来街+定期来街+乗務。域外常住のはずの種別=減るほど D-66 の意図に近い(訪日は宿泊施設で就寝=参考行・第173)"
+  },
+  {
+   "metric": "03時 D-66 種別 全体比",
+   "before": 0.1048,
+   "after": 0.1027,
+   "delta": -0.0021,
+   "target": null,
+   "band": null,
+   "direction": "lower",
+   "gap_before": null,
+   "gap_after": null,
+   "closer": true,
+   "note": "同 5エリア在圏に占める割合"
+  },
+  {
+   "metric": "03時 通勤 在圏(生)",
+   "before": 2936.0,
+   "after": 2913.0,
+   "delta": -23.0,
+   "target": null,
+   "band": null,
+   "direction": "lower",
+   "gap_before": null,
+   "gap_after": null,
+   "closer": true,
+   "note": "5エリア内・縮尺前"
+  },
+  {
+   "metric": "03時 来街 在圏(生)",
+   "before": 139.0,
+   "after": 66.0,
+   "delta": -73.0,
+   "target": null,
+   "band": null,
+   "direction": "lower",
+   "gap_before": null,
+   "gap_after": null,
+   "closer": true,
+   "note": "5エリア内・縮尺前"
+  },
+  {
+   "metric": "03時 定期来街 在圏(生)",
+   "before": 45.0,
+   "after": 24.0,
+   "delta": -21.0,
+   "target": null,
+   "band": null,
+   "direction": "lower",
+   "gap_before": null,
+   "gap_after": null,
+   "closer": true,
+   "note": "5エリア内・縮尺前"
+  },
+  {
+   "metric": "03時 訪日 在圏(生・参考)",
+   "before": 13250.0,
+   "after": 12843.0,
+   "delta": -407.0,
+   "target": null,
+   "band": null,
+   "direction": null,
+   "gap_before": null,
+   "gap_after": null,
+   "closer": null,
+   "note": "宿泊施設で就寝する種別(訪日は全員に宿泊施設の就寝行)=舞台の中で寝るのが正当・判定に使わない(第173)"
+  },
+  {
+   "metric": "03時 乗務 在圏(生)",
+   "before": 11.0,
+   "after": 9.0,
+   "delta": -2.0,
+   "target": null,
+   "band": null,
+   "direction": "lower",
+   "gap_before": null,
+   "gap_after": null,
+   "closer": true,
+   "note": "5エリア内・縮尺前"
+  },
+  {
+   "metric": "起床率 最大絶対差 vs a(h)",
+   "before": 0.515,
+   "after": 0.518,
+   "delta": 0.003,
+   "target": 0.0,
+   "band": null,
+   "direction": null,
+   "gap_before": 0.515,
+   "gap_after": 0.518,
+   "closer": false,
+   "note": "最大は 23 時"
+  },
+  {
+   "metric": "起床率 03時 差",
+   "before": 0.098,
+   "after": 0.128,
+   "delta": 0.03,
+   "target": 0.0,
+   "band": null,
+   "direction": null,
+   "gap_before": 0.098,
+   "gap_after": 0.128,
+   "closer": false,
+   "note": "run − a(3)=0.035"
+  },
+  {
+   "metric": "起床率 12時 差",
+   "before": 0.011,
+   "after": 0.019,
+   "delta": 0.008,
+   "target": 0.0,
+   "band": null,
+   "direction": null,
+   "gap_before": 0.011,
+   "gap_after": 0.019,
+   "closer": false,
+   "note": "run − a(12)=0.978"
+  },
+  {
+   "metric": "計画就寝 その場",
+   "before": 1137,
+   "after": 2902,
+   "delta": 1765.0,
+   "target": null,
+   "band": null,
+   "direction": null,
+   "gap_before": null,
+   "gap_after": null,
+   "closer": null,
+   "note": "アンカー無し(参考)。職場等でその場就寝した体"
+  },
+  {
+   "metric": "計画就寝 着いて",
+   "before": 1075,
+   "after": 1645,
+   "delta": 570.0,
+   "target": null,
+   "band": null,
+   "direction": null,
+   "gap_before": null,
+   "gap_after": null,
+   "closer": null,
+   "note": "アンカー無し(参考)"
+  },
+  {
+   "metric": "寝かせなかった 域外",
+   "before": 411672,
+   "after": 410876,
+   "delta": -796.0,
+   "target": null,
+   "band": null,
+   "direction": null,
+   "gap_before": null,
+   "gap_after": null,
+   "closer": null,
+   "note": "アンカー無し(参考)。域外に居たので寝かせなかった体"
+  },
+  {
+   "metric": "距離 09時/現実(core9)",
+   "before": 1.2467,
+   "after": 1.3234,
+   "delta": 0.0767,
+   "target": 1.0,
+   "band": null,
+   "direction": null,
+   "gap_before": 0.2467,
+   "gap_after": 0.3234,
+   "closer": false,
+   "note": "1.0 が一致・>1 が過大"
+  },
+  {
+   "metric": "距離 09時/現実(PT)",
+   "before": 1.1192,
+   "after": 1.188,
+   "delta": 0.0688,
+   "target": 1.0,
+   "band": null,
+   "direction": null,
+   "gap_before": 0.1192,
+   "gap_after": 0.188,
+   "closer": false,
+   "note": "同上"
+  },
+  {
+   "metric": "距離 03時/常住 8,810",
+   "before": 3.39,
+   "after": 3.3283,
+   "delta": -0.0617,
+   "target": 1.0,
+   "band": null,
+   "direction": null,
+   "gap_before": 2.39,
+   "gap_after": 2.3283,
+   "closer": true,
+   "note": "1.0 が常住と同数"
+  },
+  {
+   "metric": "距離 03時/推定上限 30,000",
+   "before": 0.9955,
+   "after": 0.9774,
+   "delta": -0.0181,
+   "target": 1.0,
+   "band": null,
+   "direction": null,
+   "gap_before": 0.0045,
+   "gap_after": 0.0226,
+   "closer": false,
+   "note": "1.0 が推定帯の上端"
+  }
+ ],
+ "comparison_counts": {
+  "judged": 19,
+  "closer": 10,
+  "unjudged": 4
+ }
+}

@@ -12,6 +12,7 @@ C4 第1陣(境界・経済設計書 §2.7 + 世界過程設計書 §7.1):
 - ``census``: 日次(軽量)センサス・月次 MER・ゲート
 - ``pricing``: 行5 価格形成のエンジン側(内生フロア・Calvo・逸脱比例コスト)
 - ``anchors``: §2.5 の金額アンカー(公的値)と初期財布・月次賃金
+- ``entry_capital``: 店舗の参入資本を経済センサスから按分(D-13・C5)
 """
 
 from shibuya.economy.accounts import (
@@ -30,6 +31,12 @@ from shibuya.economy.checks import (
     hoard_report,
     net_worth_equals_real_assets,
     residual_gate,
+)
+from shibuya.economy.entry_capital import (
+    EntryCapitalReport,
+    entry_capital_report,
+    ledger_entry_capital_share,
+    store_entry_capital,
 )
 from shibuya.economy.goods import GoodsCode, GoodsLedger, GoodsRef, NodeKind, SkuRegistry
 from shibuya.economy.ledger import Ledger
@@ -54,4 +61,8 @@ __all__ = [
     "net_worth_equals_real_assets",
     "residual_gate",
     "hoard_report",
+    "store_entry_capital",
+    "entry_capital_report",
+    "EntryCapitalReport",
+    "ledger_entry_capital_share",
 ]

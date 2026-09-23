@@ -98,7 +98,8 @@ def test_role_actions_are_parsed_but_land_on_the_safety_valve():
 
 
 # ---------------------------------------------------------------- 診断行(書式エラー率)
-SMALL = dict(n_agents=300, seed=4, ticks=120, checkpoint_every=120, n_cells=16)
+#: ticks は D-56(就寝抑止)以降、最初の計画境界(tick 300-480)を跨ぐ窓にする。
+SMALL = dict(n_agents=300, seed=4, ticks=540, checkpoint_every=540, n_cells=16)
 
 
 def test_parse_error_rate_is_zero_with_the_mock_and_positive_when_garbled():

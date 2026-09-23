@@ -16,8 +16,11 @@ from shibuya.engine.processes.rail import (
     ACCEPT_MIN_RATE,
     ACCOUNT_CODE_CARRY_OUT,
     DWELL_TICKS,
+    DWELL_TICKS_BY_LINE,
+    DWELL_TICKS_TERMINAL,
     LINE_CAPACITY_PERSONS,
     LINE_CONGESTION_CAP_PCT,
+    MAX_DWELL_TICKS,
     RailProcess,
 )
 from shibuya.world.assets import load_process_assets
@@ -25,10 +28,18 @@ from shibuya.world.assets import load_process_assets
 from .conftest import WORLD_DIR, fake_timetable_assets, make_agents, make_world, real_data
 
 
-def _rail(n_agents: int = 20, *, departures=(100, 200, 300), platform_cell: int = 0):
+def _rail(
+    n_agents: int = 20,
+    *,
+    departures=(100, 200, 300),
+    platform_cell: int = 0,
+    lines: tuple[str, ...] = ("山手線", "井の頭線"),
+):
     world = make_world(9)
     agents, schedule = make_agents(world, n_agents)
-    pa = fake_timetable_assets(platform_cell=platform_cell, departures=departures)
+    pa = fake_timetable_assets(
+        platform_cell=platform_cell, departures=departures, lines=lines
+    )
     rail = RailProcess(world, agents, pa, master_seed=1, day_index=0, schedule=schedule)
     return world, agents, rail
 
@@ -75,6 +86,23 @@ def test_trains_at_platform_covers_the_dwell_window():
     assert 0 in rail.trains_at_platform(dep - DWELL_TICKS + 1).tolist()
     assert 0 in rail.trains_at_platform(dep).tolist()
     assert 0 not in rail.trains_at_platform(dep + 1).tolist()
+
+
+def test_dwell_is_a_per_line_table_terminal_is_two_ticks():
+    """D-51 (c): 通過型 1 tick(60 秒)・終端(銀座線・井の頭線)2 tick。"""
+    assert DWELL_TICKS == 1 and DWELL_TICKS_TERMINAL == 2 and MAX_DWELL_TICKS == 2
+    assert DWELL_TICKS_BY_LINE == {"銀座線": 2, "井の頭線": 2}
+    _, _, rail = _rail(departures=(100,))
+    # 便 0 = 山手線(dep 100・通過型)/ 便 1 = 井の頭線(dep 101・終端)
+    assert rail.dwell.tolist() == [1, 2]
+    assert rail.dwell_of_line("銀座線") == 2
+    assert rail.dwell_of_line("山手線") == 1
+    assert rail.trains_at_platform(99).tolist() == []
+    assert rail.trains_at_platform(100).tolist() == [0, 1]  # 井の頭は発車の 1 tick 前から在線
+    assert rail.trains_at_platform(101).tolist() == [1]
+    assert rail.trains_at_platform(102).tolist() == []
+    assert rail.is_at_platform([0, 1], 100).tolist() == [True, True]
+    assert rail.is_at_platform([0, 1], 101).tolist() == [False, True]
 
 
 @real_data
@@ -147,11 +175,17 @@ def test_left_behind_is_counted_as_a_diagnostic_row():
 
 
 def test_congestion_caps_are_the_official_values():
-    """§2.6 逐語の線別混雑率上限(D10′ の照合対象)。"""
+    """線別混雑率上限(D10′ の照合対象)。**D-51 で 5 行を令和7年度(2025)実績へ更新**。"""
+    # 令和6年度のまま据え置く 3 行(2025 値が**親未確認**)
+    assert LINE_CONGESTION_CAP_PCT["山手線"] == 139.0
     assert LINE_CONGESTION_CAP_PCT["埼京線"] == 163.0
     assert LINE_CONGESTION_CAP_PCT["銀座線"] == 147.0
-    assert LINE_CONGESTION_CAP_PCT["半蔵門線"] == 103.0
-    assert LINE_CONGESTION_CAP_PCT["田園都市線"] == 133.0
+    # 令和7年度(2025)実績へ更新した 5 行(答申 §3-1 行 8・親一次確認)
+    assert LINE_CONGESTION_CAP_PCT["田園都市線"] == 138.0
+    assert LINE_CONGESTION_CAP_PCT["東横線"] == 124.0
+    assert LINE_CONGESTION_CAP_PCT["半蔵門線"] == 111.0
+    assert LINE_CONGESTION_CAP_PCT["副都心線"] == 117.0
+    assert LINE_CONGESTION_CAP_PCT["井の頭線"] == 125.0
     assert LINE_CAPACITY_PERSONS["山手線"] == 26_032 // 16  # 輸送力 ÷ 本数
     assert LINE_CAPACITY_PERSONS["田園都市線"] == round(40_338 / 27)
 
@@ -172,21 +206,33 @@ def test_boarding_succeeds_on_the_platform_and_pays_the_fare():
     assert int(rail.occupancy[0]) == 3
 
 
-def test_boarding_without_a_train_returns_no_train():
+def test_boarding_without_a_train_waits_on_the_platform():
+    """**D-51 (a)**: 列車が居なくても失敗にせず、ホームで待つ(意図が消えない)。"""
     world, agents, rail = _rail(departures=(100,))
     ids = np.arange(2, dtype=np.int64)
     _put_on_platform(agents, world, ids, 0)
-    R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, 5, rail=rail)
-    assert np.all(agents.last_result[ids] == int(ResultCode.NO_TRAIN))
+    out = R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, 5, rail=rail)
+    assert np.all(agents.last_result[ids] == int(ResultCode.OK))
+    assert np.all(agents.activity[ids] == int(Activity.WAITING))
+    assert np.all(agents.registry.board_line[ids] >= 0)
+    assert np.all(agents.registry.board_since[ids] == 5)
+    assert np.all(agents.registry.transit_state[ids] == 0)  # 待ちは在圏(3 値を増やさない)
+    assert out.n_board_waiting == 2 and rail.n_board_waiting == 2
 
 
-def test_boarding_in_another_cell_returns_no_train():
+def test_boarding_in_another_cell_walks_to_the_nearest_platform():
+    """**D-51 (b)**: ホーム以外で乗車を選ぶと、世界が最寄りホームへの移動を組む。"""
     world, agents, rail = _rail(departures=(100,), platform_cell=0)
     dep = int(rail.dep_tick[0])
     ids = np.arange(2, dtype=np.int64)
     _put_on_platform(agents, world, ids, 3)  # ホームでないセル
     R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
-    assert np.all(agents.last_result[ids] == int(ResultCode.NO_TRAIN))
+    assert np.all(agents.last_result[ids] == int(ResultCode.OK))
+    assert np.all(agents.activity[ids] == int(Activity.MOVING))
+    assert np.all(agents.target_node[ids] == world.assets.cell_rep_node[0])
+    assert np.all(agents.registry.board_line[ids] >= 0)
+    assert np.all(agents.registry.board_since[ids] == -1)  # まだ立っていない=待ち時間 0
+    assert rail.n_board_walking == 2
 
 
 def test_boarding_without_the_fare_returns_fare_short():
@@ -213,7 +259,8 @@ def test_boarding_over_the_congestion_cap_returns_train_full():
 
 
 def test_alight_succeeds_only_while_the_train_is_at_the_platform():
-    world, agents, rail = _rail(departures=(100,))
+    # 終端(井の頭線・dwell 2 tick)= 発車の 1 tick 前から在線するので dep-1 に乗れる
+    world, agents, rail = _rail(departures=(100,), lines=("井の頭線",))
     dep = int(rail.dep_tick[0])
     ids = np.arange(2, dtype=np.int64)
     _put_on_platform(agents, world, ids, 0)

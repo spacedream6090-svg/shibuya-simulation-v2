@@ -34,6 +34,14 @@ expedient(本モジュール分)
   規約⑧(B0-B4b に個体依存語を置かない)は保たれる。行列が無いセルは従来の固定文言のまま。
 - 流れ(B4)は既定 0(「一定です」)。方向データが無い。
 - 天候が W13 に無い日付は**その時刻の最頻値**へ落とす(決定論)。
+- **W14/W15 の凍結静的文への切替**(C5): ``world_dir`` に ``w14_signage.parquet`` /
+  ``w15_cell_static.parquet`` が在ればその文面を使い、無ければ従来の合成文へ落ちる
+  (**テンプレ本体と ``template_sha256`` は不変**)。凍結文の置き場所は
+  W14 → ``B2.signage`` の本文(§3.2 の 25 tok 枠)・W15 → ``B2.visible`` の ``{items}``。
+  W15 を B2 に**足す**と群予算(B2+B4+B4b ≤250)を超えるので、可視物リストを**置き換える**
+  形にした。W15 側の上限は 45 tok(= B2 ブロック予算 150 − 実資産での他行最大)で、
+  仕様 §1 W15 の「150 tok」は B2 ブロック全体の予算と読む(=**親判断待ち**)。
+  どの版の文面で走ったかは ``PerceptionAssets.frozen_sources``(ファイル名→sha256)に出る。
 
 **解決した曖昧点(親へ報告・黙って解決していない)**
 1. §2.4 ⑧「同セル同時間帯の2体で B0-B4 のバイト差分がゼロ」対 §2.2「B1=種別(約10)」。
@@ -65,7 +73,7 @@ from shibuya.perception import channels as ch
 from shibuya.perception import hashes as H
 from shibuya.perception import normalize as N
 from shibuya.perception import templates as T
-from shibuya.perception.attention import strip_imperatives
+from shibuya.perception.attention import SalientItem, rank_by_saliency, strip_imperatives
 from shibuya.world.assets import CELL_SIZE_M, WorldAssets
 from shibuya.world.state import World
 
@@ -75,7 +83,10 @@ __all__ = [
     "STREET_POINT_AREA_M2",
     "INTERO_UP_EDGES",
     "RESULT_OPTIONS",
+    "INVITE_REASON",
+    "person_word",
     "ACTIVITY_WORDS",
+    "RANKING_PRIOR_SCORES",
     "Rendered",
     "PerceptionAssets",
     "Renderer",
@@ -89,6 +100,17 @@ WALKABLE_FRACTION_SYNTHETIC: Final[float] = 0.15
 STREET_POINT_AREA_M2: Final[float] = 6.25
 #: 内受容の閾値(``engine.change_detect.INTERO_UP_EDGES`` と同値・層契約により二重定義)。
 INTERO_UP_EDGES: Final[tuple[int, ...]] = (4, 7, 9)
+
+#: 被招待(§6 起床(ii))の起床理由=``B6.wake`` の ``{reason}`` に入る**値**。
+#: **テンプレ本体ではない**(``templates.TEMPLATES``/``WAKE_REASON_TEXT`` は不変=
+#: ``template_sha256`` は動かない)。``RESULT_OPTIONS``(いま可能3語)と同じ扱いで、
+#: 文面は自前=**expedient**(契約書は起床条件(ii)を列挙するだけで文面を与えない)。
+#: 招待者を名指せないと承諾できない(行動契約書 §1-2 対象スロット:
+#: 承諾=「行動: 会話 **対象: 招待者**」・``engine.run._settle_pending_invites``)。
+INVITE_REASON: Final[str] = (
+    "{person}があなたに話しかけました。"
+    "応じるなら 行動: 会話 対象: {person}、応じないなら別の行動を選びます。"
+)
 
 #: ``Activity`` → 日本語(B5 直近の行動・B6 直前の結果)。
 ACTIVITY_WORDS: Final[tuple[str, ...]] = (
@@ -116,6 +138,27 @@ RESULT_OPTIONS: Final[Mapping[int, tuple[str, str, str]]] = {
     ResultCode.BAD_TARGET: ("移動", "待機", "休憩"),
 }
 
+
+
+def _prior_scores() -> Mapping[str, float]:
+    """チャネル既定素性そのものの顕著性スコア(**採った項目が無い行の並び**に使う)。
+
+    ``attention.rank_by_saliency`` を 1 件ずつのダミーに掛けるだけ(起動時 1 回・12 件)。
+    式を二重に書かないための実装(スコアの定義は attention 側の 1 か所だけ)。
+    """
+    items = [
+        SalientItem(
+            item_id=cid, text="", size_m=pr.size_m, distance_m=pr.distance_m,
+            contrast=pr.contrast, motion=pr.motion, deviance=pr.deviance,
+        )
+        for cid, pr in ch.RANKING_PRIORS.items()
+    ]
+    ranked, scores = rank_by_saliency(items)
+    return {it.item_id: float(sc) for it, sc in zip(ranked, scores)}
+
+
+#: チャネル → 既定素性のスコア(ablation ① の行の並び・**起動時に 1 回だけ**計算)。
+RANKING_PRIOR_SCORES: Final[Mapping[str, float]] = _prior_scores()
 
 # ------------------------------------------------------------------ 描画結果
 @dataclass(frozen=True)
@@ -185,10 +228,25 @@ class PerceptionAssets:
     #: セル別の騒音段階(昼/夜・W10 街路点の最頻値)
     noise_stage_day: np.ndarray
     noise_stage_night: np.ndarray
+    #: POI → W14 で**凍結された看板(a)文面**(無い POI は空文字=合成文へフォールバック)。
+    poi_signage: tuple[str, ...] = ()
+    #: セル → W15 で**凍結された B2 セル静的文**(無いセルは空文字=合成の可視物リストへ)。
+    cell_static: tuple[str, ...] = ()
+    #: 凍結資産のファイル名 → sha256(**manifest へ記録する値**。切替は「ファイルが在るか」だけで
+    #: 決まるので、どの版の文面で走ったかはこの SHA でしか特定できない)。
+    frozen_sources: Mapping[str, str] = field(default_factory=dict)
 
     @property
     def n_cells(self) -> int:
         return len(self.place_ids)
+
+    @property
+    def uses_frozen_signage(self) -> bool:
+        return any(self.poi_signage)
+
+    @property
+    def uses_frozen_cell_static(self) -> bool:
+        return any(self.cell_static)
 
     def noise_stage_for_tick(self, when: datetime) -> np.ndarray:
         """時刻 → セル別騒音段階(環境基準の昼 6-22 時 / 夜 22-6 時)。"""
@@ -346,6 +404,15 @@ class PerceptionAssets:
         # ---- W10 街路点 → セル別 歩行可能面積・騒音段階(最頻値) ----
         area, has_street, ns_day, ns_night = _street_aggregate(p, world.assets, n)
 
+        # ---- W14/W15 の凍結静的文(在れば使う・無ければ従来の合成文) ----
+        frozen_sources: dict[str, str] = {}
+        poi_signage = _load_frozen_text(
+            p, "w14_signage.parquet", "poi_id", [str(s) for s in poi["poi_id"]], frozen_sources
+        )
+        cell_static = _load_frozen_text(
+            p, "w15_cell_static.parquet", "place_id", list(place_ids), frozen_sources
+        )
+
         # ---- W13 天候 ----
         w13 = pq.read_table(
             p / "w13_weather_hourly.parquet",
@@ -377,7 +444,38 @@ class PerceptionAssets:
             weather_by_hour=by_hour,
             noise_stage_day=ns_day,
             noise_stage_night=ns_night,
+            poi_signage=poi_signage,
+            cell_static=cell_static,
+            frozen_sources=frozen_sources,
         )
+
+
+def _load_frozen_text(
+    path: Path, name: str, key_col: str, keys: Sequence[str], sources: dict[str, str]
+) -> tuple[str, ...]:
+    """W14/W15 の凍結文 parquet → ``keys`` の順に並べた文面(無い鍵は空文字)。
+
+    ファイルが無ければ全部空文字を返す(= **切替は world_dir のファイル有無で決まる**)。
+    在るときは ``sources[name] = sha256`` を記録する(manifest 用)。
+
+    Note:
+        逐次ループ宣言(P4): 行数(POI 2,337 / セル 520)ぶんの辞書化 1 本。**起動時 1 回**。
+    """
+    import hashlib
+
+    import pyarrow.parquet as pq
+
+    f = Path(path) / name
+    if not f.exists():
+        return tuple("" for _ in keys)
+    h = hashlib.sha256()
+    with open(f, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    sources[name] = h.hexdigest()
+    d = pq.read_table(f, columns=[key_col, "text"]).to_pydict()
+    table = {str(k): str(t) for k, t in zip(d[key_col], d["text"])}
+    return tuple(table.get(str(k), "") for k in keys)
 
 
 def _street_aggregate(
@@ -442,12 +540,19 @@ class _TickCache:
     salient_digest: np.ndarray = field(default_factory=lambda: np.zeros(0, np.int32))
     #: セル → B4b「近景」の描画バイト(行列がある セルだけ。無ければ固定文言)。
     b4b: Mapping[int, bytes] = field(default_factory=dict)
+    #: セル → B4b の**生の項目**(単一ランキングが池へ入れる素材。固定枠では使わない)。
+    b4b_items: Mapping[int, tuple[str, ...]] = field(default_factory=dict)
     #: ``hashes.b4_field_row`` の生欄 ``(n_cells, 4)`` int32(エンジンの変化検出器が読む)。
     b4_field_rows: np.ndarray = field(default_factory=lambda: np.zeros((0, 4), np.int32))
     b4_field_hash: np.ndarray = field(default_factory=lambda: np.zeros(0, np.uint64))
     cell_order: np.ndarray = field(default_factory=lambda: np.zeros(0, np.int64))
     cell_start: np.ndarray = field(default_factory=lambda: np.zeros(0, np.int64))
     cell_end: np.ndarray = field(default_factory=lambda: np.zeros(0, np.int64))
+    #: 個体 → ``cell_order`` の位置(逆置換)。自分の行を O(1) で外すために持つ(C7)。
+    cell_pos: np.ndarray = field(default_factory=lambda: np.zeros(0, np.int64))
+    #: ``cell_order`` の順に並べた x / y(**連続配列**)。1 呼あたりの gather を無くす(C7)。
+    cell_x: np.ndarray = field(default_factory=lambda: np.zeros(0, np.float64))
+    cell_y: np.ndarray = field(default_factory=lambda: np.zeros(0, np.float64))
 
 
 class Renderer:
@@ -475,8 +580,9 @@ class Renderer:
         *,
         acquaintances: Mapping[int, Sequence[int]] | None = None,
         watched_by: np.ndarray | None = None,
-        budget_mode: ch.BudgetMode = ch.BudgetMode.FIXED_SLOTS,
+        budget_mode: ch.BudgetMode | str = ch.BudgetMode.FIXED_SLOTS,
         strict_group_budget: bool = True,
+        signage_enabled: bool = True,
     ) -> None:
         """
         Args:
@@ -487,8 +593,14 @@ class Renderer:
             seed: 乱数のマスターシード(注意ゲートの抽選に使う)。
             acquaintances: 個体 → 知人の agent_id(§3 人物④「知人は常に掲載」)。
             watched_by: ``(n,)`` 被注視人数(T2 の転置。None なら 0)。
-            budget_mode: §3.2 の義務 ablation の切替。
+            budget_mode: §3.2 の義務 ablation の切替(``ch.BudgetMode`` か
+                ``"fixed"``/``"ranking"``)。既定=固定枠(現行の描画)。
             strict_group_budget: True でグループ予算超過を例外にする(既定)。
+            signage_enabled: 看板・広告面(B2.signage)を描くか。知覚契約書 §8 第1陣 **⑥
+                「広告ゼロ」**の切替口。``False`` で W14 凍結文も合成文も載せず、全セルで
+                ``B2.signage_empty``(=「見える表示はありません」)にする。既定 True=
+                現行の描画で**1 バイトも変わらない**。テンプレ本体は触らないので
+                ``template_sha256`` は不変・規約⑧(セルの情報しか使わない)も不変。
         """
         self.world = world
         self.agents = agents
@@ -497,18 +609,26 @@ class Renderer:
         self.seed = seed
         self.acquaintances = dict(acquaintances or {})
         self.watched_by = watched_by
-        self.budget_mode = budget_mode
+        self.budget_mode = ch.BudgetMode.parse(budget_mode)
         self.strict_group_budget = strict_group_budget
+        self.signage_enabled = bool(signage_enabled)
 
         self._tickc = _TickCache()
         self._b0 = N.canonical_whitespace(T.TEMPLATES["B0.system"]).encode("utf-8")
         self._b4b = N.canonical_whitespace(
             T.TEMPLATES["B4b.near_empty"]
         ).encode("utf-8")
+        #: 個体 → (知人の集合, 知人の id 配列)。**構築時に固定**なので 1 度作れば使い回せる(C7)。
+        self._acq_cache: dict[int, tuple[frozenset[int], np.ndarray]] = {}
         self._b1_cache: dict[int, bytes] = {}
         self._b2_cache: dict[int, bytes] = {}
         self._b3_cache: dict[int, bytes] = {}
         self._b4_cache: dict[tuple[int, int], bytes] = {}
+        #: ablation ①(単一ランキング)のセル依存ブロック。B2 が B4 と同じ池を分けるので
+        #: 鍵は ``(セル, B4 欄ハッシュ)``(固定枠の ``_b2_cache`` はセルだけ)。
+        self._rank_cell_cache: dict[
+            tuple[int, int], tuple[dict[str, bytes], tuple[ch.TruncationReport, ...]]
+        ] = {}
         self.cache_hits = 0
         self.cache_misses = 0
         self.renders = 0
@@ -564,12 +684,18 @@ class Renderer:
         # 混ぜる。混ぜないと「B4b の文面が変わったのに起床条件(i) が鳴らない」取りこぼしが
         # 生まれる(C3 で B4 について潰した穴と同じ形)。列を増やすと ``hashes.b4_field_row``
         # の凍結形が動くので、**同じ列にダイジェストを畳む**(行列が無ければ従来どおり 0)。
-        b4b = self._b4b_lines(queues)
+        b4b_items = self._b4b_raw(queues)
+        b4b = self._b4b_lines(b4b_items)
         for c, blob in b4b.items():
             mixed = int(xxh64(blob) & 0x7FFF_FFFF)
             digest[int(c)] = int((int(digest[int(c)]) * 31 + mixed) & 0x7FFF_FFFF)
 
         rows = H.b4_field_row(los, ns, fl, digest)
+        # C7: セル順の連続座標(1 tick 1 回の gather)。個体数ぶんの 3 配列
+        # =24 byte/体(390,067 体で 9.4 MB)。1 呼あたりのセル在席者ぶんの gather を消す。
+        idx = _cell_index(self.agents.cell, n)
+        xy_all = np.asarray(self.agents.xy, dtype=np.float64)
+        order = idx["cell_order"]
         self._tickc = _TickCache(
             tick=int(tick),
             when=when,
@@ -580,9 +706,12 @@ class Renderer:
             salient=sal,
             salient_digest=digest,
             b4b=b4b,
+            b4b_items=b4b_items,
             b4_field_rows=rows,
             b4_field_hash=H.field_row_hashes(rows),
-            **_cell_index(self.agents.cell, n),
+            cell_x=np.ascontiguousarray(xy_all[order, 0]),
+            cell_y=np.ascontiguousarray(xy_all[order, 1]),
+            **idx,
         )
 
     @property
@@ -602,6 +731,7 @@ class Renderer:
         wake_reason: int | str = 3,
         last_result: int | None = None,
         last_action: str | None = None,
+        inviter: int | None = None,
     ) -> Rendered:
         """1 個体・1 起床ぶんの観測を描画する。
 
@@ -613,6 +743,9 @@ class Renderer:
             last_action: 直前に**試みた**行動語(None なら ``agents.activity`` で代用)。
                 C2 の SoA は「直前に試みた行動」を持たない(``activity`` は現在の状態)ので、
                 正確な文面には engine 側からの受け渡しが要る(親への hook 要求)。
+            inviter: **招待者の個体 id**(§6 起床(ii) 被招待。招待が無ければ None か負値)。
+                与えると B6 起床行が ``INVITE_REASON``(招待者を名指す文)に替わる。
+                ``wake_reason`` より優先する(被招待は起床理由そのものだから)。
 
         Note:
             逐次ループ宣言(P4)1: **1 起床につき 1 回**。個体数ぶんのループは持たない。
@@ -628,14 +761,22 @@ class Renderer:
 
         blocks: "OrderedDict[str, bytes]" = OrderedDict()
         trunc: list[ch.TruncationReport] = []
+        ranking = self.budget_mode is ch.BudgetMode.SINGLE_RANKING
+        # ablation ①: セル依存(B2/B4/B4b)は**1 本の池**なので 3 ブロックを一緒に組む。
+        cellb = self._cell_blocks_ranked(cell, tc, trunc) if ranking else None
+        b6 = self._b6(i, wake_reason, last_result, cell, tc, last_action, inviter)
         blocks["B0"] = self._b0
         blocks["B1"] = self._b1(kind)
-        blocks["B2"] = self._b2(cell, trunc)
+        blocks["B2"] = cellb["B2"] if cellb is not None else self._b2(cell, trunc)
         blocks["B3"] = self._b3(tc)
-        blocks["B4"] = self._b4(cell, tc, trunc)
-        blocks["B4b"] = tc.b4b.get(cell, self._b4b)
-        blocks["B5"] = self._b5(i, cell, tc, trunc)
-        blocks["B6"] = self._b6(i, wake_reason, last_result, cell, tc, last_action)
+        blocks["B4"] = cellb["B4"] if cellb is not None else self._b4(cell, tc, trunc)
+        blocks["B4b"] = cellb["B4b"] if cellb is not None else tc.b4b.get(cell, self._b4b)
+        blocks["B5"] = (
+            self._b5_ranked(i, cell, tc, trunc, ch.estimate_tokens(b6.decode("utf-8")))
+            if ranking
+            else self._b5(i, cell, tc, trunc)
+        )
+        blocks["B6"] = b6
 
         # §2.4 ⑧: B0-B4b に個体依存語が無いこと(機械検査)
         shared_ids = [b for b in T.BLOCK_IDS if b not in ("B5", "B6")]
@@ -710,15 +851,28 @@ class Renderer:
             trunc.append(rep)
             if kept:
                 lines.append(T.TEMPLATES["B2.ground"].format(ground=kept[0]))
-            # 可視物 上位3(可視視点数の降順→ID 昇順は資産側で確定済み)
-            names = [A.poi_name[j] + "の店頭" for j in A.visible_poi[cell]]
-            kept, rep = ch.truncate_lines(names, "B2.visible")
-            trunc.append(rep)
-            lines.append(
-                T.TEMPLATES["B2.visible"].format(items=N.LIST_SEPARATOR.join(kept))
-                if kept
-                else T.TEMPLATES["B2.visible_empty"]
-            )
+            # 可視物: **W15 の凍結セル静的文が在ればそれ**・無ければ合成の可視物リスト。
+            # 凍結文は ``B2.visible`` の枠(§3.2・60 tok)を占める(生成側の上限は 45 tok=
+            # B2 予算 150 − 実資産での他行最大。枠を超えた文は切り詰めで落ち合成文へ戻る)。
+            # テンプレは変えない。
+            static = self._visible_static(cell)
+            used_static = False
+            if static:
+                kept, rep = ch.truncate_lines([static], "B2.visible")
+                trunc.append(rep)
+                if kept:
+                    lines.append(T.TEMPLATES["B2.visible"].format(items=kept[0]))
+                    used_static = True
+            if not used_static:
+                # 可視物 上位3(可視視点数の降順→ID 昇順は資産側で確定済み)
+                names = self._visible_names(cell)
+                kept, rep = ch.truncate_lines(names, "B2.visible")
+                trunc.append(rep)
+                lines.append(
+                    T.TEMPLATES["B2.visible"].format(items=N.LIST_SEPARATOR.join(kept))
+                    if kept
+                    else T.TEMPLATES["B2.visible_empty"]
+                )
             # 看板(a)=店舗基本属性 1 件(素性タグは凍結テンプレ側・命令文除去を掛ける)
             lines.append(self._signage(cell))
             # 地物・ランドマーク・出口
@@ -739,25 +893,61 @@ class Renderer:
         return out
 
     def _signage(self, cell: int) -> str:
-        """看板(a): そのセルで最も可視の店舗 1 件の営業時間表示。
+        """看板(a): そのセルで最も可視の店舗 1 件の店頭表示。
+
+        **W14 で凍結された文面が在ればそれを使い**、無ければ従来の合成文(店名+営業時間)を
+        使う(切替は ``world_dir`` に ``w14_signage.parquet`` が在るかだけで決まる)。
+        凍結文にも命令文除去とチャネル枠の切り詰めを掛ける(憲法6・多重防御。W14 のゲートを
+        通っていれば no-op)。
 
         §3.2 の「看板・広告面1件 25 tok」は**内容**(店名+属性)に掛ける。ブロックラベルと
         凍結された素性タグは全描画に共通の固定オーバーヘッドなので、ブロック総額(B2 150)側で
         見る(解決した曖昧点・親へ報告)。
         """
+        body = self._signage_body(cell)
+        if body is None:
+            return T.TEMPLATES["B2.signage_empty"]
+        kept, _ = ch.truncate_lines([body], "B2.signage")
+        if kept:
+            return T.TEMPLATES["B2.signage"].format(body=kept[0])
+        return T.TEMPLATES["B2.signage_empty"]
+
+    # ---------------------------------------------------------- 素材(固定枠と単一ランキングで共有)
+    def _visible_static(self, cell: int) -> str:
+        """W15 の凍結セル静的文(無ければ空文字)。"""
+        A = self.assets
+        return A.cell_static[cell] if cell < len(A.cell_static) else ""
+
+    def _visible_names(self, cell: int) -> list[str]:
+        """可視の店舗・施設(可視視点数の降順→ID 昇順は資産側で確定済み)。"""
+        A = self.assets
+        return [A.poi_name[j] + "の店頭" for j in A.visible_poi[cell]]
+
+    def _signage_body(self, cell: int) -> str | None:
+        """看板(a)の**本文**(命令文除去済み・枠の切り詰め前)。
+
+        ablation ⑥(§8 第1陣「広告ゼロ」)は ``signage_enabled=False`` でここを ``None`` に
+        する。**固定枠と単一ランキングの両方**がこの 1 本を材料にしているので、腕は 1 箇所で
+        効く(固定枠 → ``_signage`` が ``B2.signage_empty``・ランキング → 候補が空列)。
+
+        Returns:
+            見える表示が**無い**セルは ``None``、在るが命令文除去で本文が消えた場合は ``""``
+            (この 2 つは描画が違う=前者は「見える表示はありません」・後者は素性タグだけの行)。
+        """
+        if not self.signage_enabled:
+            return None
         A = self.assets
         w = self.world
         for j in A.visible_poi[cell]:
             if j >= w.n_poi:
                 continue
+            frozen = A.poi_signage[j] if j < len(A.poi_signage) else ""
+            if frozen:
+                return strip_imperatives(frozen).kept
             frm = int(w.pois.open_from[j]) // 60
             to = int(w.pois.open_to[j]) // 60
-            body = strip_imperatives(f"{A.poi_name[j]}の表示。営業は{frm}時から{to}時。").kept
-            kept, _ = ch.truncate_lines([body], "B2.signage")
-            if kept:
-                return T.TEMPLATES["B2.signage"].format(body=kept[0])
-            return T.TEMPLATES["B2.signage_empty"]
-        return T.TEMPLATES["B2.signage_empty"]
+            return strip_imperatives(f"{A.poi_name[j]}の表示。営業は{frm}時から{to}時。").kept
+        return None
 
     def _b3(self, tc: _TickCache) -> bytes:
         got = self._b3_cache.get(tc.band5)
@@ -776,10 +966,10 @@ class Renderer:
         self._b3_cache[tc.band5] = out
         return out
 
-    def _b4b_lines(
+    def _b4b_raw(
         self, queues: Sequence[tuple[int, str, int]] | None
-    ) -> dict[int, bytes]:
-        """待ち行列 → セル別の B4b 描画バイト(セルあたり上位 1 件)。
+    ) -> dict[int, tuple[str, ...]]:
+        """待ち行列 → セル別の B4b **生の項目**(セルあたり上位 1 件)。
 
         Note:
             逐次ループ宣言(P4): **行列行数**ぶん(``queue_rows(k)`` の k・既定 1-3)。
@@ -799,10 +989,13 @@ class Renderer:
             prev = best.get(c)
             if prev is None or int(count) > prev[0]:
                 best[c] = (int(count), str(name))
+        return {c: (f"{name}の行列に{count}人",) for c, (count, name) in best.items()}
+
+    def _b4b_lines(self, items: Mapping[int, tuple[str, ...]]) -> dict[int, bytes]:
+        """B4b の生の項目 → セル別の描画バイト(固定枠の切り詰めを掛ける)。"""
         out: dict[int, bytes] = {}
-        for c, (count, name) in best.items():
-            item = f"{name}の行列に{count}人"
-            kept, _ = ch.truncate_lines([item], "B4b.near")
+        for c, raw in items.items():
+            kept, _ = ch.truncate_lines(list(raw), "B4b.near")
             if not kept:
                 continue
             out[c] = N.canonical_whitespace(
@@ -898,23 +1091,385 @@ class Renderer:
 
     def _nearby(self, i: int, cell: int, tc: _TickCache) -> list[str]:
         """同一セル在席者から近接上位 k(密度逓減)+知人常掲を作る。"""
+        return [text for text, _d in self._nearby_items(i, cell, tc)]
+
+    def _nearby_items(self, i: int, cell: int, tc: _TickCache) -> list[tuple[str, float]]:
+        """``_nearby`` の各行と**その距離[m]**(単一ランキングの視角に使う)。
+
+        近接 k の選び方(密度逓減 3/2/1・知人常掲)は §3 人物④の規則なので**両モード共通**。
+        ablation ① が外すのは §3.2 のチャネル枠(トークン上限と件数)だけ。
+
+        C7 性能修正(挙動不変): セル在席者ぶんの **Python 反復を全廃**した。
+        以前は ① 距離の辞書(``{id: sqrt(d2)}``)と ② ``set(peers)`` を**毎呼**作っており、
+        390,067 体(セル人口 1.4 万)で 1 呼 17 ms・llm 位相 46 s/tick になっていた
+        (cProfile: 1 呼あたり 13,663 反復)。いまは
+        ③ 座標は ``prepare_tick`` が作ったセル順の**連続配列**から取り(gather 無し)、
+        ④ 自分の行は逆置換 ``cell_pos`` で O(1) に外し、
+        ⑤ 知人の同セル判定は ``cell_pos`` の範囲比較(知人数ぶん)、
+        ⑥ ``sqrt`` は**採った数件だけ**。
+        **順序・同点処理・上位 k・距離の値は 1 ビットも変えていない**
+        (``np.argpartition`` に渡す配列が旧実装と同一=``d2`` の並びまで同じ)。
+        """
         a = self.agents
         if not (0 <= cell < tc.los_stage.size) or tc.cell_start.size == 0:
             return []
         lo, hi = int(tc.cell_start[cell]), int(tc.cell_end[cell])
-        peers = tc.cell_order[lo:hi]
-        peers = peers[peers != i]
+        m = hi - lo
+        if m <= 0:
+            return []
+        # d2 は「セル順の連続配列 − 自分」。旧実装の ``((xy[peers]-xy[i])**2).sum(1)`` と
+        # **同じ順序・同じ丸め**(x²+y² の加算順まで同じ)。自分の座標は**2 スカラーだけ**読む
+        # (``np.asarray(a.xy, float64)`` は float32 SoA の**全体コピー**=390,067 体で 1.6 ms/呼)。
+        dx = tc.cell_x[lo:hi] - float(a.xy[i, 0])
+        dy = tc.cell_y[lo:hi] - float(a.xy[i, 1])
+        d2_full = dx * dx + dy * dy
+        ids_full = tc.cell_order[lo:hi]
+        p = int(tc.cell_pos[i]) - lo if 0 <= i < tc.cell_pos.size else -1
+        if 0 <= p < m:  # 自分の行だけ外す(= 旧 ``peers[peers != i]``・順序は保たれる)
+            peers = np.delete(ids_full, p)
+            d2 = np.delete(d2_full, p)
+        else:  # 自分がこの tick のセル索引に居ない(旧実装でも素通り)
+            peers, d2 = ids_full, d2_full
         if peers.size == 0:
             return []
         los = int(tc.los_stage[cell])
         k = 3 if los <= 1 else (2 if los <= 3 else 1)  # 疎3/中2/密1(境界は expedient)
-        xy = np.asarray(a.xy, dtype=np.float64)
-        d2 = ((xy[peers] - xy[i]) ** 2).sum(axis=1)
         take = min(k, peers.size)
         sel = peers[np.argpartition(d2, take - 1)[:take]] if peers.size > take else peers
-        friends = set(int(x) for x in self.acquaintances.get(i, ()))
-        chosen = sorted(set(int(x) for x in sel) | (friends & set(int(x) for x in peers)))
-        return [f"P-{j}({'知人' if j in friends else '未知'})" for j in chosen]
+        friends, friend_ids = self._acquaintances_of(i)
+        chosen_set = {int(x) for x in sel}
+        if friend_ids.size:  # 知人常掲(§3 人物④)= 同セルの知人を足す(知人数ぶん)
+            pf = tc.cell_pos[friend_ids]
+            chosen_set |= {
+                int(x) for x in friend_ids[(pf >= lo) & (pf < hi) & (friend_ids != i)]
+            }
+        chosen = sorted(chosen_set)
+        q = tc.cell_pos[np.asarray(chosen, dtype=np.int64)] - lo
+        if 0 <= p < m:
+            q = q - (q > p)  # 自分の行を外したぶん詰める
+        dist = np.sqrt(d2[q])  # 採った数件だけ sqrt(旧: セル在席者ぶんの辞書)
+        return [
+            (
+                f"{person_word(j)}({'知人' if j in friends else '未知'})",
+                max(float(dv), 0.1),
+            )
+            for j, dv in zip(chosen, dist)
+        ]
+
+    def _acquaintances_of(self, i: int) -> tuple[frozenset[int], np.ndarray]:
+        """個体 → (知人の集合, 知人 id の配列)。**1 度作って使い回す**(C7)。
+
+        知人表は ``Renderer`` の構築時に固定される(§3 人物④「知人は常に掲載」)ので、
+        毎呼 ``set(...)`` を組み直す必要がない。範囲外の id はここで落とす
+        (旧実装では同セル集合との積で自然に落ちていた)。
+        """
+        got = self._acq_cache.get(i)
+        if got is None:
+            names = frozenset(int(x) for x in self.acquaintances.get(i, ()))
+            arr = np.fromiter(sorted(names), dtype=np.int64, count=len(names))
+            n = int(self.agents.n)
+            if arr.size:
+                arr = arr[(arr >= 0) & (arr < n)]
+            got = (names, arr)
+            self._acq_cache[i] = got
+        return got
+
+    # ---------------------------------------------------------- ablation ①(単一ランキング)
+    def _rank_items(
+        self,
+        cand: Mapping[str, Sequence[str]],
+        overrides: Mapping[tuple[str, int], Mapping[str, float]],
+    ) -> list[tuple[str, str, float]]:
+        """候補 → **顕著性の降順**(同点は item_id 昇順)の ``(channel_id, 行, スコア)``。
+
+        顕著性は ``attention.rank_by_saliency`` そのもの(§4 のフロア付き対数加算)。
+        素性はチャネル既定 ``channels.RANKING_PRIORS`` で、実測がある項目
+        (近接人物の距離・内受容の閾値超過)は ``overrides`` が上書きする。
+
+        Note:
+            逐次ループ宣言(P4): 候補件数ぶんのループ1本(1 セル/1 個体で十数件)。
+        """
+        items: list[SalientItem] = []
+        for cid in sorted(cand):  # 決定論: 入力の辞書順に依存しない
+            prior = ch.RANKING_PRIORS[cid]
+            for k, text in enumerate(cand[cid]):
+                ov = dict(overrides.get((cid, k), {}))
+                items.append(
+                    SalientItem(
+                        item_id=f"{cid}#{k:03d}",
+                        text=text,
+                        size_m=float(ov.get("size_m", prior.size_m)),
+                        distance_m=float(ov.get("distance_m", prior.distance_m)),
+                        contrast=float(ov.get("contrast", prior.contrast)),
+                        motion=float(ov.get("motion", prior.motion)),
+                        deviance=float(ov.get("deviance", prior.deviance)),
+                    )
+                )
+        ranked, scores = rank_by_saliency(items)
+        return [
+            (it.item_id.split("#", 1)[0], it.text, float(sc)) for it, sc in zip(ranked, scores)
+        ]
+
+    def _pool_render(
+        self,
+        cand: Mapping[str, Sequence[str]],
+        overrides: Mapping[tuple[str, int], Mapping[str, float]],
+        blocks: Sequence[str],
+        group: str,
+        reserve_tokens: int,
+        build: Callable[[Mapping[str, list[str]], Sequence[str]], dict[str, bytes]],
+    ) -> tuple[dict[str, bytes], tuple[ch.TruncationReport, ...]]:
+        """§3.2 の ablation ①: **1 本の池**で採否を決め、群予算に収まるまで最下位を落とす。
+
+        1. 池の総額 = そのブロック群のチャネル上限の総和(§3.2「**同一総トークン**」)。
+        2. 順位順に採る(``channels.take_within_pool``= 固定枠と同じ「行の途中で切らない」)。
+        3. 実際の描画バイトが §2.2 のグループ予算を超えていたら、**最下位から 1 件ずつ**
+           落として組み直す(ラベル等の固定オーバーヘッドは池の会計に入らないため)。
+
+        Note:
+            逐次ループ宣言(P4): 2 は候補件数ぶん・3 は採った件数が上限のループ。
+            どちらも**個体数・セル数に比例しない**(1 セル/1 個体で十数件)。
+        """
+        ranked = self._rank_items(cand, overrides)
+        n_fit, _used = ch.take_within_pool([t for _, t, _ in ranked], ch.pool_token_budget(blocks))
+        kept: dict[str, list[str]] = {cid: [] for cid in cand}
+        best: dict[str, float] = {}
+        accepted: list[str] = []  # 採った項目のチャネル(順位順)
+        for idx, (cid, text, score) in enumerate(ranked):
+            if idx >= n_fit:
+                break
+            kept[cid].append(text)
+            accepted.append(cid)
+            best.setdefault(cid, score)
+        budget = int(T.GROUP_TOKEN_BUDGET[group]) - int(reserve_tokens)
+        while True:
+            out = build(kept, self._channel_order(cand, best))
+            total = sum(ch.estimate_tokens(b.decode("utf-8")) for b in out.values())
+            if total <= budget or not accepted:
+                break
+            cid = accepted.pop()
+            kept[cid].pop()
+            if not kept[cid]:
+                best.pop(cid, None)
+        reports = tuple(
+            ch.TruncationReport(
+                channel_id=cid,
+                kept=len(kept[cid]),
+                dropped=len(cand[cid]) - len(kept[cid]),
+                tokens_before=sum(ch.estimate_tokens(t) for t in cand[cid]),
+                tokens_after=sum(ch.estimate_tokens(t) for t in kept[cid]),
+            )
+            for cid in sorted(cand)
+        )
+        return out, reports
+
+    def _channel_order(
+        self, cand: Mapping[str, Sequence[str]], best: Mapping[str, float]
+    ) -> list[str]:
+        """ブロック内の**行の並び**= チャネルの最上位項目のスコア降順(同点は id 昇順)。
+
+        1 チャネル=1 行(``B5.self`` だけ 2 行)なので、これが「単一ランキングの順序」。
+        採った項目が無いチャネル(空文言を出す行)はチャネル既定素性のスコアで並べる。
+        """
+        return sorted(
+            cand,
+            key=lambda cid: (-float(best.get(cid, RANKING_PRIOR_SCORES[cid])), cid),
+        )
+
+    def _lines_for(self, channel_id: str, items: Sequence[str]) -> list[str]:
+        """チャネル + 採った項目 → 描画行(固定枠と**同じテンプレ**を使う)。"""
+        if channel_id == "B2.ground":
+            return [T.TEMPLATES["B2.ground"].format(ground=items[0])] if items else []
+        if channel_id == "B2.visible":
+            return [
+                T.TEMPLATES["B2.visible"].format(items=N.LIST_SEPARATOR.join(items))
+                if items
+                else T.TEMPLATES["B2.visible_empty"]
+            ]
+        if channel_id == "B2.signage":
+            return [
+                T.TEMPLATES["B2.signage"].format(body=items[0])
+                if items
+                else T.TEMPLATES["B2.signage_empty"]
+            ]
+        if channel_id == "B2.landmark":
+            return [
+                T.TEMPLATES["B2.landmark"].format(items=N.LIST_SEPARATOR.join(items))
+                if items
+                else T.TEMPLATES["B2.landmark_empty"]
+            ]
+        if channel_id in ("B4.density", "B4.noise"):
+            return [items[0]] if items else []
+        if channel_id == "B4.salient":
+            return [
+                T.TEMPLATES["B4.salient"].format(items=N.LIST_SEPARATOR.join(items))
+                if items
+                else T.TEMPLATES["B4.salient_empty"]
+            ]
+        if channel_id == "B4b.near":
+            return [
+                T.TEMPLATES["B4b.near"].format(items=N.LIST_SEPARATOR.join(items))
+                if items
+                else T.TEMPLATES["B4b.near_empty"]
+            ]
+        if channel_id == "B5.intero":
+            return [
+                T.TEMPLATES["B5.intero"].format(items="".join(items))
+                if items
+                else T.TEMPLATES["B5.intero_empty"]
+            ]
+        if channel_id == "B5.self":
+            return list(items)
+        if channel_id == "B5.near_person":
+            return [
+                T.TEMPLATES["B5.near_person"].format(items=N.LIST_SEPARATOR.join(items))
+                if items
+                else T.TEMPLATES["B5.near_person_empty"]
+            ]
+        if channel_id == "B5.watched":
+            return [items[0]] if items else [T.TEMPLATES["B5.watched_empty"]]
+        raise KeyError(f"未登録チャネル: {channel_id!r}")
+
+    def _cell_candidates(self, cell: int, tc: _TickCache) -> tuple[dict[str, list[str]], str]:
+        """セル依存(B2/B4/B4b)の候補と、チャネルでない構造行(B2 場所)。"""
+        A = self.assets
+        cand: dict[str, list[str]] = {
+            "B2.ground": [],
+            "B2.visible": [],
+            "B2.signage": [],
+            "B2.landmark": [],
+            "B4.density": [],
+            "B4.noise": [],
+            "B4.salient": [],
+            "B4b.near": [],
+        }
+        if 0 <= cell < A.n_cells:
+            band = int(self.world.assets.cell_band[cell])
+            place = T.TEMPLATES["B2.place"].format(
+                place_id=A.place_ids[cell], band=T.BAND_WORDS.get(band, "地上")
+            )
+            cand["B2.ground"] = [
+                T.GROUND_WORDS.get(band, T.GROUND_WORDS[0])
+                if bool(A.has_street[cell])
+                else T.GROUND_NO_STREET
+            ]
+            static = self._visible_static(cell)
+            cand["B2.visible"] = [static] if static else self._visible_names(cell)
+            body = self._signage_body(cell)
+            cand["B2.signage"] = [] if body is None else [body]
+            cand["B2.landmark"] = list(A.visible_landmark[cell])
+        else:
+            place = T.TEMPLATES["B2.place"].format(place_id="なし", band="地上")
+        if 0 <= cell < tc.los_stage.size:
+            los = int(min(tc.los_stage[cell], len(T.DENSITY_LOS_LETTERS) - 1))
+            ns = int(min(tc.noise_stage[cell], len(T.NOISE_STAGE_VOCAB) - 1))
+            cand["B4.density"] = [
+                T.TEMPLATES["B4.density"].format(
+                    stage=T.DENSITY_LOS_LETTERS[los], flow=T.FLOW_WORDS[int(tc.flow[cell])]
+                )
+            ]
+            cand["B4.noise"] = [
+                T.TEMPLATES["B4.noise"].format(
+                    stage=T.NOISE_STAGE_VOCAB[ns], band=T.NOISE_BAND_WORDS[ns]
+                )
+            ]
+            cand["B4.salient"] = list(tc.salient.get(cell, ()))
+            cand["B4b.near"] = list(tc.b4b_items.get(cell, ()))
+        else:
+            cand["B4.density"] = [
+                T.TEMPLATES["B4.density"].format(
+                    stage=T.DENSITY_LOS_LETTERS[0], flow=T.FLOW_WORDS[0]
+                )
+            ]
+            cand["B4.noise"] = [
+                T.TEMPLATES["B4.noise"].format(
+                    stage=T.NOISE_STAGE_VOCAB[0], band=T.NOISE_BAND_WORDS[0]
+                )
+            ]
+        return cand, place
+
+    def _cell_blocks_ranked(
+        self, cell: int, tc: _TickCache, trunc: list[ch.TruncationReport]
+    ) -> dict[str, bytes]:
+        """B2/B4/B4b を**セル依存の 1 本の池**(≤250 tok)で組む(ablation ①)。
+
+        材料はセルの情報だけ(個体依存語は 1 語も入らない)ので、§2.4 ⑧「同セル同時間帯の
+        2 体でバイト差分ゼロ」は固定枠と同じく成り立つ。キャッシュ鍵は ``(セル, B4 欄ハッシュ)``
+        (固定枠の B2 はセルだけで足りるが、単一ランキングでは B4 の内容が B2 の採否を動かす)。
+        """
+        fh = int(tc.b4_field_hash[cell]) if 0 <= cell < tc.b4_field_hash.size else -1
+        key = (int(cell), fh)
+        got = self._rank_cell_cache.get(key)
+        if got is not None:
+            self.cache_hits += 1
+            trunc.extend(got[1])
+            return got[0]
+        self.cache_misses += 1
+        cand, place = self._cell_candidates(cell, tc)
+
+        def build(kept: Mapping[str, list[str]], order: Sequence[str]) -> dict[str, bytes]:
+            rows: dict[str, list[str]] = {"B2": [place], "B4": [], "B4b": []}
+            for cid in order:
+                block = "B4b" if cid.startswith("B4b.") else cid.split(".", 1)[0]
+                rows[block].extend(self._lines_for(cid, kept[cid]))
+            return {b: N.join_lines(rows[b]).encode("utf-8") for b in ("B2", "B4", "B4b")}
+
+        out, reports = self._pool_render(cand, {}, ("B2", "B4", "B4b"), "cell", 0, build)
+        self._rank_cell_cache[key] = (out, reports)
+        trunc.extend(reports)
+        return out
+
+    def _b5_ranked(
+        self,
+        i: int,
+        cell: int,
+        tc: _TickCache,
+        trunc: list[ch.TruncationReport],
+        reserve_tokens: int,
+    ) -> bytes:
+        """B5 を**個体の 1 本の池**(≤220 tok)で組む(ablation ①)。
+
+        群予算(個体 ≤300)から B6 の実測ぶんを差し引いた残りが上限になる。
+        """
+        a = self.agents
+        overrides: dict[tuple[str, int], dict[str, float]] = {}
+        crossed: list[str] = []
+        span = max(1, T.INTERO_SCALE_MAX - INTERO_UP_EDGES[0])
+        for name, label in zip(INTEROCEPTION_FIELDS, ("空腹", "体力", "体感温度")):
+            v = int(a.registry.field(name)[i])
+            if v >= INTERO_UP_EDGES[0]:
+                overrides[("B5.intero", len(crossed))] = {
+                    "deviance": min(1.0, (v - INTERO_UP_EDGES[0]) / span)
+                }
+                crossed.append(f"{label}は{v}で閾値を超えています。")
+        near = self._nearby_items(i, cell, tc)
+        for k, (_text, d) in enumerate(near):
+            overrides[("B5.near_person", k)] = {"distance_m": float(d)}
+        nw = 0 if self.watched_by is None else int(self.watched_by[i])
+        cand: dict[str, list[str]] = {
+            "B5.intero": crossed,
+            "B5.self": [
+                T.TEMPLATES["B5.holding"].format(
+                    money=f"{int(a.money[i]):,}",
+                    hands=T.HANDS_WORDS[1 if int(a.holdings[i]) > 0 else 0],
+                ),
+                T.TEMPLATES["B5.recent"].format(activity=_activity_word(int(a.activity[i]))),
+            ],
+            "B5.near_person": [t for t, _d in near],
+            "B5.watched": [T.TEMPLATES["B5.watched"].format(n=nw)] if nw > 0 else [],
+        }
+
+        def build(kept: Mapping[str, list[str]], order: Sequence[str]) -> dict[str, bytes]:
+            rows: list[str] = []
+            for cid in order:
+                rows.extend(self._lines_for(cid, kept[cid]))
+            return {"B5": N.join_lines(rows).encode("utf-8")}
+
+        out, reports = self._pool_render(
+            cand, overrides, ("B5",), "individual", int(reserve_tokens), build
+        )
+        trunc.extend(reports)
+        return out["B5"]
 
     def _b6(
         self,
@@ -924,9 +1479,14 @@ class Renderer:
         cell: int,
         tc: _TickCache,
         last_action: str | None = None,
+        inviter: int | None = None,
     ) -> bytes:
         a = self.agents
-        if isinstance(wake_reason, str):
+        if inviter is not None and int(inviter) >= 0:
+            # §6 起床(ii) 被招待: 誰に話しかけられたかを**個体ブロック**で名指す。
+            # B6 は個体ブロックなので規約⑧(B0-B4b のバイト一致)には触れない。
+            reason = INVITE_REASON.format(person=person_word(int(inviter)))
+        elif isinstance(wake_reason, str):
             reason = wake_reason
         else:
             r = int(wake_reason)
@@ -992,17 +1552,34 @@ class Renderer:
         return float(self.cache_hits) / total if total else 0.0
 
     def report(self) -> str:
-        """診断行 1 本。"""
+        """診断行 1 本。
+
+        凍結静的文(W14/W15)を使っているときは**その SHA を出す**(切替はファイルの有無で
+        決まるので、どの版の文面で走ったかはこの値でしか特定できない=manifest へ記録する)。
+        """
+        frozen = "".join(
+            f" {k}={v[:16]}" for k, v in sorted(self.assets.frozen_sources.items())
+        )
         return (
             f"[perception.renderer] renders={self.renders} "
             f"cache_hit_rate={self.cache_hit_rate:.3f} "
             f"(hits={self.cache_hits} misses={self.cache_misses}) "
             f"truncated_channels={self.truncation_count} "
             f"template_sha256={T.template_sha256()[:16]}"
+            f"{frozen}"
         )
 
 
 # ------------------------------------------------------------------ 補助
+def person_word(agent_id: int) -> str:
+    """個体 id → 観測に出る人 ID の表層(``P-17``)。
+
+    ``B5.near_person`` の ``P-<id>(未知/知人)`` と**同じ表層**にする(行動契約書 §1-2 の
+    「対象: 人ID」・``llm.contract`` の ``_PERSON_RE`` が読む形)。
+    """
+    return f"P-{int(agent_id)}"
+
+
 def _activity_word(code: int) -> str:
     return ACTIVITY_WORDS[code] if 0 <= code < len(ACTIVITY_WORDS) else ACTIVITY_WORDS[0]
 
@@ -1013,8 +1590,11 @@ def _cell_index(cell: np.ndarray, n_cells: int) -> dict[str, np.ndarray]:
     order = np.argsort(c, kind="stable")
     sorted_c = c[order]
     idx = np.arange(n_cells, dtype=np.int64)
+    pos = np.empty(order.size, dtype=np.int64)  # 逆置換: 個体 → order 上の位置(C7)
+    pos[order] = np.arange(order.size, dtype=np.int64)
     return {
         "cell_order": order,
         "cell_start": np.searchsorted(sorted_c, idx, side="left"),
         "cell_end": np.searchsorted(sorted_c, idx, side="right"),
+        "cell_pos": pos,
     }

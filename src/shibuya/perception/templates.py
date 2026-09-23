@@ -125,6 +125,9 @@ ACTION_WORDS_12: Final[tuple[str, ...]] = (
 
 #: ``agents.state.AgentKind`` の値 → B1 の種別語(知覚契約書 §2.2「B1 種別(約10)」)。
 KIND_WORDS: Final[tuple[str, ...]] = ("通勤者", "来街者", "従業者", "居住者", "指令")
+# C5(W16)で AgentKind に 通学者/定期来街者/訪日来街者/乗務員 を足したが、本表は
+# **v1 の凍結テンプレ SHA に入っている**(§1 条5「この値が変わる変更=改版」)ので広げていない。
+# 表に無い種別は renderer が "来街者" へ落とす(改版の可否は親判断待ち)。
 
 #: 層コード(W2 band: UG=-1 / GL=0 / DECK=1)→ B2 の層語。
 BAND_WORDS: Final[Mapping[int, str]] = {-1: "地下", 0: "地上", 1: "デッキ"}

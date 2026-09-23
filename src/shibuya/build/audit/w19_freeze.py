@@ -26,6 +26,7 @@ from typing import Any
 from ..field import w7_planspec, w10_noise, w12_external_nodes, w13_weather
 from ..geo import common as C
 from ..geo import w0_crs, w1_walk_graph, w4_heights, w5_entrances, w6_poi_org, w11_station_exits
+from ..pop import w16_population
 
 STAGE = "W19"
 STAGE_VERSION = "1.0.0"
@@ -54,7 +55,9 @@ def _joined(parts: tuple[str, ...]) -> str:
 def data_asset_paths(data_root: Path) -> list[str]:
     """全段階の入力ファイル(data 根からの相対パス・整列済み・重複なし)。"""
     rel: set[str] = set()
-    for mod in (w0_crs, w1_walk_graph, w4_heights, w5_entrances, w6_poi_org, w7_planspec):
+    for mod in (
+        w0_crs, w1_walk_graph, w4_heights, w5_entrances, w6_poi_org, w7_planspec, w16_population
+    ):
         for parts in getattr(mod, "INPUT_FILES", ()):
             rel.add(_joined(parts))
     for name in w11_station_exits.ODPT_STATION_FILES:
@@ -73,6 +76,10 @@ def data_asset_paths(data_root: Path) -> list[str]:
     if amedas.exists():
         for p in sorted(amedas.rglob("amedas_*.json")):
             rel.add(p.relative_to(data_root).as_posix())
+    pool_root = data_root.joinpath(*w16_population.POOL_DIR)
+    if pool_root.exists():
+        for q in sorted(pool_root.rglob("part-*.jsonl")):
+            rel.add(q.relative_to(data_root).as_posix())
     # W8/W9(可視性・影)の外部入力
     rel.add("realworld/osm/shibuya_osm_wide_v8.json")
     rel.add("plateau/terrain.npz")

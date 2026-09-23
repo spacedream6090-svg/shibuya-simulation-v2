@@ -1,0 +1,69 @@
+== c7-day-3 start 2026-09-12 03:35:15 HEAD=3662ae0
+[run] n=390067 cells=520 seed=1 ticks=1440 world=data/world/v2
+  壁時計 34182.30s (W2 上限 600s) / 移動+密度 125.029 ms/tick (P2 上限 5 ms)
+  LLM呼 2,805,670 = 7.19 呼/体/日 (L4 制御目標 10)
+  書式エラー率 実効 0.006 / 厳密 0.503 (受入 ≤0.10) ・別名 0.101 ・位置読み 0.407 ・辞書写像 0.005
+  保存則 Σmoney 11,496,438,891 + Σrevenue 19,412,000 + Σ運賃 6,262,380 = 11,522,113,271 (初期 11,522,113,271) OK / 最小在庫 0
+  checkpoint 4 点 最終 62e7c16e42ee78bd…
+  内訳[ms/tick] presence 16.45 / phase_a 102.60 / detect 65.46 / fleet_wait 21131.88 / llm 1624.45 / arbiter 154.44 / phase_b 51.67 / phase_c 291.29 / movement 125.03 / checkpoint 0.14 / 合計 23737.71
+  movement 壁 125.029 / CPU 30.244 ms/tick (P2 上限 5) ・待ち割合 0.76
+  テープ繰り延べ行 14,423(D-58・応答なしの呼)/ 再投入 14,423 / 再送 14,391 / 終端未応答 0
+  凍結静的文 w14_signage.parquet=f2439da625729895 w15_cell_static.parquet=012489fc47264359
+  世界過程 台帳 1a5fcb8ce4a7e24f… 憲法5 OK / 再生日 2026-07-28 / 乗車 34,791 降車 0 待ち行列 8,351 乗車待ち 36,041(打ち切り 274) 乗り残し 0(0.0000) / ActualLog 16,533 行 遵守率 0.256
+  C4後半: 補充 138 / 納品 2,337 / 宅配 6,997 / バス到着 0 / ホテル泊 492 / 顕著行為 228(気づき 1,311,471・出動 114) / 廃棄 11.271 t/日 (band 83.7-155.5) NG
+  日次センサス(§2.4・締めた day=0): 残差 0 / 貨幣供給 33,929,366,702 / faucet 33,935,934,271 / sink 6,567,569 / 棚卸差異 0 / 廃棄 3,827,550g / ゲート PASS
+  過程別[s]: bus_taxi=0.007, crowd=138.668, delivery_inbound=1.267, dispatch=0.004, environment=14.187, hotel=0.021, infra=3.790, large_event=0.041, last_mile=0.035, opening=0.594, press=0.021, rail=43.934, road_works=0.013, salient=66.639, shelf=0.686, street_cleaning=2.771, traffic=0.024, waste=1.162
+  レンダラ perception.Renderer: 描画 2,805,670 命中率 1.000 / 平均tok 共有静的 642.8/750 セル 147.5/250 個体 133.3/300 (合計 923.7) 切り詰め 83
+  診断 deferred: 2,800,723
+  診断 promoted: 1,911,181
+  診断 degraded: 640,527
+  診断 suppressed: 2,887,677
+  診断 sleep_suppressed: 811,331
+  診断 outside_suppressed: 2,674,743
+  域外宛ての呼 0(抑止 2,674,743・抑止腕 on)
+  呼/時 00:12492 01:12101 02:20236 03:18603 04:21137 05:36910 06:115962 07:164642 08:162528 09:162528 10:162528 11:162527 12:162528 13:162528 14:162528 15:162528 16:162528 17:162528 18:162528 19:162528 20:162528 21:112511 22:100572 23:77641
+  起床率/時 00:0.846 01:0.855 02:0.859 03:0.861 04:0.862 05:0.868 06:0.882 07:0.939 08:0.979 09:0.994 10:0.996 11:0.997 12:0.997 13:0.998 14:0.998 15:0.999 16:0.999 17:0.999 18:1.000 19:1.000 20:1.000 21:0.999 22:0.997 23:0.992
+  起床率(在圏)/時 00:0.010 01:0.103 02:0.152 03:0.163 04:0.166 05:0.195 06:0.316 07:0.632 08:0.915 09:0.988 10:0.994 11:0.996 12:0.997 13:0.997 14:0.997 15:0.998 16:0.998 17:0.999 18:0.999 19:1.000 20:1.000 21:0.999 22:0.994 23:0.980
+  D-62 計画就寝 その場 2,902 + 着いて 1,645(歩行中 4,618) / 計画起床 41,514 / 寝かせなかった 乗車中 0・域外 410,876・会話中 2・就寝済 61,578・行けない 13,498
+  計画実行: 域外居住 346,445 / 到着 469,494 / 退出 402,376 / 終日域外 1,269 / 計画一致率(在圏) 0.983 / (域外) 0.996 / 昼夜比 09-03 3.58 / 日末の計画在圏なのに域外 990
+  診断 parse_error_rate: 0.0060 / undefined_action_count: 1,783 / tape_miss_count: 0 / conversation_sessions: 372
+  状態成長宣言(D-R2-6)の検査: steps=1440×1分 = 1.0000 シミュ日 → 30 日外挿 (N=390067) (OK)
+    pending_apply        実測      524,288B →        524,288B/日 → 1日          524,288B / cap       16,000,000B OK
+    intent_buffer        実測    1,380,448B →      1,380,448B/日 → 1日        1,380,448B / cap       16,000,000B OK
+    arbiter_backlog      実測   10,006,944B →     10,006,944B/日 → 1日       10,006,944B / cap       32,000,000B OK
+    diagnostics_rows     実測      184,320B →        184,320B/日 → 30日        5,529,600B / cap       64,000,000B OK
+    tape_rows            実測 1,122,268,000B →  1,122,268,000B/日 → 1日    1,122,268,000B / cap    5,000,000,000B OK
+    actual_log_raw       実測      512,523B →        512,523B/日 → 7日        3,587,661B / cap      536,870,912B OK
+    actual_log_daily     実測            0B →              0B/日 → 30日                0B / cap       16,777,216B OK
+    transfer_log         実測   10,748,976B →     10,748,976B/日 → 1日       10,748,976B / cap       28,084,824B OK
+    flow_matrix_daily    実測        4,320B →          4,320B/日 → 30日          129,600B / cap       16,000,000B OK
+    delivery_log         実測      379,376B →        379,376B/日 → 1日          379,376B / cap       12,482,144B OK
+  checkpoints JSON data/runs/c7-day-3/checkpoints.json (4 点)
+[艦隊] 呼 2,805,670 / 帳尻 2,805,670 ・繰り延べ 14,423(再投入 14,423・再送 14,391) ・TTFT p50/p99 1.93/3.76s ・e2e p50/p99 4.19/6.05s ・temp 0.7 max_tok 96 ・cache_salt 03dd8690765bc505…(production)
+[艦隊書式] エラー率 実効 0.006 / 厳密 0.503 (受入 ≤0.10) ・別名 0.101(281,200 呼) ・位置読み 0.407(1,135,645 呼) ・辞書写像 0.005(14,640 呼) ・温度0再生成 7,862(成功 5,797) ・未定義 16,423
+[参入資本] 店舗の現金+預金 22,432,927,811 円 / 世帯の現金+預金 11,496,438,891 円 / 貨幣供給 33,929,366,702 円 = 店舗 66.12% (経済センサス按分)
+[世帯財布] 世帯の現金+預金 11,496,438,891 円 / 貨幣供給 33,929,366,702 円 = 33.88% (anchors 対数正規・母集団あり)
+	Command being timed: "~/venvs/v2/bin/python -m shibuya.cli --agents 390067 --seed 1 --ticks 1440 --world data/world/v2 --llm fleet --endpoints http://x.x.x.x:8200,http://x.x.x.x:8201,http://x.x.x.x:8202,http://x.x.x.x:8203,http://x.x.x.x:8204,http://x.x.x.x:8205,http://x.x.x.x:8206 --model Qwen3-8B-int8 --mode production --run-id c7-day-3 --tape data/tape/c7-day-3 --fleet-wait-s 120 --fleet-queue-capacity 4096 --temperature 0.7 --max-tokens 96 --occupancy-every 60 --occupancy-out data/runs/c7-day-3/occupancy.npz --checkpoints-out data/runs/c7-day-3/checkpoints.json"
+	User time (seconds): 23036.41
+	System time (seconds): 983.49
+	Percent of CPU this job got: 70%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 9:29:43
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1578092
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 204825845
+	Voluntary context switches: 20850263
+	Involuntary context switches: 313252
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 386616
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+C7_DONE 2026-09-12 13:04:58 exit=0

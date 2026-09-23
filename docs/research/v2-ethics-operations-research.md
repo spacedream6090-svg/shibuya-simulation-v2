@@ -1,5 +1,10 @@
 # R17 倫理・コンテンツ安全の運用規則 — ギャップ埋め答申(正典化)
 
+<!-- hdr:v1 -->
+- **分野**: 研究倫理・情報法 #31 | **重要度**: P1(親判断・2026-09-15 第191)
+- **一次確認**: **B** = 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) — 出典痕跡 29 件。空欄節あり
+- **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
+
 > **親検収(Fable・2026-09-08)**: サブ(Opus 5・子サブなし・リポ書込なし・ハーネスがファイル書込を遮断=テキスト返答を親が保存)の最重要5件を親が原典で確認した。✔=一致。
 > - ✔ **CitySim(arXiv 2506.21805・Bougie & Watanabe・Woven by Toyota)**: "We now assess CitySim's ability to reproduce real-world patterns of pedestrian concentration across Shibuya (Japan)."・エージェント属性は "a proprietary survey-based dataset, conducted in Japan"+OpenStreetMap。§7 Ethics Statement 全文を親が取得(バイアス増幅/不公平の再生産/行動誘導と同意・自律/実住民・利害関係者・専門家の関与の周縁化→"complement, not replace")。
 > - ✔ **CityReal(arXiv 2608.16897・Bougie, Ye & Watanabe・2026-07-08)**: "We assess CityReal's ability to reproduce pedestrian concentration patterns across Shibuya, Tokyo."・Ethics Statement 全文取得("they should not be treated as a substitute for real residents, stakeholders, or domain experts"・"complement, rather than replace, participatory design, empirical studies, and expert review")・Limitations "the reproducibility of some experiments is constrained by the use of non-public datasets"。

@@ -1,5 +1,10 @@
 # レーンR4 答申: 行動契約(心→世界)と会話プロトコル
 
+<!-- hdr:v1 -->
+- **分野**: 会話分析・語用論 #15 / 認知科学(記憶・習慣) #12 | **重要度**: P0(親判断・2026-09-15 第191)
+- **一次確認**: **B** = 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) — 出典痕跡 145 件。空欄節あり
+- **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
+
 > **親検収(Fable・2026-09-06)**: 出典を親が一次確認した。✔=親が実読して数値一致。
 > - ✔ Levinson & Torreira 2015(Frontiers実読): 「The 50,510 IPUs had an average duration of 1680 ms, and a median duration of 1227 ms.」IPU=180 ms以上の無音で区切った発話単位(ターンと厳密には同一でない=答申の注記どおり)。「1呼=1実ターン」が予算上不成立という算術は妥当。
 > - ✔ Dunbar 2020(PMC7482201実読): 層5/15/50/150/500/1500・「each layer is approximately three times the size of the layer immediately inside it」・「Approximately 40% of all social effort … to the five individuals in the closest layer, with another 20% devoted to the remaining 10 members of the second layer」・関係破綻約1%/年・転居後18か月で約40%入替・数か月の無接触で弱化。
@@ -8,7 +13,6 @@
 > - ✔ AI Town ARCHITECTURE.md(実読): 「Only the game engine should programmatically modify these tables, so components outside the engine can only mutate them by sending inputs.」入力=join/leave/moveTo/startConversation/acceptInvite/rejectInvite/leaveConversation/startTyping/finishSendingMessage。✔ Concordia(arXiv 2312.03664v2 §2実読): 「Whenever an agent tries to perform an action that violates the grounding, it communicates to them that their action was invalid.」
 > - 空欄(会話持続時間の実測分布・約束遵守率・口コミ伝播率・内層入替率の一次データ・CivRealm/Sidの行動空間・OASIS失敗処理・「語彙10-15語で劣化」)は答申の申告どおり。max_turns=3呼/体は予算由来のexpedient。
 > - 正典化: docs/research/v2-action-conversation-contract-research.md(R4の根拠)。
-
 
 > 作成: 2026-09-06 / リサーチ担当サブ(Opus 5) / 検収=親(Fable)・決定=ユーザー
 > 規律: 出典は正規ドメイン+実読した箇所の短い引用。読めなかった項目は「空欄(未確認)」。推測は【推測】。

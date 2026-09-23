@@ -66,6 +66,10 @@ __all__ = [
     "ConvState",
     "Session",
     "GateResult",
+    "PendingInvite",
+    "PENDING_INVITE_TTL_TICKS",
+    "PAIR_INVITE_REFRACTORY_TICKS",
+    "SPEAKER_INVITE_REFRACTORY_TICKS",
     "ConversationManager",
 ]
 
@@ -87,6 +91,20 @@ SILENCE_TICKS: Final[int] = 5
 MAX_SESSION_TICKS: Final[int] = 60
 #: 招待の応答判定に使う RNG ドメイン。
 INVITE_RNG_DOMAIN: Final[str] = "conversation.invite"
+
+#: **被招待の返事を待つ tick 数**(C6・09-09)。相手が同じ適用バッチに居なかった招待は
+#: 次 tick に被招待起床(``WakeCondition.CONVERSATION_TURN``)させ、その返事を待つ。
+#: 期限切れは「無視された」= 招待側を IDLE へ戻す(行動契約書 §3・呼を消費しない)。
+#: 値は expedient(δ_think L1=1 tick + アービタの繰り延べ 1 tick 分の余裕)。
+PENDING_INVITE_TTL_TICKS: Final[int] = 3
+
+#: **相手別不応期**(知覚契約書 §6 不応期表「同一相手 60 分」)。同じ対に対する招待は
+#: 成否によらずこの間隔を空ける。``agents.state`` の ``refractory_until`` は体×条件で
+#: **相手別を持てない**(C2 で未実装として登録済み)ので、対の表は本マネージャが持つ。
+PAIR_INVITE_REFRACTORY_TICKS: Final[int] = 60
+
+#: 同上「同一話者 30 分」。同じ**招待側**が連続で誰かを誘う間隔の下限。
+SPEAKER_INVITE_REFRACTORY_TICKS: Final[int] = 30
 
 #: 相槌・最小応答(**エンジン生成=LLMを呼ばない**・文面凍結)。
 BACKCHANNELS: Final[tuple[str, ...]] = ("うん", "なるほど", "そうですね")
@@ -167,6 +185,28 @@ class Session:
         return self.calls.get(agent_id, 0) < self.max_turns_of.get(agent_id, MAX_TURNS)
 
 
+@dataclass
+class PendingInvite:
+    """**返事待ちの招待**(C6・09-09)。
+
+    LLM が「行動: 会話 対象: P-<id>」と書いたが、相手がその tick の適用バッチに居なかった
+    場合の状態。相手は次 tick に ``WakeCondition.CONVERSATION_TURN`` で起床し(知覚契約書 §6
+    起床(ii) の被招待)、その応答が 会話 なら成立・それ以外なら不成立。
+
+    Attributes:
+        inviter / invitee: 誘った側 / 誘われた側。
+        tick: 招待が出た tick。
+        cell: 招待時のセル(成立時のセッションのセル)。
+        expires_tick: この tick を過ぎたら「無視された」扱い。
+    """
+
+    inviter: int
+    invitee: int
+    tick: int
+    cell: int
+    expires_tick: int
+
+
 @dataclass(frozen=True)
 class GateResult:
     """開始ゲートの判定(契約書 §3 の5条件)。"""
@@ -234,10 +274,23 @@ class ConversationManager:
         self._of_agent: dict[int, int] = {}  # agent → session_id(1人1会話)
         self._refusal_until: dict[tuple[int, int], int] = {}
         self._next_id = 0
+        # ---- C6(09-09): 返事待ちの招待と相手別不応期 ----
+        #: 被招待者 id → ``PendingInvite``(1人につき最大1件=先着)。
+        self.pending_invites: dict[int, PendingInvite] = {}
+        #: 対 → この tick までは再招待しない(「同一相手 60 分」)。
+        self._pair_invite_until: dict[tuple[int, int], int] = {}
+        #: 招待側 → この tick までは次の招待を出さない(「同一話者 30 分」)。
+        self._speaker_invite_until: dict[int, int] = {}
         # ---- 診断 ----
         self.n_opened = 0
         self.n_ignored_invites = 0
         self.n_gate_rejected = 0
+        #: C6 診断行: 出た招待 / 相手の返事で成立 / 断られた / 期限切れ / 不応期で抑止。
+        self.n_invites = 0
+        self.n_accepted = 0
+        self.n_declined = 0
+        self.n_pending_expired = 0
+        self.n_invite_refractory_blocked = 0
         self.n_blocks = 0
         self.n_backchannels = 0
         self.n_interrupts = 0
@@ -329,8 +382,15 @@ class ConversationManager:
         partner_idle: bool,
         inviter_has_budget: bool = True,
         partner_has_budget: bool = True,
+        answered: bool | None = None,
     ) -> Session | None:
         """招待 → 応答判定 → セッション生成。
+
+        Args:
+            answered: **被招待者の実際の返事**(``True``=その tick の自分の呼で 会話 と答えた)。
+                ``None``(既定)のときだけエンジンの応答確率 ``accept_probability`` を引く。
+                C6(09-09)で被招待が自分の呼で答えるようになったので、答えが分かる場面では
+                **抽選を使わない**(0.8 は較正の目標値であって機構ではない)。
 
         Returns:
             成立した ``Session``。ゲート不通過・不応答なら ``None``
@@ -344,7 +404,10 @@ class ConversationManager:
         if not g.ok:
             self.n_gate_rejected += 1
             return None
-        if not self._accepts(inviter, tick):
+        accepts = self._accepts(inviter, tick) if answered is None else bool(answered)
+        if not accepts:
+            if answered is not None:
+                self.n_declined += 1  # 相手が**自分の呼で**断った(抽選ではない)
             self.n_ignored_invites += 1
             self.ignored_events.append((int(tick), int(inviter), int(invitee)))
             self._remember_refusal(inviter, invitee, tick)
@@ -385,6 +448,110 @@ class ConversationManager:
         self._of_agent[a] = session.session_id
         return True
 
+    # ---------------------------------------------------------------- C6: 相手別不応期
+    def invite_blocked_by_refractory(self, inviter: int, invitee: int, tick: int) -> str:
+        """相手別不応期(§6 不応期表「同一相手 60 分」「同一話者 30 分」)。
+
+        Returns:
+            抑止の理由(``""`` なら通す)。
+        """
+        if int(tick) < self._speaker_invite_until.get(int(inviter), -1):
+            return "speaker_refractory"
+        if int(tick) < self._pair_invite_until.get(self._pair(inviter, invitee), -1):
+            return "pair_refractory"
+        return ""
+
+    def stamp_invite_refractory(self, inviter: int, invitee: int, tick: int) -> None:
+        """相手別不応期を刻む(招待が**出た**時点。成否によらない)。"""
+        self._pair_invite_until[self._pair(inviter, invitee)] = (
+            int(tick) + PAIR_INVITE_REFRACTORY_TICKS
+        )
+        self._speaker_invite_until[int(inviter)] = (
+            int(tick) + SPEAKER_INVITE_REFRACTORY_TICKS
+        )
+
+    # ---------------------------------------------------------------- C6: 返事待ちの招待
+    def register_pending(
+        self, inviter: int, invitee: int, tick: int, cell: int, *, same_cell: bool
+    ) -> bool:
+        """相手が同じ適用バッチに居なかった招待を**返事待ち**に積む。
+
+        相手は次 tick に ``wake_candidates`` から ``CONVERSATION_TURN`` で起床する
+        (知覚契約書 §6 起床(ii) の被招待)。返事が 会話 なら ``resolve_pending`` で成立。
+
+        Returns:
+            積めたか(``False``=ゲート/不応期で不成立=招待側は戻す)。
+        """
+        inviter, invitee = int(inviter), int(invitee)
+        if inviter == invitee or invitee < 0:
+            return False
+        if not same_cell:
+            self.n_gate_rejected += 1
+            return False
+        if self.is_busy(inviter) or self.is_busy(invitee):
+            self.n_gate_rejected += 1
+            return False
+        if invitee in self.pending_invites:  # 先着1件(同 tick の重複招待は落とす)
+            self.n_gate_rejected += 1
+            return False
+        why = self.invite_blocked_by_refractory(inviter, invitee, tick)
+        if why:
+            self.n_invite_refractory_blocked += 1
+            return False
+        if self.refused_recently(inviter, invitee, tick):
+            self.n_gate_rejected += 1
+            return False
+        self.pending_invites[invitee] = PendingInvite(
+            inviter=inviter, invitee=invitee, tick=int(tick), cell=int(cell),
+            expires_tick=int(tick) + PENDING_INVITE_TTL_TICKS,
+        )
+        self.n_invites += 1
+        self.stamp_invite_refractory(inviter, invitee, tick)
+        return True
+
+    def resolve_pending(self, invitee: int, tick: int, *, accepted: bool) -> Session | None:
+        """被招待者の**LLM の返事**で成立/不成立を決める(0.8 の抽選は使わない)。
+
+        Args:
+            invitee: 返事をした個体。
+            accepted: 返事が 会話 だったか。
+
+        Returns:
+            成立した ``Session``(不成立・保留なしは ``None``)。
+        """
+        pend = self.pending_invites.pop(int(invitee), None)
+        if pend is None:
+            return None
+        if not accepted:
+            self.n_declined += 1
+            self._remember_refusal(pend.inviter, pend.invitee, tick)
+            return None
+        if self.is_busy(pend.inviter) or self.is_busy(pend.invitee):
+            self.n_gate_rejected += 1
+            return None
+        self.n_accepted += 1
+        return self._open(pend.inviter, pend.invitee, int(tick), pend.cell)
+
+    def expire_pending(self, tick: int) -> list[int]:
+        """期限切れの返事待ちを落とす。
+
+        Returns:
+            待たせていた**招待側**の id(呼び出し側が ``revert_conversation`` する)。
+        """
+        dead = [k for k, v in self.pending_invites.items() if int(tick) > v.expires_tick]
+        out: list[int] = []
+        for k in dead:  # 逐次ループ宣言: 期限切れ件数ぶん
+            pend = self.pending_invites.pop(k)
+            self.n_pending_expired += 1
+            self.n_ignored_invites += 1
+            self.ignored_events.append((int(tick), pend.inviter, pend.invitee))
+            out.append(pend.inviter)
+        return out
+
+    def pending_inviter_of(self, invitee: int) -> int:
+        p = self.pending_invites.get(int(invitee))
+        return -1 if p is None else p.inviter
+
     def _remember_refusal(self, a: int, b: int, tick: int) -> None:
         self._refusal_until[self._pair(a, b)] = int(tick) + self.refusal_memory_ticks
 
@@ -412,6 +579,11 @@ class ConversationManager:
             speaker = s.speaker
             if s.has_budget(speaker):
                 speakers.append(speaker)
+        # C6(09-09): **被招待**も起床させる(知覚契約書 §6 起床(ii))。招待が出た tick は
+        # 相手がまだ答えられないので、次 tick 以降に起こす。
+        for invitee, pend in self.pending_invites.items():
+            if int(tick) > pend.tick and invitee not in speakers:
+                speakers.append(int(invitee))
         n = len(speakers)
         return (
             np.asarray(speakers, dtype=np.int64),
@@ -598,6 +770,13 @@ class ConversationManager:
             "utterance_blocks": self.n_blocks,
             "backchannels": self.n_backchannels,
             "interrupts": self.n_interrupts,
+            # ---- C6(09-09): 招待の内訳 ----
+            "conv_invites": self.n_invites,
+            "conv_accepted": self.n_accepted,
+            "conv_declined": self.n_declined,
+            "conv_pending_expired": self.n_pending_expired,
+            "conv_pending_open": len(self.pending_invites),
+            "conv_invite_refractory_blocked": self.n_invite_refractory_blocked,
         }
         for reason in CLOSE_REASONS:
             out[f"closed_{reason}"] = int(self.closed_by_reason.get(reason, 0))

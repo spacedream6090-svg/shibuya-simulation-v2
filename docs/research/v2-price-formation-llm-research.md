@@ -1,5 +1,10 @@
 # 世界過程 行5 価格形成 — LLM店主の値付けの実証(再リサーチ答申・正典化)
 
+<!-- hdr:v1 -->
+- **分野**: 小売科学・商業立地論 #17 / 行動経済学・マーケティング科学 #16 | **重要度**: P1(親判断・2026-09-15 第191)
+- **一次確認**: **B** = 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) — 出典痕跡 36 件。空欄節あり
+- **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
+
 > **親検収(Fable・2026-09-08)**: サブ(Opus 5・子サブなし・リポ書込なし・ハーネスがファイル書込を遮断=テキスト返答を親が保存)の最重要5件を親が原典で確認した。✔=一致。
 > - ✔ **Fish, Gonczarowski & Shorrer, "Algorithmic Collusion by Large Language Models"(arXiv 2404.00806 v6・2026-08-31・PDF 83p親抽出)**: プロンプト雛形は "My chosen price: <just the number, nothing else>"=**絶対価格を数値で書かせる**。脚注18 "The price ceiling is reported as the number 2.34 · pM, where the number 2.34 was drawn from Unif[1.5, 2.5]"(1回抽選=サブが疑った内部矛盾は無し)・本文 "text designed to deter the LLM from pricing above a certain ceiling"。Online Appendix B: GPT-4 0613・**温度1**・"our agents use string parsing to extract the price"・"If the LLM fails to produce output in the correct format, the query is retried up to 10 times. In case of 10 consecutive failures, the experimental run is stopped. Such stopping only occurred for monopoly experiments (see Appendix C) using Clau[de]…"。市場履歴は "rounded to the second decimal digit"。
 > - ✔ **Higo & Saita (2007) BOJ "Price-setting in Japan: Evidence from CPI Micro Data"(PDF p.37の図を親が座標復元)**: Average Frequency of Price Changes (CY1999-2003, %/month) = **Total 21.4 / Goods 31.1 / Services 4.5 / Public services 3.9 / General services 4.7**(サブの割当は正しい)。一般サービス内訳: **Eating out 5.0**・Domestic duties 2.6・Medical care & welfare 5.8・Education 6.2・Reading & recreation 6.0。公共サービス内訳: Domestic duties 8.8・Medical 1.8・Transportation & communication 0.3・Education 5.5・Reading 1.4。脚注13 "the average frequency of price changes for food product is 29.9% while its standard deviation is 19.5%"。

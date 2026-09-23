@@ -1,5 +1,10 @@
 # D1「時刻別同時滞在カーブ(平日)」出典疑義 — 代替データ探索答申
 
+<!-- hdr:v1 -->
+- **分野**: 人間移動科学 #3 | **重要度**: P1(親判断・2026-09-15 第191)
+- **一次確認**: **B** = 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) — 出典痕跡 23 件。空欄節あり
+- **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
+
 作成 2026-09-04 / 実行=サブ(Opus 5) / 制約遵守: リポ非書込・**新規ダウンロード/API呼び出しなし**(Web閲覧のみ。数値計算は既にローカルにあるv1データと前回サブ取得済JSONの再集計)
 
 ---
@@ -132,7 +137,7 @@
 - 実体URL(v1 SOURCE.md記載): `https://www.geospatial.jp/ckan/dataset/8fd79f08-00e6-4d14-9c89-e3bdca66af11/resource/e2083495-8095-4119-a865-e5c22e6a7eee/download/opendatadefinition.pdf`
 - ※ 本タスクで直接読解を試みたが **S3署名付きURLへの302リダイレクトで本文取得に失敗**(ダウンロード扱いになるため追跡せず)。→ ④に不確実として記載。
 
-**(iii) 定義書からの転記(v1リポ内・取得時に一次読解された記録)** — `C:\Users\塚本翔太\Desktop\shibuya-simulation\data\jinryu\SOURCE.md`
+**(iii) 定義書からの転記(v1リポ内・取得時に一次読解された記録)** — `<v1-repo>\data\jinryu\SOURCE.md`
 
 > ### 定義(定義書PDFより、要点)
 > - `population` = 滞在人口(平均)。**換算人口値**: ①アプリ利用者を全国人口に拡大推計 ②メッシュ集計 ③**滞在時間で按分**(あるメッシュに10分滞在→その1時間で1/6人と数える)
@@ -151,7 +156,7 @@
 
 ### 3-2. 「公表された日内形状」の由来 — **特定できた**
 
-v1リポ `C:\Users\塚本翔太\Desktop\shibuya-simulation\docs\research\shibuya-concurrent-population.md`:
+v1リポ `<v1-repo>\docs\research\shibuya-concurrent-population.md`:
 
 > **§2 補助(日内形状・イベントの絶対値)**
 > - 渋谷区 産業・観光ビジョン(**ドコモ モバイル空間統計2018**): https://files.city.shibuya.tokyo.jp/assets/12995aba8b194961be709ba879857f70/a0407bb8a8074a2cb4f3e06a08cbc370/assets_com_000047966.pdf

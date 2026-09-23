@@ -28,6 +28,14 @@ expedient(本モジュール分)
   B6「直前の結果」の主語を復元できない(失敗した行動は状態に残らない)ので追加した
   (C3 結線・書き手は ``engine.resolve`` のみ)。**エンジン継続(``ENGINE_STEP``)は書かない**
   ——「移動の続き」は新しく試みた行動ではないので、直前の 移動 が主語のまま残るのが正しい。
+- ``board_line`` / ``board_since``(5 B/体・D-51 乗車の意図保持)。「乗車を選んだがホームに
+  居ない」体を世界がホームまで運び、着いたら待ち行列に並べるための 2 欄。**待ちは
+  ``transit_state=0``(在圏)の中の状態**で、3 値(乗客の保存則の分母)は増やさない。
+  待ちの打ち切り時間は ``engine.resolve.BOARD_WAIT_LIMIT_TICKS``(expedient)。
+- ``sleep_pending``(1 B/体・D-62 就寝の意図保持)。週次表(W17)の**就寝境界**に達したが
+  就寝地(自宅セル)に居ない体の印。着いたら ``engine.resolve._apply_engine_step`` が
+  ``SLEEPING`` にする(乗車の意図保持と同じ「判断1回・実行は世界」の形)。**就寝を
+  「計画の実行」にしたので、この境界では LLM を呼ばない**(登録簿 §8 D-62)。
 - ``last_result`` を 1 byte のコードにし、失敗の詳細(残高・次回開店時刻)は**持たない**
   (行動契約書 §6 は「残高/価格・次回開店時刻」を返せと言う=C3 のプロンプト側で
   現在値から再構成する。C2 は「どの失敗か」だけを保持)。
@@ -48,6 +56,7 @@ from shibuya.core.types import EventClass
 
 __all__ = [
     "AgentKind",
+    "MOCK_KIND_COUNT",
     "Activity",
     "LAST_ACTION_NONE",
     "ResultCode",
@@ -67,13 +76,37 @@ LAST_ACTION_NONE: Final[int] = -1
 
 
 class AgentKind(IntEnum):
-    """個体の種別(母集団 W16 の 7 段は C5。C2 は mock 用の 5 値)。"""
+    """個体の種別。
+
+    0-4 は C2 の mock 用に置いた 5 値、**5-8 は C5(W16 母集団合成)で足した 4 値**。
+    値は**固定**(``economy.anchors.WalletKind`` の写し・``perception.templates.KIND_WORDS``
+    の索引・W16 出力 ``w16_population.parquet`` の ``kind`` 列と 1 対 1)。知覚契約書 §2.2
+    「B1 種別(約10)」の枠内。
+
+    W16 の割り当て規約(``build.pop.w16_population``)
+      - ``RESIDENT``  : 舞台に常住し、舞台内の組織に勤めていない体(域外通勤・在宅・非就業)
+      - ``WORKER``    : 舞台に常住し、舞台内の組織に勤める体(=在区就業)
+      - ``COMMUTER``  : 域外常住・舞台内の組織に勤める体
+      - ``STUDENT``   : 域外常住・舞台内の学校に通う体
+      - ``VISITOR`` / ``FOREIGN_VISITOR`` / ``REGULAR_VISITOR``: 来街者(訪日・定期の別)
+      - ``CREW``      : 乗務員・駅務・警察/消防などの職務者
+      - ``DISPATCHER``: 運行/警備の指令
+    """
 
     COMMUTER = 0  # 通勤者
     VISITOR = 1  # 来街者
     WORKER = 2  # 従業者
     RESIDENT = 3  # 居住者
     DISPATCHER = 4  # 指令(権限行動の観測用・C2 では行動しない)
+    STUDENT = 5  # 通学者(W16)
+    REGULAR_VISITOR = 6  # 定期来街者(W16)
+    FOREIGN_VISITOR = 7  # 訪日来街者(W16)
+    CREW = 8  # 乗務員・職務者(W16)
+
+
+#: C2 の mock 合成日課が引く種別の数(0..3=通勤/来街/従業/居住)。**指令以降は出さない**。
+#: ``len(AgentKind)`` を使うと C5 で種別を足したときに mock の乱数列が動くので定数で釘付ける。
+MOCK_KIND_COUNT: Final[int] = 4
 
 
 class Activity(IntEnum):
@@ -210,13 +243,26 @@ class AgentState:
         False
     """
 
-    def __init__(self, n: int, cap_bytes: int | None | str = "auto") -> None:
+    def __init__(
+        self,
+        n: int,
+        cap_bytes: int | None | str = "auto",
+        *,
+        plan_columns: bool = False,
+    ) -> None:
         """
         Args:
             n: 個体数。
             cap_bytes: 個体あたりバイト上限。``"auto"`` = 予算行 M1(30,000 B)を読む。
+            plan_columns: **D-66 計画実行層**(``engine.presence``)の 2 欄
+                (``plan_activity`` / ``plan_flags``・+2 B/体)を確保するか。既定 ``False``=
+                **帰無腕(``--no-plan-executor``)の ``state_hash`` を 1 バイトも動かさない**
+                (欄を足すと宣言順の全配列を混ぜる ``Registry.state_hash`` が変わるため。
+                設計書 §2 は常設を想定しているが、退化検査の要=親指示を優先した
+                =登録簿 §8「D-66/計画実行層(第1段)」に差分として登録)。
         """
         self.n = int(n)
+        self.plan_columns = bool(plan_columns)
         self.registry = Registry.for_agents(self.n, per_entity_byte_cap=cap_bytes)
         r = self.registry
         # ---- 位置・運動(M2 位置・運動・身体 ≤128B/体 の内数) ----
@@ -234,7 +280,12 @@ class AgentState:
                   doc="移動の目的ノード(行動語「移動」の対象・M2)。-1=目的なし")
         # ---- 身体・内受容(知覚契約書 §4 内受容第1陣3変数) ----
         r.declare("kind", np.int8, byte_budget_per_agent=1, mechanism=True,
-                  doc="AgentKind(通勤者/来街者/従業者/居住者/指令・M2)")
+                  doc="AgentKind(通勤者/来街者/従業者/居住者/指令/通学者/定期来街/訪日/乗務・M2)")
+        # ---- プロフィール(M6 ≤3KB/体・W16 母集団合成が入れる素性) ----
+        r.declare("age", np.uint8, byte_budget_per_agent=1, mechanism=True,
+                  doc="年齢[歳](W16・国勢調査/経済センサスへ raking 済み・M6)")
+        r.declare("sex", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="性別 0=男 / 1=女 / -1=不明(W16・M6)")
         r.declare("hunger", np.uint8, byte_budget_per_agent=1, mechanism=True,
                   doc="空腹 0-10(内受容3変数・M2)")
         r.declare("fatigue", np.uint8, byte_budget_per_agent=1, mechanism=True,
@@ -269,6 +320,18 @@ class AgentState:
                       "**乗客の保存則の分母**: 3 値の件数和 = 個体数")
         r.declare("transit_ref", np.int32, byte_budget_per_agent=4, mechanism=True,
                   doc="乗車中=列車索引 / 域外滞在=外界ノード索引(路線索引)。-1=なし")
+        # ---- 乗車の意図保持(D-51・2026-09-10 ユーザー決定 (c)) ----
+        # **``transit_state`` を増やさない**(3 値は乗客の保存則の分母)。待ちは在圏(0)の中の状態。
+        r.declare("board_line", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="乗ろうとしている路線索引(=そのホーム。-1=乗車の意図なし)。"
+                      "ホーム以外で乗車を選ぶと世界が最寄りホームへ運ぶ(登録簿 §8 D-51)")
+        r.declare("board_since", np.int32, byte_budget_per_agent=4, mechanism=False,
+                  doc="ホームで待ち始めた tick(-1=まだ待っていない=移動中)。"
+                      "打ち切り BOARD_WAIT_LIMIT_TICKS の判定に使う・expedient")
+        # ---- 就寝の意図保持(D-62・2026-09-10 ユーザー決定 (a)) ----
+        r.declare("sleep_pending", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="計画(W17)の就寝境界に達したが就寝地に居ない=1 / 0=なし。"
+                      "着いた時点で世界が寝かせる(登録簿 §8 D-62・乗車の意図保持と同じ形)")
         # ---- 屋内占有・待ち行列(C4 混雑場・16行表 行2) ----
         r.declare("poi_ref", np.int32, byte_budget_per_agent=4, mechanism=False,
                   doc="在席中の POI 索引(-1=なし)。屋内占有の集約に使う(席数換算は expedient)")
@@ -278,6 +341,14 @@ class AgentState:
                   doc="並んでいる POI 索引(-1=並んでいない)。M/M/c 近似の待ち行列")
         r.declare("queue_since", np.int32, byte_budget_per_agent=4, mechanism=False,
                   doc="並び始めた tick(離脱閾値の判定・expedient)")
+        # ---- 計画実行層(D-66・engine.presence が読み書きする 2 欄・+2 B/体) ----
+        if self.plan_columns:
+            r.declare("plan_activity", np.int8, byte_budget_per_agent=1, mechanism=True,
+                      doc="計画上の活動(agents.weekly.ACTIVITY_WORDS 索引・-1=計画なし)。"
+                          "``activity``(実際)と別=計画一致率の分母(設計書 §2)")
+            r.declare("plan_flags", np.int8, byte_budget_per_agent=1, mechanism=True,
+                      doc="bit0 域外居住 / bit1 当日在圏予定あり / bit2 退出繰り延べ中 / "
+                          "bit3 当日到着済(engine.presence の FLAG_* ・設計書 §2)")
         # ---- 起床機構(知覚契約書 §6) ----
         r.declare("refractory_until", np.int32, (N_WAKE_CONDITIONS,),
                   byte_budget_per_agent=4 * N_WAKE_CONDITIONS, mechanism=True,
@@ -305,10 +376,15 @@ class AgentState:
         self.registry.last_result_tick[:] = -1
         self.registry.last_action[:] = LAST_ACTION_NONE
         self.registry.transit_ref[:] = -1
+        self.registry.board_line[:] = -1
+        self.registry.board_since[:] = -1
         self.registry.poi_ref[:] = -1
         self.registry.poi_since[:] = -1
         self.registry.queue_poi[:] = -1
         self.registry.queue_since[:] = -1
+        self.registry.sex[:] = -1
+        if self.plan_columns:
+            self.registry.plan_activity[:] = -1
         self._frozen = False
 
     # ---- フィールドの素通し(``st.money`` で配列を引く) ----

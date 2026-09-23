@@ -1,0 +1,343 @@
+{
+ "schema": "shibuya.tools.c7/presence_yardstick/1",
+ "anchors_path": "<repo>/docs\\bench\\anchors\\presence_anchors_v0.json",
+ "anchors_version": "v0",
+ "anchors_echo": {
+  "core9_daytime_population": 130167,
+  "core9_night_population": 8810,
+  "core9_day_night_ratio": 14.8,
+  "pt_area_daytime_peak": 145000,
+  "night_presence_low": 15000,
+  "night_presence_high": 30000,
+  "attendance_rate": 0.88,
+  "sources": {
+   "core9_daytime_population": "東京都 令和2年国勢調査による東京都の昼間人口 第11表(推計) https://www.toukei.metro.tokyo.lg.jp/tyukanj/2020/tj20zv1100.csv",
+   "core9_night_population": "東京都 令和2年国勢調査による東京都の昼間人口 第11表(推計) https://www.toukei.metro.tokyo.lg.jp/tyukanj/2020/tj20zv1100.csv",
+   "core9_day_night_ratio": "東京都 令和2年国勢調査による東京都の昼間人口 第11表(推計) https://www.toukei.metro.tokyo.lg.jp/tyukanj/2020/tj20zv1100.csv",
+   "pt_area_daytime_peak": "内閣府 渋谷駅周辺地域都市再生安全確保計画策定業務 基礎調査 概要版 p.8 https://www.chisou.go.jp/tiiki/toshisaisei/yuushikisya/anzenkakuho/hojokin/27hojokin/27zigyouhoukoku-shibuya.pdf",
+   "night_presence_estimate": "docs/research/v2-d66-outside-residents-research.md §6-B(推定・限界3点を同節に明記)",
+   "wake_rate_tokyo_weekday": "総務省統計局 令和3年社会生活基本調査 調査票A 時間帯編 第4-1表(statInfId 000032224335) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224335&fileKind=0 / 転記元 docs/research/v2-c7-fix-research.md §2-A(親再計算済み)",
+   "homebound_boarding_time_dist_2015": "国土交通省 大都市交通センサス 第12回 https://www.mlit.go.jp/sogoseisaku/transport/sosei_transport_tk_000007.html (data/realworld/transport_census/time_dist_12.json より転記)",
+   "attendance_rate": "docs/research/v2-d66-outside-residents-research.md §5-C(推定・expedient)",
+   "full_population": "data/world/v2/acceptance/gate_table.md W16/W17 n_agents=390067"
+  },
+  "tags": {
+   "core9_daytime_population": "anchor",
+   "core9_night_population": "anchor",
+   "core9_day_night_ratio": "anchor",
+   "pt_area_daytime_peak": "anchor",
+   "night_presence_estimate": "estimate",
+   "wake_rate_tokyo_weekday": "anchor",
+   "homebound_boarding_time_dist_2015": "anchor",
+   "attendance_rate": "expedient",
+   "full_population": "anchor"
+  }
+ },
+ "no_pass_line": "合格線は持たない=距離と『近づいたか』の bool のみ(判定は親)。",
+ "after": {
+  "label": "c7-day-2",
+  "input": "series",
+  "path": "docs/bench/c7/occupancy_series_c7-day-2.json",
+  "summary_path": null,
+  "n_agents": 390067,
+  "n_agents_source": "cli",
+  "scale": {
+   "target_population": 390067,
+   "factor": 1.0,
+   "tag": "expedient",
+   "note": "縮尺は線形(体数に比例)。混雑・待ち行列・容量は非線形なので絶対値の一致は主張しない=向きと桁を見るための列。"
+  },
+  "presence_by_hour": [
+   {
+    "hour": 0,
+    "five_area": 208227.0,
+    "bbox": null,
+    "five_area_scaled": 208227.0,
+    "bbox_scaled": null
+   },
+   {
+    "hour": 3,
+    "five_area": 212487.0,
+    "bbox": null,
+    "five_area_scaled": 212487.0,
+    "bbox_scaled": null
+   },
+   {
+    "hour": 6,
+    "five_area": 214896.0,
+    "bbox": null,
+    "five_area_scaled": 214896.0,
+    "bbox_scaled": null
+   },
+   {
+    "hour": 9,
+    "five_area": 253757.0,
+    "bbox": null,
+    "five_area_scaled": 253757.0,
+    "bbox_scaled": null
+   },
+   {
+    "hour": 12,
+    "five_area": 242780.0,
+    "bbox": null,
+    "five_area_scaled": 242780.0,
+    "bbox_scaled": null
+   },
+   {
+    "hour": 15,
+    "five_area": 239688.0,
+    "bbox": null,
+    "five_area_scaled": 239688.0,
+    "bbox_scaled": null
+   },
+   {
+    "hour": 18,
+    "five_area": 242572.0,
+    "bbox": null,
+    "five_area_scaled": 242572.0,
+    "bbox_scaled": null
+   },
+   {
+    "hour": 21,
+    "five_area": 245252.0,
+    "bbox": null,
+    "five_area_scaled": 245252.0,
+    "bbox_scaled": null
+   }
+  ],
+  "area_ids": [
+   "central",
+   "northwest",
+   "northeast",
+   "southeast",
+   "southwest"
+  ],
+  "area_hour_counts": [
+   [
+    10808.0,
+    94243.0,
+    29178.0,
+    28081.0,
+    45917.0
+   ],
+   [
+    11071.0,
+    94779.0,
+    29368.0,
+    28249.0,
+    45810.0
+   ],
+   [
+    11299.0,
+    95040.0,
+    29307.0,
+    28448.0,
+    45754.0
+   ],
+   [
+    11961.0,
+    96019.0,
+    29540.0,
+    28850.0,
+    46117.0
+   ],
+   [
+    11890.0,
+    96863.0,
+    29670.0,
+    28663.0,
+    46267.0
+   ],
+   [
+    11770.0,
+    96396.0,
+    29502.0,
+    28657.0,
+    45946.0
+   ],
+   [
+    13932.0,
+    96590.0,
+    29588.0,
+    29088.0,
+    45698.0
+   ],
+   [
+    27220.0,
+    98237.0,
+    29702.0,
+    28793.0,
+    45780.0
+   ],
+   [
+    41107.0,
+    98930.0,
+    30046.0,
+    29248.0,
+    45932.0
+   ],
+   [
+    46506.0,
+    99801.0,
+    30842.0,
+    29804.0,
+    46804.0
+   ],
+   [
+    35013.0,
+    104654.0,
+    32427.0,
+    30691.0,
+    48837.0
+   ],
+   [
+    31588.0,
+    107326.0,
+    32399.0,
+    31381.0,
+    49012.0
+   ],
+   [
+    23019.0,
+    105947.0,
+    32414.0,
+    31417.0,
+    49983.0
+   ],
+   [
+    20293.0,
+    106209.0,
+    32593.0,
+    31692.0,
+    50242.0
+   ],
+   [
+    16839.0,
+    107782.0,
+    32979.0,
+    31895.0,
+    50886.0
+   ],
+   [
+    14365.0,
+    108787.0,
+    33027.0,
+    32167.0,
+    51342.0
+   ],
+   [
+    13956.0,
+    108617.0,
+    33047.0,
+    32219.0,
+    51250.0
+   ],
+   [
+    14051.0,
+    110825.0,
+    33555.0,
+    32627.0,
+    51241.0
+   ],
+   [
+    13022.0,
+    110806.0,
+    34007.0,
+    33237.0,
+    51500.0
+   ],
+   [
+    13258.0,
+    110611.0,
+    34129.0,
+    32449.0,
+    51698.0
+   ],
+   [
+    13838.0,
+    112455.0,
+    34379.0,
+    32706.0,
+    52577.0
+   ],
+   [
+    14023.0,
+    111709.0,
+    34182.0,
+    32762.0,
+    52576.0
+   ],
+   [
+    14043.0,
+    110996.0,
+    33597.0,
+    32676.0,
+    52143.0
+   ],
+   [
+    13699.0,
+    109945.0,
+    33455.0,
+    32363.0,
+    52490.0
+   ]
+  ],
+  "ratios": {
+   "r_day_night_09_03": 1.1942,
+   "r_noon_night_12_03": 1.1426
+  },
+  "kind_at_03": null,
+  "wake_rate": null,
+  "planned_sleep": null,
+  "distance": {
+   "scaled": true,
+   "day_09_vs_core9_daytime": 1.9495,
+   "day_09_vs_pt_peak": 1.75,
+   "night_03_vs_core9_night": 24.1188,
+   "night_03_vs_estimate_high": 7.0829,
+   "night_03_in_estimate_band": false,
+   "night_03_band_gap": 182487.0,
+   "values": {
+    "day_09": 253757.0,
+    "night_03": 212487.0
+   }
+  },
+  "meta": {
+   "input": "series",
+   "path": "docs/bench/c7/occupancy_series_c7-day-2.json",
+   "series_meta": {
+    "source": "journal:<scratch>/c7/occupancy.npz",
+    "tick_seconds": 60,
+    "start_hour": 0,
+    "day_index": 0
+   },
+   "area_attr_counts": [
+    [
+     244388.0,
+     41503.0,
+     162680.0
+    ],
+    [
+     1878963.0,
+     150789.0,
+     463815.0
+    ],
+    [
+     442856.0,
+     62265.0,
+     257812.0
+    ],
+    [
+     624146.0,
+     37499.0,
+     76518.0
+    ],
+    [
+     833468.0,
+     93348.0,
+     248986.0
+    ]
+   ]
+  }
+ }
+}

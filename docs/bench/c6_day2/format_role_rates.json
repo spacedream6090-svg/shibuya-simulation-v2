@@ -1,0 +1,72 @@
+{
+ "test": "format_role_rates",
+ "source": "tape=data/tape/c6-day-2",
+ "temperature": 0.7,
+ "score": {
+  "n": 50000,
+  "format_error_rate": 0.0077,
+  "format_error_ci95": [
+   0.006970725408441979,
+   0.008504917566956937
+  ],
+  "format_error_rate_strict": 0.37906,
+  "format_error_ci95_strict": [
+   0.3748168902616087,
+   0.3833216924348056
+  ],
+  "format_error_gate": 0.1,
+  "format_error_n_min": 59,
+  "format_error_ok": true,
+  "format_error_ok_strict": false,
+  "alias_used_rate": 0.08762,
+  "alias_surfaces": {
+   "目的地": 1256,
+   "目的": 3104,
+   "一言": 3,
+   "positional": 302,
+   "行き先": 10,
+   "target": 3,
+   "相手": 6
+  },
+  "strict_two_line_rate": 0.61212,
+  "role_action_rate": 0.0,
+  "role_action_counts": {},
+  "role_vocab": [
+   "接客",
+   "補充",
+   "開閉店",
+   "価格改定",
+   "発車",
+   "停車",
+   "放送",
+   "遅延報告",
+   "計画改訂",
+   "指示",
+   "並ぶ",
+   "撮影"
+  ],
+  "undefined_rate": 4e-05,
+  "dictionary_mapped_rate": 0.00764,
+  "dictionary_mapped": 382,
+  "action_counts": {
+   "待機": 1483,
+   "移動": 20686,
+   "購入": 24143,
+   "乗車": 1648,
+   "退去": 82,
+   "休憩": 1911,
+   "会話": 18,
+   "通報": 26,
+   "(未定義)": 2,
+   "就寝": 1
+  }
+ },
+ "watched_role_words": [
+  "補充",
+  "開閉店",
+  "発車",
+  "停車",
+  "指示"
+ ],
+ "diagnostics_day": null
+}

@@ -1,5 +1,10 @@
 # レーンB答申: チャネル別観測予算と注意ゲートの実証的根拠
 
+<!-- hdr:v1 -->
+- **分野**: 知覚心理学・精神物理学 #5 | **重要度**: P0(親判断・2026-09-15 第191)
+- **一次確認**: **B** = 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) — 出典痕跡 118 件。空欄節あり
+- **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
+
 > **親検収(Fable・2026-09-06)**: 出典を親が一次確認した。✔=親が実読して数値一致。
 > - ✔ Fotios, Uttley & Yang 2014(CIE会議録・White Rose PDF実読): Foulsham 21%/37%/37%引用・「near path (<4 m) and distant people (>4 m) are critical」・注視確率0.87昼/0.86全体・r=−0.40・クリティカル注視 近路面19.5%/遠人12.1%・「not possible to fixate on all of them」を逐語確認。
 > - ✔ Fotios 2015: 480 ms(IQR 400-640)。**訂正**: 本答申の「距離中央値13.0 m」は**昼のみ**の値。全体中央値は10.3 m(夜8.9 m)。
@@ -8,7 +13,6 @@
 > - ✔ Generative Agents(ar5iv実読): α=1・減衰0.995・「top-ranked memories that fit within the context window」・内省閾値150「in our implementation」・2-3回/日。チャネル別枠の記述は**不在**。✔ CivRealm 5×5・15×15→9ブロック。
 > - 内容キャップ式 round(7.5×注視秒)は400-600 cpm仮定に依存=expedient(正典値が取れるまで)。
 > - 正典化: docs/research/v2-channel-budget-attention-research.md(R3-8 §3-2・§4の根拠)。
-
 
 作成日: 2026-09-06 / 担当: リサーチサブ(Opus 5) / 検収: 親(Fable) → 決定: ユーザー
 

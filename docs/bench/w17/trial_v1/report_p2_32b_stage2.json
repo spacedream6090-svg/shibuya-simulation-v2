@@ -1,0 +1,211 @@
+{
+ "schema": "shibuya.build.sched/trial_report/1",
+ "trial_version": "0.1.0",
+ "arm": "p2_32b",
+ "stage": 2,
+ "n_agents": 200,
+ "n_response_rows": 171,
+ "n_with_response": 171,
+ "response_rate": 0.855,
+ "parse": {
+  "n_parsed": 9072,
+  "n_kept": 9072,
+  "fail_rate": 0.022624,
+  "reasons": {
+   "bad_time": 86,
+   "format": 117,
+   "unknown_place": 7
+  }
+ },
+ "checks": {
+  "coverage_mean": 0.866027,
+  "coverage_ge_0999_rate": 0.796157,
+  "n_agent_days": 1197,
+  "gaps": 141,
+  "overlaps": 895,
+  "has_sleep_rate": 0.882206,
+  "night_violations": 16,
+  "night_violation_rate": 0.001764,
+  "block_kind_conflicts": {
+   "home_kind": 136,
+   "home_outside": 10,
+   "inarea_kind": 21,
+   "move_kind": 28,
+   "outside_kind": 321,
+   "sleep_kind": 95
+  },
+  "stay_sleep_place_violations": 0,
+  "lines_per_day": {
+   "n": 1197,
+   "mean": 7.579,
+   "sd": 3.141,
+   "p50": 9.0,
+   "p90": 10.0,
+   "max": 11.0
+  },
+  "duty_window_dev_min": {
+   "n": 1396,
+   "mean": 137.696,
+   "sd": 179.906,
+   "p50": 65.0,
+   "p90": 360.0,
+   "max": 900.0
+  },
+  "duty_window_dev_vs_p1_min": {
+   "n": 1024,
+   "mean": 50.105,
+   "sd": 138.351,
+   "p50": 0.0,
+   "p90": 149.0,
+   "max": 953.0
+  },
+  "reasons": {
+   "bk_home_kind": 136,
+   "bk_home_outside": 10,
+   "bk_inarea_kind": 21,
+   "bk_move_kind": 28,
+   "bk_outside_kind": 321,
+   "bk_sleep_kind": 95,
+   "night": 16
+  }
+ },
+ "modified": {
+  "llm": {
+   "rate": 0.090175,
+   "n_parse_failed": 210,
+   "n_check_failed": 627,
+   "denominator": 9282,
+   "note": "パース失敗+検査落ち / (パース失敗+パースできた活動)。修復はしない。"
+  },
+  "engine": {
+   "rake_n_moved": 1072,
+   "repair_n_modified": 0,
+   "repair_n_dropped": 0,
+   "denominator": 9072,
+   "rate": 0.118166,
+   "note": "エンジン由来= 修復 + raking。下見は修復しない(P0b の repaired だけ別掲)。"
+  }
+ },
+ "raking": {
+  "0.12": {
+   "budget_rows": 1088,
+   "n_moved": 1072,
+   "n_candidates": 2571,
+   "rolled_back": false,
+   "jsd_before": {
+    "私事": 0.165308,
+    "自宅－勤務": 0.129946,
+    "自宅－私事": 0.166455,
+    "自宅－通学": 0.23928
+   },
+   "jsd_after": {
+    "私事": 0.120587,
+    "自宅－勤務": 0.141459,
+    "自宅－私事": 0.111957,
+    "自宅－通学": 0.202585
+   },
+   "jsd_max_before": 0.23928,
+   "jsd_max_after": 0.202585
+  },
+  "0.00": {
+   "budget_rows": 0,
+   "n_moved": 0,
+   "n_candidates": 2571,
+   "rolled_back": false,
+   "jsd_before": {
+    "私事": 0.165308,
+    "自宅－勤務": 0.129946,
+    "自宅－私事": 0.166455,
+    "自宅－通学": 0.23928
+   },
+   "jsd_after": {
+    "私事": 0.165308,
+    "自宅－勤務": 0.129946,
+    "自宅－私事": 0.166455,
+    "自宅－通学": 0.23928
+   },
+   "jsd_max_before": 0.23928,
+   "jsd_max_after": 0.23928
+  }
+ },
+ "identity": {},
+ "completion_tokens": {
+  "n": 171,
+  "mean": 991.538,
+  "sd": 86.809,
+  "p50": 1024.0,
+  "p90": 1024.0,
+  "max": 1024.0
+ },
+ "window_counters": {
+  "absent_day": 110,
+  "lead_default": 14,
+  "no_employment_row": 1,
+  "stay_bodies": 9,
+  "window_drawn": 122,
+  "work_len_clipped": 37
+ },
+ "inputs": [
+  {
+   "path": "w17_trial_p2_32b_stage2_responses.jsonl",
+   "sha256": "ecda1b0f404396184afe81864b1698764f3d7737b7ea4a32d5663a0b990374b1",
+   "bytes": 303853
+  }
+ ],
+ "outputs": [
+  {
+   "path": "<repo>/data\\world\\v2\\trials\\p2_32b\\w17_trial_p2_32b_schedule.parquet",
+   "name": "w17_trial_p2_32b_schedule.parquet",
+   "rows": 9072,
+   "bytes": 33405,
+   "sha256": "b8bff0085ae41b0a71a2b50f1c9d06205fb31bc891b0ce07f5df059e7d5f5901"
+  }
+ ],
+ "prompts": {
+  "arm": "p2_32b",
+  "stage": 2,
+  "path": "<repo>/data\\world\\v2\\trials\\p2_32b\\w17_trial_p2_32b_stage2_prompts.jsonl",
+  "name": "w17_trial_p2_32b_stage2_prompts.jsonl",
+  "rows": 200,
+  "bytes": 2258199,
+  "sha256": "7e1489dad567081bd0295c44ca38183090c168412c51f2b355620e891d8757d2",
+  "prompts_sha256": "7e1489dad567081bd0295c44ca38183090c168412c51f2b355620e891d8757d2",
+  "system_sha256": {
+   "n_distinct": 9,
+   "shared_prefix_chars": 756,
+   "top": {
+    "b2e353f7edef877f": 109,
+    "c9bb773d256a4b8e": 30,
+    "2a5e855648899ab2": 18,
+    "8a1a75e202e89ba4": 17,
+    "ec3057b8f929a39c": 10,
+    "d46ab9ac162790e1": 9,
+    "54671ae2464192c3": 4,
+    "9ab4127140ee7a0a": 2,
+    "7c18cc7f654d02e3": 1
+   }
+  },
+  "regex_sha256": {
+   "n_distinct": 6,
+   "sha256_first": "8f9f50239d7e542e",
+   "chars_first": 4523
+  },
+  "prompt_tokens_mean": 618.61,
+  "prompt_tokens_max": 750,
+  "max_tokens": 1024,
+  "temperature": 0.7,
+  "kinds": {
+   "乗務員": 2,
+   "定期来街者": 10,
+   "居住者": 18,
+   "従業者": 4,
+   "指令": 1,
+   "来街者": 30,
+   "訪日来街者": 9,
+   "通勤者": 109,
+   "通学者": 17
+  }
+ },
+ "elapsed_s": 5.13,
+ "rss_mb": 317.0
+}

@@ -33,6 +33,9 @@ expedient(本モジュール分)
   複数行をスロットをまたいで払い出す。2026-09-08 のバグ修正前は「最初の非空スロット」
   だけを見ていた)。スロットの並び順そのものに根拠は無い(expedient)。
 - 在庫評価は**標準原価**(移動平均法ではない)。原価 = 価格 ÷ k(内生フロア・§8 H-2)。
+- 納品ログの 1 行 16 B・容量は **N 比例**(``delivery_capacity_for`` = 2.0 行/体/日 × N ×
+  保持日数・下限 16,384 行)。**D-53(2026-09-10)まで固定 131,072 行**だったので、
+  cap(= 容量 × 16 B)が N に比例せず 390,067 体で「宣言だけで cap 超過」になった。
 - 棚卸差異の閾値 = 流量の 1%(``STOCKTAKE_THRESHOLD_RATIO``)。
 - 退蔵(売れ残り)の判定日数 = 14 日。
 - 廃棄 band の幅 = ±30%(``anchors.WASTE_BAND_RATIO``)。
@@ -40,6 +43,7 @@ expedient(本モジュール分)
 
 from __future__ import annotations
 
+import math
 from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import IntEnum
@@ -62,6 +66,8 @@ __all__ = [
     "SkuRegistry",
     "GoodsLedger",
     "WasteBand",
+    "MIN_DELIVERY_CAPACITY",
+    "delivery_capacity_for",
     "growth_declarations",
 ]
 
@@ -254,7 +260,34 @@ STOCKTAKE_THRESHOLD_RATIO: Final[float] = 0.01
 HOARD_SHELF_DAYS: Final[int] = 14
 #: 納品ログ 1 行のバイト(tick4+poi4+slot1+qty4+kind1 → 16 に切り上げ)。
 DELIVERY_ROW_BYTES: Final[int] = 16
+#: 納品ログ容量[行]の**据え置き既定**(N を知らない単体呼び出し=モジュール関数
+#: ``growth_declarations()`` の既定値だけに残る・expedient)。
 DEFAULT_DELIVERY_CAPACITY: Final[int] = 131_072
+#: 1 体あたりの想定 move 行数/日(成長宣言の係数・expedient)。販売が主(棚→世帯 1 行/個)。
+MOVES_PER_AGENT_PER_DAY: Final[float] = 2.0
+#: N 比例容量の下限[行](expedient・D-53)。移動行は個体だけでなく**店舗**からも出る
+#: (納品・廃棄収集は POI 数ぶん)ので、小さな N では 2.0×N を下回る容量になる。
+#: 16,384 行 = 262,144 B(据え置き既定 2.10 MB の 1/8)。
+MIN_DELIVERY_CAPACITY: Final[int] = 16_384
+
+
+def delivery_capacity_for(n_agents: int, retention_days: int = 1) -> int:
+    """納品ログのリングバッファ容量[行]を **N から**決める(D-53・2026-09-10)。
+
+    ``delivery_log`` の宣言は ``per_day_growth="O(N)"`` × ``32 B/体/日``(2.0 移動 × 16 B)・
+    保持窓 ``retention_days`` 日。``core.growth.check_growth`` の N は**個体数**
+    (``engine.run`` が ``n_entities=n_agents`` を渡す)なので、物の台帳も個体数で容量を決める
+    ——固定容量(旧 131,072 行 = 2.10 MB)だと 390,067 体で宣言投影 12.5 MB > cap になる。
+
+    Args:
+        n_agents: 個体数 N(``check_growth(n_entities=…)`` と同じ N)。
+        retention_days: 生ログの保持窓[日]。
+
+    Returns:
+        行数(下限 ``MIN_DELIVERY_CAPACITY``)。
+    """
+    need = MOVES_PER_AGENT_PER_DAY * max(0, int(n_agents)) * max(0, int(retention_days))
+    return max(int(MIN_DELIVERY_CAPACITY), int(math.ceil(need)))
 
 
 class GoodsLedger:
@@ -277,7 +310,8 @@ class GoodsLedger:
         unit_cost: np.ndarray,
         *,
         registry: SkuRegistry | None = None,
-        delivery_capacity: int = DEFAULT_DELIVERY_CAPACITY,
+        n_agents: int | None = None,
+        delivery_capacity: int | None = None,
         retention_days: int = 1,
     ) -> None:
         """
@@ -286,7 +320,11 @@ class GoodsLedger:
             stock0: POI ごとの初期在庫合計[個]。
             unit_cost: POI ごとの標準原価[円/個](価格 ÷ k)。
             registry: SKU 登録簿(既定 = ``SkuRegistry.default()``)。
-            delivery_capacity: 納品ログのリングバッファ容量[行]。
+            n_agents: 個体数 N(``delivery_capacity`` を省いたときの容量算出に使う・D-53)。
+                ``None`` = 下限 ``MIN_DELIVERY_CAPACITY`` のみ。**在庫は POI 側**なので台帳
+                そのものは個体数を持たないが、``check_growth`` の N は個体数なので受け取る。
+            delivery_capacity: 納品ログのリングバッファ容量[行]。``None``(既定)=
+                ``delivery_capacity_for(n_agents, retention_days)``(**N 比例**・D-53)。
             retention_days: 生ログの保持窓[日](D-R2-6)。
         """
         self.sku = registry if registry is not None else SkuRegistry.default()
@@ -336,7 +374,10 @@ class GoodsLedger:
         if self.unit_cost.size != self.n_poi:
             raise ValueError("unit_cost の長さが POI 数と違う")
 
-        # 納品ログ(O(t) → リングバッファ+保持窓・D-R2-6)
+        # 納品ログ(O(t) → リングバッファ+保持窓・D-R2-6)。容量は **N 比例**(D-53)。
+        self.n_agents = int(n_agents) if n_agents is not None else 0
+        if delivery_capacity is None:
+            delivery_capacity = delivery_capacity_for(self.n_agents, int(retention_days))
         cap = max(1, int(delivery_capacity))
         self._dl_tick = np.zeros(cap, dtype=np.int32)
         self._dl_poi = np.zeros(cap, dtype=np.int32)
@@ -933,6 +974,10 @@ def growth_declarations(
     """物の台帳の状態成長宣言(D-R2-6 の 5 欄)。
 
     §7.2「O(t)ログ(納品・配達・収集・出動)は状態成長宣言を**型レベルで強制**」への対応。
+
+    ``delivery_capacity`` は ``delivery_log`` の cap(= 容量 × 16 B)になる。台帳インスタンス
+    から呼ぶとき(``GoodsLedger.growth_declarations``)は **N 比例**の実容量が入るので
+    cap = 宣言投影(32 B/体/日 × N × 保持日数)と等値になる(D-53)。
     """
     rows = (
         GrowthDeclaration(
@@ -940,7 +985,7 @@ def growth_declarations(
             per_agent_bytes=0,
             per_cell_bytes=0,
             per_day_growth="O(N)",
-            per_day_growth_coef=float(2.0 * DELIVERY_ROW_BYTES),
+            per_day_growth_coef=float(MOVES_PER_AGENT_PER_DAY * DELIVERY_ROW_BYTES),
             retention=Retention(days=retention_days, target="日次の SKU 別収支行(sku_balance)へ集約"),
             worst_case_ops_per_tick=0,
             cap=int(delivery_capacity) * DELIVERY_ROW_BYTES,
@@ -949,10 +994,12 @@ def growth_declarations(
             note=(
                 "世界過程設計書 §7.2 の納品・収集ログ(ActualLog と同型の O(t))。"
                 "リングバッファ+保持窓 N 日+日次集約で有界化する。"
+                "容量は N 比例(delivery_capacity_for・D-53 2026-09-10)なので cap は"
+                " 32 B/体/日 × N × 保持日数と等値。"
             ),
             unit="move",
             bytes_per_unit=DELIVERY_ROW_BYTES,
-            growth_per_simday=2.0,
+            growth_per_simday=MOVES_PER_AGENT_PER_DAY,
         ),
         GrowthDeclaration(
             name="shelf_stock",

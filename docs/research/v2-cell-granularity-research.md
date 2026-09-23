@@ -1,5 +1,10 @@
 # 未決B「場所セル(prefix共有単位)の粒度」判断根拠リサーチ
 
+<!-- hdr:v1 -->
+- **分野**: 地理情報科学 #9 / 計算機科学(並列・決定論) #28 | **重要度**: P1(親判断・2026-09-15 第191)
+- **一次確認**: **B** = 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) — 出典痕跡 47 件。空欄節あり
+- **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
+
 対象: docs/design/v2-perception-contract.md §5 未決B / §2.2 B2・B4 / §10。
 作成: 2026-09-04。実行=Opus 5サブ。**リポ書き込みなし・スクラッチのみ**。
 

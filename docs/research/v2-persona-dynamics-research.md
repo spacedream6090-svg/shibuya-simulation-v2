@@ -1,12 +1,16 @@
 # レーンPD: ペルソナの動態 — 「ペルソナはシミュを回す中で変化させる必要があるか」(R4リサーチ答申)
 
+<!-- hdr:v1 -->
+- **分野**: 人格心理学 #13 | **重要度**: P0(親判断・2026-09-15 第191)
+- **一次確認**: **B** = 出典あり・空欄を明示(残務台帳へ写し済みまたは要写し) — 出典痕跡 162 件。空欄節あり
+- **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)
+
 > **親検収(Fable・2026-09-07)**: 出典を親が一次確認した。✔=親が実読して一致。
 > - ✔ Roberts & DelVecchio 2000 Psychological Bulletin(PDF実読): 「trait consistency increased from .31 in childhood to .54 during the college years, to .64 at age 30, and then reached a plateau around .74 between ages 50 and 70 when time interval was held constant at 6.7 years」・Crook(1941)「trait consistency averaged above .80 over several weeks and dropped to around .50 after 6½ years」。**「1年未満の研究を除外」の逐語は親の抽出で見つからず**(要旨レベルの主張は一致)。
 > - ✔ arXiv 2605.06307(抄録実読): 「Scripted interactions with explicit task prompts eliminate this drift entirely」(非台本対話ではドリフト発生)。✔ arXiv 2402.10962(抄録実読): LLaMA2-chat-70B/GPT-3.5で「a significant instruction drift within eight rounds of conversations」。
 > - ✔ JILPT(実読): 「2023年の入職率は16.4%(前年比1.2ポイントの上昇)、離職率は15.4%(同0.4ポイントの上昇)」。✔ 総務省統計局 住民基本台帳人口移動報告2024(実読): 市区町村間移動者520万7746人(前年比+1.1%)・都道府県間252万3249人。年率4.2%は親未再計算(分母=人口推計)。
 > - **Lally et al. 2010(66日・18-254日・n=96)はWiley 403で親も未確認=二次のまま**→T1→T0のn(15-66・既定40)は**expedient**(答申の申告どおり)。Hill 2013・Sethuraman 2011・Verplanken 2008も二次。
 > - 正典化: docs/research/v2-persona-dynamics-research.md(ペルソナ動態の根拠)。
-
 
 作成: 2026-09-07 / 担当: リサーチサブ(Opus 5) / 検収: 親(Fable) → 決定: ユーザー
 規律: 子サブ不使用・出典は**実読ページのみ**引用・未読/未取得は「空欄(未確認)」・リポは読み取りのみ・ファイルDLなし

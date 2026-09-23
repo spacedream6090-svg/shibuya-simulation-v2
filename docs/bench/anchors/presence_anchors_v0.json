@@ -1,0 +1,93 @@
+{
+ "schema": "shibuya.tools.c7/presence_anchors/1",
+ "version": "v0",
+ "created": "2026-09-10",
+ "purpose": "在圏(どこに何体居るか)を現実と同じ物差しで測るためのアンカー台帳。tools/c7/presence_yardstick.py が読む唯一の現実側入力。数値はここにしか書かない(ツール側に定数を複製しない)。",
+ "rules": [
+  "全項目に source(出典URL) / verified_by(親の一次確認) / tag(anchor|estimate|expedient) を持つ。",
+  "tag=anchor は公的一次資料の実数。tag=estimate は答申の推定(幅つき)。tag=expedient は未リサーチの便宜値。",
+  "合格線(PASS/FAIL の閾値)は書かない。距離を測るだけ=判定は親がする(CLAUDE.md §2)。"
+ ],
+ "anchors": {
+  "core9_daytime_population": {
+   "value": 130167,
+   "unit": "人",
+   "scope": "中核9町丁目(道玄坂1・道玄坂2・宇田川町・神南1・桜丘町・渋谷1・渋谷2・渋谷3・神宮前6)= 1.39 km²",
+   "tag": "anchor",
+   "source": "東京都 令和2年国勢調査による東京都の昼間人口 第11表(推計) https://www.toukei.metro.tokyo.lg.jp/tyukanj/2020/tj20zv1100.csv",
+   "verified_by": "parent 2026-09-10"
+  },
+  "core9_night_population": {
+   "value": 8810,
+   "unit": "人",
+   "scope": "同 中核9町丁目の常住人口(夜間人口)",
+   "tag": "anchor",
+   "source": "東京都 令和2年国勢調査による東京都の昼間人口 第11表(推計) https://www.toukei.metro.tokyo.lg.jp/tyukanj/2020/tj20zv1100.csv",
+   "verified_by": "parent 2026-09-10"
+  },
+  "core9_day_night_ratio": {
+   "value": 14.8,
+   "unit": "倍",
+   "scope": "同 中核9町丁目の昼夜間人口比率(= 130,167 / 8,810)",
+   "tag": "anchor",
+   "source": "東京都 令和2年国勢調査による東京都の昼間人口 第11表(推計) https://www.toukei.metro.tokyo.lg.jp/tyukanj/2020/tj20zv1100.csv",
+   "verified_by": "parent 2026-09-10"
+  },
+  "pt_area_daytime_peak": {
+   "value": 145000,
+   "unit": "人",
+   "scope": "渋谷駅周辺地域(約139 ha)の日中滞在者ピーク。乗換え等の移動中を除く",
+   "breakdown": {"勤務通学": 112000, "業務": 12000, "所属なし": 18000},
+   "tag": "anchor",
+   "source": "内閣府 渋谷駅周辺地域都市再生安全確保計画策定業務 基礎調査 概要版 p.8 https://www.chisou.go.jp/tiiki/toshisaisei/yuushikisya/anzenkakuho/hojokin/27hojokin/27zigyouhoukoku-shibuya.pdf",
+   "verified_by": "parent 2026-09-10"
+  },
+  "night_presence_estimate": {
+   "low": 15000,
+   "high": 30000,
+   "upper_bound": 40000,
+   "unit": "人",
+   "scope": "139 ha の深夜(0〜3 時)在圏の目安。常住 8,810 + 就業残留 約3,000 + 来街残留 数千",
+   "tag": "estimate",
+   "source": "docs/research/v2-d66-outside-residents-research.md §6-B(推定・限界3点を同節に明記)",
+   "verified_by": "parent 2026-09-10"
+  },
+  "wake_rate_tokyo_weekday": {
+   "values": [20.5, 11.1, 5.7, 3.5, 5.3, 15.3, 40.7, 72.2, 86.7, 92.5, 95.2, 96.5, 97.8, 97.8, 97.8, 98.1, 98.5, 98.5, 98.9, 98.9, 97.7, 91.4, 74.9, 46.2],
+   "unit": "%",
+   "hours": "索引 0..23 = 世界内の時",
+   "scope": "a(h) = 100 − 睡眠率。東京都・平日・10歳以上・男女総数。24時間平均 68.4%",
+   "caveat": "全個体に一律に掛ける値ではない(交替制勤務など 12.9% は 3 時の覚醒率 11.5%)。照合の材料であって目標値ではない。",
+   "tag": "anchor",
+   "source": "総務省統計局 令和3年社会生活基本調査 調査票A 時間帯編 第4-1表(statInfId 000032224335) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224335&fileKind=0 / 転記元 docs/research/v2-c7-fix-research.md §2-A(親再計算済み)",
+   "verified_by": "parent 2026-09-10"
+  },
+  "homebound_boarding_time_dist_2015": {
+   "bins": ["～6時台", "7時台", "8時台", "9時台", "10時台", "11時台", "12時台", "13時台", "14時台", "15時台", "16時台", "17時台", "18時台", "19時台", "20時台", "21時台", "22時台", "23時台", "0時台～"],
+   "shares": [0.00867, 0.00309, 0.00435, 0.00648, 0.0101, 0.01626, 0.02902, 0.03084, 0.03963, 0.05808, 0.085, 0.17738, 0.20651, 0.12666, 0.08867, 0.05579, 0.03358, 0.01529, 0.00461],
+   "unit": "share_of_daily",
+   "scope": "第12回大都市交通センサス(2015・首都圏) 目的別乗車降車時刻分布 purpose=帰宅 / flow=乗車(19区分)",
+   "caveat": "帰宅トリップは原表で補完されていない=絶対量は過小。形だけ使う(v2-d66 §7-B)。",
+   "tag": "anchor",
+   "source": "国土交通省 大都市交通センサス 第12回 https://www.mlit.go.jp/sogoseisaku/transport/sosei_transport_tk_000007.html (data/realworld/transport_census/time_dist_12.json より転記)",
+   "verified_by": "parent 2026-09-10"
+  },
+  "attendance_rate": {
+   "value": 0.88,
+   "unit": "比率",
+   "scope": "登録通勤者のうち当日その職場に物理的に来る比率",
+   "caveat": "母集団の違う3調査(テレワーク実施率×実施社員割合×年休)の連鎖。病欠・出張・直行直帰を含まない=上界寄り。",
+   "tag": "expedient",
+   "source": "docs/research/v2-d66-outside-residents-research.md §5-C(推定・expedient)",
+   "verified_by": "parent 2026-09-10"
+  },
+  "full_population": {
+   "value": 390067,
+   "unit": "体",
+   "scope": "v2 本番の個体数(W16/W17 の n_agents)。mock ランの縮尺換算の分母",
+   "tag": "anchor",
+   "source": "data/world/v2/acceptance/gate_table.md W16/W17 n_agents=390067",
+   "verified_by": "parent 2026-09-10"
+  }
+ }
+}

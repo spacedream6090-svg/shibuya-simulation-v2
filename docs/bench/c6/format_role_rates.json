@@ -1,0 +1,67 @@
+{
+ "test": "format_role_rates",
+ "source": "tape=data/tape/c6-smoke-2",
+ "temperature": 0.7,
+ "score": {
+  "n": 833,
+  "format_error_rate": 0.04201680672268908,
+  "format_error_ci95": [
+   0.030364296747070998,
+   0.05787414646607712
+  ],
+  "format_error_rate_strict": 0.10084033613445378,
+  "format_error_ci95_strict": [
+   0.08218872366712084,
+   0.12315670849112752
+  ],
+  "format_error_gate": 0.1,
+  "format_error_n_min": 59,
+  "format_error_ok": true,
+  "format_error_ok_strict": false,
+  "alias_used_rate": 0.062424969987995196,
+  "alias_surfaces": {
+   "目的地": 33,
+   "目的": 18,
+   "一言": 1
+  },
+  "strict_two_line_rate": 0.9039615846338536,
+  "role_action_rate": 0.0,
+  "role_action_counts": {},
+  "role_vocab": [
+   "接客",
+   "補充",
+   "開閉店",
+   "価格改定",
+   "発車",
+   "停車",
+   "放送",
+   "遅延報告",
+   "計画改訂",
+   "指示",
+   "並ぶ",
+   "撮影"
+  ],
+  "undefined_rate": 0.0024009603841536613,
+  "dictionary_mapped_rate": 0.008403361344537815,
+  "dictionary_mapped": 7,
+  "action_counts": {
+   "待機": 378,
+   "移動": 229,
+   "退去": 34,
+   "乗車": 108,
+   "購入": 46,
+   "休憩": 33,
+   "会話": 2,
+   "通報": 1,
+   "(未定義)": 2
+  }
+ },
+ "watched_role_words": [
+  "補充",
+  "開閉店",
+  "発車",
+  "停車",
+  "指示"
+ ],
+ "diagnostics_day": null
+}

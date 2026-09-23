@@ -14,6 +14,8 @@ from shibuya.llm.undefined import (
     ADJUDICATION_TEMPLATE,
     DEFAULT_THRESHOLD_AGENTS,
     SYNONYM_TABLE_VERSION,
+    SYNONYMS,
+    SYNONYMS_C6,
     Proposal,
     ProposalStatus,
     UndefinedActionRegistry,
@@ -74,6 +76,90 @@ def test_stage0_partial_match_prefers_the_longest_surface():
 
 def test_synonym_table_is_versioned():
     assert SYNONYM_TABLE_VERSION.startswith("undefined-synonyms-")
+    assert SYNONYM_TABLE_VERSION == "undefined-synonyms-v2", "表を変えたら版を上げる"
+
+
+# ---------------------------------------------------------------- 段0(C6 追加・2026-09-09)
+@pytest.mark.parametrize(
+    "surface,canonical",
+    [
+        # 初回実LLMスモークで出た語彙外の行動語(未定義行動 43 件の中身)
+        ("探索", "移動"), ("探す", "移動"), ("観察", "待機"), ("調査", "待機"), ("調べる", "待機"),
+        # 同じ方針の近縁語
+        ("見回る", "移動"), ("歩き回る", "移動"), ("散策", "移動"),
+        ("確認", "待機"), ("眺める", "待機"), ("チェック", "待機"),
+        # 活用形は部分一致で拾う
+        ("飲食店を探す", "移動"), ("探して", "移動"), ("周囲を観察する", "待機"),
+        ("調べて", "待機"), ("状況を確認する", "待機"),
+    ],
+)
+def test_c6_stage0_maps_the_search_and_look_words_without_any_llm_call(surface, canonical):
+    llm = ScriptedLLM(CLEAN_ROW)
+    reg = UndefinedActionRegistry(adjudicator=llm)
+    out = reg.observe(surface, agent_id=1, tick=0)
+    assert out.stage == 0 and out.word == canonical and out.source == "dictionary"
+    assert out.action_code == ACTION_CODES[canonical]
+    assert out.action_from_dictionary and out.mapped
+    assert out.target_hint == "", "対象の決定はエンジンの仕事(探索にヒントは付けない)"
+    assert llm.requests == [] and reg.counters()["undefined_records"] == 0
+    assert reg.counters()["dictionary_mapped"] == 1
+
+
+def test_c6_stage0_policy_locomotion_vs_stationary():
+    """方針: 移動を伴う探索→移動 / その場の観察・確認→待機(既存「様子を見る→待機」に接続)。"""
+    assert map_synonym("様子を見る")[0] == "待機"  # v0 の方針アンカー
+    assert {SYNONYMS_C6[w] for w in ("探す", "探索", "見回る")} == {"移動"}
+    assert {SYNONYMS_C6[w] for w in ("観察", "確認", "調べる", "調査")} == {"待機"}
+    assert set(SYNONYMS_C6.values()) <= {"移動", "待機"}
+    assert SYNONYMS == {**SYNONYMS, **SYNONYMS_C6}
+
+
+def test_c6_additions_do_not_shadow_the_existing_table():
+    """既存の写像は C6 追加後も変わらない(部分一致の最長優先が壊れていない)。"""
+    for surface, canonical in [
+        ("歩く", "移動"), ("買う", "購入"), ("話す", "会話"), ("待つ", "待機"),
+        ("休む", "休憩"), ("寝る", "就寝"), ("様子を見る", "待機"), ("立ち去る", "退去"),
+        ("写真を撮る", "撮影"), ("帰る", "移動"),
+    ]:
+        assert map_synonym(surface)[0] == canonical, surface
+    assert map_synonym("帰る")[1] == "home"
+
+
+@pytest.mark.parametrize(
+    "surface",
+    ["通勤", "通学", "出勤", "退勤", "出社", "登校", "進入", "電車で通勤する", "出勤して"],
+)
+def test_c6_stage0_maps_the_commute_words_to_移動(surface):
+    """``--fleet-debug-dir`` 実測の ``unknown_action_word`` 96 の第2群(通勤 16)。"""
+    reg = UndefinedActionRegistry()
+    out = reg.observe(surface, agent_id=1, tick=0)
+    assert out.stage == 0 and out.word == "移動" and out.action_from_dictionary
+    assert out.target_hint == "", "職場セルの印は未定義(対象の決定はエンジン・親判断待ち)"
+
+
+def test_c6_vocabulary_words_are_not_in_the_dictionary():
+    """``通報``/``退去``/``購入`` は §2.1 の12語=語彙一致で通るので辞書に入れない。"""
+    for word in ("通報", "退去", "購入", "移動", "会話"):
+        assert word in ACTION_CODES
+        assert word not in SYNONYMS_C6
+    assert not (set(SYNONYMS) & set(ACTION_CODES)), "辞書のキーが語彙語と衝突していない"
+
+
+def test_c6_words_outside_both_the_vocabulary_and_the_dictionary_reach_stage1():
+    reg = UndefinedActionRegistry()
+    out = reg.observe("瞑想", agent_id=3, tick=1)
+    assert out.stage == 1 and out.word is None and not out.action_from_dictionary
+    assert out.feedback == undefined_feedback("瞑想")
+    assert reg.counters()["dictionary_mapped"] == 0 and reg.counters()["undefined_records"] == 1
+
+
+def test_c6_precedent_is_not_reported_as_a_dictionary_mapping():
+    """段4(判例)は ``source="precedent"``=辞書写像とは別に数える。"""
+    reg = UndefinedActionRegistry()
+    reg.observe("跳ぶ", agent_id=0, tick=1)
+    reg.adopt("跳ぶ", _spec("移動"))
+    out = reg.observe("跳ぶ", agent_id=1, tick=2)
+    assert out.stage == 4 and out.mapped and not out.action_from_dictionary
 
 
 # ---------------------------------------------------------------- 段1

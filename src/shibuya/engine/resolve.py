@@ -48,7 +48,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from typing import Final
+from typing import Any, Final, Mapping
 
 import numpy as np
 
@@ -58,6 +58,7 @@ from shibuya.agents.state import (
     Activity,
     AgentState,
     ResultCode,
+    WakeCondition,
 )
 from shibuya.engine.change_detect import DetectResult
 from shibuya.engine.ledger_api import LedgerBundle
@@ -81,15 +82,25 @@ from shibuya.world.state import World
 
 __all__ = [
     "revert_conversation",
+    "set_conversing",
     "BODY_TICK_PERIOD",
+    "BOARD_WAIT_LIMIT_TICKS",
     "REST_FATIGUE_RELIEF",
     "BUY_HUNGER_RELIEF",
     "SLEEP_FATIGUE_RELIEF",
     "ResolveOutcome",
     "initialize",
+    "set_initial_activity",
+    "set_plan_state",
+    "begin_planned_sleep",
+    "wake_from_plan",
     "apply_detection",
     "apply",
     "set_refractory",
+    "clear_refractory",
+    "refractory_ticks",
+    "wake_condition_index",
+    "normalized_refractory_scale",
     "advance_body",
     "restock",
     "discard_to_bin",
@@ -117,7 +128,94 @@ SLEEP_FATIGUE_RELIEF: Final[int] = 2
 #: 物の台帳の払い出しスロットを回す最大回数(``_apply_buy`` の注記・expedient)。
 _SELL_SLOT_RETRIES: Final[int] = 8
 
+#: 乗車待ちの打ち切り[tick](**expedient**・D-51 登録簿 §8)。
+#: ホームで待ち始めてからこれだけ経っても列車が来なければ意図を消し「列車なし」を返す
+#: (個体は次の起床で判断し直す)。値の根拠(答申 §3-1 行 4-7・親一次確認):
+#: 渋谷の運転間隔は全線 2.2〜5.0 分・待ち時間 = 間隔の半分 → 最大 5 分の **6 倍**を上限に採る。
+#: メトロ 3 線は **1〜4 時台の運行が 0 本**なので「待っても来ない時間帯」が実在する
+#: (打ち切りが無いと、その時間帯にホームへ来た体が始発まで待ち続けて動かなくなる)。
+BOARD_WAIT_LIMIT_TICKS: Final[int] = 30
+
+#: 乗車の意図(``board_line``)を**保つ**行動(これ以外を選んだら意図は落ちる)。
+#: 乗車=張り直し / 待機=ホームで待ち続ける / エンジン継続=ホームへ歩いている途中。
+_BOARD_KEEP_ACTIONS: Final[tuple[int, ...]] = (ACT_BOARD, ACT_WAIT, ENGINE_STEP)
+
+#: 就寝の意図(``sleep_pending``)を**保つ**行動(これ以外を選んだら意図は落ちる・D-62)。
+#: 就寝=張り直し / エンジン継続=就寝地へ歩いている途中。
+_SLEEP_KEEP_ACTIONS: Final[tuple[int, ...]] = (ACT_SLEEP, ENGINE_STEP)
+
 _REFRACTORY_TICKS: Final[np.ndarray] = np.asarray(REFRACTORY_MINUTES, dtype=np.int32)
+_REFRACTORY_TICKS.flags.writeable = False
+
+
+def wake_condition_index(key: WakeCondition | int | str) -> int:
+    """``refractory_scale`` の鍵 → ``WakeCondition`` の列番号。
+
+    ``WakeCondition``・``int``・条件名(``"PROXIMITY_SWAP"``・大小文字と前後空白は無視)を
+    受ける。**日本語の行名は受けない**(表の 11 行と 1 対 1 の対応が崩れるため)。
+    """
+    if isinstance(key, WakeCondition):
+        return int(key)
+    if isinstance(key, (int, np.integer)) and not isinstance(key, bool):
+        idx = int(key)
+    else:
+        name = str(key).strip().upper().replace("-", "_")
+        try:
+            idx = int(WakeCondition[name])
+        except KeyError:
+            raise ValueError(
+                f"未知の起床条件: {key!r}(§6 の 11 行 = {[c.name for c in WakeCondition]})"
+            ) from None
+    if not 0 <= idx < N_WAKE_CONDITIONS:
+        raise ValueError(f"起床条件の列番号は 0..{N_WAKE_CONDITIONS - 1}(いま {key!r})")
+    return idx
+
+
+def refractory_ticks(scale: Mapping[Any, float] | None = None) -> np.ndarray:
+    """**ランの実効不応期表**[tick](知覚契約書 §6 の 11 行)。
+
+    ablation ③(§8 第1陣 ③「近接入替の不応期 15 分 ±50%」)の切替口。モジュール定数を
+    ``import`` 時に焼くのをやめ、``run_day`` が 1 本組んで ``set_refractory`` に渡す。
+
+    Args:
+        scale: ``{起床条件: 倍率}``。``None`` / 空 dict なら **§6 の表そのもの**
+            (``_REFRACTORY_TICKS`` を**そのまま**返す=既定でバイト不変)。鍵は
+            ``WakeCondition``・列番号・条件名のどれでもよい(``wake_condition_index``)。
+
+    Returns:
+        ``(11,)`` int32(書き込み禁止)。tick_seconds=60 なので分=tick。
+
+    expedient(自前規約・設計書に丸めの規定は無い)
+        表は**分の整数**なので、倍率をかけた値は ``floor(x + 0.5)``(half-up)で丸める。
+        15 分 ×0.5 = 7.5 → **8 分**・15 分 ×1.5 = 22.5 → **23 分**。
+        倍率 0 は「床なし」(会話ターンと同じ 0 分)として許す。
+
+    Raises:
+        ValueError: 未知の起床条件・負/非有限の倍率。
+    """
+    if not scale:
+        return _REFRACTORY_TICKS
+    base = np.asarray(REFRACTORY_MINUTES, dtype=np.float64)
+    for key, factor in dict(scale).items():
+        f = float(factor)
+        if not np.isfinite(f) or f < 0.0:
+            raise ValueError(f"不応期の倍率は 0 以上の有限値(いま {key!r}={factor!r})")
+        base[wake_condition_index(key)] *= f
+    out = np.floor(base + 0.5).astype(np.int32)
+    out.flags.writeable = False
+    return out
+
+
+def normalized_refractory_scale(scale: Mapping[Any, float] | None = None) -> dict[str, float]:
+    """``refractory_scale`` を manifest 欄用に正規化する(``{条件名: 倍率}``・名前昇順)。"""
+    if not scale:
+        return {}
+    return {
+        WakeCondition(wake_condition_index(k)).name: float(v)
+        for k, v in sorted(
+            dict(scale).items(), key=lambda kv: WakeCondition(wake_condition_index(kv[0])).name
+        )
+    }
 
 
 def _require_thawed(*states: object) -> None:
@@ -160,6 +258,11 @@ class ResolveOutcome:
     per_result: dict[int, int] = field(default_factory=dict)
     #: 移動+密度更新の壁時計[秒](予算行 P2)。
     movement_seconds: float = 0.0
+    #: 「位置確定+密度」区間の**このスレッドの CPU 時間**[秒](``time.thread_time``)。
+    #: ``movement_seconds``(壁時計)との差=**GIL 待ち/デスケジュール**。艦隊ランで
+    #: P2(≤5 ms/フレーム)を割ったとき、仕事が増えたのか待たされたのかを 1 本で切り分ける
+    #: (実装計画書 §4「httpx イベントループと numba 計算の干渉。出たら別プロセスへ」の測定点)。
+    movement_cpu_seconds: float = 0.0
     #: この tick で使う台帳(``apply`` が入れる**呼びごとの文脈**。行動語の適用関数へ
     #: 引数を1本増やさずに渡すための欄=注入点は ``apply(..., ledger=...)`` の1か所だけ)。
     ledger: LedgerBundle | None = None
@@ -173,6 +276,10 @@ class ResolveOutcome:
     n_boarded: int = 0
     #: 降車が成立した件数。
     n_alighted: int = 0
+    #: 乗車待ちの行列に**新しく入った**件数(D-51・ホームに立った延べ人数)。
+    n_board_waiting: int = 0
+    #: 待ちの打ち切り件数(D-51・``BOARD_WAIT_LIMIT_TICKS`` 超過で意図を落とした)。
+    n_board_timeout: int = 0
     #: 支払われた運賃の合計[円](保存則: Σmoney+Σrevenue+Σ運賃 が不変)。
     fare_paid: int = 0
     #: 満席で待ち行列へ入った件数(購入の「待ち時間」コスト・行動契約書 §2.1)。
@@ -181,6 +288,9 @@ class ResolveOutcome:
     hotel: object | None = None
     #: ホテルで就寝した件数(§7.2 ホテル客室在庫)。
     n_hotel_sleep: int = 0
+    #: **就寝地へ着いて寝た**件数(D-62 (a) の意図保持ぶん。就寝境界で即座に寝た件数は
+    #: ``begin_planned_sleep`` の戻り値で数える=あちらは ``apply`` の外で走る)。
+    n_planned_sleep: int = 0
 
     def add_result(self, code: int, n: int) -> None:
         if n:
@@ -208,11 +318,24 @@ def initialize(
     n = agents.n
     with agents.writable(), world.writable():
         home = np.asarray(schedule.home_cell, dtype=np.int64)[:n]
-        agents.registry.cell[:] = home
-        agents.registry.node[:] = world.assets.cell_rep_node[home]
-        agents.registry.band[:] = world.assets.cell_band[home]
-        agents.registry.xy[:] = world.assets.node_xy[agents.registry.node]
+        # I6 −1 ガード(D-66): 域外居住者は ``home_cell < 0`` のまま来る(計画実行層が
+        # 起動直後に ``place_at_external`` で外へ置く)。**セル表を −1 で索引しない**。
+        # 全員が ``home_cell >= 0`` のラン(帰無腕・mock・合成世界)では 1 バイトも変わらない。
+        has_home = home >= 0
+        safe = np.where(has_home, home, 0)
+        agents.registry.cell[:] = np.where(has_home, home, -1)
+        node = np.where(has_home, world.assets.cell_rep_node[safe], -1)
+        agents.registry.node[:] = node
+        agents.registry.band[:] = np.where(has_home, world.assets.cell_band[safe], 0)
+        agents.registry.xy[:] = np.where(
+            has_home[:, None], world.assets.node_xy[np.maximum(node, 0)], 0.0
+        )
         agents.registry.field("kind")[:] = np.asarray(schedule.kind)[:n]
+        # W16 母集団を載せたランだけ年齢・性別が入る(mock は既定値 0 / −1 のまま)
+        if getattr(schedule, "age", None) is not None:
+            agents.registry.field("age")[:] = np.asarray(schedule.age)[:n]
+        if getattr(schedule, "sex", None) is not None:
+            agents.registry.field("sex")[:] = np.asarray(schedule.sex)[:n]
         money0 = np.asarray(schedule.initial_money, dtype=np.int64)[:n]
         if ledger is not None and ledger.money is not None:
             # 台帳経路: 外界 → 世帯の transfer(来街者持込)で入れる(残高の直接代入をしない)
@@ -239,6 +362,240 @@ def initialize(
         world.cells.open_count[:] = world.open_count_per_cell(0)
 
 
+def set_initial_activity(agents: AgentState, activity) -> int:
+    """tick 0 の ``activity`` を**計画(W17)の 0:00 時点の活動**から立てる(D-62 (b))。
+
+    ``initialize`` は全員を ``SLEEPING`` に置く(週次表を持たない合成世界/mock 日課の
+    既定=**従来どおり**)。週次表があるランだけ、この関数で 0:00 の活動から立て直す
+    (``agents.weekly.WeeklySchedule.initial_activity``)。
+
+    ``transit_state != 0``(域外滞在・乗車中)の個体は**触らない**——域外居住者は
+    ``place_at_external`` が ``WAITING`` を立てており、3 値(乗客の保存則の分母)と
+    ``activity`` の整合はそちらが正(D-62 の決定文「rail の事前割当の整合を保つ」)。
+
+    Args:
+        activity: 形 ``(n,)`` の ``Activity`` 値(``int8``)。
+
+    Returns:
+        実際に書いた体数。
+    """
+    act = np.asarray(activity, dtype=np.int8).ravel()
+    with agents.writable():
+        r = agents.registry
+        if act.size != r.activity.size:
+            raise ValueError(f"初期活動の長さが体数と違う({act.size} != {r.activity.size})")
+        free = r.transit_state == 0
+        r.activity[free] = act[free]
+    return int(np.count_nonzero(free))
+
+
+def set_plan_state(
+    agents: AgentState,
+    agent_id=None,
+    *,
+    activity=None,
+    flags=None,
+    flags_set: int | None = None,
+    flags_clear: int | None = None,
+) -> None:
+    """``plan_activity`` / ``plan_flags``(D-66 計画実行層の 2 欄)への**唯一の書き込み口**。
+
+    欄は ``AgentState(plan_columns=True)`` のランにしか無い(帰無腕は欄ごと無い)ので、
+    **欄が無ければ黙って何もしない**=帰無腕・既存テストは 1 バイトも動かない。
+
+    Args:
+        agents: 個体状態。
+        agent_id: 書く体(``None``=全体に一括代入)。
+        activity: ``ACTIVITY_WORDS`` の索引(``agent_id`` と同じ長さかスカラー)。
+        flags: ``plan_flags`` をそのまま置き換える値。
+        flags_set / flags_clear: 立てる/落とすビット(``FLAG_*``)。
+
+    Note:
+        書くのは「計画の写し」であって世界状態ではないが、SoA への書き込みは
+        ``resolve`` 以外から行わない規律(運用設計書 §2.2)に合わせてここに置く。
+    """
+    r = agents.registry
+    if "plan_activity" not in r.arrays:
+        return
+    a = None if agent_id is None else np.asarray(agent_id, dtype=np.int64).ravel()
+    if a is not None and a.size == 0:
+        return
+    with agents.writable():
+        if activity is not None:
+            v = np.asarray(activity, dtype=np.int8)
+            if a is None:
+                r.plan_activity[:] = v
+            else:
+                r.plan_activity[a] = v
+        if flags is not None:
+            v = np.asarray(flags, dtype=np.int8)
+            if a is None:
+                r.plan_flags[:] = v
+            else:
+                r.plan_flags[a] = v
+        if flags_set:
+            if a is None:
+                r.plan_flags[:] = (r.plan_flags | np.int8(flags_set)).astype(np.int8)
+            else:
+                r.plan_flags[a] = (r.plan_flags[a] | np.int8(flags_set)).astype(np.int8)
+        if flags_clear:
+            mask = ~np.int8(int(flags_clear))  # int8 の補数=落とすビットだけ 0
+            if a is None:
+                r.plan_flags[:] = (r.plan_flags & mask).astype(np.int8)
+            else:
+                r.plan_flags[a] = (r.plan_flags[a] & mask).astype(np.int8)
+
+
+def begin_planned_sleep(
+    agents: AgentState,
+    world: World,
+    agent_id,
+    target_cell,
+    tick: int,
+    *,
+    schedule=None,
+) -> tuple[int, int, int]:
+    """**就寝境界に達した体を寝かせる**(D-62 (a)「就寝は計画の実行」・2026-09-10 決定)。
+
+    正典・位置づけ
+    - 週次表(W17)の就寝境界は、その個体自身が LLM で作った計画の一部。**判断は済んで
+      いる**ので、境界での実行にもう一度 LLM を呼ばない(D-51 乗車の意図保持と同じ
+      「判断1回・実行は世界」)。呼び出し側(``engine.run``)は、この境界の体を
+      起床候補から**外す**。
+    - 就寝地=その活動の ``target_cell``(未解決 ``-1`` なら ``schedule.home_cell``)。
+
+    規則(3 通り)
+    1. 就寝地のセルに**居る** → ``activity=SLEEPING``(``target_node``/乗車の意図を落とす)。
+    2. 居ない・経路がある → 就寝地へ ``target_node`` を張って歩き出し ``sleep_pending=1``。
+       着いた時点で ``_apply_engine_step`` が寝かせる。
+    3. 居ない・経路がない / 乗車中・域外滞在 / 会話中 → **何もしない**(起きたまま)。
+
+    expedient(登録簿 §8 D-62)
+    - 3 の「乗車中・域外滞在」を触らないのは ``transit_state`` が乗客の保存則の分母だから
+      (車内で寝る状態を作らない=第2陣)。「会話中」を触らないのは、片側だけ
+      ``CONVERSING`` が残る事故を作らないため(D-56 の例外③と同じ理由)。
+    - 2 で歩いている間は**起きている**(``MOVING``)。現実の「帰って寝る」は移動が先なので
+      境界の時刻ちょうどに寝ないのは正しいが、経路が長いと就寝が遅れる。
+
+    Returns:
+        計数の辞書 ``{slept, walking, riding, outside, conversing, asleep, unreachable}``
+        (``slept + walking + それ以外の合計 = 体数``)。**触らなかった理由を数える**のは、
+        「その日はもう就寝境界が来ない=起きたままになる」体の量を報告するため。
+        内訳は ``transit_state`` を先に見る(乗車中 → 域外 → 在圏の中で 会話中/就寝済/
+        セルが無い・経路が無い)ので、**域外の体は ``unreachable`` ではなく ``outside``**
+        に入る(2026-09-11・D-66)。
+    """
+    zero = {
+        "slept": 0, "walking": 0, "riding": 0, "outside": 0,
+        "conversing": 0, "asleep": 0, "unreachable": 0,
+    }
+    a = np.asarray(agent_id, dtype=np.int64).ravel()
+    if a.size == 0:
+        return zero
+    r = agents.registry
+    cell = np.asarray(target_cell, dtype=np.int64).ravel()
+    if cell.size != a.size:
+        raise ValueError(f"就寝地の長さが体数と違う({cell.size} != {a.size})")
+    if schedule is not None:
+        home = np.asarray(schedule.home_cell, dtype=np.int64)[a]
+        cell = np.where(cell >= 0, cell, home)
+    n_at = n_walk = 0
+    with agents.writable():
+        ok_cell = (cell >= 0) & (cell < world.n_cells)
+        st = r.transit_state[a]
+        act0 = r.activity[a]
+        free = (
+            ok_cell
+            & (st == 0)
+            & (act0 != int(Activity.CONVERSING))
+            & (act0 != int(Activity.SLEEPING))
+        )
+        # **触らなかった理由は 3 値(``transit_state``)を先に見る**(2026-09-11・D-66 の指摘):
+        # 旧実装は ``ok_cell`` を全ての内訳に掛けていたので、就寝地セルの無い**域外の体**が
+        # ``outside`` ではなく ``unreachable`` に落ちていた(計画実行層のランで 域外常住者の
+        # ``home_cell < 0`` が効き、既定腕の「行けない」が 5,976 件に膨らんだ)。
+        # ``unreachable`` は「**在圏**なのに就寝地のセルが無い/経路が無い」体だけにする。
+        # 内訳の合計は従来どおり体数に一致し、``free``(実際に寝かせる体)は 1 ビットも変えない。
+        in_area = st == 0
+        zero["riding"] = int(np.count_nonzero(st == 1))
+        zero["outside"] = int(np.count_nonzero(st == 2))
+        zero["conversing"] = int(
+            np.count_nonzero(in_area & (act0 == int(Activity.CONVERSING)))
+        )
+        zero["asleep"] = int(np.count_nonzero(in_area & (act0 == int(Activity.SLEEPING))))
+        zero["unreachable"] = int(
+            np.count_nonzero(
+                in_area
+                & (act0 != int(Activity.CONVERSING))
+                & (act0 != int(Activity.SLEEPING))
+                & ~ok_cell
+            )
+        )
+        at = free & (r.cell[a].astype(np.int64) == cell)
+        here = a[at]
+        if here.size:
+            r.activity[here] = int(Activity.SLEEPING)
+            r.target_node[here] = -1
+            r.sleep_pending[here] = 0
+            r.board_line[here] = -1  # 乗車の意図は落ちる(幽霊を残さない)
+            r.board_since[here] = -1
+            n_at = int(here.size)
+        far = np.flatnonzero(free & ~at)
+        if far.size:
+            ids = a[far]
+            dest = np.asarray(world.assets.cell_rep_node, dtype=np.int64)[cell[far]]
+            nxt = np.asarray(world.graph.route_next_node(r.node[ids], dest), dtype=np.int64)
+            same = dest == r.node[ids].astype(np.int64)
+            good = (nxt >= 0) | same
+            # ノードは就寝地でもセルが違う(=表現ノードに居る)体は、その場で寝かせる
+            arrive = ids[good & same]
+            if arrive.size:
+                r.activity[arrive] = int(Activity.SLEEPING)
+                r.target_node[arrive] = -1
+                r.sleep_pending[arrive] = 0
+                r.board_line[arrive] = -1
+                r.board_since[arrive] = -1
+                n_at += int(arrive.size)
+            walk = ids[good & ~same]
+            if walk.size:
+                r.activity[walk] = int(Activity.MOVING)
+                r.target_node[walk] = dest[good & ~same].astype(r.target_node.dtype)
+                r.sleep_pending[walk] = 1
+                r.board_line[walk] = -1
+                r.board_since[walk] = -1
+                n_walk = int(walk.size)
+            # 経路が無くて就寝地へ行けない体(行き止まり)も「触らなかった」側に数える
+            zero["unreachable"] += int(np.count_nonzero(~good))
+    zero["slept"] = n_at
+    zero["walking"] = n_walk
+    return zero
+
+
+def wake_from_plan(agents: AgentState, agent_id) -> int:
+    """**非就寝の計画境界に達した体を起こす**(D-62 (a) の対称形)。
+
+    起床は「次の計画境界(``PLAN_WORKING``/``PLAN_GENERAL``/``PLAN_TRANSIT``)か顕著行為」
+    (ユーザー決定 (a))。境界で起こしてから LLM に判断させる——**呼が繰り延べ・抑止で
+    落ちても起きる**(現実の起床は呼ばれ方に依存しない)。就寝の意図(``sleep_pending``)も
+    ここで落ちる。
+
+    Returns:
+        ``SLEEPING`` から起こした体数。
+    """
+    a = np.asarray(agent_id, dtype=np.int64).ravel()
+    if a.size == 0:
+        return 0
+    with agents.writable():
+        r = agents.registry
+        woke = a[r.activity[a] == int(Activity.SLEEPING)]
+        if woke.size:
+            r.activity[woke] = int(Activity.IDLE)
+        drop = a[r.sleep_pending[a] != 0]
+        if drop.size:
+            r.sleep_pending[drop] = 0
+    return int(woke.size)
+
+
 # ---------------------------------------------------------------- 変化検出の書き戻し
 def apply_detection(agents: AgentState, world: World, result: DetectResult) -> None:
     """``change_detect`` が返した新しい B4 ハッシュと内受容段を書き込む。"""
@@ -253,17 +610,51 @@ def apply_detection(agents: AgentState, world: World, result: DetectResult) -> N
 
 
 # ---------------------------------------------------------------- 不応期
-def set_refractory(agents: AgentState, agent_id, condition, tick: int) -> None:
-    """呼んだ個体×条件の不応期タイマーを張る(知覚契約書 §6 運用規定②)。"""
+def set_refractory(
+    agents: AgentState, agent_id, condition, tick: int, table: np.ndarray | None = None
+) -> None:
+    """呼んだ個体×条件の不応期タイマーを張る(知覚契約書 §6 運用規定②)。
+
+    Args:
+        table: **ランの実効不応期表**[tick](``refractory_ticks``)。``None`` なら §6 の表
+            そのもの(=既定でバイト不変)。ablation ③ はここに振った表を渡す。
+    """
     a = np.asarray(agent_id, dtype=np.int64)
     if a.size == 0:
         return
     c = np.asarray(condition, dtype=np.int64)
-    until = (int(tick) + _REFRACTORY_TICKS[c]).astype(np.int32)
+    tab = _REFRACTORY_TICKS if table is None else np.asarray(table, dtype=np.int32)
+    if tab.shape != (N_WAKE_CONDITIONS,):
+        raise ValueError(f"不応期表は ({N_WAKE_CONDITIONS},) int32(いま {tab.shape})")
+    until = (int(tick) + tab[c]).astype(np.int32)
     with agents.writable():
         _require_thawed(agents)
         cur = agents.registry.refractory_until
         np.maximum.at(cur, (a, c), until)
+
+
+def clear_refractory(agents: AgentState, agent_id, condition) -> None:
+    """呼んだ個体×条件の不応期タイマーを**戻す**(艦隊の繰り延べ=「呼が成立しなかった」)。
+
+    正典
+    - 憲法1(打ち切り禁止)+実装計画書 §7「タイムアウト/キュー満杯=**繰り延べ**(破棄禁止)」。
+      不応期は「**呼んだ**から次はしばらく呼ばない」という節約規則(知覚契約書 §6 運用規定②)で
+      あって、「答えが返らなかった呼」に対する抑止ではない。答えが返らなかった呼を次 tick へ
+      再投入するとき不応期が立ったままだと ``suppressed`` に落ちて**呼が消える**。
+
+    expedient(自前規約)
+    - 戻し方は ``refractory_until[agent, condition] = 0``(=どの tick でも起床可)。
+      ``set_refractory`` は ``np.maximum.at`` で伸ばすだけなので、同じ (個体, 条件) に別の
+      呼が張った不応期があってもここで一緒に消える。実運用では「その (個体, 条件) の最後の呼
+      =いま繰り延べになった呼」なので実害はないが、**一般には過剰に戻す**ことを明記する。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    c = np.asarray(condition, dtype=np.int64)
+    with agents.writable():
+        _require_thawed(agents)
+        agents.registry.refractory_until[a, c] = 0
 
 
 # ---------------------------------------------------------------- 身体の自然変動
@@ -328,6 +719,24 @@ def apply(
         aid = plan_confirmed.agent_id.astype(np.int64)
         tgt = plan_confirmed.target_id.astype(np.int64)
 
+        # D-51: 乗車の意図を持ったまま**別の行動**を選んだ体は、その時点で意図を落とす
+        # (ホームへ歩いている途中で気が変わった=待ち行列に幽霊を残さない)。
+        if code.size:
+            other = ~np.isin(code, _BOARD_KEEP_ACTIONS)
+            if other.any():
+                drop = aid[other]
+                drop = drop[r.board_line[drop] >= 0]
+                if drop.size:
+                    r.board_line[drop] = -1
+                    r.board_since[drop] = -1
+            # D-62: 就寝の意図も同じ(就寝地へ歩く途中で**別の行動**を選んだら意図は落ちる)。
+            other_sleep = ~np.isin(code, _SLEEP_KEEP_ACTIONS)
+            if other_sleep.any():
+                drop = aid[other_sleep]
+                drop = drop[r.sleep_pending[drop] != 0]
+                if drop.size:
+                    r.sleep_pending[drop] = 0
+
         # 逐次ループ宣言: 行動語ぶん(13 分岐)。個体数には比例しない。
         for action in (
             ENGINE_STEP, ACT_MOVE, ACT_BOARD, ACT_ALIGHT, ACT_BUY, ACT_WAIT, ACT_TALK,
@@ -357,8 +766,14 @@ def apply(
             )
             out.add_result(ResultCode.LOST_ARBITRATION, int(la.size))
 
+        # ---- D-51 乗車待ちの捌き(停車中の列車へ FIFO・打ち切り) ----
+        # **行動語の適用の後・位置確定の前**に置く: この tick にホームへ着いた体(エンジン継続)と
+        # この tick に乗車を選んだ体を同じ列車に乗せるため。
+        _serve_board_queue(agents, world, tick, out)
+
         # ---- 位置の確定と密度(予算行 P2 の測定対象) ----
         t0 = time.perf_counter()
+        c0 = time.thread_time()
         node = r.node.astype(np.int64)
         valid = node >= 0
         new_cell = np.where(valid, world.assets.node_cell[np.maximum(node, 0)], -1)
@@ -369,6 +784,7 @@ def apply(
         world.cells.density_stage[:] = world.density_stage()
         world.cells.open_count[:] = world.open_count_per_cell(tick)
         out.movement_seconds = time.perf_counter() - t0
+        out.movement_cpu_seconds = time.thread_time() - c0
     return out
 
 
@@ -405,10 +821,27 @@ def _apply_engine_step(agents, world, aid, tgt, tick, out, schedule) -> None:
         r.activity[done] = int(Activity.IDLE)
         r.target_node[done] = -1
         out.n_arrived += int(done.size)
+        # D-51: ホームへ向かっていた体は着いた時点で**待ち行列へ**(判断は 1 回・実行は世界)
+        want = done[r.board_line[done] >= 0]
+        if want.size:
+            _enter_board_queue(agents, world, want, tick, out)
+        # D-62: 就寝地へ向かっていた体は着いた時点で**寝る**(同じ形。意図は排他=
+        # ``begin_planned_sleep`` が ``board_line`` を落とし、乗車を選べば ``sleep_pending``
+        # が落ちるので、同じ体が両方を持つことはない)。
+        nap = done[r.sleep_pending[done] != 0]
+        if nap.size:
+            r.activity[nap] = int(Activity.SLEEPING)
+            r.target_node[nap] = -1
+            r.sleep_pending[nap] = 0
+            out.n_planned_sleep += int(nap.size)
     if stuck.any():
         _fail(agents, aid[stuck], ResultCode.UNREACHABLE, tick, out)
         r.activity[aid[stuck]] = int(Activity.IDLE)
         r.target_node[aid[stuck]] = -1
+        # 行き止まりでホームへ着けない体は乗車の意図も落とす(幽霊を残さない)
+        r.board_line[aid[stuck]] = -1
+        r.board_since[aid[stuck]] = -1
+        r.sleep_pending[aid[stuck]] = 0  # D-62: 就寝地へ着けない体も同じ(起きたまま)
 
 
 def _apply_move(agents, world, aid, tgt, tick, out, schedule) -> None:
@@ -431,60 +864,254 @@ def _apply_move(agents, world, aid, tgt, tick, out, schedule) -> None:
     _fail(agents, aid[~good], ResultCode.UNREACHABLE, tick, out)
 
 
-def _apply_board(agents, world, aid, tgt, tick, out, schedule) -> None:
-    """乗車(行動契約書 §2.1 + 運用設計書 §2.6)。
+def _cell_of_node(world, node) -> np.ndarray:
+    """ノード → セル(**この tick の最新値**)。
 
-    前提条件(契約書逐語): 「同一セルに停車中・運賃≦残高orIC・**定員に空き**」。
-    §2.6 の改訂で「定員」は座席定員ではなく**詰め込み上限**(混雑率の実測上限)になった
-    ので、受容は ``rail.accept_quota``(混雑率→受容率)が決める。失敗の意味論は
-    満員=``TRAIN_FULL`` / 運賃不足=``FARE_SHORT`` / 列車なし=``NO_TRAIN``。
+    ``registry.cell`` は ``apply`` の末尾でまとめて貼り直すので、適用の途中では
+    「前の tick の値」である。同じ tick に歩いて着いた体を正しく扱うため、位置は
+    ``node`` から引く(``world.assets.node_cell`` は静的表)。
+    """
+    n = np.asarray(node, dtype=np.int64)
+    return np.where(n >= 0, world.assets.node_cell[np.maximum(n, 0)], -1).astype(np.int64)
+
+
+def _platform_table(world, rail) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """``(路線索引, ホームセル, ホームの代表ノード)``——**今日 便のある線だけ**(昇順)。"""
+    lines = np.asarray(getattr(rail, "lines_present", ()), dtype=np.int64)
+    if lines.size == 0:
+        return lines, lines, lines
+    cells = np.asarray(rail.line_cell, dtype=np.int64)[lines]
+    nodes = np.where(cells >= 0, world.assets.cell_rep_node[np.maximum(cells, 0)], -1)
+    nodes = nodes.astype(np.int64)
+    keep = (cells >= 0) & (nodes >= 0)
+    return lines[keep], cells[keep], nodes[keep]
+
+
+def _enter_board_queue(agents, world, ids: np.ndarray, tick: int, out: ResolveOutcome) -> None:
+    """ホームに立った体を**乗車待ち**にする(D-51 (a))。
+
+    ``board_since`` は**最初に立った tick**を保つ(FIFO の鍵)。ホームでないセルに居る体
+    (経路の終端がホームでなかった等)は意図を落とす=待ち行列に幽霊を残さない。
+    """
+    r = agents.registry
+    if ids.size == 0:
+        return
+    lines, cells, _ = _platform_table(world, out.rail) if out.rail is not None else (
+        np.empty(0, np.int64), np.empty(0, np.int64), np.empty(0, np.int64)
+    )
+    cell_now = _cell_of_node(world, r.node[ids])
+    line_here = np.full(ids.size, -1, dtype=np.int64)
+    # 逐次ループ宣言(P4): 便のある路線ぶん(≤8)。個体数に比例しない。
+    for j in range(lines.size):
+        hit = (line_here < 0) & (cell_now == cells[j])
+        if hit.any():
+            line_here[hit] = lines[j]
+    on_plat = line_here >= 0
+    if on_plat.any():
+        win = ids[on_plat]
+        fresh = win[r.board_since[win] < 0]
+        r.board_line[win] = line_here[on_plat].astype(r.board_line.dtype)
+        r.activity[win] = int(Activity.WAITING)
+        r.target_node[win] = -1
+        if fresh.size:
+            r.board_since[fresh] = int(tick)
+            out.n_board_waiting += int(fresh.size)
+            if out.rail is not None:
+                out.rail.n_board_waiting += int(fresh.size)
+    if (~on_plat).any():
+        miss = ids[~on_plat]
+        r.board_line[miss] = -1
+        r.board_since[miss] = -1
+
+
+def _apply_board(agents, world, aid, tgt, tick, out, schedule) -> None:
+    """乗車(行動契約書 §2.1 + 運用設計書 §2.6 + **D-51 意図の保持**)。
+
+    契約書の前提条件は「同一セルに停車中・運賃≦残高orIC・**定員に空き**」。D-51
+    (2026-09-10・ユーザー決定 (c))で、この前提の**最初の 1 つ**を「満たすまで世界が運ぶ」
+    に広げた(**判断は 1 回・実行は世界**=MATSim の計画実行と同じ形。意味の拡張は
+    実装計画書 §8 の「D-51 乗車の意図保持」節に登録。設計書本文は書き換えていない)。
+
+    - ホームに居る → **乗車待ち**(``board_line``/``board_since``)に入る。実際に乗せるのは
+      ``_serve_board_queue``(停車中の列車へ FIFO)。
+    - ホーム以外に居る → 最寄りの(**行ける**)ホームへ ``target_node`` を張って歩き出す。
+      到着は ``_apply_engine_step`` が拾い、そのまま待ち行列へ入る。
+    - 乗車中・域外滞在(``transit_state != 0``)→ ``NO_TRAIN``(従来どおり)。
+    - 行けるホームが 1 つも無い → ``NO_TRAIN``(契約書 §2.1 の 3 語に**新語を足さない**。
+      内訳は ``rail.counters()['board_unreachable']`` に出す)。
+
+    Note:
+        逐次ループ宣言(P4): **便のある路線ぶん**のループ 2 本(≤8×2)。個体数に比例しない。
+    """
+    r = agents.registry
+    if aid.size == 0:
+        return
+    rail = out.rail
+    if rail is None or not bool(getattr(rail, "active", False)):
+        _fail(agents, aid, ResultCode.NO_TRAIN, tick, out)  # C2 互換(列車が無い世界)
+        return
+    rail.n_board_intent += int(aid.size)
+    can_try = r.transit_state[aid] == 0
+    _fail(agents, aid[~can_try], ResultCode.NO_TRAIN, tick, out)
+    aid = aid[can_try]
+    if aid.size == 0:
+        return
+    lines, cells, nodes = _platform_table(world, rail)
+    if lines.size == 0:
+        rail.n_board_unreachable += int(aid.size)
+        _fail(agents, aid, ResultCode.NO_TRAIN, tick, out)
+        return
+    node_now = r.node[aid].astype(np.int64)
+    cell_now = _cell_of_node(world, node_now)
+
+    # ---- ① すでにホームに居る → 待ち行列へ ----
+    on_plat = np.zeros(aid.size, dtype=bool)
+    # 逐次ループ宣言: 便のある路線ぶん(≤8)
+    for j in range(lines.size):
+        on_plat |= cell_now == cells[j]
+    if on_plat.any():
+        ids = aid[on_plat]
+        _enter_board_queue(agents, world, ids, tick, out)
+        _ok(agents, ids, tick, out)
+
+    # ---- ② ホーム以外 → 最寄りの行けるホームへ(意図の保持) ----
+    rest = aid[~on_plat]
+    if rest.size == 0:
+        return
+    rnode = node_now[~on_plat]
+    xy = world.assets.node_xy[np.maximum(rnode, 0)].astype(np.float64)
+    pxy = world.assets.node_xy[nodes].astype(np.float64)
+    # 直線距離の昇順(同距離は**路線索引の昇順**=決定論)。経路長ではない=expedient。
+    d2 = ((xy[:, None, :] - pxy[None, :, :]) ** 2).sum(axis=2)
+    order = np.argsort(d2, axis=1, kind="stable")
+    pick = np.full(rest.size, -1, dtype=np.int64)
+    dest = np.full(rest.size, -1, dtype=np.int64)
+    todo = np.arange(rest.size, dtype=np.int64)
+    # 逐次ループ宣言: 路線ぶん(≤8)。近い順に「経路があるか」を見て最初に通ったものを採る。
+    for rank in range(lines.size):
+        if todo.size == 0:
+            break
+        cand = order[todo, rank]
+        dn = nodes[cand]
+        nxt = np.asarray(world.graph.route_next_node(rnode[todo], dn), dtype=np.int64)
+        good = (nxt >= 0) | (dn == rnode[todo])
+        if good.any():
+            pick[todo[good]] = lines[cand[good]]
+            dest[todo[good]] = dn[good]
+        todo = todo[~good]
+    got = pick >= 0
+    if got.any():
+        ids = rest[got]
+        r.board_line[ids] = pick[got].astype(r.board_line.dtype)
+        r.board_since[ids] = -1  # まだホームに立っていない(待ち時間は数えない)
+        dest_got = dest[got]
+        same = dest_got == rnode[got]
+        walk = ids[~same]
+        if walk.size:
+            r.activity[walk] = int(Activity.MOVING)
+            r.target_node[walk] = dest_got[~same].astype(r.target_node.dtype)
+            rail.n_board_walking += int(walk.size)
+        if same.any():
+            _enter_board_queue(agents, world, ids[same], tick, out)
+        _ok(agents, ids, tick, out)
+    if (~got).any():
+        lost = rest[~got]
+        rail.n_board_unreachable += int(lost.size)
+        _fail(agents, lost, ResultCode.NO_TRAIN, tick, out)
+
+
+def _serve_board_queue(agents, world, tick: int, out: ResolveOutcome) -> None:
+    """停車中の列車へ待ち行列から乗せる + 待ちの打ち切り(D-51 (a)(d))。
+
+    順序は ``board_since`` 昇順 → ``agent_id`` 昇順の **FIFO**(決定論)。受容は従来どおり
+    ``rail.accept_quota``(§2.6 の混雑率→受容率)。乗れなかった体は**待ち続ける**
+    (``TRAIN_FULL`` を「直前の結果」に書くだけ)。運賃を払えない体は意図を落とす
+    (待ち続けても払えないため=``FARE_SHORT``)。
+
+    同じホームセルに複数の便が停まっている tick では、**先頭の便で 1 回だけ試す**
+    (満員で断られた体は同じ tick の次の便には乗らない=D-51 前の ``_apply_board`` と同じ
+    規約・expedient)。渋谷の混雑率は全線 200% 未満なので乗り残し自体が通常 0。
 
     Note:
         逐次ループ宣言(P4): **この tick に停車中の列車数**ぶんのループ 1 本
         (路線 8 × 方向 2 = 高々 16 級)。個体数には比例しない。
     """
     r = agents.registry
-    if aid.size == 0:
+    rail = out.rail
+    if rail is None or not bool(getattr(rail, "active", False)):
         return
-    if out.rail is None:
-        _fail(agents, aid, ResultCode.NO_TRAIN, tick, out)  # C2 互換(列車が無い世界)
+    # 全個体を走るのはこの 1 本だけ(以降は「意図を持つ体」だけの小さい添字で回す)
+    held = np.flatnonzero(r.board_line >= 0)
+    if held.size == 0:
         return
-    trains = np.asarray(out.rail.trains_at_platform(int(tick)), dtype=np.int64)
-    can_try = r.transit_state[aid] == 0
-    if trains.size == 0 or not can_try.any():
-        _fail(agents, aid, ResultCode.NO_TRAIN, tick, out)
-        return
-    plat = np.asarray(out.rail.platform_cell, dtype=np.int64)[trains]
-    cell = r.cell[aid].astype(np.int64)
-    fare = int(out.rail.fare_yen)
-    boarded: list[tuple[int, np.ndarray]] = []
-    full: list[np.ndarray] = []
-    poor: list[np.ndarray] = []
-    served = np.zeros(aid.size, dtype=bool)
-    # 逐次ループ宣言: 停車中の列車ぶん(≤ 路線×方向)
-    for k in range(trains.size):
-        here = can_try & (~served) & (cell == plat[k])
-        if not here.any():
-            continue
-        served |= here
-        idx = np.flatnonzero(here)
-        idx = idx[np.argsort(aid[idx], kind="stable")]  # 決定論(agent_id 昇順)
-        pay_ok = r.money[aid[idx]].astype(np.int64) >= fare
-        poor.append(aid[idx[~pay_ok]])
-        idx = idx[pay_ok]
-        if idx.size == 0:
-            continue
-        quota = int(out.rail.accept_quota(int(trains[k]), int(idx.size)))
-        boarded.append((int(trains[k]), aid[idx[:quota]]))
-        full.append(aid[idx[quota:]])
-    _fail(agents, aid[~served], ResultCode.NO_TRAIN, tick, out)
-    for arr in poor:
-        _fail(agents, arr, ResultCode.FARE_SHORT, tick, out)
-    for arr in full:
-        _fail(agents, arr, ResultCode.TRAIN_FULL, tick, out)
-    boarded = [(t, a) for t, a in boarded if a.size]
+    waiting = held[(r.board_since[held] >= 0) & (r.transit_state[held] == 0)]
+    trains = np.asarray(rail.trains_at_platform(int(tick)), dtype=np.int64)
+    if waiting.size and trains.size:
+        cell = _cell_of_node(world, r.node[waiting])
+        plat = np.asarray(rail.platform_cell, dtype=np.int64)[trains]
+        fare = int(rail.fare_yen)
+        served = np.zeros(waiting.size, dtype=bool)
+        boarded: list[tuple[int, np.ndarray]] = []
+        full: list[np.ndarray] = []
+        poor: list[np.ndarray] = []
+        # 逐次ループ宣言: 停車中の列車ぶん(≤ 路線×方向)
+        for k in range(trains.size):
+            here = np.flatnonzero((~served) & (cell == plat[k]))
+            if here.size == 0:
+                continue
+            served[here] = True
+            ids = waiting[here]
+            ids = ids[np.lexsort((ids, r.board_since[ids].astype(np.int64)))]  # FIFO
+            pay_ok = r.money[ids].astype(np.int64) >= fare
+            poor.append(ids[~pay_ok])
+            ids = ids[pay_ok]
+            if ids.size == 0:
+                continue
+            quota = int(rail.accept_quota(int(trains[k]), int(ids.size)))
+            boarded.append((int(trains[k]), ids[:quota]))
+            full.append(ids[quota:])
+        for arr in poor:
+            if arr.size:
+                r.board_line[arr] = -1
+                r.board_since[arr] = -1
+                r.activity[arr] = int(Activity.IDLE)
+                _fail(agents, arr, ResultCode.FARE_SHORT, tick, out)
+        for arr in full:
+            if arr.size:  # 乗れなかった体は**待ち続ける**(意図を落とさない)
+                _fail(agents, arr, ResultCode.TRAIN_FULL, tick, out)
+        _board_riders(agents, world, [(t, a) for t, a in boarded if a.size], tick, out)
+
+    # ---- 打ち切り(列車が来ない時間帯・深夜の 0 本に対応) ----
+    bl = r.board_line[held] >= 0  # 乗れた体はここで落ちている
+    bs = r.board_since[held].astype(np.int64)
+    stale = held[bl & (bs >= 0) & (int(tick) - bs >= BOARD_WAIT_LIMIT_TICKS)]
+    if stale.size:
+        r.board_line[stale] = -1
+        r.board_since[stale] = -1
+        r.activity[stale] = np.where(
+            r.activity[stale] == int(Activity.WAITING), int(Activity.IDLE), r.activity[stale]
+        ).astype(r.activity.dtype)
+        out.n_board_timeout += int(stale.size)
+        rail.n_board_timeout += int(stale.size)
+        _fail(agents, stale, ResultCode.NO_TRAIN, tick, out)
+    # ---- 宙に浮いた意図の掃除 ----
+    # 不変条件: 意図を持つ体は「ホームへ歩いている(MOVING)」か「ホームで待っている
+    # (board_since≥0)」のどちらか。会話に引き込まれる等**自分の行動以外**で歩みが
+    # 止まった体はここで意図を落とす(待ち行列に幽霊を残さない)。失敗は返さない
+    # (本人は何も試みていない)。
+    inert = held[bl & (bs < 0) & (r.activity[held] != int(Activity.MOVING))]
+    if inert.size:
+        r.board_line[inert] = -1
+        r.board_since[inert] = -1
+        rail.n_board_dropped += int(inert.size)
+
+
+def _board_riders(agents, world, boarded, tick: int, out: ResolveOutcome) -> None:
+    """乗車の確定(運賃の金の脚 → 状態遷移 → 列車 SoA)。``boarded`` = ``[(便, 個体列), …]``。"""
     if not boarded:
         return
+    r = agents.registry
+    fare = int(out.rail.fare_yen)
     riders = np.concatenate([a for _, a in boarded]).astype(np.int64)
     train_of = np.concatenate([np.full(a.size, t, dtype=np.int64) for t, a in boarded])
     led = out.ledger
@@ -509,7 +1136,10 @@ def _apply_board(agents, world, aid, tgt, tick, out, schedule) -> None:
     r.target_node[riders] = -1
     r.poi_ref[riders] = -1
     r.queue_poi[riders] = -1
+    r.board_line[riders] = -1  # 意図は成立して消える
+    r.board_since[riders] = -1
     out.n_boarded += int(riders.size)
+    out.rail.n_boarded_from_queue += int(riders.size)
     out.rail.on_board(train_of)
     _ok(agents, riders, tick, out)
 
@@ -668,16 +1298,48 @@ def revert_conversation(agents, agent_ids: np.ndarray) -> None:
         r.talk_partner[ids] = -1
 
 
+def set_conversing(agents: AgentState, inviters, invitees) -> None:
+    """会話成立時に**両側**を CONVERSING にする(C6・09-09)。
+
+    C3/C4 は招待側だけを CONVERSING にしていた(被招待側の離脱をセルで検出する回避策)。
+    C6 で被招待側が**自分の呼で承諾する**ようになったので、成立した時点で両側を
+    セッション参加状態にする(行動契約書 §3「終了はエンジン」=両側の解放も
+    ``engine.run`` の ``conv.step`` が行う)。世界状態への書き込みは resolve のみ。
+    """
+    a = np.asarray(inviters, dtype=np.int64)
+    b = np.asarray(invitees, dtype=np.int64)
+    if a.size == 0:
+        return
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        r.activity[a] = int(Activity.CONVERSING)
+        r.activity[b] = int(Activity.CONVERSING)
+        r.talk_partner[a] = b.astype(np.int32)
+        r.talk_partner[b] = a.astype(np.int32)
+
+
+#: 声をかけられない相手の状態(C6・09-09)。
+#: **会話中**=行動契約書 §2.1 の失敗「相手が会話中」(``PARTNER_BUSY``)。
+#: **就寝中**=声をかけても応答できない(起床(ii) の被招待で起こす対象にしない)。
+#: C3 は「相手が **IDLE** であること」を要求していたが、それだと移動中・待機中・
+#: 買い物中の相手に声をかけられず、C6 の 1 日ランで会話が 1 件も成立しなかった
+#: (**expedient**: 「話しかけられる状態」の正典は無い。ablation 対象)。
+_UNADDRESSABLE: Final[tuple[int, ...]] = (int(Activity.CONVERSING), int(Activity.SLEEPING))
+
+
 def _apply_talk(agents, world, aid, tgt, tick, out, schedule) -> None:
-    """会話: 同一セル・相手 idle・自分でない → セッション生成(C2 は**記録だけ**)。"""
+    """会話: 同一セル・相手が応答可能・自分でない → 招待成立(成否は被招待の呼が決める)。"""
     r = agents.registry
     has = (tgt >= 0) & (tgt < agents.n) & (tgt != aid)
     partner = np.clip(tgt, 0, max(0, agents.n - 1))
     same_cell = has & (r.cell[aid] == r.cell[partner]) & (r.cell[aid] >= 0)
-    idle = same_cell & (r.activity[partner] == int(Activity.IDLE))
+    pact = r.activity[partner]
+    addressable = same_cell & ~np.isin(pact, _UNADDRESSABLE)
+    idle = addressable
     _fail(agents, aid[~has], ResultCode.BAD_TARGET, tick, out)
     _fail(agents, aid[has & ~same_cell], ResultCode.PARTNER_GONE, tick, out)
-    _fail(agents, aid[same_cell & ~idle], ResultCode.PARTNER_BUSY, tick, out)
+    _fail(agents, aid[same_cell & ~addressable], ResultCode.PARTNER_BUSY, tick, out)
     win = np.flatnonzero(idle)
     if win.size == 0:
         return
@@ -920,6 +1582,8 @@ def place_at_external(agents: AgentState, agent_ids, external_ref) -> None:
         r.node[a] = -1
         r.target_node[a] = -1
         r.activity[a] = int(Activity.WAITING)
+        r.board_line[a] = -1  # 域外へ出る体は乗車の意図を持たない(D-51)
+        r.board_since[a] = -1
 
 
 def rail_arrive(agents: AgentState, world: World, agent_ids, cells) -> None:

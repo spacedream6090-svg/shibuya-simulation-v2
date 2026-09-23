@@ -114,8 +114,15 @@ def test_conservation_over_all_sectors_including_row(wired):
     agents = res.agents  # type: ignore[attr-defined]
     assert int(led.balance(BalanceLine.CASH, Sector.HOUSEHOLD).sum()) == res.money_end
     assert led.balance(BalanceLine.CASH, Sector.HOUSEHOLD) is agents.registry.money
-    # 店舗の現金 = 売上(第1陣は店舗が支出しないので売上と一致する)
-    assert int(led.balance(BalanceLine.CASH, Sector.STORE).sum()) == res.revenue_end
+    # 店舗の現金 = 売上 − 域外仕入(補充の代金は店舗→外界の sink)。
+    # **D-56(就寝抑止)で軌道が変わり、この fixture で初めて 補充 が 1 件成立した**ため、
+    # 「店舗は支出しないので売上と一致」は成り立たなくなった。等式を科目で閉じる形に直す
+    # (第1陣で店舗が現金を出す口は 域外仕入 だけ=下の科目一覧が証拠)。
+    imports = 0
+    for f in led.flow_daily:
+        imports += led.account_totals(f)["域外仕入"]
+    imports += led.account_totals()["域外仕入"]  # 締めていない当日ぶん
+    assert int(led.balance(BalanceLine.CASH, Sector.STORE).sum()) == res.revenue_end - imports
     assert res.conserved
 
 
@@ -189,6 +196,32 @@ def test_o_t_logs_of_both_ledgers_are_measured(wired):
     assert res.growth_report is not None
     assert {"transfer_log", "delivery_log"} <= {r.name for r in res.growth_report.rows}
     assert not res.growth_report.missing and not res.growth_report.unknown
+
+
+def test_the_bundle_declaration_survives_the_c7_scale(wired):
+    """D-53: **本番規模(390,067 体)でも宣言だけで cap を超えない**(ランは要らない)。
+
+    C7 本番はここで落ちた(``declared_over_cap = ['transfer_log', 'delivery_log']``)——
+    リング容量が固定で N に比例せず、宣言投影 28.1 MB / 12.5 MB が cap 6.29 MB / 2.10 MB を
+    超えたため。容量を N 比例にした後は cap = 宣言投影で通る。
+    """
+    from shibuya.core.growth import check_growth
+
+    n = 390_067
+    led = Ledger(n, 8)
+    goods = GoodsLedger.from_pois(
+        np.zeros(8, dtype=np.int64), np.full(8, 5), np.full(8, 300), n_agents=n
+    )
+    decls, measured = LedgerBundle(money=led, goods=goods).growth_parts()
+    rep = check_growth(decls, measured, steps=1_440, minutes_per_step=1, n_entities=n)
+    assert rep.declared_over_cap == (), rep.as_text()
+    assert rep.ok, rep.as_text()
+    caps = {r.name: r.cap for r in rep.rows}
+    assert caps["transfer_log"] == 28_084_824 and caps["delivery_log"] == 12_482_144
+    # 小さいラン(``wired`` = 500 体×1 日)も同じ宣言で通る(下限容量の側)
+    res, bundle = wired
+    assert res.growth_report is not None and res.growth_report.declared_over_cap == ()
+    assert bundle.money.n_raw_dropped == 0  # リングが一周していない = 生ログを捨てていない
 
 
 def test_world_stock_is_a_mirror_of_the_shelf(wired):

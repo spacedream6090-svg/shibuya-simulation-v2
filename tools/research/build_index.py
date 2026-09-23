@@ -1,0 +1,180 @@
+# -*- coding: utf-8 -*-
+"""A-1 索引生成 + A-2 3行ヘッダの一斉付与(第191)。
+分野・重要度は親(Opus 5)の判断。一次確認の等級は機械判定+親の例外指定。
+再実行しても二重挿入しない(HDR_MARK で検出)。
+"""
+import io, os, re, sys, json
+
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+D = os.path.join(REPO, 'docs', 'research')
+HDR_MARK = '<!-- hdr:v1 -->'
+SKIP = {'research-backlog.md', 'v2-discipline-map.md', 'INDEX.md', 'RESEARCH-STATE.md', 'v1-asset-triage.md'}
+
+# 分野番号→名前(v2-discipline-map.md)
+F = {
+ 1:'人口学・合成人口論', 2:'交通工学(活動ベース)', 3:'人間移動科学', 4:'時間利用研究',
+ 5:'知覚心理学・精神物理学', 6:'環境音響学', 7:'建築環境工学', 8:'気象学・生気象学',
+ 9:'地理情報科学', 10:'SFCマクロ経済学', 11:'法学(業法・条例)',
+ 12:'認知科学(記憶・習慣)', 13:'人格心理学', 14:'社会ネットワーク科学', 15:'会話分析・語用論',
+ 16:'行動経済学・マーケティング科学', 17:'小売科学・商業立地論', 18:'歩行者動力学', 19:'都市代謝論・MFA', 20:'オペレーションズリサーチ',
+ 21:'ABM方法論', 22:'検証とV&V・UQ', 23:'統計学・因果推論', 24:'予測科学(アンサンブル)',
+ 25:'計算社会科学', 26:'科学哲学', 27:'自然言語処理・機械学習', 28:'計算機科学(並列・決定論)',
+ 29:'ソフトウェア工学', 30:'ゲームエンジン工学・CG', 31:'研究倫理・情報法', 32:'犯罪学',
+ 0:'分野外(事業・資金)',
+}
+
+# ファイル -> (分野番号リスト, 重要度, 一言の役割)
+C = {
+ 'v2-action-conversation-contract-research.md': ([15,12], 'P0', '行動契約(心→世界)と会話プロトコル。第2陣の主題に直結'),
+ 'v2-ad-information-research.md':               ([16,14], 'P0', '広告・看板の実効と情報伝播。収益化方針の根拠'),
+ 'v2-area-boundary-definition.md':              ([9],     'P0', '5エリア定義の一次確認。holdout 照合の写像が依存'),
+ 'v2-area-boundary-map-reading.md':             ([9],     'P1', '地図スクショからの境界読み取り(親の一次作業)'),
+ 'v2-benchmark-standards-research.md':          ([22],    'P1', '再現ベンチマークの実測標準'),
+ 'v2-boundary-deep-research.md':                ([1,2],   'P1', '境界条件と人口の出自'),
+ 'v2-boundary-economy-u10-u11-research.md':     ([10,1],  'P0', '境界(来街の決定)と経済SFC。保存則の運用形が依存'),
+ 'v2-c7-fix-research.md':                       ([3,4],   'P0', 'C7 の 2 つの歪みの現実側数値。D-66/D-67 の土台'),
+ 'v2-capabilities-business-research.md':        ([0],     'P2', '獲得能力・産業応用・事業形態'),
+ 'v2-cell-granularity-research.md':             ([9,28],  'P1', '場所セルの粒度(prefix 共有単位)'),
+ 'v2-channel-budget-attention-research.md':     ([5],     'P0', 'チャネル別観測予算と注意ゲート。知覚契約書の骨格'),
+ 'v2-cognition-detail-research.md':             ([12],    'P0', 'δ_think 上限・思考トークン・記憶細部'),
+ 'v2-content-safety-deep-research.md':          ([31],    'P2', 'コンテンツ安全・モデレーション'),
+ 'v2-conversation-deep-research.md':            ([15],    'P1', '会話生成の実装'),
+ 'v2-coupled-adaptation-deep-research.md':      ([21],    'P1', '適応3ループの複合安定性'),
+ 'v2-crowd-physics-research.md':                ([18],    'P0', '群衆物理 U15。幾何に基づく容量(R-8)の前提'),
+ 'v2-d1-reacquisition.md':                      ([3],     'P1', '時刻別同時滞在カーブの出典疑義と代替探索'),
+ 'v2-d66-outside-residents-research.md':        ([2,3],   'P0', '域外居住者の到着・退出アンカー。v2.1 読み口の根拠'),
+ 'v2-d68-behavioral-diversity-research.md':     ([3,4,13],'P0', '行動の多様性。17モチーフ・予測可能性93%・同質化'),
+ 'v2-dashboard-verification-orchestration-research.md': ([22,24],'P0','計器盤・検収戦略・オーケストレーション。G-1〜G-9'),
+ 'v2-data-contract-research.md':                ([29],    'P2', 'データ契約'),
+ 'v2-density-hearing-verification.md':          ([6,5],   'P0', '可聴半径は人密度の関数か(敵対的検証)'),
+ 'v2-digital-twin-landscape-research.md':       ([25],    'P1', 'デジタルツインの実名ランドスケープ。未踏の位置づけに効く'),
+ 'v2-economy-sfc-deep-research.md':             ([10],    'P1', '経済SFCの具体設計'),
+ 'v2-engine-llm-boundary-research.md':          ([25],    'P1', 'エンジン/LLM 線引き。v2 の背骨'),
+ 'v2-ethics-operations-research.md':            ([31],    'P1', '倫理・コンテンツ安全の運用規則'),
+ 'v2-funding-deep-research.md':                 ([0],     'P2', '資金調達の実務'),
+ 'v2-game-frontend-research.md':                ([30],    'P1', 'ゲーム的フロントエンド。R-5 可視化の出発点'),
+ 'v2-game-tech-import-research.md':             ([30],    'P1', 'ゲーム/VR 産業技術の輸入(常設レーン)'),
+ 'v2-hearing-numbers-and-d1-coverage.md':       ([6],     'P1', '会話可能距離の公開数表 / D1′ の bbox 被覆'),
+ 'v2-impact-risk-research.md':                  ([31],    'P2', '影響とリスク・メタ安全保障'),
+ 'v2-implementation-stack-research.md':         ([29,28], 'P1', '実装スタック(言語・ABM基盤・データ層・CI)'),
+ 'v2-institutions-deep-research.md':            ([11],    'P1', '制度の最小足場と失敗の観測'),
+ 'v2-kddi-attribute-shares-2024.md':            ([1],     'P1', 'KDDI LA 属性構成(親が手元生データから再集計)'),
+ 'v2-learned-simulation-research.md':           ([27],    'P2', '学習ベースシミュレーション路線'),
+ 'v2-legal-licensing-deep-research.md':         ([31],    'P1', '法務・ライセンス'),
+ 'v2-llm-knowledge-deep-research.md':           ([27],    'P1', 'LLM 事前知識の影響と活用/遮断'),
+ 'v2-llm-mobility-research.md':                 ([3,27],  'P1', 'LLM 起点の人流生成'),
+ 'v2-llm-serving-deep-research.md':             ([27,28], 'P1', 'LLM サービング実務。艦隊設計の土台'),
+ 'v2-llm-social-sim-timeline-seed.md':          ([25],    'P0', 'LLM 社会シミュの現在地(未正典化)。R-2 の対象 17 件'),
+ 'v2-longrun-ops-deep-research.md':             ([29],    'P2', '長期運用 SRE・ストレージ・観測 I/O'),
+ 'v2-memory-retrieval-research.md':             ([12],    'P1', '記憶と想起'),
+ 'v2-mobility-field-research.md':               ([3,2],   'P1', '人流・交通シミュレーション分野の体系'),
+ 'v2-observation-format-research.md':           ([5,27],  'P0', '観測の表現形式・配置・トークン予算。知覚契約書 R3-8'),
+ 'v2-observation-projection-deep-research.md':  ([22],    'P1', '観測射影 L-OBS/L-REC'),
+ 'v2-p-notice-research.md':                     ([5],     'P0', 'p_notice の関数形。2段ヒル型の根拠'),
+ 'v2-parallel-execution-deep-research.md':      ([28],    'P1', '並行実行の意味論'),
+ 'v2-pattern-ledger-deep-research.md':          ([21],    'P1', 'パターン台帳の候補と運用。方法論ゲートの中身'),
+ 'v2-perception-latency-research.md':           ([5],     'P0', '知覚遅延 δ_perc の導入判断'),
+ 'v2-perception-timing-research.md':            ([5],     'P0', '知覚のタイミング'),
+ 'v2-perception-u17-research.md':               ([5],     'P0', '五感/VLA 知覚の導入(最大の答申・1,101行)'),
+ 'v2-person-perception-verification.md':        ([5],     'P1', '人物知覚4段階案の敵対的検証'),
+ 'v2-persona-dynamics-research.md':             ([13],    'P0', 'ペルソナは回す中で変化させる必要があるか'),
+ 'v2-persona-population-deep-research.md':      ([13,1],  'P1', 'ペルソナ・人口合成と個体差'),
+ 'v2-population-synthesis-research.md':         ([1],     'P0', '母集団合成・40万体の実体化。W16 の根拠'),
+ 'v2-precedent-system-deep-research.md':        ([11],    'P1', 'GM裁定→判例結晶化。第3陣「制度の創発」の前身'),
+ 'v2-prediction-module-deep-research.md':       ([12],    'P1', 'エージェント内蔵の予測モジュール'),
+ 'v2-price-formation-llm-research.md':          ([17,16], 'P1', '行5 価格形成。LLM 店主の値付け'),
+ 'v2-publication-ethics-deep-research.md':      ([31],    'P2', '出版戦略と倫理審査'),
+ 'v2-run-manifest-concurrency-research.md':     ([29,28], 'P1', 'run manifest 形式と並行実行の意味論'),
+ 'v2-science-claims-research.md':               ([26,25], 'P1', '科学的知見・新規性の再検証'),
+ 'v2-small-scale-verification-research.md':     ([22],    'P1', '小資源検証の方法論'),
+ 'v2-turing-test-validation-research.md':       ([22,26], 'P0', '識別テスト(Turing型)の評価。第一目標の測り方'),
+ 'v2-ugc-platform-import.md':                   ([30,10], 'P1', 'UGC/大規模オンラインゲーム基盤の輸入。EVE 残差科目の出所'),
+ 'v2-update-rules-hearing-research.md':         ([12,6],  'P0', '更新規則(不応期・日次内省・繰り延べ)と聴覚数値'),
+ 'v2-vlm-reality-check-research.md':            ([22],    'P1', '街路画像+VLM によるシム都市の現実整合検証'),
+ 'v2-world-coverage-index-research.md':         ([22],    'P0', '世界の再現度指標(WCI)。第一目標の計器'),
+ 'v2-world-data-build-research.md':             ([9],     'P0', '世界データ構築仕様 W1〜W22 の本体'),
+ 'v2-world-data-build-round2-research.md':      ([6,8,7], 'P0', '騒音・交通量・気象・PLATEAU・法規'),
+ 'v2-world-ledger-verification.md':             ([21],    'P1', '世界台帳 D-R2-2 改訂案の敵対的検証'),
+ 'v2-world-model-relation-research.md':         ([25],    'P2', '世界モデル(Genie 等)との関係'),
+ 'v2-world-process-inventory-research.md':      ([19,20], 'P0', '世界過程の棚卸しと拡張ロードマップ。陣分けの出所'),
+ 'v2-world-process-rows-research.md':           ([19,10], 'P0', 'エンジン/LLM 線引き16行の詳細決定材料'),
+}
+
+# 一次確認の等級を上書きする例外(親が中身を見て判断)
+OVERRIDE = {
+ # 09-08 の 2 本は URL ゼロだが親検収の逐語引用つき=最上位
+ 'v2-crowd-physics-research.md': ('A', '親検収(2026-09-08)。逐語引用つき。ただし U15 §4 に空欄 10 件(R-7)'),
+ 'v2-dashboard-verification-orchestration-research.md': ('A', '親検収(2026-09-08)。逐語引用つき。空欄 6 件(R-14)'),
+ 'v2-area-boundary-map-reading.md': ('E', '親自身の地図読み取り。外部出典が本質的に不要'),
+ 'v2-kddi-attribute-shares-2024.md': ('E', '親が手元生データ la_raw.json から再集計。外部出典不要'),
+}
+
+GRADE = {
+ 'A': '親検収済(逐語引用または再計算つき)',
+ 'B': '出典あり・空欄を明示(残務台帳へ写し済みまたは要写し)',
+ 'C': '出典あり・空欄は未整理',
+ 'D': '**出典 URL なし(2026-09-02 の規律導入前)**=一次確認が丸ごと残る',
+ 'E': '出典不要(親自身の一次作業)',
+}
+
+
+def trace(s):
+    return (len(re.findall(r'https?://', s))
+            + len(re.findall(r'arXiv[: ]?\s*\d{4}\.\d{4,5}|arxiv\.org', s, re.I))
+            + len(re.findall(r'doi\.org|DOI[: ]', s, re.I))
+            + len(re.findall(r'✔', s))
+            + len(re.findall(r'[A-Z][a-z]+ (?:et al\.?,? )?(?:19|20)\d\d', s)))
+
+
+def main(apply_headers=True):
+    rows = []
+    for fn in sorted(os.listdir(D)):
+        if not fn.endswith('.md') or fn in SKIP:
+            continue
+        p = os.path.join(D, fn)
+        raw = io.open(p, encoding='utf-8', errors='replace').read()
+        L = raw.split('\n')
+        has_hdr = HDR_MARK in raw            # ← 判定は raw に対して行う(二重挿入の防止)
+        # 解析は自分が入れたヘッダを外した本文に対して行う(自己参照で等級が動くのを防ぐ)
+        s = re.sub(r'<!-- hdr:v1 -->\n(?:- \*\*.*\n){3}', '', raw)
+        title = next((l[2:].strip() for l in L if l.startswith('# ')), fn)
+        m = re.search(r'2026-(0[89])-(\d\d)', s[:600])
+        dt = m.group(0) if m else '?'
+        nurl = len(re.findall(r'https?://', s))
+        tr = trace(s)
+        has_gap = bool(re.search(r'空欄|未確認', s))
+        if fn in OVERRIDE:
+            g, note = OVERRIDE[fn]
+        elif dt <= '2026-09-01':
+            g, note = 'D', f'出典痕跡 {tr} 件・URL 0 件。09-02 以降の中央値 62 に対して桁が違う'
+        elif has_gap:
+            g, note = 'B', f'出典痕跡 {tr} 件。空欄節あり'
+        else:
+            g, note = 'C', f'出典痕跡 {tr} 件。空欄節なし(=無いのか未整理なのか未判定)'
+        fields, pri, role = C.get(fn, ([0], 'P2', '(未分類)'))
+        fstr = ' / '.join(f'{F[i]} #{i}' for i in fields)
+        rows.append(dict(fn=fn, title=title, dt=dt, n=len(L), url=nurl, tr=tr,
+                         g=g, note=note, fields=fields, fstr=fstr, pri=pri, role=role))
+        if apply_headers and not has_hdr:
+            hdr = (f'\n{HDR_MARK}\n'
+                   f'- **分野**: {fstr} | **重要度**: {pri}(親判断・2026-09-15 第191)\n'
+                   f'- **一次確認**: **{g}** = {GRADE[g]} — {note}\n'
+                   f'- **索引**: [INDEX.md](INDEX.md) ・ **残務**: [research-backlog.md](research-backlog.md) ・ **分野地図**: [v2-discipline-map.md](v2-discipline-map.md)\n')
+            # H1 の直後に差し込む
+            for i, l in enumerate(L):
+                if l.startswith('# '):
+                    L.insert(i + 1, hdr.rstrip('\n'))
+                    break
+            io.open(p, 'w', encoding='utf-8').write('\n'.join(L))
+    return rows
+
+
+if __name__ == '__main__':
+    rows = main(apply_headers=('--dry' not in sys.argv))
+    io.open(os.path.join(os.path.dirname(__file__), 'rows.json'), 'w', encoding='utf-8').write(
+        json.dumps(rows, ensure_ascii=False, indent=1))
+    from collections import Counter
+    print('files', len(rows))
+    print('grade', sorted(Counter(r['g'] for r in rows).items()))
+    print('pri  ', sorted(Counter(r['pri'] for r in rows).items()))
