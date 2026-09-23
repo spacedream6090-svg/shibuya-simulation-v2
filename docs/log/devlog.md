@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **6 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **7 / 10**
 > 第1〜第250(2026-09-01〜09-22)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第251 サーバー運用の知見を実装に織り込む形でまとめる(2026-09-22 夜)
@@ -57,3 +57,10 @@
 - **判定に効いたこと**: ① **議事録 §28 の Agent LOD は先行に対して新しい**(群衆 LOD 9 系統 1997〜2010 はすべて観測者=カメラ距離/可視性で決める。エージェント自身の状況で決めた先行は無い)=**v2 の繰り延べアービタは既にその形**=外へ出せる独自性。② 休眠復帰の要求は先行のほうが厳しい(**consistency / completeness**)→ D-102 の受入条件に追加。③ 再考の設計は 30 年前に実験済み → **I-3 は 5 値でなく repair/replan の 2 値+UNKNOWN**。④ 規範は罰か負の報酬なしには立たない・議事録の定義は Bicchieri の「慣習」→ **I-9 の計器は 2 層**。⑤ **先行なしは 6 点**(6 項の重み和・validity 5 値・valid_until・割り込み 5 状態/3 段・知覚 LOD の意味的 6 段・Agent 自身の状況で決める LOD)。⑥ **空欄**: コンパイルの速度則の数値は 1 つも無い=数字を置けば設計者の指紋。
 - **親未確認のまま**: Niederberger & Gross 2005 本文(Springer が認証リダイレクト)=サブの「compute scheduling ≠ cognitive ability は逆向き」の根拠・CoALA 本文の記憶 4 種・Botvinick の式・Axelrod 1986 本文・Park 2023 の TrueSkill 表。
 - **次**: D-103〜D-108・U-9 の判断。未踏(09-24 13:00)の起草は合図待ち=本監査の §0 と表 1-1 が本文になる。
+
+## 第257 体制の更新: 親 = Fable 5.1・サブ = Opus(2026-09-23)
+
+- **依頼**(ユーザー): 「これからは Fable 5.1 をメインエージェント、Opus 5.5 をサブエージェントとして実装やリサーチなどをするようにして欲しい」。
+- **確認**(記憶で断言しない=CLAUDE.md §5): `claude-api` スキルのモデル一覧(2026-06-24 版)= Fable 5.1 / Fable 5 / Opus 5 / Opus 4.8 / 4.7 / 4.6 / Sonnet 5 / Sonnet 4.6 / Haiku 4.5。**「Opus 5.5」は一覧にも Agent ツールの選択肢(sonnet / opus / haiku / fable)にも無い**。この環境で起動できる Opus は `model:"opus"` = Opus 5。
+- **記録**: CLAUDE.md §5 を「親 = Fable 5.1・サブ = 選べる最新の Opus(`model:"opus"`)・Opus 5.5 が選べるようになった時点で切り替える」に更新。commit の trailer は Fable 5.1 のまま(第256 は一時的に Opus 5 で親を務めたので trailer が Opus 5)。
+- **次**: D-103〜D-108・U-9 の判断。未踏(09-24 13:00)の起草は合図待ち。
