@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **9 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **10 / 10**
 > 第1〜第250(2026-09-01〜09-22)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第251 サーバー運用の知見を実装に織り込む形でまとめる(2026-09-22 夜)
@@ -79,3 +79,11 @@
 - **写し検査**(CLAUDE.md §5): 数値は build-report-C7 §1j・accept_c7-day-4・c7_holdout_compare・c7-day-4_seed1_vs_seed2・B14 README・ab8/ab6b/ab6c/ab7/ab7c 親報告・思考頻度ノート・overview-detailed から親が直接取得。**訂正 2 件**: data のサイズは記憶の「約 10 GB」でなく実測 23 GB(`du`)・テストのディレクトリ数(overview の 21)は `ls tests` が 33 でファイル混在=未検証なので落とした。相対リンク 53 本の実在をスクリプトで確認・秘密スキャン CLEAN・パス検査 clean。
 - **注意**: 公開リポ(PUBLIC)の README が変わるのは main へのマージ後。`build/open-intent` は未 push・PR #2 未マージ・図の PNG も main に無い=マージ前は画像リンク切れ。holdout に落ちた事実を README に書いたのは D-90 (a)「結果をそのまま公開」に沿う(ユーザーに明示済み・異議なし)。
 - **次**: [決定一覧](../design/v2-decisions-for-user-2026-09-24.md) への回答待ち(未踏エントリー 09-24 13:00 が最優先)。push/PR は §5-3 の一言で。
+
+## 第260 push と PR #3(2026-09-24)
+
+- **依頼**(ユーザー): 「push して・PR #3 を作って」(第259 の README を公開へ)。
+- **確認**: PR #2(`build/c5-c8` → main)は**既にマージ済み**(state MERGED・main = a8a2850)・open PR なし。`origin/build/open-intent` は第199(b660ad0)のまま=ローカルが 64 commit 先・fast-forward 可。origin/main..HEAD = build/c5-c8..HEAD = 65 commits(main は c5-c8 を含むので PR #3 の差分は open-intent の分だけ)。
+- **実施**: `git push origin build/open-intent`(b660ad0→ee56e6c)→ `gh pr create --base main --head build/open-intent`(本文=概要・IMPLEMENTED #21〜#40・検証ラン・文書・注意・attribution 行)→ **[PR #3](https://github.com/spacedream6090-svg/shibuya-simulation-v2/pull/3)**(OPEN・MERGEABLE・65 commits・CI `test` ×2 IN_PROGRESS・mergeStateStatus UNSTABLE=CI 待ち)。マージはユーザー操作(`gh pr merge 3 --merge`)。
+- **記録**: STATUS のブランチ行を「PR #2 マージ済み・PR #3 → main」に更新。devlog は本エントリで 10/10 → 第260b で第251〜260 を圧縮。
+- **次**: CI 緑を確認 → ユーザーが PR #3 をマージすると公開 README が変わる。[決定一覧](../design/v2-decisions-for-user-2026-09-24.md)への回答待ち(未踏エントリー 09-24 13:00 が最優先)。
