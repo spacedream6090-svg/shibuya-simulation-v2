@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **5 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **6 / 10**
 > 第1〜第250(2026-09-01〜09-22)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第251 サーバー運用の知見を実装に織り込む形でまとめる(2026-09-22 夜)
@@ -47,3 +47,13 @@
 - **Explore で確定した実装の現在地**(表 1-1・§1-3 に file:line): 全呼 L1(レーン選択なし・T2 昇格なし・縮退は計数のみ)・記憶/関係/群/信念 0・社会系チャネル 3 本(知人・被注視・傍受)no-op・人どうしの知覚は同セル距離順 k=3/2/1・組織は雇用主表のみ(権限検査は開閉店 1 か所・担当は丸振り expedient)・既定移動は 1 tick=1 ノード跳び・発話本文は保存されない・状態の追加口は `Registry.declare`+`growth_decl`。→ 組み込みは「採るか」でなく「実装の順序」。
 - **台帳**: D-103(語彙対応表・推奨 (a))・D-104(予測状態+経験ログ・推奨 (a) モック着手)・D-105(会話の意味は LLM・推奨 (a))・D-106(マイクロ層はデータ後・推奨 (a))・D-107(群・規範・組織は計器先行・推奨 (a))・D-108(鮮度/割り込みは T2 後・推奨 (a))・U-9(歩行者流データ・U-4 は未踏応募で既存)。
 - **次**: R-41/R-42 の帰還 → 親検収(結論を変える主張の原典確認)→ 監査 §3 を埋める(第256)。議事録の原文をリポへ写すかはユーザー判断。未踏(09-24 13:00)の起草は合図待ち。
+
+## 第256 R-41 / R-42 の帰還と親検収(2026-09-23)
+
+- **依頼**(継続): 第255 の議事録監査の §3(先行研究との照合)を埋める。サブ 2 本(Opus 5)が帰還。
+- **親検収の実施**: 結論を変える主張を親が原典で再確認(WebFetch 本文 / 保存 PDF を pymupdf 抽出)。**逐語 9 件を確認し、1 件を訂正した**。
+  - **R-41(個体側・等級 B・原典 8・空欄 24)**: ✓ Kinny & Georgeff 1991(「reacting to any new hole is worse than blind commitment」「the bold agent being everywhere superior」「intelligent reactive replanning … optimal behaviour」)/ ✓ Schut & Wooldridge 2001(「dynamism is approximately 28」「independent of the dynamism of the world」「planning cost has a negative influence on commitment」)/ ✓ Fox ら 2006(880 variants・Repair 100% vs Replan 44.3%・Definition 2)/ ✓ PIANO §2(「should not block agents from responding to immediate threats」「stateless function」「through a bottleneck」「10 distinct modules running concurrently」+ **論文内で PIANO の展開が不一致**)/ ✓ arXiv:2505.18962(「System-1.5 Reasoning」が同名を先取・20×・92.31%)。**✗ 訂正**: サブが引いた Moussaïd 2011 の「physical interactions, rather than individual intentions, play the dominant role」は**原典に存在しない**(親が全文検索して 0 件)。原典は「極端な密度では、ヒューリスティックで決まらない非意図的な動きが身体接触から生じる」。τ=0.5 s は逐語確認・φ=75° は親未確認。
+  - **R-42(社会/方法論側・等級 B・原典 3・空欄 18)**: ✓ Moussaïd 2010(55%/70%・N=260/1,093 群・追跡 1,098/3,461 体・零切断 Poisson・V 字・速度勾配)/ ✓ Lamport 1978(happened-before は半順序・「To break ties, we use any arbitrary total ordering」=v2 の `pk` がそれ)/ ✓ Sen & Airiau 2007(3 体以上で必ず一様規範・200 体 1,000 ラン 482/518)/ ✓ Galán & Izquierdo 2005(Axelrod は長く回すと逆転)。
+- **判定に効いたこと**: ① **議事録 §28 の Agent LOD は先行に対して新しい**(群衆 LOD 9 系統 1997〜2010 はすべて観測者=カメラ距離/可視性で決める。エージェント自身の状況で決めた先行は無い)=**v2 の繰り延べアービタは既にその形**=外へ出せる独自性。② 休眠復帰の要求は先行のほうが厳しい(**consistency / completeness**)→ D-102 の受入条件に追加。③ 再考の設計は 30 年前に実験済み → **I-3 は 5 値でなく repair/replan の 2 値+UNKNOWN**。④ 規範は罰か負の報酬なしには立たない・議事録の定義は Bicchieri の「慣習」→ **I-9 の計器は 2 層**。⑤ **先行なしは 6 点**(6 項の重み和・validity 5 値・valid_until・割り込み 5 状態/3 段・知覚 LOD の意味的 6 段・Agent 自身の状況で決める LOD)。⑥ **空欄**: コンパイルの速度則の数値は 1 つも無い=数字を置けば設計者の指紋。
+- **親未確認のまま**: Niederberger & Gross 2005 本文(Springer が認証リダイレクト)=サブの「compute scheduling ≠ cognitive ability は逆向き」の根拠・CoALA 本文の記憶 4 種・Botvinick の式・Axelrod 1986 本文・Park 2023 の TrueSkill 表。
+- **次**: D-103〜D-108・U-9 の判断。未踏(09-24 13:00)の起草は合図待ち=本監査の §0 と表 1-1 が本文になる。
