@@ -26,7 +26,8 @@
   ボトルネックは描画でなくGPUバッファ再生成。40万体は公称の半分以下で射程内。
 - **three.js InstancedMesh**: 公式上限記載なし・ジオメトリ複雑度依存が大。点/スプライトなら可、アニメキャラ40万は非現実的。
 - **Unity DOTS/Entities Graphics**: 公式は上限非公表(バッチ効率指標のみ)。実例は10万体級(Crowd Skinner等)。
-- **UE5 City Sample**: **歩行者35,000人**がMass AI+Naniteの公開実績上限。
+- **UE5 City Sample**: **(第203 訂正・出典 Epic 公式3ページの一次確認=City Sample ドキュメント / Matrix Awakens 公式ブログ / UE5.0 リリースノート)** 公式に群衆の**体数の明示は無い**——"thousands of MetaHuman agents"(Matrix Awakens)/ "tens of thousands of AI agents"(UE5.0 の MassEntity)止まり。
+  **旧記載「歩行者35,000人がMass AI+Naniteの公開実績上限」は出典未確認**(答申 v2-r23-primary-check-batch1.md §2-4 #12)。残務=Epic の GDC/Talks を一次で当たる(R-5)。
 - **Godot 4**: 40万体級の公開実績・ベンチなし→本件では劣後。
 - **rerun.io**: マルチレート時系列の同期スクラブビューア(rrd/MCAP対応)。開発中の検証ビューアとして最短距離。
 - **国交省uc24-07(汎用人流シミュ)**: 変換/シミュ/可視化の3分離・中間IF=**MF-JSON(OGC Moving Features)**

@@ -23,6 +23,18 @@
     「残高の直接代入」を捕まえる本体。預金脚(預金純増)は別に
     Δ預金 − Δ借入 = 0 で照合する(四重記入の3脚目・4脚目)。
 
+**T3(SFC の冗長方程式・D-85 (a)・ユーザー決定 2026-09-17)**
+    設計書 §2.3 の空欄「T3(冗長方程式を実装せず**検算値**として毎期assert)は答申にあるが
+    未実装」への対応。検算②(Σ純資産=Σ実物資産)は**集計の恒等式**なので、部門間で誤差が
+    相殺すると通ってしまう。T3 は検算①の3検査を**実データに対して**月次センサスの時点で
+    走らせる(``t3_check``)。**検算①のロジックは再実装せず** ``flow_matrix_balanced`` を
+    そのまま呼ぶ——違うのは**窓**だけ:
+      日次の検算① = その日の締め(``DayClose``)/ T3 = **期首(台帳の生成時)から現在まで**
+      (``Ledger.cumulative_close``)。窓を期首からにするのは、(i) 途中の月に入った破れが
+      その後も残る(1 度でも破れたら以後ずっと FAIL)ためと、(ii) 任意の部分窓で走らせるには
+      日ごとの残高増減を保持する必要があり、D-R2-6 の成長宣言(``flow_matrix_daily``)を
+      動かしてしまうため。期首窓なら台帳が持つ**定数サイズ**の期首スナップで済む。
+
 逐次ループ宣言(P4): 部門数×科目数(90)ぶんのみ。個体数に比例するのは NumPy 総和。
 
 expedient(本モジュール分)
@@ -34,7 +46,7 @@ expedient(本モジュール分)
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Final, Mapping
+from typing import Any, Final, Mapping
 
 import numpy as np
 
@@ -53,10 +65,12 @@ __all__ = [
     "RESIDUAL_THRESHOLD_RATIO",
     "HOARD_DAYS",
     "FlowCheck",
+    "T3Check",
     "NetWorthCheck",
     "HoardReport",
     "CheckReport",
     "flow_matrix_balanced",
+    "t3_check",
     "net_worth_equals_real_assets",
     "residual_gate",
     "hoard_report",
@@ -80,6 +94,8 @@ class FlowCheck:
     deposit_legs_match: bool  # Δ預金 − Δ借入 = 0(預金脚)
     row_residual: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=np.int64))
     col_residual: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=np.int64))
+    #: 預金脚の残差 ``Δ預金 − Δ借入``(部門ごと)。合計が 0 かを見る(T3 の内訳に出す)。
+    dep_residual: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=np.int64))
 
     @property
     def ok(self) -> bool:
@@ -91,6 +107,60 @@ class FlowCheck:
             f"列和(部門)=Δ現金 {'一致' if self.cols_match_cash else 'NG'} / "
             f"預金脚 {'一致' if self.deposit_legs_match else 'NG'}"
         )
+
+
+@dataclass(frozen=True)
+class T3Check:
+    """T3(SFC の冗長方程式)= 検算①の3検査を**実データ**に対して走らせた結果。
+
+    3検査は ``FlowCheck`` と同じもの(``flow_matrix_balanced`` をそのまま呼ぶ)。違うのは
+    窓だけで、既定は**期首(台帳の生成時)から現在まで**(``scope="cumulative"``)。
+    ``days`` は窓に入っている畳んだ日数(``Ledger.flow_daily`` の長さ)。
+
+    残差は**大きさ**だけ持つ(部門×科目の配列を manifest へ持ち出さないため):
+    行残差・列残差は絶対値の最大、預金脚は符号つきの合計。
+    """
+
+    ok: bool
+    rows_zero: bool
+    cols_match_cash: bool
+    deposit_legs_match: bool
+    row_residual_max: int
+    col_residual_max: int
+    deposit_residual: int
+    days: int
+    scope: str = "cumulative"
+
+    def reasons(self) -> tuple[str, ...]:
+        out: list[str] = []
+        if not self.rows_zero:
+            out.append(f"T3: 科目ごとの行和が 0 でない(最大 {self.row_residual_max:,}円)")
+        if not self.cols_match_cash:
+            out.append(
+                "T3: 部門ごとの列和が現金増減と一致しない"
+                f"(最大 {self.col_residual_max:,}円・残高の直接代入の疑い)"
+            )
+        if not self.deposit_legs_match:
+            out.append(f"T3: 預金脚(Δ預金−Δ借入)が 0 でない({self.deposit_residual:,}円)")
+        return tuple(out)
+
+    def as_dict(self) -> dict[str, Any]:
+        """月次 MER / run manifest に載せる形(JSON にできる素の型だけ)。"""
+        return {
+            "ok": bool(self.ok),
+            "rows_zero": bool(self.rows_zero),
+            "cols_match_cash": bool(self.cols_match_cash),
+            "deposit_legs_match": bool(self.deposit_legs_match),
+            "row_residual_max": int(self.row_residual_max),
+            "col_residual_max": int(self.col_residual_max),
+            "deposit_residual": int(self.deposit_residual),
+            "days": int(self.days),
+            "scope": str(self.scope),
+        }
+
+    def as_text(self) -> str:
+        head = f"[T3 {self.scope} {self.days}日] {'PASS' if self.ok else 'FAIL'}"
+        return head if self.ok else head + " / " + " ; ".join(self.reasons())
 
 
 @dataclass(frozen=True)
@@ -185,6 +255,46 @@ def flow_matrix_balanced(ledger, close=None) -> FlowCheck:
         deposit_legs_match=bool((dep_resid.sum() == 0)),
         row_residual=row_resid,
         col_residual=col_resid,
+        dep_residual=np.asarray(dep_resid),
+    )
+
+
+def t3_check(ledger, close=None) -> T3Check:
+    """T3: 検算①の3検査を**実データ**で走らせる(D-85 (a)・月次センサスの時点)。
+
+    **検算①を再実装しない**——``flow_matrix_balanced`` をそのまま呼び、窓だけを差し替える。
+
+    Args:
+        ledger: ``economy.ledger.Ledger``。
+        close: 見る窓(``DayClose`` 形)。``None`` なら台帳の ``cumulative_close()``
+            (期首→現在)を使い、それが無い台帳では当日ぶん(従来の検算①と同じ窓)。
+
+    逐次ループ宣言(P4): ``flow_matrix_balanced`` と同じ 部門×科目(90)。窓を畳む総和は
+    日数ぶん(``Ledger.cumulative_close``)で、**個体数には比例しない**。
+    """
+    scope = "cumulative"
+    if close is None:
+        fn = getattr(ledger, "cumulative_close", None)
+        if fn is None:
+            scope = "open_day"
+        else:
+            close = fn()
+    else:
+        scope = "window"
+    fc = flow_matrix_balanced(ledger, close)
+    row = np.asarray(fc.row_residual)
+    col = np.asarray(fc.col_residual)
+    dep = np.asarray(fc.dep_residual)
+    return T3Check(
+        ok=bool(fc.ok),
+        rows_zero=bool(fc.rows_zero),
+        cols_match_cash=bool(fc.cols_match_cash),
+        deposit_legs_match=bool(fc.deposit_legs_match),
+        row_residual_max=int(np.abs(row).max()) if row.size else 0,
+        col_residual_max=int(np.abs(col).max()) if col.size else 0,
+        deposit_residual=int(dep.sum()) if dep.size else 0,
+        days=int(len(getattr(ledger, "flow_daily", ()) or ())),
+        scope=scope,
     )
 
 

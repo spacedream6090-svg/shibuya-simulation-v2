@@ -1,0 +1,282 @@
+{
+ "schema": "shibuya.tools.c7/holdout_compare/1",
+ "seal": {
+  "layer": "kddi_la",
+  "member_hash": "7aa66af1fdff44e2862d53b0ddbd07ab41f6dcb88d19962d5d013393334af8b0",
+  "sealed_utc": "2026-09-08T00:00:00Z",
+  "files": [
+   {
+    "path": "realworld/kddi_la/la_raw_powerbi_2024.json",
+    "exists": true,
+    "sha256_sealed": "5b4ef600e4267790274af1f9199a59ab1b3747878c728d15632de52725b14130",
+    "sha256_now": "5b4ef600e4267790274af1f9199a59ab1b3747878c728d15632de52725b14130",
+    "bytes": 6797973,
+    "match": true
+   }
+  ],
+  "ok": true
+ },
+ "holdout_meta": {
+  "hour": {
+   "year": 2024,
+   "n_used": 2880,
+   "n_skipped": 0,
+   "fields": {
+    "area": "名称",
+    "year": "年",
+    "hour": "時間帯",
+    "value": "人数_の合計"
+   },
+   "unknown_area_labels": []
+  },
+  "area": {
+   "year": 2024,
+   "n_used": 2880,
+   "fields": {
+    "area": "名称",
+    "year": "年",
+    "value": "人数_の合計"
+   }
+  },
+  "n_hour_rows": 20112,
+  "attr": {
+   "year": 2024,
+   "n_used": 180,
+   "fields": {
+    "area": "名称",
+    "year": "年",
+    "attr": "属性",
+    "value": "人数_の合計"
+   },
+   "unknown_attr_labels": []
+  },
+  "n_attr_rows": 1257
+ },
+ "occupancy": "docs/bench/c7/occupancy/c7-day-3/c7_occupancy.json",
+ "run_id": "c7-day-3",
+ "metrics": {
+  "H1": {
+   "name": "相関",
+   "per_area_jsd": {
+    "central": 0.060835,
+    "northwest": 0.021064,
+    "northeast": 0.005272,
+    "southeast": 0.003315,
+    "southwest": 0.001885
+   },
+   "jsd_mean": 0.018474,
+   "jsd_max": 0.060835,
+   "pearson_r": 0.850199,
+   "limit": {
+    "jsd_mean_max": 0.0122,
+    "pearson_min": 0.8
+   },
+   "pass": false,
+   "measured": true
+  },
+  "H2": {
+   "name": "ピーク時刻",
+   "sim_peak_hour": {
+    "central": 10,
+    "northwest": 12,
+    "northeast": 12,
+    "southeast": 11,
+    "southwest": 13
+   },
+   "obs_peak_hour": {
+    "central": 18,
+    "northwest": 18,
+    "northeast": 15,
+    "southeast": 17,
+    "southwest": 16
+   },
+   "abs_hour_diff": {
+    "central": 8,
+    "northwest": 6,
+    "northeast": 3,
+    "southeast": 6,
+    "southwest": 3
+   },
+   "n_within": 0,
+   "kendall_tau": -0.444444,
+   "tau_undefined": false,
+   "limit": {
+    "abs_hour_diff_max": 1,
+    "n_within_min": 5,
+    "tau_min": 0.6
+   },
+   "pass": false,
+   "measured": true
+  },
+  "H3": {
+   "name": "平日休日比",
+   "substituted": true,
+   "substitute": "深夜残存率(1-4時平均÷終日平均)の値と順序",
+   "reason": "KDDI 6レイヤに曜日軸が無い(d1_reacquisition 結論3・④未発見1)=測定不能",
+   "sim_night_residual": {
+    "central": 0.3876,
+    "northwest": 0.2191,
+    "northeast": 0.268,
+    "southeast": 0.2042,
+    "southwest": 0.2391
+   },
+   "obs_night_residual": {
+    "central": 0.1399,
+    "northwest": 0.3245,
+    "northeast": 0.2046,
+    "southeast": 0.2042,
+    "southwest": 0.2337
+   },
+   "abs_diff_max": 0.2477,
+   "kendall_tau": -0.4,
+   "tau_undefined": false,
+   "limit": {
+    "abs_diff_max": 0.05,
+    "tau_min": 0.6
+   },
+   "pass": false,
+   "measured": true
+  },
+  "H4": {
+   "name": "エリア構成",
+   "sim_share": {
+    "central": 0.141644,
+    "northwest": 0.433331,
+    "northeast": 0.133196,
+    "southeast": 0.125755,
+    "southwest": 0.166075
+   },
+   "obs_share": {
+    "central": 0.160936,
+    "northwest": 0.461541,
+    "northeast": 0.17902,
+    "southeast": 0.092669,
+    "southwest": 0.105834
+   },
+   "jsd": 0.009868,
+   "abs_share_diff_max": 0.060241,
+   "limit": {
+    "jsd_max": 0.0122,
+    "abs_share_diff_max": 0.05
+   },
+   "pass": false,
+   "measured": true
+  },
+  "H5": {
+   "name": "属性構成",
+   "attr_ids": [
+    "worker",
+    "resident",
+    "visitor"
+   ],
+   "sim_share": {
+    "central": [
+     0.5152,
+     0.0869,
+     0.3979
+    ],
+    "northwest": [
+     0.6992,
+     0.1119,
+     0.189
+    ],
+    "northeast": [
+     0.5706,
+     0.1401,
+     0.2893
+    ],
+    "southeast": [
+     0.7779,
+     0.0904,
+     0.1317
+    ],
+    "southwest": [
+     0.6919,
+     0.1667,
+     0.1414
+    ]
+   },
+   "obs_share": {
+    "central": [
+     0.1855,
+     0.0545,
+     0.76
+    ],
+    "northwest": [
+     0.2903,
+     0.1418,
+     0.5679
+    ],
+    "northeast": [
+     0.4248,
+     0.1154,
+     0.4599
+    ],
+    "southeast": [
+     0.4511,
+     0.1095,
+     0.4394
+    ],
+    "southwest": [
+     0.4739,
+     0.1215,
+     0.4046
+    ]
+   },
+   "per_area_jsd": {
+    "central": 0.102444,
+    "northwest": 0.135716,
+    "northeast": 0.022717,
+    "southeast": 0.095461,
+    "southwest": 0.065062
+   },
+   "jsd_mean": 0.08428,
+   "abs_share_diff_max": 0.408908,
+   "limit": {
+    "jsd_mean_max": 0.02,
+    "abs_share_diff_max": 0.1
+   },
+   "pass": false,
+   "measured": true
+  }
+ },
+ "prereg": {
+  "version": "v0-proposal",
+  "status": "事前登録案(親判断待ち)",
+  "jsd_base": 2.0,
+  "jsd_reject": 0.0122,
+  "jsd_target": 0.0012,
+  "H1": {
+   "name": "相関",
+   "jsd_area_hour_mean_max": 0.0122,
+   "pearson_min": 0.8
+  },
+  "H2": {
+   "name": "ピーク時刻",
+   "abs_hour_diff_max": 1,
+   "n_within_min": 5,
+   "tau_min": 0.6
+  },
+  "H3": {
+   "name": "平日休日比",
+   "substituted": true,
+   "substitute": "深夜残存率(1-4時平均÷終日平均)の値と順序",
+   "abs_diff_max": 0.05,
+   "tau_min": 0.6,
+   "reason": "KDDI 6レイヤに曜日軸が無い(d1_reacquisition 結論3・④未発見1)=測定不能"
+  },
+  "H4": {
+   "name": "エリア構成",
+   "jsd_max": 0.0122,
+   "abs_share_diff_max": 0.05
+  },
+  "H5": {
+   "name": "属性構成",
+   "jsd_mean_max": 0.02,
+   "abs_share_diff_max": 0.1
+  }
+ },
+ "n_measured": 5,
+ "n_pass": 0,
+ "pass": false
+}

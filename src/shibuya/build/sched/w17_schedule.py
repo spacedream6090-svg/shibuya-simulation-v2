@@ -841,6 +841,12 @@ CAT_TO_PLACE: Final[dict[str, int]] = {
     "cinema": V.PLACE_LEISURE,
 }
 SUBCAT_TO_PLACE: Final[dict[str, int]] = {
+    # **公園**(W6 subcat 改訂 2026-09-17): 改訂前は公園 POI が cat=leisure のまま
+    # PLACE_LEISURE(娯楽施設)に潰れ、場所語 12 語のうち「公園」へ写る POI が 0 件だった
+    # (語彙の孤児・答申 v2-hobby-preference-research.md §5-3 (4))。subcat=park を
+    # PLACE_PARK に写すのがこの改訂の本体。PLACE_PARK は ENVELOPE_PLACES に無いので
+    # 営業エンベロープは掛からない(公園に開店時刻は無い)。
+    "park": V.PLACE_PARK,
     "convenience": V.PLACE_SHOP,
     "love_hotel": V.PLACE_HOTEL,
     "hospital": V.PLACE_CLINIC,

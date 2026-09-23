@@ -162,3 +162,22 @@ def test_parse_target_keeps_the_raw_string_and_extracts_ids():
 def test_parse_target_never_raises_on_odd_input():
     for bad in ("", "   ", "　", "🙂", "-", "C-" + "9" * 50, "g1_2_XX"):
         parse_target(bad)  # 例外を投げないことだけを見る
+
+
+def test_target_placeholder_words_are_read_as_no_target_but_keep_raw():
+    """第223(D-89): 観測テンプレートの欄説明語を写した応答は対象なし(raw は診断用に残す)。"""
+    from shibuya.llm.contract import TargetKind, parse_target, NO_TARGET
+    for w in ("物のカテゴリ", "セルID", "人ID", "<セルID / 物のカテゴリ / 人ID / なし>"):
+        tg = parse_target(w)
+        assert tg.kind is TargetKind.NONE, w
+    assert parse_target("物のカテゴリ").raw == "物のカテゴリ" and parse_target("なし").raw == NO_TARGET
+
+
+def test_target_category_suffix_is_stripped_before_parsing():
+    """「食品のカテゴリ」→ 物カテゴリ「食品」。実在名・セル・人 ID の読み方は不変。"""
+    from shibuya.llm.contract import TargetKind, parse_target
+    tg = parse_target("食品のカテゴリ")
+    assert tg.kind is TargetKind.ITEM_CATEGORY and tg.category == "食品"
+    assert parse_target("C-0117").kind is TargetKind.CELL
+    assert parse_target("P-204").kind is TargetKind.PERSON
+    assert parse_target("渋谷駅").kind is TargetKind.STATION_OR_VEHICLE

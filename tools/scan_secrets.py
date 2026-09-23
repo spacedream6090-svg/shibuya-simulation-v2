@@ -8,6 +8,10 @@ PAT = re.compile(base64.b64decode(_B64).decode("utf-8"))
 
 hits = 0
 for p in sys.argv[1:]:
+    head = pathlib.Path(p).read_bytes()[:8192]
+    if 0 in head:  # NUL を含む=PNG 等のバイナリ。文字化けが偽陽性になるので検査対象外(第202)
+        print(f"SKIP binary {p}")
+        continue
     text = pathlib.Path(p).read_text(encoding="utf-8", errors="replace")
     for i, line in enumerate(text.splitlines(), 1):
         m = PAT.search(line)

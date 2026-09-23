@@ -39,6 +39,20 @@ expedient(本モジュール分)
 - ``last_result`` を 1 byte のコードにし、失敗の詳細(残高・次回開店時刻)は**持たない**
   (行動契約書 §6 は「残高/価格・次回開店時刻」を返せと言う=C3 のプロンプト側で
   現在値から再構成する。C2 は「どの失敗か」だけを保持)。
+- ``ResultCode.NOT_IN_EATERY``(19)は**語彙 v2**(行動語「食事」・D-71 §3 E)で足した
+  失敗コード。既存コードに「その種類の店にいない」に当たる行が無い(``BAD_TARGET`` は
+  「対象を特定できない」)。**値は末尾に足すだけ**なので v1 の配列も描画も動かない。
+- ``ResultCode.TARGET_GONE``(20)は **C9 G11**(2026-09-17 ユーザー決定)で足した失敗コード。
+  「対象(人・物)が最後に見た位置から居なくなった」= **猶予つき**(最後に見た位置へ向かい、
+  着いてもまだ居なければ失敗)。``PARTNER_GONE``(12・会話相手が去った)とは別で、
+  こちらは**移動・接近の対象**。``UNREACHABLE``(1・経路が無い)は既存の行をそのまま使う。
+  C9a では**コードを足すだけ**(対象=人への接近そのものは C9b の領分)。
+- ``edge_id`` / ``edge_s``(**C9 G1 (b)**・``geometry="edge"`` のランだけ確保・+8 B/体)。
+  体は「辺 ``edge_id`` の上・``node`` から ``edge_s``[m]・向き ``node``→``path_next_node``」に
+  居る。**向きの欄を新設せず、宣言済みだが誰も書いていなかった ``path_next_node``
+  (4 B・「次ホップのノード」)を向きの担い手に使う**(欄を 1 本減らす選択)。既定の
+  ``geometry="node"`` では**欄を確保しない**=``Registry.state_hash`` は 1 バイトも動かない
+  (``plan_columns``=D-66 と同じ形)。
 - 書き込み禁止ガード(``freeze``/``writable``)は agents と world に**同じ実装を二重に置く**。
   層契約(``world | agents`` は同層=相互 import 禁止)のため共有モジュールを作れない。
 """
@@ -59,6 +73,12 @@ __all__ = [
     "MOCK_KIND_COUNT",
     "Activity",
     "LAST_ACTION_NONE",
+    "FOCUS_NONE",
+    "focus_code_for_person",
+    "focus_code_for_poi",
+    "focus_is_person",
+    "focus_is_poi",
+    "focus_poi_of",
     "ResultCode",
     "WakeCondition",
     "N_WAKE_CONDITIONS",
@@ -73,6 +93,39 @@ __all__ = [
 #: ``engine.commit.ENGINE_STEP`` も −1 だが、エンジン継続は「直前に試みた行動」ではない
 #: (移動の続き)ので ``resolve`` は ENGINE_STEP を ``last_action`` に**書かない**。
 LAST_ACTION_NONE: Final[int] = -1
+
+#: ``focus_target`` の「焦点なし」(C9b G4)。
+FOCUS_NONE: Final[int] = -1
+
+
+def focus_code_for_person(agent_id) -> np.ndarray:
+    """個体 id → ``focus_target`` の符号化(そのまま=非負)。"""
+    return np.asarray(agent_id, dtype=np.int64)
+
+
+def focus_code_for_poi(poi_id) -> np.ndarray:
+    """POI 索引 → ``focus_target`` の符号化(``-2 - poi_id`` ≤ -2)。
+
+    **欄を 2 本に増やさないための符号化**(4 B/体のまま人とオブジェクトの両方を指す)。
+    ``-1`` は「焦点なし」に取ってあるので POI 0 は ``-2`` になる。
+    """
+    return -2 - np.asarray(poi_id, dtype=np.int64)
+
+
+def focus_is_person(code) -> np.ndarray:
+    """``focus_target`` が個体を指しているか。"""
+    return np.asarray(code, dtype=np.int64) >= 0
+
+
+def focus_is_poi(code) -> np.ndarray:
+    """``focus_target`` が POI を指しているか。"""
+    return np.asarray(code, dtype=np.int64) <= -2
+
+
+def focus_poi_of(code) -> np.ndarray:
+    """``focus_target`` → POI 索引(POI でない要素は ``-1``)。"""
+    c = np.asarray(code, dtype=np.int64)
+    return np.where(c <= -2, -2 - c, -1)
 
 
 class AgentKind(IntEnum):
@@ -147,6 +200,8 @@ class ResultCode(IntEnum):
     UNDEFINED_ACTION = 16  # 未定義行動(§7 段1)
     BAD_TARGET = 17
     INSUFFICIENT_ABILITY = 18  # 能力不足(手伝い・行動契約書 §2.1)
+    NOT_IN_EATERY = 19  # 飲食店にいない(語彙 v2「食事」・D-71 §3 E)
+    TARGET_GONE = 20  # 対象が去った(C9 G11・最後に見た位置へ着いても居なかった)
 
 
 #: 契約書の文言(「直前の結果」の 50 tok 欄で使う短句)。
@@ -170,6 +225,8 @@ RESULT_TEXT: Final[dict[int, str]] = {
     ResultCode.UNDEFINED_ACTION: "未定義の行動",
     ResultCode.BAD_TARGET: "対象を特定できない",
     ResultCode.INSUFFICIENT_ABILITY: "能力不足",
+    ResultCode.NOT_IN_EATERY: "飲食店にいない",
+    ResultCode.TARGET_GONE: "対象が去った",
 }
 
 
@@ -249,6 +306,8 @@ class AgentState:
         cap_bytes: int | None | str = "auto",
         *,
         plan_columns: bool = False,
+        edge_columns: bool = False,
+        attention_columns: bool = False,
     ) -> None:
         """
         Args:
@@ -260,9 +319,21 @@ class AgentState:
                 (欄を足すと宣言順の全配列を混ぜる ``Registry.state_hash`` が変わるため。
                 設計書 §2 は常設を想定しているが、退化検査の要=親指示を優先した
                 =登録簿 §8「D-66/計画実行層(第1段)」に差分として登録)。
+            edge_columns: **C9 G1 (b) 辺上の連続位置**(``edge_id`` / ``edge_s``・+8 B/体)を
+                確保するか。既定 ``False``=``geometry="node"``(現行の 1 tick=1 ノード)で
+                **checkpoint を 1 バイトも動かさない**。``geometry="edge"`` のランだけ True。
+            attention_columns: **C9b G3/G4 対象と注意の焦点**(``focus_target`` /
+                ``focus_ttl``・+5 B/体)を確保するか。既定 ``False``。焦点には
+                「取得距離 ≤20 m・喪失距離 >30 m」(UE AI Perception の Sight/Lose Sight 型)
+                が要るので**辺上の連続位置(距離が定義できる)が前提**で、対象を運ぶのは
+                段0 辞書 v4(語彙 v2)なので、``engine.run`` は
+                ``geometry="edge" かつ vocab_version="v2"`` のときだけ True にする
+                = **既定の 4 腕(node/v1・derive v2.1・v2・edge)は 1 バイトも動かない**。
         """
         self.n = int(n)
         self.plan_columns = bool(plan_columns)
+        self.edge_columns = bool(edge_columns)
+        self.attention_columns = bool(attention_columns)
         self.registry = Registry.for_agents(self.n, per_entity_byte_cap=cap_bytes)
         r = self.registry
         # ---- 位置・運動(M2 位置・運動・身体 ≤128B/体 の内数) ----
@@ -278,6 +349,23 @@ class AgentState:
                   doc="次ホップのノード(next-hop 表の結果・M2)。-1=経路なし")
         r.declare("target_node", np.int32, byte_budget_per_agent=4, mechanism=True,
                   doc="移動の目的ノード(行動語「移動」の対象・M2)。-1=目的なし")
+        # ---- 辺上の連続位置(C9 G1 (b)・geometry="edge" のランだけ・+8 B/体) ----
+        if self.edge_columns:
+            r.declare("edge_id", np.int32, byte_budget_per_agent=4, mechanism=True,
+                      doc="いま乗っている W1 辺の索引(-1=辺上に居ない=ノード上・M2)。"
+                          "向きは ``node``→``path_next_node``(既存欄を使う)")
+            r.declare("edge_s", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="辺上の距離[m](``node`` からの街路長。``xy`` は両端ノードの"
+                          "線形補間=engine.geometry.EdgeGeometry.positions・M2)")
+        # ---- 注意の焦点(C9b G3/G4・attention_columns のランだけ・+5 B/体) ----
+        if self.attention_columns:
+            r.declare("focus_target", np.int32, byte_budget_per_agent=4, mechanism=True,
+                      doc="注意の焦点(「見る」の対象・「近づく」の相手)。**符号で型を分ける**: "
+                          "≥0=個体 id / ≤-2=POI 索引(``-2-poi_id``) / -1=焦点なし。"
+                          "知覚は次 tick 以降この対象を B ブロックの先頭に置く(M2)")
+            r.declare("focus_ttl", np.uint8, byte_budget_per_agent=1, mechanism=False,
+                      doc="焦点の残り寿命[tick](UE AI Perception の Max Age 型・"
+                          "0=焦点なし。既定 FOCUS_TTL_TICKS・expedient=値の出所は無い)")
         # ---- 身体・内受容(知覚契約書 §4 内受容第1陣3変数) ----
         r.declare("kind", np.int8, byte_budget_per_agent=1, mechanism=True,
                   doc="AgentKind(通勤者/来街者/従業者/居住者/指令/通学者/定期来街/訪日/乗務・M2)")
@@ -383,6 +471,10 @@ class AgentState:
         self.registry.queue_poi[:] = -1
         self.registry.queue_since[:] = -1
         self.registry.sex[:] = -1
+        if self.edge_columns:
+            self.registry.edge_id[:] = -1
+        if self.attention_columns:
+            self.registry.focus_target[:] = FOCUS_NONE
         if self.plan_columns:
             self.registry.plan_activity[:] = -1
         self._frozen = False

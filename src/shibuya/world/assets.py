@@ -35,7 +35,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Final
+from typing import Final, Sequence
 
 import numpy as np
 
@@ -61,6 +61,17 @@ __all__ = [
     "ProcessAssets",
     "load_process_assets",
     "load_process_assets_or_synthetic",
+    # ---- C9c-1 歩行可能面積の実測化(G8 (b)・2026-09-17 D-84 (c)) ----
+    "AREA_SOURCES",
+    "DEFAULT_AREA_SOURCE",
+    "WALKABLE_AREA_FILENAME",
+    "SEAT_AREA_M2_FIRE_CODE",
+    "SEAT_AREA_M2_BUILDING_NOTICE",
+    "PLATFORM_DWELL_DENSITY_PER_M2",
+    "PLATFORM_QUEUE_DENSITY_PER_M2",
+    "CORRIDOR_MAX_DENSITY_PER_M2",
+    "check_area_source",
+    "load_walkable_area_m2",
 ]
 
 #: 層名 → コード(UG=-1 / GL=0 / DECK=1。W2 の 3 値)。
@@ -93,6 +104,99 @@ NOISE_DAY_HOURS: Final[tuple[int, int]] = (6, 22)
 #: 騒音段階の段数(``perception.templates.NOISE_STAGE_VOCAB`` と同じ 4 段)。
 N_NOISE_STAGES: Final[int] = 4
 
+# ------------------------------------------------- C9c-1 歩行可能面積の実測化(G8 (b))
+#: 歩行可能面積の出所。``legacy``=現行の「W10 街路点数 × 6.25 m²・床 1,500 m²」
+#: (``perception.renderer._street_aggregate``・**expedient**: 6.25 は 2.5 m 格子の目の面積で
+#: 実測ではない=答申 §1-1 a12)。``plateau``=PLATEAU tran の歩道部の面+OSM 線 × 道路構造令の
+#: 既定幅員で**実測した** ``c9c_walkable_area.parquet``(**mechanism**・作り手は
+#: ``tools/build_geo/walkable_area.py``)。**既定は legacy=1 バイトも変わらない**。
+AREA_SOURCES: Final[tuple[str, ...]] = ("legacy", "plateau")
+DEFAULT_AREA_SOURCE: Final[str] = AREA_SOURCES[0]
+#: ``area_source="plateau"`` が読む資産(無ければ ``FileNotFoundError``)。
+WALKABLE_AREA_FILENAME: Final[str] = "c9c_walkable_area.parquet"
+
+#: 1 人あたりの床面積[m²]・**消防法施行規則 第一条の三**(収容人員の算定方法)。**mechanism**。
+#: 逐語: (三)項ロ(飲食店等)「床面積を**三平方メートル**で除して得た数」/
+#: (四)項ロ(物品販売店舗等)「床面積を**四平方メートル**で除して得た数」
+#: (e-Gov 法令検索 API ``lawId=336M50000008006;article=1_3``・答申 §1-3 c2)。
+#: **現行の実行時既定ではない**——現行は ``engine.processes.crowd.SEAT_AREA_M2``
+#: (飲食 2.0 / その他 4.0・出所不明の expedient)。飲食を 3.0 にすると席数が 1.5 分の 1 に
+#: なる=**挙動が変わる**ので、既定は動かさず ``--seat-area-eatery/--seat-area-retail`` で
+#: 感度腕として与える(D-84 の「席 4.0/3.0」を既定にするかはユーザー決定待ち)。
+SEAT_AREA_M2_FIRE_CODE: Final[dict[str, float]] = {"eatery": 3.0, "retail": 4.0}
+#: 同じ量を**平成12年建設省告示第1441号 第三 4項 在館者密度**から出した帯。**mechanism**。
+#: 逐語: 「飲食室 **〇・七**」(=1/0.7 = 1.43 m²/人)・「百貨店…売場の部分 **〇・五**」
+#: (=2.0 m²/人)(mlit PDF・答申 §1-3 c1)。感度腕の**密側**の端。
+SEAT_AREA_M2_BUILDING_NOTICE: Final[dict[str, float]] = {"eatery": 1.0 / 0.7, "retail": 2.0}
+#: 鉄道ホームの歩行停止時の滞留密度[人/m²]。**mechanism**(実測)。
+#: 鈴木ほか(2012)運輸政策研究 15(3) pp.002-009「ホームでの歩行停止状態の密度…
+#: **平均で 3.30 人/m2**」(計測 3 駅に**銀座線渋谷駅**を含む・答申 §1-4 d3)。
+#: **未接続**: W11 は駅内グラフしか持たずホーム面積が無い(答申 §2-4「面積は空欄」)。
+PLATFORM_DWELL_DENSITY_PER_M2: Final[float] = 3.30
+#: 整列乗車列の密度[人/m²](同 d3「**4.00〜4.50(人/m2)**」)。**未接続**。
+PLATFORM_QUEUE_DENSITY_PER_M2: Final[tuple[float, float]] = (4.00, 4.50)
+#: 「廊下その他の通路」の必要滞留面積 0.3 m²/人 = **3.33 人/m²**(建告1441 第三 2項・
+#: 答申 §1-3 c4)。ホームの実測 3.30 と独立に一致する。**未接続**(参照値)。
+CORRIDOR_MAX_DENSITY_PER_M2: Final[float] = 1.0 / 0.3
+
+
+def check_area_source(value: str) -> str:
+    """歩行可能面積の出所の検査(``run_day`` が**資産を読む前**に呼ぶ=manifest が嘘をつかない)。
+
+    >>> check_area_source("legacy")
+    'legacy'
+    """
+    text = str(value)
+    if text not in AREA_SOURCES:
+        raise ValueError(f"area_source は {AREA_SOURCES} のどれか(いま {value!r})")
+    return text
+
+
+def load_walkable_area_m2(
+    world_dir: "str | Path | None", place_ids: "Sequence[str]"
+) -> tuple[np.ndarray, dict[str, str]]:
+    """``c9c_walkable_area.parquet`` → ``place_ids`` の順に並べた歩行可能面積[m²]。
+
+    Args:
+        world_dir: 世界資産ディレクトリ。
+        place_ids: 並び順の基準(``PerceptionAssets.place_ids`` = セル索引の順)。
+
+    Returns:
+        ``(area[m²] (n_cells,) float64, {ファイル名: sha256})``。
+
+    Raises:
+        FileNotFoundError: 資産が無い(``--area-source plateau`` を指定したのに作っていない)。
+        ValueError: parquet に無いセルがある(資産と世界の版がずれている)。
+
+    Note:
+        逐次ループ宣言(P4): 行数(セル 520)ぶんの辞書引き 1 本。**起動時 1 回**で
+        tick ループには入らない(予算行 P2 に触れない)。
+    """
+    import hashlib
+
+    import pyarrow.parquet as pq
+
+    if world_dir is None:
+        raise FileNotFoundError("area_source='plateau' には世界資産ディレクトリが要る")
+    path = Path(world_dir) / WALKABLE_AREA_FILENAME
+    if not path.exists():
+        raise FileNotFoundError(
+            f"{path} が無い(tools/build_geo/walkable_area.py で作る=C9c-1)"
+        )
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    d = pq.read_table(path, columns=["cell_id", "walkable_m2"]).to_pydict()
+    table = {str(k): float(v) for k, v in zip(d["cell_id"], d["walkable_m2"])}
+    missing = [str(p) for p in place_ids if str(p) not in table]
+    if missing:
+        raise ValueError(
+            f"{WALKABLE_AREA_FILENAME} に無いセルが {len(missing)} 件(例 {missing[:3]})"
+        )
+    area = np.asarray([table[str(p)] for p in place_ids], dtype=np.float64)
+    return area, {WALKABLE_AREA_FILENAME: h.hexdigest()}
+
 
 @dataclass(frozen=True)
 class WorldAssets:
@@ -114,6 +218,8 @@ class WorldAssets:
         poi_price / poi_stock0 / poi_capacity: 価格[円]・初期在庫・1 tick 受け入れ数。
         poi_open_from / poi_open_to: 営業 tick 帯(W7 が無いので既定値)。
         poi_cat: カテゴリ名(POI ごと)。
+        poi_name: POI 名(W6 ``name`` 列)。合成世界は空タプル。**C9b G6 a′**
+            (目印の対象解決 ``World.landmark_targets``)のためだけに持つ。
     """
 
     source: str
@@ -138,6 +244,11 @@ class WorldAssets:
     poi_open_from: np.ndarray
     poi_open_to: np.ndarray
     poi_cat: tuple[str, ...]
+    #: POI 名(W6 ``name``)。**既定は空**=名前を持たない世界(合成)。
+    poi_name: tuple[str, ...] = ()
+    #: POI の平面座標 ``(n_poi, 2)`` float32(W6 ``x``/``y``)。``None``=資産が持たない
+    #: (合成世界)→ ``poi_position()`` が最寄ノード座標で代用する。
+    poi_xy: np.ndarray | None = None
     #: セル別の静的騒音段階(W10 街路点の**最頻値**・昼 6-22 時)。資産に無ければ ``None``。
     noise_stage_day: np.ndarray | None = None
     #: 同 夜(22-6 時)。
@@ -162,6 +273,16 @@ class WorldAssets:
         lo, hi = NOISE_DAY_HOURS
         day = lo <= int(hour) < hi
         return self.noise_stage_day if day else self.noise_stage_night  # type: ignore[return-value]
+
+    def poi_position(self) -> np.ndarray:
+        """POI の平面座標 ``(n_poi, 2)``。資産が ``poi_xy`` を持たなければ**最寄ノード座標**。
+
+        C9b G4(注意の焦点の距離判定)が読む 1 本。代用したときの誤差は「POI と最寄ノードの
+        距離」で、W6 の POI は同一セル内の最近ノードに結ばれている(**expedient**)。
+        """
+        if self.poi_xy is not None:
+            return self.poi_xy
+        return self.node_xy[np.maximum(np.asarray(self.poi_node, dtype=np.int64), 0)]
 
     @property
     def n_nodes(self) -> int:
@@ -261,7 +382,9 @@ def load_assets(path: str | Path) -> WorldAssets:
     cell_dist = np.load(p / "w3_cell_dist.npy", mmap_mode="r")
 
     poi = pq.read_table(
-        p / "w6_poi.parquet", columns=["poi_id", "cat", "place_id", "node_id", "x", "y"]
+        p / "w6_poi.parquet",
+        # ``name`` は C9b G6 a′(目印の対象解決)のためだけに読む。数値配列は増えない。
+        columns=["poi_id", "name", "cat", "place_id", "node_id", "x", "y"],
     ).to_pydict()
     # 逐次ループ宣言1: POI 数(2,337)ぶんの辞書引き
     poi_cell = np.array([place_to_cell.get(pid, -1) for pid in poi["place_id"]], dtype=np.int32)
@@ -305,6 +428,8 @@ def load_assets(path: str | Path) -> WorldAssets:
         poi_open_from=poi_open_from,
         poi_open_to=poi_open_to,
         poi_cat=cats,
+        poi_name=tuple(str(s) for s in poi["name"]),
+        poi_xy=poi_xy,
         noise_stage_day=ns_day,
         noise_stage_night=ns_night,
     )

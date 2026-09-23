@@ -567,3 +567,24 @@ def test_fleet_from_args_passes_queue_capacity_through():
         assert c1.queue_capacity == c1.config.resolved_max_in_flight() * 4
     finally:
         c1.close()
+
+
+def test_fleet_bridge_is_built_with_the_run_vocab_version(fleet_servers, monkeypatch):
+    """第214 欠陥修正: ``run_day(vocab_version="v2", fleet=…)`` は**艦隊側の parser にも v2 を渡す**。
+    渡し忘れると mock 経路(``LLMBridge``)だけ v2 で解析し、実 LLM の応答は v1 で解析される
+    =「食事」が未定義行動に落ち、腕 AB7c(vocab_v1 vs vocab_v2)が偽の差になる。"""
+    import shibuya.engine.run as run_mod
+
+    seen: list[object] = []
+    real = run_mod.FleetBridge
+
+    class Recording(real):
+        def __init__(self, *a, **kw):
+            seen.append(kw.get("vocab_version", "<missing>"))
+            super().__init__(*a, **kw)
+
+    monkeypatch.setattr(run_mod, "FleetBridge", Recording)
+    client = make_client(fleet_servers)
+    res = run_fleet(client, ticks=2, vocab_version="v2")
+    assert seen == ["v2"]
+    assert res.run_manifest_fields()["vocab_version"] == "v2"

@@ -73,9 +73,15 @@ from shibuya.perception import channels as ch
 from shibuya.perception import hashes as H
 from shibuya.perception import normalize as N
 from shibuya.perception import templates as T
-from shibuya.perception.attention import SalientItem, rank_by_saliency, strip_imperatives
+from shibuya.perception.attention import (
+    P_SEE_MEDIUM_RANGE,
+    SalientItem,
+    gate_stage1,
+    rank_by_saliency,
+    strip_imperatives,
+)
 from shibuya.world.assets import CELL_SIZE_M, WorldAssets
-from shibuya.world.state import World
+from shibuya.world.state import LANDMARK_CATS, World
 
 __all__ = [
     "DEFAULT_START_DATETIME",
@@ -94,6 +100,29 @@ __all__ = [
 
 #: 既定の世界内開始日時(W13 の最初の日=2026-07-28)。``clock_fn`` を渡さないときに使う。
 DEFAULT_START_DATETIME: Final[datetime] = datetime(2026, 7, 28, 0, 0)
+
+#: **看板(広告面)の注視ゲート**(知覚契約書 §4 段1 の p_see)の既定。``1.0``= 在圏セルの
+#: 看板行が必ず観測に入る=**現行のバイト**(D-59 (b) 以前の挙動)。1.0 未満にすると
+#: 体×看板×tick の決定論的ベルヌーイで看板行が落ちる。帯の出典は §4 段1
+#: (中小媒体 ``P_SEE_MEDIUM_RANGE`` 0.14-0.40 / 大型ビジョン 0.63-0.78)。
+#: **既定を 1.0 に置いたのは「切替口は既定不変」の規律**(較正値は腕の側で指定する)。
+SIGNAGE_P_SEE_DEFAULT: Final[float] = 1.0
+
+#: 注視ゲートの乱数ドメイン(``core.rng`` のドメイン表・``attention.gate_stage1`` が使う)。
+SIGNAGE_P_SEE_DOMAIN: Final[str] = "perception.attention.p_see"
+
+
+def check_signage_p_see(value: float) -> float:
+    """看板の注視確率を検査して返す(0.0〜1.0 の外は ``ValueError``)。
+
+    Example:
+        >>> check_signage_p_see(0.3)
+        0.3
+    """
+    p = float(value)
+    if not (0.0 <= p <= 1.0):
+        raise ValueError(f"signage_p_see は 0.0〜1.0 の確率(いま {value!r})")
+    return p
 #: 合成世界の歩行可能面積の割合(expedient)。
 WALKABLE_FRACTION_SYNTHETIC: Final[float] = 0.15
 #: W10 街路点 1 点が代表する面積[m²](2.5 m 格子)。
@@ -388,7 +417,9 @@ class PerceptionAssets:
                     j = poi_index.get(ref)
                     if j is None:
                         continue
-                    if poi_cat[j] in ("landmark", "attraction"):
+                    # C9b G6 a′: 目印の集合は**世界側と同じ 1 本**
+                    # (``world.state.LANDMARK_CATS`` = ``World.landmark_mask`` の判定)。
+                    if poi_cat[j] in LANDMARK_CATS:
                         if len(lands) < 4:
                             lands.append(poi_name[j])
                     elif len(pois) < 8:
@@ -583,6 +614,9 @@ class Renderer:
         budget_mode: ch.BudgetMode | str = ch.BudgetMode.FIXED_SLOTS,
         strict_group_budget: bool = True,
         signage_enabled: bool = True,
+        signage_p_see: float = SIGNAGE_P_SEE_DEFAULT,
+        intent_mode: str = T.DEFAULT_INTENT_MODE,
+        vocab_version: str = T.DEFAULT_VOCAB_VERSION,
     ) -> None:
         """
         Args:
@@ -601,6 +635,34 @@ class Renderer:
                 ``B2.signage_empty``(=「見える表示はありません」)にする。既定 True=
                 現行の描画で**1 バイトも変わらない**。テンプレ本体は触らないので
                 ``template_sha256`` は不変・規約⑧(セルの情報しか使わない)も不変。
+            signage_p_see: **看板の注視ゲート**(知覚契約書 §4 段1 の視認確率 p_see・
+                D-59 (b) ユーザー決定 2026-09-17)。在圏セルの看板行を観測へ入れるかを
+                **体×看板×tick の決定論的ベルヌーイ**で決める。既定 1.0=常に入れる
+                =**現行のバイトで 1 バイトも変わらない**(抽選も引かない)。0.0 で
+                全員・全 tick 落ちる(=⑥ 広告ゼロと同じ描画)。抽選は
+                ``attention.gate_stage1``(``core.rng`` の Philox・ドメイン
+                ``perception.attention.p_see``・カウンタ ``(tick, agent_id, poi_id)``)
+                なので、同じ seed・同じ tick・同じ体・同じ看板は常に同じ結果
+                (テープから再現できる)。**看板の無いセルでは抽選を引かない**
+                (描画が変わらないため)。落ちた看板行は ``B2.signage_empty`` になり、
+                **空いた枠は他のチャネルへ回らない**(固定枠。枠の再配分は D-60 の別議論。
+                ただし ``budget_mode='ranking'`` は池を分け合う設計なので ⑥ と同じく
+                他チャネルが空きを取りうる)。
+                注: 1.0 未満では **§2.4 ⑧「同セル同時間帯の 2 体で B0-B4b バイト一致」が
+                成り立たない**(注視は体ごとの事象だから)。同一セルの B2 は
+                **看板あり/なしの 2 変種**に分かれる=共有 prefix の断片化は高々 2 倍。
+            intent_mode: **AB7 自由意図の腕**の切替口(``"vocab"`` | ``"open"`` | ``"hint"``)。
+                ``"open"`` で B0 の出力規約を ``templates.OUTPUT_SPEC_OPEN``(``行動:`` の
+                1 行だけが「いま自分がしたいことを10字以内の動詞句で」)に差し替える。
+                ``"hint"``(AB7b)は ``templates.OUTPUT_SPEC_HINT``= 語彙を例として見せた
+                まま「当てはまる語が無いときだけ 10 字以内の動詞句で」を許す中間の腕。
+                既定 ``"vocab"`` は現行の 24 語ホワイトリスト提示=**1 バイトも変わらない**。
+                テンプレ本体(``TEMPLATES``)は触らないので ``template_sha256`` も不変。
+                仕様書 ``docs/design/v2-open-intent-arm-spec.md`` §2。
+            vocab_version: **行動語彙の版**(D-71 §3 F・``"v1"`` | ``"v2"``)。``"v2"`` で
+                B0 の出力規約に 13 語目「食事」が載る(``templates.OUTPUT_SPEC_V2``)。
+                既定 ``"v1"`` は現行の 24 語提示=**1 バイトも変わらない**。``"open"`` 腕は
+                語彙を見せないので v1/v2 で B0 は同一(差は段0 辞書とエンジン側)。
         """
         self.world = world
         self.agents = agents
@@ -612,27 +674,48 @@ class Renderer:
         self.budget_mode = ch.BudgetMode.parse(budget_mode)
         self.strict_group_budget = strict_group_budget
         self.signage_enabled = bool(signage_enabled)
+        self.signage_p_see = check_signage_p_see(signage_p_see)
+        self.intent_mode = T.check_intent_mode(intent_mode)
+        self.vocab_version = T.check_vocab_version(vocab_version)
 
         self._tickc = _TickCache()
-        self._b0 = N.canonical_whitespace(T.TEMPLATES["B0.system"]).encode("utf-8")
+        # 既定(vocab × v1)は ``TEMPLATES["B0.system"]`` と同一文字列=描画バイト不変
+        # (AB7・語彙 v2)。
+        self._b0 = N.canonical_whitespace(
+            T.b0_system(self.intent_mode, self.vocab_version)
+        ).encode("utf-8")
         self._b4b = N.canonical_whitespace(
             T.TEMPLATES["B4b.near_empty"]
         ).encode("utf-8")
+        #: **注意の焦点**の欄(C9b G4)。``attention_columns`` のランだけ在る配列を 1 度だけ
+        #: 掴む(``AgentState`` の配列は freeze/thaw で差し替わらない)。``None``= 焦点の無い
+        #: ラン=**B5 の描画は 1 バイトも変わらない**。
+        #: **B2(地物)は共有ブロック**(§2.4 ⑧ + §5 の共有 prefix)なので焦点で並べ替えない
+        #: ——地物の焦点は描画に出さない(親へ報告済みの空欄)。
+        self._focus_target: np.ndarray | None = (
+            agents.focus_target if getattr(agents, "attention_columns", False) else None
+        )
         #: 個体 → (知人の集合, 知人の id 配列)。**構築時に固定**なので 1 度作れば使い回せる(C7)。
         self._acq_cache: dict[int, tuple[frozenset[int], np.ndarray]] = {}
         self._b1_cache: dict[int, bytes] = {}
-        self._b2_cache: dict[int, bytes] = {}
+        #: 鍵は ``(セル, 看板を見たか)``。既定(p_see 1.0)は第2要素が常に True=
+        #: セルだけで引くのと同じ(命中率も同じ)。
+        self._b2_cache: dict[tuple[int, bool], bytes] = {}
         self._b3_cache: dict[int, bytes] = {}
         self._b4_cache: dict[tuple[int, int], bytes] = {}
         #: ablation ①(単一ランキング)のセル依存ブロック。B2 が B4 と同じ池を分けるので
         #: 鍵は ``(セル, B4 欄ハッシュ)``(固定枠の ``_b2_cache`` はセルだけ)。
         self._rank_cell_cache: dict[
-            tuple[int, int], tuple[dict[str, bytes], tuple[ch.TruncationReport, ...]]
+            tuple[int, int, bool], tuple[dict[str, bytes], tuple[ch.TruncationReport, ...]]
         ] = {}
         self.cache_hits = 0
         self.cache_misses = 0
         self.renders = 0
         self.truncation_count = 0
+        #: 注視ゲートの抽選回数(看板のあるセルで p_see<1.0 のときだけ増える)。
+        self.signage_gate_draws = 0
+        #: そのうち**通った**(看板行を載せた)回数。既定のランでは 0/0。
+        self.signage_gate_shown = 0
 
     # ---------------------------------------------------------- 前計算(1 tick 1 回)
     def prepare_tick(
@@ -762,12 +845,14 @@ class Renderer:
         blocks: "OrderedDict[str, bytes]" = OrderedDict()
         trunc: list[ch.TruncationReport] = []
         ranking = self.budget_mode is ch.BudgetMode.SINGLE_RANKING
+        # D-59 (b): 看板の注視ゲート(§4 段1)。既定 p_see=1.0 では常に True=抽選も引かない。
+        seen = self._signage_seen(i, cell, int(tick))
         # ablation ①: セル依存(B2/B4/B4b)は**1 本の池**なので 3 ブロックを一緒に組む。
-        cellb = self._cell_blocks_ranked(cell, tc, trunc) if ranking else None
+        cellb = self._cell_blocks_ranked(cell, tc, trunc, seen) if ranking else None
         b6 = self._b6(i, wake_reason, last_result, cell, tc, last_action, inviter)
         blocks["B0"] = self._b0
         blocks["B1"] = self._b1(kind)
-        blocks["B2"] = cellb["B2"] if cellb is not None else self._b2(cell, trunc)
+        blocks["B2"] = cellb["B2"] if cellb is not None else self._b2(cell, trunc, seen)
         blocks["B3"] = self._b3(tc)
         blocks["B4"] = cellb["B4"] if cellb is not None else self._b4(cell, tc, trunc)
         blocks["B4b"] = cellb["B4b"] if cellb is not None else tc.b4b.get(cell, self._b4b)
@@ -829,8 +914,13 @@ class Renderer:
         self._b1_cache[kind] = out
         return out
 
-    def _b2(self, cell: int, trunc: list[ch.TruncationReport]) -> bytes:
-        got = self._b2_cache.get(cell)
+    def _b2(
+        self, cell: int, trunc: list[ch.TruncationReport], shown: bool = True
+    ) -> bytes:
+        """B2(地物)。``shown=False``= **この体のこの tick は看板を見なかった**
+        (D-59 (b) の注視ゲート)。既定 True=現行の描画。
+        """
+        got = self._b2_cache.get((cell, shown))
         if got is not None:
             self.cache_hits += 1
             return got
@@ -874,7 +964,7 @@ class Renderer:
                     else T.TEMPLATES["B2.visible_empty"]
                 )
             # 看板(a)=店舗基本属性 1 件(素性タグは凍結テンプレ側・命令文除去を掛ける)
-            lines.append(self._signage(cell))
+            lines.append(self._signage(cell, shown))
             # 地物・ランドマーク・出口
             kept, rep = ch.truncate_lines(list(A.visible_landmark[cell]), "B2.landmark")
             trunc.append(rep)
@@ -889,10 +979,10 @@ class Renderer:
             lines.append(T.TEMPLATES["B2.signage_empty"])
             lines.append(T.TEMPLATES["B2.landmark_empty"])
         out = N.join_lines(lines).encode("utf-8")
-        self._b2_cache[cell] = out
+        self._b2_cache[(cell, shown)] = out
         return out
 
-    def _signage(self, cell: int) -> str:
+    def _signage(self, cell: int, shown: bool = True) -> str:
         """看板(a): そのセルで最も可視の店舗 1 件の店頭表示。
 
         **W14 で凍結された文面が在ればそれを使い**、無ければ従来の合成文(店名+営業時間)を
@@ -903,7 +993,13 @@ class Renderer:
         §3.2 の「看板・広告面1件 25 tok」は**内容**(店名+属性)に掛ける。ブロックラベルと
         凍結された素性タグは全描画に共通の固定オーバーヘッドなので、ブロック総額(B2 150)側で
         見る(解決した曖昧点・親へ報告)。
+
+        Args:
+            shown: 注視ゲート(§4 段1・D-59 (b))を通ったか。``False`` は
+                ``B2.signage_empty``=「見える表示はありません」。**枠は他へ回さない**。
         """
+        if not shown:
+            return T.TEMPLATES["B2.signage_empty"]
         body = self._signage_body(cell)
         if body is None:
             return T.TEMPLATES["B2.signage_empty"]
@@ -923,31 +1019,83 @@ class Renderer:
         A = self.assets
         return [A.poi_name[j] + "の店頭" for j in A.visible_poi[cell]]
 
+    def _signage_poi(self, cell: int) -> int:
+        """看板(a)に使う **POI の index**(無ければ ``-1``)。
+
+        **看板の選び方はこの 1 本**(``_signage_body`` もここを通る)なので、注視ゲートが
+        抽選に使う ``poi_id`` と実際に描かれる看板は常に同じものを指す。
+        """
+        if not self.signage_enabled:
+            return -1
+        A = self.assets
+        if not (0 <= cell < A.n_cells):
+            return -1
+        n_poi = self.world.n_poi
+        for j in A.visible_poi[cell]:
+            if int(j) < n_poi:
+                return int(j)
+        return -1
+
     def _signage_body(self, cell: int) -> str | None:
         """看板(a)の**本文**(命令文除去済み・枠の切り詰め前)。
 
         ablation ⑥(§8 第1陣「広告ゼロ」)は ``signage_enabled=False`` でここを ``None`` に
         する。**固定枠と単一ランキングの両方**がこの 1 本を材料にしているので、腕は 1 箇所で
         効く(固定枠 → ``_signage`` が ``B2.signage_empty``・ランキング → 候補が空列)。
+        D-59 (b) の注視ゲートも**同じ 1 本**の手前で切る(``_signage``/``_cell_candidates``)。
 
         Returns:
             見える表示が**無い**セルは ``None``、在るが命令文除去で本文が消えた場合は ``""``
             (この 2 つは描画が違う=前者は「見える表示はありません」・後者は素性タグだけの行)。
         """
-        if not self.signage_enabled:
+        j = self._signage_poi(cell)
+        if j < 0:
             return None
         A = self.assets
         w = self.world
-        for j in A.visible_poi[cell]:
-            if j >= w.n_poi:
-                continue
-            frozen = A.poi_signage[j] if j < len(A.poi_signage) else ""
-            if frozen:
-                return strip_imperatives(frozen).kept
-            frm = int(w.pois.open_from[j]) // 60
-            to = int(w.pois.open_to[j]) // 60
-            return strip_imperatives(f"{A.poi_name[j]}の表示。営業は{frm}時から{to}時。").kept
-        return None
+        frozen = A.poi_signage[j] if j < len(A.poi_signage) else ""
+        if frozen:
+            return strip_imperatives(frozen).kept
+        frm = int(w.pois.open_from[j]) // 60
+        to = int(w.pois.open_to[j]) // 60
+        return strip_imperatives(f"{A.poi_name[j]}の表示。営業は{frm}時から{to}時。").kept
+
+    def _signage_seen(self, agent_id: int, cell: int, tick: int) -> bool:
+        """**看板の注視ゲート**(知覚契約書 §4 段1・D-59 (b) ユーザー決定 2026-09-17)。
+
+        体×看板×tick の**決定論的ベルヌーイ**。乱数は ``attention.gate_stage1``
+        (``core.rng.stream`` の Philox4x64・ドメイン ``perception.attention.p_see``・
+        カウンタ ``(tick, agent_id, poi_id)``)なので、
+
+        - 同じ ``(seed, tick, agent_id, poi_id)`` は**常に同じ結果**(テープから再現できる)、
+        - 体を増やしても既存の体の列は動かない(カウンタベースの性質・運用設計書 §1.4 T4)、
+        - tick・体・看板のどれが違えば独立な抽選になる。
+
+        既定(``p_see=1.0``)と**看板の無いセル**では抽選を引かない(描画が変わらないため)。
+        帯の出典は §4 段1(中小媒体 ``P_SEE_MEDIUM_RANGE`` 0.14-0.40・大型ビジョン 0.63-0.78)。
+
+        逐次ループ宣言(P4): **1 起床につき 1 回**(``render`` の中の 1 回・個体数ぶんの
+        ループは持たない)。既定のランでは 0 回。
+        """
+        if self.signage_p_see >= 1.0:
+            return True
+        poi = self._signage_poi(cell)
+        if poi < 0:
+            return True  # 見える看板が無いセル=ゲートの対象外(描画は同じ)
+        self.signage_gate_draws += 1
+        if self.signage_p_see <= 0.0:
+            return False  # random() は [0,1) なので ``< 0.0`` は常に偽=短絡と同値
+        ok = bool(
+            gate_stage1(
+                1,
+                self.signage_p_see,
+                seed=self.seed,
+                domain_counters=(int(tick), int(agent_id), int(poi)),
+            )[0]
+        )
+        if ok:
+            self.signage_gate_shown += 1
+        return ok
 
     def _b3(self, tc: _TickCache) -> bytes:
         got = self._b3_cache.get(tc.band5)
@@ -1143,7 +1291,21 @@ class Renderer:
             chosen_set |= {
                 int(x) for x in friend_ids[(pf >= lo) & (pf < hi) & (friend_ids != i)]
             }
+        # C9b G4: **注意の焦点**が同じセルの人物なら常に載せ、**先頭に置く**
+        # (UE AI Perception の ``Dominant Sense`` ではなく「焦点は優先して描く」だけ)。
+        # ablation ①(``--budget-mode ranking``)では ``_rank_items`` が顕著性で並べ直すので
+        # 先頭は保たれない——**掲載は保たれる**(順序は ablation の主題そのものなので譲る)。
+        focus = -1
+        if self._focus_target is not None:
+            f = int(self._focus_target[i])
+            if 0 <= f < int(a.n) and f != i:
+                pf = int(tc.cell_pos[f])
+                if lo <= pf < hi:
+                    focus = f
+                    chosen_set.add(f)
         chosen = sorted(chosen_set)
+        if focus >= 0:  # 焦点だけ先頭へ(残りの並びは従来どおり id 昇順)
+            chosen = [focus] + [x for x in chosen if x != focus]
         q = tc.cell_pos[np.asarray(chosen, dtype=np.int64)] - lo
         if 0 <= p < m:
             q = q - (q > p)  # 自分の行を外したぶん詰める
@@ -1330,8 +1492,14 @@ class Renderer:
             return [items[0]] if items else [T.TEMPLATES["B5.watched_empty"]]
         raise KeyError(f"未登録チャネル: {channel_id!r}")
 
-    def _cell_candidates(self, cell: int, tc: _TickCache) -> tuple[dict[str, list[str]], str]:
-        """セル依存(B2/B4/B4b)の候補と、チャネルでない構造行(B2 場所)。"""
+    def _cell_candidates(
+        self, cell: int, tc: _TickCache, shown: bool = True
+    ) -> tuple[dict[str, list[str]], str]:
+        """セル依存(B2/B4/B4b)の候補と、チャネルでない構造行(B2 場所)。
+
+        ``shown=False``(注視ゲートで落ちた・D-59 (b))は看板の候補を空列にする
+        =**⑥ 広告ゼロと同じ道**(材料は ``_signage_body`` 1 本のまま)。
+        """
         A = self.assets
         cand: dict[str, list[str]] = {
             "B2.ground": [],
@@ -1355,7 +1523,7 @@ class Renderer:
             ]
             static = self._visible_static(cell)
             cand["B2.visible"] = [static] if static else self._visible_names(cell)
-            body = self._signage_body(cell)
+            body = self._signage_body(cell) if shown else None
             cand["B2.signage"] = [] if body is None else [body]
             cand["B2.landmark"] = list(A.visible_landmark[cell])
         else:
@@ -1389,7 +1557,11 @@ class Renderer:
         return cand, place
 
     def _cell_blocks_ranked(
-        self, cell: int, tc: _TickCache, trunc: list[ch.TruncationReport]
+        self,
+        cell: int,
+        tc: _TickCache,
+        trunc: list[ch.TruncationReport],
+        shown: bool = True,
     ) -> dict[str, bytes]:
         """B2/B4/B4b を**セル依存の 1 本の池**(≤250 tok)で組む(ablation ①)。
 
@@ -1398,14 +1570,15 @@ class Renderer:
         (固定枠の B2 はセルだけで足りるが、単一ランキングでは B4 の内容が B2 の採否を動かす)。
         """
         fh = int(tc.b4_field_hash[cell]) if 0 <= cell < tc.b4_field_hash.size else -1
-        key = (int(cell), fh)
+        # 第3要素=注視ゲート(D-59 (b))。既定 p_see=1.0 では常に True=従来の 2 要素鍵と同じ。
+        key = (int(cell), fh, bool(shown))
         got = self._rank_cell_cache.get(key)
         if got is not None:
             self.cache_hits += 1
             trunc.extend(got[1])
             return got[0]
         self.cache_misses += 1
-        cand, place = self._cell_candidates(cell, tc)
+        cand, place = self._cell_candidates(cell, tc, shown)
 
         def build(kept: Mapping[str, list[str]], order: Sequence[str]) -> dict[str, bytes]:
             rows: dict[str, list[str]] = {"B2": [place], "B4": [], "B4b": []}

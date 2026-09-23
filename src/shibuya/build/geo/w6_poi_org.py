@@ -5,6 +5,11 @@
 - 組織台帳は **census 版 9,872**(wide11k は廃止・D-W7)。census ファイルが各社に
   ``workplace_poi.building`` を持つので、その建物割当を**そのまま使う**(v1 の手続き生成規則を
   再実行しない=決定論と再現性のため)。配分則そのものは v1 由来の expedient。
+- **subcat は生タグから引き直す**(2026-09-17 改訂・:mod:`.poi_class`)。v8 の ``pois`` は
+  生タグを落としているので、リポに残る Overpass の 2 文書(``poi_opening_hours_…`` /
+  ``street_features_…``)で ``poi_id`` を突き合わせ、当たった POI は **OSM タグを一次根拠**に
+  subcat を決める。当たらない POI は v8 の subcat、それも無ければ名前一致(expedient)。
+  **cat は 1 件も動かさない**。
 
 出力: ``w6_poi.parquet`` / ``w6_org.parquet``。
 
@@ -12,6 +17,8 @@ expedient
 - 組織の建物配分則(v1 手続き生成・census ファイルに凍結済み)。
 - POI/組織のセル = 自身の座標の格子 × 束縛ノードのバンド。その place_id がセル表に無いときだけ
   ノードのセルへ落とす(件数を notes に出す)。
+- subcat の名前一致層(:data:`.poi_class.NAME_SUBCAT_RULES`)。生タグがどの文書にも無い
+  POI にだけ掛かる。切替口 = :data:`USE_NAME_SUBCAT_RULES`。
 """
 
 from __future__ import annotations
@@ -23,19 +30,32 @@ import numpy as np
 import pyarrow as pa
 
 from . import common as C
+from . import poi_class as PC
 
 STAGE = "W6"
-STAGE_VERSION = "1.0.0"
+STAGE_VERSION = "1.1.0"
 
 INPUT_FILES: tuple[tuple[str, ...], ...] = (
     ("realworld", "osm", "shibuya_osm_wide_v8.json"),
     ("realworld", "osm", "poi_patch_shibuya.json"),
     ("realworld", "osm", "organizations_shibuya_census.json"),
+    # subcat の一次根拠(OSM 生タグ)。v8 の pois には生タグが残っていない。
+    ("realworld", "osm", "poi_opening_hours_overpass_20260907.json"),
+    ("realworld", "osm", "street_features_overpass_20260907.json"),
 )
+
+#: 切替口(expedient の名前一致層)。False にすると subcat は生タグと v8 の値だけで決まる。
+USE_NAME_SUBCAT_RULES: bool = True
 
 EXPECTED_POI = 2337
 EXPECTED_ORGS = 9872
 EXPECTED_POI_BINDING_RATE = 0.688
+#: 生タグで決めた subcat が v8 の subcat と食い違った件数(=0 でなければ規則の移植が壊れている)。
+EXPECTED_SUBCAT_TAG_VS_FROZEN_MISMATCH = 0
+#: 生タグの subcat が cat と矛盾して捨てられた件数(対の閉包を守る不変条件)。
+EXPECTED_SUBCAT_TOPCAT_CONFLICT = 0
+#: ``PLACE_PARK``(場所語「公園」)へ写る POI。改訂前は **0 件**(語彙の孤児)だった。
+EXPECTED_SUBCAT_PARK = 27
 
 
 def run(ctx: C.Ctx) -> C.StageResult:
@@ -52,6 +72,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
 
     osm = C.load_json(paths[0])
     census = C.load_json(paths[2])
+    tags_by_poi = PC.tag_index(C.load_json(paths[3]), C.load_json(paths[4]))
     nd = C.read_parquet_columns(nodes_p, ["node_id", "x", "y", "band"])
     cells = set(C.read_parquet_columns(cells_p, ["place_id"])["place_id"])
     known_buildings = set(C.read_parquet_columns(bld_p, ["building_id"])["building_id"])
@@ -92,11 +113,39 @@ def run(ctx: C.Ctx) -> C.StageResult:
     bind_rate = round(n_bound / len(pois), 3) if pois else 0.0
     poi_unknown_building = sum(1 for b in p_building if b and b not in known_buildings)
 
+    # --- subcat を引き直す(一次=OSM 生タグ・控え=v8 の値・最後の手段=名前) ---
+    p_subcat: list[str | None] = []
+    subcat_source = Counter()
+    tag_vs_frozen_mismatch = 0
+    topcat_conflict = 0
+    for p in pois:
+        cat = str(p["cat"])
+        frozen = p.get("subcat")
+        tags = tags_by_poi.get(str(p["id"]))
+        if tags:
+            raw = PC.poi_subcategory(tags)
+            if raw is not None:
+                if PC.SUBCAT_TOPCAT[raw] != cat:
+                    topcat_conflict += 1
+                elif frozen and str(frozen) != raw:
+                    tag_vs_frozen_mismatch += 1
+        sub, source = PC.resolve_subcat(
+            cat,
+            str(p.get("name") or ""),
+            frozen,
+            tags,
+            use_name_rules=USE_NAME_SUBCAT_RULES,
+        )
+        p_subcat.append(sub)
+        subcat_source[source] += 1
+    catsub_pairs = Counter((str(p["cat"]), s or "") for p, s in zip(pois, p_subcat))
+    subcat_counts_park = sum(1 for s in p_subcat if s == "park")
+
     poi_cols = {
         "poi_id": [p["id"] for p in pois],
         "name": [p.get("name") or "" for p in pois],
         "cat": [p["cat"] for p in pois],
-        "subcat": pa.array([p.get("subcat") for p in pois], type=pa.string()),
+        "subcat": pa.array(p_subcat, type=pa.string()),
         "floor": pa.array(
             [int(p["floor"]) if p.get("floor") is not None else None for p in pois], type=pa.int16()
         ),
@@ -163,6 +212,9 @@ def run(ctx: C.Ctx) -> C.StageResult:
         "org_building_assignment": "census file's own workplace_poi.building",
         "poi_source": "shibuya_osm_wide_v8.json pois (poi_patch already merged upstream)",
         "cell_rule": "grid(self xy) x band(bound node); fallback = cell of bound node",
+        "subcat_rule": "osm raw tags (primary) > v8 frozen subcat > POI name (expedient)",
+        "subcat_name_rules": bool(USE_NAME_SUBCAT_RULES),
+        "subcat_vocab": sorted(PC.SUBCAT_TOPCAT),
     }
     res = C.StageResult(
         stage=STAGE,
@@ -174,12 +226,17 @@ def run(ctx: C.Ctx) -> C.StageResult:
         expedients=[
             "組織の建物配分則(v1 手続き生成・census ファイルに凍結済み)",
             "POI/組織のセル決定(自身の格子×束縛ノードのバンド・欠けたらノードのセル)",
+            "subcat の名前一致層(poi_class.NAME_SUBCAT_RULES・生タグが無い POI のみ)",
         ],
         notes={
             "poi_cat_counts": dict(sorted(Counter(p["cat"] for p in pois).items())),
-            "poi_subcat_counts": dict(
+            "poi_subcat_counts": dict(sorted(Counter(s for s in p_subcat if s).items())),
+            "poi_subcat_frozen_counts": dict(
                 sorted(Counter(p["subcat"] for p in pois if p.get("subcat")).items())
             ),
+            "poi_subcat_source_counts": dict(sorted(subcat_source.items())),
+            "poi_catsub_pairs": {f"{c}|{s}": n for (c, s), n in sorted(catsub_pairs.items())},
+            "poi_raw_tags_matched": sum(1 for p in pois if str(p["id"]) in tags_by_poi),
             "poi_with_building": n_bound,
             "poi_cell_fallback": poi_fallback,
             "poi_building_id_not_in_w4": poi_unknown_building,
@@ -202,5 +259,22 @@ def run(ctx: C.Ctx) -> C.StageResult:
         C.Gate("org_distinct_buildings", distinct_buildings, None),
         C.Gate("poi_cells_all_known", all(p in cells for p in p_place), True),
         C.Gate("org_cells_all_known", all(p in cells for p in o_place), True),
+        # subcat の引き直し(2026-09-17 改訂)
+        C.Gate(
+            "poi_subcat_tag_vs_frozen_mismatch",
+            tag_vs_frozen_mismatch,
+            EXPECTED_SUBCAT_TAG_VS_FROZEN_MISMATCH,
+        ),
+        C.Gate("poi_subcat_topcat_conflict", topcat_conflict, EXPECTED_SUBCAT_TOPCAT_CONFLICT),
+        C.Gate("poi_subcat_park", subcat_counts_park, EXPECTED_SUBCAT_PARK),
+        C.Gate("poi_subcat_total", sum(1 for s in p_subcat if s), None),
+        C.Gate("poi_subcat_from_name", subcat_source["name"], None),
+        C.Gate(
+            "poi_catsub_pairs_in_closure",
+            all(
+                (c, s) in set(PC.CATSUB_PAIRS) for (c, s) in catsub_pairs if s
+            ),
+            True,
+        ),
     ]
     return res

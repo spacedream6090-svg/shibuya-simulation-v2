@@ -2,6 +2,7 @@
 
 - リンク: https://link.springer.com/article/10.1007/s10588-011-9097-3 | 分野: 統計学・因果推論 #23 / ABM方法論 #21 | 重要度: **P0**
 - **一次確認**: **二次(v1 の読解メモを経由)**。2026-09-15 に親が v1 `docs/lit/method__experiment-design-statistics.md`(2026-07-02・Opus 委譲・出典 URL 検証済みと記載)を実読した。**Springer 原典は未読**(この日は Web 取得が使用上限で停止)。→ [RESEARCH-STATE.md](../RESEARCH-STATE.md) §2-A の A-3 で原典を確認する
+- **第200 追記(2026-09-16・L-B)**: 原典は有料で OA コピー無し(Unpaywall `is_oa:false`)=**本文は依然未読**。CV 法の手続き(連続する c_V の差が E 未満で以後も維持・例 E=0.01)は [stats__lee2015_abm-output-analysis](stats__lee2015_abm-output-analysis.md)(共著者に Lorscheid)と [stats__tenbroeke2016_sensitivity-abm](stats__tenbroeke2016_sensitivity-abm.md) の**逐語引用で確認**(親再取得)。8 seed への当て込みは答申 [v2-replication-count-research](../v2-replication-count-research.md) §2 (C)=**梯子が作れず判定不能**。
 
 ## なぜこのメモを v2 に起こすか
 

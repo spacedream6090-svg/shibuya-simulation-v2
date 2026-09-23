@@ -32,7 +32,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import IntEnum
-from typing import Any, Callable, ContextManager, Mapping, NamedTuple, Protocol, runtime_checkable
+from typing import (
+    Any,
+    Callable,
+    ContextManager,
+    Mapping,
+    NamedTuple,
+    Protocol,
+    Sequence,
+    runtime_checkable,
+)
 
 import numpy as np
 
@@ -237,11 +246,23 @@ class LedgerBundle:
             **engine は economy を import できない**(層契約 ``economy > engine``)ので、
             ``economy.census.daily_census`` はここへ**注入**する(依存逆転)。
             ``None`` なら ``engine.run`` はセンサス行を持たない(``census_pass=False``)。
+        census_write: 日次センサス/月次 MER を**ファイルに書く**呼び出し可能
+            (``(day, 出力ディレクトリ) -> 書いたパスの並び``)。``census`` と同じ理由で
+            economy 側(``cli.write_census_files``)から注入する。``engine.run`` は
+            ``census_out`` を渡されたときだけ呼ぶ(**既定 None=1 バイトも書かない**)。
+        monthly_check: **月次センサスの T3**(冗長方程式の検算・D-85 (a))を走らせる
+            呼び出し可能(``day -> 行の Mapping`` / 月次が立たない日は ``None``)。
+            ``census`` と同じ依存逆転で economy 側
+            (``cli.build_ledger_bundle`` → ``economy.census.monthly_census_t3``)から
+            注入する。``census_out`` とは**無関係**に毎日呼ぶ(観測が世界を変えないよう、
+            書き出しの有無で manifest が動かないため)。
     """
 
     money: MoneyLedger | None = None
     goods: GoodsLedger | None = None
     census: Callable[[int], Mapping[str, Any]] | None = None
+    census_write: Callable[[int, str], "Sequence[str]"] | None = None
+    monthly_check: Callable[[int], "Mapping[str, Any] | None"] | None = None
     #: ``end_of_day`` が畳んだ**直近の締め**(``daily_census`` が読む用の控え)。
     #: frozen dataclass なので中身だけ差し替える(比較・ハッシュからは外す)。
     last_close: dict[str, Any] = field(default_factory=dict, compare=False, repr=False)
@@ -272,6 +293,27 @@ class LedgerBundle:
         if self.census is None:
             return None
         return self.census(int(day))
+
+    def monthly_t3(self, day: int) -> "Mapping[str, Any] | None":
+        """月次センサスの T3(冗長方程式の検算・D-85 (a))を走らせる。
+
+        Returns:
+            月次センサスが立つ日なら検算の辞書(``ok`` と3検査の内訳)。立たない日、
+            または注入が無ければ ``None`` = **未実行**(manifest の ``t3_ok`` は None)。
+        """
+        if self.monthly_check is None:
+            return None
+        return self.monthly_check(int(day))
+
+    def write_census(self, day: int, out_dir: str) -> tuple[str, ...]:
+        """日次センサス/月次 MER をファイルへ書く(``census_out`` を渡されたときだけ)。
+
+        注入が無ければ**何も書かずに空を返す**(既定経路は 1 バイトも動かない)。
+        書き手は economy 側(``cli.write_census_files``)。
+        """
+        if self.census_write is None:
+            return ()
+        return tuple(str(p) for p in self.census_write(int(day), str(out_dir)))
 
     def growth_parts(self) -> tuple[dict[str, Any], dict[str, int]]:
         """両台帳の D-R2-6(宣言, 実測増分バイト)を 1 組に畳む。

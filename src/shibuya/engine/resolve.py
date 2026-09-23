@@ -24,6 +24,11 @@
 
 expedient(本モジュール分)
 - 移動は **1 tick=1 ノード**(``world.graph`` の宣言と同じ)。実速度・群衆物理は U15(C4 以降)。
+  **C9 (2026-09-17)**: ``apply(..., geometry=EdgeGeometry(...))`` を渡すと辺上の連続位置+
+  希望速度+Kladek 減速へ切り替わる(``engine.geometry``)。既定(``None``)は上のまま。
+  なお ``initialize`` は幾何を取らないので **tick 0 の ``density_stage`` だけは人/セルの段**
+  (edge モードでも)。tick 0 の ``apply`` 末尾で人/m² の Fruin LOS 段へ貼り替わる
+  ——tick 0 は全員が自宅で就寝中なので影響は無いが、黙って一本化しないために書いておく。
 - 内受容の自然変動(``advance_body``): 30 tick ごとに空腹+1・疲労+1、休憩で疲労−3、
   購入で空腹−4、就寝中は疲労−2。世界過程(C4)が入るまでの**駆動源**。
   値は自前(契約書に無い)。
@@ -53,6 +58,7 @@ from typing import Any, Final, Mapping
 import numpy as np
 
 from shibuya.agents.state import (
+    FOCUS_NONE,
     N_WAKE_CONDITIONS,
     REFRACTORY_MINUTES,
     Activity,
@@ -61,11 +67,13 @@ from shibuya.agents.state import (
     WakeCondition,
 )
 from shibuya.engine.change_detect import DetectResult
+from shibuya.engine.geometry import EdgeGeometry
 from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.commit import (
     ACT_ALIGHT,
     ACT_BOARD,
     ACT_BUY,
+    ACT_EAT,
     ACT_HELP,
     ACT_LEAVE,
     ACT_MOVE,
@@ -78,16 +86,25 @@ from shibuya.engine.commit import (
     ENGINE_STEP,
     IntentBatch,
 )
+from shibuya.llm.contract import DEFAULT_VOCAB_VERSION, check_vocab_version
 from shibuya.world.state import World
 
 __all__ = [
     "revert_conversation",
     "set_conversing",
     "BODY_TICK_PERIOD",
+    "APPROACH_DONE_M",
+    "FOCUS_TTL_TICKS",
+    "FOCUS_ACQUIRE_M",
+    "FOCUS_LOSE_M",
+    "TALK_OPEN_METERS",
+    "TALK_LEAVE_METERS",
     "BOARD_WAIT_LIMIT_TICKS",
     "REST_FATIGUE_RELIEF",
     "BUY_HUNGER_RELIEF",
     "SLEEP_FATIGUE_RELIEF",
+    "EAT_HUNGER_RELIEF",
+    "EAT_DWELL_MINUTES",
     "ResolveOutcome",
     "initialize",
     "set_initial_activity",
@@ -124,6 +141,43 @@ BODY_TICK_PERIOD: Final[int] = 30
 REST_FATIGUE_RELIEF: Final[int] = 3
 BUY_HUNGER_RELIEF: Final[int] = 4
 SLEEP_FATIGUE_RELIEF: Final[int] = 2
+
+# ---------------------------------------------------------------- C9b 対象と注意(G3/G4/G7)
+#
+# 正典: ``docs/design/v2-c9-geometry-agenda.md`` §1 **G3**(近づく=移動の対象が人/物)・
+# **G4**(見る=待機の対象=注意の焦点)・**G7**(会話距離)+ §4 改訂(UE AI Perception の
+# Sight/Lose Sight と Max Age を**構造として**借りる=``docs/research/lit/
+# gameeng__unreal_ai-perception.md``「★借りる」1・2)。
+#
+# **値はすべて expedient**(UE のページに既定値は載っていない=lit メモ「数値を使うなら別の
+# 出所が要る」)。唯一 ``TALK_OPEN_METERS`` だけは 2 m に外部の裏づけがある
+# (Sorokowska 2017 見知らぬ人 1.35 m・**日本は含まれない**=親未確認・§4 改訂)。
+
+#: 「近づく」が到達したとみなす距離[m](**expedient**)。
+APPROACH_DONE_M: Final[float] = 2.0
+#: 注意の焦点の寿命[tick](UE ``Max Age`` 型・**expedient**)。1 tick=60 秒なので 10 分。
+FOCUS_TTL_TICKS: Final[int] = 10
+#: 焦点を**取得**できる距離[m](UE ``Sight Radius`` 型・**expedient**)。
+FOCUS_ACQUIRE_M: Final[float] = 20.0
+#: 焦点を**喪失**する距離[m](UE ``Lose Sight Radius`` 型・取得より広い=ヒステリシス)。
+FOCUS_LOSE_M: Final[float] = 30.0
+#: 会話が**成立**する距離[m](G7・§4 改訂「成立距離と離脱距離を分ける」)。
+TALK_OPEN_METERS: Final[float] = 2.0
+#: 会話が**離脱**になる距離[m](同上。同値だと境界の 2 人が毎 tick 作っては壊す=D-49 と同型)。
+TALK_LEAVE_METERS: Final[float] = 3.0
+
+# ---- 語彙 v2「食事」(D-71 §3 E・2026-09-17 ユーザー決定) ----
+#: 食事 1 回の空腹の回復量。**``BUY_HUNGER_RELIEF`` の再利用**(新しい数を作らない)。
+#: 語彙 v1 では「食べる/飲む」を 購入 に写して同じ量だけ空腹が下がっていたので、
+#: この値にすると **v1→v2 で身体の駆動が変わらず、変わるのは意味と会計だけ**になる。
+#: 量そのものの較正はユーザー/親判断(D-71 §3 G の指紋として宣言する)。
+EAT_HUNGER_RELIEF: Final[int] = BUY_HUNGER_RELIEF
+#: 食事の所要時間[分](**expedient**・契約行 ``llm.contract._SPEC_EAT`` の宣言値)。
+#: **専用タイマーは置いていない**: 在店は購入と同じ在席機構(``poi_ref``/``poi_since``)で
+#: 表し、解除は既存の回転率(``engine.processes.crowd.DWELL_MAX_TICKS`` = 30 分)に従う。
+#: 20 分ちょうどで解く口を作るには per-tick の新しい走査が要る(P4 宣言が必要)ので、
+#: **作るかどうかは親/ユーザーの判断待ち**=いまは宣言値としてだけ持つ。
+EAT_DWELL_MINUTES: Final[int] = 20
 
 #: 物の台帳の払い出しスロットを回す最大回数(``_apply_buy`` の注記・expedient)。
 _SELL_SLOT_RETRIES: Final[int] = 8
@@ -291,6 +345,37 @@ class ResolveOutcome:
     #: **就寝地へ着いて寝た**件数(D-62 (a) の意図保持ぶん。就寝境界で即座に寝た件数は
     #: ``begin_planned_sleep`` の戻り値で数える=あちらは ``apply`` の外で走る)。
     n_planned_sleep: int = 0
+    #: **語彙 v2「食事」が成立した件数**(v1 のランでは常に 0)。
+    n_meals: int = 0
+    #: 食事で店舗へ移った金額[円](``revenue_delta`` の内数)。
+    meal_yen: int = 0
+    #: **C9 辺上の連続位置**(``engine.geometry.EdgeGeometry``)。``None``=現行の 1 tick=1 ノード。
+    geometry: EdgeGeometry | None = None
+    #: この tick の**ホップ反復**の回数(edge モードの P4 実測=逐次ループの実際の深さ。
+    #: 上限は ``geometry.MAX_HOPS_PER_TICK``)。
+    n_hops: int = 0
+    #: 密度が Kladek の詰め込み密度(5.4 人/m²)以上で**歩けなかった**体の延べ数
+    #: (edge モードの診断・通常は 0。絶対吸収状態の監視点)。
+    n_jammed: int = 0
+    # ---- C9b 対象と注意(G3/G4/G7)。既定(``None``/False)では 1 分岐も通らない ----
+    #: この tick に LLM が言った**焦点の要求**(``(n_agents,)`` int64・``-1``=なし)。
+    #: ``engine.run`` が組んで渡す**読むだけ**の配列。``agents.focus_target`` と同じ符号。
+    focus_request: np.ndarray | None = None
+    #: 会話の距離判定を使うか(G7)。``True``= ``TALK_OPEN_METERS`` の実距離・
+    #: ``False``(既定)= 同一セル代理(C3 からの expedient)。
+    talk_by_distance: bool = False
+    #: 「近づく」が立った件数(移動の対象が人/オブジェクトだった件数)。
+    n_approach: int = 0
+    #: 「近づく」が対象に届いた件数(到達 ≤ ``APPROACH_DONE_M``)。
+    n_approach_done: int = 0
+    #: 「近づく」が着いたのに対象が居なかった件数(``TARGET_GONE``)。
+    n_target_gone: int = 0
+    #: 注意の焦点を**取得**した件数(G4)。
+    n_focus: int = 0
+    #: 注意の焦点が**消えた**件数(寿命切れ + 喪失距離超過)。
+    n_focus_lost: int = 0
+    #: **実距離**で成立した会話招待の件数(G7・node/同一セル代理のランでは 0)。
+    n_talk_by_distance: int = 0
 
     def add_result(self, code: int, n: int) -> None:
         if n:
@@ -686,6 +771,10 @@ def apply(
     rail: object | None = None,
     crowd: object | None = None,
     hotel: object | None = None,
+    vocab_version: str = DEFAULT_VOCAB_VERSION,
+    geometry: EdgeGeometry | None = None,
+    focus_request: np.ndarray | None = None,
+    talk_by_distance: bool = False,
 ) -> ResolveOutcome:
     """Phase C: 確定した intent だけを世界へ適用する(**唯一の書き手**)。
 
@@ -700,10 +789,27 @@ def apply(
         crowd: 混雑場(C4 世界過程)。``None`` なら屋内占有・待ち行列を見ない。
         hotel: ホテル客室在庫(C4 世界過程)。``has_bed(agent_ids, cells)`` を持つものを渡すと、
             チェックイン済みの来街者は**自宅でなくても就寝できる**(§7.2 ホテル客室在庫)。
+        vocab_version: 行動語彙の版(D-71 §3 F)。``"v2"`` で「食事」の分岐が増える。
+            既定 ``"v1"`` は ``_APPLY``(13 分岐)をそのまま回す=**1 バイトも変わらない**。
+        geometry: **C9 G1 (b) 辺上の連続位置**(``engine.geometry.EdgeGeometry``)。
+            ``None``(既定=``geometry="node"``)は現行の 1 tick=1 ノードで
+            **1 バイトも変わらない**。渡すと ① エンジン継続が「希望速度 × Kladek 減速 ×
+            60 s」の距離だけ辺上を進む ② ``xy`` が両端ノードの線形補間になる
+            ③ セル/層が近い方の端点から決まる ④ 密度段が人/m² の Fruin LOS 段になる。
+        focus_request: **C9b G3/G4 対象の要求**(``(n_agents,)`` int64・``-1``=なし・
+            ``≥0``=個体 id・``≤-2``=``-2-poi_id``)。移動なら「近づく」の相手、待機なら
+            「見る」の注意の焦点。``None``(既定)では**1 分岐も通らない**。
+            書き込み先は ``agents.focus_target`` / ``focus_ttl``(``attention_columns`` の
+            ランだけ存在する欄)で、欄が無いランでは要求は**黙って捨てる**のではなく
+            「近づく」の目的ノードにだけ効く(焦点は持てないので ``TARGET_GONE`` も出ない)。
+        talk_by_distance: **C9b G7**。``True`` で会話の成立判定が「同一セル代理」から
+            ``TALK_OPEN_METERS``(2 m)の実距離になる。``False``(既定)は現行のまま。
 
     Returns:
         ``ResolveOutcome``。
     """
+    ver = check_vocab_version(vocab_version)
+    apply_table = _APPLY_BY_VOCAB[ver]
     out = ResolveOutcome(
         tick=int(tick),
         n_confirmed=len(plan_confirmed),
@@ -712,6 +818,11 @@ def apply(
         rail=rail,
         crowd=crowd,
         hotel=hotel,
+        geometry=geometry,
+        focus_request=(
+            None if focus_request is None else np.asarray(focus_request, dtype=np.int64)
+        ),
+        talk_by_distance=bool(talk_by_distance),
     )
     r = agents.registry
     with agents.writable(), world.writable():
@@ -737,11 +848,25 @@ def apply(
                 if drop.size:
                     r.sleep_pending[drop] = 0
 
-        # 逐次ループ宣言: 行動語ぶん(13 分岐)。個体数には比例しない。
-        for action in (
-            ENGINE_STEP, ACT_MOVE, ACT_BOARD, ACT_ALIGHT, ACT_BUY, ACT_WAIT, ACT_TALK,
-            ACT_LEAVE, ACT_REPORT, ACT_HELP, ACT_REFUSE, ACT_REST, ACT_SLEEP,
-        ):
+        # ---- C9 edge: 新しい行動を選んだ体は**辺から降りて近い端点に立つ** ----
+        # 以降の適用関数は全て「体はノードに居る」前提で ``node`` からセル・経路を引く
+        # (``_cell_of_node`` / ``_apply_move`` / ``_apply_buy`` …)。ここで 1 回だけ吸着すれば
+        # 個々の適用関数に幾何を配らなくて済む。エンジン継続(移動の続き)は対象外。
+        if geometry is not None and code.size:
+            act = aid[code != ENGINE_STEP]
+            if act.size:
+                act = act[r.path_next_node[act] >= 0]
+            if act.size:
+                nd, nx, s, eid = geometry.snap_to_nearest_node(
+                    r.node[act], r.path_next_node[act], r.edge_s[act], r.edge_id[act]
+                )
+                r.node[act] = nd.astype(np.int32)
+                r.path_next_node[act] = nx.astype(np.int32)
+                r.edge_s[act] = s
+                r.edge_id[act] = eid.astype(np.int32)
+
+        # 逐次ループ宣言: 行動語ぶん(v1=13 分岐 / v2=14 分岐)。個体数には比例しない。
+        for action in _ACTION_ORDER_BY_VOCAB[ver]:
             sel = np.flatnonzero(code == action)
             if sel.size == 0:
                 continue
@@ -750,7 +875,7 @@ def apply(
                 # 「直前に**試みた**行動」= B6 の主語(成功・失敗を問わず書く)。
                 # エンジン継続は新しく試みた行動ではない(移動の続き)ので書かない。
                 r.last_action[aid[sel]] = np.int8(action)
-            _APPLY[action](agents, world, aid[sel], tgt[sel], tick, out, schedule)
+            apply_table[action](agents, world, aid[sel], tgt[sel], tick, out, schedule)
 
         # 落選者(行動契約書 §2「落選者には失敗の意味論」)
         if len(losers):
@@ -774,14 +899,43 @@ def apply(
         # ---- 位置の確定と密度(予算行 P2 の測定対象) ----
         t0 = time.perf_counter()
         c0 = time.thread_time()
-        node = r.node.astype(np.int64)
-        valid = node >= 0
-        new_cell = np.where(valid, world.assets.node_cell[np.maximum(node, 0)], -1)
-        r.cell[:] = new_cell.astype(np.int32)
-        r.band[:] = np.where(valid, world.assets.node_band[np.maximum(node, 0)], 0).astype(np.int8)
-        r.xy[:] = world.assets.node_xy[np.maximum(node, 0)]
-        world.cells.density[:] = world.compute_density(r.cell)
-        world.cells.density_stage[:] = world.density_stage()
+        if geometry is None:
+            node = r.node.astype(np.int64)
+            valid = node >= 0
+            new_cell = np.where(valid, world.assets.node_cell[np.maximum(node, 0)], -1)
+            r.cell[:] = new_cell.astype(np.int32)
+            r.band[:] = np.where(
+                valid, world.assets.node_band[np.maximum(node, 0)], 0
+            ).astype(np.int8)
+            r.xy[:] = world.assets.node_xy[np.maximum(node, 0)]
+            world.cells.density[:] = world.compute_density(r.cell)
+            world.cells.density_stage[:] = world.density_stage()
+        else:
+            # C9 edge: 辺に乗っていてよいのは「移動中かつ目的あり」の体だけ。
+            # 乗車・降車・外界配置などで ``node`` を直に書き換えた体はここで降ろす
+            # (書き換えの度に幾何を配らないための単一の掃除点)。
+            off = np.flatnonzero(
+                (r.path_next_node >= 0)
+                & ((r.activity != int(Activity.MOVING)) | (r.target_node < 0))
+            )
+            if off.size:
+                nd, nx, s, eid = geometry.snap_to_nearest_node(
+                    r.node[off], r.path_next_node[off], r.edge_s[off], r.edge_id[off]
+                )
+                r.node[off] = nd.astype(np.int32)
+                r.path_next_node[off] = nx.astype(np.int32)
+                r.edge_s[off] = s
+                r.edge_id[off] = eid.astype(np.int32)
+            cell, band, xy = geometry.positions(
+                r.node, r.path_next_node, r.edge_s, r.edge_id
+            )
+            r.cell[:] = cell
+            r.band[:] = band
+            r.xy[:] = xy
+            world.cells.density[:] = world.compute_density(r.cell)
+            world.cells.density_stage[:] = geometry.density_stage(world.cells.density)
+        # C9b G4: 注意の焦点の寿命と喪失距離(**位置を貼り直した後**=同 tick の最新座標で測る)
+        _advance_focus(agents, world, out)
         world.cells.open_count[:] = world.open_count_per_cell(tick)
         out.movement_seconds = time.perf_counter() - t0
         out.movement_cpu_seconds = time.thread_time() - c0
@@ -810,11 +964,36 @@ def _fail(
 
 
 def _apply_engine_step(agents, world, aid, tgt, tick, out, schedule) -> None:
-    """エンジン継続: next-hop に沿って 1 ノード進む。"""
+    """エンジン継続: next-hop に沿って 1 ノード進む(edge 幾何では**辺上を距離で**進む)。
+
+    逐次ループ宣言(P4): node 幾何=なし。edge 幾何=ホップ数ぶん(≤32・
+    ``engine.geometry.EdgeGeometry.advance``)。**走査するのは移動中の体だけ**
+    (``engine.commit.engine_continuations`` が ``activity==MOVING and target_node>=0``
+    で選んだ集合がそのまま ``aid``)。
+    """
     r = agents.registry
-    new_node, arrived = world.graph.step_once(r.node[aid], tgt)
-    stuck = (new_node.astype(np.int64) == r.node[aid].astype(np.int64)) & (~arrived)
-    r.node[aid] = new_node
+    geom = out.geometry
+    if geom is None:
+        new_node, arrived = world.graph.step_once(r.node[aid], tgt)
+        stuck = (new_node.astype(np.int64) == r.node[aid].astype(np.int64)) & (~arrived)
+        r.node[aid] = new_node
+    else:
+        budget = geom.tick_budget_m(aid, r.cell[aid], world.cells.density)
+        out.n_jammed += int(np.count_nonzero(budget <= 0.0))
+        nd, nx, s, eid, arrived, stuck, n_hops = geom.advance(
+            node=r.node[aid],
+            next_node=r.path_next_node[aid],
+            edge_s=r.edge_s[aid],
+            edge_id=r.edge_id[aid],
+            target=tgt,
+            budget_m=budget,
+            route=world.graph.route_next_node,
+        )
+        r.node[aid] = nd.astype(np.int32)
+        r.path_next_node[aid] = nx.astype(np.int32)
+        r.edge_s[aid] = s
+        r.edge_id[aid] = eid.astype(np.int32)
+        out.n_hops += int(n_hops)
     out.n_moved += int(aid.size)
     if arrived.any():
         done = aid[arrived]
@@ -834,6 +1013,9 @@ def _apply_engine_step(agents, world, aid, tgt, tick, out, schedule) -> None:
             r.target_node[nap] = -1
             r.sleep_pending[nap] = 0
             out.n_planned_sleep += int(nap.size)
+        # C9b G3/G11: 「近づく」で歩いていた体が着いた。対象がまだ ``APPROACH_DONE_M`` に
+        # 居れば到達・居なければ ``TARGET_GONE``(=**最後に見た位置まで来たが居なかった**)。
+        _settle_approach(agents, world, done, tick, out)
     if stuck.any():
         _fail(agents, aid[stuck], ResultCode.UNREACHABLE, tick, out)
         r.activity[aid[stuck]] = int(Activity.IDLE)
@@ -844,12 +1026,54 @@ def _apply_engine_step(agents, world, aid, tgt, tick, out, schedule) -> None:
         r.sleep_pending[aid[stuck]] = 0  # D-62: 就寝地へ着けない体も同じ(起きたまま)
 
 
+def _settle_approach(agents, world, done, tick, out) -> None:
+    """「近づく」で歩いた体の**到着の判定**(C9b G3/G11)。
+
+    着いた先は「対象を最後に見た位置に最も近いノード」。そこで対象までの距離を測り、
+    ``APPROACH_DONE_M`` 以内なら到達(焦点は残す)、外なら ``TARGET_GONE``+焦点を落とす。
+    UE AI Perception の ``Auto Success Range from Last Seen Location`` 型の猶予を
+    「最後に見た位置まで歩く」という形で入れている(§4 改訂 G11)。
+
+    焦点の欄が無いラン(``attention_columns=False``)では**何もしない**。
+
+    逐次ループ宣言(P4): なし。
+    """
+    if not getattr(agents, "attention_columns", False) or done.size == 0:
+        return
+    r = agents.registry
+    code = r.focus_target[done].astype(np.int64)
+    sel = done[code != FOCUS_NONE]
+    if sel.size == 0:
+        return
+    code = r.focus_target[sel].astype(np.int64)
+    xy, present = _focus_xy(agents, world, code)
+    node = np.asarray(r.node, dtype=np.int64)[sel]
+    here = np.asarray(world.assets.node_xy, dtype=np.float64)[np.maximum(node, 0)]
+    d = np.sqrt(((here - xy) ** 2).sum(axis=1))
+    near = present & (d <= APPROACH_DONE_M) & (node >= 0)
+    out.n_approach_done += int(np.count_nonzero(near))
+    gone = sel[~near]
+    if gone.size:
+        r.focus_target[gone] = np.int32(FOCUS_NONE)
+        r.focus_ttl[gone] = np.uint8(0)
+        out.n_target_gone += int(gone.size)
+        _fail(agents, gone, ResultCode.TARGET_GONE, tick, out)
+
+
 def _apply_move(agents, world, aid, tgt, tick, out, schedule) -> None:
-    """移動(行動契約書 §2.1): 経路が存在 → 位置は経路上へ。到達不能は失敗。"""
+    """移動(行動契約書 §2.1): 経路が存在 → 位置は経路上へ。到達不能は失敗。
+
+    **C9b G3「近づく」**: ``out.focus_request`` に対象(人/目印 POI)が入っている体は、
+    行き先ノードを**セル代表ノードではなく対象に最も近いノード**にする(動詞は足さない=
+    「移動の対象が人/オブジェクト」)。対象のノードが取れなければ ``UNREACHABLE``。
+    """
     r = agents.registry
     ok_cell = (tgt >= 0) & (tgt < world.n_cells)
     safe = np.clip(tgt, 0, world.n_cells - 1)
     dest_node = np.where(ok_cell, world.assets.cell_rep_node[safe], -1)
+    if out.focus_request is not None:
+        dest_node = _approach_dest_node(agents, world, aid, dest_node, out)
+        ok_cell = ok_cell & (dest_node >= 0)
     nxt = world.graph.route_next_node(r.node[aid], dest_node)
     same = dest_node == r.node[aid].astype(np.int64)
     good = ok_cell & ((nxt >= 0) | same)
@@ -860,8 +1084,148 @@ def _apply_move(agents, world, aid, tgt, tick, out, schedule) -> None:
             same[good], int(Activity.IDLE), int(Activity.MOVING)
         ).astype(np.int8)
         r.target_node[g] = np.where(same[good], -1, dest_node[good]).astype(np.int32)
+        # 「近づく」の対象を**焦点として保持**する(着いたときに居るかを見る=``TARGET_GONE``)。
+        # 距離は問わない(遠くの目印に近づくのは正当)=``require_near=False``。
+        _set_focus(agents, world, g, tick, out, require_near=False)
         _ok(agents, g, tick, out)
+    _clear_focus(agents, aid[~good])  # 行けなかった体に焦点だけ残さない
     _fail(agents, aid[~good], ResultCode.UNREACHABLE, tick, out)
+
+
+def _approach_dest_node(agents, world, aid, dest_node, out) -> np.ndarray:
+    """「近づく」の行き先ノード(**対象に最も近いノード**)へ差し替える(C9b G3)。
+
+    - 対象が**人**: 辺上に居るなら近い方の端点(``EdgeGeometry.snap_to_nearest_node``
+      の第1返値=C9a の表引きをそのまま使う)。node 幾何なら ``node`` そのもの。
+    - 対象が**目印 POI**: W6 の ``poi_node``(セル内で POI に最も近いノード・資産の前計算)。
+    - 対象が取れない: ``-1`` を返す=呼び出し側が ``UNREACHABLE``。
+
+    ``out.focus_request`` が ``None``(既定)なら**引数をそのまま返す**。
+
+    逐次ループ宣言(P4): なし(配列演算のみ)。
+    """
+    req = out.focus_request
+    if req is None:
+        return dest_node
+    f = req[aid]
+    is_p = f >= 0
+    is_q = f <= -2
+    if not bool(np.any(is_p | is_q)):
+        return dest_node
+    r = agents.registry
+    geom = out.geometry
+    person = np.clip(f, 0, max(0, int(agents.n) - 1))
+    if geom is None:
+        pn = r.node[person].astype(np.int64)
+    else:
+        pn, _nx, _s, _e = geom.snap_to_nearest_node(
+            r.node[person], r.path_next_node[person], r.edge_s[person], r.edge_id[person]
+        )
+        pn = np.asarray(pn, dtype=np.int64)
+    poi = np.clip(-2 - f, 0, max(0, int(world.n_poi) - 1))
+    qn = np.asarray(world.assets.poi_node, dtype=np.int64)[poi]
+    out.n_approach += int(np.count_nonzero(is_p | is_q))
+    return np.where(is_p, pn, np.where(is_q, qn, dest_node))
+
+
+# ---------------------------------------------------------------- C9b 注意の焦点(G4)
+def _focus_xy(agents, world, code) -> tuple[np.ndarray, np.ndarray]:
+    """焦点コード → ``(対象の平面座標 (k,2), 対象が在るか (k,))``。
+
+    人は ``agents.xy``(**前 tick 末の値**=「最後に見た位置」。同 tick 内の適用順に
+    依存させないための選択で、C9a の密度(前 tick 末)と同じ約束・**expedient**)。
+    目印は ``world.assets`` の POI 座標(静止物なので遅れは無い)。
+
+    逐次ループ宣言(P4): なし。
+    """
+    c = np.asarray(code, dtype=np.int64).ravel()
+    r = agents.registry
+    n_ag = max(0, int(agents.n))
+    n_poi = max(0, int(world.n_poi))
+    is_p = (c >= 0) & (c < n_ag)
+    is_q = (c <= -2) & ((-2 - c) < n_poi)
+    person = np.clip(c, 0, max(0, n_ag - 1))
+    poi = np.clip(-2 - c, 0, max(0, n_poi - 1))
+    pxy = np.asarray(r.xy, dtype=np.float64)[person]
+    qxy = np.asarray(world.assets.poi_position(), dtype=np.float64)[poi]
+    xy = np.where(is_p[:, None], pxy, qxy)
+    return xy, (is_p | is_q)
+
+
+def _clear_focus(agents, ids) -> None:
+    """焦点を落とす(``attention_columns`` の無いランでは何もしない)。"""
+    if not getattr(agents, "attention_columns", False) or ids.size == 0:
+        return
+    r = agents.registry
+    r.focus_target[ids] = np.int32(FOCUS_NONE)
+    r.focus_ttl[ids] = np.uint8(0)
+
+
+def _set_focus(agents, world, ids, tick, out, *, require_near: bool) -> None:
+    """``out.focus_request`` の対象を ``agents.focus_target`` へ書く(C9b G4)。
+
+    Args:
+        ids: 対象になりうる体(この tick に 移動/待機 が通った体)。
+        require_near: ``True``= 取得距離 ``FOCUS_ACQUIRE_M`` 以内のときだけ焦点にする
+            (「見る」= UE ``Sight Radius`` 型)。``False``=距離を問わない(「近づく」)。
+
+    **要求の無い体の焦点は落とす**: 新しい行動を選ぶことは注意を向け直すことなので、
+    「見る/近づく」以外の 移動・待機 を選んだ体は前の焦点を持ち越さない
+    (**expedient**——契約書に注意の持続の規定は無い。これで焦点の寿命は
+    「次に自分で判断するまで」と ``FOCUS_TTL_TICKS`` の短い方になり、有界化 D-R2-6 を満たす)。
+
+    ``attention_columns`` の無いランでは**何もしない**(欄が無い=checkpoint 不変)。
+
+    逐次ループ宣言(P4): なし。
+    """
+    req = out.focus_request
+    if req is None or not getattr(agents, "attention_columns", False) or ids.size == 0:
+        return
+    code = req[ids]
+    xy, present = _focus_xy(agents, world, code)
+    want = (code != FOCUS_NONE) & present & (code != ids.astype(np.int64))
+    if require_near and bool(np.any(want)):
+        d = np.asarray(agents.registry.xy, dtype=np.float64)[ids] - xy
+        want = want & (np.sqrt((d * d).sum(axis=1)) <= FOCUS_ACQUIRE_M)
+    _clear_focus(agents, ids[~want])
+    take = ids[want]
+    if take.size == 0:
+        return
+    r = agents.registry
+    r.focus_target[take] = code[want].astype(np.int32)
+    r.focus_ttl[take] = np.uint8(FOCUS_TTL_TICKS)
+    out.n_focus += int(take.size)
+
+
+def _advance_focus(agents, world, out) -> None:
+    """焦点の**寿命**と**喪失距離**を進める(UE ``Max Age`` / ``Lose Sight Radius`` 型)。
+
+    ``apply`` の末尾(位置を貼り直した**後**)に 1 回だけ回す=距離は同 tick の最新座標で測る。
+
+    **近づいている最中の体は減衰させない**(``activity==MOVING`` かつ ``target_node≥0``)。
+    その体の焦点は**移動の対象そのもの**で、寿命や喪失距離で消すと「誰に近づいていたか」が
+    着く前に失われ、``TARGET_GONE`` を出す機会が無くなる(UE の ``Auto Success Range from
+    Last Seen Location`` を「最後に見た位置まで歩き切る」形で入れた §4 改訂 G11 の要求)。
+    移動は必ず到着か ``UNREACHABLE`` で終わるので、焦点は有界のまま(**expedient**)。
+
+    逐次ループ宣言(P4): なし(配列演算のみ・``attention_columns`` のランだけ)。
+    """
+    if not getattr(agents, "attention_columns", False):
+        return
+    r = agents.registry
+    approaching = (r.activity == int(Activity.MOVING)) & (r.target_node >= 0)
+    live = np.flatnonzero((r.focus_ttl > 0) & (~approaching))
+    if live.size == 0:
+        return
+    r.focus_ttl[live] = (r.focus_ttl[live].astype(np.int16) - 1).astype(np.uint8)
+    xy, present = _focus_xy(agents, world, r.focus_target[live])
+    d = np.asarray(r.xy, dtype=np.float64)[live] - xy
+    far = np.sqrt((d * d).sum(axis=1)) > FOCUS_LOSE_M
+    dead = live[(r.focus_ttl[live] == 0) | far | (~present)]
+    if dead.size:
+        r.focus_target[dead] = np.int32(FOCUS_NONE)
+        r.focus_ttl[dead] = np.uint8(0)
+        out.n_focus_lost += int(dead.size)
 
 
 def _cell_of_node(world, node) -> np.ndarray:
@@ -1276,9 +1640,98 @@ def _apply_buy(agents, world, aid, tgt, tick, out, schedule) -> None:
     _ok(agents, buyers, tick, out)
 
 
+def _apply_eat(agents, world, aid, tgt, tick, out, schedule) -> None:
+    """**語彙 v2「食事」**(D-71 §3 E: 飲食店オブジェクトの affordance ``eat``)。
+
+    前提=飲食店(``world.eatery_mask``)のセルに居る・営業中・所持金 ≧ 価格 /
+    効果=所持金−価格・**店の売上+同額**(科目は購入と同じ ``消費支出``=保存則を壊さない)・
+    空腹−``EAT_HUNGER_RELIEF``・在店(``Activity.SHOPPING``+在席登録)。
+
+    購入(``_apply_buy``)との違いは 2 つだけ:
+      1. 対象が**飲食店に限られる**(対象決定は ``commit._poi_in_cell(..., eatery_mask)``)。
+      2. **棚在庫も所持品も動かさない**——食事は物の受け渡しではない(摂食≠購買。
+         語彙政策 v0 の★「意味の損失」を解く、というのがこの語の目的)。したがって
+         ``led.goods`` は通さず、``world.pois.stock`` も減らさない。
+         **売上に対応する原価が立たない**ことは親へ報告済み(残差科目・ゲートには触れない)。
+
+    失敗: 飲食店にいない=``NOT_IN_EATERY`` / 営業時間外=``CLOSED`` / 所持金不足=``MONEY_SHORT``。
+    満席(``out.crowd``)は**失敗ではなく待ち行列**(購入と同じ扱い・契約書 §2.1 の「待ち時間」)。
+    """
+    r = agents.registry
+    led = out.ledger
+    poi = np.clip(tgt, 0, max(0, world.n_poi - 1))
+    # 前提「飲食店のセルに居る」= **対象が飲食店であること**まで見る。対象決定
+    # (``commit.intents_from_responses``)は既に飲食店に絞っているが、``apply`` を直に
+    # 呼ぶ経路でも前提が名前どおりに効くようにここでも確かめる(同じ検査を 2 回するだけ)。
+    in_eatery = (tgt >= 0) & (tgt < world.n_poi)
+    if world.n_poi:
+        in_eatery = in_eatery & np.asarray(world.eatery_mask, dtype=bool)[poi]
+    is_open = in_eatery & world.open_mask(tick)[poi]
+    price = world.pois.price[poi].astype(np.int64)
+    can_pay = is_open & (r.money[aid].astype(np.int64) >= price)
+
+    _fail(agents, aid[~in_eatery], ResultCode.NOT_IN_EATERY, tick, out)
+    _fail(agents, aid[in_eatery & ~is_open], ResultCode.CLOSED, tick, out)
+    _fail(agents, aid[is_open & ~can_pay], ResultCode.MONEY_SHORT, tick, out)
+
+    # ---- 屋内占有(購入と同じ 16行表 行2): 満席なら並ぶ ----
+    if out.crowd is not None and can_pay.any():
+        room = np.zeros(aid.size, dtype=bool)
+        sel = np.flatnonzero(can_pay)
+        room[sel] = np.asarray(out.crowd.can_admit(poi[sel]), dtype=bool)
+        queued = aid[can_pay & ~room]
+        if queued.size:
+            r.activity[queued] = int(Activity.WAITING)
+            r.queue_poi[queued] = poi[can_pay & ~room].astype(np.int32)
+            r.queue_since[queued] = int(tick)
+            out.n_queued += int(queued.size)
+            _ok(agents, queued, tick, out)
+        can_pay = can_pay & room
+
+    win = np.flatnonzero(can_pay)
+    if win.size == 0:
+        return
+    eaters = aid[win]
+    shops = poi[win]
+    paid = price[win]
+    if led is not None and led.money is not None:
+        status = led.money.purchase_many(eaters, shops, paid, tick)
+        ok = np.asarray(status) == 0
+        if not ok.all():
+            _fail(agents, eaters[~ok], ResultCode.MONEY_SHORT, tick, out)
+            out.n_ledger_rejected += int((~ok).sum())
+            eaters, shops, paid = eaters[ok], shops[ok], paid[ok]
+            if eaters.size == 0:
+                return
+    else:
+        r.money[eaters] = (r.money[eaters].astype(np.int64) - paid).astype(np.int32)
+    _require_thawed(world)
+    np.add.at(world.pois.revenue, shops, paid)
+    r.hunger[eaters] = np.maximum(
+        r.hunger[eaters].astype(np.int16) - EAT_HUNGER_RELIEF, 0
+    ).astype(np.uint8)
+    r.activity[eaters] = int(Activity.SHOPPING)  # 在店(その tick は移動しない)
+    if out.crowd is not None:
+        r.poi_ref[eaters] = shops.astype(np.int32)
+        r.poi_since[eaters] = int(tick)
+        r.queue_poi[eaters] = -1
+        out.crowd.on_admit(shops)
+    out.n_meals += int(eaters.size)
+    out.meal_yen += int(paid.sum())
+    out.revenue_delta += int(paid.sum())
+    _ok(agents, eaters, tick, out)
+
+
 def _apply_wait(agents, world, aid, tgt, tick, out, schedule) -> None:
-    """待機: **常に可能=安全弁**(失敗しない)。"""
+    """待機: **常に可能=安全弁**(失敗しない)。
+
+    **C9b G4「見る」**: ``out.focus_request`` に対象が入っていて、取得距離
+    ``FOCUS_ACQUIRE_M`` 以内なら**注意の焦点**にする(動詞は足さない=「待機の対象」)。
+    遠すぎる対象は焦点にならないが、**待機そのものは成功する**(契約書 §2 共通必須事項③
+    「失敗しない行動が常に1つ以上(待機)」を崩さない)。
+    """
     agents.registry.activity[aid] = int(Activity.WAITING)
+    _set_focus(agents, world, aid, tick, out, require_near=True)
     _ok(agents, aid, tick, out)
 
 
@@ -1328,12 +1781,40 @@ def set_conversing(agents: AgentState, inviters, invitees) -> None:
 _UNADDRESSABLE: Final[tuple[int, ...]] = (int(Activity.CONVERSING), int(Activity.SLEEPING))
 
 
+def talk_within_reach(agents, a, b, *, by_distance: bool) -> np.ndarray:
+    """会話が届くか(**C9b G7**)。``by_distance=False`` は現行の「同一セル代理」。
+
+    ``True`` のときは同一セルに加えて ``距離 ≤ TALK_OPEN_METERS``(2 m)を課す
+    (行動契約書 §3 開始ゲート「同一セル ∧ 距離≦d_talk」の後半を**実距離で**満たす)。
+    同一セルを残すのは層(UG/GL/DECK)を跨いだ 2 m を成立させないため。
+
+    逐次ループ宣言(P4): なし。
+    """
+    r = agents.registry
+    ca = np.asarray(r.cell, dtype=np.int64)[a]
+    cb = np.asarray(r.cell, dtype=np.int64)[b]
+    ok = (ca == cb) & (ca >= 0)
+    if not by_distance:
+        return ok
+    xy = np.asarray(r.xy, dtype=np.float64)
+    d = xy[a] - xy[b]
+    return ok & (np.sqrt((d * d).sum(axis=-1)) <= TALK_OPEN_METERS)
+
+
 def _apply_talk(agents, world, aid, tgt, tick, out, schedule) -> None:
-    """会話: 同一セル・相手が応答可能・自分でない → 招待成立(成否は被招待の呼が決める)。"""
+    """会話: 同一セル・相手が応答可能・自分でない → 招待成立(成否は被招待の呼が決める)。
+
+    **C9b G7**: ``out.talk_by_distance`` が真のランでは「同一セル」に ``≤2 m`` が加わる
+    (離脱は ``TALK_LEAVE_METERS``=3 m・判定は ``engine.conversation.step``)。
+    """
     r = agents.registry
     has = (tgt >= 0) & (tgt < agents.n) & (tgt != aid)
     partner = np.clip(tgt, 0, max(0, agents.n - 1))
-    same_cell = has & (r.cell[aid] == r.cell[partner]) & (r.cell[aid] >= 0)
+    same_cell = has & talk_within_reach(
+        agents, aid, partner, by_distance=out.talk_by_distance
+    )
+    if out.talk_by_distance:
+        out.n_talk_by_distance += int(np.count_nonzero(same_cell))
     pact = r.activity[partner]
     addressable = same_cell & ~np.isin(pact, _UNADDRESSABLE)
     idle = addressable
@@ -1729,4 +2210,22 @@ _APPLY: Final[dict[int, object]] = {
 }
 
 assert len(_APPLY) == 13, "行動語 12 + エンジン継続 1"
+
+#: **語彙 v2** の適用表(v1 の 13 分岐 + 食事)。``_APPLY`` は**そのまま**=v1 の検査も
+#: ``tests/engine/test_parser_contract.py`` の「12 語 + エンジン継続 = 13 分岐」も動かない。
+_APPLY_V2: Final[dict[int, object]] = {**_APPLY, ACT_EAT: _apply_eat}
+assert len(_APPLY_V2) == 14, "語彙 v2 = 13 分岐 + 食事"
+
+#: 語彙版 → 適用表。
+_APPLY_BY_VOCAB: Final[Mapping[str, dict[int, object]]] = {"v1": _APPLY, "v2": _APPLY_V2}
+
+#: 語彙版 → ``apply`` が回す行動の**順序**(決定論のため固定・v2 は末尾に食事を足すだけ)。
+_ACTION_ORDER_V1: Final[tuple[int, ...]] = (
+    ENGINE_STEP, ACT_MOVE, ACT_BOARD, ACT_ALIGHT, ACT_BUY, ACT_WAIT, ACT_TALK,
+    ACT_LEAVE, ACT_REPORT, ACT_HELP, ACT_REFUSE, ACT_REST, ACT_SLEEP,
+)
+_ACTION_ORDER_BY_VOCAB: Final[Mapping[str, tuple[int, ...]]] = {
+    "v1": _ACTION_ORDER_V1,
+    "v2": _ACTION_ORDER_V1 + (ACT_EAT,),
+}
 assert _REFRACTORY_TICKS.size == N_WAKE_CONDITIONS

@@ -64,9 +64,25 @@ __all__ = [
     "TWO_LINE_RE",
     "format_two_line",
     "parse_target",
+    "LANDMARK_MIN_CHARS",
+    "resolve_landmark",
     "action_code_of",
     "spec_of",
     "is_role_action",
+    # ---- 語彙成長 v2(D-71 §3 E/F/H・2026-09-17 ユーザー決定)。既定 v1 は 1 バイトも動かない ----
+    "VOCAB_VERSIONS",
+    "DEFAULT_VOCAB_VERSION",
+    "ACTION_WORD_EAT",
+    "EAT_ACTION_CODE",
+    "ACTION_VOCAB_13",
+    "ALL_ACTION_WORDS_V2",
+    "ACTION_SPECS_V2",
+    "VOCAB_COMPAT",
+    "check_vocab_version",
+    "action_words",
+    "cross_action_words",
+    "engine_action_codes",
+    "compat_word",
 ]
 
 #: 行動契約書 §1「理由: <40字以内・1文>」。
@@ -84,11 +100,19 @@ UNDEFINED_ACTION: Final[int] = -2
 
 
 class TargetKind(IntEnum):
-    """「対象」欄の型(行動契約書 §1 の ``<セルID|物カテゴリ|人ID|なし>`` の一般化)。"""
+    """「対象」欄の型(行動契約書 §1 の ``<セルID|物カテゴリ|人ID|なし>`` の一般化)。
+
+    Note:
+        **C9b(2026-09-17・G6 a′)で型は増やしていない**。目印(landmark/attraction の POI)は
+        ``ITEM_CATEGORY``(=表の「物カテゴリ**(+店ID)**」枠)のまま ``Target.poi_id`` に
+        POI 索引を入れて返す。型を増やすと ``last_action``/テープ/``_target_person`` など
+        「型で分岐している箇所」を全部見直すことになり、**既存の型で表せるものに新しい型を
+        足さない**(決定台帳 :460 の原則「表せるなら世界データを足し、語/型は足さない」)。
+    """
 
     NONE = 0  # なし
     CELL = 1  # セルID
-    ITEM_CATEGORY = 2  # 物カテゴリ(+店ID)
+    ITEM_CATEGORY = 2  # 物カテゴリ(+店ID / **目印 POI**)
     PERSON = 3  # 人ID
     STATION_OR_VEHICLE = 4  # 駅/車両ID
     EVENT = 5  # 事象ID
@@ -512,6 +536,144 @@ assert len(set(ALL_ACTION_WORDS)) == len(ALL_ACTION_WORDS)
 assert len(ALL_ACTION_WORDS) <= VOCAB_LIMIT_PER_KIND, "§2 語彙上限24語"
 
 
+# ================================================================== 語彙版(D-71 §3 E/F/H)
+#
+# 正典: ``docs/design/v2-vocab-growth-design.md`` §3(ユーザー決定 2026-09-17「A〜K 親推奨
+# どおり」)。**E**=動詞を足すのではなく**オブジェクトに affordance を足す**・**F**=版を上げて
+# 次ランから有効+旧版への対応表・**H**=採用語は契約表参照(LLM を呼ばない)。
+#
+# **v1 は 1 バイトも動かさない**: ``ACTION_VOCAB_12`` / ``ROLE_ACTION_WORDS`` /
+# ``ALL_ACTION_WORDS`` / ``ACTION_CODES`` / ``ROLE_ACTION_CODES`` / ``ACTION_SPECS`` は
+# **同じオブジェクトのまま**で、v2 は別名(``*_V2``)に積む。既定の呼び出し
+# (``action_code_of(word)`` 等)は引数を足しても v1 の値を返す。
+#
+# **コードの割り当て**: 12 語=0..11・役割語=12..23 は動かせない(テープ・checkpoint・
+# ``agents.last_action`` の実体)。したがって「食事」は**末尾の 24** を取る
+# (= ``len(ALL_ACTION_WORDS)``)。v2 で 12 語の並びに割り込ませることは**しない**。
+#
+# **上限 24 語との関係(未決・親/ユーザー判断待ち)**: §2 は「種別あたりの語彙上限24語
+# (到達時は最も使われない語を封印)」と言う。v2 は 25 語=**上限を 1 語超える**。どの語を
+# 封印するかは D-71 §3 **J**(使用率の計測を先に・退役の基準はデータが出てから)の決定待ちで、
+# ここでは**封印しない**(勝手に語を落とすのは設計者の指紋になる)。v1 側の assert は上のまま。
+#
+# expedient(本節分)
+# - 「食事」という**語の表層**(社会生活基本調査 20 種・ATUS 一次 17 のどちらにも食事は
+#   あるが、日本語の 1 語をこの綴りに決めたのは親)。
+# - 前提/効果/失敗の文面と ``NOT_IN_EATERY`` の新設(既存コードに「その店にいない」が無い)。
+# - 所要時間 20 分(契約行の宣言値。**専用タイマーは未実装**=在店の解除は既存の回転率
+#   ``engine.processes.crowd.DWELL_MAX_TICKS`` に従う。親へ報告済み)。
+
+#: 語彙の版(F: 版はラン単位・ラン中に切り替えない)。
+VOCAB_VERSIONS: Final[tuple[str, ...]] = ("v1", "v2")
+#: 既定の版(= 現行 24 語。既定経路のバイトはこの版で決まる)。
+DEFAULT_VOCAB_VERSION: Final[str] = "v1"
+
+#: v2 で足す横断語(E: 飲食店オブジェクトの affordance ``eat`` の語)。
+ACTION_WORD_EAT: Final[str] = "食事"
+#: 「食事」の行動コード(= 24 = 既存 24 語の**次**。既存コードは 1 つも動かない)。
+EAT_ACTION_CODE: Final[int] = len(ALL_ACTION_WORDS)
+
+_SPEC_EAT: Final[ActionSpec] = ActionSpec(
+    word=ACTION_WORD_EAT,
+    target_kind=TargetKind.ITEM_CATEGORY,  # 購入と同じ「物カテゴリ(+店ID)」の枠
+    preconditions=("in_eatery", "shop_open", "money_ge_price"),
+    precondition_text="飲食店(cat が飲食帯)のセルに居る・営業中・所持金≧価格",
+    effects="所持金−価格・店の売上+同額(保存則)・空腹−・在店(その tick は移動しない)",
+    cost="価格・時間(20 分・expedient)",
+    failure_text="飲食店にいない/所持金不足(残高・価格を返す)/営業時間外",
+    failure_codes=("NOT_IN_EATERY", "MONEY_SHORT", "CLOSED"),
+    tag="expedient",
+    section="7.4",  # 行動契約書 §7 段4(採用語)。§2.1/§2.2 の表の行ではない
+    table_row="D-71 §3 E(飲食店 affordance)",
+)
+
+#: v2 の種別横断語(12 語 + 食事)。**``ACTION_VOCAB_12`` は変えない**。
+ACTION_VOCAB_13: Final[tuple[str, ...]] = ACTION_VOCAB_12 + (ACTION_WORD_EAT,)
+
+#: v2 でパーサが受理する全体集合(24 語 + 食事 = 25 語)。
+ALL_ACTION_WORDS_V2: Final[tuple[str, ...]] = ALL_ACTION_WORDS + (ACTION_WORD_EAT,)
+
+#: v2 の契約表(v1 の 24 行 + 食事)。
+ACTION_SPECS_V2: Final[Mapping[str, ActionSpec]] = {**ACTION_SPECS, ACTION_WORD_EAT: _SPEC_EAT}
+
+#: 版 → パーサが受理する語(``action_words``/``cross_action_words`` の実体)。
+_WORDS_BY_VERSION: Final[Mapping[str, tuple[str, ...]]] = {
+    "v1": ALL_ACTION_WORDS,
+    "v2": ALL_ACTION_WORDS_V2,
+}
+_CROSS_BY_VERSION: Final[Mapping[str, tuple[str, ...]]] = {
+    "v1": ACTION_VOCAB_12,
+    "v2": ACTION_VOCAB_13,
+}
+_SPECS_BY_VERSION: Final[Mapping[str, Mapping[str, ActionSpec]]] = {
+    "v1": ACTION_SPECS,
+    "v2": ACTION_SPECS_V2,
+}
+#: 版 → **エンジンに適用分岐がある**語のコード(役割語は含まない=効果先が C4)。
+#: ``engine.resolve._APPLY_BY_VOCAB`` と 1 対 1。
+_ENGINE_CODES_BY_VERSION: Final[Mapping[str, Mapping[str, int]]] = {
+    "v1": ACTION_CODES,
+    "v2": {**ACTION_CODES, ACTION_WORD_EAT: EAT_ACTION_CODE},
+}
+
+#: **旧版への対応表**(F: 新語 → 旧語彙での読み替え。ラン間比較を壊さないための橋)。
+#: 「食事」を v1 の語彙で読むと「購入」= 段0 辞書 v1 が ``食べる/飲む`` を写していた先
+#: (語彙政策 v0 の★「意味の損失」行)。**読み替えは比較のときだけ**で、
+#: エンジンの効果は v2 の契約行に従う(読み替えで購入の効果になるのではない)。
+VOCAB_COMPAT: Final[Mapping[str, Mapping[str, str]]] = {
+    "v2": {ACTION_WORD_EAT: "購入"},
+}
+
+
+def check_vocab_version(vocab_version: str) -> str:
+    """``vocab_version`` を検査して正規化する(不正値は ``ValueError``)。"""
+    ver = str(vocab_version)
+    if ver not in VOCAB_VERSIONS:
+        raise ValueError(f"vocab_version は {VOCAB_VERSIONS} のどれか(いま {vocab_version!r})")
+    return ver
+
+
+def action_words(vocab_version: str = DEFAULT_VOCAB_VERSION) -> tuple[str, ...]:
+    """その版でパーサが受理する行動語(v1=24 語・v2=25 語)。
+
+    ``"v1"``(既定)は ``ALL_ACTION_WORDS`` と**同一オブジェクト**を返す。
+    """
+    return _WORDS_BY_VERSION[check_vocab_version(vocab_version)]
+
+
+def cross_action_words(vocab_version: str = DEFAULT_VOCAB_VERSION) -> tuple[str, ...]:
+    """その版の**種別横断語**(v1=12 語・v2=13 語)。B0 の出力規約に出す並び。"""
+    return _CROSS_BY_VERSION[check_vocab_version(vocab_version)]
+
+
+def engine_action_codes(vocab_version: str = DEFAULT_VOCAB_VERSION) -> Mapping[str, int]:
+    """その版で**エンジンに適用分岐がある**語 → コード(役割語は含まない)。"""
+    return _ENGINE_CODES_BY_VERSION[check_vocab_version(vocab_version)]
+
+
+def compat_word(word: str, vocab_version: str = "v2", to_version: str = "v1") -> str:
+    """新版の語を旧版の語彙で読む(``VOCAB_COMPAT``・F)。対応が無い語はそのまま返す。
+
+    Example:
+        >>> compat_word("食事")
+        '購入'
+        >>> compat_word("移動")
+        '移動'
+    """
+    check_vocab_version(vocab_version)
+    check_vocab_version(to_version)
+    if to_version == vocab_version:
+        return str(word)
+    return dict(VOCAB_COMPAT.get(vocab_version, {})).get(str(word), str(word))
+
+
+assert len(ACTION_VOCAB_13) == 13
+assert len(set(ALL_ACTION_WORDS_V2)) == len(ALL_ACTION_WORDS_V2)
+assert EAT_ACTION_CODE == 24
+assert set(VOCAB_COMPAT["v2"]) <= set(ALL_ACTION_WORDS_V2)
+assert set(VOCAB_COMPAT["v2"].values()) <= set(ALL_ACTION_WORDS)
+
+
 # ------------------------------------------------------------------ 2行形の整形と検査
 #: 2行形の書式検査(**厳密**な詰め形。寛容パーサは ``llm.parser.parse_two_line``)。
 TWO_LINE_RE: Final[re.Pattern[str]] = re.compile(
@@ -532,18 +694,24 @@ def is_role_action(word: str) -> bool:
     return word in ROLE_ACTIONS
 
 
-def action_code_of(word: str) -> int:
-    """行動語 → コード。12語は 0..11・役割語は 12..・未知は ``UNDEFINED_ACTION``。"""
+def action_code_of(word: str, vocab_version: str = DEFAULT_VOCAB_VERSION) -> int:
+    """行動語 → コード。12語は 0..11・役割語は 12..・未知は ``UNDEFINED_ACTION``。
+
+    ``vocab_version="v2"`` のときだけ「食事」が ``EAT_ACTION_CODE``(24)になる
+    (既定 v1 では「食事」は語彙外=``UNDEFINED_ACTION``=段0 辞書/段1 の経路へ)。
+    """
     if word in ACTION_CODES:
         return int(ACTION_CODES[word])
     if word in ROLE_ACTION_CODES:
         return int(ROLE_ACTION_CODES[word])
+    if word == ACTION_WORD_EAT and check_vocab_version(vocab_version) == "v2":
+        return EAT_ACTION_CODE
     return UNDEFINED_ACTION
 
 
-def spec_of(word: str) -> ActionSpec | None:
-    """行動語 → 契約行(未知は None)。"""
-    return ACTION_SPECS.get(word)
+def spec_of(word: str, vocab_version: str = DEFAULT_VOCAB_VERSION) -> ActionSpec | None:
+    """行動語 → 契約行(未知は None)。``vocab_version="v2"`` で「食事」の行も引ける。"""
+    return _SPECS_BY_VERSION[check_vocab_version(vocab_version)].get(word)
 
 
 # ------------------------------------------------------------------ 「対象」欄の解釈
@@ -574,6 +742,8 @@ class Target:
         band: ``g..._GL`` 形のときの層(GL/UG/DECK)。
         person_id: 人ID の整数。
         category: 物カテゴリ(自由文)。
+        poi_id: 固有名が**世界の POI** に解決できたときの POI 索引(C9b G6 a′・
+            ``parse_target(..., landmarks=...)`` を通したときだけ入る。既定は ``None``)。
     """
 
     kind: TargetKind
@@ -583,6 +753,7 @@ class Target:
     band: str | None = None
     person_id: int | None = None
     category: str | None = None
+    poi_id: int | None = None
 
     @property
     def is_none(self) -> bool:
@@ -594,19 +765,87 @@ class Target:
 
 #: 「対象なし」を表す唯一のインスタンス。
 NO_TARGET_VALUE: Final[Target] = Target(kind=TargetKind.NONE, raw=NO_TARGET)
+#: テンプレート(``perception.templates`` の「対象: <セルID / 物のカテゴリ / 人ID / なし>」)の説明語。
+#: これを値として写した応答は「対象なし」(第223・D-89)。
+TARGET_PLACEHOLDERS: Final[frozenset[str]] = frozenset({
+    "物のカテゴリ", "物カテゴリ", "セルID", "人ID", "カテゴリ", "セルID/物のカテゴリ/人ID", "セルID/物のカテゴリ/人ID/なし",
+    "セルID|物カテゴリ|人ID|なし", "セルID|物のカテゴリ|人ID|なし",
+})
+_CATEGORY_SUFFIX: Final[str] = "のカテゴリ"
 
 
-def parse_target(text: str | None) -> Target:
+#: 目印の固有名を部分一致で引くときの最短字数(C9b・expedient。1 字だと「像」「坂」が
+#: どの目印にも当たる)。
+LANDMARK_MIN_CHARS: Final[int] = 2
+
+
+def resolve_landmark(token: str, landmarks: Mapping[str, int] | None) -> int | None:
+    """固有名 → POI 索引(``None``=解決できない)。
+
+    ``landmarks`` は「**NFKC 正規化済みの POI 名** → POI 索引」の表(作るのは世界側=
+    ``world.state.World.landmark_targets``。``llm`` 層は world を import できないので
+    表を**受け取るだけ**にしてある=import-linter 契約「llm は world を import しない」)。
+
+    照合順(**expedient**・契約書に規則は無い):
+      1. **完全一致**。
+      2. **名 ⊂ 入力** のうち**最長の名**(「忠犬ハチ公像の前」→ 忠犬ハチ公像)。
+      3. **入力 ⊂ 名** のうち**最短の名**(余計な語が最も少ない名)。同長は POI 索引の若い方。
+
+    3 を「最短」にした理由: 実資産には ``忠犬ハチ公像`` のほかに ``ハチ公口``・
+    ``ハチ公口自転車等駐輪場`` が landmark として入っており、最長を採ると「ハチ公」が
+    **駐輪場**に解決してしまう。最短なら ``ハチ公口`` になる。
+    **「ハチ公」の曖昧さ自体は残る**(像か出口か)=実測の表層が出るまで直さない。
+
+    逐次ループ宣言(P4): 目印数ぶん(実資産 68・名 64 件)。完全一致で当たれば 0 回。
+    """
+    if not landmarks or not token:
+        return None
+    hit = landmarks.get(token)
+    if hit is not None:
+        return int(hit)
+    if len(token) < LANDMARK_MIN_CHARS:
+        return None
+    inside: tuple[int, int, str] | None = None   # 名 ⊂ 入力(最長の名)
+    outside: tuple[int, int, str] | None = None  # 入力 ⊂ 名(最短の名)
+    for name, pid in landmarks.items():
+        if len(name) < LANDMARK_MIN_CHARS:
+            continue
+        if name in token:
+            cand = (-len(name), int(pid), name)
+            if inside is None or cand < inside:
+                inside = cand
+        elif token in name:
+            cand = (len(name), int(pid), name)
+            if outside is None or cand < outside:
+                outside = cand
+    best = inside if inside is not None else outside
+    return None if best is None else best[1]
+
+
+def parse_target(text: str | None, landmarks: Mapping[str, int] | None = None) -> Target:
     """「対象」欄の文字列 → ``Target``。**例外を投げない**。
 
     認識順(先に当たったものを採る):
         ``なし``/空 → NONE、``C-0117``/``C0117`` → CELL、``g12_34_GL`` → CELL、
         ``P-204``/``P204`` → PERSON、素の整数 → PERSON、``…駅`` → STATION_OR_VEHICLE、
-        それ以外の自由文 → ITEM_CATEGORY。
+        それ以外の自由文 → ITEM_CATEGORY(``landmarks`` を渡すと**固有名は POI 索引まで
+        解決**して ``poi_id`` に入る=C9b G6 a′)。
+
+    Args:
+        landmarks: 目印(W6 の landmark/attraction)の「名 → POI 索引」表。
+            ``None``(既定)では**1 バイトも挙動が変わらない**(``poi_id`` は常に ``None``)。
+            駅名(``…駅``)の判定は**目印より先**に置いたままにしてある=表を渡しても
+            既存の STATION_OR_VEHICLE の道は動かない。
 
     Note:
         EVENT(事象ID)は表層形が定まっていないため**この関数では出さない**
         (通報・遅延報告の対象は engine 側が文脈から決める)。
+
+    Example:
+        >>> parse_target("ハチ公", {"忠犬ハチ公像": 7}).poi_id
+        7
+        >>> parse_target("ハチ公").poi_id is None
+        True
     """
     if text is None:
         return NO_TARGET_VALUE
@@ -614,6 +853,15 @@ def parse_target(text: str | None) -> Target:
     if not raw or raw in (NO_TARGET, "無し", "none", "None", "NONE", "-", "—"):
         return NO_TARGET_VALUE
     token = unicodedata.normalize("NFKC", raw)
+    # 第223(D-89 (i)(a)): 観測テンプレートの**欄の説明語**をそのまま値として書いた応答
+    # (実 LLM スモークで「物のカテゴリ」9,055 呼・「セルID」398 呼)は対象なしとして読む。
+    # ``raw`` は残す(診断側が ``kind == NONE and raw != NO_TARGET`` で数えられる)。
+    # 「食品のカテゴリ」のように説明語の型を付けた値は型だけ剥がして中身を読む。
+    if token.replace(" ", "") in TARGET_PLACEHOLDERS:  # 「セルID / 物のカテゴリ / 人ID / なし」の空白差を吸収
+        return Target(TargetKind.NONE, raw)
+    if token.endswith(_CATEGORY_SUFFIX) and len(token) > len(_CATEGORY_SUFFIX):
+        token = token[: -len(_CATEGORY_SUFFIX)].strip()
+        raw = token
 
     m = _CELL_C_RE.match(token)
     if m:
@@ -629,4 +877,5 @@ def parse_target(text: str | None) -> Target:
         return Target(TargetKind.PERSON, raw, person_id=int(m.group(1)))
     if _STATION_RE.match(token):
         return Target(TargetKind.STATION_OR_VEHICLE, raw, category=raw)
-    return Target(TargetKind.ITEM_CATEGORY, raw, category=raw)
+    poi = resolve_landmark(token, landmarks)
+    return Target(TargetKind.ITEM_CATEGORY, raw, category=raw, poi_id=poi)

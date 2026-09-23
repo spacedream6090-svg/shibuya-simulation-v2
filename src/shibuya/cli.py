@@ -29,7 +29,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Any, Final
+from typing import Any, Final, Mapping
 
 import numpy as np
 
@@ -42,6 +42,8 @@ from shibuya.economy import census as CS
 from shibuya.economy import entry_capital as EC
 from shibuya.economy.accounts import BalanceLine, Sector
 from shibuya.engine import resolve as R
+from shibuya.engine.arbiter import call_budget_per_tick
+from shibuya.engine.geometry import DEFAULT_GEOMETRY, GEOMETRY_MODES
 from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.run import (
     MINUTES_PER_SIM_DAY,
@@ -50,7 +52,14 @@ from shibuya.engine.run import (
     fleet_from_args,
     run_day,
 )
-from shibuya.world.assets import hash_free_cat_code
+from shibuya.perception.renderer import SIGNAGE_P_SEE_DEFAULT
+from shibuya.perception.templates import (
+    DEFAULT_INTENT_MODE,
+    DEFAULT_VOCAB_VERSION,
+    INTENT_MODES,
+    VOCAB_VERSIONS,
+)
+from shibuya.world.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE, hash_free_cat_code
 from shibuya.world.state import World
 
 __all__ = [
@@ -61,6 +70,12 @@ __all__ = [
     "store_capital_report",
     "household_wallets",
     "build_ledger_bundle",
+    "write_census_files",
+    "DAILY_CENSUS_FILENAME",
+    "MONTHLY_MER_FILENAME",
+    "MONTHLY_MER_SECTORS_FILENAME",
+    "UNDEFINED_PAYLOAD_SCHEMA",
+    "undefined_registry_payload",
     "run",
     "main",
 ]
@@ -221,7 +236,44 @@ def build_ledger_bundle(
     capital = store_capital_array(world, n_agents, store_capital_yen)
     if capital.size and int(capital.sum()) > 0:
         led.endow_stores(capital, tick=0)
-    return LedgerBundle(money=led, goods=goods, census=lambda d: CS.daily_census(led, goods, day=d))
+    return LedgerBundle(
+        money=led,
+        goods=goods,
+        census=lambda d: CS.daily_census(led, goods, day=d),
+        census_write=lambda d, out: write_census_files(led, goods, d, out),
+        monthly_check=lambda d: CS.monthly_census_t3(led, d),
+    )
+
+
+#: ``--census-out`` が書く 3 ファイルの名(``economy.census`` の書き手は **Parquet** を出す)。
+#: 3 つ目は月次 MER の**部門軸**(第204・D-76 (a))。固定表 ``monthly_mer.parquet`` は
+#: 列も行順もバイトも変えない=部門軸は**別ファイル**に出す。
+DAILY_CENSUS_FILENAME: Final[str] = "daily_census.parquet"
+MONTHLY_MER_FILENAME: Final[str] = "monthly_mer.parquet"
+MONTHLY_MER_SECTORS_FILENAME: Final[str] = "monthly_mer_sectors.parquet"
+
+
+def write_census_files(ledger, goods, day: int, out_dir: str | Path) -> tuple[str, ...]:
+    """日次センサス(§2.4 軽量)と月次 MER(EVE 型の固定表 + 部門軸)を ``out_dir`` へ書く。
+
+    ``engine.run`` は ``census_out`` を渡されたときだけ ``LedgerBundle.write_census``
+    経由でこれを呼ぶ(engine は economy を import できない=層契約の依存逆転)。
+
+    ``day`` は**畳んだ日**を渡す。``daily_census`` が台帳の ``close_for(day)`` から
+    締めを引くので、行は締めた日の実数になる(空虚な行にならない)。1 シミュ日のランでは
+    月次 MER の集計窓も 1 日(``days=1``)=**当日ぶん**。
+
+    Returns:
+        書いたファイルのパス(日次・月次固定表・月次部門軸の順)。
+    """
+    d = Path(out_dir)
+    d.mkdir(parents=True, exist_ok=True)
+    row = CS.daily_census(ledger, goods, day=int(day))
+    p_daily = CS.write_daily_census([row], d / DAILY_CENSUS_FILENAME)
+    mer = CS.monthly_mer(ledger, goods, month=0, days=1)
+    p_mer = CS.write_monthly_mer(mer, d / MONTHLY_MER_FILENAME)
+    p_sectors = CS.write_monthly_mer_sectors(mer, d / MONTHLY_MER_SECTORS_FILENAME)
+    return (p_daily.as_posix(), p_mer.as_posix(), p_sectors.as_posix())
 
 
 def run(
@@ -233,13 +285,33 @@ def run(
     checkpoint_every: int = 360,
     store_capital_yen: int | None = None,
     use_population: bool = True,
+    l4_scale: float = 1.0,
     **kwargs,
 ) -> RunResult:
     """台帳つきの 1 シミュ日ラン(C4 の標準入口)。
 
     ``use_population=False`` は下限対照(``engine.run --no-population`` と同じ意味):
     W16 母集団を読まず合成個体で回し、世帯の初期財布も mock のままにする。
+
+    ``l4_scale`` は**予算行 L4(呼数)の倍率**(PENDING D-99 (a)・腕 AB8-L4-SCALE)::
+
+        倍率 > 0 → budget = call_budget_per_tick(n_agents) × 倍率
+        倍率 = 0 → budget = float(n_agents)  # **無制限**
+
+    ``0`` を「無制限」と書けるのは、アービタが ③(同一体の合流)で**体あたり高々 1 件**に
+    畳んでから ⑤ の予算で切るため(``engine.arbiter.arbitrate``: 合流後の ``agent.size`` は
+    体数を超えず、``n_sel = min(…, floor(budget), agent.size)``)。``budget`` に ``inf`` を
+    入れると ``Arbiter._pool_cap`` と ``int(np.floor(...))`` が壊れるので**有限値で置く**。
+
+    既定 ``1.0`` では ``budget=None`` のまま ``run_day`` に渡す=**現行の経路・現行のバイト**。
+    ``budget`` を直に渡した呼び出しは倍率より優先される(倍率は manifest に 1.0 と載る)。
     """
+    scale = float(l4_scale)
+    if scale < 0.0:
+        raise ValueError("l4_scale は 0 以上(0=無制限)")
+    budget = kwargs.pop("budget", None)
+    if budget is None and scale != 1.0:
+        budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
     wd = Path(world_dir) if world_dir is not None else None
     world = World.load_or_synthetic(wd, n_cells=n_cells, seed=seed) if wd is not None else World.synthetic(
         n_cells=n_cells, seed=seed
@@ -258,6 +330,8 @@ def run(
         world_dir=run_world_dir,
         ledger=bundle,
         population=None if use_population else False,
+        budget=budget,
+        l4_scale=scale,
         **kwargs,
     )
 
@@ -291,6 +365,125 @@ def checkpoints_payload(res: RunResult, *, run_id: str = "") -> dict[str, Any]:
     }
 
 
+#: ``--undefined-out`` が書く JSON の形の名前(``tools/vocab/*`` が読む鍵)。
+UNDEFINED_PAYLOAD_SCHEMA: Final[str] = "shibuya.vocab/undefined-registry/1"
+
+
+def undefined_registry_payload(
+    registry: Any,
+    *,
+    source: str = "",
+    cells: "Mapping[tuple[int, int], str] | None" = None,
+    n_samples: int = 3,
+) -> dict[str, Any]:
+    """未定義行動台帳(``llm.UndefinedActionRegistry``)→ 段2 起草バッチの入力 JSON(**純関数**)。
+
+    D-71 の段2〜3 は**ラン後のオフライン**(語彙成長の設計 v0 §2)なので、ランは台帳を
+    残すだけでよい。本関数はその「残し方」を 1 か所に決める(``tools/vocab/adjudicate.py``
+    が読み、``tools/vocab/registry_from_tape.py`` がテープから同じ形を作る)。
+
+    Args:
+        registry: ``RunResult.undefined_registry``。``None``(台帳の無いラン)は空の記録で返す。
+        source: 由来の印(``"run_day"`` / ``"tape"``)。
+        cells: ``(agent_id, tick) → セルID``。台帳は**セルを持たない**(``observe`` が受け取る
+            のは ``prompt_hash`` だけ)ので、セルを知っている経路だけが渡す。渡さなければ
+            ``records[].cell`` は ``None``・``words[].distinct_cells`` は 0 になり、
+            ``cell_source`` が ``"unavailable"`` になる(**推測で埋めない**)。
+        n_samples: 語ごとに載せる標本の件数(既定 3)。
+
+    Returns:
+        版・記録リング・語ごとの集計・カウンタを持つ dict(``json.dumps`` 可能・相対パスのみ)。
+
+    Note:
+        ``records[].word`` と ``records[].raw`` は**同じ値**になる。段1 は
+        ``UndefinedActionRecord(word=raw_word.strip())`` しか残さない(生の前後空白より前の
+        形は台帳に無い)ため、欄は 2 つ持つが値は strip 済みの逐語ひとつ。
+        ``records[].stage`` は常に 1(段1 のレコードだけが記録リングに入る)。
+
+    逐次ループ宣言(P4): 記録リング長(``log_limit`` 既定 4,096)ぶんのループ 1 本。ラン後に
+    1 回だけ呼ぶ(ランの毎 tick 経路には入らない)。
+    """
+    from shibuya.llm.undefined import synonym_table_version
+
+    # 語彙版は**ランごと**の値(モジュール定数ではない)= 台帳が持つ版を正とする(第205・親修正)。
+    _vv = str(getattr(registry, "vocab_version", DEFAULT_VOCAB_VERSION))
+    versions: dict[str, Any] = {"vocabulary": _vv, "synonym_table": synonym_table_version(_vv)}
+
+    cell_of = dict(cells or {})
+    records: list[dict[str, Any]] = []
+    counters: dict[str, int] = {}
+    threshold = 10
+    if registry is not None and hasattr(registry, "counters"):
+        counters = {str(k): int(v) for k, v in registry.counters().items()}
+        threshold = int(getattr(registry, "threshold_agents", 10))
+        for rec in getattr(registry, "log", ()):  # 記録リング(deque・古い順)
+            word = str(rec.raw_word)
+            records.append(
+                {
+                    "word": word,
+                    "raw": word,  # 段1 は strip 済みの逐語しか持たない(Note)
+                    "agent_id": int(rec.agent_id),
+                    "tick": int(rec.tick),
+                    "cell": cell_of.get((int(rec.agent_id), int(rec.tick))),
+                    "stage": 1,
+                    "context_hash": str(rec.context_hash),
+                }
+            )
+
+    words: dict[str, dict[str, Any]] = {}
+    for row in records:
+        w = words.setdefault(
+            row["word"],
+            {
+                "n_rows": 0,
+                "distinct_agents": 0,
+                "distinct_cells": 0,
+                "distinct_hours": 0,
+                "first_tick": int(row["tick"]),
+                "samples": [],
+                "_agents": set(),
+                "_cells": set(),
+                "_hours": set(),
+            },
+        )
+        w["n_rows"] += 1
+        w["_agents"].add(int(row["agent_id"]))
+        if row["cell"] is not None:
+            w["_cells"].add(str(row["cell"]))
+        w["_hours"].add(int(row["tick"]) // 60)
+        w["first_tick"] = min(int(w["first_tick"]), int(row["tick"]))
+        if len(w["samples"]) < int(n_samples):
+            w["samples"].append(
+                {"agent_id": row["agent_id"], "tick": row["tick"], "cell": row["cell"]}
+            )
+    for word, w in words.items():
+        w["distinct_agents"] = len(w.pop("_agents"))
+        w["distinct_cells"] = len(w.pop("_cells"))
+        w["distinct_hours"] = len(w.pop("_hours"))
+        if registry is not None and hasattr(registry, "counts"):
+            # 記録リングが溢れた語は ``counts``(有界化の影響を受けない)が正
+            w["n_rows"] = int(registry.counts.get(word, w["n_rows"]))
+            w["distinct_agents"] = int(registry.distinct_agents(word))
+
+    dropped = int(counters.get("undefined_dropped", 0))
+    return {
+        "schema": UNDEFINED_PAYLOAD_SCHEMA,
+        "source": str(source),
+        "versions": versions,
+        "threshold_agents": threshold,
+        "cell_source": "prompt_block" if cell_of else "unavailable",
+        "counters": counters,
+        "dropped": dropped,
+        "summary": {
+            "n_records_kept": len(records),
+            "n_words": len(words),
+            "ring_truncated": bool(dropped),
+        },
+        "records": records,
+        "words": dict(sorted(words.items(), key=lambda kv: (-kv[1]["n_rows"], kv[0]))),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="台帳(金/物)+世界過程つきの 1 シミュ日ラン(C4)")
     ap.add_argument("--agents", type=int, default=5_000)
@@ -300,6 +493,15 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--ticks", type=int, default=MINUTES_PER_SIM_DAY)
     ap.add_argument("--occupancy-every", type=int, default=0, help="在圏 journal の記録間隔[tick](0=書かない・C7 受入計器の入力・毎正時なら 60)")
     ap.add_argument("--occupancy-out", type=str, default="", help="在圏 journal の出力 .npz")
+    ap.add_argument(
+        "--census-out",
+        type=str,
+        default="",
+        help="日次センサス/月次 MER の出力先ディレクトリ(境界・経済設計書 §2.4)。"
+             f"空=書かない(既定・出力は 1 バイトも増えない)。渡すと {DAILY_CENSUS_FILENAME} と "
+             f"{MONTHLY_MER_FILENAME} と {MONTHLY_MER_SECTORS_FILENAME}(部門軸・D-76 (a))"
+             "(いずれも Parquet・zstd)を締めた日のぶんだけ書く",
+    )
     ap.add_argument("--checkpoint-every", type=int, default=360)
     ap.add_argument(
         "--store-capital",
@@ -339,6 +541,46 @@ def main(argv: list[str] | None = None) -> int:
         "--no-signage",
         action="store_true",
         help="看板・広告面(B2.signage)を全セルで空にする(§8 第1陣 ⑥「広告ゼロ」の腕)",
+    )
+    ap.add_argument(
+        "--signage-p-see",
+        type=float,
+        default=SIGNAGE_P_SEE_DEFAULT,
+        metavar="P",
+        help="看板の注視ゲート(知覚契約書 §4 段1 の視認確率 p_see・D-59 (b)・腕 "
+             "AB6b-AD-NOTICE)。在圏セルの看板行を観測へ入れるかを 体×看板×tick の"
+             "決定論的ベルヌーイで決める。既定 1.0=常に載せる(現行のバイト)・"
+             "0.30/0.14=実測帯 0.14-0.79 の下側・0.0=⑥ 広告ゼロと同じ描画",
+    )
+    ap.add_argument(
+        "--l4-scale",
+        type=float,
+        default=1.0,
+        metavar="FACTOR",
+        help="L4 呼数予算の倍率。1.0=宣言どおり(400 万呼/日を体数按分)・"
+             "0.5/2.0=半分/倍・**0=無制限**(1 tick の上限を体数=起床候補の理論上限にする)。"
+             "PENDING D-99 AB8 の腕",
+    )
+    ap.add_argument(
+        "--intent-mode",
+        choices=INTENT_MODES,
+        default=DEFAULT_INTENT_MODE,
+        help="行動の出させ方(AB7 自由意図の腕・docs/design/v2-open-intent-arm-spec.md §2)。"
+             "vocab=24 語のホワイトリストを B0 で見せる(既定・現行のバイト)/"
+             "open=語彙を見せず『いま自分がしたいこと』を 10 字以内の動詞句で書かせ、"
+             "接地はエンジン側(行動契約書 §7 段0〜1)に任せる/"
+             "hint=語彙を例として見せたうえで、当てはまる語が無いときだけ 10 字以内の"
+             "自由文を許す(AB7b・vocab と open の中間)",
+    )
+    ap.add_argument(
+        "--vocab-version",
+        choices=VOCAB_VERSIONS,
+        default=DEFAULT_VOCAB_VERSION,
+        help="行動語彙の版(語彙成長 v0・docs/design/v2-vocab-growth-design.md §3 F)。"
+             "v1=現行 24 語(既定・バイト不変)/"
+             "v2=24 語 + 横断語「食事」(飲食店オブジェクトの affordance)。"
+             "v2 では B0 の提示が 13 語になり、段0 辞書が v3(食べる/飲む→食事)になり、"
+             "resolve に「食事」の分岐が増える",
     )
     ap.add_argument(
         "--no-sleep-suppression",
@@ -385,6 +627,41 @@ def main(argv: list[str] | None = None) -> int:
         help="D-66 域外抑止を切る(域外滞在・乗車中の体にも LLM を呼ぶ=D-66 前の挙動・帰無腕)",
     )
     ap.add_argument(
+        "--geometry",
+        choices=GEOMETRY_MODES,
+        default=DEFAULT_GEOMETRY,
+        help="位置幾何(C9 G1/G2・docs/design/v2-c9-geometry-agenda.md §4)。"
+             "node=現行の 1 tick=1 ノード(既定・checkpoint はバイト不変)/"
+             "edge=辺上の連続位置(edge_id・辺上距離・向き)+希望速度 Uniform(1.00,1.60) m/s"
+             "+Kladek 式の密度減速。edge では密度段が人/m² の Fruin LOS 段になる",
+    )
+    ap.add_argument(
+        "--area-source",
+        choices=AREA_SOURCES,
+        default=DEFAULT_AREA_SOURCE,
+        help="歩行可能面積の出所(C9c-1・G8 (b)・docs/research/v2-c9-geometry-capacity-"
+             "research.md §2-1)。legacy=W10 街路点数 × 6.25 m²・床 1,500 m²(既定・"
+             "**checkpoint はバイト不変**・6.25 は 2.5 m 格子の目の面積=expedient)/"
+             " plateau=c9c_walkable_area.parquet(PLATEAU tran 歩道部の面 + OSM 線 × 道路"
+             "構造令の既定幅員で実測・tools/build_geo/walkable_area.py が作る)",
+    )
+    ap.add_argument(
+        "--seat-area-eatery",
+        type=float,
+        default=None,
+        metavar="M2",
+        help="飲食(food/nightlife)の 1 人あたり床面積[m²]の感度腕(既定=現行 2.0 のまま)。"
+             "法定: 消防法施行規則 1 条の 3(三)項ロ **3.0** / 建告1441 飲食室 0.7 人/m² **1.43**",
+    )
+    ap.add_argument(
+        "--seat-area-retail",
+        type=float,
+        default=None,
+        metavar="M2",
+        help="物販その他の 1 人あたり床面積[m²]の感度腕(既定=現行 4.0 のまま)。"
+             "法定: 消防法施行規則 1 条の 3(四)項ロ **4.0** / 建告1441 売場 0.5 人/m² **2.0**",
+    )
+    ap.add_argument(
         "--no-population",
         action="store_true",
         help="W16 母集団を使わず合成個体で回す(下限対照・世帯財布も mock のまま)",
@@ -395,6 +672,14 @@ def main(argv: list[str] | None = None) -> int:
         default="",
         help="checkpoint 列(tick・agents/world/population/schedule ハッシュ・combined)と"
              " final_hash を JSON で書く(C7 受入 T2-a/b/c の入力。既定=書かない)",
+    )
+    ap.add_argument(
+        "--undefined-out",
+        type=str,
+        default="",
+        help="未定義行動台帳(行動契約書 §7 段1)を JSON で書く(D-71 段2 起草バッチ "
+             "tools/vocab/adjudicate.py の入力)。空=書かない(既定・出力は 1 バイトも増えない)。"
+             "**ランの中では裁定しない**(語彙成長の設計 v0 §2: ラン後オフライン)",
     )
     ap.add_argument(
         "--replay",
@@ -413,6 +698,10 @@ def main(argv: list[str] | None = None) -> int:
             raise argparse.ArgumentTypeError("--pnotice-d50-scale は正の値")
         if not (0.0 <= float(args.attendance_rate) <= 1.0):
             raise argparse.ArgumentTypeError("--attendance-rate は 0.0〜1.0")
+        if not (0.0 <= float(args.signage_p_see) <= 1.0):
+            raise argparse.ArgumentTypeError("--signage-p-see は 0.0〜1.0 の確率")
+        if float(args.l4_scale) < 0.0:
+            raise argparse.ArgumentTypeError("--l4-scale は 0 以上(0=無制限)")
     except argparse.ArgumentTypeError as exc:  # 使い方の誤りは traceback ではなく usage で返す
         ap.error(str(exc))
     res = run(
@@ -429,6 +718,8 @@ def main(argv: list[str] | None = None) -> int:
         p_notice_d50_scale=float(args.pnotice_d50_scale),
         refractory_scale=refractory_scale or None,
         signage=not args.no_signage,
+        signage_p_see=float(args.signage_p_see),
+        l4_scale=float(args.l4_scale),
         sleep_suppression=not args.no_sleep_suppression,
         plan_sleep=not args.no_plan_sleep,
         plan_executor=not args.no_plan_executor,
@@ -436,11 +727,18 @@ def main(argv: list[str] | None = None) -> int:
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,
+        geometry=str(args.geometry),
+        area_source=str(args.area_source),
+        seat_area_eatery_m2=args.seat_area_eatery,
+        seat_area_retail_m2=args.seat_area_retail,
+        intent_mode=str(args.intent_mode),
+        vocab_version=str(args.vocab_version),
         fleet=fleet_from_args(args, ap),
         fleet_wait_s=float(getattr(args, "fleet_wait_s", 0.0)),
         fleet_debug_dir=getattr(args, "fleet_debug_dir", "") or None,
         occupancy_every=int(getattr(args, "occupancy_every", 0) or 0),
         occupancy_path=getattr(args, "occupancy_out", "") or None,
+        census_out=getattr(args, "census_out", "") or None,
         tape_path=args.tape or None,
         **({"mode": "replay", "replay": args.replay} if args.replay else {}),
     )
@@ -451,6 +749,25 @@ def main(argv: list[str] | None = None) -> int:
         payload = checkpoints_payload(res, run_id=str(getattr(args, "run_id", "") or ""))
         out.write_text(json.dumps(payload, ensure_ascii=False, indent=1, default=str) + "\n", encoding="utf-8")
         print(f"  checkpoints JSON {out} ({len(payload['checkpoints'])} 点)")
+    if args.undefined_out:
+        out = Path(args.undefined_out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        payload = undefined_registry_payload(
+            getattr(res, "undefined_registry", None), source="run_day"
+        )
+        out.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
+        )
+        # ファイル名だけを出す(記録に絶対パスを残さない=第175 の教訓)。
+        print(
+            f"  未定義台帳 JSON {out.name}"
+            f"({payload['summary']['n_words']} 語 / {payload['summary']['n_records_kept']} 行)"
+        )
+    census_paths = tuple(getattr(res, "census_paths", ()) or ())
+    if census_paths:
+        # ファイル名だけを出す(記録に絶対パスを残さない=第175 の教訓)。
+        names = " / ".join(sorted(Path(p).name for p in census_paths))
+        print(f"  census {len(census_paths)} ファイル: {names}(day={res.day_closed})")
     if res.fleet_fields:
         c = res.bridge_counters
         dec = res.fleet_fields.get("decoding", {}).get("T1", {})

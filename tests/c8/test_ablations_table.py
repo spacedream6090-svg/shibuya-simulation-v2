@@ -18,12 +18,19 @@ def test_table_validates(ablation_runner, table):
     assert ablation_runner.validate_table(table) == []
 
 
-def test_six_arms_in_priority_order(table):
-    """§8「第1陣=6 本」・rank は優先順位規則(expedient の量 × 駆動可能性 ÷ コスト)の順。"""
+def test_six_arms_in_priority_order(ablation_runner, table):
+    """§8「第1陣=6 本」・rank は優先順位規則(expedient の量 × 駆動可能性 ÷ コスト)の順。
+
+    第1陣より後に足した腕(``first_wave`` の外・2026-09-16 の ``AB7-OPEN-INTENT``)は
+    **表の先頭 6 本より後ろ**に並び、rank は 7 以降の通し番号を続ける。
+    """
     arms = table["arms"]
-    assert len(arms) == 6
-    assert [a["rank"] for a in arms] == [1, 2, 3, 4, 5, 6]
-    assert [a["index"] for a in arms] == ["①", "②", "③", "④", "⑤", "⑥"]
+    wave1 = ablation_runner.first_wave_ids(table)
+    assert len(wave1) == 6
+    assert [a["id"] for a in arms[:6]] == wave1
+    assert [a["rank"] for a in arms[:6]] == [1, 2, 3, 4, 5, 6]
+    assert [a["index"] for a in arms[:6]] == ["①", "②", "③", "④", "⑤", "⑥"]
+    assert [a["rank"] for a in arms] == list(range(1, len(arms) + 1))
 
 
 def test_arms_match_design_text(c8lib, table):
@@ -64,10 +71,22 @@ def test_kwargs_are_allowlisted(ablation_runner, table):
 
 
 def test_budget_within_l2(table):
-    """共有ベースラインで L2(総 GPU 時間の 20%)の枠に収まる計画であること。"""
+    """共有ベースラインの見積りと ``within_l2`` フラグの**整合**を機械で守る。
+
+    2026-09-17(AB7c-VOCAB-V2 の追加)までは「L2 の枠に収まる計画であること」を直接の
+    合否にしていた。語彙 v2 の腕(3 ラン)を足した時点で共有ベースライン込みの合計が
+    **5.32 h** になり、枠の目安 **4.8 h** を超えた(``within_l2=false``)。L2 は割合宣言で
+    絶対値が無く(``budget.note`` の expedient=親判断待ち)、**どの腕を先に回すかは
+    ユーザー判断**なので、ここで守るのは次の 2 点にする——超過を黙って飲み込まないため:
+      ① フラグが算術と一致する(表が自分の見積りについて嘘をつけない)
+      ② 超えているなら ``totals.note`` に L2 と明記されている(宣言が残る)
+    """
     t = table["totals"]
-    assert t["gpu_hours_with_shared_baseline"] <= t["l2_reserve_hours"]
-    assert t["within_l2"] is True
+    assert t["within_l2"] is (
+        t["gpu_hours_with_shared_baseline"] <= t["l2_reserve_hours"]
+    )
+    if not t["within_l2"]:
+        assert "L2" in t["note"], "L2 超過は totals.note に明記すること"
     assert t["runs_with_shared_baseline"] < t["runs_if_independent"]
 
 
@@ -104,30 +123,62 @@ def test_totals_match_the_arms(table):
     assert t["calls_with_shared_baseline"] == shared * table["default_scale"]["calls_per_run"]
 
 
-def test_only_the_second_wave_arms_are_still_blocked(table):
+def test_only_the_second_wave_arms_are_still_blocked(ablation_runner, table):
     """切替口の実装状況(C6 で ①・**C8 で ②③⑥**=2026-09-09)。
 
     残るのは ④聴覚 ΔSNR・⑤日次内省で、どちらも**前提機能が §9 第2陣**(聴覚の物理軸は
-    コードに無く同一セル代理・日次内省は就寝で「発火を記録するだけ」)。
+    コードに無く同一セル代理・日次内省は就寝で「発火を記録するだけ」)。**第1陣の 6 本だけ**
+    を見る(追加腕は下の ``test_the_added_arms_are_implemented``)。
     """
-    ready = [a["id"] for a in table["arms"] if a["switch"]["implemented"]]
+    wave1 = set(ablation_runner.first_wave_ids(table))
+    arms1 = [a for a in table["arms"] if a["id"] in wave1]
+    ready = [a["id"] for a in arms1 if a["switch"]["implemented"]]
     assert ready == [
         "AB1-BUDGET-MODE", "AB2-PNOTICE-D50", "AB3-REFRACTORY-PROX", "AB6-AD-ZERO"
     ]
-    blocked = {a["id"]: a["status"] for a in table["arms"] if not a["switch"]["implemented"]}
+    blocked = {a["id"]: a["status"] for a in arms1 if not a["switch"]["implemented"]}
     assert blocked == {"AB4-HEARING-SNR": "blocked_feature", "AB5-INTROSPECTION": "blocked_feature"}
 
 
+def test_the_added_arms_are_implemented(ablation_runner, table):
+    """第1陣より後に足した腕は**切替口つきで足す**(未実装の腕を後ろに積まない)。"""
+    wave1 = set(ablation_runner.first_wave_ids(table))
+    extra = [a for a in table["arms"] if a["id"] not in wave1]
+    assert [a["id"] for a in extra] == [
+        "AB7-OPEN-INTENT", "AB7b-HINT-INTENT", "AB7c-VOCAB-V2", "AB6b-AD-NOTICE",
+        # 2026-09-19: ⑧ L4 の感度(D-99 (a))・⑥c ⑥b の無制限版(第245 ユーザー指示)
+        "AB8-L4-SCALE", "AB6c-AD-NOTICE-UNCAPPED",
+        # 2026-09-22: ⑦d 語彙の無制限版(D-91)・①b 固定枠の無制限版(D-60)=第249 ユーザー「B まで回そう」
+        "AB7d-VOCAB-UNCAPPED", "AB1b-BUDGET-MODE-UNCAPPED",
+    ]
+    for a in extra:
+        assert a["switch"]["implemented"] is True and a["status"] == "ready"
+
+
 def test_mock_ineffective_arms_are_prompt_only(table):
-    """mock で差が出ない腕=**プロンプト本文しか変えない**腕(①⑥)。"""
+    """mock で差が出ない腕=**プロンプト本文しか変えない**腕(①⑥⑥b⑥cと AB7・AB7b)。
+
+    ⑥c(2026-09-19)は 4 ランとも ``l4_scale=0`` で**予算は腕の中で同じ**=腕の中の差は
+    看板だけなので ⑥b と同じく mock では出ない。⑧(L4 の感度)は逆に予算そのものを振る
+    =エンジン側の量なので mock でも動く(``mock_effective: true``)。
+    """
     prompt_only = {a["id"] for a in table["arms"] if not a["switch"]["mock_effective"]}
-    assert prompt_only == {"AB1-BUDGET-MODE", "AB6-AD-ZERO"}
+    assert prompt_only == {
+        "AB1-BUDGET-MODE", "AB6-AD-ZERO", "AB6b-AD-NOTICE", "AB6c-AD-NOTICE-UNCAPPED",
+        "AB7-OPEN-INTENT", "AB7b-HINT-INTENT",
+        # 2026-09-22: ⑦d・①b も予算は腕の中で同じ(l4_scale=0)=文面だけの差
+        "AB7d-VOCAB-UNCAPPED", "AB1b-BUDGET-MODE-UNCAPPED",
+    }
 
 
 # ------------------------------------------------------------------ 引き当てと表
 def test_arm_by_id_forms(ablation_runner, table):
     assert ablation_runner.arm_by_id(table, "AB1-BUDGET-MODE")["rank"] == 1
     assert ablation_runner.arm_by_id(table, "ab1")["rank"] == 1
+    # 2026-09-22: ``AB1`` は ``AB1b-BUDGET-MODE-UNCAPPED`` にも前方一致するが、腕コードそのものが優先
+    assert ablation_runner.arm_by_id(table, "ab1b")["id"] == "AB1b-BUDGET-MODE-UNCAPPED"
+    assert ablation_runner.arm_by_id(table, "①b")["id"] == "AB1b-BUDGET-MODE-UNCAPPED"
+    assert ablation_runner.arm_by_id(table, "ab7d")["index"] == "⑦d"
     assert ablation_runner.arm_by_id(table, "③")["id"] == "AB3-REFRACTORY-PROX"
     with pytest.raises(KeyError):
         ablation_runner.arm_by_id(table, "AB9")

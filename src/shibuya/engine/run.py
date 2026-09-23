@@ -63,6 +63,7 @@ from shibuya.agents.population import Population, load_population, sample_popula
 from shibuya.agents.weekly import apply_to_mock_schedule, load_weekly
 from shibuya.agents.schedule import synthesize
 from shibuya.agents.state import (
+    FOCUS_NONE,
     WAKE_CONDITION_CLASS,
     Activity,
     AgentState,
@@ -77,7 +78,16 @@ from shibuya.engine import resolve as R
 from shibuya.engine.arbiter import Arbiter, WakeCandidates, call_budget_per_tick
 from shibuya.engine.change_detect import ChangeDetector
 from shibuya.engine.conversation import ConversationManager
+from shibuya.engine.geometry import (
+    DEFAULT_GEOMETRY,
+    DESIRED_SPEED_MAX_MS,
+    DESIRED_SPEED_MIN_MS,
+    GEOMETRY_MODES,
+    EdgeGeometry,
+    check_geometry,
+)
 from shibuya.engine.ledger_api import LedgerBundle
+from shibuya.engine.processes.crowd import SEAT_AREA_M2
 from shibuya.engine.processes.runner import WorldProcessRunner
 from shibuya.engine.processes.salient import (
     ablation_name as _pnotice_ablation_name,
@@ -107,10 +117,24 @@ from shibuya.llm.mock import MockLLM
 from shibuya.perception.channels import BudgetMode
 from shibuya.perception.renderer import (
     DEFAULT_START_DATETIME,
+    SIGNAGE_P_SEE_DEFAULT,
     PerceptionAssets,
     Renderer as PerceptionRenderer,
+    check_signage_p_see,
 )
-from shibuya.world.assets import load_process_assets_or_synthetic
+from shibuya.perception.templates import (
+    INTENT_MODES,
+    VOCAB_VERSIONS,
+    check_intent_mode,
+    check_vocab_version,
+)
+from shibuya.world.assets import (
+    AREA_SOURCES,
+    DEFAULT_AREA_SOURCE,
+    check_area_source,
+    load_process_assets_or_synthetic,
+    load_walkable_area_m2,
+)
 from shibuya.world.state import World
 
 __all__ = [
@@ -128,6 +152,9 @@ __all__ = [
 
 #: δ_think(分tickへ切り上げ後)。既定レーン L1=2.6 秒 → 1 tick(認知設計書 §1)。
 DELTA_THINK_TICKS: Final[int] = delta_think_ticks(DEFAULT_LANE, DEFAULT_TICK_SECONDS)
+
+#: ``action_usage`` で ``ENGINE_STEP``(−1)に付ける名(行動語ではない=括弧つき)。
+ENGINE_STEP_LABEL: Final[str] = "(エンジン継続)"
 
 #: 診断表の列(``DIAG_COLUMNS`` の 4 列 + 運用列)。
 #: 艦隊の順序制御グループ「時間帯」の刻み[tick](知覚契約書 §2.4 ⑨「時刻表記は5分丸め」)。
@@ -168,6 +195,53 @@ DIAG_DAY_ROWS: Final[tuple[str, ...]] = (
     "tape_miss_count",
     "conversation_sessions",
 )
+
+
+def _default_mock(seed: int | str, vocab_version: str) -> Any:
+    """``llm`` を注入しないランの既定 mock(``MockLLM``)。**語彙版に語彙を合わせる**。
+
+    ``MockLLM`` はプロンプト本文を読まない(=B0 に 13 語目を載せても出力は変わらない)ので、
+    語彙 v2 のランで「食事」を 1 件も出せない。mock は**書式と決定論を通す配管**であって
+    振る舞いのモデルではない(``llm.mock`` の expedient 節)から、**提示した語彙から一様に
+    引く**という既存の規約をそのまま版に従わせる。既定 ``"v1"`` では
+    ``MockLLM(master_seed=seed)`` と**同一**(引数も乱数列も同じ)。
+    """
+    from shibuya.llm.contract import cross_action_words
+
+    if str(vocab_version) == VOCAB_VERSIONS[0]:
+        return MockLLM(master_seed=seed)
+    return MockLLM(master_seed=seed, vocab=cross_action_words(vocab_version))
+
+
+def _synonym_table_version(vocab_version: str) -> str:
+    """語彙版 → 段0 辞書の版文字列(``llm.undefined`` の表が正典)。"""
+    from shibuya.llm.undefined import synonym_table_version
+
+    return synonym_table_version(str(vocab_version))
+
+
+def _action_usage(per_action: Mapping[int, int], vocab_version: str) -> dict[str, int]:
+    """``ResolveOutcome.per_action``(コード別)→ **行動語別**の件数(D-71 §3 J)。
+
+    ``ENGINE_STEP``(−1・経路の1歩)は行動語ではないので ``"(エンジン継続)"`` の名で残す
+    (落とすと合計が ``n_confirmed`` と合わなくなる)。並びは**契約表の順**に固定する
+    (dict の挿入順=再実行でバイト一致)。
+
+    逐次ループ宣言(P4): 行動語ぶん(v1=13 / v2=14)。個体数にも tick 数にも比例しない。
+    """
+    from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE
+
+    out: dict[str, int] = {}
+    order = R._ACTION_ORDER_BY_VOCAB[check_vocab_version(vocab_version)]
+    for code in order:
+        n = int(per_action.get(int(code), 0))
+        if not n:
+            continue
+        out[ACTION_WORD_BY_CODE.get(int(code), ENGINE_STEP_LABEL)] = n
+    for code, n in sorted(per_action.items()):  # 表に無いコード(将来の語)も落とさない
+        if int(code) not in order and int(n):
+            out[ACTION_WORD_BY_CODE.get(int(code), f"({int(code)})")] = int(n)
+    return out
 
 
 def run_salt_for(master_seed: int | str) -> bytes:
@@ -231,6 +305,14 @@ class RunResult:
     renderer_name: str = ""
     #: 知覚のトークン配分(知覚契約書 §3.2 の義務 ablation ①)。``fixed_slots`` / ``single_ranking``。
     budget_mode: str = BudgetMode.FIXED_SLOTS.value
+    #: **L4 呼数予算の倍率**(PENDING D-99 (a)・腕 AB8-L4-SCALE)。``1.0``=予算宣言表 L4 の
+    #: とおり(400 万呼/日を体数按分=既定・現行のバイト)/``0.5``・``2.0``=半分・倍/
+    #: ``0.0``=**無制限**(1 tick の上限を体数に置く=起床候補は合流後に高々 1 件/体なので
+    #: 繰り延べが起きない)。``budget`` を直に渡したランでは倍率は 1.0 のまま。
+    l4_scale: float = 1.0
+    #: このランで**実際に使った** 1 tick の呼数上限(``Arbiter.budget``)。既定のランでは
+    #: ``arbiter.call_budget_per_tick(n_agents)``(5,000 体で 34.72)。
+    budget_per_tick: float = 0.0
     #: p_notice の ablation(§3.1 A0-A4)。既定 ``A4``=完成形。
     p_notice_ablation: str = "A4"
     #: ablation ②(§8 第1陣)。``p_notice`` の d50 の倍率。既定 1.0=§3.1 の 40 m。
@@ -239,6 +321,23 @@ class RunResult:
     refractory_scale: dict[str, float] = field(default_factory=dict)
     #: ablation ⑥(§8 第1陣)。看板・広告面(B2.signage)を描いたか。既定 True。
     signage: bool = True
+    #: **看板の注視ゲート**(知覚契約書 §4 段1 の p_see・D-59 (b)・腕 AB6b-AD-NOTICE)。
+    #: 既定 1.0=在圏セルの看板行が必ず観測に入る(=現行のバイト)。
+    signage_p_see: float = SIGNAGE_P_SEE_DEFAULT
+    #: **AB7 自由意図の腕**。``"vocab"``=24 語提示(既定)/``"open"``=自由文/
+    #: ``"hint"``=語彙を例として見せつつ自由文も許す(AB7b)。
+    #: 仕様書 docs/design/v2-open-intent-arm-spec.md §2。
+    intent_mode: str = INTENT_MODES[0]
+    #: **行動語彙の版**(D-71 §3 F・2026-09-17 ユーザー決定)。``"v1"``=現行 24 語(既定)/
+    #: ``"v2"``=24 語 + 横断語「食事」(飲食店オブジェクトの affordance)。
+    vocab_version: str = VOCAB_VERSIONS[0]
+    #: 語彙 v2「食事」が成立した件数(v1 のランでは常に 0)。
+    meals: int = 0
+    #: 食事で店舗へ移った金額[円](売上の内数)。
+    meal_yen: int = 0
+    #: **解決後の行動語ごとの件数**(D-71 §3 J「語ごとの使用率」の分子)。
+    #: 鍵は行動語(``ENGINE_STEP`` は ``"(エンジン継続)"``)・値は ``resolve`` が適用した件数。
+    action_usage: dict[str, int] = field(default_factory=dict)
     #: D-56 就寝抑止を効かせたか。既定 True(ユーザー決定 (a)・2026-09-10)。
     sleep_suppression: bool = True
     #: D-62「就寝は計画の実行」を効かせたか。既定 True(ユーザー決定 (a)+(b)・2026-09-10)。
@@ -251,6 +350,34 @@ class RunResult:
     attendance_rate: float = 1.0
     #: 在圏ブロックの読み口(``engine.presence.DERIVE_RULES``・既定 v2)。
     derive_rule: str = "v2"
+    #: **C9 位置幾何の腕**(G1・2026-09-17 ユーザー決定)。``"node"``=現行の 1 tick=1 ノード
+    #: (既定・バイト不変)/``"edge"``=辺上の連続位置+希望速度 1.00〜1.60 m/s+Kladek 減速。
+    geometry: str = DEFAULT_GEOMETRY
+    #: edge 幾何の診断(ホップ反復の延べ回数=P4 実測・詰め込み密度で歩けなかった延べ体数)。
+    #: node では 0。
+    geometry_hops: int = 0
+    geometry_jammed: int = 0
+    #: **C9c-1 歩行可能面積の出所**(G8 (b)・D-84 (c))。``"legacy"``=街路点 × 6.25 m²
+    #: (既定・バイト不変)/``"plateau"``=PLATEAU 歩道部 + OSM × 道路構造令の実測値。
+    area_source: str = DEFAULT_AREA_SOURCE
+    #: 歩行可能面積[m²]の要約(実測に切り替えたランの診断。legacy でも埋まる)。
+    walkable_area_median_m2: float = 0.0
+    walkable_area_min_m2: float = 0.0
+    #: **1 人あたり床面積の感度腕**(``None``=現行の ``crowd.SEAT_AREA_M2`` のまま)。
+    seat_area_eatery_m2: float | None = None
+    seat_area_retail_m2: float | None = None
+    #: **C9b 対象と注意**(G3/G4/G7)が立ったか(= ``geometry="edge"`` かつ
+    #: ``vocab_version="v2"``)。False のランでは下の 6 本は 0 のまま。
+    attention: bool = False
+    #: 「近づく」が立った件数 / 対象に届いた件数 / 着いたのに居なかった件数(``TARGET_GONE``)。
+    n_approach: int = 0
+    n_approach_done: int = 0
+    n_target_gone: int = 0
+    #: 注意の焦点を取得した件数 / 消えた件数(寿命切れ+喪失距離)。
+    n_focus: int = 0
+    n_focus_lost: int = 0
+    #: **実距離**で成立した会話招待の件数(G7)。
+    n_talk_by_distance: int = 0
     #: 計画実行層の診断(``PlanExecutor.counters()``)。層が休んだランは空 dict。
     presence_counters: dict[str, float] = field(default_factory=dict)
     #: D-66 域外抑止を効かせたか(既定 True)。False = **帰無腕**。
@@ -310,6 +437,15 @@ class RunResult:
     day_closed: int = -1
     #: 日次ゲートの合否(§2.4「残差>閾値・純資産≠実物資産はゲート失敗」)。**例外にしない**。
     census_pass: bool = False
+    #: ``census_out`` を渡したランが書いたファイル(日次センサス・月次 MER)。既定は空
+    #: =**何も書いていない**。run manifest には**載せない**(既定経路のバイトを動かさない)。
+    census_paths: tuple[str, ...] = ()
+    #: T3(SFC の冗長方程式の検算・D-85 (a))の合否。``None``=**未実行**
+    #: (月次センサスが立たなかったラン=1 日ランなど・台帳の無いラン)。manifest に出る。
+    t3_ok: bool | None = None
+    #: T3 の内訳(3検査の合否と残差の大きさ・``economy.checks.T3Check.as_dict``)。
+    #: 未実行なら空 dict。manifest には合否(``t3_ok``)だけを載せる。
+    t3_report: dict[str, Any] = field(default_factory=dict)
     #: 顕著行為(人物③)の件数と、``p_notice`` で気づいた延べ人数。
     salient_events: int = 0
     noticed: int = 0
@@ -462,13 +598,22 @@ class RunResult:
             ``registry_hash``(世界側台帳)・``replay_date``(D-W15 の実日)・
             ``template_sha256``(知覚テンプレ v1 の凍結ハッシュ)・
             ``budget_mode``(知覚契約書 §3.2 ablation ① の腕)・
+            ``l4_scale``/``budget_per_tick``(L4 呼数予算の腕=D-99 (a)・AB8-L4-SCALE。
+            既定 ``1.0`` と ``call_budget_per_tick(n_agents)``)・
             ``p_notice_ablation``/``p_notice_d50_scale``/``refractory_scale``/``signage``
             (§8 第1陣 ②③⑥ の腕。既定は ``A4``/``1.0``/``{}``/``True``)・
+            ``signage_p_see``(看板の注視ゲート=§4 段1 の p_see・D-59 (b)・腕
+            AB6b-AD-NOTICE。既定 ``1.0``=常に見る=現行のバイト)・
+            ``intent_mode``(AB7 自由意図の腕。既定 ``vocab``)・
+            ``vocab_version``/``synonym_table_version``/``action_usage``
+            (語彙 v2 の版・段0 辞書の版・語ごとの使用件数。D-71 §3 F/J。既定は
+            ``v1``/``undefined-synonyms-v2``)・
             ``sleep_suppression``(D-56 就寝抑止の腕。既定 ``True``)・
             ``plan_sleep``(D-62「就寝は計画の実行」の腕。既定 ``True``)・
             ``plan_executor``/``exit_mode``/``attendance_rate``(D-66 計画実行層の腕。
             既定 ``True``(ただし W16+W17 のあるランだけ立つ)/``immediate``/``1.0``)・
-            ``catalog_sha16``(世界カタログ v0.2 の凍結 SHA)・
+            ``t3_ok``(T3=冗長方程式の検算の合否。``None``=月次センサスが立たなかった
+            ラン=**未実行**。D-85 (a))・``catalog_sha16``(世界カタログ v0.2 の凍結 SHA)・
             ``process_ids``(実際に回した過程 id の昇順)・``ablations``(切った過程/感度試験 id)。
         """
         from shibuya.perception import templates as _T
@@ -494,11 +639,22 @@ class RunResult:
             "replay_date": self.replay_date,
             "template_sha256": _T.template_sha256(),
             "budget_mode": self.budget_mode,
+            # ---- D-99 (a) L4 呼数予算の腕(既定 1.0=宣言どおりの按分)。腕 AB8-L4-SCALE ----
+            "l4_scale": float(self.l4_scale),
+            "budget_per_tick": float(self.budget_per_tick),
             # ---- ablation 第1陣(§8)の腕。既定値のランでも欄は常に出る ----
             "p_notice_ablation": self.p_notice_ablation,
             "p_notice_d50_scale": float(self.p_notice_d50_scale),
             "refractory_scale": dict(self.refractory_scale),
             "signage": bool(self.signage),
+            # ---- D-59 (b) 看板の注視ゲート(既定 1.0=現行)。腕 AB6b-AD-NOTICE ----
+            "signage_p_see": float(self.signage_p_see),
+            # ---- AB7 自由意図の腕(既定 vocab)。列追加のみ=既存欄の値は動かない ----
+            "intent_mode": str(self.intent_mode),
+            # ---- 語彙 v2(D-71 §3 F/J)。既定 v1 では語彙も辞書も現行のまま ----
+            "vocab_version": str(self.vocab_version),
+            "synonym_table_version": _synonym_table_version(self.vocab_version),
+            "action_usage": dict(self.action_usage),
             # ---- D-56 就寝抑止(既定 True)。False = D-56 前の挙動 ----
             "sleep_suppression": bool(self.sleep_suppression),
             # ---- D-62 就寝は計画の実行(既定 True)。False = D-62 前の挙動 ----
@@ -509,6 +665,17 @@ class RunResult:
             "attendance_rate": float(self.attendance_rate),
             "derive_rule": str(self.derive_rule),
             "outside_suppression": bool(self.outside_suppression),
+            # ---- C9 位置幾何(既定 node=現行のバイト。edge=辺上の連続位置) ----
+            "geometry": str(self.geometry),
+            # ---- C9c-1 歩行可能面積の出所(既定 legacy=現行式。資産 SHA は frozen_sources) ----
+            "area_source": str(self.area_source),
+            # ---- C9c-1 席面積の感度腕(既定 None=現行の 飲食 2.0 / その他 4.0) ----
+            "seat_area_eatery_m2": self.seat_area_eatery_m2,
+            "seat_area_retail_m2": self.seat_area_retail_m2,
+            # ---- C9b 対象と注意(edge × 語彙 v2 の積でだけ立つ・G3/G4/G5/G6/G7) ----
+            "attention": bool(self.attention),
+            # ---- T3(冗長方程式の毎期検算・D-85 (a))。None=月次センサスが立たなかったラン ----
+            "t3_ok": self.t3_ok,
             "catalog_sha16": catalog_sha16,
             "process_ids": process_ids,
             "ablations": ablations,
@@ -594,6 +761,27 @@ class RunResult:
             f"{self.movement_cpu_ms_per_tick:.3f} ms/tick (P2 上限 5) ・待ち割合 "
             f"{self.movement_gil_wait_ratio:.2f}",
         ]
+        # C9: edge 幾何のランだけ 1 行(既定 node の summary は 1 文字も変わらない)
+        if str(self.geometry) != DEFAULT_GEOMETRY:
+            lines.append(
+                f"  幾何 {self.geometry}(希望速度 "
+                f"{DESIRED_SPEED_MIN_MS:.2f}〜{DESIRED_SPEED_MAX_MS:.2f} m/s・Kladek 減速)"
+                f"/ ホップ反復 {self.geometry_hops:,} / 詰まり {self.geometry_jammed:,}"
+            )
+        # C9c-1: 面積を実測に切り替えたランだけ 1 行(既定 legacy の summary は不変)
+        if str(self.area_source) != DEFAULT_AREA_SOURCE:
+            lines.append(
+                f"  歩行可能面積 {self.area_source}(中央値 {self.walkable_area_median_m2:,.0f}"
+                f" m² / 最小 {self.walkable_area_min_m2:,.1f} m²)"
+            )
+        # C9b: 対象と注意の腕だけ 1 行(既定の 4 腕では出ない)
+        if self.attention:
+            lines.append(
+                f"  対象と注意(C9b) 近づく {self.n_approach:,}"
+                f"(到達 {self.n_approach_done:,} / 対象不在 {self.n_target_gone:,})"
+                f" / 焦点 取得 {self.n_focus:,} 消失 {self.n_focus_lost:,}"
+                f" / 会話 実距離成立 {self.n_talk_by_distance:,}"
+            )
         # D-58: 繰り延べを記録/再現したランだけ 1 行(mock ランは従来どおり出ない)
         _bd = float(self.bridge_counters.get("tape_deferred_rows", 0.0)) or float(
             self.bridge_counters.get("tape_deferred", 0.0)
@@ -757,6 +945,10 @@ def _schedule_with_population(
     m = min(n, pop.n)
     home = np.asarray(schedule.home_cell).copy()
     work = np.asarray(schedule.work_cell).copy()
+    # C9b G5: 学校セルは W16 が持っている(mock 側に対応する欄は無い)。対象ヒント
+    # ``school`` の解決先としてそのまま運ぶ(**-1 のまま**=学校なしはヒントが効かない)。
+    school = np.full(n, -1, dtype=np.int32)
+    school[:m] = np.asarray(pop.school_cell, dtype=np.int64)[:m].astype(np.int32)
     kind = np.asarray(schedule.kind).copy()
     age = np.zeros(n, dtype=np.uint8)
     sex = np.full(n, -1, dtype=np.int8)
@@ -780,6 +972,7 @@ def _schedule_with_population(
         schedule,
         home_cell=home_out.astype(np.int32),
         work_cell=np.clip(work, 0, n_cells - 1).astype(np.int32),
+        school_cell=np.where(school >= 0, np.clip(school, 0, n_cells - 1), -1).astype(np.int32),
         kind=kind,
         age=age,
         sex=sex,
@@ -788,7 +981,9 @@ def _schedule_with_population(
     )
 
 
-def _settle_pending_invites(conv, agents, tick, agent_ids, codes, named, R, np) -> set[int]:
+def _settle_pending_invites(
+    conv, agents, tick, agent_ids, codes, named, R, np, by_distance: bool = False
+) -> set[int]:
     """返事待ちの招待を**Phase C の前に**確定する(層2 中-1・09-09)。
 
     正典
@@ -808,7 +1003,6 @@ def _settle_pending_invites(conv, agents, tick, agent_ids, codes, named, R, np) 
     """
     if conv is None or not conv.pending_invites:
         return set()
-    cell = agents.registry.cell
     consumed: set[int] = set()
     accepted: list[tuple[int, int]] = []
     reverted: list[int] = []
@@ -818,7 +1012,11 @@ def _settle_pending_invites(conv, agents, tick, agent_ids, codes, named, R, np) 
         if b not in conv.pending_invites:
             continue
         a = conv.pending_inviter_of(b)
-        same_cell = bool(a >= 0 and cell[a] == cell[b] and cell[b] >= 0)
+        # C9b G7: ``by_distance`` の腕では「同一セル」に実距離 2 m が加わる。
+        same_cell = bool(
+            a >= 0
+            and R.talk_within_reach(agents, np.int64(a), np.int64(b), by_distance=by_distance)
+        )
         aimed_at_inviter = int(named[k]) in (a, -1)
         ok = bool(codes[k] == C.ACT_TALK) and aimed_at_inviter and same_cell
         opened = conv.resolve_pending(b, tick, accepted=ok)
@@ -869,6 +1067,22 @@ def _target_person(target: Any) -> int:
     return -1 if pid is None else int(pid)
 
 
+def _target_poi(target: Any) -> int:
+    """``llm.contract.Target`` → 目印 POI 索引(解決できていなければ ``-1``)。
+
+    C9b G6 a′: ``parse_target(..., landmarks=...)`` を通った応答だけが ``poi_id`` を持つ。
+    """
+    pid = getattr(target, "poi_id", None)
+    return -1 if pid is None else int(pid)
+
+
+def _pending_extra(res: Any) -> tuple[int, int]:
+    """応答 → ``(対象ヒント索引, 目印 POI 索引)``(C9b G5/G6・腕が立っていなければ ``(0, -1)``)。"""
+    return C.target_hint_code(getattr(res, "target_hint", "")), _target_poi(
+        getattr(res, "target", None)
+    )
+
+
 def run_day(
     n_agents: int = 5_000,
     seed: int | str = 1,
@@ -883,6 +1097,7 @@ def run_day(
     checkpoint_every: int = 360,
     day_index: int = 0,
     budget: float | None = None,
+    l4_scale: float = 1.0,
     n_cells: int = 139,
     mode: str = "record",
     tape_path: str | Path | None = None,
@@ -899,6 +1114,9 @@ def run_day(
     p_notice_d50_scale: float = 1.0,
     refractory_scale: Mapping[Any, float] | None = None,
     signage: bool = True,
+    signage_p_see: float = SIGNAGE_P_SEE_DEFAULT,
+    intent_mode: str = INTENT_MODES[0],
+    vocab_version: str = VOCAB_VERSIONS[0],
     budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
     salient_rate_per_10k: float | None = None,
     population: "Population | bool | None" = None,
@@ -911,6 +1129,11 @@ def run_day(
     attendance_rate: float = 1.0,
     outside_suppression: bool = True,
     derive_rule: str = "v2",
+    geometry: str = DEFAULT_GEOMETRY,
+    area_source: str = DEFAULT_AREA_SOURCE,
+    seat_area_eatery_m2: float | None = None,
+    seat_area_retail_m2: float | None = None,
+    census_out: str | Path | None = None,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -938,6 +1161,10 @@ def run_day(
         checkpoint_every: checkpoint 間隔[tick]。
         day_index: 曜日(0=月曜)。
         budget: 1 tick の呼数上限(None なら L4 按分)。
+        l4_scale: **manifest に載せるだけ**の同定欄(PENDING D-99 (a)・腕 AB8-L4-SCALE)。
+            倍率から ``budget`` を作るのは ``cli.run``(``l4_scale>0`` なら
+            ``call_budget_per_tick(n_agents)×倍率``・``0`` なら ``n_agents``=無制限)。
+            ここでは**計算に一切使わない**=既定 1.0 のランのバイトは 1 つも動かない。
         n_cells: 合成世界を作るときのセル数。
         mode: ``"record"``(``llm`` を呼ぶ)/ ``"replay"``(テープ完全一致・テープ外は計数)。
         tape_path: 録画テープの出力先(None なら記録しない)。
@@ -952,6 +1179,11 @@ def run_day(
             ``None`` なら C2 と同じ直接更新の経路。世帯の現金は**個体 SoA の ``money``
             そのもの**を採用するので、run は ``AgentState`` を作った直後に
             ``attach_household_cash`` を呼ぶ(台帳の世帯数は ``n_agents`` と一致が必要)。
+        census_out: 日次センサス/月次 MER の**出力先ディレクトリ**(境界・経済設計書 §2.4)。
+            ``None``(既定)なら**何も書かない**=manifest・checkpoint・出力ファイルは
+            1 バイトも動かない。渡すと日の締めのあとに ``LedgerBundle.write_census``
+            (economy 側が注入する書き手)を 1 回呼び、書いたパスを
+            ``RunResult.census_paths`` に置く。台帳を渡していないランでは何も起きない。
         processes: 世界過程(C4 第1陣)を回すか(既定 True)。資産が無い合成世界では
             混雑場だけが動き、他の過程は「休む」。
         processes_enabled / processes_disabled: 過程 id か感度試験 id(``AB-*``)で
@@ -975,6 +1207,33 @@ def run_day(
         signage: 知覚契約書 §8 第1陣 **⑥ の腕**「広告ゼロ」。``False`` で看板・広告面
             (B2.signage)を全セルで空にする(W14 凍結文も合成文も載せない)。既定 True。
             ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
+        signage_p_see: **看板の注視ゲート**(知覚契約書 §4 段1 の視認確率 p_see・
+            D-59 (b) ユーザー決定 2026-09-17・腕 ``AB6b-AD-NOTICE``)。在圏セルの
+            看板行を観測へ入れるかを**体×看板×tick の決定論的ベルヌーイ**で決める
+            (``core.rng`` の Philox・ドメイン ``perception.attention.p_see``・
+            カウンタ ``(tick, agent_id, poi_id)``=テープから再現できる)。
+            既定 1.0=常に載せる=**1 バイトも変わらない**(抽選も引かない)。
+            0.0 は ⑥「広告ゼロ」と同じ描画になる(ただし ⑥ は ``signage=False`` が正典)。
+            0.0〜1.0 の外は ``ValueError``。``renderer`` を明示注入したランでは
+            **効かない**(注入側が持つ)。
+        intent_mode: **AB7 自由意図の腕**(仕様書 §2)。``"vocab"``(既定)は
+            現行どおり B0 に 24 語のホワイトリストを見せる。``"open"`` は ``行動:`` の 1 行だけを
+            「いま自分がしたいことを10字以内の動詞句で」に差し替える(理由・対象・ひと言・
+            2 行形・JSON 禁止は同文)。``"hint"``(AB7b)は同じ 1 行を「語彙から選ぶのが基本・
+            当てはまる語が無いときだけ 10 字以内の動詞句」にする中間の腕。接地はどの腕でも
+            エンジン側(§7 段0 辞書写像 → 段1 記録+待機)。
+            既定では**1 バイトも変わらない**(テンプレ本体・``template_sha256`` も不変)。
+            ``INTENT_MODES`` 以外は ``ValueError``。
+            ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
+        vocab_version: **行動語彙の版**(D-71 §3 F・2026-09-17 ユーザー決定)。
+            ``"v1"``(既定)は現行の 24 語(横断 12 + 役割 12)で、**1 バイトも変わらない**。
+            ``"v2"`` は横断語「食事」(飲食店オブジェクトの affordance・コード 24)を足し、
+            ① B0 の出力規約が 13 語提示になる ② 段0 辞書が v3 になる
+            (``食べる``/``飲む`` → ``食事``)③ ``resolve`` に「食事」の分岐が増える。
+            **``llm`` を注入しないランでは mock の語彙もこの版に従う**(``MockLLM`` は
+            プロンプトを読まないので、ここを合わせないと mock では「食事」が 1 件も出ない)。
+            ``renderer`` を明示注入したランでは B0 側だけ注入側が持つ。
+            ``VOCAB_VERSIONS`` 以外は ``ValueError``。
         population: W16 母集団(``agents.population.Population``)。``None``(既定)は
             **``world_dir`` に ``w16_population.parquet`` があれば自動で読む**
             (``n_agents`` 体へ二層抽出)。``False`` で明示的に切る(合成個体のまま)。
@@ -1016,6 +1275,28 @@ def run_day(
             D-56 の就寝抑止と同型だが**例外を作らない**(計画境界・顕著行為・会話ターンも落ちる)。
             ``False`` = **帰無腕**(``--no-outside-suppression``)。**計画実行層が立つラン
             でだけ効く**(``--no-plan-executor`` の帰無腕は現行挙動のまま=checkpoint 不変)。
+        geometry: **C9 位置幾何の腕**(G1/G2・2026-09-17 ユーザー決定)。
+            ``"node"``(既定)= 現行の 1 tick=1 ノード(実資産で ≒2.3 km/h)。
+            **checkpoint も manifest 既存欄も 1 バイト動かない**。
+            ``"edge"`` = 体が辺上の連続位置(``edge_id`` / ``edge_s`` / 向き=
+            ``path_next_node``・+8 B/体)を持ち、1 tick に
+            「希望速度 ``Uniform(1.00,1.60)`` m/s × Kladek 減速 × 60 s」の距離だけ進む。
+            ``xy`` は両端ノードの線形補間・セルは近い方の端点・密度段は人/m² の
+            Fruin LOS 段。``GEOMETRY_MODES`` 以外は ``ValueError``。
+        area_source: **C9c-1 歩行可能面積の出所**(G8 (b)・D-84 (c)・2026-09-17)。
+            ``"legacy"``(既定)= 現行の「W10 街路点数 × 6.25 m²・床 1,500 m²」
+            (**expedient**・6.25 は 2.5 m 格子の目の面積)。**checkpoint も manifest 既存欄も
+            1 バイト動かない**。``"plateau"`` = ``c9c_walkable_area.parquet``(PLATEAU tran の
+            歩道部の面 + OSM 線 × 道路構造令の既定幅員・``tools/build_geo/walkable_area.py``)
+            を読み、**密度の分母を 1 本だけ差し替える**(``PerceptionAssets.walkable_area_m2``
+            = B4 の LOS 段・``ChangeDetector`` の起床条件 (i)・``EdgeGeometry`` の Kladek 減速が
+            **同じ値**を見る)。読み込みは起動時 1 回で tick ループに新しい逐次ループを作らない。
+        seat_area_eatery_m2 / seat_area_retail_m2: **1 人あたり床面積[m²]の感度腕**
+            (C9c-1・R-8 ③)。``None``(既定)= ``processes.crowd.SEAT_AREA_M2``
+            (飲食 2.0 / 物販その他 4.0)のまま=**1 バイトも変わらない**。法定の帯は
+            ``world.assets.SEAT_AREA_M2_FIRE_CODE``(消防法施行規則 1 条の 3・飲食 **3.0** /
+            物販 **4.0**)と ``SEAT_AREA_M2_BUILDING_NOTICE``(建告1441・飲食 1.43 / 売場 2.0)。
+            ``eatery`` は ``food``/``nightlife``、``retail`` は**表に無い全カテゴリ**に効く。
 
     Returns:
         ``RunResult``。
@@ -1031,11 +1312,29 @@ def run_day(
         raise ValueError(f"attendance_rate は 0.0〜1.0(いま {attendance_rate})")
     if str(derive_rule) not in PRESENCE_DERIVE_RULES:
         raise ValueError(f"derive_rule は {PRESENCE_DERIVE_RULES} のどれか(いま {derive_rule!r})")
+    # ---- C9 位置幾何の腕: 値の検査は**SoA を確保する前**にする(欄が 1 本変わるため) ----
+    geometry = check_geometry(geometry)
+    # ---- C9c-1 歩行可能面積の出所: 資産を読む前に検査(manifest が嘘をつかない) ----
+    area_source = check_area_source(area_source)
+    # ---- C9c-1 席面積の感度腕: **None なら表に触らない**(既定は 1 バイトも変わらない) ----
+    seat_area_table: dict[str, float] | None = None
+    if seat_area_eatery_m2 is not None:
+        if float(seat_area_eatery_m2) <= 0.0:
+            raise ValueError(f"seat_area_eatery_m2 は正の値(いま {seat_area_eatery_m2})")
+        seat_area_table = {k: float(seat_area_eatery_m2) for k in SEAT_AREA_M2}
+    if seat_area_retail_m2 is not None and float(seat_area_retail_m2) <= 0.0:
+        raise ValueError(f"seat_area_retail_m2 は正の値(いま {seat_area_retail_m2})")
+    # ---- D-59 (b) 看板の注視ゲート: 同上(過程を切ったランでも腕の値を検査する) ----
+    signage_p_see = check_signage_p_see(signage_p_see)
+    # ---- AB7 自由意図の腕: 値の検査は**レンダラを作る前**にする(manifest が嘘をつかない) ----
+    intent_mode = check_intent_mode(intent_mode)
+    # ---- 語彙 v2 の版: 同上(mock・レンダラ・bridge の前で確定させる) ----
+    vocab_version = check_vocab_version(vocab_version)
     # ---- ablation ③: **ランの実効不応期表**を 1 本組む(既定=§6 の表そのもの) ----
     refractory_table = R.refractory_ticks(refractory_scale)
     refractory_scale_norm = R.normalized_refractory_scale(refractory_scale)
     world = world if world is not None else World.synthetic(n_cells=n_cells, seed=seed)
-    llm = llm if llm is not None else MockLLM(master_seed=seed)
+    llm = llm if llm is not None else _default_mock(seed, vocab_version)
     salt = run_salt_for(seed)
     tape_writer = TapeWriter(Path(tape_path)) if tape_path is not None else None
     conv = ConversationManager(seed) if conversations else None
@@ -1053,7 +1352,19 @@ def run_day(
     if _ablated & set(PlanExecutor.process_ids) | (_ablated & {PlanExecutor.ablation_id}):
         plan_executor = False
     plan_exec_on = bool(plan_executor) and weekly is not None and pop is not None
-    agents = AgentState(n_agents, plan_columns=plan_exec_on)
+    # ---- C9b(対象と注意・G3〜G7)が立つ条件 ----
+    # **辺上の連続位置(距離が定義できる)**と**語彙 v2(段0 辞書 v4 が対象ヒントを運ぶ)**の
+    # 両方が要る: 焦点の取得/喪失距離も会話の成立/離脱距離も「距離」抜きには意味が無く、
+    # 「近づく/見る」という対象そのものは辞書 v4 でしか入って来ない。したがって**積**で立てる。
+    # 既定の 4 腕(node/v1・--derive-rule v2.1・--vocab-version v2・--geometry edge)は
+    # どれも片方しか持たないので **checkpoint は 1 バイトも動かない**。
+    attention_on = (geometry == "edge") and (vocab_version == "v2")
+    agents = AgentState(
+        n_agents,
+        plan_columns=plan_exec_on,
+        edge_columns=(geometry == "edge"),
+        attention_columns=attention_on,
+    )
     if ledger is not None and ledger.money is not None:
         # 世帯の現金行 = 個体 SoA の money(写しを作らない・台帳の書き込み窓は resolve が持つ)
         ledger.money.attach_household_cash(agents.registry.money)
@@ -1083,6 +1394,8 @@ def run_day(
             p_notice_d50_scale=p_notice_d50_scale,
             salient_rate_per_10k=salient_rate_per_10k,
             plan_executor=plan_exec_on,
+            seat_area_m2=seat_area_table,
+            default_seat_area_m2=seat_area_retail_m2,
         )
 
     # ---- ⓪a-2 計画実行層(D-66・engine.presence)。W17 + W16 のあるランだけ立つ ----
@@ -1119,9 +1432,19 @@ def run_day(
     # ---- 知覚レンダラ(C3 結線・B0-B6 の本物) ----
     perception: PerceptionRendererAdapter | None = None
     frozen_sources_map: dict[str, str] = {}
+    #: C9c-1: 実測面積の資産 SHA(``area_source="plateau"`` のときだけ入る)。
+    walkable_sources: dict[str, str] = {}
     if renderer is None:
         assets = PerceptionAssets.load_or_synthetic(world_dir, world)
+        # ---- C9c-1: 歩行可能面積を実測に差し替える(**分母は 1 本**=二重定義を作らない) ----
+        # ``PerceptionAssets`` は frozen なので ``dataclasses.replace`` で作り直す。差し替えは
+        # レンダラを作る**前**なので、B4 の LOS 段・起床条件 (i)・Kladek 減速が同じ値を見る。
+        if area_source != DEFAULT_AREA_SOURCE:
+            new_area, area_sha = load_walkable_area_m2(world_dir, assets.place_ids)
+            assets = dataclasses.replace(assets, walkable_area_m2=new_area)
+            walkable_sources = dict(area_sha)
         frozen_sources_map = dict(getattr(assets, "frozen_sources", {}) or {})
+        frozen_sources_map.update(walkable_sources)
         # 世界内日時 = 気象の再生実日(D-W15)。世界過程が無ければ既定の開始日 + day_index。
         start = DEFAULT_START_DATETIME + timedelta(days=int(day_index))
         if runner is not None and runner.replay_date:
@@ -1133,6 +1456,9 @@ def run_day(
                 seed=seed,
                 budget_mode=budget_mode_enum,
                 signage_enabled=signage,
+                signage_p_see=signage_p_see,
+                intent_mode=intent_mode,
+                vocab_version=vocab_version,
             )
         )
         renderer_obj: Any = perception
@@ -1140,14 +1466,22 @@ def run_day(
     elif isinstance(renderer, str):
         if renderer != "stub":
             raise ValueError("renderer は None / 'stub' / Renderer 実装")
+        if area_source != DEFAULT_AREA_SOURCE:
+            raise ValueError("area_source='plateau' は注入レンダラ('stub')では使えない")
         renderer_obj = StubRenderer()
         walkable = None
     else:
+        if area_source != DEFAULT_AREA_SOURCE:
+            # 注入された資産を黙って書き換えない(呼び手が自分で差し替える口を持っている)。
+            raise ValueError("area_source='plateau' は注入レンダラでは使えない(資産は呼び手のもの)")
         renderer_obj = renderer
         # 注入されたものが本物のアダプタなら、前計算(⓪)と B4 欄の受け渡しも同じ道を通す
         perception = renderer if isinstance(renderer, PerceptionRendererAdapter) else None
         walkable = getattr(getattr(renderer, "assets", None), "walkable_area_m2", None)
 
+    # ---- C9b G6 a′: 目印(landmark 56 + attraction 12)の「名 → POI 索引」表 ----
+    # パーサはこれを渡されたときだけ固有名を POI まで解決する(``target.poi_id``)。
+    landmarks = world.landmark_targets() if attention_on else None
     bridge = LLMBridge(
         llm,
         renderer=renderer_obj,
@@ -1157,6 +1491,8 @@ def run_day(
         lane=lane,
         tick_seconds=tick_seconds,
         params={"max_tokens": 64, "temperature": 0.0},
+        vocab_version=vocab_version,
+        landmarks=landmarks,
     )
 
     # ---- 実艦隊(C6-a)。テープ・未定義行動台帳・デコード設定は bridge と**同じものを共有** ----
@@ -1169,6 +1505,8 @@ def run_day(
             tape_row_factory=TapeRow,
             undefined=bridge.undefined,
             debug_dir=fleet_debug_dir,
+            vocab_version=vocab_version,  # 第214: 渡し忘れ=実 LLM の v2 応答が v1 で解析されていた
+            landmarks=landmarks,
         )
         if fleet is not None
         else None
@@ -1187,9 +1525,25 @@ def run_day(
     replay_inbox: dict[int, list[tuple[bool, Any]]] = {}
 
     detector = ChangeDetector(n_agents, world.n_cells, walkable_area_m2=walkable)
-    arbiter = Arbiter(
-        n_agents, salt, budget if budget is not None else call_budget_per_tick(n_agents)
+    # ---- C9 位置幾何(G1 (b))。``node``(既定)では作らない=resolve は現行の経路 ----
+    # 密度の分母(歩行可能面積)は**変化検出と同じ値**を使う(二重定義を作らない)。
+    geom: EdgeGeometry | None = (
+        EdgeGeometry(
+            world.assets,
+            seed=seed,
+            n_agents=n_agents,
+            walkable_area_m2=walkable,
+            tick_seconds=tick_seconds,
+        )
+        if geometry == "edge"
+        else None
     )
+    #: edge 幾何の診断(ラン通算)。node では 0 のまま。
+    geometry_hops = 0
+    geometry_jammed = 0
+    #: このランの 1 tick の呼数上限(``None`` なら L4 按分)。manifest の ``budget_per_tick``。
+    effective_budget = float(budget) if budget is not None else call_budget_per_tick(n_agents)
+    arbiter = Arbiter(n_agents, salt, effective_budget)
     space = C.ResourceSpace(world.n_poi, n_agents, world.n_cells)
 
     # 計画境界。W17 週次表(w17_schedule.parquet)があればそれを使い、無ければ mock 日課の 5 境界へ落ちる
@@ -1228,6 +1582,8 @@ def run_day(
         mode=mode,
     )
     result.money_start = int(agents.registry.money.astype(np.int64).sum())
+    #: D-71 §3 J: 行動コード別の適用件数(``ResolveOutcome.per_action`` のラン合計)。
+    per_action_total: dict[int, int] = {}
     # 在圏 journal(C7 受入計器 tools/c7・holdout 照合の入力)。既定 0=書かない(状態・診断・テープに影響なし)。
     occ_ticks: list[int] = []
     occ_counts: list[np.ndarray] = []
@@ -1238,9 +1594,17 @@ def run_day(
     phase = {k: 0.0 for k in ("presence", "detect", "arbiter", "llm", "fleet_wait", "phase_a",
                               "phase_b", "phase_c", "movement", "movement_cpu", "checkpoint")}
     diag_rows: list[tuple[int, ...]] = []
-    # (t_apply, class, agent, condition, text, action_code, target_person)
+    # (t_apply, class, agent, condition, text, action_code, target_person,
+    #  **target_hint**, **target_poi**)
     # ``target_person`` = LLM が「対象」欄に書いた個体 id(-1=名指しなし・C6 09-09)。
-    pending: list[tuple[int, int, int, int, str, int, int]] = []
+    # ``target_hint`` = 段0 辞書 v4 の対象ヒント索引(C9b G5・0=なし)。
+    # ``target_poi`` = 「対象」欄が目印 POI に解決できたときの索引(C9b G6 a′・-1=なし)。
+    pending: list[tuple[int, int, int, int, str, int, int, int, int]] = []
+    #: C9b G3/G4: この tick に LLM が言った**焦点の要求**(-1=なし)。使い回す 1 本の
+    #: バッファ(毎 tick 触った行だけ戻す=個体数ぶんの確保は 1 回きり)。
+    focus_request = (
+        np.full(n_agents, int(FOCUS_NONE), dtype=np.int64) if attention_on else None
+    )
     #: この tick に応答を適用した個体 → 行動コード(会話の被招待の返事を読むのに使う)。
     applied_now: dict[int, int] = {}
     #: 会話の相手の由来(``conv_*`` 診断行の素材)。
@@ -1317,6 +1681,14 @@ def run_day(
                 tgt_person = np.fromiter(
                     (due[int(i)][6] for i in order), dtype=np.int64, count=order.size
                 )
+                # C9b: 対象ヒント(辞書 v4)と目印 POI。腕が立っていないランでは
+                # 全行 0 / -1 なので ``intents_from_responses`` へは渡さない(=バイト不変)。
+                tgt_hint = np.fromiter(
+                    (due[int(i)][7] for i in order), dtype=np.int64, count=order.size
+                )
+                tgt_poi = np.fromiter(
+                    (due[int(i)][8] for i in order), dtype=np.int64, count=order.size
+                )
                 agents_in_order = ag[order]
                 # 個体 → (行動コード, **LLM が名指しした**対象)。会話の承諾/相互指名の判定に使う
                 # (エンジンが解決した対象ではない=「誰に向けた返事か」は名指しにしか無い)。
@@ -1330,7 +1702,8 @@ def run_day(
                 # B の「直前の結果」(B6)に**偽の失敗**が載る。承諾はここで消費し、
                 # B の行を intent から外す(承諾は新しい招待ではない)。
                 consumed = _settle_pending_invites(
-                    conv, agents, tick, agents_in_order, codes, tgt_person, R, np
+                    conv, agents, tick, agents_in_order, codes, tgt_person, R, np,
+                    attention_on,
                 )
                 keep = (
                     np.array(
@@ -1343,12 +1716,30 @@ def run_day(
                     agents, world, space, tick, agents_in_order[keep], cond[order][keep],
                     codes[keep],
                     home_cell=schedule.home_cell, work_cell=schedule.work_cell,
-                    target_person=tgt_person[keep], stats=talk_stats, run_salt=salt,
+                    school_cell=(
+                        getattr(schedule, "school_cell", None) if attention_on else None
+                    ),
+                    target_person=tgt_person[keep],
+                    target_hint=tgt_hint[keep] if attention_on else None,
+                    target_poi=tgt_poi[keep] if attention_on else None,
+                    stats=talk_stats, run_salt=salt,
                 )
+                # ---- C9b G3/G4: 焦点の要求を 1 本のバッファへ散らす ----
+                if focus_request is not None:
+                    focus_request[:] = int(FOCUS_NONE)
+                    kept_agents = agents_in_order[keep]
+                    if kept_agents.size:
+                        focus_request[kept_agents] = C.focus_codes(
+                            tgt_hint[keep], tgt_person[keep], tgt_poi[keep], int(agents.n)
+                        )
             else:
                 applied_now = {}
+                if focus_request is not None:
+                    focus_request[:] = int(FOCUS_NONE)
         else:
             applied_now = {}
+            if focus_request is not None:
+                focus_request[:] = int(FOCUS_NONE)
         phase["phase_a"] += time.perf_counter() - t0
 
         # ---- ② 変化検出(P6) ----
@@ -1433,6 +1824,7 @@ def run_day(
                 pending.append((
                     max(res.t_apply, tick + 1), res.wake_class, res.agent_id,
                     res.condition, res.text, res.action_code, _target_person(res.target),
+                    *_pending_extra(res),
                 ))
                 if not res.format_ok:
                     n_parse_errors_fleet += 1
@@ -1465,6 +1857,7 @@ def run_day(
                 pending.append((
                     max(t_apply, tick + 1), res.wake_class, res.agent_id,
                     res.condition, res.text, res.action_code, _target_person(res.target),
+                    *_pending_extra(res),
                 ))
                 if not res.format_ok:
                     n_parse_errors_fleet += 1
@@ -1596,7 +1989,7 @@ def run_day(
                         fleet_waiting.discard(a)  # 同 tick で届いた=待ちにならない
                     pending.append((
                         res.t_apply, cls, a, cond, res.text, res.action_code,
-                        _target_person(res.target),
+                        _target_person(res.target), *_pending_extra(res),
                     ))
                     if not res.format_ok:
                         n_parse_errors += 1
@@ -1675,16 +2068,34 @@ def run_day(
             rail=None if runner is None or not runner.is_enabled("rail") else runner.rail,
             crowd=None if runner is None or not runner.is_enabled("crowd") else runner.crowd,
             hotel=None if runner is None or not runner.is_enabled("hotel") else runner.hotel,
+            vocab_version=vocab_version,
+            geometry=geom,
+            focus_request=focus_request,
+            talk_by_distance=attention_on,
         )
         phase["phase_c"] += time.perf_counter() - t0
         phase["movement"] += outcome.movement_seconds
         phase["movement_cpu"] += outcome.movement_cpu_seconds
+        geometry_hops += outcome.n_hops
+        geometry_jammed += outcome.n_jammed
         result.fares_paid += outcome.fare_paid
         result.n_boarded += outcome.n_boarded
         result.n_alighted += outcome.n_alighted
         result.n_queued += outcome.n_queued
         result.n_board_waiting += outcome.n_board_waiting
         result.n_board_timeout += outcome.n_board_timeout
+        result.meals += outcome.n_meals
+        result.meal_yen += outcome.meal_yen
+        # C9b(対象と注意)。腕が立っていないランでは 4 本とも 0 のまま。
+        result.n_approach += outcome.n_approach
+        result.n_approach_done += outcome.n_approach_done
+        result.n_target_gone += outcome.n_target_gone
+        result.n_focus += outcome.n_focus
+        result.n_focus_lost += outcome.n_focus_lost
+        result.n_talk_by_distance += outcome.n_talk_by_distance
+        # D-71 §3 J: 語ごとの使用件数(**解決後**=エンジンが適用した行動)。
+        for _code, _n in outcome.per_action.items():
+            per_action_total[int(_code)] = per_action_total.get(int(_code), 0) + int(_n)
 
         # ---- 会話セッション(行動契約書 §3・C6 で設計準拠化 09-09) ----
         # ①返事待ちの被招待が答えていれば成立/不成立を確定 → ②新しい招待を捌く
@@ -1722,7 +2133,14 @@ def run_day(
                         continue
                     if int(act_now[inviter]) != int(Activity.CONVERSING):
                         continue  # resolve が失敗させた(相手が会話中/去った)
-                    same_cell = bool(cell_now[inviter] == cell_now[invitee])
+                    same_cell = bool(
+                        R.talk_within_reach(
+                            agents,
+                            np.int64(inviter),
+                            np.int64(invitee),
+                            by_distance=attention_on,
+                        )
+                    )
                     b_code, b_named = applied_now.get(invitee, (-1, -1))
                     # **相互指名**= 相手も自分の呼で**こちらを名指しして** 会話 と答えた。
                     # (エンジンが解決した対象ではなく LLM が書いた対象で見る=中-2)
@@ -1764,7 +2182,13 @@ def run_day(
                 _revert(stale)
             if reverted:
                 R.revert_conversation(agents, np.array(sorted(set(reverted)), dtype=np.int64))
-            finished = conv.step(tick, cell=agents.registry.cell)
+            finished = conv.step(
+                tick,
+                cell=agents.registry.cell,
+                # C9b G7: 離脱は**実距離 3 m**(成立 2 m より広い=ヒステリシス)。
+                xy=agents.registry.xy if attention_on else None,
+                leave_distance_m=R.TALK_LEAVE_METERS if attention_on else None,
+            )
             if finished:
                 # 終了したセッションの参加者を解放する(行動契約書 §3「終了はエンジン」)。
                 # C3 では CLOSING→TERMINAL のあと ``activity`` が CONVERSING のまま残っていた
@@ -1849,7 +2273,7 @@ def run_day(
             pending.append((
                 res.tick + delta_think_ticks(res.lane, tick_seconds), res.wake_class,
                 res.agent_id, res.condition, res.text, res.action_code,
-                _target_person(res.target),
+                _target_person(res.target), *_pending_extra(res),
             ))
         result.fleet_drained_at_end = n_late
         # ラン終端でも答えが返らなかった呼(**次ランへ持ち越す**の監査点。0 が正常)
@@ -1867,6 +2291,7 @@ def run_day(
                 pending.append((
                     item.t_apply, item.wake_class, item.agent_id, item.condition,
                     item.text, item.action_code, _target_person(item.target),
+                    *_pending_extra(item),
                 ))
         replay_inbox.clear()
         result.fleet_drained_at_end = n_late
@@ -1874,6 +2299,9 @@ def run_day(
 
     bridge.close()
     result.runner = runner  # type: ignore[attr-defined]
+    # AB7 の M1-M3(接地率・未定義率・上位未定義語)は §7 の台帳が持つ。``runner`` と同じく
+    # **後付けの属性**として渡すだけ(RunResult の欄は増やさない=既存の出力は不変)。
+    result.undefined_registry = bridge.undefined  # type: ignore[attr-defined]
     if runner is not None:
         # D-R2-6: ActualLog は O(t) が本質 → 保持窓を過ぎた生ログを日次集約行へ畳む
         runner.end_of_day(max(0, ticks - 1))
@@ -1913,6 +2341,17 @@ def run_day(
         if row is not None:
             result.census_row = dict(row)
             result.census_pass = bool(row.get("gate_ok", False))
+        # 月次センサスの T3(冗長方程式の検算・D-85 (a)・ユーザー決定 2026-09-17)。
+        # 月次が立たない日は None(=未実行)。**``census_out`` とは無関係に**毎日呼ぶ
+        # ——書き出しの有無で manifest が動くと「観測が世界を変えない」が崩れるため。
+        t3 = ledger.monthly_t3(day_index)
+        if t3 is not None:
+            result.t3_report = dict(t3)
+            result.t3_ok = bool(t3.get("ok", False))
+        # 日次センサス/月次 MER の出力口(§2.4)。**``census_out`` を渡したときだけ**書く。
+        # 書き手は economy 側の注入(engine は economy を import できない=層契約)。
+        if census_out is not None:
+            result.census_paths = ledger.write_census(day_index, str(census_out))
     result.bridge_counters = dict(bridge.counters())
     if fleet_bridge is not None:
         result.bridge_counters.update(fleet_bridge.counters())
@@ -1948,6 +2387,9 @@ def run_day(
         if perception is not None
         else budget_mode_enum
     ).value
+    # D-99 (a): L4 呼数予算の腕(倍率は申告・``budget_per_tick`` は**実際に使った値**)。
+    result.l4_scale = float(l4_scale)
+    result.budget_per_tick = float(arbiter.budget)
     # ablation 第1陣 ②③⑥ の腕(manifest の同定欄)。⑥ は**実際に描いた側**が正。
     result.p_notice_ablation = _pnotice_ablation_name(
         runner.salient.ablation if runner is not None else p_notice_ablation
@@ -1961,6 +2403,21 @@ def run_day(
         if perception is not None
         else signage
     )
+    # D-59 (b): 注視ゲートも**実際に描いた側**が正(注入レンダラならそちらの値)。
+    result.signage_p_see = float(
+        getattr(getattr(perception, "renderer", None), "signage_p_see", signage_p_see)
+        if perception is not None
+        else signage_p_see
+    )
+    # AB7: 実際に描いた腕(注入レンダラなら**そちらの値**が正)。
+    result.intent_mode = str(
+        getattr(getattr(perception, "renderer", None), "intent_mode", intent_mode)
+        if perception is not None
+        else intent_mode
+    )
+    # 語彙 v2: 実際に使った版(注入レンダラでも**エンジン側の版**が正=行動の解決はこちら)。
+    result.vocab_version = str(vocab_version)
+    result.action_usage = _action_usage(per_action_total, vocab_version)
     result.sleep_suppression = bool(sleep_suppression)
     result.plan_sleep = bool(plan_sleep)
     result.wake_rate_by_hour = [
@@ -1977,6 +2434,22 @@ def run_day(
     result.exit_mode = str(exit_mode)
     result.attendance_rate = float(attendance_rate)
     result.derive_rule = str(derive_rule)
+    result.geometry = str(geometry)
+    result.geometry_hops = int(geometry_hops)
+    result.geometry_jammed = int(geometry_jammed)
+    result.area_source = str(area_source)
+    result.seat_area_eatery_m2 = (
+        None if seat_area_eatery_m2 is None else float(seat_area_eatery_m2)
+    )
+    result.seat_area_retail_m2 = (
+        None if seat_area_retail_m2 is None else float(seat_area_retail_m2)
+    )
+    if walkable is not None:
+        _wk = np.asarray(walkable, dtype=np.float64).ravel()
+        if _wk.size:
+            result.walkable_area_median_m2 = float(np.median(_wk))
+            result.walkable_area_min_m2 = float(_wk.min())
+    result.attention = bool(attention_on)
     if presence is not None:
         result.presence_counters = dict(presence.counters())
         result.presence_summary = presence.summary()
@@ -2152,6 +2625,13 @@ def main(argv: list[str] | None = None) -> int:
                     help="在圏ブロックの読み口(v2=§2 追補・v1=原則のまま)")
     ap.add_argument("--no-outside-suppression", action="store_true",
                     help="D-66 域外抑止を切る(=D-66 前の挙動・帰無腕)")
+    ap.add_argument("--geometry", choices=GEOMETRY_MODES, default=DEFAULT_GEOMETRY,
+                    help="位置幾何(C9 G1/G2)。node=1 tick 1 ノード(既定・バイト不変)/"
+                         "edge=辺上の連続位置+希望速度 1.00〜1.60 m/s+Kladek 減速")
+    ap.add_argument("--area-source", choices=AREA_SOURCES, default=DEFAULT_AREA_SOURCE,
+                    help="歩行可能面積の出所(C9c-1 G8 (b))。legacy=街路点×6.25 m²(既定・"
+                         "バイト不変)/ plateau=c9c_walkable_area.parquet(PLATEAU 歩道部+"
+                         "OSM×道路構造令の実測)")
     add_fleet_args(ap)
     args = ap.parse_args(argv)
 
@@ -2182,6 +2662,8 @@ def main(argv: list[str] | None = None) -> int:
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,
+        geometry=str(args.geometry),
+        area_source=str(args.area_source),
     )
     print(res.summary())
     return 0 if (res.conserved and res.min_stock >= 0) else 1

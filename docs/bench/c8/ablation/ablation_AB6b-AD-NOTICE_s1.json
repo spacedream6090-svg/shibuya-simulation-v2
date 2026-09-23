@@ -1,0 +1,592 @@
+{
+ "arm": "AB6b-AD-NOTICE",
+ "index": "⑥b",
+ "name": "看板の注視ゲート較正(広告への注視確率 p_see を実測帯の下側へ)",
+ "design_source": "PENDING D-59 (b)(ユーザー決定 2026-09-17「注意ゲートの較正を C8 内で 1 回」)+ 知覚契約書 §4 段1「視認確率 p_see——大型ビジョン 0.70(音声有 0.78/無音 0.63)/中小媒体 0.14-0.40 は英仏流用のまま expedient」・§3.2(B2.signage 25 tok・件数 1 は expedient)・§8 第1陣 ⑥(広告ゼロ)+ パターン台帳 第3封印行 S3/AD1「広告全消去で絶対 1pp 未満」",
+ "switch": {
+  "kind": "implemented_flag",
+  "how": "cli.run(signage_p_see=1.0|0.30|0.14|0.0) / CLI --signage-p-see P(⑥ の --no-signage と直交=看板を残したまま『見る頻度』だけを振る)",
+  "implemented": true,
+  "mock_effective": false,
+  "mock_note": "描画バイトと入力トークン(看板行が落ちたぶんセル群が減る)は mock でも動くが、MockLLM は本文を読まないので**行動分布・final_hash は動かない**(①⑥ と同じ理由)。腕の差は実 LLM でしか出ない。",
+  "diff_proposal": "",
+  "verified": "run_day(signage_p_see=…) → Renderer(signage_p_see=…) → _signage_seen(体, セル, tick) が attention.gate_stage1(1, p, seed=ラン seed, domain_counters=(tick, agent_id, poi_id)) を引く(core.rng の Philox4x64・ドメイン perception.attention.p_see)→ 落ちた体は B2.signage_empty・**固定枠では空いた枠を他へ回さない**(単一ランキングは池を分け合う設計なので ⑥ と同じく他チャネルが取りうる)。既定 1.0 では**抽選を 1 回も引かず**描画は 1 バイトも動かない(golden prompt_hash bb23f7c6… 不変・template_sha256 161fe181… 不変)。p<1.0 では §2.4 ⑧(同セル同時間帯の 2 体で B0-B4b バイト一致)は**成り立たない**=同セルの共有 prefix は看板あり/なしの高々 2 変種に分かれる(注視は体ごとの事象だから・親判断待ち)。tests/perception/test_signage_p_see_gate.py・tests/c8/test_ablations_ab6b.py。"
+ },
+ "status": "ready",
+ "scale": {
+  "agents": 5000,
+  "ticks": 1440,
+  "seed": 1
+ },
+ "route": "fleet",
+ "runs": [
+  {
+   "llm_calls": 36906,
+   "calls_per_agent_day": 7.3812,
+   "format_error_rate": 0.005012735056630358,
+   "format_error_rate_strict": 0.45125453855741615,
+   "undefined_action_count": 2,
+   "conversation_sessions": 3,
+   "prompt_tokens_mean": 920.8270741884788,
+   "group_tokens": {
+    "shared_static": 642.8718907494716,
+    "cell": 147.52338373164255,
+    "individual": 130.43179970736466
+   },
+   "diagnostics_day": {
+    "deferred": 40236.0,
+    "promoted": 28354.0,
+    "degraded": 8170.0,
+    "suppressed": 50055.0,
+    "parse_error_rate": 0.005012735056630358,
+    "undefined_action_count": 2.0,
+    "tape_miss_count": 0.0,
+    "conversation_sessions": 3.0
+   },
+   "conserved": true,
+   "census_pass": true,
+   "salient_events": 0,
+   "noticed": 0,
+   "final_hash": "0f56385bc798eacb2b17b36c0795608068ec7d56ccfb7bed4fa14e23dda021a2",
+   "budget_mode": "fixed_slots",
+   "intent_mode": "vocab",
+   "vocab_version": "v1",
+   "signage_p_see": 1.0,
+   "action_usage": {
+    "(エンジン継続)": 236860,
+    "移動": 16757,
+    "乗車": 907,
+    "購入": 12855,
+    "待機": 1360,
+    "会話": 22,
+    "退去": 29,
+    "通報": 18,
+    "休憩": 1616
+   },
+   "meals": 0,
+   "meal_yen": 0,
+   "run_manifest_fields": {
+    "replay_date": "2026-07-28",
+    "template_sha256": "161fe181bc325f003d874fb5c91e6142c01449fb09ac5f8b377b715a945608de",
+    "budget_mode": "fixed_slots",
+    "p_notice_ablation": "A4",
+    "p_notice_d50_scale": 1.0,
+    "refractory_scale": {},
+    "signage": true,
+    "signage_p_see": 1.0,
+    "intent_mode": "vocab",
+    "vocab_version": "v1",
+    "synonym_table_version": "undefined-synonyms-v2",
+    "plan_executor": true,
+    "exit_mode": "immediate",
+    "attendance_rate": 1.0,
+    "catalog_sha16": "34f9fa9d316587be",
+    "ablations": []
+   },
+   "notice_reach": 0.0,
+   "undefined_registry": {
+    "n_calls": 36906,
+    "denominator": "bridge_counters['llm_calls'](=解釈まで進んだ呼・発射数ではない)",
+    "counters": {
+     "undefined_records": 2,
+     "undefined_words": 1,
+     "undefined_dropped": 0,
+     "dictionary_mapped": 183,
+     "proposals": 0,
+     "needs_parent_review": 0,
+     "adopted": 0,
+     "adjudication_calls": 0
+    },
+    "undefined_rate": 5.419173034194982e-05,
+    "dictionary_rate": 0.004958543326288409,
+    "grounded_direct": 0.9949872649433696,
+    "threshold_agents": 10,
+    "top_k": 30,
+    "top_words": [
+     {
+      "word": "通貨",
+      "count": 2,
+      "distinct_agents": 2,
+      "reached_threshold": false
+     }
+    ],
+    "n_reached_threshold": 0
+   },
+   "action_counts": {
+    "待機": 1359,
+    "移動": 16781,
+    "退去": 29,
+    "乗車": 907,
+    "購入": 16169,
+    "休憩": 1616,
+    "会話": 25,
+    "(未定義)": 2,
+    "通報": 18
+   },
+   "undefined_rate": 5.419173034194982e-05,
+   "role_action_rate": 0.0,
+   "n_texts": 36906,
+   "grounding": {
+    "n": 36906,
+    "denominator": "非繰り延べのテープ行(D-58)",
+    "n_direct": 36721,
+    "n_dictionary": 183,
+    "n_undefined": 2,
+    "grounded_direct": 0.9949872649433696,
+    "grounded_dictionary": 0.004958543326288409,
+    "grounded_total": 0.9999458082696581,
+    "undefined_rate": 5.419173034194982e-05
+   },
+   "tag": "p_see_1_00",
+   "kwargs": {
+    "signage_p_see": 1.0
+   },
+   "is_baseline": true,
+   "route": "cli.run(fleet=…)"
+  },
+  {
+   "llm_calls": 36957,
+   "calls_per_agent_day": 7.3914,
+   "format_error_rate": 0.004654057418080472,
+   "format_error_rate_strict": 0.3524907324728739,
+   "undefined_action_count": 3,
+   "conversation_sessions": 14,
+   "prompt_tokens_mean": 904.396731336418,
+   "group_tokens": {
+    "shared_static": 642.8735016370376,
+    "cell": 131.1944151310983,
+    "individual": 130.32881456828207
+   },
+   "diagnostics_day": {
+    "deferred": 40778.0,
+    "promoted": 29190.0,
+    "degraded": 8199.0,
+    "suppressed": 49132.0,
+    "parse_error_rate": 0.004654057418080472,
+    "undefined_action_count": 3.0,
+    "tape_miss_count": 0.0,
+    "conversation_sessions": 14.0
+   },
+   "conserved": true,
+   "census_pass": true,
+   "salient_events": 0,
+   "noticed": 0,
+   "final_hash": "197df2a9fe1e626ec0e4e3842e69a7fe230e1eac27603053c06e5b61d1b078cb",
+   "budget_mode": "fixed_slots",
+   "intent_mode": "vocab",
+   "vocab_version": "v1",
+   "signage_p_see": 1.0,
+   "action_usage": {
+    "(エンジン継続)": 234549,
+    "移動": 16218,
+    "乗車": 983,
+    "購入": 12926,
+    "待機": 1084,
+    "会話": 94,
+    "退去": 18,
+    "通報": 13,
+    "休憩": 2121
+   },
+   "meals": 0,
+   "meal_yen": 0,
+   "run_manifest_fields": {
+    "replay_date": "2026-07-28",
+    "template_sha256": "161fe181bc325f003d874fb5c91e6142c01449fb09ac5f8b377b715a945608de",
+    "budget_mode": "fixed_slots",
+    "p_notice_ablation": "A4",
+    "p_notice_d50_scale": 1.0,
+    "refractory_scale": {},
+    "signage": false,
+    "signage_p_see": 1.0,
+    "intent_mode": "vocab",
+    "vocab_version": "v1",
+    "synonym_table_version": "undefined-synonyms-v2",
+    "plan_executor": true,
+    "exit_mode": "immediate",
+    "attendance_rate": 1.0,
+    "catalog_sha16": "34f9fa9d316587be",
+    "ablations": []
+   },
+   "notice_reach": 0.0,
+   "undefined_registry": {
+    "n_calls": 36957,
+    "denominator": "bridge_counters['llm_calls'](=解釈まで進んだ呼・発射数ではない)",
+    "counters": {
+     "undefined_records": 3,
+     "undefined_words": 2,
+     "undefined_dropped": 0,
+     "dictionary_mapped": 165,
+     "proposals": 0,
+     "needs_parent_review": 0,
+     "adopted": 0,
+     "adjudication_calls": 0
+    },
+    "undefined_rate": 8.117542008279893e-05,
+    "dictionary_rate": 0.004464648104553941,
+    "grounded_direct": 0.9954541764753633,
+    "threshold_agents": 10,
+    "top_k": 30,
+    "top_words": [
+     {
+      "word": "通貨",
+      "count": 2,
+      "distinct_agents": 2,
+      "reached_threshold": false
+     },
+     {
+      "word": "進む",
+      "count": 1,
+      "distinct_agents": 1,
+      "reached_threshold": false
+     }
+    ],
+    "n_reached_threshold": 0
+   },
+   "action_counts": {
+    "待機": 1083,
+    "移動": 16240,
+    "購入": 16381,
+    "乗車": 984,
+    "休憩": 2125,
+    "退去": 19,
+    "会話": 108,
+    "並ぶ": 1,
+    "通報": 13,
+    "(未定義)": 3
+   },
+   "undefined_rate": 8.117542008279893e-05,
+   "role_action_rate": 2.7058473360932975e-05,
+   "n_texts": 36957,
+   "grounding": {
+    "n": 36957,
+    "denominator": "非繰り延べのテープ行(D-58)",
+    "n_direct": 36789,
+    "n_dictionary": 165,
+    "n_undefined": 3,
+    "grounded_direct": 0.9954541764753633,
+    "grounded_dictionary": 0.004464648104553941,
+    "grounded_total": 0.9999188245799172,
+    "undefined_rate": 8.117542008279893e-05
+   },
+   "tag": "ad_zero",
+   "kwargs": {
+    "signage": false
+   },
+   "is_baseline": false,
+   "route": "cli.run(fleet=…)"
+  },
+  {
+   "llm_calls": 36916,
+   "calls_per_agent_day": 7.3832,
+   "format_error_rate": 0.0049030230794235566,
+   "format_error_rate_strict": 0.38091884277819915,
+   "undefined_action_count": 2,
+   "conversation_sessions": 10,
+   "prompt_tokens_mean": 909.4464188969553,
+   "group_tokens": {
+    "shared_static": 642.8704897605375,
+    "cell": 136.18089717195795,
+    "individual": 130.39503196445986
+   },
+   "diagnostics_day": {
+    "deferred": 41031.0,
+    "promoted": 29383.0,
+    "degraded": 7845.0,
+    "suppressed": 50657.0,
+    "parse_error_rate": 0.0049030230794235566,
+    "undefined_action_count": 2.0,
+    "tape_miss_count": 0.0,
+    "conversation_sessions": 10.0
+   },
+   "conserved": true,
+   "census_pass": true,
+   "salient_events": 0,
+   "noticed": 0,
+   "final_hash": "31bbe12b3bf4d84ab49d5dab9a7fd26b25cfa19d196ce621252ebd34ca8500e0",
+   "budget_mode": "fixed_slots",
+   "intent_mode": "vocab",
+   "vocab_version": "v1",
+   "signage_p_see": 0.3,
+   "action_usage": {
+    "(エンジン継続)": 233314,
+    "移動": 16359,
+    "乗車": 886,
+    "降車": 1,
+    "購入": 12926,
+    "待機": 1218,
+    "会話": 59,
+    "退去": 13,
+    "通報": 23,
+    "休憩": 1978
+   },
+   "meals": 0,
+   "meal_yen": 0,
+   "run_manifest_fields": {
+    "replay_date": "2026-07-28",
+    "template_sha256": "161fe181bc325f003d874fb5c91e6142c01449fb09ac5f8b377b715a945608de",
+    "budget_mode": "fixed_slots",
+    "p_notice_ablation": "A4",
+    "p_notice_d50_scale": 1.0,
+    "refractory_scale": {},
+    "signage": true,
+    "signage_p_see": 0.3,
+    "intent_mode": "vocab",
+    "vocab_version": "v1",
+    "synonym_table_version": "undefined-synonyms-v2",
+    "plan_executor": true,
+    "exit_mode": "immediate",
+    "attendance_rate": 1.0,
+    "catalog_sha16": "34f9fa9d316587be",
+    "ablations": []
+   },
+   "notice_reach": 0.0,
+   "signage_gate": {
+    "draws": 36423,
+    "shown": 11085,
+    "shown_rate": 0.30434066386623837
+   },
+   "undefined_registry": {
+    "n_calls": 36916,
+    "denominator": "bridge_counters['llm_calls'](=解釈まで進んだ呼・発射数ではない)",
+    "counters": {
+     "undefined_records": 2,
+     "undefined_words": 1,
+     "undefined_dropped": 0,
+     "dictionary_mapped": 174,
+     "proposals": 0,
+     "needs_parent_review": 0,
+     "adopted": 0,
+     "adjudication_calls": 0
+    },
+    "undefined_rate": 5.417705060136526e-05,
+    "dictionary_rate": 0.004713403402318778,
+    "grounded_direct": 0.9952324195470799,
+    "threshold_agents": 10,
+    "top_k": 30,
+    "top_words": [
+     {
+      "word": "通貨",
+      "count": 2,
+      "distinct_agents": 2,
+      "reached_threshold": false
+     }
+    ],
+    "n_reached_threshold": 0
+   },
+   "action_counts": {
+    "待機": 1218,
+    "移動": 16375,
+    "退去": 13,
+    "乗車": 887,
+    "休憩": 1978,
+    "購入": 16349,
+    "降車": 1,
+    "会話": 69,
+    "通報": 23,
+    "並ぶ": 1,
+    "(未定義)": 2
+   },
+   "undefined_rate": 5.417705060136526e-05,
+   "role_action_rate": 2.708852530068263e-05,
+   "n_texts": 36916,
+   "grounding": {
+    "n": 36916,
+    "denominator": "非繰り延べのテープ行(D-58)",
+    "n_direct": 36740,
+    "n_dictionary": 174,
+    "n_undefined": 2,
+    "grounded_direct": 0.9952324195470799,
+    "grounded_dictionary": 0.004713403402318778,
+    "grounded_total": 0.9999458229493986,
+    "undefined_rate": 5.417705060136526e-05
+   },
+   "tag": "p_see_0_30",
+   "kwargs": {
+    "signage_p_see": 0.3
+   },
+   "is_baseline": false,
+   "route": "cli.run(fleet=…)"
+  },
+  {
+   "llm_calls": 36922,
+   "calls_per_agent_day": 7.3844,
+   "format_error_rate": 0.004739721575212611,
+   "format_error_rate_strict": 0.366475272195439,
+   "undefined_action_count": 1,
+   "conversation_sessions": 7,
+   "prompt_tokens_mean": 906.6876658902552,
+   "group_tokens": {
+    "shared_static": 642.8720546015926,
+    "cell": 133.45327988733004,
+    "individual": 130.36233140133254
+   },
+   "diagnostics_day": {
+    "deferred": 40991.0,
+    "promoted": 28985.0,
+    "degraded": 7970.0,
+    "suppressed": 51449.0,
+    "parse_error_rate": 0.004739721575212611,
+    "undefined_action_count": 1.0,
+    "tape_miss_count": 0.0,
+    "conversation_sessions": 7.0
+   },
+   "conserved": true,
+   "census_pass": true,
+   "salient_events": 0,
+   "noticed": 0,
+   "final_hash": "0df118eea8a37d3018c7e545fb005190b2e0124b8435605fce4fe777bffd926d",
+   "budget_mode": "fixed_slots",
+   "intent_mode": "vocab",
+   "vocab_version": "v1",
+   "signage_p_see": 0.14,
+   "action_usage": {
+    "(エンジン継続)": 234873,
+    "移動": 16276,
+    "乗車": 990,
+    "購入": 12973,
+    "待機": 1109,
+    "会話": 40,
+    "退去": 19,
+    "通報": 15,
+    "休憩": 2038
+   },
+   "meals": 0,
+   "meal_yen": 0,
+   "run_manifest_fields": {
+    "replay_date": "2026-07-28",
+    "template_sha256": "161fe181bc325f003d874fb5c91e6142c01449fb09ac5f8b377b715a945608de",
+    "budget_mode": "fixed_slots",
+    "p_notice_ablation": "A4",
+    "p_notice_d50_scale": 1.0,
+    "refractory_scale": {},
+    "signage": true,
+    "signage_p_see": 0.14,
+    "intent_mode": "vocab",
+    "vocab_version": "v1",
+    "synonym_table_version": "undefined-synonyms-v2",
+    "plan_executor": true,
+    "exit_mode": "immediate",
+    "attendance_rate": 1.0,
+    "catalog_sha16": "34f9fa9d316587be",
+    "ablations": []
+   },
+   "notice_reach": 0.0,
+   "signage_gate": {
+    "draws": 36402,
+    "shown": 5008,
+    "shown_rate": 0.1375748585242569
+   },
+   "undefined_registry": {
+    "n_calls": 36922,
+    "denominator": "bridge_counters['llm_calls'](=解釈まで進んだ呼・発射数ではない)",
+    "counters": {
+     "undefined_records": 1,
+     "undefined_words": 1,
+     "undefined_dropped": 0,
+     "dictionary_mapped": 170,
+     "proposals": 0,
+     "needs_parent_review": 0,
+     "adopted": 0,
+     "adjudication_calls": 0
+    },
+    "undefined_rate": 2.7084123286929202e-05,
+    "dictionary_rate": 0.0046043009587779645,
+    "grounded_direct": 0.9953686149179352,
+    "threshold_agents": 10,
+    "top_k": 30,
+    "top_words": [
+     {
+      "word": "近づく",
+      "count": 1,
+      "distinct_agents": 1,
+      "reached_threshold": false
+     }
+    ],
+    "n_reached_threshold": 0
+   },
+   "action_counts": {
+    "待機": 1109,
+    "移動": 16299,
+    "購入": 16401,
+    "乗車": 991,
+    "休憩": 2040,
+    "通報": 15,
+    "退去": 19,
+    "会話": 47,
+    "(未定義)": 1
+   },
+   "undefined_rate": 2.7084123286929202e-05,
+   "role_action_rate": 0.0,
+   "n_texts": 36922,
+   "grounding": {
+    "n": 36922,
+    "denominator": "非繰り延べのテープ行(D-58)",
+    "n_direct": 36751,
+    "n_dictionary": 170,
+    "n_undefined": 1,
+    "grounded_direct": 0.9953686149179352,
+    "grounded_dictionary": 0.0046043009587779645,
+    "grounded_total": 0.9999729158767131,
+    "undefined_rate": 2.7084123286929202e-05
+   },
+   "tag": "p_see_0_14",
+   "kwargs": {
+    "signage_p_see": 0.14
+   },
+   "is_baseline": false,
+   "route": "cli.run(fleet=…)"
+  }
+ ],
+ "notes": [],
+ "executed": true,
+ "comparisons": [
+  {
+   "tag": "ad_zero",
+   "identical_final_hash": false,
+   "d_llm_calls": 51,
+   "d_format_error_rate": -0.00035867763854988653,
+   "d_notice_reach": 0.0,
+   "d_prompt_tokens_mean": -16.43034285206079,
+   "d_signage_p_see": 0.0,
+   "action_jsd": 0.001703303310195569,
+   "null_reference_bits": 0.0035,
+   "exceeds_null": false,
+   "d_grounded_direct": 0.0004669115319936301,
+   "d_grounded_dictionary": -0.0004938952217344679,
+   "d_grounded_total": -2.6983689740855965e-05,
+   "d_undefined_rate": 2.6983689740849114e-05
+  },
+  {
+   "tag": "p_see_0_30",
+   "identical_final_hash": false,
+   "d_llm_calls": 10,
+   "d_format_error_rate": -0.00010971197720680177,
+   "d_notice_reach": 0.0,
+   "d_prompt_tokens_mean": -11.380655291523567,
+   "d_signage_p_see": -0.7,
+   "action_jsd": 0.0007962876679295115,
+   "null_reference_bits": 0.0035,
+   "exceeds_null": false,
+   "d_grounded_direct": 0.00024515460371021813,
+   "d_grounded_dictionary": -0.00024513992396963096,
+   "d_grounded_total": 1.4679740534262464e-08,
+   "d_undefined_rate": -1.4679740584555893e-08
+  },
+  {
+   "tag": "p_see_0_14",
+   "identical_final_hash": false,
+   "d_llm_calls": 16,
+   "d_format_error_rate": -0.0002730134814177476,
+   "d_notice_reach": 0.0,
+   "d_prompt_tokens_mean": -14.139408298223657,
+   "d_signage_p_see": -0.86,
+   "action_jsd": 0.0009437026046233816,
+   "null_reference_bits": 0.0035,
+   "exceeds_null": false,
+   "d_grounded_direct": 0.00038134997456551467,
+   "d_grounded_dictionary": -0.0003542423675104442,
+   "d_grounded_total": 2.710760705504356e-05,
+   "d_undefined_rate": -2.7107607055020614e-05
+  }
+ ]
+}

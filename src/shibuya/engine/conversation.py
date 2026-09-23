@@ -74,6 +74,9 @@ __all__ = [
 ]
 
 #: 契約書 §2.1「距離≦d_talk(≈1m)」。C3 では**同一セル**で代理する(上の expedient)。
+#: **C9b G7(2026-09-17)**: 辺上の連続位置が入った腕では、成立=
+#: ``engine.resolve.TALK_OPEN_METERS``(2 m)・離脱= ``TALK_LEAVE_METERS``(3 m)の
+#: **実距離**に置き換わる(本定数は v1 の名目値として残す=文面凍結)。
 D_TALK_METERS: Final[float] = 1.0
 #: 声かけ応答率(契約書「較正目標≈0.8」・expedient)。
 ACCEPT_PROBABILITY: Final[float] = 0.8
@@ -666,6 +669,8 @@ class ConversationManager:
         *,
         cell: Sequence[int] | np.ndarray | None = None,
         in_conversation: Sequence[bool] | np.ndarray | None = None,
+        xy: Sequence[float] | np.ndarray | None = None,
+        leave_distance_m: float | None = None,
     ) -> list[Session]:
         """1 tick 進める(WALKING_OVER→PARTICIPATING・ソフト終了・CLOSING→TERMINAL)。
 
@@ -673,12 +678,20 @@ class ConversationManager:
             tick: 現在 tick。
             cell: 個体 → 現在セル(セル離脱の判定に使う。None なら判定しない)。
             in_conversation: 個体 → まだ会話状態か(resolve が ``退去`` を適用した後の掃除)。
+            xy: 個体 → 平面座標 ``(n, 2)``(**C9b G7**)。``leave_distance_m`` と一緒に渡すと
+                ソフト終了「セル離脱」の判定が**実距離**になる(参加者間の距離が
+                ``leave_distance_m`` を超えたら終了=離脱距離)。**成立距離(2 m)より広く
+                取ること**——同値だと境界の 2 人が毎 tick 作っては壊す(§4 改訂 G7)。
+                ``None``(既定)なら従来どおり ``cell`` の一致で見る。
+            leave_distance_m: 離脱距離[m](``engine.resolve.TALK_LEAVE_METERS``)。
 
         Returns:
             この tick に TERMINAL へ落ちたセッション。
 
         逐次ループ宣言(P4): 活動中セッション数ぶん。
         """
+        by_distance = xy is not None and leave_distance_m is not None
+        xy_arr = np.asarray(xy, dtype=np.float64) if by_distance else None
         finished: list[Session] = []
         for s in list(self.sessions.values()):
             if s.state is ConvState.TERMINAL:
@@ -692,7 +705,11 @@ class ConversationManager:
                     s.state = ConvState.PARTICIPATING
                 continue
             # --- PARTICIPATING のソフト終了 ---
-            if cell is not None and self._left_cell(s, cell):
+            if by_distance:
+                if self._left_distance(s, xy_arr, float(leave_distance_m)):
+                    self._close(s, int(tick), "left_cell")
+                    continue
+            elif cell is not None and self._left_cell(s, cell):
                 self._close(s, int(tick), "left_cell")
                 continue
             if in_conversation is not None and self._dropped_out(s, in_conversation):
@@ -704,6 +721,26 @@ class ConversationManager:
             if int(tick) - s.opened_tick >= self.max_session_ticks:
                 self._close(s, int(tick), "timeout")
         return finished
+
+    def _left_distance(self, s: Session, xy: np.ndarray, limit_m: float) -> bool:
+        """参加者のどれかが**離脱距離**より遠くへ離れたか(C9b G7)。
+
+        セルの一致は見ない——2 m 以内に居ながらセル境界を跨ぐ 2 人を毎 tick 切らないため
+        (それをやると成立 2 m / 離脱 2 m と同じ暴発になる)。
+
+        逐次ループ宣言(P4): 参加者数ぶん(≤2)。
+        """
+        n = int(xy.shape[0])
+        anchor = int(s.participants[0])
+        if anchor >= n:
+            return True
+        for p in s.participants[1:]:
+            if p >= n:
+                return True
+            d = xy[p] - xy[anchor]
+            if float(np.sqrt(float(d[0]) ** 2 + float(d[1]) ** 2)) > limit_m:
+                return True
+        return False
 
     def _left_cell(self, s: Session, cell) -> bool:
         arr = np.asarray(cell)

@@ -56,11 +56,14 @@
 - **検算2本**(Caiani 2016): ①四重記入=取引フロー行列の行和・列和が0(開発時テスト) ②**全主体の純資産合計=実物資産(在庫+固定資産)の価額**が毎期成立(**主検算・O(N)総和・全規模**)。
 - **新規則(ex nihilo禁止)**: 倒産→退出→参入で、参入時の初期資本は創業者預金・銀行貸出・外界からのtransfer由来のみ(Caianiが名指しした不整合への対応)。
 - pytest 8本: transfer保存・列挙外科目拒否・行和列和0・純資産=実物資産・参入資本のtransfer由来・残差閾値・退蔵項計上・faucet/sink科目別集計。
+- **空欄/残務(第210 訂正・出典 [v2-r23-primary-check-batch2.md](../research/v2-r23-primary-check-batch2.md) §4-E・§2-1 #8)**: U-B答申の保存則テスト5層のうち**T3(冗長方程式を実装せず「検算値」として毎期assert)は答申にあるが未実装**(`checks.py`は検算①②の2本のみ)で、**落とした記録も無い**。T3はSFC標準の検証法(Levy WP 745 付録「Equation (10) is the hidden equation」)。検算2本でT3を包含できているかを紙上で1度確認し、できていなければU11の未決項とする(新規実装の可否はユーザー判断)。
 
 ### 2.4 センサス
 - **月次**: EVE Online型経済レポート(MER)形式の固定表=科目別faucet・sink・貨幣供給量・残差・退蔵残高。
 - **日次(軽量)**: 残差・貨幣供給量のみ。
 - 残差>閾値・純資産≠実物資産はゲート失敗(較正・holdout照合に使わない)。
+
+**部門軸(第204・D-76 (a))**: 上の固定表は「誰から誰へ」を持たない(科目別なので境界と店舗が混ざる)。図5(経済センサス部門別収支=保存則が**部門間で**どう閉じるか)のために、月次MERへ部門軸を足す。**固定表は列も行順もバイトも変えない**——部門軸は別ファイル `monthly_mer_sectors.parquet`(Parquet・zstd)に出し、`--census-out` が書くファイルは2→3本になる(既定=`--census-out` なしのランは1バイトも変わらない)。部門は**新しい分類を作らず**、取引フロー行列の軸そのもの(§2.1の6部門=`accounts.Sector`・実装では `economy.census.SECTORS`)を使う。「来街者」は独立の部門ではない(世帯=住民+来街者の財布)。列は `month / kind / from_sector / to_sector / account / amount`(英語snake_case・部門名と科目名は日本語。世帯=household・店舗=store・雇用主=employer・銀行=bank・政府=government・外界=row・faucet/sinkは擬似部門)。`kind` は `faucet / sink / internal / book(減価償却)`。**境界は擬似部門へ出す**: faucetの払い手は `"faucet"`・sinkの受け手は `"sink"` と書く(外界を部門に残すと Σnet が恒等的に0になり検算にならない)。同じ形の集計は `monthly_mer()` の戻りにも `per_sector`(部門ごとの received/paid/net・6部門を常に全部載せる)と `flows`(長い表)として入る。**検算式**(`tests/economy/test_census.py` で固定): ① 区分ごとの `flows` 合計 = 科目別 faucet/sink/internal の合計 ② `Σ_部門 net = faucet_total − sink_total` ③ 残差0の台帳では `Σ_部門 net` = 貨幣供給量の増分。
 
 ### 2.5 金額アンカー(公的値・mechanism)
 | 量 | 値 | 出典 |

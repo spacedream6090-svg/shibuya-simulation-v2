@@ -1,6 +1,7 @@
 """build.field の単体テスト(データ不要・CI で常に走る)。
 
-- W7: opening_hours パーサの対応部分集合・法規上限の適用・カテゴリ既定表の被覆。
+- W7: opening_hours パーサの対応部分集合・法規上限の適用・カテゴリ既定表の被覆・
+  **法規の記録**(citation の条番号・expedient 台帳・D-72 (a))。
 - W10: ASJ RTN-Model 2018 の式値(手計算)・伝搬・車線幾何・段階境界・路線名の正規化。
 - W12: 時間帯ラベルの写像・等間隔ダイヤ・運行日の分。
 - W13: NOAA 太陽位置(東京の公表値と突合)・曜日種別・層からの日選択の決定論。
@@ -10,6 +11,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import inspect
 import math
 from pathlib import Path
 
@@ -20,6 +22,7 @@ from shibuya.build.field import w7_planspec as w7
 from shibuya.build.field import w10_noise as w10
 from shibuya.build.field import w12_external_nodes as w12
 from shibuya.build.field import w13_weather as w13
+from shibuya.build.geo import poi_class
 from shibuya.build import run as build_run
 
 # --- W7 opening_hours パーサ ---------------------------------------------------------------
@@ -189,6 +192,130 @@ def test_default_week_respects_closed_days():
     assert week[5] == [] and week[6] == []
     assert week[0] == [(540, 1080)]
     assert w7.weekly_open_minutes(w7.default_week("shop", "convenience")) == 7 * 1440
+
+
+# --- W7 法規の記録(D-72 (a)・2026-09-17・**数値は動かさない**) -------------------------------
+# 出典: docs/research/v2-w7-law-primary-check-research.md(等級A・親が条文を一次確認)。
+# ここで固定するのは**記録**(citation の条番号・expedient 台帳)だけで、窓・上限は上の
+# test_law_cap_values_match_dw8_table が引き続き守る。
+
+
+def test_citation_article_numbers_are_fixed():
+    """答申 §3 ②: 規則6条2項は**時**(午前1時)・地域は 条例4条の2第2項+規則5条+告示。"""
+    settai = w7.LAW_CAPS["settai_inshoku"]["citation"]
+    assert "規則6条2項" in settai and "午前1時" in settai
+    assert "4条の2第2項" in settai and "規則5条" in settai and "公安委員会告示" in settai
+    assert "4条の3第2号" in settai
+    # 「規則6条(営業延長許容地域=…)」という旧記述(時と地域の取り違え)は消えていること
+    assert "同施行規則6条(営業延長許容地域" not in settai
+    game = w7.LAW_CAPS["game_center"]["citation"]
+    assert "条例5条 表" in game and "営業延長許容地域の行" in game
+    assert "規則6条2項" in game and "4条の2第2項" in game and "規則5条" in game
+    # 他の業態の条番号は動かしていない(答申 §2 の一次確認どおり)
+    assert w7.LAW_CAPS["pachinko_mahjong"]["citation"].startswith("東京都風俗営業")
+    assert "5条" in w7.LAW_CAPS["pachinko_mahjong"]["citation"]
+    assert "31条の23" in w7.LAW_CAPS["tokutei_yukyo"]["citation"]
+    assert "15条" in w7.LAW_CAPS["shinya_shurui"]["citation"]
+    assert "11条" in w7.LAW_CAPS["tenpo_seifuzoku"]["citation"]
+    assert "16条" in w7.LAW_CAPS["minor_entry_limit"]["citation"]
+
+
+def test_expedients_ledger_registers_the_law_gaps():
+    """答申 §3 の ①⑦⑧④ が expedient 台帳に載っていること(方法論「全cap/近似にタグ」)。"""
+    led = w7.EXPEDIENTS
+    assert isinstance(led, tuple) and all(isinstance(s, str) and s for s in led)
+    joined = "\n".join(led)
+    # ① 地域条件なしの一律適用
+    area = [s for s in led if "地域条件なしの一律適用" in s]
+    assert len(area) == 1, led
+    for token in ("営業延長許容地域", "住居集合地域", "54町丁", "20m", "law_key_for"):
+        assert token in area[0], token
+    # ⑦ 特別日なし
+    special = [s for s in led if "特別日なし" in s]
+    assert len(special) == 1 and "4条の2第1項" in special[0]
+    assert "4条の3第1号" in special[0] and "規則6条1項" in special[0]
+    # ⑧ 青少年条例16条1項の一・二号(興行場・ボウリング/スケート/水泳)が未写像
+    assert "興行場" in joined and "ボウリング" in joined and "未写像" in joined
+    # ④ D-W8 表にあってコードに無い 2 行=未実装
+    assert "条例8条" in joined and "条例6条" in joined and "未実装" in joined
+    # ③ violability の修正は保留(生成値を動かさないため)=保留の事実も記録する
+    assert "26条六号" in joined and "保留" in joined
+
+
+def test_minor_entry_limit_is_still_mapped_to_three_and_four_only():
+    """⑧ は**登録だけ**(写像は足さない=生成値が動かない)。"""
+    keys = {k for k, v in w7.LAW_KEY_BY_CATSUB.items() if v == "minor_entry_limit"}
+    assert keys == {("nightlife", "karaoke"), ("nightlife", "net_cafe")}
+    tagged = {t for t in w7.OSM_TAG_LAW_OVERRIDE if t[2] == "minor_entry_limit"}
+    assert tagged == {("amenity", "internet_cafe", "minor_entry_limit")}
+    assert w7.law_key_for("cinema", None, {}) == "none"  # 興行場は未写像のまま
+    assert w7.law_key_for("leisure", None, {"leisure": "bowling_alley"}) == "none"
+
+
+def test_violability_rule_is_unchanged_so_the_parquet_does_not_move():
+    """③ は**保留**(D-72)。窓の有無で決める規則のままであること=生成列が動かない。"""
+    src = inspect.getsource(w7.run)
+    assert 'violability.append("enforced" if windows else "unenforced")' in src
+    # 窓が空の業態(立入制限・上限なし)は unenforced 側に落ちる=現行 parquet と同じ割当
+    for key in ("minor_entry_limit", "shinya_shurui", "ippan_inshoku", "none"):
+        assert w7.LAW_CAPS[key]["closed_windows_min"] == ()
+    for key in ("settai_inshoku", "pachinko_mahjong", "game_center", "tokutei_yukyo"):
+        assert w7.LAW_CAPS[key]["closed_windows_min"] != ()
+
+
+# --- W7 カテゴリ既定表の被覆(W6 subcat 改訂 2026-09-17)-------------------------------------
+
+
+def test_category_defaults_cover_every_catsub_pair_w6_can_emit():
+    """W6 が出しうる (cat, subcat) 対は全部 CATEGORY_DEFAULTS にある。
+
+    ここが欠けると W7 は ``CATEGORY_DEFAULTS[(cat, subcat)]`` で KeyError になり、
+    ゲート ``category_defaults_cover_all_catsub`` に届く前に落ちる。
+    """
+    missing = sorted(p for p in poi_class.CATSUB_PAIRS if p not in w7.CATEGORY_DEFAULTS)
+    assert missing == []
+
+
+def test_new_subcat_rows_inherit_the_parent_cat_row():
+    """足した subcat 行は親 cat の行をそのまま継ぐ。
+
+    = 「subcat が付いた」というだけでは営業窓も価格帯も 1 つも動かない。公園を
+    0-1440/free に、図書館を公立図書館の窓にするような実態合わせは**別の判断**
+    (親決定待ち・docs/design/v2-hobby-affordance-map.md §6 #5)。
+    """
+    added = (
+        ("attraction", ("gallery", "museum")),
+        ("hall", ("events_venue", "music_venue", "theatre")),
+        ("leisure", ("gym", "park", "sports_centre")),
+        ("service", ("library",)),
+        (
+            "shop",
+            (
+                "art_supply",
+                "bicycle",
+                "books",
+                "florist",
+                "hobby",
+                "music_shop",
+                "musical_instrument",
+                "photo",
+                "sports_shop",
+                "stationery",
+                "video_games",
+            ),
+        ),
+    )
+    for cat, subs in added:
+        parent = w7.CATEGORY_DEFAULTS[(cat, None)]
+        for sub in subs:
+            assert w7.CATEGORY_DEFAULTS[(cat, sub)] == parent, (cat, sub)
+
+
+def test_law_key_for_new_subcats_falls_back_to_the_cat():
+    """新しい subcat は法規上限表に行を持たない=cat の行に落ちる(上限は動かない)。"""
+    for sub in ("park", "books", "library", "theatre", "museum"):
+        cat = poi_class.SUBCAT_TOPCAT[sub]
+        assert w7.law_key_for(cat, sub, {}) == w7.law_key_for(cat, None, {})
 
 
 # --- W10 ASJ RTN-Model 2018 -----------------------------------------------------------------

@@ -37,10 +37,41 @@ from shibuya.core.soa import Registry
 from shibuya.world.assets import WorldAssets, load_assets, synthetic_assets
 from shibuya.world.graph import WalkGraph
 
-__all__ = ["DENSITY_STAGE_EDGES", "World"]
+__all__ = [
+    "DENSITY_STAGE_EDGES",
+    "DENSITY_STAGE_EDGES_PER_M2",
+    "LANDMARK_CATS",
+    "LANDMARK_AFFORDANCES",
+    "World",
+]
+
+#: **目印**として扱う W6 の POI カテゴリ(C9 決定アジェンダ §1 **G6 (a)**
+#: 「既存 68 件(landmark 56 + attraction 12)を『目印』affordance に昇格」)。
+#: 知覚側(``perception.renderer`` の B2 地物)が同じ 2 値で「目印: …」を描いているので、
+#: **世界側と知覚側で同じ集合**になる(テストが一致を機械検査)。
+LANDMARK_CATS: Final[tuple[str, ...]] = ("landmark", "attraction")
+
+#: 目印 POI が持つ affordance の印(C9b G6 a′)。**列は増やさない**——
+#: ``World.landmark_mask`` の遅延キャッシュが両方の答えを兼ねる(checkpoint 外)。
+#: ``can_meet``= 待ち合わせの目標として指せる(**約束そのものは C10**)。
+#: ``can_look``= 注意の焦点(「見る」の対象)にできる。
+#: §4 改訂の第 2 案(可視領域×流動から目印性を出す)は C9c 以降=いまは ``cat`` で決める
+#: (**expedient**・登録簿へ)。
+LANDMARK_AFFORDANCES: Final[tuple[str, ...]] = ("can_meet", "can_look")
 
 #: 密度段階の境界[人/セル](expedient・B4 の段は C3 のレンダラで確定する)。
+#: **node 幾何(既定)専用**——``geometry="edge"`` では
+#: ``DENSITY_STAGE_EDGES_PER_M2`` を使う(C9 §4 改訂)。
 DENSITY_STAGE_EDGES: Final[tuple[int, ...]] = (1, 5, 20, 60, 150, 400, 1_000)
+
+#: 密度段階の境界[**人/m²**](Fruin 1971 歩行路 LOS の A/B/C/D/E/F 境界)。
+#: C9 決定アジェンダ §4 改訂: 「現行の密度段階(最上段 1,000 人/セル=0.238 人/m²)は
+#: 7 段すべて Fruin LOS A の内側=**減速が実質 no-op**。段の刻みを人/m² で定義し直す」。
+#: **mechanism**: 段の境界は LOS 定義に釘付け(``perception.templates.DENSITY_LOS_EDGES_PER_M2``
+#: と同値。層契約により二重定義=テストが一致を機械検査)。分母(歩行可能面積)は expedient。
+DENSITY_STAGE_EDGES_PER_M2: Final[tuple[float, ...]] = (
+    0.30754, 0.43056, 0.71760, 1.07640, 2.15279,
+)
 
 
 class World:
@@ -102,6 +133,14 @@ class World:
         self.pois.open_to[:] = assets.poi_open_to
         self.pois.open_now[:] = -1  # 上書きなし(C2 と同じ 10:00-22:00 の既定へ落ちる)
         self._frozen = False
+        #: 飲食店マスク(``eatery_mask`` の遅延キャッシュ)。**SoA の欄ではない**
+        #: =``Registry.state_hash`` にも checkpoint にも入らない(既定のバイトは動かない)。
+        self._eatery_mask: np.ndarray | None = None
+        #: 目印マスク(``landmark_mask`` の遅延キャッシュ・C9b G6 a′)。同じく **SoA の欄では
+        #: ない**=checkpoint 外。
+        self._landmark_mask: np.ndarray | None = None
+        #: 目印の「名 → POI 索引」表(``landmark_targets`` の遅延キャッシュ)。同じく checkpoint 外。
+        self._landmark_targets: dict[str, int] | None = None
 
     # ---- 生成 ----
     @classmethod
@@ -160,6 +199,77 @@ class World:
         """密度 → 段階(``DENSITY_STAGE_EDGES`` の右側挿入位置)。"""
         d = self.cells.density if density is None else np.asarray(density)
         return np.searchsorted(np.asarray(DENSITY_STAGE_EDGES), d, side="right").astype(np.uint8)
+
+    @property
+    def eatery_mask(self) -> np.ndarray:
+        """飲食店の POI マスク(``(n_poi,)`` bool)。**語彙 v2 の行動語「食事」の前提**。
+
+        判定は ``world.assets.hash_free_cat_code(cat) == 1``(= 価格帯「飲食」)を**そのまま
+        再利用**する。カテゴリ判定の表を 2 つ持たないための選択で、``economy.entry_capital``
+        の価格帯・``economy.goods.CATEGORY_NAMES[1]``(飲食)と同じ線になる。
+
+        Note:
+            ``cat == "nightlife"``(バー・クラブ)は ``hash_free_cat_code`` が 2 を返すので
+            **含まれない**(経済側では大分類 M=宿泊/飲食サービス業だが、価格帯は別)。
+            この食い違いは ``hash_free_cat_code`` 由来で、本 property では直さない
+            (直すならカテゴリ表そのものの改版=親判断)。
+
+        逐次ループ宣言(P4): **初回の 1 回だけ** POI 数ぶんの Python ループ(カテゴリ名の
+        文字列判定)。以後はキャッシュを返す。tick にも個体数にも比例しない。
+        """
+        if self._eatery_mask is None:
+            from shibuya.world.assets import hash_free_cat_code
+
+            cats = tuple(self.assets.poi_cat)
+            self._eatery_mask = np.asarray(
+                [hash_free_cat_code(c) == 1 for c in cats], dtype=bool
+            )
+        return self._eatery_mask
+
+    @property
+    def landmark_mask(self) -> np.ndarray:
+        """目印の POI マスク(``(n_poi,)`` bool)。**C9b G6 a′ の affordance の実体**。
+
+        ``poi_cat ∈ LANDMARK_CATS``(landmark / attraction)。実資産では 56 + 12 = 68 件。
+        この 1 本が ``LANDMARK_AFFORDANCES``(``can_meet`` / ``can_look``)の両方を兼ねる
+        ——「待ち合わせに指せる」と「見られる」が同じ集合だからで、分かれる根拠(実測)が
+        出たら列を分ける。
+
+        Note:
+            **SoA の欄ではない**(``eatery_mask`` と同じ遅延キャッシュ)。したがって
+            ``World.state_hash``・checkpoint・バイト予算のどれにも入らない。
+
+        逐次ループ宣言(P4): **初回の 1 回だけ** POI 数ぶん(カテゴリ名の文字列判定)。
+        """
+        if self._landmark_mask is None:
+            self._landmark_mask = np.asarray(
+                [str(c) in LANDMARK_CATS for c in self.assets.poi_cat], dtype=bool
+            )
+        return self._landmark_mask
+
+    def landmark_targets(self) -> dict[str, int]:
+        """目印の「**NFKC 正規化した名** → POI 索引」表(``llm.contract.parse_target`` へ渡す)。
+
+        名の重複は**若い POI 索引**を採る(決定論)。名の無い目印(空文字)は入れない。
+        資産が名を持たない世界(合成)は**空の表**=``parse_target`` は現行どおり動く。
+
+        逐次ループ宣言(P4): **初回の 1 回だけ** 目印数ぶん(実資産 68)。
+        """
+        if self._landmark_targets is None:
+            import unicodedata
+
+            names = self.assets.poi_name
+            out: dict[str, int] = {}
+            if names:
+                mask = self.landmark_mask
+                for j in range(min(len(names), mask.size)):
+                    if not bool(mask[j]):
+                        continue
+                    key = unicodedata.normalize("NFKC", str(names[j])).strip()
+                    if key and key not in out:
+                        out[key] = int(j)
+            self._landmark_targets = out
+        return self._landmark_targets
 
     def open_mask(self, tick: int) -> np.ndarray:
         """その tick に営業している POI の bool マスク(1 日 1,440 tick で剰余を取る)。

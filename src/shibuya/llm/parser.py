@@ -57,7 +57,8 @@ from dataclasses import dataclass, field, replace
 from typing import Final, Mapping
 
 from shibuya.llm.contract import (
-    ALL_ACTION_WORDS,
+    DEFAULT_VOCAB_VERSION,
+    action_words,
     COMMENT_MAX_CHARS,
     NO_TARGET,
     NO_TARGET_VALUE,
@@ -184,17 +185,24 @@ def _clean_value(value: str) -> str:
     return v
 
 
-def find_action_word(text: str) -> str | None:
+def find_action_word(
+    text: str, vocab_version: str = DEFAULT_VOCAB_VERSION
+) -> str | None:
     """テキスト中で**最初に現れる**語彙語(同位置なら最長)を返す。
 
     「移動する」「移動します」のように助詞・語尾が付いていても、部分一致で語が取れる。
 
-    逐次ループ宣言(P4): 語彙数(24)ぶん。
+    Args:
+        text: 走査対象。
+        vocab_version: 語彙版(``"v1"``=24 語・既定 / ``"v2"``=25 語=24 語+「食事」)。
+            既定では ``ALL_ACTION_WORDS`` と**同一の並び**を走るので 1 件も結果が変わらない。
+
+    逐次ループ宣言(P4): 語彙数(v1=24 / v2=25)ぶん。
     """
     if not text:
         return None
     best: tuple[int, int, str] | None = None
-    for word in ALL_ACTION_WORDS:
+    for word in action_words(vocab_version):
         pos = text.find(word)
         if pos < 0:
             continue
@@ -271,7 +279,9 @@ class ParseResult:
         """``alias_used`` の別名(C6 の診断名)。"""
         return self.alias_used
 
-    def with_dictionary_mapping(self, word: str) -> "ParseResult":
+    def with_dictionary_mapping(
+        self, word: str, vocab_version: str = DEFAULT_VOCAB_VERSION
+    ) -> "ParseResult":
         """§7 段0 の辞書写像の結果を載せた**新しい** ``ParseResult`` を返す。
 
         ``undefined.UndefinedActionRegistry.observe`` が段0(``source="dictionary"``)で
@@ -281,6 +291,7 @@ class ParseResult:
 
         Args:
             word: 契約語彙(``UndefinedOutcome.word``)。
+            vocab_version: 語彙版(``"v2"`` で「食事」もコード化できる)。
 
         Returns:
             ``action``/``action_code``/``is_role_action``/``dictionary_mapped`` を更新した複製。
@@ -288,7 +299,7 @@ class ParseResult:
         return replace(
             self,
             action=word,
-            action_code=action_code_of(word),
+            action_code=action_code_of(word, vocab_version),
             is_role_action=is_role_action(word),
             dictionary_mapped=True,
         )
@@ -306,11 +317,20 @@ def _empty_result(errors: tuple[str, ...]) -> ParseResult:
     )
 
 
-def parse_two_line(text: str | None) -> ParseResult:
+def parse_two_line(
+    text: str | None,
+    vocab_version: str = DEFAULT_VOCAB_VERSION,
+    landmarks: Mapping[str, int] | None = None,
+) -> ParseResult:
     """2行形(および4行形)を寛容に読む。**例外を投げない**。
 
     Args:
         text: LLM の応答本文(``None`` や非文字列も受ける)。
+        vocab_version: 語彙版(D-71 §3 F)。``"v2"`` で「食事」を語彙語として読み、
+            段0 辞書の候補判定(``dictionary_candidate``)も辞書 v4 で引く。
+            **既定 ``"v1"`` は 1 バイトも挙動が変わらない**。
+        landmarks: 目印の「名 → POI 索引」表(C9b G6 a′)。``parse_target`` へ素通しする。
+            ``None``(既定)では ``target.poi_id`` が常に ``None``=**現行のまま**。
 
     Returns:
         ``ParseResult``。
@@ -321,12 +341,16 @@ def parse_two_line(text: str | None) -> ParseResult:
         ('移動', 117, True)
     """
     try:
-        return _parse(text)
+        return _parse(text, vocab_version, landmarks)
     except Exception as exc:  # pragma: no cover - 契約「例外を投げない」の最後の砦
         return _empty_result((f"internal:{type(exc).__name__}",))
 
 
-def _parse(text: str | None) -> ParseResult:
+def _parse(
+    text: str | None,
+    vocab_version: str = DEFAULT_VOCAB_VERSION,
+    landmarks: Mapping[str, int] | None = None,
+) -> ParseResult:
     if text is None:
         return _empty_result(("empty_output",))
     if not isinstance(text, str):
@@ -355,11 +379,11 @@ def _parse(text: str | None) -> ParseResult:
 
     # ---- 行動語 ----
     raw_action = labels.get("行動", "")
-    action = find_action_word(raw_action) if raw_action else None
+    action = find_action_word(raw_action, vocab_version) if raw_action else None
     from_free_text = False
     if action is None and "行動" not in labels:
         # ラベルごと無いときだけ、ラベル外の残りから拾う(expedient)
-        action = find_action_word(_outside_labels(cleaned, spans))
+        action = find_action_word(_outside_labels(cleaned, spans), vocab_version)
         from_free_text = action is not None
         if from_free_text:
             errors.append("action_from_free_text")
@@ -369,10 +393,10 @@ def _parse(text: str | None) -> ParseResult:
         # §7 段0 の辞書で**救える語かどうか**だけを見る(写像そのものは台帳の仕事=
         # 呼数も計数も台帳側。ここは初回判定でも数えられる診断のため)。
         if raw_action:
-            dictionary_candidate = map_synonym(raw_action)[0]
+            dictionary_candidate = map_synonym(raw_action, None, vocab_version)[0]
 
     # ---- 対象・理由・ひと言 ----
-    target = parse_target(labels.get("対象"))
+    target = parse_target(labels.get("対象"), landmarks)
     raw_reason = labels.get("理由", "")
     raw_comment = labels.get("ひと言", NO_TARGET)
     reason = raw_reason[:REASON_MAX_CHARS]
@@ -396,11 +420,11 @@ def _parse(text: str | None) -> ParseResult:
     else:
         labels_v0, _, _ = _scan_labels(cleaned, _LABEL_RE_V0, LABEL_ALIASES_V0)
         strict_format_ok = all(label in labels_v0 for label in CANONICAL_LABELS) and (
-            find_action_word(labels_v0.get("行動", "")) is not None
+            find_action_word(labels_v0.get("行動", ""), vocab_version) is not None
         )
     return ParseResult(
         action=action,
-        action_code=action_code_of(action) if action else UNDEFINED_ACTION,
+        action_code=action_code_of(action, vocab_version) if action else UNDEFINED_ACTION,
         target=target,
         reason=reason,
         comment=comment or NO_TARGET,

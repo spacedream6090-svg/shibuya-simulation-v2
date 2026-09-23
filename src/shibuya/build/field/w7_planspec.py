@@ -12,13 +12,23 @@
 
 出力: ``w7_plan_spec.parquet``(世界過程設計書 §2 の PlanSpec 型の列を持つ)。
 
-expedient
-- カテゴリ既定営業時間・価格帯(cat×subcat 24行)。
+expedient(全文は ``EXPEDIENTS``=段階ヘッダに載る台帳。ここは要旨)
+- カテゴリ既定営業時間・価格帯(cat×subcat 44行。うち 20 行は W6 subcat 改訂 2026-09-17 で現れた対で、親 cat の行をそのまま継ぐ=営業窓も価格帯も動かさない)。
 - 改訂権者=``store_manager`` 固定(店主エージェントが開け閉めする=世界過程設計書 §1-1)。
 - 違反可能性=法規上限のある業態は ``enforced``・それ以外の自主営業時間は ``unenforced``(軸4)。
 - ラブホテル(subcat=love_hotel)は旅館業法営業か店舗型性風俗特殊営業かが OSM タグから
   判定できないため**上限なし**として扱う(判定不能を宣言)。
 - 接待飲食等(1-3号)は OSM タグに現れないため nightlife 既定は深夜酒類提供(上限なし)。
+- **地域条件なしの一律適用**(D-72 ①・2026-09-16 の法規一次確認 §3 ①)。
+- **特別日なし**(D-72 ⑦)/青少年条例16条1項の**一・二号の未写像**(⑧)/D-W8 表の
+  **条例8条・6条が未実装**(④)。
+
+法規の記録修正(2026-09-17・D-72 (a)・**数値は動かさない**)
+    答申 ``docs/research/v2-w7-law-primary-check-research.md``(等級A・親一次確認)の
+    §3 ②(citation の条ずれ)を直し、①⑦⑧④ を ``EXPEDIENTS`` へ登録した。
+    ③(``minor_entry_limit`` の violability)は**保留**——``violability`` は
+    ``w7_plan_spec.parquet`` の**生成列**で、直すと 18 行が unenforced→enforced に動く
+    (=W7 の再構築が要る)。保留の事実そのものを ``EXPEDIENTS`` に載せた。
 """
 
 from __future__ import annotations
@@ -57,9 +67,13 @@ EXPECTED_POI_ROWS = 2337
 LAW_CAPS: dict[str, dict[str, Any]] = {
     "settai_inshoku": {
         "label": "接待飲食等営業(1-3号)",
+        # 条ずれの修正(D-72 ②・答申 §3 ②): 規則6条2項は**時**(午前1時)であって地域ではない。
+        # 地域の根拠は 条例4条の2第2項(商業地域のうち規則で定める地域)+規則5条(公安委員会告示)。
         "citation": (
-            "風営法13条1項+東京都風俗営業等の規制及び業務の適正化等に関する法律施行条例4条の3"
-            "+同施行規則6条(営業延長許容地域=渋谷区26町丁)"
+            "風営法13条1項ただし書+東京都風俗営業等の規制及び業務の適正化等に関する法律"
+            "施行条例4条の3第2号+同施行規則6条2項(延長後の時=午前1時)"
+            "/地域=同条例4条の2第2項+同施行規則5条+公安委員会告示"
+            "(営業延長許容地域=渋谷区26町丁)"
         ),
         "closed_window": "1:00-6:00",
         "closed_windows_min": ((60, 360),),
@@ -74,7 +88,13 @@ LAW_CAPS: dict[str, dict[str, Any]] = {
     },
     "game_center": {
         "label": "ゲームセンター(5号)",
-        "citation": "東京都風俗営業等の規制及び業務の適正化等に関する法律施行条例5条+同施行規則6条",
+        # 同上(D-72 ②)。条例5条 表は**地域別3行**で、ここで採っているのは
+        # 「営業延長許容地域」の行(1:00-10:00)だけ=地域条件は EXPEDIENTS に登録(①)。
+        "citation": (
+            "東京都風俗営業等の規制及び業務の適正化等に関する法律施行条例5条 表"
+            "(営業延長許容地域の行)+同施行規則6条2項(時=午前1時)"
+            "/地域=同条例4条の2第2項+同施行規則5条+公安委員会告示"
+        ),
         "closed_window": "1:00-10:00",
         "closed_windows_min": ((60, 600),),
         "close_cap_min": 1500,
@@ -151,6 +171,41 @@ OSM_TAG_LAW_OVERRIDE: tuple[tuple[str, str, str], ...] = (
     ("amenity", "fast_food", "ippan_inshoku"),
 )
 
+# --- ①b expedient 台帳(段階ヘッダの ``expedients`` 欄=方法論「全cap/近似にタグ」)-------
+# 記録だけの表(生成値には触れない)。法規側の 4 行は 2026-09-17(D-72 (a))に足したもので、
+# 出典は ``docs/research/v2-w7-law-primary-check-research.md``(等級A・親が条文を一次確認)。
+EXPEDIENTS: tuple[str, ...] = (
+    "カテゴリ既定営業時間・価格帯(cat×subcat 44行・感度=既定±2h対照)",
+    "18歳未満の立入制限(青少年条例16条)は営業時間の窓として当てない(D-W8 の閉店上限欄=—)",
+    "改訂権者=store_manager 固定",
+    "違反可能性の割当(法規上限のある業態=enforced・それ以外=unenforced)",
+    "love_hotel は旅館業/店舗型性風俗の判定不能→上限なし",
+    "接待飲食等(1-3号)は OSM タグに現れず nightlife 既定=深夜酒類提供(上限なし)",
+    "PH(祝日)規則は 7日週モデルに写像せず無視",
+    "チェーン既定=OSM 実値の brand 内最頻伝播(公式表の手入力は未取得=空表)",
+    # ---- D-72 (a) 2026-09-17 追加(法規一次確認 §3 の不一致) ----
+    "**地域条件なしの一律適用**(D-72 ①): 1-3号・5号・深夜酒類提供の窓は"
+    "営業延長許容地域/住居集合地域の別で決まる(条例4条の2第2項・5条 表・15条)が、"
+    "law_key_for は cat・subcat・OSM タグだけで決めて全 POI に同じ窓を当てる。"
+    "告示26町丁の外の54町丁では 1-3号・5号の上限は 0:00(60分厳しい)・"
+    "住居集合地域では 23:00・深夜酒類は 0:00-6:00 禁止。"
+    "許容地域の外縁は規則5条ただし書の 20m 緩衝帯で削られる(幹線道路50mは除外しない)。"
+    "座標・町丁・用途地域を見ないので世界の営業時間が告示外で 60〜120 分ずれる",
+    "**特別日なし**(D-72 ⑦): 条例4条の2第1項・4条の3第1号・規則6条1項の"
+    "「習俗的行事等の特別の事情のある日」の延長(許容地域外でも 1:00 または告示の時)を"
+    "実装していない。スナップショット日が特別日でなければ無害",
+    "**青少年条例16条1項の一・二号が未写像**(D-72 ⑧): minor_entry_limit は"
+    "karaoke/net_cafe/internet_cafe(三・四号)だけに当たっており、"
+    "一 興行場(映画館等)・二 ボウリング/スケート/水泳施設が対象に入っていない"
+    "(写像の追加は W7 の再構築が要るので本修正では行わない)",
+    "**D-W8 表にあってコードに無い 2 行=未実装**(D-72 ④): 条例8条"
+    "(16歳未満のゲームセンター 18:00-22:00 保護者同伴)・条例6条(騒音 dB)",
+    "**violability の修正は保留**(D-72 ③): minor_entry_limit は罰則つき"
+    "(青少年条例26条六号・30万円以下の罰金)なので enforced 相当だが、"
+    "窓が空のため現在は unenforced と記録される。violability は生成列で、"
+    "直すと 18 行が動く=W7 の再構築が要るため親判断待ち",
+)
+
 # --- ② カテゴリ既定表(expedient・cat×subcat)---------------------------------------------
 # open/close = 0時からの分(close>1440 は日跨ぎ)。closed_days = 定休曜日(0=月 .. 6=日)。
 # price_tier ∈ {free, low, mid, high}(経済台帳 wage_tier と整合させる語彙)。
@@ -179,6 +234,40 @@ CATEGORY_DEFAULTS: dict[tuple[str, str | None], dict[str, Any]] = {
     ("shop", None): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
     ("shop", "convenience"): {"open": 0, "close": 1440, "closed_days": (), "price_tier": "low"},
     ("shop", "pachinko"): {"open": 600, "close": 1380, "closed_days": (), "price_tier": "mid"},
+    # --- W6 の subcat 改訂(2026-09-17・geo/poi_class.py)で現れる対 ---
+    # **親 cat の行をそのまま継ぐ**(= 既定の営業窓・価格帯は 1 件も動かない
+    # → w7_plan_spec.parquet はバイト不変)。公園を 0-1440/free に、図書館を
+    # 公立図書館の窓にするなどの**実態に合わせた改訂は別の判断**(親決定待ち)。
+    ("attraction", "gallery"): {"open": 600, "close": 1200, "closed_days": (), "price_tier": "mid"},
+    ("attraction", "museum"): {"open": 600, "close": 1200, "closed_days": (), "price_tier": "mid"},
+    ("hall", "events_venue"): {"open": 600, "close": 1320, "closed_days": (), "price_tier": "high"},
+    ("hall", "music_venue"): {"open": 600, "close": 1320, "closed_days": (), "price_tier": "high"},
+    ("hall", "theatre"): {"open": 600, "close": 1320, "closed_days": (), "price_tier": "high"},
+    ("leisure", "gym"): {"open": 600, "close": 1320, "closed_days": (), "price_tier": "mid"},
+    ("leisure", "park"): {"open": 600, "close": 1320, "closed_days": (), "price_tier": "mid"},
+    ("leisure", "sports_centre"): {
+        "open": 600,
+        "close": 1320,
+        "closed_days": (),
+        "price_tier": "mid",
+    },
+    ("service", "library"): {"open": 540, "close": 1080, "closed_days": (5, 6), "price_tier": "mid"},
+    ("shop", "art_supply"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "bicycle"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "books"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "florist"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "hobby"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "music_shop"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "musical_instrument"): {
+        "open": 660,
+        "close": 1260,
+        "closed_days": (),
+        "price_tier": "mid",
+    },
+    ("shop", "photo"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "sports_shop"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "stationery"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
+    ("shop", "video_games"): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
 }
 
 #: D-W8 段(2)「チェーン公式営業時間表の手入力」。**未取得=空表**(法務レーン確認前)。
@@ -560,6 +649,9 @@ def run(ctx: C.Ctx) -> C.StageResult:
         valid_from.append(vfrom)
         weekly_min.append(weekly_open_minutes(week))
         price_tier.append(str(CATEGORY_DEFAULTS[(cat, subcat)]["price_tier"]))
+        # D-72 ③(2026-09-17・**保留**): minor_entry_limit は窓が空なので unenforced に
+        # なるが、青少年条例16条1項違反は罰則つき(同26条六号・30万円以下の罰金)=enforced 相当。
+        # ``violability`` は**生成列**なので直すと 18 行が動く(W7 の再構築)=親判断待ち。
         violability.append("enforced" if windows else "unenforced")
         n_by_src[src] += 1
 
@@ -612,16 +704,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
         param_hash=C.param_hash(params),
         params=params,
         catalog_classes=["POI/店舗", "計画仕様(PlanSpec)", "営業時間", "価格帯"],
-        expedients=[
-            "カテゴリ既定営業時間・価格帯(cat×subcat 24行・感度=既定±2h対照)",
-            "18歳未満の立入制限(青少年条例16条)は営業時間の窓として当てない(D-W8 の閉店上限欄=—)",
-            "改訂権者=store_manager 固定",
-            "違反可能性の割当(法規上限のある業態=enforced・それ以外=unenforced)",
-            "love_hotel は旅館業/店舗型性風俗の判定不能→上限なし",
-            "接待飲食等(1-3号)は OSM タグに現れず nightlife 既定=深夜酒類提供(上限なし)",
-            "PH(祝日)規則は 7日週モデルに写像せず無視",
-            "チェーン既定=OSM 実値の brand 内最頻伝播(公式表の手入力は未取得=空表)",
-        ],
+        expedients=list(EXPEDIENTS),
         notes={
             "osm_opening_hours_in_file": len(osm_raw),
             "osm_opening_hours_parsed": len(parsed_ok),

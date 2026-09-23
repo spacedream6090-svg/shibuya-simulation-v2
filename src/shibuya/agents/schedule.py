@@ -122,6 +122,9 @@ class MockWeeklySchedule:
     base_ticks: np.ndarray
     weekend_ticks: np.ndarray
     #: 以下は **W16 母集団を載せたときだけ**入る(mock 単独では None / "")。
+    #: **学校セル**(W16 ``school_cell``・``-1``=学校なし)。C9b G5 の対象ヒント ``school``
+    #: の解決先。mock 単独では ``None``=ヒントは効かない(行き先は現行のまま)。
+    school_cell: np.ndarray | None = None
     age: np.ndarray | None = None
     sex: np.ndarray | None = None
     direction_node: np.ndarray | None = None

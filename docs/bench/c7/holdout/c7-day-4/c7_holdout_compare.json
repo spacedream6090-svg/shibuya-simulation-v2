@@ -1,0 +1,1541 @@
+{
+ "schema": "shibuya.tools.c7/holdout_compare/1",
+ "seal": {
+  "layer": "kddi_la",
+  "member_hash": "7aa66af1fdff44e2862d53b0ddbd07ab41f6dcb88d19962d5d013393334af8b0",
+  "sealed_utc": "2026-09-08T00:00:00Z",
+  "files": [
+   {
+    "path": "realworld/kddi_la/la_raw_powerbi_2024.json",
+    "exists": true,
+    "sha256_sealed": "5b4ef600e4267790274af1f9199a59ab1b3747878c728d15632de52725b14130",
+    "sha256_now": "5b4ef600e4267790274af1f9199a59ab1b3747878c728d15632de52725b14130",
+    "bytes": 6797973,
+    "match": true
+   }
+  ],
+  "ok": true
+ },
+ "holdout_meta": {
+  "hour": {
+   "year": 2024,
+   "n_used": 2880,
+   "n_skipped": 0,
+   "fields": {
+    "area": "名称",
+    "year": "年",
+    "hour": "時間帯",
+    "value": "人数_の合計"
+   },
+   "unknown_area_labels": []
+  },
+  "area": {
+   "year": 2024,
+   "n_used": 2880,
+   "fields": {
+    "area": "名称",
+    "year": "年",
+    "value": "人数_の合計"
+   }
+  },
+  "n_hour_rows": 20112,
+  "attr": {
+   "year": 2024,
+   "n_used": 180,
+   "fields": {
+    "area": "名称",
+    "year": "年",
+    "attr": "属性",
+    "value": "人数_の合計"
+   },
+   "unknown_attr_labels": []
+  },
+  "n_attr_rows": 1257
+ },
+ "occupancy": "docs/bench/c7/occupancy/c7-day-4-s1/c7_occupancy.json",
+ "run_id": "c7-day-4-s1+s2+s3",
+ "metrics": {
+  "H1": {
+   "name": "相関",
+   "per_area_jsd": {
+    "central": 0.07791,
+    "northwest": 0.023472,
+    "northeast": 0.004858,
+    "southeast": 0.004999,
+    "southwest": 0.004356
+   },
+   "jsd_mean": 0.023119,
+   "jsd_max": 0.07791,
+   "pearson_r": 0.817564,
+   "limit": {
+    "jsd_mean_max": 0.0122,
+    "pearson_min": 0.8
+   },
+   "pass": false,
+   "measured": true
+  },
+  "H2": {
+   "name": "ピーク時刻",
+   "sim_peak_hour": {
+    "central": 10,
+    "northwest": 11,
+    "northeast": 11,
+    "southeast": 11,
+    "southwest": 13
+   },
+   "obs_peak_hour": {
+    "central": 18,
+    "northwest": 18,
+    "northeast": 15,
+    "southeast": 17,
+    "southwest": 16
+   },
+   "abs_hour_diff": {
+    "central": 8,
+    "northwest": 7,
+    "northeast": 4,
+    "southeast": 6,
+    "southwest": 3
+   },
+   "n_within": 0,
+   "kendall_tau": -0.503953,
+   "tau_undefined": false,
+   "limit": {
+    "abs_hour_diff_max": 1,
+    "n_within_min": 5,
+    "tau_min": 0.6
+   },
+   "pass": false,
+   "measured": true
+  },
+  "H3": {
+   "name": "平日休日比",
+   "substituted": true,
+   "substitute": "深夜残存率(1-4時平均÷終日平均)の値と順序",
+   "reason": "KDDI 6レイヤに曜日軸が無い(d1_reacquisition 結論3・④未発見1)=測定不能",
+   "sim_night_residual": {
+    "central": 0.3852,
+    "northwest": 0.2199,
+    "northeast": 0.2727,
+    "southeast": 0.2116,
+    "southwest": 0.2509
+   },
+   "obs_night_residual": {
+    "central": 0.1399,
+    "northwest": 0.3245,
+    "northeast": 0.2046,
+    "southeast": 0.2042,
+    "southwest": 0.2337
+   },
+   "abs_diff_max": 0.2453,
+   "kendall_tau": -0.4,
+   "tau_undefined": false,
+   "limit": {
+    "abs_diff_max": 0.05,
+    "tau_min": 0.6
+   },
+   "pass": false,
+   "measured": true
+  },
+  "H4": {
+   "name": "エリア構成",
+   "sim_share": {
+    "central": 0.149043,
+    "northwest": 0.433577,
+    "northeast": 0.131846,
+    "southeast": 0.122339,
+    "southwest": 0.163196
+   },
+   "obs_share": {
+    "central": 0.160936,
+    "northwest": 0.461541,
+    "northeast": 0.17902,
+    "southeast": 0.092669,
+    "southwest": 0.105834
+   },
+   "jsd": 0.008999,
+   "abs_share_diff_max": 0.057362,
+   "limit": {
+    "jsd_max": 0.0122,
+    "abs_share_diff_max": 0.05
+   },
+   "pass": false,
+   "measured": true
+  },
+  "H5": {
+   "name": "属性構成",
+   "attr_ids": [
+    "worker",
+    "resident",
+    "visitor"
+   ],
+   "sim_share": {
+    "central": [
+     0.5254,
+     0.0873,
+     0.3873
+    ],
+    "northwest": [
+     0.6854,
+     0.1195,
+     0.1951
+    ],
+    "northeast": [
+     0.5467,
+     0.1508,
+     0.3025
+    ],
+    "southeast": [
+     0.7582,
+     0.1008,
+     0.1409
+    ],
+    "southwest": [
+     0.6627,
+     0.1867,
+     0.1506
+    ]
+   },
+   "obs_share": {
+    "central": [
+     0.1855,
+     0.0545,
+     0.76
+    ],
+    "northwest": [
+     0.2903,
+     0.1418,
+     0.5679
+    ],
+    "northeast": [
+     0.4248,
+     0.1154,
+     0.4599
+    ],
+    "southeast": [
+     0.4511,
+     0.1095,
+     0.4394
+    ],
+    "southwest": [
+     0.4739,
+     0.1215,
+     0.4046
+    ]
+   },
+   "per_area_jsd": {
+    "central": 0.108324,
+    "northwest": 0.128677,
+    "northeast": 0.019046,
+    "southeast": 0.086675,
+    "southwest": 0.059883
+   },
+   "jsd_mean": 0.080521,
+   "abs_share_diff_max": 0.395122,
+   "limit": {
+    "jsd_mean_max": 0.02,
+    "abs_share_diff_max": 0.1
+   },
+   "pass": false,
+   "measured": true
+  }
+ },
+ "prereg": {
+  "version": "v0-proposal",
+  "status": "事前登録案(親判断待ち)",
+  "jsd_base": 2.0,
+  "jsd_reject": 0.0122,
+  "jsd_target": 0.0012,
+  "H1": {
+   "name": "相関",
+   "jsd_area_hour_mean_max": 0.0122,
+   "pearson_min": 0.8
+  },
+  "H2": {
+   "name": "ピーク時刻",
+   "abs_hour_diff_max": 1,
+   "n_within_min": 5,
+   "tau_min": 0.6
+  },
+  "H3": {
+   "name": "平日休日比",
+   "substituted": true,
+   "substitute": "深夜残存率(1-4時平均÷終日平均)の値と順序",
+   "abs_diff_max": 0.05,
+   "tau_min": 0.6,
+   "reason": "KDDI 6レイヤに曜日軸が無い(d1_reacquisition 結論3・④未発見1)=測定不能"
+  },
+  "H4": {
+   "name": "エリア構成",
+   "jsd_max": 0.0122,
+   "abs_share_diff_max": 0.05
+  },
+  "H5": {
+   "name": "属性構成",
+   "jsd_mean_max": 0.02,
+   "abs_share_diff_max": 0.1
+  }
+ },
+ "n_measured": 4,
+ "n_pass": 0,
+ "pass": false,
+ "prereg_version": "v1.3",
+ "occupancy_seeds": [
+  "docs/bench/c7/occupancy/c7-day-4-s1/c7_occupancy.json",
+  "docs/bench/c7/occupancy/c7-day-4-s2/c7_occupancy.json",
+  "docs/bench/c7/occupancy/c7-day-4-s3/c7_occupancy.json"
+ ],
+ "per_seed_metrics": [
+  {
+   "H1": {
+    "name": "相関",
+    "per_area_jsd": {
+     "central": 0.07791,
+     "northwest": 0.023472,
+     "northeast": 0.004858,
+     "southeast": 0.004999,
+     "southwest": 0.004356
+    },
+    "jsd_mean": 0.023119,
+    "jsd_max": 0.07791,
+    "pearson_r": 0.817564,
+    "limit": {
+     "jsd_mean_max": 0.0122,
+     "pearson_min": 0.8
+    },
+    "pass": false,
+    "measured": true
+   },
+   "H2": {
+    "name": "ピーク時刻",
+    "sim_peak_hour": {
+     "central": 10,
+     "northwest": 11,
+     "northeast": 11,
+     "southeast": 11,
+     "southwest": 13
+    },
+    "obs_peak_hour": {
+     "central": 18,
+     "northwest": 18,
+     "northeast": 15,
+     "southeast": 17,
+     "southwest": 16
+    },
+    "abs_hour_diff": {
+     "central": 8,
+     "northwest": 7,
+     "northeast": 4,
+     "southeast": 6,
+     "southwest": 3
+    },
+    "n_within": 0,
+    "kendall_tau": -0.503953,
+    "tau_undefined": false,
+    "limit": {
+     "abs_hour_diff_max": 1,
+     "n_within_min": 5,
+     "tau_min": 0.6
+    },
+    "pass": false,
+    "measured": true
+   },
+   "H3": {
+    "name": "平日休日比",
+    "substituted": true,
+    "substitute": "深夜残存率(1-4時平均÷終日平均)の値と順序",
+    "reason": "KDDI 6レイヤに曜日軸が無い(d1_reacquisition 結論3・④未発見1)=測定不能",
+    "sim_night_residual": {
+     "central": 0.3852,
+     "northwest": 0.2199,
+     "northeast": 0.2727,
+     "southeast": 0.2116,
+     "southwest": 0.2509
+    },
+    "obs_night_residual": {
+     "central": 0.1399,
+     "northwest": 0.3245,
+     "northeast": 0.2046,
+     "southeast": 0.2042,
+     "southwest": 0.2337
+    },
+    "abs_diff_max": 0.2453,
+    "kendall_tau": -0.4,
+    "tau_undefined": false,
+    "limit": {
+     "abs_diff_max": 0.05,
+     "tau_min": 0.6
+    },
+    "pass": false,
+    "measured": true
+   },
+   "H4": {
+    "name": "エリア構成",
+    "sim_share": {
+     "central": 0.149043,
+     "northwest": 0.433577,
+     "northeast": 0.131846,
+     "southeast": 0.122339,
+     "southwest": 0.163196
+    },
+    "obs_share": {
+     "central": 0.160936,
+     "northwest": 0.461541,
+     "northeast": 0.17902,
+     "southeast": 0.092669,
+     "southwest": 0.105834
+    },
+    "jsd": 0.008999,
+    "abs_share_diff_max": 0.057362,
+    "limit": {
+     "jsd_max": 0.0122,
+     "abs_share_diff_max": 0.05
+    },
+    "pass": false,
+    "measured": true
+   },
+   "H5": {
+    "name": "属性構成",
+    "attr_ids": [
+     "worker",
+     "resident",
+     "visitor"
+    ],
+    "sim_share": {
+     "central": [
+      0.5254,
+      0.0873,
+      0.3873
+     ],
+     "northwest": [
+      0.6854,
+      0.1195,
+      0.1951
+     ],
+     "northeast": [
+      0.5467,
+      0.1508,
+      0.3025
+     ],
+     "southeast": [
+      0.7582,
+      0.1008,
+      0.1409
+     ],
+     "southwest": [
+      0.6627,
+      0.1867,
+      0.1506
+     ]
+    },
+    "obs_share": {
+     "central": [
+      0.1855,
+      0.0545,
+      0.76
+     ],
+     "northwest": [
+      0.2903,
+      0.1418,
+      0.5679
+     ],
+     "northeast": [
+      0.4248,
+      0.1154,
+      0.4599
+     ],
+     "southeast": [
+      0.4511,
+      0.1095,
+      0.4394
+     ],
+     "southwest": [
+      0.4739,
+      0.1215,
+      0.4046
+     ]
+    },
+    "per_area_jsd": {
+     "central": 0.108324,
+     "northwest": 0.128677,
+     "northeast": 0.019046,
+     "southeast": 0.086675,
+     "southwest": 0.059883
+    },
+    "jsd_mean": 0.080521,
+    "abs_share_diff_max": 0.395122,
+    "limit": {
+     "jsd_mean_max": 0.02,
+     "abs_share_diff_max": 0.1
+    },
+    "pass": false,
+    "measured": true
+   }
+  },
+  {
+   "H1": {
+    "name": "相関",
+    "per_area_jsd": {
+     "central": 0.073237,
+     "northwest": 0.023085,
+     "northeast": 0.005168,
+     "southeast": 0.004838,
+     "southwest": 0.004557
+    },
+    "jsd_mean": 0.022177,
+    "jsd_max": 0.073237,
+    "pearson_r": 0.820128,
+    "limit": {
+     "jsd_mean_max": 0.0122,
+     "pearson_min": 0.8
+    },
+    "pass": false,
+    "measured": true
+   },
+   "H2": {
+    "name": "ピーク時刻",
+    "sim_peak_hour": {
+     "central": 10,
+     "northwest": 12,
+     "northeast": 13,
+     "southeast": 12,
+     "southwest": 13
+    },
+    "obs_peak_hour": {
+     "central": 18,
+     "northwest": 18,
+     "northeast": 15,
+     "southeast": 17,
+     "southwest": 16
+    },
+    "abs_hour_diff": {
+     "central": 8,
+     "northwest": 6,
+     "northeast": 2,
+     "southeast": 5,
+     "southwest": 3
+    },
+    "n_within": 0,
+    "kendall_tau": -0.824958,
+    "tau_undefined": false,
+    "limit": {
+     "abs_hour_diff_max": 1,
+     "n_within_min": 5,
+     "tau_min": 0.6
+    },
+    "pass": false,
+    "measured": true
+   },
+   "H3": {
+    "name": "平日休日比",
+    "substituted": true,
+    "substitute": "深夜残存率(1-4時平均÷終日平均)の値と順序",
+    "reason": "KDDI 6レイヤに曜日軸が無い(d1_reacquisition 結論3・④未発見1)=測定不能",
+    "sim_night_residual": {
+     "central": 0.356,
+     "northwest": 0.2164,
+     "northeast": 0.277,
+     "southeast": 0.2098,
+     "southwest": 0.2543
+    },
+    "obs_night_residual": {
+     "central": 0.1399,
+     "northwest": 0.3245,
+     "northeast": 0.2046,
+     "southeast": 0.2042,
+     "southwest": 0.2337
+    },
+    "abs_diff_max": 0.2161,
+    "kendall_tau": -0.4,
+    "tau_undefined": false,
+    "limit": {
+     "abs_diff_max": 0.05,
+     "tau_min": 0.6
+    },
+    "pass": false,
+    "measured": true
+   },
+   "H4": {
+    "name": "エリア構成",
+    "sim_share": {
+     "central": 0.147151,
+     "northwest": 0.432933,
+     "northeast": 0.132971,
+     "southeast": 0.123008,
+     "southwest": 0.163937
+    },
+    "obs_share": {
+     "central": 0.160936,
+     "northwest": 0.461541,
+     "northeast": 0.17902,
+     "southeast": 0.092669,
+     "southwest": 0.105834
+    },
+    "jsd": 0.009106,
+    "abs_share_diff_max": 0.058103,
+    "limit": {
+     "jsd_max": 0.0122,
+     "abs_share_diff_max": 0.05
+    },
+    "pass": false,
+    "measured": true
+   },
+   "H5": {
+    "name": "属性構成",
+    "attr_ids": [
+     "worker",
+     "resident",
+     "visitor"
+    ],
+    "sim_share": {
+     "central": [
+      0.5278,
+      0.0915,
+      0.3808
+     ],
+     "northwest": [
+      0.6872,
+      0.1207,
+      0.1921
+     ],
+     "northeast": [
+      0.5475,
+      0.1507,
+      0.3018
+     ],
+     "southeast": [
+      0.758,
+      0.1004,
+      0.1416
+     ],
+     "southwest": [
+      0.6641,
+      0.1844,
+      0.1515
+     ]
+    },
+    "obs_share": {
+     "central": [
+      0.1855,
+      0.0545,
+      0.76
+     ],
+     "northwest": [
+      0.2903,
+      0.1418,
+      0.5679
+     ],
+     "northeast": [
+      0.4248,
+      0.1154,
+      0.4599
+     ],
+     "southeast": [
+      0.4511,
+      0.1095,
+      0.4394
+     ],
+     "southwest": [
+      0.4739,
+      0.1215,
+      0.4046
+     ]
+    },
+    "per_area_jsd": {
+     "central": 0.111514,
+     "northwest": 0.130526,
+     "northeast": 0.019223,
+     "southeast": 0.086319,
+     "southwest": 0.059304
+    },
+    "jsd_mean": 0.081377,
+    "abs_share_diff_max": 0.396917,
+    "limit": {
+     "jsd_mean_max": 0.02,
+     "abs_share_diff_max": 0.1
+    },
+    "pass": false,
+    "measured": true
+   }
+  },
+  {
+   "H1": {
+    "name": "相関",
+    "per_area_jsd": {
+     "central": 0.081109,
+     "northwest": 0.022817,
+     "northeast": 0.004798,
+     "southeast": 0.00496,
+     "southwest": 0.004672
+    },
+    "jsd_mean": 0.023671,
+    "jsd_max": 0.081109,
+    "pearson_r": 0.815943,
+    "limit": {
+     "jsd_mean_max": 0.0122,
+     "pearson_min": 0.8
+    },
+    "pass": false,
+    "measured": true
+   },
+   "H2": {
+    "name": "ピーク時刻",
+    "sim_peak_hour": {
+     "central": 10,
+     "northwest": 11,
+     "northeast": 13,
+     "southeast": 12,
+     "southwest": 13
+    },
+    "obs_peak_hour": {
+     "central": 18,
+     "northwest": 18,
+     "northeast": 15,
+     "southeast": 17,
+     "southwest": 16
+    },
+    "abs_hour_diff": {
+     "central": 8,
+     "northwest": 7,
+     "northeast": 2,
+     "southeast": 5,
+     "southwest": 3
+    },
+    "n_within": 0,
+    "kendall_tau": -0.888889,
+    "tau_undefined": false,
+    "limit": {
+     "abs_hour_diff_max": 1,
+     "n_within_min": 5,
+     "tau_min": 0.6
+    },
+    "pass": false,
+    "measured": true
+   },
+   "H3": {
+    "name": "平日休日比",
+    "substituted": true,
+    "substitute": "深夜残存率(1-4時平均÷終日平均)の値と順序",
+    "reason": "KDDI 6レイヤに曜日軸が無い(d1_reacquisition 結論3・④未発見1)=測定不能",
+    "sim_night_residual": {
+     "central": 0.3948,
+     "northwest": 0.2199,
+     "northeast": 0.2718,
+     "southeast": 0.2096,
+     "southwest": 0.251
+    },
+    "obs_night_residual": {
+     "central": 0.1399,
+     "northwest": 0.3245,
+     "northeast": 0.2046,
+     "southeast": 0.2042,
+     "southwest": 0.2337
+    },
+    "abs_diff_max": 0.2549,
+    "kendall_tau": -0.4,
+    "tau_undefined": false,
+    "limit": {
+     "abs_diff_max": 0.05,
+     "tau_min": 0.6
+    },
+    "pass": false,
+    "measured": true
+   },
+   "H4": {
+    "name": "エリア構成",
+    "sim_share": {
+     "central": 0.150813,
+     "northwest": 0.434546,
+     "northeast": 0.131282,
+     "southeast": 0.121798,
+     "southwest": 0.161561
+    },
+    "obs_share": {
+     "central": 0.160936,
+     "northwest": 0.461541,
+     "northeast": 0.17902,
+     "southeast": 0.092669,
+     "southwest": 0.105834
+    },
+    "jsd": 0.008722,
+    "abs_share_diff_max": 0.055728,
+    "limit": {
+     "jsd_max": 0.0122,
+     "abs_share_diff_max": 0.05
+    },
+    "pass": false,
+    "measured": true
+   },
+   "H5": {
+    "name": "属性構成",
+    "attr_ids": [
+     "worker",
+     "resident",
+     "visitor"
+    ],
+    "sim_share": {
+     "central": [
+      0.5219,
+      0.0876,
+      0.3904
+     ],
+     "northwest": [
+      0.6846,
+      0.1201,
+      0.1954
+     ],
+     "northeast": [
+      0.549,
+      0.1509,
+      0.3001
+     ],
+     "southeast": [
+      0.7579,
+      0.1003,
+      0.1418
+     ],
+     "southwest": [
+      0.6631,
+      0.1869,
+      0.15
+     ]
+    },
+    "obs_share": {
+     "central": [
+      0.1855,
+      0.0545,
+      0.76
+     ],
+     "northwest": [
+      0.2903,
+      0.1418,
+      0.5679
+     ],
+     "northeast": [
+      0.4248,
+      0.1154,
+      0.4599
+     ],
+     "southeast": [
+      0.4511,
+      0.1095,
+      0.4394
+     ],
+     "southwest": [
+      0.4739,
+      0.1215,
+      0.4046
+     ]
+    },
+    "per_area_jsd": {
+     "central": 0.106518,
+     "northwest": 0.128334,
+     "northeast": 0.019662,
+     "southeast": 0.086204,
+     "southwest": 0.060242
+    },
+    "jsd_mean": 0.080192,
+    "abs_share_diff_max": 0.39432,
+    "limit": {
+     "jsd_mean_max": 0.02,
+     "abs_share_diff_max": 0.1
+    },
+    "pass": false,
+    "measured": true
+   }
+  }
+ ],
+ "v13": {
+  "verdict": {
+   "schema": "shibuya.tools.c7/prereg_v13/1",
+   "prereg_version": "v1.3",
+   "n_seeds": 3,
+   "labels": [
+    "docs/bench/c7/occupancy/c7-day-4-s1/c7_occupancy.json",
+    "docs/bench/c7/occupancy/c7-day-4-s2/c7_occupancy.json",
+    "docs/bench/c7/occupancy/c7-day-4-s3/c7_occupancy.json"
+   ],
+   "alpha_per_metric": 0.01,
+   "family": {
+    "size": 5,
+    "alpha_family": 0.05,
+    "correction": "Bonferroni(Currie & Cheng 2016 §6.2)",
+    "df": 2,
+    "t_quantile_995": 9.925,
+    "half_width_formula": "t(0.995, n−1)·SD/√n"
+   },
+   "beta_note": "β(利用者危険)は計算しない——代わりに『要る seed 数』N=(t·SD/距離)² を出す",
+   "judged_metrics": [
+    "H1",
+    "H2",
+    "H4",
+    "H5"
+   ],
+   "descriptive_metrics": [
+    "H3"
+   ],
+   "metrics": {
+    "H1": {
+     "name": "相関",
+     "judged": true,
+     "measured": true,
+     "per_seed_pass_v12": [
+      false,
+      false,
+      false
+     ],
+     "stats": {
+      "jsd_mean": {
+       "per_seed": [
+        0.022157,
+        0.021383,
+        0.022673
+       ],
+       "n": 3,
+       "mean": 0.022070999999999997,
+       "sd_ddof1": 0.0006492857614332843,
+       "half_width": 0.0037205381932591407,
+       "interval": [
+        0.018350461806740857,
+        0.025791538193259137
+       ],
+       "interval_kind": "family95_t",
+       "interval_note": "半幅 = t(0.995, n−1)·SD/√n(5 指標 Bonferroni・指標あたり両側 α)",
+       "line": {
+        "lower": null,
+        "upper": 0.0122
+       },
+       "alpha_per_metric": 0.01,
+       "alpha_meaning": "製作者危険(producer risk)。β(利用者危険)は計算しない=要る seed 数で代える",
+       "verdict": "fail",
+       "distance_to_line": 0.009870999999999996,
+       "n_needed": 3,
+       "n_needed_formula": "N=(t(0.995, N−1)·SD/|平均−線|)² を満たす最小の N(N=3..10)",
+       "t_quantile": 9.925,
+       "why_this_stat": "five_metrics H1: _pass(mean(per_area_jsd), H1.jsd_area_hour_mean_max)"
+      },
+      "pearson_r": {
+       "per_seed": [
+        0.698329,
+        0.701354,
+        0.696149
+       ],
+       "n": 3,
+       "mean": 0.6986106666666667,
+       "sd_ddof1": 0.0026139067185600535,
+       "half_width": 0.014978211994902393,
+       "interval": [
+        0.6836324546717644,
+        0.7135888786615691
+       ],
+       "interval_kind": "family95_t",
+       "interval_note": "半幅 = t(0.995, n−1)·SD/√n(5 指標 Bonferroni・指標あたり両側 α)",
+       "line": {
+        "lower": 0.8,
+        "upper": null
+       },
+       "alpha_per_metric": 0.01,
+       "alpha_meaning": "製作者危険(producer risk)。β(利用者危険)は計算しない=要る seed 数で代える",
+       "verdict": "fail",
+       "distance_to_line": 0.10138933333333333,
+       "n_needed": 3,
+       "n_needed_formula": "N=(t(0.995, N−1)·SD/|平均−線|)² を満たす最小の N(N=3..10)",
+       "t_quantile": 9.925,
+       "why_this_stat": "five_metrics H1: _pass(r, H1.pearson_min, upper=False)"
+      }
+     },
+     "verdict": "fail",
+     "window": "06-23",
+     "window_note": "v1.3 §7: 深夜(0〜5 時)を判定から外したので H1 は 6〜23 時で再計算した(24 h 版は descriptive_24h)",
+     "descriptive_24h": {
+      "name": "相関",
+      "judged": false,
+      "measured": true,
+      "per_seed_pass_v12": [
+       false,
+       false,
+       false
+      ],
+      "demoted_reason": "24 h 版は記述(判定は 6〜23 時版)",
+      "stats": {
+       "jsd_mean": {
+        "per_seed": [
+         0.023119,
+         0.022177,
+         0.023671
+        ],
+        "n": 3,
+        "mean": 0.022989,
+        "sd_ddof1": 0.0007554362977776497,
+        "half_width": 0.004328802147534588,
+        "interval": [
+         0.01866019785246541,
+         0.027317802147534587
+        ],
+        "interval_kind": "family95_t",
+        "interval_note": "半幅 = t(0.995, n−1)·SD/√n(5 指標 Bonferroni・指標あたり両側 α)",
+        "line": {
+         "lower": null,
+         "upper": 0.0122
+        },
+        "alpha_per_metric": 0.01,
+        "alpha_meaning": "製作者危険(producer risk)。β(利用者危険)は計算しない=要る seed 数で代える",
+        "verdict": "fail",
+        "distance_to_line": 0.010788999999999998,
+        "n_needed": 3,
+        "n_needed_formula": "N=(t(0.995, N−1)·SD/|平均−線|)² を満たす最小の N(N=3..10)",
+        "t_quantile": 9.925,
+        "why_this_stat": "five_metrics H1: _pass(mean(per_area_jsd), H1.jsd_area_hour_mean_max)"
+       },
+       "pearson_r": {
+        "per_seed": [
+         0.817564,
+         0.820128,
+         0.815943
+        ],
+        "n": 3,
+        "mean": 0.8178783333333333,
+        "sd_ddof1": 0.0021101327762331275,
+        "half_width": 0.012091485834361683,
+        "interval": [
+         0.8057868474989716,
+         0.829969819167695
+        ],
+        "interval_kind": "family95_t",
+        "interval_note": "半幅 = t(0.995, n−1)·SD/√n(5 指標 Bonferroni・指標あたり両側 α)",
+        "line": {
+         "lower": 0.8,
+         "upper": null
+        },
+        "alpha_per_metric": 0.01,
+        "alpha_meaning": "製作者危険(producer risk)。β(利用者危険)は計算しない=要る seed 数で代える",
+        "verdict": "pass",
+        "distance_to_line": 0.01787833333333322,
+        "n_needed": 3,
+        "n_needed_formula": "N=(t(0.995, N−1)·SD/|平均−線|)² を満たす最小の N(N=3..10)",
+        "t_quantile": 9.925,
+        "why_this_stat": "five_metrics H1: _pass(r, H1.pearson_min, upper=False)"
+       }
+      },
+      "verdict": "fail"
+     }
+    },
+    "H2": {
+     "name": "ピーク時刻",
+     "judged": true,
+     "measured": true,
+     "per_seed_pass_v12": [
+      false,
+      false,
+      false
+     ],
+     "stats": {
+      "n_within": {
+       "per_seed": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "n": 3,
+       "mean": 0.0,
+       "sd_ddof1": 0.0,
+       "half_width": null,
+       "interval": [
+        0.0,
+        0.0
+       ],
+       "interval_kind": "min_max",
+       "interval_note": "整数指標なので seed ごとの値の最小/最大で区間を代用(平均±半幅は使わない)",
+       "line": {
+        "lower": 5.0,
+        "upper": null
+       },
+       "alpha_per_metric": 0.01,
+       "alpha_meaning": "製作者危険(producer risk)。β(利用者危険)は計算しない=要る seed 数で代える",
+       "verdict": "fail",
+       "distance_to_line": 5.0,
+       "n_needed": 3,
+       "n_needed_formula": "N=(t(0.995, N−1)·SD/|平均−線|)² を満たす最小の N(N=3..10)",
+       "t_quantile": 9.925,
+       "why_this_stat": "five_metrics H2: (abs(Δh) <= abs_hour_diff_max).sum() >= n_within_min"
+      },
+      "kendall_tau": {
+       "per_seed": [
+        -0.503953,
+        -0.824958,
+        -0.888889
+       ],
+       "n": 3,
+       "mean": -0.7392666666666666,
+       "sd_ddof1": 0.20627938452577693,
+       "half_width": 1.1820224224784595,
+       "interval": [
+        -1.9212890891451262,
+        0.44275575581179283
+       ],
+       "interval_kind": "family95_t",
+       "interval_note": "半幅 = t(0.995, n−1)·SD/√n(5 指標 Bonferroni・指標あたり両側 α)",
+       "line": {
+        "lower": 0.6,
+        "upper": null
+       },
+       "alpha_per_metric": 0.01,
+       "alpha_meaning": "製作者危険(producer risk)。β(利用者危険)は計算しない=要る seed 数で代える",
+       "verdict": "fail",
+       "distance_to_line": 1.3392666666666666,
+       "n_needed": 3,
+       "n_needed_formula": "N=(t(0.995, N−1)·SD/|平均−線|)² を満たす最小の N(N=3..10)",
+       "t_quantile": 9.925,
+       "why_this_stat": "five_metrics H2: _pass(tau2, H2.tau_min, upper=False)"
+      }
+     },
+     "verdict": "fail"
+    },
+    "H3": {
+     "name": "平日休日比",
+     "judged": false,
+     "measured": true,
+     "per_seed_pass_v12": [
+      false,
+      false,
+      false
+     ],
+     "demoted_reason": "v1.3 §7: 深夜(0〜5 時)は 3 seed の家族 95% が ±18.6%(第209 の親再計算)=判定に使わず記述へ。n_measured にも数えない",
+     "stats": {
+      "abs_diff_max": {
+       "per_seed": [
+        0.2453,
+        0.2161,
+        0.2549
+       ],
+       "n": 3,
+       "mean": 0.23876666666666665,
+       "sd_ddof1": 0.020208249140718098,
+       "half_width": 0.11579733795635283,
+       "interval": [
+        0.12296932871031382,
+        0.3545640046230195
+       ],
+       "interval_kind": "family95_t",
+       "interval_note": "半幅 = t(0.995, n−1)·SD/√n(5 指標 Bonferroni・指標あたり両側 α)",
+       "line": {
+        "lower": null,
+        "upper": 0.05
+       },
+       "alpha_per_metric": 0.01,
+       "alpha_meaning": "製作者危険(producer risk)。β(利用者危険)は計算しない=要る seed 数で代える",
+       "verdict": "fail",
+       "distance_to_line": 0.18876666666666664,
+       "n_needed": 3,
+       "n_needed_formula": "N=(t(0.995, N−1)·SD/|平均−線|)² を満たす最小の N(N=3..10)",
+       "t_quantile": 9.925,
+       "why_this_stat": "five_metrics H3: _pass(max abs(Δ深夜残存率), H3.abs_diff_max)"
+      },
+      "kendall_tau": {
+       "per_seed": [
+        -0.4,
+        -0.4,
+        -0.4
+       ],
+       "n": 3,
+       "mean": -0.4000000000000001,
+       "sd_ddof1": 6.798699777552591e-17,
+       "half_width": 3.895791913109117e-16,
+       "interval": [
+        -0.40000000000000047,
+        -0.3999999999999997
+       ],
+       "interval_kind": "family95_t",
+       "interval_note": "半幅 = t(0.995, n−1)·SD/√n(5 指標 Bonferroni・指標あたり両側 α)",
+       "line": {
+        "lower": 0.6,
+        "upper": null
+       },
+       "alpha_per_metric": 0.01,
+       "alpha_meaning": "製作者危険(producer risk)。β(利用者危険)は計算しない=要る seed 数で代える",
+       "verdict": "fail",
+       "distance_to_line": 1.0,
+       "n_needed": 3,
+       "n_needed_formula": "N=(t(0.995, N−1)·SD/|平均−線|)² を満たす最小の N(N=3..10)",
+       "t_quantile": 9.925,
+       "why_this_stat": "five_metrics H3: _pass(tau3, H3.tau_min, upper=False)"
+      }
+     },
+     "verdict": "fail"
+    },
+    "H4": {
+     "name": "エリア構成",
+     "judged": true,
+     "measured": true,
+     "per_seed_pass_v12": [
+      false,
+      false,
+      false
+     ],
+     "stats": {
+      "jsd": {
+       "per_seed": [
+        0.008999,
+        0.009106,
+        0.008722
+       ],
+       "n": 3,
+       "mean": 0.008942333333333333,
+       "sd_ddof1": 0.0001981724837946306,
+       "half_width": 0.0011355682483832068,
+       "interval": [
+        0.007806765084950127,
+        0.01007790158171654
+       ],
+       "interval_kind": "family95_t",
+       "interval_note": "半幅 = t(0.995, n−1)·SD/√n(5 指標 Bonferroni・指標あたり両側 α)",
+       "line": {
+        "lower": null,
+        "upper": 0.0122
+       },
+       "alpha_per_metric": 0.01,
+       "alpha_meaning": "製作者危険(producer risk)。β(利用者危険)は計算しない=要る seed 数で代える",
+       "verdict": "pass",
+       "distance_to_line": 0.0032576666666666674,
+       "n_needed": 3,
+       "n_needed_formula": "N=(t(0.995, N−1)·SD/|平均−線|)² を満たす最小の N(N=3..10)",
+       "t_quantile": 9.925,
+       "why_this_stat": "five_metrics H4: _pass(d4, H4.jsd_max)"
+      },
+      "abs_share_diff_max": {
+       "per_seed": [
+        0.057362,
+        0.058103,
+        0.055728
+       ],
+       "n": 3,
+       "mean": 0.057064333333333335,
+       "sd_ddof1": 0.0012151585630416043,
+       "half_width": 0.006963103325540481,
+       "interval": [
+        0.05010123000779285,
+        0.06402743665887381
+       ],
+       "interval_kind": "family95_t",
+       "interval_note": "半幅 = t(0.995, n−1)·SD/√n(5 指標 Bonferroni・指標あたり両側 α)",
+       "line": {
+        "lower": null,
+        "upper": 0.05
+       },
+       "alpha_per_metric": 0.01,
+       "alpha_meaning": "製作者危険(producer risk)。β(利用者危険)は計算しない=要る seed 数で代える",
+       "verdict": "fail",
+       "distance_to_line": 0.007064333333333332,
+       "n_needed": 3,
+       "n_needed_formula": "N=(t(0.995, N−1)·SD/|平均−線|)² を満たす最小の N(N=3..10)",
+       "t_quantile": 9.925,
+       "why_this_stat": "five_metrics H4: _pass(m4, H4.abs_share_diff_max)"
+      }
+     },
+     "verdict": "fail"
+    },
+    "H5": {
+     "name": "属性構成",
+     "judged": true,
+     "measured": true,
+     "per_seed_pass_v12": [
+      false,
+      false,
+      false
+     ],
+     "stats": {
+      "jsd_mean": {
+       "per_seed": [
+        0.080521,
+        0.081377,
+        0.080192
+       ],
+       "n": 3,
+       "mean": 0.08069666666666665,
+       "sd_ddof1": 0.0006117191621433301,
+       "half_width": 0.003505274012599147,
+       "interval": [
+        0.0771913926540675,
+        0.0842019406792658
+       ],
+       "interval_kind": "family95_t",
+       "interval_note": "半幅 = t(0.995, n−1)·SD/√n(5 指標 Bonferroni・指標あたり両側 α)",
+       "line": {
+        "lower": null,
+        "upper": 0.02
+       },
+       "alpha_per_metric": 0.01,
+       "alpha_meaning": "製作者危険(producer risk)。β(利用者危険)は計算しない=要る seed 数で代える",
+       "verdict": "fail",
+       "distance_to_line": 0.06069666666666665,
+       "n_needed": 3,
+       "n_needed_formula": "N=(t(0.995, N−1)·SD/|平均−線|)² を満たす最小の N(N=3..10)",
+       "t_quantile": 9.925,
+       "why_this_stat": "five_metrics H5: _pass(mean(per_area_jsd), H5.jsd_mean_max)"
+      },
+      "abs_share_diff_max": {
+       "per_seed": [
+        0.395122,
+        0.396917,
+        0.39432
+       ],
+       "n": 3,
+       "mean": 0.395453,
+       "sd_ddof1": 0.0013297642648229173,
+       "half_width": 0.007619817080823493,
+       "interval": [
+        0.3878331829191765,
+        0.4030728170808235
+       ],
+       "interval_kind": "family95_t",
+       "interval_note": "半幅 = t(0.995, n−1)·SD/√n(5 指標 Bonferroni・指標あたり両側 α)",
+       "line": {
+        "lower": null,
+        "upper": 0.1
+       },
+       "alpha_per_metric": 0.01,
+       "alpha_meaning": "製作者危険(producer risk)。β(利用者危険)は計算しない=要る seed 数で代える",
+       "verdict": "fail",
+       "distance_to_line": 0.29545299999999997,
+       "n_needed": 3,
+       "n_needed_formula": "N=(t(0.995, N−1)·SD/|平均−線|)² を満たす最小の N(N=3..10)",
+       "t_quantile": 9.925,
+       "why_this_stat": "five_metrics H5: _pass(m5, H5.abs_share_diff_max)"
+      }
+     },
+     "verdict": "fail"
+    }
+   },
+   "prereg": {
+    "version": "v0-proposal",
+    "status": "事前登録案(親判断待ち)",
+    "jsd_base": 2.0,
+    "jsd_reject": 0.0122,
+    "jsd_target": 0.0012,
+    "H1": {
+     "name": "相関",
+     "jsd_area_hour_mean_max": 0.0122,
+     "pearson_min": 0.8
+    },
+    "H2": {
+     "name": "ピーク時刻",
+     "abs_hour_diff_max": 1,
+     "n_within_min": 5,
+     "tau_min": 0.6
+    },
+    "H3": {
+     "name": "平日休日比",
+     "substituted": true,
+     "substitute": "深夜残存率(1-4時平均÷終日平均)の値と順序",
+     "abs_diff_max": 0.05,
+     "tau_min": 0.6,
+     "reason": "KDDI 6レイヤに曜日軸が無い(d1_reacquisition 結論3・④未発見1)=測定不能"
+    },
+    "H4": {
+     "name": "エリア構成",
+     "jsd_max": 0.0122,
+     "abs_share_diff_max": 0.05
+    },
+    "H5": {
+     "name": "属性構成",
+     "jsd_mean_max": 0.02,
+     "abs_share_diff_max": 0.1
+    }
+   },
+   "n_measured": 4,
+   "n_pass": 0,
+   "n_fail": 4,
+   "n_undecided": 0,
+   "pass": false,
+   "stopping_rule": "開封後に seed を足しても主張を変えない(追加 seed は記述の更新のみ)"
+  },
+  "envelope": {
+   "is_test": false,
+   "p_floor": 0.3333333333333333,
+   "note": "s=3 本の大域包絡(GET)で言える最小の p は 1/s=0.333=**検定ではない**(記述のみ・合否に使わない)",
+   "n_seeds": 3,
+   "n_cells": 120,
+   "n_inside_total": 2,
+   "per_area": {
+    "central": {
+     "n_inside": 0,
+     "n_hours": 24,
+     "hours_outside": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+     ],
+     "envelope_width_mean": 0.0024465696700762293
+    },
+    "northwest": {
+     "n_inside": 0,
+     "n_hours": 24,
+     "hours_outside": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+     ],
+     "envelope_width_mean": 0.0006392036442159841
+    },
+    "northeast": {
+     "n_inside": 1,
+     "n_hours": 24,
+     "hours_outside": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      23
+     ],
+     "envelope_width_mean": 0.0009904195456731163
+    },
+    "southeast": {
+     "n_inside": 1,
+     "n_hours": 24,
+     "hours_outside": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+     ],
+     "envelope_width_mean": 0.000550345559201544
+    },
+    "southwest": {
+     "n_inside": 0,
+     "n_hours": 24,
+     "hours_outside": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+     ],
+     "envelope_width_mean": 0.0006378750753317223
+    }
+   }
+  },
+  "fair_crps": {
+   "m": 3,
+   "fair_factor": 1.5,
+   "definition": "CRPS = E|X−y| − ½E|X−X'| / fair は第 2 項に M/(M−1)(Ferro 2014・ECMWF)",
+   "n_cells": 120,
+   "crps_mean": 0.010493411534316916,
+   "crps_fair_mean": 0.010376424567772507,
+   "ratio_fair_over_raw": 0.9888513886869086,
+   "term2_raw_mean": 0.00023397393308882648,
+   "term2_fair_mean": 0.00035096089963323974,
+   "term2_ratio": 1.5000000000000002,
+   "per_area_crps_fair": {
+    "central": 0.023187083076438908,
+    "northwest": 0.012329551499305891,
+    "northeast": 0.005512899262075491,
+    "southeast": 0.005589974482912673,
+    "southwest": 0.005262614518129563
+   }
+  }
+ },
+ "seed1_v12": {
+  "n_pass": 0,
+  "n_measured": 5,
+  "pass": false
+ },
+ "verdict_source": "v1.3 ensemble(H3 は記述・undecided は合格にしない)"
+}

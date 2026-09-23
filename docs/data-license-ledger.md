@@ -61,3 +61,24 @@
 | 内閣府 渋谷駅周辺地域都市再生安全確保計画策定業務 基礎調査 概要版(読み取りのみ・data/ 未保存) | https://www.chisou.go.jp/tiiki/toshisaisei/yuushikisya/anzenkakuho/hojokin/27hojokin/27zigyouhoukoku-shibuya.pdf | 2026-09-10 | 政府標準利用規約(内閣府) | 139 ha 滞留者 14.5 万・乗降 227 万(重複除去)・休日/平日比 0.65 |
 | 令和3年社会生活基本調査 平均時刻編 第30・31・35・36表(出勤/帰宅時刻の 15 分区分構成比・xlsx 4 本・data/research_cache/estat_r3_avgtime_*.xlsx) | https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224420 ・ …4421 ・ …4426 ・ …4427 &fileKind=0 | 2026-09-11 | 政府標準利用規約(第2.0版) | D-68 P1 の勤務窓投入(第31表・全国・雇用形態別)と判定(第30表・東京都)。出勤=家を出た時刻(始業ではない)。**派生物**: `docs/bench/anchors/commute_time_dist_r3.json`(第31/36表の 15 分ビン構成比を再正規化して転記・`python -m shibuya.build.sched.trial --build-anchor` で再生成可・出典と規約は同 JSON の `source` に記載) |
 
+
+## 2026-09-17 追加(レーン L-R8 幾何の容量の実測化・読み取り目的・gitignore 下の data/research_cache に取得)
+
+| データ | 出典 URL | 取得日 | 利用規約 | 用途 |
+|---|---|---|---|---|
+| 階避難安全検証法に関する算出方法等を定める件(平成12年5月31日 建設省告示第1441号)PDF 19 頁 | https://www.mlit.go.jp/notice/noticedata/pdf/201703/00006493.pdf | 2026-09-17 | 国土交通省サイト利用規約(出典明記) | R-8 ③ **在館者密度**(飲食室 0.7・売場 0.5 人/m²)と**必要滞留面積**(廊下 0.3 m²/人)。答申 [v2-c9-geometry-capacity-research.md](research/v2-c9-geometry-capacity-research.md) §1-3 |
+| 階からの避難に要する時間に基づく階避難安全検証法に関する算出方法等を定める件(令和2年国土交通省告示第510号)官報 PDF 68 頁 | https://www.mlit.go.jp/common/001339931.pdf | 2026-09-17 | 同上 | 上の**現行版**の確認用。**テキスト層が疎で表を抽出できず**=逐語は旧告示から採った(答申 §4 空欄 7) |
+| 道路構造令(平成15年7月改正)条文 PDF 30 頁 | https://www.mlit.go.jp/road/sign/kouzourei/0.pdf | 2026-09-17 | 同上 | R-8 ① 歩道 3.5/2 m・自歩道 4/3 m・車線 2.75〜3.5 m の既定幅員。**現行版は e-Gov 法令検索 API で別途確認**(差分は答申 lit メモに記載) |
+| e-Gov 法令検索 API v1(条文 XML・**data/ 未保存**・読み取りのみ) | https://laws.e-gov.go.jp/api/1/articles;lawId=345CO0000000320;article=11 / ;article=5 ・ lawId=418M60000800116;article=4 ・ lawId=336M50000008006;article=1_3 ・ /api/1/lawdata/413M60000800151 ・ /api/1/lawdata/418M60000800111 | 2026-09-17 | e-Gov 利用規約(政府標準利用規約準拠) | 道路構造令・道路バリアフリー省令・消防法施行規則・鉄道技術基準省令・旅客施設バリアフリー省令の**現行版逐語** |
+| 令和3年経済センサス‐活動調査 卸売業,小売業に関する集計(統計表 ID **0004003261** 産業編(都道府県表)・**0004003263** 産業編(市区町村表))e-Stat API 応答 JSON(**data/ 未保存**・セッションのスクラッチに取得) | https://api.e-stat.go.jp/rest/3.0/app/json/getStatsData (appId は環境変数 ESTAT_APP_ID) | 2026-09-17 | 政府標準利用規約(第2.0版)・出典表示「令和3年経済センサス‐活動調査(総務省・経済産業省)」 | R-8 ② 店舗床面積の**分布**(特別区部 小売業 中央値 80.6 m²・渋谷区 平均 174.3 m²)。答申 §1-2・lit `stats__estat2021_retail-floor-area` |
+| 鈴木ほか(2012)「都市開発による鉄道駅の混雑と施設容量に関する研究」運輸政策研究 15(3) pp.002-009(**data/ 未保存**・curl → stdout → pymupdf で読取のみ) | https://www.jstage.jst.go.jp/article/tpsr/15/3/15_TPSR_15R_08/_article/-char/ja/ | 2026-09-17 | J-STAGE 利用規約(閲覧・引用) | R-8 ④ **ホーム滞留容量 3.30 人/m²**(銀座線渋谷駅を含む)・改札 56.1・ES 63.5/53.9%・表―1 の単位(人/m・分)= R-7 の空欄解消 |
+
+
+## 2026-09-17 追加(レーン R-3 = D-68 経路 3 の残 10 件・読み取り目的)
+
+| データ | 出典 URL | 取得日 | 利用規約 | 用途 |
+|---|---|---|---|---|
+| 令和3年社会生活基本調査 **時間帯編 第15-4表**(曜日,男女,従業上の地位,**勤務形態**,行動の種類,時刻区分別行動者率(有業者)－全国,都道府県)xlsx 1 本・約 45 MB・シート `a015_4`・15 分 96 区分(`data/research_cache/estat_r3_jikantai_000032224355.xlsx`) | https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224355&fileKind=0 | 2026-09-17 | 政府標準利用規約(第2.0版)。引用表記「令和3年社会生活基本調査結果」(総務省統計局) | R-3 ①**日本に始業時刻の分布表が無い**ことの確認と唯一の代理(「仕事」行動者率の朝の階差)・⑧**交替制勤務の時刻像**(深夜 0 時の仕事率が固定の 4.8〜14.0 倍)。答申 [v2-d68-remaining-research.md](research/v2-d68-remaining-research.md) §1-①/⑧・lit `timeuse__estat2021_timeslot-shiftwork`。再配布しない(gitignore) |
+| 令和5年住宅・土地統計調査 住宅及び世帯に関する基本集計 **表58-2-1**(統計表 ID **0004021722**・家計を主に支える者の通勤時間 8 区分 × 全国/都道府県/**市区町村**)e-Stat API 応答 JSON(**data/ 未保存**・セッションのスクラッチに取得) | https://api.e-stat.go.jp/rest/3.0/app/json/getStatsData (appId は環境変数 ESTAT_APP_ID) / 表示面 https://www.e-stat.go.jp/dbview?sid=0004021722 | 2026-09-17 | 政府標準利用規約(第2.0版)・出典表示「令和5年住宅・土地統計調査」(総務省統計局) | R-3 ②**片道通勤時間の分布**(東京都 p50 43.7 分・渋谷区 p50 33.0 分・渋谷区の自宅/住み込み 5.07%)。社会生活基本調査の同分類は平成23年で終了。答申 §1-②・lit `stats__estat2023_commute-time` |
+| e-Stat API `getStatsList` / `getMetaInfo`(統計表の全数検索・分類軸の確認。**data/ 未保存**・読み取りのみ) | https://api.e-stat.go.jp/rest/3.0/app/json/getStatsList ・ /getMetaInfo ・ 一覧 HTML https://www.e-stat.go.jp/stat-search/files?page=1&layout=datalist&toukei=00200533&tstat=000001158160&tclass1=000001158164&tclass2=000001158180&tclass3=000001158184&cycle=0 | 2026-09-17 | 同上(e-Stat 利用規約) | R-3 の否定形の確認: 「始業時刻」0 件 / 社会生活基本調査の「ふだんの片道の通勤時間」は平成23年で終了 / 平均時刻編 67 表に**勤務形態軸 0 件**。答申 §1-①/②/⑧ |
+| data/realworld/estat/SSB2021_*.json(11 表・令和3年社会生活基本調査 生活行動編: 趣味・娯楽 行動者率/平均行動日数 全国×年齢×種目 `0003455361`・`0003455363`・東京都×年齢×性別×種目 `0003456615`・都道府県×種目 `0003456573`・`0003456575`・スポーツ `0003455173`・`0003456409`・学習・自己啓発 `0003454971`・`0003456261`・生活時間編 総平均時間 `0003457337`)+ data/research_cache/ssb2021_kaisetsua.pdf(用語の解説) | e-Stat API getStatsData(appId は環境変数 ESTAT_APP_ID・ファイルにキー無し)・https://www.e-stat.go.jp/dbview?sid=0003456573 ほか・https://www.stat.go.jp/data/shakai/2021/pdf/kaisetsua.pdf | 総務省統計局 | **政府標準利用規約(第2.0版)**・出典表記「令和3年社会生活基本調査結果」(総務省統計局) | ○ | 2026-09-17 取得(P1 サブ・第221)。gitignore 下。人の構成要素ラウンド(趣味)の入力 |

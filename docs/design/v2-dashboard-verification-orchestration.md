@@ -35,6 +35,29 @@
 | 7 Model analysis | ablation第1陣/第2陣・感度試験 | 事前登録したablationの完了 |
 | 8 Model output corroboration | 計器盤 面2 | k*(I_M≤3)の判定 |
 - 各工程の出口で「どのTRACE要素が更新されたか」を devlog に1行書く(TRACEのモデリング・ノート思想)。
+- **verification ≠ validation(第203 追加・出典 D-75 (b)=Larooij & Törnberg 2025, Artificial Intelligence Review 59(1) 15「内部整合性は verification であって validation ではない」・提言(ii) の逐語「pre-registered experimental benchmarks, rather than face-validity alone」)**: **T2-c(テープ再生・checkpoint 自己整合)のハッシュ一致は verification(内部整合)であって validation ではない**。受入表の各行は **主観 / 客観(外部データ)/ 内部整合** のどれかを明示する(TRACE 5=内部整合・TRACE 6/8=客観・face validity=主観)。受入報告の見出しに「PASS n/m」だけを書かず、**種別ごとの内訳**を併記する。
+- **現行 C7 受入表 16 行の仮分類(第203・提案=親が確定。行名は `docs/bench/c7/accept_c7-day-4/c7_accept.md` のもの)**:
+
+| 行 | 項目 | 種別 | なぜその種別か |
+|---|---|---|---|
+| W1 | 壁時計/シミュ日 | 内部整合 | 予算宣言 W1(≤24 h/シミュ日)との突合。外部データを見ていない |
+| M8 | RSS 総額(1ラン) | 内部整合 | 予算宣言 M8 との突合 |
+| S1 | 恒久記録(出力バイト) | 内部整合 | バイト予算 S1 との突合 |
+| P2 | 移動+密度[ms/tick] | 内部整合 | 性能予算 P2 との突合(40万体の行が無く現状は参考値) |
+| L4 | LLM 呼数(シミュ日) | 内部整合 | 制御目標 L4 との突合 |
+| T2-a | 5,000体 同seed 再ラン一致 | 内部整合 | 再現性の検査(verification) |
+| T2-b | 40万体 先頭K tick 部分再ラン一致 | 内部整合 | 同上(現状 未判定) |
+| T2-c | 40万体 checkpoint 自己整合 | 内部整合 | **本規律の名指し例**=ハッシュ一致は内部整合であって validation ではない |
+| DIAG | 診断行(繰り延べ/昇格/縮退/抑止) | 内部整合 | 計器の存在検査(T9)。値の妥当性は見ていない |
+| CONS-1 | 保存則(Σmoney+Σrevenue+Σ運賃 不変) | 内部整合 | エンジンの不変量。外部データと突き合わせていない |
+| CONS-2 | 日次センサス ゲート(残差・純資産=実物資産) | 内部整合 | 会計の整合(残差 0) |
+| CONST-5 | 憲法5 のビルド時検査 | 内部整合 | 静的検査 |
+| WC-6 | 世界被覆 孤児(reaches宣言あり∧実読0) | 内部整合 | 宣言と実装の突合 |
+| WC-5 | 世界被覆 過剰 X | 内部整合 | 前ランとの比較(報告のみ・絶対の合格線なし) |
+| HOLD | KDDI 形状5指標(事後1回) | **客観(外部データ)** | 封印 holdout(KDDI 在圏データ)との照合=**この表で唯一の validation 行**。現状「未照合」 |
+| SEAL | manifest の開封記録 | 内部整合 | 手続きの記録であって照合そのものではない |
+
+  内訳: **客観(外部データ)1 / 内部整合 15 / 主観 0**。**主観 0** は face validity をゲートに使っていないこと(Larooij の母集団=35本中15本が主観のみ、に対する位置どり)を示す一方、**客観は HOLD の1行だけで、しかもまだ未照合**=現行の「判定済み 11/16・PASS 11」は**すべて verification** である。この内訳が変わるのは holdout 開封(事前登録 `docs/bench/c7/prereg_arms_v1.md`)の後だけ。
 
 ### G-4 実験の型: EnsembleSpec と SweepSpec
 - **推奨**: run manifest(U8)に実験型を2つ追加する。**EnsembleSpec**=同一パラメタでseedのみ変える(不確実性の測定・面2の判定単位)。**SweepSpec**=パラメタ/expedientを変える(感度・ablation・直積または明示組)。k*の判定はEnsembleSpecに対してのみ定義。
@@ -56,6 +79,8 @@
 ### G-8 アンサンブル計器
 - **推奨**: 面2に **CRPS**(予測分布と実測点の距離・reliability/resolution分解)と **spread-skill ratio**(アンサンブル幅/RMSE・≈1が目安)を常設。「ランを増やせば良くなる」ではなく「幅が正しいか」を測る自己点検。レイアウトはECMWFスコアカード様式(行=アンカー・列=時間解像度・セル=有意差の色)。ECMWF原文は未読=様式はexpedient。
 - ラン本数の根拠: Monte Carlo標準誤差から逆算(Siepe et al. 2024の式=未確認→確認までは「初回=seed群8本・spread-skillで再評価」のexpedient)。
+  **→ 第205(2026-09-17・ユーザー決定「3 seed で確定」)**: 初回の seed 群は **3 本**(c7-day-4 構成 × seed 1/2/3)。根拠=seed 1/2 の実測(在圏の時刻別 CV(n=2) 中央値 0.0038・最大 0.0325=深夜)と L-B 答申 §5 の N=(CV/r)²(深夜を 2% で言うのに 2.6 本)。「8 本」は撤回(expedient を実測で置換・§3 の登録簿も同じ)。帰無参照は seed 間の実測 JSD(エリア別 24h シェア 0.000162 bits)に置く。事前登録 [prereg_arms_v1.md](../bench/c7/prereg_arms_v1.md) §6 v1.2。
+- **報告様式=分布(第203 追加・出典 D-75 (a)=Li & Tao 2026「Not (Yet) Sufficient」arXiv 2603.00113 §4 Action 3 の逐語「reported as distributions (e.g., uncertainty intervals and variance decomposition) rather than selected trajectories」+ Larooij & Törnberg 2025, Artificial Intelligence Review 59(1) 15 の提言(iii) の逐語「results reported across multiple runs and, where feasible, limited sensitivity checks for key parameters.」)**: 面1・面2・面3 のいずれも、結果は**不確実性区間+分散分解(seed 間 / 条件間)**の形で報告し、**選んだ1軌跡で出さない**。分散分解は最低 2 成分(seed 間=同一構成の反復・条件間=腕/パラメタの差)に分け、腕の差は「条件間の分散が seed 間の分散を超えているか」で述べる(C8 の帰無参照=T7 seed 違いの JSD と同じ考え方)。**適用は S1 の 8 seed 以降**——それ以前の単一 seed の値は「分布ではない」と明記して出す(現行の C7 受入表・C8 ablation 第1陣の seed 1/2 はここに当たる)。追加費用は無い(報告の形だけ)。
 
 ### G-9 面3(運用)の警報規律
 - **推奨**: SREの規律を転用。(1)赤は症状のみ(保存則残差超過・介入回数≠0・繰り延べ滞留がL6超・RSSがM8超・LLM失敗率がしきい値超) (2)通知3階級(page=ラン停止/ticket=次工程で対処/log=見るだけ) (3)すべての赤にactionable な対処手順を紐付ける (4)1tickの外れ値でなく**バーンレート**(窓内の累積超過)で判定。
@@ -65,7 +90,7 @@
 - 面2の事前登録ファイル(SHA)がmanifestに記録されていること(T10)。面2の判定がアンサンブル単位で行われること(単一ランで合否を出したら失敗)。seed写像テスト(G-5)。完了済みラン表の再開テスト(中断→再開で状態ハッシュ一致)。面3の赤に対処手順が存在すること(静的検査)。
 
 ## §3 expedient登録簿(本書分)
-3面の分け方/Var_disc初回0/観測誤差不明時の宣言値/EnsembleSpec・SweepSpecの2型/ワークフローエンジン不採用/自前ラン表スキーマ/スコアカード様式/初回seed群8本/面3のしきい値。
+3面の分け方/Var_disc初回0/観測誤差不明時の宣言値/EnsembleSpec・SweepSpecの2型/ワークフローエンジン不採用/自前ラン表スキーマ/スコアカード様式/初回seed群8本(→第205 で 3 本に実測置換)/面3のしきい値。
 
 ## §4 空欄(未確認)
 Augusiak 2014要旨・Siepe 2024の反復回数式・ECMWF原文・History Matching for ABM(2501.00616)・LLMエージェント評価サーベイ(2507.21504)・2022年評価記述標準プロトコル。

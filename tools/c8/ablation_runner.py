@@ -18,8 +18,21 @@
     ② ``--arm <id>`` で 1 腕を回す。既定 5,000 体×1,440 tick(``--ticks 24`` でスモーク)を
        ``shibuya.cli.run`` で走らせ、腕ごとの結果 JSON/Markdown を書く。
     ③ **切替口が無い腕**は回さずに差分案を印字して終わる(自前で src/ を触らない)。
-    ④ mock でも回るが、**プロンプト本文しか変えない腕(①⑥)は mock では差が出ない**
+    ④ mock でも回るが、**プロンプト本文しか変えない腕(①⑥⑥b⑥c⑦⑦b)は mock では差が出ない**
        (MockLLM が本文を読まない=C6 実測)。その旨を「実 LLM 必須」と印字する。
+    ⑤ **M1 接地率(2 段)・M2 未定義率・M3 上位未定義語**を集計する(``_grounding`` /
+       ``_undefined_registry`` の docstring に分母・分子の式。``AB7-OPEN-INTENT`` の
+       仕様書 ``docs/design/v2-open-intent-arm-spec.md`` §1)。**第1陣の 6 本でも同じ列が出る**
+       (列追加のみ・既存の値は動かさない)。
+
+第1陣より後に足した腕(2026-09-19 現在 ``AB7-OPEN-INTENT``・``AB7b-HINT-INTENT``・
+``AB7c-VOCAB-V2``・``AB6b-AD-NOTICE``・``AB8-L4-SCALE``・``AB6c-AD-NOTICE-UNCAPPED``
+の 6 本)は表の ``first_wave`` の外にいる。
+``first_wave_ids`` が第1陣の名指しで、``validate_table`` はそれを使う。``--arm AB7`` は
+前方一致が 3 本に当たるので**引けない**(``--arm AB7-OPEN-INTENT`` / ``--arm AB7b`` /
+``--arm AB7c`` のように書き分ける)。``--arm AB6`` も 3 本(``AB6-AD-ZERO``・
+``AB6b-AD-NOTICE``・``AB6c-AD-NOTICE-UNCAPPED``)に当たるが、**完全一致が優先される**ので
+``AB6-AD-ZERO`` はそのまま引ける(注視ゲートの腕は ``--arm AB6b`` / ``--arm AB6c`` と書く)。
 
 親がサーバーで叩く例::
 
@@ -55,7 +68,36 @@ ALLOWED_KWARGS: frozenset[str] = frozenset(
         "p_notice_d50_scale",    # 実装済(② d50 倍率)
         "refractory_scale",      # 実装済(③ 不応期倍率表)
         "signage",               # 実装済(⑥ 看板行の有無)
+        # ---- AB7-OPEN-INTENT / AB7b-HINT-INTENT(自由意図の腕・2026-09-16/17 実装) ----
+        "intent_mode",           # 実装済(vocab | open | hint・B0 の出力規約だけを入れ替える)
+        # ---- AB7c-VOCAB-V2(語彙成長 v0・2026-09-17 実装) ----
+        "vocab_version",         # 実装済(v1 | v2・語彙/段0 辞書/resolve の分岐を版で切る)
+        # ---- AB6b-AD-NOTICE(看板の注視ゲート・D-59 (b)・2026-09-17 実装) ----
+        "signage_p_see",         # 実装済(§4 段1 の p_see・体×看板×tick の決定論ベルヌーイ)
+        # ---- AB8-L4-SCALE / AB6c-AD-NOTICE-UNCAPPED(L4 呼数予算の倍率・D-99 (a)・2026-09-19) ----
+        "l4_scale",              # 実装済(1.0=按分どおり・0=無制限=1 tick の上限を体数に置く)
     }
+)
+
+#: **実現量**の欄(D-99 (a)・第245 ユーザー指示 2026-09-19)。腕の比較で「呼数と書式」だけでなく
+#: 「世界で実際に何が起きたか」を JSON に出す。``purchases`` だけは ``RunResult`` の属性ではなく
+#: 診断列(``engine.run.DIAG_RUN_COLUMNS``)なので ``_purchases`` が列和を取る。
+REALIZED_FIELDS: tuple[str, ...] = (
+    "n_boarded",
+    "n_alighted",
+    "n_board_waiting",
+    "n_board_timeout",
+    "purchases",
+    "meals",
+    "meal_yen",
+    "revenue_end",
+    "fares_paid",
+    "conversation_sessions",
+)
+
+#: ``arm_markdown`` の実現量表の見出し(``REALIZED_FIELDS`` と同じ並び)。
+REALIZED_LABELS: tuple[str, ...] = (
+    "乗車", "降車", "乗車待ち", "待ち打切", "購入", "食事", "食事円", "売上", "運賃", "会話",
 )
 
 #: 未実装の切替口(``pending`` の腕が使うキー)。②③⑥ は 2026-09-09 に実装済=いまは空。
@@ -70,6 +112,12 @@ def arm_by_id(table: Mapping[str, Any], arm_id: str) -> dict[str, Any]:
     if exact:
         return dict(exact[0])
     pref = [a for a in arms if str(a.get("id", "")).upper().startswith(key)]
+    if len(pref) > 1:
+        # 2026-09-22: ``AB1`` は ``AB1-BUDGET-MODE`` と ``AB1b-BUDGET-MODE-UNCAPPED`` の両方に
+        # 前方一致する。腕コードそのもの(キーの直後が ``-``)を優先して曖昧さを消す。
+        whole = [a for a in pref if str(a.get("id", "")).upper()[len(key):len(key) + 1] == "-"]
+        if len(whole) == 1:
+            pref = whole
     idx = [a for a in arms if str(a.get("index", "")) == arm_id]
     hit = pref or idx
     if len(hit) == 1:
@@ -77,12 +125,27 @@ def arm_by_id(table: Mapping[str, Any], arm_id: str) -> dict[str, Any]:
     raise KeyError(f"腕 id が引けない: {arm_id!r}(候補 {[a['id'] for a in arms]})")
 
 
+def first_wave_ids(table: Mapping[str, Any]) -> list[str]:
+    """知覚契約書 §8 の**第1陣 6 本**の id(表の ``first_wave.ids`` が正典)。
+
+    第1陣より後に足した腕(``AB7-OPEN-INTENT`` など・別の設計書が出典)は含まない。
+    表に ``first_wave`` が無い旧版では**先頭 6 本**を第1陣とみなす(後方互換)。
+    """
+    fw = table.get("first_wave")
+    if isinstance(fw, Mapping) and fw.get("ids"):
+        return [str(x) for x in fw["ids"]]
+    return [str(a.get("id", "")) for a in list(table.get("arms", ()))[:6]]
+
+
 def validate_table(table: Mapping[str, Any]) -> list[str]:
     """腕定義表の自己検査(テストと ``--list`` が使う)。**問題の一覧を返す**(例外にしない)。"""
     problems: list[str] = []
     arms = list(table.get("arms", ()))
-    if len(arms) != 6:
-        problems.append(f"第1陣は 6 本のはず(いま {len(arms)} 本)")
+    wave1 = first_wave_ids(table)
+    if len(wave1) != 6:
+        problems.append(f"第1陣は 6 本のはず(いま {len(wave1)} 本)")
+    if [str(a.get("id", "")) for a in arms[: len(wave1)]] != wave1:
+        problems.append(f"第1陣 6 本は表の先頭に §8 の順で並ぶはず(いま {[a.get('id') for a in arms]})")
     seen: set[str] = set()
     for a in arms:
         aid = str(a.get("id", ""))
@@ -132,11 +195,14 @@ def table_markdown(table: Mapping[str, Any]) -> str:
                 a.get("status"),
             ]
         )
+    extra = [str(a.get("id")) for a in table.get("arms", ()) if str(a.get("id")) not in set(first_wave_ids(table))]
     md = [
-        "# ablation 第1陣 6 本(知覚契約書 §8)腕定義表",
+        "# ablation 腕定義表(第1陣 6 本=知覚契約書 §8"
+        + (f" ・追加腕 {len(extra)} 本={'・'.join(extra)}" if extra else "")
+        + ")",
         "",
         c8lib.markdown_table(
-            ["順", "§8", "id", "腕", "切替", "切替方法", "mock", "ラン数", "GPU h", "状態"], rows
+            ["順", "番", "id", "腕", "切替", "切替方法", "mock", "ラン数", "GPU h", "状態"], rows
         ),
         "",
         f"- 予算 **L2** {table.get('budget', {}).get('declared', '')}"
@@ -149,6 +215,31 @@ def table_markdown(table: Mapping[str, Any]) -> str:
     for q in table.get("open_questions", ()):
         md.append(f"- **親判断待ち**: {q}")
     return "\n".join(md)
+
+
+def _purchases(res: Any) -> int:
+    """購入件数。``RunResult`` は属性を持たず**診断列**にあるので列和を取る(無ければ 0)。"""
+    v = getattr(res, "purchases", None)
+    if v is not None:
+        return int(v)
+    try:
+        diag = getattr(res, "diagnostics", None)
+        if diag is not None and int(getattr(diag, "size", 0)):
+            return int(res.column("purchases").sum())
+    except Exception:  # pragma: no cover - スタブ結果・旧版の列名
+        return 0
+    return 0
+
+
+def _realized(res: Any) -> dict[str, int]:
+    """**実現量**(``REALIZED_FIELDS``)。欄の無い結果は 0=**推測で埋めない**。"""
+    out: dict[str, int] = {}
+    for name in REALIZED_FIELDS:
+        if name == "purchases":
+            out[name] = _purchases(res)
+            continue
+        out[name] = int(getattr(res, name, 0) or 0)
+    return out
 
 
 def run_metrics(res: Any, tape_path: Path | None) -> dict[str, Any]:
@@ -174,20 +265,163 @@ def run_metrics(res: Any, tape_path: Path | None) -> dict[str, Any]:
         "noticed": int(getattr(res, "noticed", 0)),
         "final_hash": str(getattr(res, "final_hash", "")),
         "budget_mode": str(getattr(res, "budget_mode", "")),
+        "intent_mode": str(getattr(res, "intent_mode", "")),
+        "vocab_version": str(getattr(res, "vocab_version", "")),
+        #: D-59 (b) 看板の注視ゲート(§4 段1 の p_see)。既定 1.0=現行の描画。
+        "signage_p_see": float(getattr(res, "signage_p_see", 1.0)),
+        #: D-71 §3 J「語ごとの使用率」の分子(解決後の行動語ごとの件数)。
+        "action_usage": dict(getattr(res, "action_usage", {}) or {}),
+        "meals": int(getattr(res, "meals", 0) or 0),
+        "meal_yen": int(getattr(res, "meal_yen", 0) or 0),
+        #: D-99 (a) L4 呼数予算の腕(既定 1.0=宣言どおりの按分)。腕 AB8-L4-SCALE。
+        "l4_scale": float(getattr(res, "l4_scale", 1.0)),
+        "budget_per_tick": float(getattr(res, "budget_per_tick", 0.0)),
         "run_manifest_fields": _manifest_fields(res),
     }
+    #: **実現量**(第245・2026-09-19)。列追加のみ=既存の欄の値は 1 つも動かない。
+    realized = _realized(res)
+    n_ag = max(1, int(getattr(res, "n_agents", 1) or 1))
+    out["realized"] = realized
+    out["realized_per_agent_day"] = {k: float(v) / n_ag for k, v in realized.items()}
     out["notice_reach"] = out["noticed"] / max(1, out["salient_events"])
+    # AB6b(D-59 (b)): 看板の注視ゲートの実測。**引いたランだけ**欄を作る
+    # (既定 p_see=1.0 のランの JSON は 1 欄も増えない=推測で埋めない)。
+    if "signage_gate_draws" in rc:
+        out["signage_gate"] = {
+            "draws": int(rc["signage_gate_draws"]),
+            "shown": int(rc["signage_gate_shown"]),
+            "shown_rate": float(rc["signage_shown_rate"]),
+        }
+    out["undefined_registry"] = _undefined_registry(res)  # M2/M3(台帳側)
     if tape_path is not None and Path(tape_path).exists():
         from shibuya.engine.tape import Tape
 
         # D-58: 繰り延べ行(応答空)は行動分布・書式の分母に入れない
         texts = [str(r.response) for r in Tape(tape_path).rows() if not r.deferred]
-        sc = c6lib.score_texts(texts)
+        # AB7c: **そのランの語彙の版で採点する**(v2 のテープを v1 で採点すると
+        # 「食事」が未定義に数えられ M1/M2 が嘘になる)。既定 v1 では 1 件も変わらない。
+        sc = c6lib.score_texts(texts, str(getattr(res, "vocab_version", "v1") or "v1"))
         out["action_counts"] = sc["action_counts"]
         out["undefined_rate"] = sc["undefined_rate"]
         out["role_action_rate"] = sc["role_action_rate"]
         out["n_texts"] = len(texts)
+        out["grounding"] = _grounding(sc)  # M1(2 段)・M2(テープ側)
     return out
+
+
+#: M3 の上位語の本数(open-intent 仕様書 §1「top30」)。
+M3_TOP_K: int = 30
+
+
+def _grounding(sc: Mapping[str, Any]) -> dict[str, Any]:
+    """**M1 接地率(2 段)と M2 未定義率** — テープから再計算できる形(open-intent 仕様書 §1)。
+
+    分母 ``n`` は**繰り延べでないテープ行の応答本文の数**(``Tape(tape).rows()`` のうち
+    ``not r.deferred``・D-58 の分母。``run_metrics`` の ``n_texts`` と同じ)。各行の
+    ``calls.parquet`` の ``response`` 列を ``llm.parser.parse_two_line`` に通し、行動欄を
+    **互いに排他な 3 つ**に分ける(``c6lib.score_texts`` が同じ走査で数えた値を読み直すだけ=
+    採点の定義を 2 つ持たない)。
+
+    ====================  ==========================================================
+    欄                    式(分子 ÷ n)
+    ====================  ==========================================================
+    ``grounded_direct``   ``ParseResult.action is not None`` の行数 ÷ n
+                          = 行動欄が **24 語**(``contract.ALL_ACTION_WORDS`` = 12 語
+                          + 役割語 12)に**直接一致**した割合。ラベル別名・位置引数の
+                          読み取りは parser の判定に従う(書式エラー率と同じ物差し)
+    ``grounded_dictionary``  ``action is None`` かつ ``undefined.map_synonym(raw_action)``
+                          が語を返した行数 ÷ n = **段0 辞書**(``SYNONYMS``)で写せた割合
+    ``undefined_rate``    ``action is None`` かつ ``map_synonym`` も ``None`` の行数 ÷ n
+                          = **M2**。``score_texts`` の ``undefined_rate`` と同値で、
+                          行動分布では ``action_counts["(未定義)"]`` として数えた行
+    ====================  ==========================================================
+
+    3 つの件数の和は厳密に ``n``(同じ 1 行が 2 つに数えられることはない)。
+    ``grounded_total = grounded_direct + grounded_dictionary = 1 − undefined_rate``。
+
+    親の再計算手順: ``calls.parquet`` の ``deferred == 0`` の行の ``response`` を並べ、
+    ``c6lib.score_texts(texts)`` を呼べば ``n`` ・``dictionary_mapped`` ・
+    ``action_counts["(未定義)"]`` が出る=上の 3 式がそのまま再現する。
+    """
+    n = int(sc.get("n", 0))
+    n_dict = int(sc.get("dictionary_mapped", 0))
+    n_undef = int(dict(sc.get("action_counts", {})).get("(未定義)", 0))
+    n_direct = n - n_dict - n_undef
+    den = max(1, n)
+    return {
+        "n": n,
+        "denominator": "非繰り延べのテープ行(D-58)",
+        "n_direct": n_direct,
+        "n_dictionary": n_dict,
+        "n_undefined": n_undef,
+        "grounded_direct": n_direct / den,
+        "grounded_dictionary": n_dict / den,
+        "grounded_total": (n_direct + n_dict) / den,
+        "undefined_rate": n_undef / den,
+    }
+
+
+def _undefined_registry(res: Any, *, k: int = M3_TOP_K) -> dict[str, Any]:
+    """**M2 未定義率と M3 上位未定義語** — ランの台帳側(open-intent 仕様書 §1)。
+
+    出所は ``RunResult.undefined_registry``(``run_day`` が ``bridge.undefined`` を挿す・
+    艦隊経路の ``FleetBridge`` も**同じ台帳を共有**する)。台帳が無い結果(スタブ・旧版)では
+    空辞書を返す=**推測で埋めない**。
+
+    分母 ``n_calls`` は**解釈まで進んだ呼**= ``RunResult.bridge_counters["llm_calls"]``
+    (= ``LLMBridge.n_calls``)。``RunResult.llm_calls`` は**発射数**で繰り延べ・再送を含む
+    ため分母には使わない(D-58)。
+
+    - ``undefined_rate``  = ``counters()["undefined_records"]`` ÷ n_calls(= M2・台帳側)
+    - ``dictionary_rate`` = ``counters()["dictionary_mapped"]`` ÷ n_calls(= M1 の 2 段目)
+    - ``grounded_direct`` = (n_calls − undefined_records − dictionary_mapped) ÷ n_calls
+      (台帳は ``ParseResult.action is None`` のときだけ ``observe`` を通るので、
+      残りが 24 語直接一致=段4 判例が 0 件のとき。判例件数は ``counters()["adopted"]``)
+    - ``top_words``: ``registry.top_words(30)`` の ``(語, 出現数)`` に
+      ``registry.distinct_agents(語)`` を付け、``distinct_agents >= threshold_agents``
+      (行動契約書 §7 段2 の N=10)に ``reached_threshold: true`` の印を付ける(= M3)
+
+    **台帳側 M2 とテープ側 M2 の関係(親確認・第200)**: 同じ値には**ならない**。
+    ``UndefinedActionRegistry.observe`` は**行動欄が空**(書式エラーで ``raw_action`` が
+    None/空)の応答を ``counts`` に入れず stage 1 の結果だけ返す(``undefined.py``
+    ``observe`` 冒頭)。一方テープ側 ``score_texts`` は同じ応答を ``(未定義)`` に数える。
+    したがって **テープ側 undefined_rate = 台帳側 undefined_rate + 行動欄が空の応答の割合**
+    (≒書式エラー率の一部)であり、台帳側 ``grounded_direct`` はその分だけ**過大**。
+    親の照合はこの式で行い、それ以上ずれたら繰り延べ行の扱いかテープの取りこぼしを疑う。
+    台帳の ``undefined_dropped`` は記録リング(``log.maxlen``)の溢れで、``counts`` には
+    影響しない(M2 の分子は ``counts`` 由来)。
+    """
+    reg = getattr(res, "undefined_registry", None)
+    if reg is None or not hasattr(reg, "counters"):
+        return {}
+    counters = {str(a): int(b) for a, b in reg.counters().items()}
+    bc = getattr(res, "bridge_counters", {}) or {}
+    n_calls = int(float(bc.get("llm_calls", 0)) or 0)
+    den = max(1, n_calls)
+    n_undef = counters.get("undefined_records", 0)
+    n_dict = counters.get("dictionary_mapped", 0)
+    threshold = int(getattr(reg, "threshold_agents", 10))
+    top = [
+        {
+            "word": str(w),
+            "count": int(c),
+            "distinct_agents": int(reg.distinct_agents(w)),
+            "reached_threshold": bool(int(reg.distinct_agents(w)) >= threshold),
+        }
+        for w, c in reg.top_words(int(k))
+    ]
+    return {
+        "n_calls": n_calls,
+        "denominator": "bridge_counters['llm_calls'](=解釈まで進んだ呼・発射数ではない)",
+        "counters": counters,
+        "undefined_rate": n_undef / den,
+        "dictionary_rate": n_dict / den,
+        "grounded_direct": (n_calls - n_undef - n_dict) / den,
+        "threshold_agents": threshold,
+        "top_k": int(k),
+        "top_words": top,
+        "n_reached_threshold": sum(1 for r in top if r["reached_threshold"]),
+    }
 
 
 def _diagnostics_day(res: Any) -> dict[str, float]:
@@ -207,7 +441,12 @@ def _manifest_fields(res: Any) -> dict[str, Any]:
     except Exception:  # pragma: no cover - mock/stub の結果
         return {}
     # D-66(2026-09-11): 計画実行層の腕 3 つを足した(AB-PLAN-EXECUTOR を C8 で回すため)。
-    return {k: v for k, v in f.items() if k in ("budget_mode", "ablations", "template_sha256", "catalog_sha16", "replay_date", "p_notice_ablation", "p_notice_d50_scale", "refractory_scale", "signage", "plan_executor", "exit_mode", "attendance_rate")}
+    # AB7(2026-09-16): 自由意図の腕の同定欄 ``intent_mode`` を足した。
+    # AB7c(2026-09-17): 語彙の版 ``vocab_version`` と段0 辞書の版 ``synonym_table_version``。
+    # AB6b(2026-09-17): 看板の注視ゲート ``signage_p_see``(D-59 (b))。
+    # AB8(2026-09-19): L4 呼数予算の倍率 ``l4_scale`` と実効の ``budget_per_tick``(D-99 (a))。
+    # **列追加のみ**=既存の腕の出力の値は 1 つも動かない。
+    return {k: v for k, v in f.items() if k in ("budget_mode", "ablations", "template_sha256", "catalog_sha16", "replay_date", "p_notice_ablation", "p_notice_d50_scale", "refractory_scale", "signage", "signage_p_see", "plan_executor", "exit_mode", "attendance_rate", "intent_mode", "vocab_version", "synonym_table_version", "l4_scale", "budget_per_tick")}
 
 
 def compare_runs(baseline: Mapping[str, Any], arm: Mapping[str, Any]) -> dict[str, Any]:
@@ -222,11 +461,25 @@ def compare_runs(baseline: Mapping[str, Any], arm: Mapping[str, Any]) -> dict[st
         "d_notice_reach": float(arm.get("notice_reach", 0.0)) - float(baseline.get("notice_reach", 0.0)),
         "d_prompt_tokens_mean": float(arm.get("prompt_tokens_mean", float("nan"))) - float(baseline.get("prompt_tokens_mean", float("nan"))),
     }
+    # AB6b(D-59 (b)): 看板の注視ゲートの差。**両方に欄があるときだけ**作る。
+    if "signage_p_see" in baseline and "signage_p_see" in arm:
+        out["d_signage_p_see"] = float(arm["signage_p_see"]) - float(baseline["signage_p_see"])
     a, b = baseline.get("action_counts"), arm.get("action_counts")
     if isinstance(a, Mapping) and isinstance(b, Mapping) and a and b:
         out["action_jsd"] = c6lib.jsd_counts(dict(a), dict(b))
         out["null_reference_bits"] = 0.0035  # T7(seed 違い)受入報告 C6 §3
         out["exceeds_null"] = bool(out["action_jsd"] > out["null_reference_bits"])
+    # 実現量の差(第245・2026-09-19)。**両方に欄があるときだけ**作る。
+    rb, ra = baseline.get("realized"), arm.get("realized")
+    if isinstance(rb, Mapping) and isinstance(ra, Mapping):
+        out["d_realized"] = {
+            k: int(ra.get(k, 0)) - int(rb.get(k, 0)) for k in REALIZED_FIELDS
+        }
+    # M1/M2 の差(AB7・2026-09-16)。**テープが無い側があれば欄を作らない**=推測で埋めない。
+    gb, ga = baseline.get("grounding"), arm.get("grounding")
+    if isinstance(gb, Mapping) and isinstance(ga, Mapping):
+        for key in ("grounded_direct", "grounded_dictionary", "grounded_total", "undefined_rate"):
+            out[f"d_{key}"] = float(ga.get(key, 0.0)) - float(gb.get(key, 0.0))
     return out
 
 
@@ -345,6 +598,101 @@ def arm_markdown(payload: Mapping[str, Any]) -> str:
                         c8lib.fmt(r["notice_reach"], 3), c8lib.fmt(r["conserved"]), r["final_hash"][:16],
                     ]
                     for r in runs
+                ],
+            ),
+        ]
+    # 実現量の表(第245・2026-09-19)。**全ての腕に出る**(列追加のみ=既存の表は不変)。
+    realized = [r for r in runs if isinstance(r.get("realized"), Mapping)]
+    if realized:
+        md += [
+            "",
+            "## 実現量(世界で実際に起きたこと)",
+            "",
+            "> 呼数と書式だけでは腕の良し悪しが読めないので、1 ランの**実現量**を並べる"
+            "(購入は診断列の日合計・売上は日末の残高・会話は開いたセッション数)。"
+            "``呼/tick`` は ``RunResult.budget_per_tick``=アービタが実際に使った上限。",
+            "",
+            c8lib.markdown_table(
+                ["構成", "L4 倍率", "呼/tick", *REALIZED_LABELS],
+                [
+                    [
+                        r["tag"],
+                        c8lib.fmt(r.get("l4_scale"), 2),
+                        c8lib.fmt(r.get("budget_per_tick"), 2),
+                        *[c8lib.fmt(r["realized"].get(k, 0)) for k in REALIZED_FIELDS],
+                    ]
+                    for r in realized
+                ],
+            ),
+        ]
+    # AB6b / AB6(看板の腕)だけに出す節。**他の腕の Markdown は 1 バイトも変わらない**。
+    gate = [
+        r for r in runs
+        if {"signage_p_see", "signage"} & set(dict(r.get("kwargs", {})))
+    ]
+    if gate:
+        md += [
+            "",
+            "## 看板の注視ゲート(D-59 (b)・知覚契約書 §4 段1 の p_see)",
+            "",
+            "> p_see=1.0 は現行の描画(在圏セルの看板行が必ず入る)。抽選は **体×看板×tick** の"
+            "決定論ベルヌーイ(core.rng Philox・ドメイン perception.attention.p_see・"
+            "カウンタ (tick, agent_id, poi_id))。signage=False は ⑥ 広告ゼロ(看板そのものが無い)。",
+            "",
+            c8lib.markdown_table(
+                ["構成", "p_see", "看板あり", "実現した注視率", "抽選回数", "入力tok平均", "セル群tok平均"],
+                [
+                    [
+                        r["tag"],
+                        c8lib.fmt(r.get("run_manifest_fields", {}).get("signage_p_see"), 2),
+                        c8lib.fmt(r.get("run_manifest_fields", {}).get("signage")),
+                        c8lib.fmt(r.get("signage_gate", {}).get("shown_rate"), 4),
+                        c8lib.fmt(r.get("signage_gate", {}).get("draws")),
+                        c8lib.fmt(r["prompt_tokens_mean"], 1),
+                        c8lib.fmt(r["group_tokens"]["cell"], 1),
+                    ]
+                    for r in gate
+                ],
+            ),
+        ]
+    grounded = [r for r in runs if isinstance(r.get("grounding"), Mapping)]
+    if grounded:
+        md += [
+            "",
+            "## M1 接地率(2 段)・M2 未定義率",
+            "",
+            "> 分母=非繰り延べのテープ行(D-58)。直接一致=24 語(12 語+役割語 12)"
+            "・段0=``undefined.map_synonym`` で写せた分。3 つの和は 1.0。",
+            "",
+            c8lib.markdown_table(
+                ["構成", "n", "M1 直接一致", "M1 段0 辞書", "M1 接地計", "M2 未定義率"],
+                [
+                    [
+                        r["tag"], c8lib.fmt(r["grounding"]["n"]),
+                        c8lib.fmt(r["grounding"]["grounded_direct"], 4),
+                        c8lib.fmt(r["grounding"]["grounded_dictionary"], 4),
+                        c8lib.fmt(r["grounding"]["grounded_total"], 4),
+                        c8lib.fmt(r["grounding"]["undefined_rate"], 4),
+                    ]
+                    for r in grounded
+                ],
+            ),
+        ]
+    for r in runs:
+        reg = r.get("undefined_registry")
+        if not isinstance(reg, Mapping) or not reg.get("top_words"):
+            continue
+        md += [
+            "",
+            f"## M3 上位未定義語({r['tag']}・top {reg.get('top_k')}・"
+            f"★=異なる個体 {reg.get('threshold_agents')} 体に到達=§7 段2 の閾値)",
+            "",
+            c8lib.markdown_table(
+                ["語", "出現数", "distinct agents", "閾値到達"],
+                [
+                    [w["word"], c8lib.fmt(w["count"]), c8lib.fmt(w["distinct_agents"]),
+                     "★" if w["reached_threshold"] else ""]
+                    for w in reg["top_words"]
                 ],
             ),
         ]
