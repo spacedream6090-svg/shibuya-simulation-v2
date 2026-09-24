@@ -1,0 +1,2263 @@
+{
+ "meta": {
+  "author_model": "Opus 5.5 (1M context)",
+  "date": "2026-09-24",
+  "note": "推定値は scratch の在庫・席・裁定の再構成モデル(テープの B2 現在地セル+W6+W7 月曜の営業行列+在庫 64/席 seats_for_categories/滞在 30 tick/1 tick 受入 min(4,在庫))。実測は runner JSON。"
+ },
+ "runner_actual": {
+  "v1h": {
+   "tape": "data/tape/c8_ab8_s1/AB8-L4-SCALE__l4_x0.5",
+   "chosen": 9995,
+   "confirmed": 7825,
+   "realized_purchases": 3876,
+   "revenue_end": 3151600
+  },
+  "v1": {
+   "tape": "data/tape/c8_ab8_s1/AB8-L4-SCALE__l4_x1",
+   "chosen": 16169,
+   "confirmed": 12855,
+   "realized_purchases": 6577,
+   "revenue_end": 5491800
+  },
+  "v1d": {
+   "tape": "data/tape/c8_ab8_s1/AB8-L4-SCALE__l4_x2",
+   "chosen": 23168,
+   "confirmed": 18337,
+   "realized_purchases": 9189,
+   "revenue_end": 7770300
+  },
+  "v1u": {
+   "tape": "data/tape/c8_ab8_s1/AB8-L4-SCALE__l4_unlimited",
+   "chosen": 26491,
+   "confirmed": 19809,
+   "realized_purchases": 9606,
+   "revenue_end": 8161400
+  },
+  "v2s1": {
+   "tape": "data/tape/c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v2",
+   "meal_chosen": 16327,
+   "meal_confirmed": 15681,
+   "buy_chosen": 1811,
+   "buy_confirmed": 1715,
+   "realized_meals": 7024,
+   "meal_yen": 5619200
+  },
+  "v2s2": {
+   "tape": "data/tape/c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v2",
+   "meal_chosen": 16456,
+   "meal_confirmed": 15731,
+   "buy_chosen": 1729,
+   "buy_confirmed": 1622,
+   "realized_meals": 6941,
+   "meal_yen": 5552800
+  }
+ },
+ "model_estimate": {
+  "v1h": {
+   "stat": {
+    "購入|BAD_TARGET": 1033,
+    "購入|CLOSED": 2863,
+    "購入|LOST_ARB_over4": 4,
+    "購入|LOST_ARB_soldout": 2152,
+    "購入|OK(推定成立)": 3926,
+    "購入|QUEUED(満席→並ぶ・不成立)": 17
+   },
+   "revenue_est": 3187500,
+   "n_sold_out_poi": 25
+  },
+  "v1": {
+   "stat": {
+    "購入|BAD_TARGET": 1630,
+    "購入|CLOSED": 4573,
+    "購入|LOST_ARB_over4": 60,
+    "購入|LOST_ARB_soldout": 3199,
+    "購入|OK(推定成立)": 6641,
+    "購入|QUEUED(満席→並ぶ・不成立)": 66
+   },
+   "revenue_est": 5526500,
+   "n_sold_out_poi": 34
+  },
+  "v1d": {
+   "stat": {
+    "購入|BAD_TARGET": 2418,
+    "購入|CLOSED": 6432,
+    "購入|LOST_ARB_over4": 194,
+    "購入|LOST_ARB_soldout": 4586,
+    "購入|OK(推定成立)": 9301,
+    "購入|QUEUED(満席→並ぶ・不成立)": 236
+   },
+   "revenue_est": 7854200,
+   "n_sold_out_poi": 57
+  },
+  "v1u": {
+   "stat": {
+    "購入|BAD_TARGET": 3033,
+    "購入|CLOSED": 7130,
+    "購入|LOST_ARB_over4": 2160,
+    "購入|LOST_ARB_soldout": 4491,
+    "購入|OK(推定成立)": 9639,
+    "購入|QUEUED(満席→並ぶ・不成立)": 36
+   },
+   "revenue_est": 8186400,
+   "n_sold_out_poi": 55
+  },
+  "v2s1": {
+   "stat": {
+    "購入|BAD_TARGET": 171,
+    "購入|CLOSED": 491,
+    "購入|LOST_ARB_over4": 10,
+    "購入|LOST_ARB_soldout": 80,
+    "購入|OK(推定成立)": 1016,
+    "購入|QUEUED(満席→並ぶ・不成立)": 43,
+    "食事|CLOSED": 4387,
+    "食事|LOST_ARB_over4": 566,
+    "食事|LOST_ARB_soldout": 96,
+    "食事|NOT_IN_EATERY": 3255,
+    "食事|OK(推定成立)": 6968,
+    "食事|QUEUED(満席→並ぶ・不成立)": 1055
+   },
+   "revenue_est": 6363500,
+   "n_sold_out_poi": 2
+  },
+  "v2s2": {
+   "stat": {
+    "購入|BAD_TARGET": 141,
+    "購入|CLOSED": 473,
+    "購入|LOST_ARB_over4": 12,
+    "購入|LOST_ARB_soldout": 84,
+    "購入|OK(推定成立)": 981,
+    "購入|QUEUED(満席→並ぶ・不成立)": 38,
+    "食事|CLOSED": 4490,
+    "食事|LOST_ARB_over4": 636,
+    "食事|LOST_ARB_soldout": 92,
+    "食事|NOT_IN_EATERY": 3325,
+    "食事|OK(推定成立)": 6948,
+    "食事|QUEUED(満席→並ぶ・不成立)": 964
+   },
+   "revenue_est": 6341200,
+   "n_sold_out_poi": 2
+  }
+ },
+ "validation": {
+  "v1h": {
+   "purchases_est": 3926,
+   "actual": 3876,
+   "losers_est": 2156,
+   "losers_actual": 2170
+  },
+  "v1": {
+   "purchases_est": 6641,
+   "actual": 6577,
+   "losers_est": 3259,
+   "losers_actual": 3314,
+   "revenue_est": 5526500,
+   "revenue_actual": 5491800
+  },
+  "v1d": {
+   "purchases_est": 9301,
+   "actual": 9189,
+   "losers_est": 4780,
+   "losers_actual": 4831
+  },
+  "v1u": {
+   "purchases_est": 9639,
+   "actual": 9606,
+   "losers_est": 6651,
+   "losers_actual": 6682,
+   "revenue_est": 8186400,
+   "revenue_actual": 8161400
+  },
+  "v2s1": {
+   "meals_est": 6968,
+   "actual": 7024,
+   "losers_est": 752,
+   "losers_actual": 742,
+   "meals_est_without_seats": 7951
+  },
+  "v2s2": {
+   "meals_est": 6948,
+   "actual": 6941,
+   "losers_est": 824,
+   "losers_actual": 832
+  }
+ },
+ "target_field": {
+  "v1_buy": {
+   "target_class": {
+    "固有の店名(W6 に在る)": 908,
+    "その他": 1174,
+    "欄名/プレースホルダの写し": 10600,
+    "一般語(食品・飲食系)": 3487
+   },
+   "store_name_vs_minid": {
+    "最小idと一致": 192,
+    "同セルに無い": 614,
+    "同セルに在るが最小idでない": 102
+   },
+   "closed_alternative": {
+    "同セルに営業中の別POIあり": 3620,
+    "同セルの候補は全て閉店": 1470
+   },
+   "closed_minid_cat": {
+    "food": 1904,
+    "shop": 1682,
+    "nightlife": 620,
+    "service": 258,
+    "school": 236,
+    "landmark": 179,
+    "office": 167,
+    "leisure": 29,
+    "hall": 8,
+    "attraction": 7
+   }
+  },
+  "v2s1_buy": {
+   "target_class": {
+    "欄名/プレースホルダの写し": 857,
+    "一般語(食品・飲食系)": 577,
+    "固有の店名(W6 に在る)": 245,
+    "その他": 132
+   },
+   "store_name_vs_minid": {
+    "同セルに無い": 124,
+    "同セルに在るが最小idでない": 26,
+    "最小idと一致": 95
+   },
+   "closed_alternative": {
+    "同セルに営業中の別POIあり": 398,
+    "同セルの候補は全て閉店": 116
+   },
+   "closed_minid_cat": {
+    "shop": 228,
+    "food": 150,
+    "nightlife": 54,
+    "service": 31,
+    "landmark": 25,
+    "school": 11,
+    "office": 9,
+    "leisure": 4,
+    "hall": 1,
+    "attraction": 1
+   }
+  },
+  "v2s1_meal": {
+   "target_class": {
+    "欄名/プレースホルダの写し": 7451,
+    "一般語(食品・飲食系)": 3616,
+    "固有の店名(W6 に在る)": 2469,
+    "その他": 2791
+   },
+   "store_name_vs_minid": {
+    "最小idと一致": 367,
+    "同セルに在るが最小idでない": 1081,
+    "同セルに無い": 1021
+   },
+   "closed_alternative": {
+    "同セルに営業中の別POIあり": 1815,
+    "同セルの候補は全て閉店": 2645
+   },
+   "closed_minid_cat": {
+    "food": 4460
+   }
+  },
+  "v1_food_intent": {
+   "food_intent_share": 0.962,
+   "food_intent_resolved_to_non_food_shop": 0.267,
+   "n_food_intent_at_non_food_shop": 3740
+  }
+ },
+ "revenue_by_category_est": {
+  "v1": {
+   "non_food_shop_revenue_share": 0.557,
+   "non_food_shop_units_share": 0.309,
+   "avg_price_actual": 835.0
+  }
+ },
+ "concentration": {
+  "attempts": {
+   "v1": {
+    "購入": {
+     "all": {
+      "n_poi": 308,
+      "top10_share": 0.3014650251048903,
+      "top1_share": 0.06520393424582158,
+      "zipf_slope_all": 1.1645147095808943,
+      "zipf_slope_top50": 0.7434313341824579,
+      "gini": 0.6439158715965925
+     },
+     "top_pois": [
+      [
+       52,
+       "shop",
+       "大盛堂書店",
+       948
+      ],
+      [
+       1954,
+       "food",
+       "HARBS 渋谷サクラステージ店",
+       927
+      ],
+      [
+       1854,
+       "food",
+       "富士そば",
+       443
+      ],
+      [
+       135,
+       "shop",
+       "auショップ",
+       362
+      ],
+      [
+       32,
+       "landmark",
+       "中渋谷教会",
+       305
+      ]
+     ]
+    }
+   },
+   "v1u": {
+    "購入": {
+     "all": {
+      "n_poi": 313,
+      "top10_share": 0.24603512960436563,
+      "top1_share": 0.04958219645293315,
+      "zipf_slope_all": 1.0907010356608249,
+      "zipf_slope_top50": 0.6039868437555194,
+      "gini": 0.5908562670804476
+     },
+     "top_pois": [
+      [
+       52,
+       "shop",
+       "大盛堂書店",
+       1163
+      ],
+      [
+       1954,
+       "food",
+       "HARBS 渋谷サクラステージ店",
+       1029
+      ],
+      [
+       1854,
+       "food",
+       "富士そば",
+       554
+      ],
+      [
+       135,
+       "shop",
+       "auショップ",
+       511
+      ],
+      [
+       92,
+       "food",
+       "築地銀だこ",
+       480
+      ]
+     ]
+    }
+   },
+   "v2s1": {
+    "購入": {
+     "all": {
+      "n_poi": 207,
+      "top10_share": 0.4396341463414634,
+      "top1_share": 0.0798780487804878,
+      "zipf_slope_all": 1.1894806868145302,
+      "zipf_slope_top50": 0.8630337055925881,
+      "gini": 0.6851243077648168
+     },
+     "top_pois": [
+      [
+       52,
+       "shop",
+       "大盛堂書店",
+       131
+      ],
+      [
+       23,
+       "food",
+       "カフェ・ベローチェ",
+       105
+      ],
+      [
+       552,
+       "shop",
+       "紀伊国屋",
+       103
+      ],
+      [
+       135,
+       "shop",
+       "auショップ",
+       82
+      ],
+      [
+       1954,
+       "food",
+       "HARBS 渋谷サクラステージ店",
+       82
+      ]
+     ]
+    },
+    "食事": {
+     "all": {
+      "n_poi": 204,
+      "top10_share": 0.46481028151774784,
+      "top1_share": 0.1361689106487148,
+      "zipf_slope_all": 1.2748490593822501,
+      "zipf_slope_top50": 0.9727854190912065,
+      "gini": 0.7162022703818369
+     },
+     "top_pois": [
+      [
+       1954,
+       "food",
+       "HARBS 渋谷サクラステージ店",
+       1780
+      ],
+      [
+       183,
+       "food",
+       "うなぎ 松川",
+       1642
+      ],
+      [
+       1854,
+       "food",
+       "富士そば",
+       666
+      ],
+      [
+       694,
+       "food",
+       "スターバックス",
+       340
+      ],
+      [
+       144,
+       "food",
+       "Sharro",
+       289
+      ]
+     ]
+    }
+   },
+   "v2s2": {
+    "購入": {
+     "all": {
+      "n_poi": 188,
+      "top10_share": 0.4552896725440806,
+      "top1_share": 0.07745591939546599,
+      "zipf_slope_all": 1.2089198806231538,
+      "zipf_slope_top50": 0.863409931471017,
+      "gini": 0.6795581220858566
+     },
+     "top_pois": [
+      [
+       52,
+       "shop",
+       "大盛堂書店",
+       123
+      ],
+      [
+       23,
+       "food",
+       "カフェ・ベローチェ",
+       111
+      ],
+      [
+       135,
+       "shop",
+       "auショップ",
+       100
+      ],
+      [
+       552,
+       "shop",
+       "紀伊国屋",
+       95
+      ],
+      [
+       1954,
+       "food",
+       "HARBS 渋谷サクラステージ店",
+       92
+      ]
+     ]
+    },
+    "食事": {
+     "all": {
+      "n_poi": 202,
+      "top10_share": 0.4658796648895659,
+      "top1_share": 0.13907083015993907,
+      "zipf_slope_all": 1.3113796535514775,
+      "zipf_slope_top50": 0.9591861952955549,
+      "gini": 0.7265599903478542
+     },
+     "top_pois": [
+      [
+       1954,
+       "food",
+       "HARBS 渋谷サクラステージ店",
+       1826
+      ],
+      [
+       183,
+       "food",
+       "うなぎ 松川",
+       1688
+      ],
+      [
+       1854,
+       "food",
+       "富士そば",
+       578
+      ],
+      [
+       694,
+       "food",
+       "スターバックス",
+       404
+      ],
+      [
+       356,
+       "food",
+       "Freeman Cafe",
+       293
+      ]
+     ]
+    }
+   }
+  },
+  "counterfactual_uniform_in_cell": {
+   "v1_buy": {
+    "minid_top10": 0.301,
+    "uniform_top10": 0.131,
+    "uniform_open_top10": 0.144,
+    "s_minid": 1.165,
+    "s_uniform": 1.146,
+    "static_feasible_minid": 0.584,
+    "static_feasible_any_open": 0.808
+   },
+   "v2s1_meal": {
+    "minid_top10": 0.465,
+    "uniform_top10": 0.248,
+    "uniform_open_top10": 0.316,
+    "s_minid": 1.275,
+    "s_uniform": 1.26,
+    "static_feasible_minid": 0.527,
+    "static_feasible_any_open": 0.639
+   }
+  },
+  "realized_est": {
+   "v1_sales": {
+    "n": 303,
+    "top10": 0.105,
+    "s_all": 0.974,
+    "max": 70
+   },
+   "v2s1_meals": {
+    "n": 199,
+    "top10": 0.407,
+    "s_all": 1.197,
+    "max": 648
+   }
+  },
+  "reachable": {
+   "cells": 520,
+   "cells_with_poi": 315,
+   "poi_reachable_buy": 315,
+   "poi_total": 2337,
+   "eatery_reachable": 206,
+   "eatery_total": 823
+  }
+ },
+ "chain": {
+  "v2s1": {
+   "prev": "食事",
+   "n_prev_with_next": 14349,
+   "next_rest": 3154,
+   "next_rest_share": 0.21980625827583805,
+   "next_top": [
+    [
+     "移動",
+     9421
+    ],
+    [
+     "休憩",
+     3154
+    ],
+    [
+     "待機",
+     786
+    ],
+    [
+     "購入",
+     552
+    ],
+    [
+     "乗車",
+     189
+    ],
+    [
+     "食事",
+     171
+    ]
+   ],
+   "rest_total": 3562,
+   "rest_prev_top": [
+    [
+     "食事",
+     3154
+    ],
+    [
+     "移動",
+     229
+    ],
+    [
+     "購入",
+     125
+    ],
+    [
+     "休憩",
+     8
+    ],
+    [
+     "待機",
+     6
+    ]
+   ],
+   "by_static": {
+    "static_fail_closed": {
+     "n": 4081,
+     "rest": 265,
+     "rest_share": 0.06493506493506493,
+     "meal_again": 0.013967164910561138
+    },
+    "static_ok": {
+     "n": 7624,
+     "rest": 2789,
+     "rest_share": 0.36581846799580275,
+     "meal_again": 0.013903462749213011
+    },
+    "static_fail_no_poi": {
+     "n": 2644,
+     "rest": 100,
+     "rest_share": 0.037821482602118005,
+     "meal_again": 0.0030257186081694403
+    }
+   },
+   "rest_reason_kw": {
+    "休む語": 2915,
+    "(該当なし)": 229,
+    "食後": 602,
+    "体力": 1,
+    "空腹": 18
+   },
+   "rest_reason_n": 3154,
+   "gap_ticks_median": 53.0
+  },
+  "v2s2": {
+   "prev": "食事",
+   "n_prev_with_next": 14505,
+   "next_rest": 3099,
+   "next_rest_share": 0.21365046535677354,
+   "next_top": [
+    [
+     "移動",
+     9654
+    ],
+    [
+     "休憩",
+     3099
+    ],
+    [
+     "待機",
+     843
+    ],
+    [
+     "購入",
+     528
+    ],
+    [
+     "乗車",
+     189
+    ],
+    [
+     "食事",
+     134
+    ]
+   ],
+   "rest_total": 3483,
+   "rest_prev_top": [
+    [
+     "食事",
+     3099
+    ],
+    [
+     "移動",
+     226
+    ],
+    [
+     "購入",
+     113
+    ],
+    [
+     "休憩",
+     8
+    ],
+    [
+     null,
+     6
+    ]
+   ],
+   "by_static": {
+    "static_fail_closed": {
+     "n": 4167,
+     "rest": 266,
+     "rest_share": 0.06383489320854331,
+     "meal_again": 0.013918886489080873
+    },
+    "static_fail_no_poi": {
+     "n": 2763,
+     "rest": 129,
+     "rest_share": 0.04668838219326819,
+     "meal_again": 0.003981179876945349
+    },
+    "static_ok": {
+     "n": 7575,
+     "rest": 2704,
+     "rest_share": 0.356963696369637,
+     "meal_again": 0.008580858085808581
+    }
+   },
+   "rest_reason_kw": {
+    "休む語": 2857,
+    "食後": 629,
+    "(該当なし)": 233,
+    "空腹": 33,
+    "食べ": 1
+   },
+   "rest_reason_n": 3099,
+   "gap_ticks_median": 50.0
+  },
+  "v1": {
+   "prev": "購入",
+   "n_prev_with_next": 14352,
+   "next_rest": 1028,
+   "next_rest_share": 0.07162764771460424,
+   "next_top": [
+    [
+     "移動",
+     8845
+    ],
+    [
+     "購入",
+     3203
+    ],
+    [
+     "休憩",
+     1028
+    ],
+    [
+     "待機",
+     909
+    ],
+    [
+     "乗車",
+     265
+    ],
+    [
+     null,
+     60
+    ]
+   ],
+   "rest_total": 1616,
+   "rest_prev_top": [
+    [
+     "購入",
+     1028
+    ],
+    [
+     "移動",
+     463
+    ],
+    [
+     "休憩",
+     30
+    ],
+    [
+     "待機",
+     21
+    ],
+    [
+     "乗車",
+     11
+    ]
+   ],
+   "by_static": {
+    "static_fail_closed": {
+     "n": 4566,
+     "rest": 649,
+     "rest_share": 0.14213753832676304,
+     "meal_again": 0.022120017520805956
+    },
+    "static_fail_no_poi": {
+     "n": 1352,
+     "rest": 125,
+     "rest_share": 0.09245562130177515,
+     "meal_again": 0.02440828402366864
+    },
+    "static_ok": {
+     "n": 8434,
+     "rest": 254,
+     "rest_share": 0.030116196348114774,
+     "meal_again": 0.36388427792269384
+    }
+   },
+   "rest_reason_kw": {
+    "(該当なし)": 256,
+    "休む語": 765,
+    "空腹": 211,
+    "体力": 3,
+    "疲れ": 3,
+    "食べ": 2
+   },
+   "rest_reason_n": 1028,
+   "gap_ticks_median": 51.0
+  }
+ },
+ "chain_reason_keywords": {
+  "v2s1": {
+   "n": 3154,
+   "post_meal_words": 2634,
+   "closed_words": 49,
+   "fatigue_words": 1,
+   "full_words": 0
+  },
+  "v2s2": {
+   "n": 3099,
+   "post_meal_words": 2549,
+   "closed_words": 51,
+   "fatigue_words": 0,
+   "full_words": 0
+  }
+ },
+ "hourly_success": {
+  "v1|購入": {
+   "0": {
+    "n": 63,
+    "ok": 0.175,
+    "closed": 0.698,
+    "nopoi": 0.111,
+    "arb": 0.016,
+    "q": 0.0
+   },
+   "1": {
+    "n": 31,
+    "ok": 0.065,
+    "closed": 0.774,
+    "nopoi": 0.161,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "2": {
+    "n": 62,
+    "ok": 0.194,
+    "closed": 0.71,
+    "nopoi": 0.097,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "3": {
+    "n": 51,
+    "ok": 0.176,
+    "closed": 0.745,
+    "nopoi": 0.078,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "4": {
+    "n": 72,
+    "ok": 0.139,
+    "closed": 0.694,
+    "nopoi": 0.167,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "5": {
+    "n": 181,
+    "ok": 0.094,
+    "closed": 0.773,
+    "nopoi": 0.133,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "6": {
+    "n": 619,
+    "ok": 0.102,
+    "closed": 0.756,
+    "nopoi": 0.141,
+    "arb": 0.002,
+    "q": 0.0
+   },
+   "7": {
+    "n": 1019,
+    "ok": 0.164,
+    "closed": 0.691,
+    "nopoi": 0.138,
+    "arb": 0.007,
+    "q": 0.0
+   },
+   "8": {
+    "n": 951,
+    "ok": 0.152,
+    "closed": 0.712,
+    "nopoi": 0.101,
+    "arb": 0.035,
+    "q": 0.0
+   },
+   "9": {
+    "n": 965,
+    "ok": 0.183,
+    "closed": 0.641,
+    "nopoi": 0.12,
+    "arb": 0.055,
+    "q": 0.0
+   },
+   "10": {
+    "n": 1162,
+    "ok": 0.324,
+    "closed": 0.56,
+    "nopoi": 0.069,
+    "arb": 0.047,
+    "q": 0.0
+   },
+   "11": {
+    "n": 886,
+    "ok": 0.726,
+    "closed": 0.038,
+    "nopoi": 0.1,
+    "arb": 0.076,
+    "q": 0.06
+   },
+   "12": {
+    "n": 859,
+    "ok": 0.627,
+    "closed": 0.015,
+    "nopoi": 0.125,
+    "arb": 0.226,
+    "q": 0.007
+   },
+   "13": {
+    "n": 1118,
+    "ok": 0.598,
+    "closed": 0.023,
+    "nopoi": 0.129,
+    "arb": 0.25,
+    "q": 0.0
+   },
+   "14": {
+    "n": 1117,
+    "ok": 0.686,
+    "closed": 0.032,
+    "nopoi": 0.045,
+    "arb": 0.237,
+    "q": 0.0
+   },
+   "15": {
+    "n": 892,
+    "ok": 0.672,
+    "closed": 0.025,
+    "nopoi": 0.074,
+    "arb": 0.23,
+    "q": 0.0
+   },
+   "16": {
+    "n": 885,
+    "ok": 0.618,
+    "closed": 0.024,
+    "nopoi": 0.076,
+    "arb": 0.282,
+    "q": 0.0
+   },
+   "17": {
+    "n": 768,
+    "ok": 0.471,
+    "closed": 0.066,
+    "nopoi": 0.086,
+    "arb": 0.376,
+    "q": 0.0
+   },
+   "18": {
+    "n": 893,
+    "ok": 0.421,
+    "closed": 0.127,
+    "nopoi": 0.112,
+    "arb": 0.34,
+    "q": 0.0
+   },
+   "19": {
+    "n": 862,
+    "ok": 0.418,
+    "closed": 0.114,
+    "nopoi": 0.073,
+    "arb": 0.387,
+    "q": 0.008
+   },
+   "20": {
+    "n": 865,
+    "ok": 0.363,
+    "closed": 0.105,
+    "nopoi": 0.12,
+    "arb": 0.412,
+    "q": 0.0
+   },
+   "21": {
+    "n": 773,
+    "ok": 0.288,
+    "closed": 0.266,
+    "nopoi": 0.107,
+    "arb": 0.338,
+    "q": 0.0
+   },
+   "22": {
+    "n": 634,
+    "ok": 0.312,
+    "closed": 0.297,
+    "nopoi": 0.095,
+    "arb": 0.297,
+    "q": 0.0
+   },
+   "23": {
+    "n": 441,
+    "ok": 0.127,
+    "closed": 0.488,
+    "nopoi": 0.12,
+    "arb": 0.265,
+    "q": 0.0
+   }
+  },
+  "v1u|購入": {
+   "0": {
+    "n": 58,
+    "ok": 0.207,
+    "closed": 0.655,
+    "nopoi": 0.138,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "1": {
+    "n": 31,
+    "ok": 0.065,
+    "closed": 0.774,
+    "nopoi": 0.161,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "2": {
+    "n": 63,
+    "ok": 0.175,
+    "closed": 0.714,
+    "nopoi": 0.111,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "3": {
+    "n": 48,
+    "ok": 0.188,
+    "closed": 0.75,
+    "nopoi": 0.062,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "4": {
+    "n": 75,
+    "ok": 0.12,
+    "closed": 0.773,
+    "nopoi": 0.107,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "5": {
+    "n": 184,
+    "ok": 0.092,
+    "closed": 0.772,
+    "nopoi": 0.136,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "6": {
+    "n": 616,
+    "ok": 0.127,
+    "closed": 0.737,
+    "nopoi": 0.135,
+    "arb": 0.002,
+    "q": 0.0
+   },
+   "7": {
+    "n": 1997,
+    "ok": 0.146,
+    "closed": 0.648,
+    "nopoi": 0.144,
+    "arb": 0.056,
+    "q": 0.006
+   },
+   "8": {
+    "n": 2260,
+    "ok": 0.141,
+    "closed": 0.658,
+    "nopoi": 0.137,
+    "arb": 0.055,
+    "q": 0.009
+   },
+   "9": {
+    "n": 2280,
+    "ok": 0.207,
+    "closed": 0.55,
+    "nopoi": 0.12,
+    "arb": 0.123,
+    "q": 0.0
+   },
+   "10": {
+    "n": 1522,
+    "ok": 0.369,
+    "closed": 0.449,
+    "nopoi": 0.139,
+    "arb": 0.043,
+    "q": 0.0
+   },
+   "11": {
+    "n": 2170,
+    "ok": 0.497,
+    "closed": 0.035,
+    "nopoi": 0.106,
+    "arb": 0.361,
+    "q": 0.0
+   },
+   "12": {
+    "n": 2475,
+    "ok": 0.524,
+    "closed": 0.035,
+    "nopoi": 0.109,
+    "arb": 0.332,
+    "q": 0.001
+   },
+   "13": {
+    "n": 1282,
+    "ok": 0.707,
+    "closed": 0.044,
+    "nopoi": 0.102,
+    "arb": 0.147,
+    "q": 0.0
+   },
+   "14": {
+    "n": 976,
+    "ok": 0.707,
+    "closed": 0.035,
+    "nopoi": 0.097,
+    "arb": 0.161,
+    "q": 0.0
+   },
+   "15": {
+    "n": 966,
+    "ok": 0.644,
+    "closed": 0.037,
+    "nopoi": 0.094,
+    "arb": 0.225,
+    "q": 0.0
+   },
+   "16": {
+    "n": 1063,
+    "ok": 0.62,
+    "closed": 0.039,
+    "nopoi": 0.072,
+    "arb": 0.269,
+    "q": 0.0
+   },
+   "17": {
+    "n": 1392,
+    "ok": 0.458,
+    "closed": 0.065,
+    "nopoi": 0.097,
+    "arb": 0.379,
+    "q": 0.0
+   },
+   "18": {
+    "n": 2385,
+    "ok": 0.306,
+    "closed": 0.102,
+    "nopoi": 0.105,
+    "arb": 0.486,
+    "q": 0.0
+   },
+   "19": {
+    "n": 1549,
+    "ok": 0.34,
+    "closed": 0.132,
+    "nopoi": 0.117,
+    "arb": 0.411,
+    "q": 0.0
+   },
+   "20": {
+    "n": 1218,
+    "ok": 0.292,
+    "closed": 0.169,
+    "nopoi": 0.112,
+    "arb": 0.427,
+    "q": 0.0
+   },
+   "21": {
+    "n": 758,
+    "ok": 0.207,
+    "closed": 0.252,
+    "nopoi": 0.116,
+    "arb": 0.425,
+    "q": 0.0
+   },
+   "22": {
+    "n": 653,
+    "ok": 0.221,
+    "closed": 0.265,
+    "nopoi": 0.11,
+    "arb": 0.404,
+    "q": 0.0
+   },
+   "23": {
+    "n": 468,
+    "ok": 0.118,
+    "closed": 0.374,
+    "nopoi": 0.118,
+    "arb": 0.391,
+    "q": 0.0
+   }
+  },
+  "v2s1|購入": {
+   "0": {
+    "n": 6,
+    "ok": 0.0,
+    "closed": 0.833,
+    "nopoi": 0.167,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "1": {
+    "n": 5,
+    "ok": 0.0,
+    "closed": 0.8,
+    "nopoi": 0.2,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "2": {
+    "n": 7,
+    "ok": 0.143,
+    "closed": 0.857,
+    "nopoi": 0.0,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "3": {
+    "n": 8,
+    "ok": 0.125,
+    "closed": 0.625,
+    "nopoi": 0.25,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "4": {
+    "n": 10,
+    "ok": 0.2,
+    "closed": 0.7,
+    "nopoi": 0.1,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "5": {
+    "n": 18,
+    "ok": 0.056,
+    "closed": 0.667,
+    "nopoi": 0.278,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "6": {
+    "n": 51,
+    "ok": 0.098,
+    "closed": 0.706,
+    "nopoi": 0.196,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "7": {
+    "n": 117,
+    "ok": 0.282,
+    "closed": 0.573,
+    "nopoi": 0.145,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "8": {
+    "n": 103,
+    "ok": 0.398,
+    "closed": 0.515,
+    "nopoi": 0.087,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "9": {
+    "n": 111,
+    "ok": 0.324,
+    "closed": 0.568,
+    "nopoi": 0.108,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "10": {
+    "n": 184,
+    "ok": 0.543,
+    "closed": 0.315,
+    "nopoi": 0.087,
+    "arb": 0.054,
+    "q": 0.0
+   },
+   "11": {
+    "n": 90,
+    "ok": 0.878,
+    "closed": 0.022,
+    "nopoi": 0.078,
+    "arb": 0.011,
+    "q": 0.011
+   },
+   "12": {
+    "n": 80,
+    "ok": 0.812,
+    "closed": 0.05,
+    "nopoi": 0.075,
+    "arb": 0.025,
+    "q": 0.037
+   },
+   "13": {
+    "n": 97,
+    "ok": 0.804,
+    "closed": 0.041,
+    "nopoi": 0.103,
+    "arb": 0.01,
+    "q": 0.041
+   },
+   "14": {
+    "n": 97,
+    "ok": 0.845,
+    "closed": 0.01,
+    "nopoi": 0.021,
+    "arb": 0.041,
+    "q": 0.082
+   },
+   "15": {
+    "n": 135,
+    "ok": 0.83,
+    "closed": 0.059,
+    "nopoi": 0.015,
+    "arb": 0.015,
+    "q": 0.081
+   },
+   "16": {
+    "n": 77,
+    "ok": 0.883,
+    "closed": 0.026,
+    "nopoi": 0.039,
+    "arb": 0.026,
+    "q": 0.026
+   },
+   "17": {
+    "n": 79,
+    "ok": 0.722,
+    "closed": 0.038,
+    "nopoi": 0.089,
+    "arb": 0.101,
+    "q": 0.051
+   },
+   "18": {
+    "n": 60,
+    "ok": 0.617,
+    "closed": 0.167,
+    "nopoi": 0.117,
+    "arb": 0.067,
+    "q": 0.033
+   },
+   "19": {
+    "n": 88,
+    "ok": 0.614,
+    "closed": 0.091,
+    "nopoi": 0.091,
+    "arb": 0.17,
+    "q": 0.034
+   },
+   "20": {
+    "n": 129,
+    "ok": 0.566,
+    "closed": 0.194,
+    "nopoi": 0.085,
+    "arb": 0.116,
+    "q": 0.039
+   },
+   "21": {
+    "n": 97,
+    "ok": 0.32,
+    "closed": 0.423,
+    "nopoi": 0.134,
+    "arb": 0.124,
+    "q": 0.0
+   },
+   "22": {
+    "n": 103,
+    "ok": 0.466,
+    "closed": 0.301,
+    "nopoi": 0.146,
+    "arb": 0.087,
+    "q": 0.0
+   },
+   "23": {
+    "n": 59,
+    "ok": 0.203,
+    "closed": 0.61,
+    "nopoi": 0.102,
+    "arb": 0.085,
+    "q": 0.0
+   }
+  },
+  "v2s1|食事": {
+   "0": {
+    "n": 58,
+    "ok": 0.017,
+    "closed": 0.81,
+    "nopoi": 0.155,
+    "arb": 0.017,
+    "q": 0.0
+   },
+   "1": {
+    "n": 33,
+    "ok": 0.0,
+    "closed": 0.606,
+    "nopoi": 0.394,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "2": {
+    "n": 53,
+    "ok": 0.019,
+    "closed": 0.698,
+    "nopoi": 0.283,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "3": {
+    "n": 63,
+    "ok": 0.0,
+    "closed": 0.746,
+    "nopoi": 0.206,
+    "arb": 0.048,
+    "q": 0.0
+   },
+   "4": {
+    "n": 69,
+    "ok": 0.0,
+    "closed": 0.754,
+    "nopoi": 0.246,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "5": {
+    "n": 174,
+    "ok": 0.0,
+    "closed": 0.828,
+    "nopoi": 0.167,
+    "arb": 0.006,
+    "q": 0.0
+   },
+   "6": {
+    "n": 614,
+    "ok": 0.01,
+    "closed": 0.779,
+    "nopoi": 0.204,
+    "arb": 0.008,
+    "q": 0.0
+   },
+   "7": {
+    "n": 1041,
+    "ok": 0.088,
+    "closed": 0.696,
+    "nopoi": 0.214,
+    "arb": 0.001,
+    "q": 0.0
+   },
+   "8": {
+    "n": 896,
+    "ok": 0.141,
+    "closed": 0.675,
+    "nopoi": 0.184,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "9": {
+    "n": 933,
+    "ok": 0.139,
+    "closed": 0.676,
+    "nopoi": 0.175,
+    "arb": 0.01,
+    "q": 0.0
+   },
+   "10": {
+    "n": 1046,
+    "ok": 0.112,
+    "closed": 0.679,
+    "nopoi": 0.163,
+    "arb": 0.046,
+    "q": 0.0
+   },
+   "11": {
+    "n": 835,
+    "ok": 0.611,
+    "closed": 0.031,
+    "nopoi": 0.249,
+    "arb": 0.016,
+    "q": 0.093
+   },
+   "12": {
+    "n": 736,
+    "ok": 0.596,
+    "closed": 0.023,
+    "nopoi": 0.261,
+    "arb": 0.015,
+    "q": 0.105
+   },
+   "13": {
+    "n": 1054,
+    "ok": 0.526,
+    "closed": 0.02,
+    "nopoi": 0.317,
+    "arb": 0.05,
+    "q": 0.087
+   },
+   "14": {
+    "n": 993,
+    "ok": 0.502,
+    "closed": 0.016,
+    "nopoi": 0.167,
+    "arb": 0.156,
+    "q": 0.159
+   },
+   "15": {
+    "n": 875,
+    "ok": 0.627,
+    "closed": 0.038,
+    "nopoi": 0.161,
+    "arb": 0.061,
+    "q": 0.113
+   },
+   "16": {
+    "n": 937,
+    "ok": 0.589,
+    "closed": 0.019,
+    "nopoi": 0.129,
+    "arb": 0.117,
+    "q": 0.145
+   },
+   "17": {
+    "n": 914,
+    "ok": 0.665,
+    "closed": 0.02,
+    "nopoi": 0.161,
+    "arb": 0.053,
+    "q": 0.102
+   },
+   "18": {
+    "n": 970,
+    "ok": 0.649,
+    "closed": 0.022,
+    "nopoi": 0.222,
+    "arb": 0.036,
+    "q": 0.071
+   },
+   "19": {
+    "n": 940,
+    "ok": 0.606,
+    "closed": 0.015,
+    "nopoi": 0.221,
+    "arb": 0.059,
+    "q": 0.099
+   },
+   "20": {
+    "n": 816,
+    "ok": 0.703,
+    "closed": 0.012,
+    "nopoi": 0.188,
+    "arb": 0.013,
+    "q": 0.083
+   },
+   "21": {
+    "n": 856,
+    "ok": 0.572,
+    "closed": 0.175,
+    "nopoi": 0.189,
+    "arb": 0.022,
+    "q": 0.041
+   },
+   "22": {
+    "n": 835,
+    "ok": 0.607,
+    "closed": 0.133,
+    "nopoi": 0.17,
+    "arb": 0.022,
+    "q": 0.068
+   },
+   "23": {
+    "n": 586,
+    "ok": 0.024,
+    "closed": 0.744,
+    "nopoi": 0.21,
+    "arb": 0.022,
+    "q": 0.0
+   }
+  },
+  "v2s2|購入": {
+   "0": {
+    "n": 11,
+    "ok": 0.545,
+    "closed": 0.273,
+    "nopoi": 0.182,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "1": {
+    "n": 3,
+    "ok": 0.333,
+    "closed": 0.667,
+    "nopoi": 0.0,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "2": {
+    "n": 5,
+    "ok": 0.0,
+    "closed": 1.0,
+    "nopoi": 0.0,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "3": {
+    "n": 4,
+    "ok": 0.5,
+    "closed": 0.5,
+    "nopoi": 0.0,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "4": {
+    "n": 13,
+    "ok": 0.231,
+    "closed": 0.769,
+    "nopoi": 0.0,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "5": {
+    "n": 23,
+    "ok": 0.261,
+    "closed": 0.565,
+    "nopoi": 0.174,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "6": {
+    "n": 54,
+    "ok": 0.093,
+    "closed": 0.648,
+    "nopoi": 0.259,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "7": {
+    "n": 118,
+    "ok": 0.339,
+    "closed": 0.5,
+    "nopoi": 0.161,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "8": {
+    "n": 100,
+    "ok": 0.36,
+    "closed": 0.5,
+    "nopoi": 0.14,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "9": {
+    "n": 136,
+    "ok": 0.346,
+    "closed": 0.544,
+    "nopoi": 0.037,
+    "arb": 0.066,
+    "q": 0.007
+   },
+   "10": {
+    "n": 159,
+    "ok": 0.547,
+    "closed": 0.314,
+    "nopoi": 0.05,
+    "arb": 0.088,
+    "q": 0.0
+   },
+   "11": {
+    "n": 92,
+    "ok": 0.859,
+    "closed": 0.054,
+    "nopoi": 0.065,
+    "arb": 0.022,
+    "q": 0.0
+   },
+   "12": {
+    "n": 63,
+    "ok": 0.873,
+    "closed": 0.016,
+    "nopoi": 0.063,
+    "arb": 0.016,
+    "q": 0.032
+   },
+   "13": {
+    "n": 89,
+    "ok": 0.764,
+    "closed": 0.022,
+    "nopoi": 0.124,
+    "arb": 0.034,
+    "q": 0.056
+   },
+   "14": {
+    "n": 108,
+    "ok": 0.907,
+    "closed": 0.028,
+    "nopoi": 0.028,
+    "arb": 0.019,
+    "q": 0.019
+   },
+   "15": {
+    "n": 136,
+    "ok": 0.838,
+    "closed": 0.015,
+    "nopoi": 0.022,
+    "arb": 0.015,
+    "q": 0.11
+   },
+   "16": {
+    "n": 76,
+    "ok": 0.829,
+    "closed": 0.013,
+    "nopoi": 0.053,
+    "arb": 0.039,
+    "q": 0.066
+   },
+   "17": {
+    "n": 59,
+    "ok": 0.763,
+    "closed": 0.017,
+    "nopoi": 0.119,
+    "arb": 0.068,
+    "q": 0.034
+   },
+   "18": {
+    "n": 63,
+    "ok": 0.619,
+    "closed": 0.159,
+    "nopoi": 0.095,
+    "arb": 0.063,
+    "q": 0.063
+   },
+   "19": {
+    "n": 86,
+    "ok": 0.733,
+    "closed": 0.07,
+    "nopoi": 0.093,
+    "arb": 0.105,
+    "q": 0.0
+   },
+   "20": {
+    "n": 103,
+    "ok": 0.573,
+    "closed": 0.184,
+    "nopoi": 0.039,
+    "arb": 0.184,
+    "q": 0.019
+   },
+   "21": {
+    "n": 90,
+    "ok": 0.278,
+    "closed": 0.489,
+    "nopoi": 0.067,
+    "arb": 0.167,
+    "q": 0.0
+   },
+   "22": {
+    "n": 80,
+    "ok": 0.35,
+    "closed": 0.512,
+    "nopoi": 0.062,
+    "arb": 0.075,
+    "q": 0.0
+   },
+   "23": {
+    "n": 58,
+    "ok": 0.207,
+    "closed": 0.603,
+    "nopoi": 0.138,
+    "arb": 0.052,
+    "q": 0.0
+   }
+  },
+  "v2s2|食事": {
+   "0": {
+    "n": 36,
+    "ok": 0.0,
+    "closed": 0.778,
+    "nopoi": 0.222,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "1": {
+    "n": 34,
+    "ok": 0.0,
+    "closed": 0.647,
+    "nopoi": 0.353,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "2": {
+    "n": 64,
+    "ok": 0.0,
+    "closed": 0.781,
+    "nopoi": 0.219,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "3": {
+    "n": 55,
+    "ok": 0.0,
+    "closed": 0.745,
+    "nopoi": 0.255,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "4": {
+    "n": 68,
+    "ok": 0.0,
+    "closed": 0.647,
+    "nopoi": 0.353,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "5": {
+    "n": 179,
+    "ok": 0.0,
+    "closed": 0.726,
+    "nopoi": 0.274,
+    "arb": 0.0,
+    "q": 0.0
+   },
+   "6": {
+    "n": 676,
+    "ok": 0.022,
+    "closed": 0.756,
+    "nopoi": 0.212,
+    "arb": 0.01,
+    "q": 0.0
+   },
+   "7": {
+    "n": 1028,
+    "ok": 0.101,
+    "closed": 0.693,
+    "nopoi": 0.203,
+    "arb": 0.003,
+    "q": 0.0
+   },
+   "8": {
+    "n": 929,
+    "ok": 0.102,
+    "closed": 0.701,
+    "nopoi": 0.196,
+    "arb": 0.001,
+    "q": 0.0
+   },
+   "9": {
+    "n": 932,
+    "ok": 0.116,
+    "closed": 0.685,
+    "nopoi": 0.185,
+    "arb": 0.013,
+    "q": 0.002
+   },
+   "10": {
+    "n": 1031,
+    "ok": 0.108,
+    "closed": 0.692,
+    "nopoi": 0.179,
+    "arb": 0.021,
+    "q": 0.0
+   },
+   "11": {
+    "n": 832,
+    "ok": 0.609,
+    "closed": 0.029,
+    "nopoi": 0.278,
+    "arb": 0.012,
+    "q": 0.072
+   },
+   "12": {
+    "n": 710,
+    "ok": 0.585,
+    "closed": 0.024,
+    "nopoi": 0.249,
+    "arb": 0.025,
+    "q": 0.117
+   },
+   "13": {
+    "n": 1078,
+    "ok": 0.548,
+    "closed": 0.032,
+    "nopoi": 0.291,
+    "arb": 0.081,
+    "q": 0.047
+   },
+   "14": {
+    "n": 960,
+    "ok": 0.516,
+    "closed": 0.021,
+    "nopoi": 0.18,
+    "arb": 0.128,
+    "q": 0.155
+   },
+   "15": {
+    "n": 847,
+    "ok": 0.627,
+    "closed": 0.032,
+    "nopoi": 0.2,
+    "arb": 0.066,
+    "q": 0.076
+   },
+   "16": {
+    "n": 971,
+    "ok": 0.566,
+    "closed": 0.016,
+    "nopoi": 0.143,
+    "arb": 0.149,
+    "q": 0.125
+   },
+   "17": {
+    "n": 957,
+    "ok": 0.658,
+    "closed": 0.032,
+    "nopoi": 0.164,
+    "arb": 0.039,
+    "q": 0.107
+   },
+   "18": {
+    "n": 957,
+    "ok": 0.648,
+    "closed": 0.017,
+    "nopoi": 0.204,
+    "arb": 0.03,
+    "q": 0.101
+   },
+   "19": {
+    "n": 905,
+    "ok": 0.608,
+    "closed": 0.015,
+    "nopoi": 0.185,
+    "arb": 0.099,
+    "q": 0.093
+   },
+   "20": {
+    "n": 860,
+    "ok": 0.708,
+    "closed": 0.012,
+    "nopoi": 0.184,
+    "arb": 0.016,
+    "q": 0.08
+   },
+   "21": {
+    "n": 846,
+    "ok": 0.566,
+    "closed": 0.162,
+    "nopoi": 0.189,
+    "arb": 0.028,
+    "q": 0.054
+   },
+   "22": {
+    "n": 870,
+    "ok": 0.6,
+    "closed": 0.164,
+    "nopoi": 0.168,
+    "arb": 0.026,
+    "q": 0.041
+   },
+   "23": {
+    "n": 630,
+    "ok": 0.025,
+    "closed": 0.73,
+    "nopoi": 0.202,
+    "arb": 0.043,
+    "q": 0.0
+   }
+  }
+ },
+ "d96": {
+  "eatery_open_23h_any": 58,
+  "nightlife_open_23h_any": 252,
+  "eatery_open_at_2300": 58,
+  "nightlife_open_at_2300": 252,
+  "eatery_open_at_0100": 31,
+  "nightlife_open_at_0100": 245,
+  "n_eatery": 823,
+  "n_nightlife": 259,
+  "eatery_cells": 206,
+  "cells_with_poi": 315,
+  "n_poi_reachable_buy": 315,
+  "n_poi_reachable_eat": 206
+ },
+ "open_by_hour": {
+  "0": {
+   "eatery": 35,
+   "nightlife": 246,
+   "minid_buy": 62,
+   "minid_eat": 7
+  },
+  "1": {
+   "eatery": 30,
+   "nightlife": 245,
+   "minid_buy": 60,
+   "minid_eat": 4
+  },
+  "2": {
+   "eatery": 25,
+   "nightlife": 240,
+   "minid_buy": 59,
+   "minid_eat": 4
+  },
+  "3": {
+   "eatery": 14,
+   "nightlife": 239,
+   "minid_buy": 58,
+   "minid_eat": 1
+  },
+  "4": {
+   "eatery": 13,
+   "nightlife": 238,
+   "minid_buy": 58,
+   "minid_eat": 1
+  },
+  "5": {
+   "eatery": 9,
+   "nightlife": 5,
+   "minid_buy": 43,
+   "minid_eat": 1
+  },
+  "6": {
+   "eatery": 13,
+   "nightlife": 2,
+   "minid_buy": 53,
+   "minid_eat": 0
+  },
+  "7": {
+   "eatery": 65,
+   "nightlife": 2,
+   "minid_buy": 69,
+   "minid_eat": 21
+  },
+  "8": {
+   "eatery": 82,
+   "nightlife": 2,
+   "minid_buy": 95,
+   "minid_eat": 31
+  },
+  "9": {
+   "eatery": 92,
+   "nightlife": 2,
+   "minid_buy": 136,
+   "minid_eat": 33
+  },
+  "10": {
+   "eatery": 106,
+   "nightlife": 2,
+   "minid_buy": 160,
+   "minid_eat": 36
+  },
+  "11": {
+   "eatery": 764,
+   "nightlife": 30,
+   "minid_buy": 292,
+   "minid_eat": 189
+  },
+  "12": {
+   "eatery": 777,
+   "nightlife": 31,
+   "minid_buy": 293,
+   "minid_eat": 193
+  },
+  "13": {
+   "eatery": 779,
+   "nightlife": 31,
+   "minid_buy": 294,
+   "minid_eat": 194
+  },
+  "14": {
+   "eatery": 770,
+   "nightlife": 30,
+   "minid_buy": 294,
+   "minid_eat": 193
+  },
+  "15": {
+   "eatery": 750,
+   "nightlife": 28,
+   "minid_buy": 293,
+   "minid_eat": 187
+  },
+  "16": {
+   "eatery": 751,
+   "nightlife": 29,
+   "minid_buy": 293,
+   "minid_eat": 186
+  },
+  "17": {
+   "eatery": 780,
+   "nightlife": 232,
+   "minid_buy": 275,
+   "minid_eat": 192
+  },
+  "18": {
+   "eatery": 797,
+   "nightlife": 237,
+   "minid_buy": 239,
+   "minid_eat": 197
+  },
+  "19": {
+   "eatery": 789,
+   "nightlife": 239,
+   "minid_buy": 231,
+   "minid_eat": 197
+  },
+  "20": {
+   "eatery": 771,
+   "nightlife": 239,
+   "minid_buy": 217,
+   "minid_eat": 192
+  },
+  "21": {
+   "eatery": 738,
+   "nightlife": 239,
+   "minid_buy": 160,
+   "minid_eat": 181
+  },
+  "22": {
+   "eatery": 674,
+   "nightlife": 254,
+   "minid_buy": 138,
+   "minid_eat": 159
+  },
+  "23": {
+   "eatery": 50,
+   "nightlife": 251,
+   "minid_buy": 66,
+   "minid_eat": 10
+  }
+ },
+ "night_meals": {
+  "v2s1": {
+   "attempts_23_05": 862,
+   "static_fail": 846,
+   "feasible_if_nightlife_b_and_any_open": 319,
+   "open_eatery_in_cell_but_minid_closed": 143
+  },
+  "v2s2": {
+   "attempts_23_05": 887,
+   "static_fail": 871,
+   "feasible_if_nightlife_b_and_any_open": 317,
+   "open_eatery_in_cell_but_minid_closed": 158
+  }
+ },
+ "w7_defaults": {
+  "food_category_default": 559,
+  "food_osm": 258,
+  "food_chain": 6,
+  "food_default_hours": "11:00-23:00",
+  "shop_default_hours": "11:00-21:00 (458/476)",
+  "nightlife_default": "17:00-05:00 (198/233)"
+ },
+ "c7_economy": {
+  "revenue": {
+   "c7_day_2": 19392600,
+   "c7_day_3": 19412000,
+   "c7_day_4": 19428800
+  },
+  "stock_ceiling_minid_64": 18860800,
+  "revenue_per_agent_day_c7_day_4": 49.8,
+  "buy_chosen_c7_day_4": 1048864,
+  "faucet": 33935934271,
+  "household_initial": 11522113271,
+  "store_entry_capital": 22413821000,
+  "sink": {
+   "c7_day_2": 327954,
+   "c7_day_3": 6567569,
+   "c7_day_4": 6869472
+  },
+  "fares": {
+   "c7_day_2": 13500,
+   "c7_day_3": 6262380,
+   "c7_day_4": 6558120
+  },
+  "sink_minus_fares": {
+   "c7_day_2": 314454,
+   "c7_day_3": 305189,
+   "c7_day_4": 311352
+  },
+  "store_cash_check": {
+   "entry": 22413821000,
+   "plus_revenue": 19428800,
+   "minus_non_fare_sink": 311352,
+   "equals": 22432938448,
+   "log_value": 22432938448
+  },
+  "waste": {
+   "projected_t_day": {
+    "c7_day_2": 17.906,
+    "c7_day_3": 11.271,
+    "c7_day_4": 10.767
+   },
+   "census_goods_waste_g": {
+    "c7_day_2": 1897200,
+    "c7_day_3": 3827550,
+    "c7_day_4": 3787550
+   },
+   "implied_street_litter_t": {
+    "c7_day_2": 16.009,
+    "c7_day_3": 7.443,
+    "c7_day_4": 6.979
+   },
+   "band": [
+    83.7,
+    155.5
+   ],
+   "anchor_t_day": 119.6
+  }
+ },
+ "d16": {
+  "anchors_py_wholesale_retail": 131520000,
+  "raw_value_per_pending": 1315230000,
+  "status": "anchors.py は未訂正(1/10)"
+ }
+}

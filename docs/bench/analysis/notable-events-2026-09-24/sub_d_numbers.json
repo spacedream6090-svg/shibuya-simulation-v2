@@ -1,0 +1,2064 @@
+{
+ "_meta": {
+  "author": "Claude Opus 5.5 (1M context)",
+  "date": "2026-09-24",
+  "note": "テープ読み取りのみ・追加ラン 0。scripts はスクラッチ(board.py/walk2.py/move_dest.py/blocks390k.py)。platform セル = 291 (g1_-1_UG・7 線) / 239 (g0_-1_UG・半蔵門線)"
+ },
+ "tape_board_summary": {
+  "AB8 x0.5": {
+   "arm": "AB8 x0.5",
+   "calls": 19856,
+   "board_choices": 582,
+   "board_rate": 0.029311039484286865,
+   "act_counts": {
+    "待機": 469,
+    "移動": 7904,
+    "退去": 13,
+    "乗車": 582,
+    "購入": 9995,
+    "休憩": 771,
+    "(未定義)": 110,
+    "会話": 7,
+    "通報": 5
+   },
+   "board_b2_eki": 70,
+   "board_on_platform_cell": 2,
+   "calls_on_platform_cell": 41,
+   "calls_b2_eki": 2295,
+   "board_rate_eki": 0.030501089324618737,
+   "board_rate_noeki": 0.029155515061784636,
+   "board_rate_platform": 0.04878048780487805,
+   "board_by_hour": [
+    13,
+    6,
+    1,
+    1,
+    9,
+    10,
+    47,
+    53,
+    56,
+    45,
+    40,
+    27,
+    17,
+    9,
+    20,
+    20,
+    25,
+    18,
+    23,
+    19,
+    20,
+    30,
+    38,
+    35
+   ],
+   "calls_by_hour": [
+    149,
+    92,
+    150,
+    129,
+    221,
+    376,
+    1031,
+    1041,
+    1042,
+    1042,
+    1041,
+    1042,
+    1042,
+    1041,
+    1042,
+    1042,
+    1041,
+    1042,
+    1042,
+    1041,
+    1042,
+    1042,
+    1041,
+    1042
+   ],
+   "board_by_class": {
+    "0": 406,
+    "1": 85,
+    "2": 44,
+    "3": 47
+   },
+   "calls_by_class": {
+    "0": 15255,
+    "1": 2100,
+    "2": 1094,
+    "3": 1407
+   },
+   "board_by_kind": {
+    "居住者": 119,
+    "通勤者": 266,
+    "来街者": 159,
+    "従業者": 36,
+    "指令": 2
+   },
+   "calls_by_kind": {
+    "通勤者": 10206,
+    "居住者": 2826,
+    "来街者": 5999,
+    "従業者": 691,
+    "指令": 134
+   },
+   "board_reason_cat": {
+    "その他": 498,
+    "駅・電車": 6,
+    "移動・目的地": 37,
+    "通勤・職場": 41
+   },
+   "board_agents": 547,
+   "walk_hops": {
+    "n": 582,
+    "zero": 2,
+    "unreachable": 0,
+    "median": 31.0,
+    "p90": 50.0,
+    "mean": 30.61512027491409,
+    "max": 63
+   },
+   "interrupted_proxy": 52,
+   "interrupted_proxy_rate": 0.08934707903780069,
+   "interrupted_by": {
+    "移動": 19,
+    "購入": 32,
+    "(未定義)": 1
+   },
+   "next_call_gap_after_board": {
+    "n": 379,
+    "median": 286.0,
+    "le_30": 50,
+    "le_60": 65
+   },
+   "unknown_cell": 0
+  },
+  "AB8 x1": {
+   "arm": "AB8 x1",
+   "calls": 36906,
+   "board_choices": 907,
+   "board_rate": 0.024575949710074242,
+   "act_counts": {
+    "待機": 1343,
+    "移動": 16614,
+    "退去": 29,
+    "乗車": 907,
+    "購入": 16169,
+    "休憩": 1616,
+    "(未定義)": 185,
+    "会話": 25,
+    "通報": 18
+   },
+   "board_b2_eki": 85,
+   "board_on_platform_cell": 3,
+   "calls_on_platform_cell": 130,
+   "calls_b2_eki": 3464,
+   "board_rate_eki": 0.02453810623556582,
+   "board_rate_noeki": 0.024579869625022427,
+   "board_rate_platform": 0.023076923076923078,
+   "board_by_hour": [
+    6,
+    5,
+    1,
+    3,
+    12,
+    8,
+    63,
+    102,
+    69,
+    81,
+    69,
+    41,
+    28,
+    30,
+    42,
+    29,
+    40,
+    22,
+    25,
+    30,
+    51,
+    56,
+    53,
+    41
+   ],
+   "calls_by_hour": [
+    136,
+    83,
+    162,
+    140,
+    221,
+    400,
+    1400,
+    2116,
+    2084,
+    2083,
+    2083,
+    2084,
+    2083,
+    2083,
+    2084,
+    2083,
+    2083,
+    2084,
+    2083,
+    2083,
+    2084,
+    2033,
+    1825,
+    1306
+   ],
+   "board_by_class": {
+    "0": 234,
+    "1": 381,
+    "2": 160,
+    "3": 132
+   },
+   "calls_by_class": {
+    "0": 10275,
+    "1": 15594,
+    "2": 6401,
+    "3": 4636
+   },
+   "board_by_kind": {
+    "居住者": 189,
+    "通勤者": 422,
+    "来街者": 251,
+    "従業者": 44,
+    "指令": 1
+   },
+   "calls_by_kind": {
+    "通勤者": 18199,
+    "居住者": 5445,
+    "来街者": 11802,
+    "従業者": 1241,
+    "指令": 219
+   },
+   "board_reason_cat": {
+    "その他": 772,
+    "駅・電車": 10,
+    "通勤・職場": 66,
+    "移動・目的地": 57,
+    "学校": 1,
+    "帰宅": 1
+   },
+   "board_agents": 812,
+   "walk_hops": {
+    "n": 907,
+    "zero": 3,
+    "unreachable": 0,
+    "median": 28.0,
+    "p90": 46.0,
+    "mean": 29.286659316427784,
+    "max": 63
+   },
+   "interrupted_proxy": 212,
+   "interrupted_proxy_rate": 0.23373759647188533,
+   "interrupted_by": {
+    "移動": 58,
+    "購入": 150,
+    "休憩": 3,
+    "(未定義)": 1
+   },
+   "next_call_gap_after_board": {
+    "n": 746,
+    "median": 150.0,
+    "le_30": 178,
+    "le_60": 254
+   },
+   "unknown_cell": 0
+  },
+  "AB8 x2": {
+   "arm": "AB8 x2",
+   "calls": 61196,
+   "board_choices": 1254,
+   "board_rate": 0.020491535394470226,
+   "act_counts": {
+    "待機": 3455,
+    "移動": 29420,
+    "退去": 31,
+    "乗車": 1254,
+    "購入": 23167,
+    "休憩": 3401,
+    "(未定義)": 293,
+    "会話": 120,
+    "通報": 51,
+    "並ぶ": 1,
+    "降車": 2,
+    "就寝": 1
+   },
+   "board_b2_eki": 102,
+   "board_on_platform_cell": 4,
+   "calls_on_platform_cell": 346,
+   "calls_b2_eki": 5029,
+   "board_rate_eki": 0.020282362298667728,
+   "board_rate_noeki": 0.02051026403404134,
+   "board_rate_platform": 0.011560693641618497,
+   "board_by_hour": [
+    6,
+    5,
+    1,
+    3,
+    10,
+    8,
+    62,
+    147,
+    106,
+    131,
+    95,
+    44,
+    55,
+    45,
+    54,
+    36,
+    55,
+    58,
+    40,
+    72,
+    78,
+    61,
+    45,
+    37
+   ],
+   "calls_by_hour": [
+    136,
+    83,
+    157,
+    150,
+    227,
+    401,
+    1400,
+    4150,
+    4167,
+    4167,
+    4166,
+    4167,
+    4167,
+    3725,
+    2535,
+    2990,
+    2903,
+    4067,
+    4167,
+    4086,
+    3544,
+    2261,
+    1957,
+    1423
+   ],
+   "board_by_class": {
+    "0": 1,
+    "1": 431,
+    "2": 356,
+    "3": 466
+   },
+   "calls_by_class": {
+    "0": 248,
+    "1": 18993,
+    "2": 17633,
+    "3": 24322
+   },
+   "board_by_kind": {
+    "居住者": 316,
+    "通勤者": 534,
+    "来街者": 344,
+    "従業者": 57,
+    "指令": 3
+   },
+   "calls_by_kind": {
+    "通勤者": 29440,
+    "居住者": 9587,
+    "来街者": 19816,
+    "従業者": 2071,
+    "指令": 282
+   },
+   "board_reason_cat": {
+    "その他": 1101,
+    "駅・電車": 11,
+    "通勤・職場": 64,
+    "移動・目的地": 76,
+    "帰宅": 2
+   },
+   "board_agents": 1035,
+   "walk_hops": {
+    "n": 1254,
+    "zero": 4,
+    "unreachable": 0,
+    "median": 28.0,
+    "p90": 46.0,
+    "mean": 28.950558213716107,
+    "max": 62
+   },
+   "interrupted_proxy": 724,
+   "interrupted_proxy_rate": 0.5773524720893142,
+   "interrupted_by": {
+    "移動": 208,
+    "購入": 485,
+    "休憩": 22,
+    "(未定義)": 4,
+    "会話": 2,
+    "通報": 1,
+    "降車": 2
+   },
+   "next_call_gap_after_board": {
+    "n": 1187,
+    "median": 27.0,
+    "le_30": 673,
+    "le_60": 794
+   },
+   "unknown_cell": 0
+  },
+  "AB8 unlimited": {
+   "arm": "AB8 unlimited",
+   "calls": 72800,
+   "board_choices": 1429,
+   "board_rate": 0.01962912087912088,
+   "act_counts": {
+    "待機": 4126,
+    "移動": 35876,
+    "退去": 50,
+    "乗車": 1429,
+    "購入": 26489,
+    "休憩": 4215,
+    "(未定義)": 370,
+    "会話": 190,
+    "通報": 54,
+    "断る": 1
+   },
+   "board_b2_eki": 110,
+   "board_on_platform_cell": 5,
+   "calls_on_platform_cell": 414,
+   "calls_b2_eki": 6082,
+   "board_rate_eki": 0.01808615586977968,
+   "board_rate_noeki": 0.019769777271500946,
+   "board_rate_platform": 0.012077294685990338,
+   "board_by_hour": [
+    6,
+    5,
+    1,
+    3,
+    10,
+    8,
+    62,
+    172,
+    141,
+    166,
+    64,
+    71,
+    69,
+    52,
+    35,
+    40,
+    60,
+    56,
+    100,
+    85,
+    87,
+    58,
+    37,
+    41
+   ],
+   "calls_by_hour": [
+    136,
+    83,
+    157,
+    150,
+    227,
+    401,
+    1400,
+    4529,
+    5206,
+    5937,
+    3949,
+    6340,
+    7331,
+    3331,
+    2559,
+    2868,
+    2995,
+    4106,
+    7344,
+    4319,
+    3723,
+    2289,
+    2037,
+    1383
+   ],
+   "board_by_class": {
+    "0": 2,
+    "1": 424,
+    "2": 360,
+    "3": 643
+   },
+   "calls_by_class": {
+    "0": 249,
+    "1": 18233,
+    "2": 19224,
+    "3": 35094
+   },
+   "board_by_kind": {
+    "居住者": 387,
+    "通勤者": 596,
+    "来街者": 387,
+    "従業者": 59
+   },
+   "calls_by_kind": {
+    "通勤者": 34762,
+    "居住者": 11116,
+    "来街者": 24219,
+    "従業者": 2390,
+    "指令": 313
+   },
+   "board_reason_cat": {
+    "その他": 1260,
+    "駅・電車": 15,
+    "通勤・職場": 56,
+    "移動・目的地": 97,
+    "帰宅": 1
+   },
+   "board_agents": 1138,
+   "walk_hops": {
+    "n": 1429,
+    "zero": 5,
+    "unreachable": 0,
+    "median": 29.0,
+    "p90": 46.0,
+    "mean": 29.529041287613715,
+    "max": 62
+   },
+   "interrupted_proxy": 976,
+   "interrupted_proxy_rate": 0.6829951014695591,
+   "interrupted_by": {
+    "移動": 338,
+    "購入": 587,
+    "休憩": 35,
+    "(未定義)": 8,
+    "通報": 2,
+    "会話": 5,
+    "断る": 1
+   },
+   "next_call_gap_after_board": {
+    "n": 1363,
+    "median": 15.0,
+    "le_30": 948,
+    "le_60": 1089
+   },
+   "unknown_cell": 0
+  },
+  "AB7c vocab_v1": {
+   "arm": "AB7c vocab_v1",
+   "calls": 36906,
+   "board_choices": 907,
+   "board_rate": 0.024575949710074242,
+   "act_counts": {
+    "待機": 1343,
+    "移動": 16614,
+    "退去": 29,
+    "乗車": 907,
+    "購入": 16169,
+    "休憩": 1616,
+    "(未定義)": 185,
+    "会話": 25,
+    "通報": 18
+   },
+   "board_b2_eki": 85,
+   "board_on_platform_cell": 3,
+   "calls_on_platform_cell": 130,
+   "calls_b2_eki": 3464,
+   "board_rate_eki": 0.02453810623556582,
+   "board_rate_noeki": 0.024579869625022427,
+   "board_rate_platform": 0.023076923076923078,
+   "board_by_hour": [
+    6,
+    5,
+    1,
+    3,
+    12,
+    8,
+    63,
+    102,
+    69,
+    81,
+    69,
+    41,
+    28,
+    30,
+    42,
+    29,
+    40,
+    22,
+    25,
+    30,
+    51,
+    56,
+    53,
+    41
+   ],
+   "calls_by_hour": [
+    136,
+    83,
+    162,
+    140,
+    221,
+    400,
+    1400,
+    2116,
+    2084,
+    2083,
+    2083,
+    2084,
+    2083,
+    2083,
+    2084,
+    2083,
+    2083,
+    2084,
+    2083,
+    2083,
+    2084,
+    2033,
+    1825,
+    1306
+   ],
+   "board_by_class": {
+    "0": 234,
+    "1": 381,
+    "2": 160,
+    "3": 132
+   },
+   "calls_by_class": {
+    "0": 10275,
+    "1": 15594,
+    "2": 6401,
+    "3": 4636
+   },
+   "board_by_kind": {
+    "居住者": 189,
+    "通勤者": 422,
+    "来街者": 251,
+    "従業者": 44,
+    "指令": 1
+   },
+   "calls_by_kind": {
+    "通勤者": 18199,
+    "居住者": 5445,
+    "来街者": 11802,
+    "従業者": 1241,
+    "指令": 219
+   },
+   "board_reason_cat": {
+    "その他": 772,
+    "駅・電車": 10,
+    "通勤・職場": 66,
+    "移動・目的地": 57,
+    "学校": 1,
+    "帰宅": 1
+   },
+   "board_agents": 812,
+   "walk_hops": {
+    "n": 907,
+    "zero": 3,
+    "unreachable": 0,
+    "median": 28.0,
+    "p90": 46.0,
+    "mean": 29.286659316427784,
+    "max": 63
+   },
+   "interrupted_proxy": 212,
+   "interrupted_proxy_rate": 0.23373759647188533,
+   "interrupted_by": {
+    "移動": 58,
+    "購入": 150,
+    "休憩": 3,
+    "(未定義)": 1
+   },
+   "next_call_gap_after_board": {
+    "n": 746,
+    "median": 150.0,
+    "le_30": 178,
+    "le_60": 254
+   },
+   "unknown_cell": 0
+  },
+  "AB7c vocab_v2": {
+   "arm": "AB7c vocab_v2",
+   "calls": 37165,
+   "board_choices": 485,
+   "board_rate": 0.013049912552132382,
+   "act_counts": {
+    "待機": 1017,
+    "乗車": 485,
+    "退去": 11,
+    "移動": 13641,
+    "(未定義)": 228,
+    "購入": 1811,
+    "食事": 16327,
+    "休憩": 3562,
+    "断る": 16,
+    "通報": 24,
+    "会話": 42,
+    "並ぶ": 1
+   },
+   "board_b2_eki": 48,
+   "board_on_platform_cell": 1,
+   "calls_on_platform_cell": 84,
+   "calls_b2_eki": 3190,
+   "board_rate_eki": 0.015047021943573668,
+   "board_rate_noeki": 0.012862398822663724,
+   "board_rate_platform": 0.011904761904761904,
+   "board_by_hour": [
+    8,
+    1,
+    0,
+    0,
+    2,
+    9,
+    15,
+    50,
+    36,
+    33,
+    28,
+    20,
+    15,
+    13,
+    15,
+    12,
+    18,
+    32,
+    23,
+    24,
+    46,
+    33,
+    37,
+    15
+   ],
+   "calls_by_hour": [
+    136,
+    79,
+    151,
+    140,
+    180,
+    372,
+    1305,
+    2112,
+    2084,
+    2083,
+    2083,
+    2084,
+    2083,
+    2083,
+    2084,
+    2083,
+    2083,
+    2084,
+    2083,
+    2083,
+    2084,
+    2083,
+    2051,
+    1472
+   ],
+   "board_by_class": {
+    "0": 169,
+    "1": 210,
+    "2": 56,
+    "3": 50
+   },
+   "calls_by_class": {
+    "0": 14438,
+    "1": 14544,
+    "2": 4679,
+    "3": 3504
+   },
+   "board_by_kind": {
+    "通勤者": 246,
+    "居住者": 72,
+    "来街者": 143,
+    "従業者": 16,
+    "指令": 8
+   },
+   "calls_by_kind": {
+    "居住者": 4948,
+    "通勤者": 19038,
+    "来街者": 11745,
+    "従業者": 1159,
+    "指令": 275
+   },
+   "board_reason_cat": {
+    "その他": 329,
+    "通勤・職場": 41,
+    "移動・目的地": 114,
+    "学校": 1
+   },
+   "board_agents": 467,
+   "walk_hops": {
+    "n": 485,
+    "zero": 1,
+    "unreachable": 0,
+    "median": 26.0,
+    "p90": 51.0,
+    "mean": 28.338144329896906,
+    "max": 61
+   },
+   "interrupted_proxy": 91,
+   "interrupted_proxy_rate": 0.18762886597938144,
+   "interrupted_by": {
+    "移動": 19,
+    "食事": 54,
+    "購入": 10,
+    "休憩": 4,
+    "退去": 1,
+    "会話": 2,
+    "(未定義)": 1
+   },
+   "next_call_gap_after_board": {
+    "n": 371,
+    "median": 151.0,
+    "le_30": 77,
+    "le_60": 107
+   },
+   "unknown_cell": 0
+  }
+ },
+ "tape_board_examples": {
+  "AB8 x0.5": [
+   {
+    "tick": 478,
+    "hour": 7,
+    "kind": "通勤者",
+    "cls": 0,
+    "cell": "g-4_4_GL",
+    "eki": false,
+    "reason": "仕事終わりで食事探し"
+   },
+   {
+    "tick": 396,
+    "hour": 6,
+    "kind": "通勤者",
+    "cls": 2,
+    "cell": "g1_-5_GL",
+    "eki": false,
+    "reason": "食事が必要で近所に飲食店がある"
+   },
+   {
+    "tick": 632,
+    "hour": 10,
+    "kind": "通勤者",
+    "cls": 0,
+    "cell": "g7_-2_GL",
+    "eki": false,
+    "reason": "仕事終わりに適した行動を選ぶ"
+   },
+   {
+    "tick": 465,
+    "hour": 7,
+    "kind": "通勤者",
+    "cls": 0,
+    "cell": "g3_-5_GL",
+    "eki": false,
+    "reason": "空腹でカフェで何かを飲むため"
+   },
+   {
+    "tick": 1316,
+    "hour": 21,
+    "kind": "従業者",
+    "cls": 1,
+    "cell": "g3_-9_GL",
+    "eki": false,
+    "reason": "飲食店の営業時間内かつ空腹"
+   },
+   {
+    "tick": 1204,
+    "hour": 20,
+    "kind": "来街者",
+    "cls": 0,
+    "cell": "g0_2_UG",
+    "eki": false,
+    "reason": "時間が遅く移動が必要"
+   },
+   {
+    "tick": 1274,
+    "hour": 21,
+    "kind": "来街者",
+    "cls": 0,
+    "cell": "g-1_-1_DECK",
+    "eki": false,
+    "reason": "スターバックスで飲食を検討する"
+   },
+   {
+    "tick": 999,
+    "hour": 16,
+    "kind": "来街者",
+    "cls": 0,
+    "cell": "g-10_5_GL",
+    "eki": false,
+    "reason": "空腹で行動を選択する必要があります"
+   },
+   {
+    "tick": 558,
+    "hour": 9,
+    "kind": "通勤者",
+    "cls": 0,
+    "cell": "g-1_-1_DECK",
+    "eki": false,
+    "reason": "スターバックスで飲食を検討する"
+   },
+   {
+    "tick": 431,
+    "hour": 7,
+    "kind": "通勤者",
+    "cls": 1,
+    "cell": "g-1_0_GL",
+    "eki": false,
+    "reason": "空腹で行動を起こす必要がある"
+   },
+   {
+    "tick": 1305,
+    "hour": 21,
+    "kind": "通勤者",
+    "cls": 0,
+    "cell": "g2_-10_GL",
+    "eki": false,
+    "reason": "食事が必要なため"
+   },
+   {
+    "tick": 282,
+    "hour": 4,
+    "kind": "通勤者",
+    "cls": 1,
+    "cell": "g-5_-4_GL",
+    "eki": false,
+    "reason": "仕事終わりにコンビニで何かするか考える"
+   },
+   {
+    "tick": 1021,
+    "hour": 17,
+    "kind": "通勤者",
+    "cls": 0,
+    "cell": "g-8_5_GL",
+    "eki": false,
+    "reason": "空腹で飲食店を探す"
+   },
+   {
+    "tick": 1151,
+    "hour": 19,
+    "kind": "居住者",
+    "cls": 0,
+    "cell": "g4_3_GL",
+    "eki": false,
+    "reason": "食事が必要で飲食店を訪れる"
+   },
+   {
+    "tick": 1,
+    "hour": 0,
+    "kind": "通勤者",
+    "cls": 3,
+    "cell": "g-1_-1_GL",
+    "eki": false,
+    "reason": "早朝の混雑を避けた行動を取る"
+   }
+  ],
+  "AB8 x1": [
+   {
+    "tick": 442,
+    "hour": 7,
+    "kind": "通勤者",
+    "cls": 1,
+    "cell": "g3_-5_GL",
+    "eki": false,
+    "reason": "さきほど待機したので行動を決める"
+   },
+   {
+    "tick": 940,
+    "hour": 15,
+    "kind": "通勤者",
+    "cls": 2,
+    "cell": "g0_-4_GL",
+    "eki": false,
+    "reason": "適切な場所で食事をと考える"
+   },
+   {
+    "tick": 1381,
+    "hour": 23,
+    "kind": "通勤者",
+    "cls": 2,
+    "cell": "g-2_-9_GL",
+    "eki": false,
+    "reason": "空腹で行動が必要"
+   },
+   {
+    "tick": 1328,
+    "hour": 22,
+    "kind": "通勤者",
+    "cls": 1,
+    "cell": "g-1_-1_DECK",
+    "eki": false,
+    "reason": "デッキの近くに飲食店がある"
+   },
+   {
+    "tick": 1282,
+    "hour": 21,
+    "kind": "従業者",
+    "cls": 3,
+    "cell": "g1_-5_GL",
+    "eki": false,
+    "reason": "餓感があり、飲食店を探すべき"
+   },
+   {
+    "tick": 399,
+    "hour": 6,
+    "kind": "通勤者",
+    "cls": 3,
+    "cell": "g1_-2_GL",
+    "eki": false,
+    "reason": "空腹で食事を探す"
+   },
+   {
+    "tick": 534,
+    "hour": 8,
+    "kind": "通勤者",
+    "cls": 0,
+    "cell": "g2_7_GL",
+    "eki": false,
+    "reason": "仕事終わりの食事探し"
+   },
+   {
+    "tick": 433,
+    "hour": 7,
+    "kind": "通勤者",
+    "cls": 1,
+    "cell": "g1_-5_GL",
+    "eki": false,
+    "reason": "仕事終わりに食事探し"
+   },
+   {
+    "tick": 819,
+    "hour": 13,
+    "kind": "来街者",
+    "cls": 1,
+    "cell": "g-2_1_GL",
+    "eki": false,
+    "reason": "お店を見つけて行動を決定する"
+   },
+   {
+    "tick": 1281,
+    "hour": 21,
+    "kind": "通勤者",
+    "cls": 3,
+    "cell": "g0_-1_GL",
+    "eki": true,
+    "reason": "空腹で行動を開始する"
+   },
+   {
+    "tick": 725,
+    "hour": 12,
+    "kind": "来街者",
+    "cls": 0,
+    "cell": "g3_0_GL",
+    "eki": false,
+    "reason": "空腹で食事を探す"
+   },
+   {
+    "tick": 775,
+    "hour": 12,
+    "kind": "通勤者",
+    "cls": 0,
+    "cell": "g1_1_GL",
+    "eki": true,
+    "reason": "電話店が営業中で近い"
+   },
+   {
+    "tick": 1110,
+    "hour": 18,
+    "kind": "通勤者",
+    "cls": 0,
+    "cell": "g2_7_GL",
+    "eki": false,
+    "reason": "食事が必要で営業中の店を探す"
+   },
+   {
+    "tick": 630,
+    "hour": 10,
+    "kind": "居住者",
+    "cls": 0,
+    "cell": "g5_2_GL",
+    "eki": false,
+    "reason": "空腹で飲食店を探す"
+   },
+   {
+    "tick": 1309,
+    "hour": 21,
+    "kind": "居住者",
+    "cls": 3,
+    "cell": "g4_4_GL",
+    "eki": false,
+    "reason": "空腹で行動を起こす必要がある"
+   }
+  ],
+  "AB8 x2": [
+   {
+    "tick": 492,
+    "hour": 8,
+    "kind": "通勤者",
+    "cls": 3,
+    "cell": "g0_-5_GL",
+    "eki": false,
+    "reason": "通勤時間帯でコンビニエンスストアが近くにある"
+   },
+   {
+    "tick": 1297,
+    "hour": 21,
+    "kind": "通勤者",
+    "cls": 3,
+    "cell": "g-3_-3_GL",
+    "eki": false,
+    "reason": "飲食店の営業時間内か確認する"
+   },
+   {
+    "tick": 434,
+    "hour": 7,
+    "kind": "通勤者",
+    "cls": 1,
+    "cell": "g9_7_GL",
+    "eki": false,
+    "reason": "通勤時間帯で空腹を感じている"
+   },
+   {
+    "tick": 626,
+    "hour": 10,
+    "kind": "通勤者",
+    "cls": 3,
+    "cell": "g7_1_GL",
+    "eki": false,
+    "reason": "空腹で行動を起こす必要がある"
+   },
+   {
+    "tick": 479,
+    "hour": 7,
+    "kind": "来街者",
+    "cls": 1,
+    "cell": "g0_-1_GL",
+    "eki": true,
+    "reason": "空腹で食事を探す"
+   },
+   {
+    "tick": 1185,
+    "hour": 19,
+    "kind": "居住者",
+    "cls": 3,
+    "cell": "g-4_2_GL",
+    "eki": false,
+    "reason": "餌を求めて行動する"
+   },
+   {
+    "tick": 1078,
+    "hour": 17,
+    "kind": "居住者",
+    "cls": 3,
+    "cell": "g-2_-4_GL",
+    "eki": false,
+    "reason": "駅周辺は飲食店が目立ちます"
+   },
+   {
+    "tick": 1148,
+    "hour": 19,
+    "kind": "通勤者",
+    "cls": 2,
+    "cell": "g1_5_GL",
+    "eki": false,
+    "reason": "遅くても時間がある"
+   },
+   {
+    "tick": 905,
+    "hour": 15,
+    "kind": "来街者",
+    "cls": 2,
+    "cell": "g-5_0_GL",
+    "eki": false,
+    "reason": "食事が必要なため"
+   },
+   {
+    "tick": 576,
+    "hour": 9,
+    "kind": "通勤者",
+    "cls": 3,
+    "cell": "g0_0_GL",
+    "eki": false,
+    "reason": "空腹で食事を探す"
+   },
+   {
+    "tick": 459,
+    "hour": 7,
+    "kind": "居住者",
+    "cls": 1,
+    "cell": "g-8_7_GL",
+    "eki": false,
+    "reason": "飲食店でコーヒーを飲むため"
+   },
+   {
+    "tick": 1174,
+    "hour": 19,
+    "kind": "居住者",
+    "cls": 2,
+    "cell": "g-8_7_GL",
+    "eki": false,
+    "reason": "飲食店で飲食を検討する"
+   },
+   {
+    "tick": 398,
+    "hour": 6,
+    "kind": "従業者",
+    "cls": 1,
+    "cell": "g3_3_GL",
+    "eki": false,
+    "reason": "空腹で行動が必要"
+   },
+   {
+    "tick": 932,
+    "hour": 15,
+    "kind": "通勤者",
+    "cls": 1,
+    "cell": "g4_0_GL",
+    "eki": false,
+    "reason": "飲食店が近くにあるため"
+   },
+   {
+    "tick": 1045,
+    "hour": 17,
+    "kind": "居住者",
+    "cls": 3,
+    "cell": "g7_-1_GL",
+    "eki": false,
+    "reason": "空腹でナイトクラブが見える"
+   }
+  ],
+  "AB8 unlimited": [
+   {
+    "tick": 481,
+    "hour": 8,
+    "kind": "従業者",
+    "cls": 1,
+    "cell": "g-8_7_GL",
+    "eki": false,
+    "reason": "飲食店でコーヒーを飲むため"
+   },
+   {
+    "tick": 1170,
+    "hour": 19,
+    "kind": "通勤者",
+    "cls": 2,
+    "cell": "g-6_-9_GL",
+    "eki": false,
+    "reason": "空腹で食事を探す"
+   },
+   {
+    "tick": 431,
+    "hour": 7,
+    "kind": "居住者",
+    "cls": 1,
+    "cell": "g-8_7_GL",
+    "eki": false,
+    "reason": "飲食店でコーヒーを飲むため"
+   },
+   {
+    "tick": 574,
+    "hour": 9,
+    "kind": "居住者",
+    "cls": 1,
+    "cell": "g8_-10_GL",
+    "eki": false,
+    "reason": "餓いと暑さで行動が必要"
+   },
+   {
+    "tick": 468,
+    "hour": 7,
+    "kind": "通勤者",
+    "cls": 1,
+    "cell": "g0_-3_DECK",
+    "eki": false,
+    "reason": "仕事終わりで行動を選択する"
+   },
+   {
+    "tick": 1069,
+    "hour": 17,
+    "kind": "通勤者",
+    "cls": 3,
+    "cell": "g1_-2_GL",
+    "eki": false,
+    "reason": "空腹で食事を探す"
+   },
+   {
+    "tick": 972,
+    "hour": 16,
+    "kind": "来街者",
+    "cls": 3,
+    "cell": "g9_6_GL",
+    "eki": false,
+    "reason": "店舗の営業時間と歩行者密度を考慮"
+   },
+   {
+    "tick": 1020,
+    "hour": 17,
+    "kind": "居住者",
+    "cls": 1,
+    "cell": "g2_5_GL",
+    "eki": false,
+    "reason": "営業時間内なので店舗を訪れる"
+   },
+   {
+    "tick": 1293,
+    "hour": 21,
+    "kind": "居住者",
+    "cls": 3,
+    "cell": "g-2_-4_GL",
+    "eki": false,
+    "reason": "食事の選択肢として飲食店を検討"
+   },
+   {
+    "tick": 779,
+    "hour": 12,
+    "kind": "通勤者",
+    "cls": 3,
+    "cell": "g2_-2_DECK",
+    "eki": false,
+    "reason": "飲食店が近くにあるため"
+   },
+   {
+    "tick": 541,
+    "hour": 9,
+    "kind": "通勤者",
+    "cls": 3,
+    "cell": "g0_-1_GL",
+    "eki": true,
+    "reason": "朝の渋谷で空腹を感じている"
+   },
+   {
+    "tick": 454,
+    "hour": 7,
+    "kind": "居住者",
+    "cls": 1,
+    "cell": "g-9_1_GL",
+    "eki": false,
+    "reason": "空腹で行動を起こす必要がある"
+   },
+   {
+    "tick": 1050,
+    "hour": 17,
+    "kind": "通勤者",
+    "cls": 2,
+    "cell": "g9_0_GL",
+    "eki": false,
+    "reason": "空腹で食事を探す"
+   },
+   {
+    "tick": 398,
+    "hour": 6,
+    "kind": "従業者",
+    "cls": 1,
+    "cell": "g3_3_GL",
+    "eki": false,
+    "reason": "空腹で行動が必要"
+   },
+   {
+    "tick": 799,
+    "hour": 13,
+    "kind": "来街者",
+    "cls": 3,
+    "cell": "g7_-3_GL",
+    "eki": false,
+    "reason": "飲食店を探すため"
+   }
+  ],
+  "AB7c vocab_v1": [
+   {
+    "tick": 442,
+    "hour": 7,
+    "kind": "通勤者",
+    "cls": 1,
+    "cell": "g3_-5_GL",
+    "eki": false,
+    "reason": "さきほど待機したので行動を決める"
+   },
+   {
+    "tick": 940,
+    "hour": 15,
+    "kind": "通勤者",
+    "cls": 2,
+    "cell": "g0_-4_GL",
+    "eki": false,
+    "reason": "適切な場所で食事をと考える"
+   },
+   {
+    "tick": 1381,
+    "hour": 23,
+    "kind": "通勤者",
+    "cls": 2,
+    "cell": "g-2_-9_GL",
+    "eki": false,
+    "reason": "空腹で行動が必要"
+   },
+   {
+    "tick": 1328,
+    "hour": 22,
+    "kind": "通勤者",
+    "cls": 1,
+    "cell": "g-1_-1_DECK",
+    "eki": false,
+    "reason": "デッキの近くに飲食店がある"
+   },
+   {
+    "tick": 1282,
+    "hour": 21,
+    "kind": "従業者",
+    "cls": 3,
+    "cell": "g1_-5_GL",
+    "eki": false,
+    "reason": "餓感があり、飲食店を探すべき"
+   },
+   {
+    "tick": 399,
+    "hour": 6,
+    "kind": "通勤者",
+    "cls": 3,
+    "cell": "g1_-2_GL",
+    "eki": false,
+    "reason": "空腹で食事を探す"
+   },
+   {
+    "tick": 534,
+    "hour": 8,
+    "kind": "通勤者",
+    "cls": 0,
+    "cell": "g2_7_GL",
+    "eki": false,
+    "reason": "仕事終わりの食事探し"
+   },
+   {
+    "tick": 433,
+    "hour": 7,
+    "kind": "通勤者",
+    "cls": 1,
+    "cell": "g1_-5_GL",
+    "eki": false,
+    "reason": "仕事終わりに食事探し"
+   },
+   {
+    "tick": 819,
+    "hour": 13,
+    "kind": "来街者",
+    "cls": 1,
+    "cell": "g-2_1_GL",
+    "eki": false,
+    "reason": "お店を見つけて行動を決定する"
+   },
+   {
+    "tick": 1281,
+    "hour": 21,
+    "kind": "通勤者",
+    "cls": 3,
+    "cell": "g0_-1_GL",
+    "eki": true,
+    "reason": "空腹で行動を開始する"
+   },
+   {
+    "tick": 725,
+    "hour": 12,
+    "kind": "来街者",
+    "cls": 0,
+    "cell": "g3_0_GL",
+    "eki": false,
+    "reason": "空腹で食事を探す"
+   },
+   {
+    "tick": 775,
+    "hour": 12,
+    "kind": "通勤者",
+    "cls": 0,
+    "cell": "g1_1_GL",
+    "eki": true,
+    "reason": "電話店が営業中で近い"
+   },
+   {
+    "tick": 1110,
+    "hour": 18,
+    "kind": "通勤者",
+    "cls": 0,
+    "cell": "g2_7_GL",
+    "eki": false,
+    "reason": "食事が必要で営業中の店を探す"
+   },
+   {
+    "tick": 630,
+    "hour": 10,
+    "kind": "居住者",
+    "cls": 0,
+    "cell": "g5_2_GL",
+    "eki": false,
+    "reason": "空腹で飲食店を探す"
+   },
+   {
+    "tick": 1309,
+    "hour": 21,
+    "kind": "居住者",
+    "cls": 3,
+    "cell": "g4_4_GL",
+    "eki": false,
+    "reason": "空腹で行動を起こす必要がある"
+   }
+  ],
+  "AB7c vocab_v2": [
+   {
+    "tick": 465,
+    "hour": 7,
+    "kind": "通勤者",
+    "cls": 1,
+    "cell": "g-1_-1_DECK",
+    "eki": false,
+    "reason": "飲食店を探すため"
+   },
+   {
+    "tick": 1039,
+    "hour": 17,
+    "kind": "通勤者",
+    "cls": 1,
+    "cell": "g-4_-4_GL",
+    "eki": false,
+    "reason": "飲食店が近くにあるため"
+   },
+   {
+    "tick": 1320,
+    "hour": 22,
+    "kind": "来街者",
+    "cls": 1,
+    "cell": "g-2_4_GL",
+    "eki": false,
+    "reason": "食事をしたいが店の営業時間を確認する"
+   },
+   {
+    "tick": 1274,
+    "hour": 21,
+    "kind": "通勤者",
+    "cls": 1,
+    "cell": "g1_1_GL",
+    "eki": true,
+    "reason": "食事後に移動するため"
+   },
+   {
+    "tick": 1251,
+    "hour": 20,
+    "kind": "来街者",
+    "cls": 1,
+    "cell": "g-1_0_GL",
+    "eki": false,
+    "reason": "空腹で行動が必要"
+   },
+   {
+    "tick": 415,
+    "hour": 6,
+    "kind": "通勤者",
+    "cls": 3,
+    "cell": "g1_-2_UG",
+    "eki": false,
+    "reason": "地下通路から地上へ移動するため"
+   },
+   {
+    "tick": 560,
+    "hour": 9,
+    "kind": "通勤者",
+    "cls": 0,
+    "cell": "g-1_-1_GL",
+    "eki": false,
+    "reason": "食事後は移動する必要がある"
+   },
+   {
+    "tick": 458,
+    "hour": 7,
+    "kind": "来街者",
+    "cls": 1,
+    "cell": "g-1_-1_DECK",
+    "eki": false,
+    "reason": "スターバックスで飲食するため"
+   },
+   {
+    "tick": 947,
+    "hour": 15,
+    "kind": "居住者",
+    "cls": 1,
+    "cell": "g0_-10_GL",
+    "eki": false,
+    "reason": "空腹で行動を起こすべきです"
+   },
+   {
+    "tick": 1250,
+    "hour": 20,
+    "kind": "通勤者",
+    "cls": 1,
+    "cell": "g-7_-3_GL",
+    "eki": false,
+    "reason": "食事の後で移動する必要がある"
+   },
+   {
+    "tick": 840,
+    "hour": 14,
+    "kind": "通勤者",
+    "cls": 1,
+    "cell": "g-2_-2_DECK",
+    "eki": false,
+    "reason": "食後に移動するため"
+   },
+   {
+    "tick": 879,
+    "hour": 14,
+    "kind": "来街者",
+    "cls": 1,
+    "cell": "g1_1_GL",
+    "eki": true,
+    "reason": "食事後に行動を決定する"
+   },
+   {
+    "tick": 1147,
+    "hour": 19,
+    "kind": "通勤者",
+    "cls": 0,
+    "cell": "g1_0_GL",
+    "eki": false,
+    "reason": "仕事終わりで行動を選択する必要があります。"
+   },
+   {
+    "tick": 684,
+    "hour": 11,
+    "kind": "来街者",
+    "cls": 2,
+    "cell": "g-10_-1_GL",
+    "eki": false,
+    "reason": "病院とコンビニが近くにあるため"
+   },
+   {
+    "tick": 1262,
+    "hour": 21,
+    "kind": "通勤者",
+    "cls": 1,
+    "cell": "g1_-3_DECK",
+    "eki": false,
+    "reason": "食事後は移動が必要です"
+   }
+  ]
+ },
+ "walk_to_platform": {
+  "AB8 x0.5": {
+   "route_m_median": 788.2000021934509,
+   "route_m_p90": 1442.8000055789948,
+   "straight_m_median": 565.3187108109356,
+   "hops_median": 31.0,
+   "m_per_hop_median": 25.87916648387909,
+   "interrupted": 52,
+   "interrupt_wake_class": {
+    "0": 7,
+    "1": 12,
+    "2": 2,
+    "3": 31
+   },
+   "interrupt_cell_changed": 41
+  },
+  "AB8 x1": {
+   "route_m_median": 757.099994301796,
+   "route_m_p90": 1327.319995880127,
+   "straight_m_median": 542.0979647546311,
+   "hops_median": 28.0,
+   "m_per_hop_median": 25.65555591053433,
+   "interrupted": 212,
+   "interrupt_wake_class": {
+    "0": 29,
+    "1": 57,
+    "2": 25,
+    "3": 101
+   },
+   "interrupt_cell_changed": 171
+  },
+  "AB8 x2": {
+   "route_m_median": 711.1000063419342,
+   "route_m_p90": 1298.1899957299233,
+   "straight_m_median": 520.6058589945605,
+   "hops_median": 28.0,
+   "m_per_hop_median": 25.085714289120265,
+   "interrupted": 724,
+   "interrupt_wake_class": {
+    "0": 5,
+    "1": 125,
+    "2": 129,
+    "3": 465
+   },
+   "interrupt_cell_changed": 595
+  },
+  "AB8 unlimited": {
+   "route_m_median": 745.1000015735626,
+   "route_m_p90": 1336.6000084877014,
+   "straight_m_median": 553.2410146556757,
+   "hops_median": 29.0,
+   "m_per_hop_median": 25.65555591053433,
+   "interrupted": 976,
+   "interrupt_wake_class": {
+    "0": 5,
+    "1": 147,
+    "2": 150,
+    "3": 674
+   },
+   "interrupt_cell_changed": 678
+  },
+  "AB7c vocab_v2": {
+   "route_m_median": 605.9000015258789,
+   "route_m_p90": 1441.900007724762,
+   "straight_m_median": 390.20876683095054,
+   "hops_median": 26.0,
+   "m_per_hop_median": 24.343243173650794,
+   "interrupted": 91,
+   "interrupt_wake_class": {
+    "0": 29,
+    "1": 15,
+    "2": 12,
+    "3": 35
+   },
+   "interrupt_cell_changed": 73
+  }
+ },
+ "funnel_ab8": {
+  "AB8 x0.5": {
+   "choices": 582,
+   "reached_platform_queue": 478,
+   "boarded": 465,
+   "timeout": 3,
+   "reach_rate": 0.8213,
+   "board_per_choice": 0.799,
+   "walk_loss": 104,
+   "proxy_interrupted": 52,
+   "proxy_survivors": 530
+  },
+  "AB8 x1": {
+   "choices": 907,
+   "reached_platform_queue": 663,
+   "boarded": 648,
+   "timeout": 1,
+   "reach_rate": 0.731,
+   "board_per_choice": 0.7144,
+   "walk_loss": 244,
+   "proxy_interrupted": 212,
+   "proxy_survivors": 695
+  },
+  "AB8 x2": {
+   "choices": 1254,
+   "reached_platform_queue": 567,
+   "boarded": 530,
+   "timeout": 2,
+   "reach_rate": 0.4522,
+   "board_per_choice": 0.4226,
+   "walk_loss": 687,
+   "proxy_interrupted": 724,
+   "proxy_survivors": 530
+  },
+  "AB8 unlimited": {
+   "choices": 1429,
+   "reached_platform_queue": 438,
+   "boarded": 407,
+   "timeout": 1,
+   "reach_rate": 0.3065,
+   "board_per_choice": 0.2848,
+   "walk_loss": 991,
+   "proxy_interrupted": 976,
+   "proxy_survivors": 453
+  }
+ },
+ "move_destination_reconstruction": {
+  "AB8 x1": {
+   "move_calls": 16614,
+   "dest": {
+    "職場へ(W16職場)": 3998,
+    "職場へ(mock乱数セル)": 3876,
+    "職場に居る→自宅へ": 797,
+    "職場に居る→自宅なし=到達不能": 7943
+   },
+   "reason_food": 13911,
+   "reason_home": 3
+  },
+  "AB8 unlimited": {
+   "move_calls": 35876,
+   "dest": {
+    "職場へ(W16職場)": 6584,
+    "職場へ(mock乱数セル)": 8370,
+    "職場に居る→自宅へ": 1714,
+    "職場に居る→自宅なし=到達不能": 19208
+   },
+   "reason_food": 29599,
+   "reason_home": 9
+  },
+  "AB7c vocab_v2": {
+   "move_calls": 13641,
+   "dest": {
+    "職場へ(W16職場)": 3745,
+    "職場へ(mock乱数セル)": 3413,
+    "職場に居る→自宅なし=到達不能": 5749,
+    "職場に居る→自宅へ": 734
+   },
+   "reason_food": 12422,
+   "reason_home": 0
+  },
+  "population": {
+   "n": 5000,
+   "home_out": 4491,
+   "w16_work_missing": 2110
+  }
+ },
+ "menu_effect_same_reason": {
+  "空腹で食事を探す": {
+   "v1": {
+    "移動": 352,
+    "乗車": 119,
+    "購入": 63,
+    "(未定義)": 23
+   },
+   "v2": {
+    "食事": 112,
+    "移動": 27,
+    "購入": 5,
+    "(未定義)": 4
+   }
+  },
+  "空腹で行動を起こす必要がある": {
+   "v1": {
+    "移動": 517,
+    "乗車": 66,
+    "購入": 42,
+    "休憩": 4,
+    "通報": 2,
+    "待機": 2
+   },
+   "v2": {
+    "移動": 324,
+    "食事": 212,
+    "購入": 60,
+    "乗車": 15,
+    "(未定義)": 9,
+    "通報": 5
+   }
+  },
+  "空腹で行動が必要": {
+   "v1": {
+    "移動": 168,
+    "乗車": 57,
+    "購入": 32,
+    "待機": 3,
+    "休憩": 2
+   },
+   "v2": {
+    "食事": 53,
+    "移動": 43,
+    "購入": 28,
+    "乗車": 7,
+    "休憩": 3,
+    "(未定義)": 3
+   }
+  },
+  "空腹で行動が必要です": {
+   "v1": {
+    "移動": 28,
+    "購入": 25,
+    "乗車": 21,
+    "待機": 1
+   },
+   "v2": {
+    "購入": 19,
+    "移動": 4,
+    "乗車": 4,
+    "食事": 3,
+    "(未定義)": 1,
+    "会話": 1
+   }
+  },
+  "地下通路から地上へ移動するため": {
+   "v1": {
+    "乗車": 17,
+    "移動": 5
+   },
+   "v2": {
+    "乗車": 14,
+    "移動": 8
+   }
+  },
+  "空腹で飲食を検討": {
+   "v1": {
+    "購入": 76,
+    "移動": 27,
+    "乗車": 16
+   },
+   "v2": {
+    "購入": 75,
+    "移動": 5,
+    "待機": 1,
+    "乗車": 1,
+    "通報": 1
+   }
+  }
+ },
+ "w17_blocks_day0": {
+  "v2": {
+   "agents": 390067,
+   "blocks": 514523,
+   "agents_with_block": 388798,
+   "all_day_outside": 1269,
+   "all_day_outside_by_kind": {
+    "0": 882,
+    "1": 12,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "5": 0,
+    "6": 19,
+    "7": 0,
+    "8": 356
+   },
+   "arrive_upper": 453146,
+   "depart_upper": 410722,
+   "blocks_ending_at_1440": 95474,
+   "home_out": 346445,
+   "in_area_at_0": 61377,
+   "in_area_at_1439": 94409,
+   "in_area_at_1439_home_out": 51363,
+   "last_block_end_hist": {
+    "0": 4,
+    "1": 22,
+    "2": 1,
+    "3": 0,
+    "4": 4,
+    "5": 2,
+    "6": 127,
+    "7": 1957,
+    "8": 1041,
+    "9": 102,
+    "10": 447,
+    "11": 1509,
+    "12": 10557,
+    "13": 30777,
+    "14": 16088,
+    "15": 8392,
+    "16": 10443,
+    "17": 30148,
+    "18": 49557,
+    "19": 35674,
+    "20": 26636,
+    "21": 26727,
+    "22": 22812,
+    "23": 21362,
+    "24": 94409
+   }
+  },
+  "v2.1": {
+   "agents": 390067,
+   "blocks": 513723,
+   "agents_with_block": 388775,
+   "all_day_outside": 1292,
+   "all_day_outside_by_kind": {
+    "0": 905,
+    "1": 12,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "5": 0,
+    "6": 19,
+    "7": 0,
+    "8": 356
+   },
+   "arrive_upper": 452348,
+   "depart_upper": 411985,
+   "blocks_ending_at_1440": 93411,
+   "home_out": 346445,
+   "in_area_at_0": 61375,
+   "in_area_at_1439": 92438,
+   "in_area_at_1439_home_out": 49392,
+   "last_block_end_hist": {
+    "0": 4,
+    "1": 22,
+    "2": 1,
+    "3": 0,
+    "4": 4,
+    "5": 2,
+    "6": 127,
+    "7": 1958,
+    "8": 1043,
+    "9": 111,
+    "10": 422,
+    "11": 1554,
+    "12": 10812,
+    "13": 31090,
+    "14": 16728,
+    "15": 9365,
+    "16": 14771,
+    "17": 36437,
+    "18": 51033,
+    "19": 29702,
+    "20": 28440,
+    "21": 24664,
+    "22": 18551,
+    "23": 19496,
+    "24": 92438
+   }
+  }
+ },
+ "c7_day4": {
+  "board_choices": 48019,
+  "board_queue_entries": 37392,
+  "boarded": 36434,
+  "timeout": 185,
+  "shop_queue_n_queued": 7712,
+  "alighted": 0,
+  "alight_choices": 23,
+  "leave_choices": 1133,
+  "reach_rate": 0.7787,
+  "board_per_choice": 0.7587,
+  "board_per_queue": 0.9744,
+  "queue_other": 773,
+  "arrivals": 470107,
+  "departures": 403125,
+  "all_day_outside": 1292,
+  "plan_stranded_eod": 971,
+  "plan_match_in": 0.982,
+  "arrivals_minus_w17_upper": 17759,
+  "w17_depart_upper_minus_departures": 8860,
+  "board_by_wake_class": {
+   "0": [
+    4004,
+    300098
+   ],
+   "1": [
+    28126,
+    1201143
+   ],
+   "2": [
+    8224,
+    561458
+   ],
+   "3": [
+    7665,
+    643894
+   ]
+  },
+  "riding_samples_by_hour_max": 115,
+  "source": "data/runs/c7-day-4/c7-day-4.log:12,28 / tape_stats.json / occupancy.npz"
+ },
+ "timetable_weekday": {
+  "rows": 4089,
+  "post_midnight_wrapped": 49,
+  "zero_trains_hours": "01-04",
+  "note": "departure_min % 1440 で 24:00 以降の 49 便が 00:00-00:20 に写る"
+ },
+ "corrections": {
+  "diag_d91_b2_eki": {
+   "doc": "81/907 (8.9%)・46/485 (9.5%)",
+   "recomputed": "85/907 (9.4%)・48/485 (9.9%)",
+   "source_out": "scratchpad diag_d91.out 行 25/27 も 85/48"
+  },
+  "c7_queue_label": "待ち行列 7,712 は店の屋内待ち(n_queued)。乗車待ちは 37,392(打ち切り 185)"
+ }
+}
