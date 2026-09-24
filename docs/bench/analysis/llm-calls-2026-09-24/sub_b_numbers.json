@@ -1,0 +1,2748 @@
+{
+ "note": "再計算の手順: tape calls.parquet を parse_two_line(v1、*_v2 腕は v2)で読み、action==\"会話\" を数える。runner_conversation_sessions は docs/bench/c8/ablation/ablation_*.json の runs[].conversation_sessions の写し。funnel は scratch の推定規則(本文 §2-2 に定義)で、runner の診断ではない。",
+ "arms": {
+  "c8_ab6b_s1/AB6b-AD-NOTICE__ad_zero": {
+   "n_calls": 36957,
+   "actions": {
+    "購入": 16380,
+    "移動": 16080,
+    "休憩": 2125,
+    "待機": 1079,
+    "乗車": 984,
+    "(none)": 168,
+    "会話": 108,
+    "退去": 19,
+    "通報": 13,
+    "並ぶ": 1
+   },
+   "wake_class": {
+    "0": 10628,
+    "1": 15821,
+    "2": 6157,
+    "3": 4351
+   },
+   "talk": 108,
+   "talk_pct": 0.2922,
+   "help": 0,
+   "refuse": 0,
+   "leave": 19,
+   "talk_target_kind": {
+    "3": 90,
+    "0": 6,
+    "2": 12
+   },
+   "talk_named_person": 90,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 8,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 51,
+   "talk_target_w0_call_t1_t5": 46,
+   "talk_target_answered_talk_t1_t5": 35,
+   "talk_by_wake_class": {
+    "0": 77,
+    "1": 5,
+    "2": 12,
+    "3": 14
+   },
+   "talk_distinct_agents": 53,
+   "talk_by_hour": {
+    "8": 2,
+    "9": 1,
+    "13": 1,
+    "16": 14,
+    "17": 6,
+    "18": 7,
+    "19": 6,
+    "20": 6,
+    "21": 22,
+    "22": 32,
+    "23": 11
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 43,
+    "あなたは通勤者です。": 32,
+    "あなたは来街者です。": 18,
+    "あなたは従業者です。": 15
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 18223,
+    "あなたは来街者です。": 11790,
+    "あなたは居住者です。": 5474,
+    "あなたは従業者です。": 1247,
+    "あなたは指令です。": 223
+   },
+   "talk_by_stage": {
+    "A": 108
+   },
+   "calls_by_stage": {
+    "A": 36957
+   },
+   "invite_reason_responses": 1,
+   "invite_reason_actions": {
+    "会話": 1
+   },
+   "runner_conversation_sessions": 14,
+   "sessions_per_agent_day": 0.0028,
+   "sessions_per_talk_call": 0.1296
+  },
+  "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_14": {
+   "n_calls": 36922,
+   "actions": {
+    "購入": 16399,
+    "移動": 16134,
+    "休憩": 2040,
+    "待機": 1106,
+    "乗車": 991,
+    "(none)": 171,
+    "会話": 47,
+    "退去": 19,
+    "通報": 15
+   },
+   "wake_class": {
+    "0": 10545,
+    "1": 15972,
+    "2": 6035,
+    "3": 4370
+   },
+   "talk": 47,
+   "talk_pct": 0.1273,
+   "help": 0,
+   "refuse": 0,
+   "leave": 19,
+   "talk_target_kind": {
+    "2": 9,
+    "0": 7,
+    "3": 31
+   },
+   "talk_named_person": 31,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 1,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 19,
+   "talk_target_w0_call_t1_t5": 19,
+   "talk_target_answered_talk_t1_t5": 8,
+   "talk_by_wake_class": {
+    "0": 31,
+    "1": 5,
+    "2": 6,
+    "3": 5
+   },
+   "talk_distinct_agents": 25,
+   "talk_by_hour": {
+    "15": 3,
+    "16": 10,
+    "17": 5,
+    "18": 3,
+    "19": 3,
+    "20": 4,
+    "21": 5,
+    "22": 14
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 20,
+    "あなたは通勤者です。": 15,
+    "あなたは来街者です。": 8,
+    "あなたは従業者です。": 4
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 18224,
+    "あなたは来街者です。": 11805,
+    "あなたは居住者です。": 5416,
+    "あなたは従業者です。": 1267,
+    "あなたは指令です。": 210
+   },
+   "talk_by_stage": {
+    "A": 47
+   },
+   "calls_by_stage": {
+    "A": 36922
+   },
+   "invite_reason_responses": 0,
+   "invite_reason_actions": {},
+   "runner_conversation_sessions": 7,
+   "sessions_per_agent_day": 0.0014,
+   "sessions_per_talk_call": 0.1489
+  },
+  "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_30": {
+   "n_calls": 36916,
+   "actions": {
+    "購入": 16346,
+    "移動": 16209,
+    "休憩": 1978,
+    "待機": 1213,
+    "乗車": 887,
+    "(none)": 176,
+    "会話": 69,
+    "通報": 23,
+    "退去": 13,
+    "降車": 1,
+    "並ぶ": 1
+   },
+   "wake_class": {
+    "0": 10652,
+    "1": 15938,
+    "2": 5896,
+    "3": 4430
+   },
+   "talk": 69,
+   "talk_pct": 0.1869,
+   "help": 0,
+   "refuse": 0,
+   "leave": 13,
+   "talk_target_kind": {
+    "3": 55,
+    "2": 8,
+    "0": 6
+   },
+   "talk_named_person": 55,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 1,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 35,
+   "talk_target_w0_call_t1_t5": 33,
+   "talk_target_answered_talk_t1_t5": 19,
+   "talk_by_wake_class": {
+    "0": 48,
+    "1": 6,
+    "2": 9,
+    "3": 6
+   },
+   "talk_distinct_agents": 39,
+   "talk_by_hour": {
+    "6": 8,
+    "9": 2,
+    "13": 1,
+    "15": 3,
+    "16": 6,
+    "18": 2,
+    "19": 6,
+    "20": 10,
+    "21": 21,
+    "22": 5,
+    "23": 5
+   },
+   "talk_by_type": {
+    "あなたは通勤者です。": 25,
+    "あなたは居住者です。": 24,
+    "あなたは来街者です。": 11,
+    "あなたは従業者です。": 9
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 18258,
+    "あなたは来街者です。": 11788,
+    "あなたは居住者です。": 5406,
+    "あなたは従業者です。": 1255,
+    "あなたは指令です。": 209
+   },
+   "talk_by_stage": {
+    "A": 69
+   },
+   "calls_by_stage": {
+    "A": 36916
+   },
+   "invite_reason_responses": 1,
+   "invite_reason_actions": {
+    "会話": 1
+   },
+   "runner_conversation_sessions": 10,
+   "sessions_per_agent_day": 0.002,
+   "sessions_per_talk_call": 0.1449
+  },
+  "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_1_00": {
+   "n_calls": 36906,
+   "actions": {
+    "移動": 16614,
+    "購入": 16169,
+    "休憩": 1616,
+    "待機": 1343,
+    "乗車": 907,
+    "(none)": 185,
+    "退去": 29,
+    "会話": 25,
+    "通報": 18
+   },
+   "wake_class": {
+    "0": 10275,
+    "1": 15594,
+    "2": 6401,
+    "3": 4636
+   },
+   "talk": 25,
+   "talk_pct": 0.0677,
+   "help": 0,
+   "refuse": 0,
+   "leave": 29,
+   "talk_target_kind": {
+    "2": 9,
+    "3": 13,
+    "0": 3
+   },
+   "talk_named_person": 13,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 0,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 11,
+   "talk_target_w0_call_t1_t5": 10,
+   "talk_target_answered_talk_t1_t5": 4,
+   "talk_by_wake_class": {
+    "0": 12,
+    "1": 4,
+    "2": 9
+   },
+   "talk_distinct_agents": 18,
+   "talk_by_hour": {
+    "5": 1,
+    "7": 4,
+    "8": 2,
+    "15": 3,
+    "16": 6,
+    "17": 1,
+    "19": 1,
+    "20": 5,
+    "21": 1,
+    "23": 1
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 13,
+    "あなたは通勤者です。": 8,
+    "あなたは来街者です。": 4
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 18199,
+    "あなたは来街者です。": 11802,
+    "あなたは居住者です。": 5445,
+    "あなたは従業者です。": 1241,
+    "あなたは指令です。": 219
+   },
+   "talk_by_stage": {
+    "A": 25
+   },
+   "calls_by_stage": {
+    "A": 36906
+   },
+   "invite_reason_responses": 1,
+   "invite_reason_actions": {
+    "会話": 1
+   },
+   "runner_conversation_sessions": 3,
+   "sessions_per_agent_day": 0.0006,
+   "sessions_per_talk_call": 0.12
+  },
+  "c8_ab6b_s2/AB6b-AD-NOTICE__ad_zero": {
+   "n_calls": 36993,
+   "actions": {
+    "購入": 16360,
+    "移動": 16096,
+    "休憩": 2191,
+    "待機": 1090,
+    "乗車": 946,
+    "(none)": 185,
+    "会話": 89,
+    "通報": 20,
+    "退去": 15,
+    "手伝い": 1
+   },
+   "wake_class": {
+    "0": 10932,
+    "1": 15543,
+    "2": 6035,
+    "3": 4483
+   },
+   "talk": 89,
+   "talk_pct": 0.2406,
+   "help": 1,
+   "refuse": 0,
+   "leave": 15,
+   "talk_target_kind": {
+    "3": 74,
+    "2": 7,
+    "0": 8
+   },
+   "talk_named_person": 74,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 4,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 37,
+   "talk_target_w0_call_t1_t5": 36,
+   "talk_target_answered_talk_t1_t5": 15,
+   "talk_by_wake_class": {
+    "0": 61,
+    "1": 7,
+    "2": 9,
+    "3": 12
+   },
+   "talk_distinct_agents": 47,
+   "talk_by_hour": {
+    "6": 1,
+    "8": 2,
+    "10": 1,
+    "12": 1,
+    "14": 1,
+    "15": 2,
+    "16": 13,
+    "17": 6,
+    "18": 4,
+    "19": 1,
+    "20": 8,
+    "21": 14,
+    "22": 13,
+    "23": 22
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 35,
+    "あなたは通勤者です。": 24,
+    "あなたは来街者です。": 19,
+    "あなたは従業者です。": 11
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 18261,
+    "あなたは来街者です。": 11845,
+    "あなたは居住者です。": 5371,
+    "あなたは従業者です。": 1299,
+    "あなたは指令です。": 217
+   },
+   "talk_by_stage": {
+    "A": 89
+   },
+   "calls_by_stage": {
+    "A": 36993
+   },
+   "invite_reason_responses": 1,
+   "invite_reason_actions": {
+    "会話": 1
+   },
+   "runner_conversation_sessions": 13,
+   "sessions_per_agent_day": 0.0026,
+   "sessions_per_talk_call": 0.1461
+  },
+  "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_14": {
+   "n_calls": 37022,
+   "actions": {
+    "購入": 16295,
+    "移動": 16182,
+    "休憩": 2133,
+    "待機": 1186,
+    "乗車": 973,
+    "(none)": 139,
+    "会話": 81,
+    "退去": 17,
+    "通報": 16
+   },
+   "wake_class": {
+    "0": 10565,
+    "1": 15809,
+    "2": 6059,
+    "3": 4589
+   },
+   "talk": 81,
+   "talk_pct": 0.2188,
+   "help": 0,
+   "refuse": 0,
+   "leave": 17,
+   "talk_target_kind": {
+    "3": 62,
+    "2": 11,
+    "0": 8
+   },
+   "talk_named_person": 62,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 7,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 27,
+   "talk_target_w0_call_t1_t5": 26,
+   "talk_target_answered_talk_t1_t5": 18,
+   "talk_by_wake_class": {
+    "0": 49,
+    "1": 6,
+    "2": 12,
+    "3": 14
+   },
+   "talk_distinct_agents": 46,
+   "talk_by_hour": {
+    "6": 1,
+    "7": 1,
+    "11": 6,
+    "13": 8,
+    "16": 6,
+    "17": 9,
+    "18": 2,
+    "19": 1,
+    "20": 4,
+    "21": 17,
+    "22": 3,
+    "23": 23
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 24,
+    "あなたは通勤者です。": 24,
+    "あなたは従業者です。": 17,
+    "あなたは来街者です。": 16
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 18185,
+    "あなたは来街者です。": 11825,
+    "あなたは居住者です。": 5479,
+    "あなたは従業者です。": 1312,
+    "あなたは指令です。": 221
+   },
+   "talk_by_stage": {
+    "A": 81
+   },
+   "calls_by_stage": {
+    "A": 37022
+   },
+   "invite_reason_responses": 0,
+   "invite_reason_actions": {},
+   "runner_conversation_sessions": 8,
+   "sessions_per_agent_day": 0.0016,
+   "sessions_per_talk_call": 0.0988
+  },
+  "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_30": {
+   "n_calls": 37196,
+   "actions": {
+    "購入": 16402,
+    "移動": 16290,
+    "休憩": 2088,
+    "待機": 1200,
+    "乗車": 983,
+    "(none)": 149,
+    "会話": 44,
+    "通報": 24,
+    "退去": 15,
+    "降車": 1
+   },
+   "wake_class": {
+    "0": 10776,
+    "1": 15510,
+    "2": 6167,
+    "3": 4743
+   },
+   "talk": 44,
+   "talk_pct": 0.1183,
+   "help": 0,
+   "refuse": 0,
+   "leave": 15,
+   "talk_target_kind": {
+    "3": 28,
+    "2": 11,
+    "0": 5
+   },
+   "talk_named_person": 28,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 0,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 16,
+   "talk_target_w0_call_t1_t5": 15,
+   "talk_target_answered_talk_t1_t5": 8,
+   "talk_by_wake_class": {
+    "0": 27,
+    "1": 7,
+    "2": 6,
+    "3": 4
+   },
+   "talk_distinct_agents": 28,
+   "talk_by_hour": {
+    "6": 1,
+    "8": 1,
+    "10": 5,
+    "13": 2,
+    "14": 4,
+    "15": 1,
+    "16": 9,
+    "17": 3,
+    "18": 3,
+    "19": 2,
+    "20": 2,
+    "21": 1,
+    "23": 10
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 22,
+    "あなたは通勤者です。": 10,
+    "あなたは来街者です。": 10,
+    "あなたは従業者です。": 2
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 18415,
+    "あなたは来街者です。": 11781,
+    "あなたは居住者です。": 5537,
+    "あなたは従業者です。": 1262,
+    "あなたは指令です。": 201
+   },
+   "talk_by_stage": {
+    "A": 44
+   },
+   "calls_by_stage": {
+    "A": 37196
+   },
+   "invite_reason_responses": 2,
+   "invite_reason_actions": {
+    "会話": 2
+   },
+   "runner_conversation_sessions": 6,
+   "sessions_per_agent_day": 0.0012,
+   "sessions_per_talk_call": 0.1364
+  },
+  "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_1_00": {
+   "n_calls": 36889,
+   "actions": {
+    "移動": 16505,
+    "購入": 16215,
+    "休憩": 1596,
+    "待機": 1383,
+    "乗車": 922,
+    "(none)": 191,
+    "会話": 28,
+    "通報": 28,
+    "退去": 21
+   },
+   "wake_class": {
+    "0": 10723,
+    "1": 15521,
+    "2": 6092,
+    "3": 4553
+   },
+   "talk": 28,
+   "talk_pct": 0.0759,
+   "help": 0,
+   "refuse": 0,
+   "leave": 21,
+   "talk_target_kind": {
+    "2": 7,
+    "3": 18,
+    "0": 3
+   },
+   "talk_named_person": 18,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 0,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 14,
+   "talk_target_w0_call_t1_t5": 13,
+   "talk_target_answered_talk_t1_t5": 3,
+   "talk_by_wake_class": {
+    "0": 16,
+    "1": 1,
+    "2": 6,
+    "3": 5
+   },
+   "talk_distinct_agents": 19,
+   "talk_by_hour": {
+    "0": 3,
+    "6": 1,
+    "8": 1,
+    "10": 3,
+    "11": 1,
+    "13": 1,
+    "16": 1,
+    "17": 4,
+    "19": 1,
+    "20": 2,
+    "21": 6,
+    "22": 3,
+    "23": 1
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 13,
+    "あなたは通勤者です。": 9,
+    "あなたは来街者です。": 4,
+    "あなたは従業者です。": 2
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 18161,
+    "あなたは来街者です。": 11770,
+    "あなたは居住者です。": 5485,
+    "あなたは従業者です。": 1268,
+    "あなたは指令です。": 205
+   },
+   "talk_by_stage": {
+    "A": 28
+   },
+   "calls_by_stage": {
+    "A": 36889
+   },
+   "invite_reason_responses": 0,
+   "invite_reason_actions": {},
+   "runner_conversation_sessions": 5,
+   "sessions_per_agent_day": 0.001,
+   "sessions_per_talk_call": 0.1786
+  },
+  "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__ad_zero": {
+   "n_calls": 78884,
+   "actions": {
+    "移動": 35184,
+    "購入": 27053,
+    "休憩": 5938,
+    "(none)": 4629,
+    "待機": 3942,
+    "乗車": 1535,
+    "会話": 493,
+    "通報": 59,
+    "退去": 47,
+    "並ぶ": 2,
+    "手伝い": 1,
+    "降車": 1
+   },
+   "wake_class": {
+    "0": 588,
+    "1": 18518,
+    "2": 22901,
+    "3": 36877
+   },
+   "talk": 493,
+   "talk_pct": 0.625,
+   "help": 1,
+   "refuse": 0,
+   "leave": 47,
+   "talk_target_kind": {
+    "3": 422,
+    "2": 55,
+    "0": 16
+   },
+   "talk_named_person": 422,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 42,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 242,
+   "talk_target_w0_call_t1_t5": 212,
+   "talk_target_answered_talk_t1_t5": 125,
+   "talk_by_wake_class": {
+    "0": 349,
+    "1": 15,
+    "2": 26,
+    "3": 103
+   },
+   "talk_distinct_agents": 199,
+   "talk_by_hour": {
+    "7": 3,
+    "8": 6,
+    "9": 16,
+    "10": 17,
+    "11": 33,
+    "12": 47,
+    "13": 36,
+    "14": 19,
+    "15": 10,
+    "16": 26,
+    "17": 68,
+    "18": 57,
+    "19": 47,
+    "20": 45,
+    "21": 41,
+    "22": 20,
+    "23": 2
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 237,
+    "あなたは通勤者です。": 127,
+    "あなたは来街者です。": 101,
+    "あなたは従業者です。": 28
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 37754,
+    "あなたは来街者です。": 26379,
+    "あなたは居住者です。": 11932,
+    "あなたは従業者です。": 2494,
+    "あなたは指令です。": 325
+   },
+   "talk_by_stage": {
+    "A": 493
+   },
+   "calls_by_stage": {
+    "A": 78884
+   },
+   "invite_reason_responses": 11,
+   "invite_reason_actions": {
+    "会話": 11
+   },
+   "runner_conversation_sessions": 72,
+   "sessions_per_agent_day": 0.0144,
+   "sessions_per_talk_call": 0.146
+  },
+  "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_14": {
+   "n_calls": 77911,
+   "actions": {
+    "移動": 34859,
+    "購入": 26731,
+    "休憩": 5793,
+    "(none)": 4619,
+    "待機": 3872,
+    "乗車": 1537,
+    "会話": 400,
+    "通報": 54,
+    "退去": 37,
+    "降車": 3,
+    "並ぶ": 3,
+    "断る": 2,
+    "手伝い": 1
+   },
+   "wake_class": {
+    "0": 461,
+    "1": 18516,
+    "2": 22746,
+    "3": 36188
+   },
+   "talk": 400,
+   "talk_pct": 0.5134,
+   "help": 1,
+   "refuse": 2,
+   "leave": 37,
+   "talk_target_kind": {
+    "2": 52,
+    "0": 32,
+    "3": 316
+   },
+   "talk_named_person": 316,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 27,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 169,
+   "talk_target_w0_call_t1_t5": 153,
+   "talk_target_answered_talk_t1_t5": 78,
+   "talk_by_wake_class": {
+    "0": 270,
+    "1": 21,
+    "2": 18,
+    "3": 91
+   },
+   "talk_distinct_agents": 172,
+   "talk_by_hour": {
+    "8": 2,
+    "9": 10,
+    "10": 26,
+    "11": 37,
+    "12": 13,
+    "13": 33,
+    "14": 39,
+    "15": 10,
+    "16": 15,
+    "17": 41,
+    "18": 56,
+    "19": 31,
+    "20": 61,
+    "21": 16,
+    "22": 2,
+    "23": 8
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 194,
+    "あなたは通勤者です。": 96,
+    "あなたは来街者です。": 93,
+    "あなたは従業者です。": 17
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 37253,
+    "あなたは来街者です。": 26171,
+    "あなたは居住者です。": 11639,
+    "あなたは従業者です。": 2526,
+    "あなたは指令です。": 322
+   },
+   "talk_by_stage": {
+    "A": 400
+   },
+   "calls_by_stage": {
+    "A": 77911
+   },
+   "invite_reason_responses": 13,
+   "invite_reason_actions": {
+    "会話": 13
+   },
+   "runner_conversation_sessions": 54,
+   "sessions_per_agent_day": 0.0108,
+   "sessions_per_talk_call": 0.135
+  },
+  "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_30": {
+   "n_calls": 78205,
+   "actions": {
+    "移動": 34915,
+    "購入": 26835,
+    "休憩": 5621,
+    "(none)": 4770,
+    "待機": 4021,
+    "乗車": 1483,
+    "会話": 467,
+    "退去": 46,
+    "通報": 43,
+    "並ぶ": 3,
+    "降車": 1
+   },
+   "wake_class": {
+    "0": 553,
+    "1": 18527,
+    "2": 22813,
+    "3": 36312
+   },
+   "talk": 467,
+   "talk_pct": 0.5971,
+   "help": 0,
+   "refuse": 0,
+   "leave": 46,
+   "talk_target_kind": {
+    "3": 384,
+    "0": 26,
+    "2": 57
+   },
+   "talk_named_person": 384,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 31,
+   "talk_mutual_same_tick": 2,
+   "talk_target_has_call_t1_t5": 233,
+   "talk_target_w0_call_t1_t5": 202,
+   "talk_target_answered_talk_t1_t5": 118,
+   "talk_by_wake_class": {
+    "0": 342,
+    "1": 21,
+    "2": 23,
+    "3": 81
+   },
+   "talk_distinct_agents": 178,
+   "talk_by_hour": {
+    "6": 13,
+    "7": 5,
+    "8": 15,
+    "9": 20,
+    "10": 28,
+    "11": 18,
+    "12": 12,
+    "13": 35,
+    "14": 10,
+    "15": 2,
+    "16": 45,
+    "17": 28,
+    "18": 91,
+    "19": 49,
+    "20": 54,
+    "21": 31,
+    "22": 10,
+    "23": 1
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 253,
+    "あなたは通勤者です。": 111,
+    "あなたは来街者です。": 84,
+    "あなたは従業者です。": 19
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 37436,
+    "あなたは来街者です。": 26095,
+    "あなたは居住者です。": 11876,
+    "あなたは従業者です。": 2476,
+    "あなたは指令です。": 322
+   },
+   "talk_by_stage": {
+    "A": 467
+   },
+   "calls_by_stage": {
+    "A": 78205
+   },
+   "invite_reason_responses": 11,
+   "invite_reason_actions": {
+    "会話": 11
+   },
+   "runner_conversation_sessions": 65,
+   "sessions_per_agent_day": 0.013,
+   "sessions_per_talk_call": 0.1392
+  },
+  "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_1_00": {
+   "n_calls": 77303,
+   "actions": {
+    "移動": 35876,
+    "購入": 26489,
+    "(none)": 4873,
+    "休憩": 4215,
+    "待機": 4126,
+    "乗車": 1429,
+    "会話": 190,
+    "通報": 54,
+    "退去": 50,
+    "断る": 1
+   },
+   "wake_class": {
+    "0": 251,
+    "1": 18564,
+    "2": 21849,
+    "3": 36639
+   },
+   "talk": 190,
+   "talk_pct": 0.2458,
+   "help": 0,
+   "refuse": 1,
+   "leave": 50,
+   "talk_target_kind": {
+    "2": 26,
+    "3": 147,
+    "0": 17
+   },
+   "talk_named_person": 147,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 11,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 99,
+   "talk_target_w0_call_t1_t5": 95,
+   "talk_target_answered_talk_t1_t5": 38,
+   "talk_by_wake_class": {
+    "0": 127,
+    "1": 12,
+    "2": 15,
+    "3": 36
+   },
+   "talk_distinct_agents": 96,
+   "talk_by_hour": {
+    "5": 2,
+    "7": 9,
+    "8": 2,
+    "9": 1,
+    "10": 13,
+    "11": 20,
+    "12": 5,
+    "13": 6,
+    "14": 13,
+    "15": 5,
+    "16": 24,
+    "17": 1,
+    "18": 45,
+    "19": 8,
+    "20": 22,
+    "21": 8,
+    "22": 1,
+    "23": 5
+   },
+   "talk_by_type": {
+    "あなたは通勤者です。": 66,
+    "あなたは居住者です。": 60,
+    "あなたは来街者です。": 47,
+    "あなたは従業者です。": 17
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 37130,
+    "あなたは来街者です。": 25944,
+    "あなたは居住者です。": 11449,
+    "あなたは従業者です。": 2467,
+    "あなたは指令です。": 313
+   },
+   "talk_by_stage": {
+    "A": 190
+   },
+   "calls_by_stage": {
+    "A": 77303
+   },
+   "invite_reason_responses": 1,
+   "invite_reason_actions": {
+    "会話": 1
+   },
+   "runner_conversation_sessions": 31,
+   "sessions_per_agent_day": 0.0062,
+   "sessions_per_talk_call": 0.1632
+  },
+  "c8_ab7_s1/AB7-OPEN-INTENT__open": {
+   "n_calls": 36868,
+   "actions": {
+    "(none)": 34877,
+    "移動": 1434,
+    "購入": 244,
+    "休憩": 177,
+    "待機": 131,
+    "会話": 3,
+    "並ぶ": 2
+   },
+   "wake_class": {
+    "0": 9167,
+    "1": 16299,
+    "2": 6259,
+    "3": 5143
+   },
+   "talk": 3,
+   "talk_pct": 0.0081,
+   "help": 0,
+   "refuse": 0,
+   "leave": 0,
+   "talk_target_kind": {
+    "3": 3
+   },
+   "talk_named_person": 3,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 0,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 0,
+   "talk_target_w0_call_t1_t5": 0,
+   "talk_target_answered_talk_t1_t5": 0,
+   "talk_by_wake_class": {
+    "0": 3
+   },
+   "talk_distinct_agents": 2,
+   "talk_by_hour": {
+    "22": 3
+   },
+   "talk_by_type": {
+    "あなたは従業者です。": 2,
+    "あなたは来街者です。": 1
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 17760,
+    "あなたは来街者です。": 12130,
+    "あなたは居住者です。": 5523,
+    "あなたは従業者です。": 1234,
+    "あなたは指令です。": 221
+   },
+   "talk_by_stage": {
+    "A": 3
+   },
+   "calls_by_stage": {
+    "A": 36868
+   },
+   "invite_reason_responses": 1,
+   "invite_reason_actions": {
+    "(none)": 1
+   },
+   "runner_conversation_sessions": 0,
+   "sessions_per_agent_day": 0.0,
+   "sessions_per_talk_call": 0.0
+  },
+  "c8_ab7_s1/AB7-OPEN-INTENT__vocab": {
+   "n_calls": 36906,
+   "actions": {
+    "移動": 16614,
+    "購入": 16169,
+    "休憩": 1616,
+    "待機": 1343,
+    "乗車": 907,
+    "(none)": 185,
+    "退去": 29,
+    "会話": 25,
+    "通報": 18
+   },
+   "wake_class": {
+    "0": 10275,
+    "1": 15594,
+    "2": 6401,
+    "3": 4636
+   },
+   "talk": 25,
+   "talk_pct": 0.0677,
+   "help": 0,
+   "refuse": 0,
+   "leave": 29,
+   "talk_target_kind": {
+    "2": 9,
+    "3": 13,
+    "0": 3
+   },
+   "talk_named_person": 13,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 0,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 11,
+   "talk_target_w0_call_t1_t5": 10,
+   "talk_target_answered_talk_t1_t5": 4,
+   "talk_by_wake_class": {
+    "0": 12,
+    "1": 4,
+    "2": 9
+   },
+   "talk_distinct_agents": 18,
+   "talk_by_hour": {
+    "5": 1,
+    "7": 4,
+    "8": 2,
+    "15": 3,
+    "16": 6,
+    "17": 1,
+    "19": 1,
+    "20": 5,
+    "21": 1,
+    "23": 1
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 13,
+    "あなたは通勤者です。": 8,
+    "あなたは来街者です。": 4
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 18199,
+    "あなたは来街者です。": 11802,
+    "あなたは居住者です。": 5445,
+    "あなたは従業者です。": 1241,
+    "あなたは指令です。": 219
+   },
+   "talk_by_stage": {
+    "A": 25
+   },
+   "calls_by_stage": {
+    "A": 36906
+   },
+   "invite_reason_responses": 1,
+   "invite_reason_actions": {
+    "会話": 1
+   },
+   "runner_conversation_sessions": 3,
+   "sessions_per_agent_day": 0.0006,
+   "sessions_per_talk_call": 0.12
+  },
+  "c8_ab7_s2/AB7-OPEN-INTENT__open": {
+   "n_calls": 36707,
+   "actions": {
+    "(none)": 34664,
+    "移動": 1488,
+    "購入": 242,
+    "休憩": 176,
+    "待機": 136,
+    "並ぶ": 1
+   },
+   "wake_class": {
+    "0": 9827,
+    "1": 15469,
+    "2": 6055,
+    "3": 5356
+   },
+   "talk": 0,
+   "talk_pct": 0.0,
+   "help": 0,
+   "refuse": 0,
+   "leave": 0,
+   "talk_target_kind": {},
+   "talk_named_person": 0,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 0,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 0,
+   "talk_target_w0_call_t1_t5": 0,
+   "talk_target_answered_talk_t1_t5": 0,
+   "talk_by_wake_class": {},
+   "talk_distinct_agents": 0,
+   "talk_by_hour": {},
+   "talk_by_type": {},
+   "calls_by_type": {
+    "あなたは通勤者です。": 17707,
+    "あなたは来街者です。": 11972,
+    "あなたは居住者です。": 5526,
+    "あなたは従業者です。": 1281,
+    "あなたは指令です。": 221
+   },
+   "talk_by_stage": {},
+   "calls_by_stage": {
+    "A": 36707
+   },
+   "invite_reason_responses": 1,
+   "invite_reason_actions": {
+    "(none)": 1
+   },
+   "runner_conversation_sessions": 0,
+   "sessions_per_agent_day": 0.0,
+   "sessions_per_talk_call": null
+  },
+  "c8_ab7_s2/AB7-OPEN-INTENT__vocab": {
+   "n_calls": 36889,
+   "actions": {
+    "移動": 16505,
+    "購入": 16215,
+    "休憩": 1596,
+    "待機": 1383,
+    "乗車": 922,
+    "(none)": 191,
+    "会話": 28,
+    "通報": 28,
+    "退去": 21
+   },
+   "wake_class": {
+    "0": 10723,
+    "1": 15521,
+    "2": 6092,
+    "3": 4553
+   },
+   "talk": 28,
+   "talk_pct": 0.0759,
+   "help": 0,
+   "refuse": 0,
+   "leave": 21,
+   "talk_target_kind": {
+    "2": 7,
+    "3": 18,
+    "0": 3
+   },
+   "talk_named_person": 18,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 0,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 14,
+   "talk_target_w0_call_t1_t5": 13,
+   "talk_target_answered_talk_t1_t5": 3,
+   "talk_by_wake_class": {
+    "0": 16,
+    "1": 1,
+    "2": 6,
+    "3": 5
+   },
+   "talk_distinct_agents": 19,
+   "talk_by_hour": {
+    "0": 3,
+    "6": 1,
+    "8": 1,
+    "10": 3,
+    "11": 1,
+    "13": 1,
+    "16": 1,
+    "17": 4,
+    "19": 1,
+    "20": 2,
+    "21": 6,
+    "22": 3,
+    "23": 1
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 13,
+    "あなたは通勤者です。": 9,
+    "あなたは来街者です。": 4,
+    "あなたは従業者です。": 2
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 18161,
+    "あなたは来街者です。": 11770,
+    "あなたは居住者です。": 5485,
+    "あなたは従業者です。": 1268,
+    "あなたは指令です。": 205
+   },
+   "talk_by_stage": {
+    "A": 28
+   },
+   "calls_by_stage": {
+    "A": 36889
+   },
+   "invite_reason_responses": 0,
+   "invite_reason_actions": {},
+   "runner_conversation_sessions": 5,
+   "sessions_per_agent_day": 0.001,
+   "sessions_per_talk_call": 0.1786
+  },
+  "c8_ab7b_s1/AB7b-HINT-INTENT__hint": {
+   "n_calls": 36855,
+   "actions": {
+    "購入": 18054,
+    "移動": 13903,
+    "休憩": 1747,
+    "乗車": 1639,
+    "待機": 761,
+    "(none)": 294,
+    "通報": 185,
+    "会話": 159,
+    "退去": 108,
+    "降車": 5
+   },
+   "wake_class": {
+    "0": 9517,
+    "1": 16449,
+    "2": 6377,
+    "3": 4512
+   },
+   "talk": 159,
+   "talk_pct": 0.4314,
+   "help": 0,
+   "refuse": 0,
+   "leave": 108,
+   "talk_target_kind": {
+    "2": 24,
+    "0": 32,
+    "3": 103
+   },
+   "talk_named_person": 103,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 4,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 60,
+   "talk_target_w0_call_t1_t5": 56,
+   "talk_target_answered_talk_t1_t5": 34,
+   "talk_by_wake_class": {
+    "0": 107,
+    "1": 8,
+    "2": 38,
+    "3": 6
+   },
+   "talk_distinct_agents": 81,
+   "talk_by_hour": {
+    "6": 2,
+    "9": 1,
+    "11": 7,
+    "13": 12,
+    "14": 7,
+    "15": 45,
+    "16": 20,
+    "17": 8,
+    "19": 6,
+    "20": 4,
+    "21": 7,
+    "22": 36,
+    "23": 4
+   },
+   "talk_by_type": {
+    "あなたは来街者です。": 59,
+    "あなたは居住者です。": 57,
+    "あなたは通勤者です。": 32,
+    "あなたは従業者です。": 11
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 18200,
+    "あなたは来街者です。": 11909,
+    "あなたは居住者です。": 5302,
+    "あなたは従業者です。": 1218,
+    "あなたは指令です。": 226
+   },
+   "talk_by_stage": {
+    "A": 159
+   },
+   "calls_by_stage": {
+    "A": 36855
+   },
+   "invite_reason_responses": 0,
+   "invite_reason_actions": {},
+   "runner_conversation_sessions": 20,
+   "sessions_per_agent_day": 0.004,
+   "sessions_per_talk_call": 0.1258
+  },
+  "c8_ab7b_s1/AB7b-HINT-INTENT__vocab": {
+   "n_calls": 36906,
+   "actions": {
+    "移動": 16614,
+    "購入": 16169,
+    "休憩": 1616,
+    "待機": 1343,
+    "乗車": 907,
+    "(none)": 185,
+    "退去": 29,
+    "会話": 25,
+    "通報": 18
+   },
+   "wake_class": {
+    "0": 10275,
+    "1": 15594,
+    "2": 6401,
+    "3": 4636
+   },
+   "talk": 25,
+   "talk_pct": 0.0677,
+   "help": 0,
+   "refuse": 0,
+   "leave": 29,
+   "talk_target_kind": {
+    "2": 9,
+    "3": 13,
+    "0": 3
+   },
+   "talk_named_person": 13,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 0,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 11,
+   "talk_target_w0_call_t1_t5": 10,
+   "talk_target_answered_talk_t1_t5": 4,
+   "talk_by_wake_class": {
+    "0": 12,
+    "1": 4,
+    "2": 9
+   },
+   "talk_distinct_agents": 18,
+   "talk_by_hour": {
+    "5": 1,
+    "7": 4,
+    "8": 2,
+    "15": 3,
+    "16": 6,
+    "17": 1,
+    "19": 1,
+    "20": 5,
+    "21": 1,
+    "23": 1
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 13,
+    "あなたは通勤者です。": 8,
+    "あなたは来街者です。": 4
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 18199,
+    "あなたは来街者です。": 11802,
+    "あなたは居住者です。": 5445,
+    "あなたは従業者です。": 1241,
+    "あなたは指令です。": 219
+   },
+   "talk_by_stage": {
+    "A": 25
+   },
+   "calls_by_stage": {
+    "A": 36906
+   },
+   "invite_reason_responses": 1,
+   "invite_reason_actions": {
+    "会話": 1
+   },
+   "runner_conversation_sessions": 3,
+   "sessions_per_agent_day": 0.0006,
+   "sessions_per_talk_call": 0.12
+  },
+  "c8_ab7c_s1/AB7c-VOCAB-V2__open_v2": {
+   "n_calls": 37100,
+   "actions": {
+    "(none)": 33129,
+    "移動": 2402,
+    "休憩": 734,
+    "待機": 408,
+    "食事": 257,
+    "購入": 165,
+    "並ぶ": 4,
+    "会話": 1
+   },
+   "wake_class": {
+    "0": 10211,
+    "1": 17294,
+    "2": 5025,
+    "3": 4570
+   },
+   "talk": 1,
+   "talk_pct": 0.0027,
+   "help": 0,
+   "refuse": 0,
+   "leave": 0,
+   "talk_target_kind": {
+    "3": 1
+   },
+   "talk_named_person": 1,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 1,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 0,
+   "talk_target_w0_call_t1_t5": 0,
+   "talk_target_answered_talk_t1_t5": 0,
+   "talk_by_wake_class": {
+    "1": 1
+   },
+   "talk_distinct_agents": 1,
+   "talk_by_hour": {
+    "6": 1
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 1
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 18547,
+    "あなたは来街者です。": 11898,
+    "あなたは居住者です。": 5185,
+    "あなたは従業者です。": 1209,
+    "あなたは指令です。": 261
+   },
+   "talk_by_stage": {
+    "A": 1
+   },
+   "calls_by_stage": {
+    "A": 37100
+   },
+   "invite_reason_responses": 0,
+   "invite_reason_actions": {},
+   "runner_conversation_sessions": 0,
+   "sessions_per_agent_day": 0.0,
+   "sessions_per_talk_call": 0.0
+  },
+  "c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v1": {
+   "n_calls": 36906,
+   "actions": {
+    "移動": 16614,
+    "購入": 16169,
+    "休憩": 1616,
+    "待機": 1343,
+    "乗車": 907,
+    "(none)": 185,
+    "退去": 29,
+    "会話": 25,
+    "通報": 18
+   },
+   "wake_class": {
+    "0": 10275,
+    "1": 15594,
+    "2": 6401,
+    "3": 4636
+   },
+   "talk": 25,
+   "talk_pct": 0.0677,
+   "help": 0,
+   "refuse": 0,
+   "leave": 29,
+   "talk_target_kind": {
+    "2": 9,
+    "3": 13,
+    "0": 3
+   },
+   "talk_named_person": 13,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 0,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 11,
+   "talk_target_w0_call_t1_t5": 10,
+   "talk_target_answered_talk_t1_t5": 4,
+   "talk_by_wake_class": {
+    "0": 12,
+    "1": 4,
+    "2": 9
+   },
+   "talk_distinct_agents": 18,
+   "talk_by_hour": {
+    "5": 1,
+    "7": 4,
+    "8": 2,
+    "15": 3,
+    "16": 6,
+    "17": 1,
+    "19": 1,
+    "20": 5,
+    "21": 1,
+    "23": 1
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 13,
+    "あなたは通勤者です。": 8,
+    "あなたは来街者です。": 4
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 18199,
+    "あなたは来街者です。": 11802,
+    "あなたは居住者です。": 5445,
+    "あなたは従業者です。": 1241,
+    "あなたは指令です。": 219
+   },
+   "talk_by_stage": {
+    "A": 25
+   },
+   "calls_by_stage": {
+    "A": 36906
+   },
+   "invite_reason_responses": 1,
+   "invite_reason_actions": {
+    "会話": 1
+   },
+   "runner_conversation_sessions": 3,
+   "sessions_per_agent_day": 0.0006,
+   "sessions_per_talk_call": 0.12
+  },
+  "c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v2": {
+   "n_calls": 37165,
+   "actions": {
+    "食事": 16327,
+    "移動": 13641,
+    "休憩": 3562,
+    "購入": 1811,
+    "待機": 1017,
+    "乗車": 485,
+    "(none)": 228,
+    "会話": 42,
+    "通報": 24,
+    "断る": 16,
+    "退去": 11,
+    "並ぶ": 1
+   },
+   "wake_class": {
+    "0": 14438,
+    "1": 14544,
+    "2": 4679,
+    "3": 3504
+   },
+   "talk": 42,
+   "talk_pct": 0.113,
+   "help": 0,
+   "refuse": 16,
+   "leave": 11,
+   "talk_target_kind": {
+    "2": 7,
+    "3": 31,
+    "0": 4
+   },
+   "talk_named_person": 31,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 1,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 17,
+   "talk_target_w0_call_t1_t5": 17,
+   "talk_target_answered_talk_t1_t5": 7,
+   "talk_by_wake_class": {
+    "0": 32,
+    "1": 7,
+    "2": 3
+   },
+   "talk_distinct_agents": 27,
+   "talk_by_hour": {
+    "7": 7,
+    "11": 3,
+    "14": 3,
+    "15": 5,
+    "16": 4,
+    "18": 4,
+    "19": 1,
+    "20": 12,
+    "21": 2,
+    "22": 1
+   },
+   "talk_by_type": {
+    "あなたは通勤者です。": 26,
+    "あなたは来街者です。": 8,
+    "あなたは居住者です。": 7,
+    "あなたは従業者です。": 1
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 19038,
+    "あなたは来街者です。": 11745,
+    "あなたは居住者です。": 4948,
+    "あなたは従業者です。": 1159,
+    "あなたは指令です。": 275
+   },
+   "talk_by_stage": {
+    "A": 42
+   },
+   "calls_by_stage": {
+    "A": 37165
+   },
+   "invite_reason_responses": 1,
+   "invite_reason_actions": {
+    "会話": 1
+   },
+   "runner_conversation_sessions": 7,
+   "sessions_per_agent_day": 0.0014,
+   "sessions_per_talk_call": 0.1667
+  },
+  "c8_ab7c_s2/AB7c-VOCAB-V2__open_v2": {
+   "n_calls": 37125,
+   "actions": {
+    "(none)": 33167,
+    "移動": 2442,
+    "休憩": 696,
+    "待機": 401,
+    "食事": 243,
+    "購入": 170,
+    "並ぶ": 6
+   },
+   "wake_class": {
+    "0": 11357,
+    "1": 16053,
+    "2": 5074,
+    "3": 4641
+   },
+   "talk": 0,
+   "talk_pct": 0.0,
+   "help": 0,
+   "refuse": 0,
+   "leave": 0,
+   "talk_target_kind": {},
+   "talk_named_person": 0,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 0,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 0,
+   "talk_target_w0_call_t1_t5": 0,
+   "talk_target_answered_talk_t1_t5": 0,
+   "talk_by_wake_class": {},
+   "talk_distinct_agents": 0,
+   "talk_by_hour": {},
+   "talk_by_type": {},
+   "calls_by_type": {
+    "あなたは通勤者です。": 18612,
+    "あなたは来街者です。": 11713,
+    "あなたは居住者です。": 5300,
+    "あなたは従業者です。": 1244,
+    "あなたは指令です。": 256
+   },
+   "talk_by_stage": {},
+   "calls_by_stage": {
+    "A": 37125
+   },
+   "invite_reason_responses": 0,
+   "invite_reason_actions": {},
+   "runner_conversation_sessions": 0,
+   "sessions_per_agent_day": 0.0,
+   "sessions_per_talk_call": null
+  },
+  "c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v1": {
+   "n_calls": 36889,
+   "actions": {
+    "移動": 16505,
+    "購入": 16215,
+    "休憩": 1596,
+    "待機": 1383,
+    "乗車": 922,
+    "(none)": 191,
+    "会話": 28,
+    "通報": 28,
+    "退去": 21
+   },
+   "wake_class": {
+    "0": 10723,
+    "1": 15521,
+    "2": 6092,
+    "3": 4553
+   },
+   "talk": 28,
+   "talk_pct": 0.0759,
+   "help": 0,
+   "refuse": 0,
+   "leave": 21,
+   "talk_target_kind": {
+    "2": 7,
+    "3": 18,
+    "0": 3
+   },
+   "talk_named_person": 18,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 0,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 14,
+   "talk_target_w0_call_t1_t5": 13,
+   "talk_target_answered_talk_t1_t5": 3,
+   "talk_by_wake_class": {
+    "0": 16,
+    "1": 1,
+    "2": 6,
+    "3": 5
+   },
+   "talk_distinct_agents": 19,
+   "talk_by_hour": {
+    "0": 3,
+    "6": 1,
+    "8": 1,
+    "10": 3,
+    "11": 1,
+    "13": 1,
+    "16": 1,
+    "17": 4,
+    "19": 1,
+    "20": 2,
+    "21": 6,
+    "22": 3,
+    "23": 1
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 13,
+    "あなたは通勤者です。": 9,
+    "あなたは来街者です。": 4,
+    "あなたは従業者です。": 2
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 18161,
+    "あなたは来街者です。": 11770,
+    "あなたは居住者です。": 5485,
+    "あなたは従業者です。": 1268,
+    "あなたは指令です。": 205
+   },
+   "talk_by_stage": {
+    "A": 28
+   },
+   "calls_by_stage": {
+    "A": 36889
+   },
+   "invite_reason_responses": 0,
+   "invite_reason_actions": {},
+   "runner_conversation_sessions": 5,
+   "sessions_per_agent_day": 0.001,
+   "sessions_per_talk_call": 0.1786
+  },
+  "c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v2": {
+   "n_calls": 37371,
+   "actions": {
+    "食事": 16455,
+    "移動": 13871,
+    "休憩": 3483,
+    "購入": 1729,
+    "待機": 1074,
+    "乗車": 478,
+    "(none)": 202,
+    "通報": 32,
+    "会話": 23,
+    "断る": 10,
+    "退去": 7,
+    "並ぶ": 4,
+    "手伝い": 3
+   },
+   "wake_class": {
+    "0": 14421,
+    "1": 14672,
+    "2": 4339,
+    "3": 3939
+   },
+   "talk": 23,
+   "talk_pct": 0.0615,
+   "help": 3,
+   "refuse": 10,
+   "leave": 7,
+   "talk_target_kind": {
+    "2": 6,
+    "3": 14,
+    "0": 3
+   },
+   "talk_named_person": 14,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 1,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 6,
+   "talk_target_w0_call_t1_t5": 6,
+   "talk_target_answered_talk_t1_t5": 1,
+   "talk_by_wake_class": {
+    "0": 13,
+    "3": 10
+   },
+   "talk_distinct_agents": 17,
+   "talk_by_hour": {
+    "0": 5,
+    "17": 2,
+    "19": 2,
+    "23": 14
+   },
+   "talk_by_type": {
+    "あなたは通勤者です。": 10,
+    "あなたは従業者です。": 6,
+    "あなたは来街者です。": 4,
+    "あなたは居住者です。": 3
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 19111,
+    "あなたは来街者です。": 11760,
+    "あなたは居住者です。": 4987,
+    "あなたは従業者です。": 1228,
+    "あなたは指令です。": 285
+   },
+   "talk_by_stage": {
+    "A": 23
+   },
+   "calls_by_stage": {
+    "A": 37371
+   },
+   "invite_reason_responses": 0,
+   "invite_reason_actions": {},
+   "runner_conversation_sessions": 2,
+   "sessions_per_agent_day": 0.0004,
+   "sessions_per_talk_call": 0.087
+  },
+  "c8_ab8_s1/AB8-L4-SCALE__l4_unlimited": {
+   "n_calls": 77303,
+   "actions": {
+    "移動": 35876,
+    "購入": 26489,
+    "(none)": 4873,
+    "休憩": 4215,
+    "待機": 4126,
+    "乗車": 1429,
+    "会話": 190,
+    "通報": 54,
+    "退去": 50,
+    "断る": 1
+   },
+   "wake_class": {
+    "0": 251,
+    "1": 18564,
+    "2": 21849,
+    "3": 36639
+   },
+   "talk": 190,
+   "talk_pct": 0.2458,
+   "help": 0,
+   "refuse": 1,
+   "leave": 50,
+   "talk_target_kind": {
+    "2": 26,
+    "3": 147,
+    "0": 17
+   },
+   "talk_named_person": 147,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 11,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 99,
+   "talk_target_w0_call_t1_t5": 95,
+   "talk_target_answered_talk_t1_t5": 38,
+   "talk_by_wake_class": {
+    "0": 127,
+    "1": 12,
+    "2": 15,
+    "3": 36
+   },
+   "talk_distinct_agents": 96,
+   "talk_by_hour": {
+    "5": 2,
+    "7": 9,
+    "8": 2,
+    "9": 1,
+    "10": 13,
+    "11": 20,
+    "12": 5,
+    "13": 6,
+    "14": 13,
+    "15": 5,
+    "16": 24,
+    "17": 1,
+    "18": 45,
+    "19": 8,
+    "20": 22,
+    "21": 8,
+    "22": 1,
+    "23": 5
+   },
+   "talk_by_type": {
+    "あなたは通勤者です。": 66,
+    "あなたは居住者です。": 60,
+    "あなたは来街者です。": 47,
+    "あなたは従業者です。": 17
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 37130,
+    "あなたは来街者です。": 25944,
+    "あなたは居住者です。": 11449,
+    "あなたは従業者です。": 2467,
+    "あなたは指令です。": 313
+   },
+   "talk_by_stage": {
+    "A": 190
+   },
+   "calls_by_stage": {
+    "A": 77303
+   },
+   "invite_reason_responses": 1,
+   "invite_reason_actions": {
+    "会話": 1
+   },
+   "runner_conversation_sessions": 31,
+   "sessions_per_agent_day": 0.0062,
+   "sessions_per_talk_call": 0.1632
+  },
+  "c8_ab8_s1/AB8-L4-SCALE__l4_x0.5": {
+   "n_calls": 19856,
+   "actions": {
+    "購入": 9995,
+    "移動": 7904,
+    "休憩": 771,
+    "乗車": 582,
+    "待機": 469,
+    "(none)": 110,
+    "退去": 13,
+    "会話": 7,
+    "通報": 5
+   },
+   "wake_class": {
+    "0": 15255,
+    "1": 2100,
+    "2": 1094,
+    "3": 1407
+   },
+   "talk": 7,
+   "talk_pct": 0.0353,
+   "help": 0,
+   "refuse": 0,
+   "leave": 13,
+   "talk_target_kind": {
+    "2": 4,
+    "3": 3
+   },
+   "talk_named_person": 3,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 0,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 0,
+   "talk_target_w0_call_t1_t5": 0,
+   "talk_target_answered_talk_t1_t5": 0,
+   "talk_by_wake_class": {
+    "0": 4,
+    "1": 2,
+    "2": 1
+   },
+   "talk_distinct_agents": 7,
+   "talk_by_hour": {
+    "5": 1,
+    "8": 1,
+    "9": 1,
+    "10": 1,
+    "21": 1,
+    "22": 2
+   },
+   "talk_by_type": {
+    "あなたは通勤者です。": 5,
+    "あなたは居住者です。": 1,
+    "あなたは従業者です。": 1
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 10206,
+    "あなたは来街者です。": 5999,
+    "あなたは居住者です。": 2826,
+    "あなたは従業者です。": 691,
+    "あなたは指令です。": 134
+   },
+   "talk_by_stage": {
+    "A": 7
+   },
+   "calls_by_stage": {
+    "A": 19856
+   },
+   "invite_reason_responses": 0,
+   "invite_reason_actions": {},
+   "runner_conversation_sessions": 0,
+   "sessions_per_agent_day": 0.0,
+   "sessions_per_talk_call": 0.0
+  },
+  "c8_ab8_s1/AB8-L4-SCALE__l4_x1": {
+   "n_calls": 36906,
+   "actions": {
+    "移動": 16614,
+    "購入": 16169,
+    "休憩": 1616,
+    "待機": 1343,
+    "乗車": 907,
+    "(none)": 185,
+    "退去": 29,
+    "会話": 25,
+    "通報": 18
+   },
+   "wake_class": {
+    "0": 10275,
+    "1": 15594,
+    "2": 6401,
+    "3": 4636
+   },
+   "talk": 25,
+   "talk_pct": 0.0677,
+   "help": 0,
+   "refuse": 0,
+   "leave": 29,
+   "talk_target_kind": {
+    "2": 9,
+    "3": 13,
+    "0": 3
+   },
+   "talk_named_person": 13,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 0,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 11,
+   "talk_target_w0_call_t1_t5": 10,
+   "talk_target_answered_talk_t1_t5": 4,
+   "talk_by_wake_class": {
+    "0": 12,
+    "1": 4,
+    "2": 9
+   },
+   "talk_distinct_agents": 18,
+   "talk_by_hour": {
+    "5": 1,
+    "7": 4,
+    "8": 2,
+    "15": 3,
+    "16": 6,
+    "17": 1,
+    "19": 1,
+    "20": 5,
+    "21": 1,
+    "23": 1
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 13,
+    "あなたは通勤者です。": 8,
+    "あなたは来街者です。": 4
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 18199,
+    "あなたは来街者です。": 11802,
+    "あなたは居住者です。": 5445,
+    "あなたは従業者です。": 1241,
+    "あなたは指令です。": 219
+   },
+   "talk_by_stage": {
+    "A": 25
+   },
+   "calls_by_stage": {
+    "A": 36906
+   },
+   "invite_reason_responses": 1,
+   "invite_reason_actions": {
+    "会話": 1
+   },
+   "runner_conversation_sessions": 3,
+   "sessions_per_agent_day": 0.0006,
+   "sessions_per_talk_call": 0.12
+  },
+  "c8_ab8_s1/AB8-L4-SCALE__l4_x2": {
+   "n_calls": 61196,
+   "actions": {
+    "移動": 29420,
+    "購入": 23167,
+    "待機": 3455,
+    "休憩": 3401,
+    "乗車": 1254,
+    "(none)": 293,
+    "会話": 120,
+    "通報": 51,
+    "退去": 31,
+    "降車": 2,
+    "並ぶ": 1,
+    "就寝": 1
+   },
+   "wake_class": {
+    "0": 248,
+    "1": 18993,
+    "2": 17633,
+    "3": 24322
+   },
+   "talk": 120,
+   "talk_pct": 0.1961,
+   "help": 0,
+   "refuse": 0,
+   "leave": 31,
+   "talk_target_kind": {
+    "2": 24,
+    "3": 84,
+    "0": 12
+   },
+   "talk_named_person": 84,
+   "talk_named_self": 0,
+   "talk_named_out_of_range": 0,
+   "talk_target_called_same_tick": 5,
+   "talk_mutual_same_tick": 0,
+   "talk_target_has_call_t1_t5": 51,
+   "talk_target_w0_call_t1_t5": 47,
+   "talk_target_answered_talk_t1_t5": 26,
+   "talk_by_wake_class": {
+    "0": 76,
+    "1": 10,
+    "2": 17,
+    "3": 17
+   },
+   "talk_distinct_agents": 65,
+   "talk_by_hour": {
+    "5": 2,
+    "7": 6,
+    "10": 1,
+    "11": 1,
+    "12": 7,
+    "13": 2,
+    "14": 11,
+    "15": 8,
+    "16": 1,
+    "17": 17,
+    "18": 13,
+    "19": 21,
+    "20": 16,
+    "21": 14
+   },
+   "talk_by_type": {
+    "あなたは居住者です。": 53,
+    "あなたは通勤者です。": 41,
+    "あなたは来街者です。": 22,
+    "あなたは従業者です。": 4
+   },
+   "calls_by_type": {
+    "あなたは通勤者です。": 29440,
+    "あなたは来街者です。": 19816,
+    "あなたは居住者です。": 9587,
+    "あなたは従業者です。": 2071,
+    "あなたは指令です。": 282
+   },
+   "talk_by_stage": {
+    "A": 120
+   },
+   "calls_by_stage": {
+    "A": 61196
+   },
+   "invite_reason_responses": 2,
+   "invite_reason_actions": {
+    "会話": 2
+   },
+   "runner_conversation_sessions": 18,
+   "sessions_per_agent_day": 0.0036,
+   "sessions_per_talk_call": 0.15
+  }
+ },
+ "funnel_heuristic": {
+  "c8_ab8_s1/AB8-L4-SCALE__l4_x1": {
+   "calls": 36906,
+   "talk": 25,
+   "initiators": 16,
+   "responders": 9,
+   "initiator_reason_food": 11,
+   "responder_reason_invite_words": 5,
+   "funnel_initiators": {
+    "init": 16,
+    "target_not_person": 11,
+    "target_person": 5,
+    "B_first_answer_accept": 3,
+    "B_first_answer_other": 2,
+    "B_first_call_not_w0": 1
+   },
+   "B_first_call_offset": {
+    "1": 1,
+    "3": 4
+   },
+   "B_first_answer_nontalk_actions": {
+    "購入": 1,
+    "移動": 1
+   },
+   "accepted_pairs": 3,
+   "turns_llm_talk_per_accepted_pair": [
+    3,
+    3,
+    3
+   ],
+   "calls_with_cocaller_same_cell_same_tick": 15463,
+   "distinct_cells": 505
+  },
+  "c8_ab8_s1/AB8-L4-SCALE__l4_x2": {
+   "calls": 61196,
+   "talk": 120,
+   "initiators": 80,
+   "responders": 40,
+   "initiator_reason_food": 25,
+   "responder_reason_invite_words": 33,
+   "funnel_initiators": {
+    "init": 80,
+    "target_not_person": 28,
+    "target_person": 52,
+    "B_first_answer_accept": 15,
+    "B_first_call_not_w0": 7,
+    "B_first_answer_other": 19,
+    "B_no_call_within_6": 16,
+    "B_first_answer_talk_other": 2
+   },
+   "B_first_call_offset": {
+    "1": 1,
+    "2": 3,
+    "3": 11,
+    "4": 10,
+    "5": 9,
+    "6": 2
+   },
+   "B_first_answer_nontalk_actions": {
+    "乗車": 1,
+    "移動": 7,
+    "待機": 4,
+    "休憩": 2,
+    "購入": 5
+   },
+   "accepted_pairs": 15,
+   "turns_llm_talk_per_accepted_pair": [
+    3,
+    4,
+    3,
+    3,
+    3,
+    1,
+    5,
+    4,
+    3,
+    4,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "calls_with_cocaller_same_cell_same_tick": 31235,
+   "distinct_cells": 513
+  },
+  "c8_ab8_s1/AB8-L4-SCALE__l4_unlimited": {
+   "calls": 77303,
+   "talk": 190,
+   "initiators": 114,
+   "responders": 76,
+   "initiator_reason_food": 36,
+   "responder_reason_invite_words": 58,
+   "funnel_initiators": {
+    "init": 114,
+    "target_not_person": 31,
+    "target_person": 83,
+    "B_first_answer_accept": 22,
+    "B_first_call_not_w0": 6,
+    "B_first_answer_other": 26,
+    "B_no_call_within_6": 30,
+    "B_first_answer_talk_other": 5
+   },
+   "B_first_call_offset": {
+    "1": 3,
+    "2": 6,
+    "3": 22,
+    "4": 12,
+    "5": 10
+   },
+   "B_first_answer_nontalk_actions": {
+    "移動": 6,
+    "購入": 7,
+    "退去": 2,
+    "待機": 9,
+    "乗車": 2
+   },
+   "accepted_pairs": 22,
+   "turns_llm_talk_per_accepted_pair": [
+    3,
+    3,
+    3,
+    2,
+    2,
+    3,
+    2,
+    4,
+    4,
+    3,
+    2,
+    3,
+    4,
+    3,
+    2,
+    6,
+    2,
+    2,
+    2,
+    5,
+    4,
+    4
+   ],
+   "calls_with_cocaller_same_cell_same_tick": 53688,
+   "distinct_cells": 513
+  },
+  "c8_ab6b_s1/AB6b-AD-NOTICE__ad_zero": {
+   "calls": 36957,
+   "talk": 108,
+   "initiators": 55,
+   "responders": 53,
+   "initiator_reason_food": 21,
+   "responder_reason_invite_words": 36,
+   "funnel_initiators": {
+    "init": 55,
+    "target_person": 40,
+    "B_first_answer_other": 7,
+    "B_no_call_within_6": 17,
+    "target_not_person": 15,
+    "B_first_answer_accept": 16,
+    "B_first_call_not_w0": 3
+   },
+   "B_first_call_offset": {
+    "1": 1,
+    "2": 1,
+    "3": 16,
+    "4": 3,
+    "5": 2
+   },
+   "B_first_answer_nontalk_actions": {
+    "移動": 2,
+    "購入": 3,
+    "待機": 2
+   },
+   "accepted_pairs": 16,
+   "turns_llm_talk_per_accepted_pair": [
+    2,
+    5,
+    3,
+    5,
+    3,
+    5,
+    5,
+    2,
+    3,
+    1,
+    1,
+    5,
+    3,
+    5,
+    3,
+    2
+   ],
+   "calls_with_cocaller_same_cell_same_tick": 15360,
+   "distinct_cells": 500
+  },
+  "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__ad_zero": {
+   "calls": 78884,
+   "talk": 493,
+   "initiators": 277,
+   "responders": 216,
+   "initiator_reason_food": 44,
+   "responder_reason_invite_words": 150,
+   "funnel_initiators": {
+    "init": 277,
+    "target_person": 216,
+    "B_first_answer_accept": 64,
+    "target_not_person": 61,
+    "B_first_answer_other": 54,
+    "B_no_call_within_6": 84,
+    "B_first_call_not_w0": 22,
+    "B_first_answer_talk_other": 14
+   },
+   "B_first_call_offset": {
+    "1": 8,
+    "2": 9,
+    "3": 63,
+    "4": 23,
+    "5": 25,
+    "6": 4
+   },
+   "B_first_answer_nontalk_actions": {
+    "待機": 24,
+    "乗車": 2,
+    "購入": 8,
+    "null": 1,
+    "移動": 16,
+    "休憩": 1,
+    "退去": 2
+   },
+   "accepted_pairs": 64,
+   "turns_llm_talk_per_accepted_pair": [
+    2,
+    4,
+    5,
+    2,
+    5,
+    6,
+    2,
+    2,
+    2,
+    2,
+    3,
+    3,
+    2,
+    4,
+    3,
+    6,
+    4,
+    6,
+    1,
+    3,
+    4,
+    4,
+    2,
+    3,
+    2,
+    5,
+    2,
+    2,
+    1,
+    4,
+    1,
+    2,
+    2,
+    2,
+    6,
+    2,
+    4,
+    4,
+    5,
+    3,
+    5,
+    5,
+    3,
+    4,
+    3,
+    2,
+    4,
+    4,
+    6,
+    3,
+    2,
+    2,
+    2,
+    5,
+    5,
+    4,
+    4,
+    2,
+    6,
+    5,
+    3,
+    5,
+    4,
+    2
+   ],
+   "calls_with_cocaller_same_cell_same_tick": 54635,
+   "distinct_cells": 510
+  },
+  "c8_ab7b_s1/AB7b-HINT-INTENT__hint": {
+   "calls": 36855,
+   "talk": 159,
+   "initiators": 104,
+   "responders": 55,
+   "initiator_reason_food": 54,
+   "responder_reason_invite_words": 41,
+   "funnel_initiators": {
+    "init": 104,
+    "target_not_person": 44,
+    "target_person": 60,
+    "B_no_call_within_6": 28,
+    "B_first_answer_accept": 15,
+    "B_first_answer_other": 14,
+    "B_first_call_not_w0": 4,
+    "B_first_answer_talk_other": 3
+   },
+   "B_first_call_offset": {
+    "1": 4,
+    "2": 2,
+    "3": 14,
+    "4": 5,
+    "5": 6,
+    "6": 1
+   },
+   "B_first_answer_nontalk_actions": {
+    "乗車": 3,
+    "移動": 5,
+    "購入": 3,
+    "休憩": 1,
+    "待機": 2
+   },
+   "accepted_pairs": 15,
+   "turns_llm_talk_per_accepted_pair": [
+    5,
+    6,
+    5,
+    5,
+    4,
+    3,
+    7,
+    3,
+    3,
+    1,
+    7,
+    4,
+    2,
+    2,
+    2
+   ],
+   "calls_with_cocaller_same_cell_same_tick": 15966,
+   "distinct_cells": 495
+  },
+  "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_1_00": {
+   "calls": 36889,
+   "talk": 28,
+   "initiators": 22,
+   "responders": 6,
+   "initiator_reason_food": 9,
+   "responder_reason_invite_words": 5,
+   "funnel_initiators": {
+    "init": 22,
+    "target_not_person": 10,
+    "target_person": 12,
+    "B_first_answer_other": 5,
+    "B_no_call_within_6": 4,
+    "B_first_answer_accept": 3,
+    "B_first_call_not_w0": 1
+   },
+   "B_first_call_offset": {
+    "1": 1,
+    "3": 3,
+    "4": 2,
+    "5": 2
+   },
+   "B_first_answer_nontalk_actions": {
+    "待機": 2,
+    "購入": 2,
+    "移動": 1
+   },
+   "accepted_pairs": 3,
+   "turns_llm_talk_per_accepted_pair": [
+    2,
+    2,
+    2
+   ],
+   "calls_with_cocaller_same_cell_same_tick": 15526,
+   "distinct_cells": 506
+  },
+  "c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v2": {
+   "calls": 37165,
+   "talk": 42,
+   "initiators": 32,
+   "responders": 10,
+   "initiator_reason_food": 16,
+   "responder_reason_invite_words": 3,
+   "funnel_initiators": {
+    "init": 32,
+    "target_not_person": 11,
+    "target_person": 21,
+    "B_no_call_within_6": 9,
+    "B_first_answer_other": 6,
+    "B_first_answer_accept": 5,
+    "B_first_answer_talk_other": 1
+   },
+   "B_first_call_offset": {
+    "3": 7,
+    "4": 2,
+    "5": 2,
+    "6": 1
+   },
+   "B_first_answer_nontalk_actions": {
+    "待機": 2,
+    "食事": 3,
+    "休憩": 1
+   },
+   "accepted_pairs": 5,
+   "turns_llm_talk_per_accepted_pair": [
+    2,
+    2,
+    1,
+    3,
+    2
+   ],
+   "calls_with_cocaller_same_cell_same_tick": 16988,
+   "distinct_cells": 501
+  }
+ },
+ "c7_day_4": {
+  "agents": 390067,
+  "calls": 2706593,
+  "talk_calls": 4040,
+  "talk_by_wake": {
+   "0": 1681,
+   "1": 406,
+   "2": 130,
+   "3": 1823
+  },
+  "wake_class0_calls": 300098,
+  "target_person_rows_all_actions": 3326,
+  "sessions": 410,
+  "source_calls": "data/runs/c7-day-4/tape_stats.json",
+  "source_sessions": "data/runs/c7-day-4/c7-day-4.log:29",
+  "talk_pct": 0.1493,
+  "sessions_per_talk_call": 0.1015,
+  "sessions_per_agent_day": 0.001051,
+  "participations_per_agent_day": 0.002102,
+  "talk_share_of_wake0": 0.0056
+ },
+ "mock": {
+  "mock_talk_probability": 0.08333333333333333,
+  "history_sessions_5000_mock": [
+   401,
+   67,
+   57,
+   48
+  ],
+  "source": "docs/ops/build-report-C6.md:18"
+ },
+ "human_anchor": {
+  "conversation_share_of_waking": 0.279,
+  "source": "docs/research/v2-thought-frequency-anchors-note.md:18"
+ },
+ "cocaller_lower_bound_x1": {
+  "calls": 36906,
+  "calls_with_other_caller_same_cell_same_tick": 15463,
+  "share": 0.419,
+  "daytime_08_20": {
+   "calls": 25000,
+   "with_co": 10807
+  }
+ }
+}
