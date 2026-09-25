@@ -21,6 +21,7 @@ from shibuya.llm.parser import (
     CANONICAL_LABELS,
     LABEL_ALIASES,
     LABEL_ALIASES_C6,
+    LABEL_ALIASES_D113,
     LABEL_ALIASES_V0,
     find_action_word,
     parse_two_line,
@@ -375,8 +376,9 @@ def test_c6_out_of_vocabulary_and_out_of_dictionary_word_stays_undefined():
 
 
 def test_c6_alias_table_shapes():
-    assert set(LABEL_ALIASES) == set(LABEL_ALIASES_V0) | set(LABEL_ALIASES_C6)
+    assert set(LABEL_ALIASES) == set(LABEL_ALIASES_V0) | set(LABEL_ALIASES_C6) | set(LABEL_ALIASES_D113)
     assert not (set(LABEL_ALIASES_V0) & set(LABEL_ALIASES_C6)), "V0 と C6 は重ならない"
+    assert not (set(LABEL_ALIASES_D113) & (set(LABEL_ALIASES_V0) | set(LABEL_ALIASES_C6))), "D113 は既存と重ならない"
     assert set(LABEL_ALIASES.values()) == set(CANONICAL_LABELS)
 
 
@@ -444,3 +446,49 @@ def test_label_order_and_alias_choice_do_not_change_the_reading(
         assert r.target.is_none
     else:
         assert r.target.raw == target
+
+
+# ---------------------------------------------------------------- D-113 ①(第266・2026-09-26)
+# 顕著な出来事の台帳 §2 ⑥: 別名表に無いラベル(「目標:」32,736 呼・「カテゴリ:」1,984 …)を
+# `_fill_positional` が対象の値として読み、format_ok は True のままだった(親再現)。
+def test_d113_目標_is_read_as_対象_not_as_a_value():
+    r = parse_two_line("理由: 空腹で行動を決定する\n行動: 移動 目標: 飲食店 ひと言: 何か食べたいな")
+    assert r.action == "移動" and r.format_ok and not r.strict_format_ok
+    assert r.target.category == "飲食店" and r.target.raw == "飲食店"
+    assert r.comment == "何か食べたいな"
+    assert r.alias_used and "目標" in r.alias_surfaces and not r.positional_used
+
+
+@pytest.mark.parametrize("surface", sorted(LABEL_ALIASES_D113))
+def test_d113_every_tape_surface_maps_to_対象(surface):
+    r = parse_two_line(f"理由: あ\n行動: 購入 {surface}: 飲食店 ひと言: なし")
+    assert LABEL_ALIASES_D113[surface] == "対象"
+    assert r.action == "購入" and r.target.raw == "飲食店" and r.format_ok
+    assert not r.strict_format_ok, "受入指標(V0)の分母は動かさない"
+
+
+def test_d113_unknown_label_token_is_skipped_and_recorded():
+    """別名表に無い「語+コロン」は値ではない: 読み飛ばして診断に残し、次のトークンを対象に。"""
+    r = parse_two_line("理由: あ\n行動: 移動 目安: C-1 ひと言: なし")
+    assert r.action == "移動" and r.target.cell_index == 1 and r.target.raw == "C-1"
+    assert r.positional_used and "positional:対象" in r.errors
+    assert "unknown_label:目安" in r.errors and r.format_ok and not r.strict_format_ok
+
+
+def test_d113_unknown_label_without_a_value_is_a_missing_field():
+    r = parse_two_line("理由: あ\n行動: 移動 目安: ひと言: なし")
+    assert r.action == "移動" and not r.format_ok
+    assert not r.positional_used and "unknown_label:目安" in r.errors
+    assert "missing_label:対象" in r.errors and r.target.raw != "目安:"
+
+
+def test_d113_unknown_label_before_both_positional_values():
+    r = parse_two_line("理由: あ\n行動: 会話 その他: P-204 こんにちは")
+    assert r.action == "会話" and r.target.person_id == 204 and r.comment == "こんにちは"
+    assert {"positional:対象", "positional:ひと言", "unknown_label:その他"} <= set(r.errors)
+
+
+def test_d113_positional_behaviour_without_unknown_labels_is_unchanged():
+    r = parse_two_line("理由: 予定の時間\n行動: 移動 なし なし")
+    assert r.positional_used and r.target.is_none and r.comment == NO_TARGET
+    assert not any(e.startswith("unknown_label:") for e in r.errors)

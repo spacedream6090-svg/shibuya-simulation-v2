@@ -66,3 +66,10 @@
 - `tools/c8/ablations_v1.json` 末尾に 2 腕(rank 13 ⑦d・rank 14 ①b・ready)。⑦d = ⑦c の 3 構成(vocab_v1 基準 / vocab_v2 / open_v2)に `l4_scale 0`。①b = ① の 2 構成(fixed_slots 基準 / single_ranking)に `l4_scale 0`。切替口は既存の口の重ね合わせ(src/ 変更なし)。既存 12 腕は canonical JSON 不変(スクリプトで検査)。totals 再計算(独立 38 ラン・共有後 23 ラン 1,150,000 呼 11.12 h・L2 超過は note に宣言)。open_questions に 2 腕の baseline が ⑧ l4_unlimited と同一構成(final_hash 一致の見込み)を記録。
 - `ablation_runner.arm_by_id`: 前方一致が複数(`AB1` → AB1-… と AB1b-…)のとき腕コードそのもの(キー直後が `-`)を優先。既存の引き方は不変。
 - テスト: 位置/本数の assert 7 か所を更新・`test_arm_by_id_forms` に ab1b/①b/ab7d の 3 行。c8+cli_l4 102 passed。
+
+### #41 D-113 ① パーサ: 未知ラベルを対象の値として読まない(第266・2026-09-26・親)
+
+- 欠陥(顕著な出来事の台帳 §2 ⑥): 別名表に無いラベル(「目標:」)が行動欄の値に残り、位置引数の回収 `_fill_positional` がその表層を対象の値として採っていた(`format_ok` は True のまま=書式エラー率に出ない)。
+- 直し: `src/shibuya/llm/parser.py` に (1) テープ実測の表層 7 語(目標・目标・カテゴリ・目的先・ターゲット・对象・行く先 → 対象)の別名表 `LABEL_ALIASES_D113`(C6 別名と同じ扱い・`strict_format_ok` は V0 のまま)(2) 位置引数の回収で「語+コロン」だけのトークンを未知のラベルとして読み飛ばし `unknown_label:<表層>` を `errors` に残す `_drop_unknown_labels`(後ろに値が無ければ欄落ち)(3) `positional_used` は `positional:` の診断があるときだけ。
+- 計測(リプレイ・8 テープ 485,527 呼・[記録](docs/bench/analysis/d113-defects-2026-09-26/README.md)): 対象の読みが変わった呼 40,463(8.3%)・対象が「語+コロン」だけの呼 36,123 → 0・`format_ok` の変化 204 呼(0.04%)。mock 5,000 体の既定 checkpoint は **不変(ba01bd0b)**=版の台帳に記録。
+- テスト: `tests/llm/test_parser.py` +6(別名表の形の検査を更新)。parser 系 134 passed。
