@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **8 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **9 / 10**
 > 第1〜第260(2026-09-01〜09-24)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第261 名称の改革=用語集の草案(2026-09-24)
@@ -67,3 +67,9 @@
 - **依頼**: 記録 §9-4 の 3 件目(1 欠陥 1 commit・checkpoint を版ごとに記録)。
 - **実施**: `CrowdProcess.queue_action`(並んだ目的・過程側に置く)+`resolve._serve_poi_queue`(Phase C の新しい意図の適用より前に `(queue_since, agent_id)` 順で `can_admit` の空席分だけ入れ、`_complete_buy`/`_complete_eat`(`_apply_buy`/`_apply_eat` の後半を関数化・挙動不変)で完了。閉店は `CLOSED` で解散・払えない体は `MONEY_SHORT`・棚が空は `OUT_OF_STOCK` で列を離れ、空いた席は同じ tick に次の体へ)+切替口 `--queue-service {on,off}`(`run_day`・`resolve.apply`)+診断 `n_served_from_queue / n_queue_closed`(summary 1 行)。テスト crowd +6(最初の版は「払えない体が席を塞ぐ」で 1 本落ち、離脱を席の割り当てより前に移して修正)。計測: 既定 mock 5,000 は待ち行列 0 で checkpoint 不変(2f3969cf)。席を絞った感度腕(`--seat-area-eatery 30 --seat-area-retail 30`)で on: 並んだ 751・席へ 343・打ち切り 375・購入 1,274 / off: 541・0・524・1,150。記録 [D-113 修正記録](../bench/analysis/d113-defects-2026-09-26/README.md) §0/§3・IMPLEMENTED #43・PENDING D-113/§0・STATUS 8/10。
 - **次**: D-113 ④(B0 に役割語を並べる・未測定と宣言)。
+
+## 第269 D-113 ④ B0 の末尾に役割語 12 語の 1 行(2026-09-26)
+
+- **依頼**: 記録 §9-4 の 4 件目(ユーザー 09-26「直す。未測定と宣言し GPU を借りたら測る項目に」)。
+- **実施**: `templates.ROLE_WORDS_12`(契約と同値・テストで守る)/`ROLE_WORDS_LINE`(全員に同文=規約⑧)/`check_role_words`・`b0_system(intent_mode, vocab_version, role_words=False)`(有りなら末尾に 1 行・どの腕・版でも同じ・既定は同一オブジェクトで `template_sha256` 161fe181 と `b0_sha256("vocab")` 2b4bfc8a は不変)・`b0_sha256(..., role_words)`(on 24661cd6)・`Renderer(role_words=False)`・`run_day(role_words=True)`(既定 on・manifest 列)・CLI `--role-words {on,off}`。共有静的グループ 703 tok ≤ 750。テスト templates +3・intent_mode +1(perception+intent 全緑・広い回帰 llm/engine/c6/c7/c8/perception 全緑)。計測: mock 5,000 の checkpoint 不変(2f3969cf)・効果は未測定と宣言(PENDING §0 の GPU 後リストを更新)。記録 §4/§5(4 件の一覧)・IMPLEMENTED #44・**PENDING から D-113 の行を消した**・STATUS 9/10。
+- **次**: PR #5(build/d113 → main・第266〜269)を作りマージはユーザー。以後は記録 §9-5(D-114 と W6 再生成・D-97 を同じ回)へ。

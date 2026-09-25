@@ -87,6 +87,10 @@ __all__ = [
     "OUTPUT_SPEC_V2",
     "B0_SYSTEM_V2",
     "check_vocab_version",
+    # ---- D-113 ④ 役割語の提示(第269・2026-09-26)。既定 b0_system() のバイトは動かない ----
+    "ROLE_WORDS_12",
+    "ROLE_WORDS_LINE",
+    "check_role_words",
 ]
 
 #: テンプレ版(改版は delta+感度試験。値を変えたら ``template_sha256`` も変わる)。
@@ -374,6 +378,44 @@ _B0_BY_MODE_VOCAB: Final[Mapping[tuple[str, str], str]] = {
 }
 
 
+# ------------------------------------------- D-113 ④ 役割語の提示(第269・2026-09-26)
+#
+# 行動契約書 §2.2「種別固有(権限はエンジンが検査・**語彙自体は全員に見せる**)」に対し、B0 の
+# 出力規約は 12 語しか並べていなかった(顕著な出来事の台帳 §2・役割語 0 の一因=D-38)。
+# **作り方**: B0 の**末尾に 1 行**を足す(open/hint/v2 のどの B0 にも同じ 1 行・``行動:`` 断片は
+# 触らない)。既定の ``b0_system()``(``role_words=False``)は同一オブジェクトのまま=凍結 SHA と
+# ``b0_sha256("vocab")`` は不変。**ランの既定**は ``engine.run.run_day(role_words=True)``
+# (切替口 ``--role-words``)。第268 以前に録ったテープを再生するときは ``--role-words off``
+# (B0 が変わると prompt_hash が変わり、テープに当たらない)。
+# 共有静的グループ: B0 603 + 役割語行 61 + B1 9 + B3 30 = 703 tok ≤ 750(§2.2)。
+# **expedient**: 行の文面は親の自前(契約書 §2.2 の「権限はエンジンが検査」を 1 文にした)。
+# 効果の計測は GPU を借りてから(モックは B0 を読まず、旧テープの再生はプロンプトが変わって
+# 当たらない=未測定と宣言・PENDING §0「GPU を借りたら測る項目」)。
+
+#: 役割語 12(``llm.contract.ROLE_ACTION_WORDS`` と同値・層契約により二重定義=テストで守る)。
+ROLE_WORDS_12: Final[tuple[str, ...]] = (
+    "接客", "補充", "開閉店", "価格改定", "発車", "停車", "放送", "遅延報告", "計画改訂", "指示",
+    "並ぶ", "撮影",
+)
+#: B0 の末尾に足す 1 行(全員に同文=規約⑧ を保つ)。
+ROLE_WORDS_LINE: Final[str] = (
+    "[出力規約] 役割語: " + " / ".join(ROLE_WORDS_12)
+    + " も行動の語として書けます。自分の役割に権限があるときだけ成立し、権限が無ければ失敗します。"
+)
+
+
+def check_role_words(role_words: bool | str) -> bool:
+    """``role_words`` を検査して bool に正規化する(``"on"/"off"`` も受ける)。"""
+    if isinstance(role_words, str):
+        v = role_words.strip().lower()
+        if v in ("on", "true", "1"):
+            return True
+        if v in ("off", "false", "0"):
+            return False
+        raise ValueError(f"role_words は on/off(いま {role_words!r})")
+    return bool(role_words)
+
+
 def check_intent_mode(intent_mode: str) -> str:
     """``intent_mode`` を検査して正規化する(不正値は ``ValueError``)。"""
     mode = str(intent_mode)
@@ -391,21 +433,30 @@ def check_vocab_version(vocab_version: str) -> str:
 
 
 def b0_system(
-    intent_mode: str = DEFAULT_INTENT_MODE, vocab_version: str = DEFAULT_VOCAB_VERSION
+    intent_mode: str = DEFAULT_INTENT_MODE,
+    vocab_version: str = DEFAULT_VOCAB_VERSION,
+    role_words: bool | str = False,
 ) -> str:
     """腕(``intent_mode``)と語彙版(``vocab_version``)に応じた B0(system)の全文。
 
     ``("vocab", "v1")``(既定)は ``TEMPLATES["B0.system"]`` と**同一の文字列**を返す
     (=既定経路のバイトは 1 つも動かない)。``"open"`` は語彙を見せないので v1/v2 で
     **同じ本文**になる(語彙 v2 の差は段0 辞書 v3 とエンジン側に出る)。
+    ``role_words=True``(**D-113 ④**)は、その本文の末尾に ``ROLE_WORDS_LINE`` を 1 行足す
+    (どの腕・版でも同じ 1 行)。
     """
-    return _B0_BY_MODE_VOCAB[
+    base = _B0_BY_MODE_VOCAB[
         (check_intent_mode(intent_mode), check_vocab_version(vocab_version))
     ]
+    if check_role_words(role_words):
+        return base + "\n" + ROLE_WORDS_LINE
+    return base
 
 
 def b0_sha256(
-    intent_mode: str = DEFAULT_INTENT_MODE, vocab_version: str = DEFAULT_VOCAB_VERSION
+    intent_mode: str = DEFAULT_INTENT_MODE,
+    vocab_version: str = DEFAULT_VOCAB_VERSION,
+    role_words: bool | str = False,
 ) -> str:
     """B0 本文そのものの版ハッシュ(**腕の切替が効いたかの指紋**)。
 
@@ -417,7 +468,12 @@ def b0_sha256(
     """
     mode = check_intent_mode(intent_mode)
     ver = check_vocab_version(vocab_version)
-    return sha256_cbor({"b0_system": b0_system(mode, ver), "intent_mode": mode})
+    rw = check_role_words(role_words)
+    payload: dict[str, object] = {"b0_system": b0_system(mode, ver, rw), "intent_mode": mode}
+    if rw:
+        # D-113 ④: 役割語あり=本文が違うので指紋も違う。無し(既定)の payload は従来と同一。
+        payload["role_words"] = True
+    return sha256_cbor(payload)
 
 
 # --------------------------------------------------------------- B1-B6(1行1事実の行テンプレ)

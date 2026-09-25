@@ -87,3 +87,11 @@
 - 直し: `CrowdProcess.queue_action`(並んだ目的)+`resolve._serve_poi_queue`(Phase C の新しい意図の適用より前に `(queue_since, agent_id)` 順で `can_admit` の空席分だけ入れ、`_complete_buy`/`_complete_eat`(後半を関数化・挙動不変)で購入/食事を完了。閉店は `CLOSED` で解散・払えない体は `MONEY_SHORT`・棚が空は `OUT_OF_STOCK` で列を離れ、空いた席は同じ tick に次の体へ)+切替口 `--queue-service {on,off}`+診断 `n_served_from_queue / n_queue_closed`(summary 1 行)。
 - 計測([記録](docs/bench/analysis/d113-defects-2026-09-26/README.md) §3): 既定 mock 5,000 は列が立たず checkpoint 不変(2f3969cf)。席を絞った感度腕(30 m²/人)で並んだ 751 のうち 343 が席へ・打ち切り 524 → 375・実現購入 1,150 → 1,274(+10.8%)。
 - テスト: crowd +6(crowd+resolve 51 passed)・llm/engine/c6/c7/c8 全緑。
+
+### #44 D-113 ④ B0 の末尾に役割語 12 語の 1 行(第269・2026-09-26・親)
+
+- 欠陥(第263 ⑦・D-38): 契約書 §2.2「語彙自体は全員に見せる」に対し B0 の出力規約は 12 語だけ。
+- 直し: `templates.ROLE_WORDS_12 / ROLE_WORDS_LINE / check_role_words`・`b0_system(..., role_words=False)`(有りなら末尾に 1 行・既定は同一オブジェクトで `template_sha256`/`b0_sha256("vocab")` 不変)・`b0_sha256(..., role_words)`・`Renderer(role_words=False)`・`run_day(role_words=True)`(既定 on・manifest 列 `role_words`)・CLI `--role-words {on,off}`。共有静的 703 tok ≤ 750。
+- 計測: **未測定と宣言**(mock は B0 を読まず checkpoint 不変 2f3969cf・旧テープの再生は当たらない)→ GPU を借りたら役割語率を on/off で測る。B0 の指紋 on 24661cd6…。
+- テスト: templates +3・intent_mode +1(perception+intent 全緑・llm/engine/c6/c7/c8/perception 全緑)。
+- **D-113 は 4 件とも完了**(#41〜#44)。記録 [D-113 修正記録](docs/bench/analysis/d113-defects-2026-09-26/README.md) §5 に一覧。

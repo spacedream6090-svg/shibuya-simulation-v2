@@ -628,6 +628,13 @@ def main(argv: list[str] | None = None) -> int:
              "off=第267 以前の挙動(誰も捌かず 15 tick で INTERRUPTED)",
     )
     ap.add_argument(
+        "--role-words",
+        choices=("on", "off"),
+        default="on",
+        help="D-113 ④: B0 の末尾に役割語 12 語の 1 行を足す(既定 on・行動契約書 §2.2)。"
+             "off=第268 以前の B0(それ以前に録ったテープの再生・帰無腕)",
+    )
+    ap.add_argument(
         "--derive-rule",
         choices=("v1", "v2", "v2.1"),
         default="v2",
@@ -740,6 +747,7 @@ def main(argv: list[str] | None = None) -> int:
         exit_mode=str(args.exit_mode),
         report_precondition=(str(args.report_precondition) == "on"),
         queue_service=(str(args.queue_service) == "on"),
+        role_words=(str(args.role_words) == "on"),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,

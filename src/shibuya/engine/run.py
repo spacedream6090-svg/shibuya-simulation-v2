@@ -126,6 +126,7 @@ from shibuya.perception.templates import (
     INTENT_MODES,
     VOCAB_VERSIONS,
     check_intent_mode,
+    check_role_words,
     check_vocab_version,
 )
 from shibuya.world.assets import (
@@ -331,6 +332,9 @@ class RunResult:
     #: **行動語彙の版**(D-71 §3 F・2026-09-17 ユーザー決定)。``"v1"``=現行 24 語(既定)/
     #: ``"v2"``=24 語 + 横断語「食事」(飲食店オブジェクトの affordance)。
     vocab_version: str = VOCAB_VERSIONS[0]
+    #: **D-113 ④(第269)** B0 の末尾に役割語 12 語の 1 行を足したか(既定 True)。False は
+    #: 第268 以前の B0(テープ再生用・帰無腕)。
+    role_words: bool = True
     #: 語彙 v2「食事」が成立した件数(v1 のランでは常に 0)。
     meals: int = 0
     #: 食事で店舗へ移った金額[円](売上の内数)。
@@ -659,6 +663,8 @@ class RunResult:
             "intent_mode": str(self.intent_mode),
             # ---- 語彙 v2(D-71 §3 F/J)。既定 v1 では語彙も辞書も現行のまま ----
             "vocab_version": str(self.vocab_version),
+            # ---- D-113 ④ 役割語の提示(既定 True)。列追加のみ ----
+            "role_words": bool(self.role_words),
             "synonym_table_version": _synonym_table_version(self.vocab_version),
             "action_usage": dict(self.action_usage),
             # ---- D-56 就寝抑止(既定 True)。False = D-56 前の挙動 ----
@@ -1135,6 +1141,7 @@ def run_day(
     signage_p_see: float = SIGNAGE_P_SEE_DEFAULT,
     intent_mode: str = INTENT_MODES[0],
     vocab_version: str = VOCAB_VERSIONS[0],
+    role_words: bool | str = True,
     budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
     salient_rate_per_10k: float | None = None,
     report_precondition: bool = True,
@@ -1242,6 +1249,10 @@ def run_day(
             2 行形・JSON 禁止は同文)。``"hint"``(AB7b)は同じ 1 行を「語彙から選ぶのが基本・
             当てはまる語が無いときだけ 10 字以内の動詞句」にする中間の腕。接地はどの腕でも
             エンジン側(§7 段0 辞書写像 → 段1 記録+待機)。
+        role_words: **D-113 ④(第269)** B0 の末尾に役割語 12 語の 1 行(「自分の役割に権限が
+            あるときだけ成立」)を足す(既定 True=行動契約書 §2.2「語彙自体は全員に見せる」)。
+            ``False`` は第268 以前の B0(prompt_hash が変わるので、それ以前に録ったテープの
+            再生では ``False`` を渡す)。mock の checkpoint は B0 を読まないので不変。
             既定では**1 バイトも変わらない**(テンプレ本体・``template_sha256`` も不変)。
             ``INTENT_MODES`` 以外は ``ValueError``。
             ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
@@ -1354,6 +1365,7 @@ def run_day(
     signage_p_see = check_signage_p_see(signage_p_see)
     # ---- AB7 自由意図の腕: 値の検査は**レンダラを作る前**にする(manifest が嘘をつかない) ----
     intent_mode = check_intent_mode(intent_mode)
+    role_words = check_role_words(role_words)
     # ---- 語彙 v2 の版: 同上(mock・レンダラ・bridge の前で確定させる) ----
     vocab_version = check_vocab_version(vocab_version)
     # ---- ablation ③: **ランの実効不応期表**を 1 本組む(既定=§6 の表そのもの) ----
@@ -1485,6 +1497,7 @@ def run_day(
                 signage_p_see=signage_p_see,
                 intent_mode=intent_mode,
                 vocab_version=vocab_version,
+                role_words=role_words,
             )
         )
         renderer_obj: Any = perception
@@ -2443,6 +2456,9 @@ def run_day(
         else signage_p_see
     )
     # AB7: 実際に描いた腕(注入レンダラなら**そちらの値**が正)。
+    result.role_words = bool(
+        getattr(getattr(perception, "renderer", None), "role_words", role_words)
+    )
     result.intent_mode = str(
         getattr(getattr(perception, "renderer", None), "intent_mode", intent_mode)
         if perception is not None
