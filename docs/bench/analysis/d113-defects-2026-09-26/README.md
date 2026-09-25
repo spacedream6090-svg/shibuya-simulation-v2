@@ -11,7 +11,7 @@
 | v2 既定(修正前) | 630ad13(main・PR #4 マージ後) | — | 7382aeea / d5790f81 / aad9c915 / ba01bd0b | `ba01bd0beed19666…` |
 | D-113 ① | 第266 | パーサ: 未知ラベルを値として読まない+テープの別名 7 語 | **同一**(7382aeea / d5790f81 / aad9c915 / ba01bd0b) | 不変(想定どおり=モックは言い換えを出さない) |
 | D-113 ② | 第267 | 通報の前提「当該事象を知覚済み」の検査(`--report-precondition on`・既定) | **d2752886 / 4ba1528d / 3682ea4e / 2f3969cf** | `2f3969cfe29b2b76…`(通報 2,789 呼が全て失敗=このランは顕著行為 0 件) |
-| D-113 ② 切替 off | 第267 | `--report-precondition off`(帰無腕) | 7382aeea / d5790f81 / aad9c915 / ba01bd0b | **修正前と同一**(切替口の検証) |
+| D-113 ② 切替 off | 第267 | `--report-precondition off`(帰無腕) | 7382aeea / d5790f81 / aad9c915 / ba01bd0b | **修正前と同一**(切替口の検証)。D-62 の退化検査(`tests/engine/test_presence_executor.py` の null arm golden)はこの切替で旧 golden を再現する(第267b) |
 | D-113 ③ | (未) | 満席で並んだ体を捌く | | |
 | D-113 ④ | (未) | B0 に役割語を並べる | | 未測定(宣言) |
 

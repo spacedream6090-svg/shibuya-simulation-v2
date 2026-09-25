@@ -217,11 +217,15 @@ def test_null_arm_reproduces_the_recorded_checkpoint():
     """②(§7・**退化検査の要**): ``plan_executor=False`` は D-62 時点の golden と一致。
 
     golden = 実装計画書 §8 D-62 の退化検査行(mock 実資産 5,000 体×1 日・seed 1)。
+    **D-113 ②(第267)以降**: 通報の前提検査(既定 on)は D-62 時点には無かったので、golden の
+    再現には切替口 ``report_precondition=False`` を渡す(旧 checkpoint は版を分けて残す=
+    docs/bench/analysis/d113-defects-2026-09-26/README.md §0)。既定 on の値は同 §0 の表。
     """
     from shibuya.cli import run as cli_run  # golden は台帳つきの標準入口で録られている
 
     res = cli_run(
-        n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False
+        n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
+        report_precondition=False,
     )
     g = W17_GOLDEN.get(w17_digest())
     if g is None:
