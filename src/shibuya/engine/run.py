@@ -378,6 +378,9 @@ class RunResult:
     n_focus_lost: int = 0
     #: **実距離**で成立した会話招待の件数(G7)。
     n_talk_by_distance: int = 0
+    #: D-113 ②: 通報の前提検査(成立 / 知覚済みの事象なしで失敗)。
+    n_report_ok: int = 0
+    n_report_no_event: int = 0
     #: 計画実行層の診断(``PlanExecutor.counters()``)。層が休んだランは空 dict。
     presence_counters: dict[str, float] = field(default_factory=dict)
     #: D-66 域外抑止を効かせたか(既定 True)。False = **帰無腕**。
@@ -782,6 +785,12 @@ class RunResult:
                 f" / 焦点 取得 {self.n_focus:,} 消失 {self.n_focus_lost:,}"
                 f" / 会話 実距離成立 {self.n_talk_by_distance:,}"
             )
+        # D-113 ②: 通報があったランだけ 1 行(通報 0 のランでは summary は不変)
+        if self.n_report_ok or self.n_report_no_event:
+            lines.append(
+                f"  通報(D-113 ② 前提検査) 成立 {self.n_report_ok:,}"
+                f" / 知覚済みの事象なし {self.n_report_no_event:,}"
+            )
         # D-58: 繰り延べを記録/再現したランだけ 1 行(mock ランは従来どおり出ない)
         _bd = float(self.bridge_counters.get("tape_deferred_rows", 0.0)) or float(
             self.bridge_counters.get("tape_deferred", 0.0)
@@ -1119,6 +1128,7 @@ def run_day(
     vocab_version: str = VOCAB_VERSIONS[0],
     budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
     salient_rate_per_10k: float | None = None,
+    report_precondition: bool = True,
     population: "Population | bool | None" = None,
     occupancy_every: int = 0,
     occupancy_path: "str | Path | None" = None,
@@ -1241,6 +1251,9 @@ def run_day(
         salient_rate_per_10k: 「倒れる」の発生率[件/10,000体/日](``None`` で既定
             ``salient.COLLAPSE_PER_10K_PER_DAY``=3.0)。5,000 体・1 日では期待値 1.5 件なので
             **引かない日がある**(P(0)=22%)。感度試験・結線テストで上げるための口。
+        report_precondition: **D-113 ②(第267)** 通報の前提「当該事象を知覚済み」(直近 5 tick に
+            自分のセルの B4 に顕著行為の行が出た)を検査する(既定 True)。``False`` は従来どおり
+            通報が必ず成功する挙動(=帰無腕・第266 以前の checkpoint ``ba01bd0b`` を再現)。
         sleep_suppression: **D-56 就寝抑止**(既定 True=ユーザー決定 (a))。``activity ==
             Activity.SLEEPING`` の個体の起床候補を、計画境界・顕著行為・会話ターン以外は
             アービタに入れない。``False`` は **D-56 前の挙動**(=ablation の帰無腕)。
@@ -2068,6 +2081,8 @@ def run_day(
             rail=None if runner is None or not runner.is_enabled("rail") else runner.rail,
             crowd=None if runner is None or not runner.is_enabled("crowd") else runner.crowd,
             hotel=None if runner is None or not runner.is_enabled("hotel") else runner.hotel,
+            salient=None if runner is None or not runner.is_enabled("salient") else runner.salient,
+            report_precondition=bool(report_precondition),
             vocab_version=vocab_version,
             geometry=geom,
             focus_request=focus_request,
@@ -2093,6 +2108,8 @@ def run_day(
         result.n_focus += outcome.n_focus
         result.n_focus_lost += outcome.n_focus_lost
         result.n_talk_by_distance += outcome.n_talk_by_distance
+        result.n_report_ok += outcome.n_report_ok
+        result.n_report_no_event += outcome.n_report_no_event
         # D-71 §3 J: 語ごとの使用件数(**解決後**=エンジンが適用した行動)。
         for _code, _n in outcome.per_action.items():
             per_action_total[int(_code)] = per_action_total.get(int(_code), 0) + int(_n)

@@ -614,6 +614,13 @@ def main(argv: list[str] | None = None) -> int:
              " 1-RATE をその日「終日域外」にする(_mix64(agent_id) の決定論)",
     )
     ap.add_argument(
+        "--report-precondition",
+        choices=("on", "off"),
+        default="on",
+        help="D-113 ②: 通報の前提「当該事象を知覚済み」の検査(既定 on)。off=従来どおり必ず成功"
+             "(第266 以前の checkpoint ba01bd0b を再現する帰無腕)",
+    )
+    ap.add_argument(
         "--derive-rule",
         choices=("v1", "v2", "v2.1"),
         default="v2",
@@ -724,6 +731,7 @@ def main(argv: list[str] | None = None) -> int:
         plan_sleep=not args.no_plan_sleep,
         plan_executor=not args.no_plan_executor,
         exit_mode=str(args.exit_mode),
+        report_precondition=(str(args.report_precondition) == "on"),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,

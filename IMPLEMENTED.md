@@ -73,3 +73,10 @@
 - 直し: `src/shibuya/llm/parser.py` に (1) テープ実測の表層 7 語(目標・目标・カテゴリ・目的先・ターゲット・对象・行く先 → 対象)の別名表 `LABEL_ALIASES_D113`(C6 別名と同じ扱い・`strict_format_ok` は V0 のまま)(2) 位置引数の回収で「語+コロン」だけのトークンを未知のラベルとして読み飛ばし `unknown_label:<表層>` を `errors` に残す `_drop_unknown_labels`(後ろに値が無ければ欄落ち)(3) `positional_used` は `positional:` の診断があるときだけ。
 - 計測(リプレイ・8 テープ 485,527 呼・[記録](docs/bench/analysis/d113-defects-2026-09-26/README.md)): 対象の読みが変わった呼 40,463(8.3%)・対象が「語+コロン」だけの呼 36,123 → 0・`format_ok` の変化 204 呼(0.04%)。mock 5,000 体の既定 checkpoint は **不変(ba01bd0b)**=版の台帳に記録。
 - テスト: `tests/llm/test_parser.py` +6(別名表の形の検査を更新)。parser 系 134 passed。
+
+### #42 D-113 ② 通報の前提「当該事象を知覚済み」の検査(第267・2026-09-26・親)
+
+- 欠陥(第263 ②・D-57): `_apply_record_only` が通報を必ず成功にし、契約書 §2.1 の前提を検査していなかった(C7 テープの通報 423 呼のうち観測に事象があったのは 7)。
+- 直し: `SalientProcess.event_seen_tick`(事象のセルに居た全員=B4 に行が出た体の最後の tick)+`resolve._apply_report`(`tick − seen ≤ REPORT_WINDOW_TICKS`=5 なら成立・それ以外 `BAD_TARGET`・過程 OFF なら従来どおり)+切替口 `--report-precondition {on,off}`(`run_day(report_precondition=)`・既定 on)+診断 `n_report_ok / n_report_no_event`(summary 1 行)。効果先(通報 → 検知確率)は未実装のまま。
+- 計測(mock 5,000・[記録](docs/bench/analysis/d113-defects-2026-09-26/README.md) §2): 既定ラン(顕著行為 0)で通報 2,789 呼が全て失敗・checkpoint ba01bd0b → **2f3969cf**(版の台帳)・off で修正前と同一 ba01bd0b・発生率 2,000/万体/日の確認ランで成立 801(24.7%)。
+- テスト: resolve +4・salient +2(47 passed)・llm/engine/c6/c7/c8 全緑。

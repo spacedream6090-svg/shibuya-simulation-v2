@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **6 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **7 / 10**
 > 第1〜第260(2026-09-01〜09-24)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第261 名称の改革=用語集の草案(2026-09-24)
@@ -50,3 +50,9 @@
 - **報告**(ユーザー): 「Discord の投稿と PR のマージは終わった」→ 5-8 閉じ・PR #4 マージ(main = 630ad13)。以後は記録 §9 の順で D-113 から。
 - **実施**: 作業ブランチ `build/d113`(main から)。① の計測を先に: 修正前のパーサで 8 テープ 485,527 呼を全行パースして保存+mock 5,000 の既定 checkpoint(ba01bd0b)。直し(`parser.py`): テープ実測の表層 7 語の別名表 `LABEL_ALIASES_D113`+位置引数の回収で「語+コロン」だけのトークンを未知のラベルとして読み飛ばす `_drop_unknown_labels`(診断 `unknown_label:<表層>`)+`positional_used` の定義を `positional:` の有無に。テスト +6・parser 系 134 passed。修正後に同じ計測: 対象の読みが変わった呼 40,463(8.3%)・「語+コロン」だけの対象 36,123 → 0・`format_ok` の変化 204 呼(0.04%)・checkpoint 不変(ba01bd0b)。記録 [D-113 修正記録](../bench/analysis/d113-defects-2026-09-26/README.md)(版の台帳 §0・手順スクリプト同梱)・IMPLEMENTED #41・PENDING D-113/§0・STATUS 6/10。
 - **次**: D-113 ②(通報の前提の検査)→ ③(満席の列)→ ④(役割語・未測定宣言)。各 1 commit+checkpoint 記録。
+
+## 第267 D-113 ② 通報の前提「当該事象を知覚済み」の検査(2026-09-26)
+
+- **依頼**: 記録 §9-4(D-113 の 4 欠陥を 1 欠陥 1 commit・checkpoint を版ごとに記録)の 2 件目。ユーザー「今はリサーチや実装の作業中?」→「実装中(D-113)」と返答。
+- **実施**: `SalientProcess.event_seen_tick`(事象のセルに居た全員=B4 に行が出た体の最後の tick・予算落ち/報道は数えない)+`resolve._apply_report`(`tick − seen ≤ REPORT_WINDOW_TICKS`=5=最長レーン L3 300 s の導出値・それ以外 `BAD_TARGET`・過程 OFF なら C2 互換)+切替口 `--report-precondition {on,off}`(`run_day`・`resolve.apply`)+診断 `n_report_ok / n_report_no_event`(summary 1 行)。テスト resolve +4・salient +2(47 passed)。計測: mock 5,000 既定(顕著行為 0)で通報 2,789 呼が全て失敗・checkpoint **ba01bd0b → 2f3969cf**・off で修正前と同一・発生率 2,000/万体/日の確認ランで成立 801/3,245(24.7%)。記録 [D-113 修正記録](../bench/analysis/d113-defects-2026-09-26/README.md) §0/§2・IMPLEMENTED #42・PENDING D-113/§0・STATUS 7/10。
+- **次**: D-113 ③(満席で並んだ体を捌く)→ ④(役割語・未測定宣言)。

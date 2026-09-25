@@ -32,7 +32,7 @@ expedient(本モジュール分)
 - 内受容の自然変動(``advance_body``): 30 tick ごとに空腹+1・疲労+1、休憩で疲労−3、
   購入で空腹−4、就寝中は疲労−2。世界過程(C4)が入るまでの**駆動源**。
   値は自前(契約書に無い)。
-- 通報・断るは C2 では状態を変えない(記録のみ=契約書の効果先が未実装)。手伝いは
+- 断るは C2 では状態を変えない(記録のみ=契約書の効果先が未実装)。通報は **D-113 ②(第267)** で前提「当該事象を知覚済み」を検査する(``_apply_report``・効果先は未実装のまま)。手伝いは
   「相手が援助要求状態」を持たないので必ず失敗(``BAD_TARGET``)。
 - 乗車は**列車が無い**ので必ず ``NO_TRAIN``、降車は契約書どおり ``NO_STOP``(その駅には止まらない)(列車は C4・§2.6 の混雑率受容関数もそこ)。
 - 会話は**セッションレコードを作るだけ**(発話ブロック・終了判定・記憶転写は C3/C4)。
@@ -188,6 +188,10 @@ _SELL_SLOT_RETRIES: Final[int] = 8
 #: 渋谷の運転間隔は全線 2.2〜5.0 分・待ち時間 = 間隔の半分 → 最大 5 分の **6 倍**を上限に採る。
 #: メトロ 3 線は **1〜4 時台の運行が 0 本**なので「待っても来ない時間帯」が実在する
 #: (打ち切りが無いと、その時間帯にホームへ来た体が始発まで待ち続けて動かなくなる)。
+#: D-113 ②(第267): 通報の前提「当該事象を知覚済み」の窓[tick]。事象の行が B4 に出た tick から
+#: 応答の適用までの遅れは t_apply = 起床 + δ_perc + δ_think(運用設計書 §2.4)で、最長レーン
+#: L3(300 s)= 5 tick(mock/L1 は 1 tick)。レーン表からの導出値=感度腕の対象ではない。
+REPORT_WINDOW_TICKS: Final[int] = 5
 BOARD_WAIT_LIMIT_TICKS: Final[int] = 30
 
 #: 乗車の意図(``board_line``)を**保つ**行動(これ以外を選んだら意図は落ちる)。
@@ -326,6 +330,13 @@ class ResolveOutcome:
     rail: object | None = None
     #: 混雑場(``engine.processes.crowd.CrowdProcess``)。``None`` なら屋内占有を見ない(C2 互換)。
     crowd: object | None = None
+    #: 顕著行為(``engine.processes.salient.SalientProcess``)。``None`` なら通報は記録のみ(C2 互換)。
+    salient: object | None = None
+    #: D-113 ②: 通報の前提検査の切替口(False=従来どおり必ず成功=第266 以前の挙動)。
+    report_precondition: bool = True
+    #: 通報が前提を満たして成立した件数 / 知覚済みの事象が無く失敗した件数。
+    n_report_ok: int = 0
+    n_report_no_event: int = 0
     #: 乗車が成立した件数。
     n_boarded: int = 0
     #: 降車が成立した件数。
@@ -771,6 +782,8 @@ def apply(
     rail: object | None = None,
     crowd: object | None = None,
     hotel: object | None = None,
+    salient: object | None = None,
+    report_precondition: bool = True,
     vocab_version: str = DEFAULT_VOCAB_VERSION,
     geometry: EdgeGeometry | None = None,
     focus_request: np.ndarray | None = None,
@@ -789,6 +802,11 @@ def apply(
         crowd: 混雑場(C4 世界過程)。``None`` なら屋内占有・待ち行列を見ない。
         hotel: ホテル客室在庫(C4 世界過程)。``has_bed(agent_ids, cells)`` を持つものを渡すと、
             チェックイン済みの来街者は**自宅でなくても就寝できる**(§7.2 ホテル客室在庫)。
+        salient: 顕著行為(``engine.processes.salient.SalientProcess``)。**D-113 ②**: 通報は
+            ``event_seen_tick``(自分のセルの B4 に事象の行が出た最後の tick)が直近
+            ``REPORT_WINDOW_TICKS`` 以内のときだけ成立し、それ以外は ``BAD_TARGET``。
+            ``None``(過程 OFF・C2 互換)では従来どおり記録のみで必ず成功。
+        report_precondition: 上の検査の切替口(既定 True)。``False`` は第266 以前の挙動。
         vocab_version: 行動語彙の版(D-71 §3 F)。``"v2"`` で「食事」の分岐が増える。
             既定 ``"v1"`` は ``_APPLY``(13 分岐)をそのまま回す=**1 バイトも変わらない**。
         geometry: **C9 G1 (b) 辺上の連続位置**(``engine.geometry.EdgeGeometry``)。
@@ -818,6 +836,8 @@ def apply(
         rail=rail,
         crowd=crowd,
         hotel=hotel,
+        salient=salient,
+        report_precondition=bool(report_precondition),
         geometry=geometry,
         focus_request=(
             None if focus_request is None else np.asarray(focus_request, dtype=np.int64)
@@ -1840,8 +1860,32 @@ def _apply_leave(agents, world, aid, tgt, tick, out, schedule) -> None:
 
 
 def _apply_record_only(agents, world, aid, tgt, tick, out, schedule) -> None:
-    """通報・断る: C2 では状態を変えない(効果先が未実装=記録のみ)。失敗しない。"""
+    """断る: C2 では状態を変えない(効果先が未実装=記録のみ)。失敗しない。"""
     _ok(agents, aid, tick, out)
+
+
+def _apply_report(agents, world, aid, tgt, tick, out, schedule) -> None:
+    """通報(D-113 ②・第267): 前提「当該事象を知覚済み」(行動契約書 §2.1)を検査する。
+
+    知覚済み = 直近 ``REPORT_WINDOW_TICKS`` tick 以内に、自分のセルの B4 に顕著行為の行が
+    載った(``SalientProcess.event_seen_tick``)。満たさなければ ``BAD_TARGET``(通報すべき
+    事象が無い)。効果先(事象レコードに通報 1 件 → 検知確率)は未実装のまま=成立しても
+    状態は変えない。``out.salient`` が無い(過程 OFF・C2 互換)か切替口 OFF なら従来どおり
+    必ず成功。逐次ループ宣言(P4): なし(ベクトル判定)。
+    """
+    s = out.salient
+    seen_arr = getattr(s, "event_seen_tick", None) if s is not None else None
+    if not out.report_precondition or seen_arr is None:
+        _ok(agents, aid, tick, out)
+        out.n_report_ok += int(aid.size)
+        return
+    seen = np.asarray(seen_arr, dtype=np.int64)[aid]
+    fresh = (seen >= 0) & (int(tick) - seen <= REPORT_WINDOW_TICKS)
+    if fresh.any():
+        _ok(agents, aid[fresh], tick, out)
+    _fail(agents, aid[~fresh], ResultCode.BAD_TARGET, tick, out)
+    out.n_report_ok += int(fresh.sum())
+    out.n_report_no_event += int((~fresh).sum())
 
 
 def _apply_help(agents, world, aid, tgt, tick, out, schedule) -> None:
@@ -2202,7 +2246,7 @@ _APPLY: Final[dict[int, object]] = {
     ACT_WAIT: _apply_wait,
     ACT_TALK: _apply_talk,
     ACT_LEAVE: _apply_leave,
-    ACT_REPORT: _apply_record_only,
+    ACT_REPORT: _apply_report,
     ACT_HELP: _apply_help,
     ACT_REFUSE: _apply_record_only,
     ACT_REST: _apply_rest,
