@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **7 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **8 / 10**
 > 第1〜第260(2026-09-01〜09-24)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第261 名称の改革=用語集の草案(2026-09-24)
@@ -61,3 +61,9 @@
 
 - **事実**: 第267 の広い回帰テストで `tests/engine/test_presence_executor.py::test_null_arm_reproduces_the_recorded_checkpoint` が 1 件失敗(親が `| tail` で exit code を隠していたため commit 後に気づいた=以後は `pytest … ; echo exit` で見る)。原因は D-62 時点の golden(通報は必ず成功)を、通報の前提検査が既定 on の run で再現しようとしたこと。
 - **実施**: テストに `report_precondition=False` を渡して D-62 の golden を再現(旧 checkpoint は版を分けて残す方針どおり・docstring に記載)。README §0 の表に注記。
+
+## 第268 D-113 ③ 満席で並んだ体を並んだ順に席へ捌く(2026-09-26)
+
+- **依頼**: 記録 §9-4 の 3 件目(1 欠陥 1 commit・checkpoint を版ごとに記録)。
+- **実施**: `CrowdProcess.queue_action`(並んだ目的・過程側に置く)+`resolve._serve_poi_queue`(Phase C の新しい意図の適用より前に `(queue_since, agent_id)` 順で `can_admit` の空席分だけ入れ、`_complete_buy`/`_complete_eat`(`_apply_buy`/`_apply_eat` の後半を関数化・挙動不変)で完了。閉店は `CLOSED` で解散・払えない体は `MONEY_SHORT`・棚が空は `OUT_OF_STOCK` で列を離れ、空いた席は同じ tick に次の体へ)+切替口 `--queue-service {on,off}`(`run_day`・`resolve.apply`)+診断 `n_served_from_queue / n_queue_closed`(summary 1 行)。テスト crowd +6(最初の版は「払えない体が席を塞ぐ」で 1 本落ち、離脱を席の割り当てより前に移して修正)。計測: 既定 mock 5,000 は待ち行列 0 で checkpoint 不変(2f3969cf)。席を絞った感度腕(`--seat-area-eatery 30 --seat-area-retail 30`)で on: 並んだ 751・席へ 343・打ち切り 375・購入 1,274 / off: 541・0・524・1,150。記録 [D-113 修正記録](../bench/analysis/d113-defects-2026-09-26/README.md) §0/§3・IMPLEMENTED #43・PENDING D-113/§0・STATUS 8/10。
+- **次**: D-113 ④(B0 に役割語を並べる・未測定と宣言)。

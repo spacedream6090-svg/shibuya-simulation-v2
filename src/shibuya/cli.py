@@ -621,6 +621,13 @@ def main(argv: list[str] | None = None) -> int:
              "(第266 以前の checkpoint ba01bd0b を再現する帰無腕)",
     )
     ap.add_argument(
+        "--queue-service",
+        choices=("on", "off"),
+        default="on",
+        help="D-113 ③: 満席で並んだ体を席が空いた分だけ並んだ順に席へ入れる(既定 on)。"
+             "off=第267 以前の挙動(誰も捌かず 15 tick で INTERRUPTED)",
+    )
+    ap.add_argument(
         "--derive-rule",
         choices=("v1", "v2", "v2.1"),
         default="v2",
@@ -732,6 +739,7 @@ def main(argv: list[str] | None = None) -> int:
         plan_executor=not args.no_plan_executor,
         exit_mode=str(args.exit_mode),
         report_precondition=(str(args.report_precondition) == "on"),
+        queue_service=(str(args.queue_service) == "on"),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,

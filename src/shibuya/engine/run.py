@@ -381,6 +381,9 @@ class RunResult:
     #: D-113 ②: 通報の前提検査(成立 / 知覚済みの事象なしで失敗)。
     n_report_ok: int = 0
     n_report_no_event: int = 0
+    #: D-113 ③: 満席の列から席へ入れた件数 / 閉店で列を解散した件数。
+    n_served_from_queue: int = 0
+    n_queue_closed: int = 0
     #: 計画実行層の診断(``PlanExecutor.counters()``)。層が休んだランは空 dict。
     presence_counters: dict[str, float] = field(default_factory=dict)
     #: D-66 域外抑止を効かせたか(既定 True)。False = **帰無腕**。
@@ -785,6 +788,12 @@ class RunResult:
                 f" / 焦点 取得 {self.n_focus:,} 消失 {self.n_focus_lost:,}"
                 f" / 会話 実距離成立 {self.n_talk_by_distance:,}"
             )
+        # D-113 ③: 列を捌いたランだけ 1 行(列が立たないランでは summary は不変)
+        if self.n_served_from_queue or self.n_queue_closed:
+            lines.append(
+                f"  待ち行列の捌き(D-113 ③) 席へ {self.n_served_from_queue:,}"
+                f" / 閉店で解散 {self.n_queue_closed:,}"
+            )
         # D-113 ②: 通報があったランだけ 1 行(通報 0 のランでは summary は不変)
         if self.n_report_ok or self.n_report_no_event:
             lines.append(
@@ -1129,6 +1138,7 @@ def run_day(
     budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
     salient_rate_per_10k: float | None = None,
     report_precondition: bool = True,
+    queue_service: bool = True,
     population: "Population | bool | None" = None,
     occupancy_every: int = 0,
     occupancy_path: "str | Path | None" = None,
@@ -1254,6 +1264,9 @@ def run_day(
         report_precondition: **D-113 ②(第267)** 通報の前提「当該事象を知覚済み」(直近 5 tick に
             自分のセルの B4 に顕著行為の行が出た)を検査する(既定 True)。``False`` は従来どおり
             通報が必ず成功する挙動(=帰無腕・第266 以前の checkpoint ``ba01bd0b`` を再現)。
+        queue_service: **D-113 ③(第268)** 満席で並んだ体を、席が空いた分だけ並んだ順に席へ
+            入れて購入/食事を完了させる(既定 True)。``False`` は第267 以前の挙動(誰も捌かず
+            15 tick で ``INTERRUPTED``)。既定の mock 5,000 では列が立たないので checkpoint 不変。
         sleep_suppression: **D-56 就寝抑止**(既定 True=ユーザー決定 (a))。``activity ==
             Activity.SLEEPING`` の個体の起床候補を、計画境界・顕著行為・会話ターン以外は
             アービタに入れない。``False`` は **D-56 前の挙動**(=ablation の帰無腕)。
@@ -2083,6 +2096,7 @@ def run_day(
             hotel=None if runner is None or not runner.is_enabled("hotel") else runner.hotel,
             salient=None if runner is None or not runner.is_enabled("salient") else runner.salient,
             report_precondition=bool(report_precondition),
+            queue_service=bool(queue_service),
             vocab_version=vocab_version,
             geometry=geom,
             focus_request=focus_request,
@@ -2110,6 +2124,8 @@ def run_day(
         result.n_talk_by_distance += outcome.n_talk_by_distance
         result.n_report_ok += outcome.n_report_ok
         result.n_report_no_event += outcome.n_report_no_event
+        result.n_served_from_queue += outcome.n_served_from_queue
+        result.n_queue_closed += outcome.n_queue_closed
         # D-71 §3 J: 語ごとの使用件数(**解決後**=エンジンが適用した行動)。
         for _code, _n in outcome.per_action.items():
             per_action_total[int(_code)] = per_action_total.get(int(_code), 0) + int(_n)

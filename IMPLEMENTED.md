@@ -80,3 +80,10 @@
 - 直し: `SalientProcess.event_seen_tick`(事象のセルに居た全員=B4 に行が出た体の最後の tick)+`resolve._apply_report`(`tick − seen ≤ REPORT_WINDOW_TICKS`=5 なら成立・それ以外 `BAD_TARGET`・過程 OFF なら従来どおり)+切替口 `--report-precondition {on,off}`(`run_day(report_precondition=)`・既定 on)+診断 `n_report_ok / n_report_no_event`(summary 1 行)。効果先(通報 → 検知確率)は未実装のまま。
 - 計測(mock 5,000・[記録](docs/bench/analysis/d113-defects-2026-09-26/README.md) §2): 既定ラン(顕著行為 0)で通報 2,789 呼が全て失敗・checkpoint ba01bd0b → **2f3969cf**(版の台帳)・off で修正前と同一 ba01bd0b・発生率 2,000/万体/日の確認ランで成立 801(24.7%)。
 - テスト: resolve +4・salient +2(47 passed)・llm/engine/c6/c7/c8 全緑。
+
+### #43 D-113 ③ 満席で並んだ体を並んだ順に席へ捌く(第268・2026-09-26・親)
+
+- 欠陥(第263 ⑤・D-94): 満席で並んだ体(`OK`・`WAITING`)を誰も捌かず、15 tick 後に必ず `INTERRUPTED`。
+- 直し: `CrowdProcess.queue_action`(並んだ目的)+`resolve._serve_poi_queue`(Phase C の新しい意図の適用より前に `(queue_since, agent_id)` 順で `can_admit` の空席分だけ入れ、`_complete_buy`/`_complete_eat`(後半を関数化・挙動不変)で購入/食事を完了。閉店は `CLOSED` で解散・払えない体は `MONEY_SHORT`・棚が空は `OUT_OF_STOCK` で列を離れ、空いた席は同じ tick に次の体へ)+切替口 `--queue-service {on,off}`+診断 `n_served_from_queue / n_queue_closed`(summary 1 行)。
+- 計測([記録](docs/bench/analysis/d113-defects-2026-09-26/README.md) §3): 既定 mock 5,000 は列が立たず checkpoint 不変(2f3969cf)。席を絞った感度腕(30 m²/人)で並んだ 751 のうち 343 が席へ・打ち切り 524 → 375・実現購入 1,150 → 1,274(+10.8%)。
+- テスト: crowd +6(crowd+resolve 51 passed)・llm/engine/c6/c7/c8 全緑。

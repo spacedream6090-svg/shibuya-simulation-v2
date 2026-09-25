@@ -349,6 +349,11 @@ class ResolveOutcome:
     fare_paid: int = 0
     #: 満席で待ち行列へ入った件数(購入の「待ち時間」コスト・行動契約書 §2.1)。
     n_queued: int = 0
+    #: D-113 ③: 満席の列から席へ入れた件数 / 閉店で列を解散した件数。
+    n_served_from_queue: int = 0
+    n_queue_closed: int = 0
+    #: D-113 ③: 列を捌くかの切替口(False=第267 以前の挙動=誰も捌かない)。
+    queue_service: bool = True
     #: ホテル客室在庫(``engine.processes.civic.HotelProcess``)。``None`` なら就寝は自宅のみ。
     hotel: object | None = None
     #: ホテルで就寝した件数(§7.2 ホテル客室在庫)。
@@ -784,6 +789,7 @@ def apply(
     hotel: object | None = None,
     salient: object | None = None,
     report_precondition: bool = True,
+    queue_service: bool = True,
     vocab_version: str = DEFAULT_VOCAB_VERSION,
     geometry: EdgeGeometry | None = None,
     focus_request: np.ndarray | None = None,
@@ -807,6 +813,9 @@ def apply(
             ``REPORT_WINDOW_TICKS`` 以内のときだけ成立し、それ以外は ``BAD_TARGET``。
             ``None``(過程 OFF・C2 互換)では従来どおり記録のみで必ず成功。
         report_precondition: 上の検査の切替口(既定 True)。``False`` は第266 以前の挙動。
+        queue_service: **D-113 ③** 満席で並んだ体を、席が空いた分だけ並んだ順に席へ入れて
+            並んだときの行動(購入/食事)を完了させる(既定 True・``_serve_poi_queue``)。
+            ``False`` は第267 以前の挙動(誰も捌かず 15 tick で ``INTERRUPTED``)。
         vocab_version: 行動語彙の版(D-71 §3 F)。``"v2"`` で「食事」の分岐が増える。
             既定 ``"v1"`` は ``_APPLY``(13 分岐)をそのまま回す=**1 バイトも変わらない**。
         geometry: **C9 G1 (b) 辺上の連続位置**(``engine.geometry.EdgeGeometry``)。
@@ -838,6 +847,7 @@ def apply(
         hotel=hotel,
         salient=salient,
         report_precondition=bool(report_precondition),
+        queue_service=bool(queue_service),
         geometry=geometry,
         focus_request=(
             None if focus_request is None else np.asarray(focus_request, dtype=np.int64)
@@ -867,6 +877,11 @@ def apply(
                 drop = drop[r.sleep_pending[drop] != 0]
                 if drop.size:
                     r.sleep_pending[drop] = 0
+
+        # ---- D-113 ③ 満席の列の捌き(第268): 席が空いた分だけ並んだ順に入れる ----
+        # **新しい意図の適用より前**に置く: 先に並んでいた体が空席を取り、この tick に来た
+        # 買い手は ``admitted_this_tick`` 越しにその後ろへ並ぶ(FIFO)。
+        _serve_poi_queue(agents, world, tick, out)
 
         # ---- C9 edge: 新しい行動を選んだ体は**辺から降りて近い端点に立つ** ----
         # 以降の適用関数は全て「体はノードに居る」前提で ``node`` からセル・経路を引く
@@ -1592,6 +1607,7 @@ def _apply_buy(agents, world, aid, tgt, tick, out, schedule) -> None:
             r.activity[queued] = int(Activity.WAITING)
             r.queue_poi[queued] = poi[can_pay & ~room].astype(np.int32)
             r.queue_since[queued] = int(tick)
+            _remember_queue_action(out, queued, _QUEUE_FOR_BUY)
             out.n_queued += int(queued.size)
             _ok(agents, queued, tick, out)
         can_pay = can_pay & room
@@ -1599,9 +1615,15 @@ def _apply_buy(agents, world, aid, tgt, tick, out, schedule) -> None:
     win = np.flatnonzero(can_pay)
     if win.size == 0:
         return
-    buyers = aid[win]
-    bought = poi[win]
-    paid = price[win]
+    _complete_buy(agents, world, aid[win], poi[win], price[win], tick, out)
+
+
+def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
+    """購入の完了(席あり・支払い・棚・所持・空腹・在席の登録)。``_apply_buy`` の後半を
+    D-113 ③ で関数に切り出した(列から席へ入れた体にも同じ完了を使う)。挙動は不変。"""
+    r = agents.registry
+    led = out.ledger
+    n_win = int(buyers.size)
     if led is not None and led.money is not None:
         status = led.money.purchase_many(buyers, bought, paid, tick)
         ok = np.asarray(status) == 0
@@ -1655,7 +1677,7 @@ def _apply_buy(agents, world, aid, tgt, tick, out, schedule) -> None:
         r.poi_since[buyers] = int(tick)
         r.queue_poi[buyers] = -1
         out.crowd.on_admit(bought)
-    out.n_purchases += int(win.size)
+    out.n_purchases += n_win
     out.revenue_delta += int(paid.sum())
     _ok(agents, buyers, tick, out)
 
@@ -1704,6 +1726,7 @@ def _apply_eat(agents, world, aid, tgt, tick, out, schedule) -> None:
             r.activity[queued] = int(Activity.WAITING)
             r.queue_poi[queued] = poi[can_pay & ~room].astype(np.int32)
             r.queue_since[queued] = int(tick)
+            _remember_queue_action(out, queued, _QUEUE_FOR_EAT)
             out.n_queued += int(queued.size)
             _ok(agents, queued, tick, out)
         can_pay = can_pay & room
@@ -1711,9 +1734,14 @@ def _apply_eat(agents, world, aid, tgt, tick, out, schedule) -> None:
     win = np.flatnonzero(can_pay)
     if win.size == 0:
         return
-    eaters = aid[win]
-    shops = poi[win]
-    paid = price[win]
+    _complete_eat(agents, world, aid[win], poi[win], price[win], tick, out)
+
+
+def _complete_eat(agents, world, eaters, shops, paid, tick, out) -> None:
+    """食事の完了(支払い・空腹・在店の登録)。``_apply_eat`` の後半を D-113 ③ で関数に
+    切り出した(列から席へ入れた体にも同じ完了を使う)。挙動は不変。"""
+    r = agents.registry
+    led = out.ledger
     if led is not None and led.money is not None:
         status = led.money.purchase_many(eaters, shops, paid, tick)
         ok = np.asarray(status) == 0
@@ -2171,6 +2199,99 @@ def release_indoor(agents: AgentState, agent_ids) -> None:
         r.activity[a] = np.where(
             r.activity[a] == int(Activity.SHOPPING), int(Activity.IDLE), r.activity[a]
         ).astype(r.activity.dtype)
+
+
+#: D-113 ③: 並んだ目的(``CrowdProcess.queue_action`` の値)。
+_QUEUE_FOR_BUY: Final[int] = 0
+_QUEUE_FOR_EAT: Final[int] = 1
+
+
+def _remember_queue_action(out: ResolveOutcome, queued: np.ndarray, kind: int) -> None:
+    """並んだ目的を混雑場に控える(過程が欄を持たない fake でも落ちない)。"""
+    qa = getattr(out.crowd, "queue_action", None)
+    if qa is not None and queued.size:
+        qa[queued] = np.int8(kind)
+
+
+def _serve_poi_queue(agents, world, tick: int, out: ResolveOutcome) -> None:
+    """D-113 ③(第268): 満席で並んだ体を、席が空いた分だけ**並んだ順**に席へ入れる。
+
+    - 順序: ``(queue_since, agent_id)`` 昇順=先に並んだ体から(同 tick は id 順・決定論)。
+      ``CrowdProcess.can_admit`` は行順で席を詰めるので、この並びを渡せば FIFO になる。
+    - 完了: 並んだときの行動(購入/食事・``queue_action``)を ``_complete_buy``/``_complete_eat``
+      で完了させる(支払い・棚・空腹・在席)。待つ間に閉店した店の列は解散(``CLOSED``)、
+      所持金が足りなくなった体は ``MONEY_SHORT``、棚が空なら ``OUT_OF_STOCK`` で列を離れる。
+    - 15 tick の離脱閾値(``crowd.step``)はそのまま=席が空かなければ従来どおり ``INTERRUPTED``。
+    - 切替口 ``out.queue_service``(False=第267 以前=誰も捌かない)。混雑場が無ければ何もしない。
+
+    逐次ループ宣言(P4): なし(並んでいる体の配列に対するベクトル判定・``can_admit`` 1 回)。
+    """
+    crowd = out.crowd
+    if crowd is None or not out.queue_service:
+        return
+    r = agents.registry
+    q = r.queue_poi.astype(np.int64)
+    waiting = np.flatnonzero((q >= 0) & (q < world.n_poi))
+    if waiting.size == 0:
+        return
+    since = r.queue_since.astype(np.int64)[waiting]
+    order = np.lexsort((waiting, since))
+    w = waiting[order]
+    poi = q[w]
+    # 閉店した店の列は解散
+    open_mask = np.asarray(world.open_mask(tick), dtype=bool)
+    closed = ~open_mask[poi]
+    if closed.any():
+        gone = w[closed]
+        r.queue_poi[gone] = -1
+        r.queue_since[gone] = -1
+        r.activity[gone] = int(Activity.IDLE)
+        _fail(agents, gone, ResultCode.CLOSED, tick, out)
+        out.n_queue_closed += int(gone.size)
+        w, poi = w[~closed], poi[~closed]
+        if w.size == 0:
+            return
+    # 待つ間に払えなくなった体・棚が空になった店の列は**席を取る前に**離れる(空いた席は
+    # 同じ tick に次の体へ回る)。
+    qa = getattr(crowd, "queue_action", None)
+    kind = (
+        np.full(w.size, _QUEUE_FOR_BUY, dtype=np.int64)
+        if qa is None
+        else np.asarray(qa, dtype=np.int64)[w]
+    )
+    price = world.pois.price[poi].astype(np.int64)
+    can_pay = r.money[w].astype(np.int64) >= price
+    is_buy = kind != _QUEUE_FOR_EAT
+    in_stock = np.ones(w.size, dtype=bool)
+    if is_buy.any():
+        in_stock[is_buy] = world.pois.stock[poi[is_buy]] > 0
+        led = out.ledger
+        if led is not None and led.goods is not None and in_stock[is_buy].any():
+            sel = np.flatnonzero(is_buy)
+            in_stock[sel] = in_stock[sel] & np.asarray(led.goods.can_sell(poi[sel]), dtype=bool)
+    leave = ~can_pay | ~in_stock
+    if leave.any():
+        gone = w[leave]
+        r.queue_poi[gone] = -1
+        r.queue_since[gone] = -1
+        r.activity[gone] = int(Activity.IDLE)
+        _fail(agents, w[~can_pay], ResultCode.MONEY_SHORT, tick, out)
+        _fail(agents, w[can_pay & ~in_stock], ResultCode.OUT_OF_STOCK, tick, out)
+        keep = ~leave
+        w, poi, price, is_buy = w[keep], poi[keep], price[keep], is_buy[keep]
+        if w.size == 0:
+            return
+    # 席が空いた分だけ、行順(=並んだ順)に入れる
+    room = np.asarray(crowd.can_admit(poi), dtype=bool)
+    if not room.any():
+        return
+    adm, adm_poi, adm_price, adm_buy = w[room], poi[room], price[room], is_buy[room]
+    r.queue_since[adm] = -1
+    if adm_buy.any():
+        _complete_buy(agents, world, adm[adm_buy], adm_poi[adm_buy], adm_price[adm_buy], tick, out)
+    if (~adm_buy).any():
+        _complete_eat(agents, world, adm[~adm_buy], adm_poi[~adm_buy], adm_price[~adm_buy], tick, out)
+    out.n_served_from_queue += int(adm.size)
 
 
 def balk_queue(agents: AgentState, agent_ids, tick: int) -> None:
