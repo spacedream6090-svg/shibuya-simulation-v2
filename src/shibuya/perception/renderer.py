@@ -617,6 +617,7 @@ class Renderer:
         signage_p_see: float = SIGNAGE_P_SEE_DEFAULT,
         intent_mode: str = T.DEFAULT_INTENT_MODE,
         vocab_version: str = T.DEFAULT_VOCAB_VERSION,
+        role_words: bool | str = False,
     ) -> None:
         """
         Args:
@@ -677,12 +678,15 @@ class Renderer:
         self.signage_p_see = check_signage_p_see(signage_p_see)
         self.intent_mode = T.check_intent_mode(intent_mode)
         self.vocab_version = T.check_vocab_version(vocab_version)
+        #: D-113 ④(第269): B0 の末尾に役割語の 1 行を足すか。レンダラの既定は False(描画バイトの
+        #: 凍結を保つ)。**ランの既定は True**(``engine.run.run_day(role_words=True)``)。
+        self.role_words = T.check_role_words(role_words)
 
         self._tickc = _TickCache()
         # 既定(vocab × v1)は ``TEMPLATES["B0.system"]`` と同一文字列=描画バイト不変
         # (AB7・語彙 v2)。
         self._b0 = N.canonical_whitespace(
-            T.b0_system(self.intent_mode, self.vocab_version)
+            T.b0_system(self.intent_mode, self.vocab_version, self.role_words)
         ).encode("utf-8")
         self._b4b = N.canonical_whitespace(
             T.TEMPLATES["B4b.near_empty"]

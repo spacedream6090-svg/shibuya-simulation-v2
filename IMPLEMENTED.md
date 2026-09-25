@@ -66,3 +66,32 @@
 - `tools/c8/ablations_v1.json` 末尾に 2 腕(rank 13 ⑦d・rank 14 ①b・ready)。⑦d = ⑦c の 3 構成(vocab_v1 基準 / vocab_v2 / open_v2)に `l4_scale 0`。①b = ① の 2 構成(fixed_slots 基準 / single_ranking)に `l4_scale 0`。切替口は既存の口の重ね合わせ(src/ 変更なし)。既存 12 腕は canonical JSON 不変(スクリプトで検査)。totals 再計算(独立 38 ラン・共有後 23 ラン 1,150,000 呼 11.12 h・L2 超過は note に宣言)。open_questions に 2 腕の baseline が ⑧ l4_unlimited と同一構成(final_hash 一致の見込み)を記録。
 - `ablation_runner.arm_by_id`: 前方一致が複数(`AB1` → AB1-… と AB1b-…)のとき腕コードそのもの(キー直後が `-`)を優先。既存の引き方は不変。
 - テスト: 位置/本数の assert 7 か所を更新・`test_arm_by_id_forms` に ab1b/①b/ab7d の 3 行。c8+cli_l4 102 passed。
+
+### #41 D-113 ① パーサ: 未知ラベルを対象の値として読まない(第266・2026-09-26・親)
+
+- 欠陥(顕著な出来事の台帳 §2 ⑥): 別名表に無いラベル(「目標:」)が行動欄の値に残り、位置引数の回収 `_fill_positional` がその表層を対象の値として採っていた(`format_ok` は True のまま=書式エラー率に出ない)。
+- 直し: `src/shibuya/llm/parser.py` に (1) テープ実測の表層 7 語(目標・目标・カテゴリ・目的先・ターゲット・对象・行く先 → 対象)の別名表 `LABEL_ALIASES_D113`(C6 別名と同じ扱い・`strict_format_ok` は V0 のまま)(2) 位置引数の回収で「語+コロン」だけのトークンを未知のラベルとして読み飛ばし `unknown_label:<表層>` を `errors` に残す `_drop_unknown_labels`(後ろに値が無ければ欄落ち)(3) `positional_used` は `positional:` の診断があるときだけ。
+- 計測(リプレイ・8 テープ 485,527 呼・[記録](docs/bench/analysis/d113-defects-2026-09-26/README.md)): 対象の読みが変わった呼 40,463(8.3%)・対象が「語+コロン」だけの呼 36,123 → 0・`format_ok` の変化 204 呼(0.04%)。mock 5,000 体の既定 checkpoint は **不変(ba01bd0b)**=版の台帳に記録。
+- テスト: `tests/llm/test_parser.py` +6(別名表の形の検査を更新)。parser 系 134 passed。
+
+### #42 D-113 ② 通報の前提「当該事象を知覚済み」の検査(第267・2026-09-26・親)
+
+- 欠陥(第263 ②・D-57): `_apply_record_only` が通報を必ず成功にし、契約書 §2.1 の前提を検査していなかった(C7 テープの通報 423 呼のうち観測に事象があったのは 7)。
+- 直し: `SalientProcess.event_seen_tick`(事象のセルに居た全員=B4 に行が出た体の最後の tick)+`resolve._apply_report`(`tick − seen ≤ REPORT_WINDOW_TICKS`=5 なら成立・それ以外 `BAD_TARGET`・過程 OFF なら従来どおり)+切替口 `--report-precondition {on,off}`(`run_day(report_precondition=)`・既定 on)+診断 `n_report_ok / n_report_no_event`(summary 1 行)。効果先(通報 → 検知確率)は未実装のまま。
+- 計測(mock 5,000・[記録](docs/bench/analysis/d113-defects-2026-09-26/README.md) §2): 既定ラン(顕著行為 0)で通報 2,789 呼が全て失敗・checkpoint ba01bd0b → **2f3969cf**(版の台帳)・off で修正前と同一 ba01bd0b・発生率 2,000/万体/日の確認ランで成立 801(24.7%)。
+- テスト: resolve +4・salient +2(47 passed)・llm/engine/c6/c7/c8 全緑。
+
+### #43 D-113 ③ 満席で並んだ体を並んだ順に席へ捌く(第268・2026-09-26・親)
+
+- 欠陥(第263 ⑤・D-94): 満席で並んだ体(`OK`・`WAITING`)を誰も捌かず、15 tick 後に必ず `INTERRUPTED`。
+- 直し: `CrowdProcess.queue_action`(並んだ目的)+`resolve._serve_poi_queue`(Phase C の新しい意図の適用より前に `(queue_since, agent_id)` 順で `can_admit` の空席分だけ入れ、`_complete_buy`/`_complete_eat`(後半を関数化・挙動不変)で購入/食事を完了。閉店は `CLOSED` で解散・払えない体は `MONEY_SHORT`・棚が空は `OUT_OF_STOCK` で列を離れ、空いた席は同じ tick に次の体へ)+切替口 `--queue-service {on,off}`+診断 `n_served_from_queue / n_queue_closed`(summary 1 行)。
+- 計測([記録](docs/bench/analysis/d113-defects-2026-09-26/README.md) §3): 既定 mock 5,000 は列が立たず checkpoint 不変(2f3969cf)。席を絞った感度腕(30 m²/人)で並んだ 751 のうち 343 が席へ・打ち切り 524 → 375・実現購入 1,150 → 1,274(+10.8%)。
+- テスト: crowd +6(crowd+resolve 51 passed)・llm/engine/c6/c7/c8 全緑。
+
+### #44 D-113 ④ B0 の末尾に役割語 12 語の 1 行(第269・2026-09-26・親)
+
+- 欠陥(第263 ⑦・D-38): 契約書 §2.2「語彙自体は全員に見せる」に対し B0 の出力規約は 12 語だけ。
+- 直し: `templates.ROLE_WORDS_12 / ROLE_WORDS_LINE / check_role_words`・`b0_system(..., role_words=False)`(有りなら末尾に 1 行・既定は同一オブジェクトで `template_sha256`/`b0_sha256("vocab")` 不変)・`b0_sha256(..., role_words)`・`Renderer(role_words=False)`・`run_day(role_words=True)`(既定 on・manifest 列 `role_words`)・CLI `--role-words {on,off}`。共有静的 703 tok ≤ 750。
+- 計測: **未測定と宣言**(mock は B0 を読まず checkpoint 不変 2f3969cf・旧テープの再生は当たらない)→ GPU を借りたら役割語率を on/off で測る。B0 の指紋 on 24661cd6…。
+- テスト: templates +3・intent_mode +1(perception+intent 全緑・llm/engine/c6/c7/c8/perception 全緑)。
+- **D-113 は 4 件とも完了**(#41〜#44)。記録 [D-113 修正記録](docs/bench/analysis/d113-defects-2026-09-26/README.md) §5 に一覧。

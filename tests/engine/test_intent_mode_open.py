@@ -91,3 +91,19 @@ def test_default_is_vocab_and_the_mock_actions_do_not_move():
 def test_unknown_intent_mode_is_refused():
     with pytest.raises(ValueError):
         run_day(intent_mode="free", **SMALL)
+
+
+# ------------------------------------------------------------------ D-113 ④ 役割語の提示(第269)
+def test_role_words_default_on_and_round_trips_into_the_run_manifest():
+    """ランの既定は役割語あり(契約書 §2.2)。off は第268 以前の B0(prompt_hash が違う)。"""
+    from shibuya.perception import templates as T
+
+    on = run_day(**SMALL)
+    off = run_day(role_words=False, **SMALL)
+    assert on.role_words is True and off.role_words is False
+    assert on.run_manifest_fields()["role_words"] is True
+    assert off.run_manifest_fields()["role_words"] is False
+    assert on.conserved and off.conserved
+    # checkpoint(mock は B0 を読まない)は同じ・B0 の指紋だけ違う
+    assert on.final_hash == off.final_hash
+    assert T.b0_sha256("vocab", "v1", True) != T.b0_sha256("vocab", "v1", False)

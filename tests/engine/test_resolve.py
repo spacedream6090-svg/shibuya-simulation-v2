@@ -174,10 +174,55 @@ def test_rest_recovers_fatigue():
 
 
 def test_report_and_refuse_are_recorded_without_failing():
+    """顕著行為の過程が無い(C2 互換)なら通報も断るも従来どおり記録のみ。"""
     w, a = _setup()
     _apply(a, w, _intents([1, 2], C.ACT_REPORT))
     _apply(a, w, _intents([3], C.ACT_REFUSE))
     assert int(a.last_result[1]) == int(ResultCode.OK)
+    assert int(a.last_result[3]) == int(ResultCode.OK)
+
+
+# ---------------------------------------------------------------- 通報の前提(D-113 ②・第267)
+def _fake_salient(n, seen):
+    arr = np.full(n, -1, dtype=np.int32)
+    for k, v in seen.items():
+        arr[k] = v
+    return SimpleNamespace(event_seen_tick=arr)
+
+
+def test_report_requires_a_perceived_event_d113_2():
+    """契約書 §2.1 通報の前提「当該事象を知覚済み」= 直近 5 tick に自分のセルの B4 に事象の行。"""
+    w, a = _setup()
+    s = _fake_salient(6, {1: 10, 2: 4})
+    out = R.apply(_intents([1, 2, 3], C.ACT_REPORT, tick=12), C.IntentBatch.empty(), a, w, 12, salient=s)
+    assert int(a.last_result[1]) == int(ResultCode.OK)  # 2 tick 前に見た
+    assert int(a.last_result[2]) == int(ResultCode.BAD_TARGET)  # 8 tick 前=窓の外
+    assert int(a.last_result[3]) == int(ResultCode.BAD_TARGET)  # 見ていない
+    assert out.n_report_ok == 1 and out.n_report_no_event == 2
+    assert int(a.fail_streak[3]) == 1 and int(a.fail_streak[1]) == 0
+    assert out.per_action[C.ACT_REPORT] == 3
+
+
+def test_report_window_boundary_is_inclusive():
+    w, a = _setup()
+    s = _fake_salient(6, {1: 5, 2: 4})
+    R.apply(_intents([1, 2], C.ACT_REPORT, tick=10), C.IntentBatch.empty(), a, w, 10, salient=s)
+    assert R.REPORT_WINDOW_TICKS == 5
+    assert int(a.last_result[1]) == int(ResultCode.OK)  # 10 − 5 = 窓ちょうど
+    assert int(a.last_result[2]) == int(ResultCode.BAD_TARGET)  # 6
+
+
+def test_report_precondition_switch_off_restores_always_ok():
+    w, a = _setup()
+    s = _fake_salient(6, {})
+    out = R.apply(_intents([1], C.ACT_REPORT), C.IntentBatch.empty(), a, w, 0, salient=s, report_precondition=False)
+    assert int(a.last_result[1]) == int(ResultCode.OK) and out.n_report_ok == 1 and out.n_report_no_event == 0
+
+
+def test_refuse_is_unaffected_by_the_report_precondition():
+    w, a = _setup()
+    s = _fake_salient(6, {})
+    R.apply(_intents([3], C.ACT_REFUSE), C.IntentBatch.empty(), a, w, 0, salient=s)
     assert int(a.last_result[3]) == int(ResultCode.OK)
 
 

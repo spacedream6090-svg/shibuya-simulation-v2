@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **5 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **9 / 10**
 > 第1〜第260(2026-09-01〜09-24)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第261 名称の改革=用語集の草案(2026-09-24)
@@ -44,3 +44,32 @@
 - **依頼**(ユーザー): 09-25 の壁打ち(ユーザー × claude.ai)の記録を貼り付け「君の意見も聞かせて」→ 親の意見 7 点(起床の内訳は第262 で集計済み=空腹がきっかけの呼は 4 分の 1・主経路は B5 の表示/System 1.5 の仮の中身を小 LLM にすると枠が名前だけになる/教師ラベルの選択バイアス/カレンダー化は母集団の定義が変わる=段階制/D-113 ① はリプレイで・④ は測れない/System 1.5 の外向き定義/5-4 は設定で固定)→「僕がこれから決めることは?」→ 6 項を提示 → **ユーザーの答え**: ① 進める(訂正 2 点は PR 説明にも)② `.claude/settings.json` に置く ③ (G)・出力は行動ごとの確率分布に固定・GPU 無しの間は同形のモック ④ 段階を分ける・W17 v2 から写すのは勤務・授業・約束だけ ⑤ D-113 ④ は直す(未測定と宣言・GPU 後に測る項目へ)⑥ 5-6 許可(取得日とクエリを記録)・5-8 はお礼と一緒に(文案を下書き)。
 - **実施**: [記録](../design/v2-wallbounce-decisions-2026-09-25.md)を本文そのままで配置+親の注記 4(起床の内訳の表・D-112 ④ 確認と ① の機構・事実確認 5 件・親の意見の要約)+ユーザーの答え 6 の表 / `.claude/settings.json` 新設(`env.ANTHROPIC_DEFAULT_OPUS_MODEL=claude-opus-5-5`・公式ドキュメントで別名の解決とサブへの適用・settings 優先順位を claude-code-guide サブが確認)+ CLAUDE.md §5 を「サブ = Opus 5.5・確認方法 3 つ」に更新 / [Discord 文案](../ops/discord_report_2026-09-26.md)(案 A お礼+締め報告・案 B お礼だけ)/ 決定台帳 §5 に参照行 / PENDING §0(第265 行+GPU 後に測る項目)・D-1/94/96/97/99/101/103/104/109/110/111/112/113/114/115 に壁打ち決定を追記 / STATUS 5/10。
 - **次**: PR #4(第261〜265)を作る(マージはユーザー)→ 第266 掃除パス(記録 §7 の閉じ方で PENDING の各行を決定台帳/IMPLEMENTED へ)→ D-113 ① からリプレイ計測つきで 1 欠陥 1 commit(作業ブランチを分ける)。
+
+## 第266 D-113 ① パーサ欠陥の修正(2026-09-26)
+
+- **報告**(ユーザー): 「Discord の投稿と PR のマージは終わった」→ 5-8 閉じ・PR #4 マージ(main = 630ad13)。以後は記録 §9 の順で D-113 から。
+- **実施**: 作業ブランチ `build/d113`(main から)。① の計測を先に: 修正前のパーサで 8 テープ 485,527 呼を全行パースして保存+mock 5,000 の既定 checkpoint(ba01bd0b)。直し(`parser.py`): テープ実測の表層 7 語の別名表 `LABEL_ALIASES_D113`+位置引数の回収で「語+コロン」だけのトークンを未知のラベルとして読み飛ばす `_drop_unknown_labels`(診断 `unknown_label:<表層>`)+`positional_used` の定義を `positional:` の有無に。テスト +6・parser 系 134 passed。修正後に同じ計測: 対象の読みが変わった呼 40,463(8.3%)・「語+コロン」だけの対象 36,123 → 0・`format_ok` の変化 204 呼(0.04%)・checkpoint 不変(ba01bd0b)。記録 [D-113 修正記録](../bench/analysis/d113-defects-2026-09-26/README.md)(版の台帳 §0・手順スクリプト同梱)・IMPLEMENTED #41・PENDING D-113/§0・STATUS 6/10。
+- **次**: D-113 ②(通報の前提の検査)→ ③(満席の列)→ ④(役割語・未測定宣言)。各 1 commit+checkpoint 記録。
+
+## 第267 D-113 ② 通報の前提「当該事象を知覚済み」の検査(2026-09-26)
+
+- **依頼**: 記録 §9-4(D-113 の 4 欠陥を 1 欠陥 1 commit・checkpoint を版ごとに記録)の 2 件目。ユーザー「今はリサーチや実装の作業中?」→「実装中(D-113)」と返答。
+- **実施**: `SalientProcess.event_seen_tick`(事象のセルに居た全員=B4 に行が出た体の最後の tick・予算落ち/報道は数えない)+`resolve._apply_report`(`tick − seen ≤ REPORT_WINDOW_TICKS`=5=最長レーン L3 300 s の導出値・それ以外 `BAD_TARGET`・過程 OFF なら C2 互換)+切替口 `--report-precondition {on,off}`(`run_day`・`resolve.apply`)+診断 `n_report_ok / n_report_no_event`(summary 1 行)。テスト resolve +4・salient +2(47 passed)。計測: mock 5,000 既定(顕著行為 0)で通報 2,789 呼が全て失敗・checkpoint **ba01bd0b → 2f3969cf**・off で修正前と同一・発生率 2,000/万体/日の確認ランで成立 801/3,245(24.7%)。記録 [D-113 修正記録](../bench/analysis/d113-defects-2026-09-26/README.md) §0/§2・IMPLEMENTED #42・PENDING D-113/§0・STATUS 7/10。
+- **次**: D-113 ③(満席で並んだ体を捌く)→ ④(役割語・未測定宣言)。
+
+## 第267b 退化検査の golden を切替口で再現(2026-09-26)
+
+- **事実**: 第267 の広い回帰テストで `tests/engine/test_presence_executor.py::test_null_arm_reproduces_the_recorded_checkpoint` が 1 件失敗(親が `| tail` で exit code を隠していたため commit 後に気づいた=以後は `pytest … ; echo exit` で見る)。原因は D-62 時点の golden(通報は必ず成功)を、通報の前提検査が既定 on の run で再現しようとしたこと。
+- **実施**: テストに `report_precondition=False` を渡して D-62 の golden を再現(旧 checkpoint は版を分けて残す方針どおり・docstring に記載)。README §0 の表に注記。
+
+## 第268 D-113 ③ 満席で並んだ体を並んだ順に席へ捌く(2026-09-26)
+
+- **依頼**: 記録 §9-4 の 3 件目(1 欠陥 1 commit・checkpoint を版ごとに記録)。
+- **実施**: `CrowdProcess.queue_action`(並んだ目的・過程側に置く)+`resolve._serve_poi_queue`(Phase C の新しい意図の適用より前に `(queue_since, agent_id)` 順で `can_admit` の空席分だけ入れ、`_complete_buy`/`_complete_eat`(`_apply_buy`/`_apply_eat` の後半を関数化・挙動不変)で完了。閉店は `CLOSED` で解散・払えない体は `MONEY_SHORT`・棚が空は `OUT_OF_STOCK` で列を離れ、空いた席は同じ tick に次の体へ)+切替口 `--queue-service {on,off}`(`run_day`・`resolve.apply`)+診断 `n_served_from_queue / n_queue_closed`(summary 1 行)。テスト crowd +6(最初の版は「払えない体が席を塞ぐ」で 1 本落ち、離脱を席の割り当てより前に移して修正)。計測: 既定 mock 5,000 は待ち行列 0 で checkpoint 不変(2f3969cf)。席を絞った感度腕(`--seat-area-eatery 30 --seat-area-retail 30`)で on: 並んだ 751・席へ 343・打ち切り 375・購入 1,274 / off: 541・0・524・1,150。記録 [D-113 修正記録](../bench/analysis/d113-defects-2026-09-26/README.md) §0/§3・IMPLEMENTED #43・PENDING D-113/§0・STATUS 8/10。
+- **次**: D-113 ④(B0 に役割語を並べる・未測定と宣言)。
+
+## 第269 D-113 ④ B0 の末尾に役割語 12 語の 1 行(2026-09-26)
+
+- **依頼**: 記録 §9-4 の 4 件目(ユーザー 09-26「直す。未測定と宣言し GPU を借りたら測る項目に」)。
+- **実施**: `templates.ROLE_WORDS_12`(契約と同値・テストで守る)/`ROLE_WORDS_LINE`(全員に同文=規約⑧)/`check_role_words`・`b0_system(intent_mode, vocab_version, role_words=False)`(有りなら末尾に 1 行・どの腕・版でも同じ・既定は同一オブジェクトで `template_sha256` 161fe181 と `b0_sha256("vocab")` 2b4bfc8a は不変)・`b0_sha256(..., role_words)`(on 24661cd6)・`Renderer(role_words=False)`・`run_day(role_words=True)`(既定 on・manifest 列)・CLI `--role-words {on,off}`。共有静的グループ 703 tok ≤ 750。テスト templates +3・intent_mode +1(perception+intent 全緑・広い回帰 llm/engine/c6/c7/c8/perception 全緑)。計測: mock 5,000 の checkpoint 不変(2f3969cf)・効果は未測定と宣言(PENDING §0 の GPU 後リストを更新)。記録 §4/§5(4 件の一覧)・IMPLEMENTED #44・**PENDING から D-113 の行を消した**・STATUS 9/10。
+- **次**: PR #5(build/d113 → main・第266〜269)を作りマージはユーザー。以後は記録 §9-5(D-114 と W6 再生成・D-97 を同じ回)へ。
