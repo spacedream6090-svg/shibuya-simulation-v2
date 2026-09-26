@@ -139,6 +139,12 @@ def test_output_form_constants_match_section_1():
         ("g12_34_GL", TargetKind.CELL),
         ("g-10_-1_UG", TargetKind.CELL),
         ("g0_0_DECK", TargetKind.CELL),
+        ("セルg-1_0_GL", TargetKind.CELL),  # 第271: B2 の文の写し
+        ("セルID: g3_-7_GL", TargetKind.CELL),
+        ("セルID_g3_-7_GL", TargetKind.CELL),
+        ("セルC-0117", TargetKind.CELL),
+        ("セルID_コンビニエンスストア", TargetKind.ITEM_CATEGORY),  # 残りがセル ID でなければ従来どおり
+        ("セルの飲食店", TargetKind.ITEM_CATEGORY),
         ("P-204", TargetKind.PERSON),
         ("204", TargetKind.PERSON),
         ("渋谷駅", TargetKind.STATION_OR_VEHICLE),
@@ -171,6 +177,24 @@ def test_target_placeholder_words_are_read_as_no_target_but_keep_raw():
         tg = parse_target(w)
         assert tg.kind is TargetKind.NONE, w
     assert parse_target("物のカテゴリ").raw == "物のカテゴリ" and parse_target("なし").raw == NO_TARGET
+
+
+def test_cell_prefix_is_stripped_only_when_the_rest_is_a_cell_id():
+    """第271: 「セルg-1_0_GL」(B2「現在地はセルg-1_0_GL」の写し)をセルとして読む。
+
+    テープ 28 本で 移動 10,751 呼・食事 921 呼が自由記述に落ちていた。``raw`` は逐語のまま、
+    ``cell_id`` は接頭辞を剥がした形。説明語「セルID」は NONE のまま(第223 の読みを動かさない)。
+    """
+    from shibuya.llm.contract import TargetKind, parse_target
+    tg = parse_target("セルg-1_0_GL")
+    assert tg.kind is TargetKind.CELL and tg.raw == "セルg-1_0_GL" and tg.cell_id == "g-1_0_GL" and tg.band == "GL"
+    tg = parse_target("セルID: g0_-3_DECK")
+    assert tg.kind is TargetKind.CELL and tg.cell_id == "g0_-3_DECK" and tg.band == "DECK"
+    tg = parse_target("セルC-0117")
+    assert tg.kind is TargetKind.CELL and tg.cell_id == "C-0117" and tg.cell_index == 117
+    assert parse_target("セルID").kind is TargetKind.NONE
+    assert parse_target("セル").kind is TargetKind.ITEM_CATEGORY
+    assert parse_target("g-1_0_GL").cell_id == "g-1_0_GL"  # 接頭辞なしは不変
 
 
 def test_target_category_suffix_is_stripped_before_parsing():

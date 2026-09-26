@@ -95,3 +95,10 @@
 - 計測: **未測定と宣言**(mock は B0 を読まず checkpoint 不変 2f3969cf・旧テープの再生は当たらない)→ GPU を借りたら役割語率を on/off で測る。B0 の指紋 on 24661cd6…。
 - テスト: templates +3・intent_mode +1(perception+intent 全緑・llm/engine/c6/c7/c8/perception 全緑)。
 - **D-113 は 4 件とも完了**(#41〜#44)。記録 [D-113 修正記録](docs/bench/analysis/d113-defects-2026-09-26/README.md) §5 に一覧。
+
+### #45 パーサ: 「セル」接頭辞つきのセル ID を CELL と読む(第271・2026-09-26・親)
+
+- 欠陥(第270・[語彙 v3 候補](docs/bench/analysis/vocab-v3-candidates-2026-09-26/README.md) §4-e): B2 の文「現在地はセルg-1_0_GL」を LLM がそのまま写した「セルg-1_0_GL」が W2 の正規表現(接頭辞なし)に当たらず、物カテゴリ(自由記述)に落ちていた。テープ 28 本で 14,872 呼(移動 10,913=移動の対象の 2.3%・待機 1,017・食事 921・乗車 645・購入 391 …・28 腕全部)。
+- 直し: `contract._CELL_PREFIX_RE`(「セル」「セルID:」「セルID_」)を剥がした残りが**セル ID の形のときだけ** CELL(`cell_id` は剥がした形・`raw` は逐語)。説明語「セルID」は NONE のまま(第223)・「セルID_コンビニ」は物カテゴリのまま。
+- 計測: 上の 14,872 呼が CELL に変わる(表層の突き合わせ=呼ごとのリプレイと同値)。エンジンは既定で移動の行き先に対象欄を使わない(D-112 ②)ので**挙動は不変**・mock 5,000 の checkpoint 2f3969cf 不変。D-112 ②(行き先を対象欄から)がこの値を使う。
+- テスト: `tests/llm/test_contract.py` +1・parametrize +7(llm 173 passed・engine/perception/c6/c7/c8 全緑・exit 0)。ユーザー 09-26「修正を入れていいよ」。

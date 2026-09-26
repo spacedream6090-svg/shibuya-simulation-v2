@@ -728,6 +728,11 @@ _STATION_RE: Final[re.Pattern[str]] = re.compile(r"^.{1,20}(駅|ホーム|番線
 
 #: 「対象」欄の周囲から剥がす飾り。
 _TARGET_STRIP: Final[str] = " \t　「」『』\"'<>＜＞[]【】()()。、,."
+#: **第271(2026-09-26)**: B2 の文「現在地はセルg-1_0_GL」を LLM がそのまま写した「セルg-1_0_GL」
+#: (テープ 28 本で移動 10,751 呼・食事 921 呼・購入 387 呼)がセル ID と読まれず自由記述に落ちていた。
+#: 「セル」「セルID:」「セルID_」の接頭辞を剥がした残りが**セル ID の形のときだけ**セルとして読む
+#: (「セルID」だけ=説明語は NONE のまま・「セルID_コンビニ」は物カテゴリのまま)。
+_CELL_PREFIX_RE: Final[re.Pattern[str]] = re.compile(r"^セル(?:ID)?\s*[:：_\-]?\s*")
 
 
 @dataclass(frozen=True)
@@ -826,7 +831,8 @@ def parse_target(text: str | None, landmarks: Mapping[str, int] | None = None) -
     """「対象」欄の文字列 → ``Target``。**例外を投げない**。
 
     認識順(先に当たったものを採る):
-        ``なし``/空 → NONE、``C-0117``/``C0117`` → CELL、``g12_34_GL`` → CELL、
+        ``なし``/空 → NONE、``C-0117``/``C0117`` → CELL、``g12_34_GL`` → CELL
+        (第271: ``セルg12_34_GL`` / ``セルID: g12_34_GL`` も CELL=接頭辞を剥がして ``cell_id`` に入れる)、
         ``P-204``/``P204`` → PERSON、素の整数 → PERSON、``…駅`` → STATION_OR_VEHICLE、
         それ以外の自由文 → ITEM_CATEGORY(``landmarks`` を渡すと**固有名は POI 索引まで
         解決**して ``poi_id`` に入る=C9b G6 a′)。
@@ -863,12 +869,19 @@ def parse_target(text: str | None, landmarks: Mapping[str, int] | None = None) -
         token = token[: -len(_CATEGORY_SUFFIX)].strip()
         raw = token
 
-    m = _CELL_C_RE.match(token)
+    # 第271: 「セル」接頭辞つきのセル ID(B2 の文の写し)。残りがセル ID の形のときだけ剥がす。
+    cell_token = token
+    pm = _CELL_PREFIX_RE.match(token)
+    if pm and pm.end() > 0:
+        rest = token[pm.end() :]
+        if rest and (_CELL_C_RE.match(rest) or _CELL_W2_RE.match(rest)):
+            cell_token = rest
+    m = _CELL_C_RE.match(cell_token)
     if m:
-        return Target(TargetKind.CELL, raw, cell_id=raw, cell_index=int(m.group(1)))
-    m = _CELL_W2_RE.match(token)
+        return Target(TargetKind.CELL, raw, cell_id=cell_token, cell_index=int(m.group(1)))
+    m = _CELL_W2_RE.match(cell_token)
     if m:
-        return Target(TargetKind.CELL, raw, cell_id=raw, band=m.group(3))
+        return Target(TargetKind.CELL, raw, cell_id=cell_token, band=m.group(3))
     m = _PERSON_RE.match(token)
     if m:
         return Target(TargetKind.PERSON, raw, person_id=int(m.group(1)))
