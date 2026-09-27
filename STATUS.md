@@ -8,6 +8,6 @@
 - 答え待ちの草案: [空腹・判断層・注意 v1](docs/design/v2-hunger-choice-attention-draft.md)・[記憶・口コミ・ネット](docs/design/v2-memory-wom-internet-draft.md)・[記憶アジェンダ](docs/design/v2-memory-agenda.md)
 - リサーチ: 索引 [INDEX.md](docs/research/INDEX.md)・残務 [research-backlog.md](docs/research/research-backlog.md)(R-1〜R-50)・分野地図 [v2-discipline-map.md](docs/research/v2-discipline-map.md)
 - 受入報告: [C5](docs/ops/build-report-C5.md)・[C6](docs/ops/build-report-C6.md)・[C7](docs/ops/build-report-C7.md)・[C8](docs/ops/build-report-C8.md)
-- 開発ログ: [docs/log/devlog.md](docs/log/devlog.md)(第1〜280 は [devlog-compressed.md](docs/log/devlog-compressed.md) へ圧縮済み・カウンタ 0/10)
+- 開発ログ: [docs/log/devlog.md](docs/log/devlog.md)(第1〜280 は [devlog-compressed.md](docs/log/devlog-compressed.md) へ圧縮済み・カウンタ 1/10)
 - ブランチ/PR: main は PR #4 まで(630ad13)。未マージ(この順): [PR #5](https://github.com/spacedream6090-svg/shibuya-simulation-v2/pull/5) build/d113 → [PR #6](https://github.com/spacedream6090-svg/shibuya-simulation-v2/pull/6) build/vocab-v3 → [PR #7](https://github.com/spacedream6090-svg/shibuya-simulation-v2/pull/7) design/memory-net-draft。タグ `v2-c7-day-4-accepted`(8f78065=実証済みの線)。
 - 最終更新: 2026-09-28(第280 ユーザーの回答を草案 3 本と PENDING に反映・Overpass 再取得・実装 1 段目を発注・調査 5 本)。経緯は devlog。
