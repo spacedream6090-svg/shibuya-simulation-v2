@@ -53,6 +53,10 @@ W17_GOLDEN = {
         "s5000_v2": {"n_blocks": 4_021, "zero": 1_350, "outside": 3_180, "in": 841},
     },
     "3113e9ba7abb": {
+        # 段 1c(W10 道路名の突合・D-1 (a))は**既定 OFF**(親決定)=騒音場は段 1a と同じ=値も同じ。
+        # **ON にしたときの値**(W10 の USE_ROAD_NAME_MATCH=True・絞り込みなしで再構築した世界):
+        # 帰無腕 1243baa79105ad7c / 41,071・v3 既定 066a8cbe578b7a06 / 36,471
+        # (記録: docs/bench/analysis/w10-roadnames-2026-09-28/README.md)。
         "null_arm_final": "b4ad8140fe4176db", "null_arm_llm_calls": 41_072,
         # 第277(二層の段 3): **語彙 v3 の既定**(=CLI の新しい既定・activity on・mock v3 形)。
         # v1 の行は上のまま残す(ライブラリの既定は v1=切替口)。

@@ -137,3 +137,15 @@
 - **発見(D-96 の予想の訂正)**: 既定 checkpoint は **15 腕とも final 不変**(呼数・購入・食事・行為分布 JSD 0)。**エンジンは W6 の subcat 列を読まない**(親 grep 0 件)。動くのは tick 1079(17:59)の world_hash だけで、原因は W7 の 1 行(琥珀の営業窓)=資産を 1 つずつ差し替えて特定。golden は不変。
 - ダッシュボード(`tools/c8/dashboard.py`): PENDING の新形式(`| **D-NN** …|`)を読み、歪む場所の行が 0 なら `docs/log/pending-archive-2026-09-28.md` を読む fallback(`distortions_source`)。
 - テスト: 全体 `-m "not gpu and not slow"`(P6 の予算テスト除外)= **2,977 件(failed 0・skipped 1)exit 0**(親が再実行)。親検収: build の再実行(75b264cb・kept)・`--keep-stage` 無しの拒否 exit 2・W17 md5/header・W6 notes・2 腕の final(02bd0312/2f3969cf)。
+
+### #50 段 1b: 飲食店集合の切替口 `--eatery {food,place_food}`(D-96 nightlife (b)・第285・2026-09-28・実装役 Opus 5.5・親検収)
+
+- 正典: [W6 再生成の実装アジェンダ](docs/design/v2-w6-regen-implementation-agenda.md) §2・[W6 再生成の記録](docs/bench/analysis/w6-regen-2026-09-28/README.md) § 段 1b。`world/assets.py` に `WorldAssets.poi_subcat`(**W6 の subcat 列を読む最初の実行時コード**)、`world/state.py` に `EATERY_MODES`/`set_eatery_mode`/`PLACE_FOOD_EXCLUDED_NIGHTLIFE_SUBCATS`(W17 の表の写し=一致をテストで固定)、`run_day(eatery=)`・CLI `--eatery`・manifest `eatery` 列。既定 `food`=挙動不変(final 02bd0312/1d181059/2f3969cf 不変・15 腕再現)。
+- `place_food`(=W17 の場所語「飲食店」と同じ 1,042 件・POI 単位で一致をテスト): 飲食店 823 → 1,042・23 時に開く店 58 → 270・深夜(23〜05 時)の食事 2 → 13 件(v3・mock 5,000)。**副作用**: 正午の食事成立率 52.5 → 49.8%(19 セルで「最小 id の POI」規則が閉店中の nightlife を対象に選ぶ=D-114 の候補選択(§2 の 2 段目)が入るまで既定にしない=Q5 の決め)。final: v3 5c9c774b・v2 511c1f9c。テスト +8(`tests/engine/test_eatery_place_food.py`)。
+
+### #51 段 1c: W10 道路名の突合(D-1 (a))=対応表は生成・**既定 OFF**+絞り込み 1c′ の計測(第285・2026-09-28・実装役 Opus 5.5・親検収)
+
+- 正典: [W6 再生成の実装アジェンダ](docs/design/v2-w6-regen-implementation-agenda.md) §3・[W10 道路名突合の記録](docs/bench/analysis/w10-roadnames-2026-09-28/README.md)。新規 `build/field/road_names.py`(辺 → way は幾何=弧長の中点から ≤ 8 m の最寄り way・way → センサス路線は NFKC/漢数字の正規化・区道は対象外・「国道N号」/trunk+ref → 一般国道・ref → 都道・区間は渋谷→目黒→港→世田谷→新宿→都内の順で最初にある区の下側中央値)。`w10_noise.py` 1.1.0: `USE_ROAD_NAME_MATCH=False`(既定 OFF)でも `w10_edge_section.parquet`(全辺 4,944 行・診断)を書く。W19 の資産表に 1 行。テスト 23(`tests/build_field/test_w10_road_names.py`)。
+- 結果: 道路の辺 2,493 のうち way 2,487(99.8%)・名前/番号あり 760(30.5%)・**センサス路線に名寄せ 246**(9.9%)・primary+secondary **190/202**。**較正 7 点の残差は不変**(No.61 +5.1・No.75 +7.3 dB=較正は路線名でセンサスを直接引き辺を通らない)=改善の証拠なし。ON にすると騒音段階が昼 34/夜 29 セルで変わり**15 腕の checkpoint が全 tick 動く**(v3 02bd0312 → 066a8cbe)。**親の決め=既定 OFF**(改善の証拠が無く、246 辺中 39 辺が klass≠highway で既定の 13〜63 倍の交通量を受けるため)。golden は 1a の値のまま(ON の値はコメントに)。build_hash 09571e85(kept W17・騒音場は 1c 前とバイト一致=親が cmp)。
+- **1c′ 絞り込み(切替口・別出力で計測)**: Q7(名前/番号のある way だけ・klass と highway の階級一致)で **225 辺・primary+secondary 202/202=ゲート PASS・階級の食い違い 0・最大倍率 10×(都道 432 の unclassified)・騒音段階の変化 昼 27/夜 22 セル**。Q9(層の照合)は Q7 の上では差なし(単独では首都高の下の 3 辺だけ)。ON+Q7+Q9 の final: v3 2f6dbc72・v1 de32fe58。**ON にするかは判断項**(PENDING §1-1)。問い Q6(R5 点の座標)・Q8(辺ごとの区間)・Q10(実行時の交通過程)は記録に残し未実装。
+- テスト: 全体 **3,008 件(failed 0・skipped 1)exit 0**(親再実行)。親検収: 再構築 09571e85・騒音場 3 ファイル cmp 一致・W17 不変・W10 notes(applied=false)・対応表 4,944 行(traffic_from_census 全 false・matchable 246)・2 腕 final 02bd0312/b4ad8140・1c′ JSON の 5 変種。

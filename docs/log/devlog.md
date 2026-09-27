@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **4 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **5 / 10**
 > 第1〜第280(2026-09-01〜09-28)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第281 R-54/R-55 の親検収・D-122 草案 v0・D-102 設計書 v0.1(2026-09-28)
@@ -31,3 +31,12 @@
 - **親検収(再実行)**: build `--keep-stage W17` → build_hash 75b264cb・kept・21 段 / `--keep-stage` 無し → exit 2 で拒否 / W17 md5 3113e9ba7abb・header 不変 / W6 notes に矛盾 3 件と未分類 4 件 / 2 腕の final 02bd0312・2f3969cf 不変 / 全体 2,977 件(failed 0・skipped 1)exit 0。engine/perception/world に subcat の読み手が無いことを grep で確認(実装役の主張と一致)。
 - **発見**: W6 再生成で既定 checkpoint は **15 腕とも final 不変**。D-96 の「6 種が動く」は外れ。動くのは 17:59 の world_hash だけ(琥珀の営業窓 17:00→22:00・W7 の 1 行)。subcat の効果は W17 の再生成(場所語の解決)で初めて現れる=来街者の作り直しの回。
 - **次**: 実装役に 1b(eatery 切替口・既定不変)と 1c(W10 道路名突合・D-1 (a))を発注。ユーザーの答え待ち=D-122 P1〜P10・D-102 Q1〜Q9・M17 の形・U-9。
+
+## 第285 段 1b(eatery 切替口)と段 1c(W10 道路名突合=既定 OFF)の親検収と commit(IMPLEMENTED #50・#51)(2026-09-28)
+
+- **実装役の報告**: 1b は既定不変。1c は ON だと 15 腕の checkpoint が全 tick 動き golden も更新していた。親の判断=**1c は既定 OFF に差し戻し**(較正残差が 1 点も動かず改善の証拠が無い一方、246 辺中 39 辺が klass≠highway で 13〜63 倍の交通量を受ける=品質未確定のまま checkpoint を動かさない)。対応表は診断として生成し、絞り込み 1c′(Q7 名前つき・階級一致 / Q9 層の照合)を ON にせず別出力で計測させた。
+- **親検収(再実行)**: 再構築 build_hash 09571e85(kept W17)・騒音場 3 ファイルが 1c 前と cmp 一致・W17 md5 不変・W10 notes applied=false・対応表 4,944 行(適用 0・matchable 246)・2 腕 final 02bd0312/b4ad8140・1c′ JSON(OFF/ON/Q7/Q9/Q7+Q9)・1b JSON(823→1,042・23 時 58→270)・全体 3,008 件(failed 0・skipped 1)exit 0。
+- **1c′ の結果**: Q7 で primary+secondary **202/202=ゲート PASS**・階級の食い違い 0・最大倍率 10×・騒音段階の変化 昼 27/夜 22 セル。残差は不変。→ **ON にするかを PENDING §1-1 の判断項に**(親推奨: ON+Q7+Q9 を次に checkpoint を動かす commit に束ねる)。
+- **1b の副作用**: place_food だと正午の食事成立率 52.5→49.8%(最小 id 規則が閉店中の nightlife を選ぶ)=D-114 の候補選択の後に既定化(Q5)。
+- **commit**: 1b と 1c を別 commit(W6 の版の台帳 README は 1c 側のリンク行を含めて 1b 側に入れた=1c の記録ディレクトリは直後の commit)。
+- **次**: §2 の 2 段目(意図の保持 D-112 ①・対象欄→行き先 D-112 ②・D-114 案 A・`Chooser.probs` の口)の実装アジェンダを親が起草 → 実装役へ。ユーザーの答え待ち: D-122・D-102・M17 の形・U-9・W10 ON。
