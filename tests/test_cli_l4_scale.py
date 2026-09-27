@@ -42,8 +42,8 @@ def test_cli_main_has_the_l4_scale_flag(monkeypatch, argv, expected):
     monkeypatch.setattr(cli, "run", lambda **kw: (seen.update(kw), _Stub())[1])
     assert cli.main(["--agents", "8", "--world", "__no_such_dir__", "--cells", "9", *argv]) == 0
     assert seen["l4_scale"] == expected
-    # 腕は直交(予算の倍率は看板・語彙・意図の腕を動かさない)
-    assert seen["signage_p_see"] == 1.0 and seen["vocab_version"] == "v1"
+    # 腕は直交(予算の倍率は看板・語彙・意図の腕を動かさない)。CLI の既定の版は第277 で v3
+    assert seen["signage_p_see"] == 1.0 and seen["vocab_version"] == cli.CLI_DEFAULT_VOCAB_VERSION
 
 
 def test_a_negative_factor_is_a_usage_error(capsys):

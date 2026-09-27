@@ -62,7 +62,14 @@ from shibuya.perception.templates import (
 from shibuya.world.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE, hash_free_cat_code
 from shibuya.world.state import World
 
+#: **CLI の既定の語彙版**(二層の段 3・第277=``--vocab-version`` を渡さないランは v3)。
+#: ライブラリの既定(``templates.DEFAULT_VOCAB_VERSION``/``run_day``/``cli.run``)は **v1 のまま**
+#: =ライブラリ経由の退化検査・golden は v1 の値で通る(切替口)。v1 の既定 checkpoint を
+#: CLI で再現するときは ``--vocab-version v1`` を明示する。
+CLI_DEFAULT_VOCAB_VERSION: Final[str] = "v3"
+
 __all__ = [
+    "CLI_DEFAULT_VOCAB_VERSION",
     "STORE_ENTRY_CAPITAL_YEN",
     "WALLET_DOMAIN",
     "parse_refractory_scale",
@@ -577,12 +584,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--vocab-version",
         choices=VOCAB_VERSIONS,
-        default=DEFAULT_VOCAB_VERSION,
+        default=CLI_DEFAULT_VOCAB_VERSION,
         help="行動語彙の版(語彙成長 v0・docs/design/v2-vocab-growth-design.md §3 F)。"
-             "v1=現行 24 語(既定・バイト不変)/"
-             "v2=24 語 + 横断語「食事」(飲食店オブジェクトの affordance)。"
-             "v2 では B0 の提示が 13 語になり、段0 辞書が v3(食べる/飲む→食事)になり、"
-             "resolve に「食事」の分岐が増える",
+             "v1=24 語(D-113 以前からの既定・v1 の checkpoint を再現するときは明示)/"
+             "v2=24 語 + 横断語「食事」(飲食店オブジェクトの affordance)/"
+             "v3=行為と活動の二層(D-116・**CLI の既定**=第277): 横断 11 語+なし・5 ラベル形"
+             "(理由・行動・対象・活動・まで)・活動層(--activity)・段0 辞書 v5。"
+             "v3 は --intent-mode vocab だけ",
     )
     ap.add_argument(
         "--no-sleep-suppression",
@@ -733,6 +741,13 @@ def main(argv: list[str] | None = None) -> int:
             raise argparse.ArgumentTypeError("--signage-p-see は 0.0〜1.0 の確率")
         if float(args.l4_scale) < 0.0:
             raise argparse.ArgumentTypeError("--l4-scale は 0 以上(0=無制限)")
+        if str(args.vocab_version) == "v3" and str(args.intent_mode) != "vocab":
+            # 二層の段 3: CLI の既定が v3 になったので、open/hint の腕は版を明示させる
+            # (v3 の B0 は vocab 腕だけ=段 1 の決め)。
+            raise argparse.ArgumentTypeError(
+                "--intent-mode open/hint は --vocab-version v1 か v2 と一緒に使う"
+                "(語彙 v3 の B0 は vocab 腕だけ)"
+            )
     except argparse.ArgumentTypeError as exc:  # 使い方の誤りは traceback ではなく usage で返す
         ap.error(str(exc))
     res = run(

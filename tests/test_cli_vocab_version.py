@@ -50,7 +50,8 @@ def test_the_default_run_is_byte_identical_with_the_explicit_v1():
 
 @pytest.mark.parametrize(
     "argv,expected",
-    [([], "v1"), (["--vocab-version", "v1"], "v1"), (["--vocab-version", "v2"], "v2"),
+    # 第277(二層の段 3): **CLI の既定は v3**(ライブラリ ``run_day``/``cli.run`` の既定は v1 のまま)
+    [([], "v3"), (["--vocab-version", "v1"], "v1"), (["--vocab-version", "v2"], "v2"),
      (["--vocab-version", "v3"], "v3")],
 )
 def test_cli_main_has_the_vocab_version_flag(monkeypatch, argv, expected):
@@ -116,3 +117,24 @@ def test_cli_main_has_the_activity_flag(monkeypatch, argv, expected):
     monkeypatch.setattr(cli, "run", lambda **kw: (seen.update(kw), _Stub())[1])
     assert cli.main(["--agents", "8", "--world", "__no_such_dir__", "--cells", "9", *argv]) == 0
     assert seen["activity"] is expected
+
+
+def test_cli_default_is_v3_but_the_library_default_stays_v1():
+    """第277: CLI の既定だけが v3。ライブラリの既定(=退化検査・golden の切替口)は v1 のまま。"""
+    from shibuya import cli
+    from shibuya.llm.contract import DEFAULT_VOCAB_VERSION as LIB_DEFAULT
+
+    assert cli.CLI_DEFAULT_VOCAB_VERSION == "v3"
+    assert LIB_DEFAULT == DEFAULT_VOCAB_VERSION == "v1"
+    assert cli.run(**SMALL).run_manifest_fields()["vocab_version"] == "v1"
+
+
+@pytest.mark.parametrize("mode", ["open", "hint"])
+def test_open_and_hint_arms_need_an_explicit_v1_or_v2_on_the_cli(mode, monkeypatch, capsys):
+    """v3 の B0 は vocab 腕だけ=CLI の既定(v3)のまま open/hint を頼むと usage で落とす。"""
+    from shibuya import cli
+
+    monkeypatch.setattr(cli, "run", lambda **kw: None)
+    with pytest.raises(SystemExit):
+        cli.main(["--agents", "8", "--world", "__no_such_dir__", "--intent-mode", mode])
+    assert "--vocab-version" in capsys.readouterr().err

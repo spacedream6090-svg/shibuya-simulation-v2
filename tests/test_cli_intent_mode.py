@@ -53,7 +53,11 @@ def test_cli_main_has_the_intent_mode_flag(monkeypatch, argv, expected):
             return "(stub)"
 
     monkeypatch.setattr(cli, "run", lambda **kw: (seen.update(kw), _Stub())[1])
-    assert cli.main(["--agents", "8", "--world", "__no_such_dir__", "--cells", "9", *argv]) == 0
+    # 第277: CLI の既定の版は v3(vocab 腕だけ)=AB7 の腕は版 v1 を明示して従来どおり回す
+    assert cli.main(
+        ["--agents", "8", "--world", "__no_such_dir__", "--cells", "9", "--vocab-version", "v1",
+         *argv]
+    ) == 0
     assert seen["intent_mode"] == expected
 
 

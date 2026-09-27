@@ -213,6 +213,9 @@ def _default_mock(seed: int | str, vocab_version: str) -> Any:
 
     if str(vocab_version) == VOCAB_VERSIONS[0]:
         return MockLLM(master_seed=seed)
+    if str(vocab_version) == "v3":
+        # 二層の段 3: 5 ラベル形(行為=11 語+なし の一様・活動・まで・あたり)=``llm.mock``
+        return MockLLM(master_seed=seed, vocab=cross_action_words("v3"), form="v3")
     return MockLLM(master_seed=seed, vocab=cross_action_words(vocab_version))
 
 
