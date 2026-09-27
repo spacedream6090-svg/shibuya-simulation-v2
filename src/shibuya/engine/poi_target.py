@@ -27,6 +27,15 @@
 計数(manifest ``target_resolution``): (i) 名指し・(ii) カテゴリ語 → 候補 → 選び手・(iii) なし →
 候補 → 選び手・(iv) 候補なし(理由別)と、選び手の分布のエントロピーの平均。
 
+**段 2b(行き先を対象欄から・D-112 ②)** :meth:`TargetResolver.resolve_move`: 移動の対象欄の解決順=
+**セル ID**(「セル」接頭辞つきも・``llm.contract.parse_target`` の CELL)→ **名指し**(POI 名・目印名 →
+その POI のセル。同名が複数なら選び手=最寄り)→ **カテゴリ語**(現在セル → W8 で見えている POI →
+``cell_dist`` の昇順の近いセル :data:`MOVE_SEARCH_RADIUS_CELLS` 個まで、の順に最初に営業中の候補がある所
+→ 選び手で 1 件 → そのセル)→ **なし/説明語**(``-1``=従来の既定=職場/自宅のうち今いない方を**保つ**・
+宣言)。解決できない対象(存在しないセル ID・近傍に候補の無いカテゴリ)は ``MOVE_BAD_TARGET``
+(``resolve._apply_move`` が ``BAD_TARGET``)=「経路なし」(``UNREACHABLE``)と分ける。
+計数は manifest ``move_resolution``。
+
 expedient(宣言)
 - :data:`CATEGORY_WORDS`(対象欄の語 → W6 の cat/subcat)=**対応表 v0(第286・宣言)**。親決定
   (Q11)で起草をそのまま v0 として採用。語の出所は B2 に出る業種語(``build/lang/w14_signage.
@@ -51,7 +60,9 @@ from typing import Any, Final, Sequence
 import numpy as np
 
 from shibuya.engine.chooser import ChoiceContext, Chooser, draw_index, entropy_bits
-from shibuya.world.assets import SYNTHETIC_POI_CATS
+from shibuya.engine.commit import WANDER_BAD_TARGET
+from shibuya.world.assets import BAND_CODES, SYNTHETIC_POI_CATS
+from shibuya.world.state import LANDMARK_CATS
 
 __all__ = [
     "KIND_NAMED",
@@ -66,6 +77,10 @@ __all__ = [
     "check_poi_target",
     "TargetResolver",
     "resolution_summary",
+    "MOVE_SEARCH_RADIUS_CELLS",
+    "MOVE_BAD_TARGET",
+    "MOVE_DIST_BINS_M",
+    "move_resolution_summary",
 ]
 
 KIND_NAMED: Final[str] = "named"
@@ -164,6 +179,16 @@ def check_poi_target(mode: str) -> str:
     return m
 
 
+#: 段 2b: カテゴリ語の近傍探索で見る**近いセルの数**(現在セルを除く・``cell_dist`` の昇順・宣言・
+#: expedient・``--move-search-radius``)。
+MOVE_SEARCH_RADIUS_CELLS: Final[int] = 5
+#: 段 2b: 移動の対象が解決できない(存在しないセル ID・近傍に候補の無いカテゴリ)印。
+#: ``resolve._apply_move`` が ``BAD_TARGET`` を付ける(「あたり」の域外と同じ値を使う)。
+MOVE_BAD_TARGET: Final[int] = WANDER_BAD_TARGET
+#: 段 2b: カテゴリで選んだ行き先までの距離の分布の刻み[m](``cell_dist``)。
+MOVE_DIST_BINS_M: Final[tuple[int, ...]] = (0, 100, 200, 400, 800)
+
+
 #: 総称語(対応表 v0・親決定 Q11): 「店」「店舗」「ショップ」「お店」は業態を指さない=**なし**として読む
 #: (POI 名の「入力 ⊂ 名」に当てない=「〇〇ショップ」の名指しにしない)。
 GENERIC_WORDS: Final[frozenset[str]] = frozenset({"店", "店舗", "ショップ", "お店"})
@@ -198,9 +223,13 @@ class TargetResolver:
     world: Any
     chooser: Chooser
     seed: int | str
+    #: 段 2b: カテゴリ語の近傍探索で見る近いセルの数(:data:`MOVE_SEARCH_RADIUS_CELLS`)。
+    move_search_radius: int = MOVE_SEARCH_RADIUS_CELLS
     #: 計数(``resolution_summary`` が manifest の形にする)。
     stats: Counter = field(default_factory=Counter)
     entropy_sum: float = 0.0
+    #: 段 2b の計数(``move_resolution_summary`` が manifest の形にする)。
+    move_stats: Counter = field(default_factory=Counter)
 
     def __post_init__(self) -> None:
         a = self.world.assets
@@ -231,6 +260,15 @@ class TargetResolver:
         self._off = np.zeros(n_cells + 1, dtype=np.int64)
         np.cumsum(counts, out=self._off[1:])
         self._skip = int(np.count_nonzero(cell < 0))  # 場外(-1)の POI は先頭に並ぶ
+        # 段 2b: セル ID(W2 の place_id=``g{ix}_{iy}_{band}``)→ セル索引
+        band_name = {v: k for k, v in BAND_CODES.items()}
+        self._cell_of_place = {
+            f"g{int(ix)}_{int(iy)}_{band_name.get(int(b), 'GL')}": i
+            for i, (ix, iy, b) in enumerate(zip(a.cell_ix, a.cell_iy, a.cell_band))
+        }
+        self._landmark = np.fromiter((c in LANDMARK_CATS for c in self._cat), dtype=bool, count=n)
+        if int(self.move_search_radius) < 0:
+            raise ValueError("move_search_radius は 0 以上")
 
     # ------------------------------------------------------------------ 対象欄の読み
     def _category_mask(self, word: str) -> np.ndarray:
@@ -397,6 +435,169 @@ class TargetResolver:
             self.stats["decisions"] += 1
             self.entropy_sum += entropy_bits(p)
         return out
+
+
+    # ------------------------------------------------------------------ 段 2b: 移動の行き先
+    def cell_of_target(self, target: Any) -> int | None:
+        """CELL の対象 → セル索引(``None``=CELL でない・``-1``=存在しないセル)。"""
+        if target is None or getattr(getattr(target, "kind", None), "name", "") != "CELL":
+            return None
+        cid = getattr(target, "cell_id", None)
+        if cid and str(cid) in self._cell_of_place:            # W2 の place_id(g12_34_GL)
+            return int(self._cell_of_place[str(cid)])
+        ci = getattr(target, "cell_index", None)               # C-0117 の形=セル索引
+        if ci is not None and 0 <= int(ci) < int(self.world.n_cells):
+            return int(ci)
+        return -1
+
+    def _pick(self, cands: np.ndarray, vis: np.ndarray, cell: int, aid: int, tick: int,
+              kind: str, text: str, reg: Any, code: int) -> int:
+        dist = np.asarray(
+            self.world.assets.cell_dist[cell, np.asarray(self.world.pois.cell)[cands]],
+            dtype=np.float64,
+        )
+        ctx = ChoiceContext(
+            agent_id=aid, tick=int(tick), cell=cell, node=int(reg.node[aid]), action_code=code,
+            target_kind=kind, target_text=text, hunger=int(reg.hunger[aid]),
+            visibility=np.asarray(vis, dtype=np.int64), distance_m=dist,
+        )
+        p = np.asarray(self.chooser.probs(cands, ctx), dtype=np.float64)
+        if p.shape != cands.shape:
+            raise ValueError("chooser.probs の長さが候補と違う")
+        return int(cands[draw_index(p, self.seed, int(tick), aid)])
+
+    def resolve_move(
+        self,
+        agents: Any,
+        tick: int,
+        agent_ids: np.ndarray,
+        action_code: np.ndarray,
+        targets: Sequence[Any] | None,
+        rows: np.ndarray,
+    ) -> np.ndarray:
+        """移動の行(``rows`` が真)→ 行き先セル(``-1``=従来の既定・``MOVE_BAD_TARGET``=解決不能)。
+
+        逐次ループ宣言(P4): **移動の呼の数**ぶん(近傍探索は 1 呼あたり高々 R+2 セル)。
+        """
+        a = np.asarray(agent_ids, dtype=np.int64)
+        out = np.full(a.size, -1, dtype=np.int64)
+        idx = np.flatnonzero(np.asarray(rows, dtype=bool))
+        if idx.size == 0:
+            return out
+        w = self.world
+        reg = agents.registry
+        open_now = np.asarray(w.open_mask(int(tick)), dtype=bool)
+        vis_own = np.asarray(w.poi_visibility, dtype=np.int64)
+        poi_cell = np.asarray(w.pois.cell, dtype=np.int64)
+        cell_dist = w.assets.cell_dist
+        n_cells = int(w.n_cells)
+        ms = self.move_stats
+        for k in idx.tolist():  # 逐次: 移動の行
+            aid = int(a[k])
+            cell = int(reg.cell[aid])
+            tg = None if targets is None else targets[k]
+            code = int(action_code[k])
+            if cell < 0:  # 域外の体は従来の既定のまま(行き先の既定は計画・自宅/職場)
+                ms["offmap_default"] += 1
+                continue
+            c = self.cell_of_target(tg)
+            if c is not None:                                   # セル ID
+                if c < 0:
+                    ms["bad_target:cell_unknown"] += 1
+                    out[k] = MOVE_BAD_TARGET
+                else:
+                    ms["cell"] += 1
+                    out[k] = c
+                continue
+            kind, text, named, cat_word = self.classify(tg)
+            if kind == KIND_NAMED:                              # 名指し(POI 名・目印名)
+                cands = np.asarray(named, dtype=np.int64)
+                cands = cands[(poi_cell[cands] >= 0) & (poi_cell[cands] < n_cells)]
+                if cands.size == 0:
+                    ms["bad_target:named_offmap"] += 1
+                    out[k] = MOVE_BAD_TARGET
+                    continue
+                here = cands[poi_cell[cands] == cell]
+                pick = int(here[0]) if here.size else self._pick(
+                    cands, vis_own[cands], cell, aid, tick, kind, text, reg, code
+                )
+                ms["named_landmark" if self._landmark[pick] else "named"] += 1
+                out[k] = int(poi_cell[pick])
+                continue
+            if kind == KIND_CATEGORY:                           # カテゴリ語 → 近傍の候補
+                mask = self._category_mask(cat_word) & open_now
+                base = self.pois_in_cell(cell)
+                cands = base[mask[base]]
+                if cands.size:
+                    ms["category_in_cell"] += 1
+                    out[k] = cell
+                    continue
+                vp, vn = w.visible_pois(cell)
+                sel = mask[vp] if vp.size else np.zeros(0, dtype=bool)
+                if np.any(sel):
+                    pick = self._pick(vp[sel], vn[sel], cell, aid, tick, kind, text, reg, code)
+                    ms["category_visible"] += 1
+                    self._record_dist(int(cell_dist[cell, poi_cell[pick]]))
+                    out[k] = int(poi_cell[pick])
+                    continue
+                if self.move_search_radius > 0:
+                    row = np.asarray(cell_dist[cell], dtype=np.int64)
+                    order = np.lexsort((np.arange(n_cells), row))
+                    order = order[order != cell][: int(self.move_search_radius)]
+                    found = False
+                    for nc in order.tolist():  # 逐次: 近いセル R 個まで
+                        cands = self.pois_in_cell(int(nc))
+                        cands = cands[mask[cands]]
+                        if cands.size:
+                            pick = self._pick(cands, vis_own[cands], cell, aid, tick, kind, text,
+                                              reg, code)
+                            ms["category_nearby"] += 1
+                            self._record_dist(int(cell_dist[cell, poi_cell[pick]]))
+                            out[k] = int(poi_cell[pick])
+                            found = True
+                            break
+                    if found:
+                        continue
+                ms["bad_target:category_none_nearby"] += 1
+                out[k] = MOVE_BAD_TARGET
+                continue
+            ms["none_default"] += 1                             # なし/説明語 → 従来の既定
+        return out
+
+    def _record_dist(self, d: int) -> None:
+        bins = MOVE_DIST_BINS_M
+        lab = next(
+            (f"{lo}-{hi}" for lo, hi in zip(bins, bins[1:]) if lo <= d < hi), f"{bins[-1]}+"
+        )
+        self.move_stats[f"dist:{lab}"] += 1
+        self.move_stats["dist_sum_m"] += int(d)
+        self.move_stats["dist_n"] += 1
+
+
+def move_resolution_summary(ms: Counter, n_bad_target: int = 0, n_unreachable: int = 0) -> dict[str, Any]:
+    """段 2b の計数 → manifest ``move_resolution`` の形。"""
+    bins = MOVE_DIST_BINS_M
+    labels = [f"{lo}-{hi}" for lo, hi in zip(bins, bins[1:])] + [f"{bins[-1]}+"]
+    n = int(ms.get("dist_n", 0))
+    return {
+        "cell": int(ms.get("cell", 0)),
+        "named": int(ms.get("named", 0)),
+        "named_landmark": int(ms.get("named_landmark", 0)),
+        "category_in_cell": int(ms.get("category_in_cell", 0)),
+        "category_visible": int(ms.get("category_visible", 0)),
+        "category_nearby": int(ms.get("category_nearby", 0)),
+        "none_default": int(ms.get("none_default", 0)),
+        "offmap_default": int(ms.get("offmap_default", 0)),
+        "bad_target": {
+            r: int(ms.get(f"bad_target:{r}", 0))
+            for r in ("cell_unknown", "named_offmap", "category_none_nearby")
+        },
+        "category_distance_m": {lab: int(ms.get(f"dist:{lab}", 0)) for lab in labels},
+        "category_distance_mean_m": round(int(ms.get("dist_sum_m", 0)) / n, 1) if n else 0.0,
+        # resolve._apply_move の結果(移動の行のうち): 対象不正(BAD_TARGET)/ 経路なし(UNREACHABLE)
+        "result_bad_target": int(n_bad_target),
+        "result_unreachable": int(n_unreachable),
+    }
 
 
 def resolution_summary(stats: Counter, entropy_sum: float) -> dict[str, Any]:

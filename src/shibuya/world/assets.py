@@ -74,6 +74,8 @@ __all__ = [
     "load_walkable_area_m2",
     # ---- 段 2a(選択器の口): 同じセルの POI の見えやすさ(W8) ----
     "load_poi_own_cell_visibility",
+    # ---- 段 2b(行き先を対象欄から): セルから見えている POI(W8・B2 の可視物) ----
+    "load_visible_pois_by_cell",
 ]
 
 #: 層名 → コード(UG=-1 / GL=0 / DECK=1。W2 の 3 値)。
@@ -485,6 +487,48 @@ def load_poi_own_cell_visibility(world_dir: str | Path, poi_cell: np.ndarray) ->
         if tid is not None and cell[j] >= 0:
             out[j] = seen.get((int(cell[j]), tid), 0)
     return out
+
+
+def load_visible_pois_by_cell(
+    world_dir: str | Path, n_cells: int
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """W8 → セルごとの「そのセルの視点から見えている POI」(CSR)。
+
+    段 2b(行き先を対象欄から・D-112 ②)のカテゴリ語の近傍探索で「現在セルに候補が無ければ
+    見えている POI」を引く口(W8 ``w8_t1_cell``=B2 の可視物のセル集約)。
+
+    Returns:
+        ``(offsets[n_cells+1], poi_idx, n_viewpoints)``。セル ``c`` の行は
+        ``offsets[c]:offsets[c+1]``(POI 索引の昇順)。資産が欠けていれば全セル空。
+
+    逐次ループ宣言(P4): なし(辞書 1 本と整列。起動時 1 回)。
+    """
+    import pyarrow.parquet as pq
+
+    p = Path(world_dir)
+    offsets = np.zeros(int(n_cells) + 1, dtype=np.int64)
+    empty = (offsets, np.zeros(0, dtype=np.int64), np.zeros(0, dtype=np.int32))
+    files = (p / "w6_poi.parquet", p / "w8_targets.parquet", p / "w8_t1_cell.parquet")
+    if not all(f.exists() for f in files):
+        return empty
+    poi_ids = pq.read_table(files[0], columns=["poi_id"]).column(0).to_pylist()
+    index_of = {str(pid): j for j, pid in enumerate(poi_ids)}
+    tg = pq.read_table(files[1], columns=["target_id", "kind", "ref_id"]).to_pydict()
+    poi_of_target = {
+        int(tid): index_of[str(ref)]
+        for tid, kind, ref in zip(tg["target_id"], tg["kind"], tg["ref_id"])
+        if str(kind) == "poi" and str(ref) in index_of
+    }
+    t1 = pq.read_table(files[2], columns=["place_idx", "target_id", "n_viewpoints"]).to_pydict()
+    cell = np.asarray(t1["place_idx"], dtype=np.int64)
+    poi = np.asarray([poi_of_target.get(int(t), -1) for t in t1["target_id"]], dtype=np.int64)
+    nv = np.asarray(t1["n_viewpoints"], dtype=np.int32)
+    ok = (poi >= 0) & (cell >= 0) & (cell < int(n_cells))
+    cell, poi, nv = cell[ok], poi[ok], nv[ok]
+    order = np.lexsort((poi, cell))
+    cell, poi, nv = cell[order], poi[order], nv[order]
+    np.cumsum(np.bincount(cell, minlength=int(n_cells)), out=offsets[1:])
+    return offsets, poi, nv
 
 
 def _noise_stage_per_cell(

@@ -61,7 +61,11 @@ from shibuya.perception.templates import (
 )
 from shibuya.world.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE, hash_free_cat_code
 from shibuya.engine.chooser import CHOOSER_NAMES, DEFAULT_CHOOSER
-from shibuya.engine.poi_target import DEFAULT_POI_TARGET, POI_TARGET_MODES
+from shibuya.engine.poi_target import (
+    DEFAULT_POI_TARGET,
+    MOVE_SEARCH_RADIUS_CELLS,
+    POI_TARGET_MODES,
+)
 from shibuya.world.state import DEFAULT_EATERY_MODE, EATERY_MODES, World
 
 #: **CLI の既定の語彙版**(二層の段 3・第277=``--vocab-version`` を渡さないランは v3)。
@@ -662,6 +666,14 @@ def main(argv: list[str] | None = None) -> int:
              "意図に合う)→ 選び手(既定)/legacy=段 2a 前の現在セルの最小 id(旧 checkpoint の再現)",
     )
     ap.add_argument(
+        "--move-search-radius",
+        type=int,
+        default=MOVE_SEARCH_RADIUS_CELLS,
+        metavar="R",
+        help="段 2b(D-112 ②): 移動の対象がカテゴリ語のとき、現在セル・見えている POI に候補が無ければ "
+             "cell_dist の近い順に見るセルの数(既定 5・宣言・0=近傍探索しない)",
+    )
+    ap.add_argument(
         "--eatery",
         choices=EATERY_MODES,
         default=DEFAULT_EATERY_MODE,
@@ -801,6 +813,7 @@ def main(argv: list[str] | None = None) -> int:
         eatery=str(args.eatery),
         chooser=str(args.chooser),
         poi_target=str(args.poi_target),
+        move_search_radius=int(args.move_search_radius),
         role_words=(str(args.role_words) == "on"),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),

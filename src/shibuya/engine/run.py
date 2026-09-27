@@ -49,6 +49,7 @@ from __future__ import annotations
 
 import argparse
 import time
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -101,8 +102,10 @@ from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
 from shibuya.engine.presence import PlanExecutor
 from shibuya.engine.poi_target import (
     DEFAULT_POI_TARGET,
+    MOVE_SEARCH_RADIUS_CELLS,
     TargetResolver,
     check_poi_target,
+    move_resolution_summary,
     resolution_summary,
 )
 from shibuya.engine.llm_bridge import (
@@ -207,7 +210,7 @@ DIAG_DAY_ROWS: Final[tuple[str, ...]] = (
 )
 
 
-def _default_mock(seed: int | str, vocab_version: str) -> Any:
+def _default_mock(seed: int | str, vocab_version: str, move_target_p: float = 0.0) -> Any:
     """``llm`` を注入しないランの既定 mock(``MockLLM``)。**語彙版に語彙を合わせる**。
 
     ``MockLLM`` はプロンプト本文を読まない(=B0 に 13 語目を載せても出力は変わらない)ので、
@@ -222,7 +225,11 @@ def _default_mock(seed: int | str, vocab_version: str) -> Any:
         return MockLLM(master_seed=seed)
     if str(vocab_version) == "v3":
         # 二層の段 3: 5 ラベル形(行為=11 語+なし の一様・活動・まで・あたり)=``llm.mock``
-        return MockLLM(master_seed=seed, vocab=cross_action_words("v3"), form="v3")
+        # 段 2b: ``move_target_p`` > 0 で移動の対象にカテゴリ語/見えている名を出す(既定 0=不変)
+        return MockLLM(
+            master_seed=seed, vocab=cross_action_words("v3"), form="v3",
+            move_target_p=float(move_target_p),
+        )
     return MockLLM(master_seed=seed, vocab=cross_action_words(vocab_version))
 
 
@@ -363,6 +370,15 @@ class RunResult:
     poi_target: str = DEFAULT_POI_TARGET
     #: 購入/食事/並ぶの対象の解決の内訳(段 2a・``engine.poi_target.resolution_summary``)。
     #: ``legacy`` のランは空 dict(数えない)。
+    #: 段 2b: 移動の行き先の解決の内訳(``engine.poi_target.move_resolution_summary``)。
+    move_resolution: dict[str, Any] = field(default_factory=dict)
+    #: 段 2b: カテゴリ語の近傍探索で見る近いセルの数(``--move-search-radius``)。
+    move_search_radius: int = MOVE_SEARCH_RADIUS_CELLS
+    #: 段 2b: mock の移動の対象にセル ID/カテゴリ語/見えている名を出す確率(既定 0=不変)。
+    mock_move_target_p: float = 0.0
+    #: 段 2b: 移動の失敗の内訳(``resolve._apply_move``)。
+    move_bad_target: int = 0
+    move_unreachable: int = 0
     target_resolution: dict[str, Any] = field(default_factory=dict)
     #: 活動層の計数(``engine.activity.ActivityLayer.counters``)。層が無いランは空 dict。
     activity_counters: dict[str, int] = field(default_factory=dict)
@@ -710,6 +726,10 @@ class RunResult:
             "chooser": str(self.chooser),
             "poi_target": str(self.poi_target),
             "target_resolution": dict(self.target_resolution),
+            # ---- 段 2b(D-112 ②): 移動の行き先の解決の内訳。列追加のみ ----
+            "move_resolution": dict(self.move_resolution),
+            "move_search_radius": int(self.move_search_radius),
+            "mock_move_target_p": float(self.mock_move_target_p),
             "calls_by_condition": dict(self.calls_by_condition),
             "synonym_table_version": _synonym_table_version(self.vocab_version),
             "action_usage": dict(self.action_usage),
@@ -1232,6 +1252,8 @@ def run_day(
     eatery: str = "food",
     chooser: str = DEFAULT_CHOOSER,
     poi_target: str = DEFAULT_POI_TARGET,
+    move_search_radius: int = MOVE_SEARCH_RADIUS_CELLS,
+    mock_move_target_p: float = 0.0,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -1426,7 +1448,12 @@ def run_day(
         poi_target: **対象の決め方の切替口**(親決定 Q13)。``"candidates"``(既定)=上の
             候補 → 選び手 / ``"legacy"``=段 2a 前の「現在セルの最小 id」(``commit._poi_in_cell``)
             をそのまま通す=**旧 checkpoint(02bd0312 等)を再現する**。``legacy`` では
-            ``target_resolution`` を数えない(空 dict)。
+            ``target_resolution`` を数えない(空 dict)。**段 2b の移動の行き先も従来のまま**。
+        move_search_radius: **段 2b**(行き先を対象欄から・D-112 ②)のカテゴリ語の近傍探索で
+            見る近いセルの数(現在セル・見えている POI の次に ``cell_dist`` の昇順で R 個・宣言・
+            既定 5)。0 なら近傍探索をしない。
+        mock_move_target_p: 既定 mock(語彙 v3)の移動の対象にカテゴリ語か B2 に見えている名を
+            出す確率(段 2b の経路を mock で通す腕・既定 0=golden 不変)。
 
     Returns:
         ``RunResult``。
@@ -1480,11 +1507,17 @@ def run_day(
     # ---- 段 2a: 購入/食事/並ぶの対象=候補 → 選び手(1 ランに 1 つ・世界は読むだけ) ----
     # ``legacy``(Q13)は resolver を作らない=``intents_from_responses`` が従来の最小 id を通す。
     poi_resolver = (
-        TargetResolver(world=world, chooser=make_chooser(chooser), seed=seed)
+        TargetResolver(
+            world=world, chooser=make_chooser(chooser), seed=seed,
+            move_search_radius=int(move_search_radius),
+        )
         if poi_target == "candidates"
         else None
     )
-    llm = llm if llm is not None else _default_mock(seed, vocab_version)
+    mock_move_target_p = float(mock_move_target_p)
+    if not (0.0 <= mock_move_target_p <= 1.0):
+        raise ValueError(f"mock_move_target_p は 0.0〜1.0(いま {mock_move_target_p})")
+    llm = llm if llm is not None else _default_mock(seed, vocab_version, mock_move_target_p)
     salt = run_salt_for(seed)
     tape_writer = TapeWriter(Path(tape_path)) if tape_path is not None else None
     conv = ConversationManager(seed) if conversations else None
@@ -2313,6 +2346,8 @@ def run_day(
         result.n_board_waiting += outcome.n_board_waiting
         result.n_board_timeout += outcome.n_board_timeout
         result.meals += outcome.n_meals
+        result.move_bad_target += outcome.n_move_bad_target
+        result.move_unreachable += outcome.n_move_unreachable
         result.meal_yen += outcome.meal_yen
         # C9b(対象と注意)。腕が立っていないランでは 4 本とも 0 のまま。
         result.n_approach += outcome.n_approach
@@ -2670,6 +2705,13 @@ def run_day(
         resolution_summary(poi_resolver.stats, poi_resolver.entropy_sum)
         if poi_resolver is not None
         else {}
+    )
+    result.move_search_radius = int(move_search_radius)
+    result.mock_move_target_p = float(mock_move_target_p)
+    result.move_resolution = move_resolution_summary(
+        poi_resolver.move_stats if poi_resolver is not None else Counter(),
+        result.move_bad_target,
+        result.move_unreachable,
     )
     result.calls_by_condition = {
         WakeCondition(i).name: int(calls_by_cond[i]) for i in range(N_WAKE_CONDITIONS_ALL)

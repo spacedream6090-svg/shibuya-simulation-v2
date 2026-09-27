@@ -380,6 +380,9 @@ class ResolveOutcome:
     n_meals: int = 0
     #: 食事で店舗へ移った金額[円](``revenue_delta`` の内数)。
     meal_yen: int = 0
+    #: 段 2b: 移動の失敗の内訳(対象不正=行き先が解決できない / 経路なし)。
+    n_move_bad_target: int = 0
+    n_move_unreachable: int = 0
     #: **C9 辺上の連続位置**(``engine.geometry.EdgeGeometry``)。``None``=現行の 1 tick=1 ノード。
     geometry: EdgeGeometry | None = None
     #: この tick の**ホップ反復**の回数(edge モードの P4 実測=逐次ループの実際の深さ。
@@ -1192,6 +1195,7 @@ def _apply_move(agents, world, aid, tgt, tick, out, schedule) -> None:
     bad = tgt == WANDER_BAD_TARGET
     if bool(np.any(bad)):
         _fail(agents, aid[bad], ResultCode.BAD_TARGET, tick, out)
+        out.n_move_bad_target += int(np.count_nonzero(bad))
         aid, tgt = aid[~bad], tgt[~bad]
         if aid.size == 0:
             return
@@ -1217,6 +1221,7 @@ def _apply_move(agents, world, aid, tgt, tick, out, schedule) -> None:
         _ok(agents, g, tick, out)
     _clear_focus(agents, aid[~good])  # 行けなかった体に焦点だけ残さない
     _fail(agents, aid[~good], ResultCode.UNREACHABLE, tick, out)
+    out.n_move_unreachable += int(np.count_nonzero(~good))
 
 
 def _approach_dest_node(agents, world, aid, dest_node, out) -> np.ndarray:

@@ -650,6 +650,9 @@ def intents_from_responses(
         poi_resolver: **段 2a の候補の絞り込み+選び手**(``engine.poi_target.TargetResolver``)。
             渡すと購入/食事/並ぶの対象を「現在セルの営業中・意図に合う POI の候補 → 選び手の
             分布」で決める。``None`` なら従来の「現在セルの最小 id」(``_poi_in_cell``)。
+            **段 2b**: 渡すと移動の行き先も対象欄から決める(``TargetResolver.resolve_move``=
+            セル ID → 名指し → カテゴリ語の近傍探索 → なし=従来の既定)。対象ヒント home/work/
+            school/approach と「あたり」の行は従来どおり(そちらが優先)。
 
     Returns:
         ``IntentBatch``(1 個体 1 件)。
@@ -679,6 +682,23 @@ def intents_from_responses(
         else:
             hc = wc = None
             dest = cell
+        # ---- 段 2b(D-112 ②): 対象欄が行き先を言っていれば従来の既定より優先する ----
+        # 対象ヒント home/work/school/approach と「あたり」(move_dest)の行は下の既存の経路が決める。
+        if poi_resolver is not None:
+            skip = np.zeros(n, dtype=bool)
+            if target_hint is not None:
+                skip |= np.isin(
+                    np.asarray(target_hint, dtype=np.int64),
+                    (TARGET_HINT_HOME, TARGET_HINT_WORK, TARGET_HINT_SCHOOL, TARGET_HINT_APPROACH),
+                )
+            if move_dest is not None:
+                skip |= np.asarray(move_dest, dtype=np.int64) != -1
+            m_rows = is_move & ~skip
+            if np.any(m_rows):
+                m_dest = poi_resolver.resolve_move(  # type: ignore[attr-defined]
+                    agents, int(tick), a, code_out, targets, m_rows
+                )
+                dest = np.where(m_rows & (m_dest != -1), m_dest, dest)
         # ---- C9b G5: 対象ヒントが在れば**LLM が言った行き先**を優先する ----
         # (「帰宅」と書いた体を職場へ歩かせない=段0 辞書が捨てていた対象を拾う。
         #  ``target_hint`` が ``None`` の既定では 1 行も通らない=バイト不変)

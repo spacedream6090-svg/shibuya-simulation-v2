@@ -90,6 +90,12 @@ MOCK_UNTILS_V3_MOVE: Final[tuple[str, ...]] = ("30分", "60分", "到着", "次�
 #: 移動の対象を「あたり」にする割合の分母(1/3・アジェンダ §3)。
 MOCK_WANDER_ONE_IN: Final[int] = 3
 _MOVE_WORD: Final[str] = "移動"
+#: 段 2b(行き先を対象欄から): ``move_target_p`` のときに移動の対象へ出すカテゴリ語(対応表 v0 の語)。
+#: これに加えて、プロンプトの「見えるもの: …」の項目(B2 の可視物=店名・業種語)から引く。
+MOCK_MOVE_TARGET_WORDS: Final[tuple[str, ...]] = ("飲食店", "物販店", "コンビニ", "カフェ", "公園", "書店")
+#: 段 2b の対象を引く乱数の用途名(既存の列と別にする=``move_target_p=0`` の既定は 1 バイトも変わらない)。
+_MOVE_TARGET_DOMAIN_SUFFIX: Final[str] = ".move_target"
+_VISIBLE_PREFIX: Final[str] = "見えるもの:"
 
 
 class MockLLM:
@@ -115,6 +121,7 @@ class MockLLM:
         comments: tuple[str, ...] = MOCK_COMMENTS,
         form: str = "v1",
         activities: tuple[str, ...] = MOCK_ACTIVITIES_V3,
+        move_target_p: float = 0.0,
     ) -> None:
         if not vocab:
             raise ValueError("vocab が空")
@@ -122,6 +129,8 @@ class MockLLM:
             raise ValueError(f"form は {MOCK_FORMS} のどれか(いま {form!r})")
         if not activities:
             raise ValueError("activities が空")
+        if not (0.0 <= float(move_target_p) <= 1.0):
+            raise ValueError("move_target_p は 0.0〜1.0")
         self.master_seed = master_seed
         self.domain = domain
         self.vocab = tuple(vocab)
@@ -129,6 +138,9 @@ class MockLLM:
         self.comments = tuple(comments)
         self.form = str(form)
         self.activities = tuple(activities)
+        #: 段 2b: 語彙 v3 の移動(「あたり」でない行)の対象にカテゴリ語か見えている名を出す確率。
+        #: 既定 0=従来どおり(対象=なし)。別の乱数列から引く=既存の 6 語は動かない。
+        self.move_target_p = float(move_target_p)
         self.n_calls = 0
 
     def _stream(self, request: LLMRequest):
@@ -171,10 +183,28 @@ class MockLLM:
         target = request.targets[c % len(request.targets)] if request.targets else NO_TARGET
         if action == _MOVE_WORD and d % MOCK_WANDER_ONE_IN == 0:
             target = TARGET_WANDER
+        elif action == _MOVE_WORD and self.move_target_p > 0.0:
+            target = self._move_target(request, target)
         activity = self.activities[e % len(self.activities)]
         untils = MOCK_UNTILS_V3_MOVE if action == _MOVE_WORD else MOCK_UNTILS_V3
         until = untils[f % len(untils)]
         return format_two_line_v3(reason, action, target, activity, until)
+
+    def _move_target(self, request: LLMRequest, default: str) -> str:
+        """段 2b: 確率 ``move_target_p`` で、カテゴリ語か B2 に見えている項目を移動の対象にする。"""
+        draw_index = int(request.wake_class) - int(EventClass.INSTITUTION)
+        g = stream(self.master_seed, self.domain + _MOVE_TARGET_DOMAIN_SUFFIX,
+                   int(request.tick), int(request.agent_id), draw_index)
+        u, pick = float(g.random()), int(g.integers(0, 1 << 31))
+        if u >= self.move_target_p:
+            return default
+        words = list(MOCK_MOVE_TARGET_WORDS)
+        for line in str(request.prompt).splitlines():
+            if _VISIBLE_PREFIX in line:
+                items = line.split(_VISIBLE_PREFIX, 1)[1].strip().rstrip("。")
+                words += [s.strip() for s in items.split("、") if s.strip() and s.strip() != "なし"]
+                break
+        return words[pick % len(words)]
 
     def render(self, request: LLMRequest) -> str:
         """応答本文(2行形)を作る(副作用なし)。``form="v3"`` は 5 ラベル形。"""

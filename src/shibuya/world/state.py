@@ -170,6 +170,8 @@ class World:
         #: 段 2a: POI の「自分のセルの視点から見える数」(W8・``poi_visibility`` の遅延キャッシュ)。
         #: **SoA の欄ではない**=checkpoint 外。
         self._poi_visibility: np.ndarray | None = None
+        #: 段 2b: セルから見えている POI(W8・``visible_pois`` の遅延キャッシュ)。checkpoint 外。
+        self._visible_by_cell: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None
         #: 目印マスク(``landmark_mask`` の遅延キャッシュ・C9b G6 a′)。同じく **SoA の欄では
         #: ない**=checkpoint 外。
         self._landmark_mask: np.ndarray | None = None
@@ -249,6 +251,29 @@ class World:
             else:
                 self._poi_visibility = np.zeros(self.n_poi, dtype=np.int32)
         return self._poi_visibility
+
+    def visible_pois(self, cell: int) -> tuple[np.ndarray, np.ndarray]:
+        """セル ``cell`` の視点から見えている POI と、見えている視点数(W8・B2 の可視物)。
+
+        段 2b(行き先を対象欄から)のカテゴリ語の近傍探索が読む。合成世界・資産が無い世界は空。
+        """
+        if self._visible_by_cell is None:
+            src = Path(str(self.assets.source))
+            if self.assets.source != "synthetic" and src.is_dir():
+                from shibuya.world.assets import load_visible_pois_by_cell
+
+                self._visible_by_cell = load_visible_pois_by_cell(src, self.n_cells)
+            else:
+                self._visible_by_cell = (
+                    np.zeros(self.n_cells + 1, dtype=np.int64),
+                    np.zeros(0, dtype=np.int64),
+                    np.zeros(0, dtype=np.int32),
+                )
+        off, poi, nv = self._visible_by_cell
+        if cell < 0 or cell >= off.size - 1:
+            return np.zeros(0, dtype=np.int64), np.zeros(0, dtype=np.int32)
+        lo, hi = int(off[cell]), int(off[cell + 1])
+        return poi[lo:hi], nv[lo:hi]
 
     @property
     def eatery_mode(self) -> str:
