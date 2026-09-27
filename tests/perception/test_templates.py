@@ -152,10 +152,14 @@ def test_b0_with_role_words_appends_one_line_and_keeps_the_frozen_base_d113_4():
     for w in T.ROLE_WORDS_12:
         assert w in last
     assert "権限" in last
-    # どの腕・版でも同じ 1 行
+    # どの腕・版でも同じ 1 行(第274: 語彙 v3 は 11 語の行・v3 は vocab 腕だけ)
     for mode in T.INTENT_MODES:
         for ver in T.VOCAB_VERSIONS:
-            assert T.b0_system(mode, ver, True) == T.b0_system(mode, ver) + "\n" + T.ROLE_WORDS_LINE
+            if ver == "v3" and mode != "vocab":
+                continue
+            line = T.role_words_line(ver)
+            assert line == (T.ROLE_WORDS_LINE_V3 if ver == "v3" else T.ROLE_WORDS_LINE)
+            assert T.b0_system(mode, ver, True) == T.b0_system(mode, ver) + "\n" + line
             assert T.b0_system(mode, ver, "on") == T.b0_system(mode, ver, True)
             assert T.b0_system(mode, ver, "off") is T.b0_system(mode, ver)
     # 指紋: 無し(既定)は従来どおり・有りは別の値
@@ -176,3 +180,120 @@ def test_b0_with_role_words_stays_within_the_shared_static_group_budget():
     )
     assert b0 + b1 + b3 <= T.GROUP_TOKEN_BUDGET["shared_static"]
     print(f"\n[B0+役割語] {b0} tok(共有静的合計 {b0 + b1 + b3} / {T.GROUP_TOKEN_BUDGET['shared_static']})")
+
+
+
+# ---------------------------------------------------------------- 語彙 v3(第274・D-116・アジェンダ §1-2)
+#: **語彙 v3 の B0 の指紋**(2026-09-27 に凍結)。v3 の文面・語の並びを変えたら必ずここが動く。
+B0_SHA256_VOCAB_V3 = "3acf644965580f6c666bb7e3d073425e5e3ced932ab8da77860fb0a83ad2c3c7"
+#: 同(役割語の 1 行つき=ランの既定 ``role_words=True``)。
+B0_SHA256_VOCAB_V3_ROLE = "1fe90d13d0878c6ee7916c4f272d7229e8a118b4dcc2a4eca20263d34279ec58"
+
+
+def _shared_static_tokens(b0: str) -> int:
+    b1 = estimate_tokens(T.TEMPLATES["B1.kind"].format(kind="来街者"))
+    b3 = sum(
+        estimate_tokens(T.TEMPLATES[k].format(hour="12", minute="40", weather="晴",
+                                              daylight="日中", heat="やや暑い"))
+        for k in ("B3.time", "B3.weather", "B3.heat")
+    )
+    return estimate_tokens(b0) + b1 + b3
+
+
+def test_v3_b0_fingerprint_and_the_frozen_v1():
+    assert T.template_sha256() == FROZEN_TEMPLATE_SHA256, "v1 の凍結 SHA は不変"
+    assert T.b0_system() is T.TEMPLATES["B0.system"]
+    assert T.b0_system("vocab", "v3") == T.B0_SYSTEM_V3
+    assert T.b0_sha256("vocab", "v3") == B0_SHA256_VOCAB_V3
+    assert T.b0_sha256("vocab", "v3", True) == B0_SHA256_VOCAB_V3_ROLE
+
+
+def test_v3_b0_stays_within_the_shared_static_group_budget():
+    for rw in (False, True):
+        total = _shared_static_tokens(T.b0_system("vocab", "v3", rw))
+        assert total <= T.GROUP_TOKEN_BUDGET["shared_static"], (rw, total)
+    print(f"\n[B0 v3+役割語] 共有静的合計 {total} / {T.GROUP_TOKEN_BUDGET['shared_static']}")
+
+
+def test_v3_b0_drops_the_placeholder_words_d89():
+    """D-89 (i)(b): 「物のカテゴリ」「セルID」を書かせない(v1 の B0 は不変)。"""
+    assert "物のカテゴリ" not in T.B0_SYSTEM_V3 and "セルID" not in T.B0_SYSTEM_V3
+    assert "物のカテゴリ" in T.B0_SYSTEM and "セルID" in T.B0_SYSTEM
+
+
+def test_v3_output_spec_has_the_five_slots_and_the_note():
+    spec = T.OUTPUT_SPEC_V3
+    line2 = [ln for ln in spec.split("\n") if ln.startswith("行動:")]
+    assert len(line2) == 1
+    for label in ("行動: <", " 対象: <", " 活動: <", " まで: <"):
+        assert label in line2[0], label
+    assert "ひと言" not in spec
+    assert "まで: <到着 / 相手 / N分 / HH:MM / 次の予定>" in line2[0]
+    assert "あたり" in line2[0] and "自宅 / 職場 / 学校" in line2[0]
+    assert "活動: は世界を変えない過ごし方。まで: は次に考え直す目安。途中で驚くことがあれば早く考え直す" in spec
+    for w in T.ACTION_WORDS_V3:
+        assert w in line2[0]
+    for w in ("待機", "休憩", "降車"):
+        assert w not in line2[0]
+
+
+def test_v3_b0_differs_only_in_the_target_knowledge_and_the_output_spec():
+    v1 = T.B0_SYSTEM.split("\n")
+    v3 = T.B0_SYSTEM_V3.split("\n")
+    n_spec = len(T.OUTPUT_SPEC.split("\n"))
+    assert len(v3) == len(v1) + 1, "1 行説明の分だけ増える"
+    head_v1, head_v3 = v1[:-n_spec], v3[: len(v1) - n_spec]
+    diff = [i for i, (a, b) in enumerate(zip(head_v1, head_v3)) if a != b]
+    assert len(diff) == 1
+    assert head_v1[diff[0]].startswith("[役割知識] 対象") and head_v3[diff[0]].startswith("[役割知識] 対象")
+    assert v1[-n_spec:-1] == v3[-n_spec - 1:-2], "出力規約の 1〜3 行目は同文"
+
+
+def test_v3_vocab_twins_match_llm_contract():
+    from shibuya.llm import contract
+
+    assert T.VOCAB_VERSIONS == contract.VOCAB_VERSIONS
+    assert T.ACTION_WORDS_V3 == contract.ACTION_VOCAB_V3
+    assert T.ROLE_WORDS_V3 == contract.ROLE_ACTION_WORDS_V3
+    assert len(T.ROLE_WORDS_V3) == 11 and "並ぶ" not in T.ROLE_WORDS_LINE_V3
+    for w in T.ROLE_WORDS_V3:
+        assert w in T.ROLE_WORDS_LINE_V3
+    assert T.role_words_line("v1") is T.role_words_line("v2") is T.ROLE_WORDS_LINE
+
+
+def test_v3_is_the_vocab_arm_only():
+    for mode in ("open", "hint"):
+        with pytest.raises(ValueError):
+            T.b0_system(mode, "v3")
+        with pytest.raises(ValueError):
+            T.b0_sha256(mode, "v3")
+
+
+def test_renderer_v3_changes_only_the_b0_block():
+    """段 1 は B0 だけ(B5/B6 に残る v1 の語=待機/休憩 の扱いは段 2 の棚卸し)。"""
+    import numpy as np
+
+    from shibuya.agents.state import AgentKind, AgentState
+    from shibuya.perception.renderer import Renderer
+    from shibuya.world.state import World
+
+    def render(ver: str):
+        w = World.synthetic(n_cells=9, seed=2)
+        a = AgentState(12)
+        g = np.random.default_rng(11)
+        with a.writable():
+            a.cell[:] = g.integers(0, 9, size=12)
+            a.xy[:] = g.uniform(0.0, 80.0, size=(12, 2))
+            a.kind[:] = AgentKind.VISITOR
+            a.money[:] = 5_000
+            a.hunger[:] = 6
+            a.last_result_tick[:] = 1
+        w.cells.density[:] = w.compute_density(a.cell)
+        r = Renderer(w, a, seed=13, vocab_version=ver, role_words=True)
+        r.prepare_tick(750)
+        return r.render(0, tick=750, wake_reason=3)
+
+    v1, v3 = render("v1"), render("v3")
+    assert v1.blocks["B0"] != v3.blocks["B0"] and v1.prompt_hash != v3.prompt_hash
+    for bid in ("B1", "B2", "B3", "B4", "B4b", "B5", "B6"):
+        assert v1.blocks[bid] == v3.blocks[bid], bid

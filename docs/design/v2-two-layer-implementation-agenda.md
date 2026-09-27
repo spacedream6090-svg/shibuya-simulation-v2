@@ -103,3 +103,21 @@
 | 〔段1〕段1 の「いま可能」(v3) | `FALLBACK_ACTIONS_V3=(なし, 移動)`=v1 の 3 語を `VOCAB_COMPAT` で v3 へ読み替えて重複を落とした(2 語) | 語を選んでいない(機械的) | — |
 | 〔段1〕補助の口 | `safe_action_word(ver)`(v1/v2=待機・v3=なし)・`role_action_words(ver)`・`format_two_line_v3`(まで の既定=次の予定)・`TWO_LINE_RE_V3`(活動 `\S{1,10}`・まで `\S+`) | 段 2/3 が使う口 | — |
 | 〔段1〕`compat_word` の向き | 版を 1 つずつ辿る・降りる向きは「その版の語彙に在るキー」、上がる向きは「無いキー」の行(v2→v1 の既定は不変) | 1 つの表に両向きを持つため | — |
+
+## 6. 段 1 の検収と、段 2 への親の決め(第275・2026-09-27)
+
+**検収(親)**: `pytest tests/llm tests/perception tests/test_cli_vocab_version.py tests/engine/test_vocab_v2_eat.py` = 631 passed・exit 0(親が再実行)。全体(`-m "not gpu and not slow"`・P6 の予算テストは除外)も親が再実行=§0 の表の段 1 行に結果。既定バイト不変(`template_sha256` 161fe181・`b0_sha256("vocab")` 2b4bfc8a)・mock 5,000 v1 の checkpoint **2f3969cf 不変**(親が再実行)。v3 の指紋: `b0_sha256("vocab","v3")` 3acf6449(役割語行なし)/ **1fe90d13**(役割語行つき=ランの既定)。共有静的 745/750 tok。辞書 v5 111 行。実装役の expedient 13 件は §5 のとおり採用。
+
+**段 1 で出た問いへの親の決め(段 2 で実装)**:
+
+| # | 問い | 決め |
+|---|---|---|
+| 1 | 休憩の効果の依存(`_apply_rest` が体力 −3 を即時に持ち、時間経過 `advance_body` は就寝時だけ回復) | **時間経過の規則に「休んでいる体」の回復を足す**: `activity_kind ∈ {在店, その場}` かつ `activity_until > tick` の体は **10 tick ごとに疲労 −1**(30 分で −3=旧 休憩 1 回と同値)。`_apply_none` は回復を持たない。切替口 `--activity off` では旧 `_apply_rest` の経路が v1/v2 で生きるので不変。expedient(§5 に行)・感度腕 5/10/20 tick |
+| 2 | 並ぶ(22)のエンジン効果 | **並ぶ=対象 POI が飲食店なら `_apply_eat`・それ以外なら `_apply_buy` に委譲**(満席なら既存の待ち行列に入る=D-113 ③ の機構がそのまま効く・空席なら即時成立)。対象なし/解決不能は `BAD_TARGET`。expedient(§5 に行) |
+| 3 | 横になる→就寝のまま・散策/見回る→移動のまま | **採用**(規則どおり) |
+| 4 | 「行動: なし」のとき対象を省略できるか | **省略可**: v3 パーサで 行動=なし かつ 対象ラベル欠落なら 対象=なし として `format_ok` を落とさない(`errors` には `target_omitted` を残す=診断)。行為の語では従来どおり欠落は書式エラー |
+| 5 | B0 v3 の予算 745/750 | **そのまま**(1 行説明は逐語のまま・余裕 5 tok) |
+| 6 | (追加)「まで」の「N時間」「N時間M分」 | **MINUTES に読む**(1時間=60・1時間30分=90・上限 480)。「時」を含むから DEFAULT、は撤回 |
+| 7 | (追加)v1→v3 の compat で 降車 が同語のまま | **降車→なし**を `VOCAB_COMPAT` に足す(v1 テープを v3 で読む向き。欠番の語は安全弁へ) |
+
+**段 2 の発注範囲(§2 の表+上の 7 件)**: `resolve._APPLY_BY_VOCAB["v3"]`(なし 25・並ぶ 22)・`_ACTION_ORDER_BY_VOCAB`・`llm_bridge.py`/`fleet.py` の `_engine_codes["待機"]` → `safe_action_word`・`commit.py` の未定義→なし(v3)・`renderer.py` の `RESULT_OPTIONS`/`DEFAULT_OPTIONS`(v3=なし/移動)と `ACTIVITY_WORDS`・`agents/weekly.py` の `ACTIVITY_TO_ACTION`(v3 では 待機/休憩→なし)・`run._default_mock` は段 3・`tests/test_cli_vocab_version.py` の版ループを `VOCAB_VERSIONS` に戻す・registry `activity_until`/`activity_kind`+`RunState.activity_text`(checkpoint に含める)・`WakeCondition.ACTIVITY_EXPIRY`・活動中の CELL_BLOCK 抑止・「まで」の解決(到着/相手/N分/HH:MM/次の予定/既定 60 分・上限 480)・`Target.wander` の歩行(半径 2 セル・決定論)・B4b の 1 行・記憶 M 行・manifest 列・`run_day(activity=True)`/`--activity {on,off}`。**mock 方策の v3 化は段 3**(段 2 の検収は v1 の checkpoint 不変+v3 の単体テスト)。

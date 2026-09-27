@@ -51,7 +51,8 @@ from shibuya.llm.undefined import (
 # ------------------------------------------------------------------ (i) v1 のバイト不変
 def test_v1_objects_are_untouched():
     """v1 の語彙・コード・契約表は**同一オブジェクト**(名前を足しただけ)。"""
-    assert VOCAB_VERSIONS == ("v1", "v2") and DEFAULT_VOCAB_VERSION == "v1"
+    # 第274: v3(行為と活動の二層)を末尾に足した。既定は v1 のまま。
+    assert VOCAB_VERSIONS == ("v1", "v2", "v3") and DEFAULT_VOCAB_VERSION == "v1"
     assert action_words("v1") is ALL_ACTION_WORDS
     assert action_words() is ALL_ACTION_WORDS
     assert cross_action_words("v1") is ACTION_VOCAB_12
@@ -109,7 +110,7 @@ def test_the_eat_contract_row_is_declared():
 
 
 def test_unknown_vocab_version_is_refused():
-    for bad in ("v3", "", "V1", None):
+    for bad in ("v4", "", "V1", None):  # 第274 で v3 は有効な版になった
         with pytest.raises(ValueError):
             check_vocab_version(bad)
 
@@ -156,7 +157,7 @@ def test_stage0_still_works_for_the_untouched_rows_in_v2():
 
 # ------------------------------------------------------------------ (v) 旧版への対応表
 def test_compat_table_reads_the_new_word_as_the_old_one():
-    assert VOCAB_COMPAT == {"v2": {ACTION_WORD_EAT: "購入"}}
+    assert VOCAB_COMPAT["v2"] == {ACTION_WORD_EAT: "購入"}  # 第274 で "v3" の行が増えた(v2 は不変)
     assert compat_word(ACTION_WORD_EAT) == "購入"
     assert compat_word(ACTION_WORD_EAT, "v2", "v1") == "購入"
     assert compat_word(ACTION_WORD_EAT, "v2", "v2") == ACTION_WORD_EAT

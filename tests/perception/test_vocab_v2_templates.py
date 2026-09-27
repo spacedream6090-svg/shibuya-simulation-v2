@@ -55,7 +55,7 @@ def test_the_default_bytes_are_frozen():
     assert T.b0_sha256() == T.b0_sha256("vocab") == B0_SHA256_VOCAB_V1
     assert T.b0_sha256("vocab", "v1") == B0_SHA256_VOCAB_V1
     assert T.b0_system("vocab", "v1") is T.TEMPLATES["B0.system"]
-    assert T.DEFAULT_VOCAB_VERSION == "v1" and T.VOCAB_VERSIONS == ("v1", "v2")
+    assert T.DEFAULT_VOCAB_VERSION == "v1" and T.VOCAB_VERSIONS == ("v1", "v2", "v3")
 
 
 def test_the_reference_scene_prompt_hash_is_unchanged():
@@ -112,7 +112,7 @@ def test_open_arm_is_identical_across_vocab_versions():
 
 # ------------------------------------------------------- (d) 3 腕 × 2 版の全組み合わせ
 @pytest.mark.parametrize("mode", list(T.INTENT_MODES))
-@pytest.mark.parametrize("ver", list(T.VOCAB_VERSIONS))
+@pytest.mark.parametrize("ver", ["v1", "v2"])  # v3(第274)は test_templates の v3 節が見る
 def test_every_arm_and_version_combination_renders(mode, ver):
     body = T.b0_system(mode, ver)
     assert body.startswith("あなたは渋谷の街にいる一人の人物です。")
@@ -125,6 +125,6 @@ def test_every_arm_and_version_combination_renders(mode, ver):
 
 def test_unknown_vocab_version_is_refused():
     with pytest.raises(ValueError):
-        T.b0_system("vocab", "v3")
+        T.b0_system("vocab", "v4")  # 第274 で v3 は有効な版になった
     with pytest.raises(ValueError):
         T.check_vocab_version("v0")

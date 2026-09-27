@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **4 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **5 / 10**
 > 第1〜第270(2026-09-01〜09-26)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第271 ユーザーの答え 3 件+パーサ「セル」接頭辞の修正(2026-09-26)
@@ -34,3 +34,10 @@
 - **R-46 の親検収**: 食事摂取基準 2025 確定版 p.15 表3(基礎代謝基準値・参照体重・基礎代謝量の全行)・p.16 表4 PAL・p.17 の範囲・p.23 ±199/164、策定のポイントの参照体位と参考表2、国民健康・栄養調査 第10表 <朝> 欠食(総数 31.1・男 37.3・女 26.5%)を原典 PDF で照合=**一致・訂正なし**。METs の個別コード値と社会生活基本調査の xlsx 値は親未確認(データ取得時に照合)。取得手段(PDF/xlsx をメモリ読み・保存なし)は読むだけの範囲内。INDEX・backlog に行。
 - **発見**: 社会生活基本調査に「1 日の食事回数」の指標は無い(欠食率で代替)。kcal の錨は二重に食い違う(国民健康・栄養調査の摂取量は EER の 0.77〜0.86 倍・七訂/八訂で めし 168→156)。1 MET は安静時代謝を約 20% 過大(Byrne 2005・抄録)。
 - **次**: 段 1 の帰還 → 親検収(pytest・凍結 SHA)→ commit 第275 → 段 2 を発注。R-47 帰還 → 検収 → D-117/118/119 の草案。
+
+## 第275 二層の実装 段 1 の親検収と commit・R-47 検収・D-117/118/119 の草案(2026-09-27)
+
+- **段 1(実装役 Opus 5.5)の検収**: 変更 4 ファイル+テスト 8 本(+1,434/−49 行)。親が `pytest tests/llm tests/perception tests/test_cli_vocab_version.py tests/engine/test_vocab_v2_eat.py` を再実行=**631 passed・exit 0**、全体 `-m "not gpu and not slow"`(P6 除外)=**2917 件(failed 0・skipped 1・P6 の予算テストは除外)・exit 0**、mock 5,000 v1 の checkpoint **2f3969cf 不変**、v1/v2 の凍結 SHA 不変。v3 の中身を親が読んだ(`cross_action_words("v3")`=11 語+なし・`engine_action_codes("v3")` に 並ぶ 22・なし 25・`parse_until` の 6 型・`Target.wander`・B0 v3 の本文と役割語行 11 語・`parse_two_line(…,"v3")` の往復)。**実装役の expedient 13 件を採用**(アジェンダ §5)。段 1 の問い 7 件に親が決めた(§6): 休んでいる体(在店/その場)の時間経過の回復 −1/10 tick・並ぶ=飲食店なら `_apply_eat` 他は `_apply_buy` へ委譲・横になる→就寝のまま・「行動: なし」なら対象省略可(`target_omitted` を診断に)・B0 の予算 745/750 はそのまま・「N時間」を分に読む・compat v1→v3 の 降車→なし。IMPLEMENTED #46。
+- **R-47(古典的選択モデル・活動と注意)の検収**: CoPB「reduce the token cost by 97.7%」・LLMob「randomly choose 100 users」と表 2 の MM 行「0.018 0.276 0.644 0.681」・SOFAI「after about 450 trajectories S1 is used more often than S2」を arXiv 原典で一致。JSTOR/Wiley 経由(Simon・Guadagni & Little・Hyman・Borgers & Timmermans)は親未確認(結論の向きは変えない)。反対証拠(CoPB の重力モデル)は記録し、ユーザー決定「ハフ型は入れない」は維持(満足化+習慣)。INDEX・backlog に行。
+- **草案**: [空腹・判断層・注意の草案](docs/design/v2-hunger-choice-attention-draft.md) = §1 D-118(錨は R-46 の ✓ 値と [サブ値] を区別・案=基礎代謝×METs・語 4 段・摂取 3 段・照合は時刻分布+欠食率・K1〜K5)/ §2 D-119(Tanimoto 型の事前分布×状態の乗数・店選びは習慣+満足化で距離項なし・層の記録 SOFAI 形式・古典だけ腕=mock 置き換え・L1〜L6)/ §3 D-117(乗数 0.5/1.0/1.0/0.75/0.5 を宣言・M1〜M3)。**ユーザーの答え待ち**。
+- **次**: 段 2(エンジンの活動層)を実装役へ(発注済み)→ 検収 → 第276。K/L/M の答え → データ取得(ライセンス台帳)→ 実装。

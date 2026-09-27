@@ -492,3 +492,202 @@ def test_d113_positional_behaviour_without_unknown_labels_is_unchanged():
     r = parse_two_line("理由: 予定の時間\n行動: 移動 なし なし")
     assert r.positional_used and r.target.is_none and r.comment == NO_TARGET
     assert not any(e.startswith("unknown_label:") for e in r.errors)
+
+
+# ================================================================ 語彙 v3(第274・D-116 二層・アジェンダ §1-2)
+from shibuya.llm.contract import (  # noqa: E402
+    ALL_ACTION_WORDS_V3,
+    NONE_ACTION_CODE,
+    UntilKind,
+    format_two_line_v3,
+)
+from shibuya.llm.parser import CANONICAL_LABELS_V3, LABEL_ALIASES_V3  # noqa: E402
+
+V3_TEXT = "理由: 腹が減った\n行動: 食事 対象: カフェ 活動: 昼を食べる まで: 30分"
+
+
+def test_v3_five_labels_are_the_contract():
+    assert CANONICAL_LABELS_V3 == ("理由", "行動", "対象", "活動", "まで")
+    assert CANONICAL_LABELS == ("理由", "行動", "対象", "ひと言"), "v1 は動かない"
+    assert "活動" not in LABEL_ALIASES and "まで" not in LABEL_ALIASES, "v1 の別名表は動かない"
+    assert LABEL_ALIASES_V3["ひと言"] == "ひと言", "ひと言は受理はする"
+
+
+def test_v3_well_formed_output():
+    r = parse_two_line(V3_TEXT, "v3")
+    assert r.ok and r.format_ok and r.strict_format_ok and r.strict_two_line
+    assert (r.action, r.action_code) == ("食事", 24)
+    assert r.target.raw == "カフェ" and r.activity == "昼を食べる"
+    assert r.until.kind is UntilKind.MINUTES and r.until.value == 30
+    assert r.errors == () and r.comment == NO_TARGET
+
+
+@pytest.mark.parametrize(
+    "line2,action,target,activity,kind",
+    [  # 草案 §4-2 の例 5 つ(対象を省いていた 2 例は「対象: なし」を補った=下のテスト参照)
+        ("行動: 食事 対象: カフェ・ベローチェ 活動: 昼を食べる まで: 30分",
+         "食事", "カフェ・ベローチェ", "昼を食べる", UntilKind.MINUTES),
+        ("行動: なし 対象: なし 活動: 店頭を見て回る まで: 15分",
+         "なし", NO_TARGET, "店頭を見て回る", UntilKind.MINUTES),
+        ("行動: 移動 対象: あたり 活動: 食後の散歩 まで: 20分",
+         "移動", "あたり", "食後の散歩", UntilKind.MINUTES),
+        ("行動: 移動 対象: 職場 活動: なし まで: 到着", "移動", "職場", NO_TARGET, UntilKind.ARRIVAL),
+        ("行動: なし 対象: なし 活動: 友人を待つ まで: 相手",
+         "なし", NO_TARGET, "友人を待つ", UntilKind.PARTNER),
+    ],
+)
+def test_v3_draft_examples(line2, action, target, activity, kind):
+    r = parse_two_line("理由: 例\n" + line2, "v3")
+    assert r.format_ok and r.strict_format_ok, r.errors
+    assert r.action == action and str(r.target) == target
+    assert r.activity == activity and r.until.kind is kind
+
+
+def test_v3_omitted_target_is_a_format_error_as_in_v1():
+    """format_ok(v3)=5 ラベル揃い(アジェンダ §1-2)。草案 §4-2 の例のように 対象 を省くと書式エラー。"""
+    r = parse_two_line("理由: 例\n行動: なし 活動: 店頭を見て回る まで: 15分", "v3")
+    assert r.action == "なし" and not r.format_ok and "missing_label:対象" in r.errors
+    assert r.activity == "店頭を見て回る" and r.until.value == 15
+
+
+def test_v3_comment_is_not_required_but_is_still_read():
+    r = parse_two_line("理由: 話す\n行動: 会話 対象: P-3 ひと言: やあ 活動: 話す まで: 相手", "v3")
+    assert r.format_ok and r.strict_format_ok and r.comment == "やあ"
+    assert r.target.person_id == 3 and r.until.kind is UntilKind.PARTNER
+    assert "missing_label:ひと言" not in parse_two_line(V3_TEXT, "v3").errors
+
+
+def test_v3_v1_shaped_output_is_a_format_error():
+    """v1 の形(ひと言 で終わる)を v3 で読むと 活動・まで が欠ける(補わない)。"""
+    r = parse_two_line("理由: 帰る\n行動: 移動 対象: 自宅 ひと言: なし", "v3")
+    assert r.action == "移動" and not r.format_ok and not r.positional_used
+    assert {"missing_label:活動", "missing_label:まで"} <= set(r.errors)
+    assert r.activity == NO_TARGET and r.until.kind is UntilKind.DEFAULT
+
+
+def test_v3_positional_all_three_after_the_action_word():
+    r = parse_two_line("理由: 帰る\n行動: 移動 自宅 散歩 30 分", "v3")
+    assert r.format_ok and r.positional_used and not r.strict_format_ok
+    assert r.raw_action == "移動" and r.target.raw == "自宅" and r.target_hint == "home"
+    assert r.activity == "散歩" and r.until.kind is UntilKind.MINUTES and r.until.value == 30
+    assert {"positional:対象", "positional:活動", "positional:まで"} <= set(r.errors)
+    assert r.alias_surfaces[-1] == "positional"
+
+
+def test_v3_positional_overflow_from_the_target_field():
+    r = parse_two_line("理由: 帰る\n行動: 移動 対象: 自宅 散歩 12:30", "v3")
+    assert r.format_ok and r.positional_used
+    assert r.target.raw == "自宅" and r.activity == "散歩"
+    assert r.until.kind is UntilKind.CLOCK and r.until.value == 750
+
+
+def test_v3_positional_overflow_from_the_activity_field():
+    r = parse_two_line("理由: 待つ\n行動: なし 対象: なし 活動: 待つ 次の予定", "v3")
+    assert r.format_ok and r.activity == "待つ" and r.until.kind is UntilKind.NEXT_SCHEDULE
+
+
+def test_v3_positional_defaults_activity_and_until():
+    """「行動: 移動 自宅」型: v1 の comment_defaulted と同じく位置で読んだ応答だけ既定へ倒す。"""
+    r = parse_two_line("理由: 帰る\n行動: 移動 自宅", "v3")
+    assert r.format_ok and r.activity == NO_TARGET and r.until.kind is UntilKind.DEFAULT
+    assert {"activity_defaulted", "until_defaulted"} <= set(r.errors)
+
+
+def test_v3_positional_does_not_fire_without_a_spare_token():
+    r = parse_two_line("理由: 特に\n行動: なし", "v3")
+    assert r.action == "なし" and not r.format_ok and not r.positional_used
+
+
+def test_v3_positional_does_not_fire_when_the_action_word_is_not_first():
+    r = parse_two_line("理由: 急ぐ\n行動: すぐに 移動 自宅 散歩 到着", "v3")
+    assert r.action == "移動" and not r.positional_used and not r.format_ok
+
+
+def test_v3_unknown_label_is_skipped_in_positional_reading():
+    r = parse_two_line("理由: あ\n行動: 移動 目安: 自宅 散歩 到着", "v3")
+    assert r.target.raw == "自宅" and "unknown_label:目安" in r.errors and r.format_ok
+    assert r.until.kind is UntilKind.ARRIVAL
+
+
+def test_v3_alias_label_is_lenient_but_not_strict():
+    r = parse_two_line("理由: 帰る\n行動: 移動 目的地: 自宅 活動: 帰宅 まで: 到着", "v3")
+    assert r.format_ok and not r.strict_format_ok and r.alias_used and "目的地" in r.alias_surfaces
+
+
+def test_v3_wander_target_and_base_word_hints():
+    r = parse_two_line("理由: 食後\n行動: 移動 対象: あたり 活動: 散歩 まで: 20分", "v3")
+    assert r.target.wander and r.target.category == "あたり" and r.target_hint == ""
+    for word, hint in (("自宅", "home"), ("職場", "work"), ("学校", "school")):
+        r = parse_two_line(f"理由: 帰る\n行動: 移動 対象: {word} 活動: なし まで: 到着", "v3")
+        assert r.target_hint == hint and not r.target.wander
+    v1 = parse_two_line("理由: 帰る\n行動: 移動 対象: 自宅 ひと言: なし")
+    assert v1.target_hint == "" and not v1.target.wander, "v1 は現行のまま"
+
+
+@pytest.mark.parametrize("word", ["待機", "休憩", "降車"])
+def test_v3_removed_words_are_unknown_and_the_dictionary_offers_none(word):
+    r = parse_two_line(f"理由: 休む\n行動: {word} 対象: なし 活動: 休む まで: 30分", "v3")
+    assert r.action is None and r.action_code == UNDEFINED_ACTION and not r.format_ok
+    assert "unknown_action_word" in r.errors and r.dictionary_candidate == "なし"
+    v1 = parse_two_line(f"理由: 休む\n行動: {word} 対象: なし ひと言: なし")
+    assert v1.action == word, "v1 は現行のまま"
+
+
+def test_v3_none_and_queue_are_vocabulary_words():
+    r = parse_two_line("理由: 並ぶ\n行動: 並ぶ 対象: なし 活動: 待つ まで: 次の予定", "v3")
+    assert r.action == "並ぶ" and r.action_code == 22 and not r.is_role_action
+    r = parse_two_line("理由: 特に\n行動: なし 対象: なし 活動: 休む まで: 30分", "v3")
+    assert r.action == "なし" and r.action_code == NONE_ACTION_CODE
+    r = parse_two_line("理由: 仕事\n行動: 接客 対象: なし 活動: 仕事 まで: 次の予定", "v3")
+    assert r.is_role_action
+    assert parse_two_line("理由: 並ぶ\n行動: 並ぶ 対象: なし ひと言: なし").is_role_action, "v1 は役割語"
+
+
+def test_v3_activity_is_truncated_not_rejected():
+    r = parse_two_line("理由: 長い\n行動: なし 対象: なし 活動: とても長い活動の文章です まで: 30分", "v3")
+    assert r.format_ok and r.activity_truncated and len(r.activity) == 10
+    assert r.raw_activity == "とても長い活動の文章です" and "activity_truncated" in r.errors
+    assert not r.strict_two_line
+
+
+def test_v3_empty_and_degenerate_inputs_never_raise_and_carry_defaults():
+    for text in (None, "", "   ", "<think>x</think>", 12345):
+        r = parse_two_line(text, "v3")
+        assert not r.format_ok and r.activity == NO_TARGET and r.until.kind is UntilKind.DEFAULT
+
+
+def test_v3_dictionary_mapping_uses_the_v3_role_set():
+    r = parse_two_line("理由: 休む\n行動: 休む 対象: なし 活動: 休む まで: 30分", "v3")
+    m = r.with_dictionary_mapping("なし", "v3")
+    assert m.action == "なし" and m.action_code == NONE_ACTION_CODE and not m.is_role_action
+    assert not r.with_dictionary_mapping("並ぶ", "v3").is_role_action
+    assert r.with_dictionary_mapping("並ぶ").is_role_action, "v1 の既定は現行のまま"
+
+
+def test_v1_results_carry_empty_v3_fields():
+    r = parse_two_line(TWO_LINE)
+    assert (r.activity, r.until, r.raw_activity, r.raw_until, r.target_hint) == ("", None, "", "", "")
+    assert not r.activity_truncated and not r.target.wander
+    assert parse_two_line(TWO_LINE, "v2").until is None
+
+
+@given(st.text(max_size=200))
+@settings(max_examples=150, suppress_health_check=[HealthCheck.too_slow], deadline=None)
+def test_v3_random_junk_never_raises(text):
+    r = parse_two_line(text, "v3")
+    assert r.until is not None and isinstance(r.activity, str)
+
+
+@given(
+    reason=st.text(alphabet="あいうえおかきくけこ", min_size=1, max_size=40),
+    action=st.sampled_from(ALL_ACTION_WORDS_V3),
+    target=st.sampled_from(["C-0117", "P-204", "g12_34_GL", "なし", "あたり", "自宅", "コンビニ"]),
+    activity=st.text(alphabet="さしすせそたちつてと", min_size=1, max_size=10),
+    until=st.sampled_from(["到着", "相手", "30分", "12:30", "次の予定"]),
+)
+@settings(max_examples=100, deadline=None)
+def test_v3_well_formed_output_round_trips(reason, action, target, activity, until):
+    r = parse_two_line(format_two_line_v3(reason, action, target, activity, until), "v3")
+    assert r.format_ok and r.strict_format_ok and r.strict_two_line
+    assert r.action == action and r.reason == reason and r.activity == activity
+    assert r.until.kind is not UntilKind.DEFAULT

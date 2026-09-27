@@ -313,3 +313,86 @@ def test_registry_works_with_the_project_mock_llm():
     out = reg.observe("ジャンプ", agent_id=1, tick=2)
     assert isinstance(out.proposal, Proposal)
     assert reg.n_adjudication_calls == 1
+
+
+# ================================================================ 段0 辞書 v5(第274・語彙 v3・D-116 H)
+from shibuya.llm.contract import NONE_ACTION_CODE, action_words  # noqa: E402
+from shibuya.llm.undefined import (  # noqa: E402
+    FALLBACK_ACTIONS,
+    FALLBACK_ACTIONS_V3,
+    SYNONYM_TABLE_VERSION_V5,
+    SYNONYMS_V4,
+    SYNONYMS_V5,
+    SYNONYMS_V5_DIFF,
+    TARGET_HINTS,
+    TARGET_HINTS_V4,
+    fallback_actions,
+    synonym_table,
+    synonym_table_version,
+    target_hints,
+    target_surface_hint,
+)
+
+_REMOVED = {"待機", "休憩", "降車"}
+
+
+def test_dictionary_v5_has_no_removed_word_as_a_destination():
+    """アジェンダ §1-3: 辞書 v5 の写像先に 待機/休憩/降車 が 1 行も無い。"""
+    assert not _REMOVED & set(SYNONYMS_V5.values())
+    assert set(SYNONYMS_V5.values()) <= set(action_words("v3"))
+
+
+def test_dictionary_v5_is_selected_only_by_vocab_v3():
+    assert synonym_table("v3") is SYNONYMS_V5
+    assert synonym_table_version("v3") == SYNONYM_TABLE_VERSION_V5 == "undefined-synonyms-v5"
+    assert synonym_table("v1") is SYNONYMS and synonym_table_version("v1") == SYNONYM_TABLE_VERSION
+    assert synonym_table("v2") is SYNONYMS_V4 and synonym_table_version("v2") == "undefined-synonyms-v4"
+    assert SYNONYMS["待つ"] == "待機" and SYNONYMS_V4["休む"] == "休憩", "v1〜v4 は 1 行も動かない"
+
+
+def test_dictionary_v5_changes_only_the_rule_rows_and_the_listed_words():
+    changed = {k for k in SYNONYMS_V5 if SYNONYMS_V4.get(k) != SYNONYMS_V5[k]}
+    rule_rows = {k for k, w in SYNONYMS_V4.items() if w in _REMOVED}
+    assert changed == rule_rows | set(SYNONYMS_V5_DIFF)
+    assert set(SYNONYMS_V5_DIFF.values()) == {"なし"}
+    for k in set(SYNONYMS_V4) - changed:
+        assert SYNONYMS_V5[k] == SYNONYMS_V4[k], k
+
+
+@pytest.mark.parametrize(
+    "surface",
+    ["散歩", "ぶらつく", "歩き回る", "うろつく", "見る", "待つ", "様子を見る", "休む", "座る",
+     "観察", "眺める", "確認", "調べる", "降りる", "下車", "何もしない", "待機", "休憩", "降車"],
+)
+def test_dictionary_v5_maps_activity_and_removed_rows_to_none(surface):
+    assert map_synonym(surface, None, "v3")[0] == "なし"
+
+
+def test_dictionary_v5_keeps_the_action_side():
+    for surface, word in (
+        ("歩く", "移動"), ("買う", "購入"), ("食べる", "食事"), ("寝る", "就寝"),
+        ("横になる", "就寝"), ("散策", "移動"), ("探す", "移動"), ("話す", "会話"),
+    ):
+        assert map_synonym(surface, None, "v3")[0] == word, surface
+    assert map_synonym("帰宅", None, "v3") == ("移動", "home")
+
+
+def test_registry_in_v3_maps_to_none_and_offers_v3_words():
+    reg = UndefinedActionRegistry(vocab_version="v3")
+    out = reg.observe("待つ", agent_id=1, tick=0)
+    assert out.stage == 0 and out.word == "なし" and out.action_code == NONE_ACTION_CODE
+    rec = reg.observe("瞬間移動", agent_id=1, tick=0)
+    assert rec.stage == 1 and "なし/移動" in rec.feedback and "待機" not in rec.feedback
+    assert fallback_actions("v3") == FALLBACK_ACTIONS_V3 == ("なし", "移動")
+    assert fallback_actions() is FALLBACK_ACTIONS and fallback_actions("v2") is FALLBACK_ACTIONS
+    v1 = UndefinedActionRegistry()
+    assert v1.observe("瞬間移動", agent_id=1, tick=0).feedback == undefined_feedback("瞬間移動")
+
+
+def test_target_hints_v5_add_the_base_words_for_the_target_field():
+    assert target_hints("v1") is TARGET_HINTS and target_hints("v2") is TARGET_HINTS_V4
+    h = target_hints("v3")
+    assert {k: h[k] for k in ("自宅", "職場", "学校")} == {"自宅": "home", "職場": "work", "学校": "school"}
+    assert all(h[k] == v for k, v in TARGET_HINTS_V4.items()), "v4 のヒントは引き継ぐ"
+    assert target_surface_hint("職場", "v3") == "work" and target_surface_hint("職場") == ""
+    assert target_surface_hint("帰宅", "v3") == "", "対象欄の表は拠点の 3 語だけ"

@@ -42,6 +42,14 @@ C6 パーサ許容(2026-09-09・実 LLM スモークのテープが根拠)
   「語+コロン」だけのトークンは**未知のラベル**として読み飛ばし ``unknown_label:<表層>`` を
   ``errors`` に残す(後ろに値が無ければ欄落ち)。``strict_format_ok`` は V0 のまま。
   記録: docs/bench/analysis/d113-defects-2026-09-26/README.md。
+- **語彙 v3(第274・D-116 行為と活動の二層・アジェンダ §1-2)**: ``vocab_version="v3"`` のときだけ
+  別の経路(``_parse_v3``)で読む。ラベルは 理由・行動・対象・**活動**・**まで** の 5 つ
+  (``CANONICAL_LABELS_V3``)で、**ひと言は必須から外す**(別名表に残し受理はする=会話側で使う)。
+  ``format_ok``(v3)=5 ラベル揃い+行動語が取れた・``strict_format_ok``(v3)=5 ラベルを**正準表層
+  だけ**で(別名なし・位置引数なし)。位置引数の順序も 理由→行動→対象→活動→まで。
+  「まで」は ``contract.parse_until`` で型に写す・「対象: あたり」は ``Target.wander``・
+  「対象: 自宅/職場/学校」は ``ParseResult.target_hint``(home/work/school)。
+  **v1/v2 の経路は 1 行も通らない**(判定・別名表・位置引数の規則は 1 バイトも変えない)。
 
 expedient(本モジュール分)
 - ラベルの別名表(``行き先``/``行先``/``相手``→``対象``、``一言``/``ひとこと``/``発話``→``ひと言``、
@@ -64,7 +72,10 @@ from dataclasses import dataclass, field, replace
 from typing import Final, Mapping
 
 from shibuya.llm.contract import (
+    ACTIVITY_MAX_CHARS,
+    DEFAULT_UNTIL,
     DEFAULT_VOCAB_VERSION,
+    TWO_LINE_RE_V3,
     action_words,
     COMMENT_MAX_CHARS,
     NO_TARGET,
@@ -72,11 +83,14 @@ from shibuya.llm.contract import (
     REASON_MAX_CHARS,
     UNDEFINED_ACTION,
     Target,
+    TargetKind,
+    Until,
     action_code_of,
     is_role_action,
     parse_target,
+    parse_until,
 )
-from shibuya.llm.undefined import map_synonym
+from shibuya.llm.undefined import map_synonym, target_surface_hint
 
 __all__ = [
     "CANONICAL_LABELS",
@@ -84,6 +98,9 @@ __all__ = [
     "LABEL_ALIASES_V0",
     "LABEL_ALIASES_C6",
     "LABEL_ALIASES_D113",
+    "CANONICAL_LABELS_V3",
+    "LABEL_ALIASES_V3_ADD",
+    "LABEL_ALIASES_V3",
     "POSITIONAL_SURFACE",
     "ParseResult",
     "parse_two_line",
@@ -183,6 +200,24 @@ _LABEL_RE: Final[re.Pattern[str]] = _label_pattern(LABEL_ALIASES)
 #: C6 以前の判定を再現するための走査(``strict_format_ok``)。
 _LABEL_RE_V0: Final[re.Pattern[str]] = _label_pattern(LABEL_ALIASES_V0)
 
+# ------------------------------------------------------------------ 語彙 v3 のラベル(D-116 B)
+#: 語彙 v3 の 5 ラベル(この順に返す・位置引数の順序も同じ)。**ひと言は必須から外す**。
+CANONICAL_LABELS_V3: Final[tuple[str, ...]] = ("理由", "行動", "対象", "活動", "まで")
+#: v3 で足すラベル(**正準の表層だけ**・別名は足さない=実測前に言い換えを推測しない)。
+LABEL_ALIASES_V3_ADD: Final[Mapping[str, str]] = {"活動": "活動", "まで": "まで"}
+#: v3 の寛容判定の表(v1 の全別名 + 2 ラベル)。v1 の ``LABEL_ALIASES`` は動かさない。
+LABEL_ALIASES_V3: Final[Mapping[str, str]] = {**LABEL_ALIASES, **LABEL_ALIASES_V3_ADD}
+#: v3 の ``strict_format_ok`` の走査表=**正準表層だけ**(ひと言 も正準表層なので載せる=
+#: 値の終端を正しく切るため。必須かどうかは ``CANONICAL_LABELS_V3`` が決める)。
+_STRICT_LABELS_V3: Final[Mapping[str, str]] = {
+    label: label for label in (*CANONICAL_LABELS_V3, "ひと言")
+}
+_LABEL_RE_V3: Final[re.Pattern[str]] = _label_pattern(LABEL_ALIASES_V3)
+_LABEL_RE_STRICT_V3: Final[re.Pattern[str]] = _label_pattern(_STRICT_LABELS_V3)
+#: 行動の後ろに位置で並ぶ欄(v3)。**最後の欄(まで)は残りのトークンを全部取る**
+#: (v1 の ひと言 と同じ扱い)。
+_POSITIONAL_FIELDS_V3: Final[tuple[str, ...]] = ("対象", "活動", "まで")
+
 _THINK_RE: Final[re.Pattern[str]] = re.compile(r"<think>.*?</think>", re.S | re.I)
 _OPEN_THINK_RE: Final[re.Pattern[str]] = re.compile(r"<think>.*$", re.S | re.I)
 _FENCE_RE: Final[re.Pattern[str]] = re.compile(r"^\s*```.*$")
@@ -276,6 +311,13 @@ class ParseResult:
         is_role_action: 取れた行動語が §2.2 の役割語か(権限検査行き)。
         action_from_free_text: 行動ラベルが無く残りテキストから拾ったか(expedient 経路)。
         labels: 見つかった正準ラベル → 値(逐語)。
+        activity: **語彙 v3** の「活動」欄(10 字へ切り詰め済み・空なら ``なし``)。v1/v2 は ``""``。
+        until: **語彙 v3** の「まで」欄の解釈(``contract.Until``・空/読めない=DEFAULT 60 分)。
+            v1/v2 は ``None``(欄が無い)。
+        raw_activity / raw_until: 活動・まで欄の逐語(切り詰め前)。
+        activity_truncated: 活動が 10 字を超えて切り詰めたか。
+        target_hint: **語彙 v3** の「対象: 自宅/職場/学校」→ ``home``/``work``/``school``
+            (``llm.undefined.TARGET_SURFACE_HINTS_V5``)。それ以外・v1/v2 は ``""``。
     """
 
     action: str | None
@@ -300,6 +342,12 @@ class ParseResult:
     dictionary_mapped: bool = False
     dictionary_candidate: str | None = None
     labels: Mapping[str, str] = field(default_factory=dict)
+    activity: str = ""
+    until: Until | None = None
+    raw_activity: str = ""
+    raw_until: str = ""
+    activity_truncated: bool = False
+    target_hint: str = ""
 
     @property
     def ok(self) -> bool:
@@ -332,12 +380,27 @@ class ParseResult:
             self,
             action=word,
             action_code=action_code_of(word, vocab_version),
-            is_role_action=is_role_action(word),
+            is_role_action=is_role_action(word, vocab_version),
             dictionary_mapped=True,
         )
 
 
-def _empty_result(errors: tuple[str, ...]) -> ParseResult:
+def _empty_result(
+    errors: tuple[str, ...], vocab_version: str = DEFAULT_VOCAB_VERSION
+) -> ParseResult:
+    if str(vocab_version) == "v3":
+        # v3 では 活動/まで を常に持たせる(読めない応答=活動なし・既定の持続)。
+        return ParseResult(
+            action=None,
+            action_code=UNDEFINED_ACTION,
+            target=NO_TARGET_VALUE,
+            reason="",
+            comment=NO_TARGET,
+            format_ok=False,
+            errors=errors,
+            activity=NO_TARGET,
+            until=DEFAULT_UNTIL,
+        )
     return ParseResult(
         action=None,
         action_code=UNDEFINED_ACTION,
@@ -360,6 +423,7 @@ def parse_two_line(
         text: LLM の応答本文(``None`` や非文字列も受ける)。
         vocab_version: 語彙版(D-71 §3 F)。``"v2"`` で「食事」を語彙語として読み、
             段0 辞書の候補判定(``dictionary_candidate``)も辞書 v4 で引く。
+            ``"v3"``(D-116)は 5 ラベル形(理由・行動・対象・活動・まで)を ``_parse_v3`` で読む。
             **既定 ``"v1"`` は 1 バイトも挙動が変わらない**。
         landmarks: 目印の「名 → POI 索引」表(C9b G6 a′)。``parse_target`` へ素通しする。
             ``None``(既定)では ``target.poi_id`` が常に ``None``=**現行のまま**。
@@ -373,9 +437,11 @@ def parse_two_line(
         ('移動', 117, True)
     """
     try:
+        if str(vocab_version) == "v3":
+            return _parse_v3(text, landmarks)
         return _parse(text, vocab_version, landmarks)
     except Exception as exc:  # pragma: no cover - 契約「例外を投げない」の最後の砦
-        return _empty_result((f"internal:{type(exc).__name__}",))
+        return _empty_result((f"internal:{type(exc).__name__}",), vocab_version)
 
 
 def _parse(
@@ -478,6 +544,196 @@ def _parse(
         dictionary_candidate=dictionary_candidate,
         labels=labels,
     )
+
+
+def _parse_v3(text: str | None, landmarks: Mapping[str, int] | None = None) -> ParseResult:
+    """**語彙 v3** の 5 ラベル形を読む(アジェンダ §1-2)。v1/v2 の ``_parse`` とは別の経路。
+
+    手順は ``_parse`` と同じ(ラベル走査 → 位置引数 → 行動語 → 辞書候補 → 欄)で、違いは
+    (i) 必須ラベルが ``CANONICAL_LABELS_V3`` (ii) 位置引数が ``_fill_positional_v3``
+    (iii) ``strict_format_ok`` が正準表層だけの走査 (iv) 活動・まで・対象ヒントを返す、の 4 点。
+
+    逐次ループ宣言(P4): ``_parse`` と同じ(ラベル出現数・語彙数 23 ぶん)。1呼=1回。
+    """
+    ver = "v3"
+    if text is None:
+        return _empty_result(("empty_output",), ver)
+    if not isinstance(text, str):
+        text = str(text)
+    strict = bool(TWO_LINE_RE_V3.match(text.strip()))
+    cleaned = _clean_text(text)
+    if not cleaned:
+        return _empty_result(("empty_output",), ver)
+
+    labels, spans, surfaces = _scan_labels(cleaned, _LABEL_RE_V3, LABEL_ALIASES_V3)
+    alias_surfaces = tuple(s for s in surfaces if LABEL_ALIASES_V3[s] != s)
+    alias_used = bool(alias_surfaces)
+
+    errors: list[str] = [f"missing_label:{lab}" for lab in CANONICAL_LABELS_V3 if lab not in labels]
+
+    filled = _fill_positional_v3(labels)
+    positional_used = any(f.startswith("positional:") for f in filled)
+    if filled:
+        errors.extend(filled)
+    if positional_used:
+        alias_surfaces = alias_surfaces + (POSITIONAL_SURFACE,)
+
+    raw_action = labels.get("行動", "")
+    action = find_action_word(raw_action, ver) if raw_action else None
+    from_free_text = False
+    if action is None and "行動" not in labels:
+        action = find_action_word(_outside_labels(cleaned, spans), ver)
+        from_free_text = action is not None
+        if from_free_text:
+            errors.append("action_from_free_text")
+    dictionary_candidate: str | None = None
+    if action is None:
+        errors.append("unknown_action_word")
+        if raw_action:
+            dictionary_candidate = map_synonym(raw_action, None, ver)[0]
+
+    target = parse_target(labels.get("対象"), landmarks, ver)
+    target_hint = (
+        target_surface_hint(target.raw, ver) if target.kind is TargetKind.ITEM_CATEGORY else ""
+    )
+    raw_reason = labels.get("理由", "")
+    raw_comment = labels.get("ひと言", NO_TARGET)
+    raw_activity = labels.get("活動", "")
+    raw_until = labels.get("まで", "")
+    reason = raw_reason[:REASON_MAX_CHARS]
+    comment = raw_comment[:COMMENT_MAX_CHARS]
+    activity = raw_activity[:ACTIVITY_MAX_CHARS]
+    reason_truncated = len(raw_reason) > REASON_MAX_CHARS
+    comment_truncated = len(raw_comment) > COMMENT_MAX_CHARS
+    activity_truncated = len(raw_activity) > ACTIVITY_MAX_CHARS
+    if reason_truncated:
+        errors.append("reason_truncated")
+    if comment_truncated:
+        errors.append("comment_truncated")
+    if activity_truncated:
+        errors.append("activity_truncated")
+
+    format_ok = (
+        all(lab in labels for lab in CANONICAL_LABELS_V3)
+        and action is not None
+        and not from_free_text
+    )
+    # strict(v3)= 5 ラベルを**正準表層だけ**で・位置引数なし(アジェンダ §1-2)。
+    if positional_used:
+        strict_format_ok = False
+    else:
+        labels_s, _, _ = _scan_labels(cleaned, _LABEL_RE_STRICT_V3, _STRICT_LABELS_V3)
+        strict_format_ok = all(lab in labels_s for lab in CANONICAL_LABELS_V3) and (
+            find_action_word(labels_s.get("行動", ""), ver) is not None
+        )
+    return ParseResult(
+        action=action,
+        action_code=action_code_of(action, ver) if action else UNDEFINED_ACTION,
+        target=target,
+        reason=reason,
+        comment=comment or NO_TARGET,
+        format_ok=format_ok,
+        errors=tuple(errors),
+        raw_action=raw_action,
+        raw_reason=raw_reason,
+        raw_comment=raw_comment,
+        strict_two_line=strict,
+        reason_truncated=reason_truncated,
+        comment_truncated=comment_truncated,
+        is_role_action=bool(action) and is_role_action(action, ver),
+        action_from_free_text=from_free_text,
+        strict_format_ok=strict_format_ok,
+        alias_used=alias_used,
+        alias_surfaces=alias_surfaces,
+        positional_used=positional_used,
+        dictionary_candidate=dictionary_candidate,
+        labels=labels,
+        activity=activity or NO_TARGET,
+        until=parse_until(raw_until),
+        raw_activity=raw_activity,
+        raw_until=raw_until,
+        activity_truncated=activity_truncated,
+        target_hint=target_hint,
+    )
+
+
+def _fill_positional_v3(labels: dict[str, str]) -> tuple[str, ...]:
+    """**語彙 v3** の位置引数の回収(``_fill_positional`` の 5 ラベル版・expedient)。
+
+    規則は v1 の一般化: 在る欄(行動を含む)の値の **2 トークン目以降**は、その欄の**直後に続く
+    欠けた欄**へ順に溢れた値とみなす。途中の欄は 1 トークンずつ、**最後の欄(まで)は残り全部**
+    (v1 の ひと言 と同じ)。溢れの先が在る欄に当たったら残りは捨てる(v1 と同じ)。
+
+    - 「行動: 移動 自宅 散歩 30分」→ 対象=自宅・活動=散歩・まで=30分
+    - 「行動: 移動 対象: 自宅 散歩 30分」→ 活動=散歩・まで=30分(対象の値から溢れた形)
+    - 「行動: 移動 自宅」→ 対象=自宅・**活動=なし・まで=空**(``activity_defaulted``/
+      ``until_defaulted``=v1 の ``comment_defaulted`` と同じく、位置で読んだ応答だけ既定へ倒す)
+
+    安全弁(v1 と同じ): 行動ラベルが在り、その**先頭トークン**に行動語があるときだけ働く。
+    行動の余りが無く対象ラベルも無ければ何もしない(=欄落ちは欄落ち)。未知のラベル
+    (「語+コロン」)は値として読まず ``unknown_label:<表層>`` を残す(D-113 ①)。
+
+    Args:
+        labels: ``_scan_labels`` が作った表。**破壊的に更新する**。
+
+    Returns:
+        補った欄の診断名(``positional:活動`` 等)。空なら未発動。
+
+    逐次ループ宣言(P4): 欄数(4)× 行動欄のトークン数(数個)。1呼=1回。
+    """
+    if "行動" not in labels:
+        return ()
+    fields = _POSITIONAL_FIELDS_V3
+    if all(f in labels for f in fields):
+        return ()
+    tokens = labels["行動"].split()
+    if not tokens:
+        return ()
+    action_all = find_action_word(labels["行動"], "v3")
+    if action_all is not None and find_action_word(tokens[0], "v3") != action_all:
+        return ()  # 行動語が先頭トークンに無い=位置で読める形ではない
+    if not tokens[1:] and "対象" not in labels:
+        return ()  # 余りが無い=ただの欄落ち(ここでは補わない)
+    filled: list[str] = []
+    unknown: list[str] = []
+    seq = ("行動", *fields)
+    last = seq[-1]
+    for idx, src in enumerate(seq):
+        if src not in labels:
+            continue
+        targets: list[str] = []
+        for f in seq[idx + 1 :]:
+            if f in labels:
+                break
+            targets.append(f)
+        if not targets:
+            continue
+        src_tokens = tokens if src == "行動" else labels[src].split()
+        overflow = _drop_unknown_labels(list(src_tokens[1:]), unknown)
+        took = False
+        for f in targets:
+            if not overflow:
+                break
+            if f == last:
+                labels[f] = " ".join(overflow)
+                overflow = []
+            else:
+                labels[f] = overflow.pop(0)
+                overflow = _drop_unknown_labels(overflow, unknown)
+            filled.append(f"positional:{f}")
+            took = True
+        if took:
+            labels[src] = src_tokens[0]  # 行動は語彙語だけ・対象/活動は先頭の値だけ
+    if not filled:
+        return tuple(f"unknown_label:{u}" for u in unknown)
+    if "活動" not in labels:
+        labels["活動"] = NO_TARGET
+        filled.append("activity_defaulted")
+    if "まで" not in labels:
+        labels["まで"] = ""
+        filled.append("until_defaulted")
+    filled.extend(f"unknown_label:{u}" for u in unknown)
+    return tuple(filled)
 
 
 def _fill_positional(labels: dict[str, str]) -> tuple[str, ...]:

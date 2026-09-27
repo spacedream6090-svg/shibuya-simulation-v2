@@ -102,3 +102,13 @@
 - 直し: `contract._CELL_PREFIX_RE`(「セル」「セルID:」「セルID_」)を剥がした残りが**セル ID の形のときだけ** CELL(`cell_id` は剥がした形・`raw` は逐語)。説明語「セルID」は NONE のまま(第223)・「セルID_コンビニ」は物カテゴリのまま。
 - 計測: 上の 14,872 呼が CELL に変わる(表層の突き合わせ=呼ごとのリプレイと同値)。エンジンは既定で移動の行き先に対象欄を使わない(D-112 ②)ので**挙動は不変**・mock 5,000 の checkpoint 2f3969cf 不変。D-112 ②(行き先を対象欄から)がこの値を使う。
 - テスト: `tests/llm/test_contract.py` +1・parametrize +7(llm 173 passed・engine/perception/c6/c7/c8 全緑・exit 0)。ユーザー 09-26「修正を入れていいよ」。
+
+### #46 二層の実装 段 1: 語彙 v3(契約表・パーサ・B0 文面・VOCAB_COMPAT・段0 辞書 v5)(第275・2026-09-27・実装役 Opus 5.5・親検収)
+
+- 正典: [実装アジェンダ](docs/design/v2-two-layer-implementation-agenda.md) §1(ユーザー決定 D-116 A〜I)。**ライブラリの既定は v1 のまま**(既定バイト不変=`template_sha256` 161fe181・`b0_sha256("vocab")` 2b4bfc8a・mock 5,000 v1 の checkpoint 2f3969cf を親が再確認)。
+- 契約表 v3(`llm/contract.py`): 種別横断 11 語+「なし」(コード 25・失敗しない安全弁)・役割語 11(並ぶ は横断へ・コード 22 のまま)・待機 4/休憩 10/降車 2 は欠番。`VOCAB_COMPAT["v3"]` 両向き(待機/休憩→なし・なし→待機)・`compat_word` は版を 1 つずつ辿る。`Target.wander`(対象「あたり」)・`parse_until`(`UntilKind`: 到着/相手/N分/HH:MM/次の予定/既定 60 分・上限 480)・`TWO_LINE_RE_V3`・`safe_action_word`。上限 24 の assert は v3 に掛けない(D-92 (a))。
+- パーサ v3(`llm/parser.py`): 別経路 `_parse_v3`(v1/v2 は 1 行も通らない)。5 ラベル(理由/行動/対象/活動/まで)・位置引数・strict(v3)は正準表層だけ。`ParseResult` に activity/until/raw_activity/raw_until/activity_truncated/target_hint。
+- B0 v3(`perception/templates.py`): `B0_SYSTEM_V3`/`OUTPUT_SPEC_V3`(対象欄の説明語を例示から外す=D-89 (i)(b)・活動と まで の 1 行説明)・役割語行 11 語。指紋 `b0_sha256("vocab","v3")` **3acf6449**(役割語行つき **1fe90d13**=ランの既定)。共有静的 745/750 tok。open/hint × v3 は未定義(`ValueError`)。
+- 辞書 v5(`llm/undefined.py`): 111 行・待機/休憩/降車へ写していた 21 行+歩き回る/うろつく を なし へ・新規 5 行(散歩・ぶらつく・待機・休憩・降車 → なし)。写像先に 待機/休憩/降車 は 0(テスト)。`TARGET_HINTS_V5`(自宅/職場/学校)。
+- テスト: llm+perception+CLI 版+vocab_v2_eat = **631 passed・exit 0**(親が再実行)。全体 `-m "not gpu and not slow"` = **2917 件(failed 0・skipped 1・P6 の予算テストは除外)**(親が再実行・exit 0)。
+- 段 1 で見つかった依存: `_apply_rest` が体力 −3 を即時に持ち、時間経過は就寝時だけ回復 → v3 では「休んでいる体」の時間経過の回復を段 2 で足す(アジェンダ §6)。

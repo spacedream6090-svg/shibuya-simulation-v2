@@ -74,7 +74,7 @@ def test_cli_choices_come_from_the_templates_module(capsys):
     from shibuya import cli
 
     with pytest.raises(SystemExit):
-        cli.main(["--vocab-version", "v3"])
+        cli.main(["--vocab-version", "v9"])  # 第274 で v3 は choices に入った
     err = capsys.readouterr().err
     for version in VOCAB_VERSIONS:
         assert version in err
@@ -84,8 +84,10 @@ def test_intent_mode_and_vocab_version_are_orthogonal():
     """3 腕 × 2 版のどの組み合わせでも回り、manifest に両方が載る。"""
     from shibuya import cli
 
+    # 第274(段 1): v3 は契約・パーサ・B0 だけが入り、エンジンの適用表(resolve._APPLY_BY_VOCAB)は
+    # 段 2 で足す。段 2 でこの行を ``VOCAB_VERSIONS`` に戻す(v3 は vocab 腕だけ)。
     for mode in ("vocab", "open", "hint"):
-        for ver in VOCAB_VERSIONS:
+        for ver in ("v1", "v2"):
             res = cli.run(intent_mode=mode, vocab_version=ver, **SMALL)
             fields = res.run_manifest_fields()
             assert (fields["intent_mode"], fields["vocab_version"]) == (mode, ver)
