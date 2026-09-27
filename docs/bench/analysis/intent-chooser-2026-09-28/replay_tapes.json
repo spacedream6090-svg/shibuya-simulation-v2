@@ -1,0 +1,2084 @@
+{
+ "schema": "shibuya.bench/intent-chooser-2026-09-28/replay/1",
+ "tapes": [
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__ad_zero",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 323,
+    "ii_category": 5890,
+    "iii_none": 4306,
+    "iv_no_candidate": {
+     "bad_target": 2959,
+     "not_in_eatery": 0,
+     "closed": 2118,
+     "out_of_stock": 0,
+     "named_out_of_cell": 784
+    },
+    "attempts": {
+     "named": 1299,
+     "category": 9220,
+     "none": 5861
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 6,
+      "not_in_eatery": 0,
+      "closed": 186,
+      "out_of_stock": 0,
+      "named_out_of_cell": 784
+     },
+     "category": {
+      "bad_target": 2159,
+      "not_in_eatery": 0,
+      "closed": 1171,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 794,
+      "not_in_eatery": 0,
+      "closed": 761,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:none": 5861,
+     "no_candidate:closed": 2118,
+     "no_candidate_by_kind:none:closed": 761,
+     "attempts:named": 1299,
+     "no_candidate:named_out_of_cell": 784,
+     "no_candidate_by_kind:named:named_out_of_cell": 784,
+     "no_candidate:bad_target": 2959,
+     "no_candidate_by_kind:none:bad_target": 794,
+     "attempts:category": 9220,
+     "no_candidate_by_kind:category:bad_target": 2159,
+     "resolved:category": 5890,
+     "decisions": 10519,
+     "resolved:none": 4306,
+     "no_candidate_by_kind:named:closed": 186,
+     "no_candidate_by_kind:category:closed": 1171,
+     "resolved:named": 323,
+     "no_candidate_by_kind:named:bad_target": 6
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:closed": 4954,
+    "購入:bad_target": 1639,
+    "購入:closed_then_resolved": 2537,
+    "購入:ok": 9787,
+    "購入:ok_then_no_candidate": 1805,
+    "購入:target_changed": 5736
+   }
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_14",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 344,
+    "ii_category": 5863,
+    "iii_none": 4320,
+    "iv_no_candidate": {
+     "bad_target": 2891,
+     "not_in_eatery": 0,
+     "closed": 2139,
+     "out_of_stock": 0,
+     "named_out_of_cell": 842
+    },
+    "attempts": {
+     "named": 1385,
+     "category": 9145,
+     "none": 5869
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 8,
+      "not_in_eatery": 0,
+      "closed": 191,
+      "out_of_stock": 0,
+      "named_out_of_cell": 842
+     },
+     "category": {
+      "bad_target": 2120,
+      "not_in_eatery": 0,
+      "closed": 1162,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 763,
+      "not_in_eatery": 0,
+      "closed": 786,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:none": 5869,
+     "no_candidate:closed": 2139,
+     "no_candidate_by_kind:none:closed": 786,
+     "attempts:named": 1385,
+     "no_candidate:named_out_of_cell": 842,
+     "no_candidate_by_kind:named:named_out_of_cell": 842,
+     "no_candidate:bad_target": 2891,
+     "no_candidate_by_kind:none:bad_target": 763,
+     "attempts:category": 9145,
+     "resolved:category": 5863,
+     "decisions": 10527,
+     "no_candidate_by_kind:category:bad_target": 2120,
+     "resolved:none": 4320,
+     "no_candidate_by_kind:named:closed": 191,
+     "no_candidate_by_kind:category:closed": 1162,
+     "resolved:named": 344,
+     "no_candidate_by_kind:named:bad_target": 8
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:closed": 5034,
+    "購入:bad_target": 1603,
+    "購入:closed_then_resolved": 2562,
+    "購入:ok": 9762,
+    "購入:ok_then_no_candidate": 1797,
+    "購入:target_changed": 5714
+   }
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_30",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 359,
+    "ii_category": 5489,
+    "iii_none": 4630,
+    "iv_no_candidate": {
+     "bad_target": 2967,
+     "not_in_eatery": 0,
+     "closed": 2068,
+     "out_of_stock": 0,
+     "named_out_of_cell": 833
+    },
+    "attempts": {
+     "named": 1407,
+     "category": 8716,
+     "none": 6223
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 2,
+      "not_in_eatery": 0,
+      "closed": 213,
+      "out_of_stock": 0,
+      "named_out_of_cell": 833
+     },
+     "category": {
+      "bad_target": 2141,
+      "not_in_eatery": 0,
+      "closed": 1086,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 824,
+      "not_in_eatery": 0,
+      "closed": 769,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:named": 1407,
+     "no_candidate:named_out_of_cell": 833,
+     "no_candidate_by_kind:named:named_out_of_cell": 833,
+     "attempts:none": 6223,
+     "no_candidate:bad_target": 2967,
+     "no_candidate_by_kind:none:bad_target": 824,
+     "attempts:category": 8716,
+     "resolved:category": 5489,
+     "decisions": 10478,
+     "no_candidate_by_kind:category:bad_target": 2141,
+     "no_candidate:closed": 2068,
+     "no_candidate_by_kind:named:closed": 213,
+     "no_candidate_by_kind:none:closed": 769,
+     "resolved:none": 4630,
+     "no_candidate_by_kind:category:closed": 1086,
+     "resolved:named": 359,
+     "no_candidate_by_kind:named:bad_target": 2
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:closed": 4979,
+    "購入:bad_target": 1597,
+    "購入:closed_then_resolved": 2527,
+    "購入:ok": 9770,
+    "購入:target_changed": 5682,
+    "購入:ok_then_no_candidate": 1819
+   }
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_1_00",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 511,
+    "ii_category": 4629,
+    "iii_none": 4944,
+    "iv_no_candidate": {
+     "bad_target": 3062,
+     "not_in_eatery": 0,
+     "closed": 2072,
+     "out_of_stock": 0,
+     "named_out_of_cell": 951
+    },
+    "attempts": {
+     "named": 1663,
+     "category": 7836,
+     "none": 6670
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 1,
+      "not_in_eatery": 0,
+      "closed": 200,
+      "out_of_stock": 0,
+      "named_out_of_cell": 951
+     },
+     "category": {
+      "bad_target": 2149,
+      "not_in_eatery": 0,
+      "closed": 1058,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 912,
+      "not_in_eatery": 0,
+      "closed": 814,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:named": 1663,
+     "resolved:named": 511,
+     "decisions": 10084,
+     "no_candidate:named_out_of_cell": 951,
+     "no_candidate_by_kind:named:named_out_of_cell": 951,
+     "attempts:none": 6670,
+     "no_candidate:closed": 2072,
+     "no_candidate_by_kind:none:closed": 814,
+     "no_candidate:bad_target": 3062,
+     "no_candidate_by_kind:none:bad_target": 912,
+     "attempts:category": 7836,
+     "resolved:category": 4629,
+     "no_candidate_by_kind:category:bad_target": 2149,
+     "no_candidate_by_kind:category:closed": 1058,
+     "no_candidate_by_kind:named:closed": 200,
+     "resolved:none": 4944,
+     "no_candidate_by_kind:named:bad_target": 1
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:ok": 9445,
+    "購入:closed": 5094,
+    "購入:bad_target": 1630,
+    "購入:target_changed": 5481,
+    "購入:ok_then_no_candidate": 1988,
+    "購入:closed_then_resolved": 2627
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__ad_zero",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 334,
+    "ii_category": 5874,
+    "iii_none": 4187,
+    "iv_no_candidate": {
+     "bad_target": 3054,
+     "not_in_eatery": 0,
+     "closed": 2153,
+     "out_of_stock": 0,
+     "named_out_of_cell": 758
+    },
+    "attempts": {
+     "named": 1307,
+     "category": 9294,
+     "none": 5759
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 11,
+      "not_in_eatery": 0,
+      "closed": 204,
+      "out_of_stock": 0,
+      "named_out_of_cell": 758
+     },
+     "category": {
+      "bad_target": 2250,
+      "not_in_eatery": 0,
+      "closed": 1170,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 793,
+      "not_in_eatery": 0,
+      "closed": 779,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:category": 9294,
+     "no_candidate:bad_target": 3054,
+     "no_candidate_by_kind:category:bad_target": 2250,
+     "no_candidate:closed": 2153,
+     "no_candidate_by_kind:category:closed": 1170,
+     "attempts:none": 5759,
+     "resolved:none": 4187,
+     "decisions": 10395,
+     "attempts:named": 1307,
+     "no_candidate:named_out_of_cell": 758,
+     "no_candidate_by_kind:named:named_out_of_cell": 758,
+     "no_candidate_by_kind:named:closed": 204,
+     "resolved:category": 5874,
+     "no_candidate_by_kind:none:closed": 779,
+     "no_candidate_by_kind:none:bad_target": 793,
+     "resolved:named": 334,
+     "no_candidate_by_kind:named:bad_target": 11
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:bad_target": 1685,
+    "購入:closed": 5075,
+    "購入:ok": 9600,
+    "購入:ok_then_no_candidate": 1738,
+    "購入:target_changed": 5782,
+    "購入:closed_then_resolved": 2533
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_14",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 303,
+    "ii_category": 5635,
+    "iii_none": 4439,
+    "iv_no_candidate": {
+     "bad_target": 3017,
+     "not_in_eatery": 0,
+     "closed": 2114,
+     "out_of_stock": 0,
+     "named_out_of_cell": 787
+    },
+    "attempts": {
+     "named": 1307,
+     "category": 8941,
+     "none": 6047
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 6,
+      "not_in_eatery": 0,
+      "closed": 211,
+      "out_of_stock": 0,
+      "named_out_of_cell": 787
+     },
+     "category": {
+      "bad_target": 2162,
+      "not_in_eatery": 0,
+      "closed": 1144,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 849,
+      "not_in_eatery": 0,
+      "closed": 759,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:category": 8941,
+     "no_candidate:bad_target": 3017,
+     "no_candidate_by_kind:category:bad_target": 2162,
+     "no_candidate:closed": 2114,
+     "no_candidate_by_kind:category:closed": 1144,
+     "attempts:named": 1307,
+     "no_candidate:named_out_of_cell": 787,
+     "no_candidate_by_kind:named:named_out_of_cell": 787,
+     "attempts:none": 6047,
+     "resolved:none": 4439,
+     "decisions": 10377,
+     "no_candidate_by_kind:named:closed": 211,
+     "resolved:category": 5635,
+     "no_candidate_by_kind:none:closed": 759,
+     "no_candidate_by_kind:none:bad_target": 849,
+     "resolved:named": 303,
+     "no_candidate_by_kind:named:bad_target": 6
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:bad_target": 1710,
+    "購入:closed": 5047,
+    "購入:ok": 9538,
+    "購入:ok_then_no_candidate": 1745,
+    "購入:target_changed": 5760,
+    "購入:closed_then_resolved": 2584
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_30",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 373,
+    "ii_category": 5395,
+    "iii_none": 4539,
+    "iv_no_candidate": {
+     "bad_target": 3112,
+     "not_in_eatery": 0,
+     "closed": 2113,
+     "out_of_stock": 0,
+     "named_out_of_cell": 870
+    },
+    "attempts": {
+     "named": 1448,
+     "category": 8776,
+     "none": 6178
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 4,
+      "not_in_eatery": 0,
+      "closed": 201,
+      "out_of_stock": 0,
+      "named_out_of_cell": 870
+     },
+     "category": {
+      "bad_target": 2256,
+      "not_in_eatery": 0,
+      "closed": 1125,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 852,
+      "not_in_eatery": 0,
+      "closed": 787,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:category": 8776,
+     "resolved:category": 5395,
+     "decisions": 10307,
+     "no_candidate:bad_target": 3112,
+     "no_candidate_by_kind:category:bad_target": 2256,
+     "no_candidate:closed": 2113,
+     "no_candidate_by_kind:category:closed": 1125,
+     "attempts:named": 1448,
+     "no_candidate:named_out_of_cell": 870,
+     "no_candidate_by_kind:named:named_out_of_cell": 870,
+     "attempts:none": 6178,
+     "resolved:none": 4539,
+     "no_candidate_by_kind:named:closed": 201,
+     "no_candidate_by_kind:none:bad_target": 852,
+     "no_candidate_by_kind:none:closed": 787,
+     "resolved:named": 373,
+     "no_candidate_by_kind:named:bad_target": 4
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:closed": 5156,
+    "購入:closed_then_resolved": 2615,
+    "購入:bad_target": 1717,
+    "購入:ok": 9529,
+    "購入:ok_then_no_candidate": 1837,
+    "購入:target_changed": 5610
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_1_00",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 433,
+    "ii_category": 4602,
+    "iii_none": 5080,
+    "iv_no_candidate": {
+     "bad_target": 3115,
+     "not_in_eatery": 0,
+     "closed": 2093,
+     "out_of_stock": 0,
+     "named_out_of_cell": 892
+    },
+    "attempts": {
+     "named": 1550,
+     "category": 7923,
+     "none": 6742
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 1,
+      "not_in_eatery": 0,
+      "closed": 224,
+      "out_of_stock": 0,
+      "named_out_of_cell": 892
+     },
+     "category": {
+      "bad_target": 2260,
+      "not_in_eatery": 0,
+      "closed": 1061,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 854,
+      "not_in_eatery": 0,
+      "closed": 808,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:none": 6742,
+     "resolved:none": 5080,
+     "decisions": 10115,
+     "attempts:category": 7923,
+     "no_candidate:bad_target": 3115,
+     "no_candidate_by_kind:category:bad_target": 2260,
+     "no_candidate:closed": 2093,
+     "no_candidate_by_kind:none:closed": 808,
+     "resolved:category": 4602,
+     "no_candidate_by_kind:category:closed": 1061,
+     "attempts:named": 1550,
+     "no_candidate:named_out_of_cell": 892,
+     "no_candidate_by_kind:named:named_out_of_cell": 892,
+     "no_candidate_by_kind:named:closed": 224,
+     "no_candidate_by_kind:none:bad_target": 854,
+     "no_candidate_by_kind:named:bad_target": 1,
+     "resolved:named": 433
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:closed": 5175,
+    "購入:closed_then_resolved": 2636,
+    "購入:bad_target": 1636,
+    "購入:ok": 9404,
+    "購入:target_changed": 5565,
+    "購入:ok_then_no_candidate": 1925
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__ad_zero",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 495,
+    "ii_category": 9384,
+    "iii_none": 7068,
+    "iv_no_candidate": {
+     "bad_target": 5359,
+     "not_in_eatery": 0,
+     "closed": 3521,
+     "out_of_stock": 0,
+     "named_out_of_cell": 1226
+    },
+    "attempts": {
+     "named": 2007,
+     "category": 15136,
+     "none": 9910
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 7,
+      "not_in_eatery": 0,
+      "closed": 279,
+      "out_of_stock": 0,
+      "named_out_of_cell": 1226
+     },
+     "category": {
+      "bad_target": 3807,
+      "not_in_eatery": 0,
+      "closed": 1945,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 1545,
+      "not_in_eatery": 0,
+      "closed": 1297,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:none": 9910,
+     "no_candidate:closed": 3521,
+     "no_candidate_by_kind:none:closed": 1297,
+     "attempts:named": 2007,
+     "no_candidate:named_out_of_cell": 1226,
+     "no_candidate_by_kind:named:named_out_of_cell": 1226,
+     "no_candidate:bad_target": 5359,
+     "no_candidate_by_kind:none:bad_target": 1545,
+     "attempts:category": 15136,
+     "no_candidate_by_kind:category:bad_target": 3807,
+     "resolved:category": 9384,
+     "decisions": 16947,
+     "resolved:none": 7068,
+     "no_candidate_by_kind:named:closed": 279,
+     "no_candidate_by_kind:category:closed": 1945,
+     "resolved:named": 495,
+     "no_candidate_by_kind:named:bad_target": 7
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:closed": 8310,
+    "購入:bad_target": 3213,
+    "購入:closed_then_resolved": 4190,
+    "購入:ok": 15530,
+    "購入:ok_then_no_candidate": 2773,
+    "購入:target_changed": 9283
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_14",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 515,
+    "ii_category": 9071,
+    "iii_none": 7206,
+    "iv_no_candidate": {
+     "bad_target": 5201,
+     "not_in_eatery": 0,
+     "closed": 3512,
+     "out_of_stock": 0,
+     "named_out_of_cell": 1226
+    },
+    "attempts": {
+     "named": 2056,
+     "category": 14737,
+     "none": 9938
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 13,
+      "not_in_eatery": 0,
+      "closed": 302,
+      "out_of_stock": 0,
+      "named_out_of_cell": 1226
+     },
+     "category": {
+      "bad_target": 3716,
+      "not_in_eatery": 0,
+      "closed": 1950,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 1472,
+      "not_in_eatery": 0,
+      "closed": 1260,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:none": 9938,
+     "no_candidate:closed": 3512,
+     "no_candidate_by_kind:none:closed": 1260,
+     "attempts:named": 2056,
+     "no_candidate:named_out_of_cell": 1226,
+     "no_candidate_by_kind:named:named_out_of_cell": 1226,
+     "no_candidate:bad_target": 5201,
+     "no_candidate_by_kind:none:bad_target": 1472,
+     "attempts:category": 14737,
+     "no_candidate_by_kind:category:bad_target": 3716,
+     "resolved:category": 9071,
+     "decisions": 16792,
+     "resolved:none": 7206,
+     "no_candidate_by_kind:named:closed": 302,
+     "no_candidate_by_kind:category:closed": 1950,
+     "resolved:named": 515,
+     "no_candidate_by_kind:named:bad_target": 13
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:closed": 8158,
+    "購入:bad_target": 3081,
+    "購入:closed_then_resolved": 4051,
+    "購入:ok": 15492,
+    "購入:ok_then_no_candidate": 2751,
+    "購入:target_changed": 9195
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_30",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 571,
+    "ii_category": 8783,
+    "iii_none": 7397,
+    "iv_no_candidate": {
+     "bad_target": 5311,
+     "not_in_eatery": 0,
+     "closed": 3460,
+     "out_of_stock": 0,
+     "named_out_of_cell": 1313
+    },
+    "attempts": {
+     "named": 2182,
+     "category": 14393,
+     "none": 10260
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 5,
+      "not_in_eatery": 0,
+      "closed": 293,
+      "out_of_stock": 0,
+      "named_out_of_cell": 1313
+     },
+     "category": {
+      "bad_target": 3751,
+      "not_in_eatery": 0,
+      "closed": 1859,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 1555,
+      "not_in_eatery": 0,
+      "closed": 1308,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:named": 2182,
+     "no_candidate:named_out_of_cell": 1313,
+     "no_candidate_by_kind:named:named_out_of_cell": 1313,
+     "attempts:none": 10260,
+     "no_candidate:bad_target": 5311,
+     "no_candidate_by_kind:none:bad_target": 1555,
+     "attempts:category": 14393,
+     "no_candidate_by_kind:category:bad_target": 3751,
+     "resolved:category": 8783,
+     "decisions": 16751,
+     "no_candidate:closed": 3460,
+     "no_candidate_by_kind:named:closed": 293,
+     "no_candidate_by_kind:none:closed": 1308,
+     "resolved:none": 7397,
+     "no_candidate_by_kind:category:closed": 1859,
+     "resolved:named": 571,
+     "no_candidate_by_kind:named:bad_target": 5
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:closed": 8273,
+    "購入:bad_target": 3113,
+    "購入:closed_then_resolved": 4115,
+    "購入:ok": 15449,
+    "購入:target_changed": 9298,
+    "購入:ok_then_no_candidate": 2813
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_1_00",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 774,
+    "ii_category": 7485,
+    "iii_none": 8351,
+    "iv_no_candidate": {
+     "bad_target": 5188,
+     "not_in_eatery": 0,
+     "closed": 3321,
+     "out_of_stock": 0,
+     "named_out_of_cell": 1370
+    },
+    "attempts": {
+     "named": 2489,
+     "category": 12677,
+     "none": 11323
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 2,
+      "not_in_eatery": 0,
+      "closed": 343,
+      "out_of_stock": 0,
+      "named_out_of_cell": 1370
+     },
+     "category": {
+      "bad_target": 3527,
+      "not_in_eatery": 0,
+      "closed": 1665,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 1659,
+      "not_in_eatery": 0,
+      "closed": 1313,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:named": 2489,
+     "resolved:named": 774,
+     "decisions": 16610,
+     "no_candidate:named_out_of_cell": 1370,
+     "no_candidate_by_kind:named:named_out_of_cell": 1370,
+     "attempts:none": 11323,
+     "no_candidate:bad_target": 5188,
+     "no_candidate_by_kind:none:bad_target": 1659,
+     "no_candidate:closed": 3321,
+     "no_candidate_by_kind:none:closed": 1313,
+     "attempts:category": 12677,
+     "resolved:category": 7485,
+     "no_candidate_by_kind:category:bad_target": 3527,
+     "no_candidate_by_kind:category:closed": 1665,
+     "no_candidate_by_kind:named:closed": 343,
+     "resolved:none": 8351,
+     "no_candidate_by_kind:named:bad_target": 2
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:ok": 15275,
+    "購入:closed": 8181,
+    "購入:bad_target": 3033,
+    "購入:target_changed": 9243,
+    "購入:ok_then_no_candidate": 2841,
+    "購入:closed_then_resolved": 4176
+   }
+  },
+  {
+   "tape": "c8_ab7_s1/AB7-OPEN-INTENT__vocab",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 511,
+    "ii_category": 4629,
+    "iii_none": 4944,
+    "iv_no_candidate": {
+     "bad_target": 3062,
+     "not_in_eatery": 0,
+     "closed": 2072,
+     "out_of_stock": 0,
+     "named_out_of_cell": 951
+    },
+    "attempts": {
+     "named": 1663,
+     "category": 7836,
+     "none": 6670
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 1,
+      "not_in_eatery": 0,
+      "closed": 200,
+      "out_of_stock": 0,
+      "named_out_of_cell": 951
+     },
+     "category": {
+      "bad_target": 2149,
+      "not_in_eatery": 0,
+      "closed": 1058,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 912,
+      "not_in_eatery": 0,
+      "closed": 814,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:named": 1663,
+     "resolved:named": 511,
+     "decisions": 10084,
+     "no_candidate:named_out_of_cell": 951,
+     "no_candidate_by_kind:named:named_out_of_cell": 951,
+     "attempts:none": 6670,
+     "no_candidate:closed": 2072,
+     "no_candidate_by_kind:none:closed": 814,
+     "no_candidate:bad_target": 3062,
+     "no_candidate_by_kind:none:bad_target": 912,
+     "attempts:category": 7836,
+     "resolved:category": 4629,
+     "no_candidate_by_kind:category:bad_target": 2149,
+     "no_candidate_by_kind:category:closed": 1058,
+     "no_candidate_by_kind:named:closed": 200,
+     "resolved:none": 4944,
+     "no_candidate_by_kind:named:bad_target": 1
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:ok": 9445,
+    "購入:closed": 5094,
+    "購入:bad_target": 1630,
+    "購入:target_changed": 5481,
+    "購入:ok_then_no_candidate": 1988,
+    "購入:closed_then_resolved": 2627
+   }
+  },
+  {
+   "tape": "c8_ab7_s2/AB7-OPEN-INTENT__vocab",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 433,
+    "ii_category": 4602,
+    "iii_none": 5080,
+    "iv_no_candidate": {
+     "bad_target": 3115,
+     "not_in_eatery": 0,
+     "closed": 2093,
+     "out_of_stock": 0,
+     "named_out_of_cell": 892
+    },
+    "attempts": {
+     "named": 1550,
+     "category": 7923,
+     "none": 6742
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 1,
+      "not_in_eatery": 0,
+      "closed": 224,
+      "out_of_stock": 0,
+      "named_out_of_cell": 892
+     },
+     "category": {
+      "bad_target": 2260,
+      "not_in_eatery": 0,
+      "closed": 1061,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 854,
+      "not_in_eatery": 0,
+      "closed": 808,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:none": 6742,
+     "resolved:none": 5080,
+     "decisions": 10115,
+     "attempts:category": 7923,
+     "no_candidate:bad_target": 3115,
+     "no_candidate_by_kind:category:bad_target": 2260,
+     "no_candidate:closed": 2093,
+     "no_candidate_by_kind:none:closed": 808,
+     "resolved:category": 4602,
+     "attempts:named": 1550,
+     "no_candidate:named_out_of_cell": 892,
+     "no_candidate_by_kind:named:named_out_of_cell": 892,
+     "no_candidate_by_kind:category:closed": 1061,
+     "no_candidate_by_kind:named:closed": 224,
+     "no_candidate_by_kind:none:bad_target": 854,
+     "no_candidate_by_kind:named:bad_target": 1,
+     "resolved:named": 433
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:closed": 5175,
+    "購入:closed_then_resolved": 2636,
+    "購入:bad_target": 1636,
+    "購入:ok": 9404,
+    "購入:target_changed": 5565,
+    "購入:ok_then_no_candidate": 1925
+   }
+  },
+  {
+   "tape": "c8_ab7b_s1/AB7b-HINT-INTENT__hint",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 691,
+    "ii_category": 4793,
+    "iii_none": 6112,
+    "iv_no_candidate": {
+     "bad_target": 2904,
+     "not_in_eatery": 0,
+     "closed": 2263,
+     "out_of_stock": 0,
+     "named_out_of_cell": 1291
+    },
+    "attempts": {
+     "named": 2375,
+     "category": 7536,
+     "none": 8143
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 112,
+      "not_in_eatery": 0,
+      "closed": 281,
+      "out_of_stock": 0,
+      "named_out_of_cell": 1291
+     },
+     "category": {
+      "bad_target": 1615,
+      "not_in_eatery": 0,
+      "closed": 1128,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 1177,
+      "not_in_eatery": 0,
+      "closed": 854,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:none": 8143,
+     "resolved:none": 6112,
+     "decisions": 11596,
+     "attempts:named": 2375,
+     "no_candidate:named_out_of_cell": 1291,
+     "no_candidate_by_kind:named:named_out_of_cell": 1291,
+     "attempts:category": 7536,
+     "resolved:category": 4793,
+     "no_candidate:bad_target": 2904,
+     "no_candidate_by_kind:none:bad_target": 1177,
+     "no_candidate:closed": 2263,
+     "no_candidate_by_kind:category:closed": 1128,
+     "no_candidate_by_kind:none:closed": 854,
+     "no_candidate_by_kind:named:closed": 281,
+     "no_candidate_by_kind:category:bad_target": 1615,
+     "resolved:named": 691,
+     "no_candidate_by_kind:named:bad_target": 112
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:ok": 10810,
+    "購入:bad_target": 1728,
+    "購入:target_changed": 6443,
+    "購入:closed": 5516,
+    "購入:closed_then_resolved": 2731,
+    "購入:ok_then_no_candidate": 1945
+   }
+  },
+  {
+   "tape": "c8_ab7b_s1/AB7b-HINT-INTENT__vocab",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 511,
+    "ii_category": 4629,
+    "iii_none": 4944,
+    "iv_no_candidate": {
+     "bad_target": 3062,
+     "not_in_eatery": 0,
+     "closed": 2072,
+     "out_of_stock": 0,
+     "named_out_of_cell": 951
+    },
+    "attempts": {
+     "named": 1663,
+     "category": 7836,
+     "none": 6670
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 1,
+      "not_in_eatery": 0,
+      "closed": 200,
+      "out_of_stock": 0,
+      "named_out_of_cell": 951
+     },
+     "category": {
+      "bad_target": 2149,
+      "not_in_eatery": 0,
+      "closed": 1058,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 912,
+      "not_in_eatery": 0,
+      "closed": 814,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:named": 1663,
+     "resolved:named": 511,
+     "decisions": 10084,
+     "no_candidate:named_out_of_cell": 951,
+     "no_candidate_by_kind:named:named_out_of_cell": 951,
+     "attempts:none": 6670,
+     "no_candidate:bad_target": 3062,
+     "no_candidate_by_kind:none:bad_target": 912,
+     "no_candidate:closed": 2072,
+     "no_candidate_by_kind:none:closed": 814,
+     "attempts:category": 7836,
+     "resolved:category": 4629,
+     "no_candidate_by_kind:category:bad_target": 2149,
+     "no_candidate_by_kind:category:closed": 1058,
+     "no_candidate_by_kind:named:closed": 200,
+     "resolved:none": 4944,
+     "no_candidate_by_kind:named:bad_target": 1
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:ok": 9445,
+    "購入:closed": 5094,
+    "購入:bad_target": 1630,
+    "購入:target_changed": 5481,
+    "購入:ok_then_no_candidate": 1988,
+    "購入:closed_then_resolved": 2627
+   }
+  },
+  {
+   "tape": "c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v1",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 511,
+    "ii_category": 4629,
+    "iii_none": 4944,
+    "iv_no_candidate": {
+     "bad_target": 3062,
+     "not_in_eatery": 0,
+     "closed": 2072,
+     "out_of_stock": 0,
+     "named_out_of_cell": 951
+    },
+    "attempts": {
+     "named": 1663,
+     "category": 7836,
+     "none": 6670
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 1,
+      "not_in_eatery": 0,
+      "closed": 200,
+      "out_of_stock": 0,
+      "named_out_of_cell": 951
+     },
+     "category": {
+      "bad_target": 2149,
+      "not_in_eatery": 0,
+      "closed": 1058,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 912,
+      "not_in_eatery": 0,
+      "closed": 814,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:named": 1663,
+     "resolved:named": 511,
+     "decisions": 10084,
+     "no_candidate:named_out_of_cell": 951,
+     "no_candidate_by_kind:named:named_out_of_cell": 951,
+     "attempts:none": 6670,
+     "no_candidate:closed": 2072,
+     "no_candidate_by_kind:none:closed": 814,
+     "no_candidate:bad_target": 3062,
+     "no_candidate_by_kind:none:bad_target": 912,
+     "attempts:category": 7836,
+     "resolved:category": 4629,
+     "no_candidate_by_kind:category:bad_target": 2149,
+     "no_candidate_by_kind:category:closed": 1058,
+     "no_candidate_by_kind:named:closed": 200,
+     "resolved:none": 4944,
+     "no_candidate_by_kind:named:bad_target": 1
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:ok": 9445,
+    "購入:closed": 5094,
+    "購入:bad_target": 1630,
+    "購入:target_changed": 5481,
+    "購入:ok_then_no_candidate": 1988,
+    "購入:closed_then_resolved": 2627
+   }
+  },
+  {
+   "tape": "c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v2",
+   "vocab": "v2",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 2780,
+    "ii_category": 2383,
+    "iii_none": 4993,
+    "iv_no_candidate": {
+     "bad_target": 224,
+     "not_in_eatery": 3481,
+     "closed": 2595,
+     "out_of_stock": 0,
+     "named_out_of_cell": 1682
+    },
+    "attempts": {
+     "named": 5478,
+     "category": 3820,
+     "none": 8840
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 0,
+      "not_in_eatery": 424,
+      "closed": 592,
+      "out_of_stock": 0,
+      "named_out_of_cell": 1682
+     },
+     "category": {
+      "bad_target": 179,
+      "not_in_eatery": 648,
+      "closed": 610,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 45,
+      "not_in_eatery": 2409,
+      "closed": 1393,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:none": 664,
+     "no_candidate:closed": 184,
+     "no_candidate_by_kind:none:closed": 75,
+     "attempts:category": 731,
+     "no_candidate:bad_target": 224,
+     "no_candidate_by_kind:category:bad_target": 179,
+     "no_candidate_by_kind:category:closed": 80,
+     "attempts:named": 416,
+     "no_candidate:named_out_of_cell": 199,
+     "no_candidate_by_kind:named:named_out_of_cell": 199,
+     "decisions": 1204,
+     "resolved:category": 472,
+     "resolved:none": 544,
+     "no_candidate_by_kind:none:bad_target": 45,
+     "resolved:named": 188,
+     "no_candidate_by_kind:named:closed": 29
+    },
+    "食事": {
+     "attempts:none": 8176,
+     "no_candidate:not_in_eatery": 3481,
+     "no_candidate_by_kind:none:not_in_eatery": 2409,
+     "resolved:none": 4449,
+     "decisions": 8952,
+     "no_candidate:closed": 2411,
+     "attempts:category": 3089,
+     "no_candidate_by_kind:category:closed": 530,
+     "attempts:named": 5062,
+     "no_candidate_by_kind:named:closed": 563,
+     "no_candidate_by_kind:none:closed": 1318,
+     "resolved:category": 1911,
+     "no_candidate_by_kind:category:not_in_eatery": 648,
+     "no_candidate_by_kind:named:not_in_eatery": 424,
+     "no_candidate:named_out_of_cell": 1483,
+     "no_candidate_by_kind:named:named_out_of_cell": 1483,
+     "resolved:named": 2592
+    }
+   },
+   "legacy_min_id": {
+    "購入:closed": 516,
+    "購入:bad_target": 171,
+    "食事:not_in_eatery": 3255,
+    "食事:closed": 4455,
+    "食事:closed_then_resolved": 1524,
+    "食事:ok": 8617,
+    "購入:closed_then_resolved": 272,
+    "購入:ok": 1124,
+    "購入:ok_then_no_candidate": 192,
+    "購入:target_changed": 597,
+    "食事:target_changed": 3231,
+    "食事:ok_then_no_candidate": 1189
+   }
+  },
+  {
+   "tape": "c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v1",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 433,
+    "ii_category": 4602,
+    "iii_none": 5080,
+    "iv_no_candidate": {
+     "bad_target": 3115,
+     "not_in_eatery": 0,
+     "closed": 2093,
+     "out_of_stock": 0,
+     "named_out_of_cell": 892
+    },
+    "attempts": {
+     "named": 1550,
+     "category": 7923,
+     "none": 6742
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 1,
+      "not_in_eatery": 0,
+      "closed": 224,
+      "out_of_stock": 0,
+      "named_out_of_cell": 892
+     },
+     "category": {
+      "bad_target": 2260,
+      "not_in_eatery": 0,
+      "closed": 1061,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 854,
+      "not_in_eatery": 0,
+      "closed": 808,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:none": 6742,
+     "resolved:none": 5080,
+     "decisions": 10115,
+     "attempts:category": 7923,
+     "no_candidate:bad_target": 3115,
+     "no_candidate_by_kind:category:bad_target": 2260,
+     "no_candidate:closed": 2093,
+     "no_candidate_by_kind:none:closed": 808,
+     "resolved:category": 4602,
+     "no_candidate_by_kind:category:closed": 1061,
+     "attempts:named": 1550,
+     "no_candidate:named_out_of_cell": 892,
+     "no_candidate_by_kind:named:named_out_of_cell": 892,
+     "no_candidate_by_kind:named:closed": 224,
+     "no_candidate_by_kind:none:bad_target": 854,
+     "no_candidate_by_kind:named:bad_target": 1,
+     "resolved:named": 433
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:closed": 5175,
+    "購入:closed_then_resolved": 2636,
+    "購入:bad_target": 1636,
+    "購入:ok": 9404,
+    "購入:target_changed": 5565,
+    "購入:ok_then_no_candidate": 1925
+   }
+  },
+  {
+   "tape": "c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v2",
+   "vocab": "v2",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 2758,
+    "ii_category": 2382,
+    "iii_none": 4989,
+    "iv_no_candidate": {
+     "bad_target": 188,
+     "not_in_eatery": 3621,
+     "closed": 2652,
+     "out_of_stock": 0,
+     "named_out_of_cell": 1594
+    },
+    "attempts": {
+     "named": 5330,
+     "category": 3815,
+     "none": 9039
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 0,
+      "not_in_eatery": 419,
+      "closed": 559,
+      "out_of_stock": 0,
+      "named_out_of_cell": 1594
+     },
+     "category": {
+      "bad_target": 160,
+      "not_in_eatery": 653,
+      "closed": 620,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 28,
+      "not_in_eatery": 2549,
+      "closed": 1473,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:none": 593,
+     "resolved:none": 485,
+     "decisions": 1167,
+     "attempts:category": 738,
+     "resolved:category": 496,
+     "no_candidate:bad_target": 188,
+     "no_candidate_by_kind:category:bad_target": 160,
+     "no_candidate:closed": 190,
+     "no_candidate_by_kind:category:closed": 82,
+     "no_candidate_by_kind:none:bad_target": 28,
+     "no_candidate_by_kind:none:closed": 80,
+     "attempts:named": 398,
+     "no_candidate:named_out_of_cell": 184,
+     "no_candidate_by_kind:named:named_out_of_cell": 184,
+     "resolved:named": 186,
+     "no_candidate_by_kind:named:closed": 28
+    },
+    "食事": {
+     "attempts:none": 8446,
+     "resolved:none": 4504,
+     "decisions": 8962,
+     "no_candidate:closed": 2462,
+     "no_candidate_by_kind:none:closed": 1393,
+     "attempts:category": 3077,
+     "resolved:category": 1886,
+     "no_candidate:not_in_eatery": 3621,
+     "no_candidate_by_kind:category:not_in_eatery": 653,
+     "no_candidate_by_kind:category:closed": 538,
+     "no_candidate_by_kind:none:not_in_eatery": 2549,
+     "attempts:named": 4932,
+     "no_candidate:named_out_of_cell": 1410,
+     "no_candidate_by_kind:named:named_out_of_cell": 1410,
+     "no_candidate_by_kind:named:closed": 531,
+     "no_candidate_by_kind:named:not_in_eatery": 419,
+     "resolved:named": 2572
+    }
+   },
+   "legacy_min_id": {
+    "購入:closed": 498,
+    "購入:closed_then_resolved": 266,
+    "購入:ok": 1090,
+    "購入:target_changed": 590,
+    "購入:ok_then_no_candidate": 189,
+    "購入:bad_target": 141,
+    "食事:closed": 4553,
+    "食事:closed_then_resolved": 1589,
+    "食事:not_in_eatery": 3325,
+    "食事:ok": 8577,
+    "食事:ok_then_no_candidate": 1204,
+    "食事:target_changed": 3164
+   }
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_unlimited",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 774,
+    "ii_category": 7485,
+    "iii_none": 8351,
+    "iv_no_candidate": {
+     "bad_target": 5188,
+     "not_in_eatery": 0,
+     "closed": 3321,
+     "out_of_stock": 0,
+     "named_out_of_cell": 1370
+    },
+    "attempts": {
+     "named": 2489,
+     "category": 12677,
+     "none": 11323
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 2,
+      "not_in_eatery": 0,
+      "closed": 343,
+      "out_of_stock": 0,
+      "named_out_of_cell": 1370
+     },
+     "category": {
+      "bad_target": 3527,
+      "not_in_eatery": 0,
+      "closed": 1665,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 1659,
+      "not_in_eatery": 0,
+      "closed": 1313,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:named": 2489,
+     "resolved:named": 774,
+     "decisions": 16610,
+     "no_candidate:named_out_of_cell": 1370,
+     "no_candidate_by_kind:named:named_out_of_cell": 1370,
+     "attempts:none": 11323,
+     "no_candidate:bad_target": 5188,
+     "no_candidate_by_kind:none:bad_target": 1659,
+     "no_candidate:closed": 3321,
+     "no_candidate_by_kind:none:closed": 1313,
+     "attempts:category": 12677,
+     "resolved:category": 7485,
+     "no_candidate_by_kind:category:bad_target": 3527,
+     "no_candidate_by_kind:category:closed": 1665,
+     "no_candidate_by_kind:named:closed": 343,
+     "resolved:none": 8351,
+     "no_candidate_by_kind:named:bad_target": 2
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:ok": 15275,
+    "購入:closed": 8181,
+    "購入:bad_target": 3033,
+    "購入:target_changed": 9243,
+    "購入:ok_then_no_candidate": 2841,
+    "購入:closed_then_resolved": 4176
+   }
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x0.5",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 308,
+    "ii_category": 2927,
+    "iii_none": 3073,
+    "iv_no_candidate": {
+     "bad_target": 1711,
+     "not_in_eatery": 0,
+     "closed": 1286,
+     "out_of_stock": 0,
+     "named_out_of_cell": 690
+    },
+    "attempts": {
+     "named": 1171,
+     "category": 4707,
+     "none": 4117
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 0,
+      "not_in_eatery": 0,
+      "closed": 173,
+      "out_of_stock": 0,
+      "named_out_of_cell": 690
+     },
+     "category": {
+      "bad_target": 1172,
+      "not_in_eatery": 0,
+      "closed": 608,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 539,
+      "not_in_eatery": 0,
+      "closed": 505,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:named": 1171,
+     "resolved:named": 308,
+     "decisions": 6308,
+     "no_candidate:named_out_of_cell": 690,
+     "no_candidate_by_kind:named:named_out_of_cell": 690,
+     "attempts:none": 4117,
+     "no_candidate:bad_target": 1711,
+     "no_candidate_by_kind:none:bad_target": 539,
+     "attempts:category": 4707,
+     "resolved:category": 2927,
+     "no_candidate_by_kind:category:bad_target": 1172,
+     "no_candidate:closed": 1286,
+     "no_candidate_by_kind:category:closed": 608,
+     "no_candidate_by_kind:named:closed": 173,
+     "no_candidate_by_kind:none:closed": 505,
+     "resolved:none": 3073
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:ok": 5774,
+    "購入:closed": 3188,
+    "購入:bad_target": 1033,
+    "購入:target_changed": 3592,
+    "購入:ok_then_no_candidate": 1036,
+    "購入:closed_then_resolved": 1570
+   }
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x1",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 511,
+    "ii_category": 4629,
+    "iii_none": 4944,
+    "iv_no_candidate": {
+     "bad_target": 3062,
+     "not_in_eatery": 0,
+     "closed": 2072,
+     "out_of_stock": 0,
+     "named_out_of_cell": 951
+    },
+    "attempts": {
+     "named": 1663,
+     "category": 7836,
+     "none": 6670
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 1,
+      "not_in_eatery": 0,
+      "closed": 200,
+      "out_of_stock": 0,
+      "named_out_of_cell": 951
+     },
+     "category": {
+      "bad_target": 2149,
+      "not_in_eatery": 0,
+      "closed": 1058,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 912,
+      "not_in_eatery": 0,
+      "closed": 814,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:named": 1663,
+     "resolved:named": 511,
+     "decisions": 10084,
+     "no_candidate:named_out_of_cell": 951,
+     "no_candidate_by_kind:named:named_out_of_cell": 951,
+     "attempts:none": 6670,
+     "no_candidate:bad_target": 3062,
+     "no_candidate_by_kind:none:bad_target": 912,
+     "no_candidate:closed": 2072,
+     "no_candidate_by_kind:none:closed": 814,
+     "attempts:category": 7836,
+     "resolved:category": 4629,
+     "no_candidate_by_kind:category:bad_target": 2149,
+     "no_candidate_by_kind:category:closed": 1058,
+     "no_candidate_by_kind:named:closed": 200,
+     "resolved:none": 4944,
+     "no_candidate_by_kind:named:bad_target": 1
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:ok": 9445,
+    "購入:closed": 5094,
+    "購入:bad_target": 1630,
+    "購入:target_changed": 5481,
+    "購入:ok_then_no_candidate": 1988,
+    "購入:closed_then_resolved": 2627
+   }
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x2",
+   "vocab": "v1",
+   "no_cell_calls": 0,
+   "summary": {
+    "i_named": 746,
+    "ii_category": 6758,
+    "iii_none": 6999,
+    "iv_no_candidate": {
+     "bad_target": 4414,
+     "not_in_eatery": 0,
+     "closed": 2980,
+     "out_of_stock": 0,
+     "named_out_of_cell": 1270
+    },
+    "attempts": {
+     "named": 2319,
+     "category": 11326,
+     "none": 9522
+    },
+    "iv_by_kind": {
+     "named": {
+      "bad_target": 3,
+      "not_in_eatery": 0,
+      "closed": 300,
+      "out_of_stock": 0,
+      "named_out_of_cell": 1270
+     },
+     "category": {
+      "bad_target": 3089,
+      "not_in_eatery": 0,
+      "closed": 1479,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     },
+     "none": {
+      "bad_target": 1322,
+      "not_in_eatery": 0,
+      "closed": 1201,
+      "out_of_stock": 0,
+      "named_out_of_cell": 0
+     }
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "by_action": {
+    "購入": {
+     "attempts:named": 2319,
+     "resolved:named": 746,
+     "decisions": 14503,
+     "no_candidate:named_out_of_cell": 1270,
+     "no_candidate_by_kind:named:named_out_of_cell": 1270,
+     "attempts:none": 9522,
+     "no_candidate:closed": 2980,
+     "no_candidate_by_kind:none:closed": 1201,
+     "no_candidate:bad_target": 4414,
+     "no_candidate_by_kind:none:bad_target": 1322,
+     "attempts:category": 11326,
+     "resolved:category": 6758,
+     "no_candidate_by_kind:category:bad_target": 3089,
+     "no_candidate_by_kind:category:closed": 1479,
+     "no_candidate_by_kind:named:closed": 300,
+     "resolved:none": 6999,
+     "no_candidate_by_kind:named:bad_target": 3
+    },
+    "食事": {}
+   },
+   "legacy_min_id": {
+    "購入:ok": 13578,
+    "購入:closed": 7171,
+    "購入:bad_target": 2418,
+    "購入:target_changed": 7913,
+    "購入:ok_then_no_candidate": 2684,
+    "購入:closed_then_resolved": 3609
+   }
+  }
+ ],
+ "total": {
+  "i_named": 16302,
+  "ii_category": 132548,
+  "iii_none": 130920,
+  "iv_no_candidate": {
+   "bad_target": 78343,
+   "not_in_eatery": 7102,
+   "closed": 58255,
+   "out_of_stock": 0,
+   "named_out_of_cell": 25337
+  },
+  "attempts": {
+   "named": 49014,
+   "category": 217865,
+   "none": 181928
+  },
+  "iv_by_kind": {
+   "named": {
+    "bad_target": 189,
+    "not_in_eatery": 843,
+    "closed": 6343,
+    "out_of_stock": 0,
+    "named_out_of_cell": 25337
+   },
+   "category": {
+    "bad_target": 55156,
+    "not_in_eatery": 1301,
+    "closed": 28860,
+    "out_of_stock": 0,
+    "named_out_of_cell": 0
+   },
+   "none": {
+    "bad_target": 22998,
+    "not_in_eatery": 4958,
+    "closed": 23052,
+    "out_of_stock": 0,
+    "named_out_of_cell": 0
+   }
+  },
+  "chooser_entropy_mean_bits": 0.0
+ },
+ "total_by_action": {
+  "購入": {
+   "attempts:none": 165306,
+   "no_candidate:closed": 53382,
+   "no_candidate_by_kind:none:closed": 20341,
+   "attempts:named": 39020,
+   "no_candidate:named_out_of_cell": 22444,
+   "no_candidate_by_kind:named:named_out_of_cell": 22444,
+   "no_candidate:bad_target": 78343,
+   "no_candidate_by_kind:none:bad_target": 22998,
+   "attempts:category": 211699,
+   "no_candidate_by_kind:category:bad_target": 55156,
+   "resolved:category": 128751,
+   "decisions": 261856,
+   "resolved:none": 121967,
+   "no_candidate_by_kind:named:closed": 5249,
+   "no_candidate_by_kind:category:closed": 27792,
+   "resolved:named": 11138,
+   "no_candidate_by_kind:named:bad_target": 189
+  },
+  "食事": {
+   "attempts:none": 16622,
+   "no_candidate:not_in_eatery": 7102,
+   "no_candidate_by_kind:none:not_in_eatery": 4958,
+   "resolved:none": 8953,
+   "decisions": 17914,
+   "no_candidate:closed": 4873,
+   "attempts:category": 6166,
+   "no_candidate_by_kind:category:closed": 1068,
+   "attempts:named": 9994,
+   "no_candidate_by_kind:named:closed": 1094,
+   "no_candidate_by_kind:none:closed": 2711,
+   "resolved:category": 3797,
+   "no_candidate_by_kind:category:not_in_eatery": 1301,
+   "no_candidate_by_kind:named:not_in_eatery": 843,
+   "no_candidate:named_out_of_cell": 2893,
+   "no_candidate_by_kind:named:named_out_of_cell": 2893,
+   "resolved:named": 5164
+  }
+ },
+ "total_legacy_min_id": {
+  "購入:closed": 129232,
+  "購入:bad_target": 43973,
+  "購入:closed_then_resolved": 65557,
+  "購入:ok": 242820,
+  "購入:ok_then_no_candidate": 46521,
+  "購入:target_changed": 143781,
+  "食事:not_in_eatery": 6580,
+  "食事:closed": 9008,
+  "食事:closed_then_resolved": 3113,
+  "食事:ok": 17194,
+  "食事:target_changed": 6395,
+  "食事:ok_then_no_candidate": 2393
+ },
+ "total_unique": {
+  "i_named": 12618,
+  "ii_category": 97343,
+  "iii_none": 92633,
+  "iv_no_candidate": {
+   "bad_target": 54677,
+   "not_in_eatery": 7102,
+   "closed": 42460,
+   "out_of_stock": 0,
+   "named_out_of_cell": 18379
+  },
+  "attempts": {
+   "named": 36773,
+   "category": 157998,
+   "none": 130441
+  },
+  "iv_by_kind": {
+   "named": {
+    "bad_target": 181,
+    "not_in_eatery": 843,
+    "closed": 4752,
+    "out_of_stock": 0,
+    "named_out_of_cell": 18379
+   },
+   "category": {
+    "bad_target": 38513,
+    "not_in_eatery": 1301,
+    "closed": 20841,
+    "out_of_stock": 0,
+    "named_out_of_cell": 0
+   },
+   "none": {
+    "bad_target": 15983,
+    "not_in_eatery": 4958,
+    "closed": 16867,
+    "out_of_stock": 0,
+    "named_out_of_cell": 0
+   }
+  },
+  "chooser_entropy_mean_bits": 0.0
+ },
+ "total_unique_by_action": {
+  "購入": {
+   "attempts:none": 113819,
+   "no_candidate:closed": 37587,
+   "no_candidate_by_kind:none:closed": 14156,
+   "attempts:named": 26779,
+   "no_candidate:named_out_of_cell": 15486,
+   "no_candidate_by_kind:named:named_out_of_cell": 15486,
+   "no_candidate:bad_target": 54677,
+   "no_candidate_by_kind:none:bad_target": 15983,
+   "attempts:category": 151832,
+   "no_candidate_by_kind:category:bad_target": 38513,
+   "resolved:category": 93546,
+   "decisions": 184680,
+   "resolved:none": 83680,
+   "no_candidate_by_kind:named:closed": 3658,
+   "no_candidate_by_kind:category:closed": 19773,
+   "resolved:named": 7454,
+   "no_candidate_by_kind:named:bad_target": 181
+  },
+  "食事": {
+   "attempts:none": 16622,
+   "no_candidate:not_in_eatery": 7102,
+   "no_candidate_by_kind:none:not_in_eatery": 4958,
+   "resolved:none": 8953,
+   "decisions": 17914,
+   "no_candidate:closed": 4873,
+   "attempts:category": 6166,
+   "no_candidate_by_kind:category:closed": 1068,
+   "attempts:named": 9994,
+   "no_candidate_by_kind:named:closed": 1094,
+   "no_candidate_by_kind:none:closed": 2711,
+   "resolved:category": 3797,
+   "no_candidate_by_kind:category:not_in_eatery": 1301,
+   "no_candidate_by_kind:named:not_in_eatery": 843,
+   "no_candidate:named_out_of_cell": 2893,
+   "no_candidate_by_kind:named:named_out_of_cell": 2893,
+   "resolved:named": 5164
+  }
+ },
+ "total_unique_legacy_min_id": {
+  "購入:closed": 90325,
+  "購入:bad_target": 31148,
+  "購入:closed_then_resolved": 45601,
+  "購入:ok": 170957,
+  "購入:ok_then_no_candidate": 31878,
+  "購入:target_changed": 101484,
+  "食事:not_in_eatery": 6580,
+  "食事:closed": 9008,
+  "食事:closed_then_resolved": 3113,
+  "食事:ok": 17194,
+  "食事:target_changed": 6395,
+  "食事:ok_then_no_candidate": 2393
+ },
+ "unique_tapes": [
+  "c8_ab6b_s1/AB6b-AD-NOTICE__ad_zero",
+  "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_14",
+  "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_30",
+  "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_1_00",
+  "c8_ab6b_s2/AB6b-AD-NOTICE__ad_zero",
+  "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_14",
+  "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_30",
+  "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_1_00",
+  "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__ad_zero",
+  "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_14",
+  "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_30",
+  "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_1_00",
+  "c8_ab7b_s1/AB7b-HINT-INTENT__hint",
+  "c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v2",
+  "c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v2",
+  "c8_ab8_s1/AB8-L4-SCALE__l4_x0.5",
+  "c8_ab8_s1/AB8-L4-SCALE__l4_x2"
+ ],
+ "note": "呼数(複製テープを含む)。棚在庫は見ない。月曜 day 0 の W7 営業行列。"
+}

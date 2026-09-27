@@ -79,6 +79,7 @@ from shibuya.engine import resolve as R
 from shibuya.engine.activity import ActivityLayer, payload_of
 from shibuya.engine.arbiter import Arbiter, WakeCandidates, call_budget_per_tick
 from shibuya.engine.change_detect import ChangeDetector
+from shibuya.engine.chooser import DEFAULT_CHOOSER, check_chooser, make_chooser
 from shibuya.engine.conversation import ConversationManager
 from shibuya.engine.geometry import (
     DEFAULT_GEOMETRY,
@@ -98,6 +99,12 @@ from shibuya.engine.processes.salient import (
 from shibuya.engine.presence import DERIVE_RULES as PRESENCE_DERIVE_RULES
 from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
 from shibuya.engine.presence import PlanExecutor
+from shibuya.engine.poi_target import (
+    DEFAULT_POI_TARGET,
+    TargetResolver,
+    check_poi_target,
+    resolution_summary,
+)
 from shibuya.engine.llm_bridge import (
     DEFAULT_LANE,
     LLMBridge,
@@ -349,6 +356,14 @@ class RunResult:
     #: **飲食店の切替口**(段 1b・D-96 nightlife (b))。``food``=現行(既定)/``place_food``=
     #: W17 の場所語「飲食店」と同じ集合(``World.eatery_mask``)。
     eatery: str = "food"
+    #: **選び手**(段 2a・D-114 (a)・``engine.chooser``)。既定 ``nearest``(憲法⑥の宣言つき暫定)。
+    chooser: str = DEFAULT_CHOOSER
+    #: 購入/食事/並ぶの対象の決め方(段 2a・親決定 Q13)。``candidates``=候補 → 選び手(既定)/
+    #: ``legacy``=現在セルの最小 id(旧 checkpoint の再現)。
+    poi_target: str = DEFAULT_POI_TARGET
+    #: 購入/食事/並ぶの対象の解決の内訳(段 2a・``engine.poi_target.resolution_summary``)。
+    #: ``legacy`` のランは空 dict(数えない)。
+    target_resolution: dict[str, Any] = field(default_factory=dict)
     #: 活動層の計数(``engine.activity.ActivityLayer.counters``)。層が無いランは空 dict。
     activity_counters: dict[str, int] = field(default_factory=dict)
     #: 活動の種別ごとの設定件数(``ActivityLayer.kind_distribution``)。層が無いランは空 dict。
@@ -691,6 +706,10 @@ class RunResult:
             "activity_kind_counts": dict(self.activity_kind_counts),
             # ---- 段 1b(D-96 nightlife (b)): 飲食店の切替口(既定 food=現行)。列追加のみ ----
             "eatery": str(self.eatery),
+            # ---- 段 2a(D-114 (a)): 選び手と対象の解決の内訳 (i)〜(iv)。列追加のみ ----
+            "chooser": str(self.chooser),
+            "poi_target": str(self.poi_target),
+            "target_resolution": dict(self.target_resolution),
             "calls_by_condition": dict(self.calls_by_condition),
             "synonym_table_version": _synonym_table_version(self.vocab_version),
             "action_usage": dict(self.action_usage),
@@ -1140,16 +1159,18 @@ def _target_poi(target: Any) -> int:
     return -1 if pid is None else int(pid)
 
 
-def _pending_extra(res: Any) -> tuple[int, int, Any]:
-    """応答 → ``(対象ヒント索引, 目印 POI 索引, 活動)``。
+def _pending_extra(res: Any) -> tuple[int, int, Any, Any]:
+    """応答 → ``(対象ヒント索引, 目印 POI 索引, 活動, 対象)``。
 
     C9b G5/G6(腕が立っていなければ ``(0, -1)``)+ **二層の段 2** の活動
-    (``engine.activity.payload_of``・語彙 v3 の応答だけ・それ以外は ``None``)。
+    (``engine.activity.payload_of``・語彙 v3 の応答だけ・それ以外は ``None``)+
+    **段 2a** の対象(``llm.contract.Target``・購入/食事/並ぶの候補の絞り込みが読む)。
     """
     return (
         C.target_hint_code(getattr(res, "target_hint", "")),
         _target_poi(getattr(res, "target", None)),
         payload_of(res),
+        getattr(res, "target", None),
     )
 
 
@@ -1209,6 +1230,8 @@ def run_day(
     census_out: str | Path | None = None,
     activity: bool | str = True,
     eatery: str = "food",
+    chooser: str = DEFAULT_CHOOSER,
+    poi_target: str = DEFAULT_POI_TARGET,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -1394,6 +1417,16 @@ def run_day(
             1 バイトも動かない**。``"place_food"``=W17 の場所語「飲食店」と同じ集合(``food`` ∨
             ``nightlife`` のうち subcat が club/karaoke/sauna/net_cafe でないもの・実資産 1,042 件)。
             価格(``poi_price``)は動かさない。``EATERY_MODES`` 以外は ``ValueError``。
+        chooser: **選び手**(段 2a・D-114 (a)・``engine.chooser``)。購入/食事/並ぶの対象を
+            「現在セルの営業中・意図に合う POI の候補」→ 選び手の分布 → 抽選
+            (``core.rng.stream(seed, "engine.chooser", tick, agent_id)``)で決める。既定
+            ``"nearest"``=可視(W8 の視点数)の降順 → POI 索引(憲法⑥の宣言つき暫定)。
+            それまでの「現在セルの最小 id」から**既定 checkpoint が動く**(版の台帳
+            ``docs/bench/analysis/intent-chooser-2026-09-28/``)。
+        poi_target: **対象の決め方の切替口**(親決定 Q13)。``"candidates"``(既定)=上の
+            候補 → 選び手 / ``"legacy"``=段 2a 前の「現在セルの最小 id」(``commit._poi_in_cell``)
+            をそのまま通す=**旧 checkpoint(02bd0312 等)を再現する**。``legacy`` では
+            ``target_resolution`` を数えない(空 dict)。
 
     Returns:
         ``RunResult``。
@@ -1433,6 +1466,9 @@ def run_day(
     activity_on = bool(activity) and vocab_version == "v3"
     # ---- 段 1b: 飲食店の切替口(値の検査は世界を触る前・既定 food=現行のバイト) ----
     eatery = check_eatery_mode(eatery)
+    # ---- 段 2a: 選び手と対象の決め方(値の検査は世界を触る前) ----
+    chooser = check_chooser(chooser)
+    poi_target = check_poi_target(poi_target)
     #: 語彙 v3 の対象ヒント(「対象: 自宅/職場/学校」→ 拠点セル)は活動層と独立に効かせる。
     v3_hints = vocab_version == "v3"
     # ---- ablation ③: **ランの実効不応期表**を 1 本組む(既定=§6 の表そのもの) ----
@@ -1441,6 +1477,13 @@ def run_day(
     world = world if world is not None else World.synthetic(n_cells=n_cells, seed=seed)
     # 渡された World を使い回しても前のランの切替口が残らないよう、**毎ラン必ず書く**。
     world.set_eatery_mode(eatery)
+    # ---- 段 2a: 購入/食事/並ぶの対象=候補 → 選び手(1 ランに 1 つ・世界は読むだけ) ----
+    # ``legacy``(Q13)は resolver を作らない=``intents_from_responses`` が従来の最小 id を通す。
+    poi_resolver = (
+        TargetResolver(world=world, chooser=make_chooser(chooser), seed=seed)
+        if poi_target == "candidates"
+        else None
+    )
     llm = llm if llm is not None else _default_mock(seed, vocab_version)
     salt = run_salt_for(seed)
     tape_writer = TapeWriter(Path(tape_path)) if tape_path is not None else None
@@ -1720,7 +1763,7 @@ def run_day(
     # ``target_person`` = LLM が「対象」欄に書いた個体 id(-1=名指しなし・C6 09-09)。
     # ``target_hint`` = 段0 辞書 v4 の対象ヒント索引(C9b G5・0=なし)。
     # ``target_poi`` = 「対象」欄が目印 POI に解決できたときの索引(C9b G6 a′・-1=なし)。
-    pending: list[tuple[int, int, int, int, str, int, int, int, int, Any]] = []
+    pending: list[tuple[int, int, int, int, str, int, int, int, int, Any, Any]] = []
     #: この tick に適用した応答の (体, 行動コード, 活動)。``resolve.apply`` の後に活動層が書く。
     applied_activity: tuple[list[int], list[int], list[Any]] = ([], [], [])
     #: C9b G3/G4: この tick に LLM が言った**焦点の要求**(-1=なし)。使い回す 1 本の
@@ -1822,6 +1865,8 @@ def run_day(
                 agents_in_order = ag[order]
                 # 二層の段 2: 活動(v3 の応答だけ)と「あたり」の行き先
                 payloads = [due[int(i)][9] for i in order]
+                # 段 2a: 対象(``Target``)=購入/食事/並ぶの候補の絞り込みが読む
+                parsed_targets = [due[int(i)][10] for i in order]
                 move_dest: np.ndarray | None = None
                 if act_layer is not None:
                     applied_activity = (
@@ -1876,6 +1921,8 @@ def run_day(
                     stats=talk_stats, run_salt=salt,
                     vocab_version=vocab_version,
                     move_dest=None if move_dest is None else move_dest[keep],
+                    targets=[t for t, k in zip(parsed_targets, keep.tolist()) if k],
+                    poi_resolver=poi_resolver,
                 )
                 # ---- C9b G3/G4: 焦点の要求を 1 本のバッファへ散らす ----
                 if focus_request is not None:
@@ -2617,6 +2664,13 @@ def run_day(
     # 二層の段 2: 活動層と起床の内訳(満了入口の列は全ランで出る=層が無ければ 0)
     result.activity = bool(activity_on)
     result.eatery = str(eatery)
+    result.chooser = str(chooser)
+    result.poi_target = str(poi_target)
+    result.target_resolution = (
+        resolution_summary(poi_resolver.stats, poi_resolver.entropy_sum)
+        if poi_resolver is not None
+        else {}
+    )
     result.calls_by_condition = {
         WakeCondition(i).name: int(calls_by_cond[i]) for i in range(N_WAKE_CONDITIONS_ALL)
     }

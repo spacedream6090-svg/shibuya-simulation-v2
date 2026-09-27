@@ -28,6 +28,7 @@ expedient(本モジュール分)
 from __future__ import annotations
 
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Final, Iterator
 
 import numpy as np
@@ -166,6 +167,9 @@ class World:
         #: 飲食店マスク(``eatery_mask`` の遅延キャッシュ)。**SoA の欄ではない**
         #: =``Registry.state_hash`` にも checkpoint にも入らない(既定のバイトは動かない)。
         self._eatery_mask: np.ndarray | None = None
+        #: 段 2a: POI の「自分のセルの視点から見える数」(W8・``poi_visibility`` の遅延キャッシュ)。
+        #: **SoA の欄ではない**=checkpoint 外。
+        self._poi_visibility: np.ndarray | None = None
         #: 目印マスク(``landmark_mask`` の遅延キャッシュ・C9b G6 a′)。同じく **SoA の欄では
         #: ない**=checkpoint 外。
         self._landmark_mask: np.ndarray | None = None
@@ -229,6 +233,22 @@ class World:
         """密度 → 段階(``DENSITY_STAGE_EDGES`` の右側挿入位置)。"""
         d = self.cells.density if density is None else np.asarray(density)
         return np.searchsorted(np.asarray(DENSITY_STAGE_EDGES), d, side="right").astype(np.uint8)
+
+    @property
+    def poi_visibility(self) -> np.ndarray:
+        """POI ごとの「自分のセルの視点から見える数」(``(n_poi,)`` int32・W8 が無ければ 0)。
+
+        段 2a の既定の選び手(``engine.chooser.NearestChooser``)の可視順。合成世界は全 0。
+        """
+        if self._poi_visibility is None:
+            src = Path(str(self.assets.source))
+            if self.assets.source != "synthetic" and src.is_dir():
+                from shibuya.world.assets import load_poi_own_cell_visibility
+
+                self._poi_visibility = load_poi_own_cell_visibility(src, self.assets.poi_cell)
+            else:
+                self._poi_visibility = np.zeros(self.n_poi, dtype=np.int32)
+        return self._poi_visibility
 
     @property
     def eatery_mode(self) -> str:

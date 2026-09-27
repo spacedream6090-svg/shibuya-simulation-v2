@@ -60,6 +60,8 @@ from shibuya.perception.templates import (
     VOCAB_VERSIONS,
 )
 from shibuya.world.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE, hash_free_cat_code
+from shibuya.engine.chooser import CHOOSER_NAMES, DEFAULT_CHOOSER
+from shibuya.engine.poi_target import DEFAULT_POI_TARGET, POI_TARGET_MODES
 from shibuya.world.state import DEFAULT_EATERY_MODE, EATERY_MODES, World
 
 #: **CLI の既定の語彙版**(二層の段 3・第277=``--vocab-version`` を渡さないランは v3)。
@@ -646,6 +648,20 @@ def main(argv: list[str] | None = None) -> int:
              "場所の変化で起こさない・あたり歩行・B4b の活動の 1 行。off=抑止も満了も無効=現行",
     )
     ap.add_argument(
+        "--chooser",
+        choices=CHOOSER_NAMES,
+        default=DEFAULT_CHOOSER,
+        help="段 2a(D-114 (a)): 購入/食事/並ぶの対象の選び手。候補=現在セルの営業中・意図に合う POI。"
+             "nearest=可視(W8 の視点数)の降順 → POI 索引(既定・憲法⑥の宣言つき暫定)",
+    )
+    ap.add_argument(
+        "--poi-target",
+        choices=POI_TARGET_MODES,
+        default=DEFAULT_POI_TARGET,
+        help="段 2a(親決定 Q13): 購入/食事/並ぶの対象の決め方。candidates=候補(店舗系 cat・営業中・"
+             "意図に合う)→ 選び手(既定)/legacy=段 2a 前の現在セルの最小 id(旧 checkpoint の再現)",
+    )
+    ap.add_argument(
         "--eatery",
         choices=EATERY_MODES,
         default=DEFAULT_EATERY_MODE,
@@ -783,6 +799,8 @@ def main(argv: list[str] | None = None) -> int:
         queue_service=(str(args.queue_service) == "on"),
         activity=(str(args.activity) == "on"),
         eatery=str(args.eatery),
+        chooser=str(args.chooser),
+        poi_target=str(args.poi_target),
         role_words=(str(args.role_words) == "on"),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),

@@ -72,6 +72,8 @@ __all__ = [
     "CORRIDOR_MAX_DENSITY_PER_M2",
     "check_area_source",
     "load_walkable_area_m2",
+    # ---- 段 2a(選択器の口): 同じセルの POI の見えやすさ(W8) ----
+    "load_poi_own_cell_visibility",
 ]
 
 #: 層名 → コード(UG=-1 / GL=0 / DECK=1。W2 の 3 値)。
@@ -446,6 +448,43 @@ def load_assets(path: str | Path) -> WorldAssets:
         noise_stage_day=ns_day,
         noise_stage_night=ns_night,
     )
+
+
+def load_poi_own_cell_visibility(world_dir: str | Path, poi_cell: np.ndarray) -> np.ndarray:
+    """W8 → POI ごとの「**自分のセルの視点から見える数**」(``(n_poi,)`` int32・無ければ 0)。
+
+    段 2a(選択器の口・D-114 (a))の既定の選び手 ``NearestChooser`` の「可視順」の素。
+    ``w8_t1_cell.parquet``(セル → 対象 → 見えている視点数)と ``w8_targets.parquet``
+    (対象 → ``poi_id``)を ``w6_poi.parquet`` の行順(=実行時の POI 索引)へ写す。セル索引は
+    W2 の行順で、W8 の ``place_idx`` と実行時の ``poi_cell`` は同じ索引(どちらも W2 の行番号)。
+    資産が欠けていれば全 0(=可視順は POI 索引だけで決まる)。
+
+    逐次ループ宣言(P4): なし(辞書 1 本と配列の写像。起動時 1 回)。
+    """
+    import pyarrow.parquet as pq
+
+    p = Path(world_dir)
+    cell = np.asarray(poi_cell, dtype=np.int64)
+    out = np.zeros(cell.size, dtype=np.int32)
+    files = (p / "w6_poi.parquet", p / "w8_targets.parquet", p / "w8_t1_cell.parquet")
+    if not all(f.exists() for f in files):
+        return out
+    poi_ids = pq.read_table(files[0], columns=["poi_id"]).column(0).to_pylist()
+    tg = pq.read_table(files[1], columns=["target_id", "kind", "ref_id"]).to_pydict()
+    target_of_poi = {
+        str(ref): int(tid) for tid, kind, ref in zip(tg["target_id"], tg["kind"], tg["ref_id"])
+        if str(kind) == "poi"
+    }
+    t1 = pq.read_table(files[2], columns=["place_idx", "target_id", "n_viewpoints"]).to_pydict()
+    seen = {
+        (int(c), int(t)): int(n)
+        for c, t, n in zip(t1["place_idx"], t1["target_id"], t1["n_viewpoints"])
+    }
+    for j, pid in enumerate(poi_ids[: cell.size]):
+        tid = target_of_poi.get(str(pid))
+        if tid is not None and cell[j] >= 0:
+            out[j] = seen.get((int(cell[j]), tid), 0)
+    return out
 
 
 def _noise_stage_per_cell(

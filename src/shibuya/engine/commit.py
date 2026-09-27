@@ -608,6 +608,8 @@ def intents_from_responses(
     run_salt: bytes = b"",
     vocab_version: str = "v1",
     move_dest: np.ndarray | None = None,
+    targets: Sequence[object] | None = None,
+    poi_resolver: object | None = None,
 ) -> IntentBatch:
     """Phase A の LLM 由来分: 行動コード → 対象と資源を**エンジンが**決めて intent にする。
 
@@ -643,6 +645,11 @@ def intents_from_responses(
         move_dest: **移動の行き先の上書き**(``(n,)``・``-1``=上書きなし・``≥0``=セル・
             ``WANDER_BAD_TARGET``=対象不正)。「対象: あたり」(二層の段 2)の行き先を
             ``engine.activity`` が決めて渡す口。``None``(既定)では 1 行も通らない。
+        targets: 体ごとの「対象」欄(``llm.contract.Target`` か ``None``)。``poi_resolver`` と
+            一緒に使う(段 2a)。
+        poi_resolver: **段 2a の候補の絞り込み+選び手**(``engine.poi_target.TargetResolver``)。
+            渡すと購入/食事/並ぶの対象を「現在セルの営業中・意図に合う POI の候補 → 選び手の
+            分布」で決める。``None`` なら従来の「現在セルの最小 id」(``_poi_in_cell``)。
 
     Returns:
         ``IntentBatch``(1 個体 1 件)。
@@ -712,8 +719,24 @@ def intents_from_responses(
             dest = np.where(md != -1, md, dest)
         target = np.where(is_move, dest, target)
 
-    # 購入: 現在セルの POI(最小 id)。無ければ -1 → 失敗(在庫切れ扱いでなく対象不正)。
+    # ---- 段 2a(D-114 (a)): 購入/食事/並ぶの対象=候補(営業中・意図に合う)→ 選び手 ----
     is_buy = code_out == ACT_BUY
+    is_queue = code_out == ACT_QUEUE
+    is_eat = code_out == ACT_EAT
+    if poi_resolver is not None:
+        buy_like = is_buy | (is_queue & (str(vocab_version) == "v3"))
+        if np.any(buy_like | is_eat):
+            poi_t = poi_resolver.resolve(  # type: ignore[attr-defined]
+                agents, int(tick), a, code_out, targets, is_eat=is_eat, is_buy_like=buy_like
+            )
+            sel = buy_like | is_eat
+            target = np.where(sel, poi_t, target)
+            resource = np.where(
+                sel & (poi_t >= 0), space.poi(np.maximum(poi_t, 0)), resource
+            )
+        is_buy = is_queue = is_eat = np.zeros(n, dtype=bool)  # 従来の経路は通さない
+
+    # 購入: 現在セルの POI(最小 id)。無ければ -1 → 失敗(在庫切れ扱いでなく対象不正)。
     if np.any(is_buy):
         poi = _poi_in_cell(world, cell, None)
         target = np.where(is_buy, poi, target)
@@ -721,7 +744,6 @@ def intents_from_responses(
 
     # 並ぶ(語彙 v3・第275 親の決め #2): 対象=現在セルの POI(購入と同じ走査)。飲食店なら
     # ``resolve`` が食事へ、それ以外は購入へ委譲する(資源も購入/食事と同じ ``space.poi``)。
-    is_queue = code_out == ACT_QUEUE
     if str(vocab_version) == "v3" and np.any(is_queue):
         q_poi = _poi_in_cell(world, cell, None)
         target = np.where(is_queue, q_poi, target)
@@ -732,7 +754,6 @@ def intents_from_responses(
     # 食事(語彙 v2): 現在セルの**飲食店** POI(最小 id)。無ければ -1 → ``NOT_IN_EATERY``。
     # 購入と同じ「セル内の POI を探す」走査だが、候補を ``world.eatery_mask`` で絞る。
     # 資源も購入と同じ ``space.poi``(店の 1 tick 受け入れ数)= 同じ店の席を奪い合う。
-    is_eat = code_out == ACT_EAT
     if np.any(is_eat):
         eat_poi = _poi_in_cell(world, cell, world.eatery_mask)
         target = np.where(is_eat, eat_poi, target)

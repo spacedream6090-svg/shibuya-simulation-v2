@@ -57,11 +57,17 @@ W17_GOLDEN = {
         # **ON にしたときの値**(W10 の USE_ROAD_NAME_MATCH=True・絞り込みなしで再構築した世界):
         # 帰無腕 1243baa79105ad7c / 41,071・v3 既定 066a8cbe578b7a06 / 36,471
         # (記録: docs/bench/analysis/w10-roadnames-2026-09-28/README.md)。
-        "null_arm_final": "b4ad8140fe4176db", "null_arm_llm_calls": 41_072,
+        # 段 2a(選択器の口・D-114 (a)): 購入/食事/並ぶの対象が「現在セルの最小 id」から
+        # 「店舗系 cat・営業中・意図に合う候補 → 選び手 nearest」になり、同じ W17 のまま final が動いた。
+        # 旧値(段 1a〜1c)= 帰無腕 b4ad8140fe4176db / 41,072・v3 既定 02bd03126d5f41cb / 36,460
+        # (``--poi-target legacy`` で再現=tests/engine/test_intent_chooser.py)。2a の 1 回目
+        # (購入の候補=セル内の全 POI=Q12 前)= 帰無腕 1bba1397b39c6864 / 41,148・v3 既定
+        # 9a2535d2787d61f9 / 36,691。記録: docs/bench/analysis/intent-chooser-2026-09-28/README.md
+        "null_arm_final": "e75dfa1c5442f422", "null_arm_llm_calls": 41_141,
         # 第277(二層の段 3): **語彙 v3 の既定**(=CLI の新しい既定・activity on・mock v3 形)。
         # v1 の行は上のまま残す(ライブラリの既定は v1=切替口)。
         # 記録: docs/bench/analysis/two-layer-2026-09-27/README.md §0
-        "v3_default_final": "02bd03126d5f41cb", "v3_default_llm_calls": 36_460,
+        "v3_default_final": "48b0d42936ebed49", "v3_default_llm_calls": 36_725,
         "v1_outside_blocks": 590_430, "v1_outside_dist": [92, 160_033, 133_575, 47_861],
         "s5000_v1": {"n_blocks": 8_589, "zero": 1, "outside": 7_733, "in": 856},
         "s5000_v2": {"n_blocks": 6_377, "zero": 150, "outside": 5_521, "in": 856},
