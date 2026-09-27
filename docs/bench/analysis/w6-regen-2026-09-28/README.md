@@ -201,3 +201,72 @@ python docs/bench/analysis/w6-regen-2026-09-28/w6_regen_measure.py compare --bef
 ```
 
 前の計測は現行資産の写し(トップの資産ファイル+`acceptance/`+`street_features_overpass_20260907.json`)で回した(`world/assets.py` は街路施設を資産ディレクトリ → `../../realworld/osm/` の順で探す)。1 腕 13〜20 秒。§6 の差し替えは同じ写しに後の資産を 1 つずつ入れて回した。
+
+---
+
+## § 段 1b — 飲食店の切替口 `--eatery {food,place_food}`(D-96 nightlife (b))
+
+> 正典: [実装アジェンダ](../../../design/v2-w6-regen-implementation-agenda.md) §2 / [趣味の affordance 対応表](../../../design/v2-hobby-affordance-map.md) §7。手順 [eatery_measure.py](eatery_measure.py) → [eatery_1b.json](eatery_1b.json)(mock 5,000・seed 1・`data/world/v2`=段 1a の資産)。
+
+### 1b-1 何を足したか
+
+- `World.eatery_mask` に切替口(`World.set_eatery_mode`・`world/state.py` の `EATERY_MODES`):
+  - `food`(**既定**)= 現行の `hash_free_cat_code(cat) == 1`(実資産 823 件)。
+  - `place_food` = `food` ∨ (`cat == "nightlife"` ∧ subcat ∉ {club, karaoke, sauna, net_cafe})(実資産 **1,042 件**)。除外集合は `PLACE_FOOD_EXCLUDED_NIGHTLIFE_SUBCATS`(W17 の `SUBCAT_TO_PLACE` との二重定義=テストで一致を検査)。
+- **実行時に W6 の `subcat` を読む最初の口**: `WorldAssets.poi_subcat`(`w6_poi.parquet` の `subcat` 列・無しは `""`・合成世界は空)。`place_food` は資産に subcat が無く nightlife がある世界を拒む(黙って food に落ちない)。
+- `run_day(eatery=...)`(毎ラン必ず `World` に書く=使い回した World に前のランの値が残らない)・CLI `--eatery {food,place_food}`・manifest に `eatery` 列(列追加のみ)。**価格は動かさない**(nightlife は 1,500 円のまま)。
+
+### 1b-2 既定 checkpoint(不変)
+
+| 腕 | `--eatery food`(既定) | `--eatery place_food` |
+|---|---|---|
+| 語彙 v3 既定 | `02bd0312`(不変) | `5c9c774b` |
+| 語彙 v2 | `1d181059`(不変) | `511c1f9c` |
+| v1 | `2f3969cf`(不変) | `2f3969cf`(v1 に「食事」が無い=腕が効かない) |
+
+golden(`W17_GOLDEN`・帰無腕 `b4ad8140`)は既定の経路なので不変(全体テストで確認)。計測の包み(`_apply_eat`/`_complete_eat` を数えるだけ)は透明=包まずに回した `place_food` と final が一致。
+
+### 1b-3 構造(月曜の W7 営業行列・飲食店マスクの POI のうち開いている数)
+
+| 時刻 | food | place_food |
+|---|---|---|
+| 飲食店マスクの件数 | 823 | 1,042 |
+| 12:00 | 777 | 786 |
+| 19:00 | 790 | 1,006 |
+| 22:00 | 689 | 904 |
+| **23:00** | **58** | **270** |
+| 01:00 | 31 | 236 |
+| 23:00〜翌 5:00 のどこかで開く | 58 | 270 |
+| 23:00 に開いた飲食店があるセル | 37 | 84 |
+
+アジェンダの「58 → 252 前後」は nightlife 全体(252)の見込み。実測は 58+212(bar/pub 等=遊興 4 種を除く nightlife)=270。
+
+### 1b-4 ラン(mock 5,000・v3 既定・final は上の表)
+
+| | v3 food | v3 place_food | v2 food | v2 place_food |
+|---|---|---|---|---|
+| 食事の試み(`_apply_eat` に入った体・並ぶ→食事を含む) | 3,875 | 4,140 | 2,638 | 2,649 |
+| 食事の成立(`meals`) | 2,035 | 2,062 | 1,351 | 1,304 |
+| **成立率** | **52.5%** | **49.8%** | 51.2% | 49.2% |
+| 失敗: 飲食店でない / 閉店 / 所持金不足 | 839 / 1,001 / 0 | 833 / 1,244 / 1 | 688 / 599 / 0 | 674 / 671 / 0 |
+| **深夜(23:00〜翌 5:00)の食事の成立** | **2** | **13** | 1 | 9 |
+| 深夜に食事が成立した店の数 | 2 | 6 | 1 | 7 |
+| 呼数 | 36,460 | 36,492 | 33,274 | 33,166 |
+| 購入 | 1,866 | 1,872 | 1,423 | 1,406 |
+| 保存則 | OK | OK | OK | OK |
+
+### 1b-5 読み(事実だけ)
+
+1. 深夜の食事は成立するようになった(v3: 2 → 13・店 2 → 6)。23 時に開いている飲食店は 58 → 270。
+2. ただし**昼の食事の成立率は下がった**(v3 52.5% → 49.8%・閉店による失敗 1,001 → 1,244)。原因は食事の対象の決め方=「セル内の飲食店の**最小 id**」(`engine.commit._poi_in_cell`・D-114 の expedient)。place_food で **19 セルの対象が food から nightlife の店へ入れ替わる**(nightlife の方が id が小さい)。nightlife は 17 時開店が多いので、**12:00 に対象が開いているセルは 193 → 176** に減り、19:00 は 197 → 203・**23:00 は 10 → 33** に増える。新たに飲食店を持つセルは 6。
+3. v2 は成立数そのものが減った(1,351 → 1,304)。同じ機構(昼の対象の入れ替わり)。
+4. →「食事の場」の集合を広げる効果と、「どの店を対象にするか」の規則(最小 id=開いているかを見ない)が絡む。D-114 (a)(営業中かつ意図に合う POI を候補に)が入ると昼の目減りは消えるはず(未検証=§1b-6 Q5)。
+
+### 1b-6 問い
+
+- **Q5(親決定)**: 既定は `food` のまま=`place_food` は切替口のまま。既定化の判断は D-114 の候補選択(PENDING §2 の 2 段目=営業中を見る)が入った後に同じ計測で行う(いまの最小 id 規則のままだと place_food は昼の成立率を 2.7 pt 下げる)。
+- 空欄: 実 LLM で「飲食店」と読んだ体がどれだけ nightlife の店で食事を選ぶか(mock は対象をエンジンが決める)。
+
+---
+
+**段 1c(W10 道路名の突合・D-1 (a))の記録は別ファイル**: [../w10-roadnames-2026-09-28/README.md](../w10-roadnames-2026-09-28/README.md)(対応表は診断として生成・騒音場への適用は既定 OFF=親決定・§1c′ 絞り込み Q7/Q9 の計測)。

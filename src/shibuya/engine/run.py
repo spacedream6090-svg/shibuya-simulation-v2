@@ -138,7 +138,7 @@ from shibuya.world.assets import (
     load_process_assets_or_synthetic,
     load_walkable_area_m2,
 )
-from shibuya.world.state import World
+from shibuya.world.state import World, check_eatery_mode
 
 __all__ = [
     "DIAG_RUN_COLUMNS",
@@ -346,6 +346,9 @@ class RunResult:
     #: **行為と活動の二層**(段 2・D-116)の活動層が立ったか(= ``vocab_version="v3"`` かつ
     #: ``activity=True``)。v1/v2 では常に False(活動欄が来ない=実質無効)。
     activity: bool = False
+    #: **飲食店の切替口**(段 1b・D-96 nightlife (b))。``food``=現行(既定)/``place_food``=
+    #: W17 の場所語「飲食店」と同じ集合(``World.eatery_mask``)。
+    eatery: str = "food"
     #: 活動層の計数(``engine.activity.ActivityLayer.counters``)。層が無いランは空 dict。
     activity_counters: dict[str, int] = field(default_factory=dict)
     #: 活動の種別ごとの設定件数(``ActivityLayer.kind_distribution``)。層が無いランは空 dict。
@@ -686,6 +689,8 @@ class RunResult:
             # ---- 二層の段 2(D-116): 活動層が立ったか・種別の分布・起床の内訳。列追加のみ ----
             "activity": bool(self.activity),
             "activity_kind_counts": dict(self.activity_kind_counts),
+            # ---- 段 1b(D-96 nightlife (b)): 飲食店の切替口(既定 food=現行)。列追加のみ ----
+            "eatery": str(self.eatery),
             "calls_by_condition": dict(self.calls_by_condition),
             "synonym_table_version": _synonym_table_version(self.vocab_version),
             "action_usage": dict(self.action_usage),
@@ -1203,6 +1208,7 @@ def run_day(
     seat_area_retail_m2: float | None = None,
     census_out: str | Path | None = None,
     activity: bool | str = True,
+    eatery: str = "food",
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -1383,6 +1389,11 @@ def run_day(
             (CELL_BLOCK)で起こさない ④「移動 対象: あたり」の近傍歩行 ⑤ 同セルの B4b に
             活動の 1 行 ⑥ 休んでいる体の疲労回復(10 tick ごとに −1)⑦ 活動の文を checkpoint に
             混ぜる。``False``/``"off"`` は抑止も満了も無効=現行の挙動。
+        eatery: **飲食店の切替口**(段 1b・D-96 nightlife (b)・``World.eatery_mask``)。
+            ``"food"``(既定)=現行の ``cat`` の価格帯「飲食」(実資産 823 件)=**checkpoint は
+            1 バイトも動かない**。``"place_food"``=W17 の場所語「飲食店」と同じ集合(``food`` ∨
+            ``nightlife`` のうち subcat が club/karaoke/sauna/net_cafe でないもの・実資産 1,042 件)。
+            価格(``poi_price``)は動かさない。``EATERY_MODES`` 以外は ``ValueError``。
 
     Returns:
         ``RunResult``。
@@ -1420,12 +1431,16 @@ def run_day(
     # ---- 二層の段 2: 活動層は**語彙 v3 のときだけ**立つ(SoA を確保する前に決める=欄が 2 本変わる) ----
     activity = check_role_words(activity)  # "on"/"off"/bool を bool へ(同じ正規化)
     activity_on = bool(activity) and vocab_version == "v3"
+    # ---- 段 1b: 飲食店の切替口(値の検査は世界を触る前・既定 food=現行のバイト) ----
+    eatery = check_eatery_mode(eatery)
     #: 語彙 v3 の対象ヒント(「対象: 自宅/職場/学校」→ 拠点セル)は活動層と独立に効かせる。
     v3_hints = vocab_version == "v3"
     # ---- ablation ③: **ランの実効不応期表**を 1 本組む(既定=§6 の表そのもの) ----
     refractory_table = R.refractory_ticks(refractory_scale)
     refractory_scale_norm = R.normalized_refractory_scale(refractory_scale)
     world = world if world is not None else World.synthetic(n_cells=n_cells, seed=seed)
+    # 渡された World を使い回しても前のランの切替口が残らないよう、**毎ラン必ず書く**。
+    world.set_eatery_mode(eatery)
     llm = llm if llm is not None else _default_mock(seed, vocab_version)
     salt = run_salt_for(seed)
     tape_writer = TapeWriter(Path(tape_path)) if tape_path is not None else None
@@ -2601,6 +2616,7 @@ def run_day(
     result.action_usage = _action_usage(per_action_total, vocab_version)
     # 二層の段 2: 活動層と起床の内訳(満了入口の列は全ランで出る=層が無ければ 0)
     result.activity = bool(activity_on)
+    result.eatery = str(eatery)
     result.calls_by_condition = {
         WakeCondition(i).name: int(calls_by_cond[i]) for i in range(N_WAKE_CONDITIONS_ALL)
     }

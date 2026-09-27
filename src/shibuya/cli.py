@@ -60,7 +60,7 @@ from shibuya.perception.templates import (
     VOCAB_VERSIONS,
 )
 from shibuya.world.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE, hash_free_cat_code
-from shibuya.world.state import World
+from shibuya.world.state import DEFAULT_EATERY_MODE, EATERY_MODES, World
 
 #: **CLI の既定の語彙版**(二層の段 3・第277=``--vocab-version`` を渡さないランは v3)。
 #: ライブラリの既定(``templates.DEFAULT_VOCAB_VERSION``/``run_day``/``cli.run``)は **v1 のまま**
@@ -646,6 +646,15 @@ def main(argv: list[str] | None = None) -> int:
              "場所の変化で起こさない・あたり歩行・B4b の活動の 1 行。off=抑止も満了も無効=現行",
     )
     ap.add_argument(
+        "--eatery",
+        choices=EATERY_MODES,
+        default=DEFAULT_EATERY_MODE,
+        help="段 1b(D-96 nightlife (b)): 行動語「食事」が成立する飲食店の集合。food=現行"
+             "(cat の価格帯「飲食」・既定・checkpoint はバイト不変)/place_food=W17 の場所語"
+             "「飲食店」と同じ集合(food+nightlife のうち club/karaoke/sauna/net_cafe でないもの)。"
+             "価格は動かさない",
+    )
+    ap.add_argument(
         "--role-words",
         choices=("on", "off"),
         default="on",
@@ -773,6 +782,7 @@ def main(argv: list[str] | None = None) -> int:
         report_precondition=(str(args.report_precondition) == "on"),
         queue_service=(str(args.queue_service) == "on"),
         activity=(str(args.activity) == "on"),
+        eatery=str(args.eatery),
         role_words=(str(args.role_words) == "on"),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),

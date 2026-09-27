@@ -220,6 +220,10 @@ class WorldAssets:
         poi_cat: カテゴリ名(POI ごと)。
         poi_name: POI 名(W6 ``name`` 列)。合成世界は空タプル。**C9b G6 a′**
             (目印の対象解決 ``World.landmark_targets``)のためだけに持つ。
+        poi_subcat: POI のサブカテゴリ(W6 ``subcat`` 列・無しは ``""``)。合成世界は空タプル。
+            **段 1b(D-96 nightlife (b))**の飲食店の切替口 ``World.eatery_mask``
+            (``eatery="place_food"``)のためだけに持つ=**実行時に subcat を読む最初の口**。
+            既定の ``eatery="food"`` では読まない。
     """
 
     source: str
@@ -246,6 +250,8 @@ class WorldAssets:
     poi_cat: tuple[str, ...]
     #: POI 名(W6 ``name``)。**既定は空**=名前を持たない世界(合成)。
     poi_name: tuple[str, ...] = ()
+    #: POI のサブカテゴリ(W6 ``subcat``・無しは ``""``)。**既定は空**=持たない世界(合成)。
+    poi_subcat: tuple[str, ...] = ()
     #: POI の平面座標 ``(n_poi, 2)`` float32(W6 ``x``/``y``)。``None``=資産が持たない
     #: (合成世界)→ ``poi_position()`` が最寄ノード座標で代用する。
     poi_xy: np.ndarray | None = None
@@ -381,10 +387,14 @@ def load_assets(path: str | Path) -> WorldAssets:
     next_hop = np.load(p / "w3_next_hop.npy", mmap_mode="r")
     cell_dist = np.load(p / "w3_cell_dist.npy", mmap_mode="r")
 
+    poi_cols = ["poi_id", "name", "cat", "place_id", "node_id", "x", "y"]
+    # ``subcat`` は段 1b の飲食店の切替口(``eatery="place_food"``)のためだけに読む
+    # (W6 1.0.0 以後の資産は全部持つ。持たない資産は空タプル=place_food が拒む)。
+    has_subcat = "subcat" in pq.read_schema(p / "w6_poi.parquet").names
     poi = pq.read_table(
         p / "w6_poi.parquet",
         # ``name`` は C9b G6 a′(目印の対象解決)のためだけに読む。数値配列は増えない。
-        columns=["poi_id", "name", "cat", "place_id", "node_id", "x", "y"],
+        columns=poi_cols + (["subcat"] if has_subcat else []),
     ).to_pydict()
     # 逐次ループ宣言1: POI 数(2,337)ぶんの辞書引き
     poi_cell = np.array([place_to_cell.get(pid, -1) for pid in poi["place_id"]], dtype=np.int32)
@@ -429,6 +439,9 @@ def load_assets(path: str | Path) -> WorldAssets:
         poi_open_to=poi_open_to,
         poi_cat=cats,
         poi_name=tuple(str(s) for s in poi["name"]),
+        poi_subcat=(
+            tuple("" if s is None else str(s) for s in poi["subcat"]) if has_subcat else ()
+        ),
         poi_xy=poi_xy,
         noise_stage_day=ns_day,
         noise_stage_night=ns_night,
