@@ -24,14 +24,18 @@ subcat 語彙を広げる。名前一致の規則は §「最後の手段」に*
 -----------------------------------------
 ``data/realworld/osm/shibuya_osm_wide_v8.json`` の ``pois`` は
 ``id/name/cat/x/y/node/building/floor/subcat`` しか持たない(**生タグは落ちている**)。
-生タグは別の 2 ファイルに残っている:
+生タグは別の 3 ファイルに残っている(**優先順**=新しい取得が先):
 
-- ``poi_opening_hours_overpass_20260907.json`` … W7 が既に使う。店舗系 1,746 件に一致。
-- ``street_features_overpass_20260907.json`` … ``leisure=park/garden/pitch/playground``
-  ほかを含む。公園系に一致。
+1. ``poi_tags_overpass_20260928.json``(2026-09-28 取得・osm_base 2026-09-27)… amenity/shop/
+   leisure/tourism/office/craft/healthcare の node/way/relation を ``out center;`` で取った
+   **タグ一式**(3,516 要素)。v8 の POI 2,337 のうち 2,259 に一致。
+2. ``poi_opening_hours_overpass_20260907.json`` … W7 が既に使う。店舗系 1,746 件に一致。
+3. ``street_features_overpass_20260907.json`` … ``leisure=park/garden/pitch/playground``
+   ほかを含む。公園系に一致。
 
-どちらも Overpass の ``out tags;`` 形式で、要素キー ``f"p_{type[0]}{id}"`` が
-v8 の ``poi_id`` と同じ規約(``build/field/w7_planspec.py`` の既存の突き合わせと同一)。
+どれも Overpass の JSON で、要素キー ``f"p_{type[0]}{id}"`` が v8 の ``poi_id`` と同じ規約
+(``build/field/w7_planspec.py`` の既存の突き合わせと同一)。**要素単位で新しい文書が勝つ**
+(:func:`tag_index_by_priority`)。2026-09-07 の 2 文書は、新しい文書に無い要素だけを埋める。
 
 expedient
 ---------
@@ -57,6 +61,8 @@ __all__ = [
     "subcat_from_name",
     "resolve_subcat",
     "tag_index",
+    "tag_index_by_priority",
+    "tag_tier_report",
 ]
 
 # ============================================================ 一次: OSM タグの規則
@@ -373,3 +379,66 @@ def tag_index(*documents: Mapping[str, Any]) -> dict[str, dict[str, str]]:
             key = f"p_{str(el['type'])[0]}{el['id']}"
             index.setdefault(key, {}).update({k: str(v) for k, v in tags.items()})
     return index
+
+
+def tag_index_by_priority(
+    *tiers: Iterable[Mapping[str, Any]],
+) -> dict[str, dict[str, str]]:
+    """優先順の文書群 → ``poi_id`` → 生タグ。**要素単位で先頭の群が勝つ**。
+
+    Args:
+        tiers: 文書の組の列(先頭が最優先=新しい取得)。同じ組の中は :func:`tag_index` と
+            同じく重ねる。
+
+    ある要素が複数の組に出たら、**最も優先の組のタグ一式**を採り、後ろの組のタグは混ぜない
+    (Overpass の応答は要素のタグ一式=その時点のスナップショットなので、新しいスナップショットで
+    消えたキーを古い文書から復活させない)。前の組に無い要素だけを後ろの組から埋める
+    (例: 新しい取得に出てこなくなった公園 1 件は 2026-09-07 の文書のタグで決まる)。
+
+    Example:
+        >>> new = {"elements": [{"type": "node", "id": 1, "tags": {"amenity": "theatre"}}]}
+        >>> old = {"elements": [{"type": "node", "id": 1, "tags": {"shop": "books"}},
+        ...                     {"type": "node", "id": 2, "tags": {"leisure": "park"}}]}
+        >>> tag_index_by_priority([new], [old])
+        {'p_n1': {'amenity': 'theatre'}, 'p_n2': {'leisure': 'park'}}
+    """
+    index: dict[str, dict[str, str]] = {}
+    for docs in reversed(tiers):  # 後ろ(低優先)から入れて前(高優先)で要素ごと上書き
+        index.update(tag_index(*docs))
+    return index
+
+
+def tag_tier_report(
+    primary: Mapping[str, Mapping[str, str]],
+    fallback: Mapping[str, Mapping[str, str]],
+    poi_ids: Iterable[str],
+) -> dict[str, int]:
+    """新旧 2 群の生タグを POI ごとに比べた件数(W6 の notes 用・決定論)。
+
+    - ``primary`` / ``fallback_only`` / ``neither``: どちらの群に一致したか。
+    - ``both`` のうち ``tags_differ``(タグ一式が 1 キーでも違う)・``subcat_keys_differ``
+      (:data:`SUBCAT_TAG_KEYS` の 4 キーの値が違う)・``subcat_differ``
+      (:func:`poi_subcategory` の結果が違う=新を採ったことで subcat が動いた件数)。
+    """
+    rep = {
+        "primary": 0, "fallback_only": 0, "neither": 0, "both": 0,
+        "tags_differ": 0, "subcat_keys_differ": 0, "subcat_differ": 0,
+    }
+    for pid in poi_ids:  # 逐次: POI 数ぶん(構築時 1 回)
+        a, b = primary.get(pid), fallback.get(pid)
+        if a is not None:
+            rep["primary"] += 1
+        elif b is not None:
+            rep["fallback_only"] += 1
+        else:
+            rep["neither"] += 1
+        if a is None or b is None:
+            continue
+        rep["both"] += 1
+        if dict(a) != dict(b):
+            rep["tags_differ"] += 1
+        if any(a.get(k) != b.get(k) for k in SUBCAT_TAG_KEYS):
+            rep["subcat_keys_differ"] += 1
+        if poi_subcategory(a) != poi_subcategory(b):
+            rep["subcat_differ"] += 1
+    return rep

@@ -1,0 +1,186 @@
+{
+ "w6_subcat_changed": 158,
+ "w6_subcat_changes": {
+  "leisure|-->park": 27,
+  "shop|-->sports_shop": 27,
+  "shop|-->hobby": 12,
+  "shop|-->music_shop": 12,
+  "hall|-->theatre": 10,
+  "shop|-->books": 10,
+  "shop|-->musical_instrument": 8,
+  "attraction|-->museum": 7,
+  "hall|-->events_venue": 7,
+  "shop|-->stationery": 7,
+  "leisure|-->gym": 6,
+  "shop|-->florist": 5,
+  "leisure|-->sports_centre": 4,
+  "shop|-->bicycle": 4,
+  "attraction|-->gallery": 3,
+  "shop|-->video_games": 3,
+  "service|-->library": 2,
+  "shop|-->photo": 2,
+  "nightlife|-->club": 1,
+  "shop|-->art_supply": 1
+ },
+ "w6_subcat_changed_by_cat": {
+  "attraction": 10,
+  "hall": 17,
+  "leisure": 37,
+  "nightlife": 1,
+  "service": 2,
+  "shop": 91
+ },
+ "w6_subcat_total_before": 255,
+ "w6_subcat_total_after": 413,
+ "w17_place_word_changes(build-side map only)": {
+  "娯楽施設->公園": 27,
+  "飲食店->娯楽施設": 1
+ },
+ "eatery_mask_changes": 0,
+ "runtime_w6_columns_identical": true,
+ "w7_rows_changed_total": 5,
+ "w7_rows_changed_by_code_drift": {
+  "p_n1669670165": [
+   "law_cap_rule"
+  ],
+  "p_n1681588662": [
+   "law_cap_rule"
+  ],
+  "p_n1693090784": [
+   "law_cap_rule"
+  ],
+  "p_n4459519589": [
+   "law_cap_rule"
+  ]
+ },
+ "w7_rows_changed_by_w6": {
+  "p_n12332999937": [
+   "content",
+   "weekly_open_minutes",
+   "price_tier",
+   "law_cap_applied"
+  ]
+ },
+ "w7_w6_driven_detail": [
+  {
+   "poi_id": "p_n12332999937",
+   "name": "Jazz bar 琥珀",
+   "cat": "nightlife",
+   "subcat": [
+    null,
+    "club"
+   ],
+   "changed": {
+    "content": [
+     "[[[1020,1740]],[[1020,1740]],[[1020,1740]],[[1020,1740]],[[1020,1740]],[[1020,1740]],[[1020,1740]]]",
+     "[[[1320,1740]],[[1320,1740]],[[1320,1740]],[[1320,1740]],[[1320,1740]],[[1320,1740]],[[1320,1740]]]"
+    ],
+    "weekly_open_minutes": [
+     5040,
+     2940
+    ],
+    "price_tier": [
+     "mid",
+     "high"
+    ],
+    "law_cap_applied": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "w7_drift_detail": [
+  {
+   "poi_id": "p_n1669670165",
+   "name": "クラブセガ",
+   "cat": "leisure",
+   "changed": {
+    "law_cap_rule": [
+     "東京都風俗営業等の規制及び業務の適正化等に関する法律施行条例5条+同施行規則6条",
+     "東京都風俗営業等の規制及び業務の適正化等に関する法律施行条例5条 表(営業延長許容地域の行)+同施行規則6条2項(時=午前1時)/地域=同条例4条の2第2項+同施行規則5条+公安委員会告示"
+    ]
+   }
+  },
+  {
+   "poi_id": "p_n1681588662",
+   "name": "ハイテクランド",
+   "cat": "leisure",
+   "changed": {
+    "law_cap_rule": [
+     "東京都風俗営業等の規制及び業務の適正化等に関する法律施行条例5条+同施行規則6条",
+     "東京都風俗営業等の規制及び業務の適正化等に関する法律施行条例5条 表(営業延長許容地域の行)+同施行規則6条2項(時=午前1時)/地域=同条例4条の2第2項+同施行規則5条+公安委員会告示"
+    ]
+   }
+  },
+  {
+   "poi_id": "p_n1693090784",
+   "name": "ガイア 渋谷店",
+   "cat": "leisure",
+   "changed": {
+    "law_cap_rule": [
+     "東京都風俗営業等の規制及び業務の適正化等に関する法律施行条例5条+同施行規則6条",
+     "東京都風俗営業等の規制及び業務の適正化等に関する法律施行条例5条 表(営業延長許容地域の行)+同施行規則6条2項(時=午前1時)/地域=同条例4条の2第2項+同施行規則5条+公安委員会告示"
+    ]
+   }
+  },
+  {
+   "poi_id": "p_n4459519589",
+   "name": "アドアーズ",
+   "cat": "leisure",
+   "changed": {
+    "law_cap_rule": [
+     "東京都風俗営業等の規制及び業務の適正化等に関する法律施行条例5条+同施行規則6条",
+     "東京都風俗営業等の規制及び業務の適正化等に関する法律施行条例5条 表(営業延長許容地域の行)+同施行規則6条2項(時=午前1時)/地域=同条例4条の2第2項+同施行規則5条+公安委員会告示"
+    ]
+   }
+  }
+ ],
+ "w7_rows_runtime_cols_changed": {
+  "by_code_drift": 0,
+  "by_w6": 1
+ },
+ "w14_rows": {
+  "before": 2302,
+  "w7drift": 2302,
+  "after": 2301
+ },
+ "w14_by_code_drift": {
+  "removed": [],
+  "added": [],
+  "text_changed": []
+ },
+ "w14_by_w6": {
+  "removed": [
+   "p_n12332999937"
+  ],
+  "added": [],
+  "text_changed": []
+ },
+ "w14_total": {
+  "removed": [
+   "p_n12332999937"
+  ],
+  "added": [],
+  "text_changed": []
+ },
+ "w14_prompts_changed": {
+  "by_code_drift": [],
+  "by_w6": [
+   "p_n12332999937"
+  ]
+ },
+ "w14_by_w6_prompt_diff": {
+  "p_n12332999937": [
+   "店名: Jazz bar 琥珀\n業種: 夜間営業の飲食店\n価格帯: 中程度\n営業時間: 毎日17時から翌5時\n定休日: なし\nこの店の店頭表示を1行で書く。",
+   "店名: Jazz bar 琥珀\n業種: ナイトクラブ\n価格帯: 高め\n営業時間: 毎日22時から翌5時\n定休日: なし\nこの店の店頭表示を1行で書く。"
+  ]
+ },
+ "identical:w15_cell_static.parquet": true,
+ "identical:w16_population.parquet": true,
+ "identical:w8_targets.parquet": true,
+ "identical:w17_schedule.parquet": true,
+ "w18_reverse_index_diff_keys": [
+  "unmapped_declarations"
+ ]
+}

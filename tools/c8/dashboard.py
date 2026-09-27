@@ -21,7 +21,8 @@
     ``wc_index.json`` ・``docs/bench/c6*/**.json``(書式・役割語率/指標B/ablation①)・
     ``tools/c8/ablations_v1.json`` ・``tools/c8/sensitivity_v1.json`` ・
     ``tools/c7/c7_accept`` の出力 JSON(``--accept``)・``docs/ops/build-report-C*.md``・
-    ``PENDING.md``(「歪む場所」の宣言一覧)。
+    ``PENDING.md``(「歪む場所」の宣言一覧。拾えなければ凍結した旧 PENDING
+    ``docs/log/pending-archive-2026-09-28.md`` を読む)。
 
 出力
     ``docs/ops/dashboard/dashboard.md`` と ``dashboard.json``(親が実行してコミットする)。
@@ -312,13 +313,17 @@ def collect_holdout(accept: Mapping[str, Any] | None) -> dict[str, Any]:
     }
 
 
-_PENDING_ROW = re.compile(r"^\|\s*(D-\d+)\s*\|")
+#: 判断待ちの表の行。旧形式 ``| D-33 | …`` と、第279 以後の太字+接尾辞つき
+#: ``| **D-118** K1〜K9 | …`` の両方を拾う(id は ``D-NN`` だけを取り出す)。
+_PENDING_ROW = re.compile(r"^\|\s*(?:\*\*)?(D-\d+)(?:\*\*)?(?:\s[^|]*)?\|")
+#: PENDING.md から 1 件も拾えないときに読む、凍結した旧 PENDING(第279 で分離・参照専用)。
+PENDING_ARCHIVE = Path("docs") / "log" / "pending-archive-2026-09-28.md"
 
 
 def collect_distortions(pending_text: str) -> list[dict[str, str]]:
     """PENDING.md から「歪む場所」の宣言候補を拾う(D-33/D-37/D-38 ほか)。
 
-    §2 の表の行のうち、本文か推奨に **「歪む場所」** または **「宣言」** が現れるものを返す。
+    判断待ちの表の行のうち、本文か推奨に **「歪む場所」** または **「宣言」** が現れるものを返す。
     """
     out: list[dict[str, str]] = []
     for line in pending_text.splitlines():
@@ -333,13 +338,26 @@ def collect_distortions(pending_text: str) -> list[dict[str, str]]:
             continue
         out.append(
             {
-                "id": cells[0],
+                "id": m.group(1),
                 "topic": cells[1][:200],
                 "recommendation": cells[3][:160] if len(cells) > 3 else "",
                 "kind": "歪む場所" if "歪む場所" in body else "宣言",
             }
         )
     return out
+
+
+def collect_distortions_with_fallback(root: Path) -> tuple[list[dict[str, str]], str]:
+    """``PENDING.md`` → 拾えた行が 0 件なら凍結した旧 PENDING(``PENDING_ARCHIVE``)。
+
+    Returns:
+        ``(宣言候補, 出所の相対パス)``。どちらからも拾えなければ ``([], "")``。
+    """
+    for rel in (Path("PENDING.md"), PENDING_ARCHIVE):
+        rows = collect_distortions(_text(root / rel))
+        if rows:
+            return rows, rel.as_posix()
+    return [], ""
 
 
 #: 「その行が検証テストの実測を語っている」と読める語(**当てずっぽうの引用を避けるため**)。
@@ -438,6 +456,7 @@ def build(
     reports = {
         p.name: _text(p) for p in sorted((root / "docs" / "ops").glob("build-report-C*.md"))
     }
+    distortions, distortions_source = collect_distortions_with_fallback(root)
     return {
         "schema": "shibuya.tools.c8/dashboard/1",
         "faces": {
@@ -454,7 +473,8 @@ def build(
             "face2_holdout": {"gate": True, **collect_holdout(accept)},
             "face3_ops": {"gate": False, **collect_ops(accept)},
         },
-        "distortions": collect_distortions(_text(root / "PENDING.md")),
+        "distortions": distortions,
+        "distortions_source": distortions_source,
         "inputs": {
             "build_manifest": bool(manifest),
             "wc_index": bool(wc),
@@ -651,7 +671,8 @@ def render(payload: Mapping[str, Any]) -> str:
             ],
         )
     )
-    md += ["", "## 「歪む場所」の宣言(PENDING より)", ""]
+    src = payload.get("distortions_source") or "PENDING"
+    md += ["", f"## 「歪む場所」の宣言({src} より)", ""]
     md.append(
         c8lib.markdown_table(
             ["id", "種別", "内容", "推奨"],

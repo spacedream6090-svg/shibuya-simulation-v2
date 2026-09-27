@@ -128,3 +128,12 @@
 - テスト: 全体 `-m "not gpu and not slow"`(P6 除外)= **2962 件(failed 0・skipped 1・P6 の予算テストは除外)**(親が再実行・exit 0)。`tests/llm/test_mock_v3.py` +6・CLI の既定/版のテスト更新。
 - 注意: `tools/`(c6/c7/c8 のランナー・ensemble の雛形)は旗なし=**これからは v3 で回る**。旧構成の再現は `--vocab-version v1` を明示。段 3 の問い 4 件への親の決めは [実装アジェンダ](docs/design/v2-two-layer-implementation-agenda.md) §8。
 - **二層(D-116 A〜I)はこれで実装完了(#46〜#48)**。残り=実 LLM での計測(8B の 5 ラベル書式率・活動文のクラスタ・呼数)=GPU 後、活動文の記憶転写=記憶 第 1 段。
+
+### #49 W6 再生成 段 1a: Overpass 生タグ(2026-09-28)の取り込み・build runner の凍結段(`--keep-stage`)・ダッシュボードのパーサ(第284・2026-09-28・実装役 Opus 5.5・親検収)
+
+- 正典: [W6 再生成の実装アジェンダ](docs/design/v2-w6-regen-implementation-agenda.md) §1・[W6 再生成の記録](docs/bench/analysis/w6-regen-2026-09-28/README.md)。`build/geo/poi_class.py` に `tag_index_by_priority`(要素単位で新しい文書が勝つ)と `tag_tier_report`、`build/geo/w6_poi_org.py` W6 1.2.0(`poi_tags_overpass_20260928.json` を最優先で読む・`EXPECTED_SUBCAT_TOPCAT_CONFLICT = 3`+`TOPCAT_CONFLICT_REVIEW`(Taito Station landmark/arcade・Hailey'5 Cafe food/net_cafe・記念館 school/sports_centre=cat は動かさず「見直し候補」として記録)・未分類の新ゲート hall/attraction/leisure = 1/2/1(stadium・theme_park・pitch・タグなしのモヤイ像=規則を足さず空欄))。subcat 255 → 413(09-17 の改訂分 393+新文書 +20)・公園 27 不変。
+- **`build/run.py` の道具の変更(Q2)**: `--keep-stage W17`(凍結段はディスクの出力とヘッダをそのまま採り、build_manifest.json を全段階の正典として書く・`kept` を記録)+**安全弁 `PROTECTED_OUTPUTS`**(W17 の出力 md5 が昇格版 3113e9ba7abb なら `--stage W17` の明示なしに上書きしない=exit 2)。素直に回すと昇格済み W17 v2 を v1 応答で上書きする経路を塞いだ。テスト `tests/test_build_run_keep_stage.py` 5 本。
+- **再構築**(旧資産は `data/world/v2_pre20260928/` に退避): build_hash **75b264cb…**(kept W17・21 段・2 回でバイト一致)。W17 md5 3113e9ba7abb と header 不変(親確認)。落ちるゲートは以前からの 3 本(W9 影 12.8 MB・W10 突合 0/202・W10 残差 7.3 dB)だけ。W7 は 5 行(4 行は citation の code drift・1 行=琥珀の営業窓 17:00→22:00)・W14 は看板 1 行減(2,302 → 2,301)・W15/W16/W8 不変。
+- **発見(D-96 の予想の訂正)**: 既定 checkpoint は **15 腕とも final 不変**(呼数・購入・食事・行為分布 JSD 0)。**エンジンは W6 の subcat 列を読まない**(親 grep 0 件)。動くのは tick 1079(17:59)の world_hash だけで、原因は W7 の 1 行(琥珀の営業窓)=資産を 1 つずつ差し替えて特定。golden は不変。
+- ダッシュボード(`tools/c8/dashboard.py`): PENDING の新形式(`| **D-NN** …|`)を読み、歪む場所の行が 0 なら `docs/log/pending-archive-2026-09-28.md` を読む fallback(`distortions_source`)。
+- テスト: 全体 `-m "not gpu and not slow"`(P6 の予算テスト除外)= **2,977 件(failed 0・skipped 1)exit 0**(親が再実行)。親検収: build の再実行(75b264cb・kept)・`--keep-stage` 無しの拒否 exit 2・W17 md5/header・W6 notes・2 腕の final(02bd0312/2f3969cf)。

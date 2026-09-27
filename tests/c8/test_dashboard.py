@@ -170,6 +170,33 @@ def test_collect_distortions(dashboard):
     assert out[1]["kind"] == "宣言"
 
 
+def test_collect_distortions_reads_the_bold_rows_of_the_new_pending(dashboard):
+    """第279 以後の PENDING は ``| **D-118** K1〜K9 | …`` の形(太字+接尾辞)。id は D-NN だけ。"""
+    text = (
+        "| **D-118** K1〜K9 | 空腹の設計 | 「歪む場所」を宣言 | 推奨 (c) | 草案 |\n"
+        "| **D-102** | 再開の口 | 無関係 | 推奨 (a) | 設計書 |\n"
+        "| D-33 | 旧形式の行 | (a) 宣言のみ | **(a)** | (a) |\n"
+    )
+    out = dashboard.collect_distortions(text)
+    assert [d["id"] for d in out] == ["D-118", "D-33"]
+    assert out[0]["topic"] == "空腹の設計"
+
+
+def test_collect_distortions_falls_back_to_the_frozen_archive(dashboard, tmp_path):
+    """PENDING.md から 1 件も拾えなければ凍結した旧 PENDING を読む(出所も返す)。"""
+    (tmp_path / "PENDING.md").write_text("| **D-1** | 無関係 | x | y |\n", encoding="utf-8")
+    arch = tmp_path / dashboard.PENDING_ARCHIVE
+    arch.parent.mkdir(parents=True)
+    arch.write_text("| D-38 | 役割語率 | (a) 宣言 | **(a)** | (a) |\n", encoding="utf-8")
+    rows, src = dashboard.collect_distortions_with_fallback(tmp_path)
+    assert [d["id"] for d in rows] == ["D-38"]
+    assert src == "docs/log/pending-archive-2026-09-28.md"
+    # PENDING.md に行があればそちらが勝つ
+    (tmp_path / "PENDING.md").write_text("| **D-2** x | 歪む場所 | a | b |\n", encoding="utf-8")
+    rows, src = dashboard.collect_distortions_with_fallback(tmp_path)
+    assert [d["id"] for d in rows] == ["D-2"] and src == "PENDING.md"
+
+
 def test_collect_verification_prefers_measured_lines(dashboard):
     reports = {
         "build-report-C6.md": (
