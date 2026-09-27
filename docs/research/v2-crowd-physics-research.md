@@ -67,3 +67,5 @@ SUMO–JuPedSim(親確認): 層分離・0.01秒・CFSMのみ実戦・歩行者�
 
 ## 参照一覧
 サブ実読(PDF抽出): Treuille 2006・Game AI Pro 3 Ch.19・Zhang 2011(arXiv 1102.4766)・Fruin 1971(HRR 355)・FLAME GPU 2(White Rose OA)・Bosina & Weidmann 2018(STRC)・運輸政策研究15(3)2012。要約経由: arXiv cond-mat/9805244・gamma.cs.unc.edu/ORCA・arXiv 1512.05597・2107.00624・physics/0702004v1・jupedsim.org models・sumo.dlr.de/docs/jupedsim.html・ped.fz-juelich.de/da・github NVIDIA/warp #62・rtri.or.jp 2016 4-21・koueki.jiii.or.jp・shingou-saikuru.com(個人)。親再確認: sumo.dlr.de jupedsim・ped.fz-juelich.de・accu-rate.de(Weidmann式)・WebSearch(スクランブル信号=公的値なし)。失敗: Wiley spe.3207(403)・MDPI HyPedSim(403)・Warp docs HashGrid(404)。未読: Burstedde 2001・Menge・Social-LSTM系・RiMEA v3.0/ISO 20414。
+
+> **訂正の伝播(第283・2026-09-28・親)**: 本答申が「渋谷スクランブルの信号周期 140 s は個人ブログのみ」とした箇所は、[R-52](v2-r52-crowd-model-calibration-shibuya-research.md) §4-1 で学術 2 本(ShibuyaSocial arXiv 2512.18550「280 s = two cycles」・JSAI 2022 の現示 (37,10,4)(44,3,3)(33,3,3)=計 140 s)と一致することを親が原典で確認した。公的な現示(警視庁・区)は依然として空欄。[群衆物理設計書 U15-7](../design/v2-crowd-physics.md) の expedient の等級を「学術 2 本の一致」へ上げる候補。同 U15-6 の「holdout 面: スクランブル通行量」は封印値が存在しないため validation 面に読み替える。
