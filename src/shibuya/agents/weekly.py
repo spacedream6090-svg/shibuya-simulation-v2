@@ -39,6 +39,8 @@ __all__ = [
     "ACTIVITY_WORDS",
     "PLACE_WORDS",
     "ACTIVITY_TO_ACTION",
+    "ACTIVITY_TO_ACTION_V3",
+    "activity_to_action",
     "ACTIVITY_TO_WAKE",
     "ACTIVITY_TO_STATE",
     "SLEEP_ACTIVITY_CODE",
@@ -73,6 +75,17 @@ ACTIVITY_TO_ACTION: Final[dict[str, str]] = {
     "勤務": "待機", "通学": "待機", "食事": "購入", "買物": "購入",
     "娯楽": "待機", "用事": "待機", "交流": "会話", "休憩": "休憩",
 }
+#: 同(**語彙 v3**・二層の段 2)。待機/休憩 → なし の機械的な読み替え
+#: (``llm.contract.VOCAB_COMPAT["v3"]``・層契約で llm を import できないので字面で持つ=
+#: 一致はテストが機械検査する)。v1/v2 の表は 1 行も動かさない。
+ACTIVITY_TO_ACTION_V3: Final[dict[str, str]] = {
+    k: ("なし" if v in ("待機", "休憩", "降車") else v) for k, v in ACTIVITY_TO_ACTION.items()
+}
+
+
+def activity_to_action(vocab_version: str = "v1") -> dict[str, str]:
+    """語彙版 → 活動語 → 行動語の表(v1/v2 は ``ACTIVITY_TO_ACTION`` そのもの)。"""
+    return ACTIVITY_TO_ACTION_V3 if str(vocab_version) == "v3" else ACTIVITY_TO_ACTION
 #: 活動語コード → 起床条件(知覚契約書 §6 の計画境界 4 行)。
 ACTIVITY_TO_WAKE: Final[tuple[int, ...]] = (
     int(WakeCondition.PLAN_SLEEPING),  # 就寝

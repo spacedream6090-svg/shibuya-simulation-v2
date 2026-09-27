@@ -55,6 +55,12 @@ expedient(本モジュール分)
   (``plan_columns``=D-66 と同じ形)。
 - 書き込み禁止ガード(``freeze``/``writable``)は agents と world に**同じ実装を二重に置く**。
   層契約(``world | agents`` は同層=相互 import 禁止)のため共有モジュールを作れない。
+- **行為と活動の二層(段 2・第276・D-116)**: ``WakeCondition.ACTIVITY_EXPIRY``(列番号 11)は
+  **§6 不応期表の外**に置く。満了は体ごとに 1 回きりの予定事象で不応期が要らず、表に足すと
+  ``refractory_until``(checkpoint に混ざる配列)の幅が変わって v1 の checkpoint が動くため。
+  ``N_WAKE_CONDITIONS``(=不応期表の行数=``refractory_until`` の列数)は **11 のまま**で、
+  起床条件の総数は ``N_WAKE_CONDITIONS_ALL``(12)。``activity_until``/``activity_kind``
+  (+5 B/体)は ``activity_columns`` のランだけ確保する(``plan_columns`` と同じ形)。
 """
 
 from __future__ import annotations
@@ -82,6 +88,9 @@ __all__ = [
     "ResultCode",
     "WakeCondition",
     "N_WAKE_CONDITIONS",
+    "N_WAKE_CONDITIONS_ALL",
+    "ActivityKind",
+    "ACTIVITY_UNTIL_NONE",
     "REFRACTORY_MINUTES",
     "WAKE_CONDITION_CLASS",
     "RESULT_TEXT",
@@ -231,9 +240,10 @@ RESULT_TEXT: Final[dict[int, str]] = {
 
 
 class WakeCondition(IntEnum):
-    """起床条件(知覚契約書 §6 不応期表の**11 行と 1 対 1**)。
+    """起床条件(知覚契約書 §6 不応期表の**11 行と 1 対 1**)+ **活動の満了**(二層・段 2)。
 
-    値は ``refractory_until`` の列番号。行の並びは契約書の表の順。
+    値は ``refractory_until`` の列番号。行の並びは契約書の表の順。``ACTIVITY_EXPIRY`` だけは
+    **不応期表の外**(列を持たない=``refractory_until`` の幅は 11 のまま・モジュール注記)。
     """
 
     CONVERSATION_TURN = 0  # (iv) 会話ターン
@@ -247,10 +257,13 @@ class WakeCondition(IntEnum):
     BEING_WATCHED = 8  # (ii) 被注視
     OVERHEARD = 9  # (ii) 傍受
     CELL_BLOCK = 10  # (i) セル動的ブロック変化
+    ACTIVITY_EXPIRY = 11  # 活動の満了(起床入口 5・D-116・不応期表の外)
 
 
-#: 条件数 K(``refractory_until`` の列数)。
-N_WAKE_CONDITIONS: Final[int] = len(WakeCondition)
+#: 条件数 K(``refractory_until`` の列数)=**§6 不応期表の行数**。``ACTIVITY_EXPIRY`` は含まない。
+N_WAKE_CONDITIONS: Final[int] = 11
+#: 起床条件の総数(不応期表の 11 行 + 活動の満了)。
+N_WAKE_CONDITIONS_ALL: Final[int] = len(WakeCondition)
 
 #: 不応期[分](知覚契約書 §6 の表。睡眠中は「起床まで≥360 分」を 360 で表す)。
 REFRACTORY_MINUTES: Final[tuple[int, ...]] = (
@@ -280,10 +293,26 @@ WAKE_CONDITION_CLASS: Final[tuple[EventClass, ...]] = (
     EventClass.INDIVIDUAL,
     EventClass.INDIVIDUAL,
     EventClass.CELL,
+    EventClass.PLAN_BOUNDARY,  # 活動の満了(自分で決めた持続の区切り=計画境界と同じ級・expedient)
 )
 
 assert len(REFRACTORY_MINUTES) == N_WAKE_CONDITIONS
-assert len(WAKE_CONDITION_CLASS) == N_WAKE_CONDITIONS
+assert len(WAKE_CONDITION_CLASS) == N_WAKE_CONDITIONS_ALL
+assert int(WakeCondition.ACTIVITY_EXPIRY) == N_WAKE_CONDITIONS  # 表の直後=列を持たない
+
+
+class ActivityKind(IntEnum):
+    """活動の種別(``activity_kind``・二層の実装アジェンダ §2 の表)。"""
+
+    NONE = 0  # 活動なし(未設定・就寝)
+    MOVE_TO = 1  # 目的地つき移動(移動・乗車)
+    WANDER = 2  # あたり(近傍を歩き回る)
+    IN_SHOP = 3  # 在店(購入・食事・並ぶ)
+    IN_PLACE = 4  # その場(なし・会話・その他)
+
+
+#: ``activity_until`` の「活動なし」。
+ACTIVITY_UNTIL_NONE: Final[int] = -1
 
 #: 内受容 3 変数の並び(``<名前>_stage`` フィールドの順序)。
 INTEROCEPTION_FIELDS: Final[tuple[str, ...]] = ("hunger", "fatigue", "thermal")
@@ -308,6 +337,7 @@ class AgentState:
         plan_columns: bool = False,
         edge_columns: bool = False,
         attention_columns: bool = False,
+        activity_columns: bool = False,
     ) -> None:
         """
         Args:
@@ -329,11 +359,16 @@ class AgentState:
                 段0 辞書 v4(語彙 v2)なので、``engine.run`` は
                 ``geometry="edge" かつ vocab_version="v2"`` のときだけ True にする
                 = **既定の 4 腕(node/v1・derive v2.1・v2・edge)は 1 バイトも動かない**。
+            activity_columns: **行為と活動の二層**(段 2・D-116)の 2 欄(``activity_until`` /
+                ``activity_kind``・+5 B/体)を確保するか。``engine.run`` は
+                ``vocab_version="v3"`` かつ ``activity=True`` のときだけ True にする
+                = **v1/v2 と ``--activity off`` の checkpoint は 1 バイトも動かない**。
         """
         self.n = int(n)
         self.plan_columns = bool(plan_columns)
         self.edge_columns = bool(edge_columns)
         self.attention_columns = bool(attention_columns)
+        self.activity_columns = bool(activity_columns)
         self.registry = Registry.for_agents(self.n, per_entity_byte_cap=cap_bytes)
         r = self.registry
         # ---- 位置・運動(M2 位置・運動・身体 ≤128B/体 の内数) ----
@@ -437,6 +472,13 @@ class AgentState:
             r.declare("plan_flags", np.int8, byte_budget_per_agent=1, mechanism=True,
                       doc="bit0 域外居住 / bit1 当日在圏予定あり / bit2 退出繰り延べ中 / "
                           "bit3 当日到着済(engine.presence の FLAG_* ・設計書 §2)")
+        # ---- 行為と活動の二層(段 2・D-116・activity_columns のランだけ・+5 B/体) ----
+        if self.activity_columns:
+            r.declare("activity_until", np.int32, byte_budget_per_agent=4, mechanism=True,
+                      doc="活動の持続の上限 tick(「まで」を解決した値・-1=活動なし)。"
+                          "この tick に満了入口(WakeCondition.ACTIVITY_EXPIRY)で起きる")
+            r.declare("activity_kind", np.int8, byte_budget_per_agent=1, mechanism=True,
+                      doc="ActivityKind(0 なし / 1 目的地つき移動 / 2 あたり / 3 在店 / 4 その場)")
         # ---- 起床機構(知覚契約書 §6) ----
         r.declare("refractory_until", np.int32, (N_WAKE_CONDITIONS,),
                   byte_budget_per_agent=4 * N_WAKE_CONDITIONS, mechanism=True,
@@ -477,6 +519,8 @@ class AgentState:
             self.registry.focus_target[:] = FOCUS_NONE
         if self.plan_columns:
             self.registry.plan_activity[:] = -1
+        if self.activity_columns:
+            self.registry.activity_until[:] = ACTIVITY_UNTIL_NONE
         self._frozen = False
 
     # ---- フィールドの素通し(``st.money`` で配列を引く) ----

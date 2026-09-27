@@ -524,7 +524,7 @@ def test_v3_well_formed_output():
 
 @pytest.mark.parametrize(
     "line2,action,target,activity,kind",
-    [  # 草案 §4-2 の例 5 つ(対象を省いていた 2 例は「対象: なし」を補った=下のテスト参照)
+    [  # 草案 §4-2 の例 5 つ(対象を省いた形は第275 #4 のテストが見る)
         ("行動: 食事 対象: カフェ・ベローチェ 活動: 昼を食べる まで: 30分",
          "食事", "カフェ・ベローチェ", "昼を食べる", UntilKind.MINUTES),
         ("行動: なし 対象: なし 活動: 店頭を見て回る まで: 15分",
@@ -543,11 +543,19 @@ def test_v3_draft_examples(line2, action, target, activity, kind):
     assert r.activity == activity and r.until.kind is kind
 
 
-def test_v3_omitted_target_is_a_format_error_as_in_v1():
-    """format_ok(v3)=5 ラベル揃い(アジェンダ §1-2)。草案 §4-2 の例のように 対象 を省くと書式エラー。"""
+def test_v3_none_may_omit_the_target_label_decision_275_4():
+    """第275 #4: 行動=なし なら対象ラベルの省略を許す(対象=なし・``target_omitted`` を残す)。"""
     r = parse_two_line("理由: 例\n行動: なし 活動: 店頭を見て回る まで: 15分", "v3")
-    assert r.action == "なし" and not r.format_ok and "missing_label:対象" in r.errors
+    assert r.action == "なし" and r.format_ok and r.target.is_none
+    assert "target_omitted" in r.errors and "missing_label:対象" not in r.errors
+    assert not r.strict_format_ok, "strict は 5 ラベルの定義のまま"
     assert r.activity == "店頭を見て回る" and r.until.value == 15
+
+
+def test_v3_act_words_still_need_the_target_label():
+    r = parse_two_line("理由: 例\n行動: 移動 活動: 散歩 まで: 15分", "v3")
+    assert r.action == "移動" and not r.format_ok and "missing_label:対象" in r.errors
+    assert "target_omitted" not in r.errors
 
 
 def test_v3_comment_is_not_required_but_is_still_read():

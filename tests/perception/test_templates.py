@@ -270,7 +270,8 @@ def test_v3_is_the_vocab_arm_only():
 
 
 def test_renderer_v3_changes_only_the_b0_block():
-    """段 1 は B0 だけ(B5/B6 に残る v1 の語=待機/休憩 の扱いは段 2 の棚卸し)。"""
+    """共有ブロックの差は B0 だけ。個体ブロック(B5/B6)は段 2(第276)で v1 の語(待機/休憩)を
+    v3 の語彙へ読み替えた(``renderer.ACTIVITY_WORDS_V3``/``RESULT_OPTIONS_V3``)。"""
     import numpy as np
 
     from shibuya.agents.state import AgentKind, AgentState
@@ -295,5 +296,8 @@ def test_renderer_v3_changes_only_the_b0_block():
 
     v1, v3 = render("v1"), render("v3")
     assert v1.blocks["B0"] != v3.blocks["B0"] and v1.prompt_hash != v3.prompt_hash
-    for bid in ("B1", "B2", "B3", "B4", "B4b", "B5", "B6"):
+    for bid in ("B1", "B2", "B3", "B4", "B4b"):
         assert v1.blocks[bid] == v3.blocks[bid], bid
+    for bid in ("B5", "B6"):
+        text = v3.blocks[bid].decode("utf-8")
+        assert "待機" not in text and "休憩" not in text, (bid, text)

@@ -1,6 +1,6 @@
 # devlog(v2)
 
-> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **5 / 10**
+> 毎交換1エントリ・10件で docs/log/devlog-compressed.md へ圧縮。カウンタ: **6 / 10**
 > 第1〜第270(2026-09-01〜09-26)は [devlog-compressed.md](devlog-compressed.md) へ圧縮済み。v1のdevlog(第1〜178)はv1リポ docs/log/ に残置(参照専用)。
 
 ## 第271 ユーザーの答え 3 件+パーサ「セル」接頭辞の修正(2026-09-26)
@@ -41,3 +41,10 @@
 - **R-47(古典的選択モデル・活動と注意)の検収**: CoPB「reduce the token cost by 97.7%」・LLMob「randomly choose 100 users」と表 2 の MM 行「0.018 0.276 0.644 0.681」・SOFAI「after about 450 trajectories S1 is used more often than S2」を arXiv 原典で一致。JSTOR/Wiley 経由(Simon・Guadagni & Little・Hyman・Borgers & Timmermans)は親未確認(結論の向きは変えない)。反対証拠(CoPB の重力モデル)は記録し、ユーザー決定「ハフ型は入れない」は維持(満足化+習慣)。INDEX・backlog に行。
 - **草案**: [空腹・判断層・注意の草案](docs/design/v2-hunger-choice-attention-draft.md) = §1 D-118(錨は R-46 の ✓ 値と [サブ値] を区別・案=基礎代謝×METs・語 4 段・摂取 3 段・照合は時刻分布+欠食率・K1〜K5)/ §2 D-119(Tanimoto 型の事前分布×状態の乗数・店選びは習慣+満足化で距離項なし・層の記録 SOFAI 形式・古典だけ腕=mock 置き換え・L1〜L6)/ §3 D-117(乗数 0.5/1.0/1.0/0.75/0.5 を宣言・M1〜M3)。**ユーザーの答え待ち**。
 - **次**: 段 2(エンジンの活動層)を実装役へ(発注済み)→ 検収 → 第276。K/L/M の答え → データ取得(ライセンス台帳)→ 実装。
+
+## 第276 二層の実装 段 2(エンジンの活動層)の親検収と commit(2026-09-27)
+
+- **段 2(実装役 Opus 5.5・同じ agent に SendMessage で続き)の検収**: 変更 12 ファイル+新規 `engine/activity.py`(476 行)+テスト 26 件(`tests/engine/test_two_layer_activity.py` 462 行)。親が全体 `-m "not gpu and not slow"`(P6 除外)を再実行=**2952 件(failed 0・skipped 1・P6 の予算テストは除外)・exit 0**、mock 5,000 を再実行=v1 **2f3969cf 不変**・v3 **4c58268c**(checkpoint JSON に `activity_hash` あり)。`activity.py` の docstring(逐次ループ宣言 5・expedient・「値を決めるだけ・書き手は resolve」)と `advance_body` の回復(`ACTIVITY_REST_FATIGUE_RELIEF`・10 tick)を親が読んだ。実装役の expedient 15 件(アジェンダ §5〔段2〕)を採用。IMPLEMENTED #47。
+- **段 2 の問い 6 件への親の決め**(アジェンダ §7): ① 記憶 M 行は**空欄のまま**(行動契約書 §4 の転写がエンジンに無い=記憶 第 1 段で・D-93 に追記)② P6 の時間テストは機械負荷の揺れとして除外扱い ③ B4b の活動の 1 行は**起床の源にしない**(驚きの判定は System 1.5)④ 満了入口は就寝抑止の例外にしない ⑤ 失敗+活動なし=次の tick に満了 の規則はそのまま(段 3 で減る見込み)⑥ v1 の manifest に 3 キーが増えるのは可(`tools/c7` はキー集合を固定していない=親が grep)。
+- **v3 の中間計測**(mock はまだ v1 形の出力): 起床の内訳 v3/v1 = 会話 1,423/1,457・就業 2,574/4,104・一般活動 3,128/5,404・移動待機 4,686/7,033・内受容 7,179/8,974・CELL_BLOCK **608/6,118**(活動中の抑止 55,873)・**満了 19,136/0**。呼 7.75/6.62 体/日。失敗即時 17,545。種別 就寝 3,258・目的地つき移動 6,462・在店 9,732・その場 19,259・あたり 0。
+- **次**: 段 3(mock v3・CLI 既定 v3・計測 3 本・版の台帳・golden)を同じ実装役へ → 検収 → 第277。D-117/118/119 の K/L/M はユーザーの答え待ち。

@@ -64,6 +64,7 @@ from shibuya.agents.weekly import apply_to_mock_schedule, load_weekly
 from shibuya.agents.schedule import synthesize
 from shibuya.agents.state import (
     FOCUS_NONE,
+    N_WAKE_CONDITIONS_ALL,
     WAKE_CONDITION_CLASS,
     Activity,
     AgentState,
@@ -75,6 +76,7 @@ from shibuya.core.types import DEFAULT_TICK_SECONDS, MINUTES_PER_SIM_DAY
 from shibuya.engine import commit as C
 from shibuya.engine import growth_decl as GD
 from shibuya.engine import resolve as R
+from shibuya.engine.activity import ActivityLayer, payload_of
 from shibuya.engine.arbiter import Arbiter, WakeCandidates, call_budget_per_tick
 from shibuya.engine.change_detect import ChangeDetector
 from shibuya.engine.conversation import ConversationManager
@@ -262,14 +264,17 @@ class Checkpoint:
     population_hash: str = ""
     #: W17 週次表の同定ハッシュ(週次表なしのランは ``""``)。版の取り違え検出用。
     schedule_hash: str = ""
+    #: **活動層**(二層の段 2)の Python 側状態(活動の文・「まで」の型)のハッシュ。
+    #: 活動層の無いラン(v1/v2・``--activity off``)は ``""`` で ``combined`` に**混ぜない**
+    #: =既定の checkpoint は 1 バイトも動かない。
+    activity_hash: str = ""
 
     @property
     def combined(self) -> str:
-        return blake3_hex(
-            "\x1f".join(
-                (self.agents_hash, self.world_hash, self.population_hash, self.schedule_hash)
-            ).encode("utf-8")
-        )
+        parts = [self.agents_hash, self.world_hash, self.population_hash, self.schedule_hash]
+        if self.activity_hash:
+            parts.append(self.activity_hash)
+        return blake3_hex("\x1f".join(parts).encode("utf-8"))
 
 
 @dataclass
@@ -335,6 +340,16 @@ class RunResult:
     #: **D-113 ④(第269)** B0 の末尾に役割語 12 語の 1 行を足したか(既定 True)。False は
     #: 第268 以前の B0(テープ再生用・帰無腕)。
     role_words: bool = True
+    #: **行為と活動の二層**(段 2・D-116)の活動層が立ったか(= ``vocab_version="v3"`` かつ
+    #: ``activity=True``)。v1/v2 では常に False(活動欄が来ない=実質無効)。
+    activity: bool = False
+    #: 活動層の計数(``engine.activity.ActivityLayer.counters``)。層が無いランは空 dict。
+    activity_counters: dict[str, int] = field(default_factory=dict)
+    #: 活動の種別ごとの設定件数(``ActivityLayer.kind_distribution``)。層が無いランは空 dict。
+    activity_kind_counts: dict[str, int] = field(default_factory=dict)
+    #: **発射した呼**の起床条件ごとの件数(``WakeCondition`` の名 → 件数・満了入口
+    #: ``ACTIVITY_EXPIRY`` の列を含む=起床の内訳)。
+    calls_by_condition: dict[str, int] = field(default_factory=dict)
     #: 語彙 v2「食事」が成立した件数(v1 のランでは常に 0)。
     meals: int = 0
     #: 食事で店舗へ移った金額[円](売上の内数)。
@@ -665,6 +680,10 @@ class RunResult:
             "vocab_version": str(self.vocab_version),
             # ---- D-113 ④ 役割語の提示(既定 True)。列追加のみ ----
             "role_words": bool(self.role_words),
+            # ---- 二層の段 2(D-116): 活動層が立ったか・種別の分布・起床の内訳。列追加のみ ----
+            "activity": bool(self.activity),
+            "activity_kind_counts": dict(self.activity_kind_counts),
+            "calls_by_condition": dict(self.calls_by_condition),
             "synonym_table_version": _synonym_table_version(self.vocab_version),
             "action_usage": dict(self.action_usage),
             # ---- D-56 就寝抑止(既定 True)。False = D-56 前の挙動 ----
@@ -785,6 +804,19 @@ class RunResult:
             lines.append(
                 f"  歩行可能面積 {self.area_source}(中央値 {self.walkable_area_median_m2:,.0f}"
                 f" m² / 最小 {self.walkable_area_min_m2:,.1f} m²)"
+            )
+        # 二層の段 2: 活動層が立ったランだけ 1 行(v1/v2 と --activity off の summary は不変)
+        if self.activity:
+            ac = self.activity_counters
+            lines.append(
+                f"  活動層(二層) 設定 {ac.get('activity_set', 0):,} / 満了候補 "
+                f"{ac.get('expiry_candidates', 0):,}(呼 "
+                f"{self.calls_by_condition.get('ACTIVITY_EXPIRY', 0):,}) / 場所起床の抑止 "
+                f"{ac.get('cell_block_suppressed', 0):,} / 到着満了 "
+                f"{ac.get('arrival_expired', 0):,} / 相手満了 {ac.get('partner_expired', 0):,}"
+                f" / 失敗即時 {ac.get('fail_immediate', 0):,} / あたり歩数 "
+                f"{ac.get('wander_steps', 0):,} / 種別 "
+                + " ".join(f"{k}:{v}" for k, v in self.activity_kind_counts.items())
             )
         # C9b: 対象と注意の腕だけ 1 行(既定の 4 腕では出ない)
         if self.attention:
@@ -1100,10 +1132,16 @@ def _target_poi(target: Any) -> int:
     return -1 if pid is None else int(pid)
 
 
-def _pending_extra(res: Any) -> tuple[int, int]:
-    """応答 → ``(対象ヒント索引, 目印 POI 索引)``(C9b G5/G6・腕が立っていなければ ``(0, -1)``)。"""
-    return C.target_hint_code(getattr(res, "target_hint", "")), _target_poi(
-        getattr(res, "target", None)
+def _pending_extra(res: Any) -> tuple[int, int, Any]:
+    """応答 → ``(対象ヒント索引, 目印 POI 索引, 活動)``。
+
+    C9b G5/G6(腕が立っていなければ ``(0, -1)``)+ **二層の段 2** の活動
+    (``engine.activity.payload_of``・語彙 v3 の応答だけ・それ以外は ``None``)。
+    """
+    return (
+        C.target_hint_code(getattr(res, "target_hint", "")),
+        _target_poi(getattr(res, "target", None)),
+        payload_of(res),
     )
 
 
@@ -1161,6 +1199,7 @@ def run_day(
     seat_area_eatery_m2: float | None = None,
     seat_area_retail_m2: float | None = None,
     census_out: str | Path | None = None,
+    activity: bool | str = True,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -1334,6 +1373,13 @@ def run_day(
             ``world.assets.SEAT_AREA_M2_FIRE_CODE``(消防法施行規則 1 条の 3・飲食 **3.0** /
             物販 **4.0**)と ``SEAT_AREA_M2_BUILDING_NOTICE``(建告1441・飲食 1.43 / 売場 2.0)。
             ``eatery`` は ``food``/``nightlife``、``retail`` は**表に無い全カテゴリ**に効く。
+        activity: **行為と活動の二層の活動層**(段 2・D-116・既定 True=``--activity on``)。
+            立つのは ``vocab_version="v3"`` のときだけ(v1/v2 では活動欄が来ない=**実質無効**で
+            checkpoint も 1 バイト動かない)。立つと ① ``activity_until``/``activity_kind`` の
+            2 欄(+5 B/体)② 満了入口(``WakeCondition.ACTIVITY_EXPIRY``)③ 活動中は場所の変化
+            (CELL_BLOCK)で起こさない ④「移動 対象: あたり」の近傍歩行 ⑤ 同セルの B4b に
+            活動の 1 行 ⑥ 休んでいる体の疲労回復(10 tick ごとに −1)⑦ 活動の文を checkpoint に
+            混ぜる。``False``/``"off"`` は抑止も満了も無効=現行の挙動。
 
     Returns:
         ``RunResult``。
@@ -1368,6 +1414,11 @@ def run_day(
     role_words = check_role_words(role_words)
     # ---- 語彙 v2 の版: 同上(mock・レンダラ・bridge の前で確定させる) ----
     vocab_version = check_vocab_version(vocab_version)
+    # ---- 二層の段 2: 活動層は**語彙 v3 のときだけ**立つ(SoA を確保する前に決める=欄が 2 本変わる) ----
+    activity = check_role_words(activity)  # "on"/"off"/bool を bool へ(同じ正規化)
+    activity_on = bool(activity) and vocab_version == "v3"
+    #: 語彙 v3 の対象ヒント(「対象: 自宅/職場/学校」→ 拠点セル)は活動層と独立に効かせる。
+    v3_hints = vocab_version == "v3"
     # ---- ablation ③: **ランの実効不応期表**を 1 本組む(既定=§6 の表そのもの) ----
     refractory_table = R.refractory_ticks(refractory_scale)
     refractory_scale_norm = R.normalized_refractory_scale(refractory_scale)
@@ -1402,6 +1453,7 @@ def run_day(
         plan_columns=plan_exec_on,
         edge_columns=(geometry == "edge"),
         attention_columns=attention_on,
+        activity_columns=activity_on,
     )
     if ledger is not None and ledger.money is not None:
         # 世帯の現金行 = 個体 SoA の money(写しを作らない・台帳の書き込み窓は resolve が持つ)
@@ -1610,6 +1662,17 @@ def run_day(
         )[b_slot]
     b_start = np.searchsorted(b_tick, np.arange(ticks + 1), side="left")
     schedule_hash = weekly.schedule_hash() if weekly is not None else ""
+    # ---- 二層の段 2: 活動層(「次の予定」は上の計画境界の表から引く) ----
+    act_layer: ActivityLayer | None = (
+        ActivityLayer(
+            n_agents, world, salt, tick_seconds=tick_seconds,
+            boundary_agent=b_agent, boundary_tick=b_tick,
+        )
+        if activity_on
+        else None
+    )
+    #: 発射した呼の起床条件ごとの件数(起床の内訳・満了入口の列を含む)。
+    calls_by_cond = np.zeros(N_WAKE_CONDITIONS_ALL, dtype=np.int64)
 
     result = RunResult(
         n_agents=n_agents,
@@ -1634,11 +1697,14 @@ def run_day(
                               "phase_b", "phase_c", "movement", "movement_cpu", "checkpoint")}
     diag_rows: list[tuple[int, ...]] = []
     # (t_apply, class, agent, condition, text, action_code, target_person,
-    #  **target_hint**, **target_poi**)
+    #  **target_hint**, **target_poi**, **activity**)
+    # ``activity`` = 二層の段 2 の活動(``engine.activity.ActivityPayload``・v3 以外は None)。
     # ``target_person`` = LLM が「対象」欄に書いた個体 id(-1=名指しなし・C6 09-09)。
     # ``target_hint`` = 段0 辞書 v4 の対象ヒント索引(C9b G5・0=なし)。
     # ``target_poi`` = 「対象」欄が目印 POI に解決できたときの索引(C9b G6 a′・-1=なし)。
-    pending: list[tuple[int, int, int, int, str, int, int, int, int]] = []
+    pending: list[tuple[int, int, int, int, str, int, int, int, int, Any]] = []
+    #: この tick に適用した応答の (体, 行動コード, 活動)。``resolve.apply`` の後に活動層が書く。
+    applied_activity: tuple[list[int], list[int], list[Any]] = ([], [], [])
     #: C9b G3/G4: この tick に LLM が言った**焦点の要求**(-1=なし)。使い回す 1 本の
     #: バッファ(毎 tick 触った行だけ戻す=個体数ぶんの確保は 1 回きり)。
     focus_request = (
@@ -1692,6 +1758,12 @@ def run_day(
                 flow=None if runner is None else runner.flow,
                 noise_stage=world.noise_stage_for_tick(tick, tick_seconds),
                 queues=None if runner is None else runner.queue_rows(3),
+                # 二層の段 2: 同セルの活動の 1 行の材料(層が無いランでは渡さない=バイト不変)
+                **(
+                    {"activity_rows": act_layer.cell_rows(agents, tick)}
+                    if act_layer is not None
+                    else {}
+                ),
             )
             field_rows = perception.b4_field_rows
 
@@ -1699,6 +1771,7 @@ def run_day(
         t0 = time.perf_counter()
         llm_intents = C.IntentBatch.empty()
         n_undefined = 0
+        applied_activity = ([], [], [])
         if pending:
             due = [p for p in pending if p[0] <= tick]
             pending = [p for p in pending if p[0] > tick]
@@ -1729,6 +1802,24 @@ def run_day(
                     (due[int(i)][8] for i in order), dtype=np.int64, count=order.size
                 )
                 agents_in_order = ag[order]
+                # 二層の段 2: 活動(v3 の応答だけ)と「あたり」の行き先
+                payloads = [due[int(i)][9] for i in order]
+                move_dest: np.ndarray | None = None
+                if act_layer is not None:
+                    applied_activity = (
+                        agents_in_order.tolist(), codes.tolist(), payloads
+                    )
+                    wmask = np.fromiter(
+                        (p is not None and p.wander for p in payloads),
+                        dtype=bool, count=order.size,
+                    ) & (codes == C.ACT_MOVE)
+                    if wmask.any():
+                        move_dest = np.full(order.size, -1, dtype=np.int64)
+                        move_dest[wmask] = act_layer.wander_destinations(
+                            agents_in_order[wmask],
+                            np.asarray(agents.registry.cell)[agents_in_order[wmask]],
+                            tick,
+                        )
                 # 個体 → (行動コード, **LLM が名指しした**対象)。会話の承諾/相互指名の判定に使う
                 # (エンジンが解決した対象ではない=「誰に向けた返事か」は名指しにしか無い)。
                 applied_now = {
@@ -1756,12 +1847,17 @@ def run_day(
                     codes[keep],
                     home_cell=schedule.home_cell, work_cell=schedule.work_cell,
                     school_cell=(
-                        getattr(schedule, "school_cell", None) if attention_on else None
+                        getattr(schedule, "school_cell", None)
+                        if (attention_on or v3_hints)
+                        else None
                     ),
                     target_person=tgt_person[keep],
-                    target_hint=tgt_hint[keep] if attention_on else None,
+                    # 語彙 v3 は「対象: 自宅/職場/学校」の対象ヒントを運ぶ(v1/v2 は従来どおり)
+                    target_hint=tgt_hint[keep] if (attention_on or v3_hints) else None,
                     target_poi=tgt_poi[keep] if attention_on else None,
                     stats=talk_stats, run_salt=salt,
+                    vocab_version=vocab_version,
+                    move_dest=None if move_dest is None else move_dest[keep],
                 )
                 # ---- C9b G3/G4: 焦点の要求を 1 本のバッファへ散らす ----
                 if focus_request is not None:
@@ -1786,6 +1882,16 @@ def run_day(
         det = detector.detect(world, agents, tick, field_rows=field_rows)
         R.apply_detection(agents, world, det)
         d_agent, d_cond, d_class = det.candidates()
+        # ---- 二層の段 2: 活動中は場所の変化で起こさない+満了入口 ----
+        if act_layer is not None:
+            d_agent, d_cond, d_class = act_layer.suppress_cell_block(
+                agents, tick, d_agent, d_cond, d_class
+            )
+            e_agent, e_cond, e_class = act_layer.expiry_candidates(agents, tick)
+        else:
+            e_agent = np.empty(0, dtype=np.int64)
+            e_cond = np.empty(0, dtype=np.int8)
+            e_class = np.empty(0, dtype=np.int64)
         phase["detect"] += time.perf_counter() - t0
 
         # ---- 計画境界の起床候補 ----
@@ -1936,9 +2042,11 @@ def run_day(
         f_exempt = f_cond.astype(np.int64) <= int(WakeCondition.PLAN_TRANSIT)
 
         cands = WakeCandidates(
-            np.concatenate([p_agent, d_agent, c_agent, s_agent, f_agent]),
-            np.concatenate([p_cond, d_cond.astype(np.int8), c_cond, s_cond, f_cond]),
-            np.concatenate([p_class, d_class, c_class, s_class, f_class]),
+            np.concatenate([p_agent, d_agent, c_agent, s_agent, f_agent, e_agent]),
+            np.concatenate(
+                [p_cond, d_cond.astype(np.int8), c_cond, s_cond, f_cond, e_cond]
+            ),
+            np.concatenate([p_class, d_class, c_class, s_class, f_class, e_class]),
             np.concatenate(
                 [
                     np.full(
@@ -1946,6 +2054,7 @@ def run_day(
                         tick, dtype=np.int64,
                     ),
                     f_since,  # 再投入は**元の待ち始め**を保つ(昇格が巻き戻らない)
+                    np.full(e_agent.size, tick, dtype=np.int64),  # 満了入口(二層の段 2)
                 ]
             ),
             np.concatenate(
@@ -1955,6 +2064,7 @@ def run_day(
                     np.ones(c_agent.size, dtype=bool),    # 会話ターン
                     np.ones(s_agent.size, dtype=bool),    # 顕著行為
                     f_exempt,                             # 艦隊の再投入
+                    np.zeros(e_agent.size, dtype=bool),   # 満了入口(就寝中は起こさない)
                 ]
             ),
         )
@@ -2072,6 +2182,9 @@ def run_day(
                          int(d.call.wake_class), int(d.call.wake_since))
                     )
             result.llm_calls += len(sel)  # L4 の呼数=**発射数**(再送も 1 呼・親決定 09-09)
+            calls_by_cond += np.bincount(
+                np.asarray(sel.condition, dtype=np.int64), minlength=N_WAKE_CONDITIONS_ALL
+            )[:N_WAKE_CONDITIONS_ALL]
             result.calls_by_hour[(tick // 60) % 24] += len(sel)  # D-56 の検証欄
         # 艦隊経路の書式エラーは ④′(到着時)で数える=選抜が 0 の tick でも計上する
         n_parse_errors += n_parse_errors_fleet
@@ -2081,8 +2194,16 @@ def run_day(
 
         # ---- ⑤ Phase A(エンジン継続との合流) ----
         t0 = time.perf_counter()
+        # 二層の段 2: 「あたり」で着いた体の次の行き先(LLM 応答のある体は除く)
+        wander_intents = (
+            act_layer.wander_intents(agents, tick, exclude=llm_intents.agent_id)
+            if act_layer is not None
+            else C.IntentBatch.empty()
+        )
         intents = C.IntentBatch.concat(
-            [llm_intents, C.engine_continuations(agents, space, tick)]
+            [llm_intents, wander_intents, C.engine_continuations(agents, space, tick)]
+            if act_layer is not None
+            else [llm_intents, C.engine_continuations(agents, space, tick)]
         ).one_per_agent()
         peak_intents = max(peak_intents, len(intents))
         phase["phase_a"] += time.perf_counter() - t0
@@ -2245,6 +2366,13 @@ def run_day(
                 R.revert_conversation(agents, done)
             conv.purge_terminal()
 
+        # ---- 二層の段 2: この tick に適用した応答の活動を書き、到着・会話成立で満了させる ----
+        # **resolve.apply と会話の後**(行為の成否と会話セッションが確定してから)。
+        if act_layer is not None:
+            if applied_activity[0]:
+                act_layer.after_resolve(agents, tick, *applied_activity)
+            act_layer.settle_events(agents, tick, conv)
+
         diag_rows.append(
             (
                 tick,
@@ -2299,6 +2427,7 @@ def run_day(
                     tick, agents.state_hash(), world.state_hash(),
                     schedule.population_hash,
                     schedule_hash,
+                    act_layer.state_hash() if act_layer is not None else "",
                 )
             )
             phase["checkpoint"] += time.perf_counter() - t0
@@ -2467,6 +2596,14 @@ def run_day(
     # 語彙 v2: 実際に使った版(注入レンダラでも**エンジン側の版**が正=行動の解決はこちら)。
     result.vocab_version = str(vocab_version)
     result.action_usage = _action_usage(per_action_total, vocab_version)
+    # 二層の段 2: 活動層と起床の内訳(満了入口の列は全ランで出る=層が無ければ 0)
+    result.activity = bool(activity_on)
+    result.calls_by_condition = {
+        WakeCondition(i).name: int(calls_by_cond[i]) for i in range(N_WAKE_CONDITIONS_ALL)
+    }
+    if act_layer is not None:
+        result.activity_counters = dict(act_layer.counters())
+        result.activity_kind_counts = dict(act_layer.kind_distribution())
     result.sleep_suppression = bool(sleep_suppression)
     result.plan_sleep = bool(plan_sleep)
     result.wake_rate_by_hour = [
@@ -2542,6 +2679,14 @@ def run_day(
     led_decls, led_measured = ledger_growth
     declarations.update(led_decls)
     measured.update(led_measured)
+    if act_layer is not None:
+        # 二層の段 2: 活動の文(体ごとに上書き=日をまたいで伸びない・O(体数))
+        _ad = GD.activity_declaration()
+        declarations[_ad.name] = _ad
+        measured[_ad.name] = int(
+            sum(len(t.encode("utf-8")) for t in act_layer.text)
+            + act_layer.until_kind.nbytes + act_layer.text_id.nbytes
+        )
     result.growth_measured = measured
     result.growth_report = check_growth(
         declarations,

@@ -293,19 +293,18 @@ def test_v3_every_word_passes_the_gate_instead_of_a_count_limit():
 
 def test_v3_compat_reads_both_directions():
     """VOCAB_COMPAT["v3"]: 待機/休憩 → なし(旧テープを v3 で読む)/ なし → 待機(v3 → 旧版)。"""
-    assert C.VOCAB_COMPAT["v3"] == {"待機": "なし", "休憩": "なし", "なし": "待機"}
+    assert C.VOCAB_COMPAT["v3"] == {"待機": "なし", "休憩": "なし", "降車": "なし", "なし": "待機"}
     assert C.compat_word("待機", "v1", "v3") == "なし"
     assert C.compat_word("休憩", "v2", "v3") == "なし"
     assert C.compat_word("なし", "v3", "v1") == "待機"
     assert C.compat_word("なし", "v3", "v2") == "待機"
-    assert C.compat_word("降車", "v1", "v3") == "降車", "降車は欠番(対応なし)"
+    assert C.compat_word("降車", "v1", "v3") == "なし", "第275 #7: 欠番の語は安全弁へ"
     assert C.compat_word("食事", "v3", "v1") == "購入", "v2 の橋を通る"
     assert C.compat_word("食事", "v3", "v2") == "食事"
     for word in C.action_words("v3"):  # v3 の語は必ず v1 の語彙で読める
         assert C.compat_word(word, "v3", "v1") in C.ALL_ACTION_WORDS, word
-    for word in C.ALL_ACTION_WORDS:  # v1 の語で v3 の語彙の外に残るのは 降車 だけ
-        got = C.compat_word(word, "v1", "v3")
-        assert (got in C.action_words("v3")) is (word != "降車"), word
+    for word in C.ALL_ACTION_WORDS:  # 第275 #7 以後、v1 の語は全て v3 の語彙で読める
+        assert C.compat_word(word, "v1", "v3") in C.action_words("v3"), word
     # 既定(v2 → v1)の読み替えは従来どおり
     assert C.compat_word("食事") == "購入" and C.compat_word("待機") == "待機"
 
@@ -355,8 +354,12 @@ def test_v3_placeholders_are_read_as_no_target_only_in_v3():
         ("N分", C.UntilKind.DEFAULT, 60),
         ("HH:MM", C.UntilKind.DEFAULT, 60),
         ("24:00", C.UntilKind.DEFAULT, 60),
-        ("1時間30分", C.UntilKind.DEFAULT, 60),
-        ("12時30分", C.UntilKind.DEFAULT, 60),
+        ("1時間30分", C.UntilKind.MINUTES, 90),  # 第275 #6
+        ("1時間", C.UntilKind.MINUTES, 60),
+        ("2 時間", C.UntilKind.MINUTES, 120),
+        ("10時間", C.UntilKind.MINUTES, 480),
+        ("１時間１５分", C.UntilKind.MINUTES, 75),
+        ("12時30分", C.UntilKind.DEFAULT, 60),  # 時刻の漢字表記は 分 として読まない
     ],
 )
 def test_parse_until_reads_the_six_forms_and_the_default(text, kind, value):

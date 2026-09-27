@@ -50,7 +50,8 @@ def test_the_default_run_is_byte_identical_with_the_explicit_v1():
 
 @pytest.mark.parametrize(
     "argv,expected",
-    [([], "v1"), (["--vocab-version", "v1"], "v1"), (["--vocab-version", "v2"], "v2")],
+    [([], "v1"), (["--vocab-version", "v1"], "v1"), (["--vocab-version", "v2"], "v2"),
+     (["--vocab-version", "v3"], "v3")],
 )
 def test_cli_main_has_the_vocab_version_flag(monkeypatch, argv, expected):
     from shibuya import cli
@@ -84,10 +85,34 @@ def test_intent_mode_and_vocab_version_are_orthogonal():
     """3 腕 × 2 版のどの組み合わせでも回り、manifest に両方が載る。"""
     from shibuya import cli
 
-    # 第274(段 1): v3 は契約・パーサ・B0 だけが入り、エンジンの適用表(resolve._APPLY_BY_VOCAB)は
-    # 段 2 で足す。段 2 でこの行を ``VOCAB_VERSIONS`` に戻す(v3 は vocab 腕だけ)。
+    # 第276(段 2): v3 のエンジン側が入った=全版を回す。**v3 は vocab 腕だけ**
+    # (open/hint × v3 の B0 は未定義=``templates.b0_system`` が ValueError・段 1 の決め)。
     for mode in ("vocab", "open", "hint"):
-        for ver in ("v1", "v2"):
+        for ver in VOCAB_VERSIONS:
+            if ver == "v3" and mode != "vocab":
+                with pytest.raises(ValueError):
+                    cli.run(intent_mode=mode, vocab_version=ver, **SMALL)
+                continue
             res = cli.run(intent_mode=mode, vocab_version=ver, **SMALL)
             fields = res.run_manifest_fields()
             assert (fields["intent_mode"], fields["vocab_version"]) == (mode, ver)
+            assert fields["activity"] is (ver == "v3"), "活動層は v3 でだけ立つ(既定 on)"
+
+
+@pytest.mark.parametrize("argv,expected", [([], True), (["--activity", "on"], True),
+                                           (["--activity", "off"], False)])
+def test_cli_main_has_the_activity_flag(monkeypatch, argv, expected):
+    """二層の段 2: ``--activity {on,off}``(既定 on)が ``run(activity=...)`` へ届く。"""
+    from shibuya import cli
+
+    seen: dict = {}
+
+    class _Stub:
+        fleet_fields: dict = {}
+
+        def summary(self) -> str:
+            return "(stub)"
+
+    monkeypatch.setattr(cli, "run", lambda **kw: (seen.update(kw), _Stub())[1])
+    assert cli.main(["--agents", "8", "--world", "__no_such_dir__", "--cells", "9", *argv]) == 0
+    assert seen["activity"] is expected

@@ -763,10 +763,13 @@ _ENGINE_CODES_BY_VERSION: Final[Mapping[str, Mapping[str, int]]] = {
 #: **v3**(アジェンダ §1-1)は**両向き**を 1 つの表に持つ: 待機/休憩 → なし(v1/v2 のテープを
 #: v3 の語彙で読む向き)と なし → 待機(v3 → v2/v1 の向き)。キーが版で交わらない
 #: (なし は v3 にだけ・待機/休憩 は v1/v2 にだけ在る)ので向きはキーの所属で決まる。
-#: **降車は欠番**(対応なし=そのまま返す)。
+#: **降車 → なし**(第275 親の決め #7: 欠番の語は安全弁へ。v1 のテープを v3 で読む向きだけ)。
 VOCAB_COMPAT: Final[Mapping[str, Mapping[str, str]]] = {
     "v2": {ACTION_WORD_EAT: "購入"},
-    "v3": {"待機": ACTION_WORD_NONE, "休憩": ACTION_WORD_NONE, ACTION_WORD_NONE: "待機"},
+    "v3": {
+        "待機": ACTION_WORD_NONE, "休憩": ACTION_WORD_NONE, "降車": ACTION_WORD_NONE,
+        ACTION_WORD_NONE: "待機",
+    },
 }
 
 #: 版 ``v`` → 「``v`` から 1 つ前の版へ降りる」読み替え(キーが ``v`` の語彙に在る行)。
@@ -1147,8 +1150,10 @@ def parse_target(
 # - ``UntilKind`` の**数値**(DEFAULT=0・以下アジェンダの列挙順 1..5)。
 # - 既定 60 分・上限 480 分(アジェンダ §5 の行)。**0 分は MINUTES(0) のまま返す**(段 2 で扱う)。
 # - 認識は**部分一致**(値に「到着」「相手」「次の予定」を含めばその型)・順序はアジェンダの列挙順
-#   (到着 → 相手 → N分 → HH:MM → 次の予定)。**「時」を含む値は N分 として読まない**
-#   (「1時間30分」「12時30分」を 30 分と誤読しないため=DEFAULT に落ちる。「N時間」は未対応)。
+#   (到着 → 相手 → N時間[M分] → N分 → HH:MM → 次の予定)。**「N時間」「N時間M分」は分に読む**
+#   (第275 親の決め #6・1時間=60・1時間30分=90・上限 480)。「12時30分」のような**時刻の漢字
+#   表記**は N分 として読まない(「時」の直後の数は分の数として拾わない=DEFAULT に落ちる)。
+#   「1時間半」の「半」は読まない(=60 分)。
 # - HH:MM は 0:00〜23:59 だけ(24:00 等は DEFAULT)。値は**その日の分**(時×60+分)で返し、
 #   「過去なら翌日」の解決はエンジン。全角数字・全角コロンは NFKC で吸収する。
 
@@ -1188,7 +1193,9 @@ class Until:
 #: 「まで」が空のときの値(= DEFAULT・60 分)。
 DEFAULT_UNTIL: Final[Until] = Until(UntilKind.DEFAULT, UNTIL_DEFAULT_MINUTES)
 
-_UNTIL_MINUTES_RE: Final[re.Pattern[str]] = re.compile(r"(\d+)\s*分")
+_UNTIL_HOURS_RE: Final[re.Pattern[str]] = re.compile(r"(\d+)\s*時間(?:\s*(\d+)\s*分)?")
+#: 「時」または数字の直後の数は拾わない(「12時30分」の 30 を分として読まない)。
+_UNTIL_MINUTES_RE: Final[re.Pattern[str]] = re.compile(r"(?<![\d時])(\d+)\s*分")
 _UNTIL_CLOCK_RE: Final[re.Pattern[str]] = re.compile(r"(?<!\d)(\d{1,2}):(\d{2})(?!\d)")
 
 
@@ -1212,12 +1219,17 @@ def parse_until(text: str | None) -> Until:
         return Until(UntilKind.ARRIVAL)
     if "相手" in t:
         return Until(UntilKind.PARTNER)
-    if "時" not in t:
-        m = _UNTIL_MINUTES_RE.search(t)
-        if m:
-            digits = m.group(1)
-            n = int(digits) if len(digits) <= 6 else UNTIL_MAX_MINUTES
-            return Until(UntilKind.MINUTES, min(n, UNTIL_MAX_MINUTES))
+    m = _UNTIL_HOURS_RE.search(t)
+    if m:
+        h, mins = m.group(1), m.group(2) or "0"
+        if len(h) > 4 or len(mins) > 6:
+            return Until(UntilKind.MINUTES, UNTIL_MAX_MINUTES)
+        return Until(UntilKind.MINUTES, min(int(h) * 60 + int(mins), UNTIL_MAX_MINUTES))
+    m = _UNTIL_MINUTES_RE.search(t)
+    if m:
+        digits = m.group(1)
+        n = int(digits) if len(digits) <= 6 else UNTIL_MAX_MINUTES
+        return Until(UntilKind.MINUTES, min(n, UNTIL_MAX_MINUTES))
     m = _UNTIL_CLOCK_RE.search(t)
     if m:
         hh, mm = int(m.group(1)), int(m.group(2))

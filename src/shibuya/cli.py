@@ -358,6 +358,8 @@ def checkpoints_payload(res: RunResult, *, run_id: str = "") -> dict[str, Any]:
                 "population_hash": c.population_hash,
                 "schedule_hash": c.schedule_hash,
                 "combined": c.combined,
+                # 二層の段 2: 活動層のあるランだけ(既定の payload は 1 キーも増えない)
+                **({"activity_hash": c.activity_hash} if c.activity_hash else {}),
             }
             for c in res.checkpoints
         ],
@@ -628,6 +630,14 @@ def main(argv: list[str] | None = None) -> int:
              "off=第267 以前の挙動(誰も捌かず 15 tick で INTERRUPTED)",
     )
     ap.add_argument(
+        "--activity",
+        choices=("on", "off"),
+        default="on",
+        help="行為と活動の二層の活動層(段 2・D-116・既定 on)。立つのは --vocab-version v3 の"
+             "ときだけ(v1/v2 では活動欄が来ない=実質無効・checkpoint 不変)。on=満了入口・活動中は"
+             "場所の変化で起こさない・あたり歩行・B4b の活動の 1 行。off=抑止も満了も無効=現行",
+    )
+    ap.add_argument(
         "--role-words",
         choices=("on", "off"),
         default="on",
@@ -747,6 +757,7 @@ def main(argv: list[str] | None = None) -> int:
         exit_mode=str(args.exit_mode),
         report_precondition=(str(args.report_precondition) == "on"),
         queue_service=(str(args.queue_service) == "on"),
+        activity=(str(args.activity) == "on"),
         role_words=(str(args.role_words) == "on"),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),

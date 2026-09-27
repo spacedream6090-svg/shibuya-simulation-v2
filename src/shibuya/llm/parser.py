@@ -50,6 +50,9 @@ C6 パーサ許容(2026-09-09・実 LLM スモークのテープが根拠)
   「まで」は ``contract.parse_until`` で型に写す・「対象: あたり」は ``Target.wander``・
   「対象: 自宅/職場/学校」は ``ParseResult.target_hint``(home/work/school)。
   **v1/v2 の経路は 1 行も通らない**(判定・別名表・位置引数の規則は 1 バイトも変えない)。
+  第275 親の決め #4: **行動=なし のときだけ対象ラベルの省略を許す**(対象=なし として
+  ``format_ok`` を落とさない・``errors`` の ``missing_label:対象`` を ``target_omitted`` に置き換える)。
+  行為の語では従来どおり欠落は書式エラー。``strict_format_ok`` は 5 ラベルの定義のまま(省略は偽)。
 
 expedient(本モジュール分)
 - ラベルの別名表(``行き先``/``行先``/``相手``→``対象``、``一言``/``ひとこと``/``発話``→``ひと言``、
@@ -72,6 +75,7 @@ from dataclasses import dataclass, field, replace
 from typing import Final, Mapping
 
 from shibuya.llm.contract import (
+    ACTION_WORD_NONE,
     ACTIVITY_MAX_CHARS,
     DEFAULT_UNTIL,
     DEFAULT_VOCAB_VERSION,
@@ -592,6 +596,10 @@ def _parse_v3(text: str | None, landmarks: Mapping[str, int] | None = None) -> P
         if raw_action:
             dictionary_candidate = map_synonym(raw_action, None, ver)[0]
 
+    # 第275 親の決め #4: 行動=なし の応答は対象ラベルを省いてよい(対象=なし・診断は残す)。
+    if action == ACTION_WORD_NONE and "対象" not in labels:
+        labels["対象"] = NO_TARGET
+        errors = ["target_omitted" if e == "missing_label:対象" else e for e in errors]
     target = parse_target(labels.get("対象"), landmarks, ver)
     target_hint = (
         target_surface_hint(target.raw, ver) if target.kind is TargetKind.ITEM_CATEGORY else ""
@@ -619,7 +627,8 @@ def _parse_v3(text: str | None, landmarks: Mapping[str, int] | None = None) -> P
         and not from_free_text
     )
     # strict(v3)= 5 ラベルを**正準表層だけ**で・位置引数なし(アジェンダ §1-2)。
-    if positional_used:
+    # 対象を省いた「行動: なし」は 5 ラベルが揃っていない=strict は偽(定義を動かさない)。
+    if positional_used or "target_omitted" in errors:
         strict_format_ok = False
     else:
         labels_s, _, _ = _scan_labels(cleaned, _LABEL_RE_STRICT_V3, _STRICT_LABELS_V3)

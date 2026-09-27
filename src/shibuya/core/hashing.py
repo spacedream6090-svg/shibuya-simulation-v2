@@ -44,6 +44,7 @@ __all__ = [
     "BLAKE3_TAG_PRIORITY",
     "BLAKE3_TAG_APPLY",
     "BLAKE3_TAG_WAKE",
+    "BLAKE3_TAG_WANDER",
     "blake3_hex",
     "blake3_u64",
     "xxh64",
@@ -56,11 +57,14 @@ __all__ = [
     "priority_key_array",
     "apply_key_array",
     "wake_tiebreak_array",
+    "wander_key_array",
 ]
 
 BLAKE3_TAG_PRIORITY = b"pk\x00"
 BLAKE3_TAG_APPLY = b"ak\x00"
 BLAKE3_TAG_WAKE = b"wk\x00"
+#: 「あたり」歩行の行き先の抽選(二層の段 2・D-116 F)。
+BLAKE3_TAG_WANDER = b"wd\x00"
 
 _I64 = struct.Struct("<q")
 _U64_LE = np.dtype("<u8")
@@ -183,3 +187,14 @@ def wake_tiebreak_array(
     agent_ids = np.asarray(agent_ids)
     ticks = np.full(class_ranks.shape, int(tick), dtype=np.int64)
     return _hash_rows_u64(BLAKE3_TAG_WAKE, run_salt, (ticks, class_ranks, agent_ids))
+
+
+def wander_key_array(run_salt: bytes, tick: int, agent_ids: np.ndarray) -> np.ndarray:
+    """「あたり」歩行の行き先を選ぶ u64(``blake3(run_salt ‖ b"wd\\x00" ‖ i64le(tick) ‖ i64le(agent_id))``)。
+
+    二層の段 2(D-116 F): 候補セルの並び(昇順)に ``key % 候補数`` で当てる。同じ salt・tick・
+    体なら常に同じ行き先(テープから再現できる)。
+    """
+    agent_ids = np.asarray(agent_ids)
+    ticks = np.full(agent_ids.shape, int(tick), dtype=np.int64)
+    return _hash_rows_u64(BLAKE3_TAG_WANDER, run_salt, (ticks, agent_ids))

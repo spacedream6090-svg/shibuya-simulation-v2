@@ -107,6 +107,7 @@ from shibuya.llm.contract import (
     NO_TARGET_VALUE,
     check_vocab_version,
     engine_action_codes,
+    safe_action_word,
 )
 from shibuya.manifest.schema import Mode
 
@@ -1652,8 +1653,9 @@ class FleetBridge:
         role_action = bool(parse.is_role_action)
         if role_action:
             self.n_role_actions += 1
-            # 役割語の効果先は C4。当面は安全弁(待機)へ落とす(``engine.llm_bridge`` と同規約)。
-            action_code = int(self._engine_codes["待機"])
+            # 役割語の効果先は C4。当面は安全弁(待機・**語彙 v3 は なし**)へ落とす
+            # (``engine.llm_bridge`` と同規約)。
+            action_code = int(self._engine_codes[safe_action_word(self.vocab_version)])
         if not parse.format_ok:
             self.n_parse_errors += 1  # 実効(別名許容後)=再生成と診断の主指標
         if not parse.strict_format_ok:
@@ -1666,7 +1668,8 @@ class FleetBridge:
         outcome = res.outcome
         stage = -1
         feedback = ""
-        target_hint = ""
+        # 語彙 v3: 「対象: 自宅/職場/学校」の対象ヒント(``engine.llm_bridge`` と同規約)
+        target_hint = str(getattr(parse, "target_hint", "") or "")
         # テープ鍵の第4要素(``engine.llm_bridge`` と同じ算法=``LLMRequest.prompt_hash``)。
         tape_prompt_hash = sha256_cbor(call.prompt)
         if parse.action is None:
@@ -1674,7 +1677,7 @@ class FleetBridge:
             out = self.undefined.observe(parse.raw_action, int(call.agent_id), int(call.tick), tape_prompt_hash)
             stage = out.stage
             feedback = out.feedback
-            target_hint = out.target_hint
+            target_hint = out.target_hint or target_hint  # v1/v2 は右辺が常に ""=不変
             if out.mapped and out.word in self._engine_codes:
                 action_code = int(self._engine_codes[out.word])
                 self.n_undefined_mapped += 1
