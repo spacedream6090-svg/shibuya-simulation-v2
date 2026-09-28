@@ -1871,7 +1871,6 @@ def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
             buyers, bought, paid = buyers[fits], bought[fits], paid[fits]
             if buyers.size == 0:
                 return
-    n_win = int(buyers.size)
     if led is not None and led.money is not None:
         status = led.money.purchase_many(buyers, bought, paid, tick)
         ok = np.asarray(status) == 0
@@ -1925,7 +1924,9 @@ def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
         r.poi_since[buyers] = int(tick)
         r.queue_poi[buyers] = -1
         out.crowd.on_admit(bought)
-    out.n_purchases += n_win
+    # 購入の件数は**台帳が通した行だけ**(支払いを却下された行・棚から出なかった行は数えない=
+    # 第288 #54 の残りの過大計数の修正。以前は台帳の前の人数を数えていた)。
+    out.n_purchases += int(buyers.size)
     out.revenue_delta += int(paid.sum())
     _ok(agents, buyers, tick, out)
 

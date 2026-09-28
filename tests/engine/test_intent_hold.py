@@ -534,7 +534,8 @@ def test_manifest_intent_and_the_layer_is_off_outside_v3_activity_candidates():
                   checkpoint_every=30)
     m = res.run_manifest_fields()
     assert m["intent_max_ticks"] == 60 and m["mock_out_of_cell_target_p"] == 0.0
-    assert set(m["intent"]) == set(intent_summary({}, 0, 0)) | {"b5_lines", "b5_lines_over_budget"}
+    assert set(m["intent"]) == set(intent_summary({}, 0, 0)) | {
+        "b5_lines", "b5_lines_over_budget", "b6_named_closed_notes"}
     assert {"kept", "bed_skipped_sleep_pending"} <= set(m["intent"])
     for kw in ({"vocab_version": "v1"}, {"vocab_version": "v3", "activity": False},
                {"vocab_version": "v3", "poi_target": "legacy"}):

@@ -71,11 +71,17 @@ W17_GOLDEN = {
         # eddd08ac172a47be / 36,520・Q20〜Q22 後で保存則の欠陥修正(_complete_buy)の前= v3 既定
         # 4c3cfeca59f8ea4b / 36,502(conserved=False)(記録: docs/bench/analysis/intent-chooser-2026-09-28/
         # README.md § 段 2c)。
-        "null_arm_final": "ed1863e089c8480e", "null_arm_llm_calls": 41_141,
+        # **3 段目(第289・D-99 (a′)・D-110)**: CLI/``cli.run`` の既定が**呼数無制限**になり全腕の
+        # final と呼数が動いた。段 2c の値(上限あり=``l4_scale=1.0`` で再現・下の *_l4x1 と
+        # ``test_l4_scale_1_reproduces_the_stage_2c_checkpoints`` で固定)= 帰無腕 ed1863e089c8480e /
+        # 41,141・v3 既定 6845e3acb8906210 / 36,502。記録: docs/bench/analysis/l4-unlimited-2026-09-28/
+        "null_arm_final": "e0083baff1ff50b7", "null_arm_llm_calls": 97_028,
+        "null_arm_final_l4x1": "ed1863e089c8480e", "null_arm_llm_calls_l4x1": 41_141,
         # 第277(二層の段 3): **語彙 v3 の既定**(=CLI の新しい既定・activity on・mock v3 形)。
         # v1 の行は上のまま残す(ライブラリの既定は v1=切替口)。
         # 記録: docs/bench/analysis/two-layer-2026-09-27/README.md §0
-        "v3_default_final": "6845e3acb8906210", "v3_default_llm_calls": 36_502,
+        "v3_default_final": "a1036ab5b06e461c", "v3_default_llm_calls": 68_781,
+        "v3_default_final_l4x1": "6845e3acb8906210", "v3_default_llm_calls_l4x1": 36_502,
         "v1_outside_blocks": 590_430, "v1_outside_dist": [92, 160_033, 133_575, 47_861],
         "s5000_v1": {"n_blocks": 8_589, "zero": 1, "outside": 7_733, "in": 856},
         "s5000_v2": {"n_blocks": 6_377, "zero": 150, "outside": 5_521, "in": 856},
@@ -273,6 +279,29 @@ def test_v3_default_reproduces_the_recorded_checkpoint():
     assert res.final_hash.startswith(g["v3_default_final"])
     assert res.run_manifest_fields()["activity"] is True
     assert res.conserved and int(res.llm_calls) == g["v3_default_llm_calls"]
+
+
+@real_data
+def test_l4_scale_1_reproduces_the_stage_2c_checkpoints():
+    """3 段目(D-99 (a′)・D-110): 上限スイッチ ``l4_scale=1.0`` で旧挙動(L4 按分・持ち越し 2 tick)。
+
+    既定=無制限の golden(上の 2 本)とは別に、段 2c の検収値をそのまま再現することを固定する
+    (上限スイッチと従来の配り方 ``call_budget_per_tick``/``POOL_CAP_TICKS`` を残した証拠)。
+    """
+    from shibuya.cli import run as cli_run
+
+    g = W17_GOLDEN.get(w17_digest())
+    if g is None or "v3_default_final_l4x1" not in g:
+        pytest.skip(f"実 W17 の l4x1 golden が無い(md5 {w17_digest()})")
+    null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
+                   report_precondition=False, l4_scale=1.0)
+    assert null.final_hash.startswith(g["null_arm_final_l4x1"])
+    assert int(null.llm_calls) == g["null_arm_llm_calls_l4x1"]
+    v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
+                 l4_scale=1.0)
+    assert v3.final_hash.startswith(g["v3_default_final_l4x1"])
+    assert int(v3.llm_calls) == g["v3_default_llm_calls_l4x1"]
+    assert v3.run_manifest_fields()["l4_exceeded"] is False
 
 
 # ================================================================= ③ T4 規模不変

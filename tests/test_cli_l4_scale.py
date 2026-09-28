@@ -4,10 +4,11 @@
 ``cli.run`` を差し替えて ``main`` が何を渡したかを見る + 実際に回して run manifest を見る。
 
 見るもの
-(t1) ``--l4-scale`` の parse(既定 1.0・0 可・**負は argparse error**)/
+(t1) ``--l4-scale`` の parse(**既定 0=無制限**=3 段目・D-99 (a′)・D-110・0 可・**負は argparse error**)/
 (t2) 変換規則 ``倍率>0 → call_budget_per_tick(n)×倍率`` / ``0 → float(n)`` が
      ``RunResult.budget_per_tick`` に出る/
-(t3) 既定(引数なし)と ``l4_scale=1.0`` は **final_hash が一致**(=現行のバイト)。
+(t3) 既定(引数なし)と ``l4_scale=0.0`` は **final_hash が一致**・``l4_scale=1.0`` は旧挙動(L4 按分)/
+(t4) manifest の L4 監査欄(総呼数・呼/体/日・監査線 10・超過)と艦隊×無制限の注記。
 """
 
 from __future__ import annotations
@@ -25,7 +26,7 @@ SMALL = dict(
 # ------------------------------------------------------------------ (t1) parse
 @pytest.mark.parametrize(
     "argv,expected",
-    [([], 1.0), (["--l4-scale", "1.0"], 1.0), (["--l4-scale", "0.5"], 0.5),
+    [([], 0.0), (["--l4-scale", "1.0"], 1.0), (["--l4-scale", "0.5"], 0.5),
      (["--l4-scale", "2"], 2.0), (["--l4-scale", "0"], 0.0)],
 )
 def test_cli_main_has_the_l4_scale_flag(monkeypatch, argv, expected):
@@ -93,15 +94,63 @@ def test_an_explicit_budget_wins_over_the_factor():
     assert res.l4_scale == 1.0
 
 
-# ------------------------------------------------------- (t3) 既定のバイト不変
-def test_the_default_run_is_byte_identical_with_the_explicit_1_0():
+# ------------------------------------------------------- (t3) 既定=無制限・1.0=旧挙動
+def test_the_default_is_unlimited_and_identical_with_the_explicit_0():
+    """3 段目(D-99 (a′)・D-110): CLI と ``cli.run`` の既定は **0=無制限**(``CLI_DEFAULT_L4_SCALE``)。"""
     from shibuya import cli
 
+    assert cli.CLI_DEFAULT_L4_SCALE == 0.0
     base = cli.run(**SMALL)
-    explicit = cli.run(l4_scale=1.0, **SMALL)
+    explicit = cli.run(l4_scale=0.0, **SMALL)
     assert base.final_hash == explicit.final_hash
     assert cli.checkpoints_payload(base)["checkpoints"] == (
         cli.checkpoints_payload(explicit)["checkpoints"]
     )
     assert base.run_manifest_fields() == explicit.run_manifest_fields()
-    assert base.budget_per_tick == call_budget_per_tick(SMALL["n_agents"])
+    assert base.budget_per_tick == float(SMALL["n_agents"]) and base.l4_scale == 0.0
+
+
+def test_the_explicit_1_0_is_the_old_l4_share():
+    """``--l4-scale 1`` で旧挙動(L4 按分・持ち越し 2 tick)。ライブラリ ``run_day`` の既定と同じ。"""
+    from shibuya import cli
+    from shibuya.engine.run import run_day
+
+    old = cli.run(l4_scale=1.0, **SMALL)
+    assert old.budget_per_tick == call_budget_per_tick(SMALL["n_agents"])
+    assert old.l4_scale == 1.0
+    lib = run_day(n_agents=8, seed=1, ticks=2, renderer="stub", checkpoint_every=2)
+    assert lib.budget_per_tick == call_budget_per_tick(8) and lib.l4_scale == 1.0
+
+
+# ------------------------------------------------------- (t4) L4 監査欄・艦隊の注記
+def test_the_manifest_always_carries_the_l4_audit_fields():
+    from shibuya import cli
+    from shibuya.engine.arbiter import L4_LINE_PER_AGENT_DAY
+
+    assert L4_LINE_PER_AGENT_DAY == 10.0
+    for scale in (0.0, 1.0):
+        res = cli.run(l4_scale=scale, **SMALL)
+        m = res.run_manifest_fields()
+        days = SMALL["ticks"] * 60 / 86_400
+        assert m["llm_calls_total"] == res.llm_calls
+        assert m["llm_calls_per_agent_day"] == pytest.approx(
+            res.llm_calls / SMALL["n_agents"] / days, rel=1e-5
+        )
+        assert m["l4_line"] == 10.0
+        assert m["l4_exceeded"] == (m["llm_calls_per_agent_day"] > 10.0)
+        assert m["l4_notes"] == []
+
+
+def test_fleet_x_unlimited_without_a_queue_capacity_is_noted_not_changed():
+    """艦隊 × 無制限で ``--fleet-queue-capacity`` が未指定なら注記の文(挙動は変えない・D-55)。"""
+    from types import SimpleNamespace
+
+    from shibuya import cli
+
+    fleet = SimpleNamespace(config=SimpleNamespace(queue_capacity=None), queue_capacity=448)
+    note = cli.fleet_queue_note(fleet, 0.0, 5_000)
+    assert "--fleet-queue-capacity" in note and "448" in note and "5,000" in note
+    assert cli.fleet_queue_note(fleet, 1.0, 5_000) == ""          # 上限あり=注記なし
+    assert cli.fleet_queue_note(None, 0.0, 5_000) == ""           # mock=注記なし
+    given = SimpleNamespace(config=SimpleNamespace(queue_capacity=8_192), queue_capacity=8_192)
+    assert cli.fleet_queue_note(given, 0.0, 5_000) == ""          # 明示した=注記なし

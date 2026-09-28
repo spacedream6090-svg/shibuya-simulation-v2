@@ -289,11 +289,12 @@ def test_poi_target_legacy_reproduces_the_pre_2a_checkpoints_q13(monkeypatch):
         AgentState, "state_hash",
         lambda self: self.registry.state_hash(exclude=INTENT_FIELDS),
     )
+    # 3 段目(第289): CLI/cli.run の既定が無制限になったので旧挙動の上限(l4_scale=1.0)を明示する
     v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
-                 poi_target="legacy")
+                 poi_target="legacy", l4_scale=1.0)
     assert v3.final_hash.startswith("02bd03126d5f41cb") and int(v3.llm_calls) == 36_460
     null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-                   report_precondition=False, poi_target="legacy")
+                   report_precondition=False, poi_target="legacy", l4_scale=1.0)
     assert null.final_hash.startswith("b4ad8140fe4176db") and int(null.llm_calls) == 41_072
 
 

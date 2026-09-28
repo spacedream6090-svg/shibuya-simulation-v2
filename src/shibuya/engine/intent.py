@@ -53,8 +53,11 @@ expedient(宣言・アジェンダ §3)
 - 着いて実行する行為の対象はプロポーズ時に選んだ店(カテゴリで選んだ店も**同じ店**=着いてから
   セル内の別の店に選び直さない)。
 - **親決定 Q20**: 「なし」「待機」と行き先が同じ移動は意図を保つ(「新しい行為が無い」)。保った体の
-  活動は目的地つき移動(到着まで)に戻し、着いた後に戻す活動は**意図を立てたときの応答の活動**のまま
-  (途中の「なし」の活動欄は使わない=宣言)。
+  活動は目的地つき移動(到着まで)に戻す。
+- **親決定 Q24**: 着いて実行した後に戻す活動は**最新の応答の活動**(意図を保ったまま受けた応答=
+  歩いている途中の なし/待機/同じ行き先の移動・着いた tick の なし の活動欄。文と「まで」の組)。活動欄が
+  「なし」/空の応答は採らない=無ければ**意図を立てたときの応答の活動**(宣言: 着いた時点で LLM は
+  呼ばないので「到着後の再考」の応答は無い=保った応答のうち最新を採る)。
 - **親決定 Q21**: 名指しの店は意図を立てる時点で営業中・(購入は)在庫を見る(2a の候補と同じ)。閉店なら
   歩かずに ``CLOSED`` を即時に返す(``engine.poi_target``)。到着時の ``CLOSED`` は途中で閉店した場合だけ。
 - **親決定 Q22**: 計画就寝の意図(``sleep_pending``)が立っている体には寝床の意図を立てない(排他)。
@@ -292,6 +295,7 @@ class IntentLayer:
         """
         t = int(tick)
         r = agents.registry
+        self._absorb_latest(agents, applied)
         self._settle_executions(agents, t, act_layer)
         self._settle_kept(agents, t, act_layer)
         self._settle_proposals(agents, t, act_layer, applied)
@@ -301,6 +305,25 @@ class IntentLayer:
             ia = np.asarray(r.intent_action)
             for a in [a for a in self._payload if int(ia[a]) == INTENT_NONE]:
                 del self._payload[a]
+
+    def _absorb_latest(
+        self, agents: Any, applied: tuple[Sequence[int], Sequence[int], Sequence[Any]] | None
+    ) -> None:
+        """Q24: 意図を保ったまま受けた応答の活動を、着いた後に戻す活動として控える(最新が勝つ)。"""
+        if applied is None:
+            return
+        ia = np.asarray(agents.registry.intent_action)
+        # 逐次ループ宣言2: この tick に適用した応答の数ぶん
+        for a, _c, p in zip(*applied):
+            a = int(a)
+            if p is None or a in self._proposals:
+                continue  # 立てた応答の活動は ``_settle_proposals`` が控える
+            text = str(getattr(p, "text", "") or "").strip()
+            if not text or text == NO_TARGET:
+                continue  # 活動欄が なし/空=採らない(前の控えのまま)
+            if a in self._executing or (int(ia[a]) != INTENT_NONE and a in self._payload):
+                self._payload[a] = p
+                self.stats["latest_activity_used"] += 1
 
     def _settle_executions(self, agents: Any, t: int, act_layer: Any) -> None:
         if not self._executing:
@@ -489,6 +512,8 @@ def intent_summary(stats: Mapping[str, int], ticks_sum: int, ticks_n: int,
         "dropped": sub("dropped:"),
         # 親決定 Q20: 意図中の なし/待機・同じ行き先の移動(保持)と、着いた体のその応答を外した件数
         "kept": sub("kept:"),
+        # 親決定 Q24: 保った応答の活動を着いた後の活動に採った件数(最新が勝つ)
+        "latest_activity_used": int(stats.get("latest_activity_used", 0)),
         # 親決定 Q22: 計画就寝の意図が立っていて寝床の意図にしなかった件数
         "bed_skipped_sleep_pending": int(stats.get("bed_skipped_sleep_pending", 0)),
         "exec_not_applied": int(stats.get("exec_not_applied", 0)),

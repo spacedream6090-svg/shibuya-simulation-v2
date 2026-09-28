@@ -7,8 +7,9 @@
 
 見るもの
 (t2) 変換規則 ``倍率>0 → call_budget_per_tick(n)×倍率`` / ``0 → float(n)``(**無制限**)/
-(t3) **変異検出**: 既定と ``l4_scale=1.0`` は final_hash が一致し、0.5 / 0 では
-     繰り延べ・抑止・呼数が動く(mock でも動く=予算はエンジン側の量)/
+(t3) **変異検出**: ``l4_scale=1.0`` を基準に 0.5 / 0 では繰り延べ・抑止・呼数が動く
+     (mock でも動く=予算はエンジン側の量)。**3 段目(第289・D-99 (a′)・D-110)で既定は 0=無制限**
+     になった=既定と ``l4_scale=0`` の final_hash が一致する/
 (t4) ``run_metrics`` が ``realized`` / ``realized_per_agent_day`` / ``l4_scale`` /
      ``budget_per_tick`` を出し、**既存の欄の値は 1 つも動かない**/
 (t5) 腕定義表の末尾に 2 本が足され、**既存 10 腕(AB6b を含む)の定義はバイト不変**。
@@ -87,18 +88,18 @@ def mutation_runs():
     return out
 
 
-def test_the_default_and_the_explicit_1_0_are_byte_identical(mutation_runs):
-    """既定 ``1.0`` は ``budget=None`` のまま渡る=**現行の経路・現行のバイト**。"""
-    base, x1 = mutation_runs["default"], mutation_runs["x1"]
-    assert base.final_hash == x1.final_hash
-    assert base.llm_calls == x1.llm_calls
-    assert base.run_manifest_fields() == x1.run_manifest_fields()
-    assert base.l4_scale == 1.0
+def test_the_default_and_the_explicit_0_are_byte_identical(mutation_runs):
+    """3 段目(D-99 (a′)・D-110): 既定は **0=無制限**=``l4_scale=0`` と同じ経路・同じバイト。"""
+    base, free = mutation_runs["default"], mutation_runs["unlimited"]
+    assert base.final_hash == free.final_hash
+    assert base.llm_calls == free.llm_calls
+    assert base.run_manifest_fields() == free.run_manifest_fields()
+    assert base.l4_scale == 0.0 and mutation_runs["x1"].l4_scale == 1.0
 
 
 def test_halving_the_budget_moves_the_diagnostics(mutation_runs):
     """0.5 で**呼数が減り final_hash が動く**(mock でも腕が効く=予算はエンジン側の量)。"""
-    base, half = mutation_runs["default"], mutation_runs["x0.5"]
+    base, half = mutation_runs["x1"], mutation_runs["x0.5"]
     assert base.llm_calls > 0, "候補が 1 件も立たないランでは腕を検定できない"
     assert half.llm_calls < base.llm_calls
     assert half.final_hash != base.final_hash
@@ -110,7 +111,7 @@ def test_zero_defers_nothing(mutation_runs):
     これが「1 tick の起床候補は合流後に高々 体数」の実測の裏づけ
     (``engine.arbiter.arbitrate`` ③ → ⑤ の ``n_sel = min(…, floor(budget), agent.size)``)。
     """
-    base, free = mutation_runs["default"], mutation_runs["unlimited"]
+    base, free = mutation_runs["x1"], mutation_runs["unlimited"]
     assert free.diagnostics_day()["deferred"] == 0.0
     assert base.diagnostics_day()["deferred"] > 0.0
     assert free.llm_calls > base.llm_calls

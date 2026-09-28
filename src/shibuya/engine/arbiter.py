@@ -94,6 +94,7 @@ __all__ = [
     "POOL_CAP_TICKS",
     "L4_CALLS_PER_DAY",
     "L4_REFERENCE_AGENTS",
+    "L4_LINE_PER_AGENT_DAY",
     "call_budget_per_tick",
     "WakeCandidates",
     "ArbiterDecision",
@@ -118,6 +119,10 @@ POOL_CAP_TICKS: Final[float] = 2.0
 #: 予算行 L4(呼/シミュ日・40万体基準)。
 L4_CALLS_PER_DAY: Final[int] = 4_000_000
 L4_REFERENCE_AGENTS: Final[int] = 400_000
+#: **L4 の監査線**[呼/体/シミュ日](=``L4_CALLS_PER_DAY / L4_REFERENCE_AGENTS`` = 10)。
+#: 3 段目(D-99 (a′)・D-110・ユーザー決定 09-25)で L4 は**制御目標ではなく監査線**になった=
+#: 既定(CLI・``cli.run``)は無制限で、ランごとに総呼数とこの線の超過の有無を manifest に書く。
+L4_LINE_PER_AGENT_DAY: Final[float] = float(L4_CALLS_PER_DAY) / float(L4_REFERENCE_AGENTS)
 _TICKS_PER_DAY: Final[int] = 1_440
 
 #: 不応期[tick](= 分。tick_seconds=60 なので 1 分 = 1 tick)。

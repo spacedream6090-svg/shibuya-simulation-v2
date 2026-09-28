@@ -105,6 +105,9 @@ __all__ = [
     "INTENT_BED_WORD",
     "INTENT_FALLBACK_TARGET",
     "intent_line",
+    "NAMED_CLOSED_NOTE",
+    "NAMED_CLOSED_NOTE_MAX_TOKENS",
+    "named_closed_note",
     "INVITE_REASON",
     "person_word",
     "ACTIVITY_WORDS",
@@ -252,6 +255,33 @@ def intent_line(action_word: str, target: str) -> str:
     while ch.estimate_tokens(line) > INTENT_LINE_MAX_TOKENS and len(t) > 1:
         t = t[:-1]
         line = INTENT_LINE.format(action=action_word, target=t)
+    return line
+
+
+#: 段 2c Q25: 名指しの店が見えるが閉店で歩かずに失敗した体の B6「直前の結果」の補足の 1 句
+#: (``RESULT_TEXT`` の短句「営業時間外」は変えない・テンプレ本体ではない=``template_sha256`` 不変)。
+NAMED_CLOSED_NOTE: Final[str] = "({name}は閉店中{opens})"
+#: 同(開店の時刻=W7 の当日/翌日の最初の開店・無ければ付けない)。
+NAMED_CLOSED_OPENS: Final[str] = "・{hhmm}に開く"
+#: 補足の 1 句の上限[tok](≤ 15 tok・B6 枠 80 の内)。店名を末尾から切り詰めて収める。
+NAMED_CLOSED_NOTE_MAX_TOKENS: Final[int] = 15
+#: 店名に省略記法の語が入っているときの代わりの語(宣言・expedient)。
+NAMED_CLOSED_FALLBACK_NAME: Final[str] = "その店"
+
+
+def named_closed_note(name: str, open_minute: int = -1) -> str:
+    """Q25 の補足の 1 句(店名 + 閉店中 + あれば「HH:MM に開く」・≤ 15 tok)。"""
+    n = N.canonical_whitespace(str(name)).strip() or NAMED_CLOSED_FALLBACK_NAME
+    if any(a in n for a in N.ABBREVIATIONS):
+        n = NAMED_CLOSED_FALLBACK_NAME
+    m = int(open_minute)
+    opens = (
+        NAMED_CLOSED_OPENS.format(hhmm=f"{(m // 60) % 24:02d}:{m % 60:02d}") if m >= 0 else ""
+    )
+    line = NAMED_CLOSED_NOTE.format(name=n, opens=opens)
+    while ch.estimate_tokens(line) > NAMED_CLOSED_NOTE_MAX_TOKENS and len(n) > 1:
+        n = n[:-1]
+        line = NAMED_CLOSED_NOTE.format(name=n, opens=opens)
     return line
 
 
@@ -839,6 +869,10 @@ class Renderer:
         #: 段 2c: 意図の 1 行を載せた回数 / 個体群の予算で載せなかった回数。
         self.intent_lines = 0
         self.intent_lines_over_budget = 0
+        #: 段 2c Q25: 名指しの即時閉店の補足(体 → (POI, 失敗の tick, 開店の分))。``engine.run`` が
+        #: 意図の層のあるランだけ差し込む(``None``=従来どおり=描画は 1 バイトも変わらない)。
+        self.named_closed_lookup: Callable[[int], tuple[int, int, int] | None] | None = None
+        self.named_closed_notes = 0
         #: 注視ゲートの抽選回数(看板のあるセルで p_see<1.0 のときだけ増える)。
         self.signage_gate_draws = 0
         #: そのうち**通った**(看板行を載せた)回数。既定のランでは 0/0。
@@ -1913,11 +1947,34 @@ class Renderer:
             money = N.format_money(int(a.money[i]))
             return f"(所持金{money}・最も安い品は{N.format_money(price)})" if price else f"(所持金{money})"
         if code == int(ResultCode.CLOSED):
+            note = self._named_closed_text(i)
+            if note:
+                return note
             nxt = self._next_open_hour(cell)
             return f"(次の開店は{nxt}時)" if nxt is not None else ""
         if code == int(ResultCode.FARE_SHORT):
             return f"(所持金{N.format_money(int(a.money[i]))})"
         return ""
+
+    def _named_closed_text(self, i: int) -> str:
+        """Q25: 名指しの店が見えるが閉店で歩かずに失敗した体だけの補足の 1 句(それ以外は ``""``)。
+
+        ``named_closed_lookup``(``engine.run`` が渡す・体 → ``(POI, 失敗の tick, 開店の分)``)が
+        返した tick が ``last_result_tick`` と一致するときだけ載せる(=その失敗の直後の起床だけ)。
+        """
+        look = self.named_closed_lookup
+        if look is None:
+            return ""
+        got = look(int(i))
+        if not got:
+            return ""
+        poi, t, opens = (int(x) for x in got)
+        if int(self.agents.last_result_tick[i]) != t:
+            return ""
+        names = self.assets.poi_name
+        name = str(names[poi]) if 0 <= poi < len(names) else NAMED_CLOSED_FALLBACK_NAME
+        self.named_closed_notes += 1
+        return named_closed_note(name, opens)
 
     def _cheapest_price(self, cell: int) -> int:
         if not (0 <= cell < self.world.n_cells):

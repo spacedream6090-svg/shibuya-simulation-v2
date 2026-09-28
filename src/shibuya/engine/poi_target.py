@@ -244,6 +244,9 @@ class TargetResolver:
     entropy_sum: float = 0.0
     #: 段 2b の計数(``move_resolution_summary`` が manifest の形にする)。
     move_stats: Counter = field(default_factory=Counter)
+    #: 段 2c Q25: 名指しの店が見えるが閉店で**歩かずに** CLOSED を返した体 → (POI, tick)(体ごとに
+    #: 最新 1 件・高々体数)。B6「直前の結果」に店名と「閉店中」を足す材料(描画だけが読む)。
+    named_closed: dict = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         a = self.world.assets
@@ -421,6 +424,8 @@ class TargetResolver:
                             # Q21: 見える名指しの店が閉店/在庫切れ=歩かずに即時の失敗(代表 1 件)
                             self._no_candidate(kind, why)
                             out[k] = rep_poi
+                            if why == "closed":
+                                self.named_closed[aid] = (int(rep_poi), int(tick))  # Q25
                             continue
                     self._no_candidate(kind, "named_out_of_cell")
                     continue

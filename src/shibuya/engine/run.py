@@ -53,7 +53,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Final, Mapping
+from typing import Any, Callable, Final, Mapping
 
 import blake3 as _blake3
 import numpy as np
@@ -79,7 +79,12 @@ from shibuya.engine import growth_decl as GD
 from shibuya.engine import resolve as R
 from shibuya.engine.activity import ActivityLayer, payload_of
 from shibuya.engine.intent import INTENT_MAX_TICKS, IntentLayer
-from shibuya.engine.arbiter import Arbiter, WakeCandidates, call_budget_per_tick
+from shibuya.engine.arbiter import (
+    L4_LINE_PER_AGENT_DAY,
+    Arbiter,
+    WakeCandidates,
+    call_budget_per_tick,
+)
 from shibuya.engine.change_detect import ChangeDetector
 from shibuya.engine.chooser import DEFAULT_CHOOSER, check_chooser, make_chooser
 from shibuya.engine.conversation import ConversationManager
@@ -209,6 +214,41 @@ DIAG_DAY_ROWS: Final[tuple[str, ...]] = (
     "tape_miss_count",
     "conversation_sessions",
 )
+
+
+def _named_closed_lookup(
+    resolver: Any, runner: Any, day_index: int, tick_seconds: int
+) -> Callable[[int], tuple[int, int, int] | None]:
+    """段 2c Q25: 体 → ``(POI, 即時閉店の tick, 次の開店の分)`` を引く関数(描画が読む)。
+
+    開店の分=W7 の営業時間過程(``OpeningProcess``)の当日の行列で、失敗の分より後の最初の営業分。
+    当日に無ければ翌日(曜日+1)の W7 区間の最初の開始分。W7 が無い(合成世界)・区間が無い店は
+    ``-1``(時刻を出さない)。逐次ループ宣言: なし(引くのは描画 1 回につき 1 件)。
+    """
+    opening = getattr(runner, "opening", None) if runner is not None else None
+    om = getattr(opening, "open_matrix", None)
+    pa = getattr(opening, "assets", None)
+
+    def look(agent_id: int) -> tuple[int, int, int] | None:
+        got = resolver.named_closed.get(int(agent_id))
+        if got is None:
+            return None
+        poi, t = int(got[0]), int(got[1])
+        nxt = -1
+        if om is not None and om.size and 0 <= poi < om.shape[0]:
+            minute = int(t * int(tick_seconds) // 60) % om.shape[1]
+            later = np.flatnonzero(om[poi, minute + 1:])
+            if later.size:
+                nxt = minute + 1 + int(later[0])
+            elif pa is not None and getattr(pa, "plan_poi", None) is not None:
+                sel = (np.asarray(pa.plan_poi) == poi) & (
+                    np.asarray(pa.plan_day) == (int(day_index) + 1) % 7
+                )
+                if bool(np.any(sel)):
+                    nxt = int(np.asarray(pa.plan_start)[sel].min()) % 1_440
+        return poi, t, nxt
+
+    return look
 
 
 def _default_mock(
@@ -342,6 +382,10 @@ class RunResult:
     #: このランで**実際に使った** 1 tick の呼数上限(``Arbiter.budget``)。既定のランでは
     #: ``arbiter.call_budget_per_tick(n_agents)``(5,000 体で 34.72)。
     budget_per_tick: float = 0.0
+    #: 3 段目(D-99 (a′)・D-110): L4 の監査の注記(例: 艦隊×無制限で受理待ち枠が未指定=D-55)。
+    l4_notes: list[str] = field(default_factory=list)
+    #: 1 tick の秒数(呼/体/日の日数換算に使う)。
+    tick_seconds: int = DEFAULT_TICK_SECONDS
     #: p_notice の ablation(§3.1 A0-A4)。既定 ``A4``=完成形。
     p_notice_ablation: str = "A4"
     #: ablation ②(§8 第1陣)。``p_notice`` の d50 の倍率。既定 1.0=§3.1 の 40 m。
@@ -716,6 +760,8 @@ class RunResult:
             # ---- D-99 (a) L4 呼数予算の腕(既定 1.0=宣言どおりの按分)。腕 AB8-L4-SCALE ----
             "l4_scale": float(self.l4_scale),
             "budget_per_tick": float(self.budget_per_tick),
+            # ---- 3 段目(D-99 (a′)・D-110): L4 は監査線。総呼数と線の超過を**必ず**書く ----
+            **self.l4_audit_fields(),
             # ---- ablation 第1陣(§8)の腕。既定値のランでも欄は常に出る ----
             "p_notice_ablation": self.p_notice_ablation,
             "p_notice_d50_scale": float(self.p_notice_d50_scale),
@@ -776,6 +822,27 @@ class RunResult:
             "frozen_sources": dict(self.frozen_sources),
             # 実艦隊(C6-a)。mock/tape ランでは空 dict(欄は常にある)。
             "fleet": dict(self.fleet_fields),
+        }
+
+    def l4_audit_fields(self) -> dict[str, Any]:
+        """L4 の監査欄(D-110「ランごとの総呼数を必ず記録」)。
+
+        ``llm_calls_total``=発射した呼の数(再送も 1 呼=``llm_calls``)・``llm_calls_per_agent_day``=
+        総呼数 ÷ 体数 ÷ シミュ日数(``ticks × tick_seconds / 86,400``)・``l4_line``=監査線
+        ``L4_LINE_PER_AGENT_DAY``(10 呼/体/日)・``l4_exceeded``=線を超えたか・``l4_notes``=注記。
+        """
+        days = float(self.ticks) * float(self.tick_seconds) / 86_400.0
+        per = (
+            float(self.llm_calls) / float(self.n_agents) / days
+            if (self.n_agents and days > 0.0)
+            else 0.0
+        )
+        return {
+            "llm_calls_total": int(self.llm_calls),
+            "llm_calls_per_agent_day": round(per, 6),
+            "l4_line": float(L4_LINE_PER_AGENT_DAY),
+            "l4_exceeded": bool(per > float(L4_LINE_PER_AGENT_DAY)),
+            "l4_notes": list(self.l4_notes),
         }
 
     @property
@@ -1302,6 +1369,10 @@ def run_day(
         l4_scale: **manifest に載せるだけ**の同定欄(PENDING D-99 (a)・腕 AB8-L4-SCALE)。
             倍率から ``budget`` を作るのは ``cli.run``(``l4_scale>0`` なら
             ``call_budget_per_tick(n_agents)×倍率``・``0`` なら ``n_agents``=無制限)。
+            **3 段目(D-99 (a′)・D-110)**: CLI と ``cli.run`` の既定は **0=無制限**
+            (``cli.CLI_DEFAULT_L4_SCALE``)。本関数の既定(``budget=None``=L4 按分)は
+            ライブラリの切替口として残す(``--l4-scale 1`` と同じ=旧挙動)。L4 は監査線=
+            manifest の ``llm_calls_total``/``llm_calls_per_agent_day``/``l4_line``/``l4_exceeded``。
             ここでは**計算に一切使わない**=既定 1.0 のランのバイトは 1 つも動かない。
         n_cells: 合成世界を作るときのセル数。
         mode: ``"record"``(``llm`` を呼ぶ)/ ``"replay"``(テープ完全一致・テープ外は計数)。
@@ -1806,6 +1877,17 @@ def run_day(
         if (act_layer is not None and poi_resolver is not None)
         else None
     )
+    # ---- 段 2c Q25: 名指しの即時閉店の B6 補足(店名・閉店中・W7 の開店時刻) ----
+    _q25_renderer = getattr(perception, "renderer", None) if perception is not None else None
+    if (
+        intent_layer is not None
+        and poi_resolver is not None
+        and _q25_renderer is not None
+        and hasattr(_q25_renderer, "named_closed_lookup")
+    ):
+        _q25_renderer.named_closed_lookup = _named_closed_lookup(
+            poi_resolver, runner, day_index, tick_seconds
+        )
     #: 発射した呼の起床条件ごとの件数(起床の内訳・満了入口の列を含む)。
     calls_by_cond = np.zeros(N_WAKE_CONDITIONS_ALL, dtype=np.int64)
 
@@ -2739,6 +2821,7 @@ def run_day(
     # D-99 (a): L4 呼数予算の腕(倍率は申告・``budget_per_tick`` は**実際に使った値**)。
     result.l4_scale = float(l4_scale)
     result.budget_per_tick = float(arbiter.budget)
+    result.tick_seconds = int(tick_seconds)
     # ablation 第1陣 ②③⑥ の腕(manifest の同定欄)。⑥ は**実際に描いた側**が正。
     result.p_notice_ablation = _pnotice_ablation_name(
         runner.salient.ablation if runner is not None else p_notice_ablation
@@ -2788,6 +2871,8 @@ def run_day(
         _rr = getattr(perception, "renderer", None) if perception is not None else None
         result.intent["b5_lines"] = int(getattr(_rr, "intent_lines", 0))
         result.intent["b5_lines_over_budget"] = int(getattr(_rr, "intent_lines_over_budget", 0))
+        # Q25: 名指しの即時閉店の B6 補足を載せた回数
+        result.intent["b6_named_closed_notes"] = int(getattr(_rr, "named_closed_notes", 0))
     result.intent_max_ticks = int(intent_max_ticks)
     result.mock_out_of_cell_target_p = float(mock_out_of_cell_target_p)
     result.move_resolution = move_resolution_summary(

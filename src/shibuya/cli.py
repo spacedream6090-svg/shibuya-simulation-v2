@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import warnings
 from pathlib import Path
 from typing import Any, Final, Mapping
 
@@ -74,9 +75,17 @@ from shibuya.world.state import DEFAULT_EATERY_MODE, EATERY_MODES, World
 #: =ライブラリ経由の退化検査・golden は v1 の値で通る(切替口)。v1 の既定 checkpoint を
 #: CLI で再現するときは ``--vocab-version v1`` を明示する。
 CLI_DEFAULT_VOCAB_VERSION: Final[str] = "v3"
+#: **3 段目(D-99 (a′)・D-110・ユーザー決定 09-25)**: CLI と ``cli.run`` の呼数の既定=**無制限**
+#: (``0``=1 tick の上限を体数に置く=AB8/AB6c の ``l4_unlimited`` と同じ経路)。L4(10 呼/体/日)は
+#: 制御目標ではなく**監査線**(manifest ``llm_calls_per_agent_day``/``l4_exceeded``)。上限の
+#: スイッチ(``--l4-scale 1``=旧挙動・0.5/2=倍率)と従来の配り方(``arbiter.call_budget_per_tick``・
+#: ``POOL_CAP_TICKS``)は残す。
+CLI_DEFAULT_L4_SCALE: Final[float] = 0.0
 
 __all__ = [
     "CLI_DEFAULT_VOCAB_VERSION",
+    "CLI_DEFAULT_L4_SCALE",
+    "fleet_queue_note",
     "STORE_ENTRY_CAPITAL_YEN",
     "WALLET_DOMAIN",
     "parse_refractory_scale",
@@ -290,6 +299,26 @@ def write_census_files(ledger, goods, day: int, out_dir: str | Path) -> tuple[st
     return (p_daily.as_posix(), p_mer.as_posix(), p_sectors.as_posix())
 
 
+def fleet_queue_note(fleet: Any, l4_scale: float, n_agents: int) -> str:
+    """艦隊 × 無制限で受理待ち枠が未指定なら注記の文(それ以外は ``""``・D-55)。
+
+    無制限(``l4_scale=0``)では 1 tick の呼数の上限が体数になる。艦隊の受理待ち+実行中の枠
+    (``FleetConfig.queue_capacity``・既定 ``max_in_flight×4``)がそれより小さいと、あふれた呼は
+    繰り延べになる(C7 D-55/D-58)。挙動は変えない(注記と警告だけ)。
+    """
+    if fleet is None or float(l4_scale) != 0.0:
+        return ""
+    cfg = getattr(fleet, "config", None)
+    if cfg is None or getattr(cfg, "queue_capacity", None) is not None:
+        return ""
+    cap = getattr(fleet, "queue_capacity", None)
+    return (
+        "艦隊 × 呼数無制限(--l4-scale 0)で --fleet-queue-capacity が未指定: 受理待ち枠は既定 "
+        f"{cap}(max_in_flight×4)。1 tick の呼数の上限は体数 {int(n_agents):,} なので、枠を超えた"
+        "呼は繰り延べになる(D-55)。繰り延べ 0 には計画呼数以上の --fleet-queue-capacity を渡す"
+    )
+
+
 def run(
     n_agents: int = 5_000,
     seed: int = 1,
@@ -299,7 +328,7 @@ def run(
     checkpoint_every: int = 360,
     store_capital_yen: int | None = None,
     use_population: bool = True,
-    l4_scale: float = 1.0,
+    l4_scale: float | None = None,
     **kwargs,
 ) -> RunResult:
     """台帳つきの 1 シミュ日ラン(C4 の標準入口)。
@@ -319,13 +348,25 @@ def run(
 
     既定 ``1.0`` では ``budget=None`` のまま ``run_day`` に渡す=**現行の経路・現行のバイト**。
     ``budget`` を直に渡した呼び出しは倍率より優先される(倍率は manifest に 1.0 と載る)。
+
+    **3 段目(D-99 (a′)・D-110)**: ``l4_scale`` の既定(``None``)は ``CLI_DEFAULT_L4_SCALE``
+    (**0=無制限**)。``l4_scale=1.0`` で旧挙動(L4 按分・持ち越し 2 tick)を再現する(テストで固定)。
+    艦隊(``fleet``)× 無制限で受理待ち枠(``--fleet-queue-capacity``)が未指定なら警告を出し、
+    manifest の ``l4_notes`` に注記する(挙動は変えない・D-55)。
     """
-    scale = float(l4_scale)
+    budget = kwargs.pop("budget", None)
+    if l4_scale is None:
+        # 予算を直に渡した呼び出しは従来どおり倍率 1.0 と載せる(倍率より予算が優先)
+        scale = 1.0 if budget is not None else float(CLI_DEFAULT_L4_SCALE)
+    else:
+        scale = float(l4_scale)
     if scale < 0.0:
         raise ValueError("l4_scale は 0 以上(0=無制限)")
-    budget = kwargs.pop("budget", None)
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
+    note = fleet_queue_note(kwargs.get("fleet"), scale, n_agents)
+    if note:
+        warnings.warn(note, RuntimeWarning, stacklevel=2)
     wd = Path(world_dir) if world_dir is not None else None
     world = World.load_or_synthetic(wd, n_cells=n_cells, seed=seed) if wd is not None else World.synthetic(
         n_cells=n_cells, seed=seed
@@ -335,7 +376,7 @@ def run(
         world, n_agents, store_capital_yen,
         seed=seed, world_dir=run_world_dir, use_population=use_population,
     )
-    return run_day(
+    res = run_day(
         n_agents=n_agents,
         seed=seed,
         world=world,
@@ -348,6 +389,9 @@ def run(
         l4_scale=scale,
         **kwargs,
     )
+    if note:
+        res.l4_notes.append(note)
+    return res
 
 
 def checkpoints_payload(res: RunResult, *, run_id: str = "") -> dict[str, Any]:
@@ -571,11 +615,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--l4-scale",
         type=float,
-        default=1.0,
+        default=CLI_DEFAULT_L4_SCALE,
         metavar="FACTOR",
-        help="L4 呼数予算の倍率。1.0=宣言どおり(400 万呼/日を体数按分)・"
-             "0.5/2.0=半分/倍・**0=無制限**(1 tick の上限を体数=起床候補の理論上限にする)。"
-             "PENDING D-99 AB8 の腕",
+        help="呼数の上限の倍率。**既定 0=無制限**(3 段目・D-99 (a′)・D-110=L4 は監査線・"
+             "manifest に llm_calls_per_agent_day と l4_exceeded)。1.0=旧挙動(L4 400 万呼/日を"
+             "体数按分・持ち越し 2 tick)・0.5/2.0=半分/倍。PENDING D-99 AB8 の腕",
     )
     ap.add_argument(
         "--intent-mode",
