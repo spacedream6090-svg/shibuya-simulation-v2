@@ -1835,7 +1835,11 @@ def _enter_board_queue(agents, world, ids: np.ndarray, tick: int, out: ResolveOu
             r.board_since[fresh] = int(tick)
             out.n_board_waiting += int(fresh.size)
             if out.rail is not None:
-                out.rail.n_board_waiting += int(fresh.size)
+                # 9b: 計画の退出(歩いて乗る体)は LLM の乗車待ちと分けて数える(既定では 0 件)
+                pe = _plan_exit_mask(r, fresh)
+                out.rail.n_board_waiting += int(fresh.size - pe.sum())
+                if pe.any():
+                    out.rail.n_board_waiting_plan_exit = int(getattr(out.rail, "n_board_waiting_plan_exit", 0)) + int(pe.sum())
     if (~on_plat).any():
         miss = ids[~on_plat]
         r.board_line[miss] = -1
@@ -1980,7 +1984,7 @@ def _serve_board_queue(agents, world, tick: int, out: ResolveOutcome) -> None:
             served[here] = True
             ids = waiting[here]
             ids = ids[np.lexsort((ids, r.board_since[ids].astype(np.int64)))]  # FIFO
-            pay_ok = r.money[ids].astype(np.int64) >= fare
+            pay_ok = (r.money[ids].astype(np.int64) >= fare) | _plan_exit_mask(r, ids)  # 9b: 計画の退出は免除
             poor.append(ids[~pay_ok])
             ids = ids[pay_ok]
             if ids.size == 0:
@@ -2024,29 +2028,48 @@ def _serve_board_queue(agents, world, tick: int, out: ResolveOutcome) -> None:
         rail.n_board_dropped += int(inert.size)
 
 
+def _plan_exit_mask(r, ids: np.ndarray) -> np.ndarray:
+    """9b(第302 Q119 (b)): 計画の退出で歩いて乗る体(``plan_flags`` の ``EXIT_WALK_FLAG``)。欄が無ければ全部 False。"""
+    if "plan_flags" not in r.arrays or ids.size == 0:
+        return np.zeros(ids.size, dtype=bool)
+    return (r.plan_flags[ids].astype(np.int64) & EXIT_WALK_FLAG) != 0
+
+
 def _board_riders(agents, world, boarded, tick: int, out: ResolveOutcome) -> None:
-    """乗車の確定(運賃の金の脚 → 状態遷移 → 列車 SoA)。``boarded`` = ``[(便, 個体列), …]``。"""
+    """乗車の確定(運賃の金の脚 → 状態遷移 → 列車 SoA)。``boarded`` = ``[(便, 個体列), …]``。
+
+    9b(第302 Q119 (b)): **計画の退出で歩いて乗る体は運賃を払わない**(即時の退出・到着と同じ=計画由来の
+    移動は所持金を動かさない)。LLM の乗車は従来どおり払う。成立は ``boarded_plan_exit`` に分けて数える。
+    """
     if not boarded:
         return
     r = agents.registry
     fare = int(out.rail.fare_yen)
     riders = np.concatenate([a for _, a in boarded]).astype(np.int64)
     train_of = np.concatenate([np.full(a.size, t, dtype=np.int64) for t, a in boarded])
+    plan = _plan_exit_mask(r, riders)
+    payers, pay_train = riders[~plan], train_of[~plan]
+    free, free_train = riders[plan], train_of[plan]
     led = out.ledger
-    if led is not None and led.money is not None:
+    if payers.size and led is not None and led.money is not None:
         # 運賃 = 世帯 → 外界(持ち出し=sink)。鉄道事業者は第1陣の6部門に無い(§2.1)ので
         # 許された部門対(H,W)/科目「持ち出し」に載せる=**科目の意味の拡張は台帳側の宣言事項**。
-        status = np.asarray(out.rail.pay_fares(led.money, riders, fare, int(tick)))
+        status = np.asarray(out.rail.pay_fares(led.money, payers, fare, int(tick)))
         ok = status == 0
         if not ok.all():
-            _fail(agents, riders[~ok], ResultCode.FARE_SHORT, tick, out)
+            _fail(agents, payers[~ok], ResultCode.FARE_SHORT, tick, out)
             out.n_ledger_rejected += int((~ok).sum())
-            riders, train_of = riders[ok], train_of[ok]
-            if riders.size == 0:
-                return
+            payers, pay_train = payers[ok], pay_train[ok]
+    elif payers.size:
+        r.money[payers] = (r.money[payers].astype(np.int64) - fare).astype(np.int32)
+    out.fare_paid += int(fare) * int(payers.size)
+    if free.size:
+        riders = np.concatenate([payers, free]) if payers.size else free
+        train_of = np.concatenate([pay_train, free_train]) if payers.size else free_train
     else:
-        r.money[riders] = (r.money[riders].astype(np.int64) - fare).astype(np.int32)
-    out.fare_paid += int(fare) * int(riders.size)
+        riders, train_of = payers, pay_train
+    if riders.size == 0:
+        return
     r.activity[riders] = int(Activity.RIDING)
     r.transit_state[riders] = 1
     r.transit_ref[riders] = train_of.astype(np.int32)
@@ -2057,7 +2080,9 @@ def _board_riders(agents, world, boarded, tick: int, out: ResolveOutcome) -> Non
     r.board_line[riders] = -1  # 意図は成立して消える
     r.board_since[riders] = -1
     out.n_boarded += int(riders.size)
-    out.rail.n_boarded_from_queue += int(riders.size)
+    out.rail.n_boarded_from_queue += int(riders.size - free.size)
+    if free.size:
+        out.rail.n_boarded_plan_exit = int(getattr(out.rail, "n_boarded_plan_exit", 0)) + int(free.size)
     out.rail.on_board(train_of)
     _ok(agents, riders, tick, out)
 
@@ -2952,8 +2977,8 @@ def begin_exit_walk(agents: AgentState, world: World, rail: Any, agent_ids, line
             r.board_since[wait] = int(tick)
             r.activity[wait] = int(Activity.WAITING)
             r.target_node[wait] = -1
-            if hasattr(rail, "n_board_waiting"):
-                rail.n_board_waiting += int(wait.size)
+            if hasattr(rail, "n_board_waiting_plan_exit"):  # 9b: LLM の乗車待ちと分けて数える
+                rail.n_board_waiting_plan_exit += int(wait.size)
         if walk.size:
             r.board_line[walk] = ln[route_ok].astype(r.board_line.dtype)
             r.board_since[walk] = -1  # まだホームに立っていない

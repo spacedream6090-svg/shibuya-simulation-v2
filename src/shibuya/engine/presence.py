@@ -48,7 +48,7 @@ from typing import Any, Final
 
 import numpy as np
 
-from shibuya.agents.state import Activity, AgentState
+from shibuya.agents.state import Activity, AgentState, ResultCode
 from shibuya.agents.weekly import (
     ACTIVITY_WORDS,
     MINUTES_PER_DAY,
@@ -723,6 +723,16 @@ class PlanExecutor:
         self.n_exit_walk_departed = 0
         self.n_exit_walk_gone = 0
         self.n_exit_walk_restarted = 0
+        # ---- 第302 Q117 (b): 歩き直し(1 回まで)----
+        self._rewalked = np.zeros(n, dtype=bool)
+        self._rewalk_ids = np.empty(0, dtype=np.int64)
+        self._rewalk_line = np.empty(0, dtype=np.int64)
+        self._rewalk_deadline = np.empty(0, dtype=np.int64)
+        self.n_exit_rewalk_queued = 0
+        self.n_exit_rewalk_started = 0
+        self.n_exit_rewalk_forced = 0
+        self.n_exit_rewalk_gone = 0
+        self.n_exit_lost_final = 0
         self.n_exit_too_far = 0
         self.n_exit_lost = 0
         self.n_exit_lost_deferred = 0
@@ -1160,6 +1170,10 @@ class PlanExecutor:
         self.walk_started_now = np.empty(0, dtype=np.int64)
         self._flush_walkers(t)
         started: list[np.ndarray] = []
+        self._flush_rewalks(t)
+        if self.walk_started_now.size:
+            started.append(self.walk_started_now)
+        self.walk_started_now = np.empty(0, dtype=np.int64)
         self._flush_deferred_exits(t)
         if self.walk_started_now.size:
             started.append(self.walk_started_now)
@@ -1321,14 +1335,17 @@ class PlanExecutor:
             self.n_departures += int(ids.size)
 
     # ------------------------------------------------------------------ 9a 歩いて乗る退出
-    def _begin_walk(self, ids: np.ndarray, lines: np.ndarray, tick: int) -> None:
+    def _begin_walk(self, ids: np.ndarray, lines: np.ndarray, tick: int, *, rewalk: bool = False) -> None:
         """DEPART: 買物/列を解き、その体の路線のホームへ乗車の意図を立てて歩かせる(9a)。
 
         非鉄道ゲート(線 −1)と、便/ホーム/経路の無い体は即時 ``rail_depart``(E3 と同じ=所要時間なし)。
+        ``rewalk=True``=第302 Q117 (b) の歩き直し(DEPART は数え済み=数えない・歩き直しの印は保つ)。
         """
         self.walk_started_now = np.empty(0, dtype=np.int64)
         if ids.size == 0:
             return
+        if not rewalk:
+            self._rewalked[ids] = False  # 新しい退出=歩き直しの回数を戻す
         self._release_affiliations(ids, tick)
         gate = lines < 0
         if gate.any():
@@ -1346,11 +1363,49 @@ class PlanExecutor:
             self._walk_since[started] = int(tick)
             self._walk_line[started] = rln[started_m].astype(np.int32)
             R.set_plan_state(self.agents, started, flags_set=R.EXIT_WALK_FLAG)
-            self.n_exit_walk_started += int(started.size)
-            self.n_exit_walk_waiting_at_start += int(wait_m.sum())
+            if rewalk:
+                self.n_exit_rewalk_started += int(started.size)
+            else:
+                self.n_exit_walk_started += int(started.size)
+                self.n_exit_walk_waiting_at_start += int(wait_m.sum())
         R.set_plan_state(self.agents, ids, flags_clear=FLAG_EXIT_DEFERRED)
-        self.n_departures += int(ids.size)
+        if not rewalk:
+            self.n_departures += int(ids.size)
         self.walk_started_now = np.sort(started)
+
+    def _flush_rewalks(self, tick: int) -> None:
+        """第302 Q117 (b): LLM の別の行為で意図が落ちた体に、**その行為の後**で退出の意図を張り直す(1 回まで)。
+
+        「行為の後」=会話・在店・列・意図つきの移動のどれでもなくなった tick(上限 ``EXIT_DEFER_LIMIT``=
+        超えたら会話中なら即時・それ以外は解いてから歩き直す)。逐次ループ宣言: なし(歩き直し待ちの体の配列)。
+        """
+        if self._rewalk_ids.size == 0:
+            return
+        r = self.agents.registry
+        ids = self._rewalk_ids
+        st = np.asarray(r.transit_state)[ids]
+        gone = st != 0
+        act = np.asarray(r.activity)[ids]
+        busy = (act == int(Activity.CONVERSING)) | (np.asarray(r.poi_ref)[ids] >= 0) | (
+            np.asarray(r.queue_poi)[ids] >= 0)
+        if "intent_action" in r.arrays:
+            busy |= (np.asarray(r.intent_action)[ids] >= 0) & (act == int(Activity.MOVING))
+        expired = self._rewalk_deadline <= int(tick)
+        ready = ~gone & (~busy | expired)
+        forced = ready & busy & (act == int(Activity.CONVERSING))  # 上限まで会話が続いた=即時
+        walk = ready & ~forced
+        keep = ~gone & ~ready
+        self.n_exit_rewalk_forced += int(forced.sum())
+        self.n_exit_rewalk_gone += int(gone.sum())
+        go_w, ln_w = ids[walk], self._rewalk_line[walk]
+        go_f, ln_f = ids[forced], self._rewalk_line[forced]
+        self._rewalk_ids = ids[keep]
+        self._rewalk_line = self._rewalk_line[keep]
+        self._rewalk_deadline = self._rewalk_deadline[keep]
+        if go_f.size:
+            self._depart_now(go_f, ln_f, int(tick), count=False)
+        if go_w.size:
+            self._begin_walk(go_w, ln_w, int(tick), rewalk=True)
 
     def _flush_walkers(self, tick: int) -> None:
         """歩いて乗る退出の体を捌く: 乗った(発車待ちへ)/ 上限超過(TOO_FAR=即時)/ 意図が落ちた(即時・会話中は
@@ -1397,13 +1452,30 @@ class PlanExecutor:
                 vals, cnt = np.unique(arr.astype(np.int64), return_counts=True)
                 for v, c in zip(vals.tolist(), cnt.tolist()):  # 逐次: 値の種類の数ぶん(≤ 25)
                     self.lost_why[f"{key}:{int(v)}"] = self.lost_why.get(f"{key}:{int(v)}", 0) + int(c)
-            self.fallback_minutes.extend((int(tick) - since[lost]).tolist())
+            lo_line = line[lost]
+            # 第302 Q117 (b): LLM の別の行為で落ちた 1 回目は歩き直し(待ちの打ち切り・運賃・経路の途切れは除く)
+            res = np.asarray(r.last_result)[lo].astype(np.int64)
+            engine_side = np.isin(res, (int(ResultCode.NO_TRAIN), int(ResultCode.FARE_SHORT),
+                                        int(ResultCode.UNREACHABLE)))
+            retry = ~engine_side & ~self._rewalked[lo]
+            if retry.any():
+                rw = lo[retry]
+                self._rewalked[rw] = True
+                self._rewalk_ids = np.concatenate([self._rewalk_ids, rw])
+                self._rewalk_line = np.concatenate([self._rewalk_line, lo_line[retry]])
+                self._rewalk_deadline = np.concatenate(
+                    [self._rewalk_deadline, np.full(int(rw.size), int(tick) + EXIT_DEFER_LIMIT, dtype=np.int64)])
+                self.n_exit_rewalk_queued += int(rw.size)
+            rest = ~retry
+            lo, lo_line = lo[rest], lo_line[rest]
+            self.fallback_minutes.extend((int(tick) - since[lost][rest]).tolist())
+            self.n_exit_lost_final += int(lo.size)
             talking = np.asarray(r.activity)[lo] == int(Activity.CONVERSING)
             if talking.any():
-                self._defer(lo[talking], line[lost][talking], tick, walk=False)
+                self._defer(lo[talking], lo_line[talking], tick, walk=False)
                 self.n_exit_lost_deferred += int(talking.sum())
             if (~talking).any():
-                self._depart_now(lo[~talking], line[lost][~talking], tick, count=False)
+                self._depart_now(lo[~talking], lo_line[~talking], tick, count=False)
 
     def plan_exit_mask(self, agent_ids) -> np.ndarray:
         """9a: 計画の退出で歩いて乗った体か(``RailProcess`` が発車のとき LLM の乗車と分ける)。"""
@@ -1750,7 +1822,14 @@ class PlanExecutor:
                 "walk_boarded": int(self.n_exit_walk_boarded),
                 "walk_departed_by_train": int(self.n_exit_walk_departed),
                 "too_far_immediate": int(self.n_exit_too_far),
-                "intent_lost_immediate": int(self.n_exit_lost),
+                "intent_lost": int(self.n_exit_lost),
+                "intent_lost_immediate": int(self.n_exit_lost_final),
+                "rewalk_queued": int(self.n_exit_rewalk_queued),
+                "rewalk_started": int(self.n_exit_rewalk_started),
+                "rewalk_forced_immediate": int(self.n_exit_rewalk_forced),
+                "rewalk_gone_other": int(self.n_exit_rewalk_gone),
+                "rewalk_waiting_at_end": int(self._rewalk_ids.size),
+                "fare_exempt": True,
                 "intent_lost_deferred": int(self.n_exit_lost_deferred),
                 "gate_immediate": int(self.n_exit_gate_immediate),
                 "no_platform_immediate": int(self.n_exit_no_platform),

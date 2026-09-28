@@ -259,6 +259,9 @@ class RailProcess:
         self.n_board_dropped = 0
         #: 待ち行列から実際に乗れた延べ数(``board_success_rate`` の分子)。
         self.n_boarded_from_queue = 0
+        #: 9b(第302 Q119 (b)): 計画の退出で歩いて乗った数・ホームで待ちに入った数(運賃免除・既定では 0)。
+        self.n_boarded_plan_exit = 0
+        self.n_board_waiting_plan_exit = 0
         #: D-61 帰りの便: 割り当てた数 / 実際に降りた数 / その日は戻らない数
         #: (次の域内活動が無い + 終電後)/ うち終電後だけの数。
         self.n_return_scheduled = 0
@@ -716,6 +719,8 @@ class RailProcess:
             "board_timeout": float(self.n_board_timeout),
             "board_dropped": float(self.n_board_dropped),
             "boarded_from_queue": float(self.n_boarded_from_queue),
+            "boarded_plan_exit": float(self.n_boarded_plan_exit),
+            "board_waiting_plan_exit": float(self.n_board_waiting_plan_exit),
             "board_success_rate": (
                 float(self.n_boarded_from_queue) / float(self.n_board_intent)
                 if self.n_board_intent

@@ -112,11 +112,14 @@ def test_too_far_and_lost_intent_fall_back_to_immediate():
     layer.step(330)
     assert layer.n_exit_walk_started == 3
     with a.writable():
-        a.registry.board_line[1] = -1                     # LLM が別の行為を選んで意図が落ちた
+        a.registry.board_line[1] = -1                     # 運賃不足/待ちの打ち切り=エンジン側の理由
+        a.registry.last_result[1] = int(ResultCode.NO_TRAIN)
         a.registry.board_line[2] = -1
+        a.registry.last_result[2] = int(ResultCode.NO_TRAIN)
         a.registry.activity[2] = int(Activity.CONVERSING)  # 会話中なら繰り延べてから
     layer.step(331)
     assert census(a) == (2, 0, 1) and layer.n_exit_lost == 2 and layer.n_exit_lost_deferred == 1
+    assert layer.n_exit_rewalk_queued == 0                # エンジン側の理由は歩き直さない
     with a.writable():
         a.registry.activity[2] = int(Activity.IDLE)
     layer.step(332)
@@ -238,10 +241,23 @@ def test_run_walk_mode_accounts_for_every_exit_and_leave_switch_reproduces_the_o
     walk = cli.run(exit_mode="walk_to_platform", **kw)
     ex = walk.run_manifest_fields()["presence_exit"]
     assert ex["exit_mode"] == "walk_to_platform" and ex["walk_started"] > 0 and ex["walk_boarded"] > 0
-    assert ex["walk_started"] == (ex["walk_boarded"] + ex["too_far_immediate"] + ex["intent_lost_immediate"]
-                                  + ex["still_walking_at_end"] + ex["walk_gone_other"] + ex["walk_restarted"])
+    # 歩き(最初+歩き直し)の行き先の恒等式・歩き直しの行き先の恒等式(第302 Q117 (b))
+    assert ex["walk_started"] + ex["rewalk_started"] == (
+        ex["walk_boarded"] + ex["too_far_immediate"] + ex["intent_lost"] + ex["still_walking_at_end"]
+        + ex["walk_gone_other"] + ex["walk_restarted"])
+    assert ex["rewalk_queued"] == (ex["rewalk_started"] + ex["rewalk_forced_immediate"] + ex["rewalk_gone_other"]
+                                   + ex["rewalk_waiting_at_end"])
+    assert ex["intent_lost"] == ex["rewalk_queued"] + ex["intent_lost_immediate"] and ex["rewalk_started"] > 0
+    assert ex["fare_exempt"] is True
     assert ex["walk_departed_by_train"] + ex["boarded_waiting_train_at_end"] == ex["walk_boarded"]
     assert walk.conserved
+    # 第302 Q119 (b): 計画の退出=運賃なし(運賃は LLM の乗車だけ・計画の退出の乗車は分けて数える)
+    from shibuya.engine.processes.rail import FARE_YEN
+
+    pc = dict(walk.process_counters)
+    assert pc["rail.boarded_plan_exit"] == ex["walk_boarded"]
+    assert walk.fares_paid == int(FARE_YEN) * int(pc["rail.boarded_from_queue"])
+    assert walk.money_start == walk.money_end + walk.revenue_end + walk.fares_paid
     again = cli.run(exit_mode="walk_to_platform", **kw)
     assert again.final_hash == walk.final_hash and again.llm_calls == walk.llm_calls
     imm = cli.run(**kw)
@@ -258,3 +274,52 @@ def test_cli_has_the_9a_flags():
 
     text = Path("src/shibuya/cli.py").read_text(encoding="utf-8")
     assert '"--leave-effect"' in text and '"walk_to_platform"' in text
+
+
+def test_rewalk_once_after_an_llm_action_then_immediate():
+    """第302 Q117 (b): LLM の別の行為で意図が落ちたら、その行為の後に 1 回だけ歩き直す・2 回目は即時。"""
+    wk = make_weekly([(0, 0, 330, ACT_WORK, PK_WORK, 3)], 1)
+    w, a, rail, layer = walk_layer(wk, n=1, home_cell=np.array([-1]))
+    layer.initialize()
+    with a.writable():
+        a.registry.cell[0] = 3
+        a.registry.node[0] = int(w.assets.cell_rep_node[3])
+    layer.step(330)
+    with a.writable():                                    # LLM が「購入」を選んで店に入った(意図が落ちた)
+        a.registry.board_line[0] = -1
+        a.registry.last_result[0] = int(ResultCode.OK)
+        a.registry.poi_ref[0] = 2
+        a.registry.activity[0] = int(Activity.SHOPPING)
+    layer.step(331)
+    assert census(a) == (1, 0, 0) and layer.n_exit_rewalk_queued == 1
+    layer.step(332)                                       # まだ店の中=待つ
+    assert layer.n_exit_rewalk_started == 0
+    with a.writable():
+        a.registry.poi_ref[0] = -1
+        a.registry.activity[0] = int(Activity.IDLE)
+    layer.step(333)                                       # 行為が終わった=歩き直す
+    assert layer.n_exit_rewalk_started == 1 and int(a.registry.board_line[0]) == 0
+    assert set(layer.walk_started_now.tolist()) == {0} and layer.n_departures == 1
+    with a.writable():                                    # 2 回目の上書き=即時
+        a.registry.board_line[0] = -1
+        a.registry.last_result[0] = int(ResultCode.OK)
+    layer.step(334)
+    assert census(a) == (0, 0, 1) and layer.n_exit_lost_final == 1
+
+
+def test_plan_exit_riders_do_not_pay_the_fare():
+    """第302 Q119 (b): 計画の退出で歩いて乗る体は運賃を払わない・LLM の乗車は払う(分けて数える)。"""
+    w, a = make_world_agents(2)
+    pa = fake_assets()
+    rail = RailProcess(w, a, pa, master_seed=1, day_index=0, plan_executor=True)
+    with a.writable():
+        a.registry.money[:] = 1_000
+        a.registry.plan_flags[0] = np.int8(R.EXIT_WALK_FLAG)
+    out = R.ResolveOutcome(tick=5, rail=rail)
+    with a.writable():
+        R._board_riders(a, w, [(0, np.array([0, 1]))], 5, out)
+    m = np.asarray(a.registry.money)
+    assert int(m[0]) == 1_000 and int(m[1]) == 1_000 - int(rail.fare_yen)
+    assert out.fare_paid == int(rail.fare_yen)
+    assert rail.n_boarded_plan_exit == 1 and rail.n_boarded_from_queue == 1
+    assert (np.asarray(a.registry.transit_state) == 1).all()
