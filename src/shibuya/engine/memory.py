@@ -233,6 +233,37 @@ class MemoryLayer:
         self.tau = float(RECALL_TAU)
         #: 想起の計数(入口別・τ で切った行・補った件数)。
         self.recall_stats: Counter = Counter()
+        #: D-120 7a: 店の評価の記憶(``--store-memory on`` のランだけ・:meth:`enable_store`)。
+        self.store: Any = None
+
+    def enable_store(self, n_rows: int | None = None, *, sigma: Any = None,
+                     decay: str | None = None) -> Any:
+        """店の評価の記憶(``engine.store_memory.StoreMemory``)を持たせる(D-120 7a)。
+
+        書き手はエピソードの書き手(:meth:`record`)に乗る=記憶の表と同じ回・同じ配列。想起できる店の
+        τ は記憶の想起と同じ :attr:`tau`(宣言)。
+        """
+        from shibuya.engine.store_memory import DEFAULT_STORE_DECAY, STORE_MEMORY_N, StoreMemory
+
+        self.store = StoreMemory(
+            self.n, STORE_MEMORY_N if n_rows is None else int(n_rows),
+            minutes_per_tick=self.minutes_per_tick, d=self.d, sigma=sigma,
+            decay=DEFAULT_STORE_DECAY if decay is None else decay,
+        )
+        return self.store
+
+    def store_rows(self, agents: Any, agent_id: int, tick: int) -> Any:
+        """1 体の店の評価の行(``StoreRows``: poi・向き・精度・A・想起できるか)。7c の読み口。"""
+        if self.store is None:
+            raise RuntimeError("店の評価の記憶は --store-memory on のランだけ")
+        return self.store.rows(agents, agent_id, tick, self.tau)
+
+    def known_stores(self, agents: Any, agent_ids: np.ndarray, tick: int,
+                     mask: np.ndarray | None = None, min_sign: int | None = None) -> np.ndarray:
+        """体の配列 → ``(体, M)`` の想起できる店(A ≥ τ・``mask`` の店・向き ≥ ``min_sign``)の POI(他は −1)。"""
+        if self.store is None:
+            raise RuntimeError("店の評価の記憶は --store-memory on のランだけ")
+        return self.store.known(agents, agent_ids, tick, self.tau, mask, min_sign)
 
     # ------------------------------------------------------------------ 読み口
     def scores(self, agents: Any, agent_ids: np.ndarray, tick: int) -> np.ndarray:
@@ -401,6 +432,8 @@ class MemoryLayer:
             sel = np.flatnonzero(rank == rnd)
             out[sel] = self._write(agents, tick, a[sel], kind[sel], partner[sel], obj[sel],
                                    result[sel], cell[sel])
+        if self.store is not None:  # D-120 7a: 同じエピソードの配列から店の評価の行へ
+            self.store.on_episodes(agents, tick, a, kind, obj, result)
         return out
 
     # ------------------------------------------------------------------ 会話の要旨

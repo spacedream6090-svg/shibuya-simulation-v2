@@ -71,6 +71,10 @@ expedient(本モジュール分)
   ``fam_visits`` / ``fam_exposures``(体 × K 行・1 行 16 B → K=64 で 1,024 B/体)は
   ``familiarity_columns`` のランだけ確保する(``--familiarity on``・既定 off=既定 checkpoint 不変)。
   ``fam_thing`` の符号化は ``engine.familiarity``(POI 索引 ≥ 0・場所 −(cell+2)・人 1<<30|id・空行 −1)。
+- **店の評価の記憶(D-120 7a・N1 (a)・第296)**: ``sm_poi`` / ``sm_valence`` / ``sm_precision`` /
+  ``sm_first`` / ``sm_last`` / ``sm_n`` / ``sm_source``(体 × 32 行・実 23 B/行・宣言 24 B/行 → 768 B/体)は
+  ``store_memory_columns`` のランだけ確保する(``--store-memory on``・既定 off=既定 checkpoint 不変)。
+  値を決めるのは ``engine.memory``・書き手は ``engine.resolve.write_store_memory`` だけ。
 - **体のエネルギー収支(5 段目 5a・D-118 K1〜K9・第291)**: ``weight_kg`` / ``eer_kcal`` /
   ``since_meal_kcal`` / ``energy_balance``(float32 × 4 = +16 B/体)は ``energy_columns`` のランだけ
   確保する。``engine.run`` は ``hunger_model="energy"``(CLI の既定)のときだけ True にする
@@ -117,6 +121,8 @@ __all__ = [
     "FAMILIARITY_EMPTY",
     "ENERGY_FIELDS",
     "MEMORY_FIELDS",
+    "STORE_MEMORY_FIELDS",
+    "STORE_MEMORY_EMPTY",
     "REFRACTORY_MINUTES",
     "WAKE_CONDITION_CLASS",
     "RESULT_TEXT",
@@ -368,6 +374,13 @@ MEMORY_FIELDS: Final[tuple[str, ...]] = (
     "mem_result", "mem_importance", "mem_n",
 )
 
+#: 店の評価の記憶の 7 欄(D-120 7a・``store_memory_columns`` のランだけ確保)。
+STORE_MEMORY_FIELDS: Final[tuple[str, ...]] = (
+    "sm_poi", "sm_valence", "sm_precision", "sm_first", "sm_last", "sm_n", "sm_source",
+)
+#: 店の評価の記憶の空行(``sm_poi``)。
+STORE_MEMORY_EMPTY: Final[int] = -1
+
 #: 体のエネルギー収支の 4 欄(5 段目 5a・``energy_columns`` のランだけ確保)。
 ENERGY_FIELDS: Final[tuple[str, ...]] = (
     "weight_kg", "eer_kcal", "since_meal_kcal", "energy_balance",
@@ -408,6 +421,8 @@ class AgentState:
         energy_columns: bool = False,
         memory_columns: bool = False,
         memory_n: int = 128,
+        store_memory_columns: bool = False,
+        store_memory_n: int = 32,
     ) -> None:
         """
         Args:
@@ -440,6 +455,9 @@ class AgentState:
             memory_columns / memory_n: **記憶 第 1 段の記録**(6 段目 6a・``engine.memory``)の表
                 (体 × N 行 × 9 欄・実 25 B/行・宣言 32 B/行)を確保するか・行数 N(既定 128)。
                 ``--memory on`` のランだけ True=**既定 checkpoint は 1 バイトも動かない**。
+            store_memory_columns / store_memory_n: **店の評価の記憶**(D-120 7a・N1 (a)・
+                ``engine.memory``)の表(体 × M 行 × 7 欄・実 23 B/行・宣言 24 B/行)を確保するか・
+                行数 M(既定 32)。``--store-memory on`` のランだけ True=**既定 checkpoint は動かない**。
         """
         self.n = int(n)
         self.plan_columns = bool(plan_columns)
@@ -456,6 +474,11 @@ class AgentState:
         self.memory_n = int(memory_n)
         if self.memory_columns and self.memory_n < 1:
             raise ValueError(f"memory_n は 1 以上(いま {memory_n})")
+        #: D-120 7a: 店の評価の記憶の表を確保するか・行数 M(``engine.memory.STORE_MEMORY_N``)。
+        self.store_memory_columns = bool(store_memory_columns)
+        self.store_memory_n = int(store_memory_n)
+        if self.store_memory_columns and self.store_memory_n < 1:
+            raise ValueError(f"store_memory_n は 1 以上(いま {store_memory_n})")
         if self.familiarity_columns and self.familiarity_k < 1:
             raise ValueError(f"familiarity_k は 1 以上(いま {familiarity_k})")
         self.registry = Registry.for_agents(self.n, per_entity_byte_cap=cap_bytes)
@@ -623,6 +646,25 @@ class AgentState:
                       doc="importance(固定表・M3 (b)・expedient)")
             r.declare("mem_n", np.uint16, (m,), byte_budget_per_agent=(2 + 7) * m, mechanism=True,
                       doc="同じ鍵の反復回数(A の n)。予算は詰め物 7 B/行を含む=32 B/行に揃える宣言")
+        # ---- 店の評価の記憶(D-120 7a・store_memory_columns のランだけ・実 23 B/行・宣言 24 B/行) ----
+        if self.store_memory_columns:
+            s = self.store_memory_n
+            r.declare("sm_poi", np.int32, (s,), byte_budget_per_agent=4 * s, mechanism=True,
+                      doc="店(POI 索引・−1=空行)。同じ POI は 1 行に統合")
+            r.declare("sm_valence", np.float32, (s,), byte_budget_per_agent=4 * s, mechanism=True,
+                      doc="Σ 精度 × 向き(向き −1/0/+1・読むときは sign)")
+            r.declare("sm_precision", np.float32, (s,), byte_budget_per_agent=4 * s, mechanism=True,
+                      doc="Σ 1/σ²(出どころ別の雑音 σ・N4 (a)・確からしさ)")
+            r.declare("sm_first", np.int32, (s,), byte_budget_per_agent=4 * s, mechanism=True,
+                      doc="最初の tick(A の寿命 L の起点)")
+            r.declare("sm_last", np.int32, (s,), byte_budget_per_agent=4 * s, mechanism=False,
+                      doc="最後の tick(統合で更新・減衰の腕の補助)")
+            r.declare("sm_n", np.uint16, (s,), byte_budget_per_agent=2 * s, mechanism=True,
+                      doc="更新回数(A の n)")
+            r.declare("sm_source", np.uint8, (s,), byte_budget_per_agent=(1 + 1) * s,
+                      mechanism=True,
+                      doc="出どころのビットの和(1 自分/2 伝聞/4 看板/8 ネット)。予算は詰め物 1 B/行を含む"
+                          "=24 B/行に揃える宣言")
         # ---- 起床機構(知覚契約書 §6) ----
         r.declare("refractory_until", np.int32, (N_WAKE_CONDITIONS,),
                   byte_budget_per_agent=4 * N_WAKE_CONDITIONS, mechanism=True,
@@ -672,6 +714,10 @@ class AgentState:
             self.registry.fam_thing[:] = FAMILIARITY_EMPTY
             self.registry.fam_first[:] = -1
             self.registry.fam_last[:] = -1
+        if self.store_memory_columns:
+            self.registry.sm_poi[:] = STORE_MEMORY_EMPTY
+            self.registry.sm_first[:] = -1
+            self.registry.sm_last[:] = -1
         self._frozen = False
 
     # ---- フィールドの素通し(``st.money`` で配列を引く) ----

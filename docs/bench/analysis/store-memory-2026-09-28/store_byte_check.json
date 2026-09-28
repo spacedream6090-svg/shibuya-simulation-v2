@@ -1,0 +1,226 @@
+{
+ "schema": "shibuya.bench/store-memory-byte-check/1",
+ "how": "same runs (mock 5,000, seed 1, vocab v3, energy, --store-memory off) with the committed source (git archive of HEAD 1ec86fd) and with the 7a working tree; tape = shared prompt blocks (blocks.parquet) and call rows (calls.parquet: all 14 columns hashed column by column; prompt_hash = the whole prompt text B0-B6). The memory-on arm (store off) is included: the store table must not touch the episode table, the prompts or the tape.",
+ "runs": [
+  {
+   "run": "v3_default",
+   "head_1ec86fd": {
+    "config": "v3_default",
+    "final": "c9ab05383accca2e",
+    "calls": 69603,
+    "calls_rows": 69603,
+    "blocks_rows": 5389,
+    "blocks_sha": "540d26b40d1bc4c9",
+    "calls_columns_sha": {
+     "call_id": "804437862399b1ea",
+     "agent_id": "fd2a6fbb24330ae4",
+     "tick": "d46c25d98675b7c6",
+     "wake_class": "b63b394d8f3991f1",
+     "prompt_hash": "6503d896c5686a89",
+     "block_ids": "09ba126ecc9974ff",
+     "params_hash": "e33dbf77ac2e162e",
+     "response": "5adeab73dd321ed5",
+     "tokens_in": "791383d588dcc4d2",
+     "tokens_out": "57217c95ed03d8af",
+     "deferred": "f083be78dbc7e14a",
+     "deferred_reason": "bc38284d4df76cbc",
+     "observed_tick": "9acef6037f3a5873",
+     "recalled_rows": "8f441ee1f017b0bb"
+    }
+   },
+   "working_tree_7a": {
+    "config": "v3_default",
+    "final": "c9ab05383accca2e",
+    "calls": 69603,
+    "calls_rows": 69603,
+    "blocks_rows": 5389,
+    "blocks_sha": "540d26b40d1bc4c9",
+    "calls_columns_sha": {
+     "call_id": "804437862399b1ea",
+     "agent_id": "fd2a6fbb24330ae4",
+     "tick": "d46c25d98675b7c6",
+     "wake_class": "b63b394d8f3991f1",
+     "prompt_hash": "6503d896c5686a89",
+     "block_ids": "09ba126ecc9974ff",
+     "params_hash": "e33dbf77ac2e162e",
+     "response": "5adeab73dd321ed5",
+     "tokens_in": "791383d588dcc4d2",
+     "tokens_out": "57217c95ed03d8af",
+     "deferred": "f083be78dbc7e14a",
+     "deferred_reason": "bc38284d4df76cbc",
+     "observed_tick": "9acef6037f3a5873",
+     "recalled_rows": "8f441ee1f017b0bb"
+    }
+   },
+   "final_equal": true,
+   "calls_equal": true,
+   "blocks_equal": true,
+   "calls_columns_equal": true
+  },
+  {
+   "run": "v3_classical",
+   "head_1ec86fd": {
+    "config": "v3_classical",
+    "final": "18ed5c8261ee2e9c",
+    "calls": 102008,
+    "calls_rows": 102008,
+    "blocks_rows": 8423,
+    "blocks_sha": "c4fd697a1a6b0351",
+    "calls_columns_sha": {
+     "call_id": "e9e3aafe9227744c",
+     "agent_id": "dd293cf5646bd281",
+     "tick": "9073e0f8fc3a0361",
+     "wake_class": "61d2ee62baeeebd7",
+     "prompt_hash": "4a5da17554254ae7",
+     "block_ids": "f7cef87d67495d5e",
+     "params_hash": "0954322df96be2e1",
+     "response": "a3669135b49ba480",
+     "tokens_in": "e83d12ec829c4149",
+     "tokens_out": "537d36ac7ea4a98e",
+     "deferred": "ab3a34fcea576836",
+     "deferred_reason": "66d764d74802c5a6",
+     "observed_tick": "48f33e6daf5b6fa2",
+     "recalled_rows": "7b4ef6ec82ca2f0c"
+    }
+   },
+   "working_tree_7a": {
+    "config": "v3_classical",
+    "final": "18ed5c8261ee2e9c",
+    "calls": 102008,
+    "calls_rows": 102008,
+    "blocks_rows": 8423,
+    "blocks_sha": "c4fd697a1a6b0351",
+    "calls_columns_sha": {
+     "call_id": "e9e3aafe9227744c",
+     "agent_id": "dd293cf5646bd281",
+     "tick": "9073e0f8fc3a0361",
+     "wake_class": "61d2ee62baeeebd7",
+     "prompt_hash": "4a5da17554254ae7",
+     "block_ids": "f7cef87d67495d5e",
+     "params_hash": "0954322df96be2e1",
+     "response": "a3669135b49ba480",
+     "tokens_in": "e83d12ec829c4149",
+     "tokens_out": "537d36ac7ea4a98e",
+     "deferred": "ab3a34fcea576836",
+     "deferred_reason": "66d764d74802c5a6",
+     "observed_tick": "48f33e6daf5b6fa2",
+     "recalled_rows": "7b4ef6ec82ca2f0c"
+    }
+   },
+   "final_equal": true,
+   "calls_equal": true,
+   "blocks_equal": true,
+   "calls_columns_equal": true
+  },
+  {
+   "run": "v3_familiarity",
+   "head_1ec86fd": {
+    "config": "v3_familiarity",
+    "final": "f46a441a75eb2b96",
+    "calls": 69603,
+    "calls_rows": 69603,
+    "blocks_rows": 5389,
+    "blocks_sha": "540d26b40d1bc4c9",
+    "calls_columns_sha": {
+     "call_id": "804437862399b1ea",
+     "agent_id": "fd2a6fbb24330ae4",
+     "tick": "d46c25d98675b7c6",
+     "wake_class": "b63b394d8f3991f1",
+     "prompt_hash": "6503d896c5686a89",
+     "block_ids": "09ba126ecc9974ff",
+     "params_hash": "e33dbf77ac2e162e",
+     "response": "5adeab73dd321ed5",
+     "tokens_in": "791383d588dcc4d2",
+     "tokens_out": "57217c95ed03d8af",
+     "deferred": "f083be78dbc7e14a",
+     "deferred_reason": "bc38284d4df76cbc",
+     "observed_tick": "9acef6037f3a5873",
+     "recalled_rows": "8f441ee1f017b0bb"
+    }
+   },
+   "working_tree_7a": {
+    "config": "v3_familiarity",
+    "final": "f46a441a75eb2b96",
+    "calls": 69603,
+    "calls_rows": 69603,
+    "blocks_rows": 5389,
+    "blocks_sha": "540d26b40d1bc4c9",
+    "calls_columns_sha": {
+     "call_id": "804437862399b1ea",
+     "agent_id": "fd2a6fbb24330ae4",
+     "tick": "d46c25d98675b7c6",
+     "wake_class": "b63b394d8f3991f1",
+     "prompt_hash": "6503d896c5686a89",
+     "block_ids": "09ba126ecc9974ff",
+     "params_hash": "e33dbf77ac2e162e",
+     "response": "5adeab73dd321ed5",
+     "tokens_in": "791383d588dcc4d2",
+     "tokens_out": "57217c95ed03d8af",
+     "deferred": "f083be78dbc7e14a",
+     "deferred_reason": "bc38284d4df76cbc",
+     "observed_tick": "9acef6037f3a5873",
+     "recalled_rows": "8f441ee1f017b0bb"
+    }
+   },
+   "final_equal": true,
+   "calls_equal": true,
+   "blocks_equal": true,
+   "calls_columns_equal": true
+  },
+  {
+   "run": "v3_memory_on",
+   "head_1ec86fd": {
+    "config": "v3_memory_on",
+    "final": "6b72e94a0f3e0c56",
+    "calls": 69603,
+    "calls_rows": 69603,
+    "blocks_rows": 5389,
+    "blocks_sha": "540d26b40d1bc4c9",
+    "calls_columns_sha": {
+     "call_id": "804437862399b1ea",
+     "agent_id": "fd2a6fbb24330ae4",
+     "tick": "d46c25d98675b7c6",
+     "wake_class": "b63b394d8f3991f1",
+     "prompt_hash": "a1c3140905759115",
+     "block_ids": "09ba126ecc9974ff",
+     "params_hash": "e33dbf77ac2e162e",
+     "response": "5adeab73dd321ed5",
+     "tokens_in": "01c83bd2bd1d13c9",
+     "tokens_out": "57217c95ed03d8af",
+     "deferred": "f083be78dbc7e14a",
+     "deferred_reason": "bc38284d4df76cbc",
+     "observed_tick": "9acef6037f3a5873",
+     "recalled_rows": "dbeadb3698187d60"
+    }
+   },
+   "working_tree_7a": {
+    "config": "v3_memory_on",
+    "final": "6b72e94a0f3e0c56",
+    "calls": 69603,
+    "calls_rows": 69603,
+    "blocks_rows": 5389,
+    "blocks_sha": "540d26b40d1bc4c9",
+    "calls_columns_sha": {
+     "call_id": "804437862399b1ea",
+     "agent_id": "fd2a6fbb24330ae4",
+     "tick": "d46c25d98675b7c6",
+     "wake_class": "b63b394d8f3991f1",
+     "prompt_hash": "a1c3140905759115",
+     "block_ids": "09ba126ecc9974ff",
+     "params_hash": "e33dbf77ac2e162e",
+     "response": "5adeab73dd321ed5",
+     "tokens_in": "01c83bd2bd1d13c9",
+     "tokens_out": "57217c95ed03d8af",
+     "deferred": "f083be78dbc7e14a",
+     "deferred_reason": "bc38284d4df76cbc",
+     "observed_tick": "9acef6037f3a5873",
+     "recalled_rows": "dbeadb3698187d60"
+    }
+   },
+   "final_equal": true,
+   "calls_equal": true,
+   "blocks_equal": true,
+   "calls_columns_equal": true
+  }
+ ]
+}

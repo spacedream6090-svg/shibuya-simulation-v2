@@ -143,6 +143,8 @@ __all__ = [
     "energy_out_of_area_meal",
     # ---- 6 段目 6a 記憶の表(値は engine.memory が決める・書き手は本モジュール) ----
     "write_memory",
+    # ---- D-120 7a 店の評価の記憶(値は engine.memory が決める・書き手は本モジュール) ----
+    "write_store_memory",
     "refractory_ticks",
     "wake_condition_index",
     "normalized_refractory_scale",
@@ -940,6 +942,30 @@ def write_memory(
         r.mem_result[a, s] = np.asarray(result, dtype=np.int64).astype(np.uint8)
         r.mem_importance[a, s] = np.asarray(importance, dtype=np.int64).astype(np.uint8)
         r.mem_n[a, s] = np.asarray(n, dtype=np.int64).astype(np.uint16)
+
+
+def write_store_memory(
+    agents: AgentState, agent_id, slot, poi, valence, precision, first, last, n, source,
+) -> None:
+    """**店の評価の記憶の行を書く**(D-120 7a・値と行の選び方は ``engine.memory`` が決める)。
+
+    同じ (体, 行) の組は 2 度来ない(呼び出し側が 1 体 1 件の回に分ける)。``store_memory_columns``
+    の無いラン(既定)では呼ばれない。逐次ループ宣言: なし(配列演算)。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    s = np.asarray(slot, dtype=np.int64)
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        r.sm_poi[a, s] = np.asarray(poi, dtype=np.int64).astype(np.int32)
+        r.sm_valence[a, s] = np.asarray(valence, dtype=np.float64).astype(np.float32)
+        r.sm_precision[a, s] = np.asarray(precision, dtype=np.float64).astype(np.float32)
+        r.sm_first[a, s] = np.asarray(first, dtype=np.int64).astype(np.int32)
+        r.sm_last[a, s] = np.asarray(last, dtype=np.int64).astype(np.int32)
+        r.sm_n[a, s] = np.asarray(n, dtype=np.int64).astype(np.uint16)
+        r.sm_source[a, s] = np.asarray(source, dtype=np.int64).astype(np.uint8)
 
 
 def set_intent(agents: AgentState, agent_id, action, target, kind, tick: int) -> None:

@@ -70,6 +70,12 @@ from shibuya.engine.poi_target import (
 from shibuya.engine.intent import INTENT_MAX_TICKS
 from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES
 from shibuya.engine.memory import MEMORY_MODES, MEMORY_N, RECALL_TAU
+from shibuya.engine.store_memory import (
+    DEFAULT_STORE_DECAY,
+    STORE_DECAY_MODES,
+    STORE_MEMORY_MODES,
+    STORE_MEMORY_N,
+)
 from shibuya.engine.chooser import HABIT_P, RANK_TAU
 from shibuya.engine.classical import (
     ACTIVITY_REGIONS,
@@ -824,7 +830,35 @@ def main(argv: list[str] | None = None) -> int:
         type=float,
         default=RECALL_TAU,
         metavar="TAU",
-        help="6b(想起): A ≥ τ の行だけ想起する閾値(既定 −1.0=宣言の仮置き・--memory on のときだけ効く)",
+        help="6b(想起): A ≥ τ の行だけ想起する閾値(既定 −2.0・第295 の決め・--memory on のときだけ効く)",
+    )
+    ap.add_argument(
+        "--store-memory",
+        choices=STORE_MEMORY_MODES,
+        default="off",
+        help="D-120 7a(店の評価の記憶): 体×32 行の店の評価の表を確保し、記憶のエピソード(購入/食事/並ぶの"
+             "成否・看板の初見)から書く(本段では誰も読まない)。--memory on のときだけ。既定 off=表を確保しない"
+             "=既定の checkpoint 不変",
+    )
+    ap.add_argument(
+        "--store-memory-n",
+        type=int,
+        default=STORE_MEMORY_N,
+        metavar="M",
+        help="店の評価の表の体あたりの行数(既定 32・宣言・感度 16/64)",
+    )
+    ap.add_argument(
+        "--store-sigma",
+        default=None,
+        metavar="JSON",
+        help='出どころ別の雑音 σ(例 \'{"self": 1, "wom": 1, "signage": 1, "net": 1}\'・既定 自分 1/伝聞 2/'
+             "看板 4/ネット 2=宣言・感度腕)",
+    )
+    ap.add_argument(
+        "--store-decay",
+        choices=STORE_DECAY_MODES,
+        default=DEFAULT_STORE_DECAY,
+        help="店の評価の減衰の形(既定 actr=ACT-R d=0.5・ga=0.995/時・citysim=中立回帰 0.03/日=感度腕)",
     )
     ap.add_argument(
         "--hunger-model",
@@ -993,6 +1027,10 @@ def main(argv: list[str] | None = None) -> int:
         memory=str(args.memory),
         memory_n=int(args.memory_n),
         memory_tau=float(args.memory_tau),
+        store_memory=str(args.store_memory),
+        store_memory_n=int(args.store_memory_n),
+        store_sigma=args.store_sigma,
+        store_decay=str(args.store_decay),
         hunger_model=str(args.hunger_model),
         energy_rate=str(args.energy_rate),
         role_words=(str(args.role_words) == "on"),

@@ -81,6 +81,13 @@ from shibuya.engine.activity import ActivityLayer, payload_of
 from shibuya.engine.intent import INTENT_MAX_TICKS, IntentLayer
 from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES, FamiliarityLayer
 from shibuya.engine.memory import MEMORY_MODES, MEMORY_N, RECALL_TAU, MemoryLayer
+from shibuya.engine.store_memory import (
+    DEFAULT_STORE_DECAY,
+    STORE_MEMORY_MODES,
+    STORE_MEMORY_N,
+    check_store_decay,
+    check_store_sigma,
+)
 from shibuya.engine.energy import (
     DEFAULT_ENERGY_RATE,
     EnergyLayer,
@@ -550,6 +557,9 @@ class RunResult:
     memory: bool = False
     memory_n: int = MEMORY_N
     memory_summary: dict[str, Any] = field(default_factory=dict)
+    #: D-120 7a(店の評価の記憶): 表を確保したか(``--store-memory on``)・要約(行数 M・σ・減衰の形を含む)。
+    store_memory: bool = False
+    store_memory_summary: dict[str, Any] = field(default_factory=dict)
     #: 5 段目 5a(診断): 内受容の段の跨ぎの延べ(変数 × 上げ/下げ × 全体/起きて範囲内)。
     #: 起床入口「体の状態」の内訳を空腹と疲労・体感温度に分けて読むため(挙動には効かない)。
     intero_crossings: dict[str, int] = field(default_factory=dict)
@@ -933,6 +943,9 @@ class RunResult:
             "memory": bool(self.memory),
             "memory_n": int(self.memory_n),
             "memory_summary": dict(self.memory_summary),
+            # ---- D-120 7a(店の評価の記憶): 腕。列追加のみ ----
+            "store_memory": bool(self.store_memory),
+            "store_memory_summary": dict(self.store_memory_summary),
             "calls_by_condition": dict(self.calls_by_condition),
             "synonym_table_version": _synonym_table_version(self.vocab_version),
             "action_usage": dict(self.action_usage),
@@ -1503,6 +1516,10 @@ def run_day(
     memory: bool | str = False,
     memory_n: int = MEMORY_N,
     memory_tau: float = RECALL_TAU,
+    store_memory: bool | str = False,
+    store_memory_n: int = STORE_MEMORY_N,
+    store_sigma: "Mapping[str, float] | str | None" = None,
+    store_decay: str = DEFAULT_STORE_DECAY,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -1748,7 +1765,15 @@ def run_day(
             **6b(想起)**: on のランは、各呼の描画で q(起床の級・セル・直前の結果・相手・対象)に ID で
             合う行を score 順に k 件(会話 3・他 2)想起し、B5 の最後に「記憶」の 1 行(≤60 tok)を載せる
             (テンプレ v1.2・テープ版 3 の ``recalled_rows``)。off は描画バイトが 1 バイトも変わらない。
-        memory_tau: 想起の閾値 τ(A ≥ τ の行だけ想起・既定 ``RECALL_TAU``=−1.0=宣言の仮置き)。
+        memory_tau: 想起の閾値 τ(A ≥ τ の行だけ想起・既定 ``RECALL_TAU``)。
+        store_memory: **D-120 7a(店の評価の記憶)**。``True``/``"on"`` で体 × M 行の店の評価の表
+            (``AgentState(store_memory_columns=True)``・実 23 B/行・宣言 24 B/行)を確保し、記憶の
+            エピソード(購入/食事/並ぶの成否・看板の初見)から店の行を書く(``engine.store_memory``)。
+            **``memory`` が on のランでだけ**使える(書き手がエピソードの書き手に乗る)。本段では誰も
+            読まない。既定 ``False``=表を確保しない=**既定 checkpoint 不変**。
+        store_memory_n: 体あたりの店の行数(既定 ``STORE_MEMORY_N``=32・宣言・感度 16/64)。
+        store_sigma: 出どころ別の σ(辞書か JSON・既定 自分 1/伝聞 2/看板 4/ネット 2・感度腕)。
+        store_decay: 減衰の形(``actr`` 既定・``ga``/``citysim`` は感度腕の口)。
 
     Returns:
         ``RunResult``。
@@ -1808,6 +1833,19 @@ def run_day(
         raise ValueError(f"memory_n は 1 以上(いま {memory_n})")
     if not np.isfinite(float(memory_tau)):
         raise ValueError(f"memory_tau は有限の実数(いま {memory_tau})")
+    # ---- D-120 7a: 店の評価の記憶の腕(SoA を確保する前に決める=欄が 7 本変わる) ----
+    if isinstance(store_memory, str):
+        if store_memory not in STORE_MEMORY_MODES:
+            raise ValueError(f"store_memory は {STORE_MEMORY_MODES} か bool(いま {store_memory!r})")
+        store_memory_on = store_memory == "on"
+    else:
+        store_memory_on = bool(store_memory)
+    if int(store_memory_n) < 1:
+        raise ValueError(f"store_memory_n は 1 以上(いま {store_memory_n})")
+    store_sigma_table = check_store_sigma(store_sigma)
+    store_decay = check_store_decay(store_decay)
+    if store_memory_on and not memory_on:
+        raise ValueError("store_memory は memory='on' のランでだけ使える(書き手がエピソードの書き手に乗る)")
     # ---- 5 段目 5a: 空腹のモデル(SoA を確保する前に決める=欄が 4 本変わる) ----
     hunger_model = check_hunger_model(hunger_model)
     energy_rate = check_energy_rate(energy_rate)
@@ -1904,6 +1942,8 @@ def run_day(
         energy_columns=energy_on,
         memory_columns=memory_on,
         memory_n=int(memory_n),
+        store_memory_columns=store_memory_on,
+        store_memory_n=int(store_memory_n),
     )
     if ledger is not None and ledger.money is not None:
         # 世帯の現金行 = 個体 SoA の money(写しを作らない・台帳の書き込み窓は resolve が持つ)
@@ -2222,6 +2262,9 @@ def run_day(
     # ---- 記憶 第 1 段 6b: 想起の口(on のランだけ描画に差し込む・off は None=描画バイト不変) ----
     if mem_layer is not None:
         mem_layer.tau = float(memory_tau)
+    # ---- D-120 7a: 店の評価の記憶(エピソードの書き手に乗る・本段では誰も読まない) ----
+    if mem_layer is not None and store_memory_on:
+        mem_layer.enable_store(int(store_memory_n), sigma=store_sigma_table, decay=store_decay)
     if _fam_renderer is not None and hasattr(_fam_renderer, "memory_recall"):
         _fam_renderer.memory_recall = (
             (lambda i_, t_, c_, inv_: mem_layer.recall(agents, i_, t_, c_, inv_))
@@ -3319,6 +3362,12 @@ def run_day(
             ),
         }
         if mem_layer is not None
+        else {}
+    )
+    result.store_memory = bool(store_memory_on)
+    result.store_memory_summary = (
+        mem_layer.store.summary(agents, max(0, int(ticks) - 1), mem_layer.tau)
+        if mem_layer is not None and mem_layer.store is not None
         else {}
     )
     if fam_layer is not None and result.familiarity_summary:
