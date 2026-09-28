@@ -33,6 +33,12 @@ D-58「テープ繰り延べ行」(2026-09-10・自前規約は実装計画書 �
     ``observed_tick`` は、応答が**発射 tick より後**に届く艦隊経路で ``t_apply``
     (=運用設計書 §2.4)を再生側で再現するために要る(同期経路は −1)。
 
+**版3**(``shibuya.tape/3``・記憶 第 1 段 6b・M11 (c)・第295)= 版2 の 13 列に**末尾 1 列を追加**:
+      recalled_rows(list<int32>: その呼の B5「記憶」行に載せた記憶の行番号。記憶の無いラン・
+                    想起 0 件は空=``--memory off`` の値は全行空)。``wake_class``(class_rank)は不変。
+    旧テープ(版1/2)を読むときは空で埋める。記憶 on のランは B5 に行が増える=prompt_hash が変わる
+    =新版テープ(旧テープの再生は全行 miss=宣言)。
+
 逐次ループ宣言(P4)
 - ``TapeWriter.append`` / ``flush``: 1呼ごとの Python 呼び出しと、バッファ行数ぶんの
   列組み立てループ(LLM 呼び出し自体が 1件/呼で、1呼=数十〜数百 ms のため律速にならない)。
@@ -81,8 +87,8 @@ BLOCKS_FILENAME = "blocks.parquet"
 TAPE_COMPRESSION = "zstd"
 BLOCK_ID_BYTES = 16
 
-#: テープのスキーマ版(Parquet のスキーマ metadata に入る)。D-58 で 1 → 2。
-TAPE_SCHEMA_VERSION = "shibuya.tape/2"
+#: テープのスキーマ版(Parquet のスキーマ metadata に入る)。D-58 で 1 → 2・6b で 2 → 3。
+TAPE_SCHEMA_VERSION = "shibuya.tape/3"
 TAPE_SCHEMA_METADATA_KEY = b"shibuya.tape.schema"
 
 #: 版1 の列(**この 10 列は順序ごと不変**=版2 は末尾に足すだけ)。
@@ -115,6 +121,8 @@ CALLS_SCHEMA = pa.schema(
         pa.field("deferred", pa.int8(), nullable=False),
         pa.field("deferred_reason", pa.string(), nullable=False),
         pa.field("observed_tick", pa.int64(), nullable=False),
+        # ---- 版3(6b・M11 (c))。旧テープには無い=読むときは空へ落とす ----
+        pa.field("recalled_rows", pa.list_(pa.int32()), nullable=False),
     ],
     metadata={TAPE_SCHEMA_METADATA_KEY: TAPE_SCHEMA_VERSION.encode("utf-8")},
 )
@@ -124,6 +132,10 @@ CALLS_SCHEMA_V2_DEFAULTS: Mapping[str, Any] = {
     "deferred": 0,
     "deferred_reason": "",
     "observed_tick": -1,
+}
+#: 版3 で足した列と「旧テープを読むときの既定値」。
+CALLS_SCHEMA_V3_DEFAULTS: Mapping[str, Any] = {
+    "recalled_rows": [],
 }
 
 BLOCKS_SCHEMA = pa.schema(
@@ -203,6 +215,8 @@ class TapeRow:
     deferred: int = 0
     deferred_reason: str = ""
     observed_tick: int = -1
+    #: 版3(6b): B5「記憶」行に載せた記憶の行番号(記憶の無いラン=空)。
+    recalled_rows: tuple[int, ...] = ()
 
     @property
     def key(self) -> tuple[int, int, int, str]:
@@ -290,6 +304,9 @@ class TapeWriter:
                 "deferred": [int(r.deferred) for r in self._rows],
                 "deferred_reason": [r.deferred_reason for r in self._rows],
                 "observed_tick": [int(r.observed_tick) for r in self._rows],
+                "recalled_rows": [
+                    [int(x) for x in getattr(r, "recalled_rows", ())] for r in self._rows
+                ],
             },
             schema=CALLS_SCHEMA,
         )
@@ -367,8 +384,10 @@ class Tape:
         raw = meta.get(TAPE_SCHEMA_METADATA_KEY)
         if raw:
             return raw.decode("utf-8")
+        if all(n in self.calls.column_names for n in CALLS_SCHEMA_V3_DEFAULTS):
+            return "shibuya.tape/3"
         has_v2 = all(n in self.calls.column_names for n in CALLS_SCHEMA_V2_DEFAULTS)
-        return TAPE_SCHEMA_VERSION if has_v2 else "shibuya.tape/1"
+        return "shibuya.tape/2" if has_v2 else "shibuya.tape/1"
 
     @property
     def has_deferred_columns(self) -> bool:
@@ -383,6 +402,8 @@ class Tape:
         """列を Python リストで返す。**旧テープに無い列は既定値で埋める**(D-58 後方互換)。"""
         if name in self.calls.column_names:
             return self.calls.column(name).to_pylist()
+        if name in CALLS_SCHEMA_V3_DEFAULTS:
+            return [list(CALLS_SCHEMA_V3_DEFAULTS[name]) for _ in range(self.calls.num_rows)]
         return [CALLS_SCHEMA_V2_DEFAULTS[name]] * self.calls.num_rows
 
     def rows(self) -> Iterator[TapeRow]:
@@ -403,6 +424,7 @@ class Tape:
                 deferred=cols["deferred"][i],
                 deferred_reason=cols["deferred_reason"][i],
                 observed_tick=cols["observed_tick"][i],
+                recalled_rows=tuple(cols["recalled_rows"][i]),
             )
 
 

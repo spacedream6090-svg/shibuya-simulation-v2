@@ -10,13 +10,15 @@ from shibuya.perception.channels import estimate_tokens
 #: **凍結値**。この値が変わる変更 = 改版(delta+感度試験が要る・知覚契約書 §1 条5)。
 #: v1.1(5 段目 5a・D-118 K2・第291): B5 の空腹の語の項 ``HUNGER_ITEM_TEMPLATE`` と ``HUNGER_WORDS`` を足した。
 #: 旧 v1 の凍結値 = 161fe181bc325f003d874fb5c91e6142c01449fb09ac5f8b377b715a945608de
-FROZEN_TEMPLATE_SHA256 = "8f2959d0d3fbe75ee0ca5a634425447bb316baaa6b36af9c570fa34eeb5617ef"
+#: v1.2(記憶 第 1 段 6b・M4・第295): B5「記憶」の行 ``B5.memory`` と項の定型・事象の語を足した。
+#: 旧 v1.1 の凍結値 = 8f2959d0d3fbe75ee0ca5a634425447bb316baaa6b36af9c570fa34eeb5617ef(6b で v1.2 へ張り替え)
+FROZEN_TEMPLATE_SHA256 = "1f6c7d6227a11de049dde39d43728fa5919ccf263a0165ea5273b0d052150560"
 
 
 def test_template_sha256_is_frozen():
     """テンプレ版ハッシュが釘付け(改版は意図的にこの定数を書き換えること)。"""
     assert T.template_sha256() == FROZEN_TEMPLATE_SHA256
-    assert T.TEMPLATE_VERSION == "v1.1"
+    assert T.TEMPLATE_VERSION == "v1.2"
 
 
 def test_block_table_matches_contract_section_2_2():

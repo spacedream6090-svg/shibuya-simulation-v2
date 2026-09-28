@@ -65,6 +65,11 @@ __all__ = [
     "INTERO_SCALE_MIN",
     "INTERO_SCALE_MAX",
     "HUNGER_WORDS",
+    "MEMORY_EVENT_WORDS",
+    "MEMORY_ITEM_TEMPLATES",
+    "MEMORY_ITEM_MAX_TOKENS",
+    "MEMORY_CHANNEL_TOKENS",
+    "MEMORY_OUT_OF_AREA_WORD",
     "HUNGER_ITEM_TEMPLATE",
     "HUNGER_WORD_DRAW_MIN_STAGE",
     "EMPTY_PHRASE",
@@ -108,7 +113,10 @@ __all__ = [
 #: 語 4 つ ``HUNGER_WORDS`` を足した(文面の版上げ)。v1 の凍結 SHA は 161fe181… だった
 #: (``tests/perception/test_templates.py`` に旧値を注記)。v1 の文面(空腹は N で閾値を
 #: 超えています)は ``--hunger-model v1`` のランで 1 バイトも変わらない。
-TEMPLATE_VERSION: Final[str] = "v1.1"
+#: **v1.2(記憶 第 1 段 6b・M4・第295)**: B5「記憶」チャネルの行 ``B5.memory`` と項の定型
+#: ``MEMORY_ITEM_TEMPLATES``・事象の語 ``MEMORY_EVENT_WORDS`` を足した(v1.1 の SHA は 8f2959d0…)。
+#: v1.1 の文面は ``--memory off`` のランで 1 バイトも変わらない(記憶の行は on のときだけ描く)。
+TEMPLATE_VERSION: Final[str] = "v1.2"
 
 #: ブロックの順序(知覚契約書 §2.2 表の並び=変化率の昇順=prefix 前方一致の並び)。
 BLOCK_IDS: Final[tuple[str, ...]] = ("B0", "B1", "B2", "B3", "B4", "B4b", "B5", "B6")
@@ -223,6 +231,28 @@ HUNGER_ITEM_TEMPLATE: Final[str] = "いま{word}です。"
 #: B5 に空腹の語を描く最小の段(**空腹以上**=草案 §1-2b (4) の「閾値超え」=起床中の 11%・宣言)。
 #: 満腹/ふつうの体の B5 には空腹の行を出さない(v1 の「閾値未満は描かない」と同じ形)。
 HUNGER_WORD_DRAW_MIN_STAGE: Final[int] = 2
+
+#: **B5「記憶」チャネル**(6b・M4 (a)+修正 2): 想起した行の事象の語(``engine.memory.EVENT_KINDS`` の
+#: 符号 1〜11 と 1 対 1・0 は空行)。
+MEMORY_EVENT_WORDS: Final[tuple[str, ...]] = (
+    "", "購入", "食事", "並ぶ", "移動", "乗車", "就寝", "会話", "通報", "手伝い",
+    "出来事に気づいた", "看板を見た",
+)
+#: 項の定型(1 件 ≤ ``MEMORY_ITEM_MAX_TOKENS``)。place=場所/店で起きた行為・person=相手のある行為・
+#: talk=成立した会話(要旨つき/なし)・seen=気づき/看板(結果を書かない)。
+MEMORY_ITEM_TEMPLATES: Final[Mapping[str, str]] = {
+    "place": "{hhmm} {where}で{event}({result})。",
+    "person": "{hhmm} {who}と{event}({result})。",
+    "talk": "{hhmm} {who}と話した: {gist}。",
+    "talk_plain": "{hhmm} {who}と話した。",
+    "seen": "{hhmm} {where}で{event}。",
+}
+#: 項 1 件の上限[tok](超える分は 場所名/要旨 を末尾から削る=宣言)。
+MEMORY_ITEM_MAX_TOKENS: Final[int] = 20
+#: チャネルの上限[tok](個体枠 300 の内・他チャネルは削らない)。
+MEMORY_CHANNEL_TOKENS: Final[int] = 60
+#: セルが範囲外(−1)の行の場所の語。
+MEMORY_OUT_OF_AREA_WORD: Final[str] = "範囲外"
 
 #: 空要素の固定文言(§2.4 ⑦)。
 EMPTY_PHRASE: Final[str] = "なし"
@@ -351,7 +381,7 @@ _B0_BY_MODE: Final[Mapping[str, str]] = {
 #
 # **凍結との関係**: ``TEMPLATES``(=``template_sha256`` の payload)には 1 語も足していない。
 # 既定 ``vocab_version="v1"`` のとき ``b0_system()`` は ``TEMPLATES["B0.system"]`` と
-# **同一オブジェクト**を返す=描画バイトも ``template_sha256``(v1.1 は 8f2959d0…・v1 は 161fe181…)も
+# **同一オブジェクト**を返す=描画バイトも ``template_sha256``(v1.2 は 1f6c7d62…・v1.1 は 8f2959d0…・v1 は 161fe181…)も
 # ``b0_sha256("vocab")``(2b4bfc8a…)も動かない。
 #
 # **open 腕 × v2**: open 腕は語彙を見せないので **B0 の本文は v1 と同一**になる(差は
@@ -644,6 +674,8 @@ TEMPLATES: Final[Mapping[str, str]] = {
     # ---- B5 個体固有 ----
     "B5.intero": "[B5 内受容] {items}",
     "B5.intero_empty": "[B5 内受容] 体調に変わりはありません。",
+    # 記憶 第 1 段 6b(v1.2): 想起した記憶の行(``--memory on`` のランだけ描く・0 件なら行を出さない)
+    "B5.memory": "[B5 記憶] {items}",
     "B5.holding": "[B5 所持] 所持金は{money}円です。手は{hands}。",
     "B5.recent": "[B5 直近] 直近の行動は{activity}です。",
     "B5.near_person": "[B5 近接] 近くの人物: {items}。",
@@ -720,6 +752,11 @@ def template_sha256() -> str:
             "hands": list(HANDS_WORDS),
             "hunger": list(HUNGER_WORDS),
             "hunger_item": HUNGER_ITEM_TEMPLATE,
+            "memory_events": list(MEMORY_EVENT_WORDS),
+            "memory_items": dict(MEMORY_ITEM_TEMPLATES),
+            "memory_item_max_tokens": MEMORY_ITEM_MAX_TOKENS,
+            "memory_channel_tokens": MEMORY_CHANNEL_TOKENS,
+            "memory_out_of_area": MEMORY_OUT_OF_AREA_WORD,
             "hunger_draw_min_stage": HUNGER_WORD_DRAW_MIN_STAGE,
             "ground": {str(k): v for k, v in GROUND_WORDS.items()},
             "ground_no_street": GROUND_NO_STREET,

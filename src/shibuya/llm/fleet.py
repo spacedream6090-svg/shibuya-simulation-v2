@@ -356,6 +356,8 @@ class LLMCall:
     since_tick: int = -1
     prompt_hash_hint: str = ""
     params_extra: Mapping[str, Any] = field(default_factory=dict)
+    #: テープ版 3(記憶 第 1 段 6b): 描画の B5「記憶」行に載せた記憶の行番号(記憶の無いラン=空)。
+    recalled_rows: tuple[int, ...] = ()
 
     @property
     def block_ids(self) -> tuple[str, ...]:
@@ -676,6 +678,8 @@ class FleetTapeRow:
     deferred: int = 0
     deferred_reason: str = ""
     observed_tick: int = -1
+    #: テープ版 3(記憶 第 1 段 6b): B5「記憶」行に載せた記憶の行番号。
+    recalled_rows: tuple[int, ...] = ()
 
 
 # ---------------------------------------------------------------- 診断
@@ -1793,6 +1797,7 @@ class FleetBridge:
                 deferred=0,
                 deferred_reason="",
                 observed_tick=int(now_tick),
+                recalled_rows=tuple(getattr(call, "recalled_rows", ())),
             )
         )
         self.n_tape_rows += 1
@@ -1828,6 +1833,7 @@ class FleetBridge:
                 deferred=1,
                 deferred_reason=d.outcome.value,
                 observed_tick=int(now_tick),
+                recalled_rows=tuple(getattr(call, "recalled_rows", ())),
             )
         )
         self.n_tape_rows += 1

@@ -1,0 +1,2636 @@
+{
+ "schema": "shibuya.bench/memory-stage1/recall-replay/1",
+ "tapes": [
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__ad_zero",
+   "vocab": "v1",
+   "agents": 5000,
+   "by_tau": {
+    "-0.5": {
+     "calls": 36957,
+     "share_with_line": 0.0515,
+     "items_per_call": 0.0542,
+     "items_per_call_hist": {
+      "0": 35052,
+      "1": 1811,
+      "2": 89,
+      "3": 5
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.0174,
+      "PLAN_BOUNDARY": 0.0303,
+      "INDIVIDUAL": 0.0668,
+      "CELL": 0.2135
+     },
+     "kinds": {
+      "move": 1024,
+      "buy": 741,
+      "talk": 144,
+      "board": 82,
+      "notice": 13
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 16.0,
+      "p99": 33.0,
+      "p100": 48.0,
+      "mean": 15.462
+     }
+    },
+    "-1.0": {
+     "calls": 36957,
+     "share_with_line": 0.2503,
+     "items_per_call": 0.2804,
+     "items_per_call_hist": {
+      "0": 27707,
+      "1": 8160,
+      "2": 1067,
+      "3": 23
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.1417,
+      "PLAN_BOUNDARY": 0.2114,
+      "INDIVIDUAL": 0.3729,
+      "CELL": 0.7394
+     },
+     "kinds": {
+      "buy": 6487,
+      "move": 3463,
+      "talk": 202,
+      "board": 190,
+      "notice": 20,
+      "report": 1
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 25.0,
+      "p99": 30.0,
+      "p100": 48.0,
+      "mean": 16.085
+     }
+    },
+    "-2.0": {
+     "calls": 36957,
+     "share_with_line": 0.8411,
+     "items_per_call": 1.3352,
+     "items_per_call_hist": {
+      "0": 5871,
+      "1": 13333,
+      "2": 17247,
+      "3": 506
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.1329,
+      "PLAN_BOUNDARY": 1.2542,
+      "INDIVIDUAL": 1.5629,
+      "CELL": 1.8017
+     },
+     "kinds": {
+      "buy": 25625,
+      "move": 22263,
+      "board": 958,
+      "talk": 290,
+      "notice": 183,
+      "report": 24,
+      "queue": 2
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 25.0,
+      "p90": 27.0,
+      "p99": 37.0,
+      "p100": 48.0,
+      "mean": 21.241
+     }
+    },
+    "-2.5": {
+     "calls": 36957,
+     "share_with_line": 0.8624,
+     "items_per_call": 1.5814,
+     "items_per_call_hist": {
+      "0": 5085,
+      "1": 7346,
+      "2": 22479,
+      "3": 2047
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.4754,
+      "PLAN_BOUNDARY": 1.4952,
+      "INDIVIDUAL": 1.7929,
+      "CELL": 1.8545
+     },
+     "kinds": {
+      "move": 29127,
+      "buy": 27036,
+      "board": 1685,
+      "talk": 300,
+      "notice": 269,
+      "report": 26,
+      "queue": 2
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 25.0,
+      "p90": 28.0,
+      "p99": 38.0,
+      "p100": 48.0,
+      "mean": 23.881
+     }
+    }
+   },
+   "memory_rows_end": 16169,
+   "gists": 69
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_14",
+   "vocab": "v1",
+   "agents": 5000,
+   "by_tau": {
+    "-0.5": {
+     "calls": 36922,
+     "share_with_line": 0.0508,
+     "items_per_call": 0.0563,
+     "items_per_call_hist": {
+      "0": 35045,
+      "1": 1681,
+      "2": 192,
+      "3": 4
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.0102,
+      "PLAN_BOUNDARY": 0.0309,
+      "INDIVIDUAL": 0.078,
+      "CELL": 0.23
+     },
+     "kinds": {
+      "move": 951,
+      "buy": 757,
+      "signage": 208,
+      "board": 98,
+      "talk": 55,
+      "notice": 8
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 22.0,
+      "p99": 31.0,
+      "p100": 48.0,
+      "mean": 15.83
+     }
+    },
+    "-1.0": {
+     "calls": 36922,
+     "share_with_line": 0.2559,
+     "items_per_call": 0.2973,
+     "items_per_call_hist": {
+      "0": 27475,
+      "1": 7933,
+      "2": 1498,
+      "3": 16
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.1415,
+      "PLAN_BOUNDARY": 0.2303,
+      "INDIVIDUAL": 0.4012,
+      "CELL": 0.7746
+     },
+     "kinds": {
+      "buy": 6557,
+      "move": 3518,
+      "signage": 596,
+      "board": 204,
+      "talk": 87,
+      "notice": 13,
+      "report": 2
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 25.0,
+      "p99": 30.0,
+      "p100": 46.0,
+      "mean": 16.478
+     }
+    },
+    "-2.0": {
+     "calls": 36922,
+     "share_with_line": 0.8425,
+     "items_per_call": 1.4049,
+     "items_per_call_hist": {
+      "0": 5816,
+      "1": 11470,
+      "2": 18508,
+      "3": 1128
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.2465,
+      "PLAN_BOUNDARY": 1.3102,
+      "INDIVIDUAL": 1.6258,
+      "CELL": 1.8279
+     },
+     "kinds": {
+      "buy": 24645,
+      "move": 21326,
+      "signage": 4627,
+      "board": 936,
+      "notice": 169,
+      "talk": 149,
+      "report": 18
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 25.0,
+      "p90": 27.0,
+      "p99": 38.0,
+      "p100": 47.0,
+      "mean": 22.081
+     }
+    },
+    "-2.5": {
+     "calls": 36922,
+     "share_with_line": 0.8631,
+     "items_per_call": 1.6486,
+     "items_per_call_hist": {
+      "0": 5055,
+      "1": 5970,
+      "2": 22793,
+      "3": 3104
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.6203,
+      "PLAN_BOUNDARY": 1.534,
+      "INDIVIDUAL": 1.8376,
+      "CELL": 1.8744
+     },
+     "kinds": {
+      "move": 26873,
+      "buy": 25588,
+      "signage": 6412,
+      "board": 1597,
+      "notice": 229,
+      "talk": 147,
+      "report": 22
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 25.0,
+      "p90": 33.0,
+      "p99": 39.0,
+      "p100": 47.0,
+      "mean": 24.683
+     }
+    }
+   },
+   "memory_rows_end": 19999,
+   "gists": 35
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_30",
+   "vocab": "v1",
+   "agents": 5000,
+   "by_tau": {
+    "-0.5": {
+     "calls": 36916,
+     "share_with_line": 0.0524,
+     "items_per_call": 0.0612,
+     "items_per_call_hist": {
+      "0": 34980,
+      "1": 1620,
+      "2": 307,
+      "3": 9
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.0137,
+      "PLAN_BOUNDARY": 0.0349,
+      "INDIVIDUAL": 0.0872,
+      "CELL": 0.2359
+     },
+     "kinds": {
+      "move": 1015,
+      "buy": 682,
+      "signage": 389,
+      "talk": 96,
+      "board": 70,
+      "notice": 9
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 24.0,
+      "p99": 32.0,
+      "p100": 44.0,
+      "mean": 16.539
+     }
+    },
+    "-1.0": {
+     "calls": 36916,
+     "share_with_line": 0.255,
+     "items_per_call": 0.3037,
+     "items_per_call_hist": {
+      "0": 27504,
+      "1": 7636,
+      "2": 1754,
+      "3": 22
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.148,
+      "PLAN_BOUNDARY": 0.2397,
+      "INDIVIDUAL": 0.4035,
+      "CELL": 0.7754
+     },
+     "kinds": {
+      "buy": 6380,
+      "move": 3474,
+      "signage": 1071,
+      "board": 143,
+      "talk": 126,
+      "notice": 13,
+      "report": 3
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 25.0,
+      "p99": 31.0,
+      "p100": 51.0,
+      "mean": 16.796
+     }
+    },
+    "-2.0": {
+     "calls": 36916,
+     "share_with_line": 0.8433,
+     "items_per_call": 1.4657,
+     "items_per_call_hist": {
+      "0": 5783,
+      "1": 9756,
+      "2": 19778,
+      "3": 1599
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.3469,
+      "PLAN_BOUNDARY": 1.3624,
+      "INDIVIDUAL": 1.6728,
+      "CELL": 1.8476
+     },
+     "kinds": {
+      "buy": 23959,
+      "move": 20923,
+      "signage": 8061,
+      "board": 770,
+      "notice": 183,
+      "talk": 167,
+      "report": 45,
+      "queue": 1
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 25.0,
+      "p90": 28.0,
+      "p99": 38.0,
+      "p100": 51.0,
+      "mean": 22.826
+     }
+    },
+    "-2.5": {
+     "calls": 36916,
+     "share_with_line": 0.8634,
+     "items_per_call": 1.7079,
+     "items_per_call_hist": {
+      "0": 5044,
+      "1": 4672,
+      "2": 23225,
+      "3": 3975
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.7479,
+      "PLAN_BOUNDARY": 1.5738,
+      "INDIVIDUAL": 1.8621,
+      "CELL": 1.8883
+     },
+     "kinds": {
+      "move": 25525,
+      "buy": 24585,
+      "signage": 11083,
+      "board": 1353,
+      "notice": 265,
+      "talk": 181,
+      "report": 53,
+      "queue": 2
+     },
+     "line_tokens": {
+      "p10": 15.0,
+      "p50": 26.0,
+      "p90": 35.0,
+      "p99": 40.0,
+      "p100": 51.0,
+      "mean": 25.406
+     }
+    }
+   },
+   "memory_rows_end": 22815,
+   "gists": 47
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_1_00",
+   "vocab": "v1",
+   "agents": 5000,
+   "by_tau": {
+    "-0.5": {
+     "calls": 36906,
+     "share_with_line": 0.0568,
+     "items_per_call": 0.0752,
+     "items_per_call_hist": {
+      "0": 34809,
+      "1": 1417,
+      "2": 680
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.0055,
+      "PLAN_BOUNDARY": 0.0457,
+      "INDIVIDUAL": 0.1044,
+      "CELL": 0.2888
+     },
+     "kinds": {
+      "move": 1020,
+      "signage": 870,
+      "buy": 778,
+      "board": 80,
+      "talk": 22,
+      "notice": 7
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 26.0,
+      "p99": 31.0,
+      "p100": 35.0,
+      "mean": 17.931
+     }
+    },
+    "-1.0": {
+     "calls": 36906,
+     "share_with_line": 0.2661,
+     "items_per_call": 0.3415,
+     "items_per_call_hist": {
+      "0": 27085,
+      "1": 7048,
+      "2": 2764,
+      "3": 9
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.16,
+      "PLAN_BOUNDARY": 0.2731,
+      "INDIVIDUAL": 0.4254,
+      "CELL": 0.8579
+     },
+     "kinds": {
+      "buy": 6438,
+      "move": 3741,
+      "signage": 2219,
+      "board": 158,
+      "talk": 30,
+      "notice": 13,
+      "report": 4
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 26.0,
+      "p99": 31.0,
+      "p100": 47.0,
+      "mean": 17.715
+     }
+    },
+    "-2.0": {
+     "calls": 36906,
+     "share_with_line": 0.8461,
+     "items_per_call": 1.5978,
+     "items_per_call_hist": {
+      "0": 5679,
+      "1": 5726,
+      "2": 23261,
+      "3": 2240
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.5919,
+      "PLAN_BOUNDARY": 1.4537,
+      "INDIVIDUAL": 1.7414,
+      "CELL": 1.8971
+     },
+     "kinds": {
+      "buy": 24104,
+      "move": 19973,
+      "signage": 13929,
+      "board": 698,
+      "notice": 156,
+      "talk": 71,
+      "report": 37
+     },
+     "line_tokens": {
+      "p10": 15.0,
+      "p50": 25.0,
+      "p90": 31.0,
+      "p99": 39.0,
+      "p100": 49.0,
+      "mean": 24.447
+     }
+    },
+    "-2.5": {
+     "calls": 36906,
+     "share_with_line": 0.8656,
+     "items_per_call": 1.838,
+     "items_per_call_hist": {
+      "0": 4961,
+      "1": 921,
+      "2": 26158,
+      "3": 4866
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.0098,
+      "PLAN_BOUNDARY": 1.6434,
+      "INDIVIDUAL": 1.9561,
+      "CELL": 1.9491
+     },
+     "kinds": {
+      "buy": 24794,
+      "move": 23059,
+      "signage": 18522,
+      "board": 1127,
+      "notice": 222,
+      "talk": 72,
+      "report": 39
+     },
+     "line_tokens": {
+      "p10": 23.0,
+      "p50": 26.0,
+      "p90": 35.0,
+      "p99": 41.0,
+      "p100": 49.0,
+      "mean": 26.979
+     }
+    }
+   },
+   "memory_rows_end": 28592,
+   "gists": 19
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__ad_zero",
+   "vocab": "v1",
+   "agents": 5000,
+   "by_tau": {
+    "-0.5": {
+     "calls": 36993,
+     "share_with_line": 0.0491,
+     "items_per_call": 0.0524,
+     "items_per_call_hist": {
+      "0": 35176,
+      "1": 1701,
+      "2": 111,
+      "3": 5
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.0136,
+      "PLAN_BOUNDARY": 0.0279,
+      "INDIVIDUAL": 0.0653,
+      "CELL": 0.2144
+     },
+     "kinds": {
+      "move": 933,
+      "buy": 791,
+      "talk": 106,
+      "board": 93,
+      "notice": 14,
+      "report": 1
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 16.0,
+      "p99": 31.0,
+      "p100": 45.0,
+      "mean": 15.53
+     }
+    },
+    "-1.0": {
+     "calls": 36993,
+     "share_with_line": 0.246,
+     "items_per_call": 0.2798,
+     "items_per_call_hist": {
+      "0": 27894,
+      "1": 7876,
+      "2": 1196,
+      "3": 27
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.1356,
+      "PLAN_BOUNDARY": 0.2149,
+      "INDIVIDUAL": 0.3667,
+      "CELL": 0.7392
+     },
+     "kinds": {
+      "buy": 6379,
+      "move": 3639,
+      "board": 160,
+      "talk": 141,
+      "notice": 24,
+      "report": 5,
+      "help": 1
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 25.0,
+      "p99": 29.0,
+      "p100": 48.0,
+      "mean": 16.233
+     }
+    },
+    "-2.0": {
+     "calls": 36993,
+     "share_with_line": 0.8414,
+     "items_per_call": 1.3355,
+     "items_per_call_hist": {
+      "0": 5866,
+      "1": 13372,
+      "2": 17231,
+      "3": 524
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.1325,
+      "PLAN_BOUNDARY": 1.2529,
+      "INDIVIDUAL": 1.5791,
+      "CELL": 1.7892
+     },
+     "kinds": {
+      "buy": 25797,
+      "move": 22302,
+      "board": 879,
+      "talk": 204,
+      "notice": 185,
+      "report": 38,
+      "help": 1
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 25.0,
+      "p90": 27.0,
+      "p99": 37.0,
+      "p100": 48.0,
+      "mean": 21.233
+     }
+    },
+    "-2.5": {
+     "calls": 36993,
+     "share_with_line": 0.8629,
+     "items_per_call": 1.582,
+     "items_per_call_hist": {
+      "0": 5070,
+      "1": 7391,
+      "2": 22464,
+      "3": 2068
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.4681,
+      "PLAN_BOUNDARY": 1.5009,
+      "INDIVIDUAL": 1.8018,
+      "CELL": 1.8452
+     },
+     "kinds": {
+      "move": 29227,
+      "buy": 27154,
+      "board": 1612,
+      "notice": 277,
+      "talk": 207,
+      "report": 45,
+      "help": 1
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 25.0,
+      "p90": 28.0,
+      "p99": 38.0,
+      "p100": 48.0,
+      "mean": 23.862
+     }
+    }
+   },
+   "memory_rows_end": 16129,
+   "gists": 57
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_14",
+   "vocab": "v1",
+   "agents": 5000,
+   "by_tau": {
+    "-0.5": {
+     "calls": 37022,
+     "share_with_line": 0.0515,
+     "items_per_call": 0.0574,
+     "items_per_call_hist": {
+      "0": 35115,
+      "1": 1700,
+      "2": 197,
+      "3": 10
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.013,
+      "PLAN_BOUNDARY": 0.0294,
+      "INDIVIDUAL": 0.0756,
+      "CELL": 0.2319
+     },
+     "kinds": {
+      "move": 981,
+      "buy": 762,
+      "signage": 201,
+      "board": 91,
+      "talk": 78,
+      "notice": 10,
+      "report": 1
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 23.0,
+      "p99": 32.0,
+      "p100": 49.0,
+      "mean": 15.975
+     }
+    },
+    "-1.0": {
+     "calls": 37022,
+     "share_with_line": 0.249,
+     "items_per_call": 0.2924,
+     "items_per_call_hist": {
+      "0": 27803,
+      "1": 7648,
+      "2": 1536,
+      "3": 35
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.1389,
+      "PLAN_BOUNDARY": 0.2225,
+      "INDIVIDUAL": 0.3912,
+      "CELL": 0.7562
+     },
+     "kinds": {
+      "buy": 6260,
+      "move": 3632,
+      "signage": 591,
+      "board": 195,
+      "talk": 115,
+      "notice": 27,
+      "report": 5
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 25.0,
+      "p99": 31.0,
+      "p100": 51.0,
+      "mean": 16.612
+     }
+    },
+    "-2.0": {
+     "calls": 37022,
+     "share_with_line": 0.8428,
+     "items_per_call": 1.4076,
+     "items_per_call_hist": {
+      "0": 5820,
+      "1": 11468,
+      "2": 18558,
+      "3": 1176
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.2482,
+      "PLAN_BOUNDARY": 1.3048,
+      "INDIVIDUAL": 1.6453,
+      "CELL": 1.815
+     },
+     "kinds": {
+      "buy": 24455,
+      "move": 21561,
+      "signage": 4796,
+      "board": 932,
+      "notice": 176,
+      "talk": 163,
+      "report": 29
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 25.0,
+      "p90": 27.0,
+      "p99": 38.0,
+      "p100": 51.0,
+      "mean": 22.118
+     }
+    },
+    "-2.5": {
+     "calls": 37022,
+     "share_with_line": 0.8641,
+     "items_per_call": 1.6527,
+     "items_per_call_hist": {
+      "0": 5033,
+      "1": 5993,
+      "2": 22795,
+      "3": 3201
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.6324,
+      "PLAN_BOUNDARY": 1.531,
+      "INDIVIDUAL": 1.8429,
+      "CELL": 1.8675
+     },
+     "kinds": {
+      "move": 27158,
+      "buy": 25485,
+      "signage": 6514,
+      "board": 1593,
+      "notice": 231,
+      "talk": 173,
+      "report": 32
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 25.0,
+      "p90": 33.0,
+      "p99": 39.0,
+      "p100": 51.0,
+      "mean": 24.716
+     }
+    }
+   },
+   "memory_rows_end": 20073,
+   "gists": 54
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_30",
+   "vocab": "v1",
+   "agents": 5000,
+   "by_tau": {
+    "-0.5": {
+     "calls": 37196,
+     "share_with_line": 0.05,
+     "items_per_call": 0.0592,
+     "items_per_call_hist": {
+      "0": 35336,
+      "1": 1527,
+      "2": 325,
+      "3": 8
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.0108,
+      "PLAN_BOUNDARY": 0.032,
+      "INDIVIDUAL": 0.0846,
+      "CELL": 0.225
+     },
+     "kinds": {
+      "move": 935,
+      "buy": 728,
+      "signage": 386,
+      "board": 85,
+      "talk": 51,
+      "notice": 15,
+      "report": 1
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 25.0,
+      "p99": 31.0,
+      "p100": 46.0,
+      "mean": 16.647
+     }
+    },
+    "-1.0": {
+     "calls": 37196,
+     "share_with_line": 0.2517,
+     "items_per_call": 0.3026,
+     "items_per_call_hist": {
+      "0": 27833,
+      "1": 7493,
+      "2": 1849,
+      "3": 21
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.1414,
+      "PLAN_BOUNDARY": 0.2337,
+      "INDIVIDUAL": 0.4086,
+      "CELL": 0.7559
+     },
+     "kinds": {
+      "buy": 6263,
+      "move": 3603,
+      "signage": 1115,
+      "board": 175,
+      "talk": 68,
+      "notice": 26,
+      "report": 4
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 25.0,
+      "p99": 30.0,
+      "p100": 46.0,
+      "mean": 16.897
+     }
+    },
+    "-2.0": {
+     "calls": 37196,
+     "share_with_line": 0.8444,
+     "items_per_call": 1.4685,
+     "items_per_call_hist": {
+      "0": 5788,
+      "1": 9810,
+      "2": 19983,
+      "3": 1615
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.3433,
+      "PLAN_BOUNDARY": 1.3526,
+      "INDIVIDUAL": 1.6932,
+      "CELL": 1.8396
+     },
+     "kinds": {
+      "buy": 24115,
+      "move": 21134,
+      "signage": 8090,
+      "board": 929,
+      "notice": 187,
+      "talk": 126,
+      "report": 40
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 25.0,
+      "p90": 28.0,
+      "p99": 38.0,
+      "p100": 47.0,
+      "mean": 22.867
+     }
+    },
+    "-2.5": {
+     "calls": 37196,
+     "share_with_line": 0.865,
+     "items_per_call": 1.7136,
+     "items_per_call_hist": {
+      "0": 5023,
+      "1": 4680,
+      "2": 23420,
+      "3": 4073
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.7537,
+      "PLAN_BOUNDARY": 1.5651,
+      "INDIVIDUAL": 1.8805,
+      "CELL": 1.8912
+     },
+     "kinds": {
+      "move": 25792,
+      "buy": 24844,
+      "signage": 11099,
+      "board": 1571,
+      "notice": 256,
+      "talk": 131,
+      "report": 46
+     },
+     "line_tokens": {
+      "p10": 15.0,
+      "p50": 26.0,
+      "p90": 35.0,
+      "p99": 40.0,
+      "p100": 47.0,
+      "mean": 25.463
+     }
+    }
+   },
+   "memory_rows_end": 23045,
+   "gists": 31
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_1_00",
+   "vocab": "v1",
+   "agents": 5000,
+   "by_tau": {
+    "-0.5": {
+     "calls": 36889,
+     "share_with_line": 0.0552,
+     "items_per_call": 0.0747,
+     "items_per_call_hist": {
+      "0": 34854,
+      "1": 1320,
+      "2": 710,
+      "3": 5
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.0088,
+      "PLAN_BOUNDARY": 0.0396,
+      "INDIVIDUAL": 0.1192,
+      "CELL": 0.2899
+     },
+     "kinds": {
+      "signage": 917,
+      "move": 877,
+      "buy": 821,
+      "board": 86,
+      "talk": 36,
+      "notice": 16,
+      "report": 2
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 26.0,
+      "p99": 32.0,
+      "p100": 38.0,
+      "mean": 18.279
+     }
+    },
+    "-1.0": {
+     "calls": 36889,
+     "share_with_line": 0.263,
+     "items_per_call": 0.3399,
+     "items_per_call_hist": {
+      "0": 27187,
+      "1": 6886,
+      "2": 2794,
+      "3": 22
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.1692,
+      "PLAN_BOUNDARY": 0.2617,
+      "INDIVIDUAL": 0.4491,
+      "CELL": 0.8627
+     },
+     "kinds": {
+      "buy": 6373,
+      "move": 3593,
+      "signage": 2308,
+      "board": 184,
+      "talk": 52,
+      "notice": 24,
+      "report": 6
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 26.0,
+      "p99": 32.0,
+      "p100": 49.0,
+      "mean": 17.834
+     }
+    },
+    "-2.0": {
+     "calls": 36889,
+     "share_with_line": 0.8456,
+     "items_per_call": 1.601,
+     "items_per_call_hist": {
+      "0": 5696,
+      "1": 5634,
+      "2": 23253,
+      "3": 2306
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.617,
+      "PLAN_BOUNDARY": 1.4408,
+      "INDIVIDUAL": 1.7559,
+      "CELL": 1.9018
+     },
+     "kinds": {
+      "buy": 24019,
+      "move": 19993,
+      "signage": 13953,
+      "board": 768,
+      "notice": 184,
+      "talk": 98,
+      "report": 43
+     },
+     "line_tokens": {
+      "p10": 15.0,
+      "p50": 25.0,
+      "p90": 31.0,
+      "p99": 40.0,
+      "p100": 49.0,
+      "mean": 24.542
+     }
+    },
+    "-2.5": {
+     "calls": 36889,
+     "share_with_line": 0.8662,
+     "items_per_call": 1.8486,
+     "items_per_call_hist": {
+      "0": 4936,
+      "1": 898,
+      "2": 25869,
+      "3": 5186
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.0411,
+      "PLAN_BOUNDARY": 1.642,
+      "INDIVIDUAL": 1.9634,
+      "CELL": 1.946
+     },
+     "kinds": {
+      "buy": 24744,
+      "move": 23287,
+      "signage": 18537,
+      "board": 1230,
+      "notice": 242,
+      "talk": 101,
+      "report": 53
+     },
+     "line_tokens": {
+      "p10": 23.0,
+      "p50": 26.0,
+      "p90": 36.0,
+      "p99": 41.0,
+      "p100": 50.0,
+      "mean": 27.117
+     }
+    }
+   },
+   "memory_rows_end": 28605,
+   "gists": 23
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__ad_zero",
+   "vocab": "v1",
+   "agents": 5000,
+   "by_tau": {
+    "-0.5": {
+     "calls": 74581,
+     "share_with_line": 0.4266,
+     "items_per_call": 0.5022,
+     "items_per_call_hist": {
+      "0": 42764,
+      "1": 26284,
+      "2": 5429,
+      "3": 104
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.7082,
+      "PLAN_BOUNDARY": 0.3088,
+      "INDIVIDUAL": 0.4475,
+      "CELL": 0.6126
+     },
+     "kinds": {
+      "buy": 18250,
+      "move": 16402,
+      "notice": 1358,
+      "talk": 861,
+      "board": 574,
+      "report": 8,
+      "queue": 1
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 26.0,
+      "p99": 31.0,
+      "p100": 60.0,
+      "mean": 16.824
+     }
+    },
+    "-1.0": {
+     "calls": 74581,
+     "share_with_line": 0.7467,
+     "items_per_call": 1.0563,
+     "items_per_call_hist": {
+      "0": 18890,
+      "1": 32901,
+      "2": 22488,
+      "3": 302
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.4232,
+      "PLAN_BOUNDARY": 0.7708,
+      "INDIVIDUAL": 1.0708,
+      "CELL": 1.1718
+     },
+     "kinds": {
+      "buy": 42226,
+      "move": 32435,
+      "notice": 1741,
+      "talk": 1321,
+      "board": 1033,
+      "report": 25,
+      "queue": 1,
+      "help": 1
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 27.0,
+      "p99": 32.0,
+      "p100": 60.0,
+      "mean": 19.431
+     }
+    },
+    "-2.0": {
+     "calls": 74581,
+     "share_with_line": 0.9313,
+     "items_per_call": 1.7423,
+     "items_per_call_hist": {
+      "0": 5126,
+      "1": 9500,
+      "2": 59426,
+      "3": 529
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.8908,
+      "PLAN_BOUNDARY": 1.4012,
+      "INDIVIDUAL": 1.8589,
+      "CELL": 1.8315
+     },
+     "kinds": {
+      "move": 66586,
+      "buy": 53936,
+      "notice": 4471,
+      "board": 3147,
+      "talk": 1670,
+      "report": 123,
+      "queue": 5,
+      "help": 1
+     },
+     "line_tokens": {
+      "p10": 15.0,
+      "p50": 26.0,
+      "p90": 27.0,
+      "p99": 33.0,
+      "p100": 60.0,
+      "mean": 24.457
+     }
+    },
+    "-2.5": {
+     "calls": 74581,
+     "share_with_line": 0.933,
+     "items_per_call": 1.7752,
+     "items_per_call_hist": {
+      "0": 4996,
+      "1": 7327,
+      "2": 61705,
+      "3": 553
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.9352,
+      "PLAN_BOUNDARY": 1.4346,
+      "INDIVIDUAL": 1.9129,
+      "CELL": 1.852
+     },
+     "kinds": {
+      "move": 69078,
+      "buy": 52630,
+      "notice": 5574,
+      "board": 3303,
+      "talk": 1678,
+      "report": 127,
+      "queue": 5,
+      "help": 1
+     },
+     "line_tokens": {
+      "p10": 16.0,
+      "p50": 26.0,
+      "p90": 27.0,
+      "p99": 33.0,
+      "p100": 60.0,
+      "mean": 24.818
+     }
+    }
+   },
+   "memory_rows_end": 25046,
+   "gists": 289
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_14",
+   "vocab": "v1",
+   "agents": 5000,
+   "by_tau": {
+    "-0.5": {
+     "calls": 73635,
+     "share_with_line": 0.4292,
+     "items_per_call": 0.5194,
+     "items_per_call_hist": {
+      "0": 42033,
+      "1": 25060,
+      "2": 6442,
+      "3": 100
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.8156,
+      "PLAN_BOUNDARY": 0.3233,
+      "INDIVIDUAL": 0.4775,
+      "CELL": 0.6287
+     },
+     "kinds": {
+      "buy": 17487,
+      "move": 16162,
+      "signage": 1981,
+      "notice": 1363,
+      "talk": 662,
+      "board": 577,
+      "report": 9,
+      "queue": 3
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 26.0,
+      "p99": 31.0,
+      "p100": 51.0,
+      "mean": 17.148
+     }
+    },
+    "-1.0": {
+     "calls": 73635,
+     "share_with_line": 0.7473,
+     "items_per_call": 1.0777,
+     "items_per_call_hist": {
+      "0": 18606,
+      "1": 30966,
+      "2": 23799,
+      "3": 264
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.4946,
+      "PLAN_BOUNDARY": 0.8025,
+      "INDIVIDUAL": 1.0956,
+      "CELL": 1.1922
+     },
+     "kinds": {
+      "buy": 40518,
+      "move": 31594,
+      "signage": 3427,
+      "notice": 1699,
+      "talk": 1060,
+      "board": 1021,
+      "report": 34,
+      "queue": 3
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 27.0,
+      "p99": 31.0,
+      "p100": 51.0,
+      "mean": 19.696
+     }
+    },
+    "-2.0": {
+     "calls": 73635,
+     "share_with_line": 0.9308,
+     "items_per_call": 1.7584,
+     "items_per_call_hist": {
+      "0": 5094,
+      "1": 8038,
+      "2": 60069,
+      "3": 434
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.9393,
+      "PLAN_BOUNDARY": 1.4255,
+      "INDIVIDUAL": 1.8769,
+      "CELL": 1.848
+     },
+     "kinds": {
+      "move": 62053,
+      "buy": 50137,
+      "signage": 8932,
+      "notice": 4071,
+      "board": 2838,
+      "talk": 1331,
+      "report": 106,
+      "queue": 8,
+      "help": 2
+     },
+     "line_tokens": {
+      "p10": 15.0,
+      "p50": 25.0,
+      "p90": 27.0,
+      "p99": 33.0,
+      "p100": 51.0,
+      "mean": 24.604
+     }
+    },
+    "-2.5": {
+     "calls": 73635,
+     "share_with_line": 0.9324,
+     "items_per_call": 1.7896,
+     "items_per_call_hist": {
+      "0": 4976,
+      "1": 5984,
+      "2": 62230,
+      "3": 445
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.9631,
+      "PLAN_BOUNDARY": 1.4572,
+      "INDIVIDUAL": 1.9282,
+      "CELL": 1.8675
+     },
+     "kinds": {
+      "move": 63897,
+      "buy": 48953,
+      "signage": 9387,
+      "notice": 5119,
+      "board": 2989,
+      "talk": 1316,
+      "report": 108,
+      "queue": 8,
+      "help": 2
+     },
+     "line_tokens": {
+      "p10": 23.0,
+      "p50": 26.0,
+      "p90": 28.0,
+      "p99": 33.0,
+      "p100": 51.0,
+      "mean": 24.946
+     }
+    }
+   },
+   "memory_rows_end": 31673,
+   "gists": 261
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_30",
+   "vocab": "v1",
+   "agents": 5000,
+   "by_tau": {
+    "-0.5": {
+     "calls": 73753,
+     "share_with_line": 0.4352,
+     "items_per_call": 0.5416,
+     "items_per_call_hist": {
+      "0": 41658,
+      "1": 24401,
+      "2": 7537,
+      "3": 157
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.8836,
+      "PLAN_BOUNDARY": 0.3354,
+      "INDIVIDUAL": 0.4959,
+      "CELL": 0.6545
+     },
+     "kinds": {
+      "buy": 17524,
+      "move": 16204,
+      "signage": 3476,
+      "notice": 1406,
+      "talk": 815,
+      "board": 517,
+      "report": 3,
+      "queue": 1
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 26.0,
+      "p99": 33.0,
+      "p100": 50.0,
+      "mean": 17.541
+     }
+    },
+    "-1.0": {
+     "calls": 73753,
+     "share_with_line": 0.7494,
+     "items_per_call": 1.1061,
+     "items_per_call_hist": {
+      "0": 18485,
+      "1": 29303,
+      "2": 25617,
+      "3": 348
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.5291,
+      "PLAN_BOUNDARY": 0.8255,
+      "INDIVIDUAL": 1.1146,
+      "CELL": 1.2253
+     },
+     "kinds": {
+      "buy": 40132,
+      "move": 31551,
+      "signage": 5846,
+      "notice": 1745,
+      "talk": 1307,
+      "board": 980,
+      "report": 18,
+      "queue": 2
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 16.0,
+      "p90": 27.0,
+      "p99": 33.0,
+      "p100": 54.0,
+      "mean": 20.087
+     }
+    },
+    "-2.0": {
+     "calls": 73753,
+     "share_with_line": 0.9311,
+     "items_per_call": 1.7814,
+     "items_per_call_hist": {
+      "0": 5079,
+      "1": 6486,
+      "2": 61666,
+      "3": 522
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.9418,
+      "PLAN_BOUNDARY": 1.4468,
+      "INDIVIDUAL": 1.9006,
+      "CELL": 1.8688
+     },
+     "kinds": {
+      "move": 59435,
+      "buy": 49696,
+      "signage": 14151,
+      "notice": 4002,
+      "board": 2479,
+      "talk": 1537,
+      "report": 77,
+      "queue": 7
+     },
+     "line_tokens": {
+      "p10": 22.0,
+      "p50": 26.0,
+      "p90": 28.0,
+      "p99": 35.0,
+      "p100": 55.0,
+      "mean": 24.879
+     }
+    },
+    "-2.5": {
+     "calls": 73753,
+     "share_with_line": 0.9329,
+     "items_per_call": 1.8115,
+     "items_per_call_hist": {
+      "0": 4946,
+      "1": 4540,
+      "2": 63735,
+      "3": 532
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.96,
+      "PLAN_BOUNDARY": 1.4779,
+      "INDIVIDUAL": 1.9483,
+      "CELL": 1.8884
+     },
+     "kinds": {
+      "move": 60909,
+      "buy": 48533,
+      "signage": 14886,
+      "notice": 5066,
+      "board": 2604,
+      "talk": 1516,
+      "report": 85,
+      "queue": 7
+     },
+     "line_tokens": {
+      "p10": 23.0,
+      "p50": 26.0,
+      "p90": 28.0,
+      "p99": 35.0,
+      "p100": 55.0,
+      "mean": 25.204
+     }
+    }
+   },
+   "memory_rows_end": 35837,
+   "gists": 272
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_1_00",
+   "vocab": "v1",
+   "agents": 5000,
+   "by_tau": {
+    "-0.5": {
+     "calls": 72800,
+     "share_with_line": 0.4541,
+     "items_per_call": 0.6021,
+     "items_per_call_hist": {
+      "0": 39743,
+      "1": 22337,
+      "2": 10666,
+      "3": 54
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.759,
+      "PLAN_BOUNDARY": 0.3929,
+      "INDIVIDUAL": 0.578,
+      "CELL": 0.7158
+     },
+     "kinds": {
+      "move": 16996,
+      "buy": 16978,
+      "signage": 7677,
+      "notice": 1311,
+      "board": 560,
+      "talk": 298,
+      "report": 11
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 26.0,
+      "p99": 32.0,
+      "p100": 48.0,
+      "mean": 18.293
+     }
+    },
+    "-1.0": {
+     "calls": 72800,
+     "share_with_line": 0.7536,
+     "items_per_call": 1.1607,
+     "items_per_call_hist": {
+      "0": 17935,
+      "1": 25387,
+      "2": 29322,
+      "3": 156
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.5622,
+      "PLAN_BOUNDARY": 0.8921,
+      "INDIVIDUAL": 1.1812,
+      "CELL": 1.2791
+     },
+     "kinds": {
+      "buy": 38410,
+      "move": 31661,
+      "signage": 11294,
+      "notice": 1653,
+      "board": 929,
+      "talk": 515,
+      "report": 37
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 23.0,
+      "p90": 27.0,
+      "p99": 32.0,
+      "p100": 51.0,
+      "mean": 20.684
+     }
+    },
+    "-2.0": {
+     "calls": 72800,
+     "share_with_line": 0.9317,
+     "items_per_call": 1.8338,
+     "items_per_call_hist": {
+      "0": 4972,
+      "1": 2399,
+      "2": 65183,
+      "3": 246
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.988,
+      "PLAN_BOUNDARY": 1.5175,
+      "INDIVIDUAL": 1.9446,
+      "CELL": 1.9293
+     },
+     "kinds": {
+      "move": 54540,
+      "buy": 48932,
+      "signage": 22840,
+      "notice": 4264,
+      "board": 2148,
+      "talk": 677,
+      "report": 102
+     },
+     "line_tokens": {
+      "p10": 23.0,
+      "p50": 26.0,
+      "p90": 28.0,
+      "p99": 33.0,
+      "p100": 51.0,
+      "mean": 25.414
+     }
+    },
+    "-2.5": {
+     "calls": 72800,
+     "share_with_line": 0.9332,
+     "items_per_call": 1.8617,
+     "items_per_call_hist": {
+      "0": 4864,
+      "1": 588,
+      "2": 67101,
+      "3": 247
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.992,
+      "PLAN_BOUNDARY": 1.5497,
+      "INDIVIDUAL": 1.9851,
+      "CELL": 1.9481
+     },
+     "kinds": {
+      "move": 55448,
+      "buy": 47754,
+      "signage": 23643,
+      "notice": 5593,
+      "board": 2306,
+      "talk": 684,
+      "report": 103
+     },
+     "line_tokens": {
+      "p10": 23.0,
+      "p50": 26.0,
+      "p90": 28.0,
+      "p99": 33.0,
+      "p100": 51.0,
+      "mean": 25.727
+     }
+    }
+   },
+   "memory_rows_end": 43788,
+   "gists": 130
+  },
+  {
+   "tape": "c8_ab7b_s1/AB7b-HINT-INTENT__hint",
+   "vocab": "v1",
+   "agents": 5000,
+   "by_tau": {
+    "-0.5": {
+     "calls": 36855,
+     "share_with_line": 0.0589,
+     "items_per_call": 0.0802,
+     "items_per_call_hist": {
+      "0": 34683,
+      "1": 1404,
+      "2": 753,
+      "3": 15
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.0269,
+      "PLAN_BOUNDARY": 0.0418,
+      "INDIVIDUAL": 0.1171,
+      "CELL": 0.2801
+     },
+     "kinds": {
+      "signage": 945,
+      "buy": 844,
+      "move": 830,
+      "talk": 180,
+      "board": 141,
+      "notice": 11,
+      "report": 4
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 26.0,
+      "p99": 35.0,
+      "p100": 59.0,
+      "mean": 18.643
+     }
+    },
+    "-1.0": {
+     "calls": 36855,
+     "share_with_line": 0.2715,
+     "items_per_call": 0.3576,
+     "items_per_call_hist": {
+      "0": 26849,
+      "1": 6914,
+      "2": 3009,
+      "3": 83
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.1909,
+      "PLAN_BOUNDARY": 0.2628,
+      "INDIVIDUAL": 0.506,
+      "CELL": 0.8453
+     },
+     "kinds": {
+      "buy": 7221,
+      "move": 2936,
+      "signage": 2430,
+      "board": 265,
+      "talk": 252,
+      "report": 59,
+      "notice": 18
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 26.0,
+      "p99": 34.0,
+      "p100": 59.0,
+      "mean": 18.131
+     }
+    },
+    "-2.0": {
+     "calls": 36855,
+     "share_with_line": 0.8444,
+     "items_per_call": 1.6115,
+     "items_per_call_hist": {
+      "0": 5736,
+      "1": 5030,
+      "2": 23905,
+      "3": 2184
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.6183,
+      "PLAN_BOUNDARY": 1.4691,
+      "INDIVIDUAL": 1.7554,
+      "CELL": 1.9131
+     },
+     "kinds": {
+      "buy": 26105,
+      "move": 16890,
+      "signage": 14200,
+      "board": 1288,
+      "talk": 382,
+      "report": 357,
+      "notice": 170
+     },
+     "line_tokens": {
+      "p10": 15.0,
+      "p50": 25.0,
+      "p90": 31.0,
+      "p99": 39.0,
+      "p100": 59.0,
+      "mean": 24.621
+     }
+    },
+    "-2.5": {
+     "calls": 36855,
+     "share_with_line": 0.865,
+     "items_per_call": 1.836,
+     "items_per_call_hist": {
+      "0": 4977,
+      "1": 588,
+      "2": 26791,
+      "3": 4499
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.014,
+      "PLAN_BOUNDARY": 1.6515,
+      "INDIVIDUAL": 1.9613,
+      "CELL": 1.9563
+     },
+     "kinds": {
+      "buy": 26867,
+      "move": 19653,
+      "signage": 18119,
+      "board": 2008,
+      "report": 406,
+      "talk": 393,
+      "notice": 221
+     },
+     "line_tokens": {
+      "p10": 23.0,
+      "p50": 26.0,
+      "p90": 35.0,
+      "p99": 41.0,
+      "p100": 59.0,
+      "mean": 26.912
+     }
+    }
+   },
+   "memory_rows_end": 29760,
+   "gists": 108
+  },
+  {
+   "tape": "c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v2",
+   "vocab": "v2",
+   "agents": 5000,
+   "by_tau": {
+    "-0.5": {
+     "calls": 37165,
+     "share_with_line": 0.0313,
+     "items_per_call": 0.0453,
+     "items_per_call_hist": {
+      "0": 36001,
+      "1": 648,
+      "2": 512,
+      "3": 4
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.0055,
+      "PLAN_BOUNDARY": 0.0276,
+      "INDIVIDUAL": 0.0819,
+      "CELL": 0.234
+     },
+     "kinds": {
+      "signage": 651,
+      "move": 531,
+      "eat": 363,
+      "buy": 63,
+      "talk": 39,
+      "board": 32,
+      "notice": 5
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 16.0,
+      "p90": 26.0,
+      "p99": 34.0,
+      "p100": 47.0,
+      "mean": 19.269
+     }
+    },
+    "-1.0": {
+     "calls": 37165,
+     "share_with_line": 0.1467,
+     "items_per_call": 0.1996,
+     "items_per_call_hist": {
+      "0": 31712,
+      "1": 3503,
+      "2": 1936,
+      "3": 14
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.1081,
+      "PLAN_BOUNDARY": 0.1388,
+      "INDIVIDUAL": 0.3016,
+      "CELL": 0.6926
+     },
+     "kinds": {
+      "eat": 3283,
+      "move": 1914,
+      "signage": 1819,
+      "buy": 243,
+      "board": 75,
+      "talk": 71,
+      "notice": 9,
+      "report": 3
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 26.0,
+      "p99": 34.0,
+      "p100": 49.0,
+      "mean": 18.567
+     }
+    },
+    "-2.0": {
+     "calls": 37165,
+     "share_with_line": 0.8451,
+     "items_per_call": 1.6287,
+     "items_per_call_hist": {
+      "0": 5757,
+      "1": 5682,
+      "2": 22329,
+      "3": 3397
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.6776,
+      "PLAN_BOUNDARY": 1.4526,
+      "INDIVIDUAL": 1.8188,
+      "CELL": 1.9047
+     },
+     "kinds": {
+      "eat": 25447,
+      "move": 18037,
+      "signage": 13368,
+      "buy": 3025,
+      "board": 328,
+      "notice": 172,
+      "talk": 125,
+      "report": 28,
+      "queue": 1
+     },
+     "line_tokens": {
+      "p10": 15.0,
+      "p50": 25.0,
+      "p90": 34.0,
+      "p99": 41.0,
+      "p100": 50.0,
+      "mean": 25.038
+     }
+    },
+    "-2.5": {
+     "calls": 37165,
+     "share_with_line": 0.8671,
+     "items_per_call": 1.9406,
+     "items_per_call_hist": {
+      "0": 4940,
+      "1": 678,
+      "2": 23196,
+      "3": 8351
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.2153,
+      "PLAN_BOUNDARY": 1.6602,
+      "INDIVIDUAL": 1.9602,
+      "CELL": 1.9466
+     },
+     "kinds": {
+      "eat": 26853,
+      "move": 22225,
+      "signage": 18175,
+      "buy": 3908,
+      "board": 554,
+      "notice": 223,
+      "talk": 132,
+      "report": 49,
+      "queue": 4
+     },
+     "line_tokens": {
+      "p10": 23.0,
+      "p50": 26.0,
+      "p90": 37.0,
+      "p99": 44.0,
+      "p100": 50.0,
+      "mean": 28.404
+     }
+    }
+   },
+   "memory_rows_end": 29027,
+   "gists": 32
+  },
+  {
+   "tape": "c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v2",
+   "vocab": "v2",
+   "agents": 5000,
+   "by_tau": {
+    "-0.5": {
+     "calls": 37371,
+     "share_with_line": 0.0325,
+     "items_per_call": 0.046,
+     "items_per_call_hist": {
+      "0": 36156,
+      "1": 717,
+      "2": 492,
+      "3": 6
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.0026,
+      "PLAN_BOUNDARY": 0.0254,
+      "INDIVIDUAL": 0.1157,
+      "CELL": 0.2046
+     },
+     "kinds": {
+      "signage": 663,
+      "move": 511,
+      "eat": 394,
+      "buy": 78,
+      "notice": 29,
+      "board": 24,
+      "talk": 16,
+      "report": 3,
+      "queue": 1
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 26.0,
+      "p99": 34.0,
+      "p100": 42.0,
+      "mean": 18.865
+     }
+    },
+    "-1.0": {
+     "calls": 37371,
+     "share_with_line": 0.1463,
+     "items_per_call": 0.2005,
+     "items_per_call_hist": {
+      "0": 31903,
+      "1": 3456,
+      "2": 1998,
+      "3": 14
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.1029,
+      "PLAN_BOUNDARY": 0.1325,
+      "INDIVIDUAL": 0.3323,
+      "CELL": 0.6662
+     },
+     "kinds": {
+      "eat": 3345,
+      "move": 1960,
+      "signage": 1813,
+      "buy": 254,
+      "board": 52,
+      "notice": 40,
+      "talk": 21,
+      "report": 8,
+      "queue": 1
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 26.0,
+      "p99": 34.0,
+      "p100": 48.0,
+      "mean": 18.646
+     }
+    },
+    "-2.0": {
+     "calls": 37371,
+     "share_with_line": 0.8462,
+     "items_per_call": 1.6331,
+     "items_per_call_hist": {
+      "0": 5749,
+      "1": 5521,
+      "2": 22792,
+      "3": 3309
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.6841,
+      "PLAN_BOUNDARY": 1.4449,
+      "INDIVIDUAL": 1.8472,
+      "CELL": 1.9117
+     },
+     "kinds": {
+      "eat": 25638,
+      "move": 18559,
+      "signage": 13320,
+      "buy": 2924,
+      "board": 316,
+      "notice": 181,
+      "report": 54,
+      "talk": 35,
+      "queue": 5
+     },
+     "line_tokens": {
+      "p10": 15.0,
+      "p50": 25.0,
+      "p90": 34.0,
+      "p99": 41.0,
+      "p100": 53.0,
+      "mean": 25.091
+     }
+    },
+    "-2.5": {
+     "calls": 37371,
+     "share_with_line": 0.868,
+     "items_per_call": 1.9423,
+     "items_per_call_hist": {
+      "0": 4932,
+      "1": 615,
+      "2": 23501,
+      "3": 8323
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.2193,
+      "PLAN_BOUNDARY": 1.6609,
+      "INDIVIDUAL": 1.9634,
+      "CELL": 1.9533
+     },
+     "kinds": {
+      "eat": 27013,
+      "move": 22668,
+      "signage": 18302,
+      "buy": 3722,
+      "board": 515,
+      "notice": 233,
+      "report": 79,
+      "talk": 44,
+      "queue": 10
+     },
+     "line_tokens": {
+      "p10": 23.0,
+      "p50": 26.0,
+      "p90": 37.0,
+      "p99": 45.0,
+      "p100": 53.0,
+      "mean": 28.422
+     }
+    }
+   },
+   "memory_rows_end": 29077,
+   "gists": 20
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x0.5",
+   "vocab": "v1",
+   "agents": 5000,
+   "by_tau": {
+    "-0.5": {
+     "calls": 19856,
+     "share_with_line": 0.0321,
+     "items_per_call": 0.0449,
+     "items_per_call_hist": {
+      "0": 19219,
+      "1": 382,
+      "2": 255
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.0028,
+      "PLAN_BOUNDARY": 0.0876,
+      "INDIVIDUAL": 0.181,
+      "CELL": 0.3319
+     },
+     "kinds": {
+      "move": 388,
+      "signage": 313,
+      "buy": 157,
+      "board": 34
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 26.0,
+      "p99": 31.0,
+      "p100": 35.0,
+      "mean": 18.57
+     }
+    },
+    "-1.0": {
+     "calls": 19856,
+     "share_with_line": 0.0871,
+     "items_per_call": 0.122,
+     "items_per_call_hist": {
+      "0": 18127,
+      "1": 1035,
+      "2": 694
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 0.0216,
+      "PLAN_BOUNDARY": 0.3081,
+      "INDIVIDUAL": 0.4534,
+      "CELL": 0.6752
+     },
+     "kinds": {
+      "buy": 957,
+      "move": 802,
+      "signage": 605,
+      "board": 57,
+      "report": 2
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 26.0,
+      "p99": 31.0,
+      "p100": 35.0,
+      "mean": 18.715
+     }
+    },
+    "-2.0": {
+     "calls": 19856,
+     "share_with_line": 0.6491,
+     "items_per_call": 1.107,
+     "items_per_call_hist": {
+      "0": 6967,
+      "1": 4357,
+      "2": 7972,
+      "3": 560
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.003,
+      "PLAN_BOUNDARY": 1.0624,
+      "INDIVIDUAL": 1.7367,
+      "CELL": 1.8117
+     },
+     "kinds": {
+      "buy": 9129,
+      "move": 6429,
+      "signage": 6193,
+      "board": 179,
+      "notice": 40,
+      "talk": 8,
+      "report": 3
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 24.0,
+      "p90": 29.0,
+      "p99": 38.0,
+      "p100": 48.0,
+      "mean": 22.394
+     }
+    },
+    "-2.5": {
+     "calls": 19856,
+     "share_with_line": 0.7505,
+     "items_per_call": 1.7384,
+     "items_per_call_hist": {
+      "0": 4955,
+      "1": 893,
+      "2": 8400,
+      "3": 5608
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.7929,
+      "PLAN_BOUNDARY": 1.1495,
+      "INDIVIDUAL": 1.8611,
+      "CELL": 1.9311
+     },
+     "kinds": {
+      "buy": 11877,
+      "signage": 11757,
+      "move": 10291,
+      "board": 499,
+      "notice": 75,
+      "talk": 13,
+      "report": 5
+     },
+     "line_tokens": {
+      "p10": 22.0,
+      "p50": 27.0,
+      "p90": 37.0,
+      "p99": 43.0,
+      "p100": 49.0,
+      "mean": 29.047
+     }
+    }
+   },
+   "memory_rows_end": 20565,
+   "gists": 7
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x2",
+   "vocab": "v1",
+   "agents": 5000,
+   "by_tau": {
+    "-0.5": {
+     "calls": 61196,
+     "share_with_line": 0.268,
+     "items_per_call": 0.34,
+     "items_per_call_hist": {
+      "0": 44795,
+      "1": 12027,
+      "2": 4341,
+      "3": 33
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.1452,
+      "PLAN_BOUNDARY": 0.1972,
+      "INDIVIDUAL": 0.3717,
+      "CELL": 0.4204
+     },
+     "kinds": {
+      "buy": 8313,
+      "move": 7627,
+      "signage": 4314,
+      "board": 275,
+      "talk": 196,
+      "notice": 76,
+      "report": 6,
+      "sleep": 1
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 26.0,
+      "p99": 33.0,
+      "p100": 48.0,
+      "mean": 17.613
+     }
+    },
+    "-1.0": {
+     "calls": 61196,
+     "share_with_line": 0.6374,
+     "items_per_call": 0.9223,
+     "items_per_call_hist": {
+      "0": 22189,
+      "1": 21663,
+      "2": 17256,
+      "3": 88
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 1.75,
+      "PLAN_BOUNDARY": 0.6416,
+      "INDIVIDUAL": 0.9863,
+      "CELL": 1.0866
+     },
+     "kinds": {
+      "buy": 26681,
+      "move": 19731,
+      "signage": 8969,
+      "board": 601,
+      "talk": 290,
+      "notice": 146,
+      "report": 19,
+      "queue": 1,
+      "sleep": 1
+     },
+     "line_tokens": {
+      "p10": 14.0,
+      "p50": 15.0,
+      "p90": 27.0,
+      "p99": 32.0,
+      "p100": 48.0,
+      "mean": 19.571
+     }
+    },
+    "-2.0": {
+     "calls": 61196,
+     "share_with_line": 0.9164,
+     "items_per_call": 1.7751,
+     "items_per_call_hist": {
+      "0": 5116,
+      "1": 3743,
+      "2": 52127,
+      "3": 210
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.75,
+      "PLAN_BOUNDARY": 1.4322,
+      "INDIVIDUAL": 1.9035,
+      "CELL": 1.9398
+     },
+     "kinds": {
+      "move": 42964,
+      "buy": 42362,
+      "signage": 20798,
+      "board": 1645,
+      "notice": 381,
+      "talk": 375,
+      "report": 99,
+      "queue": 2,
+      "sleep": 1
+     },
+     "line_tokens": {
+      "p10": 22.0,
+      "p50": 25.0,
+      "p90": 28.0,
+      "p99": 33.0,
+      "p100": 48.0,
+      "mean": 24.971
+     }
+    },
+    "-2.5": {
+     "calls": 61196,
+     "share_with_line": 0.92,
+     "items_per_call": 1.8302,
+     "items_per_call_hist": {
+      "0": 4896,
+      "1": 827,
+      "2": 55246,
+      "3": 227
+     },
+     "items_per_call_by_class": {
+      "CONVERSATION": 2.8347,
+      "PLAN_BOUNDARY": 1.4995,
+      "INDIVIDUAL": 1.977,
+      "CELL": 1.9717
+     },
+     "kinds": {
+      "move": 44499,
+      "buy": 41886,
+      "signage": 22822,
+      "board": 1888,
+      "notice": 431,
+      "talk": 374,
+      "report": 97,
+      "queue": 2,
+      "sleep": 1
+     },
+     "line_tokens": {
+      "p10": 23.0,
+      "p50": 26.0,
+      "p90": 28.0,
+      "p99": 34.0,
+      "p100": 48.0,
+      "mean": 25.532
+     }
+    }
+   },
+   "memory_rows_end": 38298,
+   "gists": 86
+  }
+ ],
+ "all": {
+  "-0.5": {
+   "calls": 783013,
+   "share_with_line": 0.2115,
+   "items_per_call": 0.2627,
+   "items_per_call_by_class": {
+    "CONVERSATION": 0.0355,
+    "PLAN_BOUNDARY": 0.1297,
+    "INDIVIDUAL": 0.3216,
+    "CELL": 0.5319
+   },
+   "kinds": {
+    "buy": 85754,
+    "move": 83387,
+    "signage": 22991,
+    "notice": 5651,
+    "talk": 3655,
+    "board": 3419,
+    "eat": 757,
+    "report": 49,
+    "queue": 6,
+    "sleep": 1
+   },
+   "line_tokens": {
+    "p10": 14.0,
+    "p50": 15.0,
+    "p90": 26.0,
+    "p99": 32.0,
+    "p100": 60.0,
+    "mean": 17.435
+   },
+   "line_tokens_max": 60,
+   "items_dropped_for_channel": 0,
+   "filled_rows": 22631,
+   "calls_filled": 22135
+  },
+  "-1.0": {
+   "calls": 783013,
+   "share_with_line": 0.457,
+   "items_per_call": 0.6402,
+   "items_per_call_by_class": {
+    "CONVERSATION": 0.1614,
+    "PLAN_BOUNDARY": 0.4172,
+    "INDIVIDUAL": 0.8145,
+    "CELL": 1.0988
+   },
+   "kinds": {
+    "buy": 247779,
+    "move": 183247,
+    "signage": 44103,
+    "notice": 7211,
+    "eat": 6628,
+    "board": 6422,
+    "talk": 5658,
+    "report": 235,
+    "queue": 8,
+    "help": 2,
+    "sleep": 1
+   },
+   "line_tokens": {
+    "p10": 14.0,
+    "p50": 15.0,
+    "p90": 27.0,
+    "p99": 32.0,
+    "p100": 60.0,
+    "mean": 19.171
+   },
+   "line_tokens_max": 60,
+   "items_dropped_for_channel": 0,
+   "filled_rows": 69967,
+   "calls_filled": 68436
+  },
+  "-2.0": {
+   "calls": 783013,
+   "share_with_line": 0.8775,
+   "items_per_call": 1.616,
+   "items_per_call_by_class": {
+    "CONVERSATION": 1.4101,
+    "PLAN_BOUNDARY": 1.3945,
+    "INDIVIDUAL": 1.8152,
+    "CELL": 1.8743
+   },
+   "kinds": {
+    "move": 514968,
+    "buy": 482965,
+    "signage": 167258,
+    "eat": 51085,
+    "board": 21238,
+    "notice": 19175,
+    "talk": 7408,
+    "report": 1223,
+    "queue": 31,
+    "help": 4,
+    "sleep": 1
+   },
+   "line_tokens": {
+    "p10": 15.0,
+    "p50": 25.0,
+    "p90": 28.0,
+    "p99": 38.0,
+    "p100": 60.0,
+    "mean": 24.026
+   },
+   "line_tokens_max": 60,
+   "items_dropped_for_channel": 0,
+   "filled_rows": 176556,
+   "calls_filled": 169457
+  },
+  "-2.5": {
+   "calls": 783013,
+   "share_with_line": 0.8918,
+   "items_per_call": 1.7804,
+   "items_per_call_by_class": {
+    "CONVERSATION": 1.8661,
+    "PLAN_BOUNDARY": 1.5474,
+    "INDIVIDUAL": 1.9254,
+    "CELL": 1.9023
+   },
+   "kinds": {
+    "move": 578716,
+    "buy": 490360,
+    "signage": 209258,
+    "eat": 53866,
+    "board": 28434,
+    "notice": 24526,
+    "talk": 7462,
+    "report": 1375,
+    "queue": 40,
+    "help": 4,
+    "sleep": 1
+   },
+   "line_tokens": {
+    "p10": 22.0,
+    "p50": 26.0,
+    "p90": 31.0,
+    "p99": 40.0,
+    "p100": 60.0,
+    "mean": 25.697
+   },
+   "line_tokens_max": 60,
+   "items_dropped_for_channel": 0,
+   "filled_rows": 195001,
+   "calls_filled": 181397
+  }
+ },
+ "note": "6a のリプレイと同じ 17 本(内容で束ねた集合)。各呼で先に想起・後でその呼の事象を書く。結果は全部「成功」(テープに成否が無い)・気づきは上限(p_notice 前)・q の対象なし・個体枠 300 は測れない(B5/B6 の本文はテープに無い)。"
+}

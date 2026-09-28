@@ -80,7 +80,7 @@ from shibuya.engine import resolve as R
 from shibuya.engine.activity import ActivityLayer, payload_of
 from shibuya.engine.intent import INTENT_MAX_TICKS, IntentLayer
 from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES, FamiliarityLayer
-from shibuya.engine.memory import MEMORY_MODES, MEMORY_N, MemoryLayer
+from shibuya.engine.memory import MEMORY_MODES, MEMORY_N, RECALL_TAU, MemoryLayer
 from shibuya.engine.energy import (
     DEFAULT_ENERGY_RATE,
     EnergyLayer,
@@ -1502,6 +1502,7 @@ def run_day(
     p_see_activity: "Mapping[str, float] | str | None" = None,
     memory: bool | str = False,
     memory_n: int = MEMORY_N,
+    memory_tau: float = RECALL_TAU,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -1741,9 +1742,13 @@ def run_day(
             **描画バイトも checkpoint も 1 バイトも変わらない**。
         memory: **6 段目 6a(記憶 第 1 段の記録)**。``True``/``"on"`` で体 × N 行の記憶の表
             (``AgentState(memory_columns=True)``・実 25 B/行・宣言 32 B/行)を確保し、行動の成否・会話・
-            気づき・強い看板(初見)を書く(``engine.memory``)。**本段では誰も読まない**。既定 ``False``=
+            気づき・強い看板(初見)を書く(``engine.memory``)。読み手は 6b の想起(下)。既定 ``False``=
             表を確保しない=**既定 checkpoint 不変**。
         memory_n: 体あたりの行数(既定 ``MEMORY_N``=128・宣言・感度 64/256)。
+            **6b(想起)**: on のランは、各呼の描画で q(起床の級・セル・直前の結果・相手・対象)に ID で
+            合う行を score 順に k 件(会話 3・他 2)想起し、B5 の最後に「記憶」の 1 行(≤60 tok)を載せる
+            (テンプレ v1.2・テープ版 3 の ``recalled_rows``)。off は描画バイトが 1 バイトも変わらない。
+        memory_tau: 想起の閾値 τ(A ≥ τ の行だけ想起・既定 ``RECALL_TAU``=−1.0=宣言の仮置き)。
 
     Returns:
         ``RunResult``。
@@ -1801,6 +1806,8 @@ def run_day(
         memory_on = bool(memory)
     if int(memory_n) < 1:
         raise ValueError(f"memory_n は 1 以上(いま {memory_n})")
+    if not np.isfinite(float(memory_tau)):
+        raise ValueError(f"memory_tau は有限の実数(いま {memory_tau})")
     # ---- 5 段目 5a: 空腹のモデル(SoA を確保する前に決める=欄が 4 本変わる) ----
     hunger_model = check_hunger_model(hunger_model)
     energy_rate = check_energy_rate(energy_rate)
@@ -2212,12 +2219,24 @@ def run_day(
     )
     if (fam_layer is not None or mem_layer is not None) and _fam_has_renderer:
         _fam_renderer.signage_exposures = []  # 描画による露出の控え(tick ごとに取り出す)
+    # ---- 記憶 第 1 段 6b: 想起の口(on のランだけ描画に差し込む・off は None=描画バイト不変) ----
+    if mem_layer is not None:
+        mem_layer.tau = float(memory_tau)
+    if _fam_renderer is not None and hasattr(_fam_renderer, "memory_recall"):
+        _fam_renderer.memory_recall = (
+            (lambda i_, t_, c_, inv_: mem_layer.recall(agents, i_, t_, c_, inv_))
+            if mem_layer is not None
+            else None
+        )
 
-    def _utter(agent_id: int, t_now: int, action: Any, comment: str) -> None:
-        """会話ターンの発話 1 回(``conv.utterance``)。6a: 記憶の会話の行と要旨(on のときだけ)。"""
+    def _utter(agent_id: int, t_now: int, action: Any, comment: str, reason: str = "") -> None:
+        """会話ターンの発話 1 回(``conv.utterance``)。6a: 記憶の会話の行と要旨(on のときだけ)。
+
+        6b(第294 Q57 暫定): 要旨の源=ひと言が空/「なし」なら理由欄の先頭 40 字(語彙 v3)。
+        """
         s = conv.utterance(agent_id, t_now, action=action, comment=comment)
         if mem_layer is not None:
-            mem_layer.note_utterance(agents, int(agent_id), int(t_now), s, comment)
+            mem_layer.note_utterance(agents, int(agent_id), int(t_now), s, comment, reason)
     #: 発射した呼の起床条件ごとの件数(起床の内訳・満了入口の列を含む)。
     calls_by_cond = np.zeros(N_WAKE_CONDITIONS_ALL, dtype=np.int64)
 
@@ -2552,7 +2571,8 @@ def run_day(
                 if not res.format_ok:
                     n_parse_errors_fleet += 1
                 if conv is not None and res.condition == int(WakeCondition.CONVERSATION_TURN):
-                    _utter(res.agent_id, tick, res.parse.action, res.parse.comment)
+                    _utter(res.agent_id, tick, res.parse.action, res.parse.comment,
+                           res.parse.reason)
             phase["llm"] += time.perf_counter() - t0
         if fleet_bridge is not None:
             t0 = time.perf_counter()
@@ -2583,7 +2603,8 @@ def run_day(
                 if not res.format_ok:
                     n_parse_errors_fleet += 1
                 if conv is not None and res.condition == int(WakeCondition.CONVERSATION_TURN):
-                    _utter(res.agent_id, tick, res.parse.action, res.parse.comment)
+                    _utter(res.agent_id, tick, res.parse.action, res.parse.comment,
+                           res.parse.reason)
             phase["llm"] += time.perf_counter() - t0
 
         # ---- 艦隊の繰り延べを起床候補へ再投入(不応期は免除・親決定 (a)・09-09) ----
@@ -2720,7 +2741,7 @@ def run_day(
                         n_parse_errors += 1
                     if conv is not None and cond == int(WakeCondition.CONVERSATION_TURN):
                         # 会話ターンの応答は**発話ブロック**(1呼=1ブロック・§3)
-                        _utter(a, tick, res.parse.action, res.parse.comment)
+                        _utter(a, tick, res.parse.action, res.parse.comment, res.parse.reason)
             else:
                 # 逐次ループ宣言2′: 同じ呼数ぶん(描画は同じ・往復だけ非同期になる)
                 calls: list[LLMCall] = []
@@ -2749,6 +2770,7 @@ def run_day(
                             time_bucket=tick // TIME_BUCKET_TICKS,
                             since_tick=int(sel.since_tick[i]),
                             prompt_hash_hint=rendered.prompt_hash,
+                            recalled_rows=tuple(getattr(rendered, "recalled_rows", ())),
                         )
                     )
                 # 発射は**非ブロッキング**。返るのは「キューに入らなかった」分だけ。
@@ -3286,7 +3308,16 @@ def run_day(
     result.memory = bool(memory_on)
     result.memory_n = int(memory_n)
     result.memory_summary = (
-        {**mem_layer.summary(agents, max(0, int(ticks) - 1)), "gist_bytes": mem_layer.gist_bytes()}
+        {
+            **mem_layer.summary(agents, max(0, int(ticks) - 1)),
+            "gist_bytes": mem_layer.gist_bytes(),
+            # 6b: 描画側の計数(記憶の行を載せた描画・項の件数・行の tok の分布・予算で削った数)
+            "render": (
+                _fam_renderer.memory_summary()
+                if _fam_renderer is not None and hasattr(_fam_renderer, "memory_summary")
+                else {}
+            ),
+        }
         if mem_layer is not None
         else {}
     )

@@ -1,7 +1,7 @@
 """語彙 v2 の描画側 — B0 の出力規約に 13 語目「食事」が載る(D-71 §3 E/F)。
 
 見るもの(``tests/perception/test_intent_mode_open.py`` と同じ書き方)
-(b) **既定は 1 バイトも動かない**: ``template_sha256()`` が 8f2959d0…・``b0_sha256("vocab")``
+(b) **既定は 1 バイトも動かない**: ``template_sha256()`` が 1f6c7d62(v1.2・旧 v1.1 8f2959d0)…・``b0_sha256("vocab")``
     が 2b4bfc8a…・参照場面の ``prompt_hash`` が bb23f7c6…(⑥ の golden と同じ場面)/
 (c) 腕の差は **``行動:`` の 1 行だけ**(理由・対象・ひと言・2 行形・JSON 禁止は同文)/
 (d) ``intent_mode``(3 腕)× ``vocab_version``(2 版)の **6 通りが全て成立**する。
@@ -20,7 +20,8 @@ from shibuya.perception.renderer import Renderer
 from shibuya.world.state import World
 
 #: 凍結テンプレの SHA(``tests/perception/test_templates.py`` と**同じ値**)。
-FROZEN_TEMPLATE_SHA256 = "8f2959d0d3fbe75ee0ca5a634425447bb316baaa6b36af9c570fa34eeb5617ef"
+#: 旧 v1.1 の凍結値 = 8f2959d0d3fbe75ee0ca5a634425447bb316baaa6b36af9c570fa34eeb5617ef(6b で v1.2 へ張り替え)
+FROZEN_TEMPLATE_SHA256 = "1f6c7d6227a11de049dde39d43728fa5919ccf263a0165ea5273b0d052150560"
 #: 既定(vocab × v1)の B0 本文の SHA。
 B0_SHA256_VOCAB_V1 = "2b4bfc8a6da16ec73cbd3db8c68656150d2becd08100efa8816ad649e478339c"
 #: **語彙 v2 の凍結値**(2026-09-17 に凍結。13 語の並びか文面を変えたら必ずここが動く)。

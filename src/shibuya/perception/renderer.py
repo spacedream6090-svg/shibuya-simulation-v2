@@ -89,6 +89,8 @@ from shibuya.world.assets import CELL_SIZE_M, WorldAssets
 from shibuya.world.state import LANDMARK_CATS, World
 
 __all__ = [
+    "compose_memory_line",
+    "memory_item_text",
     "P_SEE_ACTIVITY_KINDS",
     "P_SEE_BY_ACTIVITY",
     "check_p_see_activity",
@@ -147,6 +149,77 @@ P_SEE_ACTIVITY_KINDS: Final[tuple[str, ...]] = (
 #: 錨のある腕(草案 §3-2): 通話 0.49(Hyman 2010 表 2 の 25.0/51.3)・連れとの会話 1.39(71.4/51.3)。
 #: 目的地つき移動 0.5 は錨の無い感度腕の 1 点。実効 p_see=min(1, p_see × 乗数)(> 1 は切る=宣言)。
 P_SEE_BY_ACTIVITY: Final[Mapping[str, float]] = {k: 1.0 for k in P_SEE_ACTIVITY_KINDS}
+
+
+def memory_item_text(
+    item: object, *, hhmm: str, poi_names: Sequence[str], place_ids: Sequence[str],
+    result_text: Mapping[int, str], max_tokens: int = T.MEMORY_ITEM_MAX_TOKENS,
+) -> str:
+    """想起した 1 行(``engine.memory.RecallItem`` と同じ欄を持つもの)→ B5「記憶」の項 1 件(6b・v1.2)。
+
+    場所=POI 名(object ≥0)/ 場所の ID(object=−(cell+2) か 行のセル)/ セルが範囲外なら「範囲外」。
+    相手=``P-<id>``。結果=``RESULT_TEXT`` の語。1 件が ``max_tokens`` を超えるなら場所名/要旨を末尾から削る
+    (宣言)。**⑥ 省略記法**(``N.ABBREVIATIONS``・B5 は列挙行の検査が掛かる): POI 名に禁止語があれば
+    その行のセルの ID に替え、要旨に禁止語があれば要旨を載せない(「話した。」)=宣言・expedient
+    (意図の行の ``INTENT_FALLBACK_TARGET`` と同じ流儀)。逐次ループ宣言: 削る字数ぶん(≤ 名前の字数)。
+    """
+    kind = int(getattr(item, "kind"))
+    obj = int(getattr(item, "obj"))
+    cell = int(getattr(item, "cell"))
+    partner = int(getattr(item, "partner"))
+    result = int(getattr(item, "result"))
+    gist = N.canonical_whitespace(str(getattr(item, "gist", "") or "")).strip().rstrip("。.")
+    if any(a in gist for a in N.ABBREVIATIONS):
+        gist = ""
+    where = ""
+    if 0 <= obj < len(poi_names):
+        where = N.canonical_whitespace(str(poi_names[obj])).strip()
+        if any(a in where for a in N.ABBREVIATIONS):
+            where = ""
+    if not where:
+        c = (-obj - 2) if obj <= -2 else cell
+        where = str(place_ids[c]) if 0 <= c < len(place_ids) else T.MEMORY_OUT_OF_AREA_WORD
+    event = T.MEMORY_EVENT_WORDS[kind] if 0 <= kind < len(T.MEMORY_EVENT_WORDS) else ""
+    who = person_word(partner) if partner >= 0 else ""
+    tpl = T.MEMORY_ITEM_TEMPLATES
+    res = result_text.get(result, "")
+    if kind == 7 and result == 0 and who:  # 成立した会話(engine.memory.EVENT_KINDS["talk"])
+        key, var = ("talk", gist) if gist else ("talk_plain", "")
+    elif kind in (10, 11):  # 気づき・看板(結果を書かない)
+        key, var = "seen", where
+    elif who:
+        key, var = "person", ""
+    else:
+        key, var = "place", where
+
+    def fill(v: str) -> str:
+        return tpl[key].format(hhmm=hhmm, where=v if key in ("place", "seen") else where, who=who,
+                               event=event, result=res, gist=v if key == "talk" else gist)
+
+    text = fill(var)
+    while var and ch.estimate_tokens(text) > int(max_tokens):  # 逐次: 削る字数ぶん
+        var = var[:-1]
+        text = fill(var)
+    return text
+
+
+def compose_memory_line(texts: Sequence[str]) -> tuple[str, int]:
+    """項(順位の高い順)→ B5「記憶」の 1 行と載せた項の数(6b・M4)。0 件なら ``("", 0)``。
+
+    チャネル 60 tok は**行全体**(頭の「[B5 記憶] 」を含む)で守る: 項の予算=60−頭の tok で
+    ``truncate_lines``(行の途中では切らない)→ 概算 tok の丸めで超える分は末尾の項から落とす。
+    逐次ループ宣言: 想起の件数ぶん(≤ 3)。
+    """
+    head = ch.estimate_tokens(T.TEMPLATES["B5.memory"].format(items=""))
+    kept, _rep = ch.truncate_lines(
+        list(texts), "B5.memory", limit_tokens=max(0, T.MEMORY_CHANNEL_TOKENS - head)
+    )
+    while kept:
+        line = N.canonical_whitespace(T.TEMPLATES["B5.memory"].format(items="".join(kept)))
+        if ch.estimate_tokens(line) <= T.MEMORY_CHANNEL_TOKENS:
+            return line, len(kept)
+        kept.pop()
+    return "", 0
 
 
 def check_p_see_activity(value: "Mapping[str, float] | str | None") -> dict[str, float]:
@@ -425,6 +498,8 @@ class Rendered:
     truncations: tuple[ch.TruncationReport, ...] = ()
     cache_hits: int = 0
     cache_misses: int = 0
+    #: 記憶 第 1 段 6b: B5「記憶」行に載せた記憶の行番号(テープ版 3 の ``recalled_rows``)。
+    recalled_rows: tuple[int, ...] = ()
 
     @property
     def tokens_total(self) -> int:
@@ -889,6 +964,16 @@ class Renderer:
             [self.p_see_activity[k] for k in P_SEE_ACTIVITY_KINDS], dtype=np.float64
         )
         self._p_see_identity = bool(np.all(self._p_see_mult == 1.0))
+        #: 記憶 第 1 段 6b: 想起の口 ``(体, tick, 起床条件, 招待者) → [RecallItem…]``(``engine.run`` が
+        #: ``--memory on`` のランだけ差し込む)。``None``(既定)=記憶の行を描かない=1 バイトも変わらない。
+        self.memory_recall: Callable[[int, int, int, int], Sequence[object]] | None = None
+        #: 6b の計数(記憶の行を載せた描画・想起の件数・行の tok・予算で削った/載せなかった)。
+        self.memory_lines = 0
+        self.memory_items = 0
+        self.memory_line_tokens: dict[int, int] = {}
+        self.memory_items_dropped_for_budget = 0
+        self.memory_items_dropped_for_channel = 0
+        self.memory_lines_over_budget = 0
         self.intent_mode = T.check_intent_mode(intent_mode)
         self.vocab_version = T.check_vocab_version(vocab_version)
         #: D-113 ④(第269): B0 の末尾に役割語の 1 行を足すか。レンダラの既定は False(描画バイトの
@@ -1116,6 +1201,12 @@ class Renderer:
         )
         # 段 2c: 意図を持つ体だけ B5 に「いま <行為> のため <対象> へ向かっている」の 1 行
         blocks["B5"] = self._with_intent_line(i, blocks["B5"], b6)
+        # 記憶 第 1 段 6b: 想起した記憶を B5 の**最後**に 1 行(on のランだけ・0 件なら出さない)
+        recalled: tuple[int, ...] = ()
+        if self.memory_recall is not None:
+            blocks["B5"], recalled = self._with_memory_line(
+                i, int(tick), blocks["B5"], b6, wake_reason, inviter
+            )
         blocks["B6"] = b6
 
         # §2.4 ⑧: B0-B4b に個体依存語が無いこと(機械検査)
@@ -1153,6 +1244,7 @@ class Renderer:
             tokens_est=tokens,
             group_tokens=groups,
             truncations=tuple(trunc),
+            recalled_rows=recalled,
             cache_hits=self.cache_hits - hits0,
             cache_misses=self.cache_misses - misses0,
         )
@@ -1646,6 +1738,64 @@ class Renderer:
             return b5
         self.intent_lines += 1
         return out
+
+    def _with_memory_line(
+        self, i: int, tick: int, b5: bytes, b6: bytes, wake_reason: int | str, inviter: int | None
+    ) -> tuple[bytes, tuple[int, ...]]:
+        """B5 の最後に「記憶」の 1 行(6b・M4)。チャネル 60 tok・個体枠 300 を超えるなら末尾の項から削る。"""
+        cond = int(wake_reason) if isinstance(wake_reason, (int, np.integer)) else -1
+        items = list(self.memory_recall(i, int(tick), cond, -1 if inviter is None else int(inviter)))
+        if not items:
+            return b5, ()
+        when = self.clock_fn(int(tick))
+        texts: list[str] = []
+        rows: list[int] = []
+        for it in items:  # 逐次ループ宣言: 想起の件数ぶん(≤ 3)
+            lt = int(getattr(it, "last_tick"))
+            h, m = N.format_time(self.clock_fn(lt) if lt >= 0 else when)
+            texts.append(memory_item_text(
+                it, hhmm=f"{h}:{m}", poi_names=self.assets.poi_name, place_ids=self.assets.place_ids,
+                result_text=RESULT_TEXT,
+            ))
+            rows.append(int(getattr(it, "row")))
+        line, n_keep = compose_memory_line(texts)
+        self.memory_items_dropped_for_channel += len(texts) - n_keep
+        b5_text = b5.decode("utf-8")
+        b6_tok = ch.estimate_tokens(b6.decode("utf-8"))
+        cap = int(T.GROUP_TOKEN_BUDGET["individual"])
+        out = b""
+        while n_keep:  # 逐次: 想起の件数ぶん(≤ 3・個体枠 300 を超えるなら末尾の項から削る)
+            out = N.join_lines([b5_text, line]).encode("utf-8")
+            if ch.estimate_tokens(out.decode("utf-8")) + b6_tok <= cap:
+                break
+            prev = n_keep
+            line, n_keep = compose_memory_line(texts[: n_keep - 1])
+            self.memory_items_dropped_for_budget += prev - n_keep
+        if not n_keep:
+            self.memory_lines_over_budget += 1
+            return b5, ()
+        kept = texts[:n_keep]
+        self.memory_lines += 1
+        self.memory_items += len(kept)
+        tok = ch.estimate_tokens(line)
+        self.memory_line_tokens[tok] = self.memory_line_tokens.get(tok, 0) + 1
+        return out, tuple(rows[: len(kept)])
+
+    def memory_summary(self) -> dict:
+        """manifest ``memory_summary.render``: 記憶の行を載せた描画・項の件数・行の tok の分布。"""
+        toks = self.memory_line_tokens
+        n = sum(toks.values())
+        return {
+            "lines": int(self.memory_lines),
+            "items": int(self.memory_items),
+            "items_per_line": round(self.memory_items / n, 4) if n else 0.0,
+            "line_tokens": {str(k): int(v) for k, v in sorted(toks.items())},
+            "line_tokens_max": int(max(toks)) if toks else 0,
+            "line_tokens_mean": round(sum(k * v for k, v in toks.items()) / n, 3) if n else 0.0,
+            "items_dropped_for_channel": int(self.memory_items_dropped_for_channel),
+            "items_dropped_for_group_budget": int(self.memory_items_dropped_for_budget),
+            "lines_over_group_budget": int(self.memory_lines_over_budget),
+        }
 
     def _nearby(self, i: int, cell: int, tc: _TickCache) -> list[str]:
         """同一セル在席者から近接上位 k(密度逓減)+知人常掲を作る。"""

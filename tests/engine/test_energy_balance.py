@@ -419,7 +419,7 @@ def test_hunger_words_live_in_the_templates():
     assert T.HUNGER_ITEM_TEMPLATE == "いま{word}です。"
     assert "B5.intero_hunger" not in T.TEMPLATES  # 行テンプレではなく項(1 行 1 事実の契約)
     assert T.HUNGER_WORD_DRAW_MIN_STAGE == 2
-    assert T.TEMPLATE_VERSION == "v1.1"
+    assert T.TEMPLATE_VERSION in ("v1.1", "v1.2")  # v1.2=6b(記憶の行)も空腹の語は同じ
 
 
 # ================================================================= P4(配列演算だけ)

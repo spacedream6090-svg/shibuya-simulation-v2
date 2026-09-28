@@ -5,7 +5,7 @@
 ``docs/research/v2-r48-own-code-memory-range-return.md`` §B1(記憶は無い・会話の本文は捨てている)。
 #56 の ``engine.familiarity``(親しみの表)と同じ流儀(腕でだけ確保・書き手は resolve・A の近似)。
 
-本段は**記録と読み口だけ**(誰も読まない=想起と B5 の記憶行は 6b)。
+6a=**記録と読み口**・**6b=想起**(:meth:`MemoryLayer.recall` → 描画の B5「記憶」行・第295)。
 
 表(``AgentState(memory_columns=True)`` のランだけ確保・``--memory on``)
     体ごとに N 行(:data:`MEMORY_N`=128・M2・感度 64/256)。1 行=``mem_kind`` u8(事象の種類=
@@ -17,8 +17,9 @@
 
 会話の要旨(M1 (b))
     SoA の外(``MemoryLayer.gist[(体, 行)]``)。体あたり上限 :data:`GIST_PER_AGENT`=16 件(古い順に
-    落とす)・:data:`GIST_CHARS`=40 字=**自分の発話の「ひと言」欄の先頭 40 字**(その会話で最初の
-    空でない ひと言)。相手の発話は持たない。
+    落とす)・:data:`GIST_CHARS`=40 字=その会話で自分が最初に書いた**空でない「ひと言」**、ひと言が
+    無ければ(語彙 v3 の 5 ラベルには無い)**理由欄**の先頭 40 字(**第294 の親の暫定・Q57**)。
+    相手の発話は持たない。
 
 書き手(:meth:`MemoryLayer.after_tick`・tick の Phase C と活動層・意図の層の後・親しみの表の前)
     (a) **行動の成否**: その tick に結果(``last_result_tick == tick``)が書かれた体の ``last_action`` ×
@@ -28,13 +29,23 @@
     (c) **気づき**: その tick の顕著行為に気づいた体(``SalientProcess.events[].noticed``)に 1 行
         (object=事象のセルの場所=顕著行為に主の体 id は無い=宣言)。
     (d) **強い看板**(修正 1 の二本立て): p_see を通って B2 に看板行が載った (体, POI) のうち **初見**
-        (親しみの表にその POI の行が無い・表が無いランは記憶の表に看板の行が無い)だけ。
+        (**記憶の表**にその POI の看板の行が無い=描画による露出=意識的な初見。親しみの表の「入った回」
+        は潜在なので判定に使わない=``--familiarity on`` でも同じ判定・**第294 の決め Q58**)だけ。
     (e) 記録しない(宣言): 内受容の跨ぎ・範囲外の食事・p_see の通過(露出=#56)・移動の各 tick・
         移動の開始・「なし」・待機/休憩/退去/断る。
     統合=同じ鍵(kind・partner・object・result)は新しい行を作らず ``mem_n``+1・``mem_last`` 更新。
 
 importance 固定表(M3 (b)): 失敗 3・会話 2・成功 1・気づき 1・強い看板 1・初回(その鍵の最初の行)+1・
-上限 4(:data:`IMPORTANCE`)。
+上限 4(:data:`IMPORTANCE`)。**統合(同じ鍵の反復)では「初回 +1」を外して base に戻す**(第294 の決め
+Q56=「初回 > 反復」を表のとおりにする)。
+
+想起(6b・M4 (a)+修正 2・M5 (a)・M6 (a)・M16 (a))
+    クエリ q=起床の級(``WAKE_CONDITION_CLASS``)+現在セル+相手(会話の招待者・会話の相手・人の意図)+
+    対象(POI の意図・在席・列の POI)+直前の結果(``last_action`` の種類 × ``last_result``)。**ID 一致**
+    (相手 ∨ 対象 ∨ セル ∨ 直前の結果と同じ種類・結果)で候補を絞り、``A ≥ τ`` の行だけを score の降順に
+    k 件(会話 :data:`RECALL_K_CONVERSATION`=3・それ以外 :data:`RECALL_K_OTHER`=2=計画境界・満了・
+    個体・セル=修正 2)。候補が k 未満なら ``A ≥ τ`` の全行から score 順で補う(宣言)。埋め込みは無し。
+    τ=:data:`RECALL_TAU`(**−2.0**=第295 親決定: n=1 の出来事を 3.6 時間・n=2 を 14.5 時間・翌日に残るのは n≥3=「今日のうち」の窓。実装役の仮置き −1.0 は 29 分で消えて B5 直近と重なるため退けた。感度 −1.5/−2.5)。
 
 A と score(M2・M6 (a))::
 
@@ -50,16 +61,19 @@ A と score(M2・M6 (a))::
     2. 会話: その tick に開いたセッションの数ぶん・発話の数ぶん(≤ 1 tick の呼数)。
     3. 気づき: その tick の顕著行為の件数ぶん(``EventBudget`` が 200/tick で切る)。
     4. 看板の初見: その tick の看板の露出の件数ぶん(描画 1 回につき高々 1 件)。
+    5. :meth:`MemoryLayer.recall`: なし(1 呼につき 1 体の N 行の配列演算)。
+    6. :meth:`MemoryLayer.summary`(K-2/K-5 の計器): 行のある体の数ぶん(ランの終わりに 1 回)。
 """
 
 from __future__ import annotations
 
 from collections import Counter, OrderedDict
-from typing import Any, Final, Sequence
+from typing import Any, Final, NamedTuple, Sequence
 
 import numpy as np
 
-from shibuya.agents.state import ResultCode
+from shibuya.agents.state import WAKE_CONDITION_CLASS, IntentKind, ResultCode, WakeCondition
+from shibuya.core.types import EventClass
 from shibuya.engine import resolve as R
 from shibuya.engine.familiarity import place_thing
 
@@ -79,6 +93,11 @@ __all__ = [
     "IMPORTANCE_MAX",
     "importance_of",
     "activation_rows",
+    "RECALL_TAU",
+    "RECALL_K_CONVERSATION",
+    "RECALL_K_OTHER",
+    "K5_FAILURES",
+    "RecallItem",
     "MemoryLayer",
 ]
 
@@ -95,6 +114,21 @@ MEMORY_ROW_BYTES_DECLARED: Final[int] = 32
 #: 会話の要旨(M1 (b))。
 GIST_PER_AGENT: Final[int] = 16
 GIST_CHARS: Final[int] = 40
+#: 想起の入口の名(``WakeCondition`` の符号 → 名・計数の鍵)と q の定数(呼ごとに作らない)。
+_ENTRANCE_NAMES: Final[tuple[str, ...]] = tuple(w.name for w in sorted(WakeCondition, key=int))
+_COND_TURN: Final[int] = int(WakeCondition.CONVERSATION_TURN)
+_INTENT_PERSON: Final[int] = int(IntentKind.PERSON)
+_INTENT_POI: Final[tuple[int, int]] = (int(IntentKind.POI_NAMED), int(IntentKind.POI_CATEGORY))
+#: 想起の閾値 τ(M16 (a)・宣言の仮置き・感度 −0.5/−2.0/−2.5)。A の単位は分(L=分)。
+RECALL_TAU: Final[float] = -2.0
+#: 想起の件数(M4 (a)+修正 2): 会話 3・それ以外(計画境界・満了・個体・セル)2。
+RECALL_K_CONVERSATION: Final[int] = 3
+RECALL_K_OTHER: Final[int] = 2
+#: K-5(失敗の回避・修正 4)で「失敗の記憶」とする結果。
+K5_FAILURES: Final[tuple[int, ...]] = (
+    int(ResultCode.REFUSED), int(ResultCode.CLOSED), int(ResultCode.OUT_OF_STOCK),
+    int(ResultCode.TRAIN_FULL), int(ResultCode.PARTNER_BUSY),
+)
 
 #: **EVENT_KINDS v0**(宣言・実装役の起草=問いで返す)。0 は空行。
 EVENT_KINDS: Final[dict[str, int]] = {
@@ -153,6 +187,19 @@ def importance_of(kind: np.ndarray, result: np.ndarray, first: np.ndarray) -> np
     return np.minimum(base, IMPORTANCE_MAX)
 
 
+class RecallItem(NamedTuple):
+    """想起した 1 行(描画の材料=``perception.renderer`` が文にする)。"""
+
+    row: int
+    last_tick: int
+    kind: int
+    partner: int
+    obj: int
+    result: int
+    cell: int
+    gist: str
+
+
 def activation_rows(n: np.ndarray, first_tick: np.ndarray, tick: int, minutes_per_tick: float,
                     d: float = MEMORY_D) -> np.ndarray:
     """A = ln(n/(1−d)) − d·ln(L+1)(L=(tick − first)×分/tick・#56 と同じ近似)。n=0 の行は −inf。"""
@@ -182,6 +229,10 @@ class MemoryLayer:
         self._gist_done: set[tuple[int, int]] = set()
         self._next_session = 0
         self._target = np.full(self.n, -1, dtype=np.int64)  # その tick の intent の対象(散らす先)
+        #: 想起の閾値 τ(``--memory-tau``)。
+        self.tau = float(RECALL_TAU)
+        #: 想起の計数(入口別・τ で切った行・補った件数)。
+        self.recall_stats: Counter = Counter()
 
     # ------------------------------------------------------------------ 読み口
     def scores(self, agents: Any, agent_ids: np.ndarray, tick: int) -> np.ndarray:
@@ -201,6 +252,92 @@ class MemoryLayer:
             s = np.where(np.asarray(mask, dtype=bool), s, -np.inf)
         order = np.argsort(-s, kind="stable")
         return order[np.isfinite(s[order])][: int(k)]
+
+    # ------------------------------------------------------------------ 想起(6b)
+    def recall(self, agents: Any, agent_id: int, tick: int, condition: int,
+               inviter: int = -1) -> list[RecallItem]:
+        """1 呼の想起(M4 (a)+修正 2・M5 (a)・M16 (a))→ 行(score の降順)。本段の描画が読む。
+
+        1 体の N 行に対する配列演算だけ(体数に比例した逐次ループなし=P4)。
+        """
+        i = int(agent_id)
+        r = agents.registry
+        f = r.field
+        kind = f("mem_kind")[i]
+        used = kind != _EMPTY
+        cond = int(condition)
+        ok_cond = 0 <= cond < len(WAKE_CONDITION_CLASS)
+        cls = WAKE_CONDITION_CLASS[cond] if ok_cond else EventClass.INDIVIDUAL
+        conversation = cls == EventClass.CONVERSATION or cond == _COND_TURN
+        k = RECALL_K_CONVERSATION if conversation else RECALL_K_OTHER
+        entrance = _ENTRANCE_NAMES[cond] if 0 <= cond < len(_ENTRANCE_NAMES) else "UNKNOWN"
+        rs = self.recall_stats
+        rs["calls"] += 1
+        rs["calls:" + entrance] += 1
+        if not bool(used.any()):
+            rs["calls_empty_table"] += 1
+            return []
+        A = activation_rows(f("mem_n")[i], f("mem_tick")[i], tick, self.minutes_per_tick, self.d)
+        score = self.w_r * A + self.w_i * f("mem_importance")[i]
+        # ---- q ----
+        q_cell = int(f("cell")[i])
+        q_partner = int(inviter) if int(inviter) >= 0 else int(f("talk_partner")[i])
+        has_intent = "intent_kind" in r
+        ik = int(f("intent_kind")[i]) if has_intent else 0
+        it = int(f("intent_target")[i]) if has_intent else -1
+        if q_partner < 0 and ik == _INTENT_PERSON:
+            q_partner = it
+        if ik in _INTENT_POI:
+            q_obj = it
+        elif int(f("poi_ref")[i]) >= 0:
+            q_obj = int(f("poi_ref")[i])
+        else:
+            q_obj = int(f("queue_poi")[i])
+        q_kind = ACTION_KIND.get(int(f("last_action")[i]), 0)
+        q_result = int(f("last_result")[i])
+        m_obj = f("mem_object")[i]
+        match = np.zeros(kind.size, dtype=bool)
+        if q_partner >= 0:
+            match |= f("mem_partner")[i] == q_partner
+        if q_obj >= 0:
+            match |= m_obj == q_obj
+        if q_cell >= 0:
+            match |= (f("mem_cell")[i] == q_cell) | (m_obj == int(place_thing(q_cell)))
+        if q_kind > 0 and 0 <= q_result <= 255:
+            match |= (kind == q_kind) & (f("mem_result")[i] == q_result)
+        match &= used
+        live = used & (A >= self.tau)
+        rs["rows_candidate"] += int(np.count_nonzero(match))
+        rs["rows_candidate_below_tau"] += int(np.count_nonzero(match & ~live))
+        rs["rows_used"] += int(np.count_nonzero(used))
+        rs["rows_used_below_tau"] += int(np.count_nonzero(used & ~live))
+        cand = np.flatnonzero(match & live)
+        cand = cand[np.lexsort((cand, -score[cand]))][:k]
+        picked = list(cand.tolist())
+        if len(picked) < k:
+            rest = np.flatnonzero(live & ~match)
+            rest = rest[np.lexsort((rest, -score[rest]))][: k - len(picked)]
+            if rest.size:
+                rs["filled_rows"] += int(rest.size)
+                rs["calls_filled"] += 1
+            picked += rest.tolist()
+        rs["recalled_rows"] += len(picked)
+        rs["recalled_rows:" + entrance] += len(picked)
+        if not picked:
+            rs["calls_zero"] += 1
+            return []
+        last, part, res, cel = f("mem_last")[i], f("mem_partner")[i], f("mem_result")[i], f("mem_cell")[i]
+        out = [
+            RecallItem(
+                row=int(j), last_tick=int(last[j]), kind=int(kind[j]), partner=int(part[j]),
+                obj=int(m_obj[j]), result=int(res[j]), cell=int(cel[j]),
+                gist=self.gist.get((i, int(j)), ""),
+            )
+            for j in picked  # 高々 k(≤ 3)
+        ]
+        for it_ in out:
+            rs["recalled_kind:" + str(KIND_NAMES.get(it_.kind, it_.kind))] += 1
+        return out
 
     # ------------------------------------------------------------------ 書き手の本体
     def _write(self, agents: Any, tick: int, a: np.ndarray, kind: np.ndarray, partner: np.ndarray,
@@ -228,8 +365,8 @@ class MemoryLayer:
         old_n = r.mem_n[a, slot].astype(np.int64)
         n = np.where(found, np.minimum(old_n + 1, 65_535), 1)
         first_tick = np.where(found, r.mem_tick[a, slot].astype(np.int64), int(tick))
-        imp = np.where(found, r.mem_importance[a, slot].astype(np.int64),
-                       importance_of(kind, result, np.ones(a.size, dtype=bool)))
+        # 第294 Q56: 統合(同じ鍵の反復)は「初回 +1」を外して base に戻す・新しい行は初回 +1
+        imp = importance_of(kind, result, ~found)
         R.write_memory(agents, a, slot, kind, first_tick, np.full(a.size, int(tick)), cell, partner,
                        obj, result, imp, n)
         self.stats["merged"] += int(np.count_nonzero(found))
@@ -282,8 +419,11 @@ class MemoryLayer:
             self.stats["gist_dropped"] += 1
 
     def note_utterance(self, agents: Any, agent_id: int, tick: int, session: Any,
-                       comment: str) -> None:
-        """発話 1 回(``conv.utterance`` の戻りのセッション)→ 会話の行の ``mem_n``+1・最初の要旨。"""
+                       comment: str, reason: str = "") -> None:
+        """発話 1 回(``conv.utterance`` の戻りのセッション)→ 会話の行の ``mem_n``+1・最初の要旨。
+
+        要旨の源(第294 の親の暫定・Q57): 空でない「ひと言」(v1/v2)・無ければ理由欄(v3)。
+        """
         if session is None:
             return
         key = self._session_key.get((int(agent_id), int(session.session_id)))
@@ -299,6 +439,12 @@ class MemoryLayer:
         sk = (int(agent_id), int(session.session_id))
         if not text or text == "なし":
             self.stats["utterances_without_comment"] += 1
+            text = str(reason or "").strip()
+            if text:
+                self.stats["gist_source:reason"] += 1
+        else:
+            self.stats["gist_source:comment"] += 1
+        if not text or text == "なし":
             return
         if sk in self._gist_done:
             return
@@ -420,13 +566,9 @@ class MemoryLayer:
             sa = np.fromiter((x for x, _ in pairs), dtype=np.int64, count=len(pairs))
             sp = np.fromiter((y for _, y in pairs), dtype=np.int64, count=len(pairs))
             self.stats["signage_exposures_seen"] += int(sa.size)
-            if "fam_thing" in r.arrays:
-                known = (r.fam_thing[sa].astype(np.int64) == sp[:, None]).any(axis=1)
-                self.stats["signage_first_sight_rule:familiarity"] += 1
-            else:
-                known = ((r.mem_kind[sa].astype(np.int64) == EVENT_KINDS["signage"])
-                         & (r.mem_object[sa].astype(np.int64) == sp[:, None])).any(axis=1)
-                self.stats["signage_first_sight_rule:memory"] += 1
+            # 第294 Q58: 記憶の表で判定(描画による露出=意識的な初見・親しみの表は使わない)
+            known = ((r.mem_kind[sa].astype(np.int64) == EVENT_KINDS["signage"])
+                     & (r.mem_object[sa].astype(np.int64) == sp[:, None])).any(axis=1)
             first = ~known
             if bool(first.any()):
                 fa, fp = sa[first], sp[first]
@@ -454,7 +596,28 @@ class MemoryLayer:
 
         kinds = r.mem_kind[used].astype(np.int64)
         res = r.mem_result[used].astype(np.int64)
+        rs = {k: int(v) for k, v in sorted(self.recall_stats.items())}
+        calls = max(1, rs.get("calls", 0))
+        recall = {
+            "tau": float(self.tau),
+            "k_conversation": RECALL_K_CONVERSATION, "k_other": RECALL_K_OTHER,
+            "counts": rs,
+            "recalled_rows_per_call": round(rs.get("recalled_rows", 0) / calls, 4),
+            # 呼の 3 分け: 表が空(まだ何も記録していない)/ 表はあるが 0 件(τ で全部切れた)/ 1 件以上
+            "empty_table_share": round(rs.get("calls_empty_table", 0) / calls, 4),
+            "zero_recall_share": round(rs.get("calls_zero", 0) / calls, 4),
+            "recalled_call_share": round(
+                (rs.get("calls", 0) - rs.get("calls_empty_table", 0) - rs.get("calls_zero", 0)) / calls, 4),
+            "filled_call_share": round(rs.get("calls_filled", 0) / calls, 4),
+            "candidate_below_tau_share": round(
+                rs.get("rows_candidate_below_tau", 0) / max(1, rs.get("rows_candidate", 0)), 4),
+            "used_below_tau_share": round(
+                rs.get("rows_used_below_tau", 0) / max(1, rs.get("rows_used", 0)), 4),
+        }
         return {
+            "recall": recall,
+            "k2_motif_repeats": self._k2(agents),
+            "k5_failure_avoidance": self._k5(agents),
             "n_rows": int(self.n_rows),
             "d": float(self.d), "w_r": float(self.w_r), "w_i": float(self.w_i),
             "row_bytes_actual": 25, "row_bytes_declared": int(MEMORY_ROW_BYTES_DECLARED),
@@ -475,6 +638,82 @@ class MemoryLayer:
             "score": q((self.w_r * A + self.w_i * r.mem_importance.astype(np.float64))[used]),
             "gists": int(len(self.gist)),
             "gist_agents": int(len(self._gist_order)),
+        }
+
+    def _k2(self, agents: Any) -> dict[str, Any]:
+        """K-2 の材料: 同じ鍵の再出現(Σ(n−1))と、同じ件数を種類ごとの鍵の母集団から一様に引いた期待。"""
+        r = agents.registry
+        used = r.mem_kind != _EMPTY
+        out: dict[str, Any] = {}
+        obs_all = 0.0
+        exp_all = 0.0
+        for kd in sorted(set(r.mem_kind[used].astype(np.int64).tolist())):  # 種類の数ぶん(≤ 11)
+            m = used & (r.mem_kind == kd)
+            keys = np.stack([r.mem_partner[m].astype(np.int64), r.mem_object[m].astype(np.int64),
+                             r.mem_result[m].astype(np.int64)], axis=1)
+            U = int(np.unique(keys, axis=0).shape[0])
+            e = (r.mem_n.astype(np.int64) * m).sum(axis=1)
+            d = m.sum(axis=1)
+            obs = float((e - d).sum())
+            ee = e[e > 0].astype(np.float64)
+            exp = float((ee - U * (1.0 - (1.0 - 1.0 / max(U, 1)) ** ee)).sum()) if U > 0 else 0.0
+            out[KIND_NAMES.get(int(kd), str(kd))] = {
+                "events": int(e.sum()), "rows": int(d.sum()), "key_universe": U,
+                "repeats": int(obs), "repeats_expected_uniform": round(exp, 2),
+                "ratio": round(obs / exp, 3) if exp > 0 else None,
+            }
+            obs_all += obs
+            exp_all += exp
+        out["all"] = {"repeats": int(obs_all), "repeats_expected_uniform": round(exp_all, 2),
+                      "ratio": round(obs_all / exp_all, 3) if exp_all > 0 else None,
+                      "gate_k2": ">= 10x (M15 (c)・判定は複数日+実 LLM の後)"}
+        return out
+
+    def _k5(self, agents: Any) -> dict[str, Any]:
+        """K-5(失敗の回避・修正 4)の計器: 失敗の記憶(REFUSED/CLOSED/OUT_OF_STOCK/TRAIN_FULL/PARTNER_BUSY)
+        がある相手/対象への**再訪**(同じ相手か対象の行で、その失敗より後の tick に最後の出来事があるもの。
+        同じ失敗の反復=n>1 も再訪・相手も対象も無い行はセルで照合)の件数と率を、成功の記憶(購入・食事・
+        並ぶ・会話・乗車の成功)と並べる。"""
+        r = agents.registry
+        used = r.mem_kind != _EMPTY
+        shop_like = np.isin(r.mem_kind, (EVENT_KINDS["buy"], EVENT_KINDS["eat"], EVENT_KINDS["queue"],
+                                          EVENT_KINDS["talk"], EVENT_KINDS["board"]))
+        fail = used & np.isin(r.mem_result, K5_FAILURES)
+        succ = used & shop_like & (r.mem_result == int(ResultCode.OK))
+        counts = {"fail": [0, 0], "success": [0, 0]}
+        by_result: Counter = Counter()
+        by_result_rev: Counter = Counter()
+        rows_any = np.flatnonzero((fail | succ).any(axis=1))
+        for a in rows_any.tolist():  # 逐次ループ宣言 6: 行のある体の数ぶん(ランの終わりに 1 回)
+            part = r.mem_partner[a].astype(np.int64)
+            obj = r.mem_object[a].astype(np.int64)
+            cel = r.mem_cell[a].astype(np.int64)
+            first = r.mem_tick[a].astype(np.int64)
+            last = r.mem_last[a].astype(np.int64)
+            n = r.mem_n[a].astype(np.int64)
+            for label, mask in (("fail", fail[a]), ("success", succ[a])):
+                for j in np.flatnonzero(mask).tolist():
+                    # 相手 > 対象 > セル(相手も対象も無い行はその場所)
+                    tgt_same = ((part == part[j]) if part[j] >= 0
+                                else (obj == obj[j]) if obj[j] != -1 else (cel == cel[j]))
+                    later = tgt_same & used[a] & (last > first[j])
+                    later[j] = n[j] > 1
+                    rev = bool(later.any())
+                    counts[label][0] += 1
+                    counts[label][1] += int(rev)
+                    if label == "fail":
+                        name = ResultCode(int(r.mem_result[a, j])).name
+                        by_result[name] += 1
+                        by_result_rev[name] += int(rev)
+        rate = {k: (round(v[1] / v[0], 4) if v[0] else None) for k, v in counts.items()}
+        return {
+            "failure_memories": counts["fail"][0], "failure_revisits": counts["fail"][1],
+            "failure_revisit_rate": rate["fail"],
+            "success_memories": counts["success"][0], "success_revisits": counts["success"][1],
+            "success_revisit_rate": rate["success"],
+            "failure_by_result": {k: {"memories": v, "revisits": by_result_rev[k]}
+                                  for k, v in sorted(by_result.items())},
+            "gate_k5": "failure_revisit_rate < success_revisit_rate (M15 修正 4・判定は複数日+実 LLM の後)",
         }
 
     def gist_bytes(self) -> int:

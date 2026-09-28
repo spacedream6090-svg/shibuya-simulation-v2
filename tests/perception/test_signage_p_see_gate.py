@@ -94,7 +94,7 @@ def test_the_default_is_one_and_the_golden_bytes_do_not_move():
     r, out = scene()
     assert SIGNAGE_P_SEE_DEFAULT == 1.0
     assert Renderer(r.world, r.agents).signage_p_see == 1.0
-    assert T.template_sha256().startswith("8f2959d0")
+    assert T.template_sha256().startswith("1f6c7d62")  # v1.2(旧 v1.1 = 8f2959d0)
     assert out.prompt_hash == GOLDEN_FIXED_PROMPT_HASH
 
 

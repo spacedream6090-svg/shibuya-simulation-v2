@@ -98,12 +98,12 @@ def test_activation_and_scores_and_top():
     a = table()
     lay = M.MemoryLayer(4, 8, minutes_per_tick=1.0)
     one(lay, a, 0, 0, "buy", obj=1)
-    one(lay, a, 0, 0, "buy", obj=1)       # n=2
+    one(lay, a, 0, 0, "buy", obj=1)       # n=2(第294 Q56: 統合は base に戻す=importance 1)
     one(lay, a, 90, 0, "buy", obj=2, result=int(ResultCode.CLOSED))  # importance 4
     s = lay.scores(a, np.array([0]), 100)[0]
     A = M.activation_rows(np.array([2, 1]), np.array([0, 90]), 100, 1.0)
     np.testing.assert_allclose(A, [np.log(2 / 0.5) - 0.5 * np.log(101), np.log(1 / 0.5) - 0.5 * np.log(11)])
-    np.testing.assert_allclose(s[:2], A + 0.5 * np.array([2, 4]), rtol=1e-6)
+    np.testing.assert_allclose(s[:2], A + 0.5 * np.array([1, 4]), rtol=1e-6)
     assert np.isneginf(s[2:]).all()
     assert lay.top(a, 0, 1, 100).tolist() == [1]
     mask = np.zeros(8, dtype=bool)
@@ -169,13 +169,39 @@ def test_arrivals_conversations_noticed_and_signage():
     assert lay.stats["events:signage"] == 1
 
 
-def test_signage_first_sight_reads_the_familiarity_table_when_it_exists():
+def test_signage_first_sight_is_judged_by_the_memory_table_even_with_familiarity():
+    """第294 Q58: 初見は記憶の表で判定(描画による露出=意識的な初見)。親しみの表の「入った回」は使わない。"""
     a = table(n=2, familiarity=True)
     with a.writable():
-        a.fam_thing[0, 0] = 70  # 体 0 は看板 70 をもう知っている
+        a.fam_thing[0, 0] = 70  # 体 0 は看板 70 に親しみの表では「入った回」で触れている
     lay = M.MemoryLayer(2, 8)
     lay.after_tick(a, 3, signage=[(0, 70), (1, 70)])
-    assert int((a.mem_kind[0] != 0).sum()) == 0 and int((a.mem_kind[1] != 0).sum()) == 1
+    assert int((a.mem_kind[0] != 0).sum()) == 1 and int((a.mem_kind[1] != 0).sum()) == 1
+    lay.after_tick(a, 4, signage=[(0, 70)])  # 2 回目は記憶の表にあるので書かない
+    assert int((a.mem_kind[0] != 0).sum()) == 1
+
+
+def test_merged_rows_return_importance_to_base():
+    """第294 Q56: 同じ鍵の反復(統合)は「初回 +1」を外して base に戻す。新しい行だけ +1。"""
+    a = table()
+    lay = M.MemoryLayer(4, 8)
+    r0 = one(lay, a, 0, 0, "buy", obj=5, result=int(ResultCode.CLOSED))
+    assert int(a.mem_importance[0, int(r0[0])]) == 4
+    one(lay, a, 1, 0, "buy", obj=5, result=int(ResultCode.CLOSED))
+    assert int(a.mem_importance[0, int(r0[0])]) == 3 and int(a.mem_n[0, int(r0[0])]) == 2
+
+
+def test_gist_falls_back_to_the_reason_field_in_vocab_v3():
+    """第294 Q57(親の暫定): ひと言が空/「なし」なら理由欄の先頭 40 字を要旨にする。"""
+    a = table(n=2)
+    lay = M.MemoryLayer(2, 8)
+    s0 = SimpleNamespace(session_id=0, participants=[0, 1])
+    lay.after_tick(a, 1, conv=SimpleNamespace(n_opened=1, sessions={0: s0}))
+    lay.note_utterance(a, 0, 2, s0, "", "い" * 50)
+    lay.note_utterance(a, 1, 2, s0, "なし", "")
+    row = int(np.flatnonzero(a.mem_kind[0] == M.EVENT_KINDS["talk"])[0])
+    assert lay.gist == {(0, row): "い" * 40}
+    assert lay.stats["gist_source:reason"] == 1 and lay.stats["utterances_without_comment"] == 2
 
 
 def test_gists_are_capped_per_agent():
@@ -186,7 +212,7 @@ def test_gists_are_capped_per_agent():
 
 
 # ================================================================= ラン
-def test_run_default_is_off_and_memory_is_write_only(monkeypatch):
+def test_run_default_is_off_and_memory_on_keeps_mock_behavior(monkeypatch):
     from shibuya.engine.run import run_day
 
     kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3")
@@ -196,7 +222,8 @@ def test_run_default_is_off_and_memory_is_write_only(monkeypatch):
     monkeypatch.setattr(AgentState, "state_hash",
                         lambda self: self.registry.state_hash(exclude=MEMORY_FIELDS))
     on = run_day(memory="on", **kw)
-    assert on.final_hash == off.final_hash and on.llm_calls == off.llm_calls  # 誰も読まない
+    # 6b: on は B5 に記憶の行が載る(描画が変わる)が、mock は描画の本文を読まない=挙動は同じ
+    assert on.final_hash == off.final_hash and on.llm_calls == off.llm_calls
     m = on.run_manifest_fields()
     assert m["memory"] is True and m["memory_n"] == 128
     s = m["memory_summary"]
