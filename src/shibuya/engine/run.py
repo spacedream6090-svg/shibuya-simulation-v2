@@ -655,6 +655,10 @@ class RunResult:
     n_queue_closed: int = 0
     #: 計画実行層の診断(``PlanExecutor.counters()``)。層が休んだランは空 dict。
     presence_counters: dict[str, float] = field(default_factory=dict)
+    #: 9a(D-115 ①): 退出の形・内訳・所要時間・出口セルの時別在圏(``PlanExecutor.exit_summary()``)。
+    presence_exit: dict[str, Any] = field(default_factory=dict)
+    #: 9a(D-112 ④): 退去の効果=所属解除の件数(退去・在店を解いた・列を離れた・会話を閉じた)。
+    leave_effects: dict[str, int] = field(default_factory=dict)
     #: D-66 域外抑止を効かせたか(既定 True)。False = **帰無腕**。
     outside_suppression: bool = True
     #: **発射した呼**のうち域外(``transit_state != 0``)の体宛てだった延べ数。
@@ -988,6 +992,9 @@ class RunResult:
             # ---- D-66 計画実行層(既定 True・W16+W17 のあるランだけ立つ) ----
             "plan_executor": bool(self.plan_executor),
             "exit_mode": str(self.exit_mode),
+            # ---- 9a: 退出の形の内訳と退去の効果(列追加のみ) ----
+            "presence_exit": dict(self.presence_exit),
+            "leave_effects": dict(self.leave_effects),
             "attendance_rate": float(self.attendance_rate),
             "derive_rule": str(self.derive_rule),
             "outside_suppression": bool(self.outside_suppression),
@@ -1520,6 +1527,7 @@ def run_day(
     salient_rate_per_10k: float | None = None,
     report_precondition: bool = True,
     queue_service: bool = True,
+    leave_effect: bool = True,
     population: "Population | bool | None" = None,
     occupancy_every: int = 0,
     occupancy_path: "str | Path | None" = None,
@@ -1690,6 +1698,8 @@ def run_day(
         report_precondition: **D-113 ②(第267)** 通報の前提「当該事象を知覚済み」(直近 5 tick に
             自分のセルの B4 に顕著行為の行が出た)を検査する(既定 True)。``False`` は従来どおり
             通報が必ず成功する挙動(=帰無腕・第266 以前の checkpoint ``ba01bd0b`` を再現)。
+        leave_effect: **9a(D-112 ④)** 退去=所属解除(在店・待ち行列・会話を解く・活動欄「なし」なら次の tick に
+            満了)。既定 True=欠陥の修正。``False`` は第301 以前の挙動(IDLE 化と会話相手の解除だけ=旧 golden)。
         queue_service: **D-113 ③(第268)** 満席で並んだ体を、席が空いた分だけ並んだ順に席へ
             入れて購入/食事を完了させる(既定 True)。``False`` は第267 以前の挙動(誰も捌かず
             15 tick で ``INTERRUPTED``)。既定の mock 5,000 では列が立たないので checkpoint 不変。
@@ -1715,9 +1725,9 @@ def run_day(
             ``--no-population`` では静かに休む=既存の下限対照は無傷)。
             ``False`` = **帰無腕**(rail の乱数 12% + D-61 帰りの便 + D-62 の run.py 発火=
             現行挙動。checkpoint も 1 バイト変わらない)。
-        exit_mode: 退出の実行形(設計書 §10-3)。``"immediate"`` のみ実装、
-            ``"board_intent"`` / ``"walk_to_platform"`` は**切替口だけ予約**
-            (``NotImplementedError``)。
+        exit_mode: 退出の実行形(設計書 §10-3)。既定 ``"immediate"``(即時 ``rail_depart``)・
+            **9a(D-115 ①)** ``"walk_to_platform"``=その体の路線のホームへ歩いて受容関数を通して乗る
+            (上限 ``intent_max_ticks``・超えたら即時)。``"board_intent"`` は予約(``NotImplementedError``)。
         attendance_rate: 出勤率(D-67 (b)・expedient E6・既定 1.0)。通勤・通学の体のうち
             ``1 - rate`` の割合を ``_mix64(agent_id)`` の決定論でその日「終日域外」にする。
             **1.0 では 1 ビットも変わらない**。
@@ -2135,6 +2145,7 @@ def run_day(
             exit_mode=exit_mode,
             attendance_rate=attendance_rate,
             derive_rule=str(derive_rule),
+            walk_max_ticks=int(intent_max_ticks),
         )
         presence.initialize()  # その時刻に在圏でない体を域外へ(I1 の分母)
         if runner is not None:
@@ -2307,6 +2318,10 @@ def run_day(
     #: 2=System 2 LLM/mock)× 起床入口 の判断数。層 1/2 は発射した呼(方策で分ける)・層 0 は
     #: エンジンが予定を実行した件(計画の就寝・意図の到着・計画実行層の到着/退出)。
     layer_counts = np.zeros((24, 3, len(_ENTRANCES)), dtype=np.int64)
+    #: 9a(D-112 ④): 退去の効果の件数(診断だけ)。
+    leave_counts: dict[str, int] = {"n_leave": 0, "n_leave_indoor": 0, "n_leave_queue": 0,
+                                    "n_leave_conversing": 0}
+    leave_closed = 0
     _call_layer = 1 if classical_policy is not None else 2
     # ---- 二層の段 2: 活動層(「次の予定」は上の計画境界の表から引く) ----
     act_layer: ActivityLayer | None = (
@@ -2317,6 +2332,8 @@ def run_day(
         if activity_on
         else None
     )
+    if act_layer is not None:
+        act_layer.leave_effect = bool(leave_effect)  # 9a: 退去の効果の切替口と揃える
     # ---- 段 2c: 意図の保持(活動層+候補の解決がある=語彙 v3・activity on・candidates) ----
     intent_layer: IntentLayer | None = (
         IntentLayer(n_agents, world, max_ticks=int(intent_max_ticks))
@@ -2552,6 +2569,9 @@ def run_day(
             layer_counts[(tick * tick_seconds // 3600) % 24, 0, _ENTRANCE_PLAN] += (
                 int(presence.n_arrivals) + int(presence.n_departures) - _pres0
             )
+            # 9a: 歩いて乗る退出の体の活動=目的地つき移動・到着まで(段 2c の意図と同じ形)
+            if act_layer is not None and presence.walk_started_now.size:
+                act_layer.force_arrival(agents, presence.walk_started_now, tick, count=False)
             phase["presence"] += time.perf_counter() - t0
 
         # ---- ⓪ 知覚の tick 前計算(セル配列+B4 描画欄・**1 tick 1 回**) ----
@@ -2868,6 +2888,12 @@ def run_day(
         # 寝ている間は蒸し返さない」だけ)。
         f_exempt = f_cond.astype(np.int64) <= int(WakeCondition.PLAN_TRANSIT)
 
+        # ---- 9a: 歩いて乗る退出の体は場所の変化・到着満了・計画境界で起こさない(意図保持と同じ・既定は通らない) ----
+        if presence is not None and presence.exit_mode == "walk_to_platform":
+            d_agent, d_cond, d_class = presence.suppress_walker_wakes(d_agent, d_cond, d_class)
+            p_agent, p_cond, p_class = presence.suppress_walker_wakes(p_agent, p_cond, p_class)
+            e_agent, e_cond, e_class = presence.suppress_walker_wakes(e_agent, e_cond, e_class)
+
         # ---- C10 8b: 同席の書き手(腕)と知人出現の起床(R7 (a))=前 tick の終わりの位置で ----
         a_agent = None
         if rel_layer is not None and (rel_layer.copresent_on or rel_layer.acq_wake_on):
@@ -2951,6 +2977,8 @@ def run_day(
                 np.count_nonzero(outside_now[sel.agent_id.astype(np.int64)])
             )
         n_parse_errors = 0
+        if presence is not None and presence.exit_mode == "walk_to_platform" and len(sel):
+            presence.note_calls(sel.agent_id)
         if rel_layer is not None and rel_layer.acq_wake_on and len(sel):
             _acq_sel = np.asarray(sel.condition, dtype=np.int64) == int(WakeCondition.ACQUAINTANCE)
             if bool(_acq_sel.any()):
@@ -3109,6 +3137,7 @@ def run_day(
             salient=None if runner is None or not runner.is_enabled("salient") else runner.salient,
             report_precondition=bool(report_precondition),
             queue_service=bool(queue_service),
+            leave_effect=bool(leave_effect),
             vocab_version=vocab_version,
             geometry=geom,
             focus_request=focus_request,
@@ -3139,6 +3168,8 @@ def run_day(
         result.n_focus += outcome.n_focus
         result.n_focus_lost += outcome.n_focus_lost
         result.n_talk_by_distance += outcome.n_talk_by_distance
+        for _k in ("n_leave", "n_leave_indoor", "n_leave_queue", "n_leave_conversing"):  # 4 本
+            leave_counts[_k] += int(getattr(outcome, _k))
         result.n_report_ok += outcome.n_report_ok
         result.n_report_no_event += outcome.n_report_no_event
         result.n_served_from_queue += outcome.n_served_from_queue
@@ -3168,6 +3199,13 @@ def run_day(
                     reverted.append(int(a))
 
             # ①(返事待ちの解決)は **Phase C の前**に済んでいる(``_settle_pending_invites``)。
+
+            # ---- 9a(D-112 ④): 退去した会話中の体のセッションを閉じる(理由「退去」→ CLOSING → TERMINAL) ----
+            if leave_effect and outcome.leave_conversing:
+                for _lv in np.unique(np.concatenate(outcome.leave_conversing)).tolist():
+                    # 逐次ループ宣言: この tick に退去した会話中の体の数ぶん(≤ 1 tick の呼数)
+                    if conv.close_now(int(_lv), tick, "退去") is not None:
+                        leave_closed += 1
 
             # ---- ② 新しい招待(resolve が通した 会話 を入口にする) ----
             talk = np.flatnonzero(plan.confirmed.action_code == C.ACT_TALK)
@@ -3714,7 +3752,13 @@ def run_day(
             result.walkable_area_median_m2 = float(np.median(_wk))
             result.walkable_area_min_m2 = float(_wk.min())
     result.attention = bool(attention_on)
+    result.leave_effects = {"enabled": bool(leave_effect), "leave": int(leave_counts["n_leave"]),
+                            "released_indoor": int(leave_counts["n_leave_indoor"]),
+                            "left_queue": int(leave_counts["n_leave_queue"]),
+                            "was_conversing": int(leave_counts["n_leave_conversing"]),
+                            "sessions_closed": int(leave_closed)}
     if presence is not None:
+        result.presence_exit = dict(presence.exit_summary())
         result.presence_counters = dict(presence.counters())
         result.presence_summary = presence.summary()
         # 標本の無かった時(短いラン)は NaN のまま来るので 0.0 に落とす(推測で埋めない)

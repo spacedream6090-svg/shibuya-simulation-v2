@@ -20,13 +20,20 @@
 1. **日次構築 1 回**: 到着の山の分散(``_spread_arrivals``)が**便数**ぶんのループを 1 本持つ
    (線ごとに、その線の便を時刻の降順に 1 回走る。個体数には比例しない)。
 2. **tick ごと**: イベント種(5)ぶんの ``flatnonzero`` と、退出繰り延べの**繰り延べ中の体数**
-   ぶんのベクトル演算。**個体数に比例する Python ループは無い**。
+   ぶんのベクトル演算。**個体数に比例する Python ループは無い**。9a の歩いて乗る退出は歩いている体の
+   マスク(体数の配列 1 本の ``flatnonzero``)と、意図が落ちた体の直前の結果/行為の値の種類ぶん(≤ 25)。
 
 expedient(本モジュール分・実装計画書 §8「D-66/計画実行層(第1段)」が正典)
 - E1 到着便=「ブロック開始に間に合う最も遅い便」(始発前は始発)。
 - E2 方面 → 線(埼京/湘南新宿ラインは W12 の ``lines[0]`` = 埼京線に畳む)。
 - E3 非鉄道ゲート(方面 8/9)は所要時間なし=開始 tick ちょうどにゲートセルへ。
-- E4 退出は即時 ``rail_depart``(受容関数を通さない)。``--exit-mode`` は ``immediate`` のみ実装。
+- E4 退出は即時 ``rail_depart``(受容関数を通さない)=既定 ``--exit-mode immediate``。
+  **9a(D-115 ①)**: ``walk_to_platform`` を実装=DEPART の tick に**その体の路線のホーム**への乗車の意図
+  (D-51 の ``board_line``)を立てて歩かせ、着けば ``_serve_board_queue`` が受容関数を通して乗せる。
+  会話中は従来どおり繰り延べ・買物/待ち行列は解いてから歩く・歩いて ``walk_max_ticks``(既定 60=意図の
+  上限と同じ)を超えたら**その場で ``rail_depart``**(TOO_FAR)・意図が落ちた(LLM が別の行為を選んだ・
+  運賃不足・待ちの打ち切り・経路なし)ら**その場で ``rail_depart``**(会話中なら繰り延べてから)・非鉄道
+  ゲートの体(線 −1)と便/ホーム/経路の無い体は即時。``board_intent`` は未実装(``NotImplementedError``)。
 - E5 W17 の乗車行は在圏に数えない(``count_transit=False``)。
 - E6 出勤率(``--attendance-rate``)= 通勤・通学の一部をその日「終日域外」にする。
 - E7 その日の在圏ブロックが 0 本の体は終日域外。
@@ -74,8 +81,11 @@ EXIT_DEFER_LIMIT: Final[int] = 30
 #: 延長したもの)。昇格条件 = PT の私事トリップの滞在時間分布。
 RETURN_MIN_AWAY_MIN: Final[int] = 60
 
-#: 退出の実行形(§10-3)。第1段は ``immediate`` のみ実装(他は ``NotImplementedError``)。
+#: 退出の実行形(§10-3)。``immediate``(既定)と ``walk_to_platform``(9a)を実装・``board_intent`` は予約
+#: (``NotImplementedError``)。
 EXIT_MODES: Final[tuple[str, ...]] = ("immediate", "board_intent", "walk_to_platform")
+#: 9a: 歩いて乗る退出の上限[tick](既定=段 2c の意図の上限 ``INTENT_MAX_TICKS`` と同じ 60・run が渡す)。
+EXIT_WALK_MAX_TICKS: Final[int] = 60
 
 #: 「乗車」の活動語コード(``ACTIVITY_WORDS`` の索引)。
 RIDE_ACTIVITY_CODE: Final[int] = ACTIVITY_WORDS.index("乗車")
@@ -567,7 +577,8 @@ class PlanExecutor:
         rail: ``engine.processes.rail.RailProcess``(``None`` 可=全方面をゲート扱い)。
         assets: ``world.assets.ProcessAssets``(方面→線・駅出口セル)。
         ticks: ラン長[tick]。
-        exit_mode: ``immediate`` のみ実装(他は ``NotImplementedError``)。
+        exit_mode: ``immediate``(既定)/ ``walk_to_platform``(9a)。``board_intent`` は ``NotImplementedError``。
+        walk_max_ticks: 9a の歩いて乗る退出の上限[tick](超えたら即時 ``rail_depart``)。
         attendance_rate: 出勤率(E6・既定 1.0=全員来る)。
     """
 
@@ -593,14 +604,15 @@ class PlanExecutor:
         attendance_rate: float = 1.0,
         mode: str = "derive",
         derive_rule: str = DERIVE_RULE_DEFAULT,
+        walk_max_ticks: int = EXIT_WALK_MAX_TICKS,
     ) -> None:
         if derive_rule not in DERIVE_RULES:
             raise ValueError(f"--derive-rule は {DERIVE_RULES} のどれか(いま {derive_rule!r})")
         if exit_mode not in EXIT_MODES:
             raise ValueError(f"--exit-mode は {EXIT_MODES} のどれか(いま {exit_mode!r})")
-        if exit_mode != "immediate":
+        if exit_mode == "board_intent":
             raise NotImplementedError(
-                f"exit_mode={exit_mode!r} は第2陣(設計書 §10-3・切替口だけ予約)"
+                f"exit_mode={exit_mode!r} は予約だけ(9a は walk_to_platform を実装・設計書 §10-3)"
             )
         rate = float(attendance_rate)
         if not (0.0 <= rate <= 1.0):
@@ -695,6 +707,37 @@ class PlanExecutor:
         self._defer_ids = np.empty(0, dtype=np.int64)
         self._defer_deadline = np.empty(0, dtype=np.int64)
         self._defer_line = np.empty(0, dtype=np.int64)
+        #: 9a: 繰り延べを解いたときに歩かせるか(False=即時=意図が落ちた会話中の体)。
+        self._defer_walk = np.empty(0, dtype=bool)
+        # ---- 9a 歩いて乗る退出(walk_to_platform のランだけ使う)----
+        self.walk_max_ticks = int(walk_max_ticks)
+        #: 歩き出した tick(−1=歩いていない)・その体の線・乗った後で発車待ちの印。
+        self._walk_since = np.full(n, -1, dtype=np.int32)
+        self._walk_line = np.full(n, -1, dtype=np.int32)
+        self._plan_rider = np.zeros(n, dtype=bool)
+        #: この tick に歩き出した体(``engine.run`` が活動層を「目的地つき移動・到着まで」にする)。
+        self.walk_started_now = np.empty(0, dtype=np.int64)
+        self.n_exit_walk_started = 0
+        self.n_exit_walk_waiting_at_start = 0
+        self.n_exit_walk_boarded = 0
+        self.n_exit_walk_departed = 0
+        self.n_exit_walk_gone = 0
+        self.n_exit_walk_restarted = 0
+        self.n_exit_too_far = 0
+        self.n_exit_lost = 0
+        self.n_exit_lost_deferred = 0
+        self.n_exit_gate_immediate = 0
+        self.n_exit_no_platform = 0
+        self.n_walk_wakes_suppressed = 0
+        self.n_walk_calls = 0
+        self.walk_minutes: list[int] = []
+        #: 意図が落ちた体の直前の結果/行為の内訳(9a の計測)。
+        self.lost_why: dict[str, int] = {}
+        self.fallback_minutes: list[int] = []
+        #: 正時の「出口セル・ホームセルの在圏」と出口セルの密度段の最大(9a・両方の形で数える)。
+        self.exit_cell_by_hour: list[float] = [float("nan")] * 24
+        self.platform_cell_by_hour: list[float] = [float("nan")] * 24
+        self.exit_stage_max_by_hour: list[float] = [float("nan")] * 24
         # ---- 動的に張り直す到着(civic の押し出し・LLM の乗車)----
         self._extra: dict[int, list[tuple[int, int]]] = {}
         #: **落とす DEPART の tick**(域外へ出た体の進行中ブロックぶん。-1=落とさない)。
@@ -1114,14 +1157,24 @@ class PlanExecutor:
     def step(self, tick: int) -> None:
         """在圏の出入り(到着・退出・計画活動)を実行する(§3・§4 の優先規則)。"""
         t = int(tick)
+        self.walk_started_now = np.empty(0, dtype=np.int64)
+        self._flush_walkers(t)
+        started: list[np.ndarray] = []
         self._flush_deferred_exits(t)
+        if self.walk_started_now.size:
+            started.append(self.walk_started_now)
         extra = self._extra.pop(t, None)
         if extra:
             self._do_arrive(
                 np.array([a for a, _ in extra], dtype=np.int64),
                 np.array([c for _, c in extra], dtype=np.int64),
             )
+        self.walk_started_now = np.empty(0, dtype=np.int64)
         self._run_tick(t, self._PRESENCE_TYPES)
+        if self.walk_started_now.size:
+            started.append(self.walk_started_now)
+        self.walk_started_now = (np.unique(np.concatenate(started)) if started
+                                 else np.empty(0, dtype=np.int64))
 
     def step_plan_boundaries(self, tick: int) -> None:
         """計画境界(就寝・起床)を実行する(D-62 の発火元。run.py から層へ移した)。"""
@@ -1225,21 +1278,27 @@ class PlanExecutor:
         act = np.asarray(r.activity)[ids]
         talking = act == int(Activity.CONVERSING)
         if talking.any():
-            self._defer_ids = np.concatenate([self._defer_ids, ids[talking]])
-            self._defer_deadline = np.concatenate(
-                [self._defer_deadline, np.full(int(talking.sum()), tick + EXIT_DEFER_LIMIT)]
-            )
-            self._defer_line = np.concatenate([self._defer_line, lines[talking]])
-            R.set_plan_state(self.agents, ids[talking], flags_set=FLAG_EXIT_DEFERRED)
+            self._defer(ids[talking], lines[talking], tick, walk=self.exit_mode == "walk_to_platform")
             self.n_exit_deferred += int(talking.sum())
         go, line = ids[~talking], lines[~talking]
         if go.size:
-            self._depart_now(go, line, tick)
+            if self.exit_mode == "walk_to_platform":
+                self._begin_walk(go, line, tick)
+            else:
+                self._depart_now(go, line, tick)
 
-    def _depart_now(self, ids: np.ndarray, lines: np.ndarray, tick: int) -> None:
-        """買物・待ち行列を解いてから ``rail_depart``(§4)。"""
-        if ids.size == 0:
-            return
+    def _defer(self, ids: np.ndarray, lines: np.ndarray, tick: int, *, walk: bool) -> None:
+        """会話中の退出を繰り延べる(上限 ``EXIT_DEFER_LIMIT``・解いたら歩く/即時)。"""
+        self._defer_ids = np.concatenate([self._defer_ids, ids])
+        self._defer_deadline = np.concatenate(
+            [self._defer_deadline, np.full(int(ids.size), tick + EXIT_DEFER_LIMIT)]
+        )
+        self._defer_line = np.concatenate([self._defer_line, lines])
+        self._defer_walk = np.concatenate([self._defer_walk, np.full(int(ids.size), bool(walk))])
+        R.set_plan_state(self.agents, ids, flags_set=FLAG_EXIT_DEFERRED)
+
+    def _release_affiliations(self, ids: np.ndarray, tick: int) -> None:
+        """買物・待ち行列を解く(§4・``_depart_now`` と 9a の歩き出しで共有)。"""
         r = self.agents.registry
         shopping = ids[np.asarray(r.poi_ref)[ids] >= 0]
         if shopping.size:
@@ -1249,9 +1308,147 @@ class PlanExecutor:
         if queued.size:
             R.balk_queue(self.agents, queued, int(tick))
             self.n_queue_balked += int(queued.size)
+
+    def _depart_now(self, ids: np.ndarray, lines: np.ndarray, tick: int, *, count: bool = True) -> None:
+        """買物・待ち行列を解いてから ``rail_depart``(§4)。``count=False``=9a の即時への切り替え
+        (DEPART は歩き出しで数え済み)。"""
+        if ids.size == 0:
+            return
+        self._release_affiliations(ids, tick)
         R.rail_depart(self.agents, ids, lines)
         R.set_plan_state(self.agents, ids, flags_clear=FLAG_EXIT_DEFERRED)
+        if count:
+            self.n_departures += int(ids.size)
+
+    # ------------------------------------------------------------------ 9a 歩いて乗る退出
+    def _begin_walk(self, ids: np.ndarray, lines: np.ndarray, tick: int) -> None:
+        """DEPART: 買物/列を解き、その体の路線のホームへ乗車の意図を立てて歩かせる(9a)。
+
+        非鉄道ゲート(線 −1)と、便/ホーム/経路の無い体は即時 ``rail_depart``(E3 と同じ=所要時間なし)。
+        """
+        self.walk_started_now = np.empty(0, dtype=np.int64)
+        if ids.size == 0:
+            return
+        self._release_affiliations(ids, tick)
+        gate = lines < 0
+        if gate.any():
+            R.rail_depart(self.agents, ids[gate], lines[gate])
+            self.n_exit_gate_immediate += int(gate.sum())
+        rid, rln = ids[~gate], lines[~gate]
+        walk_m, wait_m, fail_m = R.begin_exit_walk(self.agents, self.world, self.rail, rid, rln, int(tick))
+        if fail_m.any():
+            R.rail_depart(self.agents, rid[fail_m], rln[fail_m])
+            self.n_exit_no_platform += int(fail_m.sum())
+        started_m = walk_m | wait_m
+        started = rid[started_m]
+        if started.size:
+            self.n_exit_walk_restarted += int(np.count_nonzero(self._walk_since[started] >= 0))
+            self._walk_since[started] = int(tick)
+            self._walk_line[started] = rln[started_m].astype(np.int32)
+            R.set_plan_state(self.agents, started, flags_set=R.EXIT_WALK_FLAG)
+            self.n_exit_walk_started += int(started.size)
+            self.n_exit_walk_waiting_at_start += int(wait_m.sum())
+        R.set_plan_state(self.agents, ids, flags_clear=FLAG_EXIT_DEFERRED)
         self.n_departures += int(ids.size)
+        self.walk_started_now = np.sort(started)
+
+    def _flush_walkers(self, tick: int) -> None:
+        """歩いて乗る退出の体を捌く: 乗った(発車待ちへ)/ 上限超過(TOO_FAR=即時)/ 意図が落ちた(即時・会話中は
+        繰り延べてから即時)。逐次ループ宣言: なし(歩いている体のマスク=体数の配列 1 本)。"""
+        if self.exit_mode != "walk_to_platform":
+            return
+        ids = np.flatnonzero(self._walk_since >= 0).astype(np.int64)
+        if ids.size == 0:
+            return
+        r = self.agents.registry
+        st = np.asarray(r.transit_state)[ids]
+        since = self._walk_since[ids].astype(np.int64)
+        boarded = st == 1
+        stop = ~(st == 0) | (np.asarray(r.board_line)[ids] < 0) | ((int(tick) - since) >= self.walk_max_ticks)
+        if stop.any():
+            R.set_plan_state(self.agents, ids[stop], flags_clear=R.EXIT_WALK_FLAG)
+        if boarded.any():
+            b = ids[boarded]
+            self._plan_rider[b] = True
+            self.walk_minutes.extend((int(tick) - since[boarded]).tolist())
+            self.n_exit_walk_boarded += int(b.size)
+            self._walk_since[b] = -1
+        gone = st == 2
+        if gone.any():  # 列車以外で域外へ出た(civic の押し出し等)=歩きを畳む
+            self._walk_since[ids[gone]] = -1
+            self.n_exit_walk_gone += int(gone.sum())
+        still = st == 0
+        lost = still & (np.asarray(r.board_line)[ids] < 0)
+        too_far = still & ~lost & ((int(tick) - since) >= self.walk_max_ticks)
+        line = self._walk_line[ids].astype(np.int64)
+        if too_far.any():
+            tf = ids[too_far]
+            R.clear_board_intent(self.agents, tf)
+            self._depart_now(tf, line[too_far], tick, count=False)
+            self.fallback_minutes.extend((int(tick) - since[too_far]).tolist())
+            self.n_exit_too_far += int(tf.size)
+            self._walk_since[tf] = -1
+        if lost.any():
+            lo = ids[lost]
+            self._walk_since[lo] = -1
+            self.n_exit_lost += int(lo.size)
+            # 意図が落ちた理由の手がかり=直前の結果と直前の行為(計測だけ)
+            for key, arr in (("result", np.asarray(r.last_result)[lo]), ("action", np.asarray(r.last_action)[lo])):
+                vals, cnt = np.unique(arr.astype(np.int64), return_counts=True)
+                for v, c in zip(vals.tolist(), cnt.tolist()):  # 逐次: 値の種類の数ぶん(≤ 25)
+                    self.lost_why[f"{key}:{int(v)}"] = self.lost_why.get(f"{key}:{int(v)}", 0) + int(c)
+            self.fallback_minutes.extend((int(tick) - since[lost]).tolist())
+            talking = np.asarray(r.activity)[lo] == int(Activity.CONVERSING)
+            if talking.any():
+                self._defer(lo[talking], line[lost][talking], tick, walk=False)
+                self.n_exit_lost_deferred += int(talking.sum())
+            if (~talking).any():
+                self._depart_now(lo[~talking], line[lost][~talking], tick, count=False)
+
+    def plan_exit_mask(self, agent_ids) -> np.ndarray:
+        """9a: 計画の退出で歩いて乗った体か(``RailProcess`` が発車のとき LLM の乗車と分ける)。"""
+        a = np.asarray(agent_ids, dtype=np.int64).ravel()
+        return (self._walk_since[a] >= 0) | self._plan_rider[a]
+
+    def notify_departed_by_plan(self, agent_ids, tick: int) -> None:
+        """9a: 歩いて乗った計画の退出の体が列車で域外へ出た(張り直さない=当日の DEPART は消費済み)。"""
+        a = np.asarray(agent_ids, dtype=np.int64).ravel()
+        if a.size == 0:
+            return
+        R.set_plan_state(self.agents, a, flags_clear=R.EXIT_WALK_FLAG)
+        walking = self._walk_since[a] >= 0  # 乗って発車するまでの間に層の掃除を挟まなかった体
+        if walking.any():
+            self.walk_minutes.extend((int(tick) - self._walk_since[a[walking]].astype(np.int64)).tolist())
+            self.n_exit_walk_boarded += int(walking.sum())
+        self._walk_since[a] = -1
+        self._plan_rider[a] = False
+        self.n_exit_walk_departed += int(a.size)
+
+    def suppress_walker_wakes(
+        self, agent: np.ndarray, cond: np.ndarray, cls: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """9a: 歩いて乗る退出の体の**場所の変化(CELL_BLOCK)・到着満了(ACTIVITY_EXPIRY)・計画境界(PLAN_*)**を
+        起こさない(段 2c の意図保持と同じ=着いたらエンジンが乗せる・退出そのものが計画境界の実行=即時の形で
+        呼ばないのと揃える・驚き/体/会話では起こす)。"""
+        if self.exit_mode != "walk_to_platform" or agent.size == 0:
+            return agent, cond, cls
+        a = np.asarray(agent, dtype=np.int64)
+        c = np.asarray(cond, dtype=np.int64)
+        walking = (self._walk_since[a] >= 0) | self._plan_rider[a]
+        drop = walking & ((c == 10) | (c == 11) | ((c >= 1) & (c <= 4)))  # CELL_BLOCK / 満了 / PLAN_*
+        if not bool(drop.any()):
+            return agent, cond, cls
+        self.n_walk_wakes_suppressed += int(np.count_nonzero(drop))
+        keep = ~drop
+        return agent[keep], cond[keep], cls[keep]
+
+    def note_calls(self, agent_ids) -> None:
+        """9a: 歩いて乗る退出の間に呼ばれた体の数(計測だけ)。"""
+        if self.exit_mode != "walk_to_platform":
+            return
+        a = np.asarray(agent_ids, dtype=np.int64).ravel()
+        if a.size:
+            self.n_walk_calls += int(np.count_nonzero(self._walk_since[a] >= 0))
 
     def _flush_deferred_exits(self, tick: int) -> None:
         """繰り延べ中の退出を捌く(会話が終わった / 上限 30 tick 超過 / 既に域外)。"""
@@ -1266,6 +1463,7 @@ class PlanExecutor:
         ready = (act != int(Activity.CONVERSING)) | expired
         go = ids[ready & ~gone]
         line = self._defer_line[ready & ~gone]
+        walk = self._defer_walk[ready & ~gone]
         self.n_exit_forced += int(np.count_nonzero(expired & ~gone & (act == int(Activity.CONVERSING))))
         keep = ~ready & ~gone
         if int(np.count_nonzero(gone)):
@@ -1273,8 +1471,15 @@ class PlanExecutor:
         self._defer_ids = ids[keep]
         self._defer_deadline = self._defer_deadline[keep]
         self._defer_line = self._defer_line[keep]
+        self._defer_walk = self._defer_walk[keep]
         if go.size:
-            self._depart_now(go, line, int(tick))
+            if self.exit_mode != "walk_to_platform":
+                self._depart_now(go, line, int(tick))  # 既定(immediate)=従来の 1 行
+            else:
+                if walk.any():
+                    self._begin_walk(go[walk], line[walk], int(tick))
+                if (~walk).any():  # 9a: 意図が落ちた会話中の体=会話が終われば即時
+                    self._depart_now(go[~walk], line[~walk], int(tick), count=False)
 
     # ------------------------------------------------------------------ civic 連携(I4)
     def candidates_for_pull(self, tick: int) -> np.ndarray:
@@ -1427,6 +1632,16 @@ class PlanExecutor:
         self.match_out_den += int(np.count_nonzero(o))
         self.match_out_num += int(np.count_nonzero(o & ~in_area[:m]))
         h = (tick // 60) % 24
+        if self.exit_cell_by_hour[h] != self.exit_cell_by_hour[h]:  # 9a: 出口/ホームのセルの在圏と密度段
+            cell = np.asarray(r.cell, dtype=np.int64)
+            ex = self._exit_cells()
+            self.exit_cell_by_hour[h] = float(np.count_nonzero(in_area & np.isin(cell, ex))) if ex.size else 0.0
+            pl = np.asarray(getattr(self.rail, "line_cell", np.zeros(0)), dtype=np.int64)
+            pl = pl[(pl >= 0) & (pl < self.world.n_cells)]
+            self.platform_cell_by_hour[h] = (
+                float(np.count_nonzero(in_area & np.isin(cell, pl))) if pl.size else 0.0)
+            stage = np.asarray(self.world.cells.density_stage)
+            self.exit_stage_max_by_hour[h] = float(stage[ex].max()) if ex.size else 0.0
         if self.in_area_by_hour[h] != self.in_area_by_hour[h]:  # NaN = その時の初標本
             self.in_area_by_hour[h] = float(np.count_nonzero(in_area))
             n_in = int(np.count_nonzero(in_area))
@@ -1502,6 +1717,56 @@ class PlanExecutor:
             "plan_match_out": float(self.plan_match_out),
             "day_night_ratio_09_03": float(self.day_night_ratio),
         }
+
+    def exit_summary(self) -> dict[str, Any]:
+        """9a の manifest ``presence_exit``(退出の形・内訳・所要時間・出口セルの時別在圏)。"""
+
+        def q(x: list[int]) -> dict[str, Any]:
+            v = np.asarray(x, dtype=np.float64)
+            if v.size == 0:
+                return {"n": 0}
+            return {f"p{k}": float(np.percentile(v, k)) for k in (0, 10, 50, 90, 100)} | {
+                "mean": round(float(v.mean()), 3), "n": int(v.size)}
+
+        def hours(x: list[float]) -> list[float | None]:
+            return [None if v != v else v for v in x]
+
+        out: dict[str, Any] = {
+            "exit_mode": self.exit_mode,
+            "departures": int(self.n_departures),
+            "deferred": int(self.n_exit_deferred),
+            "forced_after_defer": int(self.n_exit_forced),
+            "shopping_interrupted": int(self.n_shopping_interrupted),
+            "queue_balked": int(self.n_queue_balked),
+            "exit_cell_in_area_by_hour": hours(self.exit_cell_by_hour),
+            "platform_cell_in_area_by_hour": hours(self.platform_cell_by_hour),
+            "exit_cell_density_stage_max_by_hour": hours(self.exit_stage_max_by_hour),
+        }
+        if self.exit_mode == "walk_to_platform":
+            out |= {
+                "walk_max_ticks": int(self.walk_max_ticks),
+                "walk_started": int(self.n_exit_walk_started),
+                "walk_waiting_at_start": int(self.n_exit_walk_waiting_at_start),
+                "walk_boarded": int(self.n_exit_walk_boarded),
+                "walk_departed_by_train": int(self.n_exit_walk_departed),
+                "too_far_immediate": int(self.n_exit_too_far),
+                "intent_lost_immediate": int(self.n_exit_lost),
+                "intent_lost_deferred": int(self.n_exit_lost_deferred),
+                "gate_immediate": int(self.n_exit_gate_immediate),
+                "no_platform_immediate": int(self.n_exit_no_platform),
+                "still_walking_at_end": int(np.count_nonzero(self._walk_since >= 0)),
+                "walk_gone_other": int(self.n_exit_walk_gone),
+                "walk_restarted": int(self.n_exit_walk_restarted),
+                "boarded_waiting_train_at_end": int(np.count_nonzero(self._plan_rider)),
+                "walk_minutes_to_board": q(self.walk_minutes),
+                "fallback_minutes": q(self.fallback_minutes),
+                "walk_wakes_suppressed": int(self.n_walk_wakes_suppressed),
+                "calls_while_walking": int(self.n_walk_calls),
+                "intent_lost_last_result_action": dict(sorted(self.lost_why.items())),
+            }
+        else:
+            out |= {"immediate": int(self.n_departures)}
+        return out
 
     def summary(self) -> str:
         """要約 1 行(``c7lib.parse_run_summary`` の正規表現に当たらない書式)。"""

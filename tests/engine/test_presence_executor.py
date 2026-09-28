@@ -80,13 +80,19 @@ W17_GOLDEN = {
         # で再現・下の *_hunger_v1 と ``test_hunger_model_v1_reproduces_the_stage_3_checkpoints`` で
         # 固定)= 帰無腕 e0083baff1ff50b7 / 97,028・v3 既定 a1036ab5b06e461c / 68,781。
         # 記録: docs/bench/analysis/energy-classical-2026-09-28/README.md §5a
-        "null_arm_final": "18f8807264d04018", "null_arm_llm_calls": 100_509,
+        # **9a(第302・D-112 ④)**: 退去の効果(所属解除=在店・列・会話を解く)が既定になり、退去を選ぶ
+        # mock の腕の final と呼数が動いた。5 段目の値(``leave_effect=False`` で再現・下の *_leave_off と
+        # ``test_leave_effect_off_reproduces_the_stage_5_checkpoints`` で固定)= 帰無腕 18f8807264d04018 /
+        # 100,509・v3 既定 c9ab05383accca2e / 69,603。記録: docs/bench/analysis/presence-shape-2026-09-29/README.md §9a
+        "null_arm_final": "72cb9cd52982da74", "null_arm_llm_calls": 100_439,
+        "null_arm_final_leave_off": "18f8807264d04018", "null_arm_llm_calls_leave_off": 100_509,
         "null_arm_final_hunger_v1": "e0083baff1ff50b7", "null_arm_llm_calls_hunger_v1": 97_028,
         "null_arm_final_l4x1": "ed1863e089c8480e", "null_arm_llm_calls_l4x1": 41_141,
         # 第277(二層の段 3): **語彙 v3 の既定**(=CLI の新しい既定・activity on・mock v3 形)。
         # v1 の行は上のまま残す(ライブラリの既定は v1=切替口)。
         # 記録: docs/bench/analysis/two-layer-2026-09-27/README.md §0
-        "v3_default_final": "c9ab05383accca2e", "v3_default_llm_calls": 69_603,
+        "v3_default_final": "993276d5e5bb5cbe", "v3_default_llm_calls": 69_978,
+        "v3_default_final_leave_off": "c9ab05383accca2e", "v3_default_llm_calls_leave_off": 69_603,
         "v3_default_final_hunger_v1": "a1036ab5b06e461c", "v3_default_llm_calls_hunger_v1": 68_781,
         "v3_default_final_l4x1": "6845e3acb8906210", "v3_default_llm_calls_l4x1": 36_502,
         "v1_outside_blocks": 590_430, "v1_outside_dist": [92, 160_033, 133_575, 47_861],
@@ -302,12 +308,13 @@ def test_l4_scale_1_reproduces_the_stage_2c_checkpoints():
     if g is None or "v3_default_final_l4x1" not in g:
         pytest.skip(f"実 W17 の l4x1 golden が無い(md5 {w17_digest()})")
     # 5 段目 5a(第291): 段 2c の値は空腹 v1 で録られている=旧規則を明示する
+    # 9a(第302): 退去の効果の前の値=旧挙動(leave_effect=False)を明示する
     null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-                   report_precondition=False, l4_scale=1.0, hunger_model="v1")
+                   report_precondition=False, l4_scale=1.0, hunger_model="v1", leave_effect=False)
     assert null.final_hash.startswith(g["null_arm_final_l4x1"])
     assert int(null.llm_calls) == g["null_arm_llm_calls_l4x1"]
     v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
-                 l4_scale=1.0, hunger_model="v1")
+                 l4_scale=1.0, hunger_model="v1", leave_effect=False)
     assert v3.final_hash.startswith(g["v3_default_final_l4x1"])
     assert int(v3.llm_calls) == g["v3_default_llm_calls_l4x1"]
     assert v3.run_manifest_fields()["l4_exceeded"] is False
@@ -324,16 +331,38 @@ def test_hunger_model_v1_reproduces_the_stage_3_checkpoints():
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final_hunger_v1" not in g:
         pytest.skip(f"実 W17 の hunger v1 golden が無い(md5 {w17_digest()})")
+    # 9a(第302): 3 段目の値は退去の効果の前=旧挙動(leave_effect=False)を明示する
     null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-                   report_precondition=False, hunger_model="v1")
+                   report_precondition=False, hunger_model="v1", leave_effect=False)
     assert null.final_hash.startswith(g["null_arm_final_hunger_v1"])
     assert int(null.llm_calls) == g["null_arm_llm_calls_hunger_v1"]
     assert null.run_manifest_fields()["hunger_model"] == "v1"
     v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
-                 hunger_model="v1")
+                 hunger_model="v1", leave_effect=False)
     assert v3.final_hash.startswith(g["v3_default_final_hunger_v1"])
     assert int(v3.llm_calls) == g["v3_default_llm_calls_hunger_v1"]
     assert v3.energy == {}
+
+
+@real_data
+def test_leave_effect_off_reproduces_the_stage_5_checkpoints():
+    """9a(第302・D-112 ④): 退去の効果の切替口 ``leave_effect=False`` で 5 段目の既定値をそのまま再現する。
+
+    効果は退去を選んだ体の所属解除だけ=off なら resolve の退去は第301 以前の 3 行と同じ。
+    """
+    from shibuya.cli import run as cli_run
+
+    g = W17_GOLDEN.get(w17_digest())
+    if g is None or "v3_default_final_leave_off" not in g:
+        pytest.skip(f"実 W17 の leave off golden が無い(md5 {w17_digest()})")
+    null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
+                   report_precondition=False, leave_effect=False)
+    assert null.final_hash.startswith(g["null_arm_final_leave_off"])
+    assert int(null.llm_calls) == g["null_arm_llm_calls_leave_off"]
+    v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3", leave_effect=False)
+    assert v3.final_hash.startswith(g["v3_default_final_leave_off"])
+    assert int(v3.llm_calls) == g["v3_default_llm_calls_leave_off"]
+    assert v3.run_manifest_fields()["leave_effects"]["enabled"] is False
 
 
 # ================================================================= ③ T4 規模不変
@@ -900,7 +929,10 @@ def test_the_real_civic_path_pulls_and_pushes_through_the_layer():
 
 
 def test_native_mode_and_other_exit_modes_are_reserved():
-    """§10-1/3: ``mode='native'`` と ``--exit-mode`` の他 2 値は**予約**(NotImplemented)。"""
+    """§10-1/3: ``mode='native'`` と ``--exit-mode board_intent`` は**予約**(NotImplemented)。
+
+    9a(第302): ``walk_to_platform`` は実装した(``tests/engine/test_presence_exit_walk.py``)。
+    """
     wk = make_weekly([(0, 0, 100, ACT_WORK, PK_WORK, 3)], 1)
     with pytest.raises(NotImplementedError):
         PlanBlocks.from_weekly(wk, 0, np.array([True]), mode="native")

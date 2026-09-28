@@ -704,7 +704,8 @@ def main(argv: list[str] | None = None) -> int:
         "--exit-mode",
         choices=("immediate", "board_intent", "walk_to_platform"),
         default="immediate",
-        help="退出の実行形(設計書 §10-3)。immediate のみ実装・他は予約(NotImplementedError)",
+        help="退出の実行形(設計書 §10-3)。immediate(既定=即時)/ walk_to_platform(9a=その体の路線の"
+             "ホームへ歩いて受容関数を通して乗る)・board_intent は予約(NotImplementedError)",
     )
     ap.add_argument(
         "--attendance-rate",
@@ -720,6 +721,12 @@ def main(argv: list[str] | None = None) -> int:
         default="on",
         help="D-113 ②: 通報の前提「当該事象を知覚済み」の検査(既定 on)。off=従来どおり必ず成功"
              "(第266 以前の checkpoint ba01bd0b を再現する帰無腕)",
+    )
+    ap.add_argument(
+        "--leave-effect",
+        choices=("on", "off"),
+        default="on",
+        help="9a(D-112 ④): 退去=所属解除(在店・列・会話を解く)。off=第301 以前の挙動(IDLE 化だけ=旧 golden)",
     )
     ap.add_argument(
         "--queue-service",
@@ -1056,6 +1063,7 @@ def main(argv: list[str] | None = None) -> int:
         exit_mode=str(args.exit_mode),
         report_precondition=(str(args.report_precondition) == "on"),
         queue_service=(str(args.queue_service) == "on"),
+        leave_effect=(str(args.leave_effect) == "on"),
         activity=(str(args.activity) == "on"),
         eatery=str(args.eatery),
         chooser=str(args.chooser),

@@ -166,6 +166,9 @@ __all__ = [
     "sync_transit_activity",
     "release_indoor",
     "balk_queue",
+    "begin_exit_walk",
+    "clear_board_intent",
+    "EXIT_WALK_FLAG",
     "request_open_close",
 ]
 
@@ -458,6 +461,15 @@ class ResolveOutcome:
     #: 語彙 v3「並ぶ」を食事/購入へ委譲した件数(第275 #2)。v1/v2 では 0。
     n_queue_to_eat: int = 0
     n_queue_to_buy: int = 0
+    #: 9a(D-112 ④): 退去の効果=所属解除の件数(退去の総数・在店を解いた・列を離れた・会話中だった)。
+    n_leave: int = 0
+    n_leave_indoor: int = 0
+    n_leave_queue: int = 0
+    n_leave_conversing: int = 0
+    #: 退去した**会話中の**体(``engine.run`` が会話マネージャの終了経路=CLOSING で閉じる)。
+    leave_conversing: list = field(default_factory=list)
+    #: 9a: 退去の効果の切替口(False=第301 以前=IDLE 化と会話相手の解除だけ=旧 golden の再現)。
+    leave_effect: bool = True
 
     def add_result(self, code: int, n: int) -> None:
         if n:
@@ -1264,6 +1276,7 @@ def apply(
     track_visits: bool = False,
     energy: Any = None,
     track_events: bool = False,
+    leave_effect: bool = True,
 ) -> ResolveOutcome:
     """Phase C: 確定した intent だけを世界へ適用する(**唯一の書き手**)。
 
@@ -1333,6 +1346,7 @@ def apply(
         track_visits=bool(track_visits),
         energy=energy,
         track_events=bool(track_events),
+        leave_effect=bool(leave_effect),
     )
     r = agents.registry
     with agents.writable(), world.writable():
@@ -2341,6 +2355,9 @@ def _apply_wait(agents, world, aid, tgt, tick, out, schedule) -> None:
     r = agents.registry
     # 段 2c(親決定 Q20): 意図を持って**歩いている**体の なし/待機 は「新しい行為が無い」=歩みを止めない
     walking = (r.intent_action[aid] != INTENT_NONE) & (r.activity[aid] == int(Activity.MOVING))
+    if "plan_flags" in r.arrays:  # 9a: 計画の退出でホームへ歩いている体も同じ(ビットは walk_to_platform のランだけ立つ)
+        walking |= ((r.plan_flags[aid].astype(np.int64) & EXIT_WALK_FLAG) != 0) & (
+            r.activity[aid] == int(Activity.MOVING))
     r.activity[aid[~walking]] = int(Activity.WAITING)
     _set_focus(agents, world, aid, tick, out, require_near=True)
     _ok(agents, aid, tick, out)
@@ -2443,8 +2460,36 @@ def _apply_talk(agents, world, aid, tgt, tick, out, schedule) -> None:
 
 
 def _apply_leave(agents, world, aid, tgt, tick, out, schedule) -> None:
-    """退去: 所属解除(**失敗しない**)。"""
+    """退去: **所属解除**(行動契約書 §2.1「会話・待ち行列・施設からの所属解除。会話は CLOSING を経て
+    閉じる」・**失敗しない**)。
+
+    9a(D-112 ④・欠陥の修正): 第263 まで IDLE 化と会話相手の解除だけで所属が残っていた。いまは
+    在店(``poi_ref``)→ ``release_indoor``・待ち行列(``queue_poi``)→ ``balk_queue``・会話中 →
+    ``out.leave_conversing`` に控え、``engine.run`` が会話マネージャの終了経路(``close_now`` 理由
+    「退去」→ CLOSING → TERMINAL)で閉じる。「帰る」の意味は持たない(域外へは出ない)。
+    逐次ループ宣言(P4): なし(ベクトル処理)。
+    """
     r = agents.registry
+    if aid.size == 0:
+        return
+    if not out.leave_effect:  # 切替口 off=第301 以前の挙動
+        r.activity[aid] = int(Activity.IDLE)
+        r.talk_partner[aid] = -1
+        _ok(agents, aid, tick, out)
+        return
+    indoor = aid[r.poi_ref[aid] >= 0]
+    if indoor.size:
+        release_indoor(agents, indoor)
+    queued = aid[r.queue_poi[aid] >= 0]
+    if queued.size:
+        balk_queue(agents, queued, int(tick))  # 結果は下の _ok で OK に戻す(失敗しない行動)
+    talking = aid[r.activity[aid] == int(Activity.CONVERSING)]
+    if talking.size:
+        out.leave_conversing.append(np.asarray(talking, dtype=np.int64).copy())
+    out.n_leave += int(aid.size)
+    out.n_leave_indoor += int(indoor.size)
+    out.n_leave_queue += int(queued.size)
+    out.n_leave_conversing += int(talking.size)
     r.activity[aid] = int(Activity.IDLE)
     r.talk_partner[aid] = -1
     _ok(agents, aid, tick, out)
@@ -2855,6 +2900,84 @@ def _serve_poi_queue(agents, world, tick: int, out: ResolveOutcome) -> None:
     if (~adm_buy).any():
         _complete_eat(agents, world, adm[~adm_buy], adm_poi[~adm_buy], adm_price[~adm_buy], tick, out)
     out.n_served_from_queue += int(adm.size)
+
+
+#: 9a: ``plan_flags`` の「計画の退出で歩いている」ビット(``engine.presence`` が立てて落とす)。
+EXIT_WALK_FLAG: Final[int] = 1 << 4
+
+
+def begin_exit_walk(agents: AgentState, world: World, rail: Any, agent_ids, lines, tick: int
+                    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """**9a 退出を歩かせる**(D-115 ①): 計画の退出の体に**その体の路線のホーム**への乗車の意図を立てる。
+
+    D-51 の乗車の意図(``board_line``)と同じ形=ホームに居れば乗車待ちへ・居なければそのホームの代表
+    ノードへ ``target_node`` を張って歩かせる(着けば ``_apply_engine_step`` が待ち行列へ入れ、
+    ``_serve_board_queue`` が受容関数 ``accept_quota`` を通して乗せる)。行き先は**最寄りでなく**
+    ``lines``(その体の路線)のホーム。
+
+    Returns:
+        入力と同じ並びの 3 つの bool マスク ``(歩き出した, ホームで待ちに入った, 立てられなかった)``
+        (立てられない=その線に今日の便が無い・ホームのセルが無い・経路なし)。
+    Note:
+        逐次ループ宣言(P4): なし(便のある路線の表への ``searchsorted`` と経路の配列問い合わせ)。
+    """
+    a = np.asarray(agent_ids, dtype=np.int64).ravel()
+    ln = np.asarray(lines, dtype=np.int64).ravel()
+    none = np.zeros(a.size, dtype=bool)
+    if a.size == 0:
+        return none, none, none
+    if rail is None or not bool(getattr(rail, "active", False)):
+        return none, none, ~none
+    plines, pcells, pnodes = _platform_table(world, rail)
+    if plines.size == 0:
+        return none, none, ~none
+    pos = np.searchsorted(plines, ln)
+    pos_c = np.minimum(pos, plines.size - 1)
+    has = (ln >= 0) & (plines[pos_c] == ln)
+    with agents.writable():
+        r = agents.registry
+        node_now = r.node[a].astype(np.int64)
+        dest = np.where(has, pnodes[pos_c], -1)
+        cell_now = _cell_of_node(world, np.maximum(node_now, 0))
+        at_plat = has & (node_now >= 0) & (cell_now == pcells[pos_c])
+        need = has & ~at_plat & (node_now >= 0)
+        route_ok = np.zeros(a.size, dtype=bool)
+        if need.any():
+            nxt = np.asarray(world.graph.route_next_node(node_now[need], dest[need]), dtype=np.int64)
+            route_ok[np.flatnonzero(need)] = (nxt >= 0) | (dest[need] == node_now[need])
+        wait = a[at_plat]
+        walk = a[route_ok]
+        if wait.size:
+            r.board_line[wait] = ln[at_plat].astype(r.board_line.dtype)
+            r.board_since[wait] = int(tick)
+            r.activity[wait] = int(Activity.WAITING)
+            r.target_node[wait] = -1
+            if hasattr(rail, "n_board_waiting"):
+                rail.n_board_waiting += int(wait.size)
+        if walk.size:
+            r.board_line[walk] = ln[route_ok].astype(r.board_line.dtype)
+            r.board_since[walk] = -1  # まだホームに立っていない
+            same = dest[route_ok] == node_now[route_ok]
+            go = walk[~same]
+            r.activity[go] = int(Activity.MOVING)
+            r.target_node[go] = dest[route_ok][~same].astype(r.target_node.dtype)
+            here = walk[same]
+            if here.size:  # 代表ノードに居るがセルの判定が外れた体(起きない想定)=その場で待ち
+                r.board_since[here] = int(tick)
+                r.activity[here] = int(Activity.WAITING)
+                r.target_node[here] = -1
+    return route_ok, at_plat, ~(at_plat | route_ok)
+
+
+def clear_board_intent(agents: AgentState, agent_ids) -> None:
+    """乗車の意図(``board_line``/``board_since``)を落とす(9a: 計画の退出を即時に切り替えた体)。"""
+    a = np.asarray(agent_ids, dtype=np.int64).ravel()
+    if a.size == 0:
+        return
+    with agents.writable():
+        r = agents.registry
+        r.board_line[a] = -1
+        r.board_since[a] = -1
 
 
 def balk_queue(agents: AgentState, agent_ids, tick: int) -> None:

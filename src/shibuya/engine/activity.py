@@ -196,6 +196,9 @@ class ActivityLayer:
         self.n_arrival_expired = 0
         self.n_partner_expired = 0
         self.n_fail_immediate = 0
+        #: 9a: 退去(活動欄「なし」)で次の tick に満了させた件数。切替口(``engine.run`` が退去の効果と揃える)。
+        self.n_leave_expired = 0
+        self.leave_effect = True
         self.n_wander_steps = 0
         self.n_wander_bad = 0
         self.n_intent_moves = 0
@@ -297,6 +300,11 @@ class ActivityLayer:
         now = failed & no_text
         until = np.where(now, int(tick) + 1, until)
         self.n_fail_immediate += int(np.count_nonzero(now))
+        # 9a(D-112 ④): 退去=所属を解いて活動が終わる。活動欄が「なし」なら次の tick に満了(考え直す)
+        leave_now = (codes == C.ACT_LEAVE) & no_text & ~now & bool(self.leave_effect)
+        if bool(leave_now.any()):
+            until = np.where(leave_now, int(tick) + 1, until)
+            self.n_leave_expired += int(np.count_nonzero(leave_now))
         # 就寝=活動なし(睡眠は計画の実行が持つ・D-62)
         none_kind = kind == int(ActivityKind.NONE)
         until = np.where(none_kind, ACTIVITY_UNTIL_NONE, until)
@@ -496,6 +504,7 @@ class ActivityLayer:
             "arrival_expired": int(self.n_arrival_expired),
             "partner_expired": int(self.n_partner_expired),
             "fail_immediate": int(self.n_fail_immediate),
+            "leave_expired": int(self.n_leave_expired),
             "wander_steps": int(self.n_wander_steps),
             "wander_bad_target": int(self.n_wander_bad),
             "intent_moves": int(self.n_intent_moves),

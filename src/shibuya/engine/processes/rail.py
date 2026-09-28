@@ -653,12 +653,20 @@ class RailProcess:
                         self.agents, on_leaving, self.train_line[ref[on_leaving]]
                     )
                     self.n_departed_riders += int(on_leaving.size)
+                    # 9a(D-115 ①): 計画の退出で歩いて乗った体は LLM の乗車と分ける(帰りの便を付けず・
+                    # 張り直さない=当日の DEPART は消費済み)。既定(immediate)では空=従来の 2 行のまま。
+                    plan = (self.presence.plan_exit_mask(on_leaving)
+                            if (self.presence is not None and hasattr(self.presence, "plan_exit_mask"))
+                            else None)
+                    llm_riders = on_leaving if (plan is None or not plan.any()) else on_leaving[~plan]
                     # D-61: 域内に家がある体には**帰りの便**をここで割り当てる
-                    self._assign_return(on_leaving, t)
+                    self._assign_return(llm_riders, t)
                     # D-66 §4: LLM が「乗車」を選んで域外へ出た体は、当日の残り DEPART を
                     # 落として**次の在圏ブロック**に到着を張り直す(層が持つ)。
                     if self.presence is not None:
-                        self.presence.notify_departed_by_llm(on_leaving, t)
+                        if plan is not None and plan.any():
+                            self.presence.notify_departed_by_plan(on_leaving[plan], t)
+                        self.presence.notify_departed_by_llm(llm_riders, t)
             self.occupancy[leaving] = 0
             self.n_departures += int(leaving.size)
             if self.log is not None:
