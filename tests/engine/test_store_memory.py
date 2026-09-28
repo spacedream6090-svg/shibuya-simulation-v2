@@ -83,7 +83,8 @@ def test_own_visits_write_valence_from_the_result_and_merge_by_poi():
     ep(lay, a, 20, 0, "eat", 5, CLOSED)
     ep(lay, a, 30, 0, "queue", 5)
     j = row_of(a, 0, 5)
-    assert float(a.sm_valence[0, j]) == 1.0 and float(a.sm_precision[0, j]) == 3.0  # +1 −1 +1
+    # 第296 Q77(7b で修正): 並ぶの成功は向き 0=+1 −1 0 → 0(精度は 3)
+    assert float(a.sm_valence[0, j]) == 0.0 and float(a.sm_precision[0, j]) == 3.0
     assert int(a.sm_n[0, j]) == 3 and int(a.sm_first[0, j]) == 10 and int(a.sm_last[0, j]) == 30
     assert int(a.sm_source[0, j]) == SM.STORE_SOURCE_BIT["self"]
     st = lay.store.stats

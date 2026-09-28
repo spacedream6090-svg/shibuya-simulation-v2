@@ -81,6 +81,8 @@ from shibuya.engine.activity import ActivityLayer, payload_of
 from shibuya.engine.intent import INTENT_MAX_TICKS, IntentLayer
 from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES, FamiliarityLayer
 from shibuya.engine.memory import MEMORY_MODES, MEMORY_N, RECALL_TAU, MemoryLayer
+from shibuya.engine.wom import WomExtractor
+from shibuya.engine.wom import hear as wom_hear
 from shibuya.engine.store_memory import (
     DEFAULT_STORE_DECAY,
     STORE_MEMORY_MODES,
@@ -560,6 +562,8 @@ class RunResult:
     #: D-120 7a(店の評価の記憶): 表を確保したか(``--store-memory on``)・要約(行数 M・σ・減衰の形を含む)。
     store_memory: bool = False
     store_memory_summary: dict[str, Any] = field(default_factory=dict)
+    #: D-120 7b(会話からの抽出): 発話・抽出・向き・照合できない語・照合できた店の上位(店の記憶 on のランだけ)。
+    wom: dict[str, Any] = field(default_factory=dict)
     #: 5 段目 5a(診断): 内受容の段の跨ぎの延べ(変数 × 上げ/下げ × 全体/起きて範囲内)。
     #: 起床入口「体の状態」の内訳を空腹と疲労・体感温度に分けて読むため(挙動には効かない)。
     intero_crossings: dict[str, int] = field(default_factory=dict)
@@ -946,6 +950,8 @@ class RunResult:
             # ---- D-120 7a(店の評価の記憶): 腕。列追加のみ ----
             "store_memory": bool(self.store_memory),
             "store_memory_summary": dict(self.store_memory_summary),
+            # ---- D-120 7b(会話からの抽出): 列追加のみ ----
+            "wom": dict(self.wom),
             "calls_by_condition": dict(self.calls_by_condition),
             "synonym_table_version": _synonym_table_version(self.vocab_version),
             "action_usage": dict(self.action_usage),
@@ -2265,6 +2271,10 @@ def run_day(
     # ---- D-120 7a: 店の評価の記憶(エピソードの書き手に乗る・本段では誰も読まない) ----
     if mem_layer is not None and store_memory_on:
         mem_layer.enable_store(int(store_memory_n), sigma=store_sigma_table, decay=store_decay)
+    # ---- D-120 7b: 会話からの抽出(店名の辞書=W6 の店・評価語の辞書 v0・呼数 0) ----
+    wom_ex: WomExtractor | None = (
+        WomExtractor.from_world(world) if mem_layer is not None and mem_layer.store is not None else None
+    )
     if _fam_renderer is not None and hasattr(_fam_renderer, "memory_recall"):
         _fam_renderer.memory_recall = (
             (lambda i_, t_, c_, inv_: mem_layer.recall(agents, i_, t_, c_, inv_))
@@ -2272,14 +2282,31 @@ def run_day(
             else None
         )
 
-    def _utter(agent_id: int, t_now: int, action: Any, comment: str, reason: str = "") -> None:
+    def _utter(agent_id: int, t_now: int, action: Any, comment: str, reason: str = "",
+               parse: Any = None) -> None:
         """会話ターンの発話 1 回(``conv.utterance``)。6a: 記憶の会話の行と要旨(on のときだけ)。
 
         6b(第294 Q57 暫定): 要旨の源=ひと言が空/「なし」なら理由欄の先頭 40 字(語彙 v3)。
+        7b(D-120 N3 (a)): 店の記憶 on のランだけ、発話(v1/v2=ひと言・v3=理由+対象)から店名と評価語を
+        抽出し、**宛先**(会話の相手=``talk_partner``・セッションの参加者)の店の行へ伝聞として書く。
         """
+        partner_before = int(agents.registry.talk_partner[int(agent_id)]) if wom_ex is not None else -1
         s = conv.utterance(agent_id, t_now, action=action, comment=comment)
         if mem_layer is not None:
             mem_layer.note_utterance(agents, int(agent_id), int(t_now), s, comment, reason)
+        if wom_ex is not None and s is not None:
+            tgt = getattr(parse, "target", None)
+            text = wom_ex.utterance_text(
+                vocab_version,
+                comment=str(getattr(parse, "raw_comment", "") or comment or ""),
+                reason=str(getattr(parse, "raw_reason", "") or reason or ""),
+                target=str(getattr(tgt, "raw", "") or ""),
+            )
+            ex = wom_ex.extract(text, int(agents.registry.cell[int(agent_id)]))
+            wom_ex.observe(ex)
+            others = [int(p) for p in s.participants if int(p) != int(agent_id)]
+            listener = partner_before if partner_before in others else (others[0] if others else -1)
+            wom_hear(mem_layer.store, agents, int(t_now), listener, ex)
     #: 発射した呼の起床条件ごとの件数(起床の内訳・満了入口の列を含む)。
     calls_by_cond = np.zeros(N_WAKE_CONDITIONS_ALL, dtype=np.int64)
 
@@ -2615,7 +2642,7 @@ def run_day(
                     n_parse_errors_fleet += 1
                 if conv is not None and res.condition == int(WakeCondition.CONVERSATION_TURN):
                     _utter(res.agent_id, tick, res.parse.action, res.parse.comment,
-                           res.parse.reason)
+                           res.parse.reason, res.parse)
             phase["llm"] += time.perf_counter() - t0
         if fleet_bridge is not None:
             t0 = time.perf_counter()
@@ -2647,7 +2674,7 @@ def run_day(
                     n_parse_errors_fleet += 1
                 if conv is not None and res.condition == int(WakeCondition.CONVERSATION_TURN):
                     _utter(res.agent_id, tick, res.parse.action, res.parse.comment,
-                           res.parse.reason)
+                           res.parse.reason, res.parse)
             phase["llm"] += time.perf_counter() - t0
 
         # ---- 艦隊の繰り延べを起床候補へ再投入(不応期は免除・親決定 (a)・09-09) ----
@@ -2784,7 +2811,8 @@ def run_day(
                         n_parse_errors += 1
                     if conv is not None and cond == int(WakeCondition.CONVERSATION_TURN):
                         # 会話ターンの応答は**発話ブロック**(1呼=1ブロック・§3)
-                        _utter(a, tick, res.parse.action, res.parse.comment, res.parse.reason)
+                        _utter(a, tick, res.parse.action, res.parse.comment, res.parse.reason,
+                               res.parse)
             else:
                 # 逐次ループ宣言2′: 同じ呼数ぶん(描画は同じ・往復だけ非同期になる)
                 calls: list[LLMCall] = []
@@ -3368,6 +3396,17 @@ def run_day(
     result.store_memory_summary = (
         mem_layer.store.summary(agents, max(0, int(ticks) - 1), mem_layer.tau)
         if mem_layer is not None and mem_layer.store is not None
+        else {}
+    )
+    result.wom = (
+        {
+            **wom_ex.summary(tuple(getattr(world.assets, "poi_name", ()) or ())),
+            "store_rows_with_wom": int(
+                result.store_memory_summary.get("rows_with_source_bit", {}).get("wom", 0)
+            ),
+            "store_events_wom": int(mem_layer.store.stats.get("events:wom", 0)),
+        }
+        if wom_ex is not None and mem_layer is not None and mem_layer.store is not None
         else {}
     )
     if fam_layer is not None and result.familiarity_summary:

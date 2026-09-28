@@ -15,7 +15,8 @@ A の近似)。**本段では誰も読まない**(7c で選び手と B5 が読�
 
 書き手(:meth:`StoreMemory.on_episodes`=``MemoryLayer.record`` がエピソードを書いた直後に同じ配列で呼ぶ)
     (i) **自分の訪問**(N2 (a)): エピソードの kind=購入/食事/並ぶ・object=POI(≥0)→ 同じ POI の行へ
-        向き=結果コードから(``OK`` +1・``OUT_OF_STOCK``/``CLOSED``/``LOST_ARBITRATION``/``TOO_FAR`` −1・
+        向き=結果コードから(``OK`` +1(**並ぶの成功は 0**=第296 Q77・続く購入/食事の成功と合わせて 1 回の
+        訪問で +1 を 2 回得ない)・``OUT_OF_STOCK``/``CLOSED``/``LOST_ARBITRATION``/``TOO_FAR`` −1・
         それ以外 0)・出どころ=自分。LLM に評価を書かせない(M10)。統合(同じ鍵の反復)のエピソードも
         1 回の証拠として足す(訪問ごとに 1 件)。
     (iii) **看板**(修正 1 の二本立て): 記憶の表に「看板の初見」のエピソード(kind=11)が立ったときだけ・
@@ -109,6 +110,7 @@ STORE_SCORE_P_CAP: Final[float] = 4.0
 #: 自分の訪問の書き手が拾うエピソードの種類(``engine.memory.EVENT_KINDS`` の buy/eat/queue)と看板。
 _KINDS_SELF: Final[tuple[int, ...]] = (EVENT_KINDS["buy"], EVENT_KINDS["eat"], EVENT_KINDS["queue"])
 _KIND_SIGNAGE: Final[int] = EVENT_KINDS["signage"]
+_KIND_QUEUE: Final[int] = EVENT_KINDS["queue"]
 _VALENCE_LABEL: Final[dict[int, str]] = {1: "+1", 0: "0", -1: "-1"}
 #: POI 索引の上限(人の符号 1<<30|id と場所 −(cell+2) を POI と取り違えない)。
 _POI_MAX: Final[int] = 1 << 30
@@ -220,9 +222,12 @@ class StoreMemory:
         if not bool(pick.any()):
             return
         src = np.where(own[pick], STORE_SOURCE_BIT["self"], STORE_SOURCE_BIT["signage"])
-        val = np.where(own[pick], valence_of_result(result[pick]), 0)
+        # 第296 Q77: 並ぶの成功は向き 0(精度は足す)
+        v_all = valence_of_result(result)
+        v_all[(kind == _KIND_QUEUE) & (result == int(ResultCode.OK))] = 0
+        val = np.where(own[pick], v_all[pick], 0)
         if bool(own.any()):
-            vo = valence_of_result(result[own])
+            vo = v_all[own]
             self.stats["events:self"] += int(own.sum())
             for v, c in Counter(vo.tolist()).items():  # 向きの数ぶん(≤ 3)
                 self.stats[f"events:self:valence{_VALENCE_LABEL[int(v)]}"] += int(c)
@@ -233,8 +238,11 @@ class StoreMemory:
         self.write(agents, tick, a[pick], obj[pick], val, src)
 
     def write(self, agents: Any, tick: int, a: np.ndarray, poi: np.ndarray, valence: np.ndarray,
-              source_bit: np.ndarray) -> np.ndarray:
-        """(体, 店, 向き, 出どころのビット)の配列 → 行(体ごとに 1 件ずつの回に分ける)→ 各件の行番号。"""
+              source_bit: np.ndarray, scale: float = 1.0) -> np.ndarray:
+        """(体, 店, 向き, 出どころのビット)の配列 → 行(体ごとに 1 件ずつの回に分ける)→ 各件の行番号。
+
+        ``scale`` は 1 件の精度 1/σ² に掛ける係数(7b の聞き手への転写の重み=宛先 1.0・非宛先 0.5・傍受 0.2)。
+        """
         a = np.asarray(a, dtype=np.int64)
         out = np.full(a.size, -1, dtype=np.int64)
         if a.size == 0:
@@ -245,6 +253,7 @@ class StoreMemory:
         w = np.zeros(a.size, dtype=np.float64)
         for name, bit in STORE_SOURCE_BIT.items():  # 出どころの数ぶん(4)
             w[source_bit == bit] = self.weight[name]
+        w *= float(scale)
         order = np.lexsort((np.arange(a.size), a))
         sa = a[order]
         starts = np.flatnonzero(np.concatenate(([True], sa[1:] != sa[:-1])))
