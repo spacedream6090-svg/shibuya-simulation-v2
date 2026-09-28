@@ -1,4 +1,7 @@
 """小さいもの①(第300 Q107): B5 近接行の**距離の同点**を run_salt の決定論ハッシュで撹拌する。
+第 2 批①(第304 Q130): 近接行の**並び**を距離の昇順に(同点は同じ鍵の順)。
+
+Q107 の検査は並びを旧(``near_order="id"``)に固定して「載る人」だけを見る。Q130 の検査は下の節。
 
 - ``id``(旧)= C7 のベクトル化前の実装と同じ(``test_nearby_vectorized`` の基準)=旧 golden。
 - ``hash``(既定)= k 人目の距離より近い人は全員・同点の人から足りない分を撹拌鍵の小さい順に。
@@ -24,7 +27,8 @@ from shibuya.world.state import World
 from .test_nearby_vectorized import _reference_nearby_items, crowd
 
 
-def tied_crowd(n: int = 200, *, near: str = "hash", seed: int = 7, same_xy: bool = True, salt: bytes | None = None):
+def tied_crowd(n: int = 200, *, near: str = "hash", seed: int = 7, same_xy: bool = True, salt: bytes | None = None,
+               order: str = "id"):
     """1 セルに n 体が**同じ座標**(同じノード)=全員が同点。"""
     w = World.synthetic(n_cells=4, seed=3)
     a = AgentState(n)
@@ -36,7 +40,7 @@ def tied_crowd(n: int = 200, *, near: str = "hash", seed: int = 7, same_xy: bool
         a.hunger[:] = 6
         a.last_result_tick[:] = 1
     w.cells.density[:] = w.compute_density(a.cell)
-    r = Renderer(w, a, seed=seed, near_tiebreak=near, near_salt=salt)
+    r = Renderer(w, a, seed=seed, near_tiebreak=near, near_salt=salt, near_order=order)
     r.prepare_tick(600)
     return r, a
 
@@ -143,9 +147,12 @@ def test_cli_flag_and_manifest():
         RUN.run_day(n_agents=10, ticks=2, near_tiebreak="random")
 
 
-#: classical 1,500 体・seed 1・v3(実世界資産)の final(第300 Q107)。``id`` = HEAD bb44474 の既定と同じ(旧 golden)。
+#: classical 1,500 体・seed 1・v3(実世界資産)の final。
+#: ``hash``(既定)= 第304 Q130 の距離順+Q107 の同点撹拌 / ``hash_order_id`` = 第304(3c86b6b)の既定=並びは行番号の
+#: 昇順(Q130 の前)/ ``classical_tie_id`` = 両方 id = HEAD bb44474 の既定と同じ(Q107 の前=旧 golden)。
 CLASSICAL_1500_GOLDEN = {
-    "hash": ("e0a6f3f90fd8fe388312ff4f472239e59cc0194fed50accc4b5073d4bfdfc1a0", 26_845),
+    "hash": ("91732f34f9e2da62d543f77fef773f4600a8b94380f6bafd42203e98f5b8417c", 26_869),
+    "hash_order_id": ("e0a6f3f90fd8fe388312ff4f472239e59cc0194fed50accc4b5073d4bfdfc1a0", 26_845),
     "classical_tie_id": ("803f04417718539898234b865bb5c6c16b50d7328b28ebd6e412b2b4db311d3b", 26_753),
 }
 
@@ -161,9 +168,89 @@ def test_classical_checkpoint_moves_with_hash_and_id_reproduces_the_old_one():
     kw = dict(n_agents=1500, seed=1, world_dir=str(world), vocab_version="v3", policy="classical",
               chooser="classical")
     new = cli.run(**kw)
-    old = cli.run(near_tiebreak="id", **kw)
+    mid = cli.run(near_order="id", **kw)
+    old = cli.run(near_tiebreak="id", near_order="id", **kw)
     assert (new.final_hash, int(new.llm_calls)) == CLASSICAL_1500_GOLDEN["hash"]
+    assert (mid.final_hash, int(mid.llm_calls)) == CLASSICAL_1500_GOLDEN["hash_order_id"]
     assert (old.final_hash, int(old.llm_calls)) == CLASSICAL_1500_GOLDEN["classical_tie_id"]
     m = new.run_manifest_fields()["near_tiebreak"]
-    assert m["mode"] == "hash" and m["ties_broken"] > 0
-    assert old.run_manifest_fields()["near_tiebreak"] == {"mode": "id", "ties_broken": 0, "tie_candidates": 0}
+    assert m["mode"] == "hash" and m["ties_broken"] > 0 and m["order"] == "distance" and m["order_ties"] > 0
+    assert old.run_manifest_fields()["near_tiebreak"] == {"mode": "id", "ties_broken": 0, "tie_candidates": 0,
+                                                          "order": "id", "order_ties": 0}
+
+
+# ---------------------------------------------------------------- 第304 Q130: 近接行の並び=距離順
+def _dist(items):
+    return [d for _, d in items]
+
+
+def test_near_order_modes_and_default():
+    from shibuya.perception.renderer import DEFAULT_NEAR_ORDER, NEAR_ORDERS, check_near_order
+
+    assert NEAR_ORDERS == ("distance", "id") and DEFAULT_NEAR_ORDER == "distance"
+    assert check_near_order("id") == "id"
+    with pytest.raises(ValueError):
+        check_near_order("random")
+    r, _a = tied_crowd(order="distance")
+    assert r.near_order == "distance"
+    assert Renderer(r.world, r.agents).near_order == "distance"
+
+
+def test_distance_order_sorts_by_distance_and_keeps_text_and_members():
+    """連続座標の混雑世界: 距離順は旧(id 順)と**同じ人・同じ文面・同じ距離**を並べ替えただけ。"""
+    for mode in ("fixed", "ranking"):
+        r_d, a = crowd(n=300, friends=True, mode=mode, near_order="distance")
+        tc = r_d._tickc
+        n_multi = 0
+        for i in range(a.n):
+            got = r_d._nearby_items(i, int(a.cell[i]), tc)
+            ref = _reference_nearby_items(r_d, i, int(a.cell[i]), tc)
+            assert sorted(got) == sorted(ref)                      # 載る人・文面・距離は同じ
+            assert _dist(got) == sorted(_dist(got))                # 距離の昇順
+            n_multi += len(got) >= 2
+        assert n_multi > 50
+
+
+def test_distance_order_breaks_ties_with_the_same_keys_and_keeps_the_focus_first():
+    r, a = tied_crowd(n=60, near="hash", order="distance")
+    tc = r._tickc
+    for i in range(0, a.n, 7):
+        got = _ids(r._nearby_items(i, 0, tc))
+        key = near_tie_keys(r._near_salt64, i, np.asarray(got, dtype=np.int64))
+        assert list(key) == sorted(key)                            # 全員同点 → 鍵の小さい順
+    assert r.near_order_ties > 0
+    # 焦点(注意の焦点の欄があるラン)は距離に関係なく先頭
+    w = World.synthetic(n_cells=4, seed=3)
+    b = AgentState(30, attention_columns=True)
+    with b.writable():
+        b.cell[:] = 0
+        b.xy[:] = np.random.default_rng(9).uniform(0.0, 50.0, size=(30, 2))
+        b.kind[:] = AgentKind.VISITOR
+        b.money[:] = 3_000
+        b.last_result_tick[:] = 1
+        far = int(np.argmax(((b.xy - b.xy[0]) ** 2).sum(axis=1)))
+        b.focus_target[0] = far
+    w.cells.density[:] = w.compute_density(b.cell)
+    rf = Renderer(w, b, seed=7)
+    rf.prepare_tick(600)
+    got = rf._nearby_items(0, 0, rf._tickc)
+    assert _ids(got)[0] == far and _dist(got)[1:] == sorted(_dist(got)[1:])
+
+
+def test_id_order_reproduces_the_previous_order():
+    r_i, a = crowd(n=300, friends=True, near_order="id")
+    tc = r_i._tickc
+    for i in range(a.n):
+        assert r_i._nearby_items(i, int(a.cell[i]), tc) == _reference_nearby_items(r_i, i, int(a.cell[i]), tc)
+    assert r_i.near_order_ties == 0
+
+
+def test_cli_has_the_near_order_flag():
+    from shibuya import cli
+    from shibuya.engine import run as RUN
+
+    src = open(cli.__file__, encoding="utf-8").read()
+    assert '"--near-order"' in src and "near_order=str(args.near_order)" in src
+    assert '"--near-order"' in open(RUN.__file__, encoding="utf-8").read()
+    with pytest.raises(ValueError):
+        RUN.run_day(n_agents=10, ticks=2, near_order="random")

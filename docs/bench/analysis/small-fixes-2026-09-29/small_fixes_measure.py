@@ -9,6 +9,15 @@
         --scratch <作業用の場所> --out $D/q107_byte_check.json            # ① HEAD と作業木(id=一致・hash=同点の描画だけ)
     python $D/small_fixes_measure.py fleet --out $D/q28_fleet.json         # ② 艦隊スモーク(偽 vLLM)の繰り延べと警告
     python $D/small_fixes_measure.py waste --out $D/d52_waste.json         # ④ 廃棄の内訳(店のビン・世帯の消費・街路ごみ)
+    python $D/small_fixes_measure.py waste --out $D/q135_waste.json        # 第 2 批④ ラン要約の新しい帯(同じ道具)
+    # 第 2 批①(第304 Q130: 近接行の並び=距離順)
+    python $D/small_fixes_measure.py t5 --only mock_rel_on_dist,classical_off_dist,classical_on_dist,mock_rel_on_hash,classical_off_hash,classical_on_hash --out $D/q130_t5.json
+    python $D/small_fixes_measure.py arms15 --axis order --out $D/q130_arms15.json
+    python $D/small_fixes_measure.py bytecheck --axis order --head-src <HEAD 3c86b6b の src> --head-label 3c86b6b \
+        --scratch <作業用の場所> --out $D/q130_byte_check.json
+
+第 1 批の腕(``*_hash`` / ``*_id``・``--axis tiebreak``)は第 2 批の後も第 304 の条件で再現できるよう、並びを旧
+(``near_order="id"``)に固定して回す。第 2 批の腕(``*_dist``・``--axis order``)は並びの既定(距離順)。
 
 - ``t5``: C10 8b の計測道具(``c10-relations-2026-09-28/rel8b_measure.py`` の ``one``=層化 5,000 体・seed 1・v3・
   ``--memory on``)に ``near_tiebreak`` の腕を足して回す。T5 = 相手に選ばれた回数と ID の層内相関(呼数加重 |ρ|・
@@ -49,17 +58,22 @@ REL8B = HERE.parent / "c10-relations-2026-09-28" / "rel8b_measure.py"
 W6 = HERE.parent / "w6-regen-2026-09-28" / "w6_regen_measure.py"
 CLS = {"policy": "classical", "chooser": "classical"}
 #: T5 の腕(名前: (抽出, 引数))。BASE(v3・memory on)は rel8b の既定。
+OLD_ORDER = {"near_order": "id"}  # 第 1 批(第304)の条件=並びは行番号の昇順
 T5_ARMS: dict[str, tuple[str, dict[str, Any]]] = {
-    "mock_off_hash": ("stratified", {}),
-    "mock_off_id": ("stratified", {"near_tiebreak": "id"}),
-    "mock_rel_on_hash": ("stratified", {"relations": "on"}),
-    "mock_rel_on_id": ("stratified", {"relations": "on", "near_tiebreak": "id"}),
-    "classical_off_hash": ("stratified", CLS),
-    "classical_off_id": ("stratified", {**CLS, "near_tiebreak": "id"}),
-    "classical_on_hash": ("stratified", {**CLS, "relations": "on"}),
-    "classical_on_id": ("stratified", {**CLS, "relations": "on", "near_tiebreak": "id"}),
-    # 計測だけ(実装していない): 近接行の並び(id 昇順)も撹拌したら
-    "classical_off_order_hash": ("stratified", CLS),
+    "mock_off_hash": ("stratified", {**OLD_ORDER}),
+    "mock_off_id": ("stratified", {"near_tiebreak": "id", **OLD_ORDER}),
+    "mock_rel_on_hash": ("stratified", {"relations": "on", **OLD_ORDER}),
+    "mock_rel_on_id": ("stratified", {"relations": "on", "near_tiebreak": "id", **OLD_ORDER}),
+    "classical_off_hash": ("stratified", {**CLS, **OLD_ORDER}),
+    "classical_off_id": ("stratified", {**CLS, "near_tiebreak": "id", **OLD_ORDER}),
+    "classical_on_hash": ("stratified", {**CLS, "relations": "on", **OLD_ORDER}),
+    "classical_on_id": ("stratified", {**CLS, "relations": "on", "near_tiebreak": "id", **OLD_ORDER}),
+    # 計測だけ(第 1 批): 近接行の並び(id 昇順)も撹拌したら
+    "classical_off_order_hash": ("stratified", {**CLS, **OLD_ORDER}),
+    # 第 2 批①(第304 Q130): 並び=距離順(既定)・同点は hash
+    "mock_rel_on_dist": ("stratified", {"relations": "on"}),
+    "classical_off_dist": ("stratified", CLS),
+    "classical_on_dist": ("stratified", {**CLS, "relations": "on"}),
 }
 ORDER_HASH_ARMS = ("classical_off_order_hash",)
 BYTE_CONFIGS: dict[str, dict[str, Any]] = {
@@ -165,24 +179,30 @@ def cmd_arms15(args: argparse.Namespace) -> int:
 
     w6 = _load(W6, "w6_regen_measure")
     rows = []
+    # axis tiebreak(第 1 批): 同点の切り方 hash/id(並びは旧=id)/ axis order(第 2 批): 並び distance/id
+    sides = ((("hash", {"near_tiebreak": "hash", **OLD_ORDER}), ("id", {"near_tiebreak": "id", **OLD_ORDER}))
+             if args.axis == "tiebreak" else (("hash", {"near_order": "distance"}), ("id", {"near_order": "id"})))
     for name, kw in w6.ARMS.items():
         got = {}
-        for mode in ("hash", "id"):
+        for mode, extra in sides:
             t0 = time.perf_counter()
-            res = cli.run(n_agents=args.agents, seed=args.seed, world_dir=args.world, near_tiebreak=mode, **kw)
+            res = cli.run(n_agents=args.agents, seed=args.seed, world_dir=args.world, **extra, **kw)
             calls = int(res.column("calls").sum()) if res.diagnostics.size else 0
-            got[mode] = {"final": res.final_hash, "llm_calls": calls,
+            got[mode] = {"final": res.final_hash, "llm_calls": calls, "args": extra,
                          "near_tiebreak": res.run_manifest_fields().get("near_tiebreak", {}),
                          "wall_seconds_nondeterministic": round(time.perf_counter() - t0, 2)}
-        row = {"arm": name, "args": kw, "hash": got["hash"], "id": got["id"],
+        row = {"arm": name, "args": kw, "axis": args.axis, "hash": got["hash"], "id": got["id"],
                "final_equal": got["hash"]["final"] == got["id"]["final"],
                "calls_equal": got["hash"]["llm_calls"] == got["id"]["llm_calls"]}
         rows.append(row)
-        print(f"{name}: id {got['id']['final'][:8]} hash {got['hash']['final'][:8]} "
+        nt = got["hash"]["near_tiebreak"]
+        print(f"{name}: id {got['id']['final'][:8]} new {got['hash']['final'][:8]} "
               f"{'=' if row['final_equal'] else '≠'} calls {got['id']['llm_calls']:,}→{got['hash']['llm_calls']:,} "
-              f"ties {got['hash']['near_tiebreak'].get('ties_broken')}", flush=True)
-    Path(args.out).write_text(json.dumps({"schema": "shibuya.bench/small-fixes/q107-arms15/1", "rows": rows},
-                                         ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
+              f"ties {nt.get('ties_broken')} order_ties {nt.get('order_ties')}", flush=True)
+    schema = "q107-arms15/1" if args.axis == "tiebreak" else "q130-arms15/1"
+    Path(args.out).write_text(json.dumps({"schema": f"shibuya.bench/small-fixes/{schema}", "axis": args.axis,
+                                          "rows": rows}, ensure_ascii=False, indent=1) + "\n",
+                              encoding="utf-8", newline="\n")
     return 0
 
 
@@ -195,8 +215,22 @@ def cmd_bytecheck_one(args: argparse.Namespace) -> int:
     kw = dict(BYTE_CONFIGS[args.config])
     if args.near:
         kw["near_tiebreak"] = args.near
+    if args.order:
+        kw["near_order"] = args.order
     tie_calls: list[tuple[int, int]] = []
-    if args.near == "hash":
+    if args.order == "distance":  # 第 2 批: 並びが行番号の昇順から変わった描画の (tick, 体)
+        from shibuya.perception import renderer as RD
+
+        orig_sort = RD.Renderer._near_sort
+
+        def near_sort(self: Any, i: int, chosen: list[int], q: Any, d2: Any, head: int) -> Any:
+            out = orig_sort(self, i, chosen, q, d2, head)
+            if list(out[0]) != list(chosen):
+                tie_calls.append((int(self._tickc.tick), int(i)))
+            return out
+
+        RD.Renderer._near_sort = near_sort  # type: ignore[method-assign]
+    elif args.near == "hash":
         from shibuya.perception import renderer as RD
 
         orig = RD.Renderer._nearby_items
@@ -218,7 +252,8 @@ def cmd_bytecheck_one(args: argparse.Namespace) -> int:
                                                          "tie_calls": sorted(set(tie_calls))}),
                                             encoding="utf-8")
     print(json.dumps({
-        "config": args.config, "near": args.near or "(HEAD 既定)", "final": res.final_hash[:16],
+        "config": args.config, "near": args.near or "(HEAD 既定)", "order": args.order or "(HEAD 既定)",
+        "final": res.final_hash[:16],
         "calls": int(res.llm_calls), "blocks_rows": int(blocks.num_rows),
         "blocks_sha": _h({n: blocks.column(n).to_pylist() for n in blocks.column_names}),
         "calls_columns_sha": {n: _h(calls.column(n).to_pylist()) for n in calls.column_names},
@@ -230,9 +265,12 @@ def cmd_bytecheck_one(args: argparse.Namespace) -> int:
 def cmd_bytecheck(args: argparse.Namespace) -> int:
     scratch = Path(args.scratch)
     got: dict[tuple[str, str], dict[str, Any]] = {}
-    sides = (("head", args.head_src, ""), ("work_id", "", "id"), ("work_hash", "", "hash"))
+    if args.axis == "tiebreak":  # 第 1 批(HEAD bb44474・並びは旧に固定)
+        sides = (("head", args.head_src, "", ""), ("work_id", "", "id", "id"), ("work_hash", "", "hash", "id"))
+    else:  # 第 2 批(HEAD 3c86b6b・同点は既定の hash)
+        sides = (("head", args.head_src, "", ""), ("work_id", "", "", "id"), ("work_hash", "", "", "distance"))
     for name in BYTE_CONFIGS:
-        for side, src, near in sides:
+        for side, src, near, order in sides:
             env = dict(os.environ)
             if src:
                 env["PYTHONPATH"] = src
@@ -241,6 +279,8 @@ def cmd_bytecheck(args: argparse.Namespace) -> int:
                    "--agents", str(args.agents), "--seed", str(args.seed), "--tape", str(scratch / f"{side}_{name}")]
             if near:
                 cmd += ["--near", near]
+            if order:
+                cmd += ["--order", order]
             r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", check=True, env=env)
             got[(side, name)] = json.loads(r.stdout.strip().splitlines()[-1])
     runs = []
@@ -268,7 +308,10 @@ def cmd_bytecheck(args: argparse.Namespace) -> int:
         runs.append(row)
         print(name, {k: v for k, v in row.items() if k.endswith(("equal", "differ", "subset_of_tie_renders",
                                                                   "differs_calls", "tie_render_calls"))}, flush=True)
-    doc = {"schema": "shibuya.bench/small-fixes/q107-byte-check/1", "head": args.head_label,
+    doc = {"schema": ("shibuya.bench/small-fixes/q107-byte-check/1" if args.axis == "tiebreak"
+                      else "shibuya.bench/small-fixes/q130-byte-check/1"), "head": args.head_label, "axis": args.axis,
+           "note": ("axis order: work_hash = 既定(並び=距離順)・work_id = --near-order id。tie_calls = 並びが行番号の"
+                    "昇順から変わった描画の (tick, 体)"),
            "how": ("same runs (mock/classical 5,000, seed 1) with the committed source (git archive) and the working "
                    "tree with --near-tiebreak id and hash. id must equal HEAD everywhere. hash: when the call "
                    "sequence is the same (mock), the calls whose prompt differs must be a subset of the calls whose "
@@ -369,6 +412,9 @@ def cmd_waste(args: argparse.Namespace) -> int:
             "household_consumption_rows": float(pc.get("waste.consumed", 0.0)),
         },
         "static_store_expectation": store,
+        # 第 2 批④(第304 Q135 (a)): ラン要約の廃棄帯=店だけの静的な帯+内訳 3 つ(manifest ``waste_sink``・要約の行)
+        "waste_sink_manifest": dict(getattr(res, "waste_sink", {}) or {}),
+        "summary_waste_line": next((ln.strip() for ln in res.summary().splitlines() if "廃棄" in ln and "band" in ln), ""),
         "params": {"LITTER_G_PER_PERSON_TICK": LITTER_G_PER_PERSON_TICK, "CLEANING_WINDOWS": CLEANING_WINDOWS},
     }
     # c7-day-4(39 万体)の在圏 journal から在圏の人・分 → 街路ごみの発生量(0.05 g/人/tick × 人・分)
@@ -396,6 +442,8 @@ def main(argv: list[str] | None = None) -> int:
         sp.add_argument("--seed", type=int, default=1)
         if name in ("t5", "arms15", "bytecheck", "fleet", "waste"):
             sp.add_argument("--out", required=True)
+        if name in ("arms15", "bytecheck"):
+            sp.add_argument("--axis", choices=("tiebreak", "order"), default="tiebreak")
         if name == "t5":
             sp.add_argument("--only", default="")
         if name == "t5-one":
@@ -408,6 +456,7 @@ def main(argv: list[str] | None = None) -> int:
             sp.add_argument("--config", required=True, choices=tuple(BYTE_CONFIGS))
             sp.add_argument("--tape", required=True)
             sp.add_argument("--near", default="", choices=("", "hash", "id"))
+            sp.add_argument("--order", default="", choices=("", "distance", "id"))
         if name == "fleet":
             sp.add_argument("--ticks", type=int, default=24)
     args = ap.parse_args(argv)

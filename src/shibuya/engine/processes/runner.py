@@ -416,6 +416,34 @@ class WorldProcessRunner:
             return None
         return self.ledger.goods.waste_band(days=1)
 
+    def waste_sink_report(self) -> dict | None:
+        """第304 Q135 (a): 廃棄 sink の内訳 3 つ(店・世帯の消費・街路)と**店だけの静的な帯**(報告だけ)。
+
+        帯 = 店舗の期限切れ在庫の静的な期待値 × (1 ± 30%)(``GoodsLedger.store_waste_band``)。
+        OK/NG は**店の収集量**を帯と比べる。区の総排出量(W1・119.6 t/日)との比較は保留。物の台帳が無ければ ``None``。
+        """
+        if self.ledger is None or getattr(self.ledger, "goods", None) is None:
+            return None
+        goods = self.ledger.goods  # 層契約: engine は economy を import しない=帯は物の台帳が返す
+        total = self.projected_waste_tonnes_per_day()
+        waste_on = self.is_enabled("waste")
+        store = self.waste.waste_g_collected / 1e6 if waste_on else 0.0
+        household = self.waste.consumed_g / 1e6 if waste_on else 0.0
+        street = (self.street_cleaning.swept_g / 1e6) if self.is_enabled("street_cleaning") else 0.0
+        goods_t = float(goods.waste_band(days=1).tonnes)
+        expected, lo, hi = goods.store_waste_band()
+        return {
+            "total_t": round(total, 6),
+            "breakdown_t": {"store_expired_stock": round(store, 6), "household_consumption": round(household, 6),
+                            "street_litter": round(street, 6),
+                            "other_goods": round(goods_t - store - household, 6)},
+            "band_store_t": [round(lo, 6), round(hi, 6)],
+            "expected_store_t": round(expected, 6),
+            "band_ok": bool(hi > 0.0 and lo <= store <= hi),
+            "band_basis": "店舗の期限切れ在庫の静的期待(初期在庫 × SKU 廃棄率(切り捨て)× 質量)±30%・体数に依らない・expedient・未リサーチ(D-52 (a)・第304 Q135 (a))",
+            "ward_total_comparison": "保留(区 119.6 t/日との比較は、世帯の一般ごみ(消費した財の質量以外)=第 2 陣を入れてから)",
+        }
+
     def projected_waste_tonnes_per_day(self) -> float:
         """その日の廃棄 sink[t/日](物の台帳 + 街路清掃の回収分)。"""
         if not self.is_enabled("waste"):
@@ -462,12 +490,15 @@ class WorldProcessRunner:
             f"  ActualLog {self.log.n_appended:,} 行 / 遵守率 "
             f"{rate.rate:.3f}(n={rate.n_total:,}・SCHEDULED {rate.n_scheduled:,})"
         )
-        band = self.waste_band_report()
-        if band is not None:
+        ws = self.waste_sink_report()
+        if ws is not None:
+            b = ws["breakdown_t"]
+            lo, hi = ws["band_store_t"]
             lines.append(
-                f"  廃棄 sink(検算②): {self.projected_waste_tonnes_per_day():.4f} t/日 "
-                f"(band {band.low:.1f}-{band.high:.1f} t/日) "
-                f"{'OK' if band.low <= self.projected_waste_tonnes_per_day() <= band.high else 'NG'}"
+                f"  廃棄 sink(検算②): {ws['total_t']:.4f} t/日(店 {b['store_expired_stock']:.4f}・世帯の消費 "
+                f"{b['household_consumption']:.4f}・街路 {b['street_litter']:.4f})店の帯 "
+                f"(band {lo:.2f}-{hi:.2f} t/日) {'OK' if ws['band_ok'] else 'NG'}"
+                f"(帯=店の静的期待 {ws['expected_store_t']:.3f} t/日 ±30%・区の総排出量との比較は保留)"
             )
         lines.append(
             "  過程別[s]: "

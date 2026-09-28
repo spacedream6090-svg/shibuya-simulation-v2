@@ -47,8 +47,13 @@ def _reference_nearby_items(self, i: int, cell: int, tc) -> list[tuple[str, floa
     ]
 
 
-def crowd(n: int = 400, n_cells: int = 9, seed: int = 11, *, friends: bool = False, mode="fixed"):
-    """混雑した合成世界(1 セルに数百体・密度段階が上がって k が 3/2/1 に散る)。"""
+def crowd(n: int = 400, n_cells: int = 9, seed: int = 11, *, friends: bool = False, mode="fixed",
+          near_order: str = "id"):
+    """混雑した合成世界(1 セルに数百体・密度段階が上がって k が 3/2/1 に散る)。
+
+    ``near_order`` の既定は ``"id"``(本ファイルの基準=C7 前の実装は行番号の昇順で並べる)。距離順(第304 Q130・
+    レンダラの既定)は ``test_near_tiebreak`` が見る。
+    """
     w = World.synthetic(n_cells=n_cells, seed=seed)
     a = AgentState(n)
     g = np.random.default_rng(seed)
@@ -63,7 +68,7 @@ def crowd(n: int = 400, n_cells: int = 9, seed: int = 11, *, friends: bool = Fal
         a.last_result_tick[:] = 1
     w.cells.density[:] = w.compute_density(a.cell)
     acq = {i: [int(x) for x in g.choice(n, size=8, replace=False)] for i in range(0, n, 7)}
-    r = Renderer(w, a, seed=7, budget_mode=mode, acquaintances=acq if friends else None)
+    r = Renderer(w, a, seed=7, budget_mode=mode, acquaintances=acq if friends else None, near_order=near_order)
     r.prepare_tick(600)
     return r, a
 

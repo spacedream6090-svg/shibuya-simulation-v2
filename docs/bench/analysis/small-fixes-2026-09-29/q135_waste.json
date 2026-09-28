@@ -1,0 +1,73 @@
+{
+ "schema": "shibuya.bench/small-fixes/d52-waste/1",
+ "run": {
+  "n_agents": 5000,
+  "seed": 1,
+  "vocab": "v3",
+  "final": "993276d5e5bb5cbe",
+  "waste_tonnes_per_day": 1.425405,
+  "band_now": [
+   0.637525,
+   1.183975
+  ]
+ },
+ "breakdown_g": {
+  "store_bins_collected": 910400.0,
+  "household_consumption": 431900.0,
+  "street_litter_swept": 83104.55000000008,
+  "street_litter_left_at_end": 61200.750000000015,
+  "household_consumption_rows": 1234.0
+ },
+ "static_store_expectation": {
+  "total_g": 910750.0,
+  "n_poi": 2337,
+  "stock0_values": [
+   64
+  ],
+  "by_category_g": {
+   "コンビニ": 252350.0,
+   "飲食": 658400.0,
+   "物販": 0.0
+  }
+ },
+ "waste_sink_manifest": {
+  "total_t": 1.425405,
+  "breakdown_t": {
+   "store_expired_stock": 0.9104,
+   "household_consumption": 0.4319,
+   "street_litter": 0.083105,
+   "other_goods": 0.0
+  },
+  "band_store_t": [
+   0.637525,
+   1.183975
+  ],
+  "expected_store_t": 0.91075,
+  "band_ok": true,
+  "band_basis": "店舗の期限切れ在庫の静的期待(初期在庫 × SKU 廃棄率(切り捨て)× 質量)±30%・体数に依らない・expedient・未リサーチ(D-52 (a)・第304 Q135 (a))",
+  "ward_total_comparison": "保留(区 119.6 t/日との比較は、世帯の一般ごみ(消費した財の質量以外)=第 2 陣を入れてから)"
+ },
+ "summary_waste_line": "C4後半: 補充 43 / 納品 2,337 / 宅配 7,657 / バス到着 12,954 / ホテル泊 6 / 顕著行為 0(気づき 0・出動 0) / 廃棄 1.425 t/日(店 0.910・世帯の消費 0.432・街路 0.083)店の帯 (band 0.64-1.18) OK(帯=店の静的期待 0.911 t/日 ±30%・体数に依らない・区の総排出量との比較は保留)",
+ "params": {
+  "LITTER_G_PER_PERSON_TICK": 0.05,
+  "CLEANING_WINDOWS": [
+   [
+    300,
+    420
+   ],
+   [
+    780,
+    900
+   ]
+  ]
+ },
+ "c7_day_4": {
+  "person_minutes_in_stage_approx": 241358880.0,
+  "litter_generated_g_approx": 12067944.0,
+  "recorded": {
+   "total_t": 10.767,
+   "goods_ledger_t": 3.78755,
+   "street_litter_t": 6.979
+  }
+ }
+}

@@ -26,7 +26,10 @@ from shibuya.world.state import World
 
 SHARED_BLOCKS = ("B0", "B1", "B2", "B3", "B4", "B4b")
 #: 看板ありの参照場面の指紋(``tests/perception/test_ablation1.py`` と**同じ場面・同じ値**)。
-GOLDEN_FIXED_PROMPT_HASH = "bb23f7c69a82460b6820292404eb640b722ed0c7aa7a545afc9e09c697d8a5c5"
+#: 第304 Q130(小さいもの 第 2 批①): B5 近接行の並びを距離順にした=参照場面の B5 が「P-1、P-9」→「P-9、P-1」。
+GOLDEN_FIXED_PROMPT_HASH = "f6a44b2b19b1a869b4cdab63cdf801326d0cd0edd2a4359a92e8512fdae37975"
+#: 旧値(並び=行番号の昇順)。``near_order="id"`` で再現する(``test_ablation1`` で固定)。
+GOLDEN_FIXED_PROMPT_HASH_ORDER_ID = "bb23f7c69a82460b6820292404eb640b722ed0c7aa7a545afc9e09c697d8a5c5"
 SIGNAGE_PREFIX = "[B2 看板]"
 
 

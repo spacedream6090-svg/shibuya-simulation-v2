@@ -31,11 +31,14 @@ from shibuya.world.state import World
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SHARED_BLOCKS = ("B0", "B1", "B2", "B3", "B4", "B4b")
 #: 参照場面(下の ``reference_scene``)の固定枠での指紋。**ablation ① で動いてはいけない**。
-GOLDEN_FIXED_PROMPT_HASH = "bb23f7c69a82460b6820292404eb640b722ed0c7aa7a545afc9e09c697d8a5c5"
+#: 第304 Q130(小さいもの 第 2 批①): B5 近接行の並びを距離順にした=参照場面の B5 が「P-1、P-9」→「P-9、P-1」。
+GOLDEN_FIXED_PROMPT_HASH = "f6a44b2b19b1a869b4cdab63cdf801326d0cd0edd2a4359a92e8512fdae37975"
+#: 旧値(並び=行番号の昇順)。``near_order="id"`` で再現する(``test_ablation1`` で固定)。
+GOLDEN_FIXED_PROMPT_HASH_ORDER_ID = "bb23f7c69a82460b6820292404eb640b722ed0c7aa7a545afc9e09c697d8a5c5"
 
 
-def reference_scene(mode, n: int = 12, n_cells: int = 9):
-    """釘付け用の小さな合成場面(乱数の引き方まで固定)。"""
+def reference_scene(mode, n: int = 12, n_cells: int = 9, **kw):
+    """釘付け用の小さな合成場面(乱数の引き方まで固定)。``kw`` はレンダラへ(``near_order`` など)。"""
     w = World.synthetic(n_cells=n_cells, seed=2)
     a = AgentState(n)
     g = np.random.default_rng(11)
@@ -47,7 +50,7 @@ def reference_scene(mode, n: int = 12, n_cells: int = 9):
         a.hunger[:] = 6
         a.last_result_tick[:] = 1
     w.cells.density[:] = w.compute_density(a.cell)
-    r = Renderer(w, a, seed=13, budget_mode=mode)
+    r = Renderer(w, a, seed=13, budget_mode=mode, **kw)
     r.prepare_tick(750)
     return r, r.render(0, tick=750, wake_reason=3)
 
@@ -90,6 +93,9 @@ def test_default_mode_is_fixed_slots_and_the_golden_bytes_do_not_move():
     assert out.prompt_hash == GOLDEN_FIXED_PROMPT_HASH
     _, default_out = reference_scene(ch.BudgetMode.FIXED_SLOTS.value)
     assert default_out.prompt_hash == GOLDEN_FIXED_PROMPT_HASH
+    # 第304 Q130: 並び=行番号の昇順(旧)は ``near_order="id"`` で旧 golden を再現する
+    _, old_out = reference_scene(ch.BudgetMode.FIXED_SLOTS, near_order="id")
+    assert old_out.prompt_hash == GOLDEN_FIXED_PROMPT_HASH_ORDER_ID
 
 
 def test_the_switch_is_not_a_no_op():

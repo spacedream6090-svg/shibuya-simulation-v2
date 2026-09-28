@@ -760,6 +760,13 @@ def main(argv: list[str] | None = None) -> int:
              "(第266 以前の checkpoint ba01bd0b を再現する帰無腕)",
     )
     ap.add_argument(
+        "--near-order",
+        choices=("distance", "id"),
+        default="distance",
+        help="小さいもの 第 2 批①(第304 Q130): B5 近接行の並び。distance=距離の昇順・同点は --near-tiebreak の順"
+             "(既定)/ id=旧挙動(行番号の昇順=旧 golden)。焦点の先頭・知人の常時掲載・文面は変えない",
+    )
+    ap.add_argument(
         "--near-tiebreak",
         choices=("hash", "id"),
         default="hash",
@@ -1106,6 +1113,7 @@ def main(argv: list[str] | None = None) -> int:
         plan_executor=not args.no_plan_executor,
         exit_mode=str(args.exit_mode),
         near_tiebreak=str(args.near_tiebreak),
+        near_order=str(args.near_order),
         report_precondition=(str(args.report_precondition) == "on"),
         queue_service=(str(args.queue_service) == "on"),
         leave_effect=(str(args.leave_effect) == "on"),

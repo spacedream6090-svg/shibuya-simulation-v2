@@ -31,7 +31,10 @@ B0_SHA256_VOCAB_V2 = "9b4f75d497bc26f68d4115fc217a46bd1465a7aa971aea6db93dca6244
 #: 同(hint 腕 × 語彙 v2)。
 B0_SHA256_HINT_V2 = "124ba1a77641c1f8c2b39bed45a3c44ccf4353f58dbd593bfb9f348cf5bc3afe"
 #: 参照場面の指紋(``test_ablation6_signage.GOLDEN_FIXED_PROMPT_HASH`` と同じ場面・同じ値)。
-GOLDEN_FIXED_PROMPT_HASH = "bb23f7c69a82460b6820292404eb640b722ed0c7aa7a545afc9e09c697d8a5c5"
+#: 第304 Q130(小さいもの 第 2 批①): B5 近接行の並びを距離順にした=参照場面の B5 が「P-1、P-9」→「P-9、P-1」。
+GOLDEN_FIXED_PROMPT_HASH = "f6a44b2b19b1a869b4cdab63cdf801326d0cd0edd2a4359a92e8512fdae37975"
+#: 旧値(並び=行番号の昇順)。``near_order="id"`` で再現する(``test_ablation1`` で固定)。
+GOLDEN_FIXED_PROMPT_HASH_ORDER_ID = "bb23f7c69a82460b6820292404eb640b722ed0c7aa7a545afc9e09c697d8a5c5"
 
 
 def scene(*, intent_mode: str = "vocab", vocab_version: str = "v1", n: int = 12, n_cells: int = 9):

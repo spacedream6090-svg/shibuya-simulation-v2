@@ -353,6 +353,13 @@ class GoodsLedger:
         rest = s0 - shelf.sum(axis=1)
         shelf[:, 0] += rest.astype(np.int32)
         self._shelf = shelf
+        #: D-52 (a)・第304 Q135 (a): 店舗の期限切れ在庫の**静的な期待値**[g/日]= Σ 初期在庫 × SKU 廃棄率(切り捨て)
+        #: × 質量(05:00 の売れ残り → ビンと同じ式を初期在庫=補充で戻る水準に当てる)。ラン要約の廃棄帯の中心
+        #: (報告だけ・状態ではない=checkpoint に入らない)。体数に依らない。
+        _sku_ok = self.poi_sku >= 0
+        _rate = np.where(_sku_ok, self.sku.waste_rate[np.maximum(self.poi_sku, 0)], 0.0)
+        _mass = np.where(_sku_ok, self.sku.mass_g[np.maximum(self.poi_sku, 0)], 0.0)
+        self.static_store_waste_g = float((np.floor(shelf.astype(np.int64) * _rate) * _mass).sum())
         self._bin = np.zeros((self.n_poi, self.slots), dtype=np.int32)
         self._shelf_age = np.zeros((self.n_poi, self.slots), dtype=np.int16)
         self._sold_today = np.zeros((self.n_poi, self.slots), dtype=bool)
@@ -824,6 +831,14 @@ class GoodsLedger:
             "hoard_units": int(self._shelf[old].sum()),
             "hoard_value": int((self._shelf * old).sum(axis=1) @ self.unit_cost),
         }
+
+    def store_waste_band(self) -> tuple[float, float, float]:
+        """第304 Q135 (a): 店だけの静的な帯 ``(期待値, 下限, 上限)``[t/日] = 静的期待 × (1 ± ``WASTE_BAND_RATIO``)。
+
+        ラン要約の廃棄帯(報告だけ)。区の総量(W1)の帯は ``waste_band``(月次センサスが使う)のまま。
+        """
+        e = float(self.static_store_waste_g) / 1_000_000.0
+        return e, e * (1.0 - WASTE_BAND_RATIO), e * (1.0 + WASTE_BAND_RATIO)
 
     def waste_band(self, days: int | None = None) -> WasteBand:
         """検算②: 廃棄 sink の総量を 119.6 t/日の band と突き合わせる(台帳行 W1)。"""

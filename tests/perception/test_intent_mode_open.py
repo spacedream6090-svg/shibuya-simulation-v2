@@ -34,7 +34,10 @@ B0_SHA256_VOCAB = "2b4bfc8a6da16ec73cbd3db8c68656150d2becd08100efa8816ad649e4783
 #: AB7b ヒント腕の B0 本文の SHA(2026-09-17 に凍結。文面を変えたら**必ずここが動く**)。
 B0_SHA256_HINT = "3ecae27a6ae3eff82474fde51dc1fc556dbe97392a999f317a6c251738ad68b1"
 #: 参照場面の指紋(``test_ablation6_signage.GOLDEN_FIXED_PROMPT_HASH`` と**同じ場面・同じ値**)。
-GOLDEN_FIXED_PROMPT_HASH = "bb23f7c69a82460b6820292404eb640b722ed0c7aa7a545afc9e09c697d8a5c5"
+#: 第304 Q130(小さいもの 第 2 批①): B5 近接行の並びを距離順にした=参照場面の B5 が「P-1、P-9」→「P-9、P-1」。
+GOLDEN_FIXED_PROMPT_HASH = "f6a44b2b19b1a869b4cdab63cdf801326d0cd0edd2a4359a92e8512fdae37975"
+#: 旧値(並び=行番号の昇順)。``near_order="id"`` で再現する(``test_ablation1`` で固定)。
+GOLDEN_FIXED_PROMPT_HASH_ORDER_ID = "bb23f7c69a82460b6820292404eb640b722ed0c7aa7a545afc9e09c697d8a5c5"
 
 
 def scene(*, intent_mode: str = T.DEFAULT_INTENT_MODE, n: int = 12, n_cells: int = 9):

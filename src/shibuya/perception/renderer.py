@@ -938,6 +938,19 @@ def near_tie_keys(salt64: int, observer: int, ids: np.ndarray) -> np.ndarray:
     return x
 
 
+#: B5 近接行の**並び**(第304 Q130・小さいもの 第 2 批①)。``distance``(既定)= 距離の昇順・同点は
+#: ``near_tiebreak`` の順(``hash``= ``near_tie_keys``・``id``= 行番号)/ ``id``= 旧挙動(行番号の昇順=旧 golden)。
+#: 焦点の先頭・知人の常時掲載・会話の参加者の掲載は両方で同じ。文面は変えない。
+NEAR_ORDERS: Final[tuple[str, ...]] = ("distance", "id")
+DEFAULT_NEAR_ORDER: Final[str] = "distance"
+
+
+def check_near_order(mode: str) -> str:
+    if str(mode) not in NEAR_ORDERS:
+        raise ValueError(f"near_order は {NEAR_ORDERS} のどれか(いま {mode!r})")
+    return str(mode)
+
+
 def check_near_tiebreak(mode: str) -> str:
     if str(mode) not in NEAR_TIEBREAKS:
         raise ValueError(f"near_tiebreak は {NEAR_TIEBREAKS} のどれか(いま {mode!r})")
@@ -979,6 +992,7 @@ class Renderer:
         p_see_activity: "Mapping[str, float] | str | None" = None,
         near_tiebreak: str = DEFAULT_NEAR_TIEBREAK,
         near_salt: bytes | None = None,
+        near_order: str = DEFAULT_NEAR_ORDER,
     ) -> None:
         """
         Args:
@@ -1031,6 +1045,8 @@ class Renderer:
                 描画は両方で同じ。
             near_salt: 撹拌の salt(``engine.run`` は run_salt を渡す)。``None`` なら ``seed`` から
                 ``engine.run.run_salt_for`` と同じ式で作る。
+            near_order: B5 近接行の**並び**(第304 Q130)。``"distance"``(既定)= 距離の昇順・同点は
+                ``near_tiebreak`` の順 / ``"id"`` = 旧挙動(行番号の昇順)。焦点は両方で先頭。文面は変えない。
         """
         self.world = world
         self.agents = agents
@@ -1066,6 +1082,9 @@ class Renderer:
         self.role_words = T.check_role_words(role_words)
         #: 小さいもの①(第300 Q107): 近接行の距離の同点の切り方と、撹拌の salt(u64)。
         self.near_tiebreak = check_near_tiebreak(near_tiebreak)
+        self.near_order = check_near_order(near_order)
+        #: 並べた近接行のうち、距離が同じ人が 2 人以上いた描画の数(並びの同点を鍵で切った=計測の口)。
+        self.near_order_ties = 0
         if near_salt is None:
             _text = f"i:{int(seed)}" if not isinstance(seed, str) else f"s:{seed}"
             near_salt = bytes.fromhex(blake3_hex(f"{_text}\x1fengine".encode("utf-8"), length=16))
@@ -1972,11 +1991,13 @@ class Renderer:
                     focus = f
                     chosen_set.add(f)
         chosen = sorted(chosen_set)
-        if focus >= 0:  # 焦点だけ先頭へ(残りの並びは従来どおり id 昇順)
+        if focus >= 0:  # 焦点だけ先頭へ(残りの並びは id 昇順か距離順=下)
             chosen = [focus] + [x for x in chosen if x != focus]
         q = tc.cell_pos[np.asarray(chosen, dtype=np.int64)] - lo
         if 0 <= p < m:
             q = q - (q > p)  # 自分の行を外したぶん詰める
+        if self.near_order == "distance" and len(chosen) > 1:
+            chosen, q = self._near_sort(i, chosen, q, d2, 1 if focus >= 0 else 0)
         dist = np.sqrt(d2[q])  # 採った数件だけ sqrt(旧: セル在席者ぶんの辞書)
         marks = T.NEAR_PERSON_MARKS  # (未知, 知人)=v1.4 で定数へ(文面は v1 から同じ)
         return [
@@ -1986,6 +2007,28 @@ class Renderer:
             )
             for j, dv in zip(chosen, dist)
         ]
+
+    def _near_sort(self, i: int, chosen: list[int], q: np.ndarray, d2: np.ndarray,
+                   head: int) -> tuple[list[int], np.ndarray]:
+        """第304 Q130: 近接行を**距離の昇順**に並べる(先頭 ``head`` 人=焦点は動かさない)。
+
+        同点は ``near_tiebreak`` の順(``hash``= 撹拌鍵の小さい順・``id``= 行番号の順)。距離は ``d2``(旧実装と
+        同じ値)で比べる。逐次ループ宣言: なし(載る数人の配列)。
+        """
+        ids = chosen[head:]
+        qq = q[head:]
+        dd = d2[qq].tolist()  # 載る数人だけ=Python の sort が numpy の呼び出しより速い(1 呼 +数 µs)
+        if len(set(dd)) == len(dd):  # 同点なし=距離だけで順が決まる(鍵は作らない)
+            order = sorted(range(len(ids)), key=dd.__getitem__)
+        else:
+            self.near_order_ties += 1
+            if self.near_tiebreak == "hash":
+                key = near_tie_keys(self._near_salt64, i, np.asarray(ids, dtype=np.int64)).tolist()
+            else:
+                key = list(ids)
+            order = sorted(range(len(ids)), key=lambda t: (dd[t], key[t]))
+        sel = np.asarray(order, dtype=np.int64)
+        return chosen[:head] + [ids[t] for t in order], np.concatenate([q[:head], qq[sel]])
 
     def _near_take(self, i: int, peers: np.ndarray, d2: np.ndarray, take: int) -> np.ndarray:
         """近接 k 人の採り方。``id``= 旧実装(``np.argpartition`` がセル内の並びで同点を切る)=1 ビットも変えない。

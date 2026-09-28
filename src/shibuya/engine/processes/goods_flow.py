@@ -427,6 +427,8 @@ class WasteCollectionProcess:
         self.n_stops = 0
         self.n_bin_rows = 0
         self.n_consumed = 0
+        #: 第304 Q135: 世帯の消費で廃棄 sink へ入った質量[g](``goods.consume_many`` が足す分と同じ・報告だけ)。
+        self.consumed_g = 0.0
         self._cursor = 0
 
     @property
@@ -484,7 +486,10 @@ class WasteCollectionProcess:
             self.agents, self.ledger, holders, sku,
             np.ones(holders.size, dtype=np.int64), tick,
         )
-        self.n_consumed += int(np.count_nonzero(np.asarray(ok)))
+        okb = np.asarray(ok, dtype=bool)
+        self.n_consumed += int(np.count_nonzero(okb))
+        if okb.any():
+            self.consumed_g += float(np.asarray(goods.sku.mass_g, dtype=np.float64)[sku[okb]].sum())
 
     # ---- 収集ルート ----
     def _collect_batch(self, tick: int, step: int, span: int) -> None:
@@ -528,6 +533,7 @@ class WasteCollectionProcess:
             "collected_g": float(self.waste_g_collected),
             "to_bin_rows": float(self.n_bin_rows),
             "consumed": float(self.n_consumed),
+            "consumed_g": float(self.consumed_g),
             "day_waste_g": float(self.ledger.goods.day_waste_g) if self.active else 0.0,
         }
 

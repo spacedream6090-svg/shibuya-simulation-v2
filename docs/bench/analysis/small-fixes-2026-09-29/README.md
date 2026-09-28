@@ -164,3 +164,137 @@ python $D/small_fixes_measure.py waste --out $D/d52_waste.json
 ```
 
 (Windows で HEAD の展開先のパスが長いと numba のキャッシュ書き込みが失敗する。`NUMBA_CACHE_DIR` と HEAD の src を短いパスにして回した。)
+
+---
+
+# 第 2 批(第304 の問いの決め → Q130・Q134・Q135・Q136)
+
+第 1 批は第304(3c86b6b)でコミット済み。親の決め: Q130 近接行の並びを距離順に/Q131・Q132 承認/Q134 伝播/Q135 (a) 店だけの静的な帯を仮置き+ラン要約の帯も新しい物差しへ(報告だけ)・(c) 実単価のリサーチは繰り延べ/Q136 伝播+言い方を「世帯の一般ごみ(消費した財の質量以外)は第 2 陣」に。
+
+## 第 2 批① 第304 Q130: B5 近接行の並びを距離順に
+
+### 入れたもの
+
+| 口 | 中身 |
+|---|---|
+| 並び `--near-order {distance,id}`(既定 `distance`・`id`=第304 の既定=旧 golden) | `perception/renderer._nearby_items` の並び。旧: 載る人を行番号の昇順。新(`_near_sort`): **距離の昇順**・距離の同点は `near_tiebreak` の順(`hash`= Q107 と同じ `near_tie_keys`・`id`= 行番号)。**焦点の先頭・知人の常時掲載・会話の参加者の掲載・載る人・文面は変えない**(v1.4 の SHA 不変)。距離は `d2`(旧と同じ値)で比べる。載る数人だけの Python の sort(numpy の呼び出しより速い) |
+| manifest | `near_tiebreak` に `order`(distance/id)と `order_ties`(並べた行に距離の同点があった描画の数)を足した(列追加のみ) |
+| CLI | `shibuya.cli` と `shibuya.engine.run` に `--near-order`(`run_day(near_order=…)`・範囲外は `ValueError`) |
+
+### 既定が動くか(byte-check・golden)
+
+**HEAD 3c86b6b との byte 比較**([q130_byte_check.json](q130_byte_check.json)・git archive の src と作業木・テープの blocks と calls 14 列):
+
+| 構成 | HEAD | 作業木 `--near-order id` | 作業木 既定(距離順) | プロンプトが違う呼 = 並びが変わった描画の呼 |
+|---|---|---|---|---|
+| v3 既定(mock) | 993276d5 / 69,978 | **全部一致** | final・呼数・blocks は一致。calls の違いは `prompt_hash` の 1 列だけ(`tokens_in` は同じ=同じ人) | 52,088 = 52,088(⊆ が成り立ち、しかも等しい) |
+| classical | e7e212ce / 102,189 | **全部一致** | **動く**(14 列) | (呼の並びが変わる=対象外) |
+| v1 既定(mock) | 0a52a4d3 / 60,970 | **全部一致** | 同上(1 列) | 45,191 = 45,191 |
+| v3 + memory + relations(mock) | e4f84d1d / 72,940 | **全部一致** | 同上(1 列) | 55,638 = 55,638 |
+
+- **mock の checkpoint は動かない**(15/15・下の表)。動くのはプロンプト(近接行に 2 人以上いて並びが変わった描画)だけ。v3 既定では呼の 74%(52,088 / 69,978)。
+- **golden の更新**:
+  - 参照場面の描画の指紋 `GOLDEN_FIXED_PROMPT_HASH`(5 ファイル: `test_ablation1`・`test_ablation6_signage`・`test_intent_mode_open`・`test_signage_p_see_gate`・`test_vocab_v2_templates`)= bb23f7c6… → **f6a44b2b…**(参照場面の B5 が「P-1、P-9」→「P-9、P-1」)。旧値は `GOLDEN_FIXED_PROMPT_HASH_ORDER_ID` に残し、`test_ablation1` で `near_order="id"` が旧値を再現することを固定。
+  - `CLASSICAL_1500_GOLDEN`(classical 1,500 体・seed 1・v3): `hash`(既定)= e0a6f3f9…/26,845 → **91732f34…/26,869**。旧値は `hash_order_id`(=第304 の既定)と `classical_tie_id`(=bb44474 の既定 803f0441…/26,753)で固定(3 本とも回して確認)。
+  - `test_nearby_vectorized` の比較基準(C7 前の実装=行番号の昇順)は `crowd(near_order="id")` に固定した(ベクトル化の不変の検査なので)。距離順の検査は `test_near_tiebreak` に足した。
+  - mock の W17 golden(帰無腕 72cb9cd5・v3 993276d5)は不変。
+
+**15 腕 × 距離順/id 順**([q130_arms15.json](q130_arms15.json)): **15/15 で final と呼数が一致**。並べた行に距離の同点があった描画は 44,106〜79,350 / 腕(v3_default 60,112・golden_null_arm 79,350)。
+
+### T5(層化 5,000 体・seed 1・v3・memory on・[q130_t5.json](q130_t5.json))
+
+| 腕 | 並び | final | 呼数 | 相手の選び | 呼数加重 \|ρ\| | 部分相関 | 最大の層 ρ | セル内の ID 順位の平均 | k 番目の境界の同点を撹拌した描画(同点の人数の延べ) | 並びの同点のあった描画 | 壁時計[s] |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| mock 関係 on | 距離順 | 0fe0e65b | 85,110 | 5,060 | 0.0358 | −0.0143 | COMMUTER −0.0079 | 0.4700 | 65,476(3,219,982) | 74,591 | 40.6 |
+| mock 関係 on | id 順(第304) | 0fe0e65b | 85,110 | 5,060 | 0.0358 | −0.0143 | COMMUTER −0.0079 | 0.4700 | 65,476(3,219,982) | 0 | 39.0 |
+| **classical 関係 off** | **距離順** | 424733dd | 102,616 | 961 | **0.0233** | **+0.0008** | COMMUTER **+0.0360** | 0.5225 | 76,882(6,405,988) | 87,238 | 45.5 |
+| classical 関係 off | id 順(第304) | de372752 | 103,124 | 954 | 0.1794 | −0.1589 | COMMUTER −0.1991 | 0.1917 | 77,123(6,417,965) | 0 | 44.2 |
+| classical 関係 on | 距離順 | a377d8f4 | 142,542 | 1,300 | 0.0271 | −0.0264 | COMMUTER −0.0341 | 0.5013 | 107,546(8,309,431) | 124,753 | 65.7 |
+| classical 関係 on | id 順(第304) | a377d8f4 | 142,542 | 1,300 | 0.0271 | −0.0264 | COMMUTER −0.0341 | 0.5013 | 107,546(8,309,431) | 0 | 66.3 |
+
+- **classical 関係 off は 0.1794 → 0.0233**(3 条件とも ≤0.05・第 1 批の「並びも撹拌」の計測だけの腕 0.0227 とほぼ同じ)。相手=近接行の最初の人=**一番近い人**になった(同点なら鍵の順)。
+- **classical 関係 on は動かない**(final も同じ a377d8f4): 8b の相手選び(`pick_rest`)は近接行の「未知」の人を集合で受けて並びを見ない。
+- **mock** は B5 を読まない=final・T5 とも同じ。
+- **k 番目の境界の同点**(Q107 の撹拌)は並びと無関係=数は同じ。並びの同点(同じ距離の人が 2 人以上載った描画)は classical 関係 off で 87,238(呼 102,616 の 85%)。
+- **壁時計**: 同じ PC・並べて 1 回ずつ=ラン全体では差が雑音の内(+1.6 s / +1.3 s / −0.6 s)。描画 1 回の費用(`_nearby_items`・合成の混雑世界・5 回の最良): 同点なし 16.9 → 20.3 µs(+3.4 µs)・全員同点 26.2 → 36.7 µs(+10.5 µs=撹拌鍵を作る分)。最初の実装(`np.lexsort`+`np.unique`)は +17 µs だったので Python の sort に替えた(並びは同じ=テストと T5 の final の一致で確認・byte-check は替えた後に回し直した)。15 腕の表の壁時計は最初の実装のもの(+1.1〜2.1 s/腕)。
+
+### テスト
+
+`tests/perception/test_near_tiebreak.py`(+5 本=切替口と既定/距離順は同じ人・同じ文面・同じ距離を並べ替えただけ(固定枠・ランキング)/全員同点なら鍵の順・焦点は距離に関係なく先頭/`id` は旧の並びを再現/CLI と `run_day` の範囲検査・classical golden を 3 本に)・参照場面の golden 5 ファイル・`test_nearby_vectorized`(基準を id 順に固定)。
+
+## 第 2 批② 第304 Q134: D-16 の伝播
+
+| 文書・行 | 変更 |
+|---|---|
+| `docs/design/v2-implementation-plan.md:175`(設計書) | 「親判断待ち ①」を**訂正済み**に書き換えた: 生値 1,315,230,000 円(131,523 万円)・225,270,000 円(22,527 万円)・M 85,320,000 円は元から一致・出典 表 0004006322 の 156-2021 総数 |
+| `docs/research/v2-world-process-inventory-research.md:67`(答申・G1 行) | 本文は変えず、行末の値の欄に「〔第304 注記: D-16 で訂正=生値 1,315,230,000 円 / 225,270,000 円・表 0004006322 の 156-2021〕」 |
+| `docs/bench/analysis/notable-events-2026-09-24/README.md:101`(第263 の記録) | 同じ注記を足した(本文「未訂正のまま」は当時のまま) |
+| `docs/bench/analysis/notable-events-2026-09-24/sub_f_consumption_economy.md:61`(F-13) | 同じ注記を足した |
+
+## 第 2 批③ 第304 Q136: D-52 の伝播
+
+| 文書・行 | 変更 |
+|---|---|
+| `notable-events-2026-09-24/README.md:44`(E-22)・`:97`(廃棄 10.767 t の行) | 「店の廃棄 3.79 t」の後に「〔第304 注記(再計測): 物の台帳の廃棄 3.79 t = 店の売れ残り 約 0.91 t+世帯の消費 約 2.88 t(19:00・購入した物の質量=`goods.consume_many`)〕」 |
+| `sub_f_consumption_economy.md:38`(6.「日次センサスの物の廃棄は 3.788 t」)・`:56`(F-8)・`:142`(「物の台帳 = センサスの waste_g と同じ量と仮定」) | 同じ注記 |
+| `sub_f_consumption_economy.md:141`(② 世帯消費「これが廃棄の質量に入るかは確認していない=空欄」) | 「〔第304 注記: **はい**=`goods.consume_many` が消費した物の質量を当日の廃棄 `_day_waste_g` に足す〕」 |
+| `sub_f_consumption_economy.md:201`(空欄の一覧「世帯消費(19:00)が廃棄の質量に入るか」) | 「〔第304 注記: **はい**(`goods.consume_many`)〕」 |
+| `docs/design/v2-pattern-ledger.md` §9 W1 行 | 「世帯ごみ(第 2 陣)」→「**世帯の一般ごみ(消費した財の質量以外)**(第 2 陣)」・「(帯の形は親判断待ち)」→「(第304 Q135 (a): 店だけの静的な帯で仮置き・ラン要約の帯もこの物差し=報告だけ・実単価のリサーチは繰り延べ)」 |
+| `docs/design/v2-world-process-design.md` §7.1 検算② | 「世帯ごみ=第 2 陣」→「世帯の一般ごみ(消費した財の質量以外)=第 2 陣」 |
+
+記録(notable-events・答申)の本文は書き換えず、注記だけを足した。`docs/design` と `src` に「世帯ごみ」の語はもう無い(grep)。
+
+## 第 2 批④ 第304 Q135 (a): ラン要約の廃棄帯=店だけの静的な帯+内訳 3 つ
+
+### 入れたもの
+
+| 口 | 中身 |
+|---|---|
+| `GoodsLedger.static_store_waste_g` | 店舗の期限切れ在庫の**静的な期待値**[g/日]= Σ 初期在庫 × SKU 廃棄率(切り捨て)× 質量(05:00 の売れ残り → ビンと同じ式を初期在庫に当てる)。構築時に 1 回。状態ではない(checkpoint に入らない)。体数に依らない |
+| `GoodsLedger.store_waste_band()` | `(期待値, 下限, 上限)`[t/日] = 静的期待 × (1 ± `WASTE_BAND_RATIO` 30%)。**層契約**(engine は economy を import しない=`test_engine_does_not_import_economy`・`test_process_modules_do_not_import_build_or_economy`)のため帯の計算は物の台帳側に置いた(初版は runner が `economy.anchors` を import して 2 件落ちた→直した) |
+| `WasteCollectionProcess.consumed_g` | 世帯の消費で廃棄 sink へ入った質量[g](`consume_many` が足す分と同じ・カウンタ `waste.consumed_g`) |
+| `ProcessRunner.waste_sink_report()` | 内訳 3 つ(店=収集した質量・世帯の消費・街路=掃いた質量)+物の台帳のその他(棚卸差異など・ふつう 0)・**店だけの帯** = 静的期待 × (1 ± 30%)・`band_ok` = **店の収集量**が帯に入るか・帯の出所・「区の総排出量との比較は保留」 |
+| `RunResult` | `waste_band` = 店だけの帯(旧=区 119.6 t/日 ±30%)・`waste_sink`(上の辞書・manifest に `waste_sink` として列追加)・`waste_band_ok` は店の収集量で判定(内訳の無い結果は従来どおり総量)。`waste_tonnes_per_day`(総量)は変えない |
+| 要約の行 | 「廃棄 1.425 t/日(店 0.910・世帯の消費 0.432・街路 0.083)店の帯 (band 0.64-1.18) OK(帯=店の静的期待 0.911 t/日 ±30%・体数に依らない・区の総排出量との比較は保留)」。受入表の読み口(`c7lib.parse_run_summary` の「廃棄 N t/日」と「band a-b) OK」)はそのまま読める(テストで固定)。世界過程の要約(`runner.summary`)の「廃棄 sink(検算②)」行も同じ形に |
+
+### 既定が動くか
+
+**報告だけ=checkpoint 不変**: ①の byte-check の `id` 側(作業木に④が入った状態)が HEAD 3c86b6b と全構成で一致・mock の W17 golden も不変。
+
+### 数値([q135_waste.json](q135_waste.json)・mock 5,000 体・seed 1・v3)
+
+| 欄 | 値 |
+|---|---|
+| 総量 | 1.4254 t/日 |
+| 店(期限切れ在庫の収集) | 0.9104 t |
+| 世帯の消費 | 0.4319 t |
+| 街路 | 0.0831 t |
+| 物の台帳のその他 | 0.0 |
+| 店だけの帯 | 0.6375〜1.1840(静的期待 0.91075 t/日 ±30%) → **OK** |
+| 体数に依らない | 5,000 体と 390,067 体で静的期待は同じ 910,750 g(テストで固定) |
+
+- 変えていない: **物の台帳の `waste_band`(W1=区の総量 119.6 t/日 ±30%)** と、それを使う**月次センサス**(`economy/census.monthly_census` の `waste_band_ok`)。今回の決めは「ラン要約」なので月次センサスの帯は区の総量のまま=問い Q137。
+
+### テスト
+
+`tests/engine/test_waste_sink_report.py`(新規 3 本=静的期待の式と W1 の帯は不変/合成世界のランで内訳 3 つ・帯・判定・manifest・要約の文と受入表の読み口/実世界で 0.911 t/日・体数に依らない)・`tests/test_cli.py` のコメント。
+
+## 第 2 批 テスト本数と全体
+
+全体(`-m "not gpu and not slow"`・p6 400k を除く・junit): **3,291 件・failures 0・errors 0・skipped 1(既存の W10 較正)・exit 0**(第304 の 3,283 件 + 新規 8 件=① 5・④ 3)。途中の 1 回は④の層契約で 2 件落ちた(runner が `economy.anchors` を import)→ 帯の計算を `GoodsLedger.store_waste_band` へ移して再実行=全部通過。
+
+## 第 2 批 宣言と問い
+
+宣言: ① 並びの同点は `near_tiebreak` の順(`id` を選べば行番号)・焦点は距離に関係なく先頭・並びは描画の Python の sort ④ 店の判定は収集量(05:00 → 06〜10 時の収集=1 日ランで当日に入る)・内訳の「その他」は物の台帳 − 店 − 世帯の消費。問いは報告の Q137〜。
+
+## 第 2 批 再現
+
+```
+D=docs/bench/analysis/small-fixes-2026-09-29
+python $D/small_fixes_measure.py t5 --only mock_rel_on_dist,mock_rel_on_hash,classical_off_dist,classical_off_hash,classical_on_dist,classical_on_hash --out $D/q130_t5.json
+python $D/small_fixes_measure.py arms15 --axis order --out $D/q130_arms15.json
+python $D/small_fixes_measure.py bytecheck --axis order --head-src <HEAD 3c86b6b の src と docs/bench/anchors を展開した場所の src> --head-label 3c86b6b --scratch <作業用の場所> --out $D/q130_byte_check.json
+python $D/small_fixes_measure.py waste --out $D/q135_waste.json
+```
+
+(第 1 批のコマンドは第 2 批の後も同じ結果になるよう、並びを旧(`near_order="id"`)に固定して回す=`--axis tiebreak` が既定・T5 の第 1 批の腕も同じ。)

@@ -184,10 +184,13 @@ from shibuya.llm.fleet import (
 from shibuya.llm.mock import MockLLM
 from shibuya.perception.channels import BudgetMode
 from shibuya.perception.renderer import (
+    DEFAULT_NEAR_ORDER,
     DEFAULT_NEAR_TIEBREAK,
     DEFAULT_START_DATETIME,
+    NEAR_ORDERS,
     NEAR_TIEBREAKS,
     SIGNAGE_P_SEE_DEFAULT,
+    check_near_order,
     check_near_tiebreak,
     PerceptionAssets,
     Renderer as PerceptionRenderer,
@@ -743,7 +746,10 @@ class RunResult:
     hotel_checkins: int = 0
     #: その日の廃棄 sink[t/日](物の台帳 + 街路清掃)と W1 band。
     waste_tonnes_per_day: float = 0.0
+    #: 第304 Q135 (a): **店だけの静的な帯**(店舗の期限切れ在庫の静的期待 ±30%)。旧=区の総排出量 119.6 t/日 ±30%。
     waste_band: tuple[float, float] = (0.0, 0.0)
+    #: 第304 Q135: 廃棄 sink の内訳 3 つ(店・世帯の消費・街路)と帯の出所(``runner.waste_sink_report``・報告だけ)。
+    waste_sink: dict[str, Any] = field(default_factory=dict)
     # ---- C6-a 実艦隊 ----
     #: ``llm.fleet.FleetConfig.manifest_fields()``(``cache_salt``・``prefix_caching_hash_algo``・
     #: ルーティング規則・in-flight 上限)。**ランが導出して押す**(親決定 09-09)。
@@ -870,10 +876,26 @@ class RunResult:
     def final_hash(self) -> str:
         return self.checkpoints[-1].combined if self.checkpoints else ""
 
+    def _waste_breakdown_text(self) -> str:
+        """要約の廃棄の内訳(店・世帯の消費・街路)。内訳の無い結果は空。"""
+        b = self.waste_sink.get("breakdown_t") if self.waste_sink else None
+        if not b:
+            return ""
+        return (f"(店 {b['store_expired_stock']:.3f}・世帯の消費 {b['household_consumption']:.3f}・"
+                f"街路 {b['street_litter']:.3f})店の帯")
+
+    def _waste_band_note(self) -> str:
+        if not self.waste_sink:
+            return ""
+        return (f"(帯=店の静的期待 {self.waste_sink.get('expected_store_t', 0.0):.3f} t/日 ±30%・体数に依らない・"
+                "区の総排出量との比較は保留)")
+
     @property
     def waste_band_ok(self) -> bool:
+        """第304 Q135 (a): **店の収集量**を店だけの帯と比べる(内訳の無い結果は従来どおり総量で比べる)。"""
         lo, hi = self.waste_band
-        return bool(hi > 0.0 and lo <= self.waste_tonnes_per_day <= hi)
+        v = self.waste_sink.get("breakdown_t", {}).get("store_expired_stock") if self.waste_sink else None
+        return bool(hi > 0.0 and lo <= (self.waste_tonnes_per_day if v is None else float(v)) <= hi)
 
     def run_manifest_fields(self) -> dict[str, Any]:
         """ラン manifest の同定欄(C6 が読む)。
@@ -1001,6 +1023,8 @@ class RunResult:
             "presence_exit": dict(self.presence_exit),
             "leave_effects": dict(self.leave_effects),
             "near_tiebreak": dict(self.near_tiebreak),
+            # ---- 第304 Q135 (a): 廃棄 sink の内訳と店だけの帯(列追加のみ・報告だけ) ----
+            "waste_sink": dict(self.waste_sink),
             "attendance_rate": float(self.attendance_rate),
             "derive_rule": str(self.derive_rule),
             "outside_suppression": bool(self.outside_suppression),
@@ -1214,8 +1238,8 @@ class RunResult:
                 f"{self.parcels:,} / バス到着 {self.bus_arrivals:,} / ホテル泊 "
                 f"{self.hotel_checkins:,} / 顕著行為 {self.salient_events:,}(気づき "
                 f"{self.noticed:,}・出動 {self.dispatches:,}) / 廃棄 "
-                f"{self.waste_tonnes_per_day:.3f} t/日 (band {self.waste_band[0]:.1f}-"
-                f"{self.waste_band[1]:.1f}) {'OK' if self.waste_band_ok else 'NG'}"
+                f"{self.waste_tonnes_per_day:.3f} t/日{self._waste_breakdown_text()} (band {self.waste_band[0]:.2f}-"
+                f"{self.waste_band[1]:.2f}) {'OK' if self.waste_band_ok else 'NG'}{self._waste_band_note()}"
             )
             if self.census_row:
                 lines.append(
@@ -1530,6 +1554,7 @@ def run_day(
     vocab_version: str = VOCAB_VERSIONS[0],
     role_words: bool | str = True,
     near_tiebreak: str = DEFAULT_NEAR_TIEBREAK,
+    near_order: str = DEFAULT_NEAR_ORDER,
     budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
     salient_rate_per_10k: float | None = None,
     report_precondition: bool = True,
@@ -1688,6 +1713,9 @@ def run_day(
         near_tiebreak: **小さいもの①(第300 Q107)** B5 近接行の距離の同点の切り方。``"hash"``(既定)=
             run_salt の決定論ハッシュ(観る体 × 相手)で撹拌 / ``"id"`` = 旧挙動(セル内の並び=行番号の順=
             旧 golden)。文面・近接行の並び(id 昇順)は変えない=採る人だけ。``NEAR_TIEBREAKS`` 以外は ``ValueError``。
+        near_order: **小さいもの 第 2 批①(第304 Q130)** B5 近接行の並び。``"distance"``(既定)= 距離の昇順・
+            同点は ``near_tiebreak`` の順 / ``"id"`` = 旧挙動(行番号の昇順=旧 golden)。焦点の先頭・知人の常時掲載・
+            文面は変えない。mock は B5 を読まないので final は動かない(プロンプトは動く)。
             ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
         vocab_version: **行動語彙の版**(D-71 §3 F・2026-09-17 ユーザー決定)。
             ``"v1"``(既定)は現行の 24 語(横断 12 + 役割 12)で、**1 バイトも変わらない**。
@@ -1877,6 +1905,7 @@ def run_day(
     if str(exit_mode) not in PRESENCE_EXIT_MODES:
         raise ValueError(f"exit_mode は {PRESENCE_EXIT_MODES} のどれか(いま {exit_mode!r})")
     near_tiebreak = check_near_tiebreak(near_tiebreak)
+    near_order = check_near_order(near_order)
     if not (0.0 <= float(attendance_rate) <= 1.0):
         raise ValueError(f"attendance_rate は 0.0〜1.0(いま {attendance_rate})")
     if str(derive_rule) not in PRESENCE_DERIVE_RULES:
@@ -2196,6 +2225,7 @@ def run_day(
                 role_words=role_words,
                 near_tiebreak=near_tiebreak,
                 near_salt=run_salt_for(seed),
+                near_order=near_order,
             )
         )
         renderer_obj: Any = perception
@@ -3500,9 +3530,10 @@ def run_day(
         result.bus_arrivals = int(runner.bus_taxi.n_arrivals)
         result.hotel_checkins = int(runner.hotel.n_checkin)
         result.waste_tonnes_per_day = float(runner.projected_waste_tonnes_per_day())
-        band = runner.waste_band_report()
-        if band is not None:
-            result.waste_band = (float(band.low), float(band.high))
+        _ws = runner.waste_sink_report()  # 第304 Q135 (a): 店だけの静的な帯+内訳 3 つ(報告だけ)
+        if _ws is not None:
+            result.waste_sink = dict(_ws)
+            result.waste_band = (float(_ws["band_store_t"][0]), float(_ws["band_store_t"][1]))
     ledger_growth: tuple[dict[str, Any], dict[str, int]] = ({}, {})
     if ledger is not None:
         # 日次の畳み込み(D-R2-6: 生ログは保持窓・取引行列は日次集約行へ)。
@@ -3726,6 +3757,9 @@ def run_day(
         "mode": str(near_tiebreak),
         "ties_broken": int(getattr(_nr, "near_tie_breaks", 0)),
         "tie_candidates": int(getattr(_nr, "near_tie_candidates", 0)),
+        # 第304 Q130: 近接行の並び(distance/id)と、並べた行に距離の同点があった描画の数
+        "order": str(near_order),
+        "order_ties": int(getattr(_nr, "near_order_ties", 0)),
     }
     result.mock_out_of_cell_target_p = float(mock_out_of_cell_target_p)
     result.move_resolution = move_resolution_summary(
@@ -3952,6 +3986,8 @@ def main(argv: list[str] | None = None) -> int:
                          "就寝境界も LLM に判断させ・tick 0 は全員 SLEEPING)")
     ap.add_argument("--no-plan-executor", action="store_true",
                     help="D-66 計画実行層(engine.presence)を切る(=現行挙動・帰無腕)")
+    ap.add_argument("--near-order", choices=NEAR_ORDERS, default=DEFAULT_NEAR_ORDER,
+                    help="B5 近接行の並び(第304 Q130)。distance=距離の昇順・同点は --near-tiebreak の順(既定)/ id=旧挙動")
     ap.add_argument("--near-tiebreak", choices=NEAR_TIEBREAKS, default=DEFAULT_NEAR_TIEBREAK,
                     help="B5 近接行の距離の同点の切り方(第300 Q107)。hash=run_salt で撹拌(既定)/ id=旧挙動")
     ap.add_argument("--exit-mode", choices=PRESENCE_EXIT_MODES, default="immediate",
@@ -3997,6 +4033,7 @@ def main(argv: list[str] | None = None) -> int:
         plan_executor=not args.no_plan_executor,
         exit_mode=str(args.exit_mode),
         near_tiebreak=str(args.near_tiebreak),
+        near_order=str(args.near_order),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,
