@@ -1,0 +1,1654 @@
+{
+ "schema": "shibuya.bench/c10-relations/arms/1",
+ "base": {
+  "vocab_version": "v3",
+  "memory": "on"
+ },
+ "rows": [
+  {
+   "arm": "relations_off",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on"
+   },
+   "final_hash": "6b72e94a0f3e0c56fb03e2cbd68b093aa113a50f08ad04b19e1f9b7f2adba3c4",
+   "final_wo_relations": "",
+   "llm_calls": 69603,
+   "relations": {},
+   "conversation": {
+    "sessions_opened": 194,
+    "sessions_active": 1,
+    "sessions_closed": 193,
+    "conv_invites": 2714,
+    "conv_accepted": 194,
+    "conv_declined": 2518,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 126,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3626,
+    "conv_target_absent": 1944
+   },
+   "memory_talk_events": 3950,
+   "agents_bytes_total": 16800000,
+   "agents_declared_bytes_per_agent": 4256,
+   "wall_seconds_nondeterministic": 31.93
+  },
+  {
+   "arm": "relations_on",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on"
+   },
+   "final_hash": "1fbb429c70b19e8b9832495b0343a3f6f9cc9a8d8e62021977ee340a27ac9388",
+   "final_wo_relations": "6b72e94a0f3e0c56fb03e2cbd68b093aa113a50f08ad04b19e1f9b7f2adba3c4",
+   "llm_calls": 69603,
+   "relations": {
+    "k": 15,
+    "tau": -1.1,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "events": 414,
+     "events:sign+1": 388,
+     "events:sign0": 26,
+     "evicted_kind:school": 2,
+     "evicted_kind:work": 4,
+     "evictions": 6,
+     "init_edges": 9246,
+     "init_edges:household": 6,
+     "init_edges:school": 3314,
+     "init_edges:work": 5926,
+     "merged": 8,
+     "new_edges": 406
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 7.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 1.8494
+    },
+    "edges_live_total": 9247,
+    "edges_below_tau": 399,
+    "agents_with_edges": 1822,
+    "degree_histogram": {
+     "0": 3178,
+     "1": 456,
+     "2": 245,
+     "3": 157,
+     "4": 148,
+     "5": 162,
+     "6": 119,
+     "7": 84,
+     "8": 50,
+     "9": 98,
+     "10": 37,
+     "11": 61,
+     "12": 51,
+     "13": 34,
+     "14": 51,
+     "15": 69
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 6,
+     "work": 5922,
+     "school": 3312,
+     "acquaintance": 7
+    },
+    "signs": {
+     "0": 9233,
+     "1": 14
+    },
+    "A": {
+     "p0": -1.0296,
+     "p10": -1.0296,
+     "p50": -1.0296,
+     "p90": -1.0296,
+     "p99": 0.0691,
+     "p100": 0.6932,
+     "mean": -0.9821
+    },
+    "P": {
+     "p0": 145.0,
+     "p10": 145.0,
+     "p50": 145.0,
+     "p90": 145.0,
+     "p99": 253.0,
+     "p100": 255.0,
+     "mean": 151.2324
+    },
+    "n_per_edge": {
+     "p0": 1.0,
+     "p10": 65.0,
+     "p50": 65.0,
+     "p90": 65.0,
+     "p99": 195.0,
+     "p100": 364.0,
+     "mean": 69.7
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 816,
+     "agents_with_15": 69
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "groups": {
+      "household": 3,
+      "work": 417,
+      "school": 51
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 10154,
+     "candidate_pairs": 9885,
+     "candidate_pairs_copresent": 9246,
+     "capped_out": 0,
+     "edges_before_tau": 9246,
+     "dropped_by_tau": 0,
+     "init_seconds_nondeterministic": 0.067
+    }
+   },
+   "conversation": {
+    "sessions_opened": 194,
+    "sessions_active": 1,
+    "sessions_closed": 193,
+    "conv_invites": 2714,
+    "conv_accepted": 194,
+    "conv_declined": 2518,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 126,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3626,
+    "conv_target_absent": 1944
+   },
+   "memory_talk_events": 3950,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "wall_seconds_nondeterministic": 34.1,
+   "wo_relations_equals_off": true
+  },
+  {
+   "arm": "density_0.5",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "rel_init_density": 0.5
+   },
+   "final_hash": "9589256cf92ab9435ed41709b7278b14863a6214c497c073f86a9494e652ef5d",
+   "final_wo_relations": "6b72e94a0f3e0c56fb03e2cbd68b093aa113a50f08ad04b19e1f9b7f2adba3c4",
+   "llm_calls": 69603,
+   "relations": {
+    "k": 15,
+    "tau": -1.1,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "events": 414,
+     "events:sign+1": 388,
+     "events:sign0": 26,
+     "init_edges": 3904,
+     "init_edges:household": 6,
+     "init_edges:school": 1288,
+     "init_edges:work": 2610,
+     "merged": 8,
+     "new_edges": 406
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 3.0,
+     "p99": 11.0,
+     "p100": 14.0,
+     "mean": 0.7822
+    },
+    "edges_live_total": 3911,
+    "edges_below_tau": 399,
+    "agents_with_edges": 1098,
+    "degree_histogram": {
+     "0": 3902,
+     "1": 368,
+     "2": 175,
+     "3": 157,
+     "4": 97,
+     "5": 68,
+     "6": 57,
+     "7": 44,
+     "8": 32,
+     "9": 40,
+     "10": 8,
+     "11": 21,
+     "12": 7,
+     "13": 3,
+     "14": 21
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 6,
+     "work": 2610,
+     "school": 1288,
+     "acquaintance": 7
+    },
+    "signs": {
+     "0": 3897,
+     "1": 14
+    },
+    "A": {
+     "p0": -1.0296,
+     "p10": -1.0296,
+     "p50": -1.0296,
+     "p90": -1.0296,
+     "p99": 0.0621,
+     "p100": 0.6932,
+     "mean": -0.9769
+    },
+    "P": {
+     "p0": 145.0,
+     "p10": 145.0,
+     "p50": 145.0,
+     "p90": 145.0,
+     "p99": 252.9,
+     "p100": 255.0,
+     "mean": 151.9553
+    },
+    "n_per_edge": {
+     "p0": 1.0,
+     "p10": 65.0,
+     "p50": 65.0,
+     "p90": 65.0,
+     "p99": 188.6,
+     "p100": 364.0,
+     "mean": 70.1128
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 301,
+     "agents_with_15": 0
+    },
+    "init": {
+     "density": 0.5,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "groups": {
+      "household": 3,
+      "work": 417,
+      "school": 51
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 10154,
+     "candidate_pairs": 9885,
+     "candidate_pairs_copresent": 9246,
+     "density_threshold_minutes": 480.0,
+     "capped_out": 0,
+     "edges_before_tau": 3904,
+     "dropped_by_tau": 0,
+     "init_seconds_nondeterministic": 0.053
+    }
+   },
+   "conversation": {
+    "sessions_opened": 194,
+    "sessions_active": 1,
+    "sessions_closed": 193,
+    "conv_invites": 2714,
+    "conv_accepted": 194,
+    "conv_declined": 2518,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 126,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3626,
+    "conv_target_absent": 1944
+   },
+   "memory_talk_events": 3950,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "wall_seconds_nondeterministic": 32.92,
+   "wo_relations_equals_off": true
+  },
+  {
+   "arm": "density_2.0",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "rel_init_density": 2.0
+   },
+   "final_hash": "1fbb429c70b19e8b9832495b0343a3f6f9cc9a8d8e62021977ee340a27ac9388",
+   "final_wo_relations": "6b72e94a0f3e0c56fb03e2cbd68b093aa113a50f08ad04b19e1f9b7f2adba3c4",
+   "llm_calls": 69603,
+   "relations": {
+    "k": 15,
+    "tau": -1.1,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "events": 414,
+     "events:sign+1": 388,
+     "events:sign0": 26,
+     "evicted_kind:school": 2,
+     "evicted_kind:work": 4,
+     "evictions": 6,
+     "init_edges": 9246,
+     "init_edges:household": 6,
+     "init_edges:school": 3314,
+     "init_edges:work": 5926,
+     "merged": 8,
+     "new_edges": 406
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 7.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 1.8494
+    },
+    "edges_live_total": 9247,
+    "edges_below_tau": 399,
+    "agents_with_edges": 1822,
+    "degree_histogram": {
+     "0": 3178,
+     "1": 456,
+     "2": 245,
+     "3": 157,
+     "4": 148,
+     "5": 162,
+     "6": 119,
+     "7": 84,
+     "8": 50,
+     "9": 98,
+     "10": 37,
+     "11": 61,
+     "12": 51,
+     "13": 34,
+     "14": 51,
+     "15": 69
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 6,
+     "work": 5922,
+     "school": 3312,
+     "acquaintance": 7
+    },
+    "signs": {
+     "0": 9233,
+     "1": 14
+    },
+    "A": {
+     "p0": -1.0296,
+     "p10": -1.0296,
+     "p50": -1.0296,
+     "p90": -1.0296,
+     "p99": 0.0691,
+     "p100": 0.6932,
+     "mean": -0.9821
+    },
+    "P": {
+     "p0": 145.0,
+     "p10": 145.0,
+     "p50": 145.0,
+     "p90": 145.0,
+     "p99": 253.0,
+     "p100": 255.0,
+     "mean": 151.2324
+    },
+    "n_per_edge": {
+     "p0": 1.0,
+     "p10": 65.0,
+     "p50": 65.0,
+     "p90": 65.0,
+     "p99": 195.0,
+     "p100": 364.0,
+     "mean": 69.7
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 816,
+     "agents_with_15": 69
+    },
+    "init": {
+     "density": 2.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "groups": {
+      "household": 3,
+      "work": 417,
+      "school": 51
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 10154,
+     "candidate_pairs": 9885,
+     "candidate_pairs_copresent": 9246,
+     "capped_out": 0,
+     "edges_before_tau": 9885,
+     "dropped_by_tau": 639,
+     "init_seconds_nondeterministic": 0.061
+    }
+   },
+   "conversation": {
+    "sessions_opened": 194,
+    "sessions_active": 1,
+    "sessions_closed": 193,
+    "conv_invites": 2714,
+    "conv_accepted": 194,
+    "conv_declined": 2518,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 126,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3626,
+    "conv_target_absent": 1944
+   },
+   "memory_talk_events": 3950,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "wall_seconds_nondeterministic": 33.3,
+   "wo_relations_equals_off": true
+  },
+  {
+   "arm": "tau_-1.6",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "rel_tau": -1.6
+   },
+   "final_hash": "1fbb429c70b19e8b9832495b0343a3f6f9cc9a8d8e62021977ee340a27ac9388",
+   "final_wo_relations": "6b72e94a0f3e0c56fb03e2cbd68b093aa113a50f08ad04b19e1f9b7f2adba3c4",
+   "llm_calls": 69603,
+   "relations": {
+    "k": 15,
+    "tau": -1.6,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "events": 414,
+     "events:sign+1": 388,
+     "events:sign0": 26,
+     "evicted_kind:school": 2,
+     "evicted_kind:work": 4,
+     "evictions": 6,
+     "init_edges": 9246,
+     "init_edges:household": 6,
+     "init_edges:school": 3314,
+     "init_edges:work": 5926,
+     "merged": 8,
+     "new_edges": 406
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 7.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 1.8506
+    },
+    "edges_live_total": 9253,
+    "edges_below_tau": 393,
+    "agents_with_edges": 1824,
+    "degree_histogram": {
+     "0": 3176,
+     "1": 457,
+     "2": 246,
+     "3": 157,
+     "4": 148,
+     "5": 161,
+     "6": 120,
+     "7": 83,
+     "8": 51,
+     "9": 98,
+     "10": 37,
+     "11": 61,
+     "12": 50,
+     "13": 35,
+     "14": 51,
+     "15": 69
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 6,
+     "work": 5922,
+     "school": 3312,
+     "acquaintance": 13
+    },
+    "signs": {
+     "0": 9233,
+     "1": 20
+    },
+    "A": {
+     "p0": -1.5398,
+     "p10": -1.0296,
+     "p50": -1.0296,
+     "p90": -1.0296,
+     "p99": 0.0691,
+     "p100": 0.6932,
+     "mean": -0.9824
+    },
+    "P": {
+     "p0": 143.0,
+     "p10": 231.0,
+     "p50": 231.0,
+     "p90": 231.0,
+     "p99": 255.0,
+     "p100": 255.0,
+     "mean": 232.3398
+    },
+    "n_per_edge": {
+     "p0": 1.0,
+     "p10": 65.0,
+     "p50": 65.0,
+     "p90": 65.0,
+     "p99": 195.0,
+     "p100": 364.0,
+     "mean": 69.6555
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 816,
+     "agents_with_15": 69
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "groups": {
+      "household": 3,
+      "work": 417,
+      "school": 51
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 10154,
+     "candidate_pairs": 9885,
+     "candidate_pairs_copresent": 9246,
+     "capped_out": 0,
+     "edges_before_tau": 9246,
+     "dropped_by_tau": 0,
+     "init_seconds_nondeterministic": 0.071
+    }
+   },
+   "conversation": {
+    "sessions_opened": 194,
+    "sessions_active": 1,
+    "sessions_closed": 193,
+    "conv_invites": 2714,
+    "conv_accepted": 194,
+    "conv_declined": 2518,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 126,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3626,
+    "conv_target_absent": 1944
+   },
+   "memory_talk_events": 3950,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "wall_seconds_nondeterministic": 35.0,
+   "wo_relations_equals_off": true
+  },
+  {
+   "arm": "tau_-0.6",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "rel_tau": -0.6
+   },
+   "final_hash": "6078aaf6c5eeb1f702360119b498e230eec0b76f89fa705ae6cb48921bfd3379",
+   "final_wo_relations": "6b72e94a0f3e0c56fb03e2cbd68b093aa113a50f08ad04b19e1f9b7f2adba3c4",
+   "llm_calls": 69603,
+   "relations": {
+    "k": 15,
+    "tau": -0.6,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "events": 414,
+     "events:sign+1": 388,
+     "events:sign0": 26,
+     "evicted_kind:work": 1,
+     "evictions": 1,
+     "init_edges": 569,
+     "init_edges:household": 4,
+     "init_edges:school": 178,
+     "init_edges:work": 387,
+     "merged": 2,
+     "new_edges": 412
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 0.0,
+     "p99": 2.0,
+     "p100": 15.0,
+     "mean": 0.114
+    },
+    "edges_live_total": 570,
+    "edges_below_tau": 410,
+    "agents_with_edges": 329,
+    "degree_histogram": {
+     "0": 4671,
+     "1": 246,
+     "2": 43,
+     "3": 13,
+     "4": 5,
+     "5": 3,
+     "6": 1,
+     "7": 6,
+     "8": 4,
+     "9": 5,
+     "10": 1,
+     "14": 1,
+     "15": 1
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 4,
+     "work": 386,
+     "school": 178,
+     "acquaintance": 2
+    },
+    "signs": {
+     "0": 566,
+     "1": 4
+    },
+    "A": {
+     "p0": -0.3364,
+     "p10": -0.3364,
+     "p50": -0.3364,
+     "p90": 0.0691,
+     "p99": 0.0691,
+     "p100": 0.6932,
+     "mean": -0.2614
+    },
+    "P": {
+     "p0": 189.0,
+     "p10": 189.0,
+     "p50": 189.0,
+     "p90": 239.0,
+     "p99": 239.0,
+     "p100": 254.0,
+     "mean": 197.9439
+    },
+    "n_per_edge": {
+     "p0": 1.0,
+     "p10": 130.0,
+     "p50": 130.0,
+     "p90": 195.0,
+     "p99": 195.0,
+     "p100": 364.0,
+     "mean": 141.707
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 22,
+     "agents_with_15": 1
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "groups": {
+      "household": 3,
+      "work": 417,
+      "school": 51
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 10154,
+     "candidate_pairs": 9885,
+     "candidate_pairs_copresent": 9246,
+     "capped_out": 0,
+     "edges_before_tau": 9246,
+     "dropped_by_tau": 8677,
+     "init_seconds_nondeterministic": 0.051
+    }
+   },
+   "conversation": {
+    "sessions_opened": 194,
+    "sessions_active": 1,
+    "sessions_closed": 193,
+    "conv_invites": 2714,
+    "conv_accepted": 194,
+    "conv_declined": 2518,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 126,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3626,
+    "conv_target_absent": 1944
+   },
+   "memory_talk_events": 3950,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "wall_seconds_nondeterministic": 34.77,
+   "wo_relations_equals_off": true
+  },
+  {
+   "arm": "d_0.25",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "rel_d": 0.25
+   },
+   "final_hash": "1fbb429c70b19e8b9832495b0343a3f6f9cc9a8d8e62021977ee340a27ac9388",
+   "final_wo_relations": "6b72e94a0f3e0c56fb03e2cbd68b093aa113a50f08ad04b19e1f9b7f2adba3c4",
+   "llm_calls": 69603,
+   "relations": {
+    "k": 15,
+    "tau": -1.1,
+    "d": 0.25,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "events": 414,
+     "events:sign+1": 388,
+     "events:sign0": 26,
+     "evicted_kind:school": 2,
+     "evicted_kind:work": 4,
+     "evictions": 6,
+     "init_edges": 9246,
+     "init_edges:household": 6,
+     "init_edges:school": 3314,
+     "init_edges:work": 5926,
+     "merged": 8,
+     "new_edges": 406
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 7.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 1.8576
+    },
+    "edges_live_total": 9288,
+    "edges_below_tau": 358,
+    "agents_with_edges": 1842,
+    "degree_histogram": {
+     "0": 3158,
+     "1": 471,
+     "2": 248,
+     "3": 157,
+     "4": 149,
+     "5": 159,
+     "6": 122,
+     "7": 83,
+     "8": 52,
+     "9": 97,
+     "10": 38,
+     "11": 61,
+     "12": 50,
+     "13": 34,
+     "14": 51,
+     "15": 70
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 6,
+     "work": 5922,
+     "school": 3312,
+     "acquaintance": 48
+    },
+    "signs": {
+     "0": 9234,
+     "1": 54
+    },
+    "A": {
+     "p0": -1.0996,
+     "p10": 1.5135,
+     "p50": 1.5135,
+     "p90": 1.5135,
+     "p99": 2.6121,
+     "p100": 3.2363,
+     "mean": 1.5481
+    },
+    "P": {
+     "p0": 128.0,
+     "p10": 255.0,
+     "p50": 255.0,
+     "p90": 255.0,
+     "p99": 255.0,
+     "p100": 255.0,
+     "mean": 254.5448
+    },
+    "n_per_edge": {
+     "p0": 1.0,
+     "p10": 65.0,
+     "p50": 65.0,
+     "p90": 65.0,
+     "p99": 195.0,
+     "p100": 364.0,
+     "mean": 69.3967
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 817,
+     "agents_with_15": 70
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "groups": {
+      "household": 3,
+      "work": 417,
+      "school": 51
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 10154,
+     "candidate_pairs": 9885,
+     "candidate_pairs_copresent": 9246,
+     "capped_out": 0,
+     "edges_before_tau": 9246,
+     "dropped_by_tau": 0,
+     "init_seconds_nondeterministic": 0.062
+    }
+   },
+   "conversation": {
+    "sessions_opened": 194,
+    "sessions_active": 1,
+    "sessions_closed": 193,
+    "conv_invites": 2714,
+    "conv_accepted": 194,
+    "conv_declined": 2518,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 126,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3626,
+    "conv_target_absent": 1944
+   },
+   "memory_talk_events": 3950,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "wall_seconds_nondeterministic": 32.9,
+   "wo_relations_equals_off": true
+  },
+  {
+   "arm": "d_0.75",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "rel_d": 0.75
+   },
+   "final_hash": "f826a1bb46c6101ef4249bb79942f67abca38f3428a11b99f2059ce91e1fa347",
+   "final_wo_relations": "6b72e94a0f3e0c56fb03e2cbd68b093aa113a50f08ad04b19e1f9b7f2adba3c4",
+   "llm_calls": 69603,
+   "relations": {
+    "k": 15,
+    "tau": -1.1,
+    "d": 0.75,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "events": 414,
+     "events:sign+1": 388,
+     "events:sign0": 26,
+     "merged": 0,
+     "new_edges": 414
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 0.0,
+     "p99": 0.0,
+     "p100": 2.0,
+     "mean": 0.0014
+    },
+    "edges_live_total": 7,
+    "edges_below_tau": 407,
+    "agents_with_edges": 6,
+    "degree_histogram": {
+     "0": 4994,
+     "1": 5,
+     "2": 1
+    },
+    "degree_regular": false,
+    "kinds": {
+     "acquaintance": 7
+    },
+    "signs": {
+     "0": 1,
+     "1": 6
+    },
+    "A": {
+     "p0": -1.0856,
+     "p10": -1.0856,
+     "p50": -1.0279,
+     "p90": 0.3466,
+     "p99": 0.3466,
+     "p100": 0.3466,
+     "mean": -0.6427
+    },
+    "P": {
+     "p0": 131.0,
+     "p10": 131.0,
+     "p50": 146.0,
+     "p90": 254.0,
+     "p99": 254.0,
+     "p100": 254.0,
+     "mean": 174.7143
+    },
+    "n_per_edge": {
+     "p0": 1.0,
+     "p10": 1.0,
+     "p50": 1.0,
+     "p90": 1.0,
+     "p99": 1.0,
+     "p100": 1.0,
+     "mean": 1.0
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 0,
+     "agents_with_15": 0
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "groups": {
+      "household": 3,
+      "work": 417,
+      "school": 51
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 10154,
+     "candidate_pairs": 9885,
+     "candidate_pairs_copresent": 9246,
+     "capped_out": 0,
+     "edges_before_tau": 9246,
+     "dropped_by_tau": 9246,
+     "init_seconds_nondeterministic": 0.048
+    }
+   },
+   "conversation": {
+    "sessions_opened": 194,
+    "sessions_active": 1,
+    "sessions_closed": 193,
+    "conv_invites": 2714,
+    "conv_accepted": 194,
+    "conv_declined": 2518,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 126,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3626,
+    "conv_target_absent": 1944
+   },
+   "memory_talk_events": 3950,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "wall_seconds_nondeterministic": 33.6,
+   "wo_relations_equals_off": true
+  },
+  {
+   "arm": "k_5",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "rel_k": 5
+   },
+   "final_hash": "80021d8ad44cbf30528921214e636a88829b161a735b7649baa2de8d6f565676",
+   "final_wo_relations": "6b72e94a0f3e0c56fb03e2cbd68b093aa113a50f08ad04b19e1f9b7f2adba3c4",
+   "llm_calls": 69603,
+   "relations": {
+    "k": 5,
+    "tau": -1.1,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "events": 414,
+     "events:sign+1": 388,
+     "events:sign0": 26,
+     "evicted_kind:acquaintance": 1,
+     "evicted_kind:school": 21,
+     "evicted_kind:work": 46,
+     "evictions": 68,
+     "init_edges": 6085,
+     "init_edges:household": 6,
+     "init_edges:school": 1846,
+     "init_edges:work": 4233,
+     "merged": 8,
+     "new_edges": 406
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 5.0,
+     "p99": 5.0,
+     "p100": 5.0,
+     "mean": 1.205
+    },
+    "edges_live_total": 6025,
+    "edges_below_tau": 398,
+    "agents_with_edges": 1822,
+    "degree_histogram": {
+     "0": 3178,
+     "1": 456,
+     "2": 245,
+     "3": 157,
+     "4": 212,
+     "5": 752
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 6,
+     "work": 4187,
+     "school": 1825,
+     "acquaintance": 7
+    },
+    "signs": {
+     "0": 6011,
+     "1": 14
+    },
+    "A": {
+     "p0": -1.0296,
+     "p10": -1.0296,
+     "p50": -1.0296,
+     "p90": -1.0296,
+     "p99": -0.3364,
+     "p100": 0.6932,
+     "mean": -0.9849
+    },
+    "P": {
+     "p0": 145.0,
+     "p10": 145.0,
+     "p50": 145.0,
+     "p90": 145.0,
+     "p99": 244.0,
+     "p100": 255.0,
+     "mean": 150.928
+    },
+    "n_per_edge": {
+     "p0": 1.0,
+     "p10": 65.0,
+     "p50": 65.0,
+     "p90": 65.0,
+     "p99": 130.0,
+     "p100": 364.0,
+     "mean": 69.3545
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 752,
+     "agents_with_15": 0
+    },
+    "init": {
+     "density": 1.0,
+     "k": 5,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "groups": {
+      "household": 3,
+      "work": 417,
+      "school": 51
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 10154,
+     "candidate_pairs": 6419,
+     "candidate_pairs_copresent": 6085,
+     "capped_out": 0,
+     "edges_before_tau": 6085,
+     "dropped_by_tau": 0,
+     "init_seconds_nondeterministic": 0.06
+    }
+   },
+   "conversation": {
+    "sessions_opened": 194,
+    "sessions_active": 1,
+    "sessions_closed": 193,
+    "conv_invites": 2714,
+    "conv_accepted": 194,
+    "conv_declined": 2518,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 126,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3626,
+    "conv_target_absent": 1944
+   },
+   "memory_talk_events": 3950,
+   "agents_bytes_total": 17200000,
+   "agents_declared_bytes_per_agent": 4336,
+   "wall_seconds_nondeterministic": 43.88,
+   "wo_relations_equals_off": true
+  },
+  {
+   "arm": "k_50",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "rel_k": 50
+   },
+   "final_hash": "de9ee850a486d47e253c8e961673f659d3a6d7683f2d6ef78d6492f7c94ec460",
+   "final_wo_relations": "6b72e94a0f3e0c56fb03e2cbd68b093aa113a50f08ad04b19e1f9b7f2adba3c4",
+   "llm_calls": 69603,
+   "relations": {
+    "k": 50,
+    "tau": -1.1,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "events": 414,
+     "events:sign+1": 388,
+     "events:sign0": 26,
+     "init_edges": 9484,
+     "init_edges:household": 6,
+     "init_edges:school": 3446,
+     "init_edges:work": 6032,
+     "merged": 8,
+     "new_edges": 406
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 7.0,
+     "p99": 17.0,
+     "p100": 21.0,
+     "mean": 1.8982
+    },
+    "edges_live_total": 9491,
+    "edges_below_tau": 399,
+    "agents_with_edges": 1822,
+    "degree_histogram": {
+     "0": 3178,
+     "1": 456,
+     "2": 245,
+     "3": 157,
+     "4": 148,
+     "5": 162,
+     "6": 119,
+     "7": 84,
+     "8": 50,
+     "9": 98,
+     "10": 37,
+     "11": 61,
+     "12": 51,
+     "13": 34,
+     "14": 45,
+     "15": 16,
+     "16": 5,
+     "17": 12,
+     "18": 3,
+     "19": 17,
+     "21": 22
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 6,
+     "work": 6032,
+     "school": 3446,
+     "acquaintance": 7
+    },
+    "signs": {
+     "0": 9477,
+     "1": 14
+    },
+    "A": {
+     "p0": -1.0296,
+     "p10": -1.0296,
+     "p50": -1.0296,
+     "p90": -1.0296,
+     "p99": 0.0691,
+     "p100": 0.6932,
+     "mean": -0.982
+    },
+    "P": {
+     "p0": 145.0,
+     "p10": 145.0,
+     "p50": 145.0,
+     "p90": 145.0,
+     "p99": 253.0,
+     "p100": 255.0,
+     "mean": 151.2059
+    },
+    "n_per_edge": {
+     "p0": 1.0,
+     "p10": 65.0,
+     "p50": 65.0,
+     "p90": 65.0,
+     "p99": 195.0,
+     "p100": 364.0,
+     "mean": 69.723
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 816,
+     "agents_with_15": 75
+    },
+    "init": {
+     "density": 1.0,
+     "k": 50,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "groups": {
+      "household": 3,
+      "work": 417,
+      "school": 51
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 10154,
+     "candidate_pairs": 10154,
+     "candidate_pairs_copresent": 9484,
+     "capped_out": 0,
+     "edges_before_tau": 9484,
+     "dropped_by_tau": 0,
+     "init_seconds_nondeterministic": 0.066
+    }
+   },
+   "conversation": {
+    "sessions_opened": 194,
+    "sessions_active": 1,
+    "sessions_closed": 193,
+    "conv_invites": 2714,
+    "conv_accepted": 194,
+    "conv_declined": 2518,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 126,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3626,
+    "conv_target_absent": 1944
+   },
+   "memory_talk_events": 3950,
+   "agents_bytes_total": 20800000,
+   "agents_declared_bytes_per_agent": 5056,
+   "wall_seconds_nondeterministic": 45.98,
+   "wo_relations_equals_off": true
+  },
+  {
+   "arm": "conv3_off",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "conv_max_participants": 3
+   },
+   "final_hash": "4c94c77aea71a411d8182c795a1aa7a2884851aa05074fb058f1467a715483ef",
+   "final_wo_relations": "",
+   "llm_calls": 69754,
+   "relations": {},
+   "conversation": {
+    "sessions_opened": 202,
+    "sessions_active": 0,
+    "sessions_closed": 202,
+    "conv_invites": 2726,
+    "conv_accepted": 202,
+    "conv_declined": 2521,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 1,
+    "conv_invite_refractory_blocked": 119,
+    "sessions_joined": 15,
+    "session_size_2": 187,
+    "session_size_3": 15,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3644,
+    "conv_target_absent": 1945
+   },
+   "memory_talk_events": 4099,
+   "agents_bytes_total": 16800000,
+   "agents_declared_bytes_per_agent": 4256,
+   "wall_seconds_nondeterministic": 43.32
+  },
+  {
+   "arm": "conv3_on",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "conv_max_participants": 3
+   },
+   "final_hash": "d7d8cbadef8d0d5f666ec054d1aa721aadfcfc24afe42caa372adf47eab31722",
+   "final_wo_relations": "4c94c77aea71a411d8182c795a1aa7a2884851aa05074fb058f1467a715483ef",
+   "llm_calls": 69754,
+   "relations": {
+    "k": 15,
+    "tau": -1.1,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "events": 475,
+     "events:sign+1": 464,
+     "events:sign0": 11,
+     "evicted_kind:acquaintance": 1,
+     "evicted_kind:school": 5,
+     "evicted_kind:work": 4,
+     "evictions": 10,
+     "init_edges": 9246,
+     "init_edges:household": 6,
+     "init_edges:school": 3314,
+     "init_edges:work": 5926,
+     "merged": 4,
+     "new_edges": 471
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 7.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 1.8486
+    },
+    "edges_live_total": 9243,
+    "edges_below_tau": 464,
+    "agents_with_edges": 1822,
+    "degree_histogram": {
+     "0": 3178,
+     "1": 455,
+     "2": 247,
+     "3": 156,
+     "4": 148,
+     "5": 161,
+     "6": 120,
+     "7": 84,
+     "8": 50,
+     "9": 98,
+     "10": 39,
+     "11": 59,
+     "12": 51,
+     "13": 36,
+     "14": 50,
+     "15": 68
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 6,
+     "work": 5922,
+     "school": 3309,
+     "acquaintance": 6
+    },
+    "signs": {
+     "0": 9233,
+     "1": 10
+    },
+    "A": {
+     "p0": -1.0296,
+     "p10": -1.0296,
+     "p50": -1.0296,
+     "p90": -1.0296,
+     "p99": 0.0691,
+     "p100": 0.6932,
+     "mean": -0.9821
+    },
+    "P": {
+     "p0": 145.0,
+     "p10": 145.0,
+     "p50": 145.0,
+     "p90": 145.0,
+     "p99": 253.0,
+     "p100": 255.0,
+     "mean": 151.2316
+    },
+    "n_per_edge": {
+     "p0": 1.0,
+     "p10": 65.0,
+     "p50": 65.0,
+     "p90": 65.0,
+     "p99": 195.0,
+     "p100": 364.0,
+     "mean": 69.7226
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 816,
+     "agents_with_15": 68
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "groups": {
+      "household": 3,
+      "work": 417,
+      "school": 51
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 10154,
+     "candidate_pairs": 9885,
+     "candidate_pairs_copresent": 9246,
+     "capped_out": 0,
+     "edges_before_tau": 9246,
+     "dropped_by_tau": 0,
+     "init_seconds_nondeterministic": 0.068
+    }
+   },
+   "conversation": {
+    "sessions_opened": 202,
+    "sessions_active": 0,
+    "sessions_closed": 202,
+    "conv_invites": 2726,
+    "conv_accepted": 202,
+    "conv_declined": 2521,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 1,
+    "conv_invite_refractory_blocked": 119,
+    "sessions_joined": 15,
+    "session_size_2": 187,
+    "session_size_3": 15,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3644,
+    "conv_target_absent": 1945
+   },
+   "memory_talk_events": 4099,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "wall_seconds_nondeterministic": 47.76,
+   "wo_relations_equals_off": true
+  },
+  {
+   "arm": "classical_off",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "policy": "classical",
+    "chooser": "classical"
+   },
+   "final_hash": "07f015945450d5668dd5e029adade9704e90490599f342f0797fa5209f7c6680",
+   "final_wo_relations": "",
+   "llm_calls": 102008,
+   "relations": {},
+   "conversation": {
+    "sessions_opened": 632,
+    "sessions_active": 2,
+    "sessions_closed": 630,
+    "conv_invites": 685,
+    "conv_accepted": 632,
+    "conv_declined": 51,
+    "conv_pending_expired": 1,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 39,
+    "conv_target_named": 866,
+    "conv_fallback_same_batch": 2,
+    "conv_target_absent": 2
+   },
+   "memory_talk_events": 4891,
+   "agents_bytes_total": 16800000,
+   "agents_declared_bytes_per_agent": 4256,
+   "wall_seconds_nondeterministic": 59.28
+  },
+  {
+   "arm": "classical_on",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "policy": "classical",
+    "chooser": "classical"
+   },
+   "final_hash": "e308d89cd77102896db903b571e79c0f967dac38ada47c1b5bedf2dae2e0eed8",
+   "final_wo_relations": "7acb806ccff0ae49e147e20f894c5e3c9b7f6a3244c5d62aa5960a0b3970311d",
+   "llm_calls": 101894,
+   "relations": {
+    "k": 15,
+    "tau": -1.1,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "events": 1376,
+     "events:sign+1": 1288,
+     "events:sign0": 88,
+     "evicted_kind:acquaintance": 16,
+     "evicted_kind:school": 10,
+     "evicted_kind:work": 4,
+     "evictions": 30,
+     "init_edges": 9246,
+     "init_edges:household": 6,
+     "init_edges:school": 3314,
+     "init_edges:work": 5926,
+     "merged": 131,
+     "new_edges": 1245
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 7.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 1.8486
+    },
+    "edges_live_total": 9243,
+    "edges_below_tau": 1218,
+    "agents_with_edges": 1827,
+    "degree_histogram": {
+     "0": 3173,
+     "1": 461,
+     "2": 246,
+     "3": 156,
+     "4": 147,
+     "5": 163,
+     "6": 117,
+     "7": 86,
+     "8": 50,
+     "9": 99,
+     "10": 38,
+     "11": 59,
+     "12": 51,
+     "13": 35,
+     "14": 57,
+     "15": 62
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 6,
+     "work": 5922,
+     "school": 3304,
+     "acquaintance": 11
+    },
+    "signs": {
+     "0": 9158,
+     "1": 85
+    },
+    "A": {
+     "p0": -1.0845,
+     "p10": -1.0296,
+     "p50": -1.0296,
+     "p90": -1.0296,
+     "p99": 0.0691,
+     "p100": 0.6932,
+     "mean": -0.9818
+    },
+    "P": {
+     "p0": 131.0,
+     "p10": 145.0,
+     "p50": 145.0,
+     "p90": 145.0,
+     "p99": 253.0,
+     "p100": 255.0,
+     "mean": 151.295
+    },
+    "n_per_edge": {
+     "p0": 1.0,
+     "p10": 65.0,
+     "p50": 65.0,
+     "p90": 65.0,
+     "p99": 195.0,
+     "p100": 364.0,
+     "mean": 69.6975
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 817,
+     "agents_with_15": 62
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "groups": {
+      "household": 3,
+      "work": 417,
+      "school": 51
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 10154,
+     "candidate_pairs": 9885,
+     "candidate_pairs_copresent": 9246,
+     "capped_out": 0,
+     "edges_before_tau": 9246,
+     "dropped_by_tau": 0,
+     "init_seconds_nondeterministic": 0.071
+    }
+   },
+   "conversation": {
+    "sessions_opened": 644,
+    "sessions_active": 0,
+    "sessions_closed": 644,
+    "conv_invites": 700,
+    "conv_accepted": 644,
+    "conv_declined": 54,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 40,
+    "conv_target_named": 881,
+    "conv_fallback_same_batch": 2,
+    "conv_target_absent": 5
+   },
+   "memory_talk_events": 4990,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "wall_seconds_nondeterministic": 62.7,
+   "wo_relations_equals_off": false
+  }
+ ]
+}

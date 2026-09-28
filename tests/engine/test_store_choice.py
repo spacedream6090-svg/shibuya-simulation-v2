@@ -214,7 +214,7 @@ def test_store_item_templates_and_cap():
     long = memory_item_text(item(obj=0, valence=1, source=SELF), hhmm="", poi_names=["ラ" * 60],
                             place_ids=["c0", "c1"], result_text={})
     assert estimate_tokens(long) <= T.MEMORY_STORE_ITEM_MAX_TOKENS == 15
-    assert T.TEMPLATE_VERSION == "v1.3"
+    assert T.TEMPLATE_VERSION in ("v1.3", "v1.4")  # v1.4=8a(店の項は同じ)
     from shibuya.perception import renderer as Rn
 
     assert Rn._STORE_ITEM_KIND == M.STORE_ITEM_KIND and Rn._STORE_SELF_BIT == SELF

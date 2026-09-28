@@ -6,7 +6,7 @@ C6 の会話結線(サブ O)で「被招待がプロンプト上で**誰に誘�
 
 見るもの
 (a) 被招待の描画に**招待者の人ID**が出る/(b) 招待なしの描画は**1 バイトも変わらない**
-(golden 不変・テンプレ SHA ea204a66(v1.3・旧 v1.2 1f6c7d62) 不変)/(c) §2.4 ⑧(B0-B4b のバイト一致)と B5 は
+(golden 不変・テンプレ SHA 40af870e(v1.4・旧 v1.3 ea204a66) 不変)/(c) §2.4 ⑧(B0-B4b のバイト一致)と B5 は
 被招待でも動かない(B6 は個体ブロック)/(d) 予算(B6 ≤80・個体群 ≤300)/(e) 決定論/
 (f) 文面が**パーサで招待者に戻る**(承諾の対象規則と地続き)/(g) 両 budget_mode で成立/
 (h) **端から端まで**: プロンプトを読む LLM は承諾でき(実レンダラ)、読めない構成
@@ -73,7 +73,7 @@ def test_no_invite_renders_exactly_as_before():
 
 def test_template_sha256_is_untouched():
     """テンプレ本体(``TEMPLATES``/``WAKE_REASON_TEXT``)に行を足していない。"""
-    assert T.template_sha256().startswith("ea204a66")  # v1.3(旧 v1.2 = 1f6c7d62・v1.1 = 8f2959d0)
+    assert T.template_sha256().startswith("40af870e")  # v1.4(旧 v1.3 = ea204a66・v1.2 = 1f6c7d62)
     assert "{reason}" in T.TEMPLATES["B6.wake"]
     assert INVITE_REASON not in T.TEMPLATES.values()
     assert INVITE_REASON not in T.WAKE_REASON_TEXT

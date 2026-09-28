@@ -1039,6 +1039,11 @@ class Renderer:
         #: 数値の代わりに ``T.HUNGER_WORDS`` の語を ``T.HUNGER_WORD_DRAW_MIN_STAGE`` 以上だけ描く。
         #: 欄の無いラン(v1)は従来の「空腹はNで閾値を超えています。」=**1 バイトも変わらない**。
         self._hunger_words: bool = bool(getattr(agents, "energy_columns", False))
+        #: C10 8a: 関係辺の知人の口 ``(体, tick) → 相手の配列``(``--relations on`` のランだけ・既定 None=
+        #: 構築時の ``acquaintances``=空=1 バイトも変わらない)。
+        self.acquaintance_fn: Callable[[int, int], Sequence[int]] | None = None
+        #: C10 8a(3 人会話の口): ``体 → 会話の参加者``(``--conv-max-participants 3`` のランだけ・既定 None)。
+        self.session_partner_fn: Callable[[int], Sequence[int]] | None = None
         #: 個体 → (知人の集合, 知人の id 配列)。**構築時に固定**なので 1 度作れば使い回せる(C7)。
         self._acq_cache: dict[int, tuple[frozenset[int], np.ndarray]] = {}
         self._b1_cache: dict[int, bytes] = {}
@@ -1881,8 +1886,14 @@ class Renderer:
         k = 3 if los <= 1 else (2 if los <= 3 else 1)  # 疎3/中2/密1(境界は expedient)
         take = min(k, peers.size)
         sel = peers[np.argpartition(d2, take - 1)[:take]] if peers.size > take else peers
-        friends, friend_ids = self._acquaintances_of(i)
+        friends, friend_ids = self._acquaintances_of(i, int(tc.tick))
         chosen_set = {int(x) for x in sel}
+        if self.session_partner_fn is not None:  # C10 8a(3 人会話): 会話の参加者は同セルなら常に載せる
+            sp = np.asarray(self.session_partner_fn(i), dtype=np.int64)
+            sp = sp[(sp >= 0) & (sp < int(a.n)) & (sp != i)]
+            if sp.size:
+                ps_ = tc.cell_pos[sp]
+                chosen_set |= {int(x) for x in sp[(ps_ >= lo) & (ps_ < hi)]}
         if friend_ids.size:  # 知人常掲(§3 人物④)= 同セルの知人を足す(知人数ぶん)
             pf = tc.cell_pos[friend_ids]
             chosen_set |= {
@@ -1907,21 +1918,31 @@ class Renderer:
         if 0 <= p < m:
             q = q - (q > p)  # 自分の行を外したぶん詰める
         dist = np.sqrt(d2[q])  # 採った数件だけ sqrt(旧: セル在席者ぶんの辞書)
+        marks = T.NEAR_PERSON_MARKS  # (未知, 知人)=v1.4 で定数へ(文面は v1 から同じ)
         return [
             (
-                f"{person_word(j)}({'知人' if j in friends else '未知'})",
+                f"{person_word(j)}({marks[1] if j in friends else marks[0]})",
                 max(float(dv), 0.1),
             )
             for j, dv in zip(chosen, dist)
         ]
 
-    def _acquaintances_of(self, i: int) -> tuple[frozenset[int], np.ndarray]:
+    def _acquaintances_of(self, i: int, tick: int = -1) -> tuple[frozenset[int], np.ndarray]:
         """個体 → (知人の集合, 知人 id の配列)。**1 度作って使い回す**(C7)。
 
         知人表は ``Renderer`` の構築時に固定される(§3 人物④「知人は常に掲載」)ので、
         毎呼 ``set(...)`` を組み直す必要がない。範囲外の id はここで落とす
         (旧実装では同セル集合との積で自然に落ちていた)。
+
+        C10 8a: ``acquaintance_fn``(``engine.run`` が ``--relations on`` のランだけ差し込む)があれば、
+        関係辺の生きている相手(A ≥ τ_rel・強さの降順・≤ k)を**呼ごとに**引く(辺は相互作用で変わる=
+        キャッシュしない・体 × k の配列演算)。
         """
+        if self.acquaintance_fn is not None:
+            arr = np.asarray(self.acquaintance_fn(i, int(tick)), dtype=np.int64)
+            n = int(self.agents.n)
+            arr = arr[(arr >= 0) & (arr < n)]
+            return frozenset(int(x) for x in arr.tolist()), arr
         got = self._acq_cache.get(i)
         if got is None:
             names = frozenset(int(x) for x in self.acquaintances.get(i, ()))

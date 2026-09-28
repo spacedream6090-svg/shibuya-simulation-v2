@@ -252,6 +252,20 @@ class MemoryLayer:
         self.recall_stats: Counter = Counter()
         #: D-120 7a: 店の評価の記憶(``--store-memory on`` のランだけ・:meth:`enable_store`)。
         self.store: Any = None
+        #: C10 8a: 関係辺(``--relations on`` のランだけ・:meth:`enable_relations`)。
+        self.relations: Any = None
+        self._next_join = 0
+
+    def enable_relations(self, k: int | None = None, *, tau: float | None = None,
+                         d: float | None = None) -> Any:
+        """関係辺(``engine.relations.RelationLayer``)を持たせる(C10 8a)。書き手は :meth:`record` に乗る。"""
+        from shibuya.engine.relations import REL_D, REL_K, REL_TAU, RelationLayer
+
+        self.relations = RelationLayer(
+            self.n, REL_K if k is None else int(k), minutes_per_tick=self.minutes_per_tick,
+            d=REL_D if d is None else float(d), tau=REL_TAU if tau is None else float(tau),
+        )
+        return self.relations
 
     def enable_store(self, n_rows: int | None = None, *, sigma: Any = None,
                      decay: str | None = None, signage: bool = True, poi_cell: Any = None,
@@ -529,7 +543,7 @@ class MemoryLayer:
         return slot
 
     def record(self, agents: Any, tick: int, a: np.ndarray, kind: np.ndarray, partner: np.ndarray,
-               obj: np.ndarray, result: np.ndarray, cell: np.ndarray) -> np.ndarray:
+               obj: np.ndarray, result: np.ndarray, cell: np.ndarray, *, relations: bool = True) -> np.ndarray:
         """事象の配列 → 表へ(体ごとに 1 件ずつの回に分ける)→ 各事象の行番号(入力の並び)。"""
         a = np.asarray(a, dtype=np.int64)
         out = np.full(a.size, -1, dtype=np.int64)
@@ -558,6 +572,8 @@ class MemoryLayer:
                                    result[sel], cell[sel])
         if self.store is not None:  # D-120 7a: 同じエピソードの配列から店の評価の行へ
             self.store.on_episodes(agents, tick, a, kind, obj, result)
+        if relations and self.relations is not None:  # C10 8a: 相互作用のエピソードから関係辺へ
+            self.relations.on_episodes(agents, tick, a, kind, partner, result)
         return out
 
     # ------------------------------------------------------------------ 会話の要旨
@@ -590,7 +606,8 @@ class MemoryLayer:
         rows = self.record(agents, tick, np.asarray([int(agent_id)]),
                            np.asarray([EVENT_KINDS["talk"]]), np.asarray([partner]),
                            np.asarray([shop]), np.asarray([int(ResultCode.OK)]),
-                           np.asarray([int(agents.registry.cell[int(agent_id)])]))
+                           np.asarray([int(agents.registry.cell[int(agent_id)])]),
+                           relations=False)  # C10 8a: 発話ごとの n+1 は辺に写さない(1 セッション 1 本)
         self.stats["utterances"] += 1
         text = str(comment or "").strip()
         sk = (int(agent_id), int(session.session_id))
@@ -694,11 +711,13 @@ class MemoryLayer:
         # ---- (b) 会話: この tick に開いたセッションの参加者ごとに 1 行 ----
         if conv is not None:
             upto = int(getattr(conv, "n_opened", 0))
+            # C10 8a: 開いた同じ tick に加わった 3 人目は下の「参加」で書く(ここで数えると二重になる)
+            joined_now = {(int(sid_), int(p_)) for _t, sid_, p_ in getattr(conv, "join_events", ())[self._next_join:]}
             for sid in range(self._next_session, upto):  # 逐次ループ宣言 2: 開いたセッションの数ぶん
                 s = conv.sessions.get(sid)
                 if s is None:
                     continue
-                ps = [int(p) for p in s.participants]
+                ps = [int(p) for p in s.participants if (int(sid), int(p)) not in joined_now]
                 for p in ps:
                     other = next((q for q in ps if q != p), -1)
                     ref = int(r.poi_ref[p])
@@ -709,6 +728,24 @@ class MemoryLayer:
                                   np.asarray([int(ResultCode.OK)]), np.asarray([int(cell_now[p])])))
                 self.stats["sessions"] += 1
             self._next_session = upto
+            # C10 8a(D-93 (d)): 3 人目の参加=参加した体と既存の参加者の間に会話の行(両向き)
+            joins = getattr(conv, "join_events", ())
+            for _jt, sid, p in joins[self._next_join:]:  # 逐次ループ宣言 2b: 参加の件数ぶん
+                s = conv.sessions.get(int(sid))
+                if s is None:
+                    continue
+                others = [int(q) for q in s.participants if int(q) != int(p)]
+                if others:
+                    ref = int(r.poi_ref[int(p)])
+                    self._session_key[(int(p), int(sid))] = (others[0], ref if ref >= 0 else -1)
+                for q in others:
+                    for x, y in ((int(p), q), (q, int(p))):
+                        ref = int(r.poi_ref[x])
+                        parts.append((np.asarray([x]), np.asarray([EVENT_KINDS["talk"]]), np.asarray([y]),
+                                      np.asarray([ref if ref >= 0 else -1]), np.asarray([int(ResultCode.OK)]),
+                                      np.asarray([int(cell_now[x])])))
+                self.stats["session_joins"] += 1
+            self._next_join = len(joins)
         # ---- (c) 気づき ----
         for ev in salient_events:  # 逐次ループ宣言 3: 顕著行為の件数ぶん
             got = np.asarray(getattr(ev, "noticed", ()), dtype=np.int64)

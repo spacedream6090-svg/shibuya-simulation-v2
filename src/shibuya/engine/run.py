@@ -69,6 +69,7 @@ from shibuya.agents.state import (
     WAKE_CONDITION_CLASS,
     Activity,
     AgentState,
+    ResultCode,
     WakeCondition,
 )
 from shibuya.core.growth import GrowthReport, check_growth
@@ -85,6 +86,14 @@ from shibuya.engine.wom import WomExtractor
 from shibuya.engine.store_choice import StoreChoice
 from shibuya.engine.store_choice import walk_m_per_tick as _walk_m_per_tick
 from shibuya.engine.memory import STORE_RECALL_SCOPES
+from shibuya.engine.relations import (
+    REL_D,
+    REL_INIT_DENSITIES,
+    REL_K,
+    REL_MODES,
+    REL_TAU,
+    initial_edges as _rel_initial_edges,
+)
 from shibuya.engine.wom import hear as wom_hear
 from shibuya.engine.store_memory import (
     DEFAULT_STORE_DECAY,
@@ -569,6 +578,8 @@ class RunResult:
     wom: dict[str, Any] = field(default_factory=dict)
     #: D-120 7c(想起優先の候補合成・決め手・初回率・店頭の割合・腕の切替口の値)。店の記憶 on のランだけ。
     store_choice: dict[str, Any] = field(default_factory=dict)
+    #: C10 8a(関係辺): 辺/体・種別・符号・A/P・τ で落ちた辺・押し出し・初期網の監査。関係 on のランだけ。
+    relations: dict[str, Any] = field(default_factory=dict)
     #: 5 段目 5a(診断): 内受容の段の跨ぎの延べ(変数 × 上げ/下げ × 全体/起きて範囲内)。
     #: 起床入口「体の状態」の内訳を空腹と疲労・体感温度に分けて読むため(挙動には効かない)。
     intero_crossings: dict[str, int] = field(default_factory=dict)
@@ -959,6 +970,8 @@ class RunResult:
             "wom": dict(self.wom),
             # ---- D-120 7c(想起優先・決め手): 列追加のみ ----
             "store_choice": dict(self.store_choice),
+            # ---- C10 8a(関係辺): 列追加のみ ----
+            "relations": dict(self.relations),
             "calls_by_condition": dict(self.calls_by_condition),
             "synonym_table_version": _synonym_table_version(self.vocab_version),
             "action_usage": dict(self.action_usage),
@@ -1536,6 +1549,12 @@ def run_day(
     store_wom: bool | str = True,
     store_signage: bool | str = True,
     store_recall_scope: str = "all",
+    relations: bool | str = False,
+    rel_k: int = REL_K,
+    rel_tau: float = REL_TAU,
+    rel_d: float = REL_D,
+    rel_init_density: float = 1.0,
+    conv_max_participants: int = 2,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -1793,6 +1812,14 @@ def run_day(
         store_wom / store_signage: **D-120 7c(N8 の腕)**。口コミ(7b の聞き手への転写)と看板(N2 (iii))の
             書き手を使うか(既定 どちらも on・``"on"``/``"off"`` か bool)。店の記憶 on のランだけ効く。
         store_recall_scope: 7c: B5 の想起で店の行を候補にする入口(``all`` 既定・``conversation``=会話だけ=感度腕)。
+        relations: **C10 8a(関係辺)**。``True``/``"on"`` で体 × k 辺の関係の表(``AgentState(relation_columns=
+            True)``・16 B/辺)を確保し、W16+W17 の機械的初期化と、記憶のエピソード(会話・手伝い)から辺を書く
+            (``engine.relations``)。B5 近接行の「知人」の印に結線する(v1.4)。**``memory`` が on のランでだけ**。
+            既定 ``False``=表を確保しない=**既定 checkpoint 不変**。
+        rel_k / rel_tau / rel_d / rel_init_density: 辺の数(既定 15・感度 5/50)・閾値 τ_rel(既定 −1.1・感度
+            ±0.5)・減衰 d(既定 0.5・感度 0.25/0.75)・初期網の密度の腕(0.5/1.0/2.0)。
+        conv_max_participants: **C10 8a(D-93 (d))の 3 人会話の口**。3 なら会話中の相手に話しかけた体が
+            そのセッションに加わる(``talk_partner``=名指しした相手=主相手・参加者はセッション表)。既定 2=不変。
             想起優先の候補合成(N6)は選び手 ``classical`` のランだけ(``engine.store_choice``)。
 
     Returns:
@@ -1874,6 +1901,23 @@ def run_day(
             return v == "on"
         return bool(v)
 
+    # ---- C10 8a: 関係辺の腕(SoA を確保する前に決める=欄が 6 本変わる) ----
+    if isinstance(relations, str):
+        if relations not in REL_MODES:
+            raise ValueError(f"relations は {REL_MODES} か bool(いま {relations!r})")
+        relations_on = relations == "on"
+    else:
+        relations_on = bool(relations)
+    if relations_on and not memory_on:
+        raise ValueError("relations は memory='on' のランでだけ使える(書き手がエピソードの書き手に乗る)")
+    if int(rel_k) < 1:
+        raise ValueError(f"rel_k は 1 以上(いま {rel_k})")
+    if not (0.0 < float(rel_d) < 1.0) or not np.isfinite(float(rel_tau)):
+        raise ValueError(f"rel_d は 0〜1・rel_tau は有限(いま d={rel_d}・τ={rel_tau})")
+    if float(rel_init_density) not in REL_INIT_DENSITIES:
+        raise ValueError(f"rel_init_density は {REL_INIT_DENSITIES} のどれか(いま {rel_init_density})")
+    if int(conv_max_participants) not in (2, 3):
+        raise ValueError(f"conv_max_participants は 2 か 3(いま {conv_max_participants})")
     store_wom_on = _onoff(store_wom, "store_wom")
     store_signage_on = _onoff(store_signage, "store_signage")
     if str(store_recall_scope) not in STORE_RECALL_SCOPES:
@@ -1941,7 +1985,8 @@ def run_day(
     )
     salt = run_salt_for(seed)
     tape_writer = TapeWriter(Path(tape_path)) if tape_path is not None else None
-    conv = ConversationManager(seed) if conversations else None
+    conv = (ConversationManager(seed, max_participants=int(conv_max_participants))
+            if conversations else None)
     schedule = synthesize(n_agents, seed, world.n_cells)
     pop = _resolve_population(population, world_dir, n_agents, seed, world.n_cells)
     # ---- D-66: 週次表(W17)は SoA を確保する前に読む(層の有無で列が 1 本変わるため) ----
@@ -1976,6 +2021,8 @@ def run_day(
         memory_n=int(memory_n),
         store_memory_columns=store_memory_on,
         store_memory_n=int(store_memory_n),
+        relation_columns=relations_on,
+        rel_k=int(rel_k),
     )
     if ledger is not None and ledger.money is not None:
         # 世帯の現金行 = 個体 SoA の money(写しを作らない・台帳の書き込み窓は resolve が持つ)
@@ -2309,6 +2356,29 @@ def run_day(
                 intent_max_ticks=int(intent_max_ticks),
                 minutes_per_tick=float(tick_seconds) / 60.0,
             )
+    # ---- C10 8a: 関係辺(機械的初期化=W16+W17 の共在・書き手は記憶のエピソード・知人の結線) ----
+    rel_layer = None
+    if mem_layer is not None and relations_on:
+        rel_layer = mem_layer.enable_relations(int(rel_k), tau=float(rel_tau), d=float(rel_d))
+        _t_rel = time.perf_counter()
+        _init = _rel_initial_edges(
+            pop, weekly, n_agents, k=int(rel_k), day_index=int(day_index), density=float(rel_init_density),
+            minutes_per_tick=float(tick_seconds) / 60.0, d=float(rel_d), tau=float(rel_tau),
+        ) if pop is not None else None
+        if _init is not None:
+            rel_layer.seed_initial(agents, _init)
+            rel_layer.init_audit["init_seconds_nondeterministic"] = round(time.perf_counter() - _t_rel, 3)
+        if _fam_renderer is not None and hasattr(_fam_renderer, "acquaintance_fn"):
+            _fam_renderer.acquaintance_fn = lambda i_, t_: rel_layer.acquaintances(agents, i_, t_)
+    if (
+        conv is not None and int(conv_max_participants) > 2 and _fam_renderer is not None
+        and hasattr(_fam_renderer, "session_partner_fn")
+    ):
+        def _session_partners(i_: int) -> list[int]:
+            s_ = conv.session_of(int(i_))
+            return [int(q) for q in s_.participants if int(q) != int(i_)] if s_ is not None else []
+
+        _fam_renderer.session_partner_fn = _session_partners
     # ---- D-120 7b: 会話からの抽出(店名の辞書=W6 の店・評価語の辞書 v0・呼数 0) ----
     wom_ex: WomExtractor | None = (
         WomExtractor.from_world(world) if mem_layer is not None and mem_layer.store is not None else None
@@ -3031,6 +3101,18 @@ def run_day(
                         _revert(inviter)
                         continue
                     if int(act_now[inviter]) != int(Activity.CONVERSING):
+                        # C10 8a(D-93 (d)): 相手が会話中(PARTNER_BUSY)で、そのセッションに空きがあれば加わる
+                        if (
+                            conv.max_participants > 2
+                            and int(agents.registry.last_result[inviter]) == int(ResultCode.PARTNER_BUSY)
+                            and int(act_now[invitee]) == int(Activity.CONVERSING)
+                            and not conv.is_busy(inviter)
+                        ):
+                            s_join = conv.session_of(invitee)
+                            if s_join is not None and bool(R.talk_within_reach(
+                                agents, np.int64(inviter), np.int64(invitee), by_distance=attention_on,
+                            )) and conv.join(s_join, inviter, tick):
+                                R.join_conversation(agents, np.array([inviter]), np.array([invitee]), tick)
                         continue  # resolve が失敗させた(相手が会話中/去った)
                     same_cell = bool(
                         R.talk_within_reach(
@@ -3447,6 +3529,9 @@ def run_day(
         }
         if wom_ex is not None and mem_layer is not None and mem_layer.store is not None
         else {}
+    )
+    result.relations = (
+        rel_layer.summary(agents, max(0, int(ticks) - 1)) if rel_layer is not None else {}
     )
     _sc = getattr(poi_resolver, "store_choice", None) if poi_resolver is not None else None
     result.store_choice = (

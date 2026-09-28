@@ -145,6 +145,9 @@ __all__ = [
     "write_memory",
     # ---- D-120 7a 店の評価の記憶(値は engine.memory が決める・書き手は本モジュール) ----
     "write_store_memory",
+    # ---- C10 8a 関係辺(値は engine.relations が決める・書き手は本モジュール) ----
+    "write_relations",
+    "join_conversation",
     "refractory_ticks",
     "wake_condition_index",
     "normalized_refractory_scale",
@@ -966,6 +969,47 @@ def write_store_memory(
         r.sm_last[a, s] = np.asarray(last, dtype=np.int64).astype(np.int32)
         r.sm_n[a, s] = np.asarray(n, dtype=np.int64).astype(np.uint16)
         r.sm_source[a, s] = np.asarray(source, dtype=np.int64).astype(np.uint8)
+
+
+def write_relations(agents: AgentState, agent_id, slot, partner, kind, sign, first, last, n) -> None:
+    """**関係辺を書く**(C10 8a・値と辺の選び方は ``engine.relations`` が決める)。
+
+    同じ (体, 辺) の組は 2 度来ない(呼び出し側が 1 体 1 件の回に分ける)。``relation_columns`` の
+    無いラン(既定)では呼ばれない。逐次ループ宣言: なし(配列演算)。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    s = np.asarray(slot, dtype=np.int64)
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        r.rel_partner[a, s] = np.asarray(partner, dtype=np.int64).astype(np.int32)
+        r.rel_kind[a, s] = np.asarray(kind, dtype=np.int64).astype(np.uint8)
+        r.rel_sign[a, s] = np.clip(np.asarray(sign, dtype=np.int64), -127, 127).astype(np.int8)
+        r.rel_first[a, s] = np.asarray(first, dtype=np.int64).astype(np.int32)
+        r.rel_last[a, s] = np.asarray(last, dtype=np.int64).astype(np.int32)
+        r.rel_n[a, s] = np.asarray(n, dtype=np.int64).astype(np.uint16)
+
+
+def join_conversation(agents: AgentState, joiner, partner, tick: int) -> None:
+    """**3 人目の参加**(C10 8a・D-93 (d)・``--conv-max-participants 3`` のランだけ)。
+
+    会話の相手が会話中で ``PARTNER_BUSY`` になった体を、相手のセッションに入れる: 参加者を CONVERSING・
+    ``talk_partner``=名指しした相手(**主相手**・相手の側の主相手は書き換えない)・直前の結果を ``OK`` に
+    書き直す(失敗ではなかった)。セッション表の参加者は ``engine.conversation`` が持つ。
+    """
+    a = np.asarray(joiner, dtype=np.int64)
+    if a.size == 0:
+        return
+    b = np.asarray(partner, dtype=np.int64)
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        r.activity[a] = int(Activity.CONVERSING)
+        r.talk_partner[a] = b.astype(np.int32)
+        r.last_result[a] = int(ResultCode.OK)
+        r.last_result_tick[a] = int(tick)
 
 
 def set_intent(agents: AgentState, agent_id, action, target, kind, tick: int) -> None:

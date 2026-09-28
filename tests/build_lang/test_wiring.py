@@ -26,7 +26,8 @@ from shibuya.world.state import World
 
 #: 旧 v1.1 の凍結値 = 8f2959d0d3fbe75ee0ca5a634425447bb316baaa6b36af9c570fa34eeb5617ef(6b で v1.2 へ張り替え)
 #: 旧 v1.2 の凍結値 = 1f6c7d6227a11de049dde39d43728fa5919ccf263a0165ea5273b0d052150560(7c で v1.3 へ張り替え)
-FROZEN_TEMPLATE_SHA256 = "ea204a66ad13af47024baa2ab51ca7ad0063f8318dd870662682b66c556eb2b0"
+#: 旧 v1.3 の凍結値 = ea204a66ad13af47024baa2ab51ca7ad0063f8318dd870662682b66c556eb2b0(8a で v1.4 へ張り替え)
+FROZEN_TEMPLATE_SHA256 = "40af870ea9cfbceefbe86765fba6e4844537111b3217ada42181bd60b82a20ed"
 SHARED_BLOCKS = ("B0", "B1", "B2", "B3", "B4", "B4b")
 
 SIGNAGE = "ベーカリー宮下の表示。飲食店。毎日7時から19時。価格帯は低め。"
@@ -58,7 +59,7 @@ def with_frozen(w: World, *, signage: str = "", static: str = "") -> PerceptionA
 
 # ---------------------------------------------------------------- テンプレは不変
 def test_template_sha256_is_still_frozen():
-    """結線でテンプレ本体を触っていない(凍結 SHA ea204a66(v1.3・旧 v1.2 1f6c7d62)… が動かない)。"""
+    """結線でテンプレ本体を触っていない(凍結 SHA 40af870e(v1.4・旧 v1.3 ea204a66)… が動かない)。"""
     assert T.template_sha256() == FROZEN_TEMPLATE_SHA256
 
 

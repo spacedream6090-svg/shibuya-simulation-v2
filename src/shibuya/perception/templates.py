@@ -73,6 +73,7 @@ __all__ = [
     "MEMORY_STORE_VALENCE_WORDS",
     "MEMORY_STORE_HEARD_WORDS",
     "MEMORY_STORE_ITEM_MAX_TOKENS",
+    "NEAR_PERSON_MARKS",
     "HUNGER_ITEM_TEMPLATE",
     "HUNGER_WORD_DRAW_MIN_STAGE",
     "EMPTY_PHRASE",
@@ -123,7 +124,10 @@ __all__ = [
 #: 看板/伝聞で知っているだけ・``store_heard``=伝聞で評価つき)と向きの語 ``MEMORY_STORE_VALENCE_WORDS`` /
 #: ``MEMORY_STORE_HEARD_WORDS``・項の上限 ``MEMORY_STORE_ITEM_MAX_TOKENS`` を足した(v1.2 の SHA は 1f6c7d62…)。
 #: ``--store-memory off`` のランでは店の項を描かない=v1.2 の文面は 1 バイトも変わらない。
-TEMPLATE_VERSION: Final[str] = "v1.3"
+#: **v1.4(C10 8a・R6・第299)**: B5 近接行の人物の印「(知人)/(未知)」を描画のコードから定数
+#: ``NEAR_PERSON_MARKS`` へ移して版の管理に入れた(v1.3 の SHA は ea204a66…)。文面は v1 から同じ=
+#: ``--relations off`` のランは 1 バイトも変わらない(知人が空=全員「未知」)。
+TEMPLATE_VERSION: Final[str] = "v1.4"
 
 #: ブロックの順序(知覚契約書 §2.2 表の並び=変化率の昇順=prefix 前方一致の並び)。
 BLOCK_IDS: Final[tuple[str, ...]] = ("B0", "B1", "B2", "B3", "B4", "B4b", "B5", "B6")
@@ -264,6 +268,9 @@ MEMORY_STORE_VALENCE_WORDS: Final[Mapping[int, str]] = {1: "良かった", 0: "�
 MEMORY_STORE_HEARD_WORDS: Final[Mapping[int, str]] = {1: "良い", -1: "よくない"}
 #: 7c: 店の項 1 件の上限[tok](超える分は店の名を末尾から削る=宣言)。
 MEMORY_STORE_ITEM_MAX_TOKENS: Final[int] = 15
+#: C10 8a(v1.4): B5 近接行の人物の印=(未知, 知人)。知人=関係辺の相手(A ≥ τ_rel)。「P-<id>(知人)」の表層は
+#: 行動契約書 §1-2 の対象の読みと同じ(``llm.contract``)。
+NEAR_PERSON_MARKS: Final[tuple[str, str]] = ("未知", "知人")
 #: 項 1 件の上限[tok](超える分は 場所名/要旨 を末尾から削る=宣言)。
 MEMORY_ITEM_MAX_TOKENS: Final[int] = 20
 #: チャネルの上限[tok](個体枠 300 の内・他チャネルは削らない)。
@@ -398,7 +405,7 @@ _B0_BY_MODE: Final[Mapping[str, str]] = {
 #
 # **凍結との関係**: ``TEMPLATES``(=``template_sha256`` の payload)には 1 語も足していない。
 # 既定 ``vocab_version="v1"`` のとき ``b0_system()`` は ``TEMPLATES["B0.system"]`` と
-# **同一オブジェクト**を返す=描画バイトも ``template_sha256``(v1.3 は ea204a66…・v1.2 は 1f6c7d62…・v1.1 は 8f2959d0…・v1 は 161fe181…)も
+# **同一オブジェクト**を返す=描画バイトも ``template_sha256``(v1.4 は 40af870e…・v1.3 は ea204a66…・v1.2 は 1f6c7d62…・v1.1 は 8f2959d0…・v1 は 161fe181…)も
 # ``b0_sha256("vocab")``(2b4bfc8a…)も動かない。
 #
 # **open 腕 × v2**: open 腕は語彙を見せないので **B0 の本文は v1 と同一**になる(差は
@@ -777,6 +784,7 @@ def template_sha256() -> str:
             "memory_store_valence": {str(k): v for k, v in MEMORY_STORE_VALENCE_WORDS.items()},
             "memory_store_heard": {str(k): v for k, v in MEMORY_STORE_HEARD_WORDS.items()},
             "memory_store_item_max_tokens": MEMORY_STORE_ITEM_MAX_TOKENS,
+            "near_person_marks": list(NEAR_PERSON_MARKS),
             "hunger_draw_min_stage": HUNGER_WORD_DRAW_MIN_STAGE,
             "ground": {str(k): v for k, v in GROUND_WORDS.items()},
             "ground_no_street": GROUND_NO_STREET,

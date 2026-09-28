@@ -123,6 +123,8 @@ __all__ = [
     "MEMORY_FIELDS",
     "STORE_MEMORY_FIELDS",
     "STORE_MEMORY_EMPTY",
+    "RELATION_FIELDS",
+    "REL_EMPTY",
     "REFRACTORY_MINUTES",
     "WAKE_CONDITION_CLASS",
     "RESULT_TEXT",
@@ -381,6 +383,13 @@ STORE_MEMORY_FIELDS: Final[tuple[str, ...]] = (
 #: 店の評価の記憶の空行(``sm_poi``)。
 STORE_MEMORY_EMPTY: Final[int] = -1
 
+#: 関係辺の 6 欄(C10 8a・``relation_columns`` のランだけ確保)。
+RELATION_FIELDS: Final[tuple[str, ...]] = (
+    "rel_partner", "rel_kind", "rel_sign", "rel_first", "rel_last", "rel_n",
+)
+#: 関係辺の空行(``rel_partner``)。
+REL_EMPTY: Final[int] = -1
+
 #: 体のエネルギー収支の 4 欄(5 段目 5a・``energy_columns`` のランだけ確保)。
 ENERGY_FIELDS: Final[tuple[str, ...]] = (
     "weight_kg", "eer_kcal", "since_meal_kcal", "energy_balance",
@@ -423,6 +432,8 @@ class AgentState:
         memory_n: int = 128,
         store_memory_columns: bool = False,
         store_memory_n: int = 32,
+        relation_columns: bool = False,
+        rel_k: int = 15,
     ) -> None:
         """
         Args:
@@ -458,6 +469,8 @@ class AgentState:
             store_memory_columns / store_memory_n: **店の評価の記憶**(D-120 7a・N1 (a)・
                 ``engine.memory``)の表(体 × M 行 × 7 欄・実 23 B/行・宣言 24 B/行)を確保するか・
                 行数 M(既定 32)。``--store-memory on`` のランだけ True=**既定 checkpoint は動かない**。
+            relation_columns / rel_k: **関係辺**(C10 8a・R1 (a)・``engine.relations``)の表(体 × k 辺 × 6 欄・
+                実=宣言 16 B/辺)を確保するか・辺の数 k(既定 15)。``--relations on`` のランだけ True。
         """
         self.n = int(n)
         self.plan_columns = bool(plan_columns)
@@ -479,6 +492,11 @@ class AgentState:
         self.store_memory_n = int(store_memory_n)
         if self.store_memory_columns and self.store_memory_n < 1:
             raise ValueError(f"store_memory_n は 1 以上(いま {store_memory_n})")
+        #: C10 8a: 関係辺の表を確保するか・辺の数 k(``engine.relations.REL_K``)。
+        self.relation_columns = bool(relation_columns)
+        self.rel_k = int(rel_k)
+        if self.relation_columns and self.rel_k < 1:
+            raise ValueError(f"rel_k は 1 以上(いま {rel_k})")
         if self.familiarity_columns and self.familiarity_k < 1:
             raise ValueError(f"familiarity_k は 1 以上(いま {familiarity_k})")
         self.registry = Registry.for_agents(self.n, per_entity_byte_cap=cap_bytes)
@@ -665,6 +683,21 @@ class AgentState:
                       mechanism=True,
                       doc="出どころのビットの和(1 自分/2 伝聞/4 看板/8 ネット)。予算は詰め物 1 B/行を含む"
                           "=24 B/行に揃える宣言")
+        # ---- 関係辺(C10 8a・relation_columns のランだけ・実=宣言 16 B/辺・M5 の内) ----
+        if self.relation_columns:
+            q = self.rel_k
+            r.declare("rel_partner", np.int32, (q,), byte_budget_per_agent=4 * q, mechanism=True,
+                      doc="相手の体 id(−1=空)")
+            r.declare("rel_kind", np.uint8, (q,), byte_budget_per_agent=q, mechanism=True,
+                      doc="種別(世帯 1/職場 2/学校 3/常連 4/知人 5)")
+            r.declare("rel_sign", np.int8, (q,), byte_budget_per_agent=q, mechanism=True,
+                      doc="Σ 符号(ResultCode 由来・±127 で止める・読むときは sign)")
+            r.declare("rel_first", np.int32, (q,), byte_budget_per_agent=4 * q, mechanism=True,
+                      doc="最初の相互作用の tick(A の寿命 L の起点・初期辺は過去の負の tick)")
+            r.declare("rel_last", np.int32, (q,), byte_budget_per_agent=4 * q, mechanism=False,
+                      doc="最後の相互作用の tick(初期辺は W17 の直近の共在)")
+            r.declare("rel_n", np.uint16, (q,), byte_budget_per_agent=2 * q, mechanism=True,
+                      doc="相互作用の回数(A の n)")
         # ---- 起床機構(知覚契約書 §6) ----
         r.declare("refractory_until", np.int32, (N_WAKE_CONDITIONS,),
                   byte_budget_per_agent=4 * N_WAKE_CONDITIONS, mechanism=True,
@@ -718,6 +751,8 @@ class AgentState:
             self.registry.sm_poi[:] = STORE_MEMORY_EMPTY
             self.registry.sm_first[:] = -1
             self.registry.sm_last[:] = -1
+        if self.relation_columns:
+            self.registry.rel_partner[:] = REL_EMPTY
         self._frozen = False
 
     # ---- フィールドの素通し(``st.money`` で配列を引く) ----

@@ -14,13 +14,15 @@ from shibuya.perception.channels import estimate_tokens
 #: 旧 v1.1 の凍結値 = 8f2959d0d3fbe75ee0ca5a634425447bb316baaa6b36af9c570fa34eeb5617ef(6b で v1.2 へ張り替え)
 #: v1.3(D-120 7c・第298): 記憶の行の項に店の評価の定型(store/store_known/store_heard)を足した。
 #: 旧 v1.2 の凍結値 = 1f6c7d6227a11de049dde39d43728fa5919ccf263a0165ea5273b0d052150560(7c で v1.3 へ張り替え)
-FROZEN_TEMPLATE_SHA256 = "ea204a66ad13af47024baa2ab51ca7ad0063f8318dd870662682b66c556eb2b0"
+#: v1.4(C10 8a・第299): B5 近接行の人物の印「(知人)/(未知)」を定数 NEAR_PERSON_MARKS へ(文面は同じ)。
+#: 旧 v1.3 の凍結値 = ea204a66ad13af47024baa2ab51ca7ad0063f8318dd870662682b66c556eb2b0(8a で v1.4 へ張り替え)
+FROZEN_TEMPLATE_SHA256 = "40af870ea9cfbceefbe86765fba6e4844537111b3217ada42181bd60b82a20ed"
 
 
 def test_template_sha256_is_frozen():
     """テンプレ版ハッシュが釘付け(改版は意図的にこの定数を書き換えること)。"""
     assert T.template_sha256() == FROZEN_TEMPLATE_SHA256
-    assert T.TEMPLATE_VERSION == "v1.3"
+    assert T.TEMPLATE_VERSION == "v1.4"
 
 
 def test_block_table_matches_contract_section_2_2():

@@ -873,6 +873,23 @@ def main(argv: list[str] | None = None) -> int:
         help="D-120 7c: B5 の想起で店の行を候補にする入口(既定 all=全入口・conversation=会話だけ=感度腕)",
     )
     ap.add_argument(
+        "--relations",
+        choices=("off", "on"),
+        default="off",
+        help="C10 8a(関係辺): 体×15 辺の関係の表を確保し、W16+W17 の共在で初期化・会話/手伝いのエピソードから"
+             "書き、B5 近接行の「知人」の印に結線する(--memory on のときだけ)。既定 off=既定の checkpoint 不変",
+    )
+    ap.add_argument("--rel-k", type=int, default=15, metavar="K",
+                    help="関係辺の数(既定 15・感度 5/50)")
+    ap.add_argument("--rel-tau", type=float, default=-1.1, metavar="TAU",
+                    help="辺として残る A の閾値 τ_rel(既定 −1.1=全母集団の逆算・感度 ±0.5)")
+    ap.add_argument("--rel-d", type=float, default=0.5, metavar="D",
+                    help="関係辺の A の減衰 d(既定 0.5=記憶と同じ・感度 0.25/0.75)")
+    ap.add_argument("--rel-init-density", type=float, choices=(0.5, 1.0, 2.0), default=1.0,
+                    help="初期網の密度の腕(0.5=共在が中央値以上・1.0=共在 > 0・2.0=共在 0 の組も入れる)")
+    ap.add_argument("--conv-max-participants", type=int, choices=(2, 3), default=2,
+                    help="C10 8a(D-93 (d)): 会話の参加上限(既定 2・3=会話中の相手に話しかけた体が加わる)")
+    ap.add_argument(
         "--store-decay",
         choices=STORE_DECAY_MODES,
         default=DEFAULT_STORE_DECAY,
@@ -1048,6 +1065,12 @@ def main(argv: list[str] | None = None) -> int:
         store_wom=str(args.store_wom),
         store_signage=str(args.store_signage),
         store_recall_scope=str(args.store_recall_scope),
+        relations=str(args.relations),
+        rel_k=int(args.rel_k),
+        rel_tau=float(args.rel_tau),
+        rel_d=float(args.rel_d),
+        rel_init_density=float(args.rel_init_density),
+        conv_max_participants=int(args.conv_max_participants),
         store_memory=str(args.store_memory),
         store_memory_n=int(args.store_memory_n),
         store_sigma=args.store_sigma,

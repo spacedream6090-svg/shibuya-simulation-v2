@@ -300,6 +300,10 @@ class ConversationManager:
         self.closed_by_reason: dict[str, int] = {r: 0 for r in CLOSE_REASONS}
         #: 「無視された」イベント(呼を消費しない)。``(tick, inviter, invitee)``。
         self.ignored_events: list[tuple[int, int, int]] = []
+        #: C10 8a(D-93 (d)): 3 人目の参加 ``(tick, session_id, 参加した体)``(記憶/関係の書き手が読む)。
+        self.join_events: list[tuple[int, int, int]] = []
+        #: 終わったセッションの人数の分布(A1 会話グループサイズ=holdout=**判定しない**・分布の記録だけ)。
+        self.size_hist: dict[int, int] = {}
 
     # ---------------------------------------------------------------- 参照
     def session_of(self, agent_id: int) -> Session | None:
@@ -449,6 +453,7 @@ class ConversationManager:
         session.calls[a] = 0
         session.max_turns_of[a] = self.max_turns_for(a)
         self._of_agent[a] = session.session_id
+        self.join_events.append((int(tick), int(session.session_id), a))
         return True
 
     # ---------------------------------------------------------------- C6: 相手別不応期
@@ -763,6 +768,8 @@ class ConversationManager:
         s.state = ConvState.CLOSING
         s.close_reason = reason
         self.closed_by_reason[reason] = self.closed_by_reason.get(reason, 0) + 1
+        size = len(s.participants)
+        self.size_hist[size] = self.size_hist.get(size, 0) + 1
         # 締めの1発話はエンジン生成(LLMを呼ばない)
         s.blocks += 1
 
@@ -817,4 +824,8 @@ class ConversationManager:
         }
         for reason in CLOSE_REASONS:
             out[f"closed_{reason}"] = int(self.closed_by_reason.get(reason, 0))
+        if self.max_participants > 2:  # C10 8a の口(既定 2 の計数は 1 字も変えない)
+            out["sessions_joined"] = len(self.join_events)
+            for size in range(2, self.max_participants + 1):
+                out[f"session_size_{size}"] = int(self.size_hist.get(size, 0))
         return out

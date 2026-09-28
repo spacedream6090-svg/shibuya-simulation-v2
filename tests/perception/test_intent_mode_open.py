@@ -4,7 +4,7 @@
 (a) ``intent_mode="open"`` で ``OUTPUT_SPEC_OPEN`` が選ばれ **B0 の SHA が変わる**
     (=切替が効く)。レンダラの描画バイト・``prompt_hash`` も動く/
 (b) **既定は 1 バイトも動かない**: ``b0_sha256("vocab")`` が現行値・``template_sha256()`` が
-    ea204a66(v1.3・旧 v1.2 1f6c7d62)…・参照場面の ``prompt_hash`` が bb23f7c6…(⑥ の golden と同じ場面)/
+    40af870e(v1.4・旧 v1.3 ea204a66)…・参照場面の ``prompt_hash`` が bb23f7c6…(⑥ の golden と同じ場面)/
 (c) 腕の差は **``行動:`` の 1 行だけ**(理由・対象・ひと言・2 行形・JSON 禁止は同文)/
 (d) **AB7b ヒント腕**(``intent_mode="hint"``・2026-09-17): 語彙を**例として見せたまま**
     「当てはまる語が無いときだけ 10 字以内の自由文」を許す。vocab/open と同じく
@@ -27,7 +27,8 @@ from shibuya.world.state import World
 #: 凍結テンプレの SHA(``tests/perception/test_templates.py`` と**同じ値**)。
 #: 旧 v1.1 の凍結値 = 8f2959d0d3fbe75ee0ca5a634425447bb316baaa6b36af9c570fa34eeb5617ef(6b で v1.2 へ張り替え)
 #: 旧 v1.2 の凍結値 = 1f6c7d6227a11de049dde39d43728fa5919ccf263a0165ea5273b0d052150560(7c で v1.3 へ張り替え)
-FROZEN_TEMPLATE_SHA256 = "ea204a66ad13af47024baa2ab51ca7ad0063f8318dd870662682b66c556eb2b0"
+#: 旧 v1.3 の凍結値 = ea204a66ad13af47024baa2ab51ca7ad0063f8318dd870662682b66c556eb2b0(8a で v1.4 へ張り替え)
+FROZEN_TEMPLATE_SHA256 = "40af870ea9cfbceefbe86765fba6e4844537111b3217ada42181bd60b82a20ed"
 #: 既定(vocab)の B0 本文そのものの SHA。**腕の切替が効いたかの指紋**。
 B0_SHA256_VOCAB = "2b4bfc8a6da16ec73cbd3db8c68656150d2becd08100efa8816ad649e478339c"
 #: AB7b ヒント腕の B0 本文の SHA(2026-09-17 に凍結。文面を変えたら**必ずここが動く**)。
