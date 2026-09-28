@@ -111,6 +111,7 @@ STORE_SCORE_P_CAP: Final[float] = 4.0
 _KINDS_SELF: Final[tuple[int, ...]] = (EVENT_KINDS["buy"], EVENT_KINDS["eat"], EVENT_KINDS["queue"])
 _KIND_SIGNAGE: Final[int] = EVENT_KINDS["signage"]
 _KIND_QUEUE: Final[int] = EVENT_KINDS["queue"]
+_KINDS_VISIT: Final[tuple[int, ...]] = (EVENT_KINDS["buy"], EVENT_KINDS["eat"])
 _VALENCE_LABEL: Final[dict[int, str]] = {1: "+1", 0: "0", -1: "-1"}
 #: POI 索引の上限(人の符号 1<<30|id と場所 −(cell+2) を POI と取り違えない)。
 _POI_MAX: Final[int] = 1 << 30
@@ -191,7 +192,8 @@ class StoreMemory:
 
     def __init__(self, n_agents: int, n_rows: int = STORE_MEMORY_N, *, minutes_per_tick: float = 1.0,
                  d: float = 0.5, sigma: "Mapping[str, float] | str | None" = None,
-                 decay: str = DEFAULT_STORE_DECAY) -> None:
+                 decay: str = DEFAULT_STORE_DECAY, signage: bool = True,
+                 poi_cell: np.ndarray | None = None) -> None:
         self.n = int(n_agents)
         self.n_rows = int(n_rows)
         if self.n_rows < 1:
@@ -203,6 +205,12 @@ class StoreMemory:
         #: 出どころ → 1 件の精度 1/σ²。
         self.weight: dict[str, float] = {k: 1.0 / (v * v) for k, v in self.sigma.items()}
         self.stats: Counter = Counter()
+        #: D-120 7c(N8 の腕): 看板の書き手 N2 (iii) を使うか(``--store-signage``・既定 on)。
+        self.signage = bool(signage)
+        #: 7c: 店の POI → セル(B5 の想起で現在セルと照らす・無ければ照らさない)。
+        self.poi_cell = None if poi_cell is None else np.asarray(poi_cell, dtype=np.int64)
+        #: 7c: 訪問(購入/食事の成立)の通知先 ``(体, 店, 行があったか, 自分の訪問のビットがあったか)``。
+        self.visit_hook: Any = None
 
     # ------------------------------------------------------------------ 書き手
     def on_episodes(self, agents: Any, tick: int, a: np.ndarray, kind: np.ndarray, obj: np.ndarray,
@@ -216,7 +224,17 @@ class StoreMemory:
         result = np.asarray(result, dtype=np.int64)
         is_poi = (obj >= 0) & (obj < _POI_MAX)
         own = np.isin(kind, _KINDS_SELF) & is_poi
-        sign = (kind == _KIND_SIGNAGE) & is_poi
+        sign = (kind == _KIND_SIGNAGE) & is_poi & self.signage
+        # 7c: 訪問=購入/食事の成立(並ぶは委譲先で数える)。書く前に「行があったか」を控える
+        visit = own & np.isin(kind, _KINDS_VISIT) & (result == int(ResultCode.OK))
+        if self.visit_hook is not None and bool(visit.any()):
+            va, vp = a[visit], obj[visit]
+            rows = agents.registry.sm_poi[va].astype(np.int64)
+            hit = rows == vp[:, None]
+            had_row = hit.any(axis=1)
+            srcs = agents.registry.sm_source[va].astype(np.int64)
+            had_self = (hit & ((srcs & STORE_SOURCE_BIT["self"]) > 0)).any(axis=1)
+            self.visit_hook(va, vp, had_row, had_self)
         self.stats["episodes_shop_without_poi"] += int(np.count_nonzero(np.isin(kind, _KINDS_SELF) & ~is_poi))
         pick = own | sign
         if not bool(pick.any()):

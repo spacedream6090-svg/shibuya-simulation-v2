@@ -176,6 +176,8 @@ class ClassicalChooser:
         self.tau = float(tau)
         #: 計数(manifest ``chooser_stats``): 選択の回数・習慣が効いた回・願望水準を下げた回・段ごとの回数。
         self.stats: dict[str, int] = {}
+        #: D-120 7c(決め手の記録): 直前の ``probs`` で習慣の候補だった添字(無ければ −1)。挙動には効かない。
+        self.last_habit = -1
 
     def _count(self, key: str) -> None:
         self.stats[key] = self.stats.get(key, 0) + 1
@@ -184,6 +186,7 @@ class ClassicalChooser:
         cand = np.asarray(candidates, dtype=np.int64)
         n = int(cand.size)
         out = np.zeros(n, dtype=np.float64)
+        self.last_habit = -1
         if n == 0:
             return out
         vis = np.asarray(context.visibility, dtype=np.int64)
@@ -221,6 +224,7 @@ class ClassicalChooser:
             h = int(hs[np.argmin(rank[hs])])
             out[:] = (1.0 - self.p_h) * sat
             out[h] += self.p_h
+            self.last_habit = h
             self._count("habit_available")
         else:
             out[:] = sat

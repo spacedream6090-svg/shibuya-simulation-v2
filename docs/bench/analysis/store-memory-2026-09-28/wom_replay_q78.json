@@ -1,0 +1,948 @@
+{
+ "schema": "shibuya.bench/wom/replay/1",
+ "by_vocab_scope_field": {
+  "v1": {
+   "all": {
+    "comment": {
+     "text_fields": {
+      "v1": [
+       "comment"
+      ],
+      "v2": [
+       "comment"
+      ],
+      "v3": [
+       "reason",
+       "target"
+      ]
+     },
+     "weight_addressee": 1.0,
+     "dictionary_keys": 1815,
+     "counts": {
+      "utterances": 708477,
+      "wom_extracted": 7041,
+      "wom_pois": 7073,
+      "wom_unmatched": 79,
+      "wom_unmatched_words": 79,
+      "wom_valence+1": 17,
+      "wom_valence-1": 2,
+      "wom_valence0": 7022,
+      "wom_with_valence": 19
+     },
+     "extracted_share": 0.0099,
+     "with_valence_share": 0.0,
+     "unmatched_share": 0.0001,
+     "top_pois": {
+      "スターバックス": 1475,
+      "ローソン": 871,
+      "なぎ食堂": 760,
+      "モヤイ像": 618,
+      "デニーズ": 341,
+      "すき家": 197,
+      "丸亀製麺": 153,
+      "Sharro": 140,
+      "いちのや": 133,
+      "サンドラッグ": 132,
+      "一蘭 渋谷店": 126,
+      "ファミリーマート": 116,
+      "TANA": 90,
+      "サブウェイ": 87,
+      "オーシャン グッド テーブル": 87,
+      "俺流塩らーめん": 71,
+      "ステーキはなて": 70,
+      "千代松": 68,
+      "Coach": 68,
+      "ほっかほっか亭": 67
+     },
+     "top_unmatched_words": {
+      "渋谷店": 17,
+      "渋谷ストリーム店": 12,
+      "モンジャ屋": 9,
+      "カテゴリ店": 5,
+      "部屋": 3,
+      "東京渋谷神泉店": 3,
+      "ステーキ屋": 2,
+      "地点購入可能店": 2,
+      "餃子店": 2,
+      "飲茶店": 1,
+      "一度店": 1,
+      "地物購入可能店": 1,
+      "餡子屋": 1,
+      "地域鉄板屋": 1,
+      "七草屋": 1,
+      "購入可能店": 1,
+      "夜店": 1,
+      "24時間営業店": 1,
+      "地上店": 1,
+      "販店": 1
+     }
+    },
+    "reason_target": {
+     "text_fields": {
+      "v1": [
+       "comment"
+      ],
+      "v2": [
+       "comment"
+      ],
+      "v3": [
+       "reason",
+       "target"
+      ]
+     },
+     "weight_addressee": 1.0,
+     "dictionary_keys": 1815,
+     "counts": {
+      "utterances": 708477,
+      "wom_extracted": 69507,
+      "wom_pois": 69728,
+      "wom_unmatched": 1420,
+      "wom_unmatched_words": 1426,
+      "wom_valence+1": 3,
+      "wom_valence-1": 13,
+      "wom_valence0": 69491,
+      "wom_with_valence": 16
+     },
+     "extracted_share": 0.0981,
+     "with_valence_share": 0.0,
+     "unmatched_share": 0.002,
+     "top_pois": {
+      "スターバックス": 9300,
+      "カフェ・ベローチェ": 8051,
+      "おむすび権米衛": 5762,
+      "モヤイ像": 4473,
+      "Rituel": 4184,
+      "ローソン": 3325,
+      "ファミリーマート": 2926,
+      "サンドラッグ": 2201,
+      "ソフトバンクショップ": 1763,
+      "Coach": 1537,
+      "Cafe Miyama": 1170,
+      "Sharro": 1100,
+      "千代松": 1032,
+      "デニーズ": 982,
+      "TANA": 959,
+      "鉄板ステーキ＆ハンバーグ ＢＡＮＡＮＡ ＳＴＥＡＫ": 888,
+      "ナチュラルローソン": 733,
+      "桜亭": 681,
+      "カイトリマン": 649,
+      "珈琲館": 594
+     },
+     "top_unmatched_words": {
+      "喫飲店": 635,
+      "喫店": 284,
+      "夜間営業店": 114,
+      "餐飲店": 78,
+      "24時間営業店": 43,
+      "トヨタモビリティ店": 33,
+      "デリバリー店": 23,
+      "渋谷ストリーム店": 15,
+      "服務店": 14,
+      "深夜営業店": 12,
+      "喫食店": 10,
+      "地上店": 9,
+      "餅屋": 9,
+      "実店": 8,
+      "地下店": 6,
+      "ステーキ店": 6,
+      "拡販店": 6,
+      "珈琲店": 5,
+      "次店": 5,
+      "電話店": 4
+     }
+    }
+   },
+   "conversation_turn": {
+    "comment": {
+     "text_fields": {
+      "v1": [
+       "comment"
+      ],
+      "v2": [
+       "comment"
+      ],
+      "v3": [
+       "reason",
+       "target"
+      ]
+     },
+     "weight_addressee": 1.0,
+     "dictionary_keys": 1815,
+     "counts": {
+      "utterances": 111962,
+      "wom_extracted": 1287,
+      "wom_pois": 1289,
+      "wom_unmatched": 15,
+      "wom_unmatched_words": 15,
+      "wom_valence+1": 2,
+      "wom_valence-1": 1,
+      "wom_valence0": 1284,
+      "wom_with_valence": 3
+     },
+     "extracted_share": 0.0115,
+     "with_valence_share": 0.0,
+     "unmatched_share": 0.0001,
+     "top_pois": {
+      "スターバックス": 388,
+      "モヤイ像": 149,
+      "ローソン": 126,
+      "デニーズ": 64,
+      "なぎ食堂": 53,
+      "Sharro": 39,
+      "サンドラッグ": 37,
+      "TANA": 31,
+      "丸亀製麺": 30,
+      "すき家": 26,
+      "カイトリマン": 26,
+      "Coach": 22,
+      "オーシャン グッド テーブル": 21,
+      "カフェ・ベローチェ": 19,
+      "紀伊国屋": 17,
+      "いちのや": 13,
+      "ほっかほっか亭": 12,
+      "ファミリーマート": 12,
+      "もんじゃ お好み焼き": 11,
+      "俺流塩らーめん": 11
+     },
+     "top_unmatched_words": {
+      "渋谷店": 4,
+      "渋谷ストリーム店": 3,
+      "モンジャ屋": 1,
+      "地点購入可能店": 1,
+      "カテゴリ店": 1,
+      "グルメ屋": 1,
+      "モンジャモンジャ屋": 1,
+      "長屋": 1,
+      "機械屋": 1,
+      "土産物店": 1
+     }
+    },
+    "reason_target": {
+     "text_fields": {
+      "v1": [
+       "comment"
+      ],
+      "v2": [
+       "comment"
+      ],
+      "v3": [
+       "reason",
+       "target"
+      ]
+     },
+     "weight_addressee": 1.0,
+     "dictionary_keys": 1815,
+     "counts": {
+      "utterances": 111962,
+      "wom_extracted": 11976,
+      "wom_pois": 12005,
+      "wom_unmatched": 331,
+      "wom_unmatched_words": 334,
+      "wom_valence+1": 1,
+      "wom_valence-1": 1,
+      "wom_valence0": 11974,
+      "wom_with_valence": 2
+     },
+     "extracted_share": 0.107,
+     "with_valence_share": 0.0,
+     "unmatched_share": 0.003,
+     "top_pois": {
+      "スターバックス": 1998,
+      "カフェ・ベローチェ": 1319,
+      "おむすび権米衛": 1276,
+      "Rituel": 1051,
+      "モヤイ像": 973,
+      "サンドラッグ": 454,
+      "Coach": 454,
+      "ソフトバンクショップ": 431,
+      "ローソン": 330,
+      "鉄板ステーキ＆ハンバーグ ＢＡＮＡＮＡ ＳＴＥＡＫ": 294,
+      "Sharro": 280,
+      "Cafe Miyama": 271,
+      "TANA": 235,
+      "ファミリーマート": 218,
+      "カイトリマン": 151,
+      "デニーズ": 148,
+      "桜亭": 80,
+      "宮下公園": 72,
+      "Beacon": 71,
+      "セブン-イレブン": 70
+     },
+     "top_unmatched_words": {
+      "喫飲店": 217,
+      "喫店": 67,
+      "餐飲店": 16,
+      "トヨタモビリティ店": 4,
+      "デリバリー店": 2,
+      "渋谷ストリーム店": 2,
+      "夜間営業店": 2,
+      "電話店": 2,
+      "拡販店": 2,
+      "ランチ店": 1,
+      "地上店": 1,
+      "フード店": 1,
+      "ケータイ店": 1,
+      "餅店": 1,
+      "食店": 1,
+      "周辺店": 1,
+      "服務店": 1,
+      "餡飴屋": 1,
+      "ブランド店": 1,
+      "ステーキ店": 1
+     }
+    }
+   },
+   "talk_to_person": {
+    "comment": {
+     "text_fields": {
+      "v1": [
+       "comment"
+      ],
+      "v2": [
+       "comment"
+      ],
+      "v3": [
+       "reason",
+       "target"
+      ]
+     },
+     "weight_addressee": 1.0,
+     "dictionary_keys": 1815,
+     "counts": {
+      "utterances": 1895,
+      "wom_extracted": 2,
+      "wom_pois": 2,
+      "wom_valence0": 2
+     },
+     "extracted_share": 0.0011,
+     "with_valence_share": 0.0,
+     "unmatched_share": 0.0,
+     "top_pois": {
+      "楽屋": 1,
+      "スターバックス": 1
+     },
+     "top_unmatched_words": {}
+    },
+    "reason_target": {
+     "text_fields": {
+      "v1": [
+       "comment"
+      ],
+      "v2": [
+       "comment"
+      ],
+      "v3": [
+       "reason",
+       "target"
+      ]
+     },
+     "weight_addressee": 1.0,
+     "dictionary_keys": 1815,
+     "counts": {
+      "utterances": 1895,
+      "wom_extracted": 1,
+      "wom_pois": 1,
+      "wom_valence0": 1
+     },
+     "extracted_share": 0.0005,
+     "with_valence_share": 0.0,
+     "unmatched_share": 0.0,
+     "top_pois": {
+      "虎へび珈琲": 1
+     },
+     "top_unmatched_words": {}
+    }
+   }
+  },
+  "v2": {
+   "all": {
+    "comment": {
+     "text_fields": {
+      "v1": [
+       "comment"
+      ],
+      "v2": [
+       "comment"
+      ],
+      "v3": [
+       "reason",
+       "target"
+      ]
+     },
+     "weight_addressee": 1.0,
+     "dictionary_keys": 1815,
+     "counts": {
+      "utterances": 74536,
+      "wom_extracted": 530,
+      "wom_pois": 530,
+      "wom_unmatched": 2,
+      "wom_unmatched_words": 2,
+      "wom_valence0": 530
+     },
+     "extracted_share": 0.0071,
+     "with_valence_share": 0.0,
+     "unmatched_share": 0.0,
+     "top_pois": {
+      "スターバックス": 155,
+      "ローソン": 102,
+      "なぎ食堂": 62,
+      "Sharro": 31,
+      "丸亀製麺": 21,
+      "千代松": 16,
+      "デニーズ": 13,
+      "モヤイ像": 12,
+      "TANA": 10,
+      "すき家": 9,
+      "一蘭 渋谷店": 8,
+      "サンドラッグ": 7,
+      "宮下公園": 7,
+      "いちのや": 6,
+      "紀伊国屋": 6,
+      "サブウェイ": 5,
+      "ほっかほっか亭": 4,
+      "酔香楼": 4,
+      "ソフトバンク": 3,
+      "まいばすけっと": 3
+     },
+     "top_unmatched_words": {
+      "物屋": 1,
+      "スシ屋": 1
+     }
+    },
+    "reason_target": {
+     "text_fields": {
+      "v1": [
+       "comment"
+      ],
+      "v2": [
+       "comment"
+      ],
+      "v3": [
+       "reason",
+       "target"
+      ]
+     },
+     "weight_addressee": 1.0,
+     "dictionary_keys": 1815,
+     "counts": {
+      "utterances": 74536,
+      "wom_extracted": 11390,
+      "wom_pois": 11415,
+      "wom_unmatched": 49,
+      "wom_unmatched_words": 49,
+      "wom_valence-1": 3,
+      "wom_valence0": 11387,
+      "wom_with_valence": 3
+     },
+     "extracted_share": 0.1528,
+     "with_valence_share": 0.0,
+     "unmatched_share": 0.0007,
+     "top_pois": {
+      "スターバックス": 1444,
+      "カフェ・ベローチェ": 1301,
+      "大連餃子基地DALIAN 渋谷ストリーム店": 1017,
+      "おむすび権米衛": 625,
+      "Rituel": 547,
+      "ファミリーマート": 424,
+      "サンドラッグ": 414,
+      "Coach": 264,
+      "TANA": 262,
+      "ソフトバンクショップ": 260,
+      "ローソン": 255,
+      "デニーズ": 251,
+      "Sharro": 205,
+      "宮下公園": 204,
+      "鉄板ステーキ＆ハンバーグ ＢＡＮＡＮＡ ＳＴＥＡＫ": 185,
+      "Di Punto": 151,
+      "モヤイ像": 142,
+      "クア・アイナ": 133,
+      "Cafe Miyama": 125,
+      "セブン-イレブン": 119
+     },
+     "top_unmatched_words": {
+      "喫飲店": 14,
+      "喫店": 11,
+      "餐飲店": 10,
+      "渋谷ストリーム店": 3,
+      "トヨタモビリティ店": 3,
+      "餡巻屋": 1,
+      "ランチ屋": 1,
+      "餛飲店": 1,
+      "喫食店": 1,
+      "ランチ営業店": 1,
+      "モンジャ屋": 1,
+      "餅店": 1,
+      "夜間営業店": 1
+     }
+    }
+   },
+   "conversation_turn": {
+    "comment": {
+     "text_fields": {
+      "v1": [
+       "comment"
+      ],
+      "v2": [
+       "comment"
+      ],
+      "v3": [
+       "reason",
+       "target"
+      ]
+     },
+     "weight_addressee": 1.0,
+     "dictionary_keys": 1815,
+     "counts": {
+      "utterances": 28859,
+      "wom_extracted": 254,
+      "wom_pois": 254,
+      "wom_valence0": 254
+     },
+     "extracted_share": 0.0088,
+     "with_valence_share": 0.0,
+     "unmatched_share": 0.0,
+     "top_pois": {
+      "スターバックス": 90,
+      "ローソン": 50,
+      "なぎ食堂": 25,
+      "Sharro": 12,
+      "丸亀製麺": 10,
+      "千代松": 10,
+      "紀伊国屋": 5,
+      "一蘭 渋谷店": 5,
+      "デニーズ": 5,
+      "いちのや": 4,
+      "宮下公園": 4,
+      "TANA": 4,
+      "すき家": 4,
+      "はせがわ酒店": 2,
+      "サブウェイ": 2,
+      "モヤイ像": 2,
+      "サンドラッグ": 2,
+      "ほっかほっか亭": 2,
+      "もんじゃ お好み焼き": 2,
+      "わさび": 1
+     },
+     "top_unmatched_words": {}
+    },
+    "reason_target": {
+     "text_fields": {
+      "v1": [
+       "comment"
+      ],
+      "v2": [
+       "comment"
+      ],
+      "v3": [
+       "reason",
+       "target"
+      ]
+     },
+     "weight_addressee": 1.0,
+     "dictionary_keys": 1815,
+     "counts": {
+      "utterances": 28859,
+      "wom_extracted": 4760,
+      "wom_pois": 4775,
+      "wom_unmatched": 19,
+      "wom_unmatched_words": 19,
+      "wom_valence0": 4760
+     },
+     "extracted_share": 0.1649,
+     "with_valence_share": 0.0,
+     "unmatched_share": 0.0007,
+     "top_pois": {
+      "スターバックス": 773,
+      "カフェ・ベローチェ": 568,
+      "大連餃子基地DALIAN 渋谷ストリーム店": 328,
+      "Rituel": 267,
+      "おむすび権米衛": 242,
+      "サンドラッグ": 168,
+      "Coach": 146,
+      "TANA": 143,
+      "ファミリーマート": 142,
+      "ソフトバンクショップ": 137,
+      "Sharro": 113,
+      "鉄板ステーキ＆ハンバーグ ＢＡＮＡＮＡ ＳＴＥＡＫ": 106,
+      "デニーズ": 89,
+      "宮下公園": 84,
+      "ローソン": 78,
+      "カイトリマン": 67,
+      "モヤイ像": 66,
+      "Beacon": 65,
+      "Cafe Miyama": 60,
+      "Sushi-no-Midori": 59
+     },
+     "top_unmatched_words": {
+      "喫飲店": 6,
+      "喫店": 5,
+      "餐飲店": 3,
+      "渋谷ストリーム店": 3,
+      "餡巻屋": 1,
+      "ランチ営業店": 1
+     }
+    }
+   },
+   "talk_to_person": {
+    "comment": {
+     "text_fields": {
+      "v1": [
+       "comment"
+      ],
+      "v2": [
+       "comment"
+      ],
+      "v3": [
+       "reason",
+       "target"
+      ]
+     },
+     "weight_addressee": 1.0,
+     "dictionary_keys": 1815,
+     "counts": {
+      "utterances": 49
+     },
+     "extracted_share": 0.0,
+     "with_valence_share": 0.0,
+     "unmatched_share": 0.0,
+     "top_pois": {},
+     "top_unmatched_words": {}
+    },
+    "reason_target": {
+     "text_fields": {
+      "v1": [
+       "comment"
+      ],
+      "v2": [
+       "comment"
+      ],
+      "v3": [
+       "reason",
+       "target"
+      ]
+     },
+     "weight_addressee": 1.0,
+     "dictionary_keys": 1815,
+     "counts": {
+      "utterances": 49
+     },
+     "extracted_share": 0.0,
+     "with_valence_share": 0.0,
+     "unmatched_share": 0.0,
+     "top_pois": {},
+     "top_unmatched_words": {}
+    }
+   }
+  }
+ },
+ "tapes": [
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__ad_zero",
+   "vocab": "v1",
+   "counts": {
+    "all:comment:calls": 36957,
+    "all:comment:empty": 7010,
+    "all:reason_target:calls": 36957,
+    "all:reason_target:empty": 0,
+    "talk_to_person:comment:calls": 91,
+    "talk_to_person:comment:empty": 9,
+    "talk_to_person:reason_target:calls": 91,
+    "talk_to_person:reason_target:empty": 0,
+    "conversation_turn:comment:calls": 10628,
+    "conversation_turn:comment:empty": 1794,
+    "conversation_turn:reason_target:calls": 10628,
+    "conversation_turn:reason_target:empty": 0
+   }
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_14",
+   "vocab": "v1",
+   "counts": {
+    "all:comment:calls": 36922,
+    "all:comment:empty": 6978,
+    "all:reason_target:calls": 36922,
+    "all:reason_target:empty": 0,
+    "conversation_turn:comment:calls": 10545,
+    "conversation_turn:comment:empty": 1840,
+    "conversation_turn:reason_target:calls": 10545,
+    "conversation_turn:reason_target:empty": 0,
+    "talk_to_person:comment:calls": 34,
+    "talk_to_person:comment:empty": 3,
+    "talk_to_person:reason_target:calls": 34,
+    "talk_to_person:reason_target:empty": 0
+   }
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_30",
+   "vocab": "v1",
+   "counts": {
+    "all:comment:calls": 36916,
+    "all:comment:empty": 7015,
+    "all:reason_target:calls": 36916,
+    "all:reason_target:empty": 0,
+    "talk_to_person:comment:calls": 55,
+    "talk_to_person:comment:empty": 5,
+    "talk_to_person:reason_target:calls": 55,
+    "talk_to_person:reason_target:empty": 0,
+    "conversation_turn:comment:calls": 10652,
+    "conversation_turn:comment:empty": 1835,
+    "conversation_turn:reason_target:calls": 10652,
+    "conversation_turn:reason_target:empty": 0
+   }
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_1_00",
+   "vocab": "v1",
+   "counts": {
+    "all:comment:calls": 36906,
+    "all:comment:empty": 7369,
+    "all:reason_target:calls": 36906,
+    "all:reason_target:empty": 0,
+    "talk_to_person:comment:calls": 14,
+    "talk_to_person:comment:empty": 1,
+    "talk_to_person:reason_target:calls": 14,
+    "talk_to_person:reason_target:empty": 0,
+    "conversation_turn:comment:calls": 10275,
+    "conversation_turn:comment:empty": 1882,
+    "conversation_turn:reason_target:calls": 10275,
+    "conversation_turn:reason_target:empty": 0
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__ad_zero",
+   "vocab": "v1",
+   "counts": {
+    "all:comment:calls": 36993,
+    "all:comment:empty": 6876,
+    "all:reason_target:calls": 36993,
+    "all:reason_target:empty": 0,
+    "talk_to_person:comment:calls": 75,
+    "talk_to_person:comment:empty": 12,
+    "talk_to_person:reason_target:calls": 75,
+    "talk_to_person:reason_target:empty": 0,
+    "conversation_turn:comment:calls": 10932,
+    "conversation_turn:comment:empty": 1788,
+    "conversation_turn:reason_target:calls": 10932,
+    "conversation_turn:reason_target:empty": 0
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_14",
+   "vocab": "v1",
+   "counts": {
+    "all:comment:calls": 37022,
+    "all:comment:empty": 7094,
+    "all:reason_target:calls": 37022,
+    "all:reason_target:empty": 0,
+    "talk_to_person:comment:calls": 64,
+    "talk_to_person:comment:empty": 3,
+    "talk_to_person:reason_target:calls": 64,
+    "talk_to_person:reason_target:empty": 0,
+    "conversation_turn:comment:calls": 10565,
+    "conversation_turn:comment:empty": 1774,
+    "conversation_turn:reason_target:calls": 10565,
+    "conversation_turn:reason_target:empty": 0
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_30",
+   "vocab": "v1",
+   "counts": {
+    "all:comment:calls": 37196,
+    "all:comment:empty": 7102,
+    "all:reason_target:calls": 37196,
+    "all:reason_target:empty": 0,
+    "talk_to_person:comment:calls": 31,
+    "talk_to_person:comment:empty": 5,
+    "talk_to_person:reason_target:calls": 31,
+    "talk_to_person:reason_target:empty": 0,
+    "conversation_turn:comment:calls": 10776,
+    "conversation_turn:comment:empty": 1813,
+    "conversation_turn:reason_target:calls": 10776,
+    "conversation_turn:reason_target:empty": 0
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_1_00",
+   "vocab": "v1",
+   "counts": {
+    "all:comment:calls": 36889,
+    "all:comment:empty": 7234,
+    "all:reason_target:calls": 36889,
+    "all:reason_target:empty": 0,
+    "conversation_turn:comment:calls": 10723,
+    "conversation_turn:comment:empty": 1927,
+    "talk_to_person:comment:calls": 20,
+    "talk_to_person:comment:empty": 1,
+    "conversation_turn:reason_target:calls": 10723,
+    "conversation_turn:reason_target:empty": 0,
+    "talk_to_person:reason_target:calls": 20,
+    "talk_to_person:reason_target:empty": 0
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__ad_zero",
+   "vocab": "v1",
+   "counts": {
+    "all:comment:calls": 74581,
+    "all:comment:empty": 18423,
+    "all:reason_target:calls": 74581,
+    "all:reason_target:empty": 0,
+    "talk_to_person:comment:calls": 435,
+    "talk_to_person:comment:empty": 53,
+    "talk_to_person:reason_target:calls": 435,
+    "talk_to_person:reason_target:empty": 0,
+    "conversation_turn:comment:calls": 586,
+    "conversation_turn:comment:empty": 203,
+    "conversation_turn:reason_target:calls": 586,
+    "conversation_turn:reason_target:empty": 0
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_14",
+   "vocab": "v1",
+   "counts": {
+    "all:comment:calls": 73635,
+    "all:comment:empty": 18164,
+    "all:reason_target:calls": 73635,
+    "all:reason_target:empty": 0,
+    "talk_to_person:comment:calls": 331,
+    "talk_to_person:comment:empty": 45,
+    "talk_to_person:reason_target:calls": 331,
+    "talk_to_person:reason_target:empty": 0,
+    "conversation_turn:comment:calls": 461,
+    "conversation_turn:comment:empty": 182,
+    "conversation_turn:reason_target:calls": 461,
+    "conversation_turn:reason_target:empty": 0
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_30",
+   "vocab": "v1",
+   "counts": {
+    "all:comment:calls": 73753,
+    "all:comment:empty": 18465,
+    "all:reason_target:calls": 73753,
+    "all:reason_target:empty": 0,
+    "talk_to_person:comment:calls": 396,
+    "talk_to_person:comment:empty": 57,
+    "talk_to_person:reason_target:calls": 396,
+    "talk_to_person:reason_target:empty": 0,
+    "conversation_turn:comment:calls": 550,
+    "conversation_turn:comment:empty": 192,
+    "conversation_turn:reason_target:calls": 550,
+    "conversation_turn:reason_target:empty": 0
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_1_00",
+   "vocab": "v1",
+   "counts": {
+    "all:comment:calls": 72800,
+    "all:comment:empty": 18123,
+    "all:reason_target:calls": 72800,
+    "all:reason_target:empty": 0,
+    "talk_to_person:comment:calls": 151,
+    "talk_to_person:comment:empty": 16,
+    "talk_to_person:reason_target:calls": 151,
+    "talk_to_person:reason_target:empty": 0,
+    "conversation_turn:comment:calls": 249,
+    "conversation_turn:comment:empty": 78,
+    "conversation_turn:reason_target:calls": 249,
+    "conversation_turn:reason_target:empty": 0
+   }
+  },
+  {
+   "tape": "c8_ab7b_s1/AB7b-HINT-INTENT__hint",
+   "vocab": "v1",
+   "counts": {
+    "all:comment:calls": 36855,
+    "all:comment:empty": 19292,
+    "all:reason_target:calls": 36855,
+    "all:reason_target:empty": 0,
+    "conversation_turn:comment:calls": 9517,
+    "conversation_turn:comment:empty": 4878,
+    "conversation_turn:reason_target:calls": 9517,
+    "conversation_turn:reason_target:empty": 0,
+    "talk_to_person:comment:calls": 105,
+    "talk_to_person:comment:empty": 17,
+    "talk_to_person:reason_target:calls": 105,
+    "talk_to_person:reason_target:empty": 0
+   }
+  },
+  {
+   "tape": "c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v2",
+   "vocab": "v2",
+   "counts": {
+    "all:comment:calls": 37165,
+    "all:comment:empty": 10089,
+    "all:reason_target:calls": 37165,
+    "all:reason_target:empty": 0,
+    "conversation_turn:comment:calls": 14438,
+    "conversation_turn:comment:empty": 3785,
+    "talk_to_person:comment:calls": 32,
+    "talk_to_person:comment:empty": 5,
+    "conversation_turn:reason_target:calls": 14438,
+    "conversation_turn:reason_target:empty": 0,
+    "talk_to_person:reason_target:calls": 32,
+    "talk_to_person:reason_target:empty": 0
+   }
+  },
+  {
+   "tape": "c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v2",
+   "vocab": "v2",
+   "counts": {
+    "all:comment:calls": 37371,
+    "all:comment:empty": 10160,
+    "all:reason_target:calls": 37371,
+    "all:reason_target:empty": 0,
+    "talk_to_person:comment:calls": 17,
+    "talk_to_person:comment:empty": 3,
+    "talk_to_person:reason_target:calls": 17,
+    "talk_to_person:reason_target:empty": 0,
+    "conversation_turn:comment:calls": 14421,
+    "conversation_turn:comment:empty": 3909,
+    "conversation_turn:reason_target:calls": 14421,
+    "conversation_turn:reason_target:empty": 0
+   }
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x0.5",
+   "vocab": "v1",
+   "counts": {
+    "all:comment:calls": 19856,
+    "all:comment:empty": 3556,
+    "all:reason_target:calls": 19856,
+    "all:reason_target:empty": 0,
+    "talk_to_person:comment:calls": 5,
+    "talk_to_person:comment:empty": 0,
+    "talk_to_person:reason_target:calls": 5,
+    "talk_to_person:reason_target:empty": 0,
+    "conversation_turn:comment:calls": 15255,
+    "conversation_turn:comment:empty": 2519,
+    "conversation_turn:reason_target:calls": 15255,
+    "conversation_turn:reason_target:empty": 0
+   }
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x2",
+   "vocab": "v1",
+   "counts": {
+    "all:comment:calls": 61196,
+    "all:comment:empty": 14383,
+    "all:reason_target:calls": 61196,
+    "all:reason_target:empty": 0,
+    "talk_to_person:comment:calls": 88,
+    "talk_to_person:comment:empty": 12,
+    "talk_to_person:reason_target:calls": 88,
+    "talk_to_person:reason_target:empty": 0,
+    "conversation_turn:comment:calls": 248,
+    "conversation_turn:comment:empty": 57,
+    "conversation_turn:reason_target:calls": 248,
+    "conversation_turn:reason_target:empty": 0
+   }
+  }
+ ],
+ "us_per_extraction_nondeterministic": 6.63,
+ "note": "記憶 第 1 段のリプレイと同じ 17 本(v1 15 本・v2 2 本)。範囲: conversation_turn=会話ターンの呼(エンジンが抽出する呼)・talk_to_person=行動「会話」で対象が P-<id>・all=全部の応答。欄: comment=「ひと言」(v1/v2 の規則)・reason_target=理由+対象(v3 の規則をこのテープに当てた代理)。発話の割合の分母=その範囲・その欄の呼(欄が空/「なし」の呼を含む)。"
+}

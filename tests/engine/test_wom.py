@@ -62,7 +62,7 @@ TAPE_20 = [
     ("松屋はまずい", 1, 5, -1),
     ("cafe cafeで休んだ、快適", 2, 8, 1),
     ("CAFE CAFEは閉まっていた", 2, 8, -1),                   # 全角/大文字の正規化
-    ("コメダ珈琲で満足", 2, 10, 1),
+    ("コメダ珈琲は親切", 2, 10, 1),                          # 第297 Q78: 「満足」は +1 にしない
     ("コメダ珈琲店がひどかった", 2, 10, -1),
     ("富士そばがうまい", 3, 11, 1),
     ("富士そばは待たされた", 3, 11, -1),
@@ -113,6 +113,11 @@ def test_chain_names_pick_the_store_nearest_to_the_speaker():
 
 def test_valence_needs_a_store_and_mixed_words_cancel():
     e = ex()
+    # 第298 Q83: 閉店・営業時間外は自分の訪問の CLOSED と同じ −1(第297 Q78 の 0 を撤回)・「人気/評判/満足」は +1 にしない
+    for s in ("松屋は営業時間外", "松屋が閉店していた"):
+        assert e.extract(W.normalize_v0(s), 1).valence == -1, s
+    for s in ("松屋は人気", "松屋は評判", "松屋で満足"):
+        assert e.extract(W.normalize_v0(s), 1).valence == 0, s
     assert e.extract(W.normalize_v0("おいしかった"), 0).valence == 0          # 店が無ければ向きは付けない
     assert e.extract(W.normalize_v0("松屋、安かったけどまずい"), 1).valence == 0  # +1 と −1 で 0
     assert e.extract(W.normalize_v0("松屋に行った"), 1).valence == 0         # 知っているだけ

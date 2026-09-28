@@ -248,6 +248,9 @@ class TargetResolver:
     #: 段 2c Q25: 名指しの店が見えるが閉店で**歩かずに** CLOSED を返した体 → (POI, tick)(体ごとに
     #: 最新 1 件・高々体数)。B6「直前の結果」に店名と「閉店中」を足す材料(描画だけが読む)。
     named_closed: dict = field(default_factory=dict)
+    #: D-120 7c: 想起優先の候補合成と決め手の記録(``engine.store_choice.StoreChoice``・``--store-memory on``
+    #: のランだけ ``engine.run`` が差し込む)。``None``(既定)=従来どおり=1 バイトも変わらない。
+    store_choice: Any = None
 
     def __post_init__(self) -> None:
         a = self.world.assets
@@ -429,6 +432,25 @@ class TargetResolver:
             self.stats[f"attempts:{kind}"] += 1
             base = self.pois_in_cell(cell)
             code = int(action_code[k])
+            sc = self.store_choice
+            if sc is not None and sc.recall_first and self._rich and kind != KIND_NAMED:
+                # D-120 7c N6 (a): 想起優先(想起できた店 → 願望水準 → 精度の分布)。無ければ従来どおり
+                fit = eatery if eat else self._buyable
+                if kind == KIND_CATEGORY:
+                    fit = fit & self._category_mask(cat_word)
+                r_poi, r_why = sc.recall(agents, aid, int(tick), cell, fit, open_now, stock_ok, eatery, eat)
+                if r_poi >= 0 and int(poi_cell[r_poi]) == cell:
+                    out[k] = int(r_poi)
+                    self.stats["resolved:recall"] += 1
+                    sc.note(aid, int(r_poi), r_why, int(tick))
+                    continue
+                if r_poi >= 0 and intent_out is not None:
+                    intent_out[k] = (int(r_poi), int(IntentKind.POI_NAMED))
+                    self.stats["intent:recall"] += 1
+                    sc.note(aid, int(r_poi), r_why, int(tick))
+                    continue
+                if r_poi >= 0:
+                    sc.stats["recall:no_intent_layer"] += 1  # セル外の店へ歩く口が無い=従来どおり
             if kind == KIND_NAMED:
                 cand_all = base[np.isin(base, np.asarray(named, dtype=np.int64))]
                 if cand_all.size == 0:
@@ -439,6 +461,8 @@ class TargetResolver:
                         if pick >= 0:
                             intent_out[k] = (pick, int(IntentKind.POI_NAMED))
                             self.stats["intent:named"] += 1
+                            if sc is not None:
+                                sc.note(aid, int(pick), "named", int(tick))
                             continue
                         if rep_poi >= 0:
                             # Q21: 見える名指しの店が閉店/在庫切れ=歩かずに即時の失敗(代表 1 件)
@@ -505,10 +529,15 @@ class TargetResolver:
             p = np.asarray(self.chooser.probs(cands, ctx), dtype=np.float64)
             if p.shape != cands.shape:
                 raise ValueError("chooser.probs の長さが候補と違う")
-            out[k] = int(cands[draw_index(p, self.seed, int(tick), aid)])
+            idx = draw_index(p, self.seed, int(tick), aid)
+            out[k] = int(cands[idx])
             self.stats[f"resolved:{kind}"] += 1
             self.stats["decisions"] += 1
             self.entropy_sum += entropy_bits(p)
+            if sc is not None:  # 7c 決め手: 名指し / 習慣の候補を引いた / 可視順の満足化
+                why = ("named" if kind == KIND_NAMED
+                       else "habit" if int(getattr(self.chooser, "last_habit", -1)) == int(idx) else "visible")
+                sc.note(aid, int(out[k]), why, int(tick))
         return out
 
 
@@ -569,6 +598,8 @@ class TargetResolver:
             return False
         intent_out[k] = (pick, int(IntentKind.POI_CATEGORY))
         self.stats["intent:category"] += 1
+        if self.store_choice is not None:  # 7c 決め手: 見えている店 / 2b の近傍探索
+            self.store_choice.note(aid, int(pick), "visible" if _where == "visible" else "nearby", int(tick))
         return True
 
     def _nearby_pick(self, cell: int, mask: np.ndarray, aid: int, tick: int, kind: str,

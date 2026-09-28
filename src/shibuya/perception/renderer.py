@@ -166,6 +166,8 @@ def memory_item_text(
     kind = int(getattr(item, "kind"))
     obj = int(getattr(item, "obj"))
     cell = int(getattr(item, "cell"))
+    if kind == _STORE_ITEM_KIND:  # 7c(v1.3): 店の評価の行
+        return _store_item_text(item, obj, cell, poi_names, place_ids)
     partner = int(getattr(item, "partner"))
     result = int(getattr(item, "result"))
     gist = N.canonical_whitespace(str(getattr(item, "gist", "") or "")).strip().rstrip("。.")
@@ -200,6 +202,41 @@ def memory_item_text(
     while var and ch.estimate_tokens(text) > int(max_tokens):  # 逐次: 削る字数ぶん
         var = var[:-1]
         text = fill(var)
+    return text
+
+
+#: 7c: ``engine.memory.STORE_ITEM_KIND``(描画は engine を import しない=値を写す・テストで一致を見る)。
+_STORE_ITEM_KIND: Final[int] = 12
+#: 7c: 出どころのビット「自分の訪問」(``engine.store_memory.STORE_SOURCE_BIT["self"]`` の写し)。
+_STORE_SELF_BIT: Final[int] = 1
+
+
+def _store_item_text(item: object, obj: int, cell: int, poi_names: Sequence[str],
+                     place_ids: Sequence[str]) -> str:
+    """店の評価の行 → 項(v1.3)。自分が行った店=「最近 X に行った(良かった/知っている/よくなかった)。」・
+    看板/伝聞だけ=「X を知っている。」か「X は良い/よくないと聞いた。」。≤ 15 tok(店の名を末尾から削る)。
+    ⑥ 省略記法は 6b と同じ(店の名に禁止語 → そのセルの ID)。逐次: 削る字数ぶん。
+    """
+    valence = int(getattr(item, "valence", 0))
+    source = int(getattr(item, "source", 0))
+    name = ""
+    if 0 <= obj < len(poi_names):
+        name = N.canonical_whitespace(str(poi_names[obj])).strip()
+        if any(a in name for a in N.ABBREVIATIONS):
+            name = ""
+    if not name:
+        name = str(place_ids[cell]) if 0 <= cell < len(place_ids) else T.MEMORY_OUT_OF_AREA_WORD
+    tpl = T.MEMORY_ITEM_TEMPLATES
+    if source & _STORE_SELF_BIT:
+        key, word = "store", T.MEMORY_STORE_VALENCE_WORDS[int(np.sign(valence))]
+    elif valence != 0:
+        key, word = "store_heard", T.MEMORY_STORE_HEARD_WORDS[int(np.sign(valence))]
+    else:
+        key, word = "store_known", ""
+    text = tpl[key].format(store=name, valence=word)
+    while len(name) > 1 and ch.estimate_tokens(text) > int(T.MEMORY_STORE_ITEM_MAX_TOKENS):
+        name = name[:-1]
+        text = tpl[key].format(store=name, valence=word)
     return text
 
 

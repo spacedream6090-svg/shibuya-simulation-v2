@@ -855,6 +855,24 @@ def main(argv: list[str] | None = None) -> int:
              "看板 4/ネット 2=宣言・感度腕)",
     )
     ap.add_argument(
+        "--store-wom",
+        choices=("on", "off"),
+        default="on",
+        help="D-120 7c(N8 の腕): 口コミ(7b の聞き手への転写)を使うか(既定 on・--store-memory on のときだけ)",
+    )
+    ap.add_argument(
+        "--store-signage",
+        choices=("on", "off"),
+        default="on",
+        help="D-120 7c(N8 の腕): 看板の初見から店の行を書くか(N2 (iii)・既定 on)",
+    )
+    ap.add_argument(
+        "--store-recall-scope",
+        choices=("all", "conversation"),
+        default="all",
+        help="D-120 7c: B5 の想起で店の行を候補にする入口(既定 all=全入口・conversation=会話だけ=感度腕)",
+    )
+    ap.add_argument(
         "--store-decay",
         choices=STORE_DECAY_MODES,
         default=DEFAULT_STORE_DECAY,
@@ -1027,6 +1045,9 @@ def main(argv: list[str] | None = None) -> int:
         memory=str(args.memory),
         memory_n=int(args.memory_n),
         memory_tau=float(args.memory_tau),
+        store_wom=str(args.store_wom),
+        store_signage=str(args.store_signage),
+        store_recall_scope=str(args.store_recall_scope),
         store_memory=str(args.store_memory),
         store_memory_n=int(args.store_memory_n),
         store_sigma=args.store_sigma,

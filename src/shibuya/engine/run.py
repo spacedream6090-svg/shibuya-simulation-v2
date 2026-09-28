@@ -82,6 +82,9 @@ from shibuya.engine.intent import INTENT_MAX_TICKS, IntentLayer
 from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES, FamiliarityLayer
 from shibuya.engine.memory import MEMORY_MODES, MEMORY_N, RECALL_TAU, MemoryLayer
 from shibuya.engine.wom import WomExtractor
+from shibuya.engine.store_choice import StoreChoice
+from shibuya.engine.store_choice import walk_m_per_tick as _walk_m_per_tick
+from shibuya.engine.memory import STORE_RECALL_SCOPES
 from shibuya.engine.wom import hear as wom_hear
 from shibuya.engine.store_memory import (
     DEFAULT_STORE_DECAY,
@@ -564,6 +567,8 @@ class RunResult:
     store_memory_summary: dict[str, Any] = field(default_factory=dict)
     #: D-120 7b(会話からの抽出): 発話・抽出・向き・照合できない語・照合できた店の上位(店の記憶 on のランだけ)。
     wom: dict[str, Any] = field(default_factory=dict)
+    #: D-120 7c(想起優先の候補合成・決め手・初回率・店頭の割合・腕の切替口の値)。店の記憶 on のランだけ。
+    store_choice: dict[str, Any] = field(default_factory=dict)
     #: 5 段目 5a(診断): 内受容の段の跨ぎの延べ(変数 × 上げ/下げ × 全体/起きて範囲内)。
     #: 起床入口「体の状態」の内訳を空腹と疲労・体感温度に分けて読むため(挙動には効かない)。
     intero_crossings: dict[str, int] = field(default_factory=dict)
@@ -952,6 +957,8 @@ class RunResult:
             "store_memory_summary": dict(self.store_memory_summary),
             # ---- D-120 7b(会話からの抽出): 列追加のみ ----
             "wom": dict(self.wom),
+            # ---- D-120 7c(想起優先・決め手): 列追加のみ ----
+            "store_choice": dict(self.store_choice),
             "calls_by_condition": dict(self.calls_by_condition),
             "synonym_table_version": _synonym_table_version(self.vocab_version),
             "action_usage": dict(self.action_usage),
@@ -1526,6 +1533,9 @@ def run_day(
     store_memory_n: int = STORE_MEMORY_N,
     store_sigma: "Mapping[str, float] | str | None" = None,
     store_decay: str = DEFAULT_STORE_DECAY,
+    store_wom: bool | str = True,
+    store_signage: bool | str = True,
+    store_recall_scope: str = "all",
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -1780,6 +1790,10 @@ def run_day(
         store_memory_n: 体あたりの店の行数(既定 ``STORE_MEMORY_N``=32・宣言・感度 16/64)。
         store_sigma: 出どころ別の σ(辞書か JSON・既定 自分 1/伝聞 2/看板 4/ネット 2・感度腕)。
         store_decay: 減衰の形(``actr`` 既定・``ga``/``citysim`` は感度腕の口)。
+        store_wom / store_signage: **D-120 7c(N8 の腕)**。口コミ(7b の聞き手への転写)と看板(N2 (iii))の
+            書き手を使うか(既定 どちらも on・``"on"``/``"off"`` か bool)。店の記憶 on のランだけ効く。
+        store_recall_scope: 7c: B5 の想起で店の行を候補にする入口(``all`` 既定・``conversation``=会話だけ=感度腕)。
+            想起優先の候補合成(N6)は選び手 ``classical`` のランだけ(``engine.store_choice``)。
 
     Returns:
         ``RunResult``。
@@ -1852,6 +1866,18 @@ def run_day(
     store_decay = check_store_decay(store_decay)
     if store_memory_on and not memory_on:
         raise ValueError("store_memory は memory='on' のランでだけ使える(書き手がエピソードの書き手に乗る)")
+
+    def _onoff(v: bool | str, name: str) -> bool:
+        if isinstance(v, str):
+            if v not in ("on", "off"):
+                raise ValueError(f"{name} は 'on'/'off' か bool(いま {v!r})")
+            return v == "on"
+        return bool(v)
+
+    store_wom_on = _onoff(store_wom, "store_wom")
+    store_signage_on = _onoff(store_signage, "store_signage")
+    if str(store_recall_scope) not in STORE_RECALL_SCOPES:
+        raise ValueError(f"store_recall_scope は {STORE_RECALL_SCOPES} のどれか(いま {store_recall_scope!r})")
     # ---- 5 段目 5a: 空腹のモデル(SoA を確保する前に決める=欄が 4 本変わる) ----
     hunger_model = check_hunger_model(hunger_model)
     energy_rate = check_energy_rate(energy_rate)
@@ -2270,7 +2296,19 @@ def run_day(
         mem_layer.tau = float(memory_tau)
     # ---- D-120 7a: 店の評価の記憶(エピソードの書き手に乗る・本段では誰も読まない) ----
     if mem_layer is not None and store_memory_on:
-        mem_layer.enable_store(int(store_memory_n), sigma=store_sigma_table, decay=store_decay)
+        mem_layer.enable_store(int(store_memory_n), sigma=store_sigma_table, decay=store_decay,
+                               signage=store_signage_on, poi_cell=np.asarray(world.pois.cell),
+                               recall_scope=str(store_recall_scope))
+        # ---- D-120 7c: 想起優先の候補合成(選び手 classical のとき)と決め手の記録 ----
+        if poi_resolver is not None:
+            poi_resolver.store_choice = StoreChoice(
+                mem_layer, world, n_agents, seed=seed,
+                boundary_agent=b_agent, boundary_tick=b_tick,
+                walk_m_per_tick=_walk_m_per_tick(world, n_agents, geometry=str(geometry), geom=geom,
+                                                  tick_seconds=int(tick_seconds)),
+                intent_max_ticks=int(intent_max_ticks),
+                minutes_per_tick=float(tick_seconds) / 60.0,
+            )
     # ---- D-120 7b: 会話からの抽出(店名の辞書=W6 の店・評価語の辞書 v0・呼数 0) ----
     wom_ex: WomExtractor | None = (
         WomExtractor.from_world(world) if mem_layer is not None and mem_layer.store is not None else None
@@ -2306,7 +2344,8 @@ def run_day(
             wom_ex.observe(ex)
             others = [int(p) for p in s.participants if int(p) != int(agent_id)]
             listener = partner_before if partner_before in others else (others[0] if others else -1)
-            wom_hear(mem_layer.store, agents, int(t_now), listener, ex)
+            if store_wom_on:  # 7c の腕: 口コミ off=抽出は数えるが転写しない
+                wom_hear(mem_layer.store, agents, int(t_now), listener, ex)
     #: 発射した呼の起床条件ごとの件数(起床の内訳・満了入口の列を含む)。
     calls_by_cond = np.zeros(N_WAKE_CONDITIONS_ALL, dtype=np.int64)
 
@@ -3407,6 +3446,14 @@ def run_day(
             "store_events_wom": int(mem_layer.store.stats.get("events:wom", 0)),
         }
         if wom_ex is not None and mem_layer is not None and mem_layer.store is not None
+        else {}
+    )
+    _sc = getattr(poi_resolver, "store_choice", None) if poi_resolver is not None else None
+    result.store_choice = (
+        {**_sc.summary(), "arms": {"store_wom": bool(store_wom_on), "store_signage": bool(store_signage_on),
+                                   "store_recall_scope": str(store_recall_scope),
+                                   "chooser": str(getattr(poi_resolver.chooser, "name", ""))}}
+        if _sc is not None
         else {}
     )
     if fam_layer is not None and result.familiarity_summary:

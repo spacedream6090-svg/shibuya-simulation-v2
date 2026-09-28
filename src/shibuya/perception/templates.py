@@ -70,6 +70,9 @@ __all__ = [
     "MEMORY_ITEM_MAX_TOKENS",
     "MEMORY_CHANNEL_TOKENS",
     "MEMORY_OUT_OF_AREA_WORD",
+    "MEMORY_STORE_VALENCE_WORDS",
+    "MEMORY_STORE_HEARD_WORDS",
+    "MEMORY_STORE_ITEM_MAX_TOKENS",
     "HUNGER_ITEM_TEMPLATE",
     "HUNGER_WORD_DRAW_MIN_STAGE",
     "EMPTY_PHRASE",
@@ -116,7 +119,11 @@ __all__ = [
 #: **v1.2(記憶 第 1 段 6b・M4・第295)**: B5「記憶」チャネルの行 ``B5.memory`` と項の定型
 #: ``MEMORY_ITEM_TEMPLATES``・事象の語 ``MEMORY_EVENT_WORDS`` を足した(v1.1 の SHA は 8f2959d0…)。
 #: v1.1 の文面は ``--memory off`` のランで 1 バイトも変わらない(記憶の行は on のときだけ描く)。
-TEMPLATE_VERSION: Final[str] = "v1.2"
+#: **v1.3(D-120 7c・第298)**: 記憶の行の項に**店の評価**の定型(``store``=自分が行った店・``store_known``=
+#: 看板/伝聞で知っているだけ・``store_heard``=伝聞で評価つき)と向きの語 ``MEMORY_STORE_VALENCE_WORDS`` /
+#: ``MEMORY_STORE_HEARD_WORDS``・項の上限 ``MEMORY_STORE_ITEM_MAX_TOKENS`` を足した(v1.2 の SHA は 1f6c7d62…)。
+#: ``--store-memory off`` のランでは店の項を描かない=v1.2 の文面は 1 バイトも変わらない。
+TEMPLATE_VERSION: Final[str] = "v1.3"
 
 #: ブロックの順序(知覚契約書 §2.2 表の並び=変化率の昇順=prefix 前方一致の並び)。
 BLOCK_IDS: Final[tuple[str, ...]] = ("B0", "B1", "B2", "B3", "B4", "B4b", "B5", "B6")
@@ -246,7 +253,17 @@ MEMORY_ITEM_TEMPLATES: Final[Mapping[str, str]] = {
     "talk": "{hhmm} {who}と話した: {gist}。",
     "talk_plain": "{hhmm} {who}と話した。",
     "seen": "{hhmm} {where}で{event}。",
+    # 7c(v1.3): 店の評価の行(時刻は書かない)。自分の訪問のビットがある行=store・無い行=store_known/heard
+    "store": "最近 {store} に行った({valence})。",
+    "store_known": "{store} を知っている。",
+    "store_heard": "{store} は{valence}と聞いた。",
 }
+#: 7c: 店の項の向きの語(自分が行った店)。
+MEMORY_STORE_VALENCE_WORDS: Final[Mapping[int, str]] = {1: "良かった", 0: "知っている", -1: "よくなかった"}
+#: 7c: 伝聞で評価つきの店の語(向き 0 は ``store_known``)。
+MEMORY_STORE_HEARD_WORDS: Final[Mapping[int, str]] = {1: "良い", -1: "よくない"}
+#: 7c: 店の項 1 件の上限[tok](超える分は店の名を末尾から削る=宣言)。
+MEMORY_STORE_ITEM_MAX_TOKENS: Final[int] = 15
 #: 項 1 件の上限[tok](超える分は 場所名/要旨 を末尾から削る=宣言)。
 MEMORY_ITEM_MAX_TOKENS: Final[int] = 20
 #: チャネルの上限[tok](個体枠 300 の内・他チャネルは削らない)。
@@ -381,7 +398,7 @@ _B0_BY_MODE: Final[Mapping[str, str]] = {
 #
 # **凍結との関係**: ``TEMPLATES``(=``template_sha256`` の payload)には 1 語も足していない。
 # 既定 ``vocab_version="v1"`` のとき ``b0_system()`` は ``TEMPLATES["B0.system"]`` と
-# **同一オブジェクト**を返す=描画バイトも ``template_sha256``(v1.2 は 1f6c7d62…・v1.1 は 8f2959d0…・v1 は 161fe181…)も
+# **同一オブジェクト**を返す=描画バイトも ``template_sha256``(v1.3 は ea204a66…・v1.2 は 1f6c7d62…・v1.1 は 8f2959d0…・v1 は 161fe181…)も
 # ``b0_sha256("vocab")``(2b4bfc8a…)も動かない。
 #
 # **open 腕 × v2**: open 腕は語彙を見せないので **B0 の本文は v1 と同一**になる(差は
@@ -757,6 +774,9 @@ def template_sha256() -> str:
             "memory_item_max_tokens": MEMORY_ITEM_MAX_TOKENS,
             "memory_channel_tokens": MEMORY_CHANNEL_TOKENS,
             "memory_out_of_area": MEMORY_OUT_OF_AREA_WORD,
+            "memory_store_valence": {str(k): v for k, v in MEMORY_STORE_VALENCE_WORDS.items()},
+            "memory_store_heard": {str(k): v for k, v in MEMORY_STORE_HEARD_WORDS.items()},
+            "memory_store_item_max_tokens": MEMORY_STORE_ITEM_MAX_TOKENS,
             "hunger_draw_min_stage": HUNGER_WORD_DRAW_MIN_STAGE,
             "ground": {str(k): v for k, v in GROUND_WORDS.items()},
             "ground_no_street": GROUND_NO_STREET,

@@ -6,6 +6,8 @@
 #56 の ``engine.familiarity``(親しみの表)と同じ流儀(腕でだけ確保・書き手は resolve・A の近似)。
 
 6a=**記録と読み口**・**6b=想起**(:meth:`MemoryLayer.recall` → 描画の B5「記憶」行・第295)。
+D-120 7a〜7c: 店の評価の記憶(``engine.store_memory``・:meth:`MemoryLayer.enable_store`)を同じ入れ物に持ち、
+7c で想起の k の内側に店の行をエピソードと同じ score 順で競わせる(B5 の店の項・テンプレ v1.3・第298)。
 
 表(``AgentState(memory_columns=True)`` のランだけ確保・``--memory on``)
     体ごとに N 行(:data:`MEMORY_N`=128・M2・感度 64/256)。1 行=``mem_kind`` u8(事象の種類=
@@ -61,7 +63,8 @@ A と score(M2・M6 (a))::
     2. 会話: その tick に開いたセッションの数ぶん・発話の数ぶん(≤ 1 tick の呼数)。
     3. 気づき: その tick の顕著行為の件数ぶん(``EventBudget`` が 200/tick で切る)。
     4. 看板の初見: その tick の看板の露出の件数ぶん(描画 1 回につき高々 1 件)。
-    5. :meth:`MemoryLayer.recall`: なし(1 呼につき 1 体の N 行の配列演算)。
+    5. :meth:`MemoryLayer.recall`: なし(1 呼につき 1 体の N 行の配列演算)。7c(D-120)の店の行つき
+       (``_recall_with_store``)は並べ替えた候補(≤ N+32)を k 件で止まるまで見る(同じ店の重なりを飛ばす)。
     6. :meth:`MemoryLayer.summary`(K-2/K-5 の計器): 行のある体の数ぶん(ランの終わりに 1 回)。
 """
 
@@ -98,6 +101,8 @@ __all__ = [
     "RECALL_K_OTHER",
     "K5_FAILURES",
     "RecallItem",
+    "STORE_ITEM_KIND",
+    "STORE_RECALL_SCOPES",
     "MemoryLayer",
 ]
 
@@ -124,6 +129,12 @@ RECALL_TAU: Final[float] = -2.0
 #: 想起の件数(M4 (a)+修正 2): 会話 3・それ以外(計画境界・満了・個体・セル)2。
 RECALL_K_CONVERSATION: Final[int] = 3
 RECALL_K_OTHER: Final[int] = 2
+#: 7c(D-120): 想起した店の評価の行の種類(エピソードの ``EVENT_KINDS`` の外)。
+STORE_ITEM_KIND: Final[int] = 12
+#: 7c: 店の行を B5 の想起の候補にする入口(all=全入口・conversation=会話だけ=感度腕)。
+STORE_RECALL_SCOPES: Final[tuple[str, ...]] = ("all", "conversation")
+#: 7c: 想起で POI が重なる事象(店の行と同じ店のエピソード=先に選んだ方だけ載せる)。
+_SHOP_OBJ_KINDS: Final[tuple[int, ...]] = (1, 2, 3, 11)
 #: K-5(失敗の回避・修正 4)で「失敗の記憶」とする結果。
 K5_FAILURES: Final[tuple[int, ...]] = (
     int(ResultCode.REFUSED), int(ResultCode.CLOSED), int(ResultCode.OUT_OF_STOCK),
@@ -188,7 +199,11 @@ def importance_of(kind: np.ndarray, result: np.ndarray, first: np.ndarray) -> np
 
 
 class RecallItem(NamedTuple):
-    """想起した 1 行(描画の材料=``perception.renderer`` が文にする)。"""
+    """想起した 1 行(描画の材料=``perception.renderer`` が文にする)。
+
+    7c(D-120): 店の評価の行は ``kind=STORE_ITEM_KIND``・``row=N+店の行``(テープの ``recalled_rows`` で
+    N 以上は店の行)・``obj``=POI・``valence``=向き(−1/0/+1)・``source``=出どころのビット。
+    """
 
     row: int
     last_tick: int
@@ -198,6 +213,8 @@ class RecallItem(NamedTuple):
     result: int
     cell: int
     gist: str
+    valence: int = 0
+    source: int = 0
 
 
 def activation_rows(n: np.ndarray, first_tick: np.ndarray, tick: int, minutes_per_tick: float,
@@ -237,7 +254,8 @@ class MemoryLayer:
         self.store: Any = None
 
     def enable_store(self, n_rows: int | None = None, *, sigma: Any = None,
-                     decay: str | None = None) -> Any:
+                     decay: str | None = None, signage: bool = True, poi_cell: Any = None,
+                     recall_scope: str = "all") -> Any:
         """店の評価の記憶(``engine.store_memory.StoreMemory``)を持たせる(D-120 7a)。
 
         書き手はエピソードの書き手(:meth:`record`)に乗る=記憶の表と同じ回・同じ配列。想起できる店の
@@ -248,8 +266,12 @@ class MemoryLayer:
         self.store = StoreMemory(
             self.n, STORE_MEMORY_N if n_rows is None else int(n_rows),
             minutes_per_tick=self.minutes_per_tick, d=self.d, sigma=sigma,
-            decay=DEFAULT_STORE_DECAY if decay is None else decay,
+            decay=DEFAULT_STORE_DECAY if decay is None else decay, signage=signage, poi_cell=poi_cell,
         )
+        if str(recall_scope) not in STORE_RECALL_SCOPES:
+            raise ValueError(f"store_recall_scope は {STORE_RECALL_SCOPES} のどれか(いま {recall_scope!r})")
+        #: 7c: B5 の想起で店の行を候補にする入口(all=全入口・conversation=会話だけ=感度腕)。
+        self.store_recall_scope = str(recall_scope)
         return self.store
 
     def store_rows(self, agents: Any, agent_id: int, tick: int) -> Any:
@@ -305,7 +327,11 @@ class MemoryLayer:
         rs = self.recall_stats
         rs["calls"] += 1
         rs["calls:" + entrance] += 1
-        if not bool(used.any()):
+        store_on = self.store is not None and (
+            getattr(self, "store_recall_scope", "all") == "all" or conversation)
+        s_used = (np.flatnonzero(agents.registry.sm_poi[i] >= 0) if store_on
+                  else np.zeros(0, dtype=np.int64))
+        if not bool(used.any()) and s_used.size == 0:
             rs["calls_empty_table"] += 1
             return []
         A = activation_rows(f("mem_n")[i], f("mem_tick")[i], tick, self.minutes_per_tick, self.d)
@@ -342,6 +368,9 @@ class MemoryLayer:
         rs["rows_candidate_below_tau"] += int(np.count_nonzero(match & ~live))
         rs["rows_used"] += int(np.count_nonzero(used))
         rs["rows_used_below_tau"] += int(np.count_nonzero(used & ~live))
+        if store_on:
+            return self._recall_with_store(agents, i, tick, k, entrance, score, match, live, s_used,
+                                           q_obj, q_cell)
         cand = np.flatnonzero(match & live)
         cand = cand[np.lexsort((cand, -score[cand]))][:k]
         picked = list(cand.tolist())
@@ -368,6 +397,101 @@ class MemoryLayer:
         ]
         for it_ in out:
             rs["recalled_kind:" + str(KIND_NAMES.get(it_.kind, it_.kind))] += 1
+        return out
+
+    def _recall_with_store(self, agents: Any, i: int, tick: int, k: int, entrance: str,
+                           score: np.ndarray, match: np.ndarray, live: np.ndarray, s_used: np.ndarray,
+                           q_obj: int, q_cell: int) -> list[RecallItem]:
+        """7c: エピソードと店の評価の行を**同じ score 順**に競わせて k 件(店の行の score=A+0.5×min(4, 精度))。
+
+        店の行の一致=店が q の対象(POI)か店のセルが現在セル。一致した行(両方)→ score 順 → 足りなければ
+        残り(両方)から score 順(``A ≥ τ`` の行だけ)。同じ店のエピソード(購入/食事/並ぶ/看板)と店の行は
+        先に選んだ方だけ載せる(宣言)。配列演算だけ(≤ N+32 行)。
+        """
+        from shibuya.engine.store_memory import STORE_SCORE_P_CAP, STORE_SCORE_W_P
+
+        rs = self.recall_stats
+        f = agents.registry.field
+        st = self.store
+        sA = st.activation(agents, np.asarray([i]), tick)[0][s_used]
+        s_poi = f("sm_poi")[i][s_used].astype(np.int64)
+        s_prec = f("sm_precision")[i][s_used].astype(np.float64)
+        s_score = sA + STORE_SCORE_W_P * np.minimum(STORE_SCORE_P_CAP, s_prec)
+        s_live = sA >= self.tau
+        s_match = np.zeros(s_used.size, dtype=bool)
+        if q_obj >= 0:
+            s_match |= s_poi == q_obj
+        if q_cell >= 0 and st.poi_cell is not None:
+            inside = (s_poi >= 0) & (s_poi < st.poi_cell.size)
+            s_match |= inside & (st.poi_cell[np.where(inside, s_poi, 0)] == q_cell)
+        rs["store_rows_candidate"] += int(np.count_nonzero(s_match))
+        rs["store_rows_used"] += int(s_used.size)
+        rs["store_rows_used_below_tau"] += int(np.count_nonzero(~s_live))
+        m_obj = f("mem_object")[i].astype(np.int64)
+        kind = f("mem_kind")[i].astype(np.int64)
+        shop_like = ((kind >= 1) & (kind <= 3)) | (kind == 11)  # _SHOP_OBJ_KINDS(購入/食事/並ぶ/看板)
+        ep_key = np.where(shop_like & (m_obj >= 0), m_obj, -1)
+
+        def pool(ep_mask: np.ndarray, st_mask: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+            """(種類 0=エピソード/1=店, 行) を score の降順 → 種類 → 行 の順に(配列演算)。"""
+            e = np.flatnonzero(ep_mask)
+            s = np.flatnonzero(st_mask)
+            sc_ = np.concatenate([score[e], s_score[s]])
+            ty = np.concatenate([np.zeros(e.size, dtype=np.int64), np.ones(s.size, dtype=np.int64)])
+            ix = np.concatenate([e, s]).astype(np.int64)
+            order = np.lexsort((ix, ty, -sc_))
+            return ty[order], ix[order]
+
+        picked: list[tuple[int, int]] = []
+        keys: set[int] = set()
+        n_match = 0
+        for (tys, ixs), is_fill in ((pool(match & live, s_match & s_live), False),
+                                    (pool(live & ~match, s_live & ~s_match), True)):
+            for typ, j in zip(tys.tolist(), ixs.tolist()):  # 逐次: k 件で止まる(同じ店の重なりは飛ばす)
+                if len(picked) >= k:
+                    break
+                key = int(ep_key[j]) if typ == 0 else int(s_poi[j])
+                if key >= 0 and key in keys:
+                    rs["store_dedup_skipped"] += 1
+                    continue
+                picked.append((typ, j))
+                if key >= 0:
+                    keys.add(key)
+                if is_fill:
+                    rs["filled_rows"] += 1
+                else:
+                    n_match += 1
+        if len(picked) > n_match:
+            rs["calls_filled"] += 1
+        rs["recalled_rows"] += len(picked)
+        rs["recalled_rows:" + entrance] += len(picked)
+        if not picked:
+            rs["calls_zero"] += 1
+            return []
+        last, part, res, cel = f("mem_last")[i], f("mem_partner")[i], f("mem_result")[i], f("mem_cell")[i]
+        s_last = f("sm_last")[i]
+        s_src = f("sm_source")[i]
+        s_sign = (np.sign(st.valence_now(agents, np.asarray([i]), tick)[0]).astype(np.int64)
+                  if any(typ == 1 for typ, _ in picked) else None)
+        out: list[RecallItem] = []
+        for typ, j in picked:  # 高々 k(≤ 3)
+            if typ == 0:
+                out.append(RecallItem(
+                    row=int(j), last_tick=int(last[j]), kind=int(kind[j]), partner=int(part[j]),
+                    obj=int(m_obj[j]), result=int(res[j]), cell=int(cel[j]),
+                    gist=self.gist.get((i, int(j)), ""),
+                ))
+                rs["recalled_kind:" + str(KIND_NAMES.get(int(kind[j]), int(kind[j])))] += 1
+            else:
+                row = int(s_used[j])
+                pc = (int(st.poi_cell[s_poi[j]]) if st.poi_cell is not None
+                      and 0 <= s_poi[j] < st.poi_cell.size else -1)
+                out.append(RecallItem(
+                    row=self.n_rows + row, last_tick=int(s_last[row]), kind=STORE_ITEM_KIND, partner=-1,
+                    obj=int(s_poi[j]), result=0, cell=pc, gist="", valence=int(s_sign[row]),
+                    source=int(s_src[row]),
+                ))
+                rs["recalled_kind:store"] += 1
         return out
 
     # ------------------------------------------------------------------ 書き手の本体
