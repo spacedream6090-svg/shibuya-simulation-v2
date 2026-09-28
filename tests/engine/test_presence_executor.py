@@ -63,11 +63,19 @@ W17_GOLDEN = {
         # (``--poi-target legacy`` で再現=tests/engine/test_intent_chooser.py)。2a の 1 回目
         # (購入の候補=セル内の全 POI=Q12 前)= 帰無腕 1bba1397b39c6864 / 41,148・v3 既定
         # 9a2535d2787d61f9 / 36,691。記録: docs/bench/analysis/intent-chooser-2026-09-28/README.md
-        "null_arm_final": "e75dfa1c5442f422", "null_arm_llm_calls": 41_141,
+        # 段 2c(意図の保持・第288): 意図の 4 欄(+10 B/体)を**既定で確保**=全腕の final が欄のぶん動いた。
+        # 帰無腕(語彙 v1=意図の層は働かない)は欄を混ぜないハッシュで 2a/2b の値 e75dfa1c5442f422 /
+        # 41,141 のまま(挙動不変)。v3 既定は寝床の意図(自宅が別セルの 就寝)で挙動も動いた。
+        # 2a/2b の値= 帰無腕 e75dfa1c5442f422 / 41,141・v3 既定 48b0d42936ebed49 / 36,725。
+        # 2c の 1 回目(Q20〜Q22 の親決定の前)= 帰無腕 ed1863e089c8480e / 41,141・v3 既定
+        # eddd08ac172a47be / 36,520・Q20〜Q22 後で保存則の欠陥修正(_complete_buy)の前= v3 既定
+        # 4c3cfeca59f8ea4b / 36,502(conserved=False)(記録: docs/bench/analysis/intent-chooser-2026-09-28/
+        # README.md § 段 2c)。
+        "null_arm_final": "ed1863e089c8480e", "null_arm_llm_calls": 41_141,
         # 第277(二層の段 3): **語彙 v3 の既定**(=CLI の新しい既定・activity on・mock v3 形)。
         # v1 の行は上のまま残す(ライブラリの既定は v1=切替口)。
         # 記録: docs/bench/analysis/two-layer-2026-09-27/README.md §0
-        "v3_default_final": "48b0d42936ebed49", "v3_default_llm_calls": 36_725,
+        "v3_default_final": "6845e3acb8906210", "v3_default_llm_calls": 36_502,
         "v1_outside_blocks": 590_430, "v1_outside_dist": [92, 160_033, 133_575, 47_861],
         "s5000_v1": {"n_blocks": 8_589, "zero": 1, "outside": 7_733, "in": 856},
         "s5000_v2": {"n_blocks": 6_377, "zero": 150, "outside": 5_521, "in": 856},

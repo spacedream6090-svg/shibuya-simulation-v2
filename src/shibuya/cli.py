@@ -66,6 +66,7 @@ from shibuya.engine.poi_target import (
     MOVE_SEARCH_RADIUS_CELLS,
     POI_TARGET_MODES,
 )
+from shibuya.engine.intent import INTENT_MAX_TICKS
 from shibuya.world.state import DEFAULT_EATERY_MODE, EATERY_MODES, World
 
 #: **CLI の既定の語彙版**(二層の段 3・第277=``--vocab-version`` を渡さないランは v3)。
@@ -674,6 +675,14 @@ def main(argv: list[str] | None = None) -> int:
              "cell_dist の近い順に見るセルの数(既定 5・宣言・0=近傍探索しない)",
     )
     ap.add_argument(
+        "--intent-max-ticks",
+        type=int,
+        default=INTENT_MAX_TICKS,
+        metavar="N",
+        help="段 2c(意図の保持・D-112 ①): セル外の対象へ歩く意図の上限[tick]。超えたら TOO_FAR"
+             "(既定 60・宣言・expedient・感度腕 30/120)",
+    )
+    ap.add_argument(
         "--eatery",
         choices=EATERY_MODES,
         default=DEFAULT_EATERY_MODE,
@@ -814,6 +823,7 @@ def main(argv: list[str] | None = None) -> int:
         chooser=str(args.chooser),
         poi_target=str(args.poi_target),
         move_search_radius=int(args.move_search_radius),
+        intent_max_ticks=int(args.intent_max_ticks),
         role_words=(str(args.role_words) == "on"),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),

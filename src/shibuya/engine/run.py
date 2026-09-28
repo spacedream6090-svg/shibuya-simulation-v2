@@ -78,6 +78,7 @@ from shibuya.engine import commit as C
 from shibuya.engine import growth_decl as GD
 from shibuya.engine import resolve as R
 from shibuya.engine.activity import ActivityLayer, payload_of
+from shibuya.engine.intent import INTENT_MAX_TICKS, IntentLayer
 from shibuya.engine.arbiter import Arbiter, WakeCandidates, call_budget_per_tick
 from shibuya.engine.change_detect import ChangeDetector
 from shibuya.engine.chooser import DEFAULT_CHOOSER, check_chooser, make_chooser
@@ -210,7 +211,10 @@ DIAG_DAY_ROWS: Final[tuple[str, ...]] = (
 )
 
 
-def _default_mock(seed: int | str, vocab_version: str, move_target_p: float = 0.0) -> Any:
+def _default_mock(
+    seed: int | str, vocab_version: str, move_target_p: float = 0.0,
+    out_of_cell_target_p: float = 0.0,
+) -> Any:
     """``llm`` を注入しないランの既定 mock(``MockLLM``)。**語彙版に語彙を合わせる**。
 
     ``MockLLM`` はプロンプト本文を読まない(=B0 に 13 語目を載せても出力は変わらない)ので、
@@ -226,9 +230,11 @@ def _default_mock(seed: int | str, vocab_version: str, move_target_p: float = 0.
     if str(vocab_version) == "v3":
         # 二層の段 3: 5 ラベル形(行為=11 語+なし の一様・活動・まで・あたり)=``llm.mock``
         # 段 2b: ``move_target_p`` > 0 で移動の対象にカテゴリ語/見えている名を出す(既定 0=不変)
+        # 段 2c: ``out_of_cell_target_p`` > 0 で購入/食事/並ぶの対象に B2 に見える名を出す(既定 0=不変)
         return MockLLM(
             master_seed=seed, vocab=cross_action_words("v3"), form="v3",
             move_target_p=float(move_target_p),
+            out_of_cell_target_p=float(out_of_cell_target_p),
         )
     return MockLLM(master_seed=seed, vocab=cross_action_words(vocab_version))
 
@@ -376,6 +382,12 @@ class RunResult:
     move_search_radius: int = MOVE_SEARCH_RADIUS_CELLS
     #: 段 2b: mock の移動の対象にセル ID/カテゴリ語/見えている名を出す確率(既定 0=不変)。
     mock_move_target_p: float = 0.0
+    #: 段 2c: 意図の保持の計数(``engine.intent.intent_summary``)。層が無いランは空 dict。
+    intent: dict[str, Any] = field(default_factory=dict)
+    #: 段 2c: 意図の上限[tick](``--intent-max-ticks``・宣言 60・感度腕 30/120)。
+    intent_max_ticks: int = INTENT_MAX_TICKS
+    #: 段 2c: mock の購入/食事/並ぶの対象に B2 に見える名を出す確率(既定 0)。
+    mock_out_of_cell_target_p: float = 0.0
     #: 段 2b: 移動の失敗の内訳(``resolve._apply_move``)。
     move_bad_target: int = 0
     move_unreachable: int = 0
@@ -730,6 +742,10 @@ class RunResult:
             "move_resolution": dict(self.move_resolution),
             "move_search_radius": int(self.move_search_radius),
             "mock_move_target_p": float(self.mock_move_target_p),
+            # ---- 段 2c(D-112 ①・D-114 案 A): 意図の保持の計数。列追加のみ ----
+            "intent": dict(self.intent),
+            "intent_max_ticks": int(self.intent_max_ticks),
+            "mock_out_of_cell_target_p": float(self.mock_out_of_cell_target_p),
             "calls_by_condition": dict(self.calls_by_condition),
             "synonym_table_version": _synonym_table_version(self.vocab_version),
             "action_usage": dict(self.action_usage),
@@ -1254,6 +1270,8 @@ def run_day(
     poi_target: str = DEFAULT_POI_TARGET,
     move_search_radius: int = MOVE_SEARCH_RADIUS_CELLS,
     mock_move_target_p: float = 0.0,
+    intent_max_ticks: int = INTENT_MAX_TICKS,
+    mock_out_of_cell_target_p: float = 0.0,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -1454,6 +1472,14 @@ def run_day(
             既定 5)。0 なら近傍探索をしない。
         mock_move_target_p: 既定 mock(語彙 v3)の移動の対象にカテゴリ語か B2 に見えている名を
             出す確率(段 2b の経路を mock で通す腕・既定 0=golden 不変)。
+        intent_max_ticks: **段 2c(意図の保持・D-112 ①・D-114 案 A)** の上限[tick]。購入/食事/
+            並ぶ/会話/就寝の対象が現在セルに無く解決できるとき、行為を意図(SoA 4 欄・既定で確保)に
+            保存して目的地つき移動を始め、着いたら LLM を呼ばずに実行する。歩いてこの tick を
+            超えたら ``TOO_FAR``(宣言 60・expedient・感度腕 30/120)。意図の層は**活動層が立ち
+            (語彙 v3・``activity=True``)かつ ``poi_target="candidates"``** のランだけ働く
+            (v1/v2・``--activity off``・``legacy`` は欄を確保するだけ=挙動は段 2b のまま)。
+        mock_out_of_cell_target_p: 既定 mock(語彙 v3)の購入/食事/並ぶの対象に B2 の「見えるもの」
+            の名(括弧内の店名があればそれ)を出す確率(段 2c の経路を mock で通す腕・既定 0)。
 
     Returns:
         ``RunResult``。
@@ -1517,7 +1543,16 @@ def run_day(
     mock_move_target_p = float(mock_move_target_p)
     if not (0.0 <= mock_move_target_p <= 1.0):
         raise ValueError(f"mock_move_target_p は 0.0〜1.0(いま {mock_move_target_p})")
-    llm = llm if llm is not None else _default_mock(seed, vocab_version, mock_move_target_p)
+    mock_out_of_cell_target_p = float(mock_out_of_cell_target_p)
+    if not (0.0 <= mock_out_of_cell_target_p <= 1.0):
+        raise ValueError(
+            f"mock_out_of_cell_target_p は 0.0〜1.0(いま {mock_out_of_cell_target_p})"
+        )
+    if int(intent_max_ticks) < 1:
+        raise ValueError(f"intent_max_ticks は 1 以上(いま {intent_max_ticks})")
+    llm = llm if llm is not None else _default_mock(
+        seed, vocab_version, mock_move_target_p, mock_out_of_cell_target_p
+    )
     salt = run_salt_for(seed)
     tape_writer = TapeWriter(Path(tape_path)) if tape_path is not None else None
     conv = ConversationManager(seed) if conversations else None
@@ -1765,6 +1800,12 @@ def run_day(
         if activity_on
         else None
     )
+    # ---- 段 2c: 意図の保持(活動層+候補の解決がある=語彙 v3・activity on・candidates) ----
+    intent_layer: IntentLayer | None = (
+        IntentLayer(n_agents, world, max_ticks=int(intent_max_ticks))
+        if (act_layer is not None and poi_resolver is not None)
+        else None
+    )
     #: 発射した呼の起床条件ごとの件数(起床の内訳・満了入口の列を含む)。
     calls_by_cond = np.zeros(N_WAKE_CONDITIONS_ALL, dtype=np.int64)
 
@@ -1956,6 +1997,7 @@ def run_day(
                     move_dest=None if move_dest is None else move_dest[keep],
                     targets=[t for t, k in zip(parsed_targets, keep.tolist()) if k],
                     poi_resolver=poi_resolver,
+                    intent_hold=intent_layer,
                 )
                 # ---- C9b G3/G4: 焦点の要求を 1 本のバッファへ散らす ----
                 if focus_request is not None:
@@ -1982,10 +2024,20 @@ def run_day(
         d_agent, d_cond, d_class = det.candidates()
         # ---- 二層の段 2: 活動中は場所の変化で起こさない+満了入口 ----
         if act_layer is not None:
+            if intent_layer is not None:
+                # 段 2c: 意図を持つ体(歩いている・着いた)は場所の変化で起こさない(件数を数える)
+                d_agent, d_cond, d_class = intent_layer.suppress_wakes(
+                    agents, tick, d_agent, d_cond, d_class
+                )
             d_agent, d_cond, d_class = act_layer.suppress_cell_block(
                 agents, tick, d_agent, d_cond, d_class
             )
             e_agent, e_cond, e_class = act_layer.expiry_candidates(agents, tick)
+            if intent_layer is not None:
+                # 段 2c: 着いた体の到着満了は LLM を呼ばない(エンジンが意図の行為を実行する)
+                e_agent, e_cond, e_class = intent_layer.suppress_wakes(
+                    agents, tick, e_agent, e_cond, e_class
+                )
         else:
             e_agent = np.empty(0, dtype=np.int64)
             e_cond = np.empty(0, dtype=np.int8)
@@ -2298,8 +2350,17 @@ def run_day(
             if act_layer is not None
             else C.IntentBatch.empty()
         )
+        # 段 2c: 着いた体の意図の行為(LLM を呼ばない=System 1・この tick に応答が来た体は除く)
+        # (親決定 Q20: なし/待機/同じ行き先の移動は意図を保つ=着いた体のその応答の行は外して実行)
+        if intent_layer is not None:
+            arrival_intents, llm_intents = intent_layer.arrival_intents(
+                agents, space, tick, llm=llm_intents
+            )
+        else:
+            arrival_intents = C.IntentBatch.empty()
         intents = C.IntentBatch.concat(
-            [llm_intents, wander_intents, C.engine_continuations(agents, space, tick)]
+            [llm_intents, wander_intents, arrival_intents,
+             C.engine_continuations(agents, space, tick)]
             if act_layer is not None
             else [llm_intents, C.engine_continuations(agents, space, tick)]
         ).one_per_agent()
@@ -2472,6 +2533,11 @@ def run_day(
             if applied_activity[0]:
                 act_layer.after_resolve(agents, tick, *applied_activity)
             act_layer.settle_events(agents, tick, conv)
+            if intent_layer is not None:
+                # 段 2c: 実行した意図の結果・意図を立てる・掃除(TOO_FAR・計画境界)
+                intent_layer.after_apply(
+                    agents, tick, act_layer, applied_activity if applied_activity[0] else None
+                )
 
         diag_rows.append(
             (
@@ -2527,7 +2593,15 @@ def run_day(
                     tick, agents.state_hash(), world.state_hash(),
                     schedule.population_hash,
                     schedule_hash,
-                    act_layer.state_hash() if act_layer is not None else "",
+                    (
+                        act_layer.state_hash()
+                        if intent_layer is None
+                        else blake3_hex(
+                            f"{act_layer.state_hash()}\x1f{intent_layer.state_hash()}".encode()
+                        )
+                    )
+                    if act_layer is not None
+                    else "",
                 )
             )
             phase["checkpoint"] += time.perf_counter() - t0
@@ -2708,6 +2782,14 @@ def run_day(
     )
     result.move_search_radius = int(move_search_radius)
     result.mock_move_target_p = float(mock_move_target_p)
+    result.intent = intent_layer.counters() if intent_layer is not None else {}
+    if intent_layer is not None:
+        # B5「いま <行為> のため <対象> へ向かっている」を載せた回数(描画のあるランだけ)
+        _rr = getattr(perception, "renderer", None) if perception is not None else None
+        result.intent["b5_lines"] = int(getattr(_rr, "intent_lines", 0))
+        result.intent["b5_lines_over_budget"] = int(getattr(_rr, "intent_lines_over_budget", 0))
+    result.intent_max_ticks = int(intent_max_ticks)
+    result.mock_out_of_cell_target_p = float(mock_out_of_cell_target_p)
     result.move_resolution = move_resolution_summary(
         poi_resolver.move_stats if poi_resolver is not None else Counter(),
         result.move_bad_target,

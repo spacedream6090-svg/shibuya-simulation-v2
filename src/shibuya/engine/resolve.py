@@ -59,6 +59,8 @@ import numpy as np
 
 from shibuya.agents.state import (
     FOCUS_NONE,
+    INTENT_NONE,
+    IntentKind,
     N_WAKE_CONDITIONS,
     REFRACTORY_MINUTES,
     Activity,
@@ -123,6 +125,13 @@ __all__ = [
     "clear_refractory",
     "set_activity",
     "set_activity_until",
+    # ---- 段 2c 意図の保持(値は engine.intent が決める・書き手は本モジュール) ----
+    "set_intent",
+    "clear_intent",
+    "fail_intent",
+    "relabel_intent_failure",
+    "INTENT_KEEP_ACTIONS",
+    "intent_kept_by",
     "refractory_ticks",
     "wake_condition_index",
     "normalized_refractory_scale",
@@ -216,6 +225,12 @@ _BOARD_KEEP_ACTIONS: Final[tuple[int, ...]] = (ACT_BOARD, ACT_WAIT, ENGINE_STEP,
 #: 就寝の意図(``sleep_pending``)を**保つ**行動(これ以外を選んだら意図は落ちる・D-62)。
 #: 就寝=張り直し / エンジン継続=就寝地へ歩いている途中。
 _SLEEP_KEEP_ACTIONS: Final[tuple[int, ...]] = (ACT_SLEEP, ENGINE_STEP)
+
+#: 段 2c: 意図(``intent_action``)を**保つ**行為(親決定 Q20=ユーザー決定「意図は達成か失敗まで保持」)。
+#: エンジン継続=歩いている途中 / なし・待機=「新しい行為が無い」。これに加えて**行き先が同じ移動**も
+#: 保つ(``intent_kept_by``)。それ以外=世界に触れる行為(購入/食事/並ぶ/会話/乗車/就寝/退去/通報/
+#: 手伝い/断る)と行き先の変わる移動は意図を上書きする(=消す)。
+INTENT_KEEP_ACTIONS: Final[tuple[int, ...]] = (ENGINE_STEP, ACT_NONE, ACT_WAIT)
 
 _REFRACTORY_TICKS: Final[np.ndarray] = np.asarray(REFRACTORY_MINUTES, dtype=np.int32)
 _REFRACTORY_TICKS.flags.writeable = False
@@ -380,6 +395,8 @@ class ResolveOutcome:
     n_meals: int = 0
     #: 食事で店舗へ移った金額[円](``revenue_delta`` の内数)。
     meal_yen: int = 0
+    #: 同じ店への買い手が棚の合計を超えて、支払いの前に OUT_OF_STOCK にした件数(第288 の欠陥修正)。
+    n_buy_over_stock: int = 0
     #: 段 2b: 移動の失敗の内訳(対象不正=行き先が解決できない / 経路なし)。
     n_move_bad_target: int = 0
     n_move_unreachable: int = 0
@@ -820,6 +837,109 @@ def set_activity_until(agents: AgentState, agent_id, until) -> None:
         agents.registry.activity_until[a] = np.asarray(until, dtype=np.int64).astype(np.int32)
 
 
+# ---------------------------------------------------------------- 段 2c 意図の保持
+def _clear_intent_fields(r, a: np.ndarray) -> None:
+    """意図の 4 欄を「なし」に戻す(``writable`` の内側から呼ぶ)。"""
+    r.intent_action[a] = np.int8(INTENT_NONE)
+    r.intent_target[a] = np.int32(-1)
+    r.intent_kind[a] = np.int8(int(IntentKind.NONE))
+    r.intent_since[a] = np.int32(-1)
+
+
+def intent_kept_by(agents: AgentState, world: World, agent_id, code, target) -> np.ndarray:
+    """意図を持つ体に適用する行為が意図を**保つ**か(段 2c・親決定 Q20・**読むだけ**)。
+
+    ``INTENT_KEEP_ACTIONS``(エンジン継続・なし・待機)と、**行き先が同じ移動**(対象セル=いま
+    歩いている目的ノードのセル・着いていれば今いるセル)が真。``engine.intent`` が上書きの件数を
+    数えるのにも同じ 1 本を使う。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    c = np.asarray(code, dtype=np.int64)
+    t = np.asarray(target, dtype=np.int64)
+    keep = np.isin(c, INTENT_KEEP_ACTIONS)
+    mv = c == ACT_MOVE
+    if bool(mv.any()):
+        r = agents.registry
+        tn = np.asarray(r.target_node, dtype=np.int64)[a]
+        node_cell = np.asarray(world.assets.node_cell, dtype=np.int64)
+        cur = np.where(tn >= 0, node_cell[np.maximum(tn, 0)], np.asarray(r.cell, dtype=np.int64)[a])
+        keep = keep | (mv & (t == cur) & (cur >= 0))
+    return keep
+
+
+def set_intent(agents: AgentState, agent_id, action, target, kind, tick: int) -> None:
+    """**意図を立てる**(段 2c・値は ``engine.intent`` が決める)。
+
+    Args:
+        agent_id: 体(重複なし)。
+        action: 保持する行為コード(購入/食事/並ぶ/会話/就寝)。
+        target: 対象(``kind`` で意味が決まる: POI 索引 / 個体 id / セル)。
+        kind: ``IntentKind``。
+        tick: 立てた tick(``intent_since``)。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        r.intent_action[a] = np.asarray(action, dtype=np.int64).astype(np.int8)
+        r.intent_target[a] = np.asarray(target, dtype=np.int64).astype(np.int32)
+        r.intent_kind[a] = np.asarray(kind, dtype=np.int64).astype(np.int8)
+        r.intent_since[a] = np.int32(int(tick))
+
+
+def clear_intent(agents: AgentState, agent_id) -> None:
+    """意図を消す(計画境界・割り込み・経路の行き止まり=段 2c)。結果コードは書かない。"""
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    with agents.writable():
+        _require_thawed(agents)
+        _clear_intent_fields(agents.registry, a)
+
+
+def fail_intent(agents: AgentState, agent_id, code: ResultCode, tick: int) -> None:
+    """意図を**失敗で終える**(段 2c の満了=``TOO_FAR``)。
+
+    直前に試みた行為(B6 の主語)=意図の行為・結果コード=``code``・歩みを止める
+    (``MOVING`` → ``IDLE``・目的ノードを外す)・意図を消す。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        r.last_action[a] = r.intent_action[a]
+        r.last_result[a] = int(code)
+        r.last_result_tick[a] = int(tick)
+        r.fail_streak[a] = np.minimum(r.fail_streak[a].astype(np.int16) + 1, 255).astype(np.uint8)
+        moving = a[r.activity[a] == int(Activity.MOVING)]
+        r.activity[moving] = int(Activity.IDLE)
+        r.target_node[a] = -1
+        _clear_intent_fields(r, a)
+
+
+def relabel_intent_failure(agents: AgentState, agent_id, action=None) -> None:
+    """既に書かれた失敗(移動の ``UNREACHABLE``)の**主語を意図の行為に**して意図を消す(段 2c)。
+
+    ``action`` を渡すとその値を主語にする(意図を立てる前=移動が始められなかった体)。
+    ``None`` なら保持中の ``intent_action``(経路の途中で行き止まり)。結果コードは動かさない。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        if action is None:
+            r.last_action[a] = r.intent_action[a]
+        else:
+            r.last_action[a] = np.asarray(action, dtype=np.int64).astype(np.int8)
+        _clear_intent_fields(r, a)
+
+
 # ---------------------------------------------------------------- 身体の自然変動
 def advance_body(agents: AgentState, tick: int) -> None:
     """内受容 3 変数の自然変動(**C4 の世界過程が入るまでの駆動源**・expedient)。
@@ -964,6 +1084,14 @@ def apply(
                 drop = drop[r.sleep_pending[drop] != 0]
                 if drop.size:
                     r.sleep_pending[drop] = 0
+            # 段 2c: 意図(``intent_action``)も同じ形。**保つ**のはエンジン継続・なし・待機・行き先が
+            # 同じ移動(親決定 Q20)。世界に触れる行為(着いて実行した意図の行為そのものを含む)と
+            # 行き先の変わる移動は意図を消す(実行の成否は ``engine.intent`` が ``last_result`` から数える)。
+            held = np.flatnonzero(r.intent_action[aid] != INTENT_NONE)
+            if held.size:
+                kept = intent_kept_by(agents, world, aid[held], code[held], tgt[held])
+                if not bool(kept.all()):
+                    _clear_intent_fields(r, aid[held[~kept]])
 
         # ---- D-113 ③ 満席の列の捌き(第268): 席が空いた分だけ並んだ順に入れる ----
         # **新しい意図の適用より前**に置く: 先に並んでいた体が空席を取り、この tick に来た
@@ -1008,6 +1136,11 @@ def apply(
                 r.last_action[la[keep]] = lc[keep].astype(np.int8)
             r.last_result[la] = int(ResultCode.LOST_ARBITRATION)
             r.last_result_tick[la] = int(tick)
+            # 段 2c: 落選した体の意図も消す(着いて実行した行為が席を取れなかった=失敗の一種)
+            held = la[keep]
+            held = held[r.intent_action[held] != INTENT_NONE]
+            if held.size:
+                _clear_intent_fields(r, held)
             r.fail_streak[la] = np.minimum(r.fail_streak[la].astype(np.int16) + 1, 255).astype(
                 np.uint8
             )
@@ -1720,6 +1853,24 @@ def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
     D-113 ③ で関数に切り出した(列から席へ入れた体にも同じ完了を使う)。挙動は不変。"""
     r = agents.registry
     led = out.ledger
+    if led is not None and led.goods is not None and buyers.size > 1:
+        # 同じ店への買い手が**棚の合計**(``world.pois.stock``=台帳の写し)を超えたら、超えた分は
+        # **支払いの前に** OUT_OF_STOCK(第288 で見つけた欠陥の修正: 満席の列の捌き
+        # ``_serve_poi_queue`` が棚 1 個の店へ同じ tick に 2 人を入れ、台帳が 2 人から支払いを
+        # 受けたのに品は 1 個しか出ず、1 人ぶんの代金が消えていた=保存則が破れた)。
+        # 超えない限り 1 バイトも変わらない(並び=呼び出し側の順)。
+        order = np.lexsort((np.arange(bought.size), bought))
+        sb = bought[order]
+        starts = np.flatnonzero(np.concatenate(([True], sb[1:] != sb[:-1])))
+        rank = np.arange(sb.size) - np.repeat(starts, np.diff(np.append(starts, sb.size)))
+        fits = np.empty(bought.size, dtype=bool)
+        fits[order] = rank < np.maximum(0, world.pois.stock[sb].astype(np.int64))
+        if not bool(fits.all()):
+            _fail(agents, buyers[~fits], ResultCode.OUT_OF_STOCK, tick, out)
+            out.n_buy_over_stock += int(np.count_nonzero(~fits))
+            buyers, bought, paid = buyers[fits], bought[fits], paid[fits]
+            if buyers.size == 0:
+                return
     n_win = int(buyers.size)
     if led is not None and led.money is not None:
         status = led.money.purchase_many(buyers, bought, paid, tick)
@@ -1897,7 +2048,10 @@ def _apply_wait(agents, world, aid, tgt, tick, out, schedule) -> None:
     遠すぎる対象は焦点にならないが、**待機そのものは成功する**(契約書 §2 共通必須事項③
     「失敗しない行動が常に1つ以上(待機)」を崩さない)。
     """
-    agents.registry.activity[aid] = int(Activity.WAITING)
+    r = agents.registry
+    # 段 2c(親決定 Q20): 意図を持って**歩いている**体の なし/待機 は「新しい行為が無い」=歩みを止めない
+    walking = (r.intent_action[aid] != INTENT_NONE) & (r.activity[aid] == int(Activity.MOVING))
+    r.activity[aid[~walking]] = int(Activity.WAITING)
     _set_focus(agents, world, aid, tick, out, require_near=True)
     _ok(agents, aid, tick, out)
 

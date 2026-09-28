@@ -219,8 +219,10 @@ def test_run_day_records_chooser_and_target_resolution_in_the_manifest():
     m = res.run_manifest_fields()
     assert m["chooser"] == "nearest"
     tr = m["target_resolution"]
+    # 段 2c(第288)で v_intent(意図にした行)と named_out_of_cell_detail が足された
     assert set(tr) == {"i_named", "ii_category", "iii_none", "iv_no_candidate", "attempts",
-                       "iv_by_kind", "chooser_entropy_mean_bits"}
+                       "iv_by_kind", "chooser_entropy_mean_bits", "v_intent",
+                       "named_out_of_cell_detail"}
     assert m["poi_target"] == "candidates"
     assert set(tr["iv_no_candidate"]) == {"bad_target", "not_in_eatery", "closed",
                                           "out_of_stock", "named_out_of_cell"}
@@ -272,10 +274,21 @@ def test_poi_target_switch_values_q13():
 
 
 @pytest.mark.skipif(not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="実世界資産が無い")
-def test_poi_target_legacy_reproduces_the_pre_2a_checkpoints_q13():
-    """親決定 Q13: ``--poi-target legacy`` で段 2a 前の checkpoint(02bd0312・b4ad8140)を再現する。"""
+def test_poi_target_legacy_reproduces_the_pre_2a_checkpoints_q13(monkeypatch):
+    """親決定 Q13: ``--poi-target legacy`` で段 2a 前の checkpoint(02bd0312・b4ad8140)を再現する。
+
+    段 2c(第288)で意図の 4 欄(+10 B/体)が既定で確保され、全 checkpoint が欄のぶん動いた。
+    ``legacy`` では意図の層が働かない(欄を確保するだけ)ので、**欄を混ぜないハッシュ**
+    (``Registry.state_hash(exclude=INTENT_FIELDS)``)で旧値がそのまま出る=挙動は 1 バイトも
+    変わっていない。欄を混ぜた新しい値: v3 ``b3287fa8e93305a5`` / 帰無腕 ``e1c182cbb064aa8b``。
+    """
+    from shibuya.agents.state import INTENT_FIELDS, AgentState
     from shibuya.cli import run as cli_run
 
+    monkeypatch.setattr(
+        AgentState, "state_hash",
+        lambda self: self.registry.state_hash(exclude=INTENT_FIELDS),
+    )
     v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
                  poi_target="legacy")
     assert v3.final_hash.startswith("02bd03126d5f41cb") and int(v3.llm_calls) == 36_460

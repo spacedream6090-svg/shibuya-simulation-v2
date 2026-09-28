@@ -63,9 +63,11 @@ from typing import Callable, ClassVar, Final, Mapping, Sequence
 import numpy as np
 
 from shibuya.agents.state import (
+    INTENT_NONE,
     INTEROCEPTION_FIELDS,
     RESULT_TEXT,
     AgentState,
+    IntentKind,
     ResultCode,
     WakeCondition,
 )
@@ -97,6 +99,12 @@ __all__ = [
     "ACTIVITY_LINE",
     "ACTIVITY_LINE_MAX_TOKENS",
     "activity_line",
+    "INTENT_LINE",
+    "INTENT_LINE_MAX_TOKENS",
+    "INTENT_ACTION_WORDS",
+    "INTENT_BED_WORD",
+    "INTENT_FALLBACK_TARGET",
+    "intent_line",
     "INVITE_REASON",
     "person_word",
     "ACTIVITY_WORDS",
@@ -177,6 +185,8 @@ RESULT_OPTIONS: Final[Mapping[int, tuple[str, str, str]]] = {
     ResultCode.LOST_ARBITRATION: ("待機", "移動", "休憩"),
     ResultCode.UNDEFINED_ACTION: ("移動", "待機", "休憩"),
     ResultCode.BAD_TARGET: ("移動", "待機", "休憩"),
+    # 段 2c: 遠すぎて時間切れ(経路は在る)=経路なしと同じ 3 語
+    ResultCode.TOO_FAR: ("移動", "待機", "休憩"),
 }
 
 
@@ -214,6 +224,35 @@ ACTIVITY_LINE: Final[str] = "[B4b 活動] 近くの人: {items}。"
 ACTIVITY_LINE_MAX_TOKENS: Final[int] = 15
 #: 項目の区切り(アジェンダ §2 の文面「…が<人数>人・…」)。
 ACTIVITY_ITEM_SEPARATOR: Final[str] = "・"
+
+
+#: 段 2c: 意図の 1 行(B5・**テンプレ本体ではない**=``template_sha256`` は不変・アジェンダ §3-2
+#: 「いま <行為> のため <対象> へ向かっている」・文面は自前=expedient)。意図を持つ体だけに出る
+#: (=その体の prompt_hash だけが動く)。
+INTENT_LINE: Final[str] = "[B5 意図] いま{action}のため{target}へ向かっている。"
+#: 1 行の上限[tok](アジェンダ §3-2「≤ 15 tok」)。対象の名を末尾から切り詰めて収める。
+INTENT_LINE_MAX_TOKENS: Final[int] = 15
+#: 行為コード → 語(**語彙 v3 の語**・層契約(perception は llm を import できない)のため字面で持つ
+#: =``llm.contract.ACTION_CODES`` との一致はテストが機械検査する)。
+INTENT_ACTION_WORDS: Final[Mapping[int, str]] = {
+    3: "購入", 24: "食事", 22: "並ぶ", 5: "会話", 11: "就寝",
+}
+#: 寝床(自宅セル)の対象の語。
+INTENT_BED_WORD: Final[str] = "自宅"
+#: 対象の名に省略記法の語(⑥)が入っているときの代わりの語(宣言・expedient)。
+INTENT_FALLBACK_TARGET: Final[str] = "目的の場所"
+
+
+def intent_line(action_word: str, target: str) -> str:
+    """意図の 1 行(``INTENT_LINE_MAX_TOKENS`` に収まるよう対象の名を末尾から切り詰める)。"""
+    t = N.canonical_whitespace(str(target)).strip() or INTENT_FALLBACK_TARGET
+    if any(a in t for a in N.ABBREVIATIONS):
+        t = INTENT_FALLBACK_TARGET
+    line = INTENT_LINE.format(action=action_word, target=t)
+    while ch.estimate_tokens(line) > INTENT_LINE_MAX_TOKENS and len(t) > 1:
+        t = t[:-1]
+        line = INTENT_LINE.format(action=action_word, target=t)
+    return line
 
 
 def activity_line(rows: Sequence[tuple[str, int]]) -> str:
@@ -797,6 +836,9 @@ class Renderer:
         self.cache_misses = 0
         self.renders = 0
         self.truncation_count = 0
+        #: 段 2c: 意図の 1 行を載せた回数 / 個体群の予算で載せなかった回数。
+        self.intent_lines = 0
+        self.intent_lines_over_budget = 0
         #: 注視ゲートの抽選回数(看板のあるセルで p_see<1.0 のときだけ増える)。
         self.signage_gate_draws = 0
         #: そのうち**通った**(看板行を載せた)回数。既定のランでは 0/0。
@@ -956,6 +998,8 @@ class Renderer:
             if ranking
             else self._b5(i, cell, tc, trunc)
         )
+        # 段 2c: 意図を持つ体だけ B5 に「いま <行為> のため <対象> へ向かっている」の 1 行
+        blocks["B5"] = self._with_intent_line(i, blocks["B5"], b6)
         blocks["B6"] = b6
 
         # §2.4 ⑧: B0-B4b に個体依存語が無いこと(機械検査)
@@ -1355,6 +1399,48 @@ class Renderer:
             T.TEMPLATES["B5.watched"].format(n=nw) if nw > 0 else T.TEMPLATES["B5.watched_empty"]
         )
         return N.join_lines(lines).encode("utf-8")
+
+    def _intent_text(self, i: int) -> str:
+        """意図を持つ体の 1 行(持たなければ ``""``)。SoA の意図の欄を読むだけ。"""
+        arrays = self.agents.registry.arrays
+        if "intent_action" not in arrays:
+            return ""
+        code = int(arrays["intent_action"][i])
+        if code == INTENT_NONE:
+            return ""
+        word = INTENT_ACTION_WORDS.get(code)
+        if word is None:
+            return ""
+        kind = int(arrays["intent_kind"][i])
+        tgt = int(arrays["intent_target"][i])
+        if kind in (int(IntentKind.POI_NAMED), int(IntentKind.POI_CATEGORY)):
+            names = self.assets.poi_name
+            target = str(names[tgt]) if 0 <= tgt < len(names) else INTENT_FALLBACK_TARGET
+        elif kind == int(IntentKind.PERSON):
+            target = person_word(tgt)
+        elif kind == int(IntentKind.BED):
+            target = INTENT_BED_WORD
+        else:
+            target = INTENT_FALLBACK_TARGET
+        return intent_line(word, target)
+
+    def _with_intent_line(self, i: int, b5: bytes, b6: bytes) -> bytes:
+        """B5 の「直近」の行の後に意図の行を差し込む(個体群の予算 300 を超えるなら差し込まない)。"""
+        line = self._intent_text(i)
+        if not line:
+            return b5
+        rows = b5.decode("utf-8").split(N.LINE_SEPARATOR)
+        at = next(
+            (k + 1 for k, r in enumerate(rows) if r.startswith("[B5 直近]")), len(rows)
+        )
+        rows.insert(at, line)
+        out = N.join_lines(rows).encode("utf-8")
+        total = ch.estimate_tokens(out.decode("utf-8")) + ch.estimate_tokens(b6.decode("utf-8"))
+        if total > int(T.GROUP_TOKEN_BUDGET["individual"]):
+            self.intent_lines_over_budget += 1
+            return b5
+        self.intent_lines += 1
+        return out
 
     def _nearby(self, i: int, cell: int, tc: _TickCache) -> list[str]:
         """同一セル在席者から近接上位 k(密度逓減)+知人常掲を作る。"""

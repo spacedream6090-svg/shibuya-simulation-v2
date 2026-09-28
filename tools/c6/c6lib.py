@@ -643,6 +643,8 @@ FAILURE_WORD_BY_KIND: Mapping[str, str] = {
     "not_in_eatery": "飲食店にいない",
     # C9 G11(2026-09-17)。``geometry="node"`` のランには 1 件も現れない
     "target_gone": "対象が去った",
+    # 段 2c(2026-09-28)。意図の層が無いラン(v1/v2・--activity off)には 1 件も現れない
+    "too_far": "遠すぎて時間切れ",
 }
 FAILURE_KIND_BY_WORD: Mapping[str, str] = {v: k for k, v in FAILURE_WORD_BY_KIND.items()}
 

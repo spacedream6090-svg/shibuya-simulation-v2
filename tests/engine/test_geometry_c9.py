@@ -102,7 +102,8 @@ def test_result_codes_for_c9_exist_and_are_appended_at_the_end():
     assert int(ResultCode.TARGET_GONE) == 20  # 末尾に足すだけ=既存の配列も描画も動かない
     assert RESULT_TEXT[ResultCode.TARGET_GONE] == "対象が去った"
     assert RESULT_TEXT[ResultCode.TARGET_GONE] != RESULT_TEXT[ResultCode.PARTNER_GONE]
-    assert max(int(c) for c in ResultCode) == int(ResultCode.TARGET_GONE)
+    # 段 2c(第288)で TOO_FAR(21)が末尾に足された=TARGET_GONE の値は 20 のまま
+    assert max(int(c) for c in ResultCode) == int(ResultCode.TOO_FAR) == 21
 
 
 def test_target_gone_is_written_and_rendered_like_any_other_failure():

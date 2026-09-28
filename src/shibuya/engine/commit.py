@@ -610,6 +610,7 @@ def intents_from_responses(
     move_dest: np.ndarray | None = None,
     targets: Sequence[object] | None = None,
     poi_resolver: object | None = None,
+    intent_hold: object | None = None,
 ) -> IntentBatch:
     """Phase A の LLM 由来分: 行動コード → 対象と資源を**エンジンが**決めて intent にする。
 
@@ -653,6 +654,12 @@ def intents_from_responses(
             **段 2b**: 渡すと移動の行き先も対象欄から決める(``TargetResolver.resolve_move``=
             セル ID → 名指し → カテゴリ語の近傍探索 → なし=従来の既定)。対象ヒント home/work/
             school/approach と「あたり」の行は従来どおり(そちらが優先)。
+        intent_hold: **段 2c の意図の層**(``engine.intent.IntentLayer``)。``poi_resolver`` と
+            一緒に渡すと、購入/食事/並ぶ/会話/就寝の対象が**現在セルに無く解決できる**行
+            (名指しの店が見えている・カテゴリの店が近傍にある・会話の相手が別セル・寝床=自宅が
+            別セル)を**目的地つき移動**に変え、元の行為を ``intent_hold.propose`` へ渡す
+            (意図を立てるのは移動が始まった後=``IntentLayer.after_apply``)。``None``(既定)は
+            段 2b と 1 バイトも変わらない。
 
     Returns:
         ``IntentBatch``(1 個体 1 件)。
@@ -739,6 +746,10 @@ def intents_from_responses(
             dest = np.where(md != -1, md, dest)
         target = np.where(is_move, dest, target)
 
+    # ---- 段 2c: 意図の層(``poi_resolver`` と一緒のときだけ)。行 → (対象, 種類) ----
+    hold_on = intent_hold is not None and poi_resolver is not None
+    shop_intents: dict[int, tuple[int, int]] = {}
+
     # ---- 段 2a(D-114 (a)): 購入/食事/並ぶの対象=候補(営業中・意図に合う)→ 選び手 ----
     is_buy = code_out == ACT_BUY
     is_queue = code_out == ACT_QUEUE
@@ -747,7 +758,8 @@ def intents_from_responses(
         buy_like = is_buy | (is_queue & (str(vocab_version) == "v3"))
         if np.any(buy_like | is_eat):
             poi_t = poi_resolver.resolve(  # type: ignore[attr-defined]
-                agents, int(tick), a, code_out, targets, is_eat=is_eat, is_buy_like=buy_like
+                agents, int(tick), a, code_out, targets, is_eat=is_eat, is_buy_like=buy_like,
+                **({"intent_out": shop_intents} if hold_on else {}),
             )
             sel = buy_like | is_eat
             target = np.where(sel, poi_t, target)
@@ -782,6 +794,7 @@ def intents_from_responses(
         )
 
     # 会話: **LLM が名指しした個体**を第一・同セルでなければ同バッチ最小 id(資源=相手)。
+    talk_intents: dict[int, tuple[int, int]] = {}
     is_talk = code_out == ACT_TALK
     if np.any(is_talk):
         # セル内の並びは blake3 撹拌(ID 順バイアス=v1 C-8 を断つ・T5 の監査点)。
@@ -797,8 +810,20 @@ def intents_from_responses(
         resource = np.where(
             is_talk & (partner >= 0), space.partner(np.maximum(partner, 0)), resource
         )
+        talk_far = np.zeros(n, dtype=bool)
+        if hold_on and target_person is not None:
+            # 段 2c: 名指しの相手が**別セル**に居る → その人のセルへ歩いて(着いたら)話しかける
+            nm = np.asarray(target_person, dtype=np.int64)
+            pc_all = np.asarray(agents.registry.cell, dtype=np.int64)
+            ok = is_talk & (nm >= 0) & (nm < int(agents.n)) & (nm != a) & (cell >= 0)
+            pcell = np.where(ok, pc_all[np.clip(nm, 0, max(0, int(agents.n) - 1))], -1)
+            talk_far = ok & (pcell >= 0) & (pcell != cell)
+            if np.any(talk_far):
+                for k in np.flatnonzero(talk_far).tolist():
+                    talk_intents[k] = (int(nm[k]), int(pcell[k]))
         if stats is not None:
-            src = source[is_talk]
+            # 意図にした行(相手が別セル)は由来の計数から外す(manifest ``intent`` の person で数える)
+            src = source[is_talk & ~talk_far]
             stats["talk_named"] = stats.get("talk_named", 0) + int(np.count_nonzero(src == 0))
             stats["talk_fallback"] = stats.get("talk_fallback", 0) + int(
                 np.count_nonzero(src == 1)
@@ -807,10 +832,58 @@ def intents_from_responses(
 
     # 就寝: 寝床=自宅セル(資源=そのセルの就寝スロット)。
     is_sleep = code_out == ACT_SLEEP
+    bed_far = np.zeros(n, dtype=bool)
     if np.any(is_sleep):
         bed = np.asarray(home_cell, dtype=np.int64)[a] if home_cell is not None else cell
         target = np.where(is_sleep, bed, target)
         resource = np.where(is_sleep & (bed >= 0), space.sleep(np.maximum(bed, 0)), resource)
+        if hold_on and home_cell is not None:
+            # 段 2c: 寝床(自宅セル)が**別セル** → 自宅へ歩いて(着いたら)寝る
+            bed_far = is_sleep & (bed >= 0) & (cell >= 0) & (bed != cell)
+            # 親決定 Q22: 計画就寝の意図(``sleep_pending``)が立っている体には立てない(計画が優先)
+            planned = bed_far & (np.asarray(agents.registry.sleep_pending, dtype=np.int64)[a] != 0)
+            if np.any(planned):
+                bed_far = bed_far & ~planned
+                intent_hold.note(  # type: ignore[attr-defined]
+                    "bed_skipped_sleep_pending", int(np.count_nonzero(planned))
+                )
+
+    # ---- 段 2c: セル外の対象を「意図+目的地つき移動」に変える ----
+    if hold_on and (shop_intents or talk_intents or np.any(bed_far)):
+        from shibuya.agents.state import IntentKind  # 局所 import(層は engine>agents で合法)
+
+        poi_cell = np.asarray(world.pois.cell, dtype=np.int64)
+        rows: list[int] = []
+        i_tgt: list[int] = []
+        i_kind: list[int] = []
+        i_dest: list[int] = []
+        for k, (poi, kind) in sorted(shop_intents.items()):
+            rows.append(k)
+            i_tgt.append(int(poi))
+            i_kind.append(int(kind))
+            i_dest.append(int(poi_cell[int(poi)]))
+        for k, (pid, pcell) in sorted(talk_intents.items()):
+            rows.append(k)
+            i_tgt.append(int(pid))
+            i_kind.append(int(IntentKind.PERSON))
+            i_dest.append(int(pcell))
+        if np.any(bed_far):
+            bed_arr = np.asarray(home_cell, dtype=np.int64)[a]
+            for k in np.flatnonzero(bed_far).tolist():
+                rows.append(k)
+                i_tgt.append(int(bed_arr[k]))
+                i_kind.append(int(IntentKind.BED))
+                i_dest.append(int(bed_arr[k]))
+        r_idx = np.asarray(rows, dtype=np.int64)
+        dest_arr = np.asarray(i_dest, dtype=np.int64)
+        intent_hold.propose(  # type: ignore[attr-defined]
+            a[r_idx], code_out[r_idx].astype(np.int64), np.asarray(i_tgt, dtype=np.int64),
+            np.asarray(i_kind, dtype=np.int64), dest_arr,
+        )
+        code_out = code_out.copy()
+        code_out[r_idx] = np.int8(ACT_MOVE)
+        target[r_idx] = dest_arr
+        resource[r_idx] = -1
 
     t0 = tick_start_ns(tick)
     return IntentBatch(

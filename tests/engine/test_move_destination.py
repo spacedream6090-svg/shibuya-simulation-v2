@@ -189,7 +189,9 @@ def test_run_day_records_move_resolution_in_the_manifest():
     assert {"cell", "named", "named_landmark", "category_in_cell", "category_visible",
             "category_nearby", "none_default", "offmap_default", "bad_target",
             "category_distance_m", "category_distance_mean_m", "result_bad_target",
-            "result_unreachable"} == set(mr)
+            "result_unreachable",
+            # 段 2c Q18(第288): 人 ID → その人のいまのセル
+            "person", "person_self"} == set(mr)
     with pytest.raises(ValueError):
         run_day(n_agents=10, seed=1, ticks=2, renderer="stub", mock_move_target_p=1.5)
 

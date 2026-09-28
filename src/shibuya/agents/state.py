@@ -61,6 +61,15 @@ expedient(本モジュール分)
   ``N_WAKE_CONDITIONS``(=不応期表の行数=``refractory_until`` の列数)は **11 のまま**で、
   起床条件の総数は ``N_WAKE_CONDITIONS_ALL``(12)。``activity_until``/``activity_kind``
   (+5 B/体)は ``activity_columns`` のランだけ確保する(``plan_columns`` と同じ形)。
+- **意図の保持(段 2c・D-112 ①・D-114 案 A)**: ``intent_action`` / ``intent_target`` /
+  ``intent_kind`` / ``intent_since``(+10 B/体)は**既定で確保する**(D-112 ② で既定 checkpoint は
+  動くと決まっている=腕にしない)。購入/食事/並ぶ/会話/就寝の対象が現在セルに無く解決できるとき、
+  エンジンは行為をここに保存して目的地つき移動を始め、着いたら LLM を呼ばずに実行する
+  (乗車の意図 ``board_line``・就寝の意図 ``sleep_pending`` と同じ「判断 1 回・実行は世界」の形)。
+  値を決めるのは ``engine.intent``・書き手は ``engine.resolve`` だけ。
+- ``ResultCode.TOO_FAR``(21)は**段 2c** で足した失敗コード(D-122 P6 の先取り)。「経路は在るが
+  ``INTENT_MAX_TICKS`` のうちに着かなかった」= 時間予算超え。経路が無い ``UNREACHABLE``(1)と
+  分ける。**値は末尾に足すだけ**なので既存の配列も描画も動かない。
 """
 
 from __future__ import annotations
@@ -91,6 +100,9 @@ __all__ = [
     "N_WAKE_CONDITIONS_ALL",
     "ActivityKind",
     "ACTIVITY_UNTIL_NONE",
+    "IntentKind",
+    "INTENT_NONE",
+    "INTENT_FIELDS",
     "REFRACTORY_MINUTES",
     "WAKE_CONDITION_CLASS",
     "RESULT_TEXT",
@@ -211,6 +223,7 @@ class ResultCode(IntEnum):
     INSUFFICIENT_ABILITY = 18  # 能力不足(手伝い・行動契約書 §2.1)
     NOT_IN_EATERY = 19  # 飲食店にいない(語彙 v2「食事」・D-71 §3 E)
     TARGET_GONE = 20  # 対象が去った(C9 G11・最後に見た位置へ着いても居なかった)
+    TOO_FAR = 21  # 遠すぎて時間切れ(段 2c・経路は在るが意図の上限 tick のうちに着かなかった)
 
 
 #: 契約書の文言(「直前の結果」の 50 tok 欄で使う短句)。
@@ -236,6 +249,7 @@ RESULT_TEXT: Final[dict[int, str]] = {
     ResultCode.INSUFFICIENT_ABILITY: "能力不足",
     ResultCode.NOT_IN_EATERY: "飲食店にいない",
     ResultCode.TARGET_GONE: "対象が去った",
+    ResultCode.TOO_FAR: "遠すぎて時間切れ",
 }
 
 
@@ -313,6 +327,25 @@ class ActivityKind(IntEnum):
 
 #: ``activity_until`` の「活動なし」。
 ACTIVITY_UNTIL_NONE: Final[int] = -1
+
+
+class IntentKind(IntEnum):
+    """意図の対象の種類(``intent_kind``・段 2c)。``intent_target`` の意味を決める。"""
+
+    NONE = 0  # 意図なし
+    POI_NAMED = 1  # 名指しの店(``intent_target``=POI 索引)
+    POI_CATEGORY = 2  # カテゴリ語で近傍から選んだ店(``intent_target``=POI 索引)
+    PERSON = 3  # 会話の相手(``intent_target``=個体 id)
+    BED = 4  # 寝床(``intent_target``=自宅セル)
+
+
+#: ``intent_action`` の「意図なし」(行動コードと衝突しない負値)。
+INTENT_NONE: Final[int] = -1
+#: 意図の 4 欄(段 2c)。``Registry.state_hash(exclude=INTENT_FIELDS)`` で「欄を足す前」の
+#: checkpoint と挙動が同じことを確かめる(監査用)。
+INTENT_FIELDS: Final[tuple[str, ...]] = (
+    "intent_action", "intent_target", "intent_kind", "intent_since",
+)
 
 #: 内受容 3 変数の並び(``<名前>_stage`` フィールドの順序)。
 INTEROCEPTION_FIELDS: Final[tuple[str, ...]] = ("hunger", "fatigue", "thermal")
@@ -455,6 +488,17 @@ class AgentState:
         r.declare("sleep_pending", np.int8, byte_budget_per_agent=1, mechanism=True,
                   doc="計画(W17)の就寝境界に達したが就寝地に居ない=1 / 0=なし。"
                       "着いた時点で世界が寝かせる(登録簿 §8 D-62・乗車の意図保持と同じ形)")
+        # ---- 意図の保持(段 2c・D-112 ①・D-114 案 A・**既定で確保**・+10 B/体) ----
+        r.declare("intent_action", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="保持している行為コード(購入/食事/並ぶ/会話/就寝・-1=意図なし)。"
+                      "対象が現在セルに無く解決できるとき、エンジンが保存して目的地へ歩かせ、"
+                      "着いたら LLM を呼ばずに実行する(段 2c)")
+        r.declare("intent_target", np.int32, byte_budget_per_agent=4, mechanism=True,
+                  doc="意図の対象(intent_kind で意味が決まる: POI 索引 / 個体 id / セル・-1=なし)")
+        r.declare("intent_kind", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="IntentKind(0 なし / 1 名指しの店 / 2 カテゴリの店 / 3 人 / 4 寝床)")
+        r.declare("intent_since", np.int32, byte_budget_per_agent=4, mechanism=False,
+                  doc="意図を立てた tick(-1=なし)。INTENT_MAX_TICKS 超過で TOO_FAR・expedient")
         # ---- 屋内占有・待ち行列(C4 混雑場・16行表 行2) ----
         r.declare("poi_ref", np.int32, byte_budget_per_agent=4, mechanism=False,
                   doc="在席中の POI 索引(-1=なし)。屋内占有の集約に使う(席数換算は expedient)")
@@ -508,6 +552,9 @@ class AgentState:
         self.registry.transit_ref[:] = -1
         self.registry.board_line[:] = -1
         self.registry.board_since[:] = -1
+        self.registry.intent_action[:] = INTENT_NONE
+        self.registry.intent_target[:] = -1
+        self.registry.intent_since[:] = -1
         self.registry.poi_ref[:] = -1
         self.registry.poi_since[:] = -1
         self.registry.queue_poi[:] = -1

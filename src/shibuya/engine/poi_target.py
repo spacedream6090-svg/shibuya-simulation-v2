@@ -34,7 +34,20 @@
 → 選び手で 1 件 → そのセル)→ **なし/説明語**(``-1``=従来の既定=職場/自宅のうち今いない方を**保つ**・
 宣言)。解決できない対象(存在しないセル ID・近傍に候補の無いカテゴリ)は ``MOVE_BAD_TARGET``
 (``resolve._apply_move`` が ``BAD_TARGET``)=「経路なし」(``UNREACHABLE``)と分ける。
-計数は manifest ``move_resolution``。
+計数は manifest ``move_resolution``。**段 2c の Q18**: 対象欄が**人 ID**(``P-17``)なら、その人の
+**いまのセル**へ(自分なら今いるセル=動かない・域外/存在しない人は ``MOVE_BAD_TARGET``)。
+2 m の「近づく」(C9b・対象ヒント approach)は従来どおり別の経路。
+
+**段 2c(意図の保持・D-112 ①・D-114 案 A)** :meth:`TargetResolver.resolve` に ``intent_out`` を渡すと、
+購入/食事/並ぶの対象が**現在セルに無く解決できる**行を「意図」として返す(対象 ``-1`` のまま・
+``intent_out[行] = (POI, IntentKind)``): (i) **名指し**が現在セルに無い → 名指しの店のうち**意図に合い**
+(食事=飲食店・購入/並ぶ=店舗系)**いまのセルから見える**(W8=B2 の可視物)もの → **営業中 ∧(購入は)
+在庫あり**(2a の候補の絞り込みと同じ・親決定 Q21)を選び手で 1 件。見える店が全部閉店なら歩かずに
+その代表 1 件を返す(``CLOSED`` を即時に)・開いているが全部在庫切れなら同じく ``OUT_OF_STOCK``
+(着いたときに閉まっていた=途中で閉店、だけが到着時の ``CLOSED``)/ (ii) **カテゴリ語**で現在セルに営業中の
+候補(購入は在庫も)が無い → 2b と同じ近傍探索(W8 で見えている POI → ``cell_dist`` の近いセル R 個)で
+営業中・意図に合う・(購入は)在庫ありの店 → 選び手で 1 件。「なし」の対象は意図にしない(どこへ
+行くかを言っていない)。``intent_out`` を渡さない呼び方(既定)は段 2a/2b と 1 バイトも変わらない。
 
 expedient(宣言)
 - :data:`CATEGORY_WORDS`(対象欄の語 → W6 の cat/subcat)=**対応表 v0(第286・宣言)**。親決定
@@ -59,6 +72,7 @@ from typing import Any, Final, Sequence
 
 import numpy as np
 
+from shibuya.agents.state import IntentKind
 from shibuya.engine.chooser import ChoiceContext, Chooser, draw_index, entropy_bits
 from shibuya.engine.commit import WANDER_BAD_TARGET
 from shibuya.world.assets import BAND_CODES, SYNTHETIC_POI_CATS
@@ -354,6 +368,7 @@ class TargetResolver:
         *,
         is_eat: np.ndarray,
         is_buy_like: np.ndarray,
+        intent_out: dict[int, tuple[int, int]] | None = None,
     ) -> np.ndarray:
         """購入/食事/並ぶの体 → 対象 POI(候補 0 は理由どおりの代表か ``-1``)。
 
@@ -362,6 +377,10 @@ class TargetResolver:
             targets: 体ごとの対象(``Target`` か ``None``)。``None`` なら全員「なし」。
             is_eat: 食事の行(候補=``eatery_mask``)。
             is_buy_like: 購入と並ぶの行(候補=``BUYABLE_CATS`` の POI)。
+            intent_out: **段 2c**。渡すと、対象が現在セルに無く解決できる行(名指しの店が
+                見えている・カテゴリの店が近傍にある)を ``intent_out[行] = (POI, IntentKind)`` に
+                入れ、その行の戻り値は ``-1`` のまま(呼び側が目的地つき移動に変える)。
+                ``None``(既定)は段 2a と同じ。
 
         逐次ループ宣言(P4): **購入/食事/並ぶの呼の数**ぶん(tick あたり数件〜数十件)。
         """
@@ -386,9 +405,23 @@ class TargetResolver:
             kind, text, named, cat_word = self.classify(tg)
             self.stats[f"attempts:{kind}"] += 1
             base = self.pois_in_cell(cell)
+            code = int(action_code[k])
             if kind == KIND_NAMED:
                 cand_all = base[np.isin(base, np.asarray(named, dtype=np.int64))]
                 if cand_all.size == 0:
+                    if intent_out is not None:
+                        pick, rep_poi, why = self._named_elsewhere(
+                            named, cell, eat, aid, tick, text, reg, code, open_now, stock_ok
+                        )
+                        if pick >= 0:
+                            intent_out[k] = (pick, int(IntentKind.POI_NAMED))
+                            self.stats["intent:named"] += 1
+                            continue
+                        if rep_poi >= 0:
+                            # Q21: 見える名指しの店が閉店/在庫切れ=歩かずに即時の失敗(代表 1 件)
+                            self._no_candidate(kind, why)
+                            out[k] = rep_poi
+                            continue
                     self._no_candidate(kind, "named_out_of_cell")
                     continue
             else:
@@ -399,11 +432,22 @@ class TargetResolver:
                 cand_all = cand_all[eatery[cand_all]]
             else:  # 購入/並ぶ: 店舗系 cat だけ(Q12)
                 cand_all = cand_all[self._buyable[cand_all]]
+            elsewhere = intent_out is not None and kind == KIND_CATEGORY
             if cand_all.size == 0:
+                if elsewhere and self._category_elsewhere(
+                    intent_out, k, cat_word, cell, eat, open_now, stock_ok, eatery, aid, tick,
+                    text, reg, code,
+                ):
+                    continue
                 self._no_candidate(kind, "not_in_eatery" if eat else "bad_target")
                 continue
             is_open = cand_all[open_now[cand_all]]
             if is_open.size == 0:
+                if elsewhere and self._category_elsewhere(
+                    intent_out, k, cat_word, cell, eat, open_now, stock_ok, eatery, aid, tick,
+                    text, reg, code,
+                ):
+                    continue
                 self._no_candidate(kind, "closed")
                 out[k] = int(self._order(cand_all)[0])
                 continue
@@ -412,6 +456,11 @@ class TargetResolver:
             else:  # 購入/並ぶ: 飲食店以外は棚在庫が要る(並ぶ→食事は在庫を見ない)
                 cands = is_open[stock_ok[is_open] | eatery[is_open]]
                 if cands.size == 0:
+                    if elsewhere and self._category_elsewhere(
+                        intent_out, k, cat_word, cell, eat, open_now, stock_ok, eatery, aid, tick,
+                        text, reg, code,
+                    ):
+                        continue
                     self._no_candidate(kind, "out_of_stock")
                     out[k] = int(self._order(is_open)[0])
                     continue
@@ -436,6 +485,92 @@ class TargetResolver:
             self.entropy_sum += entropy_bits(p)
         return out
 
+
+    # ------------------------------------------------------------------ 段 2c: セル外の対象
+    def _named_elsewhere(self, named: Sequence[int], cell: int, eat: bool, aid: int, tick: int,
+                         text: str, reg: Any, code: int, open_now: np.ndarray,
+                         stock_ok: np.ndarray) -> tuple[int, int, str]:
+        """名指しの店が現在セルに無いとき、**意図に合い・見えて・営業中(購入は在庫あり)**の 1 件。
+
+        見える=W8 の可視物(``World.visible_pois(cell)``=B2 の「見えるもの」の材料)。営業中・在庫は
+        2a の候補の絞り込みと同じ(親決定 Q21)。落ちた理由を ``named_out_of_cell:*`` に数える。
+
+        Returns:
+            ``(選んだ POI, 代表, 理由)``。選べたら ``(POI, -1, "")``。見える店が全部閉店なら
+            ``(-1, 代表, "closed")``・全部在庫切れなら ``(-1, 代表, "out_of_stock")``(歩かずに即時の
+            失敗)。見えない・意図に合わない・域外は ``(-1, -1, 理由)``(段 2a の ``named_out_of_cell``)。
+        """
+        w = self.world
+        poi_cell = np.asarray(w.pois.cell, dtype=np.int64)
+        n_cells = int(w.n_cells)
+        cands = np.asarray(named, dtype=np.int64)
+        cands = cands[(poi_cell[cands] >= 0) & (poi_cell[cands] < n_cells)]
+        if cands.size == 0:
+            self.stats["named_out_of_cell:offmap"] += 1
+            return -1, -1, "offmap"
+        eatery = np.asarray(w.eatery_mask, dtype=bool)
+        fit = eatery if eat else self._buyable
+        cands = cands[fit[cands]]
+        if cands.size == 0:
+            self.stats["named_out_of_cell:not_fit"] += 1
+            return -1, -1, "not_fit"
+        vp, _vn = w.visible_pois(cell)
+        cands = cands[np.isin(cands, vp)] if vp.size else cands[:0]
+        if cands.size == 0:
+            self.stats["named_out_of_cell:not_visible"] += 1
+            return -1, -1, "not_visible"
+        is_open = cands[open_now[cands]]
+        if is_open.size == 0:
+            self.stats["named_out_of_cell:closed"] += 1
+            return -1, int(self._order(cands)[0]), "closed"
+        ok = is_open if eat else is_open[stock_ok[is_open] | eatery[is_open]]
+        if ok.size == 0:
+            self.stats["named_out_of_cell:out_of_stock"] += 1
+            return -1, int(self._order(is_open)[0]), "out_of_stock"
+        vis_own = np.asarray(w.poi_visibility, dtype=np.int64)
+        return self._pick(ok, vis_own[ok], cell, aid, tick, KIND_NAMED, text, reg, code), -1, ""
+
+    def _category_elsewhere(self, intent_out: dict[int, tuple[int, int]], k: int, cat_word: str,
+                            cell: int, eat: bool, open_now: np.ndarray, stock_ok: np.ndarray,
+                            eatery: np.ndarray, aid: int, tick: int, text: str, reg: Any,
+                            code: int) -> bool:
+        """カテゴリの店が現在セルに無い(営業中・意図に合う・在庫)とき、近傍から 1 件選べたら意図にする。"""
+        fit = eatery if eat else (self._buyable & (stock_ok | eatery))
+        mask = self._category_mask(cat_word) & open_now & fit
+        pick, _where = self._nearby_pick(cell, mask, aid, tick, KIND_CATEGORY, text, reg, code)
+        if pick < 0:
+            self.stats["intent_miss:category_none_nearby"] += 1
+            return False
+        intent_out[k] = (pick, int(IntentKind.POI_CATEGORY))
+        self.stats["intent:category"] += 1
+        return True
+
+    def _nearby_pick(self, cell: int, mask: np.ndarray, aid: int, tick: int, kind: str,
+                     text: str, reg: Any, code: int) -> tuple[int, str]:
+        """段 2b の近傍探索(W8 で見えている POI → ``cell_dist`` の近いセル R 個)の本体。
+
+        Returns:
+            ``(POI, "visible"|"nearby")``。見つからなければ ``(-1, "")``。現在セルは見ない
+            (呼び側が先に見る)。段 2b の ``resolve_move`` と段 2c の意図が同じ 1 本を使う。
+        """
+        w = self.world
+        vp, vn = w.visible_pois(cell)
+        sel = mask[vp] if vp.size else np.zeros(0, dtype=bool)
+        if np.any(sel):
+            return self._pick(vp[sel], vn[sel], cell, aid, tick, kind, text, reg, code), "visible"
+        if self.move_search_radius > 0:
+            n_cells = int(w.n_cells)
+            vis_own = np.asarray(w.poi_visibility, dtype=np.int64)
+            row = np.asarray(w.assets.cell_dist[cell], dtype=np.int64)
+            order = np.lexsort((np.arange(n_cells), row))
+            order = order[order != cell][: int(self.move_search_radius)]
+            for nc in order.tolist():  # 逐次: 近いセル R 個まで
+                cands = self.pois_in_cell(int(nc))
+                cands = cands[mask[cands]]
+                if cands.size:
+                    return self._pick(cands, vis_own[cands], cell, aid, tick, kind, text, reg,
+                                      code), "nearby"
+        return -1, ""
 
     # ------------------------------------------------------------------ 段 2b: 移動の行き先
     def cell_of_target(self, target: Any) -> int | None:
@@ -500,6 +635,23 @@ class TargetResolver:
             if cell < 0:  # 域外の体は従来の既定のまま(行き先の既定は計画・自宅/職場)
                 ms["offmap_default"] += 1
                 continue
+            if tg is not None and getattr(getattr(tg, "kind", None), "name", "") == "PERSON":
+                # 段 2c Q18: 人 ID → その人の**いまのセル**(2 m の「近づく」は対象ヒントの経路)
+                pid = getattr(tg, "person_id", None)
+                pcell = np.asarray(reg.cell)
+                if pid is None or not (0 <= int(pid) < pcell.size):
+                    ms["bad_target:person_unknown"] += 1
+                    out[k] = MOVE_BAD_TARGET
+                elif int(pid) == aid:
+                    ms["person_self"] += 1
+                    out[k] = cell
+                elif int(pcell[int(pid)]) < 0:
+                    ms["bad_target:person_offmap"] += 1
+                    out[k] = MOVE_BAD_TARGET
+                else:
+                    ms["person"] += 1
+                    out[k] = int(pcell[int(pid)])
+                continue
             c = self.cell_of_target(tg)
             if c is not None:                                   # セル ID
                 if c < 0:
@@ -532,32 +684,12 @@ class TargetResolver:
                     ms["category_in_cell"] += 1
                     out[k] = cell
                     continue
-                vp, vn = w.visible_pois(cell)
-                sel = mask[vp] if vp.size else np.zeros(0, dtype=bool)
-                if np.any(sel):
-                    pick = self._pick(vp[sel], vn[sel], cell, aid, tick, kind, text, reg, code)
-                    ms["category_visible"] += 1
+                pick, where = self._nearby_pick(cell, mask, aid, tick, kind, text, reg, code)
+                if pick >= 0:
+                    ms["category_visible" if where == "visible" else "category_nearby"] += 1
                     self._record_dist(int(cell_dist[cell, poi_cell[pick]]))
                     out[k] = int(poi_cell[pick])
                     continue
-                if self.move_search_radius > 0:
-                    row = np.asarray(cell_dist[cell], dtype=np.int64)
-                    order = np.lexsort((np.arange(n_cells), row))
-                    order = order[order != cell][: int(self.move_search_radius)]
-                    found = False
-                    for nc in order.tolist():  # 逐次: 近いセル R 個まで
-                        cands = self.pois_in_cell(int(nc))
-                        cands = cands[mask[cands]]
-                        if cands.size:
-                            pick = self._pick(cands, vis_own[cands], cell, aid, tick, kind, text,
-                                              reg, code)
-                            ms["category_nearby"] += 1
-                            self._record_dist(int(cell_dist[cell, poi_cell[pick]]))
-                            out[k] = int(poi_cell[pick])
-                            found = True
-                            break
-                    if found:
-                        continue
                 ms["bad_target:category_none_nearby"] += 1
                 out[k] = MOVE_BAD_TARGET
                 continue
@@ -588,9 +720,13 @@ def move_resolution_summary(ms: Counter, n_bad_target: int = 0, n_unreachable: i
         "category_nearby": int(ms.get("category_nearby", 0)),
         "none_default": int(ms.get("none_default", 0)),
         "offmap_default": int(ms.get("offmap_default", 0)),
+        # 段 2c Q18: 人 ID → その人のいまのセル(自分=今いるセル)
+        "person": int(ms.get("person", 0)),
+        "person_self": int(ms.get("person_self", 0)),
         "bad_target": {
             r: int(ms.get(f"bad_target:{r}", 0))
-            for r in ("cell_unknown", "named_offmap", "category_none_nearby")
+            for r in ("cell_unknown", "named_offmap", "category_none_nearby",
+                      "person_unknown", "person_offmap")
         },
         "category_distance_m": {lab: int(ms.get(f"dist:{lab}", 0)) for lab in labels},
         "category_distance_mean_m": round(int(ms.get("dist_sum_m", 0)) / n, 1) if n else 0.0,
@@ -615,4 +751,15 @@ def resolution_summary(stats: Counter, entropy_sum: float) -> dict[str, Any]:
             for k in (KIND_NAMED, KIND_CATEGORY, KIND_NONE)
         },
         "chooser_entropy_mean_bits": round(entropy_sum / decisions, 6) if decisions else 0.0,
+        # 段 2c: 対象が現在セルに無く解決できた行(=意図にした)と、名指しがセル外で意図にも
+        # ならなかった内訳(域外・意図に合わない・見えない)。意図の層が無いランでは全部 0。
+        "v_intent": {
+            "named": int(stats.get("intent:named", 0)),
+            "category": int(stats.get("intent:category", 0)),
+            "category_none_nearby": int(stats.get("intent_miss:category_none_nearby", 0)),
+        },
+        "named_out_of_cell_detail": {
+            r: int(stats.get(f"named_out_of_cell:{r}", 0))
+            for r in ("offmap", "not_fit", "not_visible", "closed", "out_of_stock")
+        },
     }

@@ -23,10 +23,15 @@ expedient
   (二層の実装アジェンダ §3)。**行為の分布の錨は D-119 の古典モデルが来るまでの繋ぎ**(expedient)。
   乱数は同じストリームから 6 語引く(v1/v2 の ``form="v1"`` は従来どおり 3 語=**1 バイトも
   変わらない**)。
+- **段 2c の腕** ``out_of_cell_target_p``(既定 0): 購入/食事/並ぶの対象を確率 p で B2 の「見えるもの:」の
+  項目にする(括弧内の店名があればそれだけ=W15 の静的文「飲食店(pioppino)」の形・無ければ項目から
+  「の店頭」を外した語)。**mock は世界を読まないのでセル内の店も混じる**(セル外の見える店だけが意図に
+  なる)。別の乱数列から引く=p=0 は 1 バイトも変わらない。
 """
 
 from __future__ import annotations
 
+import re
 from typing import Any, Final
 
 from shibuya.core.rng import stream
@@ -51,6 +56,7 @@ __all__ = [
     "MOCK_UNTILS_V3",
     "MOCK_UNTILS_V3_MOVE",
     "MOCK_WANDER_ONE_IN",
+    "MOCK_SHOP_WORDS",
     "MockLLM",
     "TapeLLM",
 ]
@@ -96,6 +102,12 @@ MOCK_MOVE_TARGET_WORDS: Final[tuple[str, ...]] = ("飲食店", "物販店", "コ
 #: 段 2b の対象を引く乱数の用途名(既存の列と別にする=``move_target_p=0`` の既定は 1 バイトも変わらない)。
 _MOVE_TARGET_DOMAIN_SUFFIX: Final[str] = ".move_target"
 _VISIBLE_PREFIX: Final[str] = "見えるもの:"
+#: 段 2c: ``out_of_cell_target_p`` のときに対象を差し替える行為(購入/食事/並ぶ)。
+MOCK_SHOP_WORDS: Final[tuple[str, ...]] = ("購入", "食事", "並ぶ")
+#: 段 2c の対象を引く乱数の用途名(既存の列と別にする=``out_of_cell_target_p=0`` は 1 バイトも変わらない)。
+_SHOP_TARGET_DOMAIN_SUFFIX: Final[str] = ".out_of_cell_target"
+#: 「見えるもの」の項目の括弧内(店名)。
+_PAREN_NAME: Final[re.Pattern[str]] = re.compile(r"[((]([^()()]+)[))]")
 
 
 class MockLLM:
@@ -122,6 +134,7 @@ class MockLLM:
         form: str = "v1",
         activities: tuple[str, ...] = MOCK_ACTIVITIES_V3,
         move_target_p: float = 0.0,
+        out_of_cell_target_p: float = 0.0,
     ) -> None:
         if not vocab:
             raise ValueError("vocab が空")
@@ -131,6 +144,8 @@ class MockLLM:
             raise ValueError("activities が空")
         if not (0.0 <= float(move_target_p) <= 1.0):
             raise ValueError("move_target_p は 0.0〜1.0")
+        if not (0.0 <= float(out_of_cell_target_p) <= 1.0):
+            raise ValueError("out_of_cell_target_p は 0.0〜1.0")
         self.master_seed = master_seed
         self.domain = domain
         self.vocab = tuple(vocab)
@@ -141,6 +156,8 @@ class MockLLM:
         #: 段 2b: 語彙 v3 の移動(「あたり」でない行)の対象にカテゴリ語か見えている名を出す確率。
         #: 既定 0=従来どおり(対象=なし)。別の乱数列から引く=既存の 6 語は動かない。
         self.move_target_p = float(move_target_p)
+        #: 段 2c: 語彙 v3 の購入/食事/並ぶの対象に B2 の「見えるもの」の名を出す確率(既定 0)。
+        self.out_of_cell_target_p = float(out_of_cell_target_p)
         self.n_calls = 0
 
     def _stream(self, request: LLMRequest):
@@ -185,6 +202,8 @@ class MockLLM:
             target = TARGET_WANDER
         elif action == _MOVE_WORD and self.move_target_p > 0.0:
             target = self._move_target(request, target)
+        elif action in MOCK_SHOP_WORDS and self.out_of_cell_target_p > 0.0:
+            target = self._shop_target(request, target)
         activity = self.activities[e % len(self.activities)]
         untils = MOCK_UNTILS_V3_MOVE if action == _MOVE_WORD else MOCK_UNTILS_V3
         until = untils[f % len(untils)]
@@ -205,6 +224,31 @@ class MockLLM:
                 words += [s.strip() for s in items.split("、") if s.strip() and s.strip() != "なし"]
                 break
         return words[pick % len(words)]
+
+    def _shop_target(self, request: LLMRequest, default: str) -> str:
+        """段 2c: 確率 ``out_of_cell_target_p`` で、B2 に見えている名を購入/食事/並ぶの対象にする。"""
+        draw_index = int(request.wake_class) - int(EventClass.INSTITUTION)
+        g = stream(self.master_seed, self.domain + _SHOP_TARGET_DOMAIN_SUFFIX,
+                   int(request.tick), int(request.agent_id), draw_index)
+        u, pick = float(g.random()), int(g.integers(0, 1 << 31))
+        if u >= self.out_of_cell_target_p:
+            return default
+        names: list[str] = []
+        for line in str(request.prompt).splitlines():
+            if _VISIBLE_PREFIX in line:
+                body = line.split(_VISIBLE_PREFIX, 1)[1].strip().rstrip("。")
+                names = [m.strip() for m in _PAREN_NAME.findall(body) if m.strip()]
+                if not names:
+                    for item in body.split("、"):
+                        w = item.strip()
+                        if w.endswith("の店頭"):
+                            w = w[: -len("の店頭")]
+                        if w and w != "なし":
+                            names.append(w)
+                break
+        if not names:
+            return default
+        return names[pick % len(names)]
 
     def render(self, request: LLMRequest) -> str:
         """応答本文(2行形)を作る(副作用なし)。``form="v3"`` は 5 ラベル形。"""
