@@ -27,6 +27,7 @@ engine は economy を import できない(層契約: economy > engine)。世界
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import json
 import warnings
 from pathlib import Path
@@ -112,6 +113,7 @@ __all__ = [
     "CLI_DEFAULT_L4_SCALE",
     "CLI_DEFAULT_HUNGER_MODEL",
     "fleet_queue_note",
+    "apply_fleet_queue_default",
     "STORE_ENTRY_CAPITAL_YEN",
     "WALLET_DOMAIN",
     "parse_refractory_scale",
@@ -326,11 +328,12 @@ def write_census_files(ledger, goods, day: int, out_dir: str | Path) -> tuple[st
 
 
 def fleet_queue_note(fleet: Any, l4_scale: float, n_agents: int) -> str:
-    """艦隊 × 無制限で受理待ち枠が未指定なら注記の文(それ以外は ``""``・D-55)。
+    """艦隊 × 無制限で受理待ち枠が未指定かつ体数より小さいなら注記の文(それ以外は ``""``・D-55)。
 
     無制限(``l4_scale=0``)では 1 tick の呼数の上限が体数になる。艦隊の受理待ち+実行中の枠
     (``FleetConfig.queue_capacity``・既定 ``max_in_flight×4``)がそれより小さいと、あふれた呼は
-    繰り延べになる(C7 D-55/D-58)。挙動は変えない(注記と警告だけ)。
+    繰り延べになる(C7 D-55/D-58)。**第289 Q28 以降、``cli.run`` はこの場合 ``apply_fleet_queue_default``
+    で枠の既定を体数にする**ので、注記が要るのは枠を直せなかった(``config`` を持たない)艦隊だけ。
     """
     if fleet is None or float(l4_scale) != 0.0:
         return ""
@@ -338,11 +341,40 @@ def fleet_queue_note(fleet: Any, l4_scale: float, n_agents: int) -> str:
     if cfg is None or getattr(cfg, "queue_capacity", None) is not None:
         return ""
     cap = getattr(fleet, "queue_capacity", None)
+    if cap is not None and int(cap) >= int(n_agents):
+        return ""  # 既定の枠が体数以上=繰り延べは起きない
     return (
         "艦隊 × 呼数無制限(--l4-scale 0)で --fleet-queue-capacity が未指定: 受理待ち枠は既定 "
         f"{cap}(max_in_flight×4)。1 tick の呼数の上限は体数 {int(n_agents):,} なので、枠を超えた"
         "呼は繰り延べになる(D-55)。繰り延べ 0 には計画呼数以上の --fleet-queue-capacity を渡す"
     )
+
+
+def apply_fleet_queue_default(fleet: Any, l4_scale: float, n_agents: int) -> int | None:
+    """第289 Q28(D-55): 艦隊 × 呼数無制限 × 受理待ち枠 未指定 → 枠の既定を**体数**にする。
+
+    無制限では 1 tick の呼数の上限が体数なので、枠 = 体数なら受理待ちあふれの繰り延べは 0 になる
+    (C7 D-58 は計画呼数以上の ``--fleet-queue-capacity`` を手で渡していた)。既定の枠
+    (``max_in_flight×4``)が既に体数以上なら**狭めない**(何もしない)。明示した枠・上限ありのラン・
+    mock(艦隊なし)は変えない。枠を変えたら ``FleetConfig`` を差し替え(manifest の ``llm_fleet.queue_capacity``
+    に載る)、クライアントの ``queue_capacity`` も揃える。返り値=設定した枠(変えなければ ``None``)。
+    同期の経路(mock・``llm_bridge``)は触らない。
+    """
+    if fleet is None or float(l4_scale) != 0.0:
+        return None
+    cfg = getattr(fleet, "config", None)
+    if cfg is None or getattr(cfg, "queue_capacity", None) is not None:
+        return None
+    cur = getattr(fleet, "queue_capacity", None)
+    if cur is not None and int(cur) >= int(n_agents):
+        return None
+    cap = int(n_agents)
+    try:
+        fleet.config = dataclasses.replace(cfg, queue_capacity=cap)
+        fleet.queue_capacity = cap
+    except (AttributeError, TypeError):  # 設定を差し替えられない艦隊=従来どおり注記と警告
+        return None
+    return cap
 
 
 def run(
@@ -377,8 +409,9 @@ def run(
 
     **3 段目(D-99 (a′)・D-110)**: ``l4_scale`` の既定(``None``)は ``CLI_DEFAULT_L4_SCALE``
     (**0=無制限**)。``l4_scale=1.0`` で旧挙動(L4 按分・持ち越し 2 tick)を再現する(テストで固定)。
-    艦隊(``fleet``)× 無制限で受理待ち枠(``--fleet-queue-capacity``)が未指定なら警告を出し、
-    manifest の ``l4_notes`` に注記する(挙動は変えない・D-55)。
+    艦隊(``fleet``)× 無制限で受理待ち枠(``--fleet-queue-capacity``)が未指定なら、**枠の既定を体数にする**
+    (第289 Q28・D-55=繰り延べ 0・``apply_fleet_queue_default``)。manifest の ``l4_notes`` にその旨を載せる。
+    枠を直せない艦隊だけ従来どおり警告と注記。
 
     **5 段目 5a(D-118)**: ``hunger_model`` の既定(渡さないとき)は ``CLI_DEFAULT_HUNGER_MODEL``
     (**energy**)。``hunger_model="v1"`` で旧規則(旧 checkpoint)を再現する(テストで固定)。
@@ -395,9 +428,13 @@ def run(
         raise ValueError("l4_scale は 0 以上(0=無制限)")
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
-    note = fleet_queue_note(kwargs.get("fleet"), scale, n_agents)
+    applied = apply_fleet_queue_default(kwargs.get("fleet"), scale, n_agents)
+    note = "" if applied is not None else fleet_queue_note(kwargs.get("fleet"), scale, n_agents)
     if note:
         warnings.warn(note, RuntimeWarning, stacklevel=2)
+    elif applied is not None:
+        note = (f"艦隊 × 呼数無制限(--l4-scale 0)で --fleet-queue-capacity が未指定: 受理待ち枠の既定を体数 "
+                f"{applied:,} にした(第289 Q28・D-55=受理待ちあふれの繰り延べ 0)")
     wd = Path(world_dir) if world_dir is not None else None
     world = World.load_or_synthetic(wd, n_cells=n_cells, seed=seed) if wd is not None else World.synthetic(
         n_cells=n_cells, seed=seed
@@ -721,6 +758,13 @@ def main(argv: list[str] | None = None) -> int:
         default="on",
         help="D-113 ②: 通報の前提「当該事象を知覚済み」の検査(既定 on)。off=従来どおり必ず成功"
              "(第266 以前の checkpoint ba01bd0b を再現する帰無腕)",
+    )
+    ap.add_argument(
+        "--near-tiebreak",
+        choices=("hash", "id"),
+        default="hash",
+        help="小さいもの①(第300 Q107): B5 近接行の距離の同点の切り方。hash=run_salt の決定論ハッシュで撹拌(既定)/"
+             " id=旧挙動(セル内の並び=行番号の順=旧 golden)。文面と並びは変えない",
     )
     ap.add_argument(
         "--leave-effect",
@@ -1061,6 +1105,7 @@ def main(argv: list[str] | None = None) -> int:
         plan_sleep=not args.no_plan_sleep,
         plan_executor=not args.no_plan_executor,
         exit_mode=str(args.exit_mode),
+        near_tiebreak=str(args.near_tiebreak),
         report_precondition=(str(args.report_precondition) == "on"),
         queue_service=(str(args.queue_service) == "on"),
         leave_effect=(str(args.leave_effect) == "on"),

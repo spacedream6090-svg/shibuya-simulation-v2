@@ -23,8 +23,9 @@ def test_anchor_values_match_the_design_table():
     assert A.VISITOR_CARRY_IN == 71_000
     assert A.MIN_WAGE_HOURLY == 1_226
     assert A.SALES_PER_ESTABLISHMENT["宿泊・飲食"] == 85_320_000
-    assert A.SALES_PER_ESTABLISHMENT["卸売・小売"] == 131_520_000
-    assert A.SALES_PER_ESTABLISHMENT["生活関連・娯楽"] == 22_530_000
+    # D-16 訂正(小さいもの③): センサス 156-2021 の生値(万円 × 10,000)。旧 131,520,000 / 22,530,000 は 1/10
+    assert A.SALES_PER_ESTABLISHMENT["卸売・小売"] == 131_523 * 10_000 == 1_315_230_000
+    assert A.SALES_PER_ESTABLISHMENT["生活関連・娯楽"] == 22_527 * 10_000 == 225_270_000
     assert A.EMPLOYEES_SHIBUYA == 516_541
     assert A.ESTABLISHMENTS_SHIBUYA == 27_624
     assert A.WASTE_TONNES_PER_DAY == 119.6

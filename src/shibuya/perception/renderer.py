@@ -73,7 +73,7 @@ from shibuya.agents.state import (
     ResultCode,
     WakeCondition,
 )
-from shibuya.core.hashing import blake3_hex, xxh64
+from shibuya.core.hashing import blake3_hex, blake3_u64, xxh64
 from shibuya.perception import channels as ch
 from shibuya.perception import hashes as H
 from shibuya.perception import normalize as N
@@ -904,6 +904,46 @@ class _TickCache:
     cell_y: np.ndarray = field(default_factory=lambda: np.zeros(0, np.float64))
 
 
+#: B5 近接行の**距離の同点**の切り方(第300 Q107・小さいもの①)。``hash``(既定)= run_salt の決定論ハッシュ
+#: (観る体 × 相手の組)で撹拌 / ``id``= 旧挙動(セル内の並び=体の行番号の順に近い k 人で切る=旧 golden)。
+#: 同点が k 人目の境で起きない描画は**両方で 1 バイトも変わらない**(採る人の集合が一意)。
+NEAR_TIEBREAKS: Final[tuple[str, ...]] = ("hash", "id")
+DEFAULT_NEAR_TIEBREAK: Final[str] = "hash"
+#: 同点の撹拌の鍵の用途タグ(``core.hashing`` の 3 バイトの規約に揃える=他の用途と同じ値にならない)。
+_NEAR_TIE_TAG: Final[bytes] = b"nt\x00"
+_U64_MASK: Final[int] = (1 << 64) - 1
+
+
+def near_tie_salt64(run_salt: bytes) -> int:
+    """``blake3(run_salt ‖ b"nt\\x00")`` の先頭 8 バイト(u64)。1 ランに 1 回だけ作る。"""
+    return int(blake3_u64(bytes(run_salt) + _NEAR_TIE_TAG))
+
+
+def near_tie_keys(salt64: int, observer: int, ids: np.ndarray) -> np.ndarray:
+    """観る体 ``observer`` から見た相手 ``ids`` の撹拌鍵(u64・splitmix64 の仕上げ・配列演算)。
+
+    **同点の順だけ**に使う(値そのものに意味は無い)。観る体ごとに順が変わる(同じ相手が全員から
+    いつも先に選ばれることはない)・同じ salt・同じ組なら常に同じ(テープから再現できる)。
+    tick は混ぜない(位置が変わらない間は同じ人が見え続ける=宣言)。
+    """
+    base = (int(salt64) ^ ((int(observer) * 0x9E3779B97F4A7C15) & _U64_MASK)) & _U64_MASK
+    with np.errstate(over="ignore"):
+        x = np.asarray(ids, dtype=np.int64).astype(np.uint64) * np.uint64(0xBF58476D1CE4E5B9)
+        x ^= np.uint64(base)
+        x ^= x >> np.uint64(30)
+        x *= np.uint64(0xBF58476D1CE4E5B9)
+        x ^= x >> np.uint64(27)
+        x *= np.uint64(0x94D049BB133111EB)
+        x ^= x >> np.uint64(31)
+    return x
+
+
+def check_near_tiebreak(mode: str) -> str:
+    if str(mode) not in NEAR_TIEBREAKS:
+        raise ValueError(f"near_tiebreak は {NEAR_TIEBREAKS} のどれか(いま {mode!r})")
+    return str(mode)
+
+
 class Renderer:
     """観測レンダラ(1 起床=1 呼び出し)。
 
@@ -937,6 +977,8 @@ class Renderer:
         vocab_version: str = T.DEFAULT_VOCAB_VERSION,
         role_words: bool | str = False,
         p_see_activity: "Mapping[str, float] | str | None" = None,
+        near_tiebreak: str = DEFAULT_NEAR_TIEBREAK,
+        near_salt: bytes | None = None,
     ) -> None:
         """
         Args:
@@ -983,6 +1025,12 @@ class Renderer:
                 B0 の出力規約に 13 語目「食事」が載る(``templates.OUTPUT_SPEC_V2``)。
                 既定 ``"v1"`` は現行の 24 語提示=**1 バイトも変わらない**。``"open"`` 腕は
                 語彙を見せないので v1/v2 で B0 は同一(差は段0 辞書とエンジン側)。
+            near_tiebreak: B5 近接行の**距離の同点**の切り方(第300 Q107)。``"hash"``(既定)= 同点を
+                ``near_salt`` の決定論ハッシュ(観る体 × 相手)で撹拌 / ``"id"`` = 旧挙動(セル内の並び=
+                行番号の順)。**文面・並び(id 昇順)は変えない**=採る人だけ。同点が k 人目の境で起きない
+                描画は両方で同じ。
+            near_salt: 撹拌の salt(``engine.run`` は run_salt を渡す)。``None`` なら ``seed`` から
+                ``engine.run.run_salt_for`` と同じ式で作る。
         """
         self.world = world
         self.agents = agents
@@ -1016,6 +1064,15 @@ class Renderer:
         #: D-113 ④(第269): B0 の末尾に役割語の 1 行を足すか。レンダラの既定は False(描画バイトの
         #: 凍結を保つ)。**ランの既定は True**(``engine.run.run_day(role_words=True)``)。
         self.role_words = T.check_role_words(role_words)
+        #: 小さいもの①(第300 Q107): 近接行の距離の同点の切り方と、撹拌の salt(u64)。
+        self.near_tiebreak = check_near_tiebreak(near_tiebreak)
+        if near_salt is None:
+            _text = f"i:{int(seed)}" if not isinstance(seed, str) else f"s:{seed}"
+            near_salt = bytes.fromhex(blake3_hex(f"{_text}\x1fengine".encode("utf-8"), length=16))
+        self._near_salt64 = near_tie_salt64(near_salt)
+        #: 同点を撹拌で切った描画の回数・そのときの同点の人数の延べ(``hash`` のランだけ数える=計測の口)。
+        self.near_tie_breaks = 0
+        self.near_tie_candidates = 0
 
         self._tickc = _TickCache()
         # 既定(vocab × v1)は ``TEMPLATES["B0.system"]`` と同一文字列=描画バイト不変
@@ -1885,7 +1942,10 @@ class Renderer:
         los = int(tc.los_stage[cell])
         k = 3 if los <= 1 else (2 if los <= 3 else 1)  # 疎3/中2/密1(境界は expedient)
         take = min(k, peers.size)
-        sel = peers[np.argpartition(d2, take - 1)[:take]] if peers.size > take else peers
+        if peers.size > take:
+            sel = self._near_take(i, peers, d2, take)
+        else:
+            sel = peers
         friends, friend_ids = self._acquaintances_of(i, int(tc.tick))
         chosen_set = {int(x) for x in sel}
         if self.session_partner_fn is not None:  # C10 8a(3 人会話): 会話の参加者は同セルなら常に載せる
@@ -1926,6 +1986,25 @@ class Renderer:
             )
             for j, dv in zip(chosen, dist)
         ]
+
+    def _near_take(self, i: int, peers: np.ndarray, d2: np.ndarray, take: int) -> np.ndarray:
+        """近接 k 人の採り方。``id``= 旧実装(``np.argpartition`` がセル内の並びで同点を切る)=1 ビットも変えない。
+
+        ``hash``: k 人目の距離 ``thr`` より近い人は全員・``thr`` と同点の人から足りない分を撹拌鍵の小さい順に。
+        同点が境に無ければ採る集合は ``id`` と同じ(k 最小の集合が一意)。逐次ループ宣言: なし(セル在席者の配列)。
+        """
+        if self.near_tiebreak == "id":
+            return peers[np.argpartition(d2, take - 1)[:take]]
+        thr = np.partition(d2, take - 1)[take - 1]
+        inside = d2 < thr
+        tie = np.flatnonzero(d2 == thr)
+        need = take - int(np.count_nonzero(inside))
+        if tie.size > need:
+            self.near_tie_breaks += 1
+            self.near_tie_candidates += int(tie.size)
+            key = near_tie_keys(self._near_salt64, i, peers[tie])
+            tie = tie[np.argpartition(key, need - 1)[:need]] if need < tie.size else tie
+        return np.concatenate([peers[inside], peers[tie]])
 
     def _acquaintances_of(self, i: int, tick: int = -1) -> tuple[frozenset[int], np.ndarray]:
         """個体 → (知人の集合, 知人 id の配列)。**1 度作って使い回す**(C7)。

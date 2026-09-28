@@ -141,8 +141,12 @@ def test_the_manifest_always_carries_the_l4_audit_fields():
         assert m["l4_notes"] == []
 
 
-def test_fleet_x_unlimited_without_a_queue_capacity_is_noted_not_changed():
-    """艦隊 × 無制限で ``--fleet-queue-capacity`` が未指定なら注記の文(挙動は変えない・D-55)。"""
+def test_fleet_x_unlimited_without_a_queue_capacity_is_noted_when_it_cannot_be_fixed():
+    """艦隊 × 無制限で ``--fleet-queue-capacity`` が未指定かつ枠が体数未満なら注記の文(D-55)。
+
+    第289 Q28 以降、``cli.run`` は枠を直せる艦隊では ``apply_fleet_queue_default`` で既定を体数にする
+    ので、注記(と警告)が残るのは枠を差し替えられない艦隊だけ。
+    """
     from types import SimpleNamespace
 
     from shibuya import cli
@@ -154,3 +158,33 @@ def test_fleet_x_unlimited_without_a_queue_capacity_is_noted_not_changed():
     assert cli.fleet_queue_note(None, 0.0, 5_000) == ""           # mock=注記なし
     given = SimpleNamespace(config=SimpleNamespace(queue_capacity=8_192), queue_capacity=8_192)
     assert cli.fleet_queue_note(given, 0.0, 5_000) == ""          # 明示した=注記なし
+    wide = SimpleNamespace(config=SimpleNamespace(queue_capacity=None), queue_capacity=512)
+    assert cli.fleet_queue_note(wide, 0.0, 300) == ""             # 既定の枠が体数以上=繰り延べは起きない
+
+
+def test_fleet_x_unlimited_queue_capacity_defaults_to_the_agent_count():
+    """第289 Q28(D-55): 艦隊 × 無制限 × 枠 未指定 → 枠の既定=体数(``FleetConfig`` を差し替え・manifest に載る)。"""
+    from types import SimpleNamespace
+
+    from shibuya import cli
+    from shibuya.llm.fleet import FleetConfig
+
+    def client(cap_total: int, queue_capacity: int | None = None) -> SimpleNamespace:
+        cfg = FleetConfig(endpoints=("http://127.0.0.1:1",), max_in_flight=cap_total, queue_capacity=queue_capacity)
+        return SimpleNamespace(config=cfg, queue_capacity=cfg.resolved_queue_capacity())
+
+    small = client(8)                                             # 既定の枠 8×4=32 < 5,000
+    assert cli.apply_fleet_queue_default(small, 0.0, 5_000) == 5_000
+    assert small.queue_capacity == 5_000 and small.config.queue_capacity == 5_000
+    assert small.config.manifest_fields()["queue_capacity"] == 5_000
+    assert small.config.max_in_flight == 8                        # ほかの欄は変えない
+    assert cli.fleet_queue_note(small, 0.0, 5_000) == ""          # 直した後は注記なし
+    capped = client(8)
+    assert cli.apply_fleet_queue_default(capped, 1.0, 5_000) is None and capped.queue_capacity == 32  # 上限あり
+    given = client(8, queue_capacity=64)
+    assert cli.apply_fleet_queue_default(given, 0.0, 5_000) is None and given.queue_capacity == 64    # 明示
+    wide = client(2_000)                                          # 既定の枠 8,000 ≥ 5,000=狭めない
+    assert cli.apply_fleet_queue_default(wide, 0.0, 5_000) is None and wide.queue_capacity == 8_000
+    assert cli.apply_fleet_queue_default(None, 0.0, 5_000) is None
+    frozen = SimpleNamespace(config=SimpleNamespace(queue_capacity=None), queue_capacity=32)
+    assert cli.apply_fleet_queue_default(frozen, 0.0, 5_000) is None  # 差し替えられない=従来の注記へ

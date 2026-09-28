@@ -184,8 +184,11 @@ from shibuya.llm.fleet import (
 from shibuya.llm.mock import MockLLM
 from shibuya.perception.channels import BudgetMode
 from shibuya.perception.renderer import (
+    DEFAULT_NEAR_TIEBREAK,
     DEFAULT_START_DATETIME,
+    NEAR_TIEBREAKS,
     SIGNAGE_P_SEE_DEFAULT,
+    check_near_tiebreak,
     PerceptionAssets,
     Renderer as PerceptionRenderer,
     check_signage_p_see,
@@ -659,6 +662,8 @@ class RunResult:
     presence_exit: dict[str, Any] = field(default_factory=dict)
     #: 9a(D-112 ④): 退去の効果=所属解除の件数(退去・在店を解いた・列を離れた・会話を閉じた)。
     leave_effects: dict[str, int] = field(default_factory=dict)
+    #: 小さいもの①(第300 Q107): B5 近接行の距離の同点の切り方と、撹拌で切った描画の数(列追加のみ)。
+    near_tiebreak: dict[str, Any] = field(default_factory=dict)
     #: D-66 域外抑止を効かせたか(既定 True)。False = **帰無腕**。
     outside_suppression: bool = True
     #: **発射した呼**のうち域外(``transit_state != 0``)の体宛てだった延べ数。
@@ -995,6 +1000,7 @@ class RunResult:
             # ---- 9a: 退出の形の内訳と退去の効果(列追加のみ) ----
             "presence_exit": dict(self.presence_exit),
             "leave_effects": dict(self.leave_effects),
+            "near_tiebreak": dict(self.near_tiebreak),
             "attendance_rate": float(self.attendance_rate),
             "derive_rule": str(self.derive_rule),
             "outside_suppression": bool(self.outside_suppression),
@@ -1523,6 +1529,7 @@ def run_day(
     intent_mode: str = INTENT_MODES[0],
     vocab_version: str = VOCAB_VERSIONS[0],
     role_words: bool | str = True,
+    near_tiebreak: str = DEFAULT_NEAR_TIEBREAK,
     budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
     salient_rate_per_10k: float | None = None,
     report_precondition: bool = True,
@@ -1678,6 +1685,9 @@ def run_day(
             再生では ``False`` を渡す)。mock の checkpoint は B0 を読まないので不変。
             既定では**1 バイトも変わらない**(テンプレ本体・``template_sha256`` も不変)。
             ``INTENT_MODES`` 以外は ``ValueError``。
+        near_tiebreak: **小さいもの①(第300 Q107)** B5 近接行の距離の同点の切り方。``"hash"``(既定)=
+            run_salt の決定論ハッシュ(観る体 × 相手)で撹拌 / ``"id"`` = 旧挙動(セル内の並び=行番号の順=
+            旧 golden)。文面・近接行の並び(id 昇順)は変えない=採る人だけ。``NEAR_TIEBREAKS`` 以外は ``ValueError``。
             ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
         vocab_version: **行動語彙の版**(D-71 §3 F・2026-09-17 ユーザー決定)。
             ``"v1"``(既定)は現行の 24 語(横断 12 + 役割 12)で、**1 バイトも変わらない**。
@@ -1866,6 +1876,7 @@ def run_day(
     # ---- D-66 計画実行層の腕: 値の検査は**層が休むランでも**する(manifest が嘘をつかない) ----
     if str(exit_mode) not in PRESENCE_EXIT_MODES:
         raise ValueError(f"exit_mode は {PRESENCE_EXIT_MODES} のどれか(いま {exit_mode!r})")
+    near_tiebreak = check_near_tiebreak(near_tiebreak)
     if not (0.0 <= float(attendance_rate) <= 1.0):
         raise ValueError(f"attendance_rate は 0.0〜1.0(いま {attendance_rate})")
     if str(derive_rule) not in PRESENCE_DERIVE_RULES:
@@ -2183,6 +2194,8 @@ def run_day(
                 intent_mode=intent_mode,
                 vocab_version=vocab_version,
                 role_words=role_words,
+                near_tiebreak=near_tiebreak,
+                near_salt=run_salt_for(seed),
             )
         )
         renderer_obj: Any = perception
@@ -3708,6 +3721,12 @@ def run_day(
         # Q25: 名指しの即時閉店の B6 補足を載せた回数
         result.intent["b6_named_closed_notes"] = int(getattr(_rr, "named_closed_notes", 0))
     result.intent_max_ticks = int(intent_max_ticks)
+    _nr = getattr(perception, "renderer", None) if perception is not None else None
+    result.near_tiebreak = {
+        "mode": str(near_tiebreak),
+        "ties_broken": int(getattr(_nr, "near_tie_breaks", 0)),
+        "tie_candidates": int(getattr(_nr, "near_tie_candidates", 0)),
+    }
     result.mock_out_of_cell_target_p = float(mock_out_of_cell_target_p)
     result.move_resolution = move_resolution_summary(
         poi_resolver.move_stats if poi_resolver is not None else Counter(),
@@ -3933,6 +3952,8 @@ def main(argv: list[str] | None = None) -> int:
                          "就寝境界も LLM に判断させ・tick 0 は全員 SLEEPING)")
     ap.add_argument("--no-plan-executor", action="store_true",
                     help="D-66 計画実行層(engine.presence)を切る(=現行挙動・帰無腕)")
+    ap.add_argument("--near-tiebreak", choices=NEAR_TIEBREAKS, default=DEFAULT_NEAR_TIEBREAK,
+                    help="B5 近接行の距離の同点の切り方(第300 Q107)。hash=run_salt で撹拌(既定)/ id=旧挙動")
     ap.add_argument("--exit-mode", choices=PRESENCE_EXIT_MODES, default="immediate",
                     help="退出の実行形(immediate のみ実装・他は予約)")
     ap.add_argument("--attendance-rate", type=float, default=1.0, metavar="RATE",
@@ -3975,6 +3996,7 @@ def main(argv: list[str] | None = None) -> int:
         plan_sleep=not args.no_plan_sleep,
         plan_executor=not args.no_plan_executor,
         exit_mode=str(args.exit_mode),
+        near_tiebreak=str(args.near_tiebreak),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,

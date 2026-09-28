@@ -140,7 +140,8 @@ def test_fleet_smoke_unlimited_keeps_real_concurrency_within_l6_and_notes_the_qu
 
     300 体が同じ tick に呼ばれると ``fleet_peak_in_flight_r*``(**受理=待ち+実行中**の数)は L6 を
     超える(150/レプリカ)が、**実際の同時実行**(偽 vLLM が数える ``peak_concurrency``)はレプリカごとの
-    上限の内に収まる。受理待ち枠(``--fleet-queue-capacity``)が未指定なので manifest に注記が載る。
+    上限の内に収まる。受理待ち枠(``--fleet-queue-capacity``)は未指定だが、既定の枠(64×2×4=512)が
+    体数 300 以上なので**何も変えず・警告も注記も無い**(第289 Q28 以降)。
     """
     from ._fake_vllm import FakeVLLM
 
@@ -151,7 +152,10 @@ def test_fleet_smoke_unlimited_keeps_real_concurrency_within_l6_and_notes_the_qu
             [f.endpoint for f in fakes], mode="smoke", run_seed=1, stream=False
         )
         try:
-            with pytest.warns(RuntimeWarning, match="fleet-queue-capacity"):
+            import warnings as _w
+
+            with _w.catch_warnings():
+                _w.simplefilter("error", RuntimeWarning)  # 警告が出たら失敗
                 res, _route = c6lib.run_smoke(
                     n_agents=300, seed=1, ticks=24, world_dir=None,
                     tape_path=tmp_path / "tape", fleet=client,
@@ -162,11 +166,51 @@ def test_fleet_smoke_unlimited_keeps_real_concurrency_within_l6_and_notes_the_qu
         for f in fakes:
             assert 0 < f.peak_concurrency <= cap, f.peak_concurrency
         m = res.run_manifest_fields()
-        assert m["l4_scale"] == 0.0 and len(m["l4_notes"]) == 1
-        assert "--fleet-queue-capacity" in m["l4_notes"][0]
+        assert m["l4_scale"] == 0.0 and m["l4_notes"] == []
+        assert client.queue_capacity == 512 and client.n_deferred_queue_full == 0
     finally:
         for f in fakes:
             f.close()
+
+
+def test_fleet_smoke_unlimited_defaults_the_queue_to_the_agent_count(tmp_path):
+    """第289 Q28(D-55): 枠が体数より狭い艦隊(``max_in_flight`` 8 → 既定の枠 32)× 無制限 × 枠 未指定。
+
+    既定=体数(300)にするので受理待ちあふれの繰り延べは 0・警告なし・manifest に注記。枠を明示すれば
+    従来どおり(32 なら繰り延べが出る)。同期の経路(mock)は触らない。
+    """
+    from shibuya.llm.fleet import FleetClient
+    from shibuya.manifest.schema import Mode
+
+    from ._fake_vllm import FakeVLLM
+
+    got = {}
+    for label, qcap in (("default", None), ("explicit_32", 32)):
+        fakes = [FakeVLLM(), FakeVLLM()]
+        try:
+            cfg = FleetConfig(endpoints=tuple(f.endpoint for f in fakes), mode=Mode("smoke"), run_seed=1,
+                              temperature=0.0, t1_max_tokens=64, stream=False, max_in_flight=8,
+                              queue_capacity=qcap)
+            client = FleetClient(cfg)
+            try:
+                import warnings as _w
+
+                with _w.catch_warnings():
+                    _w.simplefilter("error", RuntimeWarning)
+                    res = cli.run(n_agents=300, seed=1, ticks=24, world_dir=None, fleet=client,
+                                  sleep_suppression=False, tape_path=tmp_path / label)
+            finally:
+                client.close()
+            got[label] = (client.n_deferred_queue_full, client.queue_capacity, res.run_manifest_fields(),
+                          dict(res.fleet_fields))
+        finally:
+            for f in fakes:
+                f.close()
+    deferred, qcap, m, fl = got["default"]
+    assert deferred == 0 and qcap == 300 and fl["queue_capacity"] == 300
+    assert len(m["l4_notes"]) == 1 and "体数 300" in m["l4_notes"][0]
+    deferred, qcap, m, fl = got["explicit_32"]
+    assert deferred > 0 and qcap == 32 and m["l4_notes"] == []
 
 
 @pytest.mark.slow

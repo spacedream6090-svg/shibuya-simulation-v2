@@ -1,0 +1,55 @@
+{
+ "schema": "shibuya.bench/small-fixes/d52-waste/1",
+ "run": {
+  "n_agents": 5000,
+  "seed": 1,
+  "vocab": "v3",
+  "final": "993276d5e5bb5cbe",
+  "waste_tonnes_per_day": 1.425405,
+  "band_now": [
+   83.71999999999998,
+   155.48
+  ]
+ },
+ "breakdown_g": {
+  "store_bins_collected": 910400.0,
+  "household_consumption": 431900.0,
+  "street_litter_swept": 83104.55000000008,
+  "street_litter_left_at_end": 61200.750000000015,
+  "household_consumption_rows": 1234.0
+ },
+ "static_store_expectation": {
+  "total_g": 910750.0,
+  "n_poi": 2337,
+  "stock0_values": [
+   64
+  ],
+  "by_category_g": {
+   "コンビニ": 252350.0,
+   "飲食": 658400.0,
+   "物販": 0.0
+  }
+ },
+ "params": {
+  "LITTER_G_PER_PERSON_TICK": 0.05,
+  "CLEANING_WINDOWS": [
+   [
+    300,
+    420
+   ],
+   [
+    780,
+    900
+   ]
+  ]
+ },
+ "c7_day_4": {
+  "person_minutes_in_stage_approx": 241358880.0,
+  "litter_generated_g_approx": 12067944.0,
+  "recorded": {
+   "total_t": 10.767,
+   "goods_ledger_t": 3.78755,
+   "street_litter_t": 6.979
+  }
+ }
+}

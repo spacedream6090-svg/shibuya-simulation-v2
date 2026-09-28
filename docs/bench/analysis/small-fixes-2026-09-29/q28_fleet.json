@@ -1,0 +1,37 @@
+{
+ "schema": "shibuya.bench/small-fixes/q28-fleet/1",
+ "rows": [
+  {
+   "case": "unset(既定=体数)",
+   "n_agents": 300,
+   "ticks": 24,
+   "l4_scale": 0.0,
+   "queue_capacity": 300,
+   "max_in_flight": 8,
+   "deferred_queue_full": 0,
+   "submitted": 300,
+   "runtime_warnings": [],
+   "l4_notes": [
+    "艦隊 × 呼数無制限(--l4-scale 0)で --fleet-queue-capacity が未指定: 受理待ち枠の既定を体数 300 にした(第289 Q28・D-55=受理待ちあふれの繰り延べ 0)"
+   ],
+   "final": "adef5e2198665464",
+   "llm_calls": 300,
+   "client_queue_capacity": 300
+  },
+  {
+   "case": "explicit_old_default",
+   "n_agents": 300,
+   "ticks": 24,
+   "l4_scale": 0.0,
+   "queue_capacity": 32,
+   "max_in_flight": 8,
+   "deferred_queue_full": 6432,
+   "submitted": 6464,
+   "runtime_warnings": [],
+   "l4_notes": [],
+   "final": "b4f2a89b99a23f35",
+   "llm_calls": 6464,
+   "client_queue_capacity": 32
+  }
+ ]
+}
