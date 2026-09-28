@@ -60,6 +60,9 @@ def table(n: int = 6, k: int = 15) -> AgentState:
 
 
 def layer(a: AgentState, **kw) -> M.MemoryLayer:
+    """単体の仕組みの検査は 8a の τ(−1.1=会話 1 回の辺が 35 分生きる)で回す(既定 0.704 だと n=1 の辺は生まれた
+    時から τ 未満=仕組みが見えない)。既定 τ の検査は ``test_default_tau_*`` が別に持つ。"""
+    kw.setdefault("tau", -1.1)
     lay = M.MemoryLayer(a.n, a.memory_n, minutes_per_tick=1.0)
     lay.enable_relations(a.rel_k, **kw)
     return lay
@@ -108,12 +111,18 @@ def test_initial_edges_household_work_school_and_cap():
     assert sorted(v for (u, v) in got if u == 7) == [4, 5, 6]            # 体 7 から見て共在が長い 3 人
     assert init.audit["w17_single_day"] is True
     assert init.audit["candidate_pairs"] < init.audit["candidate_pairs_all"]      # 組の中で k に切った
+    # 第299 Q89/Q90: 在職期間 T_uv(組の hash・1〜13 週)・n=枠/週 × T・first=−T
+    def tw(u_: int, v_: int) -> float:
+        return float(RL._tenure_weeks(np.asarray([u_]), np.asarray([v_]), RL.REL_TENURE_WEEKS)[0])
+
     j = [i for i, (u, v) in enumerate(zip(init.u, init.v)) if (u, v) == (0, 1)][0]
-    assert int(init.n[j]) == RL.HOUSEHOLD_MIN_BLOCKS_PER_WEEK * RL.REL_INIT_WEEKS     # 共在なしの世帯=毎日
+    assert int(init.n[j]) == round(RL.HOUSEHOLD_MIN_SLOTS_PER_WEEK * tw(0, 1))   # 共在なしの世帯=毎日 1 枠
+    assert int(init.first[j]) == -round(tw(0, 1) * 7 * 1440)
     j = [i for i, (u, v) in enumerate(zip(init.u, init.v)) if (u, v) == (8, 9)][0]
-    assert int(init.n[j]) == 1 * 5 * 13                                  # 代表日 1 塊 × 5 日 × 13 週
-    assert int(init.first[j]) == -13 * 7 * 1440 and -1440 < int(init.last[j]) < 0   # 前日の 10:00 に終わる
-    assert int(init.last[j]) == 600 - 1440
+    assert int(init.n[j]) == round(8 * 5 * tw(8, 9))                     # 代表日 8 枠(2 時間)× 5 日 × T
+    assert int(init.first[j]) == -round(tw(8, 9) * 7 * 1440) and -1440 < int(init.last[j]) < 0
+    assert int(init.last[j]) == 600 - 1440                               # 前日の 10:00 に終わる
+    assert tw(8, 9) == tw(9, 8) and 1.0 <= tw(8, 9) < 13.0                # 向きのない組・1〜13 週
     # 既定(hash): 同点の 5 人(体 3〜7 は体 2 とどれも 60 分)から 3 人=行番号の順ではない選び方でも本数と種別は同じ
     h = RL.initial_edges(p, w, 10, k=3, tau=None)
     got_h = {(int(u), int(v)): int(kd) for u, v, kd in zip(h.u, h.v, h.kind)}
@@ -234,7 +243,10 @@ def test_readers_live_edges_strength_same_cell_and_invite_weights():
     p_, w_, rest = rel.weights_for_invite(a, 0, 101)
     assert w_[:5].sum() == pytest.approx(0.40) and w_[5:].sum() == pytest.approx(0.20) and rest == pytest.approx(0.40)
     _p, w2, rest2 = rel.weights_for_invite(a, 1, 101)
-    assert rest2 == pytest.approx(0.60) and w2.sum() == pytest.approx(0.40)   # 辺 1 本=内側だけ
+    # 第299 Q99: 居る層で再正規化(辺 1 本=内側 0.40 と残り 0.40 → 半々)
+    assert rest2 == pytest.approx(0.50) and w2.sum() == pytest.approx(0.50)
+    _p, w3, rest3 = rel.weights_for_invite(a, 1, 101, rest_present=False)
+    assert rest3 == 0.0 and w3.sum() == pytest.approx(1.0)
 
 
 # ================================================================= (g) 知人の結線
@@ -311,12 +323,14 @@ def test_run_default_is_off_and_relations_on_keeps_behavior():
 
     kw = dict(n_agents=2000, seed=1, world_dir=WORLD, vocab_version="v3", memory="on")
     mem = cli.run(**kw)
+    # 8b の相手選択・知人出現を切った on(=8a の「書くだけ」)は関係の欄を除いて記憶 on と同じ
+    kw_on = dict(relations="on", rel_invite="off", rel_acq_wake="off")
     assert mem.run_manifest_fields()["relations"] == {}
     assert not any(f in mem.agents.registry for f in RELATION_FIELDS)
     mp = pytest.MonkeyPatch()
     mp.setattr(AgentState, "state_hash", lambda self: self.registry.state_hash(exclude=RELATION_FIELDS))
     try:
-        on = cli.run(relations="on", **kw)
+        on = cli.run(**kw_on, **kw)
     finally:
         mp.undo()
     assert on.final_hash == mem.final_hash and on.llm_calls == mem.llm_calls     # 書くだけ(mock は描画を読まない)
@@ -387,3 +401,20 @@ def test_join_in_the_tick_the_session_opened_is_written_once():
     talk = M.EVENT_KINDS["talk"]
     rows = sorted((u, int(p)) for u in range(5) for k_, p in zip(r.mem_kind[u], r.mem_partner[u]) if int(k_) == talk)
     assert rows == [(1, 2), (1, 3), (2, 1), (2, 3), (3, 1), (3, 2)]
+
+
+def test_tenure_spreads_activation_and_arm_26_weeks():
+    """第299 Q89/Q90: 在職期間を散らすと A が階段でなくなる(同じ共在でも A が組ごとに違う)・上限 26 週の腕。"""
+    g = 30
+    w = weekly([[(540, 1080, 5)] for _ in range(g)])
+    p = pop([-1] * g, [3] * g, [-1] * g)
+    base = RL.initial_edges(p, w, g, tau=None)
+    A = RL._activation(base.n, base.first, 0, 1.0, RL.REL_D)
+    assert np.unique(np.round(A, 4)).size > 50                          # 階段でない(8a の初版は 1 段)
+    t13 = -base.first / (7 * 1440)
+    assert t13.min() >= 1.0 - 1e-9 and t13.max() <= 13.0 + 1e-9
+    long = RL.initial_edges(p, w, g, tau=None, tenure_weeks=26.0)
+    t26 = -long.first / (7 * 1440)
+    assert t26.max() > 13.0 and long.audit["tenure_weeks"] == 26.0
+    with pytest.raises(ValueError):
+        RL.initial_edges(p, w, g, tenure_weeks=0.5)

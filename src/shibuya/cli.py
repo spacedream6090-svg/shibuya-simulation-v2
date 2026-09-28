@@ -881,12 +881,21 @@ def main(argv: list[str] | None = None) -> int:
     )
     ap.add_argument("--rel-k", type=int, default=15, metavar="K",
                     help="関係辺の数(既定 15・感度 5/50)")
-    ap.add_argument("--rel-tau", type=float, default=-1.1, metavar="TAU",
-                    help="辺として残る A の閾値 τ_rel(既定 −1.1=全母集団の逆算・感度 ±0.5)")
+    ap.add_argument("--rel-tau", type=float, default=0.704, metavar="TAU",
+                    help="辺として残る A の閾値 τ_rel(既定 0.704=在職期間を散らした全母集団の逆算・感度 ±0.5)")
     ap.add_argument("--rel-d", type=float, default=0.5, metavar="D",
                     help="関係辺の A の減衰 d(既定 0.5=記憶と同じ・感度 0.25/0.75)")
     ap.add_argument("--rel-init-density", type=float, choices=(0.5, 1.0, 2.0), default=1.0,
                     help="初期網の密度の腕(0.5=共在が中央値以上・1.0=共在 > 0・2.0=共在 0 の組も入れる)")
+    ap.add_argument("--rel-tenure-weeks", type=float, default=13.0, metavar="W",
+                    help="C10 8b(Q89/Q90): 初期辺の在職期間 T_uv の上限[週](既定 13・感度 26)")
+    ap.add_argument("--rel-invite", choices=("off", "on"), default="on",
+                    help="C10 8b: 名指しの無い会話の相手を関係辺の重み(5 人 40%%・10 人 20%%・残り 40%%)で引く"
+                         "(--relations on のときだけ効く・既定 on)")
+    ap.add_argument("--rel-acq-wake", choices=("off", "on"), default="on",
+                    help="C10 8b(R7 (a)): 知人出現の起床(同一相手 60 分・--relations on のときだけ効く・既定 on)")
+    ap.add_argument("--rel-copresent", choices=("off", "on"), default="off",
+                    help="C10 8b(Q91): 同席の書き手(同セル・2 m 内・連続 5 分で 1 本・相手ごと 1 日 1 本・既定 off)")
     ap.add_argument("--conv-max-participants", type=int, choices=(2, 3), default=2,
                     help="C10 8a(D-93 (d)): 会話の参加上限(既定 2・3=会話中の相手に話しかけた体が加わる)")
     ap.add_argument(
@@ -1071,6 +1080,10 @@ def main(argv: list[str] | None = None) -> int:
         rel_d=float(args.rel_d),
         rel_init_density=float(args.rel_init_density),
         conv_max_participants=int(args.conv_max_participants),
+        rel_tenure_weeks=float(args.rel_tenure_weeks),
+        rel_invite=str(args.rel_invite),
+        rel_acq_wake=str(args.rel_acq_wake),
+        rel_copresent=str(args.rel_copresent),
         store_memory=str(args.store_memory),
         store_memory_n=int(args.store_memory_n),
         store_sigma=args.store_sigma,

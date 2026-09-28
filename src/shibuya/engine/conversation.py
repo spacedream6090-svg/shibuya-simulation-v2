@@ -42,7 +42,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import IntEnum
-from typing import Final, Iterable, Mapping, Sequence
+from typing import Any, Final, Iterable, Mapping, Sequence
 
 import numpy as np
 
@@ -169,6 +169,8 @@ class Session:
     interrupt_queue: list[int] = field(default_factory=list)
     closed_tick: int = -1
     close_reason: str = ""
+    #: C10 8b: 会話の起点(``engine.relations.REL_ORIGINS`` の索引・−1=記録しないラン)。
+    origin: int = -1
 
     @property
     def inviter(self) -> int:
@@ -208,6 +210,8 @@ class PendingInvite:
     tick: int
     cell: int
     expires_tick: int
+    #: C10 8b: 会話の起点(−1=記録しないラン)。
+    origin: int = -1
 
 
 @dataclass(frozen=True)
@@ -304,6 +308,9 @@ class ConversationManager:
         self.join_events: list[tuple[int, int, int]] = []
         #: 終わったセッションの人数の分布(A1 会話グループサイズ=holdout=**判定しない**・分布の記録だけ)。
         self.size_hist: dict[int, int] = {}
+        #: C10 8b(診断行): 起点の名 → {invites, accepted, declined, expired, rejected}。``None``=記録しない(既定)。
+        self.origin_names: tuple[str, ...] | None = None
+        self.origin_counts: dict[str, dict[str, int]] = {}
 
     # ---------------------------------------------------------------- 参照
     def session_of(self, agent_id: int) -> Session | None:
@@ -480,7 +487,7 @@ class ConversationManager:
 
     # ---------------------------------------------------------------- C6: 返事待ちの招待
     def register_pending(
-        self, inviter: int, invitee: int, tick: int, cell: int, *, same_cell: bool
+        self, inviter: int, invitee: int, tick: int, cell: int, *, same_cell: bool, origin: int = -1
     ) -> bool:
         """相手が同じ適用バッチに居なかった招待を**返事待ち**に積む。
 
@@ -511,7 +518,7 @@ class ConversationManager:
             return False
         self.pending_invites[invitee] = PendingInvite(
             inviter=inviter, invitee=invitee, tick=int(tick), cell=int(cell),
-            expires_tick=int(tick) + PENDING_INVITE_TTL_TICKS,
+            expires_tick=int(tick) + PENDING_INVITE_TTL_TICKS, origin=int(origin),
         )
         self.n_invites += 1
         self.stamp_invite_refractory(inviter, invitee, tick)
@@ -532,13 +539,18 @@ class ConversationManager:
             return None
         if not accepted:
             self.n_declined += 1
+            self.note_origin(pend.origin, "declined")
             self._remember_refusal(pend.inviter, pend.invitee, tick)
             return None
         if self.is_busy(pend.inviter) or self.is_busy(pend.invitee):
             self.n_gate_rejected += 1
+            self.note_origin(pend.origin, "rejected")
             return None
         self.n_accepted += 1
-        return self._open(pend.inviter, pend.invitee, int(tick), pend.cell)
+        self.note_origin(pend.origin, "accepted")
+        s = self._open(pend.inviter, pend.invitee, int(tick), pend.cell)
+        s.origin = int(pend.origin)
+        return s
 
     def expire_pending(self, tick: int) -> list[int]:
         """期限切れの返事待ちを落とす。
@@ -551,9 +563,32 @@ class ConversationManager:
         for k in dead:  # 逐次ループ宣言: 期限切れ件数ぶん
             pend = self.pending_invites.pop(k)
             self.n_pending_expired += 1
+            self.note_origin(pend.origin, "expired")
             self.n_ignored_invites += 1
             self.ignored_events.append((int(tick), pend.inviter, pend.invitee))
             out.append(pend.inviter)
+        return out
+
+    # ---------------------------------------------------------------- C10 8b: 起点の診断行
+    def track_origins(self, names: tuple[str, ...]) -> None:
+        """起点の計数を開く(``--relations on`` のランだけ・既定の ``counters`` は 1 字も変えない)。"""
+        self.origin_names = tuple(names)
+        self.origin_counts = {n: {"invites": 0, "accepted": 0, "declined": 0, "expired": 0, "rejected": 0}
+                              for n in self.origin_names}
+
+    def note_origin(self, origin: int, event: str) -> None:
+        """起点 ``origin``(索引)の ``event`` を 1 つ数える(記録しないラン・−1 は何もしない)。"""
+        if self.origin_names is None or not (0 <= int(origin) < len(self.origin_names)):
+            return
+        row = self.origin_counts[self.origin_names[int(origin)]]
+        row[event] = row.get(event, 0) + 1
+
+    def origin_summary(self) -> dict[str, dict[str, Any]]:
+        """起点ごとの 招待/承諾/断り/期限切れ/門で落ちた と成立率(承諾/招待)。"""
+        out: dict[str, dict[str, Any]] = {}
+        for name, row in self.origin_counts.items():
+            inv = int(row.get("invites", 0))
+            out[name] = dict(row) | {"accept_rate": round(row.get("accepted", 0) / inv, 4) if inv else 0.0}
         return out
 
     def pending_inviter_of(self, invitee: int) -> int:

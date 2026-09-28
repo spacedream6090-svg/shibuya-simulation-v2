@@ -45,6 +45,7 @@ __all__ = [
     "BLAKE3_TAG_APPLY",
     "BLAKE3_TAG_WAKE",
     "BLAKE3_TAG_WANDER",
+    "BLAKE3_TAG_REL_INVITE",
     "blake3_hex",
     "blake3_u64",
     "xxh64",
@@ -58,6 +59,7 @@ __all__ = [
     "apply_key_array",
     "wake_tiebreak_array",
     "wander_key_array",
+    "relation_invite_key_array",
 ]
 
 BLAKE3_TAG_PRIORITY = b"pk\x00"
@@ -65,6 +67,8 @@ BLAKE3_TAG_APPLY = b"ak\x00"
 BLAKE3_TAG_WAKE = b"wk\x00"
 #: 「あたり」歩行の行き先の抽選(二層の段 2・D-116 F)。
 BLAKE3_TAG_WANDER = b"wd\x00"
+#: C10 8b: 招待の相手の抽選(関係辺の重み・Dunbar 2020)。
+BLAKE3_TAG_REL_INVITE = b"ri\x00"
 
 _I64 = struct.Struct("<q")
 _U64_LE = np.dtype("<u8")
@@ -198,3 +202,13 @@ def wander_key_array(run_salt: bytes, tick: int, agent_ids: np.ndarray) -> np.nd
     agent_ids = np.asarray(agent_ids)
     ticks = np.full(agent_ids.shape, int(tick), dtype=np.int64)
     return _hash_rows_u64(BLAKE3_TAG_WANDER, run_salt, (ticks, agent_ids))
+
+
+def relation_invite_key_array(run_salt: bytes, tick: int, agent_ids: np.ndarray) -> np.ndarray:
+    """招待の相手を関係辺の重みで引く u64(``blake3(run_salt ‖ b"ri\\x00" ‖ i64le(tick) ‖ i64le(agent_id))``)。
+
+    C10 8b(R12・D-31 (b)): 同じ salt・tick・体なら常に同じ相手(テープから再現できる)。
+    """
+    agent_ids = np.asarray(agent_ids)
+    ticks = np.full(agent_ids.shape, int(tick), dtype=np.int64)
+    return _hash_rows_u64(BLAKE3_TAG_REL_INVITE, run_salt, (ticks, agent_ids))

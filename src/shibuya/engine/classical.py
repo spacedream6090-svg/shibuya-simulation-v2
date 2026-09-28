@@ -310,6 +310,11 @@ class ClassicalPolicy:
         )
         self._ipf_cache: dict[int, np.ndarray] = {}
         self._condition: dict[int, tuple[int, int]] = {}
+        #: C10 8b(Q98 の解消): 会話の相手の選び手 ``(体, tick, 近接行の「未知」の人の id 列) → 相手 or −1``
+        #: (``--relations on`` のランだけ ``engine.run`` が差し込む=関係辺の重み・残りの層=未知の人から seed つき
+        #: ハッシュ順=D-31 (a)・既定 None=従来の「近接行の最初の人」)。
+        self.partner_fn: Any = None
+        self._tick = -1
 
     def set_call(self, agent_id: int, condition: int, inviter: int = -1) -> None:
         """run のループが ``bridge.call`` の直前に起床条件と招待者を渡す(応答文の型が読む)。"""
@@ -439,7 +444,11 @@ class ClassicalPolicy:
                 return REASON_GO, "移動", "学校", "通学", "到着"
             return REASON_ACTIVITY, "なし", "なし", "待つ", "30分"
         if kind == "talk":
-            who = f"{_PERSON_PREFIX}{inviter}" if inviter >= 0 else _first_near_person(prompt, aid)
+            if inviter < 0 and self.partner_fn is not None:  # C10 8b: 関係辺の重み(残り=最初の「未知」の人)
+                pid = int(self.partner_fn(aid, self._tick, _near_strangers(prompt, aid)))
+                who = f"{_PERSON_PREFIX}{pid}" if pid >= 0 else ""
+            else:
+                who = f"{_PERSON_PREFIX}{inviter}" if inviter >= 0 else _first_near_person(prompt, aid)
             if who:
                 return REASON_ACTIVITY, "会話", who, activity, until
             return REASON_ACTIVITY, "なし", "なし", "待つ", "30分"  # 話す相手が見えない
@@ -450,6 +459,7 @@ class ClassicalPolicy:
         tick = int(request.tick)
         r = self.agents.registry
         cond, inviter = self._condition.pop(aid, (-1, -1))
+        self._tick = tick
         cell = int(r.cell[aid])
         g = stream(self.seed, "policy.classical", tick, aid, max(0, cond))
         u_meal, u_act = float(g.random()), float(g.random())
@@ -512,6 +522,21 @@ def _first_near_person(prompt: str, aid: int) -> str:
                     return f"{_PERSON_PREFIX}{m.group(1)}"
             break
     return ""
+
+
+def _near_strangers(prompt: str, aid: int) -> list[int]:
+    """B5 の近接行で印が「未知」の人(自分を除く)の id(行の順)。C10 8b の「残り」の層の候補。"""
+    from shibuya.perception.templates import NEAR_PERSON_MARKS
+
+    mark = f"({NEAR_PERSON_MARKS[0]})"
+    out: list[int] = []
+    for line in prompt.splitlines():
+        if line.startswith(_NEAR_LINE):
+            for m in _PERSON_ID.finditer(line):  # 近接行の人数ぶん(≤ 数人)
+                if int(m.group(1)) != int(aid) and line[m.end():m.end() + len(mark)] == mark:
+                    out.append(int(m.group(1)))
+            break
+    return out
 
 
 def ok_self(r: Any, aid: int, eatery: np.ndarray) -> bool:

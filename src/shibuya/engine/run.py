@@ -91,7 +91,9 @@ from shibuya.engine.relations import (
     REL_INIT_DENSITIES,
     REL_K,
     REL_MODES,
+    REL_ORIGINS,
     REL_TAU,
+    REL_TENURE_WEEKS,
     initial_edges as _rel_initial_edges,
 )
 from shibuya.engine.wom import hear as wom_hear
@@ -284,6 +286,10 @@ _ENTRANCE_OF_CONDITION: Final[np.ndarray] = np.array(
 )
 #: 層の名(SOFAI 形式の記録の鍵)。
 DECISION_LAYERS: Final[tuple[str, ...]] = ("system1", "system1_5", "system2")
+
+
+#: C10 8b(R13): 会話クラス(会話ターン起床)の呼の割合の監査線(宣言=超えたら記録・絞らない=D-110)。
+L4_CONVERSATION_SHARE_LINE: Final[float] = 0.15
 
 
 def decision_layers_summary(counts: np.ndarray) -> dict[str, Any]:
@@ -1017,12 +1023,19 @@ class RunResult:
             if (self.n_agents and days > 0.0)
             else 0.0
         )
+        conv_calls = int(self.calls_by_condition.get("CONVERSATION_TURN", 0))
+        all_calls = int(sum(int(v) for v in self.calls_by_condition.values()))
+        conv_share = round(conv_calls / all_calls, 6) if all_calls else 0.0
         return {
             "llm_calls_total": int(self.llm_calls),
             "llm_calls_per_agent_day": round(per, 6),
             "l4_line": float(L4_LINE_PER_AGENT_DAY),
             "l4_exceeded": bool(per > float(L4_LINE_PER_AGENT_DAY)),
             "l4_notes": list(self.l4_notes),
+            # ---- C10 8b(R13): 会話クラスの呼の割合の監査線(超えても絞らない=記録だけ) ----
+            "l4_conversation_share": conv_share,
+            "l4_conversation_line": float(L4_CONVERSATION_SHARE_LINE),
+            "l4_conversation_exceeded": bool(conv_share > float(L4_CONVERSATION_SHARE_LINE)),
         }
 
     @property
@@ -1555,6 +1568,10 @@ def run_day(
     rel_d: float = REL_D,
     rel_init_density: float = 1.0,
     conv_max_participants: int = 2,
+    rel_tenure_weeks: float = REL_TENURE_WEEKS,
+    rel_invite: bool | str = True,
+    rel_acq_wake: bool | str = True,
+    rel_copresent: bool | str = False,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -1816,10 +1833,17 @@ def run_day(
             True)``・16 B/辺)を確保し、W16+W17 の機械的初期化と、記憶のエピソード(会話・手伝い)から辺を書く
             (``engine.relations``)。B5 近接行の「知人」の印に結線する(v1.4)。**``memory`` が on のランでだけ**。
             既定 ``False``=表を確保しない=**既定 checkpoint 不変**。
-        rel_k / rel_tau / rel_d / rel_init_density: 辺の数(既定 15・感度 5/50)・閾値 τ_rel(既定 −1.1・感度
+        rel_k / rel_tau / rel_d / rel_init_density: 辺の数(既定 15・感度 5/50)・閾値 τ_rel(既定 0.704=8b の再逆算・感度
             ±0.5)・減衰 d(既定 0.5・感度 0.25/0.75)・初期網の密度の腕(0.5/1.0/2.0)。
         conv_max_participants: **C10 8a(D-93 (d))の 3 人会話の口**。3 なら会話中の相手に話しかけた体が
             そのセッションに加わる(``talk_partner``=名指しした相手=主相手・参加者はセッション表)。既定 2=不変。
+        rel_tenure_weeks: C10 8b(第299 Q89/Q90): 初期辺の在職期間 T_uv の上限[週](既定 13・感度 26)。
+        rel_invite / rel_acq_wake / rel_copresent: **C10 8b**(``relations`` が on のランだけ効く)。
+            ``rel_invite``(既定 on)=名指しの無い会話の相手を関係辺の重み(内側 5 人 40%・次の 10 人 20%・残り
+            40%・居る層で再正規化)+seed つき乱択で引く・2 m 内の知人を第一候補(偶然)・classical 方策の相手も
+            同じ重み。``rel_acq_wake``(既定 on)=知人出現の起床(``WakeCondition.ACQUAINTANCE``・同一相手 60 分)。
+            ``rel_copresent``(既定 off=第299 Q91)=同席の書き手(同セル・2 m 内・連続 5 分で 1 本・相手ごと
+            1 日 1 本・表に居る相手だけ)。起点の診断行(招待/偶然/知人出現)は関係 on のランでいつも数える。
             想起優先の候補合成(N6)は選び手 ``classical`` のランだけ(``engine.store_choice``)。
 
     Returns:
@@ -1918,6 +1942,13 @@ def run_day(
         raise ValueError(f"rel_init_density は {REL_INIT_DENSITIES} のどれか(いま {rel_init_density})")
     if int(conv_max_participants) not in (2, 3):
         raise ValueError(f"conv_max_participants は 2 か 3(いま {conv_max_participants})")
+    rel_invite_on = _onoff(rel_invite, "rel_invite")
+    rel_acq_wake_on = _onoff(rel_acq_wake, "rel_acq_wake")
+    rel_copresent_on = _onoff(rel_copresent, "rel_copresent")
+    if rel_copresent_on and not relations_on:
+        raise ValueError("rel_copresent は relations='on' のランでだけ使える")
+    if not (np.isfinite(float(rel_tenure_weeks)) and float(rel_tenure_weeks) >= 1.0):
+        raise ValueError(f"rel_tenure_weeks は 1 以上(いま {rel_tenure_weeks})")
     store_wom_on = _onoff(store_wom, "store_wom")
     store_signage_on = _onoff(store_signage, "store_signage")
     if str(store_recall_scope) not in STORE_RECALL_SCOPES:
@@ -2364,12 +2395,33 @@ def run_day(
         _init = _rel_initial_edges(
             pop, weekly, n_agents, k=int(rel_k), day_index=int(day_index), density=float(rel_init_density),
             minutes_per_tick=float(tick_seconds) / 60.0, d=float(rel_d), tau=float(rel_tau),
+            tenure_weeks=float(rel_tenure_weeks),
         ) if pop is not None else None
         if _init is not None:
             rel_layer.seed_initial(agents, _init)
             rel_layer.init_audit["init_seconds_nondeterministic"] = round(time.perf_counter() - _t_rel, 3)
         if _fam_renderer is not None and hasattr(_fam_renderer, "acquaintance_fn"):
             _fam_renderer.acquaintance_fn = lambda i_, t_: rel_layer.acquaintances(agents, i_, t_)
+        # ---- C10 8b: 会話の起点と相手選択・知人出現の起床・同席(腕) ----
+        if rel_invite_on:
+            rel_layer.enable_invite(salt)
+            if classical_policy is not None:
+                def _classical_partner(aid_: int, tick_: int, strangers_: list[int]) -> int:
+                    # 残りの層=近接行の「未知」の人から seed つきハッシュ順(D-31 (a)=行の先頭=id の小さい人にしない)
+                    stranger_ = rel_layer.pick_rest(int(tick_), int(aid_), strangers_)
+                    got_, _o = rel_layer.choose_talk_partners(
+                        agents, int(tick_), np.asarray([int(aid_)]), np.asarray([int(stranger_)]),
+                        np.asarray([False]), np.asarray([-1]), record_origin=False,
+                    )
+                    return int(got_[0])
+
+                classical_policy.partner_fn = _classical_partner
+        if rel_acq_wake_on:
+            rel_layer.enable_acquaintance_wake()
+        if rel_copresent_on:
+            rel_layer.enable_copresent()
+        if conv is not None:
+            conv.track_origins(REL_ORIGINS)
     if (
         conv is not None and int(conv_max_participants) > 2 and _fam_renderer is not None
         and hasattr(_fam_renderer, "session_partner_fn")
@@ -2619,6 +2671,7 @@ def run_day(
                     targets=[t for t, k in zip(parsed_targets, keep.tolist()) if k],
                     poi_resolver=poi_resolver,
                     intent_hold=intent_layer,
+                    talk_chooser=rel_layer,
                 )
                 # ---- C9b G3/G4: 焦点の要求を 1 本のバッファへ散らす ----
                 if focus_request is not None:
@@ -2815,6 +2868,30 @@ def run_day(
         # 寝ている間は蒸し返さない」だけ)。
         f_exempt = f_cond.astype(np.int64) <= int(WakeCondition.PLAN_TRANSIT)
 
+        # ---- C10 8b: 同席の書き手(腕)と知人出現の起床(R7 (a))=前 tick の終わりの位置で ----
+        a_agent = None
+        if rel_layer is not None and (rel_layer.copresent_on or rel_layer.acq_wake_on):
+            t0 = time.perf_counter()
+            if rel_layer.copresent_on:
+                rel_layer.copresent_step(agents, tick)
+            if rel_layer.acq_wake_on:
+                _elig = np.ones(n_agents, dtype=bool)
+                if sleep_suppression:
+                    _elig &= np.asarray(agents.registry.activity) != int(Activity.SLEEPING)
+                if outside_suppression and plan_exec_on:
+                    _elig &= np.asarray(agents.registry.transit_state) == 0
+                a_agent, a_cond, a_class = rel_layer.acquaintance_candidates(agents, tick, _elig)
+                if a_agent.size:
+                    rel_layer.stats["acq_agent_refractory"] += int(np.count_nonzero(
+                        np.asarray(agents.registry.refractory_until)[a_agent, int(WakeCondition.ACQUAINTANCE)]
+                        > int(tick)
+                    ))
+            rel_layer.wall["detect"] += time.perf_counter() - t0
+        if a_agent is not None and a_agent.size:
+            e_agent = np.concatenate([e_agent, a_agent])
+            e_cond = np.concatenate([e_cond, a_cond.astype(e_cond.dtype)])
+            e_class = np.concatenate([e_class, a_class.astype(e_class.dtype)])
+
         cands = WakeCandidates(
             np.concatenate([p_agent, d_agent, c_agent, s_agent, f_agent, e_agent]),
             np.concatenate(
@@ -2874,6 +2951,10 @@ def run_day(
                 np.count_nonzero(outside_now[sel.agent_id.astype(np.int64)])
             )
         n_parse_errors = 0
+        if rel_layer is not None and rel_layer.acq_wake_on and len(sel):
+            _acq_sel = np.asarray(sel.condition, dtype=np.int64) == int(WakeCondition.ACQUAINTANCE)
+            if bool(_acq_sel.any()):
+                rel_layer.stamp_acquaintance(np.asarray(sel.agent_id, dtype=np.int64)[_acq_sel], tick)
         if len(sel):
             R.set_refractory(agents, sel.agent_id, sel.condition, tick, refractory_table)
             cell = agents.registry.cell
@@ -3123,25 +3204,32 @@ def run_day(
                         )
                     )
                     b_code, b_named = applied_now.get(invitee, (-1, -1))
+                    # C10 8b: 招待の起点(招待/偶然/知人出現)=commit の選び手が控えた値(関係 on のランだけ)
+                    origin = rel_layer.pop_origin(inviter) if rel_layer is not None else -1
                     # **相互指名**= 相手も自分の呼で**こちらを名指しして** 会話 と答えた。
                     # (エンジンが解決した対象ではなく LLM が書いた対象で見る=中-2)
                     mutual = b_code == C.ACT_TALK and b_named == inviter
                     if mutual and conv.invite_blocked_by_refractory(inviter, invitee, tick):
                         conv.n_invite_refractory_blocked += 1  # 軽-5: 相互指名も不応期の対象
+                        conv.note_origin(origin, "rejected")
                         _revert(inviter)
                         continue
                     if mutual:
                         # その場で成立。相手の意思は相手自身の呼に出ているので抽選は引かない。
                         conv.n_invites += 1
+                        conv.note_origin(origin, "invites")
                         conv.stamp_invite_refractory(inviter, invitee, tick)
                         opened = conv.invite(
                             inviter, invitee, tick, int(cell_now[inviter]),
                             same_cell=same_cell, partner_idle=True, answered=True,
                         )
                         if opened is None:
+                            conv.note_origin(origin, "rejected")
                             _revert(inviter)  # 内訳は ``conv.invite`` が数える
                         else:
                             conv.n_accepted += 1
+                            conv.note_origin(origin, "accepted")
+                            opened.origin = int(origin)
                             R.set_conversing(
                                 agents,
                                 np.array([inviter], dtype=np.int64),
@@ -3154,13 +3242,18 @@ def run_day(
                         # 招待側は CONVERSING のまま待つ。
                         if not conv.register_pending(
                             inviter, invitee, tick, int(cell_now[inviter]),
-                            same_cell=same_cell,
+                            same_cell=same_cell, origin=origin,
                         ):
+                            conv.note_origin(origin, "rejected")
                             _revert(inviter)
+                        else:
+                            conv.note_origin(origin, "invites")
 
             # ---- ③ 期限切れの返事待ち(「無視された」=呼を消費しない) ----
             for stale in conv.expire_pending(tick):
                 _revert(stale)
+            if rel_layer is not None:
+                rel_layer.origin_of.clear()  # C10 8b: この tick の起点の控えを捨てる(招待に使わなかった行)
             if reverted:
                 R.revert_conversation(agents, np.array(sorted(set(reverted)), dtype=np.int64))
             finished = conv.step(
@@ -3533,6 +3626,10 @@ def run_day(
     result.relations = (
         rel_layer.summary(agents, max(0, int(ticks) - 1)) if rel_layer is not None else {}
     )
+    if rel_layer is not None and conv is not None and conv.origin_names is not None:
+        # C10 8b 診断行: 起点ごとの 招待/承諾/断り/期限切れ/門で落ちた(decision_layers の入口にも同じ表)
+        result.relations["origins"] = conv.origin_summary()
+        result.decision_layers["conversation_origins"] = conv.origin_summary()
     _sc = getattr(poi_resolver, "store_choice", None) if poi_resolver is not None else None
     result.store_choice = (
         {**_sc.summary(), "arms": {"store_wom": bool(store_wom_on), "store_signage": bool(store_signage_on),

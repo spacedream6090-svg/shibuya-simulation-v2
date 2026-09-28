@@ -1,0 +1,4020 @@
+{
+ "schema": "shibuya.bench/c10-relations/arms-8b/1",
+ "base": {
+  "vocab_version": "v3",
+  "memory": "on"
+ },
+ "rows": [
+  {
+   "arm": "off",
+   "sample": "stratified",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on"
+   },
+   "final_hash": "b63a29b05fdfd831ecc9dcf149f9f3b07bfece2cd36c662205fa04e02932b316",
+   "final_wo_relations": "",
+   "llm_calls": 70885,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 3684,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4336,
+    "PLAN_GENERAL": 6122,
+    "PLAN_TRANSIT": 7138,
+    "INTEROCEPTION": 23516,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 5645,
+    "ACTIVITY_EXPIRY": 20444
+   },
+   "l4": {
+    "l4_conversation_share": 0.051972,
+    "l4_conversation_line": 0.15,
+    "l4_conversation_exceeded": false,
+    "llm_calls_per_agent_day": 14.177
+   },
+   "relations": {},
+   "conversation": {
+    "sessions_opened": 237,
+    "sessions_active": 0,
+    "sessions_closed": 237,
+    "conv_invites": 2760,
+    "conv_accepted": 237,
+    "conv_declined": 2523,
+    "conv_pending_expired": 0,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 125,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3707,
+    "conv_target_absent": 2031
+   },
+   "memory_talk_events": 4356,
+   "a1_session_size": {
+    "2": 237
+   },
+   "a4_talk_minutes_per_agent_day": {
+    "all_agents": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 0.0,
+     "p99": 6.0,
+     "p100": 14.0,
+     "mean": 0.4432,
+     "n": 5000
+    },
+    "agents_with_talk": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 12.0,
+     "p100": 14.0,
+     "mean": 4.8703,
+     "n": 455
+    },
+    "share_with_talk": 0.091
+   },
+   "session_minutes_by_origin": {
+    "untracked": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.6751,
+     "n": 237
+    }
+   },
+   "t5": {
+    "picks": 0
+   },
+   "chosen_count_nonzero": null,
+   "agents_bytes_total": 16800000,
+   "agents_declared_bytes_per_agent": 4256,
+   "kinds_in_sample": {
+    "COMMUTER": 2298,
+    "VISITOR": 604,
+    "WORKER": 72,
+    "RESIDENT": 446,
+    "DISPATCHER": 24,
+    "STUDENT": 469,
+    "REGULAR_VISITOR": 202,
+    "FOREIGN_VISITOR": 172,
+    "CREW": 713
+   },
+   "wall_seconds_nondeterministic": 31.95
+  },
+  {
+   "arm": "rel_8a_mode",
+   "sample": "stratified",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "rel_invite": "off",
+    "rel_acq_wake": "off"
+   },
+   "final_hash": "18e94e160eb8d75a818a0e3874757d70b41d77ed6ae5d3a0a8757b1ed76ff658",
+   "final_wo_relations": "b63a29b05fdfd831ecc9dcf149f9f3b07bfece2cd36c662205fa04e02932b316",
+   "llm_calls": 70885,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 3684,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4336,
+    "PLAN_GENERAL": 6122,
+    "PLAN_TRANSIT": 7138,
+    "INTEROCEPTION": 23516,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 5645,
+    "ACTIVITY_EXPIRY": 20444
+   },
+   "l4": {
+    "l4_conversation_share": 0.051972,
+    "l4_conversation_line": 0.15,
+    "l4_conversation_exceeded": false,
+    "llm_calls_per_agent_day": 14.177
+   },
+   "relations": {
+    "k": 15,
+    "tau": 0.704,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "events": 492,
+     "events:sign+1": 474,
+     "events:sign0": 18,
+     "evicted_kind:acquaintance": 7,
+     "evictions": 7,
+     "init_edges": 34287,
+     "init_edges:household": 198,
+     "init_edges:school": 7650,
+     "init_edges:work": 26439,
+     "invite_fallback_only": 4728,
+     "invite_named": 0,
+     "merged": 13,
+     "new_edges": 361,
+     "newcomer_dropped": 118
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 5.0,
+     "p90": 15.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 6.8428
+    },
+    "edges_live_total": 34214,
+    "edges_below_tau": 427,
+    "agents_with_edges": 3001,
+    "degree_histogram": {
+     "0": 1999,
+     "1": 262,
+     "2": 72,
+     "3": 76,
+     "4": 81,
+     "5": 57,
+     "6": 78,
+     "7": 34,
+     "8": 48,
+     "9": 71,
+     "10": 78,
+     "11": 62,
+     "12": 135,
+     "13": 289,
+     "14": 467,
+     "15": 1191
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 198,
+     "work": 26366,
+     "school": 7650
+    },
+    "signs": {
+     "0": 34202,
+     "1": 12
+    },
+    "A": {
+     "p0": 0.7042,
+     "p10": 1.3435,
+     "p50": 2.0294,
+     "p90": 2.4783,
+     "p99": 2.7171,
+     "p100": 3.4958,
+     "mean": 1.9646
+    },
+    "P": {
+     "p0": 128.0,
+     "p10": 237.0,
+     "p50": 254.0,
+     "p90": 255.0,
+     "p99": 255.0,
+     "p100": 255.0,
+     "mean": 247.8505
+    },
+    "n_per_edge": {
+     "p0": 113.0,
+     "p10": 325.0,
+     "p50": 987.0,
+     "p90": 1973.0,
+     "p99": 2626.0,
+     "p100": 5598.0,
+     "mean": 1081.7315
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 2510,
+     "agents_with_15": 1191
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "tenure_weeks": 13.0,
+     "groups": {
+      "household": 107,
+      "work": 198,
+      "school": 27
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 50466,
+     "candidate_pairs": 38232,
+     "candidate_pairs_copresent": 35799,
+     "capped_out": 2,
+     "edges_before_tau": 35813,
+     "dropped_by_tau": 1526,
+     "init_seconds_nondeterministic": 0.12
+    },
+    "lifetime_days": {
+     "initial": {
+      "p0": 0.009,
+      "p10": 49.815,
+      "p50": 609.042,
+      "p90": 2564.142,
+      "p100": 21205.089,
+      "n": 34214
+     },
+     "acquaintance": {
+      "n": 0
+     }
+    },
+    "copresent": false,
+    "acquaintance_wake": false,
+    "invite_weights": false,
+    "wall_seconds_nondeterministic": {},
+    "origins": {
+     "invite": {
+      "invites": 2718,
+      "accepted": 231,
+      "declined": 2487,
+      "expired": 0,
+      "rejected": 204,
+      "accept_rate": 0.085
+     },
+     "chance": {
+      "invites": 42,
+      "accepted": 6,
+      "declined": 36,
+      "expired": 0,
+      "rejected": 2,
+      "accept_rate": 0.1429
+     },
+     "acquaintance": {
+      "invites": 0,
+      "accepted": 0,
+      "declined": 0,
+      "expired": 0,
+      "rejected": 0,
+      "accept_rate": 0.0
+     }
+    }
+   },
+   "conversation": {
+    "sessions_opened": 237,
+    "sessions_active": 0,
+    "sessions_closed": 237,
+    "conv_invites": 2760,
+    "conv_accepted": 237,
+    "conv_declined": 2523,
+    "conv_pending_expired": 0,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 125,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3707,
+    "conv_target_absent": 2031
+   },
+   "memory_talk_events": 4356,
+   "a1_session_size": {
+    "2": 237
+   },
+   "a4_talk_minutes_per_agent_day": {
+    "all_agents": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 0.0,
+     "p99": 6.0,
+     "p100": 14.0,
+     "mean": 0.4432,
+     "n": 5000
+    },
+    "agents_with_talk": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 12.0,
+     "p100": 14.0,
+     "mean": 4.8703,
+     "n": 455
+    },
+    "share_with_talk": 0.091
+   },
+   "session_minutes_by_origin": {
+    "chance": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.6667,
+     "n": 6
+    },
+    "invite": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.6753,
+     "n": 231
+    }
+   },
+   "t5": {
+    "picks": 3686,
+    "chosen_count_vs_id": {
+     "weighted_abs_rho": 0.031776187198519,
+     "partial": -0.000476450285995271,
+     "largest_stratum": {
+      "name": "COMMUTER",
+      "rho": -0.02712131215332914
+     },
+     "raw_spearman": -0.02928581547016916
+    },
+    "within_cell_id_rank": {
+     "mean": 0.5089,
+     "expected_if_unbiased": 0.5,
+     "pearson_with_uniform_null": 0.0224,
+     "se": 0.005
+    },
+    "edge_partner_share": 0.0133
+   },
+   "chosen_count_nonzero": null,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "kinds_in_sample": {
+    "COMMUTER": 2298,
+    "VISITOR": 604,
+    "WORKER": 72,
+    "RESIDENT": 446,
+    "DISPATCHER": 24,
+    "STUDENT": 469,
+    "REGULAR_VISITOR": 202,
+    "FOREIGN_VISITOR": 172,
+    "CREW": 713
+   },
+   "wall_seconds_nondeterministic": 33.77,
+   "wo_relations_equals_off": true
+  },
+  {
+   "arm": "rel_on",
+   "sample": "stratified",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on"
+   },
+   "final_hash": "fd31c85a24f606b1184a4293e69dcc3acac548813816670c2fefb10a2402c0aa",
+   "final_wo_relations": "26952d2ed45d6097a2fb8fedaecf0961f5dc8ecac74735e925033c3a0d432f7a",
+   "llm_calls": 84686,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 5183,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4356,
+    "PLAN_GENERAL": 6170,
+    "PLAN_TRANSIT": 7197,
+    "INTEROCEPTION": 23327,
+    "ACQUAINTANCE": 11579,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 6230,
+    "ACTIVITY_EXPIRY": 20644
+   },
+   "l4": {
+    "l4_conversation_share": 0.061203,
+    "l4_conversation_line": 0.15,
+    "l4_conversation_exceeded": false,
+    "llm_calls_per_agent_day": 16.9372
+   },
+   "relations": {
+    "k": 15,
+    "tau": 0.704,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "acq_agent_refractory": 1887,
+     "acq_appear": 18632,
+     "acq_candidates": 13917,
+     "acq_not_live": 154,
+     "acq_pair_refractory": 2623,
+     "acq_woken": 11579,
+     "events": 717,
+     "events:sign+1": 650,
+     "events:sign0": 67,
+     "evicted_kind:acquaintance": 5,
+     "evictions": 5,
+     "init_edges": 34287,
+     "init_edges:household": 198,
+     "init_edges:school": 7650,
+     "init_edges:work": 26439,
+     "invite_fallback_only": 4981,
+     "invite_named": 0,
+     "invite_pick:beyond": 0,
+     "invite_pick:inner": 769,
+     "invite_pick:near_first": 1006,
+     "invite_pick:next": 829,
+     "invite_pick:rest": 310,
+     "merged": 248,
+     "new_edges": 347,
+     "newcomer_dropped": 122
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 5.0,
+     "p90": 15.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 6.8428
+    },
+    "edges_live_total": 34214,
+    "edges_below_tau": 415,
+    "agents_with_edges": 3001,
+    "degree_histogram": {
+     "0": 1999,
+     "1": 262,
+     "2": 72,
+     "3": 76,
+     "4": 81,
+     "5": 57,
+     "6": 78,
+     "7": 34,
+     "8": 48,
+     "9": 71,
+     "10": 78,
+     "11": 62,
+     "12": 135,
+     "13": 289,
+     "14": 467,
+     "15": 1191
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 198,
+     "work": 26366,
+     "school": 7650
+    },
+    "signs": {
+     "0": 34004,
+     "1": 210
+    },
+    "A": {
+     "p0": 0.7042,
+     "p10": 1.3435,
+     "p50": 2.0294,
+     "p90": 2.4783,
+     "p99": 2.7171,
+     "p100": 3.4958,
+     "mean": 1.9646
+    },
+    "P": {
+     "p0": 128.0,
+     "p10": 237.0,
+     "p50": 254.0,
+     "p90": 255.0,
+     "p99": 255.0,
+     "p100": 255.0,
+     "mean": 247.8507
+    },
+    "n_per_edge": {
+     "p0": 113.0,
+     "p10": 325.0,
+     "p50": 987.0,
+     "p90": 1973.0,
+     "p99": 2626.0,
+     "p100": 5598.0,
+     "mean": 1081.7384
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 2510,
+     "agents_with_15": 1191
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "tenure_weeks": 13.0,
+     "groups": {
+      "household": 107,
+      "work": 198,
+      "school": 27
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 50466,
+     "candidate_pairs": 38232,
+     "candidate_pairs_copresent": 35799,
+     "capped_out": 2,
+     "edges_before_tau": 35813,
+     "dropped_by_tau": 1526,
+     "init_seconds_nondeterministic": 0.116
+    },
+    "lifetime_days": {
+     "initial": {
+      "p0": 0.009,
+      "p10": 49.815,
+      "p50": 609.042,
+      "p90": 2564.142,
+      "p100": 21205.089,
+      "n": 34214
+     },
+     "acquaintance": {
+      "n": 0
+     }
+    },
+    "copresent": false,
+    "acquaintance_wake": true,
+    "invite_weights": true,
+    "wall_seconds_nondeterministic": {
+     "detect": 0.641
+    },
+    "origins": {
+     "invite": {
+      "invites": 2733,
+      "accepted": 217,
+      "declined": 2513,
+      "expired": 3,
+      "rejected": 249,
+      "accept_rate": 0.0794
+     },
+     "chance": {
+      "invites": 478,
+      "accepted": 44,
+      "declined": 434,
+      "expired": 0,
+      "rejected": 119,
+      "accept_rate": 0.0921
+     },
+     "acquaintance": {
+      "invites": 776,
+      "accepted": 64,
+      "declined": 712,
+      "expired": 0,
+      "rejected": 85,
+      "accept_rate": 0.0825
+     }
+    }
+   },
+   "conversation": {
+    "sessions_opened": 325,
+    "sessions_active": 0,
+    "sessions_closed": 325,
+    "conv_invites": 3987,
+    "conv_accepted": 325,
+    "conv_declined": 3659,
+    "conv_pending_expired": 3,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 290,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 5097,
+    "conv_target_absent": 1792
+   },
+   "memory_talk_events": 4596,
+   "a1_session_size": {
+    "2": 325
+   },
+   "a4_talk_minutes_per_agent_day": {
+    "all_agents": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 3.0,
+     "p99": 6.0,
+     "p100": 17.0,
+     "mean": 0.5916,
+     "n": 5000
+    },
+    "agents_with_talk": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 12.0,
+     "p100": 17.0,
+     "mean": 4.8651,
+     "n": 608
+    },
+    "share_with_talk": 0.1216
+   },
+   "session_minutes_by_origin": {
+    "acquaintance": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.7812,
+     "n": 64
+    },
+    "chance": {
+     "p0": 1.0,
+     "p10": 1.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.5455,
+     "n": 44
+    },
+    "invite": {
+     "p0": 0.0,
+     "p10": 2.0,
+     "p50": 5.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.4839,
+     "n": 217
+    }
+   },
+   "t5": {
+    "picks": 5032,
+    "chosen_count_vs_id": {
+     "weighted_abs_rho": 0.021052604833192837,
+     "partial": -0.010195751278152329,
+     "largest_stratum": {
+      "name": "COMMUTER",
+      "rho": -0.00031405784015046685
+     },
+     "raw_spearman": -0.16792360379189208
+    },
+    "within_cell_id_rank": {
+     "mean": 0.4684,
+     "expected_if_unbiased": 0.5,
+     "pearson_with_uniform_null": 0.0299,
+     "se": 0.0041
+    },
+    "edge_partner_share": 0.311
+   },
+   "chosen_count_nonzero": 1224,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "kinds_in_sample": {
+    "COMMUTER": 2298,
+    "VISITOR": 604,
+    "WORKER": 72,
+    "RESIDENT": 446,
+    "DISPATCHER": 24,
+    "STUDENT": 469,
+    "REGULAR_VISITOR": 202,
+    "FOREIGN_VISITOR": 172,
+    "CREW": 713
+   },
+   "wall_seconds_nondeterministic": 39.73
+  },
+  {
+   "arm": "rel_invite_only",
+   "sample": "stratified",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "rel_acq_wake": "off"
+   },
+   "final_hash": "def5f48eeb32af22b02edfdac6d64cee7e82292f4a547a1a586fd2994736ac04",
+   "final_wo_relations": "594f90c9530cbb30794d84c08b5269f84fe48aea9b79751a3ee0d8371fc40699",
+   "llm_calls": 71816,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 4219,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4334,
+    "PLAN_GENERAL": 6132,
+    "PLAN_TRANSIT": 7132,
+    "INTEROCEPTION": 23572,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 5830,
+    "ACTIVITY_EXPIRY": 20597
+   },
+   "l4": {
+    "l4_conversation_share": 0.058747,
+    "l4_conversation_line": 0.15,
+    "l4_conversation_exceeded": false,
+    "llm_calls_per_agent_day": 14.3632
+   },
+   "relations": {
+    "k": 15,
+    "tau": 0.704,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "events": 577,
+     "events:sign+1": 532,
+     "events:sign0": 45,
+     "evicted_kind:acquaintance": 2,
+     "evictions": 2,
+     "init_edges": 34287,
+     "init_edges:household": 198,
+     "init_edges:school": 7650,
+     "init_edges:work": 26439,
+     "invite_fallback_only": 4795,
+     "invite_named": 0,
+     "invite_pick:beyond": 0,
+     "invite_pick:inner": 489,
+     "invite_pick:near_first": 859,
+     "invite_pick:next": 443,
+     "invite_pick:rest": 70,
+     "merged": 140,
+     "new_edges": 327,
+     "newcomer_dropped": 110
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 5.0,
+     "p90": 15.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 6.8428
+    },
+    "edges_live_total": 34214,
+    "edges_below_tau": 398,
+    "agents_with_edges": 3001,
+    "degree_histogram": {
+     "0": 1999,
+     "1": 262,
+     "2": 72,
+     "3": 76,
+     "4": 81,
+     "5": 57,
+     "6": 78,
+     "7": 34,
+     "8": 48,
+     "9": 71,
+     "10": 78,
+     "11": 62,
+     "12": 135,
+     "13": 289,
+     "14": 467,
+     "15": 1191
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 198,
+     "work": 26366,
+     "school": 7650
+    },
+    "signs": {
+     "0": 34097,
+     "1": 117
+    },
+    "A": {
+     "p0": 0.7042,
+     "p10": 1.3435,
+     "p50": 2.0294,
+     "p90": 2.4783,
+     "p99": 2.7171,
+     "p100": 3.4958,
+     "mean": 1.9646
+    },
+    "P": {
+     "p0": 128.0,
+     "p10": 237.0,
+     "p50": 254.0,
+     "p90": 255.0,
+     "p99": 255.0,
+     "p100": 255.0,
+     "mean": 247.8508
+    },
+    "n_per_edge": {
+     "p0": 113.0,
+     "p10": 325.0,
+     "p50": 987.0,
+     "p90": 1973.0,
+     "p99": 2626.0,
+     "p100": 5598.0,
+     "mean": 1081.7353
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 2510,
+     "agents_with_15": 1191
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "tenure_weeks": 13.0,
+     "groups": {
+      "household": 107,
+      "work": 198,
+      "school": 27
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 50466,
+     "candidate_pairs": 38232,
+     "candidate_pairs_copresent": 35799,
+     "capped_out": 2,
+     "edges_before_tau": 35813,
+     "dropped_by_tau": 1526,
+     "init_seconds_nondeterministic": 0.123
+    },
+    "lifetime_days": {
+     "initial": {
+      "p0": 0.009,
+      "p10": 49.815,
+      "p50": 609.042,
+      "p90": 2564.142,
+      "p100": 21205.089,
+      "n": 34214
+     },
+     "acquaintance": {
+      "n": 0
+     }
+    },
+    "copresent": false,
+    "acquaintance_wake": false,
+    "invite_weights": true,
+    "wall_seconds_nondeterministic": {},
+    "origins": {
+     "invite": {
+      "invites": 2430,
+      "accepted": 211,
+      "declined": 2216,
+      "expired": 3,
+      "rejected": 187,
+      "accept_rate": 0.0868
+     },
+     "chance": {
+      "invites": 741,
+      "accepted": 57,
+      "declined": 683,
+      "expired": 1,
+      "rejected": 100,
+      "accept_rate": 0.0769
+     },
+     "acquaintance": {
+      "invites": 0,
+      "accepted": 0,
+      "declined": 0,
+      "expired": 0,
+      "rejected": 0,
+      "accept_rate": 0.0
+     }
+    }
+   },
+   "conversation": {
+    "sessions_opened": 268,
+    "sessions_active": 0,
+    "sessions_closed": 268,
+    "conv_invites": 3171,
+    "conv_accepted": 268,
+    "conv_declined": 2899,
+    "conv_pending_expired": 4,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 180,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 4037,
+    "conv_target_absent": 1760
+   },
+   "memory_talk_events": 4129,
+   "a1_session_size": {
+    "2": 268
+   },
+   "a4_talk_minutes_per_agent_day": {
+    "all_agents": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 1.0,
+     "p99": 6.0,
+     "p100": 18.0,
+     "mean": 0.5004,
+     "n": 5000
+    },
+    "agents_with_talk": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 12.0,
+     "p100": 18.0,
+     "mean": 4.9447,
+     "n": 506
+    },
+    "share_with_talk": 0.1012
+   },
+   "session_minutes_by_origin": {
+    "chance": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.6491,
+     "n": 57
+    },
+    "invite": {
+     "p0": 0.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.673,
+     "n": 211
+    }
+   },
+   "t5": {
+    "picks": 3985,
+    "chosen_count_vs_id": {
+     "weighted_abs_rho": 0.04137219400336331,
+     "partial": -0.0034201945485067505,
+     "largest_stratum": {
+      "name": "COMMUTER",
+      "rho": -0.020018675750547527
+     },
+     "raw_spearman": -0.09768080187531543
+    },
+    "within_cell_id_rank": {
+     "mean": 0.4869,
+     "expected_if_unbiased": 0.5,
+     "pearson_with_uniform_null": 0.0122,
+     "se": 0.0048
+    },
+    "edge_partner_share": 0.2279
+   },
+   "chosen_count_nonzero": 731,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "kinds_in_sample": {
+    "COMMUTER": 2298,
+    "VISITOR": 604,
+    "WORKER": 72,
+    "RESIDENT": 446,
+    "DISPATCHER": 24,
+    "STUDENT": 469,
+    "REGULAR_VISITOR": 202,
+    "FOREIGN_VISITOR": 172,
+    "CREW": 713
+   },
+   "wall_seconds_nondeterministic": 33.76
+  },
+  {
+   "arm": "rel_acq_only",
+   "sample": "stratified",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "rel_invite": "off"
+   },
+   "final_hash": "45d16fe420426b7d8d6a8026920491210f649be143a350d786696978e5841f1f",
+   "final_wo_relations": "1f48d636e0d09666a9c614184c22aa1c2b90a192b9a72198e71daed51d9587af",
+   "llm_calls": 84418,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 4809,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4356,
+    "PLAN_GENERAL": 6186,
+    "PLAN_TRANSIT": 7199,
+    "INTEROCEPTION": 23315,
+    "ACQUAINTANCE": 11309,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 6525,
+    "ACTIVITY_EXPIRY": 20719
+   },
+   "l4": {
+    "l4_conversation_share": 0.056967,
+    "l4_conversation_line": 0.15,
+    "l4_conversation_exceeded": false,
+    "llm_calls_per_agent_day": 16.8836
+   },
+   "relations": {
+    "k": 15,
+    "tau": 0.704,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "acq_agent_refractory": 1910,
+     "acq_appear": 18479,
+     "acq_candidates": 13674,
+     "acq_not_live": 178,
+     "acq_pair_refractory": 2584,
+     "acq_woken": 11309,
+     "events": 690,
+     "events:sign+1": 659,
+     "events:sign0": 31,
+     "evicted_kind:acquaintance": 5,
+     "evictions": 5,
+     "init_edges": 34287,
+     "init_edges:household": 198,
+     "init_edges:school": 7650,
+     "init_edges:work": 26439,
+     "invite_fallback_only": 4951,
+     "invite_named": 0,
+     "merged": 85,
+     "new_edges": 428,
+     "newcomer_dropped": 177
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 5.0,
+     "p90": 15.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 6.8428
+    },
+    "edges_live_total": 34214,
+    "edges_below_tau": 496,
+    "agents_with_edges": 3001,
+    "degree_histogram": {
+     "0": 1999,
+     "1": 262,
+     "2": 72,
+     "3": 76,
+     "4": 81,
+     "5": 57,
+     "6": 78,
+     "7": 34,
+     "8": 48,
+     "9": 71,
+     "10": 78,
+     "11": 62,
+     "12": 135,
+     "13": 289,
+     "14": 467,
+     "15": 1191
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 198,
+     "work": 26366,
+     "school": 7650
+    },
+    "signs": {
+     "0": 34131,
+     "1": 83
+    },
+    "A": {
+     "p0": 0.7042,
+     "p10": 1.3435,
+     "p50": 2.0294,
+     "p90": 2.4783,
+     "p99": 2.7171,
+     "p100": 3.4958,
+     "mean": 1.9646
+    },
+    "P": {
+     "p0": 128.0,
+     "p10": 237.0,
+     "p50": 254.0,
+     "p90": 255.0,
+     "p99": 255.0,
+     "p100": 255.0,
+     "mean": 247.8506
+    },
+    "n_per_edge": {
+     "p0": 113.0,
+     "p10": 325.0,
+     "p50": 987.0,
+     "p90": 1973.0,
+     "p99": 2626.0,
+     "p100": 5598.0,
+     "mean": 1081.7336
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 2510,
+     "agents_with_15": 1191
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "tenure_weeks": 13.0,
+     "groups": {
+      "household": 107,
+      "work": 198,
+      "school": 27
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 50466,
+     "candidate_pairs": 38232,
+     "candidate_pairs_copresent": 35799,
+     "capped_out": 2,
+     "edges_before_tau": 35813,
+     "dropped_by_tau": 1526,
+     "init_seconds_nondeterministic": 0.118
+    },
+    "lifetime_days": {
+     "initial": {
+      "p0": 0.009,
+      "p10": 49.815,
+      "p50": 609.042,
+      "p90": 2564.142,
+      "p100": 21205.089,
+      "n": 34214
+     },
+     "acquaintance": {
+      "n": 0
+     }
+    },
+    "copresent": false,
+    "acquaintance_wake": true,
+    "invite_weights": false,
+    "wall_seconds_nondeterministic": {
+     "detect": 0.642
+    },
+    "origins": {
+     "invite": {
+      "invites": 2895,
+      "accepted": 263,
+      "declined": 2629,
+      "expired": 2,
+      "rejected": 242,
+      "accept_rate": 0.0908
+     },
+     "chance": {
+      "invites": 24,
+      "accepted": 3,
+      "declined": 21,
+      "expired": 0,
+      "rejected": 4,
+      "accept_rate": 0.125
+     },
+     "acquaintance": {
+      "invites": 693,
+      "accepted": 63,
+      "declined": 630,
+      "expired": 0,
+      "rejected": 59,
+      "accept_rate": 0.0909
+     }
+    }
+   },
+   "conversation": {
+    "sessions_opened": 329,
+    "sessions_active": 0,
+    "sessions_closed": 329,
+    "conv_invites": 3612,
+    "conv_accepted": 329,
+    "conv_declined": 3280,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 198,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 4792,
+    "conv_target_absent": 2120
+   },
+   "memory_talk_events": 5126,
+   "a1_session_size": {
+    "2": 329
+   },
+   "a4_talk_minutes_per_agent_day": {
+    "all_agents": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 3.0,
+     "p99": 6.0,
+     "p100": 18.0,
+     "mean": 0.5872,
+     "n": 5000
+    },
+    "agents_with_talk": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 12.0,
+     "p100": 18.0,
+     "mean": 4.8289,
+     "n": 608
+    },
+    "share_with_talk": 0.1216
+   },
+   "session_minutes_by_origin": {
+    "acquaintance": {
+     "p0": 1.0,
+     "p10": 1.2,
+     "p50": 5.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.3968,
+     "n": 63
+    },
+    "chance": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.3333,
+     "n": 3
+    },
+    "invite": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 5.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.4791,
+     "n": 263
+    }
+   },
+   "t5": {
+    "picks": 4758,
+    "chosen_count_vs_id": {
+     "weighted_abs_rho": 0.03476524032094896,
+     "partial": 0.00812110625823589,
+     "largest_stratum": {
+      "name": "COMMUTER",
+      "rho": 0.026102841566026738
+     },
+     "raw_spearman": -0.1085109266074762
+    },
+    "within_cell_id_rank": {
+     "mean": 0.4913,
+     "expected_if_unbiased": 0.5,
+     "pearson_with_uniform_null": 0.0105,
+     "se": 0.0043
+    },
+    "edge_partner_share": 0.0921
+   },
+   "chosen_count_nonzero": null,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "kinds_in_sample": {
+    "COMMUTER": 2298,
+    "VISITOR": 604,
+    "WORKER": 72,
+    "RESIDENT": 446,
+    "DISPATCHER": 24,
+    "STUDENT": 469,
+    "REGULAR_VISITOR": 202,
+    "FOREIGN_VISITOR": 172,
+    "CREW": 713
+   },
+   "wall_seconds_nondeterministic": 39.19
+  },
+  {
+   "arm": "rel_copresent",
+   "sample": "stratified",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "rel_copresent": "on"
+   },
+   "final_hash": "241f2e20f219bb5e5691dd43c9ffe03c0036fb901517ee2118bb64c8ede9a615",
+   "final_wo_relations": "26952d2ed45d6097a2fb8fedaecf0961f5dc8ecac74735e925033c3a0d432f7a",
+   "llm_calls": 84686,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 5183,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4356,
+    "PLAN_GENERAL": 6170,
+    "PLAN_TRANSIT": 7197,
+    "INTEROCEPTION": 23327,
+    "ACQUAINTANCE": 11579,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 6230,
+    "ACTIVITY_EXPIRY": 20644
+   },
+   "l4": {
+    "l4_conversation_share": 0.061203,
+    "l4_conversation_line": 0.15,
+    "l4_conversation_exceeded": false,
+    "llm_calls_per_agent_day": 16.9372
+   },
+   "relations": {
+    "k": 15,
+    "tau": 0.704,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "acq_agent_refractory": 1887,
+     "acq_appear": 18632,
+     "acq_candidates": 13917,
+     "acq_not_live": 154,
+     "acq_pair_refractory": 2623,
+     "acq_woken": 11579,
+     "copresent_events": 4100,
+     "copresent_events:acquaintance": 151,
+     "copresent_events:household": 198,
+     "copresent_events:school": 654,
+     "copresent_events:work": 3097,
+     "events": 717,
+     "events:sign+1": 650,
+     "events:sign0": 67,
+     "evicted_kind:acquaintance": 5,
+     "evictions": 5,
+     "init_edges": 34287,
+     "init_edges:household": 198,
+     "init_edges:school": 7650,
+     "init_edges:work": 26439,
+     "invite_fallback_only": 4981,
+     "invite_named": 0,
+     "invite_pick:beyond": 0,
+     "invite_pick:inner": 769,
+     "invite_pick:near_first": 1006,
+     "invite_pick:next": 829,
+     "invite_pick:rest": 310,
+     "merged": 248,
+     "new_edges": 347,
+     "newcomer_dropped": 122
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 5.0,
+     "p90": 15.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 6.843
+    },
+    "edges_live_total": 34215,
+    "edges_below_tau": 414,
+    "agents_with_edges": 3001,
+    "degree_histogram": {
+     "0": 1999,
+     "1": 262,
+     "2": 72,
+     "3": 76,
+     "4": 81,
+     "5": 57,
+     "6": 78,
+     "7": 34,
+     "8": 48,
+     "9": 71,
+     "10": 78,
+     "11": 62,
+     "12": 135,
+     "13": 289,
+     "14": 466,
+     "15": 1192
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 198,
+     "work": 26367,
+     "school": 7650
+    },
+    "signs": {
+     "0": 34005,
+     "1": 210
+    },
+    "A": {
+     "p0": 0.7042,
+     "p10": 1.3434,
+     "p50": 2.0294,
+     "p90": 2.4783,
+     "p99": 2.7172,
+     "p100": 3.4961,
+     "mean": 1.9648
+    },
+    "P": {
+     "p0": 128.0,
+     "p10": 237.0,
+     "p50": 254.0,
+     "p90": 255.0,
+     "p99": 255.0,
+     "p100": 255.0,
+     "mean": 247.8548
+    },
+    "n_per_edge": {
+     "p0": 113.0,
+     "p10": 325.0,
+     "p50": 987.0,
+     "p90": 1973.0,
+     "p99": 2626.0,
+     "p100": 5599.0,
+     "mean": 1081.8258
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 2510,
+     "agents_with_15": 1192
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "tenure_weeks": 13.0,
+     "groups": {
+      "household": 107,
+      "work": 198,
+      "school": 27
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 50466,
+     "candidate_pairs": 38232,
+     "candidate_pairs_copresent": 35799,
+     "capped_out": 2,
+     "edges_before_tau": 35813,
+     "dropped_by_tau": 1526,
+     "init_seconds_nondeterministic": 0.122
+    },
+    "lifetime_days": {
+     "initial": {
+      "p0": 0.006,
+      "p10": 49.812,
+      "p50": 609.366,
+      "p90": 2564.142,
+      "p100": 21212.698,
+      "n": 34215
+     },
+     "acquaintance": {
+      "n": 0
+     }
+    },
+    "copresent": true,
+    "acquaintance_wake": true,
+    "invite_weights": true,
+    "wall_seconds_nondeterministic": {
+     "detect": 0.81
+    },
+    "origins": {
+     "invite": {
+      "invites": 2733,
+      "accepted": 217,
+      "declined": 2513,
+      "expired": 3,
+      "rejected": 249,
+      "accept_rate": 0.0794
+     },
+     "chance": {
+      "invites": 478,
+      "accepted": 44,
+      "declined": 434,
+      "expired": 0,
+      "rejected": 119,
+      "accept_rate": 0.0921
+     },
+     "acquaintance": {
+      "invites": 776,
+      "accepted": 64,
+      "declined": 712,
+      "expired": 0,
+      "rejected": 85,
+      "accept_rate": 0.0825
+     }
+    }
+   },
+   "conversation": {
+    "sessions_opened": 325,
+    "sessions_active": 0,
+    "sessions_closed": 325,
+    "conv_invites": 3987,
+    "conv_accepted": 325,
+    "conv_declined": 3659,
+    "conv_pending_expired": 3,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 290,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 5097,
+    "conv_target_absent": 1792
+   },
+   "memory_talk_events": 4596,
+   "a1_session_size": {
+    "2": 325
+   },
+   "a4_talk_minutes_per_agent_day": {
+    "all_agents": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 3.0,
+     "p99": 6.0,
+     "p100": 17.0,
+     "mean": 0.5916,
+     "n": 5000
+    },
+    "agents_with_talk": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 12.0,
+     "p100": 17.0,
+     "mean": 4.8651,
+     "n": 608
+    },
+    "share_with_talk": 0.1216
+   },
+   "session_minutes_by_origin": {
+    "acquaintance": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.7812,
+     "n": 64
+    },
+    "chance": {
+     "p0": 1.0,
+     "p10": 1.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.5455,
+     "n": 44
+    },
+    "invite": {
+     "p0": 0.0,
+     "p10": 2.0,
+     "p50": 5.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.4839,
+     "n": 217
+    }
+   },
+   "t5": {
+    "picks": 5032,
+    "chosen_count_vs_id": {
+     "weighted_abs_rho": 0.021052604833192837,
+     "partial": -0.010195751278152329,
+     "largest_stratum": {
+      "name": "COMMUTER",
+      "rho": -0.00031405784015046685
+     },
+     "raw_spearman": -0.16792360379189208
+    },
+    "within_cell_id_rank": {
+     "mean": 0.4684,
+     "expected_if_unbiased": 0.5,
+     "pearson_with_uniform_null": 0.0299,
+     "se": 0.0041
+    },
+    "edge_partner_share": 0.311
+   },
+   "chosen_count_nonzero": 1224,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "kinds_in_sample": {
+    "COMMUTER": 2298,
+    "VISITOR": 604,
+    "WORKER": 72,
+    "RESIDENT": 446,
+    "DISPATCHER": 24,
+    "STUDENT": 469,
+    "REGULAR_VISITOR": 202,
+    "FOREIGN_VISITOR": 172,
+    "CREW": 713
+   },
+   "wall_seconds_nondeterministic": 39.69
+  },
+  {
+   "arm": "rel_tenure26",
+   "sample": "stratified",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "rel_tenure_weeks": 26.0,
+    "rel_tau": 0.798
+   },
+   "final_hash": "fc4e5282289ae65254fd8c0f941c980d8e9339628528a066ea5adbc9adc73059",
+   "final_wo_relations": "9a6c524a1fdfc895b7d77ea3455e9e2a06ca0ff8f5c7a396004904eb76ef1f85",
+   "llm_calls": 85085,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 5316,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4354,
+    "PLAN_GENERAL": 6182,
+    "PLAN_TRANSIT": 7197,
+    "INTEROCEPTION": 23395,
+    "ACQUAINTANCE": 11674,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 6476,
+    "ACTIVITY_EXPIRY": 20491
+   },
+   "l4": {
+    "l4_conversation_share": 0.062479,
+    "l4_conversation_line": 0.15,
+    "l4_conversation_exceeded": false,
+    "llm_calls_per_agent_day": 17.017
+   },
+   "relations": {
+    "k": 15,
+    "tau": 0.798,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "acq_agent_refractory": 1965,
+     "acq_appear": 18883,
+     "acq_candidates": 14096,
+     "acq_not_live": 158,
+     "acq_pair_refractory": 2646,
+     "acq_woken": 11674,
+     "events": 791,
+     "events:sign+1": 717,
+     "events:sign0": 74,
+     "evicted_kind:acquaintance": 2,
+     "evictions": 2,
+     "init_edges": 34551,
+     "init_edges:household": 198,
+     "init_edges:school": 7650,
+     "init_edges:work": 26703,
+     "invite_fallback_only": 4971,
+     "invite_named": 0,
+     "invite_pick:beyond": 0,
+     "invite_pick:inner": 749,
+     "invite_pick:near_first": 997,
+     "invite_pick:next": 814,
+     "invite_pick:rest": 324,
+     "merged": 301,
+     "new_edges": 346,
+     "newcomer_dropped": 144
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 5.0,
+     "p90": 15.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 6.901
+    },
+    "edges_live_total": 34505,
+    "edges_below_tau": 390,
+    "agents_with_edges": 3010,
+    "degree_histogram": {
+     "0": 1990,
+     "1": 254,
+     "2": 69,
+     "3": 88,
+     "4": 76,
+     "5": 56,
+     "6": 79,
+     "7": 32,
+     "8": 51,
+     "9": 72,
+     "10": 77,
+     "11": 47,
+     "12": 126,
+     "13": 280,
+     "14": 473,
+     "15": 1230
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 198,
+     "work": 26658,
+     "school": 7649
+    },
+    "signs": {
+     "0": 34253,
+     "1": 252
+    },
+    "A": {
+     "p0": 0.7983,
+     "p10": 1.5619,
+     "p50": 2.3508,
+     "p90": 2.8214,
+     "p99": 3.0631,
+     "p100": 3.8316,
+     "mean": 2.2646
+    },
+    "P": {
+     "p0": 128.0,
+     "p10": 244.0,
+     "p50": 254.0,
+     "p90": 255.0,
+     "p99": 255.0,
+     "p100": 255.0,
+     "mean": 249.9025
+    },
+    "n_per_edge": {
+     "p0": 125.0,
+     "p10": 510.0,
+     "p50": 1879.0,
+     "p90": 3904.0,
+     "p99": 5228.92,
+     "p100": 11185.0,
+     "mean": 2070.2126
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 2523,
+     "agents_with_15": 1230
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "tenure_weeks": 26.0,
+     "groups": {
+      "household": 107,
+      "work": 198,
+      "school": 27
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 50466,
+     "candidate_pairs": 38232,
+     "candidate_pairs_copresent": 35799,
+     "capped_out": 2,
+     "edges_before_tau": 35813,
+     "dropped_by_tau": 1262,
+     "init_seconds_nondeterministic": 0.118
+    },
+    "lifetime_days": {
+     "initial": {
+      "p0": 0.022,
+      "p10": 109.763,
+      "p50": 1885.548,
+      "p90": 8432.031,
+      "p100": 70264.07,
+      "n": 34505
+     },
+     "acquaintance": {
+      "n": 0
+     }
+    },
+    "copresent": false,
+    "acquaintance_wake": true,
+    "invite_weights": true,
+    "wall_seconds_nondeterministic": {
+     "detect": 0.644
+    },
+    "origins": {
+     "invite": {
+      "invites": 2708,
+      "accepted": 235,
+      "declined": 2470,
+      "expired": 3,
+      "rejected": 248,
+      "accept_rate": 0.0868
+     },
+     "chance": {
+      "invites": 463,
+      "accepted": 51,
+      "declined": 411,
+      "expired": 1,
+      "rejected": 129,
+      "accept_rate": 0.1102
+     },
+     "acquaintance": {
+      "invites": 758,
+      "accepted": 72,
+      "declined": 685,
+      "expired": 0,
+      "rejected": 83,
+      "accept_rate": 0.095
+     }
+    }
+   },
+   "conversation": {
+    "sessions_opened": 358,
+    "sessions_active": 0,
+    "sessions_closed": 358,
+    "conv_invites": 3929,
+    "conv_accepted": 358,
+    "conv_declined": 3566,
+    "conv_pending_expired": 4,
+    "conv_pending_open": 1,
+    "conv_invite_refractory_blocked": 286,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 5034,
+    "conv_target_absent": 1824
+   },
+   "memory_talk_events": 4886,
+   "a1_session_size": {
+    "2": 358
+   },
+   "a4_talk_minutes_per_agent_day": {
+    "all_agents": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 4.0,
+     "p99": 6.0,
+     "p100": 18.0,
+     "mean": 0.6728,
+     "n": 5000
+    },
+    "agents_with_talk": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 12.0,
+     "p100": 18.0,
+     "mean": 5.1202,
+     "n": 657
+    },
+    "share_with_talk": 0.1314
+   },
+   "session_minutes_by_origin": {
+    "acquaintance": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.8056,
+     "n": 72
+    },
+    "chance": {
+     "p0": 1.0,
+     "p10": 1.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.6667,
+     "n": 51
+    },
+    "invite": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.6723,
+     "n": 235
+    }
+   },
+   "t5": {
+    "picks": 4983,
+    "chosen_count_vs_id": {
+     "weighted_abs_rho": 0.027101382487253252,
+     "partial": -0.009301583148070329,
+     "largest_stratum": {
+      "name": "COMMUTER",
+      "rho": 0.013780477066087577
+     },
+     "raw_spearman": -0.1543413034674544
+    },
+    "within_cell_id_rank": {
+     "mean": 0.4694,
+     "expected_if_unbiased": 0.5,
+     "pearson_with_uniform_null": 0.0371,
+     "se": 0.0042
+    },
+    "edge_partner_share": 0.3089
+   },
+   "chosen_count_nonzero": 1185,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "kinds_in_sample": {
+    "COMMUTER": 2298,
+    "VISITOR": 604,
+    "WORKER": 72,
+    "RESIDENT": 446,
+    "DISPATCHER": 24,
+    "STUDENT": 469,
+    "REGULAR_VISITOR": 202,
+    "FOREIGN_VISITOR": 172,
+    "CREW": 713
+   },
+   "wall_seconds_nondeterministic": 39.71
+  },
+  {
+   "arm": "rel_tau_-0.5",
+   "sample": "stratified",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "rel_tau": 0.204
+   },
+   "final_hash": "b1893cf154b59fe3576730f1ea37e23acf319a3ef12e89012f188ad0ab2eced6",
+   "final_wo_relations": "da1efac91fa07da0cb876592566bbf104a91242cb4256b8d6b4db3f130d66022",
+   "llm_calls": 85003,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 5195,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4365,
+    "PLAN_GENERAL": 6196,
+    "PLAN_TRANSIT": 7216,
+    "INTEROCEPTION": 23350,
+    "ACQUAINTANCE": 11680,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 6446,
+    "ACTIVITY_EXPIRY": 20555
+   },
+   "l4": {
+    "l4_conversation_share": 0.061115,
+    "l4_conversation_line": 0.15,
+    "l4_conversation_exceeded": false,
+    "llm_calls_per_agent_day": 17.0006
+   },
+   "relations": {
+    "k": 15,
+    "tau": 0.204,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "acq_agent_refractory": 1894,
+     "acq_appear": 18673,
+     "acq_candidates": 14016,
+     "acq_not_live": 142,
+     "acq_pair_refractory": 2556,
+     "acq_woken": 11680,
+     "events": 750,
+     "events:sign+1": 690,
+     "events:sign0": 60,
+     "evicted_kind:acquaintance": 6,
+     "evicted_kind:work": 12,
+     "evictions": 18,
+     "init_edges": 34970,
+     "init_edges:household": 198,
+     "init_edges:school": 7650,
+     "init_edges:work": 27122,
+     "invite_fallback_only": 4960,
+     "invite_named": 0,
+     "invite_pick:beyond": 0,
+     "invite_pick:inner": 757,
+     "invite_pick:near_first": 1006,
+     "invite_pick:next": 818,
+     "invite_pick:rest": 315,
+     "merged": 293,
+     "new_edges": 333,
+     "newcomer_dropped": 124
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 5.0,
+     "p90": 15.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 6.9886
+    },
+    "edges_live_total": 34943,
+    "edges_below_tau": 342,
+    "agents_with_edges": 3022,
+    "degree_histogram": {
+     "0": 1978,
+     "1": 249,
+     "2": 65,
+     "3": 80,
+     "4": 92,
+     "5": 51,
+     "6": 86,
+     "7": 31,
+     "8": 41,
+     "9": 69,
+     "10": 76,
+     "11": 43,
+     "12": 93,
+     "13": 261,
+     "14": 498,
+     "15": 1287
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 198,
+     "work": 27095,
+     "school": 7650
+    },
+    "signs": {
+     "0": 34694,
+     "1": 249
+    },
+    "A": {
+     "p0": 0.2041,
+     "p10": 1.2797,
+     "p50": 2.0163,
+     "p90": 2.4752,
+     "p99": 2.7164,
+     "p100": 3.4958,
+     "mean": 1.9339
+    },
+    "P": {
+     "p0": 128.0,
+     "p10": 252.0,
+     "p50": 255.0,
+     "p90": 255.0,
+     "p99": 255.0,
+     "p100": 255.0,
+     "mean": 252.5489
+    },
+    "n_per_edge": {
+     "p0": 70.0,
+     "p10": 296.0,
+     "p50": 967.0,
+     "p90": 1963.0,
+     "p99": 2622.58,
+     "p100": 5598.0,
+     "mean": 1062.8236
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 2536,
+     "agents_with_15": 1287
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "tenure_weeks": 13.0,
+     "groups": {
+      "household": 107,
+      "work": 198,
+      "school": 27
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 50466,
+     "candidate_pairs": 38232,
+     "candidate_pairs_copresent": 35799,
+     "capped_out": 2,
+     "edges_before_tau": 35813,
+     "dropped_by_tau": 843,
+     "init_seconds_nondeterministic": 0.118
+    },
+    "lifetime_days": {
+     "initial": {
+      "p0": 0.008,
+      "p10": 140.283,
+      "p50": 1676.53,
+      "p90": 7037.39,
+      "p100": 57795.817,
+      "n": 34943
+     },
+     "acquaintance": {
+      "n": 0
+     }
+    },
+    "copresent": false,
+    "acquaintance_wake": true,
+    "invite_weights": true,
+    "wall_seconds_nondeterministic": {
+     "detect": 0.64
+    },
+    "origins": {
+     "invite": {
+      "invites": 2697,
+      "accepted": 226,
+      "declined": 2467,
+      "expired": 3,
+      "rejected": 260,
+      "accept_rate": 0.0838
+     },
+     "chance": {
+      "invites": 477,
+      "accepted": 52,
+      "declined": 425,
+      "expired": 0,
+      "rejected": 124,
+      "accept_rate": 0.109
+     },
+     "acquaintance": {
+      "invites": 736,
+      "accepted": 67,
+      "declined": 667,
+      "expired": 2,
+      "rejected": 103,
+      "accept_rate": 0.091
+     }
+    }
+   },
+   "conversation": {
+    "sessions_opened": 345,
+    "sessions_active": 1,
+    "sessions_closed": 344,
+    "conv_invites": 3910,
+    "conv_accepted": 345,
+    "conv_declined": 3559,
+    "conv_pending_expired": 5,
+    "conv_pending_open": 1,
+    "conv_invite_refractory_blocked": 305,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 5031,
+    "conv_target_absent": 1819
+   },
+   "memory_talk_events": 4740,
+   "a1_session_size": {
+    "2": 344
+   },
+   "a4_talk_minutes_per_agent_day": {
+    "all_agents": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 3.0,
+     "p99": 6.0,
+     "p100": 18.0,
+     "mean": 0.6292,
+     "n": 5000
+    },
+    "agents_with_talk": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 12.0,
+     "p100": 18.0,
+     "mean": 4.9621,
+     "n": 634
+    },
+    "share_with_talk": 0.1268
+   },
+   "session_minutes_by_origin": {
+    "acquaintance": {
+     "p0": 0.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.7313,
+     "n": 67
+    },
+    "chance": {
+     "p0": 1.0,
+     "p10": 1.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.3077,
+     "n": 52
+    },
+    "invite": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.5867,
+     "n": 225
+    }
+   },
+   "t5": {
+    "picks": 4974,
+    "chosen_count_vs_id": {
+     "weighted_abs_rho": 0.03199739599075203,
+     "partial": -0.0017307658336705902,
+     "largest_stratum": {
+      "name": "COMMUTER",
+      "rho": 0.018763604010830156
+     },
+     "raw_spearman": -0.15617641344869743
+    },
+    "within_cell_id_rank": {
+     "mean": 0.4728,
+     "expected_if_unbiased": 0.5,
+     "pearson_with_uniform_null": 0.0513,
+     "se": 0.0041
+    },
+    "edge_partner_share": 0.3118
+   },
+   "chosen_count_nonzero": 1188,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "kinds_in_sample": {
+    "COMMUTER": 2298,
+    "VISITOR": 604,
+    "WORKER": 72,
+    "RESIDENT": 446,
+    "DISPATCHER": 24,
+    "STUDENT": 469,
+    "REGULAR_VISITOR": 202,
+    "FOREIGN_VISITOR": 172,
+    "CREW": 713
+   },
+   "wall_seconds_nondeterministic": 39.3
+  },
+  {
+   "arm": "rel_tau_+0.5",
+   "sample": "stratified",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "rel_tau": 1.204
+   },
+   "final_hash": "9eebdedd0fde975a13fd55b095e02483ffd534d66eae036e147f2e274396496e",
+   "final_wo_relations": "d2f393bdc196190f8cbc238b0c15ce3084a0a66324d97bdc7bd3f1d326bf60b7",
+   "llm_calls": 84584,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 5233,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4365,
+    "PLAN_GENERAL": 6187,
+    "PLAN_TRANSIT": 7203,
+    "INTEROCEPTION": 23369,
+    "ACQUAINTANCE": 11244,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 6405,
+    "ACTIVITY_EXPIRY": 20578
+   },
+   "l4": {
+    "l4_conversation_share": 0.061867,
+    "l4_conversation_line": 0.15,
+    "l4_conversation_exceeded": false,
+    "llm_calls_per_agent_day": 16.9168
+   },
+   "relations": {
+    "k": 15,
+    "tau": 1.204,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "acq_agent_refractory": 1801,
+     "acq_appear": 18291,
+     "acq_candidates": 13475,
+     "acq_not_live": 195,
+     "acq_pair_refractory": 2652,
+     "acq_woken": 11244,
+     "events": 775,
+     "events:sign+1": 687,
+     "events:sign0": 88,
+     "evicted_kind:acquaintance": 6,
+     "evictions": 6,
+     "init_edges": 32313,
+     "init_edges:household": 198,
+     "init_edges:school": 7535,
+     "init_edges:work": 24580,
+     "invite_fallback_only": 4887,
+     "invite_named": 0,
+     "invite_pick:beyond": 0,
+     "invite_pick:inner": 777,
+     "invite_pick:near_first": 1014,
+     "invite_pick:next": 795,
+     "invite_pick:rest": 320,
+     "merged": 272,
+     "new_edges": 407,
+     "newcomer_dropped": 96
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 4.0,
+     "p90": 15.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 6.416
+    },
+    "edges_live_total": 32080,
+    "edges_below_tau": 634,
+    "agents_with_edges": 2954,
+    "degree_histogram": {
+     "0": 2046,
+     "1": 266,
+     "2": 79,
+     "3": 72,
+     "4": 78,
+     "5": 58,
+     "6": 89,
+     "7": 52,
+     "8": 75,
+     "9": 96,
+     "10": 87,
+     "11": 140,
+     "12": 217,
+     "13": 373,
+     "14": 467,
+     "15": 805
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 198,
+     "work": 24408,
+     "school": 7474
+    },
+    "signs": {
+     "0": 31867,
+     "1": 213
+    },
+    "A": {
+     "p0": 1.2048,
+     "p10": 1.4852,
+     "p50": 2.0682,
+     "p90": 2.4867,
+     "p99": 2.7215,
+     "p100": 3.4958,
+     "mean": 2.0284
+    },
+    "P": {
+     "p0": 128.0,
+     "p10": 192.0,
+     "p50": 247.0,
+     "p90": 254.0,
+     "p99": 254.0,
+     "p100": 255.0,
+     "mean": 234.5573
+    },
+    "n_per_edge": {
+     "p0": 183.0,
+     "p10": 399.0,
+     "p50": 1044.0,
+     "p90": 1997.0,
+     "p99": 2645.0,
+     "p100": 5598.0,
+     "mean": 1136.3947
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 2459,
+     "agents_with_15": 805
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "tenure_weeks": 13.0,
+     "groups": {
+      "household": 107,
+      "work": 198,
+      "school": 27
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 50466,
+     "candidate_pairs": 38232,
+     "candidate_pairs_copresent": 35799,
+     "capped_out": 2,
+     "edges_before_tau": 35813,
+     "dropped_by_tau": 3500,
+     "init_seconds_nondeterministic": 0.116
+    },
+    "lifetime_days": {
+     "initial": {
+      "p0": 0.023,
+      "p10": 16.772,
+      "p50": 219.483,
+      "p90": 918.293,
+      "p100": 7744.112,
+      "n": 32080
+     },
+     "acquaintance": {
+      "n": 0
+     }
+    },
+    "copresent": false,
+    "acquaintance_wake": true,
+    "invite_weights": true,
+    "wall_seconds_nondeterministic": {
+     "detect": 0.643
+    },
+    "origins": {
+     "invite": {
+      "invites": 2752,
+      "accepted": 240,
+      "declined": 2509,
+      "expired": 3,
+      "rejected": 243,
+      "accept_rate": 0.0872
+     },
+     "chance": {
+      "invites": 505,
+      "accepted": 48,
+      "declined": 457,
+      "expired": 0,
+      "rejected": 128,
+      "accept_rate": 0.095
+     },
+     "acquaintance": {
+      "invites": 704,
+      "accepted": 54,
+      "declined": 645,
+      "expired": 5,
+      "rejected": 92,
+      "accept_rate": 0.0767
+     }
+    }
+   },
+   "conversation": {
+    "sessions_opened": 342,
+    "sessions_active": 0,
+    "sessions_closed": 342,
+    "conv_invites": 3961,
+    "conv_accepted": 342,
+    "conv_declined": 3611,
+    "conv_pending_expired": 8,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 287,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 5064,
+    "conv_target_absent": 1715
+   },
+   "memory_talk_events": 4647,
+   "a1_session_size": {
+    "2": 342
+   },
+   "a4_talk_minutes_per_agent_day": {
+    "all_agents": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 3.0,
+     "p99": 6.0,
+     "p100": 18.0,
+     "mean": 0.6324,
+     "n": 5000
+    },
+    "agents_with_talk": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 12.0,
+     "p100": 18.0,
+     "mean": 4.9953,
+     "n": 633
+    },
+    "share_with_talk": 0.1266
+   },
+   "session_minutes_by_origin": {
+    "acquaintance": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.6852,
+     "n": 54
+    },
+    "chance": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 5.5,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.5417,
+     "n": 48
+    },
+    "invite": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.625,
+     "n": 240
+    }
+   },
+   "t5": {
+    "picks": 5013,
+    "chosen_count_vs_id": {
+     "weighted_abs_rho": 0.02636378182998746,
+     "partial": 0.0035387683014734264,
+     "largest_stratum": {
+      "name": "COMMUTER",
+      "rho": 0.004274209623082884
+     },
+     "raw_spearman": -0.16177415912861695
+    },
+    "within_cell_id_rank": {
+     "mean": 0.4714,
+     "expected_if_unbiased": 0.5,
+     "pearson_with_uniform_null": 0.0437,
+     "se": 0.0041
+    },
+    "edge_partner_share": 0.309
+   },
+   "chosen_count_nonzero": 1176,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "kinds_in_sample": {
+    "COMMUTER": 2298,
+    "VISITOR": 604,
+    "WORKER": 72,
+    "RESIDENT": 446,
+    "DISPATCHER": 24,
+    "STUDENT": 469,
+    "REGULAR_VISITOR": 202,
+    "FOREIGN_VISITOR": 172,
+    "CREW": 713
+   },
+   "wall_seconds_nondeterministic": 39.36
+  },
+  {
+   "arm": "off_default_sample",
+   "sample": "default",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on"
+   },
+   "final_hash": "6b72e94a0f3e0c56fb03e2cbd68b093aa113a50f08ad04b19e1f9b7f2adba3c4",
+   "final_wo_relations": "",
+   "llm_calls": 69603,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 3420,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4264,
+    "PLAN_GENERAL": 5960,
+    "PLAN_TRANSIT": 6908,
+    "INTEROCEPTION": 23380,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 5687,
+    "ACTIVITY_EXPIRY": 19984
+   },
+   "l4": {
+    "l4_conversation_share": 0.049136,
+    "l4_conversation_line": 0.15,
+    "l4_conversation_exceeded": false,
+    "llm_calls_per_agent_day": 13.9206
+   },
+   "relations": {},
+   "conversation": {
+    "sessions_opened": 194,
+    "sessions_active": 1,
+    "sessions_closed": 193,
+    "conv_invites": 2714,
+    "conv_accepted": 194,
+    "conv_declined": 2518,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 126,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3626,
+    "conv_target_absent": 1944
+   },
+   "memory_talk_events": 3950,
+   "a1_session_size": {
+    "2": 193
+   },
+   "a4_talk_minutes_per_agent_day": {
+    "all_agents": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 0.0,
+     "p99": 6.0,
+     "p100": 12.0,
+     "mean": 0.3536,
+     "n": 5000
+    },
+    "agents_with_talk": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 12.0,
+     "p100": 12.0,
+     "mean": 4.8306,
+     "n": 366
+    },
+    "share_with_talk": 0.0732
+   },
+   "session_minutes_by_origin": {
+    "untracked": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.5803,
+     "n": 193
+    }
+   },
+   "t5": {
+    "picks": 0
+   },
+   "chosen_count_nonzero": null,
+   "agents_bytes_total": 16800000,
+   "agents_declared_bytes_per_agent": 4256,
+   "kinds_in_sample": {
+    "COMMUTER": 2346,
+    "VISITOR": 637,
+    "WORKER": 75,
+    "RESIDENT": 434,
+    "DISPATCHER": 24,
+    "STUDENT": 364,
+    "REGULAR_VISITOR": 219,
+    "FOREIGN_VISITOR": 186,
+    "CREW": 715
+   },
+   "wall_seconds_nondeterministic": 31.36
+  },
+  {
+   "arm": "rel_on_default_sample",
+   "sample": "default",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on"
+   },
+   "final_hash": "4c584130bb39bfa5e4ab31fbd28b2ee8630cc5d12b8a3fe75193eff0d6ae598e",
+   "final_wo_relations": "9b72f078e43d30c9120807453971eec048a976b3ae393df55905a920e8af9cae",
+   "llm_calls": 72946,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 3841,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4274,
+    "PLAN_GENERAL": 5984,
+    "PLAN_TRANSIT": 6935,
+    "INTEROCEPTION": 23199,
+    "ACQUAINTANCE": 3011,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 5725,
+    "ACTIVITY_EXPIRY": 19977
+   },
+   "l4": {
+    "l4_conversation_share": 0.052655,
+    "l4_conversation_line": 0.15,
+    "l4_conversation_exceeded": false,
+    "llm_calls_per_agent_day": 14.5892
+   },
+   "relations": {
+    "k": 15,
+    "tau": 0.704,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "acq_agent_refractory": 249,
+     "acq_appear": 4370,
+     "acq_candidates": 3372,
+     "acq_not_live": 129,
+     "acq_pair_refractory": 590,
+     "acq_woken": 3011,
+     "events": 478,
+     "events:sign+1": 446,
+     "events:sign0": 32,
+     "evictions": 0,
+     "init_edges": 8857,
+     "init_edges:household": 6,
+     "init_edges:school": 3306,
+     "init_edges:work": 5545,
+     "invite_fallback_only": 5304,
+     "invite_named": 0,
+     "invite_pick:beyond": 0,
+     "invite_pick:inner": 312,
+     "invite_pick:near_first": 280,
+     "invite_pick:next": 97,
+     "invite_pick:rest": 73,
+     "merged": 67,
+     "new_edges": 403,
+     "newcomer_dropped": 8
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 7.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 1.7686
+    },
+    "edges_live_total": 8843,
+    "edges_below_tau": 417,
+    "agents_with_edges": 1757,
+    "degree_histogram": {
+     "0": 3243,
+     "1": 442,
+     "2": 234,
+     "3": 154,
+     "4": 154,
+     "5": 148,
+     "6": 110,
+     "7": 84,
+     "8": 53,
+     "9": 84,
+     "10": 59,
+     "11": 46,
+     "12": 53,
+     "13": 18,
+     "14": 49,
+     "15": 69
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 6,
+     "work": 5531,
+     "school": 3306
+    },
+    "signs": {
+     "0": 8782,
+     "1": 61
+    },
+    "A": {
+     "p0": 0.7042,
+     "p10": 1.3487,
+     "p50": 2.0595,
+     "p90": 2.4556,
+     "p99": 2.6764,
+     "p100": 2.8722,
+     "mean": 1.9703
+    },
+    "P": {
+     "p0": 128.0,
+     "p10": 237.0,
+     "p50": 254.0,
+     "p90": 255.0,
+     "p99": 255.0,
+     "p100": 255.0,
+     "mean": 248.0691
+    },
+    "n_per_edge": {
+     "p0": 113.0,
+     "p10": 327.0,
+     "p50": 1045.0,
+     "p90": 1922.4,
+     "p99": 2511.0,
+     "p100": 3002.0,
+     "mean": 1084.7768
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 773,
+     "agents_with_15": 69
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "tenure_weeks": 13.0,
+     "groups": {
+      "household": 3,
+      "work": 417,
+      "school": 51
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 10154,
+     "candidate_pairs": 9885,
+     "candidate_pairs_copresent": 9246,
+     "capped_out": 0,
+     "edges_before_tau": 9246,
+     "dropped_by_tau": 389,
+     "init_seconds_nondeterministic": 0.065
+    },
+    "lifetime_days": {
+     "initial": {
+      "p0": 0.039,
+      "p10": 49.694,
+      "p50": 692.423,
+      "p90": 2432.754,
+      "p100": 6033.535,
+      "n": 8843
+     },
+     "acquaintance": {
+      "n": 0
+     }
+    },
+    "copresent": false,
+    "acquaintance_wake": true,
+    "invite_weights": true,
+    "wall_seconds_nondeterministic": {
+     "detect": 0.621
+    },
+    "origins": {
+     "invite": {
+      "invites": 2651,
+      "accepted": 198,
+      "declined": 2451,
+      "expired": 1,
+      "rejected": 186,
+      "accept_rate": 0.0747
+     },
+     "chance": {
+      "invites": 135,
+      "accepted": 11,
+      "declined": 124,
+      "expired": 0,
+      "rejected": 37,
+      "accept_rate": 0.0815
+     },
+     "acquaintance": {
+      "invites": 195,
+      "accepted": 14,
+      "declined": 181,
+      "expired": 0,
+      "rejected": 12,
+      "accept_rate": 0.0718
+     }
+    }
+   },
+   "conversation": {
+    "sessions_opened": 223,
+    "sessions_active": 0,
+    "sessions_closed": 223,
+    "conv_invites": 2981,
+    "conv_accepted": 223,
+    "conv_declined": 2756,
+    "conv_pending_expired": 1,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 162,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3894,
+    "conv_target_absent": 1892
+   },
+   "memory_talk_events": 4060,
+   "a1_session_size": {
+    "2": 223
+   },
+   "a4_talk_minutes_per_agent_day": {
+    "all_agents": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 0.0,
+     "p99": 6.0,
+     "p100": 12.0,
+     "mean": 0.416,
+     "n": 5000
+    },
+    "agents_with_talk": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 12.0,
+     "p100": 12.0,
+     "mean": 4.9057,
+     "n": 424
+    },
+    "share_with_talk": 0.0848
+   },
+   "session_minutes_by_origin": {
+    "acquaintance": {
+     "p0": 1.0,
+     "p10": 1.3,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.5,
+     "n": 14
+    },
+    "chance": {
+     "p0": 2.0,
+     "p10": 2.0,
+     "p50": 5.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.5455,
+     "n": 11
+    },
+    "invite": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 4.6818,
+     "n": 198
+    }
+   },
+   "t5": {
+    "picks": 3872,
+    "chosen_count_vs_id": {
+     "weighted_abs_rho": 0.025673124876938833,
+     "partial": -0.004131846145256707,
+     "largest_stratum": {
+      "name": "COMMUTER",
+      "rho": 0.012105013320162755
+     },
+     "raw_spearman": -0.06458456014018554
+    },
+    "within_cell_id_rank": {
+     "mean": 0.4968,
+     "expected_if_unbiased": 0.5,
+     "pearson_with_uniform_null": 0.0289,
+     "se": 0.0048
+    },
+    "edge_partner_share": 0.1041
+   },
+   "chosen_count_nonzero": 363,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "kinds_in_sample": {
+    "COMMUTER": 2346,
+    "VISITOR": 637,
+    "WORKER": 75,
+    "RESIDENT": 434,
+    "DISPATCHER": 24,
+    "STUDENT": 364,
+    "REGULAR_VISITOR": 219,
+    "FOREIGN_VISITOR": 186,
+    "CREW": 715
+   },
+   "wall_seconds_nondeterministic": 34.65
+  },
+  {
+   "arm": "classical_off",
+   "sample": "stratified",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "policy": "classical",
+    "chooser": "classical"
+   },
+   "final_hash": "b9f47df7cc37bc7719908bf5497f7fbf9b4ea557ae405b6936bd7b1e7cb4d209",
+   "final_wo_relations": "",
+   "llm_calls": 102700,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 4381,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4560,
+    "PLAN_GENERAL": 6579,
+    "PLAN_TRANSIT": 7724,
+    "INTEROCEPTION": 27907,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 9553,
+    "ACTIVITY_EXPIRY": 41996
+   },
+   "l4": {
+    "l4_conversation_share": 0.042658,
+    "l4_conversation_line": 0.15,
+    "l4_conversation_exceeded": false,
+    "llm_calls_per_agent_day": 20.54
+   },
+   "relations": {},
+   "conversation": {
+    "sessions_opened": 658,
+    "sessions_active": 0,
+    "sessions_closed": 658,
+    "conv_invites": 728,
+    "conv_accepted": 658,
+    "conv_declined": 69,
+    "conv_pending_expired": 1,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 51,
+    "conv_target_named": 924,
+    "conv_fallback_same_batch": 1,
+    "conv_target_absent": 3
+   },
+   "memory_talk_events": 5107,
+   "a1_session_size": {
+    "2": 658
+   },
+   "a4_talk_minutes_per_agent_day": {
+    "all_agents": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 6.0,
+     "p99": 18.0,
+     "p100": 66.0,
+     "mean": 1.4812,
+     "n": 5000
+    },
+    "agents_with_talk": {
+     "p0": 1.0,
+     "p10": 5.0,
+     "p50": 6.0,
+     "p90": 12.0,
+     "p99": 28.0,
+     "p100": 66.0,
+     "mean": 7.9378,
+     "n": 933
+    },
+    "share_with_talk": 0.1866
+   },
+   "session_minutes_by_origin": {
+    "untracked": {
+     "p0": 1.0,
+     "p10": 4.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 5.6277,
+     "n": 658
+    }
+   },
+   "t5": {
+    "picks": 933,
+    "chosen_count_vs_id": {
+     "weighted_abs_rho": 0.2277812270598946,
+     "partial": -0.15196345646904005,
+     "largest_stratum": {
+      "name": "COMMUTER",
+      "rho": -0.1649190998384186
+     },
+     "raw_spearman": -0.2984124907018598
+    },
+    "within_cell_id_rank": {
+     "mean": 0.0809,
+     "expected_if_unbiased": 0.5,
+     "pearson_with_uniform_null": 0.054,
+     "se": 0.0061
+    },
+    "edge_partner_share": 0.0
+   },
+   "chosen_count_nonzero": null,
+   "agents_bytes_total": 16800000,
+   "agents_declared_bytes_per_agent": 4256,
+   "kinds_in_sample": {
+    "COMMUTER": 2298,
+    "VISITOR": 604,
+    "WORKER": 72,
+    "RESIDENT": 446,
+    "DISPATCHER": 24,
+    "STUDENT": 469,
+    "REGULAR_VISITOR": 202,
+    "FOREIGN_VISITOR": 172,
+    "CREW": 713
+   },
+   "wall_seconds_nondeterministic": 44.56
+  },
+  {
+   "arm": "classical_8a_mode",
+   "sample": "stratified",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "policy": "classical",
+    "chooser": "classical",
+    "relations": "on",
+    "rel_invite": "off",
+    "rel_acq_wake": "off"
+   },
+   "final_hash": "c384b2eca19ff24a962a068a7dde80a8f0ce0f721451827349b1c8340f592ab2",
+   "final_wo_relations": "ad7bd7a7514e9d0bbc67943f224f9e3102803824cdbbd7c954d0386591e30e8b",
+   "llm_calls": 102694,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 4506,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4560,
+    "PLAN_GENERAL": 6581,
+    "PLAN_TRANSIT": 7725,
+    "INTEROCEPTION": 27911,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 9401,
+    "ACTIVITY_EXPIRY": 42010
+   },
+   "l4": {
+    "l4_conversation_share": 0.043878,
+    "l4_conversation_line": 0.15,
+    "l4_conversation_exceeded": false,
+    "llm_calls_per_agent_day": 20.5388
+   },
+   "relations": {
+    "k": 15,
+    "tau": 0.704,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "events": 1434,
+     "events:sign+1": 1350,
+     "events:sign0": 84,
+     "evicted_kind:acquaintance": 36,
+     "evicted_kind:work": 1,
+     "evictions": 37,
+     "init_edges": 34287,
+     "init_edges:household": 198,
+     "init_edges:school": 7650,
+     "init_edges:work": 26439,
+     "invite_fallback_only": 3,
+     "invite_named": 952,
+     "merged": 246,
+     "new_edges": 846,
+     "newcomer_dropped": 342
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 5.0,
+     "p90": 15.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 6.8428
+    },
+    "edges_live_total": 34214,
+    "edges_below_tau": 882,
+    "agents_with_edges": 3001,
+    "degree_histogram": {
+     "0": 1999,
+     "1": 262,
+     "2": 72,
+     "3": 76,
+     "4": 81,
+     "5": 57,
+     "6": 78,
+     "7": 34,
+     "8": 48,
+     "9": 71,
+     "10": 78,
+     "11": 62,
+     "12": 135,
+     "13": 289,
+     "14": 467,
+     "15": 1191
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 198,
+     "work": 26366,
+     "school": 7650
+    },
+    "signs": {
+     "0": 34007,
+     "1": 207
+    },
+    "A": {
+     "p0": 0.7042,
+     "p10": 1.3435,
+     "p50": 2.0294,
+     "p90": 2.4783,
+     "p99": 2.7171,
+     "p100": 3.4958,
+     "mean": 1.9646
+    },
+    "P": {
+     "p0": 128.0,
+     "p10": 237.0,
+     "p50": 254.0,
+     "p90": 255.0,
+     "p99": 255.0,
+     "p100": 255.0,
+     "mean": 247.851
+    },
+    "n_per_edge": {
+     "p0": 113.0,
+     "p10": 325.0,
+     "p50": 987.0,
+     "p90": 1973.0,
+     "p99": 2626.0,
+     "p100": 5599.0,
+     "mean": 1081.7379
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 2510,
+     "agents_with_15": 1191
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "tenure_weeks": 13.0,
+     "groups": {
+      "household": 107,
+      "work": 198,
+      "school": 27
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 50466,
+     "candidate_pairs": 38232,
+     "candidate_pairs_copresent": 35799,
+     "capped_out": 2,
+     "edges_before_tau": 35813,
+     "dropped_by_tau": 1526,
+     "init_seconds_nondeterministic": 0.118
+    },
+    "lifetime_days": {
+     "initial": {
+      "p0": 0.009,
+      "p10": 49.816,
+      "p50": 609.042,
+      "p90": 2564.142,
+      "p100": 21212.698,
+      "n": 34214
+     },
+     "acquaintance": {
+      "n": 0
+     }
+    },
+    "copresent": false,
+    "acquaintance_wake": false,
+    "invite_weights": false,
+    "wall_seconds_nondeterministic": {},
+    "origins": {
+     "invite": {
+      "invites": 646,
+      "accepted": 583,
+      "declined": 62,
+      "expired": 0,
+      "rejected": 185,
+      "accept_rate": 0.9025
+     },
+     "chance": {
+      "invites": 96,
+      "accepted": 92,
+      "declined": 4,
+      "expired": 0,
+      "rejected": 28,
+      "accept_rate": 0.9583
+     },
+     "acquaintance": {
+      "invites": 0,
+      "accepted": 0,
+      "declined": 0,
+      "expired": 0,
+      "rejected": 0,
+      "accept_rate": 0.0
+     }
+    }
+   },
+   "conversation": {
+    "sessions_opened": 675,
+    "sessions_active": 1,
+    "sessions_closed": 674,
+    "conv_invites": 742,
+    "conv_accepted": 675,
+    "conv_declined": 66,
+    "conv_pending_expired": 0,
+    "conv_pending_open": 1,
+    "conv_invite_refractory_blocked": 54,
+    "conv_target_named": 952,
+    "conv_fallback_same_batch": 2,
+    "conv_target_absent": 3
+   },
+   "memory_talk_events": 5255,
+   "a1_session_size": {
+    "2": 674
+   },
+   "a4_talk_minutes_per_agent_day": {
+    "all_agents": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 6.0,
+     "p99": 18.0,
+     "p100": 72.0,
+     "mean": 1.5236,
+     "n": 5000
+    },
+    "agents_with_talk": {
+     "p0": 1.0,
+     "p10": 5.0,
+     "p50": 6.0,
+     "p90": 12.0,
+     "p99": 28.57,
+     "p100": 72.0,
+     "mean": 8.0699,
+     "n": 944
+    },
+    "share_with_talk": 0.1888
+   },
+   "session_minutes_by_origin": {
+    "chance": {
+     "p0": 2.0,
+     "p10": 5.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 5.7065,
+     "n": 92
+    },
+    "invite": {
+     "p0": 1.0,
+     "p10": 4.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 5.6426,
+     "n": 582
+    }
+   },
+   "t5": {
+    "picks": 961,
+    "chosen_count_vs_id": {
+     "weighted_abs_rho": 0.25200335422015824,
+     "partial": -0.16450782824859317,
+     "largest_stratum": {
+      "name": "COMMUTER",
+      "rho": -0.20462998015789902
+     },
+     "raw_spearman": -0.30803897054136464
+    },
+    "within_cell_id_rank": {
+     "mean": 0.0638,
+     "expected_if_unbiased": 0.5,
+     "pearson_with_uniform_null": 0.0349,
+     "se": 0.0045
+    },
+    "edge_partner_share": 0.0
+   },
+   "chosen_count_nonzero": null,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "kinds_in_sample": {
+    "COMMUTER": 2298,
+    "VISITOR": 604,
+    "WORKER": 72,
+    "RESIDENT": 446,
+    "DISPATCHER": 24,
+    "STUDENT": 469,
+    "REGULAR_VISITOR": 202,
+    "FOREIGN_VISITOR": 172,
+    "CREW": 713
+   },
+   "wall_seconds_nondeterministic": 47.49,
+   "wo_relations_equals_off": false
+  },
+  {
+   "arm": "classical_on",
+   "sample": "stratified",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "policy": "classical",
+    "chooser": "classical",
+    "relations": "on"
+   },
+   "final_hash": "be1ba09ca59ec48704cf50de3f7b237f6df34e578c96af10b4dbd97de35b4392",
+   "final_wo_relations": "a093f06e11357b24fcc9a8f5b46d894881f68dd8baaa39bf9b81fbddbd41b349",
+   "llm_calls": 143700,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 6361,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4559,
+    "PLAN_GENERAL": 6574,
+    "PLAN_TRANSIT": 7724,
+    "INTEROCEPTION": 29094,
+    "ACQUAINTANCE": 39870,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 9724,
+    "ACTIVITY_EXPIRY": 39794
+   },
+   "l4": {
+    "l4_conversation_share": 0.044266,
+    "l4_conversation_line": 0.15,
+    "l4_conversation_exceeded": false,
+    "llm_calls_per_agent_day": 28.74
+   },
+   "relations": {
+    "k": 15,
+    "tau": 0.704,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "acq_agent_refractory": 19563,
+     "acq_appear": 118908,
+     "acq_candidates": 61532,
+     "acq_not_live": 505,
+     "acq_pair_refractory": 16261,
+     "acq_woken": 39870,
+     "events": 1979,
+     "events:sign+1": 1914,
+     "events:sign0": 65,
+     "evicted_kind:acquaintance": 15,
+     "evicted_kind:work": 1,
+     "evictions": 16,
+     "init_edges": 34287,
+     "init_edges:household": 198,
+     "init_edges:school": 7650,
+     "init_edges:work": 26439,
+     "invite_fallback_only": 708,
+     "invite_named": 1309,
+     "invite_pick:beyond": 0,
+     "invite_pick:inner": 391,
+     "invite_pick:near_first": 536,
+     "invite_pick:next": 257,
+     "invite_pick:rest": 91,
+     "merged": 902,
+     "new_edges": 758,
+     "newcomer_dropped": 319
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 5.0,
+     "p90": 15.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 6.8428
+    },
+    "edges_live_total": 34214,
+    "edges_below_tau": 815,
+    "agents_with_edges": 3001,
+    "degree_histogram": {
+     "0": 1999,
+     "1": 262,
+     "2": 72,
+     "3": 76,
+     "4": 81,
+     "5": 57,
+     "6": 78,
+     "7": 34,
+     "8": 48,
+     "9": 71,
+     "10": 78,
+     "11": 62,
+     "12": 135,
+     "13": 289,
+     "14": 467,
+     "15": 1191
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 198,
+     "work": 26366,
+     "school": 7650
+    },
+    "signs": {
+     "0": 33374,
+     "1": 840
+    },
+    "A": {
+     "p0": 0.7042,
+     "p10": 1.3435,
+     "p50": 2.0294,
+     "p90": 2.4783,
+     "p99": 2.7171,
+     "p100": 3.4958,
+     "mean": 1.9647
+    },
+    "P": {
+     "p0": 128.0,
+     "p10": 237.0,
+     "p50": 254.0,
+     "p90": 255.0,
+     "p99": 255.0,
+     "p100": 255.0,
+     "mean": 247.852
+    },
+    "n_per_edge": {
+     "p0": 113.0,
+     "p10": 325.0,
+     "p50": 987.0,
+     "p90": 1973.0,
+     "p99": 2626.0,
+     "p100": 5598.0,
+     "mean": 1081.7572
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 2510,
+     "agents_with_15": 1191
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "tenure_weeks": 13.0,
+     "groups": {
+      "household": 107,
+      "work": 198,
+      "school": 27
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 50466,
+     "candidate_pairs": 38232,
+     "candidate_pairs_copresent": 35799,
+     "capped_out": 2,
+     "edges_before_tau": 35813,
+     "dropped_by_tau": 1526,
+     "init_seconds_nondeterministic": 0.116
+    },
+    "lifetime_days": {
+     "initial": {
+      "p0": 0.009,
+      "p10": 49.815,
+      "p50": 609.042,
+      "p90": 2564.142,
+      "p100": 21205.089,
+      "n": 34214
+     },
+     "acquaintance": {
+      "n": 0
+     }
+    },
+    "copresent": false,
+    "acquaintance_wake": true,
+    "invite_weights": true,
+    "wall_seconds_nondeterministic": {
+     "detect": 0.768
+    },
+    "origins": {
+     "invite": {
+      "invites": 553,
+      "accepted": 494,
+      "declined": 58,
+      "expired": 0,
+      "rejected": 190,
+      "accept_rate": 0.8933
+     },
+     "chance": {
+      "invites": 221,
+      "accepted": 202,
+      "declined": 18,
+      "expired": 1,
+      "rejected": 85,
+      "accept_rate": 0.914
+     },
+     "acquaintance": {
+      "invites": 288,
+      "accepted": 261,
+      "declined": 22,
+      "expired": 1,
+      "rejected": 32,
+      "accept_rate": 0.9062
+     }
+    }
+   },
+   "conversation": {
+    "sessions_opened": 957,
+    "sessions_active": 1,
+    "sessions_closed": 956,
+    "conv_invites": 1062,
+    "conv_accepted": 957,
+    "conv_declined": 98,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 1,
+    "conv_invite_refractory_blocked": 85,
+    "conv_target_named": 1309,
+    "conv_fallback_same_batch": 4,
+    "conv_target_absent": 7
+   },
+   "memory_talk_events": 7344,
+   "a1_session_size": {
+    "2": 956
+   },
+   "a4_talk_minutes_per_agent_day": {
+    "all_agents": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 6.0,
+     "p99": 18.0,
+     "p100": 42.0,
+     "mean": 2.1508,
+     "n": 5000
+    },
+    "agents_with_talk": {
+     "p0": 1.0,
+     "p10": 5.0,
+     "p50": 6.0,
+     "p90": 12.0,
+     "p99": 24.0,
+     "p100": 42.0,
+     "mean": 7.6814,
+     "n": 1400
+    },
+    "share_with_talk": 0.28
+   },
+   "session_minutes_by_origin": {
+    "acquaintance": {
+     "p0": 3.0,
+     "p10": 4.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 5.6667,
+     "n": 261
+    },
+    "chance": {
+     "p0": 1.0,
+     "p10": 4.1,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 5.6782,
+     "n": 202
+    },
+    "invite": {
+     "p0": 1.0,
+     "p10": 4.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 5.5801,
+     "n": 493
+    }
+   },
+   "t5": {
+    "picks": 1349,
+    "chosen_count_vs_id": {
+     "weighted_abs_rho": 0.06653751446693568,
+     "partial": -0.05790435624247016,
+     "largest_stratum": {
+      "name": "COMMUTER",
+      "rho": -0.06705392551112496
+     },
+     "raw_spearman": -0.15572968818482044
+    },
+    "within_cell_id_rank": {
+     "mean": 0.4375,
+     "expected_if_unbiased": 0.5,
+     "pearson_with_uniform_null": -0.0009,
+     "se": 0.0089
+    },
+    "edge_partner_share": 0.493
+   },
+   "chosen_count_nonzero": 588,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "kinds_in_sample": {
+    "COMMUTER": 2298,
+    "VISITOR": 604,
+    "WORKER": 72,
+    "RESIDENT": 446,
+    "DISPATCHER": 24,
+    "STUDENT": 469,
+    "REGULAR_VISITOR": 202,
+    "FOREIGN_VISITOR": 172,
+    "CREW": 713
+   },
+   "wall_seconds_nondeterministic": 64.83
+  },
+  {
+   "arm": "classical_copresent",
+   "sample": "stratified",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "policy": "classical",
+    "chooser": "classical",
+    "relations": "on",
+    "rel_copresent": "on"
+   },
+   "final_hash": "e8d17be3dd59c0728580be8e91ba5db173dad73502199f76a55a27d186b201ec",
+   "final_wo_relations": "a093f06e11357b24fcc9a8f5b46d894881f68dd8baaa39bf9b81fbddbd41b349",
+   "llm_calls": 143700,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 6361,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4559,
+    "PLAN_GENERAL": 6574,
+    "PLAN_TRANSIT": 7724,
+    "INTEROCEPTION": 29094,
+    "ACQUAINTANCE": 39870,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 9724,
+    "ACTIVITY_EXPIRY": 39794
+   },
+   "l4": {
+    "l4_conversation_share": 0.044266,
+    "l4_conversation_line": 0.15,
+    "l4_conversation_exceeded": false,
+    "llm_calls_per_agent_day": 28.74
+   },
+   "relations": {
+    "k": 15,
+    "tau": 0.704,
+    "d": 0.5,
+    "s": 0.25,
+    "row_bytes_actual": 16,
+    "row_bytes_declared": 16,
+    "counts": {
+     "acq_agent_refractory": 19564,
+     "acq_appear": 118908,
+     "acq_candidates": 61533,
+     "acq_not_live": 503,
+     "acq_pair_refractory": 16261,
+     "acq_woken": 39870,
+     "copresent_events": 27067,
+     "copresent_events:acquaintance": 338,
+     "copresent_events:household": 198,
+     "copresent_events:school": 6026,
+     "copresent_events:work": 20505,
+     "events": 1979,
+     "events:sign+1": 1914,
+     "events:sign0": 65,
+     "evicted_kind:acquaintance": 15,
+     "evicted_kind:work": 1,
+     "evictions": 16,
+     "init_edges": 34287,
+     "init_edges:household": 198,
+     "init_edges:school": 7650,
+     "init_edges:work": 26439,
+     "invite_fallback_only": 708,
+     "invite_named": 1309,
+     "invite_pick:beyond": 0,
+     "invite_pick:inner": 391,
+     "invite_pick:near_first": 536,
+     "invite_pick:next": 257,
+     "invite_pick:rest": 91,
+     "merged": 902,
+     "new_edges": 758,
+     "newcomer_dropped": 319
+    },
+    "edges_live_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 5.0,
+     "p90": 15.0,
+     "p99": 15.0,
+     "p100": 15.0,
+     "mean": 6.8436
+    },
+    "edges_live_total": 34218,
+    "edges_below_tau": 811,
+    "agents_with_edges": 3001,
+    "degree_histogram": {
+     "0": 1999,
+     "1": 262,
+     "2": 72,
+     "3": 76,
+     "4": 81,
+     "5": 57,
+     "6": 78,
+     "7": 34,
+     "8": 48,
+     "9": 71,
+     "10": 78,
+     "11": 62,
+     "12": 135,
+     "13": 287,
+     "14": 467,
+     "15": 1193
+    },
+    "degree_regular": false,
+    "kinds": {
+     "household": 198,
+     "work": 26370,
+     "school": 7650
+    },
+    "signs": {
+     "0": 33378,
+     "1": 840
+    },
+    "A": {
+     "p0": 0.7041,
+     "p10": 1.3458,
+     "p50": 2.0303,
+     "p90": 2.4786,
+     "p99": 2.7175,
+     "p100": 3.4961,
+     "mean": 1.9656
+    },
+    "P": {
+     "p0": 128.0,
+     "p10": 237.0,
+     "p50": 254.0,
+     "p90": 255.0,
+     "p99": 255.0,
+     "p100": 255.0,
+     "mean": 247.8941
+    },
+    "n_per_edge": {
+     "p0": 112.0,
+     "p10": 325.0,
+     "p50": 988.0,
+     "p90": 1973.0,
+     "p99": 2627.0,
+     "p100": 5599.0,
+     "mean": 1082.4264
+    },
+    "dunbar_layers": {
+     "agents_with_5_or_more": 2510,
+     "agents_with_15": 1193
+    },
+    "init": {
+     "density": 1.0,
+     "k": 15,
+     "slot_minutes": 15,
+     "tiebreak": "hash",
+     "tenure_weeks": 13.0,
+     "groups": {
+      "household": 107,
+      "work": 198,
+      "school": 27
+     },
+     "w17_single_day": true,
+     "candidate_pairs_all": 50466,
+     "candidate_pairs": 38232,
+     "candidate_pairs_copresent": 35799,
+     "capped_out": 2,
+     "edges_before_tau": 35813,
+     "dropped_by_tau": 1526,
+     "init_seconds_nondeterministic": 0.12
+    },
+    "lifetime_days": {
+     "initial": {
+      "p0": 0.002,
+      "p10": 49.962,
+      "p50": 610.354,
+      "p90": 2566.816,
+      "p100": 21212.698,
+      "n": 34218
+     },
+     "acquaintance": {
+      "n": 0
+     }
+    },
+    "copresent": true,
+    "acquaintance_wake": true,
+    "invite_weights": true,
+    "wall_seconds_nondeterministic": {
+     "detect": 1.282
+    },
+    "origins": {
+     "invite": {
+      "invites": 553,
+      "accepted": 494,
+      "declined": 58,
+      "expired": 0,
+      "rejected": 190,
+      "accept_rate": 0.8933
+     },
+     "chance": {
+      "invites": 221,
+      "accepted": 202,
+      "declined": 18,
+      "expired": 1,
+      "rejected": 85,
+      "accept_rate": 0.914
+     },
+     "acquaintance": {
+      "invites": 288,
+      "accepted": 261,
+      "declined": 22,
+      "expired": 1,
+      "rejected": 32,
+      "accept_rate": 0.9062
+     }
+    }
+   },
+   "conversation": {
+    "sessions_opened": 957,
+    "sessions_active": 1,
+    "sessions_closed": 956,
+    "conv_invites": 1062,
+    "conv_accepted": 957,
+    "conv_declined": 98,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 1,
+    "conv_invite_refractory_blocked": 85,
+    "conv_target_named": 1309,
+    "conv_fallback_same_batch": 4,
+    "conv_target_absent": 7
+   },
+   "memory_talk_events": 7344,
+   "a1_session_size": {
+    "2": 956
+   },
+   "a4_talk_minutes_per_agent_day": {
+    "all_agents": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 6.0,
+     "p99": 18.0,
+     "p100": 42.0,
+     "mean": 2.1508,
+     "n": 5000
+    },
+    "agents_with_talk": {
+     "p0": 1.0,
+     "p10": 5.0,
+     "p50": 6.0,
+     "p90": 12.0,
+     "p99": 24.0,
+     "p100": 42.0,
+     "mean": 7.6814,
+     "n": 1400
+    },
+    "share_with_talk": 0.28
+   },
+   "session_minutes_by_origin": {
+    "acquaintance": {
+     "p0": 3.0,
+     "p10": 4.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 5.6667,
+     "n": 261
+    },
+    "chance": {
+     "p0": 1.0,
+     "p10": 4.1,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 5.6782,
+     "n": 202
+    },
+    "invite": {
+     "p0": 1.0,
+     "p10": 4.0,
+     "p50": 6.0,
+     "p90": 6.0,
+     "p99": 6.0,
+     "p100": 6.0,
+     "mean": 5.5801,
+     "n": 493
+    }
+   },
+   "t5": {
+    "picks": 1349,
+    "chosen_count_vs_id": {
+     "weighted_abs_rho": 0.06653751446693568,
+     "partial": -0.05790435624247016,
+     "largest_stratum": {
+      "name": "COMMUTER",
+      "rho": -0.06705392551112496
+     },
+     "raw_spearman": -0.15572968818482044
+    },
+    "within_cell_id_rank": {
+     "mean": 0.4375,
+     "expected_if_unbiased": 0.5,
+     "pearson_with_uniform_null": -0.0009,
+     "se": 0.0089
+    },
+    "edge_partner_share": 0.493
+   },
+   "chosen_count_nonzero": 588,
+   "agents_bytes_total": 18000000,
+   "agents_declared_bytes_per_agent": 4496,
+   "kinds_in_sample": {
+    "COMMUTER": 2298,
+    "VISITOR": 604,
+    "WORKER": 72,
+    "RESIDENT": 446,
+    "DISPATCHER": 24,
+    "STUDENT": 469,
+    "REGULAR_VISITOR": 202,
+    "FOREIGN_VISITOR": 172,
+    "CREW": 713
+   },
+   "wall_seconds_nondeterministic": 67.91
+  }
+ ]
+}

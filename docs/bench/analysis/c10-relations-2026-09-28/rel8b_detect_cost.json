@@ -1,0 +1,40 @@
+{
+ "schema": "shibuya.bench/c10-relations/detect-cost-8b/1",
+ "agents": 390067,
+ "k": 15,
+ "edges": 3387123,
+ "init_seconds_nondeterministic": 61.5,
+ "ticks": 21,
+ "move_share_per_tick": 0.05,
+ "acquaintance_ms_per_tick": {
+  "p0": 42.876,
+  "p10": 45.513,
+  "p50": 63.547,
+  "p90": 72.76,
+  "p99": 75.027,
+  "p100": 75.149,
+  "mean": 61.34,
+  "n": 20
+ },
+ "copresent_ms_per_tick": {
+  "p0": 3.796,
+  "p10": 7.549,
+  "p50": 20.761,
+  "p90": 38.083,
+  "p99": 41.397,
+  "p100": 41.635,
+  "mean": 22.0242,
+  "n": 20
+ },
+ "acquaintance_candidates_per_tick": {
+  "p0": 12561.0,
+  "p10": 21273.6,
+  "p50": 33115.0,
+  "p90": 35883.2,
+  "p99": 36122.15,
+  "p100": 36125.0,
+  "mean": 30505.85,
+  "n": 20
+ },
+ "note": "synthetic moves: each tick a share of agents jumps to its work cell (or a random cell); positions random in a 50 m box; all agents eligible (no sleep/outside filter) = upper bound"
+}

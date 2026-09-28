@@ -611,6 +611,7 @@ def intents_from_responses(
     targets: Sequence[object] | None = None,
     poi_resolver: object | None = None,
     intent_hold: object | None = None,
+    talk_chooser: object | None = None,
 ) -> IntentBatch:
     """Phase A の LLM 由来分: 行動コード → 対象と資源を**エンジンが**決めて intent にする。
 
@@ -660,6 +661,10 @@ def intents_from_responses(
             別セル)を**目的地つき移動**に変え、元の行為を ``intent_hold.propose`` へ渡す
             (意図を立てるのは移動が始まった後=``IntentLayer.after_apply``)。``None``(既定)は
             段 2b と 1 バイトも変わらない。
+        talk_chooser: **C10 8b の会話の相手の選び手**(``engine.relations.RelationLayer``・``--relations on``
+            のランだけ)。名指しの無い会話の行(同セルの名指しでない・別セルの意図にしない行)の相手を関係辺の
+            重み+seed つき乱択で引き(``choose_talk_partners``)、全部の会話の行に起点(招待/偶然/知人出現)を
+            付ける。``None``(既定)は 1 バイトも変わらない。
 
     Returns:
         ``IntentBatch``(1 個体 1 件)。
@@ -806,6 +811,25 @@ def intents_from_responses(
         partner, source = talk_partners(
             a, cell, target_person, agents.registry.cell, int(agents.n), order_key
         )
+        if talk_chooser is not None:
+            # C10 8b: 別セルの名指し(下の意図にする行)は選ばない=同じ判定を先に作る
+            far0 = np.zeros(n, dtype=bool)
+            if hold_on and target_person is not None:
+                nm0 = np.asarray(target_person, dtype=np.int64)
+                pc0 = np.asarray(agents.registry.cell, dtype=np.int64)
+                ok0 = is_talk & (nm0 >= 0) & (nm0 < int(agents.n)) & (nm0 != a) & (cell >= 0)
+                pcell0 = np.where(ok0, pc0[np.clip(nm0, 0, max(0, int(agents.n) - 1))], -1)
+                far0 = ok0 & (pcell0 >= 0) & (pcell0 != cell)
+            rows_t = np.flatnonzero(is_talk & ~far0)
+            if rows_t.size:
+                got, _origin = talk_chooser.choose_talk_partners(  # type: ignore[attr-defined]
+                    agents, int(tick), a[rows_t], partner[rows_t], source[rows_t] == 0,
+                    np.asarray(condition, dtype=np.int64)[rows_t],
+                )
+                partner = partner.copy()
+                partner[rows_t] = got
+                source = source.copy()
+                source[rows_t] = np.where(source[rows_t] == 0, 0, np.where(got >= 0, 1, 2)).astype(np.int8)
         target = np.where(is_talk, partner, target)
         resource = np.where(
             is_talk & (partner >= 0), space.partner(np.maximum(partner, 0)), resource
