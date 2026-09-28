@@ -69,6 +69,13 @@ from shibuya.engine.poi_target import (
 )
 from shibuya.engine.intent import INTENT_MAX_TICKS
 from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES
+from shibuya.engine.chooser import HABIT_P, RANK_TAU
+from shibuya.engine.classical import (
+    ACTIVITY_REGIONS,
+    DEFAULT_ACTIVITY_REGION,
+    DEFAULT_POLICY,
+    POLICIES,
+)
 from shibuya.engine.energy import (
     DEFAULT_ENERGY_RATE,
     DEFAULT_HUNGER_MODEL,
@@ -718,7 +725,36 @@ def main(argv: list[str] | None = None) -> int:
         choices=CHOOSER_NAMES,
         default=DEFAULT_CHOOSER,
         help="段 2a(D-114 (a)): 購入/食事/並ぶの対象の選び手。候補=現在セルの営業中・意図に合う POI。"
-             "nearest=可視(W8 の視点数)の降順 → POI 索引(既定・憲法⑥の宣言つき暫定)",
+             "nearest=可視(W8 の視点数)の降順 → POI 索引(既定・憲法⑥の宣言つき暫定)/"
+             "classical=5 段目 5b の古典的選択モデル(習慣 p_h+空腹の語で動く願望水準+可視順の揺らぎ τ)",
+    )
+    ap.add_argument(
+        "--policy",
+        choices=POLICIES,
+        default=DEFAULT_POLICY,
+        help="5 段目 5b(D-119 L5): 起床ごとの応答を作る方策。mock=凍結の MockLLM(既定)/"
+             "classical=LLM 0 呼の古典的選択モデル(食事の門+社会生活基本調査の活動の事前分布+"
+             "対応表 v0・語彙 v3 だけ)",
+    )
+    ap.add_argument(
+        "--activity-region",
+        choices=tuple(ACTIVITY_REGIONS),
+        default=DEFAULT_ACTIVITY_REGION,
+        help="--policy classical の事前分布の地域(kanto=関東大都市圏・既定/national=全国)",
+    )
+    ap.add_argument(
+        "--classical-habit-p",
+        type=float,
+        default=HABIT_P,
+        metavar="P",
+        help="--chooser classical の習慣の確率 p_h(宣言 0.5・感度 0.25/0.75・--familiarity on のときだけ効く)",
+    )
+    ap.add_argument(
+        "--classical-tau",
+        type=float,
+        default=RANK_TAU,
+        metavar="TAU",
+        help="--chooser classical の満足化の走査順の揺らぎ τ(宣言 1.0・感度 0.5/2.0)",
     )
     ap.add_argument(
         "--poi-target",
@@ -912,6 +948,10 @@ def main(argv: list[str] | None = None) -> int:
         activity=(str(args.activity) == "on"),
         eatery=str(args.eatery),
         chooser=str(args.chooser),
+        policy=str(args.policy),
+        activity_region=str(args.activity_region),
+        classical_habit_p=float(args.classical_habit_p),
+        classical_tau=float(args.classical_tau),
         poi_target=str(args.poi_target),
         move_search_radius=int(args.move_search_radius),
         intent_max_ticks=int(args.intent_max_ticks),

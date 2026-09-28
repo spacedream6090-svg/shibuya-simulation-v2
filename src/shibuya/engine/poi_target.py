@@ -74,6 +74,7 @@ import numpy as np
 
 from shibuya.agents.state import IntentKind
 from shibuya.engine.chooser import ChoiceContext, Chooser, draw_index, entropy_bits
+from shibuya.engine.commit import ACT_EAT as _EAT_CODE
 from shibuya.engine.commit import WANDER_BAD_TARGET
 from shibuya.world.assets import BAND_CODES, SYNTHETIC_POI_CATS
 from shibuya.world.state import LANDMARK_CATS
@@ -286,6 +287,25 @@ class TargetResolver:
         self._landmark = np.fromiter((c in LANDMARK_CATS for c in self._cat), dtype=bool, count=n)
         if int(self.move_search_radius) < 0:
             raise ValueError("move_search_radius は 0 以上")
+        #: 5b: 選び手が価格・所持金・訪問回数を読むか(``classical`` だけ=既定 nearest は 1 バイトも変わらない)。
+        self._rich = bool(getattr(self.chooser, "name", "") == "classical")
+
+    def _rich_fields(self, reg: Any, aid: int, cands: np.ndarray, food: bool) -> dict[str, Any]:
+        """5b(``classical`` の選び手だけ): 候補の価格・体の所持金・親しみの表の訪問回数。"""
+        if not self._rich:
+            return {}
+        price = np.asarray(self.world.pois.price, dtype=np.int64)[cands]
+        visits = np.zeros(0, dtype=np.int64)
+        if "fam_thing" in reg.arrays:
+            things = np.asarray(reg.fam_thing[aid], dtype=np.int64)
+            counts = np.asarray(reg.fam_visits[aid], dtype=np.int64)
+            visits = np.zeros(cands.size, dtype=np.int64)
+            hit = np.flatnonzero(np.isin(things, cands) & (things >= 0))
+            if hit.size:
+                pos = {int(things[h]): int(counts[h]) for h in hit.tolist()}  # 高々 K 行
+                visits = np.fromiter((pos.get(int(c), 0) for c in cands.tolist()),
+                                     dtype=np.int64, count=cands.size)
+        return {"price": price, "money": int(reg.money[aid]), "visits": visits, "food": bool(food)}
 
     # ------------------------------------------------------------------ 対象欄の読み
     def _category_mask(self, word: str) -> np.ndarray:
@@ -480,6 +500,7 @@ class TargetResolver:
                 hunger=int(reg.hunger[aid]),
                 visibility=vis_all[cands],
                 distance_m=np.asarray(cell_dist[cell, poi_cell[cands]], dtype=np.float64),
+                **self._rich_fields(reg, aid, cands, eat),
             )
             p = np.asarray(self.chooser.probs(cands, ctx), dtype=np.float64)
             if p.shape != cands.shape:
@@ -600,6 +621,8 @@ class TargetResolver:
             agent_id=aid, tick=int(tick), cell=cell, node=int(reg.node[aid]), action_code=code,
             target_kind=kind, target_text=text, hunger=int(reg.hunger[aid]),
             visibility=np.asarray(vis, dtype=np.int64), distance_m=dist,
+            **self._rich_fields(reg, aid, np.asarray(cands, dtype=np.int64),
+                                bool(code == _EAT_CODE)),
         )
         p = np.asarray(self.chooser.probs(cands, ctx), dtype=np.float64)
         if p.shape != cands.shape:

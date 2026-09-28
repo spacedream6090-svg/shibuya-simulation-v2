@@ -96,7 +96,23 @@ from shibuya.engine.arbiter import (
     call_budget_per_tick,
 )
 from shibuya.engine.change_detect import ChangeDetector
-from shibuya.engine.chooser import DEFAULT_CHOOSER, check_chooser, make_chooser
+from shibuya.engine.chooser import (
+    DEFAULT_CHOOSER,
+    HABIT_P,
+    RANK_TAU,
+    check_chooser,
+    make_chooser,
+)
+from shibuya.engine.classical import (
+    DEFAULT_ACTIVITY_REGION,
+    DEFAULT_POLICY,
+    ActivityPrior,
+    ClassicalPolicy,
+    check_activity_region,
+    check_policy,
+    day_kind_of,
+    load_activity_prior,
+)
 from shibuya.engine.conversation import ConversationManager
 from shibuya.engine.geometry import (
     DEFAULT_GEOMETRY,
@@ -224,6 +240,54 @@ DIAG_DAY_ROWS: Final[tuple[str, ...]] = (
     "tape_miss_count",
     "conversation_sessions",
 )
+
+
+#: 5b 層の記録の起床入口(``engine.run`` の診断と同じ 6 つ)。
+_ENTRANCES: Final[tuple[str, ...]] = ("場所", "体", "日課", "会話", "満了", "社会")
+_ENTRANCE_PLAN: Final[int] = 2
+_ENTRANCE_EXPIRY: Final[int] = 4
+#: 起床条件 → 起床入口の索引。
+_ENTRANCE_OF_CONDITION: Final[np.ndarray] = np.array(
+    [
+        {
+            "CELL_BLOCK": 0, "INTEROCEPTION": 1,
+            "PLAN_SLEEPING": 2, "PLAN_WORKING": 2, "PLAN_GENERAL": 2, "PLAN_TRANSIT": 2,
+            "CONVERSATION_TURN": 3, "ACTIVITY_EXPIRY": 4,
+        }.get(WakeCondition(i).name, 5)
+        for i in range(N_WAKE_CONDITIONS_ALL)
+    ],
+    dtype=np.int64,
+)
+#: 層の名(SOFAI 形式の記録の鍵)。
+DECISION_LAYERS: Final[tuple[str, ...]] = ("system1", "system1_5", "system2")
+
+
+def decision_layers_summary(counts: np.ndarray) -> dict[str, Any]:
+    """5b(L4 (a)): 時 × 層 × 起床入口 の判断数 → manifest の形(割合つき)。"""
+    c = np.asarray(counts, dtype=np.int64)
+    tot = c.sum(axis=(0, 2))
+    all_ = int(tot.sum())
+    by_hour = []
+    for h in range(c.shape[0]):
+        row = {DECISION_LAYERS[k]: int(c[h, k].sum()) for k in range(c.shape[1])}
+        n = sum(row.values())
+        row["share"] = {k: (round(v / n, 4) if n else 0.0) for k, v in list(row.items())}
+        by_hour.append(row)
+    return {
+        "definition": "system1=engine executed a plan without a call (planned sleep, intent "
+                      "arrival, presence arrival/departure); system1_5=call answered by the "
+                      "classical policy; system2=call answered by LLM or mock",
+        "entrances": list(_ENTRANCES),
+        "totals": {DECISION_LAYERS[k]: int(tot[k]) for k in range(c.shape[1])},
+        "share": {DECISION_LAYERS[k]: (round(int(tot[k]) / all_, 4) if all_ else 0.0)
+                  for k in range(c.shape[1])},
+        "by_entrance": {
+            DECISION_LAYERS[k]: {e: int(c[:, k, j].sum()) for j, e in enumerate(_ENTRANCES)}
+            for k in range(c.shape[1])
+        },
+        "by_hour": by_hour,
+        "by_hour_layer_entrance": c.tolist(),
+    }
 
 
 def _count_intero_crossings(det: Any, agents: AgentState, acc: np.ndarray) -> None:
@@ -472,6 +536,11 @@ class RunResult:
     hunger_model: str = "v1"
     energy_rate: str = ""
     energy: dict[str, Any] = field(default_factory=dict)
+    #: 5 段目 5b(D-119): 方策(``mock``/``classical``)・方策の要約・選び手の計数・層の記録(SOFAI 形式)。
+    policy: str = DEFAULT_POLICY
+    classical: dict[str, Any] = field(default_factory=dict)
+    chooser_stats: dict[str, Any] = field(default_factory=dict)
+    decision_layers: dict[str, Any] = field(default_factory=dict)
     #: 5 段目 5a(診断): 内受容の段の跨ぎの延べ(変数 × 上げ/下げ × 全体/起きて範囲内)。
     #: 起床入口「体の状態」の内訳を空腹と疲労・体感温度に分けて読むため(挙動には効かない)。
     intero_crossings: dict[str, int] = field(default_factory=dict)
@@ -844,6 +913,11 @@ class RunResult:
             "energy_rate": str(self.energy_rate),
             "energy": dict(self.energy),
             "intero_crossings": dict(self.intero_crossings),
+            # ---- 5 段目 5b(D-119 L1〜L8): 方策・選び手の計数・層の記録。列追加のみ ----
+            "policy": str(self.policy),
+            "classical": dict(self.classical),
+            "chooser_stats": dict(self.chooser_stats),
+            "decision_layers": dict(self.decision_layers),
             "calls_by_condition": dict(self.calls_by_condition),
             "synonym_table_version": _synonym_table_version(self.vocab_version),
             "action_usage": dict(self.action_usage),
@@ -1406,6 +1480,10 @@ def run_day(
     familiarity_k: int = FAMILIARITY_K,
     hunger_model: str = "v1",
     energy_rate: str = DEFAULT_ENERGY_RATE,
+    policy: str = DEFAULT_POLICY,
+    activity_region: str = DEFAULT_ACTIVITY_REGION,
+    classical_habit_p: float = HABIT_P,
+    classical_tau: float = RANK_TAU,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -1631,6 +1709,13 @@ def run_day(
             ``energy``(``cli.CLI_DEFAULT_HUNGER_MODEL``・K5 (a))。
         energy_rate: 消費の式(``"eer"``=K1 (c)・既定 / ``"bmr"``=K1 (a) の感度腕)。``hunger_model=
             "energy"`` のときだけ効く。
+        policy: **5 段目 5b(D-119 L5 (a))**。``"classical"`` で LLM(mock)を呼ばず、起床ごとに
+            食事の門+ActivityChooser(社会生活基本調査の事前分布)から 5 ラベルの応答文を作る
+            (``engine.classical.ClassicalPolicy``・語彙 v3 だけ)。既定 ``"mock"``=凍結の mock
+            (**既定 checkpoint 不変**)。``llm`` の注入・再生・艦隊とは併用できない。
+        activity_region: 事前分布の地域(``"kanto"``=関東大都市圏・既定 / ``"national"``=全国)。
+        classical_habit_p / classical_tau: ``chooser="classical"`` の習慣の確率 p_h(宣言 0.5)と
+            満足化の揺らぎ τ(宣言 1.0)。
 
     Returns:
         ``RunResult``。
@@ -1685,6 +1770,16 @@ def run_day(
     eatery = check_eatery_mode(eatery)
     # ---- 段 2a: 選び手と対象の決め方(値の検査は世界を触る前) ----
     chooser = check_chooser(chooser)
+    # ---- 5 段目 5b: 方策と事前分布の地域(値の検査は世界を触る前) ----
+    policy = check_policy(policy)
+    activity_region = check_activity_region(activity_region)
+    if policy == "classical":
+        if llm is not None:
+            raise ValueError("policy='classical' と llm の注入は併用できない")
+        if mode == "replay" or replay is not None or fleet is not None:
+            raise ValueError("policy='classical' は再生・艦隊と併用できない")
+        if vocab_version != "v3":
+            raise ValueError("policy='classical' は語彙 v3 だけ(5 ラベルの応答文)")
     poi_target = check_poi_target(poi_target)
     #: 語彙 v3 の対象ヒント(「対象: 自宅/職場/学校」→ 拠点セル)は活動層と独立に効かせる。
     v3_hints = vocab_version == "v3"
@@ -1698,7 +1793,9 @@ def run_day(
     # ``legacy``(Q13)は resolver を作らない=``intents_from_responses`` が従来の最小 id を通す。
     poi_resolver = (
         TargetResolver(
-            world=world, chooser=make_chooser(chooser), seed=seed,
+            world=world,
+            chooser=make_chooser(chooser, p_h=float(classical_habit_p), tau=float(classical_tau)),
+            seed=seed,
             move_search_radius=int(move_search_radius),
         )
         if poi_target == "candidates"
@@ -1714,6 +1811,15 @@ def run_day(
         )
     if int(intent_max_ticks) < 1:
         raise ValueError(f"intent_max_ticks は 1 以上(いま {intent_max_ticks})")
+    classical_policy: ClassicalPolicy | None = None
+    if policy == "classical":
+        _prior_doc, _prior_md5 = load_activity_prior()
+        classical_policy = ClassicalPolicy(
+            seed=seed,
+            prior=ActivityPrior(_prior_doc, day_kind_of(day_index), activity_region),
+            prior_md5=_prior_md5,
+        )
+        llm = classical_policy
     llm = llm if llm is not None else _default_mock(
         seed, vocab_version, mock_move_target_p, mock_out_of_cell_target_p
     )
@@ -1979,6 +2085,30 @@ def run_day(
         )[b_slot]
     b_start = np.searchsorted(b_tick, np.arange(ticks + 1), side="left")
     schedule_hash = weekly.schedule_hash() if weekly is not None else ""
+    # ---- 5 段目 5b: 方策 classical を SoA・世界・計画境界に結ぶ(読むだけ) ----
+    if classical_policy is not None:
+        _has_work = np.zeros(n_agents, dtype=bool)
+        if pop is not None:
+            _m = min(n_agents, int(pop.n))
+            _has_work[:_m] = np.asarray(pop.work_cell, dtype=np.int64)[:_m] >= 0
+        _pa = getattr(runner, "assets", None) if runner is not None else None
+        classical_policy.bind(
+            agents=agents,
+            world=world,
+            home_cell=np.asarray(schedule.home_cell),
+            work_cell=np.asarray(schedule.work_cell),
+            school_cell=getattr(schedule, "school_cell", None),
+            has_work=_has_work,
+            boundary_agent=b_agent,
+            boundary_tick=b_tick,
+            tick_seconds=tick_seconds,
+            station_cells=getattr(_pa, "line_platform_cell", None),
+        )
+    #: 5 段目 5b(L4 (a)・SOFAI 形式): 時 × 層(0=System 1 予定/習慣で呼ばない・1=System 1.5 選択器・
+    #: 2=System 2 LLM/mock)× 起床入口 の判断数。層 1/2 は発射した呼(方策で分ける)・層 0 は
+    #: エンジンが予定を実行した件(計画の就寝・意図の到着・計画実行層の到着/退出)。
+    layer_counts = np.zeros((24, 3, len(_ENTRANCES)), dtype=np.int64)
+    _call_layer = 1 if classical_policy is not None else 2
     # ---- 二層の段 2: 活動層(「次の予定」は上の計画境界の表から引く) ----
     act_layer: ActivityLayer | None = (
         ActivityLayer(
@@ -2102,7 +2232,11 @@ def run_day(
         # ---- ⓪a-2 計画実行層(D-66): 到着・退出(§3)。世界過程と同じ位置で回す ----
         if presence is not None:
             t0 = time.perf_counter()
+            _pres0 = int(presence.n_arrivals) + int(presence.n_departures)
             presence.step(tick)
+            layer_counts[(tick * tick_seconds // 3600) % 24, 0, _ENTRANCE_PLAN] += (
+                int(presence.n_arrivals) + int(presence.n_departures) - _pres0
+            )
             phase["presence"] += time.perf_counter() - t0
 
         # ---- ⓪ 知覚の tick 前計算(セル配列+B4 描画欄・**1 tick 1 回**) ----
@@ -2278,6 +2412,10 @@ def run_day(
             # 非就寝の境界は逆に「起こしてから呼ぶ」(呼が繰り延べ・抑止で落ちても起きる)。
             if plan_sleep:
                 to_bed = p_cond == int(WakeCondition.PLAN_SLEEPING)
+                # 5b 層の記録: 就寝境界はエンジンが実行する(System 1=予定で呼ばない)
+                layer_counts[(tick * tick_seconds // 3600) % 24, 0, _ENTRANCE_PLAN] += int(
+                    np.count_nonzero(to_bed)
+                )
                 if presence is not None:
                     # **D-66**: 発火元は計画実行層(同じ位置・同じ resolve の口)。
                     # 就寝地の既定は層が持つ ``home_cell``(域外常住は −1 のまま=職場で寝ない)。
@@ -2487,6 +2625,8 @@ def run_day(
                     a = int(sel.agent_id[i])
                     cls = int(decision.selected_eff_class[i])
                     cond = int(sel.condition[i])
+                    if classical_policy is not None:
+                        classical_policy.set_call(a, cond, _inviter_of(conv, a, cond))
                     res = bridge.call(
                         a, tick, cls, cond,
                         cell=int(cell[a]), activity=int(act[a]), hunger=int(hun[a]),
@@ -2561,6 +2701,12 @@ def run_day(
                 np.asarray(sel.condition, dtype=np.int64), minlength=N_WAKE_CONDITIONS_ALL
             )[:N_WAKE_CONDITIONS_ALL]
             result.calls_by_hour[(tick // 60) % 24] += len(sel)  # D-56 の検証欄
+            # 5b 層の記録: 発射した呼=System 1.5(方策 classical)か 2(LLM/mock)× 起床入口
+            np.add.at(
+                layer_counts[(tick * tick_seconds // 3600) % 24, _call_layer],
+                _ENTRANCE_OF_CONDITION[np.asarray(sel.condition, dtype=np.int64)],
+                1,
+            )
         # 艦隊経路の書式エラーは ④′(到着時)で数える=選抜が 0 の tick でも計上する
         n_parse_errors += n_parse_errors_fleet
         peak_pending = max(peak_pending, len(pending))
@@ -2580,6 +2726,10 @@ def run_day(
         if intent_layer is not None:
             arrival_intents, llm_intents = intent_layer.arrival_intents(
                 agents, space, tick, llm=llm_intents
+            )
+            # 5b 層の記録: 着いた意図の行為はエンジンが実行する(System 1・入口=満了)
+            layer_counts[(tick * tick_seconds // 3600) % 24, 0, _ENTRANCE_EXPIRY] += len(
+                arrival_intents
             )
         else:
             arrival_intents = C.IntentBatch.empty()
@@ -3014,6 +3164,22 @@ def run_day(
     result.activity = bool(activity_on)
     result.eatery = str(eatery)
     result.chooser = str(chooser)
+    result.policy = str(policy)
+    result.classical = (
+        {**classical_policy.manifest_fields(),
+         "decisions_by_hour": {"meal": classical_policy.by_hour[:, 0].tolist(),
+                               "activity": classical_policy.by_hour[:, 1].tolist()}}
+        if classical_policy is not None
+        else {}
+    )
+    _cs = getattr(getattr(poi_resolver, "chooser", None), "stats", None)
+    result.chooser_stats = (
+        {"name": str(chooser), "p_h": float(classical_habit_p), "tau": float(classical_tau),
+         "activity_region": str(activity_region), "counts": dict(sorted(_cs.items()))}
+        if isinstance(_cs, dict)
+        else {}
+    )
+    result.decision_layers = decision_layers_summary(layer_counts)
     result.poi_target = str(poi_target)
     result.target_resolution = (
         resolution_summary(poi_resolver.stats, poi_resolver.entropy_sum)

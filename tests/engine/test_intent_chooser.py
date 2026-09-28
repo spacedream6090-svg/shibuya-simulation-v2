@@ -83,7 +83,8 @@ def test_draw_is_deterministic_and_follows_the_distribution():
 def test_entropy_and_names():
     assert entropy_bits(np.array([0.0, 1.0])) == pytest.approx(0.0)
     assert entropy_bits(np.array([0.5, 0.5])) == pytest.approx(1.0)
-    assert CHOOSER_NAMES == ("nearest",)
+    # 5 段目 5b(D-119): classical(古典的選択モデルの店選び)を足した。既定は nearest のまま
+    assert CHOOSER_NAMES == ("nearest", "classical")
     with pytest.raises(ValueError):
         check_chooser("huff")
 
