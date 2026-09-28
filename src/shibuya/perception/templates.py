@@ -64,6 +64,9 @@ __all__ = [
     "HEAT_STAGE_WORDS",
     "INTERO_SCALE_MIN",
     "INTERO_SCALE_MAX",
+    "HUNGER_WORDS",
+    "HUNGER_ITEM_TEMPLATE",
+    "HUNGER_WORD_DRAW_MIN_STAGE",
     "EMPTY_PHRASE",
     "TEMPLATES",
     "template_sha256",
@@ -101,7 +104,11 @@ __all__ = [
 ]
 
 #: テンプレ版(改版は delta+感度試験。値を変えたら ``template_sha256`` も変わる)。
-TEMPLATE_VERSION: Final[str] = "v1"
+#: **v1.1(5 段目 5a・D-118 K2・第291)**: B5 の空腹を**語**で描く項 ``HUNGER_ITEM_TEMPLATE`` と
+#: 語 4 つ ``HUNGER_WORDS`` を足した(文面の版上げ)。v1 の凍結 SHA は 161fe181… だった
+#: (``tests/perception/test_templates.py`` に旧値を注記)。v1 の文面(空腹は N で閾値を
+#: 超えています)は ``--hunger-model v1`` のランで 1 バイトも変わらない。
+TEMPLATE_VERSION: Final[str] = "v1.1"
 
 #: ブロックの順序(知覚契約書 §2.2 表の並び=変化率の昇順=prefix 前方一致の並び)。
 BLOCK_IDS: Final[tuple[str, ...]] = ("B0", "B1", "B2", "B3", "B4", "B4b", "B5", "B6")
@@ -205,6 +212,17 @@ HEAT_STAGE_WORDS: Final[tuple[str, ...]] = (
 #: 内受容 3 変数の値域(知覚契約書 §3「内受容(満腹・体力・体感温度 0-10)」)。
 INTERO_SCALE_MIN: Final[int] = 0
 INTERO_SCALE_MAX: Final[int] = 10
+
+#: **空腹の語 4 段**(5 段目 5a・D-118 K2 (a)・``engine.energy`` の段 0〜3 と 1 対 1)。
+#: 段は ``since_meal_kcal / (EER/3)`` の比 0.25 / 0.75 / 1.5 で切る(数値は見せない)。
+HUNGER_WORDS: Final[tuple[str, str, str, str]] = ("満腹", "ふつう", "空腹", "とても空腹")
+#: B5 内受容の**項**(行ではない=``TEMPLATES["B5.intero"]`` の ``{items}`` に入る 1 文)。
+#: 行テンプレ(``TEMPLATES``)は「[Bn 名] で始まる 1 行 1 事実」の契約なので項は別に持つ
+#: (v1 の「空腹はNで閾値を超えています。」も項=描画側の文字列だった)。
+HUNGER_ITEM_TEMPLATE: Final[str] = "いま{word}です。"
+#: B5 に空腹の語を描く最小の段(**空腹以上**=草案 §1-2b (4) の「閾値超え」=起床中の 11%・宣言)。
+#: 満腹/ふつうの体の B5 には空腹の行を出さない(v1 の「閾値未満は描かない」と同じ形)。
+HUNGER_WORD_DRAW_MIN_STAGE: Final[int] = 2
 
 #: 空要素の固定文言(§2.4 ⑦)。
 EMPTY_PHRASE: Final[str] = "なし"
@@ -333,7 +351,7 @@ _B0_BY_MODE: Final[Mapping[str, str]] = {
 #
 # **凍結との関係**: ``TEMPLATES``(=``template_sha256`` の payload)には 1 語も足していない。
 # 既定 ``vocab_version="v1"`` のとき ``b0_system()`` は ``TEMPLATES["B0.system"]`` と
-# **同一オブジェクト**を返す=描画バイトも ``template_sha256``(161fe181…)も
+# **同一オブジェクト**を返す=描画バイトも ``template_sha256``(v1.1 は 8f2959d0…・v1 は 161fe181…)も
 # ``b0_sha256("vocab")``(2b4bfc8a…)も動かない。
 #
 # **open 腕 × v2**: open 腕は語彙を見せないので **B0 の本文は v1 と同一**になる(差は
@@ -700,6 +718,9 @@ def template_sha256() -> str:
             "daylight": list(DAYLIGHT_WORDS),
             "heat": list(HEAT_STAGE_WORDS),
             "hands": list(HANDS_WORDS),
+            "hunger": list(HUNGER_WORDS),
+            "hunger_item": HUNGER_ITEM_TEMPLATE,
+            "hunger_draw_min_stage": HUNGER_WORD_DRAW_MIN_STAGE,
             "ground": {str(k): v for k, v in GROUND_WORDS.items()},
             "ground_no_street": GROUND_NO_STREET,
             "options": list(DEFAULT_OPTIONS),

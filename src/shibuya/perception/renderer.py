@@ -149,6 +149,15 @@ STREET_POINT_AREA_M2: Final[float] = 6.25
 #: 内受容の閾値(``engine.change_detect.INTERO_UP_EDGES`` と同値・層契約により二重定義)。
 INTERO_UP_EDGES: Final[tuple[int, ...]] = (4, 7, 9)
 
+
+def _hunger_word(value: int) -> str | None:
+    """空腹の写し(1/5/8/10)→ B5 の語の 1 文(5 段目 5a)。段が ``HUNGER_WORD_DRAW_MIN_STAGE``
+    未満(満腹・ふつう)なら ``None``(描かない)。段=``INTERO_UP_EDGES`` を何本越えたか。"""
+    stage = sum(1 for e in INTERO_UP_EDGES if int(value) >= e)
+    if stage < T.HUNGER_WORD_DRAW_MIN_STAGE:
+        return None
+    return T.HUNGER_ITEM_TEMPLATE.format(word=T.HUNGER_WORDS[stage])
+
 #: 被招待(§6 起床(ii))の起床理由=``B6.wake`` の ``{reason}`` に入る**値**。
 #: **テンプレ本体ではない**(``templates.TEMPLATES``/``WAKE_REASON_TEXT`` は不変=
 #: ``template_sha256`` は動かない)。``RESULT_OPTIONS``(いま可能3語)と同じ扱いで、
@@ -849,6 +858,11 @@ class Renderer:
         self._focus_target: np.ndarray | None = (
             agents.focus_target if getattr(agents, "attention_columns", False) else None
         )
+        #: **5 段目 5a(D-118 K2)**: 空腹を**語**で描くか(``energy_columns`` のラン=
+        #: ``--hunger-model energy``)。``hunger`` はそのランでは語の段の写し(1/5/8/10)なので、
+        #: 数値の代わりに ``T.HUNGER_WORDS`` の語を ``T.HUNGER_WORD_DRAW_MIN_STAGE`` 以上だけ描く。
+        #: 欄の無いラン(v1)は従来の「空腹はNで閾値を超えています。」=**1 バイトも変わらない**。
+        self._hunger_words: bool = bool(getattr(agents, "energy_columns", False))
         #: 個体 → (知人の集合, 知人の id 配列)。**構築時に固定**なので 1 度作れば使い回せる(C7)。
         self._acq_cache: dict[int, tuple[frozenset[int], np.ndarray]] = {}
         self._b1_cache: dict[int, bytes] = {}
@@ -1415,6 +1429,11 @@ class Renderer:
         crossed = []
         for name, label in zip(INTEROCEPTION_FIELDS, ("空腹", "体力", "体感温度")):
             v = int(a.registry.field(name)[i])
+            if name == "hunger" and self._hunger_words:
+                word = _hunger_word(v)
+                if word is not None:
+                    crossed.append(word)
+                continue
             if v >= INTERO_UP_EDGES[0]:
                 crossed.append(f"{label}は{v}で閾値を超えています。")
         kept, rep = ch.truncate_lines(crossed, "B5.intero")
@@ -1868,6 +1887,14 @@ class Renderer:
         span = max(1, T.INTERO_SCALE_MAX - INTERO_UP_EDGES[0])
         for name, label in zip(INTEROCEPTION_FIELDS, ("空腹", "体力", "体感温度")):
             v = int(a.registry.field(name)[i])
+            if name == "hunger" and self._hunger_words:
+                word = _hunger_word(v)
+                if word is not None:
+                    overrides[("B5.intero", len(crossed))] = {
+                        "deviance": min(1.0, (v - INTERO_UP_EDGES[0]) / span)
+                    }
+                    crossed.append(word)
+                continue
             if v >= INTERO_UP_EDGES[0]:
                 overrides[("B5.intero", len(crossed))] = {
                     "deviance": min(1.0, (v - INTERO_UP_EDGES[0]) / span)

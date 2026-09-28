@@ -75,12 +75,19 @@ W17_GOLDEN = {
         # final と呼数が動いた。段 2c の値(上限あり=``l4_scale=1.0`` で再現・下の *_l4x1 と
         # ``test_l4_scale_1_reproduces_the_stage_2c_checkpoints`` で固定)= 帰無腕 ed1863e089c8480e /
         # 41,141・v3 既定 6845e3acb8906210 / 36,502。記録: docs/bench/analysis/l4-unlimited-2026-09-28/
-        "null_arm_final": "e0083baff1ff50b7", "null_arm_llm_calls": 97_028,
+        # **5 段目 5a(第291・D-118 K5 (a))**: ``cli.run`` の空腹の既定が **energy**(体のエネルギー
+        # 収支・+16 B/体)になり全腕の final と呼数が動いた。3 段目の値(空腹 v1=``hunger_model="v1"``
+        # で再現・下の *_hunger_v1 と ``test_hunger_model_v1_reproduces_the_stage_3_checkpoints`` で
+        # 固定)= 帰無腕 e0083baff1ff50b7 / 97,028・v3 既定 a1036ab5b06e461c / 68,781。
+        # 記録: docs/bench/analysis/energy-classical-2026-09-28/README.md §5a
+        "null_arm_final": "18f8807264d04018", "null_arm_llm_calls": 100_509,
+        "null_arm_final_hunger_v1": "e0083baff1ff50b7", "null_arm_llm_calls_hunger_v1": 97_028,
         "null_arm_final_l4x1": "ed1863e089c8480e", "null_arm_llm_calls_l4x1": 41_141,
         # 第277(二層の段 3): **語彙 v3 の既定**(=CLI の新しい既定・activity on・mock v3 形)。
         # v1 の行は上のまま残す(ライブラリの既定は v1=切替口)。
         # 記録: docs/bench/analysis/two-layer-2026-09-27/README.md §0
-        "v3_default_final": "a1036ab5b06e461c", "v3_default_llm_calls": 68_781,
+        "v3_default_final": "c9ab05383accca2e", "v3_default_llm_calls": 69_603,
+        "v3_default_final_hunger_v1": "a1036ab5b06e461c", "v3_default_llm_calls_hunger_v1": 68_781,
         "v3_default_final_l4x1": "6845e3acb8906210", "v3_default_llm_calls_l4x1": 36_502,
         "v1_outside_blocks": 590_430, "v1_outside_dist": [92, 160_033, 133_575, 47_861],
         "s5000_v1": {"n_blocks": 8_589, "zero": 1, "outside": 7_733, "in": 856},
@@ -278,6 +285,7 @@ def test_v3_default_reproduces_the_recorded_checkpoint():
     res = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3")
     assert res.final_hash.startswith(g["v3_default_final"])
     assert res.run_manifest_fields()["activity"] is True
+    assert res.run_manifest_fields()["hunger_model"] == "energy"
     assert res.conserved and int(res.llm_calls) == g["v3_default_llm_calls"]
 
 
@@ -293,15 +301,39 @@ def test_l4_scale_1_reproduces_the_stage_2c_checkpoints():
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final_l4x1" not in g:
         pytest.skip(f"実 W17 の l4x1 golden が無い(md5 {w17_digest()})")
+    # 5 段目 5a(第291): 段 2c の値は空腹 v1 で録られている=旧規則を明示する
     null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-                   report_precondition=False, l4_scale=1.0)
+                   report_precondition=False, l4_scale=1.0, hunger_model="v1")
     assert null.final_hash.startswith(g["null_arm_final_l4x1"])
     assert int(null.llm_calls) == g["null_arm_llm_calls_l4x1"]
     v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
-                 l4_scale=1.0)
+                 l4_scale=1.0, hunger_model="v1")
     assert v3.final_hash.startswith(g["v3_default_final_l4x1"])
     assert int(v3.llm_calls) == g["v3_default_llm_calls_l4x1"]
     assert v3.run_manifest_fields()["l4_exceeded"] is False
+
+
+@real_data
+def test_hunger_model_v1_reproduces_the_stage_3_checkpoints():
+    """5 段目 5a(D-118 K5 (a)): 空腹の旧規則 ``hunger_model="v1"`` で 3 段目の既定値をそのまま再現する。
+
+    energy の 4 欄は ``energy_columns`` のランだけ確保する=v1 は SoA も挙動も 1 バイトも変わらない。
+    """
+    from shibuya.cli import run as cli_run
+
+    g = W17_GOLDEN.get(w17_digest())
+    if g is None or "v3_default_final_hunger_v1" not in g:
+        pytest.skip(f"実 W17 の hunger v1 golden が無い(md5 {w17_digest()})")
+    null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
+                   report_precondition=False, hunger_model="v1")
+    assert null.final_hash.startswith(g["null_arm_final_hunger_v1"])
+    assert int(null.llm_calls) == g["null_arm_llm_calls_hunger_v1"]
+    assert null.run_manifest_fields()["hunger_model"] == "v1"
+    v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
+                 hunger_model="v1")
+    assert v3.final_hash.startswith(g["v3_default_final_hunger_v1"])
+    assert int(v3.llm_calls) == g["v3_default_llm_calls_hunger_v1"]
+    assert v3.energy == {}
 
 
 # ================================================================= ③ T4 規模不変

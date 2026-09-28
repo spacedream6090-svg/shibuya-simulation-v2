@@ -1,0 +1,671 @@
+{
+ "schema": "shibuya.bench/energy-2026-09-28/report/1",
+ "day_of_week": "day_index=0=月曜=平日(run_day の既定)→ 第8-1表(平日)・第7-1表 平日・第18-1表(平日)",
+ "d111_prediction_table": {
+  "b5_hunger_line_share_awake_in_area": {
+   "v1_hunger_ge_4_note": "v1 の B5 は hunger≥4 で「閾値超え」を描く(時間割合は未計測=段 0〜3 の時間は v1 には無い)",
+   "energy_hungry_or_very_hungry": 0.4512,
+   "predicted": "0.11"
+  },
+  "wake_entrance_body_share": {
+   "v1": 0.3393,
+   "energy": 0.3359,
+   "predicted": "0.05-0.08"
+  },
+  "intero_crossings_awake_in_area": {
+   "v1": {
+    "hunger_up": 24571,
+    "hunger_up_awake_in_area": 6730,
+    "hunger_down": 10256,
+    "hunger_down_awake_in_area": 10245,
+    "fatigue_up": 25885,
+    "fatigue_up_awake_in_area": 3113,
+    "fatigue_down": 16188,
+    "fatigue_down_awake_in_area": 15794,
+    "thermal_up": 5000,
+    "thermal_up_awake_in_area": 3423,
+    "thermal_down": 5000,
+    "thermal_down_awake_in_area": 4431
+   },
+   "energy": {
+    "hunger_up": 26089,
+    "hunger_up_awake_in_area": 9209,
+    "hunger_down": 23272,
+    "hunger_down_awake_in_area": 5612,
+    "fatigue_up": 26133,
+    "fatigue_up_awake_in_area": 3214,
+    "fatigue_down": 16595,
+    "fatigue_down_awake_in_area": 16182,
+    "thermal_up": 5000,
+    "thermal_up_awake_in_area": 3473,
+    "thermal_down": 5000,
+    "thermal_down_awake_in_area": 4414
+   }
+  },
+  "late_night_purchases": {
+   "v1": {
+    "purchases_0_5h": 37,
+    "purchases": 4979,
+    "share_0_5h": 0.0074
+   },
+   "energy": {
+    "purchases_0_5h": 34,
+    "purchases": 5020,
+    "share_0_5h": 0.0068
+   },
+   "predicted": "≈0"
+  },
+  "realized_per_agent_day": {
+   "v1": {
+    "purchases": 0.996,
+    "meals_in_area": 0.931
+   },
+   "energy": {
+    "purchases": 1.004,
+    "meals_in_area": 0.888,
+    "meals_out_of_area": 1.563,
+    "snacks": 0.447
+   },
+   "predicted": "2-3"
+  },
+  "action_distribution": {
+   "v1": {
+    "move_plus_buy": 0.2114,
+    "llm_actions": 69610
+   },
+   "energy": {
+    "move_plus_buy": 0.2067,
+    "llm_actions": 70163
+   },
+   "predicted": "0.6-0.7"
+  },
+  "reason_column": "mock では取れない(理由は定型)"
+ },
+ "meal_start_in_area": {
+  "n_meals_in_area": 4438,
+  "peak_slots": [
+   "12:00",
+   "13:00",
+   "11:00"
+  ],
+  "window_peaks": {
+   "breakfast": "09:30",
+   "lunch": "12:00",
+   "dinner": "18:00"
+  },
+  "share_by_hour": [
+   0.0007,
+   0.0005,
+   0.0,
+   0.0,
+   0.0005,
+   0.0,
+   0.0047,
+   0.0388,
+   0.0586,
+   0.0674,
+   0.0572,
+   0.078,
+   0.1046,
+   0.0982,
+   0.0723,
+   0.0543,
+   0.0586,
+   0.0759,
+   0.0759,
+   0.0412,
+   0.0462,
+   0.0313,
+   0.0275,
+   0.0077
+  ],
+  "compare": {
+   "t8_1_weekday_national_total": {
+    "tvd": 0.4399,
+    "jsd_bits": 0.2025,
+    "peak_slots": [
+     "12:00",
+     "12:15",
+     "12:30"
+    ],
+    "window_peaks": {
+     "breakfast": "07:00",
+     "lunch": "12:00",
+     "dinner": "19:00"
+    },
+    "share_by_hour": [
+     0.0015,
+     0.0008,
+     0.0005,
+     0.0008,
+     0.0024,
+     0.0124,
+     0.0594,
+     0.0991,
+     0.0538,
+     0.0175,
+     0.009,
+     0.03,
+     0.2191,
+     0.0467,
+     0.0142,
+     0.006,
+     0.0066,
+     0.0361,
+     0.1303,
+     0.1472,
+     0.0644,
+     0.0252,
+     0.0125,
+     0.0045
+    ]
+   },
+   "t8_1_weekday_kanto_total": {
+    "tvd": 0.4186,
+    "jsd_bits": 0.1857,
+    "peak_slots": [
+     "12:15",
+     "12:00",
+     "12:30"
+    ],
+    "window_peaks": {
+     "breakfast": "07:15",
+     "lunch": "12:15",
+     "dinner": "19:00"
+    },
+    "share_by_hour": [
+     0.0022,
+     0.0011,
+     0.0007,
+     0.0008,
+     0.0023,
+     0.0102,
+     0.0491,
+     0.0904,
+     0.0587,
+     0.0212,
+     0.011,
+     0.0297,
+     0.2102,
+     0.0556,
+     0.0179,
+     0.0071,
+     0.0059,
+     0.0285,
+     0.1139,
+     0.1499,
+     0.0757,
+     0.0338,
+     0.0175,
+     0.0065
+    ]
+   },
+   "t7_1_weekday_tokyo_total": {
+    "tvd": 0.3998,
+    "jsd_bits": 0.1725,
+    "peak_slots": [
+     "12:15",
+     "12:00",
+     "12:30"
+    ],
+    "window_peaks": {
+     "breakfast": "07:15",
+     "lunch": "12:15",
+     "dinner": "19:15"
+    },
+    "share_by_hour": [
+     0.0025,
+     0.0018,
+     0.001,
+     0.0006,
+     0.0021,
+     0.006,
+     0.0399,
+     0.0846,
+     0.0631,
+     0.0233,
+     0.012,
+     0.0299,
+     0.201,
+     0.0655,
+     0.0187,
+     0.0082,
+     0.0064,
+     0.0279,
+     0.1086,
+     0.1501,
+     0.0805,
+     0.038,
+     0.0195,
+     0.009
+    ]
+   }
+  },
+  "floor_between_anchors": {
+   "national_vs_tokyo": {
+    "tvd": 0.0928,
+    "jsd_bits": 0.0103
+   },
+   "national_vs_kanto": {
+    "tvd": 0.0565,
+    "jsd_bits": 0.0037
+   },
+   "kanto_vs_tokyo": {
+    "tvd": 0.0379,
+    "jsd_bits": 0.0025
+   }
+  },
+  "note": "照合(K6 (i)・較正に使っていない)。錨は行動者率(その 15 分に食事をした人の割合)、シミュレーションは食事の成立(開始)の件数=形だけを比べる(正規化して総和 1)。"
+ },
+ "meal_start_out_of_area": {
+  "n_meals_out_of_area": 7814,
+  "peak_slots": [
+   "07:15",
+   "19:15",
+   "12:15"
+  ],
+  "note": "予定由来(W17 の食事行・既定の時刻)=照合の分子・分母から外す"
+ },
+ "breakfast_skip": {
+  "sim": {
+   "all": {
+    "n": 5000,
+    "skip_pct": 25.5
+   },
+   "age20_29": {
+    "n": 993,
+    "skip_pct": 21.9
+   },
+   "age20_29_male": {
+    "n": 537,
+    "skip_pct": 22.7
+   },
+   "age20_29_female": {
+    "n": 456,
+    "skip_pct": 20.8
+   }
+  },
+  "anchor_pct_20_29": {
+   "total": 31.1,
+   "male": 37.3,
+   "female": 26.5
+  },
+  "definition_note": "sim=その日に朝の窓(5:00〜10:59)で食事(範囲内/範囲外)が 1 回も無い体の割合。軽食だけの体は欠食に数える(第10表の欠食=菓子・果物などのみ+錠剤などのみ+何も食べない)"
+ },
+ "stage_time_share": {
+  "awake_in_area": {
+   "full": 0.2248,
+   "normal": 0.324,
+   "hungry": 0.236,
+   "very_hungry": 0.2152,
+   "agent_ticks": 2512909
+  },
+  "asleep_in_area": {
+   "full": 0.0054,
+   "normal": 0.2206,
+   "hungry": 0.6692,
+   "very_hungry": 0.1048,
+   "agent_ticks": 370867
+  },
+  "away": {
+   "full": 0.1857,
+   "normal": 0.3114,
+   "hungry": 0.4368,
+   "very_hungry": 0.0661,
+   "agent_ticks": 4316224
+  }
+ },
+ "balance": {
+  "census": {
+   "intake_kcal": 9986436.7,
+   "expenditure_kcal": 12159944.2,
+   "balance_kcal": -2173507.5
+  },
+  "census_per_agent": {
+   "intake_kcal": 1997.3,
+   "expenditure_kcal": 2432.0,
+   "balance_kcal": -434.7,
+   "eer_kcal": 2388.0
+  },
+  "balance_kcal": {
+   "n": 5000,
+   "mean": -434.7,
+   "p5": -2195.1,
+   "p25": -1158.1,
+   "p50": -536.8,
+   "p75": 72.0,
+   "p95": 1552.8
+  },
+  "balance_kcal_by_meals": {
+   "0": {
+    "n": 282,
+    "mean": -2175.1,
+    "p5": -3228.9,
+    "p25": -2627.2,
+    "p50": -2129.0,
+    "p75": -1744.5,
+    "p95": -1058.6
+   },
+   "1": {
+    "n": 867,
+    "mean": -1597.3,
+    "p5": -2517.7,
+    "p25": -1911.2,
+    "p50": -1535.0,
+    "p75": -1243.5,
+    "p95": -864.1
+   },
+   "2": {
+    "n": 1571,
+    "mean": -838.3,
+    "p5": -1479.2,
+    "p25": -1049.3,
+    "p50": -813.0,
+    "p75": -617.7,
+    "p95": -239.3
+   },
+   "3": {
+    "n": 1372,
+    "mean": -7.7,
+    "p5": -535.7,
+    "p25": -116.5,
+    "p50": -0.4,
+    "p75": 79.9,
+    "p95": 525.8
+   },
+   "4+": {
+    "n": 908,
+    "mean": 1268.9,
+    "p5": 256.3,
+    "p25": 654.0,
+    "p50": 1057.4,
+    "p75": 1645.8,
+    "p95": 3003.6
+   }
+  },
+  "balance_over_eer_by_meals": {
+   "0": {
+    "n": 282,
+    "mean": -1.0,
+    "p5": -1.1,
+    "p25": -1.0,
+    "p50": -1.0,
+    "p75": -0.9,
+    "p95": -0.8
+   },
+   "1": {
+    "n": 867,
+    "mean": -0.7,
+    "p5": -0.9,
+    "p25": -0.8,
+    "p50": -0.7,
+    "p75": -0.6,
+    "p95": -0.5
+   },
+   "2": {
+    "n": 1571,
+    "mean": -0.3,
+    "p5": -0.5,
+    "p25": -0.4,
+    "p50": -0.4,
+    "p75": -0.3,
+    "p95": -0.1
+   },
+   "3": {
+    "n": 1372,
+    "mean": -0.0,
+    "p5": -0.2,
+    "p25": -0.0,
+    "p50": -0.0,
+    "p75": 0.0,
+    "p95": 0.2
+   },
+   "4+": {
+    "n": 908,
+    "mean": 0.5,
+    "p5": 0.1,
+    "p25": 0.3,
+    "p50": 0.5,
+    "p75": 0.7,
+    "p95": 1.3
+   }
+  },
+  "meals_per_agent": {
+   "0": 282,
+   "1": 867,
+   "2": 1571,
+   "3": 1372,
+   "4+": 908
+  },
+  "agents_with_three_meals": 1520
+ },
+ "counts": {
+  "meals_in_area": 4438,
+  "meals_out_of_area": 7814,
+  "meals_out_from_row": 1448,
+  "meals_out_default": 6366,
+  "snacks": 2237,
+  "drinks": 0
+ },
+ "intake_kcal": {
+  "meal_in": 3618560.0,
+  "meal_out": 6027430.0,
+  "snack": 340446.7,
+  "drink": 0.0
+ },
+ "weight_kg": {
+  "n": 5000,
+  "mean": 61.1,
+  "p5": 42.4,
+  "p25": 52.4,
+  "p50": 60.8,
+  "p75": 69.9,
+  "p95": 81.8
+ },
+ "eer_kcal": {
+  "n": 5000,
+  "mean": 2388.0,
+  "p5": 1563.7,
+  "p25": 2000.3,
+  "p50": 2361.9,
+  "p75": 2766.3,
+  "p95": 3313.8
+ },
+ "arms15": [
+  {
+   "arm": "v3_default",
+   "v1_final": "a1036ab5b06e461c6c6757f477223c54268c1a60b8b4b18681cac8ad520ad0b4",
+   "v1_equals_stage3": true,
+   "energy_final": "c9ab05383accca2ee287a4e0ddabc9980c8df12f8619217e9a942219d4a05ea3",
+   "v1_calls": 68781,
+   "energy_calls": 69603,
+   "v1_body_entrance": 23335,
+   "energy_body_entrance": 23380,
+   "energy_meals_in_area": 4438,
+   "energy_meals_out_of_area": 7814,
+   "energy_awake_in_area_hungry_plus": 0.4512
+  },
+  {
+   "arm": "v3_activity_off",
+   "v1_final": "7fe2829e4ee41c0da14ca2c17f1bdcaaeffedd47d5b462f0f0082d4d75f2c2b3",
+   "v1_equals_stage3": true,
+   "energy_final": "69acc68ce3c03383c8e19d6737ac9a2056d9e3dc5130259fd40b680f5ce5d600",
+   "v1_calls": 57335,
+   "energy_calls": 59088,
+   "v1_body_entrance": 15542,
+   "energy_body_entrance": 17271,
+   "energy_meals_in_area": 3773,
+   "energy_meals_out_of_area": 7484,
+   "energy_awake_in_area_hungry_plus": 0.4882
+  },
+  {
+   "arm": "v1_default",
+   "v1_final": "9c7d272992f33fd24869160747abd7c6b29e0260c153ffe605b819dc8a49b001",
+   "v1_equals_stage3": true,
+   "energy_final": "91c33e23b27f586572beaf06ad20c0ab3f4fc7bb2dfd15cd5b1c7bc50c80965f",
+   "v1_calls": 56954,
+   "energy_calls": 60987,
+   "v1_body_entrance": 15430,
+   "energy_body_entrance": 18497,
+   "energy_meals_in_area": 0,
+   "energy_meals_out_of_area": 7489,
+   "energy_awake_in_area_hungry_plus": 0.6571
+  },
+  {
+   "arm": "v1_derive_v2_1",
+   "v1_final": "d7e7946464203c0fac8e743a3b2d42f43c27821389aaee9a7158b73f616ec0e2",
+   "v1_equals_stage3": true,
+   "energy_final": "3f2f032f474487ebf6f6a02410b89f1a9377f4154a05dc63c338578aa89eaf12",
+   "v1_calls": 49281,
+   "energy_calls": 55057,
+   "v1_body_entrance": 14366,
+   "energy_body_entrance": 18212,
+   "energy_meals_in_area": 0,
+   "energy_meals_out_of_area": 8318,
+   "energy_awake_in_area_hungry_plus": 0.5967
+  },
+  {
+   "arm": "v2",
+   "v1_final": "955336e5a993064ac93a75a10a2b45d7eac5ebae695f253f7b4f9a3b1aecef94",
+   "v1_equals_stage3": true,
+   "energy_final": "8858670b7e0745df1dfe7c10a8c6199c61dafca491d56f1d9cbd9953102ab313",
+   "v1_calls": 57773,
+   "energy_calls": 61095,
+   "v1_body_entrance": 16679,
+   "energy_body_entrance": 19768,
+   "energy_meals_in_area": 2398,
+   "energy_meals_out_of_area": 7466,
+   "energy_awake_in_area_hungry_plus": 0.5392
+  },
+  {
+   "arm": "v1_edge",
+   "v1_final": "52a36b5eb817a5d9c8c21724d6229bef2c1ff10287437bf818f0cb38fc60c7b7",
+   "v1_equals_stage3": true,
+   "energy_final": "29c6f7e405b493e6e43e18efba39d6c784e72d400a4f91528eaf29cd7686215c",
+   "v1_calls": 50053,
+   "energy_calls": 54189,
+   "v1_body_entrance": 14562,
+   "energy_body_entrance": 17985,
+   "energy_meals_in_area": 0,
+   "energy_meals_out_of_area": 7730,
+   "energy_awake_in_area_hungry_plus": 0.6301
+  },
+  {
+   "arm": "v2_edge",
+   "v1_final": "e143b1e828d725efc6849f359bce0f647a20b376fe49220906110e84fcaa34d3",
+   "v1_equals_stage3": true,
+   "energy_final": "43c4b77626f9a6297b4a5228744a5a50968fd3a9e3929a462d52ada032837994",
+   "v1_calls": 50516,
+   "energy_calls": 54158,
+   "v1_body_entrance": 15865,
+   "energy_body_entrance": 19005,
+   "energy_meals_in_area": 2086,
+   "energy_meals_out_of_area": 7711,
+   "energy_awake_in_area_hungry_plus": 0.5264
+  },
+  {
+   "arm": "v1_edge_plateau",
+   "v1_final": "def89ea346d3f28b69542585fa1227828f9109bb2713d5ec2fd60472bc865ca2",
+   "v1_equals_stage3": true,
+   "energy_final": "7e703865b35f184447c4285108539390796eb6444857ce064f13789241b7f017",
+   "v1_calls": 51990,
+   "energy_calls": 55186,
+   "v1_body_entrance": 14726,
+   "energy_body_entrance": 18005,
+   "energy_meals_in_area": 0,
+   "energy_meals_out_of_area": 7745,
+   "energy_awake_in_area_hungry_plus": 0.63
+  },
+  {
+   "arm": "old_v1_default",
+   "v1_final": "2309f07da2edac9053204d68e3c35619158b499f8a147f7d2301896b0cd7d899",
+   "v1_equals_stage3": true,
+   "energy_final": "04aad236679d8a2e288abedaa5a45c6ac25dd9f4872b0a654e2208cd00a39eff",
+   "v1_calls": 56954,
+   "energy_calls": 60987,
+   "v1_body_entrance": 15430,
+   "energy_body_entrance": 18497,
+   "energy_meals_in_area": 0,
+   "energy_meals_out_of_area": 7489,
+   "energy_awake_in_area_hungry_plus": 0.6571
+  },
+  {
+   "arm": "old_v1_derive_v2_1",
+   "v1_final": "1dc57cef36bd9fdfe8259a4ea680558118858824f225544c91cc4dc014ab4913",
+   "v1_equals_stage3": true,
+   "energy_final": "d603c193aa22925343cb3d0d9426e523baa0126d8f182243dcf4ee2fa38ec4eb",
+   "v1_calls": 49281,
+   "energy_calls": 55057,
+   "v1_body_entrance": 14366,
+   "energy_body_entrance": 18212,
+   "energy_meals_in_area": 0,
+   "energy_meals_out_of_area": 8318,
+   "energy_awake_in_area_hungry_plus": 0.5967
+  },
+  {
+   "arm": "old_v2",
+   "v1_final": "ede4ec5ee3d2699b681189d8073d193ba82109085fe2d344e5e345c9bf4b7857",
+   "v1_equals_stage3": true,
+   "energy_final": "6afbe97fdf53f69ee0895d6eeeafc38f490e96934abe064700ed513c46de15f6",
+   "v1_calls": 57773,
+   "energy_calls": 61095,
+   "v1_body_entrance": 16679,
+   "energy_body_entrance": 19768,
+   "energy_meals_in_area": 2398,
+   "energy_meals_out_of_area": 7466,
+   "energy_awake_in_area_hungry_plus": 0.5392
+  },
+  {
+   "arm": "old_v1_edge",
+   "v1_final": "daa0b8116ddc72fa649943a72eee8b8c2fd07087aa594f65814973551ee66977",
+   "v1_equals_stage3": true,
+   "energy_final": "992cdd9682f2231909e6a0b78120c80e4f6327a5a897ff28d93dd5cce70d9fa7",
+   "v1_calls": 50053,
+   "energy_calls": 54189,
+   "v1_body_entrance": 14562,
+   "energy_body_entrance": 17985,
+   "energy_meals_in_area": 0,
+   "energy_meals_out_of_area": 7730,
+   "energy_awake_in_area_hungry_plus": 0.6301
+  },
+  {
+   "arm": "old_v2_edge",
+   "v1_final": "ec2ae70a2b97ec0a99abe10dc0e31fc6c95b5cb147ec23b490d2ab6d4c441a6b",
+   "v1_equals_stage3": true,
+   "energy_final": "75183395661c2f314c1bdcb90b89155c8ca861a3f5d2c08448d7e903b4331808",
+   "v1_calls": 50516,
+   "energy_calls": 54158,
+   "v1_body_entrance": 15865,
+   "energy_body_entrance": 19005,
+   "energy_meals_in_area": 2086,
+   "energy_meals_out_of_area": 7711,
+   "energy_awake_in_area_hungry_plus": 0.5264
+  },
+  {
+   "arm": "old_v1_edge_plateau",
+   "v1_final": "afb5408fe3e2deba6afd02f7c8c88e8d92d5ab2eec6b40eda5ed48ad62917a1f",
+   "v1_equals_stage3": true,
+   "energy_final": "a438c62899763001b51271dbc94604f698e9996b334a910b2dac2f8b7a3c28e2",
+   "v1_calls": 51990,
+   "energy_calls": 55186,
+   "v1_body_entrance": 14726,
+   "energy_body_entrance": 18005,
+   "energy_meals_in_area": 0,
+   "energy_meals_out_of_area": 7745,
+   "energy_awake_in_area_hungry_plus": 0.63
+  },
+  {
+   "arm": "golden_null_arm",
+   "v1_final": "e0083baff1ff50b723cfcdcedf08e770db77903ae8c370d5e5ea93584d9266f1",
+   "v1_equals_stage3": true,
+   "energy_final": "18f8807264d04018d2a27e46b13fb91ff9115dbefcb34c4e61cfa4f1e7de8cae",
+   "v1_calls": 97028,
+   "energy_calls": 100509,
+   "v1_body_entrance": 27822,
+   "energy_body_entrance": 30333,
+   "energy_meals_in_area": 0,
+   "energy_meals_out_of_area": 1996,
+   "energy_awake_in_area_hungry_plus": 0.94
+  }
+ ]
+}

@@ -1,7 +1,7 @@
 """ablation ①「チャネル固定枠 vs 同一総トークンの単一ランキング」(知覚契約書 §3.2 の**義務**)。
 
 見るもの
-(a) 既定は固定枠=**golden 不変**(テンプレ SHA 161fe181・参照場面の prompt_hash 釘付け)/
+(a) 既定は固定枠=**golden 不変**(テンプレ SHA 8f2959d0・参照場面の prompt_hash 釘付け)/
 (b) 単一ランキングでも**群予算**(セル ≤250・個体 ≤300)に収まる/
 (c) 固定枠が切る場面で**差が出る**(件数枠 B4.salient・トークン枠 B5.near_person)/
 (d) §2.4 ⑧「同セル同時間帯の 2 体で B0-B4b バイト一致」が**両モードで**成り立つ/
@@ -86,7 +86,7 @@ def test_default_mode_is_fixed_slots_and_the_golden_bytes_do_not_move():
     """既定は固定枠。参照場面のバイトもテンプレ SHA も ablation ① で動かない。"""
     r, out = reference_scene(ch.BudgetMode.FIXED_SLOTS)
     assert Renderer(r.world, r.agents).budget_mode is ch.BudgetMode.FIXED_SLOTS
-    assert T.template_sha256().startswith("161fe181")
+    assert T.template_sha256().startswith("8f2959d0")
     assert out.prompt_hash == GOLDEN_FIXED_PROMPT_HASH
     _, default_out = reference_scene(ch.BudgetMode.FIXED_SLOTS.value)
     assert default_out.prompt_hash == GOLDEN_FIXED_PROMPT_HASH

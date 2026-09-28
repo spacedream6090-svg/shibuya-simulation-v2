@@ -80,6 +80,15 @@ from shibuya.engine import resolve as R
 from shibuya.engine.activity import ActivityLayer, payload_of
 from shibuya.engine.intent import INTENT_MAX_TICKS, IntentLayer
 from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES, FamiliarityLayer
+from shibuya.engine.energy import (
+    DEFAULT_ENERGY_RATE,
+    EnergyLayer,
+    EnergyModel,
+    OutOfAreaMeals,
+    check_energy_rate,
+    check_hunger_model,
+    load_anchors,
+)
 from shibuya.engine.arbiter import (
     L4_LINE_PER_AGENT_DAY,
     Arbiter,
@@ -215,6 +224,28 @@ DIAG_DAY_ROWS: Final[tuple[str, ...]] = (
     "tape_miss_count",
     "conversation_sessions",
 )
+
+
+def _count_intero_crossings(det: Any, agents: AgentState, acc: np.ndarray) -> None:
+    """5 段目 5a(診断): この tick の内受容の跨ぎを 変数 × 上げ/下げ × 全体/起きて範囲内 で数える。
+
+    ``apply_detection`` の**前**に呼ぶ(前回段=``<var>_stage`` がまだ書き戻されていない)。
+    読むだけ=挙動に効かない。逐次ループ宣言: 内受容 3 変数ぶん(体数に比例しない)。
+    """
+    r = agents.registry
+    for c in det.crossings:
+        if not c.agent_id.size:
+            continue
+        ids = c.agent_id
+        old = np.asarray(r.field(c.stage_field))[ids].astype(np.int16)
+        up = np.asarray(c.new_stage).astype(np.int16) > old
+        awake = (np.asarray(r.activity)[ids] != int(Activity.SLEEPING)) & (
+            np.asarray(r.transit_state)[ids] == 0
+        )
+        acc[c.var, 0, 0] += int(np.count_nonzero(up))
+        acc[c.var, 1, 0] += int(np.count_nonzero(~up))
+        acc[c.var, 0, 1] += int(np.count_nonzero(up & awake))
+        acc[c.var, 1, 1] += int(np.count_nonzero(~up & awake))
 
 
 def _named_closed_lookup(
@@ -437,6 +468,13 @@ class RunResult:
     familiarity: bool = False
     familiarity_k: int = FAMILIARITY_K
     familiarity_summary: dict[str, Any] = field(default_factory=dict)
+    #: 5 段目 5a(D-118): 空腹のモデル(``v1``=旧規則 / ``energy``=エネルギー収支)・消費の式・要約。
+    hunger_model: str = "v1"
+    energy_rate: str = ""
+    energy: dict[str, Any] = field(default_factory=dict)
+    #: 5 段目 5a(診断): 内受容の段の跨ぎの延べ(変数 × 上げ/下げ × 全体/起きて範囲内)。
+    #: 起床入口「体の状態」の内訳を空腹と疲労・体感温度に分けて読むため(挙動には効かない)。
+    intero_crossings: dict[str, int] = field(default_factory=dict)
     #: 段 2b: 移動の失敗の内訳(``resolve._apply_move``)。
     move_bad_target: int = 0
     move_unreachable: int = 0
@@ -801,6 +839,11 @@ class RunResult:
             "familiarity": bool(self.familiarity),
             "familiarity_k": int(self.familiarity_k),
             "familiarity_summary": dict(self.familiarity_summary),
+            # ---- 5 段目 5a(D-118 K1〜K9): 空腹のモデル・エネルギー収支の要約。列追加のみ ----
+            "hunger_model": str(self.hunger_model),
+            "energy_rate": str(self.energy_rate),
+            "energy": dict(self.energy),
+            "intero_crossings": dict(self.intero_crossings),
             "calls_by_condition": dict(self.calls_by_condition),
             "synonym_table_version": _synonym_table_version(self.vocab_version),
             "action_usage": dict(self.action_usage),
@@ -931,6 +974,17 @@ class RunResult:
             f"{self.movement_cpu_ms_per_tick:.3f} ms/tick (P2 上限 5) ・待ち割合 "
             f"{self.movement_gil_wait_ratio:.2f}",
         ]
+        # 5 段目 5a: エネルギー収支のランだけ 1 行(v1 の summary は 1 文字も変わらない)
+        if str(self.hunger_model) == "energy" and self.energy:
+            _c = self.energy.get("counts", {})
+            _pa = self.energy.get("census_per_agent", {})
+            lines.append(
+                f"  空腹 energy({self.energy_rate}) 食事 範囲内 {int(_c.get('meals_in_area', 0)):,}"
+                f" / 範囲外 {int(_c.get('meals_out_of_area', 0)):,} / 軽食 "
+                f"{int(_c.get('snacks', 0)):,} / 飲料 {int(_c.get('drinks', 0)):,} ・収支/体 摂取 "
+                f"{_pa.get('intake_kcal', 0.0):,.0f} − 消費 {_pa.get('expenditure_kcal', 0.0):,.0f}"
+                f" = {_pa.get('balance_kcal', 0.0):,.0f} kcal(EER {_pa.get('eer_kcal', 0.0):,.0f})"
+            )
         # C9: edge 幾何のランだけ 1 行(既定 node の summary は 1 文字も変わらない)
         if str(self.geometry) != DEFAULT_GEOMETRY:
             lines.append(
@@ -1350,6 +1404,8 @@ def run_day(
     mock_out_of_cell_target_p: float = 0.0,
     familiarity: bool | str = False,
     familiarity_k: int = FAMILIARITY_K,
+    hunger_model: str = "v1",
+    energy_rate: str = DEFAULT_ENERGY_RATE,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -1567,6 +1623,14 @@ def run_day(
             成立)・看板の露出(B2 に看板行が載った)・場所(セルに入った回)を書く。**本段では誰も
             読まない**。既定 ``False``=表を確保しない=**既定 checkpoint 不変**。
         familiarity_k: 体あたりの行数(既定 ``FAMILIARITY_K``=64・宣言・感度 32/128)。
+        hunger_model: **5 段目 5a(D-118 K1〜K9)**。``"energy"`` で体のエネルギー収支
+            (``AgentState(energy_columns=True)``・+16 B/体・``engine.energy``)=体重と EER を抽選し、
+            毎 tick 活動の METs で消費・食事/軽食/飲料で摂取・``hunger`` は語の段の写し・B5 は語・
+            範囲外の食事は W17 の食事行か既定の時刻。``"v1"``(**ライブラリの既定**)は旧規則
+            (+1/30 分・購入/食事で −4)=**旧 checkpoint をそのまま再現**。CLI と ``cli.run`` の既定は
+            ``energy``(``cli.CLI_DEFAULT_HUNGER_MODEL``・K5 (a))。
+        energy_rate: 消費の式(``"eer"``=K1 (c)・既定 / ``"bmr"``=K1 (a) の感度腕)。``hunger_model=
+            "energy"`` のときだけ効く。
 
     Returns:
         ``RunResult``。
@@ -1613,6 +1677,10 @@ def run_day(
         familiarity_on = bool(familiarity)
     if int(familiarity_k) < 1:
         raise ValueError(f"familiarity_k は 1 以上(いま {familiarity_k})")
+    # ---- 5 段目 5a: 空腹のモデル(SoA を確保する前に決める=欄が 4 本変わる) ----
+    hunger_model = check_hunger_model(hunger_model)
+    energy_rate = check_energy_rate(energy_rate)
+    energy_on = hunger_model == "energy"
     # ---- 段 1b: 飲食店の切替口(値の検査は世界を触る前・既定 food=現行のバイト) ----
     eatery = check_eatery_mode(eatery)
     # ---- 段 2a: 選び手と対象の決め方(値の検査は世界を触る前) ----
@@ -1681,6 +1749,7 @@ def run_day(
         activity_columns=activity_on,
         familiarity_columns=familiarity_on,
         familiarity_k=int(familiarity_k),
+        energy_columns=energy_on,
     )
     if ledger is not None and ledger.money is not None:
         # 世帯の現金行 = 個体 SoA の money(写しを作らない・台帳の書き込み窓は resolve が持つ)
@@ -1690,6 +1759,27 @@ def run_day(
             schedule, pop, world.n_cells, keep_outside_home=plan_exec_on
         )
     R.initialize(agents, world, schedule, day_index=day_index, ledger=ledger)
+    # ---- 5 段目 5a: 体のエネルギー収支(値を決める層・書き手は resolve) ----
+    energy_layer: EnergyLayer | None = None
+    if energy_on:
+        _anc, _anc_md5 = load_anchors()
+        _emodel = EnergyModel(
+            _anc, _anc_md5, rate=energy_rate, minutes_per_tick=float(tick_seconds) / 60.0
+        )
+        energy_layer = EnergyLayer(
+            model=_emodel,
+            n_agents=n_agents,
+            out_of_area=OutOfAreaMeals(
+                _emodel, n_agents, ticks, weekly=weekly, day_index=day_index,
+                tick_seconds=tick_seconds,
+            ),
+            poi_intake=EnergyModel.poi_intake_kind(
+                getattr(world.assets, "poi_cat", None),
+                getattr(world.assets, "poi_subcat", None),
+                world.n_poi,
+            ),
+        )
+        R.initialize_energy(agents, energy_layer, seed)
     agents.freeze()
     world.freeze()
 
@@ -1991,10 +2081,17 @@ def run_day(
     #: 世界内時刻の**時**別「起きている体」の延べ数と tick 数(起床率/時 の分子・分母)。
     awake_sum = [0] * 24
     awake_ticks = [0] * 24
+    #: 5 段目 5a(診断): 内受容の跨ぎ(変数 3 × 上げ/下げ × 全体/起きて範囲内)。
+    intero_cross = np.zeros((3, 2, 2), dtype=np.int64)
 
     # 逐次ループ宣言1: tick 数ぶん
     for tick in range(ticks):
-        R.advance_body(agents, tick)
+        R.advance_body(agents, tick, energy_layer)
+        # ---- 5 段目 5a(K9 (a)): 範囲外の食事(W17 の食事行の開始・既定の時刻に域外に居る体) ----
+        if energy_layer is not None and energy_layer.out_of_area is not None:
+            _ea, _es, _ef = energy_layer.out_of_area.due(tick, agents.registry.transit_state)
+            if _ea.size:
+                R.energy_out_of_area_meal(agents, energy_layer, _ea, _es, _ef, tick)
 
         # ---- ⓪a 世界過程(昼夜・天候・鉄道・営業時間・混雑場・断面交通) ----
         # 流れ(B4 の「流れ方向」欄)を作るのが混雑場なので、**⓪ の前**に置く。
@@ -2147,6 +2244,7 @@ def run_day(
         # ---- ② 変化検出(P6) ----
         t0 = time.perf_counter()
         det = detector.detect(world, agents, tick, field_rows=field_rows)
+        _count_intero_crossings(det, agents, intero_cross)
         R.apply_detection(agents, world, det)
         d_agent, d_cond, d_class = det.candidates()
         # ---- 二層の段 2: 活動中は場所の変化で起こさない+満了入口 ----
@@ -2522,6 +2620,7 @@ def run_day(
             focus_request=focus_request,
             talk_by_distance=attention_on,
             track_visits=fam_layer is not None,
+            energy=energy_layer,
         )
         phase["phase_c"] += time.perf_counter() - t0
         phase["movement"] += outcome.movement_seconds
@@ -2675,6 +2774,9 @@ def run_day(
             fam_layer.after_tick(
                 agents, tick, (outcome.visit_agents, outcome.visit_pois), _exp
             )
+        # ---- 5 段目 5a: 語の段の時間の延べ(診断・読むだけ) ----
+        if energy_layer is not None:
+            energy_layer.after_tick(agents, tick, int(tick * tick_seconds // 60))
 
         diag_rows.append(
             (
@@ -2925,6 +3027,19 @@ def run_day(
     result.familiarity_k = int(familiarity_k)
     result.familiarity_summary = (
         fam_layer.summary(agents, max(0, int(ticks) - 1)) if fam_layer is not None else {}
+    )
+    result.hunger_model = str(hunger_model)
+    result.intero_crossings = {
+        f"{var}_{d}{suffix}": int(intero_cross[v, k, s])
+        for v, var in enumerate(("hunger", "fatigue", "thermal"))
+        for k, d in enumerate(("up", "down"))
+        for s, suffix in enumerate(("", "_awake_in_area"))
+    }
+    result.energy_rate = str(energy_rate) if energy_on else ""
+    result.energy = (
+        {**energy_layer.model.manifest_fields(), **energy_layer.summary(agents)}
+        if energy_layer is not None
+        else {}
     )
     if intent_layer is not None:
         # B5「いま <行為> のため <対象> へ向かっている」を載せた回数(描画のあるランだけ)

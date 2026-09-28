@@ -4,7 +4,7 @@
 (a) ``intent_mode="open"`` で ``OUTPUT_SPEC_OPEN`` が選ばれ **B0 の SHA が変わる**
     (=切替が効く)。レンダラの描画バイト・``prompt_hash`` も動く/
 (b) **既定は 1 バイトも動かない**: ``b0_sha256("vocab")`` が現行値・``template_sha256()`` が
-    161fe181…・参照場面の ``prompt_hash`` が bb23f7c6…(⑥ の golden と同じ場面)/
+    8f2959d0…・参照場面の ``prompt_hash`` が bb23f7c6…(⑥ の golden と同じ場面)/
 (c) 腕の差は **``行動:`` の 1 行だけ**(理由・対象・ひと言・2 行形・JSON 禁止は同文)/
 (d) **AB7b ヒント腕**(``intent_mode="hint"``・2026-09-17): 語彙を**例として見せたまま**
     「当てはまる語が無いときだけ 10 字以内の自由文」を許す。vocab/open と同じく
@@ -25,7 +25,7 @@ from shibuya.perception.renderer import Renderer
 from shibuya.world.state import World
 
 #: 凍結テンプレの SHA(``tests/perception/test_templates.py`` と**同じ値**)。
-FROZEN_TEMPLATE_SHA256 = "161fe181bc325f003d874fb5c91e6142c01449fb09ac5f8b377b715a945608de"
+FROZEN_TEMPLATE_SHA256 = "8f2959d0d3fbe75ee0ca5a634425447bb316baaa6b36af9c570fa34eeb5617ef"
 #: 既定(vocab)の B0 本文そのものの SHA。**腕の切替が効いたかの指紋**。
 B0_SHA256_VOCAB = "2b4bfc8a6da16ec73cbd3db8c68656150d2becd08100efa8816ad649e478339c"
 #: AB7b ヒント腕の B0 本文の SHA(2026-09-17 に凍結。文面を変えたら**必ずここが動く**)。

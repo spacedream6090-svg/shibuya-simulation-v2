@@ -20,6 +20,9 @@
 
 逐次ループ宣言(P4)
 - ``apply``: **行動語ぶんのループ**(12 語+エンジン継続=13 分岐)。個体数に比例するループなし。
+- ``advance_body`` の**エネルギー収支**(5 段目 5a・``energy`` を渡したランだけ): 毎 tick の消費と
+  語の段の写しは配列演算だけ(逐次ループの新設なし)。``initialize_energy`` の体の定数の抽選は
+  ``engine.energy.EnergyModel.draw_bodies`` の宣言(起動時 1 回・体数ぶん)。
 - ``AgentState.freeze/thaw``: フィールド数ぶん(宣言済み)。
 
 expedient(本モジュール分)
@@ -70,6 +73,7 @@ from shibuya.agents.state import (
     WakeCondition,
 )
 from shibuya.engine.change_detect import DetectResult
+from shibuya.engine.energy import INTAKE_DRINK, INTAKE_SNACK, EnergyModel
 from shibuya.engine.geometry import EdgeGeometry
 from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.commit import (
@@ -134,6 +138,9 @@ __all__ = [
     "intent_kept_by",
     # ---- 4 段目 親しみの表(値は engine.familiarity が決める・書き手は本モジュール) ----
     "write_familiarity",
+    # ---- 5 段目 5a 体のエネルギー収支(値は engine.energy が決める・書き手は本モジュール) ----
+    "initialize_energy",
+    "energy_out_of_area_meal",
     "refractory_ticks",
     "wake_condition_index",
     "normalized_refractory_scale",
@@ -404,6 +411,9 @@ class ResolveOutcome:
     track_visits: bool = False
     visit_agents: list = field(default_factory=list)
     visit_pois: list = field(default_factory=list)
+    #: 5 段目 5a(D-118): エネルギー収支の層(``engine.energy.EnergyLayer``)。``None``=空腹 v1
+    #: (購入/食事で −4)=**1 分岐も通らない**。渡すと食事=時間帯の比 × EER・軽食/飲料=比 × EER。
+    energy: Any = None
     #: 段 2b: 移動の失敗の内訳(対象不正=行き先が解決できない / 経路なし)。
     n_move_bad_target: int = 0
     n_move_unreachable: int = 0
@@ -973,24 +983,31 @@ def relabel_intent_failure(agents: AgentState, agent_id, action=None) -> None:
 
 
 # ---------------------------------------------------------------- 身体の自然変動
-def advance_body(agents: AgentState, tick: int) -> None:
+def advance_body(agents: AgentState, tick: int, energy: Any = None) -> None:
     """内受容 3 変数の自然変動(**C4 の世界過程が入るまでの駆動源**・expedient)。
 
     **二層の段 2(第275 親の決め #1)**: ``activity_columns`` のランでは、活動の種別が
     在店/その場 で持続中(``activity_until > tick``)・移動/乗車/就寝中でない体の疲労を
     ``ACTIVITY_REST_PERIOD_TICKS`` ごとに ``ACTIVITY_REST_FATIGUE_RELIEF`` 下げる
     (旧 休憩 の即時回復を時間経過の規則へ寄せた)。自然変動の**後**に掛ける。
+
+    **5 段目 5a(D-118 K1 (c)・K2・K8)**: ``energy``(``engine.energy.EnergyLayer``)を渡したランは
+    空腹の +1/30 分を止め、**毎 tick** ``since_meal_kcal += 消費``・``energy_balance −= 消費``
+    (消費=EER/1440 × 分 × METs(活動)/AVG_METS)として ``hunger`` を語の段の写し
+    (満腹 1 / ふつう 5 / 空腹 8 / とても空腹 10)に書き直す。疲労・休息の規則は変えない。
+    ``None``(既定)は従来と 1 バイトも変わらない。
     """
     body = int(tick) % BODY_TICK_PERIOD == 0
     rest = bool(getattr(agents, "activity_columns", False)) and (
         int(tick) % ACTIVITY_REST_PERIOD_TICKS == 0
     )
-    if not (body or rest):
+    if energy is None and not (body or rest):
         return
     with agents.writable():
         r = agents.registry
         if body:
-            r.hunger[:] = np.minimum(r.hunger.astype(np.int16) + 1, 10).astype(np.uint8)
+            if energy is None:
+                r.hunger[:] = np.minimum(r.hunger.astype(np.int16) + 1, 10).astype(np.uint8)
             r.fatigue[:] = np.minimum(r.fatigue.astype(np.int16) + 1, 10).astype(np.uint8)
             sleeping = r.activity == int(Activity.SLEEPING)
             if sleeping.any():
@@ -1011,6 +1028,114 @@ def advance_body(agents: AgentState, tick: int) -> None:
                 r.fatigue[resting] = np.maximum(
                     r.fatigue[resting].astype(np.int16) - ACTIVITY_REST_FATIGUE_RELIEF, 0
                 ).astype(np.uint8)
+        if energy is not None:
+            model: EnergyModel = energy.model
+            mets = model.mets_of(
+                r.activity,
+                r.transit_state,
+                r.activity_kind if getattr(agents, "activity_columns", False) else None,
+            )
+            spent = model.expenditure(r.eer_kcal, mets, energy.bmr)
+            r.since_meal_kcal += spent
+            r.energy_balance -= spent
+            r.hunger[:] = model.hunger_copy(model.stage_of(r.since_meal_kcal, r.eer_kcal))
+
+
+# ---------------------------------------------------------------- 5 段目 5a エネルギー収支
+def initialize_energy(agents: AgentState, energy: Any, seed: int | str) -> None:
+    """体の定数(体重・EER)を抽選し、食後の消費・収支・``hunger`` の写しと段を置く(ラン開始時 1 回)。
+
+    ``initialize`` の直後・``freeze`` の前に呼ぶ(``energy_columns`` のランだけ)。``hunger_stage``
+    (変化検出の前回段)も写しから組み直す=tick 0 に偽の跨ぎを出さない。
+    """
+    from shibuya.engine.change_detect import INTERO_UP_EDGES
+
+    model: EnergyModel = energy.model
+    r = agents.registry
+    with agents.writable():
+        weight, eer = model.draw_bodies(r.age, r.sex, seed)
+        r.weight_kg[:] = weight
+        r.eer_kcal[:] = eer
+        r.since_meal_kcal[:] = model.initial_since_meal(eer)
+        r.energy_balance[:] = 0.0
+        r.hunger[:] = model.hunger_copy(model.stage_of(r.since_meal_kcal, r.eer_kcal))
+        stage = np.zeros(r.hunger.size, dtype=np.int8)
+        for e in INTERO_UP_EDGES:  # 段の刻み 3 本ぶん(体数には比例しない)
+            stage += (r.hunger >= e).astype(np.int8)
+        r.hunger_stage[:] = stage
+    if model.rate == "bmr":
+        energy.bmr = model.bmr_kcal(r.age, r.sex, r.weight_kg).astype(np.float32)
+
+
+def _tick_minute(energy: Any, tick: int) -> int:
+    return int(int(tick) * float(energy.model.minutes_per_tick)) % 1440
+
+
+def _energy_meal(
+    r, ids: np.ndarray, tick: int, energy: Any, *, kind: str,
+    slots: np.ndarray | None = None, from_row: np.ndarray | None = None,
+) -> None:
+    """食事の摂取(K7 (a)): 時間帯の比 × EER を収支へ・``since_meal=0``・写しを満腹へ。"""
+    ids = np.asarray(ids, dtype=np.int64)
+    if ids.size == 0:
+        return
+    model: EnergyModel = energy.model
+    minute = _tick_minute(energy, tick)
+    if slots is None:
+        share = model.meal_share_of(r.age[ids], r.sex[ids], minute)
+    else:
+        share = model.meal_share_for_slot(r.age[ids], r.sex[ids], slots)
+    kcal = (share * r.eer_kcal[ids].astype(np.float64)).astype(np.float32)
+    r.since_meal_kcal[ids] = 0.0
+    r.energy_balance[ids] += kcal
+    r.hunger[ids] = model.hunger_copy(model.stage_of(r.since_meal_kcal[ids], r.eer_kcal[ids]))
+    energy.note(kind, ids, minute, float(kcal.astype(np.float64).sum()), slots=slots,
+                from_row=from_row)
+
+
+def _energy_snack(r, buyers: np.ndarray, bought: np.ndarray, tick: int, energy: Any) -> None:
+    """飲食系の購入の摂取(K3 (a)): 軽食=第13表「間」の比・飲料=``DRINK_SHARE``(× EER)。"""
+    from shibuya.engine.energy import DRINK_SHARE
+
+    buyers = np.asarray(buyers, dtype=np.int64)
+    bought = np.asarray(bought, dtype=np.int64)
+    if buyers.size == 0 or energy.poi_intake.size == 0:
+        return
+    model: EnergyModel = energy.model
+    kind = energy.poi_intake[np.clip(bought, 0, energy.poi_intake.size - 1)]
+    minute = _tick_minute(energy, tick)
+    for code, label in ((INTAKE_SNACK, "snack"), (INTAKE_DRINK, "drink")):  # 2 種ぶん
+        ids = buyers[kind == code]
+        if ids.size == 0:
+            continue
+        if code == INTAKE_SNACK:
+            share = model.snack_share_of(r.age[ids], r.sex[ids])
+        else:
+            share = np.full(ids.size, DRINK_SHARE, dtype=np.float64)
+        kcal = (share * r.eer_kcal[ids].astype(np.float64)).astype(np.float32)
+        r.since_meal_kcal[ids] = np.maximum(r.since_meal_kcal[ids] - kcal, np.float32(0.0))
+        r.energy_balance[ids] += kcal
+        r.hunger[ids] = model.hunger_copy(
+            model.stage_of(r.since_meal_kcal[ids], r.eer_kcal[ids])
+        )
+        energy.note(label, ids, minute, float(kcal.astype(np.float64).sum()))
+
+
+def energy_out_of_area_meal(
+    agents: AgentState, energy: Any, agent_id: np.ndarray, slots: np.ndarray,
+    from_row: np.ndarray, tick: int,
+) -> int:
+    """範囲外の食事(K9 (a)): 域外に居る体の予定の食事=時間帯の比 × EER・``since_meal=0``。
+
+    値(誰がいつ)は ``engine.energy.OutOfAreaMeals.due`` が決める。件数を返す。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return 0
+    with agents.writable():
+        _energy_meal(agents.registry, a, tick, energy, kind="meal_out",
+                     slots=np.asarray(slots, dtype=np.int64), from_row=from_row)
+    return int(a.size)
 
 
 # ---------------------------------------------------------------- Phase C 本体
@@ -1034,6 +1159,7 @@ def apply(
     focus_request: np.ndarray | None = None,
     talk_by_distance: bool = False,
     track_visits: bool = False,
+    energy: Any = None,
 ) -> ResolveOutcome:
     """Phase C: 確定した intent だけを世界へ適用する(**唯一の書き手**)。
 
@@ -1074,6 +1200,10 @@ def apply(
         track_visits: **4 段目(M13 訪問)**。``True`` で購入/食事の成立した行(体, POI)を
             ``ResolveOutcome.visit_agents``/``visit_pois`` に控える(``engine.familiarity`` が読む)。
             控えるだけ=世界は変えない。
+        energy: **5 段目 5a 体のエネルギー収支**(``engine.energy.EnergyLayer``)。``None``(既定)は
+            空腹 v1(購入/食事で ``hunger`` −4)=**1 バイトも変わらない**。渡すと食事の成立で
+            ``since_meal_kcal=0``・収支に時間帯の比 × EER、飲食系の購入で軽食/飲料の比 × EER を
+            差し引き、``hunger`` を語の段の写しに書き直す(アジェンダ §1-3)。
 
     Returns:
         ``ResolveOutcome``。
@@ -1097,6 +1227,7 @@ def apply(
         ),
         talk_by_distance=bool(talk_by_distance),
         track_visits=bool(track_visits),
+        energy=energy,
     )
     r = agents.registry
     with agents.writable(), world.writable():
@@ -1951,9 +2082,13 @@ def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
     _require_thawed(world)
     np.add.at(world.pois.revenue, bought, paid)
     r.holdings[buyers] = np.minimum(r.holdings[buyers].astype(np.int16) + 1, 255).astype(np.uint8)
-    r.hunger[buyers] = np.maximum(
-        r.hunger[buyers].astype(np.int16) - BUY_HUNGER_RELIEF, 0
-    ).astype(np.uint8)
+    if out.energy is None:
+        r.hunger[buyers] = np.maximum(
+            r.hunger[buyers].astype(np.int16) - BUY_HUNGER_RELIEF, 0
+        ).astype(np.uint8)
+    else:
+        # 5 段目 5a(K3 (a)・K7): 飲食系の購入だけが摂取(軽食/飲料)・他の購入は空腹を動かさない
+        _energy_snack(r, buyers, bought, tick, out.energy)
     r.activity[buyers] = int(Activity.SHOPPING)
     if out.crowd is not None:
         # 在席の登録(屋内占有の集約=人物②「行列・人だかり」の素)
@@ -2044,9 +2179,13 @@ def _complete_eat(agents, world, eaters, shops, paid, tick, out) -> None:
         r.money[eaters] = (r.money[eaters].astype(np.int64) - paid).astype(np.int32)
     _require_thawed(world)
     np.add.at(world.pois.revenue, shops, paid)
-    r.hunger[eaters] = np.maximum(
-        r.hunger[eaters].astype(np.int16) - EAT_HUNGER_RELIEF, 0
-    ).astype(np.uint8)
+    if out.energy is None:
+        r.hunger[eaters] = np.maximum(
+            r.hunger[eaters].astype(np.int16) - EAT_HUNGER_RELIEF, 0
+        ).astype(np.uint8)
+    else:
+        # 5 段目 5a(K7 (a)): 食事=時間帯の比 × EER・since_meal=0(範囲内の食事)
+        _energy_meal(r, eaters, tick, out.energy, kind="meal_in")
     r.activity[eaters] = int(Activity.SHOPPING)  # 在店(その tick は移動しない)
     if out.crowd is not None:
         r.poi_ref[eaters] = shops.astype(np.int32)

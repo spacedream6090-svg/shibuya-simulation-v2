@@ -69,6 +69,12 @@ from shibuya.engine.poi_target import (
 )
 from shibuya.engine.intent import INTENT_MAX_TICKS
 from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES
+from shibuya.engine.energy import (
+    DEFAULT_ENERGY_RATE,
+    DEFAULT_HUNGER_MODEL,
+    ENERGY_RATES,
+    HUNGER_MODELS,
+)
 from shibuya.world.state import DEFAULT_EATERY_MODE, EATERY_MODES, World
 
 #: **CLI の既定の語彙版**(二層の段 3・第277=``--vocab-version`` を渡さないランは v3)。
@@ -82,10 +88,15 @@ CLI_DEFAULT_VOCAB_VERSION: Final[str] = "v3"
 #: スイッチ(``--l4-scale 1``=旧挙動・0.5/2=倍率)と従来の配り方(``arbiter.call_budget_per_tick``・
 #: ``POOL_CAP_TICKS``)は残す。
 CLI_DEFAULT_L4_SCALE: Final[float] = 0.0
+#: **5 段目 5a(D-118 K5 (a)・第291)**: CLI と ``cli.run`` の空腹のモデルの既定=**energy**
+#: (体のエネルギー収支)。``run_day`` のライブラリ既定は ``v1`` のまま(語彙・L4 と同じ分け方)。
+#: 旧 checkpoint は ``--hunger-model v1``(``cli.run(hunger_model="v1")``)で再現する(テストで固定)。
+CLI_DEFAULT_HUNGER_MODEL: Final[str] = DEFAULT_HUNGER_MODEL
 
 __all__ = [
     "CLI_DEFAULT_VOCAB_VERSION",
     "CLI_DEFAULT_L4_SCALE",
+    "CLI_DEFAULT_HUNGER_MODEL",
     "fleet_queue_note",
     "STORE_ENTRY_CAPITAL_YEN",
     "WALLET_DOMAIN",
@@ -354,8 +365,13 @@ def run(
     (**0=無制限**)。``l4_scale=1.0`` で旧挙動(L4 按分・持ち越し 2 tick)を再現する(テストで固定)。
     艦隊(``fleet``)× 無制限で受理待ち枠(``--fleet-queue-capacity``)が未指定なら警告を出し、
     manifest の ``l4_notes`` に注記する(挙動は変えない・D-55)。
+
+    **5 段目 5a(D-118)**: ``hunger_model`` の既定(渡さないとき)は ``CLI_DEFAULT_HUNGER_MODEL``
+    (**energy**)。``hunger_model="v1"`` で旧規則(旧 checkpoint)を再現する(テストで固定)。
     """
     budget = kwargs.pop("budget", None)
+    # 5 段目 5a: 空腹のモデルの既定は energy(``CLI_DEFAULT_HUNGER_MODEL``)
+    kwargs.setdefault("hunger_model", CLI_DEFAULT_HUNGER_MODEL)
     if l4_scale is None:
         # 予算を直に渡した呼び出しは従来どおり倍率 1.0 と載せる(倍率より予算が優先)
         scale = 1.0 if budget is not None else float(CLI_DEFAULT_L4_SCALE)
@@ -743,6 +759,21 @@ def main(argv: list[str] | None = None) -> int:
         help="親しみの表の体あたりの行数(既定 64・宣言・感度 32/128)",
     )
     ap.add_argument(
+        "--hunger-model",
+        choices=HUNGER_MODELS,
+        default=CLI_DEFAULT_HUNGER_MODEL,
+        help="5 段目 5a(D-118): 空腹のモデル。energy=体のエネルギー収支(既定・体重と EER・活動の "
+             "METs で消費・食事/軽食/飲料で摂取・B5 は語)/v1=旧規則(+1/30 分・購入/食事で −4)"
+             "=旧 checkpoint の再現",
+    )
+    ap.add_argument(
+        "--energy-rate",
+        choices=ENERGY_RATES,
+        default=DEFAULT_ENERGY_RATE,
+        help="消費の式(--hunger-model energy のときだけ効く)。eer=EER/1440×METs/基準日の平均 METs"
+             "(既定・K1 (c))/bmr=基礎代謝量×METs(感度腕・K1 (a))",
+    )
+    ap.add_argument(
         "--eatery",
         choices=EATERY_MODES,
         default=DEFAULT_EATERY_MODE,
@@ -886,6 +917,8 @@ def main(argv: list[str] | None = None) -> int:
         intent_max_ticks=int(args.intent_max_ticks),
         familiarity=str(args.familiarity),
         familiarity_k=int(args.familiarity_k),
+        hunger_model=str(args.hunger_model),
+        energy_rate=str(args.energy_rate),
         role_words=(str(args.role_words) == "on"),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),

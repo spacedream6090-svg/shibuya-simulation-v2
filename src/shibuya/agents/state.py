@@ -70,7 +70,13 @@ expedient(本モジュール分)
 - **親しみの表(4 段目・M13 訪問+M17 露出・第290)**: ``fam_thing`` / ``fam_first`` / ``fam_last`` /
   ``fam_visits`` / ``fam_exposures``(体 × K 行・1 行 16 B → K=64 で 1,024 B/体)は
   ``familiarity_columns`` のランだけ確保する(``--familiarity on``・既定 off=既定 checkpoint 不変)。
-  ``fam_thing`` の符号化は ``engine.familiarity``(POI 索引 ≥ 0・場所 −(cell+1)・人 1<<30|id・空行 −1)。
+  ``fam_thing`` の符号化は ``engine.familiarity``(POI 索引 ≥ 0・場所 −(cell+2)・人 1<<30|id・空行 −1)。
+- **体のエネルギー収支(5 段目 5a・D-118 K1〜K9・第291)**: ``weight_kg`` / ``eer_kcal`` /
+  ``since_meal_kcal`` / ``energy_balance``(float32 × 4 = +16 B/体)は ``energy_columns`` のランだけ
+  確保する。``engine.run`` は ``hunger_model="energy"``(CLI の既定)のときだけ True にする
+  =``--hunger-model v1`` の checkpoint は 1 バイトも動かない(旧 checkpoint の再現)。
+  値を決めるのは ``engine.energy``・書き手は ``engine.resolve`` だけ。``hunger`` はこのランでは
+  **語の段の写し**(満腹 1 / ふつう 5 / 空腹 8 / とても空腹 10)。
 - ``ResultCode.TOO_FAR``(21)は**段 2c** で足した失敗コード(D-122 P6 の先取り)。「経路は在るが
   ``INTENT_MAX_TICKS`` のうちに着かなかった」= 時間予算超え。経路が無い ``UNREACHABLE``(1)と
   分ける。**値は末尾に足すだけ**なので既存の配列も描画も動かない。
@@ -109,6 +115,7 @@ __all__ = [
     "INTENT_FIELDS",
     "FAMILIARITY_FIELDS",
     "FAMILIARITY_EMPTY",
+    "ENERGY_FIELDS",
     "REFRACTORY_MINUTES",
     "WAKE_CONDITION_CLASS",
     "RESULT_TEXT",
@@ -354,6 +361,11 @@ FAMILIARITY_FIELDS: Final[tuple[str, ...]] = (
 #: 親しみの表の空行(``fam_thing``)。
 FAMILIARITY_EMPTY: Final[int] = -1
 
+#: 体のエネルギー収支の 4 欄(5 段目 5a・``energy_columns`` のランだけ確保)。
+ENERGY_FIELDS: Final[tuple[str, ...]] = (
+    "weight_kg", "eer_kcal", "since_meal_kcal", "energy_balance",
+)
+
 #: 意図の 4 欄(段 2c)。``Registry.state_hash(exclude=INTENT_FIELDS)`` で「欄を足す前」の
 #: checkpoint と挙動が同じことを確かめる(監査用)。
 INTENT_FIELDS: Final[tuple[str, ...]] = (
@@ -386,6 +398,7 @@ class AgentState:
         activity_columns: bool = False,
         familiarity_columns: bool = False,
         familiarity_k: int = 64,
+        energy_columns: bool = False,
     ) -> None:
         """
         Args:
@@ -411,6 +424,10 @@ class AgentState:
                 ``activity_kind``・+5 B/体)を確保するか。``engine.run`` は
                 ``vocab_version="v3"`` かつ ``activity=True`` のときだけ True にする
                 = **v1/v2 と ``--activity off`` の checkpoint は 1 バイトも動かない**。
+            energy_columns: **体のエネルギー収支**(5 段目 5a・D-118)の 4 欄(``weight_kg`` /
+                ``eer_kcal`` / ``since_meal_kcal`` / ``energy_balance``・+16 B/体)を確保するか。
+                ``engine.run`` は ``hunger_model="energy"`` のときだけ True にする
+                = **``--hunger-model v1`` の checkpoint は 1 バイトも動かない**。
         """
         self.n = int(n)
         self.plan_columns = bool(plan_columns)
@@ -420,6 +437,8 @@ class AgentState:
         #: 4 段目(M13+M17): 親しみの表を確保するか・行数 K(``engine.familiarity.FAMILIARITY_K``)。
         self.familiarity_columns = bool(familiarity_columns)
         self.familiarity_k = int(familiarity_k)
+        #: 5 段目 5a(D-118): 体のエネルギー収支の 4 欄を確保するか。
+        self.energy_columns = bool(energy_columns)
         if self.familiarity_columns and self.familiarity_k < 1:
             raise ValueError(f"familiarity_k は 1 以上(いま {familiarity_k})")
         self.registry = Registry.for_agents(self.n, per_entity_byte_cap=cap_bytes)
@@ -476,6 +495,16 @@ class AgentState:
                   doc="疲労の閾値段(同上)")
         r.declare("thermal_stage", np.int8, byte_budget_per_agent=1, mechanism=False,
                   doc="体感温度の閾値段(同上)")
+        # ---- 体のエネルギー収支(5 段目 5a・D-118・energy_columns のランだけ・+16 B/体) ----
+        if self.energy_columns:
+            r.declare("weight_kg", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="体重[kg](国民健康・栄養調査 第14表 性×年齢の平均±SD から抽選・ラン開始時に固定)")
+            r.declare("eer_kcal", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="推定エネルギー必要量[kcal/日](食事摂取基準 2025 表3×体重×表4 ふつう+個人差)")
+            r.declare("since_meal_kcal", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="食後の消費[kcal](食事で 0・軽食/飲料で差し引く)=空腹の語の源(K8)")
+            r.declare("energy_balance", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="当日の 摂取 − 消費[kcal](日次センサスの源・K8・翌日持ち越しなし)")
         # ---- 経済(行動契約書 §2.1 購入・保存則) ----
         r.declare("money", np.int32, byte_budget_per_agent=4, mechanism=True,
                   doc="所持金[円](保存則 U11 の個体側・M2)")
@@ -547,7 +576,7 @@ class AgentState:
         if self.familiarity_columns:
             k = self.familiarity_k
             r.declare("fam_thing", np.int32, (k,), byte_budget_per_agent=4 * k, mechanism=True,
-                      doc="もの(POI 索引 ≥0 / 場所 −(cell+1) / 人 1<<30|id / 空行 −1)")
+                      doc="もの(POI 索引 ≥0 / 場所 −(cell+2) / 人 1<<30|id / 空行 −1)")
             r.declare("fam_first", np.int32, (k,), byte_budget_per_agent=4 * k, mechanism=True,
                       doc="最初の接触の tick(A の寿命 L の起点)")
             r.declare("fam_last", np.int32, (k,), byte_budget_per_agent=4 * k, mechanism=False,

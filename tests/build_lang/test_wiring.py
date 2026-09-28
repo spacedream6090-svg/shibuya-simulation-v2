@@ -24,7 +24,7 @@ from shibuya.perception.normalize import AgentDependentWordError
 from shibuya.perception.renderer import PerceptionAssets, Renderer, _load_frozen_text
 from shibuya.world.state import World
 
-FROZEN_TEMPLATE_SHA256 = "161fe181bc325f003d874fb5c91e6142c01449fb09ac5f8b377b715a945608de"
+FROZEN_TEMPLATE_SHA256 = "8f2959d0d3fbe75ee0ca5a634425447bb316baaa6b36af9c570fa34eeb5617ef"
 SHARED_BLOCKS = ("B0", "B1", "B2", "B3", "B4", "B4b")
 
 SIGNAGE = "ベーカリー宮下の表示。飲食店。毎日7時から19時。価格帯は低め。"
@@ -56,7 +56,7 @@ def with_frozen(w: World, *, signage: str = "", static: str = "") -> PerceptionA
 
 # ---------------------------------------------------------------- テンプレは不変
 def test_template_sha256_is_still_frozen():
-    """結線でテンプレ本体を触っていない(凍結 SHA 161fe181… が動かない)。"""
+    """結線でテンプレ本体を触っていない(凍結 SHA 8f2959d0… が動かない)。"""
     assert T.template_sha256() == FROZEN_TEMPLATE_SHA256
 
 

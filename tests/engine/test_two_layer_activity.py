@@ -204,7 +204,7 @@ def test_b4b_activity_line_is_byte_identical_in_a_cell():
     assert x.blocks["B4b"] == y.blocks["B4b"]
     line = x.blocks["B4b"].decode("utf-8")
     assert line == "[B4b 活動] 近くの人: 散歩が3人・店を見るが1人。"
-    assert T.template_sha256() == "161fe181bc325f003d874fb5c91e6142c01449fb09ac5f8b377b715a945608de"
+    assert T.template_sha256() == "8f2959d0d3fbe75ee0ca5a634425447bb316baaa6b36af9c570fa34eeb5617ef"
 
 
 def test_activity_line_budget_and_filters():
