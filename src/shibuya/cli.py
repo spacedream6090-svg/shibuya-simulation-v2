@@ -881,8 +881,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     ap.add_argument("--rel-k", type=int, default=15, metavar="K",
                     help="関係辺の数(既定 15・感度 5/50)")
-    ap.add_argument("--rel-tau", type=float, default=0.704, metavar="TAU",
-                    help="辺として残る A の閾値 τ_rel(既定 0.704=在職期間を散らした全母集団の逆算・感度 ±0.5)")
+    ap.add_argument("--rel-tau", type=float, default=-2.346, metavar="TAU",
+                    help="辺として残る A の閾値 τ_rel(既定 −2.346=n を共在の日数で数えた全母集団の逆算・感度 ±0.5)")
     ap.add_argument("--rel-d", type=float, default=0.5, metavar="D",
                     help="関係辺の A の減衰 d(既定 0.5=記憶と同じ・感度 0.25/0.75)")
     ap.add_argument("--rel-init-density", type=float, choices=(0.5, 1.0, 2.0), default=1.0,

@@ -38,8 +38,10 @@ A と強さ(M12 (a)・D-93 (a))::
     長い順に、世帯を除いた残り枠(≤ k − 世帯)へ(種別 2/3・共在の分が同じ相手の順は体の元 id の組の混ぜ合わせ=
     行番号の順にしない=大組織の入次数の偏りを避ける・:data:`REL_TIEBREAKS`)(iii) 常連(4)は作らない。
     **第299 Q89/Q90**: 辺ごとの在職期間 T_uv を組の hash で 1〜13 週に一様に散らす(``tenure_weeks``・感度 26)・
-    n=15 分枠の共在数/週 × T_uv・first=−T_uv・last=直近の共在(ランの日の前へ遡る)。世帯で共在が取れない
-    (域外の自宅=セル未解決)ペアは毎日 1 枠=7 枠/週と置く(宣言)。A ≥ τ_rel の辺だけ書く。
+    first=−T_uv・last=直近の共在(ランの日の前へ遡る)。**第300 訂正(8b′)**: n=**共在のあった日数/週** × T_uv
+    (1 日 1 本=ラン中の会話 1 セッション・同席 1 日 1 本と同じ単位・代表日の係数 世帯 7・職場/学校 5)。15 分枠の
+    共在時間は上位 k の順位付け(と密度の腕)にだけ使う。世帯で共在が取れない(域外の自宅=セル未解決)ペアは
+    毎日=7 日/週と置く(宣言)。A ≥ τ_rel の辺だけ書く。
 
 会話の起点と相手選択(8b・R5・R7 (a)・R12・R13・:meth:`RelationLayer.choose_talk_partners`)
     名指しの無い会話の相手=同セルの生きている辺の相手に Dunbar 2020 の重み(内側 5 人 40%・次の 10 人 20%・
@@ -86,7 +88,8 @@ __all__ = [
     "REL_ROW_BYTES_DECLARED",
     "REL_INIT_DENSITIES",
     "REL_INVITE_LAYERS",
-    "HOUSEHOLD_MIN_SLOTS_PER_WEEK",
+    "HOUSEHOLD_MIN_DAYS_PER_WEEK",
+    "copresence_days",
     "REL_COPRESENT_MINUTES",
     "REL_COPRESENT_METERS",
     "REL_ACQ_PAIR_REFRACTORY_MIN",
@@ -108,16 +111,17 @@ REL_KINDS: Final[dict[str, int]] = {"household": 1, "work": 2, "school": 3, "reg
 REL_KIND_NAMES: Final[dict[int, str]] = {v: k for k, v in REL_KINDS.items()}
 #: 減衰(記憶と同じ既決値・感度 0.25/0.75)。
 REL_D: Final[float] = 0.5
-#: 辺として残る A の閾値 τ_rel(**較正対象**・第299 Q89 で再逆算): 在職期間 T_uv を散らした機械的初期化
-#: (``initial_edges``・上限 13 週)を W16+W17 の全母集団(390,067 体)にかけたときの「体ごとの 15 番目の辺の A」の
-#: 中央値=**0.7043**(ラン開始時・15 本の体 54.5%・1 日の終わり 0.6525)を小数 3 桁で切り下げて **0.704**
-#: (=ラン開始時に中央 15 本が残る値・感度 ±0.5)。8a の初版の −1.1 は A が 13 段の階段だった時の値。
-#: 過程と τ の曲線は記録 ``docs/bench/analysis/c10-relations-2026-09-28/`` §8b。
-REL_TAU: Final[float] = 0.704
+#: 辺として残る A の閾値 τ_rel(**較正対象**・第300 訂正=8b′ で再逆算): 在職期間 T_uv を散らし、n を「共在の
+#: あった日数」で数えた機械的初期化(``initial_edges``・上限 13 週)を W16+W17 の全母集団(390,067 体)にかけたときの
+#: 「体ごとの 15 番目の辺の A」の中央値=**−2.3454**(ラン開始時・15 本の体 54.5%・1 日の終わり −2.4075)を小数 3 桁で
+#: 切り下げて **−2.346**(=ラン開始時に中央 15 本が残る値・感度 ±0.5)。8a の −1.1(A が 13 段の階段)・8b の 0.704
+#: (n を 15 分枠で数えた=会話 1 回の辺と単位が違った)は置き換え。過程と τ の曲線は記録
+#: ``docs/bench/analysis/c10-relations-2026-09-28/`` §8b′。
+REL_TAU: Final[float] = -2.346
 #: 強さ P のロジスティックの幅(M17 の宣言と同じ)。
 REL_S: Final[float] = 0.25
 #: 初期辺の**在職期間 T_uv の上限**[週](第299 Q89/Q90): 辺ごとに組の hash で 1〜13 週に一様に散らす
-#: (expedient・感度腕 26 週)。n=15 分枠の共在数/週 × T_uv・first=−T_uv(n と first を整合)。
+#: (expedient・感度腕 26 週)。n=共在のあった日数/週 × T_uv(第300 訂正=1 日 1 本)・first=−T_uv。
 REL_TENURE_WEEKS: Final[float] = 13.0
 #: 共在を数える時間の枠[分](週 7 日 × 96 枠)。
 REL_SLOT_MIN: Final[int] = 15
@@ -128,8 +132,8 @@ REL_ROW_BYTES_DECLARED: Final[int] = 16
 REL_INIT_DENSITIES: Final[tuple[float, ...]] = (0.5, 1.0, 2.0)
 #: 招待の重み(Dunbar 2020: 内側 5 人に 40%・次の 10 人に 20%・残り 40%=辺の無い同席者=8b が読む)。
 REL_INVITE_LAYERS: Final[tuple[tuple[int, float], ...]] = ((5, 0.40), (10, 0.20))
-#: 世帯で共在が取れない(自宅が域外)ペアの共在の 15 分枠の数/週(毎日 1 枠・宣言=第299 Q92 の床 7 回/週)。
-HOUSEHOLD_MIN_SLOTS_PER_WEEK: Final[int] = 7
+#: 世帯で共在が取れない(自宅が域外)ペアの「共在のあった日数/週」(毎日=7・宣言=第299 Q92 の床 7 回/週)。
+HOUSEHOLD_MIN_DAYS_PER_WEEK: Final[int] = 7
 #: 同席(COPRESENT・第299 Q91・R-36 §6-1 の初期案=expedient): 同セル・距離 2 m 内・連続 5 分で 1 本・
 #: 相手ごと 1 日 1 本まで。**表に居る相手(辺)だけ**を強める(知らない同席者は辺を作らない=宣言)。
 REL_COPRESENT_MINUTES: Final[int] = 5
@@ -139,8 +143,8 @@ REL_ACQ_PAIR_REFRACTORY_MIN: Final[int] = 60
 #: 会話の起点の種別(8b 診断行): 招待=自分で会話を選んだ・偶然=相手が 2 m 内の知人・知人出現=その起床の呼。
 REL_ORIGINS: Final[tuple[str, ...]] = ("invite", "chance", "acquaintance")
 _ACQ: Final[int] = int(WakeCondition.ACQUAINTANCE)
-#: W17 が **1 日ぶんしか無い**(全体が曜日 0 だけ=実資産の事実)とき、その日を「代表日」として週の回数に
-#: 直す日数(世帯 7・職場 5・学校 5=宣言・expedient)。複数の曜日がある表では週の合計をそのまま使う。
+#: W17 が **1 日ぶんしか無い**(全体が曜日 0 だけ=実資産の事実)とき、その日を「代表日」として「共在のあった
+#: 日数/週」に直す日数(世帯 7・職場 5・学校 5=宣言・expedient)。複数の曜日がある表では共在のあった曜日の数。
 REL_DAYS_PER_WEEK: Final[dict[int, int]] = {1: 7, 2: 5, 3: 5}
 _SLOTS_PER_DAY: Final[int] = 1440 // REL_SLOT_MIN
 _SLOTS: Final[int] = 7 * _SLOTS_PER_DAY
@@ -243,6 +247,27 @@ def copresence(slots: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     np.fill_diagonal(mins, 0.0)
     np.fill_diagonal(blocks, 0.0)
     return mins * REL_SLOT_MIN, blocks
+
+
+def copresence_days(slots: np.ndarray) -> np.ndarray:
+    """``(g, 7×96)`` のセル → ``(g, g)`` の「共在のあった曜日の数」(0〜7・同じセル・同じ枠が 1 枠でもある日)。
+
+    第300 訂正(8b′): 初期辺の n の単位(1 日 1 本=ラン中の同席と同じ)。曜日ごと・セルごとの行列積。
+    """
+    g = int(slots.shape[0])
+    days = np.zeros((g, g), dtype=np.int64)
+    if g == 0:
+        return days
+    cells = np.unique(slots[slots >= 0])
+    for d in range(7):  # 曜日の数ぶん(7)
+        s = slots[:, d * _SLOTS_PER_DAY:(d + 1) * _SLOTS_PER_DAY]
+        hit = np.zeros((g, g), dtype=np.float64)
+        for c in cells.tolist():  # 組の中のセルの数ぶん(数個)
+            B = (s == c).astype(np.float32)
+            hit += B @ B.T
+        days += hit > 0
+    np.fill_diagonal(days, 0)
+    return days
 
 
 def _last_copresence(su: np.ndarray, sv: np.ndarray, day_index: int, daily: bool = False) -> int:
@@ -367,6 +392,7 @@ def initial_edges(pop: Any, weekly: Any, n_agents: int, *, k: int = REL_K, day_i
     vs: list[np.ndarray] = []
     kinds: list[np.ndarray] = []
     mins: list[np.ndarray] = []
+    dys: list[np.ndarray] = []
     n_pairs = 0
     for kind, mem in groups:  # 逐次ループ宣言 1: 組の数ぶん(組の中は行列積)
         g = int(mem.size)
@@ -386,6 +412,8 @@ def initial_edges(pop: Any, weekly: Any, n_agents: int, *, k: int = REL_K, day_i
         vs.append(mem[iv])
         kinds.append(np.full(iu.size, kind, dtype=np.int64))
         mins.append(mm[iu, iv])
+        # 第300 訂正: 共在のあった日数(W17 が 1 日ぶんなら下で代表日の係数から出す=ここでは数えない)
+        dys.append(copresence_days(slots)[iu, iv] if not daily else np.zeros(iu.size, dtype=np.int64))
     audit["candidate_pairs_all"] = int(n_pairs)
     if not us:
         audit["reason"] = "no_groups"
@@ -394,21 +422,24 @@ def initial_edges(pop: Any, weekly: Any, n_agents: int, *, k: int = REL_K, day_i
     v = np.concatenate(vs)
     kind = np.concatenate(kinds)
     mn = np.concatenate(mins)
+    dy = np.concatenate(dys).astype(np.float64)
     # 同じ組が複数の組に居る(世帯かつ同僚)→ 種別の小さい方(世帯 > 職場 > 学校)を残す
     key = u * (m + 1) + v
     order = np.lexsort((kind, key))
-    key, u, v, kind, mn = key[order], u[order], v[order], kind[order], mn[order]
+    key, u, v, kind, mn, dy = key[order], u[order], v[order], kind[order], mn[order], dy[order]
     first_of = np.concatenate(([True], key[1:] != key[:-1]))
-    u, v, kind, mn = u[first_of], v[first_of], kind[first_of], mn[first_of]
+    u, v, kind, mn, dy = u[first_of], v[first_of], kind[first_of], mn[first_of], dy[first_of]
     hh = kind == REL_KINDS["household"]
-    # 第299 Q90: 共在の 15 分枠の数/週(代表日 → 週: 世帯 ×7・職場/学校 ×5)
-    bk = mn / float(REL_SLOT_MIN)
-    if daily:
+    # 第300 訂正(8b′・Q100/Q101): n の単位=**共在のあった日数**(1 日 1 本=ラン中の会話 1 セッション・同席 1 日 1 本と
+    # 同じ A の式に同じ単位)。15 分枠の共在時間(mn)は上位 k の順位付けと密度の腕にだけ使う(Granovetter の時間量)。
+    if daily:  # 代表日に共在 → 週の日数(世帯 7・職場/学校 5)
         lut = np.zeros(max(REL_DAYS_PER_WEEK) + 1, dtype=np.float64)
         for kd, dd in REL_DAYS_PER_WEEK.items():  # 種別の数ぶん(3)
             lut[kd] = dd
-        bk = bk * lut[kind]
-    bk = np.where(hh & (bk <= 0), HOUSEHOLD_MIN_SLOTS_PER_WEEK, bk)
+        bk = np.where(mn > 0, lut[kind], 0.0)
+    else:
+        bk = dy
+    bk = np.where(hh & (bk <= 0), HOUSEHOLD_MIN_DAYS_PER_WEEK, bk)
     audit["candidate_pairs"] = int(u.size)
     audit["candidate_pairs_copresent"] = int(np.count_nonzero(mn > 0))
     # 密度の腕(世帯は常に全ペア)
@@ -421,7 +452,7 @@ def initial_edges(pop: Any, weekly: Any, n_agents: int, *, k: int = REL_K, day_i
         audit["density_threshold_minutes"] = thr
     else:
         keep = np.ones(u.size, dtype=bool)
-        bk = np.where(~hh & (bk <= 0), 1.0, bk)  # 共在 0 の組織/学校の組=週 1 枠と置く
+        bk = np.where(~hh & (bk <= 0), 1.0, bk)  # 共在 0 の組織/学校の組=週 1 日と置く
     u, v, kind, mn, bk = u[keep], v[keep], kind[keep], mn[keep], bk[keep]
     # 体ごとに: 世帯を先に・残りは共在の分の降順(同点は tiebreak=既定は元 id の組の混ぜ合わせ)で k 本まで
     tie = _pair_mix(src_id[u], src_id[v]) if tiebreak == "hash" else v
@@ -432,7 +463,7 @@ def initial_edges(pop: Any, weekly: Any, n_agents: int, *, k: int = REL_K, day_i
     cap = rank < int(k)
     audit["capped_out"] = int(np.count_nonzero(~cap))
     u, v, kind, mn, bk = u[cap], v[cap], kind[cap], mn[cap], bk[cap]
-    # 第299 Q89/Q90: 在職期間 T_uv(組の hash で 1〜上限 週)・n=枠/週 × T_uv・first=−T_uv(n と first を整合)
+    # 第299 Q89/Q90+第300 訂正: 在職期間 T_uv(組の hash で 1〜上限 週)・n=共在のあった日数/週 × T_uv・first=−T_uv
     tw = _tenure_weeks(src_id[u], src_id[v], float(tenure_weeks))
     n = np.minimum(65_535, np.round(bk * tw)).astype(np.int64)
     n = np.maximum(n, 1)

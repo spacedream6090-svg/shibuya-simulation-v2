@@ -60,8 +60,8 @@ def table(n: int = 6, k: int = 15) -> AgentState:
 
 
 def layer(a: AgentState, **kw) -> M.MemoryLayer:
-    """単体の仕組みの検査は 8a の τ(−1.1=会話 1 回の辺が 35 分生きる)で回す(既定 0.704 だと n=1 の辺は生まれた
-    時から τ 未満=仕組みが見えない)。既定 τ の検査は ``test_default_tau_*`` が別に持つ。"""
+    """単体の仕組みの検査は 8a の τ(−1.1=会話 1 回の辺が 35 分生きる)で回す(期待値を τ の較正から切り離す)。
+    既定 τ(8b′ −2.346)の検査は ``test_default_tau_*`` が別に持つ。"""
     kw.setdefault("tau", -1.1)
     lay = M.MemoryLayer(a.n, a.memory_n, minutes_per_tick=1.0)
     lay.enable_relations(a.rel_k, **kw)
@@ -115,11 +115,12 @@ def test_initial_edges_household_work_school_and_cap():
     def tw(u_: int, v_: int) -> float:
         return float(RL._tenure_weeks(np.asarray([u_]), np.asarray([v_]), RL.REL_TENURE_WEEKS)[0])
 
+    # 第300 訂正(8b′): n=共在のあった日数/週 × T(1 日 1 本=ラン中と同じ単位)
     j = [i for i, (u, v) in enumerate(zip(init.u, init.v)) if (u, v) == (0, 1)][0]
-    assert int(init.n[j]) == round(RL.HOUSEHOLD_MIN_SLOTS_PER_WEEK * tw(0, 1))   # 共在なしの世帯=毎日 1 枠
+    assert int(init.n[j]) == round(RL.HOUSEHOLD_MIN_DAYS_PER_WEEK * tw(0, 1))    # 共在なしの世帯=毎日
     assert int(init.first[j]) == -round(tw(0, 1) * 7 * 1440)
     j = [i for i, (u, v) in enumerate(zip(init.u, init.v)) if (u, v) == (8, 9)][0]
-    assert int(init.n[j]) == round(8 * 5 * tw(8, 9))                     # 代表日 8 枠(2 時間)× 5 日 × T
+    assert int(init.n[j]) == round(5 * tw(8, 9))                          # 代表日に共在 → 週 5 日 × T(共在の長さは効かない)
     assert int(init.first[j]) == -round(tw(8, 9) * 7 * 1440) and -1440 < int(init.last[j]) < 0
     assert int(init.last[j]) == 600 - 1440                               # 前日の 10:00 に終わる
     assert tw(8, 9) == tw(9, 8) and 1.0 <= tw(8, 9) < 13.0                # 向きのない組・1〜13 週

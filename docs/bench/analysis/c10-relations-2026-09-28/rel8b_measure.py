@@ -10,6 +10,9 @@
     python $D/rel8b_measure.py arms --out $D/rel8b_arms.json          # on の腕(層化 5,000 体・1 構成=1 プロセス)
     python $D/rel8b_measure.py detect-cost --out $D/rel8b_detect_cost.json      # 全母集団の検出の費用
     python $D/rel8b_measure.py replay --out $D/rel8b_replay.json      # 実 LLM テープ 17 本
+    python $D/rel8b_measure.py lifetimes --out $D/rel8bp_lifetimes.json   # 8b′: 辺の寿命の表(τ ごと)
+
+8b′(第300 訂正=n の単位を「共在のあった日数」に)の記録は同じ道具で ``rel8bp_*.json`` に書く(腕の τ は 8b′ の値)。
 
 - **層化抽出(Q94・計測の口)**: ``stratified_sample`` を ``agents.population.sample_population`` と
   ``engine.run.sample_population`` に差し込む(母集団のモジュールは触らない)。定員先取り層は既定と同じ・
@@ -54,9 +57,10 @@ ARMS: dict[str, tuple[str, dict[str, Any]]] = {
     "rel_invite_only": ("stratified", {"relations": "on", "rel_acq_wake": "off"}),
     "rel_acq_only": ("stratified", {"relations": "on", "rel_invite": "off"}),
     "rel_copresent": ("stratified", {"relations": "on", "rel_copresent": "on"}),
-    "rel_tenure26": ("stratified", {"relations": "on", "rel_tenure_weeks": 26.0, "rel_tau": 0.798}),
-    "rel_tau_-0.5": ("stratified", {"relations": "on", "rel_tau": 0.204}),
-    "rel_tau_+0.5": ("stratified", {"relations": "on", "rel_tau": 1.204}),
+    # 8b′: 26 週の腕は 26 週の再逆算 −2.336・τ ±0.5=−2.846/−1.846(8b は 0.798・0.204/1.204 で回した)
+    "rel_tenure26": ("stratified", {"relations": "on", "rel_tenure_weeks": 26.0, "rel_tau": -2.336}),
+    "rel_tau_-0.5": ("stratified", {"relations": "on", "rel_tau": -2.846}),
+    "rel_tau_+0.5": ("stratified", {"relations": "on", "rel_tau": -1.846}),
     "off_default_sample": ("default", {}),
     "rel_on_default_sample": ("default", {"relations": "on"}),
     "classical_off": ("stratified", CLS),
@@ -169,7 +173,8 @@ def cmd_tau(args: argparse.Namespace) -> int:
         t_start = RL.tau_from_edges(init.u, A0, pop.n)
         t_end = RL.tau_from_edges(init.u, A1, pop.n)
         tau0 = t_start["tau"]
-        grid = [tau0 + x for x in (-1.0, -0.5, -0.2, -0.1, 0.0, 0.1, 0.2, 0.5, 1.0)] if np.isfinite(tau0) else \
+        grid = [tau0 + x for x in (-1.0, -0.5, -0.2, -0.1, -0.05, -0.02, 0.0, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0)] \
+            if np.isfinite(tau0) else \
             [RL.REL_TAU + x for x in (-1.0, -0.5, 0.0, 0.5, 1.0)]
         per_all = np.bincount(init.u, minlength=pop.n)
         row = {"agents": int(pop.n), "tenure_weeks": tw, "sample": sample, "edges_before_tau": int(init.u.size),
@@ -284,7 +289,7 @@ def cmd_bytecheck(args: argparse.Namespace) -> int:
     scratch = Path(args.scratch)
     for name in BYTE_CONFIGS:
         pair: dict[str, Any] = {}
-        for side, src in (("head_3505a0f", args.head_src), ("working_tree_8b", "")):
+        for side, src in ((f"head_{args.head_label}", args.head_src), ("working_tree", "")):
             env = dict(os.environ)
             if src:
                 env["PYTHONPATH"] = src
@@ -296,9 +301,9 @@ def cmd_bytecheck(args: argparse.Namespace) -> int:
                    "--agents", str(args.agents), "--seed", str(args.seed), "--tape", str(scratch / f"{side}_{name}")]
             got = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", check=True, env=env)
             pair[side] = json.loads(got.stdout.strip().splitlines()[-1])
-        h, w = pair["head_3505a0f"], pair["working_tree_8b"]
+        h, w = pair[f"head_{args.head_label}"], pair["working_tree"]
         if h is None:
-            ref = next(r for r in runs if r["run"] == "v3_memory_on")["head_3505a0f"]
+            ref = next(r for r in runs if r["run"] == "v3_memory_on")[f"head_{args.head_label}"]
             diff = sorted(k for k in ref["calls_columns_sha"] if ref["calls_columns_sha"][k] != w["calls_columns_sha"][k])
             row = {"run": name, **pair, "compare_to": "HEAD v3_memory_on",
                    "final_wo_relations_equals_memory_on": w["final_wo_relations"] == ref["final"],
@@ -313,7 +318,7 @@ def cmd_bytecheck(args: argparse.Namespace) -> int:
         print(name, {k: v for k, v in row.items() if k.endswith(("equal", "differ", "memory_on"))}, flush=True)
     doc = {"schema": "shibuya.bench/c10-relations/byte-check-8b/1",
            "how": ("same runs (mock 5,000, seed 1, vocab v3, energy, default sampling) with the committed source "
-                   "(git archive of HEAD 3505a0f) and the 8b working tree; tape = shared blocks and the 14 call "
+                   f"(git archive of HEAD {args.head_label}) and the working tree; tape = shared blocks and the 14 call "
                    "columns. The relations-on run in the 8a mode (rel_invite off, rel_acq_wake off; only in the "
                    "working tree) is compared to HEAD's memory-on run: the final without the 6 relation fields must "
                    "match; prompts change (B5 near line gets the 知人 marks)."),
@@ -628,10 +633,53 @@ def cmd_replay(args: argparse.Namespace) -> int:
     return 0
 
 
+# ------------------------------------------------------------------ lifetimes(8b′)
+def _life_minutes(n: float, tau: float, d: float = 0.5) -> float:
+    """n 本・相互作用なしの辺が τ を下回るまでの L[分](A=ln(n/(1−d))−d·ln(L+1) ≥ τ の上端)。"""
+    import math
+
+    return max(0.0, math.exp((math.log(n / (1.0 - d)) - tau) / d) - 1.0)
+
+
+def cmd_lifetimes(args: argparse.Namespace) -> int:
+    from shibuya.agents.population import load_population
+    from shibuya.agents.weekly import load_weekly
+    from shibuya.engine import relations as RL
+
+    pop = load_population(args.world, n=None, seed=1)
+    w = load_weekly(args.world).restrict_to(pop.source_agent_id)
+    init = RL.initial_edges(pop, w, pop.n)
+    L0 = -init.first.astype(np.float64)  # ラン開始時の L[分]
+    n = init.n.astype(np.float64)
+    tau = RL.REL_TAU
+    with np.errstate(over="ignore"):
+        rem = (np.exp((np.log(n / (1.0 - RL.REL_D)) - tau) / RL.REL_D) - 1.0 - L0) / 1440.0
+    med_n = float(np.median(n))
+    i_med = int(np.argsort(n, kind="stable")[n.size // 2])
+    fresh = {}
+    for label, tv in (("8a_-1.1", -1.1), ("8b_0.704", 0.704), ("8bp", tau), ("8bp_tau-0.5", tau - 0.5),
+                      ("8bp_tau+0.5", tau + 0.5)):
+        fresh[label] = {f"n{k}_minutes": round(_life_minutes(k, tv), 1) for k in (1, 2, 3, 5)}
+    doc = {"schema": "shibuya.bench/c10-relations/lifetimes-8bp/1", "tau": tau, "d": RL.REL_D,
+           "fresh_edges_minutes_until_below_tau": fresh,
+           "initial_edges_full_population": {
+               "edges": int(n.size), "n_quantiles": {q: float(np.percentile(n, q)) for q in (0, 10, 50, 90, 100)},
+               "median_n": med_n, "tenure_weeks_of_a_median_n_edge": round(float(L0[i_med]) / 10080.0, 2),
+               "remaining_days_quantiles": {q: round(float(np.percentile(rem, q)), 2) for q in (0, 10, 50, 90, 100)},
+               "share_below_1_day": round(float((rem < 1.0).mean()), 4),
+               "share_below_7_days": round(float((rem < 7.0).mean()), 4)},
+           "compare": {"8a": "fresh n=1: 35 min / initial n=65 (92%): 14.9 days",
+                       "8b": "fresh n=1: below τ from birth (ln 2 < 0.704) / initial remaining median 609 days"}}
+    Path(args.out).write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
+    print(json.dumps(doc, ensure_ascii=False))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="C10 8b の計測")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for name in ("tau", "audit-sample", "bytecheck", "bytecheck-one", "arms", "one", "detect-cost", "replay"):
+    for name in ("tau", "audit-sample", "bytecheck", "bytecheck-one", "arms", "one", "detect-cost", "replay",
+                 "lifetimes"):
         sp = sub.add_parser(name)
         sp.add_argument("--world", default="data/world/v2")
         sp.add_argument("--agents", type=int, default=5_000)
@@ -641,6 +689,7 @@ def main(argv: list[str] | None = None) -> int:
         if name == "bytecheck":
             sp.add_argument("--head-src", required=True)
             sp.add_argument("--scratch", required=True)
+            sp.add_argument("--head-label", default="3505a0f")
         if name == "bytecheck-one":
             sp.add_argument("--config", required=True, choices=tuple(BYTE_CONFIGS))
             sp.add_argument("--tape", required=True)
@@ -656,7 +705,7 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     return {"tau": cmd_tau, "audit-sample": cmd_audit_sample, "bytecheck": cmd_bytecheck,
             "bytecheck-one": cmd_bytecheck_one, "arms": cmd_arms, "one": cmd_one, "detect-cost": cmd_detect_cost,
-            "replay": cmd_replay}[args.cmd](args)
+            "replay": cmd_replay, "lifetimes": cmd_lifetimes}[args.cmd](args)
 
 
 if __name__ == "__main__":
