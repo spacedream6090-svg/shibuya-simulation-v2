@@ -80,6 +80,7 @@ from shibuya.engine import resolve as R
 from shibuya.engine.activity import ActivityLayer, payload_of
 from shibuya.engine.intent import INTENT_MAX_TICKS, IntentLayer
 from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES, FamiliarityLayer
+from shibuya.engine.memory import MEMORY_MODES, MEMORY_N, MemoryLayer
 from shibuya.engine.energy import (
     DEFAULT_ENERGY_RATE,
     EnergyLayer,
@@ -545,6 +546,10 @@ class RunResult:
     decision_layers: dict[str, Any] = field(default_factory=dict)
     #: 5 段目 5c(D-117): 看板の注視 p_see の活動の種別の乗数表・活動の種別ごとの計数・実効 p_see の分布。
     p_see_activity: dict[str, Any] = field(default_factory=dict)
+    #: 6 段目 6a(記憶 第 1 段の記録): 表を確保したか(``--memory on``)・行数 N・要約。
+    memory: bool = False
+    memory_n: int = MEMORY_N
+    memory_summary: dict[str, Any] = field(default_factory=dict)
     #: 5 段目 5a(診断): 内受容の段の跨ぎの延べ(変数 × 上げ/下げ × 全体/起きて範囲内)。
     #: 起床入口「体の状態」の内訳を空腹と疲労・体感温度に分けて読むため(挙動には効かない)。
     intero_crossings: dict[str, int] = field(default_factory=dict)
@@ -924,6 +929,10 @@ class RunResult:
             "decision_layers": dict(self.decision_layers),
             # ---- 5 段目 5c(D-117 M1〜M4): 活動 → 知覚の乗数。列追加のみ ----
             "p_see_activity": dict(self.p_see_activity),
+            # ---- 6 段目 6a(記憶 第 1 段の記録): 腕。列追加のみ ----
+            "memory": bool(self.memory),
+            "memory_n": int(self.memory_n),
+            "memory_summary": dict(self.memory_summary),
             "calls_by_condition": dict(self.calls_by_condition),
             "synonym_table_version": _synonym_table_version(self.vocab_version),
             "action_usage": dict(self.action_usage),
@@ -1491,6 +1500,8 @@ def run_day(
     classical_habit_p: float = HABIT_P,
     classical_tau: float = RANK_TAU,
     p_see_activity: "Mapping[str, float] | str | None" = None,
+    memory: bool | str = False,
+    memory_n: int = MEMORY_N,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -1728,6 +1739,11 @@ def run_day(
             辞書か JSON 文字列)。実効 p_see=min(1, p_see × 乗数)。**p_see にだけ**掛ける(B2 の可視の行は
             変えない)=注視ゲートと親しみの表の露出(入った回)が変わる。既定 ``None``=全部 1.0=
             **描画バイトも checkpoint も 1 バイトも変わらない**。
+        memory: **6 段目 6a(記憶 第 1 段の記録)**。``True``/``"on"`` で体 × N 行の記憶の表
+            (``AgentState(memory_columns=True)``・実 25 B/行・宣言 32 B/行)を確保し、行動の成否・会話・
+            気づき・強い看板(初見)を書く(``engine.memory``)。**本段では誰も読まない**。既定 ``False``=
+            表を確保しない=**既定 checkpoint 不変**。
+        memory_n: 体あたりの行数(既定 ``MEMORY_N``=128・宣言・感度 64/256)。
 
     Returns:
         ``RunResult``。
@@ -1776,6 +1792,15 @@ def run_day(
         familiarity_on = bool(familiarity)
     if int(familiarity_k) < 1:
         raise ValueError(f"familiarity_k は 1 以上(いま {familiarity_k})")
+    # ---- 6 段目 6a: 記憶の表の腕(SoA を確保する前に決める=欄が 9 本変わる) ----
+    if isinstance(memory, str):
+        if memory not in MEMORY_MODES:
+            raise ValueError(f"memory は {MEMORY_MODES} か bool(いま {memory!r})")
+        memory_on = memory == "on"
+    else:
+        memory_on = bool(memory)
+    if int(memory_n) < 1:
+        raise ValueError(f"memory_n は 1 以上(いま {memory_n})")
     # ---- 5 段目 5a: 空腹のモデル(SoA を確保する前に決める=欄が 4 本変わる) ----
     hunger_model = check_hunger_model(hunger_model)
     energy_rate = check_energy_rate(energy_rate)
@@ -1870,6 +1895,8 @@ def run_day(
         familiarity_columns=familiarity_on,
         familiarity_k=int(familiarity_k),
         energy_columns=energy_on,
+        memory_columns=memory_on,
+        memory_n=int(memory_n),
     )
     if ledger is not None and ledger.money is not None:
         # 世帯の現金行 = 個体 SoA の money(写しを作らない・台帳の書き込み窓は resolve が持つ)
@@ -2177,8 +2204,20 @@ def run_day(
         if familiarity_on
         else None
     )
-    if fam_layer is not None and _fam_has_renderer:
+    # ---- 6 段目 6a: 記憶の表(値を決める層・書き手は resolve.write_memory) ----
+    mem_layer: MemoryLayer | None = (
+        MemoryLayer(n_agents, int(memory_n), minutes_per_tick=float(tick_seconds) / 60.0)
+        if memory_on
+        else None
+    )
+    if (fam_layer is not None or mem_layer is not None) and _fam_has_renderer:
         _fam_renderer.signage_exposures = []  # 描画による露出の控え(tick ごとに取り出す)
+
+    def _utter(agent_id: int, t_now: int, action: Any, comment: str) -> None:
+        """会話ターンの発話 1 回(``conv.utterance``)。6a: 記憶の会話の行と要旨(on のときだけ)。"""
+        s = conv.utterance(agent_id, t_now, action=action, comment=comment)
+        if mem_layer is not None:
+            mem_layer.note_utterance(agents, int(agent_id), int(t_now), s, comment)
     #: 発射した呼の起床条件ごとの件数(起床の内訳・満了入口の列を含む)。
     calls_by_cond = np.zeros(N_WAKE_CONDITIONS_ALL, dtype=np.int64)
 
@@ -2513,9 +2552,7 @@ def run_day(
                 if not res.format_ok:
                     n_parse_errors_fleet += 1
                 if conv is not None and res.condition == int(WakeCondition.CONVERSATION_TURN):
-                    conv.utterance(
-                        res.agent_id, tick, action=res.parse.action, comment=res.parse.comment
-                    )
+                    _utter(res.agent_id, tick, res.parse.action, res.parse.comment)
             phase["llm"] += time.perf_counter() - t0
         if fleet_bridge is not None:
             t0 = time.perf_counter()
@@ -2546,9 +2583,7 @@ def run_day(
                 if not res.format_ok:
                     n_parse_errors_fleet += 1
                 if conv is not None and res.condition == int(WakeCondition.CONVERSATION_TURN):
-                    conv.utterance(
-                        res.agent_id, tick, action=res.parse.action, comment=res.parse.comment
-                    )
+                    _utter(res.agent_id, tick, res.parse.action, res.parse.comment)
             phase["llm"] += time.perf_counter() - t0
 
         # ---- 艦隊の繰り延べを起床候補へ再投入(不応期は免除・親決定 (a)・09-09) ----
@@ -2685,7 +2720,7 @@ def run_day(
                         n_parse_errors += 1
                     if conv is not None and cond == int(WakeCondition.CONVERSATION_TURN):
                         # 会話ターンの応答は**発話ブロック**(1呼=1ブロック・§3)
-                        conv.utterance(a, tick, action=res.parse.action, comment=res.parse.comment)
+                        _utter(a, tick, res.parse.action, res.parse.comment)
             else:
                 # 逐次ループ宣言2′: 同じ呼数ぶん(描画は同じ・往復だけ非同期になる)
                 calls: list[LLMCall] = []
@@ -2795,8 +2830,9 @@ def run_day(
             geometry=geom,
             focus_request=focus_request,
             talk_by_distance=attention_on,
-            track_visits=fam_layer is not None,
+            track_visits=(fam_layer is not None or mem_layer is not None),
             energy=energy_layer,
+            track_events=mem_layer is not None,
         )
         phase["phase_c"] += time.perf_counter() - t0
         phase["movement"] += outcome.movement_seconds
@@ -2941,12 +2977,33 @@ def run_day(
                 intent_layer.after_apply(
                     agents, tick, act_layer, applied_activity if applied_activity[0] else None
                 )
+        _exp = None
+        if (fam_layer is not None or mem_layer is not None) and _fam_renderer is not None and getattr(
+            _fam_renderer, "signage_exposures", None
+        ):
+            _exp = list(_fam_renderer.signage_exposures)
+            _fam_renderer.signage_exposures.clear()
+        # ---- 6 段目 6a: 記憶の記録(行動の成否・会話・気づき・強い看板)。親しみの表の**前**
+        # (看板の初見=親しみの表にまだその POI の行が無い、をこの tick の書き込みの前に見る) ----
+        if mem_layer is not None:
+            mem_layer.after_tick(
+                agents, tick,
+                applied=(
+                    (plan.confirmed.agent_id, plan.confirmed.target_id),
+                    (plan.losers.agent_id, plan.losers.target_id),
+                ),
+                visits=(outcome.visit_agents, outcome.visit_pois),
+                arrived=outcome.arrived_agents,
+                conv=conv,
+                salient_events=(
+                    getattr(runner.salient, "events", ())
+                    if (runner is not None and runner.is_enabled("salient"))
+                    else ()
+                ),
+                signage=_exp,
+            )
         # ---- 4 段目: 親しみの表(訪問・看板の露出・セルに入った回)。Phase C と活動層の後 ----
         if fam_layer is not None:
-            _exp = None
-            if _fam_renderer is not None and getattr(_fam_renderer, "signage_exposures", None):
-                _exp = list(_fam_renderer.signage_exposures)
-                _fam_renderer.signage_exposures.clear()
             fam_layer.after_tick(
                 agents, tick, (outcome.visit_agents, outcome.visit_pois), _exp
             )
@@ -3225,6 +3282,13 @@ def run_day(
     result.familiarity_k = int(familiarity_k)
     result.familiarity_summary = (
         fam_layer.summary(agents, max(0, int(ticks) - 1)) if fam_layer is not None else {}
+    )
+    result.memory = bool(memory_on)
+    result.memory_n = int(memory_n)
+    result.memory_summary = (
+        {**mem_layer.summary(agents, max(0, int(ticks) - 1)), "gist_bytes": mem_layer.gist_bytes()}
+        if mem_layer is not None
+        else {}
     )
     if fam_layer is not None and result.familiarity_summary:
         # 5c: 入った回の露出を活動の種別の名で(索引 → 名)

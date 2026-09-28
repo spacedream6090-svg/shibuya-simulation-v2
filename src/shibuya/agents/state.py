@@ -116,6 +116,7 @@ __all__ = [
     "FAMILIARITY_FIELDS",
     "FAMILIARITY_EMPTY",
     "ENERGY_FIELDS",
+    "MEMORY_FIELDS",
     "REFRACTORY_MINUTES",
     "WAKE_CONDITION_CLASS",
     "RESULT_TEXT",
@@ -361,6 +362,12 @@ FAMILIARITY_FIELDS: Final[tuple[str, ...]] = (
 #: 親しみの表の空行(``fam_thing``)。
 FAMILIARITY_EMPTY: Final[int] = -1
 
+#: 記憶の表の 9 欄(6 段目 6a・``memory_columns`` のランだけ確保)。
+MEMORY_FIELDS: Final[tuple[str, ...]] = (
+    "mem_kind", "mem_tick", "mem_last", "mem_cell", "mem_partner", "mem_object",
+    "mem_result", "mem_importance", "mem_n",
+)
+
 #: 体のエネルギー収支の 4 欄(5 段目 5a・``energy_columns`` のランだけ確保)。
 ENERGY_FIELDS: Final[tuple[str, ...]] = (
     "weight_kg", "eer_kcal", "since_meal_kcal", "energy_balance",
@@ -399,6 +406,8 @@ class AgentState:
         familiarity_columns: bool = False,
         familiarity_k: int = 64,
         energy_columns: bool = False,
+        memory_columns: bool = False,
+        memory_n: int = 128,
     ) -> None:
         """
         Args:
@@ -428,6 +437,9 @@ class AgentState:
                 ``eer_kcal`` / ``since_meal_kcal`` / ``energy_balance``・+16 B/体)を確保するか。
                 ``engine.run`` は ``hunger_model="energy"`` のときだけ True にする
                 = **``--hunger-model v1`` の checkpoint は 1 バイトも動かない**。
+            memory_columns / memory_n: **記憶 第 1 段の記録**(6 段目 6a・``engine.memory``)の表
+                (体 × N 行 × 9 欄・実 25 B/行・宣言 32 B/行)を確保するか・行数 N(既定 128)。
+                ``--memory on`` のランだけ True=**既定 checkpoint は 1 バイトも動かない**。
         """
         self.n = int(n)
         self.plan_columns = bool(plan_columns)
@@ -439,6 +451,11 @@ class AgentState:
         self.familiarity_k = int(familiarity_k)
         #: 5 段目 5a(D-118): 体のエネルギー収支の 4 欄を確保するか。
         self.energy_columns = bool(energy_columns)
+        #: 6 段目 6a(記憶 第 1 段の記録): 記憶の表を確保するか・行数 N(``engine.memory.MEMORY_N``)。
+        self.memory_columns = bool(memory_columns)
+        self.memory_n = int(memory_n)
+        if self.memory_columns and self.memory_n < 1:
+            raise ValueError(f"memory_n は 1 以上(いま {memory_n})")
         if self.familiarity_columns and self.familiarity_k < 1:
             raise ValueError(f"familiarity_k は 1 以上(いま {familiarity_k})")
         self.registry = Registry.for_agents(self.n, per_entity_byte_cap=cap_bytes)
@@ -585,6 +602,27 @@ class AgentState:
                       doc="訪問の回数(購入/食事/並ぶの成立・M13)")
             r.declare("fam_exposures", np.uint16, (k,), byte_budget_per_agent=2 * k,
                       mechanism=True, doc="露出の回数(看板が B2 に載った/セルに入った・M17)")
+        # ---- 記憶の表(6 段目 6a・memory_columns のランだけ・実 25 B/行・宣言 32 B/行) ----
+        if self.memory_columns:
+            m = self.memory_n
+            r.declare("mem_kind", np.uint8, (m,), byte_budget_per_agent=m, mechanism=True,
+                      doc="事象の種類(engine.memory.EVENT_KINDS・0=空行)")
+            r.declare("mem_tick", np.int32, (m,), byte_budget_per_agent=4 * m, mechanism=True,
+                      doc="最初の tick(A の寿命 L の起点)")
+            r.declare("mem_last", np.int32, (m,), byte_budget_per_agent=4 * m, mechanism=False,
+                      doc="最後の tick(統合で更新・読み口の補助)")
+            r.declare("mem_cell", np.int32, (m,), byte_budget_per_agent=4 * m, mechanism=True,
+                      doc="起きたセル(−1=範囲外)")
+            r.declare("mem_partner", np.int32, (m,), byte_budget_per_agent=4 * m, mechanism=True,
+                      doc="相手の体 id(−1=なし)")
+            r.declare("mem_object", np.int32, (m,), byte_budget_per_agent=4 * m, mechanism=True,
+                      doc="対象(POI ≥0 / 場所 −(cell+2) / 人 1<<30|id / −1=なし・会話の行は店 ID)")
+            r.declare("mem_result", np.uint8, (m,), byte_budget_per_agent=m, mechanism=True,
+                      doc="ResultCode(0=成功)")
+            r.declare("mem_importance", np.uint8, (m,), byte_budget_per_agent=m, mechanism=False,
+                      doc="importance(固定表・M3 (b)・expedient)")
+            r.declare("mem_n", np.uint16, (m,), byte_budget_per_agent=(2 + 7) * m, mechanism=True,
+                      doc="同じ鍵の反復回数(A の n)。予算は詰め物 7 B/行を含む=32 B/行に揃える宣言")
         # ---- 起床機構(知覚契約書 §6) ----
         r.declare("refractory_until", np.int32, (N_WAKE_CONDITIONS,),
                   byte_budget_per_agent=4 * N_WAKE_CONDITIONS, mechanism=True,

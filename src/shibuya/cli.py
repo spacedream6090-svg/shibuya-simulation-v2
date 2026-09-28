@@ -69,6 +69,7 @@ from shibuya.engine.poi_target import (
 )
 from shibuya.engine.intent import INTENT_MAX_TICKS
 from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES
+from shibuya.engine.memory import MEMORY_MODES, MEMORY_N
 from shibuya.engine.chooser import HABIT_P, RANK_TAU
 from shibuya.engine.classical import (
     ACTIVITY_REGIONS,
@@ -804,6 +805,20 @@ def main(argv: list[str] | None = None) -> int:
         help="親しみの表の体あたりの行数(既定 64・宣言・感度 32/128)",
     )
     ap.add_argument(
+        "--memory",
+        choices=MEMORY_MODES,
+        default="off",
+        help="6 段目 6a(記憶 第 1 段の記録): 体×N 行の記憶の表を確保して、行動の成否・会話・気づき・"
+             "強い看板(初見)を書く(本段では誰も読まない)。既定 off=表を確保しない=既定の checkpoint 不変",
+    )
+    ap.add_argument(
+        "--memory-n",
+        type=int,
+        default=MEMORY_N,
+        metavar="N",
+        help="記憶の表の体あたりの行数(既定 128・宣言・感度 64/256)",
+    )
+    ap.add_argument(
         "--hunger-model",
         choices=HUNGER_MODELS,
         default=CLI_DEFAULT_HUNGER_MODEL,
@@ -967,6 +982,8 @@ def main(argv: list[str] | None = None) -> int:
         intent_max_ticks=int(args.intent_max_ticks),
         familiarity=str(args.familiarity),
         familiarity_k=int(args.familiarity_k),
+        memory=str(args.memory),
+        memory_n=int(args.memory_n),
         hunger_model=str(args.hunger_model),
         energy_rate=str(args.energy_rate),
         role_words=(str(args.role_words) == "on"),

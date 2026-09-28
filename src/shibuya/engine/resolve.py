@@ -141,6 +141,8 @@ __all__ = [
     # ---- 5 段目 5a 体のエネルギー収支(値は engine.energy が決める・書き手は本モジュール) ----
     "initialize_energy",
     "energy_out_of_area_meal",
+    # ---- 6 段目 6a 記憶の表(値は engine.memory が決める・書き手は本モジュール) ----
+    "write_memory",
     "refractory_ticks",
     "wake_condition_index",
     "normalized_refractory_scale",
@@ -411,6 +413,10 @@ class ResolveOutcome:
     track_visits: bool = False
     visit_agents: list = field(default_factory=list)
     visit_pois: list = field(default_factory=list)
+    #: 6 段目 6a(記憶の記録): エンジン継続で**着いた**体を控えるか(``--memory on`` だけ)。
+    #: 控えるだけで世界は変えない=既定 False では 1 行も通らない。
+    track_events: bool = False
+    arrived_agents: list = field(default_factory=list)
     #: 5 段目 5a(D-118): エネルギー収支の層(``engine.energy.EnergyLayer``)。``None``=空腹 v1
     #: (購入/食事で −4)=**1 分岐も通らない**。渡すと食事=時間帯の比 × EER・軽食/飲料=比 × EER。
     energy: Any = None
@@ -909,6 +915,33 @@ def write_familiarity(
         r.fam_exposures[a, s] = np.asarray(exposures, dtype=np.int64).astype(np.uint16)
 
 
+def write_memory(
+    agents: AgentState, agent_id, slot, kind, first, last, cell, partner, obj, result,
+    importance, n,
+) -> None:
+    """**記憶の表の行を書く**(6 段目 6a・値と行の選び方は ``engine.memory`` が決める)。
+
+    同じ (体, 行) の組は 2 度来ない(呼び出し側が 1 体 1 件の回に分ける)。``memory_columns`` の
+    無いラン(既定)では呼ばれない。逐次ループ宣言: なし(配列演算)。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    s = np.asarray(slot, dtype=np.int64)
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        r.mem_kind[a, s] = np.asarray(kind, dtype=np.int64).astype(np.uint8)
+        r.mem_tick[a, s] = np.asarray(first, dtype=np.int64).astype(np.int32)
+        r.mem_last[a, s] = np.asarray(last, dtype=np.int64).astype(np.int32)
+        r.mem_cell[a, s] = np.asarray(cell, dtype=np.int64).astype(np.int32)
+        r.mem_partner[a, s] = np.asarray(partner, dtype=np.int64).astype(np.int32)
+        r.mem_object[a, s] = np.asarray(obj, dtype=np.int64).astype(np.int32)
+        r.mem_result[a, s] = np.asarray(result, dtype=np.int64).astype(np.uint8)
+        r.mem_importance[a, s] = np.asarray(importance, dtype=np.int64).astype(np.uint8)
+        r.mem_n[a, s] = np.asarray(n, dtype=np.int64).astype(np.uint16)
+
+
 def set_intent(agents: AgentState, agent_id, action, target, kind, tick: int) -> None:
     """**意図を立てる**(段 2c・値は ``engine.intent`` が決める)。
 
@@ -1160,6 +1193,7 @@ def apply(
     talk_by_distance: bool = False,
     track_visits: bool = False,
     energy: Any = None,
+    track_events: bool = False,
 ) -> ResolveOutcome:
     """Phase C: 確定した intent だけを世界へ適用する(**唯一の書き手**)。
 
@@ -1228,6 +1262,7 @@ def apply(
         talk_by_distance=bool(talk_by_distance),
         track_visits=bool(track_visits),
         energy=energy,
+        track_events=bool(track_events),
     )
     r = agents.registry
     with agents.writable(), world.writable():
@@ -1423,6 +1458,8 @@ def _apply_engine_step(agents, world, aid, tgt, tick, out, schedule) -> None:
         r.activity[done] = int(Activity.IDLE)
         r.target_node[done] = -1
         out.n_arrived += int(done.size)
+        if out.track_events:  # 6a: 着いた体(記憶の「移動の到着」)。控えるだけ
+            out.arrived_agents.append(np.asarray(done, dtype=np.int64).copy())
         # D-51: ホームへ向かっていた体は着いた時点で**待ち行列へ**(判断は 1 回・実行は世界)
         want = done[r.board_line[done] >= 0]
         if want.size:

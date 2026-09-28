@@ -1,0 +1,1352 @@
+{
+ "schema": "shibuya.bench/memory-stage1/on/1",
+ "rows": [
+  {
+   "config": "off",
+   "args": {
+    "vocab_version": "v3"
+   },
+   "final_hash": "c9ab05383accca2ee287a4e0ddabc9980c8df12f8619217e9a942219d4a05ea3",
+   "final_wo_memory": "",
+   "llm_calls": 69603,
+   "salient_events": 0,
+   "noticed": 0,
+   "agents_bytes_total": 800000,
+   "agents_declared_bytes_per_agent": 160,
+   "memory_summary": {},
+   "wall_seconds_nondeterministic": 28.44,
+   "peak_working_set_bytes_nondeterministic": 504168448
+  },
+  {
+   "config": "on_n128",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on"
+   },
+   "final_hash": "14dc56402d4074c0743b20b7765b959a5026acf062623990acec4b5ba5ca3930",
+   "final_wo_memory": "c9ab05383accca2ee287a4e0ddabc9980c8df12f8619217e9a942219d4a05ea3",
+   "llm_calls": 69603,
+   "salient_events": 0,
+   "noticed": 0,
+   "agents_bytes_total": 16800000,
+   "agents_declared_bytes_per_agent": 4256,
+   "memory_summary": {
+    "n_rows": 128,
+    "d": 0.5,
+    "w_r": 1.0,
+    "w_i": 0.5,
+    "row_bytes_actual": 25,
+    "row_bytes_declared": 32,
+    "counts": {
+     "events:board": 9114,
+     "events:buy": 5896,
+     "events:eat": 5882,
+     "events:help": 5836,
+     "events:move": 9298,
+     "events:queue": 5942,
+     "events:report": 5783,
+     "events:signage": 15608,
+     "events:sleep": 5611,
+     "events:talk": 3950,
+     "failures:BAD_TARGET": 15606,
+     "failures:CLOSED": 1944,
+     "failures:FARE_SHORT": 3,
+     "failures:INTERRUPTED": 74,
+     "failures:LOST_ARBITRATION": 2865,
+     "failures:MONEY_SHORT": 25,
+     "failures:NOT_IN_EATERY": 1516,
+     "failures:NO_BED": 5108,
+     "failures:NO_TRAIN": 29,
+     "failures:OUT_OF_STOCK": 15,
+     "failures:PARTNER_BUSY": 26,
+     "failures:TOO_FAR": 6,
+     "failures:UNREACHABLE": 531,
+     "merged": 16906,
+     "new_rows": 56014,
+     "sessions": 194,
+     "signage_exposures_seen": 69051,
+     "signage_first_sight_rule:memory": 1311,
+     "utterances": 885,
+     "utterances_without_comment": 885
+    },
+    "rows_used_per_agent": {
+     "p0": 0.0,
+     "p10": 5.0,
+     "p50": 11.0,
+     "p90": 18.0,
+     "p99": 26.0,
+     "p100": 45.0,
+     "mean": 11.2028
+    },
+    "full_agents": 0,
+    "agents_with_rows": 4814,
+    "rows_by_kind": {
+     "buy": 4762,
+     "eat": 4624,
+     "queue": 4808,
+     "move": 8411,
+     "board": 3441,
+     "sleep": 4104,
+     "talk": 2581,
+     "report": 4414,
+     "help": 3261,
+     "signage": 15608
+    },
+    "failure_rows_by_result": {
+     "UNREACHABLE": 426,
+     "INTERRUPTED": 73,
+     "FARE_SHORT": 3,
+     "NO_TRAIN": 26,
+     "MONEY_SHORT": 22,
+     "OUT_OF_STOCK": 15,
+     "CLOSED": 1678,
+     "PARTNER_BUSY": 26,
+     "NO_BED": 3784,
+     "LOST_ARBITRATION": 2575,
+     "BAD_TARGET": 10618,
+     "NOT_IN_EATERY": 1059,
+     "TOO_FAR": 6
+    },
+    "importance": {
+     "2": 35315,
+     "3": 388,
+     "4": 20311
+    },
+    "n_per_row": {
+     "p0": 1.0,
+     "p10": 1.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 4.0,
+     "p100": 15.0,
+     "mean": 1.3018
+    },
+    "A": {
+     "p0": -2.9431,
+     "p10": -2.7335,
+     "p50": -2.4489,
+     "p90": -1.5791,
+     "p99": -0.8171,
+     "p100": 1.0986,
+     "mean": -2.2795
+    },
+    "A_by_kind": {
+     "buy": {
+      "p0": -2.9424,
+      "p10": -2.7239,
+      "p50": -2.4489,
+      "p90": -1.6089,
+      "p99": -0.8746,
+      "p100": 0.6931,
+      "mean": -2.2845
+     },
+     "eat": {
+      "p0": -2.9427,
+      "p10": -2.7243,
+      "p50": -2.3989,
+      "p90": -1.5825,
+      "p99": -0.9465,
+      "p100": 0.0,
+      "mean": -2.2652
+     },
+     "queue": {
+      "p0": -2.9322,
+      "p10": -2.7246,
+      "p50": -2.4231,
+      "p90": -1.6177,
+      "p99": -0.9548,
+      "p100": 0.3466,
+      "mean": -2.2814
+     },
+     "move": {
+      "p0": -2.929,
+      "p10": -2.7075,
+      "p50": -2.4805,
+      "p90": -1.8221,
+      "p99": -0.8753,
+      "p100": 0.6931,
+      "mean": -2.3365
+     },
+     "board": {
+      "p0": -2.9192,
+      "p10": -2.5664,
+      "p50": -1.6566,
+      "p90": -0.985,
+      "p99": -0.5389,
+      "p100": 0.837,
+      "mean": -1.7006
+     },
+     "sleep": {
+      "p0": -2.9322,
+      "p10": -2.7207,
+      "p50": -2.3119,
+      "p90": -1.5554,
+      "p99": -0.8968,
+      "p100": 0.6931,
+      "mean": -2.2225
+     },
+     "talk": {
+      "p0": -2.929,
+      "p10": -2.7064,
+      "p50": -2.3422,
+      "p90": -1.2752,
+      "p99": -0.4983,
+      "p100": 1.0986,
+      "mean": -2.1508
+     },
+     "report": {
+      "p0": -2.9427,
+      "p10": -2.7227,
+      "p50": -2.3592,
+      "p90": -1.5684,
+      "p99": -0.8746,
+      "p100": 0.6931,
+      "mean": -2.2448
+     },
+     "help": {
+      "p0": -2.9214,
+      "p10": -2.6888,
+      "p50": -2.0372,
+      "p90": -1.3749,
+      "p99": -0.9689,
+      "p100": 0.0,
+      "mean": -2.0648
+     },
+     "signage": {
+      "p0": -2.9431,
+      "p10": -2.7567,
+      "p50": -2.5958,
+      "p90": -2.0472,
+      "p99": -1.1256,
+      "p100": 0.6931,
+      "mean": -2.4693
+     }
+    },
+    "score": {
+     "p0": -1.9431,
+     "p10": -1.7081,
+     "p50": -0.9968,
+     "p90": 0.0772,
+     "p99": 0.8843,
+     "p100": 2.6931,
+     "mean": -0.9134
+    },
+    "gists": 0,
+    "gist_agents": 0,
+    "gist_bytes": 0
+   },
+   "wall_seconds_nondeterministic": 30.61,
+   "peak_working_set_bytes_nondeterministic": 496939008,
+   "wo_memory_equals_off": true
+  },
+  {
+   "config": "on_n64",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "memory_n": 64
+   },
+   "final_hash": "87eeaffd18466c24e89394c2e62da29d59ef907fa1c824e219fcf541175b6b10",
+   "final_wo_memory": "c9ab05383accca2ee287a4e0ddabc9980c8df12f8619217e9a942219d4a05ea3",
+   "llm_calls": 69603,
+   "salient_events": 0,
+   "noticed": 0,
+   "agents_bytes_total": 8800000,
+   "agents_declared_bytes_per_agent": 2208,
+   "memory_summary": {
+    "n_rows": 64,
+    "d": 0.5,
+    "w_r": 1.0,
+    "w_i": 0.5,
+    "row_bytes_actual": 25,
+    "row_bytes_declared": 32,
+    "counts": {
+     "events:board": 9114,
+     "events:buy": 5896,
+     "events:eat": 5882,
+     "events:help": 5836,
+     "events:move": 9298,
+     "events:queue": 5942,
+     "events:report": 5783,
+     "events:signage": 15608,
+     "events:sleep": 5611,
+     "events:talk": 3950,
+     "failures:BAD_TARGET": 15606,
+     "failures:CLOSED": 1944,
+     "failures:FARE_SHORT": 3,
+     "failures:INTERRUPTED": 74,
+     "failures:LOST_ARBITRATION": 2865,
+     "failures:MONEY_SHORT": 25,
+     "failures:NOT_IN_EATERY": 1516,
+     "failures:NO_BED": 5108,
+     "failures:NO_TRAIN": 29,
+     "failures:OUT_OF_STOCK": 15,
+     "failures:PARTNER_BUSY": 26,
+     "failures:TOO_FAR": 6,
+     "failures:UNREACHABLE": 531,
+     "merged": 16906,
+     "new_rows": 56014,
+     "sessions": 194,
+     "signage_exposures_seen": 69051,
+     "signage_first_sight_rule:memory": 1311,
+     "utterances": 885,
+     "utterances_without_comment": 885
+    },
+    "rows_used_per_agent": {
+     "p0": 0.0,
+     "p10": 5.0,
+     "p50": 11.0,
+     "p90": 18.0,
+     "p99": 26.0,
+     "p100": 45.0,
+     "mean": 11.2028
+    },
+    "full_agents": 0,
+    "agents_with_rows": 4814,
+    "rows_by_kind": {
+     "buy": 4762,
+     "eat": 4624,
+     "queue": 4808,
+     "move": 8411,
+     "board": 3441,
+     "sleep": 4104,
+     "talk": 2581,
+     "report": 4414,
+     "help": 3261,
+     "signage": 15608
+    },
+    "failure_rows_by_result": {
+     "UNREACHABLE": 426,
+     "INTERRUPTED": 73,
+     "FARE_SHORT": 3,
+     "NO_TRAIN": 26,
+     "MONEY_SHORT": 22,
+     "OUT_OF_STOCK": 15,
+     "CLOSED": 1678,
+     "PARTNER_BUSY": 26,
+     "NO_BED": 3784,
+     "LOST_ARBITRATION": 2575,
+     "BAD_TARGET": 10618,
+     "NOT_IN_EATERY": 1059,
+     "TOO_FAR": 6
+    },
+    "importance": {
+     "2": 35315,
+     "3": 388,
+     "4": 20311
+    },
+    "n_per_row": {
+     "p0": 1.0,
+     "p10": 1.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 4.0,
+     "p100": 15.0,
+     "mean": 1.3018
+    },
+    "A": {
+     "p0": -2.9431,
+     "p10": -2.7335,
+     "p50": -2.4489,
+     "p90": -1.5791,
+     "p99": -0.8171,
+     "p100": 1.0986,
+     "mean": -2.2795
+    },
+    "A_by_kind": {
+     "buy": {
+      "p0": -2.9424,
+      "p10": -2.7239,
+      "p50": -2.4489,
+      "p90": -1.6089,
+      "p99": -0.8746,
+      "p100": 0.6931,
+      "mean": -2.2845
+     },
+     "eat": {
+      "p0": -2.9427,
+      "p10": -2.7243,
+      "p50": -2.3989,
+      "p90": -1.5825,
+      "p99": -0.9465,
+      "p100": 0.0,
+      "mean": -2.2652
+     },
+     "queue": {
+      "p0": -2.9322,
+      "p10": -2.7246,
+      "p50": -2.4231,
+      "p90": -1.6177,
+      "p99": -0.9548,
+      "p100": 0.3466,
+      "mean": -2.2814
+     },
+     "move": {
+      "p0": -2.929,
+      "p10": -2.7075,
+      "p50": -2.4805,
+      "p90": -1.8221,
+      "p99": -0.8753,
+      "p100": 0.6931,
+      "mean": -2.3365
+     },
+     "board": {
+      "p0": -2.9192,
+      "p10": -2.5664,
+      "p50": -1.6566,
+      "p90": -0.985,
+      "p99": -0.5389,
+      "p100": 0.837,
+      "mean": -1.7006
+     },
+     "sleep": {
+      "p0": -2.9322,
+      "p10": -2.7207,
+      "p50": -2.3119,
+      "p90": -1.5554,
+      "p99": -0.8968,
+      "p100": 0.6931,
+      "mean": -2.2225
+     },
+     "talk": {
+      "p0": -2.929,
+      "p10": -2.7064,
+      "p50": -2.3422,
+      "p90": -1.2752,
+      "p99": -0.4983,
+      "p100": 1.0986,
+      "mean": -2.1508
+     },
+     "report": {
+      "p0": -2.9427,
+      "p10": -2.7227,
+      "p50": -2.3592,
+      "p90": -1.5684,
+      "p99": -0.8746,
+      "p100": 0.6931,
+      "mean": -2.2448
+     },
+     "help": {
+      "p0": -2.9214,
+      "p10": -2.6888,
+      "p50": -2.0372,
+      "p90": -1.3749,
+      "p99": -0.9689,
+      "p100": 0.0,
+      "mean": -2.0648
+     },
+     "signage": {
+      "p0": -2.9431,
+      "p10": -2.7567,
+      "p50": -2.5958,
+      "p90": -2.0472,
+      "p99": -1.1256,
+      "p100": 0.6931,
+      "mean": -2.4693
+     }
+    },
+    "score": {
+     "p0": -1.9431,
+     "p10": -1.7081,
+     "p50": -0.9968,
+     "p90": 0.0772,
+     "p99": 0.8843,
+     "p100": 2.6931,
+     "mean": -0.9134
+    },
+    "gists": 0,
+    "gist_agents": 0,
+    "gist_bytes": 0
+   },
+   "wall_seconds_nondeterministic": 29.38,
+   "peak_working_set_bytes_nondeterministic": 487178240,
+   "wo_memory_equals_off": true
+  },
+  {
+   "config": "on_n256",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "memory_n": 256
+   },
+   "final_hash": "4e8e669fc7fbdb27e1367c35ea4f263eee80d9fd541230df035c98bd12c49a07",
+   "final_wo_memory": "c9ab05383accca2ee287a4e0ddabc9980c8df12f8619217e9a942219d4a05ea3",
+   "llm_calls": 69603,
+   "salient_events": 0,
+   "noticed": 0,
+   "agents_bytes_total": 32800000,
+   "agents_declared_bytes_per_agent": 8352,
+   "memory_summary": {
+    "n_rows": 256,
+    "d": 0.5,
+    "w_r": 1.0,
+    "w_i": 0.5,
+    "row_bytes_actual": 25,
+    "row_bytes_declared": 32,
+    "counts": {
+     "events:board": 9114,
+     "events:buy": 5896,
+     "events:eat": 5882,
+     "events:help": 5836,
+     "events:move": 9298,
+     "events:queue": 5942,
+     "events:report": 5783,
+     "events:signage": 15608,
+     "events:sleep": 5611,
+     "events:talk": 3950,
+     "failures:BAD_TARGET": 15606,
+     "failures:CLOSED": 1944,
+     "failures:FARE_SHORT": 3,
+     "failures:INTERRUPTED": 74,
+     "failures:LOST_ARBITRATION": 2865,
+     "failures:MONEY_SHORT": 25,
+     "failures:NOT_IN_EATERY": 1516,
+     "failures:NO_BED": 5108,
+     "failures:NO_TRAIN": 29,
+     "failures:OUT_OF_STOCK": 15,
+     "failures:PARTNER_BUSY": 26,
+     "failures:TOO_FAR": 6,
+     "failures:UNREACHABLE": 531,
+     "merged": 16906,
+     "new_rows": 56014,
+     "sessions": 194,
+     "signage_exposures_seen": 69051,
+     "signage_first_sight_rule:memory": 1311,
+     "utterances": 885,
+     "utterances_without_comment": 885
+    },
+    "rows_used_per_agent": {
+     "p0": 0.0,
+     "p10": 5.0,
+     "p50": 11.0,
+     "p90": 18.0,
+     "p99": 26.0,
+     "p100": 45.0,
+     "mean": 11.2028
+    },
+    "full_agents": 0,
+    "agents_with_rows": 4814,
+    "rows_by_kind": {
+     "buy": 4762,
+     "eat": 4624,
+     "queue": 4808,
+     "move": 8411,
+     "board": 3441,
+     "sleep": 4104,
+     "talk": 2581,
+     "report": 4414,
+     "help": 3261,
+     "signage": 15608
+    },
+    "failure_rows_by_result": {
+     "UNREACHABLE": 426,
+     "INTERRUPTED": 73,
+     "FARE_SHORT": 3,
+     "NO_TRAIN": 26,
+     "MONEY_SHORT": 22,
+     "OUT_OF_STOCK": 15,
+     "CLOSED": 1678,
+     "PARTNER_BUSY": 26,
+     "NO_BED": 3784,
+     "LOST_ARBITRATION": 2575,
+     "BAD_TARGET": 10618,
+     "NOT_IN_EATERY": 1059,
+     "TOO_FAR": 6
+    },
+    "importance": {
+     "2": 35315,
+     "3": 388,
+     "4": 20311
+    },
+    "n_per_row": {
+     "p0": 1.0,
+     "p10": 1.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 4.0,
+     "p100": 15.0,
+     "mean": 1.3018
+    },
+    "A": {
+     "p0": -2.9431,
+     "p10": -2.7335,
+     "p50": -2.4489,
+     "p90": -1.5791,
+     "p99": -0.8171,
+     "p100": 1.0986,
+     "mean": -2.2795
+    },
+    "A_by_kind": {
+     "buy": {
+      "p0": -2.9424,
+      "p10": -2.7239,
+      "p50": -2.4489,
+      "p90": -1.6089,
+      "p99": -0.8746,
+      "p100": 0.6931,
+      "mean": -2.2845
+     },
+     "eat": {
+      "p0": -2.9427,
+      "p10": -2.7243,
+      "p50": -2.3989,
+      "p90": -1.5825,
+      "p99": -0.9465,
+      "p100": 0.0,
+      "mean": -2.2652
+     },
+     "queue": {
+      "p0": -2.9322,
+      "p10": -2.7246,
+      "p50": -2.4231,
+      "p90": -1.6177,
+      "p99": -0.9548,
+      "p100": 0.3466,
+      "mean": -2.2814
+     },
+     "move": {
+      "p0": -2.929,
+      "p10": -2.7075,
+      "p50": -2.4805,
+      "p90": -1.8221,
+      "p99": -0.8753,
+      "p100": 0.6931,
+      "mean": -2.3365
+     },
+     "board": {
+      "p0": -2.9192,
+      "p10": -2.5664,
+      "p50": -1.6566,
+      "p90": -0.985,
+      "p99": -0.5389,
+      "p100": 0.837,
+      "mean": -1.7006
+     },
+     "sleep": {
+      "p0": -2.9322,
+      "p10": -2.7207,
+      "p50": -2.3119,
+      "p90": -1.5554,
+      "p99": -0.8968,
+      "p100": 0.6931,
+      "mean": -2.2225
+     },
+     "talk": {
+      "p0": -2.929,
+      "p10": -2.7064,
+      "p50": -2.3422,
+      "p90": -1.2752,
+      "p99": -0.4983,
+      "p100": 1.0986,
+      "mean": -2.1508
+     },
+     "report": {
+      "p0": -2.9427,
+      "p10": -2.7227,
+      "p50": -2.3592,
+      "p90": -1.5684,
+      "p99": -0.8746,
+      "p100": 0.6931,
+      "mean": -2.2448
+     },
+     "help": {
+      "p0": -2.9214,
+      "p10": -2.6888,
+      "p50": -2.0372,
+      "p90": -1.3749,
+      "p99": -0.9689,
+      "p100": 0.0,
+      "mean": -2.0648
+     },
+     "signage": {
+      "p0": -2.9431,
+      "p10": -2.7567,
+      "p50": -2.5958,
+      "p90": -2.0472,
+      "p99": -1.1256,
+      "p100": 0.6931,
+      "mean": -2.4693
+     }
+    },
+    "score": {
+     "p0": -1.9431,
+     "p10": -1.7081,
+     "p50": -0.9968,
+     "p90": 0.0772,
+     "p99": 0.8843,
+     "p100": 2.6931,
+     "mean": -0.9134
+    },
+    "gists": 0,
+    "gist_agents": 0,
+    "gist_bytes": 0
+   },
+   "wall_seconds_nondeterministic": 30.44,
+   "peak_working_set_bytes_nondeterministic": 496656384,
+   "wo_memory_equals_off": true
+  },
+  {
+   "config": "on_familiarity",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "familiarity": "on"
+   },
+   "final_hash": "93adab164b614107cd511c770a24aaa55cd278ff39a1932c6dba5a583ce0c3b3",
+   "final_wo_memory": "f46a441a75eb2b965724bfbdb72c22c04753ba4c6ff77b892ffce5bc9811479e",
+   "llm_calls": 69603,
+   "salient_events": 0,
+   "noticed": 0,
+   "agents_bytes_total": 21920000,
+   "agents_declared_bytes_per_agent": 5280,
+   "memory_summary": {
+    "n_rows": 128,
+    "d": 0.5,
+    "w_r": 1.0,
+    "w_i": 0.5,
+    "row_bytes_actual": 25,
+    "row_bytes_declared": 32,
+    "counts": {
+     "events:board": 9114,
+     "events:buy": 5896,
+     "events:eat": 5882,
+     "events:help": 5836,
+     "events:move": 9298,
+     "events:queue": 5942,
+     "events:report": 5783,
+     "events:signage": 2296,
+     "events:sleep": 5611,
+     "events:talk": 3950,
+     "failures:BAD_TARGET": 15606,
+     "failures:CLOSED": 1944,
+     "failures:FARE_SHORT": 3,
+     "failures:INTERRUPTED": 74,
+     "failures:LOST_ARBITRATION": 2865,
+     "failures:MONEY_SHORT": 25,
+     "failures:NOT_IN_EATERY": 1516,
+     "failures:NO_BED": 5108,
+     "failures:NO_TRAIN": 29,
+     "failures:OUT_OF_STOCK": 15,
+     "failures:PARTNER_BUSY": 26,
+     "failures:TOO_FAR": 6,
+     "failures:UNREACHABLE": 531,
+     "merged": 16906,
+     "new_rows": 42702,
+     "sessions": 194,
+     "signage_exposures_seen": 69051,
+     "signage_first_sight_rule:familiarity": 1311,
+     "utterances": 885,
+     "utterances_without_comment": 885
+    },
+    "rows_used_per_agent": {
+     "p0": 0.0,
+     "p10": 3.0,
+     "p50": 8.0,
+     "p90": 14.0,
+     "p99": 20.0,
+     "p100": 39.0,
+     "mean": 8.5404
+    },
+    "full_agents": 0,
+    "agents_with_rows": 4811,
+    "rows_by_kind": {
+     "buy": 4762,
+     "eat": 4624,
+     "queue": 4808,
+     "move": 8411,
+     "board": 3441,
+     "sleep": 4104,
+     "talk": 2581,
+     "report": 4414,
+     "help": 3261,
+     "signage": 2296
+    },
+    "failure_rows_by_result": {
+     "UNREACHABLE": 426,
+     "INTERRUPTED": 73,
+     "FARE_SHORT": 3,
+     "NO_TRAIN": 26,
+     "MONEY_SHORT": 22,
+     "OUT_OF_STOCK": 15,
+     "CLOSED": 1678,
+     "PARTNER_BUSY": 26,
+     "NO_BED": 3784,
+     "LOST_ARBITRATION": 2575,
+     "BAD_TARGET": 10618,
+     "NOT_IN_EATERY": 1059,
+     "TOO_FAR": 6
+    },
+    "importance": {
+     "2": 22003,
+     "3": 388,
+     "4": 20311
+    },
+    "n_per_row": {
+     "p0": 1.0,
+     "p10": 1.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 5.0,
+     "p100": 15.0,
+     "mean": 1.3959
+    },
+    "A": {
+     "p0": -2.9431,
+     "p10": -2.7228,
+     "p50": -2.3626,
+     "p90": -1.5095,
+     "p99": -0.7791,
+     "p100": 1.0986,
+     "mean": -2.2262
+    },
+    "A_by_kind": {
+     "buy": {
+      "p0": -2.9424,
+      "p10": -2.7239,
+      "p50": -2.4489,
+      "p90": -1.6089,
+      "p99": -0.8746,
+      "p100": 0.6931,
+      "mean": -2.2845
+     },
+     "eat": {
+      "p0": -2.9427,
+      "p10": -2.7243,
+      "p50": -2.3989,
+      "p90": -1.5825,
+      "p99": -0.9465,
+      "p100": 0.0,
+      "mean": -2.2652
+     },
+     "queue": {
+      "p0": -2.9322,
+      "p10": -2.7246,
+      "p50": -2.4231,
+      "p90": -1.6177,
+      "p99": -0.9548,
+      "p100": 0.3466,
+      "mean": -2.2814
+     },
+     "move": {
+      "p0": -2.929,
+      "p10": -2.7075,
+      "p50": -2.4805,
+      "p90": -1.8221,
+      "p99": -0.8753,
+      "p100": 0.6931,
+      "mean": -2.3365
+     },
+     "board": {
+      "p0": -2.9192,
+      "p10": -2.5664,
+      "p50": -1.6566,
+      "p90": -0.985,
+      "p99": -0.5389,
+      "p100": 0.837,
+      "mean": -1.7006
+     },
+     "sleep": {
+      "p0": -2.9322,
+      "p10": -2.7207,
+      "p50": -2.3119,
+      "p90": -1.5554,
+      "p99": -0.8968,
+      "p100": 0.6931,
+      "mean": -2.2225
+     },
+     "talk": {
+      "p0": -2.929,
+      "p10": -2.7064,
+      "p50": -2.3422,
+      "p90": -1.2752,
+      "p99": -0.4983,
+      "p100": 1.0986,
+      "mean": -2.1508
+     },
+     "report": {
+      "p0": -2.9427,
+      "p10": -2.7227,
+      "p50": -2.3592,
+      "p90": -1.5684,
+      "p99": -0.8746,
+      "p100": 0.6931,
+      "mean": -2.2448
+     },
+     "help": {
+      "p0": -2.9214,
+      "p10": -2.6888,
+      "p50": -2.0372,
+      "p90": -1.3749,
+      "p99": -0.9689,
+      "p100": 0.0,
+      "mean": -2.0648
+     },
+     "signage": {
+      "p0": -2.9431,
+      "p10": -2.7642,
+      "p50": -2.7025,
+      "p90": -2.2154,
+      "p99": -1.7911,
+      "p100": 0.0,
+      "mean": -2.5798
+     }
+    },
+    "score": {
+     "p0": -1.9431,
+     "p10": -1.6753,
+     "p50": -0.7075,
+     "p90": 0.1952,
+     "p99": 0.9553,
+     "p100": 2.6931,
+     "mean": -0.746
+    },
+    "gists": 0,
+    "gist_agents": 0,
+    "gist_bytes": 0
+   },
+   "wall_seconds_nondeterministic": 29.88,
+   "peak_working_set_bytes_nondeterministic": 489697280
+  },
+  {
+   "config": "on_salient_200",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "salient_rate_per_10k": 200.0
+   },
+   "final_hash": "89c8f208c15afa15f4b431dd94b8913feccc1fad7d108e5b4da9e698390a67a9",
+   "final_wo_memory": "651e6341af364279f0f17d5fa47fe4abe8e21c904797789bbdc7eb1bd766fe53",
+   "llm_calls": 72534,
+   "salient_events": 183,
+   "noticed": 4877,
+   "agents_bytes_total": 16800000,
+   "agents_declared_bytes_per_agent": 4256,
+   "memory_summary": {
+    "n_rows": 128,
+    "d": 0.5,
+    "w_r": 1.0,
+    "w_i": 0.5,
+    "row_bytes_actual": 25,
+    "row_bytes_declared": 32,
+    "counts": {
+     "events:board": 9460,
+     "events:buy": 6065,
+     "events:eat": 6034,
+     "events:help": 6094,
+     "events:move": 9478,
+     "events:notice": 4906,
+     "events:queue": 6126,
+     "events:report": 6044,
+     "events:signage": 15989,
+     "events:sleep": 5867,
+     "events:talk": 4352,
+     "failures:BAD_TARGET": 16066,
+     "failures:CLOSED": 2013,
+     "failures:FARE_SHORT": 4,
+     "failures:INTERRUPTED": 61,
+     "failures:LOST_ARBITRATION": 3315,
+     "failures:MONEY_SHORT": 22,
+     "failures:NOT_IN_EATERY": 1486,
+     "failures:NO_BED": 5343,
+     "failures:NO_TRAIN": 35,
+     "failures:OUT_OF_STOCK": 14,
+     "failures:PARTNER_BUSY": 30,
+     "failures:TOO_FAR": 4,
+     "failures:UNREACHABLE": 592,
+     "merged": 20181,
+     "new_rows": 60234,
+     "sessions": 211,
+     "signage_exposures_seen": 71973,
+     "signage_first_sight_rule:memory": 1337,
+     "utterances": 951,
+     "utterances_without_comment": 951
+    },
+    "rows_used_per_agent": {
+     "p0": 0.0,
+     "p10": 5.0,
+     "p50": 12.0,
+     "p90": 20.0,
+     "p99": 27.0,
+     "p100": 47.0,
+     "mean": 12.0468
+    },
+    "full_agents": 0,
+    "agents_with_rows": 4826,
+    "rows_by_kind": {
+     "buy": 4922,
+     "eat": 4754,
+     "queue": 4986,
+     "move": 8498,
+     "board": 3490,
+     "sleep": 4289,
+     "talk": 2879,
+     "report": 4662,
+     "help": 3329,
+     "notice": 2436,
+     "signage": 15989
+    },
+    "failure_rows_by_result": {
+     "UNREACHABLE": 478,
+     "INTERRUPTED": 60,
+     "FARE_SHORT": 4,
+     "NO_TRAIN": 32,
+     "MONEY_SHORT": 19,
+     "OUT_OF_STOCK": 14,
+     "CLOSED": 1740,
+     "PARTNER_BUSY": 30,
+     "NO_BED": 3967,
+     "LOST_ARBITRATION": 3017,
+     "BAD_TARGET": 10807,
+     "NOT_IN_EATERY": 1042,
+     "TOO_FAR": 4
+    },
+    "importance": {
+     "2": 38598,
+     "3": 422,
+     "4": 21214
+    },
+    "n_per_row": {
+     "p0": 1.0,
+     "p10": 1.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 4.0,
+     "p100": 11.0,
+     "mean": 1.335
+    },
+    "A": {
+     "p0": -2.9431,
+     "p10": -2.733,
+     "p50": -2.4101,
+     "p90": -1.5512,
+     "p99": -0.8047,
+     "p100": 0.6931,
+     "mean": -2.2568
+    },
+    "A_by_kind": {
+     "buy": {
+      "p0": -2.9424,
+      "p10": -2.7255,
+      "p50": -2.4357,
+      "p90": -1.6326,
+      "p99": -0.834,
+      "p100": 0.6931,
+      "mean": -2.2832
+     },
+     "eat": {
+      "p0": -2.9427,
+      "p10": -2.7293,
+      "p50": -2.3838,
+      "p90": -1.5827,
+      "p99": -0.9484,
+      "p100": 0.0,
+      "mean": -2.2655
+     },
+     "queue": {
+      "p0": -2.9322,
+      "p10": -2.7293,
+      "p50": -2.4328,
+      "p90": -1.6308,
+      "p99": -0.9548,
+      "p100": 0.2877,
+      "mean": -2.2855
+     },
+     "move": {
+      "p0": -2.929,
+      "p10": -2.7103,
+      "p50": -2.4704,
+      "p90": -1.7964,
+      "p99": -1.0069,
+      "p100": 0.6931,
+      "mean": -2.3306
+     },
+     "board": {
+      "p0": -2.9322,
+      "p10": -2.5723,
+      "p50": -1.6397,
+      "p90": -0.9687,
+      "p99": -0.5338,
+      "p100": 0.3466,
+      "mean": -1.6862
+     },
+     "sleep": {
+      "p0": -2.9322,
+      "p10": -2.7207,
+      "p50": -2.3088,
+      "p90": -1.5453,
+      "p99": -0.9437,
+      "p100": 0.3466,
+      "mean": -2.2149
+     },
+     "talk": {
+      "p0": -2.9318,
+      "p10": -2.7075,
+      "p50": -2.3174,
+      "p90": -1.2909,
+      "p99": -0.5086,
+      "p100": 0.6931,
+      "mean": -2.1539
+     },
+     "report": {
+      "p0": -2.9427,
+      "p10": -2.7228,
+      "p50": -2.3434,
+      "p90": -1.5825,
+      "p99": -0.9163,
+      "p100": 0.6931,
+      "mean": -2.246
+     },
+     "help": {
+      "p0": -2.9229,
+      "p10": -2.6832,
+      "p50": -2.0215,
+      "p90": -1.3674,
+      "p99": -0.9228,
+      "p100": 0.0,
+      "mean": -2.0434
+     },
+     "notice": {
+      "p0": -2.9254,
+      "p10": -2.5,
+      "p50": -1.8389,
+      "p90": -1.0598,
+      "p99": -0.4354,
+      "p100": 0.235,
+      "mean": -1.8036
+     },
+     "signage": {
+      "p0": -2.9431,
+      "p10": -2.7592,
+      "p50": -2.5958,
+      "p90": -2.0451,
+      "p99": -1.1256,
+      "p100": 0.6931,
+      "mean": -2.4687
+     }
+    },
+    "score": {
+     "p0": -1.9431,
+     "p10": -1.7081,
+     "p50": -0.9708,
+     "p90": 0.0723,
+     "p99": 0.8761,
+     "p100": 2.6931,
+     "mean": -0.9011
+    },
+    "gists": 0,
+    "gist_agents": 0,
+    "gist_bytes": 0
+   },
+   "wall_seconds_nondeterministic": 31.04,
+   "peak_working_set_bytes_nondeterministic": 495566848,
+   "wo_memory_equals_off": true
+  },
+  {
+   "config": "off_salient_200",
+   "args": {
+    "vocab_version": "v3",
+    "salient_rate_per_10k": 200.0
+   },
+   "final_hash": "651e6341af364279f0f17d5fa47fe4abe8e21c904797789bbdc7eb1bd766fe53",
+   "final_wo_memory": "",
+   "llm_calls": 72534,
+   "salient_events": 183,
+   "noticed": 4877,
+   "agents_bytes_total": 800000,
+   "agents_declared_bytes_per_agent": 160,
+   "memory_summary": {},
+   "wall_seconds_nondeterministic": 30.13,
+   "peak_working_set_bytes_nondeterministic": 501485568
+  },
+  {
+   "config": "on_classical",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "policy": "classical",
+    "chooser": "classical"
+   },
+   "final_hash": "f9b577d22502c5219e7a496ea8c363255177f2439a352eab790bc2322605a28d",
+   "final_wo_memory": "18ed5c8261ee2e9c26e1dda2dacd6e8ee146acd836fab4a6039bd023ae7196bd",
+   "llm_calls": 102008,
+   "salient_events": 0,
+   "noticed": 0,
+   "agents_bytes_total": 16800000,
+   "agents_declared_bytes_per_agent": 4256,
+   "memory_summary": {
+    "n_rows": 128,
+    "d": 0.5,
+    "w_r": 1.0,
+    "w_i": 0.5,
+    "row_bytes_actual": 25,
+    "row_bytes_declared": 32,
+    "counts": {
+     "events:buy": 1788,
+     "events:eat": 13231,
+     "events:move": 21620,
+     "events:signage": 21216,
+     "events:sleep": 600,
+     "events:talk": 4891,
+     "failures:BAD_TARGET": 57,
+     "failures:CLOSED": 1230,
+     "failures:INTERRUPTED": 112,
+     "failures:LOST_ARBITRATION": 397,
+     "failures:MONEY_SHORT": 20,
+     "failures:NOT_IN_EATERY": 1004,
+     "failures:PARTNER_BUSY": 60,
+     "failures:PARTNER_GONE": 25,
+     "failures:UNREACHABLE": 18,
+     "merged": 11540,
+     "new_rows": 51806,
+     "sessions": 632,
+     "signage_exposures_seen": 101180,
+     "signage_first_sight_rule:memory": 1354,
+     "utterances": 3529,
+     "utterances_without_comment": 3529
+    },
+    "rows_used_per_agent": {
+     "p0": 0.0,
+     "p10": 3.0,
+     "p50": 9.0,
+     "p90": 19.0,
+     "p99": 34.0,
+     "p100": 52.0,
+     "mean": 10.3612
+    },
+    "full_agents": 0,
+    "agents_with_rows": 4817,
+    "rows_by_kind": {
+     "buy": 1556,
+     "eat": 9808,
+     "move": 17520,
+     "sleep": 366,
+     "talk": 1340,
+     "signage": 21216
+    },
+    "failure_rows_by_result": {
+     "UNREACHABLE": 18,
+     "INTERRUPTED": 106,
+     "MONEY_SHORT": 12,
+     "CLOSED": 551,
+     "PARTNER_BUSY": 56,
+     "PARTNER_GONE": 25,
+     "LOST_ARBITRATION": 343,
+     "BAD_TARGET": 49,
+     "NOT_IN_EATERY": 382
+    },
+    "importance": {
+     "2": 49018,
+     "3": 1246,
+     "4": 1542
+    },
+    "n_per_row": {
+     "p0": 1.0,
+     "p10": 1.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 4.0,
+     "p100": 15.0,
+     "mean": 1.2228
+    },
+    "A": {
+     "p0": -2.9431,
+     "p10": -2.7372,
+     "p50": -2.5062,
+     "p90": -1.6344,
+     "p99": -0.6892,
+     "p100": 1.0397,
+     "mean": -2.3191
+    },
+    "A_by_kind": {
+     "buy": {
+      "p0": -2.9214,
+      "p10": -2.6479,
+      "p50": -2.4294,
+      "p90": -1.9164,
+      "p99": -1.3841,
+      "p100": -0.9969,
+      "mean": -2.3459
+     },
+     "eat": {
+      "p0": -2.9424,
+      "p10": -2.7408,
+      "p50": -2.3703,
+      "p90": -1.5789,
+      "p99": -0.6445,
+      "p100": 0.6931,
+      "mean": -2.2432
+     },
+     "move": {
+      "p0": -2.9392,
+      "p10": -2.7019,
+      "p50": -2.3948,
+      "p90": -1.6038,
+      "p99": -0.8608,
+      "p100": 0.6931,
+      "mean": -2.2603
+     },
+     "sleep": {
+      "p0": -2.9427,
+      "p10": -2.7697,
+      "p50": -2.0425,
+      "p90": -0.9662,
+      "p99": -0.1708,
+      "p100": 0.6931,
+      "mean": -1.924
+     },
+     "talk": {
+      "p0": -2.9322,
+      "p10": -1.5029,
+      "p50": -1.0622,
+      "p90": -0.584,
+      "p99": -0.0797,
+      "p100": 1.0397,
+      "mean": -1.0713
+     },
+     "signage": {
+      "p0": -2.9431,
+      "p10": -2.7511,
+      "p50": -2.6365,
+      "p90": -2.0472,
+      "p99": -1.1007,
+      "p100": 0.6931,
+      "mean": -2.4865
+     }
+    },
+    "score": {
+     "p0": -1.9431,
+     "p10": -1.7346,
+     "p50": -1.4866,
+     "p90": -0.5747,
+     "p99": 0.7896,
+     "p100": 2.6931,
+     "mean": -1.2773
+    },
+    "gists": 0,
+    "gist_agents": 0,
+    "gist_bytes": 0
+   },
+   "wall_seconds_nondeterministic": 43.19,
+   "peak_working_set_bytes_nondeterministic": 525082624,
+   "wo_memory_equals_off": true
+  },
+  {
+   "config": "off_classical",
+   "args": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical"
+   },
+   "final_hash": "18ed5c8261ee2e9c26e1dda2dacd6e8ee146acd836fab4a6039bd023ae7196bd",
+   "final_wo_memory": "",
+   "llm_calls": 102008,
+   "salient_events": 0,
+   "noticed": 0,
+   "agents_bytes_total": 800000,
+   "agents_declared_bytes_per_agent": 160,
+   "memory_summary": {},
+   "wall_seconds_nondeterministic": 42.77,
+   "peak_working_set_bytes_nondeterministic": 503697408
+  }
+ ]
+}
