@@ -1,0 +1,62 @@
+{
+ "schema": "shibuya.bench/familiarity-2026-09-28/approx/1",
+ "d": 0.5,
+ "examples": [
+  {
+   "case": "1 回・いま(L=0)",
+   "n": 1,
+   "L_min": 0.0,
+   "exact": 0.0,
+   "approx": 0.6931,
+   "approx_minus_exact": 0.6931
+  },
+  {
+   "case": "1 回・10 時間前",
+   "n": 1,
+   "L_min": 600.0,
+   "exact": -3.1993,
+   "approx": -2.5062,
+   "approx_minus_exact": 0.6931
+  },
+  {
+   "case": "10 回・等間隔 60 分(最後がいま)",
+   "n": 10,
+   "L_min": 540.0,
+   "exact": 0.4733,
+   "approx": -0.151,
+   "approx_minus_exact": -0.6243
+  },
+  {
+   "case": "10 回・等間隔 60 分(最後が 60 分前)",
+   "n": 10,
+   "L_min": 600.0,
+   "exact": -0.4368,
+   "approx": -0.2036,
+   "approx_minus_exact": 0.2333
+  },
+  {
+   "case": "10 回・最初にまとめて(10 時間前に 10 分で)",
+   "n": 10,
+   "L_min": 600.0,
+   "exact": -0.8929,
+   "approx": -0.2036,
+   "approx_minus_exact": 0.6894
+  },
+  {
+   "case": "10 回・最近にまとめて(最初が 10 時間前・残り 9 回はこの 10 分)",
+   "n": 10,
+   "L_min": 600.0,
+   "exact": 1.5572,
+   "approx": -0.2036,
+   "approx_minus_exact": -1.7608
+  },
+  {
+   "case": "60 回・等間隔 24 分(1 日)",
+   "n": 60,
+   "L_min": 1416.0,
+   "exact": 1.3458,
+   "approx": 1.1593,
+   "approx_minus_exact": -0.1864
+  }
+ ]
+}

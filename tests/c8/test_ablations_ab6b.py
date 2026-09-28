@@ -80,11 +80,11 @@ def test_ab6b_runs_are_the_four_arms(ablation_runner, table):
     assert [r["tag"] for r in arm["runs"]] == [
         "p_see_1_00", "ad_zero", "p_see_0_30", "p_see_0_14",
     ]
-    assert [r["kwargs"] for r in arm["runs"]] == [
-        {"signage_p_see": 1.0},
-        {"signage": False},
-        {"signage_p_see": 0.3},
-        {"signage_p_see": 0.14},
+    assert [r["kwargs"] for r in arm["runs"]] == [  # 第290 Q29: l4_scale 1.0 を明示
+        {"l4_scale": 1.0, "signage_p_see": 1.0},
+        {"l4_scale": 1.0, "signage": False},
+        {"l4_scale": 1.0, "signage_p_see": 0.3},
+        {"l4_scale": 1.0, "signage_p_see": 0.14},
     ]
     assert arm["runs"][0]["is_baseline"] is True
     for r in arm["runs"][1:]:

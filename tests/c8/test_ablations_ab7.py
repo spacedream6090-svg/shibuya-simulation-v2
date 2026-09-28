@@ -25,19 +25,23 @@ ARM_B_ID = "AB7b-HINT-INTENT"
 
 #: 腕定義のカノニカル JSON SHA256(第1陣 6 本は AB7 追加前・AB7 は AB7b 追加前の値)。
 #: ``hashlib.sha256(json.dumps(arm, sort_keys=True, ensure_ascii=False).encode()).hexdigest()``。
+#: **第290(Q29)で 7 本を張り替えた**: 3 段目で ``cli.run`` の既定が呼数無制限になったので、上限ありで
+#: 回した腕の各ランに ``l4_scale: 1.0`` を明示した(表のトップ ``l4_scale_pin``)。それまでの値=
+#: AB1 06e6ca1f…・AB2 65a62c39…・AB3 7ce6da15…・AB6 0b53c030…・AB7 be19b471…・AB7b e53d363a…・
+#: AB7c f5cd4a8a…(AB4・AB5 はランが無いので不変)。
 FROZEN_ARM_SHA256 = {
-    "AB1-BUDGET-MODE": "06e6ca1f1a734210fc7732ed21d0c9390f11c28a270ce5cd9349c15105c9f4d2",
-    "AB2-PNOTICE-D50": "65a62c39a941c700c1b7ed8e66602db29ff6aeaecea8298d25e56da5265fc79e",
-    "AB3-REFRACTORY-PROX": "7ce6da150d4031001491cd4221ceb50abeeac86931acd8318dc2f437c6ffadee",
+    "AB1-BUDGET-MODE": "4d8fc596833ca82d887931c058245ed95560d064ef3c85c7d486b97ec56c5f1b",
+    "AB2-PNOTICE-D50": "551e92a75f49a1367cfbca362d4759b80b938f773a9e62fce68259169161f27b",
+    "AB3-REFRACTORY-PROX": "f7584d2d1e12a33984e7445f8b0d259b59b6116c151935ae1a3d6a7e62b0a04a",
     "AB4-HEARING-SNR": "a5767a3178a2eec2ada6c54225c68b7747367ae47513a5b0d137da2a0f6dcfcd",
     "AB5-INTROSPECTION": "bc969f25382f5ac88d295a5639d348a58cc18130bdab86c0a13eb517a71d0146",
-    "AB6-AD-ZERO": "0b53c0308f45ab27a098ca03ce43bce42039eb7e4ac3ffa93816253aabbe0507",
+    "AB6-AD-ZERO": "02093a2197b98fd538c694eef79557c33a1138afa8532f22bd674e44dcddd4ee",
     # AB7b を足しても AB7 の定義は 1 バイトも動かない(2026-09-17 に凍結)。
-    "AB7-OPEN-INTENT": "be19b47185476fdd2e5154f61ce5fa31818811a11510f43be738b8af764dde7d",
+    "AB7-OPEN-INTENT": "6abb86562340eb669ebf796ac03e1be0ea27e2bea51050d1c11986e2028583ea",
     # AB7c(語彙 v2)を足しても AB7b の定義は 1 バイトも動かない(2026-09-17 に凍結)。
-    "AB7b-HINT-INTENT": "e53d363aa18533228c0e9754d0a287ccd617937347cce3cd8af3113a88a3d7f0",
+    "AB7b-HINT-INTENT": "47e7baf6a1b7a91f16c5e06d4a82b86d3a514824a4886dc2a21db99f75c3579c",
     # AB6b(看板の注視ゲート・D-59 (b))を足しても AB7c の定義は 1 バイトも動かない。
-    "AB7c-VOCAB-V2": "f5cd4a8a84172d379f84e03a3e7e0095847530b90558c3322635ffe0326b66b0",
+    "AB7c-VOCAB-V2": "5d2846dd25c8e5113e68197ff3e71a6078a4a52c5109dc894a322d30bcc8c7e4",
 }
 
 #: 語彙 v2 の腕(``tests/c8/test_ablations_ab7c.py`` が本体を見る。ここでは**並び**だけ)。
@@ -94,8 +98,8 @@ def test_ab7_switch_and_runs(ablation_runner, table):
     assert sw["mock_effective"] is False, "MockLLM はプロンプトを読まない=mock では差が出ない"
     assert "--intent-mode" in sw["how"]
     assert [r["tag"] for r in arm["runs"]] == ["vocab", "open"]
-    assert [r["kwargs"] for r in arm["runs"]] == [
-        {"intent_mode": "vocab"}, {"intent_mode": "open"}
+    assert [r["kwargs"] for r in arm["runs"]] == [  # 第290 Q29: l4_scale 1.0 を明示
+        {"l4_scale": 1.0, "intent_mode": "vocab"}, {"l4_scale": 1.0, "intent_mode": "open"}
     ]
     assert arm["runs"][0]["is_baseline"] is True
     assert "is_baseline" not in arm["runs"][1]
@@ -140,8 +144,8 @@ def test_ab7b_switch_and_runs(ablation_runner, table):
     assert sw["mock_effective"] is False, "MockLLM はプロンプトを読まない=mock では差が出ない"
     assert "--intent-mode hint" in sw["how"]
     assert [r["tag"] for r in arm["runs"]] == ["vocab", "hint"]
-    assert [r["kwargs"] for r in arm["runs"]] == [
-        {"intent_mode": "vocab"}, {"intent_mode": "hint"}
+    assert [r["kwargs"] for r in arm["runs"]] == [  # 第290 Q29: l4_scale 1.0 を明示
+        {"l4_scale": 1.0, "intent_mode": "vocab"}, {"l4_scale": 1.0, "intent_mode": "hint"}
     ]
     assert arm["runs"][0]["is_baseline"] is True
     assert "is_baseline" not in arm["runs"][1]

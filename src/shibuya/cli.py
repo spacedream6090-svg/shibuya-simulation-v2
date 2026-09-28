@@ -68,6 +68,7 @@ from shibuya.engine.poi_target import (
     POI_TARGET_MODES,
 )
 from shibuya.engine.intent import INTENT_MAX_TICKS
+from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES
 from shibuya.world.state import DEFAULT_EATERY_MODE, EATERY_MODES, World
 
 #: **CLI の既定の語彙版**(二層の段 3・第277=``--vocab-version`` を渡さないランは v3)。
@@ -727,6 +728,21 @@ def main(argv: list[str] | None = None) -> int:
              "(既定 60・宣言・expedient・感度腕 30/120)",
     )
     ap.add_argument(
+        "--familiarity",
+        choices=FAMILIARITY_MODES,
+        default="off",
+        help="4 段目(記憶の先行部品=M13 訪問+M17 露出): 体×K 行の親しみの表を確保して、訪問・看板の"
+             "露出・セルに入った回を数える(本段では誰も読まない)。既定 off=表を確保しない=既定の "
+             "checkpoint 不変",
+    )
+    ap.add_argument(
+        "--familiarity-k",
+        type=int,
+        default=FAMILIARITY_K,
+        metavar="K",
+        help="親しみの表の体あたりの行数(既定 64・宣言・感度 32/128)",
+    )
+    ap.add_argument(
         "--eatery",
         choices=EATERY_MODES,
         default=DEFAULT_EATERY_MODE,
@@ -868,6 +884,8 @@ def main(argv: list[str] | None = None) -> int:
         poi_target=str(args.poi_target),
         move_search_radius=int(args.move_search_radius),
         intent_max_ticks=int(args.intent_max_ticks),
+        familiarity=str(args.familiarity),
+        familiarity_k=int(args.familiarity_k),
         role_words=(str(args.role_words) == "on"),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),

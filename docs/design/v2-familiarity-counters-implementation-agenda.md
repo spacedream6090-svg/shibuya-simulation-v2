@@ -11,8 +11,8 @@
 
 ## §1 表と A
 
-1. **表**(腕でだけ確保・`AgentState(familiarity_columns=True)`): 体ごとに K=64 行(`FAMILIARITY_K`・宣言・感度 32/128)。1 行=`thing_id` int32(POI 索引。場所は `−(cell+1)`・人は `1<<30 | agent_id` で区別=種類は符号と上位ビット)・`first_tick` int32・`last_tick` int32・`visits` uint16・`exposures` uint16 =**16 B/行 → 1,024 B/体**(39 万体で 400 MB・M4 の記憶 6.1 KB/体の内側)。空行は `thing_id=−1`。
-2. **A の計算(読み口)**: 全接触時刻を保持せず、ACT-R の**最適化学習の近似**(Petrov 2006・Anderson & Lebiere の optimized learning): `A = ln(n / (1−d)) − d·ln(L+1)`、n=visits+exposures(重みは同じ=宣言・M17 の「接触の種類の重み」は後で感度腕)、L=`tick − first_tick`(分)、d=0.5(既決)。**近似の宣言**: 等間隔の接触で厳密式 ln Σ(Δt+1)^−0.5 に近い(実装役が 3 例で厳密式との差を notes に)。出典は実装役が原典 URL を添えて `docs/research/lit/` ではなく notes に書き、**親が一次確認**(未確認なら [未確認])。
+1. **表**(腕でだけ確保・`AgentState(familiarity_columns=True)`): 体ごとに K=64 行(`FAMILIARITY_K`・宣言・感度 32/128)。1 行=`thing_id` int32(POI 索引。場所は `−(cell+2)`(**第290 訂正**: `−(cell+1)` だとセル 0 が空行 −1 と衝突する=実装役の指摘)・人は `1<<30 | agent_id` で区別=種類は符号と上位ビット)・`first_tick` int32・`last_tick` int32・`visits` uint16・`exposures` uint16 =**16 B/行 → 1,024 B/体**(39 万体で 400 MB・M4 の記憶 6.1 KB/体の内側)。空行は `thing_id=−1`。
+2. **A の計算(読み口)**: 全接触時刻を保持せず、ACT-R の**最適化学習の近似**(Petrov 2006・Anderson & Lebiere の optimized learning): `A = ln(n / (1−d)) − d·ln(L+1)`、n=visits+exposures(重みは同じ=宣言・M17 の「接触の種類の重み」は後で感度腕)、L=`tick − first_tick`(分)、d=0.5(既決)。**近似の宣言**: 等間隔の接触で厳密式 ln Σ(Δt+1)^−0.5 に近い(実装役が 3 例で厳密式との差を notes に)。出典=**親が一次確認(第290)**: Petrov 2006 ICCM 予稿(http://alexpetrov.com/pub/iccm06/PetrovICCM06.pdf・2 頁)の式 (2)「B ≈ ln[n·t_n^{−d}/(1−d)]」=ACT-R 界で長く使われる最適化学習の近似(出典表記は Anderson & Lebiere 1998)・式 (3)=最近 k 回を厳密に保持する混成(本段では採らず・複数日ランで A の分布を見てから)。原典は L を t_n(最初の使用からの経過)とし **+1 は本リポの (Δt+1) の流儀**(原典に無い=宣言)。ACT-R 7 参照マニュアルの `:ol`(optimized learning parameter)も親が確認。
 3. **書き手**(on のときだけ・tick の Phase C の後):
    - **訪問**: 購入/食事/並ぶの成立(`_complete_buy/_complete_eat` の成功行)で対象 POI に visits+1(first/last を更新)。
    - **看板の露出**: p_see の抽選を通って B2 に看板行が載った POI(`renderer._signage_seen` の通過)に exposures+1。既定 p_see=1.0 では「B2 に載った看板の POI 全部」=露出=可視(宣言)。**記憶の二本立て**(D-95 修正1): 露出はここに数えるだけでエピソードには入れない。

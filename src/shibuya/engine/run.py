@@ -79,6 +79,7 @@ from shibuya.engine import growth_decl as GD
 from shibuya.engine import resolve as R
 from shibuya.engine.activity import ActivityLayer, payload_of
 from shibuya.engine.intent import INTENT_MAX_TICKS, IntentLayer
+from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES, FamiliarityLayer
 from shibuya.engine.arbiter import (
     L4_LINE_PER_AGENT_DAY,
     Arbiter,
@@ -432,6 +433,10 @@ class RunResult:
     intent_max_ticks: int = INTENT_MAX_TICKS
     #: 段 2c: mock の購入/食事/並ぶの対象に B2 に見える名を出す確率(既定 0)。
     mock_out_of_cell_target_p: float = 0.0
+    #: 4 段目(M13+M17): 親しみの表を確保したか(``--familiarity on``)・行数 K・要約。
+    familiarity: bool = False
+    familiarity_k: int = FAMILIARITY_K
+    familiarity_summary: dict[str, Any] = field(default_factory=dict)
     #: 段 2b: 移動の失敗の内訳(``resolve._apply_move``)。
     move_bad_target: int = 0
     move_unreachable: int = 0
@@ -792,6 +797,10 @@ class RunResult:
             "intent": dict(self.intent),
             "intent_max_ticks": int(self.intent_max_ticks),
             "mock_out_of_cell_target_p": float(self.mock_out_of_cell_target_p),
+            # ---- 4 段目(M13 訪問+M17 露出): 親しみの表の腕。列追加のみ ----
+            "familiarity": bool(self.familiarity),
+            "familiarity_k": int(self.familiarity_k),
+            "familiarity_summary": dict(self.familiarity_summary),
             "calls_by_condition": dict(self.calls_by_condition),
             "synonym_table_version": _synonym_table_version(self.vocab_version),
             "action_usage": dict(self.action_usage),
@@ -1339,6 +1348,8 @@ def run_day(
     mock_move_target_p: float = 0.0,
     intent_max_ticks: int = INTENT_MAX_TICKS,
     mock_out_of_cell_target_p: float = 0.0,
+    familiarity: bool | str = False,
+    familiarity_k: int = FAMILIARITY_K,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -1551,6 +1562,11 @@ def run_day(
             (v1/v2・``--activity off``・``legacy`` は欄を確保するだけ=挙動は段 2b のまま)。
         mock_out_of_cell_target_p: 既定 mock(語彙 v3)の購入/食事/並ぶの対象に B2 の「見えるもの」
             の名(括弧内の店名があればそれ)を出す確率(段 2c の経路を mock で通す腕・既定 0)。
+        familiarity: **4 段目(記憶の先行部品=M13 訪問+M17 露出)**。``True``/``"on"`` で体×K 行の
+            親しみの表(``AgentState(familiarity_columns=True)``・16 B/行)を確保し、訪問(購入/食事の
+            成立)・看板の露出(B2 に看板行が載った)・場所(セルに入った回)を書く。**本段では誰も
+            読まない**。既定 ``False``=表を確保しない=**既定 checkpoint 不変**。
+        familiarity_k: 体あたりの行数(既定 ``FAMILIARITY_K``=64・宣言・感度 32/128)。
 
     Returns:
         ``RunResult``。
@@ -1588,6 +1604,15 @@ def run_day(
     # ---- 二層の段 2: 活動層は**語彙 v3 のときだけ**立つ(SoA を確保する前に決める=欄が 2 本変わる) ----
     activity = check_role_words(activity)  # "on"/"off"/bool を bool へ(同じ正規化)
     activity_on = bool(activity) and vocab_version == "v3"
+    # ---- 4 段目: 親しみの表の腕(SoA を確保する前に決める=欄が 5 本変わる) ----
+    if isinstance(familiarity, str):
+        if familiarity not in FAMILIARITY_MODES:
+            raise ValueError(f"familiarity は {FAMILIARITY_MODES} か bool(いま {familiarity!r})")
+        familiarity_on = familiarity == "on"
+    else:
+        familiarity_on = bool(familiarity)
+    if int(familiarity_k) < 1:
+        raise ValueError(f"familiarity_k は 1 以上(いま {familiarity_k})")
     # ---- 段 1b: 飲食店の切替口(値の検査は世界を触る前・既定 food=現行のバイト) ----
     eatery = check_eatery_mode(eatery)
     # ---- 段 2a: 選び手と対象の決め方(値の検査は世界を触る前) ----
@@ -1654,6 +1679,8 @@ def run_day(
         edge_columns=(geometry == "edge"),
         attention_columns=attention_on,
         activity_columns=activity_on,
+        familiarity_columns=familiarity_on,
+        familiarity_k=int(familiarity_k),
     )
     if ledger is not None and ledger.money is not None:
         # 世帯の現金行 = 個体 SoA の money(写しを作らない・台帳の書き込み窓は resolve が持つ)
@@ -1888,6 +1915,24 @@ def run_day(
         _q25_renderer.named_closed_lookup = _named_closed_lookup(
             poi_resolver, runner, day_index, tick_seconds
         )
+    # ---- 4 段目: 親しみの表(値を決める層・書き手は resolve.write_familiarity) ----
+    _fam_renderer = getattr(perception, "renderer", None) if perception is not None else None
+    _fam_has_renderer = _fam_renderer is not None and hasattr(_fam_renderer, "signage_exposures")
+    fam_layer: FamiliarityLayer | None = (
+        FamiliarityLayer(
+            n_agents, int(familiarity_k), minutes_per_tick=float(tick_seconds) / 60.0,
+            # 親決定 (f): 入った回 × そのセルで B2 に載る看板 × p_see(描画と同じ集合・同じ流れ)
+            signage_poi_by_cell=(
+                _fam_renderer.signage_poi_by_cell() if _fam_has_renderer else None
+            ),
+            p_see=float(getattr(_fam_renderer, "signage_p_see", 1.0)) if _fam_has_renderer else 1.0,
+            seed=getattr(_fam_renderer, "seed", seed) if _fam_has_renderer else seed,
+        )
+        if familiarity_on
+        else None
+    )
+    if fam_layer is not None and _fam_has_renderer:
+        _fam_renderer.signage_exposures = []  # 描画による露出の控え(tick ごとに取り出す)
     #: 発射した呼の起床条件ごとの件数(起床の内訳・満了入口の列を含む)。
     calls_by_cond = np.zeros(N_WAKE_CONDITIONS_ALL, dtype=np.int64)
 
@@ -2476,6 +2521,7 @@ def run_day(
             geometry=geom,
             focus_request=focus_request,
             talk_by_distance=attention_on,
+            track_visits=fam_layer is not None,
         )
         phase["phase_c"] += time.perf_counter() - t0
         phase["movement"] += outcome.movement_seconds
@@ -2620,6 +2666,15 @@ def run_day(
                 intent_layer.after_apply(
                     agents, tick, act_layer, applied_activity if applied_activity[0] else None
                 )
+        # ---- 4 段目: 親しみの表(訪問・看板の露出・セルに入った回)。Phase C と活動層の後 ----
+        if fam_layer is not None:
+            _exp = None
+            if _fam_renderer is not None and getattr(_fam_renderer, "signage_exposures", None):
+                _exp = list(_fam_renderer.signage_exposures)
+                _fam_renderer.signage_exposures.clear()
+            fam_layer.after_tick(
+                agents, tick, (outcome.visit_agents, outcome.visit_pois), _exp
+            )
 
         diag_rows.append(
             (
@@ -2866,6 +2921,11 @@ def run_day(
     result.move_search_radius = int(move_search_radius)
     result.mock_move_target_p = float(mock_move_target_p)
     result.intent = intent_layer.counters() if intent_layer is not None else {}
+    result.familiarity = bool(familiarity_on)
+    result.familiarity_k = int(familiarity_k)
+    result.familiarity_summary = (
+        fam_layer.summary(agents, max(0, int(ticks) - 1)) if fam_layer is not None else {}
+    )
     if intent_layer is not None:
         # B5「いま <行為> のため <対象> へ向かっている」を載せた回数(描画のあるランだけ)
         _rr = getattr(perception, "renderer", None) if perception is not None else None

@@ -39,7 +39,8 @@ ARM_UNCAPPED_ID = "AB6c-AD-NOTICE-UNCAPPED"
 
 #: AB6b(看板の注視ゲート)の腕定義の凍結 SHA256。**2026-09-19 に末尾でなくなったので凍らせる**
 #: (第1陣 6 本〜AB7c の 9 本は ``tests/c8/test_ablations_ab7.py`` の FROZEN_ARM_SHA256 が持つ)。
-FROZEN_AB6B_SHA256 = "1be4e00f74c52ab82e3ff15474815a71ac6f9b95319155c3819c9bf6972f4976"
+#: 第290(Q29)で各ランに ``l4_scale: 1.0`` を明示して張り替えた(それまで 1be4e00f74c52ab8…)。
+FROZEN_AB6B_SHA256 = "9c324baa2ee1e295502df2b6bfc6f7b739db4235db5aeab416cb489a8ffbcfd1"
 
 #: 変異検出用の極小ラン。**就寝抑止を切る**=合成世界の 0 時台でも起床候補が立つ
 #: (既定の D-56 抑止が効くと候補が 0 件になり、予算の腕が何も動かさない)。

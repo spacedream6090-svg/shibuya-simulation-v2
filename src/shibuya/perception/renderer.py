@@ -873,6 +873,9 @@ class Renderer:
         #: 意図の層のあるランだけ差し込む(``None``=従来どおり=描画は 1 バイトも変わらない)。
         self.named_closed_lookup: Callable[[int], tuple[int, int, int] | None] | None = None
         self.named_closed_notes = 0
+        #: 4 段目(M17 露出): 看板行が載った (体, POI) の控え(``engine.run`` が tick ごとに取り出す)。
+        #: ``None``=控えない(既定)。
+        self.signage_exposures: list[tuple[int, int]] | None = None
         #: 注視ゲートの抽選回数(看板のあるセルで p_see<1.0 のときだけ増える)。
         self.signage_gate_draws = 0
         #: そのうち**通った**(看板行を載せた)回数。既定のランでは 0/0。
@@ -1018,6 +1021,12 @@ class Renderer:
         ranking = self.budget_mode is ch.BudgetMode.SINGLE_RANKING
         # D-59 (b): 看板の注視ゲート(§4 段1)。既定 p_see=1.0 では常に True=抽選も引かない。
         seen = self._signage_seen(i, cell, int(tick))
+        # 4 段目(M17 露出): 注視ゲートを通って B2 に看板行が載った POI を控える(``--familiarity on``
+        # のランだけ ``engine.run`` が list を差し込む=既定 None では 1 行も通らない・描画は不変)。
+        if self.signage_exposures is not None and seen:
+            _sp = self._signage_poi(cell)
+            if _sp >= 0:
+                self.signage_exposures.append((i, int(_sp)))
         # ablation ①: セル依存(B2/B4/B4b)は**1 本の池**なので 3 ブロックを一緒に組む。
         cellb = self._cell_blocks_ranked(cell, tc, trunc, seen) if ranking else None
         b6 = self._b6(i, wake_reason, last_result, cell, tc, last_action, inviter)
@@ -1232,6 +1241,16 @@ class Renderer:
         frm = int(w.pois.open_from[j]) // 60
         to = int(w.pois.open_to[j]) // 60
         return strip_imperatives(f"{A.poi_name[j]}の表示。営業は{frm}時から{to}時。").kept
+
+    def signage_poi_by_cell(self) -> np.ndarray:
+        """セル → B2 の看板行に出す POI(``_signage_poi`` と同じ 1 件・無ければ −1)。
+
+        4 段目(M17 露出・親決定 (f)): 「セルに入った回 × そのセルの看板」の露出を数える側
+        (``engine.familiarity``)が、描画と**同じ集合**を読むための口。起動時 1 回(セル数ぶん)。
+        ``signage_enabled=False``(ablation ⑥)なら全部 −1。
+        """
+        n = int(self.assets.n_cells)
+        return np.fromiter((self._signage_poi(c) for c in range(n)), dtype=np.int64, count=n)
 
     def _signage_seen(self, agent_id: int, cell: int, tick: int) -> bool:
         """**看板の注視ゲート**(知覚契約書 §4 段1・D-59 (b) ユーザー決定 2026-09-17)。

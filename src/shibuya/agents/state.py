@@ -67,6 +67,10 @@ expedient(本モジュール分)
   エンジンは行為をここに保存して目的地つき移動を始め、着いたら LLM を呼ばずに実行する
   (乗車の意図 ``board_line``・就寝の意図 ``sleep_pending`` と同じ「判断 1 回・実行は世界」の形)。
   値を決めるのは ``engine.intent``・書き手は ``engine.resolve`` だけ。
+- **親しみの表(4 段目・M13 訪問+M17 露出・第290)**: ``fam_thing`` / ``fam_first`` / ``fam_last`` /
+  ``fam_visits`` / ``fam_exposures``(体 × K 行・1 行 16 B → K=64 で 1,024 B/体)は
+  ``familiarity_columns`` のランだけ確保する(``--familiarity on``・既定 off=既定 checkpoint 不変)。
+  ``fam_thing`` の符号化は ``engine.familiarity``(POI 索引 ≥ 0・場所 −(cell+1)・人 1<<30|id・空行 −1)。
 - ``ResultCode.TOO_FAR``(21)は**段 2c** で足した失敗コード(D-122 P6 の先取り)。「経路は在るが
   ``INTENT_MAX_TICKS`` のうちに着かなかった」= 時間予算超え。経路が無い ``UNREACHABLE``(1)と
   分ける。**値は末尾に足すだけ**なので既存の配列も描画も動かない。
@@ -103,6 +107,8 @@ __all__ = [
     "IntentKind",
     "INTENT_NONE",
     "INTENT_FIELDS",
+    "FAMILIARITY_FIELDS",
+    "FAMILIARITY_EMPTY",
     "REFRACTORY_MINUTES",
     "WAKE_CONDITION_CLASS",
     "RESULT_TEXT",
@@ -341,6 +347,13 @@ class IntentKind(IntEnum):
 
 #: ``intent_action`` の「意図なし」(行動コードと衝突しない負値)。
 INTENT_NONE: Final[int] = -1
+#: 親しみの表の 5 欄(4 段目・``familiarity_columns`` のランだけ確保)。
+FAMILIARITY_FIELDS: Final[tuple[str, ...]] = (
+    "fam_thing", "fam_first", "fam_last", "fam_visits", "fam_exposures",
+)
+#: 親しみの表の空行(``fam_thing``)。
+FAMILIARITY_EMPTY: Final[int] = -1
+
 #: 意図の 4 欄(段 2c)。``Registry.state_hash(exclude=INTENT_FIELDS)`` で「欄を足す前」の
 #: checkpoint と挙動が同じことを確かめる(監査用)。
 INTENT_FIELDS: Final[tuple[str, ...]] = (
@@ -371,6 +384,8 @@ class AgentState:
         edge_columns: bool = False,
         attention_columns: bool = False,
         activity_columns: bool = False,
+        familiarity_columns: bool = False,
+        familiarity_k: int = 64,
     ) -> None:
         """
         Args:
@@ -402,6 +417,11 @@ class AgentState:
         self.edge_columns = bool(edge_columns)
         self.attention_columns = bool(attention_columns)
         self.activity_columns = bool(activity_columns)
+        #: 4 段目(M13+M17): 親しみの表を確保するか・行数 K(``engine.familiarity.FAMILIARITY_K``)。
+        self.familiarity_columns = bool(familiarity_columns)
+        self.familiarity_k = int(familiarity_k)
+        if self.familiarity_columns and self.familiarity_k < 1:
+            raise ValueError(f"familiarity_k は 1 以上(いま {familiarity_k})")
         self.registry = Registry.for_agents(self.n, per_entity_byte_cap=cap_bytes)
         r = self.registry
         # ---- 位置・運動(M2 位置・運動・身体 ≤128B/体 の内数) ----
@@ -523,6 +543,19 @@ class AgentState:
                           "この tick に満了入口(WakeCondition.ACTIVITY_EXPIRY)で起きる")
             r.declare("activity_kind", np.int8, byte_budget_per_agent=1, mechanism=True,
                       doc="ActivityKind(0 なし / 1 目的地つき移動 / 2 あたり / 3 在店 / 4 その場)")
+        # ---- 親しみの表(4 段目・M13 訪問+M17 露出・familiarity_columns のランだけ・16 B/行) ----
+        if self.familiarity_columns:
+            k = self.familiarity_k
+            r.declare("fam_thing", np.int32, (k,), byte_budget_per_agent=4 * k, mechanism=True,
+                      doc="もの(POI 索引 ≥0 / 場所 −(cell+1) / 人 1<<30|id / 空行 −1)")
+            r.declare("fam_first", np.int32, (k,), byte_budget_per_agent=4 * k, mechanism=True,
+                      doc="最初の接触の tick(A の寿命 L の起点)")
+            r.declare("fam_last", np.int32, (k,), byte_budget_per_agent=4 * k, mechanism=False,
+                      doc="最後の接触の tick(診断・読み口の補助)")
+            r.declare("fam_visits", np.uint16, (k,), byte_budget_per_agent=2 * k, mechanism=True,
+                      doc="訪問の回数(購入/食事/並ぶの成立・M13)")
+            r.declare("fam_exposures", np.uint16, (k,), byte_budget_per_agent=2 * k,
+                      mechanism=True, doc="露出の回数(看板が B2 に載った/セルに入った・M17)")
         # ---- 起床機構(知覚契約書 §6) ----
         r.declare("refractory_until", np.int32, (N_WAKE_CONDITIONS,),
                   byte_budget_per_agent=4 * N_WAKE_CONDITIONS, mechanism=True,
@@ -568,6 +601,10 @@ class AgentState:
             self.registry.plan_activity[:] = -1
         if self.activity_columns:
             self.registry.activity_until[:] = ACTIVITY_UNTIL_NONE
+        if self.familiarity_columns:
+            self.registry.fam_thing[:] = FAMILIARITY_EMPTY
+            self.registry.fam_first[:] = -1
+            self.registry.fam_last[:] = -1
         self._frozen = False
 
     # ---- フィールドの素通し(``st.money`` で配列を引く) ----

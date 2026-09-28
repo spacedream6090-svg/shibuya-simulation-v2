@@ -132,6 +132,8 @@ __all__ = [
     "relabel_intent_failure",
     "INTENT_KEEP_ACTIONS",
     "intent_kept_by",
+    # ---- 4 段目 親しみの表(値は engine.familiarity が決める・書き手は本モジュール) ----
+    "write_familiarity",
     "refractory_ticks",
     "wake_condition_index",
     "normalized_refractory_scale",
@@ -397,6 +399,11 @@ class ResolveOutcome:
     meal_yen: int = 0
     #: 同じ店への買い手が棚の合計を超えて、支払いの前に OUT_OF_STOCK にした件数(第288 の欠陥修正)。
     n_buy_over_stock: int = 0
+    #: 4 段目(M13 訪問): 購入/食事の**成立した行**(体, POI)を控えるか(``--familiarity on`` だけ)。
+    #: 控えるだけで世界は変えない=既定 False では 1 行も通らない。
+    track_visits: bool = False
+    visit_agents: list = field(default_factory=list)
+    visit_pois: list = field(default_factory=list)
     #: 段 2b: 移動の失敗の内訳(対象不正=行き先が解決できない / 経路なし)。
     n_move_bad_target: int = 0
     n_move_unreachable: int = 0
@@ -867,6 +874,31 @@ def intent_kept_by(agents: AgentState, world: World, agent_id, code, target) -> 
     return keep
 
 
+def write_familiarity(
+    agents: AgentState, agent_id, slot, thing, first, last, visits, exposures
+) -> None:
+    """**親しみの表の行を書く**(4 段目・値と行の選び方は ``engine.familiarity`` が決める)。
+
+    Args:
+        agent_id / slot: 体と行(同じ組が 2 度来ない=呼び出し側が 1 体 1 行に畳む)。
+        thing / first / last / visits / exposures: その行の新しい値(統合・新規・追い出しの後)。
+
+    ``familiarity_columns`` の無いラン(既定)では呼ばれない。逐次ループ宣言: なし(配列演算)。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    s = np.asarray(slot, dtype=np.int64)
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        r.fam_thing[a, s] = np.asarray(thing, dtype=np.int64).astype(np.int32)
+        r.fam_first[a, s] = np.asarray(first, dtype=np.int64).astype(np.int32)
+        r.fam_last[a, s] = np.asarray(last, dtype=np.int64).astype(np.int32)
+        r.fam_visits[a, s] = np.asarray(visits, dtype=np.int64).astype(np.uint16)
+        r.fam_exposures[a, s] = np.asarray(exposures, dtype=np.int64).astype(np.uint16)
+
+
 def set_intent(agents: AgentState, agent_id, action, target, kind, tick: int) -> None:
     """**意図を立てる**(段 2c・値は ``engine.intent`` が決める)。
 
@@ -1001,6 +1033,7 @@ def apply(
     geometry: EdgeGeometry | None = None,
     focus_request: np.ndarray | None = None,
     talk_by_distance: bool = False,
+    track_visits: bool = False,
 ) -> ResolveOutcome:
     """Phase C: 確定した intent だけを世界へ適用する(**唯一の書き手**)。
 
@@ -1038,6 +1071,9 @@ def apply(
             「近づく」の目的ノードにだけ効く(焦点は持てないので ``TARGET_GONE`` も出ない)。
         talk_by_distance: **C9b G7**。``True`` で会話の成立判定が「同一セル代理」から
             ``TALK_OPEN_METERS``(2 m)の実距離になる。``False``(既定)は現行のまま。
+        track_visits: **4 段目(M13 訪問)**。``True`` で購入/食事の成立した行(体, POI)を
+            ``ResolveOutcome.visit_agents``/``visit_pois`` に控える(``engine.familiarity`` が読む)。
+            控えるだけ=世界は変えない。
 
     Returns:
         ``ResolveOutcome``。
@@ -1060,6 +1096,7 @@ def apply(
             None if focus_request is None else np.asarray(focus_request, dtype=np.int64)
         ),
         talk_by_distance=bool(talk_by_distance),
+        track_visits=bool(track_visits),
     )
     r = agents.registry
     with agents.writable(), world.writable():
@@ -1928,6 +1965,9 @@ def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
     # 第288 #54 の残りの過大計数の修正。以前は台帳の前の人数を数えていた)。
     out.n_purchases += int(buyers.size)
     out.revenue_delta += int(paid.sum())
+    if out.track_visits:  # 4 段目(M13): 成立した行だけ(台帳が通した行)
+        out.visit_agents.append(np.asarray(buyers, dtype=np.int64).copy())
+        out.visit_pois.append(np.asarray(bought, dtype=np.int64).copy())
     _ok(agents, buyers, tick, out)
 
 
@@ -2014,6 +2054,9 @@ def _complete_eat(agents, world, eaters, shops, paid, tick, out) -> None:
         r.queue_poi[eaters] = -1
         out.crowd.on_admit(shops)
     out.n_meals += int(eaters.size)
+    if out.track_visits:  # 4 段目(M13): 成立した行だけ
+        out.visit_agents.append(np.asarray(eaters, dtype=np.int64).copy())
+        out.visit_pois.append(np.asarray(shops, dtype=np.int64).copy())
     out.meal_yen += int(paid.sum())
     out.revenue_delta += int(paid.sum())
     _ok(agents, eaters, tick, out)

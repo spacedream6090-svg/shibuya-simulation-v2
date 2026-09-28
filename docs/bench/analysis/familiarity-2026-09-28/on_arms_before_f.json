@@ -1,0 +1,549 @@
+{
+ "schema": "shibuya.bench/familiarity-2026-09-28/on/1",
+ "n_agents": 5000,
+ "seed": 1,
+ "arms": [
+  {
+   "familiarity": "off",
+   "k": 0,
+   "final_hash": "a1036ab5b06e461c6c6757f477223c54268c1a60b8b4b18681cac8ad520ad0b4",
+   "final_wo_familiarity": "",
+   "llm_calls": 68781,
+   "agents_bytes_total": 720000,
+   "wall_seconds_nondeterministic": 26.9,
+   "peak_working_set_bytes_nondeterministic": 493371392,
+   "summary": {},
+   "top3_examples": []
+  },
+  {
+   "familiarity": "on",
+   "k": 64,
+   "final_hash": "2154031c7fe7e5975c2baa4979a6d038a120b893f784da90b3f847924bb61029",
+   "final_wo_familiarity": "a1036ab5b06e461c6c6757f477223c54268c1a60b8b4b18681cac8ad520ad0b4",
+   "llm_calls": 68781,
+   "agents_bytes_total": 5840000,
+   "wall_seconds_nondeterministic": 27.29,
+   "peak_working_set_bytes_nondeterministic": 495607808,
+   "summary": {
+    "k": 64,
+    "d": 0.5,
+    "counts": {
+     "evictions": 69,
+     "exposures_place": 92135,
+     "exposures_signage": 68253,
+     "merged": 84130,
+     "new_rows": 85894,
+     "visits": 9636
+    },
+    "rows_used_per_agent": {
+     "p0": 0.0,
+     "p10": 3.0,
+     "p50": 16.0,
+     "p90": 33.0,
+     "p100": 64.0,
+     "mean": 17.165
+    },
+    "full_agents": 7,
+    "visits_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 5.0,
+     "p100": 11.0,
+     "mean": 1.9272
+    },
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 10.0,
+     "p50": 29.0,
+     "p90": 59.0,
+     "p100": 174.0,
+     "mean": 32.0638
+    },
+    "rows_by_kind": {
+     "place": 66459,
+     "poi": 19366
+    },
+    "rows_visit_only": 4340,
+    "rows_exposure_only": 79661,
+    "rows_both": 1824,
+    "A": {
+     "p0": -2.9431,
+     "p10": -2.7125,
+     "p50": -2.2169,
+     "p90": -1.0601,
+     "p100": 0.9186,
+     "mean": -2.0549
+    },
+    "A_visit_only": {
+     "p0": -2.9424,
+     "p10": -2.7008,
+     "p50": -2.2471,
+     "p90": -1.3455,
+     "p100": -0.1116,
+     "mean": -2.1345
+    },
+    "A_exposure_only": {
+     "p0": -2.9431,
+     "p10": -2.7152,
+     "p50": -2.233,
+     "p90": -1.1541,
+     "p100": 0.7786,
+     "mean": -2.0876
+    },
+    "A_both": {
+     "p0": -2.0356,
+     "p10": -1.1491,
+     "p50": -0.3993,
+     "p90": 0.2232,
+     "p100": 0.9186,
+     "mean": -0.438
+    },
+    "top3_kinds": {
+     "poi": 9912,
+     "place": 4334
+    }
+   },
+   "top3_examples": [
+    {
+     "agent": 221,
+     "rows": 64,
+     "top3": [
+      {
+       "thing": -291,
+       "kind": "place",
+       "A": -0.11778303565638382,
+       "visits": 0,
+       "exposures": 4
+      },
+      {
+       "thing": -253,
+       "kind": "place",
+       "A": -0.2470092527248049,
+       "visits": 0,
+       "exposures": 3
+      },
+      {
+       "thing": -292,
+       "kind": "place",
+       "A": -0.3534702513461405,
+       "visits": 0,
+       "exposures": 3
+      }
+     ]
+    },
+    {
+     "agent": 411,
+     "rows": 64,
+     "top3": [
+      {
+       "thing": -259,
+       "kind": "place",
+       "A": 0.6931471805599453,
+       "visits": 0,
+       "exposures": 1
+      },
+      {
+       "thing": -260,
+       "kind": "place",
+       "A": 0.34657359027997264,
+       "visits": 0,
+       "exposures": 1
+      },
+      {
+       "thing": -313,
+       "kind": "place",
+       "A": 0.1438410362258904,
+       "visits": 0,
+       "exposures": 1
+      }
+     ]
+    },
+    {
+     "agent": 1747,
+     "rows": 64,
+     "top3": [
+      {
+       "thing": 2210,
+       "kind": "poi",
+       "A": -0.46777427423928497,
+       "visits": 1,
+       "exposures": 5
+      },
+      {
+       "thing": 1688,
+       "kind": "poi",
+       "A": -0.7437234082742221,
+       "visits": 0,
+       "exposures": 8
+      },
+      {
+       "thing": 765,
+       "kind": "poi",
+       "A": -0.8047189562170503,
+       "visits": 0,
+       "exposures": 6
+      }
+     ]
+    }
+   ],
+   "wo_familiarity_equals_off": true,
+   "d_agents_bytes": 5120000,
+   "d_peak_working_set_bytes_nondeterministic": 2236416,
+   "d_wall_seconds_nondeterministic": 0.39
+  },
+  {
+   "familiarity": "on",
+   "k": 32,
+   "final_hash": "162418b8cd09900e8f52fa5add71ca66e133224216b6d57e9c91d52cb4fc3953",
+   "final_wo_familiarity": "a1036ab5b06e461c6c6757f477223c54268c1a60b8b4b18681cac8ad520ad0b4",
+   "llm_calls": 68781,
+   "agents_bytes_total": 3280000,
+   "wall_seconds_nondeterministic": 27.59,
+   "peak_working_set_bytes_nondeterministic": 503734272,
+   "summary": {
+    "k": 32,
+    "d": 0.5,
+    "counts": {
+     "evictions": 4703,
+     "exposures_place": 92135,
+     "exposures_signage": 68253,
+     "merged": 83657,
+     "new_rows": 86367,
+     "visits": 9636
+    },
+    "rows_used_per_agent": {
+     "p0": 0.0,
+     "p10": 3.0,
+     "p50": 16.0,
+     "p90": 32.0,
+     "p100": 32.0,
+     "mean": 16.3328
+    },
+    "full_agents": 599,
+    "visits_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 5.0,
+     "p100": 11.0,
+     "mean": 1.8948
+    },
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 10.0,
+     "p50": 29.0,
+     "p90": 56.0,
+     "p100": 130.0,
+     "mean": 31.115
+    },
+    "rows_by_kind": {
+     "place": 62791,
+     "poi": 18873
+    },
+    "rows_visit_only": 4185,
+    "rows_exposure_only": 75655,
+    "rows_both": 1824,
+    "A": {
+     "p0": -2.9431,
+     "p10": -2.7069,
+     "p50": -2.1815,
+     "p90": -1.0075,
+     "p100": 0.9186,
+     "mean": -2.0279
+    },
+    "A_visit_only": {
+     "p0": -2.9424,
+     "p10": -2.6962,
+     "p50": -2.2169,
+     "p90": -1.3254,
+     "p100": -0.1116,
+     "mean": -2.1177
+    },
+    "A_exposure_only": {
+     "p0": -2.9431,
+     "p10": -2.7086,
+     "p50": -2.2034,
+     "p90": -1.1256,
+     "p100": 0.7786,
+     "mean": -2.0612
+    },
+    "A_both": {
+     "p0": -2.0356,
+     "p10": -1.1491,
+     "p50": -0.3993,
+     "p90": 0.2232,
+     "p100": 0.9186,
+     "mean": -0.4379
+    },
+    "top3_kinds": {
+     "poi": 9906,
+     "place": 4340
+    }
+   },
+   "top3_examples": [
+    {
+     "agent": 2,
+     "rows": 32,
+     "top3": [
+      {
+       "thing": 1076,
+       "kind": "poi",
+       "A": -0.4601413765718463,
+       "visits": 0,
+       "exposures": 10
+      },
+      {
+       "thing": -291,
+       "kind": "place",
+       "A": -1.0854189110815122,
+       "visits": 0,
+       "exposures": 4
+      },
+      {
+       "thing": 2312,
+       "kind": "poi",
+       "A": -1.206699729667168,
+       "visits": 1,
+       "exposures": 3
+      }
+     ]
+    },
+    {
+     "agent": 4,
+     "rows": 32,
+     "top3": [
+      {
+       "thing": -123,
+       "kind": "place",
+       "A": -0.6608779199911597,
+       "visits": 0,
+       "exposures": 1
+      },
+      {
+       "thing": -77,
+       "kind": "place",
+       "A": -0.7199175640239601,
+       "visits": 0,
+       "exposures": 5
+      },
+      {
+       "thing": -76,
+       "kind": "place",
+       "A": -0.7234594914681627,
+       "visits": 0,
+       "exposures": 5
+      }
+     ]
+    },
+    {
+     "agent": 11,
+     "rows": 32,
+     "top3": [
+      {
+       "thing": 1076,
+       "kind": "poi",
+       "A": -0.3687994715653895,
+       "visits": 0,
+       "exposures": 11
+      },
+      {
+       "thing": 21,
+       "kind": "poi",
+       "A": -0.9765138084120886,
+       "visits": 0,
+       "exposures": 5
+      },
+      {
+       "thing": 733,
+       "kind": "poi",
+       "A": -1.16499203359108,
+       "visits": 1,
+       "exposures": 2
+      }
+     ]
+    }
+   ],
+   "wo_familiarity_equals_off": true,
+   "d_agents_bytes": 2560000,
+   "d_peak_working_set_bytes_nondeterministic": 10362880,
+   "d_wall_seconds_nondeterministic": 0.69
+  },
+  {
+   "familiarity": "on",
+   "k": 128,
+   "final_hash": "3a8dd11f905370a3250e0c1ed5c541f489d4041247e2ea9b8cf3fdea699f3c07",
+   "final_wo_familiarity": "a1036ab5b06e461c6c6757f477223c54268c1a60b8b4b18681cac8ad520ad0b4",
+   "llm_calls": 68781,
+   "agents_bytes_total": 10960000,
+   "wall_seconds_nondeterministic": 27.97,
+   "peak_working_set_bytes_nondeterministic": 473186304,
+   "summary": {
+    "k": 128,
+    "d": 0.5,
+    "counts": {
+     "exposures_place": 92135,
+     "exposures_signage": 68253,
+     "merged": 84130,
+     "new_rows": 85894,
+     "visits": 9636
+    },
+    "rows_used_per_agent": {
+     "p0": 0.0,
+     "p10": 3.0,
+     "p50": 16.0,
+     "p90": 33.0,
+     "p100": 91.0,
+     "mean": 17.1788
+    },
+    "full_agents": 0,
+    "visits_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 5.0,
+     "p100": 11.0,
+     "mean": 1.9272
+    },
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 10.0,
+     "p50": 29.0,
+     "p90": 59.0,
+     "p100": 195.0,
+     "mean": 32.0776
+    },
+    "rows_by_kind": {
+     "place": 66524,
+     "poi": 19370
+    },
+    "rows_visit_only": 4340,
+    "rows_exposure_only": 79730,
+    "rows_both": 1824,
+    "A": {
+     "p0": -2.9431,
+     "p10": -2.713,
+     "p50": -2.2169,
+     "p90": -1.0601,
+     "p100": 0.9186,
+     "mean": -2.0554
+    },
+    "A_visit_only": {
+     "p0": -2.9424,
+     "p10": -2.7008,
+     "p50": -2.2471,
+     "p90": -1.3455,
+     "p100": -0.1116,
+     "mean": -2.1345
+    },
+    "A_exposure_only": {
+     "p0": -2.9431,
+     "p10": -2.7152,
+     "p50": -2.2344,
+     "p90": -1.1544,
+     "p100": 0.7786,
+     "mean": -2.0881
+    },
+    "A_both": {
+     "p0": -2.0356,
+     "p10": -1.1491,
+     "p50": -0.3993,
+     "p90": 0.2232,
+     "p100": 0.9186,
+     "mean": -0.438
+    },
+    "top3_kinds": {
+     "poi": 9912,
+     "place": 4334
+    }
+   },
+   "top3_examples": [
+    {
+     "agent": 4300,
+     "rows": 91,
+     "top3": [
+      {
+       "thing": 720,
+       "kind": "poi",
+       "A": -0.32706526410874703,
+       "visits": 2,
+       "exposures": 5
+      },
+      {
+       "thing": 186,
+       "kind": "poi",
+       "A": -0.6076186233019327,
+       "visits": 0,
+       "exposures": 8
+      },
+      {
+       "thing": -158,
+       "kind": "place",
+       "A": -1.0818410782838064,
+       "visits": 0,
+       "exposures": 4
+      }
+     ]
+    },
+    {
+     "agent": 2105,
+     "rows": 85,
+     "top3": [
+      {
+       "thing": -449,
+       "kind": "place",
+       "A": 0.5874266837163535,
+       "visits": 0,
+       "exposures": 19
+      },
+      {
+       "thing": -423,
+       "kind": "place",
+       "A": 0.5157364929152406,
+       "visits": 0,
+       "exposures": 18
+      },
+      {
+       "thing": -422,
+       "kind": "place",
+       "A": -0.09220136149888969,
+       "visits": 0,
+       "exposures": 10
+      }
+     ]
+    },
+    {
+     "agent": 2816,
+     "rows": 72,
+     "top3": [
+      {
+       "thing": 1192,
+       "kind": "poi",
+       "A": 0.3951554645067965,
+       "visits": 2,
+       "exposures": 16
+      },
+      {
+       "thing": -293,
+       "kind": "place",
+       "A": -1.066754381475056,
+       "visits": 0,
+       "exposures": 3
+      },
+      {
+       "thing": -334,
+       "kind": "place",
+       "A": -1.2972774176190542,
+       "visits": 0,
+       "exposures": 4
+      }
+     ]
+    }
+   ],
+   "wo_familiarity_equals_off": true,
+   "d_agents_bytes": 10240000,
+   "d_peak_working_set_bytes_nondeterministic": -20185088,
+   "d_wall_seconds_nondeterministic": 1.07
+  }
+ ]
+}

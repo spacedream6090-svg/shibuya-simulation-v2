@@ -1,0 +1,1166 @@
+{
+ "schema": "shibuya.bench/familiarity-2026-09-28/replay/1",
+ "tapes": [
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__ad_zero",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4816,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 8.0,
+     "p100": 13.0,
+     "mean": 2.184
+    },
+    "signage_exposures_per_agent": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 0.0,
+     "p99": 0.0,
+     "p100": 0.0,
+     "mean": 0.0
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 10.0,
+     "p100": 20.0,
+     "mean": 2.922
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 4.0,
+     "p90": 7.0,
+     "p99": 11.0,
+     "p100": 17.0,
+     "mean": 4.083
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 10519,
+     "signage": 0,
+     "place_entries": 14072
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_14",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4816,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 8.0,
+     "p100": 12.0,
+     "mean": 2.186
+    },
+    "signage_exposures_per_agent": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 3.0,
+     "p99": 4.0,
+     "p100": 8.0,
+     "mean": 1.026
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 10.0,
+     "p100": 21.0,
+     "mean": 2.942
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 4.0,
+     "p90": 7.0,
+     "p99": 12.0,
+     "p100": 22.0,
+     "mean": 4.689
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 10527,
+     "signage": 4943,
+     "place_entries": 14171
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_30",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4816,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 8.0,
+     "p100": 11.0,
+     "mean": 2.176
+    },
+    "signage_exposures_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 8.0,
+     "p100": 15.0,
+     "mean": 2.271
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 11.0,
+     "p100": 19.0,
+     "mean": 2.93
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 3.0,
+     "p50": 5.0,
+     "p90": 8.0,
+     "p99": 14.0,
+     "p100": 23.0,
+     "mean": 5.165
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 10478,
+     "signage": 10937,
+     "place_entries": 14112
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_1_00",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4816,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 8.0,
+     "p100": 13.0,
+     "mean": 2.094
+    },
+    "signage_exposures_per_agent": {
+     "p10": 3.0,
+     "p50": 7.0,
+     "p90": 13.0,
+     "p99": 21.0,
+     "p100": 32.0,
+     "mean": 7.453
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 10.0,
+     "p100": 17.0,
+     "mean": 2.958
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 4.0,
+     "p50": 5.0,
+     "p90": 10.0,
+     "p99": 17.0,
+     "p100": 27.0,
+     "mean": 6.164
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 10084,
+     "signage": 35892,
+     "place_entries": 14246
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__ad_zero",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4812,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 8.0,
+     "p100": 12.0,
+     "mean": 2.16
+    },
+    "signage_exposures_per_agent": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 0.0,
+     "p99": 0.0,
+     "p100": 0.0,
+     "mean": 0.0
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 10.0,
+     "p100": 17.0,
+     "mean": 2.924
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 4.0,
+     "p90": 6.0,
+     "p99": 11.0,
+     "p100": 16.0,
+     "mean": 4.082
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 10395,
+     "signage": 0,
+     "place_entries": 14071
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_14",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4812,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 8.0,
+     "p100": 13.0,
+     "mean": 2.156
+    },
+    "signage_exposures_per_agent": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 8.0,
+     "mean": 1.036
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 10.0,
+     "p100": 17.0,
+     "mean": 2.953
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 4.0,
+     "p90": 7.0,
+     "p99": 13.0,
+     "p100": 23.0,
+     "mean": 4.707
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 10377,
+     "signage": 4984,
+     "place_entries": 14211
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_30",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4813,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 8.0,
+     "p100": 14.0,
+     "mean": 2.141
+    },
+    "signage_exposures_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 8.0,
+     "p100": 17.0,
+     "mean": 2.247
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 10.0,
+     "p100": 19.0,
+     "mean": 2.959
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 3.0,
+     "p50": 5.0,
+     "p90": 8.0,
+     "p99": 13.88,
+     "p100": 20.0,
+     "mean": 5.159
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 10307,
+     "signage": 10814,
+     "place_entries": 14240
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_1_00",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4813,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 4.0,
+     "p99": 8.0,
+     "p100": 13.0,
+     "mean": 2.102
+    },
+    "signage_exposures_per_agent": {
+     "p10": 3.0,
+     "p50": 7.0,
+     "p90": 13.0,
+     "p99": 21.0,
+     "p100": 35.0,
+     "mean": 7.433
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 10.0,
+     "p100": 19.0,
+     "mean": 2.985
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 3.0,
+     "p50": 5.0,
+     "p90": 10.0,
+     "p99": 17.0,
+     "p100": 28.0,
+     "mean": 6.164
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 10115,
+     "signage": 35776,
+     "place_entries": 14368
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__ad_zero",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4817,
+    "visits_per_agent": {
+     "p10": 1.0,
+     "p50": 3.0,
+     "p90": 7.0,
+     "p99": 12.0,
+     "p100": 18.0,
+     "mean": 3.518
+    },
+    "signage_exposures_per_agent": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 0.0,
+     "p99": 0.0,
+     "p100": 0.0,
+     "mean": 0.0
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 4.0,
+     "p90": 8.0,
+     "p99": 22.0,
+     "p100": 38.0,
+     "mean": 4.901
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 3.0,
+     "p50": 6.0,
+     "p90": 11.0,
+     "p99": 19.0,
+     "p100": 26.0,
+     "mean": 6.357
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 16947,
+     "signage": 0,
+     "place_entries": 23607
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_14",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4816,
+    "visits_per_agent": {
+     "p10": 1.0,
+     "p50": 3.0,
+     "p90": 7.0,
+     "p99": 12.0,
+     "p100": 19.0,
+     "mean": 3.487
+    },
+    "signage_exposures_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 8.0,
+     "p100": 14.0,
+     "mean": 2.113
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 4.0,
+     "p90": 9.0,
+     "p99": 22.0,
+     "p100": 35.0,
+     "mean": 4.885
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 4.0,
+     "p50": 6.0,
+     "p90": 12.0,
+     "p99": 21.0,
+     "p100": 28.0,
+     "mean": 7.355
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 16792,
+     "signage": 10178,
+     "place_entries": 23525
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_30",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4817,
+    "visits_per_agent": {
+     "p10": 1.0,
+     "p50": 3.0,
+     "p90": 7.0,
+     "p99": 12.0,
+     "p100": 19.0,
+     "mean": 3.477
+    },
+    "signage_exposures_per_agent": {
+     "p10": 1.0,
+     "p50": 4.0,
+     "p90": 9.0,
+     "p99": 15.0,
+     "p100": 24.0,
+     "mean": 4.5
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 4.0,
+     "p90": 8.0,
+     "p99": 22.0,
+     "p100": 42.0,
+     "mean": 4.87
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 4.0,
+     "p50": 7.0,
+     "p90": 14.0,
+     "p99": 24.0,
+     "p100": 40.0,
+     "mean": 8.014
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 2,
+    "totals": {
+     "visits": 16751,
+     "signage": 21678,
+     "place_entries": 23461
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_1_00",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4817,
+    "visits_per_agent": {
+     "p10": 1.0,
+     "p50": 3.0,
+     "p90": 7.0,
+     "p99": 13.0,
+     "p100": 21.0,
+     "mean": 3.448
+    },
+    "signage_exposures_per_agent": {
+     "p10": 7.0,
+     "p50": 12.0,
+     "p90": 28.0,
+     "p99": 44.0,
+     "p100": 59.0,
+     "mean": 14.741
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 4.0,
+     "p90": 8.0,
+     "p99": 22.84,
+     "p100": 31.0,
+     "mean": 4.82
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 5.0,
+     "p50": 8.0,
+     "p90": 16.0,
+     "p99": 27.84,
+     "p100": 40.0,
+     "mean": 9.421
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 16,
+    "totals": {
+     "visits": 16610,
+     "signage": 71008,
+     "place_entries": 23216
+    }
+   }
+  },
+  {
+   "tape": "c8_ab7_s1/AB7-OPEN-INTENT__vocab",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4816,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 8.0,
+     "p100": 13.0,
+     "mean": 2.094
+    },
+    "signage_exposures_per_agent": {
+     "p10": 3.0,
+     "p50": 7.0,
+     "p90": 13.0,
+     "p99": 21.0,
+     "p100": 32.0,
+     "mean": 7.453
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 10.0,
+     "p100": 17.0,
+     "mean": 2.958
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 4.0,
+     "p50": 5.0,
+     "p90": 10.0,
+     "p99": 17.0,
+     "p100": 27.0,
+     "mean": 6.164
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 10084,
+     "signage": 35892,
+     "place_entries": 14246
+    }
+   }
+  },
+  {
+   "tape": "c8_ab7_s2/AB7-OPEN-INTENT__vocab",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4813,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 4.0,
+     "p99": 8.0,
+     "p100": 13.0,
+     "mean": 2.102
+    },
+    "signage_exposures_per_agent": {
+     "p10": 3.0,
+     "p50": 7.0,
+     "p90": 13.0,
+     "p99": 21.0,
+     "p100": 35.0,
+     "mean": 7.433
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 10.0,
+     "p100": 19.0,
+     "mean": 2.985
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 3.0,
+     "p50": 5.0,
+     "p90": 10.0,
+     "p99": 17.0,
+     "p100": 28.0,
+     "mean": 6.164
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 10115,
+     "signage": 35776,
+     "place_entries": 14368
+    }
+   }
+  },
+  {
+   "tape": "c8_ab7b_s1/AB7b-HINT-INTENT__hint",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4816,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 8.0,
+     "p100": 13.0,
+     "mean": 2.408
+    },
+    "signage_exposures_per_agent": {
+     "p10": 3.0,
+     "p50": 7.0,
+     "p90": 13.0,
+     "p99": 21.85,
+     "p100": 34.0,
+     "mean": 7.455
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 10.0,
+     "p100": 16.0,
+     "mean": 2.98
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 4.0,
+     "p50": 6.0,
+     "p90": 10.0,
+     "p99": 17.0,
+     "p100": 27.0,
+     "mean": 6.378
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 11596,
+     "signage": 35904,
+     "place_entries": 14353
+    }
+   }
+  },
+  {
+   "tape": "c8_ab7b_s1/AB7b-HINT-INTENT__vocab",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4816,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 8.0,
+     "p100": 13.0,
+     "mean": 2.094
+    },
+    "signage_exposures_per_agent": {
+     "p10": 3.0,
+     "p50": 7.0,
+     "p90": 13.0,
+     "p99": 21.0,
+     "p100": 32.0,
+     "mean": 7.453
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 10.0,
+     "p100": 17.0,
+     "mean": 2.958
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 4.0,
+     "p50": 5.0,
+     "p90": 10.0,
+     "p99": 17.0,
+     "p100": 27.0,
+     "mean": 6.164
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 10084,
+     "signage": 35892,
+     "place_entries": 14246
+    }
+   }
+  },
+  {
+   "tape": "c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v1",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4816,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 8.0,
+     "p100": 13.0,
+     "mean": 2.094
+    },
+    "signage_exposures_per_agent": {
+     "p10": 3.0,
+     "p50": 7.0,
+     "p90": 13.0,
+     "p99": 21.0,
+     "p100": 32.0,
+     "mean": 7.453
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 10.0,
+     "p100": 17.0,
+     "mean": 2.958
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 4.0,
+     "p50": 5.0,
+     "p90": 10.0,
+     "p99": 17.0,
+     "p100": 27.0,
+     "mean": 6.164
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 10084,
+     "signage": 35892,
+     "place_entries": 14246
+    }
+   }
+  },
+  {
+   "tape": "c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v2",
+   "vocab": "v2",
+   "summary": {
+    "agents_with_calls": 4814,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 7.0,
+     "p100": 10.0,
+     "mean": 2.11
+    },
+    "signage_exposures_per_agent": {
+     "p10": 3.0,
+     "p50": 7.0,
+     "p90": 13.0,
+     "p99": 19.87,
+     "p100": 29.0,
+     "mean": 7.509
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 9.0,
+     "p100": 18.0,
+     "mean": 2.742
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 3.0,
+     "p50": 5.0,
+     "p90": 9.0,
+     "p99": 14.87,
+     "p100": 25.0,
+     "mean": 5.919
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 10156,
+     "signage": 36149,
+     "place_entries": 13200
+    }
+   }
+  },
+  {
+   "tape": "c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v1",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4813,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 4.0,
+     "p99": 8.0,
+     "p100": 13.0,
+     "mean": 2.102
+    },
+    "signage_exposures_per_agent": {
+     "p10": 3.0,
+     "p50": 7.0,
+     "p90": 13.0,
+     "p99": 21.0,
+     "p100": 35.0,
+     "mean": 7.433
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 10.0,
+     "p100": 19.0,
+     "mean": 2.985
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 3.0,
+     "p50": 5.0,
+     "p90": 10.0,
+     "p99": 17.0,
+     "p100": 28.0,
+     "mean": 6.164
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 10115,
+     "signage": 35776,
+     "place_entries": 14368
+    }
+   }
+  },
+  {
+   "tape": "c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v2",
+   "vocab": "v2",
+   "summary": {
+    "agents_with_calls": 4813,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 7.0,
+     "p100": 11.0,
+     "mean": 2.105
+    },
+    "signage_exposures_per_agent": {
+     "p10": 3.0,
+     "p50": 7.0,
+     "p90": 13.0,
+     "p99": 20.0,
+     "p100": 33.0,
+     "mean": 7.547
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 9.0,
+     "p100": 19.0,
+     "mean": 2.763
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 3.0,
+     "p50": 5.0,
+     "p90": 9.0,
+     "p99": 15.0,
+     "p100": 24.0,
+     "mean": 5.941
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 10129,
+     "signage": 36325,
+     "place_entries": 13299
+    }
+   }
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_unlimited",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4817,
+    "visits_per_agent": {
+     "p10": 1.0,
+     "p50": 3.0,
+     "p90": 7.0,
+     "p99": 13.0,
+     "p100": 21.0,
+     "mean": 3.448
+    },
+    "signage_exposures_per_agent": {
+     "p10": 7.0,
+     "p50": 12.0,
+     "p90": 28.0,
+     "p99": 44.0,
+     "p100": 59.0,
+     "mean": 14.741
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 4.0,
+     "p90": 8.0,
+     "p99": 22.84,
+     "p100": 31.0,
+     "mean": 4.82
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 5.0,
+     "p50": 8.0,
+     "p90": 16.0,
+     "p99": 27.84,
+     "p100": 40.0,
+     "mean": 9.421
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 16,
+    "totals": {
+     "visits": 16610,
+     "signage": 71008,
+     "place_entries": 23216
+    }
+   }
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x0.5",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4756,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 8.0,
+     "mean": 1.326
+    },
+    "signage_exposures_per_agent": {
+     "p10": 1.0,
+     "p50": 4.0,
+     "p90": 7.0,
+     "p99": 14.0,
+     "p100": 26.0,
+     "mean": 4.042
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 4.0,
+     "p99": 6.0,
+     "p100": 11.0,
+     "mean": 2.1
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 4.0,
+     "p90": 7.0,
+     "p99": 11.0,
+     "p100": 19.0,
+     "mean": 4.526
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 6308,
+     "signage": 19226,
+     "place_entries": 9987
+    }
+   }
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x1",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4816,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 8.0,
+     "p100": 13.0,
+     "mean": 2.094
+    },
+    "signage_exposures_per_agent": {
+     "p10": 3.0,
+     "p50": 7.0,
+     "p90": 13.0,
+     "p99": 21.0,
+     "p100": 32.0,
+     "mean": 7.453
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 10.0,
+     "p100": 17.0,
+     "mean": 2.958
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 4.0,
+     "p50": 5.0,
+     "p90": 10.0,
+     "p99": 17.0,
+     "p100": 27.0,
+     "mean": 6.164
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 0,
+    "totals": {
+     "visits": 10084,
+     "signage": 35892,
+     "place_entries": 14246
+    }
+   }
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x2",
+   "vocab": "v1",
+   "summary": {
+    "agents_with_calls": 4817,
+    "visits_per_agent": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 7.0,
+     "p99": 11.0,
+     "p100": 18.0,
+     "mean": 3.011
+    },
+    "signage_exposures_per_agent": {
+     "p10": 5.0,
+     "p50": 10.0,
+     "p90": 23.0,
+     "p99": 37.0,
+     "p100": 49.0,
+     "mean": 12.394
+    },
+    "place_entries_lower_bound_per_agent": {
+     "p10": 2.0,
+     "p50": 3.0,
+     "p90": 8.0,
+     "p99": 21.0,
+     "p100": 27.0,
+     "mean": 4.402
+    },
+    "distinct_things_lower_bound_per_agent": {
+     "p10": 4.0,
+     "p50": 7.0,
+     "p90": 15.0,
+     "p99": 27.0,
+     "p100": 36.0,
+     "mean": 8.726
+    },
+    "agents_over_k64": 0,
+    "agents_over_k32": 9,
+    "totals": {
+     "visits": 14503,
+     "signage": 59701,
+     "place_entries": 21204
+    }
+   }
+  }
+ ],
+ "unique": {
+  "tapes": [
+   "c8_ab6b_s1/AB6b-AD-NOTICE__ad_zero",
+   "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_14",
+   "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_30",
+   "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_1_00",
+   "c8_ab6b_s2/AB6b-AD-NOTICE__ad_zero",
+   "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_14",
+   "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_30",
+   "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_1_00",
+   "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__ad_zero",
+   "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_14",
+   "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_30",
+   "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_1_00",
+   "c8_ab7b_s1/AB7b-HINT-INTENT__hint",
+   "c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v2",
+   "c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v2",
+   "c8_ab8_s1/AB8-L4-SCALE__l4_x0.5",
+   "c8_ab8_s1/AB8-L4-SCALE__l4_x2"
+  ],
+  "agent_days": 81797,
+  "visits_per_agent": {
+   "p10": 0.0,
+   "p50": 2.0,
+   "p90": 5.0,
+   "p99": 10.0,
+   "p100": 21.0,
+   "mean": 2.477
+  },
+  "signage_exposures_per_agent": {
+   "p10": 0.0,
+   "p50": 3.0,
+   "p90": 12.0,
+   "p99": 28.0,
+   "p100": 59.0,
+   "mean": 4.811
+  },
+  "place_entries_lower_bound_per_agent": {
+   "p10": 2.0,
+   "p50": 3.0,
+   "p90": 6.0,
+   "p99": 16.0,
+   "p100": 42.0,
+   "mean": 3.415
+  },
+  "distinct_things_lower_bound_per_agent": {
+   "p10": 3.0,
+   "p50": 5.0,
+   "p90": 10.0,
+   "p99": 19.0,
+   "p100": 40.0,
+   "mean": 6.052
+  },
+  "agents_over_k64": 0,
+  "agents_over_k32": 27
+ },
+ "note": "体=その日に呼の在った体(呼の無い体は数えない)。訪問=段 2a の候補の解決が営業中の店に当たった購入/食事の呼(所持金・在庫・席は見ない=目安)。看板=B2 に看板行が載った呼。入場=同じ体の呼の間でセルが変わった回(下限)。もの=POI と場所の異なる数(下限)。"
+}

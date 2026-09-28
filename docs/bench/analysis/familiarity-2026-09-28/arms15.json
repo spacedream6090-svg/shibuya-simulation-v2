@@ -1,0 +1,125 @@
+{
+ "schema": "shibuya.bench/familiarity-2026-09-28/arms15/1",
+ "arms": [
+  {
+   "arm": "v3_default",
+   "final_stage3": "a1036ab5b06e461c6c6757f477223c54268c1a60b8b4b18681cac8ad520ad0b4",
+   "final": "a1036ab5b06e461c6c6757f477223c54268c1a60b8b4b18681cac8ad520ad0b4",
+   "llm_calls": 68781,
+   "familiarity": false,
+   "unchanged": true
+  },
+  {
+   "arm": "v3_activity_off",
+   "final_stage3": "7fe2829e4ee41c0da14ca2c17f1bdcaaeffedd47d5b462f0f0082d4d75f2c2b3",
+   "final": "7fe2829e4ee41c0da14ca2c17f1bdcaaeffedd47d5b462f0f0082d4d75f2c2b3",
+   "llm_calls": 57335,
+   "familiarity": false,
+   "unchanged": true
+  },
+  {
+   "arm": "v1_default",
+   "final_stage3": "9c7d272992f33fd24869160747abd7c6b29e0260c153ffe605b819dc8a49b001",
+   "final": "9c7d272992f33fd24869160747abd7c6b29e0260c153ffe605b819dc8a49b001",
+   "llm_calls": 56954,
+   "familiarity": false,
+   "unchanged": true
+  },
+  {
+   "arm": "v1_derive_v2_1",
+   "final_stage3": "d7e7946464203c0fac8e743a3b2d42f43c27821389aaee9a7158b73f616ec0e2",
+   "final": "d7e7946464203c0fac8e743a3b2d42f43c27821389aaee9a7158b73f616ec0e2",
+   "llm_calls": 49281,
+   "familiarity": false,
+   "unchanged": true
+  },
+  {
+   "arm": "v2",
+   "final_stage3": "955336e5a993064ac93a75a10a2b45d7eac5ebae695f253f7b4f9a3b1aecef94",
+   "final": "955336e5a993064ac93a75a10a2b45d7eac5ebae695f253f7b4f9a3b1aecef94",
+   "llm_calls": 57773,
+   "familiarity": false,
+   "unchanged": true
+  },
+  {
+   "arm": "v1_edge",
+   "final_stage3": "52a36b5eb817a5d9c8c21724d6229bef2c1ff10287437bf818f0cb38fc60c7b7",
+   "final": "52a36b5eb817a5d9c8c21724d6229bef2c1ff10287437bf818f0cb38fc60c7b7",
+   "llm_calls": 50053,
+   "familiarity": false,
+   "unchanged": true
+  },
+  {
+   "arm": "v2_edge",
+   "final_stage3": "e143b1e828d725efc6849f359bce0f647a20b376fe49220906110e84fcaa34d3",
+   "final": "e143b1e828d725efc6849f359bce0f647a20b376fe49220906110e84fcaa34d3",
+   "llm_calls": 50516,
+   "familiarity": false,
+   "unchanged": true
+  },
+  {
+   "arm": "v1_edge_plateau",
+   "final_stage3": "def89ea346d3f28b69542585fa1227828f9109bb2713d5ec2fd60472bc865ca2",
+   "final": "def89ea346d3f28b69542585fa1227828f9109bb2713d5ec2fd60472bc865ca2",
+   "llm_calls": 51990,
+   "familiarity": false,
+   "unchanged": true
+  },
+  {
+   "arm": "old_v1_default",
+   "final_stage3": "2309f07da2edac9053204d68e3c35619158b499f8a147f7d2301896b0cd7d899",
+   "final": "2309f07da2edac9053204d68e3c35619158b499f8a147f7d2301896b0cd7d899",
+   "llm_calls": 56954,
+   "familiarity": false,
+   "unchanged": true
+  },
+  {
+   "arm": "old_v1_derive_v2_1",
+   "final_stage3": "1dc57cef36bd9fdfe8259a4ea680558118858824f225544c91cc4dc014ab4913",
+   "final": "1dc57cef36bd9fdfe8259a4ea680558118858824f225544c91cc4dc014ab4913",
+   "llm_calls": 49281,
+   "familiarity": false,
+   "unchanged": true
+  },
+  {
+   "arm": "old_v2",
+   "final_stage3": "ede4ec5ee3d2699b681189d8073d193ba82109085fe2d344e5e345c9bf4b7857",
+   "final": "ede4ec5ee3d2699b681189d8073d193ba82109085fe2d344e5e345c9bf4b7857",
+   "llm_calls": 57773,
+   "familiarity": false,
+   "unchanged": true
+  },
+  {
+   "arm": "old_v1_edge",
+   "final_stage3": "daa0b8116ddc72fa649943a72eee8b8c2fd07087aa594f65814973551ee66977",
+   "final": "daa0b8116ddc72fa649943a72eee8b8c2fd07087aa594f65814973551ee66977",
+   "llm_calls": 50053,
+   "familiarity": false,
+   "unchanged": true
+  },
+  {
+   "arm": "old_v2_edge",
+   "final_stage3": "ec2ae70a2b97ec0a99abe10dc0e31fc6c95b5cb147ec23b490d2ab6d4c441a6b",
+   "final": "ec2ae70a2b97ec0a99abe10dc0e31fc6c95b5cb147ec23b490d2ab6d4c441a6b",
+   "llm_calls": 50516,
+   "familiarity": false,
+   "unchanged": true
+  },
+  {
+   "arm": "old_v1_edge_plateau",
+   "final_stage3": "afb5408fe3e2deba6afd02f7c8c88e8d92d5ab2eec6b40eda5ed48ad62917a1f",
+   "final": "afb5408fe3e2deba6afd02f7c8c88e8d92d5ab2eec6b40eda5ed48ad62917a1f",
+   "llm_calls": 51990,
+   "familiarity": false,
+   "unchanged": true
+  },
+  {
+   "arm": "golden_null_arm",
+   "final_stage3": "e0083baff1ff50b723cfcdcedf08e770db77903ae8c370d5e5ea93584d9266f1",
+   "final": "e0083baff1ff50b723cfcdcedf08e770db77903ae8c370d5e5ea93584d9266f1",
+   "llm_calls": 97028,
+   "familiarity": false,
+   "unchanged": true
+  }
+ ]
+}
