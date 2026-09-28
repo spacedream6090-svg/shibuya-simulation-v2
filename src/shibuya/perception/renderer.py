@@ -66,6 +66,8 @@ from shibuya.agents.state import (
     INTENT_NONE,
     INTEROCEPTION_FIELDS,
     RESULT_TEXT,
+    Activity,
+    ActivityKind,
     AgentState,
     IntentKind,
     ResultCode,
@@ -87,6 +89,9 @@ from shibuya.world.assets import CELL_SIZE_M, WorldAssets
 from shibuya.world.state import LANDMARK_CATS, World
 
 __all__ = [
+    "P_SEE_ACTIVITY_KINDS",
+    "P_SEE_BY_ACTIVITY",
+    "check_p_see_activity",
     "DEFAULT_START_DATETIME",
     "WALKABLE_FRACTION_SYNTHETIC",
     "STREET_POINT_AREA_M2",
@@ -129,6 +134,48 @@ SIGNAGE_P_SEE_DEFAULT: Final[float] = 1.0
 
 #: 注視ゲートの乱数ドメイン(``core.rng`` のドメイン表・``attention.gate_stage1`` が使う)。
 SIGNAGE_P_SEE_DOMAIN: Final[str] = "perception.attention.p_see"
+
+
+#: **5 段目 5c(D-117・M1 (a)・M2 (b)・M4 (a))**: 看板の注視ゲート p_see に掛ける**活動の種別の乗数**の鍵。
+#: move_to=目的地つき移動・wander=あたり・in_shop=在店・in_place=その場・phone=通話/スマホ操作中
+#: (旗は D-121 O3 で来る=いまは該当する体が無い・鍵だけ置く)・companion_talk=連れとの会話中
+#: (会話の成立=``Activity.CONVERSING`` で判る範囲・宣言)。
+P_SEE_ACTIVITY_KINDS: Final[tuple[str, ...]] = (
+    "move_to", "wander", "in_shop", "in_place", "phone", "companion_talk",
+)
+#: 乗数の既定=**全部 1.0**(M2 (b))=既定のランは描画バイトも checkpoint も 1 バイトも動かない。
+#: 錨のある腕(草案 §3-2): 通話 0.49(Hyman 2010 表 2 の 25.0/51.3)・連れとの会話 1.39(71.4/51.3)。
+#: 目的地つき移動 0.5 は錨の無い感度腕の 1 点。実効 p_see=min(1, p_see × 乗数)(> 1 は切る=宣言)。
+P_SEE_BY_ACTIVITY: Final[Mapping[str, float]] = {k: 1.0 for k in P_SEE_ACTIVITY_KINDS}
+
+
+def check_p_see_activity(value: "Mapping[str, float] | str | None") -> dict[str, float]:
+    """活動の種別の乗数表を検査して、全部の鍵を持つ辞書で返す(欠けた鍵は 1.0)。
+
+    ``value`` は辞書か JSON 文字列(CLI ``--p-see-activity``)か ``None``(既定=全部 1.0)。
+
+    Example:
+        >>> check_p_see_activity('{"phone": 0.49}')["phone"], check_p_see_activity(None)["wander"]
+        (0.49, 1.0)
+    """
+    import json
+    import math
+
+    if value is None:
+        return dict(P_SEE_BY_ACTIVITY)
+    raw = json.loads(value) if isinstance(value, str) else dict(value)
+    if not isinstance(raw, dict):
+        raise ValueError("p_see_activity は {活動の種別: 乗数} の辞書")
+    unknown = sorted(set(raw) - set(P_SEE_ACTIVITY_KINDS))
+    if unknown:
+        raise ValueError(f"p_see_activity の鍵は {P_SEE_ACTIVITY_KINDS} のどれか(未知 {unknown})")
+    out = dict(P_SEE_BY_ACTIVITY)
+    for k, v in raw.items():
+        x = float(v)
+        if not (math.isfinite(x) and x >= 0.0):
+            raise ValueError(f"p_see_activity の乗数は 0 以上の有限値(いま {k}={v!r})")
+        out[k] = x
+    return out
 
 
 def check_signage_p_see(value: float) -> float:
@@ -777,6 +824,7 @@ class Renderer:
         intent_mode: str = T.DEFAULT_INTENT_MODE,
         vocab_version: str = T.DEFAULT_VOCAB_VERSION,
         role_words: bool | str = False,
+        p_see_activity: "Mapping[str, float] | str | None" = None,
     ) -> None:
         """
         Args:
@@ -835,6 +883,12 @@ class Renderer:
         self.strict_group_budget = strict_group_budget
         self.signage_enabled = bool(signage_enabled)
         self.signage_p_see = check_signage_p_see(signage_p_see)
+        #: 5 段目 5c: 活動の種別の乗数表(全部の鍵・既定は全部 1.0=``_p_see_identity``)。
+        self.p_see_activity = check_p_see_activity(p_see_activity)
+        self._p_see_mult = np.asarray(
+            [self.p_see_activity[k] for k in P_SEE_ACTIVITY_KINDS], dtype=np.float64
+        )
+        self._p_see_identity = bool(np.all(self._p_see_mult == 1.0))
         self.intent_mode = T.check_intent_mode(intent_mode)
         self.vocab_version = T.check_vocab_version(vocab_version)
         #: D-113 ④(第269): B0 の末尾に役割語の 1 行を足すか。レンダラの既定は False(描画バイトの
@@ -894,6 +948,11 @@ class Renderer:
         self.signage_gate_draws = 0
         #: そのうち**通った**(看板行を載せた)回数。既定のランでは 0/0。
         self.signage_gate_shown = 0
+        #: 5 段目 5c(層別の計数・描画は変えない): 看板のあるセルでの描画(eligible)・抽選(draws)・
+        #: 看板行が載った(shown)を活動の種別ごとに。実効 p_see の分布(看板のあるセルの描画ごと)。
+        n_k = len(P_SEE_ACTIVITY_KINDS)
+        self.signage_by_kind = np.zeros((3, n_k), dtype=np.int64)
+        self.signage_effective_p: dict[str, int] = {}
 
     # ---------------------------------------------------------- 前計算(1 tick 1 回)
     def prepare_tick(
@@ -1266,6 +1325,64 @@ class Renderer:
         n = int(self.assets.n_cells)
         return np.fromiter((self._signage_poi(c) for c in range(n)), dtype=np.int64, count=n)
 
+    def activity_class_of(self, agent_id: int) -> int:
+        """体 → 活動の種別の索引(:data:`P_SEE_ACTIVITY_KINDS`・5c・宣言)。
+
+        1. 会話の成立(``Activity.CONVERSING``)→ 連れとの会話中 2. (通話/スマホ操作中の旗は無い)
+        3. 活動層のあるラン: ``activity_kind``(目的地つき移動/あたり/在店/その場・なし=その場)
+        4. 活動層の無いラン: 歩行中=目的地つき移動・在店(``SHOPPING``)=在店・他=その場。
+        """
+        r = self.agents.registry
+        act = int(r.activity[agent_id])
+        if act == int(Activity.CONVERSING):
+            return 5
+        if "activity_kind" in r.arrays:
+            k = int(r.activity_kind[agent_id])
+            return {int(ActivityKind.MOVE_TO): 0, int(ActivityKind.WANDER): 1,
+                    int(ActivityKind.IN_SHOP): 2}.get(k, 3)
+        if act == int(Activity.MOVING):
+            return 0
+        if act == int(Activity.SHOPPING):
+            return 2
+        return 3
+
+    def activity_classes(self, agent_ids: np.ndarray) -> np.ndarray:
+        """体の配列 → 活動の種別の索引の配列(:meth:`activity_class_of` の配列版・配列演算)。"""
+        a = np.asarray(agent_ids, dtype=np.int64)
+        r = self.agents.registry
+        act = np.asarray(r.activity)[a]
+        out = np.full(a.size, 3, dtype=np.int64)
+        if "activity_kind" in r.arrays:
+            k = np.asarray(r.activity_kind)[a]
+            out[k == int(ActivityKind.MOVE_TO)] = 0
+            out[k == int(ActivityKind.WANDER)] = 1
+            out[k == int(ActivityKind.IN_SHOP)] = 2
+        else:
+            out[act == int(Activity.MOVING)] = 0
+            out[act == int(Activity.SHOPPING)] = 2
+        out[act == int(Activity.CONVERSING)] = 5
+        return out
+
+    def effective_p_see(self, agent_ids: np.ndarray) -> np.ndarray:
+        """体の配列 → 実効 p_see=min(1, p_see × 乗数[活動の種別])(5c・配列演算)。"""
+        mult = self._p_see_mult[self.activity_classes(agent_ids)]
+        return np.minimum(1.0, float(self.signage_p_see) * mult)
+
+    def p_see_activity_summary(self) -> dict:
+        """manifest ``p_see_activity``: 乗数表・既定か・活動の種別ごとの計数・実効 p_see の分布。"""
+        by = self.signage_by_kind
+        return {
+            "table": dict(self.p_see_activity),
+            "identity": bool(self._p_see_identity),
+            "signage_p_see": float(self.signage_p_see),
+            "applies_to": "p_see only (M4 (a)): the B2 visible rows are unchanged",
+            "by_kind": {
+                k: {"eligible": int(by[0, j]), "draws": int(by[1, j]), "shown": int(by[2, j])}
+                for j, k in enumerate(P_SEE_ACTIVITY_KINDS)
+            },
+            "effective_p_see": dict(sorted(self.signage_effective_p.items())),
+        }
+
     def _signage_seen(self, agent_id: int, cell: int, tick: int) -> bool:
         """**看板の注視ゲート**(知覚契約書 §4 段1・D-59 (b) ユーザー決定 2026-09-17)。
 
@@ -1282,25 +1399,41 @@ class Renderer:
 
         逐次ループ宣言(P4): **1 起床につき 1 回**(``render`` の中の 1 回・個体数ぶんの
         ループは持たない)。既定のランでは 0 回。
+
+        **5 段目 5c(D-117)**: 実効 p_see=min(1, p_see × 乗数[活動の種別])。乗数表が全部 1.0(既定)なら
+        実効 p_see=p_see で抽選の有無も乱数の列も従来と同じ(同じカウンタ・同じ u を比べる)。
+        看板のあるセルの描画は活動の種別ごとに数える(描画は変えない)。
         """
-        if self.signage_p_see >= 1.0:
-            return True
         poi = self._signage_poi(cell)
+        k = self.activity_class_of(int(agent_id)) if poi >= 0 else -1
+        p = float(self.signage_p_see)
+        if not self._p_see_identity and k >= 0:
+            p = min(1.0, p * float(self._p_see_mult[k]))
+        if k >= 0:
+            self.signage_by_kind[0, k] += 1
+            key = f"{p:.4f}"
+            self.signage_effective_p[key] = self.signage_effective_p.get(key, 0) + 1
+        if p >= 1.0:
+            if k >= 0:
+                self.signage_by_kind[2, k] += 1
+            return True
         if poi < 0:
             return True  # 見える看板が無いセル=ゲートの対象外(描画は同じ)
         self.signage_gate_draws += 1
-        if self.signage_p_see <= 0.0:
+        self.signage_by_kind[1, k] += 1
+        if p <= 0.0:
             return False  # random() は [0,1) なので ``< 0.0`` は常に偽=短絡と同値
         ok = bool(
             gate_stage1(
                 1,
-                self.signage_p_see,
+                p,
                 seed=self.seed,
                 domain_counters=(int(tick), int(agent_id), int(poi)),
             )[0]
         )
         if ok:
             self.signage_gate_shown += 1
+            self.signage_by_kind[2, k] += 1
         return ok
 
     def _b3(self, tc: _TickCache) -> bytes:

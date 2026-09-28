@@ -165,6 +165,8 @@ from shibuya.perception.renderer import (
     PerceptionAssets,
     Renderer as PerceptionRenderer,
     check_signage_p_see,
+    check_p_see_activity,
+    P_SEE_ACTIVITY_KINDS,
 )
 from shibuya.perception.templates import (
     INTENT_MODES,
@@ -541,6 +543,8 @@ class RunResult:
     classical: dict[str, Any] = field(default_factory=dict)
     chooser_stats: dict[str, Any] = field(default_factory=dict)
     decision_layers: dict[str, Any] = field(default_factory=dict)
+    #: 5 段目 5c(D-117): 看板の注視 p_see の活動の種別の乗数表・活動の種別ごとの計数・実効 p_see の分布。
+    p_see_activity: dict[str, Any] = field(default_factory=dict)
     #: 5 段目 5a(診断): 内受容の段の跨ぎの延べ(変数 × 上げ/下げ × 全体/起きて範囲内)。
     #: 起床入口「体の状態」の内訳を空腹と疲労・体感温度に分けて読むため(挙動には効かない)。
     intero_crossings: dict[str, int] = field(default_factory=dict)
@@ -918,6 +922,8 @@ class RunResult:
             "classical": dict(self.classical),
             "chooser_stats": dict(self.chooser_stats),
             "decision_layers": dict(self.decision_layers),
+            # ---- 5 段目 5c(D-117 M1〜M4): 活動 → 知覚の乗数。列追加のみ ----
+            "p_see_activity": dict(self.p_see_activity),
             "calls_by_condition": dict(self.calls_by_condition),
             "synonym_table_version": _synonym_table_version(self.vocab_version),
             "action_usage": dict(self.action_usage),
@@ -1484,6 +1490,7 @@ def run_day(
     activity_region: str = DEFAULT_ACTIVITY_REGION,
     classical_habit_p: float = HABIT_P,
     classical_tau: float = RANK_TAU,
+    p_see_activity: "Mapping[str, float] | str | None" = None,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -1716,6 +1723,11 @@ def run_day(
         activity_region: 事前分布の地域(``"kanto"``=関東大都市圏・既定 / ``"national"``=全国)。
         classical_habit_p / classical_tau: ``chooser="classical"`` の習慣の確率 p_h(宣言 0.5)と
             満足化の揺らぎ τ(宣言 1.0)。
+        p_see_activity: **5 段目 5c(D-117・M1 (a)・M2 (b)・M4 (a))**。看板の注視ゲート p_see に掛ける
+            活動の種別の乗数表(``perception.renderer.P_SEE_ACTIVITY_KINDS`` の鍵 → 乗数・欠けた鍵は 1.0・
+            辞書か JSON 文字列)。実効 p_see=min(1, p_see × 乗数)。**p_see にだけ**掛ける(B2 の可視の行は
+            変えない)=注視ゲートと親しみの表の露出(入った回)が変わる。既定 ``None``=全部 1.0=
+            **描画バイトも checkpoint も 1 バイトも変わらない**。
 
     Returns:
         ``RunResult``。
@@ -1745,6 +1757,8 @@ def run_day(
         raise ValueError(f"seat_area_retail_m2 は正の値(いま {seat_area_retail_m2})")
     # ---- D-59 (b) 看板の注視ゲート: 同上(過程を切ったランでも腕の値を検査する) ----
     signage_p_see = check_signage_p_see(signage_p_see)
+    p_see_activity_table = check_p_see_activity(p_see_activity)
+    p_see_activity_identity = all(v == 1.0 for v in p_see_activity_table.values())
     # ---- AB7 自由意図の腕: 値の検査は**レンダラを作る前**にする(manifest が嘘をつかない) ----
     intent_mode = check_intent_mode(intent_mode)
     role_words = check_role_words(role_words)
@@ -1970,6 +1984,7 @@ def run_day(
                 budget_mode=budget_mode_enum,
                 signage_enabled=signage,
                 signage_p_see=signage_p_see,
+                p_see_activity=p_see_activity_table,
                 intent_mode=intent_mode,
                 vocab_version=vocab_version,
                 role_words=role_words,
@@ -2147,6 +2162,17 @@ def run_day(
             ),
             p_see=float(getattr(_fam_renderer, "signage_p_see", 1.0)) if _fam_has_renderer else 1.0,
             seed=getattr(_fam_renderer, "seed", seed) if _fam_has_renderer else seed,
+            # 5c: 乗数表が全部 1.0(既定)なら渡さない=従来のスカラー p_see の経路のまま
+            p_see_fn=(
+                _fam_renderer.effective_p_see
+                if (_fam_has_renderer and not p_see_activity_identity)
+                else None
+            ),
+            kind_fn=(
+                _fam_renderer.activity_classes
+                if (_fam_has_renderer and hasattr(_fam_renderer, "activity_classes"))
+                else None
+            ),
         )
         if familiarity_on
         else None
@@ -3180,6 +3206,12 @@ def run_day(
         else {}
     )
     result.decision_layers = decision_layers_summary(layer_counts)
+    _psr = getattr(perception, "renderer", None) if perception is not None else None
+    result.p_see_activity = (
+        _psr.p_see_activity_summary()
+        if (_psr is not None and hasattr(_psr, "p_see_activity_summary"))
+        else {"table": dict(p_see_activity_table), "identity": bool(p_see_activity_identity)}
+    )
     result.poi_target = str(poi_target)
     result.target_resolution = (
         resolution_summary(poi_resolver.stats, poi_resolver.entropy_sum)
@@ -3194,6 +3226,17 @@ def run_day(
     result.familiarity_summary = (
         fam_layer.summary(agents, max(0, int(ticks) - 1)) if fam_layer is not None else {}
     )
+    if fam_layer is not None and result.familiarity_summary:
+        # 5c: 入った回の露出を活動の種別の名で(索引 → 名)
+        _fs = dict(result.familiarity_summary)
+        _by = {
+            P_SEE_ACTIVITY_KINDS[int(k.rsplit(":", 1)[1])]: int(v)
+            for k, v in fam_layer.stats.items()
+            if str(k).startswith("exposures_signage_entry_by_kind:")
+        }
+        if _by:
+            _fs["exposures_signage_entry_by_kind"] = _by
+        result.familiarity_summary = _fs
     result.hunger_model = str(hunger_model)
     result.intero_crossings = {
         f"{var}_{d}{suffix}": int(intero_cross[v, k, s])

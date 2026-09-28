@@ -637,6 +637,15 @@ def main(argv: list[str] | None = None) -> int:
              "0.30/0.14=実測帯 0.14-0.79 の下側・0.0=⑥ 広告ゼロと同じ描画",
     )
     ap.add_argument(
+        "--p-see-activity",
+        default=None,
+        metavar="JSON",
+        help="5 段目 5c(D-117): 看板の注視 p_see に掛ける活動の種別の乗数(JSON。鍵 move_to/wander/"
+             "in_shop/in_place/phone/companion_talk・欠けた鍵は 1.0・実効 p_see=min(1, p_see×乗数)。"
+             "p_see にだけ掛ける=B2 の可視の行は変えない)。既定なし=全部 1.0=現行のバイト。"
+             "例 '{\"phone\": 0.49, \"companion_talk\": 1.39, \"move_to\": 0.5}'",
+    )
+    ap.add_argument(
         "--l4-scale",
         type=float,
         default=CLI_DEFAULT_L4_SCALE,
@@ -938,6 +947,7 @@ def main(argv: list[str] | None = None) -> int:
         refractory_scale=refractory_scale or None,
         signage=not args.no_signage,
         signage_p_see=float(args.signage_p_see),
+        p_see_activity=args.p_see_activity,
         l4_scale=float(args.l4_scale),
         sleep_suppression=not args.no_sleep_suppression,
         plan_sleep=not args.no_plan_sleep,

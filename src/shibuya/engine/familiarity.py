@@ -60,7 +60,7 @@ expedient(宣言)
 from __future__ import annotations
 
 from collections import Counter
-from typing import Any, Final, Sequence
+from typing import Any, Callable, Final, Sequence
 
 import numpy as np
 
@@ -157,7 +157,9 @@ class FamiliarityLayer:
 
     def __init__(self, n_agents: int, k: int = FAMILIARITY_K, *, minutes_per_tick: float = 1.0,
                  d: float = FAMILIARITY_D, signage_poi_by_cell: np.ndarray | None = None,
-                 p_see: float = 1.0, seed: int | str = 0) -> None:
+                 p_see: float = 1.0, seed: int | str = 0,
+                 p_see_fn: "Callable[[np.ndarray], np.ndarray] | None" = None,
+                 kind_fn: "Callable[[np.ndarray], np.ndarray] | None" = None) -> None:
         self.n = int(n_agents)
         self.k = int(k)
         self.minutes_per_tick = float(minutes_per_tick)
@@ -171,6 +173,11 @@ class FamiliarityLayer:
         )
         self.p_see = float(p_see)
         self.seed = seed
+        #: 5 段目 5c(D-117): 体 → 実効 p_see(活動の種別の乗数つき・``Renderer.effective_p_see``)。
+        #: ``None``(乗数表が全部 1.0=既定)は従来どおりスカラーの ``p_see``=1 バイトも変わらない。
+        self.p_see_fn = p_see_fn
+        #: 5c(計数だけ): 体 → 活動の種別の索引(``Renderer.activity_classes``)。入った回の露出を層別に数える。
+        self.kind_fn = kind_fn
         self.stats: Counter = Counter()
 
     # ------------------------------------------------------------------ 読み口
@@ -255,6 +262,11 @@ class FamiliarityLayer:
                 parts_t.append(ep)
                 parts_k.append(np.full(ea.size, _KIND_SIGNAGE_ENTRY, dtype=np.int64))
                 self.stats["exposures_signage_entry"] += int(ea.size)
+            if self.kind_fn is not None and ea.size:
+                ks = np.bincount(np.asarray(self.kind_fn(ea), dtype=np.int64), minlength=6)
+                for j, c in enumerate(ks.tolist()):  # 活動の種別 6 つぶん
+                    if c:
+                        self.stats[f"exposures_signage_entry_by_kind:{j}"] += int(c)
         if not parts_a:
             return
         a = np.concatenate(parts_a)
@@ -290,7 +302,19 @@ class FamiliarityLayer:
         if sel.size == 0:
             return empty
         a, p = agents_in[sel], poi[sel]
-        if self.p_see < 1.0:
+        if self.p_see_fn is not None:
+            # 5c: 体ごとの実効 p_see(乗数つき)。描画と同じカウンタ・同じ u を比べる。
+            pe = np.asarray(self.p_see_fn(a), dtype=np.float64)
+            draw = np.flatnonzero(pe < 1.0)
+            keep = np.ones(a.size, dtype=bool)
+            keep[draw] = np.fromiter(
+                (bool(pe[j] > 0.0 and gate_stage1(1, float(pe[j]), seed=self.seed,
+                                                  domain_counters=(int(t), int(a[j]), int(p[j])))[0])
+                 for j in draw.tolist()),  # 逐次ループ宣言: 実効 p_see < 1 の入った体の数ぶん
+                dtype=bool, count=draw.size,
+            )
+            a, p = a[keep], p[keep]
+        elif self.p_see < 1.0:
             keep = np.fromiter(
                 (bool(gate_stage1(1, self.p_see, seed=self.seed,
                                   domain_counters=(int(t), int(x), int(y)))[0])
