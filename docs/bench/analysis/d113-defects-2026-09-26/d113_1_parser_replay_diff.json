@@ -1,0 +1,736 @@
+{
+ "AB6c-AD-NOTICE-UNCAPPED__ad_zero": {
+  "counts": {
+   "n": 74581,
+   "changed:target_raw": 4019,
+   "changed:positional_used": 3441,
+   "changed:comment": 195,
+   "after:unknown_label_calls": 67,
+   "changed:format_ok": 35,
+   "format_ok:T->F": 32,
+   "format_ok:F->T": 3
+  },
+  "target_before_top": [
+   [
+    "目標:",
+    3032
+   ],
+   [
+    "カテゴリ:",
+    360
+   ],
+   [
+    "飲食店 カテゴリ: 飲食店",
+    118
+   ],
+   [
+    "目的先:",
+    66
+   ],
+   [
+    "ターゲット:",
+    46
+   ],
+   [
+    "食堂 カテゴリ: 食品",
+    33
+   ]
+  ],
+  "target_after_top": [
+   [
+    "食品",
+    807
+   ],
+   [
+    "飲食店",
+    689
+   ],
+   [
+    "物のカテゴリ",
+    384
+   ],
+   [
+    "食堂",
+    151
+   ],
+   [
+    "食品店",
+    145
+   ],
+   [
+    "食品 カテゴリ",
+    114
+   ],
+   [
+    "食べ物",
+    90
+   ],
+   [
+    "コンビニエンスストア",
+    75
+   ]
+  ],
+  "examples": [
+   {
+    "call_id": "30:1004:2",
+    "before": "目標:",
+    "after": "スターバックス",
+    "errors_after": ""
+   },
+   {
+    "call_id": "30:2068:2",
+    "before": "目標:",
+    "after": "飲食店",
+    "errors_after": ""
+   },
+   {
+    "call_id": "30:1765:2",
+    "before": "目標:",
+    "after": "物のカテゴリ",
+    "errors_after": ""
+   }
+  ]
+ },
+ "AB6c-AD-NOTICE-UNCAPPED__p_see_0_14": {
+  "counts": {
+   "n": 73635,
+   "changed:target_raw": 4488,
+   "changed:positional_used": 3864,
+   "changed:comment": 199,
+   "after:unknown_label_calls": 64,
+   "changed:format_ok": 23,
+   "format_ok:T->F": 21,
+   "format_ok:F->T": 2
+  },
+  "target_before_top": [
+   [
+    "目標:",
+    3500
+   ],
+   [
+    "カテゴリ:",
+    346
+   ],
+   [
+    "飲食店 カテゴリ: 飲食店",
+    143
+   ],
+   [
+    "目的先:",
+    54
+   ],
+   [
+    "ターゲット:",
+    51
+   ],
+   [
+    "食堂 カテゴリ: 食品",
+    30
+   ]
+  ],
+  "target_after_top": [
+   [
+    "食品",
+    815
+   ],
+   [
+    "飲食店",
+    762
+   ],
+   [
+    "物のカテゴリ",
+    493
+   ],
+   [
+    "食品 カテゴリ",
+    194
+   ],
+   [
+    "食堂",
+    154
+   ],
+   [
+    "食品店",
+    149
+   ],
+   [
+    "コンビニエンスストア",
+    103
+   ],
+   [
+    "食べ物",
+    100
+   ]
+  ],
+  "examples": [
+   {
+    "call_id": "30:979:2",
+    "before": "目標:",
+    "after": "飲食店",
+    "errors_after": ""
+   },
+   {
+    "call_id": "30:1004:2",
+    "before": "目標:",
+    "after": "スターバックス",
+    "errors_after": ""
+   },
+   {
+    "call_id": "30:2068:2",
+    "before": "目標:",
+    "after": "飲食店",
+    "errors_after": ""
+   }
+  ]
+ },
+ "AB6c-AD-NOTICE-UNCAPPED__p_see_0_30": {
+  "counts": {
+   "n": 73753,
+   "changed:target_raw": 4974,
+   "changed:positional_used": 4288,
+   "changed:comment": 202,
+   "after:unknown_label_calls": 58,
+   "changed:format_ok": 34,
+   "format_ok:T->F": 32,
+   "format_ok:F->T": 2
+  },
+  "target_before_top": [
+   [
+    "目標:",
+    3860
+   ],
+   [
+    "カテゴリ:",
+    343
+   ],
+   [
+    "飲食店 カテゴリ: 飲食店",
+    179
+   ],
+   [
+    "ターゲット:",
+    71
+   ],
+   [
+    "目的先:",
+    68
+   ],
+   [
+    "食品 カテゴリ: 食品",
+    42
+   ]
+  ],
+  "target_after_top": [
+   [
+    "食品",
+    875
+   ],
+   [
+    "飲食店",
+    828
+   ],
+   [
+    "物のカテゴリ",
+    527
+   ],
+   [
+    "食品 カテゴリ",
+    238
+   ],
+   [
+    "食堂",
+    157
+   ],
+   [
+    "食品店",
+    149
+   ],
+   [
+    "コンビニエンスストア",
+    117
+   ],
+   [
+    "食べ物",
+    113
+   ]
+  ],
+  "examples": [
+   {
+    "call_id": "30:1747:2",
+    "before": "目標:",
+    "after": "食品カテゴリ",
+    "errors_after": ""
+   },
+   {
+    "call_id": "30:979:2",
+    "before": "目標:",
+    "after": "飲食店",
+    "errors_after": ""
+   },
+   {
+    "call_id": "30:1004:2",
+    "before": "目標:",
+    "after": "スターバックス",
+    "errors_after": ""
+   }
+  ]
+ },
+ "AB6c-AD-NOTICE-UNCAPPED__p_see_1_00": {
+  "counts": {
+   "n": 72800,
+   "changed:target_raw": 7593,
+   "changed:positional_used": 6580,
+   "changed:comment": 250,
+   "changed:format_ok": 33,
+   "format_ok:T->F": 30,
+   "after:unknown_label_calls": 48,
+   "format_ok:F->T": 3
+  },
+  "target_before_top": [
+   [
+    "目標:",
+    6307
+   ],
+   [
+    "カテゴリ:",
+    233
+   ],
+   [
+    "飲食店 カテゴリ: 飲食店",
+    226
+   ],
+   [
+    "目的先:",
+    101
+   ],
+   [
+    "食品 カテゴリ: 食品",
+    78
+   ],
+   [
+    "ターゲット:",
+    56
+   ]
+  ],
+  "target_after_top": [
+   [
+    "飲食店",
+    1107
+   ],
+   [
+    "物のカテゴリ",
+    947
+   ],
+   [
+    "食品",
+    922
+   ],
+   [
+    "食品 カテゴリ",
+    533
+   ],
+   [
+    "コンビニエンスストア",
+    290
+   ],
+   [
+    "食品カテゴリ",
+    281
+   ],
+   [
+    "食堂",
+    242
+   ],
+   [
+    "食品店",
+    165
+   ]
+  ],
+  "examples": [
+   {
+    "call_id": "30:756:2",
+    "before": "目標:",
+    "after": "飲食店",
+    "errors_after": ""
+   },
+   {
+    "call_id": "30:1747:2",
+    "before": "目標:",
+    "after": "食品カテゴリ",
+    "errors_after": ""
+   },
+   {
+    "call_id": "30:1004:2",
+    "before": "目標:",
+    "after": "スターバックス",
+    "errors_after": ""
+   }
+  ]
+ },
+ "AB8-L4-SCALE__l4_unlimited": {
+  "counts": {
+   "n": 72800,
+   "changed:target_raw": 7593,
+   "changed:positional_used": 6580,
+   "changed:comment": 250,
+   "changed:format_ok": 33,
+   "format_ok:T->F": 30,
+   "after:unknown_label_calls": 48,
+   "format_ok:F->T": 3
+  },
+  "target_before_top": [
+   [
+    "目標:",
+    6307
+   ],
+   [
+    "カテゴリ:",
+    233
+   ],
+   [
+    "飲食店 カテゴリ: 飲食店",
+    226
+   ],
+   [
+    "目的先:",
+    101
+   ],
+   [
+    "食品 カテゴリ: 食品",
+    78
+   ],
+   [
+    "ターゲット:",
+    56
+   ]
+  ],
+  "target_after_top": [
+   [
+    "飲食店",
+    1107
+   ],
+   [
+    "物のカテゴリ",
+    947
+   ],
+   [
+    "食品",
+    922
+   ],
+   [
+    "食品 カテゴリ",
+    533
+   ],
+   [
+    "コンビニエンスストア",
+    290
+   ],
+   [
+    "食品カテゴリ",
+    281
+   ],
+   [
+    "食堂",
+    242
+   ],
+   [
+    "食品店",
+    165
+   ]
+  ],
+  "examples": [
+   {
+    "call_id": "30:1747:2",
+    "before": "目標:",
+    "after": "食品カテゴリ",
+    "errors_after": ""
+   },
+   {
+    "call_id": "30:756:2",
+    "before": "目標:",
+    "after": "飲食店",
+    "errors_after": ""
+   },
+   {
+    "call_id": "30:2032:2",
+    "before": "目標:",
+    "after": "食品カテゴリ",
+    "errors_after": ""
+   }
+  ]
+ },
+ "AB8-L4-SCALE__l4_x0.5": {
+  "counts": {
+   "n": 19856,
+   "changed:target_raw": 1985,
+   "changed:positional_used": 1735,
+   "changed:format_ok": 6,
+   "changed:comment": 60,
+   "format_ok:T->F": 6,
+   "after:unknown_label_calls": 20
+  },
+  "target_before_top": [
+   [
+    "目標:",
+    1616
+   ],
+   [
+    "カテゴリ:",
+    102
+   ],
+   [
+    "飲食店 カテゴリ: 飲食店",
+    47
+   ],
+   [
+    "食品 カテゴリ: 食品",
+    38
+   ],
+   [
+    "目的先:",
+    18
+   ],
+   [
+    "ターゲット:",
+    17
+   ]
+  ],
+  "target_after_top": [
+   [
+    "食品",
+    301
+   ],
+   [
+    "飲食店",
+    267
+   ],
+   [
+    "物のカテゴリ",
+    238
+   ],
+   [
+    "食品 カテゴリ",
+    176
+   ],
+   [
+    "食品カテゴリ",
+    93
+   ],
+   [
+    "食堂",
+    59
+   ],
+   [
+    "カフェ・ベローチェ",
+    54
+   ],
+   [
+    "カフェ",
+    41
+   ]
+  ],
+  "examples": [
+   {
+    "call_id": "30:1747:2",
+    "before": "目標:",
+    "after": "食品カテゴリ",
+    "errors_after": ""
+   },
+   {
+    "call_id": "30:756:2",
+    "before": "目標:",
+    "after": "飲食店",
+    "errors_after": ""
+   },
+   {
+    "call_id": "30:2536:2",
+    "before": "目標:",
+    "after": "サンドラッグ",
+    "errors_after": ""
+   }
+  ]
+ },
+ "AB8-L4-SCALE__l4_x1": {
+  "counts": {
+   "n": 36906,
+   "changed:target_raw": 3641,
+   "changed:positional_used": 3184,
+   "changed:comment": 120,
+   "changed:format_ok": 12,
+   "format_ok:T->F": 12,
+   "after:unknown_label_calls": 31
+  },
+  "target_before_top": [
+   [
+    "目標:",
+    3031
+   ],
+   [
+    "カテゴリ:",
+    147
+   ],
+   [
+    "飲食店 カテゴリ: 飲食店",
+    95
+   ],
+   [
+    "食品 カテゴリ: 食品",
+    49
+   ],
+   [
+    "目的先:",
+    41
+   ],
+   [
+    "ターゲット:",
+    23
+   ]
+  ],
+  "target_after_top": [
+   [
+    "飲食店",
+    516
+   ],
+   [
+    "食品",
+    494
+   ],
+   [
+    "物のカテゴリ",
+    450
+   ],
+   [
+    "食品 カテゴリ",
+    314
+   ],
+   [
+    "食品カテゴリ",
+    185
+   ],
+   [
+    "食堂",
+    120
+   ],
+   [
+    "コンビニエンスストア",
+    105
+   ],
+   [
+    "カフェ・ベローチェ",
+    81
+   ]
+  ],
+  "examples": [
+   {
+    "call_id": "30:756:2",
+    "before": "目標:",
+    "after": "飲食店",
+    "errors_after": ""
+   },
+   {
+    "call_id": "30:1747:2",
+    "before": "目標:",
+    "after": "食品カテゴリ",
+    "errors_after": ""
+   },
+   {
+    "call_id": "30:2032:2",
+    "before": "目標:",
+    "after": "食品カテゴリ",
+    "errors_after": ""
+   }
+  ]
+ },
+ "AB8-L4-SCALE__l4_x2": {
+  "counts": {
+   "n": 61196,
+   "changed:target_raw": 6170,
+   "changed:positional_used": 5365,
+   "changed:comment": 201,
+   "changed:format_ok": 28,
+   "format_ok:T->F": 26,
+   "after:unknown_label_calls": 59,
+   "format_ok:F->T": 2
+  },
+  "target_before_top": [
+   [
+    "目標:",
+    5083
+   ],
+   [
+    "カテゴリ:",
+    220
+   ],
+   [
+    "飲食店 カテゴリ: 飲食店",
+    188
+   ],
+   [
+    "目的先:",
+    74
+   ],
+   [
+    "食品 カテゴリ: 食品",
+    66
+   ],
+   [
+    "ターゲット:",
+    58
+   ]
+  ],
+  "target_after_top": [
+   [
+    "飲食店",
+    891
+   ],
+   [
+    "物のカテゴリ",
+    794
+   ],
+   [
+    "食品",
+    780
+   ],
+   [
+    "食品 カテゴリ",
+    397
+   ],
+   [
+    "食品カテゴリ",
+    230
+   ],
+   [
+    "食堂",
+    217
+   ],
+   [
+    "コンビニエンスストア",
+    201
+   ],
+   [
+    "食品店",
+    139
+   ]
+  ],
+  "examples": [
+   {
+    "call_id": "30:1747:2",
+    "before": "目標:",
+    "after": "食品カテゴリ",
+    "errors_after": ""
+   },
+   {
+    "call_id": "30:756:2",
+    "before": "目標:",
+    "after": "飲食店",
+    "errors_after": ""
+   },
+   {
+    "call_id": "30:1004:2",
+    "before": "目標:",
+    "after": "スターバックス",
+    "errors_after": ""
+   }
+  ]
+ }
+}

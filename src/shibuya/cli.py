@@ -614,6 +614,27 @@ def main(argv: list[str] | None = None) -> int:
              " 1-RATE をその日「終日域外」にする(_mix64(agent_id) の決定論)",
     )
     ap.add_argument(
+        "--report-precondition",
+        choices=("on", "off"),
+        default="on",
+        help="D-113 ②: 通報の前提「当該事象を知覚済み」の検査(既定 on)。off=従来どおり必ず成功"
+             "(第266 以前の checkpoint ba01bd0b を再現する帰無腕)",
+    )
+    ap.add_argument(
+        "--queue-service",
+        choices=("on", "off"),
+        default="on",
+        help="D-113 ③: 満席で並んだ体を席が空いた分だけ並んだ順に席へ入れる(既定 on)。"
+             "off=第267 以前の挙動(誰も捌かず 15 tick で INTERRUPTED)",
+    )
+    ap.add_argument(
+        "--role-words",
+        choices=("on", "off"),
+        default="on",
+        help="D-113 ④: B0 の末尾に役割語 12 語の 1 行を足す(既定 on・行動契約書 §2.2)。"
+             "off=第268 以前の B0(それ以前に録ったテープの再生・帰無腕)",
+    )
+    ap.add_argument(
         "--derive-rule",
         choices=("v1", "v2", "v2.1"),
         default="v2",
@@ -724,6 +745,9 @@ def main(argv: list[str] | None = None) -> int:
         plan_sleep=not args.no_plan_sleep,
         plan_executor=not args.no_plan_executor,
         exit_mode=str(args.exit_mode),
+        report_precondition=(str(args.report_precondition) == "on"),
+        queue_service=(str(args.queue_service) == "on"),
+        role_words=(str(args.role_words) == "on"),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,

@@ -161,6 +161,10 @@ class SalientProcess:
         self.events: list[SalientEvent] = []
         self.cell_lines: dict[int, tuple[str, ...]] = {}
         self.noticed_agents = np.zeros(0, dtype=np.int64)
+        #: D-113 ②(第267): 体ごとに「顕著行為の行が自分のセルの B4 に載った最後の tick」(−1=未)。
+        #: 通報の前提「当該事象を知覚済み」の検査に使う。B4 は**セル単位**の行なので、事象の
+        #: セルに居た全員(=観測に行が出た全員)を知覚済みとする(``p_notice`` は起床の到達判定)。
+        self.event_seen_tick = np.full(agents.n, -1, dtype=np.int32)
         self.n_events = 0
         self.n_noticed = 0
         self.n_collapse = 0
@@ -221,6 +225,7 @@ class SalientProcess:
             cand = self._candidates(ev.cell)
             self.events.append(ev)
             self.n_events += 1
+            self._mark_seen(int(ev.cell), int(tick))
             if cand.size == 0:
                 continue
             res = PN.notice_event(
@@ -252,6 +257,24 @@ class SalientProcess:
             self.noticed_agents = np.unique(np.concatenate(noticed_any))
             self.n_noticed += int(self.noticed_agents.size)
         self.cell_lines = self._build_cell_lines()
+
+    # ------------------------------------------------------------------ 知覚済み(D-113 ②)
+    def _mark_seen(self, cell: int, tick: int) -> None:
+        """事象のセルに居る全員の ``event_seen_tick`` を ``tick`` に(B4 の行が出た体)。
+
+        ``_index_cells`` は事象のある tick の先頭で貼り直されているので同じ並びを使う。
+        逐次ループ宣言(P4): なし(セル 1 つのスライス代入)。
+        """
+        if not (0 <= int(cell) < self.world.n_cells):
+            return
+        occ = self._order[self._start[int(cell)] : self._start[int(cell) + 1]]
+        if occ.size:
+            self.event_seen_tick[occ] = np.int32(tick)
+
+    def event_seen_within(self, agent_ids: np.ndarray, tick: int, window: int) -> np.ndarray:
+        """``agent_ids`` が直近 ``window`` tick 以内に事象の行を見たか(bool 配列)。"""
+        seen = self.event_seen_tick[np.asarray(agent_ids, dtype=np.int64)].astype(np.int64)
+        return (seen >= 0) & (int(tick) - seen <= int(window))
 
     # ------------------------------------------------------------------ 起床候補
     def wake_candidates(self, tick: int):

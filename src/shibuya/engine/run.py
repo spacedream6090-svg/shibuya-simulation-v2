@@ -126,6 +126,7 @@ from shibuya.perception.templates import (
     INTENT_MODES,
     VOCAB_VERSIONS,
     check_intent_mode,
+    check_role_words,
     check_vocab_version,
 )
 from shibuya.world.assets import (
@@ -331,6 +332,9 @@ class RunResult:
     #: **行動語彙の版**(D-71 §3 F・2026-09-17 ユーザー決定)。``"v1"``=現行 24 語(既定)/
     #: ``"v2"``=24 語 + 横断語「食事」(飲食店オブジェクトの affordance)。
     vocab_version: str = VOCAB_VERSIONS[0]
+    #: **D-113 ④(第269)** B0 の末尾に役割語 12 語の 1 行を足したか(既定 True)。False は
+    #: 第268 以前の B0(テープ再生用・帰無腕)。
+    role_words: bool = True
     #: 語彙 v2「食事」が成立した件数(v1 のランでは常に 0)。
     meals: int = 0
     #: 食事で店舗へ移った金額[円](売上の内数)。
@@ -378,6 +382,12 @@ class RunResult:
     n_focus_lost: int = 0
     #: **実距離**で成立した会話招待の件数(G7)。
     n_talk_by_distance: int = 0
+    #: D-113 ②: 通報の前提検査(成立 / 知覚済みの事象なしで失敗)。
+    n_report_ok: int = 0
+    n_report_no_event: int = 0
+    #: D-113 ③: 満席の列から席へ入れた件数 / 閉店で列を解散した件数。
+    n_served_from_queue: int = 0
+    n_queue_closed: int = 0
     #: 計画実行層の診断(``PlanExecutor.counters()``)。層が休んだランは空 dict。
     presence_counters: dict[str, float] = field(default_factory=dict)
     #: D-66 域外抑止を効かせたか(既定 True)。False = **帰無腕**。
@@ -653,6 +663,8 @@ class RunResult:
             "intent_mode": str(self.intent_mode),
             # ---- 語彙 v2(D-71 §3 F/J)。既定 v1 では語彙も辞書も現行のまま ----
             "vocab_version": str(self.vocab_version),
+            # ---- D-113 ④ 役割語の提示(既定 True)。列追加のみ ----
+            "role_words": bool(self.role_words),
             "synonym_table_version": _synonym_table_version(self.vocab_version),
             "action_usage": dict(self.action_usage),
             # ---- D-56 就寝抑止(既定 True)。False = D-56 前の挙動 ----
@@ -781,6 +793,18 @@ class RunResult:
                 f"(到達 {self.n_approach_done:,} / 対象不在 {self.n_target_gone:,})"
                 f" / 焦点 取得 {self.n_focus:,} 消失 {self.n_focus_lost:,}"
                 f" / 会話 実距離成立 {self.n_talk_by_distance:,}"
+            )
+        # D-113 ③: 列を捌いたランだけ 1 行(列が立たないランでは summary は不変)
+        if self.n_served_from_queue or self.n_queue_closed:
+            lines.append(
+                f"  待ち行列の捌き(D-113 ③) 席へ {self.n_served_from_queue:,}"
+                f" / 閉店で解散 {self.n_queue_closed:,}"
+            )
+        # D-113 ②: 通報があったランだけ 1 行(通報 0 のランでは summary は不変)
+        if self.n_report_ok or self.n_report_no_event:
+            lines.append(
+                f"  通報(D-113 ② 前提検査) 成立 {self.n_report_ok:,}"
+                f" / 知覚済みの事象なし {self.n_report_no_event:,}"
             )
         # D-58: 繰り延べを記録/再現したランだけ 1 行(mock ランは従来どおり出ない)
         _bd = float(self.bridge_counters.get("tape_deferred_rows", 0.0)) or float(
@@ -1117,8 +1141,11 @@ def run_day(
     signage_p_see: float = SIGNAGE_P_SEE_DEFAULT,
     intent_mode: str = INTENT_MODES[0],
     vocab_version: str = VOCAB_VERSIONS[0],
+    role_words: bool | str = True,
     budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
     salient_rate_per_10k: float | None = None,
+    report_precondition: bool = True,
+    queue_service: bool = True,
     population: "Population | bool | None" = None,
     occupancy_every: int = 0,
     occupancy_path: "str | Path | None" = None,
@@ -1222,6 +1249,10 @@ def run_day(
             2 行形・JSON 禁止は同文)。``"hint"``(AB7b)は同じ 1 行を「語彙から選ぶのが基本・
             当てはまる語が無いときだけ 10 字以内の動詞句」にする中間の腕。接地はどの腕でも
             エンジン側(§7 段0 辞書写像 → 段1 記録+待機)。
+        role_words: **D-113 ④(第269)** B0 の末尾に役割語 12 語の 1 行(「自分の役割に権限が
+            あるときだけ成立」)を足す(既定 True=行動契約書 §2.2「語彙自体は全員に見せる」)。
+            ``False`` は第268 以前の B0(prompt_hash が変わるので、それ以前に録ったテープの
+            再生では ``False`` を渡す)。mock の checkpoint は B0 を読まないので不変。
             既定では**1 バイトも変わらない**(テンプレ本体・``template_sha256`` も不変)。
             ``INTENT_MODES`` 以外は ``ValueError``。
             ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
@@ -1241,6 +1272,12 @@ def run_day(
         salient_rate_per_10k: 「倒れる」の発生率[件/10,000体/日](``None`` で既定
             ``salient.COLLAPSE_PER_10K_PER_DAY``=3.0)。5,000 体・1 日では期待値 1.5 件なので
             **引かない日がある**(P(0)=22%)。感度試験・結線テストで上げるための口。
+        report_precondition: **D-113 ②(第267)** 通報の前提「当該事象を知覚済み」(直近 5 tick に
+            自分のセルの B4 に顕著行為の行が出た)を検査する(既定 True)。``False`` は従来どおり
+            通報が必ず成功する挙動(=帰無腕・第266 以前の checkpoint ``ba01bd0b`` を再現)。
+        queue_service: **D-113 ③(第268)** 満席で並んだ体を、席が空いた分だけ並んだ順に席へ
+            入れて購入/食事を完了させる(既定 True)。``False`` は第267 以前の挙動(誰も捌かず
+            15 tick で ``INTERRUPTED``)。既定の mock 5,000 では列が立たないので checkpoint 不変。
         sleep_suppression: **D-56 就寝抑止**(既定 True=ユーザー決定 (a))。``activity ==
             Activity.SLEEPING`` の個体の起床候補を、計画境界・顕著行為・会話ターン以外は
             アービタに入れない。``False`` は **D-56 前の挙動**(=ablation の帰無腕)。
@@ -1328,6 +1365,7 @@ def run_day(
     signage_p_see = check_signage_p_see(signage_p_see)
     # ---- AB7 自由意図の腕: 値の検査は**レンダラを作る前**にする(manifest が嘘をつかない) ----
     intent_mode = check_intent_mode(intent_mode)
+    role_words = check_role_words(role_words)
     # ---- 語彙 v2 の版: 同上(mock・レンダラ・bridge の前で確定させる) ----
     vocab_version = check_vocab_version(vocab_version)
     # ---- ablation ③: **ランの実効不応期表**を 1 本組む(既定=§6 の表そのもの) ----
@@ -1459,6 +1497,7 @@ def run_day(
                 signage_p_see=signage_p_see,
                 intent_mode=intent_mode,
                 vocab_version=vocab_version,
+                role_words=role_words,
             )
         )
         renderer_obj: Any = perception
@@ -2068,6 +2107,9 @@ def run_day(
             rail=None if runner is None or not runner.is_enabled("rail") else runner.rail,
             crowd=None if runner is None or not runner.is_enabled("crowd") else runner.crowd,
             hotel=None if runner is None or not runner.is_enabled("hotel") else runner.hotel,
+            salient=None if runner is None or not runner.is_enabled("salient") else runner.salient,
+            report_precondition=bool(report_precondition),
+            queue_service=bool(queue_service),
             vocab_version=vocab_version,
             geometry=geom,
             focus_request=focus_request,
@@ -2093,6 +2135,10 @@ def run_day(
         result.n_focus += outcome.n_focus
         result.n_focus_lost += outcome.n_focus_lost
         result.n_talk_by_distance += outcome.n_talk_by_distance
+        result.n_report_ok += outcome.n_report_ok
+        result.n_report_no_event += outcome.n_report_no_event
+        result.n_served_from_queue += outcome.n_served_from_queue
+        result.n_queue_closed += outcome.n_queue_closed
         # D-71 §3 J: 語ごとの使用件数(**解決後**=エンジンが適用した行動)。
         for _code, _n in outcome.per_action.items():
             per_action_total[int(_code)] = per_action_total.get(int(_code), 0) + int(_n)
@@ -2410,6 +2456,9 @@ def run_day(
         else signage_p_see
     )
     # AB7: 実際に描いた腕(注入レンダラなら**そちらの値**が正)。
+    result.role_words = bool(
+        getattr(getattr(perception, "renderer", None), "role_words", role_words)
+    )
     result.intent_mode = str(
         getattr(getattr(perception, "renderer", None), "intent_mode", intent_mode)
         if perception is not None

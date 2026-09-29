@@ -35,6 +35,13 @@ C6 パーサ許容(2026-09-09・実 LLM スモークのテープが根拠)
   (探索 50・通勤 16・観察 9・調査 …)は §7 段0 の辞書を広げて受ける。
 - 語彙外の語が段0 の辞書で救えるかは ``dictionary_candidate`` に出す(**実効 ``format_ok`` は
   真にしない**=語彙外だった事実を残す・親決定 09-09)。
+- **D-113 ①(第266・2026-09-26・C8 の 8 テープ 485,527 呼のリプレイ計測が根拠)**: 別名表に無い
+  ラベル(「目標:」32,736 呼ほか)が行動欄の値に残り、位置引数の回収がその**ラベル表層を対象の値**
+  として採っていた(呼の 8.3% で対象が「語+コロン」だけ・``format_ok`` は True のまま)。直し=
+  (1) テープで実測した表層 7 語を ``LABEL_ALIASES_D113``(→対象)に足す (2) 位置引数の回収で
+  「語+コロン」だけのトークンは**未知のラベル**として読み飛ばし ``unknown_label:<表層>`` を
+  ``errors`` に残す(後ろに値が無ければ欄落ち)。``strict_format_ok`` は V0 のまま。
+  記録: docs/bench/analysis/d113-defects-2026-09-26/README.md。
 
 expedient(本モジュール分)
 - ラベルの別名表(``行き先``/``行先``/``相手``→``対象``、``一言``/``ひとこと``/``発話``→``ひと言``、
@@ -76,6 +83,7 @@ __all__ = [
     "LABEL_ALIASES",
     "LABEL_ALIASES_V0",
     "LABEL_ALIASES_C6",
+    "LABEL_ALIASES_D113",
     "POSITIONAL_SURFACE",
     "ParseResult",
     "parse_two_line",
@@ -127,11 +135,35 @@ LABEL_ALIASES_C6: Final[Mapping[str, str]] = {
     "行為": "行動",
 }
 
-#: 表層ラベル → 正準ラベル(expedient)。``LABEL_ALIASES_V0`` ∪ ``LABEL_ALIASES_C6``。
-LABEL_ALIASES: Final[Mapping[str, str]] = {**LABEL_ALIASES_V0, **LABEL_ALIASES_C6}
+#: D-113 ①(第266・2026-09-26)で追加した別名(**expedient**・C8 の 8 テープ 48 万呼の実測が根拠:
+#: 「目標:」32,736 呼・「カテゴリ:」1,984・「目的先:」523・「ターゲット:」378・「对象:」127・
+#: 「目标:」57・「行く先:」19 が別名表に無く、``_fill_positional`` が**そのラベル表層を対象の値**
+#: として読んでいた=顕著な出来事の台帳 §2 ⑥)。受入指標 ``strict_format_ok`` は V0 のまま。
+LABEL_ALIASES_D113: Final[Mapping[str, str]] = {
+    "目標": "対象",
+    "目标": "対象",
+    "カテゴリ": "対象",
+    "目的先": "対象",
+    "ターゲット": "対象",
+    "对象": "対象",
+    "行く先": "対象",
+}
 
-#: C6 で足した表層(``alias_used`` の内訳と ``strict_format_ok`` の短絡判定に使う)。
+#: 表層ラベル → 正準ラベル(expedient)。``LABEL_ALIASES_V0`` ∪ ``LABEL_ALIASES_C6`` ∪ ``LABEL_ALIASES_D113``。
+LABEL_ALIASES: Final[Mapping[str, str]] = {
+    **LABEL_ALIASES_V0,
+    **LABEL_ALIASES_C6,
+    **LABEL_ALIASES_D113,
+}
+
+#: C6 で足した表層(``alias_used`` の内訳)。
 _C6_SURFACES: Final[frozenset[str]] = frozenset(LABEL_ALIASES_C6)
+#: V0 に無い表層(``strict_format_ok`` の短絡判定に使う=C6 ∪ D113)。
+_NON_V0_SURFACES: Final[frozenset[str]] = _C6_SURFACES | frozenset(LABEL_ALIASES_D113)
+
+#: 「語+コロン」だけのトークン=別名表に無い**未知のラベル**(「目安:」「データ:」「その他:」…)。
+#: 位置引数の回収でこれを値として読まない(D-113 ①)。診断名 ``unknown_label:<表層>`` を残す。
+_UNKNOWN_LABEL_TOKEN_RE: Final[re.Pattern[str]] = re.compile(r"^[^\s:：]{1,10}[:：]$")
 
 
 def _label_pattern(table: Mapping[str, str]) -> re.Pattern[str]:
@@ -372,9 +404,10 @@ def _parse(
 
     # ---- ラベルを省いて値だけ並べた形(C6・位置引数)の回収 ----
     filled = _fill_positional(labels)
-    positional_used = bool(filled)
-    if positional_used:
+    positional_used = any(f.startswith("positional:") for f in filled)
+    if filled:
         errors.extend(filled)
+    if positional_used:
         alias_surfaces = alias_surfaces + (POSITIONAL_SURFACE,)
 
     # ---- 行動語 ----
@@ -415,7 +448,7 @@ def _parse(
     )
     # C6 以前の判定(受入指標の定義を動かさない)。C6 別名も位置引数も使っていなければ同じ
     # 走査になるので**短絡**する(逐次ループ宣言: 使ったときだけラベル走査がもう1回)。
-    if not positional_used and not any(s in _C6_SURFACES for s in surfaces):
+    if not positional_used and not any(s in _NON_V0_SURFACES for s in surfaces):
         strict_format_ok = format_ok
     else:
         labels_v0, _, _ = _scan_labels(cleaned, _LABEL_RE_V0, LABEL_ALIASES_V0)
@@ -487,15 +520,24 @@ def _fill_positional(labels: dict[str, str]) -> tuple[str, ...]:
     rest = tokens[1:]
     if not rest and "対象" not in labels:
         return ()  # 余りが無い=ただの欄落ち(ここでは補わない)
+    # D-113 ①: 別名表に無い「語+コロン」のトークン(未知のラベル)は**値ではない**。読み飛ばして
+    # 診断に残す(以前は「目標:」がそのまま対象の値になっていた)。
+    unknown: list[str] = []
+    rest = _drop_unknown_labels(rest, unknown)
     if "対象" not in labels and rest:
         labels["対象"] = rest.pop(0)
         filled.append("positional:対象")
+        rest = _drop_unknown_labels(rest, unknown)
     if "ひと言" not in labels and rest:
         labels["ひと言"] = " ".join(rest)
         rest = []
         filled.append("positional:ひと言")
     if filled:
         labels["行動"] = tokens[0]  # ``raw_action`` は語彙語だけにする
+    elif unknown:
+        # 未知のラベルの後ろに値が無い(「行動: 移動 目安:」)= 欄落ちとして扱う(補わない)。
+        return tuple(f"unknown_label:{u}" for u in unknown)
+    filled.extend(f"unknown_label:{u}" for u in unknown)
     if "ひと言" not in labels and "対象" in labels:
         target_tokens = labels["対象"].split()
         if len(target_tokens) > 1:
@@ -507,6 +549,16 @@ def _fill_positional(labels: dict[str, str]) -> tuple[str, ...]:
             labels["ひと言"] = NO_TARGET
             filled.append("comment_defaulted")
     return tuple(filled)
+
+
+def _drop_unknown_labels(rest: list[str], unknown: list[str]) -> list[str]:
+    """先頭に並ぶ未知のラベル(「目安:」型)を落として表層を ``unknown`` に積む(D-113 ①)。
+
+    逐次ループ宣言(P4): 行動欄のトークン数ぶん(数個)。1呼=1回。
+    """
+    while rest and _UNKNOWN_LABEL_TOKEN_RE.match(rest[0]):
+        unknown.append(rest.pop(0).rstrip(":："))
+    return rest
 
 
 def _scan_labels(

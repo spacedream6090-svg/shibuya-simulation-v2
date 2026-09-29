@@ -28,6 +28,9 @@ expedient(本モジュール分)
 - 席数換算: カテゴリ別の**想定床面積**(実測なし)÷ 1 席あたり面積(飲食 2 m²・その他 4 m²)。
 - 回転率: 在席の上限滞在 ``DWELL_MAX_TICKS``。
 - 離脱閾値: ``WAIT_MAX_TICKS`` を超えたら並ぶのをやめる(``INTERRUPTED``)。
+- **D-113 ③(第268)**: 席が空いたら並んだ順(FIFO)に席へ入れ、並んだときの行動(購入/食事)を
+  完了させる(``resolve._serve_poi_queue``・切替口 ``--queue-service``)。それまでは誰も列を
+  捌かず、並んだ体は 15 tick 後に必ず ``INTERRUPTED`` になっていた(第263 §5)。
 - 流れの 3 値化しきい値(``STILL_SHARE`` / ``COHERENT``)。
 - M/M/c の平均待ちは**近似式の指標値**であって行動は駆動しない(観測欄のみ)。
 """
@@ -175,6 +178,10 @@ class CrowdProcess:
         self.occupancy = np.zeros(world.n_poi, dtype=np.int64)
         self.admitted_this_tick = np.zeros(world.n_poi, dtype=np.int64)
         self.queue_len = np.zeros(world.n_poi, dtype=np.int64)
+        #: D-113 ③(第268): 並んだ体が**何のために**並んだか(0=購入・1=食事・−1=並んでいない)。
+        #: 席が空いたときに ``resolve._serve_poi_queue`` が同じ行動を完了させるために持つ
+        #: (registry に欄を足すと M 行とチェックポイントの意味が変わるので過程側に置く)。
+        self.queue_action = np.full(agents.n, -1, dtype=np.int8)
         self.n_released = 0
         self.n_balked = 0
         self.peak_queue = 0

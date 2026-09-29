@@ -151,3 +151,35 @@ def test_notice_state_is_two_bytes_per_agent_and_written_through_resolve():
     sp._update_notice_state()
     assert sp.pstate.frozen  # 窓は閉じて戻る
     assert sp.pstate.heading.dtype == np.uint8 and sp.pstate.task_flag.dtype == np.uint8
+
+
+# ================================================================= 知覚済み(D-113 ②・第267)
+def test_event_seen_tick_marks_everyone_in_the_event_cell_d113_2():
+    """事象のセルに居た全員(B4 に行が出た体)の ``event_seen_tick`` がその tick になる。"""
+    world, agents, sp = _proc(n_agents=200, n_cells=16, rate_per_10k_per_day=5_000.0)
+    assert sp.event_seen_tick.shape == (200,) and int(sp.event_seen_tick.max()) == -1
+    marked = False
+    for t in range(200):
+        sp.step(t)
+        raw_cells = {int(ev.cell) for ev in sp.events if ev.kind != "broadcast"}
+        if not raw_cells:
+            continue
+        cell = np.asarray(agents.registry.cell, dtype=np.int64)
+        for c in raw_cells:
+            occ = np.flatnonzero(cell == c)
+            assert occ.size > 0 and np.all(sp.event_seen_tick[occ] == t)
+            marked = True
+            within = sp.event_seen_within(np.arange(200), t, 5)
+            assert np.all(within[occ])
+        others = np.flatnonzero(~np.isin(cell, sorted(raw_cells)))
+        assert np.all(sp.event_seen_tick[others] < t)
+    assert marked
+
+
+def test_event_seen_within_uses_an_inclusive_window():
+    world, agents, sp = _proc(n_agents=10, n_cells=4)
+    sp.event_seen_tick[:] = -1
+    sp.event_seen_tick[3] = 20
+    got = sp.event_seen_within(np.array([3, 4]), 25, 5)
+    assert got.tolist() == [True, False]
+    assert sp.event_seen_within(np.array([3]), 26, 5).tolist() == [False]

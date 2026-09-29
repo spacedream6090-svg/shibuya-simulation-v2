@@ -131,3 +131,48 @@ def test_every_template_line_is_one_fact_with_a_feature_tag():
 def test_default_options_always_contain_the_never_failing_action():
     """行動契約書 §2.1「失敗しない行動が常に1つ以上(待機)」。"""
     assert "待機" in T.DEFAULT_OPTIONS
+
+
+# ---------------------------------------------------------------- D-113 ④ 役割語の提示(第269)
+def test_role_words_match_llm_contract():
+    """``llm.contract.ROLE_ACTION_WORDS`` との二重定義が一致している(同層で import 不可)。"""
+    from shibuya.llm import contract
+
+    assert tuple(contract.ROLE_ACTION_WORDS) == T.ROLE_WORDS_12
+    assert len(T.ROLE_WORDS_12) == 12
+
+
+def test_b0_with_role_words_appends_one_line_and_keeps_the_frozen_base_d113_4():
+    base = T.b0_system()
+    assert base is T.TEMPLATES["B0.system"], "既定は同一オブジェクト(凍結)"
+    rw = T.b0_system("vocab", "v1", True)
+    assert rw == base + "\n" + T.ROLE_WORDS_LINE
+    last = rw.split("\n")[-1]
+    assert last.startswith("[出力規約] 役割語: ")
+    for w in T.ROLE_WORDS_12:
+        assert w in last
+    assert "権限" in last
+    # どの腕・版でも同じ 1 行
+    for mode in T.INTENT_MODES:
+        for ver in T.VOCAB_VERSIONS:
+            assert T.b0_system(mode, ver, True) == T.b0_system(mode, ver) + "\n" + T.ROLE_WORDS_LINE
+            assert T.b0_system(mode, ver, "on") == T.b0_system(mode, ver, True)
+            assert T.b0_system(mode, ver, "off") is T.b0_system(mode, ver)
+    # 指紋: 無し(既定)は従来どおり・有りは別の値
+    assert T.b0_sha256("vocab", "v1", False) == T.b0_sha256()
+    assert T.b0_sha256("vocab", "v1", True) != T.b0_sha256()
+    assert T.check_role_words("on") is True and T.check_role_words("off") is False
+    with pytest.raises(ValueError):
+        T.check_role_words("maybe")
+
+
+def test_b0_with_role_words_stays_within_the_shared_static_group_budget():
+    b0 = estimate_tokens(T.b0_system("vocab", "v2", True))
+    b1 = estimate_tokens(T.TEMPLATES["B1.kind"].format(kind="来街者"))
+    b3 = sum(
+        estimate_tokens(T.TEMPLATES[k].format(hour="12", minute="40", weather="晴",
+                                              daylight="日中", heat="やや暑い"))
+        for k in ("B3.time", "B3.weather", "B3.heat")
+    )
+    assert b0 + b1 + b3 <= T.GROUP_TOKEN_BUDGET["shared_static"]
+    print(f"\n[B0+役割語] {b0} tok(共有静的合計 {b0 + b1 + b3} / {T.GROUP_TOKEN_BUDGET['shared_static']})")
