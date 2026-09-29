@@ -23,7 +23,7 @@
 ## 要約(10行)
 
 1. **先行例の一致所見**: 世界状態の書き込み口はエンジン1本(AI Town「the engine is the only mutator of game state」)。LLMは「行動の企図」を出し、実行可否はエンジンが判定する(Concordia「Whenever an agent tries to perform an action that violates the grounding, it communicates to them that their action was invalid」)。v2の原則2・5と完全一致=**設計変更不要**。
-2. **語彙の実数**: OASIS=21行動の離散列挙+`{"reason":…,"functions":[…]}`のJSON。AI Town=7入力(join/leave/moveTo/startConversation/acceptInvite/rejectInvite/leaveConversation)。Generative Agentsのみ自由文で、**接地は「LLMに環境木を降ろさせる」再帰プロンプト**=呼数が爆発する形(v2は不採用でよい)。
+2. **語彙の実数**: OASIS=21行動の離散列挙+`{"reason":…,"functions":[…]}`のJSON。AI Town=7入力(join/leave/moveTo/startConversation/acceptInvite/rejectInvite/leaveConversation)**(第272 追記: ARCHITECTURE.md の列挙。コード main @8e05997(2026-08-26)では `inputHandler` は 13 個=player 3・conversation 6・agent 4。親が固定コミットで再計数=R-43 §7-1)**。Generative Agentsのみ自由文で、**接地は「LLMに環境木を降ろさせる」再帰プロンプト**=呼数が爆発する形(v2は不採用でよい)。
 3. **v2の2行形に欠落スロットが1つある**: 「行き先: <セルID|なし>」では**購入の対象・会話の相手・手伝いの相手**が書けない。**目的語スロットへの一般化**(行き先→対象: <セルID|物カテゴリ|人ID|なし>)を推奨(最重要の設計指摘)。
 4. **会話の呼数が最大の制約**: 実会話の1ターンは**中央値1,227 ms・平均1,680 ms**(Levinson & Torreira 2015・実読)。「1呼=1実ターン」なら5分の会話で約179ターン=1体あたり約90呼=**予算10呼/体/日の9日分**。1呼=1実ターンは**成立しない**。
 5. → **1呼=1「発話ブロック」(実30-60秒相当を1発話に圧縮)+相槌はエンジン生成**を推奨。会話予算は**1体あたり4.5呼/日(1.5会話×3呼)**が上限の目安(内省10.5%控除後の8.95呼/体/日の約半分)。

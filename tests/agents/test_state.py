@@ -45,7 +45,8 @@ def test_core_fields_fit_m2_position_body_budget():
 
 def test_refractory_table_matches_perception_contract_section6():
     """知覚契約書 §6 の不応期表(11 行)と 1 対 1。"""
-    assert N_WAKE_CONDITIONS == 11 == len(WakeCondition)
+    # 第276(二層の段 2): 活動の満了(列番号 11)は**不応期表の外**=表は 11 行のまま
+    assert N_WAKE_CONDITIONS == 11 == len(WakeCondition) - 1
     assert REFRACTORY_MINUTES == (0, 360, 150, 60, 15, 45, 10, 15, 5, 5, 30)
     assert REFRACTORY_MINUTES[WakeCondition.CONVERSATION_TURN] == 0  # 会話=床なし
     # 4クラス固定優先の順序(会話 > 計画境界 > 個体変化 > セル変化)

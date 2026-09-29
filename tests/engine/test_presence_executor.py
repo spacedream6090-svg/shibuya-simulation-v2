@@ -54,6 +54,10 @@ W17_GOLDEN = {
     },
     "3113e9ba7abb": {
         "null_arm_final": "b4ad8140fe4176db", "null_arm_llm_calls": 41_072,
+        # 第277(二層の段 3): **語彙 v3 の既定**(=CLI の新しい既定・activity on・mock v3 形)。
+        # v1 の行は上のまま残す(ライブラリの既定は v1=切替口)。
+        # 記録: docs/bench/analysis/two-layer-2026-09-27/README.md §0
+        "v3_default_final": "02bd03126d5f41cb", "v3_default_llm_calls": 36_460,
         "v1_outside_blocks": 590_430, "v1_outside_dist": [92, 160_033, 133_575, 47_861],
         "s5000_v1": {"n_blocks": 8_589, "zero": 1, "outside": 7_733, "in": 856},
         "s5000_v2": {"n_blocks": 6_377, "zero": 150, "outside": 5_521, "in": 856},
@@ -234,6 +238,23 @@ def test_null_arm_reproduces_the_recorded_checkpoint():
     assert res.run_manifest_fields()["plan_executor"] is False
     assert res.presence_counters == {}
     assert res.conserved and int(res.llm_calls) == g["null_arm_llm_calls"]
+
+
+@real_data
+def test_v3_default_reproduces_the_recorded_checkpoint():
+    """第277(二層の段 3): 語彙 v3 の既定(CLI の既定・活動層 on・mock v3 形)の golden。
+
+    v1 の golden(上の null arm)はそのまま=ライブラリの既定は v1。v3 は**新しい行**。
+    """
+    from shibuya.cli import run as cli_run
+
+    g = W17_GOLDEN.get(w17_digest())
+    if g is None or "v3_default_final" not in g:
+        pytest.skip(f"実 W17 の v3 golden が無い(md5 {w17_digest()})")
+    res = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3")
+    assert res.final_hash.startswith(g["v3_default_final"])
+    assert res.run_manifest_fields()["activity"] is True
+    assert res.conserved and int(res.llm_calls) == g["v3_default_llm_calls"]
 
 
 # ================================================================= ③ T4 規模不変

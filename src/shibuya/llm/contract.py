@@ -39,7 +39,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import IntEnum
 from typing import Final, Mapping
 
@@ -83,6 +83,32 @@ __all__ = [
     "cross_action_words",
     "engine_action_codes",
     "compat_word",
+    # ---- 語彙 v3(行為と活動の二層・D-116・第274 アジェンダ §1)。v1/v2 は 1 バイトも動かさない ----
+    "ACTION_WORD_NONE",
+    "NONE_ACTION_CODE",
+    "ACTION_WORD_QUEUE",
+    "REMOVED_ACTION_WORDS_V3",
+    "ACTION_VOCAB_V3",
+    "ROLE_ACTION_WORDS_V3",
+    "ALL_ACTION_WORDS_V3",
+    "ACTION_SPECS_V3",
+    "ACTION_CODES_V3",
+    "ROLE_ACTION_CODES_V3",
+    "SAFE_ACTION_BY_VERSION",
+    "safe_action_word",
+    "role_action_words",
+    "ACTIVITY_MAX_CHARS",
+    "UNTIL_DEFAULT_MINUTES",
+    "UNTIL_MAX_MINUTES",
+    "UntilKind",
+    "Until",
+    "DEFAULT_UNTIL",
+    "parse_until",
+    "TWO_LINE_RE_V3",
+    "format_two_line_v3",
+    "TARGET_WANDER",
+    "TARGET_BASE_WORDS_V3",
+    "TARGET_PLACEHOLDERS_V3",
 ]
 
 #: 行動契約書 §1「理由: <40字以内・1文>」。
@@ -563,8 +589,8 @@ assert len(ALL_ACTION_WORDS) <= VOCAB_LIMIT_PER_KIND, "§2 語彙上限24語"
 # - 所要時間 20 分(契約行の宣言値。**専用タイマーは未実装**=在店の解除は既存の回転率
 #   ``engine.processes.crowd.DWELL_MAX_TICKS`` に従う。親へ報告済み)。
 
-#: 語彙の版(F: 版はラン単位・ラン中に切り替えない)。
-VOCAB_VERSIONS: Final[tuple[str, ...]] = ("v1", "v2")
+#: 語彙の版(F: 版はラン単位・ラン中に切り替えない)。**v3**=行為と活動の二層(D-116・第274)。
+VOCAB_VERSIONS: Final[tuple[str, ...]] = ("v1", "v2", "v3")
 #: 既定の版(= 現行 24 語。既定経路のバイトはこの版で決まる)。
 DEFAULT_VOCAB_VERSION: Final[str] = "v1"
 
@@ -596,32 +622,165 @@ ALL_ACTION_WORDS_V2: Final[tuple[str, ...]] = ALL_ACTION_WORDS + (ACTION_WORD_EA
 #: v2 の契約表(v1 の 24 行 + 食事)。
 ACTION_SPECS_V2: Final[Mapping[str, ActionSpec]] = {**ACTION_SPECS, ACTION_WORD_EAT: _SPEC_EAT}
 
+# ================================================================== 語彙 v3(二層・D-116)
+#
+# 正典: ``docs/design/v2-two-layer-implementation-agenda.md`` §1-1(第274・ユーザー決定 D-116
+# 「A〜I 推奨どおり」の実装形)+ ``docs/design/v2-action-activity-two-layer-draft.md`` §4-3。
+# **行為**(世界に触れる行動=契約行つき)と**活動**(世界を変えない過ごし方=自由文+持続)を
+# 分け、行為の語彙から **待機・休憩・降車** を外す(過ごし方は「活動:」「まで:」の欄へ)。
+#
+# **v1/v2 は 1 バイトも動かさない**: 既存の表・コード・契約行は同一オブジェクトのまま。
+# **コードは 1 つも動かさない**(テープ・checkpoint・``last_action`` の実体): 降車 2・待機 4・
+# 休憩 10 は v3 では**欠番**(受理しない=``action_code_of(w, "v3")`` は ``UNDEFINED_ACTION``)、
+# 並ぶ は役割語のコード 22 のまま**種別だけ横断へ**、新設「なし」は**末尾の 25**。
+# 語彙数の上限 ``VOCAB_LIMIT_PER_KIND`` の assert は **v3 の表には掛けない**(D-92 (a): 門は
+# 「契約行+エンジン効果+台帳行+テスト」)。v1 の assert は上のまま。
+#
+# expedient(本節分・アジェンダ §5 に登録)
+# - 「なし」の契約行の文面(待機の行から「常に可能・時間経過・失敗しない」を引き継いだ)と
+#   節名 ``D-116``(契約書 §2.1 の表の行ではない)。
+# - 並ぶ の v3 行は v1 の行の ``section``/``permission_holder``/``table_row`` だけを差し替えた
+#   (前提・効果・失敗の文面は「並ぶ/撮影」の共有行のまま)。**エンジンの適用分岐は段 2**
+#   (``engine_action_codes("v3")`` に 並ぶ=22 を載せた=段 2 で ``_APPLY_BY_VOCAB["v3"]`` に要る)。
+# - 横断語の**並び**(アジェンダ §1-1 の表の順=B0 の提示順)。
+
+#: 安全弁の語(**失敗しない**・待機の代替=行動契約書 §2 共通の必須事項③)。
+ACTION_WORD_NONE: Final[str] = "なし"
+#: 「なし」の行動コード(= 25 = 食事 24 の**次**。既存コードは 1 つも動かない)。
+NONE_ACTION_CODE: Final[int] = EAT_ACTION_CODE + 1
+#: 役割語から横断語へ移る語(コードは役割語の 22 のまま)。
+ACTION_WORD_QUEUE: Final[str] = "並ぶ"
+#: v3 で**受理しない**語(コード 2・4・10 は欠番として残す=動かさない)。
+REMOVED_ACTION_WORDS_V3: Final[tuple[str, ...]] = ("待機", "休憩", "降車")
+
+_SPEC_NONE: Final[ActionSpec] = ActionSpec(
+    word=ACTION_WORD_NONE,
+    target_kind=TargetKind.NONE,
+    preconditions=(),
+    precondition_text="なし(常に可能=安全弁)",
+    effects="時間経過(世界に触れない。過ごし方は「活動」欄・持続は「まで」欄が持つ)",
+    cost="時間",
+    failure_text="失敗しない",
+    failure_codes=(),
+    never_fails=True,
+    tag="mechanism",
+    section="D-116",
+    table_row="§2 共通③ 失敗しない行動(待機の代替・D-116 C)",
+)
+
+#: 並ぶ の v3 行(**横断語**=権限保持者なし)。前提・効果・失敗の文面は v1 の行のまま。
+_SPEC_QUEUE_V3: Final[ActionSpec] = replace(
+    ACTION_SPECS[ACTION_WORD_QUEUE],
+    section="D-116",
+    permission_holder="",
+    table_row="並ぶ/撮影(v3 で役割語から横断語へ・D-116 C)",
+)
+
+#: v3 の種別横断語(11 語 + なし)。**並びはアジェンダ §1-1 の表の順**(B0 の提示順)。
+ACTION_VOCAB_V3: Final[tuple[str, ...]] = (
+    "移動", "乗車", "購入", ACTION_WORD_EAT, "会話", "退去", "通報", "手伝い", "断る", "就寝",
+    ACTION_WORD_QUEUE, ACTION_WORD_NONE,
+)
+#: v3 の役割語(11 語=v1 の 12 語から 並ぶ を横断へ移した残り・並びは v1 のまま)。
+ROLE_ACTION_WORDS_V3: Final[tuple[str, ...]] = tuple(
+    w for w in ROLE_ACTION_WORDS if w != ACTION_WORD_QUEUE
+)
+#: v3 でパーサが受理する全体集合(12 + 11 = 23 語)。
+ALL_ACTION_WORDS_V3: Final[tuple[str, ...]] = ACTION_VOCAB_V3 + ROLE_ACTION_WORDS_V3
+
+#: v3 の契約表(v2 の行から外す 3 語を抜き、並ぶ を差し替え、なし を足したもの)。
+ACTION_SPECS_V3: Final[Mapping[str, ActionSpec]] = {
+    **{
+        w: ACTION_SPECS_V2[w]
+        for w in ACTION_VOCAB_V3
+        if w not in (ACTION_WORD_QUEUE, ACTION_WORD_NONE)
+    },
+    ACTION_WORD_QUEUE: _SPEC_QUEUE_V3,
+    ACTION_WORD_NONE: _SPEC_NONE,
+    **{w: ACTION_SPECS[w] for w in ROLE_ACTION_WORDS_V3},
+}
+
+#: 既存コード(v1 の 24 語+食事)+ なし。**v3 はこの表から引くだけ**(割り当てを変えない)。
+_CODES_ALL_VERSIONS: Final[Mapping[str, int]] = {
+    **ACTION_CODES, **ROLE_ACTION_CODES,
+    ACTION_WORD_EAT: EAT_ACTION_CODE, ACTION_WORD_NONE: NONE_ACTION_CODE,
+}
+#: v3 の横断語 → コード(**エンジンに適用分岐が要る語**=``engine_action_codes("v3")``)。
+ACTION_CODES_V3: Final[Mapping[str, int]] = {w: _CODES_ALL_VERSIONS[w] for w in ACTION_VOCAB_V3}
+#: v3 の役割語 → コード(v1 と同じ値・並ぶ を除く)。
+ROLE_ACTION_CODES_V3: Final[Mapping[str, int]] = {
+    w: ROLE_ACTION_CODES[w] for w in ROLE_ACTION_WORDS_V3
+}
+_ALL_CODES_V3: Final[Mapping[str, int]] = {**ACTION_CODES_V3, **ROLE_ACTION_CODES_V3}
+_ROLE_SET_V3: Final[frozenset[str]] = frozenset(ROLE_ACTION_WORDS_V3)
+
+#: 版 → 安全弁の語(**未定義行動の落ち先**。v1/v2=待機・v3=なし=アジェンダ §1-1)。
+SAFE_ACTION_BY_VERSION: Final[Mapping[str, str]] = {
+    "v1": "待機", "v2": "待機", "v3": ACTION_WORD_NONE,
+}
+
+assert len(ACTION_VOCAB_V3) == 12 and len(ROLE_ACTION_WORDS_V3) == 11
+assert len(set(ALL_ACTION_WORDS_V3)) == len(ALL_ACTION_WORDS_V3) == 23
+assert not set(REMOVED_ACTION_WORDS_V3) & set(ALL_ACTION_WORDS_V3)
+assert NONE_ACTION_CODE == 25
+assert tuple(ACTION_SPECS_V3) == ALL_ACTION_WORDS_V3
+# (v3 には ``VOCAB_LIMIT_PER_KIND`` の assert を**掛けない**=D-92 (a)。)
+
 #: 版 → パーサが受理する語(``action_words``/``cross_action_words`` の実体)。
 _WORDS_BY_VERSION: Final[Mapping[str, tuple[str, ...]]] = {
     "v1": ALL_ACTION_WORDS,
     "v2": ALL_ACTION_WORDS_V2,
+    "v3": ALL_ACTION_WORDS_V3,
 }
 _CROSS_BY_VERSION: Final[Mapping[str, tuple[str, ...]]] = {
     "v1": ACTION_VOCAB_12,
     "v2": ACTION_VOCAB_13,
+    "v3": ACTION_VOCAB_V3,
+}
+_ROLE_BY_VERSION: Final[Mapping[str, tuple[str, ...]]] = {
+    "v1": ROLE_ACTION_WORDS,
+    "v2": ROLE_ACTION_WORDS,
+    "v3": ROLE_ACTION_WORDS_V3,
 }
 _SPECS_BY_VERSION: Final[Mapping[str, Mapping[str, ActionSpec]]] = {
     "v1": ACTION_SPECS,
     "v2": ACTION_SPECS_V2,
+    "v3": ACTION_SPECS_V3,
 }
 #: 版 → **エンジンに適用分岐がある**語のコード(役割語は含まない=効果先が C4)。
-#: ``engine.resolve._APPLY_BY_VOCAB`` と 1 対 1。
+#: ``engine.resolve._APPLY_BY_VOCAB`` と 1 対 1(**v3 の分岐は段 2** で足す)。
 _ENGINE_CODES_BY_VERSION: Final[Mapping[str, Mapping[str, int]]] = {
     "v1": ACTION_CODES,
     "v2": {**ACTION_CODES, ACTION_WORD_EAT: EAT_ACTION_CODE},
+    "v3": ACTION_CODES_V3,
 }
 
 #: **旧版への対応表**(F: 新語 → 旧語彙での読み替え。ラン間比較を壊さないための橋)。
 #: 「食事」を v1 の語彙で読むと「購入」= 段0 辞書 v1 が ``食べる/飲む`` を写していた先
 #: (語彙政策 v0 の★「意味の損失」行)。**読み替えは比較のときだけ**で、
 #: エンジンの効果は v2 の契約行に従う(読み替えで購入の効果になるのではない)。
+#:
+#: **v3**(アジェンダ §1-1)は**両向き**を 1 つの表に持つ: 待機/休憩 → なし(v1/v2 のテープを
+#: v3 の語彙で読む向き)と なし → 待機(v3 → v2/v1 の向き)。キーが版で交わらない
+#: (なし は v3 にだけ・待機/休憩 は v1/v2 にだけ在る)ので向きはキーの所属で決まる。
+#: **降車 → なし**(第275 親の決め #7: 欠番の語は安全弁へ。v1 のテープを v3 で読む向きだけ)。
 VOCAB_COMPAT: Final[Mapping[str, Mapping[str, str]]] = {
     "v2": {ACTION_WORD_EAT: "購入"},
+    "v3": {
+        "待機": ACTION_WORD_NONE, "休憩": ACTION_WORD_NONE, "降車": ACTION_WORD_NONE,
+        ACTION_WORD_NONE: "待機",
+    },
+}
+
+#: 版 ``v`` → 「``v`` から 1 つ前の版へ降りる」読み替え(キーが ``v`` の語彙に在る行)。
+_COMPAT_DOWN: Final[Mapping[str, Mapping[str, str]]] = {
+    ver: {k: w for k, w in VOCAB_COMPAT.get(ver, {}).items() if k in _WORDS_BY_VERSION[ver]}
+    for ver in VOCAB_VERSIONS
+}
+#: 版 ``v`` → 「1 つ前の版から ``v`` へ上がる」読み替え(キーが ``v`` の語彙に**無い**行)。
+_COMPAT_UP: Final[Mapping[str, Mapping[str, str]]] = {
+    ver: {k: w for k, w in VOCAB_COMPAT.get(ver, {}).items() if k not in _WORDS_BY_VERSION[ver]}
+    for ver in VOCAB_VERSIONS
 }
 
 
@@ -634,7 +793,7 @@ def check_vocab_version(vocab_version: str) -> str:
 
 
 def action_words(vocab_version: str = DEFAULT_VOCAB_VERSION) -> tuple[str, ...]:
-    """その版でパーサが受理する行動語(v1=24 語・v2=25 語)。
+    """その版でパーサが受理する行動語(v1=24 語・v2=25 語・v3=23 語)。
 
     ``"v1"``(既定)は ``ALL_ACTION_WORDS`` と**同一オブジェクト**を返す。
     """
@@ -642,8 +801,18 @@ def action_words(vocab_version: str = DEFAULT_VOCAB_VERSION) -> tuple[str, ...]:
 
 
 def cross_action_words(vocab_version: str = DEFAULT_VOCAB_VERSION) -> tuple[str, ...]:
-    """その版の**種別横断語**(v1=12 語・v2=13 語)。B0 の出力規約に出す並び。"""
+    """その版の**種別横断語**(v1=12 語・v2=13 語・v3=11 語+なし)。B0 の出力規約に出す並び。"""
     return _CROSS_BY_VERSION[check_vocab_version(vocab_version)]
+
+
+def role_action_words(vocab_version: str = DEFAULT_VOCAB_VERSION) -> tuple[str, ...]:
+    """その版の**役割語**(v1/v2=12 語=``ROLE_ACTION_WORDS`` そのもの・v3=11 語)。"""
+    return _ROLE_BY_VERSION[check_vocab_version(vocab_version)]
+
+
+def safe_action_word(vocab_version: str = DEFAULT_VOCAB_VERSION) -> str:
+    """その版の安全弁の語(**失敗しない**・未定義行動の落ち先)。v1/v2=待機・v3=なし。"""
+    return SAFE_ACTION_BY_VERSION[check_vocab_version(vocab_version)]
 
 
 def engine_action_codes(vocab_version: str = DEFAULT_VOCAB_VERSION) -> Mapping[str, int]:
@@ -652,19 +821,32 @@ def engine_action_codes(vocab_version: str = DEFAULT_VOCAB_VERSION) -> Mapping[s
 
 
 def compat_word(word: str, vocab_version: str = "v2", to_version: str = "v1") -> str:
-    """新版の語を旧版の語彙で読む(``VOCAB_COMPAT``・F)。対応が無い語はそのまま返す。
+    """ある版の語を別の版の語彙で読む(``VOCAB_COMPAT``・F)。対応が無い語はそのまま返す。
+
+    版を 1 つずつ辿る(v3 → v1 は v3 → v2 → v1)。降りる向きは「その版の語彙に在るキー」の行、
+    上がる向きは「その版の語彙に無いキー」の行を使う(``_COMPAT_DOWN``/``_COMPAT_UP``)。
+    v2 → v1(既定)は従来どおり 食事 → 購入 だけ。
 
     Example:
         >>> compat_word("食事")
         '購入'
         >>> compat_word("移動")
         '移動'
+        >>> compat_word("なし", "v3", "v1")
+        '待機'
+        >>> compat_word("休憩", "v1", "v3")
+        'なし'
     """
-    check_vocab_version(vocab_version)
-    check_vocab_version(to_version)
-    if to_version == vocab_version:
-        return str(word)
-    return dict(VOCAB_COMPAT.get(vocab_version, {})).get(str(word), str(word))
+    src = VOCAB_VERSIONS.index(check_vocab_version(vocab_version))
+    dst = VOCAB_VERSIONS.index(check_vocab_version(to_version))
+    w = str(word)
+    if src > dst:
+        for i in range(src, dst, -1):
+            w = _COMPAT_DOWN[VOCAB_VERSIONS[i]].get(w, w)
+    else:
+        for i in range(src + 1, dst + 1):
+            w = _COMPAT_UP[VOCAB_VERSIONS[i]].get(w, w)
+    return w
 
 
 assert len(ACTION_VOCAB_13) == 13
@@ -672,6 +854,10 @@ assert len(set(ALL_ACTION_WORDS_V2)) == len(ALL_ACTION_WORDS_V2)
 assert EAT_ACTION_CODE == 24
 assert set(VOCAB_COMPAT["v2"]) <= set(ALL_ACTION_WORDS_V2)
 assert set(VOCAB_COMPAT["v2"].values()) <= set(ALL_ACTION_WORDS)
+assert set(_COMPAT_UP["v3"]) <= set(REMOVED_ACTION_WORDS_V3)
+assert set(_COMPAT_UP["v3"].values()) <= set(ALL_ACTION_WORDS_V3)
+assert set(_COMPAT_DOWN["v3"]) == {ACTION_WORD_NONE}
+assert set(_COMPAT_DOWN["v3"].values()) <= set(ALL_ACTION_WORDS_V2)
 
 
 # ------------------------------------------------------------------ 2行形の整形と検査
@@ -689,8 +875,29 @@ def format_two_line(
     return f"理由: {reason}\n行動: {action} 対象: {target} ひと言: {comment}"
 
 
-def is_role_action(word: str) -> bool:
-    """§2.2 の役割語か。"""
+#: v3 の厳密 2 行形(アジェンダ §1-2: ひと言 を外し 活動・まで を足した詰め形)。
+TWO_LINE_RE_V3: Final[re.Pattern[str]] = re.compile(
+    r"^理由: (?P<reason>[^\n]{1,40})\n"
+    r"行動: (?P<action>\S+) 対象: (?P<target>\S+) 活動: (?P<activity>\S{1,10}) "
+    r"まで: (?P<until>\S+)$"
+)
+
+
+def format_two_line_v3(
+    reason: str,
+    action: str,
+    target: str = NO_TARGET,
+    activity: str = NO_TARGET,
+    until: str = "次の予定",
+) -> str:
+    """v3 の固定 2 行形に整形する(字数は呼び出し側が守る)。``until`` の既定は語の 1 つ。"""
+    return f"理由: {reason}\n行動: {action} 対象: {target} 活動: {activity} まで: {until}"
+
+
+def is_role_action(word: str, vocab_version: str = DEFAULT_VOCAB_VERSION) -> bool:
+    """§2.2 の役割語か(``"v3"`` では 並ぶ は横断語=役割語ではない)。"""
+    if str(vocab_version) == "v3":
+        return word in _ROLE_SET_V3
     return word in ROLE_ACTIONS
 
 
@@ -699,7 +906,11 @@ def action_code_of(word: str, vocab_version: str = DEFAULT_VOCAB_VERSION) -> int
 
     ``vocab_version="v2"`` のときだけ「食事」が ``EAT_ACTION_CODE``(24)になる
     (既定 v1 では「食事」は語彙外=``UNDEFINED_ACTION``=段0 辞書/段1 の経路へ)。
+    ``"v3"`` は v3 の 23 語だけを引く(待機 4・休憩 10・降車 2 は**欠番**=``UNDEFINED_ACTION``・
+    なし=25)。
     """
+    if str(vocab_version) == "v3":
+        return int(_ALL_CODES_V3.get(word, UNDEFINED_ACTION))
     if word in ACTION_CODES:
         return int(ACTION_CODES[word])
     if word in ROLE_ACTION_CODES:
@@ -710,7 +921,7 @@ def action_code_of(word: str, vocab_version: str = DEFAULT_VOCAB_VERSION) -> int
 
 
 def spec_of(word: str, vocab_version: str = DEFAULT_VOCAB_VERSION) -> ActionSpec | None:
-    """行動語 → 契約行(未知は None)。``vocab_version="v2"`` で「食事」の行も引ける。"""
+    """行動語 → 契約行(未知は None)。``"v2"`` で「食事」・``"v3"`` で v3 の 23 行を引く。"""
     return _SPECS_BY_VERSION[check_vocab_version(vocab_version)].get(word)
 
 
@@ -728,6 +939,11 @@ _STATION_RE: Final[re.Pattern[str]] = re.compile(r"^.{1,20}(駅|ホーム|番線
 
 #: 「対象」欄の周囲から剥がす飾り。
 _TARGET_STRIP: Final[str] = " \t　「」『』\"'<>＜＞[]【】()()。、,."
+#: **第271(2026-09-26)**: B2 の文「現在地はセルg-1_0_GL」を LLM がそのまま写した「セルg-1_0_GL」
+#: (テープ 28 本で移動 10,751 呼・食事 921 呼・購入 387 呼)がセル ID と読まれず自由記述に落ちていた。
+#: 「セル」「セルID:」「セルID_」の接頭辞を剥がした残りが**セル ID の形のときだけ**セルとして読む
+#: (「セルID」だけ=説明語は NONE のまま・「セルID_コンビニ」は物カテゴリのまま)。
+_CELL_PREFIX_RE: Final[re.Pattern[str]] = re.compile(r"^セル(?:ID)?\s*[:：_\-]?\s*")
 
 
 @dataclass(frozen=True)
@@ -744,6 +960,9 @@ class Target:
         category: 物カテゴリ(自由文)。
         poi_id: 固有名が**世界の POI** に解決できたときの POI 索引(C9b G6 a′・
             ``parse_target(..., landmarks=...)`` を通したときだけ入る。既定は ``None``)。
+        wander: **「対象: あたり」**(語彙 v3・D-116 F=近傍を歩き回る)の印。型は増やさず
+            ``ITEM_CATEGORY``・``category="あたり"`` のまま、この欄だけで区別する
+            (アジェンダ §1-2)。v1/v2 では常に ``False``=**現行のまま**。
     """
 
     kind: TargetKind
@@ -754,6 +973,7 @@ class Target:
     person_id: int | None = None
     category: str | None = None
     poi_id: int | None = None
+    wander: bool = False
 
     @property
     def is_none(self) -> bool:
@@ -772,6 +992,20 @@ TARGET_PLACEHOLDERS: Final[frozenset[str]] = frozenset({
     "セルID|物カテゴリ|人ID|なし", "セルID|物のカテゴリ|人ID|なし",
 })
 _CATEGORY_SUFFIX: Final[str] = "のカテゴリ"
+
+#: **語彙 v3** の「対象: あたり」(近傍を歩き回る=D-116 F・アジェンダ §1-2)。
+TARGET_WANDER: Final[str] = "あたり"
+#: **語彙 v3** の拠点の語(対象ヒント home/work/school へ写る=``llm.undefined``)。
+#: v3 ではこの 3 語を**目印(POI)に解決しない**(「学校」が「〇〇小学校」の目印に当たらないように)。
+TARGET_BASE_WORDS_V3: Final[tuple[str, ...]] = ("自宅", "職場", "学校")
+#: **語彙 v3** の B0(``perception.templates.OUTPUT_SPEC_V3``・対象の役割知識)と、アジェンダ
+#: §1-2 の契約形に出る**説明語**。値として写した応答は対象なしとして読む(第223 と同じ扱い・
+#: v3 のときだけ ``TARGET_PLACEHOLDERS`` に足して引く)。**expedient**(実測前の予防)。
+TARGET_PLACEHOLDERS_V3: Final[frozenset[str]] = frozenset({
+    "名前かID", "名前かID/自宅/職場/学校/あたり/なし", "名前", "ID",
+    "店や駅の名前", "店の種類", "人のID",
+    "店名", "店のカテゴリ", "駅名",
+})
 
 
 #: 目印の固有名を部分一致で引くときの最短字数(C9b・expedient。1 字だと「像」「坂」が
@@ -822,11 +1056,16 @@ def resolve_landmark(token: str, landmarks: Mapping[str, int] | None) -> int | N
     return None if best is None else best[1]
 
 
-def parse_target(text: str | None, landmarks: Mapping[str, int] | None = None) -> Target:
+def parse_target(
+    text: str | None,
+    landmarks: Mapping[str, int] | None = None,
+    vocab_version: str = DEFAULT_VOCAB_VERSION,
+) -> Target:
     """「対象」欄の文字列 → ``Target``。**例外を投げない**。
 
     認識順(先に当たったものを採る):
-        ``なし``/空 → NONE、``C-0117``/``C0117`` → CELL、``g12_34_GL`` → CELL、
+        ``なし``/空 → NONE、``C-0117``/``C0117`` → CELL、``g12_34_GL`` → CELL
+        (第271: ``セルg12_34_GL`` / ``セルID: g12_34_GL`` も CELL=接頭辞を剥がして ``cell_id`` に入れる)、
         ``P-204``/``P204`` → PERSON、素の整数 → PERSON、``…駅`` → STATION_OR_VEHICLE、
         それ以外の自由文 → ITEM_CATEGORY(``landmarks`` を渡すと**固有名は POI 索引まで
         解決**して ``poi_id`` に入る=C9b G6 a′)。
@@ -836,6 +1075,10 @@ def parse_target(text: str | None, landmarks: Mapping[str, int] | None = None) -
             ``None``(既定)では**1 バイトも挙動が変わらない**(``poi_id`` は常に ``None``)。
             駅名(``…駅``)の判定は**目印より先**に置いたままにしてある=表を渡しても
             既存の STATION_OR_VEHICLE の道は動かない。
+        vocab_version: 語彙版。``"v3"`` のときだけ (i) ``あたり`` → ``wander=True``
+            (``ITEM_CATEGORY``・``category="あたり"``)(ii) ``自宅/職場/学校`` は目印に解決しない
+            (iii) v3 の説明語 ``TARGET_PLACEHOLDERS_V3`` も対象なしとして読む。
+            **既定 ``"v1"``(と ``"v2"``)は 1 バイトも挙動が変わらない**。
 
     Note:
         EVENT(事象ID)は表層形が定まっていないため**この関数では出さない**
@@ -853,22 +1096,38 @@ def parse_target(text: str | None, landmarks: Mapping[str, int] | None = None) -
     if not raw or raw in (NO_TARGET, "無し", "none", "None", "NONE", "-", "—"):
         return NO_TARGET_VALUE
     token = unicodedata.normalize("NFKC", raw)
+    v3 = str(vocab_version) == "v3"
     # 第223(D-89 (i)(a)): 観測テンプレートの**欄の説明語**をそのまま値として書いた応答
     # (実 LLM スモークで「物のカテゴリ」9,055 呼・「セルID」398 呼)は対象なしとして読む。
     # ``raw`` は残す(診断側が ``kind == NONE and raw != NO_TARGET`` で数えられる)。
     # 「食品のカテゴリ」のように説明語の型を付けた値は型だけ剥がして中身を読む。
     if token.replace(" ", "") in TARGET_PLACEHOLDERS:  # 「セルID / 物のカテゴリ / 人ID / なし」の空白差を吸収
         return Target(TargetKind.NONE, raw)
+    if v3 and token.replace(" ", "") in TARGET_PLACEHOLDERS_V3:  # v3 の B0 の説明語
+        return Target(TargetKind.NONE, raw)
     if token.endswith(_CATEGORY_SUFFIX) and len(token) > len(_CATEGORY_SUFFIX):
         token = token[: -len(_CATEGORY_SUFFIX)].strip()
         raw = token
+    if v3 and token == TARGET_WANDER:
+        # D-116 F: 近傍を歩き回る。型は増やさない(アジェンダ §1-2)。
+        return Target(TargetKind.ITEM_CATEGORY, raw, category=TARGET_WANDER, wander=True)
+    if v3 and token in TARGET_BASE_WORDS_V3:
+        # 拠点の語(対象ヒントはパーサが ``llm.undefined.target_surface_hint`` で付ける)。
+        return Target(TargetKind.ITEM_CATEGORY, raw, category=raw)
 
-    m = _CELL_C_RE.match(token)
+    # 第271: 「セル」接頭辞つきのセル ID(B2 の文の写し)。残りがセル ID の形のときだけ剥がす。
+    cell_token = token
+    pm = _CELL_PREFIX_RE.match(token)
+    if pm and pm.end() > 0:
+        rest = token[pm.end() :]
+        if rest and (_CELL_C_RE.match(rest) or _CELL_W2_RE.match(rest)):
+            cell_token = rest
+    m = _CELL_C_RE.match(cell_token)
     if m:
-        return Target(TargetKind.CELL, raw, cell_id=raw, cell_index=int(m.group(1)))
-    m = _CELL_W2_RE.match(token)
+        return Target(TargetKind.CELL, raw, cell_id=cell_token, cell_index=int(m.group(1)))
+    m = _CELL_W2_RE.match(cell_token)
     if m:
-        return Target(TargetKind.CELL, raw, cell_id=raw, band=m.group(3))
+        return Target(TargetKind.CELL, raw, cell_id=cell_token, band=m.group(3))
     m = _PERSON_RE.match(token)
     if m:
         return Target(TargetKind.PERSON, raw, person_id=int(m.group(1)))
@@ -879,3 +1138,104 @@ def parse_target(text: str | None, landmarks: Mapping[str, int] | None = None) -
         return Target(TargetKind.STATION_OR_VEHICLE, raw, category=raw)
     poi = resolve_landmark(token, landmarks)
     return Target(TargetKind.ITEM_CATEGORY, raw, category=raw, poi_id=poi)
+
+
+# ------------------------------------------------------------------ 「活動」「まで」欄(語彙 v3)
+#
+# 正典: アジェンダ §1-2(第274)・草案 §4-2/§4-4(D-116 B/D)。活動=世界を変えない過ごし方
+# (自由文 10 字・契約行も辞書写像も持たない)/まで=次に考え直す目安(持続の上限)。
+# **パーサは語を型に写すだけ**。時刻・到着・相手・予定の tick への解決はエンジン(段 2)。
+#
+# expedient(本節分・アジェンダ §5 に登録)
+# - ``UntilKind`` の**数値**(DEFAULT=0・以下アジェンダの列挙順 1..5)。
+# - 既定 60 分・上限 480 分(アジェンダ §5 の行)。**0 分は MINUTES(0) のまま返す**(段 2 で扱う)。
+# - 認識は**部分一致**(値に「到着」「相手」「次の予定」を含めばその型)・順序はアジェンダの列挙順
+#   (到着 → 相手 → N時間[M分] → N分 → HH:MM → 次の予定)。**「N時間」「N時間M分」は分に読む**
+#   (第275 親の決め #6・1時間=60・1時間30分=90・上限 480)。「12時30分」のような**時刻の漢字
+#   表記**は N分 として読まない(「時」の直後の数は分の数として拾わない=DEFAULT に落ちる)。
+#   「1時間半」の「半」は読まない(=60 分)。
+# - HH:MM は 0:00〜23:59 だけ(24:00 等は DEFAULT)。値は**その日の分**(時×60+分)で返し、
+#   「過去なら翌日」の解決はエンジン。全角数字・全角コロンは NFKC で吸収する。
+
+#: 「活動」欄の字数(アジェンダ §1-2「10 字以内」。超過は理由/ひと言と同じく**切り詰め+フラグ**)。
+ACTIVITY_MAX_CHARS: Final[int] = 10
+#: 「まで」が空・読めないときの持続[分](Concordia interrupt 駆動の docstring 既定 1 時間と同値)。
+UNTIL_DEFAULT_MINUTES: Final[int] = 60
+#: 「N分」の上限[分](1 回の決定が半日を超えないように)。
+UNTIL_MAX_MINUTES: Final[int] = 480
+
+
+class UntilKind(IntEnum):
+    """「まで」欄の型(アジェンダ §1-2 の 6 型)。"""
+
+    DEFAULT = 0  # 空・その他(既定 60 分)
+    ARRIVAL = 1  # 到着(移動の到着イベントで満了)
+    PARTNER = 2  # 相手(会話の成立で満了)
+    MINUTES = 3  # N分
+    CLOCK = 4  # HH:MM(その日の分・過去なら翌日はエンジン)
+    NEXT_SCHEDULE = 5  # 次の予定(カレンダーの次の予定の開始)
+
+
+@dataclass(frozen=True)
+class Until:
+    """「まで」欄の解釈結果。
+
+    Attributes:
+        kind: 型。
+        value: MINUTES=分(上限 ``UNTIL_MAX_MINUTES`` で丸め済み)/ CLOCK=その日の分
+            (時×60+分)/ DEFAULT=``UNTIL_DEFAULT_MINUTES`` / それ以外=0。
+    """
+
+    kind: UntilKind
+    value: int = 0
+
+
+#: 「まで」が空のときの値(= DEFAULT・60 分)。
+DEFAULT_UNTIL: Final[Until] = Until(UntilKind.DEFAULT, UNTIL_DEFAULT_MINUTES)
+
+_UNTIL_HOURS_RE: Final[re.Pattern[str]] = re.compile(r"(\d+)\s*時間(?:\s*(\d+)\s*分)?")
+#: 「時」または数字の直後の数は拾わない(「12時30分」の 30 を分として読まない)。
+_UNTIL_MINUTES_RE: Final[re.Pattern[str]] = re.compile(r"(?<![\d時])(\d+)\s*分")
+_UNTIL_CLOCK_RE: Final[re.Pattern[str]] = re.compile(r"(?<!\d)(\d{1,2}):(\d{2})(?!\d)")
+
+
+def parse_until(text: str | None) -> Until:
+    """「まで」欄の文字列 → ``Until``。**例外を投げない**。
+
+    Example:
+        >>> parse_until("30分")
+        Until(kind=<UntilKind.MINUTES: 3>, value=30)
+        >>> parse_until("12:30").value
+        750
+        >>> parse_until("").kind is UntilKind.DEFAULT
+        True
+    """
+    if text is None:
+        return DEFAULT_UNTIL
+    t = unicodedata.normalize("NFKC", str(text)).strip().strip(_TARGET_STRIP).strip()
+    if not t:
+        return DEFAULT_UNTIL
+    if "到着" in t:
+        return Until(UntilKind.ARRIVAL)
+    if "相手" in t:
+        return Until(UntilKind.PARTNER)
+    m = _UNTIL_HOURS_RE.search(t)
+    if m:
+        h, mins = m.group(1), m.group(2) or "0"
+        if len(h) > 4 or len(mins) > 6:
+            return Until(UntilKind.MINUTES, UNTIL_MAX_MINUTES)
+        return Until(UntilKind.MINUTES, min(int(h) * 60 + int(mins), UNTIL_MAX_MINUTES))
+    m = _UNTIL_MINUTES_RE.search(t)
+    if m:
+        digits = m.group(1)
+        n = int(digits) if len(digits) <= 6 else UNTIL_MAX_MINUTES
+        return Until(UntilKind.MINUTES, min(n, UNTIL_MAX_MINUTES))
+    m = _UNTIL_CLOCK_RE.search(t)
+    if m:
+        hh, mm = int(m.group(1)), int(m.group(2))
+        if hh <= 23 and mm <= 59:
+            return Until(UntilKind.CLOCK, hh * 60 + mm)
+        return DEFAULT_UNTIL
+    if "次の予定" in t:
+        return Until(UntilKind.NEXT_SCHEDULE)
+    return DEFAULT_UNTIL

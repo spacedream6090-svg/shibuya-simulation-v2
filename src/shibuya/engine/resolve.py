@@ -62,6 +62,7 @@ from shibuya.agents.state import (
     N_WAKE_CONDITIONS,
     REFRACTORY_MINUTES,
     Activity,
+    ActivityKind,
     AgentState,
     ResultCode,
     WakeCondition,
@@ -77,6 +78,8 @@ from shibuya.engine.commit import (
     ACT_HELP,
     ACT_LEAVE,
     ACT_MOVE,
+    ACT_NONE,
+    ACT_QUEUE,
     ACT_REFUSE,
     ACT_REPORT,
     ACT_REST,
@@ -84,6 +87,7 @@ from shibuya.engine.commit import (
     ACT_TALK,
     ACT_WAIT,
     ENGINE_STEP,
+    WANDER_BAD_TARGET,
     IntentBatch,
 )
 from shibuya.llm.contract import DEFAULT_VOCAB_VERSION, check_vocab_version
@@ -103,6 +107,8 @@ __all__ = [
     "REST_FATIGUE_RELIEF",
     "BUY_HUNGER_RELIEF",
     "SLEEP_FATIGUE_RELIEF",
+    "ACTIVITY_REST_PERIOD_TICKS",
+    "ACTIVITY_REST_FATIGUE_RELIEF",
     "EAT_HUNGER_RELIEF",
     "EAT_DWELL_MINUTES",
     "ResolveOutcome",
@@ -115,6 +121,8 @@ __all__ = [
     "apply",
     "set_refractory",
     "clear_refractory",
+    "set_activity",
+    "set_activity_until",
     "refractory_ticks",
     "wake_condition_index",
     "normalized_refractory_scale",
@@ -141,6 +149,12 @@ BODY_TICK_PERIOD: Final[int] = 30
 REST_FATIGUE_RELIEF: Final[int] = 3
 BUY_HUNGER_RELIEF: Final[int] = 4
 SLEEP_FATIGUE_RELIEF: Final[int] = 2
+#: **二層の段 2(第275 親の決め #1)**: 「休んでいる体」(活動の種別が 在店/その場 で持続中)の
+#: 疲労の回復=**10 tick ごとに −1**(30 分で −3 = 旧 休憩 1 回ぶん・``REST_FATIGUE_RELIEF``)。
+#: ``activity_columns`` のラン(語彙 v3 × ``--activity on``)だけで効く=v1/v2 は 1 バイトも動かない。
+#: expedient(感度腕 5/10/20 tick)。
+ACTIVITY_REST_PERIOD_TICKS: Final[int] = 10
+ACTIVITY_REST_FATIGUE_RELIEF: Final[int] = 1
 
 # ---------------------------------------------------------------- C9b 対象と注意(G3/G4/G7)
 #
@@ -196,7 +210,8 @@ BOARD_WAIT_LIMIT_TICKS: Final[int] = 30
 
 #: 乗車の意図(``board_line``)を**保つ**行動(これ以外を選んだら意図は落ちる)。
 #: 乗車=張り直し / 待機=ホームで待ち続ける / エンジン継続=ホームへ歩いている途中。
-_BOARD_KEEP_ACTIONS: Final[tuple[int, ...]] = (ACT_BOARD, ACT_WAIT, ENGINE_STEP)
+#: **語彙 v3 の「なし」**(待機の代替)も待ち続けに数える(v1/v2 では 25 は来ない=不変)。
+_BOARD_KEEP_ACTIONS: Final[tuple[int, ...]] = (ACT_BOARD, ACT_WAIT, ENGINE_STEP, ACT_NONE)
 
 #: 就寝の意図(``sleep_pending``)を**保つ**行動(これ以外を選んだら意図は落ちる・D-62)。
 #: 就寝=張り直し / エンジン継続=就寝地へ歩いている途中。
@@ -392,6 +407,9 @@ class ResolveOutcome:
     n_focus_lost: int = 0
     #: **実距離**で成立した会話招待の件数(G7・node/同一セル代理のランでは 0)。
     n_talk_by_distance: int = 0
+    #: 語彙 v3「並ぶ」を食事/購入へ委譲した件数(第275 #2)。v1/v2 では 0。
+    n_queue_to_eat: int = 0
+    n_queue_to_buy: int = 0
 
     def add_result(self, code: int, n: int) -> None:
         if n:
@@ -727,6 +745,13 @@ def set_refractory(
     tab = _REFRACTORY_TICKS if table is None else np.asarray(table, dtype=np.int32)
     if tab.shape != (N_WAKE_CONDITIONS,):
         raise ValueError(f"不応期表は ({N_WAKE_CONDITIONS},) int32(いま {tab.shape})")
+    # 二層の段 2: 活動の満了(``ACTIVITY_EXPIRY``)は不応期表の外=タイマーを張らない。
+    # v1/v2 のランでは表の外の条件が来ない=この分岐は 1 行も通らない(バイト不変)。
+    in_table = c < N_WAKE_CONDITIONS
+    if not bool(np.all(in_table)):
+        a, c = a[in_table], c[in_table]
+        if a.size == 0:
+            return
     until = (int(tick) + tab[c]).astype(np.int32)
     with agents.writable():
         _require_thawed(agents)
@@ -753,25 +778,84 @@ def clear_refractory(agents: AgentState, agent_id, condition) -> None:
     if a.size == 0:
         return
     c = np.asarray(condition, dtype=np.int64)
+    in_table = c < N_WAKE_CONDITIONS  # 活動の満了は不応期表の外(タイマーが無い)
+    if not bool(np.all(in_table)):
+        a, c = a[in_table], c[in_table]
+        if a.size == 0:
+            return
     with agents.writable():
         _require_thawed(agents)
         agents.registry.refractory_until[a, c] = 0
 
 
+def set_activity(agents: AgentState, agent_id, until, kind) -> None:
+    """**活動の持続と種別**を書く(二層の段 2・``engine.activity`` が値を決める・書き手は本関数)。
+
+    Args:
+        agent_id: 体(重複なし)。
+        until: ``activity_until``(満了の tick・``-1``=活動なし)。
+        kind: ``ActivityKind``。
+
+    ``activity_columns`` の無いラン(v1/v2・``--activity off``)では呼ばれない。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    with agents.writable():
+        _require_thawed(agents)
+        agents.registry.activity_until[a] = np.asarray(until, dtype=np.int64).astype(np.int32)
+        agents.registry.activity_kind[a] = np.asarray(kind, dtype=np.int64).astype(np.int8)
+
+
+def set_activity_until(agents: AgentState, agent_id, until) -> None:
+    """``activity_until`` だけを書き換える(到着・会話成立の満了=二層の段 2)。"""
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    with agents.writable():
+        _require_thawed(agents)
+        agents.registry.activity_until[a] = np.asarray(until, dtype=np.int64).astype(np.int32)
+
+
 # ---------------------------------------------------------------- 身体の自然変動
 def advance_body(agents: AgentState, tick: int) -> None:
-    """内受容 3 変数の自然変動(**C4 の世界過程が入るまでの駆動源**・expedient)。"""
-    if int(tick) % BODY_TICK_PERIOD:
+    """内受容 3 変数の自然変動(**C4 の世界過程が入るまでの駆動源**・expedient)。
+
+    **二層の段 2(第275 親の決め #1)**: ``activity_columns`` のランでは、活動の種別が
+    在店/その場 で持続中(``activity_until > tick``)・移動/乗車/就寝中でない体の疲労を
+    ``ACTIVITY_REST_PERIOD_TICKS`` ごとに ``ACTIVITY_REST_FATIGUE_RELIEF`` 下げる
+    (旧 休憩 の即時回復を時間経過の規則へ寄せた)。自然変動の**後**に掛ける。
+    """
+    body = int(tick) % BODY_TICK_PERIOD == 0
+    rest = bool(getattr(agents, "activity_columns", False)) and (
+        int(tick) % ACTIVITY_REST_PERIOD_TICKS == 0
+    )
+    if not (body or rest):
         return
     with agents.writable():
         r = agents.registry
-        r.hunger[:] = np.minimum(r.hunger.astype(np.int16) + 1, 10).astype(np.uint8)
-        r.fatigue[:] = np.minimum(r.fatigue.astype(np.int16) + 1, 10).astype(np.uint8)
-        sleeping = r.activity == int(Activity.SLEEPING)
-        if sleeping.any():
-            r.fatigue[sleeping] = np.maximum(
-                r.fatigue[sleeping].astype(np.int16) - SLEEP_FATIGUE_RELIEF, 0
-            ).astype(np.uint8)
+        if body:
+            r.hunger[:] = np.minimum(r.hunger.astype(np.int16) + 1, 10).astype(np.uint8)
+            r.fatigue[:] = np.minimum(r.fatigue.astype(np.int16) + 1, 10).astype(np.uint8)
+            sleeping = r.activity == int(Activity.SLEEPING)
+            if sleeping.any():
+                r.fatigue[sleeping] = np.maximum(
+                    r.fatigue[sleeping].astype(np.int16) - SLEEP_FATIGUE_RELIEF, 0
+                ).astype(np.uint8)
+        if rest:
+            kind = r.activity_kind
+            act = r.activity
+            resting = (
+                ((kind == int(ActivityKind.IN_SHOP)) | (kind == int(ActivityKind.IN_PLACE)))
+                & (r.activity_until > int(tick))
+                & (act != int(Activity.MOVING))
+                & (act != int(Activity.RIDING))
+                & (act != int(Activity.SLEEPING))
+            )
+            if resting.any():
+                r.fatigue[resting] = np.maximum(
+                    r.fatigue[resting].astype(np.int16) - ACTIVITY_REST_FATIGUE_RELIEF, 0
+                ).astype(np.uint8)
 
 
 # ---------------------------------------------------------------- Phase C 本体
@@ -1103,6 +1187,14 @@ def _apply_move(agents, world, aid, tgt, tick, out, schedule) -> None:
     「移動の対象が人/オブジェクト」)。対象のノードが取れなければ ``UNREACHABLE``。
     """
     r = agents.registry
+    # 二層の段 2: 「対象: あたり」を解決できなかった体(域外)は**対象不正**。
+    # v1/v2 では行き先に ``WANDER_BAD_TARGET`` が立たない=この分岐は 1 行も通らない。
+    bad = tgt == WANDER_BAD_TARGET
+    if bool(np.any(bad)):
+        _fail(agents, aid[bad], ResultCode.BAD_TARGET, tick, out)
+        aid, tgt = aid[~bad], tgt[~bad]
+        if aid.size == 0:
+            return
     ok_cell = (tgt >= 0) & (tgt < world.n_cells)
     safe = np.clip(tgt, 0, world.n_cells - 1)
     dest_node = np.where(ok_cell, world.assets.cell_rep_node[safe], -1)
@@ -1770,6 +1862,28 @@ def _complete_eat(agents, world, eaters, shops, paid, tick, out) -> None:
     _ok(agents, eaters, tick, out)
 
 
+def _apply_queue(agents, world, aid, tgt, tick, out, schedule) -> None:
+    """**語彙 v3「並ぶ」**(第275 親の決め #2・expedient)。
+
+    対象 POI(現在セルの POI=``commit.intents_from_responses``)が**飲食店なら食事**
+    (``_apply_eat``)、**それ以外なら購入**(``_apply_buy``)へ委譲する。満席なら既存の
+    待ち行列に入る(D-113 ③ の機構がそのまま効く)・空席なら即時成立。対象なし/解決不能は
+    ``BAD_TARGET``。``last_action`` は 並ぶ(22)のまま(``apply`` の分岐が書く)。
+    """
+    has = (tgt >= 0) & (tgt < world.n_poi)
+    _fail(agents, aid[~has], ResultCode.BAD_TARGET, tick, out)
+    if not bool(np.any(has)):
+        return
+    a, t = aid[has], tgt[has]
+    eat = np.asarray(world.eatery_mask, dtype=bool)[t]
+    out.n_queue_to_eat += int(np.count_nonzero(eat))
+    out.n_queue_to_buy += int(np.count_nonzero(~eat))
+    if bool(np.any(eat)):
+        _apply_eat(agents, world, a[eat], t[eat], tick, out, schedule)
+    if bool(np.any(~eat)):
+        _apply_buy(agents, world, a[~eat], t[~eat], tick, out, schedule)
+
+
 def _apply_wait(agents, world, aid, tgt, tick, out, schedule) -> None:
     """待機: **常に可能=安全弁**(失敗しない)。
 
@@ -2381,16 +2495,45 @@ assert len(_APPLY) == 13, "行動語 12 + エンジン継続 1"
 _APPLY_V2: Final[dict[int, object]] = {**_APPLY, ACT_EAT: _apply_eat}
 assert len(_APPLY_V2) == 14, "語彙 v2 = 13 分岐 + 食事"
 
+#: **語彙 v3** の適用表(二層・D-116 C): 待機・休憩・降車の分岐を**持たない**(コード 4/10/2 は
+#: 欠番=v3 のエンジンには来ない)・食事・**並ぶ**(22=食事/購入へ委譲)・**なし**(25=旧 待機と
+#: 同じ適用関数=時間経過だけ・失敗しない)。``_APPLY``/``_APPLY_V2`` は**そのまま**。
+_APPLY_V3: Final[dict[int, object]] = {
+    ENGINE_STEP: _apply_engine_step,
+    ACT_MOVE: _apply_move,
+    ACT_BOARD: _apply_board,
+    ACT_BUY: _apply_buy,
+    ACT_NONE: _apply_wait,
+    ACT_TALK: _apply_talk,
+    ACT_LEAVE: _apply_leave,
+    ACT_REPORT: _apply_report,
+    ACT_HELP: _apply_help,
+    ACT_REFUSE: _apply_record_only,
+    ACT_SLEEP: _apply_sleep,
+    ACT_EAT: _apply_eat,
+    ACT_QUEUE: _apply_queue,
+}
+assert len(_APPLY_V3) == 13, "語彙 v3 = 横断 11 語 + なし + エンジン継続"
+
 #: 語彙版 → 適用表。
-_APPLY_BY_VOCAB: Final[Mapping[str, dict[int, object]]] = {"v1": _APPLY, "v2": _APPLY_V2}
+_APPLY_BY_VOCAB: Final[Mapping[str, dict[int, object]]] = {
+    "v1": _APPLY, "v2": _APPLY_V2, "v3": _APPLY_V3,
+}
 
 #: 語彙版 → ``apply`` が回す行動の**順序**(決定論のため固定・v2 は末尾に食事を足すだけ)。
 _ACTION_ORDER_V1: Final[tuple[int, ...]] = (
     ENGINE_STEP, ACT_MOVE, ACT_BOARD, ACT_ALIGHT, ACT_BUY, ACT_WAIT, ACT_TALK,
     ACT_LEAVE, ACT_REPORT, ACT_HELP, ACT_REFUSE, ACT_REST, ACT_SLEEP,
 )
+#: 語彙 v3 の順序(v1 の並びから 降車/休憩 を抜き、待機の位置に なし を置き、末尾に 食事・並ぶ)。
+_ACTION_ORDER_V3: Final[tuple[int, ...]] = (
+    ENGINE_STEP, ACT_MOVE, ACT_BOARD, ACT_BUY, ACT_NONE, ACT_TALK,
+    ACT_LEAVE, ACT_REPORT, ACT_HELP, ACT_REFUSE, ACT_SLEEP, ACT_EAT, ACT_QUEUE,
+)
 _ACTION_ORDER_BY_VOCAB: Final[Mapping[str, tuple[int, ...]]] = {
     "v1": _ACTION_ORDER_V1,
     "v2": _ACTION_ORDER_V1 + (ACT_EAT,),
+    "v3": _ACTION_ORDER_V3,
 }
+assert set(_ACTION_ORDER_V3) == set(_APPLY_V3)
 assert _REFRACTORY_TICKS.size == N_WAKE_CONDITIONS

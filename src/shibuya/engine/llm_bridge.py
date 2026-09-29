@@ -101,12 +101,17 @@ from shibuya.llm import (
     parse_two_line,
 )
 from shibuya.llm.contract import (
+    ACTION_WORD_NONE,
+    ACTION_WORD_QUEUE,
     DEFAULT_VOCAB_VERSION,
     EAT_ACTION_CODE,
+    NONE_ACTION_CODE,
     NO_TARGET_VALUE,
     ACTION_WORD_EAT,
+    ROLE_ACTION_CODES,
     check_vocab_version,
     engine_action_codes,
+    safe_action_word,
 )
 from shibuya.perception import templates as PT
 
@@ -133,6 +138,9 @@ __all__ = [
 ACTION_WORD_BY_CODE: Final[Mapping[int, str]] = {
     **{int(v): k for k, v in ACTION_CODES.items()},
     EAT_ACTION_CODE: ACTION_WORD_EAT,
+    # 語彙 v3(二層の段 2): 並ぶ(22・横断語へ)と なし(25)。v1/v2 のエンジンには来ない
+    int(ROLE_ACTION_CODES[ACTION_WORD_QUEUE]): ACTION_WORD_QUEUE,
+    NONE_ACTION_CODE: ACTION_WORD_NONE,
 }
 
 #: テープへ intern する**共有ブロック**(B5/B6 は個体依存なので intern しない)。
@@ -672,8 +680,8 @@ class LLMBridge:
         role_action = bool(parse.is_role_action)
         if role_action:
             self.n_role_actions += 1
-            # 役割語は effects 先が C4。当面は安全弁(待機)へ落とす(expedient)。
-            action_code = int(self._engine_codes["待機"])
+            # 役割語は effects 先が C4。当面は安全弁(待機・**語彙 v3 は なし**)へ落とす(expedient)。
+            action_code = int(self._engine_codes[safe_action_word(self.vocab_version)])
         if not parse.format_ok:
             self.n_parse_errors += 1  # 実効(別名許容後)
         if not parse.strict_format_ok:
@@ -685,7 +693,8 @@ class LLMBridge:
 
         stage = -1
         feedback = ""
-        target_hint = ""
+        # 語彙 v3: 「対象: 自宅/職場/学校」の対象ヒント(パーサが付ける・v1/v2 は常に "")
+        target_hint = str(getattr(parse, "target_hint", "") or "")
         if parse.action is None:
             self.n_unknown_action += 1
             outcome = self.undefined.observe(
@@ -693,7 +702,7 @@ class LLMBridge:
             )
             stage = outcome.stage
             feedback = outcome.feedback
-            target_hint = outcome.target_hint
+            target_hint = outcome.target_hint or target_hint  # v1/v2 は右辺が常に ""=不変
             if outcome.mapped and outcome.word in self._engine_codes:
                 action_code = int(self._engine_codes[outcome.word])
                 self.n_undefined_mapped += 1

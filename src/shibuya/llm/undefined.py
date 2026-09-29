@@ -43,6 +43,7 @@ expedient(本モジュール分)
 
 from __future__ import annotations
 
+import unicodedata
 from collections import Counter, deque
 from dataclasses import dataclass
 from enum import Enum
@@ -50,11 +51,15 @@ from typing import Any, Final, Iterable, Mapping, Sequence
 
 from shibuya.llm.contract import (
     ACTION_SPECS,
+    ACTION_WORD_NONE,
     DEFAULT_VOCAB_VERSION,
+    REMOVED_ACTION_WORDS_V3,
+    TARGET_BASE_WORDS_V3,
     ActionSpec,
     action_code_of,
     action_words,
     check_vocab_version,
+    compat_word,
 )
 
 __all__ = [
@@ -72,6 +77,15 @@ __all__ = [
     "TARGET_HINTS_V4",
     "TARGET_HINT_WORDS",
     "target_hints",
+    # ---- 段0 辞書 v5(語彙 v3=行為と活動の二層・D-116)。v1〜v4 の表と版は 1 行も動かさない ----
+    "SYNONYMS_V5_DIFF",
+    "SYNONYMS_V5",
+    "SYNONYM_TABLE_VERSION_V5",
+    "TARGET_SURFACE_HINTS_V5",
+    "TARGET_HINTS_V5",
+    "target_surface_hint",
+    "FALLBACK_ACTIONS_V3",
+    "fallback_actions",
     "SYNONYM_TABLE_VERSION_BY_VOCAB",
     "synonym_table_version",
     "synonym_table",
@@ -309,16 +323,74 @@ SYNONYMS_V4: Final[Mapping[str, str]] = {**SYNONYMS_V3, **SYNONYMS_V4_DIFF}
 #: 辞書 v4 の版(語彙政策 v0 §4-1 (ii)「行の追加・変更は版を上げる」)。
 SYNONYM_TABLE_VERSION_V4: Final[str] = "undefined-synonyms-v4"
 
+# ----------------------------------------------------------- 段0 辞書 v5(語彙 v3 用・D-116)
+#
+# 正典: ``docs/design/v2-two-layer-implementation-agenda.md`` §1-1(第274)+ 草案 §4-3/§4-6
+# (D-116 H「段0 辞書は行為側だけに残す(活動には写像を掛けない)」)。
+#
+# **v1〜v4 の表(``SYNONYMS``〜``SYNONYMS_V4``)も版も 1 行も動かさない**。v5 は
+# **``vocab_version="v3"`` のときだけ**効く(``synonym_table("v3")``)。
+#
+# 作り方(機械的・親の手で語を選んでいない部分):
+#   (i) v4 の表で **待機・休憩・降車** へ写していた行を**全て「なし」へ**付け替える
+#       (待つ・様子を見る・何もしない・立ち止まる・観察・眺める・見物・見学・確認・調べる・
+#       調査・チェック・見る・休む・休憩する・座る・一息つく・待機する・降りる・下車)。
+#   (ii) 活動の語(散歩・ぶらつく・歩き回る・うろつく・見る)→ **なし**(アジェンダ §1-1。
+#       活動は自由文なので写像先が無い=行為は なし)。歩き回る・うろつく は v1〜v4 で 移動。
+#   (iii) **外した語そのもの**(待機・休憩・降車)→ なし(**expedient**・下記)。
+#
+# expedient(本節分・アジェンダ §5 に登録)
+# - (iii) の 3 行: v3 では語彙外なので、辞書に無いと段1 に記録され N=10 体で段2 の裁定
+#   (=外した語が裁定で語彙に戻る道)に乗る。``VOCAB_COMPAT["v3"]`` と同じ向き(→ なし)で受ける。
+# - **横になる は 就寝 のまま**(v1 から 就寝 へ写す行。アジェンダ §1-1 の括弧の例示に
+#   「横になる」があるが、規則「待機・休憩・降車へ写していた行」には当たらない=規則を採り、
+#   親へ確認を上げた)。**散策・見回る は 移動 のまま**(アジェンダの列挙に無い)。
+# - 対象ヒント(``TARGET_HINTS_V4``)は**そのまま引き継ぐ**(見る・眺める・観察・見物 → look は
+#   写像先が なし になっても残る=「なし の対象=注意の焦点」。なし の適用が待機の関数を
+#   流用する限り焦点の挙動は v2 と同じ・段 2 の判断)。
+
+#: 語彙 v3 用の段0 辞書の**規則 (i) 以外の差分**((ii) 活動の語 5 行=うち 歩き回る・うろつく・見る は
+#: v4 に在る行の付け替え / (iii) 外した語 3 行)。写像先は全て なし。
+SYNONYMS_V5_DIFF: Final[Mapping[str, str]] = {
+    # (ii) 活動の語(アジェンダ §1-1)。歩き回る・うろつく・見る は v4 に在る行の付け替え
+    "散歩": ACTION_WORD_NONE,
+    "ぶらつく": ACTION_WORD_NONE,
+    "歩き回る": ACTION_WORD_NONE,
+    "うろつく": ACTION_WORD_NONE,
+    "見る": ACTION_WORD_NONE,
+    # (iii) v3 で外した語そのもの(expedient・上の注)
+    "待機": ACTION_WORD_NONE,
+    "休憩": ACTION_WORD_NONE,
+    "降車": ACTION_WORD_NONE,
+}
+
+#: 段0 辞書 v5(= v4 の 待機/休憩/降車 行を なし へ付け替え + ``SYNONYMS_V5_DIFF``)。**語彙 v3 専用**。
+SYNONYMS_V5: Final[Mapping[str, str]] = {
+    **{
+        k: (ACTION_WORD_NONE if w in REMOVED_ACTION_WORDS_V3 else w)
+        for k, w in SYNONYMS_V4.items()
+    },
+    **SYNONYMS_V5_DIFF,
+}
+
+#: 辞書 v5 の版(語彙政策 v0 §4-1 (ii)「行の追加・変更は版を上げる」)。
+SYNONYM_TABLE_VERSION_V5: Final[str] = "undefined-synonyms-v5"
+
+assert not set(SYNONYMS_V5.values()) & set(REMOVED_ACTION_WORDS_V3), "v5 の写像先に外した語"
+assert set(SYNONYMS_V5.values()) <= set(action_words("v3")), "v5 の写像先は v3 の語彙だけ"
+
 #: 語彙版 → 段0 辞書の版(manifest に載る値)。**v1 は現行のまま**。
 SYNONYM_TABLE_VERSION_BY_VOCAB: Final[Mapping[str, str]] = {
     "v1": SYNONYM_TABLE_VERSION,
     "v2": SYNONYM_TABLE_VERSION_V4,
+    "v3": SYNONYM_TABLE_VERSION_V5,
 }
 
 #: 語彙版 → 段0 辞書の実体。
 _SYNONYMS_BY_VOCAB: Final[Mapping[str, Mapping[str, str]]] = {
     "v1": SYNONYMS,
     "v2": SYNONYMS_V4,
+    "v3": SYNONYMS_V5,
 }
 
 
@@ -369,19 +441,60 @@ TARGET_HINTS_V4: Final[Mapping[str, str]] = {
     "見物": "look",
 }
 
+#: **語彙 v3** の「対象」欄の表層 → 対象ヒント(アジェンダ §1-2「対象: 自宅/職場/学校 は既存の
+#: 対象ヒント home/work/school に写す」)。行動欄の辞書ではなく**対象欄**の語(パーサが引く)。
+TARGET_SURFACE_HINTS_V5: Final[Mapping[str, str]] = dict(
+    zip(TARGET_BASE_WORDS_V3, ("home", "work", "school"))
+)
+
+#: 語彙 v3 の対象ヒント表(= v4 の表 + 対象欄の 3 語)。v1/v2 の表はそのまま。
+TARGET_HINTS_V5: Final[Mapping[str, str]] = {**TARGET_HINTS_V4, **TARGET_SURFACE_HINTS_V5}
+
 #: 語彙版 → 対象ヒント表。**``"v1"`` は ``TARGET_HINTS`` と同一オブジェクト**。
 _TARGET_HINTS_BY_VOCAB: Final[Mapping[str, Mapping[str, str]]] = {
     "v1": TARGET_HINTS,
     "v2": TARGET_HINTS_V4,
+    "v3": TARGET_HINTS_V5,
 }
+
+assert set(TARGET_HINTS_V5.values()) <= set(TARGET_HINT_WORDS)
 
 
 def target_hints(vocab_version: str = DEFAULT_VOCAB_VERSION) -> Mapping[str, str]:
-    """語彙版 → 対象ヒント表(``"v1"`` は現行の 3 行・``"v2"`` は G5 の辞書 v4)。"""
+    """語彙版 → 対象ヒント表(``"v1"`` は現行の 3 行・``"v2"`` は G5 の辞書 v4・``"v3"`` は v5)。"""
     return _TARGET_HINTS_BY_VOCAB[check_vocab_version(vocab_version)]
+
+
+def target_surface_hint(target_text: str | None, vocab_version: str = DEFAULT_VOCAB_VERSION) -> str:
+    """**「対象」欄**の表層 → 対象ヒント(語彙 v3 だけ・完全一致・NFKC)。それ以外は ``""``。
+
+    Example:
+        >>> target_surface_hint("職場", "v3")
+        'work'
+        >>> target_surface_hint("職場")
+        ''
+    """
+    if check_vocab_version(vocab_version) != "v3" or not target_text:
+        return ""
+    token = unicodedata.normalize("NFKC", str(target_text)).strip()
+    return TARGET_SURFACE_HINTS_V5.get(token, "")
 
 #: 失敗フィードバックで提示する「いま可能な行動」3語(行動契約書 §6・安全弁=待機を先頭)。
 FALLBACK_ACTIONS: Final[tuple[str, str, str]] = ("待機", "休憩", "移動")
+
+#: 語彙 v3 の「いま可能な行動」(**expedient**: ``FALLBACK_ACTIONS`` を ``VOCAB_COMPAT`` で
+#: v3 の語彙へ読み替えて重複を落としたもの=待機/休憩 → なし・移動 → 移動。語は親が選んでいない)。
+FALLBACK_ACTIONS_V3: Final[tuple[str, ...]] = tuple(
+    dict.fromkeys(compat_word(w, "v1", "v3") for w in FALLBACK_ACTIONS)
+)
+assert FALLBACK_ACTIONS_V3 == (ACTION_WORD_NONE, "移動")
+
+
+def fallback_actions(vocab_version: str = DEFAULT_VOCAB_VERSION) -> tuple[str, ...]:
+    """語彙版 → 段1 の「いま可能な行動」(v1/v2 は ``FALLBACK_ACTIONS`` そのもの)。"""
+    if check_vocab_version(vocab_version) == "v3":
+        return FALLBACK_ACTIONS_V3
+    return FALLBACK_ACTIONS
 
 #: 段1 の失敗フィードバック文面(**文面凍結**)。
 _FEEDBACK_TEMPLATE: Final[str] = "未定義の行動『{word}』。いま可能な行動: {actions}"
@@ -501,8 +614,9 @@ def map_synonym(
     Args:
         raw_word: 行動欄の逐語。
         extra: 追加表(段4 の判例)。
-        vocab_version: 語彙版(``"v1"``=既定・``SYNONYMS`` / ``"v2"``=``SYNONYMS_V4``)。
-            **既定では 1 行も変わらない**(同じ表・同じ写像先・同じヒント 3 行)。
+        vocab_version: 語彙版(``"v1"``=既定・``SYNONYMS`` / ``"v2"``=``SYNONYMS_V4`` /
+            ``"v3"``=``SYNONYMS_V5``)。**既定では 1 行も変わらない**(同じ表・同じ写像先・
+            同じヒント 3 行)。
 
     Returns:
         ``(契約語彙 or None, target_hint)``。``target_hint`` は ``TARGET_HINT_WORDS`` の語。
@@ -552,7 +666,8 @@ class UndefinedActionRegistry:
         adjudicator: 段2 で1呼する ``llm.LLMClient``(None なら段2 に進まない)。
         params: 裁定呼のデコード設定(``LLMRequest.params``)。
         vocab_version: 語彙版(D-71 §3 F)。``"v2"`` で段0 辞書が v4(v3 + C9b G5 の対象
-            ヒント)になり、行動コードの解決に「食事」が入る。
+            ヒント)になり、行動コードの解決に「食事」が入る。``"v3"``(D-116)で辞書 v5・
+            段1 の「いま可能な行動」が ``FALLBACK_ACTIONS_V3``(なし/移動)になる。
             **既定 ``"v1"`` は現行と 1 バイトも変わらない**。
 
     Example:
@@ -602,7 +717,7 @@ class UndefinedActionRegistry:
         if not word:
             return UndefinedOutcome(
                 stage=1, word=None, action_code=action_code_of("", ver),
-                feedback=undefined_feedback(""), source="record",
+                feedback=undefined_feedback("", fallback_actions(ver)), source="record",
             )
 
         # 段4: 判例(採用済みの語)は決定論参照=呼ゼロ
@@ -631,7 +746,7 @@ class UndefinedActionRegistry:
         self.log.append(UndefinedActionRecord(word, int(agent_id), int(tick), context_hash))
         self.counts[word] += 1
         self._agents.setdefault(word, set()).add(int(agent_id))
-        feedback = undefined_feedback(word)
+        feedback = undefined_feedback(word, fallback_actions(ver))
 
         # 段2/段3: 閾値到達で裁定を1呼
         proposal = self._maybe_adjudicate(word, tick)

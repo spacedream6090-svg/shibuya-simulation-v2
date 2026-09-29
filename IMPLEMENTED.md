@@ -95,3 +95,36 @@
 - 計測: **未測定と宣言**(mock は B0 を読まず checkpoint 不変 2f3969cf・旧テープの再生は当たらない)→ GPU を借りたら役割語率を on/off で測る。B0 の指紋 on 24661cd6…。
 - テスト: templates +3・intent_mode +1(perception+intent 全緑・llm/engine/c6/c7/c8/perception 全緑)。
 - **D-113 は 4 件とも完了**(#41〜#44)。記録 [D-113 修正記録](docs/bench/analysis/d113-defects-2026-09-26/README.md) §5 に一覧。
+
+### #45 パーサ: 「セル」接頭辞つきのセル ID を CELL と読む(第271・2026-09-26・親)
+
+- 欠陥(第270・[語彙 v3 候補](docs/bench/analysis/vocab-v3-candidates-2026-09-26/README.md) §4-e): B2 の文「現在地はセルg-1_0_GL」を LLM がそのまま写した「セルg-1_0_GL」が W2 の正規表現(接頭辞なし)に当たらず、物カテゴリ(自由記述)に落ちていた。テープ 28 本で 14,872 呼(移動 10,913=移動の対象の 2.3%・待機 1,017・食事 921・乗車 645・購入 391 …・28 腕全部)。
+- 直し: `contract._CELL_PREFIX_RE`(「セル」「セルID:」「セルID_」)を剥がした残りが**セル ID の形のときだけ** CELL(`cell_id` は剥がした形・`raw` は逐語)。説明語「セルID」は NONE のまま(第223)・「セルID_コンビニ」は物カテゴリのまま。
+- 計測: 上の 14,872 呼が CELL に変わる(表層の突き合わせ=呼ごとのリプレイと同値)。エンジンは既定で移動の行き先に対象欄を使わない(D-112 ②)ので**挙動は不変**・mock 5,000 の checkpoint 2f3969cf 不変。D-112 ②(行き先を対象欄から)がこの値を使う。
+- テスト: `tests/llm/test_contract.py` +1・parametrize +7(llm 173 passed・engine/perception/c6/c7/c8 全緑・exit 0)。ユーザー 09-26「修正を入れていいよ」。
+
+### #46 二層の実装 段 1: 語彙 v3(契約表・パーサ・B0 文面・VOCAB_COMPAT・段0 辞書 v5)(第275・2026-09-27・実装役 Opus 5.5・親検収)
+
+- 正典: [実装アジェンダ](docs/design/v2-two-layer-implementation-agenda.md) §1(ユーザー決定 D-116 A〜I)。**ライブラリの既定は v1 のまま**(既定バイト不変=`template_sha256` 161fe181・`b0_sha256("vocab")` 2b4bfc8a・mock 5,000 v1 の checkpoint 2f3969cf を親が再確認)。
+- 契約表 v3(`llm/contract.py`): 種別横断 11 語+「なし」(コード 25・失敗しない安全弁)・役割語 11(並ぶ は横断へ・コード 22 のまま)・待機 4/休憩 10/降車 2 は欠番。`VOCAB_COMPAT["v3"]` 両向き(待機/休憩→なし・なし→待機)・`compat_word` は版を 1 つずつ辿る。`Target.wander`(対象「あたり」)・`parse_until`(`UntilKind`: 到着/相手/N分/HH:MM/次の予定/既定 60 分・上限 480)・`TWO_LINE_RE_V3`・`safe_action_word`。上限 24 の assert は v3 に掛けない(D-92 (a))。
+- パーサ v3(`llm/parser.py`): 別経路 `_parse_v3`(v1/v2 は 1 行も通らない)。5 ラベル(理由/行動/対象/活動/まで)・位置引数・strict(v3)は正準表層だけ。`ParseResult` に activity/until/raw_activity/raw_until/activity_truncated/target_hint。
+- B0 v3(`perception/templates.py`): `B0_SYSTEM_V3`/`OUTPUT_SPEC_V3`(対象欄の説明語を例示から外す=D-89 (i)(b)・活動と まで の 1 行説明)・役割語行 11 語。指紋 `b0_sha256("vocab","v3")` **3acf6449**(役割語行つき **1fe90d13**=ランの既定)。共有静的 745/750 tok。open/hint × v3 は未定義(`ValueError`)。
+- 辞書 v5(`llm/undefined.py`): 111 行・待機/休憩/降車へ写していた 21 行+歩き回る/うろつく を なし へ・新規 5 行(散歩・ぶらつく・待機・休憩・降車 → なし)。写像先に 待機/休憩/降車 は 0(テスト)。`TARGET_HINTS_V5`(自宅/職場/学校)。
+- テスト: llm+perception+CLI 版+vocab_v2_eat = **631 passed・exit 0**(親が再実行)。全体 `-m "not gpu and not slow"` = **2917 件(failed 0・skipped 1・P6 の予算テストは除外)**(親が再実行・exit 0)。
+- 段 1 で見つかった依存: `_apply_rest` が体力 −3 を即時に持ち、時間経過は就寝時だけ回復 → v3 では「休んでいる体」の時間経過の回復を段 2 で足す(アジェンダ §6)。
+
+### #47 二層の実装 段 2: エンジンの活動層(第276・2026-09-27・実装役 Opus 5.5・親検収)
+
+- 正典: [実装アジェンダ](docs/design/v2-two-layer-implementation-agenda.md) §2・§6。新規 `engine/activity.py`(476 行・`ActivityLayer`=値を決めるだけ・書き手は `resolve`): 「まで」の解決(到着/相手/N分/HH:MM/次の予定/既定 60 分・全型に上限 480)・満了候補(`WakeCondition ACTIVITY_EXPIRY=11`・不応期表の外)・活動中の CELL_BLOCK 抑止・「あたり」=同じ層の Chebyshev 距離 ≤2 のセルを blake3 の決定論で選び到着したら次へ・B4b の 1 行「[B4b 活動] 近くの人: <文>が<n>人・…」(同セル全員で数え規約⑧・≤15 tok・行列行が先)・`Checkpoint.activity_hash`(活動文と まで の型・空でないときだけ combined へ)・計数。
+- registry: `activity_until`(int32)・`activity_kind`(int8: none/目的地つき移動/あたり/在店/その場)。`resolve`: `_APPLY_BY_VOCAB["v3"]`(なし 25・並ぶ 22=`_apply_queue` 飲食店なら食事/他は購入へ委譲)・`set_activity`/`set_activity_until`・`advance_body` の休んでいる体(在店/その場・移動/乗車/就寝を除く)の回復 **−1/10 tick**(30 分で −3=旧 休憩 1 回)。`commit`: 未定義→なし(v3)・`ACT_QUEUE`/`ACT_NONE`。`llm_bridge`/`fleet`: 役割語の落ち先を `safe_action_word`(v3=なし)・自宅/職場/学校の対象ヒント。`renderer`: v3 の `RESULT_OPTIONS_V3`/`DEFAULT_OPTIONS_V3`/`ACTIVITY_WORDS_V3`(VOCAB_COMPAT の機械的読み替え・テストで一致)・満了の起床理由。`weekly.ACTIVITY_TO_ACTION_V3`。`growth_decl` に `activity_text`(64 B/体・層が立つランだけ)。`run_day(activity=True)`・CLI `--activity {on,off}`・manifest に `activity`/`activity_kind_counts`/`calls_by_condition`(v1 にも列が増える=キー追加のみ)。第275 §6 の #4(「行動: なし」なら対象省略可・`target_omitted`)#6(N時間→分)#7(降車→なし)も実装。
+- 検収: 段 2 のテスト 26 件(満了で起床/活動中は場所で起きない/off で現行/あたり 半径 2・決定論・域外 BAD_TARGET/B4b 同セル 2 体バイト一致/checkpoint に活動文が効く/休む回復/並ぶ委譲/未定義→なし/アービタと不応期/v3 表=COMPAT/bridge)。全体 `-m "not gpu and not slow"`(P6 除外)= **2952 件(failed 0・skipped 1・P6 の予算テストは除外)**(親が再実行・exit 0)。mock 5,000(親が再実行): v1 **2f3969cf 不変**・v3 **4c58268c**(版の台帳へ)。v1/v2 の小規模ラン 4 種の final_hash は commit 済みコードと一致(実装役)。
+- v3 の mock はまだ v1 形の出力(活動なし・まで 既定)= 満了入口 19,136 呼・失敗即時 17,545・呼 7.75/体/日(v1 6.62)。**段 3 の mock v3 で分布が変わる**。段 2 の問い 6 件への親の決めは [実装アジェンダ](docs/design/v2-two-layer-implementation-agenda.md) §7(記憶 M 行は記憶 第 1 段で・P6 は除外扱い・B4b の活動行は起床の源にしない・満了は就寝抑止の例外にしない・失敗即時の規則はそのまま・manifest のキー追加は可)。
+
+### #48 二層の実装 段 3: mock 方策 v3・CLI の既定 v3・計測 3 本・版の台帳(第277・2026-09-27・実装役 Opus 5.5・親検収)= **D-116 A〜I 完了**
+
+- 正典: [実装アジェンダ](docs/design/v2-two-layer-implementation-agenda.md) §3・§7・§8。`llm/mock.py` に `form="v3"`(5 ラベル形・`MOCK_ACTIVITIES_V3` 6 語・`MOCK_UNTILS_V3`・移動の 1/3 を「あたり」・v1 形の経路は不変)、`run._default_mock("v3")`、`cli.CLI_DEFAULT_VOCAB_VERSION="v3"`(**CLI の既定は v3・ライブラリの `DEFAULT_VOCAB_VERSION` は v1 のまま**)、open/hint × v3 は usage エラー。golden: `W17_GOLDEN` に v3 の行(`02bd03126d5f41cb`・36,460 呼)を追加(v1 の行 `b4ad8140fe4176db` は不変)。
+- 計測([二層の記録](docs/bench/analysis/two-layer-2026-09-27/README.md) §2・親が再実行して一致): (a) 旗なし=v3+activity on **02bd0312**・36,460 呼(7.29/体/日)・起床 場所 737/体 9,166/日課 13,076/会話 1,330/**満了 12,151**・失敗即時 **0**・書式エラー 0.000・購入 1,866/食事 2,035 / (b) v3+off **fb166cc7**・32,808 呼 / (c) v1+off **2f3969cf 不変**・33,090 呼。(a) は (b) より呼 +11.1%(満了 +12,151・場所 −87.6%・日課 −20.6%)。満了候補 24,594 のうち呼は 49.4%(内訳は未計測=次の計測項目)。行為の分布は mock の一様抽選(D-119 の古典モデルまでの繋ぎ)。
+- 版の台帳([二層の記録](docs/bench/analysis/two-layer-2026-09-27/README.md) §0): 旧 6 種の既定 checkpoint(ba01bd0b/4fb0f2ec/9c16f77a/9a9049f5/6d6b1cda/1c8370fb)は現行コード+`--report-precondition off` で**完全再現**。現行の値 6 本(2f3969cf/d642b6af/1d181059/7b12069b/e96d75e3/4a66de4b)を初めて記録。v3 の新しい行 02bd0312/fb166cc7。段 2 時点の 4c58268c は歴史の値。
+- テスト: 全体 `-m "not gpu and not slow"`(P6 除外)= **2962 件(failed 0・skipped 1・P6 の予算テストは除外)**(親が再実行・exit 0)。`tests/llm/test_mock_v3.py` +6・CLI の既定/版のテスト更新。
+- 注意: `tools/`(c6/c7/c8 のランナー・ensemble の雛形)は旗なし=**これからは v3 で回る**。旧構成の再現は `--vocab-version v1` を明示。段 3 の問い 4 件への親の決めは [実装アジェンダ](docs/design/v2-two-layer-implementation-agenda.md) §8。
+- **二層(D-116 A〜I)はこれで実装完了(#46〜#48)**。残り=実 LLM での計測(8B の 5 ラベル書式率・活動文のクラスタ・呼数)=GPU 後、活動文の記憶転写=記憶 第 1 段。

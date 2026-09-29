@@ -189,7 +189,7 @@ def test_v2_is_a_different_run_but_still_conserves():
 
 def test_unknown_vocab_version_is_refused():
     with pytest.raises(ValueError):
-        run_day(vocab_version="v3", **SMALL)
+        run_day(vocab_version="v4", **SMALL)  # 第274 で v3 は有効な版になった
 
 
 # ------------------------------------------------------------------ ラン全体(段0 → 食事)

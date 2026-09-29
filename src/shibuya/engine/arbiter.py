@@ -389,7 +389,14 @@ def arbitrate(
         ru = np.asarray(refractory_until)
         if ru.ndim != 2 or ru.shape[1] != N_WAKE_CONDITIONS:
             raise ValueError(f"refractory_until は (n_agents, {N_WAKE_CONDITIONS})")
-        blocked = ru[agent, cond] > int(tick)
+        # 二層の段 2: 活動の満了(``ACTIVITY_EXPIRY``)は不応期表の外=列が無く抑止しない。
+        # v1/v2 のランでは表の外の条件が来ない=従来と同じ 1 行の式を通る(バイト不変)。
+        in_table = cond < N_WAKE_CONDITIONS
+        if bool(np.all(in_table)):
+            blocked = ru[agent, cond] > int(tick)
+        else:
+            blocked = np.zeros(agent.size, dtype=bool)
+            blocked[in_table] = ru[agent[in_table], cond[in_table]] > int(tick)
     else:
         blocked = np.zeros(agent.size, dtype=bool)
     sup_idx = np.flatnonzero(blocked)

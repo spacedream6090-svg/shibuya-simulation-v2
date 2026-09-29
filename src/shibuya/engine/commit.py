@@ -44,6 +44,8 @@ from shibuya.core.types import DEFAULT_TICK_SECONDS, NS_PER_SECOND
 from shibuya.llm.contract import ACTION_CODES as _CONTRACT_ACTION_CODES
 from shibuya.llm.contract import ACTION_VOCAB_12
 from shibuya.llm.contract import EAT_ACTION_CODE
+from shibuya.llm.contract import NONE_ACTION_CODE
+from shibuya.llm.contract import ROLE_ACTION_CODES as _CONTRACT_ROLE_ACTION_CODES
 from shibuya.llm.contract import UNDEFINED_ACTION
 from shibuya.llm.parser import parse_two_line
 from shibuya.llm.undefined import TARGET_HINT_WORDS
@@ -81,6 +83,10 @@ __all__ = [
     "ACT_REST",
     "ACT_SLEEP",
     "ACT_EAT",
+    "ACT_QUEUE",
+    "ACT_NONE",
+    "WANDER_BAD_TARGET",
+    "undefined_fallback_code",
     "DELTA_PERC_BASE_NS",
     "EXPECTATION_K",
     "SLEEP_SLOTS_PER_CELL",
@@ -112,6 +118,19 @@ ACT_SLEEP: Final[int] = ACTION_CODES["就寝"]
 #: =既存 24 語の次(``llm.contract.EAT_ACTION_CODE``)。**語彙 v1 のランでは 1 件も立たない**
 #: (パーサが「食事」を語彙語として読まないため)。
 ACT_EAT: Final[int] = EAT_ACTION_CODE
+#: **語彙 v3 の「並ぶ」**(D-116 C: 役割語から横断語へ・コードは役割語の 22 のまま)。
+#: v1/v2 では役割語=``llm_bridge`` が安全弁へ落とすので**エンジンには来ない**。
+ACT_QUEUE: Final[int] = int(_CONTRACT_ROLE_ACTION_CODES["並ぶ"])
+#: **語彙 v3 の「なし」**(安全弁・コード 25)。v1/v2 のランでは 1 件も立たない。
+ACT_NONE: Final[int] = NONE_ACTION_CODE
+#: 「対象: あたり」を解決できなかった(域外=セル −1 の体)ときの行き先の印。
+#: ``resolve._apply_move`` はこの値を ``BAD_TARGET``(対象不正)にする(v1/v2 では立たない)。
+WANDER_BAD_TARGET: Final[int] = -2
+
+
+def undefined_fallback_code(vocab_version: str = "v1") -> int:
+    """未定義行動の落ち先コード(v1/v2=待機・**v3=なし**=アジェンダ §1-1)。"""
+    return ACT_NONE if str(vocab_version) == "v3" else ACT_WAIT
 
 #: エンジン内部の継続(経路の1歩)。LLM 由来ではないので負のコード。
 ENGINE_STEP: Final[int] = -1
@@ -133,6 +152,7 @@ _CONDITION_EXPECTATION: Final[dict[int, int]] = {
     int(WakeCondition.BEING_WATCHED): 2,
     int(WakeCondition.OVERHEARD): 2,
     int(WakeCondition.CELL_BLOCK): 3,
+    int(WakeCondition.ACTIVITY_EXPIRY): 0,  # 自分で決めた持続の区切り=自発(C0・expedient)
 }
 
 #: 就寝スロットの1セルあたり容量(expedient)。
@@ -586,6 +606,8 @@ def intents_from_responses(
     target_poi: np.ndarray | None = None,
     stats: dict[str, int] | None = None,
     run_salt: bytes = b"",
+    vocab_version: str = "v1",
+    move_dest: np.ndarray | None = None,
 ) -> IntentBatch:
     """Phase A の LLM 由来分: 行動コード → 対象と資源を**エンジンが**決めて intent にする。
 
@@ -616,6 +638,11 @@ def intents_from_responses(
             ``talk_absent``)。診断行 ``conv_*`` の素材。
         run_salt: 会話フォールバックのセル内順序を撹拌する塩(運用設計書 §2.5)。
             **空だと ID 順**になり T5(順序バイアス |r|≤0.05)を割る。
+        vocab_version: 語彙版。``"v3"`` で未定義行動の落ち先が **なし**(25)になり、
+            **並ぶ**(22)の対象=現在セルの POI(購入と同じ走査)が立つ。既定 ``"v1"`` は不変。
+        move_dest: **移動の行き先の上書き**(``(n,)``・``-1``=上書きなし・``≥0``=セル・
+            ``WANDER_BAD_TARGET``=対象不正)。「対象: あたり」(二層の段 2)の行き先を
+            ``engine.activity`` が決めて渡す口。``None``(既定)では 1 行も通らない。
 
     Returns:
         ``IntentBatch``(1 個体 1 件)。
@@ -624,7 +651,10 @@ def intents_from_responses(
     n = a.size
     code = np.asarray(action_code, dtype=np.int64).copy()
     # 未定義行動は「待機」へ落とす(行動契約書 §7 段1・resolve が結果コードを付ける)
-    code_out = np.where(code == UNDEFINED_ACTION, ACT_WAIT, code).astype(np.int8)
+    # **語彙 v3 は「なし」へ**(アジェンダ §1-1・v1/v2 は ACT_WAIT のまま=バイト不変)
+    code_out = np.where(
+        code == UNDEFINED_ACTION, undefined_fallback_code(vocab_version), code
+    ).astype(np.int8)
     target = np.full(n, -1, dtype=np.int64)
     resource = np.full(n, -1, dtype=np.int64)
     if n == 0:
@@ -676,6 +706,10 @@ def intents_from_responses(
                         ]
                         dest_app = np.where(ok_q, qc, dest_app)
                 dest = np.where(app, dest_app, dest)
+        # ---- 二層の段 2: 「対象: あたり」の行き先(``engine.activity`` が決めた値)を優先 ----
+        if move_dest is not None:
+            md = np.asarray(move_dest, dtype=np.int64)
+            dest = np.where(md != -1, md, dest)
         target = np.where(is_move, dest, target)
 
     # 購入: 現在セルの POI(最小 id)。無ければ -1 → 失敗(在庫切れ扱いでなく対象不正)。
@@ -684,6 +718,16 @@ def intents_from_responses(
         poi = _poi_in_cell(world, cell, None)
         target = np.where(is_buy, poi, target)
         resource = np.where(is_buy & (poi >= 0), space.poi(np.maximum(poi, 0)), resource)
+
+    # 並ぶ(語彙 v3・第275 親の決め #2): 対象=現在セルの POI(購入と同じ走査)。飲食店なら
+    # ``resolve`` が食事へ、それ以外は購入へ委譲する(資源も購入/食事と同じ ``space.poi``)。
+    is_queue = code_out == ACT_QUEUE
+    if str(vocab_version) == "v3" and np.any(is_queue):
+        q_poi = _poi_in_cell(world, cell, None)
+        target = np.where(is_queue, q_poi, target)
+        resource = np.where(
+            is_queue & (q_poi >= 0), space.poi(np.maximum(q_poi, 0)), resource
+        )
 
     # 食事(語彙 v2): 現在セルの**飲食店** POI(最小 id)。無ければ -1 → ``NOT_IN_EATERY``。
     # 購入と同じ「セル内の POI を探す」走査だが、候補を ``world.eatery_mask`` で絞る。

@@ -36,6 +36,8 @@ __all__ = [
     "CALLS_PER_AGENT_PER_DAY",
     "TICKS_PER_DAY",
     "declarations",
+    "ACTIVITY_TEXT_BYTES_PER_AGENT",
+    "activity_declaration",
     "to_yaml",
 ]
 
@@ -138,6 +140,34 @@ def declarations() -> Mapping[str, GrowthDeclaration]:
         ),
     )
     return {d.name: d for d in rows}
+
+
+#: 活動層の Python 側状態 1 体ぶんの見積り(文 ≤10 字 × UTF-8 3 B + 「まで」の型 1 B + 文 id 8 B
+#: + list の参照 8 B ≒ 48 B を 64 B に切り上げ・expedient)。
+ACTIVITY_TEXT_BYTES_PER_AGENT: Final[int] = 64
+
+
+def activity_declaration() -> GrowthDeclaration:
+    """**二層の段 2** の活動の文(``engine.activity.ActivityLayer``)の成長宣言。
+
+    活動層が立つラン(語彙 v3 × ``--activity on``)だけ ``engine.run`` が宣言と実測に足す
+    (既定のランの宣言表は 1 行も変わらない)。体ごとに上書き=**日をまたいで伸びない**。
+    """
+    return GrowthDeclaration(
+        name="activity_text",
+        per_agent_bytes=ACTIVITY_TEXT_BYTES_PER_AGENT,
+        per_cell_bytes=0,
+        per_day_growth="O(1)",
+        per_day_growth_coef=0.0,
+        retention=Retention(days=1, target="体ごとに上書き(checkpoint にハッシュだけ混ぜる)"),
+        worst_case_ops_per_tick=0,
+        cap=64_000_000,
+        cap_budget_row="M8(親が割当・要 delta)",
+        mechanism=False,
+        note="二層の実装アジェンダ §2「状態」。活動の文(≤10 字)と「まで」の型を体ごとに 1 つ持つ。",
+        unit="agent",
+        bytes_per_unit=ACTIVITY_TEXT_BYTES_PER_AGENT,
+    )
 
 
 def to_yaml() -> str:

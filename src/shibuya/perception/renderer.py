@@ -67,6 +67,7 @@ from shibuya.agents.state import (
     RESULT_TEXT,
     AgentState,
     ResultCode,
+    WakeCondition,
 )
 from shibuya.core.hashing import blake3_hex, xxh64
 from shibuya.perception import channels as ch
@@ -89,6 +90,13 @@ __all__ = [
     "STREET_POINT_AREA_M2",
     "INTERO_UP_EDGES",
     "RESULT_OPTIONS",
+    "RESULT_OPTIONS_V3",
+    "DEFAULT_OPTIONS_V3",
+    "ACTIVITY_WORDS_V3",
+    "ACTIVITY_EXPIRY_REASON",
+    "ACTIVITY_LINE",
+    "ACTIVITY_LINE_MAX_TOKENS",
+    "activity_line",
     "INVITE_REASON",
     "person_word",
     "ACTIVITY_WORDS",
@@ -145,6 +153,10 @@ INVITE_REASON: Final[str] = (
 ACTIVITY_WORDS: Final[tuple[str, ...]] = (
     "待機", "移動", "待機", "休憩", "就寝", "購入", "会話", "乗車",
 )
+#: 同(語彙 v3=待機/休憩 → なし の機械的な読み替え・二層の段 2)。
+ACTIVITY_WORDS_V3: Final[tuple[str, ...]] = tuple(
+    "なし" if w in ("待機", "休憩", "降車") else w for w in ACTIVITY_WORDS
+)
 
 #: 失敗コード → 「いま可能」3語(行動契約書 §6・**待機を必ず含む**=失敗しない行動・expedient)。
 RESULT_OPTIONS: Final[Mapping[int, tuple[str, str, str]]] = {
@@ -166,6 +178,75 @@ RESULT_OPTIONS: Final[Mapping[int, tuple[str, str, str]]] = {
     ResultCode.UNDEFINED_ACTION: ("移動", "待機", "休憩"),
     ResultCode.BAD_TARGET: ("移動", "待機", "休憩"),
 }
+
+
+# ------------------------------------------------------------------ 語彙 v3(二層の段 2)
+#
+# 正典: 二層の実装アジェンダ §6「段 2 の発注範囲」(renderer の ``RESULT_OPTIONS``/
+# ``DEFAULT_OPTIONS`` は v3=なし/移動・``ACTIVITY_WORDS``)。**作り方は機械的**: v1 の表の語を
+# ``llm.contract.VOCAB_COMPAT`` で v3 の語彙へ読み替えて(待機/休憩/降車 → なし)重複を落とす
+# (段 1 の ``FALLBACK_ACTIONS_V3`` と同じ規則)。層契約(perception は llm を import できない)
+# のため**字面で持つ**=一致はテストが機械検査する。v1/v2 の表と描画は 1 バイトも変わらない。
+def _to_v3(words: tuple[str, ...]) -> tuple[str, ...]:
+    out: list[str] = []
+    for w in words:
+        v = "なし" if w in ("待機", "休憩", "降車") else w
+        if v not in out:
+            out.append(v)
+    return tuple(out)
+
+
+#: 失敗コード → 「いま可能」(語彙 v3)。
+RESULT_OPTIONS_V3: Final[Mapping[int, tuple[str, ...]]] = {
+    k: _to_v3(v) for k, v in RESULT_OPTIONS.items()
+}
+#: 表に無い失敗コードの「いま可能」(語彙 v3=``templates.DEFAULT_OPTIONS`` の読み替え)。
+DEFAULT_OPTIONS_V3: Final[tuple[str, ...]] = _to_v3(tuple(T.DEFAULT_OPTIONS))
+#: 満了入口の起床理由(**テンプレ本体ではない**=``INVITE_REASON`` と同じ扱い・語彙 v3 の
+#: 活動層が立つランでだけ出る・文面は自前=expedient)。
+ACTIVITY_EXPIRY_REASON: Final[str] = (
+    "決めていた過ごし方の区切りに来たため、次の行動を決める必要があります。"
+)
+#: 同セルの活動の 1 行(B4b・**テンプレ本体ではない**=``template_sha256`` は不変・二層の段 2)。
+#: 同セルの**全員**の活動文で作る=同セルの 2 体でバイト一致(規約⑧)。
+ACTIVITY_LINE: Final[str] = "[B4b 活動] 近くの人: {items}。"
+#: 1 行の上限[tok](アジェンダ §2「1 行 ≤ 15 tok」)。
+ACTIVITY_LINE_MAX_TOKENS: Final[int] = 15
+#: 項目の区切り(アジェンダ §2 の文面「…が<人数>人・…」)。
+ACTIVITY_ITEM_SEPARATOR: Final[str] = "・"
+
+
+def activity_line(rows: Sequence[tuple[str, int]]) -> str:
+    """活動の (文, 人数) の列(人数降順→文字列順・上位 2)→ B4b の 1 行(無ければ ``""``)。
+
+    ``ACTIVITY_LINE_MAX_TOKENS`` に収まる分だけ項目を載せる。先頭の項目だけでも収まらなければ
+    文を末尾から切り詰める(expedient)。省略記法・個体依存語を含む文は載せない(⑥⑧)。
+    """
+    items: list[str] = []
+    for text, count in rows:
+        t = N.canonical_whitespace(str(text)).strip()
+        if not t or any(a in t for a in N.ABBREVIATIONS):
+            continue
+        if any(p.search(t) for _, p in N.AGENT_DEPENDENT_PATTERNS):
+            continue
+        item = f"{t}が{int(count)}人"
+        cand = items + [item]
+        line = ACTIVITY_LINE.format(items=ACTIVITY_ITEM_SEPARATOR.join(cand))
+        if ch.estimate_tokens(line) <= ACTIVITY_LINE_MAX_TOKENS:
+            items = cand
+            continue
+        if not items:
+            while len(t) > 1:
+                t = t[:-1]
+                item = f"{t}が{int(count)}人"
+                line = ACTIVITY_LINE.format(items=item)
+                if ch.estimate_tokens(line) <= ACTIVITY_LINE_MAX_TOKENS:
+                    items = [item]
+                    break
+        break
+    if not items:
+        return ""
+    return ACTIVITY_LINE.format(items=ACTIVITY_ITEM_SEPARATOR.join(items))
 
 
 
@@ -731,6 +812,7 @@ class Renderer:
         density: np.ndarray | None = None,
         noise_stage: np.ndarray | None = None,
         queues: Sequence[tuple[int, str, int]] | None = None,
+        activity_rows: Mapping[int, Sequence[tuple[str, int]]] | None = None,
     ) -> None:
         """この tick のセル配列とハッシュを作る(**セル数ぶんの xxh64 が 1 本**)。
 
@@ -738,6 +820,13 @@ class Renderer:
             queues: B4b の材料 ``(POI, 表示名, 人数)`` の列
                 (``engine.processes.crowd.CrowdProcess.queue_rows``)。セルあたり上位 1 件を
                 「<店名>の行列に<人数>人」として ``B4b.near`` に載せる。
+            activity_rows: **二層の段 2** の B4b の材料「セル → ((活動文, 人数), …)」
+                (``engine.activity.ActivityLayer.cell_rows``)。``activity_line`` の 1 行を
+                行列の行の**後**に足す(B4b の予算 40 tok に収まるときだけ)。行列も活動も無い
+                セルは従来の固定文言。``None``(既定)では 1 バイトも変わらない。
+                **起床条件 (i) の欄(B4 ダイジェスト)には混ぜない**(活動の変化を場所の変化
+                として起床させない=新しい起床の源を足さない・expedient)。固定枠の描画だけに
+                載せる(単一ランキングの腕には載せない・expedient)。
         """
         w = self.world
         n = w.n_cells
@@ -777,6 +866,8 @@ class Renderer:
             mixed = int(xxh64(blob) & 0x7FFF_FFFF)
             digest[int(c)] = int((int(digest[int(c)]) * 31 + mixed) & 0x7FFF_FFFF)
 
+        if activity_rows:
+            b4b = self._merge_activity_lines(b4b, activity_rows)
         rows = H.b4_field_row(los, ns, fl, digest)
         # C7: セル順の連続座標(1 tick 1 回の gather)。個体数ぶんの 3 配列
         # =24 byte/体(390,067 体で 9.4 MB)。1 呼あたりのセル在席者ぶんの gather を消す。
@@ -1155,6 +1246,28 @@ class Renderer:
             ).encode("utf-8")
         return out
 
+    def _merge_activity_lines(
+        self, b4b: Mapping[int, bytes], activity_rows: Mapping[int, Sequence[tuple[str, int]]]
+    ) -> dict[int, bytes]:
+        """行列の B4b にセルの活動の 1 行を足す(二層の段 2)。B4b 40 tok を超えるなら足さない。
+
+        逐次ループ宣言(P4): 活動の行があるセルの数ぶん(≤ セル数)。
+        """
+        out = dict(b4b)
+        budget = int(T.BLOCK_TOKEN_BUDGET["B4b"])
+        for c, rows in activity_rows.items():
+            line = activity_line(rows)
+            if not line:
+                continue
+            prev = out.get(int(c))
+            if prev is None:
+                out[int(c)] = N.canonical_whitespace(line).encode("utf-8")
+                continue
+            merged = N.join_lines([prev.decode("utf-8"), N.canonical_whitespace(line)])
+            if ch.estimate_tokens(merged) <= budget:
+                out[int(c)] = merged.encode("utf-8")
+        return out
+
     def _b4(self, cell: int, tc: _TickCache, trunc: list[ch.TruncationReport]) -> bytes:
         if not (0 <= cell < tc.los_stage.size):
             return N.join_lines(
@@ -1220,7 +1333,9 @@ class Renderer:
                 money=f"{int(a.money[i]):,}",
                 hands=T.HANDS_WORDS[1 if int(a.holdings[i]) > 0 else 0],
             ),
-            T.TEMPLATES["B5.recent"].format(activity=_activity_word(int(a.activity[i]))),
+            T.TEMPLATES["B5.recent"].format(
+                activity=_activity_word(int(a.activity[i]), self.vocab_version == "v3")
+            ),
         ]
         kept, rep = ch.truncate_lines(self_lines, "B5.self", max_items=2)
         lines += kept
@@ -1630,7 +1745,9 @@ class Renderer:
                     money=f"{int(a.money[i]):,}",
                     hands=T.HANDS_WORDS[1 if int(a.holdings[i]) > 0 else 0],
                 ),
-                T.TEMPLATES["B5.recent"].format(activity=_activity_word(int(a.activity[i]))),
+                T.TEMPLATES["B5.recent"].format(
+                    activity=_activity_word(int(a.activity[i]), self.vocab_version == "v3")
+                ),
             ],
             "B5.near_person": [t for t, _d in near],
             "B5.watched": [T.TEMPLATES["B5.watched"].format(n=nw)] if nw > 0 else [],
@@ -1667,12 +1784,17 @@ class Renderer:
             reason = wake_reason
         else:
             r = int(wake_reason)
-            reason = T.WAKE_REASON_TEXT[r] if 0 <= r < len(T.WAKE_REASON_TEXT) else (
-                T.WAKE_REASON_TEXT[3]
-            )
+            if r == int(WakeCondition.ACTIVITY_EXPIRY):
+                # 二層の段 2: 満了入口(語彙 v3 の活動層が立つランだけ来る)
+                reason = ACTIVITY_EXPIRY_REASON
+            else:
+                reason = T.WAKE_REASON_TEXT[r] if 0 <= r < len(T.WAKE_REASON_TEXT) else (
+                    T.WAKE_REASON_TEXT[3]
+                )
         lines = [T.TEMPLATES["B6.wake"].format(reason=reason)]
         code = int(a.last_result[i]) if last_result is None else int(last_result)
-        acted = last_action or _activity_word(int(a.activity[i]))
+        v3 = self.vocab_version == "v3"
+        acted = last_action or _activity_word(int(a.activity[i]), v3)
         if int(a.last_result_tick[i]) < 0 and last_result is None:
             lines.append(T.TEMPLATES["B6.result_none"])
         elif code == int(ResultCode.OK):
@@ -1680,7 +1802,11 @@ class Renderer:
         else:
             why = RESULT_TEXT.get(code, "不明な理由")
             observed = self._observation(i, code, cell, tc)
-            options = RESULT_OPTIONS.get(code, T.DEFAULT_OPTIONS)
+            options = (
+                RESULT_OPTIONS_V3.get(code, DEFAULT_OPTIONS_V3)
+                if v3
+                else RESULT_OPTIONS.get(code, T.DEFAULT_OPTIONS)
+            )
             lines.append(
                 T.TEMPLATES["B6.result_fail"].format(
                     action=acted,
@@ -1757,8 +1883,9 @@ def person_word(agent_id: int) -> str:
     return f"P-{int(agent_id)}"
 
 
-def _activity_word(code: int) -> str:
-    return ACTIVITY_WORDS[code] if 0 <= code < len(ACTIVITY_WORDS) else ACTIVITY_WORDS[0]
+def _activity_word(code: int, v3: bool = False) -> str:
+    words = ACTIVITY_WORDS_V3 if v3 else ACTIVITY_WORDS
+    return words[code] if 0 <= code < len(words) else words[0]
 
 
 def _cell_index(cell: np.ndarray, n_cells: int) -> dict[str, np.ndarray]:

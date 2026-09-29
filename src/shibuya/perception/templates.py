@@ -91,6 +91,13 @@ __all__ = [
     "ROLE_WORDS_12",
     "ROLE_WORDS_LINE",
     "check_role_words",
+    # ---- 語彙 v3(行為と活動の二層・D-116・第274)。v1/v2 の描画バイトは 1 つも動かない ----
+    "ACTION_WORDS_V3",
+    "ROLE_WORDS_V3",
+    "ROLE_WORDS_LINE_V3",
+    "role_words_line",
+    "OUTPUT_SPEC_V3",
+    "B0_SYSTEM_V3",
 ]
 
 #: テンプレ版(改版は delta+感度試験。値を変えたら ``template_sha256`` も変わる)。
@@ -337,7 +344,7 @@ _B0_BY_MODE: Final[Mapping[str, str]] = {
 # (契約表の並びは ``llm.contract.ACTION_VOCAB_13`` が正典・ここは層契約による二重定義)。
 
 #: 語彙の版(``llm.contract.VOCAB_VERSIONS`` と同値・層契約により二重定義=テストで守る)。
-VOCAB_VERSIONS: Final[tuple[str, ...]] = ("v1", "v2")
+VOCAB_VERSIONS: Final[tuple[str, ...]] = ("v1", "v2", "v3")
 #: 既定=現行 24 語(12 語 + 役割語 12)。
 DEFAULT_VOCAB_VERSION: Final[str] = "v1"
 
@@ -404,6 +411,109 @@ ROLE_WORDS_LINE: Final[str] = (
 )
 
 
+
+# ------------------------------------------- 語彙 v3(行為と活動の二層・D-116・第274 アジェンダ §1-2)
+#
+# 仕様: ``docs/design/v2-two-layer-implementation-agenda.md`` §1-2「B0 v3: 出力規約の行動断片を
+# 上の形に・**対象欄の説明語を例示から外す**(D-89 (i)(b)=「物のカテゴリ」「セルID」と書かせない)・
+# 活動と まで の 1 行説明を足す・役割語行は 11 語に」。
+#
+# **作り方**(v2 と同じく ``replace`` の積み重ね=それ以外の行が同文であることが構成から保証される):
+#   ① ``OUTPUT_SPEC`` の **2 行目**(行動・対象・ひと言)を v3 の 2 行目(行動・対象・活動・まで)
+#      に置換し、その直後に活動/まで の 1 行説明を足す(``OUTPUT_SPEC_V3``)。
+#   ② 役割知識の**対象の行**(「セルID・物のカテゴリ・人ID」)を v3 の行に置換する
+#      (説明語をスロットの例示から外し、散文に移した)。
+#   head・憲法 6 条・残りの役割知識 9 行・出力規約の 1〜3 行目は 1 バイトも変わらない。
+# **凍結との関係**: ``TEMPLATES``(=``template_sha256`` の payload)には 1 語も足していない。
+#
+# expedient(本節分・アジェンダ §5 に登録=親の自前文・先行研究の文面ではない)
+# - 対象スロット「名前かID / 自宅 / 職場 / 学校 / あたり / なし」と、役割知識の対象の行の文面
+#   (「店や駅の名前・店の種類・人のID」「あたり は近くを歩き回ること」)。
+# - 活動スロット「10字以内 / なし」(意味は 1 行説明に任せた)。まで スロットはアジェンダの 5 語のまま。
+# - **予算**: 共有静的(B0+役割語行+B1+B3)= 745/750 tok(v1 は 704)。上の 2 つは予算に合わせて
+#   親の自前文を削った結果(最初の案は 764 で超過)。1 行説明(アジェンダの文)は削っていない。
+# - 1 行説明はアジェンダ §1-2 の括弧内の文をそのまま使い、末尾に句点を足した。置き場所は
+#   出力規約の最終行(2 行目の直後)。
+# **open/hint × v3 は作らない**(``ValueError``)。v3 で AB7 の腕を回す決定は無く、hint×v3 は
+# 役割語行つきで 761/750 tok と予算も超える(レンダラは既定でグループ予算超過を例外にする)。
+
+#: 語彙 v3 の種別横断 11 語+なし(``llm.contract.ACTION_VOCAB_V3`` と同値・層契約により二重定義)。
+ACTION_WORDS_V3: Final[tuple[str, ...]] = (
+    "移動", "乗車", "購入", "食事", "会話", "退去", "通報", "手伝い", "断る", "就寝", "並ぶ", "なし",
+)
+#: 語彙 v3 の役割語 11(``llm.contract.ROLE_ACTION_WORDS_V3`` と同値=並ぶ を横断へ移した残り)。
+ROLE_WORDS_V3: Final[tuple[str, ...]] = tuple(w for w in ROLE_WORDS_12 if w != "並ぶ")
+#: 語彙 v3 の役割語の 1 行(``ROLE_WORDS_LINE`` の**語の並びだけ**を 11 語に置換)。
+ROLE_WORDS_LINE_V3: Final[str] = ROLE_WORDS_LINE.replace(
+    " / ".join(ROLE_WORDS_12), " / ".join(ROLE_WORDS_V3), 1
+)
+assert ROLE_WORDS_LINE_V3 != ROLE_WORDS_LINE, "役割語行(v3)の置換が空振り"
+
+#: v1 の出力規約の 2 行目(行動・対象・ひと言)。v3 はこの 1 行を差し替える。
+_LINE2_VOCAB_V1: Final[str] = (
+    _ACTION_SPEC_VOCAB + "対象: <セルID / 物のカテゴリ / 人ID / なし> "
+    "ひと言: <20字以内の発話、または なし>"
+)
+assert _LINE2_VOCAB_V1 in OUTPUT_SPEC.split("\n"), "OUTPUT_SPEC の 2 行目が変わった"
+
+#: ``行動:`` 断片(vocab 腕 × 語彙 v3)。11 語+なし を提示する。
+_ACTION_SPEC_VOCAB_V3: Final[str] = "行動: <" + " / ".join(ACTION_WORDS_V3) + " から1語> "
+#: v3 の 2 行目の ``行動:`` 以降(対象・活動・まで)。対象スロットの中身は役割知識の散文が説明する
+#: (「物のカテゴリ」「セルID」をスロットに置かない)。活動の意味は下の 1 行説明が持つので短くした
+#: (共有静的の予算=役割語行つきで 745/750 tok)。
+_REST_SPEC_V3: Final[str] = (
+    "対象: <名前かID / 自宅 / 職場 / 学校 / あたり / なし> "
+    "活動: <10字以内 / なし> "
+    "まで: <到着 / 相手 / N分 / HH:MM / 次の予定>"
+)
+#: 活動と まで の 1 行説明(アジェンダ §1-2 の文)。
+_ACTIVITY_NOTE_V3: Final[str] = (
+    "活動: は世界を変えない過ごし方。まで: は次に考え直す目安。途中で驚くことがあれば早く考え直す。"
+)
+
+#: 出力規約(vocab 腕 × 語彙 v3)。``OUTPUT_SPEC`` の 2 行目の置換+1 行説明。
+OUTPUT_SPEC_V3: Final[str] = OUTPUT_SPEC.replace(
+    _LINE2_VOCAB_V1, _ACTION_SPEC_VOCAB_V3 + _REST_SPEC_V3 + "\n" + _ACTIVITY_NOTE_V3, 1
+)
+assert OUTPUT_SPEC_V3 != OUTPUT_SPEC, "語彙 v3 の出力規約の置換が空振り"
+
+#: v1 の役割知識の対象の行(説明語「セルID・物のカテゴリ・人ID」を含む)。v3 はこの 1 行を差し替える。
+_TARGET_KNOWLEDGE_V1: Final[str] = (
+    "[役割知識] 対象には観測に現れているセルID・物のカテゴリ・人ID、または、なし、だけを書きます。"
+)
+assert _TARGET_KNOWLEDGE_V1 in _ROLE_KNOWLEDGE, "役割知識の対象の行が変わった"
+#: 同(語彙 v3)。説明語はスロットでなく散文に置き、「あたり」の意味を 1 文で足す。
+_TARGET_KNOWLEDGE_V3: Final[str] = (
+    "[役割知識] 対象は観測に出ている店や駅の名前・店の種類・人のIDです。"
+    "あたり は近くを歩き回ることです。"
+)
+
+
+#: B0 の全文(vocab 腕 × 語彙 v3)。``B0_SYSTEM`` の出力規約節と対象の役割知識の行だけを差し替えた。
+B0_SYSTEM_V3: Final[str] = B0_SYSTEM.replace(OUTPUT_SPEC, OUTPUT_SPEC_V3, 1).replace(
+    _TARGET_KNOWLEDGE_V1, _TARGET_KNOWLEDGE_V3, 1
+)
+assert B0_SYSTEM_V3.count(OUTPUT_SPEC_V3) == 1 and _TARGET_KNOWLEDGE_V3 in B0_SYSTEM_V3
+assert "物のカテゴリ" not in B0_SYSTEM_V3 and "セルID" not in B0_SYSTEM_V3, "D-89 (i)(b)"
+
+#: (腕, 語彙版) → B0 本文(``_B0_BY_MODE_VOCAB`` の v3 分)。**vocab 腕だけ**(open/hint × v3 は未定義)。
+_B0_BY_MODE_VOCAB_V3: Final[Mapping[tuple[str, str], str]] = {
+    ("vocab", "v3"): B0_SYSTEM_V3,
+}
+
+#: 語彙版 → 役割語の 1 行(v1/v2 は ``ROLE_WORDS_LINE`` そのもの)。
+_ROLE_LINE_BY_VERSION: Final[Mapping[str, str]] = {
+    "v1": ROLE_WORDS_LINE,
+    "v2": ROLE_WORDS_LINE,
+    "v3": ROLE_WORDS_LINE_V3,
+}
+
+
+def role_words_line(vocab_version: str = DEFAULT_VOCAB_VERSION) -> str:
+    """語彙版 → B0 の末尾に足す役割語の 1 行(v3 は 11 語)。"""
+    return _ROLE_LINE_BY_VERSION[check_vocab_version(vocab_version)]
+
+
 def check_role_words(role_words: bool | str) -> bool:
     """``role_words`` を検査して bool に正規化する(``"on"/"off"`` も受ける)。"""
     if isinstance(role_words, str):
@@ -443,13 +553,22 @@ def b0_system(
     (=既定経路のバイトは 1 つも動かない)。``"open"`` は語彙を見せないので v1/v2 で
     **同じ本文**になる(語彙 v2 の差は段0 辞書 v3 とエンジン側に出る)。
     ``role_words=True``(**D-113 ④**)は、その本文の末尾に ``ROLE_WORDS_LINE`` を 1 行足す
-    (どの腕・版でも同じ 1 行)。
+    (どの腕でも同じ 1 行。**語彙 v3 は 11 語の** ``ROLE_WORDS_LINE_V3``)。
+    ``"v3"``(D-116)は 5 ラベル形の出力規約+対象の役割知識の差し替え(``B0_SYSTEM_V3``)。
+    **v3 は vocab 腕だけ**(open/hint × v3 は ``ValueError``=AB7 の腕を v3 で回す決定が無い)。
     """
-    base = _B0_BY_MODE_VOCAB[
-        (check_intent_mode(intent_mode), check_vocab_version(vocab_version))
-    ]
+    mode = check_intent_mode(intent_mode)
+    ver = check_vocab_version(vocab_version)
+    if ver == "v3":
+        if (mode, ver) not in _B0_BY_MODE_VOCAB_V3:
+            raise ValueError(
+                f"語彙 v3 の B0 は intent_mode='vocab' だけ(いま {mode!r}・open/hint × v3 は未定義)"
+            )
+        base = _B0_BY_MODE_VOCAB_V3[(mode, ver)]
+    else:
+        base = _B0_BY_MODE_VOCAB[(mode, ver)]
     if check_role_words(role_words):
-        return base + "\n" + ROLE_WORDS_LINE
+        return base + "\n" + role_words_line(ver)
     return base
 
 
