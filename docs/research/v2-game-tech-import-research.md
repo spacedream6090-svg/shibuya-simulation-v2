@@ -14,7 +14,7 @@
 | 1 | **checkpoint+デルタ+タグ付きイベント索引の三層リプレイ契約**(checkpoint保存は時間スライスしてstepを止めない) | データ契約+ビューワー | UE Replay/StarCraft II/LoL観戦の3業界が独立に同形へ収束。UEの`CheckpointSaveMaxMSPerFrame`=「観測が本体を遅らせない」の直接解 |
 | 2 | **アーキタイプ/チャンクSoA+existential processing**(全個体ループ廃止・発火index配列のみ回す・チャンク単位メタで丸ごとスキップ) | コア | Unity DOTS 16KBチャンク・UE Mass ChunkFragment・Acton「複数形で設計せよ」。40万体で唯一スケールする形 |
 | 3 | **重要度付き部分スナップショット配信**(Importance/Relevancy+量子化+帯域クランプ+静的個体は送らない) | ビューワー+データ契約 | Unity Netcode(MTUクランプ=部分スナップショット)+Quake3(「古い情報は再送しない」)+Replication Graph(グリッドで総当たり関連性評価を消す・Fortnite 100接続×5万アクタ実績) |
-| 4 | **認知LOD階層+on-demand昇格**(遠景=統計移動/中景=テンプレ行動/注目時のみLLM思考へ昇格・プール入替) | コア | AC Unity(実AI40+高解像度120で画面内1万体)・Hitman Absolution(群衆1200体・必要時に本物NPCへ昇格)・UE MassLOD(表現とtick頻度の両方を切替)。**LLM予算配分則そのもの** |
+| 4 | **認知LOD階層+on-demand昇格**(遠景=統計移動/中景=テンプレ行動/注目時のみLLM思考へ昇格・プール入替) | コア | AC Unity(実AI40+高解像度120で画面内1万体)・Hitman Absolution(群衆1200体・必要時に本物NPCへ昇格)〔**第306 訂正(R-23 第3批 #15)**: 群衆 **1200 体/1 群衆・同画面 500 体**・30fps(GDC Europe 2012)。公開資料の目標は『**プレイヤーが群衆と NPC を見分けられないこと**』で、**on-demand 昇格の明記は見つからない**(昇格機構の先行は AC Unity のプール入替)。出典 GDC Vault / Fauerby スライド〕・UE MassLOD(表現とtick頻度の両方を切替)。**LLM予算配分則そのもの** |
 | 5 | **スマートオブジェクト広告+utilityスコアリング**(行動は場所/役割の側に置き、個体は広告を欲求で採点するだけ) | コア(層2) | The Sims(Forbus&Wright: オブジェクトが行動を広告→拡張パックが成立した理由)+IAUS。GOAPは再計画コストで落ち・BTは先読みせず・**utilityは選択理由が数式で読める**=説明可能性。新しい場所/役割の追加が認知コードを触らない |
 
 次点: 空間グリッド分割を近傍検索・関心領域の共通基盤に(World Partitionセル+Grid Spatialization 2D)=#2-4の土台。
@@ -38,7 +38,7 @@
 - **VR/メタバース**: VRChat=並列インスタンス(1インスタンス20-80人×無制限)・Fortniteイベント同時12.3M=
   多数の小インスタンス同時開催。→「シムは1本・観測は多数のread-only fanout」が業界標準に沿う。
 - **リプレイ商用実装**: UE Replay(checkpoint=差分スナップショット30秒間隔+時間スライス+**タグ付きイベントで
-  全DLなし検索**)・SC2(.SC2Replay=game.events/tracker.events/message.eventsの分離収録)・
+  全DLなし検索**)・SC2(.SC2Replay=game.events/tracker.events/message.eventsの分離収録)・〔**第306 訂正(R-23 第3批 #14)**: **Epic の DemoNetDriver 公式ドキュメントにイベント検索の記述は無い**(text tags は**リプレイ一覧の検索**用)。タグ付きイベント索引の先行は **SC2 の game.events / tracker.events / message.events 分離**の方。UE 側は HTTP Streamer REST API を一次で当たる(残務)。出典 Epic DemoNetDriver ページ〕
   LoL観戦(30秒chunk+2chunkに1 keyframe+観戦遅延)。
 
 ## 当方設計との対応(推測)

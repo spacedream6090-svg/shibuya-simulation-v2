@@ -43,7 +43,7 @@
   各checkpointに有効介入セットのハッシュ→「どの実験条件下の再生か」が自明・検収不変性と両立。
   学術語彙は**analytic provenance**(Trrack等)。
 - 神視点UIの規範: SimCity GlassBox「**What You See Is What You Sim**」=画面上の事象は常にシムの1:1表現
-  (ビューアが独自に補間・演出したものは描かない)。RimWorld/DF共通文法=一時停止+速度段階+個体インスペクト。
+  (ビューアが独自に補間・演出したものは描かない)。〔**第306 訂正(R-23 第3批 #18)**: 原典の逐語は「**every aspect of the game is an agent that reports back to the underlying simulation**」(表示物がシムへ報告する向き)。v2 の運用「ビューアは演出しない」は**裏返しの含意=v2 側の規律として宣言**する。出典 EA 公式・GDC 2012〕RimWorld/DF共通文法=一時停止+速度段階+個体インスペクト。
 - 群衆LOD: CGF 2016サーベイ=多角形/点/インポスタ3系統+実行時LOD選択。
 
 ## 収益・コミュニティ(事実→示唆)

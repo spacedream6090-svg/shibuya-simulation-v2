@@ -25,6 +25,11 @@
     python tools/c8/sensitivity.py --list
     python tools/c8/sensitivity.py --run all --out docs/bench/c8
     python tools/c8/sensitivity.py --run S-W17-RAKE --include-heavy --out docs/bench/c8
+    python tools/c8/sensitivity.py --judge-manifest --out docs/bench/c8   # D-44 (a) の一括判定(既存の記録だけ)
+
+**D-44 (a) の一括判定**(第229 決定・第306 実装): ``data/world/v2/build_manifest.json`` の expedient 行を全部並べ、
+既存の台帳行が扱う行(``COVERED_EXPEDIENTS``)を除いた残りを、**既存の構築記録にある入力側の JSD** だけで 3 値に判定する
+(駆動しえない=帰無参照内/ラン対照へ=超える/判定不能=JSD 無し)。新しいラン・構築の再実行はしない。
 """
 
 from __future__ import annotations
@@ -44,6 +49,51 @@ import c8lib  # noqa: E402
 
 WORLD_DIR = c8lib.REPO_ROOT / "data" / "world" / "v2"
 DATA_DIR = c8lib.REPO_ROOT / "data"
+BUILD_MANIFEST_PATH = WORLD_DIR / "build_manifest.json"
+
+# ------------------------------------------------------------------ D-44 (a) の一括判定(第306)
+#: 判定の 3 値(+既存の台帳行が扱う行)。
+MANIFEST_VERDICTS: tuple[str, ...] = ("not_driving", "needs_run", "undetermined", "covered")
+MANIFEST_VERDICT_JA: dict[str, str] = {
+    "not_driving": "駆動しえない(帰無参照内)", "needs_run": "ラン対照へ(超える)",
+    "undetermined": "判定不能(JSD 無し)", "covered": "既存の台帳行",
+}
+#: 既存の台帳行(設計書が感度を宣言した行+実装計画書の RAKE)が扱う build_manifest の expedient
+#: ``(段階, 本文の書き出し, 台帳 id)``。本文の書き出しで照合する(行番号は段階の版で動く)。
+COVERED_EXPEDIENTS: tuple[tuple[str, str, str], ...] = (
+    ("W1", "OSM layer→物理層バンドの写像", "S-W3-LAYER"),
+    ("W2", "格子原点(0,0)・100m・層3値", "S-W2-GRID"),
+    ("W4", "kind→既定階数表", "S-W5-HEIGHT"),
+    ("W4", "levels×3.0 の高さ推定", "S-W5-HEIGHT"),
+    ("W5", "残り 7,194 棟の入口", "S-W6-ENTRANCE"),
+    ("W6", "組織の建物配分則", "S-W7-ORGALLOC"),
+    ("W7", "カテゴリ既定営業時間・価格帯", "S-W8-HOURS"),
+    ("W8", "眼高 1.5m・道路8mバッファ・2.5D", "S-W9-BUFFER"),
+    ("W10", "klass→AADT 既定表", "S-W11-AADT"),
+    ("W11", "構内経路長 = 幾何距離 × 1.3", "S-W13-CONCOURSE"),
+    ("W12", "時間帯配分=time_dist_12(2015)を 2018/2021 総量へ当てる", "S-W14-HOURUNIFORM"),
+    ("W12", "JR・東急・京王=等間隔ダイヤ", "S-W14-JRPHASE"),
+    ("W13", "都市バイアス無補正", "S-W15-TEMP"),
+    ("W13", "WBGT=推定式", "S-W15-TEMP"),
+    ("W16", "町丁目→セル=住居系建物の床面積", "S-W16-FLOOR"),
+    ("W17", "raking は 12% と 0% を計算し", "S-W17-RAKE"),
+)
+#: 構築の記録にある JSD のうち**対照との差ではない**もの(判定には使えない=備考に記録するだけ)。
+RECORDED_FIT_JSD: tuple[tuple[str, str, str], ...] = (
+    ("W16", "域外へ通う住民の方面は到着側",
+     "W16.header.json notes.direction.resident_out_area.jsd=0.000139(抽出した方面 vs 流用した重み=抽出の当てはまり。"
+     "流用そのものの対照ではない)"),
+    ("W17", "raking は 12% と 0% を計算し",
+     "W17.header.json gates.jsd_max_raking_0=0.3585・_12=0.2531(どちらも PT 目標への当てはまり。0% と 12% の間の JSD は記録に無い)"),
+)
+#: 判定の規則の文言(表の頭に載せる・第229 決定+第200 の検出可能効果量の床)。
+MANIFEST_RULE_NOTE: str = (
+    "判定の規則(D-44 (a)・第229 決定・片側): 構築段階の入力側の JSD(宣言 vs 対照)が帰無参照の内側なら、入力が動かないので"
+    "その expedient はランの結果を**駆動しえない**。超えたら駆動する**かもしれない**=ラン対照へ(5,000 体の逐次群スクリーニング CSB)。"
+    "JSD が記録に無ければ**判定不能**。**検出可能効果量の床(第200)**: 2 seed の感度試験は f≈1 未満の効果を検出できない"
+    "=ラン対照で差が見えないことは「結果を駆動していない」の証明ではなく「特大の駆動が無い」の証明にとどまる。"
+    "本表は既存の記録だけで作った(新しいラン・構築の再実行はしない)。"
+)
 
 
 # ------------------------------------------------------------------ 構築段階の対照(実行器)
@@ -292,6 +342,63 @@ RUNNERS: dict[str, Callable[..., dict[str, Any]]] = {
 }
 
 
+def _match_prefix(table: Sequence[tuple[str, str, str]], stage: str, text: str) -> str | None:
+    for st, prefix, value in table:
+        if st == stage and text.startswith(prefix):
+            return value
+    return None
+
+
+def build_manifest_verdicts(manifest: Mapping[str, Any], ledger: Mapping[str, Any]) -> dict[str, Any]:
+    """D-44 (a): build_manifest の expedient 全行 → 3 値の判定(既存の記録だけ・**純関数**)。"""
+    by_id = {r["id"]: r for r in c8lib.iter_rows(ledger)}
+    rows: list[dict[str, Any]] = []
+    for s in manifest.get("stages", ()):
+        stage = str(s.get("stage"))
+        for j, text in enumerate(s.get("expedients", ()) or (), 1):
+            text = str(text)
+            key = f"{stage}#{j}"
+            cov = _match_prefix(COVERED_EXPEDIENTS, stage, text)
+            fit = _match_prefix(RECORDED_FIT_JSD, stage, text)
+            if cov is not None:
+                lr = by_id.get(cov, {})
+                res = lr.get("result") or {}
+                rows.append({
+                    "key": key, "stage": stage, "expedient": text, "covered_by": cov,
+                    "input_jsd": res.get("jsd_bits"), "null_p95": res.get("null_p95"),
+                    "jsd_source": f"既存の台帳行 {cov}(状態 {lr.get('status')})",
+                    "null_ref": "既存の台帳行のとおり",
+                    "verdict": "covered",
+                    "existing_verdict": res.get("verdict"),
+                    "note": fit or "",
+                })
+                continue
+            rows.append({
+                "key": key, "stage": stage, "expedient": text, "covered_by": None,
+                "input_jsd": None, "null_p95": None,
+                "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+                "null_ref": "—(JSD が無いので比べない)",
+                "verdict": "undetermined",
+                "note": fit or "",
+            })
+    tally = {v: sum(1 for r in rows if r["verdict"] == v) for v in MANIFEST_VERDICTS}
+    covered_ids = sorted({r["covered_by"] for r in rows if r["covered_by"]})
+    spec_ids = [r["id"] for r in c8lib.iter_rows(ledger)]
+    return {
+        "note": ("D-44 (a)(第229 決定)の一括判定。build_manifest の expedient 全行を並べ、既存の台帳行が扱う行は「既存の台帳行」、"
+                 "残りを既存の構築記録の入力側 JSD だけで判定した(第306)。"),
+        "rule_note": MANIFEST_RULE_NOTE,
+        "manifest_build_hash": manifest.get("build_hash"),
+        "count": len(rows),
+        "covered": tally["covered"],
+        "judged": len(rows) - tally["covered"],
+        "tally": tally,
+        "ledger_rows_covering": covered_ids,
+        "ledger_rows_without_manifest_row": [i for i in spec_ids if i not in covered_ids],
+        "rows": rows,
+    }
+
+
 # ------------------------------------------------------------------ 台帳
 def validate_ledger(ledger: Mapping[str, Any]) -> list[str]:
     """台帳の自己検査+**設計書との突合(漏れ検出)**。問題の一覧を返す。"""
@@ -324,6 +431,21 @@ def validate_ledger(ledger: Mapping[str, Any]) -> list[str]:
         problems.append(f"**漏れ**: 過程の感度試験 id が台帳に無い {sorted(want_ab - have_ab)}")
     if have_ab - want_ab:
         problems.append(f"台帳にしかない過程 id {sorted(have_ab - want_ab)}")
+    judged = ledger.get("build_manifest_judgment")
+    if judged:  # D-44 (a)(第306)
+        keys = [r.get("key") for r in judged.get("rows", ())]
+        if len(keys) != len(set(keys)):
+            problems.append("build_manifest_judgment: key が重複")
+        if judged.get("count") != len(keys):
+            problems.append("build_manifest_judgment: count と行数が違う")
+        for r in judged.get("rows", ()):
+            if r.get("verdict") not in MANIFEST_VERDICTS:
+                problems.append(f"build_manifest_judgment {r.get('key')}: verdict が不正({r.get('verdict')})")
+            if r.get("covered_by") is not None and r["covered_by"] not in ids:
+                problems.append(f"build_manifest_judgment {r.get('key')}: 既存の台帳行 {r['covered_by']} が無い")
+        tally = {v: sum(1 for r in judged.get("rows", ()) if r.get("verdict") == v) for v in MANIFEST_VERDICTS}
+        if tally != judged.get("tally"):
+            problems.append("build_manifest_judgment: tally が行と合わない")
     return problems
 
 
@@ -374,6 +496,30 @@ def ledger_markdown(ledger: Mapping[str, Any]) -> str:
         ]
     for q in ledger.get("open_questions", ()):
         md.append(f"- **親判断待ち**: {q}")
+    judged = ledger.get("build_manifest_judgment")
+    if judged:  # D-44 (a)(第306)
+        ta = judged["tally"]
+        md += [
+            "",
+            f"## D-44 (a) build_manifest の expedient {judged['count']} 行の一括判定(第306・既存の記録だけ)",
+            "",
+            f"- {judged['rule_note']}",
+            f"- 内訳: 既存の台帳行 **{ta['covered']}** 行 / 判定した **{judged['judged']}** 行 = 駆動しえない **{ta['not_driving']}**・"
+            f"ラン対照へ **{ta['needs_run']}**・判定不能 **{ta['undetermined']}**。"
+            f"build_manifest の build_hash {str(judged.get('manifest_build_hash'))[:16]}…。",
+            f"- 既存の台帳行のうち build_manifest に対応行が無いもの: {', '.join(judged['ledger_rows_without_manifest_row']) or 'なし'}。",
+            "",
+            c8lib.markdown_table(
+                ["行", "段階", "expedient", "既存の台帳行", "入力側 JSD", "帰無95%", "判定", "備考"],
+                [[r["key"], r["stage"], r["expedient"][:40], r.get("covered_by") or "—", c8lib.fmt(r.get("input_jsd"), 4),
+                  c8lib.fmt(r.get("null_p95"), 4),
+                  MANIFEST_VERDICT_JA[r["verdict"]] + (
+                      f"({ {'not_driving': '駆動していない', 'needs_run': 'ラン対照が要る'}.get(str(r.get('existing_verdict')), '未実行')})"
+                      if r["verdict"] == "covered" else ""),
+                  (r.get("note") or "")[:60] or "—"]
+                 for r in judged["rows"]],
+            ),
+        ]
     return "\n".join(md)
 
 
@@ -388,6 +534,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     ap.add_argument("--data", default=str(DATA_DIR))
     ap.add_argument("--out", default="docs/bench/c8")
     ap.add_argument("--no-write-ledger", action="store_true", help="結果を台帳へ書き戻さない")
+    ap.add_argument(
+        "--judge-manifest", action="store_true",
+        help="D-44 (a): build_manifest の expedient 全行を既存の記録だけで判定して台帳へ書く(第306)",
+    )
+    ap.add_argument("--manifest", default=str(BUILD_MANIFEST_PATH))
     ap.add_argument(
         "--list", action="store_true",
         help="台帳を印字して終わる(既定でも印字するので、--run を付けないときの明示用)",
@@ -409,6 +560,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             ran.append(row["id"])
         if ran and not args.no_write_ledger:
             path.write_text(json.dumps(ledger, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    if args.judge_manifest:
+        ledger["build_manifest_judgment"] = build_manifest_verdicts(c8lib.load_json(args.manifest), ledger)
+        if not args.no_write_ledger:
+            path.write_text(json.dumps(ledger, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
 
     problems = validate_ledger(ledger)
     md = ledger_markdown(ledger)

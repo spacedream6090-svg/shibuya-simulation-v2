@@ -360,6 +360,9 @@ class GoodsLedger:
         _rate = np.where(_sku_ok, self.sku.waste_rate[np.maximum(self.poi_sku, 0)], 0.0)
         _mass = np.where(_sku_ok, self.sku.mass_g[np.maximum(self.poi_sku, 0)], 0.0)
         self.static_store_waste_g = float((np.floor(shelf.astype(np.int64) * _rate) * _mass).sum())
+        #: 第305 Q137: **店の回収量**[g](ビン → bbox 外=``collect_waste`` の質量の累計・報告だけ=状態ではない)。
+        #: 月次センサスが店だけの帯と比べる(世帯の消費と棚卸差異は入らない)。
+        self.store_waste_g_total = 0.0
         self._bin = np.zeros((self.n_poi, self.slots), dtype=np.int32)
         self._shelf_age = np.zeros((self.n_poi, self.slots), dtype=np.int16)
         self._sold_today = np.zeros((self.n_poi, self.slots), dtype=bool)
@@ -750,6 +753,7 @@ class GoodsLedger:
             np.add.at(self._outflow, ids, q)
             mass = float((self.sku.mass_g[ids] * q).sum())
             self._day_waste_g += mass
+            self.store_waste_g_total += mass  # 第305 Q137: 店の回収量(報告だけ)
             self.n_moves += int(ids.size)
             rows = np.flatnonzero(flat_ok.ravel())
             self._log_many(
@@ -832,10 +836,14 @@ class GoodsLedger:
             "hoard_value": int((self._shelf * old).sum(axis=1) @ self.unit_cost),
         }
 
+    #: 第305 Q138: 店だけの帯の意味(ラン要約・manifest・月次センサスに同じ文で載せる)。
+    STORE_WASTE_BAND_NOTE: Final[str] = "自己整合性の検査(店の回収量 vs 静的期待・壊れの検知)=現実との照合ではない・区の総排出量(W1 119.6 t/日)との比較は保留(世帯の一般ごみ(消費した財の質量以外)=第 2 陣の後)"
+
     def store_waste_band(self) -> tuple[float, float, float]:
         """第304 Q135 (a): 店だけの静的な帯 ``(期待値, 下限, 上限)``[t/日] = 静的期待 × (1 ± ``WASTE_BAND_RATIO``)。
 
-        ラン要約の廃棄帯(報告だけ)。区の総量(W1)の帯は ``waste_band``(月次センサスが使う)のまま。
+        **自己整合性の検査**(店の回収量 vs 静的期待・壊れの検知)であって現実との照合ではない(第305 Q138)。
+        ラン要約(第304)と月次センサス(第305 Q137)が使う。区の総量(W1)の帯は ``waste_band`` に残す(参照用)。
         """
         e = float(self.static_store_waste_g) / 1_000_000.0
         return e, e * (1.0 - WASTE_BAND_RATIO), e * (1.0 + WASTE_BAND_RATIO)

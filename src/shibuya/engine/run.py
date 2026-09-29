@@ -887,7 +887,8 @@ class RunResult:
     def _waste_band_note(self) -> str:
         if not self.waste_sink:
             return ""
-        return (f"(帯=店の静的期待 {self.waste_sink.get('expected_store_t', 0.0):.3f} t/日 ±30%・体数に依らない・"
+        return (f"(自己整合性の検査=店の回収量 vs 静的期待 {self.waste_sink.get('expected_store_t', 0.0):.3f} t/日 ±30%・"
+                "現実との照合ではない・体数に依らない・"
                 "区の総排出量との比較は保留)")
 
     @property

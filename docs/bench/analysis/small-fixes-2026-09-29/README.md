@@ -298,3 +298,96 @@ python $D/small_fixes_measure.py waste --out $D/q135_waste.json
 ```
 
 (第 1 批のコマンドは第 2 批の後も同じ結果になるよう、並びを旧(`near_order="id"`)に固定して回す=`--axis tiebreak` が既定・T5 の第 1 批の腕も同じ。)
+
+---
+
+# 第 3 批(第305 の問いの決め → Q137・R-23 第3批の残り 15 件・D-44 (a))
+
+第 2 批は第305(8e3aa9c)でコミット済み。親の決め: Q137 月次センサスの帯も店だけへ(この回)/Q138 帯は「自己整合性の検査(店の回収量 vs 静的期待・壊れの検知)」と明記(現実との照合ではない)/Q139 実 LLM で T5 と相手の距離分布を測る(GPU 後の項目)。
+
+## 第 3 批① Q137: 月次センサスの廃棄帯=店だけの帯(+Q138 の明記)
+
+| 口 | 中身 |
+|---|---|
+| `GoodsLedger.store_waste_g_total` | **店の回収量**[g]=ビン → bbox 外(`collect_waste`)の質量の累計(報告だけ・状態ではない=checkpoint に入らない)。世帯の消費・棚卸差異は入らない |
+| `GoodsLedger.STORE_WASTE_BAND_NOTE` | 帯の意味の文(Q138): 「自己整合性の検査(店の回収量 vs 静的期待・壊れの検知)=現実との照合ではない・区の総排出量(W1 119.6 t/日)との比較は保留(世帯の一般ごみ(消費した財の質量以外)=第 2 陣の後)」 |
+| `census.monthly_mer`(月次 MER) | `waste_band` = 店だけの帯(`store_waste_band()`)・`waste_band_ok` = **店の回収量 t/日**(`store_waste_g_total` ÷ 日数)が帯に入るか。足した鍵: `waste_store_tonnes_per_day`・`waste_band_check`(上の文)。**固定表 parquet の列は変えない**・`waste_tonnes`/`waste_tonnes_per_day`(物の台帳の総量)は従来のまま |
+| ラン要約・manifest(Q138) | `waste_sink.band_check` に同じ文・要約の行の注記を「(自己整合性の検査=店の回収量 vs 静的期待 0.911 t/日 ±30%・現実との照合ではない・体数に依らない・区の総排出量との比較は保留)」に |
+
+- **報告だけ=checkpoint 不変**(全体テストの W17 golden・帰無腕が通る)。
+- W1(区の総量 119.6 t/日 ±30%)の帯は `goods.waste_band` に残した(参照用・月次センサスはもう使わない)。
+- テスト: `tests/economy/test_census.py`(固定表の鍵の検査に足した 2 鍵を除く・小世界の月次で帯=店だけ・判定=店の回収量・文の明記)・`tests/engine/test_waste_sink_report.py`(+1 本=合成世界のランで月次センサスの判定がラン要約と一致・文の明記)。
+
+## 第 3 批② R-23 第3批の残り 15 件(#1・#2・#6〜#18)の反映(D-86)
+
+作法: 設計書(`docs/design`)は本文を直した(「現在」→「直す案」)/答申(`docs/research`)は本文を書き換えず、該当行に「〔第306 訂正(R-23 第3批 #N): …〕」の注記を足した/`v2_design_slides.html` は本文のテキストだけ/#16 は evidence map の該当行を消した。**根拠は答申 §5 の根拠欄を写しただけで新しい主張は足していない**。行番号は変更前の行(単一行の置き換え=変更後も同じ行。#16 の削除だけ行が 1 つ減る)。全文の前後は [r23_batch3_changes.json](r23_batch3_changes.json)。
+
+| # | 場所(ファイル:行) | 方式 | 変更前 | 変更後 | 根拠(答申 §5 の根拠欄の写し) |
+|---|---|---|---|---|---|
+| 1 | `design/v2-architecture-roadmap.md:45` | 設計書=本文 | 記憶:習慣:判例=時定数1:5:25・ | 習慣:記憶統合:判例=時定数1:5:25 以上([推測]: 2 段のカスケード制御則=内ループは外ループの 5 倍以上速く、を 3 段へ再帰適用したもの。実務則の幅は 3:1〜20:1・3 段の先行は無い・第306 訂正=R-23 第3批 #1)・ | 答申 :187-188・P1P2 監査 :254・ControlGlobal / OptiControls |
+| 1 | `design/v2_design_slides.html:175` | スライド=本文テキスト | 記憶(個人):習慣(個人):判例(世界)=時定数1:5:25で分離。 | 習慣(個人):記憶統合(個人):判例(世界)=時定数1:5:25 以上で分離([推測]: 2 段のカスケード制御則=内ループは外ループの 5 倍以上速く、を 3 段へ再帰適用したもの。実務則の幅は 3:1〜20:1・3 段の先行は無い)。 | 答申 :187-188・P1P2 監査 :254・ControlGlobal / OptiControls |
+| 2 | `design/v2-c10-relations-agenda.md:26` | 設計書=本文 | Δ と時定数は expedient 宣言(1:5:25 の中間) | Δ と時定数は expedient 宣言(**第306 訂正・R-23 第3批 #2**: 旧「1:5:25 の中間」の 1:5:25 は習慣:記憶統合:判例の時定数比 [推測](#1 の順序訂正)で、半減期 30 日が「中間」かはどの層を 1 とするかで変わる=**再確認待ち**) | 同上(#1) |
+| 2 | `design/v2-c10-relations-agenda.md:53` | 設計書=本文 | **半減期 30 日**(Dunbar 層の 1:5:25 の中間・現実アンカー無し) | **半減期 30 日**(現実アンカー無し。**第306 訂正・R-23 第3批 #2**: 旧「Dunbar 層の 1:5:25 の中間」の 1:5:25 は習慣:記憶統合:判例の時定数比 [推測]=「中間」かはどの層を 1 とするかで変わる=**再確認待ち**・下の第230 追記も参照) | 同上(#1) |
+| 6 | `design/v2-redesign.md:196` | 設計書=本文 | 無検証のLLM自作ルールは効果ゼロの実測(SkillsBench)。 | 無検証のLLM自作ルールは効果ゼロの実測(**SkillsBench arXiv 2602.12670 v1**・86 タスク/11 領域/7 構成/7,308 軌跡。**現行版は self-generated 条件を抄録から外している**ので版を固定して引く=第306 訂正・R-23 第3批 #6)。 | https://arxiv.org/abs/2602.12670・`v2-precedent-system-deep-research.md:84` が現行版 +16.6pp を引いている |
+| 7 | `design/v2-redesign.md:402` | 設計書=本文 | 34行(4階層・世界側38%→再取得で4割強へ)+封印2+診断5・強5本(A1会話グループ/C1カスケード/D1滞在カーブ/D4休日平日比/E2成長率ラプラス) | **36行**(4階層・世界側 **42-44%**)+封印2+診断5・強5本(A1・C1・**D1′ 滞在人口カーブ**(09-03 差し替え)・**D4′ 3街路の日内プロファイル分化**(09-01 追補⑤)・E2)。**D1′ と D4′ は同一パネル=実効強 4.5 本**(第306 訂正・R-23 第3批 #7=`v2-pattern-ledger.md:5,136,164,166`・旧「34行・世界側38%→4割強・D1滞在カーブ/D4休日平日比」) | `v2-pattern-ledger.md:5,136,164,166` |
+| 8 | `design/v2-budget-declaration.md:58` | 設計書=本文 | \| 方法論答申(Phase 0で先取り確保・「余力があれば」にしない=v1失敗⑤の処方箋) \| | \| **expedient(一次なし)**。`v2-methodology.md` の工程判断であり、答申の裏づけは無い(第306 訂正・R-23 第3批 #8=旧「方法論答申」)。Phase 0で先取り確保・「余力があれば」にしない=v1失敗⑤の処方箋 \| | `docs/research/` に該当答申なし |
+| 9 | `research/v2-benchmark-standards-research.md:13` | 答申=注記(本文は当時のまま) | 英DMRB=**「交通量の85%がGEH<5」**が較正基準。 | 英DMRB=**「交通量の85%がGEH<5」**が較正基準。〔**第306 訂正(R-23 第3批 #9)**: この較正基準は**英DfT TAG Unit M3.1 Table 2 Guideline 2**=『GEH<5 を >85% のケースで』(GEH 統計そのものは DMRB 由来)。出典 TAG M3.1 PDF〕 | TAG M3.1 PDF |
+| 10 | `research/v2-benchmark-standards-research.md:39` | 答申=注記(本文は当時のまま) | 目的別カバレッジ93-104%=「都市規模人流の現実的合格ライン」。 | 目的別カバレッジ93-104%=「都市規模人流の現実的合格ライン」。〔**第306 訂正(R-23 第3批 #10)**: **東京(=行動モデルの生成に使った域)93-104%・Kinki 97-113%・East Suruga 83-102%**。**外部検証域は Kinki と East Suruga** で、East Suruga は通勤 R²<0.5・通勤量 17% 過少。『合格ライン』を引くなら外部検証域の値を使う。出典 arXiv 2205.00657 §4.2・§4.2.3・Table 5〕 | arXiv 2205.00657 §4.2・§4.2.3・Table 5 |
+| 11 | `research/v2-llm-serving-deep-research.md:16` | 答申=注記(本文は当時のまま) | **Model Runner V2(2026-03)=小モデル×高リクエストで+56%** | **Model Runner V2(2026-03)=小モデル×高リクエストで+56%**〔**第306 訂正(R-23 第3批 #11)**: MRV2 は **Qwen3-0.6B × 1×GB200** のホスト側オーバーヘッド強調条件で **16K→25K tok/s(+56.2%)**。**既定ではなく実験的**(`VLLM_USE_V2_MODEL_RUNNER=1`・v0.17+・LoRA 等未対応)。**8B × A5000 への外挿は未実証**。出典 https://vllm.ai/blog/2026-03-24-mrv2〕 | https://vllm.ai/blog/2026-03-24-mrv2 |
+| 12 | `design/v2-redesign.md:465` | 設計書=本文 | =**Qwen3-32B AWQ・TP4・温度0**(TP4 の非再現 4.1% は凍結で吸収) | =**Qwen3-32B AWQ・TP4・温度0**(TP4 の非再現 4.1% は凍結で吸収。**AutoAWQ は 2025-05-11 にアーカイブ済み**なので量子化は **llm-compressor** の AWQ レシピで行う(推論側は vLLM が AWQ 形式を継続サポート)=第306 訂正・R-23 第3批 #12) | AutoAWQ repo・vLLM docs |
+| 13 | `research/v2-data-contract-research.md:48` | 答申=注記(本文は当時のまま) | `create_memory`/`search_memory`の語彙あり。 | `create_memory`/`search_memory`の語彙あり。〔**第306 訂正(R-23 第3批 #13)**: `gen_ai.operation.name` の既知値は 9 個(`chat`/`create_agent`/`embeddings`/`execute_tool`/`generate_content`/`invoke_agent`/`invoke_workflow`/`retrieval`/`text_completion`)。**記憶操作の値は無い**ので `retrieval` か独自値を宣言する。**仕様は opentelemetry.io から GenAI 専用リポへ移設済み**。出典 OTel 属性レジストリ〕 | OTel 属性レジストリ |
+| 14 | `research/v2-game-tech-import-research.md:41` | 答申=注記(本文は当時のまま) | 全DLなし検索**)・SC2(.SC2Replay=game.events/tracker.events/message.eventsの分離収録)・ | 全DLなし検索**)・SC2(.SC2Replay=game.events/tracker.events/message.eventsの分離収録)・〔**第306 訂正(R-23 第3批 #14)**: **Epic の DemoNetDriver 公式ドキュメントにイベント検索の記述は無い**(text tags は**リプレイ一覧の検索**用)。タグ付きイベント索引の先行は **SC2 の game.events / tracker.events / message.events 分離**の方。UE 側は HTTP Streamer REST API を一次で当たる(残務)。出典 Epic DemoNetDriver ページ〕 | Epic DemoNetDriver ページ |
+| 15 | `research/v2-game-tech-import-research.md:17` | 答申=注記(本文は当時のまま) | Hitman Absolution(群衆1200体・必要時に本物NPCへ昇格)・ | Hitman Absolution(群衆1200体・必要時に本物NPCへ昇格)〔**第306 訂正(R-23 第3批 #15)**: 群衆 **1200 体/1 群衆・同画面 500 体**・30fps(GDC Europe 2012)。公開資料の目標は『**プレイヤーが群衆と NPC を見分けられないこと**』で、**on-demand 昇格の明記は見つからない**(昇格機構の先行は AC Unity のプール入替)。出典 GDC Vault / Fauerby スライド〕・ | GDC Vault / Fauerby スライド |
+| 16 | `design/v2-decision-evidence-map.md:244` | 設計書=行の削除と件数・★ | \| L458 \| R15 可視化 \| 決定行が「既存答申(v2-game-frontend-research.md・**親検収済み**)」と書くが、INDEX の等級は **D**(出典 URL ゼロ)= **記載と等級の食い違い** \| 決定行・INDEX §1・batch1 §1 \| | (行を削除) | `v2-redesign.md:458`(現 459 行) |
+| 16 | `design/v2-decision-evidence-map.md:222` | 設計書=行の削除と件数・★ | ## 5. 要写し検査(★)— 19 行 | ## 5. 要写し検査(★)— 18 行(第306: L458 行は `v2-redesign.md` の R15 行が「出典の一次確認は未・INDEX 等級 D(第218)」と自己訂正済みのため消した=R-23 第3批 #16) | `v2-redesign.md:458`(現 459 行) |
+| 16 | `design/v2-decision-evidence-map.md:128` | 設計書=行の削除と件数・★ | \| L458 \| R15 可視化 \| 09-08 \| 初回=計器盤WebUI+deck.gl 2D・GlassBox 規律 \| v2-game-frontend-research(決定行がリンク) \| **D** \| 答申あり(親未確認) \| ★ \| | \| L458 \| R15 可視化 \| 09-08 \| 初回=計器盤WebUI+deck.gl 2D・GlassBox 規律 \| v2-game-frontend-research(決定行がリンク) \| **D** \| 答申あり(親未確認) \| (第306: ★解消=R-23 第3批 #16) \| | `v2-redesign.md:458`(現 459 行) |
+| 17 | `research/v2-pattern-ledger-deep-research.md:74` | 答申=注記(本文は当時のまま) | - **POM適用の実録**: 半乾燥放牧地=**10^9通り→11,316組(0.001%)が生存**・ | - **POM適用の実録**: 半乾燥放牧地=**10^9通り→11,316組(0.001%)が生存**〔**第306 訂正(R-23 第3批 #17)**: 出典 *Ecological Modelling* 275:78–88 (2014), doi:10.1016/j.ecolmodel.2013.12.009(「Pattern-oriented parameterization of general models for ecological application」)〕・ | 抄録逐語 |
+| 18 | `research/v2-game-frontend-research.md:46` | 答申=注記(本文は当時のまま) | (ビューアが独自に補間・演出したものは描かない)。 | (ビューアが独自に補間・演出したものは描かない)。〔**第306 訂正(R-23 第3批 #18)**: 原典の逐語は「**every aspect of the game is an agent that reports back to the underlying simulation**」(表示物がシムへ報告する向き)。v2 の運用「ビューアは演出しない」は**裏返しの含意=v2 側の規律として宣言**する。出典 EA 公式・GDC 2012〕 | EA 公式・GDC 2012 |
+| 18 | `design/v2-redesign.md:459` | 設計書=本文 | 介入UIは「pause/速度/イベント注入1種」に限定しGlassBox規律(見えるもの=シムの1:1・介入は記録される実験条件)。 | 介入UIは「pause/速度/イベント注入1種」に限定しGlassBox規律(見えるもの=シムの1:1・介入は記録される実験条件)。(第306 訂正・R-23 第3批 #18: GlassBox 規律は **v2 側の規律として宣言**する=原典 SimCity GlassBox の逐語は「every aspect of the game is an agent that reports back to the underlying simulation」で向きが逆) | EA 公式・GDC 2012 |
+
+**反映しなかった部分(§5 の「場所」に書かれているが、いまの行に該当文が無い)**:
+
+| # | §5 の場所 | いまの行 | 理由 |
+|---|---|---|---|
+| 11 | `v2-budget-declaration.md` | — | MRV2 の記述が無い(grep「MRV2」「+56」)=答申への注記だけ |
+| 13 | L389(決定台帳) | `v2-redesign.md:390`(6 データ契約) | 「llm_calls=OTel GenAI準拠」だけで記憶操作の語彙の主張は無い=答申への注記だけ |
+| 14 | L394(決定台帳) | `v2-redesign.md:395`(U3 データ契約追記2点) | 「タグ付きイベント索引+checkpoint 時間スライスを採用」だけで UE のイベント検索の主張は無い=答申への注記だけ |
+| 15 | L397(決定台帳) | `v2-redesign.md:398`(U6 認知LOD) | Hitman の主張は無い=答申への注記だけ |
+
+§5 の行番号は答申を書いた時点のもので、いまの決定台帳は 1 行ずれている(#7 L401 → 402・#12 L464 → 465・#18 L458 → 459。#3〜#5 を反映した第229 の注記で行が動いた)。
+
+## 第 3 批③ D-44 (a): build_manifest の expedient の一括判定(既存の記録だけ)
+
+**出力**: `tools/c8/sensitivity_v1.json`(台帳=正)と `docs/bench/c8/sensitivity_v1.{json,md}`(`python tools/c8/sensitivity.py --judge-manifest --out docs/bench/c8` の出力)に鍵 `build_manifest_judgment` を足した。**既存の 19 行・過程の id 22 本・旧 `build_manifest_expedients`(09-09 の 122 行の注記)は 1 バイトも変えていない**(鍵ごとの一致で確認)。表の頭に規則の文言(片側・第229 決定)と**検出可能効果量の床(第200: 2 seed では f≈1 未満を検出できない=「特大の駆動が無い」の証明にとどまる)**を載せた。
+
+**数え**(build_manifest の build_hash 09571e85…):
+
+| | 行数 |
+|---|---|
+| build_manifest の expedient(いま) | **121**(09-09 の台帳の注記は 122=段階の改版で W6 +1・W7 +5(D-72)・W10 +1・W17 −8(v2)=差し引き −1) |
+| 既存の台帳行が扱う行 | **16**(下の表=設計書の感度宣言 14 アンカーのうち 12 アンカーが 15 行に当たる+実装計画書の RAKE が W17#3 に当たる) |
+| 判定した行 | **105** |
+| └ 駆動しえない(帰無参照内) | **0** |
+| └ ラン対照へ(超える) | **0** |
+| └ **判定不能(JSD 無し)** | **105** |
+
+- **判定不能が 105 行全部**: 構築の記録(`acceptance/summary.json`・`W*.header.json`・`sensitivity_v1`)に「宣言 vs 対照」の入力側 JSD があるのは既存の台帳行(5 本が実行済み)だけだった。記録にある JSD は 2 つあったが、どちらも**目標への当てはまり**で対照との差ではない(W16#13 の方面の抽出 0.000139・W17#3 の raking 0%/12% の PT 目標への JSD 0.3585/0.2531)=備考に記録した。
+- **既存の台帳行が扱う 16 行**: W1#1(S-W3-LAYER)・W2#1(S-W2-GRID)・W4#1/#2(S-W5-HEIGHT)・W5#1(S-W6-ENTRANCE)・W6#1(S-W7-ORGALLOC)・W7#1(S-W8-HOURS)・W8#1(S-W9-BUFFER)・W10#1(S-W11-AADT)・W11#1(S-W13-CONCOURSE)・W12#1(S-W14-HOURUNIFORM=ラン対照が要る)・W12#4(S-W14-JRPHASE=駆動していない)・W13#1/#2(S-W15-TEMP=ラン対照が要る)・W16#3(S-W16-FLOOR=ラン対照が要る)・W17#3(S-W17-RAKE=ラン対照が要る。ただし台帳行の測定は W17 v1 の「適応 vs 固定 12%」で、いまの W17 v2 は「0% を採用」)。
+- **台帳行のうち build_manifest に対応行が無い**: S-W10-SHADOW(影グリッドの時刻刻み 5 分=W9 の expedient 欄に無い)・S-W17-T2(T1 選択=W17 v2 の欄に無い)・S-AB1-BUDGET・S-C7-BOUNDARY・S-C7-KINDATTR(構築外)。
+- 対応の照合は本文の書き出し(`sensitivity.COVERED_EXPEDIENTS`)で、実データがあれば manifest から作り直した判定列が台帳と一致することをテストで固定(行番号は段階の版で動くため)。
+
+テスト: `tests/c8/test_sensitivity_ledger.py`(+4 本=判定列の集計・3 値の整合・規則の文言(片側・f≈1・第200)・既存の 19 行と旧注記は不変/検査器が不正な判定と集計のずれを捕まえる/Markdown に規則と表/実データの manifest から作り直すと一致・既存行の書き出しは 1 行ずつに当たる)。
+
+## 第 3 批 テスト本数と全体
+
+全体(`-m "not gpu and not slow"`・p6 400k を除く・junit): **3,296 件・failures 0・errors 0・skipped 1(既存の W10 較正)・exit 0**(第305 の 3,291 件 + 新規 5 件=① 1・③ 4)。
+
+## 第 3 批 宣言と問い
+
+宣言: ① 月次センサスの判定=店の回収量 ÷ 日数(ラン要約と同じ量)・W1 の帯は参照用に残す ② 答申は注記だけ・根拠は §5 の写し・§5 の場所にいま該当文が無い行は変えない ③ D-44 の判定は既存の記録だけ(構築の再実行もしない)・既存行の照合は本文の書き出し。問いは報告の Q140〜。
+
+## 第 3 批 再現
+
+```
+python tools/c8/sensitivity.py --judge-manifest --out docs/bench/c8   # D-44 (a) の判定列(台帳 tools/c8/sensitivity_v1.json に書く)
+```

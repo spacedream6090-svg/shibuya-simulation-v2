@@ -441,6 +441,7 @@ class WorldProcessRunner:
             "expected_store_t": round(expected, 6),
             "band_ok": bool(hi > 0.0 and lo <= store <= hi),
             "band_basis": "店舗の期限切れ在庫の静的期待(初期在庫 × SKU 廃棄率(切り捨て)× 質量)±30%・体数に依らない・expedient・未リサーチ(D-52 (a)・第304 Q135 (a))",
+            "band_check": str(getattr(goods, "STORE_WASTE_BAND_NOTE", "")),  # 第305 Q138
             "ward_total_comparison": "保留(区 119.6 t/日との比較は、世帯の一般ごみ(消費した財の質量以外)=第 2 陣を入れてから)",
         }
 
@@ -498,7 +499,8 @@ class WorldProcessRunner:
                 f"  廃棄 sink(検算②): {ws['total_t']:.4f} t/日(店 {b['store_expired_stock']:.4f}・世帯の消費 "
                 f"{b['household_consumption']:.4f}・街路 {b['street_litter']:.4f})店の帯 "
                 f"(band {lo:.2f}-{hi:.2f} t/日) {'OK' if ws['band_ok'] else 'NG'}"
-                f"(帯=店の静的期待 {ws['expected_store_t']:.3f} t/日 ±30%・区の総排出量との比較は保留)"
+                f"(自己整合性の検査=店の回収量 vs 静的期待 {ws['expected_store_t']:.3f} t/日 ±30%・現実との照合ではない・"
+                "区の総排出量との比較は保留)"
             )
         lines.append(
             "  過程別[s]: "

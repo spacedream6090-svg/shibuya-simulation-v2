@@ -62,6 +62,8 @@ def test_run_summary_uses_the_store_band_and_lists_three_sources():
     assert res.run_manifest_fields()["waste_sink"] == ws
     text = res.summary()
     assert "店の帯 (band" in text and "区の総排出量との比較は保留" in text
+    assert "自己整合性の検査" in text and "現実との照合ではない" in text          # 第305 Q138
+    assert "自己整合性の検査" in ws["band_check"]
     got = c7lib.parse_run_summary(text)  # 受入表の読み口は変えない
     assert got["waste_tonnes_per_day"] == pytest.approx(round(res.waste_tonnes_per_day, 3))
     assert got["waste_band_ok"] is res.waste_band_ok
@@ -78,3 +80,20 @@ def test_real_world_store_band_is_0_911_t_per_day_for_any_agent_count():
     got = {n: GoodsLedger.from_pois(cats, np.asarray(w.pois.stock), np.asarray(w.pois.price), n_agents=n)
            .static_store_waste_g for n in (5_000, 390_067)}
     assert got[5_000] == got[390_067] == pytest.approx(910_750.0)
+
+
+def test_monthly_census_uses_the_store_band_and_the_store_collected_mass():
+    """第305 Q137: 月次センサスの帯も店だけの帯(判定=店の回収量 t/日)・帯の意味を明記(報告だけ)。"""
+    from shibuya.economy import census as CS
+
+    res = cli.run(n_agents=200, seed=3, world_dir=None, n_cells=16, ticks=720, checkpoint_every=360)
+    goods = res.ledger.goods
+    e, lo, hi = goods.store_waste_band()
+    mer = CS.monthly_mer(res.ledger.money, goods, month=0, days=1)
+    assert mer["waste_band"] == (lo, hi)
+    assert mer["waste_store_tonnes_per_day"] == pytest.approx(res.waste_sink["breakdown_t"]["store_expired_stock"], abs=1e-6)
+    assert mer["waste_band_ok"] is res.waste_band_ok
+    assert mer["waste_band_check"] == goods.STORE_WASTE_BAND_NOTE
+    assert "自己整合性の検査" in goods.STORE_WASTE_BAND_NOTE and "現実との照合ではない" in goods.STORE_WASTE_BAND_NOTE
+    # 総量(物の台帳=店+世帯の消費)は従来の欄のまま
+    assert mer["waste_tonnes_per_day"] == pytest.approx(goods.waste_band(days=1).tonnes_per_day)

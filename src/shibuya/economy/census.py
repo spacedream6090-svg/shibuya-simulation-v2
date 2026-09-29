@@ -380,7 +380,8 @@ def monthly_mer(
       3. 貨幣供給量 M(期末)
       4. 残差
       5. 退蔵残高
-      6.(物)廃棄 sink の t/日 と W1 band 判定
+      6.(物)廃棄 sink の t/日 と帯の判定(第305 Q137: **店だけの帯**=店の回収量 vs 静的期待の自己整合性の検査・
+         区の総排出量 W1 との比較は保留。キーは変えない=``waste_band``/``waste_band_ok`` の意味だけが変わる)
       7. **T3**(冗長方程式の検算・D-85 (a)): ``t3_ok`` と内訳 ``t3``(3検査の合否と
          残差の大きさ)。**固定表 parquet の列は増やさない**(§2.4)。
 
@@ -433,8 +434,13 @@ def monthly_mer(
         band = goods.waste_band(days=max(1, n_days))
         out["waste_tonnes"] = band.tonnes
         out["waste_tonnes_per_day"] = band.tonnes_per_day
-        out["waste_band_ok"] = band.ok
-        out["waste_band"] = (band.low, band.high)
+        # 第305 Q137: 帯=店だけの静的な帯・判定=店の回収量(ビン → 搬出)の t/日(報告だけ)
+        _e, lo, hi = goods.store_waste_band()
+        store_pd = float(getattr(goods, "store_waste_g_total", 0.0)) / 1_000_000.0 / max(1, n_days)
+        out["waste_band_ok"] = bool(hi > 0.0 and lo <= store_pd <= hi)
+        out["waste_band"] = (lo, hi)
+        out["waste_store_tonnes_per_day"] = store_pd
+        out["waste_band_check"] = str(goods.STORE_WASTE_BAND_NOTE)
     return out
 
 

@@ -247,3 +247,53 @@ def test_run_row_fills_verdict(sensitivity, world_dir, data_dir):
     assert res["verdict"] in ("not_driving", "needs_run")
     assert res["measured_at"]
     assert res["seconds"] >= 0.0
+
+
+# ------------------------------------------------------------------ D-44 (a) の一括判定(第306)
+def test_manifest_judgment_block_is_consistent(sensitivity, ledger):
+    """build_manifest の expedient 全行の判定列(3 値+既存の台帳行)が行・集計・規則の文言と合うこと。"""
+    j = ledger["build_manifest_judgment"]
+    assert j["count"] == len(j["rows"]) == 121
+    assert j["covered"] + j["judged"] == j["count"]
+    assert set(j["tally"]) == set(sensitivity.MANIFEST_VERDICTS)
+    assert j["tally"] == {v: sum(r["verdict"] == v for r in j["rows"]) for v in sensitivity.MANIFEST_VERDICTS}
+    ids = {r["id"] for r in ledger["rows"]}
+    for r in j["rows"]:
+        assert (r["verdict"] == "covered") == (r["covered_by"] is not None), r["key"]
+        if r["covered_by"] is not None:
+            assert r["covered_by"] in ids
+        if r["verdict"] in ("not_driving", "needs_run"):
+            assert r["input_jsd"] is not None and r["null_p95"] is not None
+        if r["verdict"] == "undetermined":
+            assert r["input_jsd"] is None
+    assert "片側" in j["rule_note"] and "駆動しえない" in j["rule_note"]
+    assert "f≈1" in j["rule_note"] and "第200" in j["rule_note"]  # 検出可能効果量の床
+    # 既存の 19 行・過程の id は触らない(判定列は別の鍵)
+    assert len(ledger["rows"]) == 19 and ledger["build_manifest_expedients"]["count"] == 122
+
+
+def test_manifest_judgment_validation_catches_bad_rows(sensitivity, ledger):
+    broken = json.loads(json.dumps(ledger))
+    broken["build_manifest_judgment"]["rows"][0]["verdict"] = "maybe"
+    assert any("verdict" in p for p in sensitivity.validate_ledger(broken))
+    broken = json.loads(json.dumps(ledger))
+    broken["build_manifest_judgment"]["tally"]["undetermined"] += 1
+    assert any("tally" in p for p in sensitivity.validate_ledger(broken))
+
+
+def test_manifest_judgment_markdown_has_the_rule_and_the_table(sensitivity, ledger):
+    md = sensitivity.ledger_markdown(ledger)
+    assert "D-44 (a) build_manifest の expedient 121 行の一括判定" in md
+    assert "検出可能効果量の床" in md
+    assert md.count("判定不能(JSD 無し)") == ledger["build_manifest_judgment"]["tally"]["undetermined"]
+
+
+@real_data
+def test_manifest_judgment_matches_the_live_manifest(c8lib, sensitivity, ledger, world_dir):
+    """台帳の判定列は data/world/v2/build_manifest.json から作り直しても同じ(既存の台帳行の書き出しは 1 行ずつに当たる)。"""
+    live = sensitivity.build_manifest_verdicts(c8lib.load_json(world_dir / "build_manifest.json"), ledger)
+    assert live["rows"] == ledger["build_manifest_judgment"]["rows"]
+    assert live["manifest_build_hash"] == ledger["build_manifest_judgment"]["manifest_build_hash"]
+    for stage, prefix, rid in sensitivity.COVERED_EXPEDIENTS:
+        hits = [r for r in live["rows"] if r["stage"] == stage and r["expedient"].startswith(prefix)]
+        assert len(hits) == 1 and hits[0]["covered_by"] == rid, (stage, prefix)

@@ -45,7 +45,7 @@ MCAP全面採用(案c)は時刻・多チャネル設計として理想的だが�
 - **OpenTelemetry GenAI semconv**(大半Development状態): Required=`gen_ai.operation.name`/`gen_ai.provider.name`・
   Recommended=`gen_ai.usage.input_tokens/output_tokens`・`gen_ai.conversation.id`・
   Opt-in=`gen_ai.input.messages`/`gen_ai.output.messages`(本文記録)。`invoke_agent`/`execute_tool`/
-  `create_memory`/`search_memory`の語彙あり。
+  `create_memory`/`search_memory`の語彙あり。〔**第306 訂正(R-23 第3批 #13)**: `gen_ai.operation.name` の既知値は 9 個(`chat`/`create_agent`/`embeddings`/`execute_tool`/`generate_content`/`invoke_agent`/`invoke_workflow`/`retrieval`/`text_completion`)。**記憶操作の値は無い**ので `retrieval` か独自値を宣言する。**仕様は opentelemetry.io から GenAI 専用リポへ移設済み**。出典 OTel 属性レジストリ〕
 - LangSmith: `trace_id`+`dotted_order`(={time}{run-uuid}連結で全順序化)・外部時刻体系の注入余地あり。
 - **シム内時刻とLLM呼び出しの対応付けの標準前例は発見できず**→独自namespace属性(`sim.t_ns`/`sim.run_id`/
   `sim.agent_id`)をGenAI spanに載せるのが定石(推測)。

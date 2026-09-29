@@ -125,7 +125,7 @@
 | L455 | 世界データ構築仕様 | 09-07 | W0-W20 と D-W1〜D-W22・§9 工程を承認 | v2-world-data-build-research・v2-world-data-build-round2-research(決定行に**親一次確認済み事実 F1-F15**)・v2-w7-law-primary-check-research | B・B・**A** | 答申あり(親確認済) | |
 | L456 | R6 時間 | 09-08 | 時間の意味論を集約(**新規決定なし**) | 集約のみ(U9・知覚契約 §6・D-W10・D-W15・U10 由来) | — | ユーザー直感・設計判断(expedient・集約) | |
 | L457 | R8 裁定判例 | 09-08 | 未定義行動5段+判例化(集約) | v2-action-conversation-contract-research(`v2-action-contract.md:5`)・v2-precedent-system-deep-research(監査 2-24) | B+親確認・**D** | 答申あり(親確認済) | ★ |
-| L458 | R15 可視化 | 09-08 | 初回=計器盤WebUI+deck.gl 2D・GlassBox 規律 | v2-game-frontend-research(決定行がリンク) | **D** | 答申あり(親未確認) | ★ |
+| L458 | R15 可視化 | 09-08 | 初回=計器盤WebUI+deck.gl 2D・GlassBox 規律 | v2-game-frontend-research(決定行がリンク) | **D** | 答申あり(親未確認) | (第306: ★解消=R-23 第3批 #16) |
 | L459 | R17 倫理・安全運用 | 09-08 | E-1〜E-7(Five Safes・U18 初回実装・審査不要3本立て) | v2-ethics-operations-research(決定行「**親確認**: CitySim/CityReal・PPC Q15-1・医学系指針・PoliSim」)・v2-content-safety-deep-research・v2-publication-ethics-deep-research・v2-legal-licensing-deep-research | B+親確認・**D**×3 | 答申あり(親確認済) | |
 | L460 | R14 計器盤・検収・オーケストレーション | 09-08 | G-1〜G-9(3面・I≤3・TRACE・EnsembleSpec・seed群8本) | v2-dashboard-verification-orchestration-research(決定行「親確認: TRACE・hmer・AgentSociety mlflow・Generative Agents」) | **A** | 答申あり(親確認済) | ★ |
 | L461 | 行5 追補 | 09-08 | H-1〜H-5(Calvo 業種別・k の水準・r クリップ) | v2-price-formation-llm-research(決定行「親確認: Fish v6・Higo–Saita 外食5.0%/月・金融庁飲食業編・EconAgent」) | B+親確認 | 答申あり(親確認済) | |
@@ -219,7 +219,7 @@ L400(BM)・L401(U12 パターン台帳)・L403(予算宣言表)・L405(R2 世界
 | L463 | 着手ゲート | 残ラウンド全決定宣言 | 工程判断 |
 | L466 | 到達点の順位 | C 一位・過程で A と B | ユーザー決定。capabilities-business(D)が傍証 |
 
-## 5. 要写し検査(★)— 19 行
+## 5. 要写し検査(★)— 18 行(第306: L458 行は `v2-redesign.md` の R15 行が「出典の一次確認は未・INDEX 等級 D(第218)」と自己訂正済みのため消した=R-23 第3批 #16)
 
 > ここは**本書の範囲外**(数値 → 答申 → 原典の 2 段は親の仕事)。作業中に「決定行の記述と、答申・監査・索引の記述が食い違う」のを見つけたものだけを並べる。
 
@@ -241,7 +241,6 @@ L400(BM)・L401(U12 パターン台帳)・L403(予算宣言表)・L405(R2 世界
 | L444 | U11 | 保存則テスト 5 層のうち **T3(冗長方程式の毎期 assert)**が設計にも実装にも無い・**落とした記録も無い** | batch2 §4 E・P0 監査 2-1 #5 |
 | L447 | 母集団合成 | 答申の「**世帯を主語に**」を採らず個人生成 → 世帯後付け。答申は後者を「劣る」としたが**理由の記録が無い** | P1P2 監査 2-23 |
 | L457 | R8 裁定判例 | 計測項目は挙がるが、答申の「**判例誤ヒット率 ≤1%・裁定 κ≥0.6**」という**目標値が決定行に無い** | P1P2 監査 2-24 |
-| L458 | R15 可視化 | 決定行が「既存答申(v2-game-frontend-research.md・**親検収済み**)」と書くが、INDEX の等級は **D**(出典 URL ゼロ)= **記載と等級の食い違い** | 決定行・INDEX §1・batch1 §1 |
 | L460 | R14 | **G-8「初回 seed 群 8 本」**を、後発の **A 等級** `v2-replication-count-research` が「ABM/統計方法論の系譜では正当化できない(2〜3 桁不足)」と**否定**している=**訂正の伝播検査の対象** | v2-replication-count-research §3 |
 | L462 | R7 群衆物理 | **C9 G13(物理は事前計算)で方針が変わり**、U15-1〜8 の設計が宙に浮いている(A 等級答申の実装率が最も低い理由) | P0 監査 §1-2・§1-3 |
 
