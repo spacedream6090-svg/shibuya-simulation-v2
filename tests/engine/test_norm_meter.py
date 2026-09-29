@@ -122,3 +122,62 @@ def test_the_meter_only_reads_the_run_state():
     assert (with_meter.final_hash, with_meter.llm_calls) == (without.final_hash, without.llm_calls)
     again = cli.run(**kw)
     assert again.run_manifest_fields()["group_norms"] == g  # 決定論
+
+
+# ---------------------------------------------------------------- 第309 Q148: 瞬間の群れ歩き
+def _step(m, a, t, xy_now, moving=None):
+    with a.writable():
+        a.xy[:] = np.asarray(xy_now, dtype=np.float32)
+        a.activity[:] = int(Activity.IDLE)
+        a.activity[list(moving if moving is not None else range(a.n))] = int(Activity.MOVING)
+        a.transit_state[:] = 0
+    m.observe_tick(t)
+
+
+def test_instant_group_walk_needs_2m_same_direction_and_both_walking():
+    m, a = meter(5)
+    base = np.array([[0.0, 0.0], [1.0, 0.0], [0.0, 1.5], [50.0, 50.0], [0.5, 0.5]])
+    _step(m, a, 0, base)  # 最初の tick は進行方向が無い=数えない
+    s0 = m.summary()["instant_group_walk"]
+    assert s0["walker_minutes"] == 0
+    # 体 0・1・2 は +x へ 1 m(2 m 内・同方向)/体 3 は遠い/体 4 は逆向き(−x)
+    nxt = base + np.array([[1, 0], [1, 0], [1, 0], [1, 0], [-1, 0]], dtype=float)
+    _step(m, a, 1, nxt)
+    s = m.summary()["instant_group_walk"]
+    assert s["walker_minutes"] == 5 and s["grouped_walker_minutes"] == 3
+    assert s["grouped_share"] == pytest.approx(0.6)
+    assert s["group_minutes_by_size"] == {"3": 1}
+    assert s["walker_minutes_by_group_size"] == {"1(独り)": 2, "2": 0, "3": 3, "4+": 0}
+    assert s["reference_moussaid_2010_group_share"] == [0.55, 0.70]
+    assert "瞬間" in s["definition"] and "5 分連続" in s["definition"]
+
+
+def test_instant_group_walk_counts_neighbours_across_grid_cells_and_ignores_standing_agents():
+    m, a = meter(3)
+    base = np.array([[1.9, 1.9], [2.1, 2.1], [2.0, 0.0]])   # 体 0 と 1 は別の 2 m 格子で 0.28 m
+    _step(m, a, 0, base)
+    nxt = base + np.array([[0.0, 1.0], [0.3, 1.0], [0.0, 0.0]])  # 体 2 は動かない(変位 0)=歩行者に数えない
+    _step(m, a, 1, nxt)
+    s = m.summary()["instant_group_walk"]
+    assert s["walker_minutes"] == 2 and s["grouped_walker_minutes"] == 2
+    assert s["group_minutes_by_size"] == {"2": 1}
+
+
+def test_group_norms_switch_off_is_byte_identical():
+    """第309 Q150: ``group_norms="off"`` は計器の口を通さない=final・呼数が既定(on)と同じ・manifest は enabled=False。"""
+    from shibuya import cli
+    from shibuya.engine import run as RUN
+
+    kw = dict(n_agents=150, seed=2, world_dir=None, n_cells=16, ticks=240, checkpoint_every=120)
+    on = cli.run(**kw)
+    off = cli.run(group_norms="off", **kw)
+    assert (on.final_hash, on.llm_calls) == (off.final_hash, off.llm_calls)
+    assert off.run_manifest_fields()["group_norms"] == {"enabled": False}
+    g = on.run_manifest_fields()["group_norms"]
+    assert g["enabled"] is True and "instant_group_walk" in g and "cowalk" in g
+    assert "group_norms" not in off.phase_seconds and on.phase_seconds["group_norms"] >= 0.0
+    with pytest.raises(ValueError):
+        cli.run(group_norms="maybe", **kw)
+    src = open(cli.__file__, encoding="utf-8").read()
+    assert '"--group-norms"' in src and "group_norms=str(args.group_norms)" in src
+    assert '"--group-norms"' in open(RUN.__file__, encoding="utf-8").read()

@@ -14,6 +14,11 @@
         エントロピー[bit]と最頻行為の占有率。
     (c) **役割語/NO_PERMISSION**: 役割語の行為(語彙の役割語)の件数・結果(成立/権限なし/その他)・種別の内訳。
     (d) **伝播到達**: 看板の露出・口コミ・顕著行為の社会伝播(気づき・出動)の**既存の計数の集約**。
+    (a′) **瞬間の群れ歩き**(第309・Q148・Moussaïd 2010 の定義に寄せた**瞬間の**指標): 同じ tick に「2 m 内 ∧ 同方向
+        (進行方向=直前の tick からの変位の向き・角度差 ≤45°=宣言)∧ 両方が歩いている(MOVING かつ変位 > 0)」の相手が
+        1 人以上いる歩行者の割合(体・分 ÷ 歩行者の体・分)と群の大きさ(連結成分)の分布(1 人=独り・2・3・4 人以上)。
+        (a) の「5 分連続・同じ移動先」とは定義が違う(瞬間/持続・方向/行き先)=両方を載せる。node 幾何では同じノードに
+        居て同じ辺を進む体=距離 0・角度 0 になる。
 
 **場所の種別(宣言・expedient)**: 店=在店(``poi_ref`` ≥ 0)か列(``queue_poi`` ≥ 0)/駅=駅出口セル(W11)か
 ホームのセル/街路=それ以外の在圏(舞台外・乗車中は数えない)。行為は**応答を適用する時点**の場所で数える。
@@ -38,6 +43,8 @@ __all__ = [
     "COWALK_MINUTES",
     "PAIR_CAP",
     "MOUSSAID_2010_GROUP_SHARE",
+    "INSTANT_ANGLE_DEG",
+    "INSTANT_METERS",
     "GroupNormMeter",
     "entropy_bits",
     "role_code_table",
@@ -52,6 +59,11 @@ COWALK_MINUTES: Final[int] = 5
 PAIR_CAP: Final[int] = 2_000_000
 #: 照合値(記録だけ): 歩行者のうち集団で歩く割合(Moussaïd 2010・集団 A 55%/集団 B 70%・第256 親が逐語確認)。
 MOUSSAID_2010_GROUP_SHARE: Final[tuple[float, float]] = (0.55, 0.70)
+#: 瞬間の群れ歩きの同方向の閾値[度](宣言)と距離[m](同行と同じ 2 m)。
+INSTANT_ANGLE_DEG: Final[float] = 45.0
+INSTANT_METERS: Final[float] = 2.0
+_GRID_SHIFT: Final[int] = 1 << 20   # 2 m 格子の添字を非負にするずらし
+_GRID_ROW: Final[int] = 1 << 21     # 2 m 格子の鍵 = (bx + SHIFT) × ROW + (by + SHIFT)
 
 
 def entropy_bits(counts: np.ndarray) -> float:
@@ -106,6 +118,17 @@ class GroupNormMeter:
         self.cowalk_pairs_max_tick = 0
         self.group_size_minutes: dict[int, int] = {}
         self.seconds = 0.0
+        # (a′) 瞬間の群れ歩き(第309)
+        self._prev_xy: np.ndarray | None = None
+        self.inst_walker_minutes = 0
+        self.inst_grouped_minutes = 0
+        self.inst_size_minutes: dict[int, int] = {}      # 群の大きさ → 体・分(1=独り)
+        self.inst_group_count: dict[int, int] = {}       # 群の大きさ → 群・分
+        self.inst_pairs_max_tick = 0
+        self.inst_ticks_skipped = 0
+        # 費用(ms/tick)
+        self.tick_ms_max = 0.0
+        self.n_ticks = 0
 
     # ------------------------------------------------------------------ (b)+(c) 応答の適用
     def _place_kind(self, ids: np.ndarray) -> np.ndarray:
@@ -173,8 +196,106 @@ class GroupNormMeter:
 
     # ------------------------------------------------------------------ (a) 同行
     def observe_tick(self, tick: int) -> None:
-        """tick の終わり(位置が確定した後)。同セル ∧ 同じ移動先 ∧ 2 m 内の組を数えて連続時間を伸ばす。"""
+        """tick の終わり(位置が確定した後)。(a) 同行(5 分連続)と (a′) 瞬間の群れ歩きを数える。"""
         t0 = time.perf_counter()
+        self._observe_cowalk(tick)
+        self._observe_instant(tick)
+        dt = time.perf_counter() - t0
+        self.seconds += dt
+        self.tick_ms_max = max(self.tick_ms_max, dt * 1000.0)
+        self.n_ticks += 1
+
+    @staticmethod
+    def _components(a: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """組 ``(a, b)`` → (体, 連結成分のラベル)。ラベルの伝播(群の直径ぶんの反復=ふつう 1〜2 回)。"""
+        members = np.unique(np.concatenate([a, b]))
+        ia, ib = np.searchsorted(members, a), np.searchsorted(members, b)
+        lab = np.arange(members.size)
+        while True:  # 逐次: 群の直径ぶん
+            m = np.minimum(lab[ia], lab[ib])
+            new = lab.copy()
+            np.minimum.at(new, ia, m)
+            np.minimum.at(new, ib, m)
+            new = new[new]
+            if np.array_equal(new, lab):
+                return members, lab
+            lab = new
+
+    def _observe_instant(self, tick: int) -> None:
+        """(a′) 瞬間の群れ歩き: 2 m 内 ∧ 同方向(変位の角度差 ≤45°)∧ 両方が歩いている相手の有無と群の大きさ。"""
+        r = self.agents.registry
+        xy = np.asarray(r.xy, dtype=np.float64)
+        prev = self._prev_xy
+        self._prev_xy = xy.copy()
+        if prev is None or prev.shape != xy.shape:
+            return
+        disp = xy - prev
+        norm = np.sqrt((disp * disp).sum(axis=1))
+        walk = ((np.asarray(r.activity) == int(Activity.MOVING)) & (np.asarray(r.cell) >= 0)
+                & (np.asarray(r.transit_state) == 0) & (norm > 1e-6))
+        ids = np.flatnonzero(walk)
+        w = int(ids.size)
+        self.inst_walker_minutes += w
+        if w == 0:
+            return
+        if w == 1:
+            self.inst_size_minutes[1] = self.inst_size_minutes.get(1, 0) + 1
+            return
+        bx = np.floor(xy[ids, 0] / INSTANT_METERS).astype(np.int64) + _GRID_SHIFT
+        by = np.floor(xy[ids, 1] / INSTANT_METERS).astype(np.int64) + _GRID_SHIFT
+        key = bx * _GRID_ROW + by
+        order = np.argsort(key, kind="stable")
+        ids, key = ids[order], key[order]
+        pos = np.arange(w)
+        a_parts: list[np.ndarray] = []
+        b_parts: list[np.ndarray] = []
+        total = 0
+        for dx, dy in ((0, 0), (1, -1), (1, 0), (1, 1), (0, 1)):  # 逐次: 近傍の格子 5 つ(自分+前向き 4)
+            if (dx, dy) == (0, 0):
+                lo = pos + 1
+                hi = np.searchsorted(key, key, side="right")
+            else:
+                tk = key + dx * _GRID_ROW + dy
+                lo = np.searchsorted(key, tk, side="left")
+                hi = np.searchsorted(key, tk, side="right")
+            cnt = np.maximum(hi - lo, 0)
+            s = int(cnt.sum())
+            total += s
+            if total > PAIR_CAP:
+                break
+            if s:
+                ap = np.repeat(pos, cnt)
+                first = np.cumsum(cnt) - cnt
+                bp = np.repeat(lo, cnt) + (np.arange(s) - np.repeat(first, cnt))
+                a_parts.append(ap)
+                b_parts.append(bp)
+        self.inst_pairs_max_tick = max(self.inst_pairs_max_tick, total)
+        if total > PAIR_CAP:
+            self.inst_ticks_skipped += 1
+            return
+        n_in = 0
+        if a_parts:
+            ap = np.concatenate(a_parts)
+            bp = np.concatenate(b_parts)
+            A, B = ids[ap], ids[bp]
+            d = xy[A] - xy[B]
+            near = (d * d).sum(axis=1) <= INSTANT_METERS * INSTANT_METERS
+            cos = (disp[A] * disp[B]).sum(axis=1) / (norm[A] * norm[B])
+            same = cos >= float(np.cos(np.deg2rad(INSTANT_ANGLE_DEG)))
+            ok = near & same
+            if ok.any():
+                members, lab = self._components(A[ok], B[ok])
+                n_in = int(members.size)
+                _u, sz = np.unique(lab, return_counts=True)
+                for s_, c_ in zip(*np.unique(sz, return_counts=True)):  # 逐次: 大きさの種類ぶん
+                    self.inst_group_count[int(s_)] = self.inst_group_count.get(int(s_), 0) + int(c_)
+                    self.inst_size_minutes[int(s_)] = self.inst_size_minutes.get(int(s_), 0) + int(s_) * int(c_)
+        self.inst_grouped_minutes += n_in
+        if w - n_in:
+            self.inst_size_minutes[1] = self.inst_size_minutes.get(1, 0) + (w - n_in)
+
+    def _observe_cowalk(self, tick: int) -> None:
+        """(a) 同セル ∧ 同じ移動先 ∧ 2 m 内の組を数えて連続時間を伸ばす。"""
         r = self.agents.registry
         n = int(self.agents.n)
         act = np.asarray(r.activity)
@@ -198,7 +319,6 @@ class GroupNormMeter:
                 self.cowalk_ticks_skipped += 1
                 self._pair_keys = np.empty(0, dtype=np.int64)
                 self._pair_len = np.empty(0, dtype=np.int64)
-                self.seconds += time.perf_counter() - t0
                 return
             if total:
                 a_pos = np.repeat(np.arange(key.size), cnt)
@@ -229,21 +349,31 @@ class GroupNormMeter:
             members = np.unique(np.concatenate([a, b]))
             self.cowalk_agent_minutes += int(members.size)
             # 連結成分(ラベルの伝播)→ 群の大きさ × 分
-            ia, ib = np.searchsorted(members, a), np.searchsorted(members, b)
-            lab = np.arange(members.size)
-            while True:  # 逐次: 群の直径ぶん(ふつう 1〜2 回)
-                m = np.minimum(lab[ia], lab[ib])
-                new = lab.copy()
-                np.minimum.at(new, ia, m)
-                np.minimum.at(new, ib, m)
-                new = new[new]
-                if np.array_equal(new, lab):
-                    break
-                lab = new
+            _members, lab = self._components(a, b)
             _u, sz = np.unique(lab, return_counts=True)
             for s, c in zip(*np.unique(sz, return_counts=True)):  # 逐次: 大きさの種類ぶん
                 self.group_size_minutes[int(s)] = self.group_size_minutes.get(int(s), 0) + int(c)
-        self.seconds += time.perf_counter() - t0
+
+    def _instant_summary(self) -> dict[str, Any]:
+        wm = max(1, self.inst_walker_minutes)
+        size_min = dict(sorted(self.inst_size_minutes.items()))
+        bucket = {"1(独り)": size_min.get(1, 0), "2": size_min.get(2, 0), "3": size_min.get(3, 0),
+                  "4+": sum(v for k, v in size_min.items() if k >= 4)}
+        grp = dict(sorted(self.inst_group_count.items()))
+        return {
+            "definition": (f"同じ tick に 2 m 内 ∧ 同方向(直前の tick からの変位の角度差 ≤{INSTANT_ANGLE_DEG:g}°)∧ 両方が歩いている"
+                           "(MOVING かつ変位 > 0)相手が 1 人以上いる歩行者=Moussaïd 2010 の定義に寄せた**瞬間の**指標。"
+                           "(a) cowalk の『5 分連続・同じ移動先』とは定義が違う(瞬間/持続・方向/行き先)"),
+            "walker_minutes": int(self.inst_walker_minutes),
+            "grouped_walker_minutes": int(self.inst_grouped_minutes),
+            "grouped_share": round(self.inst_grouped_minutes / wm, 6),
+            "walker_minutes_by_group_size": bucket,
+            "walker_minutes_by_group_size_share": {k: round(v / wm, 6) for k, v in bucket.items()},
+            "group_minutes_by_size": {str(k): int(v) for k, v in grp.items()},
+            "pairs_candidates_max_per_tick": int(self.inst_pairs_max_tick),
+            "ticks_skipped_over_pair_cap": int(self.inst_ticks_skipped),
+            "reference_moussaid_2010_group_share": list(MOUSSAID_2010_GROUP_SHARE),
+        }
 
     # ------------------------------------------------------------------ 要約
     def summary(self, *, conv: Any = None, result: Any = None) -> dict[str, Any]:
@@ -315,6 +445,9 @@ class GroupNormMeter:
                 "pairs_candidates_max_per_tick": int(self.cowalk_pairs_max_tick),
                 "ticks_skipped_over_pair_cap": int(self.cowalk_ticks_skipped),
             },
+            "instant_group_walk": self._instant_summary(),
+            "cost": {"ticks": int(self.n_ticks),
+                     "note": "壁時計は manifest に載せない(phase_seconds['group_norms'] と計測の記録へ)"},
             "conversation_group_size_a1": {str(k): int(v) for k, v in size_hist.items()},
             "context_entropy": {"by_place": by_place, "by_place_hour": ctx_rows,
                                 "actions_counted": int(self.n_actions_counted),

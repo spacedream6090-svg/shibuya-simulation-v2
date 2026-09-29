@@ -11,6 +11,8 @@
     python $D/small_fixes_measure.py waste --out $D/d52_waste.json         # ④ 廃棄の内訳(店のビン・世帯の消費・街路ごみ)
     python $D/small_fixes_measure.py waste --out $D/q135_waste.json        # 第 2 批④ ラン要約の新しい帯(同じ道具)
     python $D/small_fixes_measure.py norms --out $D/d107_norms.json        # 第 5 批② 群・規範の計器(mock/classical)
+    python $D/small_fixes_measure.py norms --out $D/q148_norms.json        # 第 6 批① 瞬間の群れ歩きを足した後(同じ道具)
+    python $D/small_fixes_measure.py norms-full --out $D/q150_norms_full.json   # 第 6 批② 39 万体・最初の 60 tick だけ
     python $D/small_fixes_measure.py bytecheck --axis plain --head-src <HEAD c034d58 の src> --head-label c034d58 \
         --scratch <作業用の場所> --out $D/d107_byte_check.json            # 第 5 批② 計器は読むだけ=HEAD と一致
     # 第 2 批①(第304 Q130: 近接行の並び=距離順)
@@ -469,16 +471,52 @@ def cmd_norms(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_norms_full(args: argparse.Namespace) -> int:
+    """第 6 批②(第309 Q150): W16 全母集団(390,067 体)の mock v3 を**初期化+最初の ``--ticks`` tick だけ**回し、
+    計器の候補数/tick の最大と費用(ms/tick)を測る(丸 1 日は回さない=宣言)。"""
+    from shibuya import cli
+
+    rows = []
+    for mode in ("on", "off"):
+        t0 = time.perf_counter()
+        res = cli.run(n_agents=args.agents, seed=args.seed, world_dir=args.world, ticks=args.ticks,
+                      checkpoint_every=args.ticks, vocab_version="v3", group_norms=mode)
+        wall = time.perf_counter() - t0
+        g = res.run_manifest_fields().get("group_norms", {})
+        ps = dict(res.phase_seconds)
+        row = {"group_norms": mode, "n_agents": int(res.n_agents), "ticks": int(res.ticks),
+               "final_hash": res.final_hash, "llm_calls": int(res.llm_calls),
+               "wall_seconds_nondeterministic": round(wall, 1),
+               "meter_seconds_nondeterministic": round(float(ps.get("group_norms", 0.0)), 3),
+               "meter_ms_per_tick_mean_nondeterministic": round(float(ps.get("group_norms", 0.0)) * 1000.0 / max(1, args.ticks), 2),
+               "meter_ms_per_tick_max_nondeterministic": round(float(ps.get("group_norms_tick_ms_max", 0.0)), 2)}
+        if mode == "on":
+            row["cowalk"] = g.get("cowalk", {})
+            row["instant_group_walk"] = {k: v for k, v in g.get("instant_group_walk", {}).items() if k != "definition"}
+        rows.append(row)
+        print(json.dumps({k: v for k, v in row.items() if k not in ("cowalk", "instant_group_walk")}, ensure_ascii=False),
+              flush=True)
+    doc = {"schema": "shibuya.bench/small-fixes/d107-norms-full/1",
+           "note": "W16 全母集団・mock v3・初期化+最初の tick だけ(丸 1 日は回さない)=深夜 0 時台だけの候補数",
+           "rows": rows,
+           "final_equal_on_off": rows[0]["final_hash"] == rows[1]["final_hash"]}
+    Path(args.out).write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="小さいもの 4 件の計測")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for name in ("t5", "t5-one", "arms15", "bytecheck", "bytecheck-one", "fleet", "waste", "norms"):
+    for name in ("t5", "t5-one", "arms15", "bytecheck", "bytecheck-one", "fleet", "waste", "norms", "norms-full"):
         sp = sub.add_parser(name)
         sp.add_argument("--world", default="data/world/v2")
         sp.add_argument("--agents", type=int, default=300 if name == "fleet" else 5_000)
         sp.add_argument("--seed", type=int, default=1)
-        if name in ("t5", "arms15", "bytecheck", "fleet", "waste", "norms"):
+        if name in ("t5", "arms15", "bytecheck", "fleet", "waste", "norms", "norms-full"):
             sp.add_argument("--out", required=True)
+        if name == "norms-full":
+            sp.set_defaults(agents=390_067)
+            sp.add_argument("--ticks", type=int, default=60)
         if name in ("arms15", "bytecheck"):
             sp.add_argument("--axis", choices=("tiebreak", "order", "plain"), default="tiebreak")
         if name == "t5":
@@ -499,7 +537,7 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     return {"t5": cmd_t5, "t5-one": cmd_t5_one, "arms15": cmd_arms15, "bytecheck": cmd_bytecheck,
             "bytecheck-one": cmd_bytecheck_one, "fleet": cmd_fleet, "waste": cmd_waste,
-            "norms": cmd_norms}[args.cmd](args)
+            "norms": cmd_norms, "norms-full": cmd_norms_full}[args.cmd](args)
 
 
 if __name__ == "__main__":

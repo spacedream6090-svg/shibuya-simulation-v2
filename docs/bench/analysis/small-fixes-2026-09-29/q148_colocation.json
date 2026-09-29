@@ -1,0 +1,93 @@
+{
+ "schema": "shibuya.bench/small-fixes/q148-colocation/1",
+ "note": "mock v3・seed 1・geometry=node(既定)と edge(C9 edge=辺の上の位置)。pairs_ok=瞬間の群れ歩きの条件を満たした組(tick ごとの延べ)。zero_dist=座標が 1e-6 m 未満で一致。stacked=群の成員のうち同じ座標(1 cm)に 2 体以上いる体。39 万体は初期化+最初の 60 tick だけ(深夜)。",
+ "rows": [
+  {
+   "n_agents": 5000,
+   "ticks": 1440,
+   "geometry": "node",
+   "final_hash": "993276d5e5bb5cbe553b7181a481f9abbc66fdc4cc923f244642d36a79422392",
+   "grouped_share": 0.290128,
+   "walker_minutes": 232518,
+   "cowalk_share_5min": 0.122443,
+   "cowalk_episodes_5min": 4198,
+   "pairs_ok": 76554,
+   "pairs_ok_zero_dist": 73061,
+   "pairs_ok_lt_0_5m": 73061,
+   "grp_members": 67460,
+   "grp_members_in_stack": 66706,
+   "share_pairs_zero_dist": 0.954372,
+   "share_members_stacked_same_point": 0.988823,
+   "groups_ge20_count": 2,
+   "groups_ge20_top5_size_and_distinct_points": [
+    [
+     24,
+     2
+    ],
+    [
+     20,
+     2
+    ]
+   ]
+  },
+  {
+   "n_agents": 390067,
+   "ticks": 60,
+   "geometry": "node",
+   "final_hash": "2e5d3efa94a77788f59372ec93eef342114245fabe39923445d67a5b15889fc8",
+   "grouped_share": 0.626509,
+   "walker_minutes": 22611,
+   "cowalk_share_5min": 0.318468,
+   "cowalk_episodes_5min": 6260,
+   "pairs_ok": 128251,
+   "pairs_ok_zero_dist": 127911,
+   "pairs_ok_lt_0_5m": 127911,
+   "grp_members": 14166,
+   "grp_members_in_stack": 14130,
+   "share_pairs_zero_dist": 0.997349,
+   "share_members_stacked_same_point": 0.997459,
+   "groups_ge20_count": 56,
+   "groups_ge20_top5_size_and_distinct_points": [
+    [
+     152,
+     1
+    ],
+    [
+     120,
+     1
+    ],
+    [
+     120,
+     1
+    ],
+    [
+     118,
+     1
+    ],
+    [
+     118,
+     1
+    ]
+   ]
+  },
+  {
+   "n_agents": 5000,
+   "ticks": 1440,
+   "geometry": "edge",
+   "final_hash": "258144752477f72effe781b11609260de745582ac6a22e6b9c4d13bc9a5012d1",
+   "grouped_share": 0.021906,
+   "walker_minutes": 96686,
+   "cowalk_share_5min": 0.000886,
+   "cowalk_episodes_5min": 16,
+   "pairs_ok": 1178,
+   "pairs_ok_zero_dist": 4,
+   "pairs_ok_lt_0_5m": 293,
+   "grp_members": 2118,
+   "grp_members_in_stack": 12,
+   "share_pairs_zero_dist": 0.003396,
+   "share_members_stacked_same_point": 0.005666,
+   "groups_ge20_count": 0,
+   "groups_ge20_top5_size_and_distinct_points": []
+  }
+ ]
+}

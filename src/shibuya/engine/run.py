@@ -1560,6 +1560,7 @@ def run_day(
     role_words: bool | str = True,
     near_tiebreak: str = DEFAULT_NEAR_TIEBREAK,
     near_order: str = DEFAULT_NEAR_ORDER,
+    group_norms: bool | str = True,
     budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
     salient_rate_per_10k: float | None = None,
     report_precondition: bool = True,
@@ -1722,6 +1723,9 @@ def run_day(
             同点は ``near_tiebreak`` の順 / ``"id"`` = 旧挙動(行番号の昇順=旧 golden)。焦点の先頭・知人の常時掲載・
             文面は変えない。mock は B5 を読まないので final は動かない(プロンプトは動く)。
             ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
+        group_norms: **第309(Q150)** 群・規範の計器(D-107 (a)・``engine.norm_meter``=読むだけ)を回すか。
+            ``True``/``"on"``(既定=第308 のまま)/ ``False``/``"off"`` で計器の 3 つの口を通さない(manifest
+            ``group_norms`` は ``{"enabled": False}``)。計器は状態・乱数・テープに触れないので**どちらでも final は同じ**。
         vocab_version: **行動語彙の版**(D-71 §3 F・2026-09-17 ユーザー決定)。
             ``"v1"``(既定)は現行の 24 語(横断 12 + 役割 12)で、**1 バイトも変わらない**。
             ``"v2"`` は横断語「食事」(飲食店オブジェクトの affordance・コード 24)を足し、
@@ -1911,6 +1915,9 @@ def run_day(
         raise ValueError(f"exit_mode は {PRESENCE_EXIT_MODES} のどれか(いま {exit_mode!r})")
     near_tiebreak = check_near_tiebreak(near_tiebreak)
     near_order = check_near_order(near_order)
+    if isinstance(group_norms, str) and group_norms not in ("on", "off"):
+        raise ValueError(f"group_norms は 'on'/'off' か bool(いま {group_norms!r})")
+    group_norms_on = (group_norms == "on") if isinstance(group_norms, str) else bool(group_norms)
     if not (0.0 <= float(attendance_rate) <= 1.0):
         raise ValueError(f"attendance_rate は 0.0〜1.0(いま {attendance_rate})")
     if str(derive_rule) not in PRESENCE_DERIVE_RULES:
@@ -2552,9 +2559,10 @@ def run_day(
     from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE as _AWBC
     from shibuya.engine.norm_meter import GroupNormMeter, role_code_table
 
-    norm_meter = GroupNormMeter(agents, world, role_codes=role_code_table(vocab_version),
-                                code_words=_AWBC, tick_seconds=int(tick_seconds),
-                                process_assets=getattr(runner, "assets", None) if runner is not None else None)
+    norm_meter = (GroupNormMeter(agents, world, role_codes=role_code_table(vocab_version),
+                                 code_words=_AWBC, tick_seconds=int(tick_seconds),
+                                 process_assets=getattr(runner, "assets", None) if runner is not None else None)
+                  if group_norms_on else None)  # 第309 Q150: --group-norms off で計器を通さない
     # 在圏 journal(C7 受入計器 tools/c7・holdout 照合の入力)。既定 0=書かない(状態・診断・テープに影響なし)。
     occ_ticks: list[int] = []
     occ_counts: list[np.ndarray] = []
@@ -2685,7 +2693,8 @@ def run_day(
                     (due[int(i)][8] for i in order), dtype=np.int64, count=order.size
                 )
                 agents_in_order = ag[order]
-                norm_meter.observe_actions(tick, agents_in_order, codes)  # 第308 D-107 (a)(読むだけ)
+                if norm_meter is not None:
+                    norm_meter.observe_actions(tick, agents_in_order, codes)  # 第308 D-107 (a)(読むだけ)
                 # 二層の段 2: 活動(v3 の応答だけ)と「あたり」の行き先
                 payloads = [due[int(i)][9] for i in order]
                 # 段 2a: 対象(``Target``)=購入/食事/並ぶの候補の絞り込みが読む
@@ -3203,7 +3212,8 @@ def run_day(
             track_events=mem_layer is not None,
         )
         phase["phase_c"] += time.perf_counter() - t0
-        norm_meter.observe_results(tick)  # 第308 D-107 (a): 役割語の結果(読むだけ)
+        if norm_meter is not None:
+            norm_meter.observe_results(tick)  # 第308 D-107 (a): 役割語の結果(読むだけ)
         phase["movement"] += outcome.movement_seconds
         phase["movement_cpu"] += outcome.movement_cpu_seconds
         geometry_hops += outcome.n_hops
@@ -3447,7 +3457,8 @@ def run_day(
 
         if presence is not None:
             presence.sample(tick)  # 正時の在圏・計画一致率(在圏 journal と同じ位置)
-        norm_meter.observe_tick(tick)  # 第308 D-107 (a): 同行の検出(位置が確定した後・読むだけ)
+        if norm_meter is not None:
+            norm_meter.observe_tick(tick)  # 第308 D-107 (a): 同行の検出(位置が確定した後・読むだけ)
         if occupancy_every and tick % occupancy_every == 0:
             occ_ticks.append(int(tick))
             occ_counts.append(np.asarray(world.cells.density, dtype=np.int32).copy())
@@ -3776,7 +3787,10 @@ def run_day(
         "order": str(near_order),
         "order_ties": int(getattr(_nr, "near_order_ties", 0)),
     }
-    result.group_norms = norm_meter.summary(conv=conv, result=result)  # 第308 D-107 (a)
+    result.group_norms = (  # 第308 D-107 (a)・第309 Q150 の切替口
+        {"enabled": True, **norm_meter.summary(conv=conv, result=result)} if norm_meter is not None
+        else {"enabled": False}
+    )
     result.mock_out_of_cell_target_p = float(mock_out_of_cell_target_p)
     result.move_resolution = move_resolution_summary(
         poi_resolver.move_stats if poi_resolver is not None else Counter(),
@@ -3836,7 +3850,9 @@ def run_day(
         ]
     result.diagnostics = np.asarray(diag_rows, dtype=np.int64).reshape(-1, len(DIAG_RUN_COLUMNS))
     result.phase_seconds = phase
-    result.phase_seconds["group_norms"] = float(norm_meter.seconds)  # 第308: 計器の費用(壁時計)
+    if norm_meter is not None:
+        result.phase_seconds["group_norms"] = float(norm_meter.seconds)  # 第308: 計器の費用(壁時計)
+        result.phase_seconds["group_norms_tick_ms_max"] = float(norm_meter.tick_ms_max)  # 第309: 1 tick の最大
     result.wall_seconds = time.perf_counter() - t_start
     result.arbiter_counters = {k: dict(v) for k, v in arbiter.counters().items()}
     result.money_end = int(agents.registry.money.astype(np.int64).sum())
@@ -4003,6 +4019,8 @@ def main(argv: list[str] | None = None) -> int:
                          "就寝境界も LLM に判断させ・tick 0 は全員 SLEEPING)")
     ap.add_argument("--no-plan-executor", action="store_true",
                     help="D-66 計画実行層(engine.presence)を切る(=現行挙動・帰無腕)")
+    ap.add_argument("--group-norms", choices=("on", "off"), default="on",
+                    help="群・規範の計器(D-107 (a)・読むだけ)を回すか(第309 Q150・既定 on)")
     ap.add_argument("--near-order", choices=NEAR_ORDERS, default=DEFAULT_NEAR_ORDER,
                     help="B5 近接行の並び(第304 Q130)。distance=距離の昇順・同点は --near-tiebreak の順(既定)/ id=旧挙動")
     ap.add_argument("--near-tiebreak", choices=NEAR_TIEBREAKS, default=DEFAULT_NEAR_TIEBREAK,
@@ -4051,6 +4069,7 @@ def main(argv: list[str] | None = None) -> int:
         exit_mode=str(args.exit_mode),
         near_tiebreak=str(args.near_tiebreak),
         near_order=str(args.near_order),
+        group_norms=str(args.group_norms),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,

@@ -760,6 +760,12 @@ def main(argv: list[str] | None = None) -> int:
              "(第266 以前の checkpoint ba01bd0b を再現する帰無腕)",
     )
     ap.add_argument(
+        "--group-norms",
+        choices=("on", "off"),
+        default="on",
+        help="第309(Q150): 群・規範の計器(D-107 (a)・読むだけ=final は変わらない)を回すか(既定 on)",
+    )
+    ap.add_argument(
         "--near-order",
         choices=("distance", "id"),
         default="distance",
@@ -1114,6 +1120,7 @@ def main(argv: list[str] | None = None) -> int:
         exit_mode=str(args.exit_mode),
         near_tiebreak=str(args.near_tiebreak),
         near_order=str(args.near_order),
+        group_norms=str(args.group_norms),
         report_precondition=(str(args.report_precondition) == "on"),
         queue_service=(str(args.queue_service) == "on"),
         leave_effect=(str(args.leave_effect) == "on"),
