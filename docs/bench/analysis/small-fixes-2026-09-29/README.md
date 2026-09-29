@@ -391,3 +391,112 @@ python $D/small_fixes_measure.py waste --out $D/q135_waste.json
 ```
 python tools/c8/sensitivity.py --judge-manifest --out docs/bench/c8   # D-44 (a) の判定列(台帳 tools/c8/sensitivity_v1.json に書く)
 ```
+
+---
+
+# 第 4 批(第306 の問いの決め → Q141・Q142・D-44 (c))
+
+第 3 批は第306(815d00a)でコミット済み。親の決め: Q140 D-44 の次はユーザー判断へ(親推奨=(c) 依存グラフで読まれない行を除く → 残りは (a) 構築段階の対照=再構築の許可が要る)/Q141 直す/Q142 伝播する/Q143 親が直した/Q144 承認。本批は文書と解析だけ(エンジン不変・新しいランや再構築なし)。
+
+## 第 4 批① Q141: 感度台帳の旧注記の行数を現行へ
+
+`tools/c8/sensitivity_v1.json`(と出力 `docs/bench/c8/sensitivity_v1.{json,md}`)の `build_manifest_expedients`:
+
+| 欄 | 前 | 後 |
+|---|---|---|
+| `count` | 122 | **121** |
+| `note` | 「122 行の自由文(… W6 2・W7 8・… W10 9・… W17 14 …)。本台帳の 14 行は…」 | 「121 行の自由文(… W6 3・W7 13・… W10 10・… W17 6 …)。**第306 更新(Q141・第307)**: 09-09 の 122 行から段の改版で W6 +1・W7 +5・W10 +1・W17 −8(差し引き −1)。本台帳の 14 行は設計書が感度試験を宣言したものだけ(build_manifest の 15 行に当たる+RAKE が 1 行)で、残り 105 行は…未宣言の穴。判定は build_manifest_judgment(D-44 (a)・(c))」 |
+| `note_2026_09_09`(新) | — | 旧 `note` をそのまま残した |
+| `open_questions` の 2 本目 | 「122 行のうち…14 行だけ。残り 108 行の扱い…=親判断」 | 「121 行(09-09 は 122・第306 の段の改版で −1)のうち…14 アンカー(build_manifest の 15 行)+RAKE 1 行だけ。残り 105 行の扱い=D-44 (a)(第229 決定)で一括判定・(c) 依存グラフ(第307)の次はユーザー判断」 |
+
+既存の 19 行・過程の id・`build_manifest_judgment` の判定列は触っていない。
+
+## 第 4 批② Q142: R-23 第3批 §5 の外への伝播 5 か所
+
+作法は第 3 批と同じ(設計書は本文を直し「第307 訂正・R-23 第3批 #N」の印・`v2_draft_proposal.md` も設計書扱い)。根拠は答申 §5 の写しだけ。全文の前後は [r23_batch3_propagation.json](r23_batch3_propagation.json)。
+
+| # | 場所(ファイル:行) | 変更前 | 変更後 | 根拠 |
+|---|---|---|---|---|
+| 15 | `design/v2_draft_proposal.md:60` | 根拠: AC Unity/Hitmanの商用実証=LLM予算配分則そのもの・憲法1の実装形。 | 根拠: AC Unity の商用実証(プール入替=昇格機構の先行)=LLM予算配分則そのもの・憲法1の実装形。(**第307 訂正・R-23 第3批 #15**: Hitman Absolution の公開資料は群衆 1200 体/1 群衆・同画面 500 体・目標は「プレイヤーが群衆と NPC を見分けられないこと」で、**on-demand 昇格の明記は見つからない**=昇格の先行は AC Unity) | §5 #15(GDC Vault / Fauerby スライド) |
+| 14 | `design/v2_draft_proposal.md:72` | (全ログを読まずに種別検索——UE Replayのイベント索引と同型・kind列+チャンク統計で実現) | (全ログを読まずに種別検索——**SC2 の game.events / tracker.events / message.events 分離**と同型・kind列+チャンク統計で実現。**第307 訂正・R-23 第3批 #14**: 旧「UE Replayのイベント索引と同型」=Epic の DemoNetDriver 公式ドキュメントにイベント検索の記述は無い(text tags はリプレイ一覧の検索用)) | §5 #14(Epic DemoNetDriver ページ) |
+| 18 | `design/v2_draft_proposal.md:79` | - **GlassBox規律**: 画面に見えるものは常にシムの1:1表現。ビューアの独自演出・補間は禁止。 | - **GlassBox規律**: 画面に見えるものは常にシムの1:1表現。ビューアの独自演出・補間は禁止。(**第307 訂正・R-23 第3批 #18**: **v2 の自前の規律として宣言**する。原典 SimCity GlassBox の逐語は「every aspect of the game is an agent that reports back to the underlying simulation」=表示物がシムへ報告する向きで、向きが逆) | §5 #18(EA 公式・GDC 2012) |
+| 18 | `design/v2-redesign.md:387` | ・GlassBox規律(見えるもの=シムの1:1)。段階=deck.gl 2D | ・GlassBox規律(見えるもの=シムの1:1・**v2 側の規律として宣言**=原典 SimCity GlassBox の逐語は向きが逆(第307 訂正・R-23 第3批 #18))。段階=deck.gl 2D | §5 #18(EA 公式・GDC 2012) |
+| 14 | `design/v2-inventory-and-bottlenecks.md:21` | リプレイ(UE Replay/SC2/LoLの三層収束・checkpoint時間スライス・タグ付き索引) | リプレイ(UE Replay/SC2/LoLの三層収束・checkpoint時間スライス・タグ付き索引。**第307 訂正・R-23 第3批 #14**: タグ付きイベント索引の先行は SC2 の events 分離で、Epic の DemoNetDriver 公式ドキュメントにイベント検索の記述は無い) | §5 #14(Epic DemoNetDriver ページ) |
+
+## 第 4 批③ D-44 (c): 依存グラフ(判定不能 105 行に「エンジンが読むか」)
+
+**方法**(`tools/c8/sensitivity.py` の `engine_read_graph`・`attach_read_graph`・`python tools/c8/sensitivity.py --read-graph --out docs/bench/c8`):
+
+1. 各構築段の出力ファイル(build_manifest の `outputs`・日付つきの `w9_shadow_<日付>.npy` は `w9_shadow_` で探す)を、`src/shibuya` の全 `.py` の**コードの文字列リテラル**(AST=docstring と式文の文字列は除く)で探す。
+2. エンジン側(`engine`・`perception`・`agents`・`economy`・`world`)に名指しがあれば「読む(直接)」。構築モジュール(`build/`)の名指しは、そのモジュールの段(ファイル名 `wN_`・補助モジュールは `BUILD_MODULE_STAGE` の表)が**下流の段としてその出力を読む**辺にする。
+3. 推移: 下流の段がエンジンに届くなら上流も「読む(推移)」。
+4. 「読まない」=エンジン側の読み口が無く、出力を読むのが構築の検査・画像の段(W18〜W20)だけで、その段自身も検査・画像の段。**読み口が見つからないだけなら「不明」**(推測で読まないにしない)。
+5. **段の単位**で判定する(段のどれか 1 つの出力が読まれれば、その段の行は全部「読む」=除きすぎない側)。
+
+**結果**(判定不能 105 行):
+
+| 判定 | 行数 |
+|---|---|
+| エンジンが読む | **96**(直接 95・推移 1=W5#2 が W5 → W11) |
+| **読まない** | **9** |
+| 不明 | **0** |
+
+段ごと(判定不能の行のある段と、推移の経路の段):
+
+| 段(判定不能の行) | 判定 | 届き方 | エンジン側の読み口(ファイルごとの最初の行) | 出力を読む下流の構築段 |
+|---|---|---|---|---|
+| W0(0) | 読む | 直接 | `world_crs.json ← world/assets.py:748` | — |
+| W1(2) | 読む | 直接 | `w1_edges.parquet ← world/assets.py:90`・`w1_nodes.parquet ← world/assets.py:89` | W2・W3・W5・W6・W10・W11・W12・W18・W20 |
+| W2(3) | 読む | 直接 | `w2_cells.parquet ← perception/renderer.py:653`・`w2_cells.parquet ← world/assets.py:91` | W3・W5・W6・W8・W11・W15・W16・W18・W20 |
+| W3(3) | 読む | 直接 | `w3_cell_dist.npy ← world/assets.py:93`・`w3_next_hop.npy ← world/assets.py:92` | — |
+| W4(0) | 読む | 推移 W4→W6 | — | W6・W8・W9・W16・W18 |
+| W5(1) | 読む | 推移 W5→W11 | — | W11 |
+| W6(2) | 読む | 直接 | `w6_org.parquet ← economy/ledger.py:163`・`w6_poi.parquet ← perception/renderer.py:654`・`w6_poi.parquet ← world/assets.py:94` | W7・W8・W14・W15・W16・W17・W18・W20 |
+| W7(12) | 読む | 直接 | `w7_plan_spec.parquet ← world/assets.py:737` | W14・W17・W18 |
+| W8(8) | 読む | 直接 | `w8_t1_cell.parquet ← perception/renderer.py:656`・`w8_t1_cell.parquet ← world/assets.py:471`・`w8_targets.parquet ← perception/renderer.py:655`・`w8_targets.parquet ← world/assets.py:471` | W15・W18・W20 |
+| W9(5) | 読む | 直接 | `w9_shadow_2026-07-28.npy ← world/assets.py:882` | W18・W20 |
+| W10(9) | 読む | 直接 | `w10_noise_stage_day.npy ← perception/renderer.py:864`・`w10_noise_stage_day.npy ← world/assets.py:553`・`w10_noise_stage_night.npy ← perception/renderer.py:864`・`w10_noise_stage_night.npy ← world/assets.py:553`・`w10_street_points.parquet ← perception/renderer.py:657`・`w10_street_points.parquet ← world/assets.py:552` | W8・W9・W18・W20 |
+| W11(4) | 読む | 直接 | `w11_station_exits.parquet ← perception/renderer.py:658`・`w11_station_exits.parquet ← world/assets.py:735`・`w11_station_graph_nodes.parquet ← world/assets.py:734` | W8・W12・W15・W16・W18・W20 |
+| W12(6) | 読む | 直接 | `w12_external_nodes.parquet ← world/assets.py:736`・`w12_timetables.parquet ← world/assets.py:733` | W16・W17・W18 |
+| W13(5) | 読む | 直接 | `w13_weather_days.parquet ← world/assets.py:731`・`w13_weather_hourly.parquet ← perception/renderer.py:659`・`w13_weather_hourly.parquet ← world/assets.py:732` | W9・W18 |
+| W14(7) | 読む | 直接 | `w14_signage.parquet ← perception/renderer.py:759` | — |
+| W15(10) | 読む | 直接 | `w15_cell_static.parquet ← perception/renderer.py:762` | — |
+| W16(14) | 読む | 直接 | `w16_population.parquet ← agents/population.py:53` | W17・W18 |
+| W17(5) | 読む | 直接 | `w17_schedule.parquet ← agents/weekly.py:58` | — |
+| W18(5) | 読まない | — | — | W20 |
+| W19(2) | 読まない | — | — | W20 |
+| W20(2) | 読まない | — | — | — |
+
+**読まない 9 行**(=構築の検査・画像の段=W18 カタログ索引・W19 凍結記録・W20 受入画像/表。どれもエンジン側に読み口が無く、出力を読むのは W20 だけ):
+
+| 行 | expedient |
+|---|---|
+| W18#1 | 深度=カタログ宣言値(実測ではない) |
+| W18#2 | 重み関数 w=1+log10(1+N_real) 上限6・N_real 不明は w=1 |
+| W18#3 | クラス名の別名表(段階ヘッダの表記ゆれ吸収)は手書き |
+| W18#4 | N_sim の単位突合(quantity_comparable)は手書き |
+| W18#5 | VERIFIED は構築時に評価しない(全 false) |
+| W19#1 | sealed_utc は固定パラメータ(実行時刻ではない) |
+| W19#2 | データ資産表は各段階モジュールの入力定数から組む(段階が定数を持たない入力は落ちる) |
+| W20#1 | 画像の配色・分解能(5m/画素)は目視用で判断には使わない |
+| W20#2 | 騒音場の階調範囲 40-85 dB に固定(自動スケールにしない) |
+
+- 出力は `build_manifest_judgment` に列を足した: 判定不能の行に `engine_reads`(reads/not_read/unknown)・`engine_reads_via`(直接/推移 W5→W11/構築の検査・画像の段だけ)・ブロック `read_graph`(規則の文言・集計・読まない行の一覧・段ごとの読み口と下流の段)。**既存の判定列(verdict など)は 1 バイトも変えていない**(行ごとに比べて確認)。Markdown の表の「判定」欄に「/エンジンが読む(直接)」などを足した。
+- 参考(エンジン側 5 パッケージの外の名指し): 無し(`llm/contract.py` の `w2_cells.parquet` は docstring とコメントだけ=AST で外れる)。
+- テスト: `tests/c8/test_sensitivity_ledger.py`(+4 本=3 値・集計・直接+推移=読む・読まないは W18〜W20 だけ・段の証拠(読み口か推移)/検査器が不正な値を捕まえる/AST が docstring と式文の文字列を数えない・日付つきの名前の字句/いまの src から作り直すと台帳と一致)・Q141 の検査(`count` 121・旧注記・open_questions)。
+
+**ついでの修正(事後報告)**: `tools/c6/c6lib.write_outputs` が Windows で CRLF を書いていた(第306 で `docs/bench/c8/sensitivity_v1.{json,md}` を手で LF に直した原因)。`newline="\n"` を足して LF で書くようにした(出力の中身は同じ・`tools/c6` の他の計器の出力も同じ関数)。
+
+## 第 4 批 テスト本数と全体
+
+全体(`-m "not gpu and not slow"`・p6 400k を除く・junit): **3,300 件・failures 0・errors 0・skipped 1(既存の W10 較正)・exit 0**(第306 の 3,296 件 + 新規 4 件=③ 4・①は既存の検査を直した)。
+
+## 第 4 批 宣言と問い
+
+宣言: ① 旧注記は `note_2026_09_09` に残す ② 伝播は §5 の写しだけ ③ 依存グラフは段の単位・読み口=コードの文字列リテラル(AST)・「読まない」は W18〜W20 に限る。問いは報告の Q145〜。
+
+## 第 4 批 再現
+
+```
+python tools/c8/sensitivity.py --read-graph --out docs/bench/c8   # D-44 (c)(台帳 tools/c8/sensitivity_v1.json に書く)
+```

@@ -1,0 +1,41 @@
+{
+ "schema": "shibuya.bench/small-fixes/r23-batch3-propagation/1",
+ "source": "docs/research/v2-r23-primary-check-batch3.md §5(#14・#15・#18)・Q142(第306)",
+ "changes": [
+  {
+   "item": 15,
+   "file": "docs/design/v2_draft_proposal.md",
+   "line": 60,
+   "before": "根拠: AC Unity/Hitmanの商用実証=LLM予算配分則そのもの・憲法1の実装形。",
+   "after": "根拠: AC Unity の商用実証(プール入替=昇格機構の先行)=LLM予算配分則そのもの・憲法1の実装形。(**第307 訂正・R-23 第3批 #15**: Hitman Absolution の公開資料は群衆 1200 体/1 群衆・同画面 500 体・目標は「プレイヤーが群衆と NPC を見分けられないこと」で、**on-demand 昇格の明記は見つからない**=昇格の先行は AC Unity)"
+  },
+  {
+   "item": 14,
+   "file": "docs/design/v2_draft_proposal.md",
+   "line": 72,
+   "before": "(全ログを読まずに種別検索——UE Replayのイベント索引と同型・kind列+チャンク統計で実現)",
+   "after": "(全ログを読まずに種別検索——**SC2 の game.events / tracker.events / message.events 分離**と同型・kind列+チャンク統計で実現。**第307 訂正・R-23 第3批 #14**: 旧「UE Replayのイベント索引と同型」=Epic の DemoNetDriver 公式ドキュメントにイベント検索の記述は無い(text tags はリプレイ一覧の検索用))"
+  },
+  {
+   "item": 18,
+   "file": "docs/design/v2_draft_proposal.md",
+   "line": 79,
+   "before": "- **GlassBox規律**: 画面に見えるものは常にシムの1:1表現。ビューアの独自演出・補間は禁止。",
+   "after": "- **GlassBox規律**: 画面に見えるものは常にシムの1:1表現。ビューアの独自演出・補間は禁止。(**第307 訂正・R-23 第3批 #18**: **v2 の自前の規律として宣言**する。原典 SimCity GlassBox の逐語は「every aspect of the game is an agent that reports back to the underlying simulation」=表示物がシムへ報告する向きで、向きが逆)"
+  },
+  {
+   "item": 18,
+   "file": "docs/design/v2-redesign.md",
+   "line": 387,
+   "before": "・GlassBox規律(見えるもの=シムの1:1)。段階=deck.gl 2D",
+   "after": "・GlassBox規律(見えるもの=シムの1:1・**v2 側の規律として宣言**=原典 SimCity GlassBox の逐語は向きが逆(第307 訂正・R-23 第3批 #18))。段階=deck.gl 2D"
+  },
+  {
+   "item": 14,
+   "file": "docs/design/v2-inventory-and-bottlenecks.md",
+   "line": 21,
+   "before": "リプレイ(UE Replay/SC2/LoLの三層収束・checkpoint時間スライス・タグ付き索引)",
+   "after": "リプレイ(UE Replay/SC2/LoLの三層収束・checkpoint時間スライス・タグ付き索引。**第307 訂正・R-23 第3批 #14**: タグ付きイベント索引の先行は SC2 の events 分離で、Epic の DemoNetDriver 公式ドキュメントにイベント検索の記述は無い)"
+  }
+ ]
+}

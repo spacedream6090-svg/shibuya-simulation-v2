@@ -570,12 +570,13 @@
   ]
  },
  "build_manifest_expedients": {
-  "note": "data/world/v2/build_manifest.json の各段階 expedients 欄に 122 行の自由文がある(W1 3・W2 4・W3 3・W4 2・W5 2・W6 2・W7 8・W8 9・W9 5・W10 9・W11 5・W12 8・W13 7・W14 7・W15 10・W16 15・W17 14・W18 5・W19 2・W20 2)。本台帳の 14 行は**設計書が感度試験を宣言したもの**だけで、残りは『感度試験の宣言が無い expedient』=構築仕様書 §0-7 の『感度試験なしの expedient は出荷不可』に照らすと**未宣言の穴**。親判断待ち。",
-  "count": 122
+  "note": "data/world/v2/build_manifest.json の各段階 expedients 欄に 121 行の自由文がある(W1 3・W2 4・W3 3・W4 2・W5 2・W6 3・W7 13・W8 9・W9 5・W10 10・W11 5・W12 8・W13 7・W14 7・W15 10・W16 15・W17 6・W18 5・W19 2・W20 2)。**第306 更新(Q141・第307)**: 09-09 の 122 行から段の改版で W6 +1・W7 +5・W10 +1・W17 −8(差し引き −1)。本台帳の 14 行は**設計書が感度試験を宣言したもの**だけ(build_manifest の 15 行に当たる+RAKE が 1 行)で、残り 105 行は『感度試験の宣言が無い expedient』=構築仕様書 §0-7 の『感度試験なしの expedient は出荷不可』に照らすと**未宣言の穴**。判定は build_manifest_judgment(D-44 (a)・(c))。",
+  "count": 121,
+  "note_2026_09_09": "data/world/v2/build_manifest.json の各段階 expedients 欄に 122 行の自由文がある(W1 3・W2 4・W3 3・W4 2・W5 2・W6 2・W7 8・W8 9・W9 5・W10 9・W11 5・W12 8・W13 7・W14 7・W15 10・W16 15・W17 14・W18 5・W19 2・W20 2)。本台帳の 14 行は**設計書が感度試験を宣言したもの**だけで、残りは『感度試験の宣言が無い expedient』=構築仕様書 §0-7 の『感度試験なしの expedient は出荷不可』に照らすと**未宣言の穴**。親判断待ち。"
  },
  "open_questions": [
   "『結果を駆動していない』の合格線が設計書に無い(方法論は『振って結果非依存を示す』とだけ)。本台帳は帰無参照(同分布 2 標本の JSD 95% 点)を仮の物差しに置いた=expedient。",
-  "build_manifest の expedient 122 行のうち、設計書が感度試験を宣言しているのは 14 行だけ。残り 108 行の扱い(宣言を足す/限界として明記する)=親判断。",
+  "build_manifest の expedient 121 行(09-09 は 122・第306 の段の改版で −1)のうち、設計書が感度試験を宣言しているのは 14 アンカー(build_manifest の 15 行)+RAKE 1 行だけ。残り 105 行の扱い=D-44 (a)(第229 決定)で一括判定(build_manifest_judgment)・(c) 依存グラフ(第307)の次はユーザー判断。",
   "D-W8 だけが『感度(必須)』。他は必須でない=優先順位の根拠は §8 の ablation 優先規則(expedient の量 × 駆動可能性 ÷ コスト)を構築側にも当てるのが自然だが、設計書は当てていない。"
  ],
  "build_manifest_judgment": {
@@ -638,7 +639,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W1#3",
@@ -650,7 +653,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W2#1",
@@ -675,7 +680,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W2#3",
@@ -687,7 +694,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W2#4",
@@ -699,7 +708,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W3#1",
@@ -711,7 +722,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W3#2",
@@ -723,7 +736,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W3#3",
@@ -735,7 +750,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W4#1",
@@ -786,7 +803,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "推移 W5→W11"
    },
    {
     "key": "W6#1",
@@ -811,7 +830,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W6#3",
@@ -823,7 +844,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W7#1",
@@ -848,7 +871,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W7#3",
@@ -860,7 +885,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W7#4",
@@ -872,7 +899,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W7#5",
@@ -884,7 +913,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W7#6",
@@ -896,7 +927,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W7#7",
@@ -908,7 +941,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W7#8",
@@ -920,7 +955,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W7#9",
@@ -932,7 +969,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W7#10",
@@ -944,7 +983,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W7#11",
@@ -956,7 +997,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W7#12",
@@ -968,7 +1011,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W7#13",
@@ -980,7 +1025,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W8#1",
@@ -1005,7 +1052,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W8#3",
@@ -1017,7 +1066,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W8#4",
@@ -1029,7 +1080,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W8#5",
@@ -1041,7 +1094,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W8#6",
@@ -1053,7 +1108,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W8#7",
@@ -1065,7 +1122,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W8#8",
@@ -1077,7 +1136,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W8#9",
@@ -1089,7 +1150,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W9#1",
@@ -1101,7 +1164,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W9#2",
@@ -1113,7 +1178,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W9#3",
@@ -1125,7 +1192,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W9#4",
@@ -1137,7 +1206,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W9#5",
@@ -1149,7 +1220,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W10#1",
@@ -1174,7 +1247,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W10#3",
@@ -1186,7 +1261,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W10#4",
@@ -1198,7 +1275,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W10#5",
@@ -1210,7 +1289,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W10#6",
@@ -1222,7 +1303,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W10#7",
@@ -1234,7 +1317,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W10#8",
@@ -1246,7 +1331,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W10#9",
@@ -1258,7 +1345,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W10#10",
@@ -1270,7 +1359,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W11#1",
@@ -1295,7 +1386,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W11#3",
@@ -1307,7 +1400,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W11#4",
@@ -1319,7 +1414,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W11#5",
@@ -1331,7 +1428,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W12#1",
@@ -1356,7 +1455,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W12#3",
@@ -1368,7 +1469,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W12#4",
@@ -1393,7 +1496,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W12#6",
@@ -1405,7 +1510,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W12#7",
@@ -1417,7 +1524,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W12#8",
@@ -1429,7 +1538,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W13#1",
@@ -1467,7 +1578,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W13#4",
@@ -1479,7 +1592,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W13#5",
@@ -1491,7 +1606,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W13#6",
@@ -1503,7 +1620,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W13#7",
@@ -1515,7 +1634,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W14#1",
@@ -1527,7 +1648,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W14#2",
@@ -1539,7 +1662,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W14#3",
@@ -1551,7 +1676,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W14#4",
@@ -1563,7 +1690,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W14#5",
@@ -1575,7 +1704,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W14#6",
@@ -1587,7 +1718,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W14#7",
@@ -1599,7 +1732,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W15#1",
@@ -1611,7 +1746,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W15#2",
@@ -1623,7 +1760,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W15#3",
@@ -1635,7 +1774,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W15#4",
@@ -1647,7 +1788,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W15#5",
@@ -1659,7 +1802,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W15#6",
@@ -1671,7 +1816,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W15#7",
@@ -1683,7 +1830,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W15#8",
@@ -1695,7 +1844,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W15#9",
@@ -1707,7 +1858,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W15#10",
@@ -1719,7 +1872,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W16#1",
@@ -1731,7 +1886,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W16#2",
@@ -1743,7 +1900,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W16#3",
@@ -1768,7 +1927,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W16#5",
@@ -1780,7 +1941,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W16#6",
@@ -1792,7 +1955,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W16#7",
@@ -1804,7 +1969,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W16#8",
@@ -1816,7 +1983,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W16#9",
@@ -1828,7 +1997,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W16#10",
@@ -1840,7 +2011,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W16#11",
@@ -1852,7 +2025,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W16#12",
@@ -1864,7 +2039,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W16#13",
@@ -1876,7 +2053,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": "W16.header.json notes.direction.resident_out_area.jsd=0.000139(抽出した方面 vs 流用した重み=抽出の当てはまり。流用そのものの対照ではない)"
+    "note": "W16.header.json notes.direction.resident_out_area.jsd=0.000139(抽出した方面 vs 流用した重み=抽出の当てはまり。流用そのものの対照ではない)",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W16#14",
@@ -1888,7 +2067,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W16#15",
@@ -1900,7 +2081,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W17#1",
@@ -1912,7 +2095,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W17#2",
@@ -1924,7 +2109,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W17#3",
@@ -1949,7 +2136,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W17#5",
@@ -1961,7 +2150,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W17#6",
@@ -1973,7 +2164,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接"
    },
    {
     "key": "W18#1",
@@ -1985,7 +2178,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
    },
    {
     "key": "W18#2",
@@ -1997,7 +2192,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
    },
    {
     "key": "W18#3",
@@ -2009,7 +2206,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
    },
    {
     "key": "W18#4",
@@ -2021,7 +2220,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
    },
    {
     "key": "W18#5",
@@ -2033,7 +2234,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
    },
    {
     "key": "W19#1",
@@ -2045,7 +2248,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
    },
    {
     "key": "W19#2",
@@ -2057,7 +2262,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
    },
    {
     "key": "W20#1",
@@ -2069,7 +2276,9 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
    },
    {
     "key": "W20#2",
@@ -2081,8 +2290,329 @@
     "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
     "null_ref": "—(JSD が無いので比べない)",
     "verdict": "undetermined",
-    "note": ""
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
    }
-  ]
+  ],
+  "read_graph": {
+   "rule_note": "読む=段の出力をエンジン側(engine・perception・agents・economy・world)のコードの文字列リテラルが名指し(直接)/下流の構築段が読み、その段がエンジンに届く(推移)。読まない=エンジン側の読み口が無く、出力を読むのが構築の検査・画像の段(W18〜W20)だけで、その段自身も検査・画像の段。読み口が見つからないだけなら不明(推測で読まないにしない)。段の単位で判定する(段のどれか 1 つの出力が読まれれば、その段の行は全部『読む』)。",
+   "tally": {
+    "reads": 96,
+    "not_read": 9,
+    "unknown": 0
+   },
+   "n_direct": 95,
+   "n_transitive": 1,
+   "not_read_rows": [
+    "W18#1",
+    "W18#2",
+    "W18#3",
+    "W18#4",
+    "W18#5",
+    "W19#1",
+    "W19#2",
+    "W20#1",
+    "W20#2"
+   ],
+   "stages": {
+    "W0": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [],
+     "engine_sites": [
+      "world_crs.json ← world/assets.py:748"
+     ],
+     "other_sites": []
+    },
+    "W1": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W2",
+      "W3",
+      "W5",
+      "W6",
+      "W10",
+      "W11",
+      "W12",
+      "W18",
+      "W20"
+     ],
+     "engine_sites": [
+      "w1_edges.parquet ← world/assets.py:90",
+      "w1_nodes.parquet ← world/assets.py:89"
+     ],
+     "other_sites": []
+    },
+    "W2": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W3",
+      "W5",
+      "W6",
+      "W8",
+      "W11",
+      "W15",
+      "W16",
+      "W18",
+      "W20"
+     ],
+     "engine_sites": [
+      "w2_cells.parquet ← perception/renderer.py:653",
+      "w2_cells.parquet ← world/assets.py:91"
+     ],
+     "other_sites": []
+    },
+    "W3": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [],
+     "engine_sites": [
+      "w3_cell_dist.npy ← world/assets.py:93",
+      "w3_next_hop.npy ← world/assets.py:92"
+     ],
+     "other_sites": []
+    },
+    "W4": {
+     "verdict": "reads",
+     "reach": "transitive:W6",
+     "via_path": [
+      "W6"
+     ],
+     "consumers": [
+      "W6",
+      "W8",
+      "W9",
+      "W16",
+      "W18"
+     ],
+     "engine_sites": [],
+     "other_sites": []
+    },
+    "W5": {
+     "verdict": "reads",
+     "reach": "transitive:W11",
+     "via_path": [
+      "W11"
+     ],
+     "consumers": [
+      "W11"
+     ],
+     "engine_sites": [],
+     "other_sites": []
+    },
+    "W6": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W7",
+      "W8",
+      "W14",
+      "W15",
+      "W16",
+      "W17",
+      "W18",
+      "W20"
+     ],
+     "engine_sites": [
+      "w6_org.parquet ← economy/ledger.py:163",
+      "w6_poi.parquet ← perception/renderer.py:654",
+      "w6_poi.parquet ← world/assets.py:94"
+     ],
+     "other_sites": []
+    },
+    "W7": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W14",
+      "W17",
+      "W18"
+     ],
+     "engine_sites": [
+      "w7_plan_spec.parquet ← world/assets.py:737"
+     ],
+     "other_sites": []
+    },
+    "W8": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W15",
+      "W18",
+      "W20"
+     ],
+     "engine_sites": [
+      "w8_t1_cell.parquet ← perception/renderer.py:656",
+      "w8_t1_cell.parquet ← world/assets.py:471",
+      "w8_targets.parquet ← perception/renderer.py:655",
+      "w8_targets.parquet ← world/assets.py:471"
+     ],
+     "other_sites": []
+    },
+    "W9": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W18",
+      "W20"
+     ],
+     "engine_sites": [
+      "w9_shadow_2026-07-28.npy ← world/assets.py:882"
+     ],
+     "other_sites": []
+    },
+    "W10": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W8",
+      "W9",
+      "W18",
+      "W20"
+     ],
+     "engine_sites": [
+      "w10_noise_stage_day.npy ← perception/renderer.py:864",
+      "w10_noise_stage_day.npy ← world/assets.py:553",
+      "w10_noise_stage_night.npy ← perception/renderer.py:864",
+      "w10_noise_stage_night.npy ← world/assets.py:553",
+      "w10_street_points.parquet ← perception/renderer.py:657",
+      "w10_street_points.parquet ← world/assets.py:552"
+     ],
+     "other_sites": []
+    },
+    "W11": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W8",
+      "W12",
+      "W15",
+      "W16",
+      "W18",
+      "W20"
+     ],
+     "engine_sites": [
+      "w11_station_exits.parquet ← perception/renderer.py:658",
+      "w11_station_exits.parquet ← world/assets.py:735",
+      "w11_station_graph_nodes.parquet ← world/assets.py:734"
+     ],
+     "other_sites": []
+    },
+    "W12": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W16",
+      "W17",
+      "W18"
+     ],
+     "engine_sites": [
+      "w12_external_nodes.parquet ← world/assets.py:736",
+      "w12_timetables.parquet ← world/assets.py:733"
+     ],
+     "other_sites": []
+    },
+    "W13": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W9",
+      "W18"
+     ],
+     "engine_sites": [
+      "w13_weather_days.parquet ← world/assets.py:731",
+      "w13_weather_hourly.parquet ← perception/renderer.py:659",
+      "w13_weather_hourly.parquet ← world/assets.py:732"
+     ],
+     "other_sites": []
+    },
+    "W14": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [],
+     "engine_sites": [
+      "w14_signage.parquet ← perception/renderer.py:759"
+     ],
+     "other_sites": []
+    },
+    "W15": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [],
+     "engine_sites": [
+      "w15_cell_static.parquet ← perception/renderer.py:762"
+     ],
+     "other_sites": []
+    },
+    "W16": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W17",
+      "W18"
+     ],
+     "engine_sites": [
+      "w16_population.parquet ← agents/population.py:53"
+     ],
+     "other_sites": []
+    },
+    "W17": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [],
+     "engine_sites": [
+      "w17_schedule.parquet ← agents/weekly.py:58"
+     ],
+     "other_sites": []
+    },
+    "W18": {
+     "verdict": "not_read",
+     "reach": null,
+     "via_path": [],
+     "consumers": [
+      "W20"
+     ],
+     "engine_sites": [],
+     "other_sites": []
+    },
+    "W19": {
+     "verdict": "not_read",
+     "reach": null,
+     "via_path": [],
+     "consumers": [
+      "W20"
+     ],
+     "engine_sites": [],
+     "other_sites": []
+    },
+    "W20": {
+     "verdict": "not_read",
+     "reach": null,
+     "via_path": [],
+     "consumers": [],
+     "engine_sites": [],
+     "other_sites": []
+    }
+   }
+  }
  }
 }

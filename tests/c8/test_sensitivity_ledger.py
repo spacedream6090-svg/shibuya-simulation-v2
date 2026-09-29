@@ -72,9 +72,15 @@ def test_criterion_is_one_sided(ledger):
 
 
 def test_open_questions_flag_the_gap(ledger):
-    """設計書が感度を宣言していない expedient(122−14)が親判断待ちとして残っていること。"""
-    assert ledger["build_manifest_expedients"]["count"] == 122
-    assert any("122" in q for q in ledger["open_questions"])
+    """設計書が感度を宣言していない expedient が親判断待ちとして残っていること。
+
+    第307(Q141): 09-09 の 122 行 → 現行の build_manifest の 121 行(段の改版 W6 +1・W7 +5・W10 +1・W17 −8)。
+    旧注記は ``note_2026_09_09`` に残す。
+    """
+    be = ledger["build_manifest_expedients"]
+    assert be["count"] == 121 == ledger["build_manifest_judgment"]["count"]
+    assert "W6 +1・W7 +5・W10 +1・W17 −8" in be["note"] and "122 行" in be["note_2026_09_09"]
+    assert any("121" in q for q in ledger["open_questions"])
 
 
 def test_ledger_markdown_is_a_valid_table(sensitivity, ledger):
@@ -269,7 +275,7 @@ def test_manifest_judgment_block_is_consistent(sensitivity, ledger):
     assert "片側" in j["rule_note"] and "駆動しえない" in j["rule_note"]
     assert "f≈1" in j["rule_note"] and "第200" in j["rule_note"]  # 検出可能効果量の床
     # 既存の 19 行・過程の id は触らない(判定列は別の鍵)
-    assert len(ledger["rows"]) == 19 and ledger["build_manifest_expedients"]["count"] == 122
+    assert len(ledger["rows"]) == 19 and ledger["build_manifest_expedients"]["count"] == 121
 
 
 def test_manifest_judgment_validation_catches_bad_rows(sensitivity, ledger):
@@ -292,8 +298,73 @@ def test_manifest_judgment_markdown_has_the_rule_and_the_table(sensitivity, ledg
 def test_manifest_judgment_matches_the_live_manifest(c8lib, sensitivity, ledger, world_dir):
     """台帳の判定列は data/world/v2/build_manifest.json から作り直しても同じ(既存の台帳行の書き出しは 1 行ずつに当たる)。"""
     live = sensitivity.build_manifest_verdicts(c8lib.load_json(world_dir / "build_manifest.json"), ledger)
-    assert live["rows"] == ledger["build_manifest_judgment"]["rows"]
+    # 第307: 判定不能の行に足した依存グラフの列(engine_reads*)は (c) の列=(a) の判定列の比較からは外す
+    stored = [{k: v for k, v in r.items() if not k.startswith("engine_reads")}
+              for r in ledger["build_manifest_judgment"]["rows"]]
+    assert live["rows"] == stored
     assert live["manifest_build_hash"] == ledger["build_manifest_judgment"]["manifest_build_hash"]
     for stage, prefix, rid in sensitivity.COVERED_EXPEDIENTS:
         hits = [r for r in live["rows"] if r["stage"] == stage and r["expedient"].startswith(prefix)]
         assert len(hits) == 1 and hits[0]["covered_by"] == rid, (stage, prefix)
+
+
+# ------------------------------------------------------------------ D-44 (c) 依存グラフ(第307)
+def test_read_graph_column_is_consistent(sensitivity, ledger):
+    """判定不能の行だけに 3 値(読む/読まない/不明)・集計・読まない行の一覧が合う。既存の判定列は変えない。"""
+    j = ledger["build_manifest_judgment"]
+    rg = j["read_graph"]
+    und = [r for r in j["rows"] if r["verdict"] == "undetermined"]
+    assert all(r.get("engine_reads") in sensitivity.READ_VERDICTS for r in und)
+    assert all(r.get("engine_reads") is None for r in j["rows"] if r["verdict"] != "undetermined")
+    assert sum(rg["tally"].values()) == len(und) == j["tally"]["undetermined"]
+    assert rg["tally"] == {v: sum(r.get("engine_reads") == v for r in und) for v in sensitivity.READ_VERDICTS}
+    assert rg["n_direct"] + rg["n_transitive"] == rg["tally"]["reads"]
+    assert rg["not_read_rows"] == [r["key"] for r in und if r["engine_reads"] == "not_read"]
+    # 「読まない」は検査・画像の段(W18〜W20)に限る=推測で読まないにしない
+    assert all(k.split("#")[0] in sensitivity.AUDIT_STAGES for k in rg["not_read_rows"])
+    for st, si in rg["stages"].items():
+        if si["verdict"] == "reads":
+            assert si["engine_sites"] or si["reach"].startswith("transitive:")
+        if si["verdict"] == "not_read":
+            assert not si["engine_sites"] and all(c in sensitivity.AUDIT_STAGES for c in si["consumers"])
+    assert "推測で読まないにしない" in rg["rule_note"]
+    assert not sensitivity.validate_ledger(ledger)
+
+
+def test_read_graph_validation_catches_bad_rows(sensitivity, ledger):
+    broken = json.loads(json.dumps(ledger))
+    row = next(r for r in broken["build_manifest_judgment"]["rows"] if r["verdict"] == "undetermined")
+    row["engine_reads"] = "maybe"
+    assert any("engine_reads" in p for p in sensitivity.validate_ledger(broken))
+
+
+def test_code_strings_skip_docstrings(sensitivity, tmp_path):
+    """読み口は**コードの**文字列だけ(docstring・式文の文字列は数えない)。"""
+    f = tmp_path / "m.py"
+    f.write_text('''"""w99_doc.parquet は docstring"""
+X = "w99_code.parquet"
+
+
+def g():
+    """w99_fn.parquet"""
+    "w99_expr.parquet"
+    return f"w99_shadow_{1}.npy"
+''', encoding="utf-8")
+    vals = [v for _ln, v in sensitivity._code_strings(f)]
+    assert "w99_code.parquet" in vals and any(v.startswith("w99_shadow_") for v in vals)
+    assert not any("doc" in v or "fn" in v or "expr" in v for v in vals)
+    assert sensitivity._output_token("w9_shadow_2026-07-28.npy") == "w9_shadow_"
+    assert sensitivity._output_token("acceptance/cells.png") == "cells.png"
+
+
+def test_read_graph_matches_the_source(c8lib, sensitivity, ledger, world_dir):
+    """台帳の依存グラフはいまの src から作り直しても同じ(実データの manifest があるとき)。"""
+    mp = world_dir / "build_manifest.json"
+    if not mp.exists():
+        pytest.skip("実世界資産 data/world/v2 が無い")
+    g = sensitivity.engine_read_graph(c8lib.load_json(mp))
+    stored = ledger["build_manifest_judgment"]["read_graph"]["stages"]
+    for st, si in g["stages"].items():
+        assert si["verdict"] == stored[st]["verdict"], st
+        assert si["engine_sites"] == stored[st]["engine_sites"], st
+        assert si["consumers"] == stored[st]["consumers"], st

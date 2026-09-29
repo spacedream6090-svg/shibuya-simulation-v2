@@ -26,6 +26,13 @@
     python tools/c8/sensitivity.py --run all --out docs/bench/c8
     python tools/c8/sensitivity.py --run S-W17-RAKE --include-heavy --out docs/bench/c8
     python tools/c8/sensitivity.py --judge-manifest --out docs/bench/c8   # D-44 (a) の一括判定(既存の記録だけ)
+    python tools/c8/sensitivity.py --read-graph --out docs/bench/c8       # D-44 (c) 依存グラフ(エンジンが読むか)
+
+**D-44 (c) の依存グラフ**(第307): 各構築段の出力ファイルを、エンジン側(``src/shibuya/{engine,perception,agents,
+economy,world}``)の**コードの文字列リテラル**(docstring・式文の文字列は除く=AST)が名指ししているか、下流の構築段が読み
+(推移)、下流を通してエンジンに届くかを見る。判定不能の行に「読む(直接/推移)/読まない/不明」を付ける。**読み口が
+見つからないだけでは「読まない」にしない**(=不明)。「読まない」は、エンジン側の読み口が無く、出力を読むのが構築の検査・
+画像の段(W18〜W20)だけで、その段自身も検査・画像の段である行に限る。
 
 **D-44 (a) の一括判定**(第229 決定・第306 実装): ``data/world/v2/build_manifest.json`` の expedient 行を全部並べ、
 既存の台帳行が扱う行(``COVERED_EXPEDIENTS``)を除いた残りを、**既存の構築記録にある入力側の JSD** だけで 3 値に判定する
@@ -86,6 +93,123 @@ RECORDED_FIT_JSD: tuple[tuple[str, str, str], ...] = (
     ("W17", "raking は 12% と 0% を計算し",
      "W17.header.json gates.jsd_max_raking_0=0.3585・_12=0.2531(どちらも PT 目標への当てはまり。0% と 12% の間の JSD は記録に無い)"),
 )
+# ------------------------------------------------------------------ D-44 (c) の依存グラフ(第307)
+#: エンジン側=読み口を探すパッケージ(発注の指定)。それ以外(``llm``・``cli.py`` など)は参考として記録するだけ。
+ENGINE_PACKAGES: tuple[str, ...] = ("engine", "perception", "agents", "economy", "world")
+#: 構築の検査・画像の段(出力は構築の検査と目視用=「読まない」になりうる段)。
+AUDIT_STAGES: tuple[str, ...] = ("W18", "W19", "W20")
+#: 構築モジュール → 段(ファイル名の ``wN_`` で決まらないもの)。``None`` = 段を持たない(束ね・共通)。
+BUILD_MODULE_STAGE: dict[str, str | None] = {
+    "geo/poi_class.py": "W6", "field/street_grid.py": "W10", "field/road_names.py": "W10",
+    "sched/trial.py": "W17", "sched/pool_facts.py": "W17", "sched/vocab.py": "W17",
+    "pop/fitting.py": "W16", "pop/pool.py": "W16", "pop/shapefile.py": "W16",
+    "vis/png.py": None, "catalog_freeze.py": None, "run.py": None,
+}
+READ_VERDICTS: tuple[str, ...] = ("reads", "not_read", "unknown")
+READ_VERDICT_JA: dict[str, str] = {"reads": "エンジンが読む", "not_read": "読まない", "unknown": "不明"}
+
+
+def _code_strings(path: Path) -> list[tuple[int, str]]:
+    """``.py`` の**コードの**文字列リテラル ``(行, 値)``(docstring と式文の文字列は除く)。"""
+    import ast
+
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    skip: set[int] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant) and isinstance(node.value.value, str):
+            skip.add(id(node.value))
+    return [(n.lineno, n.value) for n in ast.walk(tree)
+            if isinstance(n, ast.Constant) and isinstance(n.value, str) and id(n) not in skip]
+
+
+def _output_token(name: str) -> str:
+    """出力名 → 探す字句(日付つき ``w9_shadow_2026-07-28.npy`` は ``w9_shadow_``)。"""
+    import re
+
+    base = Path(str(name).replace("\\", "/")).name
+    m = re.match(r"^(.*_)\d{4}-\d{2}-\d{2}\.[a-z]+$", base)
+    return m.group(1) if m else base
+
+
+def _module_stage(rel: str) -> str | None:
+    import re
+
+    if rel in BUILD_MODULE_STAGE:
+        return BUILD_MODULE_STAGE[rel]
+    m = re.match(r"^(?:[a-z]+/)?w(\d+)_", rel)
+    if m:
+        return f"W{int(m.group(1))}"
+    if rel.startswith(("pop/",)):
+        return "W16"
+    if rel.startswith(("sched/",)):
+        return "W17"
+    if rel.startswith("lang/"):
+        return None  # lang の束ね(W14/W15 の共通)
+    return None
+
+
+def engine_read_graph(manifest: Mapping[str, Any], src_root: Path | None = None) -> dict[str, Any]:
+    """D-44 (c): 段 → 出力 → 読み口(エンジン直接/下流の段)→ 推移的な到達(**純関数に近い**=src を読むだけ)。"""
+    root = Path(src_root) if src_root is not None else c8lib.REPO_ROOT / "src" / "shibuya"
+    strings: dict[str, list[tuple[int, str]]] = {}
+    for f in sorted(root.rglob("*.py")):
+        if "__pycache__" in f.parts:
+            continue
+        strings[f.relative_to(root).as_posix()] = _code_strings(f)
+    stages = [str(s["stage"]) for s in manifest.get("stages", ())]
+    outputs = {str(s["stage"]): [Path(str(o.get("path") if isinstance(o, Mapping) else o).replace("\\", "/")).name
+                                 for o in s.get("outputs", ())] for s in manifest.get("stages", ())}
+    info: dict[str, Any] = {}
+    for st in stages:
+        direct: list[str] = []
+        other: list[str] = []
+        consumers: set[str] = set()
+        for o in outputs[st]:
+            tok = _output_token(o)
+            for rel, lits in strings.items():
+                lines = sorted({ln for ln, v in lits if tok in v})
+                if not lines:
+                    continue
+                top = rel.split("/")[0]
+                site = f"{rel}:{lines[0]}"
+                if top == "build":
+                    ms = _module_stage(rel[len("build/"):])
+                    if ms is not None and ms != st:
+                        consumers.add(ms)
+                elif top in ENGINE_PACKAGES:
+                    direct.append(f"{o} ← {site}")
+                else:
+                    other.append(f"{o} ← {site}")
+        info[st] = {"outputs": outputs[st], "engine_sites": sorted(set(direct)), "other_sites": sorted(set(other)),
+                    "consumers": sorted(consumers, key=lambda s: int(s[1:]))}
+    # 推移: 下流の段がエンジンに届くなら届く(構築順=W 番号の順に下流が後ろ=逆順に畳めば 1 回で足りる)
+    reach: dict[str, str | None] = {}
+    for st in sorted(stages, key=lambda s: -int(s[1:])):
+        if info[st]["engine_sites"]:
+            reach[st] = "direct"
+            continue
+        via = [c for c in info[st]["consumers"] if reach.get(c)]
+        reach[st] = f"transitive:{via[0]}" if via else None
+    for st in stages:
+        r = reach[st]
+        cons = info[st]["consumers"]
+        if r is not None:
+            verdict = "reads"
+        elif st in AUDIT_STAGES and all(c in AUDIT_STAGES for c in cons):
+            verdict = "not_read"
+        else:
+            verdict = "unknown"
+        path = []
+        if r and r.startswith("transitive:"):  # 経路をたどって書く(W4→W6→直接 など)
+            cur = st
+            while reach.get(cur, "").startswith("transitive:"):
+                nxt = reach[cur].split(":", 1)[1]
+                path.append(nxt)
+                cur = nxt
+        info[st] |= {"reach": r, "via_path": path, "verdict": verdict}
+    return {"packages": list(ENGINE_PACKAGES), "audit_stages": list(AUDIT_STAGES), "stages": info}
+
+
 #: 判定の規則の文言(表の頭に載せる・第229 決定+第200 の検出可能効果量の床)。
 MANIFEST_RULE_NOTE: str = (
     "判定の規則(D-44 (a)・第229 決定・片側): 構築段階の入力側の JSD(宣言 vs 対照)が帰無参照の内側なら、入力が動かないので"
@@ -399,6 +523,42 @@ def build_manifest_verdicts(manifest: Mapping[str, Any], ledger: Mapping[str, An
     }
 
 
+def attach_read_graph(judged: dict[str, Any], graph: Mapping[str, Any]) -> dict[str, Any]:
+    """D-44 (c): 判定不能の行に ``engine_reads``(3 値)・``engine_reads_via`` を足す(**既存の判定列は変えない**)。"""
+    info = graph["stages"]
+    not_read: list[str] = []
+    n_direct = n_trans = 0
+    for r in judged["rows"]:
+        if r.get("verdict") != "undetermined":
+            continue
+        si = info.get(r["stage"], {})
+        v = si.get("verdict", "unknown")
+        r["engine_reads"] = v
+        if v == "reads" and si.get("reach") == "direct":
+            r["engine_reads_via"] = "直接"
+            n_direct += 1
+        elif v == "reads":
+            r["engine_reads_via"] = "推移 " + "→".join([r["stage"], *si.get("via_path", [])])
+            n_trans += 1
+        elif v == "not_read":
+            r["engine_reads_via"] = "構築の検査・画像の段だけ"
+            not_read.append(r["key"])
+        else:
+            r["engine_reads_via"] = "読み口が見つからない"
+    judged["read_graph"] = {
+        "rule_note": ("読む=段の出力をエンジン側(engine・perception・agents・economy・world)のコードの文字列リテラルが名指し"
+                      "(直接)/下流の構築段が読み、その段がエンジンに届く(推移)。読まない=エンジン側の読み口が無く、出力を読むのが"
+                      "構築の検査・画像の段(W18〜W20)だけで、その段自身も検査・画像の段。読み口が見つからないだけなら不明"
+                      "(推測で読まないにしない)。段の単位で判定する(段のどれか 1 つの出力が読まれれば、その段の行は全部『読む』)。"),
+        "tally": {v: sum(1 for r in judged["rows"] if r.get("engine_reads") == v) for v in READ_VERDICTS},
+        "n_direct": n_direct, "n_transitive": n_trans,
+        "not_read_rows": not_read,
+        "stages": {st: {k: si[k] for k in ("verdict", "reach", "via_path", "consumers", "engine_sites", "other_sites")}
+                   for st, si in info.items()},
+    }
+    return judged
+
+
 # ------------------------------------------------------------------ 台帳
 def validate_ledger(ledger: Mapping[str, Any]) -> list[str]:
     """台帳の自己検査+**設計書との突合(漏れ検出)**。問題の一覧を返す。"""
@@ -432,6 +592,17 @@ def validate_ledger(ledger: Mapping[str, Any]) -> list[str]:
     if have_ab - want_ab:
         problems.append(f"台帳にしかない過程 id {sorted(have_ab - want_ab)}")
     judged = ledger.get("build_manifest_judgment")
+    if judged and judged.get("read_graph"):  # D-44 (c)(第307)
+        rg = judged["read_graph"]
+        for r in judged.get("rows", ()):
+            er = r.get("engine_reads")
+            if r.get("verdict") == "undetermined" and er not in READ_VERDICTS:
+                problems.append(f"build_manifest_judgment {r.get('key')}: engine_reads が不正({er})")
+            if r.get("verdict") != "undetermined" and er is not None:
+                problems.append(f"build_manifest_judgment {r.get('key')}: 判定不能でない行に engine_reads")
+        rt = {v: sum(1 for r in judged.get("rows", ()) if r.get("engine_reads") == v) for v in READ_VERDICTS}
+        if rt != rg.get("tally"):
+            problems.append("build_manifest_judgment.read_graph: tally が行と合わない")
     if judged:  # D-44 (a)(第306)
         keys = [r.get("key") for r in judged.get("rows", ())]
         if len(keys) != len(set(keys)):
@@ -508,6 +679,17 @@ def ledger_markdown(ledger: Mapping[str, Any]) -> str:
             f"ラン対照へ **{ta['needs_run']}**・判定不能 **{ta['undetermined']}**。"
             f"build_manifest の build_hash {str(judged.get('manifest_build_hash'))[:16]}…。",
             f"- 既存の台帳行のうち build_manifest に対応行が無いもの: {', '.join(judged['ledger_rows_without_manifest_row']) or 'なし'}。",
+        ]
+        rg = judged.get("read_graph")
+        if rg:  # D-44 (c)(第307)
+            rt = rg["tally"]
+            md += [
+                f"- **D-44 (c) 依存グラフ(第307)**: 判定不能 {ta['undetermined']} 行のうち エンジンが読む **{rt['reads']}**"
+                f"(直接 {rg['n_direct']}・推移 {rg['n_transitive']})・読まない **{rt['not_read']}**・不明 **{rt['unknown']}**。"
+                f"{rg['rule_note']}",
+                f"- 読まない行: {', '.join(rg['not_read_rows']) or 'なし'}。",
+            ]
+        md += [
             "",
             c8lib.markdown_table(
                 ["行", "段階", "expedient", "既存の台帳行", "入力側 JSD", "帰無95%", "判定", "備考"],
@@ -515,7 +697,9 @@ def ledger_markdown(ledger: Mapping[str, Any]) -> str:
                   c8lib.fmt(r.get("null_p95"), 4),
                   MANIFEST_VERDICT_JA[r["verdict"]] + (
                       f"({ {'not_driving': '駆動していない', 'needs_run': 'ラン対照が要る'}.get(str(r.get('existing_verdict')), '未実行')})"
-                      if r["verdict"] == "covered" else ""),
+                      if r["verdict"] == "covered" else "") + (
+                      f"/{READ_VERDICT_JA[r['engine_reads']]}({r.get('engine_reads_via') or '—'})"
+                      if r.get("engine_reads") else ""),
                   (r.get("note") or "")[:60] or "—"]
                  for r in judged["rows"]],
             ),
@@ -540,6 +724,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     ap.add_argument("--manifest", default=str(BUILD_MANIFEST_PATH))
     ap.add_argument(
+        "--read-graph", action="store_true",
+        help="D-44 (c): 依存グラフで判定不能の行に「エンジンが読む/読まない/不明」を付けて台帳へ書く(第307)",
+    )
+    ap.add_argument(
         "--list", action="store_true",
         help="台帳を印字して終わる(既定でも印字するので、--run を付けないときの明示用)",
     )
@@ -562,6 +750,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             path.write_text(json.dumps(ledger, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     if args.judge_manifest:
         ledger["build_manifest_judgment"] = build_manifest_verdicts(c8lib.load_json(args.manifest), ledger)
+        if not args.no_write_ledger:
+            path.write_text(json.dumps(ledger, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
+    if args.read_graph:
+        attach_read_graph(ledger["build_manifest_judgment"], engine_read_graph(c8lib.load_json(args.manifest)))
         if not args.no_write_ledger:
             path.write_text(json.dumps(ledger, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
 

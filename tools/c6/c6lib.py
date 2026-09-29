@@ -1255,13 +1255,13 @@ def markdown_table(headers: Sequence[str], rows: Iterable[Sequence[Any]]) -> str
 
 
 def write_outputs(out_dir: str | Path, stem: str, payload: Mapping[str, Any], md: str) -> dict[str, str]:
-    """``<out>/<stem>.json`` と ``<out>/<stem>.md`` を書く。"""
+    """``<out>/<stem>.json`` と ``<out>/<stem>.md`` を書く(改行は LF=Windows でも CRLF にしない・第307)。"""
     d = Path(out_dir)
     d.mkdir(parents=True, exist_ok=True)
     jp = d / f"{stem}.json"
     mp = d / f"{stem}.md"
-    jp.write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    mp.write_text(md.rstrip("\n") + "\n", encoding="utf-8")
+    jp.write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
+    mp.write_text(md.rstrip("\n") + "\n", encoding="utf-8", newline="\n")
     return {"json": str(jp), "md": str(mp)}
 
 
