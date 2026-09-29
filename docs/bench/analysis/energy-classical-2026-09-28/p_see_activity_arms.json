@@ -1,0 +1,1316 @@
+{
+ "schema": "shibuya.bench/p-see-activity-2026-09-28/1",
+ "n_agents": 5000,
+ "seed": 1,
+ "arms": [
+  {
+   "arm": "p100_identity",
+   "args": {
+    "vocab_version": "v3",
+    "familiarity": "on",
+    "signage_p_see": 1.0
+   },
+   "final_hash": "f46a441a75eb2b965724bfbdb72c22c04753ba4c6ff77b892ffce5bc9811479e",
+   "llm_calls": 69603,
+   "p_see_activity": {
+    "table": {
+     "move_to": 1.0,
+     "wander": 1.0,
+     "in_shop": 1.0,
+     "in_place": 1.0,
+     "phone": 1.0,
+     "companion_talk": 1.0
+    },
+    "identity": true,
+    "signage_p_see": 1.0,
+    "applies_to": "p_see only (M4 (a)): the B2 visible rows are unchanged",
+    "by_kind": {
+     "move_to": {
+      "eligible": 8831,
+      "draws": 0,
+      "shown": 8831
+     },
+     "wander": {
+      "eligible": 1890,
+      "draws": 0,
+      "shown": 1890
+     },
+     "in_shop": {
+      "eligible": 15959,
+      "draws": 0,
+      "shown": 15959
+     },
+     "in_place": {
+      "eligible": 41664,
+      "draws": 0,
+      "shown": 41664
+     },
+     "phone": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     },
+     "companion_talk": {
+      "eligible": 707,
+      "draws": 0,
+      "shown": 707
+     }
+    },
+    "effective_p_see": {
+     "1.0000": 69051
+    }
+   },
+   "renderer": {
+    "prompt_tokens_mean": 1019.4614168929501,
+    "tokens_cell_mean": 152.0191371061592,
+    "tokens_individual_mean": 121.66841946467825,
+    "tokens_shared_static_mean": 745.7738603221126
+   },
+   "exposures": {
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 11.0,
+     "p50": 42.0,
+     "p90": 95.1,
+     "p100": 238.0,
+     "mean": 48.277
+    },
+    "exposures_signage_entry_by_kind": {
+     "in_place": 10949,
+     "move_to": 55596,
+     "wander": 16681,
+     "in_shop": 2334
+    }
+   },
+   "purchases": 5020,
+   "meals_in_area": 4438,
+   "action_usage_llm": {
+    "移動": 9506,
+    "乗車": 5892,
+    "購入": 4995,
+    "なし": 5936,
+    "会話": 4864,
+    "退去": 5888,
+    "通報": 5768,
+    "手伝い": 5829,
+    "断る": 5732,
+    "就寝": 5593,
+    "食事": 5140,
+    "並ぶ": 5020
+   }
+  },
+  {
+   "arm": "p100_phone_0_49",
+   "args": {
+    "vocab_version": "v3",
+    "familiarity": "on",
+    "signage_p_see": 1.0,
+    "p_see_activity": {
+     "phone": 0.49
+    }
+   },
+   "final_hash": "f46a441a75eb2b965724bfbdb72c22c04753ba4c6ff77b892ffce5bc9811479e",
+   "llm_calls": 69603,
+   "p_see_activity": {
+    "table": {
+     "move_to": 1.0,
+     "wander": 1.0,
+     "in_shop": 1.0,
+     "in_place": 1.0,
+     "phone": 0.49,
+     "companion_talk": 1.0
+    },
+    "identity": false,
+    "signage_p_see": 1.0,
+    "applies_to": "p_see only (M4 (a)): the B2 visible rows are unchanged",
+    "by_kind": {
+     "move_to": {
+      "eligible": 8831,
+      "draws": 0,
+      "shown": 8831
+     },
+     "wander": {
+      "eligible": 1890,
+      "draws": 0,
+      "shown": 1890
+     },
+     "in_shop": {
+      "eligible": 15959,
+      "draws": 0,
+      "shown": 15959
+     },
+     "in_place": {
+      "eligible": 41664,
+      "draws": 0,
+      "shown": 41664
+     },
+     "phone": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     },
+     "companion_talk": {
+      "eligible": 707,
+      "draws": 0,
+      "shown": 707
+     }
+    },
+    "effective_p_see": {
+     "1.0000": 69051
+    }
+   },
+   "renderer": {
+    "prompt_tokens_mean": 1019.4614168929501,
+    "tokens_cell_mean": 152.0191371061592,
+    "tokens_individual_mean": 121.66841946467825,
+    "tokens_shared_static_mean": 745.7738603221126
+   },
+   "exposures": {
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 11.0,
+     "p50": 42.0,
+     "p90": 95.1,
+     "p100": 238.0,
+     "mean": 48.277
+    },
+    "exposures_signage_entry_by_kind": {
+     "in_place": 10949,
+     "move_to": 55596,
+     "wander": 16681,
+     "in_shop": 2334
+    }
+   },
+   "purchases": 5020,
+   "meals_in_area": 4438,
+   "action_usage_llm": {
+    "移動": 9506,
+    "乗車": 5892,
+    "購入": 4995,
+    "なし": 5936,
+    "会話": 4864,
+    "退去": 5888,
+    "通報": 5768,
+    "手伝い": 5829,
+    "断る": 5732,
+    "就寝": 5593,
+    "食事": 5140,
+    "並ぶ": 5020
+   }
+  },
+  {
+   "arm": "p100_companion_1_39",
+   "args": {
+    "vocab_version": "v3",
+    "familiarity": "on",
+    "signage_p_see": 1.0,
+    "p_see_activity": {
+     "companion_talk": 1.39
+    }
+   },
+   "final_hash": "f46a441a75eb2b965724bfbdb72c22c04753ba4c6ff77b892ffce5bc9811479e",
+   "llm_calls": 69603,
+   "p_see_activity": {
+    "table": {
+     "move_to": 1.0,
+     "wander": 1.0,
+     "in_shop": 1.0,
+     "in_place": 1.0,
+     "phone": 1.0,
+     "companion_talk": 1.39
+    },
+    "identity": false,
+    "signage_p_see": 1.0,
+    "applies_to": "p_see only (M4 (a)): the B2 visible rows are unchanged",
+    "by_kind": {
+     "move_to": {
+      "eligible": 8831,
+      "draws": 0,
+      "shown": 8831
+     },
+     "wander": {
+      "eligible": 1890,
+      "draws": 0,
+      "shown": 1890
+     },
+     "in_shop": {
+      "eligible": 15959,
+      "draws": 0,
+      "shown": 15959
+     },
+     "in_place": {
+      "eligible": 41664,
+      "draws": 0,
+      "shown": 41664
+     },
+     "phone": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     },
+     "companion_talk": {
+      "eligible": 707,
+      "draws": 0,
+      "shown": 707
+     }
+    },
+    "effective_p_see": {
+     "1.0000": 69051
+    }
+   },
+   "renderer": {
+    "prompt_tokens_mean": 1019.4614168929501,
+    "tokens_cell_mean": 152.0191371061592,
+    "tokens_individual_mean": 121.66841946467825,
+    "tokens_shared_static_mean": 745.7738603221126
+   },
+   "exposures": {
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 11.0,
+     "p50": 42.0,
+     "p90": 95.1,
+     "p100": 238.0,
+     "mean": 48.277
+    },
+    "exposures_signage_entry_by_kind": {
+     "in_place": 10949,
+     "move_to": 55596,
+     "wander": 16681,
+     "in_shop": 2334
+    }
+   },
+   "purchases": 5020,
+   "meals_in_area": 4438,
+   "action_usage_llm": {
+    "移動": 9506,
+    "乗車": 5892,
+    "購入": 4995,
+    "なし": 5936,
+    "会話": 4864,
+    "退去": 5888,
+    "通報": 5768,
+    "手伝い": 5829,
+    "断る": 5732,
+    "就寝": 5593,
+    "食事": 5140,
+    "並ぶ": 5020
+   }
+  },
+  {
+   "arm": "p100_move_to_0_5",
+   "args": {
+    "vocab_version": "v3",
+    "familiarity": "on",
+    "signage_p_see": 1.0,
+    "p_see_activity": {
+     "move_to": 0.5
+    }
+   },
+   "final_hash": "b80be844fd397a813529992d0b952ef55f1e88a483bf0814587d5dc9c1f4b292",
+   "llm_calls": 69603,
+   "p_see_activity": {
+    "table": {
+     "move_to": 0.5,
+     "wander": 1.0,
+     "in_shop": 1.0,
+     "in_place": 1.0,
+     "phone": 1.0,
+     "companion_talk": 1.0
+    },
+    "identity": false,
+    "signage_p_see": 1.0,
+    "applies_to": "p_see only (M4 (a)): the B2 visible rows are unchanged",
+    "by_kind": {
+     "move_to": {
+      "eligible": 8831,
+      "draws": 8831,
+      "shown": 4282
+     },
+     "wander": {
+      "eligible": 1890,
+      "draws": 0,
+      "shown": 1890
+     },
+     "in_shop": {
+      "eligible": 15959,
+      "draws": 0,
+      "shown": 15959
+     },
+     "in_place": {
+      "eligible": 41664,
+      "draws": 0,
+      "shown": 41664
+     },
+     "phone": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     },
+     "companion_talk": {
+      "eligible": 707,
+      "draws": 0,
+      "shown": 707
+     }
+    },
+    "effective_p_see": {
+     "0.5000": 8831,
+     "1.0000": 60220
+    }
+   },
+   "renderer": {
+    "prompt_tokens_mean": 1018.401692455785,
+    "signage_gate_draws": 8831.0,
+    "signage_gate_shown": 4282.0,
+    "signage_p_see": 1.0,
+    "signage_shown_rate": 0.4848827992299853,
+    "tokens_cell_mean": 150.95941266899416,
+    "tokens_individual_mean": 121.66841946467825,
+    "tokens_shared_static_mean": 745.7738603221126
+   },
+   "exposures": {
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 10.0,
+     "p50": 36.0,
+     "p90": 84.0,
+     "p100": 223.0,
+     "mean": 42.0846
+    },
+    "exposures_signage_entry_by_kind": {
+     "in_place": 10949,
+     "move_to": 28054,
+     "wander": 16681,
+     "in_shop": 2334
+    }
+   },
+   "purchases": 5020,
+   "meals_in_area": 4438,
+   "action_usage_llm": {
+    "移動": 9506,
+    "乗車": 5892,
+    "購入": 4995,
+    "なし": 5936,
+    "会話": 4864,
+    "退去": 5888,
+    "通報": 5768,
+    "手伝い": 5829,
+    "断る": 5732,
+    "就寝": 5593,
+    "食事": 5140,
+    "並ぶ": 5020
+   }
+  },
+  {
+   "arm": "p100_all3",
+   "args": {
+    "vocab_version": "v3",
+    "familiarity": "on",
+    "signage_p_see": 1.0,
+    "p_see_activity": {
+     "phone": 0.49,
+     "companion_talk": 1.39,
+     "move_to": 0.5
+    }
+   },
+   "final_hash": "b80be844fd397a813529992d0b952ef55f1e88a483bf0814587d5dc9c1f4b292",
+   "llm_calls": 69603,
+   "p_see_activity": {
+    "table": {
+     "move_to": 0.5,
+     "wander": 1.0,
+     "in_shop": 1.0,
+     "in_place": 1.0,
+     "phone": 0.49,
+     "companion_talk": 1.39
+    },
+    "identity": false,
+    "signage_p_see": 1.0,
+    "applies_to": "p_see only (M4 (a)): the B2 visible rows are unchanged",
+    "by_kind": {
+     "move_to": {
+      "eligible": 8831,
+      "draws": 8831,
+      "shown": 4282
+     },
+     "wander": {
+      "eligible": 1890,
+      "draws": 0,
+      "shown": 1890
+     },
+     "in_shop": {
+      "eligible": 15959,
+      "draws": 0,
+      "shown": 15959
+     },
+     "in_place": {
+      "eligible": 41664,
+      "draws": 0,
+      "shown": 41664
+     },
+     "phone": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     },
+     "companion_talk": {
+      "eligible": 707,
+      "draws": 0,
+      "shown": 707
+     }
+    },
+    "effective_p_see": {
+     "0.5000": 8831,
+     "1.0000": 60220
+    }
+   },
+   "renderer": {
+    "prompt_tokens_mean": 1018.401692455785,
+    "signage_gate_draws": 8831.0,
+    "signage_gate_shown": 4282.0,
+    "signage_p_see": 1.0,
+    "signage_shown_rate": 0.4848827992299853,
+    "tokens_cell_mean": 150.95941266899416,
+    "tokens_individual_mean": 121.66841946467825,
+    "tokens_shared_static_mean": 745.7738603221126
+   },
+   "exposures": {
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 10.0,
+     "p50": 36.0,
+     "p90": 84.0,
+     "p100": 223.0,
+     "mean": 42.0846
+    },
+    "exposures_signage_entry_by_kind": {
+     "in_place": 10949,
+     "move_to": 28054,
+     "wander": 16681,
+     "in_shop": 2334
+    }
+   },
+   "purchases": 5020,
+   "meals_in_area": 4438,
+   "action_usage_llm": {
+    "移動": 9506,
+    "乗車": 5892,
+    "購入": 4995,
+    "なし": 5936,
+    "会話": 4864,
+    "退去": 5888,
+    "通報": 5768,
+    "手伝い": 5829,
+    "断る": 5732,
+    "就寝": 5593,
+    "食事": 5140,
+    "並ぶ": 5020
+   }
+  },
+  {
+   "arm": "p030_identity",
+   "args": {
+    "vocab_version": "v3",
+    "familiarity": "on",
+    "signage_p_see": 0.3
+   },
+   "final_hash": "f6f9b0cb5114709b938cf6f12e3e82efa73f1db51d32a392b54999b71b0bcad0",
+   "llm_calls": 69603,
+   "p_see_activity": {
+    "table": {
+     "move_to": 1.0,
+     "wander": 1.0,
+     "in_shop": 1.0,
+     "in_place": 1.0,
+     "phone": 1.0,
+     "companion_talk": 1.0
+    },
+    "identity": true,
+    "signage_p_see": 0.3,
+    "applies_to": "p_see only (M4 (a)): the B2 visible rows are unchanged",
+    "by_kind": {
+     "move_to": {
+      "eligible": 8831,
+      "draws": 8831,
+      "shown": 2538
+     },
+     "wander": {
+      "eligible": 1890,
+      "draws": 1890,
+      "shown": 559
+     },
+     "in_shop": {
+      "eligible": 15959,
+      "draws": 15959,
+      "shown": 4780
+     },
+     "in_place": {
+      "eligible": 41664,
+      "draws": 41664,
+      "shown": 12534
+     },
+     "phone": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     },
+     "companion_talk": {
+      "eligible": 707,
+      "draws": 707,
+      "shown": 203
+     }
+    },
+    "effective_p_see": {
+     "0.3000": 69051
+    }
+   },
+   "renderer": {
+    "prompt_tokens_mean": 1007.8386132781633,
+    "signage_gate_draws": 69051.0,
+    "signage_gate_shown": 20614.0,
+    "signage_p_see": 0.3,
+    "signage_shown_rate": 0.29853296838568594,
+    "tokens_cell_mean": 140.3963334913725,
+    "tokens_individual_mean": 121.66841946467825,
+    "tokens_shared_static_mean": 745.7738603221126
+   },
+   "exposures": {
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 4.0,
+     "p50": 22.0,
+     "p90": 57.0,
+     "p100": 164.0,
+     "mean": 27.0016
+    },
+    "exposures_signage_entry_by_kind": {
+     "in_place": 3212,
+     "wander": 5043,
+     "move_to": 16723,
+     "in_shop": 692
+    }
+   },
+   "purchases": 5020,
+   "meals_in_area": 4438,
+   "action_usage_llm": {
+    "移動": 9506,
+    "乗車": 5892,
+    "購入": 4995,
+    "なし": 5936,
+    "会話": 4864,
+    "退去": 5888,
+    "通報": 5768,
+    "手伝い": 5829,
+    "断る": 5732,
+    "就寝": 5593,
+    "食事": 5140,
+    "並ぶ": 5020
+   }
+  },
+  {
+   "arm": "p030_phone_0_49",
+   "args": {
+    "vocab_version": "v3",
+    "familiarity": "on",
+    "signage_p_see": 0.3,
+    "p_see_activity": {
+     "phone": 0.49
+    }
+   },
+   "final_hash": "f6f9b0cb5114709b938cf6f12e3e82efa73f1db51d32a392b54999b71b0bcad0",
+   "llm_calls": 69603,
+   "p_see_activity": {
+    "table": {
+     "move_to": 1.0,
+     "wander": 1.0,
+     "in_shop": 1.0,
+     "in_place": 1.0,
+     "phone": 0.49,
+     "companion_talk": 1.0
+    },
+    "identity": false,
+    "signage_p_see": 0.3,
+    "applies_to": "p_see only (M4 (a)): the B2 visible rows are unchanged",
+    "by_kind": {
+     "move_to": {
+      "eligible": 8831,
+      "draws": 8831,
+      "shown": 2538
+     },
+     "wander": {
+      "eligible": 1890,
+      "draws": 1890,
+      "shown": 559
+     },
+     "in_shop": {
+      "eligible": 15959,
+      "draws": 15959,
+      "shown": 4780
+     },
+     "in_place": {
+      "eligible": 41664,
+      "draws": 41664,
+      "shown": 12534
+     },
+     "phone": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     },
+     "companion_talk": {
+      "eligible": 707,
+      "draws": 707,
+      "shown": 203
+     }
+    },
+    "effective_p_see": {
+     "0.3000": 69051
+    }
+   },
+   "renderer": {
+    "prompt_tokens_mean": 1007.8386132781633,
+    "signage_gate_draws": 69051.0,
+    "signage_gate_shown": 20614.0,
+    "signage_p_see": 0.3,
+    "signage_shown_rate": 0.29853296838568594,
+    "tokens_cell_mean": 140.3963334913725,
+    "tokens_individual_mean": 121.66841946467825,
+    "tokens_shared_static_mean": 745.7738603221126
+   },
+   "exposures": {
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 4.0,
+     "p50": 22.0,
+     "p90": 57.0,
+     "p100": 164.0,
+     "mean": 27.0016
+    },
+    "exposures_signage_entry_by_kind": {
+     "in_place": 3212,
+     "wander": 5043,
+     "move_to": 16723,
+     "in_shop": 692
+    }
+   },
+   "purchases": 5020,
+   "meals_in_area": 4438,
+   "action_usage_llm": {
+    "移動": 9506,
+    "乗車": 5892,
+    "購入": 4995,
+    "なし": 5936,
+    "会話": 4864,
+    "退去": 5888,
+    "通報": 5768,
+    "手伝い": 5829,
+    "断る": 5732,
+    "就寝": 5593,
+    "食事": 5140,
+    "並ぶ": 5020
+   }
+  },
+  {
+   "arm": "p030_companion_1_39",
+   "args": {
+    "vocab_version": "v3",
+    "familiarity": "on",
+    "signage_p_see": 0.3,
+    "p_see_activity": {
+     "companion_talk": 1.39
+    }
+   },
+   "final_hash": "a3e47cb91c9167c3431ca4e359896fbb1fb296220aba0aba70e2e5c9f6a168f5",
+   "llm_calls": 69603,
+   "p_see_activity": {
+    "table": {
+     "move_to": 1.0,
+     "wander": 1.0,
+     "in_shop": 1.0,
+     "in_place": 1.0,
+     "phone": 1.0,
+     "companion_talk": 1.39
+    },
+    "identity": false,
+    "signage_p_see": 0.3,
+    "applies_to": "p_see only (M4 (a)): the B2 visible rows are unchanged",
+    "by_kind": {
+     "move_to": {
+      "eligible": 8831,
+      "draws": 8831,
+      "shown": 2538
+     },
+     "wander": {
+      "eligible": 1890,
+      "draws": 1890,
+      "shown": 559
+     },
+     "in_shop": {
+      "eligible": 15959,
+      "draws": 15959,
+      "shown": 4780
+     },
+     "in_place": {
+      "eligible": 41664,
+      "draws": 41664,
+      "shown": 12534
+     },
+     "phone": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     },
+     "companion_talk": {
+      "eligible": 707,
+      "draws": 707,
+      "shown": 293
+     }
+    },
+    "effective_p_see": {
+     "0.3000": 68344,
+     "0.4170": 707
+    }
+   },
+   "renderer": {
+    "prompt_tokens_mean": 1007.8614427539043,
+    "signage_gate_draws": 69051.0,
+    "signage_gate_shown": 20704.0,
+    "signage_p_see": 0.3,
+    "signage_shown_rate": 0.299836352840654,
+    "tokens_cell_mean": 140.4191629671135,
+    "tokens_individual_mean": 121.66841946467825,
+    "tokens_shared_static_mean": 745.7738603221126
+   },
+   "exposures": {
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 4.0,
+     "p50": 22.0,
+     "p90": 57.0,
+     "p100": 164.0,
+     "mean": 27.0196
+    },
+    "exposures_signage_entry_by_kind": {
+     "in_place": 3212,
+     "wander": 5043,
+     "move_to": 16723,
+     "in_shop": 692
+    }
+   },
+   "purchases": 5020,
+   "meals_in_area": 4438,
+   "action_usage_llm": {
+    "移動": 9506,
+    "乗車": 5892,
+    "購入": 4995,
+    "なし": 5936,
+    "会話": 4864,
+    "退去": 5888,
+    "通報": 5768,
+    "手伝い": 5829,
+    "断る": 5732,
+    "就寝": 5593,
+    "食事": 5140,
+    "並ぶ": 5020
+   }
+  },
+  {
+   "arm": "p030_move_to_0_5",
+   "args": {
+    "vocab_version": "v3",
+    "familiarity": "on",
+    "signage_p_see": 0.3,
+    "p_see_activity": {
+     "move_to": 0.5
+    }
+   },
+   "final_hash": "df13073bd923744db9b295a80433b3c44ff716b711fcf213973eda1f015a5a5e",
+   "llm_calls": 69603,
+   "p_see_activity": {
+    "table": {
+     "move_to": 0.5,
+     "wander": 1.0,
+     "in_shop": 1.0,
+     "in_place": 1.0,
+     "phone": 1.0,
+     "companion_talk": 1.0
+    },
+    "identity": false,
+    "signage_p_see": 0.3,
+    "applies_to": "p_see only (M4 (a)): the B2 visible rows are unchanged",
+    "by_kind": {
+     "move_to": {
+      "eligible": 8831,
+      "draws": 8831,
+      "shown": 1306
+     },
+     "wander": {
+      "eligible": 1890,
+      "draws": 1890,
+      "shown": 559
+     },
+     "in_shop": {
+      "eligible": 15959,
+      "draws": 15959,
+      "shown": 4780
+     },
+     "in_place": {
+      "eligible": 41664,
+      "draws": 41664,
+      "shown": 12534
+     },
+     "phone": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     },
+     "companion_talk": {
+      "eligible": 707,
+      "draws": 707,
+      "shown": 203
+     }
+    },
+    "effective_p_see": {
+     "0.1500": 8831,
+     "0.3000": 60220
+    }
+   },
+   "renderer": {
+    "prompt_tokens_mean": 1007.5511256698705,
+    "signage_gate_draws": 69051.0,
+    "signage_gate_shown": 19382.0,
+    "signage_p_see": 0.3,
+    "signage_shown_rate": 0.28069108340212306,
+    "tokens_cell_mean": 140.10884588307977,
+    "tokens_individual_mean": 121.66841946467825,
+    "tokens_shared_static_mean": 745.7738603221126
+   },
+   "exposures": {
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 4.0,
+     "p50": 21.0,
+     "p90": 53.0,
+     "p100": 159.0,
+     "mean": 25.082
+    },
+    "exposures_signage_entry_by_kind": {
+     "in_place": 3212,
+     "wander": 5043,
+     "move_to": 8242,
+     "in_shop": 692
+    }
+   },
+   "purchases": 5020,
+   "meals_in_area": 4438,
+   "action_usage_llm": {
+    "移動": 9506,
+    "乗車": 5892,
+    "購入": 4995,
+    "なし": 5936,
+    "会話": 4864,
+    "退去": 5888,
+    "通報": 5768,
+    "手伝い": 5829,
+    "断る": 5732,
+    "就寝": 5593,
+    "食事": 5140,
+    "並ぶ": 5020
+   }
+  },
+  {
+   "arm": "p030_all3",
+   "args": {
+    "vocab_version": "v3",
+    "familiarity": "on",
+    "signage_p_see": 0.3,
+    "p_see_activity": {
+     "phone": 0.49,
+     "companion_talk": 1.39,
+     "move_to": 0.5
+    }
+   },
+   "final_hash": "a026c0d9c11aa3a96bde155d1b4ad5882253a9dfe2eaddbd52de6da7f6d89b97",
+   "llm_calls": 69603,
+   "p_see_activity": {
+    "table": {
+     "move_to": 0.5,
+     "wander": 1.0,
+     "in_shop": 1.0,
+     "in_place": 1.0,
+     "phone": 0.49,
+     "companion_talk": 1.39
+    },
+    "identity": false,
+    "signage_p_see": 0.3,
+    "applies_to": "p_see only (M4 (a)): the B2 visible rows are unchanged",
+    "by_kind": {
+     "move_to": {
+      "eligible": 8831,
+      "draws": 8831,
+      "shown": 1306
+     },
+     "wander": {
+      "eligible": 1890,
+      "draws": 1890,
+      "shown": 559
+     },
+     "in_shop": {
+      "eligible": 15959,
+      "draws": 15959,
+      "shown": 4780
+     },
+     "in_place": {
+      "eligible": 41664,
+      "draws": 41664,
+      "shown": 12534
+     },
+     "phone": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     },
+     "companion_talk": {
+      "eligible": 707,
+      "draws": 707,
+      "shown": 293
+     }
+    },
+    "effective_p_see": {
+     "0.1500": 8831,
+     "0.3000": 59513,
+     "0.4170": 707
+    }
+   },
+   "renderer": {
+    "prompt_tokens_mean": 1007.5739551456115,
+    "signage_gate_draws": 69051.0,
+    "signage_gate_shown": 19472.0,
+    "signage_p_see": 0.3,
+    "signage_shown_rate": 0.28199446785709115,
+    "tokens_cell_mean": 140.13167535882073,
+    "tokens_individual_mean": 121.66841946467825,
+    "tokens_shared_static_mean": 745.7738603221126
+   },
+   "exposures": {
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 4.0,
+     "p50": 21.0,
+     "p90": 53.0,
+     "p100": 159.0,
+     "mean": 25.1
+    },
+    "exposures_signage_entry_by_kind": {
+     "in_place": 3212,
+     "wander": 5043,
+     "move_to": 8242,
+     "in_shop": 692
+    }
+   },
+   "purchases": 5020,
+   "meals_in_area": 4438,
+   "action_usage_llm": {
+    "移動": 9506,
+    "乗車": 5892,
+    "購入": 4995,
+    "なし": 5936,
+    "会話": 4864,
+    "退去": 5888,
+    "通報": 5768,
+    "手伝い": 5829,
+    "断る": 5732,
+    "就寝": 5593,
+    "食事": 5140,
+    "並ぶ": 5020
+   }
+  },
+  {
+   "arm": "ad_zero",
+   "args": {
+    "vocab_version": "v3",
+    "familiarity": "on",
+    "signage": false
+   },
+   "final_hash": "f004efb8016134f986fe14f7c44c54ac4a65a5ca618fd2faaeea7e37b8d842db",
+   "llm_calls": 69603,
+   "p_see_activity": {
+    "table": {
+     "move_to": 1.0,
+     "wander": 1.0,
+     "in_shop": 1.0,
+     "in_place": 1.0,
+     "phone": 1.0,
+     "companion_talk": 1.0
+    },
+    "identity": true,
+    "signage_p_see": 1.0,
+    "applies_to": "p_see only (M4 (a)): the B2 visible rows are unchanged",
+    "by_kind": {
+     "move_to": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     },
+     "wander": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     },
+     "in_shop": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     },
+     "in_place": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     },
+     "phone": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     },
+     "companion_talk": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     }
+    },
+    "effective_p_see": {}
+   },
+   "renderer": {
+    "prompt_tokens_mean": 1002.8896455612545,
+    "tokens_cell_mean": 135.44736577446375,
+    "tokens_individual_mean": 121.66841946467825,
+    "tokens_shared_static_mean": 745.7738603221126
+   },
+   "exposures": {
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 1.0,
+     "p50": 14.0,
+     "p90": 39.0,
+     "p100": 125.0,
+     "mean": 17.7942
+    }
+   },
+   "purchases": 5020,
+   "meals_in_area": 4438,
+   "action_usage_llm": {
+    "移動": 9506,
+    "乗車": 5892,
+    "購入": 4995,
+    "なし": 5936,
+    "会話": 4864,
+    "退去": 5888,
+    "通報": 5768,
+    "手伝い": 5829,
+    "断る": 5732,
+    "就寝": 5593,
+    "食事": 5140,
+    "並ぶ": 5020
+   }
+  },
+  {
+   "arm": "classical_p030_identity",
+   "args": {
+    "vocab_version": "v3",
+    "familiarity": "on",
+    "signage_p_see": 0.3,
+    "policy": "classical",
+    "chooser": "classical"
+   },
+   "final_hash": "5bf67a6a575aa5fe3aefb29be15da8bb8400b40af9120dabafa7d8e6174c8285",
+   "llm_calls": 101442,
+   "p_see_activity": {
+    "table": {
+     "move_to": 1.0,
+     "wander": 1.0,
+     "in_shop": 1.0,
+     "in_place": 1.0,
+     "phone": 1.0,
+     "companion_talk": 1.0
+    },
+    "identity": true,
+    "signage_p_see": 0.3,
+    "applies_to": "p_see only (M4 (a)): the B2 visible rows are unchanged",
+    "by_kind": {
+     "move_to": {
+      "eligible": 11197,
+      "draws": 11197,
+      "shown": 3337
+     },
+     "wander": {
+      "eligible": 8232,
+      "draws": 8232,
+      "shown": 2410
+     },
+     "in_shop": {
+      "eligible": 14505,
+      "draws": 14505,
+      "shown": 4373
+     },
+     "in_place": {
+      "eligible": 65338,
+      "draws": 65338,
+      "shown": 19596
+     },
+     "phone": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     },
+     "companion_talk": {
+      "eligible": 1341,
+      "draws": 1341,
+      "shown": 386
+     }
+    },
+    "effective_p_see": {
+     "0.3000": 100613
+    }
+   },
+   "renderer": {
+    "prompt_tokens_mean": 1003.009700124209,
+    "signage_gate_draws": 100613.0,
+    "signage_gate_shown": 30102.0,
+    "signage_p_see": 0.3,
+    "signage_shown_rate": 0.2991859898820232,
+    "tokens_cell_mean": 140.25345517635694,
+    "tokens_individual_mean": 116.92407484079573,
+    "tokens_shared_static_mean": 745.8321701070563
+   },
+   "exposures": {
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 6.0,
+     "p50": 31.0,
+     "p90": 74.0,
+     "p100": 227.0,
+     "mean": 36.6746
+    },
+    "exposures_signage_entry_by_kind": {
+     "in_place": 1054,
+     "wander": 15383,
+     "move_to": 18031,
+     "in_shop": 158
+    }
+   },
+   "purchases": 1694,
+   "meals_in_area": 9596,
+   "action_usage_llm": {
+    "移動": 34994,
+    "購入": 1749,
+    "なし": 64881,
+    "会話": 936,
+    "就寝": 624,
+    "食事": 11990
+   }
+  },
+  {
+   "arm": "classical_p030_all3",
+   "args": {
+    "vocab_version": "v3",
+    "familiarity": "on",
+    "signage_p_see": 0.3,
+    "policy": "classical",
+    "chooser": "classical",
+    "p_see_activity": {
+     "phone": 0.49,
+     "companion_talk": 1.39,
+     "move_to": 0.5
+    }
+   },
+   "final_hash": "fdf9d666ffa71fe775e19785676bf0b8412fec8c5fb739dc572e56858d4b19f3",
+   "llm_calls": 101442,
+   "p_see_activity": {
+    "table": {
+     "move_to": 0.5,
+     "wander": 1.0,
+     "in_shop": 1.0,
+     "in_place": 1.0,
+     "phone": 0.49,
+     "companion_talk": 1.39
+    },
+    "identity": false,
+    "signage_p_see": 0.3,
+    "applies_to": "p_see only (M4 (a)): the B2 visible rows are unchanged",
+    "by_kind": {
+     "move_to": {
+      "eligible": 11197,
+      "draws": 11197,
+      "shown": 1730
+     },
+     "wander": {
+      "eligible": 8232,
+      "draws": 8232,
+      "shown": 2410
+     },
+     "in_shop": {
+      "eligible": 14505,
+      "draws": 14505,
+      "shown": 4373
+     },
+     "in_place": {
+      "eligible": 65338,
+      "draws": 65338,
+      "shown": 19596
+     },
+     "phone": {
+      "eligible": 0,
+      "draws": 0,
+      "shown": 0
+     },
+     "companion_talk": {
+      "eligible": 1341,
+      "draws": 1341,
+      "shown": 548
+     }
+    },
+    "effective_p_see": {
+     "0.1500": 11197,
+     "0.3000": 88075,
+     "0.4170": 1341
+    }
+   },
+   "renderer": {
+    "prompt_tokens_mean": 1002.7801699493307,
+    "signage_gate_draws": 100613.0,
+    "signage_gate_shown": 28657.0,
+    "signage_p_see": 0.3,
+    "signage_shown_rate": 0.2848240287040442,
+    "tokens_cell_mean": 140.0239250014787,
+    "tokens_individual_mean": 116.92407484079573,
+    "tokens_shared_static_mean": 745.8321701070563
+   },
+   "exposures": {
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 6.0,
+     "p50": 29.0,
+     "p90": 70.0,
+     "p100": 207.0,
+     "mean": 34.6312
+    },
+    "exposures_signage_entry_by_kind": {
+     "in_place": 1054,
+     "wander": 15383,
+     "move_to": 9022,
+     "in_shop": 158
+    }
+   },
+   "purchases": 1694,
+   "meals_in_area": 9596,
+   "action_usage_llm": {
+    "移動": 34994,
+    "購入": 1749,
+    "なし": 64881,
+    "会話": 936,
+    "就寝": 624,
+    "食事": 11990
+   }
+  }
+ ]
+}

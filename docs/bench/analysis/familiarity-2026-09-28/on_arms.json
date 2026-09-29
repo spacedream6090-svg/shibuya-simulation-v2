@@ -1,0 +1,556 @@
+{
+ "schema": "shibuya.bench/familiarity-2026-09-28/on/1",
+ "n_agents": 5000,
+ "seed": 1,
+ "arms": [
+  {
+   "familiarity": "off",
+   "k": 0,
+   "final_hash": "a1036ab5b06e461c6c6757f477223c54268c1a60b8b4b18681cac8ad520ad0b4",
+   "final_wo_familiarity": "",
+   "llm_calls": 68781,
+   "agents_bytes_total": 720000,
+   "wall_seconds_nondeterministic": 26.74,
+   "peak_working_set_bytes_nondeterministic": 491274240,
+   "summary": {},
+   "top3_examples": []
+  },
+  {
+   "familiarity": "on",
+   "k": 64,
+   "final_hash": "5a7d2b622c8206c21bdc593b1a5787d2e9f2e4938e4b281b1bc6573110da243c",
+   "final_wo_familiarity": "a1036ab5b06e461c6c6757f477223c54268c1a60b8b4b18681cac8ad520ad0b4",
+   "llm_calls": 68781,
+   "agents_bytes_total": 5840000,
+   "wall_seconds_nondeterministic": 27.42,
+   "peak_working_set_bytes_nondeterministic": 500510720,
+   "summary": {
+    "k": 64,
+    "d": 0.5,
+    "counts": {
+     "evictions": 2504,
+     "exposures_place": 92135,
+     "exposures_signage_entry": 88799,
+     "exposures_signage_entry_dedup": 2442,
+     "exposures_signage_render": 68253,
+     "merged": 130021,
+     "new_rows": 128802,
+     "visits": 9636
+    },
+    "rows_used_per_agent": {
+     "p0": 0.0,
+     "p10": 3.0,
+     "p50": 23.0,
+     "p90": 51.0,
+     "p100": 64.0,
+     "mean": 25.2596
+    },
+    "full_agents": 195,
+    "visits_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 5.0,
+     "p100": 11.0,
+     "mean": 1.9178
+    },
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 11.0,
+     "p50": 43.0,
+     "p90": 97.0,
+     "p100": 282.0,
+     "mean": 49.3166
+    },
+    "rows_by_kind": {
+     "place": 65171,
+     "poi": 61127
+    },
+    "rows_visit_only": 4221,
+    "rows_exposure_only": 120176,
+    "rows_both": 1901,
+    "A": {
+     "p0": -2.9431,
+     "p10": -2.7041,
+     "p50": -2.1621,
+     "p90": -1.0513,
+     "p100": 1.3225,
+     "mean": -2.0232
+    },
+    "A_visit_only": {
+     "p0": -2.9424,
+     "p10": -2.6979,
+     "p50": -2.2457,
+     "p90": -1.344,
+     "p100": -0.1116,
+     "mean": -2.1301
+    },
+    "A_exposure_only": {
+     "p0": -2.9431,
+     "p10": -2.7058,
+     "p50": -2.1767,
+     "p90": -1.1223,
+     "p100": 1.3225,
+     "mean": -2.046
+    },
+    "A_both": {
+     "p0": -2.0891,
+     "p10": -1.0101,
+     "p50": -0.2984,
+     "p90": 0.2719,
+     "p100": 0.7943,
+     "mean": -0.3468
+    },
+    "top3_kinds": {
+     "poi": 12526,
+     "place": 1754
+    }
+   },
+   "top3_examples": [
+    {
+     "agent": 4,
+     "rows": 64,
+     "top3": [
+      {
+       "thing": 2291,
+       "kind": "poi",
+       "A": -0.2427539078908505,
+       "visits": 0,
+       "exposures": 8
+      },
+      {
+       "thing": 762,
+       "kind": "poi",
+       "A": -0.3129250184916468,
+       "visits": 0,
+       "exposures": 11
+      },
+      {
+       "thing": 2060,
+       "kind": "poi",
+       "A": -0.36411925018560787,
+       "visits": 0,
+       "exposures": 7
+      }
+     ]
+    },
+    {
+     "agent": 27,
+     "rows": 64,
+     "top3": [
+      {
+       "thing": -263,
+       "kind": "place",
+       "A": 0.34657359027997264,
+       "visits": 0,
+       "exposures": 1
+      },
+      {
+       "thing": 881,
+       "kind": "poi",
+       "A": 0.34657359027997264,
+       "visits": 0,
+       "exposures": 1
+      },
+      {
+       "thing": 2253,
+       "kind": "poi",
+       "A": 0.2876820724517808,
+       "visits": 0,
+       "exposures": 2
+      }
+     ]
+    },
+    {
+     "agent": 28,
+     "rows": 64,
+     "top3": [
+      {
+       "thing": 2064,
+       "kind": "poi",
+       "A": -0.45814536593707755,
+       "visits": 0,
+       "exposures": 6
+      },
+      {
+       "thing": 122,
+       "kind": "poi",
+       "A": -0.8317525668521881,
+       "visits": 0,
+       "exposures": 6
+      },
+      {
+       "thing": 1895,
+       "kind": "poi",
+       "A": -0.8636104740452422,
+       "visits": 1,
+       "exposures": 7
+      }
+     ]
+    }
+   ],
+   "wo_familiarity_equals_off": true,
+   "d_agents_bytes": 5120000,
+   "d_peak_working_set_bytes_nondeterministic": 9236480,
+   "d_wall_seconds_nondeterministic": 0.68
+  },
+  {
+   "familiarity": "on",
+   "k": 32,
+   "final_hash": "75c5bb54ac1f7b642058ef9b1056b92de67edd043fba9298b4230936b1d226d3",
+   "final_wo_familiarity": "a1036ab5b06e461c6c6757f477223c54268c1a60b8b4b18681cac8ad520ad0b4",
+   "llm_calls": 68781,
+   "agents_bytes_total": 3280000,
+   "wall_seconds_nondeterministic": 28.19,
+   "peak_working_set_bytes_nondeterministic": 477757440,
+   "summary": {
+    "k": 32,
+    "d": 0.5,
+    "counts": {
+     "evictions": 29576,
+     "exposures_place": 92135,
+     "exposures_signage_entry": 88799,
+     "exposures_signage_entry_dedup": 2442,
+     "exposures_signage_render": 68253,
+     "merged": 126563,
+     "new_rows": 132260,
+     "visits": 9636
+    },
+    "rows_used_per_agent": {
+     "p0": 0.0,
+     "p10": 3.0,
+     "p50": 23.0,
+     "p90": 32.0,
+     "p100": 32.0,
+     "mean": 20.5368
+    },
+    "full_agents": 1679,
+    "visits_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 4.0,
+     "p100": 11.0,
+     "mean": 1.759
+    },
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 11.0,
+     "p50": 42.0,
+     "p90": 75.0,
+     "p100": 206.0,
+     "mean": 43.109
+    },
+    "rows_by_kind": {
+     "place": 51132,
+     "poi": 51552
+    },
+    "rows_visit_only": 3574,
+    "rows_exposure_only": 97223,
+    "rows_both": 1887,
+    "A": {
+     "p0": -2.9431,
+     "p10": -2.6836,
+     "p50": -2.044,
+     "p90": -0.8941,
+     "p100": 1.3225,
+     "mean": -1.9316
+    },
+    "A_visit_only": {
+     "p0": -2.9424,
+     "p10": -2.6863,
+     "p50": -2.1531,
+     "p90": -1.244,
+     "p100": -0.1116,
+     "mean": -2.0752
+    },
+    "A_exposure_only": {
+     "p0": -2.9431,
+     "p10": -2.6847,
+     "p50": -2.0544,
+     "p90": -0.9685,
+     "p100": 1.3225,
+     "mean": -1.9573
+    },
+    "A_both": {
+     "p0": -2.0891,
+     "p10": -0.9837,
+     "p50": -0.2903,
+     "p90": 0.2757,
+     "p100": 0.7943,
+     "mean": -0.3351
+    },
+    "top3_kinds": {
+     "poi": 12520,
+     "place": 1760
+    }
+   },
+   "top3_examples": [
+    {
+     "agent": 2,
+     "rows": 32,
+     "top3": [
+      {
+       "thing": 1076,
+       "kind": "poi",
+       "A": -0.17046329348529676,
+       "visits": 0,
+       "exposures": 16
+      },
+      {
+       "thing": 2312,
+       "kind": "poi",
+       "A": -0.9849528273057642,
+       "visits": 1,
+       "exposures": 4
+      },
+      {
+       "thing": -291,
+       "kind": "place",
+       "A": -1.0854189110815122,
+       "visits": 0,
+       "exposures": 4
+      }
+     ]
+    },
+    {
+     "agent": 4,
+     "rows": 32,
+     "top3": [
+      {
+       "thing": 2291,
+       "kind": "poi",
+       "A": -0.2427539078908505,
+       "visits": 0,
+       "exposures": 8
+      },
+      {
+       "thing": 762,
+       "kind": "poi",
+       "A": -0.3129250184916468,
+       "visits": 0,
+       "exposures": 11
+      },
+      {
+       "thing": 2060,
+       "kind": "poi",
+       "A": -0.36411925018560787,
+       "visits": 0,
+       "exposures": 7
+      }
+     ]
+    },
+    {
+     "agent": 8,
+     "rows": 32,
+     "top3": [
+      {
+       "thing": 694,
+       "kind": "poi",
+       "A": -0.11950845023525014,
+       "visits": 0,
+       "exposures": 10
+      },
+      {
+       "thing": 733,
+       "kind": "poi",
+       "A": -0.6716454962668088,
+       "visits": 1,
+       "exposures": 6
+      },
+      {
+       "thing": 1953,
+       "kind": "poi",
+       "A": -0.6828375369585777,
+       "visits": 0,
+       "exposures": 7
+      }
+     ]
+    }
+   ],
+   "wo_familiarity_equals_off": true,
+   "d_agents_bytes": 2560000,
+   "d_peak_working_set_bytes_nondeterministic": -13516800,
+   "d_wall_seconds_nondeterministic": 1.45
+  },
+  {
+   "familiarity": "on",
+   "k": 128,
+   "final_hash": "617cdddd7c286c9a8492bab5c8d17454d5161b8a7e9d34ec3400cc80494577e9",
+   "final_wo_familiarity": "a1036ab5b06e461c6c6757f477223c54268c1a60b8b4b18681cac8ad520ad0b4",
+   "llm_calls": 68781,
+   "agents_bytes_total": 10960000,
+   "wall_seconds_nondeterministic": 28.25,
+   "peak_working_set_bytes_nondeterministic": 483606528,
+   "summary": {
+    "k": 128,
+    "d": 0.5,
+    "counts": {
+     "evictions": 39,
+     "exposures_place": 92135,
+     "exposures_signage_entry": 88799,
+     "exposures_signage_entry_dedup": 2442,
+     "exposures_signage_render": 68253,
+     "merged": 130299,
+     "new_rows": 128524,
+     "visits": 9636
+    },
+    "rows_used_per_agent": {
+     "p0": 0.0,
+     "p10": 3.0,
+     "p50": 23.0,
+     "p90": 51.0,
+     "p100": 128.0,
+     "mean": 25.697
+    },
+    "full_agents": 2,
+    "visits_per_agent": {
+     "p0": 0.0,
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 5.0,
+     "p100": 11.0,
+     "mean": 1.9272
+    },
+    "exposures_per_agent": {
+     "p0": 0.0,
+     "p10": 11.0,
+     "p50": 43.0,
+     "p90": 98.0,
+     "p100": 362.0,
+     "mean": 49.8296
+    },
+    "rows_by_kind": {
+     "place": 66500,
+     "poi": 61985
+    },
+    "rows_visit_only": 4262,
+    "rows_exposure_only": 122321,
+    "rows_both": 1902,
+    "A": {
+     "p0": -2.9431,
+     "p10": -2.7081,
+     "p50": -2.1767,
+     "p90": -1.0653,
+     "p100": 1.3225,
+     "mean": -2.0332
+    },
+    "A_visit_only": {
+     "p0": -2.9424,
+     "p10": -2.7007,
+     "p50": -2.2471,
+     "p90": -1.3456,
+     "p100": -0.1116,
+     "mean": -2.1348
+    },
+    "A_exposure_only": {
+     "p0": -2.9431,
+     "p10": -2.7086,
+     "p50": -2.1894,
+     "p90": -1.1309,
+     "p100": 1.3225,
+     "mean": -2.0559
+    },
+    "A_both": {
+     "p0": -2.0891,
+     "p10": -1.0101,
+     "p50": -0.2989,
+     "p90": 0.2719,
+     "p100": 0.7943,
+     "mean": -0.3477
+    },
+    "top3_kinds": {
+     "poi": 12527,
+     "place": 1753
+    }
+   },
+   "top3_examples": [
+    {
+     "agent": 2105,
+     "rows": 128,
+     "top3": [
+      {
+       "thing": 1143,
+       "kind": "poi",
+       "A": 1.0769749090350595,
+       "visits": 0,
+       "exposures": 31
+      },
+      {
+       "thing": -449,
+       "kind": "place",
+       "A": 0.5874266837163535,
+       "visits": 0,
+       "exposures": 19
+      },
+      {
+       "thing": -423,
+       "kind": "place",
+       "A": 0.5157364929152406,
+       "visits": 0,
+       "exposures": 18
+      }
+     ]
+    },
+    {
+     "agent": 4300,
+     "rows": 128,
+     "top3": [
+      {
+       "thing": 720,
+       "kind": "poi",
+       "A": -0.1204917347212704,
+       "visits": 2,
+       "exposures": 8
+      },
+      {
+       "thing": 186,
+       "kind": "poi",
+       "A": -0.29435225859617375,
+       "visits": 0,
+       "exposures": 11
+      },
+      {
+       "thing": 10,
+       "kind": "poi",
+       "A": -0.5284697961337712,
+       "visits": 0,
+       "exposures": 7
+      }
+     ]
+    },
+    {
+     "agent": 411,
+     "rows": 122,
+     "top3": [
+      {
+       "thing": -259,
+       "kind": "place",
+       "A": 0.6931471805599453,
+       "visits": 0,
+       "exposures": 1
+      },
+      {
+       "thing": 1814,
+       "kind": "poi",
+       "A": 0.6931471805599453,
+       "visits": 0,
+       "exposures": 1
+      },
+      {
+       "thing": -260,
+       "kind": "place",
+       "A": 0.34657359027997264,
+       "visits": 0,
+       "exposures": 1
+      }
+     ]
+    }
+   ],
+   "wo_familiarity_equals_off": true,
+   "d_agents_bytes": 10240000,
+   "d_peak_working_set_bytes_nondeterministic": -7667712,
+   "d_wall_seconds_nondeterministic": 1.51
+  }
+ ]
+}

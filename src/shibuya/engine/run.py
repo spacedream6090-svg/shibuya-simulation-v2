@@ -49,10 +49,11 @@ from __future__ import annotations
 
 import argparse
 import time
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Final, Mapping
+from typing import Any, Callable, Final, Mapping
 
 import blake3 as _blake3
 import numpy as np
@@ -68,6 +69,7 @@ from shibuya.agents.state import (
     WAKE_CONDITION_CLASS,
     Activity,
     AgentState,
+    ResultCode,
     WakeCondition,
 )
 from shibuya.core.growth import GrowthReport, check_growth
@@ -77,8 +79,64 @@ from shibuya.engine import commit as C
 from shibuya.engine import growth_decl as GD
 from shibuya.engine import resolve as R
 from shibuya.engine.activity import ActivityLayer, payload_of
-from shibuya.engine.arbiter import Arbiter, WakeCandidates, call_budget_per_tick
+from shibuya.engine.intent import INTENT_MAX_TICKS, IntentLayer
+from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES, FamiliarityLayer
+from shibuya.engine.memory import MEMORY_MODES, MEMORY_N, RECALL_TAU, MemoryLayer
+from shibuya.engine.wom import WomExtractor
+from shibuya.engine.store_choice import StoreChoice
+from shibuya.engine.store_choice import walk_m_per_tick as _walk_m_per_tick
+from shibuya.engine.memory import STORE_RECALL_SCOPES
+from shibuya.engine.relations import (
+    REL_D,
+    REL_INIT_DENSITIES,
+    REL_K,
+    REL_MODES,
+    REL_ORIGINS,
+    REL_TAU,
+    REL_TENURE_WEEKS,
+    initial_edges as _rel_initial_edges,
+)
+from shibuya.engine.wom import hear as wom_hear
+from shibuya.engine.store_memory import (
+    DEFAULT_STORE_DECAY,
+    STORE_MEMORY_MODES,
+    STORE_MEMORY_N,
+    check_store_decay,
+    check_store_sigma,
+)
+from shibuya.engine.energy import (
+    DEFAULT_ENERGY_RATE,
+    EnergyLayer,
+    EnergyModel,
+    OutOfAreaMeals,
+    check_energy_rate,
+    check_hunger_model,
+    load_anchors,
+)
+from shibuya.engine.arbiter import (
+    L4_LINE_PER_AGENT_DAY,
+    Arbiter,
+    WakeCandidates,
+    call_budget_per_tick,
+)
 from shibuya.engine.change_detect import ChangeDetector
+from shibuya.engine.chooser import (
+    DEFAULT_CHOOSER,
+    HABIT_P,
+    RANK_TAU,
+    check_chooser,
+    make_chooser,
+)
+from shibuya.engine.classical import (
+    DEFAULT_ACTIVITY_REGION,
+    DEFAULT_POLICY,
+    ActivityPrior,
+    ClassicalPolicy,
+    check_activity_region,
+    check_policy,
+    day_kind_of,
+    load_activity_prior,
+)
 from shibuya.engine.conversation import ConversationManager
 from shibuya.engine.geometry import (
     DEFAULT_GEOMETRY,
@@ -98,6 +156,14 @@ from shibuya.engine.processes.salient import (
 from shibuya.engine.presence import DERIVE_RULES as PRESENCE_DERIVE_RULES
 from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
 from shibuya.engine.presence import PlanExecutor
+from shibuya.engine.poi_target import (
+    DEFAULT_POI_TARGET,
+    MOVE_SEARCH_RADIUS_CELLS,
+    TargetResolver,
+    check_poi_target,
+    move_resolution_summary,
+    resolution_summary,
+)
 from shibuya.engine.llm_bridge import (
     DEFAULT_LANE,
     LLMBridge,
@@ -118,11 +184,19 @@ from shibuya.llm.fleet import (
 from shibuya.llm.mock import MockLLM
 from shibuya.perception.channels import BudgetMode
 from shibuya.perception.renderer import (
+    DEFAULT_NEAR_ORDER,
+    DEFAULT_NEAR_TIEBREAK,
     DEFAULT_START_DATETIME,
+    NEAR_ORDERS,
+    NEAR_TIEBREAKS,
     SIGNAGE_P_SEE_DEFAULT,
+    check_near_order,
+    check_near_tiebreak,
     PerceptionAssets,
     Renderer as PerceptionRenderer,
     check_signage_p_see,
+    check_p_see_activity,
+    P_SEE_ACTIVITY_KINDS,
 )
 from shibuya.perception.templates import (
     INTENT_MODES,
@@ -138,7 +212,7 @@ from shibuya.world.assets import (
     load_process_assets_or_synthetic,
     load_walkable_area_m2,
 )
-from shibuya.world.state import World
+from shibuya.world.state import World, check_eatery_mode
 
 __all__ = [
     "DIAG_RUN_COLUMNS",
@@ -200,7 +274,119 @@ DIAG_DAY_ROWS: Final[tuple[str, ...]] = (
 )
 
 
-def _default_mock(seed: int | str, vocab_version: str) -> Any:
+#: 5b 層の記録の起床入口(``engine.run`` の診断と同じ 6 つ)。
+_ENTRANCES: Final[tuple[str, ...]] = ("場所", "体", "日課", "会話", "満了", "社会")
+_ENTRANCE_PLAN: Final[int] = 2
+_ENTRANCE_EXPIRY: Final[int] = 4
+#: 起床条件 → 起床入口の索引。
+_ENTRANCE_OF_CONDITION: Final[np.ndarray] = np.array(
+    [
+        {
+            "CELL_BLOCK": 0, "INTEROCEPTION": 1,
+            "PLAN_SLEEPING": 2, "PLAN_WORKING": 2, "PLAN_GENERAL": 2, "PLAN_TRANSIT": 2,
+            "CONVERSATION_TURN": 3, "ACTIVITY_EXPIRY": 4,
+        }.get(WakeCondition(i).name, 5)
+        for i in range(N_WAKE_CONDITIONS_ALL)
+    ],
+    dtype=np.int64,
+)
+#: 層の名(SOFAI 形式の記録の鍵)。
+DECISION_LAYERS: Final[tuple[str, ...]] = ("system1", "system1_5", "system2")
+
+
+#: C10 8b(R13): 会話クラス(会話ターン起床)の呼の割合の監査線(宣言=超えたら記録・絞らない=D-110)。
+L4_CONVERSATION_SHARE_LINE: Final[float] = 0.15
+
+
+def decision_layers_summary(counts: np.ndarray) -> dict[str, Any]:
+    """5b(L4 (a)): 時 × 層 × 起床入口 の判断数 → manifest の形(割合つき)。"""
+    c = np.asarray(counts, dtype=np.int64)
+    tot = c.sum(axis=(0, 2))
+    all_ = int(tot.sum())
+    by_hour = []
+    for h in range(c.shape[0]):
+        row = {DECISION_LAYERS[k]: int(c[h, k].sum()) for k in range(c.shape[1])}
+        n = sum(row.values())
+        row["share"] = {k: (round(v / n, 4) if n else 0.0) for k, v in list(row.items())}
+        by_hour.append(row)
+    return {
+        "definition": "system1=engine executed a plan without a call (planned sleep, intent "
+                      "arrival, presence arrival/departure); system1_5=call answered by the "
+                      "classical policy; system2=call answered by LLM or mock",
+        "entrances": list(_ENTRANCES),
+        "totals": {DECISION_LAYERS[k]: int(tot[k]) for k in range(c.shape[1])},
+        "share": {DECISION_LAYERS[k]: (round(int(tot[k]) / all_, 4) if all_ else 0.0)
+                  for k in range(c.shape[1])},
+        "by_entrance": {
+            DECISION_LAYERS[k]: {e: int(c[:, k, j].sum()) for j, e in enumerate(_ENTRANCES)}
+            for k in range(c.shape[1])
+        },
+        "by_hour": by_hour,
+        "by_hour_layer_entrance": c.tolist(),
+    }
+
+
+def _count_intero_crossings(det: Any, agents: AgentState, acc: np.ndarray) -> None:
+    """5 段目 5a(診断): この tick の内受容の跨ぎを 変数 × 上げ/下げ × 全体/起きて範囲内 で数える。
+
+    ``apply_detection`` の**前**に呼ぶ(前回段=``<var>_stage`` がまだ書き戻されていない)。
+    読むだけ=挙動に効かない。逐次ループ宣言: 内受容 3 変数ぶん(体数に比例しない)。
+    """
+    r = agents.registry
+    for c in det.crossings:
+        if not c.agent_id.size:
+            continue
+        ids = c.agent_id
+        old = np.asarray(r.field(c.stage_field))[ids].astype(np.int16)
+        up = np.asarray(c.new_stage).astype(np.int16) > old
+        awake = (np.asarray(r.activity)[ids] != int(Activity.SLEEPING)) & (
+            np.asarray(r.transit_state)[ids] == 0
+        )
+        acc[c.var, 0, 0] += int(np.count_nonzero(up))
+        acc[c.var, 1, 0] += int(np.count_nonzero(~up))
+        acc[c.var, 0, 1] += int(np.count_nonzero(up & awake))
+        acc[c.var, 1, 1] += int(np.count_nonzero(~up & awake))
+
+
+def _named_closed_lookup(
+    resolver: Any, runner: Any, day_index: int, tick_seconds: int
+) -> Callable[[int], tuple[int, int, int] | None]:
+    """段 2c Q25: 体 → ``(POI, 即時閉店の tick, 次の開店の分)`` を引く関数(描画が読む)。
+
+    開店の分=W7 の営業時間過程(``OpeningProcess``)の当日の行列で、失敗の分より後の最初の営業分。
+    当日に無ければ翌日(曜日+1)の W7 区間の最初の開始分。W7 が無い(合成世界)・区間が無い店は
+    ``-1``(時刻を出さない)。逐次ループ宣言: なし(引くのは描画 1 回につき 1 件)。
+    """
+    opening = getattr(runner, "opening", None) if runner is not None else None
+    om = getattr(opening, "open_matrix", None)
+    pa = getattr(opening, "assets", None)
+
+    def look(agent_id: int) -> tuple[int, int, int] | None:
+        got = resolver.named_closed.get(int(agent_id))
+        if got is None:
+            return None
+        poi, t = int(got[0]), int(got[1])
+        nxt = -1
+        if om is not None and om.size and 0 <= poi < om.shape[0]:
+            minute = int(t * int(tick_seconds) // 60) % om.shape[1]
+            later = np.flatnonzero(om[poi, minute + 1:])
+            if later.size:
+                nxt = minute + 1 + int(later[0])
+            elif pa is not None and getattr(pa, "plan_poi", None) is not None:
+                sel = (np.asarray(pa.plan_poi) == poi) & (
+                    np.asarray(pa.plan_day) == (int(day_index) + 1) % 7
+                )
+                if bool(np.any(sel)):
+                    nxt = int(np.asarray(pa.plan_start)[sel].min()) % 1_440
+        return poi, t, nxt
+
+    return look
+
+
+def _default_mock(
+    seed: int | str, vocab_version: str, move_target_p: float = 0.0,
+    out_of_cell_target_p: float = 0.0,
+) -> Any:
     """``llm`` を注入しないランの既定 mock(``MockLLM``)。**語彙版に語彙を合わせる**。
 
     ``MockLLM`` はプロンプト本文を読まない(=B0 に 13 語目を載せても出力は変わらない)ので、
@@ -215,7 +401,13 @@ def _default_mock(seed: int | str, vocab_version: str) -> Any:
         return MockLLM(master_seed=seed)
     if str(vocab_version) == "v3":
         # 二層の段 3: 5 ラベル形(行為=11 語+なし の一様・活動・まで・あたり)=``llm.mock``
-        return MockLLM(master_seed=seed, vocab=cross_action_words("v3"), form="v3")
+        # 段 2b: ``move_target_p`` > 0 で移動の対象にカテゴリ語/見えている名を出す(既定 0=不変)
+        # 段 2c: ``out_of_cell_target_p`` > 0 で購入/食事/並ぶの対象に B2 に見える名を出す(既定 0=不変)
+        return MockLLM(
+            master_seed=seed, vocab=cross_action_words("v3"), form="v3",
+            move_target_p=float(move_target_p),
+            out_of_cell_target_p=float(out_of_cell_target_p),
+        )
     return MockLLM(master_seed=seed, vocab=cross_action_words(vocab_version))
 
 
@@ -322,6 +514,10 @@ class RunResult:
     #: このランで**実際に使った** 1 tick の呼数上限(``Arbiter.budget``)。既定のランでは
     #: ``arbiter.call_budget_per_tick(n_agents)``(5,000 体で 34.72)。
     budget_per_tick: float = 0.0
+    #: 3 段目(D-99 (a′)・D-110): L4 の監査の注記(例: 艦隊×無制限で受理待ち枠が未指定=D-55)。
+    l4_notes: list[str] = field(default_factory=list)
+    #: 1 tick の秒数(呼/体/日の日数換算に使う)。
+    tick_seconds: int = DEFAULT_TICK_SECONDS
     #: p_notice の ablation(§3.1 A0-A4)。既定 ``A4``=完成形。
     p_notice_ablation: str = "A4"
     #: ablation ②(§8 第1陣)。``p_notice`` の d50 の倍率。既定 1.0=§3.1 の 40 m。
@@ -346,6 +542,63 @@ class RunResult:
     #: **行為と活動の二層**(段 2・D-116)の活動層が立ったか(= ``vocab_version="v3"`` かつ
     #: ``activity=True``)。v1/v2 では常に False(活動欄が来ない=実質無効)。
     activity: bool = False
+    #: **飲食店の切替口**(段 1b・D-96 nightlife (b))。``food``=現行(既定)/``place_food``=
+    #: W17 の場所語「飲食店」と同じ集合(``World.eatery_mask``)。
+    eatery: str = "food"
+    #: **選び手**(段 2a・D-114 (a)・``engine.chooser``)。既定 ``nearest``(憲法⑥の宣言つき暫定)。
+    chooser: str = DEFAULT_CHOOSER
+    #: 購入/食事/並ぶの対象の決め方(段 2a・親決定 Q13)。``candidates``=候補 → 選び手(既定)/
+    #: ``legacy``=現在セルの最小 id(旧 checkpoint の再現)。
+    poi_target: str = DEFAULT_POI_TARGET
+    #: 購入/食事/並ぶの対象の解決の内訳(段 2a・``engine.poi_target.resolution_summary``)。
+    #: ``legacy`` のランは空 dict(数えない)。
+    #: 段 2b: 移動の行き先の解決の内訳(``engine.poi_target.move_resolution_summary``)。
+    move_resolution: dict[str, Any] = field(default_factory=dict)
+    #: 段 2b: カテゴリ語の近傍探索で見る近いセルの数(``--move-search-radius``)。
+    move_search_radius: int = MOVE_SEARCH_RADIUS_CELLS
+    #: 段 2b: mock の移動の対象にセル ID/カテゴリ語/見えている名を出す確率(既定 0=不変)。
+    mock_move_target_p: float = 0.0
+    #: 段 2c: 意図の保持の計数(``engine.intent.intent_summary``)。層が無いランは空 dict。
+    intent: dict[str, Any] = field(default_factory=dict)
+    #: 段 2c: 意図の上限[tick](``--intent-max-ticks``・宣言 60・感度腕 30/120)。
+    intent_max_ticks: int = INTENT_MAX_TICKS
+    #: 段 2c: mock の購入/食事/並ぶの対象に B2 に見える名を出す確率(既定 0)。
+    mock_out_of_cell_target_p: float = 0.0
+    #: 4 段目(M13+M17): 親しみの表を確保したか(``--familiarity on``)・行数 K・要約。
+    familiarity: bool = False
+    familiarity_k: int = FAMILIARITY_K
+    familiarity_summary: dict[str, Any] = field(default_factory=dict)
+    #: 5 段目 5a(D-118): 空腹のモデル(``v1``=旧規則 / ``energy``=エネルギー収支)・消費の式・要約。
+    hunger_model: str = "v1"
+    energy_rate: str = ""
+    energy: dict[str, Any] = field(default_factory=dict)
+    #: 5 段目 5b(D-119): 方策(``mock``/``classical``)・方策の要約・選び手の計数・層の記録(SOFAI 形式)。
+    policy: str = DEFAULT_POLICY
+    classical: dict[str, Any] = field(default_factory=dict)
+    chooser_stats: dict[str, Any] = field(default_factory=dict)
+    decision_layers: dict[str, Any] = field(default_factory=dict)
+    #: 5 段目 5c(D-117): 看板の注視 p_see の活動の種別の乗数表・活動の種別ごとの計数・実効 p_see の分布。
+    p_see_activity: dict[str, Any] = field(default_factory=dict)
+    #: 6 段目 6a(記憶 第 1 段の記録): 表を確保したか(``--memory on``)・行数 N・要約。
+    memory: bool = False
+    memory_n: int = MEMORY_N
+    memory_summary: dict[str, Any] = field(default_factory=dict)
+    #: D-120 7a(店の評価の記憶): 表を確保したか(``--store-memory on``)・要約(行数 M・σ・減衰の形を含む)。
+    store_memory: bool = False
+    store_memory_summary: dict[str, Any] = field(default_factory=dict)
+    #: D-120 7b(会話からの抽出): 発話・抽出・向き・照合できない語・照合できた店の上位(店の記憶 on のランだけ)。
+    wom: dict[str, Any] = field(default_factory=dict)
+    #: D-120 7c(想起優先の候補合成・決め手・初回率・店頭の割合・腕の切替口の値)。店の記憶 on のランだけ。
+    store_choice: dict[str, Any] = field(default_factory=dict)
+    #: C10 8a(関係辺): 辺/体・種別・符号・A/P・τ で落ちた辺・押し出し・初期網の監査。関係 on のランだけ。
+    relations: dict[str, Any] = field(default_factory=dict)
+    #: 5 段目 5a(診断): 内受容の段の跨ぎの延べ(変数 × 上げ/下げ × 全体/起きて範囲内)。
+    #: 起床入口「体の状態」の内訳を空腹と疲労・体感温度に分けて読むため(挙動には効かない)。
+    intero_crossings: dict[str, int] = field(default_factory=dict)
+    #: 段 2b: 移動の失敗の内訳(``resolve._apply_move``)。
+    move_bad_target: int = 0
+    move_unreachable: int = 0
+    target_resolution: dict[str, Any] = field(default_factory=dict)
     #: 活動層の計数(``engine.activity.ActivityLayer.counters``)。層が無いランは空 dict。
     activity_counters: dict[str, int] = field(default_factory=dict)
     #: 活動の種別ごとの設定件数(``ActivityLayer.kind_distribution``)。層が無いランは空 dict。
@@ -408,6 +661,14 @@ class RunResult:
     n_queue_closed: int = 0
     #: 計画実行層の診断(``PlanExecutor.counters()``)。層が休んだランは空 dict。
     presence_counters: dict[str, float] = field(default_factory=dict)
+    #: 9a(D-115 ①): 退出の形・内訳・所要時間・出口セルの時別在圏(``PlanExecutor.exit_summary()``)。
+    presence_exit: dict[str, Any] = field(default_factory=dict)
+    #: 9a(D-112 ④): 退去の効果=所属解除の件数(退去・在店を解いた・列を離れた・会話を閉じた)。
+    leave_effects: dict[str, int] = field(default_factory=dict)
+    #: 小さいもの①(第300 Q107): B5 近接行の距離の同点の切り方と、撹拌で切った描画の数(列追加のみ)。
+    near_tiebreak: dict[str, Any] = field(default_factory=dict)
+    #: 第308 D-107 (a): 群・規範の計器(同行・文脈別エントロピー・役割語/NO_PERMISSION・伝播到達=読むだけ)。
+    group_norms: dict[str, Any] = field(default_factory=dict)
     #: D-66 域外抑止を効かせたか(既定 True)。False = **帰無腕**。
     outside_suppression: bool = True
     #: **発射した呼**のうち域外(``transit_state != 0``)の体宛てだった延べ数。
@@ -487,7 +748,10 @@ class RunResult:
     hotel_checkins: int = 0
     #: その日の廃棄 sink[t/日](物の台帳 + 街路清掃)と W1 band。
     waste_tonnes_per_day: float = 0.0
+    #: 第304 Q135 (a): **店だけの静的な帯**(店舗の期限切れ在庫の静的期待 ±30%)。旧=区の総排出量 119.6 t/日 ±30%。
     waste_band: tuple[float, float] = (0.0, 0.0)
+    #: 第304 Q135: 廃棄 sink の内訳 3 つ(店・世帯の消費・街路)と帯の出所(``runner.waste_sink_report``・報告だけ)。
+    waste_sink: dict[str, Any] = field(default_factory=dict)
     # ---- C6-a 実艦隊 ----
     #: ``llm.fleet.FleetConfig.manifest_fields()``(``cache_salt``・``prefix_caching_hash_algo``・
     #: ルーティング規則・in-flight 上限)。**ランが導出して押す**(親決定 09-09)。
@@ -614,10 +878,27 @@ class RunResult:
     def final_hash(self) -> str:
         return self.checkpoints[-1].combined if self.checkpoints else ""
 
+    def _waste_breakdown_text(self) -> str:
+        """要約の廃棄の内訳(店・世帯の消費・街路)。内訳の無い結果は空。"""
+        b = self.waste_sink.get("breakdown_t") if self.waste_sink else None
+        if not b:
+            return ""
+        return (f"(店 {b['store_expired_stock']:.3f}・世帯の消費 {b['household_consumption']:.3f}・"
+                f"街路 {b['street_litter']:.3f})店の帯")
+
+    def _waste_band_note(self) -> str:
+        if not self.waste_sink:
+            return ""
+        return (f"(自己整合性の検査=店の回収量 vs 静的期待 {self.waste_sink.get('expected_store_t', 0.0):.3f} t/日 ±30%・"
+                "現実との照合ではない・体数に依らない・"
+                "区の総排出量との比較は保留)")
+
     @property
     def waste_band_ok(self) -> bool:
+        """第304 Q135 (a): **店の収集量**を店だけの帯と比べる(内訳の無い結果は従来どおり総量で比べる)。"""
         lo, hi = self.waste_band
-        return bool(hi > 0.0 and lo <= self.waste_tonnes_per_day <= hi)
+        v = self.waste_sink.get("breakdown_t", {}).get("store_expired_stock") if self.waste_sink else None
+        return bool(hi > 0.0 and lo <= (self.waste_tonnes_per_day if v is None else float(v)) <= hi)
 
     def run_manifest_fields(self) -> dict[str, Any]:
         """ラン manifest の同定欄(C6 が読む)。
@@ -670,6 +951,8 @@ class RunResult:
             # ---- D-99 (a) L4 呼数予算の腕(既定 1.0=宣言どおりの按分)。腕 AB8-L4-SCALE ----
             "l4_scale": float(self.l4_scale),
             "budget_per_tick": float(self.budget_per_tick),
+            # ---- 3 段目(D-99 (a′)・D-110): L4 は監査線。総呼数と線の超過を**必ず**書く ----
+            **self.l4_audit_fields(),
             # ---- ablation 第1陣(§8)の腕。既定値のランでも欄は常に出る ----
             "p_notice_ablation": self.p_notice_ablation,
             "p_notice_d50_scale": float(self.p_notice_d50_scale),
@@ -686,6 +969,49 @@ class RunResult:
             # ---- 二層の段 2(D-116): 活動層が立ったか・種別の分布・起床の内訳。列追加のみ ----
             "activity": bool(self.activity),
             "activity_kind_counts": dict(self.activity_kind_counts),
+            # ---- 段 1b(D-96 nightlife (b)): 飲食店の切替口(既定 food=現行)。列追加のみ ----
+            "eatery": str(self.eatery),
+            # ---- 段 2a(D-114 (a)): 選び手と対象の解決の内訳 (i)〜(iv)。列追加のみ ----
+            "chooser": str(self.chooser),
+            "poi_target": str(self.poi_target),
+            "target_resolution": dict(self.target_resolution),
+            # ---- 段 2b(D-112 ②): 移動の行き先の解決の内訳。列追加のみ ----
+            "move_resolution": dict(self.move_resolution),
+            "move_search_radius": int(self.move_search_radius),
+            "mock_move_target_p": float(self.mock_move_target_p),
+            # ---- 段 2c(D-112 ①・D-114 案 A): 意図の保持の計数。列追加のみ ----
+            "intent": dict(self.intent),
+            "intent_max_ticks": int(self.intent_max_ticks),
+            "mock_out_of_cell_target_p": float(self.mock_out_of_cell_target_p),
+            # ---- 4 段目(M13 訪問+M17 露出): 親しみの表の腕。列追加のみ ----
+            "familiarity": bool(self.familiarity),
+            "familiarity_k": int(self.familiarity_k),
+            "familiarity_summary": dict(self.familiarity_summary),
+            # ---- 5 段目 5a(D-118 K1〜K9): 空腹のモデル・エネルギー収支の要約。列追加のみ ----
+            "hunger_model": str(self.hunger_model),
+            "energy_rate": str(self.energy_rate),
+            "energy": dict(self.energy),
+            "intero_crossings": dict(self.intero_crossings),
+            # ---- 5 段目 5b(D-119 L1〜L8): 方策・選び手の計数・層の記録。列追加のみ ----
+            "policy": str(self.policy),
+            "classical": dict(self.classical),
+            "chooser_stats": dict(self.chooser_stats),
+            "decision_layers": dict(self.decision_layers),
+            # ---- 5 段目 5c(D-117 M1〜M4): 活動 → 知覚の乗数。列追加のみ ----
+            "p_see_activity": dict(self.p_see_activity),
+            # ---- 6 段目 6a(記憶 第 1 段の記録): 腕。列追加のみ ----
+            "memory": bool(self.memory),
+            "memory_n": int(self.memory_n),
+            "memory_summary": dict(self.memory_summary),
+            # ---- D-120 7a(店の評価の記憶): 腕。列追加のみ ----
+            "store_memory": bool(self.store_memory),
+            "store_memory_summary": dict(self.store_memory_summary),
+            # ---- D-120 7b(会話からの抽出): 列追加のみ ----
+            "wom": dict(self.wom),
+            # ---- D-120 7c(想起優先・決め手): 列追加のみ ----
+            "store_choice": dict(self.store_choice),
+            # ---- C10 8a(関係辺): 列追加のみ ----
+            "relations": dict(self.relations),
             "calls_by_condition": dict(self.calls_by_condition),
             "synonym_table_version": _synonym_table_version(self.vocab_version),
             "action_usage": dict(self.action_usage),
@@ -696,6 +1022,14 @@ class RunResult:
             # ---- D-66 計画実行層(既定 True・W16+W17 のあるランだけ立つ) ----
             "plan_executor": bool(self.plan_executor),
             "exit_mode": str(self.exit_mode),
+            # ---- 9a: 退出の形の内訳と退去の効果(列追加のみ) ----
+            "presence_exit": dict(self.presence_exit),
+            "leave_effects": dict(self.leave_effects),
+            "near_tiebreak": dict(self.near_tiebreak),
+            # ---- 第308 D-107 (a): 群・規範の計器(列追加のみ・判定しない) ----
+            "group_norms": dict(self.group_norms),
+            # ---- 第304 Q135 (a): 廃棄 sink の内訳と店だけの帯(列追加のみ・報告だけ) ----
+            "waste_sink": dict(self.waste_sink),
             "attendance_rate": float(self.attendance_rate),
             "derive_rule": str(self.derive_rule),
             "outside_suppression": bool(self.outside_suppression),
@@ -716,6 +1050,34 @@ class RunResult:
             "frozen_sources": dict(self.frozen_sources),
             # 実艦隊(C6-a)。mock/tape ランでは空 dict(欄は常にある)。
             "fleet": dict(self.fleet_fields),
+        }
+
+    def l4_audit_fields(self) -> dict[str, Any]:
+        """L4 の監査欄(D-110「ランごとの総呼数を必ず記録」)。
+
+        ``llm_calls_total``=発射した呼の数(再送も 1 呼=``llm_calls``)・``llm_calls_per_agent_day``=
+        総呼数 ÷ 体数 ÷ シミュ日数(``ticks × tick_seconds / 86,400``)・``l4_line``=監査線
+        ``L4_LINE_PER_AGENT_DAY``(10 呼/体/日)・``l4_exceeded``=線を超えたか・``l4_notes``=注記。
+        """
+        days = float(self.ticks) * float(self.tick_seconds) / 86_400.0
+        per = (
+            float(self.llm_calls) / float(self.n_agents) / days
+            if (self.n_agents and days > 0.0)
+            else 0.0
+        )
+        conv_calls = int(self.calls_by_condition.get("CONVERSATION_TURN", 0))
+        all_calls = int(sum(int(v) for v in self.calls_by_condition.values()))
+        conv_share = round(conv_calls / all_calls, 6) if all_calls else 0.0
+        return {
+            "llm_calls_total": int(self.llm_calls),
+            "llm_calls_per_agent_day": round(per, 6),
+            "l4_line": float(L4_LINE_PER_AGENT_DAY),
+            "l4_exceeded": bool(per > float(L4_LINE_PER_AGENT_DAY)),
+            "l4_notes": list(self.l4_notes),
+            # ---- C10 8b(R13): 会話クラスの呼の割合の監査線(超えても絞らない=記録だけ) ----
+            "l4_conversation_share": conv_share,
+            "l4_conversation_line": float(L4_CONVERSATION_SHARE_LINE),
+            "l4_conversation_exceeded": bool(conv_share > float(L4_CONVERSATION_SHARE_LINE)),
         }
 
     @property
@@ -795,6 +1157,17 @@ class RunResult:
             f"{self.movement_cpu_ms_per_tick:.3f} ms/tick (P2 上限 5) ・待ち割合 "
             f"{self.movement_gil_wait_ratio:.2f}",
         ]
+        # 5 段目 5a: エネルギー収支のランだけ 1 行(v1 の summary は 1 文字も変わらない)
+        if str(self.hunger_model) == "energy" and self.energy:
+            _c = self.energy.get("counts", {})
+            _pa = self.energy.get("census_per_agent", {})
+            lines.append(
+                f"  空腹 energy({self.energy_rate}) 食事 範囲内 {int(_c.get('meals_in_area', 0)):,}"
+                f" / 範囲外 {int(_c.get('meals_out_of_area', 0)):,} / 軽食 "
+                f"{int(_c.get('snacks', 0)):,} / 飲料 {int(_c.get('drinks', 0)):,} ・収支/体 摂取 "
+                f"{_pa.get('intake_kcal', 0.0):,.0f} − 消費 {_pa.get('expenditure_kcal', 0.0):,.0f}"
+                f" = {_pa.get('balance_kcal', 0.0):,.0f} kcal(EER {_pa.get('eer_kcal', 0.0):,.0f})"
+            )
         # C9: edge 幾何のランだけ 1 行(既定 node の summary は 1 文字も変わらない)
         if str(self.geometry) != DEFAULT_GEOMETRY:
             lines.append(
@@ -870,8 +1243,8 @@ class RunResult:
                 f"{self.parcels:,} / バス到着 {self.bus_arrivals:,} / ホテル泊 "
                 f"{self.hotel_checkins:,} / 顕著行為 {self.salient_events:,}(気づき "
                 f"{self.noticed:,}・出動 {self.dispatches:,}) / 廃棄 "
-                f"{self.waste_tonnes_per_day:.3f} t/日 (band {self.waste_band[0]:.1f}-"
-                f"{self.waste_band[1]:.1f}) {'OK' if self.waste_band_ok else 'NG'}"
+                f"{self.waste_tonnes_per_day:.3f} t/日{self._waste_breakdown_text()} (band {self.waste_band[0]:.2f}-"
+                f"{self.waste_band[1]:.2f}) {'OK' if self.waste_band_ok else 'NG'}{self._waste_band_note()}"
             )
             if self.census_row:
                 lines.append(
@@ -1135,16 +1508,18 @@ def _target_poi(target: Any) -> int:
     return -1 if pid is None else int(pid)
 
 
-def _pending_extra(res: Any) -> tuple[int, int, Any]:
-    """応答 → ``(対象ヒント索引, 目印 POI 索引, 活動)``。
+def _pending_extra(res: Any) -> tuple[int, int, Any, Any]:
+    """応答 → ``(対象ヒント索引, 目印 POI 索引, 活動, 対象)``。
 
     C9b G5/G6(腕が立っていなければ ``(0, -1)``)+ **二層の段 2** の活動
-    (``engine.activity.payload_of``・語彙 v3 の応答だけ・それ以外は ``None``)。
+    (``engine.activity.payload_of``・語彙 v3 の応答だけ・それ以外は ``None``)+
+    **段 2a** の対象(``llm.contract.Target``・購入/食事/並ぶの候補の絞り込みが読む)。
     """
     return (
         C.target_hint_code(getattr(res, "target_hint", "")),
         _target_poi(getattr(res, "target", None)),
         payload_of(res),
+        getattr(res, "target", None),
     )
 
 
@@ -1183,10 +1558,14 @@ def run_day(
     intent_mode: str = INTENT_MODES[0],
     vocab_version: str = VOCAB_VERSIONS[0],
     role_words: bool | str = True,
+    near_tiebreak: str = DEFAULT_NEAR_TIEBREAK,
+    near_order: str = DEFAULT_NEAR_ORDER,
+    group_norms: bool | str = True,
     budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
     salient_rate_per_10k: float | None = None,
     report_precondition: bool = True,
     queue_service: bool = True,
+    leave_effect: bool = True,
     population: "Population | bool | None" = None,
     occupancy_every: int = 0,
     occupancy_path: "str | Path | None" = None,
@@ -1203,6 +1582,42 @@ def run_day(
     seat_area_retail_m2: float | None = None,
     census_out: str | Path | None = None,
     activity: bool | str = True,
+    eatery: str = "food",
+    chooser: str = DEFAULT_CHOOSER,
+    poi_target: str = DEFAULT_POI_TARGET,
+    move_search_radius: int = MOVE_SEARCH_RADIUS_CELLS,
+    mock_move_target_p: float = 0.0,
+    intent_max_ticks: int = INTENT_MAX_TICKS,
+    mock_out_of_cell_target_p: float = 0.0,
+    familiarity: bool | str = False,
+    familiarity_k: int = FAMILIARITY_K,
+    hunger_model: str = "v1",
+    energy_rate: str = DEFAULT_ENERGY_RATE,
+    policy: str = DEFAULT_POLICY,
+    activity_region: str = DEFAULT_ACTIVITY_REGION,
+    classical_habit_p: float = HABIT_P,
+    classical_tau: float = RANK_TAU,
+    p_see_activity: "Mapping[str, float] | str | None" = None,
+    memory: bool | str = False,
+    memory_n: int = MEMORY_N,
+    memory_tau: float = RECALL_TAU,
+    store_memory: bool | str = False,
+    store_memory_n: int = STORE_MEMORY_N,
+    store_sigma: "Mapping[str, float] | str | None" = None,
+    store_decay: str = DEFAULT_STORE_DECAY,
+    store_wom: bool | str = True,
+    store_signage: bool | str = True,
+    store_recall_scope: str = "all",
+    relations: bool | str = False,
+    rel_k: int = REL_K,
+    rel_tau: float = REL_TAU,
+    rel_d: float = REL_D,
+    rel_init_density: float = 1.0,
+    conv_max_participants: int = 2,
+    rel_tenure_weeks: float = REL_TENURE_WEEKS,
+    rel_invite: bool | str = True,
+    rel_acq_wake: bool | str = True,
+    rel_copresent: bool | str = False,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -1233,6 +1648,10 @@ def run_day(
         l4_scale: **manifest に載せるだけ**の同定欄(PENDING D-99 (a)・腕 AB8-L4-SCALE)。
             倍率から ``budget`` を作るのは ``cli.run``(``l4_scale>0`` なら
             ``call_budget_per_tick(n_agents)×倍率``・``0`` なら ``n_agents``=無制限)。
+            **3 段目(D-99 (a′)・D-110)**: CLI と ``cli.run`` の既定は **0=無制限**
+            (``cli.CLI_DEFAULT_L4_SCALE``)。本関数の既定(``budget=None``=L4 按分)は
+            ライブラリの切替口として残す(``--l4-scale 1`` と同じ=旧挙動)。L4 は監査線=
+            manifest の ``llm_calls_total``/``llm_calls_per_agent_day``/``l4_line``/``l4_exceeded``。
             ここでは**計算に一切使わない**=既定 1.0 のランのバイトは 1 つも動かない。
         n_cells: 合成世界を作るときのセル数。
         mode: ``"record"``(``llm`` を呼ぶ)/ ``"replay"``(テープ完全一致・テープ外は計数)。
@@ -1297,7 +1716,16 @@ def run_day(
             再生では ``False`` を渡す)。mock の checkpoint は B0 を読まないので不変。
             既定では**1 バイトも変わらない**(テンプレ本体・``template_sha256`` も不変)。
             ``INTENT_MODES`` 以外は ``ValueError``。
+        near_tiebreak: **小さいもの①(第300 Q107)** B5 近接行の距離の同点の切り方。``"hash"``(既定)=
+            run_salt の決定論ハッシュ(観る体 × 相手)で撹拌 / ``"id"`` = 旧挙動(セル内の並び=行番号の順=
+            旧 golden)。文面・近接行の並び(id 昇順)は変えない=採る人だけ。``NEAR_TIEBREAKS`` 以外は ``ValueError``。
+        near_order: **小さいもの 第 2 批①(第304 Q130)** B5 近接行の並び。``"distance"``(既定)= 距離の昇順・
+            同点は ``near_tiebreak`` の順 / ``"id"`` = 旧挙動(行番号の昇順=旧 golden)。焦点の先頭・知人の常時掲載・
+            文面は変えない。mock は B5 を読まないので final は動かない(プロンプトは動く)。
             ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
+        group_norms: **第309(Q150)** 群・規範の計器(D-107 (a)・``engine.norm_meter``=読むだけ)を回すか。
+            ``True``/``"on"``(既定=第308 のまま)/ ``False``/``"off"`` で計器の 3 つの口を通さない(manifest
+            ``group_norms`` は ``{"enabled": False}``)。計器は状態・乱数・テープに触れないので**どちらでも final は同じ**。
         vocab_version: **行動語彙の版**(D-71 §3 F・2026-09-17 ユーザー決定)。
             ``"v1"``(既定)は現行の 24 語(横断 12 + 役割 12)で、**1 バイトも変わらない**。
             ``"v2"`` は横断語「食事」(飲食店オブジェクトの affordance・コード 24)を足し、
@@ -1317,6 +1745,8 @@ def run_day(
         report_precondition: **D-113 ②(第267)** 通報の前提「当該事象を知覚済み」(直近 5 tick に
             自分のセルの B4 に顕著行為の行が出た)を検査する(既定 True)。``False`` は従来どおり
             通報が必ず成功する挙動(=帰無腕・第266 以前の checkpoint ``ba01bd0b`` を再現)。
+        leave_effect: **9a(D-112 ④)** 退去=所属解除(在店・待ち行列・会話を解く・活動欄「なし」なら次の tick に
+            満了)。既定 True=欠陥の修正。``False`` は第301 以前の挙動(IDLE 化と会話相手の解除だけ=旧 golden)。
         queue_service: **D-113 ③(第268)** 満席で並んだ体を、席が空いた分だけ並んだ順に席へ
             入れて購入/食事を完了させる(既定 True)。``False`` は第267 以前の挙動(誰も捌かず
             15 tick で ``INTERRUPTED``)。既定の mock 5,000 では列が立たないので checkpoint 不変。
@@ -1342,9 +1772,9 @@ def run_day(
             ``--no-population`` では静かに休む=既存の下限対照は無傷)。
             ``False`` = **帰無腕**(rail の乱数 12% + D-61 帰りの便 + D-62 の run.py 発火=
             現行挙動。checkpoint も 1 バイト変わらない)。
-        exit_mode: 退出の実行形(設計書 §10-3)。``"immediate"`` のみ実装、
-            ``"board_intent"`` / ``"walk_to_platform"`` は**切替口だけ予約**
-            (``NotImplementedError``)。
+        exit_mode: 退出の実行形(設計書 §10-3)。既定 ``"immediate"``(即時 ``rail_depart``)・
+            **9a(D-115 ①)** ``"walk_to_platform"``=その体の路線のホームへ歩いて受容関数を通して乗る
+            (上限 ``intent_max_ticks``・超えたら即時)。``"board_intent"`` は予約(``NotImplementedError``)。
         attendance_rate: 出勤率(D-67 (b)・expedient E6・既定 1.0)。通勤・通学の体のうち
             ``1 - rate`` の割合を ``_mix64(agent_id)`` の決定論でその日「終日域外」にする。
             **1.0 では 1 ビットも変わらない**。
@@ -1383,6 +1813,95 @@ def run_day(
             (CELL_BLOCK)で起こさない ④「移動 対象: あたり」の近傍歩行 ⑤ 同セルの B4b に
             活動の 1 行 ⑥ 休んでいる体の疲労回復(10 tick ごとに −1)⑦ 活動の文を checkpoint に
             混ぜる。``False``/``"off"`` は抑止も満了も無効=現行の挙動。
+        eatery: **飲食店の切替口**(段 1b・D-96 nightlife (b)・``World.eatery_mask``)。
+            ``"food"``(既定)=現行の ``cat`` の価格帯「飲食」(実資産 823 件)=**checkpoint は
+            1 バイトも動かない**。``"place_food"``=W17 の場所語「飲食店」と同じ集合(``food`` ∨
+            ``nightlife`` のうち subcat が club/karaoke/sauna/net_cafe でないもの・実資産 1,042 件)。
+            価格(``poi_price``)は動かさない。``EATERY_MODES`` 以外は ``ValueError``。
+        chooser: **選び手**(段 2a・D-114 (a)・``engine.chooser``)。購入/食事/並ぶの対象を
+            「現在セルの営業中・意図に合う POI の候補」→ 選び手の分布 → 抽選
+            (``core.rng.stream(seed, "engine.chooser", tick, agent_id)``)で決める。既定
+            ``"nearest"``=可視(W8 の視点数)の降順 → POI 索引(憲法⑥の宣言つき暫定)。
+            それまでの「現在セルの最小 id」から**既定 checkpoint が動く**(版の台帳
+            ``docs/bench/analysis/intent-chooser-2026-09-28/``)。
+        poi_target: **対象の決め方の切替口**(親決定 Q13)。``"candidates"``(既定)=上の
+            候補 → 選び手 / ``"legacy"``=段 2a 前の「現在セルの最小 id」(``commit._poi_in_cell``)
+            をそのまま通す=**旧 checkpoint(02bd0312 等)を再現する**。``legacy`` では
+            ``target_resolution`` を数えない(空 dict)。**段 2b の移動の行き先も従来のまま**。
+        move_search_radius: **段 2b**(行き先を対象欄から・D-112 ②)のカテゴリ語の近傍探索で
+            見る近いセルの数(現在セル・見えている POI の次に ``cell_dist`` の昇順で R 個・宣言・
+            既定 5)。0 なら近傍探索をしない。
+        mock_move_target_p: 既定 mock(語彙 v3)の移動の対象にカテゴリ語か B2 に見えている名を
+            出す確率(段 2b の経路を mock で通す腕・既定 0=golden 不変)。
+        intent_max_ticks: **段 2c(意図の保持・D-112 ①・D-114 案 A)** の上限[tick]。購入/食事/
+            並ぶ/会話/就寝の対象が現在セルに無く解決できるとき、行為を意図(SoA 4 欄・既定で確保)に
+            保存して目的地つき移動を始め、着いたら LLM を呼ばずに実行する。歩いてこの tick を
+            超えたら ``TOO_FAR``(宣言 60・expedient・感度腕 30/120)。意図の層は**活動層が立ち
+            (語彙 v3・``activity=True``)かつ ``poi_target="candidates"``** のランだけ働く
+            (v1/v2・``--activity off``・``legacy`` は欄を確保するだけ=挙動は段 2b のまま)。
+        mock_out_of_cell_target_p: 既定 mock(語彙 v3)の購入/食事/並ぶの対象に B2 の「見えるもの」
+            の名(括弧内の店名があればそれ)を出す確率(段 2c の経路を mock で通す腕・既定 0)。
+        familiarity: **4 段目(記憶の先行部品=M13 訪問+M17 露出)**。``True``/``"on"`` で体×K 行の
+            親しみの表(``AgentState(familiarity_columns=True)``・16 B/行)を確保し、訪問(購入/食事の
+            成立)・看板の露出(B2 に看板行が載った)・場所(セルに入った回)を書く。**本段では誰も
+            読まない**。既定 ``False``=表を確保しない=**既定 checkpoint 不変**。
+        familiarity_k: 体あたりの行数(既定 ``FAMILIARITY_K``=64・宣言・感度 32/128)。
+        hunger_model: **5 段目 5a(D-118 K1〜K9)**。``"energy"`` で体のエネルギー収支
+            (``AgentState(energy_columns=True)``・+16 B/体・``engine.energy``)=体重と EER を抽選し、
+            毎 tick 活動の METs で消費・食事/軽食/飲料で摂取・``hunger`` は語の段の写し・B5 は語・
+            範囲外の食事は W17 の食事行か既定の時刻。``"v1"``(**ライブラリの既定**)は旧規則
+            (+1/30 分・購入/食事で −4)=**旧 checkpoint をそのまま再現**。CLI と ``cli.run`` の既定は
+            ``energy``(``cli.CLI_DEFAULT_HUNGER_MODEL``・K5 (a))。
+        energy_rate: 消費の式(``"eer"``=K1 (c)・既定 / ``"bmr"``=K1 (a) の感度腕)。``hunger_model=
+            "energy"`` のときだけ効く。
+        policy: **5 段目 5b(D-119 L5 (a))**。``"classical"`` で LLM(mock)を呼ばず、起床ごとに
+            食事の門+ActivityChooser(社会生活基本調査の事前分布)から 5 ラベルの応答文を作る
+            (``engine.classical.ClassicalPolicy``・語彙 v3 だけ)。既定 ``"mock"``=凍結の mock
+            (**既定 checkpoint 不変**)。``llm`` の注入・再生・艦隊とは併用できない。
+        activity_region: 事前分布の地域(``"kanto"``=関東大都市圏・既定 / ``"national"``=全国)。
+        classical_habit_p / classical_tau: ``chooser="classical"`` の習慣の確率 p_h(宣言 0.5)と
+            満足化の揺らぎ τ(宣言 1.0)。
+        p_see_activity: **5 段目 5c(D-117・M1 (a)・M2 (b)・M4 (a))**。看板の注視ゲート p_see に掛ける
+            活動の種別の乗数表(``perception.renderer.P_SEE_ACTIVITY_KINDS`` の鍵 → 乗数・欠けた鍵は 1.0・
+            辞書か JSON 文字列)。実効 p_see=min(1, p_see × 乗数)。**p_see にだけ**掛ける(B2 の可視の行は
+            変えない)=注視ゲートと親しみの表の露出(入った回)が変わる。既定 ``None``=全部 1.0=
+            **描画バイトも checkpoint も 1 バイトも変わらない**。
+        memory: **6 段目 6a(記憶 第 1 段の記録)**。``True``/``"on"`` で体 × N 行の記憶の表
+            (``AgentState(memory_columns=True)``・実 25 B/行・宣言 32 B/行)を確保し、行動の成否・会話・
+            気づき・強い看板(初見)を書く(``engine.memory``)。読み手は 6b の想起(下)。既定 ``False``=
+            表を確保しない=**既定 checkpoint 不変**。
+        memory_n: 体あたりの行数(既定 ``MEMORY_N``=128・宣言・感度 64/256)。
+            **6b(想起)**: on のランは、各呼の描画で q(起床の級・セル・直前の結果・相手・対象)に ID で
+            合う行を score 順に k 件(会話 3・他 2)想起し、B5 の最後に「記憶」の 1 行(≤60 tok)を載せる
+            (テンプレ v1.2・テープ版 3 の ``recalled_rows``)。off は描画バイトが 1 バイトも変わらない。
+        memory_tau: 想起の閾値 τ(A ≥ τ の行だけ想起・既定 ``RECALL_TAU``)。
+        store_memory: **D-120 7a(店の評価の記憶)**。``True``/``"on"`` で体 × M 行の店の評価の表
+            (``AgentState(store_memory_columns=True)``・実 23 B/行・宣言 24 B/行)を確保し、記憶の
+            エピソード(購入/食事/並ぶの成否・看板の初見)から店の行を書く(``engine.store_memory``)。
+            **``memory`` が on のランでだけ**使える(書き手がエピソードの書き手に乗る)。本段では誰も
+            読まない。既定 ``False``=表を確保しない=**既定 checkpoint 不変**。
+        store_memory_n: 体あたりの店の行数(既定 ``STORE_MEMORY_N``=32・宣言・感度 16/64)。
+        store_sigma: 出どころ別の σ(辞書か JSON・既定 自分 1/伝聞 2/看板 4/ネット 2・感度腕)。
+        store_decay: 減衰の形(``actr`` 既定・``ga``/``citysim`` は感度腕の口)。
+        store_wom / store_signage: **D-120 7c(N8 の腕)**。口コミ(7b の聞き手への転写)と看板(N2 (iii))の
+            書き手を使うか(既定 どちらも on・``"on"``/``"off"`` か bool)。店の記憶 on のランだけ効く。
+        store_recall_scope: 7c: B5 の想起で店の行を候補にする入口(``all`` 既定・``conversation``=会話だけ=感度腕)。
+        relations: **C10 8a(関係辺)**。``True``/``"on"`` で体 × k 辺の関係の表(``AgentState(relation_columns=
+            True)``・16 B/辺)を確保し、W16+W17 の機械的初期化と、記憶のエピソード(会話・手伝い)から辺を書く
+            (``engine.relations``)。B5 近接行の「知人」の印に結線する(v1.4)。**``memory`` が on のランでだけ**。
+            既定 ``False``=表を確保しない=**既定 checkpoint 不変**。
+        rel_k / rel_tau / rel_d / rel_init_density: 辺の数(既定 15・感度 5/50)・閾値 τ_rel(既定 −2.346=8b′ の再逆算・感度
+            ±0.5)・減衰 d(既定 0.5・感度 0.25/0.75)・初期網の密度の腕(0.5/1.0/2.0)。
+        conv_max_participants: **C10 8a(D-93 (d))の 3 人会話の口**。3 なら会話中の相手に話しかけた体が
+            そのセッションに加わる(``talk_partner``=名指しした相手=主相手・参加者はセッション表)。既定 2=不変。
+        rel_tenure_weeks: C10 8b(第299 Q89/Q90): 初期辺の在職期間 T_uv の上限[週](既定 13・感度 26)。
+        rel_invite / rel_acq_wake / rel_copresent: **C10 8b**(``relations`` が on のランだけ効く)。
+            ``rel_invite``(既定 on)=名指しの無い会話の相手を関係辺の重み(内側 5 人 40%・次の 10 人 20%・残り
+            40%・居る層で再正規化)+seed つき乱択で引く・2 m 内の知人を第一候補(偶然)・classical 方策の相手も
+            同じ重み。``rel_acq_wake``(既定 on)=知人出現の起床(``WakeCondition.ACQUAINTANCE``・同一相手 60 分)。
+            ``rel_copresent``(既定 off=第299 Q91)=同席の書き手(同セル・2 m 内・連続 5 分で 1 本・相手ごと
+            1 日 1 本・表に居る相手だけ)。起点の診断行(招待/偶然/知人出現)は関係 on のランでいつも数える。
+            想起優先の候補合成(N6)は選び手 ``classical`` のランだけ(``engine.store_choice``)。
 
     Returns:
         ``RunResult``。
@@ -1394,6 +1913,11 @@ def run_day(
     # ---- D-66 計画実行層の腕: 値の検査は**層が休むランでも**する(manifest が嘘をつかない) ----
     if str(exit_mode) not in PRESENCE_EXIT_MODES:
         raise ValueError(f"exit_mode は {PRESENCE_EXIT_MODES} のどれか(いま {exit_mode!r})")
+    near_tiebreak = check_near_tiebreak(near_tiebreak)
+    near_order = check_near_order(near_order)
+    if isinstance(group_norms, str) and group_norms not in ("on", "off"):
+        raise ValueError(f"group_norms は 'on'/'off' か bool(いま {group_norms!r})")
+    group_norms_on = (group_norms == "on") if isinstance(group_norms, str) else bool(group_norms)
     if not (0.0 <= float(attendance_rate) <= 1.0):
         raise ValueError(f"attendance_rate は 0.0〜1.0(いま {attendance_rate})")
     if str(derive_rule) not in PRESENCE_DERIVE_RULES:
@@ -1412,6 +1936,8 @@ def run_day(
         raise ValueError(f"seat_area_retail_m2 は正の値(いま {seat_area_retail_m2})")
     # ---- D-59 (b) 看板の注視ゲート: 同上(過程を切ったランでも腕の値を検査する) ----
     signage_p_see = check_signage_p_see(signage_p_see)
+    p_see_activity_table = check_p_see_activity(p_see_activity)
+    p_see_activity_identity = all(v == 1.0 for v in p_see_activity_table.values())
     # ---- AB7 自由意図の腕: 値の検査は**レンダラを作る前**にする(manifest が嘘をつかない) ----
     intent_mode = check_intent_mode(intent_mode)
     role_words = check_role_words(role_words)
@@ -1420,16 +1946,140 @@ def run_day(
     # ---- 二層の段 2: 活動層は**語彙 v3 のときだけ**立つ(SoA を確保する前に決める=欄が 2 本変わる) ----
     activity = check_role_words(activity)  # "on"/"off"/bool を bool へ(同じ正規化)
     activity_on = bool(activity) and vocab_version == "v3"
+    # ---- 4 段目: 親しみの表の腕(SoA を確保する前に決める=欄が 5 本変わる) ----
+    if isinstance(familiarity, str):
+        if familiarity not in FAMILIARITY_MODES:
+            raise ValueError(f"familiarity は {FAMILIARITY_MODES} か bool(いま {familiarity!r})")
+        familiarity_on = familiarity == "on"
+    else:
+        familiarity_on = bool(familiarity)
+    if int(familiarity_k) < 1:
+        raise ValueError(f"familiarity_k は 1 以上(いま {familiarity_k})")
+    # ---- 6 段目 6a: 記憶の表の腕(SoA を確保する前に決める=欄が 9 本変わる) ----
+    if isinstance(memory, str):
+        if memory not in MEMORY_MODES:
+            raise ValueError(f"memory は {MEMORY_MODES} か bool(いま {memory!r})")
+        memory_on = memory == "on"
+    else:
+        memory_on = bool(memory)
+    if int(memory_n) < 1:
+        raise ValueError(f"memory_n は 1 以上(いま {memory_n})")
+    if not np.isfinite(float(memory_tau)):
+        raise ValueError(f"memory_tau は有限の実数(いま {memory_tau})")
+    # ---- D-120 7a: 店の評価の記憶の腕(SoA を確保する前に決める=欄が 7 本変わる) ----
+    if isinstance(store_memory, str):
+        if store_memory not in STORE_MEMORY_MODES:
+            raise ValueError(f"store_memory は {STORE_MEMORY_MODES} か bool(いま {store_memory!r})")
+        store_memory_on = store_memory == "on"
+    else:
+        store_memory_on = bool(store_memory)
+    if int(store_memory_n) < 1:
+        raise ValueError(f"store_memory_n は 1 以上(いま {store_memory_n})")
+    store_sigma_table = check_store_sigma(store_sigma)
+    store_decay = check_store_decay(store_decay)
+    if store_memory_on and not memory_on:
+        raise ValueError("store_memory は memory='on' のランでだけ使える(書き手がエピソードの書き手に乗る)")
+
+    def _onoff(v: bool | str, name: str) -> bool:
+        if isinstance(v, str):
+            if v not in ("on", "off"):
+                raise ValueError(f"{name} は 'on'/'off' か bool(いま {v!r})")
+            return v == "on"
+        return bool(v)
+
+    # ---- C10 8a: 関係辺の腕(SoA を確保する前に決める=欄が 6 本変わる) ----
+    if isinstance(relations, str):
+        if relations not in REL_MODES:
+            raise ValueError(f"relations は {REL_MODES} か bool(いま {relations!r})")
+        relations_on = relations == "on"
+    else:
+        relations_on = bool(relations)
+    if relations_on and not memory_on:
+        raise ValueError("relations は memory='on' のランでだけ使える(書き手がエピソードの書き手に乗る)")
+    if int(rel_k) < 1:
+        raise ValueError(f"rel_k は 1 以上(いま {rel_k})")
+    if not (0.0 < float(rel_d) < 1.0) or not np.isfinite(float(rel_tau)):
+        raise ValueError(f"rel_d は 0〜1・rel_tau は有限(いま d={rel_d}・τ={rel_tau})")
+    if float(rel_init_density) not in REL_INIT_DENSITIES:
+        raise ValueError(f"rel_init_density は {REL_INIT_DENSITIES} のどれか(いま {rel_init_density})")
+    if int(conv_max_participants) not in (2, 3):
+        raise ValueError(f"conv_max_participants は 2 か 3(いま {conv_max_participants})")
+    rel_invite_on = _onoff(rel_invite, "rel_invite")
+    rel_acq_wake_on = _onoff(rel_acq_wake, "rel_acq_wake")
+    rel_copresent_on = _onoff(rel_copresent, "rel_copresent")
+    if rel_copresent_on and not relations_on:
+        raise ValueError("rel_copresent は relations='on' のランでだけ使える")
+    if not (np.isfinite(float(rel_tenure_weeks)) and float(rel_tenure_weeks) >= 1.0):
+        raise ValueError(f"rel_tenure_weeks は 1 以上(いま {rel_tenure_weeks})")
+    store_wom_on = _onoff(store_wom, "store_wom")
+    store_signage_on = _onoff(store_signage, "store_signage")
+    if str(store_recall_scope) not in STORE_RECALL_SCOPES:
+        raise ValueError(f"store_recall_scope は {STORE_RECALL_SCOPES} のどれか(いま {store_recall_scope!r})")
+    # ---- 5 段目 5a: 空腹のモデル(SoA を確保する前に決める=欄が 4 本変わる) ----
+    hunger_model = check_hunger_model(hunger_model)
+    energy_rate = check_energy_rate(energy_rate)
+    energy_on = hunger_model == "energy"
+    # ---- 段 1b: 飲食店の切替口(値の検査は世界を触る前・既定 food=現行のバイト) ----
+    eatery = check_eatery_mode(eatery)
+    # ---- 段 2a: 選び手と対象の決め方(値の検査は世界を触る前) ----
+    chooser = check_chooser(chooser)
+    # ---- 5 段目 5b: 方策と事前分布の地域(値の検査は世界を触る前) ----
+    policy = check_policy(policy)
+    activity_region = check_activity_region(activity_region)
+    if policy == "classical":
+        if llm is not None:
+            raise ValueError("policy='classical' と llm の注入は併用できない")
+        if mode == "replay" or replay is not None or fleet is not None:
+            raise ValueError("policy='classical' は再生・艦隊と併用できない")
+        if vocab_version != "v3":
+            raise ValueError("policy='classical' は語彙 v3 だけ(5 ラベルの応答文)")
+    poi_target = check_poi_target(poi_target)
     #: 語彙 v3 の対象ヒント(「対象: 自宅/職場/学校」→ 拠点セル)は活動層と独立に効かせる。
     v3_hints = vocab_version == "v3"
     # ---- ablation ③: **ランの実効不応期表**を 1 本組む(既定=§6 の表そのもの) ----
     refractory_table = R.refractory_ticks(refractory_scale)
     refractory_scale_norm = R.normalized_refractory_scale(refractory_scale)
     world = world if world is not None else World.synthetic(n_cells=n_cells, seed=seed)
-    llm = llm if llm is not None else _default_mock(seed, vocab_version)
+    # 渡された World を使い回しても前のランの切替口が残らないよう、**毎ラン必ず書く**。
+    world.set_eatery_mode(eatery)
+    # ---- 段 2a: 購入/食事/並ぶの対象=候補 → 選び手(1 ランに 1 つ・世界は読むだけ) ----
+    # ``legacy``(Q13)は resolver を作らない=``intents_from_responses`` が従来の最小 id を通す。
+    poi_resolver = (
+        TargetResolver(
+            world=world,
+            chooser=make_chooser(chooser, p_h=float(classical_habit_p), tau=float(classical_tau)),
+            seed=seed,
+            move_search_radius=int(move_search_radius),
+        )
+        if poi_target == "candidates"
+        else None
+    )
+    mock_move_target_p = float(mock_move_target_p)
+    if not (0.0 <= mock_move_target_p <= 1.0):
+        raise ValueError(f"mock_move_target_p は 0.0〜1.0(いま {mock_move_target_p})")
+    mock_out_of_cell_target_p = float(mock_out_of_cell_target_p)
+    if not (0.0 <= mock_out_of_cell_target_p <= 1.0):
+        raise ValueError(
+            f"mock_out_of_cell_target_p は 0.0〜1.0(いま {mock_out_of_cell_target_p})"
+        )
+    if int(intent_max_ticks) < 1:
+        raise ValueError(f"intent_max_ticks は 1 以上(いま {intent_max_ticks})")
+    classical_policy: ClassicalPolicy | None = None
+    if policy == "classical":
+        _prior_doc, _prior_md5 = load_activity_prior()
+        classical_policy = ClassicalPolicy(
+            seed=seed,
+            prior=ActivityPrior(_prior_doc, day_kind_of(day_index), activity_region),
+            prior_md5=_prior_md5,
+        )
+        llm = classical_policy
+    llm = llm if llm is not None else _default_mock(
+        seed, vocab_version, mock_move_target_p, mock_out_of_cell_target_p
+    )
     salt = run_salt_for(seed)
     tape_writer = TapeWriter(Path(tape_path)) if tape_path is not None else None
-    conv = ConversationManager(seed) if conversations else None
+    conv = (ConversationManager(seed, max_participants=int(conv_max_participants))
+            if conversations else None)
     schedule = synthesize(n_agents, seed, world.n_cells)
     pop = _resolve_population(population, world_dir, n_agents, seed, world.n_cells)
     # ---- D-66: 週次表(W17)は SoA を確保する前に読む(層の有無で列が 1 本変わるため) ----
@@ -1457,6 +2107,15 @@ def run_day(
         edge_columns=(geometry == "edge"),
         attention_columns=attention_on,
         activity_columns=activity_on,
+        familiarity_columns=familiarity_on,
+        familiarity_k=int(familiarity_k),
+        energy_columns=energy_on,
+        memory_columns=memory_on,
+        memory_n=int(memory_n),
+        store_memory_columns=store_memory_on,
+        store_memory_n=int(store_memory_n),
+        relation_columns=relations_on,
+        rel_k=int(rel_k),
     )
     if ledger is not None and ledger.money is not None:
         # 世帯の現金行 = 個体 SoA の money(写しを作らない・台帳の書き込み窓は resolve が持つ)
@@ -1466,6 +2125,27 @@ def run_day(
             schedule, pop, world.n_cells, keep_outside_home=plan_exec_on
         )
     R.initialize(agents, world, schedule, day_index=day_index, ledger=ledger)
+    # ---- 5 段目 5a: 体のエネルギー収支(値を決める層・書き手は resolve) ----
+    energy_layer: EnergyLayer | None = None
+    if energy_on:
+        _anc, _anc_md5 = load_anchors()
+        _emodel = EnergyModel(
+            _anc, _anc_md5, rate=energy_rate, minutes_per_tick=float(tick_seconds) / 60.0
+        )
+        energy_layer = EnergyLayer(
+            model=_emodel,
+            n_agents=n_agents,
+            out_of_area=OutOfAreaMeals(
+                _emodel, n_agents, ticks, weekly=weekly, day_index=day_index,
+                tick_seconds=tick_seconds,
+            ),
+            poi_intake=EnergyModel.poi_intake_kind(
+                getattr(world.assets, "poi_cat", None),
+                getattr(world.assets, "poi_subcat", None),
+                world.n_poi,
+            ),
+        )
+        R.initialize_energy(agents, energy_layer, seed)
     agents.freeze()
     world.freeze()
 
@@ -1517,6 +2197,7 @@ def run_day(
             exit_mode=exit_mode,
             attendance_rate=attendance_rate,
             derive_rule=str(derive_rule),
+            walk_max_ticks=int(intent_max_ticks),
         )
         presence.initialize()  # その時刻に在圏でない体を域外へ(I1 の分母)
         if runner is not None:
@@ -1550,9 +2231,13 @@ def run_day(
                 budget_mode=budget_mode_enum,
                 signage_enabled=signage,
                 signage_p_see=signage_p_see,
+                p_see_activity=p_see_activity_table,
                 intent_mode=intent_mode,
                 vocab_version=vocab_version,
                 role_words=role_words,
+                near_tiebreak=near_tiebreak,
+                near_salt=run_salt_for(seed),
+                near_order=near_order,
             )
         )
         renderer_obj: Any = perception
@@ -1665,6 +2350,34 @@ def run_day(
         )[b_slot]
     b_start = np.searchsorted(b_tick, np.arange(ticks + 1), side="left")
     schedule_hash = weekly.schedule_hash() if weekly is not None else ""
+    # ---- 5 段目 5b: 方策 classical を SoA・世界・計画境界に結ぶ(読むだけ) ----
+    if classical_policy is not None:
+        _has_work = np.zeros(n_agents, dtype=bool)
+        if pop is not None:
+            _m = min(n_agents, int(pop.n))
+            _has_work[:_m] = np.asarray(pop.work_cell, dtype=np.int64)[:_m] >= 0
+        _pa = getattr(runner, "assets", None) if runner is not None else None
+        classical_policy.bind(
+            agents=agents,
+            world=world,
+            home_cell=np.asarray(schedule.home_cell),
+            work_cell=np.asarray(schedule.work_cell),
+            school_cell=getattr(schedule, "school_cell", None),
+            has_work=_has_work,
+            boundary_agent=b_agent,
+            boundary_tick=b_tick,
+            tick_seconds=tick_seconds,
+            station_cells=getattr(_pa, "line_platform_cell", None),
+        )
+    #: 5 段目 5b(L4 (a)・SOFAI 形式): 時 × 層(0=System 1 予定/習慣で呼ばない・1=System 1.5 選択器・
+    #: 2=System 2 LLM/mock)× 起床入口 の判断数。層 1/2 は発射した呼(方策で分ける)・層 0 は
+    #: エンジンが予定を実行した件(計画の就寝・意図の到着・計画実行層の到着/退出)。
+    layer_counts = np.zeros((24, 3, len(_ENTRANCES)), dtype=np.int64)
+    #: 9a(D-112 ④): 退去の効果の件数(診断だけ)。
+    leave_counts: dict[str, int] = {"n_leave": 0, "n_leave_indoor": 0, "n_leave_queue": 0,
+                                    "n_leave_conversing": 0}
+    leave_closed = 0
+    _call_layer = 1 if classical_policy is not None else 2
     # ---- 二層の段 2: 活動層(「次の予定」は上の計画境界の表から引く) ----
     act_layer: ActivityLayer | None = (
         ActivityLayer(
@@ -1674,6 +2387,159 @@ def run_day(
         if activity_on
         else None
     )
+    if act_layer is not None:
+        act_layer.leave_effect = bool(leave_effect)  # 9a: 退去の効果の切替口と揃える
+    # ---- 段 2c: 意図の保持(活動層+候補の解決がある=語彙 v3・activity on・candidates) ----
+    intent_layer: IntentLayer | None = (
+        IntentLayer(n_agents, world, max_ticks=int(intent_max_ticks))
+        if (act_layer is not None and poi_resolver is not None)
+        else None
+    )
+    # ---- 段 2c Q25: 名指しの即時閉店の B6 補足(店名・閉店中・W7 の開店時刻) ----
+    _q25_renderer = getattr(perception, "renderer", None) if perception is not None else None
+    if (
+        intent_layer is not None
+        and poi_resolver is not None
+        and _q25_renderer is not None
+        and hasattr(_q25_renderer, "named_closed_lookup")
+    ):
+        _q25_renderer.named_closed_lookup = _named_closed_lookup(
+            poi_resolver, runner, day_index, tick_seconds
+        )
+    # ---- 4 段目: 親しみの表(値を決める層・書き手は resolve.write_familiarity) ----
+    _fam_renderer = getattr(perception, "renderer", None) if perception is not None else None
+    _fam_has_renderer = _fam_renderer is not None and hasattr(_fam_renderer, "signage_exposures")
+    fam_layer: FamiliarityLayer | None = (
+        FamiliarityLayer(
+            n_agents, int(familiarity_k), minutes_per_tick=float(tick_seconds) / 60.0,
+            # 親決定 (f): 入った回 × そのセルで B2 に載る看板 × p_see(描画と同じ集合・同じ流れ)
+            signage_poi_by_cell=(
+                _fam_renderer.signage_poi_by_cell() if _fam_has_renderer else None
+            ),
+            p_see=float(getattr(_fam_renderer, "signage_p_see", 1.0)) if _fam_has_renderer else 1.0,
+            seed=getattr(_fam_renderer, "seed", seed) if _fam_has_renderer else seed,
+            # 5c: 乗数表が全部 1.0(既定)なら渡さない=従来のスカラー p_see の経路のまま
+            p_see_fn=(
+                _fam_renderer.effective_p_see
+                if (_fam_has_renderer and not p_see_activity_identity)
+                else None
+            ),
+            kind_fn=(
+                _fam_renderer.activity_classes
+                if (_fam_has_renderer and hasattr(_fam_renderer, "activity_classes"))
+                else None
+            ),
+        )
+        if familiarity_on
+        else None
+    )
+    # ---- 6 段目 6a: 記憶の表(値を決める層・書き手は resolve.write_memory) ----
+    mem_layer: MemoryLayer | None = (
+        MemoryLayer(n_agents, int(memory_n), minutes_per_tick=float(tick_seconds) / 60.0)
+        if memory_on
+        else None
+    )
+    if (fam_layer is not None or mem_layer is not None) and _fam_has_renderer:
+        _fam_renderer.signage_exposures = []  # 描画による露出の控え(tick ごとに取り出す)
+    # ---- 記憶 第 1 段 6b: 想起の口(on のランだけ描画に差し込む・off は None=描画バイト不変) ----
+    if mem_layer is not None:
+        mem_layer.tau = float(memory_tau)
+    # ---- D-120 7a: 店の評価の記憶(エピソードの書き手に乗る・本段では誰も読まない) ----
+    if mem_layer is not None and store_memory_on:
+        mem_layer.enable_store(int(store_memory_n), sigma=store_sigma_table, decay=store_decay,
+                               signage=store_signage_on, poi_cell=np.asarray(world.pois.cell),
+                               recall_scope=str(store_recall_scope))
+        # ---- D-120 7c: 想起優先の候補合成(選び手 classical のとき)と決め手の記録 ----
+        if poi_resolver is not None:
+            poi_resolver.store_choice = StoreChoice(
+                mem_layer, world, n_agents, seed=seed,
+                boundary_agent=b_agent, boundary_tick=b_tick,
+                walk_m_per_tick=_walk_m_per_tick(world, n_agents, geometry=str(geometry), geom=geom,
+                                                  tick_seconds=int(tick_seconds)),
+                intent_max_ticks=int(intent_max_ticks),
+                minutes_per_tick=float(tick_seconds) / 60.0,
+            )
+    # ---- C10 8a: 関係辺(機械的初期化=W16+W17 の共在・書き手は記憶のエピソード・知人の結線) ----
+    rel_layer = None
+    if mem_layer is not None and relations_on:
+        rel_layer = mem_layer.enable_relations(int(rel_k), tau=float(rel_tau), d=float(rel_d))
+        _t_rel = time.perf_counter()
+        _init = _rel_initial_edges(
+            pop, weekly, n_agents, k=int(rel_k), day_index=int(day_index), density=float(rel_init_density),
+            minutes_per_tick=float(tick_seconds) / 60.0, d=float(rel_d), tau=float(rel_tau),
+            tenure_weeks=float(rel_tenure_weeks),
+        ) if pop is not None else None
+        if _init is not None:
+            rel_layer.seed_initial(agents, _init)
+            rel_layer.init_audit["init_seconds_nondeterministic"] = round(time.perf_counter() - _t_rel, 3)
+        if _fam_renderer is not None and hasattr(_fam_renderer, "acquaintance_fn"):
+            _fam_renderer.acquaintance_fn = lambda i_, t_: rel_layer.acquaintances(agents, i_, t_)
+        # ---- C10 8b: 会話の起点と相手選択・知人出現の起床・同席(腕) ----
+        if rel_invite_on:
+            rel_layer.enable_invite(salt)
+            if classical_policy is not None:
+                def _classical_partner(aid_: int, tick_: int, strangers_: list[int]) -> int:
+                    # 残りの層=近接行の「未知」の人から seed つきハッシュ順(D-31 (a)=行の先頭=id の小さい人にしない)
+                    stranger_ = rel_layer.pick_rest(int(tick_), int(aid_), strangers_)
+                    got_, _o = rel_layer.choose_talk_partners(
+                        agents, int(tick_), np.asarray([int(aid_)]), np.asarray([int(stranger_)]),
+                        np.asarray([False]), np.asarray([-1]), record_origin=False,
+                    )
+                    return int(got_[0])
+
+                classical_policy.partner_fn = _classical_partner
+        if rel_acq_wake_on:
+            rel_layer.enable_acquaintance_wake()
+        if rel_copresent_on:
+            rel_layer.enable_copresent()
+        if conv is not None:
+            conv.track_origins(REL_ORIGINS)
+    if (
+        conv is not None and int(conv_max_participants) > 2 and _fam_renderer is not None
+        and hasattr(_fam_renderer, "session_partner_fn")
+    ):
+        def _session_partners(i_: int) -> list[int]:
+            s_ = conv.session_of(int(i_))
+            return [int(q) for q in s_.participants if int(q) != int(i_)] if s_ is not None else []
+
+        _fam_renderer.session_partner_fn = _session_partners
+    # ---- D-120 7b: 会話からの抽出(店名の辞書=W6 の店・評価語の辞書 v0・呼数 0) ----
+    wom_ex: WomExtractor | None = (
+        WomExtractor.from_world(world) if mem_layer is not None and mem_layer.store is not None else None
+    )
+    if _fam_renderer is not None and hasattr(_fam_renderer, "memory_recall"):
+        _fam_renderer.memory_recall = (
+            (lambda i_, t_, c_, inv_: mem_layer.recall(agents, i_, t_, c_, inv_))
+            if mem_layer is not None
+            else None
+        )
+
+    def _utter(agent_id: int, t_now: int, action: Any, comment: str, reason: str = "",
+               parse: Any = None) -> None:
+        """会話ターンの発話 1 回(``conv.utterance``)。6a: 記憶の会話の行と要旨(on のときだけ)。
+
+        6b(第294 Q57 暫定): 要旨の源=ひと言が空/「なし」なら理由欄の先頭 40 字(語彙 v3)。
+        7b(D-120 N3 (a)): 店の記憶 on のランだけ、発話(v1/v2=ひと言・v3=理由+対象)から店名と評価語を
+        抽出し、**宛先**(会話の相手=``talk_partner``・セッションの参加者)の店の行へ伝聞として書く。
+        """
+        partner_before = int(agents.registry.talk_partner[int(agent_id)]) if wom_ex is not None else -1
+        s = conv.utterance(agent_id, t_now, action=action, comment=comment)
+        if mem_layer is not None:
+            mem_layer.note_utterance(agents, int(agent_id), int(t_now), s, comment, reason)
+        if wom_ex is not None and s is not None:
+            tgt = getattr(parse, "target", None)
+            text = wom_ex.utterance_text(
+                vocab_version,
+                comment=str(getattr(parse, "raw_comment", "") or comment or ""),
+                reason=str(getattr(parse, "raw_reason", "") or reason or ""),
+                target=str(getattr(tgt, "raw", "") or ""),
+            )
+            ex = wom_ex.extract(text, int(agents.registry.cell[int(agent_id)]))
+            wom_ex.observe(ex)
+            others = [int(p) for p in s.participants if int(p) != int(agent_id)]
+            listener = partner_before if partner_before in others else (others[0] if others else -1)
+            if store_wom_on:  # 7c の腕: 口コミ off=抽出は数えるが転写しない
+                wom_hear(mem_layer.store, agents, int(t_now), listener, ex)
     #: 発射した呼の起床条件ごとの件数(起床の内訳・満了入口の列を含む)。
     calls_by_cond = np.zeros(N_WAKE_CONDITIONS_ALL, dtype=np.int64)
 
@@ -1689,6 +2555,14 @@ def run_day(
     result.money_start = int(agents.registry.money.astype(np.int64).sum())
     #: D-71 §3 J: 行動コード別の適用件数(``ResolveOutcome.per_action`` のラン合計)。
     per_action_total: dict[int, int] = {}
+    # 第308 D-107 (a): 群・規範の計器(**読むだけ**=状態・乱数・テープに触れない)
+    from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE as _AWBC
+    from shibuya.engine.norm_meter import GroupNormMeter, role_code_table
+
+    norm_meter = (GroupNormMeter(agents, world, role_codes=role_code_table(vocab_version),
+                                 code_words=_AWBC, tick_seconds=int(tick_seconds),
+                                 process_assets=getattr(runner, "assets", None) if runner is not None else None)
+                  if group_norms_on else None)  # 第309 Q150: --group-norms off で計器を通さない
     # 在圏 journal(C7 受入計器 tools/c7・holdout 照合の入力)。既定 0=書かない(状態・診断・テープに影響なし)。
     occ_ticks: list[int] = []
     occ_counts: list[np.ndarray] = []
@@ -1705,7 +2579,7 @@ def run_day(
     # ``target_person`` = LLM が「対象」欄に書いた個体 id(-1=名指しなし・C6 09-09)。
     # ``target_hint`` = 段0 辞書 v4 の対象ヒント索引(C9b G5・0=なし)。
     # ``target_poi`` = 「対象」欄が目印 POI に解決できたときの索引(C9b G6 a′・-1=なし)。
-    pending: list[tuple[int, int, int, int, str, int, int, int, int, Any]] = []
+    pending: list[tuple[int, int, int, int, str, int, int, int, int, Any, Any]] = []
     #: この tick に適用した応答の (体, 行動コード, 活動)。``resolve.apply`` の後に活動層が書く。
     applied_activity: tuple[list[int], list[int], list[Any]] = ([], [], [])
     #: C9b G3/G4: この tick に LLM が言った**焦点の要求**(-1=なし)。使い回す 1 本の
@@ -1732,10 +2606,17 @@ def run_day(
     #: 世界内時刻の**時**別「起きている体」の延べ数と tick 数(起床率/時 の分子・分母)。
     awake_sum = [0] * 24
     awake_ticks = [0] * 24
+    #: 5 段目 5a(診断): 内受容の跨ぎ(変数 3 × 上げ/下げ × 全体/起きて範囲内)。
+    intero_cross = np.zeros((3, 2, 2), dtype=np.int64)
 
     # 逐次ループ宣言1: tick 数ぶん
     for tick in range(ticks):
-        R.advance_body(agents, tick)
+        R.advance_body(agents, tick, energy_layer)
+        # ---- 5 段目 5a(K9 (a)): 範囲外の食事(W17 の食事行の開始・既定の時刻に域外に居る体) ----
+        if energy_layer is not None and energy_layer.out_of_area is not None:
+            _ea, _es, _ef = energy_layer.out_of_area.due(tick, agents.registry.transit_state)
+            if _ea.size:
+                R.energy_out_of_area_meal(agents, energy_layer, _ea, _es, _ef, tick)
 
         # ---- ⓪a 世界過程(昼夜・天候・鉄道・営業時間・混雑場・断面交通) ----
         # 流れ(B4 の「流れ方向」欄)を作るのが混雑場なので、**⓪ の前**に置く。
@@ -1746,7 +2627,14 @@ def run_day(
         # ---- ⓪a-2 計画実行層(D-66): 到着・退出(§3)。世界過程と同じ位置で回す ----
         if presence is not None:
             t0 = time.perf_counter()
+            _pres0 = int(presence.n_arrivals) + int(presence.n_departures)
             presence.step(tick)
+            layer_counts[(tick * tick_seconds // 3600) % 24, 0, _ENTRANCE_PLAN] += (
+                int(presence.n_arrivals) + int(presence.n_departures) - _pres0
+            )
+            # 9a: 歩いて乗る退出の体の活動=目的地つき移動・到着まで(段 2c の意図と同じ形)
+            if act_layer is not None and presence.walk_started_now.size:
+                act_layer.force_arrival(agents, presence.walk_started_now, tick, count=False)
             phase["presence"] += time.perf_counter() - t0
 
         # ---- ⓪ 知覚の tick 前計算(セル配列+B4 描画欄・**1 tick 1 回**) ----
@@ -1805,8 +2693,12 @@ def run_day(
                     (due[int(i)][8] for i in order), dtype=np.int64, count=order.size
                 )
                 agents_in_order = ag[order]
+                if norm_meter is not None:
+                    norm_meter.observe_actions(tick, agents_in_order, codes)  # 第308 D-107 (a)(読むだけ)
                 # 二層の段 2: 活動(v3 の応答だけ)と「あたり」の行き先
                 payloads = [due[int(i)][9] for i in order]
+                # 段 2a: 対象(``Target``)=購入/食事/並ぶの候補の絞り込みが読む
+                parsed_targets = [due[int(i)][10] for i in order]
                 move_dest: np.ndarray | None = None
                 if act_layer is not None:
                     applied_activity = (
@@ -1861,6 +2753,10 @@ def run_day(
                     stats=talk_stats, run_salt=salt,
                     vocab_version=vocab_version,
                     move_dest=None if move_dest is None else move_dest[keep],
+                    targets=[t for t, k in zip(parsed_targets, keep.tolist()) if k],
+                    poi_resolver=poi_resolver,
+                    intent_hold=intent_layer,
+                    talk_chooser=rel_layer,
                 )
                 # ---- C9b G3/G4: 焦点の要求を 1 本のバッファへ散らす ----
                 if focus_request is not None:
@@ -1883,14 +2779,25 @@ def run_day(
         # ---- ② 変化検出(P6) ----
         t0 = time.perf_counter()
         det = detector.detect(world, agents, tick, field_rows=field_rows)
+        _count_intero_crossings(det, agents, intero_cross)
         R.apply_detection(agents, world, det)
         d_agent, d_cond, d_class = det.candidates()
         # ---- 二層の段 2: 活動中は場所の変化で起こさない+満了入口 ----
         if act_layer is not None:
+            if intent_layer is not None:
+                # 段 2c: 意図を持つ体(歩いている・着いた)は場所の変化で起こさない(件数を数える)
+                d_agent, d_cond, d_class = intent_layer.suppress_wakes(
+                    agents, tick, d_agent, d_cond, d_class
+                )
             d_agent, d_cond, d_class = act_layer.suppress_cell_block(
                 agents, tick, d_agent, d_cond, d_class
             )
             e_agent, e_cond, e_class = act_layer.expiry_candidates(agents, tick)
+            if intent_layer is not None:
+                # 段 2c: 着いた体の到着満了は LLM を呼ばない(エンジンが意図の行為を実行する)
+                e_agent, e_cond, e_class = intent_layer.suppress_wakes(
+                    agents, tick, e_agent, e_cond, e_class
+                )
         else:
             e_agent = np.empty(0, dtype=np.int64)
             e_cond = np.empty(0, dtype=np.int8)
@@ -1906,6 +2813,10 @@ def run_day(
             # 非就寝の境界は逆に「起こしてから呼ぶ」(呼が繰り延べ・抑止で落ちても起きる)。
             if plan_sleep:
                 to_bed = p_cond == int(WakeCondition.PLAN_SLEEPING)
+                # 5b 層の記録: 就寝境界はエンジンが実行する(System 1=予定で呼ばない)
+                layer_counts[(tick * tick_seconds // 3600) % 24, 0, _ENTRANCE_PLAN] += int(
+                    np.count_nonzero(to_bed)
+                )
                 if presence is not None:
                     # **D-66**: 発火元は計画実行層(同じ位置・同じ resolve の口)。
                     # 就寝地の既定は層が持つ ``home_cell``(域外常住は −1 のまま=職場で寝ない)。
@@ -1977,9 +2888,8 @@ def run_day(
                 if not res.format_ok:
                     n_parse_errors_fleet += 1
                 if conv is not None and res.condition == int(WakeCondition.CONVERSATION_TURN):
-                    conv.utterance(
-                        res.agent_id, tick, action=res.parse.action, comment=res.parse.comment
-                    )
+                    _utter(res.agent_id, tick, res.parse.action, res.parse.comment,
+                           res.parse.reason, res.parse)
             phase["llm"] += time.perf_counter() - t0
         if fleet_bridge is not None:
             t0 = time.perf_counter()
@@ -2010,9 +2920,8 @@ def run_day(
                 if not res.format_ok:
                     n_parse_errors_fleet += 1
                 if conv is not None and res.condition == int(WakeCondition.CONVERSATION_TURN):
-                    conv.utterance(
-                        res.agent_id, tick, action=res.parse.action, comment=res.parse.comment
-                    )
+                    _utter(res.agent_id, tick, res.parse.action, res.parse.comment,
+                           res.parse.reason, res.parse)
             phase["llm"] += time.perf_counter() - t0
 
         # ---- 艦隊の繰り延べを起床候補へ再投入(不応期は免除・親決定 (a)・09-09) ----
@@ -2043,6 +2952,36 @@ def run_day(
         # 就寝中なら落ちる(**過剰抑止をここに明記**・実害は「答えの返らなかった呼を
         # 寝ている間は蒸し返さない」だけ)。
         f_exempt = f_cond.astype(np.int64) <= int(WakeCondition.PLAN_TRANSIT)
+
+        # ---- 9a: 歩いて乗る退出の体は場所の変化・到着満了・計画境界で起こさない(意図保持と同じ・既定は通らない) ----
+        if presence is not None and presence.exit_mode == "walk_to_platform":
+            d_agent, d_cond, d_class = presence.suppress_walker_wakes(d_agent, d_cond, d_class)
+            p_agent, p_cond, p_class = presence.suppress_walker_wakes(p_agent, p_cond, p_class)
+            e_agent, e_cond, e_class = presence.suppress_walker_wakes(e_agent, e_cond, e_class)
+
+        # ---- C10 8b: 同席の書き手(腕)と知人出現の起床(R7 (a))=前 tick の終わりの位置で ----
+        a_agent = None
+        if rel_layer is not None and (rel_layer.copresent_on or rel_layer.acq_wake_on):
+            t0 = time.perf_counter()
+            if rel_layer.copresent_on:
+                rel_layer.copresent_step(agents, tick)
+            if rel_layer.acq_wake_on:
+                _elig = np.ones(n_agents, dtype=bool)
+                if sleep_suppression:
+                    _elig &= np.asarray(agents.registry.activity) != int(Activity.SLEEPING)
+                if outside_suppression and plan_exec_on:
+                    _elig &= np.asarray(agents.registry.transit_state) == 0
+                a_agent, a_cond, a_class = rel_layer.acquaintance_candidates(agents, tick, _elig)
+                if a_agent.size:
+                    rel_layer.stats["acq_agent_refractory"] += int(np.count_nonzero(
+                        np.asarray(agents.registry.refractory_until)[a_agent, int(WakeCondition.ACQUAINTANCE)]
+                        > int(tick)
+                    ))
+            rel_layer.wall["detect"] += time.perf_counter() - t0
+        if a_agent is not None and a_agent.size:
+            e_agent = np.concatenate([e_agent, a_agent])
+            e_cond = np.concatenate([e_cond, a_cond.astype(e_cond.dtype)])
+            e_class = np.concatenate([e_class, a_class.astype(e_class.dtype)])
 
         cands = WakeCandidates(
             np.concatenate([p_agent, d_agent, c_agent, s_agent, f_agent, e_agent]),
@@ -2103,6 +3042,12 @@ def run_day(
                 np.count_nonzero(outside_now[sel.agent_id.astype(np.int64)])
             )
         n_parse_errors = 0
+        if presence is not None and presence.exit_mode == "walk_to_platform" and len(sel):
+            presence.note_calls(sel.agent_id)
+        if rel_layer is not None and rel_layer.acq_wake_on and len(sel):
+            _acq_sel = np.asarray(sel.condition, dtype=np.int64) == int(WakeCondition.ACQUAINTANCE)
+            if bool(_acq_sel.any()):
+                rel_layer.stamp_acquaintance(np.asarray(sel.agent_id, dtype=np.int64)[_acq_sel], tick)
         if len(sel):
             R.set_refractory(agents, sel.agent_id, sel.condition, tick, refractory_table)
             cell = agents.registry.cell
@@ -2115,6 +3060,8 @@ def run_day(
                     a = int(sel.agent_id[i])
                     cls = int(decision.selected_eff_class[i])
                     cond = int(sel.condition[i])
+                    if classical_policy is not None:
+                        classical_policy.set_call(a, cond, _inviter_of(conv, a, cond))
                     res = bridge.call(
                         a, tick, cls, cond,
                         cell=int(cell[a]), activity=int(act[a]), hunger=int(hun[a]),
@@ -2147,7 +3094,8 @@ def run_day(
                         n_parse_errors += 1
                     if conv is not None and cond == int(WakeCondition.CONVERSATION_TURN):
                         # 会話ターンの応答は**発話ブロック**(1呼=1ブロック・§3)
-                        conv.utterance(a, tick, action=res.parse.action, comment=res.parse.comment)
+                        _utter(a, tick, res.parse.action, res.parse.comment, res.parse.reason,
+                               res.parse)
             else:
                 # 逐次ループ宣言2′: 同じ呼数ぶん(描画は同じ・往復だけ非同期になる)
                 calls: list[LLMCall] = []
@@ -2176,6 +3124,7 @@ def run_day(
                             time_bucket=tick // TIME_BUCKET_TICKS,
                             since_tick=int(sel.since_tick[i]),
                             prompt_hash_hint=rendered.prompt_hash,
+                            recalled_rows=tuple(getattr(rendered, "recalled_rows", ())),
                         )
                     )
                 # 発射は**非ブロッキング**。返るのは「キューに入らなかった」分だけ。
@@ -2189,6 +3138,12 @@ def run_day(
                 np.asarray(sel.condition, dtype=np.int64), minlength=N_WAKE_CONDITIONS_ALL
             )[:N_WAKE_CONDITIONS_ALL]
             result.calls_by_hour[(tick // 60) % 24] += len(sel)  # D-56 の検証欄
+            # 5b 層の記録: 発射した呼=System 1.5(方策 classical)か 2(LLM/mock)× 起床入口
+            np.add.at(
+                layer_counts[(tick * tick_seconds // 3600) % 24, _call_layer],
+                _ENTRANCE_OF_CONDITION[np.asarray(sel.condition, dtype=np.int64)],
+                1,
+            )
         # 艦隊経路の書式エラーは ④′(到着時)で数える=選抜が 0 の tick でも計上する
         n_parse_errors += n_parse_errors_fleet
         peak_pending = max(peak_pending, len(pending))
@@ -2203,8 +3158,21 @@ def run_day(
             if act_layer is not None
             else C.IntentBatch.empty()
         )
+        # 段 2c: 着いた体の意図の行為(LLM を呼ばない=System 1・この tick に応答が来た体は除く)
+        # (親決定 Q20: なし/待機/同じ行き先の移動は意図を保つ=着いた体のその応答の行は外して実行)
+        if intent_layer is not None:
+            arrival_intents, llm_intents = intent_layer.arrival_intents(
+                agents, space, tick, llm=llm_intents
+            )
+            # 5b 層の記録: 着いた意図の行為はエンジンが実行する(System 1・入口=満了)
+            layer_counts[(tick * tick_seconds // 3600) % 24, 0, _ENTRANCE_EXPIRY] += len(
+                arrival_intents
+            )
+        else:
+            arrival_intents = C.IntentBatch.empty()
         intents = C.IntentBatch.concat(
-            [llm_intents, wander_intents, C.engine_continuations(agents, space, tick)]
+            [llm_intents, wander_intents, arrival_intents,
+             C.engine_continuations(agents, space, tick)]
             if act_layer is not None
             else [llm_intents, C.engine_continuations(agents, space, tick)]
         ).one_per_agent()
@@ -2234,12 +3202,18 @@ def run_day(
             salient=None if runner is None or not runner.is_enabled("salient") else runner.salient,
             report_precondition=bool(report_precondition),
             queue_service=bool(queue_service),
+            leave_effect=bool(leave_effect),
             vocab_version=vocab_version,
             geometry=geom,
             focus_request=focus_request,
             talk_by_distance=attention_on,
+            track_visits=(fam_layer is not None or mem_layer is not None),
+            energy=energy_layer,
+            track_events=mem_layer is not None,
         )
         phase["phase_c"] += time.perf_counter() - t0
+        if norm_meter is not None:
+            norm_meter.observe_results(tick)  # 第308 D-107 (a): 役割語の結果(読むだけ)
         phase["movement"] += outcome.movement_seconds
         phase["movement_cpu"] += outcome.movement_cpu_seconds
         geometry_hops += outcome.n_hops
@@ -2251,6 +3225,8 @@ def run_day(
         result.n_board_waiting += outcome.n_board_waiting
         result.n_board_timeout += outcome.n_board_timeout
         result.meals += outcome.n_meals
+        result.move_bad_target += outcome.n_move_bad_target
+        result.move_unreachable += outcome.n_move_unreachable
         result.meal_yen += outcome.meal_yen
         # C9b(対象と注意)。腕が立っていないランでは 4 本とも 0 のまま。
         result.n_approach += outcome.n_approach
@@ -2259,6 +3235,8 @@ def run_day(
         result.n_focus += outcome.n_focus
         result.n_focus_lost += outcome.n_focus_lost
         result.n_talk_by_distance += outcome.n_talk_by_distance
+        for _k in ("n_leave", "n_leave_indoor", "n_leave_queue", "n_leave_conversing"):  # 4 本
+            leave_counts[_k] += int(getattr(outcome, _k))
         result.n_report_ok += outcome.n_report_ok
         result.n_report_no_event += outcome.n_report_no_event
         result.n_served_from_queue += outcome.n_served_from_queue
@@ -2289,6 +3267,13 @@ def run_day(
 
             # ①(返事待ちの解決)は **Phase C の前**に済んでいる(``_settle_pending_invites``)。
 
+            # ---- 9a(D-112 ④): 退去した会話中の体のセッションを閉じる(理由「退去」→ CLOSING → TERMINAL) ----
+            if leave_effect and outcome.leave_conversing:
+                for _lv in np.unique(np.concatenate(outcome.leave_conversing)).tolist():
+                    # 逐次ループ宣言: この tick に退去した会話中の体の数ぶん(≤ 1 tick の呼数)
+                    if conv.close_now(int(_lv), tick, "退去") is not None:
+                        leave_closed += 1
+
             # ---- ② 新しい招待(resolve が通した 会話 を入口にする) ----
             talk = np.flatnonzero(plan.confirmed.action_code == C.ACT_TALK)
             if talk.size:
@@ -2302,6 +3287,18 @@ def run_day(
                         _revert(inviter)
                         continue
                     if int(act_now[inviter]) != int(Activity.CONVERSING):
+                        # C10 8a(D-93 (d)): 相手が会話中(PARTNER_BUSY)で、そのセッションに空きがあれば加わる
+                        if (
+                            conv.max_participants > 2
+                            and int(agents.registry.last_result[inviter]) == int(ResultCode.PARTNER_BUSY)
+                            and int(act_now[invitee]) == int(Activity.CONVERSING)
+                            and not conv.is_busy(inviter)
+                        ):
+                            s_join = conv.session_of(invitee)
+                            if s_join is not None and bool(R.talk_within_reach(
+                                agents, np.int64(inviter), np.int64(invitee), by_distance=attention_on,
+                            )) and conv.join(s_join, inviter, tick):
+                                R.join_conversation(agents, np.array([inviter]), np.array([invitee]), tick)
                         continue  # resolve が失敗させた(相手が会話中/去った)
                     same_cell = bool(
                         R.talk_within_reach(
@@ -2312,25 +3309,32 @@ def run_day(
                         )
                     )
                     b_code, b_named = applied_now.get(invitee, (-1, -1))
+                    # C10 8b: 招待の起点(招待/偶然/知人出現)=commit の選び手が控えた値(関係 on のランだけ)
+                    origin = rel_layer.pop_origin(inviter) if rel_layer is not None else -1
                     # **相互指名**= 相手も自分の呼で**こちらを名指しして** 会話 と答えた。
                     # (エンジンが解決した対象ではなく LLM が書いた対象で見る=中-2)
                     mutual = b_code == C.ACT_TALK and b_named == inviter
                     if mutual and conv.invite_blocked_by_refractory(inviter, invitee, tick):
                         conv.n_invite_refractory_blocked += 1  # 軽-5: 相互指名も不応期の対象
+                        conv.note_origin(origin, "rejected")
                         _revert(inviter)
                         continue
                     if mutual:
                         # その場で成立。相手の意思は相手自身の呼に出ているので抽選は引かない。
                         conv.n_invites += 1
+                        conv.note_origin(origin, "invites")
                         conv.stamp_invite_refractory(inviter, invitee, tick)
                         opened = conv.invite(
                             inviter, invitee, tick, int(cell_now[inviter]),
                             same_cell=same_cell, partner_idle=True, answered=True,
                         )
                         if opened is None:
+                            conv.note_origin(origin, "rejected")
                             _revert(inviter)  # 内訳は ``conv.invite`` が数える
                         else:
                             conv.n_accepted += 1
+                            conv.note_origin(origin, "accepted")
+                            opened.origin = int(origin)
                             R.set_conversing(
                                 agents,
                                 np.array([inviter], dtype=np.int64),
@@ -2343,13 +3347,18 @@ def run_day(
                         # 招待側は CONVERSING のまま待つ。
                         if not conv.register_pending(
                             inviter, invitee, tick, int(cell_now[inviter]),
-                            same_cell=same_cell,
+                            same_cell=same_cell, origin=origin,
                         ):
+                            conv.note_origin(origin, "rejected")
                             _revert(inviter)
+                        else:
+                            conv.note_origin(origin, "invites")
 
             # ---- ③ 期限切れの返事待ち(「無視された」=呼を消費しない) ----
             for stale in conv.expire_pending(tick):
                 _revert(stale)
+            if rel_layer is not None:
+                rel_layer.origin_of.clear()  # C10 8b: この tick の起点の控えを捨てる(招待に使わなかった行)
             if reverted:
                 R.revert_conversation(agents, np.array(sorted(set(reverted)), dtype=np.int64))
             finished = conv.step(
@@ -2375,6 +3384,44 @@ def run_day(
             if applied_activity[0]:
                 act_layer.after_resolve(agents, tick, *applied_activity)
             act_layer.settle_events(agents, tick, conv)
+            if intent_layer is not None:
+                # 段 2c: 実行した意図の結果・意図を立てる・掃除(TOO_FAR・計画境界)
+                intent_layer.after_apply(
+                    agents, tick, act_layer, applied_activity if applied_activity[0] else None
+                )
+        _exp = None
+        if (fam_layer is not None or mem_layer is not None) and _fam_renderer is not None and getattr(
+            _fam_renderer, "signage_exposures", None
+        ):
+            _exp = list(_fam_renderer.signage_exposures)
+            _fam_renderer.signage_exposures.clear()
+        # ---- 6 段目 6a: 記憶の記録(行動の成否・会話・気づき・強い看板)。親しみの表の**前**
+        # (看板の初見=親しみの表にまだその POI の行が無い、をこの tick の書き込みの前に見る) ----
+        if mem_layer is not None:
+            mem_layer.after_tick(
+                agents, tick,
+                applied=(
+                    (plan.confirmed.agent_id, plan.confirmed.target_id),
+                    (plan.losers.agent_id, plan.losers.target_id),
+                ),
+                visits=(outcome.visit_agents, outcome.visit_pois),
+                arrived=outcome.arrived_agents,
+                conv=conv,
+                salient_events=(
+                    getattr(runner.salient, "events", ())
+                    if (runner is not None and runner.is_enabled("salient"))
+                    else ()
+                ),
+                signage=_exp,
+            )
+        # ---- 4 段目: 親しみの表(訪問・看板の露出・セルに入った回)。Phase C と活動層の後 ----
+        if fam_layer is not None:
+            fam_layer.after_tick(
+                agents, tick, (outcome.visit_agents, outcome.visit_pois), _exp
+            )
+        # ---- 5 段目 5a: 語の段の時間の延べ(診断・読むだけ) ----
+        if energy_layer is not None:
+            energy_layer.after_tick(agents, tick, int(tick * tick_seconds // 60))
 
         diag_rows.append(
             (
@@ -2410,6 +3457,8 @@ def run_day(
 
         if presence is not None:
             presence.sample(tick)  # 正時の在圏・計画一致率(在圏 journal と同じ位置)
+        if norm_meter is not None:
+            norm_meter.observe_tick(tick)  # 第308 D-107 (a): 同行の検出(位置が確定した後・読むだけ)
         if occupancy_every and tick % occupancy_every == 0:
             occ_ticks.append(int(tick))
             occ_counts.append(np.asarray(world.cells.density, dtype=np.int32).copy())
@@ -2430,7 +3479,15 @@ def run_day(
                     tick, agents.state_hash(), world.state_hash(),
                     schedule.population_hash,
                     schedule_hash,
-                    act_layer.state_hash() if act_layer is not None else "",
+                    (
+                        act_layer.state_hash()
+                        if intent_layer is None
+                        else blake3_hex(
+                            f"{act_layer.state_hash()}\x1f{intent_layer.state_hash()}".encode()
+                        )
+                    )
+                    if act_layer is not None
+                    else "",
                 )
             )
             phase["checkpoint"] += time.perf_counter() - t0
@@ -2499,9 +3556,10 @@ def run_day(
         result.bus_arrivals = int(runner.bus_taxi.n_arrivals)
         result.hotel_checkins = int(runner.hotel.n_checkin)
         result.waste_tonnes_per_day = float(runner.projected_waste_tonnes_per_day())
-        band = runner.waste_band_report()
-        if band is not None:
-            result.waste_band = (float(band.low), float(band.high))
+        _ws = runner.waste_sink_report()  # 第304 Q135 (a): 店だけの静的な帯+内訳 3 つ(報告だけ)
+        if _ws is not None:
+            result.waste_sink = dict(_ws)
+            result.waste_band = (float(_ws["band_store_t"][0]), float(_ws["band_store_t"][1]))
     ledger_growth: tuple[dict[str, Any], dict[str, int]] = ({}, {})
     if ledger is not None:
         # 日次の畳み込み(D-R2-6: 生ログは保持窓・取引行列は日次集約行へ)。
@@ -2568,6 +3626,7 @@ def run_day(
     # D-99 (a): L4 呼数予算の腕(倍率は申告・``budget_per_tick`` は**実際に使った値**)。
     result.l4_scale = float(l4_scale)
     result.budget_per_tick = float(arbiter.budget)
+    result.tick_seconds = int(tick_seconds)
     # ablation 第1陣 ②③⑥ の腕(manifest の同定欄)。⑥ は**実際に描いた側**が正。
     result.p_notice_ablation = _pnotice_ablation_name(
         runner.salient.ablation if runner is not None else p_notice_ablation
@@ -2601,6 +3660,143 @@ def run_day(
     result.action_usage = _action_usage(per_action_total, vocab_version)
     # 二層の段 2: 活動層と起床の内訳(満了入口の列は全ランで出る=層が無ければ 0)
     result.activity = bool(activity_on)
+    result.eatery = str(eatery)
+    result.chooser = str(chooser)
+    result.policy = str(policy)
+    result.classical = (
+        {**classical_policy.manifest_fields(),
+         "decisions_by_hour": {"meal": classical_policy.by_hour[:, 0].tolist(),
+                               "activity": classical_policy.by_hour[:, 1].tolist()}}
+        if classical_policy is not None
+        else {}
+    )
+    _cs = getattr(getattr(poi_resolver, "chooser", None), "stats", None)
+    result.chooser_stats = (
+        {"name": str(chooser), "p_h": float(classical_habit_p), "tau": float(classical_tau),
+         "activity_region": str(activity_region), "counts": dict(sorted(_cs.items()))}
+        if isinstance(_cs, dict)
+        else {}
+    )
+    result.decision_layers = decision_layers_summary(layer_counts)
+    _psr = getattr(perception, "renderer", None) if perception is not None else None
+    result.p_see_activity = (
+        _psr.p_see_activity_summary()
+        if (_psr is not None and hasattr(_psr, "p_see_activity_summary"))
+        else {"table": dict(p_see_activity_table), "identity": bool(p_see_activity_identity)}
+    )
+    result.poi_target = str(poi_target)
+    result.target_resolution = (
+        resolution_summary(poi_resolver.stats, poi_resolver.entropy_sum)
+        if poi_resolver is not None
+        else {}
+    )
+    result.move_search_radius = int(move_search_radius)
+    result.mock_move_target_p = float(mock_move_target_p)
+    result.intent = intent_layer.counters() if intent_layer is not None else {}
+    result.familiarity = bool(familiarity_on)
+    result.familiarity_k = int(familiarity_k)
+    result.familiarity_summary = (
+        fam_layer.summary(agents, max(0, int(ticks) - 1)) if fam_layer is not None else {}
+    )
+    result.memory = bool(memory_on)
+    result.memory_n = int(memory_n)
+    result.memory_summary = (
+        {
+            **mem_layer.summary(agents, max(0, int(ticks) - 1)),
+            "gist_bytes": mem_layer.gist_bytes(),
+            # 6b: 描画側の計数(記憶の行を載せた描画・項の件数・行の tok の分布・予算で削った数)
+            "render": (
+                _fam_renderer.memory_summary()
+                if _fam_renderer is not None and hasattr(_fam_renderer, "memory_summary")
+                else {}
+            ),
+        }
+        if mem_layer is not None
+        else {}
+    )
+    result.store_memory = bool(store_memory_on)
+    result.store_memory_summary = (
+        mem_layer.store.summary(agents, max(0, int(ticks) - 1), mem_layer.tau)
+        if mem_layer is not None and mem_layer.store is not None
+        else {}
+    )
+    result.wom = (
+        {
+            **wom_ex.summary(tuple(getattr(world.assets, "poi_name", ()) or ())),
+            "store_rows_with_wom": int(
+                result.store_memory_summary.get("rows_with_source_bit", {}).get("wom", 0)
+            ),
+            "store_events_wom": int(mem_layer.store.stats.get("events:wom", 0)),
+        }
+        if wom_ex is not None and mem_layer is not None and mem_layer.store is not None
+        else {}
+    )
+    result.relations = (
+        rel_layer.summary(agents, max(0, int(ticks) - 1)) if rel_layer is not None else {}
+    )
+    if rel_layer is not None and conv is not None and conv.origin_names is not None:
+        # C10 8b 診断行: 起点ごとの 招待/承諾/断り/期限切れ/門で落ちた(decision_layers の入口にも同じ表)
+        result.relations["origins"] = conv.origin_summary()
+        result.decision_layers["conversation_origins"] = conv.origin_summary()
+    _sc = getattr(poi_resolver, "store_choice", None) if poi_resolver is not None else None
+    result.store_choice = (
+        {**_sc.summary(), "arms": {"store_wom": bool(store_wom_on), "store_signage": bool(store_signage_on),
+                                   "store_recall_scope": str(store_recall_scope),
+                                   "chooser": str(getattr(poi_resolver.chooser, "name", ""))}}
+        if _sc is not None
+        else {}
+    )
+    if fam_layer is not None and result.familiarity_summary:
+        # 5c: 入った回の露出を活動の種別の名で(索引 → 名)
+        _fs = dict(result.familiarity_summary)
+        _by = {
+            P_SEE_ACTIVITY_KINDS[int(k.rsplit(":", 1)[1])]: int(v)
+            for k, v in fam_layer.stats.items()
+            if str(k).startswith("exposures_signage_entry_by_kind:")
+        }
+        if _by:
+            _fs["exposures_signage_entry_by_kind"] = _by
+        result.familiarity_summary = _fs
+    result.hunger_model = str(hunger_model)
+    result.intero_crossings = {
+        f"{var}_{d}{suffix}": int(intero_cross[v, k, s])
+        for v, var in enumerate(("hunger", "fatigue", "thermal"))
+        for k, d in enumerate(("up", "down"))
+        for s, suffix in enumerate(("", "_awake_in_area"))
+    }
+    result.energy_rate = str(energy_rate) if energy_on else ""
+    result.energy = (
+        {**energy_layer.model.manifest_fields(), **energy_layer.summary(agents)}
+        if energy_layer is not None
+        else {}
+    )
+    if intent_layer is not None:
+        # B5「いま <行為> のため <対象> へ向かっている」を載せた回数(描画のあるランだけ)
+        _rr = getattr(perception, "renderer", None) if perception is not None else None
+        result.intent["b5_lines"] = int(getattr(_rr, "intent_lines", 0))
+        result.intent["b5_lines_over_budget"] = int(getattr(_rr, "intent_lines_over_budget", 0))
+        # Q25: 名指しの即時閉店の B6 補足を載せた回数
+        result.intent["b6_named_closed_notes"] = int(getattr(_rr, "named_closed_notes", 0))
+    result.intent_max_ticks = int(intent_max_ticks)
+    _nr = getattr(perception, "renderer", None) if perception is not None else None
+    result.near_tiebreak = {
+        "mode": str(near_tiebreak),
+        "ties_broken": int(getattr(_nr, "near_tie_breaks", 0)),
+        "tie_candidates": int(getattr(_nr, "near_tie_candidates", 0)),
+        # 第304 Q130: 近接行の並び(distance/id)と、並べた行に距離の同点があった描画の数
+        "order": str(near_order),
+        "order_ties": int(getattr(_nr, "near_order_ties", 0)),
+    }
+    result.group_norms = (  # 第308 D-107 (a)・第309 Q150 の切替口
+        {"enabled": True, **norm_meter.summary(conv=conv, result=result)} if norm_meter is not None
+        else {"enabled": False}
+    )
+    result.mock_out_of_cell_target_p = float(mock_out_of_cell_target_p)
+    result.move_resolution = move_resolution_summary(
+        poi_resolver.move_stats if poi_resolver is not None else Counter(),
+        result.move_bad_target,
+        result.move_unreachable,
+    )
     result.calls_by_condition = {
         WakeCondition(i).name: int(calls_by_cond[i]) for i in range(N_WAKE_CONDITIONS_ALL)
     }
@@ -2639,7 +3835,13 @@ def run_day(
             result.walkable_area_median_m2 = float(np.median(_wk))
             result.walkable_area_min_m2 = float(_wk.min())
     result.attention = bool(attention_on)
+    result.leave_effects = {"enabled": bool(leave_effect), "leave": int(leave_counts["n_leave"]),
+                            "released_indoor": int(leave_counts["n_leave_indoor"]),
+                            "left_queue": int(leave_counts["n_leave_queue"]),
+                            "was_conversing": int(leave_counts["n_leave_conversing"]),
+                            "sessions_closed": int(leave_closed)}
     if presence is not None:
+        result.presence_exit = dict(presence.exit_summary())
         result.presence_counters = dict(presence.counters())
         result.presence_summary = presence.summary()
         # 標本の無かった時(短いラン)は NaN のまま来るので 0.0 に落とす(推測で埋めない)
@@ -2648,6 +3850,9 @@ def run_day(
         ]
     result.diagnostics = np.asarray(diag_rows, dtype=np.int64).reshape(-1, len(DIAG_RUN_COLUMNS))
     result.phase_seconds = phase
+    if norm_meter is not None:
+        result.phase_seconds["group_norms"] = float(norm_meter.seconds)  # 第308: 計器の費用(壁時計)
+        result.phase_seconds["group_norms_tick_ms_max"] = float(norm_meter.tick_ms_max)  # 第309: 1 tick の最大
     result.wall_seconds = time.perf_counter() - t_start
     result.arbiter_counters = {k: dict(v) for k, v in arbiter.counters().items()}
     result.money_end = int(agents.registry.money.astype(np.int64).sum())
@@ -2814,6 +4019,12 @@ def main(argv: list[str] | None = None) -> int:
                          "就寝境界も LLM に判断させ・tick 0 は全員 SLEEPING)")
     ap.add_argument("--no-plan-executor", action="store_true",
                     help="D-66 計画実行層(engine.presence)を切る(=現行挙動・帰無腕)")
+    ap.add_argument("--group-norms", choices=("on", "off"), default="on",
+                    help="群・規範の計器(D-107 (a)・読むだけ)を回すか(第309 Q150・既定 on)")
+    ap.add_argument("--near-order", choices=NEAR_ORDERS, default=DEFAULT_NEAR_ORDER,
+                    help="B5 近接行の並び(第304 Q130)。distance=距離の昇順・同点は --near-tiebreak の順(既定)/ id=旧挙動")
+    ap.add_argument("--near-tiebreak", choices=NEAR_TIEBREAKS, default=DEFAULT_NEAR_TIEBREAK,
+                    help="B5 近接行の距離の同点の切り方(第300 Q107)。hash=run_salt で撹拌(既定)/ id=旧挙動")
     ap.add_argument("--exit-mode", choices=PRESENCE_EXIT_MODES, default="immediate",
                     help="退出の実行形(immediate のみ実装・他は予約)")
     ap.add_argument("--attendance-rate", type=float, default=1.0, metavar="RATE",
@@ -2856,6 +4067,9 @@ def main(argv: list[str] | None = None) -> int:
         plan_sleep=not args.no_plan_sleep,
         plan_executor=not args.no_plan_executor,
         exit_mode=str(args.exit_mode),
+        near_tiebreak=str(args.near_tiebreak),
+        near_order=str(args.near_order),
+        group_norms=str(args.group_norms),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,

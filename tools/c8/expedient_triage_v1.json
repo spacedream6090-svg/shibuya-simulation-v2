@@ -1,0 +1,493 @@
+{
+ "schema": "shibuya.tools.c8/expedient-triage/1",
+ "version": "v1",
+ "created": "2026-09-29",
+ "note": "D-44 の 3 分類(第308・Q146)。**実装役の自前の構成=未リサーチ(expedient)**: 対照の候補と費用の見込みは既存の記録(構築の通し 12.3 s・W8 前計算 1.15 s・W9 影 数分・W16 対照 0.29 s・W17 再取り込み 約 90 s)から置いた目安で、実測していない。(i) 構築段階の再計算で対照が測れる(宣言値 vs 対照の入力側 JSD=既存の 5 本のランナーの形)/(ii) ランが要る(入力側の JSD では効きが決まらない・LLM の再生成が要る=5,000 体の CSB 対照)/(iii) 対照を定義できない(門・文面・閾値・範囲の宣言)。",
+ "classes": {
+  "i": "構築段階の再計算で対照が測れる",
+  "ii": "ランが要る",
+  "iii": "対照を定義できない"
+ },
+ "rows": {
+  "W1#2": {
+   "class": "i",
+   "control": "pendant 除去あり vs なし → W3 セル間距離の分布 JSD",
+   "cost_seconds_estimate": 35
+  },
+  "W1#3": {
+   "class": "i",
+   "control": "部分一致込み vs 完全一致だけ → floorguide の結線数と W11 構内グラフの次数分布",
+   "cost_seconds_estimate": 5
+  },
+  "W2#2": {
+   "class": "i",
+   "control": "端点の一方で数える vs 両端点で按分 → セルの n_edges 分布 JSD",
+   "cost_seconds_estimate": 5
+  },
+  "W2#3": {
+   "class": "i",
+   "control": "重心に最近のノード vs セル内の最大次数ノード → W3 セル間距離の分布 JSD",
+   "cost_seconds_estimate": 35
+  },
+  "W2#4": {
+   "class": "i",
+   "control": "外周 GL ノードのセル vs 街区重心のセル → 街区×セルの所属の分布",
+   "cost_seconds_estimate": 5
+  },
+  "W3#1": {
+   "class": "i",
+   "control": "代表ノード間の最短路 vs セル内ノード対の中央値 → セル間距離の分布 JSD",
+   "cost_seconds_estimate": 30
+  },
+  "W3#2": {
+   "class": "i",
+   "control": "uint16 メートル丸め vs float32 → セル間距離の分布(差 ≤0.5 m=帰無内の見込み)",
+   "cost_seconds_estimate": 30
+  },
+  "W3#3": {
+   "class": "i",
+   "control": "min(D, Dᵀ) で対称化 vs 対称化なし → 距離表(差は丸めで消える見込み)",
+   "cost_seconds_estimate": 30
+  },
+  "W5#2": {
+   "class": "i",
+   "control": "最寄りノードのセル vs 入口座標の格子セル → 入口のセル分布 JSD",
+   "cost_seconds_estimate": 5
+  },
+  "W6#2": {
+   "class": "i",
+   "control": "束縛ノードのバンドつき vs 格子だけ → POI・組織のセル分布 JSD",
+   "cost_seconds_estimate": 5
+  },
+  "W6#3": {
+   "class": "i",
+   "control": "名前一致層あり vs なし → subcat の分布 JSD",
+   "cost_seconds_estimate": 5
+  },
+  "W7#2": {
+   "class": "i",
+   "control": "営業時間の窓として当てない vs 当てる → 未成年から見た営業中 POI×時の分布 JSD",
+   "cost_seconds_estimate": 2
+  },
+  "W7#3": {
+   "class": "ii",
+   "control": "改訂権者=store_manager 固定 vs 他の役割にも許す → 改訂の行為と結果はランでしか出ない",
+   "cost_seconds_estimate": null
+  },
+  "W7#4": {
+   "class": "ii",
+   "control": "enforced/unenforced の割当 vs 全て enforced → 違反の可否は行為の結果=ラン",
+   "cost_seconds_estimate": null
+  },
+  "W7#5": {
+   "class": "i",
+   "control": "上限なし vs 旅館業/店舗型性風俗の窓 → 営業中 POI×時の分布 JSD(深夜帯)",
+   "cost_seconds_estimate": 2
+  },
+  "W7#6": {
+   "class": "i",
+   "control": "深夜酒類提供(上限なし)vs 接待飲食(1-3号)の窓 → 営業中 POI×時の分布 JSD",
+   "cost_seconds_estimate": 2
+  },
+  "W7#7": {
+   "class": "i",
+   "control": "祝日規則を無視 vs 当てる → 再生日の営業中 POI×時(祝日でなければ差 0 の見込み)",
+   "cost_seconds_estimate": 2
+  },
+  "W7#8": {
+   "class": "i",
+   "control": "brand 内の最頻を伝播 vs 伝播なし(カテゴリ既定)→ 営業時間の分布 JSD",
+   "cost_seconds_estimate": 2
+  },
+  "W7#9": {
+   "class": "i",
+   "control": "一律 vs 地域条件(告示 26 町丁の内外)→ 営業中 POI×時の分布 JSD(深夜帯)",
+   "cost_seconds_estimate": 2
+  },
+  "W7#10": {
+   "class": "i",
+   "control": "特別日なし vs 特別日の延長 → 再生日の営業中 POI×時(特別日でなければ差 0 の見込み)",
+   "cost_seconds_estimate": 2
+  },
+  "W7#11": {
+   "class": "i",
+   "control": "一・二号の未写像 vs 写像あり → 未成年の立入窓の分布",
+   "cost_seconds_estimate": 2
+  },
+  "W7#12": {
+   "class": "ii",
+   "control": "条例8条(ゲームセンター)は窓で書けるが条例6条(騒音 dB)は窓で書けない=機構の追加とラン",
+   "cost_seconds_estimate": null
+  },
+  "W7#13": {
+   "class": "ii",
+   "control": "violability の保留 vs enforced へ直す → 違反の可否は行為の結果=ラン",
+   "cost_seconds_estimate": null
+  },
+  "W8#2": {
+   "class": "i",
+   "control": "最大視程 150 m vs 100/200 m → セルの可視数の分布 JSD",
+   "cost_seconds_estimate": 3
+  },
+  "W8#3": {
+   "class": "i",
+   "control": "遮蔽 2.5 m ラスタ vs 1.25 m → セルの可視数の分布 JSD",
+   "cost_seconds_estimate": 10
+  },
+  "W8#4": {
+   "class": "i",
+   "control": "重心の DEM vs 最低点の DEM → セルの可視数の分布 JSD",
+   "cost_seconds_estimate": 3
+  },
+  "W8#5": {
+   "class": "i",
+   "control": "端の値でクランプ vs 範囲外を欠損 → 範囲端のセルの可視数の分布",
+   "cost_seconds_estimate": 3
+  },
+  "W8#6": {
+   "class": "i",
+   "control": "DECK 眼高=GL vs +6 m(仮の値)→ DECK セルの可視数の分布",
+   "cost_seconds_estimate": 3
+  },
+  "W8#7": {
+   "class": "i",
+   "control": "UG に建物ラスタなし vs 全遮蔽 → UG セルの可視数の分布",
+   "cost_seconds_estimate": 3
+  },
+  "W8#8": {
+   "class": "i",
+   "control": "1 視点あたり上限 256 vs 512 → セルの可視数の分布 JSD",
+   "cost_seconds_estimate": 3
+  },
+  "W8#9": {
+   "class": "i",
+   "control": "T2 セル対の標本 ≤200 vs ≤400 → w8_t2 の分布(エンジン側の読み口は無い=Q145 の細分なら読まない側)",
+   "cost_seconds_estimate": 3
+  },
+  "W9#1": {
+   "class": "i",
+   "control": "最大追跡 300 m vs 600 m → セルの日陰率の分布 JSD",
+   "cost_seconds_estimate": 300
+  },
+  "W9#2": {
+   "class": "i",
+   "control": "UG 常時日陰・DECK=GL vs DECK に高さ → DECK/UG セルの日陰率の分布",
+   "cost_seconds_estimate": 300
+  },
+  "W9#3": {
+   "class": "i",
+   "control": "2.5 m ラスタ vs 1.25 m → セルの日陰率の分布 JSD",
+   "cost_seconds_estimate": 1200
+  },
+  "W9#4": {
+   "class": "i",
+   "control": "大気差・尾根越し遮蔽なし vs あり(補正の実装が要る)→ 日の出・日の入り前後の日陰率",
+   "cost_seconds_estimate": 300
+  },
+  "W9#5": {
+   "class": "i",
+   "control": "再生日=W13 の先頭日 vs 別の候補日 → セルの日陰率の分布 JSD",
+   "cost_seconds_estimate": 300
+  },
+  "W10#2": {
+   "class": "i",
+   "control": "昼夜 12 h 一様 vs 時間帯カーブ → 騒音段階の分布 JSD",
+   "cost_seconds_estimate": 20
+  },
+  "W10#3": {
+   "class": "i",
+   "control": "昼夜同一 vs 夜の大型車率・速度を変える → 夜の騒音段階の分布 JSD",
+   "cost_seconds_estimate": 20
+  },
+  "W10#4": {
+   "class": "i",
+   "control": "密粒 vs 排水性 → 騒音段階の分布 JSD",
+   "cost_seconds_estimate": 20
+  },
+  "W10#5": {
+   "class": "i",
+   "control": "ΔL=0 vs 回折の近似あり(補正の実装が要る)→ 騒音段階の分布 JSD",
+   "cost_seconds_estimate": 20
+  },
+  "W10#6": {
+   "class": "i",
+   "control": "車線別線音源+等分 vs 中心 1 線源 → 騒音段階の分布 JSD",
+   "cost_seconds_estimate": 20
+  },
+  "W10#7": {
+   "class": "i",
+   "control": "UG −20 dB vs −10/−30 dB → UG セルの騒音段階の分布",
+   "cost_seconds_estimate": 20
+  },
+  "W10#8": {
+   "class": "iii",
+   "control": "騒音段階の語彙の割当=文面(境界は環境基準に釘付け)=対照の文面を定義できない",
+   "cost_seconds_estimate": null
+  },
+  "W10#9": {
+   "class": "i",
+   "control": "バッファ 8 m・ピッチ 2.5 m vs ピッチ 5 m → 街路点と騒音段階の分布(W8/W9 も街路点を使う)",
+   "cost_seconds_estimate": 20
+  },
+  "W10#10": {
+   "class": "i",
+   "control": "中点 1 点の最近傍 way vs 両端+中点の多数決 → 道路名の一致の分布",
+   "cost_seconds_estimate": 20
+  },
+  "W11#2": {
+   "class": "i",
+   "control": "ホーム/改札の位置 vs ±50 m ずらす → 出口→ホームの構内経路長の分布 JSD",
+   "cost_seconds_estimate": 5
+  },
+  "W11#3": {
+   "class": "i",
+   "control": "名称一致→最近傍 vs 最近傍だけ → 出口→駅の割当の分布",
+   "cost_seconds_estimate": 5
+  },
+  "W11#4": {
+   "class": "i",
+   "control": "bbox+300 m vs +500 m → 抽出される駅と出口の分布",
+   "cost_seconds_estimate": 5
+  },
+  "W11#5": {
+   "class": "i",
+   "control": "同名駅の重心 vs OSM の駅ノード座標 → 出口→駅の距離の分布",
+   "cost_seconds_estimate": 5
+  },
+  "W12#2": {
+   "class": "i",
+   "control": "端の時間帯の等分 vs 端へ寄せる → 生成時刻の分布 JSD(S-W14-HOURUNIFORM と同じ形)",
+   "cost_seconds_estimate": 1
+  },
+  "W12#3": {
+   "class": "i",
+   "control": "目的×手段の構成=全ノード共通 vs 構成を ±10% ずらす(方面別の実データは未取得)→ 生成の目的分布 JSD",
+   "cost_seconds_estimate": 1
+  },
+  "W12#5": {
+   "class": "i",
+   "control": "山手線ピーク 18 本 vs 16/20 本 → 便の時刻分布 JSD",
+   "cost_seconds_estimate": 1
+  },
+  "W12#6": {
+   "class": "i",
+   "control": "メトロ実ダイヤのオフピーク比 vs 一様 → 便の時刻分布 JSD",
+   "cost_seconds_estimate": 1
+  },
+  "W12#7": {
+   "class": "i",
+   "control": "夕ピーク=朝ピーク vs 夕ピーク −20%(仮)→ 便の時刻分布 JSD",
+   "cost_seconds_estimate": 1
+  },
+  "W12#8": {
+   "class": "i",
+   "control": "平日の初終発 vs 土休の初終発 → 便の時刻分布 JSD(土休ダイヤの日)",
+   "cost_seconds_estimate": 1
+  },
+  "W13#3": {
+   "class": "i",
+   "control": "日照率と太陽高度からの推定 vs 日照率だけ → WBGT 段階の分布 JSD",
+   "cost_seconds_estimate": 1
+  },
+  "W13#4": {
+   "class": "iii",
+   "control": "天候型・体感温度の語彙の割当=文面(WBGT 境界は公的指針に釘付け)=対照の文面を定義できない",
+   "cost_seconds_estimate": null
+  },
+  "W13#5": {
+   "class": "i",
+   "control": "2026 年 7-8 月のハードコード vs 内閣府 CSV → 再生日の祝日(差 0 の見込み)",
+   "cost_seconds_estimate": 1
+  },
+  "W13#6": {
+   "class": "i",
+   "control": "時別=平均/合計 vs 正時値 → 時別気象の分布 JSD",
+   "cost_seconds_estimate": 1
+  },
+  "W13#7": {
+   "class": "i",
+   "control": "etrn 時別値で補完 vs 線形補間 → 補完した時の気象の分布",
+   "cost_seconds_estimate": 1
+  },
+  "W14#1": {
+   "class": "iii",
+   "control": "プロンプト文面=自前(対照の文面を定義できない)",
+   "cost_seconds_estimate": null
+  },
+  "W14#2": {
+   "class": "ii",
+   "control": "max_tokens 64 vs 96 → 看板文の再生成(LLM・W14 の呼)が要り、効きは文を読む行動=ラン",
+   "cost_seconds_estimate": null
+  },
+  "W14#3": {
+   "class": "iii",
+   "control": "業種語・価格帯語の表=文面",
+   "cost_seconds_estimate": null
+  },
+  "W14#4": {
+   "class": "iii",
+   "control": "営業時間の日本語化=文面",
+   "cost_seconds_estimate": null
+  },
+  "W14#5": {
+   "class": "iii",
+   "control": "固有名詞検査 N1-N7=門(合否の規則)",
+   "cost_seconds_estimate": null
+  },
+  "W14#6": {
+   "class": "iii",
+   "control": "漢字厳格モード=門",
+   "cost_seconds_estimate": null
+  },
+  "W14#7": {
+   "class": "iii",
+   "control": "不合格率の閾値 0.1=門の閾値",
+   "cost_seconds_estimate": null
+  },
+  "W15#1": {
+   "class": "iii",
+   "control": "プロンプト文面=自前(対照の文面を定義できない)",
+   "cost_seconds_estimate": null
+  },
+  "W15#2": {
+   "class": "ii",
+   "control": "max_tokens 128・char_limit 45 vs 広げる → 静的文の再生成(LLM)+ラン",
+   "cost_seconds_estimate": null
+  },
+  "W15#3": {
+   "class": "ii",
+   "control": "結線枠 45 tok vs 60 tok → 静的文の再生成(LLM)+ラン",
+   "cost_seconds_estimate": null
+  },
+  "W15#4": {
+   "class": "ii",
+   "control": "可視物 上位 2・目印 2 vs 3/3 → 静的文の再生成(LLM)+ラン",
+   "cost_seconds_estimate": null
+  },
+  "W15#5": {
+   "class": "ii",
+   "control": "最多種別 1 語 vs 件数つき → 静的文の再生成(LLM)+ラン",
+   "cost_seconds_estimate": null
+  },
+  "W15#6": {
+   "class": "ii",
+   "control": "街区 あり/なし vs 数 → 静的文の再生成(LLM)+ラン",
+   "cost_seconds_estimate": null
+  },
+  "W15#7": {
+   "class": "iii",
+   "control": "構造化出力の regex=書式の門",
+   "cost_seconds_estimate": null
+  },
+  "W15#8": {
+   "class": "iii",
+   "control": "renderer との二重定義=コードの形(入力の差ではない)",
+   "cost_seconds_estimate": null
+  },
+  "W15#9": {
+   "class": "iii",
+   "control": "末尾の句点を落とす=文面",
+   "cost_seconds_estimate": null
+  },
+  "W15#10": {
+   "class": "iii",
+   "control": "不合格率の閾値 0.05=門の閾値",
+   "cost_seconds_estimate": null
+  },
+  "W16#1": {
+   "class": "i",
+   "control": "W2 セルの被覆範囲 vs 区全域 → 目標体数のセル分布 JSD",
+   "cost_seconds_estimate": 60
+  },
+  "W16#2": {
+   "class": "i",
+   "control": "10 m 標本格子 vs 5 m → 町丁目被覆率と住民のセル分布 JSD",
+   "cost_seconds_estimate": 60
+  },
+  "W16#4": {
+   "class": "i",
+   "control": "generic を住居に入れる vs 入れない → 住民のセル分布 JSD(S-W16-FLOOR と同じ形)",
+   "cost_seconds_estimate": 60
+  },
+  "W16#5": {
+   "class": "i",
+   "control": "不詳を既知階級の比で按分 vs 不詳を別階級 → 住民の年齢分布 JSD",
+   "cost_seconds_estimate": 60
+  },
+  "W16#6": {
+   "class": "iii",
+   "control": "結合 SRMSE の閾値 0.13 の流用=門の閾値",
+   "cost_seconds_estimate": null
+  },
+  "W16#7": {
+   "class": "i",
+   "control": "区の 15 歳以上の分布 vs ±5 歳ずらす(公的な従業者年齢表は未取得)→ 従業者の年齢分布 JSD",
+   "cost_seconds_estimate": 60
+  },
+  "W16#8": {
+   "class": "i",
+   "control": "raking しない vs 区の年齢×性別へ raking → 来街者・通学者の年齢×性別の分布 JSD",
+   "cost_seconds_estimate": 60
+  },
+  "W16#9": {
+   "class": "i",
+   "control": "PT 2018 の目的別到着比 vs ±10% → 通学者・業務・私事の体数の分布",
+   "cost_seconds_estimate": 60
+  },
+  "W16#10": {
+   "class": "ii",
+   "control": "指令 24 体・最頻セル vs 12/48 体 → 効きは出動の応答=ラン",
+   "cost_seconds_estimate": null
+  },
+  "W16#11": {
+   "class": "i",
+   "control": "学校 POI へ一様 vs 学校の床面積比 → 学生の学校セル分布 JSD",
+   "cost_seconds_estimate": 60
+  },
+  "W16#12": {
+   "class": "i",
+   "control": "多項抽選 vs 最大剰余の決定論 → 住民の就業区分の分布",
+   "cost_seconds_estimate": 60
+  },
+  "W16#13": {
+   "class": "i",
+   "control": "到着側の重みの流用 vs 方面一様 → 域外へ通う住民の方面分布 JSD",
+   "cost_seconds_estimate": 60
+  },
+  "W16#14": {
+   "class": "ii",
+   "control": "建物内の連番切り分け vs 世帯構成の再現 → 世帯の効き(財布・同行)はラン",
+   "cost_seconds_estimate": null
+  },
+  "W16#15": {
+   "class": "iii",
+   "control": "空セル 0% の分母=報告の定義(門)",
+   "cost_seconds_estimate": null
+  },
+  "W17#1": {
+   "class": "ii",
+   "control": "W17 v2(P2′ の型)vs v1 の型 → 週次表の再生成(LLM・I1 予算)+ラン",
+   "cost_seconds_estimate": null
+  },
+  "W17#2": {
+   "class": "iii",
+   "control": "1 日モード=ユーザー決定(範囲の宣言=対照を置く対象ではない)",
+   "cost_seconds_estimate": null
+  },
+  "W17#4": {
+   "class": "i",
+   "control": "時刻の整合修復 off vs on → 週次表の開始時刻の分布 JSD(応答の再取り込み)",
+   "cost_seconds_estimate": 90
+  },
+  "W17#5": {
+   "class": "i",
+   "control": "第31/36表の逆関数法 vs 一様な勤務窓 → 勤務開始時刻の分布 JSD(再取り込み)",
+   "cost_seconds_estimate": 90
+  },
+  "W17#6": {
+   "class": "iii",
+   "control": "M6 は 1 日ランで測れない=報告の範囲(対照を置く対象ではない)",
+   "cost_seconds_estimate": null
+  }
+ }
+}

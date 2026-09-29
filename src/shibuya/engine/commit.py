@@ -608,6 +608,10 @@ def intents_from_responses(
     run_salt: bytes = b"",
     vocab_version: str = "v1",
     move_dest: np.ndarray | None = None,
+    targets: Sequence[object] | None = None,
+    poi_resolver: object | None = None,
+    intent_hold: object | None = None,
+    talk_chooser: object | None = None,
 ) -> IntentBatch:
     """Phase A の LLM 由来分: 行動コード → 対象と資源を**エンジンが**決めて intent にする。
 
@@ -643,6 +647,24 @@ def intents_from_responses(
         move_dest: **移動の行き先の上書き**(``(n,)``・``-1``=上書きなし・``≥0``=セル・
             ``WANDER_BAD_TARGET``=対象不正)。「対象: あたり」(二層の段 2)の行き先を
             ``engine.activity`` が決めて渡す口。``None``(既定)では 1 行も通らない。
+        targets: 体ごとの「対象」欄(``llm.contract.Target`` か ``None``)。``poi_resolver`` と
+            一緒に使う(段 2a)。
+        poi_resolver: **段 2a の候補の絞り込み+選び手**(``engine.poi_target.TargetResolver``)。
+            渡すと購入/食事/並ぶの対象を「現在セルの営業中・意図に合う POI の候補 → 選び手の
+            分布」で決める。``None`` なら従来の「現在セルの最小 id」(``_poi_in_cell``)。
+            **段 2b**: 渡すと移動の行き先も対象欄から決める(``TargetResolver.resolve_move``=
+            セル ID → 名指し → カテゴリ語の近傍探索 → なし=従来の既定)。対象ヒント home/work/
+            school/approach と「あたり」の行は従来どおり(そちらが優先)。
+        intent_hold: **段 2c の意図の層**(``engine.intent.IntentLayer``)。``poi_resolver`` と
+            一緒に渡すと、購入/食事/並ぶ/会話/就寝の対象が**現在セルに無く解決できる**行
+            (名指しの店が見えている・カテゴリの店が近傍にある・会話の相手が別セル・寝床=自宅が
+            別セル)を**目的地つき移動**に変え、元の行為を ``intent_hold.propose`` へ渡す
+            (意図を立てるのは移動が始まった後=``IntentLayer.after_apply``)。``None``(既定)は
+            段 2b と 1 バイトも変わらない。
+        talk_chooser: **C10 8b の会話の相手の選び手**(``engine.relations.RelationLayer``・``--relations on``
+            のランだけ)。名指しの無い会話の行(同セルの名指しでない・別セルの意図にしない行)の相手を関係辺の
+            重み+seed つき乱択で引き(``choose_talk_partners``)、全部の会話の行に起点(招待/偶然/知人出現)を
+            付ける。``None``(既定)は 1 バイトも変わらない。
 
     Returns:
         ``IntentBatch``(1 個体 1 件)。
@@ -672,6 +694,23 @@ def intents_from_responses(
         else:
             hc = wc = None
             dest = cell
+        # ---- 段 2b(D-112 ②): 対象欄が行き先を言っていれば従来の既定より優先する ----
+        # 対象ヒント home/work/school/approach と「あたり」(move_dest)の行は下の既存の経路が決める。
+        if poi_resolver is not None:
+            skip = np.zeros(n, dtype=bool)
+            if target_hint is not None:
+                skip |= np.isin(
+                    np.asarray(target_hint, dtype=np.int64),
+                    (TARGET_HINT_HOME, TARGET_HINT_WORK, TARGET_HINT_SCHOOL, TARGET_HINT_APPROACH),
+                )
+            if move_dest is not None:
+                skip |= np.asarray(move_dest, dtype=np.int64) != -1
+            m_rows = is_move & ~skip
+            if np.any(m_rows):
+                m_dest = poi_resolver.resolve_move(  # type: ignore[attr-defined]
+                    agents, int(tick), a, code_out, targets, m_rows
+                )
+                dest = np.where(m_rows & (m_dest != -1), m_dest, dest)
         # ---- C9b G5: 対象ヒントが在れば**LLM が言った行き先**を優先する ----
         # (「帰宅」と書いた体を職場へ歩かせない=段0 辞書が捨てていた対象を拾う。
         #  ``target_hint`` が ``None`` の既定では 1 行も通らない=バイト不変)
@@ -712,8 +751,29 @@ def intents_from_responses(
             dest = np.where(md != -1, md, dest)
         target = np.where(is_move, dest, target)
 
-    # 購入: 現在セルの POI(最小 id)。無ければ -1 → 失敗(在庫切れ扱いでなく対象不正)。
+    # ---- 段 2c: 意図の層(``poi_resolver`` と一緒のときだけ)。行 → (対象, 種類) ----
+    hold_on = intent_hold is not None and poi_resolver is not None
+    shop_intents: dict[int, tuple[int, int]] = {}
+
+    # ---- 段 2a(D-114 (a)): 購入/食事/並ぶの対象=候補(営業中・意図に合う)→ 選び手 ----
     is_buy = code_out == ACT_BUY
+    is_queue = code_out == ACT_QUEUE
+    is_eat = code_out == ACT_EAT
+    if poi_resolver is not None:
+        buy_like = is_buy | (is_queue & (str(vocab_version) == "v3"))
+        if np.any(buy_like | is_eat):
+            poi_t = poi_resolver.resolve(  # type: ignore[attr-defined]
+                agents, int(tick), a, code_out, targets, is_eat=is_eat, is_buy_like=buy_like,
+                **({"intent_out": shop_intents} if hold_on else {}),
+            )
+            sel = buy_like | is_eat
+            target = np.where(sel, poi_t, target)
+            resource = np.where(
+                sel & (poi_t >= 0), space.poi(np.maximum(poi_t, 0)), resource
+            )
+        is_buy = is_queue = is_eat = np.zeros(n, dtype=bool)  # 従来の経路は通さない
+
+    # 購入: 現在セルの POI(最小 id)。無ければ -1 → 失敗(在庫切れ扱いでなく対象不正)。
     if np.any(is_buy):
         poi = _poi_in_cell(world, cell, None)
         target = np.where(is_buy, poi, target)
@@ -721,7 +781,6 @@ def intents_from_responses(
 
     # 並ぶ(語彙 v3・第275 親の決め #2): 対象=現在セルの POI(購入と同じ走査)。飲食店なら
     # ``resolve`` が食事へ、それ以外は購入へ委譲する(資源も購入/食事と同じ ``space.poi``)。
-    is_queue = code_out == ACT_QUEUE
     if str(vocab_version) == "v3" and np.any(is_queue):
         q_poi = _poi_in_cell(world, cell, None)
         target = np.where(is_queue, q_poi, target)
@@ -732,7 +791,6 @@ def intents_from_responses(
     # 食事(語彙 v2): 現在セルの**飲食店** POI(最小 id)。無ければ -1 → ``NOT_IN_EATERY``。
     # 購入と同じ「セル内の POI を探す」走査だが、候補を ``world.eatery_mask`` で絞る。
     # 資源も購入と同じ ``space.poi``(店の 1 tick 受け入れ数)= 同じ店の席を奪い合う。
-    is_eat = code_out == ACT_EAT
     if np.any(is_eat):
         eat_poi = _poi_in_cell(world, cell, world.eatery_mask)
         target = np.where(is_eat, eat_poi, target)
@@ -741,6 +799,7 @@ def intents_from_responses(
         )
 
     # 会話: **LLM が名指しした個体**を第一・同セルでなければ同バッチ最小 id(資源=相手)。
+    talk_intents: dict[int, tuple[int, int]] = {}
     is_talk = code_out == ACT_TALK
     if np.any(is_talk):
         # セル内の並びは blake3 撹拌(ID 順バイアス=v1 C-8 を断つ・T5 の監査点)。
@@ -752,12 +811,43 @@ def intents_from_responses(
         partner, source = talk_partners(
             a, cell, target_person, agents.registry.cell, int(agents.n), order_key
         )
+        if talk_chooser is not None:
+            # C10 8b: 別セルの名指し(下の意図にする行)は選ばない=同じ判定を先に作る
+            far0 = np.zeros(n, dtype=bool)
+            if hold_on and target_person is not None:
+                nm0 = np.asarray(target_person, dtype=np.int64)
+                pc0 = np.asarray(agents.registry.cell, dtype=np.int64)
+                ok0 = is_talk & (nm0 >= 0) & (nm0 < int(agents.n)) & (nm0 != a) & (cell >= 0)
+                pcell0 = np.where(ok0, pc0[np.clip(nm0, 0, max(0, int(agents.n) - 1))], -1)
+                far0 = ok0 & (pcell0 >= 0) & (pcell0 != cell)
+            rows_t = np.flatnonzero(is_talk & ~far0)
+            if rows_t.size:
+                got, _origin = talk_chooser.choose_talk_partners(  # type: ignore[attr-defined]
+                    agents, int(tick), a[rows_t], partner[rows_t], source[rows_t] == 0,
+                    np.asarray(condition, dtype=np.int64)[rows_t],
+                )
+                partner = partner.copy()
+                partner[rows_t] = got
+                source = source.copy()
+                source[rows_t] = np.where(source[rows_t] == 0, 0, np.where(got >= 0, 1, 2)).astype(np.int8)
         target = np.where(is_talk, partner, target)
         resource = np.where(
             is_talk & (partner >= 0), space.partner(np.maximum(partner, 0)), resource
         )
+        talk_far = np.zeros(n, dtype=bool)
+        if hold_on and target_person is not None:
+            # 段 2c: 名指しの相手が**別セル**に居る → その人のセルへ歩いて(着いたら)話しかける
+            nm = np.asarray(target_person, dtype=np.int64)
+            pc_all = np.asarray(agents.registry.cell, dtype=np.int64)
+            ok = is_talk & (nm >= 0) & (nm < int(agents.n)) & (nm != a) & (cell >= 0)
+            pcell = np.where(ok, pc_all[np.clip(nm, 0, max(0, int(agents.n) - 1))], -1)
+            talk_far = ok & (pcell >= 0) & (pcell != cell)
+            if np.any(talk_far):
+                for k in np.flatnonzero(talk_far).tolist():
+                    talk_intents[k] = (int(nm[k]), int(pcell[k]))
         if stats is not None:
-            src = source[is_talk]
+            # 意図にした行(相手が別セル)は由来の計数から外す(manifest ``intent`` の person で数える)
+            src = source[is_talk & ~talk_far]
             stats["talk_named"] = stats.get("talk_named", 0) + int(np.count_nonzero(src == 0))
             stats["talk_fallback"] = stats.get("talk_fallback", 0) + int(
                 np.count_nonzero(src == 1)
@@ -766,10 +856,58 @@ def intents_from_responses(
 
     # 就寝: 寝床=自宅セル(資源=そのセルの就寝スロット)。
     is_sleep = code_out == ACT_SLEEP
+    bed_far = np.zeros(n, dtype=bool)
     if np.any(is_sleep):
         bed = np.asarray(home_cell, dtype=np.int64)[a] if home_cell is not None else cell
         target = np.where(is_sleep, bed, target)
         resource = np.where(is_sleep & (bed >= 0), space.sleep(np.maximum(bed, 0)), resource)
+        if hold_on and home_cell is not None:
+            # 段 2c: 寝床(自宅セル)が**別セル** → 自宅へ歩いて(着いたら)寝る
+            bed_far = is_sleep & (bed >= 0) & (cell >= 0) & (bed != cell)
+            # 親決定 Q22: 計画就寝の意図(``sleep_pending``)が立っている体には立てない(計画が優先)
+            planned = bed_far & (np.asarray(agents.registry.sleep_pending, dtype=np.int64)[a] != 0)
+            if np.any(planned):
+                bed_far = bed_far & ~planned
+                intent_hold.note(  # type: ignore[attr-defined]
+                    "bed_skipped_sleep_pending", int(np.count_nonzero(planned))
+                )
+
+    # ---- 段 2c: セル外の対象を「意図+目的地つき移動」に変える ----
+    if hold_on and (shop_intents or talk_intents or np.any(bed_far)):
+        from shibuya.agents.state import IntentKind  # 局所 import(層は engine>agents で合法)
+
+        poi_cell = np.asarray(world.pois.cell, dtype=np.int64)
+        rows: list[int] = []
+        i_tgt: list[int] = []
+        i_kind: list[int] = []
+        i_dest: list[int] = []
+        for k, (poi, kind) in sorted(shop_intents.items()):
+            rows.append(k)
+            i_tgt.append(int(poi))
+            i_kind.append(int(kind))
+            i_dest.append(int(poi_cell[int(poi)]))
+        for k, (pid, pcell) in sorted(talk_intents.items()):
+            rows.append(k)
+            i_tgt.append(int(pid))
+            i_kind.append(int(IntentKind.PERSON))
+            i_dest.append(int(pcell))
+        if np.any(bed_far):
+            bed_arr = np.asarray(home_cell, dtype=np.int64)[a]
+            for k in np.flatnonzero(bed_far).tolist():
+                rows.append(k)
+                i_tgt.append(int(bed_arr[k]))
+                i_kind.append(int(IntentKind.BED))
+                i_dest.append(int(bed_arr[k]))
+        r_idx = np.asarray(rows, dtype=np.int64)
+        dest_arr = np.asarray(i_dest, dtype=np.int64)
+        intent_hold.propose(  # type: ignore[attr-defined]
+            a[r_idx], code_out[r_idx].astype(np.int64), np.asarray(i_tgt, dtype=np.int64),
+            np.asarray(i_kind, dtype=np.int64), dest_arr,
+        )
+        code_out = code_out.copy()
+        code_out[r_idx] = np.int8(ACT_MOVE)
+        target[r_idx] = dest_arr
+        resource[r_idx] = -1
 
     t0 = tick_start_ns(tick)
     return IntentBatch(

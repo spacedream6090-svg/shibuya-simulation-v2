@@ -1,0 +1,113 @@
+{
+ "schema": "shibuya.bench/c10-relations/marks/1",
+ "base": {
+  "vocab_version": "v3",
+  "memory": "on"
+ },
+ "rows": [
+  {
+   "arm": "mock_off",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on"
+   },
+   "final_hash": "6b72e94a0f3e0c56fb03e2cbd68b093aa113a50f08ad04b19e1f9b7f2adba3c4",
+   "llm_calls": 69603,
+   "renders": 69603,
+   "renders_with_any_person": 66701,
+   "renders_with_known_mark": 0,
+   "share_of_renders_with_known_mark": 0.0,
+   "share_of_person_renders_with_known_mark": 0.0,
+   "persons_total": 190430,
+   "known_marks_total": 0,
+   "known_per_render_hist": {
+    "0": 69603
+   }
+  },
+  {
+   "arm": "mock_on",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on"
+   },
+   "final_hash": "1fbb429c70b19e8b9832495b0343a3f6f9cc9a8d8e62021977ee340a27ac9388",
+   "llm_calls": 69603,
+   "renders": 69603,
+   "renders_with_any_person": 66701,
+   "renders_with_known_mark": 4640,
+   "share_of_renders_with_known_mark": 0.06666,
+   "share_of_person_renders_with_known_mark": 0.06956,
+   "persons_total": 195348,
+   "known_marks_total": 5795,
+   "known_per_render_hist": {
+    "0": 64963,
+    "1": 3824,
+    "2": 582,
+    "3": 172,
+    "4": 31,
+    "5": 22,
+    "6": 6,
+    "7": 3
+   }
+  },
+  {
+   "arm": "classical_off",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "policy": "classical",
+    "chooser": "classical"
+   },
+   "final_hash": "07f015945450d5668dd5e029adade9704e90490599f342f0797fa5209f7c6680",
+   "llm_calls": 102008,
+   "renders": 102008,
+   "renders_with_any_person": 98665,
+   "renders_with_known_mark": 0,
+   "share_of_renders_with_known_mark": 0.0,
+   "share_of_person_renders_with_known_mark": 0.0,
+   "persons_total": 282424,
+   "known_marks_total": 0,
+   "known_per_render_hist": {
+    "0": 102008
+   }
+  },
+  {
+   "arm": "classical_on",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "policy": "classical",
+    "chooser": "classical"
+   },
+   "final_hash": "e308d89cd77102896db903b571e79c0f967dac38ada47c1b5bedf2dae2e0eed8",
+   "llm_calls": 101894,
+   "renders": 101894,
+   "renders_with_any_person": 98537,
+   "renders_with_known_mark": 23187,
+   "share_of_renders_with_known_mark": 0.22756,
+   "share_of_person_renders_with_known_mark": 0.23531,
+   "persons_total": 350620,
+   "known_marks_total": 77795,
+   "known_per_render_hist": {
+    "0": 78707,
+    "1": 9447,
+    "2": 3440,
+    "3": 2198,
+    "4": 1926,
+    "5": 1567,
+    "6": 1133,
+    "7": 920,
+    "8": 654,
+    "9": 446,
+    "10": 407,
+    "11": 433,
+    "12": 241,
+    "13": 190,
+    "14": 119,
+    "15": 66
+   }
+  }
+ ]
+}

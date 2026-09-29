@@ -97,7 +97,13 @@ def test_monthly_mer_is_a_fixed_table(tmp_path):
     assert mer["internal"]["消費支出"] == 3_500
     assert mer["per_account"]["消費支出"] == 3_500
     assert mer["money_supply"] == led.money_supply()
-    assert "waste_tonnes_per_day" in mer and mer["waste_band_ok"] is False  # 合成小世界なので band 外
+    assert "waste_tonnes_per_day" in mer
+    # 第305 Q137: 帯=店だけの静的な帯・判定=店の回収量(この小世界は 1 日 1 個しか捨てない=帯の外)
+    e, lo, hi = g.store_waste_band()
+    assert mer["waste_band"] == (lo, hi)
+    assert mer["waste_store_tonnes_per_day"] == g.store_waste_g_total / 1e6 / 5
+    assert mer["waste_band_ok"] is (lo <= mer["waste_store_tonnes_per_day"] <= hi) is False
+    assert "自己整合性の検査" in mer["waste_band_check"] and "保留" in mer["waste_band_check"]
     path = CS.write_monthly_mer(mer, tmp_path / "mer.parquet")
     import pyarrow.parquet as pq
 
@@ -167,7 +173,9 @@ def test_the_sector_axis_does_not_move_the_fixed_table(tmp_path):
         led.on_day_end(d)
         g.on_day_end(d)
     mer = CS.monthly_mer(led, g, month=0, days=5)
-    assert set(mer) - {"per_sector", "flows", "t3_ok", "t3"} == _MER_FIXED_KEYS
+    # 第305 Q137: 店だけの帯の判定材料(``waste_store_tonnes_per_day``)と帯の意味(``waste_band_check``)を足した
+    assert set(mer) - {"per_sector", "flows", "t3_ok", "t3", "waste_store_tonnes_per_day",
+                       "waste_band_check"} == _MER_FIXED_KEYS
     assert mer["faucet"]["来街者持込"] == 6 * 20_000
     assert mer["sink"]["域外仕入"] == 1_000
     assert mer["internal"]["消費支出"] == 3_500

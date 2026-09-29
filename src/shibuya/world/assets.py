@@ -72,6 +72,10 @@ __all__ = [
     "CORRIDOR_MAX_DENSITY_PER_M2",
     "check_area_source",
     "load_walkable_area_m2",
+    # ---- 段 2a(選択器の口): 同じセルの POI の見えやすさ(W8) ----
+    "load_poi_own_cell_visibility",
+    # ---- 段 2b(行き先を対象欄から): セルから見えている POI(W8・B2 の可視物) ----
+    "load_visible_pois_by_cell",
 ]
 
 #: 層名 → コード(UG=-1 / GL=0 / DECK=1。W2 の 3 値)。
@@ -220,6 +224,10 @@ class WorldAssets:
         poi_cat: カテゴリ名(POI ごと)。
         poi_name: POI 名(W6 ``name`` 列)。合成世界は空タプル。**C9b G6 a′**
             (目印の対象解決 ``World.landmark_targets``)のためだけに持つ。
+        poi_subcat: POI のサブカテゴリ(W6 ``subcat`` 列・無しは ``""``)。合成世界は空タプル。
+            **段 1b(D-96 nightlife (b))**の飲食店の切替口 ``World.eatery_mask``
+            (``eatery="place_food"``)のためだけに持つ=**実行時に subcat を読む最初の口**。
+            既定の ``eatery="food"`` では読まない。
     """
 
     source: str
@@ -246,6 +254,8 @@ class WorldAssets:
     poi_cat: tuple[str, ...]
     #: POI 名(W6 ``name``)。**既定は空**=名前を持たない世界(合成)。
     poi_name: tuple[str, ...] = ()
+    #: POI のサブカテゴリ(W6 ``subcat``・無しは ``""``)。**既定は空**=持たない世界(合成)。
+    poi_subcat: tuple[str, ...] = ()
     #: POI の平面座標 ``(n_poi, 2)`` float32(W6 ``x``/``y``)。``None``=資産が持たない
     #: (合成世界)→ ``poi_position()`` が最寄ノード座標で代用する。
     poi_xy: np.ndarray | None = None
@@ -381,10 +391,14 @@ def load_assets(path: str | Path) -> WorldAssets:
     next_hop = np.load(p / "w3_next_hop.npy", mmap_mode="r")
     cell_dist = np.load(p / "w3_cell_dist.npy", mmap_mode="r")
 
+    poi_cols = ["poi_id", "name", "cat", "place_id", "node_id", "x", "y"]
+    # ``subcat`` は段 1b の飲食店の切替口(``eatery="place_food"``)のためだけに読む
+    # (W6 1.0.0 以後の資産は全部持つ。持たない資産は空タプル=place_food が拒む)。
+    has_subcat = "subcat" in pq.read_schema(p / "w6_poi.parquet").names
     poi = pq.read_table(
         p / "w6_poi.parquet",
         # ``name`` は C9b G6 a′(目印の対象解決)のためだけに読む。数値配列は増えない。
-        columns=["poi_id", "name", "cat", "place_id", "node_id", "x", "y"],
+        columns=poi_cols + (["subcat"] if has_subcat else []),
     ).to_pydict()
     # 逐次ループ宣言1: POI 数(2,337)ぶんの辞書引き
     poi_cell = np.array([place_to_cell.get(pid, -1) for pid in poi["place_id"]], dtype=np.int32)
@@ -429,10 +443,92 @@ def load_assets(path: str | Path) -> WorldAssets:
         poi_open_to=poi_open_to,
         poi_cat=cats,
         poi_name=tuple(str(s) for s in poi["name"]),
+        poi_subcat=(
+            tuple("" if s is None else str(s) for s in poi["subcat"]) if has_subcat else ()
+        ),
         poi_xy=poi_xy,
         noise_stage_day=ns_day,
         noise_stage_night=ns_night,
     )
+
+
+def load_poi_own_cell_visibility(world_dir: str | Path, poi_cell: np.ndarray) -> np.ndarray:
+    """W8 → POI ごとの「**自分のセルの視点から見える数**」(``(n_poi,)`` int32・無ければ 0)。
+
+    段 2a(選択器の口・D-114 (a))の既定の選び手 ``NearestChooser`` の「可視順」の素。
+    ``w8_t1_cell.parquet``(セル → 対象 → 見えている視点数)と ``w8_targets.parquet``
+    (対象 → ``poi_id``)を ``w6_poi.parquet`` の行順(=実行時の POI 索引)へ写す。セル索引は
+    W2 の行順で、W8 の ``place_idx`` と実行時の ``poi_cell`` は同じ索引(どちらも W2 の行番号)。
+    資産が欠けていれば全 0(=可視順は POI 索引だけで決まる)。
+
+    逐次ループ宣言(P4): なし(辞書 1 本と配列の写像。起動時 1 回)。
+    """
+    import pyarrow.parquet as pq
+
+    p = Path(world_dir)
+    cell = np.asarray(poi_cell, dtype=np.int64)
+    out = np.zeros(cell.size, dtype=np.int32)
+    files = (p / "w6_poi.parquet", p / "w8_targets.parquet", p / "w8_t1_cell.parquet")
+    if not all(f.exists() for f in files):
+        return out
+    poi_ids = pq.read_table(files[0], columns=["poi_id"]).column(0).to_pylist()
+    tg = pq.read_table(files[1], columns=["target_id", "kind", "ref_id"]).to_pydict()
+    target_of_poi = {
+        str(ref): int(tid) for tid, kind, ref in zip(tg["target_id"], tg["kind"], tg["ref_id"])
+        if str(kind) == "poi"
+    }
+    t1 = pq.read_table(files[2], columns=["place_idx", "target_id", "n_viewpoints"]).to_pydict()
+    seen = {
+        (int(c), int(t)): int(n)
+        for c, t, n in zip(t1["place_idx"], t1["target_id"], t1["n_viewpoints"])
+    }
+    for j, pid in enumerate(poi_ids[: cell.size]):
+        tid = target_of_poi.get(str(pid))
+        if tid is not None and cell[j] >= 0:
+            out[j] = seen.get((int(cell[j]), tid), 0)
+    return out
+
+
+def load_visible_pois_by_cell(
+    world_dir: str | Path, n_cells: int
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """W8 → セルごとの「そのセルの視点から見えている POI」(CSR)。
+
+    段 2b(行き先を対象欄から・D-112 ②)のカテゴリ語の近傍探索で「現在セルに候補が無ければ
+    見えている POI」を引く口(W8 ``w8_t1_cell``=B2 の可視物のセル集約)。
+
+    Returns:
+        ``(offsets[n_cells+1], poi_idx, n_viewpoints)``。セル ``c`` の行は
+        ``offsets[c]:offsets[c+1]``(POI 索引の昇順)。資産が欠けていれば全セル空。
+
+    逐次ループ宣言(P4): なし(辞書 1 本と整列。起動時 1 回)。
+    """
+    import pyarrow.parquet as pq
+
+    p = Path(world_dir)
+    offsets = np.zeros(int(n_cells) + 1, dtype=np.int64)
+    empty = (offsets, np.zeros(0, dtype=np.int64), np.zeros(0, dtype=np.int32))
+    files = (p / "w6_poi.parquet", p / "w8_targets.parquet", p / "w8_t1_cell.parquet")
+    if not all(f.exists() for f in files):
+        return empty
+    poi_ids = pq.read_table(files[0], columns=["poi_id"]).column(0).to_pylist()
+    index_of = {str(pid): j for j, pid in enumerate(poi_ids)}
+    tg = pq.read_table(files[1], columns=["target_id", "kind", "ref_id"]).to_pydict()
+    poi_of_target = {
+        int(tid): index_of[str(ref)]
+        for tid, kind, ref in zip(tg["target_id"], tg["kind"], tg["ref_id"])
+        if str(kind) == "poi" and str(ref) in index_of
+    }
+    t1 = pq.read_table(files[2], columns=["place_idx", "target_id", "n_viewpoints"]).to_pydict()
+    cell = np.asarray(t1["place_idx"], dtype=np.int64)
+    poi = np.asarray([poi_of_target.get(int(t), -1) for t in t1["target_id"]], dtype=np.int64)
+    nv = np.asarray(t1["n_viewpoints"], dtype=np.int32)
+    ok = (poi >= 0) & (cell >= 0) & (cell < int(n_cells))
+    cell, poi, nv = cell[ok], poi[ok], nv[ok]
+    order = np.lexsort((poi, cell))
+    cell, poi, nv = cell[order], poi[order], nv[order]
+    np.cumsum(np.bincount(cell, minlength=int(n_cells)), out=offsets[1:])
+    return offsets, poi, nv
 
 
 def _noise_stage_per_cell(

@@ -583,3 +583,5 @@ Gordon et al. 2019 が示したのは「観測データからは因果効果を�
 - AAPOR 2026 Responsible AI Integration — https://aapor.org/wp-content/uploads/2026/05/Responsible-AI-Integration-In-Survey-Research.pdf
 - ESOMAR Congress 2024 Synthetic Data — https://ana.esomar.org/api/public/document/file_renderer/12519
 - Li, Castelo, Katona & Sarvary 2024 Marketing Science — https://doi.org/10.1287/mksc.2023.0454
+
+> **訂正の伝播(第283・2026-09-28・親)**: 4-C (ii)「その店に対する親近性スカラー +ε は台帳(AD4)で較正」は、同 4-F で AD4 が split=holdout であることと矛盾する([R-51](v2-r51-mere-exposure-incidental-ads-research.md) §8-1 の循環参照検査で発見)。**訂正**: AD4(および AD1)は照合専用とし、ε(M17 では β)は宣言+感度腕とする。M17 の潜在経路(数値のまま LLM を通らない)は 4-C (ii) の形を引き継ぐ。

@@ -1,0 +1,2105 @@
+{
+ "schema": "shibuya.bench/l4-unlimited-2026-09-28/1",
+ "n_agents": 5000,
+ "seed": 1,
+ "arms": [
+  {
+   "arm": "v3_default",
+   "args": {
+    "vocab_version": "v3",
+    "activity": true
+   },
+   "final_committed_2c": "6845e3acb8906210a76d2f3f9e1a0e86bcf6d5a8185e670595038a64b8045dd5",
+   "x1": {
+    "final_hash": "6845e3acb8906210a76d2f3f9e1a0e86bcf6d5a8185e670595038a64b8045dd5",
+    "llm_calls": 36502,
+    "llm_calls_per_agent_day": 7.3004,
+    "calls_by_entrance": {
+     "場所": 731,
+     "体": 9463,
+     "日課": 13000,
+     "会話": 1394,
+     "満了": 11914,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 1394,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 3333,
+     "PLAN_GENERAL": 4072,
+     "PLAN_TRANSIT": 5595,
+     "INTEROCEPTION": 9463,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 731,
+     "ACTIVITY_EXPIRY": 11914
+    },
+    "diag": {
+     "deferred": 39987,
+     "promoted": 70276,
+     "degraded": 1267,
+     "suppressed": 9076,
+     "sleep_suppressed": 10663,
+     "outside_suppressed": 49944
+    },
+    "purchases": 2957,
+    "meals": 2522,
+    "action_usage": {
+     "(エンジン継続)": 169201,
+     "移動": 6197,
+     "乗車": 3145,
+     "購入": 2798,
+     "なし": 3103,
+     "会話": 2980,
+     "退去": 3156,
+     "通報": 3061,
+     "手伝い": 3011,
+     "断る": 2979,
+     "就寝": 2952,
+     "食事": 2849,
+     "並ぶ": 2903
+    },
+    "budget_per_tick": 34.72222222222222,
+    "l4_scale": 1.0,
+    "l4_audit": {
+     "llm_calls_total": 36502,
+     "llm_calls_per_agent_day": 7.3004,
+     "l4_line": 10.0,
+     "l4_exceeded": false,
+     "l4_notes": []
+    },
+    "intent": {
+     "set": 217,
+     "arrived": 159,
+     "done": 159,
+     "latest_activity_used": 2
+    },
+    "conserved": true
+   },
+   "unlimited": {
+    "final_hash": "a1036ab5b06e461c6c6757f477223c54268c1a60b8b4b18681cac8ad520ad0b4",
+    "llm_calls": 68781,
+    "llm_calls_per_agent_day": 13.7562,
+    "calls_by_entrance": {
+     "場所": 5571,
+     "体": 23335,
+     "日課": 17031,
+     "会話": 3403,
+     "満了": 19441,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 3403,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4229,
+     "PLAN_GENERAL": 5914,
+     "PLAN_TRANSIT": 6888,
+     "INTEROCEPTION": 23335,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 5571,
+     "ACTIVITY_EXPIRY": 19441
+    },
+    "diag": {
+     "deferred": 0,
+     "promoted": 0,
+     "degraded": 0,
+     "suppressed": 23942,
+     "sleep_suppressed": 14265,
+     "outside_suppressed": 52825
+    },
+    "purchases": 4979,
+    "meals": 4657,
+    "action_usage": {
+     "(エンジン継続)": 249151,
+     "移動": 9818,
+     "乗車": 5902,
+     "購入": 4898,
+     "なし": 5779,
+     "会話": 4729,
+     "退去": 5763,
+     "通報": 5750,
+     "手伝い": 5770,
+     "断る": 5705,
+     "就寝": 5469,
+     "食事": 5130,
+     "並ぶ": 4897
+    },
+    "budget_per_tick": 5000.0,
+    "l4_scale": 0.0,
+    "l4_audit": {
+     "llm_calls_total": 68781,
+     "llm_calls_per_agent_day": 13.7562,
+     "l4_line": 10.0,
+     "l4_exceeded": true,
+     "l4_notes": []
+    },
+    "intent": {
+     "set": 399,
+     "arrived": 207,
+     "done": 207,
+     "latest_activity_used": 11
+    },
+    "conserved": true
+   },
+   "x1_equals_committed_2c": true,
+   "jsd_actions_llm": 0.00087942,
+   "jsd_actions_all": 0.00121737,
+   "jsd_wake_conditions": 0.02711331
+  },
+  {
+   "arm": "v3_activity_off",
+   "args": {
+    "vocab_version": "v3",
+    "activity": false
+   },
+   "final_committed_2c": "67d394b739debe7b8b0845c95508b8a37a9e9dfb818a8b8ae3206ba7c1c0602a",
+   "x1": {
+    "final_hash": "67d394b739debe7b8b0845c95508b8a37a9e9dfb818a8b8ae3206ba7c1c0602a",
+    "llm_calls": 33786,
+    "llm_calls_per_agent_day": 6.7572,
+    "calls_by_entrance": {
+     "場所": 5940,
+     "体": 9848,
+     "日課": 16371,
+     "会話": 1627,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 1627,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4071,
+     "PLAN_GENERAL": 5330,
+     "PLAN_TRANSIT": 6970,
+     "INTEROCEPTION": 9848,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 5940,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 32175,
+     "promoted": 19969,
+     "degraded": 7609,
+     "suppressed": 23449,
+     "sleep_suppressed": 7325,
+     "outside_suppressed": 37773
+    },
+    "purchases": 3029,
+    "meals": 2615,
+    "action_usage": {
+     "(エンジン継続)": 120200,
+     "移動": 2809,
+     "乗車": 2912,
+     "購入": 2723,
+     "なし": 2901,
+     "会話": 2672,
+     "退去": 2765,
+     "通報": 2715,
+     "手伝い": 2843,
+     "断る": 2731,
+     "就寝": 2720,
+     "食事": 2838,
+     "並ぶ": 2777
+    },
+    "budget_per_tick": 34.72222222222222,
+    "l4_scale": 1.0,
+    "l4_audit": {
+     "llm_calls_total": 33786,
+     "llm_calls_per_agent_day": 6.7572,
+     "l4_line": 10.0,
+     "l4_exceeded": false,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "unlimited": {
+    "final_hash": "7fe2829e4ee41c0da14ca2c17f1bdcaaeffedd47d5b462f0f0082d4d75f2c2b3",
+    "llm_calls": 57335,
+    "llm_calls_per_agent_day": 11.467,
+    "calls_by_entrance": {
+     "場所": 21634,
+     "体": 15542,
+     "日課": 17702,
+     "会話": 2457,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2457,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4348,
+     "PLAN_GENERAL": 6197,
+     "PLAN_TRANSIT": 7157,
+     "INTEROCEPTION": 15542,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 21634,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 0,
+     "promoted": 0,
+     "degraded": 0,
+     "suppressed": 100963,
+     "sleep_suppressed": 8528,
+     "outside_suppressed": 36192
+    },
+    "purchases": 4242,
+    "meals": 3675,
+    "action_usage": {
+     "(エンジン継続)": 141779,
+     "移動": 4697,
+     "乗車": 4783,
+     "購入": 3976,
+     "なし": 4792,
+     "会話": 3367,
+     "退去": 4773,
+     "通報": 4756,
+     "手伝い": 4922,
+     "断る": 4756,
+     "就寝": 4756,
+     "食事": 4193,
+     "並ぶ": 4010
+    },
+    "budget_per_tick": 5000.0,
+    "l4_scale": 0.0,
+    "l4_audit": {
+     "llm_calls_total": 57335,
+     "llm_calls_per_agent_day": 11.467,
+     "l4_line": 10.0,
+     "l4_exceeded": true,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "x1_equals_committed_2c": true,
+   "jsd_actions_llm": 0.00168188,
+   "jsd_actions_all": 0.00363104,
+   "jsd_wake_conditions": 0.0418442
+  },
+  {
+   "arm": "v1_default",
+   "args": {
+    "vocab_version": "v1"
+   },
+   "final_committed_2c": "328848dca7ac751afeaebd0eacf6f9f415ac02e779d75139b198ebabb1873faf",
+   "x1": {
+    "final_hash": "328848dca7ac751afeaebd0eacf6f9f415ac02e779d75139b198ebabb1873faf",
+    "llm_calls": 33320,
+    "llm_calls_per_agent_day": 6.664,
+    "calls_by_entrance": {
+     "場所": 6075,
+     "体": 9207,
+     "日課": 16515,
+     "会話": 1523,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 1523,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4088,
+     "PLAN_GENERAL": 5420,
+     "PLAN_TRANSIT": 7007,
+     "INTEROCEPTION": 9207,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 6075,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 30729,
+     "promoted": 19217,
+     "degraded": 6983,
+     "suppressed": 23445,
+     "sleep_suppressed": 7622,
+     "outside_suppressed": 36876
+    },
+    "purchases": 1962,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 118697,
+     "移動": 2816,
+     "乗車": 2809,
+     "降車": 2736,
+     "購入": 2785,
+     "待機": 2735,
+     "会話": 2580,
+     "退去": 2797,
+     "通報": 2797,
+     "手伝い": 2729,
+     "断る": 2682,
+     "休憩": 2868,
+     "就寝": 2780
+    },
+    "budget_per_tick": 34.72222222222222,
+    "l4_scale": 1.0,
+    "l4_audit": {
+     "llm_calls_total": 33320,
+     "llm_calls_per_agent_day": 6.664,
+     "l4_line": 10.0,
+     "l4_exceeded": false,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "unlimited": {
+    "final_hash": "9c7d272992f33fd24869160747abd7c6b29e0260c153ffe605b819dc8a49b001",
+    "llm_calls": 56954,
+    "llm_calls_per_agent_day": 11.3908,
+    "calls_by_entrance": {
+     "場所": 21401,
+     "体": 15430,
+     "日課": 17650,
+     "会話": 2473,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2473,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4337,
+     "PLAN_GENERAL": 6152,
+     "PLAN_TRANSIT": 7161,
+     "INTEROCEPTION": 15430,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 21401,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 0,
+     "promoted": 0,
+     "degraded": 0,
+     "suppressed": 95649,
+     "sleep_suppressed": 8594,
+     "outside_suppressed": 35310
+    },
+    "purchases": 2942,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 142161,
+     "移動": 4599,
+     "乗車": 4701,
+     "降車": 4797,
+     "購入": 4289,
+     "待機": 4814,
+     "会話": 3333,
+     "退去": 4756,
+     "通報": 4797,
+     "手伝い": 4760,
+     "断る": 4785,
+     "休憩": 4714,
+     "就寝": 4734
+    },
+    "budget_per_tick": 5000.0,
+    "l4_scale": 0.0,
+    "l4_audit": {
+     "llm_calls_total": 56954,
+     "llm_calls_per_agent_day": 11.3908,
+     "l4_line": 10.0,
+     "l4_exceeded": true,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "x1_equals_committed_2c": true,
+   "jsd_actions_llm": 0.00111598,
+   "jsd_actions_all": 0.00388727,
+   "jsd_wake_conditions": 0.040462
+  },
+  {
+   "arm": "v1_derive_v2_1",
+   "args": {
+    "vocab_version": "v1",
+    "derive_rule": "v2.1"
+   },
+   "final_committed_2c": "52aa92610a2641a74f53489b8e026f55ae3c462865f3e2d95e07817cc54ca61a",
+   "x1": {
+    "final_hash": "52aa92610a2641a74f53489b8e026f55ae3c462865f3e2d95e07817cc54ca61a",
+    "llm_calls": 30543,
+    "llm_calls_per_agent_day": 6.1086,
+    "calls_by_entrance": {
+     "場所": 6806,
+     "体": 9520,
+     "日課": 12772,
+     "会話": 1445,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 1445,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4400,
+     "PLAN_GENERAL": 5401,
+     "PLAN_TRANSIT": 2971,
+     "INTEROCEPTION": 9520,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 6806,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 23008,
+     "promoted": 11650,
+     "degraded": 9507,
+     "suppressed": 25731,
+     "sleep_suppressed": 7365,
+     "outside_suppressed": 40574
+    },
+    "purchases": 1919,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 104944,
+     "移動": 2469,
+     "乗車": 2672,
+     "降車": 2543,
+     "購入": 2644,
+     "待機": 2478,
+     "会話": 2400,
+     "退去": 2515,
+     "通報": 2595,
+     "手伝い": 2440,
+     "断る": 2493,
+     "休憩": 2580,
+     "就寝": 2509
+    },
+    "budget_per_tick": 34.72222222222222,
+    "l4_scale": 1.0,
+    "l4_audit": {
+     "llm_calls_total": 30543,
+     "llm_calls_per_agent_day": 6.1086,
+     "l4_line": 10.0,
+     "l4_exceeded": false,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "unlimited": {
+    "final_hash": "d7e7946464203c0fac8e743a3b2d42f43c27821389aaee9a7158b73f616ec0e2",
+    "llm_calls": 49281,
+    "llm_calls_per_agent_day": 9.8562,
+    "calls_by_entrance": {
+     "場所": 19140,
+     "体": 14366,
+     "日課": 13706,
+     "会話": 2069,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2069,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4460,
+     "PLAN_GENERAL": 6156,
+     "PLAN_TRANSIT": 3090,
+     "INTEROCEPTION": 14366,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 19140,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 0,
+     "promoted": 0,
+     "degraded": 0,
+     "suppressed": 87812,
+     "sleep_suppressed": 7815,
+     "outside_suppressed": 39088
+    },
+    "purchases": 2560,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 127210,
+     "移動": 4075,
+     "乗車": 4029,
+     "降車": 4102,
+     "購入": 3595,
+     "待機": 4137,
+     "会話": 2838,
+     "退去": 4099,
+     "通報": 4179,
+     "手伝い": 4037,
+     "断る": 4182,
+     "休憩": 4147,
+     "就寝": 4090
+    },
+    "budget_per_tick": 5000.0,
+    "l4_scale": 0.0,
+    "l4_audit": {
+     "llm_calls_total": 49281,
+     "llm_calls_per_agent_day": 9.8562,
+     "l4_line": 10.0,
+     "l4_exceeded": false,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "x1_equals_committed_2c": true,
+   "jsd_actions_llm": 0.00159928,
+   "jsd_actions_all": 0.00259317,
+   "jsd_wake_conditions": 0.02713827
+  },
+  {
+   "arm": "v2",
+   "args": {
+    "vocab_version": "v2"
+   },
+   "final_committed_2c": "651435982c73f3beed955135375c211efc09bc2b3f67d7ee08002c0fe21406ab",
+   "x1": {
+    "final_hash": "651435982c73f3beed955135375c211efc09bc2b3f67d7ee08002c0fe21406ab",
+    "llm_calls": 33843,
+    "llm_calls_per_agent_day": 6.7686,
+    "calls_by_entrance": {
+     "場所": 5856,
+     "体": 9952,
+     "日課": 16519,
+     "会話": 1516,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 1516,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4104,
+     "PLAN_GENERAL": 5404,
+     "PLAN_TRANSIT": 7011,
+     "INTEROCEPTION": 9952,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 5856,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 31633,
+     "promoted": 19792,
+     "degraded": 7138,
+     "suppressed": 22460,
+     "sleep_suppressed": 7469,
+     "outside_suppressed": 37145
+    },
+    "purchases": 1817,
+    "meals": 1542,
+    "action_usage": {
+     "(エンジン継続)": 109339,
+     "移動": 2603,
+     "乗車": 2586,
+     "降車": 2594,
+     "購入": 2536,
+     "待機": 2650,
+     "会話": 2474,
+     "退去": 2535,
+     "通報": 2599,
+     "手伝い": 2676,
+     "断る": 2653,
+     "休憩": 2627,
+     "就寝": 2466,
+     "食事": 2599
+    },
+    "budget_per_tick": 34.72222222222222,
+    "l4_scale": 1.0,
+    "l4_audit": {
+     "llm_calls_total": 33843,
+     "llm_calls_per_agent_day": 6.7686,
+     "l4_line": 10.0,
+     "l4_exceeded": false,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "unlimited": {
+    "final_hash": "955336e5a993064ac93a75a10a2b45d7eac5ebae695f253f7b4f9a3b1aecef94",
+    "llm_calls": 57773,
+    "llm_calls_per_agent_day": 11.5546,
+    "calls_by_entrance": {
+     "場所": 20878,
+     "体": 16679,
+     "日課": 17733,
+     "会話": 2483,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2483,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4384,
+     "PLAN_GENERAL": 6172,
+     "PLAN_TRANSIT": 7177,
+     "INTEROCEPTION": 16679,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 20878,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 0,
+     "promoted": 0,
+     "degraded": 0,
+     "suppressed": 94603,
+     "sleep_suppressed": 8247,
+     "outside_suppressed": 35716
+    },
+    "purchases": 2740,
+    "meals": 2300,
+    "action_usage": {
+     "(エンジン継続)": 137286,
+     "移動": 4512,
+     "乗車": 4452,
+     "降車": 4526,
+     "購入": 3924,
+     "待機": 4417,
+     "会話": 3190,
+     "退去": 4417,
+     "通報": 4399,
+     "手伝い": 4449,
+     "断る": 4557,
+     "休憩": 4328,
+     "就寝": 4410,
+     "食事": 4004
+    },
+    "budget_per_tick": 5000.0,
+    "l4_scale": 0.0,
+    "l4_audit": {
+     "llm_calls_total": 57773,
+     "llm_calls_per_agent_day": 11.5546,
+     "l4_line": 10.0,
+     "l4_exceeded": true,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "x1_equals_committed_2c": true,
+   "jsd_actions_llm": 0.00109972,
+   "jsd_actions_all": 0.0029255,
+   "jsd_wake_conditions": 0.03966742
+  },
+  {
+   "arm": "v1_edge",
+   "args": {
+    "vocab_version": "v1",
+    "geometry": "edge"
+   },
+   "final_committed_2c": "b0e2fda265f31788ce969fc74cca618d738bb7d9f46cb69d24e8b3631ecd8b0e",
+   "x1": {
+    "final_hash": "b0e2fda265f31788ce969fc74cca618d738bb7d9f46cb69d24e8b3631ecd8b0e",
+    "llm_calls": 32041,
+    "llm_calls_per_agent_day": 6.4082,
+    "calls_by_entrance": {
+     "場所": 4994,
+     "体": 9204,
+     "日課": 16359,
+     "会話": 1484,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 1484,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4042,
+     "PLAN_GENERAL": 5354,
+     "PLAN_TRANSIT": 6963,
+     "INTEROCEPTION": 9204,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 4994,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 29089,
+     "promoted": 18342,
+     "degraded": 6316,
+     "suppressed": 18387,
+     "sleep_suppressed": 7334,
+     "outside_suppressed": 37084
+    },
+    "purchases": 1909,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 43678,
+     "移動": 2652,
+     "乗車": 2699,
+     "降車": 2661,
+     "購入": 2697,
+     "待機": 2624,
+     "会話": 2513,
+     "退去": 2655,
+     "通報": 2634,
+     "手伝い": 2674,
+     "断る": 2596,
+     "休憩": 2777,
+     "就寝": 2656
+    },
+    "budget_per_tick": 34.72222222222222,
+    "l4_scale": 1.0,
+    "l4_audit": {
+     "llm_calls_total": 32041,
+     "llm_calls_per_agent_day": 6.4082,
+     "l4_line": 10.0,
+     "l4_exceeded": false,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "unlimited": {
+    "final_hash": "52a36b5eb817a5d9c8c21724d6229bef2c1ff10287437bf818f0cb38fc60c7b7",
+    "llm_calls": 50053,
+    "llm_calls_per_agent_day": 10.0106,
+    "calls_by_entrance": {
+     "場所": 16037,
+     "体": 14562,
+     "日課": 17386,
+     "会話": 2068,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2068,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4246,
+     "PLAN_GENERAL": 6054,
+     "PLAN_TRANSIT": 7086,
+     "INTEROCEPTION": 14562,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 16037,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 0,
+     "promoted": 0,
+     "degraded": 0,
+     "suppressed": 64625,
+     "sleep_suppressed": 8650,
+     "outside_suppressed": 35614
+    },
+    "purchases": 2557,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 51590,
+     "移動": 4043,
+     "乗車": 4148,
+     "降車": 4179,
+     "購入": 3707,
+     "待機": 4228,
+     "会話": 2939,
+     "退去": 4175,
+     "通報": 4284,
+     "手伝い": 4121,
+     "断る": 4201,
+     "休憩": 4219,
+     "就寝": 4176
+    },
+    "budget_per_tick": 5000.0,
+    "l4_scale": 0.0,
+    "l4_audit": {
+     "llm_calls_total": 50053,
+     "llm_calls_per_agent_day": 10.0106,
+     "l4_line": 10.0,
+     "l4_exceeded": true,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "x1_equals_committed_2c": true,
+   "jsd_actions_llm": 0.0012432,
+   "jsd_actions_all": 0.00341062,
+   "jsd_wake_conditions": 0.03246732
+  },
+  {
+   "arm": "v2_edge",
+   "args": {
+    "vocab_version": "v2",
+    "geometry": "edge"
+   },
+   "final_committed_2c": "24b936c319a0800375dbee83995f645f467d8e8c5c6bef4c7f16a245541de96a",
+   "x1": {
+    "final_hash": "24b936c319a0800375dbee83995f645f467d8e8c5c6bef4c7f16a245541de96a",
+    "llm_calls": 32693,
+    "llm_calls_per_agent_day": 6.5386,
+    "calls_by_entrance": {
+     "場所": 4966,
+     "体": 9985,
+     "日課": 16379,
+     "会話": 1363,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 1363,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4050,
+     "PLAN_GENERAL": 5375,
+     "PLAN_TRANSIT": 6954,
+     "INTEROCEPTION": 9985,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 4966,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 30237,
+     "promoted": 19068,
+     "degraded": 6852,
+     "suppressed": 18822,
+     "sleep_suppressed": 7003,
+     "outside_suppressed": 37231
+    },
+    "purchases": 1781,
+    "meals": 1532,
+    "action_usage": {
+     "(エンジン継続)": 40832,
+     "移動": 2459,
+     "乗車": 2487,
+     "降車": 2492,
+     "購入": 2482,
+     "待機": 2518,
+     "会話": 2404,
+     "退去": 2506,
+     "通報": 2571,
+     "手伝い": 2565,
+     "断る": 2529,
+     "休憩": 2515,
+     "就寝": 2390,
+     "食事": 2549
+    },
+    "budget_per_tick": 34.72222222222222,
+    "l4_scale": 1.0,
+    "l4_audit": {
+     "llm_calls_total": 32693,
+     "llm_calls_per_agent_day": 6.5386,
+     "l4_line": 10.0,
+     "l4_exceeded": false,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "unlimited": {
+    "final_hash": "e143b1e828d725efc6849f359bce0f647a20b376fe49220906110e84fcaa34d3",
+    "llm_calls": 50516,
+    "llm_calls_per_agent_day": 10.1032,
+    "calls_by_entrance": {
+     "場所": 15633,
+     "体": 15865,
+     "日課": 17467,
+     "会話": 1551,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 1551,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4281,
+     "PLAN_GENERAL": 6091,
+     "PLAN_TRANSIT": 7095,
+     "INTEROCEPTION": 15865,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 15633,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 0,
+     "promoted": 0,
+     "degraded": 0,
+     "suppressed": 63463,
+     "sleep_suppressed": 8062,
+     "outside_suppressed": 36026
+    },
+    "purchases": 2412,
+    "meals": 2042,
+    "action_usage": {
+     "(エンジン継続)": 50662,
+     "移動": 3959,
+     "乗車": 3922,
+     "降車": 3934,
+     "購入": 3448,
+     "待機": 3771,
+     "会話": 2850,
+     "退去": 3914,
+     "通報": 3842,
+     "手伝い": 3913,
+     "断る": 3955,
+     "休憩": 3864,
+     "就寝": 3830,
+     "食事": 3505
+    },
+    "budget_per_tick": 5000.0,
+    "l4_scale": 0.0,
+    "l4_audit": {
+     "llm_calls_total": 50516,
+     "llm_calls_per_agent_day": 10.1032,
+     "l4_line": 10.0,
+     "l4_exceeded": true,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "x1_equals_committed_2c": true,
+   "jsd_actions_llm": 0.00110172,
+   "jsd_actions_all": 0.00212981,
+   "jsd_wake_conditions": 0.03092716
+  },
+  {
+   "arm": "v1_edge_plateau",
+   "args": {
+    "vocab_version": "v1",
+    "geometry": "edge",
+    "area_source": "plateau"
+   },
+   "final_committed_2c": "5500ee06953fe7ef7b261e9482d0af9f75821532f6d80330eb503bc6bd310a86",
+   "x1": {
+    "final_hash": "5500ee06953fe7ef7b261e9482d0af9f75821532f6d80330eb503bc6bd310a86",
+    "llm_calls": 32277,
+    "llm_calls_per_agent_day": 6.4554,
+    "calls_by_entrance": {
+     "場所": 5364,
+     "体": 9118,
+     "日課": 16376,
+     "会話": 1419,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 1419,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4036,
+     "PLAN_GENERAL": 5379,
+     "PLAN_TRANSIT": 6961,
+     "INTEROCEPTION": 9118,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 5364,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 29872,
+     "promoted": 18729,
+     "degraded": 6695,
+     "suppressed": 19047,
+     "sleep_suppressed": 7148,
+     "outside_suppressed": 37197
+    },
+    "purchases": 1910,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 44074,
+     "移動": 2636,
+     "乗車": 2710,
+     "降車": 2652,
+     "購入": 2693,
+     "待機": 2665,
+     "会話": 2488,
+     "退去": 2671,
+     "通報": 2741,
+     "手伝い": 2678,
+     "断る": 2584,
+     "休憩": 2779,
+     "就寝": 2758
+    },
+    "budget_per_tick": 34.72222222222222,
+    "l4_scale": 1.0,
+    "l4_audit": {
+     "llm_calls_total": 32277,
+     "llm_calls_per_agent_day": 6.4554,
+     "l4_line": 10.0,
+     "l4_exceeded": false,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "unlimited": {
+    "final_hash": "def89ea346d3f28b69542585fa1227828f9109bb2713d5ec2fd60472bc865ca2",
+    "llm_calls": 51990,
+    "llm_calls_per_agent_day": 10.398,
+    "calls_by_entrance": {
+     "場所": 17837,
+     "体": 14726,
+     "日課": 17322,
+     "会話": 2105,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2105,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4231,
+     "PLAN_GENERAL": 6044,
+     "PLAN_TRANSIT": 7047,
+     "INTEROCEPTION": 14726,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 17837,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 0,
+     "promoted": 0,
+     "degraded": 0,
+     "suppressed": 70540,
+     "sleep_suppressed": 8714,
+     "outside_suppressed": 35779
+    },
+    "purchases": 2660,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 53428,
+     "移動": 4259,
+     "乗車": 4331,
+     "降車": 4354,
+     "購入": 3878,
+     "待機": 4358,
+     "会話": 2969,
+     "退去": 4412,
+     "通報": 4403,
+     "手伝い": 4270,
+     "断る": 4328,
+     "休憩": 4344,
+     "就寝": 4312
+    },
+    "budget_per_tick": 5000.0,
+    "l4_scale": 0.0,
+    "l4_audit": {
+     "llm_calls_total": 51990,
+     "llm_calls_per_agent_day": 10.398,
+     "l4_line": 10.0,
+     "l4_exceeded": true,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "x1_equals_committed_2c": true,
+   "jsd_actions_llm": 0.00121534,
+   "jsd_actions_all": 0.00348141,
+   "jsd_wake_conditions": 0.03594503
+  },
+  {
+   "arm": "old_v1_default",
+   "args": {
+    "vocab_version": "v1",
+    "report_precondition": false
+   },
+   "final_committed_2c": "ca154bcae183ab80f027da00c22371b56601fa963ed3d578b11fac9e149b1404",
+   "x1": {
+    "final_hash": "ca154bcae183ab80f027da00c22371b56601fa963ed3d578b11fac9e149b1404",
+    "llm_calls": 33320,
+    "llm_calls_per_agent_day": 6.664,
+    "calls_by_entrance": {
+     "場所": 6075,
+     "体": 9207,
+     "日課": 16515,
+     "会話": 1523,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 1523,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4088,
+     "PLAN_GENERAL": 5420,
+     "PLAN_TRANSIT": 7007,
+     "INTEROCEPTION": 9207,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 6075,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 30729,
+     "promoted": 19217,
+     "degraded": 6983,
+     "suppressed": 23445,
+     "sleep_suppressed": 7622,
+     "outside_suppressed": 36876
+    },
+    "purchases": 1962,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 118697,
+     "移動": 2816,
+     "乗車": 2809,
+     "降車": 2736,
+     "購入": 2785,
+     "待機": 2735,
+     "会話": 2580,
+     "退去": 2797,
+     "通報": 2797,
+     "手伝い": 2729,
+     "断る": 2682,
+     "休憩": 2868,
+     "就寝": 2780
+    },
+    "budget_per_tick": 34.72222222222222,
+    "l4_scale": 1.0,
+    "l4_audit": {
+     "llm_calls_total": 33320,
+     "llm_calls_per_agent_day": 6.664,
+     "l4_line": 10.0,
+     "l4_exceeded": false,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "unlimited": {
+    "final_hash": "2309f07da2edac9053204d68e3c35619158b499f8a147f7d2301896b0cd7d899",
+    "llm_calls": 56954,
+    "llm_calls_per_agent_day": 11.3908,
+    "calls_by_entrance": {
+     "場所": 21401,
+     "体": 15430,
+     "日課": 17650,
+     "会話": 2473,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2473,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4337,
+     "PLAN_GENERAL": 6152,
+     "PLAN_TRANSIT": 7161,
+     "INTEROCEPTION": 15430,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 21401,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 0,
+     "promoted": 0,
+     "degraded": 0,
+     "suppressed": 95649,
+     "sleep_suppressed": 8594,
+     "outside_suppressed": 35310
+    },
+    "purchases": 2942,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 142161,
+     "移動": 4599,
+     "乗車": 4701,
+     "降車": 4797,
+     "購入": 4289,
+     "待機": 4814,
+     "会話": 3333,
+     "退去": 4756,
+     "通報": 4797,
+     "手伝い": 4760,
+     "断る": 4785,
+     "休憩": 4714,
+     "就寝": 4734
+    },
+    "budget_per_tick": 5000.0,
+    "l4_scale": 0.0,
+    "l4_audit": {
+     "llm_calls_total": 56954,
+     "llm_calls_per_agent_day": 11.3908,
+     "l4_line": 10.0,
+     "l4_exceeded": true,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "x1_equals_committed_2c": true,
+   "jsd_actions_llm": 0.00111598,
+   "jsd_actions_all": 0.00388727,
+   "jsd_wake_conditions": 0.040462
+  },
+  {
+   "arm": "old_v1_derive_v2_1",
+   "args": {
+    "vocab_version": "v1",
+    "derive_rule": "v2.1",
+    "report_precondition": false
+   },
+   "final_committed_2c": "16674b398c3277e7d9fbafb35fed476de08f8b79da40d7e3575ac60501f929fe",
+   "x1": {
+    "final_hash": "16674b398c3277e7d9fbafb35fed476de08f8b79da40d7e3575ac60501f929fe",
+    "llm_calls": 30543,
+    "llm_calls_per_agent_day": 6.1086,
+    "calls_by_entrance": {
+     "場所": 6806,
+     "体": 9520,
+     "日課": 12772,
+     "会話": 1445,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 1445,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4400,
+     "PLAN_GENERAL": 5401,
+     "PLAN_TRANSIT": 2971,
+     "INTEROCEPTION": 9520,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 6806,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 23008,
+     "promoted": 11650,
+     "degraded": 9507,
+     "suppressed": 25731,
+     "sleep_suppressed": 7365,
+     "outside_suppressed": 40574
+    },
+    "purchases": 1919,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 104944,
+     "移動": 2469,
+     "乗車": 2672,
+     "降車": 2543,
+     "購入": 2644,
+     "待機": 2478,
+     "会話": 2400,
+     "退去": 2515,
+     "通報": 2595,
+     "手伝い": 2440,
+     "断る": 2493,
+     "休憩": 2580,
+     "就寝": 2509
+    },
+    "budget_per_tick": 34.72222222222222,
+    "l4_scale": 1.0,
+    "l4_audit": {
+     "llm_calls_total": 30543,
+     "llm_calls_per_agent_day": 6.1086,
+     "l4_line": 10.0,
+     "l4_exceeded": false,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "unlimited": {
+    "final_hash": "1dc57cef36bd9fdfe8259a4ea680558118858824f225544c91cc4dc014ab4913",
+    "llm_calls": 49281,
+    "llm_calls_per_agent_day": 9.8562,
+    "calls_by_entrance": {
+     "場所": 19140,
+     "体": 14366,
+     "日課": 13706,
+     "会話": 2069,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2069,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4460,
+     "PLAN_GENERAL": 6156,
+     "PLAN_TRANSIT": 3090,
+     "INTEROCEPTION": 14366,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 19140,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 0,
+     "promoted": 0,
+     "degraded": 0,
+     "suppressed": 87812,
+     "sleep_suppressed": 7815,
+     "outside_suppressed": 39088
+    },
+    "purchases": 2560,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 127210,
+     "移動": 4075,
+     "乗車": 4029,
+     "降車": 4102,
+     "購入": 3595,
+     "待機": 4137,
+     "会話": 2838,
+     "退去": 4099,
+     "通報": 4179,
+     "手伝い": 4037,
+     "断る": 4182,
+     "休憩": 4147,
+     "就寝": 4090
+    },
+    "budget_per_tick": 5000.0,
+    "l4_scale": 0.0,
+    "l4_audit": {
+     "llm_calls_total": 49281,
+     "llm_calls_per_agent_day": 9.8562,
+     "l4_line": 10.0,
+     "l4_exceeded": false,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "x1_equals_committed_2c": true,
+   "jsd_actions_llm": 0.00159928,
+   "jsd_actions_all": 0.00259317,
+   "jsd_wake_conditions": 0.02713827
+  },
+  {
+   "arm": "old_v2",
+   "args": {
+    "vocab_version": "v2",
+    "report_precondition": false
+   },
+   "final_committed_2c": "50c4ff720803f4036d97245beae467393784b7ac1c65bacc6269cf144634a230",
+   "x1": {
+    "final_hash": "50c4ff720803f4036d97245beae467393784b7ac1c65bacc6269cf144634a230",
+    "llm_calls": 33843,
+    "llm_calls_per_agent_day": 6.7686,
+    "calls_by_entrance": {
+     "場所": 5856,
+     "体": 9952,
+     "日課": 16519,
+     "会話": 1516,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 1516,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4104,
+     "PLAN_GENERAL": 5404,
+     "PLAN_TRANSIT": 7011,
+     "INTEROCEPTION": 9952,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 5856,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 31633,
+     "promoted": 19792,
+     "degraded": 7138,
+     "suppressed": 22460,
+     "sleep_suppressed": 7469,
+     "outside_suppressed": 37145
+    },
+    "purchases": 1817,
+    "meals": 1542,
+    "action_usage": {
+     "(エンジン継続)": 109339,
+     "移動": 2603,
+     "乗車": 2586,
+     "降車": 2594,
+     "購入": 2536,
+     "待機": 2650,
+     "会話": 2474,
+     "退去": 2535,
+     "通報": 2599,
+     "手伝い": 2676,
+     "断る": 2653,
+     "休憩": 2627,
+     "就寝": 2466,
+     "食事": 2599
+    },
+    "budget_per_tick": 34.72222222222222,
+    "l4_scale": 1.0,
+    "l4_audit": {
+     "llm_calls_total": 33843,
+     "llm_calls_per_agent_day": 6.7686,
+     "l4_line": 10.0,
+     "l4_exceeded": false,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "unlimited": {
+    "final_hash": "ede4ec5ee3d2699b681189d8073d193ba82109085fe2d344e5e345c9bf4b7857",
+    "llm_calls": 57773,
+    "llm_calls_per_agent_day": 11.5546,
+    "calls_by_entrance": {
+     "場所": 20878,
+     "体": 16679,
+     "日課": 17733,
+     "会話": 2483,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2483,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4384,
+     "PLAN_GENERAL": 6172,
+     "PLAN_TRANSIT": 7177,
+     "INTEROCEPTION": 16679,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 20878,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 0,
+     "promoted": 0,
+     "degraded": 0,
+     "suppressed": 94603,
+     "sleep_suppressed": 8247,
+     "outside_suppressed": 35716
+    },
+    "purchases": 2740,
+    "meals": 2300,
+    "action_usage": {
+     "(エンジン継続)": 137286,
+     "移動": 4512,
+     "乗車": 4452,
+     "降車": 4526,
+     "購入": 3924,
+     "待機": 4417,
+     "会話": 3190,
+     "退去": 4417,
+     "通報": 4399,
+     "手伝い": 4449,
+     "断る": 4557,
+     "休憩": 4328,
+     "就寝": 4410,
+     "食事": 4004
+    },
+    "budget_per_tick": 5000.0,
+    "l4_scale": 0.0,
+    "l4_audit": {
+     "llm_calls_total": 57773,
+     "llm_calls_per_agent_day": 11.5546,
+     "l4_line": 10.0,
+     "l4_exceeded": true,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "x1_equals_committed_2c": true,
+   "jsd_actions_llm": 0.00109972,
+   "jsd_actions_all": 0.0029255,
+   "jsd_wake_conditions": 0.03966742
+  },
+  {
+   "arm": "old_v1_edge",
+   "args": {
+    "vocab_version": "v1",
+    "geometry": "edge",
+    "report_precondition": false
+   },
+   "final_committed_2c": "51737699b3c5f0872222c4eabaeacac1a72c4203c1daf2e05a597dae5df147e4",
+   "x1": {
+    "final_hash": "51737699b3c5f0872222c4eabaeacac1a72c4203c1daf2e05a597dae5df147e4",
+    "llm_calls": 32041,
+    "llm_calls_per_agent_day": 6.4082,
+    "calls_by_entrance": {
+     "場所": 4994,
+     "体": 9204,
+     "日課": 16359,
+     "会話": 1484,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 1484,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4042,
+     "PLAN_GENERAL": 5354,
+     "PLAN_TRANSIT": 6963,
+     "INTEROCEPTION": 9204,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 4994,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 29089,
+     "promoted": 18342,
+     "degraded": 6316,
+     "suppressed": 18387,
+     "sleep_suppressed": 7334,
+     "outside_suppressed": 37084
+    },
+    "purchases": 1909,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 43678,
+     "移動": 2652,
+     "乗車": 2699,
+     "降車": 2661,
+     "購入": 2697,
+     "待機": 2624,
+     "会話": 2513,
+     "退去": 2655,
+     "通報": 2634,
+     "手伝い": 2674,
+     "断る": 2596,
+     "休憩": 2777,
+     "就寝": 2656
+    },
+    "budget_per_tick": 34.72222222222222,
+    "l4_scale": 1.0,
+    "l4_audit": {
+     "llm_calls_total": 32041,
+     "llm_calls_per_agent_day": 6.4082,
+     "l4_line": 10.0,
+     "l4_exceeded": false,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "unlimited": {
+    "final_hash": "daa0b8116ddc72fa649943a72eee8b8c2fd07087aa594f65814973551ee66977",
+    "llm_calls": 50053,
+    "llm_calls_per_agent_day": 10.0106,
+    "calls_by_entrance": {
+     "場所": 16037,
+     "体": 14562,
+     "日課": 17386,
+     "会話": 2068,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2068,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4246,
+     "PLAN_GENERAL": 6054,
+     "PLAN_TRANSIT": 7086,
+     "INTEROCEPTION": 14562,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 16037,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 0,
+     "promoted": 0,
+     "degraded": 0,
+     "suppressed": 64625,
+     "sleep_suppressed": 8650,
+     "outside_suppressed": 35614
+    },
+    "purchases": 2557,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 51590,
+     "移動": 4043,
+     "乗車": 4148,
+     "降車": 4179,
+     "購入": 3707,
+     "待機": 4228,
+     "会話": 2939,
+     "退去": 4175,
+     "通報": 4284,
+     "手伝い": 4121,
+     "断る": 4201,
+     "休憩": 4219,
+     "就寝": 4176
+    },
+    "budget_per_tick": 5000.0,
+    "l4_scale": 0.0,
+    "l4_audit": {
+     "llm_calls_total": 50053,
+     "llm_calls_per_agent_day": 10.0106,
+     "l4_line": 10.0,
+     "l4_exceeded": true,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "x1_equals_committed_2c": true,
+   "jsd_actions_llm": 0.0012432,
+   "jsd_actions_all": 0.00341062,
+   "jsd_wake_conditions": 0.03246732
+  },
+  {
+   "arm": "old_v2_edge",
+   "args": {
+    "vocab_version": "v2",
+    "geometry": "edge",
+    "report_precondition": false
+   },
+   "final_committed_2c": "6ac34d4452edf42885f1615b56453885691ad78ce0cc0f448b33c2a7fb0407c5",
+   "x1": {
+    "final_hash": "6ac34d4452edf42885f1615b56453885691ad78ce0cc0f448b33c2a7fb0407c5",
+    "llm_calls": 32693,
+    "llm_calls_per_agent_day": 6.5386,
+    "calls_by_entrance": {
+     "場所": 4966,
+     "体": 9985,
+     "日課": 16379,
+     "会話": 1363,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 1363,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4050,
+     "PLAN_GENERAL": 5375,
+     "PLAN_TRANSIT": 6954,
+     "INTEROCEPTION": 9985,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 4966,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 30237,
+     "promoted": 19068,
+     "degraded": 6852,
+     "suppressed": 18822,
+     "sleep_suppressed": 7003,
+     "outside_suppressed": 37231
+    },
+    "purchases": 1781,
+    "meals": 1532,
+    "action_usage": {
+     "(エンジン継続)": 40832,
+     "移動": 2459,
+     "乗車": 2487,
+     "降車": 2492,
+     "購入": 2482,
+     "待機": 2518,
+     "会話": 2404,
+     "退去": 2506,
+     "通報": 2571,
+     "手伝い": 2565,
+     "断る": 2529,
+     "休憩": 2515,
+     "就寝": 2390,
+     "食事": 2549
+    },
+    "budget_per_tick": 34.72222222222222,
+    "l4_scale": 1.0,
+    "l4_audit": {
+     "llm_calls_total": 32693,
+     "llm_calls_per_agent_day": 6.5386,
+     "l4_line": 10.0,
+     "l4_exceeded": false,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "unlimited": {
+    "final_hash": "ec2ae70a2b97ec0a99abe10dc0e31fc6c95b5cb147ec23b490d2ab6d4c441a6b",
+    "llm_calls": 50516,
+    "llm_calls_per_agent_day": 10.1032,
+    "calls_by_entrance": {
+     "場所": 15633,
+     "体": 15865,
+     "日課": 17467,
+     "会話": 1551,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 1551,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4281,
+     "PLAN_GENERAL": 6091,
+     "PLAN_TRANSIT": 7095,
+     "INTEROCEPTION": 15865,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 15633,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 0,
+     "promoted": 0,
+     "degraded": 0,
+     "suppressed": 63463,
+     "sleep_suppressed": 8062,
+     "outside_suppressed": 36026
+    },
+    "purchases": 2412,
+    "meals": 2042,
+    "action_usage": {
+     "(エンジン継続)": 50662,
+     "移動": 3959,
+     "乗車": 3922,
+     "降車": 3934,
+     "購入": 3448,
+     "待機": 3771,
+     "会話": 2850,
+     "退去": 3914,
+     "通報": 3842,
+     "手伝い": 3913,
+     "断る": 3955,
+     "休憩": 3864,
+     "就寝": 3830,
+     "食事": 3505
+    },
+    "budget_per_tick": 5000.0,
+    "l4_scale": 0.0,
+    "l4_audit": {
+     "llm_calls_total": 50516,
+     "llm_calls_per_agent_day": 10.1032,
+     "l4_line": 10.0,
+     "l4_exceeded": true,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "x1_equals_committed_2c": true,
+   "jsd_actions_llm": 0.00110172,
+   "jsd_actions_all": 0.00212981,
+   "jsd_wake_conditions": 0.03092716
+  },
+  {
+   "arm": "old_v1_edge_plateau",
+   "args": {
+    "vocab_version": "v1",
+    "geometry": "edge",
+    "area_source": "plateau",
+    "report_precondition": false
+   },
+   "final_committed_2c": "530e74ebd55fa225d956030ae6344823bf72e9982caa8d3549b42e5f804a25bd",
+   "x1": {
+    "final_hash": "530e74ebd55fa225d956030ae6344823bf72e9982caa8d3549b42e5f804a25bd",
+    "llm_calls": 32277,
+    "llm_calls_per_agent_day": 6.4554,
+    "calls_by_entrance": {
+     "場所": 5364,
+     "体": 9118,
+     "日課": 16376,
+     "会話": 1419,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 1419,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4036,
+     "PLAN_GENERAL": 5379,
+     "PLAN_TRANSIT": 6961,
+     "INTEROCEPTION": 9118,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 5364,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 29872,
+     "promoted": 18729,
+     "degraded": 6695,
+     "suppressed": 19047,
+     "sleep_suppressed": 7148,
+     "outside_suppressed": 37197
+    },
+    "purchases": 1910,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 44074,
+     "移動": 2636,
+     "乗車": 2710,
+     "降車": 2652,
+     "購入": 2693,
+     "待機": 2665,
+     "会話": 2488,
+     "退去": 2671,
+     "通報": 2741,
+     "手伝い": 2678,
+     "断る": 2584,
+     "休憩": 2779,
+     "就寝": 2758
+    },
+    "budget_per_tick": 34.72222222222222,
+    "l4_scale": 1.0,
+    "l4_audit": {
+     "llm_calls_total": 32277,
+     "llm_calls_per_agent_day": 6.4554,
+     "l4_line": 10.0,
+     "l4_exceeded": false,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "unlimited": {
+    "final_hash": "afb5408fe3e2deba6afd02f7c8c88e8d92d5ab2eec6b40eda5ed48ad62917a1f",
+    "llm_calls": 51990,
+    "llm_calls_per_agent_day": 10.398,
+    "calls_by_entrance": {
+     "場所": 17837,
+     "体": 14726,
+     "日課": 17322,
+     "会話": 2105,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2105,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4231,
+     "PLAN_GENERAL": 6044,
+     "PLAN_TRANSIT": 7047,
+     "INTEROCEPTION": 14726,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 17837,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 0,
+     "promoted": 0,
+     "degraded": 0,
+     "suppressed": 70540,
+     "sleep_suppressed": 8714,
+     "outside_suppressed": 35779
+    },
+    "purchases": 2660,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 53428,
+     "移動": 4259,
+     "乗車": 4331,
+     "降車": 4354,
+     "購入": 3878,
+     "待機": 4358,
+     "会話": 2969,
+     "退去": 4412,
+     "通報": 4403,
+     "手伝い": 4270,
+     "断る": 4328,
+     "休憩": 4344,
+     "就寝": 4312
+    },
+    "budget_per_tick": 5000.0,
+    "l4_scale": 0.0,
+    "l4_audit": {
+     "llm_calls_total": 51990,
+     "llm_calls_per_agent_day": 10.398,
+     "l4_line": 10.0,
+     "l4_exceeded": true,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "x1_equals_committed_2c": true,
+   "jsd_actions_llm": 0.00121534,
+   "jsd_actions_all": 0.00348141,
+   "jsd_wake_conditions": 0.03594503
+  },
+  {
+   "arm": "golden_null_arm",
+   "args": {
+    "plan_executor": false,
+    "report_precondition": false
+   },
+   "final_committed_2c": "ed1863e089c8480e7b1e42a461184dee6b0b47a3097592766d21b6e633371528",
+   "x1": {
+    "final_hash": "ed1863e089c8480e7b1e42a461184dee6b0b47a3097592766d21b6e633371528",
+    "llm_calls": 41141,
+    "llm_calls_per_agent_day": 8.2282,
+    "calls_by_entrance": {
+     "場所": 4357,
+     "体": 12506,
+     "日課": 23052,
+     "会話": 1226,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 1226,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 3324,
+     "PLAN_GENERAL": 10898,
+     "PLAN_TRANSIT": 8830,
+     "INTEROCEPTION": 12506,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 4357,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 46480,
+     "promoted": 104078,
+     "degraded": 3924,
+     "suppressed": 17990,
+     "sleep_suppressed": 56282,
+     "outside_suppressed": 0
+    },
+    "purchases": 1565,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 130849,
+     "移動": 3414,
+     "乗車": 3356,
+     "降車": 3378,
+     "購入": 3285,
+     "待機": 3500,
+     "会話": 3299,
+     "退去": 3322,
+     "通報": 3446,
+     "手伝い": 3301,
+     "断る": 3469,
+     "休憩": 3456,
+     "就寝": 3487
+    },
+    "budget_per_tick": 34.72222222222222,
+    "l4_scale": 1.0,
+    "l4_audit": {
+     "llm_calls_total": 41141,
+     "llm_calls_per_agent_day": 8.2282,
+     "l4_line": 10.0,
+     "l4_exceeded": false,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "unlimited": {
+    "final_hash": "e0083baff1ff50b723cfcdcedf08e770db77903ae8c370d5e5ea93584d9266f1",
+    "llm_calls": 97028,
+    "llm_calls_per_agent_day": 19.4056,
+    "calls_by_entrance": {
+     "場所": 32214,
+     "体": 27822,
+     "日課": 32632,
+     "会話": 4360,
+     "満了": 0,
+     "社会": 0
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 4360,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 5779,
+     "PLAN_GENERAL": 14909,
+     "PLAN_TRANSIT": 11944,
+     "INTEROCEPTION": 27822,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 32214,
+     "ACTIVITY_EXPIRY": 0
+    },
+    "diag": {
+     "deferred": 0,
+     "promoted": 0,
+     "degraded": 0,
+     "suppressed": 168860,
+     "sleep_suppressed": 70255,
+     "outside_suppressed": 0
+    },
+    "purchases": 3823,
+    "meals": 0,
+    "action_usage": {
+     "(エンジン継続)": 196951,
+     "移動": 8074,
+     "乗車": 8114,
+     "降車": 8026,
+     "購入": 7267,
+     "待機": 8153,
+     "会話": 6321,
+     "退去": 7991,
+     "通報": 7939,
+     "手伝い": 8046,
+     "断る": 8020,
+     "休憩": 8208,
+     "就寝": 7995
+    },
+    "budget_per_tick": 5000.0,
+    "l4_scale": 0.0,
+    "l4_audit": {
+     "llm_calls_total": 97028,
+     "llm_calls_per_agent_day": 19.4056,
+     "l4_line": 10.0,
+     "l4_exceeded": true,
+     "l4_notes": []
+    },
+    "intent": {},
+    "conserved": true
+   },
+   "x1_equals_committed_2c": true,
+   "jsd_actions_llm": 0.00062547,
+   "jsd_actions_all": 0.00682225,
+   "jsd_wake_conditions": 0.0665199
+  }
+ ],
+ "check_q24off": {
+  "arm": "v3_default_x1_q24off",
+  "final_hash": "6845e3acb8906210a76d2f3f9e1a0e86bcf6d5a8185e670595038a64b8045dd5",
+  "equals_committed_2c": true,
+  "llm_calls": 36502
+ }
+}

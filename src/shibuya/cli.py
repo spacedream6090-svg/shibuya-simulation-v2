@@ -27,7 +27,9 @@ engine は economy を import できない(層契約: economy > engine)。世界
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import json
+import warnings
 from pathlib import Path
 from typing import Any, Final, Mapping
 
@@ -60,16 +62,58 @@ from shibuya.perception.templates import (
     VOCAB_VERSIONS,
 )
 from shibuya.world.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE, hash_free_cat_code
-from shibuya.world.state import World
+from shibuya.engine.chooser import CHOOSER_NAMES, DEFAULT_CHOOSER
+from shibuya.engine.poi_target import (
+    DEFAULT_POI_TARGET,
+    MOVE_SEARCH_RADIUS_CELLS,
+    POI_TARGET_MODES,
+)
+from shibuya.engine.intent import INTENT_MAX_TICKS
+from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES
+from shibuya.engine.memory import MEMORY_MODES, MEMORY_N, RECALL_TAU
+from shibuya.engine.store_memory import (
+    DEFAULT_STORE_DECAY,
+    STORE_DECAY_MODES,
+    STORE_MEMORY_MODES,
+    STORE_MEMORY_N,
+)
+from shibuya.engine.chooser import HABIT_P, RANK_TAU
+from shibuya.engine.classical import (
+    ACTIVITY_REGIONS,
+    DEFAULT_ACTIVITY_REGION,
+    DEFAULT_POLICY,
+    POLICIES,
+)
+from shibuya.engine.energy import (
+    DEFAULT_ENERGY_RATE,
+    DEFAULT_HUNGER_MODEL,
+    ENERGY_RATES,
+    HUNGER_MODELS,
+)
+from shibuya.world.state import DEFAULT_EATERY_MODE, EATERY_MODES, World
 
 #: **CLI の既定の語彙版**(二層の段 3・第277=``--vocab-version`` を渡さないランは v3)。
 #: ライブラリの既定(``templates.DEFAULT_VOCAB_VERSION``/``run_day``/``cli.run``)は **v1 のまま**
 #: =ライブラリ経由の退化検査・golden は v1 の値で通る(切替口)。v1 の既定 checkpoint を
 #: CLI で再現するときは ``--vocab-version v1`` を明示する。
 CLI_DEFAULT_VOCAB_VERSION: Final[str] = "v3"
+#: **3 段目(D-99 (a′)・D-110・ユーザー決定 09-25)**: CLI と ``cli.run`` の呼数の既定=**無制限**
+#: (``0``=1 tick の上限を体数に置く=AB8/AB6c の ``l4_unlimited`` と同じ経路)。L4(10 呼/体/日)は
+#: 制御目標ではなく**監査線**(manifest ``llm_calls_per_agent_day``/``l4_exceeded``)。上限の
+#: スイッチ(``--l4-scale 1``=旧挙動・0.5/2=倍率)と従来の配り方(``arbiter.call_budget_per_tick``・
+#: ``POOL_CAP_TICKS``)は残す。
+CLI_DEFAULT_L4_SCALE: Final[float] = 0.0
+#: **5 段目 5a(D-118 K5 (a)・第291)**: CLI と ``cli.run`` の空腹のモデルの既定=**energy**
+#: (体のエネルギー収支)。``run_day`` のライブラリ既定は ``v1`` のまま(語彙・L4 と同じ分け方)。
+#: 旧 checkpoint は ``--hunger-model v1``(``cli.run(hunger_model="v1")``)で再現する(テストで固定)。
+CLI_DEFAULT_HUNGER_MODEL: Final[str] = DEFAULT_HUNGER_MODEL
 
 __all__ = [
     "CLI_DEFAULT_VOCAB_VERSION",
+    "CLI_DEFAULT_L4_SCALE",
+    "CLI_DEFAULT_HUNGER_MODEL",
+    "fleet_queue_note",
+    "apply_fleet_queue_default",
     "STORE_ENTRY_CAPITAL_YEN",
     "WALLET_DOMAIN",
     "parse_refractory_scale",
@@ -283,6 +327,56 @@ def write_census_files(ledger, goods, day: int, out_dir: str | Path) -> tuple[st
     return (p_daily.as_posix(), p_mer.as_posix(), p_sectors.as_posix())
 
 
+def fleet_queue_note(fleet: Any, l4_scale: float, n_agents: int) -> str:
+    """艦隊 × 無制限で受理待ち枠が未指定かつ体数より小さいなら注記の文(それ以外は ``""``・D-55)。
+
+    無制限(``l4_scale=0``)では 1 tick の呼数の上限が体数になる。艦隊の受理待ち+実行中の枠
+    (``FleetConfig.queue_capacity``・既定 ``max_in_flight×4``)がそれより小さいと、あふれた呼は
+    繰り延べになる(C7 D-55/D-58)。**第289 Q28 以降、``cli.run`` はこの場合 ``apply_fleet_queue_default``
+    で枠の既定を体数にする**ので、注記が要るのは枠を直せなかった(``config`` を持たない)艦隊だけ。
+    """
+    if fleet is None or float(l4_scale) != 0.0:
+        return ""
+    cfg = getattr(fleet, "config", None)
+    if cfg is None or getattr(cfg, "queue_capacity", None) is not None:
+        return ""
+    cap = getattr(fleet, "queue_capacity", None)
+    if cap is not None and int(cap) >= int(n_agents):
+        return ""  # 既定の枠が体数以上=繰り延べは起きない
+    return (
+        "艦隊 × 呼数無制限(--l4-scale 0)で --fleet-queue-capacity が未指定: 受理待ち枠は既定 "
+        f"{cap}(max_in_flight×4)。1 tick の呼数の上限は体数 {int(n_agents):,} なので、枠を超えた"
+        "呼は繰り延べになる(D-55)。繰り延べ 0 には計画呼数以上の --fleet-queue-capacity を渡す"
+    )
+
+
+def apply_fleet_queue_default(fleet: Any, l4_scale: float, n_agents: int) -> int | None:
+    """第289 Q28(D-55): 艦隊 × 呼数無制限 × 受理待ち枠 未指定 → 枠の既定を**体数**にする。
+
+    無制限では 1 tick の呼数の上限が体数なので、枠 = 体数なら受理待ちあふれの繰り延べは 0 になる
+    (C7 D-58 は計画呼数以上の ``--fleet-queue-capacity`` を手で渡していた)。既定の枠
+    (``max_in_flight×4``)が既に体数以上なら**狭めない**(何もしない)。明示した枠・上限ありのラン・
+    mock(艦隊なし)は変えない。枠を変えたら ``FleetConfig`` を差し替え(manifest の ``llm_fleet.queue_capacity``
+    に載る)、クライアントの ``queue_capacity`` も揃える。返り値=設定した枠(変えなければ ``None``)。
+    同期の経路(mock・``llm_bridge``)は触らない。
+    """
+    if fleet is None or float(l4_scale) != 0.0:
+        return None
+    cfg = getattr(fleet, "config", None)
+    if cfg is None or getattr(cfg, "queue_capacity", None) is not None:
+        return None
+    cur = getattr(fleet, "queue_capacity", None)
+    if cur is not None and int(cur) >= int(n_agents):
+        return None
+    cap = int(n_agents)
+    try:
+        fleet.config = dataclasses.replace(cfg, queue_capacity=cap)
+        fleet.queue_capacity = cap
+    except (AttributeError, TypeError):  # 設定を差し替えられない艦隊=従来どおり注記と警告
+        return None
+    return cap
+
+
 def run(
     n_agents: int = 5_000,
     seed: int = 1,
@@ -292,7 +386,7 @@ def run(
     checkpoint_every: int = 360,
     store_capital_yen: int | None = None,
     use_population: bool = True,
-    l4_scale: float = 1.0,
+    l4_scale: float | None = None,
     **kwargs,
 ) -> RunResult:
     """台帳つきの 1 シミュ日ラン(C4 の標準入口)。
@@ -312,13 +406,35 @@ def run(
 
     既定 ``1.0`` では ``budget=None`` のまま ``run_day`` に渡す=**現行の経路・現行のバイト**。
     ``budget`` を直に渡した呼び出しは倍率より優先される(倍率は manifest に 1.0 と載る)。
+
+    **3 段目(D-99 (a′)・D-110)**: ``l4_scale`` の既定(``None``)は ``CLI_DEFAULT_L4_SCALE``
+    (**0=無制限**)。``l4_scale=1.0`` で旧挙動(L4 按分・持ち越し 2 tick)を再現する(テストで固定)。
+    艦隊(``fleet``)× 無制限で受理待ち枠(``--fleet-queue-capacity``)が未指定なら、**枠の既定を体数にする**
+    (第289 Q28・D-55=繰り延べ 0・``apply_fleet_queue_default``)。manifest の ``l4_notes`` にその旨を載せる。
+    枠を直せない艦隊だけ従来どおり警告と注記。
+
+    **5 段目 5a(D-118)**: ``hunger_model`` の既定(渡さないとき)は ``CLI_DEFAULT_HUNGER_MODEL``
+    (**energy**)。``hunger_model="v1"`` で旧規則(旧 checkpoint)を再現する(テストで固定)。
     """
-    scale = float(l4_scale)
+    budget = kwargs.pop("budget", None)
+    # 5 段目 5a: 空腹のモデルの既定は energy(``CLI_DEFAULT_HUNGER_MODEL``)
+    kwargs.setdefault("hunger_model", CLI_DEFAULT_HUNGER_MODEL)
+    if l4_scale is None:
+        # 予算を直に渡した呼び出しは従来どおり倍率 1.0 と載せる(倍率より予算が優先)
+        scale = 1.0 if budget is not None else float(CLI_DEFAULT_L4_SCALE)
+    else:
+        scale = float(l4_scale)
     if scale < 0.0:
         raise ValueError("l4_scale は 0 以上(0=無制限)")
-    budget = kwargs.pop("budget", None)
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
+    applied = apply_fleet_queue_default(kwargs.get("fleet"), scale, n_agents)
+    note = "" if applied is not None else fleet_queue_note(kwargs.get("fleet"), scale, n_agents)
+    if note:
+        warnings.warn(note, RuntimeWarning, stacklevel=2)
+    elif applied is not None:
+        note = (f"艦隊 × 呼数無制限(--l4-scale 0)で --fleet-queue-capacity が未指定: 受理待ち枠の既定を体数 "
+                f"{applied:,} にした(第289 Q28・D-55=受理待ちあふれの繰り延べ 0)")
     wd = Path(world_dir) if world_dir is not None else None
     world = World.load_or_synthetic(wd, n_cells=n_cells, seed=seed) if wd is not None else World.synthetic(
         n_cells=n_cells, seed=seed
@@ -328,7 +444,7 @@ def run(
         world, n_agents, store_capital_yen,
         seed=seed, world_dir=run_world_dir, use_population=use_population,
     )
-    return run_day(
+    res = run_day(
         n_agents=n_agents,
         seed=seed,
         world=world,
@@ -341,6 +457,9 @@ def run(
         l4_scale=scale,
         **kwargs,
     )
+    if note:
+        res.l4_notes.append(note)
+    return res
 
 
 def checkpoints_payload(res: RunResult, *, run_id: str = "") -> dict[str, Any]:
@@ -562,13 +681,22 @@ def main(argv: list[str] | None = None) -> int:
              "0.30/0.14=実測帯 0.14-0.79 の下側・0.0=⑥ 広告ゼロと同じ描画",
     )
     ap.add_argument(
+        "--p-see-activity",
+        default=None,
+        metavar="JSON",
+        help="5 段目 5c(D-117): 看板の注視 p_see に掛ける活動の種別の乗数(JSON。鍵 move_to/wander/"
+             "in_shop/in_place/phone/companion_talk・欠けた鍵は 1.0・実効 p_see=min(1, p_see×乗数)。"
+             "p_see にだけ掛ける=B2 の可視の行は変えない)。既定なし=全部 1.0=現行のバイト。"
+             "例 '{\"phone\": 0.49, \"companion_talk\": 1.39, \"move_to\": 0.5}'",
+    )
+    ap.add_argument(
         "--l4-scale",
         type=float,
-        default=1.0,
+        default=CLI_DEFAULT_L4_SCALE,
         metavar="FACTOR",
-        help="L4 呼数予算の倍率。1.0=宣言どおり(400 万呼/日を体数按分)・"
-             "0.5/2.0=半分/倍・**0=無制限**(1 tick の上限を体数=起床候補の理論上限にする)。"
-             "PENDING D-99 AB8 の腕",
+        help="呼数の上限の倍率。**既定 0=無制限**(3 段目・D-99 (a′)・D-110=L4 は監査線・"
+             "manifest に llm_calls_per_agent_day と l4_exceeded)。1.0=旧挙動(L4 400 万呼/日を"
+             "体数按分・持ち越し 2 tick)・0.5/2.0=半分/倍。PENDING D-99 AB8 の腕",
     )
     ap.add_argument(
         "--intent-mode",
@@ -613,7 +741,8 @@ def main(argv: list[str] | None = None) -> int:
         "--exit-mode",
         choices=("immediate", "board_intent", "walk_to_platform"),
         default="immediate",
-        help="退出の実行形(設計書 §10-3)。immediate のみ実装・他は予約(NotImplementedError)",
+        help="退出の実行形(設計書 §10-3)。immediate(既定=即時)/ walk_to_platform(9a=その体の路線の"
+             "ホームへ歩いて受容関数を通して乗る)・board_intent は予約(NotImplementedError)",
     )
     ap.add_argument(
         "--attendance-rate",
@@ -631,6 +760,32 @@ def main(argv: list[str] | None = None) -> int:
              "(第266 以前の checkpoint ba01bd0b を再現する帰無腕)",
     )
     ap.add_argument(
+        "--group-norms",
+        choices=("on", "off"),
+        default="on",
+        help="第309(Q150): 群・規範の計器(D-107 (a)・読むだけ=final は変わらない)を回すか(既定 on)",
+    )
+    ap.add_argument(
+        "--near-order",
+        choices=("distance", "id"),
+        default="distance",
+        help="小さいもの 第 2 批①(第304 Q130): B5 近接行の並び。distance=距離の昇順・同点は --near-tiebreak の順"
+             "(既定)/ id=旧挙動(行番号の昇順=旧 golden)。焦点の先頭・知人の常時掲載・文面は変えない",
+    )
+    ap.add_argument(
+        "--near-tiebreak",
+        choices=("hash", "id"),
+        default="hash",
+        help="小さいもの①(第300 Q107): B5 近接行の距離の同点の切り方。hash=run_salt の決定論ハッシュで撹拌(既定)/"
+             " id=旧挙動(セル内の並び=行番号の順=旧 golden)。文面と並びは変えない",
+    )
+    ap.add_argument(
+        "--leave-effect",
+        choices=("on", "off"),
+        default="on",
+        help="9a(D-112 ④): 退去=所属解除(在店・列・会話を解く)。off=第301 以前の挙動(IDLE 化だけ=旧 golden)",
+    )
+    ap.add_argument(
         "--queue-service",
         choices=("on", "off"),
         default="on",
@@ -644,6 +799,198 @@ def main(argv: list[str] | None = None) -> int:
         help="行為と活動の二層の活動層(段 2・D-116・既定 on)。立つのは --vocab-version v3 の"
              "ときだけ(v1/v2 では活動欄が来ない=実質無効・checkpoint 不変)。on=満了入口・活動中は"
              "場所の変化で起こさない・あたり歩行・B4b の活動の 1 行。off=抑止も満了も無効=現行",
+    )
+    ap.add_argument(
+        "--chooser",
+        choices=CHOOSER_NAMES,
+        default=DEFAULT_CHOOSER,
+        help="段 2a(D-114 (a)): 購入/食事/並ぶの対象の選び手。候補=現在セルの営業中・意図に合う POI。"
+             "nearest=可視(W8 の視点数)の降順 → POI 索引(既定・憲法⑥の宣言つき暫定)/"
+             "classical=5 段目 5b の古典的選択モデル(習慣 p_h+空腹の語で動く願望水準+可視順の揺らぎ τ)",
+    )
+    ap.add_argument(
+        "--policy",
+        choices=POLICIES,
+        default=DEFAULT_POLICY,
+        help="5 段目 5b(D-119 L5): 起床ごとの応答を作る方策。mock=凍結の MockLLM(既定)/"
+             "classical=LLM 0 呼の古典的選択モデル(食事の門+社会生活基本調査の活動の事前分布+"
+             "対応表 v0・語彙 v3 だけ)",
+    )
+    ap.add_argument(
+        "--activity-region",
+        choices=tuple(ACTIVITY_REGIONS),
+        default=DEFAULT_ACTIVITY_REGION,
+        help="--policy classical の事前分布の地域(kanto=関東大都市圏・既定/national=全国)",
+    )
+    ap.add_argument(
+        "--classical-habit-p",
+        type=float,
+        default=HABIT_P,
+        metavar="P",
+        help="--chooser classical の習慣の確率 p_h(宣言 0.5・感度 0.25/0.75・--familiarity on のときだけ効く)",
+    )
+    ap.add_argument(
+        "--classical-tau",
+        type=float,
+        default=RANK_TAU,
+        metavar="TAU",
+        help="--chooser classical の満足化の走査順の揺らぎ τ(宣言 1.0・感度 0.5/2.0)",
+    )
+    ap.add_argument(
+        "--poi-target",
+        choices=POI_TARGET_MODES,
+        default=DEFAULT_POI_TARGET,
+        help="段 2a(親決定 Q13): 購入/食事/並ぶの対象の決め方。candidates=候補(店舗系 cat・営業中・"
+             "意図に合う)→ 選び手(既定)/legacy=段 2a 前の現在セルの最小 id(旧 checkpoint の再現)",
+    )
+    ap.add_argument(
+        "--move-search-radius",
+        type=int,
+        default=MOVE_SEARCH_RADIUS_CELLS,
+        metavar="R",
+        help="段 2b(D-112 ②): 移動の対象がカテゴリ語のとき、現在セル・見えている POI に候補が無ければ "
+             "cell_dist の近い順に見るセルの数(既定 5・宣言・0=近傍探索しない)",
+    )
+    ap.add_argument(
+        "--intent-max-ticks",
+        type=int,
+        default=INTENT_MAX_TICKS,
+        metavar="N",
+        help="段 2c(意図の保持・D-112 ①): セル外の対象へ歩く意図の上限[tick]。超えたら TOO_FAR"
+             "(既定 60・宣言・expedient・感度腕 30/120)",
+    )
+    ap.add_argument(
+        "--familiarity",
+        choices=FAMILIARITY_MODES,
+        default="off",
+        help="4 段目(記憶の先行部品=M13 訪問+M17 露出): 体×K 行の親しみの表を確保して、訪問・看板の"
+             "露出・セルに入った回を数える(本段では誰も読まない)。既定 off=表を確保しない=既定の "
+             "checkpoint 不変",
+    )
+    ap.add_argument(
+        "--familiarity-k",
+        type=int,
+        default=FAMILIARITY_K,
+        metavar="K",
+        help="親しみの表の体あたりの行数(既定 64・宣言・感度 32/128)",
+    )
+    ap.add_argument(
+        "--memory",
+        choices=MEMORY_MODES,
+        default="off",
+        help="6 段目 6a/6b(記憶 第 1 段): 体×N 行の記憶の表を確保して、行動の成否・会話・気づき・"
+             "強い看板(初見)を書き(6a)、各呼で k 件を想起して B5 の最後に「記憶」の 1 行を載せる(6b)。"
+             "既定 off=表を確保しない=既定の checkpoint も描画バイトも不変",
+    )
+    ap.add_argument(
+        "--memory-n",
+        type=int,
+        default=MEMORY_N,
+        metavar="N",
+        help="記憶の表の体あたりの行数(既定 128・宣言・感度 64/256)",
+    )
+    ap.add_argument(
+        "--memory-tau",
+        type=float,
+        default=RECALL_TAU,
+        metavar="TAU",
+        help="6b(想起): A ≥ τ の行だけ想起する閾値(既定 −2.0・第295 の決め・--memory on のときだけ効く)",
+    )
+    ap.add_argument(
+        "--store-memory",
+        choices=STORE_MEMORY_MODES,
+        default="off",
+        help="D-120 7a(店の評価の記憶): 体×32 行の店の評価の表を確保し、記憶のエピソード(購入/食事/並ぶの"
+             "成否・看板の初見)から書く(本段では誰も読まない)。--memory on のときだけ。既定 off=表を確保しない"
+             "=既定の checkpoint 不変",
+    )
+    ap.add_argument(
+        "--store-memory-n",
+        type=int,
+        default=STORE_MEMORY_N,
+        metavar="M",
+        help="店の評価の表の体あたりの行数(既定 32・宣言・感度 16/64)",
+    )
+    ap.add_argument(
+        "--store-sigma",
+        default=None,
+        metavar="JSON",
+        help='出どころ別の雑音 σ(例 \'{"self": 1, "wom": 1, "signage": 1, "net": 1}\'・既定 自分 1/伝聞 2/'
+             "看板 4/ネット 2=宣言・感度腕)",
+    )
+    ap.add_argument(
+        "--store-wom",
+        choices=("on", "off"),
+        default="on",
+        help="D-120 7c(N8 の腕): 口コミ(7b の聞き手への転写)を使うか(既定 on・--store-memory on のときだけ)",
+    )
+    ap.add_argument(
+        "--store-signage",
+        choices=("on", "off"),
+        default="on",
+        help="D-120 7c(N8 の腕): 看板の初見から店の行を書くか(N2 (iii)・既定 on)",
+    )
+    ap.add_argument(
+        "--store-recall-scope",
+        choices=("all", "conversation"),
+        default="all",
+        help="D-120 7c: B5 の想起で店の行を候補にする入口(既定 all=全入口・conversation=会話だけ=感度腕)",
+    )
+    ap.add_argument(
+        "--relations",
+        choices=("off", "on"),
+        default="off",
+        help="C10 8a(関係辺): 体×15 辺の関係の表を確保し、W16+W17 の共在で初期化・会話/手伝いのエピソードから"
+             "書き、B5 近接行の「知人」の印に結線する(--memory on のときだけ)。既定 off=既定の checkpoint 不変",
+    )
+    ap.add_argument("--rel-k", type=int, default=15, metavar="K",
+                    help="関係辺の数(既定 15・感度 5/50)")
+    ap.add_argument("--rel-tau", type=float, default=-2.346, metavar="TAU",
+                    help="辺として残る A の閾値 τ_rel(既定 −2.346=n を共在の日数で数えた全母集団の逆算・感度 ±0.5)")
+    ap.add_argument("--rel-d", type=float, default=0.5, metavar="D",
+                    help="関係辺の A の減衰 d(既定 0.5=記憶と同じ・感度 0.25/0.75)")
+    ap.add_argument("--rel-init-density", type=float, choices=(0.5, 1.0, 2.0), default=1.0,
+                    help="初期網の密度の腕(0.5=共在が中央値以上・1.0=共在 > 0・2.0=共在 0 の組も入れる)")
+    ap.add_argument("--rel-tenure-weeks", type=float, default=13.0, metavar="W",
+                    help="C10 8b(Q89/Q90): 初期辺の在職期間 T_uv の上限[週](既定 13・感度 26)")
+    ap.add_argument("--rel-invite", choices=("off", "on"), default="on",
+                    help="C10 8b: 名指しの無い会話の相手を関係辺の重み(5 人 40%%・10 人 20%%・残り 40%%)で引く"
+                         "(--relations on のときだけ効く・既定 on)")
+    ap.add_argument("--rel-acq-wake", choices=("off", "on"), default="on",
+                    help="C10 8b(R7 (a)): 知人出現の起床(同一相手 60 分・--relations on のときだけ効く・既定 on)")
+    ap.add_argument("--rel-copresent", choices=("off", "on"), default="off",
+                    help="C10 8b(Q91): 同席の書き手(同セル・2 m 内・連続 5 分で 1 本・相手ごと 1 日 1 本・既定 off)")
+    ap.add_argument("--conv-max-participants", type=int, choices=(2, 3), default=2,
+                    help="C10 8a(D-93 (d)): 会話の参加上限(既定 2・3=会話中の相手に話しかけた体が加わる)")
+    ap.add_argument(
+        "--store-decay",
+        choices=STORE_DECAY_MODES,
+        default=DEFAULT_STORE_DECAY,
+        help="店の評価の減衰の形(既定 actr=ACT-R d=0.5・ga=0.995/時・citysim=中立回帰 0.03/日=感度腕)",
+    )
+    ap.add_argument(
+        "--hunger-model",
+        choices=HUNGER_MODELS,
+        default=CLI_DEFAULT_HUNGER_MODEL,
+        help="5 段目 5a(D-118): 空腹のモデル。energy=体のエネルギー収支(既定・体重と EER・活動の "
+             "METs で消費・食事/軽食/飲料で摂取・B5 は語)/v1=旧規則(+1/30 分・購入/食事で −4)"
+             "=旧 checkpoint の再現",
+    )
+    ap.add_argument(
+        "--energy-rate",
+        choices=ENERGY_RATES,
+        default=DEFAULT_ENERGY_RATE,
+        help="消費の式(--hunger-model energy のときだけ効く)。eer=EER/1440×METs/基準日の平均 METs"
+             "(既定・K1 (c))/bmr=基礎代謝量×METs(感度腕・K1 (a))",
+    )
+    ap.add_argument(
+        "--eatery",
+        choices=EATERY_MODES,
+        default=DEFAULT_EATERY_MODE,
+        help="段 1b(D-96 nightlife (b)): 行動語「食事」が成立する飲食店の集合。food=現行"
+             "(cat の価格帯「飲食」・既定・checkpoint はバイト不変)/place_food=W17 の場所語"
+             "「飲食店」と同じ集合(food+nightlife のうち club/karaoke/sauna/net_cafe でないもの)。"
+             "価格は動かさない",
     )
     ap.add_argument(
         "--role-words",
@@ -765,14 +1112,52 @@ def main(argv: list[str] | None = None) -> int:
         refractory_scale=refractory_scale or None,
         signage=not args.no_signage,
         signage_p_see=float(args.signage_p_see),
+        p_see_activity=args.p_see_activity,
         l4_scale=float(args.l4_scale),
         sleep_suppression=not args.no_sleep_suppression,
         plan_sleep=not args.no_plan_sleep,
         plan_executor=not args.no_plan_executor,
         exit_mode=str(args.exit_mode),
+        near_tiebreak=str(args.near_tiebreak),
+        near_order=str(args.near_order),
+        group_norms=str(args.group_norms),
         report_precondition=(str(args.report_precondition) == "on"),
         queue_service=(str(args.queue_service) == "on"),
+        leave_effect=(str(args.leave_effect) == "on"),
         activity=(str(args.activity) == "on"),
+        eatery=str(args.eatery),
+        chooser=str(args.chooser),
+        policy=str(args.policy),
+        activity_region=str(args.activity_region),
+        classical_habit_p=float(args.classical_habit_p),
+        classical_tau=float(args.classical_tau),
+        poi_target=str(args.poi_target),
+        move_search_radius=int(args.move_search_radius),
+        intent_max_ticks=int(args.intent_max_ticks),
+        familiarity=str(args.familiarity),
+        familiarity_k=int(args.familiarity_k),
+        memory=str(args.memory),
+        memory_n=int(args.memory_n),
+        memory_tau=float(args.memory_tau),
+        store_wom=str(args.store_wom),
+        store_signage=str(args.store_signage),
+        store_recall_scope=str(args.store_recall_scope),
+        relations=str(args.relations),
+        rel_k=int(args.rel_k),
+        rel_tau=float(args.rel_tau),
+        rel_d=float(args.rel_d),
+        rel_init_density=float(args.rel_init_density),
+        conv_max_participants=int(args.conv_max_participants),
+        rel_tenure_weeks=float(args.rel_tenure_weeks),
+        rel_invite=str(args.rel_invite),
+        rel_acq_wake=str(args.rel_acq_wake),
+        rel_copresent=str(args.rel_copresent),
+        store_memory=str(args.store_memory),
+        store_memory_n=int(args.store_memory_n),
+        store_sigma=args.store_sigma,
+        store_decay=str(args.store_decay),
+        hunger_model=str(args.hunger_model),
+        energy_rate=str(args.energy_rate),
         role_words=(str(args.role_words) == "on"),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),

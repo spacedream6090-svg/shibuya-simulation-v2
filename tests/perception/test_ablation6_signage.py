@@ -1,7 +1,7 @@
 """ablation ⑥「広告ゼロ」(知覚契約書 §8 第1陣 ⑥)の切替口。
 
 見るもの
-(a) 既定は看板あり=**golden 不変**(テンプレ SHA 161fe181・参照場面の prompt_hash 釘付け)/
+(a) 既定は看板あり=**golden 不変**(テンプレ SHA 40af870e(v1.4・旧 v1.3 ea204a66)・参照場面の prompt_hash 釘付け)/
 (b) ``signage_enabled=False`` で B2 看板行が ``B2.signage_empty`` になる(W14 凍結文でも合成文でも)/
 (c) **固定枠と単一ランキングの両方**で効く(材料が ``_signage_body`` 1 本だから)/
 (d) テンプレ本体・``template_sha256`` は不変(空文言は元からあるテンプレ)/
@@ -26,7 +26,10 @@ from shibuya.world.state import World
 
 SHARED_BLOCKS = ("B0", "B1", "B2", "B3", "B4", "B4b")
 #: 看板ありの参照場面の指紋(``tests/perception/test_ablation1.py`` と**同じ場面・同じ値**)。
-GOLDEN_FIXED_PROMPT_HASH = "bb23f7c69a82460b6820292404eb640b722ed0c7aa7a545afc9e09c697d8a5c5"
+#: 第304 Q130(小さいもの 第 2 批①): B5 近接行の並びを距離順にした=参照場面の B5 が「P-1、P-9」→「P-9、P-1」。
+GOLDEN_FIXED_PROMPT_HASH = "f6a44b2b19b1a869b4cdab63cdf801326d0cd0edd2a4359a92e8512fdae37975"
+#: 旧値(並び=行番号の昇順)。``near_order="id"`` で再現する(``test_ablation1`` で固定)。
+GOLDEN_FIXED_PROMPT_HASH_ORDER_ID = "bb23f7c69a82460b6820292404eb640b722ed0c7aa7a545afc9e09c697d8a5c5"
 SIGNAGE_PREFIX = "[B2 看板]"
 
 
@@ -57,7 +60,7 @@ def test_default_is_signage_on_and_the_golden_bytes_do_not_move():
     """既定は看板あり。参照場面のバイトもテンプレ SHA も ⑥ の導入で動かない。"""
     r, out = scene()
     assert Renderer(r.world, r.agents).signage_enabled is True
-    assert T.template_sha256().startswith("161fe181")
+    assert T.template_sha256().startswith("40af870e")  # v1.4(旧 v1.3 = ea204a66・v1.2 = 1f6c7d62)
     assert out.prompt_hash == GOLDEN_FIXED_PROMPT_HASH
 
 
@@ -103,7 +106,7 @@ def test_signage_body_is_the_single_material_for_both_modes():
 def test_templates_and_sha_are_untouched():
     """凍結テンプレの payload に 1 文字も足していない(v1.1 delta は不要)。"""
     assert T.template_sha256() == T.template_sha256()
-    assert T.template_sha256().startswith("161fe181")
+    assert T.template_sha256().startswith("40af870e")  # v1.4(旧 v1.3 = ea204a66・v1.2 = 1f6c7d62)
     assert "B2.signage" in T.TEMPLATES and "B2.signage_empty" in T.TEMPLATES
 
 

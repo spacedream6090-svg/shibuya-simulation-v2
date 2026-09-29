@@ -20,7 +20,8 @@ import pytest
 ARM_ID = "AB7c-VOCAB-V2"
 
 #: 腕定義のカノニカル JSON SHA256(2026-09-17 に凍結。**文面を変えたら必ずここが動く**)。
-FROZEN_AB7C_SHA256 = "f5cd4a8a84172d379f84e03a3e7e0095847530b90558c3322635ffe0326b66b0"
+#: 第290(Q29)で各ランに ``l4_scale: 1.0`` を明示して張り替えた(それまで f5cd4a8a84172d37…)。
+FROZEN_AB7C_SHA256 = "5d2846dd25c8e5113e68197ff3e71a6078a4a52c5109dc894a322d30bcc8c7e4"
 
 
 @pytest.fixture(scope="module")
@@ -60,10 +61,10 @@ def test_ab7c_switch_and_runs(ablation_runner, table):
     assert "--vocab-version" in sw["how"]
     assert sw["mock_effective"] is True, "mock の抽選語彙が版に従う=mock でも差が出る"
     assert [r["tag"] for r in arm["runs"]] == ["vocab_v1", "vocab_v2", "open_v2"]
-    assert [r["kwargs"] for r in arm["runs"]] == [
-        {"intent_mode": "vocab", "vocab_version": "v1"},
-        {"intent_mode": "vocab", "vocab_version": "v2"},
-        {"intent_mode": "open", "vocab_version": "v2"},
+    assert [r["kwargs"] for r in arm["runs"]] == [  # 第290 Q29: l4_scale 1.0 を明示
+        {"l4_scale": 1.0, "intent_mode": "vocab", "vocab_version": "v1"},
+        {"l4_scale": 1.0, "intent_mode": "vocab", "vocab_version": "v2"},
+        {"l4_scale": 1.0, "intent_mode": "open", "vocab_version": "v2"},
     ]
     assert arm["runs"][0]["is_baseline"] is True
     for r in arm["runs"][1:]:

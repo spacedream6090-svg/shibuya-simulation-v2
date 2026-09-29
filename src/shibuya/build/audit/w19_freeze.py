@@ -64,6 +64,7 @@ def data_asset_paths(data_root: Path) -> list[str]:
         rel.add(f"odpt/{name}")
     rel.add(_joined(w10_noise.KASYO))
     rel.add(_joined(w10_noise.R5_POINTS))
+    rel.add(_joined(w10_noise.ROAD_NAMES))  # 段 1c(道路名の突合)
     # PT_CORE(docs/bench/pt_shibuya/…)は data 根の外なので資産表に載せない(下の notes に記す)。
     for const in ("STATION_FLOW", "TIME_DIST", "TRANSFER", "PASSENGER_SURVEY"):
         parts = getattr(w12_external_nodes, const, None)

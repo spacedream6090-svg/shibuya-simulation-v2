@@ -43,12 +43,20 @@ def test_l4_cap_holds_for_a_5000_agent_day_on_the_synthetic_world(capsys):
 @real_data
 @pytest.mark.slow
 def test_l4_cap_holds_on_the_real_world(capsys):
+    """上限スイッチ ``l4_scale=1.0``(旧挙動)で按分上限と制御目標が守られる。
+
+    3 段目(第289・D-99 (a′)・D-110): ``cli.run`` の既定は無制限になった=L4 は監査線。上限の
+    スイッチが効くことをここで固定し、既定(無制限)のランは manifest の監査欄で見る。
+    """
     n, ticks = 5_000, 1_440
-    res = cli.run(n_agents=n, seed=1, world_dir=WORLD_DIR, ticks=ticks, checkpoint_every=720)
+    res = cli.run(n_agents=n, seed=1, world_dir=WORLD_DIR, ticks=ticks, checkpoint_every=720,
+                  l4_scale=1.0)
     with capsys.disabled():
         print(f"\n[L4 実データ] {res.llm_calls:,} 呼 = {res.llm_calls / n:.2f} 呼/体/日")
     assert res.llm_calls <= int(call_budget_per_tick(n) * ticks)
     assert res.llm_calls / n <= 10.0
+    m = res.run_manifest_fields()
+    assert m["llm_calls_total"] == res.llm_calls and m["l4_exceeded"] is False
 
 
 # ---------------------------------------------------------------- L6(in-flight)
@@ -101,7 +109,10 @@ def test_fleet_smoke_keeps_in_flight_within_l6(c6lib, tmp_path, capsys):
                 tape_path=tmp_path / "tape", fleet=client,
                 # D-56 の帰無腕: tick 0 = 世界内 00:00 で全員 ``SLEEPING``。24 tick の
                 # 艦隊スモークは既定のままだと呼が 0 になり L6(同時発射上限)を測れない。
-                extra={"sleep_suppression": False},
+                # 3 段目(第289): ``cli.run`` の既定は呼数無制限。この検査は**上限ありの配り方**での
+                # ``fleet_peak_in_flight_r*``(受理=待ち+実行中)を見るので上限を明示する(無制限の
+                # 検査は下の ``test_fleet_smoke_unlimited_*``)。
+                extra={"sleep_suppression": False, "l4_scale": 1.0},
             )
         finally:
             client.close()
@@ -120,6 +131,86 @@ def test_fleet_smoke_keeps_in_flight_within_l6(c6lib, tmp_path, capsys):
     finally:
         for f in fakes:
             f.close()
+
+
+def test_fleet_smoke_unlimited_keeps_real_concurrency_within_l6_and_notes_the_queue(
+    c6lib, tmp_path
+):
+    """3 段目(D-99 (a′)・D-110): 既定=呼数無制限の艦隊スモーク。
+
+    300 体が同じ tick に呼ばれると ``fleet_peak_in_flight_r*``(**受理=待ち+実行中**の数)は L6 を
+    超える(150/レプリカ)が、**実際の同時実行**(偽 vLLM が数える ``peak_concurrency``)はレプリカごとの
+    上限の内に収まる。受理待ち枠(``--fleet-queue-capacity``)は未指定だが、既定の枠(64×2×4=512)が
+    体数 300 以上なので**何も変えず・警告も注記も無い**(第289 Q28 以降)。
+    """
+    from ._fake_vllm import FakeVLLM
+
+    cap = l6_in_flight_per_gpu()
+    fakes = [FakeVLLM(), FakeVLLM()]
+    try:
+        client = c6lib.build_fleet_client(
+            [f.endpoint for f in fakes], mode="smoke", run_seed=1, stream=False
+        )
+        try:
+            import warnings as _w
+
+            with _w.catch_warnings():
+                _w.simplefilter("error", RuntimeWarning)  # 警告が出たら失敗
+                res, _route = c6lib.run_smoke(
+                    n_agents=300, seed=1, ticks=24, world_dir=None,
+                    tape_path=tmp_path / "tape", fleet=client,
+                    extra={"sleep_suppression": False},
+                )
+        finally:
+            client.close()
+        for f in fakes:
+            assert 0 < f.peak_concurrency <= cap, f.peak_concurrency
+        m = res.run_manifest_fields()
+        assert m["l4_scale"] == 0.0 and m["l4_notes"] == []
+        assert client.queue_capacity == 512 and client.n_deferred_queue_full == 0
+    finally:
+        for f in fakes:
+            f.close()
+
+
+def test_fleet_smoke_unlimited_defaults_the_queue_to_the_agent_count(tmp_path):
+    """第289 Q28(D-55): 枠が体数より狭い艦隊(``max_in_flight`` 8 → 既定の枠 32)× 無制限 × 枠 未指定。
+
+    既定=体数(300)にするので受理待ちあふれの繰り延べは 0・警告なし・manifest に注記。枠を明示すれば
+    従来どおり(32 なら繰り延べが出る)。同期の経路(mock)は触らない。
+    """
+    from shibuya.llm.fleet import FleetClient
+    from shibuya.manifest.schema import Mode
+
+    from ._fake_vllm import FakeVLLM
+
+    got = {}
+    for label, qcap in (("default", None), ("explicit_32", 32)):
+        fakes = [FakeVLLM(), FakeVLLM()]
+        try:
+            cfg = FleetConfig(endpoints=tuple(f.endpoint for f in fakes), mode=Mode("smoke"), run_seed=1,
+                              temperature=0.0, t1_max_tokens=64, stream=False, max_in_flight=8,
+                              queue_capacity=qcap)
+            client = FleetClient(cfg)
+            try:
+                import warnings as _w
+
+                with _w.catch_warnings():
+                    _w.simplefilter("error", RuntimeWarning)
+                    res = cli.run(n_agents=300, seed=1, ticks=24, world_dir=None, fleet=client,
+                                  sleep_suppression=False, tape_path=tmp_path / label)
+            finally:
+                client.close()
+            got[label] = (client.n_deferred_queue_full, client.queue_capacity, res.run_manifest_fields(),
+                          dict(res.fleet_fields))
+        finally:
+            for f in fakes:
+                f.close()
+    deferred, qcap, m, fl = got["default"]
+    assert deferred == 0 and qcap == 300 and fl["queue_capacity"] == 300
+    assert len(m["l4_notes"]) == 1 and "体数 300" in m["l4_notes"][0]
+    deferred, qcap, m, fl = got["explicit_32"]
+    assert deferred > 0 and qcap == 32 and m["l4_notes"] == []
 
 
 @pytest.mark.slow

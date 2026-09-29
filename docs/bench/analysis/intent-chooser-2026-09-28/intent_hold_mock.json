@@ -1,0 +1,844 @@
+{
+ "schema": "shibuya.bench/intent-chooser-2026-09-28/intent-hold-mock/1",
+ "n_agents": 5000,
+ "seed": 1,
+ "arms": [
+  {
+   "arm": "p0",
+   "mock_out_of_cell_target_p": 0.0,
+   "intent_layer": true,
+   "intent_max_ticks": 60,
+   "final_hash": "6845e3acb8906210a76d2f3f9e1a0e86bcf6d5a8185e670595038a64b8045dd5",
+   "llm_calls": 36502,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 1394,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 3333,
+    "PLAN_GENERAL": 4072,
+    "PLAN_TRANSIT": 5595,
+    "INTEROCEPTION": 9463,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 731,
+    "ACTIVITY_EXPIRY": 11914
+   },
+   "action_usage": {
+    "(エンジン継続)": 169201,
+    "移動": 6197,
+    "乗車": 3145,
+    "購入": 2798,
+    "なし": 3103,
+    "会話": 2980,
+    "退去": 3156,
+    "通報": 3061,
+    "手伝い": 3011,
+    "断る": 2979,
+    "就寝": 2952,
+    "食事": 2849,
+    "並ぶ": 2903
+   },
+   "intent": {
+    "max_ticks": 60,
+    "proposed": 217,
+    "proposed_by_kind": {
+     "bed": 217
+    },
+    "set": 217,
+    "set_by_action": {
+     "就寝": 217
+    },
+    "set_failed": 0,
+    "set_failed_by_result": {},
+    "arrived": 159,
+    "done": 159,
+    "done_queued": 0,
+    "done_by_action": {
+     "就寝": 159
+    },
+    "failed": 0,
+    "failed_by_result": {},
+    "too_far": 6,
+    "dropped": {
+     "interrupted": 1,
+     "plan_depart": 2,
+     "plan_sleep": 1,
+     "superseded": 30
+    },
+    "kept": {
+     "none_or_wait": 2,
+     "same_dest_move": 6
+    },
+    "bed_skipped_sleep_pending": 3,
+    "exec_not_applied": 0,
+    "cell_block_suppressed": 1999,
+    "expiry_suppressed": 159,
+    "mean_ticks": 32.745,
+    "b5_lines": 35,
+    "b5_lines_over_budget": 0
+   },
+   "v_intent": {
+    "named": 0,
+    "category": 0,
+    "category_none_nearby": 0
+   },
+   "named_out_of_cell_detail": {
+    "offmap": 0,
+    "not_fit": 0,
+    "not_visible": 0,
+    "closed": 0,
+    "out_of_stock": 0
+   },
+   "iv_no_candidate": {
+    "bad_target": 1177,
+    "not_in_eatery": 842,
+    "closed": 1105,
+    "out_of_stock": 28,
+    "named_out_of_cell": 0
+   },
+   "activity_counters": {
+    "activity_set": 36649,
+    "expiry_candidates": 24538,
+    "cell_block_suppressed": 90902,
+    "arrival_expired": 836,
+    "partner_expired": 0,
+    "fail_immediate": 0,
+    "wander_steps": 2965,
+    "wander_bad_target": 5,
+    "intent_moves": 217,
+    "distinct_texts": 6
+   },
+   "move_unreachable": 226,
+   "conserved": true,
+   "shop_responses": 8944,
+   "purchases": 2957,
+   "meals": 2522,
+   "shop_success_rate": 0.6126
+  },
+  {
+   "arm": "p0_2c_off",
+   "mock_out_of_cell_target_p": 0.0,
+   "intent_layer": false,
+   "intent_max_ticks": 60,
+   "final_hash": "23e3ffdd3b03dde78f25287ef50c56e334f3d44a020ce0f69df02e193e6f633d",
+   "llm_calls": 36725,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 1367,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 3341,
+    "PLAN_GENERAL": 4061,
+    "PLAN_TRANSIT": 5596,
+    "INTEROCEPTION": 9679,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 771,
+    "ACTIVITY_EXPIRY": 11910
+   },
+   "action_usage": {
+    "(エンジン継続)": 161826,
+    "移動": 6215,
+    "乗車": 3084,
+    "購入": 2799,
+    "なし": 3142,
+    "会話": 2975,
+    "退去": 3136,
+    "通報": 2993,
+    "手伝い": 3081,
+    "断る": 2989,
+    "就寝": 3124,
+    "食事": 2939,
+    "並ぶ": 2946
+   },
+   "intent": {},
+   "v_intent": {
+    "named": 0,
+    "category": 0,
+    "category_none_nearby": 0
+   },
+   "named_out_of_cell_detail": {
+    "offmap": 0,
+    "not_fit": 0,
+    "not_visible": 0,
+    "closed": 0,
+    "out_of_stock": 0
+   },
+   "iv_no_candidate": {
+    "bad_target": 1063,
+    "not_in_eatery": 845,
+    "closed": 1118,
+    "out_of_stock": 23,
+    "named_out_of_cell": 0
+   },
+   "activity_counters": {
+    "activity_set": 36712,
+    "expiry_candidates": 24428,
+    "cell_block_suppressed": 87541,
+    "arrival_expired": 679,
+    "partner_expired": 0,
+    "fail_immediate": 0,
+    "wander_steps": 3181,
+    "wander_bad_target": 2,
+    "intent_moves": 0,
+    "distinct_texts": 6
+   },
+   "move_unreachable": 238,
+   "conserved": true,
+   "shop_responses": 9074,
+   "purchases": 3065,
+   "meals": 2634,
+   "shop_success_rate": 0.6281
+  },
+  {
+   "arm": "p0.1",
+   "mock_out_of_cell_target_p": 0.1,
+   "intent_layer": true,
+   "intent_max_ticks": 60,
+   "final_hash": "ce82e23994c3fe3ba7bb729780d9fa548e44164a2ee53d4b797ab7e54ad90b80",
+   "llm_calls": 36441,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 1373,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 3345,
+    "PLAN_GENERAL": 4076,
+    "PLAN_TRANSIT": 5643,
+    "INTEROCEPTION": 9523,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 665,
+    "ACTIVITY_EXPIRY": 11816
+   },
+   "action_usage": {
+    "(エンジン継続)": 171520,
+    "移動": 6727,
+    "乗車": 3067,
+    "購入": 2845,
+    "なし": 3155,
+    "会話": 2963,
+    "退去": 3072,
+    "通報": 2963,
+    "手伝い": 3003,
+    "断る": 3006,
+    "就寝": 3035,
+    "食事": 2921,
+    "並ぶ": 2898
+   },
+   "intent": {
+    "max_ticks": 60,
+    "proposed": 395,
+    "proposed_by_kind": {
+     "bed": 214,
+     "poi_category": 51,
+     "poi_named": 130
+    },
+    "set": 395,
+    "set_by_action": {
+     "並ぶ": 68,
+     "就寝": 214,
+     "購入": 72,
+     "食事": 41
+    },
+    "set_failed": 0,
+    "set_failed_by_result": {},
+    "arrived": 323,
+    "done": 319,
+    "done_queued": 0,
+    "done_by_action": {
+     "並ぶ": 66,
+     "就寝": 152,
+     "購入": 66,
+     "食事": 35
+    },
+    "failed": 4,
+    "failed_by_result": {
+     "closed": 3,
+     "money_short": 1
+    },
+    "too_far": 5,
+    "dropped": {
+     "interrupted": 1,
+     "plan_depart": 11,
+     "plan_sleep": 1,
+     "superseded": 39
+    },
+    "kept": {
+     "none_or_wait": 5,
+     "same_dest_move": 5
+    },
+    "bed_skipped_sleep_pending": 6,
+    "exec_not_applied": 0,
+    "cell_block_suppressed": 2240,
+    "expiry_suppressed": 324,
+    "mean_ticks": 21.162,
+    "b5_lines": 45,
+    "b5_lines_over_budget": 0
+   },
+   "v_intent": {
+    "named": 130,
+    "category": 51,
+    "category_none_nearby": 90
+   },
+   "named_out_of_cell_detail": {
+    "offmap": 0,
+    "not_fit": 79,
+    "not_visible": 7,
+    "closed": 40,
+    "out_of_stock": 1
+   },
+   "iv_no_candidate": {
+    "bad_target": 1020,
+    "not_in_eatery": 915,
+    "closed": 1165,
+    "out_of_stock": 25,
+    "named_out_of_cell": 86
+   },
+   "activity_counters": {
+    "activity_set": 36751,
+    "expiry_candidates": 24673,
+    "cell_block_suppressed": 92626,
+    "arrival_expired": 1021,
+    "partner_expired": 0,
+    "fail_immediate": 0,
+    "wander_steps": 3320,
+    "wander_bad_target": 2,
+    "intent_moves": 395,
+    "distinct_texts": 6
+   },
+   "move_unreachable": 229,
+   "conserved": true,
+   "shop_responses": 9017,
+   "purchases": 3017,
+   "meals": 2499,
+   "shop_success_rate": 0.6117
+  },
+  {
+   "arm": "p0.1_2c_off",
+   "mock_out_of_cell_target_p": 0.1,
+   "intent_layer": false,
+   "intent_max_ticks": 60,
+   "final_hash": "02148857d9126173a973af48943a1933cc12f82a3fe28e79e50aae325579fdba",
+   "llm_calls": 36565,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 1327,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 3345,
+    "PLAN_GENERAL": 4025,
+    "PLAN_TRANSIT": 5603,
+    "INTEROCEPTION": 9529,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 684,
+    "ACTIVITY_EXPIRY": 12052
+   },
+   "action_usage": {
+    "(エンジン継続)": 159706,
+    "移動": 6114,
+    "乗車": 3004,
+    "購入": 2856,
+    "なし": 3153,
+    "会話": 2952,
+    "退去": 3092,
+    "通報": 3052,
+    "手伝い": 3042,
+    "断る": 3002,
+    "就寝": 3047,
+    "食事": 2966,
+    "並ぶ": 2885
+   },
+   "intent": {},
+   "v_intent": {
+    "named": 0,
+    "category": 0,
+    "category_none_nearby": 0
+   },
+   "named_out_of_cell_detail": {
+    "offmap": 0,
+    "not_fit": 0,
+    "not_visible": 0,
+    "closed": 0,
+    "out_of_stock": 0
+   },
+   "iv_no_candidate": {
+    "bad_target": 1061,
+    "not_in_eatery": 919,
+    "closed": 1189,
+    "out_of_stock": 21,
+    "named_out_of_cell": 258
+   },
+   "activity_counters": {
+    "activity_set": 36552,
+    "expiry_candidates": 24572,
+    "cell_block_suppressed": 85311,
+    "arrival_expired": 679,
+    "partner_expired": 0,
+    "fail_immediate": 0,
+    "wander_steps": 3045,
+    "wander_bad_target": 3,
+    "intent_moves": 0,
+    "distinct_texts": 6
+   },
+   "move_unreachable": 275,
+   "conserved": true,
+   "shop_responses": 9062,
+   "purchases": 2928,
+   "meals": 2440,
+   "shop_success_rate": 0.5924
+  },
+  {
+   "arm": "p0.5",
+   "mock_out_of_cell_target_p": 0.5,
+   "intent_layer": true,
+   "intent_max_ticks": 60,
+   "final_hash": "207f8f05f6bab731f382eec78588589ea3402e09b211f27123658af518680dc8",
+   "llm_calls": 36496,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 1340,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 3328,
+    "PLAN_GENERAL": 4097,
+    "PLAN_TRANSIT": 5650,
+    "INTEROCEPTION": 9462,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 689,
+    "ACTIVITY_EXPIRY": 11930
+   },
+   "action_usage": {
+    "(エンジン継続)": 175425,
+    "移動": 7048,
+    "乗車": 3074,
+    "購入": 2862,
+    "なし": 3109,
+    "会話": 2925,
+    "退去": 3138,
+    "通報": 3048,
+    "手伝い": 3068,
+    "断る": 3057,
+    "就寝": 2992,
+    "食事": 2962,
+    "並ぶ": 2884
+   },
+   "intent": {
+    "max_ticks": 60,
+    "proposed": 1088,
+    "proposed_by_kind": {
+     "bed": 235,
+     "poi_category": 227,
+     "poi_named": 626
+    },
+    "set": 1084,
+    "set_by_action": {
+     "並ぶ": 332,
+     "就寝": 235,
+     "購入": 297,
+     "食事": 220
+    },
+    "set_failed": 4,
+    "set_failed_by_result": {
+     "unreachable": 4
+    },
+    "arrived": 968,
+    "done": 963,
+    "done_queued": 0,
+    "done_by_action": {
+     "並ぶ": 317,
+     "就寝": 166,
+     "購入": 276,
+     "食事": 204
+    },
+    "failed": 5,
+    "failed_by_result": {
+     "closed": 5
+    },
+    "too_far": 3,
+    "dropped": {
+     "interrupted": 2,
+     "plan_depart": 32,
+     "plan_sleep": 3,
+     "superseded": 52
+    },
+    "kept": {
+     "none_or_wait": 6,
+     "same_dest_move": 6
+    },
+    "bed_skipped_sleep_pending": 5,
+    "exec_not_applied": 0,
+    "cell_block_suppressed": 3389,
+    "expiry_suppressed": 973,
+    "mean_ticks": 13.829,
+    "b5_lines": 58,
+    "b5_lines_over_budget": 0
+   },
+   "v_intent": {
+    "named": 626,
+    "category": 227,
+    "category_none_nearby": 489
+   },
+   "named_out_of_cell_detail": {
+    "offmap": 0,
+    "not_fit": 444,
+    "not_visible": 30,
+    "closed": 242,
+    "out_of_stock": 1
+   },
+   "iv_no_candidate": {
+    "bad_target": 771,
+    "not_in_eatery": 1024,
+    "closed": 1308,
+    "out_of_stock": 61,
+    "named_out_of_cell": 474
+   },
+   "activity_counters": {
+    "activity_set": 37450,
+    "expiry_candidates": 25387,
+    "cell_block_suppressed": 92086,
+    "arrival_expired": 1647,
+    "partner_expired": 0,
+    "fail_immediate": 0,
+    "wander_steps": 2966,
+    "wander_bad_target": 4,
+    "intent_moves": 1084,
+    "distinct_texts": 6
+   },
+   "move_unreachable": 248,
+   "conserved": true,
+   "shop_responses": 8946,
+   "purchases": 2876,
+   "meals": 2322,
+   "shop_success_rate": 0.581
+  },
+  {
+   "arm": "p0.5_2c_off",
+   "mock_out_of_cell_target_p": 0.5,
+   "intent_layer": false,
+   "intent_max_ticks": 60,
+   "final_hash": "e23de864827b04d25773f136a033c238ad897589f70ce774aaf6efb0567d3d34",
+   "llm_calls": 36569,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 1417,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 3358,
+    "PLAN_GENERAL": 4137,
+    "PLAN_TRANSIT": 5669,
+    "INTEROCEPTION": 9236,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 702,
+    "ACTIVITY_EXPIRY": 12050
+   },
+   "action_usage": {
+    "(エンジン継続)": 164703,
+    "移動": 6484,
+    "乗車": 3005,
+    "購入": 2890,
+    "なし": 3130,
+    "会話": 2941,
+    "退去": 3123,
+    "通報": 3032,
+    "手伝い": 3056,
+    "断る": 3017,
+    "就寝": 3098,
+    "食事": 2991,
+    "並ぶ": 2927
+   },
+   "intent": {},
+   "v_intent": {
+    "named": 0,
+    "category": 0,
+    "category_none_nearby": 0
+   },
+   "named_out_of_cell_detail": {
+    "offmap": 0,
+    "not_fit": 0,
+    "not_visible": 0,
+    "closed": 0,
+    "out_of_stock": 0
+   },
+   "iv_no_candidate": {
+    "bad_target": 983,
+    "not_in_eatery": 1091,
+    "closed": 1197,
+    "out_of_stock": 36,
+    "named_out_of_cell": 1393
+   },
+   "activity_counters": {
+    "activity_set": 36560,
+    "expiry_candidates": 24542,
+    "cell_block_suppressed": 88294,
+    "arrival_expired": 681,
+    "partner_expired": 0,
+    "fail_immediate": 0,
+    "wander_steps": 3399,
+    "wander_bad_target": 2,
+    "intent_moves": 0,
+    "distinct_texts": 6
+   },
+   "move_unreachable": 259,
+   "conserved": true,
+   "shop_responses": 8990,
+   "purchases": 2387,
+   "meals": 1824,
+   "shop_success_rate": 0.4684
+  },
+  {
+   "arm": "p0.5_max30",
+   "mock_out_of_cell_target_p": 0.5,
+   "intent_layer": true,
+   "intent_max_ticks": 30,
+   "final_hash": "1fb055fb60574d7d2d6ca94403cbdeec3dd9b62c64f0520381eae18f40edbc00",
+   "llm_calls": 36590,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 1340,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 3330,
+    "PLAN_GENERAL": 4084,
+    "PLAN_TRANSIT": 5652,
+    "INTEROCEPTION": 9439,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 693,
+    "ACTIVITY_EXPIRY": 12052
+   },
+   "action_usage": {
+    "(エンジン継続)": 175571,
+    "移動": 7331,
+    "乗車": 3051,
+    "購入": 2879,
+    "なし": 3055,
+    "会話": 2960,
+    "退去": 3131,
+    "通報": 3062,
+    "手伝い": 3089,
+    "断る": 3061,
+    "就寝": 2947,
+    "食事": 2906,
+    "並ぶ": 2878
+   },
+   "intent": {
+    "max_ticks": 30,
+    "proposed": 1158,
+    "proposed_by_kind": {
+     "bed": 248,
+     "poi_category": 243,
+     "poi_named": 667
+    },
+    "set": 1155,
+    "set_by_action": {
+     "並ぶ": 331,
+     "就寝": 248,
+     "購入": 329,
+     "食事": 247
+    },
+    "set_failed": 3,
+    "set_failed_by_result": {
+     "unreachable": 3
+    },
+    "arrived": 966,
+    "done": 964,
+    "done_queued": 0,
+    "done_by_action": {
+     "並ぶ": 318,
+     "就寝": 98,
+     "購入": 312,
+     "食事": 236
+    },
+    "failed": 2,
+    "failed_by_result": {
+     "closed": 2
+    },
+    "too_far": 100,
+    "dropped": {
+     "interrupted": 2,
+     "plan_depart": 30,
+     "plan_sleep": 3,
+     "superseded": 41
+    },
+    "kept": {
+     "none_or_wait": 7,
+     "same_dest_move": 1
+    },
+    "bed_skipped_sleep_pending": 5,
+    "exec_not_applied": 0,
+    "cell_block_suppressed": 3031,
+    "expiry_suppressed": 971,
+    "mean_ticks": 12.544,
+    "b5_lines": 46,
+    "b5_lines_over_budget": 0
+   },
+   "v_intent": {
+    "named": 667,
+    "category": 243,
+    "category_none_nearby": 492
+   },
+   "named_out_of_cell_detail": {
+    "offmap": 0,
+    "not_fit": 392,
+    "not_visible": 30,
+    "closed": 238,
+    "out_of_stock": 2
+   },
+   "iv_no_candidate": {
+    "bad_target": 775,
+    "not_in_eatery": 995,
+    "closed": 1320,
+    "out_of_stock": 63,
+    "named_out_of_cell": 422
+   },
+   "activity_counters": {
+    "activity_set": 37546,
+    "expiry_candidates": 25529,
+    "cell_block_suppressed": 93715,
+    "arrival_expired": 1668,
+    "partner_expired": 0,
+    "fail_immediate": 0,
+    "wander_steps": 3149,
+    "wander_bad_target": 6,
+    "intent_moves": 1155,
+    "distinct_texts": 6
+   },
+   "move_unreachable": 257,
+   "conserved": true,
+   "shop_responses": 8988,
+   "purchases": 2936,
+   "meals": 2303,
+   "shop_success_rate": 0.5829
+  },
+  {
+   "arm": "p0.5_max120",
+   "mock_out_of_cell_target_p": 0.5,
+   "intent_layer": true,
+   "intent_max_ticks": 120,
+   "final_hash": "deade15c6c68eba0279aeca09a67e0bb1505d09b574ae6175d398bd1936a2b5b",
+   "llm_calls": 36475,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 1320,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 3328,
+    "PLAN_GENERAL": 4096,
+    "PLAN_TRANSIT": 5651,
+    "INTEROCEPTION": 9463,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 676,
+    "ACTIVITY_EXPIRY": 11941
+   },
+   "action_usage": {
+    "(エンジン継続)": 174909,
+    "移動": 7067,
+    "乗車": 3046,
+    "購入": 2868,
+    "なし": 3106,
+    "会話": 2931,
+    "退去": 3132,
+    "通報": 3039,
+    "手伝い": 3071,
+    "断る": 3056,
+    "就寝": 3005,
+    "食事": 2945,
+    "並ぶ": 2891
+   },
+   "intent": {
+    "max_ticks": 120,
+    "proposed": 1077,
+    "proposed_by_kind": {
+     "bed": 223,
+     "poi_category": 231,
+     "poi_named": 623
+    },
+    "set": 1073,
+    "set_by_action": {
+     "並ぶ": 333,
+     "就寝": 223,
+     "購入": 300,
+     "食事": 217
+    },
+    "set_failed": 4,
+    "set_failed_by_result": {
+     "unreachable": 4
+    },
+    "arrived": 969,
+    "done": 966,
+    "done_queued": 0,
+    "done_by_action": {
+     "並ぶ": 317,
+     "就寝": 165,
+     "購入": 280,
+     "食事": 204
+    },
+    "failed": 3,
+    "failed_by_result": {
+     "closed": 3
+    },
+    "too_far": 0,
+    "dropped": {
+     "interrupted": 2,
+     "plan_depart": 31,
+     "plan_sleep": 1,
+     "superseded": 52
+    },
+    "kept": {
+     "none_or_wait": 8,
+     "same_dest_move": 4
+    },
+    "bed_skipped_sleep_pending": 6,
+    "exec_not_applied": 0,
+    "cell_block_suppressed": 3269,
+    "expiry_suppressed": 974,
+    "mean_ticks": 13.841,
+    "b5_lines": 60,
+    "b5_lines_over_budget": 0
+   },
+   "v_intent": {
+    "named": 623,
+    "category": 231,
+    "category_none_nearby": 481
+   },
+   "named_out_of_cell_detail": {
+    "offmap": 0,
+    "not_fit": 443,
+    "not_visible": 29,
+    "closed": 240,
+    "out_of_stock": 1
+   },
+   "iv_no_candidate": {
+    "bad_target": 789,
+    "not_in_eatery": 1020,
+    "closed": 1308,
+    "out_of_stock": 61,
+    "named_out_of_cell": 472
+   },
+   "activity_counters": {
+    "activity_set": 37430,
+    "expiry_candidates": 25403,
+    "cell_block_suppressed": 90758,
+    "arrival_expired": 1659,
+    "partner_expired": 0,
+    "fail_immediate": 0,
+    "wander_steps": 2971,
+    "wander_bad_target": 4,
+    "intent_moves": 1073,
+    "distinct_texts": 6
+   },
+   "move_unreachable": 252,
+   "conserved": true,
+   "shop_responses": 8941,
+   "purchases": 2887,
+   "meals": 2293,
+   "shop_success_rate": 0.5794
+  }
+ ]
+}

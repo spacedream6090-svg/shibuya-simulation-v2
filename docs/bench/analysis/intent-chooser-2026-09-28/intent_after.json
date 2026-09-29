@@ -1,0 +1,305 @@
+{
+ "schema": "shibuya.bench/intent-chooser-2026-09-28/1",
+ "n_agents": 5000,
+ "seed": 1,
+ "arms": [
+  {
+   "arm": "v3_default",
+   "args": {
+    "vocab_version": "v3",
+    "activity": true
+   },
+   "final_hash": "48b0d42936ebed492463ec0cf7b69d3334c358c61621a3ca802aec5defcc7514",
+   "checkpoints": {
+    "359": "e7a4d40e68757527e1c5a9e06766230364fe31663fe07daa755b45ad7d96f809",
+    "719": "3ffc39769afcd6029af0d9a9eaa5017da68c8b19358a4698a2052e9a01c91904",
+    "1079": "3d4e6ecbbd3e2e5aff9c34182071e9c1d8c4a1c84552cb23da7d235daa071b37",
+    "1439": "48b0d42936ebed492463ec0cf7b69d3334c358c61621a3ca802aec5defcc7514"
+   },
+   "llm_calls": 36725,
+   "purchases_diag": 3065,
+   "meals": 2634,
+   "action_usage": {
+    "(エンジン継続)": 161826,
+    "移動": 6215,
+    "乗車": 3084,
+    "購入": 2799,
+    "なし": 3142,
+    "会話": 2975,
+    "退去": 3136,
+    "通報": 2993,
+    "手伝い": 3081,
+    "断る": 2989,
+    "就寝": 3124,
+    "食事": 2939,
+    "並ぶ": 2946
+   },
+   "chooser": "nearest",
+   "target_resolution": {
+    "i_named": 0,
+    "ii_category": 0,
+    "iii_none": 6025,
+    "iv_no_candidate": {
+     "bad_target": 1063,
+     "not_in_eatery": 845,
+     "closed": 1118,
+     "out_of_stock": 23,
+     "named_out_of_cell": 0
+    },
+    "attempts": {
+     "named": 0,
+     "category": 0,
+     "none": 9074
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "conserved": true,
+   "buy": {
+    "attempts": 4094,
+    "done": 3065,
+    "rate": 0.7487,
+    "fail": {
+     "BAD_TARGET": 524,
+     "CLOSED": 501,
+     "OUT_OF_STOCK": 0,
+     "NOT_IN_EATERY": 0,
+     "MONEY_SHORT": 4,
+     "LOST_ARBITRATION": 0
+    }
+   },
+   "eat": {
+    "attempts": 4051,
+    "done": 2634,
+    "rate": 0.6502,
+    "fail": {
+     "BAD_TARGET": 0,
+     "CLOSED": 571,
+     "OUT_OF_STOCK": 0,
+     "NOT_IN_EATERY": 845,
+     "MONEY_SHORT": 1,
+     "LOST_ARBITRATION": 0
+    }
+   }
+  },
+  {
+   "arm": "v1_default",
+   "args": {
+    "vocab_version": "v1"
+   },
+   "final_hash": "a0e375c69c8e4f8b57b999c4d2315037ae3261cf97ffa96b57bfd35f68687410",
+   "checkpoints": {
+    "359": "13122e7f39b4b8dbfd129b76eeb43ae7ead913ca367a08079df6cc85313cdf6c",
+    "719": "a21d27367c6a372bf4f458a54a7cd740e93585d416dba04258d57e15a3783888",
+    "1079": "aaf7d2fb7feaf2bb139f41dee3ddcf3590296a6c8e41945ed7208241033f8c03",
+    "1439": "a0e375c69c8e4f8b57b999c4d2315037ae3261cf97ffa96b57bfd35f68687410"
+   },
+   "llm_calls": 33320,
+   "purchases_diag": 1962,
+   "meals": 0,
+   "action_usage": {
+    "(エンジン継続)": 118697,
+    "移動": 2816,
+    "乗車": 2809,
+    "降車": 2736,
+    "購入": 2785,
+    "待機": 2735,
+    "会話": 2580,
+    "退去": 2797,
+    "通報": 2797,
+    "手伝い": 2729,
+    "断る": 2682,
+    "休憩": 2868,
+    "就寝": 2780
+   },
+   "chooser": "nearest",
+   "target_resolution": {
+    "i_named": 0,
+    "ii_category": 0,
+    "iii_none": 2006,
+    "iv_no_candidate": {
+     "bad_target": 477,
+     "not_in_eatery": 0,
+     "closed": 347,
+     "out_of_stock": 0,
+     "named_out_of_cell": 0
+    },
+    "attempts": {
+     "named": 0,
+     "category": 0,
+     "none": 2830
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "conserved": true,
+   "buy": {
+    "attempts": 2785,
+    "done": 1962,
+    "rate": 0.7045,
+    "fail": {
+     "BAD_TARGET": 477,
+     "CLOSED": 346,
+     "OUT_OF_STOCK": 0,
+     "NOT_IN_EATERY": 0,
+     "MONEY_SHORT": 0,
+     "LOST_ARBITRATION": 0
+    }
+   },
+   "eat": {
+    "attempts": 0,
+    "done": 0,
+    "rate": null,
+    "fail": {}
+   }
+  },
+  {
+   "arm": "v2",
+   "args": {
+    "vocab_version": "v2"
+   },
+   "final_hash": "d1daf198017078d4dc2b917fb7c874e0c315746c77f8ce849cc4f8dd66cc7de0",
+   "checkpoints": {
+    "359": "3c51f8cde5a853fc34290bc3af857a030427bfa3457a967921a5cb6a1ccd7827",
+    "719": "1f8822634ba28a31f7e5f1cbeb984e35336a3821fabdbe8ae8bf948fae0ecb59",
+    "1079": "c461bec0f898ff5d18b28b7aa1ebdd92bd7bbff01c955846bfba6cffd0e5c814",
+    "1439": "d1daf198017078d4dc2b917fb7c874e0c315746c77f8ce849cc4f8dd66cc7de0"
+   },
+   "llm_calls": 33843,
+   "purchases_diag": 1817,
+   "meals": 1542,
+   "action_usage": {
+    "(エンジン継続)": 109339,
+    "移動": 2603,
+    "乗車": 2586,
+    "降車": 2594,
+    "購入": 2536,
+    "待機": 2650,
+    "会話": 2474,
+    "退去": 2535,
+    "通報": 2599,
+    "手伝い": 2676,
+    "断る": 2653,
+    "休憩": 2627,
+    "就寝": 2466,
+    "食事": 2599
+   },
+   "chooser": "nearest",
+   "target_resolution": {
+    "i_named": 0,
+    "ii_category": 0,
+    "iii_none": 3439,
+    "iv_no_candidate": {
+     "bad_target": 419,
+     "not_in_eatery": 661,
+     "closed": 699,
+     "out_of_stock": 0,
+     "named_out_of_cell": 0
+    },
+    "attempts": {
+     "named": 0,
+     "category": 0,
+     "none": 5218
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "conserved": true,
+   "buy": {
+    "attempts": 2536,
+    "done": 1817,
+    "rate": 0.7165,
+    "fail": {
+     "BAD_TARGET": 419,
+     "CLOSED": 300,
+     "OUT_OF_STOCK": 0,
+     "NOT_IN_EATERY": 0,
+     "MONEY_SHORT": 0,
+     "LOST_ARBITRATION": 0
+    }
+   },
+   "eat": {
+    "attempts": 2599,
+    "done": 1542,
+    "rate": 0.5933,
+    "fail": {
+     "BAD_TARGET": 0,
+     "CLOSED": 396,
+     "OUT_OF_STOCK": 0,
+     "NOT_IN_EATERY": 661,
+     "MONEY_SHORT": 0,
+     "LOST_ARBITRATION": 0
+    }
+   }
+  },
+  {
+   "arm": "golden_null_arm",
+   "args": {
+    "plan_executor": false,
+    "report_precondition": false
+   },
+   "final_hash": "e75dfa1c5442f4227effe72685181597542376fad68001249fb3e6f9c1dcb07b",
+   "checkpoints": {
+    "359": "8cd3dd60439d59dbe8c30937b53172e9209971d017abc4123e338bb8f2e1ceef",
+    "719": "81f11d1151c48431aa45234b4c6c72ed6a6f5664fa4872fed46abad00e12517f",
+    "1079": "513cb02f0c3a58e977f4451e79768f441f679cace9d212ebbfdf68718fd96d18",
+    "1439": "e75dfa1c5442f4227effe72685181597542376fad68001249fb3e6f9c1dcb07b"
+   },
+   "llm_calls": 41141,
+   "purchases_diag": 1565,
+   "meals": 0,
+   "action_usage": {
+    "(エンジン継続)": 130849,
+    "移動": 3414,
+    "乗車": 3356,
+    "降車": 3378,
+    "購入": 3285,
+    "待機": 3500,
+    "会話": 3299,
+    "退去": 3322,
+    "通報": 3446,
+    "手伝い": 3301,
+    "断る": 3469,
+    "休憩": 3456,
+    "就寝": 3487
+   },
+   "chooser": "nearest",
+   "target_resolution": {
+    "i_named": 0,
+    "ii_category": 0,
+    "iii_none": 1746,
+    "iv_no_candidate": {
+     "bad_target": 1358,
+     "not_in_eatery": 0,
+     "closed": 367,
+     "out_of_stock": 10,
+     "named_out_of_cell": 0
+    },
+    "attempts": {
+     "named": 0,
+     "category": 0,
+     "none": 3481
+    },
+    "chooser_entropy_mean_bits": 0.0
+   },
+   "conserved": true,
+   "buy": {
+    "attempts": 3285,
+    "done": 1565,
+    "rate": 0.4764,
+    "fail": {
+     "BAD_TARGET": 1358,
+     "CLOSED": 362,
+     "OUT_OF_STOCK": 0,
+     "NOT_IN_EATERY": 0,
+     "MONEY_SHORT": 0,
+     "LOST_ARBITRATION": 0
+    }
+   },
+   "eat": {
+    "attempts": 0,
+    "done": 0,
+    "rate": null,
+    "fail": {}
+   }
+  }
+ ],
+ "instrumentation_is_transparent": true
+}

@@ -80,6 +80,7 @@
         {
           "tag": "fixed_slots",
           "kwargs": {
+            "l4_scale": 1.0,
             "budget_mode": "fixed"
           },
           "is_baseline": true
@@ -87,6 +88,7 @@
         {
           "tag": "single_ranking",
           "kwargs": {
+            "l4_scale": 1.0,
             "budget_mode": "ranking"
           }
         }
@@ -133,6 +135,7 @@
         {
           "tag": "d50_x1",
           "kwargs": {
+            "l4_scale": 1.0,
             "p_notice_d50_scale": 1.0
           },
           "is_baseline": true
@@ -140,12 +143,14 @@
         {
           "tag": "d50_x0.5",
           "kwargs": {
+            "l4_scale": 1.0,
             "p_notice_d50_scale": 0.5
           }
         },
         {
           "tag": "d50_x2",
           "kwargs": {
+            "l4_scale": 1.0,
             "p_notice_d50_scale": 2.0
           }
         }
@@ -189,6 +194,7 @@
         {
           "tag": "prox_15min",
           "kwargs": {
+            "l4_scale": 1.0,
             "refractory_scale": {
               "PROXIMITY_SWAP": 1.0
             }
@@ -198,6 +204,7 @@
         {
           "tag": "prox_7.5min",
           "kwargs": {
+            "l4_scale": 1.0,
             "refractory_scale": {
               "PROXIMITY_SWAP": 0.5
             }
@@ -206,6 +213,7 @@
         {
           "tag": "prox_22.5min",
           "kwargs": {
+            "l4_scale": 1.0,
             "refractory_scale": {
               "PROXIMITY_SWAP": 1.5
             }
@@ -311,6 +319,7 @@
         {
           "tag": "signage_on",
           "kwargs": {
+            "l4_scale": 1.0,
             "signage": true
           },
           "is_baseline": true
@@ -318,6 +327,7 @@
         {
           "tag": "signage_off",
           "kwargs": {
+            "l4_scale": 1.0,
             "signage": false
           }
         }
@@ -359,6 +369,7 @@
         {
           "tag": "vocab",
           "kwargs": {
+            "l4_scale": 1.0,
             "intent_mode": "vocab"
           },
           "is_baseline": true
@@ -366,6 +377,7 @@
         {
           "tag": "open",
           "kwargs": {
+            "l4_scale": 1.0,
             "intent_mode": "open"
           }
         }
@@ -413,6 +425,7 @@
         {
           "tag": "vocab",
           "kwargs": {
+            "l4_scale": 1.0,
             "intent_mode": "vocab"
           },
           "is_baseline": true
@@ -420,6 +433,7 @@
         {
           "tag": "hint",
           "kwargs": {
+            "l4_scale": 1.0,
             "intent_mode": "hint"
           }
         }
@@ -467,6 +481,7 @@
         {
           "tag": "vocab_v1",
           "kwargs": {
+            "l4_scale": 1.0,
             "intent_mode": "vocab",
             "vocab_version": "v1"
           },
@@ -475,6 +490,7 @@
         {
           "tag": "vocab_v2",
           "kwargs": {
+            "l4_scale": 1.0,
             "intent_mode": "vocab",
             "vocab_version": "v2"
           }
@@ -482,6 +498,7 @@
         {
           "tag": "open_v2",
           "kwargs": {
+            "l4_scale": 1.0,
             "intent_mode": "open",
             "vocab_version": "v2"
           }
@@ -531,6 +548,7 @@
         {
           "tag": "p_see_1_00",
           "kwargs": {
+            "l4_scale": 1.0,
             "signage_p_see": 1.0
           },
           "is_baseline": true
@@ -538,18 +556,21 @@
         {
           "tag": "ad_zero",
           "kwargs": {
+            "l4_scale": 1.0,
             "signage": false
           }
         },
         {
           "tag": "p_see_0_30",
           "kwargs": {
+            "l4_scale": 1.0,
             "signage_p_see": 0.3
           }
         },
         {
           "tag": "p_see_0_14",
           "kwargs": {
+            "l4_scale": 1.0,
             "signage_p_see": 0.14
           }
         }
@@ -853,5 +874,19 @@
     "**AB8-L4-SCALE(2026-09-19 追加・D-99 (a))**: ① **『無制限』の置き方が expedient**=budget に inf を入れられない(Arbiter._pool_cap と floor が壊れる)ので **体数**を置いた。合流後の候補が体あたり高々 1 件という arbitrate ③ の性質に寄りかかった等式なので、候補の作り方を変えるときは本腕も見直す=親判断。② 倍率は **1 tick の上限と繰越在庫(POOL_CAP_TICKS=2 ぶん)の両方**を同時に動かす。片方だけ振る腕を別に立てるか=親判断。③ **合格線が無い**(D-99 (a) は感度腕とだけ決めた)。realized が倍率に比例したときに L4 の宣言そのものを見直すのか、それとも『予算内で回る世界』を正とするのか=ユーザー判断。④ 無制限腕の**実費が読めない**(呼数上限が外れるので 1 ラン=呼 50,000 の規約の外)。先に mock かごく短い実 LLM ランで呼数を実測してから枠を確定するか=親判断。",
     "**AB6c-AD-NOTICE-UNCAPPED(2026-09-19 追加・第245 ユーザー指示)**: ① ⑥b と**呼数が違う**ので 2 腕の絶対値は比べられない(比べるのは腕の中の差)。この読み方でユーザーの問い『呼数制限なしで看板の腕を再検証』に答えたことになるか=確認待ち。② 4 ランとも無制限=この腕だけで**約 4 h** かかる見込みで、L2 の枠(4.8 h)をほぼ 1 腕で使う。⑥b と ⑥c のどちらを先に回すか=ユーザー判断。③ 較正値 0.30/0.14 は ⑥b から持ち越した expedient(⑥b の open_question と同じ)。",
     "**AB7d-VOCAB-UNCAPPED / AB1b-BUDGET-MODE-UNCAPPED(2026-09-22 追加・第249)**: ① 2 腕の baseline(vocab_v1 / fixed_slots に l4_scale=0)は ⑧ l4_unlimited・⑥c p_see_1_00 と同一構成=final_hash が一致するはず。実行器は腕をまたいだ共有を持たないので回し直す(37 分×2)=決定論の再確認に使う。② ①b の上限あり対照(現行コード)は無い(① は C7 期)。要るなら別腕=親判断。"
-  ]
+  ],
+  "l4_scale_pin": {
+    "since": "第290(2026-09-28・3 段目の問い Q29)",
+    "arms": [
+      "AB1-BUDGET-MODE",
+      "AB2-PNOTICE-D50",
+      "AB3-REFRACTORY-PROX",
+      "AB6-AD-ZERO",
+      "AB7-OPEN-INTENT",
+      "AB7b-HINT-INTENT",
+      "AB7c-VOCAB-V2",
+      "AB6b-AD-NOTICE"
+    ],
+    "reason": "3 段目(第289・D-99 (a′)・D-110)で cli.run の既定が呼数無制限(l4_scale=0)になった。これらの腕は上限あり(旧既定=l4_scale 1.0=L4 按分+持ち越し 2 tick)で回した記録なので、回し直しても旧構成で回るよう各ランの kwargs に l4_scale 1.0 を明示した(無制限の版は AB6c・AB7d・AB1b)。表の md5 は aad666a78eb61c7a4c257a7e5fdb1247 から変わった。"
+  }
 }

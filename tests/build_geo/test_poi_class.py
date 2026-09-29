@@ -328,6 +328,50 @@ def test_tag_index_accepts_an_empty_document():
     assert PC.tag_index({}) == {}
 
 
+# --- 生タグの優先順(2026-09-28 の再取得が最優先・要素単位)------------------------------
+
+
+def test_tag_index_by_priority_takes_the_newest_document_per_element():
+    """同じ要素が新旧に出たら**新しい文書のタグ一式**を採る(旧のキーを混ぜない)。"""
+    new = {"elements": [{"type": "node", "id": 1, "tags": {"amenity": "theatre"}}]}
+    old = {"elements": [{"type": "node", "id": 1, "tags": {"shop": "books", "name": "x"}}]}
+    idx = PC.tag_index_by_priority([new], [old])
+    assert idx == {"p_n1": {"amenity": "theatre"}}
+
+
+def test_tag_index_by_priority_fills_elements_missing_from_the_new_document():
+    """新しい文書に無い要素(例: 美竹公園)は旧い文書のタグで埋める。"""
+    new = {"elements": [{"type": "node", "id": 1, "tags": {"amenity": "theatre"}}]}
+    old = {"elements": [{"type": "way", "id": 2, "tags": {"leisure": "park"}}]}
+    idx = PC.tag_index_by_priority([new], [old])
+    assert idx == {"p_n1": {"amenity": "theatre"}, "p_w2": {"leisure": "park"}}
+
+
+def test_tag_index_by_priority_merges_inside_a_tier_like_tag_index():
+    """同じ群の中は :func:`tag_index` と同じく重ねる(2026-09-07 の 2 文書の従来の挙動)。"""
+    a = {"elements": [{"type": "node", "id": 1, "tags": {"leisure": "park"}}]}
+    b = {"elements": [{"type": "node", "id": 1, "tags": {"name": "宮下公園"}}]}
+    assert PC.tag_index_by_priority([], [a, b]) == PC.tag_index(a, b)
+
+
+def test_tag_tier_report_counts_matches_and_differences():
+    primary = {
+        "p_n1": {"amenity": "theatre"},           # 旧と subcat が違う
+        "p_n2": {"shop": "books", "name": "新"},  # タグだけ違う(subcat は同じ)
+        "p_n3": {"leisure": "park"},              # 新だけ
+    }
+    fallback = {
+        "p_n1": {"shop": "books"},
+        "p_n2": {"shop": "books", "name": "旧"},
+        "p_n4": {"leisure": "park"},              # 旧だけ
+    }
+    rep = PC.tag_tier_report(primary, fallback, ["p_n1", "p_n2", "p_n3", "p_n4", "p_n5"])
+    assert rep == {
+        "primary": 3, "fallback_only": 1, "neither": 1, "both": 2,
+        "tags_differ": 2, "subcat_keys_differ": 1, "subcat_differ": 1,
+    }
+
+
 # --- 合成の POI 行 → 場所種別(この改訂の本体)-----------------------------------------
 
 
@@ -382,12 +426,41 @@ def test_place_park_is_not_in_the_opening_envelope():
 
 def test_w6_declares_the_raw_tag_inputs():
     names = {parts[-1] for parts in W6.INPUT_FILES}
+    assert "poi_tags_overpass_20260928.json" in names
     assert "poi_opening_hours_overpass_20260907.json" in names
     assert "street_features_overpass_20260907.json" in names
 
 
+def test_w6_raw_tag_priority_puts_the_2026_09_28_document_first():
+    """実装アジェンダ §1-1: 新文書(2026-09-28)→ 旧 2 文書(2026-09-07)。"""
+    assert [p[-1] for p in W6.RAW_TAG_FILES_PRIMARY] == ["poi_tags_overpass_20260928.json"]
+    assert [p[-1] for p in W6.RAW_TAG_FILES_FALLBACK] == [
+        "poi_opening_hours_overpass_20260907.json",
+        "street_features_overpass_20260907.json",
+    ]
+    # W19 の資産表は INPUT_FILES から組む=3 文書とも載る
+    assert set(W6.RAW_TAG_FILES_PRIMARY + W6.RAW_TAG_FILES_FALLBACK) <= set(W6.INPUT_FILES)
+
+
 def test_w6_stage_version_moved():
-    assert W6.STAGE_VERSION == "1.1.0"
+    assert W6.STAGE_VERSION == "1.2.0"
+
+
+def test_w6_topcat_conflict_expectation_matches_the_review_table():
+    """親決定 第281 Q1 (a): 期待値 3 = cat の見直し候補 3 件(cat は動かさない)。"""
+    assert W6.EXPECTED_SUBCAT_TOPCAT_CONFLICT == len(W6.TOPCAT_CONFLICT_REVIEW) == 3
+    for cat, sub in W6.TOPCAT_CONFLICT_REVIEW.values():
+        assert PC.SUBCAT_TOPCAT[sub] != cat  # 本当に矛盾している組だけを載せる
+
+
+def test_w6_unclassified_gates_cover_the_d97_target_cats():
+    """D-97 ③: hall/attraction/leisure の未分類をゲートにする(値は実測・理由は W6 の notes)。"""
+    assert W6.UNCLASSIFIED_TARGET_CATS == ("hall", "attraction", "leisure")
+    assert (
+        W6.EXPECTED_HALL_UNCLASSIFIED,
+        W6.EXPECTED_ATTRACTION_UNCLASSIFIED,
+        W6.EXPECTED_LEISURE_UNCLASSIFIED,
+    ) == (1, 2, 1)
 
 
 def test_w6_park_gate_is_not_zero():

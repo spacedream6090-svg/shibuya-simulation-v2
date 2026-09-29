@@ -1,0 +1,224 @@
+{
+ "schema": "shibuya.bench/c10-relations/replay-8b/1",
+ "tapes": [
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__ad_zero",
+   "seed": 1,
+   "counts": {
+    "talk_to_person": 91,
+    "partner_is_live_initial_edge": 1,
+    "partner_is_initial_edge_any": 1,
+    "partner_is_live_edge_either_direction": 1,
+    "agents_checked_kind": 4816,
+    "agents_kind_match": 4816
+   }
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_14",
+   "seed": 1,
+   "counts": {
+    "talk_to_person": 34,
+    "partner_is_live_initial_edge": 0,
+    "partner_is_initial_edge_any": 0,
+    "partner_is_live_edge_either_direction": 0,
+    "agents_checked_kind": 4816,
+    "agents_kind_match": 4816
+   }
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_30",
+   "seed": 1,
+   "counts": {
+    "talk_to_person": 55,
+    "partner_is_live_initial_edge": 0,
+    "partner_is_initial_edge_any": 0,
+    "partner_is_live_edge_either_direction": 0,
+    "agents_checked_kind": 4816,
+    "agents_kind_match": 4816
+   }
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_1_00",
+   "seed": 1,
+   "counts": {
+    "talk_to_person": 14,
+    "partner_is_live_initial_edge": 0,
+    "partner_is_initial_edge_any": 0,
+    "partner_is_live_edge_either_direction": 0,
+    "agents_checked_kind": 4816,
+    "agents_kind_match": 4816
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__ad_zero",
+   "seed": 2,
+   "counts": {
+    "talk_to_person": 75,
+    "partner_is_live_initial_edge": 14,
+    "partner_is_initial_edge_any": 14,
+    "partner_is_live_edge_either_direction": 14,
+    "agents_checked_kind": 4812,
+    "agents_kind_match": 4812
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_14",
+   "seed": 2,
+   "counts": {
+    "talk_to_person": 64,
+    "partner_is_live_initial_edge": 1,
+    "partner_is_initial_edge_any": 1,
+    "partner_is_live_edge_either_direction": 1,
+    "agents_checked_kind": 4812,
+    "agents_kind_match": 4812
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_30",
+   "seed": 2,
+   "counts": {
+    "talk_to_person": 31,
+    "partner_is_live_initial_edge": 2,
+    "partner_is_initial_edge_any": 2,
+    "partner_is_live_edge_either_direction": 2,
+    "agents_checked_kind": 4813,
+    "agents_kind_match": 4813
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_1_00",
+   "seed": 2,
+   "counts": {
+    "talk_to_person": 20,
+    "partner_is_live_initial_edge": 3,
+    "partner_is_initial_edge_any": 3,
+    "partner_is_live_edge_either_direction": 3,
+    "agents_checked_kind": 4813,
+    "agents_kind_match": 4813
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__ad_zero",
+   "seed": 1,
+   "counts": {
+    "talk_to_person": 435,
+    "partner_is_live_initial_edge": 20,
+    "partner_is_initial_edge_any": 20,
+    "partner_is_live_edge_either_direction": 20,
+    "agents_checked_kind": 4817,
+    "agents_kind_match": 4817
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_14",
+   "seed": 1,
+   "counts": {
+    "talk_to_person": 331,
+    "partner_is_live_initial_edge": 4,
+    "partner_is_initial_edge_any": 4,
+    "partner_is_live_edge_either_direction": 4,
+    "agents_checked_kind": 4816,
+    "agents_kind_match": 4816
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_30",
+   "seed": 1,
+   "counts": {
+    "talk_to_person": 396,
+    "partner_is_live_initial_edge": 1,
+    "partner_is_initial_edge_any": 1,
+    "partner_is_live_edge_either_direction": 1,
+    "agents_checked_kind": 4817,
+    "agents_kind_match": 4817
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_1_00",
+   "seed": 1,
+   "counts": {
+    "talk_to_person": 151,
+    "partner_is_live_initial_edge": 6,
+    "partner_is_initial_edge_any": 6,
+    "partner_is_live_edge_either_direction": 6,
+    "agents_checked_kind": 4817,
+    "agents_kind_match": 4817
+   }
+  },
+  {
+   "tape": "c8_ab7b_s1/AB7b-HINT-INTENT__hint",
+   "seed": 1,
+   "counts": {
+    "talk_to_person": 105,
+    "partner_is_live_initial_edge": 7,
+    "partner_is_initial_edge_any": 7,
+    "partner_is_live_edge_either_direction": 7,
+    "agents_checked_kind": 4816,
+    "agents_kind_match": 4816
+   }
+  },
+  {
+   "tape": "c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v2",
+   "seed": 1,
+   "counts": {
+    "talk_to_person": 32,
+    "partner_is_live_initial_edge": 0,
+    "partner_is_initial_edge_any": 0,
+    "partner_is_live_edge_either_direction": 0,
+    "agents_checked_kind": 4814,
+    "agents_kind_match": 4814
+   }
+  },
+  {
+   "tape": "c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v2",
+   "seed": 2,
+   "counts": {
+    "talk_to_person": 17,
+    "partner_is_live_initial_edge": 0,
+    "partner_is_initial_edge_any": 0,
+    "partner_is_live_edge_either_direction": 0,
+    "agents_checked_kind": 4813,
+    "agents_kind_match": 4813
+   }
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x0.5",
+   "seed": 1,
+   "counts": {
+    "talk_to_person": 5,
+    "partner_is_live_initial_edge": 0,
+    "partner_is_initial_edge_any": 0,
+    "partner_is_live_edge_either_direction": 0,
+    "agents_checked_kind": 4756,
+    "agents_kind_match": 4756
+   }
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x2",
+   "seed": 1,
+   "counts": {
+    "talk_to_person": 88,
+    "partner_is_live_initial_edge": 0,
+    "partner_is_initial_edge_any": 0,
+    "partner_is_live_edge_either_direction": 0,
+    "agents_checked_kind": 4817,
+    "agents_kind_match": 4817
+   }
+  }
+ ],
+ "all": {
+  "talk_to_person": 1944,
+  "partner_is_live_initial_edge": 59,
+  "partner_is_initial_edge_any": 59,
+  "partner_is_live_edge_either_direction": 59,
+  "agents_checked_kind": 81797,
+  "agents_kind_match": 81797
+ },
+ "shares": {
+  "live_initial_edge": 0.0303,
+  "initial_edge_any": 0.0303,
+  "live_edge_either_direction": 0.0303,
+  "kind_match": 1.0
+ },
+ "note": "tapes are 5,000-agent runs (seed 1 or 2 from the run name); the population is re-sampled with today's sampler and W16 file, and the id mapping is checked by the B1 kind word (5 words: 通勤者/来街者/従業者/居住者/指令). Initial network = 8b initial_edges (τ 0.704)."
+}

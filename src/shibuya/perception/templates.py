@@ -64,6 +64,18 @@ __all__ = [
     "HEAT_STAGE_WORDS",
     "INTERO_SCALE_MIN",
     "INTERO_SCALE_MAX",
+    "HUNGER_WORDS",
+    "MEMORY_EVENT_WORDS",
+    "MEMORY_ITEM_TEMPLATES",
+    "MEMORY_ITEM_MAX_TOKENS",
+    "MEMORY_CHANNEL_TOKENS",
+    "MEMORY_OUT_OF_AREA_WORD",
+    "MEMORY_STORE_VALENCE_WORDS",
+    "MEMORY_STORE_HEARD_WORDS",
+    "MEMORY_STORE_ITEM_MAX_TOKENS",
+    "NEAR_PERSON_MARKS",
+    "HUNGER_ITEM_TEMPLATE",
+    "HUNGER_WORD_DRAW_MIN_STAGE",
     "EMPTY_PHRASE",
     "TEMPLATES",
     "template_sha256",
@@ -101,7 +113,21 @@ __all__ = [
 ]
 
 #: テンプレ版(改版は delta+感度試験。値を変えたら ``template_sha256`` も変わる)。
-TEMPLATE_VERSION: Final[str] = "v1"
+#: **v1.1(5 段目 5a・D-118 K2・第291)**: B5 の空腹を**語**で描く項 ``HUNGER_ITEM_TEMPLATE`` と
+#: 語 4 つ ``HUNGER_WORDS`` を足した(文面の版上げ)。v1 の凍結 SHA は 161fe181… だった
+#: (``tests/perception/test_templates.py`` に旧値を注記)。v1 の文面(空腹は N で閾値を
+#: 超えています)は ``--hunger-model v1`` のランで 1 バイトも変わらない。
+#: **v1.2(記憶 第 1 段 6b・M4・第295)**: B5「記憶」チャネルの行 ``B5.memory`` と項の定型
+#: ``MEMORY_ITEM_TEMPLATES``・事象の語 ``MEMORY_EVENT_WORDS`` を足した(v1.1 の SHA は 8f2959d0…)。
+#: v1.1 の文面は ``--memory off`` のランで 1 バイトも変わらない(記憶の行は on のときだけ描く)。
+#: **v1.3(D-120 7c・第298)**: 記憶の行の項に**店の評価**の定型(``store``=自分が行った店・``store_known``=
+#: 看板/伝聞で知っているだけ・``store_heard``=伝聞で評価つき)と向きの語 ``MEMORY_STORE_VALENCE_WORDS`` /
+#: ``MEMORY_STORE_HEARD_WORDS``・項の上限 ``MEMORY_STORE_ITEM_MAX_TOKENS`` を足した(v1.2 の SHA は 1f6c7d62…)。
+#: ``--store-memory off`` のランでは店の項を描かない=v1.2 の文面は 1 バイトも変わらない。
+#: **v1.4(C10 8a・R6・第299)**: B5 近接行の人物の印「(知人)/(未知)」を描画のコードから定数
+#: ``NEAR_PERSON_MARKS`` へ移して版の管理に入れた(v1.3 の SHA は ea204a66…)。文面は v1 から同じ=
+#: ``--relations off`` のランは 1 バイトも変わらない(知人が空=全員「未知」)。
+TEMPLATE_VERSION: Final[str] = "v1.4"
 
 #: ブロックの順序(知覚契約書 §2.2 表の並び=変化率の昇順=prefix 前方一致の並び)。
 BLOCK_IDS: Final[tuple[str, ...]] = ("B0", "B1", "B2", "B3", "B4", "B4b", "B5", "B6")
@@ -205,6 +231,52 @@ HEAT_STAGE_WORDS: Final[tuple[str, ...]] = (
 #: 内受容 3 変数の値域(知覚契約書 §3「内受容(満腹・体力・体感温度 0-10)」)。
 INTERO_SCALE_MIN: Final[int] = 0
 INTERO_SCALE_MAX: Final[int] = 10
+
+#: **空腹の語 4 段**(5 段目 5a・D-118 K2 (a)・``engine.energy`` の段 0〜3 と 1 対 1)。
+#: 段は ``since_meal_kcal / (EER/3)`` の比 0.25 / 0.75 / 1.5 で切る(数値は見せない)。
+HUNGER_WORDS: Final[tuple[str, str, str, str]] = ("満腹", "ふつう", "空腹", "とても空腹")
+#: B5 内受容の**項**(行ではない=``TEMPLATES["B5.intero"]`` の ``{items}`` に入る 1 文)。
+#: 行テンプレ(``TEMPLATES``)は「[Bn 名] で始まる 1 行 1 事実」の契約なので項は別に持つ
+#: (v1 の「空腹はNで閾値を超えています。」も項=描画側の文字列だった)。
+HUNGER_ITEM_TEMPLATE: Final[str] = "いま{word}です。"
+#: B5 に空腹の語を描く最小の段(**空腹以上**=草案 §1-2b (4) の「閾値超え」=起床中の 11%・宣言)。
+#: 満腹/ふつうの体の B5 には空腹の行を出さない(v1 の「閾値未満は描かない」と同じ形)。
+HUNGER_WORD_DRAW_MIN_STAGE: Final[int] = 2
+
+#: **B5「記憶」チャネル**(6b・M4 (a)+修正 2): 想起した行の事象の語(``engine.memory.EVENT_KINDS`` の
+#: 符号 1〜11 と 1 対 1・0 は空行)。
+MEMORY_EVENT_WORDS: Final[tuple[str, ...]] = (
+    "", "購入", "食事", "並ぶ", "移動", "乗車", "就寝", "会話", "通報", "手伝い",
+    "出来事に気づいた", "看板を見た",
+)
+#: 項の定型(1 件 ≤ ``MEMORY_ITEM_MAX_TOKENS``)。place=場所/店で起きた行為・person=相手のある行為・
+#: talk=成立した会話(要旨つき/なし)・seen=気づき/看板(結果を書かない)。
+MEMORY_ITEM_TEMPLATES: Final[Mapping[str, str]] = {
+    "place": "{hhmm} {where}で{event}({result})。",
+    "person": "{hhmm} {who}と{event}({result})。",
+    "talk": "{hhmm} {who}と話した: {gist}。",
+    "talk_plain": "{hhmm} {who}と話した。",
+    "seen": "{hhmm} {where}で{event}。",
+    # 7c(v1.3): 店の評価の行(時刻は書かない)。自分の訪問のビットがある行=store・無い行=store_known/heard
+    "store": "最近 {store} に行った({valence})。",
+    "store_known": "{store} を知っている。",
+    "store_heard": "{store} は{valence}と聞いた。",
+}
+#: 7c: 店の項の向きの語(自分が行った店)。
+MEMORY_STORE_VALENCE_WORDS: Final[Mapping[int, str]] = {1: "良かった", 0: "知っている", -1: "よくなかった"}
+#: 7c: 伝聞で評価つきの店の語(向き 0 は ``store_known``)。
+MEMORY_STORE_HEARD_WORDS: Final[Mapping[int, str]] = {1: "良い", -1: "よくない"}
+#: 7c: 店の項 1 件の上限[tok](超える分は店の名を末尾から削る=宣言)。
+MEMORY_STORE_ITEM_MAX_TOKENS: Final[int] = 15
+#: C10 8a(v1.4): B5 近接行の人物の印=(未知, 知人)。知人=関係辺の相手(A ≥ τ_rel)。「P-<id>(知人)」の表層は
+#: 行動契約書 §1-2 の対象の読みと同じ(``llm.contract``)。
+NEAR_PERSON_MARKS: Final[tuple[str, str]] = ("未知", "知人")
+#: 項 1 件の上限[tok](超える分は 場所名/要旨 を末尾から削る=宣言)。
+MEMORY_ITEM_MAX_TOKENS: Final[int] = 20
+#: チャネルの上限[tok](個体枠 300 の内・他チャネルは削らない)。
+MEMORY_CHANNEL_TOKENS: Final[int] = 60
+#: セルが範囲外(−1)の行の場所の語。
+MEMORY_OUT_OF_AREA_WORD: Final[str] = "範囲外"
 
 #: 空要素の固定文言(§2.4 ⑦)。
 EMPTY_PHRASE: Final[str] = "なし"
@@ -333,7 +405,7 @@ _B0_BY_MODE: Final[Mapping[str, str]] = {
 #
 # **凍結との関係**: ``TEMPLATES``(=``template_sha256`` の payload)には 1 語も足していない。
 # 既定 ``vocab_version="v1"`` のとき ``b0_system()`` は ``TEMPLATES["B0.system"]`` と
-# **同一オブジェクト**を返す=描画バイトも ``template_sha256``(161fe181…)も
+# **同一オブジェクト**を返す=描画バイトも ``template_sha256``(v1.4 は 40af870e…・v1.3 は ea204a66…・v1.2 は 1f6c7d62…・v1.1 は 8f2959d0…・v1 は 161fe181…)も
 # ``b0_sha256("vocab")``(2b4bfc8a…)も動かない。
 #
 # **open 腕 × v2**: open 腕は語彙を見せないので **B0 の本文は v1 と同一**になる(差は
@@ -626,6 +698,8 @@ TEMPLATES: Final[Mapping[str, str]] = {
     # ---- B5 個体固有 ----
     "B5.intero": "[B5 内受容] {items}",
     "B5.intero_empty": "[B5 内受容] 体調に変わりはありません。",
+    # 記憶 第 1 段 6b(v1.2): 想起した記憶の行(``--memory on`` のランだけ描く・0 件なら行を出さない)
+    "B5.memory": "[B5 記憶] {items}",
     "B5.holding": "[B5 所持] 所持金は{money}円です。手は{hands}。",
     "B5.recent": "[B5 直近] 直近の行動は{activity}です。",
     "B5.near_person": "[B5 近接] 近くの人物: {items}。",
@@ -700,6 +774,18 @@ def template_sha256() -> str:
             "daylight": list(DAYLIGHT_WORDS),
             "heat": list(HEAT_STAGE_WORDS),
             "hands": list(HANDS_WORDS),
+            "hunger": list(HUNGER_WORDS),
+            "hunger_item": HUNGER_ITEM_TEMPLATE,
+            "memory_events": list(MEMORY_EVENT_WORDS),
+            "memory_items": dict(MEMORY_ITEM_TEMPLATES),
+            "memory_item_max_tokens": MEMORY_ITEM_MAX_TOKENS,
+            "memory_channel_tokens": MEMORY_CHANNEL_TOKENS,
+            "memory_out_of_area": MEMORY_OUT_OF_AREA_WORD,
+            "memory_store_valence": {str(k): v for k, v in MEMORY_STORE_VALENCE_WORDS.items()},
+            "memory_store_heard": {str(k): v for k, v in MEMORY_STORE_HEARD_WORDS.items()},
+            "memory_store_item_max_tokens": MEMORY_STORE_ITEM_MAX_TOKENS,
+            "near_person_marks": list(NEAR_PERSON_MARKS),
+            "hunger_draw_min_stage": HUNGER_WORD_DRAW_MIN_STAGE,
             "ground": {str(k): v for k, v in GROUND_WORDS.items()},
             "ground_no_street": GROUND_NO_STREET,
             "options": list(DEFAULT_OPTIONS),

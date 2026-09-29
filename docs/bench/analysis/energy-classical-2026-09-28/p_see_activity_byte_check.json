@@ -1,0 +1,153 @@
+{
+ "schema": "shibuya.bench/p-see-activity-byte-check/1",
+ "how": "same runs (mock 5,000, seed 1, vocab v3, energy) with the committed source (git archive of HEAD 96c3edc) and with the 5c working tree; tape = every rendered prompt block and call row (parquet contents hashed column by column)",
+ "runs": [
+  {
+   "run": "v3_default",
+   "head_96c3edc": {
+    "final": "c9ab05383accca2e",
+    "calls": 69603,
+    "tape": {
+     "blocks.parquet": {
+      "rows": 5389,
+      "sha256": "05ad3765101a8edb"
+     },
+     "calls.parquet": {
+      "rows": 69603,
+      "sha256": "46b0d374a09bee23"
+     }
+    },
+    "signage_gate_draws": null,
+    "signage_gate_shown": null,
+    "fam": {}
+   },
+   "working_tree_5c": {
+    "final": "c9ab05383accca2e",
+    "calls": 69603,
+    "tape": {
+     "blocks.parquet": {
+      "rows": 5389,
+      "sha256": "05ad3765101a8edb"
+     },
+     "calls.parquet": {
+      "rows": 69603,
+      "sha256": "46b0d374a09bee23"
+     }
+    },
+    "signage_gate_draws": null,
+    "signage_gate_shown": null,
+    "fam": {}
+   },
+   "final_equal": true,
+   "calls_equal": true,
+   "tape_equal": true,
+   "gate_equal": true
+  },
+  {
+   "run": "v3_p030",
+   "head_96c3edc": {
+    "final": "c9ab05383accca2e",
+    "calls": 69603,
+    "tape": {
+     "blocks.parquet": {
+      "rows": 5794,
+      "sha256": "c2e805fe7d8a80a8"
+     },
+     "calls.parquet": {
+      "rows": 69603,
+      "sha256": "47636035f2a6fcfd"
+     }
+    },
+    "signage_gate_draws": 69051.0,
+    "signage_gate_shown": 20614.0,
+    "fam": {}
+   },
+   "working_tree_5c": {
+    "final": "c9ab05383accca2e",
+    "calls": 69603,
+    "tape": {
+     "blocks.parquet": {
+      "rows": 5794,
+      "sha256": "c2e805fe7d8a80a8"
+     },
+     "calls.parquet": {
+      "rows": 69603,
+      "sha256": "47636035f2a6fcfd"
+     }
+    },
+    "signage_gate_draws": 69051.0,
+    "signage_gate_shown": 20614.0,
+    "fam": {}
+   },
+   "final_equal": true,
+   "calls_equal": true,
+   "tape_equal": true,
+   "gate_equal": true
+  },
+  {
+   "run": "v3_p030_fam",
+   "head_96c3edc": {
+    "final": "f6f9b0cb5114709b",
+    "calls": 69603,
+    "tape": {
+     "blocks.parquet": {
+      "rows": 5794,
+      "sha256": "c2e805fe7d8a80a8"
+     },
+     "calls.parquet": {
+      "rows": 69603,
+      "sha256": "47636035f2a6fcfd"
+     }
+    },
+    "signage_gate_draws": 69051.0,
+    "signage_gate_shown": 20614.0,
+    "fam": {
+     "exposures_per_agent": {
+      "p0": 0.0,
+      "p10": 4.0,
+      "p50": 22.0,
+      "p90": 57.0,
+      "p100": 164.0,
+      "mean": 27.0016
+     }
+    }
+   },
+   "working_tree_5c": {
+    "final": "f6f9b0cb5114709b",
+    "calls": 69603,
+    "tape": {
+     "blocks.parquet": {
+      "rows": 5794,
+      "sha256": "c2e805fe7d8a80a8"
+     },
+     "calls.parquet": {
+      "rows": 69603,
+      "sha256": "47636035f2a6fcfd"
+     }
+    },
+    "signage_gate_draws": 69051.0,
+    "signage_gate_shown": 20614.0,
+    "fam": {
+     "exposures_per_agent": {
+      "p0": 0.0,
+      "p10": 4.0,
+      "p50": 22.0,
+      "p90": 57.0,
+      "p100": 164.0,
+      "mean": 27.0016
+     },
+     "exposures_signage_entry_by_kind": {
+      "in_place": 3212,
+      "wander": 5043,
+      "move_to": 16723,
+      "in_shop": 692
+     }
+    }
+   },
+   "final_equal": true,
+   "calls_equal": true,
+   "tape_equal": true,
+   "gate_equal": true
+  }
+ ]
+}

@@ -33,7 +33,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Any, Final, Iterator, Mapping
+from typing import Any, Final, Iterable, Iterator, Mapping
 
 import blake3
 import numpy as np
@@ -379,16 +379,23 @@ class Registry:
         )
 
     # ---- ハッシュ ----
-    def state_hash(self) -> str:
+    def state_hash(self, exclude: Iterable[str] = ()) -> str:
         """全配列の blake3(**宣言順**・名前/dtype/形/生バイトを連結)→ 64桁16進。
 
         checkpoint 往復・録画リプレイ回帰(T2)の一致判定に使う。
+
+        Args:
+            exclude: 混ぜない配列の名前(**監査用**=欄を足す前の checkpoint と挙動が同じことを
+                確かめる口。既定の空では従来と 1 バイトも変わらない)。
         """
+        skip = frozenset(exclude)
         h = blake3.blake3()
         h.update(b"shibuya.core.soa/v1" + _SEP)
         h.update(self.kind.encode("utf-8") + _SEP)
         h.update(str(self.n_entities).encode("ascii") + _SEP)
         for d in self._decls.values():
+            if d.name in skip:
+                continue
             arr = self._arrays[d.name]
             h.update(d.name.encode("utf-8") + _SEP)
             h.update(d.dtype.str.encode("ascii") + _SEP)

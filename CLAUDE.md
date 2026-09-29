@@ -44,7 +44,7 @@
 ## 6. 記録プロトコル
 
 - **devlog**: 毎交換ごとに docs/log/devlog.md へ1エントリ追記(依頼/決定/実施/次)。10件たまったら devlog-compressed.md へ圧縮し0にリセット。冒頭に「N / 10」カウンタ。
-- **台帳3ファイル**: STATUS.md(薄い索引)/IMPLEMENTED.md(概要+完了実装)/PENDING.md(未実装・判断待ち)。毎コミットで更新・完了項目はPENDINGから**消して**IMPLEMENTEDへ・ひと段落ごとに掃除パス。
+- **台帳3ファイル**: STATUS.md(薄い索引・リンク中心・1 画面)/IMPLEMENTED.md(概要+完了実装)/PENDING.md。**(2026-09-28・第279・ユーザー指示「今の PENDING は分かりづらい」)PENDING は次の 5 節だけを簡潔に載せる**: §0 いま(3 行)/ §1 判断待ち(番号・一言・親推奨・場所の表+ユーザーの手が要る作業)/ §2 決まっていて実装を待つもの(順序つき・GPU 不要/GPU 後で分ける)/ §3 最近の実装のまとめ(IMPLEMENTED # へ)/ §4 今後の大まかな予定 / §5 繰り延べ・将来候補(1 行ずつ)。各項 1〜3 行。経緯・数値・引用は設計書/答申/記録へリンクし本書に書き足さない(毎交換の追記先は devlog)。完了は消し、決定した項は §1 から §2 へ移す。旧 PENDING の全文は docs/log/pending-archive-2026-09-28.md に凍結(番号は引き継ぐ)。毎コミットで更新・完了項目はPENDINGから**消して**IMPLEMENTEDへ・ひと段落ごとに掃除パス。
 - コミットメッセージは「第N 〜」形式(devlogエントリ番号と対応)+trailer `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`。
 
 ## 7. セキュリティ(コミット前に必ず)

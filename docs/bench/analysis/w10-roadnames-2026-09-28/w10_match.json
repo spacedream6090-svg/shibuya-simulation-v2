@@ -1,0 +1,762 @@
+{
+ "schema": "shibuya.bench/w10-roadnames-2026-09-28/2",
+ "w10_before_1c": {
+  "stage_version": "1.0.0",
+  "gates": {
+   "calibration_max_abs_residual_db": {
+    "expected": null,
+    "pass": false,
+    "value": 7.3
+   },
+   "calibration_points_evaluable": {
+    "expected": null,
+    "pass": true,
+    "value": 6
+   },
+   "noise_arrays_len": {
+    "expected": 356732,
+    "pass": true,
+    "value": 356732
+   },
+   "points_with_at_least_one_source": {
+    "expected": 356732,
+    "pass": true,
+    "value": 356732
+   },
+   "primary_secondary_sections_matched": {
+    "expected": 202,
+    "pass": false,
+    "value": 0
+   },
+   "road_edges_with_traffic": {
+    "expected": 2493,
+    "pass": true,
+    "value": 2493
+   },
+   "street_points": {
+    "expected": null,
+    "pass": true,
+    "value": 356732
+   },
+   "street_points_have_band": {
+    "expected": 3,
+    "pass": true,
+    "value": 3
+   }
+  },
+  "outputs": {
+   "w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+   "w10_noise_day.npy": "6f3e3b0f2b4c674f9315de409aa56f278c3a7d1688571987e35762b1643fc788",
+   "w10_noise_night.npy": "4d682d3ac1eba0c484655ac6293a24cc97773b5fad61bfb4302e24e3c72dae51",
+   "w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+   "w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2"
+  }
+ },
+ "w10_default_off": {
+  "stage_version": "1.1.0",
+  "gates": {
+   "calibration_max_abs_residual_db": {
+    "expected": null,
+    "pass": false,
+    "value": 7.3
+   },
+   "calibration_points_evaluable": {
+    "expected": null,
+    "pass": true,
+    "value": 6
+   },
+   "noise_arrays_len": {
+    "expected": 356732,
+    "pass": true,
+    "value": 356732
+   },
+   "points_with_at_least_one_source": {
+    "expected": 356732,
+    "pass": true,
+    "value": 356732
+   },
+   "primary_secondary_sections_matchable": {
+    "expected": null,
+    "pass": true,
+    "value": 190
+   },
+   "primary_secondary_sections_matchable_q7_q9": {
+    "expected": null,
+    "pass": true,
+    "value": 202
+   },
+   "primary_secondary_sections_matched": {
+    "expected": 202,
+    "pass": false,
+    "value": 0
+   },
+   "road_edges_with_census_traffic": {
+    "expected": null,
+    "pass": true,
+    "value": 0
+   },
+   "road_edges_with_traffic": {
+    "expected": 2493,
+    "pass": true,
+    "value": 2493
+   },
+   "street_points": {
+    "expected": null,
+    "pass": true,
+    "value": 356732
+   },
+   "street_points_have_band": {
+    "expected": 3,
+    "pass": true,
+    "value": 3
+   }
+  },
+  "outputs": {
+   "w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+   "w10_noise_day.npy": "6f3e3b0f2b4c674f9315de409aa56f278c3a7d1688571987e35762b1643fc788",
+   "w10_noise_night.npy": "4d682d3ac1eba0c484655ac6293a24cc97773b5fad61bfb4302e24e3c72dae51",
+   "w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+   "w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+   "w10_edge_section.parquet": "c4c93313aa89aa19082e652966ce5b53a41e165b115e43a89c1a9f66e8e4ee66"
+  },
+  "road_name_match_applied": false,
+  "road_name_match_off_reason": "既定 OFF(親決定・段 1c の検収): 較正点の残差が 1 点も動かない(較正は路線名でセンサスを直接引き、辺も騒音場も通らない)=改善の証拠が無い一方、当てうる辺のうち klass と way の highway が合わない辺が klass 既定の 13〜63 倍の交通量を受け、首都高の下の辺が高架の way を拾う=品質が未確定。良くなった証拠が無ければ既定を動かさない(実装アジェンダ §3-3 の趣旨)。"
+ },
+ "road_name_match": {
+  "by_klass": {
+   "corridor": {
+    "census_matched": 0,
+    "edges": 3,
+    "named": 0,
+    "own_way_le_8m": 0
+   },
+   "cycleway": {
+    "census_matched": 2,
+    "edges": 3,
+    "named": 2,
+    "own_way_le_8m": 3
+   },
+   "elevator": {
+    "census_matched": 0,
+    "edges": 2,
+    "named": 0,
+    "own_way_le_8m": 0
+   },
+   "footway": {
+    "census_matched": 324,
+    "edges": 1937,
+    "named": 802,
+    "own_way_le_8m": 1346
+   },
+   "path": {
+    "census_matched": 0,
+    "edges": 51,
+    "named": 1,
+    "own_way_le_8m": 20
+   },
+   "pedestrian": {
+    "census_matched": 1,
+    "edges": 262,
+    "named": 80,
+    "own_way_le_8m": 253
+   },
+   "primary": {
+    "census_matched": 118,
+    "edges": 127,
+    "named": 121,
+    "own_way_le_8m": 127
+   },
+   "residential": {
+    "census_matched": 14,
+    "edges": 724,
+    "named": 76,
+    "own_way_le_8m": 722
+   },
+   "secondary": {
+    "census_matched": 72,
+    "edges": 75,
+    "named": 74,
+    "own_way_le_8m": 75
+   },
+   "service": {
+    "census_matched": 7,
+    "edges": 557,
+    "named": 31,
+    "own_way_le_8m": 553
+   },
+   "steps": {
+    "census_matched": 31,
+    "edges": 193,
+    "named": 57,
+    "own_way_le_8m": 121
+   },
+   "tertiary": {
+    "census_matched": 24,
+    "edges": 481,
+    "named": 342,
+    "own_way_le_8m": 481
+   },
+   "unclassified": {
+    "census_matched": 11,
+    "edges": 529,
+    "named": 116,
+    "own_way_le_8m": 529
+   }
+  },
+  "road_census_match_rate_of_all": 0.0987,
+  "road_census_match_rate_of_named": 0.3237,
+  "road_edges": {
+   "census_matched": 246,
+   "edges": 2493,
+   "named": 760,
+   "own_way_le_8m": 2487
+  },
+  "road_edges_by_route": {
+   "3:246:一般国道２４６号": 3,
+   "4:305:芝新宿王子線": 103,
+   "4:317:環状六号線": 31,
+   "6:412:霞ヶ関渋谷線": 23,
+   "6:413:赤坂杉並線": 54,
+   "6:423:渋谷経堂線": 8,
+   "6:432:淀橋渋谷本町線": 24
+  },
+  "road_key_kind_counts": {
+   "motorway": 3,
+   "named_route": 0,
+   "national": 3,
+   "no_way": 6,
+   "prefectural": 312,
+   "unnamed": 1727,
+   "unnumbered": 381,
+   "ward": 61
+  },
+  "road_klass_highway_agreement": {
+   "agree": 2298,
+   "with_way": 2487
+  },
+  "road_mapping_rate_own_way": 0.9976,
+  "road_named_rate": 0.3049,
+  "road_unmatched_named_top": [
+   {
+    "edges": 52,
+    "name": "八幡通り",
+    "ref": "872"
+   },
+   {
+    "edges": 35,
+    "name": "井ノ頭通り",
+    "ref": ""
+   },
+   {
+    "edges": 35,
+    "name": "神宮通り",
+    "ref": ""
+   },
+   {
+    "edges": 24,
+    "name": "渋谷区特別区道1076号線（補助18号線）",
+    "ref": "1076"
+   },
+   {
+    "edges": 24,
+    "name": "道玄坂",
+    "ref": ""
+   },
+   {
+    "edges": 20,
+    "name": "松涛文化村ストリート",
+    "ref": ""
+   },
+   {
+    "edges": 18,
+    "name": "公園通り",
+    "ref": ""
+   },
+   {
+    "edges": 15,
+    "name": "キャットストリート",
+    "ref": ""
+   },
+   {
+    "edges": 14,
+    "name": "裏渋谷通り",
+    "ref": ""
+   },
+   {
+    "edges": 12,
+    "name": "文化村通り",
+    "ref": ""
+   },
+   {
+    "edges": 12,
+    "name": "渋谷区特別区道870号線",
+    "ref": "870"
+   },
+   {
+    "edges": 11,
+    "name": "美竹通り",
+    "ref": ""
+   },
+   {
+    "edges": 10,
+    "name": "宇田川通り",
+    "ref": ""
+   },
+   {
+    "edges": 10,
+    "name": "富ヶ谷1丁目通り",
+    "ref": ""
+   },
+   {
+    "edges": 9,
+    "name": "ランブリングストリート",
+    "ref": ""
+   },
+   {
+    "edges": 9,
+    "name": "イエローストリート",
+    "ref": ""
+   },
+   {
+    "edges": 9,
+    "name": "オーチャードロード",
+    "ref": ""
+   },
+   {
+    "edges": 9,
+    "name": "宮益坂",
+    "ref": ""
+   },
+   {
+    "edges": 8,
+    "name": "間坂",
+    "ref": ""
+   },
+   {
+    "edges": 8,
+    "name": "渋谷区特別区道870号線（野沢通り）",
+    "ref": "870"
+   }
+  ]
+ },
+ "road_name_match_refined_q7_q9": {
+  "by_klass": {
+   "corridor": {
+    "census_matched": 0,
+    "edges": 3,
+    "named": 0,
+    "own_way_le_8m": 0
+   },
+   "cycleway": {
+    "census_matched": 0,
+    "edges": 3,
+    "named": 0,
+    "own_way_le_8m": 0
+   },
+   "elevator": {
+    "census_matched": 0,
+    "edges": 2,
+    "named": 0,
+    "own_way_le_8m": 0
+   },
+   "footway": {
+    "census_matched": 0,
+    "edges": 1937,
+    "named": 0,
+    "own_way_le_8m": 0
+   },
+   "path": {
+    "census_matched": 0,
+    "edges": 51,
+    "named": 0,
+    "own_way_le_8m": 0
+   },
+   "pedestrian": {
+    "census_matched": 0,
+    "edges": 262,
+    "named": 45,
+    "own_way_le_8m": 45
+   },
+   "primary": {
+    "census_matched": 127,
+    "edges": 127,
+    "named": 127,
+    "own_way_le_8m": 127
+   },
+   "residential": {
+    "census_matched": 0,
+    "edges": 724,
+    "named": 65,
+    "own_way_le_8m": 65
+   },
+   "secondary": {
+    "census_matched": 75,
+    "edges": 75,
+    "named": 75,
+    "own_way_le_8m": 75
+   },
+   "service": {
+    "census_matched": 0,
+    "edges": 557,
+    "named": 16,
+    "own_way_le_8m": 16
+   },
+   "steps": {
+    "census_matched": 0,
+    "edges": 193,
+    "named": 0,
+    "own_way_le_8m": 0
+   },
+   "tertiary": {
+    "census_matched": 17,
+    "edges": 481,
+    "named": 350,
+    "own_way_le_8m": 350
+   },
+   "unclassified": {
+    "census_matched": 6,
+    "edges": 529,
+    "named": 118,
+    "own_way_le_8m": 118
+   }
+  },
+  "road_census_match_rate_of_all": 0.0903,
+  "road_census_match_rate_of_named": 0.2996,
+  "road_edges": {
+   "census_matched": 225,
+   "edges": 2493,
+   "named": 751,
+   "own_way_le_8m": 751
+  },
+  "road_edges_by_route": {
+   "4:305:芝新宿王子線": 94,
+   "4:317:環状六号線": 33,
+   "6:412:霞ヶ関渋谷線": 23,
+   "6:413:赤坂杉並線": 44,
+   "6:423:渋谷経堂線": 8,
+   "6:432:淀橋渋谷本町線": 23
+  },
+  "road_key_kind_counts": {
+   "motorway": 0,
+   "named_route": 0,
+   "national": 0,
+   "no_way": 1742,
+   "prefectural": 285,
+   "unnamed": 0,
+   "unnumbered": 404,
+   "ward": 62
+  },
+  "road_klass_highway_agreement": {
+   "agree": 739,
+   "with_way": 751
+  },
+  "road_mapping_rate_own_way": 0.3012,
+  "road_named_rate": 0.3012,
+  "road_unmatched_named_top": [
+   {
+    "edges": 43,
+    "name": "八幡通り",
+    "ref": "872"
+   },
+   {
+    "edges": 36,
+    "name": "井ノ頭通り",
+    "ref": ""
+   },
+   {
+    "edges": 35,
+    "name": "神宮通り",
+    "ref": ""
+   },
+   {
+    "edges": 24,
+    "name": "道玄坂",
+    "ref": ""
+   },
+   {
+    "edges": 22,
+    "name": "キャットストリート",
+    "ref": ""
+   },
+   {
+    "edges": 21,
+    "name": "松涛文化村ストリート",
+    "ref": ""
+   },
+   {
+    "edges": 20,
+    "name": "渋谷区特別区道1076号線（補助18号線）",
+    "ref": "1076"
+   },
+   {
+    "edges": 18,
+    "name": "公園通り",
+    "ref": ""
+   },
+   {
+    "edges": 16,
+    "name": "裏渋谷通り",
+    "ref": ""
+   },
+   {
+    "edges": 15,
+    "name": "渋谷区特別区道870号線",
+    "ref": "870"
+   },
+   {
+    "edges": 12,
+    "name": "文化村通り",
+    "ref": ""
+   },
+   {
+    "edges": 11,
+    "name": "間坂",
+    "ref": ""
+   },
+   {
+    "edges": 11,
+    "name": "ランブリングストリート",
+    "ref": ""
+   },
+   {
+    "edges": 11,
+    "name": "美竹通り",
+    "ref": ""
+   },
+   {
+    "edges": 11,
+    "name": "宇田川通り",
+    "ref": ""
+   },
+   {
+    "edges": 11,
+    "name": "宮益坂",
+    "ref": ""
+   },
+   {
+    "edges": 10,
+    "name": "富ヶ谷1丁目通り",
+    "ref": ""
+   },
+   {
+    "edges": 9,
+    "name": "オーチャードロード",
+    "ref": ""
+   },
+   {
+    "edges": 8,
+    "name": "原二本通り",
+    "ref": ""
+   },
+   {
+    "edges": 8,
+    "name": "渋谷区特別区道870号線（野沢通り）",
+    "ref": "870"
+   }
+  ]
+ },
+ "road_name_route_sections": {
+  "3:246:一般国道２４６号": {
+   "heavy_pct": 9.0,
+   "lanes": 6.0,
+   "n": 5.0,
+   "q12": 25217.0,
+   "q24": 41860.0,
+   "v_kmh": 19.75,
+   "width_m": 20.0
+  },
+  "4:305:芝新宿王子線": {
+   "heavy_pct": 9.5,
+   "lanes": 4.0,
+   "n": 7.0,
+   "q12": 16053.0,
+   "q24": 21672.0,
+   "v_kmh": 14.6,
+   "width_m": 13.0
+  },
+  "4:317:環状六号線": {
+   "heavy_pct": 10.7,
+   "lanes": 4.0,
+   "n": 12.0,
+   "q12": 22172.0,
+   "q24": 31263.0,
+   "v_kmh": 16.7,
+   "width_m": 14.0
+  },
+  "6:412:霞ヶ関渋谷線": {
+   "heavy_pct": 7.9,
+   "lanes": 6.0,
+   "n": 2.0,
+   "q12": 18756.0,
+   "q24": 25883.0,
+   "v_kmh": 12.85,
+   "width_m": 20.0
+  },
+  "6:413:赤坂杉並線": {
+   "heavy_pct": 5.9,
+   "lanes": 4.0,
+   "n": 5.0,
+   "q12": 22468.0,
+   "q24": 30556.0,
+   "v_kmh": 14.15,
+   "width_m": 20.0
+  },
+  "6:423:渋谷経堂線": {
+   "heavy_pct": 9.6,
+   "lanes": 2.0,
+   "n": 2.0,
+   "q12": 6014.0,
+   "q24": 7758.0,
+   "v_kmh": 10.75,
+   "width_m": 8.0
+  },
+  "6:432:淀橋渋谷本町線": {
+   "heavy_pct": 10.1,
+   "lanes": 2.0,
+   "n": 1.0,
+   "q12": 11899.0,
+   "q24": 15826.0,
+   "v_kmh": 11.35,
+   "width_m": 11.0
+  }
+ },
+ "calibration_rows": [
+  {
+   "address": "目黒区青葉台4丁目4",
+   "dist_from_carriageway_m": 2.4,
+   "heavy_pct": 9.6,
+   "lanes": 2,
+   "measured_day_db": 64.0,
+   "measured_night_db": 60.0,
+   "model_day_db": 69.1,
+   "model_night_db": 64.5,
+   "n_sections": 2,
+   "no": "61",
+   "q12": 6014.0,
+   "q24": 7758.0,
+   "regime": "nonsteady_dense",
+   "residual_day_db": 5.1,
+   "residual_night_db": 4.5,
+   "route_name": "渋谷経堂線",
+   "status": "OK",
+   "v_kmh": 10.8,
+   "width_m": 8.0
+  },
+  {
+   "address": "世田谷区用賀2丁目31",
+   "dist_from_carriageway_m": 6.8,
+   "heavy_pct": 13.2,
+   "lanes": 4,
+   "measured_day_db": 64.0,
+   "measured_night_db": 63.0,
+   "model_day_db": 71.3,
+   "model_night_db": 69.4,
+   "n_sections": 4,
+   "no": "75",
+   "q12": 59969.0,
+   "q24": 94702.0,
+   "regime": "steady_dense",
+   "residual_day_db": 7.3,
+   "residual_night_db": 6.4,
+   "route_name": "高速3号渋谷線",
+   "status": "OK",
+   "v_kmh": 35.0,
+   "width_m": 13.0
+  },
+  {
+   "address": "渋谷区神宮前5丁目53-1",
+   "dist_from_carriageway_m": 6.0,
+   "heavy_pct": 9.0,
+   "lanes": 8,
+   "measured_day_db": 68.0,
+   "measured_night_db": 66.0,
+   "model_day_db": 66.9,
+   "model_night_db": 65.4,
+   "n_sections": 5,
+   "no": "78",
+   "q12": 25217.0,
+   "q24": 41860.0,
+   "regime": "nonsteady_drain",
+   "residual_day_db": -1.1,
+   "residual_night_db": -0.6,
+   "route_name": "一般国道246号",
+   "status": "OK",
+   "v_kmh": 19.8,
+   "width_m": 20.0
+  },
+  {
+   "address": "渋谷区鉢山町14",
+   "dist_from_carriageway_m": 3.7,
+   "heavy_pct": 10.7,
+   "lanes": 4,
+   "measured_day_db": 67.0,
+   "measured_night_db": 66.0,
+   "model_day_db": 68.0,
+   "model_night_db": 64.8,
+   "n_sections": 12,
+   "no": "79",
+   "q12": 22172.0,
+   "q24": 31263.0,
+   "regime": "nonsteady_drain",
+   "residual_day_db": 1.0,
+   "residual_night_db": -1.2,
+   "route_name": "環状6号線",
+   "status": "OK",
+   "v_kmh": 16.7,
+   "width_m": 14.0
+  },
+  {
+   "address": "渋谷区広尾5丁目7-4",
+   "dist_from_carriageway_m": 4.5,
+   "heavy_pct": 10.8,
+   "lanes": 4,
+   "measured_day_db": 67.0,
+   "measured_night_db": 65.0,
+   "model_day_db": 66.9,
+   "model_night_db": 63.6,
+   "n_sections": 3,
+   "no": "80",
+   "q12": 22155.0,
+   "q24": 31017.0,
+   "regime": "nonsteady_drain",
+   "residual_day_db": -0.1,
+   "residual_night_db": -1.4,
+   "route_name": "古川橋二子玉川線",
+   "status": "OK",
+   "v_kmh": 15.9,
+   "width_m": 19.0
+  },
+  {
+   "address": "渋谷区本町1丁目56-2",
+   "dist_from_carriageway_m": 4.5,
+   "heavy_pct": 8.0,
+   "lanes": 2,
+   "measured_day_db": 65.0,
+   "measured_night_db": 61.0,
+   "model_day_db": 61.9,
+   "model_night_db": 57.2,
+   "n_sections": 2,
+   "no": "81",
+   "q12": 5687.0,
+   "q24": 7279.0,
+   "regime": "nonsteady_drain",
+   "residual_day_db": -3.1,
+   "residual_night_db": -3.8,
+   "route_name": "角筈和泉線",
+   "status": "OK",
+   "v_kmh": 16.7,
+   "width_m": 9.0
+  },
+  {
+   "address": "渋谷区東3丁目2-10",
+   "model_day_db": null,
+   "model_night_db": null,
+   "n_sections": 0,
+   "no": "82",
+   "residual_day_db": null,
+   "residual_night_db": null,
+   "route_name": "区道887号",
+   "status": "NOT_EVALUABLE: センサスに同名路線の使える区間が無い"
+  }
+ ]
+}

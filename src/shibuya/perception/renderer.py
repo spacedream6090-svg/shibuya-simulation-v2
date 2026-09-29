@@ -63,13 +63,17 @@ from typing import Callable, ClassVar, Final, Mapping, Sequence
 import numpy as np
 
 from shibuya.agents.state import (
+    INTENT_NONE,
     INTEROCEPTION_FIELDS,
     RESULT_TEXT,
+    Activity,
+    ActivityKind,
     AgentState,
+    IntentKind,
     ResultCode,
     WakeCondition,
 )
-from shibuya.core.hashing import blake3_hex, xxh64
+from shibuya.core.hashing import blake3_hex, blake3_u64, xxh64
 from shibuya.perception import channels as ch
 from shibuya.perception import hashes as H
 from shibuya.perception import normalize as N
@@ -85,6 +89,11 @@ from shibuya.world.assets import CELL_SIZE_M, WorldAssets
 from shibuya.world.state import LANDMARK_CATS, World
 
 __all__ = [
+    "compose_memory_line",
+    "memory_item_text",
+    "P_SEE_ACTIVITY_KINDS",
+    "P_SEE_BY_ACTIVITY",
+    "check_p_see_activity",
     "DEFAULT_START_DATETIME",
     "WALKABLE_FRACTION_SYNTHETIC",
     "STREET_POINT_AREA_M2",
@@ -97,6 +106,15 @@ __all__ = [
     "ACTIVITY_LINE",
     "ACTIVITY_LINE_MAX_TOKENS",
     "activity_line",
+    "INTENT_LINE",
+    "INTENT_LINE_MAX_TOKENS",
+    "INTENT_ACTION_WORDS",
+    "INTENT_BED_WORD",
+    "INTENT_FALLBACK_TARGET",
+    "intent_line",
+    "NAMED_CLOSED_NOTE",
+    "NAMED_CLOSED_NOTE_MAX_TOKENS",
+    "named_closed_note",
     "INVITE_REASON",
     "person_word",
     "ACTIVITY_WORDS",
@@ -120,6 +138,156 @@ SIGNAGE_P_SEE_DEFAULT: Final[float] = 1.0
 SIGNAGE_P_SEE_DOMAIN: Final[str] = "perception.attention.p_see"
 
 
+#: **5 段目 5c(D-117・M1 (a)・M2 (b)・M4 (a))**: 看板の注視ゲート p_see に掛ける**活動の種別の乗数**の鍵。
+#: move_to=目的地つき移動・wander=あたり・in_shop=在店・in_place=その場・phone=通話/スマホ操作中
+#: (旗は D-121 O3 で来る=いまは該当する体が無い・鍵だけ置く)・companion_talk=連れとの会話中
+#: (会話の成立=``Activity.CONVERSING`` で判る範囲・宣言)。
+P_SEE_ACTIVITY_KINDS: Final[tuple[str, ...]] = (
+    "move_to", "wander", "in_shop", "in_place", "phone", "companion_talk",
+)
+#: 乗数の既定=**全部 1.0**(M2 (b))=既定のランは描画バイトも checkpoint も 1 バイトも動かない。
+#: 錨のある腕(草案 §3-2): 通話 0.49(Hyman 2010 表 2 の 25.0/51.3)・連れとの会話 1.39(71.4/51.3)。
+#: 目的地つき移動 0.5 は錨の無い感度腕の 1 点。実効 p_see=min(1, p_see × 乗数)(> 1 は切る=宣言)。
+P_SEE_BY_ACTIVITY: Final[Mapping[str, float]] = {k: 1.0 for k in P_SEE_ACTIVITY_KINDS}
+
+
+def memory_item_text(
+    item: object, *, hhmm: str, poi_names: Sequence[str], place_ids: Sequence[str],
+    result_text: Mapping[int, str], max_tokens: int = T.MEMORY_ITEM_MAX_TOKENS,
+) -> str:
+    """想起した 1 行(``engine.memory.RecallItem`` と同じ欄を持つもの)→ B5「記憶」の項 1 件(6b・v1.2)。
+
+    場所=POI 名(object ≥0)/ 場所の ID(object=−(cell+2) か 行のセル)/ セルが範囲外なら「範囲外」。
+    相手=``P-<id>``。結果=``RESULT_TEXT`` の語。1 件が ``max_tokens`` を超えるなら場所名/要旨を末尾から削る
+    (宣言)。**⑥ 省略記法**(``N.ABBREVIATIONS``・B5 は列挙行の検査が掛かる): POI 名に禁止語があれば
+    その行のセルの ID に替え、要旨に禁止語があれば要旨を載せない(「話した。」)=宣言・expedient
+    (意図の行の ``INTENT_FALLBACK_TARGET`` と同じ流儀)。逐次ループ宣言: 削る字数ぶん(≤ 名前の字数)。
+    """
+    kind = int(getattr(item, "kind"))
+    obj = int(getattr(item, "obj"))
+    cell = int(getattr(item, "cell"))
+    if kind == _STORE_ITEM_KIND:  # 7c(v1.3): 店の評価の行
+        return _store_item_text(item, obj, cell, poi_names, place_ids)
+    partner = int(getattr(item, "partner"))
+    result = int(getattr(item, "result"))
+    gist = N.canonical_whitespace(str(getattr(item, "gist", "") or "")).strip().rstrip("。.")
+    if any(a in gist for a in N.ABBREVIATIONS):
+        gist = ""
+    where = ""
+    if 0 <= obj < len(poi_names):
+        where = N.canonical_whitespace(str(poi_names[obj])).strip()
+        if any(a in where for a in N.ABBREVIATIONS):
+            where = ""
+    if not where:
+        c = (-obj - 2) if obj <= -2 else cell
+        where = str(place_ids[c]) if 0 <= c < len(place_ids) else T.MEMORY_OUT_OF_AREA_WORD
+    event = T.MEMORY_EVENT_WORDS[kind] if 0 <= kind < len(T.MEMORY_EVENT_WORDS) else ""
+    who = person_word(partner) if partner >= 0 else ""
+    tpl = T.MEMORY_ITEM_TEMPLATES
+    res = result_text.get(result, "")
+    if kind == 7 and result == 0 and who:  # 成立した会話(engine.memory.EVENT_KINDS["talk"])
+        key, var = ("talk", gist) if gist else ("talk_plain", "")
+    elif kind in (10, 11):  # 気づき・看板(結果を書かない)
+        key, var = "seen", where
+    elif who:
+        key, var = "person", ""
+    else:
+        key, var = "place", where
+
+    def fill(v: str) -> str:
+        return tpl[key].format(hhmm=hhmm, where=v if key in ("place", "seen") else where, who=who,
+                               event=event, result=res, gist=v if key == "talk" else gist)
+
+    text = fill(var)
+    while var and ch.estimate_tokens(text) > int(max_tokens):  # 逐次: 削る字数ぶん
+        var = var[:-1]
+        text = fill(var)
+    return text
+
+
+#: 7c: ``engine.memory.STORE_ITEM_KIND``(描画は engine を import しない=値を写す・テストで一致を見る)。
+_STORE_ITEM_KIND: Final[int] = 12
+#: 7c: 出どころのビット「自分の訪問」(``engine.store_memory.STORE_SOURCE_BIT["self"]`` の写し)。
+_STORE_SELF_BIT: Final[int] = 1
+
+
+def _store_item_text(item: object, obj: int, cell: int, poi_names: Sequence[str],
+                     place_ids: Sequence[str]) -> str:
+    """店の評価の行 → 項(v1.3)。自分が行った店=「最近 X に行った(良かった/知っている/よくなかった)。」・
+    看板/伝聞だけ=「X を知っている。」か「X は良い/よくないと聞いた。」。≤ 15 tok(店の名を末尾から削る)。
+    ⑥ 省略記法は 6b と同じ(店の名に禁止語 → そのセルの ID)。逐次: 削る字数ぶん。
+    """
+    valence = int(getattr(item, "valence", 0))
+    source = int(getattr(item, "source", 0))
+    name = ""
+    if 0 <= obj < len(poi_names):
+        name = N.canonical_whitespace(str(poi_names[obj])).strip()
+        if any(a in name for a in N.ABBREVIATIONS):
+            name = ""
+    if not name:
+        name = str(place_ids[cell]) if 0 <= cell < len(place_ids) else T.MEMORY_OUT_OF_AREA_WORD
+    tpl = T.MEMORY_ITEM_TEMPLATES
+    if source & _STORE_SELF_BIT:
+        key, word = "store", T.MEMORY_STORE_VALENCE_WORDS[int(np.sign(valence))]
+    elif valence != 0:
+        key, word = "store_heard", T.MEMORY_STORE_HEARD_WORDS[int(np.sign(valence))]
+    else:
+        key, word = "store_known", ""
+    text = tpl[key].format(store=name, valence=word)
+    while len(name) > 1 and ch.estimate_tokens(text) > int(T.MEMORY_STORE_ITEM_MAX_TOKENS):
+        name = name[:-1]
+        text = tpl[key].format(store=name, valence=word)
+    return text
+
+
+def compose_memory_line(texts: Sequence[str]) -> tuple[str, int]:
+    """項(順位の高い順)→ B5「記憶」の 1 行と載せた項の数(6b・M4)。0 件なら ``("", 0)``。
+
+    チャネル 60 tok は**行全体**(頭の「[B5 記憶] 」を含む)で守る: 項の予算=60−頭の tok で
+    ``truncate_lines``(行の途中では切らない)→ 概算 tok の丸めで超える分は末尾の項から落とす。
+    逐次ループ宣言: 想起の件数ぶん(≤ 3)。
+    """
+    head = ch.estimate_tokens(T.TEMPLATES["B5.memory"].format(items=""))
+    kept, _rep = ch.truncate_lines(
+        list(texts), "B5.memory", limit_tokens=max(0, T.MEMORY_CHANNEL_TOKENS - head)
+    )
+    while kept:
+        line = N.canonical_whitespace(T.TEMPLATES["B5.memory"].format(items="".join(kept)))
+        if ch.estimate_tokens(line) <= T.MEMORY_CHANNEL_TOKENS:
+            return line, len(kept)
+        kept.pop()
+    return "", 0
+
+
+def check_p_see_activity(value: "Mapping[str, float] | str | None") -> dict[str, float]:
+    """活動の種別の乗数表を検査して、全部の鍵を持つ辞書で返す(欠けた鍵は 1.0)。
+
+    ``value`` は辞書か JSON 文字列(CLI ``--p-see-activity``)か ``None``(既定=全部 1.0)。
+
+    Example:
+        >>> check_p_see_activity('{"phone": 0.49}')["phone"], check_p_see_activity(None)["wander"]
+        (0.49, 1.0)
+    """
+    import json
+    import math
+
+    if value is None:
+        return dict(P_SEE_BY_ACTIVITY)
+    raw = json.loads(value) if isinstance(value, str) else dict(value)
+    if not isinstance(raw, dict):
+        raise ValueError("p_see_activity は {活動の種別: 乗数} の辞書")
+    unknown = sorted(set(raw) - set(P_SEE_ACTIVITY_KINDS))
+    if unknown:
+        raise ValueError(f"p_see_activity の鍵は {P_SEE_ACTIVITY_KINDS} のどれか(未知 {unknown})")
+    out = dict(P_SEE_BY_ACTIVITY)
+    for k, v in raw.items():
+        x = float(v)
+        if not (math.isfinite(x) and x >= 0.0):
+            raise ValueError(f"p_see_activity の乗数は 0 以上の有限値(いま {k}={v!r})")
+        out[k] = x
+    return out
+
+
 def check_signage_p_see(value: float) -> float:
     """看板の注視確率を検査して返す(0.0〜1.0 の外は ``ValueError``)。
 
@@ -137,6 +305,15 @@ WALKABLE_FRACTION_SYNTHETIC: Final[float] = 0.15
 STREET_POINT_AREA_M2: Final[float] = 6.25
 #: 内受容の閾値(``engine.change_detect.INTERO_UP_EDGES`` と同値・層契約により二重定義)。
 INTERO_UP_EDGES: Final[tuple[int, ...]] = (4, 7, 9)
+
+
+def _hunger_word(value: int) -> str | None:
+    """空腹の写し(1/5/8/10)→ B5 の語の 1 文(5 段目 5a)。段が ``HUNGER_WORD_DRAW_MIN_STAGE``
+    未満(満腹・ふつう)なら ``None``(描かない)。段=``INTERO_UP_EDGES`` を何本越えたか。"""
+    stage = sum(1 for e in INTERO_UP_EDGES if int(value) >= e)
+    if stage < T.HUNGER_WORD_DRAW_MIN_STAGE:
+        return None
+    return T.HUNGER_ITEM_TEMPLATE.format(word=T.HUNGER_WORDS[stage])
 
 #: 被招待(§6 起床(ii))の起床理由=``B6.wake`` の ``{reason}`` に入る**値**。
 #: **テンプレ本体ではない**(``templates.TEMPLATES``/``WAKE_REASON_TEXT`` は不変=
@@ -177,6 +354,8 @@ RESULT_OPTIONS: Final[Mapping[int, tuple[str, str, str]]] = {
     ResultCode.LOST_ARBITRATION: ("待機", "移動", "休憩"),
     ResultCode.UNDEFINED_ACTION: ("移動", "待機", "休憩"),
     ResultCode.BAD_TARGET: ("移動", "待機", "休憩"),
+    # 段 2c: 遠すぎて時間切れ(経路は在る)=経路なしと同じ 3 語
+    ResultCode.TOO_FAR: ("移動", "待機", "休憩"),
 }
 
 
@@ -214,6 +393,62 @@ ACTIVITY_LINE: Final[str] = "[B4b 活動] 近くの人: {items}。"
 ACTIVITY_LINE_MAX_TOKENS: Final[int] = 15
 #: 項目の区切り(アジェンダ §2 の文面「…が<人数>人・…」)。
 ACTIVITY_ITEM_SEPARATOR: Final[str] = "・"
+
+
+#: 段 2c: 意図の 1 行(B5・**テンプレ本体ではない**=``template_sha256`` は不変・アジェンダ §3-2
+#: 「いま <行為> のため <対象> へ向かっている」・文面は自前=expedient)。意図を持つ体だけに出る
+#: (=その体の prompt_hash だけが動く)。
+INTENT_LINE: Final[str] = "[B5 意図] いま{action}のため{target}へ向かっている。"
+#: 1 行の上限[tok](アジェンダ §3-2「≤ 15 tok」)。対象の名を末尾から切り詰めて収める。
+INTENT_LINE_MAX_TOKENS: Final[int] = 15
+#: 行為コード → 語(**語彙 v3 の語**・層契約(perception は llm を import できない)のため字面で持つ
+#: =``llm.contract.ACTION_CODES`` との一致はテストが機械検査する)。
+INTENT_ACTION_WORDS: Final[Mapping[int, str]] = {
+    3: "購入", 24: "食事", 22: "並ぶ", 5: "会話", 11: "就寝",
+}
+#: 寝床(自宅セル)の対象の語。
+INTENT_BED_WORD: Final[str] = "自宅"
+#: 対象の名に省略記法の語(⑥)が入っているときの代わりの語(宣言・expedient)。
+INTENT_FALLBACK_TARGET: Final[str] = "目的の場所"
+
+
+def intent_line(action_word: str, target: str) -> str:
+    """意図の 1 行(``INTENT_LINE_MAX_TOKENS`` に収まるよう対象の名を末尾から切り詰める)。"""
+    t = N.canonical_whitespace(str(target)).strip() or INTENT_FALLBACK_TARGET
+    if any(a in t for a in N.ABBREVIATIONS):
+        t = INTENT_FALLBACK_TARGET
+    line = INTENT_LINE.format(action=action_word, target=t)
+    while ch.estimate_tokens(line) > INTENT_LINE_MAX_TOKENS and len(t) > 1:
+        t = t[:-1]
+        line = INTENT_LINE.format(action=action_word, target=t)
+    return line
+
+
+#: 段 2c Q25: 名指しの店が見えるが閉店で歩かずに失敗した体の B6「直前の結果」の補足の 1 句
+#: (``RESULT_TEXT`` の短句「営業時間外」は変えない・テンプレ本体ではない=``template_sha256`` 不変)。
+NAMED_CLOSED_NOTE: Final[str] = "({name}は閉店中{opens})"
+#: 同(開店の時刻=W7 の当日/翌日の最初の開店・無ければ付けない)。
+NAMED_CLOSED_OPENS: Final[str] = "・{hhmm}に開く"
+#: 補足の 1 句の上限[tok](≤ 15 tok・B6 枠 80 の内)。店名を末尾から切り詰めて収める。
+NAMED_CLOSED_NOTE_MAX_TOKENS: Final[int] = 15
+#: 店名に省略記法の語が入っているときの代わりの語(宣言・expedient)。
+NAMED_CLOSED_FALLBACK_NAME: Final[str] = "その店"
+
+
+def named_closed_note(name: str, open_minute: int = -1) -> str:
+    """Q25 の補足の 1 句(店名 + 閉店中 + あれば「HH:MM に開く」・≤ 15 tok)。"""
+    n = N.canonical_whitespace(str(name)).strip() or NAMED_CLOSED_FALLBACK_NAME
+    if any(a in n for a in N.ABBREVIATIONS):
+        n = NAMED_CLOSED_FALLBACK_NAME
+    m = int(open_minute)
+    opens = (
+        NAMED_CLOSED_OPENS.format(hhmm=f"{(m // 60) % 24:02d}:{m % 60:02d}") if m >= 0 else ""
+    )
+    line = NAMED_CLOSED_NOTE.format(name=n, opens=opens)
+    while ch.estimate_tokens(line) > NAMED_CLOSED_NOTE_MAX_TOKENS and len(n) > 1:
+        n = n[:-1]
+        line = NAMED_CLOSED_NOTE.format(name=n, opens=opens)
+    return line
 
 
 def activity_line(rows: Sequence[tuple[str, int]]) -> str:
@@ -300,6 +535,8 @@ class Rendered:
     truncations: tuple[ch.TruncationReport, ...] = ()
     cache_hits: int = 0
     cache_misses: int = 0
+    #: 記憶 第 1 段 6b: B5「記憶」行に載せた記憶の行番号(テープ版 3 の ``recalled_rows``)。
+    recalled_rows: tuple[int, ...] = ()
 
     @property
     def tokens_total(self) -> int:
@@ -667,6 +904,59 @@ class _TickCache:
     cell_y: np.ndarray = field(default_factory=lambda: np.zeros(0, np.float64))
 
 
+#: B5 近接行の**距離の同点**の切り方(第300 Q107・小さいもの①)。``hash``(既定)= run_salt の決定論ハッシュ
+#: (観る体 × 相手の組)で撹拌 / ``id``= 旧挙動(セル内の並び=体の行番号の順に近い k 人で切る=旧 golden)。
+#: 同点が k 人目の境で起きない描画は**両方で 1 バイトも変わらない**(採る人の集合が一意)。
+NEAR_TIEBREAKS: Final[tuple[str, ...]] = ("hash", "id")
+DEFAULT_NEAR_TIEBREAK: Final[str] = "hash"
+#: 同点の撹拌の鍵の用途タグ(``core.hashing`` の 3 バイトの規約に揃える=他の用途と同じ値にならない)。
+_NEAR_TIE_TAG: Final[bytes] = b"nt\x00"
+_U64_MASK: Final[int] = (1 << 64) - 1
+
+
+def near_tie_salt64(run_salt: bytes) -> int:
+    """``blake3(run_salt ‖ b"nt\\x00")`` の先頭 8 バイト(u64)。1 ランに 1 回だけ作る。"""
+    return int(blake3_u64(bytes(run_salt) + _NEAR_TIE_TAG))
+
+
+def near_tie_keys(salt64: int, observer: int, ids: np.ndarray) -> np.ndarray:
+    """観る体 ``observer`` から見た相手 ``ids`` の撹拌鍵(u64・splitmix64 の仕上げ・配列演算)。
+
+    **同点の順だけ**に使う(値そのものに意味は無い)。観る体ごとに順が変わる(同じ相手が全員から
+    いつも先に選ばれることはない)・同じ salt・同じ組なら常に同じ(テープから再現できる)。
+    tick は混ぜない(位置が変わらない間は同じ人が見え続ける=宣言)。
+    """
+    base = (int(salt64) ^ ((int(observer) * 0x9E3779B97F4A7C15) & _U64_MASK)) & _U64_MASK
+    with np.errstate(over="ignore"):
+        x = np.asarray(ids, dtype=np.int64).astype(np.uint64) * np.uint64(0xBF58476D1CE4E5B9)
+        x ^= np.uint64(base)
+        x ^= x >> np.uint64(30)
+        x *= np.uint64(0xBF58476D1CE4E5B9)
+        x ^= x >> np.uint64(27)
+        x *= np.uint64(0x94D049BB133111EB)
+        x ^= x >> np.uint64(31)
+    return x
+
+
+#: B5 近接行の**並び**(第304 Q130・小さいもの 第 2 批①)。``distance``(既定)= 距離の昇順・同点は
+#: ``near_tiebreak`` の順(``hash``= ``near_tie_keys``・``id``= 行番号)/ ``id``= 旧挙動(行番号の昇順=旧 golden)。
+#: 焦点の先頭・知人の常時掲載・会話の参加者の掲載は両方で同じ。文面は変えない。
+NEAR_ORDERS: Final[tuple[str, ...]] = ("distance", "id")
+DEFAULT_NEAR_ORDER: Final[str] = "distance"
+
+
+def check_near_order(mode: str) -> str:
+    if str(mode) not in NEAR_ORDERS:
+        raise ValueError(f"near_order は {NEAR_ORDERS} のどれか(いま {mode!r})")
+    return str(mode)
+
+
+def check_near_tiebreak(mode: str) -> str:
+    if str(mode) not in NEAR_TIEBREAKS:
+        raise ValueError(f"near_tiebreak は {NEAR_TIEBREAKS} のどれか(いま {mode!r})")
+    return str(mode)
+
+
 class Renderer:
     """観測レンダラ(1 起床=1 呼び出し)。
 
@@ -699,6 +989,10 @@ class Renderer:
         intent_mode: str = T.DEFAULT_INTENT_MODE,
         vocab_version: str = T.DEFAULT_VOCAB_VERSION,
         role_words: bool | str = False,
+        p_see_activity: "Mapping[str, float] | str | None" = None,
+        near_tiebreak: str = DEFAULT_NEAR_TIEBREAK,
+        near_salt: bytes | None = None,
+        near_order: str = DEFAULT_NEAR_ORDER,
     ) -> None:
         """
         Args:
@@ -745,6 +1039,14 @@ class Renderer:
                 B0 の出力規約に 13 語目「食事」が載る(``templates.OUTPUT_SPEC_V2``)。
                 既定 ``"v1"`` は現行の 24 語提示=**1 バイトも変わらない**。``"open"`` 腕は
                 語彙を見せないので v1/v2 で B0 は同一(差は段0 辞書とエンジン側)。
+            near_tiebreak: B5 近接行の**距離の同点**の切り方(第300 Q107)。``"hash"``(既定)= 同点を
+                ``near_salt`` の決定論ハッシュ(観る体 × 相手)で撹拌 / ``"id"`` = 旧挙動(セル内の並び=
+                行番号の順)。**文面・並び(id 昇順)は変えない**=採る人だけ。同点が k 人目の境で起きない
+                描画は両方で同じ。
+            near_salt: 撹拌の salt(``engine.run`` は run_salt を渡す)。``None`` なら ``seed`` から
+                ``engine.run.run_salt_for`` と同じ式で作る。
+            near_order: B5 近接行の**並び**(第304 Q130)。``"distance"``(既定)= 距離の昇順・同点は
+                ``near_tiebreak`` の順 / ``"id"`` = 旧挙動(行番号の昇順)。焦点は両方で先頭。文面は変えない。
         """
         self.world = world
         self.agents = agents
@@ -757,11 +1059,39 @@ class Renderer:
         self.strict_group_budget = strict_group_budget
         self.signage_enabled = bool(signage_enabled)
         self.signage_p_see = check_signage_p_see(signage_p_see)
+        #: 5 段目 5c: 活動の種別の乗数表(全部の鍵・既定は全部 1.0=``_p_see_identity``)。
+        self.p_see_activity = check_p_see_activity(p_see_activity)
+        self._p_see_mult = np.asarray(
+            [self.p_see_activity[k] for k in P_SEE_ACTIVITY_KINDS], dtype=np.float64
+        )
+        self._p_see_identity = bool(np.all(self._p_see_mult == 1.0))
+        #: 記憶 第 1 段 6b: 想起の口 ``(体, tick, 起床条件, 招待者) → [RecallItem…]``(``engine.run`` が
+        #: ``--memory on`` のランだけ差し込む)。``None``(既定)=記憶の行を描かない=1 バイトも変わらない。
+        self.memory_recall: Callable[[int, int, int, int], Sequence[object]] | None = None
+        #: 6b の計数(記憶の行を載せた描画・想起の件数・行の tok・予算で削った/載せなかった)。
+        self.memory_lines = 0
+        self.memory_items = 0
+        self.memory_line_tokens: dict[int, int] = {}
+        self.memory_items_dropped_for_budget = 0
+        self.memory_items_dropped_for_channel = 0
+        self.memory_lines_over_budget = 0
         self.intent_mode = T.check_intent_mode(intent_mode)
         self.vocab_version = T.check_vocab_version(vocab_version)
         #: D-113 ④(第269): B0 の末尾に役割語の 1 行を足すか。レンダラの既定は False(描画バイトの
         #: 凍結を保つ)。**ランの既定は True**(``engine.run.run_day(role_words=True)``)。
         self.role_words = T.check_role_words(role_words)
+        #: 小さいもの①(第300 Q107): 近接行の距離の同点の切り方と、撹拌の salt(u64)。
+        self.near_tiebreak = check_near_tiebreak(near_tiebreak)
+        self.near_order = check_near_order(near_order)
+        #: 並べた近接行のうち、距離が同じ人が 2 人以上いた描画の数(並びの同点を鍵で切った=計測の口)。
+        self.near_order_ties = 0
+        if near_salt is None:
+            _text = f"i:{int(seed)}" if not isinstance(seed, str) else f"s:{seed}"
+            near_salt = bytes.fromhex(blake3_hex(f"{_text}\x1fengine".encode("utf-8"), length=16))
+        self._near_salt64 = near_tie_salt64(near_salt)
+        #: 同点を撹拌で切った描画の回数・そのときの同点の人数の延べ(``hash`` のランだけ数える=計測の口)。
+        self.near_tie_breaks = 0
+        self.near_tie_candidates = 0
 
         self._tickc = _TickCache()
         # 既定(vocab × v1)は ``TEMPLATES["B0.system"]`` と同一文字列=描画バイト不変
@@ -780,6 +1110,16 @@ class Renderer:
         self._focus_target: np.ndarray | None = (
             agents.focus_target if getattr(agents, "attention_columns", False) else None
         )
+        #: **5 段目 5a(D-118 K2)**: 空腹を**語**で描くか(``energy_columns`` のラン=
+        #: ``--hunger-model energy``)。``hunger`` はそのランでは語の段の写し(1/5/8/10)なので、
+        #: 数値の代わりに ``T.HUNGER_WORDS`` の語を ``T.HUNGER_WORD_DRAW_MIN_STAGE`` 以上だけ描く。
+        #: 欄の無いラン(v1)は従来の「空腹はNで閾値を超えています。」=**1 バイトも変わらない**。
+        self._hunger_words: bool = bool(getattr(agents, "energy_columns", False))
+        #: C10 8a: 関係辺の知人の口 ``(体, tick) → 相手の配列``(``--relations on`` のランだけ・既定 None=
+        #: 構築時の ``acquaintances``=空=1 バイトも変わらない)。
+        self.acquaintance_fn: Callable[[int, int], Sequence[int]] | None = None
+        #: C10 8a(3 人会話の口): ``体 → 会話の参加者``(``--conv-max-participants 3`` のランだけ・既定 None)。
+        self.session_partner_fn: Callable[[int], Sequence[int]] | None = None
         #: 個体 → (知人の集合, 知人の id 配列)。**構築時に固定**なので 1 度作れば使い回せる(C7)。
         self._acq_cache: dict[int, tuple[frozenset[int], np.ndarray]] = {}
         self._b1_cache: dict[int, bytes] = {}
@@ -797,10 +1137,25 @@ class Renderer:
         self.cache_misses = 0
         self.renders = 0
         self.truncation_count = 0
+        #: 段 2c: 意図の 1 行を載せた回数 / 個体群の予算で載せなかった回数。
+        self.intent_lines = 0
+        self.intent_lines_over_budget = 0
+        #: 段 2c Q25: 名指しの即時閉店の補足(体 → (POI, 失敗の tick, 開店の分))。``engine.run`` が
+        #: 意図の層のあるランだけ差し込む(``None``=従来どおり=描画は 1 バイトも変わらない)。
+        self.named_closed_lookup: Callable[[int], tuple[int, int, int] | None] | None = None
+        self.named_closed_notes = 0
+        #: 4 段目(M17 露出): 看板行が載った (体, POI) の控え(``engine.run`` が tick ごとに取り出す)。
+        #: ``None``=控えない(既定)。
+        self.signage_exposures: list[tuple[int, int]] | None = None
         #: 注視ゲートの抽選回数(看板のあるセルで p_see<1.0 のときだけ増える)。
         self.signage_gate_draws = 0
         #: そのうち**通った**(看板行を載せた)回数。既定のランでは 0/0。
         self.signage_gate_shown = 0
+        #: 5 段目 5c(層別の計数・描画は変えない): 看板のあるセルでの描画(eligible)・抽選(draws)・
+        #: 看板行が載った(shown)を活動の種別ごとに。実効 p_see の分布(看板のあるセルの描画ごと)。
+        n_k = len(P_SEE_ACTIVITY_KINDS)
+        self.signage_by_kind = np.zeros((3, n_k), dtype=np.int64)
+        self.signage_effective_p: dict[str, int] = {}
 
     # ---------------------------------------------------------- 前計算(1 tick 1 回)
     def prepare_tick(
@@ -942,6 +1297,12 @@ class Renderer:
         ranking = self.budget_mode is ch.BudgetMode.SINGLE_RANKING
         # D-59 (b): 看板の注視ゲート(§4 段1)。既定 p_see=1.0 では常に True=抽選も引かない。
         seen = self._signage_seen(i, cell, int(tick))
+        # 4 段目(M17 露出): 注視ゲートを通って B2 に看板行が載った POI を控える(``--familiarity on``
+        # のランだけ ``engine.run`` が list を差し込む=既定 None では 1 行も通らない・描画は不変)。
+        if self.signage_exposures is not None and seen:
+            _sp = self._signage_poi(cell)
+            if _sp >= 0:
+                self.signage_exposures.append((i, int(_sp)))
         # ablation ①: セル依存(B2/B4/B4b)は**1 本の池**なので 3 ブロックを一緒に組む。
         cellb = self._cell_blocks_ranked(cell, tc, trunc, seen) if ranking else None
         b6 = self._b6(i, wake_reason, last_result, cell, tc, last_action, inviter)
@@ -956,6 +1317,14 @@ class Renderer:
             if ranking
             else self._b5(i, cell, tc, trunc)
         )
+        # 段 2c: 意図を持つ体だけ B5 に「いま <行為> のため <対象> へ向かっている」の 1 行
+        blocks["B5"] = self._with_intent_line(i, blocks["B5"], b6)
+        # 記憶 第 1 段 6b: 想起した記憶を B5 の**最後**に 1 行(on のランだけ・0 件なら出さない)
+        recalled: tuple[int, ...] = ()
+        if self.memory_recall is not None:
+            blocks["B5"], recalled = self._with_memory_line(
+                i, int(tick), blocks["B5"], b6, wake_reason, inviter
+            )
         blocks["B6"] = b6
 
         # §2.4 ⑧: B0-B4b に個体依存語が無いこと(機械検査)
@@ -993,6 +1362,7 @@ class Renderer:
             tokens_est=tokens,
             group_tokens=groups,
             truncations=tuple(trunc),
+            recalled_rows=recalled,
             cache_hits=self.cache_hits - hits0,
             cache_misses=self.cache_misses - misses0,
         )
@@ -1155,6 +1525,74 @@ class Renderer:
         to = int(w.pois.open_to[j]) // 60
         return strip_imperatives(f"{A.poi_name[j]}の表示。営業は{frm}時から{to}時。").kept
 
+    def signage_poi_by_cell(self) -> np.ndarray:
+        """セル → B2 の看板行に出す POI(``_signage_poi`` と同じ 1 件・無ければ −1)。
+
+        4 段目(M17 露出・親決定 (f)): 「セルに入った回 × そのセルの看板」の露出を数える側
+        (``engine.familiarity``)が、描画と**同じ集合**を読むための口。起動時 1 回(セル数ぶん)。
+        ``signage_enabled=False``(ablation ⑥)なら全部 −1。
+        """
+        n = int(self.assets.n_cells)
+        return np.fromiter((self._signage_poi(c) for c in range(n)), dtype=np.int64, count=n)
+
+    def activity_class_of(self, agent_id: int) -> int:
+        """体 → 活動の種別の索引(:data:`P_SEE_ACTIVITY_KINDS`・5c・宣言)。
+
+        1. 会話の成立(``Activity.CONVERSING``)→ 連れとの会話中 2. (通話/スマホ操作中の旗は無い)
+        3. 活動層のあるラン: ``activity_kind``(目的地つき移動/あたり/在店/その場・なし=その場)
+        4. 活動層の無いラン: 歩行中=目的地つき移動・在店(``SHOPPING``)=在店・他=その場。
+        """
+        r = self.agents.registry
+        act = int(r.activity[agent_id])
+        if act == int(Activity.CONVERSING):
+            return 5
+        if "activity_kind" in r.arrays:
+            k = int(r.activity_kind[agent_id])
+            return {int(ActivityKind.MOVE_TO): 0, int(ActivityKind.WANDER): 1,
+                    int(ActivityKind.IN_SHOP): 2}.get(k, 3)
+        if act == int(Activity.MOVING):
+            return 0
+        if act == int(Activity.SHOPPING):
+            return 2
+        return 3
+
+    def activity_classes(self, agent_ids: np.ndarray) -> np.ndarray:
+        """体の配列 → 活動の種別の索引の配列(:meth:`activity_class_of` の配列版・配列演算)。"""
+        a = np.asarray(agent_ids, dtype=np.int64)
+        r = self.agents.registry
+        act = np.asarray(r.activity)[a]
+        out = np.full(a.size, 3, dtype=np.int64)
+        if "activity_kind" in r.arrays:
+            k = np.asarray(r.activity_kind)[a]
+            out[k == int(ActivityKind.MOVE_TO)] = 0
+            out[k == int(ActivityKind.WANDER)] = 1
+            out[k == int(ActivityKind.IN_SHOP)] = 2
+        else:
+            out[act == int(Activity.MOVING)] = 0
+            out[act == int(Activity.SHOPPING)] = 2
+        out[act == int(Activity.CONVERSING)] = 5
+        return out
+
+    def effective_p_see(self, agent_ids: np.ndarray) -> np.ndarray:
+        """体の配列 → 実効 p_see=min(1, p_see × 乗数[活動の種別])(5c・配列演算)。"""
+        mult = self._p_see_mult[self.activity_classes(agent_ids)]
+        return np.minimum(1.0, float(self.signage_p_see) * mult)
+
+    def p_see_activity_summary(self) -> dict:
+        """manifest ``p_see_activity``: 乗数表・既定か・活動の種別ごとの計数・実効 p_see の分布。"""
+        by = self.signage_by_kind
+        return {
+            "table": dict(self.p_see_activity),
+            "identity": bool(self._p_see_identity),
+            "signage_p_see": float(self.signage_p_see),
+            "applies_to": "p_see only (M4 (a)): the B2 visible rows are unchanged",
+            "by_kind": {
+                k: {"eligible": int(by[0, j]), "draws": int(by[1, j]), "shown": int(by[2, j])}
+                for j, k in enumerate(P_SEE_ACTIVITY_KINDS)
+            },
+            "effective_p_see": dict(sorted(self.signage_effective_p.items())),
+        }
+
     def _signage_seen(self, agent_id: int, cell: int, tick: int) -> bool:
         """**看板の注視ゲート**(知覚契約書 §4 段1・D-59 (b) ユーザー決定 2026-09-17)。
 
@@ -1171,25 +1609,41 @@ class Renderer:
 
         逐次ループ宣言(P4): **1 起床につき 1 回**(``render`` の中の 1 回・個体数ぶんの
         ループは持たない)。既定のランでは 0 回。
+
+        **5 段目 5c(D-117)**: 実効 p_see=min(1, p_see × 乗数[活動の種別])。乗数表が全部 1.0(既定)なら
+        実効 p_see=p_see で抽選の有無も乱数の列も従来と同じ(同じカウンタ・同じ u を比べる)。
+        看板のあるセルの描画は活動の種別ごとに数える(描画は変えない)。
         """
-        if self.signage_p_see >= 1.0:
-            return True
         poi = self._signage_poi(cell)
+        k = self.activity_class_of(int(agent_id)) if poi >= 0 else -1
+        p = float(self.signage_p_see)
+        if not self._p_see_identity and k >= 0:
+            p = min(1.0, p * float(self._p_see_mult[k]))
+        if k >= 0:
+            self.signage_by_kind[0, k] += 1
+            key = f"{p:.4f}"
+            self.signage_effective_p[key] = self.signage_effective_p.get(key, 0) + 1
+        if p >= 1.0:
+            if k >= 0:
+                self.signage_by_kind[2, k] += 1
+            return True
         if poi < 0:
             return True  # 見える看板が無いセル=ゲートの対象外(描画は同じ)
         self.signage_gate_draws += 1
-        if self.signage_p_see <= 0.0:
+        self.signage_by_kind[1, k] += 1
+        if p <= 0.0:
             return False  # random() は [0,1) なので ``< 0.0`` は常に偽=短絡と同値
         ok = bool(
             gate_stage1(
                 1,
-                self.signage_p_see,
+                p,
                 seed=self.seed,
                 domain_counters=(int(tick), int(agent_id), int(poi)),
             )[0]
         )
         if ok:
             self.signage_gate_shown += 1
+            self.signage_by_kind[2, k] += 1
         return ok
 
     def _b3(self, tc: _TickCache) -> bytes:
@@ -1318,6 +1772,11 @@ class Renderer:
         crossed = []
         for name, label in zip(INTEROCEPTION_FIELDS, ("空腹", "体力", "体感温度")):
             v = int(a.registry.field(name)[i])
+            if name == "hunger" and self._hunger_words:
+                word = _hunger_word(v)
+                if word is not None:
+                    crossed.append(word)
+                continue
             if v >= INTERO_UP_EDGES[0]:
                 crossed.append(f"{label}は{v}で閾値を超えています。")
         kept, rep = ch.truncate_lines(crossed, "B5.intero")
@@ -1355,6 +1814,106 @@ class Renderer:
             T.TEMPLATES["B5.watched"].format(n=nw) if nw > 0 else T.TEMPLATES["B5.watched_empty"]
         )
         return N.join_lines(lines).encode("utf-8")
+
+    def _intent_text(self, i: int) -> str:
+        """意図を持つ体の 1 行(持たなければ ``""``)。SoA の意図の欄を読むだけ。"""
+        arrays = self.agents.registry.arrays
+        if "intent_action" not in arrays:
+            return ""
+        code = int(arrays["intent_action"][i])
+        if code == INTENT_NONE:
+            return ""
+        word = INTENT_ACTION_WORDS.get(code)
+        if word is None:
+            return ""
+        kind = int(arrays["intent_kind"][i])
+        tgt = int(arrays["intent_target"][i])
+        if kind in (int(IntentKind.POI_NAMED), int(IntentKind.POI_CATEGORY)):
+            names = self.assets.poi_name
+            target = str(names[tgt]) if 0 <= tgt < len(names) else INTENT_FALLBACK_TARGET
+        elif kind == int(IntentKind.PERSON):
+            target = person_word(tgt)
+        elif kind == int(IntentKind.BED):
+            target = INTENT_BED_WORD
+        else:
+            target = INTENT_FALLBACK_TARGET
+        return intent_line(word, target)
+
+    def _with_intent_line(self, i: int, b5: bytes, b6: bytes) -> bytes:
+        """B5 の「直近」の行の後に意図の行を差し込む(個体群の予算 300 を超えるなら差し込まない)。"""
+        line = self._intent_text(i)
+        if not line:
+            return b5
+        rows = b5.decode("utf-8").split(N.LINE_SEPARATOR)
+        at = next(
+            (k + 1 for k, r in enumerate(rows) if r.startswith("[B5 直近]")), len(rows)
+        )
+        rows.insert(at, line)
+        out = N.join_lines(rows).encode("utf-8")
+        total = ch.estimate_tokens(out.decode("utf-8")) + ch.estimate_tokens(b6.decode("utf-8"))
+        if total > int(T.GROUP_TOKEN_BUDGET["individual"]):
+            self.intent_lines_over_budget += 1
+            return b5
+        self.intent_lines += 1
+        return out
+
+    def _with_memory_line(
+        self, i: int, tick: int, b5: bytes, b6: bytes, wake_reason: int | str, inviter: int | None
+    ) -> tuple[bytes, tuple[int, ...]]:
+        """B5 の最後に「記憶」の 1 行(6b・M4)。チャネル 60 tok・個体枠 300 を超えるなら末尾の項から削る。"""
+        cond = int(wake_reason) if isinstance(wake_reason, (int, np.integer)) else -1
+        items = list(self.memory_recall(i, int(tick), cond, -1 if inviter is None else int(inviter)))
+        if not items:
+            return b5, ()
+        when = self.clock_fn(int(tick))
+        texts: list[str] = []
+        rows: list[int] = []
+        for it in items:  # 逐次ループ宣言: 想起の件数ぶん(≤ 3)
+            lt = int(getattr(it, "last_tick"))
+            h, m = N.format_time(self.clock_fn(lt) if lt >= 0 else when)
+            texts.append(memory_item_text(
+                it, hhmm=f"{h}:{m}", poi_names=self.assets.poi_name, place_ids=self.assets.place_ids,
+                result_text=RESULT_TEXT,
+            ))
+            rows.append(int(getattr(it, "row")))
+        line, n_keep = compose_memory_line(texts)
+        self.memory_items_dropped_for_channel += len(texts) - n_keep
+        b5_text = b5.decode("utf-8")
+        b6_tok = ch.estimate_tokens(b6.decode("utf-8"))
+        cap = int(T.GROUP_TOKEN_BUDGET["individual"])
+        out = b""
+        while n_keep:  # 逐次: 想起の件数ぶん(≤ 3・個体枠 300 を超えるなら末尾の項から削る)
+            out = N.join_lines([b5_text, line]).encode("utf-8")
+            if ch.estimate_tokens(out.decode("utf-8")) + b6_tok <= cap:
+                break
+            prev = n_keep
+            line, n_keep = compose_memory_line(texts[: n_keep - 1])
+            self.memory_items_dropped_for_budget += prev - n_keep
+        if not n_keep:
+            self.memory_lines_over_budget += 1
+            return b5, ()
+        kept = texts[:n_keep]
+        self.memory_lines += 1
+        self.memory_items += len(kept)
+        tok = ch.estimate_tokens(line)
+        self.memory_line_tokens[tok] = self.memory_line_tokens.get(tok, 0) + 1
+        return out, tuple(rows[: len(kept)])
+
+    def memory_summary(self) -> dict:
+        """manifest ``memory_summary.render``: 記憶の行を載せた描画・項の件数・行の tok の分布。"""
+        toks = self.memory_line_tokens
+        n = sum(toks.values())
+        return {
+            "lines": int(self.memory_lines),
+            "items": int(self.memory_items),
+            "items_per_line": round(self.memory_items / n, 4) if n else 0.0,
+            "line_tokens": {str(k): int(v) for k, v in sorted(toks.items())},
+            "line_tokens_max": int(max(toks)) if toks else 0,
+            "line_tokens_mean": round(sum(k * v for k, v in toks.items()) / n, 3) if n else 0.0,
+            "items_dropped_for_channel": int(self.memory_items_dropped_for_channel),
+            "items_dropped_for_group_budget": int(self.memory_items_dropped_for_budget),
+            "lines_over_group_budget": int(self.memory_lines_over_budget),
+        }
 
     def _nearby(self, i: int, cell: int, tc: _TickCache) -> list[str]:
         """同一セル在席者から近接上位 k(密度逓減)+知人常掲を作る。"""
@@ -1402,9 +1961,18 @@ class Renderer:
         los = int(tc.los_stage[cell])
         k = 3 if los <= 1 else (2 if los <= 3 else 1)  # 疎3/中2/密1(境界は expedient)
         take = min(k, peers.size)
-        sel = peers[np.argpartition(d2, take - 1)[:take]] if peers.size > take else peers
-        friends, friend_ids = self._acquaintances_of(i)
+        if peers.size > take:
+            sel = self._near_take(i, peers, d2, take)
+        else:
+            sel = peers
+        friends, friend_ids = self._acquaintances_of(i, int(tc.tick))
         chosen_set = {int(x) for x in sel}
+        if self.session_partner_fn is not None:  # C10 8a(3 人会話): 会話の参加者は同セルなら常に載せる
+            sp = np.asarray(self.session_partner_fn(i), dtype=np.int64)
+            sp = sp[(sp >= 0) & (sp < int(a.n)) & (sp != i)]
+            if sp.size:
+                ps_ = tc.cell_pos[sp]
+                chosen_set |= {int(x) for x in sp[(ps_ >= lo) & (ps_ < hi)]}
         if friend_ids.size:  # 知人常掲(§3 人物④)= 同セルの知人を足す(知人数ぶん)
             pf = tc.cell_pos[friend_ids]
             chosen_set |= {
@@ -1423,27 +1991,80 @@ class Renderer:
                     focus = f
                     chosen_set.add(f)
         chosen = sorted(chosen_set)
-        if focus >= 0:  # 焦点だけ先頭へ(残りの並びは従来どおり id 昇順)
+        if focus >= 0:  # 焦点だけ先頭へ(残りの並びは id 昇順か距離順=下)
             chosen = [focus] + [x for x in chosen if x != focus]
         q = tc.cell_pos[np.asarray(chosen, dtype=np.int64)] - lo
         if 0 <= p < m:
             q = q - (q > p)  # 自分の行を外したぶん詰める
+        if self.near_order == "distance" and len(chosen) > 1:
+            chosen, q = self._near_sort(i, chosen, q, d2, 1 if focus >= 0 else 0)
         dist = np.sqrt(d2[q])  # 採った数件だけ sqrt(旧: セル在席者ぶんの辞書)
+        marks = T.NEAR_PERSON_MARKS  # (未知, 知人)=v1.4 で定数へ(文面は v1 から同じ)
         return [
             (
-                f"{person_word(j)}({'知人' if j in friends else '未知'})",
+                f"{person_word(j)}({marks[1] if j in friends else marks[0]})",
                 max(float(dv), 0.1),
             )
             for j, dv in zip(chosen, dist)
         ]
 
-    def _acquaintances_of(self, i: int) -> tuple[frozenset[int], np.ndarray]:
+    def _near_sort(self, i: int, chosen: list[int], q: np.ndarray, d2: np.ndarray,
+                   head: int) -> tuple[list[int], np.ndarray]:
+        """第304 Q130: 近接行を**距離の昇順**に並べる(先頭 ``head`` 人=焦点は動かさない)。
+
+        同点は ``near_tiebreak`` の順(``hash``= 撹拌鍵の小さい順・``id``= 行番号の順)。距離は ``d2``(旧実装と
+        同じ値)で比べる。逐次ループ宣言: なし(載る数人の配列)。
+        """
+        ids = chosen[head:]
+        qq = q[head:]
+        dd = d2[qq].tolist()  # 載る数人だけ=Python の sort が numpy の呼び出しより速い(1 呼 +数 µs)
+        if len(set(dd)) == len(dd):  # 同点なし=距離だけで順が決まる(鍵は作らない)
+            order = sorted(range(len(ids)), key=dd.__getitem__)
+        else:
+            self.near_order_ties += 1
+            if self.near_tiebreak == "hash":
+                key = near_tie_keys(self._near_salt64, i, np.asarray(ids, dtype=np.int64)).tolist()
+            else:
+                key = list(ids)
+            order = sorted(range(len(ids)), key=lambda t: (dd[t], key[t]))
+        sel = np.asarray(order, dtype=np.int64)
+        return chosen[:head] + [ids[t] for t in order], np.concatenate([q[:head], qq[sel]])
+
+    def _near_take(self, i: int, peers: np.ndarray, d2: np.ndarray, take: int) -> np.ndarray:
+        """近接 k 人の採り方。``id``= 旧実装(``np.argpartition`` がセル内の並びで同点を切る)=1 ビットも変えない。
+
+        ``hash``: k 人目の距離 ``thr`` より近い人は全員・``thr`` と同点の人から足りない分を撹拌鍵の小さい順に。
+        同点が境に無ければ採る集合は ``id`` と同じ(k 最小の集合が一意)。逐次ループ宣言: なし(セル在席者の配列)。
+        """
+        if self.near_tiebreak == "id":
+            return peers[np.argpartition(d2, take - 1)[:take]]
+        thr = np.partition(d2, take - 1)[take - 1]
+        inside = d2 < thr
+        tie = np.flatnonzero(d2 == thr)
+        need = take - int(np.count_nonzero(inside))
+        if tie.size > need:
+            self.near_tie_breaks += 1
+            self.near_tie_candidates += int(tie.size)
+            key = near_tie_keys(self._near_salt64, i, peers[tie])
+            tie = tie[np.argpartition(key, need - 1)[:need]] if need < tie.size else tie
+        return np.concatenate([peers[inside], peers[tie]])
+
+    def _acquaintances_of(self, i: int, tick: int = -1) -> tuple[frozenset[int], np.ndarray]:
         """個体 → (知人の集合, 知人 id の配列)。**1 度作って使い回す**(C7)。
 
         知人表は ``Renderer`` の構築時に固定される(§3 人物④「知人は常に掲載」)ので、
         毎呼 ``set(...)`` を組み直す必要がない。範囲外の id はここで落とす
         (旧実装では同セル集合との積で自然に落ちていた)。
+
+        C10 8a: ``acquaintance_fn``(``engine.run`` が ``--relations on`` のランだけ差し込む)があれば、
+        関係辺の生きている相手(A ≥ τ_rel・強さの降順・≤ k)を**呼ごとに**引く(辺は相互作用で変わる=
+        キャッシュしない・体 × k の配列演算)。
         """
+        if self.acquaintance_fn is not None:
+            arr = np.asarray(self.acquaintance_fn(i, int(tick)), dtype=np.int64)
+            n = int(self.agents.n)
+            arr = arr[(arr >= 0) & (arr < n)]
+            return frozenset(int(x) for x in arr.tolist()), arr
         got = self._acq_cache.get(i)
         if got is None:
             names = frozenset(int(x) for x in self.acquaintances.get(i, ()))
@@ -1729,6 +2350,14 @@ class Renderer:
         span = max(1, T.INTERO_SCALE_MAX - INTERO_UP_EDGES[0])
         for name, label in zip(INTEROCEPTION_FIELDS, ("空腹", "体力", "体感温度")):
             v = int(a.registry.field(name)[i])
+            if name == "hunger" and self._hunger_words:
+                word = _hunger_word(v)
+                if word is not None:
+                    overrides[("B5.intero", len(crossed))] = {
+                        "deviance": min(1.0, (v - INTERO_UP_EDGES[0]) / span)
+                    }
+                    crossed.append(word)
+                continue
             if v >= INTERO_UP_EDGES[0]:
                 overrides[("B5.intero", len(crossed))] = {
                     "deviance": min(1.0, (v - INTERO_UP_EDGES[0]) / span)
@@ -1827,11 +2456,34 @@ class Renderer:
             money = N.format_money(int(a.money[i]))
             return f"(所持金{money}・最も安い品は{N.format_money(price)})" if price else f"(所持金{money})"
         if code == int(ResultCode.CLOSED):
+            note = self._named_closed_text(i)
+            if note:
+                return note
             nxt = self._next_open_hour(cell)
             return f"(次の開店は{nxt}時)" if nxt is not None else ""
         if code == int(ResultCode.FARE_SHORT):
             return f"(所持金{N.format_money(int(a.money[i]))})"
         return ""
+
+    def _named_closed_text(self, i: int) -> str:
+        """Q25: 名指しの店が見えるが閉店で歩かずに失敗した体だけの補足の 1 句(それ以外は ``""``)。
+
+        ``named_closed_lookup``(``engine.run`` が渡す・体 → ``(POI, 失敗の tick, 開店の分)``)が
+        返した tick が ``last_result_tick`` と一致するときだけ載せる(=その失敗の直後の起床だけ)。
+        """
+        look = self.named_closed_lookup
+        if look is None:
+            return ""
+        got = look(int(i))
+        if not got:
+            return ""
+        poi, t, opens = (int(x) for x in got)
+        if int(self.agents.last_result_tick[i]) != t:
+            return ""
+        names = self.assets.poi_name
+        name = str(names[poi]) if 0 <= poi < len(names) else NAMED_CLOSED_FALLBACK_NAME
+        self.named_closed_notes += 1
+        return named_closed_note(name, opens)
 
     def _cheapest_price(self, cell: int) -> int:
         if not (0 <= cell < self.world.n_cells):

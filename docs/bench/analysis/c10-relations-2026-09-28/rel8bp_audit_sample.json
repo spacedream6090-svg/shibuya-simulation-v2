@@ -1,0 +1,362 @@
+{
+ "schema": "shibuya.bench/c10-relations/audit-sample-8b/1",
+ "rows": {
+  "full_population": {
+   "agents": 390067,
+   "edges": 3483572,
+   "audit": {
+    "density": 1.0,
+    "k": 15,
+    "slot_minutes": 15,
+    "tiebreak": "hash",
+    "tenure_weeks": 13.0,
+    "groups": {
+     "household": 16161,
+     "work": 9832,
+     "school": 53
+    },
+    "w17_single_day": true,
+    "candidate_pairs_all": 87146658,
+    "candidate_pairs": 3582252,
+    "candidate_pairs_copresent": 3507286,
+    "capped_out": 6131,
+    "edges_before_tau": 3503281,
+    "dropped_by_tau": 19709
+   },
+   "edge_kinds": {
+    "household": 32414,
+    "work": 2912830,
+    "school": 538328
+   },
+   "degree": {
+    "mean": 8.931,
+    "median": 15.0,
+    "share_0": 0.2785,
+    "share_5": 0.6153,
+    "share_15": 0.5027
+   },
+   "degree_hist": {
+    "0": 108627,
+    "1": 28732,
+    "2": 4344,
+    "3": 4532,
+    "4": 3828,
+    "5": 3159,
+    "6": 3434,
+    "7": 2831,
+    "8": 3162,
+    "9": 3230,
+    "10": 2878,
+    "11": 2616,
+    "12": 2356,
+    "13": 3978,
+    "14": 16280,
+    "15": 196080
+   },
+   "households_with_2_or_more": 16161,
+   "by_agent_kind": {
+    "COMMUTER": {
+     "agents": 215772,
+     "share_of_agents": 0.5532,
+     "mean_degree": 13.121,
+     "share_0": 0.0119,
+     "share_15": 0.7442
+    },
+    "VISITOR": {
+     "agents": 58602,
+     "share_of_agents": 0.1502,
+     "mean_degree": 0.0,
+     "share_0": 1.0,
+     "share_15": 0.0
+    },
+    "WORKER": {
+     "agents": 7077,
+     "share_of_agents": 0.0181,
+     "mean_degree": 12.556,
+     "share_0": 0.0112,
+     "share_15": 0.6761
+    },
+    "RESIDENT": {
+     "agents": 36545,
+     "share_of_agents": 0.0937,
+     "mean_degree": 1.911,
+     "share_0": 0.2362,
+     "share_15": 0.0686
+    },
+    "DISPATCHER": {
+     "agents": 24,
+     "share_of_agents": 0.0001,
+     "mean_degree": 0.0,
+     "share_0": 1.0,
+     "share_15": 0.0
+    },
+    "STUDENT": {
+     "agents": 33385,
+     "share_of_agents": 0.0856,
+     "mean_degree": 14.786,
+     "share_0": 0.0015,
+     "share_15": 0.8451
+    },
+    "REGULAR_VISITOR": {
+     "agents": 20000,
+     "share_of_agents": 0.0513,
+     "mean_degree": 0.0,
+     "share_0": 1.0,
+     "share_15": 0.0
+    },
+    "FOREIGN_VISITOR": {
+     "agents": 17404,
+     "share_of_agents": 0.0446,
+     "mean_degree": 0.0,
+     "share_0": 1.0,
+     "share_15": 0.0
+    },
+    "CREW": {
+     "agents": 1258,
+     "share_of_agents": 0.0032,
+     "mean_degree": 0.0,
+     "share_0": 1.0,
+     "share_15": 0.0
+    }
+   }
+  },
+  "default_sample_5000": {
+   "agents": 5000,
+   "edges": 9232,
+   "audit": {
+    "density": 1.0,
+    "k": 15,
+    "slot_minutes": 15,
+    "tiebreak": "hash",
+    "tenure_weeks": 13.0,
+    "groups": {
+     "household": 3,
+     "work": 417,
+     "school": 51
+    },
+    "w17_single_day": true,
+    "candidate_pairs_all": 10154,
+    "candidate_pairs": 9885,
+    "candidate_pairs_copresent": 9246,
+    "capped_out": 0,
+    "edges_before_tau": 9246,
+    "dropped_by_tau": 14
+   },
+   "edge_kinds": {
+    "household": 6,
+    "work": 5916,
+    "school": 3310
+   },
+   "degree": {
+    "mean": 1.846,
+    "median": 0.0,
+    "share_0": 0.636,
+    "share_5": 0.163,
+    "share_15": 0.0142
+   },
+   "degree_hist": {
+    "0": 3180,
+    "1": 454,
+    "2": 248,
+    "3": 155,
+    "4": 148,
+    "5": 161,
+    "6": 121,
+    "7": 83,
+    "8": 50,
+    "9": 98,
+    "10": 39,
+    "11": 60,
+    "12": 49,
+    "13": 34,
+    "14": 49,
+    "15": 71
+   },
+   "households_with_2_or_more": 3,
+   "by_agent_kind": {
+    "COMMUTER": {
+     "agents": 2346,
+     "share_of_agents": 0.4692,
+     "mean_degree": 2.445,
+     "share_0": 0.4122,
+     "share_15": 0.0145
+    },
+    "VISITOR": {
+     "agents": 637,
+     "share_of_agents": 0.1274,
+     "mean_degree": 0.0,
+     "share_0": 1.0,
+     "share_15": 0.0
+    },
+    "WORKER": {
+     "agents": 75,
+     "share_of_agents": 0.015,
+     "mean_degree": 2.52,
+     "share_0": 0.44,
+     "share_15": 0.0133
+    },
+    "RESIDENT": {
+     "agents": 434,
+     "share_of_agents": 0.0868,
+     "mean_degree": 0.606,
+     "share_0": 0.9147,
+     "share_15": 0.0046
+    },
+    "DISPATCHER": {
+     "agents": 24,
+     "share_of_agents": 0.0048,
+     "mean_degree": 0.0,
+     "share_0": 1.0,
+     "share_15": 0.0
+    },
+    "STUDENT": {
+     "agents": 364,
+     "share_of_agents": 0.0728,
+     "mean_degree": 8.36,
+     "share_0": 0.0055,
+     "share_15": 0.0934
+    },
+    "REGULAR_VISITOR": {
+     "agents": 219,
+     "share_of_agents": 0.0438,
+     "mean_degree": 0.0,
+     "share_0": 1.0,
+     "share_15": 0.0
+    },
+    "FOREIGN_VISITOR": {
+     "agents": 186,
+     "share_of_agents": 0.0372,
+     "mean_degree": 0.0,
+     "share_0": 1.0,
+     "share_15": 0.0
+    },
+    "CREW": {
+     "agents": 715,
+     "share_of_agents": 0.143,
+     "mean_degree": 0.0,
+     "share_0": 1.0,
+     "share_15": 0.0
+    }
+   }
+  },
+  "stratified_sample_5000": {
+   "agents": 5000,
+   "edges": 35744,
+   "audit": {
+    "density": 1.0,
+    "k": 15,
+    "slot_minutes": 15,
+    "tiebreak": "hash",
+    "tenure_weeks": 13.0,
+    "groups": {
+     "household": 107,
+     "work": 198,
+     "school": 27
+    },
+    "w17_single_day": true,
+    "candidate_pairs_all": 50466,
+    "candidate_pairs": 38232,
+    "candidate_pairs_copresent": 35799,
+    "capped_out": 2,
+    "edges_before_tau": 35813,
+    "dropped_by_tau": 69
+   },
+   "edge_kinds": {
+    "household": 214,
+    "work": 27883,
+    "school": 7647
+   },
+   "degree": {
+    "mean": 7.149,
+    "median": 6.0,
+    "share_0": 0.3872,
+    "share_5": 0.519,
+    "share_15": 0.282
+   },
+   "degree_hist": {
+    "0": 1936,
+    "1": 255,
+    "2": 61,
+    "3": 69,
+    "4": 84,
+    "5": 57,
+    "6": 97,
+    "7": 34,
+    "8": 36,
+    "9": 73,
+    "10": 84,
+    "11": 45,
+    "12": 72,
+    "13": 193,
+    "14": 494,
+    "15": 1410
+   },
+   "households_with_2_or_more": 107,
+   "by_agent_kind": {
+    "COMMUTER": {
+     "agents": 2298,
+     "share_of_agents": 0.4596,
+     "mean_degree": 11.79,
+     "share_0": 0.0122,
+     "share_15": 0.3908
+    },
+    "VISITOR": {
+     "agents": 604,
+     "share_of_agents": 0.1208,
+     "mean_degree": 0.0,
+     "share_0": 1.0,
+     "share_15": 0.0
+    },
+    "WORKER": {
+     "agents": 72,
+     "share_of_agents": 0.0144,
+     "mean_degree": 11.194,
+     "share_0": 0.0417,
+     "share_15": 0.3889
+    },
+    "RESIDENT": {
+     "agents": 446,
+     "share_of_agents": 0.0892,
+     "mean_degree": 1.978,
+     "share_0": 0.426,
+     "share_15": 0.0919
+    },
+    "DISPATCHER": {
+     "agents": 24,
+     "share_of_agents": 0.0048,
+     "mean_degree": 0.0,
+     "share_0": 1.0,
+     "share_15": 0.0
+    },
+    "STUDENT": {
+     "agents": 469,
+     "share_of_agents": 0.0938,
+     "mean_degree": 14.846,
+     "share_0": 0.0,
+     "share_15": 0.9446
+    },
+    "REGULAR_VISITOR": {
+     "agents": 202,
+     "share_of_agents": 0.0404,
+     "mean_degree": 0.0,
+     "share_0": 1.0,
+     "share_15": 0.0
+    },
+    "FOREIGN_VISITOR": {
+     "agents": 172,
+     "share_of_agents": 0.0344,
+     "mean_degree": 0.0,
+     "share_0": 1.0,
+     "share_15": 0.0
+    },
+    "CREW": {
+     "agents": 713,
+     "share_of_agents": 0.1426,
+     "mean_degree": 0.0,
+     "share_0": 1.0,
+     "share_15": 0.0
+    }
+   }
+  }
+ }
+}

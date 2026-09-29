@@ -1,0 +1,3966 @@
+{
+ "schema": "shibuya.bench/classical-2026-09-28/arms/1",
+ "n_agents": 5000,
+ "seed": 1,
+ "sample_every_ticks": 10,
+ "meal_tvd_floor": {
+  "national_vs_tokyo": 0.0928,
+  "national_vs_kanto": 0.0565,
+  "kanto_vs_tokyo": 0.0379
+ },
+ "arms": [
+  {
+   "arm": "mock_v3",
+   "args": {
+    "vocab_version": "v3"
+   },
+   "final_hash": "c9ab05383accca2ee287a4e0ddabc9980c8df12f8619217e9a942219d4a05ea3",
+   "llm_calls": 69603,
+   "calls_by_entrance": {
+    "場所": 5687,
+    "体": 23380,
+    "日課": 17132,
+    "会話": 3420,
+    "満了": 19984,
+    "社会": 0
+   },
+   "decision_layers_share": {
+    "system1": 0.2121,
+    "system1_5": 0.0,
+    "system2": 0.7879
+   },
+   "llmob_jsd_vs_mock_v3": {
+    "SD": 0.0,
+    "SI": 0.0,
+    "DARD": 0.0,
+    "STVD": 0.0,
+    "DARD_in_area": 0.0
+   },
+   "dard_share_by_cat": {
+    "sleep": 0.0521,
+    "move": 0.0257,
+    "wander": 0.0068,
+    "in_shop": 0.0336,
+    "in_place": 0.2834,
+    "talk": 0.0004,
+    "riding": 0.0004,
+    "away": 0.5976
+   },
+   "sd_share": [
+    0.0302,
+    0.0725,
+    0.3213,
+    0.4553,
+    0.1193,
+    0.0012,
+    0.0001
+   ],
+   "si_share": [
+    0.7627,
+    0.0237,
+    0.0255,
+    0.0515,
+    0.0645,
+    0.0478,
+    0.0242
+   ],
+   "meal_start_in_area": {
+    "n": 4438,
+    "window_peaks": {
+     "breakfast": "09:30",
+     "lunch": "12:00",
+     "dinner": "18:00"
+    },
+    "tvd": {
+     "t8_1_weekday_national_total": 0.4399,
+     "t8_1_weekday_kanto_total": 0.4186,
+     "t7_1_weekday_tokyo_total": 0.3998
+    },
+    "jsd_bits": {
+     "t8_1_weekday_national_total": 0.2025,
+     "t8_1_weekday_kanto_total": 0.1857,
+     "t7_1_weekday_tokyo_total": 0.1725
+    }
+   },
+   "energy": {
+    "counts": {
+     "meals_in_area": 4438,
+     "meals_out_of_area": 7814,
+     "meals_out_from_row": 1448,
+     "meals_out_default": 6366,
+     "snacks": 2237,
+     "drinks": 0
+    },
+    "census_per_agent": {
+     "intake_kcal": 1997.3,
+     "expenditure_kcal": 2432.0,
+     "balance_kcal": -434.7,
+     "eer_kcal": 2388.0
+    },
+    "stage_time_share": {
+     "awake_in_area": {
+      "full": 0.2248,
+      "normal": 0.324,
+      "hungry": 0.236,
+      "very_hungry": 0.2152,
+      "agent_ticks": 2512909
+     },
+     "asleep_in_area": {
+      "full": 0.0054,
+      "normal": 0.2206,
+      "hungry": 0.6692,
+      "very_hungry": 0.1048,
+      "agent_ticks": 370867
+     },
+     "away": {
+      "full": 0.1857,
+      "normal": 0.3114,
+      "hungry": 0.4368,
+      "very_hungry": 0.0661,
+      "agent_ticks": 4316224
+     }
+    },
+    "breakfast_skip": {
+     "all": {
+      "n": 5000,
+      "skip_pct": 25.5
+     },
+     "age20_29": {
+      "n": 993,
+      "skip_pct": 21.9
+     },
+     "age20_29_male": {
+      "n": 537,
+      "skip_pct": 22.7
+     },
+     "age20_29_female": {
+      "n": 456,
+      "skip_pct": 20.8
+     }
+    },
+    "meals_per_agent": {
+     "0": 282,
+     "1": 867,
+     "2": 1571,
+     "3": 1372,
+     "4+": 908
+    }
+   },
+   "purchases": 5020,
+   "meals_in_area": 4438,
+   "action_usage_llm": {
+    "移動": 9506,
+    "乗車": 5892,
+    "購入": 4995,
+    "なし": 5936,
+    "会話": 4864,
+    "退去": 5888,
+    "通報": 5768,
+    "手伝い": 5829,
+    "断る": 5732,
+    "就寝": 5593,
+    "食事": 5140,
+    "並ぶ": 5020
+   },
+   "presence_by_hour": [
+    738.0,
+    757.0,
+    755.8,
+    754.8,
+    751.8,
+    797.7,
+    971.7,
+    1499.5,
+    2272.5,
+    2968.5,
+    3485.7,
+    3468.8,
+    3395.5,
+    3233.8,
+    2998.3,
+    2962.5,
+    2880.5,
+    2792.0,
+    2625.3,
+    2183.5,
+    1979.8,
+    1583.3,
+    1286.7,
+    1090.7
+   ],
+   "awake_in_area_by_hour": [
+    47.5,
+    82.2,
+    85.2,
+    82.7,
+    82.7,
+    137.7,
+    359.8,
+    1119.5,
+    2112.2,
+    2909.2,
+    3426.8,
+    3407.8,
+    3332.3,
+    3164.0,
+    2926.2,
+    2888.3,
+    2806.7,
+    2724.8,
+    2568.5,
+    2129.5,
+    1912.0,
+    1505.8,
+    1193.2,
+    977.8
+   ],
+   "concentration": {
+    "food": {
+     "n_poi": 823,
+     "visits": 6056,
+     "poi_visited": 253,
+     "gini": 0.9215,
+     "top10_share": 0.319,
+     "hhi": 0.01934
+    },
+    "shop": {
+     "n_poi": 721,
+     "visits": 2170,
+     "poi_visited": 152,
+     "gini": 0.9203,
+     "top10_share": 0.2991,
+     "hhi": 0.01851
+    },
+    "all": {
+     "n_poi": 2337,
+     "visits": 9458,
+     "poi_visited": 505,
+     "gini": 0.9388,
+     "top10_share": 0.2043,
+     "hhi": 0.00949
+    }
+   },
+   "chooser_stats": {},
+   "chooser_entropy_mean_bits": 0.0,
+   "classical_counts": {},
+   "decision_layers_by_hour": [
+    {
+     "system1": 5067,
+     "system1_5": 0,
+     "system2": 92
+    },
+    {
+     "system1": 8,
+     "system1_5": 0,
+     "system2": 150
+    },
+    {
+     "system1": 4,
+     "system1_5": 0,
+     "system2": 76
+    },
+    {
+     "system1": 6,
+     "system1_5": 0,
+     "system2": 65
+    },
+    {
+     "system1": 13,
+     "system1_5": 0,
+     "system2": 157
+    },
+    {
+     "system1": 123,
+     "system1_5": 0,
+     "system2": 309
+    },
+    {
+     "system1": 384,
+     "system1_5": 0,
+     "system2": 1086
+    },
+    {
+     "system1": 1192,
+     "system1_5": 0,
+     "system2": 3669
+    },
+    {
+     "system1": 1276,
+     "system1_5": 0,
+     "system2": 5076
+    },
+    {
+     "system1": 1115,
+     "system1_5": 0,
+     "system2": 5999
+    },
+    {
+     "system1": 450,
+     "system1_5": 0,
+     "system2": 4835
+    },
+    {
+     "system1": 284,
+     "system1_5": 0,
+     "system2": 5318
+    },
+    {
+     "system1": 511,
+     "system1_5": 0,
+     "system2": 6372
+    },
+    {
+     "system1": 675,
+     "system1_5": 0,
+     "system2": 4580
+    },
+    {
+     "system1": 554,
+     "system1_5": 0,
+     "system2": 3453
+    },
+    {
+     "system1": 486,
+     "system1_5": 0,
+     "system2": 3225
+    },
+    {
+     "system1": 456,
+     "system1_5": 0,
+     "system2": 3189
+    },
+    {
+     "system1": 909,
+     "system1_5": 0,
+     "system2": 3899
+    },
+    {
+     "system1": 1276,
+     "system1_5": 0,
+     "system2": 5345
+    },
+    {
+     "system1": 1036,
+     "system1_5": 0,
+     "system2": 3779
+    },
+    {
+     "system1": 704,
+     "system1_5": 0,
+     "system2": 3372
+    },
+    {
+     "system1": 656,
+     "system1_5": 0,
+     "system2": 2257
+    },
+    {
+     "system1": 743,
+     "system1_5": 0,
+     "system2": 1820
+    },
+    {
+     "system1": 810,
+     "system1_5": 0,
+     "system2": 1480
+    }
+   ],
+   "intero_crossings": {
+    "hunger_up": 26089,
+    "hunger_up_awake_in_area": 9209,
+    "hunger_down": 23272,
+    "hunger_down_awake_in_area": 5612,
+    "fatigue_up": 26133,
+    "fatigue_up_awake_in_area": 3214,
+    "fatigue_down": 16595,
+    "fatigue_down_awake_in_area": 16182,
+    "thermal_up": 5000,
+    "thermal_up_awake_in_area": 3473,
+    "thermal_down": 5000,
+    "thermal_down_awake_in_area": 4414
+   },
+   "conversations_opened": 194,
+   "conserved": true
+  },
+  {
+   "arm": "mock_v3_chooser_classical",
+   "args": {
+    "vocab_version": "v3",
+    "chooser": "classical"
+   },
+   "final_hash": "2694c8e3d48d5560e7f05183f8c4ea9f33215223f01404a22bb6aeeba7f82205",
+   "llm_calls": 69583,
+   "calls_by_entrance": {
+    "場所": 5388,
+    "体": 23584,
+    "日課": 17144,
+    "会話": 3395,
+    "満了": 20072,
+    "社会": 0
+   },
+   "decision_layers_share": {
+    "system1": 0.2119,
+    "system1_5": 0.0,
+    "system2": 0.7881
+   },
+   "llmob_jsd_vs_mock_v3": {
+    "SD": 0.0,
+    "SI": 0.0001,
+    "DARD": 0.0002,
+    "STVD": 0.0103,
+    "DARD_in_area": 0.0004
+   },
+   "dard_share_by_cat": {
+    "sleep": 0.0522,
+    "move": 0.0257,
+    "wander": 0.0068,
+    "in_shop": 0.0369,
+    "in_place": 0.2803,
+    "talk": 0.0004,
+    "riding": 0.0004,
+    "away": 0.5973
+   },
+   "sd_share": [
+    0.0306,
+    0.0732,
+    0.3228,
+    0.4508,
+    0.1212,
+    0.0013,
+    0.0001
+   ],
+   "si_share": [
+    0.7632,
+    0.0251,
+    0.0262,
+    0.0505,
+    0.0607,
+    0.0488,
+    0.0254
+   ],
+   "meal_start_in_area": {
+    "n": 4940,
+    "window_peaks": {
+     "breakfast": "09:30",
+     "lunch": "12:00",
+     "dinner": "18:00"
+    },
+    "tvd": {
+     "t8_1_weekday_national_total": 0.4229,
+     "t8_1_weekday_kanto_total": 0.3994,
+     "t7_1_weekday_tokyo_total": 0.3829
+    },
+    "jsd_bits": {
+     "t8_1_weekday_national_total": 0.1913,
+     "t8_1_weekday_kanto_total": 0.1757,
+     "t7_1_weekday_tokyo_total": 0.1636
+    }
+   },
+   "energy": {
+    "counts": {
+     "meals_in_area": 4940,
+     "meals_out_of_area": 7794,
+     "meals_out_from_row": 1444,
+     "meals_out_default": 6350,
+     "snacks": 2527,
+     "drinks": 0
+    },
+    "census_per_agent": {
+     "intake_kcal": 2105.9,
+     "expenditure_kcal": 2431.6,
+     "balance_kcal": -325.7,
+     "eer_kcal": 2388.0
+    },
+    "stage_time_share": {
+     "awake_in_area": {
+      "full": 0.2417,
+      "normal": 0.3254,
+      "hungry": 0.223,
+      "very_hungry": 0.2099,
+      "agent_ticks": 2514390
+     },
+     "asleep_in_area": {
+      "full": 0.0051,
+      "normal": 0.2199,
+      "hungry": 0.6714,
+      "very_hungry": 0.1036,
+      "agent_ticks": 371589
+     },
+     "away": {
+      "full": 0.1881,
+      "normal": 0.315,
+      "hungry": 0.4342,
+      "very_hungry": 0.0627,
+      "agent_ticks": 4314021
+     }
+    },
+    "breakfast_skip": {
+     "all": {
+      "n": 5000,
+      "skip_pct": 25.5
+     },
+     "age20_29": {
+      "n": 993,
+      "skip_pct": 22.3
+     },
+     "age20_29_male": {
+      "n": 537,
+      "skip_pct": 22.7
+     },
+     "age20_29_female": {
+      "n": 456,
+      "skip_pct": 21.7
+     }
+    },
+    "meals_per_agent": {
+     "0": 270,
+     "1": 796,
+     "2": 1475,
+     "3": 1419,
+     "4+": 1040
+    }
+   },
+   "purchases": 5514,
+   "meals_in_area": 4940,
+   "action_usage_llm": {
+    "移動": 9541,
+    "乗車": 5859,
+    "購入": 5309,
+    "なし": 5989,
+    "会話": 4864,
+    "退去": 5814,
+    "通報": 5852,
+    "手伝い": 5782,
+    "断る": 5771,
+    "就寝": 5650,
+    "食事": 5391,
+    "並ぶ": 5277
+   },
+   "presence_by_hour": [
+    738.0,
+    757.0,
+    755.8,
+    754.8,
+    751.8,
+    798.0,
+    971.7,
+    1499.0,
+    2272.0,
+    2972.8,
+    3486.7,
+    3474.3,
+    3399.8,
+    3227.0,
+    3004.8,
+    2961.7,
+    2903.2,
+    2800.2,
+    2614.0,
+    2193.5,
+    1977.5,
+    1570.7,
+    1296.7,
+    1093.8
+   ],
+   "awake_in_area_by_hour": [
+    47.5,
+    82.2,
+    85.2,
+    82.7,
+    82.7,
+    138.0,
+    359.8,
+    1118.8,
+    2111.5,
+    2912.8,
+    3426.7,
+    3412.2,
+    3335.8,
+    3157.5,
+    2933.2,
+    2888.7,
+    2830.5,
+    2731.2,
+    2554.0,
+    2134.7,
+    1907.0,
+    1492.2,
+    1203.2,
+    984.5
+   ],
+   "concentration": {
+    "food": {
+     "n_poi": 823,
+     "visits": 6831,
+     "poi_visited": 419,
+     "gini": 0.8829,
+     "top10_share": 0.2935,
+     "hhi": 0.01561
+    },
+    "shop": {
+     "n_poi": 721,
+     "visits": 2249,
+     "poi_visited": 246,
+     "gini": 0.8859,
+     "top10_share": 0.2886,
+     "hhi": 0.01554
+    },
+    "all": {
+     "n_poi": 2337,
+     "visits": 10454,
+     "poi_visited": 815,
+     "gini": 0.9112,
+     "top10_share": 0.1918,
+     "hhi": 0.00789
+    }
+   },
+   "chooser_stats": {
+    "name": "classical",
+    "p_h": 0.5,
+    "tau": 1.0,
+    "activity_region": "kanto",
+    "counts": {
+     "aspiration_lowered": 26,
+     "decisions": 11598,
+     "food_stage:0": 1134,
+     "food_stage:1": 1217,
+     "food_stage:2": 645,
+     "food_stage:3": 465
+    }
+   },
+   "chooser_entropy_mean_bits": 1.000916,
+   "classical_counts": {},
+   "decision_layers_by_hour": [
+    {
+     "system1": 5067,
+     "system1_5": 0,
+     "system2": 92
+    },
+    {
+     "system1": 8,
+     "system1_5": 0,
+     "system2": 150
+    },
+    {
+     "system1": 4,
+     "system1_5": 0,
+     "system2": 77
+    },
+    {
+     "system1": 6,
+     "system1_5": 0,
+     "system2": 63
+    },
+    {
+     "system1": 13,
+     "system1_5": 0,
+     "system2": 155
+    },
+    {
+     "system1": 123,
+     "system1_5": 0,
+     "system2": 310
+    },
+    {
+     "system1": 384,
+     "system1_5": 0,
+     "system2": 1080
+    },
+    {
+     "system1": 1192,
+     "system1_5": 0,
+     "system2": 3676
+    },
+    {
+     "system1": 1275,
+     "system1_5": 0,
+     "system2": 5055
+    },
+    {
+     "system1": 1114,
+     "system1_5": 0,
+     "system2": 5954
+    },
+    {
+     "system1": 444,
+     "system1_5": 0,
+     "system2": 4819
+    },
+    {
+     "system1": 280,
+     "system1_5": 0,
+     "system2": 5253
+    },
+    {
+     "system1": 502,
+     "system1_5": 0,
+     "system2": 6415
+    },
+    {
+     "system1": 688,
+     "system1_5": 0,
+     "system2": 4293
+    },
+    {
+     "system1": 559,
+     "system1_5": 0,
+     "system2": 3464
+    },
+    {
+     "system1": 471,
+     "system1_5": 0,
+     "system2": 3165
+    },
+    {
+     "system1": 460,
+     "system1_5": 0,
+     "system2": 3199
+    },
+    {
+     "system1": 888,
+     "system1_5": 0,
+     "system2": 3981
+    },
+    {
+     "system1": 1269,
+     "system1_5": 0,
+     "system2": 5399
+    },
+    {
+     "system1": 1038,
+     "system1_5": 0,
+     "system2": 3878
+    },
+    {
+     "system1": 711,
+     "system1_5": 0,
+     "system2": 3480
+    },
+    {
+     "system1": 669,
+     "system1_5": 0,
+     "system2": 2260
+    },
+    {
+     "system1": 743,
+     "system1_5": 0,
+     "system2": 1914
+    },
+    {
+     "system1": 799,
+     "system1_5": 0,
+     "system2": 1451
+    }
+   ],
+   "intero_crossings": {
+    "hunger_up": 26227,
+    "hunger_up_awake_in_area": 9292,
+    "hunger_down": 23769,
+    "hunger_down_awake_in_area": 6304,
+    "fatigue_up": 26065,
+    "fatigue_up_awake_in_area": 3211,
+    "fatigue_down": 16528,
+    "fatigue_down_awake_in_area": 16126,
+    "thermal_up": 5000,
+    "thermal_up_awake_in_area": 3476,
+    "thermal_down": 5000,
+    "thermal_down_awake_in_area": 4409
+   },
+   "conversations_opened": 195,
+   "conserved": true
+  },
+  {
+   "arm": "classical",
+   "args": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical"
+   },
+   "final_hash": "18ed5c8261ee2e9c26e1dda2dacd6e8ee146acd836fab4a6039bd023ae7196bd",
+   "llm_calls": 102008,
+   "calls_by_entrance": {
+    "場所": 10147,
+    "体": 27750,
+    "日課": 18440,
+    "会話": 4186,
+    "満了": 41485,
+    "社会": 0
+   },
+   "decision_layers_share": {
+    "system1": 0.1643,
+    "system1_5": 0.8357,
+    "system2": 0.0
+   },
+   "llmob_jsd_vs_mock_v3": {
+    "SD": 0.0048,
+    "SI": 0.0228,
+    "DARD": 0.0094,
+    "STVD": 0.2088,
+    "DARD_in_area": 0.0141
+   },
+   "dard_share_by_cat": {
+    "sleep": 0.0507,
+    "move": 0.0253,
+    "wander": 0.0216,
+    "in_shop": 0.0416,
+    "in_place": 0.3113,
+    "talk": 0.0005,
+    "riding": 0.0,
+    "away": 0.5491
+   },
+   "sd_share": [
+    0.0156,
+    0.0817,
+    0.3445,
+    0.4747,
+    0.0823,
+    0.0011,
+    0.0001
+   ],
+   "si_share": [
+    0.7115,
+    0.0396,
+    0.0959,
+    0.0663,
+    0.0385,
+    0.0282,
+    0.0201
+   ],
+   "meal_start_in_area": {
+    "n": 9616,
+    "window_peaks": {
+     "breakfast": "07:30",
+     "lunch": "13:00",
+     "dinner": "18:30"
+    },
+    "tvd": {
+     "t8_1_weekday_national_total": 0.3795,
+     "t8_1_weekday_kanto_total": 0.359,
+     "t7_1_weekday_tokyo_total": 0.3405
+    },
+    "jsd_bits": {
+     "t8_1_weekday_national_total": 0.1555,
+     "t8_1_weekday_kanto_total": 0.1412,
+     "t7_1_weekday_tokyo_total": 0.1299
+    }
+   },
+   "energy": {
+    "counts": {
+     "meals_in_area": 9616,
+     "meals_out_of_area": 6849,
+     "meals_out_from_row": 1111,
+     "meals_out_default": 5738,
+     "snacks": 517,
+     "drinks": 0
+    },
+    "census_per_agent": {
+     "intake_kcal": 2642.1,
+     "expenditure_kcal": 2466.5,
+     "balance_kcal": 175.6,
+     "eer_kcal": 2388.0
+    },
+    "stage_time_share": {
+     "awake_in_area": {
+      "full": 0.3663,
+      "normal": 0.5068,
+      "hungry": 0.1106,
+      "very_hungry": 0.0163,
+      "agent_ticks": 2874252
+     },
+     "asleep_in_area": {
+      "full": 0.0176,
+      "normal": 0.2514,
+      "hungry": 0.6898,
+      "very_hungry": 0.0412,
+      "agent_ticks": 361706
+     },
+     "away": {
+      "full": 0.189,
+      "normal": 0.3438,
+      "hungry": 0.4442,
+      "very_hungry": 0.023,
+      "agent_ticks": 3964042
+     }
+    },
+    "breakfast_skip": {
+     "all": {
+      "n": 5000,
+      "skip_pct": 7.6
+     },
+     "age20_29": {
+      "n": 993,
+      "skip_pct": 7.2
+     },
+     "age20_29_male": {
+      "n": 537,
+      "skip_pct": 6.3
+     },
+     "age20_29_female": {
+      "n": 456,
+      "skip_pct": 8.1
+     }
+    },
+    "meals_per_agent": {
+     "0": 9,
+     "1": 35,
+     "2": 730,
+     "3": 2409,
+     "4+": 1817
+    }
+   },
+   "purchases": 1723,
+   "meals_in_area": 9616,
+   "action_usage_llm": {
+    "移動": 35007,
+    "購入": 1774,
+    "なし": 65251,
+    "会話": 930,
+    "就寝": 600,
+    "食事": 12095
+   },
+   "presence_by_hour": [
+    738.0,
+    757.0,
+    755.8,
+    754.8,
+    751.8,
+    800.3,
+    989.3,
+    1550.0,
+    2457.2,
+    3276.5,
+    3873.7,
+    3967.0,
+    3930.8,
+    3743.3,
+    3505.8,
+    3454.5,
+    3391.8,
+    3244.7,
+    2997.7,
+    2513.3,
+    2249.2,
+    1779.3,
+    1429.2,
+    1202.2
+   ],
+   "awake_in_area_by_hour": [
+    44.8,
+    68.3,
+    65.3,
+    64.7,
+    64.3,
+    119.2,
+    347.0,
+    1129.7,
+    2273.3,
+    3219.2,
+    3824.5,
+    3921.5,
+    3889.3,
+    3700.3,
+    3467.3,
+    3420.2,
+    3359.3,
+    3218.2,
+    2982.7,
+    2495.8,
+    2225.2,
+    1742.2,
+    1350.7,
+    1037.7
+   ],
+   "concentration": {
+    "food": {
+     "n_poi": 823,
+     "visits": 9616,
+     "poi_visited": 541,
+     "gini": 0.8018,
+     "top10_share": 0.2834,
+     "hhi": 0.01326
+    },
+    "shop": {
+     "n_poi": 721,
+     "visits": 1723,
+     "poi_visited": 329,
+     "gini": 0.7923,
+     "top10_share": 0.2107,
+     "hhi": 0.00886
+    },
+    "all": {
+     "n_poi": 2337,
+     "visits": 11339,
+     "poi_visited": 870,
+     "gini": 0.8879,
+     "top10_share": 0.2403,
+     "hhi": 0.00974
+    }
+   },
+   "chooser_stats": {
+    "name": "classical",
+    "p_h": 0.5,
+    "tau": 1.0,
+    "activity_region": "kanto",
+    "counts": {
+     "aspiration_lowered": 21,
+     "decisions": 12548,
+     "food_stage:0": 230,
+     "food_stage:1": 4242,
+     "food_stage:2": 5029,
+     "food_stage:3": 1219
+    }
+   },
+   "chooser_entropy_mean_bits": 0.858169,
+   "classical_counts": {
+    "activity:01": 8550,
+    "activity:02": 6338,
+    "activity:04": 4714,
+    "activity:05": 23210,
+    "activity:06": 5241,
+    "activity:07": 6719,
+    "activity:08": 186,
+    "activity:09": 1766,
+    "activity:10": 1877,
+    "activity:11": 2025,
+    "activity:12": 7062,
+    "activity:13": 9483,
+    "activity:14": 1710,
+    "activity:15": 4490,
+    "activity:16": 1671,
+    "activity:17": 74,
+    "activity:18": 970,
+    "activity:19": 726,
+    "activity:20": 1562,
+    "meal": 12977,
+    "meal_stage:1": 4476,
+    "meal_stage:2": 6498,
+    "meal_stage:3": 2003,
+    "reply_talk": 657
+   },
+   "decision_layers_by_hour": [
+    {
+     "system1": 5072,
+     "system1_5": 99,
+     "system2": 0
+    },
+    {
+     "system1": 24,
+     "system1_5": 211,
+     "system2": 0
+    },
+    {
+     "system1": 14,
+     "system1_5": 136,
+     "system2": 0
+    },
+    {
+     "system1": 6,
+     "system1_5": 147,
+     "system2": 0
+    },
+    {
+     "system1": 16,
+     "system1_5": 204,
+     "system2": 0
+    },
+    {
+     "system1": 129,
+     "system1_5": 402,
+     "system2": 0
+    },
+    {
+     "system1": 450,
+     "system1_5": 1373,
+     "system2": 0
+    },
+    {
+     "system1": 1601,
+     "system1_5": 4663,
+     "system2": 0
+    },
+    {
+     "system1": 1337,
+     "system1_5": 7652,
+     "system2": 0
+    },
+    {
+     "system1": 1200,
+     "system1_5": 8694,
+     "system2": 0
+    },
+    {
+     "system1": 563,
+     "system1_5": 7403,
+     "system2": 0
+    },
+    {
+     "system1": 306,
+     "system1_5": 7077,
+     "system2": 0
+    },
+    {
+     "system1": 454,
+     "system1_5": 7187,
+     "system2": 0
+    },
+    {
+     "system1": 696,
+     "system1_5": 6413,
+     "system2": 0
+    },
+    {
+     "system1": 525,
+     "system1_5": 4564,
+     "system2": 0
+    },
+    {
+     "system1": 447,
+     "system1_5": 4696,
+     "system2": 0
+    },
+    {
+     "system1": 502,
+     "system1_5": 4785,
+     "system2": 0
+    },
+    {
+     "system1": 1033,
+     "system1_5": 5834,
+     "system2": 0
+    },
+    {
+     "system1": 1581,
+     "system1_5": 7687,
+     "system2": 0
+    },
+    {
+     "system1": 1159,
+     "system1_5": 6503,
+     "system2": 0
+    },
+    {
+     "system1": 737,
+     "system1_5": 5854,
+     "system2": 0
+    },
+    {
+     "system1": 650,
+     "system1_5": 4374,
+     "system2": 0
+    },
+    {
+     "system1": 737,
+     "system1_5": 3464,
+     "system2": 0
+    },
+    {
+     "system1": 816,
+     "system1_5": 2586,
+     "system2": 0
+    }
+   ],
+   "intero_crossings": {
+    "hunger_up": 31723,
+    "hunger_up_awake_in_area": 15390,
+    "hunger_down": 31150,
+    "hunger_down_awake_in_area": 16315,
+    "fatigue_up": 22492,
+    "fatigue_up_awake_in_area": 793,
+    "fatigue_down": 13986,
+    "fatigue_down_awake_in_area": 13862,
+    "thermal_up": 5000,
+    "thermal_up_awake_in_area": 3910,
+    "thermal_down": 5000,
+    "thermal_down_awake_in_area": 4494
+   },
+   "conversations_opened": 632,
+   "conserved": true
+  },
+  {
+   "arm": "classical_familiarity",
+   "args": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "familiarity": "on"
+   },
+   "final_hash": "b0671a356277eea31ef995507e9fd7c33fbfb1da637ff6ee5f66150c6e1b8a3c",
+   "llm_calls": 101492,
+   "calls_by_entrance": {
+    "場所": 9705,
+    "体": 27733,
+    "日課": 18444,
+    "会話": 4157,
+    "満了": 41453,
+    "社会": 0
+   },
+   "decision_layers_share": {
+    "system1": 0.1651,
+    "system1_5": 0.8349,
+    "system2": 0.0
+   },
+   "llmob_jsd_vs_mock_v3": {
+    "SD": 0.0049,
+    "SI": 0.0227,
+    "DARD": 0.0094,
+    "STVD": 0.2078,
+    "DARD_in_area": 0.0142
+   },
+   "dard_share_by_cat": {
+    "sleep": 0.0506,
+    "move": 0.0253,
+    "wander": 0.0217,
+    "in_shop": 0.0415,
+    "in_place": 0.3114,
+    "talk": 0.0005,
+    "riding": 0.0,
+    "away": 0.5491
+   },
+   "sd_share": [
+    0.0155,
+    0.0815,
+    0.3458,
+    0.4738,
+    0.0821,
+    0.0012,
+    0.0001
+   ],
+   "si_share": [
+    0.7112,
+    0.0393,
+    0.0961,
+    0.0659,
+    0.0395,
+    0.0279,
+    0.0201
+   ],
+   "meal_start_in_area": {
+    "n": 9592,
+    "window_peaks": {
+     "breakfast": "07:30",
+     "lunch": "13:00",
+     "dinner": "18:30"
+    },
+    "tvd": {
+     "t8_1_weekday_national_total": 0.3787,
+     "t8_1_weekday_kanto_total": 0.3588,
+     "t7_1_weekday_tokyo_total": 0.3404
+    },
+    "jsd_bits": {
+     "t8_1_weekday_national_total": 0.1546,
+     "t8_1_weekday_kanto_total": 0.1403,
+     "t7_1_weekday_tokyo_total": 0.1289
+    }
+   },
+   "energy": {
+    "counts": {
+     "meals_in_area": 9592,
+     "meals_out_of_area": 6849,
+     "meals_out_from_row": 1111,
+     "meals_out_default": 5738,
+     "snacks": 535,
+     "drinks": 0
+    },
+    "census_per_agent": {
+     "intake_kcal": 2638.1,
+     "expenditure_kcal": 2466.8,
+     "balance_kcal": 171.3,
+     "eer_kcal": 2388.0
+    },
+    "stage_time_share": {
+     "awake_in_area": {
+      "full": 0.3672,
+      "normal": 0.5068,
+      "hungry": 0.1096,
+      "very_hungry": 0.0163,
+      "agent_ticks": 2875178
+     },
+     "asleep_in_area": {
+      "full": 0.0134,
+      "normal": 0.2553,
+      "hungry": 0.6903,
+      "very_hungry": 0.041,
+      "agent_ticks": 360781
+     },
+     "away": {
+      "full": 0.1891,
+      "normal": 0.3445,
+      "hungry": 0.4435,
+      "very_hungry": 0.0229,
+      "agent_ticks": 3964041
+     }
+    },
+    "breakfast_skip": {
+     "all": {
+      "n": 5000,
+      "skip_pct": 7.6
+     },
+     "age20_29": {
+      "n": 993,
+      "skip_pct": 7.2
+     },
+     "age20_29_male": {
+      "n": 537,
+      "skip_pct": 6.3
+     },
+     "age20_29_female": {
+      "n": 456,
+      "skip_pct": 8.1
+     }
+    },
+    "meals_per_agent": {
+     "0": 7,
+     "1": 36,
+     "2": 726,
+     "3": 2434,
+     "4+": 1797
+    }
+   },
+   "purchases": 1693,
+   "meals_in_area": 9592,
+   "action_usage_llm": {
+    "移動": 35061,
+    "購入": 1747,
+    "なし": 64920,
+    "会話": 932,
+    "就寝": 627,
+    "食事": 11998
+   },
+   "presence_by_hour": [
+    738.0,
+    757.0,
+    755.8,
+    754.8,
+    751.8,
+    800.3,
+    989.3,
+    1550.0,
+    2457.2,
+    3276.5,
+    3873.7,
+    3967.0,
+    3930.8,
+    3743.3,
+    3505.8,
+    3454.5,
+    3391.8,
+    3244.7,
+    2997.7,
+    2513.3,
+    2249.2,
+    1779.3,
+    1429.2,
+    1202.2
+   ],
+   "awake_in_area_by_hour": [
+    44.8,
+    68.3,
+    65.3,
+    64.7,
+    64.3,
+    119.2,
+    347.0,
+    1129.7,
+    2273.3,
+    3219.2,
+    3824.5,
+    3921.5,
+    3889.0,
+    3700.2,
+    3467.3,
+    3420.2,
+    3359.3,
+    3218.2,
+    2983.8,
+    2497.7,
+    2226.5,
+    1743.0,
+    1353.5,
+    1044.5
+   ],
+   "concentration": {
+    "food": {
+     "n_poi": 823,
+     "visits": 9592,
+     "poi_visited": 523,
+     "gini": 0.8062,
+     "top10_share": 0.2828,
+     "hhi": 0.0132
+    },
+    "shop": {
+     "n_poi": 721,
+     "visits": 1693,
+     "poi_visited": 316,
+     "gini": 0.7979,
+     "top10_share": 0.2091,
+     "hhi": 0.00901
+    },
+    "all": {
+     "n_poi": 2337,
+     "visits": 11285,
+     "poi_visited": 839,
+     "gini": 0.891,
+     "top10_share": 0.2404,
+     "hhi": 0.00974
+    }
+   },
+   "chooser_stats": {
+    "name": "classical",
+    "p_h": 0.5,
+    "tau": 1.0,
+    "activity_region": "kanto",
+    "counts": {
+     "aspiration_lowered": 16,
+     "decisions": 12373,
+     "food_stage:0": 213,
+     "food_stage:1": 4197,
+     "food_stage:2": 4938,
+     "food_stage:3": 1222,
+     "habit_available": 2584
+    }
+   },
+   "chooser_entropy_mean_bits": 0.819182,
+   "classical_counts": {
+    "activity:01": 8517,
+    "activity:02": 6348,
+    "activity:04": 4688,
+    "activity:05": 22998,
+    "activity:06": 5197,
+    "activity:07": 6746,
+    "activity:08": 187,
+    "activity:09": 1751,
+    "activity:10": 1855,
+    "activity:11": 2023,
+    "activity:12": 7110,
+    "activity:13": 9442,
+    "activity:14": 1680,
+    "activity:15": 4503,
+    "activity:16": 1664,
+    "activity:17": 77,
+    "activity:18": 960,
+    "activity:19": 724,
+    "activity:20": 1558,
+    "meal": 12815,
+    "meal_stage:1": 4447,
+    "meal_stage:2": 6362,
+    "meal_stage:3": 2006,
+    "reply_talk": 649
+   },
+   "decision_layers_by_hour": [
+    {
+     "system1": 5072,
+     "system1_5": 99,
+     "system2": 0
+    },
+    {
+     "system1": 24,
+     "system1_5": 211,
+     "system2": 0
+    },
+    {
+     "system1": 14,
+     "system1_5": 136,
+     "system2": 0
+    },
+    {
+     "system1": 6,
+     "system1_5": 147,
+     "system2": 0
+    },
+    {
+     "system1": 16,
+     "system1_5": 204,
+     "system2": 0
+    },
+    {
+     "system1": 129,
+     "system1_5": 402,
+     "system2": 0
+    },
+    {
+     "system1": 450,
+     "system1_5": 1373,
+     "system2": 0
+    },
+    {
+     "system1": 1601,
+     "system1_5": 4665,
+     "system2": 0
+    },
+    {
+     "system1": 1337,
+     "system1_5": 7657,
+     "system2": 0
+    },
+    {
+     "system1": 1201,
+     "system1_5": 8696,
+     "system2": 0
+    },
+    {
+     "system1": 564,
+     "system1_5": 7402,
+     "system2": 0
+    },
+    {
+     "system1": 310,
+     "system1_5": 7077,
+     "system2": 0
+    },
+    {
+     "system1": 455,
+     "system1_5": 7170,
+     "system2": 0
+    },
+    {
+     "system1": 699,
+     "system1_5": 6418,
+     "system2": 0
+    },
+    {
+     "system1": 521,
+     "system1_5": 4559,
+     "system2": 0
+    },
+    {
+     "system1": 443,
+     "system1_5": 4721,
+     "system2": 0
+    },
+    {
+     "system1": 500,
+     "system1_5": 4702,
+     "system2": 0
+    },
+    {
+     "system1": 1037,
+     "system1_5": 5558,
+     "system2": 0
+    },
+    {
+     "system1": 1584,
+     "system1_5": 7489,
+     "system2": 0
+    },
+    {
+     "system1": 1159,
+     "system1_5": 6493,
+     "system2": 0
+    },
+    {
+     "system1": 744,
+     "system1_5": 5861,
+     "system2": 0
+    },
+    {
+     "system1": 637,
+     "system1_5": 4314,
+     "system2": 0
+    },
+    {
+     "system1": 750,
+     "system1_5": 3457,
+     "system2": 0
+    },
+    {
+     "system1": 819,
+     "system1_5": 2681,
+     "system2": 0
+    }
+   ],
+   "intero_crossings": {
+    "hunger_up": 31741,
+    "hunger_up_awake_in_area": 15415,
+    "hunger_down": 31200,
+    "hunger_down_awake_in_area": 16337,
+    "fatigue_up": 22482,
+    "fatigue_up_awake_in_area": 801,
+    "fatigue_down": 13962,
+    "fatigue_down_awake_in_area": 13839,
+    "thermal_up": 5000,
+    "thermal_up_awake_in_area": 3910,
+    "thermal_down": 5000,
+    "thermal_down_awake_in_area": 4495
+   },
+   "conversations_opened": 622,
+   "conserved": true
+  },
+  {
+   "arm": "classical_hunger_v1",
+   "args": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "hunger_model": "v1"
+   },
+   "final_hash": "f63e68ac53fb874e0d6b3b3d4a9145a69e89eaa9bff38065509d7fcd22027f44",
+   "llm_calls": 128817,
+   "calls_by_entrance": {
+    "場所": 18084,
+    "体": 34227,
+    "日課": 18454,
+    "会話": 3892,
+    "満了": 54160,
+    "社会": 0
+   },
+   "decision_layers_share": {
+    "system1": 0.1513,
+    "system1_5": 0.8487,
+    "system2": 0.0
+   },
+   "llmob_jsd_vs_mock_v3": {
+    "SD": 0.0054,
+    "SI": 0.0272,
+    "DARD": 0.0168,
+    "STVD": 0.2241,
+    "DARD_in_area": 0.0318
+   },
+   "dard_share_by_cat": {
+    "sleep": 0.0495,
+    "move": 0.0279,
+    "wander": 0.019,
+    "in_shop": 0.0893,
+    "in_place": 0.265,
+    "talk": 0.0004,
+    "riding": 0.0,
+    "away": 0.5491
+   },
+   "sd_share": [
+    0.0174,
+    0.0887,
+    0.3552,
+    0.4584,
+    0.0792,
+    0.0009,
+    0.0001
+   ],
+   "si_share": [
+    0.6789,
+    0.0414,
+    0.1012,
+    0.0843,
+    0.0513,
+    0.0266,
+    0.0162
+   ],
+   "meal_start_in_area": {
+    "n": 0,
+    "window_peaks": {},
+    "tvd": {},
+    "jsd_bits": {}
+   },
+   "energy": {},
+   "purchases": 1629,
+   "meals_in_area": 24271,
+   "action_usage_llm": {
+    "移動": 35631,
+    "購入": 1685,
+    "なし": 54030,
+    "会話": 877,
+    "就寝": 523,
+    "食事": 32697
+   },
+   "presence_by_hour": [
+    738.0,
+    757.0,
+    755.8,
+    754.8,
+    751.8,
+    800.3,
+    989.3,
+    1550.0,
+    2457.2,
+    3276.5,
+    3873.7,
+    3967.0,
+    3930.8,
+    3743.3,
+    3505.8,
+    3454.3,
+    3391.8,
+    3244.7,
+    2997.7,
+    2513.3,
+    2249.2,
+    1779.3,
+    1429.2,
+    1202.2
+   ],
+   "awake_in_area_by_hour": [
+    44.7,
+    68.8,
+    67.0,
+    66.7,
+    67.2,
+    121.8,
+    354.5,
+    1146.8,
+    2292.3,
+    3231.2,
+    3839.3,
+    3934.8,
+    3900.8,
+    3714.5,
+    3477.7,
+    3429.2,
+    3364.7,
+    3222.2,
+    2985.0,
+    2499.0,
+    2225.3,
+    1738.8,
+    1347.2,
+    1039.2
+   ],
+   "concentration": {
+    "food": {
+     "n_poi": 823,
+     "visits": 24271,
+     "poi_visited": 592,
+     "gini": 0.8085,
+     "top10_share": 0.2309,
+     "hhi": 0.01
+    },
+    "shop": {
+     "n_poi": 721,
+     "visits": 1629,
+     "poi_visited": 335,
+     "gini": 0.7936,
+     "top10_share": 0.2357,
+     "hhi": 0.01029
+    },
+    "all": {
+     "n_poi": 2337,
+     "visits": 25900,
+     "poi_visited": 927,
+     "gini": 0.9102,
+     "top10_share": 0.2164,
+     "hhi": 0.00882
+    }
+   },
+   "chooser_stats": {
+    "name": "classical",
+    "p_h": 0.5,
+    "tau": 1.0,
+    "activity_region": "kanto",
+    "counts": {
+     "aspiration_lowered": 155,
+     "decisions": 51246,
+     "food_stage:0": 361,
+     "food_stage:1": 5233,
+     "food_stage:2": 15274,
+     "food_stage:3": 28678
+    }
+   },
+   "chooser_entropy_mean_bits": 0.788368,
+   "classical_counts": {
+    "activity:01": 6279,
+    "activity:02": 4972,
+    "activity:04": 3775,
+    "activity:05": 20762,
+    "activity:06": 4537,
+    "activity:07": 5634,
+    "activity:08": 170,
+    "activity:09": 1515,
+    "activity:10": 1750,
+    "activity:11": 1639,
+    "activity:12": 5891,
+    "activity:13": 8352,
+    "activity:14": 1423,
+    "activity:15": 3925,
+    "activity:16": 1407,
+    "activity:17": 70,
+    "activity:18": 912,
+    "activity:19": 581,
+    "activity:20": 1255,
+    "meal": 53367,
+    "meal_stage:1": 4655,
+    "meal_stage:2": 16154,
+    "meal_stage:3": 32558,
+    "reply_talk": 601
+   },
+   "decision_layers_by_hour": [
+    {
+     "system1": 5070,
+     "system1_5": 97,
+     "system2": 0
+    },
+    {
+     "system1": 16,
+     "system1_5": 178,
+     "system2": 0
+    },
+    {
+     "system1": 19,
+     "system1_5": 143,
+     "system2": 0
+    },
+    {
+     "system1": 9,
+     "system1_5": 139,
+     "system2": 0
+    },
+    {
+     "system1": 23,
+     "system1_5": 240,
+     "system2": 0
+    },
+    {
+     "system1": 133,
+     "system1_5": 413,
+     "system2": 0
+    },
+    {
+     "system1": 478,
+     "system1_5": 1389,
+     "system2": 0
+    },
+    {
+     "system1": 1805,
+     "system1_5": 4757,
+     "system2": 0
+    },
+    {
+     "system1": 1927,
+     "system1_5": 7664,
+     "system2": 0
+    },
+    {
+     "system1": 1883,
+     "system1_5": 9567,
+     "system2": 0
+    },
+    {
+     "system1": 841,
+     "system1_5": 9846,
+     "system2": 0
+    },
+    {
+     "system1": 404,
+     "system1_5": 9257,
+     "system2": 0
+    },
+    {
+     "system1": 521,
+     "system1_5": 9664,
+     "system2": 0
+    },
+    {
+     "system1": 752,
+     "system1_5": 8896,
+     "system2": 0
+    },
+    {
+     "system1": 634,
+     "system1_5": 8022,
+     "system2": 0
+    },
+    {
+     "system1": 612,
+     "system1_5": 7969,
+     "system2": 0
+    },
+    {
+     "system1": 635,
+     "system1_5": 7990,
+     "system2": 0
+    },
+    {
+     "system1": 1161,
+     "system1_5": 8702,
+     "system2": 0
+    },
+    {
+     "system1": 1648,
+     "system1_5": 9348,
+     "system2": 0
+    },
+    {
+     "system1": 1189,
+     "system1_5": 7497,
+     "system2": 0
+    },
+    {
+     "system1": 790,
+     "system1_5": 6402,
+     "system2": 0
+    },
+    {
+     "system1": 691,
+     "system1_5": 4518,
+     "system2": 0
+    },
+    {
+     "system1": 784,
+     "system1_5": 3444,
+     "system2": 0
+    },
+    {
+     "system1": 943,
+     "system1_5": 2675,
+     "system2": 0
+    }
+   ],
+   "intero_crossings": {
+    "hunger_up": 40845,
+    "hunger_up_awake_in_area": 19248,
+    "hunger_down": 28452,
+    "hunger_down_awake_in_area": 28432,
+    "fatigue_up": 22306,
+    "fatigue_up_awake_in_area": 657,
+    "fatigue_down": 13870,
+    "fatigue_down_awake_in_area": 13770,
+    "thermal_up": 5000,
+    "thermal_up_awake_in_area": 3926,
+    "thermal_down": 5000,
+    "thermal_down_awake_in_area": 4470
+   },
+   "conversations_opened": 587,
+   "conserved": true
+  },
+  {
+   "arm": "classical_tau_0_5",
+   "args": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "classical_tau": 0.5
+   },
+   "final_hash": "15f3fe068c6b6c7dff5d5e7be3c334b841609539bc11049790cd3b1ab81ef27b",
+   "llm_calls": 103030,
+   "calls_by_entrance": {
+    "場所": 10952,
+    "体": 27727,
+    "日課": 18453,
+    "会話": 4247,
+    "満了": 41651,
+    "社会": 0
+   },
+   "decision_layers_share": {
+    "system1": 0.1629,
+    "system1_5": 0.8371,
+    "system2": 0.0
+   },
+   "llmob_jsd_vs_mock_v3": {
+    "SD": 0.0047,
+    "SI": 0.0219,
+    "DARD": 0.0094,
+    "STVD": 0.2087,
+    "DARD_in_area": 0.0142
+   },
+   "dard_share_by_cat": {
+    "sleep": 0.0508,
+    "move": 0.0253,
+    "wander": 0.0216,
+    "in_shop": 0.0411,
+    "in_place": 0.3116,
+    "talk": 0.0005,
+    "riding": 0.0,
+    "away": 0.5491
+   },
+   "sd_share": [
+    0.016,
+    0.0834,
+    0.3456,
+    0.471,
+    0.0827,
+    0.0012,
+    0.0001
+   ],
+   "si_share": [
+    0.7137,
+    0.0387,
+    0.0934,
+    0.0672,
+    0.0387,
+    0.028,
+    0.0204
+   ],
+   "meal_start_in_area": {
+    "n": 9470,
+    "window_peaks": {
+     "breakfast": "07:15",
+     "lunch": "13:00",
+     "dinner": "18:30"
+    },
+    "tvd": {
+     "t8_1_weekday_national_total": 0.3797,
+     "t8_1_weekday_kanto_total": 0.3579,
+     "t7_1_weekday_tokyo_total": 0.3373
+    },
+    "jsd_bits": {
+     "t8_1_weekday_national_total": 0.1547,
+     "t8_1_weekday_kanto_total": 0.1402,
+     "t7_1_weekday_tokyo_total": 0.1288
+    }
+   },
+   "energy": {
+    "counts": {
+     "meals_in_area": 9470,
+     "meals_out_of_area": 6849,
+     "meals_out_from_row": 1111,
+     "meals_out_default": 5738,
+     "snacks": 536,
+     "drinks": 0
+    },
+    "census_per_agent": {
+     "intake_kcal": 2618.0,
+     "expenditure_kcal": 2466.8,
+     "balance_kcal": 151.2,
+     "eer_kcal": 2388.0
+    },
+    "stage_time_share": {
+     "awake_in_area": {
+      "full": 0.3612,
+      "normal": 0.5045,
+      "hungry": 0.1173,
+      "very_hungry": 0.017,
+      "agent_ticks": 2873477
+     },
+     "asleep_in_area": {
+      "full": 0.0156,
+      "normal": 0.2516,
+      "hungry": 0.6915,
+      "very_hungry": 0.0413,
+      "agent_ticks": 362484
+     },
+     "away": {
+      "full": 0.1889,
+      "normal": 0.3443,
+      "hungry": 0.4435,
+      "very_hungry": 0.0233,
+      "agent_ticks": 3964039
+     }
+    },
+    "breakfast_skip": {
+     "all": {
+      "n": 5000,
+      "skip_pct": 7.6
+     },
+     "age20_29": {
+      "n": 993,
+      "skip_pct": 7.2
+     },
+     "age20_29_male": {
+      "n": 537,
+      "skip_pct": 6.3
+     },
+     "age20_29_female": {
+      "n": 456,
+      "skip_pct": 8.1
+     }
+    },
+    "meals_per_agent": {
+     "0": 6,
+     "1": 42,
+     "2": 802,
+     "3": 2373,
+     "4+": 1777
+    }
+   },
+   "purchases": 1778,
+   "meals_in_area": 9470,
+   "action_usage_llm": {
+    "移動": 34941,
+    "購入": 1843,
+    "なし": 65749,
+    "会話": 940,
+    "就寝": 638,
+    "食事": 12285
+   },
+   "presence_by_hour": [
+    738.0,
+    757.0,
+    755.8,
+    754.8,
+    751.8,
+    800.3,
+    989.3,
+    1550.0,
+    2457.2,
+    3276.5,
+    3873.7,
+    3967.0,
+    3930.8,
+    3743.3,
+    3505.8,
+    3454.3,
+    3391.8,
+    3244.7,
+    2997.8,
+    2513.3,
+    2249.2,
+    1779.3,
+    1429.2,
+    1202.2
+   ],
+   "awake_in_area_by_hour": [
+    44.8,
+    68.3,
+    65.3,
+    64.7,
+    64.3,
+    119.2,
+    347.0,
+    1129.5,
+    2272.5,
+    3218.7,
+    3824.0,
+    3922.7,
+    3889.3,
+    3700.7,
+    3468.3,
+    3418.2,
+    3358.0,
+    3217.2,
+    2982.0,
+    2499.0,
+    2230.3,
+    1744.7,
+    1346.2,
+    1023.2
+   ],
+   "concentration": {
+    "food": {
+     "n_poi": 823,
+     "visits": 9470,
+     "poi_visited": 423,
+     "gini": 0.8413,
+     "top10_share": 0.2921,
+     "hhi": 0.01485
+    },
+    "shop": {
+     "n_poi": 721,
+     "visits": 1778,
+     "poi_visited": 287,
+     "gini": 0.8226,
+     "top10_share": 0.225,
+     "hhi": 0.0099
+    },
+    "all": {
+     "n_poi": 2337,
+     "visits": 11248,
+     "poi_visited": 710,
+     "gini": 0.9086,
+     "top10_share": 0.2459,
+     "hhi": 0.01078
+    }
+   },
+   "chooser_stats": {
+    "name": "classical",
+    "p_h": 0.5,
+    "tau": 0.5,
+    "activity_region": "kanto",
+    "counts": {
+     "aspiration_lowered": 14,
+     "decisions": 12942,
+     "food_stage:0": 232,
+     "food_stage:1": 4209,
+     "food_stage:2": 5316,
+     "food_stage:3": 1300
+    }
+   },
+   "chooser_entropy_mean_bits": 0.432911,
+   "classical_counts": {
+    "activity:01": 8504,
+    "activity:02": 6337,
+    "activity:04": 4746,
+    "activity:05": 23475,
+    "activity:06": 5214,
+    "activity:07": 6707,
+    "activity:08": 186,
+    "activity:09": 1790,
+    "activity:10": 1949,
+    "activity:11": 1980,
+    "activity:12": 7337,
+    "activity:13": 9536,
+    "activity:14": 1678,
+    "activity:15": 4567,
+    "activity:16": 1691,
+    "activity:17": 79,
+    "activity:18": 970,
+    "activity:19": 709,
+    "activity:20": 1618,
+    "meal": 13297,
+    "meal_stage:1": 4438,
+    "meal_stage:2": 6786,
+    "meal_stage:3": 2073,
+    "reply_talk": 660
+   },
+   "decision_layers_by_hour": [
+    {
+     "system1": 5072,
+     "system1_5": 99,
+     "system2": 0
+    },
+    {
+     "system1": 24,
+     "system1_5": 212,
+     "system2": 0
+    },
+    {
+     "system1": 14,
+     "system1_5": 136,
+     "system2": 0
+    },
+    {
+     "system1": 6,
+     "system1_5": 148,
+     "system2": 0
+    },
+    {
+     "system1": 16,
+     "system1_5": 204,
+     "system2": 0
+    },
+    {
+     "system1": 129,
+     "system1_5": 403,
+     "system2": 0
+    },
+    {
+     "system1": 449,
+     "system1_5": 1375,
+     "system2": 0
+    },
+    {
+     "system1": 1596,
+     "system1_5": 4657,
+     "system2": 0
+    },
+    {
+     "system1": 1337,
+     "system1_5": 7684,
+     "system2": 0
+    },
+    {
+     "system1": 1202,
+     "system1_5": 8546,
+     "system2": 0
+    },
+    {
+     "system1": 565,
+     "system1_5": 7422,
+     "system2": 0
+    },
+    {
+     "system1": 303,
+     "system1_5": 7098,
+     "system2": 0
+    },
+    {
+     "system1": 465,
+     "system1_5": 7086,
+     "system2": 0
+    },
+    {
+     "system1": 691,
+     "system1_5": 6520,
+     "system2": 0
+    },
+    {
+     "system1": 516,
+     "system1_5": 4857,
+     "system2": 0
+    },
+    {
+     "system1": 447,
+     "system1_5": 4803,
+     "system2": 0
+    },
+    {
+     "system1": 496,
+     "system1_5": 5041,
+     "system2": 0
+    },
+    {
+     "system1": 1045,
+     "system1_5": 5945,
+     "system2": 0
+    },
+    {
+     "system1": 1590,
+     "system1_5": 7711,
+     "system2": 0
+    },
+    {
+     "system1": 1161,
+     "system1_5": 6759,
+     "system2": 0
+    },
+    {
+     "system1": 737,
+     "system1_5": 6012,
+     "system2": 0
+    },
+    {
+     "system1": 635,
+     "system1_5": 4289,
+     "system2": 0
+    },
+    {
+     "system1": 730,
+     "system1_5": 3353,
+     "system2": 0
+    },
+    {
+     "system1": 817,
+     "system1_5": 2670,
+     "system2": 0
+    }
+   ],
+   "intero_crossings": {
+    "hunger_up": 31613,
+    "hunger_up_awake_in_area": 15255,
+    "hunger_down": 31013,
+    "hunger_down_awake_in_area": 16163,
+    "fatigue_up": 22520,
+    "fatigue_up_awake_in_area": 832,
+    "fatigue_down": 14018,
+    "fatigue_down_awake_in_area": 13889,
+    "thermal_up": 5000,
+    "thermal_up_awake_in_area": 3910,
+    "thermal_down": 5000,
+    "thermal_down_awake_in_area": 4484
+   },
+   "conversations_opened": 638,
+   "conserved": true
+  },
+  {
+   "arm": "classical_tau_2_0",
+   "args": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "classical_tau": 2.0
+   },
+   "final_hash": "7c9697c47604d7a8d664a8ae5ecd23df4337a366f224ae91a1a700cb5fdd7906",
+   "llm_calls": 100767,
+   "calls_by_entrance": {
+    "場所": 9169,
+    "体": 27701,
+    "日課": 18451,
+    "会話": 3988,
+    "満了": 41458,
+    "社会": 0
+   },
+   "decision_layers_share": {
+    "system1": 0.1658,
+    "system1_5": 0.8342,
+    "system2": 0.0
+   },
+   "llmob_jsd_vs_mock_v3": {
+    "SD": 0.0049,
+    "SI": 0.0221,
+    "DARD": 0.0094,
+    "STVD": 0.2082,
+    "DARD_in_area": 0.0142
+   },
+   "dard_share_by_cat": {
+    "sleep": 0.0509,
+    "move": 0.0255,
+    "wander": 0.0219,
+    "in_shop": 0.0415,
+    "in_place": 0.3107,
+    "talk": 0.0004,
+    "riding": 0.0,
+    "away": 0.5491
+   },
+   "sd_share": [
+    0.015,
+    0.08,
+    0.3451,
+    0.4761,
+    0.0826,
+    0.0012,
+    0.0001
+   ],
+   "si_share": [
+    0.7152,
+    0.0381,
+    0.0952,
+    0.0649,
+    0.0399,
+    0.0272,
+    0.0195
+   ],
+   "meal_start_in_area": {
+    "n": 9536,
+    "window_peaks": {
+     "breakfast": "07:30",
+     "lunch": "13:00",
+     "dinner": "18:00"
+    },
+    "tvd": {
+     "t8_1_weekday_national_total": 0.3817,
+     "t8_1_weekday_kanto_total": 0.3613,
+     "t7_1_weekday_tokyo_total": 0.3435
+    },
+    "jsd_bits": {
+     "t8_1_weekday_national_total": 0.1568,
+     "t8_1_weekday_kanto_total": 0.1425,
+     "t7_1_weekday_tokyo_total": 0.1313
+    }
+   },
+   "energy": {
+    "counts": {
+     "meals_in_area": 9536,
+     "meals_out_of_area": 6849,
+     "meals_out_from_row": 1111,
+     "meals_out_default": 5738,
+     "snacks": 519,
+     "drinks": 0
+    },
+    "census_per_agent": {
+     "intake_kcal": 2625.8,
+     "expenditure_kcal": 2468.2,
+     "balance_kcal": 157.6,
+     "eer_kcal": 2388.0
+    },
+    "stage_time_share": {
+     "awake_in_area": {
+      "full": 0.3659,
+      "normal": 0.5064,
+      "hungry": 0.1119,
+      "very_hungry": 0.0159,
+      "agent_ticks": 2872905
+     },
+     "asleep_in_area": {
+      "full": 0.0164,
+      "normal": 0.2506,
+      "hungry": 0.6921,
+      "very_hungry": 0.0408,
+      "agent_ticks": 363065
+     },
+     "away": {
+      "full": 0.1885,
+      "normal": 0.344,
+      "hungry": 0.4442,
+      "very_hungry": 0.0233,
+      "agent_ticks": 3964030
+     }
+    },
+    "breakfast_skip": {
+     "all": {
+      "n": 5000,
+      "skip_pct": 7.6
+     },
+     "age20_29": {
+      "n": 993,
+      "skip_pct": 7.2
+     },
+     "age20_29_male": {
+      "n": 537,
+      "skip_pct": 6.3
+     },
+     "age20_29_female": {
+      "n": 456,
+      "skip_pct": 8.1
+     }
+    },
+    "meals_per_agent": {
+     "0": 5,
+     "1": 44,
+     "2": 756,
+     "3": 2406,
+     "4+": 1789
+    }
+   },
+   "purchases": 1719,
+   "meals_in_area": 9536,
+   "action_usage_llm": {
+    "移動": 35203,
+    "購入": 1779,
+    "なし": 64305,
+    "会話": 899,
+    "就寝": 619,
+    "食事": 11881
+   },
+   "presence_by_hour": [
+    738.0,
+    757.0,
+    755.8,
+    754.8,
+    751.8,
+    800.3,
+    989.3,
+    1550.0,
+    2457.2,
+    3276.5,
+    3873.7,
+    3967.0,
+    3930.8,
+    3743.3,
+    3505.8,
+    3454.3,
+    3391.8,
+    3244.7,
+    2997.7,
+    2513.3,
+    2249.2,
+    1779.3,
+    1429.2,
+    1202.2
+   ],
+   "awake_in_area_by_hour": [
+    44.8,
+    68.3,
+    65.3,
+    64.7,
+    64.3,
+    119.2,
+    347.0,
+    1129.0,
+    2272.2,
+    3220.8,
+    3827.0,
+    3923.5,
+    3888.7,
+    3698.5,
+    3465.7,
+    3416.2,
+    3354.8,
+    3214.5,
+    2980.3,
+    2497.3,
+    2226.2,
+    1743.7,
+    1347.5,
+    1028.0
+   ],
+   "concentration": {
+    "food": {
+     "n_poi": 823,
+     "visits": 9536,
+     "poi_visited": 617,
+     "gini": 0.766,
+     "top10_share": 0.2577,
+     "hhi": 0.01155
+    },
+    "shop": {
+     "n_poi": 721,
+     "visits": 1719,
+     "poi_visited": 381,
+     "gini": 0.7526,
+     "top10_share": 0.192,
+     "hhi": 0.00754
+    },
+    "all": {
+     "n_poi": 2337,
+     "visits": 11255,
+     "poi_visited": 998,
+     "gini": 0.8675,
+     "top10_share": 0.2183,
+     "hhi": 0.00847
+    }
+   },
+   "chooser_stats": {
+    "name": "classical",
+    "p_h": 0.5,
+    "tau": 2.0,
+    "activity_region": "kanto",
+    "counts": {
+     "aspiration_lowered": 12,
+     "decisions": 12289,
+     "food_stage:0": 209,
+     "food_stage:1": 4157,
+     "food_stage:2": 4906,
+     "food_stage:3": 1201
+    }
+   },
+   "chooser_entropy_mean_bits": 1.2103,
+   "classical_counts": {
+    "activity:01": 8513,
+    "activity:02": 6214,
+    "activity:04": 4634,
+    "activity:05": 22867,
+    "activity:06": 5167,
+    "activity:07": 6622,
+    "activity:08": 186,
+    "activity:09": 1711,
+    "activity:10": 1875,
+    "activity:11": 1993,
+    "activity:12": 7063,
+    "activity:13": 9410,
+    "activity:14": 1675,
+    "activity:15": 4547,
+    "activity:16": 1647,
+    "activity:17": 79,
+    "activity:18": 949,
+    "activity:19": 727,
+    "activity:20": 1551,
+    "meal": 12715,
+    "meal_stage:1": 4388,
+    "meal_stage:2": 6359,
+    "meal_stage:3": 1968,
+    "reply_talk": 622
+   },
+   "decision_layers_by_hour": [
+    {
+     "system1": 5072,
+     "system1_5": 99,
+     "system2": 0
+    },
+    {
+     "system1": 24,
+     "system1_5": 211,
+     "system2": 0
+    },
+    {
+     "system1": 14,
+     "system1_5": 136,
+     "system2": 0
+    },
+    {
+     "system1": 6,
+     "system1_5": 147,
+     "system2": 0
+    },
+    {
+     "system1": 16,
+     "system1_5": 203,
+     "system2": 0
+    },
+    {
+     "system1": 129,
+     "system1_5": 402,
+     "system2": 0
+    },
+    {
+     "system1": 450,
+     "system1_5": 1372,
+     "system2": 0
+    },
+    {
+     "system1": 1597,
+     "system1_5": 4675,
+     "system2": 0
+    },
+    {
+     "system1": 1340,
+     "system1_5": 7559,
+     "system2": 0
+    },
+    {
+     "system1": 1195,
+     "system1_5": 8708,
+     "system2": 0
+    },
+    {
+     "system1": 565,
+     "system1_5": 7584,
+     "system2": 0
+    },
+    {
+     "system1": 303,
+     "system1_5": 7029,
+     "system2": 0
+    },
+    {
+     "system1": 464,
+     "system1_5": 7054,
+     "system2": 0
+    },
+    {
+     "system1": 707,
+     "system1_5": 6299,
+     "system2": 0
+    },
+    {
+     "system1": 522,
+     "system1_5": 4524,
+     "system2": 0
+    },
+    {
+     "system1": 432,
+     "system1_5": 4624,
+     "system2": 0
+    },
+    {
+     "system1": 481,
+     "system1_5": 4699,
+     "system2": 0
+    },
+    {
+     "system1": 1040,
+     "system1_5": 5566,
+     "system2": 0
+    },
+    {
+     "system1": 1568,
+     "system1_5": 7446,
+     "system2": 0
+    },
+    {
+     "system1": 1166,
+     "system1_5": 6345,
+     "system2": 0
+    },
+    {
+     "system1": 743,
+     "system1_5": 5749,
+     "system2": 0
+    },
+    {
+     "system1": 640,
+     "system1_5": 4309,
+     "system2": 0
+    },
+    {
+     "system1": 736,
+     "system1_5": 3459,
+     "system2": 0
+    },
+    {
+     "system1": 819,
+     "system1_5": 2568,
+     "system2": 0
+    }
+   ],
+   "intero_crossings": {
+    "hunger_up": 31799,
+    "hunger_up_awake_in_area": 15424,
+    "hunger_down": 31172,
+    "hunger_down_awake_in_area": 16284,
+    "fatigue_up": 22501,
+    "fatigue_up_awake_in_area": 812,
+    "fatigue_down": 13983,
+    "fatigue_down_awake_in_area": 13864,
+    "thermal_up": 5000,
+    "thermal_up_awake_in_area": 3912,
+    "thermal_down": 5000,
+    "thermal_down_awake_in_area": 4497
+   },
+   "conversations_opened": 601,
+   "conserved": true
+  },
+  {
+   "arm": "classical_familiarity_ph_0_25",
+   "args": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "familiarity": "on",
+    "classical_habit_p": 0.25
+   },
+   "final_hash": "183bbe83399f6e7f1f9e8c7964220b8c46ff8d924ea54d6676558b0f73636c2b",
+   "llm_calls": 101707,
+   "calls_by_entrance": {
+    "場所": 9672,
+    "体": 27754,
+    "日課": 18440,
+    "会話": 4406,
+    "満了": 41435,
+    "社会": 0
+   },
+   "decision_layers_share": {
+    "system1": 0.165,
+    "system1_5": 0.835,
+    "system2": 0.0
+   },
+   "llmob_jsd_vs_mock_v3": {
+    "SD": 0.0049,
+    "SI": 0.0223,
+    "DARD": 0.0094,
+    "STVD": 0.2073,
+    "DARD_in_area": 0.0142
+   },
+   "dard_share_by_cat": {
+    "sleep": 0.0507,
+    "move": 0.0253,
+    "wander": 0.0216,
+    "in_shop": 0.0416,
+    "in_place": 0.3112,
+    "talk": 0.0005,
+    "riding": 0.0,
+    "away": 0.5491
+   },
+   "sd_share": [
+    0.0152,
+    0.0814,
+    0.3461,
+    0.4735,
+    0.0826,
+    0.0011,
+    0.0001
+   ],
+   "si_share": [
+    0.7122,
+    0.0387,
+    0.0957,
+    0.0655,
+    0.0398,
+    0.0282,
+    0.0199
+   ],
+   "meal_start_in_area": {
+    "n": 9606,
+    "window_peaks": {
+     "breakfast": "07:30",
+     "lunch": "13:00",
+     "dinner": "18:30"
+    },
+    "tvd": {
+     "t8_1_weekday_national_total": 0.3773,
+     "t8_1_weekday_kanto_total": 0.3573,
+     "t7_1_weekday_tokyo_total": 0.3382
+    },
+    "jsd_bits": {
+     "t8_1_weekday_national_total": 0.1543,
+     "t8_1_weekday_kanto_total": 0.1398,
+     "t7_1_weekday_tokyo_total": 0.1283
+    }
+   },
+   "energy": {
+    "counts": {
+     "meals_in_area": 9606,
+     "meals_out_of_area": 6849,
+     "meals_out_from_row": 1111,
+     "meals_out_default": 5738,
+     "snacks": 506,
+     "drinks": 0
+    },
+    "census_per_agent": {
+     "intake_kcal": 2639.4,
+     "expenditure_kcal": 2466.7,
+     "balance_kcal": 172.7,
+     "eer_kcal": 2388.0
+    },
+    "stage_time_share": {
+     "awake_in_area": {
+      "full": 0.3668,
+      "normal": 0.5066,
+      "hungry": 0.1103,
+      "very_hungry": 0.0163,
+      "agent_ticks": 2874198
+     },
+     "asleep_in_area": {
+      "full": 0.015,
+      "normal": 0.256,
+      "hungry": 0.688,
+      "very_hungry": 0.041,
+      "agent_ticks": 361766
+     },
+     "away": {
+      "full": 0.189,
+      "normal": 0.3439,
+      "hungry": 0.4441,
+      "very_hungry": 0.023,
+      "agent_ticks": 3964036
+     }
+    },
+    "breakfast_skip": {
+     "all": {
+      "n": 5000,
+      "skip_pct": 7.6
+     },
+     "age20_29": {
+      "n": 993,
+      "skip_pct": 7.2
+     },
+     "age20_29_male": {
+      "n": 537,
+      "skip_pct": 6.3
+     },
+     "age20_29_female": {
+      "n": 456,
+      "skip_pct": 8.1
+     }
+    },
+    "meals_per_agent": {
+     "0": 7,
+     "1": 38,
+     "2": 744,
+     "3": 2388,
+     "4+": 1823
+    }
+   },
+   "purchases": 1726,
+   "meals_in_area": 9606,
+   "action_usage_llm": {
+    "移動": 35021,
+    "購入": 1783,
+    "なし": 65017,
+    "会話": 950,
+    "就寝": 625,
+    "食事": 11984
+   },
+   "presence_by_hour": [
+    738.0,
+    757.0,
+    755.8,
+    754.8,
+    751.8,
+    800.3,
+    989.3,
+    1550.0,
+    2457.2,
+    3276.5,
+    3873.7,
+    3967.0,
+    3930.8,
+    3743.3,
+    3505.8,
+    3454.5,
+    3391.8,
+    3244.7,
+    2997.7,
+    2513.3,
+    2249.2,
+    1779.3,
+    1429.2,
+    1202.2
+   ],
+   "awake_in_area_by_hour": [
+    44.8,
+    68.3,
+    65.3,
+    64.7,
+    64.3,
+    119.2,
+    347.0,
+    1129.7,
+    2273.3,
+    3219.2,
+    3824.5,
+    3921.5,
+    3889.0,
+    3700.2,
+    3467.3,
+    3420.2,
+    3359.3,
+    3218.2,
+    2983.8,
+    2497.5,
+    2226.3,
+    1743.0,
+    1349.3,
+    1034.8
+   ],
+   "concentration": {
+    "food": {
+     "n_poi": 823,
+     "visits": 9606,
+     "poi_visited": 526,
+     "gini": 0.8047,
+     "top10_share": 0.2839,
+     "hhi": 0.01321
+    },
+    "shop": {
+     "n_poi": 721,
+     "visits": 1726,
+     "poi_visited": 322,
+     "gini": 0.7966,
+     "top10_share": 0.2086,
+     "hhi": 0.00883
+    },
+    "all": {
+     "n_poi": 2337,
+     "visits": 11332,
+     "poi_visited": 848,
+     "gini": 0.8897,
+     "top10_share": 0.2406,
+     "hhi": 0.0097
+    }
+   },
+   "chooser_stats": {
+    "name": "classical",
+    "p_h": 0.25,
+    "tau": 1.0,
+    "activity_region": "kanto",
+    "counts": {
+     "aspiration_lowered": 8,
+     "decisions": 12434,
+     "food_stage:0": 220,
+     "food_stage:1": 4210,
+     "food_stage:2": 4951,
+     "food_stage:3": 1219,
+     "habit_available": 2603
+    }
+   },
+   "chooser_entropy_mean_bits": 0.858064,
+   "classical_counts": {
+    "activity:01": 8552,
+    "activity:02": 6297,
+    "activity:04": 4668,
+    "activity:05": 23001,
+    "activity:06": 5217,
+    "activity:07": 6724,
+    "activity:08": 188,
+    "activity:09": 1792,
+    "activity:10": 1888,
+    "activity:11": 2040,
+    "activity:12": 7155,
+    "activity:13": 9474,
+    "activity:14": 1716,
+    "activity:15": 4488,
+    "activity:16": 1679,
+    "activity:17": 70,
+    "activity:18": 979,
+    "activity:19": 731,
+    "activity:20": 1547,
+    "meal": 12818,
+    "meal_stage:1": 4444,
+    "meal_stage:2": 6377,
+    "meal_stage:3": 1997,
+    "reply_talk": 683
+   },
+   "decision_layers_by_hour": [
+    {
+     "system1": 5072,
+     "system1_5": 99,
+     "system2": 0
+    },
+    {
+     "system1": 24,
+     "system1_5": 211,
+     "system2": 0
+    },
+    {
+     "system1": 14,
+     "system1_5": 136,
+     "system2": 0
+    },
+    {
+     "system1": 6,
+     "system1_5": 147,
+     "system2": 0
+    },
+    {
+     "system1": 16,
+     "system1_5": 204,
+     "system2": 0
+    },
+    {
+     "system1": 129,
+     "system1_5": 402,
+     "system2": 0
+    },
+    {
+     "system1": 450,
+     "system1_5": 1373,
+     "system2": 0
+    },
+    {
+     "system1": 1601,
+     "system1_5": 4665,
+     "system2": 0
+    },
+    {
+     "system1": 1337,
+     "system1_5": 7659,
+     "system2": 0
+    },
+    {
+     "system1": 1201,
+     "system1_5": 8703,
+     "system2": 0
+    },
+    {
+     "system1": 564,
+     "system1_5": 7396,
+     "system2": 0
+    },
+    {
+     "system1": 309,
+     "system1_5": 7075,
+     "system2": 0
+    },
+    {
+     "system1": 454,
+     "system1_5": 7168,
+     "system2": 0
+    },
+    {
+     "system1": 696,
+     "system1_5": 6413,
+     "system2": 0
+    },
+    {
+     "system1": 520,
+     "system1_5": 4586,
+     "system2": 0
+    },
+    {
+     "system1": 443,
+     "system1_5": 4681,
+     "system2": 0
+    },
+    {
+     "system1": 501,
+     "system1_5": 4743,
+     "system2": 0
+    },
+    {
+     "system1": 1033,
+     "system1_5": 5612,
+     "system2": 0
+    },
+    {
+     "system1": 1582,
+     "system1_5": 7449,
+     "system2": 0
+    },
+    {
+     "system1": 1170,
+     "system1_5": 6603,
+     "system2": 0
+    },
+    {
+     "system1": 746,
+     "system1_5": 5899,
+     "system2": 0
+    },
+    {
+     "system1": 652,
+     "system1_5": 4423,
+     "system2": 0
+    },
+    {
+     "system1": 748,
+     "system1_5": 3395,
+     "system2": 0
+    },
+    {
+     "system1": 826,
+     "system1_5": 2665,
+     "system2": 0
+    }
+   ],
+   "intero_crossings": {
+    "hunger_up": 31720,
+    "hunger_up_awake_in_area": 15388,
+    "hunger_down": 31190,
+    "hunger_down_awake_in_area": 16334,
+    "fatigue_up": 22518,
+    "fatigue_up_awake_in_area": 819,
+    "fatigue_down": 13991,
+    "fatigue_down_awake_in_area": 13868,
+    "thermal_up": 5000,
+    "thermal_up_awake_in_area": 3910,
+    "thermal_down": 5000,
+    "thermal_down_awake_in_area": 4493
+   },
+   "conversations_opened": 663,
+   "conserved": true
+  },
+  {
+   "arm": "classical_familiarity_ph_0_75",
+   "args": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "familiarity": "on",
+    "classical_habit_p": 0.75
+   },
+   "final_hash": "349f482faf966eed6867dacdee75a0306ef4e4c9c3de159a20a1a38ec2f3e849",
+   "llm_calls": 101373,
+   "calls_by_entrance": {
+    "場所": 9458,
+    "体": 27708,
+    "日課": 18445,
+    "会話": 4322,
+    "満了": 41440,
+    "社会": 0
+   },
+   "decision_layers_share": {
+    "system1": 0.1651,
+    "system1_5": 0.8349,
+    "system2": 0.0
+   },
+   "llmob_jsd_vs_mock_v3": {
+    "SD": 0.0047,
+    "SI": 0.0222,
+    "DARD": 0.0095,
+    "STVD": 0.2083,
+    "DARD_in_area": 0.0144
+   },
+   "dard_share_by_cat": {
+    "sleep": 0.0506,
+    "move": 0.0253,
+    "wander": 0.0218,
+    "in_shop": 0.0416,
+    "in_place": 0.3112,
+    "talk": 0.0005,
+    "riding": 0.0,
+    "away": 0.5491
+   },
+   "sd_share": [
+    0.0161,
+    0.082,
+    0.3465,
+    0.4719,
+    0.0821,
+    0.0012,
+    0.0001
+   ],
+   "si_share": [
+    0.7126,
+    0.0394,
+    0.0947,
+    0.0658,
+    0.0399,
+    0.0274,
+    0.0203
+   ],
+   "meal_start_in_area": {
+    "n": 9578,
+    "window_peaks": {
+     "breakfast": "07:30",
+     "lunch": "13:00",
+     "dinner": "18:30"
+    },
+    "tvd": {
+     "t8_1_weekday_national_total": 0.376,
+     "t8_1_weekday_kanto_total": 0.3557,
+     "t7_1_weekday_tokyo_total": 0.3377
+    },
+    "jsd_bits": {
+     "t8_1_weekday_national_total": 0.1532,
+     "t8_1_weekday_kanto_total": 0.1388,
+     "t7_1_weekday_tokyo_total": 0.1273
+    }
+   },
+   "energy": {
+    "counts": {
+     "meals_in_area": 9578,
+     "meals_out_of_area": 6849,
+     "meals_out_from_row": 1111,
+     "meals_out_default": 5738,
+     "snacks": 537,
+     "drinks": 0
+    },
+    "census_per_agent": {
+     "intake_kcal": 2635.3,
+     "expenditure_kcal": 2467.3,
+     "balance_kcal": 168.0,
+     "eer_kcal": 2388.0
+    },
+    "stage_time_share": {
+     "awake_in_area": {
+      "full": 0.3661,
+      "normal": 0.5078,
+      "hungry": 0.1096,
+      "very_hungry": 0.0165,
+      "agent_ticks": 2875023
+     },
+     "asleep_in_area": {
+      "full": 0.0154,
+      "normal": 0.2531,
+      "hungry": 0.6905,
+      "very_hungry": 0.041,
+      "agent_ticks": 360935
+     },
+     "away": {
+      "full": 0.1892,
+      "normal": 0.3441,
+      "hungry": 0.4438,
+      "very_hungry": 0.0229,
+      "agent_ticks": 3964042
+     }
+    },
+    "breakfast_skip": {
+     "all": {
+      "n": 5000,
+      "skip_pct": 7.6
+     },
+     "age20_29": {
+      "n": 993,
+      "skip_pct": 7.2
+     },
+     "age20_29_male": {
+      "n": 537,
+      "skip_pct": 6.3
+     },
+     "age20_29_female": {
+      "n": 456,
+      "skip_pct": 8.1
+     }
+    },
+    "meals_per_agent": {
+     "0": 9,
+     "1": 35,
+     "2": 736,
+     "3": 2427,
+     "4+": 1793
+    }
+   },
+   "purchases": 1729,
+   "meals_in_area": 9578,
+   "action_usage_llm": {
+    "移動": 35013,
+    "購入": 1785,
+    "なし": 64735,
+    "会話": 932,
+    "就寝": 624,
+    "食事": 11992
+   },
+   "presence_by_hour": [
+    738.0,
+    757.0,
+    755.8,
+    754.8,
+    751.8,
+    800.3,
+    989.3,
+    1550.0,
+    2457.2,
+    3276.5,
+    3873.7,
+    3967.0,
+    3930.8,
+    3743.3,
+    3505.8,
+    3454.3,
+    3391.8,
+    3244.7,
+    2997.8,
+    2513.3,
+    2249.2,
+    1779.3,
+    1429.2,
+    1202.2
+   ],
+   "awake_in_area_by_hour": [
+    44.8,
+    68.3,
+    65.3,
+    64.7,
+    64.3,
+    119.2,
+    347.0,
+    1129.7,
+    2273.3,
+    3219.2,
+    3825.0,
+    3921.5,
+    3888.8,
+    3700.0,
+    3467.3,
+    3420.0,
+    3359.3,
+    3218.2,
+    2984.0,
+    2499.2,
+    2226.5,
+    1743.5,
+    1352.3,
+    1042.5
+   ],
+   "concentration": {
+    "food": {
+     "n_poi": 823,
+     "visits": 9578,
+     "poi_visited": 527,
+     "gini": 0.808,
+     "top10_share": 0.282,
+     "hhi": 0.01317
+    },
+    "shop": {
+     "n_poi": 721,
+     "visits": 1729,
+     "poi_visited": 313,
+     "gini": 0.7953,
+     "top10_share": 0.2053,
+     "hhi": 0.00873
+    },
+    "all": {
+     "n_poi": 2337,
+     "visits": 11307,
+     "poi_visited": 840,
+     "gini": 0.8908,
+     "top10_share": 0.2389,
+     "hhi": 0.00966
+    }
+   },
+   "chooser_stats": {
+    "name": "classical",
+    "p_h": 0.75,
+    "tau": 1.0,
+    "activity_region": "kanto",
+    "counts": {
+     "aspiration_lowered": 6,
+     "decisions": 12383,
+     "food_stage:0": 213,
+     "food_stage:1": 4170,
+     "food_stage:2": 4948,
+     "food_stage:3": 1220,
+     "habit_available": 2558
+    }
+   },
+   "chooser_entropy_mean_bits": 0.75236,
+   "classical_counts": {
+    "activity:01": 8553,
+    "activity:02": 6252,
+    "activity:04": 4653,
+    "activity:05": 22947,
+    "activity:06": 5219,
+    "activity:07": 6693,
+    "activity:08": 196,
+    "activity:09": 1773,
+    "activity:10": 1887,
+    "activity:11": 2038,
+    "activity:12": 7086,
+    "activity:13": 9458,
+    "activity:14": 1659,
+    "activity:15": 4523,
+    "activity:16": 1644,
+    "activity:17": 69,
+    "activity:18": 970,
+    "activity:19": 726,
+    "activity:20": 1537,
+    "meal": 12823,
+    "meal_stage:1": 4423,
+    "meal_stage:2": 6383,
+    "meal_stage:3": 2017,
+    "reply_talk": 667
+   },
+   "decision_layers_by_hour": [
+    {
+     "system1": 5072,
+     "system1_5": 99,
+     "system2": 0
+    },
+    {
+     "system1": 24,
+     "system1_5": 211,
+     "system2": 0
+    },
+    {
+     "system1": 14,
+     "system1_5": 136,
+     "system2": 0
+    },
+    {
+     "system1": 6,
+     "system1_5": 147,
+     "system2": 0
+    },
+    {
+     "system1": 16,
+     "system1_5": 204,
+     "system2": 0
+    },
+    {
+     "system1": 129,
+     "system1_5": 402,
+     "system2": 0
+    },
+    {
+     "system1": 450,
+     "system1_5": 1373,
+     "system2": 0
+    },
+    {
+     "system1": 1601,
+     "system1_5": 4665,
+     "system2": 0
+    },
+    {
+     "system1": 1337,
+     "system1_5": 7658,
+     "system2": 0
+    },
+    {
+     "system1": 1202,
+     "system1_5": 8702,
+     "system2": 0
+    },
+    {
+     "system1": 559,
+     "system1_5": 7386,
+     "system2": 0
+    },
+    {
+     "system1": 305,
+     "system1_5": 7066,
+     "system2": 0
+    },
+    {
+     "system1": 449,
+     "system1_5": 7233,
+     "system2": 0
+    },
+    {
+     "system1": 701,
+     "system1_5": 6361,
+     "system2": 0
+    },
+    {
+     "system1": 526,
+     "system1_5": 4441,
+     "system2": 0
+    },
+    {
+     "system1": 437,
+     "system1_5": 4684,
+     "system2": 0
+    },
+    {
+     "system1": 491,
+     "system1_5": 4724,
+     "system2": 0
+    },
+    {
+     "system1": 1042,
+     "system1_5": 5586,
+     "system2": 0
+    },
+    {
+     "system1": 1598,
+     "system1_5": 7417,
+     "system2": 0
+    },
+    {
+     "system1": 1149,
+     "system1_5": 6602,
+     "system2": 0
+    },
+    {
+     "system1": 741,
+     "system1_5": 5846,
+     "system2": 0
+    },
+    {
+     "system1": 644,
+     "system1_5": 4315,
+     "system2": 0
+    },
+    {
+     "system1": 737,
+     "system1_5": 3480,
+     "system2": 0
+    },
+    {
+     "system1": 823,
+     "system1_5": 2635,
+     "system2": 0
+    }
+   ],
+   "intero_crossings": {
+    "hunger_up": 31769,
+    "hunger_up_awake_in_area": 15428,
+    "hunger_down": 31188,
+    "hunger_down_awake_in_area": 16336,
+    "fatigue_up": 22497,
+    "fatigue_up_awake_in_area": 794,
+    "fatigue_down": 13974,
+    "fatigue_down_awake_in_area": 13845,
+    "thermal_up": 5000,
+    "thermal_up_awake_in_area": 3910,
+    "thermal_down": 5000,
+    "thermal_down_awake_in_area": 4494
+   },
+   "conversations_opened": 648,
+   "conserved": true
+  },
+  {
+   "arm": "classical_national",
+   "args": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "activity_region": "national"
+   },
+   "final_hash": "ace7f178922ae926eef38e82e82daaf681576e940a6ec20963850147084e6530",
+   "llm_calls": 98961,
+   "calls_by_entrance": {
+    "場所": 8987,
+    "体": 27470,
+    "日課": 18446,
+    "会話": 3944,
+    "満了": 40114,
+    "社会": 0
+   },
+   "decision_layers_share": {
+    "system1": 0.1679,
+    "system1_5": 0.8321,
+    "system2": 0.0
+   },
+   "llmob_jsd_vs_mock_v3": {
+    "SD": 0.0048,
+    "SI": 0.021,
+    "DARD": 0.009,
+    "STVD": 0.2127,
+    "DARD_in_area": 0.0133
+   },
+   "dard_share_by_cat": {
+    "sleep": 0.0505,
+    "move": 0.0248,
+    "wander": 0.0181,
+    "in_shop": 0.0406,
+    "in_place": 0.3165,
+    "talk": 0.0004,
+    "riding": 0.0,
+    "away": 0.5491
+   },
+   "sd_share": [
+    0.0148,
+    0.0836,
+    0.3408,
+    0.4753,
+    0.0843,
+    0.0011,
+    0.0001
+   ],
+   "si_share": [
+    0.7085,
+    0.0362,
+    0.0966,
+    0.0628,
+    0.0405,
+    0.0331,
+    0.0223
+   ],
+   "meal_start_in_area": {
+    "n": 9325,
+    "window_peaks": {
+     "breakfast": "07:30",
+     "lunch": "13:00",
+     "dinner": "18:30"
+    },
+    "tvd": {
+     "t8_1_weekday_national_total": 0.38,
+     "t8_1_weekday_kanto_total": 0.3594,
+     "t7_1_weekday_tokyo_total": 0.3412
+    },
+    "jsd_bits": {
+     "t8_1_weekday_national_total": 0.1539,
+     "t8_1_weekday_kanto_total": 0.1397,
+     "t7_1_weekday_tokyo_total": 0.1284
+    }
+   },
+   "energy": {
+    "counts": {
+     "meals_in_area": 9325,
+     "meals_out_of_area": 6849,
+     "meals_out_from_row": 1111,
+     "meals_out_default": 5738,
+     "snacks": 512,
+     "drinks": 0
+    },
+    "census_per_agent": {
+     "intake_kcal": 2597.3,
+     "expenditure_kcal": 2454.5,
+     "balance_kcal": 142.8,
+     "eer_kcal": 2388.0
+    },
+    "stage_time_share": {
+     "awake_in_area": {
+      "full": 0.3601,
+      "normal": 0.5083,
+      "hungry": 0.1158,
+      "very_hungry": 0.0158,
+      "agent_ticks": 2875144
+     },
+     "asleep_in_area": {
+      "full": 0.0149,
+      "normal": 0.2561,
+      "hungry": 0.6925,
+      "very_hungry": 0.0366,
+      "agent_ticks": 360824
+     },
+     "away": {
+      "full": 0.189,
+      "normal": 0.3445,
+      "hungry": 0.4437,
+      "very_hungry": 0.0228,
+      "agent_ticks": 3964032
+     }
+    },
+    "breakfast_skip": {
+     "all": {
+      "n": 5000,
+      "skip_pct": 7.8
+     },
+     "age20_29": {
+      "n": 993,
+      "skip_pct": 7.2
+     },
+     "age20_29_male": {
+      "n": 537,
+      "skip_pct": 6.3
+     },
+     "age20_29_female": {
+      "n": 456,
+      "skip_pct": 8.1
+     }
+    },
+    "meals_per_agent": {
+     "0": 4,
+     "1": 41,
+     "2": 782,
+     "3": 2512,
+     "4+": 1661
+    }
+   },
+   "purchases": 1675,
+   "meals_in_area": 9325,
+   "action_usage_llm": {
+    "移動": 31327,
+    "購入": 1706,
+    "なし": 64505,
+    "会話": 774,
+    "就寝": 636,
+    "食事": 11780
+   },
+   "presence_by_hour": [
+    738.0,
+    757.0,
+    755.8,
+    754.8,
+    751.8,
+    800.3,
+    989.3,
+    1550.0,
+    2457.2,
+    3276.5,
+    3873.7,
+    3967.0,
+    3930.8,
+    3743.3,
+    3505.8,
+    3454.3,
+    3391.8,
+    3244.7,
+    2997.7,
+    2513.3,
+    2249.2,
+    1779.3,
+    1429.2,
+    1202.2
+   ],
+   "awake_in_area_by_hour": [
+    44.5,
+    66.2,
+    64.2,
+    63.7,
+    63.3,
+    119.0,
+    347.7,
+    1134.5,
+    2281.2,
+    3224.8,
+    3830.3,
+    3928.5,
+    3894.3,
+    3702.0,
+    3470.8,
+    3424.3,
+    3361.2,
+    3218.2,
+    2981.2,
+    2497.5,
+    2230.8,
+    1743.0,
+    1339.0,
+    1018.3
+   ],
+   "concentration": {
+    "food": {
+     "n_poi": 823,
+     "visits": 9325,
+     "poi_visited": 521,
+     "gini": 0.8086,
+     "top10_share": 0.2862,
+     "hhi": 0.01337
+    },
+    "shop": {
+     "n_poi": 721,
+     "visits": 1675,
+     "poi_visited": 320,
+     "gini": 0.7926,
+     "top10_share": 0.2113,
+     "hhi": 0.00902
+    },
+    "all": {
+     "n_poi": 2337,
+     "visits": 11000,
+     "poi_visited": 841,
+     "gini": 0.8913,
+     "top10_share": 0.2426,
+     "hhi": 0.00982
+    }
+   },
+   "chooser_stats": {
+    "name": "classical",
+    "p_h": 0.5,
+    "tau": 1.0,
+    "activity_region": "national",
+    "counts": {
+     "aspiration_lowered": 9,
+     "decisions": 12209,
+     "food_stage:0": 178,
+     "food_stage:1": 4043,
+     "food_stage:2": 5021,
+     "food_stage:3": 1202
+    }
+   },
+   "chooser_entropy_mean_bits": 0.854951,
+   "classical_counts": {
+    "activity:01": 8103,
+    "activity:02": 6012,
+    "activity:04": 4081,
+    "activity:05": 23538,
+    "activity:06": 5237,
+    "activity:07": 6580,
+    "activity:08": 251,
+    "activity:09": 1838,
+    "activity:10": 1795,
+    "activity:11": 1839,
+    "activity:12": 7721,
+    "activity:13": 9433,
+    "activity:14": 1328,
+    "activity:15": 3999,
+    "activity:16": 893,
+    "activity:17": 95,
+    "activity:18": 798,
+    "activity:19": 721,
+    "activity:20": 1418,
+    "meal": 12673,
+    "meal_stage:1": 4232,
+    "meal_stage:2": 6449,
+    "meal_stage:3": 1992,
+    "reply_talk": 608
+   },
+   "decision_layers_by_hour": [
+    {
+     "system1": 5072,
+     "system1_5": 98,
+     "system2": 0
+    },
+    {
+     "system1": 25,
+     "system1_5": 201,
+     "system2": 0
+    },
+    {
+     "system1": 12,
+     "system1_5": 131,
+     "system2": 0
+    },
+    {
+     "system1": 7,
+     "system1_5": 149,
+     "system2": 0
+    },
+    {
+     "system1": 15,
+     "system1_5": 205,
+     "system2": 0
+    },
+    {
+     "system1": 130,
+     "system1_5": 404,
+     "system2": 0
+    },
+    {
+     "system1": 448,
+     "system1_5": 1384,
+     "system2": 0
+    },
+    {
+     "system1": 1601,
+     "system1_5": 4735,
+     "system2": 0
+    },
+    {
+     "system1": 1342,
+     "system1_5": 7549,
+     "system2": 0
+    },
+    {
+     "system1": 1207,
+     "system1_5": 8540,
+     "system2": 0
+    },
+    {
+     "system1": 545,
+     "system1_5": 7203,
+     "system2": 0
+    },
+    {
+     "system1": 293,
+     "system1_5": 6899,
+     "system2": 0
+    },
+    {
+     "system1": 469,
+     "system1_5": 6655,
+     "system2": 0
+    },
+    {
+     "system1": 694,
+     "system1_5": 6257,
+     "system2": 0
+    },
+    {
+     "system1": 510,
+     "system1_5": 4300,
+     "system2": 0
+    },
+    {
+     "system1": 441,
+     "system1_5": 4472,
+     "system2": 0
+    },
+    {
+     "system1": 482,
+     "system1_5": 4341,
+     "system2": 0
+    },
+    {
+     "system1": 1031,
+     "system1_5": 5451,
+     "system2": 0
+    },
+    {
+     "system1": 1584,
+     "system1_5": 7453,
+     "system2": 0
+    },
+    {
+     "system1": 1139,
+     "system1_5": 6407,
+     "system2": 0
+    },
+    {
+     "system1": 725,
+     "system1_5": 5795,
+     "system2": 0
+    },
+    {
+     "system1": 659,
+     "system1_5": 4343,
+     "system2": 0
+    },
+    {
+     "system1": 736,
+     "system1_5": 3472,
+     "system2": 0
+    },
+    {
+     "system1": 805,
+     "system1_5": 2517,
+     "system2": 0
+    }
+   ],
+   "intero_crossings": {
+    "hunger_up": 31564,
+    "hunger_up_awake_in_area": 15165,
+    "hunger_down": 30955,
+    "hunger_down_awake_in_area": 16082,
+    "fatigue_up": 22393,
+    "fatigue_up_awake_in_area": 674,
+    "fatigue_down": 13916,
+    "fatigue_down_awake_in_area": 13807,
+    "thermal_up": 5000,
+    "thermal_up_awake_in_area": 3917,
+    "thermal_down": 5000,
+    "thermal_down_awake_in_area": 4464
+   },
+   "conversations_opened": 592,
+   "conserved": true
+  }
+ ]
+}

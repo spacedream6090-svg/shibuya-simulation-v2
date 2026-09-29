@@ -570,12 +570,2556 @@
   ]
  },
  "build_manifest_expedients": {
-  "note": "data/world/v2/build_manifest.json の各段階 expedients 欄に 122 行の自由文がある(W1 3・W2 4・W3 3・W4 2・W5 2・W6 2・W7 8・W8 9・W9 5・W10 9・W11 5・W12 8・W13 7・W14 7・W15 10・W16 15・W17 14・W18 5・W19 2・W20 2)。本台帳の 14 行は**設計書が感度試験を宣言したもの**だけで、残りは『感度試験の宣言が無い expedient』=構築仕様書 §0-7 の『感度試験なしの expedient は出荷不可』に照らすと**未宣言の穴**。親判断待ち。",
-  "count": 122
+  "note": "data/world/v2/build_manifest.json の各段階 expedients 欄に 121 行の自由文がある(W1 3・W2 4・W3 3・W4 2・W5 2・W6 3・W7 13・W8 9・W9 5・W10 10・W11 5・W12 8・W13 7・W14 7・W15 10・W16 15・W17 6・W18 5・W19 2・W20 2)。**第306 更新(Q141・第307)**: 09-09 の 122 行から段の改版で W6 +1・W7 +5・W10 +1・W17 −8(差し引き −1)。本台帳の 14 行は**設計書が感度試験を宣言したもの**だけ(build_manifest の 15 行に当たる+RAKE が 1 行)で、残り 105 行は『感度試験の宣言が無い expedient』=構築仕様書 §0-7 の『感度試験なしの expedient は出荷不可』に照らすと**未宣言の穴**。判定は build_manifest_judgment(D-44 (a)・(c))。",
+  "count": 121,
+  "note_2026_09_09": "data/world/v2/build_manifest.json の各段階 expedients 欄に 122 行の自由文がある(W1 3・W2 4・W3 3・W4 2・W5 2・W6 2・W7 8・W8 9・W9 5・W10 9・W11 5・W12 8・W13 7・W14 7・W15 10・W16 15・W17 14・W18 5・W19 2・W20 2)。本台帳の 14 行は**設計書が感度試験を宣言したもの**だけで、残りは『感度試験の宣言が無い expedient』=構築仕様書 §0-7 の『感度試験なしの expedient は出荷不可』に照らすと**未宣言の穴**。親判断待ち。"
  },
  "open_questions": [
   "『結果を駆動していない』の合格線が設計書に無い(方法論は『振って結果非依存を示す』とだけ)。本台帳は帰無参照(同分布 2 標本の JSD 95% 点)を仮の物差しに置いた=expedient。",
-  "build_manifest の expedient 122 行のうち、設計書が感度試験を宣言しているのは 14 行だけ。残り 108 行の扱い(宣言を足す/限界として明記する)=親判断。",
+  "build_manifest の expedient 121 行(09-09 は 122・第306 の段の改版で −1)のうち、設計書が感度試験を宣言しているのは 14 アンカー(build_manifest の 15 行)+RAKE 1 行だけ。残り 105 行の扱い=D-44 (a)(第229 決定)で一括判定(build_manifest_judgment)・(c) 依存グラフ(第307)の次はユーザー判断。",
   "D-W8 だけが『感度(必須)』。他は必須でない=優先順位の根拠は §8 の ablation 優先規則(expedient の量 × 駆動可能性 ÷ コスト)を構築側にも当てるのが自然だが、設計書は当てていない。"
- ]
+ ],
+ "build_manifest_judgment": {
+  "note": "D-44 (a)(第229 決定)の一括判定。build_manifest の expedient 全行を並べ、既存の台帳行が扱う行は「既存の台帳行」、残りを既存の構築記録の入力側 JSD だけで判定した(第306)。",
+  "rule_note": "判定の規則(D-44 (a)・第229 決定・片側): 構築段階の入力側の JSD(宣言 vs 対照)が帰無参照の内側なら、入力が動かないのでその expedient はランの結果を**駆動しえない**。超えたら駆動する**かもしれない**=ラン対照へ(5,000 体の逐次群スクリーニング CSB)。JSD が記録に無ければ**判定不能**。**検出可能効果量の床(第200)**: 2 seed の感度試験は f≈1 未満の効果を検出できない=ラン対照で差が見えないことは「結果を駆動していない」の証明ではなく「特大の駆動が無い」の証明にとどまる。本表は既存の記録だけで作った(新しいラン・構築の再実行はしない)。",
+  "manifest_build_hash": "09571e85ace689da13d5de6e56693c443cbfdce7dc6b3d5a2beceb981662cc30",
+  "count": 121,
+  "covered": 16,
+  "judged": 105,
+  "tally": {
+   "not_driving": 0,
+   "needs_run": 0,
+   "undetermined": 105,
+   "covered": 16
+  },
+  "ledger_rows_covering": [
+   "S-W11-AADT",
+   "S-W13-CONCOURSE",
+   "S-W14-HOURUNIFORM",
+   "S-W14-JRPHASE",
+   "S-W15-TEMP",
+   "S-W16-FLOOR",
+   "S-W17-RAKE",
+   "S-W2-GRID",
+   "S-W3-LAYER",
+   "S-W5-HEIGHT",
+   "S-W6-ENTRANCE",
+   "S-W7-ORGALLOC",
+   "S-W8-HOURS",
+   "S-W9-BUFFER"
+  ],
+  "ledger_rows_without_manifest_row": [
+   "S-W10-SHADOW",
+   "S-W17-T2",
+   "S-AB1-BUDGET",
+   "S-C7-BOUNDARY",
+   "S-C7-KINDATTR"
+  ],
+  "rows": [
+   {
+    "key": "W1#1",
+    "stage": "W1",
+    "expedient": "OSM layer→物理層バンドの写像(描画順タグ・D-W3)",
+    "covered_by": "S-W3-LAYER",
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "既存の台帳行 S-W3-LAYER(状態 todo)",
+    "null_ref": "既存の台帳行のとおり",
+    "verdict": "covered",
+    "existing_verdict": null,
+    "note": ""
+   },
+   {
+    "key": "W1#2",
+    "stage": "W1",
+    "expedient": "pendant 連鎖の定義(次数1の反復除去)= 連結成分ゲートの中核グラフ",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "pendant 除去あり vs なし → W3 セル間距離の分布 JSD",
+     "cost_seconds_estimate": 35
+    }
+   },
+   {
+    "key": "W1#3",
+    "stage": "W1",
+    "expedient": "floorguide の建物名→OSM building id 照合(完全一致→部分一致)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "部分一致込み vs 完全一致だけ → floorguide の結線数と W11 構内グラフの次数分布",
+     "cost_seconds_estimate": 5
+    }
+   },
+   {
+    "key": "W2#1",
+    "stage": "W2",
+    "expedient": "格子原点(0,0)・100m・層3値(D-W2)",
+    "covered_by": "S-W2-GRID",
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "既存の台帳行 S-W2-GRID(状態 todo)",
+    "null_ref": "既存の台帳行のとおり",
+    "verdict": "covered",
+    "existing_verdict": null,
+    "note": ""
+   },
+   {
+    "key": "W2#2",
+    "stage": "W2",
+    "expedient": "セル n_edges = 端点の一方でも属するエッジ数(重複計上)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "端点の一方で数える vs 両端点で按分 → セルの n_edges 分布 JSD",
+     "cost_seconds_estimate": 5
+    }
+   },
+   {
+    "key": "W2#3",
+    "stage": "W2",
+    "expedient": "セル代表ノード = セル内ノード重心に最近のノード",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "重心に最近のノード vs セル内の最大次数ノード → W3 セル間距離の分布 JSD",
+     "cost_seconds_estimate": 35
+    }
+   },
+   {
+    "key": "W2#4",
+    "stage": "W2",
+    "expedient": "街区→セル = 外周上の GL ノードのセル集合",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "外周 GL ノードのセル vs 街区重心のセル → 街区×セルの所属の分布",
+     "cost_seconds_estimate": 5
+    }
+   },
+   {
+    "key": "W3#1",
+    "stage": "W3",
+    "expedient": "セル間距離 = 代表ノード間の最短経路長",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "代表ノード間の最短路 vs セル内ノード対の中央値 → セル間距離の分布 JSD",
+     "cost_seconds_estimate": 30
+    }
+   },
+   {
+    "key": "W3#2",
+    "stage": "W3",
+    "expedient": "uint16 メートル丸め(三角不等式は 1m 公差で検査)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "uint16 メートル丸め vs float32 → セル間距離の分布(差 ≤0.5 m=帰無内の見込み)",
+     "cost_seconds_estimate": 30
+    }
+   },
+   {
+    "key": "W3#3",
+    "stage": "W3",
+    "expedient": "丸め前に min(D, Dᵀ) で対称化(浮動小数の加算順序差 1e-9 級を吸収)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "min(D, Dᵀ) で対称化 vs 対称化なし → 距離表(差は丸めで消える見込み)",
+     "cost_seconds_estimate": 30
+    }
+   },
+   {
+    "key": "W4#1",
+    "stage": "W4",
+    "expedient": "kind→既定階数表(事前宣言・PLATEAU で較正していない)",
+    "covered_by": "S-W5-HEIGHT",
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "既存の台帳行 S-W5-HEIGHT(状態 todo)",
+    "null_ref": "既存の台帳行のとおり",
+    "verdict": "covered",
+    "existing_verdict": null,
+    "note": ""
+   },
+   {
+    "key": "W4#2",
+    "stage": "W4",
+    "expedient": "levels×3.0 の高さ推定(levels≠2 のときのみ)",
+    "covered_by": "S-W5-HEIGHT",
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "既存の台帳行 S-W5-HEIGHT(状態 todo)",
+    "null_ref": "既存の台帳行のとおり",
+    "verdict": "covered",
+    "existing_verdict": null,
+    "note": ""
+   },
+   {
+    "key": "W5#1",
+    "stage": "W5",
+    "expedient": "残り 7,194 棟の入口 = 建物重心から最寄り道路ノードへの射影(D-W6)",
+    "covered_by": "S-W6-ENTRANCE",
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "既存の台帳行 S-W6-ENTRANCE(状態 todo)",
+    "null_ref": "既存の台帳行のとおり",
+    "verdict": "covered",
+    "existing_verdict": null,
+    "note": ""
+   },
+   {
+    "key": "W5#2",
+    "stage": "W5",
+    "expedient": "入口→セルは最寄りノードのセルを採る(格子そのものではない)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "推移 W5→W11",
+    "triage": {
+     "class": "i",
+     "control": "最寄りノードのセル vs 入口座標の格子セル → 入口のセル分布 JSD",
+     "cost_seconds_estimate": 5
+    }
+   },
+   {
+    "key": "W6#1",
+    "stage": "W6",
+    "expedient": "組織の建物配分則(v1 手続き生成・census ファイルに凍結済み)",
+    "covered_by": "S-W7-ORGALLOC",
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "既存の台帳行 S-W7-ORGALLOC(状態 todo)",
+    "null_ref": "既存の台帳行のとおり",
+    "verdict": "covered",
+    "existing_verdict": null,
+    "note": ""
+   },
+   {
+    "key": "W6#2",
+    "stage": "W6",
+    "expedient": "POI/組織のセル決定(自身の格子×束縛ノードのバンド・欠けたらノードのセル)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "束縛ノードのバンドつき vs 格子だけ → POI・組織のセル分布 JSD",
+     "cost_seconds_estimate": 5
+    }
+   },
+   {
+    "key": "W6#3",
+    "stage": "W6",
+    "expedient": "subcat の名前一致層(poi_class.NAME_SUBCAT_RULES・生タグが無い POI のみ)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "名前一致層あり vs なし → subcat の分布 JSD",
+     "cost_seconds_estimate": 5
+    }
+   },
+   {
+    "key": "W7#1",
+    "stage": "W7",
+    "expedient": "カテゴリ既定営業時間・価格帯(cat×subcat 44行・感度=既定±2h対照)",
+    "covered_by": "S-W8-HOURS",
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "既存の台帳行 S-W8-HOURS(状態 todo)",
+    "null_ref": "既存の台帳行のとおり",
+    "verdict": "covered",
+    "existing_verdict": null,
+    "note": ""
+   },
+   {
+    "key": "W7#2",
+    "stage": "W7",
+    "expedient": "18歳未満の立入制限(青少年条例16条)は営業時間の窓として当てない(D-W8 の閉店上限欄=—)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "営業時間の窓として当てない vs 当てる → 未成年から見た営業中 POI×時の分布 JSD",
+     "cost_seconds_estimate": 2
+    }
+   },
+   {
+    "key": "W7#3",
+    "stage": "W7",
+    "expedient": "改訂権者=store_manager 固定",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "ii",
+     "control": "改訂権者=store_manager 固定 vs 他の役割にも許す → 改訂の行為と結果はランでしか出ない",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W7#4",
+    "stage": "W7",
+    "expedient": "違反可能性の割当(法規上限のある業態=enforced・それ以外=unenforced)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "ii",
+     "control": "enforced/unenforced の割当 vs 全て enforced → 違反の可否は行為の結果=ラン",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W7#5",
+    "stage": "W7",
+    "expedient": "love_hotel は旅館業/店舗型性風俗の判定不能→上限なし",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "上限なし vs 旅館業/店舗型性風俗の窓 → 営業中 POI×時の分布 JSD(深夜帯)",
+     "cost_seconds_estimate": 2
+    }
+   },
+   {
+    "key": "W7#6",
+    "stage": "W7",
+    "expedient": "接待飲食等(1-3号)は OSM タグに現れず nightlife 既定=深夜酒類提供(上限なし)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "深夜酒類提供(上限なし)vs 接待飲食(1-3号)の窓 → 営業中 POI×時の分布 JSD",
+     "cost_seconds_estimate": 2
+    }
+   },
+   {
+    "key": "W7#7",
+    "stage": "W7",
+    "expedient": "PH(祝日)規則は 7日週モデルに写像せず無視",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "祝日規則を無視 vs 当てる → 再生日の営業中 POI×時(祝日でなければ差 0 の見込み)",
+     "cost_seconds_estimate": 2
+    }
+   },
+   {
+    "key": "W7#8",
+    "stage": "W7",
+    "expedient": "チェーン既定=OSM 実値の brand 内最頻伝播(公式表の手入力は未取得=空表)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "brand 内の最頻を伝播 vs 伝播なし(カテゴリ既定)→ 営業時間の分布 JSD",
+     "cost_seconds_estimate": 2
+    }
+   },
+   {
+    "key": "W7#9",
+    "stage": "W7",
+    "expedient": "**地域条件なしの一律適用**(D-72 ①): 1-3号・5号・深夜酒類提供の窓は営業延長許容地域/住居集合地域の別で決まる(条例4条の2第2項・5条 表・15条)が、law_key_for は cat・subcat・OSM タグだけで決めて全 POI に同じ窓を当てる。告示26町丁の外の54町丁では 1-3号・5号の上限は 0:00(60分厳しい)・住居集合地域では 23:00・深夜酒類は 0:00-6:00 禁止。許容地域の外縁は規則5条ただし書の 20m 緩衝帯で削られる(幹線道路50mは除外しない)。座標・町丁・用途地域を見ないので世界の営業時間が告示外で 60〜120 分ずれる",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "一律 vs 地域条件(告示 26 町丁の内外)→ 営業中 POI×時の分布 JSD(深夜帯)",
+     "cost_seconds_estimate": 2
+    }
+   },
+   {
+    "key": "W7#10",
+    "stage": "W7",
+    "expedient": "**特別日なし**(D-72 ⑦): 条例4条の2第1項・4条の3第1号・規則6条1項の「習俗的行事等の特別の事情のある日」の延長(許容地域外でも 1:00 または告示の時)を実装していない。スナップショット日が特別日でなければ無害",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "特別日なし vs 特別日の延長 → 再生日の営業中 POI×時(特別日でなければ差 0 の見込み)",
+     "cost_seconds_estimate": 2
+    }
+   },
+   {
+    "key": "W7#11",
+    "stage": "W7",
+    "expedient": "**青少年条例16条1項の一・二号が未写像**(D-72 ⑧): minor_entry_limit はkaraoke/net_cafe/internet_cafe(三・四号)だけに当たっており、一 興行場(映画館等)・二 ボウリング/スケート/水泳施設が対象に入っていない(写像の追加は W7 の再構築が要るので本修正では行わない)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "一・二号の未写像 vs 写像あり → 未成年の立入窓の分布",
+     "cost_seconds_estimate": 2
+    }
+   },
+   {
+    "key": "W7#12",
+    "stage": "W7",
+    "expedient": "**D-W8 表にあってコードに無い 2 行=未実装**(D-72 ④): 条例8条(16歳未満のゲームセンター 18:00-22:00 保護者同伴)・条例6条(騒音 dB)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "ii",
+     "control": "条例8条(ゲームセンター)は窓で書けるが条例6条(騒音 dB)は窓で書けない=機構の追加とラン",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W7#13",
+    "stage": "W7",
+    "expedient": "**violability の修正は保留**(D-72 ③): minor_entry_limit は罰則つき(青少年条例26条六号・30万円以下の罰金)なので enforced 相当だが、窓が空のため現在は unenforced と記録される。violability は生成列で、直すと 18 行が動く=W7 の再構築が要るため親判断待ち",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "ii",
+     "control": "violability の保留 vs enforced へ直す → 違反の可否は行為の結果=ラン",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W8#1",
+    "stage": "W8",
+    "expedient": "眼高 1.5m・道路8mバッファ・2.5D(D-W9 既決)",
+    "covered_by": "S-W9-BUFFER",
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "既存の台帳行 S-W9-BUFFER(状態 todo)",
+    "null_ref": "既存の台帳行のとおり",
+    "verdict": "covered",
+    "existing_verdict": null,
+    "note": ""
+   },
+   {
+    "key": "W8#2",
+    "stage": "W8",
+    "expedient": "最大視程 150m・視野角なし(全方位)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "最大視程 150 m vs 100/200 m → セルの可視数の分布 JSD",
+     "cost_seconds_estimate": 3
+    }
+   },
+   {
+    "key": "W8#3",
+    "stage": "W8",
+    "expedient": "遮蔽の 2.5m ラスタ近似(多角形内外判定の格子化=前計算5分の制約)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "遮蔽 2.5 m ラスタ vs 1.25 m → セルの可視数の分布 JSD",
+     "cost_seconds_estimate": 10
+    }
+   },
+   {
+    "key": "W8#4",
+    "stage": "W8",
+    "expedient": "建物の基準地盤高=重心の DEM 値(1棟1値)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "重心の DEM vs 最低点の DEM → セルの可視数の分布 JSD",
+     "cost_seconds_estimate": 3
+    }
+   },
+   {
+    "key": "W8#5",
+    "stage": "W8",
+    "expedient": "DEM 範囲外は端の値でクランプ",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "端の値でクランプ vs 範囲外を欠損 → 範囲端のセルの可視数の分布",
+     "cost_seconds_estimate": 3
+    }
+   },
+   {
+    "key": "W8#6",
+    "stage": "W8",
+    "expedient": "DECK 視点の眼高=GL と同じ(デッキ床高が未取得)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "DECK 眼高=GL vs +6 m(仮の値)→ DECK セルの可視数の分布",
+     "cost_seconds_estimate": 3
+    }
+   },
+   {
+    "key": "W8#7",
+    "stage": "W8",
+    "expedient": "UG は建物ラスタを適用しない(地下街の内部形状が無い)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "UG に建物ラスタなし vs 全遮蔽 → UG セルの可視数の分布",
+     "cost_seconds_estimate": 3
+    }
+   },
+   {
+    "key": "W8#8",
+    "stage": "W8",
+    "expedient": "T1 の1視点あたり上限 256 件",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "1 視点あたり上限 256 vs 512 → セルの可視数の分布 JSD",
+     "cost_seconds_estimate": 3
+    }
+   },
+   {
+    "key": "W8#9",
+    "stage": "W8",
+    "expedient": "T2 のセル対サンプル=決定論的な粗サンプル(≤200 対)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "T2 セル対の標本 ≤200 vs ≤400 → w8_t2 の分布(エンジン側の読み口は無い=Q145 の細分なら読まない側)",
+     "cost_seconds_estimate": 3
+    }
+   },
+   {
+    "key": "W9#1",
+    "stage": "W9",
+    "expedient": "影の最大追跡距離 300m(高い建物の低仰角の影を打ち切る)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "最大追跡 300 m vs 600 m → セルの日陰率の分布 JSD",
+     "cost_seconds_estimate": 300
+    }
+   },
+   {
+    "key": "W9#2",
+    "stage": "W9",
+    "expedient": "UG は常時日陰・DECK は GL と同じ扱い(デッキ床高が未取得)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "UG 常時日陰・DECK=GL vs DECK に高さ → DECK/UG セルの日陰率の分布",
+     "cost_seconds_estimate": 300
+    }
+   },
+   {
+    "key": "W9#3",
+    "stage": "W9",
+    "expedient": "遮蔽は W8 と同じ 2.5m ラスタ(建物頂部高さ場)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "2.5 m ラスタ vs 1.25 m → セルの日陰率の分布 JSD",
+     "cost_seconds_estimate": 1200
+    }
+   },
+   {
+    "key": "W9#4",
+    "stage": "W9",
+    "expedient": "大気差・遠方地形の尾根越し遮蔽を見ない",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "大気差・尾根越し遮蔽なし vs あり(補正の実装が要る)→ 日の出・日の入り前後の日陰率",
+     "cost_seconds_estimate": 300
+    }
+   },
+   {
+    "key": "W9#5",
+    "stage": "W9",
+    "expedient": "再生日=W13 の先頭日(D-W15 の候補日選定は未決)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "再生日=W13 の先頭日 vs 別の候補日 → セルの日陰率の分布 JSD",
+     "cost_seconds_estimate": 300
+    }
+   },
+   {
+    "key": "W10#1",
+    "stage": "W10",
+    "expedient": "klass→AADT 既定表(tertiary 以下の公的既定表なし=D-W11 の空欄)",
+    "covered_by": "S-W11-AADT",
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "既存の台帳行 S-W11-AADT(状態 todo)",
+    "null_ref": "既存の台帳行のとおり",
+    "verdict": "covered",
+    "existing_verdict": null,
+    "note": ""
+   },
+   {
+    "key": "W10#2",
+    "stage": "W10",
+    "expedient": "時間帯配分=昼間12h(7-18時)/残り12h を各一様",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "昼夜 12 h 一様 vs 時間帯カーブ → 騒音段階の分布 JSD",
+     "cost_seconds_estimate": 20
+    }
+   },
+   {
+    "key": "W10#3",
+    "stage": "W10",
+    "expedient": "大型車混入率・旅行速度は昼夜同一",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "昼夜同一 vs 夜の大型車率・速度を変える → 夜の騒音段階の分布 JSD",
+     "cost_seconds_estimate": 20
+    }
+   },
+   {
+    "key": "W10#4",
+    "stage": "W10",
+    "expedient": "舗装種別の既定=密粒(排水性の分布不明)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "密粒 vs 排水性 → 騒音段階の分布 JSD",
+     "cost_seconds_estimate": 20
+    }
+   },
+   {
+    "key": "W10#5",
+    "stage": "W10",
+    "expedient": "ΔL=0(回折・反射・地表面・遮音壁を見ない)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "ΔL=0 vs 回折の近似あり(補正の実装が要る)→ 騒音段階の分布 JSD",
+     "cost_seconds_estimate": 20
+    }
+   },
+   {
+    "key": "W10#6",
+    "stage": "W10",
+    "expedient": "車線別線音源+交通量の車線等分",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "車線別線音源+等分 vs 中心 1 線源 → 騒音段階の分布 JSD",
+     "cost_seconds_estimate": 20
+    }
+   },
+   {
+    "key": "W10#7",
+    "stage": "W10",
+    "expedient": "バンド遮蔽 UG −20 dB(根拠なし)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "UG −20 dB vs −10/−30 dB → UG セルの騒音段階の分布",
+     "cost_seconds_estimate": 20
+    }
+   },
+   {
+    "key": "W10#8",
+    "stage": "W10",
+    "expedient": "B4 騒音段階の語彙割当(境界は環境基準に釘付け)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "騒音段階の語彙の割当=文面(境界は環境基準に釘付け)=対照の文面を定義できない",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W10#9",
+    "stage": "W10",
+    "expedient": "街路格子のバッファ 8m・ピッチ 2.5m(D-W9 既決)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "バッファ 8 m・ピッチ 2.5 m vs ピッチ 5 m → 街路点と騒音段階の分布(W8/W9 も街路点を使う)",
+     "cost_seconds_estimate": 20
+    }
+   },
+   {
+    "key": "W10#10",
+    "stage": "W10",
+    "expedient": "道路名の突合(段 1c): 辺の中点 1 点で最も近い way を採る・8 m(D-W9 と同値)・層を見ない・路線内の区間の位置決めをしない(路線の区間の中央値を路線全体へ)・区の優先順 渋谷→目黒→港→世田谷→新宿→都内",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "中点 1 点の最近傍 way vs 両端+中点の多数決 → 道路名の一致の分布",
+     "cost_seconds_estimate": 20
+    }
+   },
+   {
+    "key": "W11#1",
+    "stage": "W11",
+    "expedient": "構内経路長 = 幾何距離 × 1.3(D-W13 の初期値)",
+    "covered_by": "S-W13-CONCOURSE",
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "既存の台帳行 S-W13-CONCOURSE(状態 todo)",
+    "null_ref": "既存の台帳行のとおり",
+    "verdict": "covered",
+    "existing_verdict": null,
+    "note": ""
+   },
+   {
+    "key": "W11#2",
+    "stage": "W11",
+    "expedient": "ホーム=ODPT 駅代表点・改札=出口重心(公式構内図の手入力で昇格予定)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "ホーム/改札の位置 vs ±50 m ずらす → 出口→ホームの構内経路長の分布 JSD",
+     "cost_seconds_estimate": 5
+    }
+   },
+   {
+    "key": "W11#3",
+    "stage": "W11",
+    "expedient": "出口→駅の割当(名称一致→最近傍)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "名称一致→最近傍 vs 最近傍だけ → 出口→駅の割当の分布",
+     "cost_seconds_estimate": 5
+    }
+   },
+   {
+    "key": "W11#4",
+    "stage": "W11",
+    "expedient": "ODPT 駅の抽出 = bbox+300m(ホームが範囲外に出る駅を拾う)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "bbox+300 m vs +500 m → 抽出される駅と出口の分布",
+     "cost_seconds_estimate": 5
+    }
+   },
+   {
+    "key": "W11#5",
+    "stage": "W11",
+    "expedient": "座標を持たない駅(JR・東急・京王)は同名駅の重心へ置く",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "同名駅の重心 vs OSM の駅ノード座標 → 出口→駅の距離の分布",
+     "cost_seconds_estimate": 5
+    }
+   },
+   {
+    "key": "W12#1",
+    "stage": "W12",
+    "expedient": "時間帯配分=time_dist_12(2015)を 2018/2021 総量へ当てる(時点混合)",
+    "covered_by": "S-W14-HOURUNIFORM",
+    "input_jsd": 0.3006608700606541,
+    "null_p95": 0.005650086402065755,
+    "jsd_source": "既存の台帳行 S-W14-HOURUNIFORM(状態 done)",
+    "null_ref": "既存の台帳行のとおり",
+    "verdict": "covered",
+    "existing_verdict": "needs_run",
+    "note": ""
+   },
+   {
+    "key": "W12#2",
+    "stage": "W12",
+    "expedient": "time_dist_12 の ～6時台→5,6時・0時台～→0,1時 の等分",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "端の時間帯の等分 vs 端へ寄せる → 生成時刻の分布 JSD(S-W14-HOURUNIFORM と同じ形)",
+     "cost_seconds_estimate": 1
+    }
+   },
+   {
+    "key": "W12#3",
+    "stage": "W12",
+    "expedient": "目的×手段の構成は全ノード共通(方面別の目的構成は未取得)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "目的×手段の構成=全ノード共通 vs 構成を ±10% ずらす(方面別の実データは未取得)→ 生成の目的分布 JSD",
+     "cost_seconds_estimate": 1
+    }
+   },
+   {
+    "key": "W12#4",
+    "stage": "W12",
+    "expedient": "JR・東急・京王=等間隔ダイヤ(F10)・上下同数",
+    "covered_by": "S-W14-JRPHASE",
+    "input_jsd": 2.3700939809102645e-05,
+    "null_p95": 0.0011435518763081968,
+    "jsd_source": "既存の台帳行 S-W14-JRPHASE(状態 done)",
+    "null_ref": "既存の台帳行のとおり",
+    "verdict": "covered",
+    "existing_verdict": "not_driving",
+    "note": ""
+   },
+   {
+    "key": "W12#5",
+    "stage": "W12",
+    "expedient": "山手線ピーク本数=資料3の 16-20 本/h の中央 18",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "山手線ピーク 18 本 vs 16/20 本 → 便の時刻分布 JSD",
+     "cost_seconds_estimate": 1
+    }
+   },
+   {
+    "key": "W12#6",
+    "stage": "W12",
+    "expedient": "オフピーク比はメトロ実ダイヤから移植(平日は平日ダイヤ・土休は土休ダイヤ)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "メトロ実ダイヤのオフピーク比 vs 一様 → 便の時刻分布 JSD",
+     "cost_seconds_estimate": 1
+    }
+   },
+   {
+    "key": "W12#7",
+    "stage": "W12",
+    "expedient": "夕ピーク本数=朝ピークと同数(資料3は朝ピークのみ=D-W14 の空欄)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "夕ピーク=朝ピーク vs 夕ピーク −20%(仮)→ 便の時刻分布 JSD",
+     "cost_seconds_estimate": 1
+    }
+   },
+   {
+    "key": "W12#8",
+    "stage": "W12",
+    "expedient": "初終発時刻はメトロ**平日**ダイヤから移植(土休の初終発は別に測っていない)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "平日の初終発 vs 土休の初終発 → 便の時刻分布 JSD(土休ダイヤの日)",
+     "cost_seconds_estimate": 1
+    }
+   },
+   {
+    "key": "W13#1",
+    "stage": "W13",
+    "expedient": "都市バイアス無補正(北の丸公園 ≠ 渋谷・移転の平年値差は台帳のみ)",
+    "covered_by": "S-W15-TEMP",
+    "input_jsd": 0.061626532174021184,
+    "null_p95": 0.004156159207394345,
+    "jsd_source": "既存の台帳行 S-W15-TEMP(状態 done)",
+    "null_ref": "既存の台帳行のとおり",
+    "verdict": "covered",
+    "existing_verdict": "needs_run",
+    "note": ""
+   },
+   {
+    "key": "W13#2",
+    "stage": "W13",
+    "expedient": "WBGT=推定式(環境省 API 実況値は未取得)",
+    "covered_by": "S-W15-TEMP",
+    "input_jsd": 0.061626532174021184,
+    "null_p95": 0.004156159207394345,
+    "jsd_source": "既存の台帳行 S-W15-TEMP(状態 done)",
+    "null_ref": "既存の台帳行のとおり",
+    "verdict": "covered",
+    "existing_verdict": "needs_run",
+    "note": ""
+   },
+   {
+    "key": "W13#3",
+    "stage": "W13",
+    "expedient": "日射量=日照率と太陽高度からの推定",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "日照率と太陽高度からの推定 vs 日照率だけ → WBGT 段階の分布 JSD",
+     "cost_seconds_estimate": 1
+    }
+   },
+   {
+    "key": "W13#4",
+    "stage": "W13",
+    "expedient": "天候型・時別天候語彙・体感温度語彙の割当(WBGT 境界のみ公的指針に釘付け)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "天候型・体感温度の語彙の割当=文面(WBGT 境界は公的指針に釘付け)=対照の文面を定義できない",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W13#5",
+    "stage": "W13",
+    "expedient": "祝日表=2026年7-8月のハードコード(内閣府 CSV は未取得)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "2026 年 7-8 月のハードコード vs 内閣府 CSV → 再生日の祝日(差 0 の見込み)",
+     "cost_seconds_estimate": 1
+    }
+   },
+   {
+    "key": "W13#6",
+    "stage": "W13",
+    "expedient": "10分値 → 時別の畳み方(気温/湿度/風=平均・降水/日照=合計)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "時別=平均/合計 vs 正時値 → 時別気象の分布 JSD",
+     "cost_seconds_estimate": 1
+    }
+   },
+   {
+    "key": "W13#7",
+    "stage": "W13",
+    "expedient": "アメダス欠測時間は etrn 時別値で補完(時 h → h-1 時台・気温等は正時値・降水/日照は積算)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "etrn 時別値で補完 vs 線形補間 → 補完した時の気象の分布",
+     "cost_seconds_estimate": 1
+    }
+   },
+   {
+    "key": "W14#1",
+    "stage": "W14",
+    "expedient": "プロンプト文面(system/user)は自前=先行研究なし・版は system_sha256/prompts_sha256",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "プロンプト文面=自前(対照の文面を定義できない)",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W14#2",
+    "stage": "W14",
+    "expedient": "max_tokens=64(内容キャップ 25 tok=50 字 + 余裕)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "ii",
+     "control": "max_tokens 64 vs 96 → 看板文の再生成(LLM・W14 の呼)が要り、効きは文を読む行動=ラン",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W14#3",
+    "stage": "W14",
+    "expedient": "cat/subcat → 業種語の表・price_tier → 価格帯語(free=表示なし)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "業種語・価格帯語の表=文面",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W14#4",
+    "stage": "W14",
+    "expedient": "営業時間の日本語化(曜日のまとめ方・終日・翌N時)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "営業時間の日本語化=文面",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W14#5",
+    "stage": "W14",
+    "expedient": "固有名詞検査 N1-N7(字種+接尾辞+既知語・裸の地名は既知語リスト依存=残余リスク)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "固有名詞検査 N1-N7=門(合否の規則)",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W14#6",
+    "stage": "W14",
+    "expedient": "漢字厳格モード kanji_strict=True",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "漢字厳格モード=門",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W14#7",
+    "stage": "W14",
+    "expedient": "不合格率の閾値 0.1",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "不合格率の閾値 0.1=門の閾値",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W15#1",
+    "stage": "W15",
+    "expedient": "プロンプト文面(system/user)は自前=先行研究なし・版は system_sha256/prompts_sha256",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "プロンプト文面=自前(対照の文面を定義できない)",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W15#2",
+    "stage": "W15",
+    "expedient": "max_tokens=128・char_limit=45",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "ii",
+     "control": "max_tokens 128・char_limit 45 vs 広げる → 静的文の再生成(LLM)+ラン",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W15#3",
+    "stage": "W15",
+    "expedient": "結線枠 45 tok = B2 予算 150 − 実資産での他行最大 105(仕様の 150 tok は B2 ブロック全体の予算と読む)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "ii",
+     "control": "結線枠 45 tok vs 60 tok → 静的文の再生成(LLM)+ラン",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W15#4",
+    "stage": "W15",
+    "expedient": "プロンプトへ載せる可視物は上位 2 件・目印 2 件(順序は renderer と同じ・本文に書ける名前は 2 つまで)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "ii",
+     "control": "可視物 上位 2・目印 2 vs 3/3 → 静的文の再生成(LLM)+ラン",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W15#5",
+    "stage": "W15",
+    "expedient": "セル内 POI の構成は**最も多い種別 1 語**だけ渡す(件数の数字をプロンプトから消す)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "ii",
+     "control": "最多種別 1 語 vs 件数つき → 静的文の再生成(LLM)+ラン",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W15#6",
+    "stage": "W15",
+    "expedient": "街区は数でなく あり/なし",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "ii",
+     "control": "街区 あり/なし vs 数 → 静的文の再生成(LLM)+ラン",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W15#7",
+    "stage": "W15",
+    "expedient": "構造化出力 regex=[^\\n]{10,88}(改行なし・10-88 字)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "構造化出力の regex=書式の門",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W15#8",
+    "stage": "W15",
+    "expedient": "可視物の順序・上限(8/4)は renderer.PerceptionAssets.load の二重定義",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "renderer との二重定義=コードの形(入力の差ではない)",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W15#9",
+    "stage": "W15",
+    "expedient": "末尾の句点は落とす(テンプレ B2.visible が句点を持つ)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "末尾の句点を落とす=文面",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W15#10",
+    "stage": "W15",
+    "expedient": "不合格率の閾値 0.05",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "不合格率の閾値 0.05=門の閾値",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W16#1",
+    "stage": "W16",
+    "expedient": "目標体数の空間支持=W2 セルが覆う範囲(区全域の公的値を町丁目被覆率で按分)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "W2 セルの被覆範囲 vs 区全域 → 目標体数のセル分布 JSD",
+     "cost_seconds_estimate": 60
+    }
+   },
+   {
+    "key": "W16#2",
+    "stage": "W16",
+    "expedient": "町丁目被覆率=10m 標本格子でのセル被覆面積割合",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "10 m 標本格子 vs 5 m → 町丁目被覆率と住民のセル分布 JSD",
+     "cost_seconds_estimate": 60
+    }
+   },
+   {
+    "key": "W16#3",
+    "stage": "W16",
+    "expedient": "町丁目→セル=住居系建物の床面積(area_m2×levels)按分(D-W16)",
+    "covered_by": "S-W16-FLOOR",
+    "input_jsd": 0.12389490257075197,
+    "null_p95": 0.0034802550811037438,
+    "jsd_source": "既存の台帳行 S-W16-FLOOR(状態 done)",
+    "null_ref": "既存の台帳行のとおり",
+    "verdict": "covered",
+    "existing_verdict": "needs_run",
+    "note": ""
+   },
+   {
+    "key": "W16#4",
+    "stage": "W16",
+    "expedient": "住居系 kind = house?/house/residential/generic(W4 の kind は用途の推定・generic を住居側に入れている)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "generic を住居に入れる vs 入れない → 住民のセル分布 JSD(S-W16-FLOOR と同じ形)",
+     "cost_seconds_estimate": 60
+    }
+   },
+   {
+    "key": "W16#5",
+    "stage": "W16",
+    "expedient": "住民の年齢不詳(区計 25,380 人)は階級を作らず**既知階級の比率で按分**(男女で不詳率が違う=男 13,538/女 11,842 ので、性別だけは男女別人口総数へIPF で合わせ直す)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "不詳を既知階級の比で按分 vs 不詳を別階級 → 住民の年齢分布 JSD",
+     "cost_seconds_estimate": 60
+    }
+   },
+   {
+    "key": "W16#6",
+    "stage": "W16",
+    "expedient": "結合 SRMSE の閾値は決定台帳の年齢 0.13 を流用(結合の公的な合否ラインが無い)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "結合 SRMSE の閾値 0.13 の流用=門の閾値",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W16#7",
+    "stage": "W16",
+    "expedient": "従業者の年齢目標=区の 15 歳以上の年齢分布(公的な従業者年齢表は未取得)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "区の 15 歳以上の分布 vs ±5 歳ずらす(公的な従業者年齢表は未取得)→ 従業者の年齢分布 JSD",
+     "cost_seconds_estimate": 60
+    }
+   },
+   {
+    "key": "W16#8",
+    "stage": "W16",
+    "expedient": "来街者・通学者の年齢×性別は raking しない(較正に使える公的表が無い)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "raking しない vs 区の年齢×性別へ raking → 来街者・通学者の年齢×性別の分布 JSD",
+     "cost_seconds_estimate": 60
+    }
+   },
+   {
+    "key": "W16#9",
+    "stage": "W16",
+    "expedient": "通学者・業務来街・私事来街の体数=PT(2018)の目的別到着比を従業者数へ当てた値",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "PT 2018 の目的別到着比 vs ±10% → 通学者・業務・私事の体数の分布",
+     "cost_seconds_estimate": 60
+    }
+   },
+   {
+    "key": "W16#10",
+    "stage": "W16",
+    "expedient": "指令の体数 24(=鉄道4事業者×指令席3×交代2)・勤務セル=渋谷駅出口の最頻セル",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "ii",
+     "control": "指令 24 体・最頻セル vs 12/48 体 → 効きは出動の応答=ラン",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W16#11",
+    "stage": "W16",
+    "expedient": "学校セルは学校 POI へ一様(定員データが無い)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "学校 POI へ一様 vs 学校の床面積比 → 学生の学校セル分布 JSD",
+     "cost_seconds_estimate": 60
+    }
+   },
+   {
+    "key": "W16#12",
+    "stage": "W16",
+    "expedient": "住民の就業区分は国勢調査の 4 区分へ多項抽選(15 歳以上 75 歳未満)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "多項抽選 vs 最大剰余の決定論 → 住民の就業区分の分布",
+     "cost_seconds_estimate": 60
+    }
+   },
+   {
+    "key": "W16#13",
+    "stage": "W16",
+    "expedient": "域外へ通う住民の方面は到着側(自宅－勤務)の重みを流用",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "W16.header.json notes.direction.resident_out_area.jsd=0.000139(抽出した方面 vs 流用した重み=抽出の当てはまり。流用そのものの対照ではない)",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "到着側の重みの流用 vs 方面一様 → 域外へ通う住民の方面分布 JSD",
+     "cost_seconds_estimate": 60
+    }
+   },
+   {
+    "key": "W16#14",
+    "stage": "W16",
+    "expedient": "世帯は建物内の連番切り分け(世帯構成は再現しない)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "ii",
+     "control": "建物内の連番切り分け vs 世帯構成の再現 → 世帯の効き(財布・同行)はラン",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W16#15",
+    "stage": "W16",
+    "expedient": "空セル 0% の分母=渋谷区の町丁目(人口>0・被覆率>0)に属する建物が持つ住居床のセル(区外の建物しか無いセルは当てる人口が無いので別立てで報告)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "空セル 0% の分母=報告の定義(門)",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W17#1",
+    "stage": "W17",
+    "expedient": "W17 v2 = D-68 下見 P2′ の型(3 列・block_kind はエンジン導出・時刻忠実の明示)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "ii",
+     "control": "W17 v2(P2′ の型)vs v1 の型 → 週次表の再生成(LLM・I1 予算)+ラン",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W17#2",
+    "stage": "W17",
+    "expedient": "1 日モード(月曜 d0 のみ)= C7 を 1 日回すためのユーザー決定",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "1 日モード=ユーザー決定(範囲の宣言=対照を置く対象ではない)",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W17#3",
+    "stage": "W17",
+    "expedient": "raking は 12% と 0% を計算し**採用は 0%**(LLM の分布そのまま)",
+    "covered_by": "S-W17-RAKE",
+    "input_jsd": 0.020277356472634123,
+    "null_p95": null,
+    "jsd_source": "既存の台帳行 S-W17-RAKE(状態 done)",
+    "null_ref": "既存の台帳行のとおり",
+    "verdict": "covered",
+    "existing_verdict": "needs_run",
+    "note": "W17.header.json gates.jsd_max_raking_0=0.3585・_12=0.2531(どちらも PT 目標への当てはまり。0% と 12% の間の JSD は記録に無い)"
+   },
+   {
+    "key": "W17#4",
+    "stage": "W17",
+    "expedient": "時刻の整合修復は切替口(既定オフ)。オフでも一致率は計数のみ出す",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "時刻の整合修復 off vs on → 週次表の開始時刻の分布 JSD(応答の再取り込み)",
+     "cost_seconds_estimate": 90
+    }
+   },
+   {
+    "key": "W17#5",
+    "stage": "W17",
+    "expedient": "勤務窓は第31/36表の逆関数法(commute_time_dist_r3.json)・非正規/自営の按分は人数比",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "i",
+     "control": "第31/36表の逆関数法 vs 一様な勤務窓 → 勤務開始時刻の分布 JSD(再取り込み)",
+     "cost_seconds_estimate": 90
+    }
+   },
+   {
+    "key": "W17#6",
+    "stage": "W17",
+    "expedient": "M6(個人内一貫性)は 1 日ランでは測れない=報告しない",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "M6 は 1 日ランで測れない=報告の範囲(対照を置く対象ではない)",
+     "cost_seconds_estimate": null
+    }
+   },
+   {
+    "key": "W18#1",
+    "stage": "W18",
+    "expedient": "深度=カタログ宣言値(実測ではない)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
+   },
+   {
+    "key": "W18#2",
+    "stage": "W18",
+    "expedient": "重み関数 w=1+log10(1+N_real) 上限6・N_real 不明は w=1",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
+   },
+   {
+    "key": "W18#3",
+    "stage": "W18",
+    "expedient": "クラス名の別名表(段階ヘッダの表記ゆれ吸収)は手書き",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
+   },
+   {
+    "key": "W18#4",
+    "stage": "W18",
+    "expedient": "N_sim の単位突合(quantity_comparable)は手書き",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
+   },
+   {
+    "key": "W18#5",
+    "stage": "W18",
+    "expedient": "VERIFIED は構築時に評価しない(全 false)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
+   },
+   {
+    "key": "W19#1",
+    "stage": "W19",
+    "expedient": "sealed_utc は固定パラメータ(実行時刻ではない)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
+   },
+   {
+    "key": "W19#2",
+    "stage": "W19",
+    "expedient": "データ資産表は各段階モジュールの入力定数から組む(段階が定数を持たない入力は落ちる)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
+   },
+   {
+    "key": "W20#1",
+    "stage": "W20",
+    "expedient": "画像の配色・分解能(5m/画素)は目視用で判断には使わない",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
+   },
+   {
+    "key": "W20#2",
+    "stage": "W20",
+    "expedient": "騒音場の階調範囲 40-85 dB に固定(自動スケールにしない)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "not_read",
+    "engine_reads_via": "構築の検査・画像の段だけ"
+   }
+  ],
+  "read_graph": {
+   "rule_note": "読む=段の出力をエンジン側(engine・perception・agents・economy・world)のコードの文字列リテラルが名指し(直接)/下流の構築段が読み、その段がエンジンに届く(推移)。読まない=エンジン側の読み口が無く、出力を読むのが構築の検査・画像の段(W18〜W20)だけで、その段自身も検査・画像の段。読み口が見つからないだけなら不明(推測で読まないにしない)。段の単位で判定する(段のどれか 1 つの出力が読まれれば、その段の行は全部『読む』)。",
+   "tally": {
+    "reads": 96,
+    "not_read": 9,
+    "unknown": 0
+   },
+   "n_direct": 95,
+   "n_transitive": 1,
+   "not_read_rows": [
+    "W18#1",
+    "W18#2",
+    "W18#3",
+    "W18#4",
+    "W18#5",
+    "W19#1",
+    "W19#2",
+    "W20#1",
+    "W20#2"
+   ],
+   "stages": {
+    "W0": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [],
+     "engine_sites": [
+      "world_crs.json ← world/assets.py:748"
+     ],
+     "other_sites": []
+    },
+    "W1": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W2",
+      "W3",
+      "W5",
+      "W6",
+      "W10",
+      "W11",
+      "W12",
+      "W18",
+      "W20"
+     ],
+     "engine_sites": [
+      "w1_edges.parquet ← world/assets.py:90",
+      "w1_nodes.parquet ← world/assets.py:89"
+     ],
+     "other_sites": []
+    },
+    "W2": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W3",
+      "W5",
+      "W6",
+      "W8",
+      "W11",
+      "W15",
+      "W16",
+      "W18",
+      "W20"
+     ],
+     "engine_sites": [
+      "w2_cells.parquet ← perception/renderer.py:653",
+      "w2_cells.parquet ← world/assets.py:91"
+     ],
+     "other_sites": []
+    },
+    "W3": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [],
+     "engine_sites": [
+      "w3_cell_dist.npy ← world/assets.py:93",
+      "w3_next_hop.npy ← world/assets.py:92"
+     ],
+     "other_sites": []
+    },
+    "W4": {
+     "verdict": "reads",
+     "reach": "transitive:W6",
+     "via_path": [
+      "W6"
+     ],
+     "consumers": [
+      "W6",
+      "W8",
+      "W9",
+      "W16",
+      "W18"
+     ],
+     "engine_sites": [],
+     "other_sites": []
+    },
+    "W5": {
+     "verdict": "reads",
+     "reach": "transitive:W11",
+     "via_path": [
+      "W11"
+     ],
+     "consumers": [
+      "W11"
+     ],
+     "engine_sites": [],
+     "other_sites": []
+    },
+    "W6": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W7",
+      "W8",
+      "W14",
+      "W15",
+      "W16",
+      "W17",
+      "W18",
+      "W20"
+     ],
+     "engine_sites": [
+      "w6_org.parquet ← economy/ledger.py:163",
+      "w6_poi.parquet ← perception/renderer.py:654",
+      "w6_poi.parquet ← world/assets.py:94"
+     ],
+     "other_sites": []
+    },
+    "W7": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W14",
+      "W17",
+      "W18"
+     ],
+     "engine_sites": [
+      "w7_plan_spec.parquet ← world/assets.py:737"
+     ],
+     "other_sites": []
+    },
+    "W8": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W15",
+      "W18",
+      "W20"
+     ],
+     "engine_sites": [
+      "w8_t1_cell.parquet ← perception/renderer.py:656",
+      "w8_t1_cell.parquet ← world/assets.py:471",
+      "w8_targets.parquet ← perception/renderer.py:655",
+      "w8_targets.parquet ← world/assets.py:471"
+     ],
+     "other_sites": []
+    },
+    "W9": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W18",
+      "W20"
+     ],
+     "engine_sites": [
+      "w9_shadow_2026-07-28.npy ← world/assets.py:882"
+     ],
+     "other_sites": []
+    },
+    "W10": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W8",
+      "W9",
+      "W18",
+      "W20"
+     ],
+     "engine_sites": [
+      "w10_noise_stage_day.npy ← perception/renderer.py:864",
+      "w10_noise_stage_day.npy ← world/assets.py:553",
+      "w10_noise_stage_night.npy ← perception/renderer.py:864",
+      "w10_noise_stage_night.npy ← world/assets.py:553",
+      "w10_street_points.parquet ← perception/renderer.py:657",
+      "w10_street_points.parquet ← world/assets.py:552"
+     ],
+     "other_sites": []
+    },
+    "W11": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W8",
+      "W12",
+      "W15",
+      "W16",
+      "W18",
+      "W20"
+     ],
+     "engine_sites": [
+      "w11_station_exits.parquet ← perception/renderer.py:658",
+      "w11_station_exits.parquet ← world/assets.py:735",
+      "w11_station_graph_nodes.parquet ← world/assets.py:734"
+     ],
+     "other_sites": []
+    },
+    "W12": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W16",
+      "W17",
+      "W18"
+     ],
+     "engine_sites": [
+      "w12_external_nodes.parquet ← world/assets.py:736",
+      "w12_timetables.parquet ← world/assets.py:733"
+     ],
+     "other_sites": []
+    },
+    "W13": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W9",
+      "W18"
+     ],
+     "engine_sites": [
+      "w13_weather_days.parquet ← world/assets.py:731",
+      "w13_weather_hourly.parquet ← perception/renderer.py:659",
+      "w13_weather_hourly.parquet ← world/assets.py:732"
+     ],
+     "other_sites": []
+    },
+    "W14": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [],
+     "engine_sites": [
+      "w14_signage.parquet ← perception/renderer.py:759"
+     ],
+     "other_sites": []
+    },
+    "W15": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [],
+     "engine_sites": [
+      "w15_cell_static.parquet ← perception/renderer.py:762"
+     ],
+     "other_sites": []
+    },
+    "W16": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [
+      "W17",
+      "W18"
+     ],
+     "engine_sites": [
+      "w16_population.parquet ← agents/population.py:53"
+     ],
+     "other_sites": []
+    },
+    "W17": {
+     "verdict": "reads",
+     "reach": "direct",
+     "via_path": [],
+     "consumers": [],
+     "engine_sites": [
+      "w17_schedule.parquet ← agents/weekly.py:58"
+     ],
+     "other_sites": []
+    },
+    "W18": {
+     "verdict": "not_read",
+     "reach": null,
+     "via_path": [],
+     "consumers": [
+      "W20"
+     ],
+     "engine_sites": [],
+     "other_sites": []
+    },
+    "W19": {
+     "verdict": "not_read",
+     "reach": null,
+     "via_path": [],
+     "consumers": [
+      "W20"
+     ],
+     "engine_sites": [],
+     "other_sites": []
+    },
+    "W20": {
+     "verdict": "not_read",
+     "reach": null,
+     "via_path": [],
+     "consumers": [],
+     "engine_sites": [],
+     "other_sites": []
+    }
+   }
+  },
+  "triage_summary": {
+   "note": "D-44 の 3 分類(第308・Q146)。**実装役の自前の構成=未リサーチ(expedient)**: 対照の候補と費用の見込みは既存の記録(構築の通し 12.3 s・W8 前計算 1.15 s・W9 影 数分・W16 対照 0.29 s・W17 再取り込み 約 90 s)から置いた目安で、実測していない。(i) 構築段階の再計算で対照が測れる(宣言値 vs 対照の入力側 JSD=既存の 5 本のランナーの形)/(ii) ランが要る(入力側の JSD では効きが決まらない・LLM の再生成が要る=5,000 体の CSB 対照)/(iii) 対照を定義できない(門・文面・閾値・範囲の宣言)。",
+   "source": "tools/c8/expedient_triage_v1.json",
+   "tally": {
+    "i": 66,
+    "ii": 13,
+    "iii": 17
+   },
+   "n_reads_rows": 96,
+   "i_cost_seconds_sum_one_at_a_time": 3607.0,
+   "i_cost_seconds_max_per_stage": {
+    "W1": 35.0,
+    "W2": 35.0,
+    "W3": 30.0,
+    "W5": 5.0,
+    "W6": 5.0,
+    "W7": 2.0,
+    "W8": 10.0,
+    "W9": 1200.0,
+    "W10": 20.0,
+    "W11": 5.0,
+    "W12": 1.0,
+    "W13": 1.0,
+    "W16": 60.0,
+    "W17": 90.0
+   }
+  }
+ }
 }

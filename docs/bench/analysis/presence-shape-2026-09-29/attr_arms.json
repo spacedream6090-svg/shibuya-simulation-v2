@@ -1,0 +1,6683 @@
+{
+ "schema": "shibuya.bench/presence-shape/attr-arms/1",
+ "declared": {
+  "dwell_0": "毎正時の標本(従来の journal と同じ)",
+  "dwell_30": "時間帯(その 1 時間)の中で同じエリアに連続 30 tick(=30 分)以上居た体を 1 と数える",
+  "area_axes": "W16 の home_cell / work_cell / school_cell を 5 エリア写像で判定・5 エリア外は −1",
+  "obs": "c7-day-4 の開封済み比較記録(H2 ピーク時刻・H3 深夜残存率・H4 エリア構成・H5 属性構成)",
+  "H1": "obs の時刻シェアが記録に無い=空欄(封印は開けない)",
+  "floor": "PT 2018 の日中ピーク 所属なし/勤務通学 0.16(業務を足して 0.27)vs KDDI 1.66(sub_e §2-3)"
+ },
+ "runs": [
+  {
+   "arm": "mock_immediate",
+   "args": {
+    "vocab_version": "v3"
+   },
+   "final_hash": "993276d5e5bb5cbe553b7181a481f9abbc66fdc4cc923f244642d36a79422392",
+   "llm_calls": 69978,
+   "conserved": true,
+   "money": {
+    "money_start": 139575428,
+    "money_end": 131529808,
+    "revenue_end": 7432000,
+    "fares_paid": 613620,
+    "conserved": true,
+    "boarded_from_queue": 3409.0,
+    "boarded_plan_exit": 0.0
+   },
+   "presence_exit": {
+    "exit_mode": "immediate",
+    "departures": 4271,
+    "deferred": 5,
+    "forced_after_defer": 0,
+    "shopping_interrupted": 453,
+    "queue_balked": 2,
+    "exit_cell_in_area_by_hour": [
+     201.0,
+     249.0,
+     237.0,
+     231.0,
+     224.0,
+     219.0,
+     320.0,
+     556.0,
+     1345.0,
+     1816.0,
+     2336.0,
+     2328.0,
+     2090.0,
+     1877.0,
+     1708.0,
+     1598.0,
+     1607.0,
+     1560.0,
+     1476.0,
+     1232.0,
+     1076.0,
+     900.0,
+     749.0,
+     562.0
+    ],
+    "platform_cell_in_area_by_hour": [
+     0.0,
+     4.0,
+     9.0,
+     13.0,
+     11.0,
+     17.0,
+     19.0,
+     27.0,
+     62.0,
+     106.0,
+     160.0,
+     194.0,
+     197.0,
+     237.0,
+     245.0,
+     237.0,
+     215.0,
+     200.0,
+     168.0,
+     137.0,
+     112.0,
+     75.0,
+     72.0,
+     61.0
+    ],
+    "exit_cell_density_stage_max_by_hour": [
+     2.0,
+     2.0,
+     2.0,
+     2.0,
+     2.0,
+     2.0,
+     3.0,
+     3.0,
+     4.0,
+     4.0,
+     5.0,
+     5.0,
+     5.0,
+     5.0,
+     5.0,
+     5.0,
+     5.0,
+     5.0,
+     5.0,
+     5.0,
+     4.0,
+     4.0,
+     4.0,
+     4.0
+    ],
+    "immediate": 4271
+   },
+   "rail": {
+    "rail.fare_rejected": 0.0,
+    "rail.board_applicants": 3409.0,
+    "rail.left_behind": 0.0,
+    "rail.left_behind_rate": 0.0,
+    "rail.board_intent": 5910.0,
+    "rail.board_walking": 5633.0,
+    "rail.board_unreachable": 0.0,
+    "rail.board_waiting": 3501.0,
+    "rail.board_timeout": 18.0,
+    "rail.board_dropped": 387.0,
+    "rail.boarded_from_queue": 3409.0,
+    "rail.boarded_plan_exit": 0.0,
+    "rail.board_waiting_plan_exit": 0.0,
+    "rail.board_success_rate": 0.5768189509306261
+   },
+   "n_agents_registry": 5000,
+   "n_ticks_recorded": 1440,
+   "default_arm_equals_engine_journal": true,
+   "default_arm_max_abs_diff_vs_engine_journal": 0.0,
+   "offstage_with_cell_on_hour": {
+    "in_5_areas": 0,
+    "any_cell": 0,
+    "note": "transit_state != 0 でセルを持つ体の延べ数(24 標本)=従来の journal も在圏に数える"
+   },
+   "axes": {
+    "n": 5000,
+    "home_in_5_areas": 143,
+    "work_in_5_areas": 2375,
+    "school_in_5_areas": 166,
+    "under20": 417
+   },
+   "rows": [
+    {
+     "attr_map": "kind",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 35559.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 11,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 14
+     },
+     "sim_night_residual": {
+      "central": 0.1936,
+      "northwest": 0.2006,
+      "northeast": 0.2633,
+      "southeast": 0.307,
+      "southwest": 0.4983
+     },
+     "sim_area_share": {
+      "central": 0.3224,
+      "northwest": 0.4584,
+      "northeast": 0.1,
+      "southeast": 0.0698,
+      "southwest": 0.0494
+     },
+     "sim_attr_share": {
+      "central": [
+       0.6674,
+       0.0544,
+       0.2782
+      ],
+      "northwest": [
+       0.687,
+       0.1081,
+       0.2049
+      ],
+      "northeast": [
+       0.5629,
+       0.1809,
+       0.2563
+      ],
+      "southeast": [
+       0.5999,
+       0.1587,
+       0.2413
+      ],
+      "southwest": [
+       0.5717,
+       0.3157,
+       0.1126
+      ]
+     },
+     "sim_total_attr_share": [
+      0.6565,
+      0.1119,
+      0.2316
+     ],
+     "sim_visitor_per_worker": 0.3529,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.0,
+      "northwest": 0.0,
+      "northeast": 0.0,
+      "southeast": 0.0,
+      "southwest": 0.0
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 7,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 2
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.527
+     },
+     "H3": {
+      "abs_diff_max": 0.2646,
+      "kendall_tau": 0.2
+     },
+     "H4": {
+      "jsd": 0.036755,
+      "abs_share_diff_max": 0.1615
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.18809,
+       "northwest": 0.125403,
+       "northeast": 0.03342,
+       "southeast": 0.031993,
+       "southwest": 0.098619
+      },
+      "jsd_mean": 0.095505,
+      "abs_share_diff_max": 0.4819,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind",
+     "dwell_min": 0,
+     "exclude_under20": true,
+     "person_hours": 32779.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 11,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.1876,
+      "northwest": 0.1997,
+      "northeast": 0.2489,
+      "southeast": 0.3033,
+      "southwest": 0.4833
+     },
+     "sim_area_share": {
+      "central": 0.322,
+      "northwest": 0.4593,
+      "northeast": 0.1,
+      "southeast": 0.0694,
+      "southwest": 0.0492
+     },
+     "sim_attr_share": {
+      "central": [
+       0.7153,
+       0.0514,
+       0.2333
+      ],
+      "northwest": [
+       0.7329,
+       0.0972,
+       0.1698
+      ],
+      "northeast": [
+       0.6032,
+       0.1723,
+       0.2245
+      ],
+      "southeast": [
+       0.6523,
+       0.1477,
+       0.2
+      ],
+      "southwest": [
+       0.6202,
+       0.2986,
+       0.0812
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7031,
+      0.1034,
+      0.1934
+     ],
+     "sim_visitor_per_worker": 0.2751,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 3.6e-05,
+      "northwest": 8e-06,
+      "northeast": 8.7e-05,
+      "southeast": 5.5e-05,
+      "southwest": 0.000108
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 7,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.527
+     },
+     "H3": {
+      "abs_diff_max": 0.2496,
+      "kendall_tau": 0.2
+     },
+     "H4": {
+      "jsd": 0.036761,
+      "abs_share_diff_max": 0.1611
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.22611,
+       "northwest": 0.156157,
+       "northeast": 0.045131,
+       "southeast": 0.048491,
+       "southwest": 0.119641
+      },
+      "jsd_mean": 0.119106,
+      "abs_share_diff_max": 0.5298,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind",
+     "dwell_min": 30,
+     "exclude_under20": false,
+     "person_hours": 34698.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 15
+     },
+     "sim_night_residual": {
+      "central": 0.2018,
+      "northwest": 0.1993,
+      "northeast": 0.2818,
+      "southeast": 0.3117,
+      "southwest": 0.5084
+     },
+     "sim_area_share": {
+      "central": 0.317,
+      "northwest": 0.4703,
+      "northeast": 0.0945,
+      "southeast": 0.0682,
+      "southwest": 0.05
+     },
+     "sim_attr_share": {
+      "central": [
+       0.6707,
+       0.0504,
+       0.2789
+      ],
+      "northwest": [
+       0.6898,
+       0.1056,
+       0.2046
+      ],
+      "northeast": [
+       0.5694,
+       0.1729,
+       0.2577
+      ],
+      "southeast": [
+       0.6187,
+       0.1465,
+       0.2348
+      ],
+      "southwest": [
+       0.5839,
+       0.3049,
+       0.1112
+      ]
+     },
+     "sim_total_attr_share": [
+      0.6622,
+      0.1072,
+      0.2306
+     ],
+     "sim_visitor_per_worker": 0.3482,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.002208,
+      "northwest": 0.001282,
+      "northeast": 0.001185,
+      "southeast": 0.002198,
+      "southwest": 0.000886
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 1
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2747,
+      "kendall_tau": 0.0
+     },
+     "H4": {
+      "jsd": 0.037044,
+      "abs_share_diff_max": 0.1561
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.188856,
+       "northwest": 0.12654,
+       "northeast": 0.032605,
+       "southeast": 0.034197,
+       "southwest": 0.097459
+      },
+      "jsd_mean": 0.095931,
+      "abs_share_diff_max": 0.4852,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind",
+     "dwell_min": 30,
+     "exclude_under20": true,
+     "person_hours": 32021.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.1952,
+      "northwest": 0.1981,
+      "northeast": 0.2661,
+      "southeast": 0.3055,
+      "southwest": 0.4925
+     },
+     "sim_area_share": {
+      "central": 0.3167,
+      "northwest": 0.471,
+      "northeast": 0.0943,
+      "southeast": 0.0681,
+      "southwest": 0.0498
+     },
+     "sim_attr_share": {
+      "central": [
+       0.7182,
+       0.0475,
+       0.2343
+      ],
+      "northwest": [
+       0.7352,
+       0.0955,
+       0.1693
+      ],
+      "northeast": [
+       0.6111,
+       0.1622,
+       0.2267
+      ],
+      "southeast": [
+       0.6702,
+       0.1358,
+       0.194
+      ],
+      "southwest": [
+       0.6316,
+       0.2876,
+       0.0808
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7085,
+      0.0989,
+      0.1926
+     ],
+     "sim_visitor_per_worker": 0.2718,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.002376,
+      "northwest": 0.001308,
+      "northeast": 0.001088,
+      "southeast": 0.001917,
+      "southwest": 0.000933
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2588,
+      "kendall_tau": 0.2
+     },
+     "H4": {
+      "jsd": 0.037103,
+      "abs_share_diff_max": 0.1558
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.226643,
+       "northwest": 0.157297,
+       "northeast": 0.044132,
+       "southeast": 0.051749,
+       "southwest": 0.118212
+      },
+      "jsd_mean": 0.119607,
+      "abs_share_diff_max": 0.5327,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "area",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 35559.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 11,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 14
+     },
+     "sim_night_residual": {
+      "central": 0.1936,
+      "northwest": 0.2006,
+      "northeast": 0.2633,
+      "southeast": 0.307,
+      "southwest": 0.4983
+     },
+     "sim_area_share": {
+      "central": 0.3224,
+      "northwest": 0.4584,
+      "northeast": 0.1,
+      "southeast": 0.0698,
+      "southwest": 0.0494
+     },
+     "sim_attr_share": {
+      "central": [
+       0.033,
+       0.0068,
+       0.9602
+      ],
+      "northwest": [
+       0.4235,
+       0.0585,
+       0.518
+      ],
+      "northeast": [
+       0.1944,
+       0.0951,
+       0.7105
+      ],
+      "southeast": [
+       0.253,
+       0.0854,
+       0.6616
+      ],
+      "southwest": [
+       0.5193,
+       0.2639,
+       0.2167
+      ]
+     },
+     "sim_total_attr_share": [
+      0.2675,
+      0.0575,
+      0.675
+     ],
+     "sim_visitor_per_worker": 2.523,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.0,
+      "northwest": 0.0,
+      "northeast": 0.0,
+      "southeast": 0.0,
+      "southwest": 0.0
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 7,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 2
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.527
+     },
+     "H3": {
+      "abs_diff_max": 0.2646,
+      "kendall_tau": 0.2
+     },
+     "H4": {
+      "jsd": 0.036755,
+      "abs_share_diff_max": 0.1615
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.066033,
+       "northwest": 0.022742,
+       "northeast": 0.051902,
+       "southeast": 0.037728,
+       "southwest": 0.041007
+      },
+      "jsd_mean": 0.043882,
+      "abs_share_diff_max": 0.2506,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "area",
+     "dwell_min": 0,
+     "exclude_under20": true,
+     "person_hours": 32779.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 11,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.1876,
+      "northwest": 0.1997,
+      "northeast": 0.2489,
+      "southeast": 0.3033,
+      "southwest": 0.4833
+     },
+     "sim_area_share": {
+      "central": 0.322,
+      "northwest": 0.4593,
+      "northeast": 0.1,
+      "southeast": 0.0694,
+      "southwest": 0.0492
+     },
+     "sim_attr_share": {
+      "central": [
+       0.0348,
+       0.0074,
+       0.9578
+      ],
+      "northwest": [
+       0.4471,
+       0.0543,
+       0.4986
+      ],
+      "northeast": [
+       0.1976,
+       0.0848,
+       0.7176
+      ],
+      "southeast": [
+       0.276,
+       0.0743,
+       0.6497
+      ],
+      "southwest": [
+       0.5285,
+       0.2559,
+       0.2156
+      ]
+     },
+     "sim_total_attr_share": [
+      0.2815,
+      0.0536,
+      0.6649
+     ],
+     "sim_visitor_per_worker": 2.3622,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 3.6e-05,
+      "northwest": 8e-06,
+      "northeast": 8.7e-05,
+      "southeast": 5.5e-05,
+      "southwest": 0.000108
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 7,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.527
+     },
+     "H3": {
+      "abs_diff_max": 0.2496,
+      "kendall_tau": 0.2
+     },
+     "H4": {
+      "jsd": 0.036761,
+      "abs_share_diff_max": 0.1611
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.063697,
+       "northwest": 0.028316,
+       "northeast": 0.052808,
+       "southeast": 0.032534,
+       "southwest": 0.039822
+      },
+      "jsd_mean": 0.043435,
+      "abs_share_diff_max": 0.2577,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "area",
+     "dwell_min": 30,
+     "exclude_under20": false,
+     "person_hours": 34698.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 15
+     },
+     "sim_night_residual": {
+      "central": 0.2018,
+      "northwest": 0.1993,
+      "northeast": 0.2818,
+      "southeast": 0.3117,
+      "southwest": 0.5084
+     },
+     "sim_area_share": {
+      "central": 0.317,
+      "northwest": 0.4703,
+      "northeast": 0.0945,
+      "southeast": 0.0682,
+      "southwest": 0.05
+     },
+     "sim_attr_share": {
+      "central": [
+       0.0355,
+       0.0074,
+       0.9571
+      ],
+      "northwest": [
+       0.4268,
+       0.0575,
+       0.5157
+      ],
+      "northeast": [
+       0.2083,
+       0.0988,
+       0.6929
+      ],
+      "southeast": [
+       0.266,
+       0.0878,
+       0.6461
+      ],
+      "southwest": [
+       0.5406,
+       0.2582,
+       0.2012
+      ]
+     },
+     "sim_total_attr_share": [
+      0.2768,
+      0.0576,
+      0.6655
+     ],
+     "sim_visitor_per_worker": 2.4039,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.002208,
+      "northwest": 0.001282,
+      "northeast": 0.001185,
+      "southeast": 0.002198,
+      "southwest": 0.000886
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 1
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2747,
+      "kendall_tau": 0.0
+     },
+     "H4": {
+      "jsd": 0.037044,
+      "abs_share_diff_max": 0.1561
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.063022,
+       "northwest": 0.023593,
+       "northeast": 0.044815,
+       "southeast": 0.032563,
+       "southwest": 0.044873
+      },
+      "jsd_mean": 0.041773,
+      "abs_share_diff_max": 0.233,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "area",
+     "dwell_min": 30,
+     "exclude_under20": true,
+     "person_hours": 32021.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.1952,
+      "northwest": 0.1981,
+      "northeast": 0.2661,
+      "southeast": 0.3055,
+      "southwest": 0.4925
+     },
+     "sim_area_share": {
+      "central": 0.3167,
+      "northwest": 0.471,
+      "northeast": 0.0943,
+      "southeast": 0.0681,
+      "southwest": 0.0498
+     },
+     "sim_attr_share": {
+      "central": [
+       0.0377,
+       0.008,
+       0.9543
+      ],
+      "northwest": [
+       0.4504,
+       0.0536,
+       0.4961
+      ],
+      "northeast": [
+       0.2122,
+       0.0877,
+       0.7001
+      ],
+      "southeast": [
+       0.2885,
+       0.0761,
+       0.6353
+      ],
+      "southwest": [
+       0.5514,
+       0.25,
+       0.1986
+      ]
+     },
+     "sim_total_attr_share": [
+      0.2912,
+      0.0537,
+      0.6551
+     ],
+     "sim_visitor_per_worker": 2.2495,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.002376,
+      "northwest": 0.001308,
+      "northeast": 0.001088,
+      "southeast": 0.001917,
+      "southwest": 0.000933
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2588,
+      "kendall_tau": 0.2
+     },
+     "H4": {
+      "jsd": 0.037103,
+      "abs_share_diff_max": 0.1558
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.060482,
+       "northwest": 0.029232,
+       "northeast": 0.045527,
+       "southeast": 0.028121,
+       "southwest": 0.044366
+      },
+      "jsd_mean": 0.041546,
+      "abs_share_diff_max": 0.2402,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 35559.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 11,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 14
+     },
+     "sim_night_residual": {
+      "central": 0.1936,
+      "northwest": 0.2006,
+      "northeast": 0.2633,
+      "southeast": 0.307,
+      "southwest": 0.4983
+     },
+     "sim_area_share": {
+      "central": 0.3224,
+      "northwest": 0.4584,
+      "northeast": 0.1,
+      "southeast": 0.0698,
+      "southwest": 0.0494
+     },
+     "sim_attr_share": {
+      "central": [
+       0.7528,
+       0.0544,
+       0.1928
+      ],
+      "northwest": [
+       0.7596,
+       0.1081,
+       0.1323
+      ],
+      "northeast": [
+       0.6568,
+       0.1809,
+       0.1623
+      ],
+      "southeast": [
+       0.6869,
+       0.1587,
+       0.1543
+      ],
+      "southwest": [
+       0.6172,
+       0.3157,
+       0.0671
+      ]
+     },
+     "sim_total_attr_share": [
+      0.735,
+      0.1119,
+      0.1531
+     ],
+     "sim_visitor_per_worker": 0.2083,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.0,
+      "northwest": 0.0,
+      "northeast": 0.0,
+      "southeast": 0.0,
+      "southwest": 0.0
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 7,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 2
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.527
+     },
+     "H3": {
+      "abs_diff_max": 0.2646,
+      "kendall_tau": 0.2
+     },
+     "H4": {
+      "jsd": 0.036755,
+      "abs_share_diff_max": 0.1615
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.262904,
+       "northwest": 0.185299,
+       "northeast": 0.076848,
+       "southeast": 0.072508,
+       "southwest": 0.135686
+      },
+      "jsd_mean": 0.146649,
+      "abs_share_diff_max": 0.5673,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 0,
+     "exclude_under20": true,
+     "person_hours": 32779.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 11,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.1876,
+      "northwest": 0.1997,
+      "northeast": 0.2489,
+      "southeast": 0.3033,
+      "southwest": 0.4833
+     },
+     "sim_area_share": {
+      "central": 0.322,
+      "northwest": 0.4593,
+      "northeast": 0.1,
+      "southeast": 0.0694,
+      "southwest": 0.0492
+     },
+     "sim_attr_share": {
+      "central": [
+       0.7627,
+       0.0514,
+       0.1859
+      ],
+      "northwest": [
+       0.7738,
+       0.0972,
+       0.1289
+      ],
+      "northeast": [
+       0.667,
+       0.1723,
+       0.1607
+      ],
+      "southeast": [
+       0.6941,
+       0.1477,
+       0.1582
+      ],
+      "southwest": [
+       0.6388,
+       0.2986,
+       0.0626
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7474,
+      0.1034,
+      0.1492
+     ],
+     "sim_visitor_per_worker": 0.1996,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 3.6e-05,
+      "northwest": 8e-06,
+      "northeast": 8.7e-05,
+      "southeast": 5.5e-05,
+      "southwest": 0.000108
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 7,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.527
+     },
+     "H3": {
+      "abs_diff_max": 0.2496,
+      "kendall_tau": 0.2
+     },
+     "H4": {
+      "jsd": 0.036761,
+      "abs_share_diff_max": 0.1611
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.270868,
+       "northwest": 0.19293,
+       "northeast": 0.077867,
+       "southeast": 0.070431,
+       "southwest": 0.137514
+      },
+      "jsd_mean": 0.149922,
+      "abs_share_diff_max": 0.5772,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 30,
+     "exclude_under20": false,
+     "person_hours": 34698.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 15
+     },
+     "sim_night_residual": {
+      "central": 0.2018,
+      "northwest": 0.1993,
+      "northeast": 0.2818,
+      "southeast": 0.3117,
+      "southwest": 0.5084
+     },
+     "sim_area_share": {
+      "central": 0.317,
+      "northwest": 0.4703,
+      "northeast": 0.0945,
+      "southeast": 0.0682,
+      "southwest": 0.05
+     },
+     "sim_attr_share": {
+      "central": [
+       0.7552,
+       0.0504,
+       0.1945
+      ],
+      "northwest": [
+       0.7628,
+       0.1056,
+       0.1316
+      ],
+      "northeast": [
+       0.6621,
+       0.1729,
+       0.165
+      ],
+      "southeast": [
+       0.7027,
+       0.1465,
+       0.1508
+      ],
+      "southwest": [
+       0.6254,
+       0.3049,
+       0.0697
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7399,
+      0.1072,
+      0.1529
+     ],
+     "sim_visitor_per_worker": 0.2066,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.002208,
+      "northwest": 0.001282,
+      "northeast": 0.001185,
+      "southeast": 0.002198,
+      "southwest": 0.000886
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 1
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2747,
+      "kendall_tau": 0.0
+     },
+     "H4": {
+      "jsd": 0.037044,
+      "abs_share_diff_max": 0.1561
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.262651,
+       "northwest": 0.186979,
+       "northeast": 0.075251,
+       "southeast": 0.075057,
+       "southwest": 0.131262
+      },
+      "jsd_mean": 0.14624,
+      "abs_share_diff_max": 0.5697,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 30,
+     "exclude_under20": true,
+     "person_hours": 32021.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.1952,
+      "northwest": 0.1981,
+      "northeast": 0.2661,
+      "southeast": 0.3055,
+      "southwest": 0.4925
+     },
+     "sim_area_share": {
+      "central": 0.3167,
+      "northwest": 0.471,
+      "northeast": 0.0943,
+      "southeast": 0.0681,
+      "southwest": 0.0498
+     },
+     "sim_attr_share": {
+      "central": [
+       0.7653,
+       0.0475,
+       0.1872
+      ],
+      "northwest": [
+       0.7762,
+       0.0955,
+       0.1283
+      ],
+      "northeast": [
+       0.6743,
+       0.1622,
+       0.1635
+      ],
+      "southeast": [
+       0.7096,
+       0.1358,
+       0.1546
+      ],
+      "southwest": [
+       0.6491,
+       0.2876,
+       0.0633
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7523,
+      0.0989,
+      0.1488
+     ],
+     "sim_visitor_per_worker": 0.1978,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.002376,
+      "northwest": 0.001308,
+      "northeast": 0.001088,
+      "southeast": 0.001917,
+      "southwest": 0.000933
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2588,
+      "kendall_tau": 0.2
+     },
+     "H4": {
+      "jsd": 0.037103,
+      "abs_share_diff_max": 0.1558
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.271055,
+       "northwest": 0.194299,
+       "northeast": 0.07639,
+       "southeast": 0.073303,
+       "southwest": 0.135143
+      },
+      "jsd_mean": 0.150038,
+      "abs_share_diff_max": 0.5798,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    }
+   ],
+   "wall_seconds_nondeterministic": 22.98
+  },
+  {
+   "arm": "mock_walk",
+   "args": {
+    "vocab_version": "v3",
+    "exit_mode": "walk_to_platform"
+   },
+   "final_hash": "271e5ce82ce388c2ee4ebf343c4c70581d43a98ef58b9533ecc73ebe5e19131d",
+   "llm_calls": 70809,
+   "conserved": true,
+   "money": {
+    "money_start": 139575428,
+    "money_end": 131488148,
+    "revenue_end": 7476900,
+    "fares_paid": 610380,
+    "conserved": true,
+    "boarded_from_queue": 3391.0,
+    "boarded_plan_exit": 3803.0
+   },
+   "presence_exit": {
+    "exit_mode": "walk_to_platform",
+    "departures": 4176,
+    "deferred": 2,
+    "forced_after_defer": 0,
+    "shopping_interrupted": 476,
+    "queue_balked": 1,
+    "exit_cell_in_area_by_hour": [
+     201.0,
+     247.0,
+     236.0,
+     230.0,
+     223.0,
+     215.0,
+     316.0,
+     601.0,
+     1353.0,
+     1841.0,
+     2347.0,
+     2310.0,
+     2106.0,
+     1896.0,
+     1773.0,
+     1632.0,
+     1605.0,
+     1585.0,
+     1545.0,
+     1325.0,
+     1142.0,
+     967.0,
+     783.0,
+     602.0
+    ],
+    "platform_cell_in_area_by_hour": [
+     0.0,
+     5.0,
+     10.0,
+     13.0,
+     11.0,
+     19.0,
+     19.0,
+     27.0,
+     60.0,
+     110.0,
+     152.0,
+     192.0,
+     198.0,
+     256.0,
+     276.0,
+     241.0,
+     220.0,
+     207.0,
+     187.0,
+     169.0,
+     123.0,
+     95.0,
+     74.0,
+     59.0
+    ],
+    "exit_cell_density_stage_max_by_hour": [
+     2.0,
+     2.0,
+     2.0,
+     2.0,
+     2.0,
+     2.0,
+     3.0,
+     3.0,
+     4.0,
+     4.0,
+     5.0,
+     5.0,
+     5.0,
+     5.0,
+     5.0,
+     5.0,
+     5.0,
+     5.0,
+     5.0,
+     4.0,
+     4.0,
+     4.0,
+     4.0,
+     4.0
+    ],
+    "walk_max_ticks": 60,
+    "walk_started": 3967,
+    "walk_waiting_at_start": 148,
+    "walk_boarded": 3803,
+    "walk_departed_by_train": 3803,
+    "too_far_immediate": 25,
+    "intent_lost": 891,
+    "intent_lost_immediate": 47,
+    "rewalk_queued": 844,
+    "rewalk_started": 838,
+    "rewalk_forced_immediate": 0,
+    "rewalk_gone_other": 3,
+    "rewalk_waiting_at_end": 3,
+    "fare_exempt": true,
+    "intent_lost_deferred": 1,
+    "gate_immediate": 209,
+    "no_platform_immediate": 0,
+    "still_walking_at_end": 77,
+    "walk_gone_other": 0,
+    "walk_restarted": 9,
+    "boarded_waiting_train_at_end": 0,
+    "walk_minutes_to_board": {
+     "p0": 1.0,
+     "p10": 6.0,
+     "p50": 20.0,
+     "p90": 38.0,
+     "p100": 60.0,
+     "mean": 20.862,
+     "n": 3803
+    },
+    "fallback_minutes": {
+     "p0": 1.0,
+     "p10": 2.0,
+     "p50": 33.0,
+     "p90": 60.0,
+     "p100": 60.0,
+     "mean": 31.083,
+     "n": 72
+    },
+    "walk_wakes_suppressed": 5381,
+    "calls_while_walking": 1115,
+    "intent_lost_last_result_action": {
+     "action:0": 111,
+     "action:1": 2,
+     "action:11": 98,
+     "action:22": 82,
+     "action:24": 79,
+     "action:3": 88,
+     "action:5": 92,
+     "action:6": 93,
+     "action:7": 90,
+     "action:8": 85,
+     "action:9": 71,
+     "result:0": 459,
+     "result:1": 3,
+     "result:10": 1,
+     "result:13": 95,
+     "result:17": 281,
+     "result:19": 31,
+     "result:21": 3,
+     "result:5": 6,
+     "result:7": 1,
+     "result:9": 11
+    }
+   },
+   "rail": {
+    "rail.fare_rejected": 0.0,
+    "rail.board_applicants": 7194.0,
+    "rail.left_behind": 0.0,
+    "rail.left_behind_rate": 0.0,
+    "rail.board_intent": 5941.0,
+    "rail.board_walking": 5667.0,
+    "rail.board_unreachable": 0.0,
+    "rail.board_waiting": 3485.0,
+    "rail.board_timeout": 19.0,
+    "rail.board_dropped": 251.0,
+    "rail.boarded_from_queue": 3391.0,
+    "rail.boarded_plan_exit": 3803.0,
+    "rail.board_waiting_plan_exit": 3821.0,
+    "rail.board_success_rate": 0.5707793300791113
+   },
+   "n_agents_registry": 5000,
+   "n_ticks_recorded": 1440,
+   "default_arm_equals_engine_journal": true,
+   "default_arm_max_abs_diff_vs_engine_journal": 0.0,
+   "offstage_with_cell_on_hour": {
+    "in_5_areas": 0,
+    "any_cell": 0,
+    "note": "transit_state != 0 でセルを持つ体の延べ数(24 標本)=従来の journal も在圏に数える"
+   },
+   "axes": {
+    "n": 5000,
+    "home_in_5_areas": 143,
+    "work_in_5_areas": 2375,
+    "school_in_5_areas": 166,
+    "under20": 417
+   },
+   "rows": [
+    {
+     "attr_map": "kind",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 36867.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.1822,
+      "northwest": 0.1964,
+      "northeast": 0.2638,
+      "southeast": 0.3058,
+      "southwest": 0.4756
+     },
+     "sim_area_share": {
+      "central": 0.3333,
+      "northwest": 0.4517,
+      "northeast": 0.0975,
+      "southeast": 0.0676,
+      "southwest": 0.05
+     },
+     "sim_attr_share": {
+      "central": [
+       0.6651,
+       0.0467,
+       0.2881
+      ],
+      "northwest": [
+       0.681,
+       0.1091,
+       0.2099
+      ],
+      "northeast": [
+       0.5579,
+       0.1775,
+       0.2646
+      ],
+      "southeast": [
+       0.6015,
+       0.1545,
+       0.244
+      ],
+      "southwest": [
+       0.5619,
+       0.329,
+       0.1091
+      ]
+     },
+     "sim_total_attr_share": [
+      0.6524,
+      0.109,
+      0.2386
+     ],
+     "sim_visitor_per_worker": 0.3657,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.0,
+      "northwest": 0.0,
+      "northeast": 0.0,
+      "southeast": 0.0,
+      "southwest": 0.0
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2419,
+      "kendall_tau": 0.2
+     },
+     "H4": {
+      "jsd": 0.039783,
+      "abs_share_diff_max": 0.1723
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.183172,
+       "northwest": 0.121607,
+       "northeast": 0.030529,
+       "southeast": 0.030999,
+       "southwest": 0.103728
+      },
+      "jsd_mean": 0.094007,
+      "abs_share_diff_max": 0.4796,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind",
+     "dwell_min": 0,
+     "exclude_under20": true,
+     "person_hours": 33981.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.1771,
+      "northwest": 0.1955,
+      "northeast": 0.2488,
+      "southeast": 0.3009,
+      "southwest": 0.458
+     },
+     "sim_area_share": {
+      "central": 0.332,
+      "northwest": 0.4524,
+      "northeast": 0.0979,
+      "southeast": 0.0675,
+      "southwest": 0.0501
+     },
+     "sim_attr_share": {
+      "central": [
+       0.7136,
+       0.0454,
+       0.241
+      ],
+      "northwest": [
+       0.727,
+       0.099,
+       0.174
+      ],
+      "northeast": [
+       0.5953,
+       0.1674,
+       0.2374
+      ],
+      "southeast": [
+       0.6494,
+       0.1452,
+       0.2054
+      ],
+      "southwest": [
+       0.6072,
+       0.313,
+       0.0799
+      ]
+     },
+     "sim_total_attr_share": [
+      0.6984,
+      0.1017,
+      0.1998
+     ],
+     "sim_visitor_per_worker": 0.2861,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 2.6e-05,
+      "northwest": 1.2e-05,
+      "northeast": 6.1e-05,
+      "southeast": 6.3e-05,
+      "southwest": 0.0001
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2243,
+      "kendall_tau": 0.2
+     },
+     "H4": {
+      "jsd": 0.039369,
+      "abs_share_diff_max": 0.1711
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.221683,
+       "northwest": 0.152069,
+       "northeast": 0.039849,
+       "southeast": 0.046103,
+       "southwest": 0.123252
+      },
+      "jsd_mean": 0.116591,
+      "abs_share_diff_max": 0.5281,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind",
+     "dwell_min": 30,
+     "exclude_under20": false,
+     "person_hours": 34783.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.2042,
+      "northwest": 0.1984,
+      "northeast": 0.2862,
+      "southeast": 0.3126,
+      "southwest": 0.498
+     },
+     "sim_area_share": {
+      "central": 0.3177,
+      "northwest": 0.4713,
+      "northeast": 0.0922,
+      "southeast": 0.0679,
+      "southwest": 0.0509
+     },
+     "sim_attr_share": {
+      "central": [
+       0.6702,
+       0.0439,
+       0.2859
+      ],
+      "northwest": [
+       0.6865,
+       0.1077,
+       0.2058
+      ],
+      "northeast": [
+       0.5653,
+       0.1756,
+       0.2591
+      ],
+      "southeast": [
+       0.6235,
+       0.1398,
+       0.2368
+      ],
+      "southwest": [
+       0.5686,
+       0.3269,
+       0.1045
+      ]
+     },
+     "sim_total_attr_share": [
+      0.6599,
+      0.107,
+      0.2331
+     ],
+     "sim_visitor_per_worker": 0.3533,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.004071,
+      "northwest": 0.001589,
+      "northeast": 0.00197,
+      "southeast": 0.002275,
+      "southwest": 0.001785
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2643,
+      "kendall_tau": 0.0
+     },
+     "H4": {
+      "jsd": 0.037576,
+      "abs_share_diff_max": 0.1567
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.185986,
+       "northwest": 0.124915,
+       "northeast": 0.032227,
+       "southeast": 0.033587,
+       "southwest": 0.106511
+      },
+      "jsd_mean": 0.096645,
+      "abs_share_diff_max": 0.4847,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind",
+     "dwell_min": 30,
+     "exclude_under20": true,
+     "person_hours": 32122.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 13,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.1979,
+      "northwest": 0.1973,
+      "northeast": 0.2687,
+      "southeast": 0.3054,
+      "southwest": 0.4796
+     },
+     "sim_area_share": {
+      "central": 0.3171,
+      "northwest": 0.4715,
+      "northeast": 0.0925,
+      "southeast": 0.0679,
+      "southwest": 0.051
+     },
+     "sim_attr_share": {
+      "central": [
+       0.7172,
+       0.0423,
+       0.2405
+      ],
+      "northwest": [
+       0.7324,
+       0.0984,
+       0.1692
+      ],
+      "northeast": [
+       0.604,
+       0.1626,
+       0.2333
+      ],
+      "southeast": [
+       0.6713,
+       0.1298,
+       0.199
+      ],
+      "southwest": [
+       0.6144,
+       0.3099,
+       0.0757
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7055,
+      0.0995,
+      0.195
+     ],
+     "sim_visitor_per_worker": 0.2764,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.004096,
+      "northwest": 0.001633,
+      "northeast": 0.001902,
+      "southeast": 0.001887,
+      "southwest": 0.001758
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 5,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2459,
+      "kendall_tau": 0.0
+     },
+     "H4": {
+      "jsd": 0.037357,
+      "abs_share_diff_max": 0.1562
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.223374,
+       "northwest": 0.156186,
+       "northeast": 0.04143,
+       "southeast": 0.049768,
+       "southwest": 0.126509
+      },
+      "jsd_mean": 0.119453,
+      "abs_share_diff_max": 0.5317,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "area",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 36867.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.1822,
+      "northwest": 0.1964,
+      "northeast": 0.2638,
+      "southeast": 0.3058,
+      "southwest": 0.4756
+     },
+     "sim_area_share": {
+      "central": 0.3333,
+      "northwest": 0.4517,
+      "northeast": 0.0975,
+      "southeast": 0.0676,
+      "southwest": 0.05
+     },
+     "sim_attr_share": {
+      "central": [
+       0.0287,
+       0.0064,
+       0.9648
+      ],
+      "northwest": [
+       0.4178,
+       0.0576,
+       0.5246
+      ],
+      "northeast": [
+       0.2104,
+       0.0929,
+       0.6967
+      ],
+      "southeast": [
+       0.2408,
+       0.0819,
+       0.6774
+      ],
+      "southwest": [
+       0.513,
+       0.2644,
+       0.2226
+      ]
+     },
+     "sim_total_attr_share": [
+      0.2607,
+      0.056,
+      0.6833
+     ],
+     "sim_visitor_per_worker": 2.6209,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.0,
+      "northwest": 0.0,
+      "northeast": 0.0,
+      "southeast": 0.0,
+      "southwest": 0.0
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2419,
+      "kendall_tau": 0.2
+     },
+     "H4": {
+      "jsd": 0.039783,
+      "abs_share_diff_max": 0.1723
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.070653,
+       "northwest": 0.022188,
+       "northeast": 0.045121,
+       "southeast": 0.043305,
+       "southwest": 0.039433
+      },
+      "jsd_mean": 0.04414,
+      "abs_share_diff_max": 0.238,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "area",
+     "dwell_min": 0,
+     "exclude_under20": true,
+     "person_hours": 33981.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.1771,
+      "northwest": 0.1955,
+      "northeast": 0.2488,
+      "southeast": 0.3009,
+      "southwest": 0.458
+     },
+     "sim_area_share": {
+      "central": 0.332,
+      "northwest": 0.4524,
+      "northeast": 0.0979,
+      "southeast": 0.0675,
+      "southwest": 0.0501
+     },
+     "sim_attr_share": {
+      "central": [
+       0.03,
+       0.007,
+       0.963
+      ],
+      "northwest": [
+       0.4414,
+       0.0535,
+       0.5051
+      ],
+      "northeast": [
+       0.2157,
+       0.0832,
+       0.701
+      ],
+      "southeast": [
+       0.2612,
+       0.0724,
+       0.6664
+      ],
+      "southwest": [
+       0.5208,
+       0.2566,
+       0.2225
+      ]
+     },
+     "sim_total_attr_share": [
+      0.2745,
+      0.0524,
+      0.673
+     ],
+     "sim_visitor_per_worker": 2.4515,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 2.6e-05,
+      "northwest": 1.2e-05,
+      "northeast": 6.1e-05,
+      "southeast": 6.3e-05,
+      "southwest": 0.0001
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2243,
+      "kendall_tau": 0.2
+     },
+     "H4": {
+      "jsd": 0.039369,
+      "abs_share_diff_max": 0.1711
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.068647,
+       "northwest": 0.027583,
+       "northeast": 0.045145,
+       "southeast": 0.038149,
+       "southwest": 0.03794
+      },
+      "jsd_mean": 0.043493,
+      "abs_share_diff_max": 0.2411,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "area",
+     "dwell_min": 30,
+     "exclude_under20": false,
+     "person_hours": 34783.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.2042,
+      "northwest": 0.1984,
+      "northeast": 0.2862,
+      "southeast": 0.3126,
+      "southwest": 0.498
+     },
+     "sim_area_share": {
+      "central": 0.3177,
+      "northwest": 0.4713,
+      "northeast": 0.0922,
+      "southeast": 0.0679,
+      "southwest": 0.0509
+     },
+     "sim_attr_share": {
+      "central": [
+       0.0309,
+       0.0073,
+       0.9618
+      ],
+      "northwest": [
+       0.4239,
+       0.0575,
+       0.5187
+      ],
+      "northeast": [
+       0.2295,
+       0.102,
+       0.6685
+      ],
+      "southeast": [
+       0.2618,
+       0.0839,
+       0.6544
+      ],
+      "southwest": [
+       0.5404,
+       0.2671,
+       0.1925
+      ]
+     },
+     "sim_total_attr_share": [
+      0.276,
+      0.0581,
+      0.6659
+     ],
+     "sim_visitor_per_worker": 2.4124,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.004071,
+      "northwest": 0.001589,
+      "northeast": 0.00197,
+      "southeast": 0.002275,
+      "southwest": 0.001785
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2643,
+      "kendall_tau": 0.0
+     },
+     "H4": {
+      "jsd": 0.037576,
+      "abs_share_diff_max": 0.1567
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.067466,
+       "northwest": 0.023159,
+       "northeast": 0.035641,
+       "southeast": 0.034929,
+       "southwest": 0.049494
+      },
+      "jsd_mean": 0.042138,
+      "abs_share_diff_max": 0.215,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "area",
+     "dwell_min": 30,
+     "exclude_under20": true,
+     "person_hours": 32122.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 13,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.1979,
+      "northwest": 0.1973,
+      "northeast": 0.2687,
+      "southeast": 0.3054,
+      "southwest": 0.4796
+     },
+     "sim_area_share": {
+      "central": 0.3171,
+      "northwest": 0.4715,
+      "northeast": 0.0925,
+      "southeast": 0.0679,
+      "southwest": 0.051
+     },
+     "sim_attr_share": {
+      "central": [
+       0.0324,
+       0.008,
+       0.9597
+      ],
+      "northwest": [
+       0.448,
+       0.0534,
+       0.4986
+      ],
+      "northeast": [
+       0.236,
+       0.0909,
+       0.6731
+      ],
+      "southeast": [
+       0.2824,
+       0.0743,
+       0.6433
+      ],
+      "southwest": [
+       0.5485,
+       0.2587,
+       0.1928
+      ]
+     },
+     "sim_total_attr_share": [
+      0.2905,
+      0.0544,
+      0.6552
+     ],
+     "sim_visitor_per_worker": 2.2554,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.004096,
+      "northwest": 0.001633,
+      "northeast": 0.001902,
+      "southeast": 0.001887,
+      "southwest": 0.001758
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 5,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2459,
+      "kendall_tau": 0.0
+     },
+     "H4": {
+      "jsd": 0.037357,
+      "abs_share_diff_max": 0.1562
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.0653,
+       "northwest": 0.028841,
+       "northeast": 0.035324,
+       "southeast": 0.030493,
+       "southwest": 0.047911
+      },
+      "jsd_mean": 0.041574,
+      "abs_share_diff_max": 0.2132,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 36867.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.1822,
+      "northwest": 0.1964,
+      "northeast": 0.2638,
+      "southeast": 0.3058,
+      "southwest": 0.4756
+     },
+     "sim_area_share": {
+      "central": 0.3333,
+      "northwest": 0.4517,
+      "northeast": 0.0975,
+      "southeast": 0.0676,
+      "southwest": 0.05
+     },
+     "sim_attr_share": {
+      "central": [
+       0.756,
+       0.0467,
+       0.1973
+      ],
+      "northwest": [
+       0.7538,
+       0.1091,
+       0.1371
+      ],
+      "northeast": [
+       0.6489,
+       0.1775,
+       0.1736
+      ],
+      "southeast": [
+       0.6854,
+       0.1545,
+       0.1601
+      ],
+      "southwest": [
+       0.6064,
+       0.329,
+       0.0646
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7323,
+      0.109,
+      0.1587
+     ],
+     "sim_visitor_per_worker": 0.2166,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.0,
+      "northwest": 0.0,
+      "northeast": 0.0,
+      "southeast": 0.0,
+      "southwest": 0.0
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2419,
+      "kendall_tau": 0.2
+     },
+     "H4": {
+      "jsd": 0.039783,
+      "abs_share_diff_max": 0.1723
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.261271,
+       "northwest": 0.180379,
+       "northeast": 0.070165,
+       "southeast": 0.069117,
+       "southwest": 0.140647
+      },
+      "jsd_mean": 0.144316,
+      "abs_share_diff_max": 0.5705,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 0,
+     "exclude_under20": true,
+     "person_hours": 33981.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.1771,
+      "northwest": 0.1955,
+      "northeast": 0.2488,
+      "southeast": 0.3009,
+      "southwest": 0.458
+     },
+     "sim_area_share": {
+      "central": 0.332,
+      "northwest": 0.4524,
+      "northeast": 0.0979,
+      "southeast": 0.0675,
+      "southwest": 0.0501
+     },
+     "sim_attr_share": {
+      "central": [
+       0.7646,
+       0.0454,
+       0.19
+      ],
+      "northwest": [
+       0.766,
+       0.099,
+       0.135
+      ],
+      "northeast": [
+       0.6608,
+       0.1674,
+       0.1719
+      ],
+      "southeast": [
+       0.6904,
+       0.1452,
+       0.1644
+      ],
+      "southwest": [
+       0.6277,
+       0.313,
+       0.0593
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7432,
+      0.1017,
+      0.1551
+     ],
+     "sim_visitor_per_worker": 0.2087,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 2.6e-05,
+      "northwest": 1.2e-05,
+      "northeast": 6.1e-05,
+      "southeast": 6.3e-05,
+      "southwest": 0.0001
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2243,
+      "kendall_tau": 0.2
+     },
+     "H4": {
+      "jsd": 0.039369,
+      "abs_share_diff_max": 0.1711
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.269039,
+       "northwest": 0.186253,
+       "northeast": 0.071262,
+       "southeast": 0.066912,
+       "southwest": 0.143311
+      },
+      "jsd_mean": 0.147356,
+      "abs_share_diff_max": 0.5791,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 30,
+     "exclude_under20": false,
+     "person_hours": 34783.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.2042,
+      "northwest": 0.1984,
+      "northeast": 0.2862,
+      "southeast": 0.3126,
+      "southwest": 0.498
+     },
+     "sim_area_share": {
+      "central": 0.3177,
+      "northwest": 0.4713,
+      "northeast": 0.0922,
+      "southeast": 0.0679,
+      "southwest": 0.0509
+     },
+     "sim_attr_share": {
+      "central": [
+       0.7597,
+       0.0439,
+       0.1964
+      ],
+      "northwest": [
+       0.7592,
+       0.1077,
+       0.1331
+      ],
+      "northeast": [
+       0.6536,
+       0.1756,
+       0.1709
+      ],
+      "southeast": [
+       0.7052,
+       0.1398,
+       0.155
+      ],
+      "southwest": [
+       0.611,
+       0.3269,
+       0.0621
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7384,
+      0.107,
+      0.1546
+     ],
+     "sim_visitor_per_worker": 0.2093,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.004071,
+      "northwest": 0.001589,
+      "northeast": 0.00197,
+      "southeast": 0.002275,
+      "southwest": 0.001785
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2643,
+      "kendall_tau": 0.0
+     },
+     "H4": {
+      "jsd": 0.037576,
+      "abs_share_diff_max": 0.1567
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.263338,
+       "northwest": 0.184708,
+       "northeast": 0.071747,
+       "southeast": 0.072774,
+       "southwest": 0.14282
+      },
+      "jsd_mean": 0.147078,
+      "abs_share_diff_max": 0.5742,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 30,
+     "exclude_under20": true,
+     "person_hours": 32122.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 13,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 16
+     },
+     "sim_night_residual": {
+      "central": 0.1979,
+      "northwest": 0.1973,
+      "northeast": 0.2687,
+      "southeast": 0.3054,
+      "southwest": 0.4796
+     },
+     "sim_area_share": {
+      "central": 0.3171,
+      "northwest": 0.4715,
+      "northeast": 0.0925,
+      "southeast": 0.0679,
+      "southwest": 0.051
+     },
+     "sim_attr_share": {
+      "central": [
+       0.7688,
+       0.0423,
+       0.1889
+      ],
+      "northwest": [
+       0.7709,
+       0.0984,
+       0.1307
+      ],
+      "northeast": [
+       0.6684,
+       0.1626,
+       0.169
+      ],
+      "southeast": [
+       0.7107,
+       0.1298,
+       0.1596
+      ],
+      "southwest": [
+       0.6345,
+       0.3099,
+       0.0555
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7497,
+      0.0995,
+      0.1508
+     ],
+     "sim_visitor_per_worker": 0.2012,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.004096,
+      "northwest": 0.001633,
+      "northeast": 0.001902,
+      "southeast": 0.001887,
+      "southwest": 0.001758
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 5,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 0
+      },
+      "n_within_1h": 1,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2459,
+      "kendall_tau": 0.0
+     },
+     "H4": {
+      "jsd": 0.037357,
+      "abs_share_diff_max": 0.1562
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.271508,
+       "northwest": 0.190667,
+       "northeast": 0.073059,
+       "southeast": 0.070758,
+       "southwest": 0.146971
+      },
+      "jsd_mean": 0.150593,
+      "abs_share_diff_max": 0.5833,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    }
+   ],
+   "wall_seconds_nondeterministic": 23.05
+  },
+  {
+   "arm": "classical_immediate",
+   "args": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical"
+   },
+   "final_hash": "18ed5c8261ee2e9c26e1dda2dacd6e8ee146acd836fab4a6039bd023ae7196bd",
+   "llm_calls": 102008,
+   "conserved": true,
+   "money": {
+    "money_start": 139575428,
+    "money_end": 131365728,
+    "revenue_end": 8209700,
+    "fares_paid": 0,
+    "conserved": true,
+    "boarded_from_queue": 0.0,
+    "boarded_plan_exit": 0.0
+   },
+   "presence_exit": {
+    "exit_mode": "immediate",
+    "departures": 5087,
+    "deferred": 6,
+    "forced_after_defer": 0,
+    "shopping_interrupted": 500,
+    "queue_balked": 2,
+    "exit_cell_in_area_by_hour": [
+     201.0,
+     256.0,
+     246.0,
+     241.0,
+     242.0,
+     243.0,
+     346.0,
+     589.0,
+     1145.0,
+     1196.0,
+     1372.0,
+     1238.0,
+     1080.0,
+     965.0,
+     801.0,
+     761.0,
+     739.0,
+     743.0,
+     753.0,
+     784.0,
+     712.0,
+     509.0,
+     407.0,
+     326.0
+    ],
+    "platform_cell_in_area_by_hour": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     1.0,
+     2.0,
+     7.0,
+     5.0,
+     2.0,
+     3.0,
+     5.0,
+     3.0,
+     3.0,
+     4.0,
+     5.0,
+     4.0,
+     8.0,
+     3.0,
+     5.0,
+     4.0,
+     3.0
+    ],
+    "exit_cell_density_stage_max_by_hour": [
+     2.0,
+     2.0,
+     3.0,
+     3.0,
+     3.0,
+     3.0,
+     3.0,
+     3.0,
+     4.0,
+     5.0,
+     5.0,
+     6.0,
+     6.0,
+     6.0,
+     6.0,
+     6.0,
+     6.0,
+     6.0,
+     5.0,
+     5.0,
+     5.0,
+     4.0,
+     4.0,
+     3.0
+    ],
+    "immediate": 5087
+   },
+   "rail": {
+    "rail.fare_rejected": 0.0,
+    "rail.board_applicants": 0.0,
+    "rail.left_behind": 0.0,
+    "rail.left_behind_rate": 0.0,
+    "rail.board_intent": 0.0,
+    "rail.board_walking": 0.0,
+    "rail.board_unreachable": 0.0,
+    "rail.board_waiting": 0.0,
+    "rail.board_timeout": 0.0,
+    "rail.board_dropped": 0.0,
+    "rail.boarded_from_queue": 0.0,
+    "rail.boarded_plan_exit": 0.0,
+    "rail.board_waiting_plan_exit": 0.0,
+    "rail.board_success_rate": 0.0
+   },
+   "n_agents_registry": 5000,
+   "n_ticks_recorded": 1440,
+   "default_arm_equals_engine_journal": true,
+   "default_arm_max_abs_diff_vs_engine_journal": 0.0,
+   "offstage_with_cell_on_hour": {
+    "in_5_areas": 0,
+    "any_cell": 0,
+    "note": "transit_state != 0 でセルを持つ体の延べ数(24 標本)=従来の journal も在圏に数える"
+   },
+   "axes": {
+    "n": 5000,
+    "home_in_5_areas": 143,
+    "work_in_5_areas": 2375,
+    "school_in_5_areas": 166,
+    "under20": 417
+   },
+   "rows": [
+    {
+     "attr_map": "kind",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 37843.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.366,
+      "northwest": 0.1765,
+      "northeast": 0.2099,
+      "southeast": 0.1977,
+      "southwest": 0.1786
+     },
+     "sim_area_share": {
+      "central": 0.1438,
+      "northwest": 0.4968,
+      "northeast": 0.1201,
+      "southeast": 0.1035,
+      "southwest": 0.1358
+     },
+     "sim_attr_share": {
+      "central": [
+       0.5209,
+       0.0538,
+       0.4253
+      ],
+      "northwest": [
+       0.7546,
+       0.081,
+       0.1644
+      ],
+      "northeast": [
+       0.5941,
+       0.1296,
+       0.2763
+      ],
+      "southeast": [
+       0.7651,
+       0.0884,
+       0.1466
+      ],
+      "southwest": [
+       0.7165,
+       0.1735,
+       0.1099
+      ]
+     },
+     "sim_total_attr_share": [
+      0.6976,
+      0.0963,
+      0.2061
+     ],
+     "sim_visitor_per_worker": 0.2955,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.0,
+      "northwest": 0.0,
+      "northeast": 0.0,
+      "southeast": 0.0,
+      "southwest": 0.0
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2261,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.006588,
+      "abs_share_diff_max": 0.0589
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.094357,
+       "northwest": 0.167948,
+       "northeast": 0.027164,
+       "southeast": 0.085611,
+       "southwest": 0.086022
+      },
+      "jsd_mean": 0.092221,
+      "abs_share_diff_max": 0.4643,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind",
+     "dwell_min": 0,
+     "exclude_under20": true,
+     "person_hours": 35559.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 11,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.3503,
+      "northwest": 0.1698,
+      "northeast": 0.2037,
+      "southeast": 0.1857,
+      "southwest": 0.1751
+     },
+     "sim_area_share": {
+      "central": 0.1406,
+      "northwest": 0.5059,
+      "northeast": 0.1152,
+      "southeast": 0.1063,
+      "southwest": 0.132
+     },
+     "sim_attr_share": {
+      "central": [
+       0.5515,
+       0.0566,
+       0.3919
+      ],
+      "northwest": [
+       0.7827,
+       0.0759,
+       0.1413
+      ],
+      "northeast": [
+       0.6518,
+       0.1194,
+       0.2288
+      ],
+      "southeast": [
+       0.7839,
+       0.0828,
+       0.1333
+      ],
+      "southwest": [
+       0.7764,
+       0.1529,
+       0.0707
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7344,
+      0.0891,
+      0.1765
+     ],
+     "sim_visitor_per_worker": 0.2403,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 7e-05,
+      "northwest": 2e-05,
+      "northeast": 0.000114,
+      "southeast": 0.000187,
+      "southwest": 6.9e-05
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 6,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.7379
+     },
+     "H3": {
+      "abs_diff_max": 0.2104,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.007646,
+      "abs_share_diff_max": 0.0639
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.111742,
+       "northwest": 0.191077,
+       "northeast": 0.045926,
+       "southeast": 0.096264,
+       "southwest": 0.121411
+      },
+      "jsd_mean": 0.113284,
+      "abs_share_diff_max": 0.4924,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind",
+     "dwell_min": 30,
+     "exclude_under20": false,
+     "person_hours": 36854.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 12,
+      "southeast": 11,
+      "southwest": 12
+     },
+     "sim_night_residual": {
+      "central": 0.3996,
+      "northwest": 0.1771,
+      "northeast": 0.2266,
+      "southeast": 0.2023,
+      "southwest": 0.182
+     },
+     "sim_area_share": {
+      "central": 0.1349,
+      "northwest": 0.5101,
+      "northeast": 0.1142,
+      "southeast": 0.103,
+      "southwest": 0.1378
+     },
+     "sim_attr_share": {
+      "central": [
+       0.4918,
+       0.0535,
+       0.4547
+      ],
+      "northwest": [
+       0.7566,
+       0.0794,
+       0.164
+      ],
+      "northeast": [
+       0.5988,
+       0.1195,
+       0.2817
+      ],
+      "southeast": [
+       0.779,
+       0.0843,
+       0.1367
+      ],
+      "southwest": [
+       0.7268,
+       0.168,
+       0.1052
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7011,
+      0.0932,
+      0.2058
+     ],
+     "sim_visitor_per_worker": 0.2935,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.002744,
+      "northwest": 0.001769,
+      "northeast": 0.001426,
+      "southeast": 0.001414,
+      "southwest": 0.002057
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 3,
+       "southeast": 6,
+       "southwest": 4
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.825
+     },
+     "H3": {
+      "abs_diff_max": 0.2597,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.008623,
+      "abs_share_diff_max": 0.0648
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.079779,
+       "northwest": 0.169106,
+       "northeast": 0.02634,
+       "southeast": 0.093426,
+       "southwest": 0.089764
+      },
+      "jsd_mean": 0.091683,
+      "abs_share_diff_max": 0.4663,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind",
+     "dwell_min": 30,
+     "exclude_under20": true,
+     "person_hours": 34671.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 12,
+      "southeast": 11,
+      "southwest": 12
+     },
+     "sim_night_residual": {
+      "central": 0.3821,
+      "northwest": 0.1704,
+      "northeast": 0.2203,
+      "southeast": 0.1891,
+      "southwest": 0.1784
+     },
+     "sim_area_share": {
+      "central": 0.1318,
+      "northwest": 0.519,
+      "northeast": 0.1092,
+      "southeast": 0.1061,
+      "southwest": 0.1339
+     },
+     "sim_attr_share": {
+      "central": [
+       0.519,
+       0.0562,
+       0.4247
+      ],
+      "northwest": [
+       0.7849,
+       0.0742,
+       0.1409
+      ],
+      "northeast": [
+       0.6592,
+       0.1086,
+       0.2322
+      ],
+      "southeast": [
+       0.7951,
+       0.0791,
+       0.1258
+      ],
+      "southwest": [
+       0.7869,
+       0.1482,
+       0.0648
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7375,
+      0.086,
+      0.1765
+     ],
+     "sim_visitor_per_worker": 0.2393,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.002731,
+      "northwest": 0.001707,
+      "northeast": 0.001106,
+      "southeast": 0.001448,
+      "southwest": 0.002255
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 3,
+       "southeast": 6,
+       "southwest": 4
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.825
+     },
+     "H3": {
+      "abs_diff_max": 0.2422,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.009946,
+      "abs_share_diff_max": 0.0699
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.093998,
+       "northwest": 0.192396,
+       "northeast": 0.046016,
+       "southeast": 0.102923,
+       "southwest": 0.128028
+      },
+      "jsd_mean": 0.112672,
+      "abs_share_diff_max": 0.4946,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "area",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 37843.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.366,
+      "northwest": 0.1765,
+      "northeast": 0.2099,
+      "southeast": 0.1977,
+      "southwest": 0.1786
+     },
+     "sim_area_share": {
+      "central": 0.1438,
+      "northwest": 0.4968,
+      "northeast": 0.1201,
+      "southeast": 0.1035,
+      "southwest": 0.1358
+     },
+     "sim_attr_share": {
+      "central": [
+       0.1484,
+       0.0134,
+       0.8381
+      ],
+      "northwest": [
+       0.7225,
+       0.0515,
+       0.226
+      ],
+      "northeast": [
+       0.5848,
+       0.0627,
+       0.3525
+      ],
+      "southeast": [
+       0.6611,
+       0.0475,
+       0.2914
+      ],
+      "southwest": [
+       0.7811,
+       0.1029,
+       0.116
+      ]
+     },
+     "sim_total_attr_share": [
+      0.625,
+      0.0539,
+      0.321
+     ],
+     "sim_visitor_per_worker": 0.5136,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.0,
+      "northwest": 0.0,
+      "northeast": 0.0,
+      "southeast": 0.0,
+      "southwest": 0.0
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2261,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.006588,
+      "abs_share_diff_max": 0.0589
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.012478,
+       "northwest": 0.139436,
+       "northeast": 0.020031,
+       "southeast": 0.034359,
+       "southwest": 0.089083
+      },
+      "jsd_mean": 0.059077,
+      "abs_share_diff_max": 0.4322,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "area",
+     "dwell_min": 0,
+     "exclude_under20": true,
+     "person_hours": 35559.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 11,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.3503,
+      "northwest": 0.1698,
+      "northeast": 0.2037,
+      "southeast": 0.1857,
+      "southwest": 0.1751
+     },
+     "sim_area_share": {
+      "central": 0.1406,
+      "northwest": 0.5059,
+      "northeast": 0.1152,
+      "southeast": 0.1063,
+      "southwest": 0.132
+     },
+     "sim_attr_share": {
+      "central": [
+       0.1574,
+       0.0146,
+       0.828
+      ],
+      "northwest": [
+       0.7363,
+       0.0486,
+       0.2151
+      ],
+      "northeast": [
+       0.5773,
+       0.0584,
+       0.3643
+      ],
+      "southeast": [
+       0.6812,
+       0.0447,
+       0.2741
+      ],
+      "southwest": [
+       0.7885,
+       0.0961,
+       0.1154
+      ]
+     },
+     "sim_total_attr_share": [
+      0.6376,
+      0.0508,
+      0.3116
+     ],
+     "sim_visitor_per_worker": 0.4887,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 7e-05,
+      "northwest": 2e-05,
+      "northeast": 0.000114,
+      "southeast": 0.000187,
+      "southwest": 6.9e-05
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 6,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.7379
+     },
+     "H3": {
+      "abs_diff_max": 0.2104,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.007646,
+      "abs_share_diff_max": 0.0639
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.010734,
+       "northwest": 0.14892,
+       "northeast": 0.019284,
+       "southeast": 0.041059,
+       "southwest": 0.091075
+      },
+      "jsd_mean": 0.062214,
+      "abs_share_diff_max": 0.446,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "area",
+     "dwell_min": 30,
+     "exclude_under20": false,
+     "person_hours": 36854.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 12,
+      "southeast": 11,
+      "southwest": 12
+     },
+     "sim_night_residual": {
+      "central": 0.3996,
+      "northwest": 0.1771,
+      "northeast": 0.2266,
+      "southeast": 0.2023,
+      "southwest": 0.182
+     },
+     "sim_area_share": {
+      "central": 0.1349,
+      "northwest": 0.5101,
+      "northeast": 0.1142,
+      "southeast": 0.103,
+      "southwest": 0.1378
+     },
+     "sim_attr_share": {
+      "central": [
+       0.1658,
+       0.0145,
+       0.8197
+      ],
+      "northwest": [
+       0.7307,
+       0.0512,
+       0.2182
+      ],
+      "northeast": [
+       0.6375,
+       0.0634,
+       0.299
+      ],
+      "southeast": [
+       0.6868,
+       0.0479,
+       0.2653
+      ],
+      "southwest": [
+       0.8009,
+       0.1028,
+       0.0963
+      ]
+     },
+     "sim_total_attr_share": [
+      0.649,
+      0.0544,
+      0.2966
+     ],
+     "sim_visitor_per_worker": 0.457,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.002744,
+      "northwest": 0.001769,
+      "northeast": 0.001426,
+      "southeast": 0.001414,
+      "southwest": 0.002057
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 3,
+       "southeast": 6,
+       "southwest": 4
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.825
+     },
+     "H3": {
+      "abs_diff_max": 0.2597,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.008623,
+      "abs_share_diff_max": 0.0648
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.010131,
+       "northwest": 0.144909,
+       "northeast": 0.033385,
+       "southeast": 0.042329,
+       "southwest": 0.10473
+      },
+      "jsd_mean": 0.067097,
+      "abs_share_diff_max": 0.4404,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "area",
+     "dwell_min": 30,
+     "exclude_under20": true,
+     "person_hours": 34671.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 12,
+      "southeast": 11,
+      "southwest": 12
+     },
+     "sim_night_residual": {
+      "central": 0.3821,
+      "northwest": 0.1704,
+      "northeast": 0.2203,
+      "southeast": 0.1891,
+      "southwest": 0.1784
+     },
+     "sim_area_share": {
+      "central": 0.1318,
+      "northwest": 0.519,
+      "northeast": 0.1092,
+      "southeast": 0.1061,
+      "southwest": 0.1339
+     },
+     "sim_attr_share": {
+      "central": [
+       0.1755,
+       0.0158,
+       0.8088
+      ],
+      "northwest": [
+       0.7444,
+       0.0482,
+       0.2075
+      ],
+      "northeast": [
+       0.6301,
+       0.0592,
+       0.3107
+      ],
+      "southeast": [
+       0.7041,
+       0.0454,
+       0.2505
+      ],
+      "southwest": [
+       0.8083,
+       0.0959,
+       0.0959
+      ]
+     },
+     "sim_total_attr_share": [
+      0.6612,
+      0.0512,
+      0.2876
+     ],
+     "sim_visitor_per_worker": 0.435,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.002731,
+      "northwest": 0.001707,
+      "northeast": 0.001106,
+      "southeast": 0.001448,
+      "southwest": 0.002255
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 3,
+       "southeast": 6,
+       "southwest": 4
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.825
+     },
+     "H3": {
+      "abs_diff_max": 0.2422,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.009946,
+      "abs_share_diff_max": 0.0699
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.008801,
+       "northwest": 0.154586,
+       "northeast": 0.031636,
+       "southeast": 0.048898,
+       "southwest": 0.106803
+      },
+      "jsd_mean": 0.070145,
+      "abs_share_diff_max": 0.4541,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 37843.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 10,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.366,
+      "northwest": 0.1765,
+      "northeast": 0.2099,
+      "southeast": 0.1977,
+      "southwest": 0.1786
+     },
+     "sim_area_share": {
+      "central": 0.1438,
+      "northwest": 0.4968,
+      "northeast": 0.1201,
+      "southeast": 0.1035,
+      "southwest": 0.1358
+     },
+     "sim_attr_share": {
+      "central": [
+       0.573,
+       0.0538,
+       0.3731
+      ],
+      "northwest": [
+       0.7934,
+       0.081,
+       0.1255
+      ],
+      "northeast": [
+       0.7311,
+       0.1296,
+       0.1393
+      ],
+      "southeast": [
+       0.7903,
+       0.0884,
+       0.1213
+      ],
+      "southwest": [
+       0.7868,
+       0.1735,
+       0.0397
+      ]
+     },
+     "sim_total_attr_share": [
+      0.753,
+      0.0963,
+      0.1507
+     ],
+     "sim_visitor_per_worker": 0.2001,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.0,
+      "northwest": 0.0,
+      "northeast": 0.0,
+      "southeast": 0.0,
+      "southwest": 0.0
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 7,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.6667
+     },
+     "H3": {
+      "abs_diff_max": 0.2261,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.006588,
+      "abs_share_diff_max": 0.0589
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.123503,
+       "northwest": 0.203769,
+       "northeast": 0.095161,
+       "southeast": 0.103812,
+       "southwest": 0.15731
+      },
+      "jsd_mean": 0.136711,
+      "abs_share_diff_max": 0.5031,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 0,
+     "exclude_under20": true,
+     "person_hours": 35559.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 11,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.3503,
+      "northwest": 0.1698,
+      "northeast": 0.2037,
+      "southeast": 0.1857,
+      "southwest": 0.1751
+     },
+     "sim_area_share": {
+      "central": 0.1406,
+      "northwest": 0.5059,
+      "northeast": 0.1152,
+      "southeast": 0.1063,
+      "southwest": 0.132
+     },
+     "sim_attr_share": {
+      "central": [
+       0.5889,
+       0.0566,
+       0.3545
+      ],
+      "northwest": [
+       0.8056,
+       0.0759,
+       0.1184
+      ],
+      "northeast": [
+       0.7399,
+       0.1194,
+       0.1407
+      ],
+      "southeast": [
+       0.8011,
+       0.0828,
+       0.1161
+      ],
+      "southwest": [
+       0.8055,
+       0.1529,
+       0.0415
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7671,
+      0.0891,
+      0.1438
+     ],
+     "sim_visitor_per_worker": 0.1874,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 7e-05,
+      "northwest": 2e-05,
+      "northeast": 0.000114,
+      "southeast": 0.000187,
+      "southwest": 6.9e-05
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 6,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.7379
+     },
+     "H3": {
+      "abs_diff_max": 0.2104,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.007646,
+      "abs_share_diff_max": 0.0639
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.13411,
+       "northwest": 0.21373,
+       "northeast": 0.095633,
+       "southeast": 0.109403,
+       "southwest": 0.15608
+      },
+      "jsd_mean": 0.141791,
+      "abs_share_diff_max": 0.5153,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 30,
+     "exclude_under20": false,
+     "person_hours": 36854.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 12,
+      "southeast": 11,
+      "southwest": 12
+     },
+     "sim_night_residual": {
+      "central": 0.3996,
+      "northwest": 0.1771,
+      "northeast": 0.2266,
+      "southeast": 0.2023,
+      "southwest": 0.182
+     },
+     "sim_area_share": {
+      "central": 0.1349,
+      "northwest": 0.5101,
+      "northeast": 0.1142,
+      "southeast": 0.103,
+      "southwest": 0.1378
+     },
+     "sim_attr_share": {
+      "central": [
+       0.5384,
+       0.0535,
+       0.408
+      ],
+      "northwest": [
+       0.7945,
+       0.0794,
+       0.1262
+      ],
+      "northeast": [
+       0.7352,
+       0.1195,
+       0.1454
+      ],
+      "southeast": [
+       0.7969,
+       0.0843,
+       0.1188
+      ],
+      "southwest": [
+       0.7955,
+       0.168,
+       0.0364
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7536,
+      0.0932,
+      0.1533
+     ],
+     "sim_visitor_per_worker": 0.2034,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.002744,
+      "northwest": 0.001769,
+      "northeast": 0.001426,
+      "southeast": 0.001414,
+      "southwest": 0.002057
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 3,
+       "southeast": 6,
+       "southwest": 4
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.825
+     },
+     "H3": {
+      "abs_diff_max": 0.2597,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.008623,
+      "abs_share_diff_max": 0.0648
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.103638,
+       "northwest": 0.203985,
+       "northeast": 0.09228,
+       "southeast": 0.106846,
+       "southwest": 0.162234
+      },
+      "jsd_mean": 0.133797,
+      "abs_share_diff_max": 0.5042,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 30,
+     "exclude_under20": true,
+     "person_hours": 34671.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 12,
+      "southeast": 11,
+      "southwest": 12
+     },
+     "sim_night_residual": {
+      "central": 0.3821,
+      "northwest": 0.1704,
+      "northeast": 0.2203,
+      "southeast": 0.1891,
+      "southwest": 0.1784
+     },
+     "sim_area_share": {
+      "central": 0.1318,
+      "northwest": 0.519,
+      "northeast": 0.1092,
+      "southeast": 0.1061,
+      "southwest": 0.1339
+     },
+     "sim_attr_share": {
+      "central": [
+       0.5565,
+       0.0562,
+       0.3873
+      ],
+      "northwest": [
+       0.8071,
+       0.0742,
+       0.1187
+      ],
+      "northeast": [
+       0.7445,
+       0.1086,
+       0.1469
+      ],
+      "southeast": [
+       0.8079,
+       0.0791,
+       0.113
+      ],
+      "southwest": [
+       0.8134,
+       0.1482,
+       0.0383
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7682,
+      0.086,
+      0.1458
+     ],
+     "sim_visitor_per_worker": 0.1898,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.002731,
+      "northwest": 0.001707,
+      "northeast": 0.001106,
+      "southeast": 0.001448,
+      "southwest": 0.002255
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 3,
+       "southeast": 6,
+       "southwest": 4
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.825
+     },
+     "H3": {
+      "abs_diff_max": 0.2422,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.009946,
+      "abs_share_diff_max": 0.0699
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.11448,
+       "northwest": 0.2144,
+       "northeast": 0.093143,
+       "southeast": 0.113031,
+       "southwest": 0.161007
+      },
+      "jsd_mean": 0.139212,
+      "abs_share_diff_max": 0.5168,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    }
+   ],
+   "wall_seconds_nondeterministic": 32.75
+  },
+  {
+   "arm": "classical_walk",
+   "args": {
+    "vocab_version": "v3",
+    "exit_mode": "walk_to_platform",
+    "policy": "classical",
+    "chooser": "classical"
+   },
+   "final_hash": "f43d3e476b7720b09cae284d8ddc11d201a99a448a0465e4bdf87367c93149e7",
+   "llm_calls": 101463,
+   "conserved": true,
+   "money": {
+    "money_start": 139575428,
+    "money_end": 131291228,
+    "revenue_end": 8284200,
+    "fares_paid": 0,
+    "conserved": true,
+    "boarded_from_queue": 0.0,
+    "boarded_plan_exit": 4481.0
+   },
+   "presence_exit": {
+    "exit_mode": "walk_to_platform",
+    "departures": 4886,
+    "deferred": 9,
+    "forced_after_defer": 0,
+    "shopping_interrupted": 479,
+    "queue_balked": 6,
+    "exit_cell_in_area_by_hour": [
+     201.0,
+     254.0,
+     245.0,
+     240.0,
+     241.0,
+     239.0,
+     342.0,
+     633.0,
+     1161.0,
+     1233.0,
+     1374.0,
+     1251.0,
+     1085.0,
+     995.0,
+     874.0,
+     789.0,
+     767.0,
+     768.0,
+     828.0,
+     877.0,
+     755.0,
+     551.0,
+     441.0,
+     328.0
+    ],
+    "platform_cell_in_area_by_hour": [
+     0.0,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     3.0,
+     0.0,
+     1.0,
+     4.0,
+     16.0,
+     9.0,
+     3.0,
+     3.0,
+     8.0,
+     23.0,
+     14.0,
+     6.0,
+     12.0,
+     32.0,
+     54.0,
+     31.0,
+     19.0,
+     19.0,
+     14.0
+    ],
+    "exit_cell_density_stage_max_by_hour": [
+     2.0,
+     2.0,
+     3.0,
+     3.0,
+     3.0,
+     3.0,
+     3.0,
+     3.0,
+     4.0,
+     5.0,
+     5.0,
+     6.0,
+     6.0,
+     6.0,
+     6.0,
+     6.0,
+     6.0,
+     6.0,
+     5.0,
+     5.0,
+     5.0,
+     4.0,
+     4.0,
+     3.0
+    ],
+    "walk_max_ticks": 60,
+    "walk_started": 4652,
+    "walk_waiting_at_start": 4,
+    "walk_boarded": 4481,
+    "walk_departed_by_train": 4481,
+    "too_far_immediate": 38,
+    "intent_lost": 821,
+    "intent_lost_immediate": 26,
+    "rewalk_queued": 795,
+    "rewalk_started": 793,
+    "rewalk_forced_immediate": 0,
+    "rewalk_gone_other": 0,
+    "rewalk_waiting_at_end": 2,
+    "fare_exempt": true,
+    "intent_lost_deferred": 1,
+    "gate_immediate": 234,
+    "no_platform_immediate": 0,
+    "still_walking_at_end": 90,
+    "walk_gone_other": 0,
+    "walk_restarted": 15,
+    "boarded_waiting_train_at_end": 0,
+    "walk_minutes_to_board": {
+     "p0": 1.0,
+     "p10": 11.0,
+     "p50": 22.0,
+     "p90": 41.0,
+     "p100": 60.0,
+     "mean": 23.645,
+     "n": 4481
+    },
+    "fallback_minutes": {
+     "p0": 1.0,
+     "p10": 2.3000000000000007,
+     "p50": 60.0,
+     "p90": 60.0,
+     "p100": 60.0,
+     "mean": 42.125,
+     "n": 64
+    },
+    "walk_wakes_suppressed": 6954,
+    "calls_while_walking": 1662,
+    "intent_lost_last_result_action": {
+     "action:0": 482,
+     "action:24": 276,
+     "action:25": 24,
+     "action:3": 24,
+     "action:5": 15,
+     "result:0": 813,
+     "result:19": 2,
+     "result:5": 4,
+     "result:9": 2
+    }
+   },
+   "rail": {
+    "rail.fare_rejected": 0.0,
+    "rail.board_applicants": 4481.0,
+    "rail.left_behind": 0.0,
+    "rail.left_behind_rate": 0.0,
+    "rail.board_intent": 0.0,
+    "rail.board_walking": 0.0,
+    "rail.board_unreachable": 0.0,
+    "rail.board_waiting": 0.0,
+    "rail.board_timeout": 4.0,
+    "rail.board_dropped": 22.0,
+    "rail.boarded_from_queue": 0.0,
+    "rail.boarded_plan_exit": 4481.0,
+    "rail.board_waiting_plan_exit": 4505.0,
+    "rail.board_success_rate": 0.0
+   },
+   "n_agents_registry": 5000,
+   "n_ticks_recorded": 1440,
+   "default_arm_equals_engine_journal": true,
+   "default_arm_max_abs_diff_vs_engine_journal": 0.0,
+   "offstage_with_cell_on_hour": {
+    "in_5_areas": 0,
+    "any_cell": 0,
+    "note": "transit_state != 0 でセルを持つ体の延べ数(24 標本)=従来の journal も在圏に数える"
+   },
+   "axes": {
+    "n": 5000,
+    "home_in_5_areas": 143,
+    "work_in_5_areas": 2375,
+    "school_in_5_areas": 166,
+    "under20": 417
+   },
+   "rows": [
+    {
+     "attr_map": "kind",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 39262.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 9,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 12,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.3102,
+      "northwest": 0.1747,
+      "northeast": 0.2073,
+      "southeast": 0.1944,
+      "southwest": 0.1789
+     },
+     "sim_area_share": {
+      "central": 0.164,
+      "northwest": 0.4837,
+      "northeast": 0.1202,
+      "southeast": 0.1014,
+      "southwest": 0.1307
+     },
+     "sim_attr_share": {
+      "central": [
+       0.5382,
+       0.0525,
+       0.4093
+      ],
+      "northwest": [
+       0.754,
+       0.0817,
+       0.1643
+      ],
+      "northeast": [
+       0.5793,
+       0.124,
+       0.2967
+      ],
+      "southeast": [
+       0.7526,
+       0.0979,
+       0.1494
+      ],
+      "southwest": [
+       0.7225,
+       0.1662,
+       0.1113
+      ]
+     },
+     "sim_total_attr_share": [
+      0.6933,
+      0.0947,
+      0.212
+     ],
+     "sim_visitor_per_worker": 0.3057,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.0,
+      "northwest": 0.0,
+      "northeast": 0.0,
+      "southeast": 0.0,
+      "southwest": 0.0
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 9,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 5,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.8889
+     },
+     "H3": {
+      "abs_diff_max": 0.1703,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.005488,
+      "abs_share_diff_max": 0.0589
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.103255,
+       "northwest": 0.167704,
+       "northeast": 0.021506,
+       "southeast": 0.081589,
+       "southwest": 0.085201
+      },
+      "jsd_mean": 0.091851,
+      "abs_share_diff_max": 0.4637,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind",
+     "dwell_min": 0,
+     "exclude_under20": true,
+     "person_hours": 36835.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 9,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 12,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.2971,
+      "northwest": 0.1679,
+      "northeast": 0.2035,
+      "southeast": 0.1828,
+      "southwest": 0.1758
+     },
+     "sim_area_share": {
+      "central": 0.1607,
+      "northwest": 0.4937,
+      "northeast": 0.1145,
+      "southeast": 0.1042,
+      "southwest": 0.127
+     },
+     "sim_attr_share": {
+      "central": [
+       0.5715,
+       0.0549,
+       0.3736
+      ],
+      "northwest": [
+       0.7814,
+       0.077,
+       0.1416
+      ],
+      "northeast": [
+       0.6395,
+       0.1139,
+       0.2467
+      ],
+      "southeast": [
+       0.7729,
+       0.0901,
+       0.137
+      ],
+      "southwest": [
+       0.7826,
+       0.1448,
+       0.0727
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7307,
+      0.0877,
+      0.1816
+     ],
+     "sim_visitor_per_worker": 0.2486,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 7.2e-05,
+      "northwest": 2e-05,
+      "northeast": 6.6e-05,
+      "southeast": 0.000166,
+      "southwest": 5.8e-05
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 9,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 5,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.8889
+     },
+     "H3": {
+      "abs_diff_max": 0.1572,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.006494,
+      "abs_share_diff_max": 0.0646
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.1229,
+       "northwest": 0.19027,
+       "northeast": 0.039299,
+       "southeast": 0.091757,
+       "southwest": 0.120102
+      },
+      "jsd_mean": 0.112866,
+      "abs_share_diff_max": 0.4911,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind",
+     "dwell_min": 30,
+     "exclude_under20": false,
+     "person_hours": 36565.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 12,
+      "southeast": 11,
+      "southwest": 12
+     },
+     "sim_night_residual": {
+      "central": 0.4032,
+      "northwest": 0.1789,
+      "northeast": 0.2242,
+      "southeast": 0.2053,
+      "southwest": 0.1849
+     },
+     "sim_area_share": {
+      "central": 0.1372,
+      "northwest": 0.5082,
+      "northeast": 0.1157,
+      "southeast": 0.1023,
+      "southwest": 0.1367
+     },
+     "sim_attr_share": {
+      "central": [
+       0.4945,
+       0.0548,
+       0.4506
+      ],
+      "northwest": [
+       0.7574,
+       0.081,
+       0.1616
+      ],
+      "northeast": [
+       0.5874,
+       0.1197,
+       0.293
+      ],
+      "southeast": [
+       0.7714,
+       0.0936,
+       0.135
+      ],
+      "southwest": [
+       0.7286,
+       0.1657,
+       0.1057
+      ]
+     },
+     "sim_total_attr_share": [
+      0.6992,
+      0.0948,
+      0.2061
+     ],
+     "sim_visitor_per_worker": 0.2947,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.008313,
+      "northwest": 0.002195,
+      "northeast": 0.002623,
+      "southeast": 0.002021,
+      "southwest": 0.00258
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 3,
+       "southeast": 6,
+       "southwest": 4
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.825
+     },
+     "H3": {
+      "abs_diff_max": 0.2633,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.008038,
+      "abs_share_diff_max": 0.0634
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.081382,
+       "northwest": 0.170339,
+       "northeast": 0.022945,
+       "southeast": 0.092325,
+       "southwest": 0.089465
+      },
+      "jsd_mean": 0.091292,
+      "abs_share_diff_max": 0.4671,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind",
+     "dwell_min": 30,
+     "exclude_under20": true,
+     "person_hours": 34396.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 12,
+      "southeast": 11,
+      "southwest": 12
+     },
+     "sim_night_residual": {
+      "central": 0.3862,
+      "northwest": 0.1718,
+      "northeast": 0.2193,
+      "southeast": 0.1916,
+      "southwest": 0.1816
+     },
+     "sim_area_share": {
+      "central": 0.1341,
+      "northwest": 0.518,
+      "northeast": 0.1098,
+      "southeast": 0.1056,
+      "southwest": 0.1325
+     },
+     "sim_attr_share": {
+      "central": [
+       0.5225,
+       0.0574,
+       0.42
+      ],
+      "northwest": [
+       0.7841,
+       0.0766,
+       0.1393
+      ],
+      "northeast": [
+       0.6506,
+       0.1073,
+       0.2421
+      ],
+      "southeast": [
+       0.7872,
+       0.0865,
+       0.1264
+      ],
+      "southwest": [
+       0.7883,
+       0.1448,
+       0.0669
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7353,
+      0.0875,
+      0.1773
+     ],
+     "sim_visitor_per_worker": 0.2411,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.008109,
+      "northwest": 0.002074,
+      "northeast": 0.002399,
+      "southeast": 0.00215,
+      "southwest": 0.002834
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 3,
+       "southeast": 6,
+       "southwest": 4
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.825
+     },
+     "H3": {
+      "abs_diff_max": 0.2463,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.009489,
+      "abs_share_diff_max": 0.0693
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.096138,
+       "northwest": 0.192655,
+       "northeast": 0.042106,
+       "southeast": 0.100413,
+       "southwest": 0.126139
+      },
+      "jsd_mean": 0.11149,
+      "abs_share_diff_max": 0.4938,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "area",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 39262.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 9,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 12,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.3102,
+      "northwest": 0.1747,
+      "northeast": 0.2073,
+      "southeast": 0.1944,
+      "southwest": 0.1789
+     },
+     "sim_area_share": {
+      "central": 0.164,
+      "northwest": 0.4837,
+      "northeast": 0.1202,
+      "southeast": 0.1014,
+      "southwest": 0.1307
+     },
+     "sim_attr_share": {
+      "central": [
+       0.1293,
+       0.0115,
+       0.8592
+      ],
+      "northwest": [
+       0.7207,
+       0.0515,
+       0.2278
+      ],
+      "northeast": [
+       0.5625,
+       0.0608,
+       0.3766
+      ],
+      "southeast": [
+       0.6549,
+       0.048,
+       0.2971
+      ],
+      "southwest": [
+       0.7796,
+       0.0959,
+       0.1245
+      ]
+     },
+     "sim_total_attr_share": [
+      0.6057,
+      0.0515,
+      0.3428
+     ],
+     "sim_visitor_per_worker": 0.5659,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.0,
+      "northwest": 0.0,
+      "northeast": 0.0,
+      "southeast": 0.0,
+      "southwest": 0.0
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 9,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 5,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.8889
+     },
+     "H3": {
+      "abs_diff_max": 0.1703,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.005488,
+      "abs_share_diff_max": 0.0589
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.016809,
+       "northwest": 0.138218,
+       "northeast": 0.01614,
+       "southeast": 0.032517,
+       "southwest": 0.084562
+      },
+      "jsd_mean": 0.057649,
+      "abs_share_diff_max": 0.4304,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "area",
+     "dwell_min": 0,
+     "exclude_under20": true,
+     "person_hours": 36835.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 9,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 12,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.2971,
+      "northwest": 0.1679,
+      "northeast": 0.2035,
+      "southeast": 0.1828,
+      "southwest": 0.1758
+     },
+     "sim_area_share": {
+      "central": 0.1607,
+      "northwest": 0.4937,
+      "northeast": 0.1145,
+      "southeast": 0.1042,
+      "southwest": 0.127
+     },
+     "sim_attr_share": {
+      "central": [
+       0.1367,
+       0.0125,
+       0.8508
+      ],
+      "northwest": [
+       0.7331,
+       0.0488,
+       0.2181
+      ],
+      "northeast": [
+       0.5593,
+       0.0557,
+       0.385
+      ],
+      "southeast": [
+       0.675,
+       0.0448,
+       0.2802
+      ],
+      "southwest": [
+       0.7868,
+       0.0892,
+       0.124
+      ]
+     },
+     "sim_total_attr_share": [
+      0.6182,
+      0.0485,
+      0.3334
+     ],
+     "sim_visitor_per_worker": 0.5393,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 7.2e-05,
+      "northwest": 2e-05,
+      "northeast": 6.6e-05,
+      "southeast": 0.000166,
+      "southwest": 5.8e-05
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 9,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 5,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.8889
+     },
+     "H3": {
+      "abs_diff_max": 0.1572,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.006494,
+      "abs_share_diff_max": 0.0646
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.014763,
+       "northwest": 0.146703,
+       "northeast": 0.016711,
+       "southeast": 0.039068,
+       "southwest": 0.086684
+      },
+      "jsd_mean": 0.060786,
+      "abs_share_diff_max": 0.4428,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "area",
+     "dwell_min": 30,
+     "exclude_under20": false,
+     "person_hours": 36565.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 12,
+      "southeast": 11,
+      "southwest": 12
+     },
+     "sim_night_residual": {
+      "central": 0.4032,
+      "northwest": 0.1789,
+      "northeast": 0.2242,
+      "southeast": 0.2053,
+      "southwest": 0.1849
+     },
+     "sim_area_share": {
+      "central": 0.1372,
+      "northwest": 0.5082,
+      "northeast": 0.1157,
+      "southeast": 0.1023,
+      "southwest": 0.1367
+     },
+     "sim_attr_share": {
+      "central": [
+       0.1667,
+       0.0146,
+       0.8187
+      ],
+      "northwest": [
+       0.7347,
+       0.0522,
+       0.2131
+      ],
+      "northeast": [
+       0.6254,
+       0.0653,
+       0.3093
+      ],
+      "southeast": [
+       0.6882,
+       0.0511,
+       0.2607
+      ],
+      "southwest": [
+       0.8005,
+       0.0979,
+       0.1017
+      ]
+     },
+     "sim_total_attr_share": [
+      0.6484,
+      0.0547,
+      0.297
+     ],
+     "sim_visitor_per_worker": 0.458,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.008313,
+      "northwest": 0.002195,
+      "northeast": 0.002623,
+      "southeast": 0.002021,
+      "southwest": 0.00258
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 3,
+       "southeast": 6,
+       "southwest": 4
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.825
+     },
+     "H3": {
+      "abs_diff_max": 0.2633,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.008038,
+      "abs_share_diff_max": 0.0634
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.010025,
+       "northwest": 0.147654,
+       "northeast": 0.029699,
+       "southeast": 0.042416,
+       "southwest": 0.101426
+      },
+      "jsd_mean": 0.066244,
+      "abs_share_diff_max": 0.4444,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "area",
+     "dwell_min": 30,
+     "exclude_under20": true,
+     "person_hours": 34396.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 12,
+      "southeast": 11,
+      "southwest": 12
+     },
+     "sim_night_residual": {
+      "central": 0.3862,
+      "northwest": 0.1718,
+      "northeast": 0.2193,
+      "southeast": 0.1916,
+      "southwest": 0.1816
+     },
+     "sim_area_share": {
+      "central": 0.1341,
+      "northwest": 0.518,
+      "northeast": 0.1098,
+      "southeast": 0.1056,
+      "southwest": 0.1325
+     },
+     "sim_attr_share": {
+      "central": [
+       0.1762,
+       0.0158,
+       0.808
+      ],
+      "northwest": [
+       0.7466,
+       0.0496,
+       0.2038
+      ],
+      "northeast": [
+       0.6244,
+       0.0593,
+       0.3163
+      ],
+      "southeast": [
+       0.7043,
+       0.0476,
+       0.2481
+      ],
+      "southwest": [
+       0.807,
+       0.0912,
+       0.1018
+      ]
+     },
+     "sim_total_attr_share": [
+      0.6602,
+      0.0514,
+      0.2883
+     ],
+     "sim_visitor_per_worker": 0.4367,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.008109,
+      "northwest": 0.002074,
+      "northeast": 0.002399,
+      "southeast": 0.00215,
+      "southwest": 0.002834
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 3,
+       "southeast": 6,
+       "southwest": 4
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.825
+     },
+     "H3": {
+      "abs_diff_max": 0.2463,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.009489,
+      "abs_share_diff_max": 0.0693
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.008732,
+       "northwest": 0.156183,
+       "northeast": 0.030016,
+       "southeast": 0.048665,
+       "southwest": 0.103062
+      },
+      "jsd_mean": 0.069331,
+      "abs_share_diff_max": 0.4563,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 39262.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 9,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 12,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.3102,
+      "northwest": 0.1747,
+      "northeast": 0.2073,
+      "southeast": 0.1944,
+      "southwest": 0.1789
+     },
+     "sim_area_share": {
+      "central": 0.164,
+      "northwest": 0.4837,
+      "northeast": 0.1202,
+      "southeast": 0.1014,
+      "southwest": 0.1307
+     },
+     "sim_attr_share": {
+      "central": [
+       0.5964,
+       0.0525,
+       0.3511
+      ],
+      "northwest": [
+       0.7929,
+       0.0817,
+       0.1254
+      ],
+      "northeast": [
+       0.7166,
+       0.124,
+       0.1594
+      ],
+      "southeast": [
+       0.7828,
+       0.0979,
+       0.1193
+      ],
+      "southwest": [
+       0.7913,
+       0.1662,
+       0.0425
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7503,
+      0.0947,
+      0.155
+     ],
+     "sim_visitor_per_worker": 0.2066,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.0,
+      "northwest": 0.0,
+      "northeast": 0.0,
+      "southeast": 0.0,
+      "southwest": 0.0
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 9,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 5,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.8889
+     },
+     "H3": {
+      "abs_diff_max": 0.1703,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.005488,
+      "abs_share_diff_max": 0.0589
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.137531,
+       "northwest": 0.203569,
+       "northeast": 0.082199,
+       "southeast": 0.103142,
+       "southwest": 0.153825
+      },
+      "jsd_mean": 0.136053,
+      "abs_share_diff_max": 0.5026,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 0,
+     "exclude_under20": true,
+     "person_hours": 36835.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 9,
+      "northwest": 12,
+      "northeast": 18,
+      "southeast": 12,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.2971,
+      "northwest": 0.1679,
+      "northeast": 0.2035,
+      "southeast": 0.1828,
+      "southwest": 0.1758
+     },
+     "sim_area_share": {
+      "central": 0.1607,
+      "northwest": 0.4937,
+      "northeast": 0.1145,
+      "southeast": 0.1042,
+      "southwest": 0.127
+     },
+     "sim_attr_share": {
+      "central": [
+       0.6122,
+       0.0549,
+       0.3329
+      ],
+      "northwest": [
+       0.8041,
+       0.077,
+       0.1189
+      ],
+      "northeast": [
+       0.727,
+       0.1139,
+       0.1592
+      ],
+      "southeast": [
+       0.7943,
+       0.0901,
+       0.1156
+      ],
+      "southwest": [
+       0.8101,
+       0.1448,
+       0.0451
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7642,
+      0.0877,
+      0.1482
+     ],
+     "sim_visitor_per_worker": 0.1939,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 7.2e-05,
+      "northwest": 2e-05,
+      "northeast": 6.6e-05,
+      "southeast": 0.000166,
+      "southwest": 5.8e-05
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 9,
+       "northwest": 6,
+       "northeast": 3,
+       "southeast": 5,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.8889
+     },
+     "H3": {
+      "abs_diff_max": 0.1572,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.006494,
+      "abs_share_diff_max": 0.0646
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.148623,
+       "northwest": 0.212634,
+       "northeast": 0.083927,
+       "southeast": 0.107867,
+       "southwest": 0.152036
+      },
+      "jsd_mean": 0.141017,
+      "abs_share_diff_max": 0.5138,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 30,
+     "exclude_under20": false,
+     "person_hours": 36565.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 12,
+      "southeast": 11,
+      "southwest": 12
+     },
+     "sim_night_residual": {
+      "central": 0.4032,
+      "northwest": 0.1789,
+      "northeast": 0.2242,
+      "southeast": 0.2053,
+      "southwest": 0.1849
+     },
+     "sim_area_share": {
+      "central": 0.1372,
+      "northwest": 0.5082,
+      "northeast": 0.1157,
+      "southeast": 0.1023,
+      "southwest": 0.1367
+     },
+     "sim_attr_share": {
+      "central": [
+       0.5394,
+       0.0548,
+       0.4058
+      ],
+      "northwest": [
+       0.7942,
+       0.081,
+       0.1247
+      ],
+      "northeast": [
+       0.724,
+       0.1197,
+       0.1563
+      ],
+      "southeast": [
+       0.7922,
+       0.0936,
+       0.1142
+      ],
+      "southwest": [
+       0.7939,
+       0.1657,
+       0.0404
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7509,
+      0.0948,
+      0.1543
+     ],
+     "sim_visitor_per_worker": 0.2055,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.008313,
+      "northwest": 0.002195,
+      "northeast": 0.002623,
+      "southeast": 0.002021,
+      "southwest": 0.00258
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 3,
+       "southeast": 6,
+       "southwest": 4
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.825
+     },
+     "H3": {
+      "abs_diff_max": 0.2633,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.008038,
+      "abs_share_diff_max": 0.0634
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.104497,
+       "northwest": 0.204573,
+       "northeast": 0.084841,
+       "southeast": 0.108205,
+       "southwest": 0.156681
+      },
+      "jsd_mean": 0.131759,
+      "abs_share_diff_max": 0.5039,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 30,
+     "exclude_under20": true,
+     "person_hours": 34396.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 12,
+      "southeast": 11,
+      "southwest": 12
+     },
+     "sim_night_residual": {
+      "central": 0.3862,
+      "northwest": 0.1718,
+      "northeast": 0.2193,
+      "southeast": 0.1916,
+      "southwest": 0.1816
+     },
+     "sim_area_share": {
+      "central": 0.1341,
+      "northwest": 0.518,
+      "northeast": 0.1098,
+      "southeast": 0.1056,
+      "southwest": 0.1325
+     },
+     "sim_attr_share": {
+      "central": [
+       0.5596,
+       0.0574,
+       0.383
+      ],
+      "northwest": [
+       0.8056,
+       0.0766,
+       0.1178
+      ],
+      "northeast": [
+       0.7372,
+       0.1073,
+       0.1555
+      ],
+      "southeast": [
+       0.8037,
+       0.0865,
+       0.1099
+      ],
+      "southwest": [
+       0.8122,
+       0.1448,
+       0.043
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7658,
+      0.0875,
+      0.1467
+     ],
+     "sim_visitor_per_worker": 0.1916,
+     "hour_share_jsd_vs_kind_dwell0": {
+      "central": 0.008109,
+      "northwest": 0.002074,
+      "northeast": 0.002399,
+      "southeast": 0.00215,
+      "southwest": 0.002834
+     },
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 3,
+       "southeast": 6,
+       "southwest": 4
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.825
+     },
+     "H3": {
+      "abs_diff_max": 0.2463,
+      "kendall_tau": -0.8
+     },
+     "H4": {
+      "jsd": 0.009489,
+      "abs_share_diff_max": 0.0693
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.116662,
+       "northwest": 0.214051,
+       "northeast": 0.087546,
+       "southeast": 0.113561,
+       "southwest": 0.154883
+      },
+      "jsd_mean": 0.137341,
+      "abs_share_diff_max": 0.5153,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    }
+   ],
+   "wall_seconds_nondeterministic": 32.45
+  }
+ ],
+ "c7_day_4": {
+  "s1": {
+   "journal": "data/runs/c7-day-4/occupancy.npz",
+   "present": true,
+   "rows": [
+    {
+     "attr_map": "kind",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 2624715.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 11,
+      "southeast": 11,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.3852,
+      "northwest": 0.2199,
+      "northeast": 0.2727,
+      "southeast": 0.2116,
+      "southwest": 0.2509
+     },
+     "sim_area_share": {
+      "central": 0.149,
+      "northwest": 0.4336,
+      "northeast": 0.1318,
+      "southeast": 0.1223,
+      "southwest": 0.1632
+     },
+     "sim_attr_share": {
+      "central": [
+       0.5254,
+       0.0873,
+       0.3873
+      ],
+      "northwest": [
+       0.6854,
+       0.1195,
+       0.1951
+      ],
+      "northeast": [
+       0.5467,
+       0.1508,
+       0.3025
+      ],
+      "southeast": [
+       0.7582,
+       0.1008,
+       0.1409
+      ],
+      "southwest": [
+       0.6627,
+       0.1867,
+       0.1506
+      ]
+     },
+     "sim_total_attr_share": [
+      0.6485,
+      0.1275,
+      0.224
+     ],
+     "sim_visitor_per_worker": 0.3455,
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 4,
+       "southeast": 6,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.504
+     },
+     "H3": {
+      "abs_diff_max": 0.2453,
+      "kendall_tau": -0.4
+     },
+     "H4": {
+      "jsd": 0.008999,
+      "abs_share_diff_max": 0.0574
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.108321,
+       "northwest": 0.128656,
+       "northeast": 0.019043,
+       "southeast": 0.086674,
+       "southwest": 0.059887
+      },
+      "jsd_mean": 0.080516,
+      "abs_share_diff_max": 0.3951,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 2624715.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 11,
+      "southeast": 11,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.3852,
+      "northwest": 0.2199,
+      "northeast": 0.2727,
+      "southeast": 0.2116,
+      "southwest": 0.2509
+     },
+     "sim_area_share": {
+      "central": 0.149,
+      "northwest": 0.4336,
+      "northeast": 0.1318,
+      "southeast": 0.1223,
+      "southwest": 0.1632
+     },
+     "sim_attr_share": {
+      "central": [
+       0.5954,
+       0.0873,
+       0.3173
+      ],
+      "northwest": [
+       0.7431,
+       0.1195,
+       0.1374
+      ],
+      "northeast": [
+       0.6921,
+       0.1508,
+       0.1571
+      ],
+      "southeast": [
+       0.7806,
+       0.1008,
+       0.1186
+      ],
+      "southwest": [
+       0.7489,
+       0.1867,
+       0.0643
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7199,
+      0.1275,
+      0.1526
+     ],
+     "sim_visitor_per_worker": 0.2119,
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 4,
+       "southeast": 6,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.504
+     },
+     "H3": {
+      "abs_diff_max": 0.2453,
+      "kendall_tau": -0.4
+     },
+     "H4": {
+      "jsd": 0.008999,
+      "abs_share_diff_max": 0.0574
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.152012,
+       "northwest": 0.176506,
+       "northeast": 0.081003,
+       "southeast": 0.103114,
+       "southwest": 0.126743
+      },
+      "jsd_mean": 0.127876,
+      "abs_share_diff_max": 0.4528,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    }
+   ],
+   "n_samples": 24,
+   "not_computable": [
+    "attr_map=area(体の自宅/職場の軸が無い)",
+    "dwell_min=30(正時の標本しか無い)",
+    "exclude_under20(年齢の軸が無い)"
+   ]
+  },
+  "s2": {
+   "journal": "data/server_retrieval/2026-09-17/runs/c7-day-4-s2/occupancy.npz",
+   "present": true,
+   "rows": [
+    {
+     "attr_map": "kind",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 2621359.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 13,
+      "southeast": 12,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.356,
+      "northwest": 0.2164,
+      "northeast": 0.277,
+      "southeast": 0.2098,
+      "southwest": 0.2543
+     },
+     "sim_area_share": {
+      "central": 0.1472,
+      "northwest": 0.4329,
+      "northeast": 0.133,
+      "southeast": 0.123,
+      "southwest": 0.1639
+     },
+     "sim_attr_share": {
+      "central": [
+       0.5278,
+       0.0915,
+       0.3808
+      ],
+      "northwest": [
+       0.6872,
+       0.1207,
+       0.1921
+      ],
+      "northeast": [
+       0.5475,
+       0.1507,
+       0.3018
+      ],
+      "southeast": [
+       0.758,
+       0.1004,
+       0.1416
+      ],
+      "southwest": [
+       0.6641,
+       0.1844,
+       0.1515
+      ]
+     },
+     "sim_total_attr_share": [
+      0.6501,
+      0.1283,
+      0.2216
+     ],
+     "sim_visitor_per_worker": 0.3409,
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 2,
+       "southeast": 5,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.825
+     },
+     "H3": {
+      "abs_diff_max": 0.2161,
+      "kendall_tau": -0.4
+     },
+     "H4": {
+      "jsd": 0.009106,
+      "abs_share_diff_max": 0.0581
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.111512,
+       "northwest": 0.130506,
+       "northeast": 0.019219,
+       "southeast": 0.086318,
+       "southwest": 0.059308
+      },
+      "jsd_mean": 0.081373,
+      "abs_share_diff_max": 0.3969,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 2621359.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 12,
+      "northeast": 13,
+      "southeast": 12,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.356,
+      "northwest": 0.2164,
+      "northeast": 0.277,
+      "southeast": 0.2098,
+      "southwest": 0.2543
+     },
+     "sim_area_share": {
+      "central": 0.1472,
+      "northwest": 0.4329,
+      "northeast": 0.133,
+      "southeast": 0.123,
+      "southwest": 0.1639
+     },
+     "sim_attr_share": {
+      "central": [
+       0.6008,
+       0.0915,
+       0.3078
+      ],
+      "northwest": [
+       0.7443,
+       0.1207,
+       0.1349
+      ],
+      "northeast": [
+       0.6912,
+       0.1507,
+       0.1581
+      ],
+      "southeast": [
+       0.7798,
+       0.1004,
+       0.1199
+      ],
+      "southwest": [
+       0.7506,
+       0.1844,
+       0.065
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7215,
+      0.1283,
+      0.1501
+     ],
+     "sim_visitor_per_worker": 0.2081,
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 6,
+       "northeast": 2,
+       "southeast": 5,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.825
+     },
+     "H3": {
+      "abs_diff_max": 0.2161,
+      "kendall_tau": -0.4
+     },
+     "H4": {
+      "jsd": 0.009106,
+      "abs_share_diff_max": 0.0581
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.157987,
+       "northwest": 0.178422,
+       "northeast": 0.080361,
+       "southeast": 0.102184,
+       "southwest": 0.126077
+      },
+      "jsd_mean": 0.129006,
+      "abs_share_diff_max": 0.454,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    }
+   ],
+   "n_samples": 24,
+   "not_computable": [
+    "attr_map=area(体の自宅/職場の軸が無い)",
+    "dwell_min=30(正時の標本しか無い)",
+    "exclude_under20(年齢の軸が無い)"
+   ]
+  },
+  "s3": {
+   "journal": "data/server_retrieval/2026-09-17/runs/c7-day-4-s3/occupancy.npz",
+   "present": true,
+   "rows": [
+    {
+     "attr_map": "kind",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 2628983.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 13,
+      "southeast": 12,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.3948,
+      "northwest": 0.2199,
+      "northeast": 0.2718,
+      "southeast": 0.2096,
+      "southwest": 0.251
+     },
+     "sim_area_share": {
+      "central": 0.1508,
+      "northwest": 0.4345,
+      "northeast": 0.1313,
+      "southeast": 0.1218,
+      "southwest": 0.1616
+     },
+     "sim_attr_share": {
+      "central": [
+       0.5219,
+       0.0876,
+       0.3904
+      ],
+      "northwest": [
+       0.6846,
+       0.1201,
+       0.1954
+      ],
+      "northeast": [
+       0.549,
+       0.1509,
+       0.3001
+      ],
+      "southeast": [
+       0.7579,
+       0.1003,
+       0.1418
+      ],
+      "southwest": [
+       0.6631,
+       0.1869,
+       0.15
+      ]
+     },
+     "sim_total_attr_share": [
+      0.6477,
+      0.1276,
+      0.2247
+     ],
+     "sim_visitor_per_worker": 0.3469,
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 2,
+       "southeast": 5,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.8889
+     },
+     "H3": {
+      "abs_diff_max": 0.2549,
+      "kendall_tau": -0.4
+     },
+     "H4": {
+      "jsd": 0.008722,
+      "abs_share_diff_max": 0.0557
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.106515,
+       "northwest": 0.128313,
+       "northeast": 0.019658,
+       "southeast": 0.086204,
+       "southwest": 0.060246
+      },
+      "jsd_mean": 0.080187,
+      "abs_share_diff_max": 0.3943,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    },
+    {
+     "attr_map": "kind_student_worker",
+     "dwell_min": 0,
+     "exclude_under20": false,
+     "person_hours": 2628983.0,
+     "H1": {
+      "measured": false,
+      "reason": "obs の時刻シェアが開封済みの記録に無い(封印は開けない)=空欄"
+     },
+     "sim_peak_hour": {
+      "central": 10,
+      "northwest": 11,
+      "northeast": 13,
+      "southeast": 12,
+      "southwest": 13
+     },
+     "sim_night_residual": {
+      "central": 0.3948,
+      "northwest": 0.2199,
+      "northeast": 0.2718,
+      "southeast": 0.2096,
+      "southwest": 0.251
+     },
+     "sim_area_share": {
+      "central": 0.1508,
+      "northwest": 0.4345,
+      "northeast": 0.1313,
+      "southeast": 0.1218,
+      "southwest": 0.1616
+     },
+     "sim_attr_share": {
+      "central": [
+       0.5938,
+       0.0876,
+       0.3186
+      ],
+      "northwest": [
+       0.7418,
+       0.1201,
+       0.1382
+      ],
+      "northeast": [
+       0.6935,
+       0.1509,
+       0.1557
+      ],
+      "southeast": [
+       0.7809,
+       0.1003,
+       0.1189
+      ],
+      "southwest": [
+       0.7501,
+       0.1869,
+       0.063
+      ]
+     },
+     "sim_total_attr_share": [
+      0.7192,
+      0.1276,
+      0.1532
+     ],
+     "sim_visitor_per_worker": 0.213,
+     "H2": {
+      "abs_hour_diff": {
+       "central": 8,
+       "northwest": 7,
+       "northeast": 2,
+       "southeast": 5,
+       "southwest": 3
+      },
+      "n_within_1h": 0,
+      "kendall_tau": -0.8889
+     },
+     "H3": {
+      "abs_diff_max": 0.2549,
+      "kendall_tau": -0.4
+     },
+     "H4": {
+      "jsd": 0.008722,
+      "abs_share_diff_max": 0.0557
+     },
+     "H5": {
+      "per_area_jsd": {
+       "central": 0.151079,
+       "northwest": 0.175574,
+       "northeast": 0.081907,
+       "southeast": 0.102993,
+       "southwest": 0.128225
+      },
+      "jsd_mean": 0.127956,
+      "abs_share_diff_max": 0.4515,
+      "kddi_total_attr_share_h4_weighted": [
+       0.3318,
+       0.1179,
+       0.5503
+      ],
+      "kddi_visitor_per_worker": 1.6583,
+      "floor_pt_visitor_per_worker": [
+       0.16,
+       0.27
+      ]
+     }
+    }
+   ],
+   "n_samples": 24,
+   "not_computable": [
+    "attr_map=area(体の自宅/職場の軸が無い)",
+    "dwell_min=30(正時の標本しか無い)",
+    "exclude_under20(年齢の軸が無い)"
+   ]
+  }
+ }
+}

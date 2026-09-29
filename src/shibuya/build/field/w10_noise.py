@@ -16,10 +16,17 @@
   - 都環境局 令和5年度 常時監視測定地点 ``r5_joji_kanshi_points.csv``(較正 7 点)。
   - W1 歩行グラフ(街路格子=D-W9 の 2.5m 格子・8m バッファ)。
 
-**手動対応表(edge → センサス区間)について**: 現行の ``w1_edges.parquet`` にも上流の
-``shibuya_osm_wide_v8.json`` の edges にも**道路名(name/ref)が無く**、``kasyo13.csv`` にも
-**座標が無い**ため、名寄せも幾何近接も成立しない。よって対応表は**空**で、全エッジが
-klass 別既定交通量にフォールバックする(件数をゲートに出す。調整はしない)。
+**対応表(edge → センサス路線)について**(段 1c・D-1 (a)・2026-09-28 改訂): ``w1_edges.parquet``
+にも上流の ``shibuya_osm_wide_v8.json`` の edges にも道路名が無く、``kasyo13.csv`` には座標が
+無い。Overpass で取り直した道路の way(``road_names_overpass_20260928.json``・タグ+座標列)を
+橋にして **辺 → 最も近い way(辺の中点から ≤ 8 m)→ センサス路線**(ref/official_name の路線番号・
+国道/都道の別・区道は対象外)の 2 段で対応表を作る(:mod:`.road_names`)。立った辺は**路線の
+区間の中央値**(較正点と同じ ``median_section``)、立たない辺は従来の klass 既定表。
+切替口 = :data:`USE_ROAD_NAME_MATCH`(**既定 False**=対応表は**診断として作って出力する**が騒音場には
+当てない=騒音場は改訂前とバイト一致)。既定 OFF の理由(親決定・段 1c の検収): 較正点の残差が
+1 点も動かず(較正は辺を通らない)改善の証拠が無い一方、klass と way の階級が合わない辺が実測の
+13〜63 倍の交通量を受け、首都高の下の辺が高架を拾う=品質が未確定。絞り込み(段 1c′):
+:data:`ROAD_NAME_REQUIRE_NAMED_SAME_CLASS`(Q7)・:data:`ROAD_NAME_REQUIRE_SAME_BAND`(Q9)。
 既定表そのものは渋谷区のセンサス実測行から導く(道路種別3/4→primary・6→secondary)。
 
 expedient(すべて感度試験対象)
@@ -45,13 +52,29 @@ from typing import Any, Sequence
 import numpy as np
 
 from . import common as C
+from . import road_names as RN
 from .street_grid import segment_arrays, street_points
 
 STAGE = "W10"
-STAGE_VERSION = "1.0.0"
+#: 1.0.0 = 対応表は空(全辺 klass 既定)/ 1.1.0 = 道路名の突合(段 1c・D-1 (a))+対応表の出力。
+STAGE_VERSION = "1.1.0"
 
 KASYO = ("realworld", "road_census_r3", "kasyo13.csv")
 R5_POINTS = ("realworld", "tokyo_noise", "r5_joji_kanshi_points.csv")
+#: 道路名の生応答(段 1c)。``road_names.ROAD_NAMES`` と同じ。
+ROAD_NAMES = RN.ROAD_NAMES
+
+#: **切替口**(段 1c)。**既定 False**=対応表は作って ``w10_edge_section.parquet`` に書く(診断)が、
+#: 騒音場には当てない=全辺が klass 既定表(改訂前の騒音場とバイト一致)。``True`` で当てる。
+#: 既定 OFF の理由は docstring(親決定・段 1c の検収=良くなった証拠が無ければ既定を動かさない)。
+USE_ROAD_NAME_MATCH: bool = False
+#: 段 1c′ Q7 の絞り込み: 候補の way を「名前か ref があり、階級(``road_names.CLASS_TIER``)が辺の
+#: klass と同じもの」に限る。既定 False=段 1c の規則(名前の有無に関わらず最も近い way)。
+ROAD_NAME_REQUIRE_NAMED_SAME_CLASS: bool = False
+#: 段 1c′ Q9 の絞り込み: 候補の way を「層(``road_names.way_band``)が辺の band と同じもの」に限る。
+ROAD_NAME_REQUIRE_SAME_BAND: bool = False
+#: 対応表が立つべき辺(primary 127 + secondary 75・仕様書の数)。
+EXPECTED_PRIMARY_SECONDARY_EDGES: int = 202
 
 # --- ASJ RTN-Model 2018 係数(親実読・Table 2.3 / Table A4.1)------------------------------
 ASJ_COEFF: dict[str, dict[str, float]] = {
@@ -485,6 +508,10 @@ def run(ctx: C.Ctx) -> C.StageResult:
     for p in (kasyo_p, r5_p):
         if not p.exists():
             raise FileNotFoundError(f"W10 入力が無い: {p}")
+    road_names_p = ctx.path(*ROAD_NAMES)
+    if USE_ROAD_NAME_MATCH and not road_names_p.exists():
+        raise FileNotFoundError(f"W10 入力が無い: {road_names_p}")
+    has_road_names = road_names_p.exists()
     edges_p = ctx.out / "w1_edges.parquet"
     geom_p = ctx.out / "w1_edge_geometry.npz"
     for p in (edges_p, geom_p):
@@ -503,8 +530,42 @@ def run(ctx: C.Ctx) -> C.StageResult:
     n_pts = len(grid)
 
     # --- (b) 交通量の割当 ---
-    # 対応表: 道路名がどこにも無いので空(下の notes に診断を書く)。
-    section_of_edge: dict[int, str] = {}
+    # 対応表(段 1c): 辺 → 最も近い way → センサス路線(:mod:`.road_names`)。**切替口に関わらず
+    # 作る**(診断)。騒音場に当てるのは USE_ROAD_NAME_MATCH=True のときだけ。
+    section_of_edge: dict[int, str] = {}   # 当てた辺(OFF なら空)
+    matchable: dict[int, str] = {}         # 当てうる辺(切替口の設定の規則)
+    route_secs: dict[str, dict[str, float]] = {}
+    match_rep: dict[str, Any] = {}
+    match_rep_refined: dict[str, Any] = {}
+    edge_match: RN.EdgeWayMatch | None = None
+    edge_match_refined: RN.EdgeWayMatch | None = None
+    if has_road_names:
+        mids = RN.edge_midpoints(edges["geom_start"], edges["geom_count"], coords)
+        ways = C.load_json(road_names_p)["elements"]
+        edge_match = RN.match_edges_to_ways(
+            mids, ways, sections,
+            edge_klass=edges["klass"], edge_band=edges["band"],
+            require_named_same_class=ROAD_NAME_REQUIRE_NAMED_SAME_CLASS,
+            require_same_band=ROAD_NAME_REQUIRE_SAME_BAND,
+        )
+        # 段 1c′ の比較用(Q7+Q9 の両方を掛けた対応表・診断のみ)
+        edge_match_refined = RN.match_edges_to_ways(
+            mids, ways, sections,
+            edge_klass=edges["klass"], edge_band=edges["band"],
+            require_named_same_class=True, require_same_band=True,
+        )
+        all_routes = {**edge_match_refined.route_sections, **edge_match.route_sections}
+        for label, secs in sorted(all_routes.items()):
+            ok = [s for s in secs if _usable(s)]
+            if ok:
+                route_secs[label] = median_section(ok)
+        for e, k, label in zip(edges["edge_idx"], edges["klass"], edge_match.route):
+            if k in ROAD_KLASSES and label in route_secs:
+                matchable[int(e)] = label
+        if USE_ROAD_NAME_MATCH:
+            section_of_edge = dict(matchable)
+        match_rep = RN.match_report(edge_match, edges["klass"], ROAD_KLASSES)
+        match_rep_refined = RN.match_report(edge_match_refined, edges["klass"], ROAD_KLASSES)
     shibuya = [s for s in sections if s["city"] == "13113"]
     census_defaults: dict[str, dict[str, float]] = {}
     for klass, rule in KLASS_DEFAULT_RULE.items():
@@ -541,7 +602,8 @@ def run(ctx: C.Ctx) -> C.StageResult:
     a_night_of_edge: dict[int, float] = {}
     geo_of_edge: dict[int, tuple[float, int]] = {}
     for e in road_edges:
-        sec = census_defaults[klass_of_edge[e]]
+        # 対応表が立った辺は路線の区間の中央値(実測)・立たない辺は klass 既定表
+        sec = route_secs[section_of_edge[e]] if e in section_of_edge else census_defaults[klass_of_edge[e]]
         ad, an = energy_coeffs(sec, "nonsteady_dense")
         a_day_of_edge[e] = ad
         a_night_of_edge[e] = an
@@ -598,11 +660,39 @@ def run(ctx: C.Ctx) -> C.StageResult:
         "night_hours": list(NIGHT_HOURS),
         "census_day12_hours": list(CENSUS_DAY12_HOURS),
         "n_nearest_edges": 3,
+        "road_name_match": {
+            "enabled": bool(USE_ROAD_NAME_MATCH),
+            "require_named_same_class": bool(ROAD_NAME_REQUIRE_NAMED_SAME_CLASS),
+            "require_same_band": bool(ROAD_NAME_REQUIRE_SAME_BAND),
+            "class_tier": dict(RN.CLASS_TIER),
+            "buffer_m": RN.MATCH_BUFFER_M,
+            "census_wards": list(RN.CENSUS_WARDS),
+            "edge_to_way": "nearest way (any, named or not) from the edge's arc-length midpoint",
+            "way_to_census": (
+                "normalize_jp; 区道 -> none; 国道N号 or trunk+ref -> road_kind 3 route N; "
+                "motorway -> none; ref digits -> road_kind 4/6 route N; name-only -> exact route name"
+            ),
+            "section_value": "lower median of the route's usable sections (median_section)",
+        },
     }
+    ps_edges = [int(e) for e, k in zip(edges["edge_idx"], edges["klass"]) if k in ("primary", "secondary")]
+    ps_matched = sum(1 for e in ps_edges if e in section_of_edge)
+    ps_matchable = sum(1 for e in ps_edges if e in matchable)
+    ps_matchable_refined = (
+        sum(
+            1
+            for e, k, label in zip(edges["edge_idx"], edges["klass"], edge_match_refined.route)
+            if k in ("primary", "secondary") and label in route_secs
+        )
+        if edge_match_refined is not None
+        else 0
+    )
     res = C.StageResult(
         stage=STAGE,
         stage_version=STAGE_VERSION,
-        input_hash=C.input_hash([kasyo_p, r5_p, edges_p, geom_p]),
+        input_hash=C.input_hash(
+            [kasyo_p, r5_p, edges_p, geom_p] + ([road_names_p] if has_road_names else [])
+        ),
         param_hash=C.param_hash(params),
         params=params,
         catalog_classes=["街路面(可視・可聴の台)", "道路交通騒音場", "環境音(静的)"],
@@ -616,6 +706,9 @@ def run(ctx: C.Ctx) -> C.StageResult:
             "バンド遮蔽 UG −20 dB(根拠なし)",
             "B4 騒音段階の語彙割当(境界は環境基準に釘付け)",
             "街路格子のバッファ 8m・ピッチ 2.5m(D-W9 既決)",
+            "道路名の突合(段 1c): 辺の中点 1 点で最も近い way を採る・8 m(D-W9 と同値)・層を見ない・"
+            "路線内の区間の位置決めをしない(路線の区間の中央値を路線全体へ)・区の優先順 "
+            "渋谷→目黒→港→世田谷→新宿→都内",
         ],
         notes={
             "street_points_total": n_pts,
@@ -639,10 +732,29 @@ def run(ctx: C.Ctx) -> C.StageResult:
                 "cycleway/corridor/elevator は非音源=交通行を持たない。"
             ),
             "section_match_diagnosis": (
-                "手動対応表は作れない: w1_edges/OSM v8 の edges に道路名(name/ref)が無く、"
-                "kasyo13.csv に座標が無い。名寄せ・幾何近接のいずれも成立しないため"
-                "全エッジが klass 既定へフォールバック(primary 127 + secondary 75 の対応は未達)。"
+                "段 1c: 辺 → 最も近い way(≤ 8 m)→ センサス路線の対応表を"
+                + ("作って騒音場に当てた。" if USE_ROAD_NAME_MATCH else "**作った(診断)が当てていない**。")
+                + f"当てうる道路の辺 {len(matchable)}(primary+secondary {ps_matchable}/{len(ps_edges)})"
+                + f"・当てた辺 {len(section_of_edge)}。段 1c′(Q7+Q9)の対応表では primary+secondary "
+                + f"{ps_matchable_refined}/{len(ps_edges)}。立たない理由は notes road_name_match。"
             ),
+            "road_name_match_applied": bool(USE_ROAD_NAME_MATCH),
+            "road_name_match_off_reason": (
+                ""
+                if USE_ROAD_NAME_MATCH
+                else (
+                    "既定 OFF(親決定・段 1c の検収): 較正点の残差が 1 点も動かない(較正は路線名で"
+                    "センサスを直接引き、辺も騒音場も通らない)=改善の証拠が無い一方、当てうる辺の"
+                    "うち klass と way の highway が合わない辺が klass 既定の 13〜63 倍の交通量を受け、"
+                    "首都高の下の辺が高架の way を拾う=品質が未確定。良くなった証拠が無ければ既定を"
+                    "動かさない(実装アジェンダ §3-3 の趣旨)。"
+                )
+            ),
+            "road_name_match": match_rep,
+            "road_name_match_refined_q7_q9": match_rep_refined,
+            "road_name_route_sections": {
+                label: {kk: round(vv, 3) for kk, vv in v.items()} for label, v in route_secs.items()
+            },
             "expressway_absent": (
                 "高速3号渋谷線等の高架は歩行グラフに motorway クラスが無く騒音場に不在(既知の欠落)。"
             ),
@@ -682,11 +794,44 @@ def run(ctx: C.Ctx) -> C.StageResult:
     res.outputs.append(C.write_npy(ctx.out, "w10_noise_night.npy", night_u8))
     res.outputs.append(C.write_npy(ctx.out, "w10_noise_stage_day.npy", stage_day))
     res.outputs.append(C.write_npy(ctx.out, "w10_noise_stage_night.npy", stage_night))
+    if edge_match is not None:
+        # 対応表(段 1c): 全辺 1 行・w1_edges の行順
+        res.outputs.append(
+            C.write_parquet(
+                ctx.out,
+                "w10_edge_section.parquet",
+                {
+                    "edge_idx": np.asarray(edges["edge_idx"], dtype=np.int32),
+                    "klass": list(edges["klass"]),
+                    "way_distance_m": np.round(edge_match.distance_m, 3),
+                    "way_highway": [t.get("highway", "") for t in edge_match.way_tags],
+                    "way_name": [t.get("name", "") for t in edge_match.way_tags],
+                    "way_ref": [t.get("ref", "") for t in edge_match.way_tags],
+                    "key_kind": edge_match.key_kind,
+                    "census_route": edge_match.route,
+                    "census_route_q7_q9": (
+                        edge_match_refined.route if edge_match_refined is not None
+                        else [""] * len(edges["edge_idx"])
+                    ),
+                    "matchable": np.asarray(
+                        [int(e) in matchable for e in edges["edge_idx"]], dtype=bool
+                    ),
+                    "traffic_from_census": np.asarray(
+                        [int(e) in section_of_edge for e in edges["edge_idx"]], dtype=bool
+                    ),
+                },
+            )
+        )
     res.gates = [
         C.Gate("street_points", n_pts, None),
         C.Gate("street_points_have_band", len(set(grid.band)), 3),
         C.Gate("noise_arrays_len", int(day_u8.shape[0]), n_pts),
-        C.Gate("primary_secondary_sections_matched", len(section_of_edge), 202, passed=False),
+        # 段 1c: primary/secondary の辺のうち対応表が立った数(期待=全 202 本)
+        C.Gate("primary_secondary_sections_matched", ps_matched, EXPECTED_PRIMARY_SECONDARY_EDGES),
+        C.Gate("road_edges_with_census_traffic", len(section_of_edge), None),
+        # 診断(当てていなくても数える): 当てうる primary+secondary の辺(設定の規則 / Q7+Q9)
+        C.Gate("primary_secondary_sections_matchable", ps_matchable, None),
+        C.Gate("primary_secondary_sections_matchable_q7_q9", ps_matchable_refined, None),
         C.Gate("road_edges_with_traffic", len(a_day_of_edge), n_edges_needing_traffic),
         C.Gate("points_with_at_least_one_source", int((near_e[:, 0] >= 0).sum()), n_pts),
         C.Gate("calibration_points_evaluable", len(evaluable), None),

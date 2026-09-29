@@ -1,0 +1,1829 @@
+{
+ "schema": "shibuya.bench/store-memory/replay/1",
+ "tapes": [
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__ad_zero",
+   "vocab": "v1",
+   "agents_with_calls": 4816,
+   "counts": {
+    "shop_responses": 16381,
+    "shop_named_target": 1300,
+    "shop_resolved_failure": 4036,
+    "shop_no_candidate": 3743,
+    "shop_no_candidate:named_out_of_cell": 784,
+    "shop_no_candidate:bad_target": 2959,
+    "shop_resolved_ok": 8602
+   },
+   "per_agent_day": {
+    "rows": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 8.0,
+     "mean": 1.634
+    },
+    "rows_self": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 8.0,
+     "mean": 1.634
+    },
+    "rows_signage_only": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 0.0,
+     "p99": 0.0,
+     "p100": 0.0,
+     "mean": 0.0
+    },
+    "rows_valence+1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 5.0,
+     "mean": 0.992
+    },
+    "rows_valence-1": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 1.0,
+     "p99": 3.0,
+     "p100": 5.0,
+     "mean": 0.563
+    },
+    "rows_valence0": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 0.0,
+     "p99": 1.0,
+     "p100": 3.0,
+     "mean": 0.079
+    }
+   },
+   "rows_by_source": {
+    "self": {
+     "rows": 7870,
+     "valence+1": 4777,
+     "valence0": 380,
+     "valence-1": 2713,
+     "recallable": 2938
+    }
+   },
+   "valence_sign": {
+    "+1": 4777,
+    "0": 380,
+    "-1": 2713
+   },
+   "precision": {
+    "p0": 1.0,
+    "p10": 1.0,
+    "p50": 1.0,
+    "p90": 3.0,
+    "p99": 6.0,
+    "p100": 12.0,
+    "mean": 1.6058
+   },
+   "recallable_share_end_of_day": 0.3733,
+   "distinct_pois_known": 378,
+   "full_agents": 0,
+   "evictions": 0
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_14",
+   "vocab": "v1",
+   "agents_with_calls": 4816,
+   "counts": {
+    "shop_responses": 16399,
+    "shop_named_target": 1385,
+    "shop_resolved_failure": 4043,
+    "shop_no_candidate": 3733,
+    "shop_no_candidate:named_out_of_cell": 842,
+    "signage_first": 3830,
+    "shop_no_candidate:bad_target": 2891,
+    "shop_resolved_ok": 8623
+   },
+   "per_agent_day": {
+    "rows": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 4.0,
+     "p99": 6.0,
+     "p100": 10.0,
+     "mean": 2.132
+    },
+    "rows_self": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 8.0,
+     "mean": 1.641
+    },
+    "rows_signage_only": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 1.0,
+     "p99": 2.0,
+     "p100": 5.0,
+     "mean": 0.491
+    },
+    "rows_valence+1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 5.0,
+     "mean": 0.989
+    },
+    "rows_valence-1": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 1.0,
+     "p99": 3.0,
+     "p100": 7.0,
+     "mean": 0.578
+    },
+    "rows_valence0": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 1.0,
+     "p99": 3.0,
+     "p100": 5.0,
+     "mean": 0.566
+    }
+   },
+   "rows_by_source": {
+    "self": {
+     "rows": 6439,
+     "valence+1": 3809,
+     "valence0": 261,
+     "valence-1": 2369,
+     "recallable": 2189
+    },
+    "signage": {
+     "rows": 2367,
+     "valence+1": 0,
+     "valence0": 2367,
+     "valence-1": 0,
+     "recallable": 335
+    },
+    "self+signage": {
+     "rows": 1463,
+     "valence+1": 952,
+     "valence0": 97,
+     "valence-1": 414,
+     "recallable": 1213
+    }
+   },
+   "valence_sign": {
+    "+1": 4761,
+    "0": 2725,
+    "-1": 2783
+   },
+   "precision": {
+    "p0": 0.0625,
+    "p10": 0.0625,
+    "p50": 1.0,
+    "p90": 3.0,
+    "p99": 6.0,
+    "p100": 11.0,
+    "mean": 1.2567
+   },
+   "recallable_share_end_of_day": 0.3639,
+   "distinct_pois_known": 475,
+   "full_agents": 0,
+   "evictions": 0
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_30",
+   "vocab": "v1",
+   "agents_with_calls": 4816,
+   "counts": {
+    "signage_first": 6754,
+    "shop_responses": 16347,
+    "shop_named_target": 1408,
+    "shop_no_candidate": 3800,
+    "shop_no_candidate:named_out_of_cell": 833,
+    "shop_no_candidate:bad_target": 2967,
+    "shop_resolved_failure": 3968,
+    "shop_resolved_ok": 8579
+   },
+   "per_agent_day": {
+    "rows": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 4.0,
+     "p99": 7.0,
+     "p100": 11.0,
+     "mean": 2.512
+    },
+    "rows_self": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 8.0,
+     "mean": 1.629
+    },
+    "rows_signage_only": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 6.0,
+     "mean": 0.883
+    },
+    "rows_valence+1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 5.0,
+     "mean": 0.987
+    },
+    "rows_valence-1": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 1.0,
+     "p99": 3.0,
+     "p100": 7.0,
+     "mean": 0.565
+    },
+    "rows_valence0": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 4.0,
+     "p100": 6.0,
+     "mean": 0.96
+    }
+   },
+   "rows_by_source": {
+    "self": {
+     "rows": 5344,
+     "valence+1": 3180,
+     "valence0": 207,
+     "valence-1": 1957,
+     "recallable": 1792
+    },
+    "signage": {
+     "rows": 4252,
+     "valence+1": 0,
+     "valence0": 4252,
+     "valence-1": 0,
+     "recallable": 561
+    },
+    "self+signage": {
+     "rows": 2502,
+     "valence+1": 1574,
+     "valence0": 165,
+     "valence-1": 763,
+     "recallable": 1997
+    }
+   },
+   "valence_sign": {
+    "+1": 4754,
+    "0": 4624,
+    "-1": 2720
+   },
+   "precision": {
+    "p0": 0.0625,
+    "p10": 0.0625,
+    "p50": 1.0,
+    "p90": 2.0625,
+    "p99": 5.0625,
+    "p100": 13.0,
+    "mean": 1.072
+   },
+   "recallable_share_end_of_day": 0.3596,
+   "distinct_pois_known": 492,
+   "full_agents": 0,
+   "evictions": 0
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_1_00",
+   "vocab": "v1",
+   "agents_with_calls": 4816,
+   "counts": {
+    "signage_first": 12344,
+    "shop_responses": 16169,
+    "shop_named_target": 1663,
+    "shop_resolved_failure": 3918,
+    "shop_no_candidate": 4013,
+    "shop_no_candidate:named_out_of_cell": 951,
+    "shop_no_candidate:bad_target": 3062,
+    "shop_resolved_ok": 8238
+   },
+   "per_agent_day": {
+    "rows": {
+     "p10": 2.0,
+     "p50": 3.0,
+     "p90": 5.0,
+     "p99": 9.0,
+     "p100": 17.0,
+     "mean": 3.359
+    },
+    "rows_self": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 8.0,
+     "mean": 1.591
+    },
+    "rows_signage_only": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 6.0,
+     "p100": 9.0,
+     "mean": 1.768
+    },
+    "rows_valence+1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 5.0,
+     "mean": 0.955
+    },
+    "rows_valence-1": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 1.0,
+     "p99": 3.0,
+     "p100": 6.0,
+     "mean": 0.558
+    },
+    "rows_valence0": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 6.0,
+     "p100": 10.0,
+     "mean": 1.846
+    }
+   },
+   "rows_by_source": {
+    "self": {
+     "rows": 3834,
+     "valence+1": 2400,
+     "valence0": 186,
+     "valence-1": 1248,
+     "recallable": 1420
+    },
+    "signage": {
+     "rows": 8516,
+     "valence+1": 0,
+     "valence0": 8516,
+     "valence-1": 0,
+     "recallable": 1014
+    },
+    "self+signage": {
+     "rows": 3828,
+     "valence+1": 2201,
+     "valence0": 188,
+     "valence-1": 1439,
+     "recallable": 2813
+    }
+   },
+   "valence_sign": {
+    "+1": 4601,
+    "0": 8890,
+    "-1": 2687
+   },
+   "precision": {
+    "p0": 0.0625,
+    "p10": 0.0625,
+    "p50": 0.0625,
+    "p90": 2.0625,
+    "p99": 5.0625,
+    "p100": 11.0625,
+    "mean": 0.7991
+   },
+   "recallable_share_end_of_day": 0.3243,
+   "distinct_pois_known": 486,
+   "full_agents": 0,
+   "evictions": 0
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__ad_zero",
+   "vocab": "v1",
+   "agents_with_calls": 4812,
+   "counts": {
+    "shop_responses": 16360,
+    "shop_named_target": 1307,
+    "shop_no_candidate": 3812,
+    "shop_no_candidate:bad_target": 3054,
+    "shop_resolved_failure": 4026,
+    "shop_no_candidate:named_out_of_cell": 758,
+    "shop_resolved_ok": 8522
+   },
+   "per_agent_day": {
+    "rows": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 8.0,
+     "mean": 1.648
+    },
+    "rows_self": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 8.0,
+     "mean": 1.648
+    },
+    "rows_signage_only": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 0.0,
+     "p99": 0.0,
+     "p100": 0.0,
+     "mean": 0.0
+    },
+    "rows_valence+1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 6.0,
+     "mean": 0.991
+    },
+    "rows_valence-1": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 1.0,
+     "p99": 3.0,
+     "p100": 6.0,
+     "mean": 0.579
+    },
+    "rows_valence0": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 0.0,
+     "p99": 1.0,
+     "p100": 2.0,
+     "mean": 0.078
+    }
+   },
+   "rows_by_source": {
+    "self": {
+     "rows": 7930,
+     "valence+1": 4768,
+     "valence0": 376,
+     "valence-1": 2786,
+     "recallable": 2875
+    }
+   },
+   "valence_sign": {
+    "+1": 4768,
+    "0": 376,
+    "-1": 2786
+   },
+   "precision": {
+    "p0": 1.0,
+    "p10": 1.0,
+    "p50": 1.0,
+    "p90": 3.0,
+    "p99": 6.0,
+    "p100": 13.0,
+    "mean": 1.5823
+   },
+   "recallable_share_end_of_day": 0.3625,
+   "distinct_pois_known": 366,
+   "full_agents": 0,
+   "evictions": 0
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_14",
+   "vocab": "v1",
+   "agents_with_calls": 4812,
+   "counts": {
+    "signage_first": 3893,
+    "shop_responses": 16295,
+    "shop_named_target": 1307,
+    "shop_no_candidate": 3804,
+    "shop_no_candidate:bad_target": 3017,
+    "shop_resolved_failure": 3968,
+    "shop_no_candidate:named_out_of_cell": 787,
+    "shop_resolved_ok": 8523
+   },
+   "per_agent_day": {
+    "rows": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 4.0,
+     "p99": 6.0,
+     "p100": 12.0,
+     "mean": 2.135
+    },
+    "rows_self": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 11.0,
+     "mean": 1.651
+    },
+    "rows_signage_only": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 1.0,
+     "p99": 2.0,
+     "p100": 4.0,
+     "mean": 0.484
+    },
+    "rows_valence+1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 7.0,
+     "mean": 0.999
+    },
+    "rows_valence-1": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 1.0,
+     "p99": 3.0,
+     "p100": 6.0,
+     "mean": 0.582
+    },
+    "rows_valence0": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 1.0,
+     "p99": 3.0,
+     "p100": 4.0,
+     "mean": 0.553
+    }
+   },
+   "rows_by_source": {
+    "self": {
+     "rows": 6380,
+     "valence+1": 3813,
+     "valence0": 235,
+     "valence-1": 2332,
+     "recallable": 2163
+    },
+    "signage": {
+     "rows": 2327,
+     "valence+1": 0,
+     "valence0": 2327,
+     "valence-1": 0,
+     "recallable": 361
+    },
+    "self+signage": {
+     "rows": 1566,
+     "valence+1": 995,
+     "valence0": 101,
+     "valence-1": 470,
+     "recallable": 1279
+    }
+   },
+   "valence_sign": {
+    "+1": 4808,
+    "0": 2663,
+    "-1": 2802
+   },
+   "precision": {
+    "p0": 0.0625,
+    "p10": 0.0625,
+    "p50": 1.0,
+    "p90": 3.0,
+    "p99": 5.0625,
+    "p100": 14.0625,
+    "mean": 1.2396
+   },
+   "recallable_share_end_of_day": 0.3702,
+   "distinct_pois_known": 477,
+   "full_agents": 0,
+   "evictions": 0
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_30",
+   "vocab": "v1",
+   "agents_with_calls": 4813,
+   "counts": {
+    "signage_first": 6743,
+    "shop_responses": 16402,
+    "shop_named_target": 1448,
+    "shop_resolved_failure": 3997,
+    "shop_no_candidate": 3982,
+    "shop_no_candidate:bad_target": 3112,
+    "shop_no_candidate:named_out_of_cell": 870,
+    "shop_resolved_ok": 8423
+   },
+   "per_agent_day": {
+    "rows": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 4.0,
+     "p99": 7.0,
+     "p100": 11.0,
+     "mean": 2.501
+    },
+    "rows_self": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 8.0,
+     "mean": 1.628
+    },
+    "rows_signage_only": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 6.0,
+     "mean": 0.873
+    },
+    "rows_valence+1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 5.0,
+     "mean": 0.974
+    },
+    "rows_valence-1": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 1.0,
+     "p99": 3.0,
+     "p100": 5.0,
+     "mean": 0.579
+    },
+    "rows_valence0": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 4.0,
+     "p100": 6.0,
+     "mean": 0.948
+    }
+   },
+   "rows_by_source": {
+    "self": {
+     "rows": 5292,
+     "valence+1": 3125,
+     "valence0": 196,
+     "valence-1": 1971,
+     "recallable": 1752
+    },
+    "signage": {
+     "rows": 4200,
+     "valence+1": 0,
+     "valence0": 4200,
+     "valence-1": 0,
+     "recallable": 588
+    },
+    "self+signage": {
+     "rows": 2543,
+     "valence+1": 1563,
+     "valence0": 166,
+     "valence-1": 814,
+     "recallable": 2023
+    }
+   },
+   "valence_sign": {
+    "+1": 4688,
+    "0": 4562,
+    "-1": 2785
+   },
+   "precision": {
+    "p0": 0.0625,
+    "p10": 0.0625,
+    "p50": 1.0,
+    "p90": 2.0625,
+    "p99": 6.0,
+    "p100": 12.0625,
+    "mean": 1.067
+   },
+   "recallable_share_end_of_day": 0.3625,
+   "distinct_pois_known": 492,
+   "full_agents": 0,
+   "evictions": 0
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_1_00",
+   "vocab": "v1",
+   "agents_with_calls": 4813,
+   "counts": {
+    "signage_first": 12346,
+    "shop_responses": 16215,
+    "shop_named_target": 1550,
+    "shop_resolved_failure": 3896,
+    "shop_no_candidate": 4007,
+    "shop_no_candidate:bad_target": 3115,
+    "shop_no_candidate:named_out_of_cell": 892,
+    "shop_resolved_ok": 8312
+   },
+   "per_agent_day": {
+    "rows": {
+     "p10": 2.0,
+     "p50": 3.0,
+     "p90": 6.0,
+     "p99": 9.0,
+     "p100": 16.0,
+     "mean": 3.352
+    },
+    "rows_self": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 8.0,
+     "mean": 1.577
+    },
+    "rows_signage_only": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 6.0,
+     "p100": 10.0,
+     "mean": 1.776
+    },
+    "rows_valence+1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 5.0,
+     "mean": 0.946
+    },
+    "rows_valence-1": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 1.0,
+     "p99": 3.0,
+     "p100": 5.0,
+     "mean": 0.556
+    },
+    "rows_valence0": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 6.0,
+     "p100": 10.0,
+     "mean": 1.85
+    }
+   },
+   "rows_by_source": {
+    "self": {
+     "rows": 3788,
+     "valence+1": 2309,
+     "valence0": 161,
+     "valence-1": 1318,
+     "recallable": 1411
+    },
+    "signage": {
+     "rows": 8546,
+     "valence+1": 0,
+     "valence0": 8546,
+     "valence-1": 0,
+     "recallable": 1045
+    },
+    "self+signage": {
+     "rows": 3800,
+     "valence+1": 2242,
+     "valence0": 199,
+     "valence-1": 1359,
+     "recallable": 2851
+    }
+   },
+   "valence_sign": {
+    "+1": 4551,
+    "0": 8906,
+    "-1": 2677
+   },
+   "precision": {
+    "p0": 0.0625,
+    "p10": 0.0625,
+    "p50": 0.0625,
+    "p90": 2.0625,
+    "p99": 5.0625,
+    "p100": 13.0625,
+    "mean": 0.8045
+   },
+   "recallable_share_end_of_day": 0.3289,
+   "distinct_pois_known": 489,
+   "full_agents": 0,
+   "evictions": 0
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__ad_zero",
+   "vocab": "v1",
+   "agents_with_calls": 4817,
+   "counts": {
+    "shop_responses": 27055,
+    "shop_named_target": 2009,
+    "shop_resolved_failure": 6833,
+    "shop_no_candidate": 6585,
+    "shop_no_candidate:named_out_of_cell": 1226,
+    "shop_no_candidate:bad_target": 5359,
+    "shop_resolved_ok": 13637
+   },
+   "per_agent_day": {
+    "rows": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 7.0,
+     "p100": 11.0,
+     "mean": 2.536
+    },
+    "rows_self": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 7.0,
+     "p100": 11.0,
+     "mean": 2.536
+    },
+    "rows_signage_only": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 0.0,
+     "p99": 0.0,
+     "p100": 0.0,
+     "mean": 0.0
+    },
+    "rows_valence+1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 8.0,
+     "mean": 1.513
+    },
+    "rows_valence-1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 4.0,
+     "p100": 6.0,
+     "mean": 0.929
+    },
+    "rows_valence0": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 0.0,
+     "p99": 1.0,
+     "p100": 3.0,
+     "mean": 0.093
+    }
+   },
+   "rows_by_source": {
+    "self": {
+     "rows": 12214,
+     "valence+1": 7289,
+     "valence0": 449,
+     "valence-1": 4476,
+     "recallable": 3982
+    }
+   },
+   "valence_sign": {
+    "+1": 7289,
+    "0": 449,
+    "-1": 4476
+   },
+   "precision": {
+    "p0": 1.0,
+    "p10": 1.0,
+    "p50": 1.0,
+    "p90": 3.0,
+    "p99": 8.0,
+    "p100": 20.0,
+    "mean": 1.6759
+   },
+   "recallable_share_end_of_day": 0.326,
+   "distinct_pois_known": 391,
+   "full_agents": 0,
+   "evictions": 0
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_14",
+   "vocab": "v1",
+   "agents_with_calls": 4816,
+   "counts": {
+    "shop_responses": 26734,
+    "shop_named_target": 2059,
+    "shop_resolved_failure": 6794,
+    "shop_no_candidate": 6427,
+    "shop_no_candidate:named_out_of_cell": 1226,
+    "signage_first": 6654,
+    "shop_no_candidate:bad_target": 5201,
+    "shop_resolved_ok": 13513
+   },
+   "per_agent_day": {
+    "rows": {
+     "p10": 1.0,
+     "p50": 3.0,
+     "p90": 6.0,
+     "p99": 10.0,
+     "p100": 14.0,
+     "mean": 3.37
+    },
+    "rows_self": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 4.0,
+     "p99": 7.0,
+     "p100": 11.0,
+     "mean": 2.517
+    },
+    "rows_signage_only": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 4.0,
+     "p100": 6.0,
+     "mean": 0.854
+    },
+    "rows_valence+1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 8.0,
+     "mean": 1.504
+    },
+    "rows_valence-1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 6.0,
+     "mean": 0.92
+    },
+    "rows_valence0": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 4.0,
+     "p100": 7.0,
+     "mean": 0.946
+    }
+   },
+   "rows_by_source": {
+    "self": {
+     "rows": 9578,
+     "valence+1": 5549,
+     "valence0": 316,
+     "valence-1": 3713,
+     "recallable": 2741
+    },
+    "signage": {
+     "rows": 4111,
+     "valence+1": 0,
+     "valence0": 4111,
+     "valence-1": 0,
+     "recallable": 315
+    },
+    "self+signage": {
+     "rows": 2543,
+     "valence+1": 1696,
+     "valence0": 130,
+     "valence-1": 717,
+     "recallable": 2119
+    }
+   },
+   "valence_sign": {
+    "+1": 7245,
+    "0": 4557,
+    "-1": 4430
+   },
+   "precision": {
+    "p0": 0.0625,
+    "p10": 0.0625,
+    "p50": 1.0,
+    "p90": 3.0,
+    "p99": 7.0625,
+    "p100": 20.0625,
+    "mean": 1.2767
+   },
+   "recallable_share_end_of_day": 0.3188,
+   "distinct_pois_known": 498,
+   "full_agents": 0,
+   "evictions": 0
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_30",
+   "vocab": "v1",
+   "agents_with_calls": 4817,
+   "counts": {
+    "signage_first": 10749,
+    "shop_responses": 26838,
+    "shop_named_target": 2184,
+    "shop_no_candidate": 6624,
+    "shop_no_candidate:named_out_of_cell": 1313,
+    "shop_no_candidate:bad_target": 5311,
+    "shop_resolved_failure": 6701,
+    "shop_resolved_ok": 13513
+   },
+   "per_agent_day": {
+    "rows": {
+     "p10": 2.0,
+     "p50": 3.0,
+     "p90": 7.0,
+     "p99": 11.0,
+     "p100": 19.0,
+     "mean": 3.916
+    },
+    "rows_self": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 4.0,
+     "p99": 7.0,
+     "p100": 12.0,
+     "mean": 2.485
+    },
+    "rows_signage_only": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 9.0,
+     "mean": 1.431
+    },
+    "rows_valence+1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 9.0,
+     "mean": 1.481
+    },
+    "rows_valence-1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 5.0,
+     "mean": 0.915
+    },
+    "rows_valence0": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 3.0,
+     "p99": 6.0,
+     "p100": 9.0,
+     "mean": 1.52
+    }
+   },
+   "rows_by_source": {
+    "self": {
+     "rows": 8114,
+     "valence+1": 4684,
+     "valence0": 231,
+     "valence-1": 3199,
+     "recallable": 2283
+    },
+    "signage": {
+     "rows": 6893,
+     "valence+1": 0,
+     "valence0": 6893,
+     "valence-1": 0,
+     "recallable": 502
+    },
+    "self+signage": {
+     "rows": 3856,
+     "valence+1": 2452,
+     "valence0": 196,
+     "valence-1": 1208,
+     "recallable": 3130
+    }
+   },
+   "valence_sign": {
+    "+1": 7136,
+    "0": 7320,
+    "-1": 4407
+   },
+   "precision": {
+    "p0": 0.0625,
+    "p10": 0.0625,
+    "p50": 1.0,
+    "p90": 2.0625,
+    "p99": 7.0,
+    "p100": 18.0625,
+    "mean": 1.1072
+   },
+   "recallable_share_end_of_day": 0.3136,
+   "distinct_pois_known": 503,
+   "full_agents": 0,
+   "evictions": 0
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_1_00",
+   "vocab": "v1",
+   "agents_with_calls": 4817,
+   "counts": {
+    "signage_first": 18869,
+    "shop_responses": 26489,
+    "shop_named_target": 2489,
+    "shop_resolved_failure": 6641,
+    "shop_no_candidate": 6558,
+    "shop_no_candidate:named_out_of_cell": 1370,
+    "shop_no_candidate:bad_target": 5188,
+    "shop_resolved_ok": 13290
+   },
+   "per_agent_day": {
+    "rows": {
+     "p10": 2.0,
+     "p50": 4.0,
+     "p90": 9.0,
+     "p99": 15.0,
+     "p100": 22.0,
+     "mean": 5.129
+    },
+    "rows_self": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 4.0,
+     "p99": 7.0,
+     "p100": 12.0,
+     "mean": 2.434
+    },
+    "rows_signage_only": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 9.0,
+     "p100": 14.0,
+     "mean": 2.695
+    },
+    "rows_valence+1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 8.0,
+     "mean": 1.444
+    },
+    "rows_valence-1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 5.0,
+     "mean": 0.895
+    },
+    "rows_valence0": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 9.0,
+     "p100": 14.0,
+     "mean": 2.79
+    }
+   },
+   "rows_by_source": {
+    "self": {
+     "rows": 5839,
+     "valence+1": 3518,
+     "valence0": 221,
+     "valence-1": 2100,
+     "recallable": 1880
+    },
+    "signage": {
+     "rows": 12984,
+     "valence+1": 0,
+     "valence0": 12984,
+     "valence-1": 0,
+     "recallable": 933
+    },
+    "self+signage": {
+     "rows": 5885,
+     "valence+1": 3440,
+     "valence0": 233,
+     "valence-1": 2212,
+     "recallable": 4305
+    }
+   },
+   "valence_sign": {
+    "+1": 6958,
+    "0": 13438,
+    "-1": 4312
+   },
+   "precision": {
+    "p0": 0.0625,
+    "p10": 0.0625,
+    "p50": 0.0625,
+    "p90": 2.0625,
+    "p99": 6.0625,
+    "p100": 19.0625,
+    "mean": 0.8544
+   },
+   "recallable_share_end_of_day": 0.2881,
+   "distinct_pois_known": 504,
+   "full_agents": 0,
+   "evictions": 0
+  },
+  {
+   "tape": "c8_ab7b_s1/AB7b-HINT-INTENT__hint",
+   "vocab": "v1",
+   "agents_with_calls": 4816,
+   "counts": {
+    "signage_first": 12579,
+    "shop_responses": 18054,
+    "shop_named_target": 2375,
+    "shop_resolved_failure": 4191,
+    "shop_no_candidate": 4195,
+    "shop_no_candidate:named_out_of_cell": 1291,
+    "shop_no_candidate:bad_target": 2904,
+    "shop_resolved_ok": 9668
+   },
+   "per_agent_day": {
+    "rows": {
+     "p10": 2.0,
+     "p50": 3.0,
+     "p90": 6.0,
+     "p99": 9.0,
+     "p100": 15.0,
+     "mean": 3.527
+    },
+    "rows_self": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 9.0,
+     "mean": 1.783
+    },
+    "rows_signage_only": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 6.0,
+     "p100": 9.0,
+     "mean": 1.743
+    },
+    "rows_valence+1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 6.0,
+     "mean": 1.11
+    },
+    "rows_valence-1": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 1.0,
+     "p99": 3.0,
+     "p100": 6.0,
+     "mean": 0.591
+    },
+    "rows_valence0": {
+     "p10": 0.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 6.0,
+     "p100": 10.0,
+     "mean": 1.826
+    }
+   },
+   "rows_by_source": {
+    "self": {
+     "rows": 4406,
+     "valence+1": 2814,
+     "valence0": 173,
+     "valence-1": 1419,
+     "recallable": 1625
+    },
+    "signage": {
+     "rows": 8396,
+     "valence+1": 0,
+     "valence0": 8396,
+     "valence-1": 0,
+     "recallable": 1043
+    },
+    "self+signage": {
+     "rows": 4183,
+     "valence+1": 2532,
+     "valence0": 224,
+     "valence-1": 1427,
+     "recallable": 3194
+    }
+   },
+   "valence_sign": {
+    "+1": 5346,
+    "0": 8793,
+    "-1": 2846
+   },
+   "precision": {
+    "p0": 0.0625,
+    "p10": 0.0625,
+    "p50": 1.0,
+    "p90": 2.0625,
+    "p99": 5.0625,
+    "p100": 13.0625,
+    "mean": 0.8622
+   },
+   "recallable_share_end_of_day": 0.3451,
+   "distinct_pois_known": 505,
+   "full_agents": 0,
+   "evictions": 0
+  },
+  {
+   "tape": "c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v2",
+   "vocab": "v2",
+   "agents_with_calls": 4814,
+   "counts": {
+    "signage_first": 11537,
+    "shop_responses": 18139,
+    "shop_named_target": 5479,
+    "shop_resolved_failure": 4099,
+    "shop_no_candidate": 5387,
+    "shop_no_candidate:bad_target": 224,
+    "shop_no_candidate:not_in_eatery": 3481,
+    "shop_no_candidate:named_out_of_cell": 1682,
+    "shop_resolved_ok": 8653
+   },
+   "per_agent_day": {
+    "rows": {
+     "p10": 2.0,
+     "p50": 3.0,
+     "p90": 5.0,
+     "p99": 9.0,
+     "p100": 14.0,
+     "mean": 3.419
+    },
+    "rows_self": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 3.0,
+     "p99": 4.0,
+     "p100": 6.0,
+     "mean": 1.485
+    },
+    "rows_signage_only": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 10.0,
+     "mean": 1.934
+    },
+    "rows_valence+1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 4.0,
+     "mean": 0.893
+    },
+    "rows_valence-1": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 1.0,
+     "p99": 2.0,
+     "p100": 4.0,
+     "mean": 0.518
+    },
+    "rows_valence0": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 6.0,
+     "p100": 10.0,
+     "mean": 2.007
+    }
+   },
+   "rows_by_source": {
+    "self": {
+     "rows": 4922,
+     "valence+1": 3070,
+     "valence0": 221,
+     "valence-1": 1631,
+     "recallable": 2266
+    },
+    "signage": {
+     "rows": 9312,
+     "valence+1": 0,
+     "valence0": 9312,
+     "valence-1": 0,
+     "recallable": 985
+    },
+    "self+signage": {
+     "rows": 2225,
+     "valence+1": 1231,
+     "valence0": 131,
+     "valence-1": 863,
+     "recallable": 1607
+    }
+   },
+   "valence_sign": {
+    "+1": 4301,
+    "0": 9664,
+    "-1": 2494
+   },
+   "precision": {
+    "p0": 0.0625,
+    "p10": 0.0625,
+    "p50": 0.0625,
+    "p90": 2.0625,
+    "p99": 5.0,
+    "p100": 10.0625,
+    "mean": 0.8186
+   },
+   "recallable_share_end_of_day": 0.2952,
+   "distinct_pois_known": 470,
+   "full_agents": 0,
+   "evictions": 0
+  },
+  {
+   "tape": "c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v2",
+   "vocab": "v2",
+   "agents_with_calls": 4813,
+   "counts": {
+    "signage_first": 11544,
+    "shop_responses": 18188,
+    "shop_named_target": 5334,
+    "shop_resolved_failure": 4205,
+    "shop_no_candidate": 5403,
+    "shop_no_candidate:bad_target": 188,
+    "shop_no_candidate:not_in_eatery": 3621,
+    "shop_no_candidate:named_out_of_cell": 1594,
+    "shop_resolved_ok": 8580
+   },
+   "per_agent_day": {
+    "rows": {
+     "p10": 2.0,
+     "p50": 3.0,
+     "p90": 5.0,
+     "p99": 9.0,
+     "p100": 15.0,
+     "mean": 3.447
+    },
+    "rows_self": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 3.0,
+     "p99": 4.0,
+     "p100": 8.0,
+     "mean": 1.501
+    },
+    "rows_signage_only": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 10.0,
+     "mean": 1.946
+    },
+    "rows_valence+1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 4.0,
+     "mean": 0.891
+    },
+    "rows_valence-1": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 1.0,
+     "p99": 2.0,
+     "p100": 7.0,
+     "mean": 0.541
+    },
+    "rows_valence0": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 3.0,
+     "p99": 6.0,
+     "p100": 10.0,
+     "mean": 2.015
+    }
+   },
+   "rows_by_source": {
+    "self": {
+     "rows": 5047,
+     "valence+1": 3133,
+     "valence0": 214,
+     "valence-1": 1700,
+     "recallable": 2385
+    },
+    "signage": {
+     "rows": 9366,
+     "valence+1": 0,
+     "valence0": 9366,
+     "valence-1": 0,
+     "recallable": 970
+    },
+    "self+signage": {
+     "rows": 2178,
+     "valence+1": 1155,
+     "valence0": 120,
+     "valence-1": 903,
+     "recallable": 1558
+    }
+   },
+   "valence_sign": {
+    "+1": 4288,
+    "0": 9700,
+    "-1": 2603
+   },
+   "precision": {
+    "p0": 0.0625,
+    "p10": 0.0625,
+    "p50": 0.0625,
+    "p90": 2.0625,
+    "p99": 5.0,
+    "p100": 14.0625,
+    "mean": 0.8141
+   },
+   "recallable_share_end_of_day": 0.2961,
+   "distinct_pois_known": 461,
+   "full_agents": 0,
+   "evictions": 0
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x0.5",
+   "vocab": "v1",
+   "agents_with_calls": 4756,
+   "counts": {
+    "signage_first": 9059,
+    "shop_responses": 9995,
+    "shop_named_target": 1171,
+    "shop_resolved_failure": 2542,
+    "shop_no_candidate": 2401,
+    "shop_no_candidate:named_out_of_cell": 690,
+    "shop_no_candidate:bad_target": 1711,
+    "shop_resolved_ok": 5052
+   },
+   "per_agent_day": {
+    "rows": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 4.0,
+     "p99": 6.0,
+     "p100": 10.0,
+     "mean": 2.459
+    },
+    "rows_self": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 5.0,
+     "mean": 1.143
+    },
+    "rows_signage_only": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 4.0,
+     "p100": 7.0,
+     "mean": 1.316
+    },
+    "rows_valence+1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 1.0,
+     "p99": 2.0,
+     "p100": 3.0,
+     "mean": 0.71
+    },
+    "rows_valence-1": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 1.0,
+     "p99": 2.0,
+     "p100": 5.0,
+     "mean": 0.372
+    },
+    "rows_valence0": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 3.0,
+     "p99": 4.0,
+     "p100": 7.0,
+     "mean": 1.377
+    }
+   },
+   "rows_by_source": {
+    "self": {
+     "rows": 2636,
+     "valence+1": 1692,
+     "valence0": 130,
+     "valence-1": 814,
+     "recallable": 872
+    },
+    "signage": {
+     "rows": 6257,
+     "valence+1": 0,
+     "valence0": 6257,
+     "valence-1": 0,
+     "recallable": 780
+    },
+    "self+signage": {
+     "rows": 2802,
+     "valence+1": 1684,
+     "valence0": 161,
+     "valence-1": 957,
+     "recallable": 2134
+    }
+   },
+   "valence_sign": {
+    "+1": 3376,
+    "0": 6548,
+    "-1": 1771
+   },
+   "precision": {
+    "p0": 0.0625,
+    "p10": 0.0625,
+    "p50": 0.0625,
+    "p90": 2.0,
+    "p99": 4.0,
+    "p100": 8.0625,
+    "mean": 0.6978
+   },
+   "recallable_share_end_of_day": 0.3237,
+   "distinct_pois_known": 467,
+   "full_agents": 0,
+   "evictions": 0
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x2",
+   "vocab": "v1",
+   "agents_with_calls": 4817,
+   "counts": {
+    "signage_first": 17518,
+    "shop_responses": 23168,
+    "shop_named_target": 2320,
+    "shop_resolved_failure": 5774,
+    "shop_no_candidate": 5684,
+    "shop_no_candidate:named_out_of_cell": 1270,
+    "shop_no_candidate:bad_target": 4414,
+    "shop_resolved_ok": 11710
+   },
+   "per_agent_day": {
+    "rows": {
+     "p10": 2.0,
+     "p50": 4.0,
+     "p90": 8.0,
+     "p99": 15.0,
+     "p100": 19.0,
+     "mean": 4.764
+    },
+    "rows_self": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 4.0,
+     "p99": 7.0,
+     "p100": 12.0,
+     "mean": 2.218
+    },
+    "rows_signage_only": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 9.0,
+     "p100": 14.0,
+     "mean": 2.547
+    },
+    "rows_valence+1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 3.0,
+     "p99": 5.0,
+     "p100": 8.0,
+     "mean": 1.328
+    },
+    "rows_valence-1": {
+     "p10": 0.0,
+     "p50": 1.0,
+     "p90": 2.0,
+     "p99": 3.0,
+     "p100": 6.0,
+     "mean": 0.797
+    },
+    "rows_valence0": {
+     "p10": 1.0,
+     "p50": 2.0,
+     "p90": 5.0,
+     "p99": 9.0,
+     "p100": 14.0,
+     "mean": 2.639
+    }
+   },
+   "rows_by_source": {
+    "self": {
+     "rows": 5431,
+     "valence+1": 3348,
+     "valence0": 208,
+     "valence-1": 1875,
+     "recallable": 1651
+    },
+    "signage": {
+     "rows": 12267,
+     "valence+1": 0,
+     "valence0": 12267,
+     "valence-1": 0,
+     "recallable": 1115
+    },
+    "self+signage": {
+     "rows": 5251,
+     "valence+1": 3051,
+     "valence0": 235,
+     "valence-1": 1965,
+     "recallable": 3807
+    }
+   },
+   "valence_sign": {
+    "+1": 6399,
+    "0": 12710,
+    "-1": 3840
+   },
+   "precision": {
+    "p0": 0.0625,
+    "p10": 0.0625,
+    "p50": 0.0625,
+    "p90": 2.0625,
+    "p99": 6.0,
+    "p100": 18.0625,
+    "mean": 0.8096
+   },
+   "recallable_share_end_of_day": 0.2864,
+   "distinct_pois_known": 499,
+   "full_agents": 0,
+   "evictions": 0
+  }
+ ],
+ "all": {
+  "agent_days": 81797,
+  "counts": {
+   "shop_responses": 325228,
+   "shop_named_target": 36788,
+   "shop_resolved_failure": 79632,
+   "shop_no_candidate": 80158,
+   "shop_no_candidate:named_out_of_cell": 18379,
+   "shop_no_candidate:bad_target": 54677,
+   "shop_resolved_ok": 165438,
+   "signage_first": 144419,
+   "shop_no_candidate:not_in_eatery": 7102
+  },
+  "shop_resolved_share": 0.7535,
+  "shop_failure_share_of_resolved": 0.3249,
+  "rows": {
+   "p10": 1.0,
+   "p50": 3.0,
+   "p90": 5.0,
+   "p99": 10.0,
+   "p100": 22.0,
+   "mean": 3.05
+  },
+  "rows_self": {
+   "p10": 0.0,
+   "p50": 2.0,
+   "p90": 3.0,
+   "p99": 6.0,
+   "p100": 12.0,
+   "mean": 1.83
+  },
+  "rows_signage_only": {
+   "p10": 0.0,
+   "p50": 1.0,
+   "p90": 3.0,
+   "p99": 6.0,
+   "p100": 14.0,
+   "mean": 1.22
+  },
+  "rows_valence+1": {
+   "p10": 0.0,
+   "p50": 1.0,
+   "p90": 2.0,
+   "p99": 4.0,
+   "p100": 9.0,
+   "mean": 1.101
+  },
+  "rows_valence-1": {
+   "p10": 0.0,
+   "p50": 1.0,
+   "p90": 2.0,
+   "p99": 3.0,
+   "p100": 7.0,
+   "mean": 0.65
+  },
+  "rows_valence0": {
+   "p10": 0.0,
+   "p50": 1.0,
+   "p90": 3.0,
+   "p99": 6.0,
+   "p100": 14.0,
+   "mean": 1.3
+  }
+ },
+ "note": "記憶 第 1 段のリプレイと同じ 17 本(内容で束ねた集合)。体=その日に呼の在った体。自分の訪問=購入/食事/並ぶの応答の対象をエンジンと同じ段 2a の解決(TargetResolver・nearest・B2 のセル)で店に直したもの。向き=結果はテープに無い=解決できた店は +1・候補が全部閉店/在庫切れで代表を返した行は −1・候補なしは行を作らない(段 2c の歩く意図は再現しない)。看板=B2 に載った看板の POI の初見。τ=−2.0 で 1 日の終わり(tick 1,439)に想起できる割合。"
+}

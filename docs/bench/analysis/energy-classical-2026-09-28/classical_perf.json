@@ -1,0 +1,75 @@
+{
+ "schema": "shibuya.bench/classical-2026-09-28/perf/1",
+ "rows": [
+  {
+   "arm": "mock_v3",
+   "final_hash": "c9ab05383accca2ee287a4e0ddabc9980c8df12f8619217e9a942219d4a05ea3",
+   "wall_seconds_nondeterministic": 28.64,
+   "peak_working_set_bytes_nondeterministic": 503939072,
+   "agents_bytes_total": 800000
+  },
+  {
+   "arm": "mock_v3_chooser_classical",
+   "final_hash": "2694c8e3d48d5560e7f05183f8c4ea9f33215223f01404a22bb6aeeba7f82205",
+   "wall_seconds_nondeterministic": 28.07,
+   "peak_working_set_bytes_nondeterministic": 485019648,
+   "agents_bytes_total": 800000
+  },
+  {
+   "arm": "classical",
+   "final_hash": "18ed5c8261ee2e9c26e1dda2dacd6e8ee146acd836fab4a6039bd023ae7196bd",
+   "wall_seconds_nondeterministic": 39.15,
+   "peak_working_set_bytes_nondeterministic": 505712640,
+   "agents_bytes_total": 800000
+  },
+  {
+   "arm": "classical_familiarity",
+   "final_hash": "b0671a356277eea31ef995507e9fd7c33fbfb1da637ff6ee5f66150c6e1b8a3c",
+   "wall_seconds_nondeterministic": 39.92,
+   "peak_working_set_bytes_nondeterministic": 487534592,
+   "agents_bytes_total": 5920000
+  },
+  {
+   "arm": "classical_hunger_v1",
+   "final_hash": "f63e68ac53fb874e0d6b3b3d4a9145a69e89eaa9bff38065509d7fcd22027f44",
+   "wall_seconds_nondeterministic": 50.2,
+   "peak_working_set_bytes_nondeterministic": 505901056,
+   "agents_bytes_total": 720000
+  },
+  {
+   "arm": "classical_tau_0_5",
+   "final_hash": "15f3fe068c6b6c7dff5d5e7be3c334b841609539bc11049790cd3b1ab81ef27b",
+   "wall_seconds_nondeterministic": 40.58,
+   "peak_working_set_bytes_nondeterministic": 501534720,
+   "agents_bytes_total": 800000
+  },
+  {
+   "arm": "classical_tau_2_0",
+   "final_hash": "7c9697c47604d7a8d664a8ae5ecd23df4337a366f224ae91a1a700cb5fdd7906",
+   "wall_seconds_nondeterministic": 40.02,
+   "peak_working_set_bytes_nondeterministic": 497389568,
+   "agents_bytes_total": 800000
+  },
+  {
+   "arm": "classical_familiarity_ph_0_25",
+   "final_hash": "183bbe83399f6e7f1f9e8c7964220b8c46ff8d924ea54d6676558b0f73636c2b",
+   "wall_seconds_nondeterministic": 41.91,
+   "peak_working_set_bytes_nondeterministic": 508678144,
+   "agents_bytes_total": 5920000
+  },
+  {
+   "arm": "classical_familiarity_ph_0_75",
+   "final_hash": "349f482faf966eed6867dacdee75a0306ef4e4c9c3de159a20a1a38ec2f3e849",
+   "wall_seconds_nondeterministic": 41.39,
+   "peak_working_set_bytes_nondeterministic": 502251520,
+   "agents_bytes_total": 5920000
+  },
+  {
+   "arm": "classical_national",
+   "final_hash": "ace7f178922ae926eef38e82e82daaf681576e940a6ec20963850147084e6530",
+   "wall_seconds_nondeterministic": 39.96,
+   "peak_working_set_bytes_nondeterministic": 494264320,
+   "agents_bytes_total": 800000
+  }
+ ]
+}

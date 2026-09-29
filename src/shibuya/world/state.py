@@ -28,6 +28,7 @@ expedient(本モジュール分)
 from __future__ import annotations
 
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Final, Iterator
 
 import numpy as np
@@ -42,6 +43,10 @@ __all__ = [
     "DENSITY_STAGE_EDGES_PER_M2",
     "LANDMARK_CATS",
     "LANDMARK_AFFORDANCES",
+    "EATERY_MODES",
+    "DEFAULT_EATERY_MODE",
+    "PLACE_FOOD_EXCLUDED_NIGHTLIFE_SUBCATS",
+    "check_eatery_mode",
     "World",
 ]
 
@@ -72,6 +77,29 @@ DENSITY_STAGE_EDGES: Final[tuple[int, ...]] = (1, 5, 20, 60, 150, 400, 1_000)
 DENSITY_STAGE_EDGES_PER_M2: Final[tuple[float, ...]] = (
     0.30754, 0.43056, 0.71760, 1.07640, 2.15279,
 )
+
+
+#: 飲食店マスク(語彙 v2/v3 の行動語「食事」の前提)の切替口(段 1b・D-96 nightlife (b))。
+#: ``food``=現行(``hash_free_cat_code(cat) == 1``・既定=checkpoint はバイト不変)/
+#: ``place_food``=W17 の場所語「飲食店」と同じ集合(``food`` ∨ ``nightlife`` のうち
+#: 遊興の subcat でないもの)。価格(``poi_price``)は**どちらでも動かさない**。
+EATERY_MODES: Final[tuple[str, ...]] = ("food", "place_food")
+DEFAULT_EATERY_MODE: Final[str] = EATERY_MODES[0]
+#: ``place_food`` で飲食店から外す ``nightlife`` の subcat(踊る場・歌う場・浴場・ネットカフェ)。
+#: **二重定義**: ``build/sched/w17_schedule.SUBCAT_TO_PLACE`` で ``nightlife`` の subcat が
+#: 「娯楽施設」へ写るものと同じ集合(層契約で world は build を import できない。一致は
+#: ``tests/engine/test_eatery_place_food.py`` が機械検査する)。
+PLACE_FOOD_EXCLUDED_NIGHTLIFE_SUBCATS: Final[frozenset[str]] = frozenset(
+    {"club", "karaoke", "sauna", "net_cafe"}
+)
+
+
+def check_eatery_mode(mode: str) -> str:
+    """``eatery`` の値を検査して返す(``EATERY_MODES`` のどれか)。"""
+    m = str(mode)
+    if m not in EATERY_MODES:
+        raise ValueError(f"eatery は {EATERY_MODES} のどれか(いま {mode!r})")
+    return m
 
 
 class World:
@@ -133,9 +161,17 @@ class World:
         self.pois.open_to[:] = assets.poi_open_to
         self.pois.open_now[:] = -1  # 上書きなし(C2 と同じ 10:00-22:00 の既定へ落ちる)
         self._frozen = False
+        #: 飲食店マスクの切替口(段 1b)。既定 ``food``=現行。``run_day(eatery=...)`` が
+        #: ラン開始時に必ず書く(同じ World を使い回しても前のランの値が残らない)。
+        self._eatery_mode: str = DEFAULT_EATERY_MODE
         #: 飲食店マスク(``eatery_mask`` の遅延キャッシュ)。**SoA の欄ではない**
         #: =``Registry.state_hash`` にも checkpoint にも入らない(既定のバイトは動かない)。
         self._eatery_mask: np.ndarray | None = None
+        #: 段 2a: POI の「自分のセルの視点から見える数」(W8・``poi_visibility`` の遅延キャッシュ)。
+        #: **SoA の欄ではない**=checkpoint 外。
+        self._poi_visibility: np.ndarray | None = None
+        #: 段 2b: セルから見えている POI(W8・``visible_pois`` の遅延キャッシュ)。checkpoint 外。
+        self._visible_by_cell: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None
         #: 目印マスク(``landmark_mask`` の遅延キャッシュ・C9b G6 a′)。同じく **SoA の欄では
         #: ない**=checkpoint 外。
         self._landmark_mask: np.ndarray | None = None
@@ -201,18 +237,82 @@ class World:
         return np.searchsorted(np.asarray(DENSITY_STAGE_EDGES), d, side="right").astype(np.uint8)
 
     @property
+    def poi_visibility(self) -> np.ndarray:
+        """POI ごとの「自分のセルの視点から見える数」(``(n_poi,)`` int32・W8 が無ければ 0)。
+
+        段 2a の既定の選び手(``engine.chooser.NearestChooser``)の可視順。合成世界は全 0。
+        """
+        if self._poi_visibility is None:
+            src = Path(str(self.assets.source))
+            if self.assets.source != "synthetic" and src.is_dir():
+                from shibuya.world.assets import load_poi_own_cell_visibility
+
+                self._poi_visibility = load_poi_own_cell_visibility(src, self.assets.poi_cell)
+            else:
+                self._poi_visibility = np.zeros(self.n_poi, dtype=np.int32)
+        return self._poi_visibility
+
+    def visible_pois(self, cell: int) -> tuple[np.ndarray, np.ndarray]:
+        """セル ``cell`` の視点から見えている POI と、見えている視点数(W8・B2 の可視物)。
+
+        段 2b(行き先を対象欄から)のカテゴリ語の近傍探索が読む。合成世界・資産が無い世界は空。
+        """
+        if self._visible_by_cell is None:
+            src = Path(str(self.assets.source))
+            if self.assets.source != "synthetic" and src.is_dir():
+                from shibuya.world.assets import load_visible_pois_by_cell
+
+                self._visible_by_cell = load_visible_pois_by_cell(src, self.n_cells)
+            else:
+                self._visible_by_cell = (
+                    np.zeros(self.n_cells + 1, dtype=np.int64),
+                    np.zeros(0, dtype=np.int64),
+                    np.zeros(0, dtype=np.int32),
+                )
+        off, poi, nv = self._visible_by_cell
+        if cell < 0 or cell >= off.size - 1:
+            return np.zeros(0, dtype=np.int64), np.zeros(0, dtype=np.int32)
+        lo, hi = int(off[cell]), int(off[cell + 1])
+        return poi[lo:hi], nv[lo:hi]
+
+    @property
+    def eatery_mode(self) -> str:
+        """飲食店マスクの切替口の値(``EATERY_MODES`` のどれか・既定 ``food``)。"""
+        return self._eatery_mode
+
+    def set_eatery_mode(self, mode: str) -> None:
+        """飲食店マスクの切替口を決める(段 1b)。キャッシュを捨てて次の参照で組み直す。
+
+        ``place_food`` は W6 の ``subcat`` を要る(資産に無いのに ``nightlife`` の POI が
+        あれば ``ValueError``=黙って ``food`` に落ちない)。
+        """
+        m = check_eatery_mode(mode)
+        if m == "place_food":
+            n = self.n_poi
+            subcats = tuple(self.assets.poi_subcat)
+            if len(subcats) != n and any(str(c) == "nightlife" for c in self.assets.poi_cat):
+                raise ValueError(
+                    "eatery='place_food' は W6 の subcat 列が要る(資産に無い)"
+                )
+        if m != self._eatery_mode:
+            self._eatery_mask = None
+        self._eatery_mode = m
+
+    @property
     def eatery_mask(self) -> np.ndarray:
-        """飲食店の POI マスク(``(n_poi,)`` bool)。**語彙 v2 の行動語「食事」の前提**。
+        """飲食店の POI マスク(``(n_poi,)`` bool)。**語彙 v2/v3 の行動語「食事」の前提**。
 
-        判定は ``world.assets.hash_free_cat_code(cat) == 1``(= 価格帯「飲食」)を**そのまま
-        再利用**する。カテゴリ判定の表を 2 つ持たないための選択で、``economy.entry_capital``
-        の価格帯・``economy.goods.CATEGORY_NAMES[1]``(飲食)と同じ線になる。
+        ``eatery_mode``(段 1b の切替口・``World.set_eatery_mode``)で 2 通り:
 
-        Note:
-            ``cat == "nightlife"``(バー・クラブ)は ``hash_free_cat_code`` が 2 を返すので
-            **含まれない**(経済側では大分類 M=宿泊/飲食サービス業だが、価格帯は別)。
-            この食い違いは ``hash_free_cat_code`` 由来で、本 property では直さない
-            (直すならカテゴリ表そのものの改版=親判断)。
+        - ``food``(**既定**=現行): ``world.assets.hash_free_cat_code(cat) == 1``
+          (= 価格帯「飲食」)を**そのまま再利用**する。カテゴリ判定の表を 2 つ持たないための
+          選択で、``economy.entry_capital`` の価格帯・``economy.goods.CATEGORY_NAMES[1]``
+          (飲食)と同じ線になる。``cat == "nightlife"``(バー・クラブ)は
+          ``hash_free_cat_code`` が 2 を返すので**含まれない**。
+        - ``place_food``(D-96 nightlife (b)): ``food`` ∨ (``cat == "nightlife"`` ∧
+          ``subcat`` ∉ :data:`PLACE_FOOD_EXCLUDED_NIGHTLIFE_SUBCATS`)。W17 の場所語
+          「飲食店」に写る POI と**同じ集合**(実資産 1,042 件)=LLM が「飲食店」と読む場所で
+          「食事」が成立する。価格帯は動かさない(nightlife は 1,500 円のまま)。
 
         逐次ループ宣言(P4): **初回の 1 回だけ** POI 数ぶんの Python ループ(カテゴリ名の
         文字列判定)。以後はキャッシュを返す。tick にも個体数にも比例しない。
@@ -221,9 +321,16 @@ class World:
             from shibuya.world.assets import hash_free_cat_code
 
             cats = tuple(self.assets.poi_cat)
-            self._eatery_mask = np.asarray(
-                [hash_free_cat_code(c) == 1 for c in cats], dtype=bool
-            )
+            food = [hash_free_cat_code(c) == 1 for c in cats]
+            if self._eatery_mode == "place_food":
+                subcats = tuple(self.assets.poi_subcat)
+                if len(subcats) != len(cats):
+                    subcats = ("",) * len(cats)  # set_eatery_mode が nightlife 無しを保証済み
+                food = [
+                    f or (str(c) == "nightlife" and str(s) not in PLACE_FOOD_EXCLUDED_NIGHTLIFE_SUBCATS)
+                    for f, c, s in zip(food, cats, subcats)
+                ]
+            self._eatery_mask = np.asarray(food, dtype=bool)
         return self._eatery_mask
 
     @property

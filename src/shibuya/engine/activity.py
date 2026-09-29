@@ -196,8 +196,12 @@ class ActivityLayer:
         self.n_arrival_expired = 0
         self.n_partner_expired = 0
         self.n_fail_immediate = 0
+        #: 9a: 退去(活動欄「なし」)で次の tick に満了させた件数。切替口(``engine.run`` が退去の効果と揃える)。
+        self.n_leave_expired = 0
+        self.leave_effect = True
         self.n_wander_steps = 0
         self.n_wander_bad = 0
+        self.n_intent_moves = 0
         self.kind_counts = np.zeros(len(ActivityKind), dtype=np.int64)
 
     # ------------------------------------------------------------------ 換算
@@ -296,6 +300,11 @@ class ActivityLayer:
         now = failed & no_text
         until = np.where(now, int(tick) + 1, until)
         self.n_fail_immediate += int(np.count_nonzero(now))
+        # 9a(D-112 ④): 退去=所属を解いて活動が終わる。活動欄が「なし」なら次の tick に満了(考え直す)
+        leave_now = (codes == C.ACT_LEAVE) & no_text & ~now & bool(self.leave_effect)
+        if bool(leave_now.any()):
+            until = np.where(leave_now, int(tick) + 1, until)
+            self.n_leave_expired += int(np.count_nonzero(leave_now))
         # 就寝=活動なし(睡眠は計画の実行が持つ・D-62)
         none_kind = kind == int(ActivityKind.NONE)
         until = np.where(none_kind, ACTIVITY_UNTIL_NONE, until)
@@ -308,6 +317,31 @@ class ActivityLayer:
         self.n_set += int(ids.size)
         np.add.at(self.kind_counts, kind, 1)
         return int(ids.size)
+
+    def force_arrival(
+        self, agents: Any, agent_id: Sequence[int], tick: int, *, count: bool = True
+    ) -> None:
+        """段 2c: 意図を立てた体の活動を**目的地つき移動・到着まで**にする(``after_resolve`` の後)。
+
+        応答の行為(購入など)で ``after_resolve`` が付けた種別(在店など)を上書きする。持続の
+        上限は ``UNTIL_MAX_MINUTES``(到着の事象で満了=``settle_events``)。活動の文は応答のまま
+        (歩いている間も B4b に出る)。種別の設定件数は上書きしたぶんを付け替える。
+        """
+        ids = np.asarray(agent_id, dtype=np.int64)
+        if ids.size == 0:
+            return
+        t = int(tick)
+        cap = t + int(self._ticks(np.asarray([UNTIL_MAX_MINUTES]))[0])
+        prev = np.asarray(agents.registry.activity_kind)[ids].astype(np.int64)
+        R.set_activity(
+            agents, ids, np.full(ids.size, cap, dtype=np.int64),
+            np.full(ids.size, int(ActivityKind.MOVE_TO), dtype=np.int64),
+        )
+        self.until_kind[ids] = np.int8(int(UntilKind.ARRIVAL))
+        np.subtract.at(self.kind_counts, prev, 1)
+        self.kind_counts[int(ActivityKind.MOVE_TO)] += int(ids.size)
+        if count:
+            self.n_intent_moves += int(ids.size)
 
     def settle_events(self, agents: Any, tick: int, conv: Any | None = None) -> None:
         """到着・会話成立で満了させる(次の tick に満了入口へ)。``resolve.apply`` と会話の後。"""
@@ -470,7 +504,9 @@ class ActivityLayer:
             "arrival_expired": int(self.n_arrival_expired),
             "partner_expired": int(self.n_partner_expired),
             "fail_immediate": int(self.n_fail_immediate),
+            "leave_expired": int(self.n_leave_expired),
             "wander_steps": int(self.n_wander_steps),
             "wander_bad_target": int(self.n_wander_bad),
+            "intent_moves": int(self.n_intent_moves),
             "distinct_texts": int(len(self._text_ids)),
         }

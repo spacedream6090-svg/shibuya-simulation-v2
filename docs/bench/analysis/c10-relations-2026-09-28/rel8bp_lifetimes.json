@@ -1,0 +1,62 @@
+{
+ "schema": "shibuya.bench/c10-relations/lifetimes-8bp/1",
+ "tau": -2.346,
+ "d": 0.5,
+ "fresh_edges_minutes_until_below_tau": {
+  "8a_-1.1": {
+   "n1_minutes": 35.1,
+   "n2_minutes": 143.4,
+   "n3_minutes": 323.9,
+   "n5_minutes": 901.5
+  },
+  "8b_0.704": {
+   "n1_minutes": 0.0,
+   "n2_minutes": 2.9,
+   "n3_minutes": 7.8,
+   "n5_minutes": 23.5
+  },
+  "8bp": {
+   "n1_minutes": 435.3,
+   "n2_minutes": 1744.1,
+   "n3_minutes": 3925.6,
+   "n5_minutes": 10906.1
+  },
+  "8bp_tau-0.5": {
+   "n1_minutes": 1184.9,
+   "n2_minutes": 4742.8,
+   "n3_minutes": 10672.5,
+   "n5_minutes": 29647.6
+  },
+  "8bp_tau+0.5": {
+   "n1_minutes": 159.5,
+   "n2_minutes": 641.0,
+   "n3_minutes": 1443.5,
+   "n5_minutes": 4011.5
+  }
+ },
+ "initial_edges_full_population": {
+  "edges": 3483572,
+  "n_quantiles": {
+   "0": 5.0,
+   "10": 7.0,
+   "50": 26.0,
+   "90": 57.0,
+   "100": 91.0
+  },
+  "median_n": 26.0,
+  "tenure_weeks_of_a_median_n_edge": 5.17,
+  "remaining_days_quantiles": {
+   "0": 0.0,
+   "10": 4.89,
+   "50": 168.58,
+   "90": 904.32,
+   "100": 2418.44
+  },
+  "share_below_1_day": 0.0258,
+  "share_below_7_days": 0.1288
+ },
+ "compare": {
+  "8a": "fresh n=1: 35 min / initial n=65 (92%): 14.9 days",
+  "8b": "fresh n=1: below τ from birth (ln 2 < 0.704) / initial remaining median 609 days"
+ }
+}

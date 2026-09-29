@@ -29,7 +29,8 @@ pytestmark = pytest.mark.skipif(
 #: 実データで**現に落ちる**ゲート(理由つき)。増減したら気づけるように固定する。
 KNOWN_FAILING_GATES: dict[tuple[str, str], str] = {
     ("W10", "primary_secondary_sections_matched"): (
-        "w1_edges/OSM v8 に道路名が無く kasyo13.csv に座標が無い=対応表を作れない"
+        "段 1c の対応表は診断として作るが既定 OFF(親決定)=当てた辺 0。当てうる辺は 190/202"
+        "(段 1c′ の Q7+Q9 の絞り込みでは 202/202・ゲート primary_secondary_sections_matchable*)"
     ),
     ("W10", "calibration_max_abs_residual_db"): (
         "遮音壁を見ない(ΔL=0)ため高速3号の点が過大・路線中央値が点の実区間と一致しない"

@@ -8,13 +8,21 @@ from shibuya.perception import templates as T
 from shibuya.perception.channels import estimate_tokens
 
 #: **凍結値**。この値が変わる変更 = 改版(delta+感度試験が要る・知覚契約書 §1 条5)。
-FROZEN_TEMPLATE_SHA256 = "161fe181bc325f003d874fb5c91e6142c01449fb09ac5f8b377b715a945608de"
+#: v1.1(5 段目 5a・D-118 K2・第291): B5 の空腹の語の項 ``HUNGER_ITEM_TEMPLATE`` と ``HUNGER_WORDS`` を足した。
+#: 旧 v1 の凍結値 = 161fe181bc325f003d874fb5c91e6142c01449fb09ac5f8b377b715a945608de
+#: v1.2(記憶 第 1 段 6b・M4・第295): B5「記憶」の行 ``B5.memory`` と項の定型・事象の語を足した。
+#: 旧 v1.1 の凍結値 = 8f2959d0d3fbe75ee0ca5a634425447bb316baaa6b36af9c570fa34eeb5617ef(6b で v1.2 へ張り替え)
+#: v1.3(D-120 7c・第298): 記憶の行の項に店の評価の定型(store/store_known/store_heard)を足した。
+#: 旧 v1.2 の凍結値 = 1f6c7d6227a11de049dde39d43728fa5919ccf263a0165ea5273b0d052150560(7c で v1.3 へ張り替え)
+#: v1.4(C10 8a・第299): B5 近接行の人物の印「(知人)/(未知)」を定数 NEAR_PERSON_MARKS へ(文面は同じ)。
+#: 旧 v1.3 の凍結値 = ea204a66ad13af47024baa2ab51ca7ad0063f8318dd870662682b66c556eb2b0(8a で v1.4 へ張り替え)
+FROZEN_TEMPLATE_SHA256 = "40af870ea9cfbceefbe86765fba6e4844537111b3217ada42181bd60b82a20ed"
 
 
 def test_template_sha256_is_frozen():
     """テンプレ版ハッシュが釘付け(改版は意図的にこの定数を書き換えること)。"""
     assert T.template_sha256() == FROZEN_TEMPLATE_SHA256
-    assert T.TEMPLATE_VERSION == "v1"
+    assert T.TEMPLATE_VERSION == "v1.4"
 
 
 def test_block_table_matches_contract_section_2_2():
@@ -201,7 +209,7 @@ def _shared_static_tokens(b0: str) -> int:
 
 
 def test_v3_b0_fingerprint_and_the_frozen_v1():
-    assert T.template_sha256() == FROZEN_TEMPLATE_SHA256, "v1 の凍結 SHA は不変"
+    assert T.template_sha256() == FROZEN_TEMPLATE_SHA256, "v1.1 の凍結 SHA は不変"
     assert T.b0_system() is T.TEMPLATES["B0.system"]
     assert T.b0_system("vocab", "v3") == T.B0_SYSTEM_V3
     assert T.b0_sha256("vocab", "v3") == B0_SHA256_VOCAB_V3

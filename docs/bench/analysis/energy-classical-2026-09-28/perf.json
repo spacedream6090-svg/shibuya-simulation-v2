@@ -1,0 +1,48 @@
+{
+ "schema": "shibuya.bench/energy-2026-09-28/perf/1",
+ "rows": [
+  {
+   "hunger_model": "v1",
+   "energy_rate": "",
+   "final_hash": "a1036ab5b06e461c6c6757f477223c54268c1a60b8b4b18681cac8ad520ad0b4",
+   "llm_calls": 68781,
+   "agents_bytes_total": 720000,
+   "agents_declared_bytes_per_agent": 144,
+   "wall_seconds_nondeterministic": 28.35,
+   "peak_working_set_bytes_nondeterministic": 487276544,
+   "census_per_agent": {}
+  },
+  {
+   "hunger_model": "energy",
+   "energy_rate": "eer",
+   "final_hash": "c9ab05383accca2ee287a4e0ddabc9980c8df12f8619217e9a942219d4a05ea3",
+   "llm_calls": 69603,
+   "agents_bytes_total": 800000,
+   "agents_declared_bytes_per_agent": 160,
+   "wall_seconds_nondeterministic": 29.5,
+   "peak_working_set_bytes_nondeterministic": 488443904,
+   "census_per_agent": {
+    "intake_kcal": 1997.3,
+    "expenditure_kcal": 2432.0,
+    "balance_kcal": -434.7,
+    "eer_kcal": 2388.0
+   }
+  },
+  {
+   "hunger_model": "energy",
+   "energy_rate": "bmr",
+   "final_hash": "cf48b98857061782e9dcc69c7facadd4b26f1c7fde95755d2646c7d8a71c859e",
+   "llm_calls": 68496,
+   "agents_bytes_total": 800000,
+   "agents_declared_bytes_per_agent": 160,
+   "wall_seconds_nondeterministic": 28.55,
+   "peak_working_set_bytes_nondeterministic": 512585728,
+   "census_per_agent": {
+    "intake_kcal": 1998.5,
+    "expenditure_kcal": 1923.3,
+    "balance_kcal": 75.2,
+    "eer_kcal": 2388.0
+   }
+  }
+ ]
+}

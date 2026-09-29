@@ -86,23 +86,31 @@ def test_spec_numbers(built):
 
 
 def test_w6_subcat_is_rebuilt_from_raw_osm_tags(built):
-    """W6 subcat 改訂(2026-09-17)を実データで固定する。
+    """W6 subcat 改訂(2026-09-17)+ 2026-09-28 の Overpass 再取得(段 1a)を実データで固定する。
 
     - 生タグで決めた subcat が v8 の凍結値と食い違う件数は 0(規則の移植が正しい)。
-    - ``PLACE_PARK`` へ写る POI が **0 件ではなくなった**(欠陥の本体)。
-    - subcat が付いた POI は 255 → 393 件。
+    - ``PLACE_PARK`` へ写る POI が **0 件ではなくなった**(欠陥の本体)。27 は再取得後も同じ。
+    - subcat が付いた POI は 255 → 393(09-17・2026-09-07 の 2 文書)→ 413(09-28 の文書を最優先)。
+    - 新旧で違うタグを持つ POI は 2 件で、subcat を動かしたものは 0 件。
     """
     _out, manifest, _dt = built
     assert _gate(manifest, "W6", "poi_subcat_tag_vs_frozen_mismatch")["value"] == 0
-    assert _gate(manifest, "W6", "poi_subcat_topcat_conflict")["value"] == 0
     assert _gate(manifest, "W6", "poi_catsub_pairs_in_closure")["value"] is True
     assert _gate(manifest, "W6", "poi_subcat_park")["value"] == 27
-    assert _gate(manifest, "W6", "poi_subcat_total")["value"] == 393
+    assert _gate(manifest, "W6", "poi_subcat_total")["value"] == 413
+    # D-97 ③: hall 14・attraction 5・leisure 4 の未分類 → 1・2・1(残りの理由は notes)
+    assert _gate(manifest, "W6", "poi_hall_unclassified")["value"] == 1
+    assert _gate(manifest, "W6", "poi_attraction_unclassified")["value"] == 2
+    assert _gate(manifest, "W6", "poi_leisure_unclassified")["value"] == 1
     # 一次(生タグ)が多数派で、名前一致(expedient)は少数にとどまる。
     notes = next(h for h in manifest["stages"] if h["stage"] == "W6")["notes"]
     src = notes["poi_subcat_source_counts"]
-    assert src["osm_tag"] == 274 and src["frozen"] == 98 and src["name"] == 21
-    assert notes["poi_raw_tags_matched"] == 1889
+    assert src["osm_tag"] == 405 and src["frozen"] == 5 and src["name"] == 3
+    assert notes["poi_raw_tags_matched"] == 2260
+    assert notes["poi_raw_tags_new_vs_old"] == {
+        "primary": 2259, "fallback_only": 1, "neither": 77, "both": 1888,
+        "tags_differ": 2, "subcat_keys_differ": 0, "subcat_differ": 0,
+    }
     # cat は 1 件も動かない(語彙 13 種・件数も改訂前と同じ)。
     assert notes["poi_cat_counts"] == {
         "attraction": 12,
@@ -123,7 +131,23 @@ def test_w6_subcat_is_rebuilt_from_raw_osm_tags(built):
     counts = notes["poi_subcat_counts"]
     assert counts["books"] == 10
     assert counts["musical_instrument"] == 8
-    assert counts["library"] == 1
+    assert counts["library"] == 2
+
+
+def test_w6_raw_tag_cat_conflicts_are_the_three_review_candidates(built):
+    """生タグの subcat が v8 の cat と矛盾して捨てられた件数(対の閉包を守る不変条件)。
+
+    2026-09-28 の再取得で 3 件(親決定 第281 Q1 (a)=期待値 3・cat は動かさない)。
+    中身は ``W6.TOPCAT_CONFLICT_REVIEW``(cat の見直し候補)と同じ 3 件。
+    """
+    from shibuya.build.geo import w6_poi_org as W6
+
+    _out, manifest, _dt = built
+    assert _gate(manifest, "W6", "poi_subcat_topcat_conflict")["value"] == 3
+    assert _gate(manifest, "W6", "poi_subcat_topcat_conflicts_are_the_reviewed_ones")["value"] is True
+    notes = next(h for h in manifest["stages"] if h["stage"] == "W6")["notes"]
+    got = {c["poi_id"]: (c["cat"], c["tag_subcat"]) for c in notes["poi_subcat_topcat_conflicts"]}
+    assert got == W6.TOPCAT_CONFLICT_REVIEW
 
 
 def test_outputs_exist_and_hashes_match(built):

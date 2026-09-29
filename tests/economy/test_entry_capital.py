@@ -56,7 +56,7 @@ def test_census_values_are_the_raw_156_2021_figures():
     """センサス 156-2021(万円)× 10,000。**親が JSON で一次確認した生値**。
 
     設計書 §2.5 と ``anchors.SALES_PER_ESTABLISHMENT`` は I と N が末尾 1 桁落ちの
-    転記(1億3,152万/2,253万)になっている=**親判断待ち**。ここでは生値を正とする。
+    転記(1億3,152万/2,253万)だった=**D-16 で訂正済み**(小さいもの③)。生値で一致すること。
     """
     S = EC.SALES_PER_ESTABLISHMENT_BY_INDUSTRY
     assert S["M"] == 8_532 * 10_000  # 宿泊業，飲食サービス業
@@ -66,6 +66,11 @@ def test_census_values_are_the_raw_156_2021_figures():
     assert S["R2"] == 64_043 * 10_000
     assert S["O2"] == 15_439 * 10_000
     assert all(v > 0 for v in S.values())
+    from shibuya.economy import anchors as A
+
+    assert A.SALES_PER_ESTABLISHMENT["宿泊・飲食"] == S["M"]
+    assert A.SALES_PER_ESTABLISHMENT["卸売・小売"] == S["I"]
+    assert A.SALES_PER_ESTABLISHMENT["生活関連・娯楽"] == S["N"]
 
 
 def test_price_band_matches_world_assets_hash_free_cat_code():

@@ -1,0 +1,4956 @@
+{
+ "schema": "shibuya.bench/intent-chooser-2026-09-28/replay-intents/1",
+ "max_ticks": 60,
+ "tapes": [
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__ad_zero",
+   "vocab": "v1",
+   "seed": 1,
+   "summary": {
+    "購入": {
+     "calls": 16380,
+     "named_out_of_cell": 784,
+     "intent_named": 559,
+     "named_closed_now": 212,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 7,
+     "named_not_fit": 6,
+     "named_offmap": 0,
+     "intent_category": 2915,
+     "category_none_nearby": 415,
+     "trip_named": {
+      "n": 559,
+      "dist_m": {
+       "0-100": 232,
+       "100-200": 209,
+       "200-400": 115,
+       "400-800": 3,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 118.9,
+      "hops": {
+       "0-10": 321,
+       "10-20": 238,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 8.87,
+      "no_route": 0,
+      "within_max_ticks": 559,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 2915,
+      "dist_m": {
+       "0-100": 1072,
+       "100-200": 1281,
+       "200-400": 527,
+       "400-800": 35,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 139.8,
+      "hops": {
+       "0-10": 2441,
+       "10-20": 468,
+       "20-30": 6,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.57,
+      "no_route": 0,
+      "within_max_ticks": 2915,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 108,
+     "person": 91,
+     "partner_same_cell": 78,
+     "partner_other_cell": 6,
+     "partner_unknown": 7,
+     "self_offmap": 0,
+     "trip": {
+      "n": 6,
+      "dist_m": {
+       "0-100": 1,
+       "100-200": 1,
+       "200-400": 0,
+       "400-800": 2,
+       "800-1600": 2,
+       "1600+": 0
+      },
+      "dist_mean_m": 607.5,
+      "hops": {
+       "0-10": 2,
+       "10-20": 1,
+       "20-30": 1,
+       "30-45": 2,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 18.33,
+      "no_route": 0,
+      "within_max_ticks": 6,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_14",
+   "vocab": "v1",
+   "seed": 1,
+   "summary": {
+    "購入": {
+     "calls": 16399,
+     "named_out_of_cell": 842,
+     "intent_named": 580,
+     "named_closed_now": 242,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 11,
+     "named_not_fit": 9,
+     "named_offmap": 0,
+     "intent_category": 2864,
+     "category_none_nearby": 418,
+     "trip_named": {
+      "n": 580,
+      "dist_m": {
+       "0-100": 229,
+       "100-200": 204,
+       "200-400": 144,
+       "400-800": 3,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 125.1,
+      "hops": {
+       "0-10": 320,
+       "10-20": 260,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 8.89,
+      "no_route": 0,
+      "within_max_ticks": 580,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 2864,
+      "dist_m": {
+       "0-100": 1027,
+       "100-200": 1291,
+       "200-400": 522,
+       "400-800": 24,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 138.2,
+      "hops": {
+       "0-10": 2406,
+       "10-20": 453,
+       "20-30": 5,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.43,
+      "no_route": 0,
+      "within_max_ticks": 2864,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 47,
+     "person": 34,
+     "partner_same_cell": 27,
+     "partner_other_cell": 4,
+     "partner_unknown": 3,
+     "self_offmap": 0,
+     "trip": {
+      "n": 4,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 4,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 627.2,
+      "hops": {
+       "0-10": 1,
+       "10-20": 2,
+       "20-30": 1,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 16.0,
+      "no_route": 0,
+      "within_max_ticks": 4,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_30",
+   "vocab": "v1",
+   "seed": 1,
+   "summary": {
+    "購入": {
+     "calls": 16346,
+     "named_out_of_cell": 833,
+     "intent_named": 554,
+     "named_closed_now": 256,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 8,
+     "named_not_fit": 15,
+     "named_offmap": 0,
+     "intent_category": 2806,
+     "category_none_nearby": 421,
+     "trip_named": {
+      "n": 554,
+      "dist_m": {
+       "0-100": 213,
+       "100-200": 203,
+       "200-400": 133,
+       "400-800": 5,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 126.9,
+      "hops": {
+       "0-10": 305,
+       "10-20": 249,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 9.01,
+      "no_route": 0,
+      "within_max_ticks": 554,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 2806,
+      "dist_m": {
+       "0-100": 935,
+       "100-200": 1329,
+       "200-400": 520,
+       "400-800": 22,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 140.5,
+      "hops": {
+       "0-10": 2371,
+       "10-20": 430,
+       "20-30": 5,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.39,
+      "no_route": 0,
+      "within_max_ticks": 2806,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 69,
+     "person": 55,
+     "partner_same_cell": 44,
+     "partner_other_cell": 8,
+     "partner_unknown": 3,
+     "self_offmap": 0,
+     "trip": {
+      "n": 8,
+      "dist_m": {
+       "0-100": 2,
+       "100-200": 1,
+       "200-400": 4,
+       "400-800": 1,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 248.9,
+      "hops": {
+       "0-10": 4,
+       "10-20": 3,
+       "20-30": 1,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 10.25,
+      "no_route": 0,
+      "within_max_ticks": 8,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_1_00",
+   "vocab": "v1",
+   "seed": 1,
+   "summary": {
+    "購入": {
+     "calls": 16169,
+     "named_out_of_cell": 951,
+     "intent_named": 613,
+     "named_closed_now": 324,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 6,
+     "named_not_fit": 8,
+     "named_offmap": 0,
+     "intent_category": 2803,
+     "category_none_nearby": 404,
+     "trip_named": {
+      "n": 613,
+      "dist_m": {
+       "0-100": 214,
+       "100-200": 214,
+       "200-400": 181,
+       "400-800": 4,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 137.5,
+      "hops": {
+       "0-10": 330,
+       "10-20": 283,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 9.24,
+      "no_route": 0,
+      "within_max_ticks": 613,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 2803,
+      "dist_m": {
+       "0-100": 898,
+       "100-200": 1360,
+       "200-400": 511,
+       "400-800": 34,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 140.7,
+      "hops": {
+       "0-10": 2378,
+       "10-20": 424,
+       "20-30": 1,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.32,
+      "no_route": 0,
+      "within_max_ticks": 2803,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 25,
+     "person": 14,
+     "partner_same_cell": 13,
+     "partner_other_cell": 0,
+     "partner_unknown": 1,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__ad_zero",
+   "vocab": "v1",
+   "seed": 2,
+   "summary": {
+    "購入": {
+     "calls": 16360,
+     "named_out_of_cell": 758,
+     "intent_named": 535,
+     "named_closed_now": 204,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 11,
+     "named_not_fit": 8,
+     "named_offmap": 0,
+     "intent_category": 2933,
+     "category_none_nearby": 487,
+     "trip_named": {
+      "n": 535,
+      "dist_m": {
+       "0-100": 213,
+       "100-200": 200,
+       "200-400": 119,
+       "400-800": 3,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 124.1,
+      "hops": {
+       "0-10": 290,
+       "10-20": 245,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 9.02,
+      "no_route": 0,
+      "within_max_ticks": 535,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 2933,
+      "dist_m": {
+       "0-100": 1029,
+       "100-200": 1342,
+       "200-400": 525,
+       "400-800": 37,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 139.4,
+      "hops": {
+       "0-10": 2471,
+       "10-20": 454,
+       "20-30": 8,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.44,
+      "no_route": 0,
+      "within_max_ticks": 2933,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 89,
+     "person": 75,
+     "partner_same_cell": 57,
+     "partner_other_cell": 7,
+     "partner_unknown": 11,
+     "self_offmap": 0,
+     "trip": {
+      "n": 7,
+      "dist_m": {
+       "0-100": 3,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 3,
+       "800-1600": 1,
+       "1600+": 0
+      },
+      "dist_mean_m": 479.0,
+      "hops": {
+       "0-10": 3,
+       "10-20": 0,
+       "20-30": 3,
+       "30-45": 1,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 18.71,
+      "no_route": 0,
+      "within_max_ticks": 7,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_14",
+   "vocab": "v1",
+   "seed": 2,
+   "summary": {
+    "購入": {
+     "calls": 16295,
+     "named_out_of_cell": 787,
+     "intent_named": 552,
+     "named_closed_now": 213,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 13,
+     "named_not_fit": 9,
+     "named_offmap": 0,
+     "intent_category": 2852,
+     "category_none_nearby": 454,
+     "trip_named": {
+      "n": 552,
+      "dist_m": {
+       "0-100": 218,
+       "100-200": 216,
+       "200-400": 114,
+       "400-800": 4,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 121.5,
+      "hops": {
+       "0-10": 303,
+       "10-20": 249,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 9.08,
+      "no_route": 0,
+      "within_max_ticks": 552,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 2852,
+      "dist_m": {
+       "0-100": 973,
+       "100-200": 1336,
+       "200-400": 502,
+       "400-800": 41,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 139.8,
+      "hops": {
+       "0-10": 2431,
+       "10-20": 418,
+       "20-30": 3,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.33,
+      "no_route": 0,
+      "within_max_ticks": 2852,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 81,
+     "person": 64,
+     "partner_same_cell": 52,
+     "partner_other_cell": 8,
+     "partner_unknown": 4,
+     "self_offmap": 0,
+     "trip": {
+      "n": 8,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 4,
+       "200-400": 2,
+       "400-800": 1,
+       "800-1600": 1,
+       "1600+": 0
+      },
+      "dist_mean_m": 394.1,
+      "hops": {
+       "0-10": 4,
+       "10-20": 2,
+       "20-30": 1,
+       "30-45": 0,
+       "45-60": 1,
+       "60+": 0
+      },
+      "hops_mean": 16.0,
+      "no_route": 0,
+      "within_max_ticks": 8,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_30",
+   "vocab": "v1",
+   "seed": 2,
+   "summary": {
+    "購入": {
+     "calls": 16402,
+     "named_out_of_cell": 870,
+     "intent_named": 578,
+     "named_closed_now": 273,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 6,
+     "named_not_fit": 13,
+     "named_offmap": 0,
+     "intent_category": 2887,
+     "category_none_nearby": 494,
+     "trip_named": {
+      "n": 578,
+      "dist_m": {
+       "0-100": 215,
+       "100-200": 225,
+       "200-400": 136,
+       "400-800": 2,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 124.3,
+      "hops": {
+       "0-10": 309,
+       "10-20": 269,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 9.3,
+      "no_route": 0,
+      "within_max_ticks": 578,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 2887,
+      "dist_m": {
+       "0-100": 951,
+       "100-200": 1393,
+       "200-400": 507,
+       "400-800": 36,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 139.7,
+      "hops": {
+       "0-10": 2455,
+       "10-20": 426,
+       "20-30": 6,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.4,
+      "no_route": 0,
+      "within_max_ticks": 2887,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 44,
+     "person": 31,
+     "partner_same_cell": 19,
+     "partner_other_cell": 8,
+     "partner_unknown": 4,
+     "self_offmap": 0,
+     "trip": {
+      "n": 8,
+      "dist_m": {
+       "0-100": 2,
+       "100-200": 4,
+       "200-400": 1,
+       "400-800": 1,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 191.6,
+      "hops": {
+       "0-10": 2,
+       "10-20": 6,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 12.0,
+      "no_route": 0,
+      "within_max_ticks": 8,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_1_00",
+   "vocab": "v1",
+   "seed": 2,
+   "summary": {
+    "購入": {
+     "calls": 16215,
+     "named_out_of_cell": 892,
+     "intent_named": 563,
+     "named_closed_now": 321,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 5,
+     "named_not_fit": 3,
+     "named_offmap": 0,
+     "intent_category": 2846,
+     "category_none_nearby": 475,
+     "trip_named": {
+      "n": 563,
+      "dist_m": {
+       "0-100": 198,
+       "100-200": 213,
+       "200-400": 151,
+       "400-800": 1,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 131.1,
+      "hops": {
+       "0-10": 286,
+       "10-20": 277,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 9.7,
+      "no_route": 0,
+      "within_max_ticks": 563,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 2846,
+      "dist_m": {
+       "0-100": 877,
+       "100-200": 1483,
+       "200-400": 433,
+       "400-800": 53,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 140.0,
+      "hops": {
+       "0-10": 2465,
+       "10-20": 377,
+       "20-30": 4,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.16,
+      "no_route": 0,
+      "within_max_ticks": 2846,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 28,
+     "person": 20,
+     "partner_same_cell": 14,
+     "partner_other_cell": 4,
+     "partner_unknown": 2,
+     "self_offmap": 0,
+     "trip": {
+      "n": 4,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 1,
+       "400-800": 3,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 460.5,
+      "hops": {
+       "0-10": 1,
+       "10-20": 2,
+       "20-30": 1,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 14.5,
+      "no_route": 0,
+      "within_max_ticks": 4,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__ad_zero",
+   "vocab": "v1",
+   "seed": 1,
+   "summary": {
+    "購入": {
+     "calls": 27053,
+     "named_out_of_cell": 1226,
+     "intent_named": 866,
+     "named_closed_now": 325,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 17,
+     "named_not_fit": 18,
+     "named_offmap": 0,
+     "intent_category": 5067,
+     "category_none_nearby": 685,
+     "trip_named": {
+      "n": 866,
+      "dist_m": {
+       "0-100": 362,
+       "100-200": 264,
+       "200-400": 235,
+       "400-800": 5,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 124.7,
+      "hops": {
+       "0-10": 528,
+       "10-20": 338,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 8.48,
+      "no_route": 0,
+      "within_max_ticks": 866,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 5067,
+      "dist_m": {
+       "0-100": 1805,
+       "100-200": 2286,
+       "200-400": 923,
+       "400-800": 50,
+       "800-1600": 3,
+       "1600+": 0
+      },
+      "dist_mean_m": 139.1,
+      "hops": {
+       "0-10": 4223,
+       "10-20": 828,
+       "20-30": 16,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.32,
+      "no_route": 0,
+      "within_max_ticks": 5067,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 493,
+     "person": 435,
+     "partner_same_cell": 383,
+     "partner_other_cell": 43,
+     "partner_unknown": 9,
+     "self_offmap": 0,
+     "trip": {
+      "n": 43,
+      "dist_m": {
+       "0-100": 4,
+       "100-200": 12,
+       "200-400": 14,
+       "400-800": 11,
+       "800-1600": 2,
+       "1600+": 0
+      },
+      "dist_mean_m": 319.9,
+      "hops": {
+       "0-10": 19,
+       "10-20": 19,
+       "20-30": 4,
+       "30-45": 1,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 10.72,
+      "no_route": 0,
+      "within_max_ticks": 43,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_14",
+   "vocab": "v1",
+   "seed": 1,
+   "summary": {
+    "購入": {
+     "calls": 26731,
+     "named_out_of_cell": 1226,
+     "intent_named": 849,
+     "named_closed_now": 332,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 12,
+     "named_not_fit": 33,
+     "named_offmap": 0,
+     "intent_category": 4971,
+     "category_none_nearby": 695,
+     "trip_named": {
+      "n": 849,
+      "dist_m": {
+       "0-100": 345,
+       "100-200": 266,
+       "200-400": 234,
+       "400-800": 4,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 130.1,
+      "hops": {
+       "0-10": 517,
+       "10-20": 332,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 8.31,
+      "no_route": 0,
+      "within_max_ticks": 849,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 4971,
+      "dist_m": {
+       "0-100": 1756,
+       "100-200": 2279,
+       "200-400": 894,
+       "400-800": 40,
+       "800-1600": 2,
+       "1600+": 0
+      },
+      "dist_mean_m": 138.3,
+      "hops": {
+       "0-10": 4147,
+       "10-20": 804,
+       "20-30": 20,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.33,
+      "no_route": 0,
+      "within_max_ticks": 4971,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 400,
+     "person": 331,
+     "partner_same_cell": 281,
+     "partner_other_cell": 40,
+     "partner_unknown": 10,
+     "self_offmap": 0,
+     "trip": {
+      "n": 40,
+      "dist_m": {
+       "0-100": 8,
+       "100-200": 14,
+       "200-400": 12,
+       "400-800": 3,
+       "800-1600": 3,
+       "1600+": 0
+      },
+      "dist_mean_m": 257.3,
+      "hops": {
+       "0-10": 25,
+       "10-20": 12,
+       "20-30": 3,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 9.55,
+      "no_route": 0,
+      "within_max_ticks": 40,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_30",
+   "vocab": "v1",
+   "seed": 1,
+   "summary": {
+    "購入": {
+     "calls": 26835,
+     "named_out_of_cell": 1313,
+     "intent_named": 899,
+     "named_closed_now": 372,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 11,
+     "named_not_fit": 31,
+     "named_offmap": 0,
+     "intent_category": 4943,
+     "category_none_nearby": 667,
+     "trip_named": {
+      "n": 899,
+      "dist_m": {
+       "0-100": 346,
+       "100-200": 306,
+       "200-400": 244,
+       "400-800": 3,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 129.9,
+      "hops": {
+       "0-10": 524,
+       "10-20": 375,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 8.68,
+      "no_route": 0,
+      "within_max_ticks": 899,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 4943,
+      "dist_m": {
+       "0-100": 1674,
+       "100-200": 2302,
+       "200-400": 910,
+       "400-800": 52,
+       "800-1600": 5,
+       "1600+": 0
+      },
+      "dist_mean_m": 139.9,
+      "hops": {
+       "0-10": 4140,
+       "10-20": 788,
+       "20-30": 15,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.28,
+      "no_route": 0,
+      "within_max_ticks": 4943,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 467,
+     "person": 396,
+     "partner_same_cell": 335,
+     "partner_other_cell": 51,
+     "partner_unknown": 10,
+     "self_offmap": 0,
+     "trip": {
+      "n": 51,
+      "dist_m": {
+       "0-100": 3,
+       "100-200": 12,
+       "200-400": 18,
+       "400-800": 17,
+       "800-1600": 1,
+       "1600+": 0
+      },
+      "dist_mean_m": 324.5,
+      "hops": {
+       "0-10": 21,
+       "10-20": 25,
+       "20-30": 4,
+       "30-45": 1,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 11.27,
+      "no_route": 0,
+      "within_max_ticks": 51,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_1_00",
+   "vocab": "v1",
+   "seed": 1,
+   "summary": {
+    "購入": {
+     "calls": 26489,
+     "named_out_of_cell": 1370,
+     "intent_named": 912,
+     "named_closed_now": 417,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 15,
+     "named_not_fit": 26,
+     "named_offmap": 0,
+     "intent_category": 4537,
+     "category_none_nearby": 655,
+     "trip_named": {
+      "n": 912,
+      "dist_m": {
+       "0-100": 352,
+       "100-200": 274,
+       "200-400": 281,
+       "400-800": 5,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 136.2,
+      "hops": {
+       "0-10": 532,
+       "10-20": 380,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 8.91,
+      "no_route": 0,
+      "within_max_ticks": 912,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 4537,
+      "dist_m": {
+       "0-100": 1324,
+       "100-200": 2296,
+       "200-400": 860,
+       "400-800": 57,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 143.3,
+      "hops": {
+       "0-10": 3814,
+       "10-20": 720,
+       "20-30": 3,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.19,
+      "no_route": 0,
+      "within_max_ticks": 4537,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 190,
+     "person": 151,
+     "partner_same_cell": 133,
+     "partner_other_cell": 13,
+     "partner_unknown": 5,
+     "self_offmap": 0,
+     "trip": {
+      "n": 13,
+      "dist_m": {
+       "0-100": 2,
+       "100-200": 2,
+       "200-400": 5,
+       "400-800": 3,
+       "800-1600": 1,
+       "1600+": 0
+      },
+      "dist_mean_m": 351.5,
+      "hops": {
+       "0-10": 8,
+       "10-20": 4,
+       "20-30": 1,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 9.92,
+      "no_route": 0,
+      "within_max_ticks": 13,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab7_s1/AB7-OPEN-INTENT__vocab",
+   "vocab": "v1",
+   "seed": 1,
+   "summary": {
+    "購入": {
+     "calls": 16169,
+     "named_out_of_cell": 951,
+     "intent_named": 613,
+     "named_closed_now": 324,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 6,
+     "named_not_fit": 8,
+     "named_offmap": 0,
+     "intent_category": 2803,
+     "category_none_nearby": 404,
+     "trip_named": {
+      "n": 613,
+      "dist_m": {
+       "0-100": 214,
+       "100-200": 214,
+       "200-400": 181,
+       "400-800": 4,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 137.5,
+      "hops": {
+       "0-10": 330,
+       "10-20": 283,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 9.24,
+      "no_route": 0,
+      "within_max_ticks": 613,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 2803,
+      "dist_m": {
+       "0-100": 898,
+       "100-200": 1360,
+       "200-400": 511,
+       "400-800": 34,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 140.7,
+      "hops": {
+       "0-10": 2378,
+       "10-20": 424,
+       "20-30": 1,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.32,
+      "no_route": 0,
+      "within_max_ticks": 2803,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 25,
+     "person": 14,
+     "partner_same_cell": 13,
+     "partner_other_cell": 0,
+     "partner_unknown": 1,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab7_s2/AB7-OPEN-INTENT__vocab",
+   "vocab": "v1",
+   "seed": 2,
+   "summary": {
+    "購入": {
+     "calls": 16215,
+     "named_out_of_cell": 892,
+     "intent_named": 563,
+     "named_closed_now": 321,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 5,
+     "named_not_fit": 3,
+     "named_offmap": 0,
+     "intent_category": 2846,
+     "category_none_nearby": 475,
+     "trip_named": {
+      "n": 563,
+      "dist_m": {
+       "0-100": 198,
+       "100-200": 213,
+       "200-400": 151,
+       "400-800": 1,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 131.1,
+      "hops": {
+       "0-10": 286,
+       "10-20": 277,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 9.7,
+      "no_route": 0,
+      "within_max_ticks": 563,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 2846,
+      "dist_m": {
+       "0-100": 877,
+       "100-200": 1483,
+       "200-400": 433,
+       "400-800": 53,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 140.0,
+      "hops": {
+       "0-10": 2465,
+       "10-20": 377,
+       "20-30": 4,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.16,
+      "no_route": 0,
+      "within_max_ticks": 2846,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 28,
+     "person": 20,
+     "partner_same_cell": 14,
+     "partner_other_cell": 4,
+     "partner_unknown": 2,
+     "self_offmap": 0,
+     "trip": {
+      "n": 4,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 1,
+       "400-800": 3,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 460.5,
+      "hops": {
+       "0-10": 1,
+       "10-20": 2,
+       "20-30": 1,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 14.5,
+      "no_route": 0,
+      "within_max_ticks": 4,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab7b_s1/AB7b-HINT-INTENT__hint",
+   "vocab": "v1",
+   "seed": 1,
+   "summary": {
+    "購入": {
+     "calls": 18054,
+     "named_out_of_cell": 1291,
+     "intent_named": 638,
+     "named_closed_now": 434,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 154,
+     "named_not_fit": 65,
+     "named_offmap": 0,
+     "intent_category": 2386,
+     "category_none_nearby": 357,
+     "trip_named": {
+      "n": 638,
+      "dist_m": {
+       "0-100": 126,
+       "100-200": 319,
+       "200-400": 191,
+       "400-800": 2,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 158.9,
+      "hops": {
+       "0-10": 229,
+       "10-20": 409,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 10.65,
+      "no_route": 0,
+      "within_max_ticks": 638,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 2386,
+      "dist_m": {
+       "0-100": 698,
+       "100-200": 1240,
+       "200-400": 423,
+       "400-800": 23,
+       "800-1600": 2,
+       "1600+": 0
+      },
+      "dist_mean_m": 142.5,
+      "hops": {
+       "0-10": 2034,
+       "10-20": 343,
+       "20-30": 9,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.47,
+      "no_route": 0,
+      "within_max_ticks": 2386,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 159,
+     "person": 105,
+     "partner_same_cell": 91,
+     "partner_other_cell": 6,
+     "partner_unknown": 8,
+     "self_offmap": 0,
+     "trip": {
+      "n": 6,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 1,
+       "200-400": 4,
+       "400-800": 1,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 312.0,
+      "hops": {
+       "0-10": 3,
+       "10-20": 3,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 12.0,
+      "no_route": 0,
+      "within_max_ticks": 6,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab7b_s1/AB7b-HINT-INTENT__vocab",
+   "vocab": "v1",
+   "seed": 1,
+   "summary": {
+    "購入": {
+     "calls": 16169,
+     "named_out_of_cell": 951,
+     "intent_named": 613,
+     "named_closed_now": 324,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 6,
+     "named_not_fit": 8,
+     "named_offmap": 0,
+     "intent_category": 2803,
+     "category_none_nearby": 404,
+     "trip_named": {
+      "n": 613,
+      "dist_m": {
+       "0-100": 214,
+       "100-200": 214,
+       "200-400": 181,
+       "400-800": 4,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 137.5,
+      "hops": {
+       "0-10": 330,
+       "10-20": 283,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 9.24,
+      "no_route": 0,
+      "within_max_ticks": 613,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 2803,
+      "dist_m": {
+       "0-100": 898,
+       "100-200": 1360,
+       "200-400": 511,
+       "400-800": 34,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 140.7,
+      "hops": {
+       "0-10": 2378,
+       "10-20": 424,
+       "20-30": 1,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.32,
+      "no_route": 0,
+      "within_max_ticks": 2803,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 25,
+     "person": 14,
+     "partner_same_cell": 13,
+     "partner_other_cell": 0,
+     "partner_unknown": 1,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v1",
+   "vocab": "v1",
+   "seed": 1,
+   "summary": {
+    "購入": {
+     "calls": 16169,
+     "named_out_of_cell": 951,
+     "intent_named": 613,
+     "named_closed_now": 324,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 6,
+     "named_not_fit": 8,
+     "named_offmap": 0,
+     "intent_category": 2803,
+     "category_none_nearby": 404,
+     "trip_named": {
+      "n": 613,
+      "dist_m": {
+       "0-100": 214,
+       "100-200": 214,
+       "200-400": 181,
+       "400-800": 4,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 137.5,
+      "hops": {
+       "0-10": 330,
+       "10-20": 283,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 9.24,
+      "no_route": 0,
+      "within_max_ticks": 613,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 2803,
+      "dist_m": {
+       "0-100": 898,
+       "100-200": 1360,
+       "200-400": 511,
+       "400-800": 34,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 140.7,
+      "hops": {
+       "0-10": 2378,
+       "10-20": 424,
+       "20-30": 1,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.32,
+      "no_route": 0,
+      "within_max_ticks": 2803,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 25,
+     "person": 14,
+     "partner_same_cell": 13,
+     "partner_other_cell": 0,
+     "partner_unknown": 1,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v2",
+   "vocab": "v2",
+   "seed": 1,
+   "summary": {
+    "購入": {
+     "calls": 1811,
+     "named_out_of_cell": 199,
+     "intent_named": 161,
+     "named_closed_now": 37,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 1,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 225,
+     "category_none_nearby": 34,
+     "trip_named": {
+      "n": 161,
+      "dist_m": {
+       "0-100": 95,
+       "100-200": 39,
+       "200-400": 27,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 96.4,
+      "hops": {
+       "0-10": 109,
+       "10-20": 52,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 8.06,
+      "no_route": 0,
+      "within_max_ticks": 161,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 225,
+      "dist_m": {
+       "0-100": 57,
+       "100-200": 139,
+       "200-400": 29,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 126.3,
+      "hops": {
+       "0-10": 199,
+       "10-20": 26,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 5.87,
+      "no_route": 0,
+      "within_max_ticks": 225,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 16327,
+     "named_out_of_cell": 1483,
+     "intent_named": 896,
+     "named_closed_now": 472,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 115,
+     "named_offmap": 0,
+     "intent_category": 522,
+     "category_none_nearby": 656,
+     "trip_named": {
+      "n": 896,
+      "dist_m": {
+       "0-100": 280,
+       "100-200": 259,
+       "200-400": 353,
+       "400-800": 4,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 144.2,
+      "hops": {
+       "0-10": 540,
+       "10-20": 356,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 9.32,
+      "no_route": 0,
+      "within_max_ticks": 896,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 522,
+      "dist_m": {
+       "0-100": 106,
+       "100-200": 294,
+       "200-400": 119,
+       "400-800": 3,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 151.0,
+      "hops": {
+       "0-10": 425,
+       "10-20": 97,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 7.94,
+      "no_route": 0,
+      "within_max_ticks": 522,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "会話": {
+     "calls": 42,
+     "person": 32,
+     "partner_same_cell": 26,
+     "partner_other_cell": 3,
+     "partner_unknown": 3,
+     "self_offmap": 0,
+     "trip": {
+      "n": 3,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 1,
+       "200-400": 0,
+       "400-800": 1,
+       "800-1600": 1,
+       "1600+": 0
+      },
+      "dist_mean_m": 571.7,
+      "hops": {
+       "0-10": 1,
+       "10-20": 1,
+       "20-30": 0,
+       "30-45": 1,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 19.0,
+      "no_route": 0,
+      "within_max_ticks": 3,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v1",
+   "vocab": "v1",
+   "seed": 2,
+   "summary": {
+    "購入": {
+     "calls": 16215,
+     "named_out_of_cell": 892,
+     "intent_named": 563,
+     "named_closed_now": 321,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 5,
+     "named_not_fit": 3,
+     "named_offmap": 0,
+     "intent_category": 2846,
+     "category_none_nearby": 475,
+     "trip_named": {
+      "n": 563,
+      "dist_m": {
+       "0-100": 198,
+       "100-200": 213,
+       "200-400": 151,
+       "400-800": 1,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 131.1,
+      "hops": {
+       "0-10": 286,
+       "10-20": 277,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 9.7,
+      "no_route": 0,
+      "within_max_ticks": 563,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 2846,
+      "dist_m": {
+       "0-100": 877,
+       "100-200": 1483,
+       "200-400": 433,
+       "400-800": 53,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 140.0,
+      "hops": {
+       "0-10": 2465,
+       "10-20": 377,
+       "20-30": 4,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.16,
+      "no_route": 0,
+      "within_max_ticks": 2846,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 28,
+     "person": 20,
+     "partner_same_cell": 14,
+     "partner_other_cell": 4,
+     "partner_unknown": 2,
+     "self_offmap": 0,
+     "trip": {
+      "n": 4,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 1,
+       "400-800": 3,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 460.5,
+      "hops": {
+       "0-10": 1,
+       "10-20": 2,
+       "20-30": 1,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 14.5,
+      "no_route": 0,
+      "within_max_ticks": 4,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v2",
+   "vocab": "v2",
+   "seed": 2,
+   "summary": {
+    "購入": {
+     "calls": 1729,
+     "named_out_of_cell": 184,
+     "intent_named": 134,
+     "named_closed_now": 49,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 1,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 208,
+     "category_none_nearby": 34,
+     "trip_named": {
+      "n": 134,
+      "dist_m": {
+       "0-100": 78,
+       "100-200": 36,
+       "200-400": 20,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 91.8,
+      "hops": {
+       "0-10": 85,
+       "10-20": 49,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 8.6,
+      "no_route": 0,
+      "within_max_ticks": 134,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 208,
+      "dist_m": {
+       "0-100": 41,
+       "100-200": 152,
+       "200-400": 15,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 120.3,
+      "hops": {
+       "0-10": 187,
+       "10-20": 21,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 5.74,
+      "no_route": 0,
+      "within_max_ticks": 208,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 16455,
+     "named_out_of_cell": 1410,
+     "intent_named": 845,
+     "named_closed_now": 461,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 104,
+     "named_offmap": 0,
+     "intent_category": 539,
+     "category_none_nearby": 652,
+     "trip_named": {
+      "n": 845,
+      "dist_m": {
+       "0-100": 261,
+       "100-200": 325,
+       "200-400": 255,
+       "400-800": 4,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 135.1,
+      "hops": {
+       "0-10": 474,
+       "10-20": 371,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 9.74,
+      "no_route": 0,
+      "within_max_ticks": 845,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 539,
+      "dist_m": {
+       "0-100": 123,
+       "100-200": 283,
+       "200-400": 131,
+       "400-800": 2,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 149.5,
+      "hops": {
+       "0-10": 435,
+       "10-20": 104,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 8.07,
+      "no_route": 0,
+      "within_max_ticks": 539,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "会話": {
+     "calls": 23,
+     "person": 17,
+     "partner_same_cell": 13,
+     "partner_other_cell": 2,
+     "partner_unknown": 2,
+     "self_offmap": 0,
+     "trip": {
+      "n": 2,
+      "dist_m": {
+       "0-100": 1,
+       "100-200": 1,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 99.0,
+      "hops": {
+       "0-10": 2,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 5.0,
+      "no_route": 0,
+      "within_max_ticks": 2,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_unlimited",
+   "vocab": "v1",
+   "seed": 1,
+   "summary": {
+    "購入": {
+     "calls": 26489,
+     "named_out_of_cell": 1370,
+     "intent_named": 912,
+     "named_closed_now": 417,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 15,
+     "named_not_fit": 26,
+     "named_offmap": 0,
+     "intent_category": 4537,
+     "category_none_nearby": 655,
+     "trip_named": {
+      "n": 912,
+      "dist_m": {
+       "0-100": 352,
+       "100-200": 274,
+       "200-400": 281,
+       "400-800": 5,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 136.2,
+      "hops": {
+       "0-10": 532,
+       "10-20": 380,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 8.91,
+      "no_route": 0,
+      "within_max_ticks": 912,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 4537,
+      "dist_m": {
+       "0-100": 1324,
+       "100-200": 2296,
+       "200-400": 860,
+       "400-800": 57,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 143.3,
+      "hops": {
+       "0-10": 3814,
+       "10-20": 720,
+       "20-30": 3,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.19,
+      "no_route": 0,
+      "within_max_ticks": 4537,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 190,
+     "person": 151,
+     "partner_same_cell": 133,
+     "partner_other_cell": 13,
+     "partner_unknown": 5,
+     "self_offmap": 0,
+     "trip": {
+      "n": 13,
+      "dist_m": {
+       "0-100": 2,
+       "100-200": 2,
+       "200-400": 5,
+       "400-800": 3,
+       "800-1600": 1,
+       "1600+": 0
+      },
+      "dist_mean_m": 351.5,
+      "hops": {
+       "0-10": 8,
+       "10-20": 4,
+       "20-30": 1,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 9.92,
+      "no_route": 0,
+      "within_max_ticks": 13,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x0.5",
+   "vocab": "v1",
+   "seed": 1,
+   "summary": {
+    "購入": {
+     "calls": 9995,
+     "named_out_of_cell": 690,
+     "intent_named": 448,
+     "named_closed_now": 229,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 8,
+     "named_not_fit": 5,
+     "named_offmap": 0,
+     "intent_category": 1541,
+     "category_none_nearby": 239,
+     "trip_named": {
+      "n": 448,
+      "dist_m": {
+       "0-100": 135,
+       "100-200": 154,
+       "200-400": 157,
+       "400-800": 2,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 151.2,
+      "hops": {
+       "0-10": 199,
+       "10-20": 249,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 10.37,
+      "no_route": 0,
+      "within_max_ticks": 448,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 1541,
+      "dist_m": {
+       "0-100": 525,
+       "100-200": 670,
+       "200-400": 331,
+       "400-800": 15,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 142.6,
+      "hops": {
+       "0-10": 1275,
+       "10-20": 266,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.67,
+      "no_route": 0,
+      "within_max_ticks": 1541,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 7,
+     "person": 5,
+     "partner_same_cell": 2,
+     "partner_other_cell": 0,
+     "partner_unknown": 3,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x1",
+   "vocab": "v1",
+   "seed": 1,
+   "summary": {
+    "購入": {
+     "calls": 16169,
+     "named_out_of_cell": 951,
+     "intent_named": 613,
+     "named_closed_now": 324,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 6,
+     "named_not_fit": 8,
+     "named_offmap": 0,
+     "intent_category": 2803,
+     "category_none_nearby": 404,
+     "trip_named": {
+      "n": 613,
+      "dist_m": {
+       "0-100": 214,
+       "100-200": 214,
+       "200-400": 181,
+       "400-800": 4,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 137.5,
+      "hops": {
+       "0-10": 330,
+       "10-20": 283,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 9.24,
+      "no_route": 0,
+      "within_max_ticks": 613,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 2803,
+      "dist_m": {
+       "0-100": 898,
+       "100-200": 1360,
+       "200-400": 511,
+       "400-800": 34,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 140.7,
+      "hops": {
+       "0-10": 2378,
+       "10-20": 424,
+       "20-30": 1,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.32,
+      "no_route": 0,
+      "within_max_ticks": 2803,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 25,
+     "person": 14,
+     "partner_same_cell": 13,
+     "partner_other_cell": 0,
+     "partner_unknown": 1,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "就寝": {
+     "calls": 0,
+     "at_home": 0,
+     "home_other_cell": 0,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    }
+   }
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x2",
+   "vocab": "v1",
+   "seed": 1,
+   "summary": {
+    "購入": {
+     "calls": 23167,
+     "named_out_of_cell": 1270,
+     "intent_named": 826,
+     "named_closed_now": 410,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 13,
+     "named_not_fit": 21,
+     "named_offmap": 0,
+     "intent_category": 4000,
+     "category_none_nearby": 568,
+     "trip_named": {
+      "n": 826,
+      "dist_m": {
+       "0-100": 316,
+       "100-200": 269,
+       "200-400": 238,
+       "400-800": 3,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 131.6,
+      "hops": {
+       "0-10": 470,
+       "10-20": 356,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 8.9,
+      "no_route": 0,
+      "within_max_ticks": 826,
+      "within_max_ticks_share": 1.0
+     },
+     "trip_category": {
+      "n": 4000,
+      "dist_m": {
+       "0-100": 1166,
+       "100-200": 2096,
+       "200-400": 691,
+       "400-800": 47,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 142.0,
+      "hops": {
+       "0-10": 3390,
+       "10-20": 605,
+       "20-30": 5,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.15,
+      "no_route": 0,
+      "within_max_ticks": 4000,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "食事": {
+     "calls": 0,
+     "named_out_of_cell": 0,
+     "intent_named": 0,
+     "named_closed_now": 0,
+     "named_out_of_stock_now": 0,
+     "named_not_visible": 0,
+     "named_not_fit": 0,
+     "named_offmap": 0,
+     "intent_category": 0,
+     "category_none_nearby": 0,
+     "trip_named": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     },
+     "trip_category": {
+      "n": 0,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 0.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 0.0,
+      "no_route": 0,
+      "within_max_ticks": 0,
+      "within_max_ticks_share": 0.0
+     }
+    },
+    "会話": {
+     "calls": 120,
+     "person": 88,
+     "partner_same_cell": 75,
+     "partner_other_cell": 11,
+     "partner_unknown": 2,
+     "self_offmap": 0,
+     "trip": {
+      "n": 11,
+      "dist_m": {
+       "0-100": 4,
+       "100-200": 3,
+       "200-400": 2,
+       "400-800": 2,
+       "800-1600": 0,
+       "1600+": 0
+      },
+      "dist_mean_m": 214.5,
+      "hops": {
+       "0-10": 8,
+       "10-20": 3,
+       "20-30": 0,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 6.91,
+      "no_route": 0,
+      "within_max_ticks": 11,
+      "within_max_ticks_share": 1.0
+     }
+    },
+    "就寝": {
+     "calls": 1,
+     "at_home": 0,
+     "home_other_cell": 1,
+     "home_offmap": 0,
+     "self_offmap": 0,
+     "trip": {
+      "n": 1,
+      "dist_m": {
+       "0-100": 0,
+       "100-200": 0,
+       "200-400": 0,
+       "400-800": 0,
+       "800-1600": 1,
+       "1600+": 0
+      },
+      "dist_mean_m": 938.0,
+      "hops": {
+       "0-10": 0,
+       "10-20": 0,
+       "20-30": 1,
+       "30-45": 0,
+       "45-60": 0,
+       "60+": 0
+      },
+      "hops_mean": 26.0,
+      "no_route": 0,
+      "within_max_ticks": 1,
+      "within_max_ticks_share": 1.0
+     }
+    }
+   }
+  }
+ ],
+ "total": {
+  "購入": {
+   "calls": 416025,
+   "named_out_of_cell": 22444,
+   "intent_named": 14757,
+   "named_closed_now": 7005,
+   "named_out_of_stock_now": 0,
+   "named_not_visible": 348,
+   "named_not_fit": 334,
+   "named_offmap": 0,
+   "intent_category": 72225,
+   "category_none_nearby": 10723,
+   "trip_named": {
+    "n": 14757,
+    "dist_m": {
+     "0-100": 5491,
+     "100-200": 5167,
+     "200-400": 4027,
+     "400-800": 72,
+     "800-1600": 0,
+     "1600+": 0
+    },
+    "dist_mean_m": 131.9,
+    "hops": {
+     "0-10": 8081,
+     "10-20": 6676,
+     "20-30": 0,
+     "30-45": 0,
+     "45-60": 0,
+     "60+": 0
+    },
+    "hops_mean": 9.13,
+    "no_route": 0,
+    "within_max_ticks": 14757,
+    "within_max_ticks_share": 1.0
+   },
+   "trip_category": {
+    "n": 72225,
+    "dist_m": {
+     "0-100": 23478,
+     "100-200": 34977,
+     "200-400": 12893,
+     "400-800": 865,
+     "800-1600": 12,
+     "1600+": 0
+    },
+    "dist_mean_m": 140.4,
+    "hops": {
+     "0-10": 61083,
+     "10-20": 11021,
+     "20-30": 121,
+     "30-45": 0,
+     "45-60": 0,
+     "60+": 0
+    },
+    "hops_mean": 6.31,
+    "no_route": 0,
+    "within_max_ticks": 72225,
+    "within_max_ticks_share": 1.0
+   }
+  },
+  "食事": {
+   "calls": 32782,
+   "named_out_of_cell": 2893,
+   "intent_named": 1741,
+   "named_closed_now": 933,
+   "named_out_of_stock_now": 0,
+   "named_not_visible": 0,
+   "named_not_fit": 219,
+   "named_offmap": 0,
+   "intent_category": 1061,
+   "category_none_nearby": 1308,
+   "trip_named": {
+    "n": 1741,
+    "dist_m": {
+     "0-100": 541,
+     "100-200": 584,
+     "200-400": 608,
+     "400-800": 8,
+     "800-1600": 0,
+     "1600+": 0
+    },
+    "dist_mean_m": 139.8,
+    "hops": {
+     "0-10": 1014,
+     "10-20": 727,
+     "20-30": 0,
+     "30-45": 0,
+     "45-60": 0,
+     "60+": 0
+    },
+    "hops_mean": 9.52,
+    "no_route": 0,
+    "within_max_ticks": 1741,
+    "within_max_ticks_share": 1.0
+   },
+   "trip_category": {
+    "n": 1061,
+    "dist_m": {
+     "0-100": 229,
+     "100-200": 577,
+     "200-400": 250,
+     "400-800": 5,
+     "800-1600": 0,
+     "1600+": 0
+    },
+    "dist_mean_m": 150.2,
+    "hops": {
+     "0-10": 860,
+     "10-20": 201,
+     "20-30": 0,
+     "30-45": 0,
+     "45-60": 0,
+     "60+": 0
+    },
+    "hops_mean": 8.01,
+    "no_route": 0,
+    "within_max_ticks": 1061,
+    "within_max_ticks_share": 1.0
+   }
+  },
+  "会話": {
+   "calls": 2738,
+   "person": 2191,
+   "partner_same_cell": 1856,
+   "partner_other_cell": 235,
+   "partner_unknown": 100,
+   "self_offmap": 0,
+   "trip": {
+    "n": 235,
+    "dist_m": {
+     "0-100": 32,
+     "100-200": 58,
+     "200-400": 70,
+     "400-800": 62,
+     "800-1600": 13,
+     "1600+": 0
+    },
+    "dist_mean_m": 330.2,
+    "hops": {
+     "0-10": 114,
+     "10-20": 91,
+     "20-30": 23,
+     "30-45": 6,
+     "45-60": 1,
+     "60+": 0
+    },
+    "hops_mean": 11.39,
+    "no_route": 0,
+    "within_max_ticks": 235,
+    "within_max_ticks_share": 1.0
+   }
+  },
+  "就寝": {
+   "calls": 1,
+   "at_home": 0,
+   "home_other_cell": 1,
+   "home_offmap": 0,
+   "self_offmap": 0,
+   "trip": {
+    "n": 1,
+    "dist_m": {
+     "0-100": 0,
+     "100-200": 0,
+     "200-400": 0,
+     "400-800": 0,
+     "800-1600": 1,
+     "1600+": 0
+    },
+    "dist_mean_m": 938.0,
+    "hops": {
+     "0-10": 0,
+     "10-20": 0,
+     "20-30": 1,
+     "30-45": 0,
+     "45-60": 0,
+     "60+": 0
+    },
+    "hops_mean": 26.0,
+    "no_route": 0,
+    "within_max_ticks": 1,
+    "within_max_ticks_share": 1.0
+   }
+  }
+ },
+ "total_unique": {
+  "購入": {
+   "calls": 292430,
+   "named_out_of_cell": 15486,
+   "intent_named": 10267,
+   "named_closed_now": 4650,
+   "named_out_of_stock_now": 0,
+   "named_not_visible": 299,
+   "named_not_fit": 270,
+   "named_offmap": 0,
+   "intent_category": 50784,
+   "category_none_nearby": 7502,
+   "trip_named": {
+    "n": 10267,
+    "dist_m": {
+     "0-100": 3887,
+     "100-200": 3611,
+     "200-400": 2720,
+     "400-800": 49,
+     "800-1600": 0,
+     "1600+": 0
+    },
+    "dist_mean_m": 130.3,
+    "hops": {
+     "0-10": 5657,
+     "10-20": 4610,
+     "20-30": 0,
+     "30-45": 0,
+     "45-60": 0,
+     "60+": 0
+    },
+    "hops_mean": 9.06,
+    "no_route": 0,
+    "within_max_ticks": 10267,
+    "within_max_ticks_share": 1.0
+   },
+   "trip_category": {
+    "n": 50784,
+    "dist_m": {
+     "0-100": 16808,
+     "100-200": 24275,
+     "200-400": 9123,
+     "400-800": 566,
+     "800-1600": 12,
+     "1600+": 0
+    },
+    "dist_mean_m": 140.1,
+    "hops": {
+     "0-10": 42827,
+     "10-20": 7851,
+     "20-30": 106,
+     "30-45": 0,
+     "45-60": 0,
+     "60+": 0
+    },
+    "hops_mean": 6.33,
+    "no_route": 0,
+    "within_max_ticks": 50784,
+    "within_max_ticks_share": 1.0
+   }
+  },
+  "食事": {
+   "calls": 32782,
+   "named_out_of_cell": 2893,
+   "intent_named": 1741,
+   "named_closed_now": 933,
+   "named_out_of_stock_now": 0,
+   "named_not_visible": 0,
+   "named_not_fit": 219,
+   "named_offmap": 0,
+   "intent_category": 1061,
+   "category_none_nearby": 1308,
+   "trip_named": {
+    "n": 1741,
+    "dist_m": {
+     "0-100": 541,
+     "100-200": 584,
+     "200-400": 608,
+     "400-800": 8,
+     "800-1600": 0,
+     "1600+": 0
+    },
+    "dist_mean_m": 139.8,
+    "hops": {
+     "0-10": 1014,
+     "10-20": 727,
+     "20-30": 0,
+     "30-45": 0,
+     "45-60": 0,
+     "60+": 0
+    },
+    "hops_mean": 9.52,
+    "no_route": 0,
+    "within_max_ticks": 1741,
+    "within_max_ticks_share": 1.0
+   },
+   "trip_category": {
+    "n": 1061,
+    "dist_m": {
+     "0-100": 229,
+     "100-200": 577,
+     "200-400": 250,
+     "400-800": 5,
+     "800-1600": 0,
+     "1600+": 0
+    },
+    "dist_mean_m": 150.2,
+    "hops": {
+     "0-10": 860,
+     "10-20": 201,
+     "20-30": 0,
+     "30-45": 0,
+     "45-60": 0,
+     "60+": 0
+    },
+    "hops_mean": 8.01,
+    "no_route": 0,
+    "within_max_ticks": 1061,
+    "within_max_ticks_share": 1.0
+   }
+  },
+  "会話": {
+   "calls": 2392,
+   "person": 1944,
+   "partner_same_cell": 1643,
+   "partner_other_cell": 214,
+   "partner_unknown": 87,
+   "self_offmap": 0,
+   "trip": {
+    "n": 214,
+    "dist_m": {
+     "0-100": 30,
+     "100-200": 56,
+     "200-400": 63,
+     "400-800": 53,
+     "800-1600": 12,
+     "1600+": 0
+    },
+    "dist_mean_m": 324.0,
+    "hops": {
+     "0-10": 104,
+     "10-20": 83,
+     "20-30": 20,
+     "30-45": 6,
+     "45-60": 1,
+     "60+": 0
+    },
+    "hops_mean": 11.36,
+    "no_route": 0,
+    "within_max_ticks": 214,
+    "within_max_ticks_share": 1.0
+   }
+  },
+  "就寝": {
+   "calls": 1,
+   "at_home": 0,
+   "home_other_cell": 1,
+   "home_offmap": 0,
+   "self_offmap": 0,
+   "trip": {
+    "n": 1,
+    "dist_m": {
+     "0-100": 0,
+     "100-200": 0,
+     "200-400": 0,
+     "400-800": 0,
+     "800-1600": 1,
+     "1600+": 0
+    },
+    "dist_mean_m": 938.0,
+    "hops": {
+     "0-10": 0,
+     "10-20": 0,
+     "20-30": 1,
+     "30-45": 0,
+     "45-60": 0,
+     "60+": 0
+    },
+    "hops_mean": 26.0,
+    "no_route": 0,
+    "within_max_ticks": 1,
+    "within_max_ticks_share": 1.0
+   }
+  }
+ },
+ "unique_tapes": [
+  "c8_ab6b_s1/AB6b-AD-NOTICE__ad_zero",
+  "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_14",
+  "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_30",
+  "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_1_00",
+  "c8_ab6b_s2/AB6b-AD-NOTICE__ad_zero",
+  "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_14",
+  "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_30",
+  "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_1_00",
+  "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__ad_zero",
+  "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_14",
+  "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_30",
+  "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_1_00",
+  "c8_ab7b_s1/AB7b-HINT-INTENT__hint",
+  "c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v2",
+  "c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v2",
+  "c8_ab8_s1/AB8-L4-SCALE__l4_x0.5",
+  "c8_ab8_s1/AB8-L4-SCALE__l4_x2"
+ ],
+ "note": "呼数(total=複製テープを含む 23 本・total_unique=結果の組で束ねた本数)。棚在庫は見ない。月曜 day 0 の W7 営業行列。歩数=代表ノード間の経路のノード数(node 幾何の tick)。会話の相手の居場所=相手の直近の呼の B2(60 tick 以内)。自宅=いまのコードで組み直した母集団。"
+}

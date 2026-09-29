@@ -23,7 +23,7 @@ def test_cli_run_builds_ledger_and_census_on_synthetic_world():
     assert res.conserved
     assert res.census_row is not None and res.census_pass
     lo, hi = res.waste_band
-    assert 0.0 < lo < hi  # 区ごみ 119.6 t/日の band が報告される(台帳なしの run は (0,0))
+    assert 0.0 < lo < hi  # 店だけの静的な帯が報告される(第304 Q135 (a)・旧=区ごみ 119.6 t/日・台帳なしの run は (0,0))
 
 
 def test_cli_main_parses_and_runs(capsys):

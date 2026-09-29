@@ -1,0 +1,314 @@
+{
+ "schema": "shibuya.bench/c10-relations/replay/1",
+ "tapes": [
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__ad_zero",
+   "vocab": "v1",
+   "agents": 4816,
+   "counts": {
+    "responses": 36957,
+    "talk_responses": 108,
+    "talk_to_person": 91,
+    "talk_to_person_other": 19,
+    "edge_new": 52,
+    "talk_to_person_conversation_turn": 72,
+    "talk_without_person": 17,
+    "edge_merge": 39
+   },
+   "new_edges_per_agent_mean": 0.0108,
+   "talk_share_of_responses": 0.00292
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_14",
+   "vocab": "v1",
+   "agents": 4816,
+   "counts": {
+    "responses": 36922,
+    "talk_responses": 47,
+    "talk_without_person": 13,
+    "talk_to_person": 34,
+    "talk_to_person_other": 6,
+    "edge_new": 22,
+    "talk_to_person_conversation_turn": 28,
+    "edge_merge": 12
+   },
+   "new_edges_per_agent_mean": 0.0046,
+   "talk_share_of_responses": 0.00127
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_30",
+   "vocab": "v1",
+   "agents": 4816,
+   "counts": {
+    "responses": 36916,
+    "talk_responses": 69,
+    "talk_to_person": 55,
+    "talk_to_person_other": 12,
+    "edge_new": 33,
+    "talk_to_person_conversation_turn": 43,
+    "edge_merge": 22,
+    "talk_without_person": 14
+   },
+   "new_edges_per_agent_mean": 0.0069,
+   "talk_share_of_responses": 0.00187
+  },
+  {
+   "tape": "c8_ab6b_s1/AB6b-AD-NOTICE__p_see_1_00",
+   "vocab": "v1",
+   "agents": 4816,
+   "counts": {
+    "responses": 36906,
+    "talk_responses": 25,
+    "talk_to_person": 14,
+    "talk_to_person_other": 6,
+    "edge_new": 9,
+    "talk_to_person_conversation_turn": 8,
+    "edge_merge": 5,
+    "talk_without_person": 11
+   },
+   "new_edges_per_agent_mean": 0.0019,
+   "talk_share_of_responses": 0.00068
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__ad_zero",
+   "vocab": "v1",
+   "agents": 4812,
+   "counts": {
+    "responses": 36993,
+    "talk_responses": 89,
+    "talk_to_person": 75,
+    "talk_to_person_other": 16,
+    "edge_new": 43,
+    "talk_to_person_conversation_turn": 59,
+    "talk_without_person": 14,
+    "edge_merge": 32
+   },
+   "new_edges_per_agent_mean": 0.0089,
+   "talk_share_of_responses": 0.00241
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_14",
+   "vocab": "v1",
+   "agents": 4812,
+   "counts": {
+    "responses": 37022,
+    "talk_responses": 81,
+    "talk_to_person": 64,
+    "talk_to_person_other": 17,
+    "edge_new": 38,
+    "talk_without_person": 17,
+    "talk_to_person_conversation_turn": 47,
+    "edge_merge": 26
+   },
+   "new_edges_per_agent_mean": 0.0079,
+   "talk_share_of_responses": 0.00219
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_30",
+   "vocab": "v1",
+   "agents": 4813,
+   "counts": {
+    "responses": 37196,
+    "talk_responses": 44,
+    "talk_to_person": 31,
+    "talk_to_person_other": 7,
+    "edge_new": 19,
+    "talk_without_person": 13,
+    "talk_to_person_conversation_turn": 24,
+    "edge_merge": 12
+   },
+   "new_edges_per_agent_mean": 0.0039,
+   "talk_share_of_responses": 0.00118
+  },
+  {
+   "tape": "c8_ab6b_s2/AB6b-AD-NOTICE__p_see_1_00",
+   "vocab": "v1",
+   "agents": 4813,
+   "counts": {
+    "responses": 36889,
+    "talk_responses": 28,
+    "talk_without_person": 8,
+    "talk_to_person": 20,
+    "talk_to_person_conversation_turn": 14,
+    "edge_new": 15,
+    "edge_merge": 5,
+    "talk_to_person_other": 6
+   },
+   "new_edges_per_agent_mean": 0.0031,
+   "talk_share_of_responses": 0.00076
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__ad_zero",
+   "vocab": "v1",
+   "agents": 4817,
+   "counts": {
+    "responses": 74581,
+    "talk_responses": 493,
+    "talk_to_person": 435,
+    "talk_to_person_other": 92,
+    "edge_new": 235,
+    "talk_to_person_conversation_turn": 343,
+    "edge_merge": 200,
+    "talk_without_person": 58
+   },
+   "new_edges_per_agent_mean": 0.0488,
+   "talk_share_of_responses": 0.00661
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_14",
+   "vocab": "v1",
+   "agents": 4816,
+   "counts": {
+    "responses": 73635,
+    "talk_responses": 400,
+    "talk_without_person": 69,
+    "talk_to_person": 331,
+    "talk_to_person_other": 72,
+    "edge_new": 196,
+    "talk_to_person_conversation_turn": 259,
+    "edge_merge": 135
+   },
+   "new_edges_per_agent_mean": 0.0407,
+   "talk_share_of_responses": 0.00543
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_30",
+   "vocab": "v1",
+   "agents": 4817,
+   "counts": {
+    "responses": 73753,
+    "talk_responses": 467,
+    "talk_to_person": 396,
+    "talk_to_person_other": 73,
+    "edge_new": 205,
+    "talk_to_person_conversation_turn": 323,
+    "talk_without_person": 71,
+    "edge_merge": 191
+   },
+   "new_edges_per_agent_mean": 0.0426,
+   "talk_share_of_responses": 0.00633
+  },
+  {
+   "tape": "c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_1_00",
+   "vocab": "v1",
+   "agents": 4817,
+   "counts": {
+    "responses": 72800,
+    "talk_responses": 190,
+    "talk_without_person": 39,
+    "talk_to_person": 151,
+    "talk_to_person_other": 35,
+    "edge_new": 94,
+    "talk_to_person_conversation_turn": 116,
+    "edge_merge": 57
+   },
+   "new_edges_per_agent_mean": 0.0195,
+   "talk_share_of_responses": 0.00261
+  },
+  {
+   "tape": "c8_ab7b_s1/AB7b-HINT-INTENT__hint",
+   "vocab": "v1",
+   "agents": 4816,
+   "counts": {
+    "responses": 36855,
+    "talk_responses": 159,
+    "talk_without_person": 54,
+    "talk_to_person": 105,
+    "talk_to_person_conversation_turn": 93,
+    "edge_new": 58,
+    "edge_merge": 47,
+    "talk_to_person_other": 12
+   },
+   "new_edges_per_agent_mean": 0.012,
+   "talk_share_of_responses": 0.00431
+  },
+  {
+   "tape": "c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v2",
+   "vocab": "v2",
+   "agents": 4814,
+   "counts": {
+    "responses": 37165,
+    "talk_responses": 42,
+    "talk_without_person": 10,
+    "talk_to_person": 32,
+    "talk_to_person_conversation_turn": 27,
+    "edge_new": 22,
+    "edge_merge": 10,
+    "talk_to_person_other": 5
+   },
+   "new_edges_per_agent_mean": 0.0046,
+   "talk_share_of_responses": 0.00113
+  },
+  {
+   "tape": "c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v2",
+   "vocab": "v2",
+   "agents": 4813,
+   "counts": {
+    "responses": 37371,
+    "talk_responses": 23,
+    "talk_to_person": 17,
+    "talk_to_person_other": 4,
+    "edge_new": 14,
+    "talk_without_person": 6,
+    "talk_to_person_conversation_turn": 13,
+    "edge_merge": 3
+   },
+   "new_edges_per_agent_mean": 0.0029,
+   "talk_share_of_responses": 0.00062
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x0.5",
+   "vocab": "v1",
+   "agents": 4756,
+   "counts": {
+    "responses": 19856,
+    "talk_responses": 7,
+    "talk_to_person": 5,
+    "talk_to_person_other": 2,
+    "edge_new": 5,
+    "talk_to_person_conversation_turn": 3,
+    "talk_without_person": 2
+   },
+   "new_edges_per_agent_mean": 0.0011,
+   "talk_share_of_responses": 0.00035
+  },
+  {
+   "tape": "c8_ab8_s1/AB8-L4-SCALE__l4_x2",
+   "vocab": "v1",
+   "agents": 4817,
+   "counts": {
+    "responses": 61196,
+    "talk_responses": 120,
+    "talk_without_person": 32,
+    "talk_to_person": 88,
+    "talk_to_person_other": 20,
+    "edge_new": 56,
+    "talk_to_person_conversation_turn": 68,
+    "edge_merge": 32
+   },
+   "new_edges_per_agent_mean": 0.0116,
+   "talk_share_of_responses": 0.00196
+  }
+ ],
+ "all": {
+  "counts": {
+   "responses": 783013,
+   "talk_responses": 2392,
+   "talk_to_person": 1944,
+   "talk_to_person_other": 404,
+   "edge_new": 1116,
+   "talk_to_person_conversation_turn": 1540,
+   "talk_without_person": 448,
+   "edge_merge": 828
+  },
+  "agent_days": 81797,
+  "new_edges_per_agent_day": {
+   "mean": 0.0136,
+   "p99": 1.0,
+   "max": 6.0,
+   "share_with_any": 0.01027
+  },
+  "talk_share_of_responses": 0.00305
+ },
+ "note": "17 本(記憶 第 1 段と同じ内容で束ねた集合)。辺の変化=行動「会話」で対象が P-<id> の応答の体 × 相手の組(初出=新しい辺・2 回目以降=統合)。結果(成立/断られた)はテープに無い=符号は出さない。"
+}

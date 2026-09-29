@@ -20,6 +20,9 @@
 
 逐次ループ宣言(P4)
 - ``apply``: **行動語ぶんのループ**(12 語+エンジン継続=13 分岐)。個体数に比例するループなし。
+- ``advance_body`` の**エネルギー収支**(5 段目 5a・``energy`` を渡したランだけ): 毎 tick の消費と
+  語の段の写しは配列演算だけ(逐次ループの新設なし)。``initialize_energy`` の体の定数の抽選は
+  ``engine.energy.EnergyModel.draw_bodies`` の宣言(起動時 1 回・体数ぶん)。
 - ``AgentState.freeze/thaw``: フィールド数ぶん(宣言済み)。
 
 expedient(本モジュール分)
@@ -59,6 +62,8 @@ import numpy as np
 
 from shibuya.agents.state import (
     FOCUS_NONE,
+    INTENT_NONE,
+    IntentKind,
     N_WAKE_CONDITIONS,
     REFRACTORY_MINUTES,
     Activity,
@@ -68,6 +73,7 @@ from shibuya.agents.state import (
     WakeCondition,
 )
 from shibuya.engine.change_detect import DetectResult
+from shibuya.engine.energy import INTAKE_DRINK, INTAKE_SNACK, EnergyModel
 from shibuya.engine.geometry import EdgeGeometry
 from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.commit import (
@@ -123,6 +129,25 @@ __all__ = [
     "clear_refractory",
     "set_activity",
     "set_activity_until",
+    # ---- 段 2c 意図の保持(値は engine.intent が決める・書き手は本モジュール) ----
+    "set_intent",
+    "clear_intent",
+    "fail_intent",
+    "relabel_intent_failure",
+    "INTENT_KEEP_ACTIONS",
+    "intent_kept_by",
+    # ---- 4 段目 親しみの表(値は engine.familiarity が決める・書き手は本モジュール) ----
+    "write_familiarity",
+    # ---- 5 段目 5a 体のエネルギー収支(値は engine.energy が決める・書き手は本モジュール) ----
+    "initialize_energy",
+    "energy_out_of_area_meal",
+    # ---- 6 段目 6a 記憶の表(値は engine.memory が決める・書き手は本モジュール) ----
+    "write_memory",
+    # ---- D-120 7a 店の評価の記憶(値は engine.memory が決める・書き手は本モジュール) ----
+    "write_store_memory",
+    # ---- C10 8a 関係辺(値は engine.relations が決める・書き手は本モジュール) ----
+    "write_relations",
+    "join_conversation",
     "refractory_ticks",
     "wake_condition_index",
     "normalized_refractory_scale",
@@ -141,6 +166,9 @@ __all__ = [
     "sync_transit_activity",
     "release_indoor",
     "balk_queue",
+    "begin_exit_walk",
+    "clear_board_intent",
+    "EXIT_WALK_FLAG",
     "request_open_close",
 ]
 
@@ -216,6 +244,12 @@ _BOARD_KEEP_ACTIONS: Final[tuple[int, ...]] = (ACT_BOARD, ACT_WAIT, ENGINE_STEP,
 #: 就寝の意図(``sleep_pending``)を**保つ**行動(これ以外を選んだら意図は落ちる・D-62)。
 #: 就寝=張り直し / エンジン継続=就寝地へ歩いている途中。
 _SLEEP_KEEP_ACTIONS: Final[tuple[int, ...]] = (ACT_SLEEP, ENGINE_STEP)
+
+#: 段 2c: 意図(``intent_action``)を**保つ**行為(親決定 Q20=ユーザー決定「意図は達成か失敗まで保持」)。
+#: エンジン継続=歩いている途中 / なし・待機=「新しい行為が無い」。これに加えて**行き先が同じ移動**も
+#: 保つ(``intent_kept_by``)。それ以外=世界に触れる行為(購入/食事/並ぶ/会話/乗車/就寝/退去/通報/
+#: 手伝い/断る)と行き先の変わる移動は意図を上書きする(=消す)。
+INTENT_KEEP_ACTIONS: Final[tuple[int, ...]] = (ENGINE_STEP, ACT_NONE, ACT_WAIT)
 
 _REFRACTORY_TICKS: Final[np.ndarray] = np.asarray(REFRACTORY_MINUTES, dtype=np.int32)
 _REFRACTORY_TICKS.flags.writeable = False
@@ -380,6 +414,23 @@ class ResolveOutcome:
     n_meals: int = 0
     #: 食事で店舗へ移った金額[円](``revenue_delta`` の内数)。
     meal_yen: int = 0
+    #: 同じ店への買い手が棚の合計を超えて、支払いの前に OUT_OF_STOCK にした件数(第288 の欠陥修正)。
+    n_buy_over_stock: int = 0
+    #: 4 段目(M13 訪問): 購入/食事の**成立した行**(体, POI)を控えるか(``--familiarity on`` だけ)。
+    #: 控えるだけで世界は変えない=既定 False では 1 行も通らない。
+    track_visits: bool = False
+    visit_agents: list = field(default_factory=list)
+    visit_pois: list = field(default_factory=list)
+    #: 6 段目 6a(記憶の記録): エンジン継続で**着いた**体を控えるか(``--memory on`` だけ)。
+    #: 控えるだけで世界は変えない=既定 False では 1 行も通らない。
+    track_events: bool = False
+    arrived_agents: list = field(default_factory=list)
+    #: 5 段目 5a(D-118): エネルギー収支の層(``engine.energy.EnergyLayer``)。``None``=空腹 v1
+    #: (購入/食事で −4)=**1 分岐も通らない**。渡すと食事=時間帯の比 × EER・軽食/飲料=比 × EER。
+    energy: Any = None
+    #: 段 2b: 移動の失敗の内訳(対象不正=行き先が解決できない / 経路なし)。
+    n_move_bad_target: int = 0
+    n_move_unreachable: int = 0
     #: **C9 辺上の連続位置**(``engine.geometry.EdgeGeometry``)。``None``=現行の 1 tick=1 ノード。
     geometry: EdgeGeometry | None = None
     #: この tick の**ホップ反復**の回数(edge モードの P4 実測=逐次ループの実際の深さ。
@@ -410,6 +461,15 @@ class ResolveOutcome:
     #: 語彙 v3「並ぶ」を食事/購入へ委譲した件数(第275 #2)。v1/v2 では 0。
     n_queue_to_eat: int = 0
     n_queue_to_buy: int = 0
+    #: 9a(D-112 ④): 退去の効果=所属解除の件数(退去の総数・在店を解いた・列を離れた・会話中だった)。
+    n_leave: int = 0
+    n_leave_indoor: int = 0
+    n_leave_queue: int = 0
+    n_leave_conversing: int = 0
+    #: 退去した**会話中の**体(``engine.run`` が会話マネージャの終了経路=CLOSING で閉じる)。
+    leave_conversing: list = field(default_factory=list)
+    #: 9a: 退去の効果の切替口(False=第301 以前=IDLE 化と会話相手の解除だけ=旧 golden の再現)。
+    leave_effect: bool = True
 
     def add_result(self, code: int, n: int) -> None:
         if n:
@@ -817,25 +877,252 @@ def set_activity_until(agents: AgentState, agent_id, until) -> None:
         agents.registry.activity_until[a] = np.asarray(until, dtype=np.int64).astype(np.int32)
 
 
+# ---------------------------------------------------------------- 段 2c 意図の保持
+def _clear_intent_fields(r, a: np.ndarray) -> None:
+    """意図の 4 欄を「なし」に戻す(``writable`` の内側から呼ぶ)。"""
+    r.intent_action[a] = np.int8(INTENT_NONE)
+    r.intent_target[a] = np.int32(-1)
+    r.intent_kind[a] = np.int8(int(IntentKind.NONE))
+    r.intent_since[a] = np.int32(-1)
+
+
+def intent_kept_by(agents: AgentState, world: World, agent_id, code, target) -> np.ndarray:
+    """意図を持つ体に適用する行為が意図を**保つ**か(段 2c・親決定 Q20・**読むだけ**)。
+
+    ``INTENT_KEEP_ACTIONS``(エンジン継続・なし・待機)と、**行き先が同じ移動**(対象セル=いま
+    歩いている目的ノードのセル・着いていれば今いるセル)が真。``engine.intent`` が上書きの件数を
+    数えるのにも同じ 1 本を使う。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    c = np.asarray(code, dtype=np.int64)
+    t = np.asarray(target, dtype=np.int64)
+    keep = np.isin(c, INTENT_KEEP_ACTIONS)
+    mv = c == ACT_MOVE
+    if bool(mv.any()):
+        r = agents.registry
+        tn = np.asarray(r.target_node, dtype=np.int64)[a]
+        node_cell = np.asarray(world.assets.node_cell, dtype=np.int64)
+        cur = np.where(tn >= 0, node_cell[np.maximum(tn, 0)], np.asarray(r.cell, dtype=np.int64)[a])
+        keep = keep | (mv & (t == cur) & (cur >= 0))
+    return keep
+
+
+def write_familiarity(
+    agents: AgentState, agent_id, slot, thing, first, last, visits, exposures
+) -> None:
+    """**親しみの表の行を書く**(4 段目・値と行の選び方は ``engine.familiarity`` が決める)。
+
+    Args:
+        agent_id / slot: 体と行(同じ組が 2 度来ない=呼び出し側が 1 体 1 行に畳む)。
+        thing / first / last / visits / exposures: その行の新しい値(統合・新規・追い出しの後)。
+
+    ``familiarity_columns`` の無いラン(既定)では呼ばれない。逐次ループ宣言: なし(配列演算)。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    s = np.asarray(slot, dtype=np.int64)
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        r.fam_thing[a, s] = np.asarray(thing, dtype=np.int64).astype(np.int32)
+        r.fam_first[a, s] = np.asarray(first, dtype=np.int64).astype(np.int32)
+        r.fam_last[a, s] = np.asarray(last, dtype=np.int64).astype(np.int32)
+        r.fam_visits[a, s] = np.asarray(visits, dtype=np.int64).astype(np.uint16)
+        r.fam_exposures[a, s] = np.asarray(exposures, dtype=np.int64).astype(np.uint16)
+
+
+def write_memory(
+    agents: AgentState, agent_id, slot, kind, first, last, cell, partner, obj, result,
+    importance, n,
+) -> None:
+    """**記憶の表の行を書く**(6 段目 6a・値と行の選び方は ``engine.memory`` が決める)。
+
+    同じ (体, 行) の組は 2 度来ない(呼び出し側が 1 体 1 件の回に分ける)。``memory_columns`` の
+    無いラン(既定)では呼ばれない。逐次ループ宣言: なし(配列演算)。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    s = np.asarray(slot, dtype=np.int64)
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        r.mem_kind[a, s] = np.asarray(kind, dtype=np.int64).astype(np.uint8)
+        r.mem_tick[a, s] = np.asarray(first, dtype=np.int64).astype(np.int32)
+        r.mem_last[a, s] = np.asarray(last, dtype=np.int64).astype(np.int32)
+        r.mem_cell[a, s] = np.asarray(cell, dtype=np.int64).astype(np.int32)
+        r.mem_partner[a, s] = np.asarray(partner, dtype=np.int64).astype(np.int32)
+        r.mem_object[a, s] = np.asarray(obj, dtype=np.int64).astype(np.int32)
+        r.mem_result[a, s] = np.asarray(result, dtype=np.int64).astype(np.uint8)
+        r.mem_importance[a, s] = np.asarray(importance, dtype=np.int64).astype(np.uint8)
+        r.mem_n[a, s] = np.asarray(n, dtype=np.int64).astype(np.uint16)
+
+
+def write_store_memory(
+    agents: AgentState, agent_id, slot, poi, valence, precision, first, last, n, source,
+) -> None:
+    """**店の評価の記憶の行を書く**(D-120 7a・値と行の選び方は ``engine.memory`` が決める)。
+
+    同じ (体, 行) の組は 2 度来ない(呼び出し側が 1 体 1 件の回に分ける)。``store_memory_columns``
+    の無いラン(既定)では呼ばれない。逐次ループ宣言: なし(配列演算)。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    s = np.asarray(slot, dtype=np.int64)
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        r.sm_poi[a, s] = np.asarray(poi, dtype=np.int64).astype(np.int32)
+        r.sm_valence[a, s] = np.asarray(valence, dtype=np.float64).astype(np.float32)
+        r.sm_precision[a, s] = np.asarray(precision, dtype=np.float64).astype(np.float32)
+        r.sm_first[a, s] = np.asarray(first, dtype=np.int64).astype(np.int32)
+        r.sm_last[a, s] = np.asarray(last, dtype=np.int64).astype(np.int32)
+        r.sm_n[a, s] = np.asarray(n, dtype=np.int64).astype(np.uint16)
+        r.sm_source[a, s] = np.asarray(source, dtype=np.int64).astype(np.uint8)
+
+
+def write_relations(agents: AgentState, agent_id, slot, partner, kind, sign, first, last, n) -> None:
+    """**関係辺を書く**(C10 8a・値と辺の選び方は ``engine.relations`` が決める)。
+
+    同じ (体, 辺) の組は 2 度来ない(呼び出し側が 1 体 1 件の回に分ける)。``relation_columns`` の
+    無いラン(既定)では呼ばれない。逐次ループ宣言: なし(配列演算)。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    s = np.asarray(slot, dtype=np.int64)
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        r.rel_partner[a, s] = np.asarray(partner, dtype=np.int64).astype(np.int32)
+        r.rel_kind[a, s] = np.asarray(kind, dtype=np.int64).astype(np.uint8)
+        r.rel_sign[a, s] = np.clip(np.asarray(sign, dtype=np.int64), -127, 127).astype(np.int8)
+        r.rel_first[a, s] = np.asarray(first, dtype=np.int64).astype(np.int32)
+        r.rel_last[a, s] = np.asarray(last, dtype=np.int64).astype(np.int32)
+        r.rel_n[a, s] = np.asarray(n, dtype=np.int64).astype(np.uint16)
+
+
+def join_conversation(agents: AgentState, joiner, partner, tick: int) -> None:
+    """**3 人目の参加**(C10 8a・D-93 (d)・``--conv-max-participants 3`` のランだけ)。
+
+    会話の相手が会話中で ``PARTNER_BUSY`` になった体を、相手のセッションに入れる: 参加者を CONVERSING・
+    ``talk_partner``=名指しした相手(**主相手**・相手の側の主相手は書き換えない)・直前の結果を ``OK`` に
+    書き直す(失敗ではなかった)。セッション表の参加者は ``engine.conversation`` が持つ。
+    """
+    a = np.asarray(joiner, dtype=np.int64)
+    if a.size == 0:
+        return
+    b = np.asarray(partner, dtype=np.int64)
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        r.activity[a] = int(Activity.CONVERSING)
+        r.talk_partner[a] = b.astype(np.int32)
+        r.last_result[a] = int(ResultCode.OK)
+        r.last_result_tick[a] = int(tick)
+
+
+def set_intent(agents: AgentState, agent_id, action, target, kind, tick: int) -> None:
+    """**意図を立てる**(段 2c・値は ``engine.intent`` が決める)。
+
+    Args:
+        agent_id: 体(重複なし)。
+        action: 保持する行為コード(購入/食事/並ぶ/会話/就寝)。
+        target: 対象(``kind`` で意味が決まる: POI 索引 / 個体 id / セル)。
+        kind: ``IntentKind``。
+        tick: 立てた tick(``intent_since``)。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        r.intent_action[a] = np.asarray(action, dtype=np.int64).astype(np.int8)
+        r.intent_target[a] = np.asarray(target, dtype=np.int64).astype(np.int32)
+        r.intent_kind[a] = np.asarray(kind, dtype=np.int64).astype(np.int8)
+        r.intent_since[a] = np.int32(int(tick))
+
+
+def clear_intent(agents: AgentState, agent_id) -> None:
+    """意図を消す(計画境界・割り込み・経路の行き止まり=段 2c)。結果コードは書かない。"""
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    with agents.writable():
+        _require_thawed(agents)
+        _clear_intent_fields(agents.registry, a)
+
+
+def fail_intent(agents: AgentState, agent_id, code: ResultCode, tick: int) -> None:
+    """意図を**失敗で終える**(段 2c の満了=``TOO_FAR``)。
+
+    直前に試みた行為(B6 の主語)=意図の行為・結果コード=``code``・歩みを止める
+    (``MOVING`` → ``IDLE``・目的ノードを外す)・意図を消す。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        r.last_action[a] = r.intent_action[a]
+        r.last_result[a] = int(code)
+        r.last_result_tick[a] = int(tick)
+        r.fail_streak[a] = np.minimum(r.fail_streak[a].astype(np.int16) + 1, 255).astype(np.uint8)
+        moving = a[r.activity[a] == int(Activity.MOVING)]
+        r.activity[moving] = int(Activity.IDLE)
+        r.target_node[a] = -1
+        _clear_intent_fields(r, a)
+
+
+def relabel_intent_failure(agents: AgentState, agent_id, action=None) -> None:
+    """既に書かれた失敗(移動の ``UNREACHABLE``)の**主語を意図の行為に**して意図を消す(段 2c)。
+
+    ``action`` を渡すとその値を主語にする(意図を立てる前=移動が始められなかった体)。
+    ``None`` なら保持中の ``intent_action``(経路の途中で行き止まり)。結果コードは動かさない。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return
+    with agents.writable():
+        _require_thawed(agents)
+        r = agents.registry
+        if action is None:
+            r.last_action[a] = r.intent_action[a]
+        else:
+            r.last_action[a] = np.asarray(action, dtype=np.int64).astype(np.int8)
+        _clear_intent_fields(r, a)
+
+
 # ---------------------------------------------------------------- 身体の自然変動
-def advance_body(agents: AgentState, tick: int) -> None:
+def advance_body(agents: AgentState, tick: int, energy: Any = None) -> None:
     """内受容 3 変数の自然変動(**C4 の世界過程が入るまでの駆動源**・expedient)。
 
     **二層の段 2(第275 親の決め #1)**: ``activity_columns`` のランでは、活動の種別が
     在店/その場 で持続中(``activity_until > tick``)・移動/乗車/就寝中でない体の疲労を
     ``ACTIVITY_REST_PERIOD_TICKS`` ごとに ``ACTIVITY_REST_FATIGUE_RELIEF`` 下げる
     (旧 休憩 の即時回復を時間経過の規則へ寄せた)。自然変動の**後**に掛ける。
+
+    **5 段目 5a(D-118 K1 (c)・K2・K8)**: ``energy``(``engine.energy.EnergyLayer``)を渡したランは
+    空腹の +1/30 分を止め、**毎 tick** ``since_meal_kcal += 消費``・``energy_balance −= 消費``
+    (消費=EER/1440 × 分 × METs(活動)/AVG_METS)として ``hunger`` を語の段の写し
+    (満腹 1 / ふつう 5 / 空腹 8 / とても空腹 10)に書き直す。疲労・休息の規則は変えない。
+    ``None``(既定)は従来と 1 バイトも変わらない。
     """
     body = int(tick) % BODY_TICK_PERIOD == 0
     rest = bool(getattr(agents, "activity_columns", False)) and (
         int(tick) % ACTIVITY_REST_PERIOD_TICKS == 0
     )
-    if not (body or rest):
+    if energy is None and not (body or rest):
         return
     with agents.writable():
         r = agents.registry
         if body:
-            r.hunger[:] = np.minimum(r.hunger.astype(np.int16) + 1, 10).astype(np.uint8)
+            if energy is None:
+                r.hunger[:] = np.minimum(r.hunger.astype(np.int16) + 1, 10).astype(np.uint8)
             r.fatigue[:] = np.minimum(r.fatigue.astype(np.int16) + 1, 10).astype(np.uint8)
             sleeping = r.activity == int(Activity.SLEEPING)
             if sleeping.any():
@@ -856,6 +1143,114 @@ def advance_body(agents: AgentState, tick: int) -> None:
                 r.fatigue[resting] = np.maximum(
                     r.fatigue[resting].astype(np.int16) - ACTIVITY_REST_FATIGUE_RELIEF, 0
                 ).astype(np.uint8)
+        if energy is not None:
+            model: EnergyModel = energy.model
+            mets = model.mets_of(
+                r.activity,
+                r.transit_state,
+                r.activity_kind if getattr(agents, "activity_columns", False) else None,
+            )
+            spent = model.expenditure(r.eer_kcal, mets, energy.bmr)
+            r.since_meal_kcal += spent
+            r.energy_balance -= spent
+            r.hunger[:] = model.hunger_copy(model.stage_of(r.since_meal_kcal, r.eer_kcal))
+
+
+# ---------------------------------------------------------------- 5 段目 5a エネルギー収支
+def initialize_energy(agents: AgentState, energy: Any, seed: int | str) -> None:
+    """体の定数(体重・EER)を抽選し、食後の消費・収支・``hunger`` の写しと段を置く(ラン開始時 1 回)。
+
+    ``initialize`` の直後・``freeze`` の前に呼ぶ(``energy_columns`` のランだけ)。``hunger_stage``
+    (変化検出の前回段)も写しから組み直す=tick 0 に偽の跨ぎを出さない。
+    """
+    from shibuya.engine.change_detect import INTERO_UP_EDGES
+
+    model: EnergyModel = energy.model
+    r = agents.registry
+    with agents.writable():
+        weight, eer = model.draw_bodies(r.age, r.sex, seed)
+        r.weight_kg[:] = weight
+        r.eer_kcal[:] = eer
+        r.since_meal_kcal[:] = model.initial_since_meal(eer)
+        r.energy_balance[:] = 0.0
+        r.hunger[:] = model.hunger_copy(model.stage_of(r.since_meal_kcal, r.eer_kcal))
+        stage = np.zeros(r.hunger.size, dtype=np.int8)
+        for e in INTERO_UP_EDGES:  # 段の刻み 3 本ぶん(体数には比例しない)
+            stage += (r.hunger >= e).astype(np.int8)
+        r.hunger_stage[:] = stage
+    if model.rate == "bmr":
+        energy.bmr = model.bmr_kcal(r.age, r.sex, r.weight_kg).astype(np.float32)
+
+
+def _tick_minute(energy: Any, tick: int) -> int:
+    return int(int(tick) * float(energy.model.minutes_per_tick)) % 1440
+
+
+def _energy_meal(
+    r, ids: np.ndarray, tick: int, energy: Any, *, kind: str,
+    slots: np.ndarray | None = None, from_row: np.ndarray | None = None,
+) -> None:
+    """食事の摂取(K7 (a)): 時間帯の比 × EER を収支へ・``since_meal=0``・写しを満腹へ。"""
+    ids = np.asarray(ids, dtype=np.int64)
+    if ids.size == 0:
+        return
+    model: EnergyModel = energy.model
+    minute = _tick_minute(energy, tick)
+    if slots is None:
+        share = model.meal_share_of(r.age[ids], r.sex[ids], minute)
+    else:
+        share = model.meal_share_for_slot(r.age[ids], r.sex[ids], slots)
+    kcal = (share * r.eer_kcal[ids].astype(np.float64)).astype(np.float32)
+    r.since_meal_kcal[ids] = 0.0
+    r.energy_balance[ids] += kcal
+    r.hunger[ids] = model.hunger_copy(model.stage_of(r.since_meal_kcal[ids], r.eer_kcal[ids]))
+    energy.note(kind, ids, minute, float(kcal.astype(np.float64).sum()), slots=slots,
+                from_row=from_row)
+
+
+def _energy_snack(r, buyers: np.ndarray, bought: np.ndarray, tick: int, energy: Any) -> None:
+    """飲食系の購入の摂取(K3 (a)): 軽食=第13表「間」の比・飲料=``DRINK_SHARE``(× EER)。"""
+    from shibuya.engine.energy import DRINK_SHARE
+
+    buyers = np.asarray(buyers, dtype=np.int64)
+    bought = np.asarray(bought, dtype=np.int64)
+    if buyers.size == 0 or energy.poi_intake.size == 0:
+        return
+    model: EnergyModel = energy.model
+    kind = energy.poi_intake[np.clip(bought, 0, energy.poi_intake.size - 1)]
+    minute = _tick_minute(energy, tick)
+    for code, label in ((INTAKE_SNACK, "snack"), (INTAKE_DRINK, "drink")):  # 2 種ぶん
+        ids = buyers[kind == code]
+        if ids.size == 0:
+            continue
+        if code == INTAKE_SNACK:
+            share = model.snack_share_of(r.age[ids], r.sex[ids])
+        else:
+            share = np.full(ids.size, DRINK_SHARE, dtype=np.float64)
+        kcal = (share * r.eer_kcal[ids].astype(np.float64)).astype(np.float32)
+        r.since_meal_kcal[ids] = np.maximum(r.since_meal_kcal[ids] - kcal, np.float32(0.0))
+        r.energy_balance[ids] += kcal
+        r.hunger[ids] = model.hunger_copy(
+            model.stage_of(r.since_meal_kcal[ids], r.eer_kcal[ids])
+        )
+        energy.note(label, ids, minute, float(kcal.astype(np.float64).sum()))
+
+
+def energy_out_of_area_meal(
+    agents: AgentState, energy: Any, agent_id: np.ndarray, slots: np.ndarray,
+    from_row: np.ndarray, tick: int,
+) -> int:
+    """範囲外の食事(K9 (a)): 域外に居る体の予定の食事=時間帯の比 × EER・``since_meal=0``。
+
+    値(誰がいつ)は ``engine.energy.OutOfAreaMeals.due`` が決める。件数を返す。
+    """
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return 0
+    with agents.writable():
+        _energy_meal(agents.registry, a, tick, energy, kind="meal_out",
+                     slots=np.asarray(slots, dtype=np.int64), from_row=from_row)
+    return int(a.size)
 
 
 # ---------------------------------------------------------------- Phase C 本体
@@ -878,6 +1273,10 @@ def apply(
     geometry: EdgeGeometry | None = None,
     focus_request: np.ndarray | None = None,
     talk_by_distance: bool = False,
+    track_visits: bool = False,
+    energy: Any = None,
+    track_events: bool = False,
+    leave_effect: bool = True,
 ) -> ResolveOutcome:
     """Phase C: 確定した intent だけを世界へ適用する(**唯一の書き手**)。
 
@@ -915,6 +1314,13 @@ def apply(
             「近づく」の目的ノードにだけ効く(焦点は持てないので ``TARGET_GONE`` も出ない)。
         talk_by_distance: **C9b G7**。``True`` で会話の成立判定が「同一セル代理」から
             ``TALK_OPEN_METERS``(2 m)の実距離になる。``False``(既定)は現行のまま。
+        track_visits: **4 段目(M13 訪問)**。``True`` で購入/食事の成立した行(体, POI)を
+            ``ResolveOutcome.visit_agents``/``visit_pois`` に控える(``engine.familiarity`` が読む)。
+            控えるだけ=世界は変えない。
+        energy: **5 段目 5a 体のエネルギー収支**(``engine.energy.EnergyLayer``)。``None``(既定)は
+            空腹 v1(購入/食事で ``hunger`` −4)=**1 バイトも変わらない**。渡すと食事の成立で
+            ``since_meal_kcal=0``・収支に時間帯の比 × EER、飲食系の購入で軽食/飲料の比 × EER を
+            差し引き、``hunger`` を語の段の写しに書き直す(アジェンダ §1-3)。
 
     Returns:
         ``ResolveOutcome``。
@@ -937,6 +1343,10 @@ def apply(
             None if focus_request is None else np.asarray(focus_request, dtype=np.int64)
         ),
         talk_by_distance=bool(talk_by_distance),
+        track_visits=bool(track_visits),
+        energy=energy,
+        track_events=bool(track_events),
+        leave_effect=bool(leave_effect),
     )
     r = agents.registry
     with agents.writable(), world.writable():
@@ -961,6 +1371,14 @@ def apply(
                 drop = drop[r.sleep_pending[drop] != 0]
                 if drop.size:
                     r.sleep_pending[drop] = 0
+            # 段 2c: 意図(``intent_action``)も同じ形。**保つ**のはエンジン継続・なし・待機・行き先が
+            # 同じ移動(親決定 Q20)。世界に触れる行為(着いて実行した意図の行為そのものを含む)と
+            # 行き先の変わる移動は意図を消す(実行の成否は ``engine.intent`` が ``last_result`` から数える)。
+            held = np.flatnonzero(r.intent_action[aid] != INTENT_NONE)
+            if held.size:
+                kept = intent_kept_by(agents, world, aid[held], code[held], tgt[held])
+                if not bool(kept.all()):
+                    _clear_intent_fields(r, aid[held[~kept]])
 
         # ---- D-113 ③ 満席の列の捌き(第268): 席が空いた分だけ並んだ順に入れる ----
         # **新しい意図の適用より前**に置く: 先に並んでいた体が空席を取り、この tick に来た
@@ -1005,6 +1423,11 @@ def apply(
                 r.last_action[la[keep]] = lc[keep].astype(np.int8)
             r.last_result[la] = int(ResultCode.LOST_ARBITRATION)
             r.last_result_tick[la] = int(tick)
+            # 段 2c: 落選した体の意図も消す(着いて実行した行為が席を取れなかった=失敗の一種)
+            held = la[keep]
+            held = held[r.intent_action[held] != INTENT_NONE]
+            if held.size:
+                _clear_intent_fields(r, held)
             r.fail_streak[la] = np.minimum(r.fail_streak[la].astype(np.int16) + 1, 255).astype(
                 np.uint8
             )
@@ -1119,6 +1542,8 @@ def _apply_engine_step(agents, world, aid, tgt, tick, out, schedule) -> None:
         r.activity[done] = int(Activity.IDLE)
         r.target_node[done] = -1
         out.n_arrived += int(done.size)
+        if out.track_events:  # 6a: 着いた体(記憶の「移動の到着」)。控えるだけ
+            out.arrived_agents.append(np.asarray(done, dtype=np.int64).copy())
         # D-51: ホームへ向かっていた体は着いた時点で**待ち行列へ**(判断は 1 回・実行は世界)
         want = done[r.board_line[done] >= 0]
         if want.size:
@@ -1192,6 +1617,7 @@ def _apply_move(agents, world, aid, tgt, tick, out, schedule) -> None:
     bad = tgt == WANDER_BAD_TARGET
     if bool(np.any(bad)):
         _fail(agents, aid[bad], ResultCode.BAD_TARGET, tick, out)
+        out.n_move_bad_target += int(np.count_nonzero(bad))
         aid, tgt = aid[~bad], tgt[~bad]
         if aid.size == 0:
             return
@@ -1217,6 +1643,7 @@ def _apply_move(agents, world, aid, tgt, tick, out, schedule) -> None:
         _ok(agents, g, tick, out)
     _clear_focus(agents, aid[~good])  # 行けなかった体に焦点だけ残さない
     _fail(agents, aid[~good], ResultCode.UNREACHABLE, tick, out)
+    out.n_move_unreachable += int(np.count_nonzero(~good))
 
 
 def _approach_dest_node(agents, world, aid, dest_node, out) -> np.ndarray:
@@ -1408,7 +1835,11 @@ def _enter_board_queue(agents, world, ids: np.ndarray, tick: int, out: ResolveOu
             r.board_since[fresh] = int(tick)
             out.n_board_waiting += int(fresh.size)
             if out.rail is not None:
-                out.rail.n_board_waiting += int(fresh.size)
+                # 9b: 計画の退出(歩いて乗る体)は LLM の乗車待ちと分けて数える(既定では 0 件)
+                pe = _plan_exit_mask(r, fresh)
+                out.rail.n_board_waiting += int(fresh.size - pe.sum())
+                if pe.any():
+                    out.rail.n_board_waiting_plan_exit = int(getattr(out.rail, "n_board_waiting_plan_exit", 0)) + int(pe.sum())
     if (~on_plat).any():
         miss = ids[~on_plat]
         r.board_line[miss] = -1
@@ -1553,7 +1984,7 @@ def _serve_board_queue(agents, world, tick: int, out: ResolveOutcome) -> None:
             served[here] = True
             ids = waiting[here]
             ids = ids[np.lexsort((ids, r.board_since[ids].astype(np.int64)))]  # FIFO
-            pay_ok = r.money[ids].astype(np.int64) >= fare
+            pay_ok = (r.money[ids].astype(np.int64) >= fare) | _plan_exit_mask(r, ids)  # 9b: 計画の退出は免除
             poor.append(ids[~pay_ok])
             ids = ids[pay_ok]
             if ids.size == 0:
@@ -1597,29 +2028,48 @@ def _serve_board_queue(agents, world, tick: int, out: ResolveOutcome) -> None:
         rail.n_board_dropped += int(inert.size)
 
 
+def _plan_exit_mask(r, ids: np.ndarray) -> np.ndarray:
+    """9b(第302 Q119 (b)): 計画の退出で歩いて乗る体(``plan_flags`` の ``EXIT_WALK_FLAG``)。欄が無ければ全部 False。"""
+    if "plan_flags" not in r.arrays or ids.size == 0:
+        return np.zeros(ids.size, dtype=bool)
+    return (r.plan_flags[ids].astype(np.int64) & EXIT_WALK_FLAG) != 0
+
+
 def _board_riders(agents, world, boarded, tick: int, out: ResolveOutcome) -> None:
-    """乗車の確定(運賃の金の脚 → 状態遷移 → 列車 SoA)。``boarded`` = ``[(便, 個体列), …]``。"""
+    """乗車の確定(運賃の金の脚 → 状態遷移 → 列車 SoA)。``boarded`` = ``[(便, 個体列), …]``。
+
+    9b(第302 Q119 (b)): **計画の退出で歩いて乗る体は運賃を払わない**(即時の退出・到着と同じ=計画由来の
+    移動は所持金を動かさない)。LLM の乗車は従来どおり払う。成立は ``boarded_plan_exit`` に分けて数える。
+    """
     if not boarded:
         return
     r = agents.registry
     fare = int(out.rail.fare_yen)
     riders = np.concatenate([a for _, a in boarded]).astype(np.int64)
     train_of = np.concatenate([np.full(a.size, t, dtype=np.int64) for t, a in boarded])
+    plan = _plan_exit_mask(r, riders)
+    payers, pay_train = riders[~plan], train_of[~plan]
+    free, free_train = riders[plan], train_of[plan]
     led = out.ledger
-    if led is not None and led.money is not None:
+    if payers.size and led is not None and led.money is not None:
         # 運賃 = 世帯 → 外界(持ち出し=sink)。鉄道事業者は第1陣の6部門に無い(§2.1)ので
         # 許された部門対(H,W)/科目「持ち出し」に載せる=**科目の意味の拡張は台帳側の宣言事項**。
-        status = np.asarray(out.rail.pay_fares(led.money, riders, fare, int(tick)))
+        status = np.asarray(out.rail.pay_fares(led.money, payers, fare, int(tick)))
         ok = status == 0
         if not ok.all():
-            _fail(agents, riders[~ok], ResultCode.FARE_SHORT, tick, out)
+            _fail(agents, payers[~ok], ResultCode.FARE_SHORT, tick, out)
             out.n_ledger_rejected += int((~ok).sum())
-            riders, train_of = riders[ok], train_of[ok]
-            if riders.size == 0:
-                return
+            payers, pay_train = payers[ok], pay_train[ok]
+    elif payers.size:
+        r.money[payers] = (r.money[payers].astype(np.int64) - fare).astype(np.int32)
+    out.fare_paid += int(fare) * int(payers.size)
+    if free.size:
+        riders = np.concatenate([payers, free]) if payers.size else free
+        train_of = np.concatenate([pay_train, free_train]) if payers.size else free_train
     else:
-        r.money[riders] = (r.money[riders].astype(np.int64) - fare).astype(np.int32)
-    out.fare_paid += int(fare) * int(riders.size)
+        riders, train_of = payers, pay_train
+    if riders.size == 0:
+        return
     r.activity[riders] = int(Activity.RIDING)
     r.transit_state[riders] = 1
     r.transit_ref[riders] = train_of.astype(np.int32)
@@ -1630,7 +2080,9 @@ def _board_riders(agents, world, boarded, tick: int, out: ResolveOutcome) -> Non
     r.board_line[riders] = -1  # 意図は成立して消える
     r.board_since[riders] = -1
     out.n_boarded += int(riders.size)
-    out.rail.n_boarded_from_queue += int(riders.size)
+    out.rail.n_boarded_from_queue += int(riders.size - free.size)
+    if free.size:
+        out.rail.n_boarded_plan_exit = int(getattr(out.rail, "n_boarded_plan_exit", 0)) + int(free.size)
     out.rail.on_board(train_of)
     _ok(agents, riders, tick, out)
 
@@ -1715,7 +2167,24 @@ def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
     D-113 ③ で関数に切り出した(列から席へ入れた体にも同じ完了を使う)。挙動は不変。"""
     r = agents.registry
     led = out.ledger
-    n_win = int(buyers.size)
+    if led is not None and led.goods is not None and buyers.size > 1:
+        # 同じ店への買い手が**棚の合計**(``world.pois.stock``=台帳の写し)を超えたら、超えた分は
+        # **支払いの前に** OUT_OF_STOCK(第288 で見つけた欠陥の修正: 満席の列の捌き
+        # ``_serve_poi_queue`` が棚 1 個の店へ同じ tick に 2 人を入れ、台帳が 2 人から支払いを
+        # 受けたのに品は 1 個しか出ず、1 人ぶんの代金が消えていた=保存則が破れた)。
+        # 超えない限り 1 バイトも変わらない(並び=呼び出し側の順)。
+        order = np.lexsort((np.arange(bought.size), bought))
+        sb = bought[order]
+        starts = np.flatnonzero(np.concatenate(([True], sb[1:] != sb[:-1])))
+        rank = np.arange(sb.size) - np.repeat(starts, np.diff(np.append(starts, sb.size)))
+        fits = np.empty(bought.size, dtype=bool)
+        fits[order] = rank < np.maximum(0, world.pois.stock[sb].astype(np.int64))
+        if not bool(fits.all()):
+            _fail(agents, buyers[~fits], ResultCode.OUT_OF_STOCK, tick, out)
+            out.n_buy_over_stock += int(np.count_nonzero(~fits))
+            buyers, bought, paid = buyers[fits], bought[fits], paid[fits]
+            if buyers.size == 0:
+                return
     if led is not None and led.money is not None:
         status = led.money.purchase_many(buyers, bought, paid, tick)
         ok = np.asarray(status) == 0
@@ -1759,9 +2228,13 @@ def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
     _require_thawed(world)
     np.add.at(world.pois.revenue, bought, paid)
     r.holdings[buyers] = np.minimum(r.holdings[buyers].astype(np.int16) + 1, 255).astype(np.uint8)
-    r.hunger[buyers] = np.maximum(
-        r.hunger[buyers].astype(np.int16) - BUY_HUNGER_RELIEF, 0
-    ).astype(np.uint8)
+    if out.energy is None:
+        r.hunger[buyers] = np.maximum(
+            r.hunger[buyers].astype(np.int16) - BUY_HUNGER_RELIEF, 0
+        ).astype(np.uint8)
+    else:
+        # 5 段目 5a(K3 (a)・K7): 飲食系の購入だけが摂取(軽食/飲料)・他の購入は空腹を動かさない
+        _energy_snack(r, buyers, bought, tick, out.energy)
     r.activity[buyers] = int(Activity.SHOPPING)
     if out.crowd is not None:
         # 在席の登録(屋内占有の集約=人物②「行列・人だかり」の素)
@@ -1769,8 +2242,13 @@ def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
         r.poi_since[buyers] = int(tick)
         r.queue_poi[buyers] = -1
         out.crowd.on_admit(bought)
-    out.n_purchases += n_win
+    # 購入の件数は**台帳が通した行だけ**(支払いを却下された行・棚から出なかった行は数えない=
+    # 第288 #54 の残りの過大計数の修正。以前は台帳の前の人数を数えていた)。
+    out.n_purchases += int(buyers.size)
     out.revenue_delta += int(paid.sum())
+    if out.track_visits:  # 4 段目(M13): 成立した行だけ(台帳が通した行)
+        out.visit_agents.append(np.asarray(buyers, dtype=np.int64).copy())
+        out.visit_pois.append(np.asarray(bought, dtype=np.int64).copy())
     _ok(agents, buyers, tick, out)
 
 
@@ -1847,9 +2325,13 @@ def _complete_eat(agents, world, eaters, shops, paid, tick, out) -> None:
         r.money[eaters] = (r.money[eaters].astype(np.int64) - paid).astype(np.int32)
     _require_thawed(world)
     np.add.at(world.pois.revenue, shops, paid)
-    r.hunger[eaters] = np.maximum(
-        r.hunger[eaters].astype(np.int16) - EAT_HUNGER_RELIEF, 0
-    ).astype(np.uint8)
+    if out.energy is None:
+        r.hunger[eaters] = np.maximum(
+            r.hunger[eaters].astype(np.int16) - EAT_HUNGER_RELIEF, 0
+        ).astype(np.uint8)
+    else:
+        # 5 段目 5a(K7 (a)): 食事=時間帯の比 × EER・since_meal=0(範囲内の食事)
+        _energy_meal(r, eaters, tick, out.energy, kind="meal_in")
     r.activity[eaters] = int(Activity.SHOPPING)  # 在店(その tick は移動しない)
     if out.crowd is not None:
         r.poi_ref[eaters] = shops.astype(np.int32)
@@ -1857,6 +2339,9 @@ def _complete_eat(agents, world, eaters, shops, paid, tick, out) -> None:
         r.queue_poi[eaters] = -1
         out.crowd.on_admit(shops)
     out.n_meals += int(eaters.size)
+    if out.track_visits:  # 4 段目(M13): 成立した行だけ
+        out.visit_agents.append(np.asarray(eaters, dtype=np.int64).copy())
+        out.visit_pois.append(np.asarray(shops, dtype=np.int64).copy())
     out.meal_yen += int(paid.sum())
     out.revenue_delta += int(paid.sum())
     _ok(agents, eaters, tick, out)
@@ -1892,7 +2377,13 @@ def _apply_wait(agents, world, aid, tgt, tick, out, schedule) -> None:
     遠すぎる対象は焦点にならないが、**待機そのものは成功する**(契約書 §2 共通必須事項③
     「失敗しない行動が常に1つ以上(待機)」を崩さない)。
     """
-    agents.registry.activity[aid] = int(Activity.WAITING)
+    r = agents.registry
+    # 段 2c(親決定 Q20): 意図を持って**歩いている**体の なし/待機 は「新しい行為が無い」=歩みを止めない
+    walking = (r.intent_action[aid] != INTENT_NONE) & (r.activity[aid] == int(Activity.MOVING))
+    if "plan_flags" in r.arrays:  # 9a: 計画の退出でホームへ歩いている体も同じ(ビットは walk_to_platform のランだけ立つ)
+        walking |= ((r.plan_flags[aid].astype(np.int64) & EXIT_WALK_FLAG) != 0) & (
+            r.activity[aid] == int(Activity.MOVING))
+    r.activity[aid[~walking]] = int(Activity.WAITING)
     _set_focus(agents, world, aid, tick, out, require_near=True)
     _ok(agents, aid, tick, out)
 
@@ -1994,8 +2485,36 @@ def _apply_talk(agents, world, aid, tgt, tick, out, schedule) -> None:
 
 
 def _apply_leave(agents, world, aid, tgt, tick, out, schedule) -> None:
-    """退去: 所属解除(**失敗しない**)。"""
+    """退去: **所属解除**(行動契約書 §2.1「会話・待ち行列・施設からの所属解除。会話は CLOSING を経て
+    閉じる」・**失敗しない**)。
+
+    9a(D-112 ④・欠陥の修正): 第263 まで IDLE 化と会話相手の解除だけで所属が残っていた。いまは
+    在店(``poi_ref``)→ ``release_indoor``・待ち行列(``queue_poi``)→ ``balk_queue``・会話中 →
+    ``out.leave_conversing`` に控え、``engine.run`` が会話マネージャの終了経路(``close_now`` 理由
+    「退去」→ CLOSING → TERMINAL)で閉じる。「帰る」の意味は持たない(域外へは出ない)。
+    逐次ループ宣言(P4): なし(ベクトル処理)。
+    """
     r = agents.registry
+    if aid.size == 0:
+        return
+    if not out.leave_effect:  # 切替口 off=第301 以前の挙動
+        r.activity[aid] = int(Activity.IDLE)
+        r.talk_partner[aid] = -1
+        _ok(agents, aid, tick, out)
+        return
+    indoor = aid[r.poi_ref[aid] >= 0]
+    if indoor.size:
+        release_indoor(agents, indoor)
+    queued = aid[r.queue_poi[aid] >= 0]
+    if queued.size:
+        balk_queue(agents, queued, int(tick))  # 結果は下の _ok で OK に戻す(失敗しない行動)
+    talking = aid[r.activity[aid] == int(Activity.CONVERSING)]
+    if talking.size:
+        out.leave_conversing.append(np.asarray(talking, dtype=np.int64).copy())
+    out.n_leave += int(aid.size)
+    out.n_leave_indoor += int(indoor.size)
+    out.n_leave_queue += int(queued.size)
+    out.n_leave_conversing += int(talking.size)
     r.activity[aid] = int(Activity.IDLE)
     r.talk_partner[aid] = -1
     _ok(agents, aid, tick, out)
@@ -2406,6 +2925,84 @@ def _serve_poi_queue(agents, world, tick: int, out: ResolveOutcome) -> None:
     if (~adm_buy).any():
         _complete_eat(agents, world, adm[~adm_buy], adm_poi[~adm_buy], adm_price[~adm_buy], tick, out)
     out.n_served_from_queue += int(adm.size)
+
+
+#: 9a: ``plan_flags`` の「計画の退出で歩いている」ビット(``engine.presence`` が立てて落とす)。
+EXIT_WALK_FLAG: Final[int] = 1 << 4
+
+
+def begin_exit_walk(agents: AgentState, world: World, rail: Any, agent_ids, lines, tick: int
+                    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """**9a 退出を歩かせる**(D-115 ①): 計画の退出の体に**その体の路線のホーム**への乗車の意図を立てる。
+
+    D-51 の乗車の意図(``board_line``)と同じ形=ホームに居れば乗車待ちへ・居なければそのホームの代表
+    ノードへ ``target_node`` を張って歩かせる(着けば ``_apply_engine_step`` が待ち行列へ入れ、
+    ``_serve_board_queue`` が受容関数 ``accept_quota`` を通して乗せる)。行き先は**最寄りでなく**
+    ``lines``(その体の路線)のホーム。
+
+    Returns:
+        入力と同じ並びの 3 つの bool マスク ``(歩き出した, ホームで待ちに入った, 立てられなかった)``
+        (立てられない=その線に今日の便が無い・ホームのセルが無い・経路なし)。
+    Note:
+        逐次ループ宣言(P4): なし(便のある路線の表への ``searchsorted`` と経路の配列問い合わせ)。
+    """
+    a = np.asarray(agent_ids, dtype=np.int64).ravel()
+    ln = np.asarray(lines, dtype=np.int64).ravel()
+    none = np.zeros(a.size, dtype=bool)
+    if a.size == 0:
+        return none, none, none
+    if rail is None or not bool(getattr(rail, "active", False)):
+        return none, none, ~none
+    plines, pcells, pnodes = _platform_table(world, rail)
+    if plines.size == 0:
+        return none, none, ~none
+    pos = np.searchsorted(plines, ln)
+    pos_c = np.minimum(pos, plines.size - 1)
+    has = (ln >= 0) & (plines[pos_c] == ln)
+    with agents.writable():
+        r = agents.registry
+        node_now = r.node[a].astype(np.int64)
+        dest = np.where(has, pnodes[pos_c], -1)
+        cell_now = _cell_of_node(world, np.maximum(node_now, 0))
+        at_plat = has & (node_now >= 0) & (cell_now == pcells[pos_c])
+        need = has & ~at_plat & (node_now >= 0)
+        route_ok = np.zeros(a.size, dtype=bool)
+        if need.any():
+            nxt = np.asarray(world.graph.route_next_node(node_now[need], dest[need]), dtype=np.int64)
+            route_ok[np.flatnonzero(need)] = (nxt >= 0) | (dest[need] == node_now[need])
+        wait = a[at_plat]
+        walk = a[route_ok]
+        if wait.size:
+            r.board_line[wait] = ln[at_plat].astype(r.board_line.dtype)
+            r.board_since[wait] = int(tick)
+            r.activity[wait] = int(Activity.WAITING)
+            r.target_node[wait] = -1
+            if hasattr(rail, "n_board_waiting_plan_exit"):  # 9b: LLM の乗車待ちと分けて数える
+                rail.n_board_waiting_plan_exit += int(wait.size)
+        if walk.size:
+            r.board_line[walk] = ln[route_ok].astype(r.board_line.dtype)
+            r.board_since[walk] = -1  # まだホームに立っていない
+            same = dest[route_ok] == node_now[route_ok]
+            go = walk[~same]
+            r.activity[go] = int(Activity.MOVING)
+            r.target_node[go] = dest[route_ok][~same].astype(r.target_node.dtype)
+            here = walk[same]
+            if here.size:  # 代表ノードに居るがセルの判定が外れた体(起きない想定)=その場で待ち
+                r.board_since[here] = int(tick)
+                r.activity[here] = int(Activity.WAITING)
+                r.target_node[here] = -1
+    return route_ok, at_plat, ~(at_plat | route_ok)
+
+
+def clear_board_intent(agents: AgentState, agent_ids) -> None:
+    """乗車の意図(``board_line``/``board_since``)を落とす(9a: 計画の退出を即時に切り替えた体)。"""
+    a = np.asarray(agent_ids, dtype=np.int64).ravel()
+    if a.size == 0:
+        return
+    with agents.writable():
+        r = agents.registry
+        r.board_line[a] = -1
+        r.board_since[a] = -1
 
 
 def balk_queue(agents: AgentState, agent_ids, tick: int) -> None:

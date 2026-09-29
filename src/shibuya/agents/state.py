@@ -61,6 +61,29 @@ expedient(本モジュール分)
   ``N_WAKE_CONDITIONS``(=不応期表の行数=``refractory_until`` の列数)は **11 のまま**で、
   起床条件の総数は ``N_WAKE_CONDITIONS_ALL``(12)。``activity_until``/``activity_kind``
   (+5 B/体)は ``activity_columns`` のランだけ確保する(``plan_columns`` と同じ形)。
+- **意図の保持(段 2c・D-112 ①・D-114 案 A)**: ``intent_action`` / ``intent_target`` /
+  ``intent_kind`` / ``intent_since``(+10 B/体)は**既定で確保する**(D-112 ② で既定 checkpoint は
+  動くと決まっている=腕にしない)。購入/食事/並ぶ/会話/就寝の対象が現在セルに無く解決できるとき、
+  エンジンは行為をここに保存して目的地つき移動を始め、着いたら LLM を呼ばずに実行する
+  (乗車の意図 ``board_line``・就寝の意図 ``sleep_pending`` と同じ「判断 1 回・実行は世界」の形)。
+  値を決めるのは ``engine.intent``・書き手は ``engine.resolve`` だけ。
+- **親しみの表(4 段目・M13 訪問+M17 露出・第290)**: ``fam_thing`` / ``fam_first`` / ``fam_last`` /
+  ``fam_visits`` / ``fam_exposures``(体 × K 行・1 行 16 B → K=64 で 1,024 B/体)は
+  ``familiarity_columns`` のランだけ確保する(``--familiarity on``・既定 off=既定 checkpoint 不変)。
+  ``fam_thing`` の符号化は ``engine.familiarity``(POI 索引 ≥ 0・場所 −(cell+2)・人 1<<30|id・空行 −1)。
+- **店の評価の記憶(D-120 7a・N1 (a)・第296)**: ``sm_poi`` / ``sm_valence`` / ``sm_precision`` /
+  ``sm_first`` / ``sm_last`` / ``sm_n`` / ``sm_source``(体 × 32 行・実 23 B/行・宣言 24 B/行 → 768 B/体)は
+  ``store_memory_columns`` のランだけ確保する(``--store-memory on``・既定 off=既定 checkpoint 不変)。
+  値を決めるのは ``engine.memory``・書き手は ``engine.resolve.write_store_memory`` だけ。
+- **体のエネルギー収支(5 段目 5a・D-118 K1〜K9・第291)**: ``weight_kg`` / ``eer_kcal`` /
+  ``since_meal_kcal`` / ``energy_balance``(float32 × 4 = +16 B/体)は ``energy_columns`` のランだけ
+  確保する。``engine.run`` は ``hunger_model="energy"``(CLI の既定)のときだけ True にする
+  =``--hunger-model v1`` の checkpoint は 1 バイトも動かない(旧 checkpoint の再現)。
+  値を決めるのは ``engine.energy``・書き手は ``engine.resolve`` だけ。``hunger`` はこのランでは
+  **語の段の写し**(満腹 1 / ふつう 5 / 空腹 8 / とても空腹 10)。
+- ``ResultCode.TOO_FAR``(21)は**段 2c** で足した失敗コード(D-122 P6 の先取り)。「経路は在るが
+  ``INTENT_MAX_TICKS`` のうちに着かなかった」= 時間予算超え。経路が無い ``UNREACHABLE``(1)と
+  分ける。**値は末尾に足すだけ**なので既存の配列も描画も動かない。
 """
 
 from __future__ import annotations
@@ -91,6 +114,17 @@ __all__ = [
     "N_WAKE_CONDITIONS_ALL",
     "ActivityKind",
     "ACTIVITY_UNTIL_NONE",
+    "IntentKind",
+    "INTENT_NONE",
+    "INTENT_FIELDS",
+    "FAMILIARITY_FIELDS",
+    "FAMILIARITY_EMPTY",
+    "ENERGY_FIELDS",
+    "MEMORY_FIELDS",
+    "STORE_MEMORY_FIELDS",
+    "STORE_MEMORY_EMPTY",
+    "RELATION_FIELDS",
+    "REL_EMPTY",
     "REFRACTORY_MINUTES",
     "WAKE_CONDITION_CLASS",
     "RESULT_TEXT",
@@ -211,6 +245,7 @@ class ResultCode(IntEnum):
     INSUFFICIENT_ABILITY = 18  # 能力不足(手伝い・行動契約書 §2.1)
     NOT_IN_EATERY = 19  # 飲食店にいない(語彙 v2「食事」・D-71 §3 E)
     TARGET_GONE = 20  # 対象が去った(C9 G11・最後に見た位置へ着いても居なかった)
+    TOO_FAR = 21  # 遠すぎて時間切れ(段 2c・経路は在るが意図の上限 tick のうちに着かなかった)
 
 
 #: 契約書の文言(「直前の結果」の 50 tok 欄で使う短句)。
@@ -236,6 +271,7 @@ RESULT_TEXT: Final[dict[int, str]] = {
     ResultCode.INSUFFICIENT_ABILITY: "能力不足",
     ResultCode.NOT_IN_EATERY: "飲食店にいない",
     ResultCode.TARGET_GONE: "対象が去った",
+    ResultCode.TOO_FAR: "遠すぎて時間切れ",
 }
 
 
@@ -314,6 +350,57 @@ class ActivityKind(IntEnum):
 #: ``activity_until`` の「活動なし」。
 ACTIVITY_UNTIL_NONE: Final[int] = -1
 
+
+class IntentKind(IntEnum):
+    """意図の対象の種類(``intent_kind``・段 2c)。``intent_target`` の意味を決める。"""
+
+    NONE = 0  # 意図なし
+    POI_NAMED = 1  # 名指しの店(``intent_target``=POI 索引)
+    POI_CATEGORY = 2  # カテゴリ語で近傍から選んだ店(``intent_target``=POI 索引)
+    PERSON = 3  # 会話の相手(``intent_target``=個体 id)
+    BED = 4  # 寝床(``intent_target``=自宅セル)
+
+
+#: ``intent_action`` の「意図なし」(行動コードと衝突しない負値)。
+INTENT_NONE: Final[int] = -1
+#: 親しみの表の 5 欄(4 段目・``familiarity_columns`` のランだけ確保)。
+FAMILIARITY_FIELDS: Final[tuple[str, ...]] = (
+    "fam_thing", "fam_first", "fam_last", "fam_visits", "fam_exposures",
+)
+#: 親しみの表の空行(``fam_thing``)。
+FAMILIARITY_EMPTY: Final[int] = -1
+
+#: 記憶の表の 9 欄(6 段目 6a・``memory_columns`` のランだけ確保)。
+MEMORY_FIELDS: Final[tuple[str, ...]] = (
+    "mem_kind", "mem_tick", "mem_last", "mem_cell", "mem_partner", "mem_object",
+    "mem_result", "mem_importance", "mem_n",
+)
+
+#: 店の評価の記憶の 7 欄(D-120 7a・``store_memory_columns`` のランだけ確保)。
+STORE_MEMORY_FIELDS: Final[tuple[str, ...]] = (
+    "sm_poi", "sm_valence", "sm_precision", "sm_first", "sm_last", "sm_n", "sm_source",
+)
+#: 店の評価の記憶の空行(``sm_poi``)。
+STORE_MEMORY_EMPTY: Final[int] = -1
+
+#: 関係辺の 6 欄(C10 8a・``relation_columns`` のランだけ確保)。
+RELATION_FIELDS: Final[tuple[str, ...]] = (
+    "rel_partner", "rel_kind", "rel_sign", "rel_first", "rel_last", "rel_n",
+)
+#: 関係辺の空行(``rel_partner``)。
+REL_EMPTY: Final[int] = -1
+
+#: 体のエネルギー収支の 4 欄(5 段目 5a・``energy_columns`` のランだけ確保)。
+ENERGY_FIELDS: Final[tuple[str, ...]] = (
+    "weight_kg", "eer_kcal", "since_meal_kcal", "energy_balance",
+)
+
+#: 意図の 4 欄(段 2c)。``Registry.state_hash(exclude=INTENT_FIELDS)`` で「欄を足す前」の
+#: checkpoint と挙動が同じことを確かめる(監査用)。
+INTENT_FIELDS: Final[tuple[str, ...]] = (
+    "intent_action", "intent_target", "intent_kind", "intent_since",
+)
+
 #: 内受容 3 変数の並び(``<名前>_stage`` フィールドの順序)。
 INTEROCEPTION_FIELDS: Final[tuple[str, ...]] = ("hunger", "fatigue", "thermal")
 
@@ -338,6 +425,15 @@ class AgentState:
         edge_columns: bool = False,
         attention_columns: bool = False,
         activity_columns: bool = False,
+        familiarity_columns: bool = False,
+        familiarity_k: int = 64,
+        energy_columns: bool = False,
+        memory_columns: bool = False,
+        memory_n: int = 128,
+        store_memory_columns: bool = False,
+        store_memory_n: int = 32,
+        relation_columns: bool = False,
+        rel_k: int = 15,
     ) -> None:
         """
         Args:
@@ -363,12 +459,46 @@ class AgentState:
                 ``activity_kind``・+5 B/体)を確保するか。``engine.run`` は
                 ``vocab_version="v3"`` かつ ``activity=True`` のときだけ True にする
                 = **v1/v2 と ``--activity off`` の checkpoint は 1 バイトも動かない**。
+            energy_columns: **体のエネルギー収支**(5 段目 5a・D-118)の 4 欄(``weight_kg`` /
+                ``eer_kcal`` / ``since_meal_kcal`` / ``energy_balance``・+16 B/体)を確保するか。
+                ``engine.run`` は ``hunger_model="energy"`` のときだけ True にする
+                = **``--hunger-model v1`` の checkpoint は 1 バイトも動かない**。
+            memory_columns / memory_n: **記憶 第 1 段の記録**(6 段目 6a・``engine.memory``)の表
+                (体 × N 行 × 9 欄・実 25 B/行・宣言 32 B/行)を確保するか・行数 N(既定 128)。
+                ``--memory on`` のランだけ True=**既定 checkpoint は 1 バイトも動かない**。
+            store_memory_columns / store_memory_n: **店の評価の記憶**(D-120 7a・N1 (a)・
+                ``engine.memory``)の表(体 × M 行 × 7 欄・実 23 B/行・宣言 24 B/行)を確保するか・
+                行数 M(既定 32)。``--store-memory on`` のランだけ True=**既定 checkpoint は動かない**。
+            relation_columns / rel_k: **関係辺**(C10 8a・R1 (a)・``engine.relations``)の表(体 × k 辺 × 6 欄・
+                実=宣言 16 B/辺)を確保するか・辺の数 k(既定 15)。``--relations on`` のランだけ True。
         """
         self.n = int(n)
         self.plan_columns = bool(plan_columns)
         self.edge_columns = bool(edge_columns)
         self.attention_columns = bool(attention_columns)
         self.activity_columns = bool(activity_columns)
+        #: 4 段目(M13+M17): 親しみの表を確保するか・行数 K(``engine.familiarity.FAMILIARITY_K``)。
+        self.familiarity_columns = bool(familiarity_columns)
+        self.familiarity_k = int(familiarity_k)
+        #: 5 段目 5a(D-118): 体のエネルギー収支の 4 欄を確保するか。
+        self.energy_columns = bool(energy_columns)
+        #: 6 段目 6a(記憶 第 1 段の記録): 記憶の表を確保するか・行数 N(``engine.memory.MEMORY_N``)。
+        self.memory_columns = bool(memory_columns)
+        self.memory_n = int(memory_n)
+        if self.memory_columns and self.memory_n < 1:
+            raise ValueError(f"memory_n は 1 以上(いま {memory_n})")
+        #: D-120 7a: 店の評価の記憶の表を確保するか・行数 M(``engine.memory.STORE_MEMORY_N``)。
+        self.store_memory_columns = bool(store_memory_columns)
+        self.store_memory_n = int(store_memory_n)
+        if self.store_memory_columns and self.store_memory_n < 1:
+            raise ValueError(f"store_memory_n は 1 以上(いま {store_memory_n})")
+        #: C10 8a: 関係辺の表を確保するか・辺の数 k(``engine.relations.REL_K``)。
+        self.relation_columns = bool(relation_columns)
+        self.rel_k = int(rel_k)
+        if self.relation_columns and self.rel_k < 1:
+            raise ValueError(f"rel_k は 1 以上(いま {rel_k})")
+        if self.familiarity_columns and self.familiarity_k < 1:
+            raise ValueError(f"familiarity_k は 1 以上(いま {familiarity_k})")
         self.registry = Registry.for_agents(self.n, per_entity_byte_cap=cap_bytes)
         r = self.registry
         # ---- 位置・運動(M2 位置・運動・身体 ≤128B/体 の内数) ----
@@ -423,6 +553,16 @@ class AgentState:
                   doc="疲労の閾値段(同上)")
         r.declare("thermal_stage", np.int8, byte_budget_per_agent=1, mechanism=False,
                   doc="体感温度の閾値段(同上)")
+        # ---- 体のエネルギー収支(5 段目 5a・D-118・energy_columns のランだけ・+16 B/体) ----
+        if self.energy_columns:
+            r.declare("weight_kg", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="体重[kg](国民健康・栄養調査 第14表 性×年齢の平均±SD から抽選・ラン開始時に固定)")
+            r.declare("eer_kcal", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="推定エネルギー必要量[kcal/日](食事摂取基準 2025 表3×体重×表4 ふつう+個人差)")
+            r.declare("since_meal_kcal", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="食後の消費[kcal](食事で 0・軽食/飲料で差し引く)=空腹の語の源(K8)")
+            r.declare("energy_balance", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="当日の 摂取 − 消費[kcal](日次センサスの源・K8・翌日持ち越しなし)")
         # ---- 経済(行動契約書 §2.1 購入・保存則) ----
         r.declare("money", np.int32, byte_budget_per_agent=4, mechanism=True,
                   doc="所持金[円](保存則 U11 の個体側・M2)")
@@ -455,6 +595,17 @@ class AgentState:
         r.declare("sleep_pending", np.int8, byte_budget_per_agent=1, mechanism=True,
                   doc="計画(W17)の就寝境界に達したが就寝地に居ない=1 / 0=なし。"
                       "着いた時点で世界が寝かせる(登録簿 §8 D-62・乗車の意図保持と同じ形)")
+        # ---- 意図の保持(段 2c・D-112 ①・D-114 案 A・**既定で確保**・+10 B/体) ----
+        r.declare("intent_action", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="保持している行為コード(購入/食事/並ぶ/会話/就寝・-1=意図なし)。"
+                      "対象が現在セルに無く解決できるとき、エンジンが保存して目的地へ歩かせ、"
+                      "着いたら LLM を呼ばずに実行する(段 2c)")
+        r.declare("intent_target", np.int32, byte_budget_per_agent=4, mechanism=True,
+                  doc="意図の対象(intent_kind で意味が決まる: POI 索引 / 個体 id / セル・-1=なし)")
+        r.declare("intent_kind", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="IntentKind(0 なし / 1 名指しの店 / 2 カテゴリの店 / 3 人 / 4 寝床)")
+        r.declare("intent_since", np.int32, byte_budget_per_agent=4, mechanism=False,
+                  doc="意図を立てた tick(-1=なし)。INTENT_MAX_TICKS 超過で TOO_FAR・expedient")
         # ---- 屋内占有・待ち行列(C4 混雑場・16行表 行2) ----
         r.declare("poi_ref", np.int32, byte_budget_per_agent=4, mechanism=False,
                   doc="在席中の POI 索引(-1=なし)。屋内占有の集約に使う(席数換算は expedient)")
@@ -479,6 +630,74 @@ class AgentState:
                           "この tick に満了入口(WakeCondition.ACTIVITY_EXPIRY)で起きる")
             r.declare("activity_kind", np.int8, byte_budget_per_agent=1, mechanism=True,
                       doc="ActivityKind(0 なし / 1 目的地つき移動 / 2 あたり / 3 在店 / 4 その場)")
+        # ---- 親しみの表(4 段目・M13 訪問+M17 露出・familiarity_columns のランだけ・16 B/行) ----
+        if self.familiarity_columns:
+            k = self.familiarity_k
+            r.declare("fam_thing", np.int32, (k,), byte_budget_per_agent=4 * k, mechanism=True,
+                      doc="もの(POI 索引 ≥0 / 場所 −(cell+2) / 人 1<<30|id / 空行 −1)")
+            r.declare("fam_first", np.int32, (k,), byte_budget_per_agent=4 * k, mechanism=True,
+                      doc="最初の接触の tick(A の寿命 L の起点)")
+            r.declare("fam_last", np.int32, (k,), byte_budget_per_agent=4 * k, mechanism=False,
+                      doc="最後の接触の tick(診断・読み口の補助)")
+            r.declare("fam_visits", np.uint16, (k,), byte_budget_per_agent=2 * k, mechanism=True,
+                      doc="訪問の回数(購入/食事/並ぶの成立・M13)")
+            r.declare("fam_exposures", np.uint16, (k,), byte_budget_per_agent=2 * k,
+                      mechanism=True, doc="露出の回数(看板が B2 に載った/セルに入った・M17)")
+        # ---- 記憶の表(6 段目 6a・memory_columns のランだけ・実 25 B/行・宣言 32 B/行) ----
+        if self.memory_columns:
+            m = self.memory_n
+            r.declare("mem_kind", np.uint8, (m,), byte_budget_per_agent=m, mechanism=True,
+                      doc="事象の種類(engine.memory.EVENT_KINDS・0=空行)")
+            r.declare("mem_tick", np.int32, (m,), byte_budget_per_agent=4 * m, mechanism=True,
+                      doc="最初の tick(A の寿命 L の起点)")
+            r.declare("mem_last", np.int32, (m,), byte_budget_per_agent=4 * m, mechanism=False,
+                      doc="最後の tick(統合で更新・読み口の補助)")
+            r.declare("mem_cell", np.int32, (m,), byte_budget_per_agent=4 * m, mechanism=True,
+                      doc="起きたセル(−1=範囲外)")
+            r.declare("mem_partner", np.int32, (m,), byte_budget_per_agent=4 * m, mechanism=True,
+                      doc="相手の体 id(−1=なし)")
+            r.declare("mem_object", np.int32, (m,), byte_budget_per_agent=4 * m, mechanism=True,
+                      doc="対象(POI ≥0 / 場所 −(cell+2) / 人 1<<30|id / −1=なし・会話の行は店 ID)")
+            r.declare("mem_result", np.uint8, (m,), byte_budget_per_agent=m, mechanism=True,
+                      doc="ResultCode(0=成功)")
+            r.declare("mem_importance", np.uint8, (m,), byte_budget_per_agent=m, mechanism=False,
+                      doc="importance(固定表・M3 (b)・expedient)")
+            r.declare("mem_n", np.uint16, (m,), byte_budget_per_agent=(2 + 7) * m, mechanism=True,
+                      doc="同じ鍵の反復回数(A の n)。予算は詰め物 7 B/行を含む=32 B/行に揃える宣言")
+        # ---- 店の評価の記憶(D-120 7a・store_memory_columns のランだけ・実 23 B/行・宣言 24 B/行) ----
+        if self.store_memory_columns:
+            s = self.store_memory_n
+            r.declare("sm_poi", np.int32, (s,), byte_budget_per_agent=4 * s, mechanism=True,
+                      doc="店(POI 索引・−1=空行)。同じ POI は 1 行に統合")
+            r.declare("sm_valence", np.float32, (s,), byte_budget_per_agent=4 * s, mechanism=True,
+                      doc="Σ 精度 × 向き(向き −1/0/+1・読むときは sign)")
+            r.declare("sm_precision", np.float32, (s,), byte_budget_per_agent=4 * s, mechanism=True,
+                      doc="Σ 1/σ²(出どころ別の雑音 σ・N4 (a)・確からしさ)")
+            r.declare("sm_first", np.int32, (s,), byte_budget_per_agent=4 * s, mechanism=True,
+                      doc="最初の tick(A の寿命 L の起点)")
+            r.declare("sm_last", np.int32, (s,), byte_budget_per_agent=4 * s, mechanism=False,
+                      doc="最後の tick(統合で更新・減衰の腕の補助)")
+            r.declare("sm_n", np.uint16, (s,), byte_budget_per_agent=2 * s, mechanism=True,
+                      doc="更新回数(A の n)")
+            r.declare("sm_source", np.uint8, (s,), byte_budget_per_agent=(1 + 1) * s,
+                      mechanism=True,
+                      doc="出どころのビットの和(1 自分/2 伝聞/4 看板/8 ネット)。予算は詰め物 1 B/行を含む"
+                          "=24 B/行に揃える宣言")
+        # ---- 関係辺(C10 8a・relation_columns のランだけ・実=宣言 16 B/辺・M5 の内) ----
+        if self.relation_columns:
+            q = self.rel_k
+            r.declare("rel_partner", np.int32, (q,), byte_budget_per_agent=4 * q, mechanism=True,
+                      doc="相手の体 id(−1=空)")
+            r.declare("rel_kind", np.uint8, (q,), byte_budget_per_agent=q, mechanism=True,
+                      doc="種別(世帯 1/職場 2/学校 3/常連 4/知人 5)")
+            r.declare("rel_sign", np.int8, (q,), byte_budget_per_agent=q, mechanism=True,
+                      doc="Σ 符号(ResultCode 由来・±127 で止める・読むときは sign)")
+            r.declare("rel_first", np.int32, (q,), byte_budget_per_agent=4 * q, mechanism=True,
+                      doc="最初の相互作用の tick(A の寿命 L の起点・初期辺は過去の負の tick)")
+            r.declare("rel_last", np.int32, (q,), byte_budget_per_agent=4 * q, mechanism=False,
+                      doc="最後の相互作用の tick(初期辺は W17 の直近の共在)")
+            r.declare("rel_n", np.uint16, (q,), byte_budget_per_agent=2 * q, mechanism=True,
+                      doc="相互作用の回数(A の n)")
         # ---- 起床機構(知覚契約書 §6) ----
         r.declare("refractory_until", np.int32, (N_WAKE_CONDITIONS,),
                   byte_budget_per_agent=4 * N_WAKE_CONDITIONS, mechanism=True,
@@ -508,6 +727,9 @@ class AgentState:
         self.registry.transit_ref[:] = -1
         self.registry.board_line[:] = -1
         self.registry.board_since[:] = -1
+        self.registry.intent_action[:] = INTENT_NONE
+        self.registry.intent_target[:] = -1
+        self.registry.intent_since[:] = -1
         self.registry.poi_ref[:] = -1
         self.registry.poi_since[:] = -1
         self.registry.queue_poi[:] = -1
@@ -521,6 +743,16 @@ class AgentState:
             self.registry.plan_activity[:] = -1
         if self.activity_columns:
             self.registry.activity_until[:] = ACTIVITY_UNTIL_NONE
+        if self.familiarity_columns:
+            self.registry.fam_thing[:] = FAMILIARITY_EMPTY
+            self.registry.fam_first[:] = -1
+            self.registry.fam_last[:] = -1
+        if self.store_memory_columns:
+            self.registry.sm_poi[:] = STORE_MEMORY_EMPTY
+            self.registry.sm_first[:] = -1
+            self.registry.sm_last[:] = -1
+        if self.relation_columns:
+            self.registry.rel_partner[:] = REL_EMPTY
         self._frozen = False
 
     # ---- フィールドの素通し(``st.money`` で配列を引く) ----

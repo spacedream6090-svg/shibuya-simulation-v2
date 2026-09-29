@@ -1,0 +1,125 @@
+{
+ "schema": "shibuya.bench/memory-stage1/arms15/1",
+ "arms": [
+  {
+   "arm": "v3_default",
+   "final_5th_stage": "c9ab05383accca2ee287a4e0ddabc9980c8df12f8619217e9a942219d4a05ea3",
+   "final": "c9ab05383accca2ee287a4e0ddabc9980c8df12f8619217e9a942219d4a05ea3",
+   "llm_calls": 69603,
+   "memory": false,
+   "unchanged": true
+  },
+  {
+   "arm": "v3_activity_off",
+   "final_5th_stage": "69acc68ce3c03383c8e19d6737ac9a2056d9e3dc5130259fd40b680f5ce5d600",
+   "final": "69acc68ce3c03383c8e19d6737ac9a2056d9e3dc5130259fd40b680f5ce5d600",
+   "llm_calls": 59088,
+   "memory": false,
+   "unchanged": true
+  },
+  {
+   "arm": "v1_default",
+   "final_5th_stage": "91c33e23b27f586572beaf06ad20c0ab3f4fc7bb2dfd15cd5b1c7bc50c80965f",
+   "final": "91c33e23b27f586572beaf06ad20c0ab3f4fc7bb2dfd15cd5b1c7bc50c80965f",
+   "llm_calls": 60987,
+   "memory": false,
+   "unchanged": true
+  },
+  {
+   "arm": "v1_derive_v2_1",
+   "final_5th_stage": "3f2f032f474487ebf6f6a02410b89f1a9377f4154a05dc63c338578aa89eaf12",
+   "final": "3f2f032f474487ebf6f6a02410b89f1a9377f4154a05dc63c338578aa89eaf12",
+   "llm_calls": 55057,
+   "memory": false,
+   "unchanged": true
+  },
+  {
+   "arm": "v2",
+   "final_5th_stage": "8858670b7e0745df1dfe7c10a8c6199c61dafca491d56f1d9cbd9953102ab313",
+   "final": "8858670b7e0745df1dfe7c10a8c6199c61dafca491d56f1d9cbd9953102ab313",
+   "llm_calls": 61095,
+   "memory": false,
+   "unchanged": true
+  },
+  {
+   "arm": "v1_edge",
+   "final_5th_stage": "29c6f7e405b493e6e43e18efba39d6c784e72d400a4f91528eaf29cd7686215c",
+   "final": "29c6f7e405b493e6e43e18efba39d6c784e72d400a4f91528eaf29cd7686215c",
+   "llm_calls": 54189,
+   "memory": false,
+   "unchanged": true
+  },
+  {
+   "arm": "v2_edge",
+   "final_5th_stage": "43c4b77626f9a6297b4a5228744a5a50968fd3a9e3929a462d52ada032837994",
+   "final": "43c4b77626f9a6297b4a5228744a5a50968fd3a9e3929a462d52ada032837994",
+   "llm_calls": 54158,
+   "memory": false,
+   "unchanged": true
+  },
+  {
+   "arm": "v1_edge_plateau",
+   "final_5th_stage": "7e703865b35f184447c4285108539390796eb6444857ce064f13789241b7f017",
+   "final": "7e703865b35f184447c4285108539390796eb6444857ce064f13789241b7f017",
+   "llm_calls": 55186,
+   "memory": false,
+   "unchanged": true
+  },
+  {
+   "arm": "old_v1_default",
+   "final_5th_stage": "04aad236679d8a2e288abedaa5a45c6ac25dd9f4872b0a654e2208cd00a39eff",
+   "final": "04aad236679d8a2e288abedaa5a45c6ac25dd9f4872b0a654e2208cd00a39eff",
+   "llm_calls": 60987,
+   "memory": false,
+   "unchanged": true
+  },
+  {
+   "arm": "old_v1_derive_v2_1",
+   "final_5th_stage": "d603c193aa22925343cb3d0d9426e523baa0126d8f182243dcf4ee2fa38ec4eb",
+   "final": "d603c193aa22925343cb3d0d9426e523baa0126d8f182243dcf4ee2fa38ec4eb",
+   "llm_calls": 55057,
+   "memory": false,
+   "unchanged": true
+  },
+  {
+   "arm": "old_v2",
+   "final_5th_stage": "6afbe97fdf53f69ee0895d6eeeafc38f490e96934abe064700ed513c46de15f6",
+   "final": "6afbe97fdf53f69ee0895d6eeeafc38f490e96934abe064700ed513c46de15f6",
+   "llm_calls": 61095,
+   "memory": false,
+   "unchanged": true
+  },
+  {
+   "arm": "old_v1_edge",
+   "final_5th_stage": "992cdd9682f2231909e6a0b78120c80e4f6327a5a897ff28d93dd5cce70d9fa7",
+   "final": "992cdd9682f2231909e6a0b78120c80e4f6327a5a897ff28d93dd5cce70d9fa7",
+   "llm_calls": 54189,
+   "memory": false,
+   "unchanged": true
+  },
+  {
+   "arm": "old_v2_edge",
+   "final_5th_stage": "75183395661c2f314c1bdcb90b89155c8ca861a3f5d2c08448d7e903b4331808",
+   "final": "75183395661c2f314c1bdcb90b89155c8ca861a3f5d2c08448d7e903b4331808",
+   "llm_calls": 54158,
+   "memory": false,
+   "unchanged": true
+  },
+  {
+   "arm": "old_v1_edge_plateau",
+   "final_5th_stage": "a438c62899763001b51271dbc94604f698e9996b334a910b2dac2f8b7a3c28e2",
+   "final": "a438c62899763001b51271dbc94604f698e9996b334a910b2dac2f8b7a3c28e2",
+   "llm_calls": 55186,
+   "memory": false,
+   "unchanged": true
+  },
+  {
+   "arm": "golden_null_arm",
+   "final_5th_stage": "18f8807264d04018d2a27e46b13fb91ff9115dbefcb34c4e61cfa4f1e7de8cae",
+   "final": "18f8807264d04018d2a27e46b13fb91ff9115dbefcb34c4e61cfa4f1e7de8cae",
+   "llm_calls": 100509,
+   "memory": false,
+   "unchanged": true
+  }
+ ]
+}

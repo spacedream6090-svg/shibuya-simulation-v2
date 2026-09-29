@@ -211,6 +211,8 @@ class RenderedPrompt:
     targets: tuple[str, ...] = ()
     prompt_hash: str = ""
     group_tokens: tuple[tuple[str, int], ...] = ()
+    #: 記憶 第 1 段 6b: B5「記憶」行に載せた記憶の行番号(テープ版 3 の列・記憶の無いラン=空)。
+    recalled_rows: tuple[int, ...] = ()
 
     @property
     def block_ids(self) -> tuple[str, ...]:
@@ -358,6 +360,7 @@ class PerceptionRendererAdapter:
             blocks=tuple(blocks),
             prompt_hash=out.prompt_hash,
             group_tokens=tuple(sorted(out.group_tokens.items())),
+            recalled_rows=tuple(getattr(out, "recalled_rows", ())),
         )
 
     # ---- 診断 ----
@@ -784,6 +787,7 @@ class LLMBridge:
                 deferred=int(deferred),
                 deferred_reason=deferred_reason,
                 observed_tick=int(observed_tick),
+                recalled_rows=tuple(getattr(rendered, "recalled_rows", ())),
             )
         )
         self.n_tape_rows += 1

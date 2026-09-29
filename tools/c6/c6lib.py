@@ -643,6 +643,8 @@ FAILURE_WORD_BY_KIND: Mapping[str, str] = {
     "not_in_eatery": "飲食店にいない",
     # C9 G11(2026-09-17)。``geometry="node"`` のランには 1 件も現れない
     "target_gone": "対象が去った",
+    # 段 2c(2026-09-28)。意図の層が無いラン(v1/v2・--activity off)には 1 件も現れない
+    "too_far": "遠すぎて時間切れ",
 }
 FAILURE_KIND_BY_WORD: Mapping[str, str] = {v: k for k, v in FAILURE_WORD_BY_KIND.items()}
 
@@ -1253,13 +1255,13 @@ def markdown_table(headers: Sequence[str], rows: Iterable[Sequence[Any]]) -> str
 
 
 def write_outputs(out_dir: str | Path, stem: str, payload: Mapping[str, Any], md: str) -> dict[str, str]:
-    """``<out>/<stem>.json`` と ``<out>/<stem>.md`` を書く。"""
+    """``<out>/<stem>.json`` と ``<out>/<stem>.md`` を書く(改行は LF=Windows でも CRLF にしない・第307)。"""
     d = Path(out_dir)
     d.mkdir(parents=True, exist_ok=True)
     jp = d / f"{stem}.json"
     mp = d / f"{stem}.md"
-    jp.write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    mp.write_text(md.rstrip("\n") + "\n", encoding="utf-8")
+    jp.write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
+    mp.write_text(md.rstrip("\n") + "\n", encoding="utf-8", newline="\n")
     return {"json": str(jp), "md": str(mp)}
 
 
