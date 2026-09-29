@@ -1,0 +1,23 @@
+{
+ "key": "W2#4",
+ "control": "外周 GL ノードのセル集合(宣言)vs 街区重心のセル(1 街区 1 セル)",
+ "metric": "街区×セルの所属のセル上の分布",
+ "variants": [
+  {
+   "name": "街区重心のセル",
+   "jsd_bits": 0.049521695828076404,
+   "null_p95": 0.06068088993462891,
+   "detected": false,
+   "tvd": 0.1671046290549964,
+   "n_declared": 2809.0,
+   "n_control": 1227.0,
+   "n_bins": 395
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.21003439999185503,
+ "seconds_wall_row": 0.21,
+ "measured_at": "2026-09-30"
+}

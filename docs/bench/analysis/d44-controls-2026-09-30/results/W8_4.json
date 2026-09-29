@@ -1,0 +1,42 @@
+{
+ "key": "W8#4",
+ "control": "建物の基準地盤高=重心の DEM(宣言)vs footprint 頂点の DEM の最小値",
+ "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+ "variants": [
+  {
+   "name": "頂点の DEM の最小: (セル,対象)→見えている視点数",
+   "jsd_bits": 0.005642962699137986,
+   "null_p95": 0.003298782022654004,
+   "detected": true,
+   "tvd": 0.019718704170352278,
+   "n_declared": 4943303.0,
+   "n_control": 5007375.0,
+   "n_bins": 44669,
+   "jaccard_pairs": 0.9609124896460632
+  },
+  {
+   "name": "頂点の DEM の最小: 視点あたり可視数の分布(参考・w8_t1 はエンジンが読まない)",
+   "jsd_bits": 0.00015505493203701295,
+   "null_p95": 0.0001451758938727284,
+   "detected": true,
+   "tvd": 0.010812038168709289,
+   "n_declared": 356732.0,
+   "n_control": 356732.0,
+   "n_bins": 117,
+   "primary": false
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 1.427492400049232,
+ "outputs_changed": [
+  "w8_t1.parquet",
+  "w8_t1_cell.parquet",
+  "w8_t2.npy",
+  "w8_targets.parquet"
+ ],
+ "notes": [],
+ "seconds_wall_row": 20.1,
+ "measured_at": "2026-09-30"
+}

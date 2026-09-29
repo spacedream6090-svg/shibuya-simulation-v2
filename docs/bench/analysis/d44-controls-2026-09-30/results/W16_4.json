@@ -1,0 +1,31 @@
+{
+ "key": "W16#4",
+ "control": "住居系 kind に generic を入れる(宣言)vs 入れない",
+ "metric": "住民の自宅セルの分布",
+ "variants": [
+  {
+   "name": "入れない",
+   "jsd_bits": 0.12106496886619919,
+   "null_p95": 0.0035191208445010443,
+   "detected": true,
+   "tvd": 0.2903780857116638,
+   "n_declared": 43588.0,
+   "n_control": 43588.0,
+   "n_bins": 372,
+   "residents_declared": 43588,
+   "residents_control": 43588
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 12.59932859998662,
+ "outputs_changed": [
+  "w16_gates.json",
+  "w16_households.parquet",
+  "w16_population.parquet"
+ ],
+ "notes": [],
+ "seconds_wall_row": 13.62,
+ "measured_at": "2026-09-30"
+}

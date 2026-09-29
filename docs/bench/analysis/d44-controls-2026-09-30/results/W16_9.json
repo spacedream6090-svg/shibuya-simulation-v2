@@ -1,0 +1,92 @@
+{
+ "key": "W16#9",
+ "control": "通学・業務・私事の体数=PT 2018 の目的別到着比(宣言)vs 1 つずつ ±10%",
+ "metric": "全体の種別(kind 0-8)の体数の分布",
+ "variants": [
+  {
+   "name": "自宅－通学 ×1.1",
+   "jsd_bits": 0.00013329874846621133,
+   "null_p95": 1.4293498506396632e-05,
+   "detected": true,
+   "tvd": 0.0077586907169303835,
+   "n_declared": 390067.0,
+   "n_control": 393405.0,
+   "n_bins": 9,
+   "n_declared_agents": 390067,
+   "n_control_agents": 393405
+  },
+  {
+   "name": "自宅－通学 ×0.9",
+   "jsd_bits": 0.00014997818215278146,
+   "null_p95": 1.4293498506396632e-05,
+   "detected": true,
+   "tvd": 0.007895011826486425,
+   "n_declared": 390067.0,
+   "n_control": 386728.0,
+   "n_bins": 9,
+   "n_declared_agents": 390067,
+   "n_control_agents": 386728
+  },
+  {
+   "name": "自宅－業務 ×1.1",
+   "jsd_bits": 2.0968381205185602e-05,
+   "null_p95": 1.4293498506396632e-05,
+   "detected": true,
+   "tvd": 0.0038730824785862894,
+   "n_declared": 390067.0,
+   "n_control": 391853.0,
+   "n_bins": 9,
+   "n_declared_agents": 390067,
+   "n_control_agents": 391853
+  },
+  {
+   "name": "自宅－業務 ×0.9",
+   "jsd_bits": 2.1816251949704978e-05,
+   "null_p95": 1.4293498506396632e-05,
+   "detected": true,
+   "tvd": 0.003908712990029067,
+   "n_declared": 390067.0,
+   "n_control": 388281.0,
+   "n_bins": 9,
+   "n_declared_agents": 390067,
+   "n_control_agents": 388281
+  },
+  {
+   "name": "自宅－私事 ×1.1",
+   "jsd_bits": 0.0002896991159007509,
+   "null_p95": 1.4293498506396632e-05,
+   "detected": true,
+   "tvd": 0.01581428237114241,
+   "n_declared": 390067.0,
+   "n_control": 397882.0,
+   "n_bins": 9,
+   "n_declared_agents": 390067,
+   "n_control_agents": 397882
+  },
+  {
+   "name": "自宅－私事 ×0.9",
+   "jsd_bits": 0.0003357464800627946,
+   "null_p95": 1.4293498506396632e-05,
+   "detected": true,
+   "tvd": 0.01645876723557309,
+   "n_declared": 390067.0,
+   "n_control": 382253.0,
+   "n_bins": 9,
+   "n_declared_agents": 390067,
+   "n_control_agents": 382253
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 78.11249510012567,
+ "outputs_changed": [
+  "w16_cohorts.json",
+  "w16_duty_roster.parquet",
+  "w16_gates.json",
+  "w16_population.parquet"
+ ],
+ "notes": [],
+ "seconds_wall_row": 81.36,
+ "measured_at": "2026-09-30"
+}

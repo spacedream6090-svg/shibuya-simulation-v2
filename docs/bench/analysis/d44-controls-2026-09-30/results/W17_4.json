@@ -1,0 +1,30 @@
+{
+ "key": "W17#4",
+ "control": "時刻の整合修復 off(宣言)vs on(`--time-fact-repair`・応答の再取り込み)",
+ "metric": "週次表の (活動 × 開始時刻 15 分階級) の分布",
+ "variants": [
+  {
+   "name": "修復 on",
+   "jsd_bits": 2.4339159537944453e-07,
+   "null_p95": 0.00012424028048163555,
+   "detected": false,
+   "tvd": 0.0001106311637878495,
+   "n_declared": 3461954.0,
+   "n_control": 3461954.0,
+   "n_bins": 6144
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 102.18477339996025,
+ "checks": {
+  "repair_off_reproduces_promoted_schedule": true
+ },
+ "seconds_detail": {
+  "ingest_off": 51.8268654999556,
+  "ingest_on": 50.35790790000465
+ },
+ "seconds_wall_row": 103.44,
+ "measured_at": "2026-09-30"
+}

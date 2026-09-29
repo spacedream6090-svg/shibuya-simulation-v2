@@ -1,0 +1,32 @@
+{
+ "key": "W10#6",
+ "control": "車線別線音源+交通量の車線等分(宣言)vs 車道中心の 1 線源(全交通量)",
+ "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+ "variants": [
+  {
+   "name": "中心 1 線源",
+   "jsd_bits": 0.0008101079768062422,
+   "null_p95": 0.001774917408448474,
+   "detected": false,
+   "tvd": 0.022927575883296143,
+   "n_declared": 713464.0,
+   "n_control": 713464.0,
+   "n_bins": 4168,
+   "share_points_stage_changed_day": 0.03555330051691466,
+   "share_points_stage_changed_night": 0.0362653196236951
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 10.204547600005753,
+ "outputs_changed": [
+  "w10_noise_day.npy",
+  "w10_noise_night.npy",
+  "w10_noise_stage_day.npy",
+  "w10_noise_stage_night.npy"
+ ],
+ "notes": [],
+ "seconds_wall_row": 12.43,
+ "measured_at": "2026-09-30"
+}

@@ -1,0 +1,42 @@
+{
+ "key": "W8#5",
+ "control": "DEM 範囲外=端の値でクランプ(宣言)vs 範囲外を欠損=基準面 GROUND0 15.18 m で埋める",
+ "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+ "variants": [
+  {
+   "name": "範囲外=GROUND0: (セル,対象)→見えている視点数",
+   "jsd_bits": 0.01217533878021837,
+   "null_p95": 0.003298782022654004,
+   "detected": true,
+   "tvd": 0.02229189753713305,
+   "n_declared": 4943303.0,
+   "n_control": 4977383.0,
+   "n_bins": 44599,
+   "jaccard_pairs": 0.9652234355030381
+  },
+  {
+   "name": "範囲外=GROUND0: 視点あたり可視数の分布(参考・w8_t1 はエンジンが読まない)",
+   "jsd_bits": 0.00032553299125157595,
+   "null_p95": 0.0001451758938727284,
+   "detected": true,
+   "tvd": 0.014512294944103693,
+   "n_declared": 356732.0,
+   "n_control": 356732.0,
+   "n_bins": 117,
+   "primary": false
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 1.4391062000067905,
+ "outputs_changed": [
+  "w8_t1.parquet",
+  "w8_t1_cell.parquet",
+  "w8_t2.npy",
+  "w8_targets.parquet"
+ ],
+ "notes": [],
+ "seconds_wall_row": 19.52,
+ "measured_at": "2026-09-30"
+}
