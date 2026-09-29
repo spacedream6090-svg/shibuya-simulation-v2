@@ -823,6 +823,21 @@ def main(argv: list[str] | None = None) -> int:
         help="--policy classical の事前分布の地域(kanto=関東大都市圏・既定/national=全国)",
     )
     ap.add_argument(
+        "--classical-social",
+        choices=("acquaintance", "near_first"),
+        default="acquaintance",
+        help="第2波 §2A 項 3-1(Q42): --policy classical の交際・付き合いの相手。acquaintance=B5 近接行の知人"
+             "(関係辺の相手)のうち活性 A が最大の人・居なければ待つ(既定・関係 off では会話を始めない)/"
+             "near_first=旧(近接行の最初の人=見知らぬ人)",
+    )
+    ap.add_argument(
+        "--meal-gate",
+        choices=("per_wake", "per_hour"),
+        default="per_wake",
+        help="第2波 §2A 項 4(Q48): --policy classical の食事の門の確率の読み方。per_wake=起床ごと(既定=旧)/"
+             "per_hour=1 時間あたりと読み前回の門からの経過分で換算(既定の切り替えは食事の束の版上げで確認)",
+    )
+    ap.add_argument(
         "--classical-habit-p",
         type=float,
         default=HABIT_P,
@@ -937,6 +952,14 @@ def main(argv: list[str] | None = None) -> int:
         help="D-120 7c: B5 の想起で店の行を候補にする入口(既定 all=全入口・conversation=会話だけ=感度腕)",
     )
     ap.add_argument(
+        "--wom-source",
+        choices=("utterance", "reason-target"),
+        default="utterance",
+        help="第2波 §2A 項 1(Q57): 口コミの抽出の源。utterance=発話の欄(ひと言)だけ(既定・いまの語彙 v3 には"
+             "ひと言欄が無い=抽出 0)/ reason-target=旧(v3 で理由欄+対象欄=本人の内心が聞き手に漏れる欠陥・"
+             "旧の再現用)。--store-memory on のときだけ効く",
+    )
+    ap.add_argument(
         "--relations",
         choices=("off", "on"),
         default="off",
@@ -945,14 +968,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     ap.add_argument("--rel-k", type=int, default=15, metavar="K",
                     help="関係辺の数(既定 15・感度 5/50)")
-    ap.add_argument("--rel-tau", type=float, default=-2.346, metavar="TAU",
-                    help="辺として残る A の閾値 τ_rel(既定 −2.346=n を共在の日数で数えた全母集団の逆算・感度 ±0.5)")
+    ap.add_argument("--rel-tau", type=float, default=None, metavar="TAU",
+                    help="辺として残る A の閾値 τ_rel(既定=--rel-tenure-hash の版ごとの全母集団の逆算: v2 −2.322・"
+                         "v1 −2.346・感度 ±0.5)")
     ap.add_argument("--rel-d", type=float, default=0.5, metavar="D",
                     help="関係辺の A の減衰 d(既定 0.5=記憶と同じ・感度 0.25/0.75)")
     ap.add_argument("--rel-init-density", type=float, choices=(0.5, 1.0, 2.0), default=1.0,
                     help="初期網の密度の腕(0.5=共在が中央値以上・1.0=共在 > 0・2.0=共在 0 の組も入れる)")
     ap.add_argument("--rel-tenure-weeks", type=float, default=13.0, metavar="W",
                     help="C10 8b(Q89/Q90): 初期辺の在職期間 T_uv の上限[週](既定 13・感度 26)")
+    ap.add_argument("--rel-tenure-hash", choices=("v2", "v1"), default="v2",
+                    help="第2波 §2A 項 2: 初期辺の在職期間のハッシュ。v2=同点の順のハッシュと独立(既定)/ v1=旧"
+                         "(同点の多い組で在職の短い相手ほど選ばれる欠陥・旧 golden の再現用)")
     ap.add_argument("--rel-invite", choices=("off", "on"), default="on",
                     help="C10 8b: 名指しの無い会話の相手を関係辺の重み(5 人 40%%・10 人 20%%・残り 40%%)で引く"
                          "(--relations on のときだけ効く・既定 on)")
@@ -1129,6 +1156,8 @@ def main(argv: list[str] | None = None) -> int:
         chooser=str(args.chooser),
         policy=str(args.policy),
         activity_region=str(args.activity_region),
+        classical_social=str(args.classical_social),
+        meal_gate=str(args.meal_gate),
         classical_habit_p=float(args.classical_habit_p),
         classical_tau=float(args.classical_tau),
         poi_target=str(args.poi_target),
@@ -1142,13 +1171,15 @@ def main(argv: list[str] | None = None) -> int:
         store_wom=str(args.store_wom),
         store_signage=str(args.store_signage),
         store_recall_scope=str(args.store_recall_scope),
+        wom_source=str(args.wom_source),
         relations=str(args.relations),
         rel_k=int(args.rel_k),
-        rel_tau=float(args.rel_tau),
+        rel_tau=(float(args.rel_tau) if args.rel_tau is not None else None),
         rel_d=float(args.rel_d),
         rel_init_density=float(args.rel_init_density),
         conv_max_participants=int(args.conv_max_participants),
         rel_tenure_weeks=float(args.rel_tenure_weeks),
+        rel_tenure_hash=str(args.rel_tenure_hash),
         rel_invite=str(args.rel_invite),
         rel_acq_wake=str(args.rel_acq_wake),
         rel_copresent=str(args.rel_copresent),

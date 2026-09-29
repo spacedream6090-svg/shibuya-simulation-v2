@@ -134,9 +134,18 @@ def test_normalize_and_boundaries_and_store_like_words():
     r = e.extract(W.normalize_v0("松屋と日高屋に行った"), 1)
     assert r.pois == (5,) and r.unmatched == ("日高屋",)
     assert "渋谷区役所" not in e.keys and "一蘭" in e.keys and "コメダ珈琲" in e.keys
-    assert W.WOM_TEXT_FIELDS == {"v1": ("comment",), "v2": ("comment",), "v3": ("reason", "target")}
-    assert e.utterance_text("v3", comment="x", reason="松屋が良かった", target="なし") == "松屋が良かった"
+    # 第2波 §2A 項 1: 既定の源=発話の欄(ひと言)だけ・旧 reason-target=v3 で理由+対象
+    assert W.WOM_TEXT_FIELDS == {"v1": ("comment",), "v2": ("comment",), "v3": ("comment",)}
+    assert W.WOM_TEXT_FIELDS_BY_SOURCE["reason-target"] == {
+        "v1": ("comment",), "v2": ("comment",), "v3": ("reason", "target")}
+    assert e.source == "utterance"
+    assert e.utterance_text("v3", comment="x", reason="松屋が良かった", target="なし") == "x"
     assert e.utterance_text("v2", comment="一蘭おすすめ", reason="松屋", target="天狗") == "一蘭おすすめ"
+    old = W.WomExtractor(NAMES, CATS, CELLS, DIST, source="reason-target")
+    assert old.utterance_text("v3", comment="x", reason="松屋が良かった", target="なし") == "松屋が良かった"
+    assert old.utterance_text("v2", comment="一蘭おすすめ", reason="松屋", target="天狗") == "一蘭おすすめ"
+    with pytest.raises(ValueError):
+        W.WomExtractor(NAMES, CATS, CELLS, DIST, source="reason")
 
 
 def test_words_inside_a_store_name_are_not_valence_words():
@@ -189,6 +198,29 @@ def test_queue_success_is_valence_zero_q77():
     assert lay.store.stats["events:self:valence0"] == 1 and lay.store.stats["events:self:valence+1"] == 1
 
 
+def test_reason_only_store_name_does_not_leak_to_listener_by_default():
+    """第2波 §2A 項 1 (i)(ii): 理由欄(内心)にだけ店名がある v3 の応答 → 既定では聞き手の店の行が増えない・
+    旧(reason-target)では増える(Q57 の確認の記録 §1-2 の行: 一蘭・向き −1・伝聞)。"""
+    for source, want in (("utterance", 0), ("reason-target", 1)):
+        a = table()
+        lay = M.MemoryLayer(3, 32, minutes_per_tick=1.0)
+        st = lay.enable_store()
+        e = W.WomExtractor(NAMES, CATS, CELLS, DIST, source=source)
+        # v3 のパース結果: ひと言欄は無い(「なし」)・理由=内心・対象=相手
+        text = e.utterance_text("v3", comment="なし", reason="一蘭が混んでいたので別の店を探す", target="P-1")
+        r = e.extract(text, 0)
+        assert W.hear(st, a, 10, 1, r) == want
+        assert int(np.count_nonzero(a.sm_poi[1] >= 0)) == want
+        assert (a.sm_poi[0] == -1).all()                                   # 話し手の行は書かない
+        if want:
+            j = int(np.flatnonzero(a.sm_poi[1] == 0)[0])
+            assert r.pois == (0,) and r.valence == -1
+            assert int(a.sm_source[1, j]) == SM.STORE_SOURCE_BIT["wom"]
+            assert float(a.sm_valence[1, j]) == pytest.approx(-0.25)
+        else:
+            assert text == "" and r.pois == ()
+
+
 # ================================================================= (d) ラン
 class _TalkingLLM:
     """会話の呼(wake_class 0)の理由欄に店名と評価語を書く mock の包み(テスト用)。"""
@@ -237,12 +269,30 @@ def test_default_has_no_wom_and_mock_extracts_nothing():
     assert w["store_rows_with_wom"] == 0
 
 
-def test_a_talking_llm_writes_word_of_mouth_rows_for_listeners_only():
+def test_a_reason_writing_llm_leaks_nothing_by_default():
+    """第2波 §2A 項 1 (i): 理由欄に店名と評価語を書く LLM でも、既定(utterance)は抽出 0・伝聞の行 0。"""
     _real_world_or_skip()
     from shibuya import cli
     from shibuya.engine.run import _default_mock
 
-    kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", memory="on")
+    kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", store_memory="on")
+    on = cli.run(llm=_TalkingLLM(_default_mock(1, "v3"), "スターバックス"), **kw)
+    w = on.run_manifest_fields()["wom"]
+    assert w["source"] == "utterance" and w["text_fields"]["v3"] == ["comment"]
+    assert w["counts"]["utterances"] > 0 and w["counts"].get("wom_extracted", 0) == 0
+    assert w["store_rows_with_wom"] == 0 and w["store_events_wom"] == 0
+    r = on.agents.registry
+    assert int(np.count_nonzero(r.sm_source & SM.STORE_SOURCE_BIT["wom"])) == 0
+
+
+def test_a_talking_llm_writes_word_of_mouth_rows_for_listeners_only():
+    """旧の源(``wom_source="reason-target"``)で第297 の挙動を再現する(第2波 §2A 項 1 (ii))。"""
+    _real_world_or_skip()
+    from shibuya import cli
+    from shibuya.engine.run import _default_mock
+
+    kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", memory="on",
+              wom_source="reason-target")
     base = cli.run(llm=_TalkingLLM(_default_mock(1, "v3"), "スターバックス"), **kw)
     mp = pytest.MonkeyPatch()
     mp.setattr(AgentState, "state_hash", lambda self: self.registry.state_hash(exclude=STORE_MEMORY_FIELDS))
@@ -252,6 +302,7 @@ def test_a_talking_llm_writes_word_of_mouth_rows_for_listeners_only():
         mp.undo()
     assert on.final_hash == base.final_hash and on.llm_calls == base.llm_calls  # 書くだけ
     w = on.run_manifest_fields()["wom"]
+    assert w["source"] == "reason-target" and w["text_fields"]["v3"] == ["reason", "target"]
     assert w["counts"]["wom_extracted"] == w["counts"]["utterances"] > 0
     assert w["counts"]["wom_valence+1"] == w["counts"]["wom_extracted"]
     assert set(w["top_pois"]) == {"スターバックス"} and w["store_rows_with_wom"] > 0
@@ -270,3 +321,14 @@ def test_extraction_is_per_call_string_work():
     """P4: 抽出は呼ごとの文字列処理(体数に比例するループを書かない)=宣言が本文にある。"""
     src = (SRC / "engine/wom.py").read_text(encoding="utf-8")
     assert "逐次ループ宣言" in src and "呼数比例" in src
+
+
+def test_wom_source_switch_is_checked_and_on_the_cli():
+    """第2波 §2A 項 1: ``--wom-source {utterance,reason-target}``(既定 utterance)・誤りは ValueError。"""
+    from shibuya.engine.run import run_day
+
+    with pytest.raises(ValueError):
+        run_day(n_agents=10, ticks=2, memory="on", store_memory="on", wom_source="reason")
+    text = (SRC / "cli.py").read_text(encoding="utf-8")
+    assert '"--wom-source"' in text and 'choices=("utterance", "reason-target")' in text
+    assert W.DEFAULT_WOM_SOURCE == "utterance" and W.WOM_SOURCES == ("utterance", "reason-target")

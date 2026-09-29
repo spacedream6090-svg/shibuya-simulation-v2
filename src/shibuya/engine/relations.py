@@ -81,6 +81,11 @@ __all__ = [
     "REL_KIND_NAMES",
     "REL_D",
     "REL_TAU",
+    "REL_TAU_V1",
+    "REL_TAU_BY_TENURE_HASH",
+    "REL_TENURE_HASHES",
+    "DEFAULT_REL_TENURE_HASH",
+    "check_rel_tenure_hash",
     "REL_S",
     "REL_TENURE_WEEKS",
     "REL_SLOT_MIN",
@@ -117,12 +122,28 @@ REL_D: Final[float] = 0.5
 #: 切り下げて **−2.346**(=ラン開始時に中央 15 本が残る値・感度 ±0.5)。8a の −1.1(A が 13 段の階段)・8b の 0.704
 #: (n を 15 分枠で数えた=会話 1 回の辺と単位が違った)は置き換え。過程と τ の曲線は記録
 #: ``docs/bench/analysis/c10-relations-2026-09-28/`` §8b′。
-REL_TAU: Final[float] = -2.346
+REL_TAU_V1: Final[float] = -2.346
+#: 第2波 §2A 項 2(Q111 の解析で見つかった欠陥の修正): 在職期間の U を同点の順のハッシュと独立にした(``v2``)
+#: うえで、8b′ と同じ手順(全母集団・``initial_edges(tau=None)``・ラン開始時の「体ごとの 15 番目の辺の A」の
+#: 中央値を小数 3 桁で切り下げ)で再逆算した値。値と手順は記録 ``docs/bench/analysis/wave2-2026-09-30/`` §2A-2。
+REL_TAU_V2: Final[float] = -2.322
+#: 在職期間のハッシュの版 → 既定の τ_rel(``v1``=旧=−2.346 のまま・``v2``=修正後の再逆算)。
+REL_TAU_BY_TENURE_HASH: Final[dict[str, float]] = {"v2": REL_TAU_V2, "v1": REL_TAU_V1}
+#: 既定の τ_rel(既定の在職期間ハッシュ ``v2`` の値)。
+REL_TAU: Final[float] = REL_TAU_V2
 #: 強さ P のロジスティックの幅(M17 の宣言と同じ)。
 REL_S: Final[float] = 0.25
 #: 初期辺の**在職期間 T_uv の上限**[週](第299 Q89/Q90): 辺ごとに組の hash で 1〜13 週に一様に散らす
 #: (expedient・感度腕 26 週)。n=共在のあった日数/週 × T_uv(第300 訂正=1 日 1 本)・first=−T_uv。
 REL_TENURE_WEEKS: Final[float] = 13.0
+#: 在職期間 T_uv のハッシュの版(第2波 §2A 項 2)。``v2``(既定)=同点の順のハッシュ ``_pair_mix(元 id_u, 元 id_v)``
+#: と独立な混ぜ合わせ(向きのない組の ``_pair_mix`` にもう 1 段 splitmix64 を塩つきでかける)/ ``v1``=旧
+#: (``_pair_mix(min, max)``=元 id_u < 元 id_v の辺で同点の順と同じ値=同点の多い組で在職の短い相手ほど選ばれる欠陥・
+#: 旧 golden の再現用)。
+REL_TENURE_HASHES: Final[tuple[str, ...]] = ("v2", "v1")
+DEFAULT_REL_TENURE_HASH: Final[str] = "v2"
+#: v2 の塩(未リサーチ=expedient・値そのものに意味はない=黄金比の 64 bit 表現と異なる定数なら何でもよい)。
+_TENURE_SALT_V2: Final[int] = 0xD1B54A32D192ED03
 #: 共在を数える時間の枠[分](週 7 日 × 96 枠)。
 REL_SLOT_MIN: Final[int] = 15
 #: 1 辺の実バイト(4+1+1+4+4+2)と宣言バイト(同じ)。
@@ -337,24 +358,56 @@ def _weekly64(weekly: Any) -> Any:
     )
 
 
-def _tenure_weeks(src_u: np.ndarray, src_v: np.ndarray, tenure_weeks: float) -> np.ndarray:
-    """辺の在職期間 T_uv[週]=1 + (上限 − 1) × U(組)。U=元 id の**向きのない組**の混ぜ合わせ(u→v と v→u で同じ)。"""
+def check_rel_tenure_hash(version: str) -> str:
+    """``--rel-tenure-hash`` の値を検める。"""
+    if str(version) not in REL_TENURE_HASHES:
+        raise ValueError(f"rel_tenure_hash は {REL_TENURE_HASHES} のどれか(いま {version!r})")
+    return str(version)
+
+
+def _splitmix64(x: np.ndarray) -> np.ndarray:
+    """uint64 → uint64(splitmix64 の 1 段=加算と仕上げ・全単射)。"""
+    with np.errstate(over="ignore"):
+        z = np.asarray(x, dtype=np.uint64) + np.uint64(0x9E3779B97F4A7C15)
+        z = (z ^ (z >> np.uint64(30))) * np.uint64(0xBF58476D1CE4E5B9)
+        z = (z ^ (z >> np.uint64(27))) * np.uint64(0x94D049BB133111EB)
+        z ^= z >> np.uint64(31)
+    return z
+
+
+def _tenure_unit(src_u: np.ndarray, src_v: np.ndarray, version: str = DEFAULT_REL_TENURE_HASH) -> np.ndarray:
+    """在職期間の U ∈ [0, 1)(元 id の**向きのない組**の混ぜ合わせ=u→v と v→u で同じ)。
+
+    ``v1``(旧)= ``_pair_mix(min, max)``。元 id_u < 元 id_v の辺では同点の順(``_pair_mix(元 id_u, 元 id_v)``)と
+    同じ値になる=欠陥(第2波 §2A 項 2)。``v2`` = その値に塩を排他的論理和してから splitmix64 をもう 1 段
+    (全単射の非線形の混ぜ=同点の順との順位相関が消える)。
+    """
     lo = np.minimum(src_u, src_v)
     hi = np.maximum(src_u, src_v)
     x = _pair_mix(lo, hi)
-    unit = (x >> np.uint64(11)).astype(np.float64) / float(1 << 53)  # [0, 1)
+    if check_rel_tenure_hash(version) == "v2":
+        x = _splitmix64(x ^ np.uint64(_TENURE_SALT_V2))
+    return (x >> np.uint64(11)).astype(np.float64) / float(1 << 53)  # [0, 1)
+
+
+def _tenure_weeks(src_u: np.ndarray, src_v: np.ndarray, tenure_weeks: float,
+                  version: str = DEFAULT_REL_TENURE_HASH) -> np.ndarray:
+    """辺の在職期間 T_uv[週]=1 + (上限 − 1) × U(組)。U=:func:`_tenure_unit`(u→v と v→u で同じ)。"""
+    unit = _tenure_unit(src_u, src_v, version)
     return 1.0 + (float(tenure_weeks) - 1.0) * unit
 
 
 def initial_edges(pop: Any, weekly: Any, n_agents: int, *, k: int = REL_K, day_index: int = 0,
                   density: float = 1.0, minutes_per_tick: float = 1.0, d: float = REL_D,
                   tau: float | None = REL_TAU, tiebreak: str = "hash",
-                  tenure_weeks: float = REL_TENURE_WEEKS) -> InitialEdges:
+                  tenure_weeks: float = REL_TENURE_WEEKS,
+                  tenure_hash: str = DEFAULT_REL_TENURE_HASH) -> InitialEdges:
     """W16(世帯・組織・学校セル)+W17(共在)→ 初期辺(有向・体ごとに上位 k − 世帯)。
 
     ``tau`` が数なら A ≥ τ の辺だけ返す(``None`` なら全部=τ の逆算に使う)。逐次ループ宣言 1。
     ``tiebreak``: 共在の分が同じ相手の順(:data:`REL_TIEBREAKS`・既定 ``hash``)。
     ``tenure_weeks``: 在職期間 T_uv の上限[週](第299 Q89/Q90・既定 13・感度 26)。
+    ``tenure_hash``: 在職期間のハッシュの版(:data:`REL_TENURE_HASHES`・既定 ``v2``=同点の順と独立・``v1``=旧)。
     """
     if not (math.isfinite(float(tenure_weeks)) and float(tenure_weeks) >= 1.0):
         raise ValueError(f"tenure_weeks は 1 以上(いま {tenure_weeks})")
@@ -362,9 +415,11 @@ def initial_edges(pop: Any, weekly: Any, n_agents: int, *, k: int = REL_K, day_i
         raise ValueError(f"rel_init_density は {REL_INIT_DENSITIES} のどれか(いま {density})")
     if tiebreak not in REL_TIEBREAKS:
         raise ValueError(f"tiebreak は {REL_TIEBREAKS} のどれか(いま {tiebreak!r})")
+    check_rel_tenure_hash(tenure_hash)
     m = min(int(n_agents), int(pop.n))
     audit: dict[str, Any] = {"density": float(density), "k": int(k), "slot_minutes": REL_SLOT_MIN,
-                             "tiebreak": str(tiebreak), "tenure_weeks": float(tenure_weeks)}
+                             "tiebreak": str(tiebreak), "tenure_weeks": float(tenure_weeks),
+                             "tenure_hash": str(tenure_hash)}
     empty = np.zeros(0, dtype=np.int64)
     if m == 0 or weekly is None:
         audit["reason"] = "no_population_or_schedule"
@@ -464,7 +519,7 @@ def initial_edges(pop: Any, weekly: Any, n_agents: int, *, k: int = REL_K, day_i
     audit["capped_out"] = int(np.count_nonzero(~cap))
     u, v, kind, mn, bk = u[cap], v[cap], kind[cap], mn[cap], bk[cap]
     # 第299 Q89/Q90+第300 訂正: 在職期間 T_uv(組の hash で 1〜上限 週)・n=共在のあった日数/週 × T_uv・first=−T_uv
-    tw = _tenure_weeks(src_id[u], src_id[v], float(tenure_weeks))
+    tw = _tenure_weeks(src_id[u], src_id[v], float(tenure_weeks), str(tenure_hash))
     n = np.minimum(65_535, np.round(bk * tw)).astype(np.int64)
     n = np.maximum(n, 1)
     first = -np.round(tw * 7.0 * 1440.0 / float(minutes_per_tick)).astype(np.int64)

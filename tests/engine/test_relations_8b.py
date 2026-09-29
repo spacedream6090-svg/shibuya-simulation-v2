@@ -259,15 +259,20 @@ def test_classical_near_strangers_and_rest_pick_is_hashed():
 
 # ================================================================= (h) 在職期間と τ
 def test_default_tau_is_the_rederived_value_and_a_single_talk_lives_hours():
-    """第300 訂正(8b′): n=共在の日数で再逆算した τ=−2.346。会話 1 回の辺(n=1)は約 7 時間生きる。"""
-    assert RL.REL_TAU == pytest.approx(-2.346)
+    """第300 訂正(8b′): n=共在の日数で再逆算した τ=−2.346(旧=在職期間ハッシュ v1)。第2波 §2A 項 2: 在職期間の
+    ハッシュを直した v2(既定)で同じ手順で再逆算した τ=−2.322。会話 1 回の辺(n=1)はどちらでも約 7 時間生きる
+    (v1 7.3 時間・v2 6.9 時間)。"""
+    assert RL.REL_TAU_V1 == pytest.approx(-2.346) and RL.REL_TAU_V2 == pytest.approx(-2.322)
+    assert RL.REL_TAU == RL.REL_TAU_V2 and RL.DEFAULT_REL_TENURE_HASH == "v2"
+    assert RL.REL_TAU_BY_TENURE_HASH == {"v2": RL.REL_TAU_V2, "v1": RL.REL_TAU_V1}
     assert RL.REL_TENURE_WEEKS == 13.0
-    a = table()
-    lay, rel = layer(a, tau=RL.REL_TAU)
-    talk(lay, a, 100, 0, 1)
-    assert rel.edges(a, 0, 100).partner.tolist() == [1]          # ln 2 ≥ τ(会話 1 回で知人になる)
-    assert rel.edges(a, 0, 100 + 6 * 60).partner.tolist() == [1]   # 6 時間後もまだ
-    assert rel.edges(a, 0, 100 + 8 * 60).partner.size == 0          # 8 時間後には τ を下回る(約 7.3 時間)
+    for tau in (RL.REL_TAU_V1, RL.REL_TAU_V2):
+        a = table()
+        lay, rel = layer(a, tau=tau)
+        talk(lay, a, 100, 0, 1)
+        assert rel.edges(a, 0, 100).partner.tolist() == [1]          # ln 2 ≥ τ(会話 1 回で知人になる)
+        assert rel.edges(a, 0, 100 + 6 * 60).partner.tolist() == [1]   # 6 時間後もまだ
+        assert rel.edges(a, 0, 100 + 8 * 60).partner.size == 0          # 8 時間後には τ を下回る
 
 
 def test_copresence_days_counts_weekdays_with_any_shared_slot():

@@ -82,7 +82,7 @@ from shibuya.engine.activity import ActivityLayer, payload_of
 from shibuya.engine.intent import INTENT_MAX_TICKS, IntentLayer
 from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES, FamiliarityLayer
 from shibuya.engine.memory import MEMORY_MODES, MEMORY_N, RECALL_TAU, MemoryLayer
-from shibuya.engine.wom import WomExtractor
+from shibuya.engine.wom import DEFAULT_WOM_SOURCE, WomExtractor, check_wom_source
 from shibuya.engine.store_choice import StoreChoice
 from shibuya.engine.store_choice import walk_m_per_tick as _walk_m_per_tick
 from shibuya.engine.memory import STORE_RECALL_SCOPES
@@ -92,9 +92,11 @@ from shibuya.engine.relations import (
     REL_K,
     REL_MODES,
     REL_ORIGINS,
-    REL_TAU,
     REL_TENURE_WEEKS,
     initial_edges as _rel_initial_edges,
+    DEFAULT_REL_TENURE_HASH,
+    REL_TAU_BY_TENURE_HASH,
+    check_rel_tenure_hash,
 )
 from shibuya.engine.wom import hear as wom_hear
 from shibuya.engine.store_memory import (
@@ -129,10 +131,14 @@ from shibuya.engine.chooser import (
 )
 from shibuya.engine.classical import (
     DEFAULT_ACTIVITY_REGION,
+    DEFAULT_CLASSICAL_SOCIAL,
+    DEFAULT_MEAL_GATE,
     DEFAULT_POLICY,
     ActivityPrior,
     ClassicalPolicy,
     check_activity_region,
+    check_classical_social,
+    check_meal_gate,
     check_policy,
     day_kind_of,
     load_activity_prior,
@@ -1523,6 +1529,25 @@ def _pending_extra(res: Any) -> tuple[int, int, Any, Any]:
     )
 
 
+def classical_acq_addressable(agents: Any, aid: int, ids: "list[int]", A: np.ndarray, *,
+                               by_distance: bool) -> np.ndarray:
+    """第2波 §2A 項 3-1(検収後): 古典の交際の候補の A から、話しかけられない相手(会話中・就寝中=
+    ``resolve._UNADDRESSABLE``)と、このランの設定で会話が届かない相手(``resolve.talk_within_reach`` が偽)を
+    −inf にする(``resolve._apply_talk`` が PARTNER_BUSY/PARTNER_GONE で落とす相手を先に除く)。
+
+    逐次ループ宣言(P4): なし(近接行の人数ぶんの配列演算)。
+    """
+    A = np.asarray(A, dtype=np.float64)
+    if A.size == 0:
+        return A
+    p = np.asarray(ids, dtype=np.int64)
+    ok = (p >= 0) & (p < agents.n) & (p != int(aid))
+    pc = np.clip(p, 0, max(0, agents.n - 1))
+    ok &= ~np.isin(np.asarray(agents.registry.activity)[pc], R._UNADDRESSABLE)
+    ok &= R.talk_within_reach(agents, np.full(p.size, int(aid), dtype=np.int64), pc, by_distance=by_distance)
+    return np.where(ok, A, -np.inf)
+
+
 def run_day(
     n_agents: int = 5_000,
     seed: int | str = 1,
@@ -1595,6 +1620,8 @@ def run_day(
     energy_rate: str = DEFAULT_ENERGY_RATE,
     policy: str = DEFAULT_POLICY,
     activity_region: str = DEFAULT_ACTIVITY_REGION,
+    classical_social: str = DEFAULT_CLASSICAL_SOCIAL,
+    meal_gate: str = DEFAULT_MEAL_GATE,
     classical_habit_p: float = HABIT_P,
     classical_tau: float = RANK_TAU,
     p_see_activity: "Mapping[str, float] | str | None" = None,
@@ -1608,13 +1635,15 @@ def run_day(
     store_wom: bool | str = True,
     store_signage: bool | str = True,
     store_recall_scope: str = "all",
+    wom_source: str = DEFAULT_WOM_SOURCE,
     relations: bool | str = False,
     rel_k: int = REL_K,
-    rel_tau: float = REL_TAU,
+    rel_tau: float | None = None,
     rel_d: float = REL_D,
     rel_init_density: float = 1.0,
     conv_max_participants: int = 2,
     rel_tenure_weeks: float = REL_TENURE_WEEKS,
+    rel_tenure_hash: str = DEFAULT_REL_TENURE_HASH,
     rel_invite: bool | str = True,
     rel_acq_wake: bool | str = True,
     rel_copresent: bool | str = False,
@@ -1859,6 +1888,13 @@ def run_day(
             (``engine.classical.ClassicalPolicy``・語彙 v3 だけ)。既定 ``"mock"``=凍結の mock
             (**既定 checkpoint 不変**)。``llm`` の注入・再生・艦隊とは併用できない。
         activity_region: 事前分布の地域(``"kanto"``=関東大都市圏・既定 / ``"national"``=全国)。
+        classical_social: **第2波 §2A 項 3-1(Q42 (b))** 方策 classical の交際・付き合い(符号 18)の相手。
+            ``"acquaintance"``(既定)=B5 近接行の知人(生きている関係辺の相手)のうち A が最大の人・居なければ
+            「なし・待つ」(関係 off のランでは会話を始めない)/ ``"near_first"``=旧(近接行の最初の人=見知らぬ人・
+            関係 on は C10 8b の重みつき抽選)。``policy="classical"`` のときだけ効く。
+        meal_gate: **第2波 §2A 項 4(Q48 (a))** 方策 classical の食事の門の確率の読み方。``"per_wake"``(**既定**=旧・
+            起床ごと)/ ``"per_hour"``=1 時間あたりと読み、前回の門からの経過分で換算(体ごとに前回の門の tick
+            4 B/体)。既定の切り替えは食事の束の版上げで確認する(指示書 §8-2)。
         classical_habit_p / classical_tau: ``chooser="classical"`` の習慣の確率 p_h(宣言 0.5)と
             満足化の揺らぎ τ(宣言 1.0)。
         p_see_activity: **5 段目 5c(D-117・M1 (a)・M2 (b)・M4 (a))**。看板の注視ゲート p_see に掛ける
@@ -1886,15 +1922,22 @@ def run_day(
         store_wom / store_signage: **D-120 7c(N8 の腕)**。口コミ(7b の聞き手への転写)と看板(N2 (iii))の
             書き手を使うか(既定 どちらも on・``"on"``/``"off"`` か bool)。店の記憶 on のランだけ効く。
         store_recall_scope: 7c: B5 の想起で店の行を候補にする入口(``all`` 既定・``conversation``=会話だけ=感度腕)。
+        wom_source: **第2波 §2A 項 1(Q57 の確認)** 口コミの抽出の源。``"utterance"``(既定)=発話の欄(ひと言)だけ
+            (いまの語彙 v3 にはひと言欄が無い=抽出 0)/ ``"reason-target"``=旧(v3 で理由欄+対象欄=内心が聞き手に
+            漏れる欠陥・旧 golden の再現用)。店の記憶 on のランだけ効く。manifest ``wom.source``。
         relations: **C10 8a(関係辺)**。``True``/``"on"`` で体 × k 辺の関係の表(``AgentState(relation_columns=
             True)``・16 B/辺)を確保し、W16+W17 の機械的初期化と、記憶のエピソード(会話・手伝い)から辺を書く
             (``engine.relations``)。B5 近接行の「知人」の印に結線する(v1.4)。**``memory`` が on のランでだけ**。
             既定 ``False``=表を確保しない=**既定 checkpoint 不変**。
-        rel_k / rel_tau / rel_d / rel_init_density: 辺の数(既定 15・感度 5/50)・閾値 τ_rel(既定 −2.346=8b′ の再逆算・感度
+        rel_k / rel_tau / rel_d / rel_init_density: 辺の数(既定 15・感度 5/50)・閾値 τ_rel(既定 None=``rel_tenure_hash`` の版ごとの再逆算 v2 −2.322 / v1 −2.346・感度
             ±0.5)・減衰 d(既定 0.5・感度 0.25/0.75)・初期網の密度の腕(0.5/1.0/2.0)。
         conv_max_participants: **C10 8a(D-93 (d))の 3 人会話の口**。3 なら会話中の相手に話しかけた体が
             そのセッションに加わる(``talk_partner``=名指しした相手=主相手・参加者はセッション表)。既定 2=不変。
         rel_tenure_weeks: C10 8b(第299 Q89/Q90): 初期辺の在職期間 T_uv の上限[週](既定 13・感度 26)。
+        rel_tenure_hash: **第2波 §2A 項 2** 初期辺の在職期間のハッシュの版。``"v2"``(既定)=同点の順のハッシュと
+            独立な混ぜ合わせ / ``"v1"``=旧(元 id_u < 元 id_v の辺で同点の順と同じ値=在職の短い相手ほど選ばれる欠陥)。
+            ``rel_tau`` を渡さない(``None``)ときの τ_rel は版ごとの再逆算値(``REL_TAU_BY_TENURE_HASH``: v2 −2.322・
+            v1 −2.346=旧)。関係 on のランだけ効く。
         rel_invite / rel_acq_wake / rel_copresent: **C10 8b**(``relations`` が on のランだけ効く)。
             ``rel_invite``(既定 on)=名指しの無い会話の相手を関係辺の重み(内側 5 人 40%・次の 10 人 20%・残り
             40%・居る層で再正規化)+seed つき乱択で引く・2 m 内の知人を第一候補(偶然)・classical 方策の相手も
@@ -1998,6 +2041,9 @@ def run_day(
         raise ValueError("relations は memory='on' のランでだけ使える(書き手がエピソードの書き手に乗る)")
     if int(rel_k) < 1:
         raise ValueError(f"rel_k は 1 以上(いま {rel_k})")
+    rel_tenure_hash = check_rel_tenure_hash(rel_tenure_hash)
+    if rel_tau is None:  # 第2波 §2A 項 2: 既定の τ は在職期間ハッシュの版ごとの再逆算値
+        rel_tau = REL_TAU_BY_TENURE_HASH[rel_tenure_hash]
     if not (0.0 < float(rel_d) < 1.0) or not np.isfinite(float(rel_tau)):
         raise ValueError(f"rel_d は 0〜1・rel_tau は有限(いま d={rel_d}・τ={rel_tau})")
     if float(rel_init_density) not in REL_INIT_DENSITIES:
@@ -2012,6 +2058,7 @@ def run_day(
     if not (np.isfinite(float(rel_tenure_weeks)) and float(rel_tenure_weeks) >= 1.0):
         raise ValueError(f"rel_tenure_weeks は 1 以上(いま {rel_tenure_weeks})")
     store_wom_on = _onoff(store_wom, "store_wom")
+    wom_source = check_wom_source(wom_source)
     store_signage_on = _onoff(store_signage, "store_signage")
     if str(store_recall_scope) not in STORE_RECALL_SCOPES:
         raise ValueError(f"store_recall_scope は {STORE_RECALL_SCOPES} のどれか(いま {store_recall_scope!r})")
@@ -2026,6 +2073,8 @@ def run_day(
     # ---- 5 段目 5b: 方策と事前分布の地域(値の検査は世界を触る前) ----
     policy = check_policy(policy)
     activity_region = check_activity_region(activity_region)
+    classical_social = check_classical_social(classical_social)
+    meal_gate = check_meal_gate(meal_gate)
     if policy == "classical":
         if llm is not None:
             raise ValueError("policy='classical' と llm の注入は併用できない")
@@ -2071,6 +2120,8 @@ def run_day(
             seed=seed,
             prior=ActivityPrior(_prior_doc, day_kind_of(day_index), activity_region),
             prior_md5=_prior_md5,
+            social=classical_social,
+            meal_gate=meal_gate,
         )
         llm = classical_policy
     llm = llm if llm is not None else _default_mock(
@@ -2467,13 +2518,25 @@ def run_day(
         _init = _rel_initial_edges(
             pop, weekly, n_agents, k=int(rel_k), day_index=int(day_index), density=float(rel_init_density),
             minutes_per_tick=float(tick_seconds) / 60.0, d=float(rel_d), tau=float(rel_tau),
-            tenure_weeks=float(rel_tenure_weeks),
+            tenure_weeks=float(rel_tenure_weeks), tenure_hash=str(rel_tenure_hash),
         ) if pop is not None else None
         if _init is not None:
             rel_layer.seed_initial(agents, _init)
             rel_layer.init_audit["init_seconds_nondeterministic"] = round(time.perf_counter() - _t_rel, 3)
         if _fam_renderer is not None and hasattr(_fam_renderer, "acquaintance_fn"):
             _fam_renderer.acquaintance_fn = lambda i_, t_: rel_layer.acquaintances(agents, i_, t_)
+        if classical_policy is not None:
+            def _classical_acq(aid_: int, tick_: int, ids_: list[int]) -> np.ndarray:
+                # 第2波 §2A 項 3-1: 近接行の人 → 生きている辺の A(辺が無い/τ 未満は −inf)。
+                # 検収後: 話しかけられない相手(会話中・就寝中=resolve._UNADDRESSABLE)と、このランの設定で会話が
+                # 届かない相手(talk_within_reach が偽)も −inf(resolve._apply_talk が PARTNER_BUSY/GONE で落とす相手)。
+                # 逐次ループ宣言: 近接行の人数ぶん(≤ 数人)× 呼数=呼ごとの小さな表引き
+                e_ = rel_layer.edges(agents, int(aid_), int(tick_))
+                lut_ = dict(zip(e_.partner.tolist(), e_.A.tolist()))
+                A_ = np.asarray([lut_.get(int(p_), -np.inf) for p_ in ids_], dtype=np.float64)
+                return classical_acq_addressable(agents, int(aid_), ids_, A_, by_distance=attention_on)
+
+            classical_policy.acq_fn = _classical_acq
         # ---- C10 8b: 会話の起点と相手選択・知人出現の起床・同席(腕) ----
         if rel_invite_on:
             rel_layer.enable_invite(salt)
@@ -2505,7 +2568,9 @@ def run_day(
         _fam_renderer.session_partner_fn = _session_partners
     # ---- D-120 7b: 会話からの抽出(店名の辞書=W6 の店・評価語の辞書 v0・呼数 0) ----
     wom_ex: WomExtractor | None = (
-        WomExtractor.from_world(world) if mem_layer is not None and mem_layer.store is not None else None
+        WomExtractor.from_world(world, source=wom_source)
+        if mem_layer is not None and mem_layer.store is not None
+        else None
     )
     if _fam_renderer is not None and hasattr(_fam_renderer, "memory_recall"):
         _fam_renderer.memory_recall = (
@@ -2519,7 +2584,7 @@ def run_day(
         """会話ターンの発話 1 回(``conv.utterance``)。6a: 記憶の会話の行と要旨(on のときだけ)。
 
         6b(第294 Q57 暫定): 要旨の源=ひと言が空/「なし」なら理由欄の先頭 40 字(語彙 v3)。
-        7b(D-120 N3 (a)): 店の記憶 on のランだけ、発話(v1/v2=ひと言・v3=理由+対象)から店名と評価語を
+        7b(D-120 N3 (a)): 店の記憶 on のランだけ、発話(``wom_source``: 既定=ひと言だけ・旧=v3 で理由+対象)から店名と評価語を
         抽出し、**宛先**(会話の相手=``talk_partner``・セッションの参加者)の店の行へ伝聞として書く。
         """
         partner_before = int(agents.registry.talk_partner[int(agent_id)]) if wom_ex is not None else -1
@@ -2612,6 +2677,8 @@ def run_day(
     # 逐次ループ宣言1: tick 数ぶん
     for tick in range(ticks):
         R.advance_body(agents, tick, energy_layer)
+        if classical_policy is not None:  # 第2波 §2A 項 4: per_hour の門の「範囲内で起きていた分」(他の腕は no-op)
+            classical_policy.accrue_awake()
         # ---- 5 段目 5a(K9 (a)): 範囲外の食事(W17 の食事行の開始・既定の時刻に域外に居る体) ----
         if energy_layer is not None and energy_layer.out_of_area is not None:
             _ea, _es, _ef = energy_layer.out_of_area.due(tick, agents.registry.transit_state)

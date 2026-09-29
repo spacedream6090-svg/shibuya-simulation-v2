@@ -187,8 +187,12 @@ def test_activity_map_v0_location_rules():
     assert pol._respond("05", 1, 0, "", -1)[1] == "なし"
     pol.has_work[1] = True
     assert pol._respond("05", 1, 0, "", -1)[1:3] == ("移動", "職場")
-    # 交際: B5 の近接行の最初の人(自分を除く)・見えなければ なし
+    # 交際(第2波 §2A 項 3-1): 既定 acquaintance=近接行の知人だけ(関係の腕が無い=知人が居ない → なし 待つ)
     prompt = "[B5 近接] 近くの人物: P-3(来街者)、P-0(来街者)。"
+    assert pol.social == "acquaintance"
+    assert pol._respond("18", 3, 0, prompt, -1)[1:4] == ("なし", "なし", "待つ")
+    # 旧 near_first: B5 の近接行の最初の人(自分を除く)・見えなければ なし
+    pol.social = "near_first"
     assert pol._respond("18", 3, 0, prompt, -1)[1:3] == ("会話", "P-0")
     assert pol._respond("18", 3, 0, "", -1)[1] == "なし"
     # 買い物は 物販店(候補の絞り込みと選び手へ)
@@ -246,7 +250,7 @@ def test_cli_exposes_the_5b_flags():
 
     ap = cli.build_parser() if hasattr(cli, "build_parser") else None
     src = (SRC / "cli.py").read_text(encoding="utf-8")
-    for flag in ("--policy", "--activity-region", "--classical-habit-p", "--classical-tau"):
+    for flag in ("--policy", "--activity-region", "--classical-habit-p", "--classical-tau", "--classical-social"):
         assert flag in src
     del ap
 
