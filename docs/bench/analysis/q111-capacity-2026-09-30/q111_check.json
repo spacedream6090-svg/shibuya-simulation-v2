@@ -1,0 +1,68 @@
+{
+ "schema": "shibuya.bench/q111/check/1",
+ "tau": -2.346,
+ "d": 0.5,
+ "units": {
+  "L": "分(= (tick − rel_first) × minutes_per_tick・既定 1 分/tick)",
+  "n": "共在のあった日数(初期辺=日数/週 × 在職週)・ラン中=会話 1 セッション 1・同席 1 日 1",
+  "first": "tick(初期辺は −在職週 × 7 × 1440)"
+ },
+ "hand_cases": [
+  {
+   "case": "会話 1 回の新しい辺 n=1・first=0",
+   "n": 1,
+   "first_min": 0,
+   "A0_hand": 0.693147,
+   "A0_impl": 0.693147,
+   "A0_layer": 0.693147,
+   "life_from_start_min_hand": 435.28,
+   "life_from_start_hours_hand": 7.255,
+   "life_from_start_days_hand": 0.302,
+   "lifetime_days_layer_p50": 0.302,
+   "A_at_floor(life)": -2.345674,
+   "A_at_floor(life)+1": -2.346819,
+   "crosses_tau_there": true,
+   "match": true
+  },
+  {
+   "case": "職場の初期辺 在職 1 週 n=5・first=−10080",
+   "n": 5,
+   "first_min": -10080,
+   "A0_hand": -2.306619,
+   "A0_impl": -2.306619,
+   "A0_layer": -2.306619,
+   "life_from_start_min_hand": 826.11,
+   "life_from_start_hours_hand": 13.769,
+   "life_from_start_days_hand": 0.574,
+   "lifetime_days_layer_p50": 0.574,
+   "A_at_floor(life)": -2.345995,
+   "A_at_floor(life)+1": -2.346041,
+   "crosses_tau_there": true,
+   "match": true
+  },
+  {
+   "case": "職場の初期辺 在職 13 週 n=65・first=−131040(8a の最下段)",
+   "n": 65,
+   "first_min": -131040,
+   "A0_hand": -1.024098,
+   "A0_impl": -1.024098,
+   "A0_layer": -1.024098,
+   "life_from_start_min_hand": 1712260.66,
+   "life_from_start_hours_hand": 28537.678,
+   "life_from_start_days_hand": 1189.07,
+   "lifetime_days_layer_p50": 1189.07,
+   "A_at_floor(life)": -2.346,
+   "A_at_floor(life)+1": -2.346,
+   "crosses_tau_there": true,
+   "match": true
+  }
+ ],
+ "capacity50_writer": {
+  "setup": "体 0 に初期辺 15 本(n=5・在職 1 週)・容量 50・会話(OK)で新しい相手を 1 tick に 1 人",
+  "evictions_after_35": 0,
+  "first_new_partner_that_evicts": 36,
+  "used_slots_after_35": 50,
+  "note": "36 人目で初めて押し出し(いまの規則=A 最小の辺)"
+ },
+ "all_hand_cases_match": true
+}
