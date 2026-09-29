@@ -27,6 +27,7 @@
     python tools/c8/sensitivity.py --run S-W17-RAKE --include-heavy --out docs/bench/c8
     python tools/c8/sensitivity.py --judge-manifest --out docs/bench/c8   # D-44 (a) の一括判定(既存の記録だけ)
     python tools/c8/sensitivity.py --read-graph --out docs/bench/c8       # D-44 (c) 依存グラフ(エンジンが読むか)
+    python tools/c8/sensitivity.py --triage --out docs/bench/c8           # Q146 読む行の 3 分類(自前の構成=未リサーチ)
 
 **D-44 (c) の依存グラフ**(第307): 各構築段の出力ファイルを、エンジン側(``src/shibuya/{engine,perception,agents,
 economy,world}``)の**コードの文字列リテラル**(docstring・式文の文字列は除く=AST)が名指ししているか、下流の構築段が読み
@@ -106,6 +107,10 @@ BUILD_MODULE_STAGE: dict[str, str | None] = {
     "vis/png.py": None, "catalog_freeze.py": None, "run.py": None,
 }
 READ_VERDICTS: tuple[str, ...] = ("reads", "not_read", "unknown")
+#: Q146(第308): 読む行の 3 分類の表(**実装役の自前の構成=未リサーチ**)。
+TRIAGE_PATH = Path(__file__).resolve().parent / "expedient_triage_v1.json"
+TRIAGE_CLASSES: tuple[str, ...] = ("i", "ii", "iii")
+TRIAGE_CLASS_JA: dict[str, str] = {"i": "(i) 構築の再計算", "ii": "(ii) ランが要る", "iii": "(iii) 対照を定義できない"}
 READ_VERDICT_JA: dict[str, str] = {"reads": "エンジンが読む", "not_read": "読まない", "unknown": "不明"}
 
 
@@ -559,6 +564,37 @@ def attach_read_graph(judged: dict[str, Any], graph: Mapping[str, Any]) -> dict[
     return judged
 
 
+def attach_triage(judged: dict[str, Any], triage: Mapping[str, Any]) -> dict[str, Any]:
+    """Q146(第308): エンジンが読む行に ``triage``(3 分類・対照の候補・費用の見込み)を足す(既存の列は変えない)。"""
+    rows_t = triage.get("rows", {})
+    for r in judged["rows"]:
+        if r.get("engine_reads") != "reads":
+            continue
+        tr = rows_t.get(r["key"])
+        if tr is None:
+            continue
+        r["triage"] = {"class": tr["class"], "control": tr["control"],
+                       "cost_seconds_estimate": tr.get("cost_seconds_estimate")}
+    reads = [r for r in judged["rows"] if r.get("engine_reads") == "reads"]
+    tally = {c: sum(1 for r in reads if (r.get("triage") or {}).get("class") == c) for c in TRIAGE_CLASSES}
+    by_stage: dict[str, float] = {}
+    for r in reads:
+        tr = r.get("triage") or {}
+        if tr.get("class") == "i" and tr.get("cost_seconds_estimate") is not None:
+            by_stage[r["stage"]] = max(by_stage.get(r["stage"], 0.0), float(tr["cost_seconds_estimate"]))
+    judged["triage_summary"] = {
+        "note": triage.get("note", ""),
+        "source": "tools/c8/expedient_triage_v1.json",
+        "tally": tally,
+        "n_reads_rows": len(reads),
+        "i_cost_seconds_sum_one_at_a_time": float(sum(
+            float(r["triage"]["cost_seconds_estimate"]) for r in reads
+            if (r.get("triage") or {}).get("class") == "i" and r["triage"].get("cost_seconds_estimate") is not None)),
+        "i_cost_seconds_max_per_stage": {k: by_stage[k] for k in sorted(by_stage, key=lambda s: int(s[1:]))},
+    }
+    return judged
+
+
 # ------------------------------------------------------------------ 台帳
 def validate_ledger(ledger: Mapping[str, Any]) -> list[str]:
     """台帳の自己検査+**設計書との突合(漏れ検出)**。問題の一覧を返す。"""
@@ -592,6 +628,17 @@ def validate_ledger(ledger: Mapping[str, Any]) -> list[str]:
     if have_ab - want_ab:
         problems.append(f"台帳にしかない過程 id {sorted(have_ab - want_ab)}")
     judged = ledger.get("build_manifest_judgment")
+    if judged and judged.get("triage_summary"):  # Q146(第308)
+        reads = [r for r in judged.get("rows", ()) if r.get("engine_reads") == "reads"]
+        for r in judged.get("rows", ()):
+            tr = r.get("triage")
+            if tr is not None and r.get("engine_reads") != "reads":
+                problems.append(f"build_manifest_judgment {r.get('key')}: 読む行でないのに triage")
+            if r.get("engine_reads") == "reads" and (tr is None or tr.get("class") not in TRIAGE_CLASSES):
+                problems.append(f"build_manifest_judgment {r.get('key')}: triage が無いか不正")
+        tt = {c: sum(1 for r in reads if (r.get("triage") or {}).get("class") == c) for c in TRIAGE_CLASSES}
+        if tt != judged["triage_summary"].get("tally"):
+            problems.append("build_manifest_judgment.triage_summary: tally が行と合わない")
     if judged and judged.get("read_graph"):  # D-44 (c)(第307)
         rg = judged["read_graph"]
         for r in judged.get("rows", ()):
@@ -689,6 +736,15 @@ def ledger_markdown(ledger: Mapping[str, Any]) -> str:
                 f"{rg['rule_note']}",
                 f"- 読まない行: {', '.join(rg['not_read_rows']) or 'なし'}。",
             ]
+        ts = judged.get("triage_summary")
+        if ts:  # Q146(第308)
+            tt = ts["tally"]
+            md += [
+                f"- **Q146 読む {ts['n_reads_rows']} 行の 3 分類(第308・実装役の自前の構成=未リサーチ)**: "
+                f"(i) 構築の再計算 **{tt['i']}**・(ii) ランが要る **{tt['ii']}**・(iii) 対照を定義できない **{tt['iii']}**。"
+                f"(i) の費用の見込み(未測): 1 行ずつなら計 {ts['i_cost_seconds_sum_one_at_a_time']:,.0f} 秒・"
+                f"段ごとの最大 {', '.join(f'{k} {v:,.0f}' for k, v in ts['i_cost_seconds_max_per_stage'].items())} 秒。",
+            ]
         md += [
             "",
             c8lib.markdown_table(
@@ -699,8 +755,11 @@ def ledger_markdown(ledger: Mapping[str, Any]) -> str:
                       f"({ {'not_driving': '駆動していない', 'needs_run': 'ラン対照が要る'}.get(str(r.get('existing_verdict')), '未実行')})"
                       if r["verdict"] == "covered" else "") + (
                       f"/{READ_VERDICT_JA[r['engine_reads']]}({r.get('engine_reads_via') or '—'})"
-                      if r.get("engine_reads") else ""),
-                  (r.get("note") or "")[:60] or "—"]
+                      if r.get("engine_reads") else "") + (
+                      f"/{TRIAGE_CLASS_JA[r['triage']['class']]}" if r.get("triage") else ""),
+                  ((r["triage"]["control"][:60] + (f"(〜{r['triage']['cost_seconds_estimate']} 秒)"
+                                                   if r["triage"].get("cost_seconds_estimate") is not None else ""))
+                   if r.get("triage") else (r.get("note") or "")[:60]) or "—"]
                  for r in judged["rows"]],
             ),
         ]
@@ -723,6 +782,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="D-44 (a): build_manifest の expedient 全行を既存の記録だけで判定して台帳へ書く(第306)",
     )
     ap.add_argument("--manifest", default=str(BUILD_MANIFEST_PATH))
+    ap.add_argument(
+        "--triage", action="store_true",
+        help="Q146: 読む行に 3 分類(自前の構成=未リサーチ・tools/c8/expedient_triage_v1.json)を付けて台帳へ書く(第308)",
+    )
     ap.add_argument(
         "--read-graph", action="store_true",
         help="D-44 (c): 依存グラフで判定不能の行に「エンジンが読む/読まない/不明」を付けて台帳へ書く(第307)",
@@ -750,6 +813,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             path.write_text(json.dumps(ledger, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     if args.judge_manifest:
         ledger["build_manifest_judgment"] = build_manifest_verdicts(c8lib.load_json(args.manifest), ledger)
+        if not args.no_write_ledger:
+            path.write_text(json.dumps(ledger, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
+    if args.triage:
+        attach_triage(ledger["build_manifest_judgment"], c8lib.load_json(TRIAGE_PATH))
         if not args.no_write_ledger:
             path.write_text(json.dumps(ledger, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
     if args.read_graph:

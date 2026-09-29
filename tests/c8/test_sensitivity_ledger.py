@@ -298,8 +298,8 @@ def test_manifest_judgment_markdown_has_the_rule_and_the_table(sensitivity, ledg
 def test_manifest_judgment_matches_the_live_manifest(c8lib, sensitivity, ledger, world_dir):
     """台帳の判定列は data/world/v2/build_manifest.json から作り直しても同じ(既存の台帳行の書き出しは 1 行ずつに当たる)。"""
     live = sensitivity.build_manifest_verdicts(c8lib.load_json(world_dir / "build_manifest.json"), ledger)
-    # 第307: 判定不能の行に足した依存グラフの列(engine_reads*)は (c) の列=(a) の判定列の比較からは外す
-    stored = [{k: v for k, v in r.items() if not k.startswith("engine_reads")}
+    # 第307/第308: 判定不能の行に足した依存グラフの列(engine_reads*)と 3 分類(triage)は (a) の判定列の比較からは外す
+    stored = [{k: v for k, v in r.items() if not k.startswith("engine_reads") and k != "triage"}
               for r in ledger["build_manifest_judgment"]["rows"]]
     assert live["rows"] == stored
     assert live["manifest_build_hash"] == ledger["build_manifest_judgment"]["manifest_build_hash"]
@@ -368,3 +368,34 @@ def test_read_graph_matches_the_source(c8lib, sensitivity, ledger, world_dir):
         assert si["verdict"] == stored[st]["verdict"], st
         assert si["engine_sites"] == stored[st]["engine_sites"], st
         assert si["consumers"] == stored[st]["consumers"], st
+
+
+# ------------------------------------------------------------------ Q146 読む行の 3 分類(第308)
+def test_triage_column_is_consistent(c8lib, sensitivity, ledger):
+    """エンジンが読む行だけに 3 分類(i/ii/iii)・対照の候補・費用の見込み。集計と表(未リサーチの明記)が合う。"""
+    j = ledger["build_manifest_judgment"]
+    ts = j["triage_summary"]
+    reads = [r for r in j["rows"] if r.get("engine_reads") == "reads"]
+    assert ts["n_reads_rows"] == len(reads) == 96
+    assert all(r["triage"]["class"] in sensitivity.TRIAGE_CLASSES and r["triage"]["control"] for r in reads)
+    assert all("triage" not in r for r in j["rows"] if r.get("engine_reads") != "reads")
+    assert ts["tally"] == {c: sum(r["triage"]["class"] == c for r in reads) for c in sensitivity.TRIAGE_CLASSES}
+    assert sum(ts["tally"].values()) == 96
+    # (i) だけが費用の見込み(秒)を持つ・合計が合う
+    for r in reads:
+        has_cost = r["triage"]["cost_seconds_estimate"] is not None
+        assert has_cost == (r["triage"]["class"] == "i"), r["key"]
+    assert ts["i_cost_seconds_sum_one_at_a_time"] == sum(
+        r["triage"]["cost_seconds_estimate"] for r in reads if r["triage"]["class"] == "i")
+    assert "未リサーチ" in ts["note"] and "自前" in ts["note"]
+    # 表(tools/c8/expedient_triage_v1.json)は読む行とちょうど同じ鍵
+    table = c8lib.load_json(sensitivity.TRIAGE_PATH)
+    assert set(table["rows"]) == {r["key"] for r in reads}
+    assert not sensitivity.validate_ledger(ledger)
+
+
+def test_triage_validation_catches_bad_rows(sensitivity, ledger):
+    broken = json.loads(json.dumps(ledger))
+    row = next(r for r in broken["build_manifest_judgment"]["rows"] if r.get("triage"))
+    row["triage"]["class"] = "iv"
+    assert any("triage" in p for p in sensitivity.validate_ledger(broken))

@@ -1,0 +1,2025 @@
+{
+ "schema": "shibuya.bench/small-fixes/d107-norms/1",
+ "rows": [
+  {
+   "arm": "mock_v3_default",
+   "args": {
+    "vocab_version": "v3"
+   },
+   "final_hash": "993276d5e5bb5cbe553b7181a481f9abbc66fdc4cc923f244642d36a79422392",
+   "llm_calls": 69978,
+   "group_norms": {
+    "declared": {
+     "cowalk": "同セル ∧ 同じ移動先(MOVING かつ target_node ≥ 0)∧ 距離 ≤2 m が連続 5 分以上(R-36 の同席と同じ粒度)",
+     "place_kinds": "店=在店か列 / 駅=駅出口セル(W11)かホームのセル / 街路=それ以外の在圏(舞台外・乗車中は数えない)",
+     "n_station_cells": 27,
+     "norm_layers": "Bicchieri の 2 層: 経験的期待(文脈別エントロピー・最頻行為の占有率)は測る/規範的期待(逸脱への反応)は機構が無く測れない=**「慣習」と宣言**(規範とは言わない)",
+     "reference": {
+      "moussaid_2010_group_share": [
+       0.55,
+       0.7
+      ]
+     },
+     "judgement": "判定しない(値と照合値を並べるだけ・A1 は holdout)"
+    },
+    "cowalk": {
+     "episodes_5min": 4198,
+     "distinct_pairs_5min": 4182,
+     "cowalk_agent_minutes": 30584,
+     "moving_agent_minutes": 249781,
+     "cowalk_share_of_moving_minutes": 0.122443,
+     "group_size_minutes": {
+      "2": 8426,
+      "3": 2284,
+      "4": 685,
+      "5": 315,
+      "6": 133,
+      "7": 36,
+      "8": 49,
+      "9": 42,
+      "10": 15,
+      "11": 25,
+      "12": 11,
+      "14": 7,
+      "15": 6
+     },
+     "pairs_candidates_max_per_tick": 1166,
+     "ticks_skipped_over_pair_cap": 0
+    },
+    "conversation_group_size_a1": {
+     "2": 205
+    },
+    "context_entropy": {
+     "by_place": {
+      "街路": {
+       "n": 20872,
+       "entropy_bit": 3.5845,
+       "mode_action": "就寝",
+       "mode_share": 0.086
+      },
+      "店": {
+       "n": 4949,
+       "entropy_bit": 3.5845,
+       "mode_action": "なし",
+       "mode_share": 0.0871
+      },
+      "駅": {
+       "n": 44034,
+       "entropy_bit": 3.5848,
+       "mode_action": "なし",
+       "mode_share": 0.0865
+      }
+     },
+     "by_place_hour": [
+      {
+       "place": "街路",
+       "hour": 0,
+       "n": 17,
+       "entropy_bit": 2.6987,
+       "mode_action": "会話",
+       "mode_share": 0.2941
+      },
+      {
+       "place": "街路",
+       "hour": 1,
+       "n": 52,
+       "entropy_bit": 3.3873,
+       "mode_action": "なし",
+       "mode_share": 0.1538
+      },
+      {
+       "place": "街路",
+       "hour": 2,
+       "n": 32,
+       "entropy_bit": 3.3164,
+       "mode_action": "食事",
+       "mode_share": 0.1562
+      },
+      {
+       "place": "街路",
+       "hour": 3,
+       "n": 23,
+       "entropy_bit": 3.2947,
+       "mode_action": "なし",
+       "mode_share": 0.1739
+      },
+      {
+       "place": "街路",
+       "hour": 4,
+       "n": 63,
+       "entropy_bit": 3.5521,
+       "mode_action": "就寝",
+       "mode_share": 0.1111
+      },
+      {
+       "place": "街路",
+       "hour": 5,
+       "n": 74,
+       "entropy_bit": 3.4948,
+       "mode_action": "会話",
+       "mode_share": 0.1486
+      },
+      {
+       "place": "街路",
+       "hour": 6,
+       "n": 274,
+       "entropy_bit": 3.5513,
+       "mode_action": "退去",
+       "mode_share": 0.1314
+      },
+      {
+       "place": "街路",
+       "hour": 7,
+       "n": 786,
+       "entropy_bit": 3.5754,
+       "mode_action": "退去",
+       "mode_share": 0.1056
+      },
+      {
+       "place": "街路",
+       "hour": 8,
+       "n": 1062,
+       "entropy_bit": 3.5748,
+       "mode_action": "なし",
+       "mode_share": 0.1008
+      },
+      {
+       "place": "街路",
+       "hour": 9,
+       "n": 1244,
+       "entropy_bit": 3.5799,
+       "mode_action": "会話",
+       "mode_share": 0.0916
+      },
+      {
+       "place": "街路",
+       "hour": 10,
+       "n": 1057,
+       "entropy_bit": 3.5787,
+       "mode_action": "移動",
+       "mode_share": 0.0956
+      },
+      {
+       "place": "街路",
+       "hour": 11,
+       "n": 1637,
+       "entropy_bit": 3.577,
+       "mode_action": "会話",
+       "mode_share": 0.0971
+      },
+      {
+       "place": "街路",
+       "hour": 12,
+       "n": 1981,
+       "entropy_bit": 3.583,
+       "mode_action": "移動",
+       "mode_share": 0.0899
+      },
+      {
+       "place": "街路",
+       "hour": 13,
+       "n": 1435,
+       "entropy_bit": 3.5777,
+       "mode_action": "断る",
+       "mode_share": 0.0962
+      },
+      {
+       "place": "街路",
+       "hour": 14,
+       "n": 1129,
+       "entropy_bit": 3.5792,
+       "mode_action": "断る",
+       "mode_share": 0.0983
+      },
+      {
+       "place": "街路",
+       "hour": 15,
+       "n": 1061,
+       "entropy_bit": 3.5724,
+       "mode_action": "並ぶ",
+       "mode_share": 0.1056
+      },
+      {
+       "place": "街路",
+       "hour": 16,
+       "n": 1172,
+       "entropy_bit": 3.5798,
+       "mode_action": "就寝",
+       "mode_share": 0.0939
+      },
+      {
+       "place": "街路",
+       "hour": 17,
+       "n": 1305,
+       "entropy_bit": 3.5764,
+       "mode_action": "並ぶ",
+       "mode_share": 0.0966
+      },
+      {
+       "place": "街路",
+       "hour": 18,
+       "n": 1935,
+       "entropy_bit": 3.58,
+       "mode_action": "移動",
+       "mode_share": 0.0956
+      },
+      {
+       "place": "街路",
+       "hour": 19,
+       "n": 1344,
+       "entropy_bit": 3.5812,
+       "mode_action": "会話",
+       "mode_share": 0.0923
+      },
+      {
+       "place": "街路",
+       "hour": 20,
+       "n": 1196,
+       "entropy_bit": 3.5776,
+       "mode_action": "食事",
+       "mode_share": 0.1045
+      },
+      {
+       "place": "街路",
+       "hour": 21,
+       "n": 766,
+       "entropy_bit": 3.563,
+       "mode_action": "購入",
+       "mode_share": 0.1097
+      },
+      {
+       "place": "街路",
+       "hour": 22,
+       "n": 643,
+       "entropy_bit": 3.5707,
+       "mode_action": "乗車",
+       "mode_share": 0.1073
+      },
+      {
+       "place": "街路",
+       "hour": 23,
+       "n": 584,
+       "entropy_bit": 3.5638,
+       "mode_action": "退去",
+       "mode_share": 0.1182
+      },
+      {
+       "place": "店",
+       "hour": 0,
+       "n": 1,
+       "entropy_bit": 0.0,
+       "mode_action": "移動",
+       "mode_share": 1.0
+      },
+      {
+       "place": "店",
+       "hour": 1,
+       "n": 2,
+       "entropy_bit": 1.0,
+       "mode_action": "会話",
+       "mode_share": 0.5
+      },
+      {
+       "place": "店",
+       "hour": 2,
+       "n": 2,
+       "entropy_bit": 1.0,
+       "mode_action": "就寝",
+       "mode_share": 0.5
+      },
+      {
+       "place": "店",
+       "hour": 4,
+       "n": 7,
+       "entropy_bit": 2.8074,
+       "mode_action": "乗車",
+       "mode_share": 0.1429
+      },
+      {
+       "place": "店",
+       "hour": 5,
+       "n": 4,
+       "entropy_bit": 2.0,
+       "mode_action": "通報",
+       "mode_share": 0.25
+      },
+      {
+       "place": "店",
+       "hour": 6,
+       "n": 27,
+       "entropy_bit": 3.3377,
+       "mode_action": "断る",
+       "mode_share": 0.1481
+      },
+      {
+       "place": "店",
+       "hour": 7,
+       "n": 168,
+       "entropy_bit": 3.5265,
+       "mode_action": "乗車",
+       "mode_share": 0.125
+      },
+      {
+       "place": "店",
+       "hour": 8,
+       "n": 294,
+       "entropy_bit": 3.5696,
+       "mode_action": "なし",
+       "mode_share": 0.102
+      },
+      {
+       "place": "店",
+       "hour": 9,
+       "n": 412,
+       "entropy_bit": 3.5703,
+       "mode_action": "乗車",
+       "mode_share": 0.1019
+      },
+      {
+       "place": "店",
+       "hour": 10,
+       "n": 423,
+       "entropy_bit": 3.563,
+       "mode_action": "会話",
+       "mode_share": 0.1064
+      },
+      {
+       "place": "店",
+       "hour": 11,
+       "n": 298,
+       "entropy_bit": 3.5592,
+       "mode_action": "移動",
+       "mode_share": 0.1074
+      },
+      {
+       "place": "店",
+       "hour": 12,
+       "n": 493,
+       "entropy_bit": 3.5753,
+       "mode_action": "乗車",
+       "mode_share": 0.0994
+      },
+      {
+       "place": "店",
+       "hour": 13,
+       "n": 404,
+       "entropy_bit": 3.5534,
+       "mode_action": "移動",
+       "mode_share": 0.1114
+      },
+      {
+       "place": "店",
+       "hour": 14,
+       "n": 297,
+       "entropy_bit": 3.5621,
+       "mode_action": "通報",
+       "mode_share": 0.1246
+      },
+      {
+       "place": "店",
+       "hour": 15,
+       "n": 203,
+       "entropy_bit": 3.5537,
+       "mode_action": "就寝",
+       "mode_share": 0.1232
+      },
+      {
+       "place": "店",
+       "hour": 16,
+       "n": 229,
+       "entropy_bit": 3.5538,
+       "mode_action": "並ぶ",
+       "mode_share": 0.1048
+      },
+      {
+       "place": "店",
+       "hour": 17,
+       "n": 358,
+       "entropy_bit": 3.57,
+       "mode_action": "乗車",
+       "mode_share": 0.1006
+      },
+      {
+       "place": "店",
+       "hour": 18,
+       "n": 499,
+       "entropy_bit": 3.5701,
+       "mode_action": "並ぶ",
+       "mode_share": 0.1062
+      },
+      {
+       "place": "店",
+       "hour": 19,
+       "n": 264,
+       "entropy_bit": 3.5575,
+       "mode_action": "退去",
+       "mode_share": 0.1098
+      },
+      {
+       "place": "店",
+       "hour": 20,
+       "n": 242,
+       "entropy_bit": 3.5451,
+       "mode_action": "通報",
+       "mode_share": 0.1198
+      },
+      {
+       "place": "店",
+       "hour": 21,
+       "n": 138,
+       "entropy_bit": 3.5467,
+       "mode_action": "並ぶ",
+       "mode_share": 0.1159
+      },
+      {
+       "place": "店",
+       "hour": 22,
+       "n": 127,
+       "entropy_bit": 3.4804,
+       "mode_action": "手伝い",
+       "mode_share": 0.1339
+      },
+      {
+       "place": "店",
+       "hour": 23,
+       "n": 57,
+       "entropy_bit": 3.4925,
+       "mode_action": "就寝",
+       "mode_share": 0.1404
+      },
+      {
+       "place": "駅",
+       "hour": 0,
+       "n": 74,
+       "entropy_bit": 3.4763,
+       "mode_action": "断る",
+       "mode_share": 0.1486
+      },
+      {
+       "place": "駅",
+       "hour": 1,
+       "n": 96,
+       "entropy_bit": 3.5104,
+       "mode_action": "会話",
+       "mode_share": 0.1354
+      },
+      {
+       "place": "駅",
+       "hour": 2,
+       "n": 41,
+       "entropy_bit": 3.3821,
+       "mode_action": "退去",
+       "mode_share": 0.1463
+      },
+      {
+       "place": "駅",
+       "hour": 3,
+       "n": 42,
+       "entropy_bit": 3.3584,
+       "mode_action": "移動",
+       "mode_share": 0.2143
+      },
+      {
+       "place": "駅",
+       "hour": 4,
+       "n": 88,
+       "entropy_bit": 3.5309,
+       "mode_action": "購入",
+       "mode_share": 0.1136
+      },
+      {
+       "place": "駅",
+       "hour": 5,
+       "n": 224,
+       "entropy_bit": 3.5426,
+       "mode_action": "購入",
+       "mode_share": 0.125
+      },
+      {
+       "place": "駅",
+       "hour": 6,
+       "n": 756,
+       "entropy_bit": 3.5784,
+       "mode_action": "食事",
+       "mode_share": 0.1005
+      },
+      {
+       "place": "駅",
+       "hour": 7,
+       "n": 2693,
+       "entropy_bit": 3.5827,
+       "mode_action": "退去",
+       "mode_share": 0.0943
+      },
+      {
+       "place": "駅",
+       "hour": 8,
+       "n": 3706,
+       "entropy_bit": 3.5835,
+       "mode_action": "乗車",
+       "mode_share": 0.0893
+      },
+      {
+       "place": "駅",
+       "hour": 9,
+       "n": 4337,
+       "entropy_bit": 3.5826,
+       "mode_action": "なし",
+       "mode_share": 0.0929
+      },
+      {
+       "place": "駅",
+       "hour": 10,
+       "n": 3402,
+       "entropy_bit": 3.5812,
+       "mode_action": "手伝い",
+       "mode_share": 0.0973
+      },
+      {
+       "place": "駅",
+       "hour": 11,
+       "n": 3332,
+       "entropy_bit": 3.5798,
+       "mode_action": "会話",
+       "mode_share": 0.0978
+      },
+      {
+       "place": "駅",
+       "hour": 12,
+       "n": 3943,
+       "entropy_bit": 3.5821,
+       "mode_action": "通報",
+       "mode_share": 0.0928
+      },
+      {
+       "place": "駅",
+       "hour": 13,
+       "n": 2684,
+       "entropy_bit": 3.5813,
+       "mode_action": "手伝い",
+       "mode_share": 0.0935
+      },
+      {
+       "place": "駅",
+       "hour": 14,
+       "n": 2023,
+       "entropy_bit": 3.5815,
+       "mode_action": "なし",
+       "mode_share": 0.0949
+      },
+      {
+       "place": "駅",
+       "hour": 15,
+       "n": 1929,
+       "entropy_bit": 3.5787,
+       "mode_action": "乗車",
+       "mode_share": 0.0918
+      },
+      {
+       "place": "駅",
+       "hour": 16,
+       "n": 1820,
+       "entropy_bit": 3.581,
+       "mode_action": "なし",
+       "mode_share": 0.1
+      },
+      {
+       "place": "駅",
+       "hour": 17,
+       "n": 2295,
+       "entropy_bit": 3.5837,
+       "mode_action": "乗車",
+       "mode_share": 0.0898
+      },
+      {
+       "place": "駅",
+       "hour": 18,
+       "n": 2896,
+       "entropy_bit": 3.5827,
+       "mode_action": "並ぶ",
+       "mode_share": 0.0891
+      },
+      {
+       "place": "駅",
+       "hour": 19,
+       "n": 2214,
+       "entropy_bit": 3.5824,
+       "mode_action": "退去",
+       "mode_share": 0.0903
+      },
+      {
+       "place": "駅",
+       "hour": 20,
+       "n": 2018,
+       "entropy_bit": 3.5805,
+       "mode_action": "通報",
+       "mode_share": 0.0976
+      },
+      {
+       "place": "駅",
+       "hour": 21,
+       "n": 1431,
+       "entropy_bit": 3.5782,
+       "mode_action": "会話",
+       "mode_share": 0.0999
+      },
+      {
+       "place": "駅",
+       "hour": 22,
+       "n": 1133,
+       "entropy_bit": 3.5772,
+       "mode_action": "就寝",
+       "mode_share": 0.0962
+      },
+      {
+       "place": "駅",
+       "hour": 23,
+       "n": 857,
+       "entropy_bit": 3.5773,
+       "mode_action": "退去",
+       "mode_share": 0.1015
+      }
+     ],
+     "actions_counted": 69855,
+     "actions_off_stage": 111
+    },
+    "role_words": {
+     "by_word_result": {},
+     "by_word_kind": {},
+     "no_permission": 0,
+     "role_actions": 0
+    },
+    "propagation": {
+     "signage_exposure": {},
+     "word_of_mouth": {},
+     "salient": {
+      "events": 0,
+      "noticed": 0,
+      "dispatches": 0
+     }
+    }
+   },
+   "meter_seconds_nondeterministic": 0.346,
+   "wall_seconds_nondeterministic": 32.27
+  },
+  {
+   "arm": "classical_v3",
+   "args": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical"
+   },
+   "final_hash": "60e7222783a221c6e3290aa36bed315bcc2e00f6ee685b0dccd2872aebbd11fd",
+   "llm_calls": 102021,
+   "group_norms": {
+    "declared": {
+     "cowalk": "同セル ∧ 同じ移動先(MOVING かつ target_node ≥ 0)∧ 距離 ≤2 m が連続 5 分以上(R-36 の同席と同じ粒度)",
+     "place_kinds": "店=在店か列 / 駅=駅出口セル(W11)かホームのセル / 街路=それ以外の在圏(舞台外・乗車中は数えない)",
+     "n_station_cells": 27,
+     "norm_layers": "Bicchieri の 2 層: 経験的期待(文脈別エントロピー・最頻行為の占有率)は測る/規範的期待(逸脱への反応)は機構が無く測れない=**「慣習」と宣言**(規範とは言わない)",
+     "reference": {
+      "moussaid_2010_group_share": [
+       0.55,
+       0.7
+      ]
+     },
+     "judgement": "判定しない(値と照合値を並べるだけ・A1 は holdout)"
+    },
+    "cowalk": {
+     "episodes_5min": 1681,
+     "distinct_pairs_5min": 1623,
+     "cowalk_agent_minutes": 14205,
+     "moving_agent_minutes": 348202,
+     "cowalk_share_of_moving_minutes": 0.040795,
+     "group_size_minutes": {
+      "2": 5310,
+      "3": 781,
+      "4": 190,
+      "5": 27,
+      "6": 3,
+      "7": 21,
+      "8": 16,
+      "9": 6
+     },
+     "pairs_candidates_max_per_tick": 941,
+     "ticks_skipped_over_pair_cap": 0
+    },
+    "conversation_group_size_a1": {
+     "2": 671
+    },
+    "context_entropy": {
+     "by_place": {
+      "街路": {
+       "n": 60075,
+       "entropy_bit": 1.4967,
+       "mode_action": "なし",
+       "mode_share": 0.6502
+      },
+      "店": {
+       "n": 7626,
+       "entropy_bit": 1.4087,
+       "mode_action": "なし",
+       "mode_share": 0.6715
+      },
+      "駅": {
+       "n": 34162,
+       "entropy_bit": 1.4905,
+       "mode_action": "なし",
+       "mode_share": 0.6132
+      }
+     },
+     "by_place_hour": [
+      {
+       "place": "街路",
+       "hour": 0,
+       "n": 16,
+       "entropy_bit": 1.2476,
+       "mode_action": "就寝",
+       "mode_share": 0.5625
+      },
+      {
+       "place": "街路",
+       "hour": 1,
+       "n": 38,
+       "entropy_bit": 1.9297,
+       "mode_action": "就寝",
+       "mode_share": 0.3158
+      },
+      {
+       "place": "街路",
+       "hour": 2,
+       "n": 30,
+       "entropy_bit": 1.183,
+       "mode_action": "なし",
+       "mode_share": 0.7333
+      },
+      {
+       "place": "街路",
+       "hour": 3,
+       "n": 41,
+       "entropy_bit": 0.9609,
+       "mode_action": "なし",
+       "mode_share": 0.7805
+      },
+      {
+       "place": "街路",
+       "hour": 4,
+       "n": 53,
+       "entropy_bit": 1.5475,
+       "mode_action": "なし",
+       "mode_share": 0.6038
+      },
+      {
+       "place": "街路",
+       "hour": 5,
+       "n": 77,
+       "entropy_bit": 1.6384,
+       "mode_action": "なし",
+       "mode_share": 0.4156
+      },
+      {
+       "place": "街路",
+       "hour": 6,
+       "n": 331,
+       "entropy_bit": 1.6992,
+       "mode_action": "食事",
+       "mode_share": 0.426
+      },
+      {
+       "place": "街路",
+       "hour": 7,
+       "n": 1204,
+       "entropy_bit": 1.7537,
+       "mode_action": "なし",
+       "mode_share": 0.3937
+      },
+      {
+       "place": "街路",
+       "hour": 8,
+       "n": 3306,
+       "entropy_bit": 1.3763,
+       "mode_action": "なし",
+       "mode_share": 0.6518
+      },
+      {
+       "place": "街路",
+       "hour": 9,
+       "n": 4539,
+       "entropy_bit": 1.3468,
+       "mode_action": "なし",
+       "mode_share": 0.6568
+      },
+      {
+       "place": "街路",
+       "hour": 10,
+       "n": 3998,
+       "entropy_bit": 1.3693,
+       "mode_action": "なし",
+       "mode_share": 0.6781
+      },
+      {
+       "place": "街路",
+       "hour": 11,
+       "n": 4571,
+       "entropy_bit": 1.3949,
+       "mode_action": "なし",
+       "mode_share": 0.6788
+      },
+      {
+       "place": "街路",
+       "hour": 12,
+       "n": 4814,
+       "entropy_bit": 1.5383,
+       "mode_action": "なし",
+       "mode_share": 0.641
+      },
+      {
+       "place": "街路",
+       "hour": 13,
+       "n": 4259,
+       "entropy_bit": 1.6032,
+       "mode_action": "なし",
+       "mode_share": 0.5922
+      },
+      {
+       "place": "街路",
+       "hour": 14,
+       "n": 3108,
+       "entropy_bit": 1.5326,
+       "mode_action": "なし",
+       "mode_share": 0.6287
+      },
+      {
+       "place": "街路",
+       "hour": 15,
+       "n": 3076,
+       "entropy_bit": 1.5267,
+       "mode_action": "なし",
+       "mode_share": 0.6258
+      },
+      {
+       "place": "街路",
+       "hour": 16,
+       "n": 3384,
+       "entropy_bit": 1.5348,
+       "mode_action": "なし",
+       "mode_share": 0.6191
+      },
+      {
+       "place": "街路",
+       "hour": 17,
+       "n": 3676,
+       "entropy_bit": 1.5073,
+       "mode_action": "なし",
+       "mode_share": 0.6439
+      },
+      {
+       "place": "街路",
+       "hour": 18,
+       "n": 4816,
+       "entropy_bit": 1.5428,
+       "mode_action": "なし",
+       "mode_share": 0.6316
+      },
+      {
+       "place": "街路",
+       "hour": 19,
+       "n": 4054,
+       "entropy_bit": 1.3824,
+       "mode_action": "なし",
+       "mode_share": 0.7003
+      },
+      {
+       "place": "街路",
+       "hour": 20,
+       "n": 3722,
+       "entropy_bit": 1.2381,
+       "mode_action": "なし",
+       "mode_share": 0.734
+      },
+      {
+       "place": "街路",
+       "hour": 21,
+       "n": 2852,
+       "entropy_bit": 1.2113,
+       "mode_action": "なし",
+       "mode_share": 0.7377
+      },
+      {
+       "place": "街路",
+       "hour": 22,
+       "n": 2298,
+       "entropy_bit": 1.3987,
+       "mode_action": "なし",
+       "mode_share": 0.6819
+      },
+      {
+       "place": "街路",
+       "hour": 23,
+       "n": 1812,
+       "entropy_bit": 1.5231,
+       "mode_action": "なし",
+       "mode_share": 0.6418
+      },
+      {
+       "place": "店",
+       "hour": 0,
+       "n": 3,
+       "entropy_bit": 0.0,
+       "mode_action": "なし",
+       "mode_share": 1.0
+      },
+      {
+       "place": "店",
+       "hour": 1,
+       "n": 9,
+       "entropy_bit": 1.5305,
+       "mode_action": "なし",
+       "mode_share": 0.4444
+      },
+      {
+       "place": "店",
+       "hour": 2,
+       "n": 8,
+       "entropy_bit": 0.5436,
+       "mode_action": "なし",
+       "mode_share": 0.875
+      },
+      {
+       "place": "店",
+       "hour": 4,
+       "n": 3,
+       "entropy_bit": 0.9183,
+       "mode_action": "なし",
+       "mode_share": 0.6667
+      },
+      {
+       "place": "店",
+       "hour": 5,
+       "n": 19,
+       "entropy_bit": 0.9133,
+       "mode_action": "なし",
+       "mode_share": 0.7895
+      },
+      {
+       "place": "店",
+       "hour": 6,
+       "n": 113,
+       "entropy_bit": 1.0658,
+       "mode_action": "なし",
+       "mode_share": 0.7788
+      },
+      {
+       "place": "店",
+       "hour": 7,
+       "n": 590,
+       "entropy_bit": 1.4833,
+       "mode_action": "なし",
+       "mode_share": 0.5695
+      },
+      {
+       "place": "店",
+       "hour": 8,
+       "n": 398,
+       "entropy_bit": 1.3897,
+       "mode_action": "なし",
+       "mode_share": 0.5905
+      },
+      {
+       "place": "店",
+       "hour": 9,
+       "n": 338,
+       "entropy_bit": 1.3201,
+       "mode_action": "なし",
+       "mode_share": 0.6183
+      },
+      {
+       "place": "店",
+       "hour": 10,
+       "n": 518,
+       "entropy_bit": 1.2828,
+       "mode_action": "なし",
+       "mode_share": 0.6583
+      },
+      {
+       "place": "店",
+       "hour": 11,
+       "n": 359,
+       "entropy_bit": 1.4116,
+       "mode_action": "なし",
+       "mode_share": 0.6741
+      },
+      {
+       "place": "店",
+       "hour": 12,
+       "n": 483,
+       "entropy_bit": 1.5206,
+       "mode_action": "なし",
+       "mode_share": 0.6501
+      },
+      {
+       "place": "店",
+       "hour": 13,
+       "n": 544,
+       "entropy_bit": 1.4282,
+       "mode_action": "なし",
+       "mode_share": 0.6654
+      },
+      {
+       "place": "店",
+       "hour": 14,
+       "n": 436,
+       "entropy_bit": 1.377,
+       "mode_action": "なし",
+       "mode_share": 0.6995
+      },
+      {
+       "place": "店",
+       "hour": 15,
+       "n": 402,
+       "entropy_bit": 1.3659,
+       "mode_action": "なし",
+       "mode_share": 0.6741
+      },
+      {
+       "place": "店",
+       "hour": 16,
+       "n": 471,
+       "entropy_bit": 1.378,
+       "mode_action": "なし",
+       "mode_share": 0.6921
+      },
+      {
+       "place": "店",
+       "hour": 17,
+       "n": 563,
+       "entropy_bit": 1.3182,
+       "mode_action": "なし",
+       "mode_share": 0.698
+      },
+      {
+       "place": "店",
+       "hour": 18,
+       "n": 838,
+       "entropy_bit": 1.4388,
+       "mode_action": "なし",
+       "mode_share": 0.6647
+      },
+      {
+       "place": "店",
+       "hour": 19,
+       "n": 613,
+       "entropy_bit": 1.3842,
+       "mode_action": "なし",
+       "mode_share": 0.6982
+      },
+      {
+       "place": "店",
+       "hour": 20,
+       "n": 359,
+       "entropy_bit": 1.1441,
+       "mode_action": "なし",
+       "mode_share": 0.7493
+      },
+      {
+       "place": "店",
+       "hour": 21,
+       "n": 272,
+       "entropy_bit": 1.0973,
+       "mode_action": "なし",
+       "mode_share": 0.7537
+      },
+      {
+       "place": "店",
+       "hour": 22,
+       "n": 197,
+       "entropy_bit": 1.2165,
+       "mode_action": "なし",
+       "mode_share": 0.736
+      },
+      {
+       "place": "店",
+       "hour": 23,
+       "n": 90,
+       "entropy_bit": 1.1358,
+       "mode_action": "なし",
+       "mode_share": 0.7111
+      },
+      {
+       "place": "駅",
+       "hour": 0,
+       "n": 79,
+       "entropy_bit": 0.83,
+       "mode_action": "なし",
+       "mode_share": 0.8481
+      },
+      {
+       "place": "駅",
+       "hour": 1,
+       "n": 165,
+       "entropy_bit": 1.1162,
+       "mode_action": "なし",
+       "mode_share": 0.6364
+      },
+      {
+       "place": "駅",
+       "hour": 2,
+       "n": 98,
+       "entropy_bit": 0.9543,
+       "mode_action": "なし",
+       "mode_share": 0.7449
+      },
+      {
+       "place": "駅",
+       "hour": 3,
+       "n": 106,
+       "entropy_bit": 0.7427,
+       "mode_action": "なし",
+       "mode_share": 0.8302
+      },
+      {
+       "place": "駅",
+       "hour": 4,
+       "n": 147,
+       "entropy_bit": 0.5364,
+       "mode_action": "なし",
+       "mode_share": 0.8776
+      },
+      {
+       "place": "駅",
+       "hour": 5,
+       "n": 296,
+       "entropy_bit": 1.2238,
+       "mode_action": "なし",
+       "mode_share": 0.5642
+      },
+      {
+       "place": "駅",
+       "hour": 6,
+       "n": 909,
+       "entropy_bit": 1.3503,
+       "mode_action": "食事",
+       "mode_share": 0.4587
+      },
+      {
+       "place": "駅",
+       "hour": 7,
+       "n": 2829,
+       "entropy_bit": 1.5392,
+       "mode_action": "なし",
+       "mode_share": 0.4447
+      },
+      {
+       "place": "駅",
+       "hour": 8,
+       "n": 3924,
+       "entropy_bit": 1.3015,
+       "mode_action": "なし",
+       "mode_share": 0.5456
+      },
+      {
+       "place": "駅",
+       "hour": 9,
+       "n": 3841,
+       "entropy_bit": 1.3834,
+       "mode_action": "なし",
+       "mode_share": 0.5821
+      },
+      {
+       "place": "駅",
+       "hour": 10,
+       "n": 2896,
+       "entropy_bit": 1.3537,
+       "mode_action": "なし",
+       "mode_share": 0.6806
+      },
+      {
+       "place": "駅",
+       "hour": 11,
+       "n": 2127,
+       "entropy_bit": 1.2797,
+       "mode_action": "なし",
+       "mode_share": 0.7174
+      },
+      {
+       "place": "駅",
+       "hour": 12,
+       "n": 1848,
+       "entropy_bit": 1.498,
+       "mode_action": "なし",
+       "mode_share": 0.6537
+      },
+      {
+       "place": "駅",
+       "hour": 13,
+       "n": 1626,
+       "entropy_bit": 1.5644,
+       "mode_action": "なし",
+       "mode_share": 0.6101
+      },
+      {
+       "place": "駅",
+       "hour": 14,
+       "n": 1110,
+       "entropy_bit": 1.5619,
+       "mode_action": "なし",
+       "mode_share": 0.6054
+      },
+      {
+       "place": "駅",
+       "hour": 15,
+       "n": 1373,
+       "entropy_bit": 1.5378,
+       "mode_action": "なし",
+       "mode_share": 0.622
+      },
+      {
+       "place": "駅",
+       "hour": 16,
+       "n": 1109,
+       "entropy_bit": 1.6624,
+       "mode_action": "なし",
+       "mode_share": 0.5699
+      },
+      {
+       "place": "駅",
+       "hour": 17,
+       "n": 1403,
+       "entropy_bit": 1.5516,
+       "mode_action": "なし",
+       "mode_share": 0.6044
+      },
+      {
+       "place": "駅",
+       "hour": 18,
+       "n": 1760,
+       "entropy_bit": 1.6397,
+       "mode_action": "なし",
+       "mode_share": 0.5636
+      },
+      {
+       "place": "駅",
+       "hour": 19,
+       "n": 1930,
+       "entropy_bit": 1.5079,
+       "mode_action": "なし",
+       "mode_share": 0.6337
+      },
+      {
+       "place": "駅",
+       "hour": 20,
+       "n": 1669,
+       "entropy_bit": 1.2779,
+       "mode_action": "なし",
+       "mode_share": 0.7076
+      },
+      {
+       "place": "駅",
+       "hour": 21,
+       "n": 1231,
+       "entropy_bit": 1.2641,
+       "mode_action": "なし",
+       "mode_share": 0.7214
+      },
+      {
+       "place": "駅",
+       "hour": 22,
+       "n": 948,
+       "entropy_bit": 1.136,
+       "mode_action": "なし",
+       "mode_share": 0.75
+      },
+      {
+       "place": "駅",
+       "hour": 23,
+       "n": 738,
+       "entropy_bit": 1.0367,
+       "mode_action": "なし",
+       "mode_share": 0.7764
+      }
+     ],
+     "actions_counted": 101863,
+     "actions_off_stage": 124
+    },
+    "role_words": {
+     "by_word_result": {},
+     "by_word_kind": {},
+     "no_permission": 0,
+     "role_actions": 0
+    },
+    "propagation": {
+     "signage_exposure": {},
+     "word_of_mouth": {},
+     "salient": {
+      "events": 0,
+      "noticed": 0,
+      "dispatches": 0
+     }
+    }
+   },
+   "meter_seconds_nondeterministic": 0.328,
+   "wall_seconds_nondeterministic": 47.07
+  },
+  {
+   "arm": "mock_v3_layers_on",
+   "args": {
+    "vocab_version": "v3",
+    "familiarity": "on",
+    "memory": "on",
+    "store_memory": "on",
+    "relations": "on",
+    "salient_rate_per_10k": 30.0
+   },
+   "final_hash": "6516d90d3c9e7d6fd008f108261005d1239d1c62d4b84891b98525ac9adafaed",
+   "llm_calls": 73806,
+   "group_norms": {
+    "declared": {
+     "cowalk": "同セル ∧ 同じ移動先(MOVING かつ target_node ≥ 0)∧ 距離 ≤2 m が連続 5 分以上(R-36 の同席と同じ粒度)",
+     "place_kinds": "店=在店か列 / 駅=駅出口セル(W11)かホームのセル / 街路=それ以外の在圏(舞台外・乗車中は数えない)",
+     "n_station_cells": 27,
+     "norm_layers": "Bicchieri の 2 層: 経験的期待(文脈別エントロピー・最頻行為の占有率)は測る/規範的期待(逸脱への反応)は機構が無く測れない=**「慣習」と宣言**(規範とは言わない)",
+     "reference": {
+      "moussaid_2010_group_share": [
+       0.55,
+       0.7
+      ]
+     },
+     "judgement": "判定しない(値と照合値を並べるだけ・A1 は holdout)"
+    },
+    "cowalk": {
+     "episodes_5min": 4226,
+     "distinct_pairs_5min": 4201,
+     "cowalk_agent_minutes": 29923,
+     "moving_agent_minutes": 247878,
+     "cowalk_share_of_moving_minutes": 0.120717,
+     "group_size_minutes": {
+      "2": 8772,
+      "3": 2163,
+      "4": 643,
+      "5": 223,
+      "6": 142,
+      "7": 50,
+      "8": 56,
+      "9": 6,
+      "10": 13,
+      "11": 9,
+      "12": 16,
+      "13": 6
+     },
+     "pairs_candidates_max_per_tick": 1166,
+     "ticks_skipped_over_pair_cap": 0
+    },
+    "conversation_group_size_a1": {
+     "2": 222
+    },
+    "context_entropy": {
+     "by_place": {
+      "街路": {
+       "n": 21498,
+       "entropy_bit": 3.5847,
+       "mode_action": "並ぶ",
+       "mode_share": 0.0859
+      },
+      "店": {
+       "n": 5441,
+       "entropy_bit": 3.5842,
+       "mode_action": "購入",
+       "mode_share": 0.0886
+      },
+      "駅": {
+       "n": 46717,
+       "entropy_bit": 3.5848,
+       "mode_action": "なし",
+       "mode_share": 0.0855
+      }
+     },
+     "by_place_hour": [
+      {
+       "place": "街路",
+       "hour": 0,
+       "n": 17,
+       "entropy_bit": 2.6987,
+       "mode_action": "会話",
+       "mode_share": 0.2941
+      },
+      {
+       "place": "街路",
+       "hour": 1,
+       "n": 56,
+       "entropy_bit": 3.4114,
+       "mode_action": "なし",
+       "mode_share": 0.1429
+      },
+      {
+       "place": "街路",
+       "hour": 2,
+       "n": 35,
+       "entropy_bit": 3.3072,
+       "mode_action": "食事",
+       "mode_share": 0.1714
+      },
+      {
+       "place": "街路",
+       "hour": 3,
+       "n": 25,
+       "entropy_bit": 3.3835,
+       "mode_action": "断る",
+       "mode_share": 0.16
+      },
+      {
+       "place": "街路",
+       "hour": 4,
+       "n": 70,
+       "entropy_bit": 3.5178,
+       "mode_action": "退去",
+       "mode_share": 0.1143
+      },
+      {
+       "place": "街路",
+       "hour": 5,
+       "n": 83,
+       "entropy_bit": 3.4993,
+       "mode_action": "会話",
+       "mode_share": 0.1446
+      },
+      {
+       "place": "街路",
+       "hour": 6,
+       "n": 274,
+       "entropy_bit": 3.5544,
+       "mode_action": "退去",
+       "mode_share": 0.1314
+      },
+      {
+       "place": "街路",
+       "hour": 7,
+       "n": 791,
+       "entropy_bit": 3.5766,
+       "mode_action": "退去",
+       "mode_share": 0.1062
+      },
+      {
+       "place": "街路",
+       "hour": 8,
+       "n": 1064,
+       "entropy_bit": 3.5773,
+       "mode_action": "なし",
+       "mode_share": 0.0996
+      },
+      {
+       "place": "街路",
+       "hour": 9,
+       "n": 1275,
+       "entropy_bit": 3.5792,
+       "mode_action": "通報",
+       "mode_share": 0.0996
+      },
+      {
+       "place": "街路",
+       "hour": 10,
+       "n": 1131,
+       "entropy_bit": 3.58,
+       "mode_action": "断る",
+       "mode_share": 0.092
+      },
+      {
+       "place": "街路",
+       "hour": 11,
+       "n": 1663,
+       "entropy_bit": 3.5807,
+       "mode_action": "乗車",
+       "mode_share": 0.0926
+      },
+      {
+       "place": "街路",
+       "hour": 12,
+       "n": 2006,
+       "entropy_bit": 3.5829,
+       "mode_action": "食事",
+       "mode_share": 0.0897
+      },
+      {
+       "place": "街路",
+       "hour": 13,
+       "n": 1460,
+       "entropy_bit": 3.5797,
+       "mode_action": "退去",
+       "mode_share": 0.0952
+      },
+      {
+       "place": "街路",
+       "hour": 14,
+       "n": 1263,
+       "entropy_bit": 3.5824,
+       "mode_action": "なし",
+       "mode_share": 0.0934
+      },
+      {
+       "place": "街路",
+       "hour": 15,
+       "n": 1130,
+       "entropy_bit": 3.5772,
+       "mode_action": "並ぶ",
+       "mode_share": 0.1035
+      },
+      {
+       "place": "街路",
+       "hour": 16,
+       "n": 1164,
+       "entropy_bit": 3.5835,
+       "mode_action": "乗車",
+       "mode_share": 0.0885
+      },
+      {
+       "place": "街路",
+       "hour": 17,
+       "n": 1364,
+       "entropy_bit": 3.578,
+       "mode_action": "並ぶ",
+       "mode_share": 0.0938
+      },
+      {
+       "place": "街路",
+       "hour": 18,
+       "n": 1980,
+       "entropy_bit": 3.5811,
+       "mode_action": "会話",
+       "mode_share": 0.0934
+      },
+      {
+       "place": "街路",
+       "hour": 19,
+       "n": 1365,
+       "entropy_bit": 3.5801,
+       "mode_action": "断る",
+       "mode_share": 0.0952
+      },
+      {
+       "place": "街路",
+       "hour": 20,
+       "n": 1199,
+       "entropy_bit": 3.5809,
+       "mode_action": "並ぶ",
+       "mode_share": 0.0967
+      },
+      {
+       "place": "街路",
+       "hour": 21,
+       "n": 846,
+       "entropy_bit": 3.568,
+       "mode_action": "断る",
+       "mode_share": 0.1052
+      },
+      {
+       "place": "街路",
+       "hour": 22,
+       "n": 669,
+       "entropy_bit": 3.5619,
+       "mode_action": "乗車",
+       "mode_share": 0.1106
+      },
+      {
+       "place": "街路",
+       "hour": 23,
+       "n": 568,
+       "entropy_bit": 3.5735,
+       "mode_action": "手伝い",
+       "mode_share": 0.1039
+      },
+      {
+       "place": "店",
+       "hour": 0,
+       "n": 1,
+       "entropy_bit": 0.0,
+       "mode_action": "移動",
+       "mode_share": 1.0
+      },
+      {
+       "place": "店",
+       "hour": 1,
+       "n": 8,
+       "entropy_bit": 2.25,
+       "mode_action": "会話",
+       "mode_share": 0.25
+      },
+      {
+       "place": "店",
+       "hour": 2,
+       "n": 3,
+       "entropy_bit": 0.9183,
+       "mode_action": "なし",
+       "mode_share": 0.6667
+      },
+      {
+       "place": "店",
+       "hour": 3,
+       "n": 1,
+       "entropy_bit": 0.0,
+       "mode_action": "会話",
+       "mode_share": 1.0
+      },
+      {
+       "place": "店",
+       "hour": 4,
+       "n": 8,
+       "entropy_bit": 3.0,
+       "mode_action": "移動",
+       "mode_share": 0.125
+      },
+      {
+       "place": "店",
+       "hour": 5,
+       "n": 4,
+       "entropy_bit": 2.0,
+       "mode_action": "通報",
+       "mode_share": 0.25
+      },
+      {
+       "place": "店",
+       "hour": 6,
+       "n": 29,
+       "entropy_bit": 3.3576,
+       "mode_action": "通報",
+       "mode_share": 0.1379
+      },
+      {
+       "place": "店",
+       "hour": 7,
+       "n": 177,
+       "entropy_bit": 3.5179,
+       "mode_action": "乗車",
+       "mode_share": 0.1186
+      },
+      {
+       "place": "店",
+       "hour": 8,
+       "n": 315,
+       "entropy_bit": 3.5697,
+       "mode_action": "手伝い",
+       "mode_share": 0.1111
+      },
+      {
+       "place": "店",
+       "hour": 9,
+       "n": 464,
+       "entropy_bit": 3.5628,
+       "mode_action": "なし",
+       "mode_share": 0.1099
+      },
+      {
+       "place": "店",
+       "hour": 10,
+       "n": 439,
+       "entropy_bit": 3.5538,
+       "mode_action": "購入",
+       "mode_share": 0.1116
+      },
+      {
+       "place": "店",
+       "hour": 11,
+       "n": 398,
+       "entropy_bit": 3.5636,
+       "mode_action": "通報",
+       "mode_share": 0.1156
+      },
+      {
+       "place": "店",
+       "hour": 12,
+       "n": 607,
+       "entropy_bit": 3.5776,
+       "mode_action": "乗車",
+       "mode_share": 0.0956
+      },
+      {
+       "place": "店",
+       "hour": 13,
+       "n": 504,
+       "entropy_bit": 3.5797,
+       "mode_action": "移動",
+       "mode_share": 0.0992
+      },
+      {
+       "place": "店",
+       "hour": 14,
+       "n": 379,
+       "entropy_bit": 3.5737,
+       "mode_action": "購入",
+       "mode_share": 0.1003
+      },
+      {
+       "place": "店",
+       "hour": 15,
+       "n": 281,
+       "entropy_bit": 3.561,
+       "mode_action": "食事",
+       "mode_share": 0.1103
+      },
+      {
+       "place": "店",
+       "hour": 16,
+       "n": 218,
+       "entropy_bit": 3.5698,
+       "mode_action": "就寝",
+       "mode_share": 0.1009
+      },
+      {
+       "place": "店",
+       "hour": 17,
+       "n": 350,
+       "entropy_bit": 3.5549,
+       "mode_action": "断る",
+       "mode_share": 0.1114
+      },
+      {
+       "place": "店",
+       "hour": 18,
+       "n": 435,
+       "entropy_bit": 3.5718,
+       "mode_action": "並ぶ",
+       "mode_share": 0.0989
+      },
+      {
+       "place": "店",
+       "hour": 19,
+       "n": 266,
+       "entropy_bit": 3.5298,
+       "mode_action": "会話",
+       "mode_share": 0.1203
+      },
+      {
+       "place": "店",
+       "hour": 20,
+       "n": 255,
+       "entropy_bit": 3.5632,
+       "mode_action": "通報",
+       "mode_share": 0.102
+      },
+      {
+       "place": "店",
+       "hour": 21,
+       "n": 145,
+       "entropy_bit": 3.5553,
+       "mode_action": "就寝",
+       "mode_share": 0.1172
+      },
+      {
+       "place": "店",
+       "hour": 22,
+       "n": 93,
+       "entropy_bit": 3.4072,
+       "mode_action": "手伝い",
+       "mode_share": 0.1613
+      },
+      {
+       "place": "店",
+       "hour": 23,
+       "n": 61,
+       "entropy_bit": 3.403,
+       "mode_action": "会話",
+       "mode_share": 0.1639
+      },
+      {
+       "place": "駅",
+       "hour": 0,
+       "n": 74,
+       "entropy_bit": 3.4763,
+       "mode_action": "断る",
+       "mode_share": 0.1486
+      },
+      {
+       "place": "駅",
+       "hour": 1,
+       "n": 119,
+       "entropy_bit": 3.505,
+       "mode_action": "会話",
+       "mode_share": 0.1429
+      },
+      {
+       "place": "駅",
+       "hour": 2,
+       "n": 59,
+       "entropy_bit": 3.5221,
+       "mode_action": "食事",
+       "mode_share": 0.1186
+      },
+      {
+       "place": "駅",
+       "hour": 3,
+       "n": 56,
+       "entropy_bit": 3.3906,
+       "mode_action": "移動",
+       "mode_share": 0.1964
+      },
+      {
+       "place": "駅",
+       "hour": 4,
+       "n": 94,
+       "entropy_bit": 3.5488,
+       "mode_action": "購入",
+       "mode_share": 0.1064
+      },
+      {
+       "place": "駅",
+       "hour": 5,
+       "n": 223,
+       "entropy_bit": 3.5427,
+       "mode_action": "購入",
+       "mode_share": 0.1256
+      },
+      {
+       "place": "駅",
+       "hour": 6,
+       "n": 782,
+       "entropy_bit": 3.5757,
+       "mode_action": "食事",
+       "mode_share": 0.1074
+      },
+      {
+       "place": "駅",
+       "hour": 7,
+       "n": 2765,
+       "entropy_bit": 3.5832,
+       "mode_action": "退去",
+       "mode_share": 0.0922
+      },
+      {
+       "place": "駅",
+       "hour": 8,
+       "n": 3916,
+       "entropy_bit": 3.5834,
+       "mode_action": "乗車",
+       "mode_share": 0.0909
+      },
+      {
+       "place": "駅",
+       "hour": 9,
+       "n": 4540,
+       "entropy_bit": 3.5819,
+       "mode_action": "なし",
+       "mode_share": 0.0938
+      },
+      {
+       "place": "駅",
+       "hour": 10,
+       "n": 3646,
+       "entropy_bit": 3.5817,
+       "mode_action": "なし",
+       "mode_share": 0.0946
+      },
+      {
+       "place": "駅",
+       "hour": 11,
+       "n": 3558,
+       "entropy_bit": 3.5816,
+       "mode_action": "会話",
+       "mode_share": 0.0927
+      },
+      {
+       "place": "駅",
+       "hour": 12,
+       "n": 4259,
+       "entropy_bit": 3.5832,
+       "mode_action": "通報",
+       "mode_share": 0.0937
+      },
+      {
+       "place": "駅",
+       "hour": 13,
+       "n": 2805,
+       "entropy_bit": 3.5815,
+       "mode_action": "就寝",
+       "mode_share": 0.0923
+      },
+      {
+       "place": "駅",
+       "hour": 14,
+       "n": 2294,
+       "entropy_bit": 3.5835,
+       "mode_action": "食事",
+       "mode_share": 0.0902
+      },
+      {
+       "place": "駅",
+       "hour": 15,
+       "n": 2113,
+       "entropy_bit": 3.5809,
+       "mode_action": "退去",
+       "mode_share": 0.0913
+      },
+      {
+       "place": "駅",
+       "hour": 16,
+       "n": 1971,
+       "entropy_bit": 3.5809,
+       "mode_action": "なし",
+       "mode_share": 0.0939
+      },
+      {
+       "place": "駅",
+       "hour": 17,
+       "n": 2478,
+       "entropy_bit": 3.5833,
+       "mode_action": "乗車",
+       "mode_share": 0.0908
+      },
+      {
+       "place": "駅",
+       "hour": 18,
+       "n": 3154,
+       "entropy_bit": 3.5823,
+       "mode_action": "就寝",
+       "mode_share": 0.0913
+      },
+      {
+       "place": "駅",
+       "hour": 19,
+       "n": 2291,
+       "entropy_bit": 3.5823,
+       "mode_action": "食事",
+       "mode_share": 0.0917
+      },
+      {
+       "place": "駅",
+       "hour": 20,
+       "n": 2084,
+       "entropy_bit": 3.5827,
+       "mode_action": "食事",
+       "mode_share": 0.0907
+      },
+      {
+       "place": "駅",
+       "hour": 21,
+       "n": 1491,
+       "entropy_bit": 3.5818,
+       "mode_action": "手伝い",
+       "mode_share": 0.0959
+      },
+      {
+       "place": "駅",
+       "hour": 22,
+       "n": 1052,
+       "entropy_bit": 3.5764,
+       "mode_action": "食事",
+       "mode_share": 0.1027
+      },
+      {
+       "place": "駅",
+       "hour": 23,
+       "n": 893,
+       "entropy_bit": 3.577,
+       "mode_action": "並ぶ",
+       "mode_share": 0.1019
+      }
+     ],
+     "actions_counted": 73656,
+     "actions_off_stage": 131
+    },
+    "role_words": {
+     "by_word_result": {},
+     "by_word_kind": {},
+     "no_permission": 0,
+     "role_actions": 0
+    },
+    "propagation": {
+     "signage_exposure": {
+      "exposures_place": 88898,
+      "exposures_signage_entry": 85189,
+      "exposures_signage_entry_by_kind:0": 55116,
+      "exposures_signage_entry_by_kind:1": 15839,
+      "exposures_signage_entry_by_kind:2": 2705,
+      "exposures_signage_entry_by_kind:3": 11529,
+      "exposures_signage_entry_dedup": 2821,
+      "exposures_signage_render": 73246,
+      "exposures_per_agent": {
+       "p0": 0.0,
+       "p10": 11.0,
+       "p50": 43.0,
+       "p90": 95.0,
+       "p100": 238.0,
+       "mean": 49.022
+      },
+      "exposures_signage_entry_by_kind": {
+       "in_place": 11529,
+       "move_to": 55116,
+       "wander": 15839,
+       "in_shop": 2705
+      }
+     },
+     "word_of_mouth": {
+      "utterances": 1038,
+      "extracted_share": 0.0,
+      "store_rows_with_wom": 0,
+      "store_events_wom": 0
+     },
+     "salient": {
+      "events": 27,
+      "noticed": 736,
+      "dispatches": 14
+     }
+    }
+   },
+   "meter_seconds_nondeterministic": 0.372,
+   "wall_seconds_nondeterministic": 55.75
+  }
+ ]
+}

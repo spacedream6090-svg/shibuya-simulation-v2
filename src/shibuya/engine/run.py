@@ -667,6 +667,8 @@ class RunResult:
     leave_effects: dict[str, int] = field(default_factory=dict)
     #: 小さいもの①(第300 Q107): B5 近接行の距離の同点の切り方と、撹拌で切った描画の数(列追加のみ)。
     near_tiebreak: dict[str, Any] = field(default_factory=dict)
+    #: 第308 D-107 (a): 群・規範の計器(同行・文脈別エントロピー・役割語/NO_PERMISSION・伝播到達=読むだけ)。
+    group_norms: dict[str, Any] = field(default_factory=dict)
     #: D-66 域外抑止を効かせたか(既定 True)。False = **帰無腕**。
     outside_suppression: bool = True
     #: **発射した呼**のうち域外(``transit_state != 0``)の体宛てだった延べ数。
@@ -1024,6 +1026,8 @@ class RunResult:
             "presence_exit": dict(self.presence_exit),
             "leave_effects": dict(self.leave_effects),
             "near_tiebreak": dict(self.near_tiebreak),
+            # ---- 第308 D-107 (a): 群・規範の計器(列追加のみ・判定しない) ----
+            "group_norms": dict(self.group_norms),
             # ---- 第304 Q135 (a): 廃棄 sink の内訳と店だけの帯(列追加のみ・報告だけ) ----
             "waste_sink": dict(self.waste_sink),
             "attendance_rate": float(self.attendance_rate),
@@ -2544,6 +2548,13 @@ def run_day(
     result.money_start = int(agents.registry.money.astype(np.int64).sum())
     #: D-71 §3 J: 行動コード別の適用件数(``ResolveOutcome.per_action`` のラン合計)。
     per_action_total: dict[int, int] = {}
+    # 第308 D-107 (a): 群・規範の計器(**読むだけ**=状態・乱数・テープに触れない)
+    from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE as _AWBC
+    from shibuya.engine.norm_meter import GroupNormMeter, role_code_table
+
+    norm_meter = GroupNormMeter(agents, world, role_codes=role_code_table(vocab_version),
+                                code_words=_AWBC, tick_seconds=int(tick_seconds),
+                                process_assets=getattr(runner, "assets", None) if runner is not None else None)
     # 在圏 journal(C7 受入計器 tools/c7・holdout 照合の入力)。既定 0=書かない(状態・診断・テープに影響なし)。
     occ_ticks: list[int] = []
     occ_counts: list[np.ndarray] = []
@@ -2674,6 +2685,7 @@ def run_day(
                     (due[int(i)][8] for i in order), dtype=np.int64, count=order.size
                 )
                 agents_in_order = ag[order]
+                norm_meter.observe_actions(tick, agents_in_order, codes)  # 第308 D-107 (a)(読むだけ)
                 # 二層の段 2: 活動(v3 の応答だけ)と「あたり」の行き先
                 payloads = [due[int(i)][9] for i in order]
                 # 段 2a: 対象(``Target``)=購入/食事/並ぶの候補の絞り込みが読む
@@ -3191,6 +3203,7 @@ def run_day(
             track_events=mem_layer is not None,
         )
         phase["phase_c"] += time.perf_counter() - t0
+        norm_meter.observe_results(tick)  # 第308 D-107 (a): 役割語の結果(読むだけ)
         phase["movement"] += outcome.movement_seconds
         phase["movement_cpu"] += outcome.movement_cpu_seconds
         geometry_hops += outcome.n_hops
@@ -3434,6 +3447,7 @@ def run_day(
 
         if presence is not None:
             presence.sample(tick)  # 正時の在圏・計画一致率(在圏 journal と同じ位置)
+        norm_meter.observe_tick(tick)  # 第308 D-107 (a): 同行の検出(位置が確定した後・読むだけ)
         if occupancy_every and tick % occupancy_every == 0:
             occ_ticks.append(int(tick))
             occ_counts.append(np.asarray(world.cells.density, dtype=np.int32).copy())
@@ -3762,6 +3776,7 @@ def run_day(
         "order": str(near_order),
         "order_ties": int(getattr(_nr, "near_order_ties", 0)),
     }
+    result.group_norms = norm_meter.summary(conv=conv, result=result)  # 第308 D-107 (a)
     result.mock_out_of_cell_target_p = float(mock_out_of_cell_target_p)
     result.move_resolution = move_resolution_summary(
         poi_resolver.move_stats if poi_resolver is not None else Counter(),
@@ -3821,6 +3836,7 @@ def run_day(
         ]
     result.diagnostics = np.asarray(diag_rows, dtype=np.int64).reshape(-1, len(DIAG_RUN_COLUMNS))
     result.phase_seconds = phase
+    result.phase_seconds["group_norms"] = float(norm_meter.seconds)  # 第308: 計器の費用(壁時計)
     result.wall_seconds = time.perf_counter() - t_start
     result.arbiter_counters = {k: dict(v) for k, v in arbiter.counters().items()}
     result.money_end = int(agents.registry.money.astype(np.int64).sum())

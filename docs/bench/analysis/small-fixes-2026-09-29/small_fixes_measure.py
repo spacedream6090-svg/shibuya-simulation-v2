@@ -10,6 +10,9 @@
     python $D/small_fixes_measure.py fleet --out $D/q28_fleet.json         # ② 艦隊スモーク(偽 vLLM)の繰り延べと警告
     python $D/small_fixes_measure.py waste --out $D/d52_waste.json         # ④ 廃棄の内訳(店のビン・世帯の消費・街路ごみ)
     python $D/small_fixes_measure.py waste --out $D/q135_waste.json        # 第 2 批④ ラン要約の新しい帯(同じ道具)
+    python $D/small_fixes_measure.py norms --out $D/d107_norms.json        # 第 5 批② 群・規範の計器(mock/classical)
+    python $D/small_fixes_measure.py bytecheck --axis plain --head-src <HEAD c034d58 の src> --head-label c034d58 \
+        --scratch <作業用の場所> --out $D/d107_byte_check.json            # 第 5 批② 計器は読むだけ=HEAD と一致
     # 第 2 批①(第304 Q130: 近接行の並び=距離順)
     python $D/small_fixes_measure.py t5 --only mock_rel_on_dist,classical_off_dist,classical_on_dist,mock_rel_on_hash,classical_off_hash,classical_on_hash --out $D/q130_t5.json
     python $D/small_fixes_measure.py arms15 --axis order --out $D/q130_arms15.json
@@ -267,6 +270,8 @@ def cmd_bytecheck(args: argparse.Namespace) -> int:
     got: dict[tuple[str, str], dict[str, Any]] = {}
     if args.axis == "tiebreak":  # 第 1 批(HEAD bb44474・並びは旧に固定)
         sides = (("head", args.head_src, "", ""), ("work_id", "", "id", "id"), ("work_hash", "", "hash", "id"))
+    elif args.axis == "plain":  # 第 5 批(HEAD c034d58・既定どうし=計器は読むだけ・2 回=決定論も)
+        sides = (("head", args.head_src, "", ""), ("work_id", "", "", ""), ("work_hash", "", "", ""))
     else:  # 第 2 批(HEAD 3c86b6b・同点は既定の hash)
         sides = (("head", args.head_src, "", ""), ("work_id", "", "", "id"), ("work_hash", "", "", "distance"))
     for name in BYTE_CONFIGS:
@@ -432,18 +437,50 @@ def cmd_waste(args: argparse.Namespace) -> int:
     return 0
 
 
+# ------------------------------------------------------------------ 第 5 批② D-107 (a) 群・規範の計器
+NORM_ARMS: dict[str, dict[str, Any]] = {
+    "mock_v3_default": {"vocab_version": "v3"},
+    "classical_v3": {"vocab_version": "v3", **CLS},
+    # (d) 伝播到達の集約が動くことを見る腕(親しみ・記憶・店の記憶・関係 on・顕著行為の発生率 30/万体/日)
+    "mock_v3_layers_on": {"vocab_version": "v3", "familiarity": "on", "memory": "on", "store_memory": "on",
+                          "relations": "on", "salient_rate_per_10k": 30.0},
+}
+
+
+def cmd_norms(args: argparse.Namespace) -> int:
+    from shibuya import cli
+
+    rows = []
+    for name, kw in NORM_ARMS.items():
+        t0 = time.perf_counter()
+        res = cli.run(n_agents=args.agents, seed=args.seed, world_dir=args.world, **kw)
+        wall = time.perf_counter() - t0
+        g = res.run_manifest_fields().get("group_norms", {})
+        rows.append({"arm": name, "args": kw, "final_hash": res.final_hash, "llm_calls": int(res.llm_calls),
+                     "group_norms": g,
+                     "meter_seconds_nondeterministic": round(float(res.phase_seconds.get("group_norms", 0.0)), 3),
+                     "wall_seconds_nondeterministic": round(wall, 2)})
+        cw = g.get("cowalk", {})
+        print(name, res.final_hash[:8], res.llm_calls, cw.get("episodes_5min"), cw.get("cowalk_share_of_moving_minutes"),
+              {k: v.get("entropy_bit") for k, v in g.get("context_entropy", {}).get("by_place", {}).items()},
+              g.get("role_words", {}).get("role_actions"), rows[-1]["meter_seconds_nondeterministic"], flush=True)
+    Path(args.out).write_text(json.dumps({"schema": "shibuya.bench/small-fixes/d107-norms/1", "rows": rows},
+                                         ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="小さいもの 4 件の計測")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for name in ("t5", "t5-one", "arms15", "bytecheck", "bytecheck-one", "fleet", "waste"):
+    for name in ("t5", "t5-one", "arms15", "bytecheck", "bytecheck-one", "fleet", "waste", "norms"):
         sp = sub.add_parser(name)
         sp.add_argument("--world", default="data/world/v2")
         sp.add_argument("--agents", type=int, default=300 if name == "fleet" else 5_000)
         sp.add_argument("--seed", type=int, default=1)
-        if name in ("t5", "arms15", "bytecheck", "fleet", "waste"):
+        if name in ("t5", "arms15", "bytecheck", "fleet", "waste", "norms"):
             sp.add_argument("--out", required=True)
         if name in ("arms15", "bytecheck"):
-            sp.add_argument("--axis", choices=("tiebreak", "order"), default="tiebreak")
+            sp.add_argument("--axis", choices=("tiebreak", "order", "plain"), default="tiebreak")
         if name == "t5":
             sp.add_argument("--only", default="")
         if name == "t5-one":
@@ -461,7 +498,8 @@ def main(argv: list[str] | None = None) -> int:
             sp.add_argument("--ticks", type=int, default=24)
     args = ap.parse_args(argv)
     return {"t5": cmd_t5, "t5-one": cmd_t5_one, "arms15": cmd_arms15, "bytecheck": cmd_bytecheck,
-            "bytecheck-one": cmd_bytecheck_one, "fleet": cmd_fleet, "waste": cmd_waste}[args.cmd](args)
+            "bytecheck-one": cmd_bytecheck_one, "fleet": cmd_fleet, "waste": cmd_waste,
+            "norms": cmd_norms}[args.cmd](args)
 
 
 if __name__ == "__main__":
