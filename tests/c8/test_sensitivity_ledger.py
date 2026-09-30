@@ -6,6 +6,7 @@ import copy
 import hashlib
 import importlib.util
 import json
+import re
 from pathlib import Path
 
 import numpy as np
@@ -19,6 +20,23 @@ from .conftest import real_data, real_estat
 @pytest.fixture(scope="module")
 def ledger(c8lib):
     return c8lib.load_sensitivity()
+
+
+#: 読み口の文字列「出力名 ← ファイル:行番号」の行番号(第313 の後: 別の実装が src に行を足すと行番号だけずれる)。
+_SITE_LINE = re.compile(r"^(.* ← [^:]+):\d+$")
+
+
+def strip_site_lines(obj):
+    """読み口の「:行番号」を落とす(意味のある内容=「資産の出力名 ← ファイル」まで)。台帳には行番号を残し、
+    テストの比較と digest の前にだけ正規化する。ファイル名が変われば比較は変わる(検出力は保つ)。"""
+    if isinstance(obj, dict):
+        return {k: strip_site_lines(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [strip_site_lines(v) for v in obj]
+    if isinstance(obj, str):
+        m = _SITE_LINE.match(obj)
+        return m.group(1) if m else obj
+    return obj
 
 
 # ------------------------------------------------------------------ 台帳と設計書の突合
@@ -371,7 +389,8 @@ def test_read_graph_matches_the_source(c8lib, sensitivity, ledger, world_dir):
     stored = ledger["build_manifest_judgment"]["read_graph"]["stages"]
     for st, si in g["stages"].items():
         assert si["verdict"] == stored[st]["verdict"], st
-        assert si["engine_sites"] == stored[st]["engine_sites"], st
+        # 行番号は比べない(src に行が足されると動く)。出力名とファイルは比べる
+        assert strip_site_lines(si["engine_sites"]) == strip_site_lines(stored[st]["engine_sites"]), st
         assert si["consumers"] == stored[st]["consumers"], st
 
 
@@ -414,7 +433,9 @@ PRE_D44_DIGESTS = {
     "process_ablations": "cfe7fa204d28f98fe457dcb27260854f082e41fb99c52f5b72372d19380c68c7",
     "build_manifest_expedients": "036a4bd1090d3381c59b97f6c0b27f2749a119fd5da85b7f26d39427d768c899",
     "judgment_rows_without_d44": "541acb8cc5ed2a3ba39f36205fa2beed9aade03861c4d34a69507d35e15c2f28",
-    "judgment_rest_without_d44": "b759c1be3a8b545b46f06c9c762e325cb266066eea4667b94852f65a7b3b2c05",
+    # 読み口の「:行番号」を落とした後の digest(第313 後の修正: 旧値 b759c1be…=行番号込み)。HEAD 01b6f5b の台帳と
+    # 読み口を再生成した作業木の台帳で同じ値=再生成で変わったのは行番号だけ
+    "judgment_rest_without_d44": "eb70c08cd5aae15cd7eacbfd2897f0ddb6e2ea3a45ca1e76fd06c79a6fad4309",
 }
 D44_DIR_REL = ("docs", "bench", "analysis", "d44-controls-2026-09-30")
 
@@ -439,9 +460,40 @@ def test_d44_leaves_existing_ledger_parts_unchanged(ledger):
     assert _digest(ledger["build_manifest_expedients"]) == PRE_D44_DIGESTS["build_manifest_expedients"]
     j = ledger["build_manifest_judgment"]
     rows = [{k: v for k, v in r.items() if k != "d44"} for r in j["rows"]]
-    assert _digest(rows) == PRE_D44_DIGESTS["judgment_rows_without_d44"]
+    assert _digest(strip_site_lines(rows)) == PRE_D44_DIGESTS["judgment_rows_without_d44"]
     rest = {k: v for k, v in j.items() if k not in ("rows", "d44_summary")}
-    assert _digest(rest) == PRE_D44_DIGESTS["judgment_rest_without_d44"]
+    assert _digest(strip_site_lines(rest)) == PRE_D44_DIGESTS["judgment_rest_without_d44"]
+
+
+def test_site_line_normalization_keeps_the_file_but_drops_the_line(ledger):
+    """行番号だけのずれは通り、読み口のファイルが変わる・増える・消えると落ちる(正規化で検出力を失わない)。"""
+    assert strip_site_lines("w2_cells.parquet ← perception/renderer.py:653") == "w2_cells.parquet ← perception/renderer.py"
+    assert strip_site_lines("w2_cells.parquet ← perception/renderer.py") == "w2_cells.parquet ← perception/renderer.py"
+    assert strip_site_lines("09:00") == "09:00"  # 読み口でない文字列は触らない
+    rest = {k: v for k, v in ledger["build_manifest_judgment"].items() if k not in ("rows", "d44_summary")}
+    base = _digest(strip_site_lines(rest))
+    st = next(k for k, v in rest["read_graph"]["stages"].items() if v["engine_sites"])
+    # 行番号だけ変える → 同じ
+    moved = json.loads(json.dumps(rest))
+    moved["read_graph"]["stages"][st]["engine_sites"] = [
+        re.sub(r":\d+$", ":99999", s) for s in moved["read_graph"]["stages"][st]["engine_sites"]]
+    assert moved != rest and _digest(strip_site_lines(moved)) == base
+    # 読み口のファイルを変える → 違う
+    other = json.loads(json.dumps(rest))
+    s0 = other["read_graph"]["stages"][st]["engine_sites"][0]
+    other["read_graph"]["stages"][st]["engine_sites"][0] = re.sub(r"← [^:]+:", "← world/other_reader.py:", s0)
+    assert _digest(strip_site_lines(other)) != base
+    # 読み口が増える/消える → 違う
+    more = json.loads(json.dumps(rest))
+    more["read_graph"]["stages"][st]["engine_sites"].append("w99_x.parquet ← engine/run.py:1")
+    assert _digest(strip_site_lines(more)) != base
+    less = json.loads(json.dumps(rest))
+    less["read_graph"]["stages"][st]["engine_sites"] = less["read_graph"]["stages"][st]["engine_sites"][1:]
+    assert _digest(strip_site_lines(less)) != base
+    # 依存グラフの比較でも同じ: 行番号だけ違えば等しい・ファイルが違えば等しくない
+    a = ["w1_edges.parquet ← world/assets.py:90"]
+    assert strip_site_lines(a) == strip_site_lines(["w1_edges.parquet ← world/assets.py:95"])
+    assert strip_site_lines(a) != strip_site_lines(["w1_edges.parquet ← world/other.py:90"])
 
 
 def test_d44_column_is_consistent(sensitivity, ledger):

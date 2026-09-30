@@ -3947,7 +3947,7 @@
       "W20"
      ],
      "engine_sites": [
-      "w2_cells.parquet ← perception/renderer.py:653",
+      "w2_cells.parquet ← perception/renderer.py:671",
       "w2_cells.parquet ← world/assets.py:91"
      ],
      "other_sites": []
@@ -4007,7 +4007,7 @@
      ],
      "engine_sites": [
       "w6_org.parquet ← economy/ledger.py:163",
-      "w6_poi.parquet ← perception/renderer.py:654",
+      "w6_poi.parquet ← perception/renderer.py:672",
       "w6_poi.parquet ← world/assets.py:94"
      ],
      "other_sites": []
@@ -4036,9 +4036,9 @@
       "W20"
      ],
      "engine_sites": [
-      "w8_t1_cell.parquet ← perception/renderer.py:656",
+      "w8_t1_cell.parquet ← perception/renderer.py:674",
       "w8_t1_cell.parquet ← world/assets.py:471",
-      "w8_targets.parquet ← perception/renderer.py:655",
+      "w8_targets.parquet ← perception/renderer.py:673",
       "w8_targets.parquet ← world/assets.py:471"
      ],
      "other_sites": []
@@ -4067,11 +4067,11 @@
       "W20"
      ],
      "engine_sites": [
-      "w10_noise_stage_day.npy ← perception/renderer.py:864",
+      "w10_noise_stage_day.npy ← perception/renderer.py:882",
       "w10_noise_stage_day.npy ← world/assets.py:553",
-      "w10_noise_stage_night.npy ← perception/renderer.py:864",
+      "w10_noise_stage_night.npy ← perception/renderer.py:882",
       "w10_noise_stage_night.npy ← world/assets.py:553",
-      "w10_street_points.parquet ← perception/renderer.py:657",
+      "w10_street_points.parquet ← perception/renderer.py:675",
       "w10_street_points.parquet ← world/assets.py:552"
      ],
      "other_sites": []
@@ -4089,7 +4089,7 @@
       "W20"
      ],
      "engine_sites": [
-      "w11_station_exits.parquet ← perception/renderer.py:658",
+      "w11_station_exits.parquet ← perception/renderer.py:676",
       "w11_station_exits.parquet ← world/assets.py:735",
       "w11_station_graph_nodes.parquet ← world/assets.py:734"
      ],
@@ -4120,7 +4120,7 @@
      ],
      "engine_sites": [
       "w13_weather_days.parquet ← world/assets.py:731",
-      "w13_weather_hourly.parquet ← perception/renderer.py:659",
+      "w13_weather_hourly.parquet ← perception/renderer.py:677",
       "w13_weather_hourly.parquet ← world/assets.py:732"
      ],
      "other_sites": []
@@ -4131,7 +4131,7 @@
      "via_path": [],
      "consumers": [],
      "engine_sites": [
-      "w14_signage.parquet ← perception/renderer.py:759"
+      "w14_signage.parquet ← perception/renderer.py:777"
      ],
      "other_sites": []
     },
@@ -4141,7 +4141,7 @@
      "via_path": [],
      "consumers": [],
      "engine_sites": [
-      "w15_cell_static.parquet ← perception/renderer.py:762"
+      "w15_cell_static.parquet ← perception/renderer.py:780"
      ],
      "other_sites": []
     },

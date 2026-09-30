@@ -182,3 +182,11 @@ python docs/bench/analysis/d44-controls-2026-09-30/d44_controls.py --scratch $S 
 python docs/bench/analysis/d44-controls-2026-09-30/d44_controls.py collect
 python tools/c8/sensitivity.py --d44 --out docs/bench/c8
 ```
+
+## 追記(第313 の後): 読み口の行番号でテストが壊れない形に
+
+- 起きたこと: 別の実装が `src/shibuya/perception/renderer.py` などに行を足し、依存グラフの読み口(`出力名 ← ファイル:行番号`)の行番号だけが 11 か所ずれた。親が `--read-graph` で台帳を再生成すると、行番号込みの digest を固定していた `test_d44_leaves_existing_ledger_parts_unchanged` が落ちた。
+- 直し(`tests/c8/test_sensitivity_ledger.py` だけ): 読み口の意味のある内容を「出力名 ← ファイル」までとし、比較と digest の前に末尾の `:行番号` を落とす(`strip_site_lines`)。台帳には行番号を残す。対象= `test_read_graph_matches_the_source`・`test_d44_leaves_existing_ledger_parts_unchanged`。
+- `PRE_D44_DIGESTS["judgment_rest_without_d44"]`: 旧 `b759c1be3a8b…`(行番号込み)→ 新 `eb70c08cd5aae15cd7eacbfd2897f0ddb6e2ea3a45ca1e76fd06c79a6fad4309`(正規化後)。git HEAD(01b6f5b)の台帳と再生成後の作業木の台帳の**両方で同じ値**=再生成で変わったのは行番号だけ。行番号込みの digest は HEAD `b759c1be…`・作業木 `5803b5b3…` で違う。ほかの 4 つの digest(rows・process_ablations・build_manifest_expedients・judgment_rows_without_d44)は HEAD と作業木で同じ=変えていない。
+- 検出力: 合成の例をテストにした(`test_site_line_normalization_keeps_the_file_but_drops_the_line`)。行番号だけ変える → 同じ digest/読み口のファイルを変える・読み口を足す・消す → 違う digest。
+

@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -105,9 +106,10 @@ MEAL_CALENDAR_FACTOR: Final[float] = 0.3
 MEAL_NO_EATERY_FACTOR: Final[float] = 0.5
 MEAL_EATING_PEOPLE_FACTOR: Final[float] = 1.2
 #: 食事の門の確率の読み方(第2波 §2A 項 4・Q48 (a)・指示書 §0-2): ``per_wake``=旧(**既定**・起床ごとの確率=起床の
-#: 頻度に比例して食べる)/ ``per_hour``=上の確率(語 × カレンダー × 周囲)を **1 時間あたり**と読み、前回の門の後に
-#: その体が**範囲内で起きていた分** Δt で ``p = 1 − (1 − p_h)^(Δt/60)`` に換算する(定数の値は動かさない)。既定の切り替えは食事の束の版上げで
-#: ユーザーに確認する(指示書 §8-2)。
+#: 頻度に比例して食べる)/ ``per_hour``=語の段の確率 ``MEAL_WORD_P`` を **1 時間あたり**と読み、前回の門の後に
+#: その体が**範囲内で起きていた各 tick の段**でハザード H=Σ −ln(1 − p_h) × 分/60 を積算し、門で ``p = 1 − exp(−H)`` に
+#: カレンダーと周囲の係数を掛ける(**第2波 §2B の親の決定**=§2A の「起きていた分 × 評価時の段」を置き換えた・定数の値は
+#: 動かさない)。既定の切り替えは食事の束の版上げでユーザーに確認する(指示書 §8-2)。
 MEAL_GATES: Final[tuple[str, ...]] = ("per_wake", "per_hour")
 DEFAULT_MEAL_GATE: Final[str] = "per_wake"
 
@@ -184,6 +186,13 @@ def check_meal_gate(name: str) -> str:
     if n not in MEAL_GATES:
         raise ValueError(f"meal_gate は {MEAL_GATES} のどれか(いま {name!r})")
     return n
+
+
+#: 語の段の刻み(``chooser.hunger_stage_of`` と同じ・``INTERO_UP_EDGES``)と、段 → 1 時間あたりのハザード
+#: ``−ln(1 − MEAL_WORD_P)``(p=1 は ∞=必ず通る)。``per_hour`` の積算が引く表(定数の値は ``MEAL_WORD_P`` のまま)。
+_HUNGER_EDGES: Final[tuple[int, int, int]] = (4, 7, 9)
+with np.errstate(divide="ignore"):
+    _HAZARD_PER_HOUR: Final[np.ndarray] = -np.log1p(-np.asarray(MEAL_WORD_P, dtype=np.float64))
 
 
 def meal_gate_interval_p(p_hour: float, dt_minutes: float) -> float:
@@ -375,10 +384,10 @@ class ClassicalPolicy:
         #: −inf)。``--relations on`` のランだけ ``engine.run`` が差し込む(既定 None=知人は居ない)。
         self.acq_fn: Any = None
         check_classical_social(self.social)
-        #: 第2波 §2A 項 4(検収後の親の決定): ``per_hour`` の腕だけ、体ごとの「前回の門の後に範囲内で起きていた分」
-        #: (float32=**4 B/体**・腕の中だけ・ラン開始は 0)。:meth:`accrue_awake` が毎 tick 足し、門を引くと 0 に戻す。
-        #: ``per_wake`` は持たない(0 B)。
-        self._gate_awake_min: np.ndarray | None = (
+        #: 第2波 §2B(親の決定・§2A 項 4 の規則を置き換え): ``per_hour`` の腕だけ、体ごとの**ハザードの積算** H
+        #: (float32=**4 B/体**・腕の中だけ・ラン開始は 0)。:meth:`accrue_awake` が毎 tick、範囲内で起きている体に
+        #: ``−ln(1 − p_h(その tick の語の段)) × 分/60`` を足し、門を引くと 0 に戻す。``per_wake`` は持たない(0 B)。
+        self._gate_hazard: np.ndarray | None = (
             np.zeros(n, dtype=np.float32) if check_meal_gate(self.meal_gate) == "per_hour" else None
         )
         self._tick = -1
@@ -424,34 +433,56 @@ class ClassicalPolicy:
     def meal_probability(self, aid: int, tick: int) -> tuple[float, int]:
         """食事の門の確率と語の段(K6 (i)・§1-2 6)。
 
-        ``per_hour``(第2波 §2A 項 4・検収後の親の決定): 語 × カレンダー × 周囲の値を 1 時間あたりの確率 p_h と読み、
-        Δt=**前回の門の後にその体が範囲内で起きていた分の合計**(就寝中・範囲外の時間は数えない・最初の門はラン開始
-        からの同じ積算=任意の定数を置かない)で ``1 − (1 − p_h)^(Δt/60)`` にする。門を引くたびに(p_h=0 の満腹でも)
-        積算を 0 に戻す。
+        ``per_hour``(**第2波 §2B の親の決定**=§2A 項 4 の「起きていた分 × 評価時の段」を置き換え): 語の段の
+        ``MEAL_WORD_P`` を 1 時間あたりの確率 p_h と読み、前回の門の後に範囲内で起きていた各 tick の段の p_h で
+        ハザード H=Σ −ln(1 − p_h) × 分/60 を積算(:meth:`accrue_awake`)。門では ``p = 1 − exp(−H)`` に
+        カレンダーと周囲の係数を旧と同じ順序で掛け(上限 1)、H を 0 に戻す(p が 0 でも)。満腹(p_h=0)の時間・
+        就寝中・範囲外は H に入らない。段は評価時の段(計数用)。
+        **Q-2B-6(親の決定)**: (iii) 評価の時点で満腹(p_h=0)なら p=0・H=0。(ii) 食事(``since_meal`` を 0 に
+        戻す摂取=飲食店・範囲外・自宅の食事)のたびに H=0(``resolve._energy_meal`` が ``EnergyLayer.meal_reset``
+        を通して戻す=:meth:`meal_reset_array`)。軽食・飲料では戻さない。
         """
-        p, stage = self._meal_p_word(aid, tick)
-        if self._gate_awake_min is not None:
-            dt = float(self._gate_awake_min[aid])
-            self._gate_awake_min[aid] = 0.0
-            p = meal_gate_interval_p(p, dt)
-        return p, stage
+        if self._gate_hazard is None:
+            return self._meal_p_word(aid, tick)
+        from shibuya.engine.chooser import hunger_stage_of
+
+        h = float(self._gate_hazard[aid])
+        self._gate_hazard[aid] = 0.0
+        stage = hunger_stage_of(int(self.agents.registry.hunger[aid]))
+        if MEAL_WORD_P[stage] <= 0.0:
+            # 第2波 §2B Q-2B-6 (iii)(親の決定): いま満腹(p_h=0)なら食事に行く決定は起きない=p=0・H=0
+            return 0.0, stage
+        base = 1.0 if math.isinf(h) else float(-math.expm1(-h))
+        return self._meal_p_word(aid, tick, base=base)[0], stage
+
+    def meal_reset_array(self) -> np.ndarray | None:
+        """Q-2B-6 (ii): 食事で 0 に戻す配列(``per_hour`` の H・``per_wake`` は None)。``engine.run`` が
+        ``EnergyLayer.meal_reset`` に渡す。"""
+        return self._gate_hazard
 
     def accrue_awake(self) -> None:
         """``per_hour`` の腕だけ: この tick に範囲内で起きている体(活動が就寝でなく ``transit_state==0``=エネルギー層の
-        診断 ``awake_in_area`` と同じ判定)の積算に 1 tick の分を足す。毎 tick 1 回・体数の配列演算(逐次ループなし)。"""
-        if self._gate_awake_min is None:
+        診断 ``awake_in_area`` と同じ判定)の H に ``−ln(1 − p_h(語の段)) × 分/60`` を足す(満腹は p_h=0=足さない)。
+        毎 tick 1 回・体数の配列演算(段の表引き+対数の表引き=逐次ループなし)。p_h=1 の段があれば H=∞=
+        「必ず通る」(上限を置かない・宣言。いまの ``MEAL_WORD_P`` の最大は 0.9)。"""
+        if self._gate_hazard is None:
             return
         r = self.agents.registry
         ok = (np.asarray(r.activity) != int(Activity.SLEEPING)) & (np.asarray(r.transit_state) == 0)
-        self._gate_awake_min[ok] += np.float32(self.minutes_per_tick)
+        if not ok.any():
+            return
+        stage = np.searchsorted(np.asarray(_HUNGER_EDGES, dtype=np.int64),
+                                np.asarray(r.hunger, dtype=np.int64)[ok], side="right")
+        self._gate_hazard[ok] += (_HAZARD_PER_HOUR[stage] * (self.minutes_per_tick / 60.0)).astype(np.float32)
 
-    def _meal_p_word(self, aid: int, tick: int) -> tuple[float, int]:
-        """語 × カレンダー × 周囲(上限 1)。``per_wake`` ではこれがそのまま門の確率。"""
+    def _meal_p_word(self, aid: int, tick: int, base: float | None = None) -> tuple[float, int]:
+        """語 × カレンダー × 周囲(上限 1)。``per_wake`` ではこれがそのまま門の確率。``base`` を渡すと語の値の代わりに
+        それを使う(``per_hour`` の ``1 − exp(−H)``)。"""
         from shibuya.engine.chooser import hunger_stage_of
 
         r = self.agents.registry
         stage = hunger_stage_of(int(r.hunger[aid]))
-        p = MEAL_WORD_P[stage]
+        p = MEAL_WORD_P[stage] if base is None else float(base)
         if p <= 0.0:
             return 0.0, stage
         if self._next_plan_minutes(aid, tick) < MEAL_CALENDAR_MIN:
@@ -617,6 +648,8 @@ class ClassicalPolicy:
                       "anchors_md5": self.prior_md5, "day_kind": self.prior.day_kind,
                       "region": self.prior.region},
             "meal_gate": {"mode": str(self.meal_gate), "word_p": list(MEAL_WORD_P),
+                          "per_hour_rule": "hazard: H += -ln(1-p_h(stage of each awake-in-area tick)) x min/60; "
+                                           "p = 1 - exp(-H) x calendar x surroundings (wave2 2B)",
                           "calendar_min": MEAL_CALENDAR_MIN,
                           "calendar_factor": MEAL_CALENDAR_FACTOR,
                           "no_eatery_factor": MEAL_NO_EATERY_FACTOR,

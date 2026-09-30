@@ -1189,6 +1189,7 @@ def _tick_minute(energy: Any, tick: int) -> int:
 def _energy_meal(
     r, ids: np.ndarray, tick: int, energy: Any, *, kind: str,
     slots: np.ndarray | None = None, from_row: np.ndarray | None = None,
+    deferred: np.ndarray | None = None,
 ) -> None:
     """食事の摂取(K7 (a)): 時間帯の比 × EER を収支へ・``since_meal=0``・写しを満腹へ。"""
     ids = np.asarray(ids, dtype=np.int64)
@@ -1202,10 +1203,16 @@ def _energy_meal(
         share = model.meal_share_for_slot(r.age[ids], r.sex[ids], slots)
     kcal = (share * r.eer_kcal[ids].astype(np.float64)).astype(np.float32)
     r.since_meal_kcal[ids] = 0.0
+    if getattr(energy, "meal_reset", None) is not None:  # 第2波 §2B Q-2B-6 (ii): 食事で per_hour の門の H を 0 に
+        energy.meal_reset[ids] = 0.0
     r.energy_balance[ids] += kcal
     r.hunger[ids] = model.hunger_copy(model.stage_of(r.since_meal_kcal[ids], r.eer_kcal[ids]))
-    energy.note(kind, ids, minute, float(kcal.astype(np.float64).sum()), slots=slots,
-                from_row=from_row)
+    if deferred is None:
+        energy.note(kind, ids, minute, float(kcal.astype(np.float64).sum()), slots=slots,
+                    from_row=from_row)
+    else:
+        energy.note(kind, ids, minute, float(kcal.astype(np.float64).sum()), slots=slots,
+                    from_row=from_row, deferred=deferred)
 
 
 def _energy_snack(r, buyers: np.ndarray, bought: np.ndarray, tick: int, energy: Any) -> None:
@@ -1238,18 +1245,45 @@ def _energy_snack(r, buyers: np.ndarray, bought: np.ndarray, tick: int, energy: 
 
 def energy_out_of_area_meal(
     agents: AgentState, energy: Any, agent_id: np.ndarray, slots: np.ndarray,
-    from_row: np.ndarray, tick: int,
+    from_row: np.ndarray, tick: int, deferred: np.ndarray | None = None,
 ) -> int:
     """範囲外の食事(K9 (a)): 域外に居る体の予定の食事=時間帯の比 × EER・``since_meal=0``。
 
     値(誰がいつ)は ``engine.energy.OutOfAreaMeals.due`` が決める。件数を返す。
+    ``deferred``(第2波 §2B 項 1)=起床時に遅らせた既定の食事の印(診断の内数だけ・摂取は同じ式)。
     """
     a = np.asarray(agent_id, dtype=np.int64)
     if a.size == 0:
         return 0
     with agents.writable():
         _energy_meal(agents.registry, a, tick, energy, kind="meal_out",
-                     slots=np.asarray(slots, dtype=np.int64), from_row=from_row)
+                     slots=np.asarray(slots, dtype=np.int64), from_row=from_row,
+                     deferred=deferred)
+    return int(a.size)
+
+
+def energy_home_meal(
+    agents: AgentState, energy: Any, agent_id: np.ndarray, slots: np.ndarray, tick: int,
+) -> int:
+    """**第2波 §2B 項 2(Q35 (a))** 範囲内の自宅の食事行=予定の実行(``engine.energy.HomeMeals.due``)。
+
+    摂取は K9 と同じ(時間帯の比 × EER・``since_meal=0``・写しを満腹へ)。**金と物は動かさない**
+    (台帳・棚・店の席に触らない)。変化検出の前回段 ``hunger_stage`` も新しい段に合わせる=
+    この食事そのものは内受容の起床(下げ跨ぎ)を作らない(予定の実行は驚きではない・起床を足さない・宣言)。
+    件数を返す。
+    """
+    from shibuya.engine.change_detect import INTERO_UP_EDGES
+
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return 0
+    with agents.writable():
+        r = agents.registry
+        _energy_meal(r, a, tick, energy, kind="meal_home", slots=np.asarray(slots, dtype=np.int64))
+        stage = np.zeros(a.size, dtype=np.int8)
+        for e in INTERO_UP_EDGES:  # 段の刻み 3 本ぶん(体数には比例しない)
+            stage += (r.hunger[a] >= e).astype(np.int8)
+        r.hunger_stage[a] = stage
     return int(a.size)
 
 

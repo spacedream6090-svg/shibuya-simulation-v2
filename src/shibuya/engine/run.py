@@ -110,9 +110,14 @@ from shibuya.engine.energy import (
     DEFAULT_ENERGY_RATE,
     EnergyLayer,
     EnergyModel,
+    DEFAULT_HOME_MEAL,
+    DEFAULT_MEAL_SLEEP_DEFER,
+    HomeMeals,
     OutOfAreaMeals,
     check_energy_rate,
+    check_home_meal,
     check_hunger_model,
+    check_meal_sleep_defer,
     load_anchors,
 )
 from shibuya.engine.arbiter import (
@@ -190,6 +195,8 @@ from shibuya.llm.fleet import (
 from shibuya.llm.mock import MockLLM
 from shibuya.perception.channels import BudgetMode
 from shibuya.perception.renderer import (
+    DEFAULT_HUNGER_WORDS,
+    check_hunger_words,
     DEFAULT_NEAR_ORDER,
     DEFAULT_NEAR_TIEBREAK,
     DEFAULT_START_DATETIME,
@@ -578,6 +585,10 @@ class RunResult:
     hunger_model: str = "v1"
     energy_rate: str = ""
     energy: dict[str, Any] = field(default_factory=dict)
+    #: 第2波 §2B(食事の束・既定は旧): 項 1 就寝中の既定の食事・項 2 自宅の食事行・項 3 B5 の空腹の語。
+    meal_sleep_defer: str = DEFAULT_MEAL_SLEEP_DEFER
+    home_meal: str = DEFAULT_HOME_MEAL
+    hunger_words: str = "hungry"
     #: 5 段目 5b(D-119): 方策(``mock``/``classical``)・方策の要約・選び手の計数・層の記録(SOFAI 形式)。
     policy: str = DEFAULT_POLICY
     classical: dict[str, Any] = field(default_factory=dict)
@@ -952,7 +963,13 @@ class RunResult:
         return {
             "registry_hash": self.registry_hash,
             "replay_date": self.replay_date,
-            "template_sha256": _T.template_sha256(),
+            # 第2波 §2B: ``--hunger-words all``(energy のラン)は実際に描いた段の下限 0 で指紋を計算する
+            # (hungry・v1 のランは既存の凍結値のまま=既定は不変)
+            "template_sha256": (
+                _T.template_sha256(hunger_draw_min_stage=0)
+                if (str(self.hunger_words) == "all" and str(self.hunger_model) == "energy")
+                else _T.template_sha256()
+            ),
             "budget_mode": self.budget_mode,
             # ---- D-99 (a) L4 呼数予算の腕(既定 1.0=宣言どおりの按分)。腕 AB8-L4-SCALE ----
             "l4_scale": float(self.l4_scale),
@@ -997,6 +1014,10 @@ class RunResult:
             "hunger_model": str(self.hunger_model),
             "energy_rate": str(self.energy_rate),
             "energy": dict(self.energy),
+            # ---- 第2波 §2B(食事の束の切替口・既定は旧)。列追加のみ ----
+            "meal_sleep_defer": str(self.meal_sleep_defer),
+            "home_meal": str(self.home_meal),
+            "hunger_words": str(self.hunger_words),
             "intero_crossings": dict(self.intero_crossings),
             # ---- 5 段目 5b(D-119 L1〜L8): 方策・選び手の計数・層の記録。列追加のみ ----
             "policy": str(self.policy),
@@ -1618,6 +1639,9 @@ def run_day(
     familiarity_k: int = FAMILIARITY_K,
     hunger_model: str = "v1",
     energy_rate: str = DEFAULT_ENERGY_RATE,
+    meal_sleep_defer: str = DEFAULT_MEAL_SLEEP_DEFER,
+    home_meal: str = DEFAULT_HOME_MEAL,
+    hunger_words: str = DEFAULT_HUNGER_WORDS,
     policy: str = DEFAULT_POLICY,
     activity_region: str = DEFAULT_ACTIVITY_REGION,
     classical_social: str = DEFAULT_CLASSICAL_SOCIAL,
@@ -1883,6 +1907,14 @@ def run_day(
             ``energy``(``cli.CLI_DEFAULT_HUNGER_MODEL``・K5 (a))。
         energy_rate: 消費の式(``"eer"``=K1 (c)・既定 / ``"bmr"``=K1 (a) の感度腕)。``hunger_model=
             "energy"`` のときだけ効く。
+        meal_sleep_defer: **第2波 §2B 項 1(Q34 (b))** ``"off"``(**既定**=旧)/ ``"on"``=範囲外の既定の食事時刻に
+            W17 で就寝中の体は、起床の時刻(窓の中なら)へ遅らせて食べる(``engine.energy.OutOfAreaMeals``)。
+            ``hunger_model="energy"`` のときだけ効く。
+        home_meal: **第2波 §2B 項 2(Q35 (a))** ``"off"``(**既定**=旧)/ ``"plan"``=W17 の自宅の食事行(自宅が
+            範囲内の体)を、行の開始に自宅に居て起きていれば「予定の実行」として食べさせる(金と物は動かさない・
+            照合の分布と店の集計から外す・``engine.energy.HomeMeals``)。``hunger_model="energy"`` のときだけ効く。
+        hunger_words: **第2波 §2B 項 3(Q31 (b))** B5 の空腹の語。``"hungry"``(**既定**=旧=空腹以上だけ描く)/
+            ``"all"``=満腹・ふつうも描く(``energy_columns`` のランだけ効く)。
         policy: **5 段目 5b(D-119 L5 (a))**。``"classical"`` で LLM(mock)を呼ばず、起床ごとに
             食事の門+ActivityChooser(社会生活基本調査の事前分布)から 5 ラベルの応答文を作る
             (``engine.classical.ClassicalPolicy``・語彙 v3 だけ)。既定 ``"mock"``=凍結の mock
@@ -1893,8 +1925,8 @@ def run_day(
             「なし・待つ」(関係 off のランでは会話を始めない)/ ``"near_first"``=旧(近接行の最初の人=見知らぬ人・
             関係 on は C10 8b の重みつき抽選)。``policy="classical"`` のときだけ効く。
         meal_gate: **第2波 §2A 項 4(Q48 (a))** 方策 classical の食事の門の確率の読み方。``"per_wake"``(**既定**=旧・
-            起床ごと)/ ``"per_hour"``=1 時間あたりと読み、前回の門からの経過分で換算(体ごとに前回の門の tick
-            4 B/体)。既定の切り替えは食事の束の版上げで確認する(指示書 §8-2)。
+            起床ごと)/ ``"per_hour"``=1 時間あたりと読み、前回の門の後に範囲内で起きていた各 tick の語の段で
+            ハザードを積算して換算(**第2波 §2B の規則**・体ごとの H 4 B/体・``engine.classical``)。既定の切り替えは食事の束の版上げで確認する(指示書 §8-2)。
         classical_habit_p / classical_tau: ``chooser="classical"`` の習慣の確率 p_h(宣言 0.5)と
             満足化の揺らぎ τ(宣言 1.0)。
         p_see_activity: **5 段目 5c(D-117・M1 (a)・M2 (b)・M4 (a))**。看板の注視ゲート p_see に掛ける
@@ -2066,6 +2098,9 @@ def run_day(
     hunger_model = check_hunger_model(hunger_model)
     energy_rate = check_energy_rate(energy_rate)
     energy_on = hunger_model == "energy"
+    meal_sleep_defer = check_meal_sleep_defer(meal_sleep_defer)
+    home_meal = check_home_meal(home_meal)
+    hunger_words = check_hunger_words(hunger_words)
     # ---- 段 1b: 飲食店の切替口(値の検査は世界を触る前・既定 food=現行のバイト) ----
     eatery = check_eatery_mode(eatery)
     # ---- 段 2a: 選び手と対象の決め方(値の検査は世界を触る前) ----
@@ -2188,7 +2223,18 @@ def run_day(
             n_agents=n_agents,
             out_of_area=OutOfAreaMeals(
                 _emodel, n_agents, ticks, weekly=weekly, day_index=day_index,
-                tick_seconds=tick_seconds,
+                tick_seconds=tick_seconds, sleep_defer=meal_sleep_defer,
+            ),
+            # 第2波 §2B 項 2: 自宅が範囲内(W16 の home_cell >= 0)の体の自宅の食事行(既定 off=None)
+            home_meals=(
+                HomeMeals(
+                    n_agents, ticks, weekly,
+                    np.asarray(pop.home_cell, dtype=np.int64) if pop is not None
+                    else np.full(n_agents, -1, dtype=np.int64),
+                    day_index=day_index, tick_seconds=tick_seconds,
+                )
+                if home_meal == "plan"
+                else None
             ),
             poi_intake=EnergyModel.poi_intake_kind(
                 getattr(world.assets, "poi_cat", None),
@@ -2289,6 +2335,7 @@ def run_day(
                 near_tiebreak=near_tiebreak,
                 near_salt=run_salt_for(seed),
                 near_order=near_order,
+                hunger_words=hunger_words,
             )
         )
         renderer_obj: Any = perception
@@ -2420,6 +2467,8 @@ def run_day(
             tick_seconds=tick_seconds,
             station_cells=getattr(_pa, "line_platform_cell", None),
         )
+        if energy_layer is not None:  # 第2波 §2B Q-2B-6 (ii): 食事で per_hour の門の H を 0 に(per_wake は None)
+            energy_layer.meal_reset = classical_policy.meal_reset_array()
     #: 5 段目 5b(L4 (a)・SOFAI 形式): 時 × 層(0=System 1 予定/習慣で呼ばない・1=System 1.5 選択器・
     #: 2=System 2 LLM/mock)× 起床入口 の判断数。層 1/2 は発射した呼(方策で分ける)・層 0 は
     #: エンジンが予定を実行した件(計画の就寝・意図の到着・計画実行層の到着/退出)。
@@ -2681,9 +2730,16 @@ def run_day(
             classical_policy.accrue_awake()
         # ---- 5 段目 5a(K9 (a)): 範囲外の食事(W17 の食事行の開始・既定の時刻に域外に居る体) ----
         if energy_layer is not None and energy_layer.out_of_area is not None:
-            _ea, _es, _ef = energy_layer.out_of_area.due(tick, agents.registry.transit_state)
-            if _ea.size:
-                R.energy_out_of_area_meal(agents, energy_layer, _ea, _es, _ef, tick)
+            if meal_sleep_defer == DEFAULT_MEAL_SLEEP_DEFER:
+                _ea, _es, _ef = energy_layer.out_of_area.due(tick, agents.registry.transit_state)
+                if _ea.size:
+                    R.energy_out_of_area_meal(agents, energy_layer, _ea, _es, _ef, tick)
+            else:  # 第2波 §2B 項 1: 起床時に遅らせた既定の食事を含む
+                _ea, _es, _ef, _ed = energy_layer.out_of_area.due_with_deferred(
+                    tick, agents.registry.transit_state
+                )
+                if _ea.size:
+                    R.energy_out_of_area_meal(agents, energy_layer, _ea, _es, _ef, tick, deferred=_ed)
 
         # ---- ⓪a 世界過程(昼夜・天候・鉄道・営業時間・混雑場・断面交通) ----
         # 流れ(B4 の「流れ方向」欄)を作るのが混雑場なので、**⓪ の前**に置く。
@@ -2916,6 +2972,14 @@ def run_day(
             p_agent = np.empty(0, dtype=np.int64)
             p_cond = np.empty(0, dtype=np.int8)
             p_class = np.empty(0, dtype=np.int64)
+
+        # ---- 第2波 §2B 項 2(Q35 (a)): 範囲内の自宅の食事行=予定の実行(計画境界の起床の後=
+        # 行の境界で起こされた体は起きている)。起床は足さない。既定(off)は何もしない ----
+        if energy_layer is not None and energy_layer.home_meals is not None:
+            _hr = agents.registry
+            _ha, _hs = energy_layer.home_meals.due(tick, _hr.transit_state, _hr.cell, _hr.activity)
+            if _ha.size:
+                R.energy_home_meal(agents, energy_layer, _ha, _hs, tick)
 
         # ---- 会話ターン起床(行動契約書 §3・不応期0)----
         if conv is not None:
@@ -3832,6 +3896,9 @@ def run_day(
         for s, suffix in enumerate(("", "_awake_in_area"))
     }
     result.energy_rate = str(energy_rate) if energy_on else ""
+    result.meal_sleep_defer = str(meal_sleep_defer)
+    result.home_meal = str(home_meal)
+    result.hunger_words = str(hunger_words)
     result.energy = (
         {**energy_layer.model.manifest_fields(), **energy_layer.summary(agents)}
         if energy_layer is not None

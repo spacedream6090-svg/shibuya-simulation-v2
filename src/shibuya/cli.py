@@ -1011,6 +1011,26 @@ def main(argv: list[str] | None = None) -> int:
              "(既定・K1 (c))/bmr=基礎代謝量×METs(感度腕・K1 (a))",
     )
     ap.add_argument(
+        "--meal-sleep-defer",
+        choices=("off", "on"),
+        default="off",
+        help="第2波 §2B 項 1(Q34 (b)): 範囲外の既定の食事時刻に W17 で就寝中の体。off=旧(そのまま食べる・既定)/"
+             "on=起床の時刻へ遅らせ、時間帯の窓の中なら食べる(過ぎていれば無し)。--hunger-model energy のときだけ効く",
+    )
+    ap.add_argument(
+        "--home-meal",
+        choices=("off", "plan"),
+        default="off",
+        help="第2波 §2B 項 2(Q35 (a)): 範囲内の自宅の食事行。off=旧(食事は飲食店でしか成立しない・既定)/"
+             "plan=行の開始に自宅に居て起きていれば予定の実行として食べる(金と物は動かさない・照合から外す)",
+    )
+    ap.add_argument(
+        "--hunger-words",
+        choices=("hungry", "all"),
+        default="hungry",
+        help="第2波 §2B 項 3(Q31 (b)): B5 の空腹の語。hungry=空腹以上だけ描く(既定=旧)/all=満腹・ふつうも描く",
+    )
+    ap.add_argument(
         "--eatery",
         choices=EATERY_MODES,
         default=DEFAULT_EATERY_MODE,
@@ -1189,6 +1209,9 @@ def main(argv: list[str] | None = None) -> int:
         store_decay=str(args.store_decay),
         hunger_model=str(args.hunger_model),
         energy_rate=str(args.energy_rate),
+        meal_sleep_defer=str(args.meal_sleep_defer),
+        home_meal=str(args.home_meal),
+        hunger_words=str(args.hunger_words),
         role_words=(str(args.role_words) == "on"),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),

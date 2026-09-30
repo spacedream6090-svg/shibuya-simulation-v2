@@ -89,6 +89,9 @@ from shibuya.world.assets import CELL_SIZE_M, WorldAssets
 from shibuya.world.state import LANDMARK_CATS, World
 
 __all__ = [
+    "HUNGER_WORDS_MODES",
+    "DEFAULT_HUNGER_WORDS",
+    "check_hunger_words",
     "compose_memory_line",
     "memory_item_text",
     "P_SEE_ACTIVITY_KINDS",
@@ -307,11 +310,26 @@ STREET_POINT_AREA_M2: Final[float] = 6.25
 INTERO_UP_EDGES: Final[tuple[int, ...]] = (4, 7, 9)
 
 
-def _hunger_word(value: int) -> str | None:
-    """空腹の写し(1/5/8/10)→ B5 の語の 1 文(5 段目 5a)。段が ``HUNGER_WORD_DRAW_MIN_STAGE``
-    未満(満腹・ふつう)なら ``None``(描かない)。段=``INTERO_UP_EDGES`` を何本越えたか。"""
+#: **第2波 §2B 項 3(Q31 (b))** B5 に描く空腹の語の段(``--hunger-words``)。``hungry``(**既定**=旧)=
+#: ``T.HUNGER_WORD_DRAW_MIN_STAGE``(空腹)以上だけ / ``all``=満腹・ふつうも描く(4 段とも)。
+#: 既定の切り替えは食事の束の版上げで確認する(指示書 §8-2)。D-111 の予想表の「閾値超え 11%」は ``hungry``
+#: の定義の値。
+HUNGER_WORDS_MODES: Final[tuple[str, ...]] = ("hungry", "all")
+DEFAULT_HUNGER_WORDS: Final[str] = "hungry"
+
+
+def check_hunger_words(mode: str) -> str:
+    if str(mode) not in HUNGER_WORDS_MODES:
+        raise ValueError(f"hunger_words は {HUNGER_WORDS_MODES} のどれか(いま {mode!r})")
+    return str(mode)
+
+
+def _hunger_word(value: int, min_stage: int | None = None) -> str | None:
+    """空腹の写し(1/5/8/10)→ B5 の語の 1 文(5 段目 5a)。段が ``min_stage``(既定
+    ``HUNGER_WORD_DRAW_MIN_STAGE``)未満なら ``None``(描かない)。段=``INTERO_UP_EDGES`` を何本越えたか。
+    ``min_stage=0``(``hunger_words="all"``)は 4 段とも描く。"""
     stage = sum(1 for e in INTERO_UP_EDGES if int(value) >= e)
-    if stage < T.HUNGER_WORD_DRAW_MIN_STAGE:
+    if stage < (T.HUNGER_WORD_DRAW_MIN_STAGE if min_stage is None else int(min_stage)):
         return None
     return T.HUNGER_ITEM_TEMPLATE.format(word=T.HUNGER_WORDS[stage])
 
@@ -993,6 +1011,7 @@ class Renderer:
         near_tiebreak: str = DEFAULT_NEAR_TIEBREAK,
         near_salt: bytes | None = None,
         near_order: str = DEFAULT_NEAR_ORDER,
+        hunger_words: str = DEFAULT_HUNGER_WORDS,
     ) -> None:
         """
         Args:
@@ -1115,6 +1134,9 @@ class Renderer:
         #: 数値の代わりに ``T.HUNGER_WORDS`` の語を ``T.HUNGER_WORD_DRAW_MIN_STAGE`` 以上だけ描く。
         #: 欄の無いラン(v1)は従来の「空腹はNで閾値を超えています。」=**1 バイトも変わらない**。
         self._hunger_words: bool = bool(getattr(agents, "energy_columns", False))
+        #: 第2波 §2B 項 3: 描く最小の段(``hungry``=None=旧の定数 / ``all``=0)。
+        self.hunger_words: str = check_hunger_words(hunger_words)
+        self._hunger_min_stage: int | None = 0 if self.hunger_words == "all" else None
         #: C10 8a: 関係辺の知人の口 ``(体, tick) → 相手の配列``(``--relations on`` のランだけ・既定 None=
         #: 構築時の ``acquaintances``=空=1 バイトも変わらない)。
         self.acquaintance_fn: Callable[[int, int], Sequence[int]] | None = None
@@ -1773,7 +1795,7 @@ class Renderer:
         for name, label in zip(INTEROCEPTION_FIELDS, ("空腹", "体力", "体感温度")):
             v = int(a.registry.field(name)[i])
             if name == "hunger" and self._hunger_words:
-                word = _hunger_word(v)
+                word = _hunger_word(v, self._hunger_min_stage)
                 if word is not None:
                     crossed.append(word)
                 continue
@@ -2351,10 +2373,11 @@ class Renderer:
         for name, label in zip(INTEROCEPTION_FIELDS, ("空腹", "体力", "体感温度")):
             v = int(a.registry.field(name)[i])
             if name == "hunger" and self._hunger_words:
-                word = _hunger_word(v)
+                word = _hunger_word(v, self._hunger_min_stage)
                 if word is not None:
+                    # all の満腹・ふつう(v < 閾値)は逸脱 0(負にしない)。hungry は旧と同じ値
                     overrides[("B5.intero", len(crossed))] = {
-                        "deviance": min(1.0, (v - INTERO_UP_EDGES[0]) / span)
+                        "deviance": min(1.0, max(0.0, (v - INTERO_UP_EDGES[0]) / span))
                     }
                     crossed.append(word)
                 continue
@@ -2506,6 +2529,10 @@ class Renderer:
         total = self.cache_hits + self.cache_misses
         return float(self.cache_hits) / total if total else 0.0
 
+    def _hunger_sha_min_stage(self) -> int | None:
+        """第2波 §2B: 文面の指紋に使う空腹の語の段の下限(all かつ語で描くランだけ 0・他は None=凍結値)。"""
+        return 0 if (self._hunger_words and self._hunger_min_stage == 0) else None
+
     def report(self) -> str:
         """診断行 1 本。
 
@@ -2520,7 +2547,7 @@ class Renderer:
             f"cache_hit_rate={self.cache_hit_rate:.3f} "
             f"(hits={self.cache_hits} misses={self.cache_misses}) "
             f"truncated_channels={self.truncation_count} "
-            f"template_sha256={T.template_sha256()[:16]}"
+            f"template_sha256={T.template_sha256(self._hunger_sha_min_stage())[:16]}"
             f"{frozen}"
         )
 

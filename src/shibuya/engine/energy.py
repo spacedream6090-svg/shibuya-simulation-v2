@@ -38,6 +38,14 @@
 3. ``OutOfAreaMeals.__init__``: 時間帯 3 つぶん(起動時 1 回)。体・行はすべて配列演算。
 4. tick ごと(``expenditure`` / ``stage_of`` / ``EnergyLayer.after_tick`` / ``due``): **なし**
    (配列演算だけ)。
+5. ``w17_wake_minute``(第2波 §2B 項 1・起動時 1 回): 連続する W17 の「就寝」の行の段数ぶん
+   (≤ 体あたりの行数・体数には比例しない)。``HomeMeals``(項 2)は起動時・tick ごとともに配列演算だけ。
+
+第2波 §2B(切替口つき・既定は旧=1 バイトも変わらない)
+- 項 1 ``--meal-sleep-defer {off,on}``(Q34 (b)): 既定の時刻に W17 で就寝中の体の既定の食事を起床の時刻へ
+  遅らせる(窓の中なら)=``OutOfAreaMeals(sleep_defer=...)``。
+- 項 2 ``--home-meal {off,plan}``(Q35 (a)): 範囲内の自宅の食事行を予定の実行として食べさせる=``HomeMeals``。
+  金と物は動かさない(K9 と同じ「予定の実行」)。照合の分布と店の集計から外す(``kind="meal_home"``)。
 
 expedient(本モジュール分・宣言)
 - ``AVG_METS=1.379``(座位中心の基準日・アジェンダ §1-2)・語の区切り 0.25/0.75/1.5(草案 §1-5)・
@@ -91,8 +99,25 @@ __all__ = [
     "load_anchors",
     "EnergyModel",
     "OutOfAreaMeals",
+    "HomeMeals",
     "EnergyLayer",
+    "MEAL_SLEEP_DEFER_MODES",
+    "DEFAULT_MEAL_SLEEP_DEFER",
+    "HOME_MEAL_MODES",
+    "DEFAULT_HOME_MEAL",
+    "check_meal_sleep_defer",
+    "check_home_meal",
+    "w17_wake_minute",
 ]
+
+#: **第2波 §2B 項 1(Q34 (b))** 就寝中に既定の食事時刻が来た体の扱い(``--meal-sleep-defer``)。
+#: ``off``=旧(W17 の就寝中かどうかは見ない)・``on``=起床の時刻へ遅らせ、窓の中なら食べる。
+MEAL_SLEEP_DEFER_MODES: Final[tuple[str, ...]] = ("off", "on")
+DEFAULT_MEAL_SLEEP_DEFER: Final[str] = "off"
+#: **第2波 §2B 項 2(Q35 (a))** 範囲内の自宅の食事行(``--home-meal``)。``off``=旧(飲食店でしか
+#: 食事は成立しない)・``plan``=W17 の自宅の食事行を「予定の実行」としてエンジンが食べさせる。
+HOME_MEAL_MODES: Final[tuple[str, ...]] = ("off", "plan")
+DEFAULT_HOME_MEAL: Final[str] = "off"
 
 #: 錨の追跡ファイル(リポ直下からの相対)。
 ANCHORS_PATH: Final[Path] = (
@@ -170,6 +195,90 @@ def check_energy_rate(value: str) -> str:
     if v not in ENERGY_RATES:
         raise ValueError(f"energy_rate は {ENERGY_RATES} のどれか(いま {value!r})")
     return v
+
+
+def check_meal_sleep_defer(value: str) -> str:
+    v = str(value)
+    if v not in MEAL_SLEEP_DEFER_MODES:
+        raise ValueError(f"meal_sleep_defer は {MEAL_SLEEP_DEFER_MODES} のどれか(いま {value!r})")
+    return v
+
+
+def check_home_meal(value: str) -> str:
+    v = str(value)
+    if v not in HOME_MEAL_MODES:
+        raise ValueError(f"home_meal は {HOME_MEAL_MODES} のどれか(いま {value!r})")
+    return v
+
+
+def _w17_day_rows(weekly: Any, n: int, day_index: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+    """W17 のその曜日の全行 → ``(体行, 全体行索引, 体ごとの件数, 体数 m)``(配列演算)。"""
+    from shibuya.agents.weekly import N_DAYS
+
+    m = min(int(n), int(weekly.n_agents))
+    d = int(day_index) % N_DAYS
+    lo = np.asarray(weekly.day_offset[d::N_DAYS][:m], dtype=np.int64)
+    hi = np.asarray(weekly.day_offset[d + 1::N_DAYS][:m], dtype=np.int64)
+    counts = hi - lo
+    total = int(counts.sum())
+    if total == 0:
+        e = np.empty(0, dtype=np.int64)
+        return e, e, counts, m
+    rows = np.repeat(np.arange(m, dtype=np.int64), counts)
+    base = np.repeat(np.cumsum(counts) - counts, counts)
+    idx = np.repeat(lo, counts) + (np.arange(total, dtype=np.int64) - base)
+    return rows, idx, counts, m
+
+
+def w17_wake_minute(
+    weekly: Any, n_agents: int, day_index: int, agent: np.ndarray, minute: np.ndarray
+) -> np.ndarray:
+    """体 ``agent`` がその日の ``minute`` に W17 の「就寝」の行の中に居れば、**起床の分**
+    (就寝の行が途切れる最初の分=連続する就寝の行はつないで読む)。就寝中でなければ ``-1``。
+
+    「その分の行」は W17 の ``activity_at`` と同じ読み(開始 ≤ 分 の最後の行・同じ開始は seq 順の最後)。
+    起床の分=就寝の行の終わりと**次の行の開始**の早いほう(W17 には行が重なる体がある=次の行の
+    計画境界でエンジンは体を起こす・宣言)。
+
+    W17 の無い体(体行の外)は就寝中でない(``-1``)。配列演算(連続する就寝の行の段数ぶんだけ
+    繰り返す=逐次ループ宣言 5・体数には比例しない)。
+    """
+    from shibuya.agents.weekly import MINUTES_PER_DAY, SLEEP_ACTIVITY_CODE
+
+    a = np.asarray(agent, dtype=np.int64).ravel()
+    mm = np.asarray(minute, dtype=np.int64).ravel().copy()
+    out = np.full(a.size, -1, dtype=np.int64)
+    if a.size == 0 or weekly is None:
+        return out
+    rows, idx, counts, m = _w17_day_rows(weekly, int(np.max(a)) + 1, day_index)
+    if idx.size == 0:
+        return out
+    start = np.asarray(weekly.start_min, dtype=np.int64)[idx]
+    end = np.asarray(weekly.end_min, dtype=np.int64)[idx]
+    act = np.asarray(weekly.activity, dtype=np.int64)[idx]
+    order = np.lexsort((start, rows))  # (体行, 開始分) 昇順(W17 の seq 順を当てにしない)
+    rows, start, end, act = rows[order], start[order], end[order], act[order]
+    gkey = rows * (MINUTES_PER_DAY + 1) + start
+    base = np.zeros(m + 1, dtype=np.int64)
+    np.cumsum(counts, out=base[1:])
+    ok = (a >= 0) & (a < m)
+    safe = np.where(ok, a, 0)
+    active = ok.copy()
+    for _ in range(int(counts.max()) + 1):  # 逐次ループ宣言 5: 連続する就寝の行の段数ぶん(≤ 体あたりの行数)
+        if not active.any():
+            break
+        probe = safe * (MINUTES_PER_DAY + 1) + np.clip(mm, 0, MINUTES_PER_DAY)
+        pos = np.searchsorted(gkey, probe, side="right") - 1
+        inside = active & (pos >= base[safe]) & (pos < base[safe + 1])
+        p = np.where(inside, pos, 0)
+        asleep = inside & (start[p] <= mm) & (end[p] > mm) & (act[p] == SLEEP_ACTIVITY_CODE)
+        # 起床=就寝の行の終わりか、次の行の開始(W17 には行の重なりがある=次の行の境界で
+        # エンジンは体を起こす)の早いほう
+        nxt = np.where(p + 1 < base[safe + 1], start[np.minimum(p + 1, start.size - 1)], MINUTES_PER_DAY)
+        mm = np.where(asleep, np.minimum(end[p], nxt), mm)
+        out = np.where(asleep, mm, out)
+        active = asleep & (mm < MINUTES_PER_DAY)
+    return out
 
 
 def load_anchors(path: str | Path | None = None) -> tuple[dict[str, Any], str]:
@@ -425,6 +534,15 @@ class OutOfAreaMeals:
     - 時間帯(朝/昼/夕)に食事行が 1 本も無い体は**既定の時刻**(朝 7:29・昼 12:15・夕 19:18)に、
       その時刻に域外なら食事(アジェンダ §1-5 の文言どおり=W17 の就寝中かどうかは見ない)。
     - 週次表の無いラン(合成・母集団なし)は全員に既定の時刻だけ(域外に居なければ何も起きない)。
+
+    **第2波 §2B 項 1(Q34 (b)・``sleep_defer="on"``)**: 既定の時刻に W17 が「就寝」の体は、その時刻には
+    食べず、**起床の分**(``w17_wake_minute``)へ遅らせる。起床の分がその時間帯の窓
+    (``MEAL_WINDOWS_MIN``)の中なら、その時刻に域外に居れば食べる(=「遅らせた食事」)。窓を過ぎて
+    いればその時間帯の食事は無し。遅らせる/無しにするのは**既定の時刻に域外に居た体だけ**(旧の規則で
+    食事が置かれる体だけ=既定の時刻に範囲内の体には元から何も置かれない)。就寝の判定は W17 の予定
+    (範囲外の体のエンジンの ``activity`` は計画の就寝を実行しないので読めない)。W17 の食事行由来の
+    食事は変えない(W17 には食事行が就寝の行と重なる体がある=5,000 体の月曜で 12 組・食事行由来の食事 2 回が
+    W17 の就寝中に置かれる。W17 の欠陥で項 1 の外=挙動はそのまま)。``off``(既定)は 1 バイトも変わらない。
     """
 
     def __init__(
@@ -435,7 +553,9 @@ class OutOfAreaMeals:
         weekly: Any = None,
         day_index: int = 0,
         tick_seconds: int = 60,
+        sleep_defer: str = DEFAULT_MEAL_SLEEP_DEFER,
     ) -> None:
+        self.sleep_defer = check_meal_sleep_defer(sleep_defer)
         n = int(n_agents)
         agent_parts: list[np.ndarray] = []
         minute_parts: list[np.ndarray] = []
@@ -477,7 +597,15 @@ class OutOfAreaMeals:
         slot = np.concatenate(slot_parts) if slot_parts else np.empty(0, dtype=np.int64)
         from_row = np.concatenate(from_row_parts) if from_row_parts else np.empty(0, dtype=bool)
         tick = (minute * 60) // int(tick_seconds)
-        keep = tick < int(ticks)
+        # ---- 項 1(on): 既定の時刻に W17 で就寝中の既定の食事を分ける(遅らせる/無し) ----
+        asleep = np.zeros(agent.size, dtype=bool)
+        wake_min = np.full(agent.size, -1, dtype=np.int64)
+        if self.sleep_defer == "on" and weekly is not None and agent.size:
+            dflt = np.flatnonzero(~from_row)
+            wm = w17_wake_minute(weekly, n, day_index, agent[dflt], minute[dflt])
+            asleep[dflt] = wm >= 0
+            wake_min[dflt] = wm
+        keep = (tick < int(ticks)) & ~asleep
         order = np.lexsort((agent[keep], tick[keep]))
         self.tick = tick[keep][order].astype(np.int64)
         self.agent = agent[keep][order].astype(np.int64)
@@ -486,20 +614,180 @@ class OutOfAreaMeals:
         self.n_rows = int(np.count_nonzero(from_row))
         self.n_defaults = int(from_row.size - self.n_rows)
         self._start = np.searchsorted(self.tick, np.arange(int(ticks) + 1, dtype=np.int64), side="left")
+        # 就寝中の既定(arm=既定の時刻・eat=起床の時刻・窓を過ぎていれば eat=-1)
+        sa = np.flatnonzero(asleep & (tick < int(ticks)))
+        d_slot = slot[sa].astype(np.int64)
+        d_wake = wake_min[sa]
+        lo_w = np.asarray([MEAL_WINDOWS_MIN[k][0] for k in ("breakfast", "lunch", "dinner")], dtype=np.int64)
+        hi_w = np.asarray([MEAL_WINDOWS_MIN[k][1] for k in ("breakfast", "lunch", "dinner")], dtype=np.int64)
+        in_win = (d_wake >= lo_w[d_slot]) & (d_wake < hi_w[d_slot]) if sa.size else np.zeros(0, dtype=bool)
+        d_eat = np.where(in_win, (d_wake * 60) // int(tick_seconds), -1)
+        d_eat = np.where(d_eat < int(ticks), d_eat, -1)
+        self.d_agent = agent[sa].astype(np.int64)
+        self.d_slot = d_slot.astype(np.int8)
+        self.d_arm_tick = tick[sa].astype(np.int64)
+        self.d_eat_tick = d_eat.astype(np.int64)
+        self.d_wake_min = d_wake.astype(np.int64)
+        self.d_armed = np.zeros(sa.size, dtype=bool)
+        self.n_asleep_defaults = int(sa.size)
+        self.n_deferrable = int(np.count_nonzero(self.d_eat_tick >= 0))
+        #: 診断(挙動に効かない): 既定の時刻に域外で就寝中だった(=旧なら食べていた)件数・うち起床が
+        #: 窓を過ぎて無しになった件数・起床の時刻に域外に居なくて食べなかった件数。
+        self.n_armed = 0
+        self.n_skipped_past_window = 0
+        self.n_deferred_not_out = 0
+        o_arm = np.argsort(self.d_arm_tick, kind="stable")
+        o_eat = np.argsort(np.where(self.d_eat_tick >= 0, self.d_eat_tick, np.iinfo(np.int64).max),
+                           kind="stable")
+        self._arm_order = o_arm
+        self._eat_order = o_eat
+        grid = np.arange(int(ticks) + 1, dtype=np.int64)
+        self._arm_start = np.searchsorted(self.d_arm_tick[o_arm], grid, side="left")
+        self._eat_start = np.searchsorted(
+            np.where(self.d_eat_tick >= 0, self.d_eat_tick, np.iinfo(np.int64).max)[o_eat], grid,
+            side="left",
+        )
 
     def due(self, tick: int, transit_state: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """この tick に域外で食べる ``(体, 時間帯, 行由来か)``(配列演算)。"""
+        ids, slots, fr, _ = self.due_with_deferred(tick, transit_state)
+        return ids, slots, fr
+
+    def due_with_deferred(
+        self, tick: int, transit_state: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """``due`` と同じ+4 つ目=**起床時に遅らせた食事か**(項 1・``off`` では全部 False)。"""
         t = int(tick)
+        e = np.empty(0, dtype=np.int64)
+        empty = (e, np.empty(0, dtype=np.int8), np.empty(0, dtype=bool), np.empty(0, dtype=bool))
         if t < 0 or t + 1 >= self._start.size:
-            e = np.empty(0, dtype=np.int64)
-            return e, np.empty(0, dtype=np.int8), np.empty(0, dtype=bool)
+            return empty
+        ts = np.asarray(transit_state)
+        lo, hi = int(self._start[t]), int(self._start[t + 1])
+        if hi > lo:
+            ids = self.agent[lo:hi]
+            out = ts[ids] == 2
+            ids, slots, fr = ids[out], self.slot[lo:hi][out], self.from_row[lo:hi][out]
+        else:
+            ids, slots, fr = e, np.empty(0, dtype=np.int8), np.empty(0, dtype=bool)
+        if self.d_agent.size == 0:
+            return ids, slots, fr, np.zeros(ids.size, dtype=bool)
+        # 既定の時刻に域外で就寝中 → 起床の時刻の食事を仕掛ける(窓を過ぎていれば無し)
+        a0, a1 = int(self._arm_start[t]), int(self._arm_start[t + 1])
+        if a1 > a0:
+            k = self._arm_order[a0:a1]
+            out = ts[self.d_agent[k]] == 2
+            arm = k[out & (self.d_eat_tick[k] >= 0)]
+            self.d_armed[arm] = True
+            self.n_armed += int(np.count_nonzero(out))
+            self.n_skipped_past_window += int(np.count_nonzero(out & (self.d_eat_tick[k] < 0)))
+        e0, e1 = int(self._eat_start[t]), int(self._eat_start[t + 1])
+        if e1 > e0:
+            k = self._eat_order[e0:e1]
+            k = k[self.d_armed[k]]
+            self.d_armed[k] = False
+            out = ts[self.d_agent[k]] == 2
+            self.n_deferred_not_out += int(np.count_nonzero(~out))
+            k = k[out]
+            if k.size:
+                ids = np.concatenate([ids, self.d_agent[k]])
+                slots = np.concatenate([slots, self.d_slot[k]])
+                fr = np.concatenate([fr, np.zeros(k.size, dtype=bool)])
+                dfr = np.zeros(ids.size, dtype=bool)
+                dfr[-k.size:] = True
+                return ids, slots, fr, dfr
+        return ids, slots, fr, np.zeros(ids.size, dtype=bool)
+
+    def defer_summary(self) -> dict[str, int]:
+        return {
+            "mode": self.sleep_defer,  # type: ignore[dict-item]
+            "defaults_asleep_in_w17": self.n_asleep_defaults,
+            "defaults_asleep_wake_in_window": self.n_deferrable,
+            "armed_out_of_area_at_default": self.n_armed,
+            "skipped_wake_past_window": self.n_skipped_past_window,
+            "deferred_not_out_of_area_at_wake": self.n_deferred_not_out,
+        }
+
+
+class HomeMeals:
+    """**第2波 §2B 項 2(Q35 (a))** 範囲内の自宅の食事行=「予定の実行」(``--home-meal plan``)。
+
+    - 対象の行: W17 の活動語「食事」・場所語「自宅」の行で、その体の自宅が範囲内(W16 の
+      ``home_cell >= 0``=居住者・従業者)のもの。起動時に 1 日ぶんの (tick, 体, 時間帯) を組む。
+    - 行の開始の tick に、その体が**自宅に居て**(``transit_state==0`` かつ ``cell == home_cell``)
+      **起きている**(``activity != SLEEPING``)なら、エンジンが食べさせる(K9 と同じ摂取=時間帯の比 ×
+      EER・``since_meal=0``・金と物は動かさない)。居なければ何もしない(外で食べるかは方策が決める)。
+    - 1 行 1 回(行の開始の tick だけ見る)。起床は足さない。
+    """
+
+    def __init__(
+        self,
+        n_agents: int,
+        ticks: int,
+        weekly: Any,
+        home_cell: np.ndarray,
+        day_index: int = 0,
+        tick_seconds: int = 60,
+    ) -> None:
+        from shibuya.agents.weekly import ACTIVITY_WORDS, PLACE_WORDS
+
+        n = int(n_agents)
+        home = np.full(n, -1, dtype=np.int64)
+        hc = np.asarray(home_cell, dtype=np.int64)[:n]
+        home[: hc.size] = hc
+        self.home_cell = home
+        agent = np.empty(0, dtype=np.int64)
+        minute = np.empty(0, dtype=np.int64)
+        if weekly is not None:
+            rows, idx, _counts, _m = _w17_day_rows(weekly, n, day_index)
+            if idx.size:
+                eat = (np.asarray(weekly.activity, dtype=np.int64)[idx] == ACTIVITY_WORDS.index("食事")) & (
+                    np.asarray(weekly.place_kind, dtype=np.int64)[idx] == PLACE_WORDS.index("自宅")
+                )
+                eat &= home[rows] >= 0
+                agent = rows[eat]
+                minute = np.asarray(weekly.start_min, dtype=np.int64)[idx[eat]]
+        tick = (minute * 60) // int(tick_seconds)
+        keep = tick < int(ticks)
+        order = np.lexsort((agent[keep], tick[keep]))
+        self.tick = tick[keep][order].astype(np.int64)
+        self.agent = agent[keep][order].astype(np.int64)
+        self.slot = minute_slot(minute[keep][order]).astype(np.int8)
+        self.n_rows = int(self.agent.size)
+        self.n_agents_with_rows = int(np.unique(self.agent).size)
+        self._start = np.searchsorted(self.tick, np.arange(int(ticks) + 1, dtype=np.int64), side="left")
+        #: 診断: 行の開始に自宅に居なかった/就寝中だった件数。
+        self.n_not_home = 0
+        self.n_asleep = 0
+
+    def due(
+        self, tick: int, transit_state: np.ndarray, cell: np.ndarray, activity: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """この tick に自宅で食べる ``(体, 時間帯)``(配列演算)。"""
+        t = int(tick)
+        e = np.empty(0, dtype=np.int64)
+        if t < 0 or t + 1 >= self._start.size:
+            return e, np.empty(0, dtype=np.int8)
         lo, hi = int(self._start[t]), int(self._start[t + 1])
         if hi <= lo:
-            e = np.empty(0, dtype=np.int64)
-            return e, np.empty(0, dtype=np.int8), np.empty(0, dtype=bool)
+            return e, np.empty(0, dtype=np.int8)
         ids = self.agent[lo:hi]
-        out = np.asarray(transit_state)[ids] == 2
-        return ids[out], self.slot[lo:hi][out], self.from_row[lo:hi][out]
+        home = (np.asarray(transit_state)[ids] == 0) & (
+            np.asarray(cell, dtype=np.int64)[ids] == self.home_cell[ids]
+        )
+        awake = np.asarray(activity)[ids] != int(Activity.SLEEPING)
+        self.n_not_home += int(np.count_nonzero(~home))
+        self.n_asleep += int(np.count_nonzero(home & ~awake))
+        ok = home & awake
+        return ids[ok], self.slot[lo:hi][ok]
+
+    def summary(self) -> dict[str, int]:
+        return {
+            "rows": self.n_rows,
+            "agents_with_rows": self.n_agents_with_rows,
+            "not_at_home": self.n_not_home,
+            "asleep": self.n_asleep,
+        }
 
 
 @dataclass
@@ -509,6 +797,11 @@ class EnergyLayer:
     model: EnergyModel
     n_agents: int
     out_of_area: OutOfAreaMeals | None = None
+    #: 第2波 §2B 項 2: 範囲内の自宅の食事行(``--home-meal plan`` のランだけ・既定 None)。
+    home_meals: "HomeMeals | None" = None
+    #: 第2波 §2B Q-2B-6 (ii): 食事(``since_meal`` を 0 に戻す摂取)のたびに 0 に戻す体ごとの配列
+    #: (classical の per_hour の門の H・それ以外のランは None=何もしない)。
+    meal_reset: np.ndarray | None = None
     #: ``bmr`` 腕の体ごとの基礎代謝量(派生の定数・state_hash に入らない)。
     bmr: np.ndarray | None = None
     #: 購入の対象 POI → 摂取の種類(0 なし / 1 軽食 / 2 飲料)。
@@ -519,6 +812,8 @@ class EnergyLayer:
     meal_start_in: np.ndarray = field(default_factory=lambda: np.zeros(96, dtype=np.int64))
     meal_start_out: np.ndarray = field(default_factory=lambda: np.zeros(96, dtype=np.int64))
     snack_start: np.ndarray = field(default_factory=lambda: np.zeros(96, dtype=np.int64))
+    #: 第2波 §2B 項 2: 予定の実行(自宅)の食事の開始 15 分刻み(照合の分布 ``meal_start_in`` から外す)。
+    meal_start_home: np.ndarray = field(default_factory=lambda: np.zeros(96, dtype=np.int64))
     #: 語の段 × tick の延べ(行: 0 起きて範囲内 / 1 就寝中 / 2 範囲外・乗車中)。
     stage_ticks: np.ndarray = field(default_factory=lambda: np.zeros((3, 4), dtype=np.int64))
     #: 同(起きて範囲内)を 1 時間ごと(24 × 4)。
@@ -542,17 +837,28 @@ class EnergyLayer:
 
     # ---- resolve から(成立した行だけ) ----
     def note(self, kind: str, ids: np.ndarray, minute: int, kcal: float,
-             slots: np.ndarray | None = None, from_row: np.ndarray | None = None) -> None:
-        """摂取の記録(診断)。``kind`` は meal_in / meal_out / snack / drink。"""
+             slots: np.ndarray | None = None, from_row: np.ndarray | None = None,
+             deferred: np.ndarray | None = None) -> None:
+        """摂取の記録(診断)。``kind`` は meal_in / meal_out / meal_home / snack / drink。
+
+        ``meal_home``(第2波 §2B 項 2)=予定の実行の食事: 件数は ``meals_home_plan``・開始の分布は
+        ``meal_start_home``(照合の ``meal_start_in`` と店の集計には入らない)・食事の回数と窓の印には入る。
+        ``deferred``(項 1)=範囲外の既定の食事のうち起床時に遅らせたもの(``meals_out_default`` の内数
+        ``meals_out_deferred``)。どちらも該当が出たランだけ鍵を作る(既定のランの要約は不変)。
+        """
         ids = np.asarray(ids, dtype=np.int64)
         if ids.size == 0:
             return
         q = (int(minute) % 1440) // 15
         self.intake_kcal[kind] = self.intake_kcal.get(kind, 0.0) + float(kcal)
-        if kind in ("meal_in", "meal_out"):
-            key = "meals_in_area" if kind == "meal_in" else "meals_out_of_area"
-            self.counts[key] += int(ids.size)
-            (self.meal_start_in if kind == "meal_in" else self.meal_start_out)[q] += int(ids.size)
+        if kind in ("meal_in", "meal_out", "meal_home"):
+            if kind == "meal_home":
+                self.counts["meals_home_plan"] = self.counts.get("meals_home_plan", 0) + int(ids.size)
+                self.meal_start_home[q] += int(ids.size)
+            else:
+                key = "meals_in_area" if kind == "meal_in" else "meals_out_of_area"
+                self.counts[key] += int(ids.size)
+                (self.meal_start_in if kind == "meal_in" else self.meal_start_out)[q] += int(ids.size)
             s = (
                 np.asarray(slots, dtype=np.int64)
                 if slots is not None
@@ -565,6 +871,10 @@ class EnergyLayer:
                 fr = np.asarray(from_row, dtype=bool)
                 self.counts["meals_out_from_row"] += int(np.count_nonzero(fr))
                 self.counts["meals_out_default"] += int(np.count_nonzero(~fr))
+                if deferred is not None and bool(np.any(deferred)):
+                    self.counts["meals_out_deferred"] = self.counts.get("meals_out_deferred", 0) + int(
+                        np.count_nonzero(np.asarray(deferred, dtype=bool))
+                    )
         elif kind == "snack":
             self.counts["snacks"] += int(ids.size)
             self.snack_start[q] += int(ids.size)
@@ -665,9 +975,16 @@ class EnergyLayer:
             "snack_start_15min": self.snack_start.tolist(),
             "out_of_area_schedule": (
                 {"from_rows": self.out_of_area.n_rows, "defaults": self.out_of_area.n_defaults}
+                | ({"sleep_defer": self.out_of_area.defer_summary()}
+                   if self.out_of_area.sleep_defer != DEFAULT_MEAL_SLEEP_DEFER else {})
                 if self.out_of_area is not None
                 else {}
             ),
             "weight_kg": q(np.asarray(r.weight_kg, dtype=np.float64)),
             "eer_kcal": q(eer),
-        }
+        } | (
+            {"home_meal": {"mode": "plan", **self.home_meals.summary(),
+                           "meal_start_home_15min": self.meal_start_home.tolist()}}
+            if self.home_meals is not None
+            else {}
+        )
