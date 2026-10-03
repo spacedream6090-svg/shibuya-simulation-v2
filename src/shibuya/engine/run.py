@@ -201,6 +201,8 @@ from shibuya.engine.llm_bridge import (
     delta_think_ticks,
 )
 from shibuya.engine.scheduler import DIAG_COLUMNS
+from shibuya.engine.state_hashes import behavior_hash as behavior_state_hash
+from shibuya.engine.state_hashes import full_hash as full_state_hash
 from shibuya.engine.tape import Replay, TapeRow, TapeWriter, read_run_meta
 from shibuya.llm.contract import TargetKind
 from shibuya.llm.fleet import (
@@ -541,6 +543,16 @@ def run_salt_for(master_seed: int | str) -> bytes:
 
 
 @dataclass(frozen=True)
+class _RunDayLocals:
+    """10b: ``run_day`` の局所の状態(状態台帳 O43・O44)を full-hash の持ち主として渡す入れ物。"""
+
+    pending: list
+    fleet_deferred: list
+    fleet_waiting: set
+    replay_inbox: dict
+
+
+@dataclass(frozen=True)
 class Checkpoint:
     """checkpoint 1 点の状態ハッシュ(T1/T2 の一致判定)。"""
 
@@ -555,6 +567,11 @@ class Checkpoint:
     #: 活動層の無いラン(v1/v2・``--activity off``)は ``""`` で ``combined`` に**混ぜない**
     #: =既定の checkpoint は 1 バイトも動かない。
     activity_hash: str = ""
+    #: 10b(A2・A3): **behavior-hash**(``engine.state_hashes.behavior_hash``=``combined`` と同じ組み立てで、
+    #: SoA は状態台帳の軸 1 が behavior の列だけ+外の状態の軸 1 が behavior の行)。記録と manifest に出すだけで ``combined`` には**混ぜない**。
+    behavior_hash: str = ""
+    #: 10b: **full-hash**(SoA+知覚 SoA+外の状態のうち軸 2 が要る・導出できる・不明の行)。``combined`` には混ぜない。
+    full_hash: str = ""
 
     @property
     def combined(self) -> str:
@@ -864,6 +881,13 @@ class RunResult:
     response_delay: int = DEFAULT_RESPONSE_DELAY
     #: 回した日数(``run_day(sim_days=…)``・既定 1)。
     sim_days: int = 1
+    # ---- 10b: 状態台帳の 2 つのハッシュ(final には混ぜない) ----
+    #: 最後の checkpoint の full-hash の外の状態の行ごとの直列化のバイト数(台帳の鍵 → B)。
+    full_hash_bytes: dict[str, int] = field(default_factory=dict)
+    #: 検収後 P2: 日の締めの**後**の behavior-hash・full-hash・外の状態のバイト(10d の再開の判定はこちら)。
+    state_hashes_end_of_day: dict[str, Any] = field(default_factory=dict)
+    #: checkpoint ごとの時間[s](壁時計=決定論でない・T7 の最大を見る診断。manifest には出さない)。
+    checkpoint_seconds: list[float] = field(default_factory=list)
 
     # ---- 便利参照 ----
     def column(self, name: str) -> np.ndarray:
@@ -1004,6 +1028,19 @@ class RunResult:
         v = self.waste_sink.get("breakdown_t", {}).get("store_expired_stock") if self.waste_sink else None
         return bool(hi > 0.0 and lo <= (self.waste_tonnes_per_day if v is None else float(v)) <= hi)
 
+    def state_hashes_fields(self) -> dict[str, Any]:
+        """10b: 状態台帳の版・最後の checkpoint の behavior-hash と full-hash・外の状態の直列化のバイト数。"""
+        from shibuya.engine.state_ledger import LEDGER_VERSION
+
+        last = self.checkpoints[-1] if self.checkpoints else None
+        return {
+            "ledger_version": LEDGER_VERSION,
+            "behavior_hash": last.behavior_hash if last is not None else "",
+            "full_hash": last.full_hash if last is not None else "",
+            "full_external_bytes": int(sum(self.full_hash_bytes.values())),
+            "full_external_bytes_by_row": dict(self.full_hash_bytes),
+        }
+
     def run_manifest_fields(self) -> dict[str, Any]:
         """ラン manifest の同定欄(C6 が読む)。
 
@@ -1056,6 +1093,10 @@ class RunResult:
             "sim_days": int(self.sim_days),
             "calendar": dict(self.calendar_fields),
             "response_delay": int(self.response_delay),
+            # ---- 10b(A2・A3): 状態台帳の 2 つのハッシュ(最後の checkpoint の値・列追加のみ・final は今の定義) ----
+            "state_hashes": self.state_hashes_fields(),
+            # 検収後 P2: 日の締めの後の 2 本(10d はこちら。最後の checkpoint の値=上とは別物)
+            "state_hashes_end_of_day": dict(self.state_hashes_end_of_day),
             # 第2波 §2B: ``--hunger-words all``(energy のラン)は実際に描いた段の下限 0 で指紋を計算する
             # (hungry・v1 のランは既存の凍結値のまま=既定は不変)
             "template_sha256": (
@@ -1641,6 +1682,20 @@ def _pending_extra(res: Any) -> tuple[int, int, Any, Any]:
         payload_of(res),
         getattr(res, "target", None),
     )
+
+
+def _call_ref(res: Any) -> tuple[int, str]:
+    """応答 → ``(発射の tick, call_id)``(10b・保留の組の末尾 2 要素)。
+
+    call_id は ``LLMBridge.call``・艦隊の発射と同じ式 ``"{tick}:{agent}:{wake_class}"``(テープの call_id 列と一致)。
+    """
+    t = int(res.tick)
+    return t, f"{t}:{int(res.agent_id)}:{int(res.wake_class)}"
+
+
+def _split_due(pending: list, tick: int) -> tuple[list, list]:
+    """保留の組を「この tick に適用する分」と「残り」に分ける(元の並びを保つ・10b で関数に出しただけ)。"""
+    return [p for p in pending if p[0] <= tick], [p for p in pending if p[0] > tick]
 
 
 def classical_acq_addressable(agents: Any, aid: int, ids: "list[int]", A: np.ndarray, *,
@@ -2866,12 +2921,14 @@ def run_day(
                               "phase_b", "phase_c", "movement", "movement_cpu", "checkpoint")}
     diag_rows: list[tuple[int, ...]] = []
     # (t_apply, class, agent, condition, text, action_code, target_person,
-    #  **target_hint**, **target_poi**, **activity**)
+    #  **target_hint**, **target_poi**, **activity**, **target**, **fire_tick**, **call_id**)
     # ``activity`` = 二層の段 2 の活動(``engine.activity.ActivityPayload``・v3 以外は None)。
     # ``target_person`` = LLM が「対象」欄に書いた個体 id(-1=名指しなし・C6 09-09)。
     # ``target_hint`` = 段0 辞書 v4 の対象ヒント索引(C9b G5・0=なし)。
     # ``target_poi`` = 「対象」欄が目印 POI に解決できたときの索引(C9b G6 a′・-1=なし)。
-    pending: list[tuple[int, int, int, int, str, int, int, int, int, Any, Any]] = []
+    # 10b(① の前提): 末尾に**発射の tick** と **call_id**(``"{発射の tick}:{体}:{級}"``=テープの call_id)。
+    # 読む側は今は無い(原因の欄は ① の記録で)=組の形が変わるだけで既定の結果は動かない。
+    pending: list[tuple[int, int, int, int, str, int, int, int, int, Any, Any, int, str]] = []
     #: この tick に適用した応答の (体, 行動コード, 活動)。``resolve.apply`` の後に活動層が書く。
     applied_activity: tuple[list[int], list[int], list[Any]] = ([], [], [])
     #: C9b G3/G4: この tick に LLM が言った**焦点の要求**(-1=なし)。使い回す 1 本の
@@ -2922,7 +2979,7 @@ def run_day(
                 pending.append((
                     max(res.t_apply, floor), res.wake_class, res.agent_id,
                     res.condition, res.text, res.action_code, _target_person(res.target),
-                    *_pending_extra(res),
+                    *_pending_extra(res), *_call_ref(res),
                 ))
                 if not res.format_ok:
                     n_err += 1
@@ -2954,7 +3011,7 @@ def run_day(
                 pending.append((
                     max(t_apply, floor), res.wake_class, res.agent_id,
                     res.condition, res.text, res.action_code, _target_person(res.target),
-                    *_pending_extra(res),
+                    *_pending_extra(res), *_call_ref(res),
                 ))
                 if not res.format_ok:
                     n_err += 1
@@ -2965,6 +3022,19 @@ def run_day(
         return n_err
 
     # 逐次ループ宣言1: tick 数ぶん(10a: ``tick`` は通しの時刻 T・``td`` はその日の中の tick)
+    def _hash_owners() -> dict[str, Any]:
+        """10b: 状態台帳の外の状態の持ち主(``items`` の根の鍵)。checkpoint と日の締めの後で使う(読むだけ)。"""
+        return {
+            "act_layer": act_layer, "intent_layer": intent_layer, "fam_layer": fam_layer,
+            "mem_layer": mem_layer, "poi_resolver": poi_resolver, "wom": wom_ex, "rel_layer": rel_layer,
+            "classical": classical_policy, "energy": energy_layer, "norm_meter": norm_meter,
+            "presence": presence, "conv": conv, "arbiter": arbiter, "detector": detector,
+            "runner": runner, "ledger": ledger, "undefined": bridge.undefined,
+            "renderer": getattr(perception, "renderer", None) if perception is not None else None,
+            "bridge": bridge, "fleet_bridge": fleet_bridge,
+            "run_day": _RunDayLocals(pending, fleet_deferred, fleet_waiting, replay_inbox),
+        }
+
     for tick in range(total_ticks):
         td = tick % tpd  # 日の中の時刻で引く表(計画境界)はこれで引く。1 日のランでは td == tick
         R.advance_body(agents, tick, energy_layer)
@@ -3033,8 +3103,7 @@ def run_day(
         n_undefined = 0
         applied_activity = ([], [], [])
         if pending:
-            due = [p for p in pending if p[0] <= tick]
-            pending = [p for p in pending if p[0] > tick]
+            due, pending = _split_due(pending, tick)
             if due:
                 t_apply = np.fromiter((p[0] for p in due), dtype=np.int64, count=len(due))
                 ev_class = np.fromiter((p[1] for p in due), dtype=np.int64, count=len(due))
@@ -3415,7 +3484,7 @@ def run_day(
                         fleet_waiting.discard(a)  # 同 tick で届いた=待ちにならない
                     pending.append((
                         res.t_apply, cls, a, cond, res.text, res.action_code,
-                        _target_person(res.target), *_pending_extra(res),
+                        _target_person(res.target), *_pending_extra(res), *_call_ref(res),
                     ))
                     if not res.format_ok:
                         n_parse_errors += 1
@@ -3801,23 +3870,43 @@ def run_day(
             occ_transit.append(_tk.reshape(9, 3).astype(np.int32))
         if checkpoint_every and ((tick + 1) % checkpoint_every == 0 or tick == total_ticks - 1):
             t0 = time.perf_counter()
+            _act_hash = (
+                (
+                    act_layer.state_hash()
+                    if intent_layer is None
+                    else blake3_hex(
+                        f"{act_layer.state_hash()}\x1f{intent_layer.state_hash()}".encode()
+                    )
+                )
+                if act_layer is not None
+                else ""
+            )
+            # ---- 10b(A2・A3): behavior-hash と full-hash を**別に**計算して記録に足す(final は今の定義) ----
+            # 読むだけ(乱数を引かない・状態を書かない)。外の状態の持ち主は状態台帳の ``items`` の根の鍵。
+            _owners = _hash_owners()
+            _memo: dict[str, tuple[bytes, int]] = {}  # 同じ属性を 2 本のハッシュで 2 度直列化しない
+            _full, _full_bytes = full_state_hash(
+                agents, world,
+                runner.salient.pstate if runner is not None else None,
+                schedule.population_hash, schedule_hash, _owners, memo=_memo,
+            )
+            result.full_hash_bytes = _full_bytes
             result.checkpoints.append(
                 Checkpoint(
                     tick, agents.state_hash(), world.state_hash(),
                     schedule.population_hash,
                     schedule_hash,
-                    (
-                        act_layer.state_hash()
-                        if intent_layer is None
-                        else blake3_hex(
-                            f"{act_layer.state_hash()}\x1f{intent_layer.state_hash()}".encode()
-                        )
-                    )
-                    if act_layer is not None
-                    else "",
+                    _act_hash,
+                    behavior_hash=behavior_state_hash(
+                        agents, world, schedule.population_hash, schedule_hash, _act_hash, _owners,
+                        memo=_memo,
+                    ),
+                    full_hash=_full,
                 )
             )
-            phase["checkpoint"] += time.perf_counter() - t0
+            _dt_ckpt = time.perf_counter() - t0
+            phase["checkpoint"] += _dt_ckpt
+            result.checkpoint_seconds.append(_dt_ckpt)
 
     # ---- 艦隊の残りを吸い切る(**捨てない**)。テープを閉じる前に置く ----
     if fleet_bridge is not None:
@@ -3835,7 +3924,7 @@ def run_day(
             pending.append((
                 res.tick + delta_think_ticks(res.lane, tick_seconds), res.wake_class,
                 res.agent_id, res.condition, res.text, res.action_code,
-                _target_person(res.target), *_pending_extra(res),
+                _target_person(res.target), *_pending_extra(res), *_call_ref(res),
             ))
         result.fleet_drained_at_end = n_late
         # ラン終端でも答えが返らなかった呼(**次ランへ持ち越す**の監査点。0 が正常)
@@ -3853,7 +3942,7 @@ def run_day(
                 pending.append((
                     item.t_apply, item.wake_class, item.agent_id, item.condition,
                     item.text, item.action_code, _target_person(item.target),
-                    *_pending_extra(item),
+                    *_pending_extra(item), *_call_ref(item),
                 ))
         replay_inbox.clear()
         result.fleet_drained_at_end = n_late
@@ -3917,6 +4006,26 @@ def run_day(
         # 書き手は economy 側の注入(engine は economy を import できない=層契約)。
         if census_out is not None:
             result.census_paths = ledger.write_census(_close_day, str(census_out))
+    # ---- 10b 検収後 P2: 日の締め(runner.end_of_day・ledger.end_of_day)の**後**の 2 本(10d はこちらを使う) ----
+    # 最後の checkpoint は締めの前なので、台帳の日番号・当日の売れ行き・センサスの項が違う。final も checkpoint の
+    # 位置も変えない(読むだけ・manifest の ``state_hashes_end_of_day`` に別に出す)。
+    if checkpoint_every:
+        _owners_e = _hash_owners()
+        _memo_e: dict[str, tuple[bytes, int]] = {}
+        _pst_e = runner.salient.pstate if runner is not None else None
+        _act_e = (
+            (act_layer.state_hash() if intent_layer is None
+             else blake3_hex(f"{act_layer.state_hash()}\x1f{intent_layer.state_hash()}".encode()))
+            if act_layer is not None else ""
+        )
+        _full_e, _bytes_e = full_state_hash(agents, world, _pst_e, schedule.population_hash, schedule_hash,
+                                            _owners_e, memo=_memo_e)
+        result.state_hashes_end_of_day = {
+            "behavior_hash": behavior_state_hash(agents, world, schedule.population_hash, schedule_hash, _act_e,
+                                                 _owners_e, memo=_memo_e),
+            "full_hash": _full_e,
+            "full_external_bytes": int(sum(_bytes_e.values())),
+        }
     result.bridge_counters = dict(bridge.counters())
     if fleet_bridge is not None:
         result.bridge_counters.update(fleet_bridge.counters())

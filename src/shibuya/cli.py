@@ -488,6 +488,9 @@ def checkpoints_payload(res: RunResult, *, run_id: str = "") -> dict[str, Any]:
                 "combined": c.combined,
                 # 二層の段 2: 活動層のあるランだけ(既定の payload は 1 キーも増えない)
                 **({"activity_hash": c.activity_hash} if c.activity_hash else {}),
+                # 10b(A2・A3): 状態台帳の 2 つのハッシュ(final=combined には混ぜない)
+                **({"behavior_hash": c.behavior_hash} if c.behavior_hash else {}),
+                **({"full_hash": c.full_hash} if c.full_hash else {}),
             }
             for c in res.checkpoints
         ],

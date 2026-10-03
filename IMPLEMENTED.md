@@ -394,6 +394,16 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #81 D-102 の土台 10b: 状態台帳の 2 軸・追加 C の AST 検査・behavior-hash と full-hash・保留の組に call_id(第320・2026-10-03〜04・実装役 Opus 5.5・親検収+別のサブの検収 2 回)
+
+- 正典: [10b のアジェンダ](docs/design/v2-d102-10b-agenda.md)・[実装の記録](docs/bench/analysis/wallbounce-1003/10b/README.md)・[検収の記録](docs/bench/analysis/wallbounce-1003/review-10b.md)。ユーザー決定=[指示書 10-03](docs/design/v2-wallbounce-decisions-2026-10-03.md) §3 A2・A3(K15〜K17 に左右されない部分)。**既定の結果は不変**(final の定義は変えない。19 構成でバイト一致・検収役の独立のランでも一致)。
+- **① 状態台帳**(`engine/state_ledger.py`・版 10b-3): SoA 98 列+外の状態 89 行=187 行に、軸 1「挙動」(behavior/no/diag)・軸 2「復元」(required/derivable/discardable)・死蔵・`ordered`(辞書の順が挙動を決める行=O8 記憶の要旨・O39 会話の管理)・構成で変わる印(`hunger`)を宣言。持ち主のクラス 46(+構成で入れ替わる 2)の属性 1,010 を全部分類し、除外一覧 111 件(490 属性: 毎 tick 作り直す/中身で引く覚え書き/定数・設定/参照)に理由を付けた。未カバーが 1 つでも残れば AST の検査と実行時の検査(`vars()`・`__slots__`・4 構成)が落ちる。
+- **② 追加 C の AST 検査**(`engine/state_ledger_ast.py`): `src/shibuya` 全体を走査し、名前の表・`getattr(持ち主, 変数)`・`.arrays.get`・`attrgetter`・自己更新(左右の組)を扱って列ごとの読み手を数え、台帳の軸 1 と食い違えば失敗。
+- **③ 2 つのハッシュ**(`engine/state_hashes.py`): behavior-hash=軸 1 が behavior の SoA の列+外の状態の行。full-hash=required と derivable の行(外の状態は `to_state()` の宣言順・ordered の行は挿入順・numpy の整数も同じバイト列)。checkpoint ごとに 2 本を記録し、日の締めの後にもう 1 回計算して `state_hashes_end_of_day` に出す(10d の再開の判定はこちらの full-hash)。費用は 5,000 体で 2 本 12.0 ms/checkpoint(最大 v3 13.4 ms・全腕 39.3 ms・上限 100 ms)、39 万体で 1 日 3.2 s(推測・上限 10 s)。
+- **④ 保留の組**に発射の tick と call_id(mock・艦隊・再生の 4 つの道で固定)。
+- **検収**: 別のサブが 結果を動かす欠陥 0・潜在の欠陥 6・記録の誤り 3・テストの欠け 4・問い 4 を見つけ(辞書の順・締めの後のハッシュ・期限切れの辞書の増加・numpy 整数・AST の死角 4 つ・持ち主のクラスの網羅)、全部直して再検収。テスト 44 関数 70 ケース。全体テストは第320 の記録。
+- **残り(10e・10d へ)**: 死蔵 5 列の削除と behavior-hash を既定に(10e。比べる値は記録の表)・会話の管理の期限切れの辞書の掃除(10e)・K15〜K17 の答えの反映(`fail_streak`・`plan_activity`・リング・金の生ログの宣言。溢れはセンサスに効かないと確認)。
+
 ### #80 D-102 の土台 10a: 通しの時刻 T・暦の口・応答の遅れ +1(第318・2026-10-03・実装役 Opus 5.5・親検収+別のサブの検収 2 回)
 
 - 正典: [10a のアジェンダ](docs/design/v2-d102-10a-agenda.md)・[実装の記録](docs/bench/analysis/wallbounce-1003/10a/README.md)・[検収の記録](docs/bench/analysis/wallbounce-1003/review-10a.md)。ユーザー決定=[指示書 10-03](docs/design/v2-wallbounce-decisions-2026-10-03.md) §3 A1・A9(K1 のテープ版 4 と K7〜K9 に左右されない部分)。**既定の結果は不変**=既定 15 腕+classical+記憶/関係の腕の 19 構成で final・呼数・blocks・calls の 14 列が HEAD とバイト一致(実装役の byte-check と検収役の独立のランの両方)。
