@@ -1129,7 +1129,7 @@ def main(argv: list[str] | None = None) -> int:
     # --llm / --endpoints / --model / --mode / --run-id / --tape / --temperature /
     # --max-tokens / --fleet-wait-s(C6-a)
     add_fleet_args(ap)
-    add_calendar_args(ap)  # 10a: --calendar-weekday / --start-date / --holiday-csv / --school-holidays
+    add_calendar_args(ap)  # 10a: --calendar-weekday / --start-date / --holiday-csv / --school-holidays・10c: --rng-scheme
     args = ap.parse_args(argv)
     try:
         refractory_scale = parse_refractory_scale(args.refractory_scale)

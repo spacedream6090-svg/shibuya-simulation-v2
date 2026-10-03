@@ -394,6 +394,14 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #82 D-102 の土台 10c: 状態を持つ乱数 2 本をカウンタ型に(`--rng-scheme {stateful,counter}`・既定 stateful)(第321・2026-10-04・実装役 Opus 5.5・親検収+別のサブの検収)
+
+- 正典: [D-102 の土台のアジェンダ §3](docs/design/v2-d102-foundation-implementation-agenda.md)・ユーザー決定 A5=(a′)([指示書 10-03](docs/design/v2-wallbounce-decisions-2026-10-03.md) §3-2・§3-8)・[実装の記録](docs/bench/analysis/wallbounce-1003/10c/README.md)・[検収の記録](docs/bench/analysis/wallbounce-1003/review-10c.md)。**既定(stateful)の結果は不変**(19 構成でバイト一致)。
+- **counter の形**: 顕著行為の発生は `(seed, 名前, 鍵の時刻)` から毎 tick 作る(状態なし)。出動の遅れは鍵 `(seed, 名前, 鍵の時刻, セル, k)`(k は同じ T・同じセルの事象を体の id の昇順で並べた番号・T が変わると捨てる)。事象の通し番号は使わない=再開で保存が要る Generator が 2 → 0(状態台帳の軸 2 で固定)。鍵の時刻 = `day_key(0) × 1440 + T`(`--day` が違うランが同じ乱数を引かないため。`real` モードでは T)。Philox の word 0 は 0 に固定(word 0 は引くたびに進むので鍵を置くと隣の tick と重なる=実測)。stateful と counter の流れの名前は別。
+- **試験** 16 件: 2 回回して一致・同じ T と同じセルの 400 件が違う遅れ・率 ×1000 の 5 seed で件数の分布が stateful と同じ桁(平均の差 ≤ 2 × seed 間 SD・分散比 ≤ 10)・既定の率の実世界 seed 1 は stateful 0 件/counter 5 件(300 seed で平均 1.55=期待 1.5・偶然)・2 日ランで鍵が重ならない・再生でテープの `rng_scheme`(`run_meta.json`)と違えば止まる(値の無いテープは stateful)。
+- **counter で動く量**(10e の材料): 顕著行為 0 → 5・出動 0 → 5・気づいた体 290〜1,151・呼数 −185〜+1,444(golden v3 は −182)・final は全構成で変わる。**A6 の「カウンタ型の乱数への切替で動くのは顕著行為と出動の件数だけ」は成り立たない**(事象が起きれば final・呼数・blocks も動く)=10e の計画で文言を直す。
+- **見つけた既存の欠陥(直していない=K19)**: `stream()` の呼び手のうち 3 つ(`perception.p_notice`=tick 内の事象番号が word 0・`world.delivery_inbound`=日の鍵・`w16.sample.stratum`=層の番号)が既定でも 1 回に 4 語を超えて引き、隣の流れと重なる(決定論は保たれるが独立性が崩れる。検収役の実測: 層の抽出の重なりが期待の約 2 倍・同じ tick の事象に相関・`--day` が 1 違うランで配達の予定がずれただけの一致)。直すと既定が動くので版上げ 1 回目に束ねるかを確認。別のサブの検収: 結果を動かす欠陥 0・記録の誤り 4・テストの欠け 3(定数 1,440・day_key・合否の線を z 検定に)を直した。
+
 ### #81 D-102 の土台 10b: 状態台帳の 2 軸・追加 C の AST 検査・behavior-hash と full-hash・保留の組に call_id(第320・2026-10-03〜04・実装役 Opus 5.5・親検収+別のサブの検収 2 回)
 
 - 正典: [10b のアジェンダ](docs/design/v2-d102-10b-agenda.md)・[実装の記録](docs/bench/analysis/wallbounce-1003/10b/README.md)・[検収の記録](docs/bench/analysis/wallbounce-1003/review-10b.md)。ユーザー決定=[指示書 10-03](docs/design/v2-wallbounce-decisions-2026-10-03.md) §3 A2・A3(K15〜K17 に左右されない部分)。**既定の結果は不変**(final の定義は変えない。19 構成でバイト一致・検収役の独立のランでも一致)。

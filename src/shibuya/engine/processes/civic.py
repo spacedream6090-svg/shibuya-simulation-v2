@@ -31,7 +31,7 @@ from typing import Final
 import numpy as np
 
 from shibuya.agents.state import AgentKind, AgentState
-from shibuya.core.rng import stream
+from shibuya.core.rng import DEFAULT_RNG_SCHEME, check_rng_scheme, run_tick_key, stream
 from shibuya.engine import resolve as R
 from shibuya.perception import attention as AT
 from shibuya.world.assets import ProcessAssets
@@ -66,6 +66,9 @@ DISPATCH_MEDIAN_MIN: Final[float] = 8.0
 #: 同 σ(expedient)。
 DISPATCH_SIGMA: Final[float] = 0.5
 DISPATCH_MAX_MIN: Final[int] = 60
+#: 10c: ``rng_scheme="counter"`` の出動の遅れの乱数の用途名(stateful の ``world.public_service_dispatch`` と
+#: 別の名にする=同じ鍵の Philox の列が重ならない)。
+DISPATCH_COUNTER_DOMAIN: Final[str] = "world.public_service_dispatch.counter"
 
 #: 公式発信の時刻[分](expedient)。
 PRESS_MINUTES: Final[tuple[int, ...]] = (7 * 60, 12 * 60, 18 * 60)
@@ -96,6 +99,16 @@ class PublicServiceDispatchProcess:
     Attributes:
         pending: 到着待ちの ``(到着 tick, セル, x, y)``。
         n_dispatched / n_arrived: 診断。
+
+    乱数の方式(10c・``rng_scheme``):
+        ``stateful``(既定=今のまま): 日の頭に作った Generator ``rng`` を出動のたびに進める。
+        ``counter``: 出動ごとに ``stream(seed, DISPATCH_COUNTER_DOMAIN, 0, 鍵の時刻, セル, k)`` を作る
+        (``rng`` は ``None``=再開で保存するものが無い)。鍵の時刻は ``run_tick_key(day_index, T)``
+        (``day_index`` は実行器が渡す日の鍵 ``day_key(0)``)。k は同じ T・同じセルの出動を呼ばれた順に
+        数えた番号(0 から)。呼び手(``SalientProcess``)は体の id の昇順で呼ぶ。数えは T が変わると捨てる
+        tick の中だけのもの(tick の境目で再開すれば空から数え直して同じ値)。事象の通し番号は使わない
+        (A5 (a′))。カウンタの 1 語目を 0 にするのは、Philox が 1 語目から進むため
+        (1 語目に鍵の値を置くと、引いた後の列が隣の鍵の列と重なる)。
     """
 
     process_ids: Final[tuple[str, ...]] = ("public_service_dispatch",)
@@ -109,11 +122,22 @@ class PublicServiceDispatchProcess:
         day_index: int = 0,
         tick_seconds: int = 60,
         actual_log=None,
+        rng_scheme: str = DEFAULT_RNG_SCHEME,
     ) -> None:
         self.world = world
         self.tick_seconds = int(tick_seconds)
         self.log = actual_log
-        self.rng = stream(master_seed, "world.public_service_dispatch", int(day_index))
+        self.master_seed = master_seed
+        self.day_index = int(day_index)
+        self.rng_scheme = check_rng_scheme(rng_scheme)
+        #: stateful だけ Generator を持つ(counter では ``None``=状態を持たない)。
+        self.rng = (
+            stream(master_seed, "world.public_service_dispatch", int(day_index))
+            if self.rng_scheme == "stateful" else None
+        )
+        #: counter の k の数え(T が変わると空に戻す・tick の中だけ)。
+        self._k_tick = -1
+        self._k_next: dict[int, int] = {}
         self.pending: list[tuple[int, int, float, float]] = []
         self.n_dispatched = 0
         self.n_arrived = 0
@@ -127,9 +151,10 @@ class PublicServiceDispatchProcess:
         """通報を受けて出動する。到着 tick を返す(規則ゲート=セルが実在すること)。"""
         if not (0 <= int(cell) < self.world.n_cells):
             return -1
+        g = self.rng if self.rng is not None else self._counter_stream(int(tick), int(cell))
         delay = float(
             np.clip(
-                self.rng.lognormal(mean=np.log(DISPATCH_MEDIAN_MIN), sigma=DISPATCH_SIGMA),
+                g.lognormal(mean=np.log(DISPATCH_MEDIAN_MIN), sigma=DISPATCH_SIGMA),
                 1.0, float(DISPATCH_MAX_MIN),
             )
         )
@@ -146,6 +171,18 @@ class PublicServiceDispatchProcess:
                 np.array([minutes], dtype=np.int16),
             )
         return arrive
+
+    def _counter_stream(self, tick: int, cell: int) -> np.random.Generator:
+        """counter の 1 件ぶんの乱数(鍵 = (T, セル, k)・10c)。"""
+        if int(tick) != self._k_tick:
+            self._k_tick = int(tick)
+            self._k_next = {}
+        k = self._k_next.get(int(cell), 0)
+        self._k_next[int(cell)] = k + 1
+        return stream(
+            self.master_seed, DISPATCH_COUNTER_DOMAIN,
+            0, run_tick_key(self.day_index, int(tick), self.tick_seconds), int(cell), int(k),
+        )
 
     def arrivals(self, tick: int) -> list[tuple[int, float, float]]:
         """この tick に到着する隊(セル・座標)。到着した事案は解消する。"""

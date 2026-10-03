@@ -149,7 +149,8 @@ def test_cli_switches_and_defaults():
     kw = calendar_kwargs_from_args(args)
     assert kw == {"calendar_weekday": "day_index", "start_sim_datetime": None,
                   "holiday_csv": "data/calendar/syukujitsu.csv", "school_holidays": "",
-                  "response_delay": None}     # 未指定(録画・mock は 1・再生はテープに合わせる=検収後 P3)
+                  "response_delay": None,     # 未指定(録画・mock は 1・再生はテープに合わせる=検収後 P3)
+                  "rng_scheme": "stateful"}   # 10c: 乱数の方式(既定 stateful=今のまま)
     assert DEFAULT_RESPONSE_DELAY == 1
     args = ap.parse_args(["--calendar-weekday", "real", "--start-date", "2026-08-03", "--response-delay", "2",
                           "--school-holidays", "2026-07-21:2026-08-31"])

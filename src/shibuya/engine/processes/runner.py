@@ -31,6 +31,7 @@ from typing import Any, Final, Iterable, Mapping
 import numpy as np
 
 from shibuya.agents.state import AgentState
+from shibuya.core.rng import DEFAULT_RNG_SCHEME, check_rng_scheme
 from shibuya.engine import resolve as R
 from shibuya.engine.calendar import SimCalendar
 from shibuya.engine.processes.civic import (
@@ -125,6 +126,8 @@ class WorldProcessRunner:
         ledger: 金/物の台帳(運賃の脚に使う。``None`` 可)。
         enabled / disabled: 過程 id か感度試験 id(``AB-*``)の集合。
         retention_days: ``ActualLog`` の保持窓(D-R2-6)。
+        rng_scheme: 10c の乱数の方式(``stateful``=既定・今のまま / ``counter``=顕著行為の発生と出動の遅れを
+            状態を持たない乱数にする)。
 
     Attributes:
         registry_hash: 台帳の blake3(manifest の同定欄へ)。
@@ -158,6 +161,7 @@ class WorldProcessRunner:
         seat_area_m2: Mapping[str, float] | None = None,
         default_seat_area_m2: float | None = None,
         calendar: Any | None = None,
+        rng_scheme: str = DEFAULT_RNG_SCHEME,
     ) -> None:
         if world is None or agents is None:
             raise ValueError("WorldProcessRunner は world と agents を要る")
@@ -169,6 +173,8 @@ class WorldProcessRunner:
         self.master_seed = seed if master_seed is None else master_seed
         self.day_index = int(day_index)
         self.tick_seconds = int(tick_seconds)
+        #: 10c: 顕著行為の発生と出動の遅れの乱数の方式(manifest の ``rng_scheme``)。
+        self.rng_scheme = check_rng_scheme(rng_scheme)
         self.calendar = (
             calendar if calendar is not None
             else SimCalendar.legacy(self.day_index, tick_seconds=self.tick_seconds)
@@ -278,7 +284,7 @@ class WorldProcessRunner:
         )
         self.dispatch = PublicServiceDispatchProcess(
             world, master_seed=self.master_seed, day_index=day_key,
-            tick_seconds=self.tick_seconds, actual_log=self.log,
+            tick_seconds=self.tick_seconds, actual_log=self.log, rng_scheme=self.rng_scheme,
         )
         self.salient = SalientProcess(
             world, agents, master_seed=self.master_seed, day_index=day_key,
@@ -287,6 +293,7 @@ class WorldProcessRunner:
             ablation=_p_notice_ablation(p_notice_ablation, enabled),
             rate_per_10k_per_day=salient_rate_per_10k,
             d50_scale=p_notice_d50_scale,
+            rng_scheme=self.rng_scheme,
         )
 
         self._procs: dict[str, Any] = {

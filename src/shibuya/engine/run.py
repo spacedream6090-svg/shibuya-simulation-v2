@@ -83,6 +83,7 @@ from shibuya.agents.state import (
 )
 from shibuya.core.growth import GrowthReport, check_growth
 from shibuya.core.hashing import apply_key_array, blake3_hex
+from shibuya.core.rng import DEFAULT_RNG_SCHEME, RNG_SCHEMES, check_rng_scheme
 from shibuya.core.types import DEFAULT_TICK_SECONDS, MINUTES_PER_SIM_DAY
 from shibuya.engine import commit as C
 from shibuya.engine import growth_decl as GD
@@ -364,10 +365,7 @@ def _resolve_response_delay(value: int | None, mode: str, replay: Any) -> int:
     v = check_response_delay(value if given else DEFAULT_RESPONSE_DELAY)
     if mode != "replay" or replay is None:
         return v
-    if isinstance(replay, Replay):
-        tape_dir = replay.tape.path
-    else:
-        tape_dir = getattr(replay, "path", None) or Path(replay)
+    tape_dir = _replay_tape_dir(replay)
     rec = read_run_meta(tape_dir).get("response_delay")
     if rec is None:
         key = str(tape_dir)
@@ -384,6 +382,59 @@ def _resolve_response_delay(value: int | None, mode: str, replay: Any) -> int:
         raise ValueError(
             f"応答の遅れがテープと違う: テープは response_delay={int(rec)}・今の設定は {v}"
             "(--response-delay を録画と同じ値にする)"
+        )
+    return v
+
+
+def _replay_tape_dir(replay: Any) -> Path:
+    """再生の入力(``Replay`` かテープのディレクトリ)→ テープのディレクトリ。"""
+    if isinstance(replay, Replay):
+        return Path(replay.tape.path)
+    return Path(getattr(replay, "path", None) or replay)
+
+
+#: 値の無いテープ(10c より前の録画)の乱数の方式。10c より前は stateful しか無かった。
+LEGACY_TAPE_RNG_SCHEME: Final[str] = "stateful"
+
+
+class RngSchemeWarning(UserWarning):
+    """再生するテープに乱数の方式の値が無い(10c より前の録画)ときの警告。"""
+
+
+#: 「値が無いので stateful とみなす」の警告を出したテープ(1 回だけ出すため)。
+_WARNED_RNG: set[str] = set()
+
+
+def _resolve_rng_scheme(value: str, mode: str, replay: Any) -> str:
+    """乱数の方式を決める(10c)。
+
+    - 録画・mock: 渡された値(既定 ``stateful``)。
+    - 再生: テープの脇の meta(``run_meta.json``)の ``rng_scheme`` と突き合わせ、違えば止める(文言に両方の値)。
+      meta に値が無いテープ(10c より前の録画)は ``stateful`` とみなし、警告を 1 回出す(``response_delay`` と同じ形。
+      10e で既定を counter にしたとき、旧テープが黙って回らないことに気づけるように=10c の検収の答え (b))。
+    - 名前の注意(検収の答え (a)): この ``rng_scheme`` は「状態を持つ乱数か」の切替口の名前で、manifest の設計の
+      ``rng.scheme``(生成器の名前 ``"numpy-philox4x64"``・``manifest/schema.py``)とは別物。
+    """
+    v = check_rng_scheme(value)
+    if mode != "replay" or replay is None:
+        return v
+    tape_dir = _replay_tape_dir(replay)
+    rec = read_run_meta(tape_dir).get("rng_scheme")
+    if rec is None:
+        key = str(tape_dir)
+        if key not in _WARNED_RNG:
+            _WARNED_RNG.add(key)
+            warnings.warn(
+                f"再生するテープに rng_scheme の記録が無い(10c より前の録画): {LEGACY_TAPE_RNG_SCHEME} とみなす"
+                f"({tape_dir.name})",
+                RngSchemeWarning, stacklevel=3,
+            )
+        rec = LEGACY_TAPE_RNG_SCHEME
+    rec = str(rec)
+    if rec != v:
+        raise ValueError(
+            f"乱数の方式がテープと違う: テープは rng_scheme={rec}・今の設定は {v}"
+            "(--rng-scheme を録画と同じ値にする)"
         )
     return v
 
@@ -881,6 +932,8 @@ class RunResult:
     response_delay: int = DEFAULT_RESPONSE_DELAY
     #: 回した日数(``run_day(sim_days=…)``・既定 1)。
     sim_days: int = 1
+    #: 10c: 顕著行為の発生と出動の遅れの乱数の方式(``RNG_SCHEMES``・既定 ``stateful``)。manifest に載る。
+    rng_scheme: str = DEFAULT_RNG_SCHEME
     # ---- 10b: 状態台帳の 2 つのハッシュ(final には混ぜない) ----
     #: 最後の checkpoint の full-hash の外の状態の行ごとの直列化のバイト数(台帳の鍵 → B)。
     full_hash_bytes: dict[str, int] = field(default_factory=dict)
@@ -1093,6 +1146,8 @@ class RunResult:
             "sim_days": int(self.sim_days),
             "calendar": dict(self.calendar_fields),
             "response_delay": int(self.response_delay),
+            # ---- 10c(Q8): 顕著行為の発生と出動の遅れの乱数の方式(列追加のみ) ----
+            "rng_scheme": str(self.rng_scheme),
             # ---- 10b(A2・A3): 状態台帳の 2 つのハッシュ(最後の checkpoint の値・列追加のみ・final は今の定義) ----
             "state_hashes": self.state_hashes_fields(),
             # 検収後 P2: 日の締めの後の 2 本(10d はこちら。最後の checkpoint の値=上とは別物)
@@ -1825,6 +1880,7 @@ def run_day(
     holiday_csv: "str | Path" = DEFAULT_HOLIDAY_CSV,
     school_holidays: Any = (),
     response_delay: int | None = None,
+    rng_scheme: str = DEFAULT_RNG_SCHEME,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -2151,6 +2207,10 @@ def run_day(
             直前に置き下限 ``max(t_apply, tick)``(発射 +1 tick で反映)/ ``2``=旧(受け取りは④′・下限
             ``tick + 1``=+2 tick)。旧い実 LLM テープの再生は ``2`` で回す。mock(``fleet=None`` かつ再生の
             到着が無い)はこの分岐を通らない=結果は動かない。
+        rng_scheme: **10c(Q8)の乱数の切替口**。``stateful``(既定=今のまま)/ ``counter``=顕著行為の発生を
+            ``(seed, 名前, T)``・出動の遅れを ``(seed, 名前, T, セル, k)`` から毎回作る(状態を持たない・
+            ``core.rng.run_tick_key``)。世界過程を止めたランでも値は検査して manifest に載せる。
+            この名前は切替口の名前で、manifest の設計の ``rng.scheme``(生成器の名前 ``"numpy-philox4x64"``)とは別物。
 
     Returns:
         ``RunResult``。
@@ -2160,6 +2220,7 @@ def run_day(
     # ---- 10a(A1・A1-1・A1-2・A1-3・A9): 暦の口・通しの時刻 T・応答の遅れ(世界を触る前に検査) ----
     calendar_weekday = check_weekday_mode(calendar_weekday)
     response_delay = _resolve_response_delay(response_delay, mode, replay)
+    rng_scheme = _resolve_rng_scheme(rng_scheme, mode, replay)  # 10c: 再生ではテープの meta と突き合わせる
     sim_days = int(sim_days)
     if sim_days < 1:
         raise ValueError(f"sim_days は 1 以上(いま {sim_days})")
@@ -2375,8 +2436,9 @@ def run_day(
         seed, vocab_version, mock_move_target_p, mock_out_of_cell_target_p
     )
     salt = run_salt_for(seed)
-    # 検収後 P3: テープの脇の meta に応答の遅れを書く(再生で突き合わせる・テープの版と列は変えない)
-    tape_writer = (TapeWriter(Path(tape_path), run_meta={"response_delay": int(response_delay)})
+    # 検収後 P3・10c: テープの脇の meta に応答の遅れと乱数の方式を書く(再生で突き合わせる・テープの版と列は変えない)
+    tape_writer = (TapeWriter(Path(tape_path), run_meta={"response_delay": int(response_delay),
+                                                            "rng_scheme": str(rng_scheme)})
                    if tape_path is not None else None)
     conv = (ConversationManager(seed, max_participants=int(conv_max_participants))
             if conversations else None)
@@ -2471,6 +2533,7 @@ def run_day(
             day_index=day_index,
             tick_seconds=tick_seconds,
             calendar=calendar,  # 10a: #2・#3・#7・#10・#11・#20 は暦の口から
+            rng_scheme=rng_scheme,  # 10c
             schedule=schedule,
             ledger=ledger,
             enabled=processes_enabled,
@@ -4069,6 +4132,7 @@ def run_day(
     result.calendar_fields = {**calendar.manifest_fields(sim_days), "start_check": list(start_check)}
     result.response_delay = int(response_delay)
     result.sim_days = int(sim_days)
+    result.rng_scheme = str(runner.rng_scheme) if runner is not None else str(rng_scheme)  # 10c
     # ablation 第1陣 ②③⑥ の腕(manifest の同定欄)。⑥ は**実際に描いた側**が正。
     result.p_notice_ablation = _pnotice_ablation_name(
         runner.salient.ablation if runner is not None else p_notice_ablation
@@ -4424,10 +4488,14 @@ def add_calendar_args(ap: "argparse.ArgumentParser") -> None:
                     help="内閣府の祝日 CSV(cp932)。無ければ祝日を空にして警告(既定 data/calendar/syukujitsu.csv)")
     ap.add_argument("--school-holidays", type=str, default="",
                     help="学校の長期休みの区間 YYYY-MM-DD:YYYY-MM-DD をカンマ区切り(開始日の検査・既定は空)")
+    # 10c(Q8): D-102 の土台の切替口。同じ綴りを engine.run と shibuya.cli で使うためここに置く
+    ap.add_argument("--rng-scheme", choices=RNG_SCHEMES, default=DEFAULT_RNG_SCHEME,
+                    help=("顕著行為の発生と出動の遅れの乱数(10c)。stateful=今のまま(既定)/"
+                          " counter=(seed, 名前, T[, セル, k])から毎回作る=状態を持たない"))
 
 
 def calendar_kwargs_from_args(args: Any) -> dict[str, Any]:
-    """``add_calendar_args`` と ``--response-delay`` の結果 → ``run_day`` の引数。"""
+    """``add_calendar_args``(10c の ``--rng-scheme`` を含む)と ``--response-delay`` の結果 → ``run_day`` の引数。"""
     return {
         "calendar_weekday": str(getattr(args, "calendar_weekday", DEFAULT_WEEKDAY_MODE)),
         "start_sim_datetime": (getattr(args, "start_date", "") or None),
@@ -4435,6 +4503,8 @@ def calendar_kwargs_from_args(args: Any) -> dict[str, Any]:
         "school_holidays": str(getattr(args, "school_holidays", "") or ""),
         # None=未指定(録画・mock は 1、再生はテープの記録に合わせる=``_resolve_response_delay``)
         "response_delay": getattr(args, "response_delay", None),
+        # 10c: 乱数の方式(既定 stateful)
+        "rng_scheme": str(getattr(args, "rng_scheme", DEFAULT_RNG_SCHEME)),
     }
 
 
