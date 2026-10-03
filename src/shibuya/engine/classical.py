@@ -376,7 +376,8 @@ class ClassicalPolicy:
         self._identity = bool(
             np.all(self.m_place == 1.0) and np.all(self.m_next == 1.0) and np.all(self.m_prev == 1.0)
         )
-        self._ipf_cache: dict[int, np.ndarray] = {}
+        #: 10d: 鍵は ``(日, 15 分帯)``(帯だけだと複数日のランで 0 日目の c_t を 2 日目も使い回す)。
+        self._ipf_cache: dict[tuple[int, int], np.ndarray] = {}
         self._condition: dict[int, tuple[int, int]] = {}
         #: C10 8b(Q98 の解消): 会話の相手の選び手 ``(体, tick, 近接行の「未知」の人の id 列) → 相手 or −1``
         #: (``--relations on`` のランだけ ``engine.run`` が差し込む=関係辺の重み・残りの層=未知の人から seed つき
@@ -393,6 +394,14 @@ class ClassicalPolicy:
             np.zeros(n, dtype=np.float32) if check_meal_gate(self.meal_gate) == "per_hour" else None
         )
         self._tick = -1
+
+    def rebuild_derived(self) -> None:
+        """10d: SoA の ``kind`` から作る表(``employed``)を今の SoA から作り直す(再開で保存した SoA を戻した後)。
+
+        ``bind`` は起動時の SoA(``initialize`` の後)を読む。再開では初期化を呼ばないので、戻した SoA から作る。
+        """
+        kind = np.asarray(self.agents.registry.field("kind"), dtype=np.int64)
+        self.employed = np.asarray(self.has_work, dtype=bool) | np.isin(kind, _EMPLOYED_KINDS)
 
     def set_call(self, agent_id: int, condition: int, inviter: int = -1) -> None:
         """run のループが ``bridge.call`` の直前に起床条件と招待者を渡す(応答文の型が読む)。"""
@@ -522,7 +531,8 @@ class ClassicalPolicy:
 
     def _ipf(self, slot: int, tick: int) -> np.ndarray:
         """c_t(slot)=起きて範囲内に居る体の P0 と乗数から 1 次元 IPF(帯ごとに 1 回・乗数が 1 でないときだけ)。"""
-        got = self._ipf_cache.get(int(slot))
+        key = (int(tick) // self._tpd, int(slot))  # 10d: 日を足した(1 日のランは日 0 だけ=同じ値)
+        got = self._ipf_cache.get(key)
         if got is not None:
             return got
         r = self.agents.registry
@@ -540,7 +550,7 @@ class ClassicalPolicy:
                 for i in ids.tolist()
             ])
             c = ipf_constants(p0, m)
-        self._ipf_cache[int(slot)] = c
+        self._ipf_cache[key] = c
         return c
 
     # ---- 応答文 ----

@@ -1148,7 +1148,8 @@ class Renderer:
         #: 鍵は ``(セル, 看板を見たか)``。既定(p_see 1.0)は第2要素が常に True=
         #: セルだけで引くのと同じ(命中率も同じ)。
         self._b2_cache: dict[tuple[int, bool], bytes] = {}
-        self._b3_cache: dict[int, bytes] = {}
+        #: 10d: 鍵は ``(世界内の日付, 5 分帯)``(5 分帯だけだと複数日のランで 0 日目の天候の行を 2 日目も使い回す)。
+        self._b3_cache: dict[tuple[object, int], bytes] = {}
         self._b4_cache: dict[tuple[int, int], bytes] = {}
         #: ablation ①(単一ランキング)のセル依存ブロック。B2 が B4 と同じ池を分けるので
         #: 鍵は ``(セル, B4 欄ハッシュ)``(固定枠の ``_b2_cache`` はセルだけ)。
@@ -1165,6 +1166,9 @@ class Renderer:
         #: 段 2c Q25: 名指しの即時閉店の補足(体 → (POI, 失敗の tick, 開店の分))。``engine.run`` が
         #: 意図の層のあるランだけ差し込む(``None``=従来どおり=描画は 1 バイトも変わらない)。
         self.named_closed_lookup: Callable[[int], tuple[int, int, int] | None] | None = None
+        #: 10d 検収 D1: B3 の天候を引く日(``YYYY-MM-DD``)を返す口。``engine.run`` が世界過程の再生の実日
+        #: (``environment.replay_date``=体の暑さと同じ源)を差し込む。``None`` か空なら今までどおり暦の日付で引く。
+        self.weather_date_fn: Callable[[], str | None] | None = None
         self.named_closed_notes = 0
         #: 4 段目(M17 露出): 看板行が載った (体, POI) の控え(``engine.run`` が tick ごとに取り出す)。
         #: ``None``=控えない(既定)。
@@ -1669,20 +1673,29 @@ class Renderer:
         return ok
 
     def _b3(self, tc: _TickCache) -> bytes:
-        got = self._b3_cache.get(tc.band5)
+        # 10d 検収 D1: 天候は「その日の再生の実日」の W13 の行で引く(体の暑さ=環境の過程と同じ行)。時刻の語は暦。
+        # 再生の実日が無ければ(合成世界)今までどおり暦の日付で引く。1 日のランは再生の実日=暦の開始日=同じ値。
+        wdate = self.weather_date_fn() if self.weather_date_fn is not None else None
+        key = (str(wdate) if wdate else tc.when.toordinal(), int(tc.band5))
+        got = self._b3_cache.get(key)
         if got is not None:
             self.cache_hits += 1
             return got
         self.cache_misses += 1
         h, m = N.format_time(tc.when)
-        weather, daylight, heat = self.assets.weather(tc.when)
+        if wdate:
+            weather, daylight, heat = self.assets.weather(
+                datetime.strptime(str(wdate)[:10], "%Y-%m-%d").replace(hour=int(tc.when.hour))
+            )
+        else:
+            weather, daylight, heat = self.assets.weather(tc.when)
         lines = [
             T.TEMPLATES["B3.time"].format(hour=h, minute=m),
             T.TEMPLATES["B3.weather"].format(weather=weather, daylight=daylight),
             T.TEMPLATES["B3.heat"].format(heat=heat),
         ]
         out = N.join_lines(lines).encode("utf-8")
-        self._b3_cache[tc.band5] = out
+        self._b3_cache[key] = out
         return out
 
     def _b4b_raw(

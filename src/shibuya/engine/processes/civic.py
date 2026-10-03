@@ -143,6 +143,12 @@ class PublicServiceDispatchProcess:
         self.n_arrived = 0
         self.delay_minutes_total = 0
 
+    def relay_day(self, day_key: int) -> None:
+        """10d(親の答え 5): 日の頭で、stateful の乱数をその日の日の鍵の流れに引き直す(1 日のランを日ごとに回すのと
+        同じ流れ)。counter は鍵の時刻 ``run_tick_key(day_key(0), T)`` が日ごとに違う値になるので何もしない。"""
+        if self.rng_scheme == "stateful":
+            self.rng = stream(self.master_seed, "world.public_service_dispatch", int(day_key))
+
     @property
     def active(self) -> bool:
         return True
@@ -475,15 +481,24 @@ class LargeEventProcess:
         self.tick_seconds = int(tick_seconds)
         self.log = actual_log
         self.visitor_delta = int(visitor_delta)
-        g = stream(master_seed, "world.large_event", int(day_index))
-        n = world.n_cells
+        self.master_seed = master_seed
+        self._plan(int(day_index))
+        self.n_in = 0
+        self.n_out = 0
+        self._inside = np.zeros(0, dtype=np.int64)
+
+    def _plan(self, day_key: int) -> None:
+        """その日の会場のセル(日の鍵の乱数・10a #20)。"""
+        g = stream(self.master_seed, "world.large_event", int(day_key))
+        n = self.world.n_cells
         self.venue_cells = (
             np.sort(g.choice(n, size=min(3, n), replace=False)).astype(np.int64)
             if n else np.zeros(0, dtype=np.int64)
         )
-        self.n_in = 0
-        self.n_out = 0
-        self._inside = np.zeros(0, dtype=np.int64)
+
+    def relay_day(self, day_key: int) -> None:
+        """10d(親の答え 5): 日の頭でその日の日の鍵から会場を引き直す(会場に居る体 ``_inside`` はそのまま)。"""
+        self._plan(int(day_key))
 
     @property
     def active(self) -> bool:

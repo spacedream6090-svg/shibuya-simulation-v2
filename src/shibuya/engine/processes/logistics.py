@@ -124,6 +124,10 @@ class LastMileProcess:
         self._cum = 0
         _ = stream(master_seed, "world.delivery_last_mile", int(day_index))  # 予約(再配達=Phase 3)
 
+    def relay_day(self) -> None:
+        """10d(親の答え 5): 日の頭でその日の配達済みを 0 に戻す(``parcels_per_cell`` は「その日の予定」・乱数は使わない)。"""
+        self.delivered[:] = 0
+
     @property
     def active(self) -> bool:
         return self.parcels_today > 0 and self.world.n_cells > 0
@@ -287,17 +291,28 @@ class RoadWorksProcess:
         self.n_started = 0
         self.n_finished = 0
         edge_cell = getattr(passets, "edge_cell", None)
-        n_edges = 0 if edge_cell is None else int(np.asarray(edge_cell).size)
-        g = stream(master_seed, "world.road_works", int(day_index))
-        k = min(int(n_works), n_edges)
-        self.planned_edges = (
-            np.sort(g.choice(n_edges, size=k, replace=False)).astype(np.int64)
-            if k > 0 else np.zeros(0, dtype=np.int64)
-        )
+        self.master_seed = master_seed
+        self.n_works = int(n_works)
+        self._plan(int(day_index))
         self.edge_cell = (
             np.zeros(0, dtype=np.int64) if edge_cell is None
             else np.asarray(edge_cell, dtype=np.int64)
         )
+
+    def _plan(self, day_key: int) -> None:
+        """その日の工事の辺(日の鍵の乱数・10a #20)。"""
+        edge_cell = getattr(self.assets, "edge_cell", None)
+        n_edges = 0 if edge_cell is None else int(np.asarray(edge_cell).size)
+        g = stream(self.master_seed, "world.road_works", int(day_key))
+        k = min(int(self.n_works), n_edges)
+        self.planned_edges = (
+            np.sort(g.choice(n_edges, size=k, replace=False)).astype(np.int64)
+            if k > 0 else np.zeros(0, dtype=np.int64)
+        )
+
+    def relay_day(self, day_key: int) -> None:
+        """10d(親の答え 5): 日の頭でその日の日の鍵から工事の辺を引き直す(いま塞いでいる辺はその夜の終わりまで続く)。"""
+        self._plan(int(day_key))
 
     @property
     def active(self) -> bool:

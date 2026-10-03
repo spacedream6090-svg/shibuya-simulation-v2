@@ -88,6 +88,8 @@ from shibuya.core.types import DEFAULT_TICK_SECONDS, MINUTES_PER_SIM_DAY
 from shibuya.engine import commit as C
 from shibuya.engine import growth_decl as GD
 from shibuya.engine import resolve as R
+from shibuya.engine import resume as RS
+from shibuya.engine import state_ledger as SL
 from shibuya.engine.activity import ActivityLayer, payload_of
 from shibuya.engine.calendar import (
     DEFAULT_HOLIDAY_CSV,
@@ -204,6 +206,7 @@ from shibuya.engine.llm_bridge import (
 from shibuya.engine.scheduler import DIAG_COLUMNS
 from shibuya.engine.state_hashes import behavior_hash as behavior_state_hash
 from shibuya.engine.state_hashes import full_hash as full_state_hash
+from shibuya.engine.state_hashes import component_digests
 from shibuya.engine.tape import Replay, TapeRow, TapeWriter, read_run_meta
 from shibuya.llm.contract import TargetKind
 from shibuya.llm.fleet import (
@@ -941,6 +944,16 @@ class RunResult:
     state_hashes_end_of_day: dict[str, Any] = field(default_factory=dict)
     #: checkpoint ごとの時間[s](壁時計=決定論でない・T7 の最大を見る診断。manifest には出さない)。
     checkpoint_seconds: list[float] = field(default_factory=list)
+    # ---- 10d: 複数日のランと再開 ----
+    #: 日ごとの締めの記録(日・終わりの T・お金・体の数・台帳のセンサスの行・締めの後の 2 つのハッシュ)。
+    #: 締めの回数=このランで締めた日の数(manifest の ``daily``)。
+    daily: list[dict[str, Any]] = field(default_factory=list)
+    #: 日の頭(1 日目から)の記録(お金・体の数)。manifest の ``day_heads``。
+    day_heads: list[dict[str, Any]] = field(default_factory=list)
+    #: 再開の欄(ラン ID・親のラン・始めと終わりの T・``finished``・書いた状態のファイル・K9 のつなぎの日)。
+    resume: dict[str, Any] = field(default_factory=dict)
+    #: checkpoint ごとの列・外の状態の行の digest(``checkpoint_detail=True`` のときだけ・manifest には出さない)。
+    checkpoint_details: list[dict[str, Any]] = field(default_factory=list)
 
     # ---- 便利参照 ----
     def column(self, name: str) -> np.ndarray:
@@ -1152,6 +1165,13 @@ class RunResult:
             "state_hashes": self.state_hashes_fields(),
             # 検収後 P2: 日の締めの後の 2 本(10d はこちら。最後の checkpoint の値=上とは別物)
             "state_hashes_end_of_day": dict(self.state_hashes_end_of_day),
+            # ---- 10d: 再開の欄(ラン ID・親のラン・区間・finished・状態のファイル)と日ごとの締め(列追加のみ) ----
+            "resume": dict(self.resume),
+            "finished": bool(self.resume.get("finished", True)),
+            "parent_run": self.resume.get("parent_run"),
+            "resumed_at_T": (self.resume.get("parent_run") or {}).get("resume_T"),
+            "daily": [dict(r) for r in self.daily],
+            "day_heads": [dict(r) for r in self.day_heads],
             # 第2波 §2B: ``--hunger-words all``(energy のラン)は実際に描いた段の下限 0 で指紋を計算する
             # (hungry・v1 のランは既存の凍結値のまま=既定は不変)
             "template_sha256": (
@@ -1881,6 +1901,11 @@ def run_day(
     school_holidays: Any = (),
     response_delay: int | None = None,
     rng_scheme: str = DEFAULT_RNG_SCHEME,
+    state_out: "str | Path | None" = None,
+    stop_at_tick: int | None = None,
+    resume_from: "str | Path | None" = None,
+    run_id: str = "",
+    checkpoint_detail: bool = False,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -2186,12 +2211,15 @@ def run_day(
             ``rel_copresent``(既定 off=第299 Q91)=同席の書き手(同セル・2 m 内・連続 5 分で 1 本・相手ごと
             1 日 1 本・表に居る相手だけ)。起点の診断行(招待/偶然/知人出現)は関係 on のランでいつも数える。
             想起優先の候補合成(N6)は選び手 ``classical`` のランだけ(``engine.store_choice``)。
-        sim_days: **10a の複数日の口(mock 用)**。既定 1。2 以上では ``ticks`` を 1 日の tick 数にして、
-            同じプロセスで状態を保存せずに T = 0〜``sim_days × 1 日の tick 数``−1 を続けて回す(再開=10d の
-            先取りではない)。日の頭の初期化(A11)と日ごとの表の作り直し(10g)が無いので、2 日目からも
-            **0 日目の表**(計画境界・食事の予定・営業時間・天気の実日・mock 日課)を繰り返し、時刻表と
-            計画実行層のイベントは 0 日目の座標のまま(1 日目以降に新しい便・出入りは無い)。そのため
-            合成世界(``world_dir=None``)・台帳なし・艦隊なし・再生でないランだけに限る(違えば止める)。
+        sim_days: **複数日の通しラン**(10a の口・10d で世界資産・台帳・艦隊にも広げた)。既定 1。2 以上では
+            ``ticks`` を 1 日の tick 数にして、同じプロセスで T = 0〜``sim_days × 1 日の tick 数``−1 を続けて回す。
+            各日の終わりに日次の締め(``runner.end_of_day``・台帳の締め・日次センサス)を 1 回走らせ、締めの後の
+            2 つのハッシュを日ごとに ``RunResult.daily`` に記録する。次の日の頭の初期化(``initialize``・初期の
+            活動・域外の配置・空腹の初期値・初期の財布・店舗の参入資本・帳簿の作り直し)は**走らせない**(A11)。
+            日の頭で張り直すのは、鉄道の時刻表(T の座標で末尾に足す)・計画実行層の在圏ブロックとイベント
+            (出勤率は日番号つきの鍵で引き直す)・計画境界の表(W17 は K9 のつなぎ=月曜の行)・天気の実日。
+            営業時間(W7)・世界過程の日ごとの乱数の表・食事の予定は 0 日目の表を繰り返す(宣言・10d README)。
+            再生(replay)とは一緒に使えない。
         start_sim_datetime: **10a(A1-1)の開始日の欄**(``datetime``・``date``・``"YYYY-MM-DD"``)。``None``
             (既定)は今までどおり ``DEFAULT_START_DATETIME + day_index 日``(気象の再生実日があればその日)。
             渡すと T=0 の世界内日時(プロンプトの日付)と暦の日付になる。``calendar_weekday="real"`` では必須。
@@ -2211,10 +2239,24 @@ def run_day(
             ``(seed, 名前, T)``・出動の遅れを ``(seed, 名前, T, セル, k)`` から毎回作る(状態を持たない・
             ``core.rng.run_tick_key``)。世界過程を止めたランでも値は検査して manifest に載せる。
             この名前は切替口の名前で、manifest の設計の ``rng.scheme``(生成器の名前 ``"numpy-philox4x64"``)とは別物。
+        state_out: **10d の状態の書き出し先**(ディレクトリ)。渡すと各日の締めの後(複数日のランの途中の日)と、
+            ``stop_at_tick`` で止めたとき、ランの最後(``finished: true``)に、状態のまとまりを 1 ファイルずつ
+            書く(``engine.resume``・名前は ``state-T<次に回す T>.pkl``)。``None``(既定)=書かない。
+        stop_at_tick: **10d の止める時刻**(通しの時刻 T・その tick の手前で止める)。日の境目(1 日の tick 数の
+            倍数)なら直前の日の締めの後、日の途中(試験用・A10)なら締めずにそこで状態を書いて止める。
+            ``state_out`` が要る。止めたランは ``finished: false``。
+        resume_from: **10d の再開**(状態のファイル)。日の頭の初期化(``initialize``・初期の活動・域外の配置・
+            空腹の初期値・初期の財布・関係の初期の辺)を走らせず、保存した状態を読んで続ける(A11)。設定の指紋が
+            親と違う・親が ``finished: true``・状態台帳の版が違う ならば止める。台帳を渡すときは初期の入れ直しを
+            していない新しい台帳(``cli.build_ledger_bundle(endow=False)``)。``sim_days`` は親と同じ通しの日数。
+        run_id: manifest のラン ID(空なら設定の指紋・始めの T・親のラン ID から作る)。
+        checkpoint_detail: checkpoint ごとに列ごと・外の状態の行ごとの digest も控える(食い違いの場所を探す道具
+            ``docs/bench/analysis/wallbounce-1003/10d/first_diff.py`` 用・既定 off=費用 0)。
 
     Returns:
         ``RunResult``。
     """
+    _call_args = dict(locals())  # 10d: 設定の指紋(先頭で引数だけを写す)
     t_start = time.perf_counter()
     budget_mode_enum = BudgetMode.parse(budget_mode)
     # ---- 10a(A1・A1-1・A1-2・A1-3・A9): 暦の口・通しの時刻 T・応答の遅れ(世界を触る前に検査) ----
@@ -2237,25 +2279,55 @@ def run_day(
         school_holidays=parse_school_holidays(school_holidays),
     )
     tpd = calendar.ticks_per_day
-    if sim_days > 1:
-        if int(ticks) != tpd:
-            raise ValueError(f"sim_days > 1 では ticks は 1 日の tick 数 {tpd}(いま {ticks})")
-        _not_yet = [
-            name for name, bad in (
-                ("世界資産(world_dir)", world_dir is not None),
-                ("台帳(ledger)", ledger is not None),
-                ("艦隊(fleet)", fleet is not None),
-                ("再生(replay)", mode == "replay" or replay is not None),
-            ) if bad
-        ]
-        if _not_yet:
-            raise ValueError(
-                "sim_days > 1(10a の mock 用の口)は日の頭の初期化(A11・10g)の前なので "
-                + "・".join(_not_yet) + " と一緒に使えない"
-            )
-    elif int(ticks) > tpd:
+    #: 10d: 状態の口(書き出し・止める・再開)を使うラン。
+    _state_mode = state_out is not None or stop_at_tick is not None or resume_from is not None
+    if sim_days > 1 and int(ticks) != tpd:
+        raise ValueError(f"sim_days > 1 では ticks は 1 日の tick 数 {tpd}(いま {ticks})")
+    if sim_days == 1 and int(ticks) > tpd:
         raise ValueError(f"ticks は 1 日の tick 数 {tpd} 以下(複数日は sim_days で回す・いま {ticks})")
+    if (sim_days > 1 or _state_mode) and (mode == "replay" or replay is not None):
+        raise ValueError("複数日のランと状態の口(10d)は再生(replay)と一緒に使えない(10d の範囲の外)")
     total_ticks = int(ticks) if sim_days == 1 else sim_days * tpd
+    # ---- 10d: 再開の読み込み(世界を触る前に見出しを検査する)・止める時刻・ラン ID ----
+    _fp = RS.fingerprint(_call_args)
+    _bundle: "RS.StateBundle | None" = None
+    t_begin = 0
+    parent_run: dict[str, Any] | None = None
+    _read_seconds = 0.0
+    if resume_from is not None:
+        _t_read = time.perf_counter()
+        _bundle = RS.read_state(resume_from)
+        _read_seconds = time.perf_counter() - _t_read
+        _h = _bundle.header
+        if bool(_h.get("finished", False)):
+            raise ValueError(
+                f"finished: true のランへは再開しない(親 {_h.get('run_id')}・T={_h.get('progress', {}).get('next_T')})"
+            )
+        _diff = RS.fingerprint_diff(_h.get("fingerprint", {}), _fp)
+        if _diff:
+            raise ValueError(f"再開の設定が親と違う(欄 {_diff[:8]})")
+        t_begin = int(_h["progress"]["next_T"])
+        if not (0 < t_begin < total_ticks):
+            raise ValueError(f"再開の時刻 T={t_begin} がこのランの範囲 0〜{total_ticks} の内側に無い(sim_days を見る)")
+        parent_run = {
+            "run_id": str(_h.get("run_id", "")),
+            "resume_T": int(t_begin),
+            "state_file": Path(resume_from).name,
+            "state_full_hash": str(_h.get("hashes", {}).get("full_hash", "")),
+        }
+    t_end = total_ticks
+    if stop_at_tick is not None:
+        if state_out is None:
+            raise ValueError("stop_at_tick には state_out(状態の書き出し先)が要る")
+        if not (t_begin < int(stop_at_tick) < total_ticks):
+            raise ValueError(f"stop_at_tick は {t_begin} より大きく {total_ticks} より小さい(いま {stop_at_tick})")
+        t_end = int(stop_at_tick)
+    _resuming = _bundle is not None
+    # 10d 検収 L6: ラン ID は実行ごとに一意(時刻の印を含む)。状態の口を使わないランでは作らない(空)=manifest を
+    # 決定論のまま保つ(同じ設定の 2 回のランの manifest が一致する約束・tests/engine/test_census_out.py)。
+    run_id = str(run_id) or (
+        RS.run_id_of(_fp, start_T=t_begin, parent=(parent_run or {}).get("run_id", "")) if _state_mode else ""
+    )
     # ---- ablation ②③: 腕の値をここで検査する(過程を切ったランでも manifest が嘘をつかない) ----
     p_notice_d50_scale = _check_d50_scale(p_notice_d50_scale)
     # ---- D-66 計画実行層の腕: 値の検査は**層が休むランでも**する(manifest が嘘をつかない) ----
@@ -2482,11 +2554,18 @@ def run_day(
     if ledger is not None and ledger.money is not None:
         # 世帯の現金行 = 個体 SoA の money(写しを作らない・台帳の書き込み窓は resolve が持つ)
         ledger.money.attach_household_cash(agents.registry.money)
+        if _resuming and int(getattr(ledger.money, "n_transfers", 0)) != 0:
+            # 10d(A11): 再開に渡す台帳で参入資本や財布をもう入れていたら、お金が無から湧く(自動補充)
+            raise ValueError(
+                "再開に渡す台帳は、参入資本や初期の財布を入れる前の新しい台帳にする"
+                "(cli.build_ledger_bundle(endow=False)・A11 のお金の自動補充の禁止)"
+            )
     if pop is not None:
         schedule = _schedule_with_population(
             schedule, pop, world.n_cells, keep_outside_home=plan_exec_on
         )
-    R.initialize(agents, world, schedule, day_index=day_index, ledger=ledger)
+    if not _resuming:  # 10d(A11・親の答え 2): 再開では日の頭の初期化を呼ばない(保存した状態を読む)
+        R.initialize(agents, world, schedule, day_index=day_index, ledger=ledger)
     # ---- 5 段目 5a: 体のエネルギー収支(値を決める層・書き手は resolve) ----
     energy_layer: EnergyLayer | None = None
     if energy_on:
@@ -2518,7 +2597,8 @@ def run_day(
                 world.n_poi,
             ),
         )
-        R.initialize_energy(agents, energy_layer, seed)
+        if not _resuming:  # 10d(A11): 空腹の初期値・体の定数は保存した状態から
+            R.initialize_energy(agents, energy_layer, seed)
     agents.freeze()
     world.freeze()
 
@@ -2534,6 +2614,7 @@ def run_day(
             tick_seconds=tick_seconds,
             calendar=calendar,  # 10a: #2・#3・#7・#10・#11・#20 は暦の口から
             rng_scheme=rng_scheme,  # 10c
+            initial_placement=not _resuming,  # 10d(A11): 再開では域外へ置かない
             schedule=schedule,
             ledger=ledger,
             enabled=processes_enabled,
@@ -2575,7 +2656,10 @@ def run_day(
             walk_max_ticks=int(intent_max_ticks),
             seed=seed,  # 10a ◐ #19: 出勤率の抽選の 1 日目からの塩
         )
-        presence.initialize()  # その時刻に在圏でない体を域外へ(I1 の分母)
+        if _resuming:  # 10d(A11): 再開では域外の配置をしない(配置の数の控えだけ作る)
+            presence.initialize_caches()
+        else:
+            presence.initialize()  # その時刻に在圏でない体を域外へ(I1 の分母)
         if runner is not None:
             runner.attach_presence(presence)  # hotel の母数・civic の引き込み候補
 
@@ -2685,6 +2769,9 @@ def run_day(
     n_fleet_resent = 0
     #: 繰り延べ中の個体(再送を数えるためだけの集合。呼数 L4 は**発射数**で数える)。
     fleet_waiting: set[int] = set()
+    #: 10d(A10): 艦隊へ**出したが返っていない呼**(call_id → ``LLMCall``・発射の順)。状態を書くときに保存し、
+    #: 再開のときに同じ call_id(=同じ seed)で出し直す。艦隊の無いランでは空のまま。
+    fleet_inflight: dict[str, Any] = {}
     #: **再生モードの艦隊の代役**(D-58)。``observed_tick`` → その tick で「届く」項目。
     #: 項目は ``(繰り延べか, ペイロード)``。繰り延べは ``(agent, cond, class, since_tick)``、
     #: 応答は ``BridgeResult`` そのもの。テープが版1(``observed_tick=-1``)なら常に空
@@ -2723,7 +2810,7 @@ def run_day(
         schedule = apply_to_mock_schedule(schedule, weekly, _wd0)  # 拠点セル(自宅/職場)の上書き
         # ---- D-62 (b): tick 0 の activity を W17 の 0:00 時点の活動から立てる ----
         # ``initialize`` は全員 SLEEPING(週次表の無い世界の既定)。ここで立て直す。
-        if plan_sleep:
+        if plan_sleep and not _resuming:  # 10d(A11): 再開では初期の活動を立てない
             R.set_initial_activity(agents, weekly.initial_activity(_wd0))
     else:
         # 10a #12: mock 日課の平日/休日は暦の口の土休から
@@ -2801,6 +2888,13 @@ def run_day(
         _q25_renderer.named_closed_lookup = _named_closed_lookup(
             poi_resolver, runner, calendar, tick_seconds
         )
+    # ---- 10d 検収 D1: B3 の天候は世界過程の「その日の再生の実日」で引く(体の暑さと同じ行・日付の語は暦) ----
+    if (
+        _q25_renderer is not None and hasattr(_q25_renderer, "weather_date_fn")
+        and runner is not None and runner.replay_date
+    ):
+        _env = runner.environment
+        _q25_renderer.weather_date_fn = lambda: (_env.replay_date or None)
     # ---- 4 段目: 親しみの表(値を決める層・書き手は resolve.write_familiarity) ----
     _fam_renderer = getattr(perception, "renderer", None) if perception is not None else None
     _fam_has_renderer = _fam_renderer is not None and hasattr(_fam_renderer, "signage_exposures")
@@ -2864,7 +2958,7 @@ def run_day(
             density=float(rel_init_density),
             minutes_per_tick=float(tick_seconds) / 60.0, d=float(rel_d), tau=float(rel_tau),
             tenure_weeks=float(rel_tenure_weeks), tenure_hash=str(rel_tenure_hash),
-        ) if pop is not None else None
+        ) if (pop is not None and not _resuming) else None  # 10d(A11): 再開では初期の辺を作らない
         if _init is not None:
             rel_layer.seed_initial(agents, _init)
             rel_layer.init_audit["init_seconds_nondeterministic"] = round(time.perf_counter() - _t_rel, 3)
@@ -2957,7 +3051,7 @@ def run_day(
         n_agents=n_agents,
         n_cells=world.n_cells,
         seed=seed,
-        ticks=total_ticks,  # 10a: 回した通しの tick 数(1 日のランでは ``ticks``)
+        ticks=t_end - t_begin,  # 10a: 回した通しの tick 数(1 日のランでは ``ticks``)・10d: 再開・止めたランはその区間
         world_source=world.assets.source,
         tape_path=str(tape_path) if tape_path is not None else "",
         mode=mode,
@@ -3057,6 +3151,7 @@ def run_day(
                 phase["fleet_wait"] += time.perf_counter() - t0
                 t0 = time.perf_counter()
             for res in fleet_bridge.poll(now_tick=tick):
+                fleet_inflight.pop(str(res.call.call_id if isinstance(res, FleetDeferred) else res.call_id), None)
                 if isinstance(res, FleetDeferred):
                     fleet_deferred.append(
                         (
@@ -3098,8 +3193,264 @@ def run_day(
             "run_day": _RunDayLocals(pending, fleet_deferred, fleet_waiting, replay_inbox),
         }
 
-    for tick in range(total_ticks):
+    # ================================================================ 10d: 日の頭・日の締め・状態の書き出しと読み込み
+    #: 日ごとの締めの記録(締めの回数=日数・保存則・体の数・日の終わりのお金と 2 つのハッシュ)。manifest の ``daily``。
+    daily_records: list[dict[str, Any]] = []
+    #: 日の頭(1 日目から)の記録(日の頭のお金=前の日の終わりと同じか=自動補充が無いか)。manifest の ``day_heads``。
+    day_heads: list[dict[str, Any]] = []
+    #: K9 (a) のつなぎで W17 の曜日の行を月曜(0)に置き換えた日。
+    w17_substituted: list[int] = []
+    #: 書いた状態のファイル(名前・T・バイト・``finished``・書くのにかかった秒=壁時計)。
+    state_files: list[dict[str, Any]] = []
+
+    def _pst_now() -> Any:
+        return runner.salient.pstate if runner is not None else None
+
+    def _act_hash_now() -> str:
+        if act_layer is None:
+            return ""
+        if intent_layer is None:
+            return act_layer.state_hash()
+        return blake3_hex(f"{act_layer.state_hash()}\x1f{intent_layer.state_hash()}".encode())
+
+    def _eod_hashes() -> dict[str, Any]:
+        """日の締めの**後**の behavior-hash・full-hash(10b 検収後 P2・10d の再開の判定はこちら)。読むだけ。"""
+        _owners_e = _hash_owners()
+        _memo_e: dict[str, tuple[bytes, int]] = {}
+        _full_e, _bytes_e = full_state_hash(agents, world, _pst_now(), schedule.population_hash, schedule_hash,
+                                            _owners_e, memo=_memo_e)
+        return {
+            "behavior_hash": behavior_state_hash(agents, world, schedule.population_hash, schedule_hash,
+                                                 _act_hash_now(), _owners_e, memo=_memo_e),
+            "full_hash": _full_e,
+            "full_external_bytes": int(sum(_bytes_e.values())),
+        }
+
+    def _money_now() -> dict[str, int]:
+        out = {"households": int(np.asarray(agents.registry.money, dtype=np.int64).sum())}
+        if ledger is not None and ledger.money is not None:
+            out["money_supply"] = int(ledger.money.money_supply())
+        return out
+
+    def _bodies_now() -> dict[str, int]:
+        st = np.asarray(agents.registry.transit_state, dtype=np.int64)
+        return {"n": int(st.size), "in_area": int(np.count_nonzero(st == 0)),
+                "riding": int(np.count_nonzero(st == 1)), "outside": int(np.count_nonzero(st == 2)),
+                "other": int(np.count_nonzero((st < 0) | (st > 2)))}
+
+    def _w17_weekday(d: int) -> int:
+        """その日に引く W17 の曜日の行(0 日目は暦のまま=今と同じ)。
+
+        K9 (a)(つなぎ・宣言): W17 v2 は曜日 0(月曜)の行しか無いので、行の無い曜日は月曜の行で引く。
+        """
+        wd = int(calendar.table_weekday(int(d)))
+        if int(d) == 0 or weekly is None:
+            return wd
+        if weekly.agent_rows_of_day(wd).size == 0:
+            return 0
+        return wd
+
+    def _relay_tables(d: int) -> None:
+        """10d: ``d`` 日目の日の頭の**表の張り直し**(資産・暦・日番号だけから決まる=再開でも同じ表)。
+
+        鉄道の時刻表(T の座標で末尾に足す)・天気の実日・計画実行層の在圏ブロックとイベント(出勤率の欠席を
+        日番号つきで引き直す)・計画境界の表(W17 は K9 のつなぎ)。体の状態は書かない(``_start_day``)。
+        """
+        nonlocal b_agent, b_cond, b_tick, b_cell, b_start
+        d = int(d)
+        if runner is not None:
+            runner.relay_day(d, ticks_per_day=tpd)  # 時刻表・天気・営業時間の曜日の行・日ごとの乱数の表
+        wd = _w17_weekday(d)
+        if weekly is not None and wd != int(calendar.table_weekday(d)) and d not in w17_substituted:
+            w17_substituted.append(d)
+        if presence is not None:
+            presence.relay_day(d, t0=d * tpd, weekday=wd)
+        if weekly is not None:
+            na, nc, nt, ncell = weekly.boundary_events_full(wd)
+        else:
+            na, ns, nt = schedule.events_of_day(calendar.table_weekday(d), rest_day=calendar.is_rest_day(d))
+            ncell = np.full(na.size, -1, dtype=np.int32)
+            nc = np.array(
+                [int(WakeCondition.PLAN_GENERAL), int(WakeCondition.PLAN_TRANSIT), int(WakeCondition.PLAN_GENERAL),
+                 int(WakeCondition.PLAN_TRANSIT), int(WakeCondition.PLAN_SLEEPING)],
+                dtype=np.int8,
+            )[ns]
+        same = all(np.array_equal(x, y) for x, y in ((na, b_agent), (nc, b_cond), (nt, b_tick), (ncell, b_cell)))
+        if same:
+            return
+        if (act_layer is not None or classical_policy is not None
+                or getattr(poi_resolver, "store_choice", None) is not None):
+            # 活動層・方策 classical・想起優先の候補合成は起動時に計画境界の表を写して持つ。日で表が変わる
+            # (休日の mock 日課・W17 の別の曜日の行)ランでの張り直しは 10d の範囲の外(止めて問いにする)
+            raise NotImplementedError(
+                f"{d} 日目の計画境界の表が前の日と違う(休日など)。活動層・classical・想起優先の候補合成の表の"
+                "張り直しは K9 の解消まで入れていない(K9 のつなぎ=平日は月曜の行の間は通らない)"
+            )
+        b_agent, b_cond, b_tick, b_cell = na, nc, nt, ncell
+        b_start = np.searchsorted(b_tick, np.arange(ticks + 1), side="left")
+
+    def _start_day(d: int) -> None:
+        """10d: ``d`` 日目の日の頭の体の側の書き換え(通しのランだけ・再開では保存した値を読む)。
+
+        日の頭の初期化(``initialize``・初期の活動・域外の配置・空腹の初期値・初期の財布・参入資本・帳簿の作り
+        直し)は**走らせない**(A11)。計画実行層の「今日の計画」の写しと日ごとの印だけを今日の表から置く。
+        """
+        if presence is not None:
+            presence.start_day()
+        day_heads.append({"day": int(d), "T": int(d) * tpd, "money": _money_now(), "bodies": _bodies_now()})
+
+    def _ledger_close(day: int) -> tuple[dict[str, Any], dict[str, int]]:
+        """金と物の台帳の日の締め・日次センサス・月次 T3・センサスの書き出し(1 日のランは今のまま)。"""
+        # 日次の畳み込み(D-R2-6: 生ログは保持窓・取引行列は日次集約行へ)。
+        # **締めを捨てない**——締めると取引行列も当日の廃棄も 0 に戻るので、締めたあとに
+        # 現在値でセンサスを回すと faucet/sink/廃棄が全部 0 の空虚な行になり、ゲートが
+        # 素通りする(層2レビュー指摘)。``daily_census`` は ``day_index`` の締めを読む。
+        # 10a #21: 締めの日番号は暦の口の ``day_key``(day_index モードでは今の ``day_index``)。
+        _close_day = calendar.day_key(int(day))
+        closes = ledger.end_of_day(_close_day)
+        result.day_closed = int(closes.day)
+        growth = ledger.growth_parts()
+        # 日次(軽量)センサス+ゲート(境界・経済設計書 §2.4)。
+        # engine は economy を import できない(層契約)ので、行の作り手は
+        # ``LedgerBundle.census``(economy 側が注入する呼び出し可能)。**失敗しても raise しない**
+        # =診断の赤(§2.4「ゲート失敗=較正・holdout 照合に使わない」)。
+        row = ledger.daily_census(_close_day)
+        if row is not None:
+            result.census_row = dict(row)
+            result.census_pass = bool(row.get("gate_ok", False))
+        # 月次センサスの T3(冗長方程式の検算・D-85 (a)・ユーザー決定 2026-09-17)。
+        # 月次が立たない日は None(=未実行)。**``census_out`` とは無関係に**毎日呼ぶ
+        # ——書き出しの有無で manifest が動くと「観測が世界を変えない」が崩れるため。
+        t3 = ledger.monthly_t3(_close_day)
+        if t3 is not None:
+            result.t3_report = dict(t3)
+            result.t3_ok = bool(t3.get("ok", False))
+        # 日次センサス/月次 MER の出力口(§2.4)。**``census_out`` を渡したときだけ**書く。
+        # 書き手は economy 側の注入(engine は economy を import できない=層契約)。
+        # 10d: 複数日のランでは日ごとの置き場(``day-NNNN``)に書く(1 日のランは今のまま)。
+        if census_out is not None:
+            _out = str(census_out) if sim_days == 1 else str(Path(census_out) / f"day-{int(day):04d}")
+            result.census_paths = ledger.write_census(_close_day, _out)
+        return growth
+
+    def _day_record(d: int) -> None:
+        rec: dict[str, Any] = {"day": int(d), "end_T": (int(d) + 1) * tpd, "money": _money_now(),
+                               "bodies": _bodies_now()}
+        if ledger is not None:
+            rec["day_closed"] = int(result.day_closed)
+            rec["census_pass"] = bool(result.census_pass)
+            rec["census_row"] = {k: v for k, v in dict(result.census_row).items()
+                                 if isinstance(v, (bool, int, float, str))}
+        if result.state_hashes_end_of_day:
+            rec["state_hashes_end_of_day"] = dict(result.state_hashes_end_of_day)
+        daily_records.append(rec)
+
+    def _close_day_midrun(d: int) -> None:
+        """10d: 複数日のランの途中の日の締め(1 日 1 回・最後の tick の後・次の日の tick 0 の前)。
+
+        鉄道の最後の便は流さない(次の日の頭の tick が流す=同じ発車を 2 度処理しない)。台帳の締め・センサス・
+        締めの後の 2 つのハッシュは最後の日と同じ。
+        """
+        if runner is not None:
+            runner.end_of_day((int(d) + 1) * tpd - 1, flush_rail=False)
+        if ledger is not None:
+            _ledger_close(int(d))
+        if checkpoint_every:
+            result.state_hashes_end_of_day = _eod_hashes()
+        _day_record(int(d))
+
+    def _save_state(T_next: int, *, finished: bool, closed: bool) -> None:
+        """10d: 状態のまとまりを 1 ファイルに書く(SoA の列・外の状態・進捗の印・艦隊の未着の呼)。"""
+        t0_ = time.perf_counter()
+        owners_ = _hash_owners()
+        memo_: dict[str, tuple[bytes, int]] = {}
+        full_, _ = full_state_hash(agents, world, _pst_now(), schedule.population_hash, schedule_hash, owners_,
+                                   memo=memo_)
+        beh_ = behavior_state_hash(agents, world, schedule.population_hash, schedule_hash, _act_hash_now(),
+                                   owners_, memo=memo_)
+        soa_ = RS.collect_soa(agents, world, _pst_now())
+        items_ = RS.collect_items(owners_)
+        header = {
+            "format": RS.STATE_FORMAT,
+            "ledger_version": SL.LEDGER_VERSION,
+            "run_id": run_id,
+            "parent_run": parent_run,
+            "finished": bool(finished),
+            "progress": {
+                "next_T": int(T_next), "day": int(T_next) // tpd, "tick_of_day": int(T_next) % tpd,
+                "days_closed": int(T_next) // tpd, "closed_at_day_end": bool(closed),
+                "sim_days": int(sim_days), "ticks_per_day": int(tpd),
+            },
+            "fingerprint": _fp,
+            "platform": RS.platform_fields(),
+            "hashes": {"behavior_hash": beh_, "full_hash": full_},
+            "counts": {
+                "soa_columns": {k: len(v) for k, v in soa_.items()},
+                "external_items": len(items_),
+                "inflight_calls": len(fleet_inflight),
+                "pending_responses": len(pending),
+            },
+        }
+        path = RS.state_path(state_out, int(T_next))
+        nbytes = RS.write_state(path, RS.StateBundle(header, soa_, items_, list(fleet_inflight.values())))
+        state_files.append({"file": path.name, "T": int(T_next), "bytes": int(nbytes), "finished": bool(finished),
+                            "full_hash": full_, "seconds": round(time.perf_counter() - t0_, 3)})
+
+    def _rebuild_derived() -> None:
+        """10d(親の答え 2): 起動時に**SoA の値から**作る表を、戻した SoA から決定的に作り直す(再開だけ)。
+
+        通しのランではこれらの表は ``initialize`` の後の SoA(体の種別)から作られる。再開では初期化を呼ばないので、
+        保存から戻した SoA で作り直す(種別はラン中に変わらない=通しと同じ表)。表は状態台帳の除外の一覧の
+        キャッシュ(導出)に載る: 方策 classical の ``employed``・開閉の過程の担当従業者 ``staff_of_poi``
+        (補充の過程が同じ配列を持つ)。
+        """
+        if classical_policy is not None:
+            classical_policy.rebuild_derived()
+        if runner is not None:
+            runner.opening.rebuild_derived()
+
+    # ---- 10d: 再開(保存した状態を読む=日の頭の初期化は上で呼んでいない) ----
+    #: 読み込み(ファイルを読む)と戻す(表の張り直し・SoA と外の状態・full-hash の検算)の秒(壁時計=記録だけ)。
+    _restore_seconds = 0.0
+    if _bundle is not None:
+        _t_r = time.perf_counter()
+        # 再開の時刻より前に頭が来た日の表を張り直す(便の索引を通しのランと同じにする)。日の境目からの再開では
+        # その日の頭はループの先頭で張る(通しのランと同じ位置)。
+        for _d in range(1, (t_begin - 1) // tpd + 1):
+            _relay_tables(_d)
+        R.restore_soa(agents, world, _pst_now(), _bundle.soa)
+        _rebuild_derived()  # 10d(親の答え 2): 起動時に SoA から作る表を、戻した SoA から作り直す
+        R.restore_items(_hash_owners(), _bundle.items)
+        _full_r, _ = full_state_hash(agents, world, _pst_now(), schedule.population_hash, schedule_hash,
+                                     _hash_owners(), memo={})
+        if _full_r != str(_bundle.header.get("hashes", {}).get("full_hash", "")):
+            raise RuntimeError(
+                "再開で戻した状態の full-hash が保存したときと違う(戻し忘れか戻し違い・"
+                f"保存 {str(_bundle.header.get('hashes', {}).get('full_hash', ''))[:16]}・戻した後 {_full_r[:16]})"
+            )
+        result.money_start = int(agents.registry.money.astype(np.int64).sum())
+        # 10d 検収 L1: 診断の行の差分の基準(前の tick の終わりの値)を戻した状態から置く(通しと同じ差分になる)
+        prev_sessions = conv.n_opened if conv is not None else 0
+        prev_tape_misses = bridge.n_tape_misses
+        _restore_seconds = time.perf_counter() - _t_r
+        if _bundle.inflight:
+            if fleet_bridge is None:
+                raise ValueError("保存に艦隊の未着の呼があるが、再開のランに艦隊が無い")
+            # 出したが返っていない呼を同じ call_id(=艦隊の seed は call_id とランの seed から決まる)で出し直す
+            _calls_r = list(_bundle.inflight)
+            for c_ in _calls_r:
+                fleet_inflight[str(c_.call_id)] = c_
+            for d_ in fleet_bridge.submit(_calls_r, now_tick=t_begin - 1):
+                fleet_inflight.pop(str(d_.call.call_id), None)
+                fleet_deferred.append(
+                    (int(d_.call.agent_id), int(d_.call.condition), int(d_.call.wake_class), int(d_.call.wake_since))
+                )
+
+    for tick in range(t_begin, t_end):
         td = tick % tpd  # 日の中の時刻で引く表(計画境界)はこれで引く。1 日のランでは td == tick
+        if td == 0 and tick > 0:  # 10d: 日の頭(1 日目から)=表の張り直しと今日の計画の写し(初期化はしない)
+            _relay_tables(tick // tpd)
+            _start_day(tick // tpd)
         R.advance_body(agents, tick, energy_layer)
         if classical_policy is not None:  # 第2波 §2A 項 4: per_hour の門の「範囲内で起きていた分」(他の腕は no-op)
             classical_policy.accrue_awake()
@@ -3587,7 +3938,10 @@ def run_day(
                         )
                     )
                 # 発射は**非ブロッキング**。返るのは「キューに入らなかった」分だけ。
+                for c_ in calls:  # 10d: 出したが返っていない呼の控え
+                    fleet_inflight[str(c_.call_id)] = c_
                 for d in fleet_bridge.submit(calls, now_tick=tick):
+                    fleet_inflight.pop(str(d.call.call_id), None)
                     fleet_deferred.append(
                         (int(d.call.agent_id), int(d.call.condition),
                          int(d.call.wake_class), int(d.call.wake_since))
@@ -3970,13 +4324,31 @@ def run_day(
             _dt_ckpt = time.perf_counter() - t0
             phase["checkpoint"] += _dt_ckpt
             result.checkpoint_seconds.append(_dt_ckpt)
+            if checkpoint_detail:  # 10d: 食い違いの場所を探す道具の材料(既定 off)
+                result.checkpoint_details.append(
+                    {"tick": int(tick), **component_digests(agents, world, _pst_now(), _owners)}
+                )
+        # ---- 10d: 複数日のランの途中の日の締め(1 日 1 回)と、その後の状態の書き出し ----
+        if td == tpd - 1 and tick != total_ticks - 1:
+            _close_day_midrun(tick // tpd)
+            if state_out is not None:
+                _save_state(tick + 1, finished=False, closed=True)
+
+    #: 10d: ``stop_at_tick`` で止めたラン(残りは再開のランが回す)。日の途中で止めたら締めずにここで書く。
+    _stopped = t_end < total_ticks
+    if _stopped and t_end % tpd != 0:
+        _save_state(t_end, finished=False, closed=False)
 
     # ---- 艦隊の残りを吸い切る(**捨てない**)。テープを閉じる前に置く ----
-    if fleet_bridge is not None:
+    # 10d: 止めたランは吸わない(出したが返っていない呼は状態に書いた=再開のランが出し直す)
+    if fleet_bridge is not None and _stopped:
+        fleet_bridge.close()
+    elif fleet_bridge is not None:
         n_late = 0
         # ``now_tick=total_ticks``= ラン終端(最後の tick の 1 つ先)。再生側はこの値の項目を
         # 「tick ループ中には届かなかった」として同じ位置で処理する(D-58)。
         for res in fleet_bridge.drain(now_tick=total_ticks):
+            fleet_inflight.pop(str(res.call.call_id if isinstance(res, FleetDeferred) else res.call_id), None)
             if isinstance(res, FleetDeferred):
                 fleet_deferred.append(
                     (int(res.call.agent_id), int(res.call.condition),
@@ -3993,7 +4365,7 @@ def run_day(
         # ラン終端でも答えが返らなかった呼(**次ランへ持ち越す**の監査点。0 が正常)
         result.fleet_unanswered_at_end = len(fleet_deferred)
         fleet_bridge.close()
-    elif replay_inbox:
+    elif replay_inbox and not _stopped:
         # ---- 再生の終端処理(D-58): tick ループ中に届かなかった分=本番の drain 相当 ----
         n_late = 0
         for t in sorted(replay_inbox):  # 逐次ループ宣言: 残件数ぶん(通常 0)
@@ -4018,7 +4390,8 @@ def run_day(
     result.undefined_registry = bridge.undefined  # type: ignore[attr-defined]
     if runner is not None:
         # D-R2-6: ActualLog は O(t) が本質 → 保持窓を過ぎた生ログを日次集約行へ畳む
-        runner.end_of_day(max(0, total_ticks - 1))
+        if not _stopped:  # 10d: 止めたランは締めない(日の境目で止めたならループの中で締め済み)
+            runner.end_of_day(max(0, total_ticks - 1))
         result.registry_hash = runner.registry_hash
         result.constitution_ok = runner.constitution_ok
         result.replay_date = runner.replay_date
@@ -4041,54 +4414,17 @@ def run_day(
             result.waste_band = (float(_ws["band_store_t"][0]), float(_ws["band_store_t"][1]))
     ledger_growth: tuple[dict[str, Any], dict[str, int]] = ({}, {})
     if ledger is not None:
-        # 日次の畳み込み(D-R2-6: 生ログは保持窓・取引行列は日次集約行へ)。
-        # **締めを捨てない**——締めると取引行列も当日の廃棄も 0 に戻るので、締めたあとに
-        # 現在値でセンサスを回すと faucet/sink/廃棄が全部 0 の空虚な行になり、ゲートが
-        # 素通りする(層2レビュー指摘)。``daily_census`` は ``day_index`` の締めを読む。
-        # 10a #21: 締めの日番号は暦の口の ``day_key``(day_index モードでは今の ``day_index``)。台帳は 1 日のランだけ。
-        _close_day = calendar.day_key(sim_days - 1)
-        closes = ledger.end_of_day(_close_day)
-        result.day_closed = int(closes.day)
-        ledger_growth = ledger.growth_parts()
-        # 日次(軽量)センサス+ゲート(境界・経済設計書 §2.4)。
-        # engine は economy を import できない(層契約)ので、行の作り手は
-        # ``LedgerBundle.census``(economy 側が注入する呼び出し可能)。**失敗しても raise しない**
-        # =診断の赤(§2.4「ゲート失敗=較正・holdout 照合に使わない」)。
-        row = ledger.daily_census(_close_day)
-        if row is not None:
-            result.census_row = dict(row)
-            result.census_pass = bool(row.get("gate_ok", False))
-        # 月次センサスの T3(冗長方程式の検算・D-85 (a)・ユーザー決定 2026-09-17)。
-        # 月次が立たない日は None(=未実行)。**``census_out`` とは無関係に**毎日呼ぶ
-        # ——書き出しの有無で manifest が動くと「観測が世界を変えない」が崩れるため。
-        t3 = ledger.monthly_t3(_close_day)
-        if t3 is not None:
-            result.t3_report = dict(t3)
-            result.t3_ok = bool(t3.get("ok", False))
-        # 日次センサス/月次 MER の出力口(§2.4)。**``census_out`` を渡したときだけ**書く。
-        # 書き手は economy 側の注入(engine は economy を import できない=層契約)。
-        if census_out is not None:
-            result.census_paths = ledger.write_census(_close_day, str(census_out))
+        # 最後の日の締め(10d: 締めの中身は ``_ledger_close``=途中の日と同じ・1 日のランは今のまま)
+        ledger_growth = _ledger_close(sim_days - 1) if not _stopped else ledger.growth_parts()
     # ---- 10b 検収後 P2: 日の締め(runner.end_of_day・ledger.end_of_day)の**後**の 2 本(10d はこちらを使う) ----
     # 最後の checkpoint は締めの前なので、台帳の日番号・当日の売れ行き・センサスの項が違う。final も checkpoint の
     # 位置も変えない(読むだけ・manifest の ``state_hashes_end_of_day`` に別に出す)。
-    if checkpoint_every:
-        _owners_e = _hash_owners()
-        _memo_e: dict[str, tuple[bytes, int]] = {}
-        _pst_e = runner.salient.pstate if runner is not None else None
-        _act_e = (
-            (act_layer.state_hash() if intent_layer is None
-             else blake3_hex(f"{act_layer.state_hash()}\x1f{intent_layer.state_hash()}".encode()))
-            if act_layer is not None else ""
-        )
-        _full_e, _bytes_e = full_state_hash(agents, world, _pst_e, schedule.population_hash, schedule_hash,
-                                            _owners_e, memo=_memo_e)
-        result.state_hashes_end_of_day = {
-            "behavior_hash": behavior_state_hash(agents, world, schedule.population_hash, schedule_hash, _act_e,
-                                                 _owners_e, memo=_memo_e),
-            "full_hash": _full_e,
-            "full_external_bytes": int(sum(_bytes_e.values())),
-        }
+    if checkpoint_every and not _stopped:
+        result.state_hashes_end_of_day = _eod_hashes()
+    if not _stopped:
+        _day_record((t_end - 1) // tpd)
+        if state_out is not None:  # 10d: ランの最後の状態(finished: true=これへの再開は拒否)
+            _save_state(total_ticks, finished=True, closed=True)
     result.bridge_counters = dict(bridge.counters())
     if fleet_bridge is not None:
         result.bridge_counters.update(fleet_bridge.counters())
@@ -4202,13 +4538,13 @@ def run_day(
     result.familiarity = bool(familiarity_on)
     result.familiarity_k = int(familiarity_k)
     result.familiarity_summary = (
-        fam_layer.summary(agents, max(0, int(total_ticks) - 1)) if fam_layer is not None else {}
+        fam_layer.summary(agents, max(0, int(t_end) - 1)) if fam_layer is not None else {}
     )
     result.memory = bool(memory_on)
     result.memory_n = int(memory_n)
     result.memory_summary = (
         {
-            **mem_layer.summary(agents, max(0, int(total_ticks) - 1)),
+            **mem_layer.summary(agents, max(0, int(t_end) - 1)),
             "gist_bytes": mem_layer.gist_bytes(),
             # 6b: 描画側の計数(記憶の行を載せた描画・項の件数・行の tok の分布・予算で削った数)
             "render": (
@@ -4222,7 +4558,7 @@ def run_day(
     )
     result.store_memory = bool(store_memory_on)
     result.store_memory_summary = (
-        mem_layer.store.summary(agents, max(0, int(total_ticks) - 1), mem_layer.tau)
+        mem_layer.store.summary(agents, max(0, int(t_end) - 1), mem_layer.tau)
         if mem_layer is not None and mem_layer.store is not None
         else {}
     )
@@ -4238,7 +4574,7 @@ def run_day(
         else {}
     )
     result.relations = (
-        rel_layer.summary(agents, max(0, int(total_ticks) - 1)) if rel_layer is not None else {}
+        rel_layer.summary(agents, max(0, int(t_end) - 1)) if rel_layer is not None else {}
     )
     if rel_layer is not None and conv is not None and conv.origin_names is not None:
         # C10 8b 診断行: 起点ごとの 招待/承諾/断り/期限切れ/門で落ちた(decision_layers の入口にも同じ表)
@@ -4408,10 +4744,27 @@ def run_day(
     result.growth_report = check_growth(
         declarations,
         measured,
-        steps=total_ticks,  # 10a: 回した通しの tick 数(1 日のランでは ticks)
+        steps=t_end - t_begin,  # 10a: 回した通しの tick 数(1 日のランでは ticks)・10d: このランの区間
         minutes_per_step=max(1, tick_seconds // 60),
         n_entities=n_agents,
     )
+    # ---- 10d: 再開の欄と日ごとの記録 ----
+    result.daily = list(daily_records)
+    result.day_heads = list(day_heads)
+    result.resume = {
+        "run_id": run_id,
+        "parent_run": parent_run,
+        "start_T": int(t_begin),
+        "end_T": int(t_end),
+        "finished": not _stopped,
+        "sim_days": int(sim_days),
+        "daily_closes": len(daily_records),
+        "state_files": list(state_files),
+        "w17_weekday_substituted_days": list(w17_substituted),
+        "inflight_calls_at_end": len(fleet_inflight),
+        "read_seconds": round(float(_read_seconds), 3),
+        "restore_seconds": round(float(_restore_seconds), 3),
+    }
     result.agents = agents  # type: ignore[attr-defined]
     result.world = world  # type: ignore[attr-defined]
     result.schedule = schedule  # type: ignore[attr-defined]
@@ -4492,11 +4845,19 @@ def add_calendar_args(ap: "argparse.ArgumentParser") -> None:
     ap.add_argument("--rng-scheme", choices=RNG_SCHEMES, default=DEFAULT_RNG_SCHEME,
                     help=("顕著行為の発生と出動の遅れの乱数(10c)。stateful=今のまま(既定)/"
                           " counter=(seed, 名前, T[, セル, k])から毎回作る=状態を持たない"))
+    # 10d(親の答え 7): 複数日の通しランと再開の口(同じ綴りを engine.run と shibuya.cli で使う)
+    ap.add_argument("--sim-days", type=int, default=1,
+                    help="通しで回す日数(10d)。2 以上では各日の終わりに締め・日の頭の初期化は走らせない(既定 1)")
+    ap.add_argument("--resume-from", type=str, default="",
+                    help="再開する状態のファイル(10d・state-T<T>.pkl)。設定は親と同じにする(違えば止める)")
+    ap.add_argument("--state-out", type=str, default="",
+                    help="状態の書き出し先のディレクトリ(10d)。各日の締めの後とランの最後に state-T<T>.pkl を書く")
 
 
 def calendar_kwargs_from_args(args: Any) -> dict[str, Any]:
-    """``add_calendar_args``(10c の ``--rng-scheme`` を含む)と ``--response-delay`` の結果 → ``run_day`` の引数。"""
-    return {
+    """``add_calendar_args``(10c の ``--rng-scheme``・10d の ``--sim-days``・``--resume-from``・``--state-out`` を含む)と
+    ``--response-delay`` の結果 → ``run_day`` の引数。"""
+    out: dict[str, Any] = {
         "calendar_weekday": str(getattr(args, "calendar_weekday", DEFAULT_WEEKDAY_MODE)),
         "start_sim_datetime": (getattr(args, "start_date", "") or None),
         "holiday_csv": str(getattr(args, "holiday_csv", DEFAULT_HOLIDAY_CSV)),
@@ -4506,6 +4867,14 @@ def calendar_kwargs_from_args(args: Any) -> dict[str, Any]:
         # 10c: 乱数の方式(既定 stateful)
         "rng_scheme": str(getattr(args, "rng_scheme", DEFAULT_RNG_SCHEME)),
     }
+    # 10d: 複数日と再開の口(既定のときは欄を足さない=既定の引数は今のまま)
+    if int(getattr(args, "sim_days", 1) or 1) != 1:
+        out["sim_days"] = int(args.sim_days)
+    if getattr(args, "resume_from", ""):
+        out["resume_from"] = str(args.resume_from)
+    if getattr(args, "state_out", ""):
+        out["state_out"] = str(args.state_out)
+    return out
 
 
 def fleet_from_args(args: Any, ap: "argparse.ArgumentParser | None" = None) -> FleetClient | None:

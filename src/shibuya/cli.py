@@ -265,8 +265,12 @@ def build_ledger_bundle(
     seed: int | str = 1,
     world_dir: str | Path | None = None,
     use_population: bool = True,
+    endow: bool = True,
 ) -> LedgerBundle:
     """世界から金/物の台帳とセンサス呼び出しを組み立てる(engine/ledger_api の Protocol を満たす)。
+
+    ``endow=False``(10d の再開用)は店舗の参入資本を入れない(残高は再開で保存した状態から戻す=A11 の
+    お金の自動補充をしない)。世帯の財布は ``engine.resolve.initialize`` が入れるので、再開ではそちらも走らない。
 
     ``world_dir`` に W16 母集団があれば、世帯の初期財布を ``economy.anchors`` の
     アンカー由来に差し替える(``use_population=False`` で mock のまま)。
@@ -287,7 +291,7 @@ def build_ledger_bundle(
         cats, np.asarray(world.pois.stock), np.asarray(world.pois.price), n_agents=n_agents
     )
     capital = store_capital_array(world, n_agents, store_capital_yen)
-    if capital.size and int(capital.sum()) > 0:
+    if endow and capital.size and int(capital.sum()) > 0:
         led.endow_stores(capital, tick=0)
     return LedgerBundle(
         money=led,
@@ -445,6 +449,7 @@ def run(
     bundle = build_ledger_bundle(
         world, n_agents, store_capital_yen,
         seed=seed, world_dir=run_world_dir, use_population=use_population,
+        endow=kwargs.get("resume_from") is None,  # 10d(A11): 再開では参入資本を入れ直さない
     )
     res = run_day(
         n_agents=n_agents,

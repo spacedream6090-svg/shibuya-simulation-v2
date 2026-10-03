@@ -329,3 +329,27 @@ def full_hash(agents: Any, world: Any, pstate: Any, population_hash: str, schedu
     h.update(schedule_hash.encode("utf-8") + _SEP)
     h.update(ext.encode("ascii"))
     return h.hexdigest(), sizes
+
+
+# ---------------------------------------------------------------- 10d: 食い違いの場所を探す道具の材料
+def component_digests(agents: Any, world: Any, pstate: Any, owners: Mapping[str, Any]) -> dict[str, dict[str, str]]:
+    """列ごと(``置き場.列名``)と外の状態の道筋ごと(``行の鍵:道筋``)の digest(16 進 32 字)。読むだけ。
+
+    full-hash に入る範囲(SoA は軸 2 が ``discardable`` でない列・外の状態は ``full_items``)。2 本のランの
+    checkpoint を突き合わせて、最初に食い違う tick と列・持ち主の行を出す(``10d/first_diff.py``)。
+    """
+    soa: dict[str, str] = {}
+    for place, reg in (("agents", agents.registry), ("cells", world.cells), ("pois", world.pois),
+                       ("perception", None if pstate is None else pstate.registry)):
+        if reg is None:
+            continue
+        skip = SL.full_excluded(place)
+        for name, arr in reg.arrays.items():
+            if name in skip:
+                continue
+            soa[f"{place}.{name}"] = _blake3.blake3(to_state(np.asarray(arr))).hexdigest()[:32]
+    items: dict[str, str] = {}
+    for key, path in SL.full_items():
+        d, _n = item_digest(owners, key, path)
+        items[f"{key}:{path}"] = d.hex()[:32]
+    return {"soa": soa, "items": items}

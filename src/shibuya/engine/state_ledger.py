@@ -8,7 +8,8 @@
 材料の値=a08109a の行番号。パスは ``src/shibuya/`` を省略):
 
 - **SoA の列 98 行**(agents 79・cells 5・pois 9・知覚 5): ``place`` は ``agents``・``cells``・``pois``・``perception``。
-- **SoA の外の状態 89 行**(O1〜O65=材料・O66〜O89=10b-2 で持ち主のクラスの属性を棚卸しして足した行):
+- **SoA の外の状態 94 行**(O1〜O65=材料・O66〜O89=10b-2 で持ち主のクラスの属性を棚卸しして足した行・
+  O90〜O94=10d の再開の試験と検収で見つけた保存し忘れを元の行から移した行):
   ``place`` は ``external``。``items`` はその行が指す属性の道筋
   (``run_day`` の中で組む ``owners`` の鍵から ``.`` でたどる。例 ``runner.salient.rng``)。
 
@@ -45,7 +46,7 @@ from dataclasses import dataclass
 from typing import Final, Iterable
 
 #: 表の版(列や行の判定を変えたら上げる。manifest の ``state_hashes.ledger_version`` に出る)。
-LEDGER_VERSION: Final[str] = "state-ledger/10b-3"
+LEDGER_VERSION: Final[str] = "state-ledger/10d"
 
 BEHAVIOR: Final[str] = "behavior"
 NO: Final[str] = "no"
@@ -331,10 +332,10 @@ _EXT: tuple[LedgerRow, ...] = (
        note="A2 (b): 乗数 m_prev が 1 でないときだけ読む"),
     _o(21, "ClassicalPolicy _gate_hazard(EnergyLayer meal_reset と同じ配列)", "classical.py:390・energy.py:804",
        "f4・4 B/体", B, R_, ("classical._gate_hazard",)),
-    _o(22, "ClassicalPolicy _condition・_tick・_eating_tick・_eating_cells・_ipf_cache", "classical.py:372-378",
+    _o(22, "ClassicalPolicy _condition・_tick・_eating_tick・_eating_cells", "classical.py:372-378",
        "tick の中・キャッシュ", N_, X_,
-       ("classical._condition", "classical._tick", "classical._eating_tick", "classical._eating_cells",
-        "classical._ipf_cache")),
+       ("classical._condition", "classical._tick", "classical._eating_tick", "classical._eating_cells"),
+       note="10d: _ipf_cache は O90 へ(最初に引いた時の状態から作る覚え書き=作り直せない)"),
     _o(23, "ClassicalPolicy _b_tick・_b_off・counts・by_hour", "classical.py:357", "予定の表・計数", N_, V_,
        ("classical._b_tick", "classical._b_off", "classical.counts", "classical.by_hour"),
        skip=("classical.counts", "classical.by_hour"),
@@ -347,7 +348,7 @@ _EXT: tuple[LedgerRow, ...] = (
     _o(26, "TargetResolver _cat_mask_cache・stats・entropy_sum・named_closed・move_stats",
        "poi_target.py:270,373,472,536,763", "キャッシュ・計数", D_, X_,
        ("poi_resolver._cat_mask_cache", "poi_resolver.stats", "poi_resolver.entropy_sum",
-        "poi_resolver.named_closed", "poi_resolver.move_stats"),
+        "poi_resolver.move_stats"),
        note="材料は「導出できる・捨ててよい」。キャッシュは作り直しで空・計数は捨てる=捨ててよいに寄せた(実行役の判断)"),
     _o(27, "EnergyLayer bmr", "energy.py:806・resolve.py:1182", "配列(体数)", B, V_, ("energy.bmr",),
        note="weight_kg から導出"),
@@ -391,8 +392,9 @@ _EXT: tuple[LedgerRow, ...] = (
        "presence.py:707-711,752-755", "配列・辞書", B, R_,
        ("presence._defer_ids", "presence._defer_deadline", "presence._defer_line", "presence._defer_walk",
         "presence._extra", "presence._skip_depart_at")),
-    _o(37, "PlanExecutor _pulled_in_today", "presence.py:756", "bool(体数)", B, X_, ("presence._pulled_in_today",),
-       note="日ごとに作り直す前提(今は run_day ごとに新しく作る)"),
+    _o(37, "PlanExecutor _pulled_in_today", "presence.py:756", "bool(体数)", D_, R_, ("presence._pulled_in_today",),
+       note="10d: 日の頭で落とす日ごとの印(presence.start_day)。日の途中の再開で要る=required。10d 検収 L5: 読み手は"
+            "到着の飛ばしの内訳の計数(O70)だけ=軸 1 を diag に"),
     _o(38, "PlanExecutor ev_*・arrival_*・absent・blocks", "presence.py:661-666,990-1108", "予定の表", N_, V_,
        ("presence.ev_tick", "presence.ev_agent", "presence.ev_type", "presence.ev_arg", "presence.ev_act",
         "presence.ev_place", "presence.arrival_train_e1", "presence.arrival_tick", "presence.arrival_cell",
@@ -407,7 +409,7 @@ _EXT: tuple[LedgerRow, ...] = (
     _o(40, "ConversationManager join_events", "conversation.py:280-313", "list", B, R_, ("conv.join_events",),
        note="A2 (b)・記憶の腕が _next_join で読む"),
     _o(41, "ConversationManager origin_counts ほかの計数", "conversation.py:280-313", "計数", D_, X_,
-       ("conv.origin_counts", "conv.n_opened", "conv.n_ignored_invites", "conv.n_gate_rejected", "conv.n_invites",
+       ("conv.origin_counts", "conv.n_ignored_invites", "conv.n_gate_rejected", "conv.n_invites",
         "conv.n_accepted", "conv.n_declined", "conv.n_pending_expired", "conv.n_invite_refractory_blocked",
         "conv.n_blocks", "conv.n_backchannels", "conv.n_interrupts", "conv.closed_by_reason", "conv.ignored_events",
         "conv.size_hist")),
@@ -453,20 +455,18 @@ _EXT: tuple[LedgerRow, ...] = (
         "runner.environment._shade"), note="seed と日番号から選ぶ(10a で日ごとに進める)"),
     _o(57, "MoneyLedger _lines・_day", "economy/ledger.py:222-269", "5 科目 × 6 部門の配列", B, R_,
        ("ledger.money._lines", "ledger.money._day"), note="世帯の現金は agents.money と同じ配列"),
-    _o(58, "MoneyLedger 生ログのリング・_flow_daily・_snap", "economy/ledger.py:222-269・:662-690",
+    _o(58, "MoneyLedger 生ログのリング(中身)", "economy/ledger.py:222-269・:662-690",
        "24 B/行・容量 N 比例(下限 16,384)", N_, X_,
-       ("ledger.money._raw_tick", "ledger.money._flow_daily", "ledger.money._snap", "ledger.money._raw_ps",
+       ("ledger.money._raw_tick", "ledger.money._raw_ps",
         "ledger.money._raw_pi", "ledger.money._raw_qs", "ledger.money._raw_qi", "ledger.money._raw_amt",
-        "ledger.money._raw_code", "ledger.money._raw_pos", "ledger.money._raw_head", "ledger.money._day_marks",
-        "ledger.money.n_raw_dropped"),
-       note="K16 の既定案(① の記録でファイルに出す前提)"),
+        "ledger.money._raw_code"),
+       note="K16 の既定案(① の記録でファイルに出す前提)。10d: 位置・_snap・_flow_daily は O92 へ(位置だけは要る)"),
     _o(59, "GoodsLedger _shelf・_bin・_sold_today・_day", "economy/goods.py:330-406", "配列", B, R_,
        ("ledger.goods._shelf", "ledger.goods._bin", "ledger.goods._sold_today", "ledger.goods._day")),
     _o(60, "GoodsLedger 配達ログのリング", "economy/goods.py:936-958", "16 B/行", N_, X_,
        ("ledger.goods._dl_tick", "ledger.goods._dl_poi", "ledger.goods._dl_slot", "ledger.goods._dl_qty",
-        "ledger.goods._dl_code", "ledger.goods._dl_pos", "ledger.goods._dl_head", "ledger.goods._dl_marks",
-        "ledger.goods.n_delivery_dropped"),
-       note="K16 の既定案"),
+        "ledger.goods._dl_code"),
+       note="K16 の既定案。10d: 位置は O93 へ(位置だけは要る)"),
     _o(61, "WorldProcessRunner log(ActualLog)", "world/processes/actual_log.py:162-166", "31 B/行(見積り)", N_, X_,
        ("runner.log",), note="K16 の既定案"),
     _o(62, "UndefinedActionRegistry log・counts・precedents", "llm/undefined.py:697-705", "辞書", N_, X_,
@@ -550,8 +550,8 @@ _EXT: tuple[LedgerRow, ...] = (
        "配列・DayClose", D_, R_,
        ("ledger.money._flow", "ledger.money._last_change_day", "ledger.money._snap0", "ledger.money._last_close"),
        note="_last_change_day は economy/checks.py だけが読む"),
-    _o(78, "MoneyLedger rejections・n_transfers", "economy/ledger.py", "計数", D_, X_,
-       ("ledger.money.rejections", "ledger.money.n_transfers")),
+    _o(78, "MoneyLedger rejections", "economy/ledger.py", "計数", D_, X_,
+       ("ledger.money.rejections",), note="10d: n_transfers は O92 へ(日次センサスの行が読む累計)"),
     _o(79, "GoodsLedger _shelf_age・_household_sku", "economy/goods.py:367-371,550,832-886", "配列", B, R_,
        ("ledger.goods._shelf_age", "ledger.goods._household_sku"),
        note="棚の古さ=廃棄の判定・世帯の在庫=消費の可否(goods.py:550)"),
@@ -574,8 +574,9 @@ _EXT: tuple[LedgerRow, ...] = (
            "near_tie_candidates", "cache_hits", "cache_misses", "renders", "truncation_count", "intent_lines",
            "intent_lines_over_budget", "named_closed_notes", "signage_gate_draws", "signage_gate_shown",
            "signage_by_kind", "signage_effective_p"))),
-    _o(85, "LLMBridge _interned(テープへ書いた共有ブロック)", "engine/llm_bridge.py:554,771-774", "set", N_, U_,
-       ("bridge._interned",), note="テープの block 行を 1 回だけ書く印。同じテープに続けて書くなら要る=不明"),
+    _o(85, "LLMBridge _interned(テープへ書いた共有ブロック)", "engine/llm_bridge.py:554,771-774", "set", N_, R_,
+       ("bridge._interned",), note="テープの block 行を 1 回だけ書く印。10d: 記録の継続に要る=required(再開のテープは"
+                                   "新しい block だけを持ち、親のテープと連結して読む)"),
     _o(86, "LLMBridge の計数", "engine/llm_bridge.py", "計数", D_, X_,
        tuple(f"bridge.{a}" for a in (
            "n_calls", "n_parse_errors", "n_parse_errors_strict", "n_label_alias", "n_positional",
@@ -584,13 +585,37 @@ _EXT: tuple[LedgerRow, ...] = (
     _o(87, "TapeWriter の書き出し待ちの行と計数", "engine/tape.py", "list・計数", N_, X_,
        ("bridge.tape._rows", "bridge.tape._blocks", "bridge.tape._n_written", "bridge.tape._n_deferred"),
        note="テープはファイルに出る(O65)"),
-    _o(88, "FleetBridge _interned", "llm/fleet.py", "set", N_, U_, ("fleet_bridge._interned",),
-       note="LLMBridge._interned と同じ"),
+    _o(88, "FleetBridge _interned", "llm/fleet.py", "set", N_, R_, ("fleet_bridge._interned",),
+       note="LLMBridge._interned と同じ(10d: required)"),
     _o(89, "FleetBridge の計数", "llm/fleet.py", "計数", D_, X_,
        tuple(f"fleet_bridge.{a}" for a in (
            "n_debug_rows", "n_debug_skipped", "n_calls", "n_parse_errors", "n_parse_errors_strict", "n_label_alias",
            "n_positional", "n_dictionary_mapped", "n_unknown_action", "n_undefined_mapped", "n_role_actions",
            "n_deferred", "n_deferred_rows", "n_tape_rows"))),
+    # ---- 10d(親の答え 1): 日中の再開と日の境目の再開の試験で見つけた保存し忘れ(元の行から移した) ----
+    _o(90, "ClassicalPolicy _ipf_cache(15 分帯ごとの c_t の覚え書き)", "classical.py:379,523-544", "dict", B, R_,
+       ("classical._ipf_cache",),
+       note="10d: 元 O22(キャッシュ)。帯ごとに最初に引いた時の状態(起きて範囲内の体)から作り、その日の中は使い回す"
+            "=作り直すと別の値。鍵に日を足した(日ごとに作る)"),
+    _o(91, "ConversationManager n_opened(開いたセッションの数)", "conversation.py・memory.py:713", "整数", B, R_,
+       ("conv.n_opened",),
+       note="10d: 元 O41(計数)。記憶の層が「どこまで見たか」(_next_session)と比べて読む=挙動に効く。"
+            "AST の検査は SoA の列だけを見るので、外の状態の属性の読み手は検出しない(検査の穴=README)"),
+    _o(92, "MoneyLedger 締めの基準と生ログの位置(_snap・_flow_daily・_raw_pos・_raw_head・_day_marks・n_raw_dropped・"
+           "n_transfers)", "economy/ledger.py:222-269・:713-741・economy/census.py:253", "配列・list・整数", D_, R_,
+       ("ledger.money._snap", "ledger.money._flow_daily", "ledger.money._raw_pos", "ledger.money._raw_head",
+        "ledger.money._day_marks", "ledger.money.n_raw_dropped", "ledger.money.n_transfers"),
+       note="10d: 元 O58・O78。_snap は次の日の締めの d_cash(センサスの検算①)の基準・位置は締めの raw_rows_kept"
+            "(_last_close)・n_transfers はセンサスの行。K16 の既定案「リングは含めない」を「中身は含めないが位置は要る」"
+            "に直した。位置は全部まとめて戻す(一部だけだと成長の検査で実測が負になる)"),
+    _o(93, "GoodsLedger 配達ログの位置(_dl_pos・_dl_head・_dl_marks・n_delivery_dropped)", "economy/goods.py:895-901",
+       "整数・list", D_, R_,
+       ("ledger.goods._dl_pos", "ledger.goods._dl_head", "ledger.goods._dl_marks", "ledger.goods.n_delivery_dropped"),
+       note="10d: 元 O60。締めの delivery_rows_kept(_last_close)に入る"),
+    _o(94, "TargetResolver named_closed(名指しの店の即時閉店の控え)", "poi_target.py:472・run.py:_named_closed_lookup・"
+           "perception/renderer.py の B6", "dict", B, R_, ("poi_resolver.named_closed",),
+       note="10d 検収 L2: 元 O26(計数・discardable)。描画の B6 が失敗の直後の起床でプロンプトに「(店名は閉店中・"
+            "開店の時刻)」を足す=挙動に効く。AST の検査は外の状態の属性の読み手を見ないので捕まらなかった"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -740,6 +765,7 @@ _CFG = "初期化で渡す設定・定数(ランの間に変わらない)"
 _REFR = "他のオブジェクトへの参照(その持ち主の側で数える)"
 _TAB = "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)"
 _FIELD = "クラスの定数(process_ids・ablation_id など)"
+_DAY = "10d: 日の頭で暦の口の日から張り直す値(曜日の行・日の鍵)=再開でも同じ値"
 
 #: 明示の除外の一覧(親の答え 1 の (ii)〜(iv))。
 EXCLUDED: Final[tuple[Excluded, ...]] = (
@@ -777,8 +803,10 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("classical", REF, _REFR + "・交際の口(関数)", "agents", "world", "partner_fn"),
     _x("classical", CONST, _CFG, "minutes_per_tick", "_tpd", "_identity", "seed", "prior", "prior_md5",
        "m_place", "m_next", "m_prev", "source", "social", "meal_gate"),
-    _x("classical", CACHE, _TAB, "work_cell", "school_cell", "employed", "has_work", "_station", "_eatery",
+    _x("classical", CACHE, _TAB, "work_cell", "school_cell", "has_work", "_station", "_eatery",
        "_cell_has_eatery"),
+    _x("classical", CACHE, "SoA の kind から作る表(導出・10d: 再開では rebuild_derived で戻した SoA から作り直す)",
+       "employed"),
     _x("energy", CONST, _CFG, "model", "n_agents"),
     _x("energy", REF, "ClassicalPolicy._gate_hazard と同じ配列(O21 で数える)", "meal_reset"),
     _x("energy", CACHE, _TAB, "poi_intake"),
@@ -792,9 +820,12 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "_code_words"),
     _x("norm_meter", CACHE, _TAB, "_station_cell"),
     _x("presence", REF, _REFR, "world", "agents", "weekly", "rail", "assets"),
-    _x("presence", CONST, _CFG + "・クラスの定数", "day_index", "seed", "ticks", "exit_mode", "attendance_rate",
+    _x("presence", CONST, _CFG + "・クラスの定数", "seed", "ticks", "exit_mode", "attendance_rate",
        "mode", "derive_rule", "n", "walk_max_ticks", "ablation_id", "process_ids", "_PRESENCE_TYPES",
        "_BOUNDARY_TYPES"),
+    _x("presence", CONST, _CFG + "(10d: 出勤率を日ごとに引き直す種別と鍵)", "_kind", "_agent_key"),
+    _x("presence", CACHE, "10d: 日の頭で張り直す表の座標(W17 の曜日の行・その日の頭の T・その日の便の範囲)。"
+       "暦と日番号から作る=再開でも同じ値", "day_index", "_t0", "_day_trains"),
     _x("presence", CACHE, _TAB + "(管理する体・自宅・方向・路線・開始時の在圏・事象の索引)", "managed", "home_cell",
        "home_out", "_home_shim", "direction_node", "line_of_agent", "in_area_at_start", "_ev_start",
        "n_all_day_outside"),
@@ -826,7 +857,7 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("runner.hotel", CACHE, _TAB, "hotel_poi", "hotel_cell", "rooms_total", "hotel_of_cell", "external_home"),
     _x("runner.large_event", REF, _REFR, "world", "agents", "rail", "presence", "log"),
     _x("runner.large_event", CONST, _FIELD + "・" + _CFG, "tick_seconds", "visitor_delta", "process_ids",
-       "ablation_id"),
+       "ablation_id", "master_seed"),
     _x("runner.large_event", CACHE, _TAB, "venue_cells"),
     _x("runner.press", REF, _REFR, "world", "log"),
     _x("runner.press", CONST, _FIELD + "・" + _CFG + "(発表の文)", "tick_seconds", "line", "strip", "process_ids",
@@ -839,6 +870,8 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("runner.rail", CACHE, "時刻表と列車の表(資産と暦から作る)", "lines", "lines_present", "line_cell", "dep_tick",
        "dwell", "train_line", "train_dir", "platform_cell", "capacity100", "cap_pct", "_arr_order", "_arr_start",
        "enter_tick", "_enter_order", "_enter_sorted"),
+    _x("runner.rail", CACHE, "10d: 日ごとの便の索引の範囲といまの日の頭の T(日の頭で張り直す=暦と日番号から作る)",
+       "_day_starts", "_t0"),
     _x("runner.crowd", REF, _REFR, "world", "agents"),
     _x("runner.crowd", CONST, _FIELD + "・" + _CFG, "tick_seconds", "seat_area_m2", "default_seat_area_m2",
        "process_ids", "ablation_id"),
@@ -849,8 +882,9 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("runner.shelf", CACHE, _TAB + "(初期の在庫からの容量・発注点・店員)", "capacity", "reorder_point",
        "staff_of_poi"),
     _x("runner.delivery_inbound", REF, _REFR, "world", "ledger", "shelf", "log"),
-    _x("runner.delivery_inbound", CONST, _FIELD + "・" + _CFG, "tick_seconds", "day_index", "process_ids",
+    _x("runner.delivery_inbound", CONST, _FIELD + "・" + _CFG, "tick_seconds", "master_seed", "process_ids",
        "ablation_id", "plan_spec_id"),
+    _x("runner.delivery_inbound", CACHE, _DAY, "day_index"),
     _x("runner.delivery_inbound", CACHE, _TAB, "plan_minute"),
     _x("runner.waste", REF, _REFR, "world", "agents", "ledger", "log"),
     _x("runner.waste", CONST, _FIELD + "・" + _CFG, "tick_seconds", "master_seed", "process_ids", "ablation_id"),
@@ -866,16 +900,19 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("runner.bus_taxi", CACHE, _TAB, "stop_cell", "phase", "n_departures_planned"),
     _x("runner.road_works", REF, _REFR, "world", "assets", "log"),
     _x("runner.road_works", CONST, _FIELD + "・" + _CFG, "tick_seconds", "process_ids", "ablation_id",
-       "plan_spec_id"),
+       "plan_spec_id", "master_seed", "n_works"),
     _x("runner.road_works", CACHE, _TAB, "planned_edges", "edge_cell"),
     _x("runner.traffic", REF, _REFR, "world", "assets"),
     _x("runner.traffic", CONST, _FIELD + "・" + _CFG, "tick_seconds", "through_ratio", "process_ids", "ablation_id"),
     _x("runner.traffic", CACHE, _TAB + "・場を作り直した時の印(-1 に戻せば同じ時の場を作り直す)", "edge_hourly", "q24",
        "hour"),
     _x("runner.opening", REF, _REFR, "world", "agents", "assets", "log"),
-    _x("runner.opening", CONST, _FIELD + "・" + _CFG, "day_index", "tick_seconds", "process_ids", "ablation_id",
+    _x("runner.opening", CONST, _FIELD + "・" + _CFG, "tick_seconds", "process_ids", "ablation_id",
        "plan_spec_id"),
-    _x("runner.opening", CACHE, _TAB, "open_matrix", "staff_of_poi"),
+    _x("runner.opening", CACHE, _DAY, "day_index"),
+    _x("runner.opening", CACHE, _TAB, "open_matrix"),
+    _x("runner.opening", CACHE, "SoA の kind から作る担当従業者の表(導出・10d: 再開では rebuild_derived で作り直す)",
+       "staff_of_poi"),
     _x("runner.environment", REF, _REFR, "calendar", "world", "agents", "assets"),
     _x("runner.environment", CONST, _FIELD + "・" + _CFG, "prefer_shadow_days", "master_seed", "day_index",
        "tick_seconds", "process_ids"),
@@ -892,6 +929,8 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("undefined", REF, "裁定器(run_day では None)", "adjudicator"),
     _x("renderer", REF, _REFR + "・時計の関数・焦点の列(agents.focus_target のビュー)", "world", "agents", "assets",
        "clock_fn", "_focus_target"),
+    _x("renderer", REF, "10d 検収 D1: B3 の天候の日を返す口(engine.run が世界過程の再生の実日を差し込む・関数)",
+       "weather_date_fn"),
     _x("renderer", CONST, _CFG + "(知人の初期表・被注視数は初期化で渡す値)", "seed", "acquaintances", "watched_by",
        "budget_mode", "strict_group_budget", "signage_enabled", "signage_p_see", "p_see_activity", "_p_see_mult",
        "_p_see_identity", "intent_mode", "vocab_version", "role_words", "near_tiebreak", "near_order",

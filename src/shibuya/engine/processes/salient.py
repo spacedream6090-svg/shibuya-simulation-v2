@@ -189,6 +189,12 @@ class SalientProcess:
         self._order = np.zeros(0, dtype=np.int64)
         self._start = np.zeros(world.n_cells + 1, dtype=np.int64)
 
+    def relay_day(self, day_key: int) -> None:
+        """10d(親の答え 5): 日の頭で、stateful の乱数をその日の日の鍵の流れに引き直す(1 日のランを日ごとに回すのと
+        同じ流れ)。counter は鍵の時刻 ``run_tick_key(day_key(0), T)`` が日ごとに違う値になるので何もしない。"""
+        if self.rng_scheme == "stateful":
+            self.rng = stream(self.master_seed, "world.salient", int(day_key))
+
     @property
     def active(self) -> bool:
         return self.world.n_cells > 0 and self.agents.n > 0

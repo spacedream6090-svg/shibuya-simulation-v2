@@ -9,7 +9,7 @@
   検査する(「〜から」の列は T 以下・「〜まで」の列は T + 上限 以下)。
 - 型: tick を持つ 15 列の型が 30 日ぶんの T(43,200)を表せる。
 - 日の中の時刻で引く表(計画境界・食事の予定)は ``T % 1 日の tick 数`` で引く。
-- 複数日の口の制限(合成世界・台帳なし・艦隊なし・再生でない・ticks=1 日)。
+- 複数日の口の制限(再生でない・ticks=1 日。10d から世界資産・台帳・艦隊の複数日は通す)。
 
 ラン(小さい合成世界・mock)は 1 日 2〜5 秒。
 """
@@ -303,8 +303,7 @@ def test_multi_day_mouth_refuses_what_needs_the_day_head():
         run_day(n_agents=10, n_cells=9, ticks=600, sim_days=2)
     with pytest.raises(ValueError, match="sim_days で"):
         run_day(n_agents=10, n_cells=9, ticks=TPD + 1)
-    with pytest.raises(ValueError, match="世界資産"):
-        run_day(n_agents=10, n_cells=9, ticks=TPD, sim_days=2, world_dir="data/world/v2")
+    # 10d: 世界資産・台帳・艦隊の複数日は日の頭の張り直しが入ったので通す(再生だけは止める)
     with pytest.raises(ValueError, match="再生"):
         run_day(n_agents=10, n_cells=9, ticks=TPD, sim_days=2, mode="replay", replay=None)
     with pytest.raises(ValueError):

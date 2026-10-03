@@ -44,13 +44,13 @@ A2B_SIX = ("age", "sex", "talk_partner", "weight_kg", "sm_last", "mem_last")
 
 
 # ================================================================= 1. 状態台帳の宣言(A3)
-def test_ledger_has_187_rows_in_two_axes():
-    """材料の 163 行(SoA 98+外の状態 65)+10b-2 の棚卸しで足した外の状態 24 行(O66〜O89)。"""
+def test_ledger_has_192_rows_in_two_axes():
+    """材料の 163 行(SoA 98+外の状態 65)+10b-2 の棚卸しで足した外の状態 24 行(O66〜O89)+10d の 5 行(O90〜O94)。"""
     c = SL.counts()
-    assert c == {"agents": 79, "cells": 5, "pois": 9, "perception": 5, "external": 89, "soa": 98, "total": 187}
+    assert c == {"agents": 79, "cells": 5, "pois": 9, "perception": 5, "external": 94, "soa": 98, "total": 192}
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
-    assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 90)]
+    assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 95)]
     for r in SL.LEDGER:
         assert r.behavior in SL.AXIS1_VALUES, r.key
         assert r.restore in SL.AXIS2_VALUES, r.key

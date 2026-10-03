@@ -228,6 +228,20 @@ class EnvironmentProcess:
         if self._planes is None:
             self.shadow_missing = 1
 
+    def pick_day(self, day: int) -> None:
+        """10d: 日の頭で ``day`` 日目の再生実日を引き直す(鍵は 10a の日番号つき・0 日目は起動時に引いた日)。
+
+        日の出・日の入り・影の面はその日の実日から。日陰のキャッシュの印を戻す(次の更新で新しい面から作る)。
+        直近の日照・暑さ段・WBGT・日陰の値は次の 5 分刻みの更新まで前の値のまま(更新の間も読まれる値=今と同じ扱い)。
+        """
+        self._planes = None
+        self._cell_point = None
+        self._row = -1
+        self._sunrise = 5.0 * 60.0
+        self._sunset = 19.0 * 60.0
+        self._shade_cache_frame = -1
+        self._pick_day(int(day))
+
     # ------------------------------------------------------------------ 1 tick
     def _minute_of_day(self, tick: int) -> int:
         return int(int(tick) * self.tick_seconds // 60) % 1_440

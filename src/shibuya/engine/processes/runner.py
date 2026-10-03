@@ -162,6 +162,7 @@ class WorldProcessRunner:
         default_seat_area_m2: float | None = None,
         calendar: Any | None = None,
         rng_scheme: str = DEFAULT_RNG_SCHEME,
+        initial_placement: bool = True,
     ) -> None:
         if world is None or agents is None:
             raise ValueError("WorldProcessRunner は world と agents を要る")
@@ -322,7 +323,8 @@ class WorldProcessRunner:
 
         # 域外に住む個体をランの最初に外へ置く(U10 §1.1・書き込みは resolve の口)。
         # **計画実行層のラン**では母数も配置も層が決める(``PlanExecutor.initialize``)。
-        if not self.plan_executor and self.is_enabled("rail") and self.rail.active:
+        # 10d: 再開(``initial_placement=False``)では置かない=保存した位置を読む(A11 の「域外の配置」)。
+        if initial_placement and not self.plan_executor and self.is_enabled("rail") and self.rail.active:
             ext = self.rail.external_home_agents()
             if ext.size:
                 R.place_at_external(agents, ext, self.rail.external_line[ext])
@@ -389,9 +391,32 @@ class WorldProcessRunner:
             self.phase_seconds[key] += time.perf_counter() - t0
         self.n_steps += 1
 
-    def end_of_day(self, tick: int) -> int:
-        """日末の締め: 最終 tick に発車する便を流し切り、``ActualLog`` を畳む(D-R2-6)。"""
-        if self.is_enabled("rail") and self.rail.active:
+    def relay_day(self, day: int, *, ticks_per_day: int) -> None:
+        """10d: ``day`` 日目の日の頭で、各過程の「その日の分」の表を張り直す(暦の口の日から決まる=再開でも同じ)。
+
+        鉄道の時刻表(T の座標で末尾に足す)・天気の実日・営業時間の曜日の行(W7・``table_weekday(日)``)・
+        日ごとの乱数の表(入荷の時刻・工事・大きな催しの会場・顕著行為と出動の stateful の流れ=``day_key(日)``)・
+        宅配のその日の配達済み。日の鍵は ``day_index`` モードでは day_index+日・``real`` では日番号(10a)。
+        """
+        d = int(day)
+        key = int(self.calendar.day_key(d))
+        self.rail.append_day(d, ticks_per_day=int(ticks_per_day))
+        self.environment.pick_day(d)
+        self.opening.relay_day(int(self.calendar.table_weekday(d)))
+        self.delivery_inbound.relay_day(key)
+        self.road_works.relay_day(key)
+        self.large_event.relay_day(key)
+        self.last_mile.relay_day()
+        self.salient.relay_day(key)
+        self.dispatch.relay_day(key)
+
+    def end_of_day(self, tick: int, *, flush_rail: bool = True) -> int:
+        """日末の締め: 最終 tick に発車する便を流し切り、``ActualLog`` を畳む(D-R2-6)。
+
+        10d: 複数日のランの途中の日の締め(``flush_rail=False``)では便を流さない。次の日の頭の tick の
+        ``rail.step`` が同じ便を流す(流すと同じ発車を 2 度処理する)。ランの最後の日だけ流す(今のまま)。
+        """
+        if flush_rail and self.is_enabled("rail") and self.rail.active:
             self.rail.step(int(tick) + 1)  # 発車は 1 tick 遅れで処理する(rail.step 参照)
         return int(self.log.evict_expired(int(tick)))
 

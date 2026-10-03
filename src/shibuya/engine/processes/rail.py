@@ -313,55 +313,168 @@ class RailProcess:
         """時刻表とホームのセルが揃っているか(合成世界では False=休む)。"""
         return self.dep_tick.size > 0
 
-    def _build_trains(self) -> None:
+    def _timetable_of_day(self, day: int):
+        """その日のダイヤの便(``(発車 tick, 線, 方向, ホームのセル)``・発車 tick 昇順・日の中の分)。無ければ ``None``。
+
+        10d: ``_build_trains``(0 日目)と ``append_day``(1 日目から・日の頭の張り直し)が同じ規則で引く。
+        """
         a = self.assets
         if not a.has_timetable or a.line_platform_cell is None:
-            return
+            return None
         # 10a #10: 平日/土休ダイヤは暦の口から(day_index モードは ``day_index % 7 >= 5`` と同じ値)
-        tt_cal = 1 if self.calendar.is_rest_day(0) else 0
+        tt_cal = 1 if self.calendar.is_rest_day(int(day)) else 0
         sel = np.flatnonzero(np.asarray(a.tt_calendar) == tt_cal)
         if sel.size == 0:
-            return
+            return None
         line = np.asarray(a.tt_line_idx, dtype=np.int64)[sel]
         cell = np.asarray(a.line_platform_cell, dtype=np.int64)[line]
         keep = cell >= 0  # ホームが bbox のセルに載っている線だけ回す
         sel, line, cell = sel[keep], line[keep], cell[keep]
         if sel.size == 0:
-            return
+            return None
         dep = np.asarray(a.tt_departure_min, dtype=np.int64)[sel]
         direction = np.asarray(a.tt_direction, dtype=np.int64)[sel]
         order = np.lexsort((direction, line, dep))  # 発車 tick 昇順(決定論)
-        self.lines = a.tt_lines
-        self.dep_tick = dep[order]
-        self.train_line = line[order]
-        self.train_dir = direction[order]
-        self.platform_cell = cell[order]
+        return dep[order], line[order], direction[order], cell[order]
+
+    def _train_tables(self, train_line: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """便ごとの定員・混雑率の上限・停車時分(線の表から引く)。"""
+        a = self.assets
         cap = np.array(
             [LINE_CAPACITY_PERSONS.get(a.tt_lines[i], DEFAULT_CAPACITY_PERSONS) for i in
-             self.train_line],
+             train_line],
             dtype=np.float64,
         )
         pct = np.array(
             [LINE_CONGESTION_CAP_PCT.get(a.tt_lines[i], DEFAULT_CONGESTION_CAP_PCT) for i in
-             self.train_line],
+             train_line],
             dtype=np.float64,
         )
-        self.capacity100 = cap
-        self.cap_pct = pct
-        self.dwell = np.array(
-            [DWELL_TICKS_BY_LINE.get(a.tt_lines[i], DWELL_TICKS) for i in self.train_line],
+        dwell = np.array(
+            [DWELL_TICKS_BY_LINE.get(a.tt_lines[i], DWELL_TICKS) for i in train_line],
             dtype=np.int64,
         )
-        self.occupancy = np.zeros(self.dep_tick.size, dtype=np.int64)
-        self.peak_ratio = np.zeros(self.dep_tick.size, dtype=np.float64)
+        return cap, pct, dwell
+
+    def _sort_enter(self) -> None:
         # D-61: 「ホームへ入る時刻」の昇順表(帰りの便の二分探索の軸)。``dwell`` が線別なので
         # ``dep_tick`` が昇順でも ``enter_tick`` は昇順とは限らない=1 回だけ並べ替える。
         self.enter_tick = self.dep_tick - self.dwell + 1
         self._enter_order = np.argsort(self.enter_tick, kind="stable")  # 同着は便索引昇順
         self._enter_sorted = self.enter_tick[self._enter_order]
+
+    def _build_trains(self) -> None:
+        a = self.assets
+        #: 10d: 日ごとの便の索引の範囲(``day_range``)と、いまの日の頭の通しの時刻 T(帰りの便の分 → T の換算)。
+        self._day_starts: list[int] = [0, 0]
+        self._t0 = 0
+        got = self._timetable_of_day(0)
+        if got is None:
+            return
+        dep, line, direction, cell = got
+        self.lines = a.tt_lines
+        self.dep_tick = dep
+        self.train_line = line
+        self.train_dir = direction
+        self.platform_cell = cell
+        self.capacity100, self.cap_pct, self.dwell = self._train_tables(self.train_line)
+        self.occupancy = np.zeros(self.dep_tick.size, dtype=np.int64)
+        self.peak_ratio = np.zeros(self.dep_tick.size, dtype=np.float64)
+        self._sort_enter()
         # 乗車の意図保持(D-51)が引く「どのホームへ行けばよいか」の表
         self.lines_present = np.unique(self.train_line)
         self.line_cell = np.asarray(a.line_platform_cell, dtype=np.int64)
+        self._day_starts = [0, int(self.dep_tick.size)]
+
+    # ------------------------------------------------------------------ 10d 日の頭の張り直し
+    def day_range(self, day: int) -> tuple[int, int]:
+        """その日の便の索引の範囲 ``[lo, hi)``(張っていない日は空)。"""
+        d = int(day)
+        if d < 0 or d + 1 >= len(self._day_starts):
+            return (0, 0)
+        return int(self._day_starts[d]), int(self._day_starts[d + 1])
+
+    def append_day(self, day: int, *, ticks_per_day: int) -> int:
+        """10d: ``day`` 日目の便を**通しの時刻 T の座標**(発車 tick + ``day × 1 日の tick 数``)で末尾に足す。
+
+        前の日の便の索引は動かさない(乗車中の体の ``transit_ref``・帰りの便の予約・待ち行列が便の索引を持つため)。
+        ダイヤは暦の口のその日の平日/土休。乗車人数と混雑率の最大は新しい便の分だけ 0 で足す。計画実行層の無い
+        ラン(帰無腕)では、域外居住者の到着便をその日の便へ割り当て直す(``_assign_external``)。
+        日の番号は 1 から順に 1 回ずつ(同じ日を 2 度足さない)。返り値=足した便の数。
+
+        Note:
+            逐次ループ宣言(P4): 日の頭に 1 回。便数ぶんの表引き(線の表)だけ。
+        """
+        d = int(day)
+        if d != len(self._day_starts) - 1:
+            raise ValueError(f"鉄道の便は日の順に 1 回ずつ足す(次は {len(self._day_starts) - 1} 日目・いま {d})")
+        t0 = d * int(ticks_per_day)
+        self._t0 = t0
+        got = self._timetable_of_day(d) if self.active else None
+        if got is None:
+            self._day_starts.append(int(self.dep_tick.size))
+            return 0
+        dep, line, direction, cell = got
+        dep = dep + t0
+        if self.dep_tick.size and int(dep[0]) <= int(self.dep_tick[-1]):
+            raise ValueError("足す日の便が前の日の便より前に出る(発車 tick の昇順が崩れる)")
+        cap, pct, dwell = self._train_tables(line)
+        self.dep_tick = np.concatenate([self.dep_tick, dep])
+        self.train_line = np.concatenate([self.train_line, line])
+        self.train_dir = np.concatenate([self.train_dir, direction])
+        self.platform_cell = np.concatenate([self.platform_cell, cell])
+        self.capacity100 = np.concatenate([self.capacity100, cap])
+        self.cap_pct = np.concatenate([self.cap_pct, pct])
+        self.dwell = np.concatenate([self.dwell, dwell])
+        self.occupancy = np.concatenate([self.occupancy, np.zeros(dep.size, dtype=np.int64)])
+        self.peak_ratio = np.concatenate([self.peak_ratio, np.zeros(dep.size, dtype=np.float64)])
+        self._sort_enter()
+        self._day_starts.append(int(self.dep_tick.size))
+        if not self.plan_executor and self.external_line.size and bool((self.external_line >= 0).any()):
+            self._assign_external(d)
+        return int(dep.size)
+
+    def _assign_external(self, day: int) -> None:
+        """10d: 域外居住者(``external_line >= 0``)の到着便を ``day`` 日目の便へ割り当て直す(帰無腕のランだけ)。
+
+        規則は ``_build_external_home`` と同じ(その日の「外出」境界以降で最初に発車する自分の線の便・終電後は
+        その日の始発)。居住(``external_line``)は変えない。
+        """
+        n = self.agents.n
+        lo, hi = self.day_range(day)
+        is_ext = self.external_line >= 0
+        t0 = int(self._t0)
+        if self.schedule is not None:
+            want = np.asarray(
+                self.schedule.boundary_ticks(
+                    self.calendar.table_weekday(int(day)), rest_day=self.calendar.is_rest_day(int(day))
+                ),
+                dtype=np.int64,
+            )[:n, 1] + t0
+        else:
+            raw = np.asarray(
+                philox(self.master_seed, RNG_DOMAIN, 0).random_raw(3 * n), dtype=np.uint64
+            ).reshape(n, 3)
+            want = 300 + (raw[:, 2] % np.uint64(300)).astype(np.int64) + t0
+        train = np.full(n, -1, dtype=np.int64)
+        day_idx = np.arange(lo, hi, dtype=np.int64)
+        # 逐次ループ宣言: 路線ぶん(≤8)
+        for li in np.unique(self.external_line[is_ext]).tolist():
+            idx = day_idx[self.train_line[day_idx] == li]
+            if idx.size == 0:
+                continue
+            here = np.flatnonzero(is_ext & (self.external_line == li))
+            pos = np.searchsorted(self.dep_tick[idx], want[here], side="left")
+            pos = np.where(pos >= idx.size, 0, pos)  # 終電後は始発へ回す
+            train[here] = idx[pos]
+        keep = ~is_ext
+        train[keep] = self.arrival_train[keep]  # 域内居住者の帰りの便の予約は触らない
+        self.arrival_train = train
+        ext = np.flatnonzero(is_ext & (train >= 0))
+        self._arr_order = ext[np.argsort(train[ext], kind="stable")]
+        self._arr_start = np.searchsorted(
+            train[self._arr_order], np.arange(self.dep_tick.size + 1), side="left"
+        )
 
     def _build_external_home(self, schedule) -> None:
         """域外に住む個体(通勤者)を決定論で選び、到着便を割り当てる。
@@ -487,9 +600,11 @@ class RailProcess:
         if idx is None:  # 週次表の無いラン(合成世界・--no-population)= D-61 前の挙動
             self.n_no_return += int(home_in.size)
             return
-        want = idx.next_after(home_in, int(tick))
+        # 10d: 週次表は日の中の分で引き、T の座標へ戻す(0 日目は ``_t0 = 0`` で今と同じ)
+        t0 = int(self._t0)
+        want = idx.next_after(home_in, int(tick) - t0)
         has = want >= 0
-        rows, want = home_in[has], want[has]
+        rows, want = home_in[has], want[has] + t0
         pos = np.searchsorted(self._enter_sorted, want, side="left")
         ok = pos < self._enter_sorted.size
         self.n_return_no_train += int(np.count_nonzero(~ok))
