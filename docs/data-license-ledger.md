@@ -163,3 +163,9 @@
 | zkntrf13.csv・zkntrfFormat.xlsx(令和 3 年度 全国道路・街路交通情勢調査 一般交通量調査 時間帯別交通量表 東京都と見出しの定義) | https://www.mlit.go.jp/road/census/r3/data/csv/zkntrf13.csv / .../xlsx/zkntrfFormat.xlsx | 2026-10-03(リサーチ役) | 国土交通省ホームページ利用規約(政府標準利用規約 第 2.0 版準拠) | 時間帯別の配分(今の一様配分の expedient の置き換えの錨)。渋谷区 48 区間のうち 24 時間観測の一般道は 4 区間 |
 | od_r3_t12_avg_occupancy.xlsx(令和 3 年度 自動車起終点調査 表 12 平均乗車人数) | https://www.e-stat.go.jp/stat-search/file-download?statInfId=000040170742&fileKind=0 | 2026-10-03(リサーチ役) | e-Stat 利用規約(政府標準利用規約 第 2.0 版準拠) | 範囲内の車に乗る人数の推測(1.40 人) |
 | mpd_01_cyousakekka.pdf・mpd_02_cyousagaiyou.pdf(警視庁 交通量統計表 調査結果・調査概要) | https://www.keishicho.metro.tokyo.lg.jp/about_mpd/jokyo_tokei/tokei_jokyo/ryo.files/01_cyousakekka.pdf / 02_cyousagaiyou.pdf | 2026-10-03(リサーチ役) | 警視庁サイトの利用規約(**未実読**=親の一次確認待ち。東京都の機関で政府標準利用規約準拠が通例) | 都内の交通量の参考。使う前に規約を読む |
+
+## 2026-10-03 追加 その 7(R-86 行動の分類との突き合わせ=指示書 10-03 §6 ②・読み取り目的・gitignore 下の data/research_cache/r86 に取得)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r86/(令和 3 年社会生活基本調査 調査票 B 第 1-7 表 総平均時間(主行動)10 歳以上 全国の xlsx 1 本・md5 b0922b68dd3df4f8e121cb46a5eaa736) | e-Stat statInfId=000032261363 | 2026-10-03(リサーチ役) | e-Stat 利用規約(政府標準利用規約 第 2.0 版準拠) | 小分類 90 の平日の総平均時間(合計 1,439 分)=被覆の表の重み |

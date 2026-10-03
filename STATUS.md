@@ -6,8 +6,8 @@
 - 完了実装: [IMPLEMENTED.md](IMPLEMENTED.md)(#1〜#80)・運用の道具: `tools/realworld_fetch/`(日次の現実データ・検証専用)
 - 正典: 決定台帳 [v2-redesign.md](docs/design/v2-redesign.md)・方法論 [v2-methodology.md](docs/design/v2-methodology.md)・用語集 [v2-glossary.md](docs/design/v2-glossary.md)
 - 判断待ち(短い確認): K1・K7〜K10(10a)・K2(背骨の文言)・K3(GPU)・K4〜K6=[PENDING §1](PENDING.md)・[10a のアジェンダ](docs/design/v2-d102-10a-agenda.md)。材料: [セル依存の全リスト](docs/design/v2-cell-dependency-inventory.md)・[空間層 D-122](docs/design/v2-spatial-physics-layer-draft.md)・[再開と決定論 D-102](docs/design/v2-resume-determinism-draft.md)・[記憶アジェンダ](docs/design/v2-memory-agenda.md)・[v1 との差分](docs/design/v2-v1-gap-record.md)
-- リサーチ: 索引 [INDEX.md](docs/research/INDEX.md)・残務 [research-backlog.md](docs/research/research-backlog.md)(R-1〜R-50・以後は INDEX に R-51〜R-82)・分野地図 [v2-discipline-map.md](docs/research/v2-discipline-map.md)
+- リサーチ: 索引 [INDEX.md](docs/research/INDEX.md)・残務 [research-backlog.md](docs/research/research-backlog.md)(R-1〜R-50・以後は INDEX に R-51〜R-88)・分野地図 [v2-discipline-map.md](docs/research/v2-discipline-map.md)
 - 受入報告: [C5](docs/ops/build-report-C5.md)・[C6](docs/ops/build-report-C6.md)・[C7](docs/ops/build-report-C7.md)・[C8](docs/ops/build-report-C8.md)
-- 開発ログ: [docs/log/devlog.md](docs/log/devlog.md)(第1〜310 は [devlog-compressed.md](docs/log/devlog-compressed.md) へ圧縮済み・カウンタ 8/10)
+- 開発ログ: [docs/log/devlog.md](docs/log/devlog.md)(第1〜310 は [devlog-compressed.md](docs/log/devlog-compressed.md) へ圧縮済み・カウンタ 9/10)
 - ブランチ/PR: main は PR #7 まで(f9a3c97・2026-09-30 に PR #5 → #6 → #7 をマージ)。作業ブランチ `build/spatial-d102-prep`。タグ `v2-c7-day-4-accepted`(8f78065=実証済みの線)。
-- 最終更新: 2026-10-03(第318 10a=IMPLEMENTED #80・空間の設計ラウンドの草案 v1。全体テスト 3,474 件。**次は 10b の実装と、時間/ビューアの草案**)。経緯は devlog。
+- 最終更新: 2026-10-03(第319 リサーチ第 3 群 6 本の親検収・設計ラウンドの草案 3 本(空間・時間・ビューア)に親推奨。10b は実装中=第320。**次は 10b の検収と、残る草案 6 本**)。経緯は devlog。
