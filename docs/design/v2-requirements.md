@@ -2,6 +2,8 @@
 
 > 正典: v2-redesign.md(決定台帳)・v2-audit-contradictions.md(v1監査)・v2-methodology.md(開発規律)・
 > v1-inventory.md(資産棚卸し)。本書はその発表用蒸留。
+>
+> **【注記 2026-10-03】この要件書は創立時(08-30)のもの。本文は変えずに残す。その後に変わった要件 16 件(①〜⑯)の経緯と今の決定は [改訂記録](v2-requirements-revision-log.md) を見る。**
 
 ## 目的
 
