@@ -1,0 +1,199 @@
+{
+ "n_agents": 5000,
+ "seed": 1,
+ "wall_seconds": 33.1,
+ "ticks": 1440,
+ "household_money_start": 139575428,
+ "household_money_end": 136896828,
+ "household_money_delta": -2678600,
+ "household_money_delta_per_agent": -535.72,
+ "store_cash_after_endow": 286293000,
+ "sector_cash_end": {
+  "世帯": 136896828,
+  "店舗": 288566078,
+  "雇用主": 0,
+  "銀行": 0,
+  "政府": 0,
+  "外界": -425462906
+ },
+ "sector_deposit_end": {
+  "世帯": 0,
+  "店舗": 0,
+  "雇用主": 0,
+  "銀行": 0,
+  "政府": 0,
+  "外界": 0
+ },
+ "ledger_sizes": [
+  5000,
+  2337,
+  1,
+  1,
+  1,
+  1
+ ],
+ "flows_by_pair": [
+  {
+   "from": "世帯",
+   "to": "店舗",
+   "account": "消費支出",
+   "amount": 2335700
+  },
+  {
+   "from": "世帯",
+   "to": "外界",
+   "account": "持ち出し",
+   "amount": 342900
+  },
+  {
+   "from": "店舗",
+   "to": "外界",
+   "account": "域外仕入",
+   "amount": 62622
+  },
+  {
+   "from": "外界",
+   "to": "世帯",
+   "account": "来街者持込",
+   "amount": 139575428
+  },
+  {
+   "from": "外界",
+   "to": "店舗",
+   "account": "参入資本",
+   "amount": 286293000
+  }
+ ],
+ "account_totals": {
+  "消費支出": 2335700,
+  "賃金": 0,
+  "域外仕入": 62622,
+  "税": 0,
+  "利子": 0,
+  "家賃": 0,
+  "預金純増": 0,
+  "来街者持込": 139575428,
+  "持ち出し": 342900,
+  "参入資本": 286293000,
+  "配当/内部留保": 0,
+  "減価償却": 0,
+  "残差科目": 0,
+  "退蔵項": 0,
+  "逸脱比例コスト": 0
+ },
+ "rejections": {
+  "0": 0,
+  "1": 0,
+  "2": 0,
+  "3": 0,
+  "4": 0,
+  "5": 0,
+  "6": 0
+ },
+ "n_transfers": 12327,
+ "money_supply_end": 425462906,
+ "fares_paid": 342900,
+ "census_row": {
+  "day": 0,
+  "residual": 0,
+  "money_supply": 425462906,
+  "faucet_total": 425868428,
+  "sink_total": 405522,
+  "n_transfers": 12327,
+  "hoard_entities": 0,
+  "hoard_amount": 0,
+  "net_worth_ok": true,
+  "flow_ok": true,
+  "residual_ok": true,
+  "ex_nihilo_ok": true,
+  "goods_residual_units": 0,
+  "goods_balanced": true,
+  "waste_g": 1227850.0,
+  "shelf_units": 144389,
+  "gate_ok": true
+ },
+ "per_kind": {
+  "0": {
+   "n": 2346,
+   "money_start_sum": 47219040,
+   "money_end_sum": 45827880,
+   "money_start_median": 17076.5,
+   "money_end_median": 16471.5,
+   "n_end_below_1000": 2,
+   "n_end_zero": 0
+  },
+  "1": {
+   "n": 637,
+   "money_start_sum": 32002376,
+   "money_end_sum": 31705116,
+   "money_start_median": 42567.0,
+   "money_end_median": 42466.0,
+   "n_end_below_1000": 0,
+   "n_end_zero": 0
+  },
+  "2": {
+   "n": 75,
+   "money_start_sum": 1523104,
+   "money_end_sum": 1470224,
+   "money_start_median": 16009.0,
+   "money_end_median": 16009.0,
+   "n_end_below_1000": 0,
+   "n_end_zero": 0
+  },
+  "3": {
+   "n": 434,
+   "money_start_sum": 14863408,
+   "money_end_sum": 14655028,
+   "money_start_median": 28153.0,
+   "money_end_median": 27849.0,
+   "n_end_below_1000": 0,
+   "n_end_zero": 0
+  },
+  "4": {
+   "n": 24,
+   "money_start_sum": 497709,
+   "money_end_sum": 479469,
+   "money_start_median": 15415.5,
+   "money_end_median": 14334.0,
+   "n_end_below_1000": 0,
+   "n_end_zero": 0
+  },
+  "5": {
+   "n": 364,
+   "money_start_sum": 7955951,
+   "money_end_sum": 7726831,
+   "money_start_median": 17486.0,
+   "money_end_median": 17072.5,
+   "n_end_below_1000": 0,
+   "n_end_zero": 0
+  },
+  "6": {
+   "n": 219,
+   "money_start_sum": 11933217,
+   "money_end_sum": 11814417,
+   "money_start_median": 42403.0,
+   "money_end_median": 41488.0,
+   "n_end_below_1000": 0,
+   "n_end_zero": 0
+  },
+  "7": {
+   "n": 186,
+   "money_start_sum": 9036979,
+   "money_end_sum": 8958639,
+   "money_start_median": 42743.0,
+   "money_end_median": 41916.0,
+   "n_end_below_1000": 0,
+   "n_end_zero": 0
+  },
+  "8": {
+   "n": 715,
+   "money_start_sum": 14543644,
+   "money_end_sum": 14259224,
+   "money_start_median": 16798.0,
+   "money_end_median": 16586.0,
+   "n_end_below_1000": 0,
+   "n_end_zero": 0
+  }
+ },
+ "n_end_zero": 0
+}

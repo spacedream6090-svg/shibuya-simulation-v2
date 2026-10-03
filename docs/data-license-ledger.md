@@ -133,3 +133,33 @@
 | data/realworld_live/wbgt/(暑さ指数 WBGT 44132 の実況の月次ファイルと予測) | https://www.wbgt.env.go.jp/ | 2026-10-03〜(提供期間 10/21 まで) | 環境省 熱中症予防情報サイト=出典明記が必須(v1 の記載・未再読) | 検証専用 |
 | data/realworld_live/odpt_rt/(ODPT 運行情報 TrainInformation=メトロはオープン枠・東急と京王はチャレンジ枠、JR 東日本の在線 Train=チャレンジ枠。10 分ごと) | https://api.odpt.org/・https://api-challenge.odpt.org/ | 2026-10-03〜(10 分ごと・expedient) | ODPT 利用規約(オープン枠とチャレンジ枠で異なる。チャレンジ枠の生データは**再配布しない**)(v1 の記載・未再読) | 検証専用(holdout)。API キーは環境変数のみ。v1 では一度も定期実行されていなかった |
 | data/calendar/syukujitsu.csv(内閣府「国民の祝日」CSV・1955/1/1〜2027/11/23・1,067 行・cp932・CRLF・21,538 B・md5 733fabb6b488794a0cd3d94df4b1f24a) | https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv | 2026-10-03(実行役・HTTP 200・Last-Modified 2026-02-02) | 内閣府ホームページ利用規約 https://www.cao.go.jp/notice/rule.html(親が 2026-10-03 に実読: 「権利表記の記載がない限り公共データ利用規約(第1.0版)(デジタル庁)が適用されます」=PDL1.0。CSV のページ自体に別の利用ルールの明示は無い) | 10a の暦の口(祝日)。範囲外(2027/11/23 より後)の開始日は manifest の検査で止める。W13 の手書きの祝日 2 行(2026/7/20・8/11)と一致 |
+
+## 2026-10-03 追加 その 3(賃金をつなぐアジェンダの材料=指示書 10-03 §6 ⑧ 8-1・読み取り目的・gitignore 下の data/calib/wage に取得・実行役サブ+親が MANIFEST の md5 と行を確認)
+
+取得は e-stat.go.jp(API は `api.e-stat.go.jp`・appId は環境変数 `ESTAT_APP_ID` から読み、URL にも記録にも書かない)。利用規約は e-Stat の利用規約(政府標準利用規約 第 2.0 版準拠)。md5 と取得日時は `data/calib/wage/MANIFEST.md`。
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| hojin_nenji_fy2023_2025_cash_sales_labor.csv(財務省 法人企業統計調査 時系列・金融保険以外・年度次・表 0003060791。現金・預金/売上高/給与・賞与/従業員数 × 業種 62 × 規模 6 × 2023〜2025 年度) | e-Stat API statsDataId=0003060791 | 2026-10-03(実行役) | 政府標準利用規約 2.0 | 初期の運転資金の比率(現金・預金 ÷ 月の人件費: 全産業 16.06 か月・飲食 7.20・情報通信 15.16=`wage/hojin_ratios_2025.json`) |
+| ec2021_kigyo_shibuya_sales_payroll_0004006360.csv(令和 3 年経済センサス‐活動調査 企業等に関する集計 経理事項等・渋谷区。**本所が渋谷区にある企業等の全事業所ぶん**) | e-Stat API statsDataId=0004006360(cdArea=13113) | 2026-10-03(実行役) | 同 | 売上の流入の比率の候補。区内の事業所だけの値ではない点に注意 |
+| chinkou_r7_sanko2_pref_industry_kibokei.xlsx・chinkou_r7_t1_tokyo_kanagawa_age.xlsx・chinkou_r7_sanko1_pref47.xlsx(厚労省 令和 7 年賃金構造基本統計調査 参考表 2・表 1(東京・神奈川)・参考表 1) | https://www.e-stat.go.jp/stat-search/file-download?statInfId=000040421203 / 000040421173 / 000040421202 | 2026-10-03(実行役) | 同 | 賃金の水準(東京都 × 産業別の所定内給与)。月の賃金の規模の推測(区内の組織に勤める 2,421 体で約 9.7 億円/月)に使用 |
+
+## 2026-10-03 追加 その 4(R-77 車両と混雑=指示書 10-03 §8 3-8・読み取り目的・gitignore 下の data/research_cache/r77 に取得・リサーチ役サブ+親が MANIFEST を確認)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r77/(国交省の PDF 8 本: 令和 7 年度 都市鉄道の混雑率調査の報道発表本文・資料 1(平均混雑率の推移と目安)・資料 2(三大都市圏の主要区間)・資料 3(都市部の路線の最混雑区間)・ほか混雑率の目安の検討資料と国土計画局の指標。md5 と URL は MANIFEST.md) | https://www.mlit.go.jp/report/press/content/002013572.pdf ほか(MANIFEST に全 URL) | 2026-10-03(リサーチ役) | 国土交通省ホームページ利用規約(政府標準利用規約 第 2.0 版準拠) | 路線ごとの混雑率(D10′ の更新・令和 7 年度)・定員の定義・混雑率の目安の版差。親が 9 区間の値を PDF から抽出して答申と一致を確認 |
+
+## 2026-10-03 追加 その 5(R-81 飲食店の席数=指示書 10-03 §8 3-6・読み取り目的・gitignore 下の data/research_cache/r81 に取得・リサーチ役サブ+親が PDF の表を抽出して確認)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r81/tokyo_h27_insyoku_1〜6.pdf(東京都 平成 27 年 飲食店の受動喫煙防止対策に関する実態調査の報告書 6 分冊。一般飲食店 1,241・遊興飲食店 1,600。md5 は MANIFEST.md) | https://www.hokeniryo1.metro.tokyo.lg.jp/kensui/kitsuen/sanko/insyokutentaisaku/files/27insyoku_1.pdf 〜 _6.pdf | 2026-10-03(リサーチ役) | 東京都保健医療局のサイトの利用規約(**未実読**。東京都の公式サイトは政府標準利用規約準拠が通例=親の一次確認待ち) | 客席数・店舗面積・客席面積の階級別の分布(席の密度の錨)。個票は無く同時分布は空欄 |
+
+## 2026-10-03 追加 その 6(R-67 車と交通量=指示書 10-03 §8 3-8-4・§9-4・読み取り目的・gitignore 下の data/research_cache/r67 に取得・リサーチ役サブ+親が時間帯別の比率を再計算して確認)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| zkntrf13.csv・zkntrfFormat.xlsx(令和 3 年度 全国道路・街路交通情勢調査 一般交通量調査 時間帯別交通量表 東京都と見出しの定義) | https://www.mlit.go.jp/road/census/r3/data/csv/zkntrf13.csv / .../xlsx/zkntrfFormat.xlsx | 2026-10-03(リサーチ役) | 国土交通省ホームページ利用規約(政府標準利用規約 第 2.0 版準拠) | 時間帯別の配分(今の一様配分の expedient の置き換えの錨)。渋谷区 48 区間のうち 24 時間観測の一般道は 4 区間 |
+| od_r3_t12_avg_occupancy.xlsx(令和 3 年度 自動車起終点調査 表 12 平均乗車人数) | https://www.e-stat.go.jp/stat-search/file-download?statInfId=000040170742&fileKind=0 | 2026-10-03(リサーチ役) | e-Stat 利用規約(政府標準利用規約 第 2.0 版準拠) | 範囲内の車に乗る人数の推測(1.40 人) |
+| mpd_01_cyousakekka.pdf・mpd_02_cyousagaiyou.pdf(警視庁 交通量統計表 調査結果・調査概要) | https://www.keishicho.metro.tokyo.lg.jp/about_mpd/jokyo_tokei/tokei_jokyo/ryo.files/01_cyousakekka.pdf / 02_cyousagaiyou.pdf | 2026-10-03(リサーチ役) | 警視庁サイトの利用規約(**未実読**=親の一次確認待ち。東京都の機関で政府標準利用規約準拠が通例) | 都内の交通量の参考。使う前に規約を読む |
