@@ -121,3 +121,15 @@
 | ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
 |---|---|---|---|---|
 | `.claude/skills/yomiyasu/`(SKILL.md・scripts/yomiyasu_lint.py・scripts/yomiyasu_diff.py・references/gemini-syntax.md・references/slop-catalog.md・references/domains/{business,essay,tech}.md・LICENSE=9 本。上流の `skills/yomiyasu/` の同名ファイルと git の blob が一致。改行だけ LF に正規化) | https://github.com/nanaism/yomiyasu(commit `8d5abeebe2dd20c2db005deaddcc50be43c59c0a`・`git clone` で取得し当該 commit を checkout) | 2026-10-03(親) | MIT(著作権表示とライセンス文を同梱=LICENSE を同じフォルダに置いた) | ユーザーが読む文章の推敲(指示書 10-03 §1)。写していないもの: `.claude-plugin/`(plugin.json・marketplace.json=プロジェクトのスキルには不要。marketplace.json に作者の個人メールが含まれるため、CLAUDE.md §7「個人メールを書かない」に従い除外)と `assets/algo-artis.png`(ロゴ画像・不要)。スクリプト 2 本は標準ライブラリだけで手元のファイルを読むだけ(親が実読。ネットワークに出ない)。 |
+
+## 2026-10-03 追加 その 2(日次の現実データの再開=指示書 10-03 §10-1・検証専用・gitignore 下の data/realworld_live/ に取得・取得は tools/realworld_fetch/ のタスク 3 本)
+
+位置づけ: シミュレーション本体はこのデータを読まない(検証専用=holdout 側)。ODPT の運行情報は電車の運行の入力にはしない(遅延は閉ループから生まれるべきもの)。防災 XML と ODPT の運休から「外れ値の日」の印を作り較正から外す材料にする。例外は反実仮想で実際の運休の日を再現する実験だけ(条件として明記)。保存先を `data/realworld/` でなく `data/realworld_live/` にした理由は、W13・W19 が `data/realworld/amedas` を日付で絞らずに読むため(つなぎ・PENDING K10)。ライセンスの要点は v1 の記載([記録 §7](bench/analysis/wallbounce-1003/realworld-fetch-check.md))の写しで、原典の規約ページの読み直しは **未実施(親の一次確認待ち)**。
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/realworld_live/amedas/(アメダス東京 44132 の 10 分値・日次 JSON。09-23〜10-03 を後追い取得し、以後 毎日 12:00 と 翌 00:30 の前日取り直し) | https://www.jma.go.jp/bosai/amedas/ | 2026-10-03〜(毎日) | 気象庁 公共データ利用規約(第 1.0 版)/ PDL1.0 準拠(v1 の記載・未再読) | 検証専用。保持約 10 日のため毎日取る。v1 は 08-08 以降毎日半日しか残っていなかった(昼に当日を取る欠陥)。v1 の実体は v1 リポに残置 |
+| data/realworld_live/jma_xml/(防災情報 XML 長期フィード 4 本のエントリ) | https://www.data.jma.go.jp/developer/xml/feed/ | 2026-10-03〜(毎日 1 回。長期フィードは約 7 日分を載せる) | 同上(未再読) | 外れ値の日の印の材料。高頻度フィードは使わない |
+| data/realworld_live/wbgt/(暑さ指数 WBGT 44132 の実況の月次ファイルと予測) | https://www.wbgt.env.go.jp/ | 2026-10-03〜(提供期間 10/21 まで) | 環境省 熱中症予防情報サイト=出典明記が必須(v1 の記載・未再読) | 検証専用 |
+| data/realworld_live/odpt_rt/(ODPT 運行情報 TrainInformation=メトロはオープン枠・東急と京王はチャレンジ枠、JR 東日本の在線 Train=チャレンジ枠。10 分ごと) | https://api.odpt.org/・https://api-challenge.odpt.org/ | 2026-10-03〜(10 分ごと・expedient) | ODPT 利用規約(オープン枠とチャレンジ枠で異なる。チャレンジ枠の生データは**再配布しない**)(v1 の記載・未再読) | 検証専用(holdout)。API キーは環境変数のみ。v1 では一度も定期実行されていなかった |
+| data/calendar/syukujitsu.csv(内閣府「国民の祝日」CSV・1955/1/1〜2027/11/23・1,067 行・cp932・CRLF・21,538 B・md5 733fabb6b488794a0cd3d94df4b1f24a) | https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv | 2026-10-03(実行役・HTTP 200・Last-Modified 2026-02-02) | 内閣府ホームページ利用規約 https://www.cao.go.jp/notice/rule.html(親が 2026-10-03 に実読: 「権利表記の記載がない限り公共データ利用規約(第1.0版)(デジタル庁)が適用されます」=PDL1.0。CSV のページ自体に別の利用ルールの明示は無い) | 10a の暦の口(祝日)。範囲外(2027/11/23 より後)の開始日は manifest の検査で止める。W13 の手書きの祝日 2 行(2026/7/20・8/11)と一致 |
