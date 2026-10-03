@@ -150,6 +150,8 @@ def test_cli_flag_and_manifest():
 #: classical 1,500 体・seed 1・v3(実世界資産)の final。
 #: ``hash``(既定)= 第304 Q130 の距離順+Q107 の同点撹拌 / ``hash_order_id`` = 第304(3c86b6b)の既定=並びは行番号の
 #: 昇順(Q130 の前)/ ``classical_tie_id`` = 両方 id = HEAD bb44474 の既定と同じ(Q107 の前=旧 golden)。
+#: 第2波 §2A 項 3-1: 3 本とも**交際の相手の旧規則**(``classical_social="near_first"``=近接行の最初の人)の値。
+#: 既定(``acquaintance``)の値は ``CLASSICAL_1500_GOLDEN_ACQ``。
 CLASSICAL_1500_GOLDEN = {
     "hash": ("91732f34f9e2da62d543f77fef773f4600a8b94380f6bafd42203e98f5b8417c", 26_869),
     "hash_order_id": ("e0a6f3f90fd8fe388312ff4f472239e59cc0194fed50accc4b5073d4bfdfc1a0", 26_845),
@@ -166,7 +168,7 @@ def test_classical_checkpoint_moves_with_hash_and_id_reproduces_the_old_one():
     if not (world / "w2_cells.parquet").exists():
         pytest.skip("実世界資産 data/world/v2 が無い")
     kw = dict(n_agents=1500, seed=1, world_dir=str(world), vocab_version="v3", policy="classical",
-              chooser="classical")
+              chooser="classical", classical_social="near_first")
     new = cli.run(**kw)
     mid = cli.run(near_order="id", **kw)
     old = cli.run(near_tiebreak="id", near_order="id", **kw)

@@ -1,0 +1,31 @@
+{
+ "key": "W9#5",
+ "control": "再生日=W13 の先頭日 2026-07-28(宣言)vs 候補の末日 2026-08-31",
+ "metric": "影の面 → (セル × 時 × {日陰, 日向}) の点・面の数の分布",
+ "variants": [
+  {
+   "name": "候補の末日 2026-08-31",
+   "jsd_bits": 0.008272024464496472,
+   "null_p95": 6.620697166807141e-05,
+   "detected": true,
+   "tvd": 0.04353677776469606,
+   "n_declared": 102738816.0,
+   "n_control": 102738816.0,
+   "n_bins": 25008,
+   "shadow_share_declared": 0.7143917640631561,
+   "shadow_share_control": 0.7552055593087621
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 1.0068397000432014,
+ "outputs_changed": [
+  "w13_weather_days.parquet",
+  "w9_shadow_2026-08-31.npy",
+  "w9_shadow_planes.parquet"
+ ],
+ "notes": [],
+ "seconds_wall_row": 8.9,
+ "measured_at": "2026-09-30"
+}

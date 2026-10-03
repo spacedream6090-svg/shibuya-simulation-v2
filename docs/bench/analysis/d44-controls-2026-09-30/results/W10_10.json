@@ -1,0 +1,30 @@
+{
+ "key": "W10#10",
+ "control": "辺の中点 1 点の最近傍 way(宣言)vs 両端+中点の多数決(割れたら中点)",
+ "metric": "道路の辺のセンサス路線ラベルの分布",
+ "variants": [
+  {
+   "name": "両端+中点の多数決",
+   "jsd_bits": 0.0005383514967734252,
+   "null_p95": 0.002083984187778939,
+   "detected": false,
+   "tvd": 0.007621339751303668,
+   "n_declared": 2493.0,
+   "n_control": 2493.0,
+   "n_bins": 8,
+   "n_edges_changed": 39
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 3.3975106000434607,
+ "checks": {
+  "declared_recomputed_equals_asset": true
+ },
+ "notes": [
+  "USE_ROAD_NAME_MATCH は既定 False=対応表は騒音場に当たらない(診断の出力 w10_edge_section だけ)"
+ ],
+ "seconds_wall_row": 3.44,
+ "measured_at": "2026-09-30"
+}

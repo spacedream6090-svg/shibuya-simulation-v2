@@ -1,0 +1,288 @@
+{
+ "schema": "shibuya.bench/wave2-2026-09-30/tenure/1",
+ "agents": 390067,
+ "tenure_weeks_max": 13.0,
+ "k": 15,
+ "d": 0.5,
+ "uniform_share_T_lt_2w": 0.0833,
+ "versions": {
+  "v1": {
+   "edges_before_tau": 3503281,
+   "tau_start_of_day": {
+    "tau": -2.345444530695314,
+    "agents": 390067,
+    "agents_with_k_edges": 212681,
+    "share_with_k_edges": 0.5452,
+    "kth_A_quantiles": {
+     "p10": -2.3433,
+     "p25": -2.3164,
+     "p50": -2.1903,
+     "p75": -2.0539,
+     "p90": -1.9059
+    }
+   },
+   "tau_end_of_day": {
+    "tau": -2.4074723847816735,
+    "agents": 390067,
+    "agents_with_k_edges": 212681,
+    "share_with_k_edges": 0.5452,
+    "kth_A_quantiles": {
+     "p10": -2.4056,
+     "p25": -2.3819,
+     "p50": -2.2492,
+     "p75": -2.0981,
+     "p90": -1.9377
+    }
+   },
+   "tau_rederived_floor3": -2.346,
+   "tau_declared_in_code": -2.346,
+   "A_quantiles_start": {
+    "0": -2.3543,
+    "10": -2.1545,
+    "50": -1.4827,
+    "90": -1.0904,
+    "100": -0.6849
+   },
+   "share_T_lt_2w_by_kind_and_direction": {
+    "household": {
+     "src_u<src_v": {
+      "edges": 16207,
+      "share_T_lt_2w": 0.0845,
+      "median_T_w": 6.985
+     },
+     "src_u>src_v": {
+      "edges": 16207,
+      "share_T_lt_2w": 0.0845,
+      "median_T_w": 6.985
+     }
+    },
+    "work": {
+     "src_u<src_v": {
+      "edges": 1457937,
+      "share_T_lt_2w": 0.2872,
+      "median_T_w": 3.723
+     },
+     "src_u>src_v": {
+      "edges": 1467555,
+      "share_T_lt_2w": 0.0836,
+      "median_T_w": 6.993
+     }
+    },
+    "school": {
+     "src_u<src_v": {
+      "edges": 277830,
+      "share_T_lt_2w": 0.6572,
+      "median_T_w": 1.508
+     },
+     "src_u>src_v": {
+      "edges": 267545,
+      "share_T_lt_2w": 0.0833,
+      "median_T_w": 6.988
+     }
+    }
+   },
+   "spearman_U_vs_tie_hash_all_edges": 0.4857,
+   "spearman_U_vs_tie_hash_src_u_lt_src_v": 1.0,
+   "tenure_symmetric_u_v": true,
+   "net": {
+    "declared": {
+     "tau": -2.346,
+     "edges": 3483572,
+     "dropped_by_tau": 19709,
+     "full_agents_15": 196080,
+     "full_share": 0.5027,
+     "median_edges": 15.0,
+     "zero_agents": 108627,
+     "by_kind": {
+      "household": 32414,
+      "work": 2912830,
+      "school": 538328
+     }
+    },
+    "rederived_floor3": {
+     "tau": -2.346,
+     "edges": 3483572,
+     "dropped_by_tau": 19709,
+     "full_agents_15": 196080,
+     "full_share": 0.5027,
+     "median_edges": 15.0,
+     "zero_agents": 108627,
+     "by_kind": {
+      "household": 32414,
+      "work": 2912830,
+      "school": 538328
+     }
+    }
+   },
+   "curve_at_start": {
+    "-2.8454": {
+     "median_edges": 15.0,
+     "share_15": 0.5452
+    },
+    "-2.4454": {
+     "median_edges": 15.0,
+     "share_15": 0.5452
+    },
+    "-2.3654": {
+     "median_edges": 15.0,
+     "share_15": 0.5452
+    },
+    "-2.3454": {
+     "median_edges": 14.0,
+     "share_15": 0.4999
+    },
+    "-2.3254": {
+     "median_edges": 14.0,
+     "share_15": 0.4318
+    },
+    "-2.2454": {
+     "median_edges": 13.0,
+     "share_15": 0.363
+    },
+    "-1.8454": {
+     "median_edges": 7.0,
+     "share_15": 0.0345
+    }
+   }
+  },
+  "v2": {
+   "edges_before_tau": 3503281,
+   "tau_start_of_day": {
+    "tau": -2.3215700586198595,
+    "agents": 390067,
+    "agents_with_k_edges": 212681,
+    "share_with_k_edges": 0.5452,
+    "kth_A_quantiles": {
+     "p10": -2.3143,
+     "p25": -2.2034,
+     "p50": -2.089,
+     "p75": -1.9451,
+     "p90": -1.8071
+    }
+   },
+   "tau_end_of_day": {
+    "tau": -2.3864427951963414,
+    "agents": 390067,
+    "agents_with_k_edges": 212681,
+    "share_with_k_edges": 0.5452,
+    "kth_A_quantiles": {
+     "p10": -2.3801,
+     "p25": -2.2609,
+     "p50": -2.1303,
+     "p75": -1.9806,
+     "p90": -1.8313
+    }
+   },
+   "tau_rederived_floor3": -2.322,
+   "tau_declared_in_code": -2.322,
+   "A_quantiles_start": {
+    "0": -2.3543,
+    "10": -1.9105,
+    "50": -1.3317,
+    "90": -1.0701,
+    "100": -0.6849
+   },
+   "share_T_lt_2w_by_kind_and_direction": {
+    "household": {
+     "src_u<src_v": {
+      "edges": 16207,
+      "share_T_lt_2w": 0.0805,
+      "median_T_w": 6.983
+     },
+     "src_u>src_v": {
+      "edges": 16207,
+      "share_T_lt_2w": 0.0805,
+      "median_T_w": 6.983
+     }
+    },
+    "work": {
+     "src_u<src_v": {
+      "edges": 1457937,
+      "share_T_lt_2w": 0.0833,
+      "median_T_w": 6.993
+     },
+     "src_u>src_v": {
+      "edges": 1467555,
+      "share_T_lt_2w": 0.0838,
+      "median_T_w": 6.998
+     }
+    },
+    "school": {
+     "src_u<src_v": {
+      "edges": 277830,
+      "share_T_lt_2w": 0.0832,
+      "median_T_w": 6.994
+     },
+     "src_u>src_v": {
+      "edges": 267545,
+      "share_T_lt_2w": 0.0832,
+      "median_T_w": 6.983
+     }
+    }
+   },
+   "spearman_U_vs_tie_hash_all_edges": -0.00092,
+   "spearman_U_vs_tie_hash_src_u_lt_src_v": -0.00039,
+   "tenure_symmetric_u_v": true,
+   "net": {
+    "declared": {
+     "tau": -2.322,
+     "edges": 3483460,
+     "dropped_by_tau": 19821,
+     "full_agents_15": 195239,
+     "full_share": 0.5005,
+     "median_edges": 15.0,
+     "zero_agents": 108641,
+     "by_kind": {
+      "household": 32414,
+      "work": 2908765,
+      "school": 542281
+     }
+    },
+    "rederived_floor3": {
+     "tau": -2.322,
+     "edges": 3483460,
+     "dropped_by_tau": 19821,
+     "full_agents_15": 195239,
+     "full_share": 0.5005,
+     "median_edges": 15.0,
+     "zero_agents": 108641,
+     "by_kind": {
+      "household": 32414,
+      "work": 2908765,
+      "school": 542281
+     }
+    }
+   },
+   "curve_at_start": {
+    "-2.8216": {
+     "median_edges": 15.0,
+     "share_15": 0.5452
+    },
+    "-2.4216": {
+     "median_edges": 15.0,
+     "share_15": 0.5452
+    },
+    "-2.3416": {
+     "median_edges": 15.0,
+     "share_15": 0.527
+    },
+    "-2.3216": {
+     "median_edges": 15.0,
+     "share_15": 0.5
+    },
+    "-2.3016": {
+     "median_edges": 14.0,
+     "share_15": 0.4814
+    },
+    "-2.2216": {
+     "median_edges": 14.0,
+     "share_15": 0.4321
+    },
+    "-1.8216": {
+     "median_edges": 11.0,
+     "share_15": 0.0607
+    }
+   }
+  }
+ }
+}

@@ -58,6 +58,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable, Iterator, Mapping
 
+import json
+
 import pyarrow as pa
 import pyarrow.parquet as pq
 
@@ -66,6 +68,8 @@ from shibuya.core.hashing import blake3_hex
 __all__ = [
     "CALLS_FILENAME",
     "BLOCKS_FILENAME",
+    "RUN_META_FILENAME",
+    "read_run_meta",
     "TAPE_COMPRESSION",
     "CALLS_SCHEMA",
     "CALLS_SCHEMA_V1_NAMES",
@@ -84,6 +88,17 @@ __all__ = [
 
 CALLS_FILENAME = "calls.parquet"
 BLOCKS_FILENAME = "blocks.parquet"
+#: テープの脇の meta(検収後 P3・10a)。録画のランの設定のうち再生で突き合わせる値を置く
+#: (今は ``response_delay`` だけ)。``calls.parquet`` の列とテープの版は変えない。
+RUN_META_FILENAME = "run_meta.json"
+
+
+def read_run_meta(path: str | Path) -> dict[str, Any]:
+    """テープの脇の meta を読む(無ければ空 dict=10a より前の録画)。"""
+    p = Path(path) / RUN_META_FILENAME
+    if not p.is_file():
+        return {}
+    return dict(json.loads(p.read_text(encoding="utf-8")))
 TAPE_COMPRESSION = "zstd"
 BLOCK_ID_BYTES = 16
 
@@ -240,6 +255,8 @@ class TapeWriter:
 
     path: Path
     flush_rows: int = 4_096
+    #: テープの脇の meta(``RUN_META_FILENAME``)。空なら書かない。
+    run_meta: dict[str, Any] = field(default_factory=dict)
     _rows: list[TapeRow] = field(default_factory=list, init=False, repr=False)
     _blocks: dict[str, tuple[str, int]] = field(default_factory=dict, init=False, repr=False)
     _writer: pq.ParquetWriter | None = field(default=None, init=False, repr=False)
@@ -340,6 +357,11 @@ class TapeWriter:
             schema=BLOCKS_SCHEMA,
         )
         pq.write_table(blocks, self.path / BLOCKS_FILENAME, compression=TAPE_COMPRESSION)
+        if self.run_meta:
+            (self.path / RUN_META_FILENAME).write_text(
+                json.dumps(self.run_meta, ensure_ascii=False, sort_keys=True) + "\n",
+                encoding="utf-8", newline="\n",
+            )
 
     def __enter__(self) -> "TapeWriter":
         return self
@@ -369,6 +391,8 @@ class Tape:
         self._block_text: dict[str, str] = dict(
             zip(self.blocks.column("block_id").to_pylist(), self.blocks.column("text").to_pylist())
         )
+        #: テープの脇の meta(無ければ空 dict)。
+        self.run_meta: dict[str, Any] = read_run_meta(self.path)
 
     def __len__(self) -> int:
         return self.calls.num_rows

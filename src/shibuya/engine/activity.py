@@ -53,6 +53,7 @@ from shibuya.agents.state import (
 from shibuya.core.hashing import wander_key_array
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
+from shibuya.engine.calendar import ticks_per_day as _ticks_per_day
 from shibuya.llm.contract import (
     NO_TARGET,
     UNTIL_DEFAULT_MINUTES,
@@ -175,6 +176,9 @@ class ActivityLayer:
         self.n = int(n_agents)
         self.salt = bytes(run_salt)
         self.minutes_per_tick = float(tick_seconds) / 60.0
+        #: 10a: 計画境界の表は日の中の tick。通しの時刻 T は ``T % 1 日の tick 数`` で引き、
+        #: 返す境界はその日の頭 ``T − 日の中の tick`` を足した通しの時刻に戻す。
+        self._tpd = _ticks_per_day(int(tick_seconds))
         self.text: list[str] = [NO_TARGET] * self.n
         self.until_kind = np.zeros(self.n, dtype=np.int8)
         #: 表示用の文の intern(0 = 出さない文)。
@@ -211,12 +215,17 @@ class ActivityLayer:
         return np.ceil(m / self.minutes_per_tick).astype(np.int64)
 
     def _next_boundary(self, agent: int, tick: int) -> int:
-        """体の次の計画境界の tick(無ければ −1)。"""
+        """体の次の計画境界の通しの時刻 T(その日の中に無ければ −1)。
+
+        10a: 表は日の中の tick なので ``T % 1 日の tick 数`` で引き、その日の頭を足して返す
+        (0 日目は今と同じ値。日付を越えた翌日の境界は引かない=今と同じ「予定なし」)。
+        """
         lo, hi = int(self._bt_start[agent]), int(self._bt_start[agent + 1])
         if hi <= lo:
             return -1
-        k = lo + int(np.searchsorted(self._bt_tick[lo:hi], int(tick), side="right"))
-        return int(self._bt_tick[k]) if k < hi else -1
+        td = int(tick) % self._tpd
+        k = lo + int(np.searchsorted(self._bt_tick[lo:hi], td, side="right"))
+        return (int(tick) - td) + int(self._bt_tick[k]) if k < hi else -1
 
     def resolve_until(
         self, agent_id: np.ndarray, until_kind: np.ndarray, until_value: np.ndarray, tick: int

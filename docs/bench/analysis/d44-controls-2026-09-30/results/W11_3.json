@@ -1,0 +1,38 @@
+{
+ "key": "W11#3",
+ "control": "名称一致→最近傍(宣言)vs 最近傍だけ",
+ "metric": "出口 45 → 駅の割当の分布",
+ "variants": [
+  {
+   "name": "最近傍だけ",
+   "jsd_bits": 0.0,
+   "null_p95": 0.054764805530823066,
+   "detected": false,
+   "tvd": 0.0,
+   "n_declared": 45.0,
+   "n_control": 45.0,
+   "n_bins": 3,
+   "stations_declared": 12,
+   "stations_control": 12,
+   "declared": {
+    "渋谷": 38,
+    "表参道": 5,
+    "明治神宮前〈原宿〉": 2
+   },
+   "control": {
+    "渋谷": 38,
+    "表参道": 5,
+    "明治神宮前〈原宿〉": 2
+   }
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.07824410009197891,
+ "outputs_changed": [
+  "w11_station_exits.parquet"
+ ],
+ "seconds_wall_row": 0.81,
+ "measured_at": "2026-09-30"
+}

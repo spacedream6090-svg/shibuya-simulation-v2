@@ -156,6 +156,30 @@ class OpeningProcess:
         out[:] = workers[np.arange(self.world.n_poi) % workers.size]
         return out
 
+    def relay_day(self, weekday: int) -> None:
+        """10d(親の答え 5): 日の頭でその日の曜日の行(W7)の開閉行列を作り直す(暦の口の ``table_weekday(日)``)。"""
+        self.day_index = int(weekday)
+        if self.open_matrix.size:
+            self.open_matrix = build_open_matrix(
+                self.world.n_poi,
+                self.assets.plan_poi,
+                self.assets.plan_day,
+                self.assets.plan_start,
+                self.assets.plan_end,
+                self.day_index,
+            )
+
+    def rebuild_derived(self) -> None:
+        """10d: SoA の ``kind`` から作る担当従業者の表を今の SoA から作り直す(再開で SoA を戻した後)。
+
+        配列は差し替えずに中身を書き換える(補充の過程が同じ配列を持つ)。
+        """
+        got = self._assign_staff()
+        if self.staff_of_poi.shape == got.shape:
+            self.staff_of_poi[...] = got
+        else:
+            self.staff_of_poi = got
+
     def has_permission(self, agent_ids, poi_ids) -> np.ndarray:
         """行動契約書 §2.2 の権限検査: 「その POI の担当従業者」かつ「同一セル」。"""
         a = np.asarray(agent_ids, dtype=np.int64)

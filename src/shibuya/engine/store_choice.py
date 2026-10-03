@@ -85,6 +85,8 @@ class StoreChoice:
         self.seed = seed
         self.minutes_per_tick = float(minutes_per_tick)
         self.ticks_per_hour = max(1, int(round(60.0 / self.minutes_per_tick)))
+        #: 10a: 計画境界の表は日の中の tick。通しの時刻 T は ``T % 1 日の tick 数`` で引く。
+        self._tpd = max(1, int(round(1440.0 / self.minutes_per_tick)))
         self.intent_max_ticks = int(intent_max_ticks)
         self.recall_first = bool(recall_first)
         self.poi_cell = np.asarray(world.pois.cell, dtype=np.int64)
@@ -115,8 +117,9 @@ class StoreChoice:
         lo, hi = int(self._b_off[aid]), int(self._b_off[aid + 1])
         if hi <= lo:
             return 1 << 30
-        k = lo + int(np.searchsorted(self._b_tick[lo:hi], int(tick), side="right"))
-        return int(self._b_tick[k]) - int(tick) if k < hi else 1 << 30
+        td = int(tick) % self._tpd  # 10a: 通しの時刻 T → 日の中の tick
+        k = lo + int(np.searchsorted(self._b_tick[lo:hi], td, side="right"))
+        return int(self._b_tick[k]) - td if k < hi else 1 << 30
 
     def reachable(self, aid: int, tick: int, cell: int, pois: np.ndarray) -> np.ndarray:
         """``pois`` のうち次の予定までに歩いて届くもの(上限つきの制約・距離減衰ではない)。"""

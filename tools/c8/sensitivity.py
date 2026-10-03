@@ -28,6 +28,7 @@
     python tools/c8/sensitivity.py --judge-manifest --out docs/bench/c8   # D-44 (a) の一括判定(既存の記録だけ)
     python tools/c8/sensitivity.py --read-graph --out docs/bench/c8       # D-44 (c) 依存グラフ(エンジンが読むか)
     python tools/c8/sensitivity.py --triage --out docs/bench/c8           # Q146 読む行の 3 分類(自前の構成=未リサーチ)
+    python tools/c8/sensitivity.py --d44 --out docs/bench/c8              # D-44 の対照の結果(第311)を判定不能の行へ
 
 **D-44 (c) の依存グラフ**(第307): 各構築段の出力ファイルを、エンジン側(``src/shibuya/{engine,perception,agents,
 economy,world}``)の**コードの文字列リテラル**(docstring・式文の文字列は除く=AST)が名指ししているか、下流の構築段が読み
@@ -595,6 +596,133 @@ def attach_triage(judged: dict[str, Any], triage: Mapping[str, Any]) -> dict[str
     return judged
 
 
+# ------------------------------------------------------------------ D-44 の対照(第311・ユーザー決定 2026-09-30)
+#: 結果の置き場(``docs/bench/analysis/d44-controls-2026-09-30/``)。構築段階の対照(i)と mock の対照(ii)。
+D44_DIR = c8lib.REPO_ROOT / "docs" / "bench" / "analysis" / "d44-controls-2026-09-30"
+D44_RESULTS_PATH = D44_DIR / "d44_results.json"
+D44_MOCK_PATH = D44_DIR / "mock_controls.json"
+#: 集計の 5 値(ユーザー指示: 駆動しえない/ラン対照へ/測れない/対照を定義できない/対象外)。
+D44_STATUSES: tuple[str, ...] = ("not_driving", "needs_run", "unmeasurable", "no_control", "out_of_scope")
+D44_STATUS_JA: dict[str, str] = {
+    "not_driving": "駆動しえない", "needs_run": "ラン対照へ", "unmeasurable": "測れない",
+    "no_control": "対照を定義できない", "out_of_scope": "対象外(ランに届かない)",
+}
+D44_RULE_NOTE: str = (
+    "D-44(第311・ユーザー決定 2026-09-30): (i) 構築の再計算で対照を当て、宣言 vs 対照の**入力側** JSD を片側規則で判定"
+    "(帰無参照=同分布 2 標本の JSD 95% 点=c8lib.compare_counts・対照が複数の値を持つ行はどれか 1 つでも超えたら『ラン対照へ』)。"
+    "(ii) ランが要る行は mock 5,000 体の対照ランで、既存の口(--world)で測れるものだけ測った。(iii) 対照を定義できない行は印だけ。"
+    "読まない行(W18〜W20)は感度試験の対象外(ランに届かない・構築仕様書 §0-7 第311 追記)。"
+    "**検出可能効果量の床(第200)**: 2 seed の感度試験は f≈1 未満の効果を検出できない=ラン対照で差が見えないことは"
+    "「特大の駆動が無い」の証明にとどまる。**対照のずらし値・指標・階級幅は実装役の自前の構成=未リサーチ**。"
+    "帰無参照の N は資産の要素数(点×面・POI×時など)で、大きい N では帰無参照がほぼ 0 になり決定論の差はほぼ全て検出される(保守側)。"
+)
+#: (ii) ランが要る 13 行の扱い。``mock`` = mock の対照ランで測った(``mock_controls.json`` の鍵)・``knob`` = 口が無い(必要な口)。
+D44_II: dict[str, dict[str, str]] = {
+    "W7#3": {"mock": "W7#3/W7#4/W7#13",
+             "note": "エンジンは w7_plan_spec の poi_id・kind・content しか読まない(world/assets.py)=改訂権者の列はランに届かない。"
+                     "同じ宣言はエンジン側 world/processes/first_batch.py に別にハードコード(そちらを振るには口が要る)"},
+    "W7#4": {"mock": "W7#3/W7#4/W7#13",
+             "note": "violability の列はランに届かない(同上)。エンジン側の違反可能性は first_batch.py のハードコード"},
+    "W7#13": {"mock": "W7#3/W7#4/W7#13", "note": "violability の列はランに届かない(同上)"},
+    "W7#12": {"knob": "条例8条(16 歳未満のゲームセンター 18:00-22:00 保護者同伴)の窓と条例6条(騒音 dB)の機構の実装+切替口(src の変更)"},
+    "W14#2": {"knob": "W14 看板文の再生成(LLM・GPU・I1 予算)。差し替えた資産はランの --world で読める"},
+    "W15#2": {"knob": "W15 静的文の再生成(LLM・GPU・I1 予算)。差し替えた資産はランの --world で読める"},
+    "W15#3": {"knob": "W15 静的文の再生成(同上)"},
+    "W15#4": {"knob": "W15 静的文の再生成(同上)"},
+    "W15#5": {"knob": "W15 静的文の再生成(同上)"},
+    "W15#6": {"knob": "W15 静的文の再生成(同上)"},
+    "W16#10": {"knob": "ラン側の指令の体数を変える口(または W16 の体数と W17 週次表の対応を保った再構築=新しい体の週次表が要る)"},
+    "W16#14": {"knob": "世帯構成を再現する W16 の規則+切替口と、世帯の効き(財布・同行)を振るランの口"},
+    "W17#1": {"mock": "W17#1",
+              "note": "既存の v1 資産(w17v1_backup・7 日の型)を --world で差し替えた。型だけでなく生成の回・プロンプト・raking も違う(交絡)"},
+}
+
+
+def _d44_primary(r: Mapping[str, Any]) -> dict[str, Any]:
+    """結果の行 → 判定に使った変種(検出したもののうち JSD 最大・無ければ全体で JSD 最大)。"""
+    prim = [v for v in r.get("variants", ()) if v.get("primary", True)]
+    if not prim:
+        return {}
+    det = [v for v in prim if v["detected"]]
+    return max(det or prim, key=lambda v: v["jsd_bits"])
+
+
+def attach_d44(judged: dict[str, Any], results: Mapping[str, Any], mock: Mapping[str, Any] | None = None) -> dict[str, Any]:
+    """D-44(第311): 判定不能の行に ``d44``(5 値の状態・指標・JSD・理由)と集計 ``d44_summary`` を足す(既存の列は変えない)。"""
+    rows_r = results.get("rows", {})
+    controls = (mock or {}).get("controls", {})
+    null_max = ((mock or {}).get("seed_null") or {}).get("max")
+    for r in judged["rows"]:
+        if r.get("verdict") != "undetermined":
+            continue
+        er = r.get("engine_reads")
+        cls = (r.get("triage") or {}).get("class")
+        if er == "not_read":
+            d = {"status": "out_of_scope", "where": "—",
+                 "reason": "ランに届かない(出力を読むのは構築の検査・画像の段 W18〜W20 だけ=D-44 (c))。構築仕様書 §0-7 第311 追記の限定で感度試験の対象外"}
+        elif cls == "iii":
+            d = {"status": "no_control", "where": "—", "reason": r["triage"]["control"]}
+        elif cls == "ii":
+            spec = D44_II.get(r["key"], {})
+            c = controls.get(spec.get("mock", ""), None)
+            if c is not None and c.get("jsd_vs_declared_s1") is not None:
+                same = bool(c.get("final_same"))
+                j = float(c["jsd_vs_declared_s1"])
+                det = (not same) and (null_max is None or j > float(null_max))
+                d = {"status": "needs_run" if det else "not_driving", "where": "mock_run",
+                     "jsd_bits": j, "null_p95": null_max, "metric": "在圏(5 エリア×24 時)の JSD・帰無=同構成 seed 3 対の最大",
+                     "control": c.get("world", ""), "final_same": same, "reason": spec.get("note", "")}
+            else:
+                d = {"status": "unmeasurable", "where": "—", "needed_knob": spec.get("knob", ""),
+                     "reason": "口が無い(src の変更・LLM の再生成が要る)=測らず、必要な口を報告"}
+        elif cls == "i":
+            res = rows_r.get(r["key"])
+            if res is None:
+                d = {"status": "unmeasurable", "where": "—", "reason": "結果が無い"}
+            elif res["status"] == "unmeasurable":
+                d = {"status": "unmeasurable", "where": "—", "reason": res["reason"], "control": res.get("control", "")}
+            else:
+                v = _d44_primary(res)
+                status = "needs_run" if res["detected"] else "not_driving"
+                if res.get("partial") and not res["detected"]:
+                    status = "unmeasurable"
+                d = {"status": status, "where": "build", "control": res["control"], "metric": res["metric"],
+                     "jsd_bits": v.get("jsd_bits"), "null_p95": v.get("null_p95"), "variant": v.get("name"),
+                     "n_variants": len([x for x in res["variants"] if x.get("primary", True)]),
+                     "n_variants_detected": sum(1 for x in res["variants"] if x.get("primary", True) and x["detected"]),
+                     "seconds": res.get("seconds_wall_row")}
+                if res.get("partial"):
+                    d["reason"] = f"一部だけ測った: {res['partial']}"
+        else:
+            continue
+        d["unresearched"] = cls in ("i", "ii") and d["status"] in ("not_driving", "needs_run")
+        r["d44"] = d
+    rows = [r for r in judged["rows"] if "d44" in r]
+    tally = {s: sum(1 for r in rows if r["d44"]["status"] == s) for s in D44_STATUSES}
+    by_class = {c: {s: sum(1 for r in rows if (r.get("triage") or {}).get("class") == c and r["d44"]["status"] == s)
+                    for s in D44_STATUSES} for c in TRIAGE_CLASSES}
+    by_class["not_read"] = {s: sum(1 for r in rows if r.get("engine_reads") == "not_read" and r["d44"]["status"] == s)
+                            for s in D44_STATUSES}
+    stages = results.get("stages", {})
+    judged["d44_summary"] = {
+        "rule_note": D44_RULE_NOTE,
+        "source": "docs/bench/analysis/d44-controls-2026-09-30/(d44_results.json・mock_controls.json)",
+        "n_rows": len(rows),
+        "tally": tally,
+        "by_class": by_class,
+        "cost": {
+            "base_rebuild_seconds": (results.get("base_rebuild") or {}).get("wall_seconds"),
+            "stage_bundle_wall_seconds": {k: stages[k]["wall_seconds"] for k in sorted(stages, key=lambda s: int(s[1:]))},
+            "total_bundle_wall_seconds": round(sum(s["wall_seconds"] for s in stages.values()), 2),
+            "estimate_note": "見込み(指示書 §6)= 再構築 ≈25 分(第308 の目安 1 行ずつ計 3,607 秒)",
+            "mock_wall_seconds": (mock or {}).get("wall_seconds"),
+        },
+        "mock_seed_null_max": null_max,
+        "selfcheck_all_ok": results.get("selfcheck_all_ok"),
+    }
+    return judged
+
+
 # ------------------------------------------------------------------ 台帳
 def validate_ledger(ledger: Mapping[str, Any]) -> list[str]:
     """台帳の自己検査+**設計書との突合(漏れ検出)**。問題の一覧を返す。"""
@@ -628,6 +756,32 @@ def validate_ledger(ledger: Mapping[str, Any]) -> list[str]:
     if have_ab - want_ab:
         problems.append(f"台帳にしかない過程 id {sorted(have_ab - want_ab)}")
     judged = ledger.get("build_manifest_judgment")
+    if judged and judged.get("d44_summary"):  # D-44(第311)
+        rows_d = [r for r in judged.get("rows", ()) if "d44" in r]
+        for r in judged.get("rows", ()):
+            d = r.get("d44")
+            und = r.get("verdict") == "undetermined"
+            if und and d is None:
+                problems.append(f"build_manifest_judgment {r.get('key')}: 判定不能の行に d44 が無い")
+            if d is None:
+                continue
+            if not und:
+                problems.append(f"build_manifest_judgment {r.get('key')}: 判定不能でない行に d44")
+            st = d.get("status")
+            if st not in D44_STATUSES:
+                problems.append(f"build_manifest_judgment {r.get('key')}: d44 status が不正({st})")
+            cls = (r.get("triage") or {}).get("class")
+            if r.get("engine_reads") == "not_read" and st != "out_of_scope":
+                problems.append(f"build_manifest_judgment {r.get('key')}: 読まない行は対象外")
+            if cls == "iii" and st != "no_control":
+                problems.append(f"build_manifest_judgment {r.get('key')}: (iii) は対照を定義できない")
+            if st in ("not_driving", "needs_run") and (d.get("jsd_bits") is None):
+                problems.append(f"build_manifest_judgment {r.get('key')}: d44 の判定に JSD が無い")
+            if st == "unmeasurable" and not (d.get("reason") or d.get("needed_knob")):
+                problems.append(f"build_manifest_judgment {r.get('key')}: 測れない行に理由が無い")
+        dt = {s: sum(1 for r in rows_d if r["d44"].get("status") == s) for s in D44_STATUSES}
+        if dt != judged["d44_summary"].get("tally"):
+            problems.append("build_manifest_judgment.d44_summary: tally が行と合わない")
     if judged and judged.get("triage_summary"):  # Q146(第308)
         reads = [r for r in judged.get("rows", ()) if r.get("engine_reads") == "reads"]
         for r in judged.get("rows", ()):
@@ -763,6 +917,36 @@ def ledger_markdown(ledger: Mapping[str, Any]) -> str:
                  for r in judged["rows"]],
             ),
         ]
+        ds = judged.get("d44_summary")
+        if ds:  # D-44(第311)
+            ta = ds["tally"]
+            cost = ds.get("cost", {})
+            walls = cost.get("stage_bundle_wall_seconds", {})
+            md += [
+                "",
+                f"## D-44 の対照(第311・ユーザー決定 2026-09-30)判定不能 {ds['n_rows']} 行",
+                "",
+                f"- {ds['rule_note']}",
+                "- 集計: " + "・".join(f"{D44_STATUS_JA[s]} **{ta[s]}**" for s in D44_STATUSES) + "。",
+                "- 分類ごと: " + " / ".join(
+                    f"{TRIAGE_CLASS_JA.get(c, '読まない')} "
+                    + "・".join(f"{D44_STATUS_JA[s]} {n}" for s, n in ds["by_class"][c].items() if n)
+                    for c in (*TRIAGE_CLASSES, "not_read")) + "。",
+                f"- 費用(実測): 基準の再構築 {c8lib.fmt(cost.get('base_rebuild_seconds'), 1)} 秒・段ごとの束の計 "
+                f"{c8lib.fmt(cost.get('total_bundle_wall_seconds'), 1)} 秒("
+                + "・".join(f"{k} {v:,.0f}" for k, v in walls.items()) + " 秒)・mock "
+                f"{c8lib.fmt(cost.get('mock_wall_seconds'), 1)} 秒。{cost.get('estimate_note', '')}。",
+                "",
+                c8lib.markdown_table(
+                    ["行", "分類", "D-44", "測った場所", "JSD[bits]", "帰無95%", "変種(検出/全)", "対照 / 理由"],
+                    [[r["key"], TRIAGE_CLASS_JA.get((r.get("triage") or {}).get("class"), "読まない"),
+                      D44_STATUS_JA[r["d44"]["status"]], r["d44"].get("where", "—"),
+                      c8lib.fmt(r["d44"].get("jsd_bits"), 6), c8lib.fmt(r["d44"].get("null_p95"), 6),
+                      (f"{r['d44']['n_variants_detected']}/{r['d44']['n_variants']}" if "n_variants" in r["d44"] else "—"),
+                      (r["d44"].get("control") or r["d44"].get("needed_knob") or r["d44"].get("reason") or "")[:70]]
+                     for r in judged["rows"] if "d44" in r],
+                ),
+            ]
     return "\n".join(md)
 
 
@@ -789,6 +973,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     ap.add_argument(
         "--read-graph", action="store_true",
         help="D-44 (c): 依存グラフで判定不能の行に「エンジンが読む/読まない/不明」を付けて台帳へ書く(第307)",
+    )
+    ap.add_argument(
+        "--d44", action="store_true",
+        help="D-44(第311): 構築段階の対照と mock の対照の結果(docs/bench/analysis/d44-controls-2026-09-30)を判定不能の行に付けて台帳へ書く",
     )
     ap.add_argument(
         "--list", action="store_true",
@@ -821,6 +1009,11 @@ def main(argv: Sequence[str] | None = None) -> int:
             path.write_text(json.dumps(ledger, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
     if args.read_graph:
         attach_read_graph(ledger["build_manifest_judgment"], engine_read_graph(c8lib.load_json(args.manifest)))
+        if not args.no_write_ledger:
+            path.write_text(json.dumps(ledger, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
+    if args.d44:
+        mock = c8lib.load_json(D44_MOCK_PATH) if D44_MOCK_PATH.exists() else None
+        attach_d44(ledger["build_manifest_judgment"], c8lib.load_json(D44_RESULTS_PATH), mock)
         if not args.no_write_ledger:
             path.write_text(json.dumps(ledger, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
 

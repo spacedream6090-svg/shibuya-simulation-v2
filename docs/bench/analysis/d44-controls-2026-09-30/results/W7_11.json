@@ -1,0 +1,27 @@
+{
+ "key": "W7#11",
+ "control": "三・四号だけ(宣言)vs 一号(cinema・hall の theatre/events_venue/music_venue)+二号(leisure の sports_centre で代用)も",
+ "metric": "未成年の立入窓(23:00-4:00 を当てた視点)での営業中 POI×時の分布",
+ "variants": [
+  {
+   "name": "一・二号も写像",
+   "jsd_bits": 3.904198962207002e-07,
+   "null_p95": 0.0003490282614287342,
+   "detected": false,
+   "tvd": 0.00012480387961774338,
+   "n_declared": 392616.0,
+   "n_control": 392616.0,
+   "n_bins": 336,
+   "n_poi_added": 28
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.22521750000305474,
+ "notes": [
+  "二号(ボウリング/スケート/水泳)は subcat に無く sports_centre で代用(未リサーチ)"
+ ],
+ "seconds_wall_row": 0.23,
+ "measured_at": "2026-09-30"
+}

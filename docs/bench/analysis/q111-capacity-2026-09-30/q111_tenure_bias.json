@@ -1,0 +1,90 @@
+{
+ "schema": "shibuya.bench/q111/tenure-bias/1",
+ "diagnosis_default": {
+  "household": {
+   "src_u<src_v": {
+    "edges": 16207,
+    "share_T_lt_2w": 0.0845,
+    "median_T_w": 6.985
+   },
+   "src_u>src_v": {
+    "edges": 16207,
+    "share_T_lt_2w": 0.0845,
+    "median_T_w": 6.985
+   }
+  },
+  "work": {
+   "src_u<src_v": {
+    "edges": 1447473,
+    "share_T_lt_2w": 0.282,
+    "median_T_w": 3.762
+   },
+   "src_u>src_v": {
+    "edges": 1465357,
+    "share_T_lt_2w": 0.0822,
+    "median_T_w": 7.002
+   }
+  },
+  "school": {
+   "src_u<src_v": {
+    "edges": 271177,
+    "share_T_lt_2w": 0.6488,
+    "median_T_w": 1.531
+   },
+   "src_u>src_v": {
+    "edges": 267151,
+    "share_T_lt_2w": 0.0819,
+    "median_T_w": 6.997
+   }
+  }
+ },
+ "uniform_expectation_share_T_lt_2w": 0.0833,
+ "counterfactual": {
+  "salted_T_share_lt_2w_by_kind": {
+   "household": 0.0842,
+   "work": 0.0834,
+   "school": 0.0831
+  },
+  "tau_rederived": -2.3225,
+  "rows": {
+   "tau_declared": {
+    "tau": -2.346,
+    "edges": 3497980,
+    "full_agents": 207853,
+    "full_share": 0.5329,
+    "lifetime_days": {
+     "p0": 0.0,
+     "p10": 21.421,
+     "p50": 322.4,
+     "p90": 972.327,
+     "p100": 2418.437
+    },
+    "share_of_full_agents": {
+     "1": 0.0995,
+     "7": 0.4613,
+     "14": 0.6826,
+     "30": 0.8626
+    }
+   },
+   "tau_rederived": {
+    "tau": -2.3225,
+    "edges": 3483319,
+    "full_agents": 195035,
+    "full_share": 0.5,
+    "lifetime_days": {
+     "p0": 0.0,
+     "p10": 20.056,
+     "p50": 305.563,
+     "p90": 924.003,
+     "p100": 2303.398
+    },
+    "share_of_full_agents": {
+     "1": 0.0403,
+     "7": 0.4674,
+     "14": 0.6617,
+     "30": 0.8551
+    }
+   }
+  }
+ }
+}

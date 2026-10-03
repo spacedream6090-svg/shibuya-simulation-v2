@@ -1,0 +1,37 @@
+{
+ "key": "W12#2",
+ "control": "～6時台→5,6 時・0時台～→0,1 時の等分(宣言)vs 端へ寄せる(外側 5 時と 1 時/内側 6 時と 0 時)",
+ "metric": "生成用重みの時刻分布(24 時・帰無参照の N=重み行数 2,014=既存 S-W14-HOURUNIFORM と同じ expedient)",
+ "variants": [
+  {
+   "name": "外側(5 時・1 時)",
+   "jsd_bits": 0.00508585197221738,
+   "null_p95": 0.005650086402065755,
+   "detected": false,
+   "tvd": 0.008169305152834578,
+   "n_declared": 2014.0,
+   "n_control": 2013.9999999999998,
+   "n_bins": 24
+  },
+  {
+   "name": "内側(6 時・0 時)",
+   "jsd_bits": 0.005085851972217339,
+   "null_p95": 0.005650086402065755,
+   "detected": false,
+   "tvd": 0.008169305152834552,
+   "n_declared": 2014.0,
+   "n_control": 2014.0,
+   "n_bins": 24
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.11467510007787496,
+ "outputs_changed": [
+  "w12_generation_weights.parquet"
+ ],
+ "notes": [],
+ "seconds_wall_row": 1.26,
+ "measured_at": "2026-09-30"
+}

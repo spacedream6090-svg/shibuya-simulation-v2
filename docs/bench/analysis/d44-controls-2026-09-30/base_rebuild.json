@@ -1,0 +1,244 @@
+{
+ "stages": [
+  "W0",
+  "W1",
+  "W2",
+  "W3",
+  "W4",
+  "W5",
+  "W6",
+  "W7",
+  "W10",
+  "W11",
+  "W12",
+  "W13",
+  "W8",
+  "W9",
+  "W16"
+ ],
+ "wall_seconds": 32.8,
+ "outputs": [
+  {
+   "stage": "W0",
+   "output": "world_crs.json",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W1",
+   "output": "w1_nodes.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W1",
+   "output": "w1_edges.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W1",
+   "output": "w1_edge_geometry.npz",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W1",
+   "output": "w1_floorguide_links.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W2",
+   "output": "w2_cells.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W2",
+   "output": "w2_blocks.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W2",
+   "output": "w2_block_rings.npz",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W3",
+   "output": "w3_cell_dist.npy",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W3",
+   "output": "w3_next_hop.npy",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W3",
+   "output": "w3_cell_reps.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W4",
+   "output": "w4_buildings.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W5",
+   "output": "w5_entrances.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W6",
+   "output": "w6_poi.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W6",
+   "output": "w6_org.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W7",
+   "output": "w7_plan_spec.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W10",
+   "output": "w10_street_points.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W10",
+   "output": "w10_noise_day.npy",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W10",
+   "output": "w10_noise_night.npy",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W10",
+   "output": "w10_noise_stage_day.npy",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W10",
+   "output": "w10_noise_stage_night.npy",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W10",
+   "output": "w10_edge_section.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W11",
+   "output": "w11_stations.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W11",
+   "output": "w11_station_exits.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W11",
+   "output": "w11_station_graph_nodes.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W11",
+   "output": "w11_station_graph_edges.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W11",
+   "output": "w11_floorguide_connections.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W12",
+   "output": "w12_external_nodes.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W12",
+   "output": "w12_generation_weights.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W12",
+   "output": "w12_timetables.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W13",
+   "output": "w13_weather_days.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W13",
+   "output": "w13_weather_hourly.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W8",
+   "output": "w8_targets.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W8",
+   "output": "w8_t1.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W8",
+   "output": "w8_t1_cell.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W8",
+   "output": "w8_t2.npy",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W9",
+   "output": "w9_shadow_2026-07-28.npy",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W9",
+   "output": "w9_shadow_planes.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W16",
+   "output": "w16_population.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W16",
+   "output": "w16_households.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W16",
+   "output": "w16_duty_roster.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W16",
+   "output": "w16_chome.parquet",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W16",
+   "output": "w16_gates.json",
+   "same_as_promoted": true
+  },
+  {
+   "stage": "W16",
+   "output": "w16_cohorts.json",
+   "same_as_promoted": true
+  }
+ ],
+ "all_same": true,
+ "manifest_build_hash_head": "09571e85ace689da"
+}

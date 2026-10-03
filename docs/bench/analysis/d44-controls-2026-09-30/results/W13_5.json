@@ -1,0 +1,10 @@
+{
+ "key": "W13#5",
+ "control": "祝日表=2026 年 7-8 月のハードコード(宣言)vs 内閣府 CSV",
+ "status": "unmeasurable",
+ "verdict": null,
+ "reason": "内閣府の祝日 CSV がリポに無い(未取得)・Web 取得は禁止",
+ "variants": [],
+ "seconds_wall_row": 0.0,
+ "measured_at": "2026-09-30"
+}

@@ -33,7 +33,7 @@ expedient(本モジュール分)
 from __future__ import annotations
 
 import datetime as dt
-from typing import Final
+from typing import Any, Final
 
 import numpy as np
 
@@ -41,6 +41,7 @@ from shibuya.agents.state import AgentState
 from shibuya.core.hashing import blake3_hex
 from shibuya.core.rng import stream
 from shibuya.engine import resolve as R
+from shibuya.engine.calendar import SimCalendar
 from shibuya.world.assets import (
     HEAT_STAGE_ORDER,
     SHADOW_FRAMES_PER_DAY,
@@ -79,15 +80,19 @@ FALLBACK_THERMAL: Final[int] = 5
 RNG_DOMAIN: Final[str] = "engine.processes.environment"
 
 
-def select_day(master_seed: int | str, stratum: str, strata: dict[str, list[str]]) -> str:
+def select_day(
+    master_seed: int | str, stratum: str, strata: dict[str, list[str]], day: int = 0
+) -> str:
     """層 → 実日(決定論)。``build.field.w13_weather.select_day`` と同型。
 
-    同じ ``(master_seed, stratum, 候補集合)`` は常に同じ日を返す。候補は日付昇順に固定。
+    同じ ``(master_seed, stratum, 候補集合, 日)`` は常に同じ日を返す。候補は日付昇順に固定。
 
     Args:
         master_seed: manifest の ``master_seed``。
         stratum: ``"平日|晴"`` のような層名。
         strata: 層 → 候補日のリスト。
+        day: 日番号(10a・材料 §2-3 の ◐ #18)。**0 日目は今と同じ鍵**(層名だけ)、1 日目からは
+            層名に日番号を足した鍵=日ごとに別の実日を引く(0 日目のバイトを動かさない)。
 
     Returns:
         選ばれた実日(``"YYYY-MM-DD"``)。
@@ -98,7 +103,8 @@ def select_day(master_seed: int | str, stratum: str, strata: dict[str, list[str]
     days = strata.get(stratum)
     if not days:
         raise KeyError(f"層に候補日が無い: {stratum!r}")
-    counter = int(blake3_hex(stratum.encode("utf-8"))[:16], 16)
+    key = stratum if int(day) == 0 else f"{stratum}{int(day)}"
+    counter = int(blake3_hex(key.encode("utf-8"))[:16], 16)
     rng = stream(master_seed, RNG_DOMAIN, counter)
     return sorted(days)[int(rng.integers(0, len(days)))]
 
@@ -110,8 +116,9 @@ class EnvironmentProcess:
         world / agents: 世界・個体(**読むだけ**。書き込みは ``engine.resolve`` の口)。
         passets: ``world.assets.ProcessAssets``。
         master_seed: 実日の乱択に使う seed。
-        day_index: 曜日(0=月曜)。
+        day_index: 曜日(0=月曜)。``calendar`` が無いときだけ使う(旧い口)。
         tick_seconds: 1 tick の秒数。
+        calendar: 暦の口(``engine.calendar.SimCalendar``・10a)。平日/土休はここから引く。
 
     Attributes:
         replay_date: 再生する実日(資産が無ければ ``""``)。
@@ -133,8 +140,13 @@ class EnvironmentProcess:
         day_index: int = 0,
         tick_seconds: int = 60,
         prefer_shadow_days: bool = True,
+        calendar: Any | None = None,
     ) -> None:
         self.prefer_shadow_days = bool(prefer_shadow_days)
+        self.calendar = (
+            calendar if calendar is not None
+            else SimCalendar.legacy(int(day_index), tick_seconds=int(tick_seconds))
+        )
         self.world = world
         self.agents = agents
         self.assets = passets
@@ -158,15 +170,22 @@ class EnvironmentProcess:
         self._pick_day()
 
     # ------------------------------------------------------------------ 実日の決定
-    def _weekday_kind(self) -> str:
-        """曜日(0=月曜)→ W13 の曜日種別。祝日は W13 側の欄が持つ(mock 日課は持たない)。"""
-        return "土休" if self.day_index % 7 >= 5 else "平日"
+    def _weekday_kind(self, day: int = 0) -> str:
+        """日番号 → W13 の曜日種別(平日/土休)。暦の口の ``is_rest_day`` から引く(10a・#2)。
 
-    def _pick_day(self) -> None:
+        ``day_index`` モード(既定)の暦は ``day_index % 7 >= 5`` と同じ値を返す(祝日を見ない)。
+        """
+        return "土休" if self.calendar.is_rest_day(int(day)) else "平日"
+
+    def _pick_day(self, day: int = 0) -> None:
+        """その日の再生実日を選ぶ。鍵は 0 日目が今のまま・1 日目から日番号を足す(◐ #18)。
+
+        いまのランは起動時に 0 日目だけを選ぶ(日ごとの選び直しは日の頭の初期化=10g で結ぶ)。
+        """
         a = self.assets
         if not a.has_weather:
             return
-        kind = self._weekday_kind()
+        kind = self._weekday_kind(day)
         strata: dict[str, list[str]] = {}
         for i, s in enumerate(a.weather_stratum):
             strata.setdefault(s, []).append(a.weather_dates[i])
@@ -191,10 +210,10 @@ class EnvironmentProcess:
                     for s, days in strata.items()
                     if any(d in a.shadow_dates for d in days)
                 }
-        rng = stream(self.master_seed, RNG_DOMAIN, 0)
+        rng = stream(self.master_seed, RNG_DOMAIN, int(day))
         wtype = types[int(rng.integers(0, len(types)))]
         self.stratum = f"{kind}|{wtype}"
-        self.replay_date = select_day(self.master_seed, self.stratum, strata)
+        self.replay_date = select_day(self.master_seed, self.stratum, strata, day=int(day))
         self._row = a.day_index_of(self.replay_date)
         if a.sunrise_min is not None and self._row >= 0:
             sr = float(a.sunrise_min[self._row])
@@ -208,6 +227,20 @@ class EnvironmentProcess:
             self._cell_point = a.cell_street_point
         if self._planes is None:
             self.shadow_missing = 1
+
+    def pick_day(self, day: int) -> None:
+        """10d: 日の頭で ``day`` 日目の再生実日を引き直す(鍵は 10a の日番号つき・0 日目は起動時に引いた日)。
+
+        日の出・日の入り・影の面はその日の実日から。日陰のキャッシュの印を戻す(次の更新で新しい面から作る)。
+        直近の日照・暑さ段・WBGT・日陰の値は次の 5 分刻みの更新まで前の値のまま(更新の間も読まれる値=今と同じ扱い)。
+        """
+        self._planes = None
+        self._cell_point = None
+        self._row = -1
+        self._sunrise = 5.0 * 60.0
+        self._sunset = 19.0 * 60.0
+        self._shade_cache_frame = -1
+        self._pick_day(int(day))
 
     # ------------------------------------------------------------------ 1 tick
     def _minute_of_day(self, tick: int) -> int:

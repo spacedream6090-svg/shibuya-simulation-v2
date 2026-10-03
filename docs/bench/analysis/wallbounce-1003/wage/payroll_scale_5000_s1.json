@@ -1,0 +1,91 @@
+{
+ "n_agents": 5000,
+ "seed": 1,
+ "n_employed_in_area": 2421,
+ "n_orgs_with_sampled_employee": 1358,
+ "employees_per_org_in_run": {
+  "1": 941,
+  "2": 211,
+  "3": 83,
+  "4": 38,
+  "5": 21,
+  "8": 7,
+  "20": 1,
+  "10": 5,
+  "11": 2,
+  "6": 20,
+  "7": 14,
+  "12": 4,
+  "9": 4,
+  "19": 1,
+  "13": 2,
+  "14": 3,
+  "15": 1
+ },
+ "by_industry_key": {
+  "AM": {
+   "n": 40,
+   "monthly_yen_guess": 13536000
+  },
+  "CN": {
+   "n": 79,
+   "monthly_yen_guess": 34965400
+  },
+  "CS": {
+   "n": 2,
+   "monthly_yen_guess": 792400
+  },
+  "ED": {
+   "n": 65,
+   "monthly_yen_guess": 27391000
+  },
+  "FB": {
+   "n": 245,
+   "monthly_yen_guess": 81830000
+  },
+  "FI": {
+   "n": 75,
+   "monthly_yen_guess": 38602500
+  },
+  "IT": {
+   "n": 590,
+   "monthly_yen_guess": 250101000
+  },
+  "LS": {
+   "n": 54,
+   "monthly_yen_guess": 18273600
+  },
+  "MF": {
+   "n": 26,
+   "monthly_yen_guess": 10930400
+  },
+  "MW": {
+   "n": 76,
+   "monthly_yen_guess": 28104800
+  },
+  "PS": {
+   "n": 184,
+   "monthly_yen_guess": 94612800
+  },
+  "RE": {
+   "n": 188,
+   "monthly_yen_guess": 77850800
+  },
+  "SV": {
+   "n": 422,
+   "monthly_yen_guess": 133985000
+  },
+  "TR": {
+   "n": 74,
+   "monthly_yen_guess": 28889600
+  },
+  "WR": {
+   "n": 301,
+   "monthly_yen_guess": 132018600
+  }
+ },
+ "monthly_payroll_guess_total": 971883900,
+ "monthly_payroll_guess_store_orgs": 245658200,
+ "monthly_payroll_guess_office_orgs": 726225700,
+ "n_store_org_employees": 640
+}

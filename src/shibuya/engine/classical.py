@@ -34,12 +34,15 @@ expedient(宣言・問いつき)
   性別不明は男女の行の平均。層のサンプルが 0 か行が全部 0 なら同じ性 × 就業の年齢総数の行(それも 0 なら一様)。
 - 行動者率の正規化(同時行動で和が 100% を超える・食事を抜いた残り)=1 から引かずに比にする。
 - 状態の乗数は全部 1.0(=c_t も 1)。場所の種別=駅(路線のホームのセル)/店(在店中)/街路。
+- 交際・付き合い(符号 18)の相手(第2波 §2A 項 3-1・``social``): 既定 ``acquaintance``=B5 近接行の知人のうち
+  活性 A が最大の人(同点は近接行の順=未リサーチの決め)・居なければ「なし・待つ 30分」。旧 ``near_first``。
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -49,6 +52,7 @@ import numpy as np
 
 from shibuya.agents.state import Activity, AgentKind, WakeCondition
 from shibuya.core.rng import stream
+from shibuya.engine.calendar import ticks_per_day as _ticks_per_day
 from shibuya.llm import LLMRequest, LLMResponse, estimate_tokens
 from shibuya.llm.contract import TARGET_WANDER, format_two_line_v3
 
@@ -65,7 +69,14 @@ __all__ = [
     "MEAL_CALENDAR_FACTOR",
     "MEAL_NO_EATERY_FACTOR",
     "MEAL_EATING_PEOPLE_FACTOR",
+    "MEAL_GATES",
+    "DEFAULT_MEAL_GATE",
+    "check_meal_gate",
+    "meal_gate_interval_p",
     "PLACE_KINDS",
+    "CLASSICAL_SOCIAL_MODES",
+    "DEFAULT_CLASSICAL_SOCIAL",
+    "check_classical_social",
     "check_policy",
     "check_activity_region",
     "load_activity_prior",
@@ -95,7 +106,20 @@ MEAL_CALENDAR_FACTOR: Final[float] = 0.3
 #: 周囲: 見える飲食店(同じセル or W8 の可視物)が無ければ ×0.5・同じセルに食事中の人がいれば ×1.2。
 MEAL_NO_EATERY_FACTOR: Final[float] = 0.5
 MEAL_EATING_PEOPLE_FACTOR: Final[float] = 1.2
+#: 食事の門の確率の読み方(第2波 §2A 項 4・Q48 (a)・指示書 §0-2): ``per_wake``=旧(**既定**・起床ごとの確率=起床の
+#: 頻度に比例して食べる)/ ``per_hour``=語の段の確率 ``MEAL_WORD_P`` を **1 時間あたり**と読み、前回の門の後に
+#: その体が**範囲内で起きていた各 tick の段**でハザード H=Σ −ln(1 − p_h) × 分/60 を積算し、門で ``p = 1 − exp(−H)`` に
+#: カレンダーと周囲の係数を掛ける(**第2波 §2B の親の決定**=§2A の「起きていた分 × 評価時の段」を置き換えた・定数の値は
+#: 動かさない)。既定の切り替えは食事の束の版上げでユーザーに確認する(指示書 §8-2)。
+MEAL_GATES: Final[tuple[str, ...]] = ("per_wake", "per_hour")
+DEFAULT_MEAL_GATE: Final[str] = "per_wake"
 
+#: 交際・付き合い(符号 18)の相手の選び方(第2波 §2A 項 3-1・Q42 (b)): ``acquaintance``(既定)=B5 近接行に載っている
+#: **知人**(生きている関係辺の相手=A ≥ τ_rel)のうち活性 A が最大の人(同点は近接行の順)・知人が居なければ
+#: 「なし・待つ」(関係の腕が off のランでは知人が居ない=会話を始めない)/ ``near_first``=旧(近接行の最初の人=
+#: 見知らぬ人・関係 on のランは C10 8b の重みつき抽選)。遠くの知人を誘う仕組み(約束・待ち合わせ)は C10 8d の後。
+CLASSICAL_SOCIAL_MODES: Final[tuple[str, ...]] = ("acquaintance", "near_first")
+DEFAULT_CLASSICAL_SOCIAL: Final[str] = "acquaintance"
 #: 状態の乗数の場所の種別(m(場所)の行)。
 PLACE_KINDS: Final[tuple[str, ...]] = ("station", "shop", "street")
 #: 就業状態を「有業」とみなす種別(W16 の勤め先が無くても)。
@@ -128,7 +152,7 @@ ACTIVITY_MAP_V0: Final[dict[str, tuple[str, str, str, str, str]]] = {
     "15": ("here", "移動", TARGET_WANDER, "店を見る", "30分"),   # 趣味・娯楽
     "16": ("here", "移動", TARGET_WANDER, "散歩", "30分"),       # スポーツ
     "17": ("here", "なし", "なし", "用事", "30分"),              # ボランティア活動・社会参加活動
-    "18": ("talk", "会話", "なし", "話す", "30分"),              # 交際・付き合い
+    "18": ("talk", "会話", "なし", "話す", "30分"),              # 交際・付き合い(相手は ``social``)
     "19": ("here", "なし", "なし", "通院", "30分"),              # 受診・療養
     "20": ("here", "なし", "なし", "用事", "30分"),              # その他
 }
@@ -149,6 +173,45 @@ def check_policy(name: str) -> str:
     if n not in POLICIES:
         raise ValueError(f"policy は {POLICIES} のどれか(いま {name!r})")
     return n
+
+
+def check_classical_social(name: str) -> str:
+    n = str(name)
+    if n not in CLASSICAL_SOCIAL_MODES:
+        raise ValueError(f"classical_social は {CLASSICAL_SOCIAL_MODES} のどれか(いま {name!r})")
+    return n
+
+
+def check_meal_gate(name: str) -> str:
+    n = str(name)
+    if n not in MEAL_GATES:
+        raise ValueError(f"meal_gate は {MEAL_GATES} のどれか(いま {name!r})")
+    return n
+
+
+#: 語の段の刻み(``chooser.hunger_stage_of`` と同じ・``INTERO_UP_EDGES``)と、段 → 1 時間あたりのハザード
+#: ``−ln(1 − MEAL_WORD_P)``(p=1 は ∞=必ず通る)。``per_hour`` の積算が引く表(定数の値は ``MEAL_WORD_P`` のまま)。
+_HUNGER_EDGES: Final[tuple[int, int, int]] = (4, 7, 9)
+with np.errstate(divide="ignore"):
+    _HAZARD_PER_HOUR: Final[np.ndarray] = -np.log1p(-np.asarray(MEAL_WORD_P, dtype=np.float64))
+
+
+def meal_gate_interval_p(p_hour: float, dt_minutes: float) -> float:
+    """1 時間あたりの確率 ``p_hour`` → 経過 ``dt_minutes`` 分の間に 1 回以上通る確率 ``1 − (1 − p)^(Δt/60)``。
+
+    分け方に依らない(60 分を 1 分ずつ 60 回評価しても、60 分後に 1 回評価しても、1 回以上通る確率は ``p_hour``)。
+
+    Example:
+        >>> round(meal_gate_interval_p(0.1, 60.0), 12)
+        0.1
+        >>> meal_gate_interval_p(1.0, 1.0), meal_gate_interval_p(0.5, 0.0)
+        (1.0, 0.0)
+    """
+    p = min(1.0, max(0.0, float(p_hour)))
+    dt = max(0.0, float(dt_minutes))
+    if p >= 1.0:
+        return 1.0 if dt > 0.0 else 0.0
+    return float(1.0 - (1.0 - p) ** (dt / 60.0))
 
 
 def check_activity_region(name: str) -> str:
@@ -251,6 +314,10 @@ class ClassicalPolicy:
     m_prev: np.ndarray = field(default_factory=lambda: np.ones((len(SSB_ACTIVITY_CODES) + 1,
                                                                len(SSB_ACTIVITY_CODES))))
     source: str = "classical"
+    #: 交際の相手の選び方(:data:`CLASSICAL_SOCIAL_MODES`・既定 ``acquaintance``)。
+    social: str = DEFAULT_CLASSICAL_SOCIAL
+    #: 食事の門の確率の読み方(:data:`MEAL_GATES`・既定 ``per_wake``=旧)。
+    meal_gate: str = DEFAULT_MEAL_GATE
     n_calls: int = 0
     counts: dict[str, int] = field(default_factory=dict)
     #: 層の記録の補助: 時(0〜23)× {食事の門を通った, 活動の選択} の件数。
@@ -275,6 +342,7 @@ class ClassicalPolicy:
         self.agents = agents
         self.world = world
         self.minutes_per_tick = float(tick_seconds) / 60.0
+        self._tpd = _ticks_per_day(int(tick_seconds))  # 10a: 計画境界は日の中の tick で引く
         self.home_cell = np.asarray(home_cell, dtype=np.int64)
         self.work_cell = np.asarray(work_cell, dtype=np.int64)
         self.school_cell = (
@@ -308,13 +376,32 @@ class ClassicalPolicy:
         self._identity = bool(
             np.all(self.m_place == 1.0) and np.all(self.m_next == 1.0) and np.all(self.m_prev == 1.0)
         )
-        self._ipf_cache: dict[int, np.ndarray] = {}
+        #: 10d: 鍵は ``(日, 15 分帯)``(帯だけだと複数日のランで 0 日目の c_t を 2 日目も使い回す)。
+        self._ipf_cache: dict[tuple[int, int], np.ndarray] = {}
         self._condition: dict[int, tuple[int, int]] = {}
         #: C10 8b(Q98 の解消): 会話の相手の選び手 ``(体, tick, 近接行の「未知」の人の id 列) → 相手 or −1``
         #: (``--relations on`` のランだけ ``engine.run`` が差し込む=関係辺の重み・残りの層=未知の人から seed つき
         #: ハッシュ順=D-31 (a)・既定 None=従来の「近接行の最初の人」)。
         self.partner_fn: Any = None
+        #: 第2波 §2A 項 3-1: 知人の活性 ``(体, tick, 近接行の人の id 列) → A の配列``(生きている辺の相手でなければ
+        #: −inf)。``--relations on`` のランだけ ``engine.run`` が差し込む(既定 None=知人は居ない)。
+        self.acq_fn: Any = None
+        check_classical_social(self.social)
+        #: 第2波 §2B(親の決定・§2A 項 4 の規則を置き換え): ``per_hour`` の腕だけ、体ごとの**ハザードの積算** H
+        #: (float32=**4 B/体**・腕の中だけ・ラン開始は 0)。:meth:`accrue_awake` が毎 tick、範囲内で起きている体に
+        #: ``−ln(1 − p_h(その tick の語の段)) × 分/60`` を足し、門を引くと 0 に戻す。``per_wake`` は持たない(0 B)。
+        self._gate_hazard: np.ndarray | None = (
+            np.zeros(n, dtype=np.float32) if check_meal_gate(self.meal_gate) == "per_hour" else None
+        )
         self._tick = -1
+
+    def rebuild_derived(self) -> None:
+        """10d: SoA の ``kind`` から作る表(``employed``)を今の SoA から作り直す(再開で保存した SoA を戻した後)。
+
+        ``bind`` は起動時の SoA(``initialize`` の後)を読む。再開では初期化を呼ばないので、戻した SoA から作る。
+        """
+        kind = np.asarray(self.agents.registry.field("kind"), dtype=np.int64)
+        self.employed = np.asarray(self.has_work, dtype=bool) | np.isin(kind, _EMPLOYED_KINDS)
 
     def set_call(self, agent_id: int, condition: int, inviter: int = -1) -> None:
         """run のループが ``bridge.call`` の直前に起床条件と招待者を渡す(応答文の型が読む)。"""
@@ -328,10 +415,11 @@ class ClassicalPolicy:
         lo, hi = int(self._b_off[aid]), int(self._b_off[aid + 1])
         if hi <= lo:
             return 10_000
-        k = lo + int(np.searchsorted(self._b_tick[lo:hi], int(tick), side="right"))
+        td = int(tick) % self._tpd  # 10a: 通しの時刻 T → 日の中の tick
+        k = lo + int(np.searchsorted(self._b_tick[lo:hi], td, side="right"))
         if k >= hi:
             return 10_000
-        return int((int(self._b_tick[k]) - int(tick)) * self.minutes_per_tick)
+        return int((int(self._b_tick[k]) - td) * self.minutes_per_tick)
 
     def _eating_by_cell(self, tick: int) -> np.ndarray:
         """同じセルで食事中の人の数(在店 ∧ 飲食店)。tick ごとに 1 回(逐次ループ宣言 4)。"""
@@ -355,12 +443,58 @@ class ClassicalPolicy:
         return 2
 
     def meal_probability(self, aid: int, tick: int) -> tuple[float, int]:
-        """食事の門の確率と語の段(K6 (i)・§1-2 6)。"""
+        """食事の門の確率と語の段(K6 (i)・§1-2 6)。
+
+        ``per_hour``(**第2波 §2B の親の決定**=§2A 項 4 の「起きていた分 × 評価時の段」を置き換え): 語の段の
+        ``MEAL_WORD_P`` を 1 時間あたりの確率 p_h と読み、前回の門の後に範囲内で起きていた各 tick の段の p_h で
+        ハザード H=Σ −ln(1 − p_h) × 分/60 を積算(:meth:`accrue_awake`)。門では ``p = 1 − exp(−H)`` に
+        カレンダーと周囲の係数を旧と同じ順序で掛け(上限 1)、H を 0 に戻す(p が 0 でも)。満腹(p_h=0)の時間・
+        就寝中・範囲外は H に入らない。段は評価時の段(計数用)。
+        **Q-2B-6(親の決定)**: (iii) 評価の時点で満腹(p_h=0)なら p=0・H=0。(ii) 食事(``since_meal`` を 0 に
+        戻す摂取=飲食店・範囲外・自宅の食事)のたびに H=0(``resolve._energy_meal`` が ``EnergyLayer.meal_reset``
+        を通して戻す=:meth:`meal_reset_array`)。軽食・飲料では戻さない。
+        """
+        if self._gate_hazard is None:
+            return self._meal_p_word(aid, tick)
+        from shibuya.engine.chooser import hunger_stage_of
+
+        h = float(self._gate_hazard[aid])
+        self._gate_hazard[aid] = 0.0
+        stage = hunger_stage_of(int(self.agents.registry.hunger[aid]))
+        if MEAL_WORD_P[stage] <= 0.0:
+            # 第2波 §2B Q-2B-6 (iii)(親の決定): いま満腹(p_h=0)なら食事に行く決定は起きない=p=0・H=0
+            return 0.0, stage
+        base = 1.0 if math.isinf(h) else float(-math.expm1(-h))
+        return self._meal_p_word(aid, tick, base=base)[0], stage
+
+    def meal_reset_array(self) -> np.ndarray | None:
+        """Q-2B-6 (ii): 食事で 0 に戻す配列(``per_hour`` の H・``per_wake`` は None)。``engine.run`` が
+        ``EnergyLayer.meal_reset`` に渡す。"""
+        return self._gate_hazard
+
+    def accrue_awake(self) -> None:
+        """``per_hour`` の腕だけ: この tick に範囲内で起きている体(活動が就寝でなく ``transit_state==0``=エネルギー層の
+        診断 ``awake_in_area`` と同じ判定)の H に ``−ln(1 − p_h(語の段)) × 分/60`` を足す(満腹は p_h=0=足さない)。
+        毎 tick 1 回・体数の配列演算(段の表引き+対数の表引き=逐次ループなし)。p_h=1 の段があれば H=∞=
+        「必ず通る」(上限を置かない・宣言。いまの ``MEAL_WORD_P`` の最大は 0.9)。"""
+        if self._gate_hazard is None:
+            return
+        r = self.agents.registry
+        ok = (np.asarray(r.activity) != int(Activity.SLEEPING)) & (np.asarray(r.transit_state) == 0)
+        if not ok.any():
+            return
+        stage = np.searchsorted(np.asarray(_HUNGER_EDGES, dtype=np.int64),
+                                np.asarray(r.hunger, dtype=np.int64)[ok], side="right")
+        self._gate_hazard[ok] += (_HAZARD_PER_HOUR[stage] * (self.minutes_per_tick / 60.0)).astype(np.float32)
+
+    def _meal_p_word(self, aid: int, tick: int, base: float | None = None) -> tuple[float, int]:
+        """語 × カレンダー × 周囲(上限 1)。``per_wake`` ではこれがそのまま門の確率。``base`` を渡すと語の値の代わりに
+        それを使う(``per_hour`` の ``1 − exp(−H)``)。"""
         from shibuya.engine.chooser import hunger_stage_of
 
         r = self.agents.registry
         stage = hunger_stage_of(int(r.hunger[aid]))
-        p = MEAL_WORD_P[stage]
+        p = MEAL_WORD_P[stage] if base is None else float(base)
         if p <= 0.0:
             return 0.0, stage
         if self._next_plan_minutes(aid, tick) < MEAL_CALENDAR_MIN:
@@ -397,7 +531,8 @@ class ClassicalPolicy:
 
     def _ipf(self, slot: int, tick: int) -> np.ndarray:
         """c_t(slot)=起きて範囲内に居る体の P0 と乗数から 1 次元 IPF(帯ごとに 1 回・乗数が 1 でないときだけ)。"""
-        got = self._ipf_cache.get(int(slot))
+        key = (int(tick) // self._tpd, int(slot))  # 10d: 日を足した(1 日のランは日 0 だけ=同じ値)
+        got = self._ipf_cache.get(key)
         if got is not None:
             return got
         r = self.agents.registry
@@ -415,7 +550,7 @@ class ClassicalPolicy:
                 for i in ids.tolist()
             ])
             c = ipf_constants(p0, m)
-        self._ipf_cache[int(slot)] = c
+        self._ipf_cache[key] = c
         return c
 
     # ---- 応答文 ----
@@ -443,6 +578,17 @@ class ClassicalPolicy:
             if sc >= 0 and cell != sc:
                 return REASON_GO, "移動", "学校", "通学", "到着"
             return REASON_ACTIVITY, "なし", "なし", "待つ", "30分"
+        if kind == "talk" and self.social == "acquaintance":
+            if inviter >= 0:
+                who = f"{_PERSON_PREFIX}{inviter}"
+            else:
+                pid = self._best_acquaintance(aid, prompt)
+                who = f"{_PERSON_PREFIX}{pid}" if pid >= 0 else ""
+            if who:
+                self.counts["talk_acquaintance"] = self.counts.get("talk_acquaintance", 0) + 1
+                return REASON_ACTIVITY, "会話", who, activity, until
+            self.counts["talk_no_acquaintance"] = self.counts.get("talk_no_acquaintance", 0) + 1
+            return REASON_ACTIVITY, "なし", "なし", "待つ", "30分"  # 近くに知人が居ない
         if kind == "talk":
             if inviter < 0 and self.partner_fn is not None:  # C10 8b: 関係辺の重み(残り=最初の「未知」の人)
                 pid = int(self.partner_fn(aid, self._tick, _near_strangers(prompt, aid)))
@@ -453,6 +599,18 @@ class ClassicalPolicy:
                 return REASON_ACTIVITY, "会話", who, activity, until
             return REASON_ACTIVITY, "なし", "なし", "待つ", "30分"  # 話す相手が見えない
         return REASON_ACTIVITY, action, target, activity, until
+
+    def _best_acquaintance(self, aid: int, prompt: str) -> int:
+        """近接行の人のうち知人(A ≥ τ)で A が最大の人の id(同点は行の順)・居なければ −1。"""
+        if self.acq_fn is None:
+            return -1
+        ids = _near_persons(prompt, aid)
+        if not ids:
+            return -1
+        A = np.asarray(self.acq_fn(int(aid), int(self._tick), ids), dtype=np.float64)
+        if A.size == 0 or not bool(np.isfinite(A).any()):
+            return -1
+        return int(ids[int(np.argmax(np.where(np.isfinite(A), A, -np.inf)))])  # argmax=最初の最大=行の順
 
     def render(self, request: LLMRequest) -> str:
         aid = int(request.agent_id)
@@ -502,10 +660,14 @@ class ClassicalPolicy:
             "prior": {"anchors": "docs/bench/anchors/ssb2021_activity_prior_v0.json",
                       "anchors_md5": self.prior_md5, "day_kind": self.prior.day_kind,
                       "region": self.prior.region},
-            "meal_gate": {"word_p": list(MEAL_WORD_P), "calendar_min": MEAL_CALENDAR_MIN,
+            "meal_gate": {"mode": str(self.meal_gate), "word_p": list(MEAL_WORD_P),
+                          "per_hour_rule": "hazard: H += -ln(1-p_h(stage of each awake-in-area tick)) x min/60; "
+                                           "p = 1 - exp(-H) x calendar x surroundings (wave2 2B)",
+                          "calendar_min": MEAL_CALENDAR_MIN,
                           "calendar_factor": MEAL_CALENDAR_FACTOR,
                           "no_eatery_factor": MEAL_NO_EATERY_FACTOR,
                           "eating_people_factor": MEAL_EATING_PEOPLE_FACTOR},
+            "social": str(self.social),
             "multipliers_identity": bool(self._identity),
             "activity_map": "v0",
             "counts": dict(sorted(self.counts.items())),
@@ -522,6 +684,14 @@ def _first_near_person(prompt: str, aid: int) -> str:
                     return f"{_PERSON_PREFIX}{m.group(1)}"
             break
     return ""
+
+
+def _near_persons(prompt: str, aid: int) -> list[int]:
+    """B5 の近接行の人(自分を除く)の id(行の順=距離の順)。"""
+    for line in prompt.splitlines():
+        if line.startswith(_NEAR_LINE):
+            return [int(m.group(1)) for m in _PERSON_ID.finditer(line) if int(m.group(1)) != int(aid)]
+    return []
 
 
 def _near_strangers(prompt: str, aid: int) -> list[int]:

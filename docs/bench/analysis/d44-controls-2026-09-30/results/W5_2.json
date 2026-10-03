@@ -1,0 +1,24 @@
+{
+ "key": "W5#2",
+ "control": "最寄りノードのセル(宣言)vs 入口座標の格子セル",
+ "metric": "入口のセル分布",
+ "variants": [
+  {
+   "name": "入口座標の格子セル",
+   "jsd_bits": 0.030344354546231207,
+   "null_p95": 0.02436501290310745,
+   "detected": true,
+   "tvd": 0.1283569756231924,
+   "n_declared": 7261.0,
+   "n_control": 7261.0,
+   "n_bins": 452
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 0.24831539997830987,
+ "entrances_cell_differs": 1846,
+ "seconds_wall_row": 0.25,
+ "measured_at": "2026-09-30"
+}

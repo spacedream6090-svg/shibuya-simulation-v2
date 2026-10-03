@@ -1,0 +1,104 @@
+{
+ "key": "W11#2",
+ "control": "ホーム=ODPT 代表点・改札=出口重心(宣言)vs ホームだけ/改札だけを ±50 m(東西・南北の 4 方向)ずらす",
+ "metric": "出口→改札→ホームの構内経路長(出口×ホームの対)の 10 m 階級分布",
+ "variants": [
+  {
+   "name": "ホーム (+50, +0) m",
+   "jsd_bits": 0.3007147326839449,
+   "null_p95": 0.09005468954328726,
+   "detected": true,
+   "tvd": 0.5056497175141242,
+   "n_declared": 354.0,
+   "n_control": 354.0,
+   "n_bins": 119,
+   "mean_abs_diff_m": 61.18471186440678
+  },
+  {
+   "name": "ホーム (-50, +0) m",
+   "jsd_bits": 0.30998578771968066,
+   "null_p95": 0.09004845252085027,
+   "detected": true,
+   "tvd": 0.5141242937853107,
+   "n_declared": 354.0,
+   "n_control": 354.0,
+   "n_bins": 113,
+   "mean_abs_diff_m": 56.10143785310734
+  },
+  {
+   "name": "ホーム (+0, +50) m",
+   "jsd_bits": 0.2917093814099976,
+   "null_p95": 0.09005468954328726,
+   "detected": true,
+   "tvd": 0.44915254237288144,
+   "n_declared": 354.0,
+   "n_control": 354.0,
+   "n_bins": 114,
+   "mean_abs_diff_m": 29.086799435028226
+  },
+  {
+   "name": "ホーム (+0, -50) m",
+   "jsd_bits": 0.18382456457217944,
+   "null_p95": 0.09004845252085027,
+   "detected": true,
+   "tvd": 0.3559322033898305,
+   "n_declared": 354.0,
+   "n_control": 354.0,
+   "n_bins": 113,
+   "mean_abs_diff_m": 9.705451977401134
+  },
+  {
+   "name": "改札 (+50, +0) m",
+   "jsd_bits": 0.3328082839419425,
+   "null_p95": 0.09004845252085027,
+   "detected": true,
+   "tvd": 0.5084745762711863,
+   "n_declared": 354.0,
+   "n_control": 354.0,
+   "n_bins": 113,
+   "mean_abs_diff_m": 60.39835875706215
+  },
+  {
+   "name": "改札 (-50, +0) m",
+   "jsd_bits": 0.304452909586133,
+   "null_p95": 0.09004845252085027,
+   "detected": true,
+   "tvd": 0.46045197740113,
+   "n_declared": 354.0,
+   "n_control": 354.0,
+   "n_bins": 113,
+   "mean_abs_diff_m": 76.21259604519774
+  },
+  {
+   "name": "改札 (+0, +50) m",
+   "jsd_bits": 0.34952313786104056,
+   "null_p95": 0.09005468954328726,
+   "detected": true,
+   "tvd": 0.5254237288135594,
+   "n_declared": 354.0,
+   "n_control": 354.0,
+   "n_bins": 114,
+   "mean_abs_diff_m": 36.74071186440678
+  },
+  {
+   "name": "改札 (+0, -50) m",
+   "jsd_bits": 0.34936393069547955,
+   "null_p95": 0.09004845252085027,
+   "detected": true,
+   "tvd": 0.5169491525423728,
+   "n_declared": 354.0,
+   "n_control": 354.0,
+   "n_bins": 113,
+   "mean_abs_diff_m": 56.994180790960435
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 0.4019533999962732,
+ "checks": {
+  "declared_recomputed_equals_asset": true
+ },
+ "seconds_wall_row": 0.4,
+ "measured_at": "2026-09-30"
+}

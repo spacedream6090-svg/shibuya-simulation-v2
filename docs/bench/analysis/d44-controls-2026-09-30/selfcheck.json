@@ -1,0 +1,69 @@
+{
+ "jsd_two_bins": {
+  "hand": 0.007299156760473963,
+  "compare_counts": 0.007299156760473963,
+  "equal": true
+ },
+ "jsd_w7_metric_synthetic": {
+  "open_hours_declared": 12.0,
+  "open_hours_control": 6.0,
+  "hand": 0.03571428571428571,
+  "compare_counts": 0.035714285714285705,
+  "equal": true
+ },
+ "same_distribution": {
+  "jsd": 0.0,
+  "detected": false
+ },
+ "null_reruns": {
+  "W7": {
+   "outputs_changed": [],
+   "jsd": 0.0,
+   "detected": false,
+   "seconds": 0.13
+  },
+  "W8": {
+   "outputs_changed": [],
+   "jsd": 0.0,
+   "detected": false,
+   "seconds": 1.64
+  },
+  "W10": {
+   "outputs_changed": [],
+   "jsd": 0.0,
+   "detected": false,
+   "seconds": 10.76
+  },
+  "W3": {
+   "outputs_changed": [],
+   "jsd": 0.0,
+   "detected": false,
+   "seconds": 0.24
+  },
+  "W12": {
+   "outputs_changed": [],
+   "jsd": 0.0,
+   "detected": false,
+   "seconds": 0.07
+  },
+  "W13": {
+   "outputs_changed": [],
+   "jsd": 0.0,
+   "detected": false,
+   "seconds": 0.08
+  },
+  "W16": {
+   "outputs_changed": [],
+   "jsd": 0.0,
+   "detected": false,
+   "seconds": 12.74
+  },
+  "W9": {
+   "outputs_changed": [],
+   "jsd": 0.0,
+   "detected": false,
+   "seconds": 1.19
+  }
+ },
+ "all_ok": true
+}
