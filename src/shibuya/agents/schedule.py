@@ -131,17 +131,23 @@ class MockWeeklySchedule:
     population_hash: str = ""
 
     # ---- 1 日ぶんの取り出し ----
-    def is_weekend(self, day_index: int) -> bool:
-        """day 0 を月曜とみなす(expedient)。5,6=土日。"""
+    def is_weekend(self, day_index: int, rest_day: bool | None = None) -> bool:
+        """day 0 を月曜とみなす(expedient)。5,6=土日。
+
+        ``rest_day`` を渡したときはそれを使う(10a: 暦の口 ``engine.calendar.SimCalendar.is_rest_day`` の
+        値を engine 側が渡す。agents 層は engine を import できないため値で受ける)。
+        """
+        if rest_day is not None:
+            return bool(rest_day)
         return int(day_index) % 7 >= 5
 
-    def boundary_ticks(self, day_index: int = 0) -> np.ndarray:
+    def boundary_ticks(self, day_index: int = 0, *, rest_day: bool | None = None) -> np.ndarray:
         """その日の境界 tick 配列 ``(n, 5)``。"""
-        return self.weekend_ticks if self.is_weekend(day_index) else self.base_ticks
+        return self.weekend_ticks if self.is_weekend(day_index, rest_day) else self.base_ticks
 
-    def target_cell(self, day_index: int = 0) -> np.ndarray:
+    def target_cell(self, day_index: int = 0, *, rest_day: bool | None = None) -> np.ndarray:
         """その日の「外出」先セル(平日=職場・休日=余暇先)。"""
-        return self.leisure_cell if self.is_weekend(day_index) else self.work_cell
+        return self.leisure_cell if self.is_weekend(day_index, rest_day) else self.work_cell
 
     def boundary_activities(self) -> np.ndarray:
         """境界ごとに始まる ``Activity``(全個体共通・形 ``(5,)``)。"""
@@ -156,12 +162,15 @@ class MockWeeklySchedule:
             dtype=np.int8,
         )
 
-    def events_of_day(self, day_index: int = 0) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def events_of_day(
+        self, day_index: int = 0, *, rest_day: bool | None = None
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """その日の全境界を ``(tick 昇順の agent_id, 境界番号, tick)`` に平坦化する。
 
         run.py が tick ごとに ``np.searchsorted`` で切り出すための形。ループなし。
+        ``rest_day`` は暦の口の土休(``is_weekend`` を参照)。
         """
-        ticks = self.boundary_ticks(day_index)
+        ticks = self.boundary_ticks(day_index, rest_day=rest_day)
         n, k = ticks.shape
         agent = np.repeat(np.arange(n, dtype=np.int64), k)
         slot = np.tile(np.arange(k, dtype=np.int64), n)

@@ -1,0 +1,51 @@
+{
+ "schema": "shibuya.bench/wallbounce-1003/10a/old-tape-replay/1",
+ "head": {
+  "final": "18bea2ea332d1c65",
+  "checkpoints": "54482d5841e4bec2",
+  "calls": 42233,
+  "tape_miss": 42233,
+  "fleet_drained_at_end": 0,
+  "fleet_unanswered_at_end": 0
+ },
+ "tape": "c9b-smoke-s1",
+ "config": {
+  "geometry": "edge",
+  "vocab_version": "v2"
+ },
+ "src_ok": true,
+ "head_vs_work_delay2": {
+  "final": true,
+  "checkpoints": true,
+  "calls": true,
+  "tape_miss": true,
+  "fleet_drained_at_end": true,
+  "fleet_unanswered_at_end": true,
+  "bridge_counters": true
+ },
+ "head_vs_work_delay2_all_equal": true,
+ "work_delay2": {
+  "final": "18bea2ea332d1c65",
+  "checkpoints": "54482d5841e4bec2",
+  "calls": 42233,
+  "tape_miss": 42233,
+  "fleet_drained_at_end": 0,
+  "fleet_unanswered_at_end": 0
+ },
+ "work_delay1": {
+  "final": "18bea2ea332d1c65",
+  "checkpoints": "54482d5841e4bec2",
+  "calls": 42233,
+  "tape_miss": 42233,
+  "fleet_drained_at_end": 0,
+  "fleet_unanswered_at_end": 0
+ },
+ "delay1_moves_the_run": false,
+ "replay_counters_head": {
+  "tape_deferred": 0.0,
+  "tape_miss_rate": 1.0,
+  "tape_misses": 42233.0,
+  "tape_rows": 0.0
+ },
+ "all_ok": true
+}

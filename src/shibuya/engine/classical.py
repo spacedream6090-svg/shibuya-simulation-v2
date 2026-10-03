@@ -52,6 +52,7 @@ import numpy as np
 
 from shibuya.agents.state import Activity, AgentKind, WakeCondition
 from shibuya.core.rng import stream
+from shibuya.engine.calendar import ticks_per_day as _ticks_per_day
 from shibuya.llm import LLMRequest, LLMResponse, estimate_tokens
 from shibuya.llm.contract import TARGET_WANDER, format_two_line_v3
 
@@ -341,6 +342,7 @@ class ClassicalPolicy:
         self.agents = agents
         self.world = world
         self.minutes_per_tick = float(tick_seconds) / 60.0
+        self._tpd = _ticks_per_day(int(tick_seconds))  # 10a: 計画境界は日の中の tick で引く
         self.home_cell = np.asarray(home_cell, dtype=np.int64)
         self.work_cell = np.asarray(work_cell, dtype=np.int64)
         self.school_cell = (
@@ -404,10 +406,11 @@ class ClassicalPolicy:
         lo, hi = int(self._b_off[aid]), int(self._b_off[aid + 1])
         if hi <= lo:
             return 10_000
-        k = lo + int(np.searchsorted(self._b_tick[lo:hi], int(tick), side="right"))
+        td = int(tick) % self._tpd  # 10a: 通しの時刻 T → 日の中の tick
+        k = lo + int(np.searchsorted(self._b_tick[lo:hi], td, side="right"))
         if k >= hi:
             return 10_000
-        return int((int(self._b_tick[k]) - int(tick)) * self.minutes_per_tick)
+        return int((int(self._b_tick[k]) - td) * self.minutes_per_tick)
 
     def _eating_by_cell(self, tick: int) -> np.ndarray:
         """同じセルで食事中の人の数(在店 ∧ 飲食店)。tick ごとに 1 回(逐次ループ宣言 4)。"""

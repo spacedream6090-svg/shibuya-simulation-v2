@@ -394,6 +394,15 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #80 D-102 の土台 10a: 通しの時刻 T・暦の口・応答の遅れ +1(第318・2026-10-03・実装役 Opus 5.5・親検収+別のサブの検収 2 回)
+
+- 正典: [10a のアジェンダ](docs/design/v2-d102-10a-agenda.md)・[実装の記録](docs/bench/analysis/wallbounce-1003/10a/README.md)・[検収の記録](docs/bench/analysis/wallbounce-1003/review-10a.md)。ユーザー決定=[指示書 10-03](docs/design/v2-wallbounce-decisions-2026-10-03.md) §3 A1・A9(K1 のテープ版 4 と K7〜K9 に左右されない部分)。**既定の結果は不変**=既定 15 腕+classical+記憶/関係の腕の 19 構成で final・呼数・blocks・calls の 14 列が HEAD とバイト一致(実装役の byte-check と検収役の独立のランの両方)。
+- **① 通しの時刻 T**(A1): ループの変数を T = 日 × 1 日の tick 数 + tick にし、鍵・テープの tick 欄・tick を値に持つ 15 列+外 7 行は T、日の中の表は `T % 1 日の tick 数` で引く。1 日のランでは T = tick。型は 15 列とも int32 で 30 日ぶんを表せる(上げた列は無し)。複数日を回す最小の口 `run_day(sim_days=N)`(mock・合成世界だけ。状態の保存はしない=10d は別)。鉄道の時刻表と計画実行層は 0 日目の座標のまま(1 日目以降は 10g で張り直す)。
+- **② 暦の口** `engine/calendar.py`(A1・A1-1・A1-2): `start_sim_datetime` と T から日付・曜日・祝日・季節・給料日・営業日を返す 1 つの口。切替口 `--calendar-weekday {day_index,real}`(既定 `day_index`=今の値)。暦を引いていた 24 か所のうち 18 か所を付け替え(6 か所は不要か資産の再構築が要る)。祝日は内閣府の CSV(`data/calendar/syukujitsu.csv`・リポの根からの相対・md5 を manifest に)。開始日の検査(real は止める・day_index は警告)・0:00 以外の開始時刻は止める・CSV の範囲外は止める・`tick_seconds` が 86,400 を割り切らないと止める。manifest に `tick_seconds`・`start_sim_datetime`・`calendar`・`response_delay`・`sim_days` の欄。
+- **③ 応答の遅れ +1**(A9): 艦隊/再生の受け取りを ① 反映の直前へ移し、下限を `max(t_apply, tick)` に。切替口 `--response-delay {1,2}`(未指定=新規と mock は 1)。テープの脇の `run_meta.json` に値を書き、再生で違えば止める。値の無い旧テープは 2 とみなして警告 1 回。mock は動かない。
+- **検収**: 別のサブが結果を動かす欠陥 0・潜在の欠陥 5・記録の誤り 3・テストの欠け 6 を見つけ(壊し方 32 件のうち 6 件が捕まらなかった)、全部直して再検収。親の全体テストは直しの前 3,457 件・後は第318 の記録。新しいテスト 72 件(55+17)。
+- **残り(10g・版上げ 1 回目へ)**: 鉄道と計画実行層の日ごとの張り直し・会話の招待/p_see/p_notice/艦隊の seed の 4 鍵の 2 日ランでの確認・W13 の手書きの祝日と W7 の `PH`・暦の既定の切り替え(K8)・テープ版 4(K1)・`replay_date` と manifest の新しい欄の seed_exchangeability での扱い(10f)。
+
 ### #79 第 2 波 B: 食事の束=就寝中の食事を起床時に・自宅の食事を予定の実行に・空腹の語を 4 段とも描く+食事の門の規則の作り直し(第314・2026-09-30・実装役 Opus 5.5・親検収+別のサブの検収 2 回)
 
 - 正典: [第 2 波の記録 §2B](docs/bench/analysis/wave2-2026-09-30/README.md)・[検収の記録](docs/bench/analysis/wave2-2026-09-30/review-2b.md)。指示書 09-30 §4・§8-2。**切替口は 3 つとも既定が旧のまま**=既定の 15 腕と、旧の値を明示した 19 構成は HEAD とバイト一致(実装役の byte-check と別のサブの独立のランの両方)。既定の切り替えは版上げ 2 回目(疲労 Q37 と一緒)でユーザーに確認する。

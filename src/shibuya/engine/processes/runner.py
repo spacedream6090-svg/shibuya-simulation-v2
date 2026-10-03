@@ -32,6 +32,7 @@ import numpy as np
 
 from shibuya.agents.state import AgentState
 from shibuya.engine import resolve as R
+from shibuya.engine.calendar import SimCalendar
 from shibuya.engine.processes.civic import (
     HotelProcess,
     InfraLoadProcess,
@@ -115,8 +116,11 @@ class WorldProcessRunner:
         world / agents: 状態。
         assets: ``world.assets.ProcessAssets``(``None`` なら合成=全過程が休む)。
         master_seed: 実日の乱択・域外居住の抽選に使う seed。
-        day_index: 曜日(0=月曜)。
+        day_index: 曜日(0=月曜)。``calendar`` が無いときだけ使う(旧い口)。
         tick_seconds: 1 tick の秒数。
+        calendar: 暦の口(``engine.calendar.SimCalendar``・10a)。平日/土休・曜日の表の行・
+            日ごとの乱数の鍵の日番号(``day_key``)はここから引く。``None`` なら ``day_index`` だけの暦
+            (``SimCalendar.legacy``=今と同じ値)。
         schedule: mock 日課(鉄道の到着便割り当てに使う)。
         ledger: 金/物の台帳(運賃の脚に使う。``None`` 可)。
         enabled / disabled: 過程 id か感度試験 id(``AB-*``)の集合。
@@ -153,6 +157,7 @@ class WorldProcessRunner:
         plan_executor: bool = False,
         seat_area_m2: Mapping[str, float] | None = None,
         default_seat_area_m2: float | None = None,
+        calendar: Any | None = None,
     ) -> None:
         if world is None or agents is None:
             raise ValueError("WorldProcessRunner は world と agents を要る")
@@ -164,6 +169,15 @@ class WorldProcessRunner:
         self.master_seed = seed if master_seed is None else master_seed
         self.day_index = int(day_index)
         self.tick_seconds = int(tick_seconds)
+        self.calendar = (
+            calendar if calendar is not None
+            else SimCalendar.legacy(self.day_index, tick_seconds=self.tick_seconds)
+        )
+        #: 10a #20: 日ごとの乱数の鍵(顕著行為・出動・大きな催し・入荷・工事・配達)の日番号。
+        #: ``day_index`` モード(既定)では今と同じ ``day_index``(``SimCalendar.day_key``)。
+        day_key = int(self.calendar.day_key(0))
+        #: 10a #7: 営業時間の表(W7)の曜日の行。``day_index`` モードでは ``day_index % 7``。
+        table_weekday = int(self.calendar.table_weekday(0))
         self.ledger = ledger
         #: **D-66 計画実行層**のラン(``engine.presence.PlanExecutor`` が在圏の出入りを持つ)。
         #: rail の乱数 12% と D-61 帰りの便を止め、起動時の域外配置も層に任せる。
@@ -191,17 +205,17 @@ class WorldProcessRunner:
         self.environment = EnvironmentProcess(
             world, agents, self.assets,
             master_seed=self.master_seed, day_index=self.day_index, tick_seconds=self.tick_seconds,
-            prefer_shadow_days=prefer_shadow_days,
+            prefer_shadow_days=prefer_shadow_days, calendar=self.calendar,
         )
         self.rail = RailProcess(
             world, agents, self.assets,
             master_seed=self.master_seed, day_index=self.day_index,
             schedule=schedule, actual_log=self.log,
-            plan_executor=self.plan_executor,
+            plan_executor=self.plan_executor, calendar=self.calendar,
         )
         self.opening = OpeningProcess(
             world, agents, self.assets,
-            day_index=self.day_index, tick_seconds=self.tick_seconds, actual_log=self.log,
+            day_index=table_weekday, tick_seconds=self.tick_seconds, actual_log=self.log,
         )
         self.crowd = CrowdProcess(
             world, agents, tick_seconds=self.tick_seconds,
@@ -216,7 +230,7 @@ class WorldProcessRunner:
         )
         self.delivery_inbound = DeliveryInboundProcess(
             world, ledger=ledger, shelf=self.shelf, master_seed=self.master_seed,
-            day_index=self.day_index, tick_seconds=self.tick_seconds, actual_log=self.log,
+            day_index=day_key, tick_seconds=self.tick_seconds, actual_log=self.log,
         )
         self.waste = WasteCollectionProcess(
             world, agents, ledger=ledger, tick_seconds=self.tick_seconds,
@@ -240,13 +254,13 @@ class WorldProcessRunner:
         )
         self.last_mile = LastMileProcess(
             world, household_per_cell=household, master_seed=self.master_seed,
-            day_index=self.day_index, tick_seconds=self.tick_seconds, actual_log=self.log,
+            day_index=day_key, tick_seconds=self.tick_seconds, actual_log=self.log,
         )
         self.bus_taxi = BusTaxiProcess(
             world, self.assets, tick_seconds=self.tick_seconds, actual_log=self.log
         )
         self.road_works = RoadWorksProcess(
-            world, self.assets, master_seed=self.master_seed, day_index=self.day_index,
+            world, self.assets, master_seed=self.master_seed, day_index=day_key,
             tick_seconds=self.tick_seconds, actual_log=self.log,
         )
         self.hotel = HotelProcess(
@@ -260,14 +274,14 @@ class WorldProcessRunner:
         )
         self.large_event = LargeEventProcess(
             world, agents, rail=self.rail, master_seed=self.master_seed,
-            day_index=self.day_index, tick_seconds=self.tick_seconds, actual_log=self.log,
+            day_index=day_key, tick_seconds=self.tick_seconds, actual_log=self.log,
         )
         self.dispatch = PublicServiceDispatchProcess(
-            world, master_seed=self.master_seed, day_index=self.day_index,
+            world, master_seed=self.master_seed, day_index=day_key,
             tick_seconds=self.tick_seconds, actual_log=self.log,
         )
         self.salient = SalientProcess(
-            world, agents, master_seed=self.master_seed, day_index=self.day_index,
+            world, agents, master_seed=self.master_seed, day_index=day_key,
             tick_seconds=self.tick_seconds, dispatch=self.dispatch, press=self.press,
             environment=self.environment,
             ablation=_p_notice_ablation(p_notice_ablation, enabled),

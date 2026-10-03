@@ -50,7 +50,9 @@ from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.run import (
     MINUTES_PER_SIM_DAY,
     RunResult,
+    add_calendar_args,
     add_fleet_args,
+    calendar_kwargs_from_args,
     fleet_from_args,
     run_day,
 )
@@ -1124,6 +1126,7 @@ def main(argv: list[str] | None = None) -> int:
     # --llm / --endpoints / --model / --mode / --run-id / --tape / --temperature /
     # --max-tokens / --fleet-wait-s(C6-a)
     add_fleet_args(ap)
+    add_calendar_args(ap)  # 10a: --calendar-weekday / --start-date / --holiday-csv / --school-holidays
     args = ap.parse_args(argv)
     try:
         refractory_scale = parse_refractory_scale(args.refractory_scale)
@@ -1229,6 +1232,7 @@ def main(argv: list[str] | None = None) -> int:
         occupancy_path=getattr(args, "occupancy_out", "") or None,
         census_out=getattr(args, "census_out", "") or None,
         tape_path=args.tape or None,
+        **calendar_kwargs_from_args(args),  # 10a: 暦の口と応答の遅れ(--response-delay)
         **({"mode": "replay", "replay": args.replay} if args.replay else {}),
     )
     print(res.summary())

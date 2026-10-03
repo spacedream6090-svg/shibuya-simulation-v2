@@ -71,13 +71,14 @@ expedient(本モジュール分)
 
 from __future__ import annotations
 
-from typing import Final
+from typing import Any, Final
 
 import numpy as np
 
 from shibuya.agents.state import AgentState
 from shibuya.core.rng import philox
 from shibuya.engine import resolve as R
+from shibuya.engine.calendar import SimCalendar
 from shibuya.engine.ledger_api import SECTOR_HOUSEHOLD, SECTOR_ROW
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.processes.records import DeviationVocab
@@ -198,7 +199,12 @@ class RailProcess:
         world / agents: 状態(**読むだけ**。書き込みは ``engine.resolve`` の口)。
         passets: ``world.assets.ProcessAssets``。
         master_seed: 域外居住の抽選 seed。
-        day_index: 曜日(0=月曜)。
+        day_index: 曜日(0=月曜)。``calendar`` が無いときだけ使う(旧い口)。
+        calendar: 暦の口(``engine.calendar.SimCalendar``・10a)。平日/土休ダイヤ(#10)と
+            域外居住の出発時刻・帰りの便の曜日の行(#11)はここから引く。
+            **時刻表は 0 日目の座標のまま**(通しの時刻 T と ``dep_tick`` をそのまま比べる=0 日目は
+            今と同じ・日付を越える便(終電後)も T の座標で続けて走る)。1 日目からの便は日の頭の
+            初期化(10g・A11)で張り直す(それまでは 1 日目以降に新しい便は出ない=宣言)。
         schedule: mock 日課(到着便の割り当てに「外出」境界を使う。``None`` 可)。
             **D-61**: ``agents.weekly.apply_to_mock_schedule`` がこの実体へ週次表を
             ``schedule.weekly`` として貼るので、帰りの便はそこから週次表を拾う。
@@ -223,12 +229,14 @@ class RailProcess:
         actual_log=None,
         fare_yen: int = FARE_YEN,
         plan_executor: bool = False,
+        calendar: Any | None = None,
     ) -> None:
         self.world = world
         self.agents = agents
         self.assets = passets
         self.master_seed = master_seed
         self.day_index = int(day_index)
+        self.calendar = calendar if calendar is not None else SimCalendar.legacy(int(day_index))
         self.schedule = schedule
         self.log = actual_log
         self.fare_yen = int(fare_yen)
@@ -309,8 +317,9 @@ class RailProcess:
         a = self.assets
         if not a.has_timetable or a.line_platform_cell is None:
             return
-        calendar = 1 if self.day_index % 7 >= 5 else 0
-        sel = np.flatnonzero(np.asarray(a.tt_calendar) == calendar)
+        # 10a #10: 平日/土休ダイヤは暦の口から(day_index モードは ``day_index % 7 >= 5`` と同じ値)
+        tt_cal = 1 if self.calendar.is_rest_day(0) else 0
+        sel = np.flatnonzero(np.asarray(a.tt_calendar) == tt_cal)
         if sel.size == 0:
             return
         line = np.asarray(a.tt_line_idx, dtype=np.int64)[sel]
@@ -372,7 +381,13 @@ class RailProcess:
         pick = (raw[:, 1] % np.uint64(max(1, lines_present.size))).astype(np.int64)
         line_of = lines_present[pick]
         if schedule is not None:
-            want = np.asarray(schedule.boundary_ticks(self.day_index), dtype=np.int64)[:n, 1]
+            # 10a #11: mock 日課の平日/休日は暦の口の土休から
+            want = np.asarray(
+                schedule.boundary_ticks(
+                    self.calendar.table_weekday(0), rest_day=self.calendar.is_rest_day(0)
+                ),
+                dtype=np.int64,
+            )[:n, 1]
         else:
             want = 300 + (raw[:, 2] % np.uint64(300)).astype(np.int64)
         train = np.full(n, -1, dtype=np.int64)
@@ -411,7 +426,7 @@ class RailProcess:
             # 体行 i = 個体 i の対応(``run`` が ``restrict_to(pop.source_agent_id)`` で揃える)。
             # 体数が足りない表は使わない(取り違えるより戻さない側へ倒す)。
             if w is not None and int(getattr(w, "n_agents", 0)) >= self.agents.n:
-                self._inbound = w.inbound_starts(self.day_index)
+                self._inbound = w.inbound_starts(self.calendar.table_weekday(0))  # 10a #11
         return self._inbound
 
     def attach_weekly(self, weekly) -> None:

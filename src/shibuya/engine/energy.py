@@ -69,6 +69,7 @@ import numpy as np
 
 from shibuya.agents.state import Activity, ActivityKind
 from shibuya.core.rng import stream
+from shibuya.engine.calendar import ticks_per_day as _ticks_per_day
 
 __all__ = [
     "ANCHORS_PATH",
@@ -556,6 +557,9 @@ class OutOfAreaMeals:
         sleep_defer: str = DEFAULT_MEAL_SLEEP_DEFER,
     ) -> None:
         self.sleep_defer = check_meal_sleep_defer(sleep_defer)
+        #: 10a: 表は 1 日ぶん(日の中の tick)。通しの時刻 T は ``T % 1 日の tick 数`` で引く
+        #: (2 日目からは同じ日の表を繰り返す=日ごとの作り直しは日の頭の初期化=10g)。
+        self._tpd = _ticks_per_day(int(tick_seconds))
         n = int(n_agents)
         agent_parts: list[np.ndarray] = []
         minute_parts: list[np.ndarray] = []
@@ -657,7 +661,7 @@ class OutOfAreaMeals:
         self, tick: int, transit_state: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """``due`` と同じ+4 つ目=**起床時に遅らせた食事か**(項 1・``off`` では全部 False)。"""
-        t = int(tick)
+        t = int(tick) % self._tpd if int(tick) >= 0 else int(tick)  # 10a: 日の中の tick で引く
         e = np.empty(0, dtype=np.int64)
         empty = (e, np.empty(0, dtype=np.int8), np.empty(0, dtype=bool), np.empty(0, dtype=bool))
         if t < 0 or t + 1 >= self._start.size:
@@ -731,6 +735,7 @@ class HomeMeals:
     ) -> None:
         from shibuya.agents.weekly import ACTIVITY_WORDS, PLACE_WORDS
 
+        self._tpd = _ticks_per_day(int(tick_seconds))  # 10a: 日の中の tick で引く(OutOfAreaMeals と同じ)
         n = int(n_agents)
         home = np.full(n, -1, dtype=np.int64)
         hc = np.asarray(home_cell, dtype=np.int64)[:n]
@@ -764,7 +769,7 @@ class HomeMeals:
         self, tick: int, transit_state: np.ndarray, cell: np.ndarray, activity: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray]:
         """この tick に自宅で食べる ``(体, 時間帯)``(配列演算)。"""
-        t = int(tick)
+        t = int(tick) % self._tpd if int(tick) >= 0 else int(tick)  # 10a: 日の中の tick で引く
         e = np.empty(0, dtype=np.int64)
         if t < 0 or t + 1 >= self._start.size:
             return e, np.empty(0, dtype=np.int8)

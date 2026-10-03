@@ -56,6 +56,7 @@ from shibuya.agents.weekly import (
     PLACE_KIND_OUTSIDE,
     PLACE_WORDS,
 )
+from shibuya.core.hashing import blake3_hex
 from shibuya.engine import resolve as R
 from shibuya.world.state import World
 
@@ -171,6 +172,20 @@ def _mix64(x: np.ndarray) -> np.ndarray:
         v *= np.uint64(0xC4CEB9FE1A85EC53)
         v ^= v >> np.uint64(33)
     return v
+
+
+def attendance_draw(agent_id: np.ndarray, *, day: int = 0, seed: int | str = 1) -> np.ndarray:
+    """出勤率(E6)の抽選の値 ``0〜9,999``(体ごと・決定論・ランの乱数列を消費しない)。
+
+    10a(材料 §2-3 の ◐ #19): 今の鍵は ``agent_id`` だけ=毎日同じ体が休む。**0 日目は今の鍵のまま**
+    (``_mix64(agent_id)``・既定のランと W17 の構築側の式とバイト一致)にし、1 日目からは
+    ``(seed, 日)`` の塩を混ぜる(日ごと・seed ごとに休む体が替わる)。
+    """
+    a = np.maximum(np.asarray(agent_id, dtype=np.int64), 0).astype(np.uint64)
+    if int(day) != 0:
+        salt = np.uint64(int(blake3_hex(f"attendance{seed}{int(day)}".encode("utf-8"))[:16], 16))
+        a = a ^ salt
+    return (_mix64(a) % np.uint64(10_000)).astype(np.int64)
 
 
 def _day_rows(weekly, day: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -580,6 +595,11 @@ class PlanExecutor:
         exit_mode: ``immediate``(既定)/ ``walk_to_platform``(9a)。``board_intent`` は ``NotImplementedError``。
         walk_max_ticks: 9a の歩いて乗る退出の上限[tick](超えたら即時 ``rail_depart``)。
         attendance_rate: 出勤率(E6・既定 1.0=全員来る)。
+        seed: 出勤率の抽選の 1 日目からの塩(10a ◐ #19・0 日目は使わない=今と同じ)。
+
+    Note:
+        10a(通しの時刻 T): 層のイベント列は**0 日目の座標**(``0 <= T < ticks``)で組む。1 日目からの
+        在圏の出入りは日の頭の初期化(10g・A11)で張り直す(それまでは 1 日目以降のイベントは無い=宣言)。
     """
 
     #: 台帳の感度試験 id(``--ablate AB-PLAN-EXECUTOR`` / 帰無腕 ``--no-plan-executor``)。
@@ -605,6 +625,7 @@ class PlanExecutor:
         mode: str = "derive",
         derive_rule: str = DERIVE_RULE_DEFAULT,
         walk_max_ticks: int = EXIT_WALK_MAX_TICKS,
+        seed: int | str = 1,
     ) -> None:
         if derive_rule not in DERIVE_RULES:
             raise ValueError(f"--derive-rule は {DERIVE_RULES} のどれか(いま {derive_rule!r})")
@@ -623,6 +644,7 @@ class PlanExecutor:
         self.rail = rail
         self.assets = assets
         self.day_index = int(day_index)
+        self.seed = seed
         self.ticks = int(ticks)
         self.exit_mode = str(exit_mode)
         self.attendance_rate = rate
@@ -782,16 +804,17 @@ class PlanExecutor:
         return out
 
     def _attendance_absent(
-        self, kind: np.ndarray, agent_id: np.ndarray, rate: float
+        self, kind: np.ndarray, agent_id: np.ndarray, rate: float, day: int = 0
     ) -> np.ndarray:
-        """出勤率(E6)で「その日来ない」体(``(n,)`` bool)。既定 1.0 では全て False。"""
+        """出勤率(E6)で「その日来ない」体(``(n,)`` bool)。既定 1.0 では全て False。
+
+        ``day`` は日番号(10a ◐ #19)。0 日目は今の鍵(``attendance_draw`` を参照)。
+        """
         out = np.zeros(self.n, dtype=bool)
         if rate >= 1.0:
             return out
         target = np.isin(kind, np.asarray(ATTENDANCE_KINDS, dtype=np.int64))
-        u = (_mix64(np.maximum(agent_id, 0).astype(np.uint64)) % np.uint64(10_000)).astype(
-            np.int64
-        )
+        u = attendance_draw(agent_id, day=int(day), seed=self.seed)
         thr = int(round(rate * 10_000))
         return target & self.managed & (u >= thr)
 
