@@ -8,6 +8,6 @@
 - 判断待ち: K1〜K18(短い確認)=[PENDING §1-1](PENDING.md)。保留の議題 H1〜H9 の草案 9 本(1 問ずつ出す): [空間](docs/design/v2-spatial-design-round-draft.md)・[時間](docs/design/v2-time-model-design-round-draft.md)・[ビューア](docs/design/v2-viewer-design-round-draft.md)・[記憶](docs/design/v2-memory-rework-design-round-draft.md)・[コミュニケーション](docs/design/v2-communication-tools-design-round-draft.md)・[決定モデル](docs/design/v2-decision-model-design-round-draft.md)・[カレンダーと行動の時刻](docs/design/v2-calendar-timing-design-round-draft.md)・[反実仮想と部品](docs/design/v2-counterfactual-primitives-design-round-draft.md)。食い違いの一覧は [wallbounce-1003/README.md §2](docs/bench/analysis/wallbounce-1003/README.md)
 - リサーチ: 索引 [INDEX.md](docs/research/INDEX.md)・残務 [research-backlog.md](docs/research/research-backlog.md)(R-1〜R-50・以後は INDEX に R-51〜R-89)・分野地図 [v2-discipline-map.md](docs/research/v2-discipline-map.md)
 - 受入報告: [C5](docs/ops/build-report-C5.md)・[C6](docs/ops/build-report-C6.md)・[C7](docs/ops/build-report-C7.md)・[C8](docs/ops/build-report-C8.md)
-- 開発ログ: [docs/log/devlog.md](docs/log/devlog.md)(第1〜310 は [devlog-compressed.md](docs/log/devlog-compressed.md) へ圧縮済み・カウンタ 10/10)
+- 開発ログ: [docs/log/devlog.md](docs/log/devlog.md)(第1〜320 は [devlog-compressed.md](docs/log/devlog-compressed.md) へ圧縮済み・カウンタ 0/10)
 - ブランチ/PR: main は PR #7 まで(f9a3c97・2026-09-30 に PR #5 → #6 → #7 をマージ)。作業ブランチ `build/spatial-d102-prep`。タグ `v2-c7-day-4-accepted`(8f78065=実証済みの線)。
 - 最終更新: 2026-10-04(第320 10b=IMPLEMENTED #81・保留の議題 9 本の草案が全部そろう・全体テスト 3,544 件。**次は 10c と、草案を 1 問ずつユーザーへ**)。経緯は devlog。
