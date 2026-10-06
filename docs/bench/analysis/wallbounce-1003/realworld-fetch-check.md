@@ -334,3 +334,9 @@ tail -n +441 <V1>/data/realworld/_ledger.jsonl >> <V2>/data/realworld/_ledger.js
 | ODPT の間隔 | **10 分ごと**(expedient・宣言)。1 日 864 本・約 9.5 MB・台帳 864 行 | v1 に設定が無い。在線は粗いが運行情報の検証には足りる。台帳の増え方は 1 か月後に見直す |
 
 **登録したタスク(親が `schtasks /create /xml` で実行・2026-10-03)**: `\shibuya-v2-rw-fetch-daily`(毎日 12:00・`--backfill --out-dir data\realworld_live`・次回 10-04 12:00)/ `\shibuya-v2-rw-fetch-amedas-prevday`(毎日 00:30・前日の amedas だけ・次回 10-04 00:30)/ `\shibuya-v2-rw-fetch-odpt`(10 分ごと・`--source odpt_rt`・次回 10-03 17:50)。v1 の `\shibuya-rw-fetch-daily` は `/disable`(削除はしない)。設定は v1 の XML を踏襲(Interactive only・StartWhenAvailable・電池時は開始しない・多重起動は無視。ODPT は 10 分で停止)。前日の取り直しのコマンドは PowerShell で `--offline` の空実行で引数の解釈を確かめた(8 要求・前日の日付)。
+
+### 9-x ODPT の取得間隔の見直し(2026-10-06・第323・ユーザー指示=指示書 10-06 §6「規約のレート上限の範囲で短くできるか確かめる」)
+
+- 確かめたこと: ODPT の利用規約(開発者サイト `developer.odpt.org/terms/center_use_rules.html`)に数値のレート上限は無く、「センターは利用者のアクセス頻度や日時の制限をその裁量で決めることができる」旨の条項だけ(英語版の条文を検索の要約で確認。日本語版のページは JS で描画され取得ツールでは本文が読めなかった=条番号は空欄)。データカタログの明記された数値の上限は「1 回の出力 1,000 件まで」だけ。運行情報の `dct:valid` は `dc:date` + 5 分(`odpt_rt.py`)。
+- 決めたこと(親・事後報告): タスク `\shibuya-v2-rw-fetch-odpt` の繰り返しを **10 分 → 5 分**(`dct:valid` の幅に合わせる。1 日あたり HTTP 約 1,728 本・約 19 MB・台帳 1,728 行の見積り=§4 の表の 2 倍)。5 分より短くする根拠は無い(有効期限の幅の中で 2 回取っても同じ値)。センターから制限の連絡があれば戻す。
+
