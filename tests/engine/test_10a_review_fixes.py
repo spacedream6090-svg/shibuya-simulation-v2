@@ -89,6 +89,11 @@ def _record(tmp_path, name, delay):
             s.close()
 
 
+def _meta_wo_env(meta):
+    """テープの脇の meta から 10f の環境の欄(``env_id``・``environment``)を除いた写し。"""
+    return {k: v for k, v in meta.items() if k not in ("env_id", "environment")}
+
+
 def _replay(path, **kw):
     return run_day(mode="replay", replay=path, llm=BoomLLM(), budget=30.0, **common(20), **kw)
 
@@ -96,8 +101,9 @@ def _replay(path, **kw):
 def test_the_tape_carries_the_response_delay_and_mismatches_stop(tmp_path):
     rec1 = _record(tmp_path, "d1", 1)
     rec2 = _record(tmp_path, "d2", 2)
-    assert read_run_meta(tmp_path / "d1") == {"response_delay": 1, "rng_scheme": "stateful"}
-    assert read_run_meta(tmp_path / "d2") == {"response_delay": 2, "rng_scheme": "stateful"}
+    # 10f: 環境の欄(env_id・environment)も書く=それを除いた形は今までと同じ
+    assert _meta_wo_env(read_run_meta(tmp_path / "d1")) == {"response_delay": 1, "rng_scheme": "stateful"}
+    assert _meta_wo_env(read_run_meta(tmp_path / "d2")) == {"response_delay": 2, "rng_scheme": "stateful"}
     with pytest.raises(ValueError, match="テープは response_delay=1・今の設定は 2"):
         _replay(tmp_path / "d1", response_delay=2)
     with pytest.raises(ValueError, match="テープは response_delay=2・今の設定は 1"):
@@ -247,6 +253,7 @@ def test_tape_meta_does_not_touch_the_parquet(tmp_path):
 
     run_day(n_agents=30, n_cells=9, ticks=10, tape_path=tmp_path / "t", renderer="stub", sleep_suppression=False)
     t = Tape(tmp_path / "t")
-    assert t.run_meta == {"response_delay": 1, "rng_scheme": "stateful"}  # 10c: 乱数の方式も書く
+    assert _meta_wo_env(t.run_meta) == {"response_delay": 1, "rng_scheme": "stateful"}  # 10c: 乱数の方式も書く
+    assert set(t.run_meta) == {"response_delay", "rng_scheme", "env_id", "environment"}  # 10f: 環境の欄
     assert "response_delay" not in t.calls.schema.names
     assert Path(tmp_path / "t" / RUN_META_FILENAME).read_bytes().endswith(b"\n")

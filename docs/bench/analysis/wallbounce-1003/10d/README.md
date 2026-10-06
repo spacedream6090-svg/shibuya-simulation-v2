@@ -125,6 +125,7 @@ for T in range(始め, 終わり):
 
 - **書く時**: `stop_at_tick` で止めたとき(日の境目なら締めの後・日の途中なら締めずに)・複数日のランの途中の日の締めの後(各日)・ランの最後(`finished: true`)。
 - **pickle の注意**: 自分で書いたファイルだけを読む前提(外から来たファイルを読むと任意のコードが動く)。値どうしの同一性(会話の `sessions` と `_of_agent` が同じ `Session` を指す など)を 1 回の dump で保つために選んだ(**未リサーチ(expedient)**)。
+  〔訂正(10f)〕「`sessions` と `_of_agent` が同じ `Session` を指す」は今のコードでは当たらない。`_of_agent` は体 → 会話の番号の整数の辞書(`engine/conversation.py` の `ConversationManager`)で、`Session` を指さない。日の境目の保存で同じオブジェクトを 2 か所から指すのは、`run_day.pending` の中の凍結した `Target`(12 か所から 1 つ)と、金の台帳の `_last_close.flow` と `_flow_daily[0]` の配列の 2 つ([10f の材料](../../wallbounce-1006/10f-prep.md) §5-2)。`engine/resume.py` の docstring にも同じ訂正を添えた。
 
 ### 4-2 読み込み(`run_day(resume_from=…)`)
 
@@ -354,6 +355,7 @@ python $D/10b/byte_check_10b.py compare --head <作業用>/head.json --work <作
 10d の反映で 191 行 → 検収後 **192 行**(O94 を足した)。O37 の軸 1 を behavior → diag。full-hash と behavior-hash は全構成で値が変わる(final は不変)。
 
 **新しい behavior-hash**(1 日・mock 5,000 体・seed 1・最後の checkpoint・先頭 16 桁。[byte_check_after_review.json](byte_check_after_review.json) の作業木の値): 既定 v3 `b3ccfa6797f2c418`・帰無 `aa2a2b3818f33362`・relations-on `2817c8ed4bc17c88`。full-hash は既定 v3 `fa168793db2b6433`・帰無 `c38b7abc37211bd6`・relations-on `165666b6c42034f3`。10e で比べるのはこの値(10b §11-5 の値は置き換わった)。
+〔訂正(10f)〕10f で状態台帳の O75 を O95 に分けた(`flow_dir8`・`coherence` を diag に・版 `state-ledger/10f`)ため、behavior-hash と full-hash は全構成で変わった(final・呼数・テープは不変)。10e で比べるのは [10f の記録](../../wallbounce-1006/10f/README.md) §4 の表の「後」の値と [byte_check.json](../../wallbounce-1006/10f/byte_check.json) の `state_hashes_after`(19 構成)。上の値は 10d の版の値として残す。
 
 ### 11-2 byte-check と resume == straight(検収後のコード)
 

@@ -46,7 +46,7 @@ from dataclasses import dataclass
 from typing import Final, Iterable
 
 #: 表の版(列や行の判定を変えたら上げる。manifest の ``state_hashes.ledger_version`` に出る)。
-LEDGER_VERSION: Final[str] = "state-ledger/10d"
+LEDGER_VERSION: Final[str] = "state-ledger/10f"
 
 BEHAVIOR: Final[str] = "behavior"
 NO: Final[str] = "no"
@@ -538,11 +538,11 @@ _EXT: tuple[LedgerRow, ...] = (
     _o(74, "RailProcess arrival_train・external_line(帰りの便の予約印・域外居住者の路線)", "processes/rail.py:293-294,405-406,459,502",
        "i8 体数", B, R_, ("runner.rail.arrival_train", "runner.rail.external_line"),
        note="初期化で域外居住者に割り当て、乗車と帰着で書き換える"),
-    _o(75, "CrowdProcess occupancy・queue_len・flow・flow_dir8・coherence", "processes/crowd.py:165-180,252-293",
-       "i8/u1/f8 POI・セル数", B, U_,
-       ("runner.crowd.occupancy", "runner.crowd.queue_len", "runner.crowd.flow", "runner.crowd.flow_dir8",
-        "runner.crowd.coherence"),
-       note="毎 tick の step で SoA から作り直すが、作り直す前(次の tick の入店の判定)に読む口があるかは未確認=不明"),
+    _o(75, "CrowdProcess occupancy・queue_len・flow", "processes/crowd.py:165-180,252-293",
+       "i8/u1 POI・セル数", B, U_,
+       ("runner.crowd.occupancy", "runner.crowd.queue_len", "runner.crowd.flow"),
+       note="毎 tick の step で SoA から作り直すが、作り直す前(次の tick の入店の判定)に読む口があるかは未確認=不明。"
+            "10f: flow_dir8・coherence は O95 へ(読み手 0=diag)"),
     _o(76, "EnvironmentProcess daylight・heat_stage・wbgt", "processes/environment.py:158-160,267-278", "値", B, V_,
        ("runner.environment.daylight", "runner.environment.heat_stage", "runner.environment.wbgt"),
        note="5 分刻みの更新で気象の行と時刻から作り直す(更新の間も読まれる)"),
@@ -616,6 +616,12 @@ _EXT: tuple[LedgerRow, ...] = (
            "perception/renderer.py の B6", "dict", B, R_, ("poi_resolver.named_closed",),
        note="10d 検収 L2: 元 O26(計数・discardable)。描画の B6 が失敗の直後の起床でプロンプトに「(店名は閉店中・"
             "開店の時刻)」を足す=挙動に効く。AST の検査は外の状態の属性の読み手を見ないので捕まらなかった"),
+    _o(95, "CrowdProcess flow_dir8・coherence(8 方位と向きのそろい)", "processes/crowd.py:166-167,269-297",
+       "u1/f8 セル数", D_, U_, ("runner.crowd.flow_dir8", "runner.crowd.coherence"),
+       note="10f: 元 O75(behavior)。src に読み手が無い(grep `flow_dir8`・`coherence` は crowd.py の書き込みと"
+            "tests/engine/processes/test_crowd.py だけ・getattr の文字列も無い・10f の材料 §3-3 の AST でも 0)。"
+            "crowd.py の docstring どおり「診断・将来用」=軸 1 を diag に。描画が使う 3 値の flow は O75 に残る"
+            "(coherence は flow を作る途中の局所変数 coh として使われ、属性は読まれない)。軸 2 は O75 と同じ unknown"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。

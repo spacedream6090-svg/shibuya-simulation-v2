@@ -394,6 +394,16 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #84 D-102 の土台 10f 第 1 段: 環境の欄(`env_id`・`platform_id`)と manifest の設定・観測・環境の節(第325・2026-10-07・実装役 Opus 5.5・親検収+別のサブの検収 2 回)
+
+- 正典: [10f のアジェンダ](docs/design/v2-d102-10f-agenda.md) §2 の 1・2(K22)・6(K20〜K26 は親推奨で確定=[リサーチの指示 10-06 夜](docs/design/v2-research-request-2026-10-06.md) §0)・[実装の記録](docs/bench/analysis/wallbounce-1006/10f/README.md)。
+- **環境の欄**: `environment_fields()`(版・OS・CPU・numpy の命令セット・依存の一覧と sha256・numba のスレッド数・git の commit/dirty/差分の sha256)。`env_id` を manifest・状態の見出し・`run_meta.json` に同じ値で書く。golden は `platform_id`(ビットに効きうる欄だけ)の行で持ち、未登録の環境は A/A と `GoldenUnregisteredWarning`。再開と再生で環境が違えば警告 1 行。
+- **manifest の節**: `manifest_sections.py`(384 道筋・設定 151・混ざった辞書 21 は葉まで明示)。`seed_exchangeability` は設定の節だけ比べ、既定 v3・記憶+関係・classical+記憶+関係の seed 1/2 で PASS(前は 316/743/698 欄で FAIL)。
+- **小さな直し**: O75 の `flow_dir8`・`coherence` を O95(diag・読み手 0)へ=台帳 193 行・版 `state-ledger/10f`(10d の版の状態ファイルは読めない)。docstring・10d README・「372 層」に訂正の注。
+- **既定の結果は不変**: byte-check 19/19(final・呼数・テープ 14 列)。behavior-hash と full-hash は O95 の分割で 19 構成とも動いた(前後は `byte_check.json`=10e で比べる値はこちら)。
+- 別のサブの検収: 1 回目 条件つき受入(N1 関係 on の交換可能性・N2 依存の版で golden が黙って消える ほか 7)→ 直し → 2 回目 受入(低い R1〜R4 は記録に残す)。
+- テスト: 全体 **3,656 件(3,654 passed・failed 0・skipped 1・xfailed 1)**(実装役)。
+
 ### #83 D-102 の土台 10d: 日の境目の再開と複数日の通しラン(`--sim-days`・`--resume-from`・`--state-out`)(第322・2026-10-04・実装役 Opus 5.5・親検収+別のサブの検収)
 
 - 正典: [D-102 の土台のアジェンダ §4](docs/design/v2-d102-foundation-implementation-agenda.md)・ユーザー決定 A10・A11([指示書 10-03](docs/design/v2-wallbounce-decisions-2026-10-03.md) §3-6・§3-7)・[実装の記録](docs/bench/analysis/wallbounce-1003/10d/README.md)・[検収の記録](docs/bench/analysis/wallbounce-1003/review-10d.md)。**1 日の再開なしのランは不変**(19 構成でバイト一致)。

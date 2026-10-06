@@ -13,6 +13,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from tests import golden_env as GE
+
 from shibuya.agents.state import Activity, AgentKind, AgentState
 from shibuya.engine import classical as CL
 from shibuya.world.state import World
@@ -24,7 +26,12 @@ PROMPT = "[B5 近接] 近くの人物: P-3(未知)、P-7(知人)、P-5(知人)�
 
 #: classical 1,500 体・seed 1・v3 の既定(acquaintance・関係 off)の final と呼数(旧は
 #: ``tests/perception/test_near_tiebreak.CLASSICAL_1500_GOLDEN["hash"]`` を ``classical_social="near_first"`` で再現)。
-CLASSICAL_1500_GOLDEN_ACQ = ("4f78f3c0ce95d8e205c700952d756cd2e443da86bd54c60c073f39cafd5ec00a", 25_808)
+#: 10f(K26 (1)): 一番外側の鍵は環境の ``platform_id``(``tests/golden_env.py``)。行の無い環境では A/A だけ。値は 10f の前のまま。
+CLASSICAL_1500_GOLDEN_ACQ_BY_ENV = {
+    GE.PLATFORM_10F: ("4f78f3c0ce95d8e205c700952d756cd2e443da86bd54c60c073f39cafd5ec00a", 25_808),
+}
+#: 今の環境の行(無ければ ``None``=A/A だけ)。
+CLASSICAL_1500_GOLDEN_ACQ = GE.row(CLASSICAL_1500_GOLDEN_ACQ_BY_ENV)
 
 
 def _bound(n: int = 12, social: str = "acquaintance") -> CL.ClassicalPolicy:
@@ -134,7 +141,10 @@ def test_run_golden_and_arms():
     assert '"--classical-social"' in src and "classical_social=str(args.classical_social)" in src
     kw = dict(n_agents=1500, seed=1, world_dir=WORLD, vocab_version="v3", policy="classical", chooser="classical")
     r = cli.run(**kw)
-    assert (r.final_hash, int(r.llm_calls)) == CLASSICAL_1500_GOLDEN_ACQ
+    if CLASSICAL_1500_GOLDEN_ACQ is None:  # 10f: golden の行の無い環境は A/A だけ
+        GE.assert_aa(lambda: cli.run(**kw), lambda x: (x.final_hash, int(x.llm_calls)), first=r)
+    else:
+        assert (r.final_hash, int(r.llm_calls)) == CLASSICAL_1500_GOLDEN_ACQ
     m = r.run_manifest_fields()["classical"]
     assert m["social"] == "acquaintance"
     c = m["counts"]

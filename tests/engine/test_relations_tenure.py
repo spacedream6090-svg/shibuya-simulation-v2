@@ -18,6 +18,8 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
+from tests import golden_env as GE
+
 from shibuya.agents.weekly import WeeklySchedule
 from shibuya.engine import relations as RL
 
@@ -166,10 +168,13 @@ def test_switch_is_checked_and_on_the_cli_and_sets_the_default_tau():
 
 #: 関係 on の腕の final(mock 5,000 体・seed 1・v3・記憶 on・関係 on・CLI 既定=energy)。v1=HEAD b4c8b1c の値
 #: (旧の再現)・v2=修正後(既定)。記録 ``docs/bench/analysis/wave2-2026-09-30/`` §2A-0。
-REL_ON_5000_GOLDEN = {
+#: 10f(K26 (1)): 一番外側の鍵は環境の ``platform_id``(``tests/golden_env.py``)。行の無い環境では A/A だけ。値は 10f の前のまま。
+REL_ON_5000_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     "v1": ("e4f84d1d176e6ec0", 72_940),
     "v2": ("40409ebed834126b", 72_930),
-}
+}}
+#: 今の環境の行(無ければ ``None``=A/A だけ)。
+REL_ON_5000_GOLDEN = GE.row(REL_ON_5000_GOLDEN_BY_ENV)
 
 
 def test_relations_on_arm_golden_old_and_new():
@@ -180,6 +185,9 @@ def test_relations_on_arm_golden_old_and_new():
     from shibuya import cli
 
     kw = dict(n_agents=5000, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", relations="on")
+    if REL_ON_5000_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(既定の v2)
+        GE.assert_aa(lambda: cli.run(rel_tenure_hash="v2", **kw), lambda r: (r.final_hash[:16], int(r.llm_calls)))
+        return
     for ver, (final, calls) in REL_ON_5000_GOLDEN.items():
         r = cli.run(rel_tenure_hash=ver, **kw)
         assert (r.final_hash[:16], int(r.llm_calls)) == (final, calls), ver

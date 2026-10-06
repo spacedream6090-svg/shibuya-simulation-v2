@@ -56,6 +56,7 @@ expedient(本モジュール分)
 from __future__ import annotations
 
 import argparse
+import copy
 import time
 import warnings
 from collections import Counter
@@ -952,6 +953,8 @@ class RunResult:
     day_heads: list[dict[str, Any]] = field(default_factory=list)
     #: 再開の欄(ラン ID・親のラン・始めと終わりの T・``finished``・書いた状態のファイル・K9 のつなぎの日)。
     resume: dict[str, Any] = field(default_factory=dict)
+    #: 10f(K26 (a)): 環境の欄(``engine.resume.environment_fields``)。manifest の ``environment``・``env_id``。
+    env_fields: dict[str, Any] = field(default_factory=dict)
     #: checkpoint ごとの列・外の状態の行の digest(``checkpoint_detail=True`` のときだけ・manifest には出さない)。
     checkpoint_details: list[dict[str, Any]] = field(default_factory=list)
 
@@ -1132,6 +1135,7 @@ class RunResult:
             ラン=**未実行**。D-85 (a))・``catalog_sha16``(世界カタログ v0.2 の凍結 SHA)・
             ``process_ids``(実際に回した過程 id の昇順)・``ablations``(切った過程/感度試験 id)。
         """
+        from shibuya.engine import manifest_sections as _MS
         from shibuya.perception import templates as _T
 
         runner = getattr(self, "runner", None)
@@ -1286,6 +1290,10 @@ class RunResult:
             "frozen_sources": dict(self.frozen_sources),
             # 実艦隊(C6-a)。mock/tape ランでは空 dict(欄は常にある)。
             "fleet": dict(self.fleet_fields),
+            # ---- 10f(K26 (a)・K22 (a)): 環境の欄と、欄の節(設定・観測・環境)の表。列追加のみ ----
+            "env_id": str(self.env_fields.get("env_id", "")),
+            "environment": copy.deepcopy(self.env_fields),  # 10f 検収 N9: 深い写し
+            "manifest_sections": _MS.sections_table(),
         }
 
     def l4_audit_fields(self) -> dict[str, Any]:
@@ -2263,6 +2271,9 @@ def run_day(
     calendar_weekday = check_weekday_mode(calendar_weekday)
     response_delay = _resolve_response_delay(response_delay, mode, replay)
     rng_scheme = _resolve_rng_scheme(rng_scheme, mode, replay)  # 10c: 再生ではテープの meta と突き合わせる
+    if mode == "replay" and replay is not None:  # 10f: 録画した環境が違えば警告を 1 行(挙動は変えない)
+        _rtd = _replay_tape_dir(replay)
+        RS.warn_if_other_environment(read_run_meta(_rtd).get("environment"), f"再生するテープ {_rtd.name}")
     sim_days = int(sim_days)
     if sim_days < 1:
         raise ValueError(f"sim_days は 1 以上(いま {sim_days})")
@@ -2299,6 +2310,8 @@ def run_day(
         _bundle = RS.read_state(resume_from)
         _read_seconds = time.perf_counter() - _t_read
         _h = _bundle.header
+        # 10f: 親を書いた環境が違えば警告を 1 行(挙動は変えない)
+        RS.warn_if_other_environment(_h.get("platform"), f"状態のファイル {Path(resume_from).name}")
         if bool(_h.get("finished", False)):
             raise ValueError(
                 f"finished: true のランへは再開しない(親 {_h.get('run_id')}・T={_h.get('progress', {}).get('next_T')})"
@@ -2509,8 +2522,12 @@ def run_day(
     )
     salt = run_salt_for(seed)
     # 検収後 P3・10c: テープの脇の meta に応答の遅れと乱数の方式を書く(再生で突き合わせる・テープの版と列は変えない)
+    # 10f(K26 (a)): 環境の欄と env_id(manifest・状態の見出しと同じ値)もテープの脇の meta に書く
+    _env_fields = RS.environment_fields()
     tape_writer = (TapeWriter(Path(tape_path), run_meta={"response_delay": int(response_delay),
-                                                            "rng_scheme": str(rng_scheme)})
+                                                            "rng_scheme": str(rng_scheme),
+                                                            "env_id": str(_env_fields["env_id"]),
+                                                            "environment": copy.deepcopy(_env_fields)})
                    if tape_path is not None else None)
     conv = (ConversationManager(seed, max_participants=int(conv_max_participants))
             if conversations else None)
@@ -3056,6 +3073,7 @@ def run_day(
         tape_path=str(tape_path) if tape_path is not None else "",
         mode=mode,
     )
+    result.env_fields = _env_fields  # 10f: manifest の environment・env_id
     result.money_start = int(agents.registry.money.astype(np.int64).sum())
     #: D-71 §3 J: 行動コード別の適用件数(``ResolveOutcome.per_action`` のラン合計)。
     per_action_total: dict[int, int] = {}
@@ -3382,7 +3400,8 @@ def run_day(
                 "sim_days": int(sim_days), "ticks_per_day": int(tpd),
             },
             "fingerprint": _fp,
-            "platform": RS.platform_fields(),
+            "platform": copy.deepcopy(_env_fields),
+            "env_id": str(_env_fields["env_id"]),  # 10f: manifest・run_meta.json と同じ値
             "hashes": {"behavior_hash": beh_, "full_hash": full_},
             "counts": {
                 "soa_columns": {k: len(v) for k, v in soa_.items()},

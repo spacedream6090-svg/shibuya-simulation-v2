@@ -13,6 +13,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from tests import golden_env as GE
+
 from shibuya.agents.weekly import (
     ACTIVITY_WORDS,
     N_DAYS,
@@ -48,12 +50,15 @@ WORLD_DIR = Path(__file__).resolve().parents[2] / "data" / "world" / "v2"
 
 #: 実 W17 の golden(親再実行値・2026-09-12・第170)。キー= parquet md5 先頭 12 桁。
 #: 11a7129beaea = W17 v1(w17v1_backup/)/ 3113e9ba7abb = W17 v2(本番 第 2 回・昇格)。
-REAL_GOLDEN = {
+#: 10f(K26 (1)): 一番外側の鍵は環境の ``platform_id``(``tests/golden_env.py``)。行の無い環境では A/A だけ。値は 10f の前のまま。
+REAL_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     "11a7129beaea": {"v1": [85_766, 214_998, 45_631, 50], "v2": [97_242, 247_395, 1_808, 0],
                      "v2.1": [101_388, 244_874, 183, 0]},
     "3113e9ba7abb": {"v1": [92, 160_033, 133_575, 47_861], "v2": [1_269, 254_605, 85_421, 5_076],
                      "v2.1": [1_292, 255_230, 84_895, 4_961]},
-}
+}}
+#: 今の環境の行(無ければ ``None``=A/A だけ)。
+REAL_GOLDEN = GE.row(REAL_GOLDEN_BY_ENV)
 
 
 def _w17_digest() -> str:
@@ -373,6 +378,10 @@ def test_v2_rule_on_the_real_w17_matches_the_parent_verified_counts():
     b2 = PlanBlocks.from_weekly(wk, 0, ho, derive_rule="v2")
     b3 = PlanBlocks.from_weekly(wk, 0, ho, derive_rule="v2.1")
     p1, p2, p3 = b1.blocks_per_agent(), b2.blocks_per_agent(), b3.blocks_per_agent()
+    if REAL_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(同じ畳み方をもう 1 回)
+        for rule, got in (("v1", p1), ("v2", p2), ("v2.1", p3)):
+            assert np.array_equal(got, PlanBlocks.from_weekly(wk, 0, ho, derive_rule=rule).blocks_per_agent())
+        return
     g = REAL_GOLDEN.get(_w17_digest())
     if g is None:
         pytest.skip(f"実 W17 の golden が無い(md5 {_w17_digest()})=親が再実行して REAL_GOLDEN に足す")

@@ -12,6 +12,13 @@
 - **直列化**: ``pickle``(プロトコル 5)。1 回の ``dump`` で全部を書くので、値どうしの同一性(会話の
   ``sessions`` と ``_of_agent`` が同じ ``Session`` を指す など)が保たれる。自分で書いたファイルだけを読む
   前提(``pickle`` は外から来たファイルを読んではいけない)。**未リサーチ(expedient)**。
+  〔訂正(10f)〕上の「``sessions`` と ``_of_agent`` が同じ ``Session`` を指す」は今のコードでは当たらない。
+  ``_of_agent`` は体 → 会話の番号の**整数**の辞書(``engine/conversation.py`` の ``ConversationManager``)で、
+  ``Session`` を指さない。同じオブジェクトを 2 か所から指すのは、日の境目の保存では ``run_day.pending`` の中の
+  凍結した ``Target``(12 か所から 1 つ)と、金の台帳の ``_last_close.flow`` と ``_flow_daily[0]`` の配列の 2 つ
+  (10f の材料 §5-2 の計測)。
+- **環境の欄**(10f): 見出しの ``platform`` に ``environment_fields()`` の全体、``env_id`` に同じ ID を書く
+  (manifest とテープの ``run_meta.json`` と同じ値)。
 - **戻し方**: ``engine.resolve.restore_soa`` と ``restore_items``(書き手は resolve=単一書き手の規律)。
 
 設定の指紋(``fingerprint``)は ``run_day`` の引数のうち挙動に効くもの(観測だけの欄・出力先・日数・状態の
@@ -145,15 +152,239 @@ def run_id_of(fp: Mapping[str, Any], *, start_T: int, parent: str = "") -> str:
     return "run-" + blake3_hex(body.encode("utf-8"))[:16]
 
 
+#: 環境の欄の形式の版(欄の組み立てを変えたら上げる・10f)。
+ENV_SCHEMA: Final[str] = "shibuya.engine.resume/environment/v1"
+#: 版を記録する依存(``importlib.metadata`` の配布名)。無ければ空の値。
+ENV_PACKAGES: Final[tuple[str, ...]] = ("numpy", "numba", "llvmlite", "blake3")
+
+
+def _dist_version(name: str) -> str:
+    from importlib import metadata
+
+    try:
+        return str(metadata.version(name))
+    except Exception:  # noqa: BLE001 - 入っていない配布は空の値(欄は残す)
+        return ""
+
+
+def _numpy_simd() -> dict[str, list[str]]:
+    """numpy の命令セット(基線と実行時の振り分けで見つかったもの)。取れなければ空の list。"""
+    try:
+        simd = np.show_config(mode="dicts").get("SIMD Extensions", {})  # type: ignore[union-attr]
+        return {"baseline": [str(x) for x in simd.get("baseline", [])],
+                "found": [str(x) for x in simd.get("found", [])],
+                "not_found": [str(x) for x in simd.get("not found", [])]}
+    except Exception:  # noqa: BLE001
+        return {"baseline": [], "found": [], "not_found": []}
+
+
+def _deps_list() -> list[str]:
+    """入っている配布の「名前==版」(名前は小文字・``_`` を ``-`` に揃える・昇順・重複なし)。``pip freeze`` 相当
+    (``pip`` のサブプロセスは呼ばない)。"""
+    from importlib import metadata
+
+    lines: set[str] = set()
+    for d in metadata.distributions():
+        name = str(d.metadata.get("Name") or "").strip().lower().replace("_", "-")
+        if name:
+            lines.add(f"{name}=={d.version}")
+    return sorted(lines)
+
+
+def _deps_digest(lines: list[str] | None = None) -> tuple[str, int]:
+    """依存の一覧(``_deps_list``)の sha256(行を改行でつなぎ末尾にも改行)と行数。"""
+    import hashlib
+
+    lines = _deps_list() if lines is None else lines
+    body = "\n".join(lines) + "\n"
+    return "sha256:" + hashlib.sha256(body.encode("utf-8")).hexdigest(), len(lines)
+
+
+def _numba_threads() -> int | None:
+    """numba の実際のスレッド数(``numba.config.NUMBA_NUM_THREADS``)。numba が無ければ ``None``。"""
+    try:
+        import numba  # noqa: PLC0415 - 版を見るだけ(スレッドの層は起動しない)
+
+        return int(numba.config.NUMBA_NUM_THREADS)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[3]
+
+
+def _git(root: Path, *args: str, timeout: float = 30) -> Any:
+    import subprocess
+
+    return subprocess.run(["git", "--no-optional-locks", "-C", str(root), *args], capture_output=True, timeout=timeout)
+
+
+def _git_state() -> dict[str, Any]:
+    """git の commit・dirty・差分の sha256(10f 検収 N6・N7)。
+
+    - ``git rev-parse --show-toplevel`` がこのパッケージの根と同じときだけ値を入れる(``git archive`` の写しが
+      別のリポの中にあっても、外のリポの commit を拾わない)。
+    - ``git_dirty``: **追跡しているファイル**に未コミットの変更があるか(``--untracked-files=no``。未追跡の文書では
+      true にならない)。
+    - ``git_diff_sha256``: dirty のとき ``git diff HEAD --binary`` の出力の sha256(同じ commit の上の別の変更を
+      区別する)。clean なら ``""``。未追跡のファイルは入らない。
+    - 必須でないロックを取らない(``--no-optional-locks``=並べて動く ``git add``・``commit`` とぶつからない)。
+
+    git が無い・リポの外・根が違うときは空の値(``""``・``None``)。
+    """
+    import hashlib
+
+    root = _repo_root()
+    out: dict[str, Any] = {"git_commit": "", "git_dirty": None, "git_diff_sha256": ""}
+    try:
+        top = _git(root, "rev-parse", "--show-toplevel", timeout=10)
+        if top.returncode != 0:
+            return out
+        if Path(top.stdout.decode("utf-8", "replace").strip()).resolve() != root.resolve():
+            return out
+        r = _git(root, "rev-parse", "HEAD", timeout=10)
+        if r.returncode != 0:
+            return out
+        out["git_commit"] = r.stdout.decode("ascii", "replace").strip()
+        st = _git(root, "status", "--porcelain", "--untracked-files=no")
+        if st.returncode == 0:
+            out["git_dirty"] = bool(st.stdout.strip())
+            if out["git_dirty"]:
+                d = _git(root, "diff", "HEAD", "--binary")
+                if d.returncode == 0:
+                    out["git_diff_sha256"] = "sha256:" + hashlib.sha256(d.stdout).hexdigest()
+    except Exception:  # noqa: BLE001 - git が無い
+        pass
+    return out
+
+
+def _git_stamp() -> tuple[int, ...] | None:
+    """git の index・HEAD・今の枝の ref の更新時刻(コミットや ``git add`` で変わる)。``.git`` が無ければ ``None``。"""
+    g = _repo_root() / ".git"
+    if not g.is_dir():
+        return None
+    files = [g / "index", g / "HEAD"]
+    try:
+        head = (g / "HEAD").read_text(encoding="utf-8").strip()
+        if head.startswith("ref: "):
+            files.append(g / head[5:])
+        return tuple(f.stat().st_mtime_ns if f.exists() else -1 for f in files)
+    except OSError:
+        return None
+
+
+_CODE_CACHE: dict[str, Any] = {}
+
+
+def _code_fields() -> dict[str, Any]:
+    """``code`` の欄。git の index・HEAD・ref の更新時刻が前と同じなら前の値を使う(10f 検収 N9: 長く動くプロセスで
+    コミットした後のランが古い commit を書かない)。索引に載せていない作業木の編集だけでは取り直さない(宣言)。"""
+    stamp = _git_stamp()
+    if stamp is not None and _CODE_CACHE.get("stamp") == stamp:
+        return dict(_CODE_CACHE["code"])
+    code = _git_state()
+    _CODE_CACHE.clear()
+    _CODE_CACHE.update({"stamp": stamp, "code": dict(code)})
+    return code
+
+
+def canonical_json(v: Any) -> str:
+    """正準の JSON(鍵を昇順・区切りを ``,`` ``:`` に固定・ASCII 以外もそのまま)。"""
+    return json.dumps(v, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def _id_of(v: Any) -> str:
+    return blake3_hex(canonical_json(v).encode("utf-8"))[:16]
+
+
+_ENV_CACHE: dict[str, Any] = {}
+#: ``platform_id`` に入れる欄(結果のビットに効きうるもの・10f 検収 N2)。依存の一覧(``deps``・``deps_sha256``・
+#: ``deps_count``)は記録には残すが鍵に入れない(pytest などビットに効かない配布の版で golden の行が外れないように)。
+PLATFORM_ID_KEYS: Final[tuple[str, ...]] = (
+    "python", "python_implementation", "numpy", "numba", "llvmlite", "blake3", "os", "os_release", "os_version",
+    "machine", "cpu", "numpy_simd",
+)
+
+
+def environment_fields(*, refresh: bool = False) -> dict[str, Any]:
+    """環境の欄(10f・K26 (a))。``platform``・``runtime`` はプロセスごとに 1 回だけ集める(``refresh=True`` で
+    集め直す)。``code`` は git の更新時刻が変わったら取り直す。
+
+    - ``platform``: Python・numpy・numba・llvmlite・blake3 の版・OS と版・machine・CPU の型と numpy の命令セット・
+      依存の一覧(``deps``=「名前==版」の昇順の list・``deps_sha256``・``deps_count``)。
+    - ``runtime``: numba の既定のスレッド数(``numba.config.NUMBA_NUM_THREADS``。途中の ``set_num_threads`` は
+      映らない)と環境変数 ``NUMBA_NUM_THREADS``(今のエンジンは並列の経路を持たない)。
+    - ``code``: git の commit・dirty(追跡しているファイルだけ)・差分の sha256。
+    - ``env_id``: 上の 3 つ(と ``schema``)の正準の JSON の blake3 の頭 16 桁(manifest・状態の見出し・
+      ``run_meta.json`` に同じ値)。
+    - ``platform_id``: ``platform`` のうち ``PLATFORM_ID_KEYS`` だけの同じ形の ID(golden の行の鍵。commit・dirty・
+      スレッド数・依存の一覧を含めない)。
+
+    取れない欄は空の値(``""``・``None``・空の list)にし、欄は残す。返すのは毎回新しい写し。
+    """
+    if refresh or not _ENV_CACHE:
+        deps = _deps_list()
+        deps_sha, deps_n = _deps_digest(deps)
+        plat = {
+            "python": sys.version.split()[0],
+            "python_implementation": platform.python_implementation(),
+            **{p: (np.__version__ if p == "numpy" else _dist_version(p)) for p in ENV_PACKAGES},
+            "os": platform.system(),
+            "os_release": platform.release(),
+            "os_version": platform.version(),
+            "machine": platform.machine(),
+            "cpu": platform.processor(),
+            "numpy_simd": _numpy_simd(),
+            "deps": deps,
+            "deps_sha256": deps_sha,
+            "deps_count": deps_n,
+        }
+        runtime = {"numba_threads": _numba_threads(),
+                   "numba_threads_env": os.environ.get("NUMBA_NUM_THREADS", "")}
+        _ENV_CACHE.clear()
+        _ENV_CACHE.update({"platform": plat, "runtime": runtime})
+        if refresh:
+            _CODE_CACHE.clear()
+    plat = json.loads(json.dumps(_ENV_CACHE["platform"]))
+    runtime = dict(_ENV_CACHE["runtime"])
+    body = {"schema": ENV_SCHEMA, "platform": plat, "runtime": runtime, "code": _code_fields()}
+    env = json.loads(json.dumps(body))
+    env["platform_id"] = _id_of({k: plat.get(k) for k in PLATFORM_ID_KEYS})
+    env["env_id"] = _id_of(body)
+    return env
+
+
+class EnvironmentMismatchWarning(UserWarning):
+    """再開・再生の元(状態のファイル・テープ)を書いた環境の ``platform_id`` が今の環境と違う(10f・§8 の 6)。
+
+    決定論の約束は同じ環境の中だけなので知らせる。挙動は変えない(止めない)。"""
+
+
+def warn_if_other_environment(recorded: Any, source: str) -> bool:
+    """記録の環境の欄(``platform_id`` を持つ辞書)が今の環境と違えば警告を 1 行出す。返り値=警告したか。
+
+    記録に ``platform_id`` が無い(10f より前の状態のファイル・テープ)ときは何もしない。
+    """
+    if not isinstance(recorded, Mapping):
+        return False
+    rec = str(recorded.get("platform_id", "") or "")
+    if not rec:
+        return False
+    now = str(environment_fields()["platform_id"])
+    if rec == now:
+        return False
+    import warnings
+
+    warnings.warn(EnvironmentMismatchWarning(
+        f"{source} を書いた環境は platform_id={rec}・今は {now}(決定論の約束は同じ環境の中だけ。続けて回す)"),
+        stacklevel=3)
+    return True
+
+
 def platform_fields() -> dict[str, Any]:
-    """同じ環境かを見るための欄(決定論の方針: 同じ環境・同じ設定で同じ結果)。"""
-    return {
-        "python": sys.version.split()[0],
-        "numpy": np.__version__,
-        "os": platform.system(),
-        "machine": platform.machine(),
-        "numba_threads": os.environ.get("NUMBA_NUM_THREADS", ""),
-    }
+    """同じ環境かを見るための欄(決定論の方針: 同じ環境・同じ設定で同じ結果)。10f で ``environment_fields`` に広げた。"""
+    return environment_fields()
 
 
 # ---------------------------------------------------------------- 集め方

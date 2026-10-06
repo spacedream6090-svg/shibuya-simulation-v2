@@ -1,0 +1,685 @@
+{
+ "schema": "shibuya.bench/wave2-2026-09-30/byte-check/1",
+ "head": "8c8a77c",
+ "note": "10f 第 1 段+検収の直し(環境の欄・manifest の節の表・O75 の分割)。19 構成。HEAD の写しに data/calendar/syukujitsu.csv を足した",
+ "old_switches": {},
+ "expect_moved": [],
+ "how": "mock/classical 5,000 体・seed 1・1 シミュ日・テープつき。HEAD(git archive の src)と作業木で同じ構成を回し、final・呼数・blocks・calls 14 列の sha を比べる。work=作業木の既定・work_old=旧の切替口をすべて付けた作業木。10b の欄(work だけ): checkpoint ごとの behavior/full の先頭 16 桁・最後の値の全桁・外の状態のバイト・checkpoint の時間",
+ "src_checks": "ok(HEAD 側=写し・作業木側=作業木・エラー行なし)",
+ "all_ok": true,
+ "rows": [
+  {
+   "config": "w6_v3_default",
+   "head_final": "993276d5e5bb5cbe",
+   "head_calls": 69978,
+   "work_final": "993276d5e5bb5cbe",
+   "work_calls": 69978,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "w6_v3_activity_off",
+   "head_final": "f746406eb78b024a",
+   "head_calls": 58570,
+   "work_final": "f746406eb78b024a",
+   "work_calls": 58570,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "w6_v1_default",
+   "head_final": "0a52a4d3a90fa79f",
+   "head_calls": 60970,
+   "work_final": "0a52a4d3a90fa79f",
+   "work_calls": 60970,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "w6_v1_derive_v2_1",
+   "head_final": "faada6a938570ef1",
+   "head_calls": 54285,
+   "work_final": "faada6a938570ef1",
+   "work_calls": 54285,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "w6_v2",
+   "head_final": "f4382c82dfa21764",
+   "head_calls": 60901,
+   "work_final": "f4382c82dfa21764",
+   "work_calls": 60901,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "w6_v1_edge",
+   "head_final": "6db51cbd2b401129",
+   "head_calls": 54150,
+   "work_final": "6db51cbd2b401129",
+   "work_calls": 54150,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "w6_v2_edge",
+   "head_final": "d61923edade6f05c",
+   "head_calls": 54170,
+   "work_final": "d61923edade6f05c",
+   "work_calls": 54170,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "w6_v1_edge_plateau",
+   "head_final": "e32d69e91ff45e66",
+   "head_calls": 55173,
+   "work_final": "e32d69e91ff45e66",
+   "work_calls": 55173,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "w6_old_v1_default",
+   "head_final": "e1fcd39b618dc768",
+   "head_calls": 60970,
+   "work_final": "e1fcd39b618dc768",
+   "work_calls": 60970,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "w6_old_v1_derive_v2_1",
+   "head_final": "46ca40a12eb54d58",
+   "head_calls": 54285,
+   "work_final": "46ca40a12eb54d58",
+   "work_calls": 54285,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "w6_old_v2",
+   "head_final": "7c7d2423307fe571",
+   "head_calls": 60901,
+   "work_final": "7c7d2423307fe571",
+   "work_calls": 60901,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "w6_old_v1_edge",
+   "head_final": "951af158650b2fc2",
+   "head_calls": 54150,
+   "work_final": "951af158650b2fc2",
+   "work_calls": 54150,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "w6_old_v2_edge",
+   "head_final": "cf01958883d07209",
+   "head_calls": 54170,
+   "work_final": "cf01958883d07209",
+   "work_calls": 54170,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "w6_old_v1_edge_plateau",
+   "head_final": "b94df1eb4c5b5557",
+   "head_calls": 55173,
+   "work_final": "b94df1eb4c5b5557",
+   "work_calls": 55173,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "w6_golden_null_arm",
+   "head_final": "72cb9cd52982da74",
+   "head_calls": 100439,
+   "work_final": "72cb9cd52982da74",
+   "work_calls": 100439,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "v3_mem_store",
+   "head_final": "e89fc1cdc327cf57",
+   "head_calls": 69978,
+   "work_final": "e89fc1cdc327cf57",
+   "work_calls": 69978,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "v3_mem_rel",
+   "head_final": "40409ebed834126b",
+   "head_calls": 72930,
+   "work_final": "40409ebed834126b",
+   "work_calls": 72930,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "v3_classical",
+   "head_final": "3390e3ec02d392a9",
+   "head_calls": 97563,
+   "work_final": "3390e3ec02d392a9",
+   "work_calls": 97563,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "v3_classical_mem_rel",
+   "head_final": "28ea80375e7ee646",
+   "head_calls": 110395,
+   "work_final": "28ea80375e7ee646",
+   "work_calls": 110395,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  }
+ ],
+ "state_hashes_10b": {
+  "w6_v3_default": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "w6_v3_activity_off": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "w6_v1_default": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "w6_v1_derive_v2_1": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "w6_v2": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "w6_v1_edge": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "w6_v2_edge": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "w6_v1_edge_plateau": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "w6_old_v1_default": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "w6_old_v1_derive_v2_1": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "w6_old_v2": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "w6_old_v1_edge": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "w6_old_v2_edge": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "w6_old_v1_edge_plateau": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "w6_golden_null_arm": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "v3_mem_store": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "v3_mem_rel": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "v3_classical": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "v3_classical_mem_rel": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  }
+ },
+ "full_external_bytes_by_row_v3_default": null,
+ "state_hashes_before": {
+  "v3_classical": {
+   "behavior_last": "40bf5495b3f73315",
+   "full_last": "1e9d311de32e24cc"
+  },
+  "v3_classical_mem_rel": {
+   "behavior_last": "34c6fe866a9de744",
+   "full_last": "fefd88af33107ea2"
+  },
+  "v3_mem_rel": {
+   "behavior_last": "2817c8ed4bc17c88",
+   "full_last": "165666b6c42034f3"
+  },
+  "v3_mem_store": {
+   "behavior_last": "548b5f604ef87dfd",
+   "full_last": "5dd894d15cb1be7a"
+  },
+  "w6_golden_null_arm": {
+   "behavior_last": "aa2a2b3818f33362",
+   "full_last": "c38b7abc37211bd6"
+  },
+  "w6_old_v1_default": {
+   "behavior_last": "f0d0bd9f1fca4de7",
+   "full_last": "d215b54bb02a648b"
+  },
+  "w6_old_v1_derive_v2_1": {
+   "behavior_last": "f222f8c1937d6431",
+   "full_last": "a7588d8f6b9f47a4"
+  },
+  "w6_old_v1_edge": {
+   "behavior_last": "28703559f493973c",
+   "full_last": "21b8aa7623ccb3c2"
+  },
+  "w6_old_v1_edge_plateau": {
+   "behavior_last": "0ee611fed9a13992",
+   "full_last": "36531e0a37849a57"
+  },
+  "w6_old_v2": {
+   "behavior_last": "4a1d466dadb7bf29",
+   "full_last": "1db2a072417f9bcf"
+  },
+  "w6_old_v2_edge": {
+   "behavior_last": "4e357cbc4eb41ce3",
+   "full_last": "1c7e8ad29faba239"
+  },
+  "w6_v1_default": {
+   "behavior_last": "80317f84b357c8cd",
+   "full_last": "30727cf32268cb44"
+  },
+  "w6_v1_derive_v2_1": {
+   "behavior_last": "627015c1d9ec04a0",
+   "full_last": "975aab7ca81fecca"
+  },
+  "w6_v1_edge": {
+   "behavior_last": "d780933e9f1d34f1",
+   "full_last": "925049ec20819904"
+  },
+  "w6_v1_edge_plateau": {
+   "behavior_last": "e851365175b9f33a",
+   "full_last": "29b5457ae47d6990"
+  },
+  "w6_v2": {
+   "behavior_last": "f29b571f21dbd8f8",
+   "full_last": "83702d19cdb3fae0"
+  },
+  "w6_v2_edge": {
+   "behavior_last": "d2a7f4032d8a59c7",
+   "full_last": "c4600508df0bb57b"
+  },
+  "w6_v3_activity_off": {
+   "behavior_last": "65dfbe1c69db1c80",
+   "full_last": "8308c1f2ad71ccd5"
+  },
+  "w6_v3_default": {
+   "behavior_last": "b3ccfa6797f2c418",
+   "full_last": "fa168793db2b6433"
+  }
+ },
+ "state_hashes_after": {
+  "v3_classical": {
+   "behavior_last": "e8ab16915d89415c",
+   "full_last": "7f783bfffd69e194"
+  },
+  "v3_classical_mem_rel": {
+   "behavior_last": "127a82cd158cd829",
+   "full_last": "d973ecc109fd1496"
+  },
+  "v3_mem_rel": {
+   "behavior_last": "b2e49d9cc5c2ccce",
+   "full_last": "8f25c6b0f453bb4b"
+  },
+  "v3_mem_store": {
+   "behavior_last": "23e7abd0d7734b74",
+   "full_last": "11a76db6e31fddeb"
+  },
+  "w6_golden_null_arm": {
+   "behavior_last": "ed827fd4e312264d",
+   "full_last": "6242009e11760745"
+  },
+  "w6_old_v1_default": {
+   "behavior_last": "f9a301c75e4d7efe",
+   "full_last": "b8fb33fe4f991480"
+  },
+  "w6_old_v1_derive_v2_1": {
+   "behavior_last": "00284e20eb8d5c2a",
+   "full_last": "291340c8c1f970ba"
+  },
+  "w6_old_v1_edge": {
+   "behavior_last": "fe05d60d2fbea1a3",
+   "full_last": "f43140c23201c4c2"
+  },
+  "w6_old_v1_edge_plateau": {
+   "behavior_last": "08e7c3c499aa7c63",
+   "full_last": "5aacf62fddf80719"
+  },
+  "w6_old_v2": {
+   "behavior_last": "28fb189675e2e571",
+   "full_last": "ed2fbb89230eb5d2"
+  },
+  "w6_old_v2_edge": {
+   "behavior_last": "24c03c11e246e929",
+   "full_last": "26ecd4c770754e55"
+  },
+  "w6_v1_default": {
+   "behavior_last": "1281a1b032e67f57",
+   "full_last": "eab3faa7b2d34696"
+  },
+  "w6_v1_derive_v2_1": {
+   "behavior_last": "ccf1c15625349493",
+   "full_last": "16e56c33a1748ae9"
+  },
+  "w6_v1_edge": {
+   "behavior_last": "a7f8c7e10f40ece2",
+   "full_last": "55a9b8c465c0eaf4"
+  },
+  "w6_v1_edge_plateau": {
+   "behavior_last": "d2f2f7e00454b99f",
+   "full_last": "b54aa21b462d2416"
+  },
+  "w6_v2": {
+   "behavior_last": "dbcf5abb17394ffc",
+   "full_last": "dc8312941edd37c6"
+  },
+  "w6_v2_edge": {
+   "behavior_last": "3d88d8852b5aec40",
+   "full_last": "2be27f1d19f037db"
+  },
+  "w6_v3_activity_off": {
+   "behavior_last": "9a88751e6c7151c8",
+   "full_last": "e156c84f6cd5ad91"
+  },
+  "w6_v3_default": {
+   "behavior_last": "1f4d96b1d8dfa701",
+   "full_last": "64f2aa138e8a6bfe"
+  }
+ },
+ "state_hashes_note": "1 日・mock/classical 5,000 体・seed 1・テープつき・最後の checkpoint の先頭 16 桁。10f の O95 の分割で全構成の値が変わる(final・呼数・テープは不変)。10e で比べるのは after"
+}

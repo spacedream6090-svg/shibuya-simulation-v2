@@ -14,6 +14,8 @@ from typing import Any, Iterator
 import numpy as np
 import pytest
 
+from tests import golden_env as GE
+
 import shibuya.engine.resolve as RES
 import shibuya.engine.run as RUN
 from shibuya.agents.state import AgentState
@@ -44,13 +46,14 @@ A2B_SIX = ("age", "sex", "talk_partner", "weight_kg", "sm_last", "mem_last")
 
 
 # ================================================================= 1. 状態台帳の宣言(A3)
-def test_ledger_has_192_rows_in_two_axes():
-    """材料の 163 行(SoA 98+外の状態 65)+10b-2 の棚卸しで足した外の状態 24 行(O66〜O89)+10d の 5 行(O90〜O94)。"""
+def test_ledger_has_193_rows_in_two_axes():
+    """材料の 163 行(SoA 98+外の状態 65)+10b-2 の棚卸しで足した外の状態 24 行(O66〜O89)+10d の 5 行(O90〜O94)
+    +10f の 1 行(O95=O75 から読み手 0 の 2 属性を diag に分けた)。"""
     c = SL.counts()
-    assert c == {"agents": 79, "cells": 5, "pois": 9, "perception": 5, "external": 94, "soa": 98, "total": 192}
+    assert c == {"agents": 79, "cells": 5, "pois": 9, "perception": 5, "external": 95, "soa": 98, "total": 193}
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
-    assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 95)]
+    assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 96)]
     for r in SL.LEDGER:
         assert r.behavior in SL.AXIS1_VALUES, r.key
         assert r.restore in SL.AXIS2_VALUES, r.key
@@ -718,7 +721,10 @@ def test_t7_hash_cost_within_the_declared_cap(kw):
 
     res = cli.run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), **kw)
     if kw == {"vocab_version": "v3"}:
-        assert res.final_hash[:16] == "993276d5e5bb5cbe"
+        if GE.platform_id() in GE.REGISTERED:  # 10f: golden は登録した環境だけ(未登録は警告=黙って通さない)
+            assert res.final_hash[:16] == "993276d5e5bb5cbe"
+        else:
+            GE.warn_unregistered("T7 の既定 v3 の final")
     assert len(res.checkpoint_seconds) == len(res.checkpoints) == 4
     # 宣言の上限は 100 ms(10b のアジェンダ §3 K-T7)。全体テストの大きな束の中では壁時計が揺れる
     # (第321 で all_arms が 1 回だけ超え、単独では通った)ので、ここでは宣言の 3 倍を門にし、
