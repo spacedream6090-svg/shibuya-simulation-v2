@@ -1,6 +1,6 @@
 # Claude Code への指示書(2026-10-03・ユーザー決定)
 
-> **保存の注記(第315・2026-10-03)**: ユーザーが Claude Code に渡した指示書の原文。原文のまま保存し、yomiyasu はかけていない(指示書 §0-1 の 2)。決定はユーザーの決定として扱う。前回の指示書は [v2-wallbounce-decisions-2026-09-30.md](v2-wallbounce-decisions-2026-09-30.md)、その反映の記録は [v2-wallbounce-0930-reflection.md](v2-wallbounce-0930-reflection.md)。
+> **保存の注記(第315・2026-10-03)**: ユーザーが Claude Code に渡した指示書の原文。原文のまま保存し、yomiyasu はかけていない(指示書 §0-1 の 2)。決定はユーザーの決定として扱う。前回の指示書は [v2-wallbounce-decisions-2026-09-30.md](v2-wallbounce-decisions-2026-09-30.md)、その反映の記録は [v2-wallbounce-0930-reflection.md](v2-wallbounce-0930-reflection.md)。 **〔改訂の印(第323・2026-10-06)〕** 次の指示書 [10-06](v2-wallbounce-decisions-2026-10-06.md) で改訂された箇所(本文は原文のまま・印は本注記にだけ付ける): §8 3-6 の飲食店の物理的な上限(SR3=消防法施行規則の算定に)・§8 3-4-1 の経済センサスの役割(SR15 の 6=総数は目標・町丁目は照合だけ)・§5-3 の処理量「約 12%」(SR6=「−3〜−19%(中央 −8%)・推測」に)・「100 トークンごとに約 8%」の出どころ BN-5(SR6=BN-2 の誤り)。
 
 ## 0. この指示書について
 
