@@ -23,10 +23,10 @@
 | # | 出典 | URL | 等級 | 読んだ範囲 |
 |---|---|---|---|---|
 | 1 | Park J.S. ほか 2024「Generative Agent Simulations of 1,000 People」arXiv:2411.10109 v1(v3 は題名を「LLM Agents Grounded in Self-Reports Enable General-Purpose Simulation of Individuals」に改題・2026-06-28) | https://arxiv.org/abs/2411.10109 | ◎(v1 PDF)/ △(v3 は抄録のみ) | v1 PDF の結果の節と表・v1/v3 の抄録 |
-| 2 | Santurkar S. ほか 2023「Whose Opinions Do Language Models Reflect?」arXiv:2303.17548 | https://arxiv.org/abs/2303.17548 | △ | 抄録 |
+| 2 | Santurkar S. ほか 2023「Whose Opinions Do Language Models Reflect?」arXiv:2303.17548 | https://arxiv.org/abs/2303.17548 | △ | 抄録〔注(第324): 本文は [R-104](v2-r104-llm-agent-human-gaps-and-transit-app-accuracy.md) で読んだ(○)。本書の記述は抄録の範囲のまま〕 |
 | 3 | Argyle L.P. ほか 2023「Out of One, Many: Using Language Models to Simulate Human Samples」Political Analysis(arXiv:2209.06899) | https://arxiv.org/abs/2209.06899 | △ | 抄録 |
 | 4 | Bisbee J. ほか 2024「Synthetic Replacements for Human Survey Data? The Perils of Large Language Models」Political Analysis 32(4):401-416 | https://doi.org/10.1017/pan.2024.5 | ○ | 出版社ページの本文(取得ツールの引用) |
-| 5 | Aher G., Arriaga R.I., Kalai A.T. 2023「Using Large Language Models to Simulate Multiple Humans and Replicate Human Subject Studies」ICML 2023(arXiv:2208.10264) | https://arxiv.org/abs/2208.10264 | △ | 抄録 |
+| 5 | Aher G., Arriaga R.I., Kalai A.T. 2023「Using Large Language Models to Simulate Multiple Humans and Replicate Human Subject Studies」ICML 2023(arXiv:2208.10264) | https://arxiv.org/abs/2208.10264 | △〔注(第324): 本文は R-104 で読んだ(○)〕 | 抄録 |
 | 6 | Cheng M., Durmus E., Jurafsky D. 2023「Marked Personas」ACL 2023(arXiv:2305.18189) | https://arxiv.org/abs/2305.18189 | △ | 抄録 |
 | 7 | Wang A., Morgenstern J., Dickerson J.P.「Large language models that replace human participants can harmfully misportray and flatten identity groups」Nature Machine Intelligence 採録(arXiv:2402.01908 v3・2025-02) | https://arxiv.org/abs/2402.01908 | △ | 抄録 |
 | 8 | Horton J.J., Filippas A., Manning B.S.「Large Language Models as Simulated Economic Agents: What Can We Learn from Homo Silicus?」arXiv:2301.07543(v2 2026-02) | https://arxiv.org/abs/2301.07543 | △ | 抄録 |
