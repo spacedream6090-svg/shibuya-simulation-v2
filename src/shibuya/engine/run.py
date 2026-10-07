@@ -2004,6 +2004,7 @@ def run_day(
     resume_from: "str | Path | None" = None,
     run_id: str = "",
     checkpoint_detail: bool = False,
+    resume_legacy_pickle: bool = False,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -2349,7 +2350,7 @@ def run_day(
             この名前は切替口の名前で、manifest の設計の ``rng.scheme``(生成器の名前 ``"numpy-philox4x64"``)とは別物。
         state_out: **10d の状態の書き出し先**(ディレクトリ)。渡すと各日の締めの後(複数日のランの途中の日)と、
             ``stop_at_tick`` で止めたとき、ランの最後(``finished: true``)に、状態のまとまりを 1 ファイルずつ
-            書く(``engine.resume``・名前は ``state-T<次に回す T>.pkl``)。``None``(既定)=書かない。
+            書く(``engine.resume``・名前は ``state-T<次に回す T>.npz``=10f の npz+json。10d の ``.pkl`` は読むだけ)。``None``(既定)=書かない。
         stop_at_tick: **10d の止める時刻**(通しの時刻 T・その tick の手前で止める)。日の境目(1 日の tick 数の
             倍数)なら直前の日の締めの後、日の途中(試験用・A10)なら締めずにそこで状態を書いて止める。
             ``state_out`` が要る。止めたランは ``finished: false``。
@@ -2360,6 +2361,9 @@ def run_day(
         run_id: manifest のラン ID(空なら設定の指紋・始めの T・親のラン ID から作る)。
         checkpoint_detail: checkpoint ごとに列ごと・外の状態の行ごとの digest も控える(食い違いの場所を探す道具
             ``docs/bench/analysis/wallbounce-1003/10d/first_diff.py`` 用・既定 off=費用 0)。
+        resume_legacy_pickle: **10f の旧の形式の切替口**(既定 False)。True で、``resume_from`` が拡張子 ``.pkl``
+            の 10d の pickle のときだけ開く(自分が書いたファイルに限る・10e で消す)。False では pickle の中身を
+            開かずに止める(``engine.resume.read_state``)。指紋には入れない。
 
     Returns:
         ``RunResult``。
@@ -2417,7 +2421,7 @@ def run_day(
     _read_seconds = 0.0
     if resume_from is not None:
         _t_read = time.perf_counter()
-        _bundle = RS.read_state(resume_from)
+        _bundle = RS.read_state(resume_from, allow_legacy_pickle=bool(resume_legacy_pickle))
         _read_seconds = time.perf_counter() - _t_read
         _h = _bundle.header
         # 10f: 親を書いた環境が違えば警告を 1 行(挙動は変えない)
@@ -3555,6 +3559,7 @@ def run_day(
             _relay_tables(_d)
         R.restore_soa(agents, world, _pst_now(), _bundle.soa)
         _rebuild_derived()  # 10d(親の答え 2): 起動時に SoA から作る表を、戻した SoA から作り直す
+        RS.check_item_kinds(_hash_owners(), _bundle.items)  # 10f(K23 (a)): 戻す前に今の値の型と突き合わせる
         R.restore_items(_hash_owners(), _bundle.items)
         _full_r, _ = full_state_hash(agents, world, _pst_now(), schedule.population_hash, schedule_hash,
                                      _hash_owners(), memo={})
@@ -4984,9 +4989,12 @@ def add_calendar_args(ap: "argparse.ArgumentParser") -> None:
     ap.add_argument("--sim-days", type=int, default=1,
                     help="通しで回す日数(10d)。2 以上では各日の終わりに締め・日の頭の初期化は走らせない(既定 1)")
     ap.add_argument("--resume-from", type=str, default="",
-                    help="再開する状態のファイル(10d・state-T<T>.pkl)。設定は親と同じにする(違えば止める)")
+                    help="再開する状態のファイル(10d・state-T<T>.npz)。設定は親と同じにする(違えば止める)")
+    ap.add_argument("--resume-legacy-pickle", action="store_true",
+                    help=("10d の pickle(state-T<T>.pkl)から再開する切替口(10f・10e まで)。拡張子 .pkl と両方がそろった"
+                          "ときだけ開く。pickle は開くとコードが動きうるので、自分が書いたファイルに限る"))
     ap.add_argument("--state-out", type=str, default="",
-                    help="状態の書き出し先のディレクトリ(10d)。各日の締めの後とランの最後に state-T<T>.pkl を書く")
+                    help="状態の書き出し先のディレクトリ(10d)。各日の締めの後とランの最後に state-T<T>.npz を書く")
 
 
 def calendar_kwargs_from_args(args: Any) -> dict[str, Any]:
@@ -5007,6 +5015,8 @@ def calendar_kwargs_from_args(args: Any) -> dict[str, Any]:
         out["sim_days"] = int(args.sim_days)
     if getattr(args, "resume_from", ""):
         out["resume_from"] = str(args.resume_from)
+    if bool(getattr(args, "resume_legacy_pickle", False)):
+        out["resume_legacy_pickle"] = True
     if getattr(args, "state_out", ""):
         out["state_out"] = str(args.state_out)
     return out

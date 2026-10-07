@@ -394,6 +394,15 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #86 D-102 の土台 10f 第 3 段: AST と実行時の検査(K24)・K19 の検査(K25)・保存の形式 npz+json(K23)(第327・2026-10-07・実装役 Opus 5.5・親検収+別のサブの検収 2 回)
+
+- 正典: [10f のアジェンダ](docs/design/v2-d102-10f-agenda.md) §2 の 3・4・5・K23〜K25(親推奨で確定)・[実装の記録](docs/bench/analysis/wallbounce-1006/10f/README.md) 第 3 段。
+- **K24**: 軸 1 は AST(no/diag の 356 属性の持ち主の外の読み・診断の出口 12・衝突 20・場所ごとの許可 17 は当たる数を固定)。軸 2 は実行時の「捨てて同じか」(`tests/engine/discard_probe.py`・日の境目の前後と乗数を変えた classical の腕を含む)。
+- **K25**: `engine/rng_audit.py`=静的に安全な 15 か所を AST で固定・決まらない 16 か所の表・実行時の計器で既知の答え(`w16.sample.stratum` 185・`body.weight` 1・`body.eer` 1)。許可の 8 用途名は「10e で直す」。
+- **K23**: `engine/state_codec.py`=npz+json(印 10 種・許可したクラス 17 と欄の一覧・`allow_pickle=False`・拒否は `StateFormatError`・展開後の上限)。5,000 体で既定 v3 769 KB(pickle の 18%)・記憶+関係 1.45 MB(7%)。旧 pickle は切替口(`--resume-legacy-pickle`)と拡張子 `.pkl` がそろったときだけ(10e で消す)。19 構成 × 2 時点の再開が通しと一致。
+- 別のサブの検収: 1 回目 条件つき受入(U1 旧 pickle を中身で自動で開きコードが動いた・U2 日の鍵の流れが次の日に重なる=10e へ・U3〜U7)→ 直し → 2 回目 受入(24 経路で pickle は開かれない)。**10e まで 2 日以上のランの日ごとの差を主張に使わない**。
+- 既定の結果は不変(byte-check 19/19・2 日のラン)。テスト: 全体 **3,769 件(3,767 passed・failed 0・skipped 1・xfailed 1)**(親が実行)。
+
 ### #85 D-102 の土台 10f 第 2 段: seed の 3 分割(母集団・動き・環境)と salt の道具(CRN と並べ替え検定)(第326・2026-10-07・実装役 Opus 5.5・親検収+別のサブの検収 2 回)
 
 - 正典: [10f のアジェンダ](docs/design/v2-d102-10f-agenda.md) §2 の 2・K20 (a)・K21 (a)・ユーザー決定 2026-10-07(seed を 3 つに・環境=気象・大きな催し・道路工事・配送は動きの側のつなぎ)・[実装の記録](docs/bench/analysis/wallbounce-1006/10f/README.md) 第 2 段。

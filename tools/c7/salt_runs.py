@@ -120,7 +120,7 @@ def _fine_first_diff(args: argparse.Namespace, arms: dict[str, Any], salt: int, 
             # 区間の前まで(毎 tick にしない)回して状態を書く=10d の止める口
             _run_one(args, arms[name], salt, d / "head.json", checkpoint_every=int(args.checkpoint_every),
                      extra={"stop_at_tick": start, "state_out": str(d / "state_head")})
-            states = sorted((d / "state_head").glob(f"state-T{start:08d}*.pkl"))
+            states = sorted((d / "state_head").glob(f"state-T{start:08d}*.npz"))
             if not states:
                 raise RuntimeError(f"状態のファイルが無い({d.name}/state_head・T={start})")
             extra["resume_from"] = str(states[-1])

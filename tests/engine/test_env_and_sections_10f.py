@@ -145,7 +145,7 @@ def test_env_id_is_the_same_in_the_three_places(tmp_path):
                  state_out=str(tmp_path / "st"))
     m = res.run_manifest_fields()
     side = json.loads(next((tmp_path / "st").glob("state-T*.json")).read_text(encoding="utf-8"))
-    bundle = RS.read_state(next((tmp_path / "st").glob("state-T*.pkl")))
+    bundle = RS.read_state(next((tmp_path / "st").glob("state-T*.npz")))
     meta = read_run_meta(tmp_path / "tape")
     want = RS.environment_fields()["env_id"]
     assert m["env_id"] == side["env_id"] == bundle.header["env_id"] == meta["env_id"] == want
@@ -196,17 +196,12 @@ def test_t1_two_processes_write_the_same_env_id_and_final_to_the_files(tmp_path)
 def test_resume_from_another_environment_warns_once_and_keeps_going(tmp_path):
     st = tmp_path / "st"
     _small(ticks=1440, sim_days=2, stop_at_tick=1440, state_out=str(st), checkpoint_every=360)
-    pkl = next(st.glob("state-T*.pkl"))
+    pkl = next(st.glob("state-T*.npz"))
     with warnings.catch_warnings():
         warnings.simplefilter("error", RS.EnvironmentMismatchWarning)  # 同じ環境では出ない
         same = _small(ticks=1440, sim_days=2, resume_from=str(pkl), checkpoint_every=360)
-    import pickle
-
-    data = pkl.read_bytes()
-    nl = data.find(b"\n")
-    doc = pickle.loads(data[nl + 1:])
-    doc["header"]["platform"]["platform_id"] = "f" * 16  # 別の環境で書いたことにする(写しと先頭の行も書き直す)
-    bundle = RS.StateBundle(doc["header"], doc["soa"], doc["items"], doc["inflight"])
+    bundle = RS.read_state(pkl)  # 10f: npz+json(K23 (a))
+    bundle.header["platform"]["platform_id"] = "f" * 16  # 別の環境で書いたことにする(写しと sha256 も書き直す)
     other = tmp_path / "other" / pkl.name
     RS.write_state(other, bundle)
     with pytest.warns(RS.EnvironmentMismatchWarning, match="ffffffffffffffff") as got:

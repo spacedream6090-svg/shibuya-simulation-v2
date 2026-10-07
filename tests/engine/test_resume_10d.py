@@ -345,7 +345,7 @@ def test_resume_refuses_finished_mismatched_and_wrong_stops(tmp_path):
     # 台帳の版が違う状態のファイルは読まない
     b0 = RS.read_state(path)
     b0.header["ledger_version"] = "state-ledger/old"
-    bad = tmp_path / "bad" / "bad.pkl"
+    bad = tmp_path / "bad" / "bad.npz"
     RS.write_state(bad, b0)
     with pytest.raises(ValueError, match="状態台帳の版"):
         run_day(resume_from=bad, sim_days=2, **kw)
@@ -425,24 +425,28 @@ def test_state_file_is_one_atomic_bundle(tmp_path):
     assert f["bytes"] == p.stat().st_size and h["hashes"]["full_hash"] == f["full_hash"]
 
 
-# ================================================================= 親の答え 7: 自分が書いたものだけを読む
-def test_read_state_opens_only_files_it_wrote(tmp_path):
+# ================================================================= 親の答え 7 → 10f(K23 (a)): 壊れた・取り違えたファイルを読まない
+def test_read_state_refuses_broken_or_mismatched_files(tmp_path):
+    """10f: npz+json は外から来たファイルでもコードを動かさない。それでも壊れた・取り違えたファイルは読まない
+    (写しの sha256・写しの有無・ラン ID・形の印)。10d の版の試験(pickle の先頭の行)は ``test_state_format_10f.py``
+    の旧の形式の試験へ移した。"""
     kw = dict(n_agents=30, seed=1, n_cells=9, ticks=TPD, sim_days=2, checkpoint_every=360)
     res = run_day(state_out=tmp_path / "s", stop_at_tick=600, **kw)
     path = tmp_path / "s" / res.resume["state_files"][-1]["file"]
+    assert path.suffix == ".npz"
     data = path.read_bytes()
-    head = data[: data.index(b"\n")].split(b" ")
-    assert head[0] == RS.MAGIC and head[2].decode() == res.resume["run_id"]
+    side_txt = path.with_suffix(".json").read_bytes()
     RS.read_state(path)                                  # そのままなら読める
     broken = tmp_path / "x" / path.name
     broken.parent.mkdir()
     broken.write_bytes(data[:-1] + bytes([data[-1] ^ 1]))  # 中身を 1 バイト変える
-    (broken.parent / path.with_suffix(".json").name).write_bytes(path.with_suffix(".json").read_bytes())
+    (broken.parent / path.with_suffix(".json").name).write_bytes(side_txt)
     with pytest.raises(ValueError, match="sha256"):
         RS.read_state(broken)
-    plain = tmp_path / "y" / path.name                   # 先頭の行の無い pickle は開かない
+    plain = tmp_path / "y" / path.name                   # npz の印も 10d の印も無いものは開かない
     plain.parent.mkdir()
-    plain.write_bytes(data[data.index(b"\n") + 1:])
+    plain.write_bytes(b"not a state file " + data)
+    (plain.parent / path.with_suffix(".json").name).write_bytes(side_txt)
     with pytest.raises(ValueError, match="印"):
         RS.read_state(plain)
     nosidecar = tmp_path / "z" / path.name               # 見出しの写しが無いものは読まない
@@ -450,7 +454,7 @@ def test_read_state_opens_only_files_it_wrote(tmp_path):
     nosidecar.write_bytes(data)
     with pytest.raises(ValueError, match="写し"):
         RS.read_state(nosidecar)
-    side = json.loads(path.with_suffix(".json").read_text(encoding="utf-8"))
+    side = json.loads(side_txt.decode("utf-8"))
     side["run_id"] = "run-other"
     (nosidecar.parent / path.with_suffix(".json").name).write_text(json.dumps(side), encoding="utf-8")
     with pytest.raises(ValueError, match="ラン ID"):

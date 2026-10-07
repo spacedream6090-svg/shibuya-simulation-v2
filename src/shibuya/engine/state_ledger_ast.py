@@ -62,6 +62,8 @@ UNRESOLVED_ALLOW: tuple[SL.AstAllow, ...] = (
                 "PerceptionState.__getattr__ の転送。同上"),
     SL.AstAllow("engine/state_hashes.py", "_feed(f, getattr(v, fl.name), depth + 1, ordered)",
                 "ハッシュの直列化の書き手が dataclass の欄を読む(SoA の列ではない・状態を読んで挙動を決めない)"),
+    SL.AstAllow("engine/state_codec.py", "out[s] = getattr(v, s)",
+                "10f: 状態のファイルの書き手が値のクラスの __slots__ の属性を読む(SoA の列ではない・挙動を決めない)"),
 )
 
 
@@ -544,3 +546,375 @@ def runtime_uncovered(owners: "dict[str, object]") -> dict[str, list[str]]:
         if unc:
             out[owner] = unc
     return out
+
+
+# ================================================================ 10f(K24 (a)): 外の状態の軸 1 の AST
+# 実行役の自前の構成(**未リサーチ(expedient)**・10f の材料 §3-5 の案 1):
+#
+# - 外の状態の行が指す属性(持ち主のクラスの属性)のうち、**全部の行で軸 1 が no/diag** の属性について、持ち主の
+#   クラスの外の読み(属性 ``obj.x``・``getattr(obj, "x")``)を集める。持ち主のクラスの中の ``self.x`` は数えない
+#   (挙動のためか診断のためかを AST では分けられない=軸 2 と同じく実行時の検査の受け持ち)。
+# - 読みは次のどれかなら許す: (1) 直列化・ハッシュ・保存と戻しの書き手(``GENERIC_FILES``・``resolve.restore_*``)
+#   (2) 診断の出口の関数(``DIAG_EXITS``)(3) ``engine/run.py`` の ``result.…`` への代入の文(ランの結果の組み立て)
+#   (4) 名前の衝突(同じ名前の属性を別のクラスも持つ)で、受け手の名前が持ち主を指していない読み(``EXT_NAME_COLLISIONS``
+#   の理由つき)(5) 場所ごとの許可(``EXT_AST_ALLOW``)。
+# - 書き(代入の左辺・``x[...] =``・``del``)は読みに数えない。``x.clear()`` などの変更のメソッドの呼び出しは読みに数える
+#   (持ち主の外で中身を変える=見る価値がある)。
+# - 古い許可(どの読みにも当たらない許可・衝突の表の余り)も落とす。
+#
+# 限界: ``getattr(obj, 変数)``・``vars()``・持ち主ごと関数に渡した先・持ち主の中の ``self.x`` の目的は見えない。
+# 限界(10f 第 3 段の検収 U6): 名前の衝突の 20 属性は、受け手の名前が持ち主と違えば(``conv_mgr.n_blocks`` など)
+# 衝突として許すので見えない。受け手の名前が持ち主を指せば(``conv.n_blocks``)落ちる。衝突でない属性は別名
+# (``al = act_layer; al.n_wander_bad``)でも落ちる。``getattr(obj, 変数)`` は見えない。文ごとに見るので、
+# ``result.… = …`` の行に ``;`` で挙動の読みを足すと落ちる。
+
+#: 直列化・ハッシュ・保存と戻しの書き手(属性を読むが挙動を決めない)。
+GENERIC_FILES: tuple[str, ...] = (
+    "engine/state_hashes.py", "engine/resume.py", "engine/state_ledger.py", "engine/state_ledger_ast.py",
+    "engine/state_codec.py",
+)
+
+
+@dataclass(frozen=True)
+class DiagExit:
+    """診断の出口の関数(``qualname`` は ``クラス.メソッド`` か関数名。末尾の ``.*`` はそのクラスの全メソッド)。"""
+
+    path: str
+    qualname: str
+    reason: str
+
+    def hits(self, path: str, qual: str) -> bool:
+        if path != self.path:
+            return False
+        if self.qualname == "*":
+            return True
+        if self.qualname.endswith(".*"):
+            return qual.startswith(self.qualname[:-1])
+        return qual == self.qualname
+
+
+#: 診断の出口(ランの結果・要約・センサス・計器の数え・manifest)。
+DIAG_EXITS: tuple[DiagExit, ...] = (
+    DiagExit("engine/run.py", "RunResult.*", "ランの結果(RunResult)の要約・manifest の組み立て"),
+    DiagExit("economy/census.py", "*", "日次・月次のセンサス(保存則の検査と報告)"),
+    DiagExit("cli.py", "checkpoints_payload", "checkpoints の JSON の組み立て(報告)"),
+    DiagExit("cli.py", "undefined_registry_payload", "未定義行動の台帳の書き出し(報告)"),
+    DiagExit("engine/processes/runner.py", "WorldProcessRunner.counters", "世界過程の計数の要約(報告)"),
+    DiagExit("engine/processes/runner.py", "WorldProcessRunner.summary", "世界過程の要約(報告)"),
+    DiagExit("engine/processes/runner.py", "WorldProcessRunner.waste_sink_report", "廃棄の帯の報告(第304 Q135)"),
+    DiagExit("engine/processes/runner.py", "WorldProcessRunner.projected_waste_tonnes_per_day",
+             "廃棄の見込みの報告(RunResult.waste_tonnes_per_day)"),
+    DiagExit("engine/processes/runner.py", "WorldProcessRunner.compliance", "法令遵守率の報告(RunResult)"),
+    DiagExit("engine/llm_bridge.py", "PerceptionRendererAdapter.counters", "描画の計数の要約(報告)"),
+    DiagExit("engine/norm_meter.py", "GroupNormMeter.summary", "集団規範の計器の要約(報告)"),
+    DiagExit("engine/presence.py", "PlanExecutor.counters", "計画実行層の計数の要約(報告)"),
+)
+
+#: 受け手の名前で持ち主を指す別名(``run_day`` の局所の名前など)。既定は持ち主の道筋の最後の名前。
+OWNER_RECEIVER_ALIASES: dict[str, tuple[str, ...]] = {
+    "classical": ("classical_policy",),
+    "renderer": ("_rr", "_nr", "_fam_renderer"),
+    "undefined": ("registry", "undefined_registry"),
+}
+
+
+@dataclass(frozen=True)
+class ExtSite:
+    """持ち主の外の読みの場所(``func`` は ``クラス.メソッド`` か関数名・入れ子は ``.`` でつなぐ)。"""
+
+    path: str
+    line: int
+    text: str
+    attr: str
+    recv: str
+    func: str
+    result_stmt: bool
+
+    def __str__(self) -> str:
+        return f"{self.path}:{self.line} [{self.func}] {self.recv}.{self.attr}"
+
+
+@dataclass
+class ExtScan:
+    #: 属性の名前 → 持ち主の外の読み(軸 1 が no/diag の属性だけ)。
+    sites: dict[str, list[ExtSite]] = field(default_factory=lambda: defaultdict(list))
+    #: 属性の名前 → (持ち主の道筋, 行の鍵, 軸 1) の組。
+    rows: dict[str, list[tuple[str, str, str]]] = field(default_factory=dict)
+    #: 属性の名前 → 同じ名前を持つ持ち主の外のクラス(``path:Class``)。
+    collisions: dict[str, set[str]] = field(default_factory=dict)
+    files: int = 0
+
+
+def ext_attr_rows(ledger: Iterable[SL.LedgerRow] | None = None) -> dict[str, list[tuple[str, str, str]]]:
+    """外の状態の行が指す持ち主のクラスの属性の名前 → (持ち主, 行の鍵, 軸 1)。``run_day`` の局所の行は除く。"""
+    out: dict[str, list[tuple[str, str, str]]] = defaultdict(list)
+    for r in (ledger if ledger is not None else SL.LEDGER):
+        if r.is_soa:
+            continue
+        for it in r.items:
+            if it in SL.OWNER_CLASSES:
+                continue
+            owner, attr = it.rsplit(".", 1)
+            if owner in SL.OWNER_CLASSES:
+                out[attr].append((owner, r.key, r.behavior))
+    return dict(out)
+
+
+def _owner_classes(owner: str) -> set[str]:
+    rel, cls = SL.OWNER_CLASSES[owner]
+    return {f"{rel}:{cls}"} | {f"{a}:{b}" for a, b in SL.OWNER_ALT_CLASSES.get(owner, ())}
+
+
+def class_defined_names(parsed: Iterable[tuple[str, ast.Module]]) -> dict[str, set[str]]:
+    """属性の名前 → それを持つクラス(``path:Class``)。``self.x = …``(どのメソッドでも)・クラスの本体の代入と注釈・
+    メソッドとプロパティの名前。"""
+    out: dict[str, set[str]] = defaultdict(set)
+    for rel, tree in parsed:
+        for c in ast.walk(tree):
+            if not isinstance(c, ast.ClassDef):
+                continue
+            key = f"{rel}:{c.name}"
+            for s in c.body:
+                if isinstance(s, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    out[s.name].add(key)
+                elif isinstance(s, ast.AnnAssign) and isinstance(s.target, ast.Name):
+                    out[s.target.id].add(key)
+                elif isinstance(s, ast.Assign):
+                    for t in s.targets:
+                        if isinstance(t, ast.Name):
+                            out[t.id].add(key)
+            for n in ast.walk(c):
+                tgs: list[ast.AST] = []
+                if isinstance(n, ast.Assign):
+                    tgs = list(n.targets)
+                elif isinstance(n, (ast.AnnAssign, ast.AugAssign)):
+                    tgs = [n.target]
+                for t in tgs:
+                    for a in _self_targets(t):
+                        out[a].add(key)
+    return out
+
+
+def _root_name(expr: ast.AST) -> str:
+    while isinstance(expr, (ast.Attribute, ast.Subscript, ast.Starred)):
+        expr = expr.value
+    return expr.id if isinstance(expr, ast.Name) else ""
+
+
+def _is_result_stmt(st: ast.AST | None) -> bool:
+    """``result.x = …``・``result.x[...] = …``・``result.x += …``(左辺が全部 ``result`` から始まる代入の文)。"""
+    if isinstance(st, ast.Assign):
+        tgs = list(st.targets)
+    elif isinstance(st, (ast.AugAssign, ast.AnnAssign)):
+        tgs = [st.target]
+    else:
+        return False
+    flat: list[ast.AST] = []
+    for t in tgs:
+        flat.extend(t.elts if isinstance(t, (ast.Tuple, ast.List)) else [t])
+    return bool(flat) and all(_root_name(t) == "result" and not isinstance(t, ast.Name) for t in flat)
+
+
+def scan_external(root: Path, files: Iterable[Path] | None = None,
+                  ledger: Iterable[SL.LedgerRow] | None = None) -> ExtScan:
+    """``root``(= ``src/shibuya``)の下で、軸 1 が no/diag の外の状態の属性の「持ち主の外の読み」を集める。"""
+    root = Path(root)
+    res = ExtScan()
+    res.rows = ext_attr_rows(ledger)
+    checked = {a for a, rs in res.rows.items() if all(b != SL.BEHAVIOR for _o, _k, b in rs)}
+    fl = list(files) if files is not None else source_files(root)
+    res.files = len(fl)
+    parsed: list[tuple[str, list[str], ast.Module]] = []
+    for fp in fl:
+        text = fp.read_text(encoding="utf-8")
+        try:
+            parsed.append((fp.relative_to(root).as_posix(), text.split("\n"), ast.parse(text)))
+        except SyntaxError:
+            continue
+    defined = class_defined_names((rel, t) for rel, _l, t in parsed)
+    owner_cls = {a: set().union(*(_owner_classes(o) for o, _k, _b in res.rows[a])) for a in checked}
+    res.collisions = {a: defined.get(a, set()) - owner_cls[a] for a in checked if defined.get(a, set()) - owner_cls[a]}
+    for rel, lines, tree in parsed:
+        par = _parents(tree)
+
+        def where(node: ast.AST) -> tuple[str, str | None]:
+            names: list[str] = []
+            cls: str | None = None
+            p = par.get(node)
+            while p is not None:
+                if isinstance(p, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                    names.append(p.name)
+                    if isinstance(p, ast.ClassDef) and cls is None:
+                        cls = p.name
+                p = par.get(p)
+            return ".".join(reversed(names)), cls
+
+        for node in ast.walk(tree):
+            if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "getattr"
+                    and len(node.args) >= 2 and isinstance(node.args[1], ast.Constant)
+                    and isinstance(node.args[1].value, str) and node.args[1].value in checked):
+                attr, recv_node = node.args[1].value, node.args[0]
+            elif isinstance(node, ast.Attribute) and node.attr in checked and isinstance(node.ctx, ast.Load):
+                up = par.get(node)
+                if isinstance(up, ast.Subscript) and up.value is node and isinstance(up.ctx, (ast.Store, ast.Del)):
+                    continue
+                attr, recv_node = node.attr, node.value
+            else:
+                continue
+            qual, cls = where(node)
+            if cls is not None and f"{rel}:{cls}" in owner_cls[attr]:
+                continue  # 持ち主のクラスの中
+            ln = int(getattr(node, "lineno", 0))
+            st = _enclosing_stmt(node, par)
+            recv = ast.unparse(recv_node)
+            if _self_update_stmt(st, attr, recv):
+                continue  # 自己更新(``o.x = getattr(o, "x", 0) + 1``・``o.x += 1``)は書き
+            res.sites[attr].append(ExtSite(rel, ln, lines[ln - 1] if 0 < ln <= len(lines) else "", attr,
+                                           recv, qual, _is_result_stmt(st)))
+    return res
+
+
+def _self_update_stmt(st: ast.AST | None, attr: str, recv: str) -> bool:
+    """文が同じ受け手の同じ属性への代入か(右辺の読みは自己更新)。"""
+    if isinstance(st, ast.Assign):
+        tgs = list(st.targets)
+    elif isinstance(st, (ast.AugAssign, ast.AnnAssign)):
+        tgs = [st.target]
+    else:
+        return False
+    return any(isinstance(t, ast.Attribute) and t.attr == attr and ast.unparse(t.value) == recv for t in tgs)
+
+
+def _owner_recv(site: ExtSite, owners: Iterable[str]) -> bool:
+    """受け手の名前(最後の名前)が持ち主を指すか。"""
+    tail = site.recv.split(".")[-1].split("(")[0].split("[")[0].strip()
+    for o in owners:
+        if tail == o.split(".")[-1] or tail in OWNER_RECEIVER_ALIASES.get(o, ()):
+            return True
+    return False
+
+
+def ext_reason(site: ExtSite, scan: ExtScan) -> str | None:
+    """規則で許す理由の種類(``generic``・``exit``・``result``・``collision``)。``None`` なら規則では許さない。"""
+    if site.path in GENERIC_FILES or (site.path == "engine/resolve.py" and site.func.startswith("restore")):
+        return "generic"
+    if any(d.hits(site.path, site.func) for d in DIAG_EXITS):
+        return "exit"
+    if site.path == "engine/run.py" and site.result_stmt:
+        return "result"
+    owners = [o for o, _k, _b in scan.rows.get(site.attr, [])]
+    if site.attr in scan.collisions and not _owner_recv(site, owners):
+        return "collision"
+    return None
+
+
+def check_external(scan: ExtScan, allow: Iterable[ExtAllow] | None = None,
+                   collisions_allow: dict[str, str] | None = None) -> list[str]:
+    """外の状態の軸 1 の検査(空なら合格)。場所ごとの許可は当たる数が宣言と同じであること(U5)。"""
+    allow_t = tuple(EXT_AST_ALLOW if allow is None else allow)
+    coll = EXT_NAME_COLLISIONS if collisions_allow is None else collisions_allow
+    out: list[str] = []
+    hits: dict[int, int] = defaultdict(int)
+    for attr, sites in sorted(scan.sites.items()):
+        for s in sites:
+            why = ext_reason(s, scan)
+            if why == "collision" and not coll.get(attr):
+                why = None
+            if why is not None:
+                continue
+            i = next((j for j, e in enumerate(allow_t)
+                      if e.attr == attr and e.allow.path == s.path and e.allow.contains in s.text), None)
+            if i is not None:
+                hits[i] += 1
+                continue
+            rows = ",".join(f"{k}:{o}.{attr}({b})" for o, k, b in scan.rows.get(attr, []))
+            out.append(f"{rows}: 軸 1 が no/diag なのに持ち主の外で読まれる {s}  {s.text.strip()[:100]}")
+    for j, e in enumerate(allow_t):
+        if hits[j] == 0:
+            out.append(f"{e.attr}: 許可 {e.allow.path} 「{e.allow.contains}」がどの読みにも当たらない(古い許可)")
+        elif hits[j] != e.count:
+            out.append(f"{e.attr}: 許可 {e.allow.path} 「{e.allow.contains}」の当たる数が {hits[j]}(宣言は {e.count})")
+        if not e.allow.reason:
+            out.append(f"{e.attr}: 許可 {e.allow.path} の理由が空")
+    for a in sorted(set(scan.collisions) - set(coll)):
+        out.append(f"{a}: 名前の衝突({sorted(scan.collisions[a])[:3]})の理由が EXT_NAME_COLLISIONS に無い")
+    for a in sorted(set(coll) - set(scan.collisions)):
+        out.append(f"{a}: EXT_NAME_COLLISIONS に載るが衝突が無い(古い許可)")
+    for a, r in coll.items():
+        if not r:
+            out.append(f"{a}: EXT_NAME_COLLISIONS の理由が空")
+    return out
+
+
+#: 名前の衝突(軸 1 が no/diag の属性と同じ名前を、持ち主の外のクラスも持つ)。受け手の名前が持ち主を指す読みは
+#: 衝突として許さず、ほかの規則で見る。
+EXT_NAME_COLLISIONS: dict[str, str] = {
+    "_agents": "同じ名前を DeferralQueue も持つ(受け手の型は AST で分からない)",
+    "_blocks": "同じ名前を StubRenderer も持つ(受け手の型は AST で分からない)",
+    "_rows": "同じ名前を ActualLog も持つ(受け手の型は AST で分からない)",
+    "_start": "同じ名前を SalientProcess も持つ(受け手の型は AST で分からない)",
+    "blocks": "同じ名前を AnnouncementScope・LLMCall・Rendered・RenderedPrompt ほか 2 も持つ(受け手の型は AST で分からない)",
+    "cache_hits": "同じ名前を Rendered も持つ(受け手の型は AST で分からない)",
+    "cache_misses": "同じ名前を Rendered も持つ(受け手の型は AST で分からない)",
+    "home_cell": "同じ名前を MockWeeklySchedule・PlanExecutor・Population・_HomeShim も持つ(受け手の型は AST で分からない)",
+    "log": "同じ名前を BusTaxiProcess・DeliveryInboundProcess・HotelProcess・LargeEventProcess ほか 9 も持つ(受け手の型は AST で分からない)",
+    "n_arrived": "同じ名前を ResolveOutcome も持つ(受け手の型は AST で分からない)",
+    "n_blocks": "同じ名前を PlanBlocks・Tape・TapeWriter も持つ(受け手の型は AST で分からない)",
+    "n_board_timeout": "同じ名前を ResolveOutcome・RunResult も持つ(受け手の型は AST で分からない)",
+    "n_board_waiting": "同じ名前を ResolveOutcome・RunResult も持つ(受け手の型は AST で分からない)",
+    "n_calls": "同じ名前を ArbiterDecision・MockLLM・TapeLLM も持つ(受け手の型は AST で分からない)",
+    "n_deferred_rows": "同じ名前を Replay・TapeWriter も持つ(受け手の型は AST で分からない)",
+    "n_meals": "同じ名前を ResolveOutcome も持つ(受け手の型は AST で分からない)",
+    "n_noticed": "同じ名前を NoticeResult も持つ(受け手の型は AST で分からない)",
+    "phase_seconds": "同じ名前を RunResult も持つ(受け手の型は AST で分からない)",
+    "tick": "同じ名前を ActualLogEntry・ArbiterDecision・BridgeResult・Checkpoint ほか 16 も持つ(受け手の型は AST で分からない)",
+    "top": "同じ名前を MemoryLayer も持つ(受け手の型は AST で分からない)",
+}
+
+@dataclass(frozen=True)
+class ExtAllow:
+    """外の状態の軸 1 の場所ごとの許可(属性の名前・当たる数・場所と理由)。"""
+
+    attr: str
+    count: int
+    allow: SL.AstAllow
+
+
+#: 場所ごとの許可(属性の名前・場所・当たる数)。10f の時点で規則に当たらなかった持ち主の外の読みを 1 つずつ見て理由を書いた。
+#: 当たる数を固定する(同じ文字列の行を挙動の場所に写すと数が増えて落ちる=第 3 段の検収 U5)。
+EXT_AST_ALLOW: tuple[ExtAllow, ...] = (
+    ExtAllow("last_habit", 1, SL.AstAllow("engine/poi_target.py", 'getattr(self.chooser, "last_habit", -1)',
+                               "店の決め手の名前(named/habit/visible)を StoreChoice.note に渡すだけ。決め手は O13 の"
+                               "choice_reason と O68 の決め手別の数え(diag)にしか入らない")),
+    ExtAllow("n_arrivals", 1, SL.AstAllow("engine/run.py", "_pres0 = int(presence.n_arrivals)",
+                               "層別の起床の数え(layer_counts=診断の表)の差分の基準")),
+    ExtAllow("n_arrivals", 1, SL.AstAllow("engine/run.py", "int(presence.n_arrivals) + int(presence.n_departures) - _pres0",
+                               "同上(層別の起床の数えの差分)")),
+    ExtAllow("n_departures", 1, SL.AstAllow("engine/run.py", "_pres0 = int(presence.n_arrivals)", "同上")),
+    ExtAllow("n_departures", 1, SL.AstAllow("engine/run.py",
+                                 "int(presence.n_arrivals) + int(presence.n_departures) - _pres0", "同上")),
+    ExtAllow("n_tape_misses", 2, SL.AstAllow("engine/run.py", "prev_tape_misses = bridge.n_tape_misses",
+                                  "診断の行(RunResult.diagnostics)の差分の基準(10d 検収 L1)")),
+    ExtAllow("n_tape_misses", 1, SL.AstAllow("engine/run.py", "bridge.n_tape_misses - prev_tape_misses",
+                                  "診断の行の列(テープに無い呼の数)")),
+    ExtAllow("n_transfers", 1, SL.AstAllow("engine/run.py", 'int(getattr(ledger.money, "n_transfers", 0)) != 0',
+                                "再開に渡す台帳の検査(参入資本や財布を入れた台帳なら止める=挙動ではなく誤用の拒否)")),
+    ExtAllow("origin_of", 1, SL.AstAllow("engine/run.py", "rel_layer.origin_of.clear()",
+                              "tick の終わりに会話の起点の控え(O19・diag)を捨てる書き。読みではない")),
+    ExtAllow("seconds", 1, SL.AstAllow("engine/clock.py", "delta.seconds",
+                            "標準ライブラリの timedelta.seconds(GroupNormMeter.seconds とは別物)")),
+    ExtAllow("signage_exposures", 1, SL.AstAllow("engine/run.py", '_fam_renderer is not None and getattr(',
+                                      "**挙動の読み**: 描画が集めた看板の露出を、同じ tick の 6 段目で記憶と親しみの層が"
+                                      "読んで空にする。tick の中だけの口(checkpoint の時点では常に空)なので O64 の"
+                                      "軸 1 no・軸 2 discardable のままでもハッシュと再開は変わらない(10f で親に確かめる点)")),
+    ExtAllow("signage_exposures", 1, SL.AstAllow("engine/run.py", "_exp = list(_fam_renderer.signage_exposures)", "同上")),
+    ExtAllow("signage_exposures", 1, SL.AstAllow("engine/run.py", "_fam_renderer.signage_exposures.clear()", "同上(空にする書き)")),
+    ExtAllow("sleep_counts", 1, SL.AstAllow("engine/run.py", "for _k, _v in presence.sleep_counts.items():",
+                                 "RunResult.planned_sleep_counts の組み立て(ランの最後)")),
+    ExtAllow("stats", 1, SL.AstAllow("engine/run.py", '_cs = getattr(getattr(poi_resolver, "chooser", None), "stats", None)',
+                          "RunResult.chooser_stats の組み立て(ランの最後)")),
+    ExtAllow("stats", 1, SL.AstAllow("engine/run.py", "for k, v in fam_layer.stats.items()",
+                          "RunResult.familiarity_summary の組み立て(ランの最後)")),
+    ExtAllow("text_id", 1, SL.AstAllow("engine/run.py", "+ act_layer.until_kind.nbytes + act_layer.text_id.nbytes",
+                            "成長の検査(RunResult.growth_measured)のバイト数")),
+)

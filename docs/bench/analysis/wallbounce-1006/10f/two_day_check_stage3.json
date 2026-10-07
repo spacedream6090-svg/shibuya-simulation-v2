@@ -1,0 +1,26 @@
+{
+ "schema": "shibuya.bench/10f/two-day-check/1",
+ "head": "129da80",
+ "how": "5,000 体・seed 1・sim_days=2・世界資産・既定 v3(活動層 on・day_index 0)・テープつき。HEAD の写し(git archive と祝日の CSV)と作業木で cli.run を回し、final・呼数・テープの calls と blocks の中身の sha256 の頭 16 桁を比べた(状態は書かない=既定のラン)",
+ "rows": [
+  {
+   "side": "head",
+   "src_is_head": true,
+   "final": "47e0a85b02797e23",
+   "calls": 142043,
+   "calls_sha": "d9b118029d599596",
+   "blocks_sha": "4fc9beccec9b175f",
+   "wall_s": 72.5
+  },
+  {
+   "side": "work",
+   "src_is_head": false,
+   "final": "47e0a85b02797e23",
+   "calls": 142043,
+   "calls_sha": "d9b118029d599596",
+   "blocks_sha": "4fc9beccec9b175f",
+   "wall_s": 73.8
+  }
+ ],
+ "equal": true
+}

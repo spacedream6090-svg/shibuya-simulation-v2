@@ -434,3 +434,211 @@ python tools/c7/salt_compare.py --values values.json --metrics metrics.json --ou
 対象のテスト: `tests/c7/test_salt_compare_10f.py` 28 件(+1)・`tests/engine/test_salt_seed_split_10f.py` 17 件(+2)。結果は下の 1 行。
 
 - 新しい 2 ファイル・`test_env_and_sections_10f.py`(slow を含む)・`test_seed_exchangeability.py`・`tests/engine/processes` をまとめて回して **243 passed**(0 failed・3 分)。全体は親が回す。
+
+## 第 3 段(AST と実行時の検査・K19 の検査・保存の形式)
+
+> 実行役(Opus 5.5)の記録。親の検収の前。commit していない。範囲はアジェンダ §2 の 3・4・5(K24 (a)・K25 (a)・K23 (a)=親推奨で確定)と §4 の T4・T5・T6。
+> 先に読んだもの: [アジェンダ](../../../../design/v2-d102-10f-agenda.md) §1〜§4・[10f の材料](../10f-prep.md) §3〜§5・[10d の検収](../../wallbounce-1003/review-10d.md)・[10c の検収](../../wallbounce-1003/review-10c.md) の P1〜P3・R3・R4。numpy の `np.load` の文書(`allow_pickle` の項と警告の節)を numpy.org の 2.5 の版で読んだ。
+> 測った機械: 第 1 段と同じ。パスは `src/shibuya/` を省く。
+
+### 1. 変えたファイル
+
+| ファイル | 何を |
+|---|---|
+| `engine/state_codec.py`(新) | 保存の形式 npz+json の書き手と読み手。印・許可したクラスの表・`np.load(allow_pickle=False)`(§4) |
+| `engine/resume.py` | 状態のファイルを npz+json に(`STATE_FORMAT` は v2・名前は `state-T<T>.npz`)。写しの `.json` の `file` に sha256 とバイト数。旧の pickle(v1・`.pkl`)は先頭のバイトで見分けて読み、`LegacyStateFormatWarning` を出す(10e まで)。台帳の宣言との突き合わせ `check_bundle`・戻す前の型の突き合わせ `check_item_kinds`。試験用の `write_state_pickle`(旧の形式を書く・10e で消す)。指紋の `_canon` で Enum を str より先に見る(`BudgetMode` が str の子のため・値は同じ) |
+| `engine/run.py` | 再開で戻す前に `RS.check_item_kinds` を呼ぶ(1 行)。docstring と CLI の help の `.pkl` を `.npz` に |
+| `engine/state_ledger_ast.py` | 外の状態の軸 1 の AST(`scan_external`・`check_external`)と表(診断の出口 `DIAG_EXITS`・名前の衝突 `EXT_NAME_COLLISIONS`・場所ごとの許可 `EXT_AST_ALLOW`)(§2) |
+| `engine/rng_audit.py`(新) | K19 の検査。静的な一覧(`scan_sites`・`SAFE_SITES` 15・`UNDETERMINED_SITES` 16)と実行時の計器(`StreamRecorder`)と許可の表(`K19_ALLOW`)(§3) |
+| `tools/c7/salt_runs.py` | 最初の食い違いの探し方が拾う状態のファイルの名前を `.npz` に |
+| `tests/engine/discard_probe.py`(新) | 軸 2 の実行時の検査「捨てて同じか」の道具 |
+| `tests/engine/test_state_checks_10f.py`(新) | K24・K25 の試験 20 件 |
+| `tests/engine/test_state_format_10f.py`(新) | K23 の試験 27 件 |
+| `tests/engine/test_resume_10d.py` | 「自分が書いたものだけを読む」の試験を npz+json の形に書き直した(壊れた・印の無い・写しの無い・ラン ID の違うファイルを拒む)。台帳の版の試験のファイル名を `.npz` に |
+| `tests/engine/test_env_and_sections_10f.py` | 状態のファイルの glob を `.npz` に。別の環境の試験は pickle を直に開かず `read_state` で読んで書き直す |
+
+既定のランの挙動は変えていない(§5)。状態台帳の行・版(`state-ledger/10f`)は変えていない。
+
+### 2. K24 (a) AST と実行時の検査
+
+#### 2-1 軸 1(AST)
+
+- 対象: 外の状態の行が指す持ち主のクラスの属性 437 のうち、全部の行で軸 1 が no/diag の 356 属性。持ち主のクラスの外の読み(属性 `obj.x` と `getattr(obj, "x")`)を集める。持ち主のクラスの中の `self.x` は数えない(目的が AST では分からない)。書き(代入の左辺・`x[...] =`・`del`)と自己更新(`o.x = getattr(o, "x", 0) + 1`)は読みに数えない。`x.clear()` などの変更のメソッドは読みに数える。
+- 許す読み(規則): (1) 直列化・ハッシュ・保存と戻しの書き手(`state_hashes`・`resume`・`state_ledger*`・`state_codec`・`resolve.restore_*`)(2) 診断の出口の関数 12(`RunResult.*`・センサス・checkpoints の JSON・世界過程と描画と計画実行層の計数の要約 など)(3) `engine/run.py` の `result.…` への代入の文(4) 名前の衝突(同じ名前の属性かメソッドを持ち主の外のクラスも持つ)で、受け手の名前が持ち主を指さない読み(5) 場所ごとの許可(理由つき)。
+- 名前の衝突: 軸 1 が no/diag の属性では **20 個**(材料 §3-3 の 52 は全部の属性の数)。表 `EXT_NAME_COLLISIONS` に相手のクラスを理由として書いた。受け手の名前(最後の名前・`OWNER_RECEIVER_ALIASES` の別名)が持ち主を指す読みは、衝突でも規則 (1)〜(3)・(5) で見る(例: `presence.n_arrivals` は衝突だが受け手が持ち主なので許可が要る)。
+- 今の src の数: 持ち主の外の読み 238 か所(54 属性)。衝突 163・出口の関数 28・結果の組み立て 29・場所ごとの許可 18 か所(許可の項は 17・11 属性)。走査は約 1.0〜1.3 秒。
+- 場所ごとの許可 17 項の中身: 層別の起床の数えと診断の行の差分の基準(`presence.n_arrivals`・`n_departures`・`bridge.n_tape_misses`)・再開に渡す台帳の検査(`ledger.money.n_transfers`)・結果の組み立てのうち `result.…` の文の外にある読み(`sleep_counts`・`stats` 2 か所・`text_id`)・店の決め手の名前(`chooser.last_habit`=O13 と O68 の diag にだけ入る)・tick の終わりに控えを捨てる書き(`rel_layer.origin_of.clear()`)・標準ライブラリの同名(`timedelta.seconds`)・**看板の露出 `renderer.signage_exposures`(下の §7 の 1)**。
+- 古い許可(どの読みにも当たらない許可・衝突の表の余り・理由の空)も落とす。
+
+#### 2-2 軸 2(実行時「捨てて同じか」)
+
+- `tests/engine/discard_probe.py`: 通しのランの tick T の頭(`resolve.advance_body` の手前)で、軸 2 が discardable の外の状態の属性(208 道筋のうち持ち主が立っているもの)を、**ランの最初の tick の頭の値**に戻して続ける。T から後の checkpoint の final・behavior-hash・full-hash・tick ごとの呼数・診断の行・日の締め・呼数の合計を通しと比べる。
+- 「新しいインスタンスの値」の近似(**未リサーチ(expedient)**): 最初は `__init__` の直後の値で試したが、配線で鍵を張る辞書(会話の `origin_counts`)が空に戻ってランが止まった。再開の新しいインスタンスは作った後の配線を通るので、ランの最初の tick の頭の値(配線と日の頭の初期化の後)にした。初期化の分の計数を含む(差は計数だけの見込み=推測)。その時点で無い属性(`chooser.last_habit`・`chooser.stats`=選び手が classical でない構成の別のクラス)は戻せないので報告に出す。値の写しは、配列は `copy`、数と文字列だけの容器は `deepcopy`、関数や参照はそのまま(`rel_layer._invite_salt` と描画の口 3 本)。
+- SoA の discardable の列(全部が死蔵)は触らない(10b の AST が読み手 0 を見る)。除外の一覧の cache も触らない(再開では配線が作り直す=戻す値の近似が当たらない)。
+
+#### 2-3 結果(T4)
+
+| 試験 | 結果 |
+|---|---|
+| 軸 1: 今の src | 問題 0 |
+| T4 軸 1: 実物の src の写しに「`act_layer.n_wander_bad`(O66 diag)を挙動の分岐で読む」と「`getattr(act_layer, "n_set")`」の断片を足す | 2 件で落ちる(場所と行の鍵 O66 が出る)。`run.py` の外の `result.…` は出口でないので 1 件残る |
+| 軸 1: 衝突の扱い | `decision.n_calls`(相手のクラス)は許し、`arbiter.n_calls_total`(持ち主)は落とす |
+| 軸 2: 合成世界 100 体・全腕・2 日・T=420・1320・1860 | 通しと全点一致(208 道筋のうち持ち主の立つものを全部戻した) |
+| 軸 2: 世界資産 300 体・2 日(既定 v3 の T=750・classical+記憶+関係の T=1320) | 全点一致 |
+| T4 軸 2: O91 `conv.n_opened` を discardable にした台帳(10d の 14 項目の 1 つ) | T=750 で戻すと behavior-hash・full-hash・診断の行・日の締めが食い違い、final も後で食い違う(落ちる) |
+| T4 軸 2 の 2 例目: O92 `ledger.money._snap` を捨てる(世界資産・T=1860) | 2 日目の締めのセンサスが食い違う(落ちる)。0 日目の途中(T=750)では基準がランの頭の値のままなので食い違わない=2 日目で見る |
+
+- 捨てる計器の時間: 合成世界 100 体・2 日・毎 tick の checkpoint で 1 本 約 16 秒(通しと同じ)。
+
+### 3. K25 (a) K19 の検査
+
+#### 3-1 静的(AST)
+
+- `stream()`・`philox()` の呼び手(別名の import と `domain=` を拾う・httpx の `client.stream` は拾わない)31 か所を、行番号でなく(ファイル・関数・用途名)で同定した。
+- **静的に安全 15 か所**(1 語目が無いか定数 7・引く語数が定数で 4 以内 8)を `SAFE_SITES` に固定した。増えても減っても落ちる。
+- **静的に決まらない 16 か所**は `UNDETERMINED_SITES` に、実行時の検査での扱いを理由として書いた。ここに無い呼び手が出たら落ちる(新しい呼び手を実行時の検査に回す合図)。
+- 「静的に 4 語を超える」(1 語目が値で、定数の語数が 5 以上)は、表に関係なく落ちる。
+
+#### 3-2 実行時の計器
+
+- `StreamRecorder`: `core.rng.philox` と、それを直に import したモジュールの名前を包み、作った流れを全部覚える。「使ったブロック」=作った時と終わりのカウンタの 0 語目の差。同じ(用途名・1〜3 語目)で 0 語目の違う流れどうしの、使ったブロックの区間の重なりを「実際の重なり」とした(材料 §4-2 と同じ数え方)。
+- 許可の表 `K19_ALLOW`(用途名 → 扱いと理由)。実際の重なりは扱い `overlap` だけ、「1 語目に値を置いて 2 ブロック以上」(潜在)は `overlap` か `latent` が要る。
+
+表 3-1: 実測(実際の重なりのある用途名)。
+
+| 構成 | 実際の重なり(用途名: 数) |
+|---|---|
+| 既定 v3・世界資産 5,000 体・seed 1・1 日 | `w16.sample.stratum` 185(最大 2,602 ブロック)・`body.weight` 1・`body.eer` 1。final `993276d5e5bb5cbe`・69,978 呼(包まないランと同じ) |
+| 既定 v3・世界資産 300 体・2 日 | `world.delivery_inbound` 1・`world.road_works` 1・`world.salient` 1 |
+| 合成世界 200〜300 体・全腕・率 ×1000・2 日・stateful(既定) | `perception.p_notice` 15〜22・`world.delivery_inbound` 1・`world.salient` 1・`world.public_service_dispatch` 1 |
+| 同・counter | `perception.p_notice` 15・`world.delivery_inbound` 1(counter の 2 本は 1 語目が 0 で隣が無い) |
+
+- 許可の表は 8 用途名、どれも扱い `overlap`・理由の頭に「10e で直す」。既定 v3 の 3 つ(P1・R3)のほかに、P2(`p_notice`)・P3(`delivery_inbound`)・R4(`road_works`)と、stateful の日の Generator 2 本(`world.salient`・`world.public_service_dispatch`)を載せた。**重なりの修正はしていない**(10e)。
+- **気づいたこと**: 10c の検収の P3・R4 は「`--day` が 1 違う別のランの間」の重なりだったが、10d の複数日のランでは **1 本のランの中で** 0 日目と 1 日目の流れが実際に重なる(配送・工事・stateful の顕著行為と出動)。日をまたいだ乱数の相関なので、10e で直すときの範囲に入る(§7 の 2)。
+- 計器の費用: 包む処理は 1 本の時間の 1 割未満(5,000 体・1 日で 約 43 秒=材料の 29 秒より長いのは並べて回したため・数えは 1 秒未満)。
+
+#### 3-3 結果(T5)
+
+| 試験 | 結果 |
+|---|---|
+| 静的: 今の src | 15 と 16 の表と一致 |
+| T5 静的: 断片 `stream(seed, "…", agent, tick).random(5)` | 「静的に 4 語を超えて引く」で落ちる。`g = R.stream(…); g.random(n)` は「決まらない呼び手が増えた」で落ちる。`random((2, 2))` は安全 |
+| 実行時: 合成世界・率 ×1000・2 日(stateful と counter) | 許可の表の中だけ。計器で包んでも final は同じ |
+| 実行時: 世界資産 300 体・2 日 | 許可の表の中だけ |
+| 実行時: 既定 v3・5,000 体・1 日(`slow`) | 185・1・1 と final・呼数が既知の答えと一致。ほかの重なり 0 |
+| T5 実行時: 体ごとの流れ(1 語目=体)から 5 語引く呼び手を足す | 最大 2 ブロック・重なり > 0 で落ちる(許可の表の外の 1 件だけ) |
+| 空の許可の表 | 全部の重なりが「許可の表に無い」で出る |
+
+### 4. K23 (a) 保存の形式(npz+json)
+
+#### 4-1 形
+
+- 1 つの npz(`np.savez_compressed`)に、配列 `a0`・`a1`・… と、`meta`(UTF-8 の JSON を uint8 の配列にしたもの)。JSON は `{"codec", "doc": {"header", "soa", "items", "inflight"}}` の値の木。見出しは素の JSON に限る(写しの `.json` と同じ値)。
+- 印: `__t`(タプル)・`__s`(集合・要素の正準の JSON の昇順・`fz` で frozenset)・`__d`(鍵が文字列でない辞書と辞書の子クラス・挿入順・`c` は OrderedDict・Counter・defaultdict)・`__o`(許可したクラス+欄・NamedTuple は要素・Enum は値)・`__nd`(配列の参照)・`__g`(Generator の state)。**実行役が足した印 4 つ**(未リサーチ(expedient)): `__ns`(numpy のスカラー。np.float32 などの型を保つ・浮動小数は `float.hex`)・`__f`(有限でない浮動小数。JSON の外の NaN を書かない)・`__q`(deque)・`__r`(同じ可変の値を 2 か所以上から指す=最初の 1 回に中身・2 回目から番号)。
+- 同一性: 同じ配列は同じ `__nd` の名前、同じ list・辞書・集合・許可したクラスの値・Generator は `__r` で 1 つのまま戻る(pickle と同じ範囲)。集合の要素と辞書の鍵は並べ替えるので `__r` を使わない(中身の写し)。循環は書くときに止める。
+- 許可したクラスの表 `ALLOWED_CLASSES` は 17(`ActivityPayload`・`Target`・`TargetKind`・`PlanBlocks`・`WakeCandidates`・`DeferralQueue`・`EventClass`・`WakeCondition`・`EventBudget`・`Counters`・`DayClose`・`GoodsRef`・`InboundStarts`・`Session`・`PendingInvite`・`ConvState`・`LLMCall`)。表の全部が import でき、独自の pickle の口(`__reduce__`・`__getstate__`・`__setstate__` など)を持たないことを試験で見る。`InboundStarts`(`runner.rail._inbound`)は 10d の帰無の腕の再開の試験で見つかった(材料 §5-2 の 11 道筋の数えには無かった)。
+- ビット生成器は Philox・PCG64・PCG64DXSM・MT19937・SFC64 だけ。種 0 で作ってから状態を置く(OS の乱数を引かない)。
+
+#### 4-2 読み(読むだけでコードが動かない)
+
+- `np.load(io.BytesIO(data), allow_pickle=False)`。numpy の文書(2.5): `allow_pickle` は「pickle を許さないなら object の配列の読みは失敗する」・既定 False、警告の節は「信用できない出どころには allow_pickle=False」。object の配列は numpy が ValueError で拒み、`StateFormatError` にする。meta の JSON は NaN・Infinity を拒む(`parse_constant`)。
+- クラスは許可の表の名前だけ。`importlib.import_module` は表に書いたモジュールだけに使う(表の外の名前は import もしない=試験で確かめた)。組み立ては `cls.__new__(cls)` に属性を置く形(`__init__`・`__post_init__`・`__setstate__` を呼ばない)・Enum は `cls(値)`・NamedTuple は `_make`。dataclass は欄が全部そろうこと、属性の名前は識別子であることを見る。
+- どこからも指されない配列が npz にあれば拒む。印が 2 つ以上・定義の前の `__r`・数でない `__ns` の dtype も拒む。
+- **台帳の宣言との突き合わせ**(`check_bundle`): 見出しの必須の欄と型・SoA の置き場と列が台帳の行(discardable でない列)・dtype と形が行の型の宣言(`i4x11` なら `(体数, 11)`)・同じ置き場の列の長さ・外の状態の道筋の集合と順が `full_items`。**戻す前**(`check_item_kinds`)に保存の値と今の値の型を比べる(数は Python と numpy の整数・浮動小数を同じ仲間・配列は dtype と次元の数・辞書は型と、今の値に鍵があるときは鍵の型の組)。
+- 壊れた・取り違えたファイルは写しの sha256 とバイト数・ラン ID・形式の版で止める。
+
+#### 4-3 旧の pickle
+
+- 〔訂正(検収 U1)〕下の「先頭のバイトで選ぶ」形では、外から来たファイルでも pickle が開かれた。今は切替口と拡張子 `.pkl` がそろったときだけ開く(§8)。§4-2 の「読むだけでコードが動かない」は npz+json の読み口についての主張。
+- 先頭のバイトが `SHIBUYA-STATE ` なら 10d の読み口(先頭の行の sha256・写しのラン ID を pickle を開く前に検査)で読み、`LegacyStateFormatWarning` を出す。読んだ後も `check_bundle` を通す。
+- HEAD `129da80` の写しの src で書いた `.pkl`(合成世界 100 体・記憶+関係・T=750)を作業木で再開して、通しと 36 点の checkpoint が全部一致・警告が出ることを確かめた。
+
+#### 4-4 結果(T6)
+
+| 試験 | 結果 |
+|---|---|
+| resume == straight(`tests/engine/test_resume_10d.py` の全部・npz+json で書いて読む) | 38 passed(合成世界の全腕の毎 tick・世界資産の毎 tick・6 構成・別のプロセス・艦隊の未着の呼・counter など) |
+| 19 構成 × 世界資産 300 体 × 2 日 × 止める時刻 2 つ(T=750・1440)の再開 | 38 本とも checkpoint の全点と呼数の合計が通しと一致(状態のファイル 90〜161 KB) |
+| 印の往復 | 型・挿入順・float32 の演算・NaN・2^70・印と同じ名前の普通の鍵・Enum・dataclass・Generator の続きの乱数が一致 |
+| 同一性 | 凍結した `Target` を 3 か所から・配列を 2 か所から・list を 2 か所から指す値が 1 つのまま。世界資産 300 体の日の境目の実物の状態で、共有の組(`_last_close` を含む)が書く前と読んだ後で同じ・外の状態の値の直列化が全部同じ |
+| `allow_pickle=False` | `np.load` の呼び出しは `allow_pickle=False` の 1 回だけ・`pickle.loads`・`load`・`Unpickler` を呼ばない(呼べば落ちる仕掛けで確かめた) |
+| 拒否 | `os.system`・`subprocess.Popen`・`builtins.eval`・許可の外のビット生成器・辞書の型・defaultdict の作り手・無い配列・印 2 つ・定義の前の参照・object の dtype・Enum の値・dataclass の欄の不足・object の配列・NaN・形式の版・余った配列 |
+| 台帳の宣言 | dtype(int32 → int64)・2 次元目の幅・列の長さ・discardable の列・道筋の不足で `read_state` が止める。辞書 → list・配列の dtype の違いで再開が止める |
+| 旧の pickle | 警告が出て読め、再開が通しと一致。壊れたものは sha256 で止める |
+| 大きさ(5,000 体・`slow`) | 下の表 4-1。1.1 MB 以下 |
+
+表 4-1: 既定 v3・5,000 体・seed 1・テープつき・2 日のランを T=1440 で止めた状態(中央値 5 回・この機械・ほかのランと並べて回した)。
+
+| 構成 | npz+json | pickle(旧) | 比 | 書き(npz/pickle) | 読み(npz/pickle・検査込み) |
+|---|---|---|---|---|---|
+| 既定 v3 | 768,757 B | 4,306,062 B | 0.179(−82%) | 0.162 / 0.014 s | 0.040 / 0.009 s |
+| 記憶+関係 | 1,452,997 B | 21,870,395 B | 0.066(−93%) | 0.313 / 0.047 s | 0.076 / 0.027 s |
+
+- 既定 v3 の npz+json は 1 体あたり 154 B(10d の pickle は 861 B/体・材料の試作は 205 B/体)。材料の試作(1.03 MB)より小さいのは、meta の JSON も npz の中で圧縮したため。
+- 予算(アジェンダ §7 の「状態の書き出し 137 B/体」)は今も超えている。再宣言は 10e の項のまま。
+
+### 5. byte-check(19 構成)と 2 日のラン
+
+- 手順は第 1 段 §4 と同じ(HEAD `129da80` の写しに祝日の CSV を写す)。mock/classical 5,000 体・seed 1・1 シミュ日・テープつき。
+- 結果: **19/19 一致**(final・呼数・blocks・calls の 14 列)・`src_checks` ok([byte_check_stage3.json](byte_check_stage3.json))。既定 v3 は `993276d5e5bb5cbe`・69,978 呼、帰無 `72cb9cd52982da74`・100,439 呼、記憶+関係 `40409ebed834126b`・72,930 呼(第 2 段と同じ)。
+- **2 日のラン**: 5,000 体・seed 1・`sim_days=2`・既定 v3(活動層 on・day_index 0)・テープつきで、HEAD の写しと作業木の final `47e0a85b02797e23`・142,043 呼・テープの calls と blocks の中身の sha256 が一致([two_day_check_stage3.json](two_day_check_stage3.json)。第 2 段の記録とも同じ)。
+- 状態を書くランの final も変わらない: 5,000 体・2 日を T=1440 で止めたランの final は 1 日のランと同じ `993276d5e5bb5cbe`(表 4-1 の測り)。
+- 記録: [k19_runtime_stage3.json](k19_runtime_stage3.json)(表 3-1 の 4 本)・[resume_19x2_stage3.json](resume_19x2_stage3.json)(§4-4 の 19 構成 × 2 時点)。
+
+### 6. テストの数(対象のテスト)
+
+| ファイル | 件数 | 結果 |
+|---|---|---|
+| `tests/engine/test_state_checks_10f.py`(新) | 20(`slow` 1 を含む) | 20 passed(約 5 分) |
+| `tests/engine/test_state_format_10f.py`(新) | 27(`slow` 1 を含む) | 27 passed(約 1 分) |
+| `tests/engine/test_resume_10d.py` | 38 | 38 passed(約 9 分) |
+| `tests/engine/test_state_ledger_10b.py` | 70 | 70 passed(AST の検査の許可に `state_codec.py` の `__slots__` の読みを 1 つ足した後) |
+| `tests/engine/test_env_and_sections_10f.py`・`tests/c7/test_salt_compare_10f.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/c7/test_seed_exchangeability.py` | 73 | 73 passed |
+
+新しい 2 ファイルと 10b は 1 回にまとめて 117 passed(9 分)。全体は親が回す(実行役は回していない)。`test_platform_id_ignores_commit_threads_and_dependency_versions` は試験の間に追跡しているファイルが変わると落ちる(第 2 段 §12 と同じ注意)。
+
+### 7. 親に確かめる点
+
+1. **看板の露出 `renderer.signage_exposures`(O64・軸 1 no・軸 2 discardable)は挙動の読み**: 描画が集めた看板の露出を、同じ tick の 6 段目で記憶と親しみの層が読んで空にする(`engine/run.py`)。tick の中だけの口で checkpoint の時点では常に空なので、ハッシュと再開には効かない。軸 1 を behavior にすると behavior-hash が全構成で動くので、今は理由つきの許可に置いた。行の判定を直すか(10e の版上げに束ねるか)の判断を仰ぎたい。
+2. **K19 の日をまたぐ重なり**: 10d の複数日のランでは、配送・工事・stateful の顕著行為と出動の日の流れが、1 本のランの中で 0 日目と 1 日目で重なる(§3-2)。10e で直す範囲に P1・P2・R3 と並べて入れるか。
+3. **軸 2 の「新しいインスタンスの値」**: ランの最初の tick の頭の値で近似した(§2-2)。再開の新しいインスタンスとの差(日の頭の初期化の分の計数)は計数だけの見込みだが確かめていない。除外の一覧の cache は検査の外。
+4. **印を 4 つ足した**(`__ns`・`__f`・`__q`・`__r`)。アジェンダの 6 つでは numpy のスカラーの型と同一性(`Target` の 12 か所)を保てないため。
+5. **許可したクラスの表に `InboundStarts` を足した**(材料の 11 道筋の外)。表に載らない型は書く時点で場所つきで止まる(`/items/runner.rail._inbound` のように出る)。19 構成 × 2 時点の再開で、ほかに足りない型は出なかった。日の途中の会話(`Session`・`PendingInvite`)と艦隊の未着の呼(`LLMCall`)は 10d の試験で通る。
+6. **型の突き合わせの弱いところ**: 辞書の鍵の型は今の値に鍵があるときだけ比べる。再開の新しいインスタンスの辞書は空のことが多く、ほとんどの道筋で比べられない。値の中身の検査は、戻した後の full-hash が見出しの値と同じかの検算(10d)だけ。
+7. 旧の pickle の読み口と `write_state_pickle` は 10e で消す前提(K23 (a))。
+8. **写しの `.json` の名前**: 状態のファイルの写しは拡張子を `.json` に替えた名前なので、同じディレクトリに同じ T の `.npz` と旧の `.pkl` があると写しを共有する(後に書いた方の写しになる)。もう片方はラン ID か sha256 の違いで読み口が止まる(黙って読み違えることは無い)。新しいコードは `.pkl` を書かないので、古いランの置き場に新しいランの状態を書いたときだけ起きる。
+
+### 8. 検収の後に直したこと(U1〜U7)
+
+検収 [review-10f-stage3.md](review-10f-stage3.md)(条件つき受入・条件は U1)を受けて直した。親の全体のテスト(直す前の作業木)は 3,746 passed・0 failed。
+
+| # | 扱い | 中身 |
+|---|---|---|
+| U1(条件) | 直した | 中身の先頭のバイトで旧の pickle の口を選ぶのをやめた。`read_state(path, *, allow_legacy_pickle=False)`・`run_day(resume_legacy_pickle=False)`・CLI の `--resume-legacy-pickle`(`shibuya.engine.run` と `shibuya.cli` で同じ綴り)。**切替口と拡張子 `.pkl` がそろったときだけ** pickle を開く。それ以外で中身が pickle(10d の先頭の行か pickle の印 0x80)なら、開かずに `StateFormatError`。切替口は指紋に入れない(`FINGERPRINT_SKIP`)。`resume.py` の docstring を「npz+json は外から来たファイルでもコードを動かさない/旧の pickle は切替口つきで、自分のファイルに限る(先頭の行の sha256 と写しは出どころの証明にならない)」と書き分けた |
+| U1 の試験 | 足した | 検収役の再現(`__reduce__` で印のファイルを作る pickle・10d の形の先頭の行・ラン ID の合う写し)を 5 通りで: 名前 `.npz`/切替口あり+名前 `.npz`/名前 `.pkl`+切替口なし/先頭の行の無い生の pickle 2 通り。どれも `StateFormatError` で、`pickle.loads` は呼ばれず、印のファイルはできない。`run_day` の再開でも同じ。旧の形式の往復の試験は切替口つきに直し、切替口なしでは止まることも見る。**`129da80`(第 3 段の前の HEAD)の `git archive` の写しで書いた `.pkl` から、切替口つきで再開すると通しと全点一致**する試験を足した(git か commit が無ければ飛ばす・10e で消す) |
+| U2 | 直さない(親の判断・10e で K19 と一緒に) | 日の鍵の流れは、次の日に 1 ブロック(4 語)ずれた**写し**になる。`K19_ALLOW` の上の注と §3-2・§7 の 2 に書いた。**10e まで、2 日以上のランの配送・工事・顕著行為・出動の日ごとの差を主張に使わない** |
+| U3 | 直した | `__o` の組み立て: 欄の名前が `__` で始まるか識別子でなければ拒む。欄の集合が宣言と**一致**すること(dataclass は `fields`・dataclass でない値のクラスは新しい表 `CLASS_FIELDS`=`DeferralQueue` 8 欄・`EventBudget` 4 欄)。書く側も同じ一致を見る(違えば書く時点で止める)。`CLASS_FIELDS` がクラスの属性(AST)と同じことを試験で見る |
+| U4 | 直した | `loads` の組み立ての部分を広く包み、拒否を全部 `StateFormatError` にそろえた(桁あふれ・ビット生成器の状態の形・Enum の型・深い JSON の `RecursionError` など)。`read_state` の拒否(写し・見出し・台帳の版・`check_bundle`)も `StateFormatError`(`ValueError` の子)。**開く前の部品の検査**を足した: 部品は npy だけ・npy の見出しの形 × 型の大きさ+見出しの長さが部品の大きさと一致(巨大な形を宣言する見出しで numpy が先に確保するのを止める)・object の dtype を拒む・展開した後の合計の上限 `MAX_UNCOMPRESSED_BYTES` 2 GiB(39 万体の見込みの約 6 倍・**未リサーチ(expedient)**・10e の予算の再宣言で見直す)・meta の上限 512 MiB |
+| U5 | 直した | 場所ごとの許可を `ExtAllow(属性, 当たる数, 場所)` にして、当たる数が宣言と違えば落とす(今は 17 項・18 か所・`prev_tape_misses = bridge.n_tape_misses` だけが 2)。許可した行と同じ文字列の行を `run.py` の別の関数に写すと落ちる試験を足した |
+| U6 | 書いた | 下の §8-1 と `state_ledger_ast.py` の限界のコメント。衝突の属性を持ち主と違う名前の受け手で読むと見えないことを試験で固定した(持ち主の名前なら落ちる) |
+| U7 | 直した | 合成世界の「捨てて同じか」の T に日の境目の前後(1439・1441)を足した(全点一致)。乗数を 1.5 にした classical の腕で O90 `_ipf_cache` をわざと discardable にして帯の途中(T=757)で捨てると、behavior-hash と日の締めが食い違って**捕まる**(final と呼数は同じ=作り直した c_t がこのランでは同じ値。軸 1 が behavior の行なので属性そのもののハッシュで捕まる)。O37 `_pulled_in_today` は T=750・1439・1441 のどれでも**捕まらない**: 読み手は O70 の計数(discardable・比べない)だけで、discardable にすると full-hash からも外れる=この検査の外。日の途中の再開で要ることは再開の試験(10d)が見る。どちらも試験に残した |
+| U8 | 直していない(依頼の外) | K19 の束ねる鍵に seed を入れること・作り直しの数の固定は 10e の K19 と一緒に |
+
+#### 8-1 検査の限界(U6・U7)
+
+- **軸 1(AST)**: 名前の衝突の 20 属性は、受け手の名前が持ち主と違えば(`conv_mgr.n_blocks` など)衝突として許すので見えない。受け手の名前が持ち主を指せば(`conv.n_blocks`)落ちる。衝突でない属性は別名の受け手でも落ちる。`getattr(obj, 変数)`・`vars()`・持ち主ごと関数に渡した先・持ち主の中の `self.x` の目的は見えない。
+- **軸 2(実行時)**: その構成とその T で働く漏れしか拾わない。合成世界には金の台帳・物の台帳・計画実行層が無く、合成世界の試験ではこれらの道筋を触っていない(`absent_owner`)。世界資産の試験(既定 v3・classical+記憶+関係・`_snap`)が金の台帳と計画実行層を見る。読み手が discardable の計数だけの行(O37)はこの検査では見えない。戻す値の近似(ランの最初の tick の頭の値)が再開の新しいインスタンスと違うのは、金の台帳の生の行の 5 配列だけ(検収の測り)で、それらは再開の試験が本物の値で見る。
+
+#### 8-2 確かめ(直した後)
+
+- byte-check(19 構成・HEAD `129da80` の写しと直した後の作業木): **19/19 一致**・`src_checks` ok([byte_check_stage3_fix.json](byte_check_stage3_fix.json))。
+- 2 日のラン(5,000 体・既定 v3): final `47e0a85b02797e23`・142,043 呼・テープの calls と blocks の中身が HEAD と一致([two_day_check_stage3_fix.json](two_day_check_stage3_fix.json))。
+- 対象のテスト: `test_state_checks_10f.py` 25・`test_state_format_10f.py` 43・`test_state_ledger_10b.py` 70・`test_env_and_sections_10f.py`・`test_salt_seed_split_10f.py`・`tests/c7/test_salt_compare_10f.py` をまとめて **204 passed**(11 分・警告は既知の暦の 2 件)。`test_resume_10d.py` **38 passed**。全体は親が回す。
+- 新しい試験の数: `test_state_checks_10f.py` 20 → 25(U5 1・U7 の T 2・U7 の項目 2)、`test_state_format_10f.py` 27 → 43(U1 7・U3 4+1・U4 3+1)。
+
+## 親の検収(第327・2026-10-07・第 3 段)
+
+- 親: 全体のテスト **3,769 件(3,767 passed・failed 0・skipped 1・xfailed 1)**(直した後の作業木)。`test_u1_resume_from_a_pkl…` もこの作業木では通った(再検収役の機械ではパスの長さで落ちた=環境の問題)。
+- 別のサブの検収: 1 回目 条件つき受入([review-10f-stage3.md](review-10f-stage3.md)・U1 旧 pickle を中身の先頭のバイトで自動で開く=`.npz` という名前の悪い pickle でコードが動いた)→ 直し → 2 回目 **受入**([review-10f-stage3-recheck.md](review-10f-stage3-recheck.md)・24 経路で pickle は開かれない)。
+- 残す低い欠陥(10e で扱う): V1 §3-2・§7 の 2 に U2 の注が無い(本節で補う: **10e まで、2 日以上のランの日ごとの差を主張に使わない**。日の鍵の流れが次の日に 1 ブロックずれて重なるため=U2・K19 と一緒に 10e で直す)/ V2 写しの `.json` が壊れていると `JSONDecodeError`・`UnicodeDecodeError` がそのまま出る(読みは止まりコードは動かない)/ V3 場所ごとの許可は当たる数だけを固定し、許可した行を挙動の場所に移しても数が同じなら通る / U8 K19 の実行時の数え方の細部 / 屋外広告の接触(O64)の軸 1 の分類。
+

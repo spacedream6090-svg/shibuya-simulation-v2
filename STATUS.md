@@ -1,6 +1,6 @@
 # STATUS(索引)
 
-- **現在地(2026-10-06 夜・第324)**: 構築工程 C0〜C8 は一巡(39 万体×1 日の実 LLM ラン c7-day-4 を 3 seed・holdout 開封=0/4 NOT PASS)。第281〜322 で GPU 不要の実装 #49〜#83(全体テスト 3,603 件)。**2026-10-03 にユーザーの指示書が届き、09-30 の判断待ちの全項が決まった**([指示書 10-03](docs/design/v2-wallbounce-decisions-2026-10-03.md)・[要件の改訂記録](docs/design/v2-requirements-revision-log.md))。 **2026-10-06 に次の指示書が届き、空間の設計ラウンド SR1〜SR18 と 10-04 の K が決まった**([指示書 10-06](docs/design/v2-wallbounce-decisions-2026-10-06.md)・[空間の草案 v2](docs/design/v2-spatial-design-round-draft.md))。全体の方針: 領域の中の結果はすべてエージェントの行動を伴う・「判断モデル」・参考となる考え方(決定台帳 §3b)。順番は 文書の整理 → 日次データ(済)→ リサーチ第 1 群 → D-102 の土台 10a〜10f → 11a・11c → 賃金 → 10g → 設計ラウンド → 空間の段 0〜6 → 記憶。**実 LLM の手段なし(09-22〜)**。
+- **現在地(2026-10-07・第327)**: 構築工程 C0〜C8 は一巡(39 万体×1 日の実 LLM ラン c7-day-4 を 3 seed・holdout 開封=0/4 NOT PASS)。第281〜322 で GPU 不要の実装 #49〜#83(全体テスト 3,603 件)。**2026-10-03 にユーザーの指示書が届き、09-30 の判断待ちの全項が決まった**([指示書 10-03](docs/design/v2-wallbounce-decisions-2026-10-03.md)・[要件の改訂記録](docs/design/v2-requirements-revision-log.md))。 **2026-10-06 に次の指示書が届き、空間の設計ラウンド SR1〜SR18 と 10-04 の K が決まった**([指示書 10-06](docs/design/v2-wallbounce-decisions-2026-10-06.md)・[空間の草案 v2](docs/design/v2-spatial-design-round-draft.md))。全体の方針: 領域の中の結果はすべてエージェントの行動を伴う・「判断モデル」・参考となる考え方(決定台帳 §3b)。順番は 文書の整理 → 日次データ(済)→ リサーチ第 1 群 → D-102 の土台 10a〜10f → 11a・11c → 賃金 → 10g → 設計ラウンド → 空間の段 0〜6 → 記憶。**実 LLM の手段なし(09-22〜)**。
 - 進捗の目安: v2 初版(C0〜C8)≈ 70% / 第一目標「世界そのものがプロダクト」≈ 3 割(第126 の見積り・据え置き)。
 - **いま・判断待ち・実装待ち・最近の実装・予定**: [PENDING.md](PENDING.md)(第279 に簡潔な形へ組み直し。旧全文は [pending-archive-2026-09-28.md](docs/log/pending-archive-2026-09-28.md))
 - 完了実装: [IMPLEMENTED.md](IMPLEMENTED.md)(#1〜#83)・運用の道具: `tools/realworld_fetch/`(日次の現実データ・検証専用)
@@ -10,4 +10,4 @@
 - 受入報告: [C5](docs/ops/build-report-C5.md)・[C6](docs/ops/build-report-C6.md)・[C7](docs/ops/build-report-C7.md)・[C8](docs/ops/build-report-C8.md)
 - 開発ログ: [docs/log/devlog.md](docs/log/devlog.md)(第1〜320 は [devlog-compressed.md](docs/log/devlog-compressed.md) へ圧縮済み・カウンタ 1/10)
 - ブランチ/PR: main は PR #7 まで(f9a3c97・2026-09-30 に PR #5 → #6 → #7 をマージ)。作業ブランチ `build/spatial-d102-prep`。タグ `v2-c7-day-4-accepted`(8f78065=実証済みの線)。
-- 最終更新: 2026-10-06 夜(第324 [リサーチの指示 10-06 夜](docs/design/v2-research-request-2026-10-06.md) の受領=方針「設計に関わる実装は最後に一気に・今はリサーチが主・例外は 10f(K20〜K26 確定)」。リサーチ第 5 群 6 本(R-99〜R-104)と 10f の第 1 段を起動。カレンダーと行動の時刻の壁打ちは claude.ai 側で済。全体テスト 3,603 件(第322)。**次は答申の親検収と 10f の検収・ユーザーの判断(PENDING §1-1)**)。経緯は devlog。
+- 最終更新: 2026-10-07(第325〜327 10f 完了=環境の欄と manifest の節(#84)・seed の 3 分割と salt の道具(#85・ユーザー決定)・AST と実行時の検査と K19 の検査と保存の形式 npz+json(#86)。親は一時的に Opus 5.5。全体テスト 3,767 passed。第324 リサーチ第 5 群 R-99〜R-104 親検収済。**次はユーザーの判断(PENDING §1-1)と claude.ai 側の残りの壁打ち・その間はリサーチ**)。経緯は devlog。
