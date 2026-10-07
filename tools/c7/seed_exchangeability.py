@@ -14,6 +14,17 @@
    =交換可能性はより強い。別なら「母集団の抽出が seed に依る」ことを事前登録に書く)
 4. 任意で ``occupancy.npz`` を渡すと 00 時の 5 エリア合計が seed 間で一致するか(初期配置の同一性)を報告
 
+**10f(K22 (a))**: manifest に欄の節の表(``manifest.manifest_sections``=``engine/manifest_sections.py``)が
+あれば、**設定の節の欄だけ**を比べる(上の 2 の 3 種の振り分けは設定の欄に対して行う)。観測の節の欄の差は
+``diff_observed`` に数えて報告するだけ(seed で違って当然)。環境の節(``env_id``・``environment``)の差は
+``diff_environment`` に出して警告するだけ(交換可能性は落とさない)。表の無い古い manifest は従来どおり
+全部の欄を比べる(``mode: legacy``)。表に無い欄は設定として比べ、``unlisted`` に名前を出す。
+
+**10f 第 2 段(K21 (a))**: manifest の ``population_seed``(母集団の seed)の差は許容に入れ、``population_seed_varies``
+で報告する(省略したランでは seed と同じ値なので seed とともに違う=今までの seed の比較と同じ意味)。salt の比較
+(母集団を固定して動きの seed だけを変える)では ``False`` になるはず。環境の seed(``environment_seed``・気象と
+大きな催しと道路工事)も同じ扱いで ``environment_seed_varies`` に出す(10f 第 2 段の直し・S1)。
+
 holdout には触らない。出力は JSON(既存ファイルへは書かない)。
 """
 from __future__ import annotations
@@ -30,10 +41,40 @@ ALLOWED_DIFF: frozenset[str] = frozenset({
     "seed", "run_id", "final_hash",
     "manifest.fleet.cache_salt",   # salt は run_id/seed から作る(C6-a)
     "manifest.fleet.run_id",
+    # 10f 第 2 段(K21 (a)): 母集団の seed。省略したランでは seed と同じ値なので seed とともに違う。違えば
+    # ``population_seed_varies`` で報告する(salt の比較=母集団を固定するなら同じ値のはず)
+    "manifest.population_seed",
+    # 10f 第 2 段の直し(S1): 環境の seed(気象・大きな催し・道路工事)。同じく ``environment_seed_varies`` で報告する
+    "manifest.environment_seed",
 })
+#: 母集団の seed の平坦化キー(10f 第 2 段)。
+POPULATION_SEED_KEY = "manifest.population_seed"
+#: 環境の seed の平坦化キー(10f 第 2 段の直し・S1)。
+ENVIRONMENT_SEED_KEY = "manifest.environment_seed"
 #: 一致が必須の欄(違えば構成が違う=FAIL)。
 MUST_MATCH: tuple[str, ...] = ("n_agents", "ticks", "schema")
 HASH_KEYS: tuple[str, ...] = ("population_hash", "schedule_hash", "world_hash", "agents_hash")
+#: manifest の欄の節の表の置き場(平坦化の前の鍵)。
+SECTIONS_KEY = "manifest_sections"
+MANIFEST_PREFIX = "manifest."
+
+
+def section_of(path: str, paths: Mapping[str, str]) -> str | None:
+    """道筋の節(最も長く一致する表の道筋)。``engine/manifest_sections.section_of`` と同じ規則(道具は src を import しない)。"""
+    best, best_len = None, -1
+    for p, sec in paths.items():
+        if (path == p or path.startswith(p + ".")) and len(p) > best_len:
+            best, best_len = sec, len(p)
+    return best
+
+
+def _sections_paths(docs: Sequence[Mapping[str, Any]]) -> dict[str, str] | None:
+    """最初の manifest の節の表(無ければ ``None``=legacy)。表どうしの違いは設定の差として別に出る。"""
+    for d in docs:
+        t = (d.get("manifest") or {}).get(SECTIONS_KEY)
+        if isinstance(t, Mapping) and isinstance(t.get("paths"), Mapping):
+            return {str(k): str(v) for k, v in t["paths"].items()}
+    return None
 
 
 def flatten(d: Mapping[str, Any], prefix: str = "") -> dict[str, Any]:
@@ -75,12 +116,26 @@ def compare(docs: Sequence[Mapping[str, Any]], labels: Sequence[str],
     flats = [flatten({k: v for k, v in d.items() if k != "checkpoints"}) for d in docs]
     keys = sorted(set().union(*[set(f) for f in flats]))
     must_fail = [k for k in MUST_MATCH if len({_norm(f.get(k)) for f in flats}) > 1]
+    paths = _sections_paths(docs)
     allowed, declared, unexplained = [], [], []
+    observed: list[str] = []
+    environment: list[dict[str, Any]] = []
+    unlisted: set[str] = set()
     for k in keys:
         vals = [_norm(f.get(k)) for f in flats]
         if len(set(vals)) <= 1:
             continue
         row = {"key": k, "values": dict(zip(labels, vals))}
+        if paths is not None and k.startswith(MANIFEST_PREFIX) and k not in ALLOWED_DIFF:
+            sec = section_of(k[len(MANIFEST_PREFIX):], paths)
+            if sec == "observed":
+                observed.append(k)
+                continue
+            if sec == "environment":
+                environment.append(row)
+                continue
+            if sec is None:
+                unlisted.add(k[len(MANIFEST_PREFIX):].split(".", 1)[0])
         if k in ALLOWED_DIFF:
             allowed.append(row)
         elif k in equivalents and set(vals) <= set(equivalents[k]["values"]):
@@ -101,6 +156,7 @@ def compare(docs: Sequence[Mapping[str, Any]], labels: Sequence[str],
     ok = not must_fail and not unexplained and ticks_match
     return {
         "schema": SCHEMA,
+        "mode": "legacy" if paths is None else "sections",
         "labels": list(labels),
         "n_seeds": len(docs),
         "seeds": [d.get("seed") for d in docs],
@@ -110,11 +166,22 @@ def compare(docs: Sequence[Mapping[str, Any]], labels: Sequence[str],
         "diff_allowed": allowed,
         "diff_declared_equivalent": declared,
         "diff_unexplained": unexplained,
+        "diff_observed_count": len(observed),
+        "diff_observed": observed,
+        "diff_environment": environment,
+        "environment_warning": bool(environment),
+        "unlisted": sorted(unlisted),
         "hash_identity": hashes,
         "population_seed_independent": hashes.get("population_hash", {}).get("identical_all_ticks"),
+        # 10f 第 2 段(K21 (a)): 母集団の seed がランの間で違うか(欄の無い古い manifest は None)
+        "population_seed_varies": (None if all(POPULATION_SEED_KEY not in f for f in flats)
+                                   else len({_norm(f.get(POPULATION_SEED_KEY)) for f in flats}) > 1),
+        "environment_seed_varies": (None if all(ENVIRONMENT_SEED_KEY not in f for f in flats)
+                                    else len({_norm(f.get(ENVIRONMENT_SEED_KEY)) for f in flats}) > 1),
         "exchangeable": ok,
         "note": ("交換可能=seed 以外の構成差が無い(未説明の差 0・必須欄一致・tick 列一致)。母集団ハッシュの同一性は"
-                 "報告のみ(同一なら母集団は seed に依らない・別なら抽出が seed に依ることを事前登録に書く)。"),
+                 "報告のみ(同一なら母集団は seed に依らない・別なら抽出が seed に依ることを事前登録に書く)。"
+                 "mode=sections(10f)では manifest の設定の節だけを比べ、観測の節の差は数えるだけ・環境の節の差は警告だけ。"),
     }
 
 
@@ -157,10 +224,13 @@ def main(argv: list[str] | None = None) -> int:
     out.write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8", newline="\n")
     print(f"exchangeable={res['exchangeable']} seeds={res['seeds']} allowed={len(res['diff_allowed'])} "
           f"declared={len(res['diff_declared_equivalent'])} unexplained={len(res['diff_unexplained'])} "
-          f"population_seed_independent={res['population_seed_independent']}"
+          f"population_seed_independent={res['population_seed_independent']} mode={res['mode']} "
+          f"observed={res['diff_observed_count']} environment_warning={res['environment_warning']}"
           + (f" hour0_identical={res['hour0']['hour0_identical']}" if 'hour0' in res else ""))
     for r in res["diff_unexplained"]:
         print("  UNEXPLAINED", r["key"], r["values"])
+    for r in res["diff_environment"]:
+        print("  WARNING environment differs", r["key"], r["values"])
     return 0 if res["exchangeable"] else 1
 
 

@@ -89,6 +89,9 @@ from shibuya.world.assets import CELL_SIZE_M, WorldAssets
 from shibuya.world.state import LANDMARK_CATS, World
 
 __all__ = [
+    "HUNGER_WORDS_MODES",
+    "DEFAULT_HUNGER_WORDS",
+    "check_hunger_words",
     "compose_memory_line",
     "memory_item_text",
     "P_SEE_ACTIVITY_KINDS",
@@ -307,11 +310,26 @@ STREET_POINT_AREA_M2: Final[float] = 6.25
 INTERO_UP_EDGES: Final[tuple[int, ...]] = (4, 7, 9)
 
 
-def _hunger_word(value: int) -> str | None:
-    """空腹の写し(1/5/8/10)→ B5 の語の 1 文(5 段目 5a)。段が ``HUNGER_WORD_DRAW_MIN_STAGE``
-    未満(満腹・ふつう)なら ``None``(描かない)。段=``INTERO_UP_EDGES`` を何本越えたか。"""
+#: **第2波 §2B 項 3(Q31 (b))** B5 に描く空腹の語の段(``--hunger-words``)。``hungry``(**既定**=旧)=
+#: ``T.HUNGER_WORD_DRAW_MIN_STAGE``(空腹)以上だけ / ``all``=満腹・ふつうも描く(4 段とも)。
+#: 既定の切り替えは食事の束の版上げで確認する(指示書 §8-2)。D-111 の予想表の「閾値超え 11%」は ``hungry``
+#: の定義の値。
+HUNGER_WORDS_MODES: Final[tuple[str, ...]] = ("hungry", "all")
+DEFAULT_HUNGER_WORDS: Final[str] = "hungry"
+
+
+def check_hunger_words(mode: str) -> str:
+    if str(mode) not in HUNGER_WORDS_MODES:
+        raise ValueError(f"hunger_words は {HUNGER_WORDS_MODES} のどれか(いま {mode!r})")
+    return str(mode)
+
+
+def _hunger_word(value: int, min_stage: int | None = None) -> str | None:
+    """空腹の写し(1/5/8/10)→ B5 の語の 1 文(5 段目 5a)。段が ``min_stage``(既定
+    ``HUNGER_WORD_DRAW_MIN_STAGE``)未満なら ``None``(描かない)。段=``INTERO_UP_EDGES`` を何本越えたか。
+    ``min_stage=0``(``hunger_words="all"``)は 4 段とも描く。"""
     stage = sum(1 for e in INTERO_UP_EDGES if int(value) >= e)
-    if stage < T.HUNGER_WORD_DRAW_MIN_STAGE:
+    if stage < (T.HUNGER_WORD_DRAW_MIN_STAGE if min_stage is None else int(min_stage)):
         return None
     return T.HUNGER_ITEM_TEMPLATE.format(word=T.HUNGER_WORDS[stage])
 
@@ -993,6 +1011,7 @@ class Renderer:
         near_tiebreak: str = DEFAULT_NEAR_TIEBREAK,
         near_salt: bytes | None = None,
         near_order: str = DEFAULT_NEAR_ORDER,
+        hunger_words: str = DEFAULT_HUNGER_WORDS,
     ) -> None:
         """
         Args:
@@ -1115,6 +1134,9 @@ class Renderer:
         #: 数値の代わりに ``T.HUNGER_WORDS`` の語を ``T.HUNGER_WORD_DRAW_MIN_STAGE`` 以上だけ描く。
         #: 欄の無いラン(v1)は従来の「空腹はNで閾値を超えています。」=**1 バイトも変わらない**。
         self._hunger_words: bool = bool(getattr(agents, "energy_columns", False))
+        #: 第2波 §2B 項 3: 描く最小の段(``hungry``=None=旧の定数 / ``all``=0)。
+        self.hunger_words: str = check_hunger_words(hunger_words)
+        self._hunger_min_stage: int | None = 0 if self.hunger_words == "all" else None
         #: C10 8a: 関係辺の知人の口 ``(体, tick) → 相手の配列``(``--relations on`` のランだけ・既定 None=
         #: 構築時の ``acquaintances``=空=1 バイトも変わらない)。
         self.acquaintance_fn: Callable[[int, int], Sequence[int]] | None = None
@@ -1126,7 +1148,8 @@ class Renderer:
         #: 鍵は ``(セル, 看板を見たか)``。既定(p_see 1.0)は第2要素が常に True=
         #: セルだけで引くのと同じ(命中率も同じ)。
         self._b2_cache: dict[tuple[int, bool], bytes] = {}
-        self._b3_cache: dict[int, bytes] = {}
+        #: 10d: 鍵は ``(世界内の日付, 5 分帯)``(5 分帯だけだと複数日のランで 0 日目の天候の行を 2 日目も使い回す)。
+        self._b3_cache: dict[tuple[object, int], bytes] = {}
         self._b4_cache: dict[tuple[int, int], bytes] = {}
         #: ablation ①(単一ランキング)のセル依存ブロック。B2 が B4 と同じ池を分けるので
         #: 鍵は ``(セル, B4 欄ハッシュ)``(固定枠の ``_b2_cache`` はセルだけ)。
@@ -1143,6 +1166,9 @@ class Renderer:
         #: 段 2c Q25: 名指しの即時閉店の補足(体 → (POI, 失敗の tick, 開店の分))。``engine.run`` が
         #: 意図の層のあるランだけ差し込む(``None``=従来どおり=描画は 1 バイトも変わらない)。
         self.named_closed_lookup: Callable[[int], tuple[int, int, int] | None] | None = None
+        #: 10d 検収 D1: B3 の天候を引く日(``YYYY-MM-DD``)を返す口。``engine.run`` が世界過程の再生の実日
+        #: (``environment.replay_date``=体の暑さと同じ源)を差し込む。``None`` か空なら今までどおり暦の日付で引く。
+        self.weather_date_fn: Callable[[], str | None] | None = None
         self.named_closed_notes = 0
         #: 4 段目(M17 露出): 看板行が載った (体, POI) の控え(``engine.run`` が tick ごとに取り出す)。
         #: ``None``=控えない(既定)。
@@ -1647,20 +1673,29 @@ class Renderer:
         return ok
 
     def _b3(self, tc: _TickCache) -> bytes:
-        got = self._b3_cache.get(tc.band5)
+        # 10d 検収 D1: 天候は「その日の再生の実日」の W13 の行で引く(体の暑さ=環境の過程と同じ行)。時刻の語は暦。
+        # 再生の実日が無ければ(合成世界)今までどおり暦の日付で引く。1 日のランは再生の実日=暦の開始日=同じ値。
+        wdate = self.weather_date_fn() if self.weather_date_fn is not None else None
+        key = (str(wdate) if wdate else tc.when.toordinal(), int(tc.band5))
+        got = self._b3_cache.get(key)
         if got is not None:
             self.cache_hits += 1
             return got
         self.cache_misses += 1
         h, m = N.format_time(tc.when)
-        weather, daylight, heat = self.assets.weather(tc.when)
+        if wdate:
+            weather, daylight, heat = self.assets.weather(
+                datetime.strptime(str(wdate)[:10], "%Y-%m-%d").replace(hour=int(tc.when.hour))
+            )
+        else:
+            weather, daylight, heat = self.assets.weather(tc.when)
         lines = [
             T.TEMPLATES["B3.time"].format(hour=h, minute=m),
             T.TEMPLATES["B3.weather"].format(weather=weather, daylight=daylight),
             T.TEMPLATES["B3.heat"].format(heat=heat),
         ]
         out = N.join_lines(lines).encode("utf-8")
-        self._b3_cache[tc.band5] = out
+        self._b3_cache[key] = out
         return out
 
     def _b4b_raw(
@@ -1773,7 +1808,7 @@ class Renderer:
         for name, label in zip(INTEROCEPTION_FIELDS, ("空腹", "体力", "体感温度")):
             v = int(a.registry.field(name)[i])
             if name == "hunger" and self._hunger_words:
-                word = _hunger_word(v)
+                word = _hunger_word(v, self._hunger_min_stage)
                 if word is not None:
                     crossed.append(word)
                 continue
@@ -2351,10 +2386,11 @@ class Renderer:
         for name, label in zip(INTEROCEPTION_FIELDS, ("空腹", "体力", "体感温度")):
             v = int(a.registry.field(name)[i])
             if name == "hunger" and self._hunger_words:
-                word = _hunger_word(v)
+                word = _hunger_word(v, self._hunger_min_stage)
                 if word is not None:
+                    # all の満腹・ふつう(v < 閾値)は逸脱 0(負にしない)。hungry は旧と同じ値
                     overrides[("B5.intero", len(crossed))] = {
-                        "deviance": min(1.0, (v - INTERO_UP_EDGES[0]) / span)
+                        "deviance": min(1.0, max(0.0, (v - INTERO_UP_EDGES[0]) / span))
                     }
                     crossed.append(word)
                 continue
@@ -2506,6 +2542,10 @@ class Renderer:
         total = self.cache_hits + self.cache_misses
         return float(self.cache_hits) / total if total else 0.0
 
+    def _hunger_sha_min_stage(self) -> int | None:
+        """第2波 §2B: 文面の指紋に使う空腹の語の段の下限(all かつ語で描くランだけ 0・他は None=凍結値)。"""
+        return 0 if (self._hunger_words and self._hunger_min_stage == 0) else None
+
     def report(self) -> str:
         """診断行 1 本。
 
@@ -2520,7 +2560,7 @@ class Renderer:
             f"cache_hit_rate={self.cache_hit_rate:.3f} "
             f"(hits={self.cache_hits} misses={self.cache_misses}) "
             f"truncated_channels={self.truncation_count} "
-            f"template_sha256={T.template_sha256()[:16]}"
+            f"template_sha256={T.template_sha256(self._hunger_sha_min_stage())[:16]}"
             f"{frozen}"
         )
 

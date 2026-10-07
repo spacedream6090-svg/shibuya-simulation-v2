@@ -22,7 +22,7 @@
 | data/realworld/estat/A002005212020DDSWC13113-JGD2011.zip(+展開 r2ka13113/・2026-09-08 ユーザー取得・zip のため §7 例外のアーカイブ除外に該当=親は取得せず) | e-Stat 統計GIS 境界データ: 国勢調査2020 小地域(町丁・字等)渋谷区 13113・世界測地系緯度経度(JGD2011)・Shape形式(shp/shx/dbf/prj・57,768 B・sha256 88e8f889e1bb119c…)。80 ポリゴン(KEY_CODE 80 一意・HCODE 8101=町丁・字等)・属性 JINKO 合計 243,883(=夜間人口アンカー E1 と一致)・SETAI 149,967・AREA 合計 15.12 km²・bbox 139.661-139.724E/35.642-35.692N | e-Stat(総務省統計局)統計GIS | 政府標準利用規約2.0(e-Stat 利用規約)・出典表示「政府統計の総合窓口(e-Stat)境界データ(国勢調査2020 小地域・渋谷区)」 | ○ | W16 母集団合成(町丁目→セル写像=建物床面積按分・親検収=dbf を標準ライブラリで解析)。再配布しない(gitignore) |
 | data/realworld/plateau_2025(2026-09-08 親複写・原本=ユーザーの Unreal プロジェクト PLATEAU_SDK_test/Content/PLATEAU/Datasets/13113_shibuya-ku_pref_2025_citygml_1_op に SDK が複写していた udx 一式・ユーザーが 2026-07-09 頃 G空間情報センターから取得) | 3D都市モデル(Project PLATEAU)渋谷区(2025年度)CityGML v1_op・製品仕様書 5.0(v1 メモ: 作成 2026-03-13)・3次メッシュ 53393585/86/95/96 の中心 4 タイルのみ(≈2.9 km²)。複写した udx: tran(4 gml・57 MB・sha256 8457ce05/18b8b0c1/a74cc75a/ad04f9b0…)・bldg(4・1.0 GB)・dem(1・385 MB)・ubld(1・33 MB)・frn(2・69 MB)・brid(4・60 MB)+codelists(metadata なし)。計 1.6 GB。**tran 実査(親・grep)**: tran:Road 3,248・TrafficArea 4,053・lod3MultiSurface 5,782・RoadStructureAttribute=sectionType のみ・**TrafficVolumeAttribute/sectionID/routeName/width/numberOfLanes=0**(交通量属性なし=W10 区間突合には使えない) | 国土交通省 PLATEAU(G空間情報センター plateau-13113-shibuya-ku-2025) | PLATEAU サイトポリシー §3=PDL1.0(CC BY 4.0/ODC BY/ODbL でも可)・出典「3D都市モデル(Project PLATEAU)渋谷区(2025年度)(国土交通省)を加工して作成」(台帳 F15 で親確認) | ○ | W4 建物高さの原本(v1 index と同源)・LOD3 歩道面(R7 群衆物理の将来入力)・地下街 ubld(UG 層)。**フル zip=2026-09-09 ユーザー取得**: 13113_shibuya-ku_pref_2025_citygml_1_op.zip(649,322,807 B・sha256 f7437469d85b1d4a…・展開 4.79 GB・19,877 entries: udx bldg 29 メッシュ 1,627 MB/tran 30/dem 2/fld 55/frn 5/luse 2/ubld 1/urf 2/veg 1/wtr 2/brid 8/lsld 2+codelists 293+schemas+metadata(udx_13113_pref_2025_op.xml・resource csv)+specification+README+索引図)。中心 4 タイルの tran は CRC 一致(同一版)。展開先 data/realworld/plateau_2025/13113_shibuya-ku_pref_2025_citygml_1_op/。再配布しない(gitignore) |
 | data/realworld/osm/station_entrances_overpass.json(2026-09-07取得) | Overpass APIで取得した駅出入口ノード45件(subway_entrance 33・train_station_entrance 12・bbox 35.6505-35.6685/139.6905-139.7115・渋谷駅14・表参道5・明治神宮前2ほか) | OpenStreetMap | ODbL 1.0 | △ | 世界データ構築W11(駅→出口→セル)の入力。出力にOSM生値を載せない・attic日は取得日(2026-09-07)で凍結 |
-| data/realworld/pt_tokyo/pt6_d-1_purpose_mode_od.csv(2026-09-07ユーザー取得・元名d-1.csv) | 第6回東京都市圏パーソントリップ調査(2018年度・平日1日)「表d-1 目的種類別代表交通手段別OD表」e-Stat配布CSV(cp932・346,372行・発地×着地=計画基本ゾーン4桁コード655種[集計行含む]×目的種類8+計×代表交通手段[鉄道/バス/自動車/2輪車/自転車/徒歩/その他/不明/計]・拡大トリップ数) | 国土交通省(e-Stat 政府統計コード00600550・tstat 000001151670・stat_infid 000032066127)/東京都市圏交通計画協議会 | 政府標準利用規約2.0(e-Stat配布分)。協議会HP配布分はPDL1.0準拠(tokyo-pt.jp/terms実読: 「東京都市圏交通計画協議会ホームページ(当該ページのURL)を加工して作成」・国が作成したかのような公表禁止)。出典表示: 「第6回東京都市圏パーソントリップ調査(東京都市圏交通計画協議会)を加工して作成」 | ○ | U10来街目的構成比・方面別OD重みの較正入力(mechanism昇格)。ゾーンコード→町名の対応はtokyo-pt.jp「H30_zonecode.xlsx」が必要(未取得)。生CSVは再配布しない(gitignore) |
+| data/realworld/pt_tokyo/pt6_d-1_purpose_mode_od.csv(2026-09-07ユーザー取得・元名d-1.csv) | 第6回東京都市圏パーソントリップ調査(2018年度・平日1日)「表d-1 目的種類別代表交通手段別OD表」e-Stat配布CSV(cp932・346,372行・発地×着地=計画基本ゾーン4桁コード655種[集計行含む]×目的種類8+計×代表交通手段[鉄道/バス/自動車/2輪車/自転車/徒歩/その他/不明/計]・拡大トリップ数) | 国土交通省(e-Stat 政府統計コード00600550・tstat 000001151670・stat_infid 000032066127)/東京都市圏交通計画協議会 | 政府標準利用規約2.0(e-Stat配布分)。協議会HP配布分はPDL1.0準拠(tokyo-pt.jp/terms実読: 「東京都市圏交通計画協議会ホームページ(当該ページのURL)を加工して作成」・国が作成したかのような公表禁止)。出典表示: 「第6回東京都市圏パーソントリップ調査(東京都市圏交通計画協議会)を加工して作成」 | ○ | U10来街目的構成比・方面別OD重みの較正入力(mechanism昇格)。ゾーンコード→町名の対応はtokyo-pt.jp「H30_zonecode.xlsx」が必要(未取得)。生CSVは再配布しない(gitignore) 〔第311 訂正(R-57): 「ゾーンコード→町名の対応は…(未取得)」は古い文=次行で H30_zonecode.xlsx 取得済み。時間帯別の c-2/c-3/b-4/c-4 は 2026-09-30 の節〕 |
 | data/realworld/pt_tokyo/H30_zonecode.xlsx(2026-09-07ユーザー取得) | 第6回PTゾーンコード表(市区町村別一覧1,660行・都県別シート・大/中/計画基本/小ゾーン+該当町丁字名) | 東京都市圏交通計画協議会 tokyo-pt.jp/data/01_01 | PDL1.0準拠(協議会利用規約・出典表示) | ○ | 渋谷区=計画基本ゾーン0240-0243・小ゾーン10。派生集計 docs/bench/pt_shibuya/*.json(集計値のみ・出典表示つき)はリポ収載可 |
 | data/realworld/osm/poi_opening_hours_overpass_20260907.json(2026-09-07取得) | Overpass APIで取得した飲食・物販POIのタグ(bbox 35.6505-35.6685/139.6905-139.7115・2,164件・opening_hours 565件=26.1%・price系14件) | OpenStreetMap | ODbL 1.0 | △ | W7営業時間の上書き入力(取得分のみmechanism)。出力にOSM生値を載せない・attic日=取得日で凍結 |
 | data/realworld/osm/poi_tags_overpass_20260928.json(2026-09-28 取得・親・ユーザー許可 09-26) | Overpass API で取得した POI の生タグ+座標(bbox 35.6505-35.6685/139.6905-139.7115・amenity/shop/leisure/tourism/office/craft/healthcare の node/way/relation・`out center;`・3,516 件=node 2,999/way 510/relation 7・osm_base 2026-09-27T17:22:36Z・endpoint overpass-api.de)。クエリ全文=同名 `.query.txt`。**md5 2b4723293e1d5e633d97516c732b0eb2**。用途=W6 subcat の一次根拠(hall 14・attraction 5・leisure 4 の未分類の解消=D-97 ③) | OpenStreetMap | ODbL 1.0 | △ | 生値は data/ の外に出さない。取得は読み取り目的・再配布しない |
@@ -100,3 +100,121 @@
 | 同 主要統計表 第18-1表(都道府県,主な行動の種類別行動者率・平均時刻－平日,男女総数,15歳以上)xlsx → 同 JSON `main_table_18-1` | https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032262896&fileKind=0 | 2026-09-28 | 同上 | 朝食/夕食開始の行動者率と平均時刻(全国 77.2%/7:12・88.9%/18:58、東京都 70.0%/7:29・88.2%/19:18)=照合専用。R-46 の親確認値と一致 |
 | 同 統計表利用上の注意(PDF) | https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224495&fileKind=2 | 2026-09-28 | 同上 | 記号「-」(行動者皆無またはサンプル皆無=0 と欠測が区別されない)・「…」の定義 |
 | 改訂版『身体活動のメッツ(METs)表』(2012年4月11日改訂・2011 Compendium of Physical Activities の日本語版・821 コード・PDF 50 頁)→ `mets_selected.json`(座位 7・立位 3・歩行 12・家事 12・仕事 13・食事/横臥/睡眠 4=51 行・字化け 7 字は画像で確認して置換) | https://www.nibiohn.go.jp/eiken/programs/2011mets.pdf(→ https://www.nibn.go.jp/eiken/programs/2011mets.pdf・リンク元 https://www.nibiohn.go.jp/eiken/programs/kenko_energy.html) | 2026-09-28 | 医薬基盤・健康・栄養研究所 利用規約(政府標準利用規約 2.0 準拠)・出典「改訂版『身体活動のメッツ(METs)表』」(国立研究開発法人医薬基盤・健康・栄養研究所)(URL)・原典 2011 Compendium(Ainsworth ほか)は第三者著作物=数値のみ利用・表の文言は再配布しない | D-118 K1 (c) の METs(歩行 17190 3.5・速歩 17200 4.3・立位作業/販売員 11600 3.0・座位 07020 1.3・**睡眠 07030 1.0**(親が PDF で再確認。英語版 2011 Compendium の 0.95 は go.jp 外のため未取得=記憶値・採らない)・食事 13030 1.5)。2024 Adult Compendium の日本語版は未取得(研究所サイトに無し) |
+
+## 2026-09-30 追加(R-57 PT 2018 の時間帯別表=D-115 ② 来街時刻の錨・読み取り目的・gitignore 下の data/calib/pt2018 に取得)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| pt6_b-4.csv・pt6_c-2.csv・pt6_c-3.csv・pt6_c-4.csv(第 6 回東京都市圏パーソントリップ調査・平成 30 年・平日 1 日・基礎集計 表 b-4 ゾーン別時刻別滞留人口/c-2 ゾーン別目的種類別発着時間帯別発生集中量/c-3 ゾーン別代表交通手段別発着時間帯別発生集中量/c-4 ゾーン別代表交通手段別発着施設別発生集中量・cp932 CSV・md5 は data/calib/pt2018/MANIFEST.md) | e-Stat 政府統計コード 00600550・statInfId 000032066122/124/125/126(https://www.e-stat.go.jp/stat-search/files?page=1&layout=datalist&toukei=00600550&tstat=000001151670&tclass1val=0&cycle=0&tclass1=000001151671&tclass2val=0) | 2026-09-30(取得役サブ・親検収=md5 4 本一致・一覧ページ実読・0241 の集中量の合計 402,439 を再計算) | e-Stat 利用規約(政府標準利用規約 第 2.0 版に準拠・CC BY 4.0 と互換・商用利用可・出典の記載と加工の記載が必要・国が作成したかのような公表は禁止=親が実読) | 来街の時刻の形の錨(渋谷=計画基本ゾーン 0240〜0243・着時間帯 × 目的)。抽出率は約 1%=ゾーン × 目的 × 1 時間のセルは誤差が大きい(時間帯を束ねて使う)。較正に使うか照合に使うかは来街者の作り直しのアジェンダで決める。出典表示「第 6 回東京都市圏パーソントリップ調査(東京都市圏交通計画協議会)を加工して作成」 |
+| pt6_tebiki.pdf(データ利用の手引き・46 頁) | https://www.tokyo-pt.jp/static/hp/file/data/tebiki.pdf | 2026-09-30(同上・md5 一致) | PDL1.0 準拠(tokyo-pt.jp の利用規約) | 表の定義(発生量=発時間帯・集中量=着時間帯)と精度の目安の出典。再配布しない |
+
+## 2026-09-30 追加 その 2(空間と記憶の設計ラウンドのリサーチ R-58・R-65・R-69・読み取り目的・gitignore 下の data/research_cache に取得)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r58/(歩行空間ネットワークデータ 渋谷地区 2017 のリンク/ノード/施設・渋谷南部 2020 のリンク/ノード・整備仕様 2 本・利用規約・整備範囲図=9 本・md5 は同フォルダの MANIFEST.md) | G空間情報センター「歩行空間ネットワークデータ等」 https://www.geospatial.jp/ckan/dataset/0401 | 2026-09-30(リサーチ役・親検収=md5 9 本・規約の条文) | 歩行者移動支援サービスに関するデータサイト利用規約+政府標準利用規約 第 2.0 版(出典の記載・加工の記載・商用可)。**第 2 条 (3)「データを利用した場合…同意したものとみなします」** | 歩道の幅員・勾配・段差・屋根の属性(渋谷南部 2020 は舞台の中に 25.1 km)。**9 本のうち 3 本(2017 のリンク・2020 のリンク・2024 の仕様書)は、geospatial.jp の転送先がエラーを返したため同センターの公開バケット(amazonaws.com)から取得した=CLAUDE.md §7 の許可ドメインの一覧の外。ユーザーの判断が出るまで構築に使わない** | **〔ユーザー決定 2026-10-03(指示書 10-03 §8 3-2 R-58)〕: G空間情報センターの公開バケット(amazonaws.com)からの取得を、同センターの保管先として認める。規約=政府標準利用規約 2.0。構築に使ってよい。許可ドメインの一覧(CLAUDE.md §7)に追加済み。**
+| data/research_cache/r65/(第 12 回大都市交通センサス 乗換え調査の表 12 本と報告書・第 13 回の報告書=14 本・md5 は MANIFEST.md) | https://www.mlit.go.jp/common/001179216.xlsx ほか(MANIFEST に全 URL) | 2026-09-30(リサーチ役・親検収=経路別の表から渋谷の値を再計算) | 国土交通省ウェブサイトの利用規約(PDL1.0 準拠・出典の記載) | 縦の再現の照合の材料。乗換えの表は構築の入力側で使用中のものを含む(照合に使うなら入力から外す)。公表の駅別表の渋谷のピーク 3.3 分は除数の誤り(R-65) |
+| data/research_cache/r69/(令和 3 年社会生活基本調査 主要統計表 第 8 表・生活時間 第 4-1 表・第 4-3 表=3 本・md5 は MANIFEST.md) | e-Stat statInfId 000032262873・000032223881・000032223883 | 2026-09-30(リサーチ役・親検収=該当行の値) | e-Stat 利用規約(政府標準利用規約 第 2.0 版に準拠・CC BY 4.0 と互換) | 箱の中の社会(職場・学校・家)の「一緒にいた人」の錨。調査は 2021 年 10 月(緊急事態の解除の直後) |
+
+## 2026-10-03 追加(文章の推敲スキル yomiyasu=ユーザー承認の例外・リポに写した)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| `.claude/skills/yomiyasu/`(SKILL.md・scripts/yomiyasu_lint.py・scripts/yomiyasu_diff.py・references/gemini-syntax.md・references/slop-catalog.md・references/domains/{business,essay,tech}.md・LICENSE=9 本。上流の `skills/yomiyasu/` の同名ファイルと git の blob が一致。改行だけ LF に正規化) | https://github.com/nanaism/yomiyasu(commit `8d5abeebe2dd20c2db005deaddcc50be43c59c0a`・`git clone` で取得し当該 commit を checkout) | 2026-10-03(親) | MIT(著作権表示とライセンス文を同梱=LICENSE を同じフォルダに置いた) | ユーザーが読む文章の推敲(指示書 10-03 §1)。写していないもの: `.claude-plugin/`(plugin.json・marketplace.json=プロジェクトのスキルには不要。marketplace.json に作者の個人メールが含まれるため、CLAUDE.md §7「個人メールを書かない」に従い除外)と `assets/algo-artis.png`(ロゴ画像・不要)。スクリプト 2 本は標準ライブラリだけで手元のファイルを読むだけ(親が実読。ネットワークに出ない)。 |
+
+## 2026-10-03 追加 その 2(日次の現実データの再開=指示書 10-03 §10-1・検証専用・gitignore 下の data/realworld_live/ に取得・取得は tools/realworld_fetch/ のタスク 3 本)
+
+位置づけ: シミュレーション本体はこのデータを読まない(検証専用=holdout 側)。ODPT の運行情報は電車の運行の入力にはしない(遅延は閉ループから生まれるべきもの)。防災 XML と ODPT の運休から「外れ値の日」の印を作り較正から外す材料にする。例外は反実仮想で実際の運休の日を再現する実験だけ(条件として明記)。保存先を `data/realworld/` でなく `data/realworld_live/` にした理由は、W13・W19 が `data/realworld/amedas` を日付で絞らずに読むため(つなぎ・PENDING K10)。ライセンスの要点は v1 の記載([記録 §7](bench/analysis/wallbounce-1003/realworld-fetch-check.md))の写しで、原典の規約ページの読み直しは **未実施(親の一次確認待ち)**。
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/realworld_live/amedas/(アメダス東京 44132 の 10 分値・日次 JSON。09-23〜10-03 を後追い取得し、以後 毎日 12:00 と 翌 00:30 の前日取り直し) | https://www.jma.go.jp/bosai/amedas/ | 2026-10-03〜(毎日) | 気象庁 公共データ利用規約(第 1.0 版)/ PDL1.0 準拠(v1 の記載・未再読) | 検証専用。保持約 10 日のため毎日取る。v1 は 08-08 以降毎日半日しか残っていなかった(昼に当日を取る欠陥)。v1 の実体は v1 リポに残置 |
+| data/realworld_live/jma_xml/(防災情報 XML 長期フィード 4 本のエントリ) | https://www.data.jma.go.jp/developer/xml/feed/ | 2026-10-03〜(毎日 1 回。長期フィードは約 7 日分を載せる) | 同上(未再読) | 外れ値の日の印の材料。高頻度フィードは使わない |
+| data/realworld_live/wbgt/(暑さ指数 WBGT 44132 の実況の月次ファイルと予測) | https://www.wbgt.env.go.jp/ | 2026-10-03〜(提供期間 10/21 まで) | 環境省 熱中症予防情報サイト=出典明記が必須(v1 の記載・未再読) | 検証専用 |
+| data/realworld_live/odpt_rt/(ODPT 運行情報 TrainInformation=メトロはオープン枠・東急と京王はチャレンジ枠、JR 東日本の在線 Train=チャレンジ枠。10 分ごと) | https://api.odpt.org/・https://api-challenge.odpt.org/ | 2026-10-03〜(10 分ごと・expedient) | ODPT 利用規約(オープン枠とチャレンジ枠で異なる。チャレンジ枠の生データは**再配布しない**)(v1 の記載・未再読) | 検証専用(holdout)。API キーは環境変数のみ。v1 では一度も定期実行されていなかった |
+| data/calendar/syukujitsu.csv(内閣府「国民の祝日」CSV・1955/1/1〜2027/11/23・1,067 行・cp932・CRLF・21,538 B・md5 733fabb6b488794a0cd3d94df4b1f24a) | https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv | 2026-10-03(実行役・HTTP 200・Last-Modified 2026-02-02) | 内閣府ホームページ利用規約 https://www.cao.go.jp/notice/rule.html(親が 2026-10-03 に実読: 「権利表記の記載がない限り公共データ利用規約(第1.0版)(デジタル庁)が適用されます」=PDL1.0。CSV のページ自体に別の利用ルールの明示は無い) | 10a の暦の口(祝日)。範囲外(2027/11/23 より後)の開始日は manifest の検査で止める。W13 の手書きの祝日 2 行(2026/7/20・8/11)と一致 |
+
+## 2026-10-03 追加 その 3(賃金をつなぐアジェンダの材料=指示書 10-03 §6 ⑧ 8-1・読み取り目的・gitignore 下の data/calib/wage に取得・実行役サブ+親が MANIFEST の md5 と行を確認)
+
+取得は e-stat.go.jp(API は `api.e-stat.go.jp`・appId は環境変数 `ESTAT_APP_ID` から読み、URL にも記録にも書かない)。利用規約は e-Stat の利用規約(政府標準利用規約 第 2.0 版準拠)。md5 と取得日時は `data/calib/wage/MANIFEST.md`。
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| hojin_nenji_fy2023_2025_cash_sales_labor.csv(財務省 法人企業統計調査 時系列・金融保険以外・年度次・表 0003060791。現金・預金/売上高/給与・賞与/従業員数 × 業種 62 × 規模 6 × 2023〜2025 年度) | e-Stat API statsDataId=0003060791 | 2026-10-03(実行役) | 政府標準利用規約 2.0 | 初期の運転資金の比率(現金・預金 ÷ 月の人件費: 全産業 16.06 か月・飲食 7.20・情報通信 15.16=`wage/hojin_ratios_2025.json`) |
+| ec2021_kigyo_shibuya_sales_payroll_0004006360.csv(令和 3 年経済センサス‐活動調査 企業等に関する集計 経理事項等・渋谷区。**本所が渋谷区にある企業等の全事業所ぶん**) | e-Stat API statsDataId=0004006360(cdArea=13113) | 2026-10-03(実行役) | 同 | 売上の流入の比率の候補。区内の事業所だけの値ではない点に注意 |
+| chinkou_r7_sanko2_pref_industry_kibokei.xlsx・chinkou_r7_t1_tokyo_kanagawa_age.xlsx・chinkou_r7_sanko1_pref47.xlsx(厚労省 令和 7 年賃金構造基本統計調査 参考表 2・表 1(東京・神奈川)・参考表 1) | https://www.e-stat.go.jp/stat-search/file-download?statInfId=000040421203 / 000040421173 / 000040421202 | 2026-10-03(実行役) | 同 | 賃金の水準(東京都 × 産業別の所定内給与)。月の賃金の規模の推測(区内の組織に勤める 2,421 体で約 9.7 億円/月)に使用 |
+
+## 2026-10-03 追加 その 4(R-77 車両と混雑=指示書 10-03 §8 3-8・読み取り目的・gitignore 下の data/research_cache/r77 に取得・リサーチ役サブ+親が MANIFEST を確認)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r77/(国交省の PDF 8 本: 令和 7 年度 都市鉄道の混雑率調査の報道発表本文・資料 1(平均混雑率の推移と目安)・資料 2(三大都市圏の主要区間)・資料 3(都市部の路線の最混雑区間)・ほか混雑率の目安の検討資料と国土計画局の指標。md5 と URL は MANIFEST.md) | https://www.mlit.go.jp/report/press/content/002013572.pdf ほか(MANIFEST に全 URL) | 2026-10-03(リサーチ役) | 国土交通省ホームページ利用規約(政府標準利用規約 第 2.0 版準拠) | 路線ごとの混雑率(D10′ の更新・令和 7 年度)・定員の定義・混雑率の目安の版差。親が 9 区間の値を PDF から抽出して答申と一致を確認 |
+
+## 2026-10-03 追加 その 5(R-81 飲食店の席数=指示書 10-03 §8 3-6・読み取り目的・gitignore 下の data/research_cache/r81 に取得・リサーチ役サブ+親が PDF の表を抽出して確認)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r81/tokyo_h27_insyoku_1〜6.pdf(東京都 平成 27 年 飲食店の受動喫煙防止対策に関する実態調査の報告書 6 分冊。一般飲食店 1,241・遊興飲食店 1,600。md5 は MANIFEST.md) | https://www.hokeniryo1.metro.tokyo.lg.jp/kensui/kitsuen/sanko/insyokutentaisaku/files/27insyoku_1.pdf 〜 _6.pdf | 2026-10-03(リサーチ役) | 東京都保健医療局のサイトの利用規約(**未実読**。東京都の公式サイトは政府標準利用規約準拠が通例=親の一次確認待ち) | 客席数・店舗面積・客席面積の階級別の分布(席の密度の錨)。個票は無く同時分布は空欄 |
+
+## 2026-10-03 追加 その 6(R-67 車と交通量=指示書 10-03 §8 3-8-4・§9-4・読み取り目的・gitignore 下の data/research_cache/r67 に取得・リサーチ役サブ+親が時間帯別の比率を再計算して確認)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| zkntrf13.csv・zkntrfFormat.xlsx(令和 3 年度 全国道路・街路交通情勢調査 一般交通量調査 時間帯別交通量表 東京都と見出しの定義) | https://www.mlit.go.jp/road/census/r3/data/csv/zkntrf13.csv / .../xlsx/zkntrfFormat.xlsx | 2026-10-03(リサーチ役) | 国土交通省ホームページ利用規約(政府標準利用規約 第 2.0 版準拠) | 時間帯別の配分(今の一様配分の expedient の置き換えの錨)。渋谷区 48 区間のうち 24 時間観測の一般道は 4 区間 |
+| od_r3_t12_avg_occupancy.xlsx(令和 3 年度 自動車起終点調査 表 12 平均乗車人数) | https://www.e-stat.go.jp/stat-search/file-download?statInfId=000040170742&fileKind=0 | 2026-10-03(リサーチ役) | e-Stat 利用規約(政府標準利用規約 第 2.0 版準拠) | 範囲内の車に乗る人数の推測(1.40 人) |
+| mpd_01_cyousakekka.pdf・mpd_02_cyousagaiyou.pdf(警視庁 交通量統計表 調査結果・調査概要) | https://www.keishicho.metro.tokyo.lg.jp/about_mpd/jokyo_tokei/tokei_jokyo/ryo.files/01_cyousakekka.pdf / 02_cyousagaiyou.pdf | 2026-10-03(リサーチ役) | 警視庁サイトの利用規約(**未実読**=親の一次確認待ち。東京都の機関で政府標準利用規約準拠が通例) | 都内の交通量の参考。使う前に規約を読む |
+
+## 2026-10-03 追加 その 7(R-86 行動の分類との突き合わせ=指示書 10-03 §6 ②・読み取り目的・gitignore 下の data/research_cache/r86 に取得)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r86/(令和 3 年社会生活基本調査 調査票 B 第 1-7 表 総平均時間(主行動)10 歳以上 全国の xlsx 1 本・md5 b0922b68dd3df4f8e121cb46a5eaa736) | e-Stat statInfId=000032261363 | 2026-10-03(リサーチ役) | e-Stat 利用規約(政府標準利用規約 第 2.0 版準拠) | 小分類 90 の平日の総平均時間(合計 1,439 分)=被覆の表の重み |
+
+## 2026-10-03 追加 その 8(R-89 時間厳守の錨=保留の議題 H1・読み取り目的・gitignore 下の data/research_cache/r89 に取得)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r89/mlit_001995846_delay_r6.pdf(国交省「東京圏の鉄道路線の遅延『見える化』(令和 6 年度)」・md5 3052855bfd8b181c267d06eae603f20a) | https://www.mlit.go.jp/report/press/content/001995846.pdf | 2026-10-03(リサーチ役) | 国土交通省ホームページ利用規約(政府標準利用規約 第 2.0 版準拠) | 遅延証明書の発行日数(路線別・20 日あたり平均 10.0 日)=遅刻の照合の候補。親が PDF から値を抽出して確認 |
+
+## 2026-10-06 追加 その 1(R-93 極端な密度の群衆の物理=指示書 10-06 §7 の 4・読み取り目的・gitignore 下の data/research_cache/r93 に取得)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r93/mlit_pri_kkk55.pdf(国土交通政策研究 第 55 号「交通の健康学的影響に関する研究 I」2005-10・md5 ea1a28d041e4a8f2296e623084b11e1d) | https://www.mlit.go.jp/pri/houkoku/gaiyou/pdf/kkk55.pdf | 2026-10-06(リサーチ役・親が md5 を確認) | 国土交通省ホームページ利用規約(政府標準利用規約 第 2.0 版準拠) | 混雑率 260% 時代の注の引用(R-93 §3)。読むだけ・再配布しない |
+
+取得していないもの: 産総研の人体寸法データベース 1991-92 の統計表(airc.aist.go.jp)は許可の一覧の外のドメインなので、リサーチ役が作業用の一時領域で閲覧しただけ。数値(肩幅・胸部厚径)は画像の目視読みで親は未確認(R-93 の △)。
+
+## 2026-10-06 追加 その 2(R-90 渋谷駅のデータの再調査=指示書 10-06 §7 の 1・読み取り目的・gitignore 下の data/research_cache/r90 に取得)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r90/plateau_tech_doc_0108_ver01.pdf(PLATEAU ユースケース uc24-13「地下街データを活用したナビゲーションシステム v2.0」技術検証レポート・md5 445f4a06410658cbdee0f95ba7885d8b) | https://www.mlit.go.jp/plateau/file/libraries/doc/plateau_tech_doc_0108_ver01.pdf | 2026-10-06(リサーチ役・親が md5 を確認) | 国土交通省ホームページ利用規約(政府標準利用規約 第 2.0 版準拠) | 渋谷駅の LOD4 の作られ方と範囲(R-90 §1)。読むだけ |
+
+取得していないもの: ODPT(件数を数えただけ・生データなし)・Overpass(件数と応答の md5 だけ。overpass-api.de が 504 のとき overpass.kumi.systems に 1 回問い合わせ、時間切れで何も受け取っていない)・jeki の PDF(標準出力で読んだだけ)・駅の各社の構内図(規約により取得せず=R-90 §4・R-91 §3)。
+
+## 2026-10-06 追加 その 3(R-96 大人の矯正後の視力=指示書 10-06 §7 の 7・読み取り目的・gitignore 下の data/research_cache/r96 に取得)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r96/r5_hoken_tokei_04.xlsx(学校保健統計調査 令和 5 年度・裸眼視力と矯正の表・md5 b85806d1091f05b4aef11ff6c22d89eb) | e-Stat(www.e-stat.go.jp・転送なし。URL は MANIFEST) | 2026-10-06(リサーチ役・親が md5 を確認) | 政府標準利用規約(第 2.0 版)=出典明記で利用可(e-Stat の既存の行と同じ扱い) | 17 歳の矯正の割合(若い大人の近い錨・R-96 §3)。読むだけ |
+
+## 2026-10-06 追加 その 4(R-99 勤務の時刻・日数・雇用形態と約束の頻度の公的統計=リサーチの指示 10-06 夜 §2 A1〜A3・C2・読み取り目的・gitignore 下の data/research_cache/r99 に取得)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r99/ の xlsx 9 本(令和 3 年社会生活基本調査 時間帯編 第14表・第15-1〜15-3表、生活時間編 第68-3表・第74-6表・第74-9表/令和 4 年就業構造基本調査 地域結果 第19表/令和 3 年経済センサス-活動調査 第6-2表。md5 9 件は MANIFEST.md=親が全件一致を確認) | e-Stat(www.e-stat.go.jp・転送なし。URL は MANIFEST) | 2026-10-06(リサーチ役・親が md5 を確認) | 政府標準利用規約(第 2.0 版)=出典明記で利用可(e-Stat の既存の行と同じ扱い) | 職業別・雇用形態別の「仕事」の 15 分ごとの行動者率(始業の代理)・曜日別の仕事の行動者率・年間就業日数・従業上の地位(区まで)・交際と受診の行動者率。R-99 §1〜§4 |
+
+## 2026-10-06 追加 その 5(R-101 範囲と周辺の学校の一覧=リサーチの指示 10-06 夜 §2 A5・読み取り目的・gitignore 下の data/research_cache/r101 に取得。学校のサイトからは取得していない)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r101/schools_overpass_20261006.json(+ クエリ .query.txt・md5 8f60b8c3…) | Overpass API(overpass-api.de・osm_base 2026-10-06T14:13:27Z) | 2026-10-06(リサーチ役・親が md5 を確認) | OpenStreetMap ODbL 1.0(既存の Overpass の行と同じ扱い。派生物は ODbL) | 学校の点(`amenity=school/university/college`)の位置と名前。R-101 の一覧の突き合わせ |
+| data/research_cache/r101/r7_*.csv 8 本(東京都公立学校一覧 令和 7 年 5 月 1 日時点・小/中/義務教育/高校全日制・定時制/高校住所/特別支援 2 本。md5 は MANIFEST) | 東京都教育委員会(www.kyoiku.metro.tokyo.lg.jp・転送なし) | 2026-10-06(同) | **都教委サイトポリシー「著作権について」=私的使用・引用の範囲(CC BY ではない)**。使うのは学校名・所在地・人数の事実だけ。再配布しない | 公立の小中高の一覧(範囲と周辺) |
+| data/research_cache/r101/03sensyugakko・06kakusyugakko・03elementary・06juniorhigh・09high_zennichi・15high_tushin の CSV 6 本(私立・専修・各種学校の一覧 令和 8 年 4 月 1 日時点ほか。md5 は MANIFEST) | 東京都生活文化局(www.seikatubunka.metro.tokyo.lg.jp・転送なし) | 2026-10-06(同) | **生活文化局サイトポリシー 第1 著作権=私的使用・引用の範囲(CC BY ではない)**。同上 | 私立・専修・各種学校の一覧。**台帳への書き方(事実だけの利用で足りるか)はユーザーの判断待ち(PENDING §1-1)** |
+
+## 2026-10-06 追加 その 6(R-104 LLM のエージェントと人の違い・乗換案内の見積りと実際=リサーチの指示 10-06 夜 §2 B7・C1・読み取り目的・gitignore 下の data/research_cache/r104 に取得)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r104/mlit_001488012.pdf(交通分野におけるデータ連携の高度化に向けた検討会 参考資料 3 利用者アンケート 2022-03・1,457 人・md5 fc6e9d56ecdb4e2232e5e3ae897126b0) | https://www.mlit.go.jp/sogoseisaku/transport/content/001488012.pdf(転送なし) | 2026-10-06(リサーチ役・親が md5 と p.40/p.43 の図を確認) | 国土交通省ウェブサイト利用規約(政府標準利用規約準拠・出典の表示) | 乗換案内サイト・アプリの使用頻度(全体・年代別)。R-104 §C1 |
+| data/research_cache/r104/mlit_001257132.pdf(鉄道における車椅子利用環境改善に向けた調査 報告書 2018-03・md5 d66fd491c1d321516004dc39c76a2b45) | https://www.mlit.go.jp/common/001257132.pdf(転送なし) | 2026-10-06(同・親が md5 を確認) | 同上 | 車椅子使用者の乗車までの時間など。R-104 §C1 |

@@ -1,0 +1,37 @@
+{
+ "key": "W12#5",
+ "control": "山手線ピーク 18 本/h(宣言)vs 16 / 20 本/h",
+ "metric": "便の (路線 × 曜日種別 × 時) の分布",
+ "variants": [
+  {
+   "name": "16 本/h",
+   "jsd_bits": 0.0013530620567893193,
+   "null_p95": 0.013897460862228917,
+   "detected": false,
+   "tvd": 0.027246276376887466,
+   "n_declared": 9574.0,
+   "n_control": 9282.0,
+   "n_bins": 320
+  },
+  {
+   "name": "20 本/h",
+   "jsd_bits": 0.0,
+   "null_p95": 0.013897460862228917,
+   "detected": false,
+   "tvd": 0.0,
+   "n_declared": 9574.0,
+   "n_control": 9574.0,
+   "n_bins": 320
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.1069157999008894,
+ "outputs_changed": [
+  "w12_timetables.parquet"
+ ],
+ "notes": [],
+ "seconds_wall_row": 1.47,
+ "measured_at": "2026-09-30"
+}

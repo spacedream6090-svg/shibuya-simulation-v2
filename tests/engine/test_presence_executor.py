@@ -29,6 +29,7 @@ from shibuya.engine.processes.rail import RailProcess
 from shibuya.engine.run import run_day
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.state import World
+from tests import golden_env as GE
 
 WORLD_DIR = Path("data/world/v2")
 
@@ -45,7 +46,9 @@ def w17_digest(world_dir: Path = WORLD_DIR) -> str:
 
 #: 実 W17 の golden(親再実行値・2026-09-12)。キー= parquet md5 先頭 12 桁。
 #: 11a7129beaea = W17 v1(週 7 日・第 1 弾・w17v1_backup/)/ 3113e9ba7abb = W17 v2(1 日・本番 第 2 回・第168 昇格)。
-W17_GOLDEN = {
+#: 10f(K26 (1)): 一番外側の鍵は環境の ``platform_id``(``tests/golden_env.py``)。行の無い環境では golden と比べず
+#: A/A(同じ設定の 2 回の一致)だけを確かめる。値は 10f の前のまま。
+W17_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     "11a7129beaea": {
         "null_arm_final": "c96baf821c9a046f", "null_arm_llm_calls": 37_111,
         "v1_outside_blocks": 306_410, "v1_outside_dist": [85_766, 214_998, 45_631, 50],
@@ -99,7 +102,10 @@ W17_GOLDEN = {
         "s5000_v1": {"n_blocks": 8_589, "zero": 1, "outside": 7_733, "in": 856},
         "s5000_v2": {"n_blocks": 6_377, "zero": 150, "outside": 5_521, "in": 856},
     },
-}
+}}
+#: 今の環境の行(無ければ ``None``=A/A だけ)。
+W17_GOLDEN = GE.row(W17_GOLDEN_BY_ENV)
+_FINAL_CALLS = (lambda r: (r.final_hash, int(r.llm_calls)))
 real_data = pytest.mark.skipif(
     not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="実世界資産が無い"
 )
@@ -264,10 +270,14 @@ def test_null_arm_reproduces_the_recorded_checkpoint():
     """
     from shibuya.cli import run as cli_run  # golden は台帳つきの標準入口で録られている
 
-    res = cli_run(
-        n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-        report_precondition=False,
-    )
+    def _run():
+        return cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
+                       report_precondition=False)
+
+    res = _run()
+    if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ
+        GE.assert_aa(_run, _FINAL_CALLS, first=res)
+        return
     g = W17_GOLDEN.get(w17_digest())
     if g is None:
         pytest.skip(f"実 W17 の golden が無い(md5 {w17_digest()})=親が再実行して W17_GOLDEN に足す")
@@ -285,6 +295,10 @@ def test_v3_default_reproduces_the_recorded_checkpoint():
     """
     from shibuya.cli import run as cli_run
 
+    if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ
+        GE.assert_aa(lambda: cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3"),
+                     _FINAL_CALLS)
+        return
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final" not in g:
         pytest.skip(f"実 W17 の v3 golden が無い(md5 {w17_digest()})")
@@ -304,6 +318,11 @@ def test_l4_scale_1_reproduces_the_stage_2c_checkpoints():
     """
     from shibuya.cli import run as cli_run
 
+    if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(帰無腕の 1 本)
+        GE.assert_aa(lambda: cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
+                                     report_precondition=False, l4_scale=1.0, hunger_model="v1",
+                                     leave_effect=False), _FINAL_CALLS)
+        return
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final_l4x1" not in g:
         pytest.skip(f"実 W17 の l4x1 golden が無い(md5 {w17_digest()})")
@@ -328,6 +347,11 @@ def test_hunger_model_v1_reproduces_the_stage_3_checkpoints():
     """
     from shibuya.cli import run as cli_run
 
+    if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(帰無腕の 1 本)
+        GE.assert_aa(lambda: cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
+                                     report_precondition=False, hunger_model="v1", leave_effect=False),
+                     _FINAL_CALLS)
+        return
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final_hunger_v1" not in g:
         pytest.skip(f"実 W17 の hunger v1 golden が無い(md5 {w17_digest()})")
@@ -352,6 +376,10 @@ def test_leave_effect_off_reproduces_the_stage_5_checkpoints():
     """
     from shibuya.cli import run as cli_run
 
+    if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(帰無腕の 1 本)
+        GE.assert_aa(lambda: cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
+                                     report_precondition=False, leave_effect=False), _FINAL_CALLS)
+        return
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final_leave_off" not in g:
         pytest.skip(f"実 W17 の leave off golden が無い(md5 {w17_digest()})")
@@ -854,6 +882,10 @@ def test_derive_folding_matches_the_parent_verified_counts():
     ho_full = np.asarray(full.home_cell) < 0
     per_full = PlanBlocks.from_weekly(wk_full, 0, ho_full, derive_rule="v1").blocks_per_agent()
     # **親検証値そのもの**(全 390,067 体・day0・定義 B の集計軸=域外居住者)。表ごとの golden(第170)
+    if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(同じ畳み方をもう 1 回)
+        again = PlanBlocks.from_weekly(wk_full, 0, ho_full, derive_rule="v1").blocks_per_agent()
+        assert np.array_equal(per_full, again)
+        return
     g = W17_GOLDEN.get(w17_digest())
     if g is None:
         pytest.skip(f"実 W17 の golden が無い(md5 {w17_digest()})=親が再実行して W17_GOLDEN に足す")

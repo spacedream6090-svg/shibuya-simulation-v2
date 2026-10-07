@@ -1,0 +1,242 @@
+{
+ "schema": "shibuya.bench/proximity-edge/check/1",
+ "cases": [
+  {
+   "case": "1 m・同じセル",
+   "A_xy": [
+    0.0,
+    0.0
+   ],
+   "B_xy": [
+    1.0,
+    0.0
+   ],
+   "A_cell": 7,
+   "B_cell": 7,
+   "distance_m": 1.0,
+   "expected_m": 1.0,
+   "within_2m": true,
+   "expected_within": true,
+   "same_cell": true,
+   "expected_same_cell": true,
+   "grid_enumerator_finds_pair": true,
+   "engine_talk_within_reach_cell_proxy": true,
+   "engine_talk_within_reach_by_distance": true,
+   "pass": true
+  },
+  {
+   "case": "3 m・同じセル",
+   "A_xy": [
+    0.0,
+    0.0
+   ],
+   "B_xy": [
+    3.0,
+    0.0
+   ],
+   "A_cell": 7,
+   "B_cell": 7,
+   "distance_m": 3.0,
+   "expected_m": 3.0,
+   "within_2m": false,
+   "expected_within": false,
+   "same_cell": true,
+   "expected_same_cell": true,
+   "grid_enumerator_finds_pair": false,
+   "engine_talk_within_reach_cell_proxy": true,
+   "engine_talk_within_reach_by_distance": false,
+   "pass": true
+  },
+  {
+   "case": "同じ座標(0 m)・同じセル",
+   "A_xy": [
+    5.0,
+    5.0
+   ],
+   "B_xy": [
+    5.0,
+    5.0
+   ],
+   "A_cell": 7,
+   "B_cell": 7,
+   "distance_m": 0.0,
+   "expected_m": 0.0,
+   "within_2m": true,
+   "expected_within": true,
+   "same_cell": true,
+   "expected_same_cell": true,
+   "grid_enumerator_finds_pair": true,
+   "engine_talk_within_reach_cell_proxy": true,
+   "engine_talk_within_reach_by_distance": true,
+   "pass": true
+  },
+  {
+   "case": "1 m・別のセル",
+   "A_xy": [
+    0.0,
+    0.0
+   ],
+   "B_xy": [
+    0.0,
+    1.0
+   ],
+   "A_cell": 7,
+   "B_cell": 8,
+   "distance_m": 1.0,
+   "expected_m": 1.0,
+   "within_2m": true,
+   "expected_within": true,
+   "same_cell": false,
+   "expected_same_cell": false,
+   "grid_enumerator_finds_pair": true,
+   "engine_talk_within_reach_cell_proxy": false,
+   "engine_talk_within_reach_by_distance": false,
+   "pass": true
+  },
+  {
+   "case": "2 m ちょうど(境界)・同じセル",
+   "A_xy": [
+    0.0,
+    0.0
+   ],
+   "B_xy": [
+    2.0,
+    0.0
+   ],
+   "A_cell": 7,
+   "B_cell": 7,
+   "distance_m": 2.0,
+   "expected_m": 2.0,
+   "within_2m": true,
+   "expected_within": true,
+   "same_cell": true,
+   "expected_same_cell": true,
+   "grid_enumerator_finds_pair": true,
+   "engine_talk_within_reach_cell_proxy": true,
+   "engine_talk_within_reach_by_distance": true,
+   "pass": true
+  },
+  {
+   "case": "3-4-5(斜め 5 m)",
+   "A_xy": [
+    0.0,
+    0.0
+   ],
+   "B_xy": [
+    3.0,
+    4.0
+   ],
+   "A_cell": 7,
+   "B_cell": 7,
+   "distance_m": 5.0,
+   "expected_m": 5.0,
+   "within_2m": false,
+   "expected_within": false,
+   "same_cell": true,
+   "expected_same_cell": true,
+   "grid_enumerator_finds_pair": false,
+   "engine_talk_within_reach_cell_proxy": true,
+   "engine_talk_within_reach_by_distance": false,
+   "pass": true
+  },
+  {
+   "case": "格子をまたぐ 0.2 m(1.9 と 2.1)",
+   "A_xy": [
+    1.9,
+    0.0
+   ],
+   "B_xy": [
+    2.1,
+    0.0
+   ],
+   "A_cell": 7,
+   "B_cell": 7,
+   "distance_m": 0.2,
+   "expected_m": 0.2,
+   "within_2m": true,
+   "expected_within": true,
+   "same_cell": true,
+   "expected_same_cell": true,
+   "grid_enumerator_finds_pair": true,
+   "engine_talk_within_reach_cell_proxy": true,
+   "engine_talk_within_reach_by_distance": true,
+   "pass": true
+  },
+  {
+   "case": "負の座標をまたぐ 0.2 m",
+   "A_xy": [
+    -0.1,
+    -0.1
+   ],
+   "B_xy": [
+    0.1,
+    -0.1
+   ],
+   "A_cell": 7,
+   "B_cell": 7,
+   "distance_m": 0.2,
+   "expected_m": 0.2,
+   "within_2m": true,
+   "expected_within": true,
+   "same_cell": true,
+   "expected_same_cell": true,
+   "grid_enumerator_finds_pair": true,
+   "engine_talk_within_reach_cell_proxy": true,
+   "engine_talk_within_reach_by_distance": true,
+   "pass": true
+  },
+  {
+   "case": "舞台外(セル −1)の 0 m",
+   "A_xy": [
+    0.0,
+    0.0
+   ],
+   "B_xy": [
+    0.0,
+    0.0
+   ],
+   "A_cell": -1,
+   "B_cell": -1,
+   "distance_m": 0.0,
+   "expected_m": 0.0,
+   "within_2m": true,
+   "expected_within": true,
+   "same_cell": false,
+   "expected_same_cell": false,
+   "grid_enumerator_finds_pair": true,
+   "engine_talk_within_reach_cell_proxy": false,
+   "engine_talk_within_reach_by_distance": false,
+   "pass": true
+  }
+ ],
+ "grid_vs_bruteforce": {
+  "points": 600,
+  "pairs_grid": 781,
+  "pairs_bruteforce": 781,
+  "duplicates_in_grid": 0,
+  "equal": true,
+  "note": "400 点一様+20 点×5 の重なり+2 m 間隔の格子の境の 100 点"
+ },
+ "hist_bins_check": {
+  "input": [
+   0.0,
+   1.0,
+   2.0,
+   2.0001,
+   10.0,
+   50.0,
+   100.0,
+   141.0
+  ],
+  "got": {
+   "0m": 1,
+   "(0,2]": 2,
+   "(2,10]": 2,
+   "(10,50]": 1,
+   "(50,100]": 1,
+   ">100": 1
+  },
+  "pass": true
+ },
+ "all_pass": true
+}

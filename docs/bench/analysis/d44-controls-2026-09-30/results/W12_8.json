@@ -1,0 +1,26 @@
+{
+ "key": "W12#8",
+ "control": "初終発=メトロ平日ダイヤ 5:01-0:20(宣言)vs 土休ダイヤ 5:01-0:20(土休の等間隔ダイヤだけ)",
+ "metric": "土休の便の (路線 × 時) の分布",
+ "variants": [
+  {
+   "name": "土休の初終発",
+   "jsd_bits": 0.0,
+   "null_p95": 0.012718944394285774,
+   "detected": false,
+   "tvd": 0.0,
+   "n_declared": 5485.0,
+   "n_control": 5485.0,
+   "n_bins": 160
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.139797699986957,
+ "checks": {
+  "declared_regenerated_equals_asset": true
+ },
+ "seconds_wall_row": 0.17,
+ "measured_at": "2026-09-30"
+}

@@ -55,6 +55,7 @@ expedient(本モジュール分)
 from __future__ import annotations
 
 import time
+import dataclasses
 from dataclasses import dataclass, field
 from typing import Any, Final, Mapping
 
@@ -1189,6 +1190,7 @@ def _tick_minute(energy: Any, tick: int) -> int:
 def _energy_meal(
     r, ids: np.ndarray, tick: int, energy: Any, *, kind: str,
     slots: np.ndarray | None = None, from_row: np.ndarray | None = None,
+    deferred: np.ndarray | None = None,
 ) -> None:
     """食事の摂取(K7 (a)): 時間帯の比 × EER を収支へ・``since_meal=0``・写しを満腹へ。"""
     ids = np.asarray(ids, dtype=np.int64)
@@ -1202,10 +1204,16 @@ def _energy_meal(
         share = model.meal_share_for_slot(r.age[ids], r.sex[ids], slots)
     kcal = (share * r.eer_kcal[ids].astype(np.float64)).astype(np.float32)
     r.since_meal_kcal[ids] = 0.0
+    if getattr(energy, "meal_reset", None) is not None:  # 第2波 §2B Q-2B-6 (ii): 食事で per_hour の門の H を 0 に
+        energy.meal_reset[ids] = 0.0
     r.energy_balance[ids] += kcal
     r.hunger[ids] = model.hunger_copy(model.stage_of(r.since_meal_kcal[ids], r.eer_kcal[ids]))
-    energy.note(kind, ids, minute, float(kcal.astype(np.float64).sum()), slots=slots,
-                from_row=from_row)
+    if deferred is None:
+        energy.note(kind, ids, minute, float(kcal.astype(np.float64).sum()), slots=slots,
+                    from_row=from_row)
+    else:
+        energy.note(kind, ids, minute, float(kcal.astype(np.float64).sum()), slots=slots,
+                    from_row=from_row, deferred=deferred)
 
 
 def _energy_snack(r, buyers: np.ndarray, bought: np.ndarray, tick: int, energy: Any) -> None:
@@ -1238,18 +1246,45 @@ def _energy_snack(r, buyers: np.ndarray, bought: np.ndarray, tick: int, energy: 
 
 def energy_out_of_area_meal(
     agents: AgentState, energy: Any, agent_id: np.ndarray, slots: np.ndarray,
-    from_row: np.ndarray, tick: int,
+    from_row: np.ndarray, tick: int, deferred: np.ndarray | None = None,
 ) -> int:
     """範囲外の食事(K9 (a)): 域外に居る体の予定の食事=時間帯の比 × EER・``since_meal=0``。
 
     値(誰がいつ)は ``engine.energy.OutOfAreaMeals.due`` が決める。件数を返す。
+    ``deferred``(第2波 §2B 項 1)=起床時に遅らせた既定の食事の印(診断の内数だけ・摂取は同じ式)。
     """
     a = np.asarray(agent_id, dtype=np.int64)
     if a.size == 0:
         return 0
     with agents.writable():
         _energy_meal(agents.registry, a, tick, energy, kind="meal_out",
-                     slots=np.asarray(slots, dtype=np.int64), from_row=from_row)
+                     slots=np.asarray(slots, dtype=np.int64), from_row=from_row,
+                     deferred=deferred)
+    return int(a.size)
+
+
+def energy_home_meal(
+    agents: AgentState, energy: Any, agent_id: np.ndarray, slots: np.ndarray, tick: int,
+) -> int:
+    """**第2波 §2B 項 2(Q35 (a))** 範囲内の自宅の食事行=予定の実行(``engine.energy.HomeMeals.due``)。
+
+    摂取は K9 と同じ(時間帯の比 × EER・``since_meal=0``・写しを満腹へ)。**金と物は動かさない**
+    (台帳・棚・店の席に触らない)。変化検出の前回段 ``hunger_stage`` も新しい段に合わせる=
+    この食事そのものは内受容の起床(下げ跨ぎ)を作らない(予定の実行は驚きではない・起床を足さない・宣言)。
+    件数を返す。
+    """
+    from shibuya.engine.change_detect import INTERO_UP_EDGES
+
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return 0
+    with agents.writable():
+        r = agents.registry
+        _energy_meal(r, a, tick, energy, kind="meal_home", slots=np.asarray(slots, dtype=np.int64))
+        stage = np.zeros(a.size, dtype=np.int8)
+        for e in INTERO_UP_EDGES:  # 段の刻み 3 本ぶん(体数には比例しない)
+            stage += (r.hunger[a] >= e).astype(np.int8)
+        r.hunger_stage[a] = stage
     return int(a.size)
 
 
@@ -3134,3 +3169,147 @@ _ACTION_ORDER_BY_VOCAB: Final[Mapping[str, tuple[int, ...]]] = {
 }
 assert set(_ACTION_ORDER_V3) == set(_APPLY_V3)
 assert _REFRACTORY_TICKS.size == N_WAKE_CONDITIONS
+
+
+# ---------------------------------------------------------------- 10d 再開の書き手(状態を戻す)
+def restore_soa(agents: AgentState, world: World, pstate: Any,
+                soa: Mapping[str, Mapping[str, np.ndarray]]) -> int:
+    """10d: 保存した SoA の列(``engine.resume.collect_soa`` の形)を戻す。返り値=戻した列の数。
+
+    戻す列の集合は状態台帳の軸 2 が ``discardable`` でない列(full-hash と同じ範囲)。保存の側と今の側で
+    列の集合・形・型が 1 つでも違えば止める(構成の取り違え=黙って一部だけ戻さない)。値は配列の中身を
+    書き換える(配列そのものは替えない=世帯の現金を共有する金の台帳の行もそのまま同じ値になる)。
+    """
+    from shibuya.engine import state_ledger as SL
+
+    targets: dict[str, tuple[Any, Any]] = {
+        "agents": (agents, agents.registry),
+        "cells": (world, world.cells),
+        "pois": (world, world.pois),
+        "perception": (pstate, None if pstate is None else pstate.registry),
+    }
+    n = 0
+    for place in ("agents", "cells", "pois", "perception"):
+        owner, reg = targets[place]
+        want = set() if reg is None else {c for c in reg.arrays if c not in SL.full_excluded(place)}
+        got = set(soa.get(place, {}))
+        if want != got:
+            raise ValueError(
+                f"保存した SoA の列が今の構成と違う({place}: 足りない {sorted(want - got)[:5]}・"
+                f"余分 {sorted(got - want)[:5]})"
+            )
+        if reg is None:
+            continue
+        with owner.writable():
+            for name, src in soa[place].items():
+                dst = reg.field(name)
+                src = np.asarray(src)
+                if dst.shape != src.shape or dst.dtype != src.dtype:
+                    raise ValueError(
+                        f"保存した SoA の列の形か型が違う({place}.{name}: 今 {dst.dtype}{dst.shape}・"
+                        f"保存 {src.dtype}{src.shape})"
+                    )
+                dst[...] = src
+                n += 1
+    return n
+
+
+def _restore_array_into(dst: np.ndarray, src: np.ndarray) -> None:
+    """配列の中身を書き換える(読み取り専用の台帳の配列も、書く間だけ書き込みを許す)。"""
+    if not dst.dtype.hasobject and dst.tobytes() == src.tobytes():
+        return  # 同じ値(世帯の現金=agents.money と共有する行は SoA を戻した時点で同じ)
+    was = bool(dst.flags.writeable)
+    if not was:
+        try:
+            dst.flags.writeable = True
+        except ValueError as e:  # 書き込めない土台を持つビュー
+            raise ValueError(f"読み取り専用の配列を戻せない: {e}") from None
+    try:
+        dst[...] = src
+    finally:
+        if not was:
+            dst.flags.writeable = False
+
+
+def _restore_value(cur: Any, saved: Any) -> tuple[bool, Any]:
+    """``cur`` の中身を ``saved`` にする。返り値=(``cur`` をそのまま使えたか, 使う値)。
+
+    配列(同じ形と型)・辞書・リスト・集合・deque は**中身を入れ替える**(同じ物を別の持ち主が指していても
+    そろう: 金の台帳の行と ``agents.money``・``run_day`` の局所のリスト など)。辞書は保存の順に入れ直す(挿入順が
+    挙動を決める行=O8・O39)。それ以外の値(整数・組・dataclass・Generator など)は保存の値に差し替える。
+    """
+    from collections import deque
+
+    if isinstance(cur, np.ndarray) and isinstance(saved, np.ndarray):
+        if cur.shape == saved.shape and cur.dtype == saved.dtype:
+            _restore_array_into(cur, saved)
+            return True, cur
+        return False, saved
+    if isinstance(cur, dict) and isinstance(saved, dict) and type(cur) is type(saved):
+        new: dict[Any, Any] = {}
+        for k, v in saved.items():
+            if k in cur:
+                same, val = _restore_value(cur[k], v)
+                new[k] = cur[k] if same else val
+            else:
+                new[k] = v
+        cur.clear()
+        for k, v in new.items():  # 保存の順(挿入順)
+            cur[k] = v
+        return True, cur
+    if isinstance(cur, list) and isinstance(saved, list) and type(cur) is type(saved):
+        out = []
+        for i, v in enumerate(saved):
+            if i < len(cur):
+                same, val = _restore_value(cur[i], v)
+                out.append(cur[i] if same else val)
+            else:
+                out.append(v)
+        cur[:] = out
+        return True, cur
+    if isinstance(cur, (set, deque)) and type(cur) is type(saved):
+        cur.clear()
+        if isinstance(cur, set):
+            cur.update(saved)
+        else:
+            cur.extend(saved)
+        return True, cur
+    return False, saved
+
+
+def restore_items(owners: Mapping[str, Any], items: Mapping[str, Any]) -> int:
+    """10d: 保存した外の状態(``engine.resume.collect_items`` の形)を持ち主の属性へ戻す。返り値=戻した数。
+
+    道筋の集合が今の台帳の ``full_items`` と違えば止める。「持ち主が無い(腕が立っていない)」の印は、今の側も
+    無いときだけ通す(片方だけ無い=構成の取り違え)。
+    """
+    from shibuya.engine import state_ledger as SL
+    from shibuya.engine.resume import ABSENT_MARK
+    from shibuya.engine.state_hashes import _ABSENT, resolve_item
+
+    paths = [p for _k, p in SL.full_items()]
+    if set(paths) != set(items):
+        raise ValueError(
+            f"保存した外の状態の道筋が今の台帳と違う(足りない {sorted(set(paths) - set(items))[:5]}・"
+            f"余分 {sorted(set(items) - set(paths))[:5]})"
+        )
+    n = 0
+    for path in paths:
+        saved = items[path]
+        cur = resolve_item(owners, path)
+        if isinstance(saved, str) and saved == ABSENT_MARK:
+            if cur is not _ABSENT:
+                raise ValueError(f"保存では持ち主が無いが今はある: {path}(構成が違う)")
+            continue
+        if cur is _ABSENT:
+            raise ValueError(f"保存では値があるが今は持ち主が無い: {path}(構成が違う)")
+        head, _, attr = path.rpartition(".")
+        parent = resolve_item(owners, head) if "." in head else owners[head]
+        same, val = _restore_value(cur, saved)
+        if not same:
+            try:
+                setattr(parent, attr, val)
+            except (AttributeError, dataclasses.FrozenInstanceError) as e:
+                raise ValueError(f"外の状態を戻せない: {path}({e})") from None
+        n += 1
+    return n

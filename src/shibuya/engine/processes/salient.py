@@ -46,7 +46,7 @@ from typing import Final, Sequence
 import numpy as np
 
 from shibuya.agents.state import Activity, AgentState, WakeCondition
-from shibuya.core.rng import stream
+from shibuya.core.rng import DEFAULT_RNG_SCHEME, check_rng_scheme, run_tick_key, stream
 from shibuya.engine import resolve as R
 from shibuya.perception import attention as AT
 from shibuya.perception import p_notice as PN
@@ -64,6 +64,8 @@ __all__ = [
 
 #: 「倒れる」の発生率[件/10,000体/日](expedient)。
 COLLAPSE_PER_10K_PER_DAY: Final[float] = 3.0
+#: 10c: ``rng_scheme="counter"`` の「倒れる」の乱数の用途名(stateful の ``world.salient`` と別の名=列が重ならない)。
+SALIENT_COUNTER_DOMAIN: Final[str] = "world.salient.counter"
 #: ablation の id(``AB-PNOTICE-A0`` … ``A4``。A4=完成形=既定)。
 ABLATION_IDS: Final[tuple[str, ...]] = tuple(f"AB-PNOTICE-A{k}" for k in range(5))
 
@@ -103,6 +105,12 @@ class SalientEvent:
 class SalientProcess:
     """顕著行為の生成・``p_notice`` による到達判定・B4 行の組み立て。
 
+    乱数の方式(10c・``rng_scheme``):
+        ``stateful``(既定=今のまま): 日の頭に作った Generator ``rng`` を tick ごとに進める。
+        ``counter``: 「倒れる」の乱数を毎 tick ``stream(seed, SALIENT_COUNTER_DOMAIN, 0, 鍵の時刻)`` から作る
+        (``rng`` は ``None``=再開で保存するものが無い。鍵の時刻は ``run_tick_key(day_index, T)``)。
+        選ばれた体は id の昇順に並べ直してから出動を呼ぶ(出動の k を決まった順にするため)。
+
     Attributes:
         events: この tick の事象。
         cell_lines: ``{セル: (行, …)}``(``Renderer.prepare_tick(salient_events=…)`` へ)。
@@ -126,6 +134,7 @@ class SalientProcess:
         ablation: PN.Ablation | int | str = PN.Ablation.A4_SOCIAL,
         rate_per_10k_per_day: float | None = None,
         d50_scale: float = 1.0,
+        rng_scheme: str = DEFAULT_RNG_SCHEME,
     ) -> None:
         self.world = world
         self.agents = agents
@@ -157,7 +166,12 @@ class SalientProcess:
             COLLAPSE_PER_10K_PER_DAY if rate_per_10k_per_day is None
             else rate_per_10k_per_day
         )
-        self.rng = stream(master_seed, "world.salient", int(day_index))
+        self.rng_scheme = check_rng_scheme(rng_scheme)
+        #: stateful だけ Generator を持つ(counter では ``None``=状態を持たない・10c)。
+        self.rng = (
+            stream(master_seed, "world.salient", int(day_index))
+            if self.rng_scheme == "stateful" else None
+        )
         self.events: list[SalientEvent] = []
         self.cell_lines: dict[int, tuple[str, ...]] = {}
         self.noticed_agents = np.zeros(0, dtype=np.int64)
@@ -174,6 +188,12 @@ class SalientProcess:
         self._cell_index_tick = -1
         self._order = np.zeros(0, dtype=np.int64)
         self._start = np.zeros(world.n_cells + 1, dtype=np.int64)
+
+    def relay_day(self, day_key: int) -> None:
+        """10d(親の答え 5): 日の頭で、stateful の乱数をその日の日の鍵の流れに引き直す(1 日のランを日ごとに回すのと
+        同じ流れ)。counter は鍵の時刻 ``run_tick_key(day_key(0), T)`` が日ごとに違う値になるので何もしない。"""
+        if self.rng_scheme == "stateful":
+            self.rng = stream(self.master_seed, "world.salient", int(day_key))
 
     @property
     def active(self) -> bool:
@@ -305,13 +325,20 @@ class SalientProcess:
         per_tick = (
             self.rate * (self.agents.n / 10_000.0) / (86_400.0 / max(1, self.tick_seconds))
         )
-        n = int(self.rng.poisson(max(0.0, per_tick)))
+        g = self.rng if self.rng is not None else stream(
+            self.master_seed, SALIENT_COUNTER_DOMAIN,
+            0, run_tick_key(self.day_index, int(tick), self.tick_seconds),
+        )
+        n = int(g.poisson(max(0.0, per_tick)))
         if n <= 0:
             return []
         inside = np.flatnonzero(np.asarray(self.agents.registry.cell) >= 0)
         if inside.size == 0:
             return []
-        who = self.rng.choice(inside, size=min(n, inside.size), replace=False)
+        who = g.choice(inside, size=min(n, inside.size), replace=False)
+        if self.rng is None:
+            # counter: 体の id の昇順(出動の k=同じ T・同じセルの何番目か を決まった順で数える)
+            who = np.sort(np.atleast_1d(who))
         out: list[SalientEvent] = []
         for a in np.atleast_1d(who):  # 逐次: 事象数ぶん(≈0-1/tick)
             cell = int(self.agents.registry.cell[int(a)])

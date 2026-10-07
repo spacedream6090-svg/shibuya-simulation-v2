@@ -646,6 +646,19 @@
      "class": "i",
      "control": "pendant 除去あり vs なし → W3 セル間距離の分布 JSD",
      "cost_seconds_estimate": 35
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "pendant 除去あり(宣言)vs 除去なし(pendant 列を全 False)",
+     "metric": "W3 セル間距離(上三角)の 10 m 階級分布",
+     "jsd_bits": 0.0,
+     "null_p95": 0.0011036899571426108,
+     "variant": "除去なし",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 1.53,
+     "unresearched": true
     }
    },
    {
@@ -665,6 +678,19 @@
      "class": "i",
      "control": "部分一致込み vs 完全一致だけ → floorguide の結線数と W11 構内グラフの次数分布",
      "cost_seconds_estimate": 5
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "完全一致→部分一致(宣言)vs 完全一致だけ",
+     "metric": "floorguide 22 本の結線の状態(両端/片端/無し)と W11 構内グラフの次数分布",
+     "jsd_bits": 0.5757993983191749,
+     "null_p95": 0.0,
+     "variant": "floorguide 結線の状態",
+     "n_variants": 2,
+     "n_variants_detected": 1,
+     "seconds": 0.93,
+     "unresearched": true
     }
    },
    {
@@ -697,6 +723,19 @@
      "class": "i",
      "control": "端点の一方で数える vs 両端点で按分 → セルの n_edges 分布 JSD",
      "cost_seconds_estimate": 5
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "端点の一方でも数える(宣言・重複計上)vs 両端点で按分(0.5 ずつ)",
+     "metric": "セルの n_edges の分布(セル上の重み)",
+     "jsd_bits": 0.002853985287740614,
+     "null_p95": 0.032114676275074666,
+     "variant": "両端点で按分",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 0.27,
+     "unresearched": true
     }
    },
    {
@@ -716,6 +755,19 @@
      "class": "i",
      "control": "重心に最近のノード vs セル内の最大次数ノード → W3 セル間距離の分布 JSD",
      "cost_seconds_estimate": 35
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "重心に最近のノード(宣言)vs セル内の最大次数ノード(同点は添字最小)",
+     "metric": "W3 セル間距離(上三角)の 10 m 階級分布",
+     "jsd_bits": 0.0006631642739108527,
+     "null_p95": 0.0011036899571426108,
+     "variant": "最大次数ノード",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 0.89,
+     "unresearched": true
     }
    },
    {
@@ -735,6 +787,19 @@
      "class": "i",
      "control": "外周 GL ノードのセル vs 街区重心のセル → 街区×セルの所属の分布",
      "cost_seconds_estimate": 5
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "外周 GL ノードのセル集合(宣言)vs 街区重心のセル(1 街区 1 セル)",
+     "metric": "街区×セルの所属のセル上の分布",
+     "jsd_bits": 0.049521695828076404,
+     "null_p95": 0.06068088993462891,
+     "variant": "街区重心のセル",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 0.21,
+     "unresearched": true
     }
    },
    {
@@ -754,6 +819,19 @@
      "class": "i",
      "control": "代表ノード間の最短路 vs セル内ノード対の中央値 → セル間距離の分布 JSD",
      "cost_seconds_estimate": 30
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "代表ノード間の最短路(宣言)vs セル内ノード対の最短路の中央値",
+     "metric": "セル間距離(上三角)の 10 m 階級分布",
+     "jsd_bits": 0.0007475432818183843,
+     "null_p95": 0.0011036899571426108,
+     "variant": "ノード対の中央値",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 4.01,
+     "unresearched": true
     }
    },
    {
@@ -773,6 +851,19 @@
      "class": "i",
      "control": "uint16 メートル丸め vs float32 → セル間距離の分布(差 ≤0.5 m=帰無内の見込み)",
      "cost_seconds_estimate": 30
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "uint16 メートル丸め(宣言)vs 丸めない(float)",
+     "metric": "セル間距離(上三角)の 10 m 階級分布",
+     "jsd_bits": 5.328679166379026e-05,
+     "null_p95": 0.0011036899571426108,
+     "variant": "丸めない・10 m 階級",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 4.01,
+     "unresearched": true
     }
    },
    {
@@ -792,6 +883,19 @@
      "class": "i",
      "control": "min(D, Dᵀ) で対称化 vs 対称化なし → 距離表(差は丸めで消える見込み)",
      "cost_seconds_estimate": 30
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "丸め前に min(D, Dᵀ) で対称化(宣言)vs 対称化しない",
+     "metric": "セル間距離(対角以外の全順序対)の 10 m 階級分布",
+     "jsd_bits": 9.695414051481342e-07,
+     "null_p95": 0.0005510695752150157,
+     "variant": "対称化しない・10 m 階級",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 4.01,
+     "unresearched": true
     }
    },
    {
@@ -850,6 +954,19 @@
      "class": "i",
      "control": "最寄りノードのセル vs 入口座標の格子セル → 入口のセル分布 JSD",
      "cost_seconds_estimate": 5
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "最寄りノードのセル(宣言)vs 入口座標の格子セル",
+     "metric": "入口のセル分布",
+     "jsd_bits": 0.030344354546231207,
+     "null_p95": 0.02436501290310745,
+     "variant": "入口座標の格子セル",
+     "n_variants": 1,
+     "n_variants_detected": 1,
+     "seconds": 0.25,
+     "unresearched": true
     }
    },
    {
@@ -882,6 +999,19 @@
      "class": "i",
      "control": "束縛ノードのバンドつき vs 格子だけ → POI・組織のセル分布 JSD",
      "cost_seconds_estimate": 5
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "自身の格子×束縛ノードのバンド・欠けたらノードのセル(宣言)vs 格子だけ(バンド GL・欠けは『セル表に無い』)",
+     "metric": "POI・組織のセル分布",
+     "jsd_bits": 0.050491755503937204,
+     "null_p95": 0.014676344740972682,
+     "variant": "組織: 格子だけ(バンド GL)",
+     "n_variants": 2,
+     "n_variants_detected": 1,
+     "seconds": 0.34,
+     "unresearched": true
     }
    },
    {
@@ -901,6 +1031,19 @@
      "class": "i",
      "control": "名前一致層あり vs なし → subcat の分布 JSD",
      "cost_seconds_estimate": 5
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "名前一致層あり(宣言)vs なし(切替口 USE_NAME_SUBCAT_RULES=False)",
+     "metric": "POI の cat|subcat 分布",
+     "jsd_bits": 0.00022142842635260128,
+     "null_p95": 0.00938506534623407,
+     "variant": "名前一致層なし",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 1.13,
+     "unresearched": true
     }
    },
    {
@@ -933,6 +1076,19 @@
      "class": "i",
      "control": "営業時間の窓として当てない vs 当てる → 未成年から見た営業中 POI×時の分布 JSD",
      "cost_seconds_estimate": 2
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "18 歳未満の立入制限を窓として当てない(宣言)vs 23:00-4:00 を当てる(未成年から見た営業中)",
+     "metric": "未成年から見た営業中 POI×時(168 時×{営業中,休業})の分布",
+     "jsd_bits": 1.1886413941386174e-05,
+     "null_p95": 0.00034936061079824597,
+     "variant": "立入窓を当てる",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 0.23,
+     "unresearched": true
     }
    },
    {
@@ -952,6 +1108,17 @@
      "class": "ii",
      "control": "改訂権者=store_manager 固定 vs 他の役割にも許す → 改訂の行為と結果はランでしか出ない",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "mock_run",
+     "jsd_bits": 0.0,
+     "null_p95": 0.0021079667793534674,
+     "metric": "在圏(5 エリア×24 時)の JSD・帰無=同構成 seed 3 対の最大",
+     "control": "w7_plan_spec の violability=全 enforced・revising_authority=any_role",
+     "final_same": true,
+     "reason": "エンジンは w7_plan_spec の poi_id・kind・content しか読まない(world/assets.py)=改訂権者の列はランに届かない。同じ宣言はエンジン側 world/processes/first_batch.py に別にハードコード(そちらを振るには口が要る)",
+     "unresearched": true
     }
    },
    {
@@ -971,6 +1138,17 @@
      "class": "ii",
      "control": "enforced/unenforced の割当 vs 全て enforced → 違反の可否は行為の結果=ラン",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "mock_run",
+     "jsd_bits": 0.0,
+     "null_p95": 0.0021079667793534674,
+     "metric": "在圏(5 エリア×24 時)の JSD・帰無=同構成 seed 3 対の最大",
+     "control": "w7_plan_spec の violability=全 enforced・revising_authority=any_role",
+     "final_same": true,
+     "reason": "violability の列はランに届かない(同上)。エンジン側の違反可能性は first_batch.py のハードコード",
+     "unresearched": true
     }
    },
    {
@@ -990,6 +1168,19 @@
      "class": "i",
      "control": "上限なし vs 旅館業/店舗型性風俗の窓 → 営業中 POI×時の分布 JSD(深夜帯)",
      "cost_seconds_estimate": 2
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "love_hotel=上限なし(宣言)vs 店舗型性風俗の窓 0:00-6:00(旅館業なら窓なし=宣言と同じ)",
+     "metric": "営業中 POI×時(168 時×{営業中,休業})の分布",
+     "jsd_bits": 0.00024275804660263628,
+     "null_p95": 0.00034936061079824597,
+     "variant": "店舗型性風俗の窓",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 0.72,
+     "unresearched": true
     }
    },
    {
@@ -1009,6 +1200,19 @@
      "class": "i",
      "control": "深夜酒類提供(上限なし)vs 接待飲食(1-3号)の窓 → 営業中 POI×時の分布 JSD",
      "cost_seconds_estimate": 2
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "nightlife 既定=深夜酒類提供・上限なし(宣言)vs 接待飲食(1-3 号)の窓 1:00-6:00(OSM タグの明示は優先のまま)",
+     "metric": "営業中 POI×時(168 時×{営業中,休業})の分布",
+     "jsd_bits": 8.42241018194121e-07,
+     "null_p95": 0.00034936061079824597,
+     "variant": "接待飲食の窓",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 0.7,
+     "unresearched": true
     }
    },
    {
@@ -1028,6 +1232,19 @@
      "class": "i",
      "control": "祝日規則を無視 vs 当てる → 再生日の営業中 POI×時(祝日でなければ差 0 の見込み)",
      "cost_seconds_estimate": 2
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "PH 規則を無視(宣言)vs 当てる(再生日 2026-07-28 は祝日表に無い)",
+     "metric": "再生日の営業中 POI×時の分布",
+     "jsd_bits": 0.0,
+     "null_p95": 0.00034936061079824597,
+     "variant": "PH を当てる(再生日=祝日でない→対照=宣言)",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 0.29,
+     "unresearched": true
     }
    },
    {
@@ -1047,6 +1264,19 @@
      "class": "i",
      "control": "brand 内の最頻を伝播 vs 伝播なし(カテゴリ既定)→ 営業時間の分布 JSD",
      "cost_seconds_estimate": 2
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "brand 内の最頻を伝播(宣言)vs 伝播なし(入力の brand タグを落としてカテゴリ既定へ)",
+     "metric": "営業中 POI×時(168 時×{営業中,休業})の分布",
+     "jsd_bits": 1.015775216754738e-06,
+     "null_p95": 0.00034936061079824597,
+     "variant": "伝播なし",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 0.73,
+     "unresearched": true
     }
    },
    {
@@ -1066,6 +1296,19 @@
      "class": "i",
      "control": "一律 vs 地域条件(告示 26 町丁の内外)→ 営業中 POI×時の分布 JSD(深夜帯)",
      "cost_seconds_estimate": 2
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "一律(宣言=許容地域の行)vs **上界の対照**: 全 POI を住居集合地域とみなす(1-3 号・5 号 23:00-10:00・深夜酒類 0:00-6:00)",
+     "metric": "営業中 POI×時(168 時×{営業中,休業})の分布",
+     "jsd_bits": 0.0020687519502911858,
+     "null_p95": 0.00034936061079824597,
+     "variant": "上界(全 POI 住居集合地域)",
+     "n_variants": 1,
+     "n_variants_detected": 1,
+     "seconds": 0.69,
+     "unresearched": true
     }
    },
    {
@@ -1085,6 +1328,19 @@
      "class": "i",
      "control": "特別日なし vs 特別日の延長 → 再生日の営業中 POI×時(特別日でなければ差 0 の見込み)",
      "cost_seconds_estimate": 2
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "特別日なし(宣言)vs 特別日の延長(許容地域外でも 1:00 まで)",
+     "metric": "再生日の営業中 POI×時の分布",
+     "jsd_bits": 0.0,
+     "null_p95": 0.00034936061079824597,
+     "variant": "特別日の延長(1:00)",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 0.69,
+     "unresearched": true
     }
    },
    {
@@ -1104,6 +1360,19 @@
      "class": "i",
      "control": "一・二号の未写像 vs 写像あり → 未成年の立入窓の分布",
      "cost_seconds_estimate": 2
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "三・四号だけ(宣言)vs 一号(cinema・hall の theatre/events_venue/music_venue)+二号(leisure の sports_centre で代用)も",
+     "metric": "未成年の立入窓(23:00-4:00 を当てた視点)での営業中 POI×時の分布",
+     "jsd_bits": 3.904198962207002e-07,
+     "null_p95": 0.0003490282614287342,
+     "variant": "一・二号も写像",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 0.23,
+     "unresearched": true
     }
    },
    {
@@ -1123,6 +1392,13 @@
      "class": "ii",
      "control": "条例8条(ゲームセンター)は窓で書けるが条例6条(騒音 dB)は窓で書けない=機構の追加とラン",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "unmeasurable",
+     "where": "—",
+     "needed_knob": "条例8条(16 歳未満のゲームセンター 18:00-22:00 保護者同伴)の窓と条例6条(騒音 dB)の機構の実装+切替口(src の変更)",
+     "reason": "口が無い(src の変更・LLM の再生成が要る)=測らず、必要な口を報告",
+     "unresearched": false
     }
    },
    {
@@ -1142,6 +1418,17 @@
      "class": "ii",
      "control": "violability の保留 vs enforced へ直す → 違反の可否は行為の結果=ラン",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "mock_run",
+     "jsd_bits": 0.0,
+     "null_p95": 0.0021079667793534674,
+     "metric": "在圏(5 エリア×24 時)の JSD・帰無=同構成 seed 3 対の最大",
+     "control": "w7_plan_spec の violability=全 enforced・revising_authority=any_role",
+     "final_same": true,
+     "reason": "violability の列はランに届かない(同上)",
+     "unresearched": true
     }
    },
    {
@@ -1174,6 +1461,19 @@
      "class": "i",
      "control": "最大視程 150 m vs 100/200 m → セルの可視数の分布 JSD",
      "cost_seconds_estimate": 3
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "最大視程 150 m(宣言)vs 100 m / 200 m",
+     "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+     "jsd_bits": 0.05790109026018618,
+     "null_p95": 0.003298782022654004,
+     "variant": "視程 100 m: (セル,対象)→見えている視点数",
+     "n_variants": 2,
+     "n_variants_detected": 2,
+     "seconds": 39.51,
+     "unresearched": true
     }
    },
    {
@@ -1193,6 +1493,19 @@
      "class": "i",
      "control": "遮蔽 2.5 m ラスタ vs 1.25 m → セルの可視数の分布 JSD",
      "cost_seconds_estimate": 10
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "遮蔽ラスタ 2.5 m(宣言)vs 1.25 m(視線の標本刻みは 2.5 m のまま)",
+     "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+     "jsd_bits": 0.006873946071767577,
+     "null_p95": 0.003298782022654004,
+     "variant": "ラスタ 1.25 m: (セル,対象)→見えている視点数",
+     "n_variants": 1,
+     "n_variants_detected": 1,
+     "seconds": 20.39,
+     "unresearched": true
     }
    },
    {
@@ -1212,6 +1525,19 @@
      "class": "i",
      "control": "重心の DEM vs 最低点の DEM → セルの可視数の分布 JSD",
      "cost_seconds_estimate": 3
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "建物の基準地盤高=重心の DEM(宣言)vs footprint 頂点の DEM の最小値",
+     "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+     "jsd_bits": 0.005642962699137986,
+     "null_p95": 0.003298782022654004,
+     "variant": "頂点の DEM の最小: (セル,対象)→見えている視点数",
+     "n_variants": 1,
+     "n_variants_detected": 1,
+     "seconds": 20.1,
+     "unresearched": true
     }
    },
    {
@@ -1231,6 +1557,19 @@
      "class": "i",
      "control": "端の値でクランプ vs 範囲外を欠損 → 範囲端のセルの可視数の分布",
      "cost_seconds_estimate": 3
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "DEM 範囲外=端の値でクランプ(宣言)vs 範囲外を欠損=基準面 GROUND0 15.18 m で埋める",
+     "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+     "jsd_bits": 0.01217533878021837,
+     "null_p95": 0.003298782022654004,
+     "variant": "範囲外=GROUND0: (セル,対象)→見えている視点数",
+     "n_variants": 1,
+     "n_variants_detected": 1,
+     "seconds": 19.52,
+     "unresearched": true
     }
    },
    {
@@ -1250,6 +1589,19 @@
      "class": "i",
      "control": "DECK 眼高=GL vs +6 m(仮の値)→ DECK セルの可視数の分布",
      "cost_seconds_estimate": 3
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "DECK 視点の眼高=GL と同じ(宣言)vs DECK 視点だけ +6 m",
+     "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+     "jsd_bits": 0.0021680892365414602,
+     "null_p95": 0.003298782022654004,
+     "variant": "DECK +6 m: (セル,対象)→見えている視点数",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 18.6,
+     "unresearched": true
     }
    },
    {
@@ -1269,6 +1621,19 @@
      "class": "i",
      "control": "UG に建物ラスタなし vs 全遮蔽 → UG セルの可視数の分布",
      "cost_seconds_estimate": 3
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "UG は建物ラスタを当てない(宣言)vs UG にも建物ラスタ(地上と同じ 2.5D 視線)を当てる",
+     "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+     "jsd_bits": 0.0005824143053194655,
+     "null_p95": 0.003298782022654004,
+     "variant": "UG にも遮蔽: (セル,対象)→見えている視点数",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 20.09,
+     "unresearched": true
     }
    },
    {
@@ -1288,6 +1653,19 @@
      "class": "i",
      "control": "1 視点あたり上限 256 vs 512 → セルの可視数の分布 JSD",
      "cost_seconds_estimate": 3
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "1 視点あたり上限 256(宣言)vs 512",
+     "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+     "jsd_bits": 0.0,
+     "null_p95": 0.003298782022654004,
+     "variant": "上限 512: (セル,対象)→見えている視点数",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 19.33,
+     "unresearched": true
     }
    },
    {
@@ -1307,6 +1685,19 @@
      "class": "i",
      "control": "T2 セル対の標本 ≤200 vs ≤400 → w8_t2 の分布(エンジン側の読み口は無い=Q145 の細分なら読まない側)",
      "cost_seconds_estimate": 3
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "T2 のセル対の標本 ≤200(宣言)vs ≤400",
+     "metric": "T2 見通し率(評価したセル対)の 0.05 階級分布",
+     "jsd_bits": 9.696326694589387e-05,
+     "null_p95": 0.0010749221691933038,
+     "variant": "標本 ≤400",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 2.23,
+     "unresearched": true
     }
    },
    {
@@ -1326,6 +1717,19 @@
      "class": "i",
      "control": "最大追跡 300 m vs 600 m → セルの日陰率の分布 JSD",
      "cost_seconds_estimate": 300
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "影の最大追跡 300 m(宣言)vs 600 m",
+     "metric": "影の面 → (セル × 時 × {日陰, 日向}) の点・面の数の分布",
+     "jsd_bits": 0.00017021468925427558,
+     "null_p95": 6.620697166807141e-05,
+     "variant": "600 m",
+     "n_variants": 1,
+     "n_variants_detected": 1,
+     "seconds": 10.04,
+     "unresearched": true
     }
    },
    {
@@ -1345,6 +1749,19 @@
      "class": "i",
      "control": "UG 常時日陰・DECK=GL vs DECK に高さ → DECK/UG セルの日陰率の分布",
      "cost_seconds_estimate": 300
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "DECK=GL と同じ扱い(宣言)vs DECK 視点だけ +6 m(UG の常時日陰は両側とも同じ)",
+     "metric": "影の面 → (セル × 時 × {日陰, 日向}) の点・面の数の分布",
+     "jsd_bits": 0.0008374406719709238,
+     "null_p95": 6.620697166807141e-05,
+     "variant": "DECK 視点だけ +6 m(UG の常時日陰は両側とも同じ)",
+     "n_variants": 1,
+     "n_variants_detected": 1,
+     "seconds": 9.7,
+     "unresearched": true
     }
    },
    {
@@ -1364,6 +1781,19 @@
      "class": "i",
      "control": "2.5 m ラスタ vs 1.25 m → セルの日陰率の分布 JSD",
      "cost_seconds_estimate": 1200
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "遮蔽ラスタ 2.5 m(宣言)vs 1.25 m",
+     "metric": "影の面 → (セル × 時 × {日陰, 日向}) の点・面の数の分布",
+     "jsd_bits": 6.174780430030156e-05,
+     "null_p95": 6.620697166807141e-05,
+     "variant": "1.25 m",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 9.98,
+     "unresearched": true
     }
    },
    {
@@ -1383,6 +1813,20 @@
      "class": "i",
      "control": "大気差・尾根越し遮蔽なし vs あり(補正の実装が要る)→ 日の出・日の入り前後の日陰率",
      "cost_seconds_estimate": 300
+    },
+    "d44": {
+     "status": "unmeasurable",
+     "where": "build",
+     "control": "大気差・尾根越し遮蔽なし(宣言)vs 大気差あり(太陽高度に大気差を足す)",
+     "metric": "影の面 → (セル × 時 × {日陰, 日向}) の点・面の数の分布",
+     "jsd_bits": 3.891796096761138e-05,
+     "null_p95": 6.620697166807141e-05,
+     "variant": "大気差あり(太陽高度に大気差を足す)",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 9.4,
+     "reason": "一部だけ測った: 尾根越し遮蔽(ラスタの外の遠方地形)は遠方の DEM がリポに無く測れない",
+     "unresearched": false
     }
    },
    {
@@ -1402,6 +1846,19 @@
      "class": "i",
      "control": "再生日=W13 の先頭日 vs 別の候補日 → セルの日陰率の分布 JSD",
      "cost_seconds_estimate": 300
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "再生日=W13 の先頭日 2026-07-28(宣言)vs 候補の末日 2026-08-31",
+     "metric": "影の面 → (セル × 時 × {日陰, 日向}) の点・面の数の分布",
+     "jsd_bits": 0.008272024464496472,
+     "null_p95": 6.620697166807141e-05,
+     "variant": "候補の末日 2026-08-31",
+     "n_variants": 1,
+     "n_variants_detected": 1,
+     "seconds": 8.9,
+     "unresearched": true
     }
    },
    {
@@ -1434,6 +1891,19 @@
      "class": "i",
      "control": "昼夜 12 h 一様 vs 時間帯カーブ → 騒音段階の分布 JSD",
      "cost_seconds_estimate": 20
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "昼間 12 h・残り 12 h を各一様(宣言)vs 残り 12 h を昼に近い 4 時間(19-21・6 時)へ 1.5 倍・深夜 8 時間を 0.75 倍(総量は同じ)",
+     "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+     "jsd_bits": 0.009499661251712614,
+     "null_p95": 0.001774917408448474,
+     "variant": "夜の配分を寄せる",
+     "n_variants": 1,
+     "n_variants_detected": 1,
+     "seconds": 12.66,
+     "unresearched": true
     }
    },
    {
@@ -1453,6 +1923,19 @@
      "class": "i",
      "control": "昼夜同一 vs 夜の大型車率・速度を変える → 夜の騒音段階の分布 JSD",
      "cost_seconds_estimate": 20
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "大型車混入率・旅行速度は昼夜同一(宣言)vs 昼間 12 h 以外の時間だけ 大型車率 ×1.1 と速度 ×1.1 / ×0.9 と ×0.9",
+     "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+     "jsd_bits": 9.343946881746495e-05,
+     "null_p95": 0.001774917408448474,
+     "variant": "夜の大型車率・速度 ×1.1",
+     "n_variants": 2,
+     "n_variants_detected": 0,
+     "seconds": 25.19,
+     "unresearched": true
     }
    },
    {
@@ -1472,6 +1955,19 @@
      "class": "i",
      "control": "密粒 vs 排水性 → 騒音段階の分布 JSD",
      "cost_seconds_estimate": 20
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "舗装=密粒(宣言)vs 排水性(騒音場の全辺)",
+     "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+     "jsd_bits": 0.2534907920714275,
+     "null_p95": 0.001774917408448474,
+     "variant": "排水性",
+     "n_variants": 1,
+     "n_variants_detected": 1,
+     "seconds": 13.22,
+     "unresearched": true
     }
    },
    {
@@ -1491,6 +1987,13 @@
      "class": "i",
      "control": "ΔL=0 vs 回折の近似あり(補正の実装が要る)→ 騒音段階の分布 JSD",
      "cost_seconds_estimate": 20
+    },
+    "d44": {
+     "status": "unmeasurable",
+     "where": "—",
+     "reason": "回折・反射の近似は建物の配置ごとに点で変わる補正で、式が未リサーチ・構築側に実装する口も無い(src の変更が要る)",
+     "control": "ΔL=0(宣言)vs 回折の近似あり",
+     "unresearched": false
     }
    },
    {
@@ -1510,6 +2013,19 @@
      "class": "i",
      "control": "車線別線音源+等分 vs 中心 1 線源 → 騒音段階の分布 JSD",
      "cost_seconds_estimate": 20
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "車線別線音源+交通量の車線等分(宣言)vs 車道中心の 1 線源(全交通量)",
+     "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+     "jsd_bits": 0.0008101079768062422,
+     "null_p95": 0.001774917408448474,
+     "variant": "中心 1 線源",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 12.43,
+     "unresearched": true
     }
    },
    {
@@ -1529,6 +2045,19 @@
      "class": "i",
      "control": "UG −20 dB vs −10/−30 dB → UG セルの騒音段階の分布",
      "cost_seconds_estimate": 20
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "バンド遮蔽 UG −20 dB(宣言)vs −10 dB / −30 dB",
+     "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+     "jsd_bits": 0.009276186926204678,
+     "null_p95": 0.001774917408448474,
+     "variant": "UG -10 dB",
+     "n_variants": 2,
+     "n_variants_detected": 2,
+     "seconds": 25.98,
+     "unresearched": true
     }
    },
    {
@@ -1548,6 +2077,12 @@
      "class": "iii",
      "control": "騒音段階の語彙の割当=文面(境界は環境基準に釘付け)=対照の文面を定義できない",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "騒音段階の語彙の割当=文面(境界は環境基準に釘付け)=対照の文面を定義できない",
+     "unresearched": false
     }
    },
    {
@@ -1567,6 +2102,19 @@
      "class": "i",
      "control": "バッファ 8 m・ピッチ 2.5 m vs ピッチ 5 m → 街路点と騒音段階の分布(W8/W9 も街路点を使う)",
      "cost_seconds_estimate": 20
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "街路格子 ピッチ 2.5 m(宣言)vs 5 m(バッファ 8 m は同じ)",
+     "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+     "jsd_bits": 0.0007234472517400946,
+     "null_p95": 0.001774917408448474,
+     "variant": "ピッチ 5 m",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 6.1,
+     "unresearched": true
     }
    },
    {
@@ -1586,6 +2134,19 @@
      "class": "i",
      "control": "中点 1 点の最近傍 way vs 両端+中点の多数決 → 道路名の一致の分布",
      "cost_seconds_estimate": 20
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "辺の中点 1 点の最近傍 way(宣言)vs 両端+中点の多数決(割れたら中点)",
+     "metric": "道路の辺のセンサス路線ラベルの分布",
+     "jsd_bits": 0.0005383514967734252,
+     "null_p95": 0.002083984187778939,
+     "variant": "両端+中点の多数決",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 3.44,
+     "unresearched": true
     }
    },
    {
@@ -1618,6 +2179,19 @@
      "class": "i",
      "control": "ホーム/改札の位置 vs ±50 m ずらす → 出口→ホームの構内経路長の分布 JSD",
      "cost_seconds_estimate": 5
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "ホーム=ODPT 代表点・改札=出口重心(宣言)vs ホームだけ/改札だけを ±50 m(東西・南北の 4 方向)ずらす",
+     "metric": "出口→改札→ホームの構内経路長(出口×ホームの対)の 10 m 階級分布",
+     "jsd_bits": 0.34952313786104056,
+     "null_p95": 0.09005468954328726,
+     "variant": "改札 (+0, +50) m",
+     "n_variants": 8,
+     "n_variants_detected": 8,
+     "seconds": 0.4,
+     "unresearched": true
     }
    },
    {
@@ -1637,6 +2211,19 @@
      "class": "i",
      "control": "名称一致→最近傍 vs 最近傍だけ → 出口→駅の割当の分布",
      "cost_seconds_estimate": 5
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "名称一致→最近傍(宣言)vs 最近傍だけ",
+     "metric": "出口 45 → 駅の割当の分布",
+     "jsd_bits": 0.0,
+     "null_p95": 0.054764805530823066,
+     "variant": "最近傍だけ",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 0.81,
+     "unresearched": true
     }
    },
    {
@@ -1656,6 +2243,19 @@
      "class": "i",
      "control": "bbox+300 m vs +500 m → 抽出される駅と出口の分布",
      "cost_seconds_estimate": 5
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "bbox+300 m(宣言)vs bbox+500 m",
+     "metric": "出口 45 → 駅の割当の分布",
+     "jsd_bits": 0.0,
+     "null_p95": 0.054764805530823066,
+     "variant": "bbox+500 m",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 0.81,
+     "unresearched": true
     }
    },
    {
@@ -1675,6 +2275,13 @@
      "class": "i",
      "control": "同名駅の重心 vs OSM の駅ノード座標 → 出口→駅の距離の分布",
      "cost_seconds_estimate": 5
+    },
+    "d44": {
+     "status": "unmeasurable",
+     "where": "—",
+     "reason": "OSM の駅ノード(railway=station)の座標がリポのどの入力にも無い(v8 は路線の折れ線だけ)・Web 取得は禁止。ホーム位置 ±50 m の包絡は W11#2 で測った",
+     "control": "座標なし駅=同名駅の重心(宣言)vs OSM の駅ノード座標",
+     "unresearched": false
     }
    },
    {
@@ -1707,6 +2314,19 @@
      "class": "i",
      "control": "端の時間帯の等分 vs 端へ寄せる → 生成時刻の分布 JSD(S-W14-HOURUNIFORM と同じ形)",
      "cost_seconds_estimate": 1
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "～6時台→5,6 時・0時台～→0,1 時の等分(宣言)vs 端へ寄せる(外側 5 時と 1 時/内側 6 時と 0 時)",
+     "metric": "生成用重みの時刻分布(24 時・帰無参照の N=重み行数 2,014=既存 S-W14-HOURUNIFORM と同じ expedient)",
+     "jsd_bits": 0.00508585197221738,
+     "null_p95": 0.005650086402065755,
+     "variant": "外側(5 時・1 時)",
+     "n_variants": 2,
+     "n_variants_detected": 0,
+     "seconds": 1.26,
+     "unresearched": true
     }
    },
    {
@@ -1726,6 +2346,19 @@
      "class": "i",
      "control": "目的×手段の構成=全ノード共通 vs 構成を ±10% ずらす(方面別の実データは未取得)→ 生成の目的分布 JSD",
      "cost_seconds_estimate": 1
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "目的×手段の構成=全ノード共通(宣言)vs 目的ごとに 1 つずつ ±10%(方面×手段の総量は保って再正規化)",
+     "metric": "生成用重みの目的分布(帰無参照の N=重み行数 2,014)",
+     "jsd_bits": 0.0004814947152744029,
+     "null_p95": 0.0025257032135033563,
+     "variant": "自宅－勤務 ×0.9",
+     "n_variants": 16,
+     "n_variants_detected": 0,
+     "seconds": 0.53,
+     "unresearched": true
     }
    },
    {
@@ -1758,6 +2391,19 @@
      "class": "i",
      "control": "山手線ピーク 18 本 vs 16/20 本 → 便の時刻分布 JSD",
      "cost_seconds_estimate": 1
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "山手線ピーク 18 本/h(宣言)vs 16 / 20 本/h",
+     "metric": "便の (路線 × 曜日種別 × 時) の分布",
+     "jsd_bits": 0.0013530620567893193,
+     "null_p95": 0.013897460862228917,
+     "variant": "16 本/h",
+     "n_variants": 2,
+     "n_variants_detected": 0,
+     "seconds": 1.47,
+     "unresearched": true
     }
    },
    {
@@ -1777,6 +2423,19 @@
      "class": "i",
      "control": "メトロ実ダイヤのオフピーク比 vs 一様 → 便の時刻分布 JSD",
      "cost_seconds_estimate": 1
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "オフピーク比=メトロ実ダイヤから(宣言)vs 比 1.0(一様)",
+     "metric": "便の (路線 × 曜日種別 × 時) の分布",
+     "jsd_bits": 0.017736847945337867,
+     "null_p95": 0.013897460862228917,
+     "variant": "比 1.0",
+     "n_variants": 1,
+     "n_variants_detected": 1,
+     "seconds": 0.94,
+     "unresearched": true
     }
    },
    {
@@ -1796,6 +2455,19 @@
      "class": "i",
      "control": "夕ピーク=朝ピーク vs 夕ピーク −20%(仮)→ 便の時刻分布 JSD",
      "cost_seconds_estimate": 1
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "夕ピーク=朝ピークと同数(宣言)vs 夕ピーク −20%",
+     "metric": "便の (路線 × 曜日種別 × 時) の分布",
+     "jsd_bits": 0.0029942742488705152,
+     "null_p95": 0.013897460862228917,
+     "variant": "夕ピーク −20%",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 0.92,
+     "unresearched": true
     }
    },
    {
@@ -1815,6 +2487,19 @@
      "class": "i",
      "control": "平日の初終発 vs 土休の初終発 → 便の時刻分布 JSD(土休ダイヤの日)",
      "cost_seconds_estimate": 1
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "初終発=メトロ平日ダイヤ 5:01-0:20(宣言)vs 土休ダイヤ 5:01-0:20(土休の等間隔ダイヤだけ)",
+     "metric": "土休の便の (路線 × 時) の分布",
+     "jsd_bits": 0.0,
+     "null_p95": 0.012718944394285774,
+     "variant": "土休の初終発",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 0.17,
+     "unresearched": true
     }
    },
    {
@@ -1860,6 +2545,19 @@
      "class": "i",
      "control": "日照率と太陽高度からの推定 vs 日照率だけ → WBGT 段階の分布 JSD",
      "cost_seconds_estimate": 1
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "日射=日照率と太陽高度からの推定(宣言)vs 日照率だけ(SR=0.9×日照率・太陽高度を見ない)",
+     "metric": "時別の体感温度段階(WBGT 段階・5 語+欠測)の分布(既存 S-W15-TEMP と同じ形)",
+     "jsd_bits": 0.0013759806012739661,
+     "null_p95": 0.004020313129488301,
+     "variant": "日照率だけ(SR=0.9×日照率・太陽高度を見ない)",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 0.83,
+     "unresearched": true
     }
    },
    {
@@ -1879,6 +2577,12 @@
      "class": "iii",
      "control": "天候型・体感温度の語彙の割当=文面(WBGT 境界は公的指針に釘付け)=対照の文面を定義できない",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "天候型・体感温度の語彙の割当=文面(WBGT 境界は公的指針に釘付け)=対照の文面を定義できない",
+     "unresearched": false
     }
    },
    {
@@ -1898,6 +2602,13 @@
      "class": "i",
      "control": "2026 年 7-8 月のハードコード vs 内閣府 CSV → 再生日の祝日(差 0 の見込み)",
      "cost_seconds_estimate": 1
+    },
+    "d44": {
+     "status": "unmeasurable",
+     "where": "—",
+     "reason": "内閣府の祝日 CSV がリポに無い(未取得)・Web 取得は禁止",
+     "control": "祝日表=2026 年 7-8 月のハードコード(宣言)vs 内閣府 CSV",
+     "unresearched": false
     }
    },
    {
@@ -1917,6 +2628,19 @@
      "class": "i",
      "control": "時別=平均/合計 vs 正時値 → 時別気象の分布 JSD",
      "cost_seconds_estimate": 1
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "時別=平均(気温・湿度・風)/合計(降水・日照)(宣言)vs 気温・湿度・風だけ正時の 10 分値",
+     "metric": "時別の体感温度段階(WBGT 段階・5 語+欠測)の分布(既存 S-W15-TEMP と同じ形)",
+     "jsd_bits": 7.617356633516422e-05,
+     "null_p95": 0.004020313129488301,
+     "variant": "気温・湿度・風だけ正時の 10 分値",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 0.89,
+     "unresearched": true
     }
    },
    {
@@ -1936,6 +2660,19 @@
      "class": "i",
      "control": "etrn 時別値で補完 vs 線形補間 → 補完した時の気象の分布",
      "cost_seconds_estimate": 1
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "アメダス欠測時間は etrn 時別値で補完(宣言)vs 前後のアメダス時別値の線形補間(気温・湿度・風・日照)",
+     "metric": "補完した時の体感温度段階の分布",
+     "jsd_bits": 0.014229031712392655,
+     "null_p95": 0.011249922255462605,
+     "variant": "線形補間",
+     "n_variants": 1,
+     "n_variants_detected": 1,
+     "seconds": 0.19,
+     "unresearched": true
     }
    },
    {
@@ -1955,6 +2692,12 @@
      "class": "iii",
      "control": "プロンプト文面=自前(対照の文面を定義できない)",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "プロンプト文面=自前(対照の文面を定義できない)",
+     "unresearched": false
     }
    },
    {
@@ -1974,6 +2717,13 @@
      "class": "ii",
      "control": "max_tokens 64 vs 96 → 看板文の再生成(LLM・W14 の呼)が要り、効きは文を読む行動=ラン",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "unmeasurable",
+     "where": "—",
+     "needed_knob": "W14 看板文の再生成(LLM・GPU・I1 予算)。差し替えた資産はランの --world で読める",
+     "reason": "口が無い(src の変更・LLM の再生成が要る)=測らず、必要な口を報告",
+     "unresearched": false
     }
    },
    {
@@ -1993,6 +2743,12 @@
      "class": "iii",
      "control": "業種語・価格帯語の表=文面",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "業種語・価格帯語の表=文面",
+     "unresearched": false
     }
    },
    {
@@ -2012,6 +2768,12 @@
      "class": "iii",
      "control": "営業時間の日本語化=文面",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "営業時間の日本語化=文面",
+     "unresearched": false
     }
    },
    {
@@ -2031,6 +2793,12 @@
      "class": "iii",
      "control": "固有名詞検査 N1-N7=門(合否の規則)",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "固有名詞検査 N1-N7=門(合否の規則)",
+     "unresearched": false
     }
    },
    {
@@ -2050,6 +2818,12 @@
      "class": "iii",
      "control": "漢字厳格モード=門",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "漢字厳格モード=門",
+     "unresearched": false
     }
    },
    {
@@ -2069,6 +2843,12 @@
      "class": "iii",
      "control": "不合格率の閾値 0.1=門の閾値",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "不合格率の閾値 0.1=門の閾値",
+     "unresearched": false
     }
    },
    {
@@ -2088,6 +2868,12 @@
      "class": "iii",
      "control": "プロンプト文面=自前(対照の文面を定義できない)",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "プロンプト文面=自前(対照の文面を定義できない)",
+     "unresearched": false
     }
    },
    {
@@ -2107,6 +2893,13 @@
      "class": "ii",
      "control": "max_tokens 128・char_limit 45 vs 広げる → 静的文の再生成(LLM)+ラン",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "unmeasurable",
+     "where": "—",
+     "needed_knob": "W15 静的文の再生成(LLM・GPU・I1 予算)。差し替えた資産はランの --world で読める",
+     "reason": "口が無い(src の変更・LLM の再生成が要る)=測らず、必要な口を報告",
+     "unresearched": false
     }
    },
    {
@@ -2126,6 +2919,13 @@
      "class": "ii",
      "control": "結線枠 45 tok vs 60 tok → 静的文の再生成(LLM)+ラン",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "unmeasurable",
+     "where": "—",
+     "needed_knob": "W15 静的文の再生成(同上)",
+     "reason": "口が無い(src の変更・LLM の再生成が要る)=測らず、必要な口を報告",
+     "unresearched": false
     }
    },
    {
@@ -2145,6 +2945,13 @@
      "class": "ii",
      "control": "可視物 上位 2・目印 2 vs 3/3 → 静的文の再生成(LLM)+ラン",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "unmeasurable",
+     "where": "—",
+     "needed_knob": "W15 静的文の再生成(同上)",
+     "reason": "口が無い(src の変更・LLM の再生成が要る)=測らず、必要な口を報告",
+     "unresearched": false
     }
    },
    {
@@ -2164,6 +2971,13 @@
      "class": "ii",
      "control": "最多種別 1 語 vs 件数つき → 静的文の再生成(LLM)+ラン",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "unmeasurable",
+     "where": "—",
+     "needed_knob": "W15 静的文の再生成(同上)",
+     "reason": "口が無い(src の変更・LLM の再生成が要る)=測らず、必要な口を報告",
+     "unresearched": false
     }
    },
    {
@@ -2183,6 +2997,13 @@
      "class": "ii",
      "control": "街区 あり/なし vs 数 → 静的文の再生成(LLM)+ラン",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "unmeasurable",
+     "where": "—",
+     "needed_knob": "W15 静的文の再生成(同上)",
+     "reason": "口が無い(src の変更・LLM の再生成が要る)=測らず、必要な口を報告",
+     "unresearched": false
     }
    },
    {
@@ -2202,6 +3023,12 @@
      "class": "iii",
      "control": "構造化出力の regex=書式の門",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "構造化出力の regex=書式の門",
+     "unresearched": false
     }
    },
    {
@@ -2221,6 +3048,12 @@
      "class": "iii",
      "control": "renderer との二重定義=コードの形(入力の差ではない)",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "renderer との二重定義=コードの形(入力の差ではない)",
+     "unresearched": false
     }
    },
    {
@@ -2240,6 +3073,12 @@
      "class": "iii",
      "control": "末尾の句点を落とす=文面",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "末尾の句点を落とす=文面",
+     "unresearched": false
     }
    },
    {
@@ -2259,6 +3098,12 @@
      "class": "iii",
      "control": "不合格率の閾値 0.05=門の閾値",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "不合格率の閾値 0.05=門の閾値",
+     "unresearched": false
     }
    },
    {
@@ -2278,6 +3123,19 @@
      "class": "i",
      "control": "W2 セルの被覆範囲 vs 区全域 → 目標体数のセル分布 JSD",
      "cost_seconds_estimate": 60
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "目標体数の空間支持=W2 セルの被覆で按分(宣言)vs 区全域(被覆のある町丁目は人口を全部入れる=被覆率>0 を 1 に)",
+     "metric": "住民の自宅セルの分布",
+     "jsd_bits": 0.18621325738633043,
+     "null_p95": 0.0035191208445010443,
+     "variant": "区全域(被覆のある町丁目は人口を全部入れる=被覆率>0 を 1 に)",
+     "n_variants": 1,
+     "n_variants_detected": 1,
+     "seconds": 13.04,
+     "unresearched": true
     }
    },
    {
@@ -2297,6 +3155,19 @@
      "class": "i",
      "control": "10 m 標本格子 vs 5 m → 町丁目被覆率と住民のセル分布 JSD",
      "cost_seconds_estimate": 60
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "町丁目被覆率=10 m 標本格子(宣言)vs 5 m",
+     "metric": "住民の自宅セルの分布",
+     "jsd_bits": 1.5670444764125598e-05,
+     "null_p95": 0.0035191208445010443,
+     "variant": "5 m",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 12.9,
+     "unresearched": true
     }
    },
    {
@@ -2329,6 +3200,19 @@
      "class": "i",
      "control": "generic を住居に入れる vs 入れない → 住民のセル分布 JSD(S-W16-FLOOR と同じ形)",
      "cost_seconds_estimate": 60
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "住居系 kind に generic を入れる(宣言)vs 入れない",
+     "metric": "住民の自宅セルの分布",
+     "jsd_bits": 0.12106496886619919,
+     "null_p95": 0.0035191208445010443,
+     "variant": "入れない",
+     "n_variants": 1,
+     "n_variants_detected": 1,
+     "seconds": 13.62,
+     "unresearched": true
     }
    },
    {
@@ -2348,6 +3232,19 @@
      "class": "i",
      "control": "不詳を既知階級の比で按分 vs 不詳を別階級 → 住民の年齢分布 JSD",
      "cost_seconds_estimate": 60
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "年齢不詳を既知階級の比で按分(宣言)vs 不詳を別階級(区の不詳の割合 25,380/243,883)",
+     "metric": "住民の年齢階級(16+不詳)の分布",
+     "jsd_bits": 0.05409439818486839,
+     "null_p95": 0.00020707778613522103,
+     "variant": "不詳を別階級",
+     "n_variants": 1,
+     "n_variants_detected": 1,
+     "seconds": 0.16,
+     "unresearched": true
     }
    },
    {
@@ -2367,6 +3264,12 @@
      "class": "iii",
      "control": "結合 SRMSE の閾値 0.13 の流用=門の閾値",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "結合 SRMSE の閾値 0.13 の流用=門の閾値",
+     "unresearched": false
     }
    },
    {
@@ -2386,6 +3289,19 @@
      "class": "i",
      "control": "区の 15 歳以上の分布 vs ±5 歳ずらす(公的な従業者年齢表は未取得)→ 従業者の年齢分布 JSD",
      "cost_seconds_estimate": 60
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "従業者の年齢目標=区の 15 歳以上の分布(宣言)vs 1 階級(5 歳)上/下へずらす",
+     "metric": "通勤者(kind 0)の年齢階級の分布",
+     "jsd_bits": 0.07274731108000605,
+     "null_p95": 3.506673467333418e-05,
+     "variant": "−5 歳",
+     "n_variants": 2,
+     "n_variants_detected": 2,
+     "seconds": 27.33,
+     "unresearched": true
     }
    },
    {
@@ -2405,6 +3321,19 @@
      "class": "i",
      "control": "raking しない vs 区の年齢×性別へ raking → 来街者・通学者の年齢×性別の分布 JSD",
      "cost_seconds_estimate": 60
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "来街者・通学者の年齢×性別は raking しない(宣言)vs 区の年齢×性別の周辺へ raking(IPF・種=現在の表)",
+     "metric": "年齢階級×性別(16×2)の分布",
+     "jsd_bits": 0.7140937396388598,
+     "null_p95": 0.00015056584832311978,
+     "variant": "通学者(kind 5)",
+     "n_variants": 2,
+     "n_variants_detected": 2,
+     "seconds": 0.19,
+     "unresearched": true
     }
    },
    {
@@ -2424,6 +3353,19 @@
      "class": "i",
      "control": "PT 2018 の目的別到着比 vs ±10% → 通学者・業務・私事の体数の分布",
      "cost_seconds_estimate": 60
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "通学・業務・私事の体数=PT 2018 の目的別到着比(宣言)vs 1 つずつ ±10%",
+     "metric": "全体の種別(kind 0-8)の体数の分布",
+     "jsd_bits": 0.0003357464800627946,
+     "null_p95": 1.4293498506396632e-05,
+     "variant": "自宅－私事 ×0.9",
+     "n_variants": 6,
+     "n_variants_detected": 6,
+     "seconds": 81.36,
+     "unresearched": true
     }
    },
    {
@@ -2443,6 +3385,13 @@
      "class": "ii",
      "control": "指令 24 体・最頻セル vs 12/48 体 → 効きは出動の応答=ラン",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "unmeasurable",
+     "where": "—",
+     "needed_knob": "ラン側の指令の体数を変える口(または W16 の体数と W17 週次表の対応を保った再構築=新しい体の週次表が要る)",
+     "reason": "口が無い(src の変更・LLM の再生成が要る)=測らず、必要な口を報告",
+     "unresearched": false
     }
    },
    {
@@ -2462,6 +3411,19 @@
      "class": "i",
      "control": "学校 POI へ一様 vs 学校の床面積比 → 学生の学校セル分布 JSD",
      "cost_seconds_estimate": 60
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "学校セル=学校 POI へ一様(宣言)vs 学校 POI の建物の床面積(面積×階数)比(建物の無い POI は中央値)",
+     "metric": "通学者と学齢の住民の学校セルの分布",
+     "jsd_bits": 0.1973121464300371,
+     "null_p95": 0.0006851569404748959,
+     "variant": "床面積比",
+     "n_variants": 1,
+     "n_variants_detected": 1,
+     "seconds": 13.58,
+     "unresearched": true
     }
    },
    {
@@ -2481,6 +3443,19 @@
      "class": "i",
      "control": "多項抽選 vs 最大剰余の決定論 → 住民の就業区分の分布",
      "cost_seconds_estimate": 60
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "住民の就業区分=多項抽選(宣言)vs 最大剰余の決定論(件数を配ってから決定論の置換で割り当て)",
+     "metric": "住民(15-74 歳)の就業区分 4 値の分布",
+     "jsd_bits": 6.743898512964362e-06,
+     "null_p95": 8.388318727237946e-05,
+     "variant": "最大剰余",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 26.88,
+     "unresearched": true
     }
    },
    {
@@ -2500,6 +3475,19 @@
      "class": "i",
      "control": "到着側の重みの流用 vs 方面一様 → 域外へ通う住民の方面分布 JSD",
      "cost_seconds_estimate": 60
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "域外へ通う住民の方面=到着側『自宅－勤務』の重みを流用(宣言)vs 方面一様",
+     "metric": "域外へ通う住民の方面(外界ノード)の分布",
+     "jsd_bits": 0.1198954333279996,
+     "null_p95": 0.0004656242930442634,
+     "variant": "方面一様",
+     "n_variants": 1,
+     "n_variants_detected": 1,
+     "seconds": 13.37,
+     "unresearched": true
     }
    },
    {
@@ -2519,6 +3507,13 @@
      "class": "ii",
      "control": "建物内の連番切り分け vs 世帯構成の再現 → 世帯の効き(財布・同行)はラン",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "unmeasurable",
+     "where": "—",
+     "needed_knob": "世帯構成を再現する W16 の規則+切替口と、世帯の効き(財布・同行)を振るランの口",
+     "reason": "口が無い(src の変更・LLM の再生成が要る)=測らず、必要な口を報告",
+     "unresearched": false
     }
    },
    {
@@ -2538,6 +3533,12 @@
      "class": "iii",
      "control": "空セル 0% の分母=報告の定義(門)",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "空セル 0% の分母=報告の定義(門)",
+     "unresearched": false
     }
    },
    {
@@ -2557,6 +3558,17 @@
      "class": "ii",
      "control": "W17 v2(P2′ の型)vs v1 の型 → 週次表の再生成(LLM・I1 予算)+ラン",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "mock_run",
+     "jsd_bits": 0.015876394635557685,
+     "null_p95": 0.0021079667793534674,
+     "metric": "在圏(5 エリア×24 時)の JSD・帰無=同構成 seed 3 対の最大",
+     "control": "w17_schedule=v1(w17v1_backup)",
+     "final_same": false,
+     "reason": "既存の v1 資産(w17v1_backup・7 日の型)を --world で差し替えた。型だけでなく生成の回・プロンプト・raking も違う(交絡)",
+     "unresearched": true
     }
    },
    {
@@ -2576,6 +3588,12 @@
      "class": "iii",
      "control": "1 日モード=ユーザー決定(範囲の宣言=対照を置く対象ではない)",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "1 日モード=ユーザー決定(範囲の宣言=対照を置く対象ではない)",
+     "unresearched": false
     }
    },
    {
@@ -2608,6 +3626,19 @@
      "class": "i",
      "control": "時刻の整合修復 off vs on → 週次表の開始時刻の分布 JSD(応答の再取り込み)",
      "cost_seconds_estimate": 90
+    },
+    "d44": {
+     "status": "not_driving",
+     "where": "build",
+     "control": "時刻の整合修復 off(宣言)vs on(`--time-fact-repair`・応答の再取り込み)",
+     "metric": "週次表の (活動 × 開始時刻 15 分階級) の分布",
+     "jsd_bits": 2.4339159537944453e-07,
+     "null_p95": 0.00012424028048163555,
+     "variant": "修復 on",
+     "n_variants": 1,
+     "n_variants_detected": 0,
+     "seconds": 103.44,
+     "unresearched": true
     }
    },
    {
@@ -2627,6 +3658,19 @@
      "class": "i",
      "control": "第31/36表の逆関数法 vs 一様な勤務窓 → 勤務開始時刻の分布 JSD(再取り込み)",
      "cost_seconds_estimate": 90
+    },
+    "d44": {
+     "status": "needs_run",
+     "where": "build",
+     "control": "勤務窓=第31/36表の逆関数法(宣言)vs 表の支え(構成比>0 の 15 分ビン)の上で一様",
+     "metric": "LLM へ渡す事実行の出勤・帰宅時刻(15 分階級)の分布=入力側",
+     "jsd_bits": 0.27818719628128524,
+     "null_p95": 0.0001247418245777452,
+     "variant": "出勤時刻",
+     "n_variants": 2,
+     "n_variants_detected": 2,
+     "seconds": 17.56,
+     "unresearched": true
     }
    },
    {
@@ -2646,6 +3690,12 @@
      "class": "iii",
      "control": "M6 は 1 日ランで測れない=報告の範囲(対照を置く対象ではない)",
      "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "M6 は 1 日ランで測れない=報告の範囲(対照を置く対象ではない)",
+     "unresearched": false
     }
    },
    {
@@ -2660,7 +3710,13 @@
     "verdict": "undetermined",
     "note": "",
     "engine_reads": "not_read",
-    "engine_reads_via": "構築の検査・画像の段だけ"
+    "engine_reads_via": "構築の検査・画像の段だけ",
+    "d44": {
+     "status": "out_of_scope",
+     "where": "—",
+     "reason": "ランに届かない(出力を読むのは構築の検査・画像の段 W18〜W20 だけ=D-44 (c))。構築仕様書 §0-7 第311 追記の限定で感度試験の対象外",
+     "unresearched": false
+    }
    },
    {
     "key": "W18#2",
@@ -2674,7 +3730,13 @@
     "verdict": "undetermined",
     "note": "",
     "engine_reads": "not_read",
-    "engine_reads_via": "構築の検査・画像の段だけ"
+    "engine_reads_via": "構築の検査・画像の段だけ",
+    "d44": {
+     "status": "out_of_scope",
+     "where": "—",
+     "reason": "ランに届かない(出力を読むのは構築の検査・画像の段 W18〜W20 だけ=D-44 (c))。構築仕様書 §0-7 第311 追記の限定で感度試験の対象外",
+     "unresearched": false
+    }
    },
    {
     "key": "W18#3",
@@ -2688,7 +3750,13 @@
     "verdict": "undetermined",
     "note": "",
     "engine_reads": "not_read",
-    "engine_reads_via": "構築の検査・画像の段だけ"
+    "engine_reads_via": "構築の検査・画像の段だけ",
+    "d44": {
+     "status": "out_of_scope",
+     "where": "—",
+     "reason": "ランに届かない(出力を読むのは構築の検査・画像の段 W18〜W20 だけ=D-44 (c))。構築仕様書 §0-7 第311 追記の限定で感度試験の対象外",
+     "unresearched": false
+    }
    },
    {
     "key": "W18#4",
@@ -2702,7 +3770,13 @@
     "verdict": "undetermined",
     "note": "",
     "engine_reads": "not_read",
-    "engine_reads_via": "構築の検査・画像の段だけ"
+    "engine_reads_via": "構築の検査・画像の段だけ",
+    "d44": {
+     "status": "out_of_scope",
+     "where": "—",
+     "reason": "ランに届かない(出力を読むのは構築の検査・画像の段 W18〜W20 だけ=D-44 (c))。構築仕様書 §0-7 第311 追記の限定で感度試験の対象外",
+     "unresearched": false
+    }
    },
    {
     "key": "W18#5",
@@ -2716,7 +3790,13 @@
     "verdict": "undetermined",
     "note": "",
     "engine_reads": "not_read",
-    "engine_reads_via": "構築の検査・画像の段だけ"
+    "engine_reads_via": "構築の検査・画像の段だけ",
+    "d44": {
+     "status": "out_of_scope",
+     "where": "—",
+     "reason": "ランに届かない(出力を読むのは構築の検査・画像の段 W18〜W20 だけ=D-44 (c))。構築仕様書 §0-7 第311 追記の限定で感度試験の対象外",
+     "unresearched": false
+    }
    },
    {
     "key": "W19#1",
@@ -2730,7 +3810,13 @@
     "verdict": "undetermined",
     "note": "",
     "engine_reads": "not_read",
-    "engine_reads_via": "構築の検査・画像の段だけ"
+    "engine_reads_via": "構築の検査・画像の段だけ",
+    "d44": {
+     "status": "out_of_scope",
+     "where": "—",
+     "reason": "ランに届かない(出力を読むのは構築の検査・画像の段 W18〜W20 だけ=D-44 (c))。構築仕様書 §0-7 第311 追記の限定で感度試験の対象外",
+     "unresearched": false
+    }
    },
    {
     "key": "W19#2",
@@ -2744,7 +3830,13 @@
     "verdict": "undetermined",
     "note": "",
     "engine_reads": "not_read",
-    "engine_reads_via": "構築の検査・画像の段だけ"
+    "engine_reads_via": "構築の検査・画像の段だけ",
+    "d44": {
+     "status": "out_of_scope",
+     "where": "—",
+     "reason": "ランに届かない(出力を読むのは構築の検査・画像の段 W18〜W20 だけ=D-44 (c))。構築仕様書 §0-7 第311 追記の限定で感度試験の対象外",
+     "unresearched": false
+    }
    },
    {
     "key": "W20#1",
@@ -2758,7 +3850,13 @@
     "verdict": "undetermined",
     "note": "",
     "engine_reads": "not_read",
-    "engine_reads_via": "構築の検査・画像の段だけ"
+    "engine_reads_via": "構築の検査・画像の段だけ",
+    "d44": {
+     "status": "out_of_scope",
+     "where": "—",
+     "reason": "ランに届かない(出力を読むのは構築の検査・画像の段 W18〜W20 だけ=D-44 (c))。構築仕様書 §0-7 第311 追記の限定で感度試験の対象外",
+     "unresearched": false
+    }
    },
    {
     "key": "W20#2",
@@ -2772,7 +3870,13 @@
     "verdict": "undetermined",
     "note": "",
     "engine_reads": "not_read",
-    "engine_reads_via": "構築の検査・画像の段だけ"
+    "engine_reads_via": "構築の検査・画像の段だけ",
+    "d44": {
+     "status": "out_of_scope",
+     "where": "—",
+     "reason": "ランに届かない(出力を読むのは構築の検査・画像の段 W18〜W20 だけ=D-44 (c))。構築仕様書 §0-7 第311 追記の限定で感度試験の対象外",
+     "unresearched": false
+    }
    }
   ],
   "read_graph": {
@@ -2843,7 +3947,7 @@
       "W20"
      ],
      "engine_sites": [
-      "w2_cells.parquet ← perception/renderer.py:653",
+      "w2_cells.parquet ← perception/renderer.py:671",
       "w2_cells.parquet ← world/assets.py:91"
      ],
      "other_sites": []
@@ -2903,7 +4007,7 @@
      ],
      "engine_sites": [
       "w6_org.parquet ← economy/ledger.py:163",
-      "w6_poi.parquet ← perception/renderer.py:654",
+      "w6_poi.parquet ← perception/renderer.py:672",
       "w6_poi.parquet ← world/assets.py:94"
      ],
      "other_sites": []
@@ -2932,9 +4036,9 @@
       "W20"
      ],
      "engine_sites": [
-      "w8_t1_cell.parquet ← perception/renderer.py:656",
+      "w8_t1_cell.parquet ← perception/renderer.py:674",
       "w8_t1_cell.parquet ← world/assets.py:471",
-      "w8_targets.parquet ← perception/renderer.py:655",
+      "w8_targets.parquet ← perception/renderer.py:673",
       "w8_targets.parquet ← world/assets.py:471"
      ],
      "other_sites": []
@@ -2963,11 +4067,11 @@
       "W20"
      ],
      "engine_sites": [
-      "w10_noise_stage_day.npy ← perception/renderer.py:864",
+      "w10_noise_stage_day.npy ← perception/renderer.py:882",
       "w10_noise_stage_day.npy ← world/assets.py:553",
-      "w10_noise_stage_night.npy ← perception/renderer.py:864",
+      "w10_noise_stage_night.npy ← perception/renderer.py:882",
       "w10_noise_stage_night.npy ← world/assets.py:553",
-      "w10_street_points.parquet ← perception/renderer.py:657",
+      "w10_street_points.parquet ← perception/renderer.py:675",
       "w10_street_points.parquet ← world/assets.py:552"
      ],
      "other_sites": []
@@ -2985,7 +4089,7 @@
       "W20"
      ],
      "engine_sites": [
-      "w11_station_exits.parquet ← perception/renderer.py:658",
+      "w11_station_exits.parquet ← perception/renderer.py:676",
       "w11_station_exits.parquet ← world/assets.py:735",
       "w11_station_graph_nodes.parquet ← world/assets.py:734"
      ],
@@ -3016,7 +4120,7 @@
      ],
      "engine_sites": [
       "w13_weather_days.parquet ← world/assets.py:731",
-      "w13_weather_hourly.parquet ← perception/renderer.py:659",
+      "w13_weather_hourly.parquet ← perception/renderer.py:677",
       "w13_weather_hourly.parquet ← world/assets.py:732"
      ],
      "other_sites": []
@@ -3027,7 +4131,7 @@
      "via_path": [],
      "consumers": [],
      "engine_sites": [
-      "w14_signage.parquet ← perception/renderer.py:759"
+      "w14_signage.parquet ← perception/renderer.py:777"
      ],
      "other_sites": []
     },
@@ -3037,7 +4141,7 @@
      "via_path": [],
      "consumers": [],
      "engine_sites": [
-      "w15_cell_static.parquet ← perception/renderer.py:762"
+      "w15_cell_static.parquet ← perception/renderer.py:780"
      ],
      "other_sites": []
     },
@@ -3120,6 +4224,72 @@
     "W16": 60.0,
     "W17": 90.0
    }
+  },
+  "d44_summary": {
+   "rule_note": "D-44(第311・ユーザー決定 2026-09-30): (i) 構築の再計算で対照を当て、宣言 vs 対照の**入力側** JSD を片側規則で判定(帰無参照=同分布 2 標本の JSD 95% 点=c8lib.compare_counts・対照が複数の値を持つ行はどれか 1 つでも超えたら『ラン対照へ』)。(ii) ランが要る行は mock 5,000 体の対照ランで、既存の口(--world)で測れるものだけ測った。(iii) 対照を定義できない行は印だけ。読まない行(W18〜W20)は感度試験の対象外(ランに届かない・構築仕様書 §0-7 第311 追記)。**検出可能効果量の床(第200)**: 2 seed の感度試験は f≈1 未満の効果を検出できない=ラン対照で差が見えないことは「特大の駆動が無い」の証明にとどまる。**対照のずらし値・指標・階級幅は実装役の自前の構成=未リサーチ**。帰無参照の N は資産の要素数(点×面・POI×時など)で、大きい N では帰無参照がほぼ 0 になり決定論の差はほぼ全て検出される(保守側)。",
+   "source": "docs/bench/analysis/d44-controls-2026-09-30/(d44_results.json・mock_controls.json)",
+   "n_rows": 105,
+   "tally": {
+    "not_driving": 39,
+    "needs_run": 27,
+    "unmeasurable": 13,
+    "no_control": 17,
+    "out_of_scope": 9
+   },
+   "by_class": {
+    "i": {
+     "not_driving": 36,
+     "needs_run": 26,
+     "unmeasurable": 4,
+     "no_control": 0,
+     "out_of_scope": 0
+    },
+    "ii": {
+     "not_driving": 3,
+     "needs_run": 1,
+     "unmeasurable": 9,
+     "no_control": 0,
+     "out_of_scope": 0
+    },
+    "iii": {
+     "not_driving": 0,
+     "needs_run": 0,
+     "unmeasurable": 0,
+     "no_control": 17,
+     "out_of_scope": 0
+    },
+    "not_read": {
+     "not_driving": 0,
+     "needs_run": 0,
+     "unmeasurable": 0,
+     "no_control": 0,
+     "out_of_scope": 9
+    }
+   },
+   "cost": {
+    "base_rebuild_seconds": 32.8,
+    "stage_bundle_wall_seconds": {
+     "W1": 2.89,
+     "W2": 1.93,
+     "W3": 4.25,
+     "W5": 0.42,
+     "W6": 1.85,
+     "W7": 5.81,
+     "W8": 161.98,
+     "W9": 49.3,
+     "W10": 100.59,
+     "W11": 2.73,
+     "W12": 6.37,
+     "W13": 2.63,
+     "W16": 204.61,
+     "W17": 121.36
+    },
+    "total_bundle_wall_seconds": 666.72,
+    "estimate_note": "見込み(指示書 §6)= 再構築 ≈25 分(第308 の目安 1 行ずつ計 3,607 秒)",
+    "mock_wall_seconds": 182.1
+   },
+   "mock_seed_null_max": 0.0021079667793534674,
+   "selfcheck_all_ok": true
   }
  }
 }

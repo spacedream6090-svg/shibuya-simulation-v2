@@ -22,7 +22,16 @@ from typing import Iterable
 import blake3
 import numpy as np
 
-__all__ = ["derive_key", "philox", "stream", "MASK64"]
+__all__ = [
+    "derive_key",
+    "philox",
+    "stream",
+    "MASK64",
+    "RNG_SCHEMES",
+    "DEFAULT_RNG_SCHEME",
+    "check_rng_scheme",
+    "run_tick_key",
+]
 
 MASK64 = (1 << 64) - 1
 _SEP = "\x1f"  # ASCII unit separator
@@ -76,3 +85,33 @@ def philox(master_seed: int | str, domain: str, *counters: int) -> np.random.Phi
 def stream(master_seed: int | str, domain: str, *counters: int) -> np.random.Generator:
     """用途別の Generator。例: ``stream(seed, "agent.habit", agent_id, tick)``。"""
     return np.random.Generator(philox(master_seed, domain, *counters))
+
+
+# ---------------------------------------------------------------- 10c: 状態を持つ乱数の切替口
+#: ``--rng-scheme`` の値(先頭が既定)。``stateful`` = 今のまま(日の頭に作った Generator を tick ごとに
+#: 進める=再開には Generator の状態の保存が要る)/ ``counter`` = 毎回 (seed, 用途, 鍵) から作る
+#: (状態を持たない=再開で保存するものが無い)。対象は顕著行為の発生と出動の遅れの 2 本(10c・Q8)。
+RNG_SCHEMES: tuple[str, ...] = ("stateful", "counter")
+DEFAULT_RNG_SCHEME: str = RNG_SCHEMES[0]
+
+
+def check_rng_scheme(value: str) -> str:
+    """``--rng-scheme`` の値を検査して返す。"""
+    v = str(value)
+    if v not in RNG_SCHEMES:
+        raise ValueError(f"rng_scheme は {RNG_SCHEMES} のどれか(いま {value!r})")
+    return v
+
+
+def run_tick_key(day_key0: int, T: int, tick_seconds: int) -> int:
+    """counter の乱数の鍵に入れる時刻 = ``day_key0 × 1 日の tick 数 + T``。
+
+    ``T`` はランの通しの時刻(10a)。``day_key0`` はランの 0 日目の日の鍵(``SimCalendar.day_key(0)``:
+    ``real`` では 0=鍵は T そのもの、``day_index`` では ``day_index``=stateful が日の鍵に入れていた値)。
+    ``day_key(日) = day_key0 + 日`` なので、この値は「日の鍵 × 1 日の tick 数 + 日の中の tick」と同じ。
+    """
+    tpd = 86_400 // max(1, int(tick_seconds))
+    v = int(day_key0) * tpd + int(T)
+    if v < 0 or v > MASK64:
+        raise ValueError(f"鍵の時刻は 0..2^64-1(いま {v})")
+    return v

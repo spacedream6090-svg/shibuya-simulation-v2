@@ -1,0 +1,738 @@
+{
+ "source": "e-Stat statInfId=000032261363 第1-7表 総平均時間(主行動)10歳以上 全国",
+ "unit": "分/日",
+ "filter": "曜日=平日・男女=総数・健康状態=総数・年齢=総数",
+ "items": [
+  {
+   "code": "0",
+   "name": "総数",
+   "level": "総",
+   "minutes": "1440"
+  },
+  {
+   "code": "1",
+   "name": "有償労働",
+   "level": "大",
+   "minutes": "281"
+  },
+  {
+   "code": "11",
+   "name": "主な仕事関連",
+   "level": "中",
+   "minutes": "245"
+  },
+  {
+   "code": "111",
+   "name": "主な仕事",
+   "level": "小",
+   "minutes": "241"
+  },
+  {
+   "code": "112",
+   "name": "主な仕事中の移動",
+   "level": "小",
+   "minutes": "4"
+  },
+  {
+   "code": "12",
+   "name": "副業関連",
+   "level": "中",
+   "minutes": "1"
+  },
+  {
+   "code": "121",
+   "name": "副業",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "122",
+   "name": "副業中の移動",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "13",
+   "name": "通勤",
+   "level": "中",
+   "minutes": "32"
+  },
+  {
+   "code": "131",
+   "name": "通勤",
+   "level": "小",
+   "minutes": "32"
+  },
+  {
+   "code": "14",
+   "name": "その他の仕事関連",
+   "level": "中",
+   "minutes": "4"
+  },
+  {
+   "code": "141",
+   "name": "仕事中の休憩",
+   "level": "小",
+   "minutes": "3"
+  },
+  {
+   "code": "142",
+   "name": "求職活動",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "2",
+   "name": "無償労働",
+   "level": "大",
+   "minutes": "148"
+  },
+  {
+   "code": "21",
+   "name": "家事",
+   "level": "中",
+   "minutes": "105"
+  },
+  {
+   "code": "2101",
+   "name": "食事の管理",
+   "level": "小",
+   "minutes": "46"
+  },
+  {
+   "code": "2102",
+   "name": "菓子作り",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "2103",
+   "name": "園芸",
+   "level": "小",
+   "minutes": "7"
+  },
+  {
+   "code": "2104",
+   "name": "住まいの手入れ・整理",
+   "level": "小",
+   "minutes": "19"
+  },
+  {
+   "code": "2105",
+   "name": "衣類等の手入れ",
+   "level": "小",
+   "minutes": "16"
+  },
+  {
+   "code": "2106",
+   "name": "衣類等の作製",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "2107",
+   "name": "建築・修繕",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "2108",
+   "name": "乗り物の手入れ",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "2109",
+   "name": "世帯管理",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "2110",
+   "name": "子供(乳幼児以外)の介護・看護",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "2111",
+   "name": "家族(子供以外)の介護・看護",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "2112",
+   "name": "子供(乳幼児以外)の身の回りの世話",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "2113",
+   "name": "家族(子供以外)の身の回りの世話",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "2114",
+   "name": "その他の家事",
+   "level": "小",
+   "minutes": "11"
+  },
+  {
+   "code": "22",
+   "name": "育児",
+   "level": "中",
+   "minutes": "14"
+  },
+  {
+   "code": "221",
+   "name": "乳幼児の介護・看護",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "222",
+   "name": "乳幼児の身体の世話と監督",
+   "level": "小",
+   "minutes": "6"
+  },
+  {
+   "code": "223",
+   "name": "乳幼児と遊ぶ",
+   "level": "小",
+   "minutes": "2"
+  },
+  {
+   "code": "224",
+   "name": "子供の付き添い等",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "225",
+   "name": "子供(乳幼児以外)の教育",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "226",
+   "name": "子供の送迎移動",
+   "level": "小",
+   "minutes": "3"
+  },
+  {
+   "code": "227",
+   "name": "子供(乳幼児以外)と遊ぶ",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "23",
+   "name": "買い物・サービスの利用",
+   "level": "中",
+   "minutes": "19"
+  },
+  {
+   "code": "231",
+   "name": "買い物",
+   "level": "小",
+   "minutes": "18"
+  },
+  {
+   "code": "232",
+   "name": "公的サービスの利用",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "233",
+   "name": "商業的サービスの利用",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "24",
+   "name": "家事関連に伴う移動",
+   "level": "中",
+   "minutes": "8"
+  },
+  {
+   "code": "241",
+   "name": "家事関連に伴う移動",
+   "level": "小",
+   "minutes": "8"
+  },
+  {
+   "code": "25",
+   "name": "ボランティア活動関連",
+   "level": "中",
+   "minutes": "2"
+  },
+  {
+   "code": "251",
+   "name": "ボランティア活動",
+   "level": "小",
+   "minutes": "2"
+  },
+  {
+   "code": "252",
+   "name": "ボランティア活動に伴う移動",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "3",
+   "name": "学業，学習・自己啓発・訓練",
+   "level": "大",
+   "minutes": "65"
+  },
+  {
+   "code": "31",
+   "name": "学業",
+   "level": "中",
+   "minutes": "61"
+  },
+  {
+   "code": "311",
+   "name": "学校での授業・その他学校での行動",
+   "level": "小",
+   "minutes": "41"
+  },
+  {
+   "code": "312",
+   "name": "学校の宿題",
+   "level": "小",
+   "minutes": "9"
+  },
+  {
+   "code": "313",
+   "name": "家庭教師による勉強，学習塾・予備校での勉強等",
+   "level": "小",
+   "minutes": "2"
+  },
+  {
+   "code": "314",
+   "name": "学校での学習(学業)中の休憩",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "315",
+   "name": "通学",
+   "level": "小",
+   "minutes": "8"
+  },
+  {
+   "code": "32",
+   "name": "学習・自己啓発・訓練(学業以外)",
+   "level": "中",
+   "minutes": "4"
+  },
+  {
+   "code": "321",
+   "name": "学習・自己啓発・訓練(学業以外)",
+   "level": "小",
+   "minutes": "4"
+  },
+  {
+   "code": "4",
+   "name": "個人的ケア",
+   "level": "大",
+   "minutes": "664"
+  },
+  {
+   "code": "41",
+   "name": "睡眠関連",
+   "level": "中",
+   "minutes": "478"
+  },
+  {
+   "code": "411",
+   "name": "睡眠",
+   "level": "小",
+   "minutes": "475"
+  },
+  {
+   "code": "412",
+   "name": "うたたね",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "413",
+   "name": "療養",
+   "level": "小",
+   "minutes": "2"
+  },
+  {
+   "code": "42",
+   "name": "身体的ケア",
+   "level": "中",
+   "minutes": "77"
+  },
+  {
+   "code": "421",
+   "name": "受診",
+   "level": "小",
+   "minutes": "5"
+  },
+  {
+   "code": "422",
+   "name": "入浴(自分自身や家族等が行うもの)",
+   "level": "小",
+   "minutes": "31"
+  },
+  {
+   "code": "423",
+   "name": "身の回りの用事(自分自身や家族等が行うもの)",
+   "level": "小",
+   "minutes": "39"
+  },
+  {
+   "code": "424",
+   "name": "身の回りの用事(個人サービスの利用)",
+   "level": "小",
+   "minutes": "2"
+  },
+  {
+   "code": "425",
+   "name": "療養のための世話(自分自身や家族等が行うもの)",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "43",
+   "name": "食事",
+   "level": "中",
+   "minutes": "109"
+  },
+  {
+   "code": "431",
+   "name": "朝食",
+   "level": "小",
+   "minutes": "24"
+  },
+  {
+   "code": "432",
+   "name": "昼食",
+   "level": "小",
+   "minutes": "33"
+  },
+  {
+   "code": "433",
+   "name": "夕食",
+   "level": "小",
+   "minutes": "44"
+  },
+  {
+   "code": "434",
+   "name": "夜食",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "435",
+   "name": "軽飲食",
+   "level": "小",
+   "minutes": "8"
+  },
+  {
+   "code": "5",
+   "name": "自由時間",
+   "level": "大",
+   "minutes": "264"
+  },
+  {
+   "code": "51",
+   "name": "社会参加・宗教活動",
+   "level": "中",
+   "minutes": "1"
+  },
+  {
+   "code": "511",
+   "name": "社会参加活動",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "512",
+   "name": "礼拝・読経",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "52",
+   "name": "交際",
+   "level": "中",
+   "minutes": "11"
+  },
+  {
+   "code": "521",
+   "name": "冠婚葬祭",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "522",
+   "name": "人と会って行う交際・付き合い",
+   "level": "小",
+   "minutes": "4"
+  },
+  {
+   "code": "523",
+   "name": "家族とのコミュニケーション",
+   "level": "小",
+   "minutes": "4"
+  },
+  {
+   "code": "524",
+   "name": "電話による交際・付き合い",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "525",
+   "name": "電子メール等による交際・付き合い",
+   "level": "小",
+   "minutes": "2"
+  },
+  {
+   "code": "526",
+   "name": "手紙等による交際・付き合い",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "53",
+   "name": "教養・趣味・娯楽",
+   "level": "中",
+   "minutes": "50"
+  },
+  {
+   "code": "5301",
+   "name": "教養・娯楽",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "5302",
+   "name": "創作",
+   "level": "小",
+   "minutes": "3"
+  },
+  {
+   "code": "5303",
+   "name": "趣味としての菓子作り",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "5304",
+   "name": "成果物を得る趣味・娯楽",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "5305",
+   "name": "趣味としての園芸",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "5306",
+   "name": "ペットの世話",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "5307",
+   "name": "犬の散歩等",
+   "level": "小",
+   "minutes": "2"
+  },
+  {
+   "code": "5308",
+   "name": "趣味としての衣類等の作製",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "5309",
+   "name": "趣味",
+   "level": "小",
+   "minutes": "2"
+  },
+  {
+   "code": "5310",
+   "name": "コンピュータの使用",
+   "level": "小",
+   "minutes": "23"
+  },
+  {
+   "code": "5311",
+   "name": "ゲーム",
+   "level": "小",
+   "minutes": "15"
+  },
+  {
+   "code": "5312",
+   "name": "ドライブ",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "5313",
+   "name": "他に分類されない趣味・娯楽",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "54",
+   "name": "スポーツ",
+   "level": "中",
+   "minutes": "19"
+  },
+  {
+   "code": "541",
+   "name": "エアロビクス系スポーツ",
+   "level": "小",
+   "minutes": "13"
+  },
+  {
+   "code": "542",
+   "name": "球技",
+   "level": "小",
+   "minutes": "4"
+  },
+  {
+   "code": "543",
+   "name": "ウォーター系スポーツ",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "544",
+   "name": "成果物を得るスポーツ",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "545",
+   "name": "他に分類されないスポーツ",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "55",
+   "name": "マスメディア利用",
+   "level": "中",
+   "minutes": "161"
+  },
+  {
+   "code": "551",
+   "name": "読書",
+   "level": "小",
+   "minutes": "7"
+  },
+  {
+   "code": "552",
+   "name": "新聞・雑誌",
+   "level": "小",
+   "minutes": "8"
+  },
+  {
+   "code": "553",
+   "name": "テレビ",
+   "level": "小",
+   "minutes": "130"
+  },
+  {
+   "code": "554",
+   "name": "ビデオ・ＤＶＤ",
+   "level": "小",
+   "minutes": "14"
+  },
+  {
+   "code": "555",
+   "name": "ラジオ",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "556",
+   "name": "ＣＤ・音声ファイル",
+   "level": "小",
+   "minutes": "1"
+  },
+  {
+   "code": "56",
+   "name": "休養・くつろぎ",
+   "level": "中",
+   "minutes": "22"
+  },
+  {
+   "code": "561",
+   "name": "休養・くつろぎ",
+   "level": "小",
+   "minutes": "22"
+  },
+  {
+   "code": "6",
+   "name": "その他",
+   "level": "大",
+   "minutes": "18"
+  },
+  {
+   "code": "61",
+   "name": "移動",
+   "level": "中",
+   "minutes": "12"
+  },
+  {
+   "code": "611",
+   "name": "家事的趣味に伴う移動",
+   "level": "小",
+   "minutes": "0"
+  },
+  {
+   "code": "612",
+   "name": "その他の移動",
+   "level": "小",
+   "minutes": "11"
+  },
+  {
+   "code": "62",
+   "name": "調査・その他",
+   "level": "中",
+   "minutes": "6"
+  },
+  {
+   "code": "621",
+   "name": "社会生活基本調査に関連する行動",
+   "level": "小",
+   "minutes": "2"
+  },
+  {
+   "code": "622",
+   "name": "他に分類されない行動",
+   "level": "小",
+   "minutes": "5"
+  },
+  {
+   "code": "R1",
+   "name": "(再掲)無償労働(国際比較)",
+   "level": "中",
+   "minutes": "153"
+  }
+ ],
+ "population_10k": "11246",
+ "days_seen": [
+  "1_週全体",
+  "2_平日"
+ ],
+ "counts_by_level": {
+  "総": 1,
+  "大": 6,
+  "中": 23,
+  "小": 90
+ }
+}

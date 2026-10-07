@@ -1,0 +1,563 @@
+{
+ "script": "docs/research/r59/measure_navmesh.py",
+ "numba": "0.67.0",
+ "numpy": "2.5.3",
+ "self_check": {
+  "funnel_exact_when_corridor_unique": {
+   "strip": {
+    "funnel_len": 9.013878189,
+    "exact": 9.013878189,
+    "points": [
+     [
+      0.5,
+      0.3
+     ],
+     [
+      9.5,
+      0.8
+     ]
+    ]
+   },
+   "L_width1": {
+    "funnel_len": 17.029386366,
+    "exact": 17.029386366,
+    "points": [
+     [
+      0.5,
+      9.5
+     ],
+     [
+      1.0,
+      1.0
+     ],
+     [
+      9.5,
+      0.5
+     ]
+    ]
+   },
+   "U_width1": {
+    "funnel_len": 25.029386366,
+    "exact": 25.029386366,
+    "points": [
+     [
+      0.5,
+      9.5
+     ],
+     [
+      1.0,
+      1.0
+     ],
+     [
+      9.0,
+      1.0
+     ],
+     [
+      9.5,
+      9.5
+     ]
+    ]
+   }
+  },
+  "centroid_astar_gap_on_open_meshes": {
+   "open_square": {
+    "funnel_len": 12.222824,
+    "exact": 11.947385,
+    "ratio": 1.0231
+   },
+   "L_width2": {
+    "funnel_len": 14.142136,
+    "exact": 14.142136,
+    "ratio": 1.0
+   },
+   "U_open": {
+    "funnel_len": 16.656205,
+    "exact": 16.369317,
+    "ratio": 1.0175
+   }
+  },
+  "all_ok": true
+ },
+ "self_check_s": 0.95,
+ "sidewalk_2000": {
+  "function_codes": [
+   2000
+  ],
+  "n_unique_tri_before_weld": 18794,
+  "weld_sweep": {
+   "0.05": {
+    "n_tri": 18474,
+    "n_components": 343,
+    "largest_component_share": 0.0179,
+    "top5_component_sizes": [
+     330,
+     305,
+     278,
+     273,
+     255
+    ],
+    "n_edge_interior": 18159,
+    "n_edge_boundary": 19081,
+    "n_edge_nonmanifold": 7,
+    "adjacency_build_s": 0.02
+   },
+   "0.10": {
+    "n_tri": 17801,
+    "n_components": 293,
+    "largest_component_share": 0.0215,
+    "top5_component_sizes": [
+     382,
+     319,
+     292,
+     268,
+     252
+    ],
+    "n_edge_interior": 17535,
+    "n_edge_boundary": 18307,
+    "n_edge_nonmanifold": 8,
+    "adjacency_build_s": 0.02
+   },
+   "0.20": {
+    "n_tri": 16693,
+    "n_components": 252,
+    "largest_component_share": 0.0214,
+    "top5_component_sizes": [
+     357,
+     328,
+     304,
+     275,
+     262
+    ],
+    "n_edge_interior": 16468,
+    "n_edge_boundary": 17120,
+    "n_edge_nonmanifold": 7,
+    "adjacency_build_s": 0.02
+   },
+   "0.50": {
+    "n_tri": 14549,
+    "n_components": 237,
+    "largest_component_share": 0.0209,
+    "top5_component_sizes": [
+     304,
+     283,
+     264,
+     259,
+     238
+    ],
+    "n_edge_interior": 14338,
+    "n_edge_boundary": 14948,
+    "n_edge_nonmanifold": 7,
+    "adjacency_build_s": 0.02
+   }
+  },
+  "stats_weld_0.10": {
+   "n_tri": 17801,
+   "n_vert": 18266,
+   "area_m2": 103094.6,
+   "tri_area_m2_p5_p50_p95": [
+    0.05,
+    1.48,
+    25.715
+   ],
+   "edge_len_m_p5_p50_p95": [
+    0.141,
+    3.14,
+    11.748
+   ]
+  },
+  "mesh_build_s": 0.03,
+  "extent_m": [
+   -811.4,
+   -765.1,
+   801.6,
+   707.3
+  ],
+  "query_window_200m": {
+   "n_queries": 2000,
+   "n_candidate_tri": 147,
+   "component_size": 189,
+   "ms_p50_p95_max": [
+    0.0066,
+    0.0119,
+    0.0424
+   ],
+   "ms_mean": 0.007,
+   "expanded_p50_p95": [
+    37,
+    93
+   ],
+   "path_len_m_p50_p95": [
+    36.4,
+    93.6
+   ],
+   "detour_ratio_p50_p95": [
+    1.001,
+    1.162
+   ],
+   "waypoints_p50_p95": [
+    3,
+    6
+   ]
+  },
+  "query_full": {
+   "n_queries": 2000,
+   "n_candidate_tri": 382,
+   "component_size": 382,
+   "ms_p50_p95_max": [
+    0.0194,
+    0.0429,
+    0.2675
+   ],
+   "ms_mean": 0.021,
+   "expanded_p50_p95": [
+    159,
+    361
+   ],
+   "path_len_m_p50_p95": [
+    169.7,
+    412.9
+   ],
+   "detour_ratio_p50_p95": [
+    1.401,
+    5.503
+   ],
+   "waypoints_p50_p95": [
+    7,
+    23
+   ]
+  },
+  "deterministic_repeat_200": true,
+  "distance_field_one_target_ms_p50_max": [
+   0.01,
+   0.03
+  ],
+  "distance_field_bytes_per_target": {
+   "float32_dist": 71204,
+   "int32_nexthop": 71204,
+   "both": 142408
+  },
+  "all_pairs_nexthop_bytes_int32": 1267502404
+ },
+ "sidewalk_intersection_island": {
+  "function_codes": [
+   2000,
+   1020,
+   3000
+  ],
+  "n_unique_tri_before_weld": 29835,
+  "weld_sweep": {
+   "0.05": {
+    "n_tri": 29343,
+    "n_components": 342,
+    "largest_component_share": 0.54,
+    "top5_component_sizes": [
+     15846,
+     1216,
+     1160,
+     1131,
+     1054
+    ],
+    "n_edge_interior": 34997,
+    "n_edge_boundary": 17942,
+    "n_edge_nonmanifold": 25,
+    "adjacency_build_s": 0.06
+   },
+   "0.10": {
+    "n_tri": 28269,
+    "n_components": 300,
+    "largest_component_share": 0.6867,
+    "top5_component_sizes": [
+     19411,
+     1356,
+     1003,
+     914,
+     640
+    ],
+    "n_edge_interior": 33697,
+    "n_edge_boundary": 17297,
+    "n_edge_nonmanifold": 31,
+    "adjacency_build_s": 0.04
+   },
+   "0.20": {
+    "n_tri": 26471,
+    "n_components": 273,
+    "largest_component_share": 0.6623,
+    "top5_component_sizes": [
+     17531,
+     2568,
+     1000,
+     803,
+     703
+    ],
+    "n_edge_interior": 31454,
+    "n_edge_boundary": 16404,
+    "n_edge_nonmanifold": 27,
+    "adjacency_build_s": 0.04
+   },
+   "0.50": {
+    "n_tri": 23052,
+    "n_components": 269,
+    "largest_component_share": 0.8052,
+    "top5_component_sizes": [
+     18561,
+     688,
+     371,
+     299,
+     171
+    ],
+    "n_edge_interior": 27112,
+    "n_edge_boundary": 14835,
+    "n_edge_nonmanifold": 26,
+    "adjacency_build_s": 0.04
+   }
+  },
+  "stats_weld_0.10": {
+   "n_tri": 28269,
+   "n_vert": 22734,
+   "area_m2": 191128.9,
+   "tri_area_m2_p5_p50_p95": [
+    0.065,
+    1.73,
+    28.908
+   ],
+   "edge_len_m_p5_p50_p95": [
+    0.141,
+    3.489,
+    16.08
+   ]
+  },
+  "mesh_build_s": 0.05,
+  "extent_m": [
+   -811.4,
+   -776.1,
+   816.8,
+   707.3
+  ],
+  "query_window_200m": {
+   "n_queries": 2000,
+   "n_candidate_tri": 1001,
+   "component_size": 19411,
+   "ms_p50_p95_max": [
+    0.022,
+    0.0555,
+    0.1783
+   ],
+   "ms_mean": 0.0253,
+   "expanded_p50_p95": [
+    174,
+    500
+   ],
+   "path_len_m_p50_p95": [
+    83.4,
+    162.5
+   ],
+   "detour_ratio_p50_p95": [
+    1.109,
+    1.612
+   ],
+   "waypoints_p50_p95": [
+    6,
+    11
+   ]
+  },
+  "query_full": {
+   "n_queries": 2000,
+   "n_candidate_tri": 19411,
+   "component_size": 19411,
+   "ms_p50_p95_max": [
+    0.3269,
+    0.964,
+    2.6352
+   ],
+   "ms_mean": 0.3933,
+   "expanded_p50_p95": [
+    3536,
+    10023
+   ],
+   "path_len_m_p50_p95": [
+    782.1,
+    1381.5
+   ],
+   "detour_ratio_p50_p95": [
+    1.41,
+    2.409
+   ],
+   "waypoints_p50_p95": [
+    32,
+    70
+   ]
+  },
+  "deterministic_repeat_200": true,
+  "distance_field_one_target_ms_p50_max": [
+   1.44,
+   1.84
+  ],
+  "distance_field_bytes_per_target": {
+   "float32_dist": 113076,
+   "int32_nexthop": 113076,
+   "both": 226152
+  },
+  "all_pairs_nexthop_bytes_int32": 3196545444
+ },
+ "all_tran_1000_1020_2000_3000": {
+  "function_codes": [
+   1000,
+   1020,
+   2000,
+   3000
+  ],
+  "n_unique_tri_before_weld": 48566,
+  "weld_sweep": {
+   "0.05": {
+    "n_tri": 47717,
+    "n_components": 22,
+    "largest_component_share": 0.9907,
+    "top5_component_sizes": [
+     47271,
+     144,
+     71,
+     53,
+     36
+    ],
+    "n_edge_interior": 65441,
+    "n_edge_boundary": 12098,
+    "n_edge_nonmanifold": 50,
+    "adjacency_build_s": 0.11
+   },
+   "0.10": {
+    "n_tri": 45978,
+    "n_components": 11,
+    "largest_component_share": 0.998,
+    "top5_component_sizes": [
+     45887,
+     21,
+     19,
+     13,
+     12
+    ],
+    "n_edge_interior": 63139,
+    "n_edge_boundary": 11451,
+    "n_edge_nonmanifold": 59,
+    "adjacency_build_s": 0.11
+   },
+   "0.20": {
+    "n_tri": 43224,
+    "n_components": 5,
+    "largest_component_share": 0.9983,
+    "top5_component_sizes": [
+     43152,
+     34,
+     20,
+     13,
+     5
+    ],
+    "n_edge_interior": 59323,
+    "n_edge_boundary": 10832,
+    "n_edge_nonmanifold": 56,
+    "adjacency_build_s": 0.11
+   },
+   "0.50": {
+    "n_tri": 38147,
+    "n_components": 4,
+    "largest_component_share": 0.9997,
+    "top5_component_sizes": [
+     38137,
+     5,
+     4,
+     1
+    ],
+    "n_edge_interior": 52071,
+    "n_edge_boundary": 10108,
+    "n_edge_nonmanifold": 55,
+    "adjacency_build_s": 0.1
+   }
+  },
+  "stats_weld_0.10": {
+   "n_tri": 45978,
+   "n_vert": 28295,
+   "area_m2": 473018.6,
+   "tri_area_m2_p5_p50_p95": [
+    0.11,
+    2.605,
+    44.11
+   ],
+   "edge_len_m_p5_p50_p95": [
+    0.2,
+    4.623,
+    17.914
+   ]
+  },
+  "mesh_build_s": 0.11,
+  "extent_m": [
+   -811.4,
+   -776.1,
+   817.5,
+   707.3
+  ],
+  "query_window_200m": {
+   "n_queries": 2000,
+   "n_candidate_tri": 1333,
+   "component_size": 45887,
+   "ms_p50_p95_max": [
+    0.0295,
+    0.0881,
+    0.5357
+   ],
+   "ms_mean": 0.0365,
+   "expanded_p50_p95": [
+    225,
+    742
+   ],
+   "path_len_m_p50_p95": [
+    95.6,
+    189.1
+   ],
+   "detour_ratio_p50_p95": [
+    1.106,
+    1.487
+   ],
+   "waypoints_p50_p95": [
+    6,
+    12
+   ]
+  },
+  "query_full": {
+   "n_queries": 2000,
+   "n_candidate_tri": 45887,
+   "component_size": 45887,
+   "ms_p50_p95_max": [
+    0.8144,
+    2.8708,
+    9.4957
+   ],
+   "ms_mean": 1.0761,
+   "expanded_p50_p95": [
+    6018,
+    18779
+   ],
+   "path_len_m_p50_p95": [
+    799.7,
+    1470.9
+   ],
+   "detour_ratio_p50_p95": [
+    1.206,
+    1.66
+   ],
+   "waypoints_p50_p95": [
+    35,
+    71
+   ]
+  },
+  "deterministic_repeat_200": true,
+  "distance_field_one_target_ms_p50_max": [
+   5.37,
+   8.42
+  ],
+  "distance_field_bytes_per_target": {
+   "float32_dist": 183912,
+   "int32_nexthop": 183912,
+   "both": 367824
+  },
+  "all_pairs_nexthop_bytes_int32": 8455905936
+ }
+}

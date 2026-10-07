@@ -1,0 +1,42 @@
+{
+ "key": "W8#3",
+ "control": "遮蔽ラスタ 2.5 m(宣言)vs 1.25 m(視線の標本刻みは 2.5 m のまま)",
+ "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+ "variants": [
+  {
+   "name": "ラスタ 1.25 m: (セル,対象)→見えている視点数",
+   "jsd_bits": 0.006873946071767577,
+   "null_p95": 0.003298782022654004,
+   "detected": true,
+   "tvd": 0.03920554279232201,
+   "n_declared": 4943303.0,
+   "n_control": 5109770.0,
+   "n_bins": 46110,
+   "jaccard_pairs": 0.9189980481457385
+  },
+  {
+   "name": "ラスタ 1.25 m: 視点あたり可視数の分布(参考・w8_t1 はエンジンが読まない)",
+   "jsd_bits": 0.0010916756181368686,
+   "null_p95": 0.0001451758938727284,
+   "detected": true,
+   "tvd": 0.03136528262112735,
+   "n_declared": 356732.0,
+   "n_control": 356732.0,
+   "n_bins": 117,
+   "primary": false
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 1.5710075000533834,
+ "outputs_changed": [
+  "w8_t1.parquet",
+  "w8_t1_cell.parquet",
+  "w8_t2.npy",
+  "w8_targets.parquet"
+ ],
+ "notes": [],
+ "seconds_wall_row": 20.39,
+ "measured_at": "2026-09-30"
+}

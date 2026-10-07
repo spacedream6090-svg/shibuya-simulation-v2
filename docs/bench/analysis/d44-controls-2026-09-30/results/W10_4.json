@@ -1,0 +1,32 @@
+{
+ "key": "W10#4",
+ "control": "舗装=密粒(宣言)vs 排水性(騒音場の全辺)",
+ "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+ "variants": [
+  {
+   "name": "排水性",
+   "jsd_bits": 0.2534907920714275,
+   "null_p95": 0.001774917408448474,
+   "detected": true,
+   "tvd": 0.44514649652960764,
+   "n_declared": 713464.0,
+   "n_control": 713464.0,
+   "n_bins": 4168,
+   "share_points_stage_changed_day": 0.7746767881771189,
+   "share_points_stage_changed_night": 0.7804990861487054
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 10.879115400020964,
+ "outputs_changed": [
+  "w10_noise_day.npy",
+  "w10_noise_night.npy",
+  "w10_noise_stage_day.npy",
+  "w10_noise_stage_night.npy"
+ ],
+ "notes": [],
+ "seconds_wall_row": 13.22,
+ "measured_at": "2026-09-30"
+}

@@ -1,0 +1,683 @@
+{
+ "how": "合成世界・GPU 不要。process=過程だけ(25 セル・1,000 体・体は動かない)/ run_day=mock の 1 日(139 セル・2000 体)。率は既定 3.0/万/日の ×1000 と既定のまま。5 seed(1〜5)。",
+ "line_main": "主: tick ごとの件数をポアソン(期待値 = 率 × 体数 / 1,440)と比べ、合計の z と分散の指数の z が |z| ≤ 3.0(run_day の段は 1 日の合計の z だけ)",
+ "line_secondary": "副(記録だけ): 平均の差 ≤ 2.0 × seed 間の標準偏差(2 方式の大きい方)・分散の比 ≤ 10.0",
+ "process_x1000": {
+  "main_poisson_z": {
+   "stateful": {
+    "n_ticks": 7200,
+    "total": 1483,
+    "expected_total": 1500.0,
+    "mean_per_tick": 0.20597,
+    "var_per_tick": 0.20691,
+    "expected_per_tick": 0.20833,
+    "z_sum": -0.439,
+    "z_dispersion": 0.273,
+    "ok": true
+   },
+   "counter": {
+    "n_ticks": 7200,
+    "total": 1486,
+    "expected_total": 1500.0,
+    "mean_per_tick": 0.20639,
+    "var_per_tick": 0.20188,
+    "expected_per_tick": 0.20833,
+    "z_sum": -0.361,
+    "z_dispersion": -1.312,
+    "ok": true
+   }
+  },
+  "secondary_5seed": {
+   "collapse": {
+    "stateful": [
+     299.0,
+     316.0,
+     287.0,
+     295.0,
+     286.0
+    ],
+    "counter": [
+     330.0,
+     285.0,
+     273.0,
+     294.0,
+     304.0
+    ],
+    "mean_stateful": 296.6,
+    "mean_counter": 297.2,
+    "var_stateful": 147.3,
+    "var_counter": 466.7,
+    "mean_gap": 0.6,
+    "gap_line": 43.206,
+    "var_ratio": 3.168,
+    "var_ratio_line": 10.0,
+    "ok": true
+   },
+   "dispatched": {
+    "stateful": [
+     299.0,
+     316.0,
+     287.0,
+     295.0,
+     286.0
+    ],
+    "counter": [
+     330.0,
+     285.0,
+     273.0,
+     294.0,
+     304.0
+    ],
+    "mean_stateful": 296.6,
+    "mean_counter": 297.2,
+    "var_stateful": 147.3,
+    "var_counter": 466.7,
+    "mean_gap": 0.6,
+    "gap_line": 43.206,
+    "var_ratio": 3.168,
+    "var_ratio_line": 10.0,
+    "ok": true
+   },
+   "mean_delay_min": {
+    "stateful": [
+     8.906354515050166,
+     8.784810126582279,
+     9.425087108013937,
+     8.623728813559323,
+     9.339160839160838
+    ],
+    "counter": [
+     9.36969696969697,
+     9.115789473684211,
+     8.714285714285714,
+     9.598639455782314,
+     9.167763157894736
+    ],
+    "mean_stateful": 9.016,
+    "mean_counter": 9.193,
+    "var_stateful": 0.123,
+    "var_counter": 0.108,
+    "mean_gap": 0.177,
+    "gap_line": 0.701,
+    "var_ratio": 1.138,
+    "var_ratio_line": 10.0,
+    "ok": true
+   }
+  }
+ },
+ "run_day_x1000": {
+  "main_poisson_z_total": {
+   "stateful": {
+    "total": 3004,
+    "expected_total": 3000.0,
+    "z_sum": 0.073,
+    "ok": true
+   },
+   "counter": {
+    "total": 2963,
+    "expected_total": 3000.0,
+    "z_sum": -0.676,
+    "ok": true
+   }
+  },
+  "rows": {
+   "stateful": [
+    {
+     "seed": 1,
+     "salient_events": 1206,
+     "collapse": 605,
+     "dispatches": 605,
+     "arrived": 601,
+     "mean_delay_min": 8.828,
+     "noticed": 18491,
+     "calls": 18591,
+     "final": "50957b7d9846ccf7",
+     "wall_s": 10.8
+    },
+    {
+     "seed": 2,
+     "salient_events": 1241,
+     "collapse": 622,
+     "dispatches": 622,
+     "arrived": 619,
+     "mean_delay_min": 8.981,
+     "noticed": 19215,
+     "calls": 18511,
+     "final": "f2e2aa5b944fba51",
+     "wall_s": 12.4
+    },
+    {
+     "seed": 3,
+     "salient_events": 1186,
+     "collapse": 595,
+     "dispatches": 595,
+     "arrived": 591,
+     "mean_delay_min": 9.24,
+     "noticed": 17797,
+     "calls": 17876,
+     "final": "27e6ffe5f6e7bffa",
+     "wall_s": 12.1
+    },
+    {
+     "seed": 4,
+     "salient_events": 1192,
+     "collapse": 599,
+     "dispatches": 599,
+     "arrived": 593,
+     "mean_delay_min": 8.873,
+     "noticed": 18186,
+     "calls": 18193,
+     "final": "8decbb7d752ad557",
+     "wall_s": 11.8
+    },
+    {
+     "seed": 5,
+     "salient_events": 1162,
+     "collapse": 583,
+     "dispatches": 583,
+     "arrived": 579,
+     "mean_delay_min": 9.199,
+     "noticed": 17355,
+     "calls": 18506,
+     "final": "bd7b35903ed7151d",
+     "wall_s": 10.6
+    }
+   ],
+   "counter": [
+    {
+     "seed": 1,
+     "salient_events": 1285,
+     "collapse": 643,
+     "dispatches": 643,
+     "arrived": 642,
+     "mean_delay_min": 9.204,
+     "noticed": 19848,
+     "calls": 17909,
+     "final": "63d848d3405f2061",
+     "wall_s": 10.7
+    },
+    {
+     "seed": 2,
+     "salient_events": 1126,
+     "collapse": 566,
+     "dispatches": 566,
+     "arrived": 560,
+     "mean_delay_min": 8.86,
+     "noticed": 17004,
+     "calls": 18148,
+     "final": "38841dbdbb1d685e",
+     "wall_s": 10.7
+    },
+    {
+     "seed": 3,
+     "salient_events": 1151,
+     "collapse": 576,
+     "dispatches": 576,
+     "arrived": 575,
+     "mean_delay_min": 9.267,
+     "noticed": 17236,
+     "calls": 17981,
+     "final": "ea7f9f46b906ac47",
+     "wall_s": 11.3
+    },
+    {
+     "seed": 4,
+     "salient_events": 1166,
+     "collapse": 585,
+     "dispatches": 585,
+     "arrived": 581,
+     "mean_delay_min": 9.28,
+     "noticed": 17747,
+     "calls": 18379,
+     "final": "4febc1cedb53bba0",
+     "wall_s": 11.9
+    },
+    {
+     "seed": 5,
+     "salient_events": 1184,
+     "collapse": 593,
+     "dispatches": 593,
+     "arrived": 591,
+     "mean_delay_min": 9.238,
+     "noticed": 18049,
+     "calls": 18089,
+     "final": "fe5a203a146d1760",
+     "wall_s": 11.0
+    }
+   ]
+  },
+  "judge": {
+   "collapse": {
+    "stateful": [
+     605.0,
+     622.0,
+     595.0,
+     599.0,
+     583.0
+    ],
+    "counter": [
+     643.0,
+     566.0,
+     576.0,
+     585.0,
+     593.0
+    ],
+    "mean_stateful": 600.8,
+    "mean_counter": 592.6,
+    "var_stateful": 205.2,
+    "var_counter": 895.3,
+    "mean_gap": 8.2,
+    "gap_line": 59.843,
+    "var_ratio": 4.363,
+    "var_ratio_line": 10.0,
+    "ok": true
+   },
+   "dispatches": {
+    "stateful": [
+     605.0,
+     622.0,
+     595.0,
+     599.0,
+     583.0
+    ],
+    "counter": [
+     643.0,
+     566.0,
+     576.0,
+     585.0,
+     593.0
+    ],
+    "mean_stateful": 600.8,
+    "mean_counter": 592.6,
+    "var_stateful": 205.2,
+    "var_counter": 895.3,
+    "mean_gap": 8.2,
+    "gap_line": 59.843,
+    "var_ratio": 4.363,
+    "var_ratio_line": 10.0,
+    "ok": true
+   },
+   "salient_events": {
+    "stateful": [
+     1206.0,
+     1241.0,
+     1186.0,
+     1192.0,
+     1162.0
+    ],
+    "counter": [
+     1285.0,
+     1126.0,
+     1151.0,
+     1166.0,
+     1184.0
+    ],
+    "mean_stateful": 1197.4,
+    "mean_counter": 1182.4,
+    "var_stateful": 846.8,
+    "var_counter": 3741.3,
+    "mean_gap": 15.0,
+    "gap_line": 122.332,
+    "var_ratio": 4.418,
+    "var_ratio_line": 10.0,
+    "ok": true
+   },
+   "noticed": {
+    "stateful": [
+     18491.0,
+     19215.0,
+     17797.0,
+     18186.0,
+     17355.0
+    ],
+    "counter": [
+     19848.0,
+     17004.0,
+     17236.0,
+     17747.0,
+     18049.0
+    ],
+    "mean_stateful": 18208.8,
+    "mean_counter": 17976.8,
+    "var_stateful": 497787.2,
+    "var_counter": 1263633.7,
+    "mean_gap": 232.0,
+    "gap_line": 2248.229,
+    "var_ratio": 2.539,
+    "var_ratio_line": 10.0,
+    "ok": true
+   },
+   "mean_delay_min": {
+    "stateful": [
+     8.828,
+     8.981,
+     9.24,
+     8.873,
+     9.199
+    ],
+    "counter": [
+     9.204,
+     8.86,
+     9.267,
+     9.28,
+     9.238
+    ],
+    "mean_stateful": 9.024,
+    "mean_counter": 9.17,
+    "var_stateful": 0.035,
+    "var_counter": 0.031,
+    "mean_gap": 0.146,
+    "gap_line": 0.375,
+    "var_ratio": 1.137,
+    "var_ratio_line": 10.0,
+    "ok": true
+   },
+   "calls": {
+    "stateful": [
+     18591.0,
+     18511.0,
+     17876.0,
+     18193.0,
+     18506.0
+    ],
+    "counter": [
+     17909.0,
+     18148.0,
+     17981.0,
+     18379.0,
+     18089.0
+    ],
+    "mean_stateful": 18335.4,
+    "mean_counter": 18101.2,
+    "var_stateful": 89149.3,
+    "var_counter": 32725.2,
+    "mean_gap": 234.2,
+    "gap_line": 597.158,
+    "var_ratio": 2.724,
+    "var_ratio_line": 10.0,
+    "ok": true
+   }
+  }
+ },
+ "run_day_default_rate": {
+  "main_poisson_z_total": {},
+  "rows": {
+   "stateful": [
+    {
+     "seed": 1,
+     "salient_events": 0,
+     "collapse": 0,
+     "dispatches": 0,
+     "arrived": 0,
+     "mean_delay_min": 0.0,
+     "noticed": 0,
+     "calls": 13091,
+     "final": "7efe47ef04677e4f",
+     "wall_s": 7.7
+    },
+    {
+     "seed": 2,
+     "salient_events": 0,
+     "collapse": 0,
+     "dispatches": 0,
+     "arrived": 0,
+     "mean_delay_min": 0.0,
+     "noticed": 0,
+     "calls": 13239,
+     "final": "1b7cf072691bfe4e",
+     "wall_s": 7.7
+    },
+    {
+     "seed": 3,
+     "salient_events": 2,
+     "collapse": 1,
+     "dispatches": 1,
+     "arrived": 1,
+     "mean_delay_min": 6.0,
+     "noticed": 36,
+     "calls": 13223,
+     "final": "798bf02515932392",
+     "wall_s": 8.5
+    },
+    {
+     "seed": 4,
+     "salient_events": 0,
+     "collapse": 0,
+     "dispatches": 0,
+     "arrived": 0,
+     "mean_delay_min": 0.0,
+     "noticed": 0,
+     "calls": 13137,
+     "final": "9c4df1de1e3e9064",
+     "wall_s": 8.7
+    },
+    {
+     "seed": 5,
+     "salient_events": 0,
+     "collapse": 0,
+     "dispatches": 0,
+     "arrived": 0,
+     "mean_delay_min": 0.0,
+     "noticed": 0,
+     "calls": 13177,
+     "final": "9bd9798f1cc067fa",
+     "wall_s": 8.6
+    }
+   ],
+   "counter": [
+    {
+     "seed": 1,
+     "salient_events": 2,
+     "collapse": 1,
+     "dispatches": 1,
+     "arrived": 1,
+     "mean_delay_min": 6.0,
+     "noticed": 30,
+     "calls": 13178,
+     "final": "65bcdf130257f8d3",
+     "wall_s": 8.9
+    },
+    {
+     "seed": 2,
+     "salient_events": 0,
+     "collapse": 0,
+     "dispatches": 0,
+     "arrived": 0,
+     "mean_delay_min": 0.0,
+     "noticed": 0,
+     "calls": 13239,
+     "final": "1b7cf072691bfe4e",
+     "wall_s": 8.9
+    },
+    {
+     "seed": 3,
+     "salient_events": 0,
+     "collapse": 0,
+     "dispatches": 0,
+     "arrived": 0,
+     "mean_delay_min": 0.0,
+     "noticed": 0,
+     "calls": 13195,
+     "final": "06508f99c83ca879",
+     "wall_s": 9.0
+    },
+    {
+     "seed": 4,
+     "salient_events": 4,
+     "collapse": 2,
+     "dispatches": 2,
+     "arrived": 2,
+     "mean_delay_min": 7.0,
+     "noticed": 54,
+     "calls": 13143,
+     "final": "675db005b07cd707",
+     "wall_s": 9.1
+    },
+    {
+     "seed": 5,
+     "salient_events": 0,
+     "collapse": 0,
+     "dispatches": 0,
+     "arrived": 0,
+     "mean_delay_min": 0.0,
+     "noticed": 0,
+     "calls": 13177,
+     "final": "9bd9798f1cc067fa",
+     "wall_s": 9.1
+    }
+   ]
+  },
+  "judge": {
+   "collapse": {
+    "stateful": [
+     0.0,
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    "counter": [
+     1.0,
+     0.0,
+     0.0,
+     2.0,
+     0.0
+    ],
+    "mean_stateful": 0.2,
+    "mean_counter": 0.6,
+    "var_stateful": 0.2,
+    "var_counter": 0.8,
+    "mean_gap": 0.4,
+    "gap_line": 1.789,
+    "var_ratio": 4.0,
+    "var_ratio_line": 10.0,
+    "ok": true
+   },
+   "dispatches": {
+    "stateful": [
+     0.0,
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    "counter": [
+     1.0,
+     0.0,
+     0.0,
+     2.0,
+     0.0
+    ],
+    "mean_stateful": 0.2,
+    "mean_counter": 0.6,
+    "var_stateful": 0.2,
+    "var_counter": 0.8,
+    "mean_gap": 0.4,
+    "gap_line": 1.789,
+    "var_ratio": 4.0,
+    "var_ratio_line": 10.0,
+    "ok": true
+   },
+   "salient_events": {
+    "stateful": [
+     0.0,
+     0.0,
+     2.0,
+     0.0,
+     0.0
+    ],
+    "counter": [
+     2.0,
+     0.0,
+     0.0,
+     4.0,
+     0.0
+    ],
+    "mean_stateful": 0.4,
+    "mean_counter": 1.2,
+    "var_stateful": 0.8,
+    "var_counter": 3.2,
+    "mean_gap": 0.8,
+    "gap_line": 3.578,
+    "var_ratio": 4.0,
+    "var_ratio_line": 10.0,
+    "ok": true
+   },
+   "noticed": {
+    "stateful": [
+     0.0,
+     0.0,
+     36.0,
+     0.0,
+     0.0
+    ],
+    "counter": [
+     30.0,
+     0.0,
+     0.0,
+     54.0,
+     0.0
+    ],
+    "mean_stateful": 7.2,
+    "mean_counter": 16.8,
+    "var_stateful": 259.2,
+    "var_counter": 601.2,
+    "mean_gap": 9.6,
+    "gap_line": 49.039,
+    "var_ratio": 2.319,
+    "var_ratio_line": 10.0,
+    "ok": true
+   },
+   "mean_delay_min": {
+    "stateful": [
+     0.0,
+     0.0,
+     6.0,
+     0.0,
+     0.0
+    ],
+    "counter": [
+     6.0,
+     0.0,
+     0.0,
+     7.0,
+     0.0
+    ],
+    "mean_stateful": 1.2,
+    "mean_counter": 2.6,
+    "var_stateful": 7.2,
+    "var_counter": 12.8,
+    "mean_gap": 1.4,
+    "gap_line": 7.155,
+    "var_ratio": 1.778,
+    "var_ratio_line": 10.0,
+    "ok": true
+   },
+   "calls": {
+    "stateful": [
+     13091.0,
+     13239.0,
+     13223.0,
+     13137.0,
+     13177.0
+    ],
+    "counter": [
+     13178.0,
+     13239.0,
+     13195.0,
+     13143.0,
+     13177.0
+    ],
+    "mean_stateful": 13173.4,
+    "mean_counter": 13186.4,
+    "var_stateful": 3722.8,
+    "var_counter": 1220.8,
+    "mean_gap": 13.0,
+    "gap_line": 122.03,
+    "var_ratio": 3.049,
+    "var_ratio_line": 10.0,
+    "ok": true
+   }
+  }
+ }
+}

@@ -1,0 +1,213 @@
+{
+ "schema": "shibuya.bench/10d/resume-check/1",
+ "config": "v3_mem_rel",
+ "agents": 5000,
+ "seed": 1,
+ "sim_days": 2,
+ "checkpoint_every": 1,
+ "ledger_version": "state-ledger/10d",
+ "straight": {
+  "final": "2139ee8bda5f32a6",
+  "llm_calls": 148347,
+  "daily": [
+   {
+    "day": 0,
+    "end_T": 1440,
+    "eod": {
+     "behavior_hash": "4714a6699eb67258d926a77912f3e054f6dcb49aecef26ed7be9831557b3b5d3",
+     "full_hash": "5c5c8955ee772a07152c6b8bf0e38e5ceab2cf7c64049b5a492a20e3974d341a",
+     "full_external_bytes": 4011755
+    },
+    "census_pass": true,
+    "census_row": {
+     "day": 0,
+     "residual": 0,
+     "money_supply": 425210555,
+     "faucet_total": 425868428,
+     "sink_total": 657873,
+     "n_transfers": 20536,
+     "hoard_entities": 0,
+     "hoard_amount": 0,
+     "net_worth_ok": true,
+     "flow_ok": true,
+     "residual_ok": true,
+     "ex_nihilo_ok": true,
+     "goods_residual_units": 0,
+     "goods_balanced": true,
+     "waste_g": 1351100.0,
+     "shelf_units": 142222,
+     "gate_ok": true
+    },
+    "money": {
+     "households": 131344108,
+     "money_supply": 425210555
+    },
+    "bodies": {
+     "n": 5000,
+     "in_area": 967,
+     "riding": 8,
+     "outside": 4025,
+     "other": 0
+    }
+   },
+   {
+    "day": 1,
+    "end_T": 2880,
+    "eod": {
+     "behavior_hash": "016bef723c8e734c50b4660741394d53d59fbd1a5357bbb523c26b7be61dfd35",
+     "full_hash": "787579f03276923060ad613efed62b5aca126d5e2ac38ca8c59e69acee9980a0",
+     "full_external_bytes": 4408564
+    },
+    "census_pass": true,
+    "census_row": {
+     "day": 1,
+     "residual": 0,
+     "money_supply": 424289289,
+     "faucet_total": 0,
+     "sink_total": 921266,
+     "n_transfers": 30959,
+     "hoard_entities": 0,
+     "hoard_amount": 0,
+     "net_worth_ok": true,
+     "flow_ok": true,
+     "residual_ok": true,
+     "ex_nihilo_ok": true,
+     "goods_residual_units": 0,
+     "goods_balanced": true,
+     "waste_g": 1878400.0,
+     "shelf_units": 137614,
+     "gate_ok": true
+    },
+    "money": {
+     "households": 125418048,
+     "money_supply": 424289289
+    },
+    "bodies": {
+     "n": 5000,
+     "in_area": 939,
+     "riding": 0,
+     "outside": 4061,
+     "other": 0
+    }
+   }
+  ],
+  "day_heads": [
+   {
+    "day": 1,
+    "T": 1440,
+    "money": {
+     "households": 131344108,
+     "money_supply": 425210555
+    },
+    "bodies": {
+     "n": 5000,
+     "in_area": 967,
+     "riding": 8,
+     "outside": 4025,
+     "other": 0
+    }
+   }
+  ],
+  "state_files": [],
+  "wall_s": 239.5
+ },
+ "stops": [
+  {
+   "stop_T": 750,
+   "fresh_process": false,
+   "state_file": "state-T00000750.pkl",
+   "state_bytes": 21734193,
+   "state_full_hash": "42f5b2e79edc257e",
+   "calls": {
+    "straight": 148347,
+    "stop+resume": 148347
+   },
+   "compare": {
+    "from_T": 750,
+    "checkpoints_compared": 2130,
+    "first_mismatch": null,
+    "mismatched_checkpoints": 0,
+    "calls_ticks_compared": 2130,
+    "first_calls_mismatch": null,
+    "calls_ticks_missing": [],
+    "daily": [
+     {
+      "day": 0,
+      "eod_full_same": true,
+      "eod_behavior_same": true,
+      "census_pass": [
+       true,
+       true
+      ],
+      "census_row_differs": []
+     },
+     {
+      "day": 1,
+      "eod_full_same": true,
+      "eod_behavior_same": true,
+      "census_pass": [
+       true,
+       true
+      ],
+      "census_row_differs": []
+     }
+    ],
+    "tape": {
+     "rows_straight": 116109,
+     "rows_segments": 116109,
+     "rows_differ": 0,
+     "first_differ": null
+    },
+    "ok": true
+   },
+   "wall_s": {
+    "stop": 41.9,
+    "resume": 196.4
+   }
+  },
+  {
+   "stop_T": 1440,
+   "fresh_process": false,
+   "state_file": "state-T00001440.pkl",
+   "state_bytes": 21867013,
+   "state_full_hash": "5c5c8955ee772a07",
+   "calls": {
+    "straight": 148347,
+    "stop+resume": 148347
+   },
+   "compare": {
+    "from_T": 1440,
+    "checkpoints_compared": 1440,
+    "first_mismatch": null,
+    "mismatched_checkpoints": 0,
+    "calls_ticks_compared": 1440,
+    "first_calls_mismatch": null,
+    "calls_ticks_missing": [],
+    "daily": [
+     {
+      "day": 1,
+      "eod_full_same": true,
+      "eod_behavior_same": true,
+      "census_pass": [
+       true,
+       true
+      ],
+      "census_row_differs": []
+     }
+    ],
+    "tape": {
+     "rows_straight": 75417,
+     "rows_segments": 75417,
+     "rows_differ": 0,
+     "first_differ": null
+    },
+    "ok": true
+   },
+   "wall_s": {
+    "stop": 99.1,
+    "resume": 135.1
+   }
+  }
+ ],
+ "all_ok": true
+}

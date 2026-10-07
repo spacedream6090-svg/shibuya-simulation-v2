@@ -1,0 +1,24 @@
+{
+ "key": "W7#5",
+ "control": "love_hotel=上限なし(宣言)vs 店舗型性風俗の窓 0:00-6:00(旅館業なら窓なし=宣言と同じ)",
+ "metric": "営業中 POI×時(168 時×{営業中,休業})の分布",
+ "variants": [
+  {
+   "name": "店舗型性風俗の窓",
+   "jsd_bits": 0.00024275804660263628,
+   "null_p95": 0.00034936061079824597,
+   "detected": false,
+   "tvd": 0.00673940949935815,
+   "n_declared": 392616.0,
+   "n_control": 392616.0,
+   "n_bins": 336,
+   "n_poi_changed": 63
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.11481319996528327,
+ "seconds_wall_row": 0.72,
+ "measured_at": "2026-09-30"
+}

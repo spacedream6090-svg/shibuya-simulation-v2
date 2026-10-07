@@ -1,0 +1,33 @@
+{
+ "key": "W10#9",
+ "control": "街路格子 ピッチ 2.5 m(宣言)vs 5 m(バッファ 8 m は同じ)",
+ "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+ "variants": [
+  {
+   "name": "ピッチ 5 m",
+   "jsd_bits": 0.0007234472517400946,
+   "null_p95": 0.001774917408448474,
+   "detected": false,
+   "tvd": 0.017710457492982744,
+   "n_declared": 713464.0,
+   "n_control": 178320.0,
+   "n_bins": 4168
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 3.8241410999326035,
+ "outputs_changed": [
+  "w10_noise_day.npy",
+  "w10_noise_night.npy",
+  "w10_noise_stage_day.npy",
+  "w10_noise_stage_night.npy",
+  "w10_street_points.parquet"
+ ],
+ "notes": [
+  "点の集合が変わるので、W8/W9 の視点も下流で変わる(本行の指標は W10 の騒音段階だけ)"
+ ],
+ "seconds_wall_row": 6.1,
+ "measured_at": "2026-09-30"
+}

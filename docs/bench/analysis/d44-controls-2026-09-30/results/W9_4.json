@@ -1,0 +1,33 @@
+{
+ "key": "W9#4",
+ "control": "大気差・尾根越し遮蔽なし(宣言)vs 大気差あり(太陽高度に大気差を足す)",
+ "metric": "影の面 → (セル × 時 × {日陰, 日向}) の点・面の数の分布",
+ "variants": [
+  {
+   "name": "大気差あり(太陽高度に大気差を足す)",
+   "jsd_bits": 3.891796096761138e-05,
+   "null_p95": 6.620697166807141e-05,
+   "detected": false,
+   "tvd": 0.0007787514312020103,
+   "n_declared": 102738816.0,
+   "n_control": 102738816.0,
+   "n_bins": 25008,
+   "shadow_share_declared": 0.7143917640631561,
+   "shadow_share_control": 0.713613012631954
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 1.0130205999594182,
+ "outputs_changed": [
+  "w9_shadow_2026-07-28.npy",
+  "w9_shadow_planes.parquet"
+ ],
+ "notes": [
+  "大気差の式は NOAA 太陽位置計算表の式を記憶から書いた(一次未確認=未リサーチ)"
+ ],
+ "partial": "尾根越し遮蔽(ラスタの外の遠方地形)は遠方の DEM がリポに無く測れない",
+ "seconds_wall_row": 9.4,
+ "measured_at": "2026-09-30"
+}

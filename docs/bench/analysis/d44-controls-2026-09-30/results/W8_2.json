@@ -1,0 +1,63 @@
+{
+ "key": "W8#2",
+ "control": "最大視程 150 m(宣言)vs 100 m / 200 m",
+ "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+ "variants": [
+  {
+   "name": "視程 100 m: (セル,対象)→見えている視点数",
+   "jsd_bits": 0.05790109026018618,
+   "null_p95": 0.003298782022654004,
+   "detected": true,
+   "tvd": 0.16800950503868528,
+   "n_declared": 4943303.0,
+   "n_control": 3867136.0,
+   "n_bins": 43479,
+   "jaccard_pairs": 0.805837300765887
+  },
+  {
+   "name": "視程 100 m: 視点あたり可視数の分布(参考・w8_t1 はエンジンが読まない)",
+   "jsd_bits": 0.022186532493326375,
+   "null_p95": 0.0001451758938727284,
+   "detected": true,
+   "tvd": 0.1309190092282161,
+   "n_declared": 356732.0,
+   "n_control": 356732.0,
+   "n_bins": 117,
+   "primary": false
+  },
+  {
+   "name": "視程 200 m: (セル,対象)→見えている視点数",
+   "jsd_bits": 0.037026098870339835,
+   "null_p95": 0.003298782022654004,
+   "detected": true,
+   "tvd": 0.11506385811228448,
+   "n_declared": 4943303.0,
+   "n_control": 5703649.0,
+   "n_bins": 49989,
+   "jaccard_pairs": 0.8697713496969334
+  },
+  {
+   "name": "視程 200 m: 視点あたり可視数の分布(参考・w8_t1 はエンジンが読まない)",
+   "jsd_bits": 0.008921731325861734,
+   "null_p95": 0.0001448034771158729,
+   "detected": true,
+   "tvd": 0.08463776728748755,
+   "n_declared": 356732.0,
+   "n_control": 356732.0,
+   "n_bins": 167,
+   "primary": false
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 2.9907655001152307,
+ "outputs_changed": [
+  "w8_t1.parquet",
+  "w8_t1_cell.parquet",
+  "w8_t2.npy"
+ ],
+ "notes": [],
+ "seconds_wall_row": 39.51,
+ "measured_at": "2026-09-30"
+}

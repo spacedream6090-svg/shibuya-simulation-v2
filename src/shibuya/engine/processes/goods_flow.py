@@ -331,9 +331,17 @@ class DeliveryInboundProcess:
         self.shelf = shelf
         self.tick_seconds = int(tick_seconds)
         self.log = actual_log
-        self.day_index = int(day_index)
-        n = world.n_poi
-        g = stream(master_seed, "world.delivery_inbound", int(day_index))
+        self.master_seed = master_seed
+        self._plan(int(day_index))
+        self.n_runs = 0
+        self.n_delayed = 0
+        self.units_delivered = 0
+
+    def _plan(self, day_key: int) -> None:
+        """その日の納品の時刻と遅れ(日の鍵の乱数・10a #20)。"""
+        self.day_index = int(day_key)
+        n = self.world.n_poi
+        g = stream(self.master_seed, "world.delivery_inbound", int(day_key))
         lo, hi = DELIVERY_WINDOW
         self.plan_minute = (
             g.integers(lo, hi, size=n).astype(np.int64) if n else np.zeros(0, np.int64)
@@ -344,9 +352,10 @@ class DeliveryInboundProcess:
             DELIVERY_DELAY_MAX_MIN,
         )
         self.delay_minute = np.where(delayed, draw, 0).astype(np.int64)
-        self.n_runs = 0
-        self.n_delayed = 0
-        self.units_delivered = 0
+
+    def relay_day(self, day_key: int) -> None:
+        """10d(親の答え 5): 日の頭でその日の日の鍵(暦の口の ``day_key(日)``)から納品の時刻と遅れを引き直す。"""
+        self._plan(int(day_key))
 
     @property
     def active(self) -> bool:

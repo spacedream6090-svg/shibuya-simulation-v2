@@ -50,8 +50,11 @@ from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.run import (
     MINUTES_PER_SIM_DAY,
     RunResult,
+    add_calendar_args,
     add_fleet_args,
+    calendar_kwargs_from_args,
     fleet_from_args,
+    resolve_population_seed,
     run_day,
 )
 from shibuya.perception.renderer import SIGNAGE_P_SEE_DEFAULT
@@ -263,8 +266,12 @@ def build_ledger_bundle(
     seed: int | str = 1,
     world_dir: str | Path | None = None,
     use_population: bool = True,
+    endow: bool = True,
 ) -> LedgerBundle:
     """世界から金/物の台帳とセンサス呼び出しを組み立てる(engine/ledger_api の Protocol を満たす)。
+
+    ``endow=False``(10d の再開用)は店舗の参入資本を入れない(残高は再開で保存した状態から戻す=A11 の
+    お金の自動補充をしない)。世帯の財布は ``engine.resolve.initialize`` が入れるので、再開ではそちらも走らない。
 
     ``world_dir`` に W16 母集団があれば、世帯の初期財布を ``economy.anchors`` の
     アンカー由来に差し替える(``use_population=False`` で mock のまま)。
@@ -285,7 +292,7 @@ def build_ledger_bundle(
         cats, np.asarray(world.pois.stock), np.asarray(world.pois.price), n_agents=n_agents
     )
     capital = store_capital_array(world, n_agents, store_capital_yen)
-    if capital.size and int(capital.sum()) > 0:
+    if endow and capital.size and int(capital.sum()) > 0:
         led.endow_stores(capital, tick=0)
     return LedgerBundle(
         money=led,
@@ -387,9 +394,15 @@ def run(
     store_capital_yen: int | None = None,
     use_population: bool = True,
     l4_scale: float | None = None,
+    population_seed: int | None = None,
+    environment_seed: int | None = None,
     **kwargs,
 ) -> RunResult:
     """台帳つきの 1 シミュ日ラン(C4 の標準入口)。
+
+    ``population_seed``(10f・K21 (a))は母集団の seed(省略=``seed`` と同じ=今と同じ)。合成世界・世帯の財布・
+    ``run_day`` の母集団の側の乱数(``engine.run.POPULATION_RNG_DOMAINS``)に使う。``seed`` は動きの seed(salt)。
+    ``environment_seed``(10f 第 2 段の直し・S1)は環境の seed(気象・大きな催し・道路工事。省略=``seed`` と同じ)。
 
     ``use_population=False`` は下限対照(``engine.run --no-population`` と同じ意味):
     W16 母集団を読まず合成個体で回し、世帯の初期財布も mock のままにする。
@@ -435,18 +448,23 @@ def run(
     elif applied is not None:
         note = (f"艦隊 × 呼数無制限(--l4-scale 0)で --fleet-queue-capacity が未指定: 受理待ち枠の既定を体数 "
                 f"{applied:,} にした(第289 Q28・D-55=受理待ちあふれの繰り延べ 0)")
+    # 10f(K21 (a)): 合成世界・世帯の財布(W16 の抽出を含む)は母集団の seed から(省略=seed と同じ=今と同じ)
+    pop_seed = resolve_population_seed(seed, population_seed)
     wd = Path(world_dir) if world_dir is not None else None
-    world = World.load_or_synthetic(wd, n_cells=n_cells, seed=seed) if wd is not None else World.synthetic(
-        n_cells=n_cells, seed=seed
+    world = World.load_or_synthetic(wd, n_cells=n_cells, seed=pop_seed) if wd is not None else World.synthetic(
+        n_cells=n_cells, seed=pop_seed
     )
     run_world_dir = wd if (wd is not None and wd.exists()) else None
     bundle = build_ledger_bundle(
         world, n_agents, store_capital_yen,
-        seed=seed, world_dir=run_world_dir, use_population=use_population,
+        seed=pop_seed, world_dir=run_world_dir, use_population=use_population,
+        endow=kwargs.get("resume_from") is None,  # 10d(A11): 再開では参入資本を入れ直さない
     )
     res = run_day(
         n_agents=n_agents,
         seed=seed,
+        population_seed=population_seed,
+        environment_seed=environment_seed,
         world=world,
         ticks=ticks,
         checkpoint_every=checkpoint_every,
@@ -486,6 +504,9 @@ def checkpoints_payload(res: RunResult, *, run_id: str = "") -> dict[str, Any]:
                 "combined": c.combined,
                 # 二層の段 2: 活動層のあるランだけ(既定の payload は 1 キーも増えない)
                 **({"activity_hash": c.activity_hash} if c.activity_hash else {}),
+                # 10b(A2・A3): 状態台帳の 2 つのハッシュ(final=combined には混ぜない)
+                **({"behavior_hash": c.behavior_hash} if c.behavior_hash else {}),
+                **({"full_hash": c.full_hash} if c.full_hash else {}),
             }
             for c in res.checkpoints
         ],
@@ -616,6 +637,14 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="台帳(金/物)+世界過程つきの 1 シミュ日ラン(C4)")
     ap.add_argument("--agents", type=int, default=5_000)
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--population-seed", type=int, default=None,
+                    help="10f(K21 (a))母集団の seed(W16 の抽出・mock 日課・体の定数・財布・域外居住・合成世界。気象は"
+                         "--environment-seed。"
+                         "省略=--seed と同じ=今と同じ)。--seed は動きの seed(salt)。salt の比較では母集団の seed を固定して"
+                         " --seed だけを変える")
+    ap.add_argument("--environment-seed", type=int, default=None,
+                    help="10f 環境の seed(気象の再生実日・大きな催し・道路工事。省略=--seed と同じ=今と同じ)。"
+                         "天気は同じで動きだけ変える比較では固定する")
     ap.add_argument("--world", type=str, default="data/world/v2")
     ap.add_argument("--cells", type=int, default=139, help="合成世界のセル数")
     ap.add_argument("--ticks", type=int, default=MINUTES_PER_SIM_DAY)
@@ -823,6 +852,21 @@ def main(argv: list[str] | None = None) -> int:
         help="--policy classical の事前分布の地域(kanto=関東大都市圏・既定/national=全国)",
     )
     ap.add_argument(
+        "--classical-social",
+        choices=("acquaintance", "near_first"),
+        default="acquaintance",
+        help="第2波 §2A 項 3-1(Q42): --policy classical の交際・付き合いの相手。acquaintance=B5 近接行の知人"
+             "(関係辺の相手)のうち活性 A が最大の人・居なければ待つ(既定・関係 off では会話を始めない)/"
+             "near_first=旧(近接行の最初の人=見知らぬ人)",
+    )
+    ap.add_argument(
+        "--meal-gate",
+        choices=("per_wake", "per_hour"),
+        default="per_wake",
+        help="第2波 §2A 項 4(Q48): --policy classical の食事の門の確率の読み方。per_wake=起床ごと(既定=旧)/"
+             "per_hour=1 時間あたりと読み前回の門からの経過分で換算(既定の切り替えは食事の束の版上げで確認)",
+    )
+    ap.add_argument(
         "--classical-habit-p",
         type=float,
         default=HABIT_P,
@@ -937,6 +981,14 @@ def main(argv: list[str] | None = None) -> int:
         help="D-120 7c: B5 の想起で店の行を候補にする入口(既定 all=全入口・conversation=会話だけ=感度腕)",
     )
     ap.add_argument(
+        "--wom-source",
+        choices=("utterance", "reason-target"),
+        default="utterance",
+        help="第2波 §2A 項 1(Q57): 口コミの抽出の源。utterance=発話の欄(ひと言)だけ(既定・いまの語彙 v3 には"
+             "ひと言欄が無い=抽出 0)/ reason-target=旧(v3 で理由欄+対象欄=本人の内心が聞き手に漏れる欠陥・"
+             "旧の再現用)。--store-memory on のときだけ効く",
+    )
+    ap.add_argument(
         "--relations",
         choices=("off", "on"),
         default="off",
@@ -945,14 +997,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     ap.add_argument("--rel-k", type=int, default=15, metavar="K",
                     help="関係辺の数(既定 15・感度 5/50)")
-    ap.add_argument("--rel-tau", type=float, default=-2.346, metavar="TAU",
-                    help="辺として残る A の閾値 τ_rel(既定 −2.346=n を共在の日数で数えた全母集団の逆算・感度 ±0.5)")
+    ap.add_argument("--rel-tau", type=float, default=None, metavar="TAU",
+                    help="辺として残る A の閾値 τ_rel(既定=--rel-tenure-hash の版ごとの全母集団の逆算: v2 −2.322・"
+                         "v1 −2.346・感度 ±0.5)")
     ap.add_argument("--rel-d", type=float, default=0.5, metavar="D",
                     help="関係辺の A の減衰 d(既定 0.5=記憶と同じ・感度 0.25/0.75)")
     ap.add_argument("--rel-init-density", type=float, choices=(0.5, 1.0, 2.0), default=1.0,
                     help="初期網の密度の腕(0.5=共在が中央値以上・1.0=共在 > 0・2.0=共在 0 の組も入れる)")
     ap.add_argument("--rel-tenure-weeks", type=float, default=13.0, metavar="W",
                     help="C10 8b(Q89/Q90): 初期辺の在職期間 T_uv の上限[週](既定 13・感度 26)")
+    ap.add_argument("--rel-tenure-hash", choices=("v2", "v1"), default="v2",
+                    help="第2波 §2A 項 2: 初期辺の在職期間のハッシュ。v2=同点の順のハッシュと独立(既定)/ v1=旧"
+                         "(同点の多い組で在職の短い相手ほど選ばれる欠陥・旧 golden の再現用)")
     ap.add_argument("--rel-invite", choices=("off", "on"), default="on",
                     help="C10 8b: 名指しの無い会話の相手を関係辺の重み(5 人 40%%・10 人 20%%・残り 40%%)で引く"
                          "(--relations on のときだけ効く・既定 on)")
@@ -982,6 +1038,26 @@ def main(argv: list[str] | None = None) -> int:
         default=DEFAULT_ENERGY_RATE,
         help="消費の式(--hunger-model energy のときだけ効く)。eer=EER/1440×METs/基準日の平均 METs"
              "(既定・K1 (c))/bmr=基礎代謝量×METs(感度腕・K1 (a))",
+    )
+    ap.add_argument(
+        "--meal-sleep-defer",
+        choices=("off", "on"),
+        default="off",
+        help="第2波 §2B 項 1(Q34 (b)): 範囲外の既定の食事時刻に W17 で就寝中の体。off=旧(そのまま食べる・既定)/"
+             "on=起床の時刻へ遅らせ、時間帯の窓の中なら食べる(過ぎていれば無し)。--hunger-model energy のときだけ効く",
+    )
+    ap.add_argument(
+        "--home-meal",
+        choices=("off", "plan"),
+        default="off",
+        help="第2波 §2B 項 2(Q35 (a)): 範囲内の自宅の食事行。off=旧(食事は飲食店でしか成立しない・既定)/"
+             "plan=行の開始に自宅に居て起きていれば予定の実行として食べる(金と物は動かさない・照合から外す)",
+    )
+    ap.add_argument(
+        "--hunger-words",
+        choices=("hungry", "all"),
+        default="hungry",
+        help="第2波 §2B 項 3(Q31 (b)): B5 の空腹の語。hungry=空腹以上だけ描く(既定=旧)/all=満腹・ふつうも描く",
     )
     ap.add_argument(
         "--eatery",
@@ -1077,6 +1153,7 @@ def main(argv: list[str] | None = None) -> int:
     # --llm / --endpoints / --model / --mode / --run-id / --tape / --temperature /
     # --max-tokens / --fleet-wait-s(C6-a)
     add_fleet_args(ap)
+    add_calendar_args(ap)  # 10a: --calendar-weekday / --start-date / --holiday-csv / --school-holidays・10c: --rng-scheme
     args = ap.parse_args(argv)
     try:
         refractory_scale = parse_refractory_scale(args.refractory_scale)
@@ -1100,6 +1177,8 @@ def main(argv: list[str] | None = None) -> int:
     res = run(
         n_agents=args.agents,
         seed=args.seed,
+        population_seed=args.population_seed,
+        environment_seed=args.environment_seed,
         world_dir=args.world,
         n_cells=args.cells,
         ticks=args.ticks,
@@ -1129,6 +1208,8 @@ def main(argv: list[str] | None = None) -> int:
         chooser=str(args.chooser),
         policy=str(args.policy),
         activity_region=str(args.activity_region),
+        classical_social=str(args.classical_social),
+        meal_gate=str(args.meal_gate),
         classical_habit_p=float(args.classical_habit_p),
         classical_tau=float(args.classical_tau),
         poi_target=str(args.poi_target),
@@ -1142,13 +1223,15 @@ def main(argv: list[str] | None = None) -> int:
         store_wom=str(args.store_wom),
         store_signage=str(args.store_signage),
         store_recall_scope=str(args.store_recall_scope),
+        wom_source=str(args.wom_source),
         relations=str(args.relations),
         rel_k=int(args.rel_k),
-        rel_tau=float(args.rel_tau),
+        rel_tau=(float(args.rel_tau) if args.rel_tau is not None else None),
         rel_d=float(args.rel_d),
         rel_init_density=float(args.rel_init_density),
         conv_max_participants=int(args.conv_max_participants),
         rel_tenure_weeks=float(args.rel_tenure_weeks),
+        rel_tenure_hash=str(args.rel_tenure_hash),
         rel_invite=str(args.rel_invite),
         rel_acq_wake=str(args.rel_acq_wake),
         rel_copresent=str(args.rel_copresent),
@@ -1158,6 +1241,9 @@ def main(argv: list[str] | None = None) -> int:
         store_decay=str(args.store_decay),
         hunger_model=str(args.hunger_model),
         energy_rate=str(args.energy_rate),
+        meal_sleep_defer=str(args.meal_sleep_defer),
+        home_meal=str(args.home_meal),
+        hunger_words=str(args.hunger_words),
         role_words=(str(args.role_words) == "on"),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),
@@ -1175,6 +1261,7 @@ def main(argv: list[str] | None = None) -> int:
         occupancy_path=getattr(args, "occupancy_out", "") or None,
         census_out=getattr(args, "census_out", "") or None,
         tape_path=args.tape or None,
+        **calendar_kwargs_from_args(args),  # 10a: 暦の口と応答の遅れ(--response-delay)
         **({"mode": "replay", "replay": args.replay} if args.replay else {}),
     )
     print(res.summary())

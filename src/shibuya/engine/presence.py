@@ -56,6 +56,7 @@ from shibuya.agents.weekly import (
     PLACE_KIND_OUTSIDE,
     PLACE_WORDS,
 )
+from shibuya.core.hashing import blake3_hex
 from shibuya.engine import resolve as R
 from shibuya.world.state import World
 
@@ -171,6 +172,20 @@ def _mix64(x: np.ndarray) -> np.ndarray:
         v *= np.uint64(0xC4CEB9FE1A85EC53)
         v ^= v >> np.uint64(33)
     return v
+
+
+def attendance_draw(agent_id: np.ndarray, *, day: int = 0, seed: int | str = 1) -> np.ndarray:
+    """出勤率(E6)の抽選の値 ``0〜9,999``(体ごと・決定論・ランの乱数列を消費しない)。
+
+    10a(材料 §2-3 の ◐ #19): 今の鍵は ``agent_id`` だけ=毎日同じ体が休む。**0 日目は今の鍵のまま**
+    (``_mix64(agent_id)``・既定のランと W17 の構築側の式とバイト一致)にし、1 日目からは
+    ``(seed, 日)`` の塩を混ぜる(日ごと・seed ごとに休む体が替わる)。
+    """
+    a = np.maximum(np.asarray(agent_id, dtype=np.int64), 0).astype(np.uint64)
+    if int(day) != 0:
+        salt = np.uint64(int(blake3_hex(f"attendance{seed}{int(day)}".encode("utf-8"))[:16], 16))
+        a = a ^ salt
+    return (_mix64(a) % np.uint64(10_000)).astype(np.int64)
 
 
 def _day_rows(weekly, day: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -580,6 +595,11 @@ class PlanExecutor:
         exit_mode: ``immediate``(既定)/ ``walk_to_platform``(9a)。``board_intent`` は ``NotImplementedError``。
         walk_max_ticks: 9a の歩いて乗る退出の上限[tick](超えたら即時 ``rail_depart``)。
         attendance_rate: 出勤率(E6・既定 1.0=全員来る)。
+        seed: 出勤率の抽選の 1 日目からの塩(10a ◐ #19・0 日目は使わない=今と同じ)。
+
+    Note:
+        10a(通しの時刻 T): 層のイベント列は**0 日目の座標**(``0 <= T < ticks``)で組む。1 日目からの
+        在圏の出入りは日の頭の初期化(10g・A11)で張り直す(それまでは 1 日目以降のイベントは無い=宣言)。
     """
 
     #: 台帳の感度試験 id(``--ablate AB-PLAN-EXECUTOR`` / 帰無腕 ``--no-plan-executor``)。
@@ -605,6 +625,7 @@ class PlanExecutor:
         mode: str = "derive",
         derive_rule: str = DERIVE_RULE_DEFAULT,
         walk_max_ticks: int = EXIT_WALK_MAX_TICKS,
+        seed: int | str = 1,
     ) -> None:
         if derive_rule not in DERIVE_RULES:
             raise ValueError(f"--derive-rule は {DERIVE_RULES} のどれか(いま {derive_rule!r})")
@@ -623,6 +644,7 @@ class PlanExecutor:
         self.rail = rail
         self.assets = assets
         self.day_index = int(day_index)
+        self.seed = seed
         self.ticks = int(ticks)
         self.exit_mode = str(exit_mode)
         self.attendance_rate = rate
@@ -658,6 +680,13 @@ class PlanExecutor:
         if agent_id is not None:
             src = np.asarray(agent_id, dtype=np.int64).ravel()
             aid[: min(n, src.size)] = src[: min(n, src.size)]
+        #: 10d: 出勤率の抽選を日ごとに引き直すための種別と鍵(初期化で渡す値・ランの間に変わらない)。
+        self._kind = kd
+        self._agent_key = aid
+        #: 10d: いまの日の頭の通しの時刻 T(イベントの表は日の中の分で持ち、T との換算に使う。0 日目は 0)。
+        self._t0 = 0
+        #: 10d: いまの日の便の索引の範囲(``rail.day_range``)。``None``=全部の便(0 日目=今と同じ)。
+        self._day_trains: tuple[int, int] | None = None
         self.absent = self._attendance_absent(kd, aid, rate)
 
         # ---- 在圏ブロック(§2)----
@@ -782,18 +811,88 @@ class PlanExecutor:
         return out
 
     def _attendance_absent(
-        self, kind: np.ndarray, agent_id: np.ndarray, rate: float
+        self, kind: np.ndarray, agent_id: np.ndarray, rate: float, day: int = 0
     ) -> np.ndarray:
-        """出勤率(E6)で「その日来ない」体(``(n,)`` bool)。既定 1.0 では全て False。"""
+        """出勤率(E6)で「その日来ない」体(``(n,)`` bool)。既定 1.0 では全て False。
+
+        ``day`` は日番号(10a ◐ #19)。0 日目は今の鍵(``attendance_draw`` を参照)。
+        """
         out = np.zeros(self.n, dtype=bool)
         if rate >= 1.0:
             return out
         target = np.isin(kind, np.asarray(ATTENDANCE_KINDS, dtype=np.int64))
-        u = (_mix64(np.maximum(agent_id, 0).astype(np.uint64)) % np.uint64(10_000)).astype(
-            np.int64
-        )
+        u = attendance_draw(agent_id, day=int(day), seed=self.seed)
         thr = int(round(rate * 10_000))
         return target & self.managed & (u >= thr)
+
+    def _train_mask(self, n_trains: int) -> np.ndarray:
+        """いまの日の便の印(10d)。``_day_trains`` が ``None``(0 日目)なら全部の便=今と同じ。"""
+        m = np.ones(int(n_trains), dtype=bool)
+        if self._day_trains is not None:
+            lo, hi = self._day_trains
+            m[:] = False
+            m[int(lo):int(hi)] = True
+        return m
+
+    # ------------------------------------------------------------------ 10d 日の頭の張り直し
+    def relay_day(self, day: int, *, t0: int, weekday: int) -> None:
+        """``day`` 日目の在圏の表を張り直す(10d・日の頭)。**表だけ**(体の状態は書かない=``start_day``)。
+
+        出勤率の欠席(日番号つきの鍵・10a ◐ #19)・在圏ブロック(週次表の曜日の行 ``weekday``=K9 のつなぎでは
+        月曜の行)・到着便(鉄道のその日の便)・イベントの表を作り直す。イベントの表は日の中の分で持ち、
+        ``_t0``(その日の頭の T)で換算する。資産・母集団・予定の表と日番号だけから決まる(再開でも同じ表になる)。
+
+        Note:
+            逐次ループ宣言(P4): 日の頭に 1 回(``_spread_arrivals`` の線数 × 便数のループを含む)。
+        """
+        self.day_index = int(weekday)
+        self._t0 = int(t0)
+        rail = self.rail
+        self._day_trains = (
+            rail.day_range(int(day)) if (rail is not None and hasattr(rail, "day_range")) else None
+        )
+        self.absent = self._attendance_absent(self._kind, self._agent_key, self.attendance_rate, day=int(day))
+        m = min(self.n, int(self.weekly.n_agents))
+        exclude = np.zeros(int(self.weekly.n_agents), dtype=bool)
+        exclude[: min(m, exclude.size)] = self.absent[: min(m, exclude.size)]
+        self.blocks = PlanBlocks.from_weekly(
+            self.weekly, self.day_index, self.home_out[:m], mode=self.mode, exclude=exclude,
+            derive_rule=self.derive_rule,
+        )
+        self._build_events()
+        has_plan = np.zeros(self.n, dtype=bool)
+        mm = min(self.n, self.blocks.n_agents)
+        has_plan[:mm] = self.blocks.blocks_per_agent()[:mm] > 0
+        self.n_all_day_outside = int(np.count_nonzero(self.managed & ~has_plan))
+
+    def start_day(self) -> None:
+        """10d: 日の頭の体の側の書き換え(``relay_day`` の後・通しのランの日の頭だけ。再開では保存した値を読む)。
+
+        - 「今日 civic に引き込まれた」印を落とす(``_pulled_in_today``=日ごとの印)。
+        - 計画の写し(``plan_flags`` の「今日の計画がある」ビットと ``plan_activity`` の 0:00 の活動)を今日の表から。
+          位置・活動・在圏(``transit_state``)は**持ち越す**(A11・域外への配置はしない)。
+        """
+        self._pulled_in_today[:] = False
+        r = self.agents.registry
+        if "plan_flags" not in r.arrays:
+            return
+        has_plan = np.zeros(self.n, dtype=bool)
+        m = min(self.n, self.blocks.n_agents)
+        has_plan[:m] = self.blocks.blocks_per_agent()[:m] > 0
+        flags = np.asarray(r.plan_flags).astype(np.int64)
+        flags = (flags & ~np.int64(FLAG_HAS_PLAN)) | np.where(has_plan, FLAG_HAS_PLAN, 0)
+        plan_act = np.full(self.n, -1, dtype=np.int64)
+        act0 = self._plan_activity_at(0)
+        plan_act[: act0.size] = act0
+        R.set_plan_state(self.agents, activity=plan_act, flags=flags)
+
+    def initialize_caches(self) -> None:
+        """10d: 再開のときの ``initialize`` の代わり(体を動かさず、``initialize`` が作る控えだけを作る)。"""
+        has_plan = np.zeros(self.n, dtype=bool)
+        m = min(self.n, self.blocks.n_agents)
+        has_plan[:m] = self.blocks.blocks_per_agent()[:m] > 0
+        self.n_placed_at_start = 0
+        self.n_all_day_outside = int(np.count_nonzero(self.managed & ~has_plan))
 
     def _exit_cells(self) -> np.ndarray:
         """降車セルの候補(W11 駅出口セル。無ければホームセル。どちらも無ければ空)。"""
@@ -820,12 +919,13 @@ class PlanExecutor:
         line_of = self.line_of_agent[b_agent]
         enter = np.asarray(rail.enter_tick, dtype=np.int64)
         tline = np.asarray(rail.train_line, dtype=np.int64)
+        in_day = self._train_mask(tline.size)
         for li in np.unique(line_of[line_of >= 0]).tolist():  # 逐次: 線数(≤8)
-            idx = np.flatnonzero(tline == li)
+            idx = np.flatnonzero((tline == li) & in_day)
             if idx.size == 0:
                 continue
             order = idx[np.argsort(enter[idx], kind="stable")]
-            ent = enter[order]
+            ent = enter[order] - int(self._t0)  # 10d: 日の中の分へ(0 日目は今と同じ)
             here = np.flatnonzero(line_of == li)
             pos = np.searchsorted(ent, b_start[here], side="right") - 1
             pos = np.maximum(pos, 0)  # 始発前は始発(E1)
@@ -868,11 +968,12 @@ class PlanExecutor:
         ).astype(np.int64)
         enter = np.asarray(rail.enter_tick, dtype=np.int64)
         tline = np.asarray(rail.train_line, dtype=np.int64)
+        in_day = self._train_mask(tline.size)
         #: ブロック → 自分の E1 便のスロット番号(線の中の時刻順の位置)。
         e1_slot = np.full(train.size, -1, dtype=np.int64)
         lines = np.unique(tline[train[served]])
         for li in lines.tolist():  # 逐次: 線数(≤8)
-            slots = np.flatnonzero(tline == li)
+            slots = np.flatnonzero((tline == li) & in_day)
             slots = slots[np.argsort(enter[slots], kind="stable")]
             n_slot = int(slots.size)
             slot_of = np.full(int(tline.size), -1, dtype=np.int64)
@@ -966,7 +1067,8 @@ class PlanExecutor:
         if rail is not None and getattr(rail, "active", False) and train.size:
             enter = np.asarray(rail.enter_tick, dtype=np.int64)
             plat = np.asarray(rail.platform_cell, dtype=np.int64)
-            arr_tick = np.where(train >= 0, enter[np.maximum(train, 0)], b_start)
+            # 10d: 便の時刻は T の座標なので日の中の分へ戻す(0 日目は ``_t0 = 0`` で今と同じ)
+            arr_tick = np.where(train >= 0, enter[np.maximum(train, 0)] - int(self._t0), b_start)
             arr_cell = np.where(train >= 0, plat[np.maximum(train, 0)], -1)
         else:
             arr_tick = b_start.copy()
@@ -1195,9 +1297,10 @@ class PlanExecutor:
         self._run_tick(int(tick), self._BOUNDARY_TYPES)
 
     def _run_tick(self, t: int, types: tuple[int, ...]) -> None:
-        if not (0 <= t < self.ticks) or self.ev_tick.size == 0:
+        lt = int(t) - int(self._t0)  # 10d: イベントの表は日の中の分(0 日目は ``lt == t``)
+        if not (0 <= lt < self.ticks) or self.ev_tick.size == 0:
             return
-        lo, hi = int(self._ev_start[t]), int(self._ev_start[t + 1])
+        lo, hi = int(self._ev_start[lt]), int(self._ev_start[lt + 1])
         if hi <= lo:
             return
         seg_type = self.ev_type[lo:hi]
@@ -1617,15 +1720,18 @@ class PlanExecutor:
         a = a[a < blocks.n_agents]
         if a.size == 0:
             return
+        # 10d: ブロックと到着の表は日の中の分。``tl`` は日の中の分・``t`` は通しの時刻 T(0 日目は同じ値)。
+        t0 = int(self._t0)
+        tl = int(t) - t0
         key = blocks.agent_of_block * (MINUTES_PER_DAY + 1) + blocks.start.astype(np.int64)
-        pos = np.searchsorted(key, a * (MINUTES_PER_DAY + 1) + t, side="right")
+        pos = np.searchsorted(key, a * (MINUTES_PER_DAY + 1) + tl, side="right")
         lo = blocks.offset[a]
         hi = blocks.offset[a + 1]
         # ① 進行中ブロック(start ≤ tick < end)を見る
         cur = pos - 1
         ok_cur = (cur >= lo) & (cur < hi)
         safe_cur = np.where(ok_cur, cur, 0)
-        live_cur = ok_cur & (blocks.end[safe_cur].astype(np.int64) > t)
+        live_cur = ok_cur & (blocks.end[safe_cur].astype(np.int64) > tl)
         ok_nxt = (pos >= lo) & (pos < hi)
         # ---- E12: **次のブロックが無い**体は、進行中ブロックへ戻す(残りが十分あれば) ----
         # 「LLM が最後のブロックの途中で乗車を選ぶ → その日もう帰れない」穴を塞ぐ。
@@ -1634,11 +1740,11 @@ class PlanExecutor:
         back = np.zeros(a.size, dtype=bool)
         if allow_return_to_current and live_cur.any():
             end_cur = blocks.end[safe_cur].astype(np.int64)
-            ret_tick = self._earliest_enter_tick(t + RETURN_MIN_AWAY_MIN)
+            ret_tick = self._earliest_enter_tick(int(t) + RETURN_MIN_AWAY_MIN)  # T の座標
             back = (
                 live_cur & ~ok_nxt
-                & ((end_cur - t) >= RETURN_MIN_AWAY_MIN)
-                & (ret_tick >= 0) & (ret_tick < end_cur) & (ret_tick < self.ticks)
+                & ((end_cur - tl) >= RETURN_MIN_AWAY_MIN)
+                & (ret_tick >= 0) & (ret_tick - t0 < end_cur) & (ret_tick - t0 < self.ticks)
             )
             rows_b = np.flatnonzero(back)
             if rows_b.size:
@@ -1654,23 +1760,26 @@ class PlanExecutor:
         # ② 戻らない体は進行中ブロックの DEPART を落とす(在圏でない DEPART の取り残し防止)
         drop_cur = live_cur & ~back
         if drop_cur.any():
-            self._skip_depart_at[a[drop_cur]] = blocks.end[safe_cur[drop_cur]].astype(np.int32)
+            # 10d: DEPART を落とす時刻は T の座標(``_do_depart`` は T と比べる)
+            self._skip_depart_at[a[drop_cur]] = (
+                blocks.end[safe_cur[drop_cur]].astype(np.int64) + t0
+            ).astype(np.int32)
         # ③ **次の**ブロック(start > tick)の到着が過ぎていれば張り直す
         safe_nxt = np.where(ok_nxt, pos, 0)
-        late = ok_nxt & (self.arrival_tick[safe_nxt] <= t)
+        late = ok_nxt & (self.arrival_tick[safe_nxt] <= tl)
         rows = np.flatnonzero(late)
         if rows.size:
             # 便に乗り遅れた形なので、**ブロックの開始 tick ちょうど**にゲートから入る
             # (非鉄道ゲート E3 と同じ扱い)。``t+1`` に戻すと押し出された体が翌 tick に
             # 舞台へ帰ってしまう(層2 指摘 2026-09-11: civic の退場 200 中 175 体)。
-            when = np.maximum(blocks.start[safe_nxt[rows]].astype(np.int64), t + 1)
+            when = np.maximum(blocks.start[safe_nxt[rows]].astype(np.int64), tl + 1)
             cells = self.arrival_cell[safe_nxt[rows]]
             good = (cells >= 0) & (when < self.ticks)
             for aid, c, w in zip(
                 a[rows][good].tolist(), cells[good].tolist(), when[good].tolist()
             ):
                 # 逐次ループ宣言: **張り直す体数**ぶん(civic の退場 200 体級・個体比例でない)
-                self._extra.setdefault(int(w), []).append((int(aid), int(c)))
+                self._extra.setdefault(int(w) + t0, []).append((int(aid), int(c)))
                 self.n_rearmed += 1
 
     def _earliest_enter_tick(self, want: int) -> int:
