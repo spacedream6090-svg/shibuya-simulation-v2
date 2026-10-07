@@ -33,10 +33,14 @@ import seed_exchangeability as sx  # noqa: E402
 
 WORLD = ROOT / "data" / "world" / "v2"
 NEW_KEYS = ("env_id", "environment", "manifest_sections")
+#: 10f 第 2 段(K21 (a))で末尾に足した欄。
+STAGE2_KEYS = ("population_seed", "environment_seed")
 PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite", "blake3", "os", "os_release",
                  "os_version", "machine", "cpu", "numpy_simd", "deps", "deps_sha256", "deps_count"}
 #: 設定の節の道筋の一覧の sha256(環境に依らない golden=検収 N3 の 3)。節を変えたら理由を記録に書いて更新する。
-CONFIG_PATHS_SHA256 = "170e1c30087e8d08e18cd28aa14c0b53de80d354fe2d796d174bab72ad437cbe"
+#: 10f 第 2 段: ``population_seed``(K21 (a)の母集団の seed・設定)を足した(前の値 170e1c30…)。
+#: 10f 第 2 段の直し(S1): ``environment_seed``(環境の seed・設定)を足した(前の値 3fe95edb…)。
+CONFIG_PATHS_SHA256 = "457d86667edc617a5a398711fe5c2cbbcf39d7ece54fb6eaec74fb8fe2312f58"
 world_assets = pytest.mark.skipif(not (WORLD / "w2_cells.parquet").exists(), reason="実世界資産 data/world/v2 が無い")
 
 
@@ -185,7 +189,7 @@ def test_t1_two_processes_write_the_same_env_id_and_final_to_the_files(tmp_path)
     drop = lambda m: {k: v for k, v in m.items() if k not in NEW_KEYS + ("resume",)}  # noqa: E731
     assert drop(c1["manifest"]) == drop(c2["manifest"])
     assert c1["manifest"]["resume"]["run_id"] != c2["manifest"]["resume"]["run_id"]
-    assert list(c1["manifest"])[-3:] == list(NEW_KEYS)  # 列追加のみ(末尾に 3 つ)
+    assert list(c1["manifest"])[-5:] == list(NEW_KEYS + STAGE2_KEYS)  # 列追加のみ(末尾に 3 つ+第 2 段の 2 つ)
 
 
 # ================================================================= 再開・再生で環境の違いを警告(§8 の 6)
@@ -399,7 +403,11 @@ def test_relations_on_5000_seeds_are_exchangeable_and_config_leaves_do_not_move(
     f1, f2 = sx.flatten(d1["manifest"]), sx.flatten(d2["manifest"])
     cfg = [k for k in set(f1) | set(f2) if MS.section_of(k) == MS.CONFIG]
     assert len(cfg) > 100
-    assert [k for k in sorted(cfg) if f1.get(k) != f2.get(k)] == []
+    # 10f 第 2 段(K21 (a)): 母集団の seed は省略すると seed と同じ値=seed とともに違う(許容の差)。ほかの設定の葉は全部一致
+    assert (f1["population_seed"], f2["population_seed"]) == (1, 2) and r["population_seed_varies"] is True
+    assert (f1["environment_seed"], f2["environment_seed"]) == (1, 2) and r["environment_seed_varies"] is True
+    subs = ("population_seed", "environment_seed")
+    assert [k for k in sorted(cfg) if f1.get(k) != f2.get(k) and k not in subs] == []
     assert sum(1 for k in set(f1) | set(f2) if MS.section_of(k) == MS.OBSERVED and f1.get(k) != f2.get(k)) > 0
 
 

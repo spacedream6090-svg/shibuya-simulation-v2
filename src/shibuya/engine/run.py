@@ -591,6 +591,85 @@ def _action_usage(per_action: Mapping[int, int], vocab_version: str) -> dict[str
     return out
 
 
+#: **10f(K21 (a))母集団の側の乱数**(用途名 → 何を決めるか)。``run_day(population_seed=…)`` の値から引く。
+#: 振り分けの規則(実行役の構成=未リサーチ(expedient)): 体の属性(誰が居るか・体の定数・財布・日課)と、その体が
+#: 暮らす舞台の構造(合成小世界の店の配置と在庫=世界資産の代わり)を決める流れ。salt(動きの seed)を変えても動かない。
+#: ``world.synthetic`` を環境の側にしない理由: 世界資産(固定のデータ)の代わりの構造で、日ごとに変わる出来事ではない。
+#: 環境の側に置くと「天気も変える」salt の比較で地図そのものが変わる(mock の拠点はセルの上に引くので母集団と組)。
+POPULATION_RNG_DOMAINS: dict[str, str] = {
+    "w16.sample.reserved": "W16 母集団の定員先取り層の抽出(agents.population.sample_population)",
+    "w16.sample.stratum": "W16 母集団の統計層の抽出(同上・層ごとの流れ)",
+    "wallet.initial": "世帯の初期財布(cli.household_wallets・母集団の種別から)",
+    "agent.schedule": "mock 日課(拠点・境界の時刻・mock の初期所持金。W16 の体は拠点と種別を上書き)",
+    "body.weight": "体重(engine.energy.draw_bodies・体ごと)",
+    "body.eer": "推定エネルギー必要量のばらつき(同上)",
+    "geometry.desired_speed": "希望歩行速度(engine.geometry.desired_speeds・--geometry edge のときだけ)",
+    "engine.processes.rail": "域外居住の通勤者の抽選と路線(計画実行層の無いランだけ)",
+    "world.synthetic": "合成小世界の店の種別と在庫(世界資産が無いときだけ・舞台の構造)",
+}
+#: **10f 第 2 段の直し(S1・ユーザー決定 2026-10-07)環境の側の乱数**。``run_day(environment_seed=…)`` の値から引く。
+#: 外から与える舞台の出来事(気象・大きな催し・道路工事)。「天気は同じで動きだけ変える」比較では固定し、
+#: 「天気も変える」比較では salt と一緒に変える(``tools/c7/salt_runs.py --environment-mode``)。
+ENVIRONMENT_RNG_DOMAINS: dict[str, str] = {
+    "engine.processes.environment": "気象の再生実日の層と日(manifest の replay_date・start_sim_datetime・calendar)",
+    "world.large_event": "大きな催しの会場の抽選(日ごと)",
+    "world.road_works": "道路工事の辺の抽選(日ごと)",
+}
+#: **10f(K21 (a))動きの側の乱数**(用途名 → 何を決めるか)。``seed`` から引く(salt)。
+#: ``world.delivery_inbound`` は動きの側(ユーザー決定 2026-10-07): 配送は本来、店の発注と配達員(エージェントの
+#: 行動)で決まるもので、今のエンジンの処理は**つなぎ**(つなぎの台帳に載せる扱い)。
+MOTION_RNG_DOMAINS: dict[str, str] = {
+    "engine.chooser": "店・行き先の候補の選び手(poi_target・store_choice も同じ流れ)",
+    "policy.classical": "古典の方策の抽選",
+    "conversation.invite": "会話の招待の抽選",
+    "llm.mock": "mock の応答(行為の抽選)",
+    "llm.mock.move_target": "mock の移動の対象",
+    "llm.mock.out_of_cell_target": "mock のセル外の店の対象",
+    "perception.attention.p_see": "注視ゲート(看板・親しみの露出)",
+    "perception.p_notice": "顕著行為に気づくか",
+    "world.salient": "顕著行為の発生(stateful)",
+    "world.salient.counter": "顕著行為の発生(counter)",
+    "world.public_service_dispatch": "出動の遅れ(stateful)",
+    "world.public_service_dispatch.counter": "出動の遅れ(counter)",
+    "world.delivery_inbound": "入荷の抽選(つなぎ: 本来は店の発注と配達員の行動)",
+    "world.delivery_last_mile": "配達の予約(引くだけ)",
+}
+#: 動きの側の、``core.rng`` の用途名を持たない塩(``seed`` から作る)。
+MOTION_SALTS: dict[str, str] = {
+    "run_salt": "blake3(seed‖engine): アービタの同点・適用の順・近接行の同点・歩きの行き先・関係の招待の重み",
+    "attendance": "blake3(attendance‖seed‖日): 出勤率の抽選(engine.presence.attendance_draw)",
+    "fleet.call_seed": "xxh64(call_id, seed): 艦隊の呼ごとのデコードの種",
+}
+
+
+def resolve_sub_seed(seed: int | str, sub_seed: int | str | None) -> int | str:
+    """10f: 母集団・環境の seed(``None`` なら ``seed`` と同じ値=今と同じ)。
+
+    渡したときだけ ``core.rng`` の master_seed と同じ型と範囲の検査をする(bool・負・空の文字列を止める)。
+    """
+    if sub_seed is None:
+        return seed
+    from shibuya.core.rng import derive_key
+
+    derive_key(sub_seed, "seed.check")  # 検査だけ(鍵は使わない)
+    return sub_seed
+
+
+def resolve_population_seed(seed: int | str, population_seed: int | str | None) -> int | str:
+    """10f(K21 (a)): 母集団の seed(``resolve_sub_seed`` と同じ)。"""
+    return resolve_sub_seed(seed, population_seed)
+
+
+def resolve_environment_seed(seed: int | str, environment_seed: int | str | None) -> int | str:
+    """10f 第 2 段の直し(S1): 環境の seed(``resolve_sub_seed`` と同じ)。"""
+    return resolve_sub_seed(seed, environment_seed)
+
+
+def _same_seed(a: int | str, b: int | str) -> bool:
+    """2 つの seed が ``core.rng`` で同じ鍵になるか(``1`` と ``"1"`` は別=``i:1`` と ``s:1``)。"""
+    return type(a) is type(b) and a == b
+
+
 def run_salt_for(master_seed: int | str) -> bytes:
     """``blake3(master_seed ‖ 0x1f ‖ "engine")`` の先頭 16 バイト(親の指定)。"""
     text = f"i:{int(master_seed)}" if not isinstance(master_seed, str) else f"s:{master_seed}"
@@ -955,6 +1034,11 @@ class RunResult:
     resume: dict[str, Any] = field(default_factory=dict)
     #: 10f(K26 (a)): 環境の欄(``engine.resume.environment_fields``)。manifest の ``environment``・``env_id``。
     env_fields: dict[str, Any] = field(default_factory=dict)
+    #: 10f(K21 (a)): 母集団の seed(``None``=``seed`` と同じ値。``run_day`` が実際に使った値を入れる)。
+    #: manifest の ``population_seed``(設定の節)。
+    population_seed: int | str | None = None
+    #: 10f 第 2 段の直し(S1): 環境の seed(``None``=``seed`` と同じ値)。manifest の ``environment_seed``(設定の節)。
+    environment_seed: int | str | None = None
     #: checkpoint ごとの列・外の状態の行の digest(``checkpoint_detail=True`` のときだけ・manifest には出さない)。
     checkpoint_details: list[dict[str, Any]] = field(default_factory=list)
 
@@ -1294,6 +1378,10 @@ class RunResult:
             "env_id": str(self.env_fields.get("env_id", "")),
             "environment": copy.deepcopy(self.env_fields),  # 10f 検収 N9: 深い写し
             "manifest_sections": _MS.sections_table(),
+            # ---- 10f 第 2 段(K21 (a)): 母集団の seed(動きの seed は checkpoints の JSON の ``seed``)。列追加のみ ----
+            "population_seed": (self.seed if self.population_seed is None else self.population_seed),
+            # ---- 10f 第 2 段の直し(S1): 環境の seed(気象・大きな催し・道路工事)。列追加のみ ----
+            "environment_seed": (self.seed if self.environment_seed is None else self.environment_seed),
         }
 
     def l4_audit_fields(self) -> dict[str, Any]:
@@ -1805,6 +1893,8 @@ def run_day(
     seed: int | str = 1,
     world: World | None = None,
     *,
+    population_seed: int | str | None = None,
+    environment_seed: int | str | None = None,
     tick_seconds: int = DEFAULT_TICK_SECONDS,
     ticks: int = MINUTES_PER_SIM_DAY,
     llm: Any | None = None,
@@ -1919,8 +2009,18 @@ def run_day(
 
     Args:
         n_agents: 個体数。
-        seed: manifest の ``master_seed``。
-        world: 世界(None なら ``World.synthetic(n_cells, seed)``)。
+        seed: manifest の ``master_seed``。10f(K21 (a))からは**動きの seed**(salt)。``population_seed`` を
+            渡さないときは母集団の側にも同じ値を使う(既定の結果は今と同じ)。
+        population_seed: **10f(K21 (a))母集団の seed**。``None``(既定)= ``seed`` と同じ値。母集団の側の乱数
+            (W16 の抽出 ``w16.sample.*``・mock 日課 ``agent.schedule``・体の定数 ``body.*``・希望歩行速度
+            ``geometry.desired_speed``・域外居住 ``engine.processes.rail``・合成世界 ``world.synthetic``)はこの値から
+            引く。気象・大きな催し・道路工事は ``environment_seed`` から引く。ほかの乱数(選び手・mock の応答・知覚・
+            会話・顕著行為や入荷などの世界の出来事・``run_salt``・出勤の抽選など)は ``seed`` から引く。用途名ごとの表は
+            ``POPULATION_RNG_DOMAINS``。salt の比較では母集団を固定して ``seed`` だけを変える。
+        environment_seed: **10f 第 2 段の直し(S1)環境の seed**。``None``(既定)= ``seed`` と同じ値。気象の再生実日
+            (``engine.processes.environment``)・大きな催し(``world.large_event``)・道路工事(``world.road_works``)
+            はこの値から引く(``ENVIRONMENT_RNG_DOMAINS``)。
+        world: 世界(None なら ``World.synthetic(n_cells, population_seed)``)。
         tick_seconds: 1 tick の秒数。
         ticks: tick 数。
         llm: ``LLMClient``(None なら ``MockLLM(seed)``)。
@@ -2265,6 +2365,16 @@ def run_day(
         ``RunResult``。
     """
     _call_args = dict(locals())  # 10d: 設定の指紋(先頭で引数だけを写す)
+    # 10f(K21 (a)): 母集団の seed(省略時は seed と同じ)。指紋には seed と違うときだけ載せる(省略と、seed と同じ値の
+    # 明示は同じラン=指紋も今と同じ。状態のファイルの見出しは既定のランでは 1 欄も増えない)
+    pop_seed = resolve_population_seed(seed, population_seed)
+    env_seed = resolve_environment_seed(seed, environment_seed)
+    _call_args.pop("population_seed", None)
+    _call_args.pop("environment_seed", None)
+    if not _same_seed(pop_seed, seed):
+        _call_args["population_seed"] = pop_seed
+    if not _same_seed(env_seed, seed):
+        _call_args["environment_seed"] = env_seed
     t_start = time.perf_counter()
     budget_mode_enum = BudgetMode.parse(budget_mode)
     # ---- 10a(A1・A1-1・A1-2・A1-3・A9): 暦の口・通しの時刻 T・応答の遅れ(世界を触る前に検査) ----
@@ -2481,7 +2591,7 @@ def run_day(
     # ---- ablation ③: **ランの実効不応期表**を 1 本組む(既定=§6 の表そのもの) ----
     refractory_table = R.refractory_ticks(refractory_scale)
     refractory_scale_norm = R.normalized_refractory_scale(refractory_scale)
-    world = world if world is not None else World.synthetic(n_cells=n_cells, seed=seed)
+    world = world if world is not None else World.synthetic(n_cells=n_cells, seed=pop_seed)  # 10f: 母集団の側
     # 渡された World を使い回しても前のランの切替口が残らないよう、**毎ラン必ず書く**。
     world.set_eatery_mode(eatery)
     # ---- 段 2a: 購入/食事/並ぶの対象=候補 → 選び手(1 ランに 1 つ・世界は読むだけ) ----
@@ -2531,8 +2641,9 @@ def run_day(
                    if tape_path is not None else None)
     conv = (ConversationManager(seed, max_participants=int(conv_max_participants))
             if conversations else None)
-    schedule = synthesize(n_agents, seed, world.n_cells)
-    pop = _resolve_population(population, world_dir, n_agents, seed, world.n_cells)
+    # 10f(K21 (a)): mock 日課・W16 の抽出は母集団の seed から(既定は seed と同じ値)
+    schedule = synthesize(n_agents, pop_seed, world.n_cells)
+    pop = _resolve_population(population, world_dir, n_agents, pop_seed, world.n_cells)
     # ---- D-66: 週次表(W17)は SoA を確保する前に読む(層の有無で列が 1 本変わるため) ----
     # ``load_weekly`` / ``restrict_to`` は純粋な読み込み(乱数を 1 語も引かない)なので、
     # ここへ繰り上げても帰無腕のバイト列は動かない。
@@ -2615,7 +2726,7 @@ def run_day(
             ),
         )
         if not _resuming:  # 10d(A11): 空腹の初期値・体の定数は保存した状態から
-            R.initialize_energy(agents, energy_layer, seed)
+            R.initialize_energy(agents, energy_layer, pop_seed)  # 10f: 体の定数は母集団の側
     agents.freeze()
     world.freeze()
 
@@ -2627,6 +2738,8 @@ def run_day(
             agents=agents,
             assets=load_process_assets_or_synthetic(world_dir, world.assets),
             seed=seed,
+            population_seed=pop_seed,  # 10f: 域外居住は母集団の側
+            environment_seed=env_seed,  # 10f 第 2 段の直し(S1): 気象・大きな催し・道路工事は環境の側
             day_index=day_index,
             tick_seconds=tick_seconds,
             calendar=calendar,  # 10a: #2・#3・#7・#10・#11・#20 は暦の口から
@@ -2802,6 +2915,7 @@ def run_day(
         EdgeGeometry(
             world.assets,
             seed=seed,
+            population_seed=pop_seed,  # 10f: 希望歩行速度は母集団の側
             n_agents=n_agents,
             walkable_area_m2=walkable,
             tick_seconds=tick_seconds,
@@ -3068,6 +3182,8 @@ def run_day(
         n_agents=n_agents,
         n_cells=world.n_cells,
         seed=seed,
+        population_seed=pop_seed,  # 10f(K21 (a))
+        environment_seed=env_seed,  # 10f 第 2 段の直し(S1)
         ticks=t_end - t_begin,  # 10a: 回した通しの tick 数(1 日のランでは ``ticks``)・10d: 再開・止めたランはその区間
         world_source=world.assets.source,
         tape_path=str(tape_path) if tape_path is not None else "",
@@ -4931,6 +5047,10 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="C2 エンジンの 1 シミュ日 mock ラン(予算行 W2)")
     ap.add_argument("--agents", type=int, default=5_000)
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--population-seed", type=int, default=None,
+                    help="10f(K21 (a))母集団の seed(省略=--seed と同じ)。--seed は動きの seed(salt)")
+    ap.add_argument("--environment-seed", type=int, default=None,
+                    help="10f 環境の seed(気象・大きな催し・道路工事。省略=--seed と同じ)")
     ap.add_argument("--world", type=str, default="data/world/v2",
                     help="世界資産ディレクトリ(無ければ合成小世界へ落ちる)")
     ap.add_argument("--cells", type=int, default=139, help="合成世界のセル数")
@@ -4980,10 +5100,13 @@ def main(argv: list[str] | None = None) -> int:
         print(GD.to_yaml())
         return 0
 
-    world = World.load_or_synthetic(Path(args.world), n_cells=args.cells, seed=args.seed)
+    _pop_seed = resolve_population_seed(args.seed, args.population_seed)  # 10f: 合成世界は母集団の側
+    world = World.load_or_synthetic(Path(args.world), n_cells=args.cells, seed=_pop_seed)
     res = run_day(
         n_agents=args.agents,
         seed=args.seed,
+        population_seed=args.population_seed,
+        environment_seed=args.environment_seed,
         world=world,
         ticks=args.ticks,
         checkpoint_every=args.checkpoint_every,

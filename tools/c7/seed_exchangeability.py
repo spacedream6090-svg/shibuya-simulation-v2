@@ -20,6 +20,11 @@
 ``diff_environment`` に出して警告するだけ(交換可能性は落とさない)。表の無い古い manifest は従来どおり
 全部の欄を比べる(``mode: legacy``)。表に無い欄は設定として比べ、``unlisted`` に名前を出す。
 
+**10f 第 2 段(K21 (a))**: manifest の ``population_seed``(母集団の seed)の差は許容に入れ、``population_seed_varies``
+で報告する(省略したランでは seed と同じ値なので seed とともに違う=今までの seed の比較と同じ意味)。salt の比較
+(母集団を固定して動きの seed だけを変える)では ``False`` になるはず。環境の seed(``environment_seed``・気象と
+大きな催しと道路工事)も同じ扱いで ``environment_seed_varies`` に出す(10f 第 2 段の直し・S1)。
+
 holdout には触らない。出力は JSON(既存ファイルへは書かない)。
 """
 from __future__ import annotations
@@ -36,7 +41,16 @@ ALLOWED_DIFF: frozenset[str] = frozenset({
     "seed", "run_id", "final_hash",
     "manifest.fleet.cache_salt",   # salt は run_id/seed から作る(C6-a)
     "manifest.fleet.run_id",
+    # 10f 第 2 段(K21 (a)): 母集団の seed。省略したランでは seed と同じ値なので seed とともに違う。違えば
+    # ``population_seed_varies`` で報告する(salt の比較=母集団を固定するなら同じ値のはず)
+    "manifest.population_seed",
+    # 10f 第 2 段の直し(S1): 環境の seed(気象・大きな催し・道路工事)。同じく ``environment_seed_varies`` で報告する
+    "manifest.environment_seed",
 })
+#: 母集団の seed の平坦化キー(10f 第 2 段)。
+POPULATION_SEED_KEY = "manifest.population_seed"
+#: 環境の seed の平坦化キー(10f 第 2 段の直し・S1)。
+ENVIRONMENT_SEED_KEY = "manifest.environment_seed"
 #: 一致が必須の欄(違えば構成が違う=FAIL)。
 MUST_MATCH: tuple[str, ...] = ("n_agents", "ticks", "schema")
 HASH_KEYS: tuple[str, ...] = ("population_hash", "schedule_hash", "world_hash", "agents_hash")
@@ -159,6 +173,11 @@ def compare(docs: Sequence[Mapping[str, Any]], labels: Sequence[str],
         "unlisted": sorted(unlisted),
         "hash_identity": hashes,
         "population_seed_independent": hashes.get("population_hash", {}).get("identical_all_ticks"),
+        # 10f 第 2 段(K21 (a)): 母集団の seed がランの間で違うか(欄の無い古い manifest は None)
+        "population_seed_varies": (None if all(POPULATION_SEED_KEY not in f for f in flats)
+                                   else len({_norm(f.get(POPULATION_SEED_KEY)) for f in flats}) > 1),
+        "environment_seed_varies": (None if all(ENVIRONMENT_SEED_KEY not in f for f in flats)
+                                    else len({_norm(f.get(ENVIRONMENT_SEED_KEY)) for f in flats}) > 1),
         "exchangeable": ok,
         "note": ("交換可能=seed 以外の構成差が無い(未説明の差 0・必須欄一致・tick 列一致)。母集団ハッシュの同一性は"
                  "報告のみ(同一なら母集団は seed に依らない・別なら抽出が seed に依ることを事前登録に書く)。"

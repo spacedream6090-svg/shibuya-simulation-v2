@@ -128,6 +128,9 @@ class WorldProcessRunner:
         retention_days: ``ActualLog`` の保持窓(D-R2-6)。
         rng_scheme: 10c の乱数の方式(``stateful``=既定・今のまま / ``counter``=顕著行為の発生と出動の遅れを
             状態を持たない乱数にする)。
+        population_seed: 10f(K21 (a))母集団の seed。域外居住の抽選だけに使う(``None``=``master_seed`` と同じ)。
+        environment_seed: 10f 第 2 段の直し(S1)環境の seed。気象の再生実日・大きな催し・道路工事に使う
+            (``None``=``master_seed`` と同じ)。ほかの過程の乱数は ``master_seed``(動きの seed)。
 
     Attributes:
         registry_hash: 台帳の blake3(manifest の同定欄へ)。
@@ -163,6 +166,8 @@ class WorldProcessRunner:
         calendar: Any | None = None,
         rng_scheme: str = DEFAULT_RNG_SCHEME,
         initial_placement: bool = True,
+        population_seed: int | str | None = None,
+        environment_seed: int | str | None = None,
     ) -> None:
         if world is None or agents is None:
             raise ValueError("WorldProcessRunner は world と agents を要る")
@@ -209,14 +214,19 @@ class WorldProcessRunner:
             ticks_per_day=max(1, 86_400 // max(1, self.tick_seconds)),
         )
 
+        # 10f(K21 (a)): 域外居住(体の属性)は母集団の seed から。10f 第 2 段の直し(S1): 気象の再生実日・大きな催し・
+        # 道路工事は環境の seed から。どちらも ``None`` なら ``master_seed`` と同じ=今と同じ。値は属性に持たない
+        # (各過程の ``master_seed`` に入る)
+        _pop_seed = self.master_seed if population_seed is None else population_seed
+        _env_seed = self.master_seed if environment_seed is None else environment_seed
         self.environment = EnvironmentProcess(
             world, agents, self.assets,
-            master_seed=self.master_seed, day_index=self.day_index, tick_seconds=self.tick_seconds,
+            master_seed=_env_seed, day_index=self.day_index, tick_seconds=self.tick_seconds,
             prefer_shadow_days=prefer_shadow_days, calendar=self.calendar,
         )
         self.rail = RailProcess(
             world, agents, self.assets,
-            master_seed=self.master_seed, day_index=self.day_index,
+            master_seed=_pop_seed, day_index=self.day_index,
             schedule=schedule, actual_log=self.log,
             plan_executor=self.plan_executor, calendar=self.calendar,
         )
@@ -267,7 +277,7 @@ class WorldProcessRunner:
             world, self.assets, tick_seconds=self.tick_seconds, actual_log=self.log
         )
         self.road_works = RoadWorksProcess(
-            world, self.assets, master_seed=self.master_seed, day_index=day_key,
+            world, self.assets, master_seed=_env_seed, day_index=day_key,  # 10f(S1): 環境の側
             tick_seconds=self.tick_seconds, actual_log=self.log,
         )
         self.hotel = HotelProcess(
@@ -280,7 +290,7 @@ class WorldProcessRunner:
             world, tick_seconds=self.tick_seconds, actual_log=self.log
         )
         self.large_event = LargeEventProcess(
-            world, agents, rail=self.rail, master_seed=self.master_seed,
+            world, agents, rail=self.rail, master_seed=_env_seed,  # 10f(S1): 環境の側
             day_index=day_key, tick_seconds=self.tick_seconds, actual_log=self.log,
         )
         self.dispatch = PublicServiceDispatchProcess(

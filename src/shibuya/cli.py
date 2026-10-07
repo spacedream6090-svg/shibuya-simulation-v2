@@ -54,6 +54,7 @@ from shibuya.engine.run import (
     add_fleet_args,
     calendar_kwargs_from_args,
     fleet_from_args,
+    resolve_population_seed,
     run_day,
 )
 from shibuya.perception.renderer import SIGNAGE_P_SEE_DEFAULT
@@ -393,9 +394,15 @@ def run(
     store_capital_yen: int | None = None,
     use_population: bool = True,
     l4_scale: float | None = None,
+    population_seed: int | None = None,
+    environment_seed: int | None = None,
     **kwargs,
 ) -> RunResult:
     """台帳つきの 1 シミュ日ラン(C4 の標準入口)。
+
+    ``population_seed``(10f・K21 (a))は母集団の seed(省略=``seed`` と同じ=今と同じ)。合成世界・世帯の財布・
+    ``run_day`` の母集団の側の乱数(``engine.run.POPULATION_RNG_DOMAINS``)に使う。``seed`` は動きの seed(salt)。
+    ``environment_seed``(10f 第 2 段の直し・S1)は環境の seed(気象・大きな催し・道路工事。省略=``seed`` と同じ)。
 
     ``use_population=False`` は下限対照(``engine.run --no-population`` と同じ意味):
     W16 母集団を読まず合成個体で回し、世帯の初期財布も mock のままにする。
@@ -441,19 +448,23 @@ def run(
     elif applied is not None:
         note = (f"艦隊 × 呼数無制限(--l4-scale 0)で --fleet-queue-capacity が未指定: 受理待ち枠の既定を体数 "
                 f"{applied:,} にした(第289 Q28・D-55=受理待ちあふれの繰り延べ 0)")
+    # 10f(K21 (a)): 合成世界・世帯の財布(W16 の抽出を含む)は母集団の seed から(省略=seed と同じ=今と同じ)
+    pop_seed = resolve_population_seed(seed, population_seed)
     wd = Path(world_dir) if world_dir is not None else None
-    world = World.load_or_synthetic(wd, n_cells=n_cells, seed=seed) if wd is not None else World.synthetic(
-        n_cells=n_cells, seed=seed
+    world = World.load_or_synthetic(wd, n_cells=n_cells, seed=pop_seed) if wd is not None else World.synthetic(
+        n_cells=n_cells, seed=pop_seed
     )
     run_world_dir = wd if (wd is not None and wd.exists()) else None
     bundle = build_ledger_bundle(
         world, n_agents, store_capital_yen,
-        seed=seed, world_dir=run_world_dir, use_population=use_population,
+        seed=pop_seed, world_dir=run_world_dir, use_population=use_population,
         endow=kwargs.get("resume_from") is None,  # 10d(A11): 再開では参入資本を入れ直さない
     )
     res = run_day(
         n_agents=n_agents,
         seed=seed,
+        population_seed=population_seed,
+        environment_seed=environment_seed,
         world=world,
         ticks=ticks,
         checkpoint_every=checkpoint_every,
@@ -626,6 +637,14 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="台帳(金/物)+世界過程つきの 1 シミュ日ラン(C4)")
     ap.add_argument("--agents", type=int, default=5_000)
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--population-seed", type=int, default=None,
+                    help="10f(K21 (a))母集団の seed(W16 の抽出・mock 日課・体の定数・財布・域外居住・合成世界。気象は"
+                         "--environment-seed。"
+                         "省略=--seed と同じ=今と同じ)。--seed は動きの seed(salt)。salt の比較では母集団の seed を固定して"
+                         " --seed だけを変える")
+    ap.add_argument("--environment-seed", type=int, default=None,
+                    help="10f 環境の seed(気象の再生実日・大きな催し・道路工事。省略=--seed と同じ=今と同じ)。"
+                         "天気は同じで動きだけ変える比較では固定する")
     ap.add_argument("--world", type=str, default="data/world/v2")
     ap.add_argument("--cells", type=int, default=139, help="合成世界のセル数")
     ap.add_argument("--ticks", type=int, default=MINUTES_PER_SIM_DAY)
@@ -1158,6 +1177,8 @@ def main(argv: list[str] | None = None) -> int:
     res = run(
         n_agents=args.agents,
         seed=args.seed,
+        population_seed=args.population_seed,
+        environment_seed=args.environment_seed,
         world_dir=args.world,
         n_cells=args.cells,
         ticks=args.ticks,

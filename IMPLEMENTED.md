@@ -394,6 +394,16 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #85 D-102 の土台 10f 第 2 段: seed の 3 分割(母集団・動き・環境)と salt の道具(CRN と並べ替え検定)(第326・2026-10-07・実装役 Opus 5.5・親検収+別のサブの検収 2 回)
+
+- 正典: [10f のアジェンダ](docs/design/v2-d102-10f-agenda.md) §2 の 2・K20 (a)・K21 (a)・ユーザー決定 2026-10-07(seed を 3 つに・環境=気象・大きな催し・道路工事・配送は動きの側のつなぎ)・[実装の記録](docs/bench/analysis/wallbounce-1006/10f/README.md) 第 2 段。
+- **seed の 3 分割**: `--population-seed`・`--environment-seed`(省略時は seed と同じ=既定は不変)。用途名の表 母集団 9・環境 3・動き 14(`POPULATION_RNG_DOMAINS`・`ENVIRONMENT_RNG_DOMAINS`・`MOTION_RNG_DOMAINS`)。AST と実行時の鍵の数えで網羅を固定。manifest の設定の節に 2 欄・`seed_exchangeability` は差を許容して報告。
+- **salt の道具**: 回す役 `tools/c7/salt_runs.py`(`--environment-mode fixed|salt`・A/A・最初の食い違いの 2 段探索)と読む役 `tools/c7/salt_compare.py`(純関数: 線=6 対で両側・片側は事前登録の印・足りなければ「記述のみ(本数不足)」・差と幅・ρ・D-46 の 2 通り・t と並べ替えの反転の区間・d_z と d_av・Holm と BH・符号反転は全列挙・CRN の健全性は ok/fail/未検査)。検収役が scipy と総当たりで別に計算して一致。
+- **5,000 体の実例**(既定 v3 対 帰無・salt 3 本): 天気は同じ=呼数の差 +31,785・差 ÷ 幅 4.54/天気も変える=+32,523・3.22。どちらも記述のみ。7 本で約 90 秒。
+- **わかったこと**: 世界資産の既定のランは影のある日に絞るので、環境の seed を変えても天気の実日は 2026-07-28 に決まる(動くのは催しの会場と工事の辺)。設計書 §5 の 3 本の根拠に注記。
+- 別のサブの検収: 1 回目 条件つき受入(S1 気象を母集団に入れていた=ユーザー判断へ・S2 A/A なしで ok・S3 8 件)→ 直し → 2 回目 条件つき受入(T1 道路工事に `day_index` が渡っていない=2 日目以降で HEAD と違う・byte-check の 1 日の構成では捕まらない)→ 直し+2 日目以降の試験と 2 日のランで HEAD と一致。
+- 既定の結果は不変(byte-check 19/19・2 日のラン)。テスト: 全体 **3,701 件(3,699 passed・failed 0・skipped 1・xfailed 1)**(親が実行)。
+
 ### #84 D-102 の土台 10f 第 1 段: 環境の欄(`env_id`・`platform_id`)と manifest の設定・観測・環境の節(第325・2026-10-07・実装役 Opus 5.5・親検収+別のサブの検収 2 回)
 
 - 正典: [10f のアジェンダ](docs/design/v2-d102-10f-agenda.md) §2 の 1・2(K22)・6(K20〜K26 は親推奨で確定=[リサーチの指示 10-06 夜](docs/design/v2-research-request-2026-10-06.md) §0)・[実装の記録](docs/bench/analysis/wallbounce-1006/10f/README.md)。

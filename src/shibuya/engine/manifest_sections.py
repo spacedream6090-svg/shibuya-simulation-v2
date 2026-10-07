@@ -59,6 +59,10 @@ PATHS: Final[dict[str, str]] = {
     "registry_hash": _C, "replay_date": _C, "tick_seconds": _C, "start_sim_datetime": _C, "sim_days": _C,
     "calendar": _C, "response_delay": _C, "rng_scheme": _C, "template_sha256": _C, "catalog_sha16": _C,
     "frozen_sources": _C, "process_ids": _C, "ablations": _C, "fleet": _C,
+    # ---- 10f 第 2 段(K21 (a)): 母集団の seed(salt の比較では揃える=設定) ----
+    "population_seed": _C,
+    # ---- 10f 第 2 段の直し(S1): 環境の seed(気象・大きな催し・道路工事) ----
+    "environment_seed": _C,
     # ---- 状態のハッシュ・再開・日ごとの締め(観測) ----
     "state_hashes": _O, "state_hashes.ledger_version": _C,
     "state_hashes_end_of_day": _O,
