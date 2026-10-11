@@ -27,7 +27,7 @@
 | 2 | G空間情報センター | 全国の人流オープンデータ(1kmメッシュ、市区町村単位発地別)データセット | https://www.geospatial.jp/ckan/dataset/mlit-1km-fromto | ○ | 「2022年以降の公開予定はございません」・集計単位・政府標準利用規約 |
 | 3 | リポ | `data/jinryu/SOURCE.md` | (リポ) | ○ | 取得済みの範囲(6 メッシュ × 36 か月)・定義(昼 11〜14 時・深夜 1〜4 時) |
 | 4 | 東京大学 CSIS 人の流れプロジェクト | 申請方法 | https://pflow.csis.u-tokyo.ac.jp/data-service/application-flow/ | ○ | JoRAS の共同研究申請・審査 1 週間程度・協議会への申請書 |
-| 5 | 東京大学 CSIS | JoRAS 概要 | https://joras.csis.u-tokyo.ac.jp/overview/ | ○ | 申請資格「国内外の大学や研究機関に所属している研究者」・生成 AI への投入の禁止・謝辞 |
+| 5 | 東京大学 CSIS | JoRAS 概要 | https://joras.csis.u-tokyo.ac.jp/overview/ | ○ | 申請資格「国内外の大学や研究機関に所属している研究者」・生成 AI への投入の禁止・謝辞 〔訂正(第329・[R-110](v2-r110-persona-language-materials.md) §5・親が規程 2025-04-22 版を実読): 規程 第 8 条の 2 (2)(3) では、外部の生成 AI は**事前の申し出と審査で許諾されうる**。学習や改善に入力を使わないことを保証するサービスに限る〕 |
 | 6 | 東京大学 CSIS | 提供状況 Data Catalog | https://pflow.csis.u-tokyo.ac.jp/data-service/data-list/ | ○ | 東京都市圏 PT の人の流れ(1988・1998・2008)・「公益に資する範囲でのみ」・2018 年の記載なし |
 | 7 | 東京大学 CSIS | 擬似人流データとは | https://pflow.csis.u-tokyo.ac.jp/data-service/pseudo-pflow/ | ○ | 版 1.1〜3.0(2026)・500 m メッシュ 6 分・ライセンスの記載なし |
 | 8 | 東京大学 CSIS 2024-08-09 | JoRAS において「全国擬似人流データ ver2.0」をリリース | https://www.csis.u-tokyo.ac.jp/news/joras_pflow_2_0_20240809/ | ○ | 2020 年国勢調査が基礎・JoRAS から申し込み |

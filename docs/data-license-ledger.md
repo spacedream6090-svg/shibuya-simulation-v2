@@ -232,3 +232,13 @@
 | data/research_cache/r107/osm_overpass_shibuya_atm_20261012.json・osm_overpass_shibuya_payment_20261012.json(渋谷区の ATM・銀行・コンビニ・郵便局 365 要素/宿泊施設と payment タグ 190 要素。クエリは同名の .query.txt・osm_base 2026-10-11) | https://overpass-api.de/api/interpreter(Overpass API=許可の一覧の中・2026-10-03) | 2026-10-12(同) | ODbL 1.0(出典表示「© OpenStreetMap contributors」・派生データベースは同じ条件で) | ATM の場所の充実度の数え(31 件・営業時間 10%)。実データの ATM には別の取り方が要る(判断待ち) |
 
 - 保存しなかったもの(許可の一覧の外・標準出力で読んだだけ): j-flec.go.jp の家計の金融行動に関する世論調査 2025(xlsx 2 本・pdf 2 本)・fsa.go.jp の貸金業関係資料集。**j-flec.go.jp を許可の一覧に足すかは判断待ち**(PENDING §1-1)。
+
+## 2026-10-12 追加 その 8(R-110 ペルソナと言語の材料=リサーチの指示 10-12 改訂版 §2 F9・読み取り目的・gitignore 下の data/research_cache/r110 に取得・md5 は同じ場所の MANIFEST.md)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r110/zairyu_2025-12_t2_municipality.xlsx・zairyu_2025-12_ex2_notes.pdf・zairyu_2025-12_ex3_tabledata_howto.pdf(在留外国人統計 2025 年 12 月末 表 25-12-t2 と利用上の注意・利用方法) | https://www.e-stat.go.jp/stat-search/file-download?statInfId=000040472266・000040472268・000040472269 | 2026-10-12(リサーチ役・親がドメインを確認) | e-Stat 利用規約(政府標準利用規約 第 2.0 版に準拠) | 渋谷区 × 国籍 × 年齢 × 性(年齢と性は Power Pivot の中=Excel で開く作業はユーザー U2) |
+| data/research_cache/r110/census2020_sa_h02_13_foreign.csv(令和 2 年国勢調査 小地域集計 第 2 表 東京都・外国人人口) | https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032163274&fileKind=1 | 2026-10-12(同) | 同上 | 町丁目別の外国人の割合(段 3 の言語と国籍の入力の候補) |
+| data/research_cache/r110/tokyo_gaikoku_2026_ga26ev0300.csv・tokyo_gaikoku_2026_ga26gv0100.csv・tokyo_gaikoku_2020_ga20hv0100.csv(東京都 外国人人口 住民基本台帳 2026-01・2026-07・2020) | https://www.toukei.metro.tokyo.lg.jp/gaikoku/2026/ga26ev0300.csv ほか | 2026-10-12(同) | **東京都の統計 サイトポリシー(CC 表示なし=著作権法の範囲の私的使用・引用。要確認)** | 渋谷区 × 国籍の最新値(13,280 人)。再配布しない・集計値だけ使う |
+| data/research_cache/r110/mlit_inbound_002025122.pdf・mlit_inbound_002018884.pdf・mlit_ukeire_001998584.pdf・mlit_ukeire_001998583.pdf(観光庁 インバウンド消費動向調査の調査票と概要・受入環境整備アンケート 令和 7 年度) | https://www.mlit.go.jp/kankocho/content/002025122.pdf ほか | 2026-10-12(同) | 国土交通省のサイトの利用規約(政府標準利用規約 第 2.0 版に準拠) | 訪日客の言語の設問の有無(無い)・困ったことの調査 |
+| data/research_cache/r110/tokyo_inbound_behavior_2025_bessi2.pdf(東京都 令和 7 年 国・地域別外国人旅行者行動特性調査 別紙 2) | https://www.metro.tokyo.lg.jp/documents/d/tosei/20260630_17_02 | 2026-10-12(同) | 東京都公式ホームページのサイトポリシー | 国別の特徴の概要(訪問率の数値は本文に無い。報告書本体の取得はユーザー U6) |
