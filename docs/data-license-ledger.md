@@ -218,3 +218,17 @@
 |---|---|---|---|---|
 | data/research_cache/r104/mlit_001488012.pdf(交通分野におけるデータ連携の高度化に向けた検討会 参考資料 3 利用者アンケート 2022-03・1,457 人・md5 fc6e9d56ecdb4e2232e5e3ae897126b0) | https://www.mlit.go.jp/sogoseisaku/transport/content/001488012.pdf(転送なし) | 2026-10-06(リサーチ役・親が md5 と p.40/p.43 の図を確認) | 国土交通省ウェブサイト利用規約(政府標準利用規約準拠・出典の表示) | 乗換案内サイト・アプリの使用頻度(全体・年代別)。R-104 §C1 |
 | data/research_cache/r104/mlit_001257132.pdf(鉄道における車椅子利用環境改善に向けた調査 報告書 2018-03・md5 d66fd491c1d321516004dc39c76a2b45) | https://www.mlit.go.jp/common/001257132.pdf(転送なし) | 2026-10-06(同・親が md5 を確認) | 同上 | 車椅子使用者の乗車までの時間など。R-104 §C1 |
+
+## 2026-10-12 追加 その 7(R-107 経済の材料=リサーチの指示 10-12 改訂版 §2 F10・読み取り目的・gitignore 下の data/research_cache/r107 に取得・md5 は同じ場所の MANIFEST.md)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r107/zenkokukakei2024_gaiyou0828.pdf(令和 6 年全国家計構造調査 結果の概要 2026-08-28・64 頁) | https://www.stat.go.jp/data/zenkokukakei/2024/pdf/gaiyou0828.pdf(転送なし) | 2026-10-12(リサーチ役・親が pymupdf で実読) | 政府標準利用規約(第 2.0 版) | 最初の資産の分布(EC2・構築側の候補)。親が 1527.2 万円・600 万円・1723.2 万円・34.3% を確認 |
+| data/research_cache/r107/kakei_sav_2025_gai.pdf(家計調査報告 貯蓄・負債編 2025 年平均 結果の概要・二人以上の世帯・34 頁) | https://www.stat.go.jp/data/sav/sokuhou/nen/pdf/2025_gai.pdf(転送なし) | 2026-10-12(同) | 同上 | **構築と検証のどちらに置くかは判断待ち**(PENDING §1-1・パターン台帳 §10-1 の「家計調査」との整合) |
+| data/research_cache/r107/zk2024_t4-22-1_savings_class.csv・zk2024_t4-4_age_sex_hhtype.csv・zk2024_t23-0_tokyo_age.csv・zk2024_t31-0_tokyo_savings_class.csv(令和 6 年全国家計構造調査 第 4-22-1・4-4・23-0・31-0 表) | https://api.e-stat.go.jp/rest/3.0/app/getSimpleStatsData(statsDataId 0004056062・0004056078・0004056039・0004056045。appId は環境変数) | 2026-10-12(同) | 同上(e-Stat API 利用規約) | 資産と負債の階級と年齢の表(構築側の候補)。appId は URL に書かない |
+| data/research_cache/r107/chinkou_r7_ippan_shokushu_t6_occ_sex_age.xlsx・t9_occ_sex_emptype.xlsx・t18_occ_sex_wagedist.xlsx・chinkou_r7_tanjikan_shokushu_t2_hourly.xlsx(令和 7 年賃金構造基本統計調査 職種 第 6・9・18 表・短時間労働者 第 2 表) | https://www.e-stat.go.jp/stat-search/file-download?statInfId=000040421121・000040421124・000040421134・000040421217&fileKind=4 | 2026-10-12(同) | 同上 | 収入の錨(属性から作る関数の入力・構築側) |
+| data/research_cache/r107/kakeishohi2025_emoney_t2-2_age.xlsx(家計消費状況調査 ICT 関連 2025 年 第 2-2 表 電子マネーの利用状況・年齢別) | https://www.e-stat.go.jp/stat-search/file-download?statInfId=000040408067&fileKind=4 | 2026-10-12(同) | 同上 | 電子マネーの**保有率**は構築側(持ち物)・**利用額**は検証側(案) |
+| data/research_cache/r107/ics2025_rekinen_gaiyou.pdf・ics2025_rekinen_shukei.xls・ics_chosahyo_ja.pdf(観光庁 インバウンド消費動向調査 2025 年暦年 調査概要・集計表・調査票) | https://www.mlit.go.jp/kankocho/content/002020046.pdf・002025515.xls・002018886.pdf(転送なし) | 2026-10-12(同。xls は未読=xlrd が無い) | 同上 | 訪日客の 1 回の旅行の予算(外の決定として持ち込む額) |
+| data/research_cache/r107/osm_overpass_shibuya_atm_20261012.json・osm_overpass_shibuya_payment_20261012.json(渋谷区の ATM・銀行・コンビニ・郵便局 365 要素/宿泊施設と payment タグ 190 要素。クエリは同名の .query.txt・osm_base 2026-10-11) | https://overpass-api.de/api/interpreter(Overpass API=許可の一覧の中・2026-10-03) | 2026-10-12(同) | ODbL 1.0(出典表示「© OpenStreetMap contributors」・派生データベースは同じ条件で) | ATM の場所の充実度の数え(31 件・営業時間 10%)。実データの ATM には別の取り方が要る(判断待ち) |
+
+- 保存しなかったもの(許可の一覧の外・標準出力で読んだだけ): j-flec.go.jp の家計の金融行動に関する世論調査 2025(xlsx 2 本・pdf 2 本)・fsa.go.jp の貸金業関係資料集。**j-flec.go.jp を許可の一覧に足すかは判断待ち**(PENDING §1-1)。
