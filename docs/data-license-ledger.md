@@ -242,3 +242,14 @@
 | data/research_cache/r110/tokyo_gaikoku_2026_ga26ev0300.csv・tokyo_gaikoku_2026_ga26gv0100.csv・tokyo_gaikoku_2020_ga20hv0100.csv(東京都 外国人人口 住民基本台帳 2026-01・2026-07・2020) | https://www.toukei.metro.tokyo.lg.jp/gaikoku/2026/ga26ev0300.csv ほか | 2026-10-12(同) | **東京都の統計 サイトポリシー(CC 表示なし=著作権法の範囲の私的使用・引用。要確認)** | 渋谷区 × 国籍の最新値(13,280 人)。再配布しない・集計値だけ使う |
 | data/research_cache/r110/mlit_inbound_002025122.pdf・mlit_inbound_002018884.pdf・mlit_ukeire_001998584.pdf・mlit_ukeire_001998583.pdf(観光庁 インバウンド消費動向調査の調査票と概要・受入環境整備アンケート 令和 7 年度) | https://www.mlit.go.jp/kankocho/content/002025122.pdf ほか | 2026-10-12(同) | 国土交通省のサイトの利用規約(政府標準利用規約 第 2.0 版に準拠) | 訪日客の言語の設問の有無(無い)・困ったことの調査 |
 | data/research_cache/r110/tokyo_inbound_behavior_2025_bessi2.pdf(東京都 令和 7 年 国・地域別外国人旅行者行動特性調査 別紙 2) | https://www.metro.tokyo.lg.jp/documents/d/tosei/20260630_17_02 | 2026-10-12(同) | 東京都公式ホームページのサイトポリシー | 国別の特徴の概要(訪問率の数値は本文に無い。報告書本体の取得はユーザー U6) |
+
+## 2026-10-12 追加 その 9(R-109 母集団の人数の材料=リサーチの指示 10-12 改訂版 §2 A9・読み取り目的・gitignore 下の data/research_cache/r109 に取得・md5 は同じ場所の MANIFEST.md)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r109/shibuya_ankaku_plan202606_honsatsu.pdf(渋谷駅周辺地域 都市再生安全確保計画 Ver3.0 本冊・2026-06) | https://www.toshiseibi.metro.tokyo.lg.jp/documents/d/toshiseibi/toshisaisei-shibuya-ankaku-plan202606-2-pdf | 2026-10-12(リサーチ役・親がドメインを確認) | 東京都公式ホームページのサイトポリシー | 139 ha の 14 時台の滞留人口 146,309(PT 2018 から)=構築側の目安 |
+| data/research_cache/r109/census2020_t04_13_workplace_by_residence.xlsx(令和 2 年国勢調査 従業地・通学地集計 第 4 表 東京都) | https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032214352&fileKind=0 | 2026-10-12(同) | e-Stat 利用規約(政府標準利用規約 第 2.0 版に準拠) | 来る可能性のある人の母集団(流入元の分布) |
+| data/research_cache/r109/ecensus2021_yougo.pdf(令和 3 年経済センサス 活動調査 用語の解説) | https://www.stat.go.jp/data/e-census/2021/kekka/pdf/yougo.pdf | 2026-10-12(同) | 総務省統計局 利用規約(政府標準利用規約 第 2.0 版) | 「従業者」の定義(所属で数える・派遣と出向を含む) |
+| data/research_cache/r109/mlit_telework_r6_001878995.pdf・mlit_telework_r6_001878996.pdf(国交省 令和 6 年度 テレワーク人口実態調査) | https://www.mlit.go.jp/report/press/content/001878995.pdf・001878996.pdf | 2026-10-12(同) | 国土交通省 利用規約(政府標準利用規約 第 2.0 版に準拠) | 通勤の出てこない割合の目安 |
+
+- 取得ツールがリポの外(セッションの一時領域)に自動で残した写し: train-media.net の東急の PDF(規約未確認=値は使わない)・Schläpfer ほか 2021 の PDF。リポの data/ には置いていない。
