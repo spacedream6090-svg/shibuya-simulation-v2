@@ -276,3 +276,9 @@
 | data/research_cache/r112/osm_objects_w1_20261012.json(W1 の bbox の街路の設備・屋内タグ 2,115 要素・osm_base 2026-10-12T07:57:35Z・クエリは同名の .query.txt) | https://overpass-api.de/api/interpreter(Overpass API=許可の一覧の中) | 2026-10-12(同) | ODbL 1.0(出典表示「© OpenStreetMap contributors」・派生データベースは同じ条件で) | 物の形の公開データの数え(ベンチ・ごみ箱・自販機・駐輪場・看板・店名 2,813) |
 
 - 読んだだけ(保存せず・一覧の外): 商業施設 23 ドメインの robots.txt と利用条件の頁(R-112 §空欄 A の表)・soumu.go.jp のカメラ画像利活用ガイドブック・Mapillary の規約・PLATEAU 標準製品仕様書の頁(mlit.go.jp)。zip・点群・施設サイトの中身は取っていない。
+
+## 2026-10-12 追加 その 13(10e 構築側 B5=W13 の年間化・気象庁 etrn の東京 47662 の 10 分値と時別値・読み取り目的・gitignore 下の data/realworld/jma_etrn/)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/realworld/jma_etrn/raw10min/(10 分値の頁 365 本・2025-09-01〜2026-08-31)・raw/(時別値の頁 330 本・手元に無かった日)・tokyo47662_10min_2025-09-01_2026-08-31.csv・tokyo47662_hourly_2025-09-01_2026-08-31.csv(表にしたもの)。md5・バイト数・取得時刻・URL は MANIFEST_10min.tsv・MANIFEST_hourly.tsv | https://www.data.jma.go.jp/stats/etrn/view/10min_s1.php?prec_no=44&block_no=47662&year=…&month=…&day=…&view=p1 / hourly_s1.php(同) | 2026-10-12 07:52〜08:15 UTC(実装役・2 秒に 1 回・転送と失敗 0・robots.txt は 404) | 気象庁 公共データ利用規約(第 1.0 版)=出典の記載・加工した場合はその旨の記載(自動取得についての定めは無い。親が `www.jma.go.jp` の規約の頁を読んだだけで保存せず) | W13 の年間化(窓 2025-09-01〜2026-08-31・主は 10 分値・時別値は欠けの補完)。35 日はアメダスの JSON と検算(気温・湿度・風速・降水 3,219/3,219 一致・日照は夜の空欄を 0 分として扱う=expedient)。`realworld_live/` は読まない |
