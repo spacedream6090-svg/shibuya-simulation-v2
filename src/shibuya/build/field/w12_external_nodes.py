@@ -182,6 +182,33 @@ PEAK_HOURS_AM: tuple[int, ...] = (7, 8, 9)
 PEAK_HOURS_PM: tuple[int, ...] = (17, 18, 19)
 #: D-W14 の本数表は朝ピークのみ=夕ピーク本数を朝と同じに置く(expedient・宣言)。
 PM_PEAK_ASSUMED_EQUAL_TO_AM = True
+#: 〔改訂(第330)・答え 10-12b 1-2〕夕ピーク(17-19時)の本数の表(線 → 本/時)。
+#: ``PM_PEAK_ASSUMED_EQUAL_TO_AM`` が False のときだけ読む。**既定の表は無い**(None)=
+#: 夕ピークの本数はどの入手済み資料にも無い。他社の比(例 メトロの夕/朝 0.79)を当てはめて
+#: 埋めない(他社のダイヤの推定になる)。False で表が None か、表に無い線があれば ValueError
+#: (False が黙って夕=朝に戻る=第330 B2 で直した欠陥の再発を防ぐ)。本当の直しは実際の時刻表(答え §2)。
+PM_PEAK_TRAINS_PER_HOUR: dict[str, int] | None = None
+
+
+def pm_peak_for_line(
+    line: str,
+    assumed_equal_to_am: bool,
+    pm_table: dict[str, int] | None,
+) -> int | None:
+    """線ごとに :func:`equal_interval_departures` へ渡す ``peak_tph_pm``。
+
+    True(既定)= None(夕=朝)。False = 表の値(表が無い・線が無いときは ValueError)。
+    """
+    if assumed_equal_to_am:
+        return None
+    if pm_table is None:
+        raise ValueError(
+            "PM_PEAK_ASSUMED_EQUAL_TO_AM=False には夕ピークの本数の表 PM_PEAK_TRAINS_PER_HOUR が要る"
+            "(既定の表は無い・他社の比で埋めない)"
+        )
+    if line not in pm_table:
+        raise ValueError(f"夕ピークの本数の表に {line} の行が無い(黙って夕=朝にしない)")
+    return int(pm_table[line])
 #: オフピーク比を測る時間帯(昼)。
 OFFPEAK_HOURS: tuple[int, ...] = (10, 11, 12, 13, 14, 15)
 
@@ -563,7 +590,9 @@ def run(ctx: C.Ctx) -> C.StageResult:
                     ratio,
                     first_min,
                     last_min,
-                    peak_tph_pm=None if PM_PEAK_ASSUMED_EQUAL_TO_AM else tph,
+                    peak_tph_pm=pm_peak_for_line(
+                        line, PM_PEAK_ASSUMED_EQUAL_TO_AM, PM_PEAK_TRAINS_PER_HOUR
+                    ),
                 ):
                     tt_line.append(line)
                     tt_operator.append(operator)
@@ -601,6 +630,14 @@ def run(ctx: C.Ctx) -> C.StageResult:
         "pt_source": "docs/bench/pt_shibuya/pt6_summary_core0241.json",
         "generation_weights_usage": "用途=W16/W17生成入力・較正・検証のみ(D-W14)",
     }
+    if not PM_PEAK_ASSUMED_EQUAL_TO_AM:
+        # 〔改訂(第330)〕既定(True)の params には鍵を足さない=既定の param_hash は不変。
+        params["pm_peak_trains_per_hour"] = dict(sorted((PM_PEAK_TRAINS_PER_HOUR or {}).items()))
+    pm_expedient = (
+        "夕ピーク本数=朝ピークと同数(資料3は朝ピークのみ=D-W14 の空欄)"
+        if PM_PEAK_ASSUMED_EQUAL_TO_AM
+        else "夕ピーク本数=引数の表 PM_PEAK_TRAINS_PER_HOUR(出典は表を渡した側が宣言する)"
+    )
     res = C.StageResult(
         stage=STAGE,
         stage_version=STAGE_VERSION,
@@ -615,7 +652,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
             "JR・東急・京王=等間隔ダイヤ(F10)・上下同数",
             "山手線ピーク本数=資料3の 16-20 本/h の中央 18",
             "オフピーク比はメトロ実ダイヤから移植(平日は平日ダイヤ・土休は土休ダイヤ)",
-            "夕ピーク本数=朝ピークと同数(資料3は朝ピークのみ=D-W14 の空欄)",
+            pm_expedient,
             "初終発時刻はメトロ**平日**ダイヤから移植(土休の初終発は別に測っていない)",
         ],
         notes={
@@ -688,6 +725,12 @@ def run(ctx: C.Ctx) -> C.StageResult:
             "generation_weight_rows": len(w_val),
         },
     )
+    if not PM_PEAK_ASSUMED_EQUAL_TO_AM:
+        res.notes["pm_peak_note"] = (
+            "夕ピーク(17-19時)の本数は引数の表 PM_PEAK_TRAINS_PER_HOUR から(既定の表は無い・"
+            "他社の比で埋めない=答え 10-12b 1-2)。"
+        )
+        res.notes["pm_peak_trains_per_hour"] = params["pm_peak_trains_per_hour"]
     res.outputs.append(C.write_parquet(ctx.out, "w12_external_nodes.parquet", node_cols))
     res.outputs.append(
         C.write_parquet(
