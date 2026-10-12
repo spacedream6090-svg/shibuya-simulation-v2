@@ -172,8 +172,9 @@ def test_classical_checkpoint_moves_with_hash_and_id_reproduces_the_old_one():
     world = Path("data/world/v2")
     if not (world / "w2_cells.parquet").exists():
         pytest.skip("実世界資産 data/world/v2 が無い")
+    # 10e(E1): 3 本とも 10e より前の final の定義の値=hash_scheme="full" で比べる
     kw = dict(n_agents=1500, seed=1, world_dir=str(world), vocab_version="v3", policy="classical",
-              chooser="classical", classical_social="near_first")
+              chooser="classical", classical_social="near_first", hash_scheme="full")
     new = cli.run(**kw)
     old = cli.run(near_tiebreak="id", near_order="id", **kw)
     if CLASSICAL_1500_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(既定の hash の 1 本)+切替が効くこと
