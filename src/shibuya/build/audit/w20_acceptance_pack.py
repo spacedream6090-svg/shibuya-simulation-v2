@@ -233,6 +233,13 @@ def run(ctx: C.Ctx) -> C.StageResult:
 
     # --- shadow_noon.png: W9 正午面 -----------------------------------------------------
     shadow_files = sorted(ctx.out.glob("w9_shadow_*.npy"))
+    # 〔改訂(第330 B5)〕影の日が複数あるときは W9 の主の日(ヘッダ notes の replay_date)の面を描く
+    w9_header = ctx.out / "W9.header.json"
+    if w9_header.exists():
+        main_day = C.load_json(w9_header).get("notes", {}).get("replay_date", "")
+        main_file = ctx.out / f"w9_shadow_{main_day}.npy"
+        if main_day and main_file.exists():
+            shadow_files = [main_file]
     shadow_noon_share: float | None = None
     if shadow_files:
         planes = np.load(shadow_files[0])

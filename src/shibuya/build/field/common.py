@@ -157,3 +157,38 @@ def median(values: Sequence[float]) -> float:
 
 
 __all__ += ["clamp", "median"]
+
+
+# --- 暦(第330 B5・B6)---------------------------------------------------------------------
+#: 内閣府「国民の祝日」CSV(cp932・見出し 1 行・``YYYY/M/D,名称``)。data 根からの道筋。
+HOLIDAY_CSV: tuple[str, ...] = ("calendar", "syukujitsu.csv")
+#: 気象庁の季節の区分(月 → 季節)。エンジンの ``engine.calendar.SEASON_OF_MONTH`` と同じ表
+#: (build はエンジンを import しないので写す・一致は試験で見る)。
+SEASON_OF_MONTH: dict[int, str] = {
+    3: "春", 4: "春", 5: "春",
+    6: "夏", 7: "夏", 8: "夏",
+    9: "秋", 10: "秋", 11: "秋",
+    12: "冬", 1: "冬", 2: "冬",
+}
+SEASONS: tuple[str, ...] = ("春", "夏", "秋", "冬")
+
+
+def read_holidays_csv(path) -> dict[str, str]:
+    """内閣府の祝日 CSV → {``YYYY-MM-DD``: 名称}(全行・日付順)。"""
+    import csv
+    import datetime as _dt
+    import io
+    from pathlib import Path as _Path
+
+    raw = _Path(path).read_bytes().decode("cp932")
+    rows = list(csv.reader(io.StringIO(raw)))
+    out: dict[str, str] = {}
+    for r in rows[1:]:
+        if len(r) < 2 or not r[0].strip():
+            continue
+        y, m, d = (int(x) for x in r[0].strip().split("/"))
+        out[_dt.date(y, m, d).isoformat()] = r[1].strip()
+    return dict(sorted(out.items()))
+
+
+__all__ += ["HOLIDAY_CSV", "SEASON_OF_MONTH", "SEASONS", "read_holidays_csv"]

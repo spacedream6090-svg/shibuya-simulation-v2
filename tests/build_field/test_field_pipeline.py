@@ -244,9 +244,11 @@ def test_w12_external_nodes(built):
 
 def test_w13_weather(built):
     out, manifest, _dt = built
-    assert _gate(manifest, "W13", "weather_days")["value"] == 35
+    # 〔改訂(第330 B5)〕年間化=窓 2025-09-01〜2026-08-31 の 365 日
+    assert _gate(manifest, "W13", "weather_days")["value"] == 365
     days = C.read_parquet_columns(out / "w13_weather_days.parquet")
-    assert len(days["date"]) == 35
+    assert len(days["date"]) == 365
+    assert days["date"][0] == "2025-09-01" and days["date"][-1] == "2026-08-31"
     assert set(days["weekday_kind"]) == {"平日", "土休"}
     assert "2026-08-11" in days["date"]
     idx = days["date"].index("2026-08-11")
@@ -255,8 +257,15 @@ def test_w13_weather(built):
     assert set(hourly["daylight"]) <= {"夜明け前", "日中", "日没後"}
     assert set(hourly["weather"]) <= {"晴", "薄曇", "曇", "小雨", "雨"}
     header = _header(manifest, "W13")
-    assert header["notes"]["candidate_days"] == 35
-    assert "未取得" in header["notes"]["candidate_set_note"]
+    assert header["notes"]["candidate_days"] == 365
+    assert header["notes"]["window"] == ["2025-09-01", "2026-08-31"]
+    # 季節 × 平日/土休 × 天候型の表(報告だけのゲート)
+    table = header["notes"]["season_weekday_type_counts"]
+    assert set(table) == {"春", "夏", "秋", "冬"}
+    assert sum(n for se in table.values() for k in se.values() for n in k.values()) == 365
+    for g in ("earliest_sunrise_month", "latest_sunrise_month", "longest_day_near_june_solstice"):
+        assert _gate(manifest, "W13", g)["pass"], g
+    assert set(hourly["src"]) <= {"etrn_10min", "etrn_10min+hourly", "etrn_hourly"}
 
 
 def test_headers_declare_expedients_and_catalog(built):

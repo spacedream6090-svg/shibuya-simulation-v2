@@ -72,11 +72,10 @@ def data_asset_paths(data_root: Path) -> list[str]:
             rel.add(_joined(tuple(parts)))
     for _line, fname in w12_external_nodes.METRO_TIMETABLES:
         rel.add(f"odpt/{fname}")
-    rel.add(_joined(w13_weather.ETRN_CSV))
-    amedas = data_root.joinpath(*w13_weather.AMEDAS_DIR)
-    if amedas.exists():
-        for p in sorted(amedas.rglob("amedas_*.json")):
-            rel.add(p.relative_to(data_root).as_posix())
+    # 〔改訂(第330 B5)〕W13 が実際に読むファイルだけ(窓の CSV 2 本と祝日 CSV)。旧は
+    # data/realworld/amedas を rglob して、構築が読まない日次取得の日まで載せうる形だった。
+    for parts in w13_weather.INPUT_FILES:
+        rel.add(_joined(parts))
     pool_root = data_root.joinpath(*w16_population.POOL_DIR)
     if pool_root.exists():
         for q in sorted(pool_root.rglob("part-*.jsonl")):

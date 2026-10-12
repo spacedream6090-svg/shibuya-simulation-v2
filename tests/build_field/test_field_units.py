@@ -587,10 +587,61 @@ def test_daylight_phase_vocabulary():
 
 
 def test_weekday_kind_holiday():
-    assert w13.weekday_kind(dt.date(2026, 8, 11)) == "土休"  # 山の日(火曜)
-    assert w13.weekday_kind(dt.date(2026, 8, 12)) == "平日"
-    assert w13.weekday_kind(dt.date(2026, 8, 15)) == "土休"  # 土曜
-    assert w13.weekday_kind(dt.date(2026, 7, 20)) == "土休"  # 海の日
+    # 〔改訂(第330 B5)〕祝日は内閣府の CSV の表を渡す(手書きの 2 行をやめた)
+    hol = {"2026-07-20": "海の日", "2026-08-11": "山の日"}
+    assert w13.weekday_kind(dt.date(2026, 8, 11), hol) == "土休"  # 山の日(火曜)
+    assert w13.weekday_kind(dt.date(2026, 8, 12), hol) == "平日"
+    assert w13.weekday_kind(dt.date(2026, 8, 15), hol) == "土休"  # 土曜
+    assert w13.weekday_kind(dt.date(2026, 7, 20), hol) == "土休"  # 海の日
+    assert w13.weekday_kind(dt.date(2026, 7, 20), {}) == "平日"  # 表に無ければ平日(月曜)
+
+
+def test_w13_window_constant_and_inputs():
+    """〔改訂(第330 B5)〕窓は定数・入力は窓の名前の CSV 2 本と祝日 CSV だけ(rglob をやめた)。"""
+    assert w13.WINDOW == ("2025-09-01", "2026-08-31")
+    assert len(w13.window_dates()) == 365
+    assert w13.INPUT_FILES == (
+        ("realworld", "jma_etrn", "tokyo47662_10min_2025-09-01_2026-08-31.csv"),
+        ("realworld", "jma_etrn", "tokyo47662_hourly_2025-09-01_2026-08-31.csv"),
+        ("calendar", "syukujitsu.csv"),
+    )
+    src = inspect.getsource(w13)
+    assert "rglob" not in src.replace("``rglob``", "") and "realworld_live" not in src.replace(
+        "data/realworld_live は読まない", ""
+    )
+
+
+def test_season_of_matches_the_engine_calendar():
+    """build は engine を import しない。表の写しがエンジンの気象庁の区分と一致すること。"""
+    from shibuya.engine import calendar as ecal
+
+    assert dict(C.SEASON_OF_MONTH) == dict(ecal.SEASON_OF_MONTH)
+    assert w13.season_of(dt.date(2026, 2, 28)) == "冬" and w13.season_of(dt.date(2025, 9, 1)) == "秋"
+
+
+def test_read_etrn_10min_csv_buckets_like_the_amedas_json(tmp_path):
+    """観測の時刻の時で畳む(01:00=1 時台)・24:00 は翌日の 0 時台・夜の日照の空欄=0・窓の外は捨てる。"""
+    p = tmp_path / "t.csv"
+    rows = ["date,time,pressure_local_hpa,pressure_sea_hpa,precip_mm,temp_c,rh_pct,wind_ms,wind_dir,gust_ms,gust_dir,sunshine_min"]
+    rows += ["2025-09-01,00:10,1,1,--,20.0,80,1.0,北,2,北,", "2025-09-01,00:50,1,1,0.5,22.0,90,×,北,2,北,",
+             "2025-09-01,01:00,1,1,--,30.0,70,2.0,北,2,北,", "2025-09-01,24:00,1,1,--,25.0,60,3.0,北,2,北,",
+             "2026-08-31,24:00,1,1,--,99.0,60,3.0,北,2,北,", "2025-09-01,12:00,1,1,--,31.0,50,1.0,北,2,北,7"]
+    p.write_text("\n".join(rows) + "\n", encoding="utf-8")
+    got, outside = w13.read_etrn_10min_csv(p, ("2025-09-01", "2026-08-31"))
+    assert outside == 1  # 2026-08-31 24:00 = 2026-09-01 0 時台=窓の外
+    h0 = got[("2025-09-01", 0)]
+    assert h0["temp_c"] == 21.0 and h0["precip_mm"] == 0.5 and h0["wind_ms"] == 1.0  # × は平均から外す
+    assert h0["sunshine_h"] == 0.0 and h0["n_samples"] == 2.0
+    assert got[("2025-09-01", 1)]["temp_c"] == 30.0
+    assert got[("2025-09-02", 0)]["temp_c"] == 25.0  # 24:00 → 翌日の 0 時台
+    assert got[("2025-09-01", 12)]["sunshine_h"] == pytest.approx(7 / 60)
+
+
+def test_read_holidays_csv(tmp_path):
+    p = tmp_path / "h.csv"
+    text = "国民の祝日・休日月日,国民の祝日・休日名称\r\n2026/7/20,海の日\r\n2026/8/11,山の日\r\n"
+    p.write_bytes(text.encode("cp932"))
+    assert C.read_holidays_csv(p) == {"2026-07-20": "海の日", "2026-08-11": "山の日"}
 
 
 def test_day_weather_type_rules():

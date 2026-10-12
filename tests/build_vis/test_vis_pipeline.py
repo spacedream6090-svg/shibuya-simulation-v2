@@ -133,8 +133,14 @@ def test_w9_shadow_planes(built):
     out, headers, _dt = built
     notes = headers["W9"]["notes"]
     date = notes["replay_date"]
-    days = C.read_parquet_columns(out / "w13_weather_days.parquet", ["date"])
-    assert date == days["date"][0]
+    # 〔改訂(第330 B5)〕影の日は W13 の先頭日ではなく定数 SHADOW_DATES(先頭=主の日)。
+    # out にある影のファイルは一覧の日だけ(一覧に無い古い日は W9 が消す)。
+    from shibuya.build.vis import w9_shadow as W9
+
+    assert date == W9.SHADOW_DATES[0]
+    assert notes["shadow_dates"] == list(W9.SHADOW_DATES)
+    on_disk = sorted(f.name for f in out.glob("w9_shadow_*.npy"))
+    assert on_disk == sorted(f"w9_shadow_{d}.npy" for d in W9.SHADOW_DATES)
     planes = np.load(out / f"w9_shadow_{date}.npy")
     assert planes.shape == (288, (notes["points"] + 7) // 8)
     assert planes.dtype == np.uint8

@@ -621,3 +621,46 @@ E1 は final の定義だけ・E2 は O39 の掃除(呼数は不変)・E4 は乱
   - `tests/build_field/test_w10_ruler.py`: `test_switch_off_reproduces_the_promoted_w10_outputs` を 2 本に分けた=`test_default_on_q7_reproduces_the_promoted_w10_outputs`(既定=昇格版の manifest と一致+ON+Q7 の先頭 12 桁)と `test_switch_off_reproduces_the_pre_10e_w10_outputs`(OFF=退避先の先頭 12 桁)。`test_ruler_values_on_the_promoted_field` → `test_ruler_values_on_the_off_field`(OFF の騒音場を一時ディレクトリに作って測る・値は同じ)。
   - `tests/build_field/test_field_pipeline.py`: 既知の落ちるゲートから `("W10", "primary_secondary_sections_matched")` を外した(202/202 で PASS)。
 - 段の後の出力: `data/world/v2_10e_steps/B4/`(W10 の 6 本とヘッダ・W18〜W20 のヘッダと出力・受入パック・manifest=17 ファイル+`MANIFEST.sha256`)。
+
+## B5 W13 の年間化(◎ のはず → 挙動は ◎・final は動いた・再構築 3 回目)
+
+### B5-1 取得の記録(気象庁 etrn・`data.jma.go.jp` だけ)
+
+- **頁**: 東京(`prec_no=44`・`block_no=47662`)の 10 分値 `https://www.data.jma.go.jp/stats/etrn/view/10min_s1.php?prec_no=44&block_no=47662&year={y}&month={m}&day={d}&view=p1` と時別値 `…/hourly_s1.php?…`(同じ引数)。窓 **2025-09-01〜2026-08-31**。
+- **取った数**: 10 分値 **365 頁**(2026-10-12 07:52〜08:04 UTC・25,865,592 B)・時別値 **330 頁**(08:04〜08:15 UTC・7,561,109 B)。時別値の 2026-07-28〜08-31 の 35 頁は前回(2026-09-08・親)の頁をそのまま使った(取り直していない)。**2 秒に 1 回**。転送(3xx)は追わない作りにした(`tools/realworld_fetch/jma_etrn.py` の `_NoRedirect`)=**転送も失敗も 0 件**(695 頁すべて 200・`www.data.jma.go.jp` のまま)。
+- **置き場と md5**: 頁 `data/realworld/jma_etrn/raw10min/tokyo47662_10min_<日付>.html`・`data/realworld/jma_etrn/raw/tokyo47662_<日付>.html`(前回と同じ名前)。**頁ごとの md5・バイト数・取得時刻・URL** は `data/realworld/jma_etrn/MANIFEST_10min.tsv`(365 行)と `MANIFEST_hourly.tsv`(330 行)。表にした CSV は `tokyo47662_10min_2025-09-01_2026-08-31.csv`(52,560 行・md5 `f015172cdc346e32f12d0ac4fba38a5f`)と `tokyo47662_hourly_2025-09-01_2026-08-31.csv`(8,760 行・md5 `19f21ed8da90da6b07e78c4c1e60d7bc`)。ライセンス台帳の行は親が足す。
+- **規約と robots の要点**(読むだけ): `www.data.jma.go.jp/robots.txt` は **404(置かれていない)**。気象庁ホームページの利用規約(`www.jma.go.jp/jma/kishou/info/coment.html`・WebFetch で読んだ・保存していない)は「公共データ利用規約(第 1.0 版)」に準拠=出典の記載が要る(「出典:気象庁ホームページ(当該ページの URL)」)・編集や加工をしたらその旨を書く・国が作ったように見せない。数値データ固有の定めは無く、気象業務法 17 条(予報業務の許可)・23 条(警報の制限)の注意がある。機械による取得・頻度・負荷についての記載は無い。
+- **読み方の検算**: 道具の時別値の読み方で前回の 35 日の頁を読み直すと、前回の CSV と改行を除いて 1 文字も違わなかった。
+
+### B5-2 35 日の検算(etrn の 10 分値 × アメダスの JSON)
+
+- [w13_amedas_crosscheck.py](w13_amedas_crosscheck.py)・[b5_w13_amedas_crosscheck.json](b5_w13_amedas_crosscheck.json)。アメダスの JSON 35 本の 3,219 記録(10 分ごと)を etrn の同じ時刻の行と比べた。
+- **気温・相対湿度・平均風速・10 分間降水量は 3,219/3,219 一致**。日照は 1,865 一致・1,354 不一致で、**不一致は全部「etrn が空欄・アメダスが 0」**(夜)。etrn の日照の空欄は 1 年ぶんで 25,620 行あり、日の出から日の入りの間には 1 行も無い(夜だけ)。そこで 10 分値の日照の空欄は 0 分として畳む(アメダスの慣行と同じ・expedient として宣言)。これで 3,219 記録はすべて同じ値になる。
+- アメダスの JSON は 35 日で 3,219 記録しか無い(35 × 144=5,040 のうち)。足りない時間は、これまで etrn の時別値(正時の値)で補っていた(301 時間)。
+
+### B5-3 変えたこと
+
+- `build/field/w13_weather.py`(`STAGE_VERSION` 1.0.0 → **1.1.0**): 窓 `WINDOW=("2025-09-01","2026-08-31")` を定数で持ち、入力は窓の名前の CSV 2 本と祝日の CSV だけ(`INPUT_FILES`)。`rglob` をやめた(`data/realworld/amedas` も `data/realworld_live` も読まない)。**主=etrn の 10 分値**(時の分け方はアメダスの JSON と同じ「観測の時刻の時」・頁の `24:00` は翌日の 0 時台・窓の外へ出る 2026-08-31 24:00 の 1 行は捨てる・窓の最初の日の 0 時台は 5 本)。**時別値は欠けの補完**(時ごと・値ごと。この窓では補完 0 時間=10 分値に欠けた時が無い)。祝日は内閣府の CSV(`build/field/common.py` の `read_holidays_csv`・CSV の範囲が窓の終わりに届かなければ止める)。季節は列に足さない(エンジンの契約)。notes に「季節 × 平日/土休 × 天候型」の日数の表(`season_weekday_type_counts`)・足りない組(`season_weekday_type_missing`)・入力の sha256 の先頭(`input_files`)。
+- **ゲートの作り直し**: 日数のゲートは窓の日数(365)。「先頭の日の出 < 末尾の日の出」は年間の窓で意味を失う(9/1 と 8/31 はほぼ同じ)ので、物理の検算 3 つに替えた=日の出の最も早い日が 6 月(2026-06)・最も遅い日が 1 月(2026-01)・昼の最も長い日が夏至の ±3 日(2026-06-23)。報告だけのゲート `every_season_has_each_weekday_type`(値=足りない組の数)。
+- `build/audit/w19_freeze.py`: W13 の資産は `w13_weather.INPUT_FILES` だけを載せる(旧はアメダスの 35 本を rglob)。資産表は 99 → **66 行**(アメダスの JSON 35 本と旧の時別値 CSV が外れ、CSV 2 本と祝日 CSV が入った)。`realworld_live` は 0 件。
+- `build/vis/w9_shadow.py`: 影を作る日を定数 `SHADOW_DATES`(B5 では `("2026-07-28",)`)にした(旧は W13 の先頭の日=窓を変えると黙って 2025-09-01 の影になった)。先頭を「主の日」とし、面の表 `w9_shadow_planes.parquet` と notes の `replay_date` は主の日の値(ほかの日は notes の `per_date`)。**古い出力の規則**: エンジンは `w9_shadow_*.npy` を glob するので、W9 は `out` にある影のファイルのうち一覧に無い日を消す(残すと前の構築の日が黙って影ありの日になる)。消したことはヘッダに書かない(再構築のバイト一致のため・docstring に書いた)。
+- `build/audit/w20_acceptance_pack.py`: 正午の影の図は W9 の主の日を描く(影の日が増えても図が変わらないように)。
+- 試験: `test_field_units.py`(`weekday_kind` に祝日の表を渡す形・窓と入力の定数・季節の表がエンジンの `engine.calendar.SEASON_OF_MONTH` と一致・10 分値の畳み方・祝日 CSV の読み方)・`test_field_pipeline.py::test_w13_weather`(365 日・季節の表の合計 365・物理のゲート)・`test_audit_units.py::test_w19_assets_are_only_the_files_w13_reads`(`realworld_live` と `realworld/amedas` が data 根に在っても資産表に載らない)・`test_vis_pipeline.py::test_w9_shadow_planes`(影の日=定数・ディスクの影のファイル=一覧)。
+
+### B5-4 不変の確認と動いた量
+
+- **再構築 ×2**: 116 ファイル一致。B4 の後と比べて動いたのは 12 ファイル: W13 の 2 本とヘッダ・W9 のヘッダ(params・notes・input_hash)・W18〜W20 のヘッダ・`wc_index.json`・`w19_freeze.json`・受入パックの表 2 本・manifest。**W9 の影 `w9_shadow_2026-07-28.npy` `ad8b6c0e2579a7f8` と面の表 `0d3680f94546d207` は不変**。W12・W10・W16・W17 ほかも不変。
+- **W18 の被覆の表**: 「天候・気温」の行の `n_sim` 35 → 365。カタログの現実の数 `n_real` は 35(カタログの欄「アメダス35日」)のままなので、**過剰の指標 X(`wc5_world_commission_X`)が 0.004056 → 0.184787**(報告だけのゲート)。カタログの欄の直しは凍結カタログの改訂になる=本発注の範囲の外(親に)。
+- **W13 の 07-28 の行は今と同じにはならない**([w13_rows_diff.py](w13_rows_diff.py)・[b5_w13_rows_diff.json](b5_w13_rows_diff.json)): 旧の 840 行のうち、アメダスが出どころの 539 行は **535 行が全列同じ**(違う 4 行=07-29 10 時・08-04 12 時・08-04 15 時・08-05 13 時は、アメダスの JSON が 1 時間に 2〜3 本しか無かった時。etrn は 6 本そろう)。etrn の時別値が出どころだった 301 行は全部動く(正時の値 → 10 分値の平均)。**07-28 は 0〜8 時の 9 行が動く**(気温・湿度・風速・日照(空欄 → 0)・WBGT。例 0 時の WBGT 21.27 → 21.23・2 時の降水 2.0 → 1.5 mm)。天気の語・日照の語・暑さの段・天候型・層は 07-28 の全 24 行で同じ。日の表は 35 日とも天候型・層・曜日の種別・祝日・日の出と日の入りが同じで、日最高・日最低気温・日照の合計・WBGT の最大が動いた。
+- **エンジンの動いた量**(19 構成・B4 の後と比べた・[b5_vs_b4.json](b5_vs_b4.json)): **呼数・行動の件数・食事・気づき・blocks・テープの全列は 19/19 構成で同じ**。**final は 19/19 で動いた**。外部の状態の行で**大きさが変わったのは O56 だけ**(`runner.environment._row`=天気の表の中の再生日の行番号。再生日は 07-28 のままで、表が 35 日 → 365 日になり行番号が 0 → 330 に変わった=外部のバイト 595 → 597)。ほかの行の中身が動いたかは、行ごとのハッシュが byte-check の記録に無いので**確かめていない**(推測: O76 の WBGT の今の値は日の終わりの 23 時台の値=アメダスと同じなので同じ)。**親の判定の材料**: 挙動は ◎(呼数・行動・テープが同じ)、final は ▲(行番号)。
+- **季節 × 平日/土休 × 天候型の日数**(W13 の notes `season_weekday_type_counts`・365 日):
+
+  | 季節 | 平日 晴/曇/雨/猛暑 | 土休 晴/曇/雨/猛暑 |
+  |---|---|---|
+  | 春(3〜5 月) | 27 / 9 / 24 / **0** | 20 / 5 / 7 / 0 |
+  | 夏(6〜8 月) | 19 / 14 / 27 / 4 | 6 / 4 / 15 / 3 |
+  | 秋(9〜11 月) | 22 / 18 / 17 / 3 | 11 / 9 / 11 / 0 |
+  | 冬(12〜2 月) | 41 / 12 / 8 / **0** | 21 / 2 / 6 / 0 |
+
+  **報告だけのゲート**: 平日の各天候型が 1 日以上ある季節は夏と秋だけ。春と冬の平日に猛暑の日が無い(日最高 35 ℃ 以上=気象庁の定義・春と冬に無いのは物理として自然)。足りない組は `春|平日|猛暑`・`冬|平日|猛暑` の 2 つ。合計 平日 245・土休 120(祝日 18 日を含む)・晴 167・曇 73・雨 115・猛暑 10。
+- 段の後の出力: `data/world/v2_10e_steps/B5/`(W13 の 2 本とヘッダ・W9 の影と面の表とヘッダ・W18〜W20・受入パック・manifest=14 ファイル+`MANIFEST.sha256`)。

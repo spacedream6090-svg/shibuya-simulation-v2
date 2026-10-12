@@ -235,3 +235,19 @@ def test_math_helpers_are_pure():
     # weight は方法論の式そのもの
     for n in (1, 10, 1000):
         assert W18.weight(n) == pytest.approx(min(6.0, 1.0 + math.log10(1.0 + n)))
+
+
+def test_w19_assets_are_only_the_files_w13_reads(tmp_path):
+    """〔改訂(第330 B5)〕W19 の資産表は W13 が実際に読むファイルだけ。``realworld_live``(検証専用)と
+    ``realworld/amedas``(旧の rglob の先・日次取得の日が黙って入りえた)は data 根に在っても載らない。"""
+    from shibuya.build.field import w13_weather as W13
+
+    for rel in ("realworld_live/amedas/2026/10/2026-10-01/amedas_44132_20261001.json",
+                "realworld/amedas/2026/09/2026-09-23/amedas_44132_20260923.json"):
+        p = tmp_path / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text("{}", encoding="utf-8")
+    paths = W19.data_asset_paths(tmp_path)
+    assert not any(x.startswith(("realworld_live/", "realworld/amedas/")) for x in paths)
+    for parts in W13.INPUT_FILES:
+        assert "/".join(parts) in paths
