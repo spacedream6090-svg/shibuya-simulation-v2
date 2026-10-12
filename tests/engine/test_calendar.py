@@ -3,10 +3,9 @@
 見るもの
 - 祝日 CSV(内閣府・cp932)の読み方: 名称「休日」の行(2026/5/6・2026/9/22)が祝日になる・md5・範囲・
   形が違うファイルは止める・無いときは祝日を空にして警告を 1 回だけ出す。
-- 曜日: 2026-07-28 は火曜(real)。``day_index`` モードは ``(day_index + 日) % 7`` で祝日を見ない
-  (=今のコードが引いていた値と同じ)。
+- 曜日: 2026-07-28 は火曜(real)。〔改訂(第330・RET)〕``day_index`` モード(``(day_index + 日) % 7``・祝日を見ない)は
+  切替口と一緒に消した(前の試験 2 件=旧い式と同じ値・legacy の暦は ACT の commit で通った)。
 - 開始日の検査: 月曜・祝日の月曜・日曜・範囲外・学校の休みの区間・複数日の連続する平日。
-- 既定(``day_index``)の暦が、付け替えた箇所の旧い式(``day_index % 7 >= 5`` など)と同じ値を返す。
 
 本物の CSV(gitignore 下)が無い環境でも回るよう、2026 年の行と範囲の端の行だけを持つ小さい CSV を
 テストの中で cp932 で書いて読む。本物の CSV の検査は、ファイルがあるときだけ回す。
@@ -106,9 +105,9 @@ def _d(s: str) -> date:
 
 # ================================================================= 曜日・日付・季節
 def test_real_weekday_and_holidays(table):
-    c = SimCalendar(datetime(2026, 7, 28), weekday_mode="real", holidays=table)
+    c = SimCalendar(datetime(2026, 7, 28), holidays=table)
     assert c.weekday(0) == 1                      # 2026-07-28 は火曜
-    c = SimCalendar(datetime(2026, 5, 4), weekday_mode="real", holidays=table)
+    c = SimCalendar(datetime(2026, 5, 4), holidays=table)
     assert [c.weekday(d) for d in range(4)] == [0, 1, 2, 3]
     assert [c.holiday_name(d) for d in range(4)] == ["みどりの日", "こどもの日", "休日", ""]
     assert [c.is_rest_day(d) for d in range(4)] == [True, True, True, False]
@@ -118,30 +117,24 @@ def test_real_weekday_and_holidays(table):
 
 
 def test_day_index_mode_ignores_holidays_and_keeps_the_old_values(table):
-    """day_index の暦は旧い式と同じ値: 曜日 = (day_index + 日) % 7・土休 = 曜日 >= 5・祝日は効かない。
+    """〔改訂(第330・RET)〕前は day_index の暦が旧い式と同じ値(曜日 = (day_index + 日) % 7・土休 = 曜日 >= 5・祝日は
+    効かない・鍵 = day_index + 日)を返すことを見た(day_index を消した)。暦は real だけ: 同じ日が祝日=土休・日曜の行・
+    鍵は日番号。``weekday_mode`` の欄は無い。"""
+    import dataclasses
 
-    〔改訂(第330・ACT)〕暦の既定は real になった(``CALENDAR_UNIFIED=True``)ので、最後の確かめは day_index を明示する
-    (前: 既定の暦=day_index)。既定(real)では同じ日が祝日=土休・日曜の行になる。"""
-    for day_index in range(0, 15):
-        c = SimCalendar(datetime(2026, 5, 4), weekday_mode="day_index", day_index=day_index, holidays=table)
-        for d in range(0, 9):
-            wd = (day_index + d) % 7
-            assert c.weekday(d) == wd
-            assert c.table_weekday(d) == wd                     # #7・#13〜#16・#19 の旧い値
-            assert c.is_rest_day(d) == (wd >= 5)                # #2・#10・#12 の旧い式
-            assert c.day_kind(d) == day_kind_of(day_index + d)  # #18 の旧い式
-            assert c.day_key(d) == day_index + d                # #20・#21 の旧い鍵
-    # 祝日の事実は返すが、土休には入らない(2026-05-04 は祝日の月曜)
-    c = SimCalendar(datetime(2026, 5, 4), weekday_mode="day_index", holidays=table)
-    assert c.is_holiday(0) and not c.is_rest_day(0) and c.table_weekday(0) == 0
-    d = SimCalendar(datetime(2026, 5, 4), holidays=table)      # 既定=real
-    assert d.weekday_mode == "real" and d.is_holiday(0) and d.is_rest_day(0) and d.table_weekday(0) == 6
+    assert "weekday_mode" not in {f.name for f in dataclasses.fields(SimCalendar)}
+    d = SimCalendar(datetime(2026, 5, 4), holidays=table, day_index=5)
+    assert d.is_holiday(0) and d.is_rest_day(0) and d.table_weekday(0) == 6
+    assert [d.day_key(k) for k in range(3)] == [0, 1, 2]
 
 
 def test_legacy_calendar_equals_day_index_mode():
+    """〔改訂(第330・RET)〕旧い口 ``SimCalendar.legacy``(day_index の暦)は ``SimCalendar.default``(2026-07-13 + day_index 日・
+    祝日の表なし・real)に置き換えた。曜日は前と同じ ``day_index % 7``(07-13 が月曜)。"""
+    assert not hasattr(SimCalendar, "legacy")
     for di in (0, 3, 5, 6, 9):
-        c = SimCalendar.legacy(di)
-        assert c.weekday_mode == "day_index" and c.weekday(0) == di % 7 and not c.holidays.loaded
+        c = SimCalendar.default(di)
+        assert c.weekday(0) == di % 7 and not c.holidays.loaded and c.day_key(0) == 0
 
 
 def test_T_and_datetime():
@@ -165,9 +158,9 @@ def test_season_follows_the_jma_months():
 
 
 def test_payday_is_off_by_default_and_moves_to_the_previous_business_day(table):
-    c = SimCalendar(datetime(2026, 7, 1), weekday_mode="real", holidays=table)
+    c = SimCalendar(datetime(2026, 7, 1), holidays=table)
     assert not any(c.is_payday(d) for d in range(60))
-    c = SimCalendar(datetime(2026, 7, 1), weekday_mode="real", holidays=table, payday_day_of_month=25)
+    c = SimCalendar(datetime(2026, 7, 1), holidays=table, payday_day_of_month=25)
     # 2026-07-25 は土曜 → 前の営業日 07-24(金)。2026-08-25 は火曜。
     got = [c.date_of_day(d) for d in range(62) if c.is_payday(d)]
     assert got == [date(2026, 7, 24), date(2026, 8, 25)]
@@ -175,7 +168,7 @@ def test_payday_is_off_by_default_and_moves_to_the_previous_business_day(table):
 
 # ================================================================= 開始日の検査
 def _real(start, table, **kw):
-    return SimCalendar(start, weekday_mode="real", holidays=table, **kw)
+    return SimCalendar(start, holidays=table, **kw)
 
 
 def test_start_check_known_dates(table):
@@ -200,20 +193,19 @@ def test_start_check_known_dates(table):
 
 
 def test_day_index_mode_only_warns_but_still_stops_out_of_range(table):
-    c = SimCalendar(datetime(2026, 7, 28), weekday_mode="day_index", day_index=5, holidays=table)
-    with pytest.warns(CalendarWarning, match="月曜でない"):
-        assert c.check_start(1)
-    c = SimCalendar(datetime(2026, 7, 28), weekday_mode="day_index", day_index=0, holidays=table)
+    """〔改訂(第330・RET)〕前は「day_index では規則の違反は警告だけ・範囲外は止める」を見た(day_index を消した)。
+    いまは規則の違反も止める(警告の道は無い)。"""
+    with pytest.raises(ValueError, match="月曜でない"):
+        SimCalendar(datetime(2026, 7, 28), holidays=table).check_start(1)
     with warnings.catch_warnings():
         warnings.simplefilter("error", CalendarWarning)
-        assert c.check_start(1) == []      # 既定のランの開始日(day_index=0)は警告も出ない
-        assert c.check_start(2) == []      # 2 日の mock(月・火)
+        assert SimCalendar(datetime(2026, 7, 27), holidays=table).check_start(2) == []  # 2 日(月・火)
     with pytest.raises(ValueError, match="範囲外"):
         SimCalendar(datetime(2028, 1, 3), holidays=table).check_start(1)
 
 
 def test_real_mode_without_a_holiday_table_stops():
-    c = SimCalendar(datetime(2026, 7, 27), weekday_mode="real")
+    c = SimCalendar(datetime(2026, 7, 27))
     with pytest.raises(ValueError, match="祝日の表"):
         c.check_start(1)
 
@@ -235,7 +227,7 @@ def test_parse_start_forms():
 
 
 def test_manifest_fields(table):
-    c = SimCalendar(datetime(2026, 5, 4), weekday_mode="real", holidays=table,
+    c = SimCalendar(datetime(2026, 5, 4), holidays=table,
                     school_holidays=parse_school_holidays("2026-07-21:2026-08-31"))
     m = c.manifest_fields(3)
     assert m["start_sim_datetime"] == "2026-05-04T00:00:00" and m["tick_seconds"] == 60

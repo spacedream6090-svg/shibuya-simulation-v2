@@ -327,15 +327,14 @@ def test_real_calendar_run_needs_a_valid_start(tmp_path):
     from tests.engine.test_calendar import write_csv
 
     csv = write_csv(tmp_path / "h.csv")
-    # 〔改訂(第330・ACT)〕「real には開始日が要る」は legacy の天気の規則のとき(暦の規則 calendar=既定では既定の開始日)
-    with pytest.raises(ValueError, match="開始日"):
-        run_day(n_agents=10, n_cells=9, ticks=10, calendar_weekday="real", holiday_csv=csv, weather_scheme="legacy")
-    got = run_day(n_agents=10, n_cells=9, ticks=10, calendar_weekday="real", holiday_csv=csv)
+    # 〔改訂(第330・RET)〕「real には開始日が要る」は legacy の天気の規則のときだった(legacy を消した)。開始日を渡さなければ
+    # 既定の開始日 2026-07-13(月)
+    got = run_day(n_agents=10, n_cells=9, ticks=10, holiday_csv=csv)
     assert got.run_manifest_fields()["start_sim_datetime"] == "2026-07-13T00:00:00"
     with pytest.raises(ValueError, match="祝日"):
-        run_day(n_agents=10, n_cells=9, ticks=10, calendar_weekday="real", holiday_csv=csv,
+        run_day(n_agents=10, n_cells=9, ticks=10, holiday_csv=csv,
                 start_sim_datetime="2026-07-20")
-    res = run_day(n_agents=10, n_cells=9, ticks=10, calendar_weekday="real", holiday_csv=csv,
+    res = run_day(n_agents=10, n_cells=9, ticks=10, holiday_csv=csv,
                   start_sim_datetime="2026-08-03")
     m = res.run_manifest_fields()
     assert m["start_sim_datetime"] == "2026-08-03T00:00:00"
@@ -366,11 +365,11 @@ def test_start_date_moves_the_prompt_clock(tmp_path):
 
 
 def test_school_holiday_in_day_index_mode_only_warns():
-    from shibuya.engine.calendar import CalendarWarning
-
-    # 〔改訂(第330・ACT)〕day_index を明示(前は既定)。real(既定)の違反は止める(test_10a_review_fixes ほか)
-    with pytest.warns(CalendarWarning, match="学校の長期休み"):
-        res = run_day(n_agents=10, n_cells=9, ticks=5, school_holidays="2026-07-21:2026-08-31",
-                      calendar_weekday="day_index", weather_scheme="legacy")
+    """〔改訂(第330・RET)〕前は day_index の暦で「学校の長期休みは警告だけ」を見た(day_index を消した)。いまは止める。"""
+    with pytest.raises(ValueError, match="学校の長期休み"):
+        run_day(n_agents=10, n_cells=9, ticks=5, school_holidays="2026-07-01:2026-08-31")
+    res = run_day(n_agents=10, n_cells=9, ticks=5, school_holidays="2026-07-21:2026-08-31")
     assert res.run_manifest_fields()["calendar"]["school_holidays"] == [["2026-07-21", "2026-08-31"]]
-    assert res.run_manifest_fields()["calendar"]["start_check"]
+    assert res.run_manifest_fields()["calendar"]["start_check"] == []
+
+

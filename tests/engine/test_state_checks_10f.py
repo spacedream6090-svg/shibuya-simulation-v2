@@ -297,7 +297,9 @@ def test_k19_static_sites_are_frozen():
     sites = RA.scan_sites(SRC)
     assert RA.check_sites(sites) == []
     # 〔第330・10e B6〕SAFE_SITES に天気の規則 calendar の再生日の抽選(sample_calendar_day)を足して 15 → 16
-    assert len(RA.SAFE_SITES) == 16 and len(RA.UNDETERMINED_SITES) == 16
+    # 〔改訂(第330・RET)〕legacy の天気の 2 か所(_pick_day・select_day)を消して 16 → 14・stateful の Generator の
+    # 4 か所(salient と dispatch の __init__・relay_day)を消して決まらない呼び手 16 → 12
+    assert len(RA.SAFE_SITES) == 14 and len(RA.UNDETERMINED_SITES) == 12
     # httpx の client.stream(llm/fleet.py)は乱数ではない=一覧に入らない
     assert all(s.path != "llm/fleet.py" for s in sites)
 
@@ -343,40 +345,30 @@ SYN1000 = dict(n_agents=200, seed=1, n_cells=25, ticks=TPD, sim_days=2, budget=1
 
 @pytest.fixture(scope="module")
 def k19_runs():
-    """合成世界・率 ×1000・2 日を stateful(10e より前の既定=旧値の再現の切替口)と counter(10e の既定)の 2 通り。"""
-    out = {}
-    for scheme in ("stateful", "counter"):
-        st, res = _record(dict(SYN1000, rng_scheme=scheme))
-        out[scheme] = (st, res)
-    return out
+    """合成世界・率 ×1000・2 日(counter)。〔改訂(第330・RET)〕前は stateful(旧値の再現の切替口)とも比べた(消した)。"""
+    return {"counter": _record(dict(SYN1000))}
 
 
-@pytest.mark.parametrize("scheme", ("stateful", "counter"))
-def test_k19_runtime_overlaps_only_in_the_allow_list(k19_runs, scheme):
-    """10e(E4): 既定の counter では実際の重なりが 0(許可の表に ``overlap`` は無い)。stateful(旧値の再現)だけ、
-    扱い ``stateful`` の用途名の重なりを許す。"""
-    st, res = k19_runs[scheme]
-    assert RA.check_overlaps(st, rng_scheme=scheme) == []
+def test_k19_runtime_overlaps_only_in_the_allow_list(k19_runs):
+    """10e(E4): counter では実際の重なりが 0(許可の表に ``overlap`` は無い)。〔改訂(第330・RET)〕扱い ``stateful`` の
+    用途名(stateful のランでだけ重なりを許した 8 本)は切替口と一緒に消した=許可の表は空。"""
+    st, res = k19_runs["counter"]
+    assert RA.check_overlaps(st) == []
     ov = {d for d, s in st.items() if s.actual_overlaps}
-    if scheme == "stateful":
-        assert "perception.p_notice" in ov and "world.delivery_inbound" in ov
-        assert {"world.salient", "world.public_service_dispatch"} <= ov
-        assert RA.check_overlaps(st, rng_scheme="counter")  # 同じ数えを既定の方式で見ると落ちる
-    else:  # counter: 鍵の 0 語目を空けた=隣が無い
-        assert ov == set()
-        assert st["world.salient.counter"].keyed is False and st["perception.p_notice"].keyed is False
-        assert st["world.delivery_inbound"].keyed is False
-    assert {k for k, (kind, _r) in RA.K19_ALLOW.items() if kind != RA.STATEFUL_ONLY} == set()
-    assert not hasattr(RA, "OVERLAP")
+    assert ov == set()  # 鍵の 0 語目を空けた=隣が無い
+    assert st["world.salient.counter"].keyed is False and st["perception.p_notice"].keyed is False
+    assert st["world.delivery_inbound"].keyed is False
+    assert not ({"world.salient", "world.public_service_dispatch"} & set(st))  # 日の頭の Generator は作らない
+    assert RA.K19_ALLOW == {} and not hasattr(RA, "STATEFUL_ONLY") and not hasattr(RA, "OVERLAP")
     # 計器は結果を変えない(包まないランと同じ final)
-    assert run_day(**dict(SYN1000, rng_scheme=scheme)).final_hash == res.final_hash
+    assert run_day(**dict(SYN1000)).final_hash == res.final_hash
 
 
 def test_k19_empty_allow_list_reports_every_overlap(k19_runs):
-    st, _ = k19_runs["stateful"]
-    problems = RA.check_overlaps(st, allow={}, rng_scheme="stateful")
-    assert any("perception.p_notice" in x for x in problems)
-    assert all("許可の表に無い" in x for x in problems)
+    """〔改訂(第330・RET)〕前は stateful のランの重なりを空の許可の表で見て全部落ちることを見た(stateful を消した)。
+    いまは許可の表そのものが空で、counter のランはそれで通る(重なりを足すと落ちる=``test_t5_runtime_fifth_word_caller_fails``)。"""
+    st, _ = k19_runs["counter"]
+    assert RA.check_overlaps(st, allow={}) == RA.check_overlaps(st) == []
 
 
 def test_t5_runtime_fifth_word_caller_fails(monkeypatch):
@@ -402,24 +394,21 @@ def test_t5_runtime_fifth_word_caller_fails(monkeypatch):
 
 @real_data
 def test_k19_runtime_world_two_days(monkeypatch):
-    """世界資産 300 体・2 日(既定 v3)。10e(E4・U2): 既定の counter では日の鍵の流れ(配送・工事)も重ならない。
-    stateful(旧値の再現)では 10f のとおり 2 日のランの中で重なる=扱い ``stateful`` の中だけ。"""
+    """世界資産 300 体・2 日(既定 v3)。10e(E4・U2): counter では日の鍵の流れ(配送・工事)も重ならない。
+    〔改訂(第330・RET)〕前は stateful(旧値の再現)の 2 日のランでは重なることも見た(消した)。"""
     kw = dict(n_agents=300, seed=1, world_dir=str(WORLD_DIR), sim_days=2, vocab_version="v3", activity=True)
     st, _ = _record(kw, runner=cli.run)
     assert RA.check_overlaps(st) == []
     assert {d for d, s in st.items() if s.actual_overlaps} == set()
     assert st["world.delivery_inbound"].streams >= 2 and st["world.road_works"].streams >= 2  # 2 日ぶん作っている
-    old, _ = _record(dict(kw, rng_scheme="stateful"), runner=cli.run)
-    assert RA.check_overlaps(old, rng_scheme="stateful") == []
-    assert {"world.delivery_inbound", "world.road_works", "world.salient"} <= {
-        d for d, s in old.items() if s.actual_overlaps}
 
 
 @real_data
 @pytest.mark.slow
 def test_k19_runtime_default_v3_5000_known_counts():
-    """既定 v3・5,000 体・seed 1・1 日。10e(E4): 既定の counter では実際の重なり 0。stateful(旧値の再現)では
-    10f の材料 §4-2 の実測(既知の答え)=w16 185・body 1 ずつ。final は包まないランと同じ。"""
+    """既定 v3・5,000 体・seed 1・1 日。10e(E4): counter では実際の重なり 0。final は包まないランと同じ。
+    〔改訂(第330・RET)〕前は stateful(旧値の再現)の既知の答え(w16 185・body 1 ずつ・final 4985ff2f…/69,978)も
+    見た(ACT の commit で退避先の資産と暦を渡して通った。stateful を消した)。"""
     kw = dict(n_agents=5000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3", activity=True)
     cur, res_c = _record(kw, runner=cli.run)
     assert RA.check_overlaps(cur) == [] and {d for d, s in cur.items() if s.actual_overlaps} == set()
@@ -427,17 +416,3 @@ def test_k19_runtime_default_v3_5000_known_counts():
     # U8: 同じ鍵の作り直しは許可の表の用途名だけ(w16 の抽出が cli と run_day で 2 回走る=186 層+定員先取り層)
     assert {d for d, s in cur.items() if s.same_key_recreated} <= set(RA.K19_RECREATED)
     assert cur["w16.sample.stratum"].same_key_recreated == 186
-    # 〔改訂(第330・ACT)〕stateful の既知の答えは 10e より前の世界の資産と暦で録った=退避先の資産と day_index・legacy を
-    # 渡す(退避先が無い環境では省く)
-    from tests import golden_env as GE
-
-    if not (GE.PRE10E_ASSETS / "MANIFEST.sha256").is_file():
-        pytest.skip("10e より前の世界の資産の退避先が無い=stateful の既知の答え(旧値)は回せない(既定の部分は通った)")
-    st, res = _record(dict(kw, rng_scheme="stateful", **GE.PRE10E_RUN_KW), runner=cli.run)
-    assert RA.check_overlaps(st, rng_scheme="stateful") == []
-    assert st["w16.sample.stratum"].actual_overlaps == 185 and st["w16.sample.stratum"].max_blocks == 2602
-    assert st["body.weight"].actual_overlaps == 1 and st["body.eer"].actual_overlaps == 1
-    # 10e: final は behavior-hash(10e の前の値 993276d5e5bb5cbe・E1 の値 3264c9fc190b3eb9)。stateful の値は E2 の既定の値
-    assert res.final_hash.startswith("4985ff2fb3c771c4") and int(res.llm_calls) == 69_978
-    # 3 つ以外の実際の重なりは無い(1 日のランでは日の鍵の流れに相手が無い)
-    assert {d for d, s in st.items() if s.actual_overlaps} == {"w16.sample.stratum", "body.weight", "body.eer"}

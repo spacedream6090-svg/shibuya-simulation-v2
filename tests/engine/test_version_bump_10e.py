@@ -138,45 +138,46 @@ def test_e2_o64_signage_exposures_are_empty_at_every_checkpoint():
 
 # ================================================================= E4: 既定の乱数を counter に・K19 の鍵の並べ方・U2
 def test_e4_default_rng_scheme_is_counter_and_stateful_is_the_old_switch():
+    """〔改訂(第330・RET)〕方式は counter だけ。``stateful``・``--rng-scheme``・``k19_counters`` の方式の引数を消した
+    (前: 既定 counter・stateful は旧値の再現の切替口・``k19_counters("stateful", 7) == (7,)``)。"""
     import argparse
 
     from shibuya.core import rng as R
     from shibuya.engine.run import add_calendar_args, calendar_kwargs_from_args
 
-    assert R.DEFAULT_RNG_SCHEME == "counter" and R.RNG_SCHEMES == ("stateful", "counter")
+    assert R.RNG_SCHEME == "counter" and not hasattr(R, "RNG_SCHEMES") and not hasattr(R, "DEFAULT_RNG_SCHEME")
     ap = argparse.ArgumentParser()
     add_calendar_args(ap)
-    assert calendar_kwargs_from_args(ap.parse_args([]))["rng_scheme"] is None  # 未指定=録画は既定 counter
-    assert calendar_kwargs_from_args(ap.parse_args(["--rng-scheme", "stateful"]))["rng_scheme"] == "stateful"
+    assert "rng_scheme" not in calendar_kwargs_from_args(ap.parse_args([]))
+    with pytest.raises(SystemExit):
+        ap.parse_args(["--rng-scheme", "stateful"])
     res = run_day(n_agents=10, seed=1, n_cells=9, ticks=30, checkpoint_every=30)
     assert res.run_manifest_fields()["rng_scheme"] == "counter"
-    assert R.k19_counters("counter", 7) == (0, 7) and R.k19_counters("counter", 1, 2, 3) == (0, 1, 2, 3)
-    assert R.k19_counters("stateful", 7) == (7,) and R.k19_counters("stateful") == ()
+    assert R.k19_counters(7) == (0, 7) and R.k19_counters(1, 2, 3) == (0, 1, 2, 3) and R.k19_counters() == (0,)
     with pytest.raises(ValueError):
-        R.k19_counters("counter", 1, 2, 3, 4)
-    with pytest.raises(ValueError):
-        R.k19_counters("other", 1)
+        R.k19_counters(1, 2, 3, 4)
 
 
 @pytest.mark.parametrize("domain", ["world.delivery_inbound", "world.road_works", "w16.sample.stratum", "body.weight",
                                     "perception.p_notice"])
 def test_e4_u2_next_key_is_no_longer_a_shifted_copy(domain):
-    """U2(既知の答え): 旧の並び(stateful)では「鍵 d+1 の流れ」が「鍵 d の流れを 1 ブロック(4 語)ずらした写し」になる。
-    counter では 0 語目を空けたので、鍵 d の流れを何ブロック引いても鍵 d+1 の流れと同じ語は出ない。"""
+    """U2(既知の答え): 旧の並び(鍵を 0 語目に置く)では「鍵 d+1 の流れ」が「鍵 d の流れを 1 ブロック(4 語)ずらした写し」に
+    なる。counter では 0 語目を空けたので、鍵 d の流れを何ブロック引いても鍵 d+1 の流れと同じ語は出ない。
+    〔改訂(第330・RET)〕旧の並びは ``k19_counters("stateful", d)`` を消したので ``stream(seed, 用途名, d)`` で直に作る。"""
     from shibuya.core.rng import k19_counters, stream
 
     for d in (0, 3):
-        old_d = stream(1, domain, *k19_counters("stateful", d)).integers(0, 2**63, 40, dtype=np.int64)
-        old_n = stream(1, domain, *k19_counters("stateful", d + 1)).integers(0, 2**63, 36, dtype=np.int64)
+        old_d = stream(1, domain, d).integers(0, 2**63, 40, dtype=np.int64)
+        old_n = stream(1, domain, d + 1).integers(0, 2**63, 36, dtype=np.int64)
         assert np.array_equal(old_d[4:], old_n)  # 旧: 次の鍵の流れは写し
-        new_d = stream(1, domain, *k19_counters("counter", d)).integers(0, 2**63, 4000, dtype=np.int64)
-        new_n = stream(1, domain, *k19_counters("counter", d + 1)).integers(0, 2**63, 40, dtype=np.int64)
+        new_d = stream(1, domain, *k19_counters(d)).integers(0, 2**63, 4000, dtype=np.int64)
+        new_n = stream(1, domain, *k19_counters(d + 1)).integers(0, 2**63, 40, dtype=np.int64)
         assert not set(new_n.tolist()) & set(new_d.tolist())
 
 
 def test_e4_u2_two_day_run_has_independent_day_streams():
-    """U2: 2 日のラン(合成世界・既定 counter)で、日の鍵の流れ(配送・工事)はどれも重ならない=日ごとの差を主張に使える。
-    stateful(旧値の再現)では 1 日目の配送の流れが 0 日目の流れと重なる(10f の U2)。"""
+    """U2: 2 日のラン(合成世界・counter)で、日の鍵の流れ(配送・工事)はどれも重ならない=日ごとの差を主張に使える。
+    〔改訂(第330・RET)〕前は stateful(旧値の再現)では 1 日目の配送の流れが 0 日目と重なることも見た(stateful を消した)。"""
     from shibuya.engine import rng_audit as RA
 
     kw = dict(n_agents=120, seed=2, n_cells=16, ticks=TPD, sim_days=2, checkpoint_every=360, budget=120.0)
@@ -185,11 +186,6 @@ def test_e4_u2_two_day_run_has_independent_day_streams():
     st = rec.analyze()
     assert RA.check_overlaps(st) == [] and {d for d, s in st.items() if s.actual_overlaps} == set()
     assert st["world.delivery_inbound"].streams >= 2 and st["world.delivery_inbound"].keyed is False
-    with RA.StreamRecorder() as rec_old:
-        run_day(rng_scheme="stateful", **kw)
-    old = rec_old.analyze()
-    assert old["world.delivery_inbound"].actual_overlaps >= 1
-    assert RA.check_overlaps(old, rng_scheme="stateful") == [] and RA.check_overlaps(old) != []
 
 
 def test_e4_recorder_groups_by_seed_u8():
@@ -316,8 +312,9 @@ def test_e5_recalled_memory_identity_and_acquaintances(v4_tape):
 
 # ================================================================= E4 の検収の直し(L1・L2・L3)
 def test_e4_l1_tape_meta_carries_the_rng_layout_and_old_counter_tapes_stop(tmp_path):
-    """L1: テープの脇の meta に鍵の配置の印(``rng_layout``)。10c〜10f の counter で録ったテープ(印が無く
-    ``rng_scheme=counter``)は再生で明示的に止まる。meta の無い実テープ(stateful 扱い)は今のまま回る。"""
+    """L1: テープの脇の meta に鍵の配置の印(``rng_layout``)。10c〜10f の counter で録ったテープ(印が無い)は再生で
+    明示的に止まる。〔改訂(第330・RET)〕前は「stateful のテープは印が無くても回る(meta の無い実テープと同じ扱い)」も
+    見た=stateful を消したので、印が無いテープ・stateful のテープ・meta の無いテープはどれも止まる。"""
     import json
 
     from shibuya.engine.run import RNG_LAYOUT
@@ -330,26 +327,22 @@ def test_e4_l1_tape_meta_carries_the_rng_layout_and_old_counter_tapes_stop(tmp_p
     meta = read_run_meta(tmp_path / "c")
     assert meta["rng_scheme"] == "counter" and meta["rng_layout"] == RNG_LAYOUT == "10e"
     assert run_day(mode="replay", replay=tmp_path / "c", llm=BoomLLM(), **kw).final_hash == rec.final_hash
-    # 10c〜10f の counter のテープ(印が無い)は止まる=未指定でも counter を明示しても
     p = tmp_path / "c" / RUN_META_FILENAME
-    d = json.loads(p.read_text(encoding="utf-8"))
-    d.pop("rng_layout")
-    p.write_text(json.dumps(d) + "\n", encoding="utf-8")
-    for extra in ({}, {"rng_scheme": "counter"}):
-        with pytest.raises(ValueError, match="10c〜10f の counter"):
-            run_day(mode="replay", replay=tmp_path / "c", llm=BoomLLM(), **kw, **extra)
-    # stateful のテープは印が無くても回る(meta の無い実テープと同じ扱い)
-    st = run_day(tape_path=tmp_path / "s", rng_scheme="stateful", **kw)
-    p = tmp_path / "s" / RUN_META_FILENAME
-    d = json.loads(p.read_text(encoding="utf-8"))
-    d.pop("rng_layout")
-    p.write_text(json.dumps(d) + "\n", encoding="utf-8")
-    assert run_day(mode="replay", replay=tmp_path / "s", llm=BoomLLM(), **kw).final_hash == st.final_hash
+    base = json.loads(p.read_text(encoding="utf-8"))
+    for drop in ("rng_layout", "rng_scheme"):
+        d = dict(base)
+        d.pop(drop)
+        p.write_text(json.dumps(d) + "\n", encoding="utf-8")
+        with pytest.raises(ValueError, match="10e より前"):
+            run_day(mode="replay", replay=tmp_path / "c", llm=BoomLLM(), **kw)
+    p.unlink()  # meta の無いテープ(10a より前の録画)
+    with pytest.raises(ValueError, match="10e より前"):
+        run_day(mode="replay", replay=tmp_path / "c", llm=BoomLLM(), **kw)
 
 
 def test_e4_l2_load_population_and_three_argument_samplers_follow_the_engine(monkeypatch):
-    """L2: ``load_population(n=…)`` は engine と同じ鍵の並べ方(既定 counter・``rng_scheme`` で切替)。
-    3 引数の抽出の差し替え(凍結した測りの道具)も engine から呼べる。"""
+    """L2: ``load_population(n=…)`` は engine と同じ鍵の並べ方(counter)。3 引数の抽出の差し替え(凍結した測りの道具)も
+    engine から呼べる。〔改訂(第330・RET)〕前は ``rng_scheme`` の 2 通り(counter・stateful)で見た(stateful を消した)。"""
     import numpy as np
 
     import shibuya.engine.run as RUN
@@ -358,12 +351,9 @@ def test_e4_l2_load_population_and_three_argument_samplers_follow_the_engine(mon
     if not (WORLD_DIR / "w16_population.parquet").exists():
         pytest.skip("W16 が無い")
     full = POP.load_population(WORLD_DIR, n=None, seed=1)
-    for scheme in ("counter", "stateful"):
-        a = POP.load_population(WORLD_DIR, n=500, seed=1, rng_scheme=scheme)
-        b = POP.sample_population(full, 500, 1, rng_scheme=scheme)
-        assert np.array_equal(a.source_agent_id, b.source_agent_id)
-    assert np.array_equal(POP.load_population(WORLD_DIR, n=500, seed=1).source_agent_id,
-                          POP.sample_population(full, 500, 1, rng_scheme="counter").source_agent_id)
+    a = POP.load_population(WORLD_DIR, n=500, seed=1)
+    b = POP.sample_population(full, 500, 1)
+    assert np.array_equal(a.source_agent_id, b.source_agent_id)
     import importlib.util
 
     spec = importlib.util.spec_from_file_location(
@@ -371,7 +361,7 @@ def test_e4_l2_load_population_and_three_argument_samplers_follow_the_engine(mon
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)  # type: ignore[union-attr]
     monkeypatch.setattr(RUN, "sample_population", mod.stratified_sample)
-    pop = RUN._resolve_population(None, WORLD_DIR, 300, 1, 520, "counter")  # TypeError にならない(世界資産は 520 セル)
+    pop = RUN._resolve_population(None, WORLD_DIR, 300, 1, 520)  # TypeError にならない(世界資産は 520 セル)
     assert pop is not None and pop.n == 300
 
 

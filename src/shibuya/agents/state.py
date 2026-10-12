@@ -439,8 +439,8 @@ class AgentState:
         Args:
             n: 個体数。
             cap_bytes: 個体あたりバイト上限。``"auto"`` = 予算行 M1(30,000 B)を読む。
-            plan_columns: **D-66 計画実行層**(``engine.presence``)の 2 欄
-                (``plan_activity`` / ``plan_flags``・+2 B/体)を確保するか。既定 ``False``=
+            plan_columns: **D-66 計画実行層**(``engine.presence``)の欄 ``plan_flags``(+1 B/体・〔第330・RET〕
+                死蔵の ``plan_activity`` は K15 で消した)を確保するか。既定 ``False``=
                 **帰無腕(``--no-plan-executor``)の ``state_hash`` を 1 バイトも動かさない**
                 (欄を足すと宣言順の全配列を混ぜる ``Registry.state_hash`` が変わるため。
                 設計書 §2 は常設を想定しているが、退化検査の要=親指示を優先した
@@ -613,11 +613,9 @@ class AgentState:
                   doc="並んでいる POI 索引(-1=並んでいない)。M/M/c 近似の待ち行列")
         r.declare("queue_since", np.int32, byte_budget_per_agent=4, mechanism=False,
                   doc="並び始めた tick(離脱閾値の判定・expedient)")
-        # ---- 計画実行層(D-66・engine.presence が読み書きする 2 欄・+2 B/体) ----
+        # ---- 計画実行層(D-66・engine.presence が読み書きする欄・+1 B/体) ----
+        # 〔第330・RET〕K15(10-06): 書くだけで誰も読まない ``plan_activity``(i1)はここにあった=消した(軸 1 no=final は動かない)
         if self.plan_columns:
-            r.declare("plan_activity", np.int8, byte_budget_per_agent=1, mechanism=True,
-                      doc="計画上の活動(agents.weekly.ACTIVITY_WORDS 索引・-1=計画なし)。"
-                          "``activity``(実際)と別=計画一致率の分母(設計書 §2)")
             r.declare("plan_flags", np.int8, byte_budget_per_agent=1, mechanism=True,
                       doc="bit0 域外居住 / bit1 当日在圏予定あり / bit2 退出繰り延べ中 / "
                           "bit3 当日到着済(engine.presence の FLAG_* ・設計書 §2)")
@@ -709,14 +707,8 @@ class AgentState:
                   doc="ResultCode(直前の行動の成否・§6 の 50 tok 欄の素材)")
         r.declare("last_result_tick", np.int32, byte_budget_per_agent=4, mechanism=True,
                   doc="last_result を書いた tick(古い失敗を出さないため)")
-        r.declare("fail_streak", np.uint8, byte_budget_per_agent=1, mechanism=False,
-                  doc="同一失敗の連続回数(行動契約書 §6「4回で打ち切り」・expedient)")
+        # 〔第330・RET〕K15(10-06): 書くだけで誰も読まない ``fail_streak``(u1)はここにあった=消した(軸 1 no=final は動かない)
 
-        # 10e(E1): 消した死蔵の 3 列を元の位置に控える(配列は確保しない)。``--hash-scheme full``(旧い final の
-        # 再現)のハッシュの中だけで初期値の列として混ざる。**版上げの最後に ``--hash-scheme full`` と一緒に消す**。
-        r.retire("activity", "plan_cursor", np.int16, fill=0)
-        r.retire("talk_partner", "invocation_distance", np.uint16, fill=0)
-        r.retire("refractory_until", "wake_pending_class", np.int8, fill=-1)
 
         # 既定値(0 では意味が壊れる欄だけ)
         self.registry.cell[:] = -1
@@ -741,8 +733,6 @@ class AgentState:
             self.registry.edge_id[:] = -1
         if self.attention_columns:
             self.registry.focus_target[:] = FOCUS_NONE
-        if self.plan_columns:
-            self.registry.plan_activity[:] = -1
         if self.activity_columns:
             self.registry.activity_until[:] = ACTIVITY_UNTIL_NONE
         if self.familiarity_columns:

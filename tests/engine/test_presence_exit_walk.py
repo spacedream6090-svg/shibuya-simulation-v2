@@ -187,7 +187,6 @@ def test_leave_releases_store_queue_and_marks_conversation():
         a.registry.queue_since[1] = 1
         a.registry.activity[2] = int(Activity.CONVERSING)
         a.registry.talk_partner[2] = 3
-        a.registry.fail_streak[:] = 2
     out = R.ResolveOutcome(tick=9)
     with a.writable():
         R._apply_leave(a, w, np.array([0, 1, 2]), np.array([-1, -1, -1]), 9, out, None)
@@ -195,7 +194,7 @@ def test_leave_releases_store_queue_and_marks_conversation():
     assert int(r.poi_ref[0]) == -1 and int(r.queue_poi[1]) == -1
     assert (np.asarray(r.activity)[[0, 1, 2]] == int(Activity.IDLE)).all() and int(r.talk_partner[2]) == -1
     assert (np.asarray(r.last_result)[[0, 1, 2]] == int(ResultCode.OK)).all()
-    assert (np.asarray(r.fail_streak)[[0, 1, 2]] == 0).all()           # 失敗しない行動
+    # 〔第330・RET〕K15 で fail_streak を消した(前: 失敗しない行動=0 に戻る)
     assert (out.n_leave, out.n_leave_indoor, out.n_leave_queue, out.n_leave_conversing) == (3, 1, 1, 1)
     assert np.concatenate(out.leave_conversing).tolist() == [2]
     # 切替口 off=第301 以前(所属は残る)

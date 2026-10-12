@@ -37,10 +37,8 @@ CLASSICAL_1500_GOLDEN_ACQ_BY_ENV = {
     # B6build(構築側の最後の版)の値は e9ef51cc…6b8d07/26,043。
     GE.PLATFORM_10F: ("78399f8cedec1c62518b86d600200537f67b532a8500e337feebc17469e48b41", 25_082),
 }
-CLASSICAL_1500_GOLDEN_ACQ_PRE10E_BY_ENV = {
-    GE.PLATFORM_10F: ("4f78f3c0ce95d8e205c700952d756cd2e443da86bd54c60c073f39cafd5ec00a", 25_808),
-}
-CLASSICAL_1500_GOLDEN_ACQ_PRE10E = GE.row(CLASSICAL_1500_GOLDEN_ACQ_PRE10E_BY_ENV)
+#: 〔第330・RET〕10e より前の値 ``CLASSICAL_1500_GOLDEN_ACQ_PRE10E``(4f78f3c0…ec00a / 25,808=切替口 hash full・rng stateful・
+#: 旧資産・暦で再現した=ACT の commit で通った)は切替口と一緒に消した。
 #: 今の環境の行(無ければ ``None``=A/A だけ)。
 CLASSICAL_1500_GOLDEN_ACQ = GE.row(CLASSICAL_1500_GOLDEN_ACQ_BY_ENV)
 
@@ -156,12 +154,7 @@ def test_run_golden_and_arms():
         GE.assert_aa(lambda: cli.run(**kw), lambda x: (x.final_hash, int(x.llm_calls)), first=r)
     else:
         assert (r.final_hash, int(r.llm_calls)) == CLASSICAL_1500_GOLDEN_ACQ
-        # 10e(E1): 旧い final の定義(full)で 10e より前の値を再現する(呼数は同じ=挙動は不変)
-        # 〔改訂(第330・ACT)〕10e より前の値は旧い世界の資産と暦で録った=退避先の資産と day_index・legacy を渡す
-        # (退避先が無い環境では旧値の再現だけを省く)
-        if (GE.PRE10E_ASSETS / "MANIFEST.sha256").is_file():
-            old = cli.run(hash_scheme="full", rng_scheme="stateful", **GE.PRE10E_RUN_KW, **kw)  # 10e(E4): 乱数も 10e より前
-            assert (old.final_hash, int(old.llm_calls)) == CLASSICAL_1500_GOLDEN_ACQ_PRE10E
+        # 〔第330・RET〕10e より前の値の再現(hash full・rng stateful・旧資産・暦)は切替口と一緒に消した
     m = r.run_manifest_fields()["classical"]
     assert m["social"] == "acquaintance"
     c = m["counts"]

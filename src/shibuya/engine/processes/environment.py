@@ -29,8 +29,9 @@ expedient(本モジュール分)
   **全セル日向**として扱い ``shadow_missing`` を計数する。
 - 気象資産が無い世界(合成)は「穏やかな 1 日」= 体感温度 5 の固定値。
 
-〔改訂(第330・10e B6)〕天気の規則 ``weather_scheme``(``engine.calendar.WEATHER_SCHEMES``・既定 ``legacy``=上のまま)。
-``calendar``(ユーザーの答え 1-3)では:
+〔改訂(第330・10e B6・RET)〕天気の規則は ``calendar``(ユーザーの答え 1-3)。10e より前の ``legacy``(再生日を層から一様に
+引き、影のある日に絞り、日の出と日の入りと影も再生日)と ``select_day``・``prefer_shadow_days`` は版上げ 1 回目の後に消した
+(旧値の再現は第330 ACT の commit で記録):
 
 1. 天気(雨・気温・湿度・天候型・WBGT の入力)は**再生日**の W13 の行から。日の出・日の入り・太陽高度・影は**暦の日付**
    (``calendar.date_of_day``)から計算する(``engine.solar``・影は ``w9_shadow_<暦の日付>.npy``)。WBGT は「再生日の
@@ -62,7 +63,7 @@ from shibuya.core.hashing import blake3_hex
 from shibuya.core.rng import stream
 from shibuya.engine import resolve as R
 from shibuya.engine import solar as SOL
-from shibuya.engine.calendar import SEASON_OF_MONTH, SimCalendar, check_weather_scheme
+from shibuya.engine.calendar import SEASON_OF_MONTH, WEATHER_SCHEME, SimCalendar
 from shibuya.world.assets import (
     HEAT_STAGE_ORDER,
     SHADOW_FRAMES_PER_DAY,
@@ -85,7 +86,6 @@ __all__ = [
     "calendar_candidates",
     "nearest_shadow_date",
     "sample_calendar_day",
-    "select_day",
     "EnvironmentProcess",
 ]
 
@@ -188,35 +188,6 @@ def nearest_shadow_date(dates: tuple[str, ...], target: str) -> str | None:
     return min(dates, key=lambda d: (abs((dt.date.fromisoformat(d) - t).days), d))
 
 
-def select_day(
-    master_seed: int | str, stratum: str, strata: dict[str, list[str]], day: int = 0
-) -> str:
-    """層 → 実日(決定論)。``build.field.w13_weather.select_day`` と同型。
-
-    同じ ``(master_seed, stratum, 候補集合, 日)`` は常に同じ日を返す。候補は日付昇順に固定。
-
-    Args:
-        master_seed: manifest の ``master_seed``。
-        stratum: ``"平日|晴"`` のような層名。
-        strata: 層 → 候補日のリスト。
-        day: 日番号(10a・材料 §2-3 の ◐ #18)。**0 日目は今と同じ鍵**(層名だけ)、1 日目からは
-            層名に日番号を足した鍵=日ごとに別の実日を引く(0 日目のバイトを動かさない)。
-
-    Returns:
-        選ばれた実日(``"YYYY-MM-DD"``)。
-
-    Raises:
-        KeyError: 層に候補日が無い。
-    """
-    days = strata.get(stratum)
-    if not days:
-        raise KeyError(f"層に候補日が無い: {stratum!r}")
-    key = stratum if int(day) == 0 else f"{stratum}{int(day)}"
-    counter = int(blake3_hex(key.encode("utf-8"))[:16], 16)
-    rng = stream(master_seed, RNG_DOMAIN, counter)
-    return sorted(days)[int(rng.integers(0, len(days)))]
-
-
 class EnvironmentProcess:
     """昼夜(``daynight_solar``)+ 天候・体感温度(``weather``)。
 
@@ -249,18 +220,15 @@ class EnvironmentProcess:
         master_seed: int | str = 1,
         day_index: int = 0,
         tick_seconds: int = 60,
-        prefer_shadow_days: bool = True,
         calendar: Any | None = None,
-        weather_scheme: str = "legacy",
         perturbed: bool = False,
     ) -> None:
-        self.prefer_shadow_days = bool(prefer_shadow_days)
-        #: 10e(E3・B6): 天気と暦の規則(``engine.calendar.WEATHER_SCHEMES``)と、天気を揺らすか(``--weather-perturb``)
-        self.weather_scheme = check_weather_scheme(weather_scheme)
+        #: 10e(B6): 天気の規則の名前(manifest の ``weather.scheme``=``calendar`` だけ)と、天気を揺らすか(``--weather-perturb``)
+        self.weather_scheme = WEATHER_SCHEME
         self.perturbed = bool(perturbed)
         self.calendar = (
             calendar if calendar is not None
-            else SimCalendar.legacy(int(day_index), tick_seconds=int(tick_seconds))
+            else SimCalendar.default(int(day_index), tick_seconds=int(tick_seconds))
         )
         self.world = world
         self.agents = agents
@@ -301,65 +269,9 @@ class EnvironmentProcess:
         return "土休" if self.calendar.is_rest_day(int(day)) else "平日"
 
     def _pick_day(self, day: int = 0) -> None:
-        """その日の再生実日を選ぶ。鍵は 0 日目が今のまま・1 日目から日番号を足す(◐ #18)。
+        """その日の再生日と太陽と影を決める(暦の規則=``_pick_day_calendar``)。"""
+        self._pick_day_calendar(int(day))
 
-        いまのランは起動時に 0 日目だけを選ぶ(日ごとの選び直しは日の頭の初期化=10g で結ぶ)。
-        """
-        if self.weather_scheme == "calendar":
-            self._pick_day_calendar(int(day))
-            return
-        a = self.assets
-        if not a.has_weather:
-            return
-        kind = self._weekday_kind(day)
-        strata: dict[str, list[str]] = {}
-        for i, s in enumerate(a.weather_stratum):
-            strata.setdefault(s, []).append(a.weather_dates[i])
-        types = sorted({a.weather_type[i] for i in range(len(a.weather_dates))
-                        if a.weather_weekday_kind[i] == kind})
-        if not types:  # その曜日種別の候補日が無い → 全層から引く
-            kind = a.weather_weekday_kind[0]
-            types = sorted({a.weather_type[i] for i in range(len(a.weather_dates))
-                            if a.weather_weekday_kind[i] == kind})
-        if self.prefer_shadow_days and a.shadow_dates:
-            # **expedient**: W9(影グリッド)は 1 再生日ぶんしか無い(D-W10 の容量宣言のため)。
-            # 影のある日を引ける層に絞らないと日陰係数 0.86 が一度も効かない=憲法5 の
-            # 「宣言した届き先が消える」再発。W9 を層別に増やしたら本分岐を外す。
-            covered = sorted(
-                {a.weather_type[i] for i in range(len(a.weather_dates))
-                 if a.weather_weekday_kind[i] == kind and a.weather_dates[i] in a.shadow_dates}
-            )
-            if covered:
-                types = covered
-                strata = {
-                    s: [d for d in days if d in a.shadow_dates]
-                    for s, days in strata.items()
-                    if any(d in a.shadow_dates for d in days)
-                }
-        rng = stream(self.master_seed, RNG_DOMAIN, int(day))
-        wtype = types[int(rng.integers(0, len(types)))]
-        self.stratum = f"{kind}|{wtype}"
-        self.replay_date = select_day(self.master_seed, self.stratum, strata, day=int(day))
-        self._row = a.day_index_of(self.replay_date)
-        if a.sunrise_min is not None and self._row >= 0:
-            sr = float(a.sunrise_min[self._row])
-            ss = float(a.sunset_min[self._row])
-            if np.isfinite(sr):
-                self._sunrise = sr
-            if np.isfinite(ss):
-                self._sunset = ss
-        if a.has_shadow:
-            self._planes = a.shadow_planes(self.replay_date)
-            self._cell_point = a.cell_street_point
-            self._note_shadow(self.replay_date)
-        if self._planes is None:
-            self.shadow_missing = 1
-        self.weather_days[int(day)] = {
-            "day": int(day), "replay_date": self.replay_date, "stratum": self.stratum, "how": "legacy",
-            "shadow_date": self.replay_date if self._planes is not None else "",
-        }
-
-    # ------------------------------------------------------------------ 10e(B6) 暦の規則
     def _warn(self, msg: str) -> None:
         if msg not in self.weather_warnings:  # 再開で同じ日を引き直しても 1 回だけ記録する
             self.weather_warnings.append(msg)
@@ -446,8 +358,7 @@ class EnvironmentProcess:
             "days": [dict(self.weather_days[d]) for d in sorted(self.weather_days)],
             "warnings": list(self.weather_warnings),
         }
-        if self.weather_scheme == "calendar":  # 〔第330・ACT〕expedient の宣言
-            out["expedients"] = list(WEATHER_EXPEDIENTS)
+        out["expedients"] = list(WEATHER_EXPEDIENTS)  # 〔第330・ACT〕expedient の宣言
         return out
 
     def _note_shadow(self, date: str) -> None:
@@ -500,7 +411,7 @@ class EnvironmentProcess:
         if not a.has_weather or self._row < 0:
             return -1, float("nan")
         hour = min(23, max(0, minute // 60))
-        if self.weather_scheme == "calendar" and self._cal_stage is not None and self._cal_wbgt is not None:
+        if self._cal_stage is not None and self._cal_wbgt is not None:
             return int(self._cal_stage[hour]), float(self._cal_wbgt[hour])  # 10e(B6)
         stage = int(a.hourly_heat_stage[self._row, hour])
         return stage, float(a.hourly_wbgt[self._row, hour])

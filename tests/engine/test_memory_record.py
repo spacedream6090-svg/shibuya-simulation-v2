@@ -16,6 +16,7 @@ from shibuya.agents.state import MEMORY_FIELDS, AgentState, ResultCode
 from shibuya.engine import commit as C
 from shibuya.engine import memory as M
 from shibuya.engine.familiarity import place_thing
+from tests import golden_env as GE
 
 SRC = Path("src/shibuya")
 
@@ -215,7 +216,7 @@ def test_gists_are_capped_per_agent():
 def test_run_default_is_off_and_memory_on_keeps_mock_behavior(monkeypatch):
     from shibuya.engine.run import run_day
 
-    kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3", hash_scheme="full")  # 10e(E1): AgentState.state_hash の差し替えで欄を除く比べ方は旧い final の定義(full)でだけ効く
+    kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
     off = run_day(**kw)
     assert off.memory is False and off.memory_summary == {}
     assert off.run_manifest_fields()["memory"] is False
@@ -223,7 +224,7 @@ def test_run_default_is_off_and_memory_on_keeps_mock_behavior(monkeypatch):
                         lambda self: self.registry.state_hash(exclude=MEMORY_FIELDS))
     on = run_day(memory="on", **kw)
     # 6b: on は B5 に記憶の行が載る(描画が変わる)が、mock は描画の本文を読まない=挙動は同じ
-    assert on.final_hash == off.final_hash and on.llm_calls == off.llm_calls
+    assert GE.soa_combined(on.checkpoints[-1]) == GE.soa_combined(off.checkpoints[-1]) and on.llm_calls == off.llm_calls
     m = on.run_manifest_fields()
     assert m["memory"] is True and m["memory_n"] == 128
     s = m["memory_summary"]

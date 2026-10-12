@@ -18,8 +18,6 @@ import pytest
 
 from shibuya.agents.schedule import synthesize
 from shibuya.agents.state import AgentState
-from shibuya.core.hashing import blake3_hex
-from shibuya.core.rng import stream
 from shibuya.engine.calendar import SimCalendar, load_holidays
 from shibuya.engine.presence import _mix64, attendance_draw
 from shibuya.engine.processes import environment as ENV
@@ -42,26 +40,14 @@ def table(tmp_path):
 
 
 def _real(start: datetime, table) -> SimCalendar:
-    return SimCalendar(start, weekday_mode="real", holidays=table)
+    return SimCalendar(start, holidays=table)
 
 
 # ================================================================= #3 天気の実日(◐ #18)
-def _old_select_day(seed, stratum, strata):
-    """付け替え前の式(鍵=層名だけ)。"""
-    days = strata[stratum]
-    counter = int(blake3_hex(stratum.encode("utf-8"))[:16], 16)
-    return sorted(days)[int(stream(seed, ENV.RNG_DOMAIN, counter).integers(0, len(days)))]
-
-
 def test_weather_day_key_is_unchanged_on_day0_and_moves_from_day1():
-    days = [f"2026-08-{d:02d}" for d in range(1, 25)]
-    strata = {"平日|晴": days, "土休|雨": days[:7]}
-    for seed in (1, 2, 7):
-        for st in strata:
-            assert ENV.select_day(seed, st, strata) == _old_select_day(seed, st, strata)
-            assert ENV.select_day(seed, st, strata, day=0) == _old_select_day(seed, st, strata)
-        later = {ENV.select_day(seed, "平日|晴", strata, day=d) for d in range(1, 12)}
-        assert len(later) > 1   # 日ごとに別の実日を引く(同じ鍵なら 1 種類)
+    """〔改訂(第330・RET)〕前は legacy の実日の選び方 ``select_day``(0 日目の鍵=層名だけ・1 日目から日番号を足す)を見た
+    (legacy と一緒に消した)。暦の規則の日ごとの鍵は ``test_weather_calendar_10e.py`` が見る。"""
+    assert not hasattr(ENV, "select_day")
 
 
 # ================================================================= #2・#7・#20 世界過程
@@ -76,11 +62,13 @@ def _runner(day_index=0, calendar=None):
 
 @pytest.mark.parametrize("day_index", [0, 4, 5, 6, 9])
 def test_runner_keeps_the_old_values_in_day_index_mode(day_index):
+    """暦を渡さない実行器は ``SimCalendar.default(day_index)``(2026-07-13 + day_index 日・祝日の表なし)。曜日の行と土休は
+    前と同じ値。〔改訂(第330・RET)〕日ごとの乱数の鍵は日番号(0)になった(前: day_index の暦の ``day_index``)。"""
     r = _runner(day_index)
     assert r.calendar.weekday(0) == day_index % 7
     assert r.opening.day_index == day_index % 7                       # #7 営業時間の曜日の行
     assert r.environment._weekday_kind() == ("土休" if day_index % 7 >= 5 else "平日")  # noqa: SLF001 #2
-    assert r.salient.day_index == day_index                           # #20 日ごとの乱数の鍵(今の値)
+    assert r.salient.day_index == 0                                   # #20 日ごとの乱数の鍵=日番号
     assert r.dispatch is not None and r.large_event is not None
 
 
@@ -123,10 +111,11 @@ def _lookup(calendar, fail_tick):
 
 
 def test_named_closed_next_day_comes_from_the_calendar(table):
-    legacy = SimCalendar.legacy(0)
-    assert _lookup(legacy, 100) == (0, 100, 600)                     # 月曜の翌日=火曜(今と同じ)
-    assert _lookup(legacy, 1_440 + 100) == (0, 1_540, 660)           # 2 日目(火)の翌日=水曜
-    assert _lookup(SimCalendar.legacy(5), 100) == (0, 100, 720)      # 土曜の翌日=日曜
+    # 〔改訂(第330・RET)〕旧い口 SimCalendar.legacy は SimCalendar.default(2026-07-13 + 日数・real)に替えた
+    base = SimCalendar.default(0)
+    assert _lookup(base, 100) == (0, 100, 600)                       # 月曜の翌日=火曜(今と同じ)
+    assert _lookup(base, 1_440 + 100) == (0, 1_540, 660)             # 2 日目(火)の翌日=水曜
+    assert _lookup(SimCalendar.default(5), 100) == (0, 100, 720)     # 土曜の翌日=日曜
     # real: 7/19(日)の翌日 7/20 は海の日=日曜の行
     assert _lookup(_real(datetime(2026, 7, 19), table), 100) == (0, 100, 720)
     assert _lookup(_real(datetime(2026, 7, 20), table), 100) == (0, 100, 600)   # 翌日 7/21 は火曜
@@ -152,28 +141,27 @@ def test_cli_switches_and_defaults():
     add_calendar_args(ap)
     args = ap.parse_args([])
     kw = calendar_kwargs_from_args(args)
-    # 〔改訂(第330・ACT)〕calendar_weekday は None=未指定(既定 real・再生はテープの記録)(前: "day_index")
-    assert kw == {"calendar_weekday": None, "start_sim_datetime": None,
+    # 〔改訂(第330・RET)〕calendar_weekday と rng_scheme の欄は切替口と一緒に消した(ACT: None・None)
+    assert kw == {"start_sim_datetime": None,
                   "holiday_csv": "data/calendar/syukujitsu.csv", "school_holidays": "",
-                  "response_delay": None,     # 未指定(録画・mock は 1・再生はテープに合わせる=検収後 P3)
-                  "rng_scheme": None}   # 10c: 乱数の方式。10e: 未指定(録画・mock は counter・再生はテープ)
+                  "response_delay": None}     # 未指定(録画・mock は 1・再生はテープに合わせる=検収後 P3)
     assert DEFAULT_RESPONSE_DELAY == 1
-    args = ap.parse_args(["--calendar-weekday", "real", "--start-date", "2026-08-03", "--response-delay", "2",
+    args = ap.parse_args(["--start-date", "2026-08-03", "--response-delay", "2",
                           "--school-holidays", "2026-07-21:2026-08-31"])
     kw = calendar_kwargs_from_args(args)
-    assert kw["calendar_weekday"] == "real" and kw["start_sim_datetime"] == "2026-08-03"
+    assert kw["start_sim_datetime"] == "2026-08-03"
     assert kw["response_delay"] == 2 and kw["school_holidays"] == "2026-07-21:2026-08-31"
     with pytest.raises(SystemExit):
         ap.parse_args(["--response-delay", "3"])
     with pytest.raises(SystemExit):
-        ap.parse_args(["--calendar-weekday", "lunar"])
+        ap.parse_args(["--calendar-weekday", "real"])  # 〔第330・RET〕切替口を消した
 
 
 def test_cli_main_accepts_the_switches():
     from shibuya import cli
 
     ap_args = ["--agents", "20", "--world", "no-such-world", "--cells", "9", "--ticks", "5",
-               "--calendar-weekday", "day_index", "--response-delay", "2"]
+               "--start-date", "2026-07-13", "--response-delay", "2"]  # 〔第330・RET〕--calendar-weekday を消した
     assert cli.main(ap_args) in (0, 1)
 
 

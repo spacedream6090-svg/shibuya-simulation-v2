@@ -1,19 +1,17 @@
-"""10e E3(第330): 暦の一本化を切替口の裏で仕上げる(既定は今のまま)。
+"""10e E3(第330): 暦の一本化。
 
-- 既定の切り替えは ``engine.calendar.CALENDAR_UNIFIED`` の 1 か所(``DEFAULT_WEEKDAY_MODE``・``DEFAULT_WEATHER_SCHEME``
-  がそこから決まる)。既定の開始日は ``DEFAULT_WORLD_START`` = 2026-07-13(月)(ユーザーの答え 1-4)。
-- ``engine.run`` の世界の日付(暦)と再生日(天気の行の日)は別の変数。暦の規則(``weather_scheme="calendar"``)では
-  開始日を渡さなくても世界の日付は暦の 0 日目(再生日に置き換えない)。
+〔改訂(第330・RET)〕ACT で既定を切り替えた後、RET で切替口(``CALENDAR_UNIFIED``・``--calendar-weekday day_index``・
+``--weather-scheme legacy``)を消した。前の試験(定数 1 つの切り替え・legacy の 2 日のランと比べる)は、ACT の commit で
+通ったことを 10e の記録 §RET に書いて、今の規則だけを見る形に直した。
+
+- 既定の開始日は ``DEFAULT_WORLD_START`` = 2026-07-13(月)(ユーザーの答え 1-4)。曜日・祝日は日付と内閣府 CSV から。
 - W7 の祝日(``PH``)の行は暦の口(内閣府 CSV)で引く(``SimCalendar.opening_row``・``opening.rows_of_day``)。
-- 2 日のランで日付が進み(07-13 → 07-14)、曜日の行(W7・W17・鉄道・古典)が暦から引かれる(月曜始まり=今の既定と
-  同じ値=不変の確認にもなる)。
+- 2 日のランで日付が進み(07-13 → 07-14)、曜日の行(W7・W17・鉄道・古典)が暦から引かれる。
 """
 
 from __future__ import annotations
 
 import json
-import sys
-import types
 from datetime import date, datetime
 from pathlib import Path
 
@@ -35,61 +33,47 @@ needs_csv = pytest.mark.skipif(not HOLIDAYS.is_file(), reason="祝日 CSV が無
 
 # ================================================================ 切り替えは 1 か所
 def test_e3_defaults_come_from_one_constant():
-    # 〔改訂(第330・ACT)〕版上げ 1 回目の活性化で定数を True にした(前: False・day_index・legacy)
-    assert CAL.CALENDAR_UNIFIED is True
-    assert CAL.DEFAULT_WEEKDAY_MODE == "real" and CAL.DEFAULT_WEATHER_SCHEME == "calendar"
+    # 〔改訂(第330・RET)〕切り替えの定数と切替口を消した(ACT では定数 1 つで既定がそろって切り替わることを見た)
     assert CAL.DEFAULT_WORLD_START == datetime(2026, 7, 13) and CAL.DEFAULT_WORLD_START.weekday() == 0
-    assert CAL.WEATHER_SCHEMES == ("legacy", "calendar")
-    assert CAL.check_weather_scheme(None) == "calendar"
-    with pytest.raises(ValueError):
-        CAL.check_weather_scheme("sunny")
-    # 定数 1 つを False にした写しを読むと、曜日と天気の既定がそろって 10e より前に戻る(切り替えは 1 か所)
-    src = Path(CAL.__file__).read_text(encoding="utf-8")
-    line = "CALENDAR_UNIFIED: Final[bool] = True"
-    assert src.count(line) == 1
-    mod = types.ModuleType("calendar_unified_copy")
-    mod.__file__ = CAL.__file__       # 祝日 CSV の場所(リポの根)を同じに
-    sys.modules[mod.__name__] = mod   # dataclass の組み立てが自分のモジュールを引く
-    try:
-        exec(compile(src.replace(line, "CALENDAR_UNIFIED: Final[bool] = False"), "calendar_copy", "exec"), mod.__dict__)
-    finally:
-        sys.modules.pop(mod.__name__, None)
-    assert mod.DEFAULT_WEEKDAY_MODE == "day_index" and mod.DEFAULT_WEATHER_SCHEME == "legacy"
-    assert mod.check_weather_scheme(None) == "legacy"
+    assert (CAL.WEEKDAY_MODE, CAL.WEATHER_SCHEME) == ("real", "calendar")
+    for gone in ("CALENDAR_UNIFIED", "WEEKDAY_MODES", "WEATHER_SCHEMES", "DEFAULT_WEEKDAY_MODE", "DEFAULT_WEATHER_SCHEME",
+                 "check_weekday_mode", "check_weather_scheme"):
+        assert not hasattr(CAL, gone), gone
+    assert "weekday_mode" not in {f.name for f in __import__("dataclasses").fields(SimCalendar)}
+    assert not hasattr(SimCalendar, "legacy")
+    d = SimCalendar.default(3)
+    assert d.date_of_day(0) == date(2026, 7, 16) and d.weekday(0) == 3 and d.day_key(0) == 0
 
 
 def test_e3_run_day_and_cli_defaults_are_unchanged():
-    # 〔改訂(第330・ACT)〕calendar_weekday も None=未指定(既定・再生はテープの記録=resolve_calendar_schemes)
+    # 〔改訂(第330・RET)〕run_day と CLI に暦の切替口(calendar_weekday・weather_scheme)は無い(前: 既定 None)
     import argparse
     import inspect
 
     from shibuya.engine.run import add_calendar_args, calendar_kwargs_from_args, run_day
 
     sig = inspect.signature(run_day)
-    assert sig.parameters["weather_scheme"].default is None          # None=engine.calendar の既定
-    assert sig.parameters["calendar_weekday"].default is None
+    assert "weather_scheme" not in sig.parameters and "calendar_weekday" not in sig.parameters
     ap = argparse.ArgumentParser()
     add_calendar_args(ap)
     assert sig.parameters["weather_perturb"].default is False
     d = calendar_kwargs_from_args(ap.parse_args([]))
-    assert "weather_scheme" not in d and "weather_perturb" not in d and d["calendar_weekday"] is None
-    from shibuya.engine.run import resolve_calendar_schemes
-    assert resolve_calendar_schemes(None, None) == ("real", "calendar")
-    kw = calendar_kwargs_from_args(ap.parse_args(["--weather-scheme", "calendar", "--calendar-weekday", "real",
-                                                  "--weather-perturb"]))
-    assert kw["weather_scheme"] == "calendar" and kw["calendar_weekday"] == "real" and kw["weather_perturb"] is True
+    assert "weather_scheme" not in d and "weather_perturb" not in d and "calendar_weekday" not in d
+    assert calendar_kwargs_from_args(ap.parse_args(["--weather-perturb"]))["weather_perturb"] is True
+    for flag in ("--weather-scheme", "--calendar-weekday"):
+        with __import__("pytest").raises(SystemExit):
+            ap.parse_args([flag, "real"])
 
 
 # ================================================================ W7 の祝日の行
 @needs_csv
 def test_e3_opening_row_takes_holidays_from_the_cabinet_office_csv():
     table = load_holidays(HOLIDAYS)
-    real = SimCalendar(datetime(2026, 7, 13), weekday_mode="real", holidays=table)
+    real = SimCalendar(datetime(2026, 7, 13), holidays=table)
     # 7/13(月)〜7/19(日)・7/20(海の日)・7/21(火)
     assert [real.opening_row(d) for d in range(9)] == [0, 1, 2, 3, 4, 5, 6, CAL.OPENING_ROW_PH, 1]
     assert real.table_weekday(7) == 6                     # 曜日 7 日の表(W17・古典)は今のまま日曜の行
-    legacy = SimCalendar(datetime(2026, 7, 13), weekday_mode="day_index", holidays=table)
-    assert [legacy.opening_row(d) for d in range(9)] == [legacy.table_weekday(d) for d in range(9)]
+    # 〔改訂(第330・RET)〕前は day_index の暦(祝日を見ない=opening_row は table_weekday と同じ)とも比べた(消した)
 
 
 def test_e3_ph_row_uses_the_ph_spans_or_the_sunday_row():
@@ -178,13 +162,12 @@ def test_act_holiday_opening_hours_come_from_holiday_content_or_the_sunday_row()
 
 
 # ================================================================ 世界の日付と再生日・2 日のラン
-@needs_world
-@needs_csv
 def test_e3_two_days_advance_on_the_calendar_and_the_weekday_rows_come_from_it(monkeypatch):
+    """〔改訂(第330・RET)〕前は legacy(day_index)の 2 日のランと曜日の行を比べた(legacy を消した)。今は暦の値だけを見る。"""
     from shibuya import cli
     from shibuya.engine.presence import PlanExecutor
 
-    seen: dict[str, list] = {}
+    seen: dict[str, list] = {"opening": [], "presence": []}
     _o, _p = OP.OpeningProcess.relay_day, PlanExecutor.relay_day
 
     def spy_o(self, wd):
@@ -197,31 +180,17 @@ def test_e3_two_days_advance_on_the_calendar_and_the_weekday_rows_come_from_it(m
 
     monkeypatch.setattr(OP.OpeningProcess, "relay_day", spy_o)
     monkeypatch.setattr(PlanExecutor, "relay_day", spy_p)
-    out = {}
-    for name, kw in (("legacy", {"calendar_weekday": "day_index", "weather_scheme": "legacy"}),
-                     ("unified", {"calendar_weekday": "real", "weather_scheme": "calendar"})):
-        seen["opening"], seen["presence"] = [], []
-        res = cli.run(n_agents=40, seed=1, world_dir=str(WORLD_DIR), sim_days=2, ticks=1440,
-                      checkpoint_every=1440, **kw)
-        m = res.run_manifest_fields()
-        r = res.runner
-        out[name] = {
-            "dates": [d["date"] for d in m["calendar"]["days"]],
-            "weekday": [d["weekday"] for d in m["calendar"]["days"]],
-            "opening": [r.calendar.opening_row(0)] + seen["opening"],
-            "presence": list(seen["presence"]),
-            "rail_rest": [r.rail.calendar.is_rest_day(d) for d in (0, 1)],
-            "day_kind": [r.calendar.day_kind(d) for d in (0, 1)],
-            "start": m["start_sim_datetime"], "replay": m["replay_date"],
-            "final": res.final_hash, "calls": res.llm_calls,
-        }
-    u, g = out["unified"], out["legacy"]
-    assert u["start"] == "2026-07-13T00:00:00" and u["dates"] == ["2026-07-13", "2026-07-14"]
-    assert g["start"] == f"{g['replay']}T00:00:00"          # legacy: 世界の日付=再生日(旧値の再現)
-    # 暦の規則: 世界の日付は暦のまま(再生日に置き換えない)。ランナーの暦も同じ日付
-    assert res.runner.calendar.date_of_day(1) == date(2026, 7, 14)
-    # 曜日の行(W7・W17・鉄道・古典)は暦から=月曜始まりなので今の既定と同じ値
-    for k in ("weekday", "opening", "presence", "rail_rest", "day_kind"):
-        assert u[k] == g[k], k
-    assert u["weekday"] == [0, 1] and u["opening"] == [0, 1] and u["rail_rest"] == [False, False]
-    assert u["day_kind"] == ["weekday", "weekday"]
+    res = cli.run(n_agents=40, seed=1, world_dir=str(WORLD_DIR), sim_days=2, ticks=1440, checkpoint_every=1440)
+    m = res.run_manifest_fields()
+    r = res.runner
+    assert m["start_sim_datetime"] == "2026-07-13T00:00:00"
+    assert [d["date"] for d in m["calendar"]["days"]] == ["2026-07-13", "2026-07-14"]
+    assert r.calendar.date_of_day(1) == date(2026, 7, 14)
+    # 曜日の行(W7・W17・鉄道・古典)は暦から=月曜・火曜
+    assert [d["weekday"] for d in m["calendar"]["days"]] == [0, 1]
+    assert [r.calendar.opening_row(0)] + seen["opening"] == [0, 1]
+    assert seen["presence"] == [(1, 0)]  # 計画実行層の W17 は K9 のつなぎ=月曜の行(10d README・前の legacy と同じ値)
+    assert [r.rail.calendar.is_rest_day(d) for d in (0, 1)] == [False, False]
+    assert [r.calendar.day_kind(d) for d in (0, 1)] == ["weekday", "weekday"]
+
+

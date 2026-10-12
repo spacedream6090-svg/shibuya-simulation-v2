@@ -31,7 +31,7 @@ from typing import Final
 import numpy as np
 
 from shibuya.agents.state import AgentKind, AgentState
-from shibuya.core.rng import DEFAULT_RNG_SCHEME, check_rng_scheme, run_tick_key, stream
+from shibuya.core.rng import run_tick_key, stream
 from shibuya.engine import resolve as R
 from shibuya.perception import attention as AT
 from shibuya.world.assets import ProcessAssets
@@ -66,8 +66,8 @@ DISPATCH_MEDIAN_MIN: Final[float] = 8.0
 #: 同 σ(expedient)。
 DISPATCH_SIGMA: Final[float] = 0.5
 DISPATCH_MAX_MIN: Final[int] = 60
-#: 10c: ``rng_scheme="counter"`` の出動の遅れの乱数の用途名(stateful の ``world.public_service_dispatch`` と
-#: 別の名にする=同じ鍵の Philox の列が重ならない)。
+#: 10c: counter の出動の遅れの乱数の用途名(10e より前の stateful の ``world.public_service_dispatch`` と
+#: 別の名にした=同じ鍵の Philox の列が重ならない)。
 DISPATCH_COUNTER_DOMAIN: Final[str] = "world.public_service_dispatch.counter"
 
 #: 公式発信の時刻[分](expedient)。
@@ -100,10 +100,9 @@ class PublicServiceDispatchProcess:
         pending: 到着待ちの ``(到着 tick, セル, x, y)``。
         n_dispatched / n_arrived: 診断。
 
-    乱数の方式(10c・``rng_scheme``):
-        ``stateful``(既定=今のまま): 日の頭に作った Generator ``rng`` を出動のたびに進める。
-        ``counter``: 出動ごとに ``stream(seed, DISPATCH_COUNTER_DOMAIN, 0, 鍵の時刻, セル, k)`` を作る
-        (``rng`` は ``None``=再開で保存するものが無い)。鍵の時刻は ``run_tick_key(day_index, T)``
+    乱数(10c の counter・〔第330・RET〕10e より前の ``stateful``=日の頭の Generator は消した):
+        出動ごとに ``stream(seed, DISPATCH_COUNTER_DOMAIN, 0, 鍵の時刻, セル, k)`` を作る
+        (``rng`` は常に ``None``=再開で保存するものが無い)。鍵の時刻は ``run_tick_key(day_index, T)``
         (``day_index`` は実行器が渡す日の鍵 ``day_key(0)``)。k は同じ T・同じセルの出動を呼ばれた順に
         数えた番号(0 から)。呼び手(``SalientProcess``)は体の id の昇順で呼ぶ。数えは T が変わると捨てる
         tick の中だけのもの(tick の境目で再開すれば空から数え直して同じ値)。事象の通し番号は使わない
@@ -122,19 +121,16 @@ class PublicServiceDispatchProcess:
         day_index: int = 0,
         tick_seconds: int = 60,
         actual_log=None,
-        rng_scheme: str = DEFAULT_RNG_SCHEME,
     ) -> None:
         self.world = world
         self.tick_seconds = int(tick_seconds)
         self.log = actual_log
         self.master_seed = master_seed
         self.day_index = int(day_index)
-        self.rng_scheme = check_rng_scheme(rng_scheme)
-        #: stateful だけ Generator を持つ(counter では ``None``=状態を持たない)。
-        self.rng = (
-            stream(master_seed, "world.public_service_dispatch", int(day_index))
-            if self.rng_scheme == "stateful" else None
-        )
+        #: 〔第330・RET〕常に ``None``(状態を持つ乱数 stateful は消した)。状態台帳 O47 の道筋 ``runner.dispatch.rng`` は
+        #: behavior-hash の外の状態の行の定義に入っている(「無い」の印)ので、行と一緒に消すと final が動く=残した
+        #: (10e の記録 §RET・親に確かめてほしい点)。
+        self.rng: None = None
         #: counter の k の数え(T が変わると空に戻す・tick の中だけ)。
         self._k_tick = -1
         self._k_next: dict[int, int] = {}
@@ -142,12 +138,6 @@ class PublicServiceDispatchProcess:
         self.n_dispatched = 0
         self.n_arrived = 0
         self.delay_minutes_total = 0
-
-    def relay_day(self, day_key: int) -> None:
-        """10d(親の答え 5): 日の頭で、stateful の乱数をその日の日の鍵の流れに引き直す(1 日のランを日ごとに回すのと
-        同じ流れ)。counter は鍵の時刻 ``run_tick_key(day_key(0), T)`` が日ごとに違う値になるので何もしない。"""
-        if self.rng_scheme == "stateful":
-            self.rng = stream(self.master_seed, "world.public_service_dispatch", int(day_key))
 
     @property
     def active(self) -> bool:
@@ -157,7 +147,7 @@ class PublicServiceDispatchProcess:
         """通報を受けて出動する。到着 tick を返す(規則ゲート=セルが実在すること)。"""
         if not (0 <= int(cell) < self.world.n_cells):
             return -1
-        g = self.rng if self.rng is not None else self._counter_stream(int(tick), int(cell))
+        g = self._counter_stream(int(tick), int(cell))
         delay = float(
             np.clip(
                 g.lognormal(mean=np.log(DISPATCH_MEDIAN_MIN), sigma=DISPATCH_SIGMA),

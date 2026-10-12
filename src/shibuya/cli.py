@@ -37,7 +37,7 @@ import numpy as np
 
 from shibuya.agents import population as POP
 from shibuya.agents.state import WakeCondition
-from shibuya.core.rng import DEFAULT_RNG_SCHEME, stream
+from shibuya.core.rng import stream
 from shibuya.economy import GoodsLedger, Ledger
 from shibuya.economy import anchors as AN
 from shibuya.economy import census as CS
@@ -211,7 +211,6 @@ def household_wallets(
     seed: int | str = 1,
     world_dir: str | Path | None = None,
     *, use_population: bool = True,
-    rng_scheme: str = DEFAULT_RNG_SCHEME,
 ) -> np.ndarray | None:
     """W16 母集団の種別から初期財布[円]を引く(母集団が使えないランは ``None``)。
 
@@ -234,7 +233,7 @@ def household_wallets(
         if arr.size and int(arr.max()) >= int(world.n_cells):
             return None  # 合成小世界に実データの母集団は載せない(engine と同じ判断)
     if pop.n > int(n_agents):
-        pop = POP.sample_population(pop, int(n_agents), seed, rng_scheme=rng_scheme)  # 10e(E4): engine と同じ鍵
+        pop = POP.sample_population(pop, int(n_agents), seed)  # 10e(E4): engine と同じ鍵
     kinds = np.asarray(pop.kind, dtype=np.int64)[: int(n_agents)]
     return AN.initial_wallets(kinds.size, kinds, stream(seed, WALLET_DOMAIN))
 
@@ -268,7 +267,6 @@ def build_ledger_bundle(
     world_dir: str | Path | None = None,
     use_population: bool = True,
     endow: bool = True,
-    rng_scheme: str = DEFAULT_RNG_SCHEME,
 ) -> LedgerBundle:
     """世界から金/物の台帳とセンサス呼び出しを組み立てる(engine/ledger_api の Protocol を満たす)。
 
@@ -282,7 +280,7 @@ def build_ledger_bundle(
     世帯数から自分で決められるが、物の台帳は POI 側の器なので ``n_agents`` を渡して決める。
     """
     wallets = household_wallets(
-        world, n_agents, seed, world_dir, use_population=use_population, rng_scheme=rng_scheme
+        world, n_agents, seed, world_dir, use_population=use_population
     )
     led = (
         Ledger(n_agents, world.n_poi)
@@ -453,23 +451,18 @@ def run(
     # 10f(K21 (a)): 合成世界・世帯の財布(W16 の抽出を含む)は母集団の seed から(省略=seed と同じ=今と同じ)
     pop_seed = resolve_population_seed(seed, population_seed)
     wd = Path(world_dir) if world_dir is not None else None
-    # 10e(B1): 旧資産の切替口は世界(騒音の地図)にも同じ退避先を渡す(run_day の知覚・世界過程と同じ口)
-    _pre10e = kwargs.get("world_assets_pre10e") or None
-    world = World.load_or_synthetic(wd, n_cells=n_cells, seed=pop_seed, pre10e=_pre10e) if wd is not None else World.synthetic(
+    world = World.load_or_synthetic(wd, n_cells=n_cells, seed=pop_seed) if wd is not None else World.synthetic(
         n_cells=n_cells, seed=pop_seed
     )
     run_world_dir = wd if (wd is not None and wd.exists()) else None
-    # 10e(E4): 乱数の方式を先に決める(未指定は録画で counter・再生ではテープの値)=世帯の財布の抽出と run_day の
-    # 母集団の抽出が同じ鍵の並べ方を使う。決めた値を run_day に渡す。
-    from shibuya.engine.run import resolve_rng_scheme
+    # 〔第330・RET〕再生するテープが 10e より前の録画なら、台帳を組む前に止める(run_day と同じ検査)
+    from shibuya.engine.run import check_replay_tape
 
-    _rng = resolve_rng_scheme(kwargs.get("rng_scheme"), str(kwargs.get("mode", "record")), kwargs.get("replay"))
-    kwargs["rng_scheme"] = _rng
+    check_replay_tape(str(kwargs.get("mode", "record")), kwargs.get("replay"))
     bundle = build_ledger_bundle(
         world, n_agents, store_capital_yen,
         seed=pop_seed, world_dir=run_world_dir, use_population=use_population,
         endow=kwargs.get("resume_from") is None,  # 10d(A11): 再開では参入資本を入れ直さない
-        rng_scheme=_rng,  # 10e(E4): run_day と同じ母集団の抽出
     )
     res = run_day(
         n_agents=n_agents,

@@ -39,6 +39,7 @@ from shibuya.engine.tape import (
 from shibuya.llm.fleet import FleetClient, FleetConfig, Outcome
 from shibuya.manifest.schema import Mode
 from shibuya.world.state import World
+from tests import golden_env as GE
 
 from tests.engine.test_tape_wiring import BoomLLM
 from tests.llm.test_fleet import FakeVLLM
@@ -182,7 +183,8 @@ def test_t2_fleet_record_equals_replay_on_the_default_final(fleet_servers, tmp_p
                                                         {"e2e_timeout_s": 0.2, "ttft_timeout_s": 0.2})),
                    tape_path=tmp_path / "t2", fleet_wait_s=wait, **kw)
     rep2 = run_day(mode="replay", replay=tmp_path / "t2", llm=BoomLLM(), **kw)
-    assert [c.legacy_combined for c in rep2.checkpoints] == [c.legacy_combined for c in rec2.checkpoints]
+    # 〔第330・RET〕legacy_combined は消した=同じ式を試験の側で組む(GE.soa_combined)
+    assert [GE.soa_combined(c) for c in rep2.checkpoints] == [GE.soa_combined(c) for c in rec2.checkpoints]
     assert [c.combined for c in rep2.checkpoints] != [c.combined for c in rec2.checkpoints]
 
 

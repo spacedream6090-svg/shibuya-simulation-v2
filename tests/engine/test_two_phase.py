@@ -263,4 +263,4 @@ def test_losers_get_the_failure_code():
     R.apply(plan.confirmed, plan.losers, a, w, 600)
     for aid in plan.losers.agent_id.tolist():
         assert int(a.last_result[aid]) == int(ResultCode.LOST_ARBITRATION)
-        assert int(a.fail_streak[aid]) == 1
+        # 〔第330・RET〕K15 で fail_streak を消した(前: 1)

@@ -4,6 +4,10 @@
 final(``Checkpoint.combined``)は今の定義のまま=既定の結果は動かない(byte-check は記録 10b/README.md)。
 〔10e(E1・版上げ 1 回目)〕既定の final は behavior-hash になり、死蔵の 5 列を消した(台帳 188 行)。旧い final は
 ``hash_scheme="full"`` で再現する(消した 3 列は ``core.soa.retired_columns_in_hash`` の中だけで元の位置に混ざる)。
+〔第330・RET〕旧い final の切替口 ``hash_scheme="full"``(``legacy_combined``・``retired_columns_in_hash``・``Registry.retire``)
+と乱数の ``stateful`` を消し、K15 の 2 列(``fail_streak``・``plan_activity``)を消した(台帳 187 行)。旧値の再現の試験は
+第330 ACT の commit で通ったことを 10e の記録 §RET に書いて消した。AST の試験の「読み手 0 の no の列」の例は
+``fail_streak`` から ``rel_last`` に替えた。
 """
 
 from __future__ import annotations
@@ -22,7 +26,7 @@ import shibuya.engine.resolve as RES
 import shibuya.engine.run as RUN
 from shibuya.agents.state import AgentState
 from shibuya.core.hashing import blake3_hex
-from shibuya.core.soa import Registry, retired_columns_in_hash
+from shibuya.core.soa import Registry
 from shibuya.engine import state_hashes as SH
 from shibuya.engine import state_ledger as SL
 from shibuya.engine import state_ledger_ast as SA
@@ -54,13 +58,14 @@ A2B_SIX = ("age", "sex", "talk_partner", "weight_kg", "sm_last", "mem_last")
 
 
 # ================================================================= 1. 状態台帳の宣言(A3)
-def test_ledger_has_189_rows_in_two_axes():
+def test_ledger_has_187_rows_in_two_axes():
     """材料の 163 行(SoA 98+外の状態 65)+10b-2 の棚卸しで足した外の状態 24 行(O66〜O89)+10d の 5 行(O90〜O94)
     +10f の 1 行(O95=O75 から読み手 0 の 2 属性を diag に分けた)−10e(E1)の死蔵の 5 列(Q9 の 3 列+A4 の 2 列)
-    +10e(E1・検収 R1)の 1 行(O96=O44 から再生の到着待ちを軸 1 no に分けた)。"""
+    +10e(E1・検収 R1)の 1 行(O96=O44 から再生の到着待ちを軸 1 no に分けた)−〔第330・RET〕K15 の 2 列
+    (前: agents 76・SoA 93・全体 189・版 ``state-ledger/10e``)。"""
     c = SL.counts()
-    assert c == {"agents": 76, "cells": 5, "pois": 9, "perception": 3, "external": 96, "soa": 93, "total": 189}
-    assert SL.LEDGER_VERSION == "state-ledger/10e"
+    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 96, "soa": 91, "total": 187}
+    assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
     assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 97)]
@@ -90,9 +95,12 @@ def test_ledger_declarations_from_the_decisions():
         assert (row(key).behavior, row(key).restore) == (SL.DIAG, SL.REQUIRED)
     for key in ("perception.heading", "perception.task_flag"):  # 派生=入れない(親の宣言)
         assert row(key).behavior == SL.NO
-    for key in ("agents.fail_streak", "agents.plan_activity"):  # K15 の欄
-        assert (row(key).behavior, row(key).restore) == (SL.NO, SL.UNKNOWN)
-        assert row(key).in_full and not row(key).in_behavior
+    # 〔改訂(第330・RET)〕K15 の 2 列は列ごと消した(前: no・復元 unknown・full に入る)
+    keys = {r.key for r in SL.LEDGER}
+    assert not ({"agents.fail_streak", "agents.plan_activity"} & keys)
+    a = AgentState(3, plan_columns=True)
+    assert "fail_streak" not in a.registry.arrays and "plan_activity" not in a.registry.arrays
+    assert "plan_flags" in a.registry.arrays
     assert row("O31").restore == SL.REQUIRED and row("O31").items == ("energy.out_of_area.d_armed",)
     for key in ("O58", "O60", "O61"):  # リング 3 行(K16 の既定案)
         assert row(key).restore == SL.DISCARDABLE
@@ -165,30 +173,31 @@ def test_ast_check_fails_through_a_name_table(scanned):
 
 
 def test_ast_check_fails_when_a_behavior_column_has_no_reader(scanned):
-    # 10e(E1): 死蔵の plan_cursor を消したので、書くだけ(自分に足すか 0 に戻す)で読み手 0 の fail_streak で見る
-    out = SA.check(scanned, _flip("agents.fail_streak", SL.BEHAVIOR))
-    assert any("agents.fail_streak: 軸 1 が behavior なのに読み手 0" in v for v in out), out
+    # 10e(E1): 死蔵の plan_cursor を消したので、読み手 0 の no の列で見る(〔改訂(第330・RET)〕fail_streak を K15 で
+    # 消したので rel_last に替えた)
+    out = SA.check(scanned, _flip("agents.rel_last", SL.BEHAVIOR))
+    assert any("agents.rel_last: 軸 1 が behavior なのに読み手 0" in v for v in out), out
 
 
 @pytest.mark.parametrize("code", [
-    "def f(reg, a):\n    return reg.fail_streak[a] > 3\n",  # 直接の読み
-    "def f(reg, a):\n    tmp = reg.fail_streak\n    if tmp[a] > 3:\n        return 1\n",  # 一時変数経由
-    "NAMES = ('fail_streak',)\n\ndef f(r):\n    return [r.field(n) for n in NAMES]\n",  # 名前の表経由
-    "def f(r):\n    for n in ('fail_streak', 'x'):\n        r.field(n)\n",  # 直書きの組を回す
-    "def f(r):\n    return r.field('fail_streak')\n",  # 文字列
+    "def f(reg, a):\n    return reg.rel_last[a] > 3\n",  # 直接の読み
+    "def f(reg, a):\n    tmp = reg.rel_last\n    if tmp[a] > 3:\n        return 1\n",  # 一時変数経由
+    "NAMES = ('rel_last',)\n\ndef f(r):\n    return [r.field(n) for n in NAMES]\n",  # 名前の表経由
+    "def f(r):\n    for n in ('rel_last', 'x'):\n        r.field(n)\n",  # 直書きの組を回す
+    "def f(r):\n    return r.field('rel_last')\n",  # 文字列
 ], ids=["direct", "temp_var", "name_table", "literal_loop", "string"])
 def test_ast_check_catches_a_new_reader_of_a_no_column(tmp_path, code):
     fp = tmp_path / "engine" / "fake.py"
     fp.parent.mkdir()
     fp.write_text(code, encoding="utf-8")
-    res = SA.scan(tmp_path, files=[fp], names={"fail_streak"})
-    rows = [SL.row("agents.fail_streak")]
+    res = SA.scan(tmp_path, files=[fp], names={"rel_last"})
+    rows = [SL.row("agents.rel_last")]
     out = SA.check(res, rows, unresolved_allow=(), check_declared=False)
-    assert any(v.startswith("agents.fail_streak:") for v in out), (code, out)
+    assert any(v.startswith("agents.rel_last:") for v in out), (code, out)
     # 書くだけ・自己更新は読みに数えない
-    fp.write_text("def f(reg, a):\n    reg.fail_streak[a] = reg.fail_streak[a] + 1\n    reg.fail_streak[a] = 0\n",
+    fp.write_text("def f(reg, a):\n    reg.rel_last[a] = reg.rel_last[a] + 1\n    reg.rel_last[a] = 0\n",
                   encoding="utf-8")
-    assert SA.check(SA.scan(tmp_path, files=[fp], names={"fail_streak"}), rows, unresolved_allow=(),
+    assert SA.check(SA.scan(tmp_path, files=[fp], names={"rel_last"}), rows, unresolved_allow=(),
                     check_declared=False) == []
 
 
@@ -202,7 +211,7 @@ def test_ast_check_fails_on_an_unresolved_dynamic_read(tmp_path):
 
 def test_ast_check_fails_on_a_stale_allow(scanned):
     stale = SL.AstAllow("engine/run.py", "この文字列はどこにも無い", "試験")
-    ledger = tuple(dataclasses.replace(r, ast_allow=r.ast_allow + (stale,)) if r.key == "agents.fail_streak" else r
+    ledger = tuple(dataclasses.replace(r, ast_allow=r.ast_allow + (stale,)) if r.key == "agents.rel_last" else r
                    for r in SL.LEDGER)
     out = SA.check(scanned, ledger)
     assert any("古い許可" in v for v in out), out
@@ -256,8 +265,9 @@ def test_t2_exclude_equals_deleting_the_columns():
     """``state_hash(exclude=S)`` == 「S を宣言から消した ``state_hash()``」(10e の手順の前提・材料 §2-3)。"""
     a, w, _ = _all_columns_state(50)
     _fill_random(a.registry, 1)
-    # 10e(E1): 死蔵の 3 列は消えたので、no の 2 列(K15)で「除いて計算」と「消して計算」を比べる
-    for drop in (frozenset({"fail_streak", "plan_activity"}),
+    # 10e(E1): 死蔵の 3 列は消えたので、no の 2 列で「除いて計算」と「消して計算」を比べる
+    # (〔改訂(第330・RET)〕K15 の fail_streak・plan_activity を消したので fam_last・rel_last に替えた)
+    for drop in (frozenset({"fam_last", "rel_last"}),
                  SL.behavior_excluded("agents"), frozenset()):
         assert a.registry.state_hash(exclude=drop) == _registry_without(a.registry, drop).state_hash()
         if drop:
@@ -281,64 +291,34 @@ def test_t2_behavior_hash_equals_the_final_after_deleting_the_non_behavior_colum
     ext = SH.external_digest(owners, SL.behavior_items())[0]
     # 10e の final = 今の combined の組み立て(列を消した SoA)の末尾に外の状態の behavior の行の digest
     assert beh == blake3_hex("\x1f".join([a2, w2, "pop", "sched", "act", ext]).encode("utf-8"))
-    # 何も除かない列の組なら 10e より前の final と同じ組み立て(``legacy_combined``=``hash_scheme="full"``)
-    assert Checkpoint(0, a.state_hash(), w.state_hash(), "pop", "sched", "act").legacy_combined == blake3_hex(
-        "\x1f".join([a.state_hash(), w.state_hash(), "pop", "sched", "act"]).encode("utf-8"))
+    # 〔改訂(第330・RET)〕「何も除かない列の組なら 10e より前の final の組み立て(legacy_combined)」は切替口と一緒に消した
     # 10e(E1): 既定の final は behavior-hash そのもの
     assert Checkpoint(0, a.state_hash(), w.state_hash(), "pop", "sched", "act", behavior_hash=beh).combined == beh
 
 
-def test_checkpoint_combined_follows_the_hash_scheme():
-    """10e(E1): 既定(behavior)の final は behavior-hash・``full`` は旧い組み立て(新しい欄を見ない)。"""
-    base = Checkpoint(0, "a", "w", "p", "s", "x", hash_scheme="full")
-    assert dataclasses.replace(base, behavior_hash="b", full_hash="f").combined == base.combined
-    assert base.combined == base.legacy_combined == blake3_hex("\x1f".join(("a", "w", "p", "s", "x")).encode("utf-8"))
+def test_checkpoint_combined_is_the_behavior_hash():
+    """10e(E1): final は behavior-hash。〔改訂(第330・RET)〕旧い組み立て(``hash_scheme="full"``・``legacy_combined``)を
+    消した=``Checkpoint`` に ``hash_scheme`` の欄は無く、``run_day`` に ``hash_scheme`` を渡すと止まる。"""
     beh = Checkpoint(0, "a", "w", "p", "s", "x", behavior_hash="b", full_hash="f")
-    assert beh.hash_scheme == "behavior" and beh.combined == "b"
+    assert beh.combined == "b"
     assert dataclasses.replace(beh, agents_hash="a2").combined == "b"  # 全列のハッシュは final に効かない
+    assert not hasattr(beh, "legacy_combined") and "hash_scheme" not in {f.name for f in dataclasses.fields(beh)}
     with pytest.raises(ValueError):
-        Checkpoint(0, "a", "w", "p", "s").combined  # behavior の final に behavior-hash が無い
-    with pytest.raises(ValueError):
-        Checkpoint(0, "a", "w", "p", "s", behavior_hash="b", hash_scheme="other").combined
-    with pytest.raises(ValueError):
-        run_day(n_agents=4, ticks=2, hash_scheme="other")
+        Checkpoint(0, "a", "w", "p", "s").combined  # final に behavior-hash が無い
+    with pytest.raises(TypeError):
+        run_day(n_agents=4, ticks=2, hash_scheme="full")
 
 
-def _old_agents_registry(a: AgentState) -> Registry:
-    """消す前の宣言を組み直した写し: 死蔵の 3 列を元の位置に初期値で宣言する(10e の前の SoA を模す)。"""
-    after = {"activity": ("plan_cursor", np.int16, 0), "talk_partner": ("invocation_distance", np.uint16, 0),
-             "refractory_until": ("wake_pending_class", np.int8, -1)}
-    reg = a.registry
-    out = Registry(reg.n_entities, kind=reg.kind, per_entity_byte_cap=None)
-    for d in reg.decls:
-        out.declare(d.name, d.dtype, d.shape_per_entity, byte_budget_per_agent=d.byte_budget_per_entity,
-                    mechanism=d.mechanism, doc=d.doc)
-        out.field(d.name)[...] = reg.field(d.name)
-        if d.name in after:
-            name, dt, fill = after[d.name]
-            out.declare(name, dt, byte_budget_per_agent=np.dtype(dt).itemsize, mechanism=True, doc="10e 前の死蔵",
-                        fill=fill)
-    return out
+def test_e1_retire_and_the_retired_hash_are_gone():
+    """〔改訂(第330・RET)〕10e(E1)の「消した死蔵の 3 列を旧い final の再現のためにハッシュの中で元の位置に並べ直す」口
+    (``Registry.retire``・``core.soa.retired_columns_in_hash``)を消した(前の試験は消す前の宣言を組み直した写しと同じ
+    ハッシュになることを見ていた=第330 ACT の commit で通った)。消した列はどこにも現れない。"""
+    import shibuya.core.soa as SOA
 
-
-def test_e1_retired_columns_reproduce_the_old_registry_hash():
-    """10e(E1): 消した死蔵の 3 列は ``retired_columns_in_hash`` の中だけで元の位置に初期値で混ざる。
-
-    消す前の宣言を組み直した写しの ``state_hash`` と同じバイト列(除外つきも)。外では混ざらない=既定は消えたまま。
-    """
+    assert not hasattr(Registry, "retire") and not hasattr(SOA, "retired_columns_in_hash")
     for a in (AgentState(7), _all_columns_state(9)[0]):
-        _fill_random(a.registry, 3)
-        old = _old_agents_registry(a)
-        assert not ({"plan_cursor", "invocation_distance", "wake_pending_class"} & set(a.registry.arrays))
-        with retired_columns_in_hash():
-            assert a.registry.state_hash() == old.state_hash()
-            for drop in (frozenset({"hunger", "plan_cursor"}), frozenset({"activity", "talk_partner"})):
-                assert a.registry.state_hash(exclude=drop) == old.state_hash(exclude=drop)
-        assert a.registry.state_hash() != old.state_hash()
-        assert a.registry.state_hash() == _registry_without(old, frozenset(
-            {"plan_cursor", "invocation_distance", "wake_pending_class"})).state_hash()
-    with pytest.raises(ValueError):
-        Registry(3, per_entity_byte_cap=None).retire("nope", "x", np.int8)
+        assert not ({"plan_cursor", "invocation_distance", "wake_pending_class", "fail_streak", "plan_activity"}
+                    & set(a.registry.arrays))
 
 
 def test_e1_r1_replay_inbox_is_out_of_the_behavior_hash():
@@ -495,7 +475,7 @@ def test_t4_full_hash_detects_one_element_of_required_external_state(all_arms_ca
 
 @pytest.mark.parametrize("key,full_moves,beh_moves", [
     ("agents.hunger", True, True),            # behavior・要る
-    ("agents.fail_streak", True, False),      # no・不明(安全側で full に入る)
+    ("agents.rel_last", True, False),         # no・要る(〔改訂(第330・RET)〕前は K15 の fail_streak=no・不明)
     ("agents.energy_balance", True, False),   # diag・要る
     ("pois.revenue", True, False),            # diag・要る
     ("cells.open_count", True, False),        # no・導出できる
@@ -635,8 +615,9 @@ def test_t5_perturbing_no_columns_changes_nothing(monkeypatch, tmp_path, kw):
     assert _observed(shaken, tmp_path / "shaken") == _observed(base, tmp_path / "base")
     # 10e(E1): 既定の final は behavior-hash=no の列を揺らしても動かない
     assert shaken.final_hash == base.final_hash
-    # 揺らしは効いていた: 全列のハッシュ(旧い final の組み立て)には no の列(fail_streak など)が入るので動く
-    assert shaken.checkpoints[-1].legacy_combined != base.checkpoints[-1].legacy_combined
+    # 揺らしは効いていた: 全列のハッシュには no の列が入るので動く(〔改訂(第330・RET)〕前は旧い final の組み立て
+    # legacy_combined で見た=切替口と一緒に消したので、SoA の全列のハッシュ agents_hash で見る)
+    assert shaken.checkpoints[-1].agents_hash != base.checkpoints[-1].agents_hash
     # 陽性対照: hunger を揺らすと変わる
     pos, _ = _perturbing_run(monkeypatch, _syn(kw), ("agents.hunger",), tape=tmp_path / "pos")
     assert _observed(pos, tmp_path / "pos") != _observed(base, tmp_path / "base")
@@ -652,17 +633,8 @@ def test_t5_weight_kg_is_read_only_at_initialization(monkeypatch, tmp_path):
     assert {k: v for k, v in ow.items() if k != "behavior"} == {k: v for k, v in ob.items() if k != "behavior"}
 
 
-#: 10e(E1): HEAD ``66472a0``(10e の前)の写しの src で回した値(final・behavior-hash の頭 16 桁・呼数)。
-#: ``_syn`` と同じ合成世界(100 体・16 セル・1 日)。behavior-hash は検収 R1 の直しに合わせ、HEAD の写しで
-#: ``state_ledger.behavior_items`` から ``run_day.replay_inbox`` を外して計算した値(10e の behavior-hash と同じ定義)。
-#: 記録 docs/bench/analysis/wallbounce-1012/10e/README.md §E1。
-PRE10E_SYN = {
-    "v1": ("fbfcea01be6c7766", "d8017936ce05c5d0", 1403),
-    "v3": ("5974faae8d206c15", "13eec0457f55e071", 1330),
-    "v2_edge_attention": ("023c1ebf4714f4b5", "59a793016a2f5375", 1521),
-    "all_arms": ("bcb1424406ffc76b", "3a24ecf70465e550", 1222),
-    "classical": ("ec0ff8ad5fd51053", "dfd5da1654ce92e1", 1923),
-}
+#: 〔第330・RET〕10e の前の値の表 ``PRE10E_SYN``(HEAD ``66472a0`` の写しで回した final・behavior-hash・呼数)は、旧値を再現する
+#: 切替口と一緒に消した(値は 10e の記録 §E1 と §RET に残した)。
 #: 今の既定の final(=behavior-hash)の頭 16 桁(段ごとに張り替える)。
 CUR_SYN = {
     "v1": "a36995c487c3f214", "v3": "92290af2f272b811", "v2_edge_attention": "863d35e1bfdb55f9",
@@ -673,36 +645,22 @@ CUR_SYN = {
 @pytest.mark.parametrize("kw", [
     {}, {"vocab_version": "v3"}, {"vocab_version": "v2", "geometry": "edge"}, ALL_ARMS, CLASSICAL_ARMS,
 ], ids=["v1", "v3", "v2_edge_attention", "all_arms", "classical"])
-def test_t1_deleting_the_dead_columns_changes_nothing(request, tmp_path, kw, monkeypatch):
-    """T1(10e・E1): 死蔵 5 列を消しても、呼数・行動の件数・prompt_hash・behavior-hash は 10e の前(HEAD の写し)と同じ。
+def test_t1_deleting_the_dead_columns_changes_nothing(request, tmp_path, kw):
+    """T1(10e・E1): 死蔵 5 列を消した後の既定の final は behavior-hash そのもの。
 
-    - 既定の final は behavior-hash そのもの・``hash_scheme="full"`` に替えても挙動(呼数・行動・prompt・behavior-hash)は同じ。
-    - ``hash_scheme="full", rng_scheme="stateful"`` は 10e の前の final を再現する。
-    - 10e の前の behavior-hash(``beh_old``)は、10e で挙動を動かした 2 つ(E2 の会話の控えの掃除・E4 の乱数の既定)を
-      止めたラン(``purge_expired`` を何もしない・``rng_scheme="stateful"``)で再現する=死蔵の列の削除そのものは何も変えない。
-
-    (10b の T1 の準備=「死蔵の列を毎 tick 乱数で埋めても動かない」は、列そのものが無くなったので、この形に置き換えた)
+    〔改訂(第330・RET)〕前は ``hash_scheme="full"``・``rng_scheme="stateful"`` で 10e の前の final と behavior-hash
+    (``PRE10E_SYN``)を再現する形だった(切替口を消した=第330 ACT の commit で 5 構成とも通ったことを記録 §RET に書いた)。
+    いまは今の既定の final(``CUR_SYN``)と、K15 の 2 列を消しても final が動かないこと(同じ値)を見る。
     """
-    from shibuya.engine.conversation import ConversationManager
-
     cid = request.node.callspec.id
-    final_old, beh_old, calls_old = PRE10E_SYN[cid]
     new = _syn(kw)(tmp_path / "new")
-    new_full = _syn(dict(kw, hash_scheme="full"))(tmp_path / "new_full")
     assert new.final_hash == new.checkpoints[-1].behavior_hash and new.final_hash[:16] == CUR_SYN[cid]
-    assert _observed(new, tmp_path / "new") == _observed(new_full, tmp_path / "new_full")  # final の定義は挙動に効かない
-    old = _syn(dict(kw, hash_scheme="full", rng_scheme="stateful"))(tmp_path / "old")
-    assert old.final_hash[:16] == final_old and int(old.llm_calls) == calls_old
-    monkeypatch.setattr(ConversationManager, "purge_expired", lambda self, tick: 0, raising=False)
-    mid = _syn(dict(kw, rng_scheme="stateful"))(tmp_path / "mid")
-    assert mid.checkpoints[-1].behavior_hash[:16] == beh_old
-    wo_beh = lambda r, t: {k: v for k, v in _observed(r, t).items() if k != "behavior"}  # noqa: E731
-    assert wo_beh(mid, tmp_path / "mid") == wo_beh(old, tmp_path / "old")
 
 
 @real_data
 def test_t5_and_t1_on_real_assets(monkeypatch, tmp_path):
-    """実資産(W16+W17・計画実行層・エネルギー)300 体 1 日。plan_activity(K15)も揺らす対象に入る。"""
+    """実資産(W16+W17・計画実行層・エネルギー)300 体 1 日。〔改訂(第330・RET)〕前は plan_activity(K15)も揺らした
+    (K15 で消した)。"""
     from shibuya import cli
 
     def f(tape):
@@ -711,8 +669,8 @@ def test_t5_and_t1_on_real_assets(monkeypatch, tmp_path):
     base, _ = _perturbing_run(monkeypatch, f, (), tape=tmp_path / "base")
     shaken, done = _perturbing_run(monkeypatch, f, NO_COLUMNS, tape=tmp_path / "shaken")
     assert done["n"] > 100
-    # 実資産のランでは plan_activity(K15)・energy_balance・知覚の 4 列も揺らした
-    assert {"agents.plan_activity", "agents.energy_balance", "perception.heading"} <= done["keys"]
+    # 実資産のランでは energy_balance・知覚の列も揺らした
+    assert {"agents.energy_balance", "perception.heading"} <= done["keys"]
     assert _observed(shaken, tmp_path / "shaken") == _observed(base, tmp_path / "base")
     pos, _ = _perturbing_run(monkeypatch, f, ("agents.hunger",), tape=tmp_path / "pos")
     assert _observed(pos, tmp_path / "pos") != _observed(base, tmp_path / "base")
@@ -727,7 +685,7 @@ def test_two_day_run_reports_both_hashes_every_day(kw):
     assert len(two.checkpoints) == 8
     for c in two.checkpoints:
         assert len(c.behavior_hash) == 64 and len(c.full_hash) == 64
-        assert c.behavior_hash == c.combined != c.legacy_combined  # 10e(E1): 既定の final は behavior-hash
+        assert c.behavior_hash == c.combined  # 10e(E1): final は behavior-hash(〔第330・RET〕legacy_combined は消した)
     d1 = [c for c in two.checkpoints if c.tick < TPD]
     d2 = [c for c in two.checkpoints if c.tick >= TPD]
     assert d1[-1].behavior_hash != d2[-1].behavior_hash
@@ -954,40 +912,40 @@ def test_p4_numpy_integers_take_the_same_bytes_as_python_ints():
     assert not SH.to_state({1: np.uint64(2**63)}).startswith(b"Q")  # int64 に収まらない=普通の道
 
 
-def _scan_one(tmp_path, code: str, names=("fail_streak",)):
+def _scan_one(tmp_path, code: str, names=("rel_last",)):
     fp = tmp_path / "engine" / "fake.py"
     fp.parent.mkdir(exist_ok=True)
     fp.write_text(code, encoding="utf-8")
     res = SA.scan(tmp_path, files=[fp], names=set(names))
-    return res, SA.check(res, [SL.row("agents.fail_streak")], unresolved_allow=(), check_declared=False)
+    return res, SA.check(res, [SL.row("agents.rel_last")], unresolved_allow=(), check_declared=False)
 
 
 @pytest.mark.parametrize("code,expect", [
-    ("NAMES = ('fail_streak',)\n\ndef f(reg):\n    for n in NAMES:\n        getattr(reg, n)\n", "read"),
+    ("NAMES = ('rel_last',)\n\ndef f(reg):\n    for n in NAMES:\n        getattr(reg, n)\n", "read"),
     ("def f(reg, n):\n    return getattr(reg, n)\n", "unresolved"),
-    ("def f(reg):\n    return reg.arrays.get('fail_streak')\n", "read"),
-    ("import operator\n\ndef f(reg):\n    return operator.attrgetter('fail_streak')(reg)\n", "read"),
-    ("def f(reg, a):\n    reg.money[a], reg.fail_streak[a] = reg.money[a] - reg.fail_streak[a], 0\n", "read"),
+    ("def f(reg):\n    return reg.arrays.get('rel_last')\n", "read"),
+    ("import operator\n\ndef f(reg):\n    return operator.attrgetter('rel_last')(reg)\n", "read"),
+    ("def f(reg, a):\n    reg.money[a], reg.rel_last[a] = reg.money[a] - reg.rel_last[a], 0\n", "read"),
 ], ids=["getattr_name_table", "getattr_arg", "arrays_get", "attrgetter", "tuple_assign"])
 def test_p5_ast_blind_spots_are_caught(tmp_path, code, expect):
     """検収 2-5 の表の 5 つの書き方をそのまま: どれも捕まる(読みとして数える/解決できない読み)。"""
     res, out = _scan_one(tmp_path, code)
     if expect == "read":
-        assert res.loose["fail_streak"], code
-        assert any(v.startswith("agents.fail_streak:") for v in out), out
+        assert res.loose["rel_last"], code
+        assert any(v.startswith("agents.rel_last:") for v in out), out
     else:
         assert res.unresolved and any("解決できない動的な読み" in v for v in out), out
 
 
 @pytest.mark.parametrize("code", [
-    "def f(reg, a):\n    reg.fail_streak[a] = reg.fail_streak[a] + 1\n",
-    "def f(reg, a):\n    reg.fail_streak[a] += 1\n",
-    "def f(reg, a):\n    reg.fail_streak[a], reg.money[a] = reg.fail_streak[a] + 1, 0\n",
-    "def f(reg, a):\n    reg.fail_streak[reg.fail_streak > 3] = 0\n",
+    "def f(reg, a):\n    reg.rel_last[a] = reg.rel_last[a] + 1\n",
+    "def f(reg, a):\n    reg.rel_last[a] += 1\n",
+    "def f(reg, a):\n    reg.rel_last[a], reg.money[a] = reg.rel_last[a] + 1, 0\n",
+    "def f(reg, a):\n    reg.rel_last[reg.rel_last > 3] = 0\n",
 ], ids=["assign", "augassign", "tuple_pair_same_column", "slice_of_same_target"])
 def test_p5_true_self_updates_are_still_not_reads(tmp_path, code):
     res, out = _scan_one(tmp_path, code)
-    assert not res.loose["fail_streak"] and out == [], (code, out)
+    assert not res.loose["rel_last"] and out == [], (code, out)
 
 
 @pytest.fixture(scope="module")

@@ -85,21 +85,16 @@ def assert_aa(run: Callable[[], Any], key: Callable[[Any], Any], *, first: Any =
     return a
 
 
-# ------------------------------------------------------------------ 〔第330・ACT〕10e より前の値の再現(版上げ 1 回目)
-from pathlib import Path as _Path  # noqa: E402
+def soa_combined(c: Any) -> str:
+    """〔第330・RET〕checkpoint の「SoA の全列+母集団+予定表(+活動)」の組み立て(10e より前の final の式)。
 
-import pytest as _pytest  # noqa: E402
+    ``AgentState.state_hash`` を差し替えて腕の欄を除き「腕を足しても挙動は同じ」を見る試験の比べ方。前は
+    ``hash_scheme="full"``(``Checkpoint.legacy_combined``)で final をこの式にしていた。切替口を消したので、試験の側で
+    checkpoint の欄(``agents_hash`` は差し替えた ``state_hash`` の値)から組み立てる。final(behavior-hash)とは別物。
+    """
+    from shibuya.core.hashing import blake3_hex
 
-#: 10e より前の世界の資産の退避先(W10・W12・W13・W9=エンジン側 B1 の切替口 ``--world-assets-pre10e``)。
-PRE10E_ASSETS = _Path(__file__).resolve().parents[1] / "data" / "world" / "v2_pre_10e_2026-10-12"
-#: 10e より前の値(旧い世界の資産と 10e より前の暦=day_index・legacy)を再現する ``cli.run`` の引数(第330 ACT)。
-#: 活性化(``CALENDAR_UNIFIED=True``・影 6 日)の後でも、この引数で旧い golden がそのまま再現できることを固定する。
-#: **切替口と一緒に版上げ 1 回目の RET で消す**(ユーザーの答え 1-5)。
-PRE10E_RUN_KW: dict[str, Any] = {
-    "world_assets_pre10e": str(PRE10E_ASSETS), "calendar_weekday": "day_index", "weather_scheme": "legacy",
-}
-#: 退避先の無い環境は skip(理由を書く)。
-needs_pre10e = _pytest.mark.skipif(
-    not (PRE10E_ASSETS / "MANIFEST.sha256").is_file(),
-    reason="10e より前の世界の資産の退避先(data/world/v2_pre_10e_2026-10-12)が無い=旧値の再現は回せない",
-)
+    parts = [c.agents_hash, c.world_hash, c.population_hash, c.schedule_hash]
+    if c.activity_hash:
+        parts.append(c.activity_hash)
+    return blake3_hex("\x1f".join(parts).encode("utf-8"))

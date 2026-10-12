@@ -197,7 +197,7 @@ _HASH_SITES = {
     ("core/hashing.py", "xxh64"): "汎用のハッシュ(引数の名前が seed)",
     ("core/hashing.py", "xxh64_array"): "汎用のハッシュ(引数の名前が seed)",
     ("perception/hashes.py", "block_hash"): "汎用のハッシュ(引数の名前が seed)",
-    ("engine/processes/environment.py", "select_day"): "層の名前を数にするだけ(乱数は core.rng の環境の流れ)",
+    # 〔第330・RET〕legacy の select_day は消した
     # 〔第330・10e B6〕天気の規則 calendar の再生日の抽選
     ("engine/processes/environment.py", "sample_calendar_day"): "層の名前と日番号を数にするだけ(乱数は core.rng の環境の流れ)",
     ("engine/run.py", "run_day"): "状態のハッシュ(seed を入れない)",
@@ -270,7 +270,7 @@ def _check_split(seen, seed, pop_seed, env_seed):
 def test_population_and_motion_streams_use_their_own_seed_synthetic(monkeypatch):
     seen = _record_keys(monkeypatch)
     cli.run(n_agents=60, seed=3, population_seed=7, environment_seed=11, world_dir=NO_WORLD, n_cells=30, ticks=240,
-            checkpoint_every=60, salient_rate_per_10k=3000.0, rng_scheme="counter")
+            checkpoint_every=60, salient_rate_per_10k=3000.0)  # 〔第330・RET〕rng_scheme を消した(counter だけ)
     used = _check_split(seen, 3, 7, 11)
     assert {"world.synthetic", "agent.schedule", "llm.mock"} <= used
 
@@ -403,7 +403,9 @@ def test_environment_seed_only_changes_weather_events_and_works(monkeypatch):
     assert motion_a == motion_d
     assert {s for s, dm in seen[n_a:] if dm in RUN.ENVIRONMENT_RNG_DOMAINS} == {2}
     assert a.runner.environment.master_seed == 1 and d.runner.environment.master_seed == 2
-    days = {EnvironmentProcess(a.world, a.agents, a.runner.assets, master_seed=e, prefer_shadow_days=False).replay_date
+    # 〔改訂(第330・RET)〕前は legacy の過程(prefer_shadow_days=False)で見た。暦の規則では窓の中の日は実際の天気=
+    # 環境の seed で変わるのは揺らすとき(perturbed)
+    days = {EnvironmentProcess(a.world, a.agents, a.runner.assets, master_seed=e, perturbed=True).replay_date
             for e in range(1, 7)}
     assert len(days) > 1  # 環境の seed で実日が変わる
 
@@ -494,26 +496,26 @@ def _large_event_venue(world, agents, env, day):
 
 @world_assets
 def test_road_works_day_key_with_nonzero_day_index():
-    """再検収 T1: ``day_index`` が 0 でないランで、0 日目の工事の辺はその日の鍵(``day_index``)と環境の seed で引く。
+    """再検収 T1: ``day_index`` が 0 でないランで、0 日目の工事の辺はその日の鍵と環境の seed で引く。
 
-    HEAD と同じ規則(``RoadWorksProcess(day_index=day_key)``)。直す前は鍵が 0 になっていた(byte-check の 19 構成は
-    全部 day_index=0 なので捕まえられなかった)。大きな催しの会場も同じ形で確かめる。
+    〔改訂(第330・RET)〕前は day_index の暦(鍵 = ``day_index``)で見た(ACT の commit で通った。day_index の暦を消した)。
+    暦は real だけ=``day_index`` は開始日をずらすだけで、0 日目の日の鍵は日番号 0。``day_index=14``(2026-07-27・月曜)の
+    ランの工事の辺と大きな催しの会場は、鍵 0 と環境の seed で引いた値と同じ(環境の seed を変えると変わる)。
     """
     from shibuya.engine.processes.logistics import RoadWorksProcess
 
-    # 〔改訂(第330・ACT)〕暦の既定が real になった(real の鍵は日番号=day_index に依らない・0 日目が月曜でない開始は
-    # 止める)。この試験は day_index を鍵にする規則の確かめなので day_index・legacy を明示する
-    kw = dict(n_agents=300, world_dir=str(WORLD), ticks=30, checkpoint_every=0,  # 合成世界の資産には工事の辺が無い
-              calendar_weekday="day_index", weather_scheme="legacy")
-    for env, day in ((1, 3), (5, 3), (5, 2)):
-        r = cli.run(seed=1, environment_seed=env, day_index=day, **kw)
+    kw = dict(n_agents=300, world_dir=str(WORLD), ticks=30, checkpoint_every=0)  # 合成世界の資産には工事の辺が無い
+    edges = {}
+    for env in (1, 5):
+        r = cli.run(seed=1, environment_seed=env, day_index=14, **kw)
+        assert r.runner.calendar.day_key(0) == 0
         rw = r.runner.road_works
-        want = RoadWorksProcess(r.world, r.runner.assets, master_seed=env, day_index=day).planned_edges
-        key0 = RoadWorksProcess(r.world, r.runner.assets, master_seed=env, day_index=0).planned_edges
+        want = RoadWorksProcess(r.world, r.runner.assets, master_seed=env, day_index=0).planned_edges
         assert rw.planned_edges.size > 0
-        assert np.array_equal(rw.planned_edges, want), (env, day)
-        assert not np.array_equal(want, key0)  # 鍵 0 と区別できる例であること
-        assert np.array_equal(r.runner.large_event.venue_cells, _large_event_venue(r.world, r.agents, env, day))
+        assert np.array_equal(rw.planned_edges, want), env
+        assert np.array_equal(r.runner.large_event.venue_cells, _large_event_venue(r.world, r.agents, env, 0))
+        edges[env] = rw.planned_edges.tolist()
+    assert edges[1] != edges[5]  # 環境の seed で区別できる例であること
 
 
 def test_runner_refuses_seed_args_in_arms(tmp_path):

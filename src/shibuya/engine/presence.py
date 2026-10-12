@@ -869,7 +869,7 @@ class PlanExecutor:
         """10d: 日の頭の体の側の書き換え(``relay_day`` の後・通しのランの日の頭だけ。再開では保存した値を読む)。
 
         - 「今日 civic に引き込まれた」印を落とす(``_pulled_in_today``=日ごとの印)。
-        - 計画の写し(``plan_flags`` の「今日の計画がある」ビットと ``plan_activity`` の 0:00 の活動)を今日の表から。
+        - 計画の写し(``plan_flags`` の「今日の計画がある」ビット)を今日の表から(〔第330・RET〕K15 で ``plan_activity`` を消した)。
           位置・活動・在圏(``transit_state``)は**持ち越す**(A11・域外への配置はしない)。
         """
         self._pulled_in_today[:] = False
@@ -881,10 +881,7 @@ class PlanExecutor:
         has_plan[:m] = self.blocks.blocks_per_agent()[:m] > 0
         flags = np.asarray(r.plan_flags).astype(np.int64)
         flags = (flags & ~np.int64(FLAG_HAS_PLAN)) | np.where(has_plan, FLAG_HAS_PLAN, 0)
-        plan_act = np.full(self.n, -1, dtype=np.int64)
-        act0 = self._plan_activity_at(0)
-        plan_act[: act0.size] = act0
-        R.set_plan_state(self.agents, activity=plan_act, flags=flags)
+        R.set_plan_state(self.agents, flags=flags)
 
     def initialize_caches(self) -> None:
         """10d: 再開のときの ``initialize`` の代わり(体を動かさず、``initialize`` が作る控えだけを作る)。"""
@@ -1164,7 +1161,7 @@ class PlanExecutor:
               self.line_of_agent[b_agent[dep_ok]])
 
         # ---- 就寝・起床(W17 の境界そのもの。D-62 の発火元を層へ移す)----
-        # **計画上の活動(``plan_activity``)はこの 2 種 + ARRIVE の時点で更新する**
+        # **計画上の活動(``plan_activity``・〔第330・RET〕K15 で欄は消した)はこの 2 種 + ARRIVE の時点で更新していた**
         # (旧実装は全行ぶんの PLAN_ACTIVITY イベントを別に積んでいた=390k で 1.8M 件・
         # 16 B/件・誰も読まない。行の**被覆は同じ**=非就寝行は WAKE・就寝行は SLEEP)。
         rows, idx, _ = _day_rows(self.weekly, self.day_index)
@@ -1226,10 +1223,7 @@ class PlanExecutor:
         has_plan[:m] = self.blocks.blocks_per_agent()[:m] > 0
         flags |= np.where(has_plan, FLAG_HAS_PLAN, 0)
         flags |= np.where(self.in_area_at_start, FLAG_ARRIVED, 0)
-        plan_act = np.full(self.n, -1, dtype=np.int64)
-        act0 = self._plan_activity_at(0)
-        plan_act[: act0.size] = act0
-        R.set_plan_state(self.agents, activity=plan_act, flags=flags)
+        R.set_plan_state(self.agents, flags=flags)
         if out.size:
             ref = self.line_of_agent[out]
             R.place_at_external(self.agents, out, ref)
@@ -1255,9 +1249,6 @@ class PlanExecutor:
         )
         return int(out.size)
 
-    def _plan_activity_at(self, minute: int) -> np.ndarray:
-        """その分の計画上の活動(``ACTIVITY_WORDS`` 索引・-1=隙間)。"""
-        return np.asarray(self.weekly.activity_at(self.day_index, int(minute)), dtype=np.int64)
 
     # ------------------------------------------------------------------ 1 tick
     #: ``step`` が実行するイベント種(在圏の出入り)。世界過程(⓪a)と同じ位置で回す。
@@ -1344,10 +1335,8 @@ class PlanExecutor:
             self.sleep_counts["woke"] = self.sleep_counts.get("woke", 0) + R.wake_from_plan(
                 self.agents, ids
             )
-        # ``plan_activity``(計画上の活動)はイベントの時点で更新する(別のイベント種は持たない)
-        upd = np.flatnonzero(act >= 0)
-        if upd.size:
-            R.set_plan_state(self.agents, ids[upd], activity=act[upd])
+        # 〔第330・RET〕イベントの活動(``act``)は計画上の活動の欄 ``plan_activity`` を書くのに使っていた(K15 で欄を消した)。
+        # イベント列の形(``ev_act``・状態台帳の行)は変えない
 
     def _do_arrive(self, ids: np.ndarray, cells: np.ndarray) -> None:
         """ARRIVE: **域外に居る体だけ**を降ろす(I2 二重到着なし)。"""

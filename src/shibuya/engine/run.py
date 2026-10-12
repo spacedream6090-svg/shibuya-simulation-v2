@@ -37,8 +37,9 @@ expedient(本モジュール分)
 - プロンプトは既定で**本物の ``perception.renderer.Renderer``**(B0-B6)。``renderer="stub"``
   で ``StubRenderer``(``[a<agent>|c<cell>|t5<tick//5>|w<class>]``)へ落とせる(安いテスト用)。
 - 世界内日時は暦の口(``engine.calendar.SimCalendar.datetime_of``)= ``start_sim_datetime +
-  T × tick_seconds``。``start_sim_datetime`` を渡さないランは今までどおり ``DEFAULT_START_DATETIME +
-  day_index 日``(気象の再生実日があればその日)。manifest に ``tick_seconds``・``start_sim_datetime`` を書く(10a)。
+  T × tick_seconds``。``start_sim_datetime`` を渡さないランは ``DEFAULT_WORLD_START``(2026-07-13)+ ``day_index`` 日
+  (〔第330・RET〕10e より前の「気象の再生実日を世界の日付にする」導き方は消した)。manifest に ``tick_seconds``・
+  ``start_sim_datetime`` を書く(10a)。
 - **通しの時刻 T**(10a・A1): ループの変数 ``tick`` は ``T = 日 × 1 日の tick 数 + 日の中の tick``。乱数とハッシュの
   鍵・call_id・テープの tick 欄・tick を値に持つ状態は T を使い、日の中の時刻で引く表(計画境界・食事の予定など)は
   ``T % 1 日の tick 数`` で引く。1 日のラン(既定)では T = tick なので値は今と同じ。
@@ -85,7 +86,7 @@ from shibuya.agents.state import (
 )
 from shibuya.core.growth import GrowthReport, check_growth
 from shibuya.core.hashing import apply_key_array, blake3_hex
-from shibuya.core.rng import DEFAULT_RNG_SCHEME, RNG_SCHEMES, check_rng_scheme
+from shibuya.core.rng import RNG_SCHEME
 from shibuya.core.types import DEFAULT_TICK_SECONDS, MINUTES_PER_SIM_DAY
 from shibuya.engine import commit as C
 from shibuya.engine import growth_decl as GD
@@ -95,14 +96,10 @@ from shibuya.engine import state_ledger as SL
 from shibuya.engine.activity import ActivityLayer, payload_of
 from shibuya.engine.calendar import (
     DEFAULT_HOLIDAY_CSV,
-    DEFAULT_WEATHER_SCHEME,
-    DEFAULT_WEEKDAY_MODE,
     DEFAULT_WORLD_START,
-    WEATHER_SCHEMES,
-    WEEKDAY_MODES,
+    WEATHER_SCHEME,
+    WEEKDAY_MODE,
     SimCalendar,
-    check_weather_scheme,
-    check_weekday_mode,
     load_holidays,
     parse_school_holidays,
     parse_start,
@@ -211,8 +208,7 @@ from shibuya.engine.llm_bridge import (
     delta_think_ticks,
 )
 from shibuya.engine.scheduler import DIAG_COLUMNS
-from shibuya.core.soa import retired_columns_in_hash
-from shibuya.engine.state_hashes import DEFAULT_HASH_SCHEME, HASH_SCHEMES, check_hash_scheme
+from shibuya.engine.state_hashes import FINAL_DEFINITION
 from shibuya.engine.state_hashes import behavior_hash as behavior_state_hash
 from shibuya.engine.state_hashes import full_hash as full_state_hash
 from shibuya.engine.state_hashes import component_digests
@@ -232,7 +228,6 @@ from shibuya.perception.renderer import (
     check_hunger_words,
     DEFAULT_NEAR_ORDER,
     DEFAULT_NEAR_TIEBREAK,
-    DEFAULT_START_DATETIME,
     NEAR_ORDERS,
     NEAR_TIEBREAKS,
     SIGNAGE_P_SEE_DEFAULT,
@@ -254,7 +249,6 @@ from shibuya.perception.templates import (
 from shibuya.world.assets import (
     AREA_SOURCES,
     DEFAULT_AREA_SOURCE,
-    asset_source,
     check_area_source,
     load_process_assets_or_synthetic,
     load_walkable_area_m2,
@@ -406,121 +400,33 @@ def _replay_tape_dir(replay: Any) -> Path:
     return Path(getattr(replay, "path", None) or replay)
 
 
-#: 値の無いテープ(10c より前の録画)の乱数の方式。10c より前は stateful しか無かった。
-LEGACY_TAPE_RNG_SCHEME: Final[str] = "stateful"
-
-
-class RngSchemeWarning(UserWarning):
-    """再生するテープに乱数の方式の値が無い(10c より前の録画)ときの警告。"""
-
-
-#: 「値が無いので stateful とみなす」の警告を出したテープ(1 回だけ出すため)。
-_WARNED_RNG: set[str] = set()
-
-
 #: 10e(検収 L1): テープの脇の meta に書く乱数の鍵の配置の印。10c〜10f の counter(K19 の並べ方の前)と見分ける。
 RNG_LAYOUT: Final[str] = "10e"
 
 
-def resolve_rng_scheme(value: str | None, mode: str = "record", replay: Any = None) -> str:
-    """乱数の方式を決める(10c・10e で ``None``=未指定を足した)。``cli.run`` も母集団の抽出の前にこれを呼ぶ。
+def check_replay_tape(mode: str = "record", replay: Any = None) -> None:
+    """〔第330・RET〕再生するテープが今の版で録られたかを確かめる(違えば止める=警告ではなく例外)。
 
-    - 録画・mock: 渡された値。``None``(未指定)は既定 ``counter``(10e・E4)。
-    - 再生: テープの脇の meta(``run_meta.json``)の ``rng_scheme`` と突き合わせ、違えば止める(文言に両方の値)。
-      ``None``(未指定)ならテープの値で回す(``response_delay`` と同じ形=旧テープを既定のまま正しく回す)。
-      meta に値が無いテープ(10c より前の録画=実 LLM の 17 本)は ``stateful`` とみなし、警告を 1 回出す
-      (10c の検収の答え (b))。
-    - 名前の注意(検収の答え (a)): この ``rng_scheme`` は「状態を持つ乱数か」の切替口の名前で、manifest の設計の
-      ``rng.scheme``(生成器の名前 ``"numpy-philox4x64"``・``manifest/schema.py``)とは別物。
+    テープの脇の meta(``run_meta.json``)が ``rng_scheme="counter"``・``rng_layout="10e"``・``calendar_weekday="real"``・
+    ``weather_scheme="calendar"`` を持つテープだけを再生する。10e より前の録画(乱数 stateful・10c〜10f の counter の
+    並べ方・記録の無いテープ)と、版上げ 1 回目の活性化より前の録画(暦の規則の記録が無い・day_index・legacy)は、
+    それを再現する切替口(``--rng-scheme stateful``・``--calendar-weekday day_index``・``--weather-scheme legacy``)を
+    版上げ 1 回目の後に消したので再生できない。手元の実テープ(版 1〜2・52 本)はどれも 10e より前の録画
+    (10e の記録 §RET)。録画・mock では何もしない。
     """
-    given = value is not None
-    v = check_rng_scheme(value if given else DEFAULT_RNG_SCHEME)
     if mode != "replay" or replay is None:
-        return v
-    tape_dir = _replay_tape_dir(replay)
-    rec = read_run_meta(tape_dir).get("rng_scheme")
-    if rec is None:
-        key = str(tape_dir)
-        if key not in _WARNED_RNG:
-            _WARNED_RNG.add(key)
-            warnings.warn(
-                f"再生するテープに rng_scheme の記録が無い(10c より前の録画): {LEGACY_TAPE_RNG_SCHEME} とみなす"
-                f"({tape_dir.name})",
-                RngSchemeWarning, stacklevel=3,
-            )
-        rec = LEGACY_TAPE_RNG_SCHEME
-    rec = str(rec)
-    meta = read_run_meta(tape_dir)
-    if rec == "counter" and meta.get("rng_layout") != RNG_LAYOUT:
-        # 10e(検収 L1): 10c〜10f の counter は K19 の鍵の並べ方の前(母集団の抽出・体の定数・気づき・日の鍵が違う)
-        raise ValueError(
-            f"このテープは 10c〜10f の counter の鍵の配置で録られている(run_meta.json に rng_layout={RNG_LAYOUT!r} が無い)"
-            f"=10e の counter とは乱数の並びが違うので再生しない({tape_dir.name})"
-        )
-    if not given:  # 10e: 未指定はテープの値で回す
-        v = check_rng_scheme(rec)
-    if rec != v:
-        raise ValueError(
-            f"乱数の方式がテープと違う: テープは rng_scheme={rec}・今の設定は {v}"
-            "(--rng-scheme を録画と同じ値にする)"
-        )
-    return v
-
-
-#: 〔第330・ACT〕暦の規則の記録が無いテープ(版上げ 1 回目の活性化より前の録画)の値=当時の既定。
-LEGACY_TAPE_CALENDAR_WEEKDAY: Final[str] = "day_index"
-LEGACY_TAPE_WEATHER_SCHEME: Final[str] = "legacy"
-
-
-class CalendarSchemeWarning(UserWarning):
-    """再生するテープに暦の規則(``calendar_weekday``・``weather_scheme``)の記録が無い(活性化より前の録画)ときの警告。"""
-
-
-#: 「記録が無いので day_index・legacy とみなす」の警告を出したテープ(1 回だけ出すため)。
-_WARNED_CAL: set[str] = set()
-
-
-def resolve_calendar_schemes(
-    calendar_weekday: str | None, weather_scheme: str | None, mode: str = "record", replay: Any = None,
-) -> tuple[str, str]:
-    """〔第330・ACT〕曜日の決め方と天気の規則を決める(親の決定 (5)=``rng_scheme`` と同じ形)。
-
-    - 録画・mock: 渡された値。``None``(未指定)は既定(``DEFAULT_WEEKDAY_MODE``・``DEFAULT_WEATHER_SCHEME``)。
-    - 再生: テープの脇の meta(``run_meta.json``)の ``calendar_weekday``・``weather_scheme`` を既定にし、明示の値が
-      違えば止める(文言に両方の値)。記録の無いテープ(活性化より前の録画)は ``day_index``・``legacy`` とみなし、
-      警告を 1 回出す(``CalendarSchemeWarning``)。
-    """
-    w = check_weekday_mode(DEFAULT_WEEKDAY_MODE if calendar_weekday is None else calendar_weekday)
-    s = check_weather_scheme(weather_scheme)
-    if mode != "replay" or replay is None:
-        return w, s
+        return
     tape_dir = _replay_tape_dir(replay)
     meta = read_run_meta(tape_dir)
-    rec_w, rec_s = meta.get("calendar_weekday"), meta.get("weather_scheme")
-    if rec_w is None or rec_s is None:
-        key = str(tape_dir)
-        if key not in _WARNED_CAL:
-            _WARNED_CAL.add(key)
-            warnings.warn(
-                "再生するテープに暦の規則の記録が無い(版上げ 1 回目の活性化より前の録画): "
-                f"calendar_weekday={LEGACY_TAPE_CALENDAR_WEEKDAY}・weather_scheme={LEGACY_TAPE_WEATHER_SCHEME} "
-                f"とみなす({tape_dir.name})",
-                CalendarSchemeWarning, stacklevel=3,
-            )
-        rec_w = LEGACY_TAPE_CALENDAR_WEEKDAY if rec_w is None else rec_w
-        rec_s = LEGACY_TAPE_WEATHER_SCHEME if rec_s is None else rec_s
-    rec_w, rec_s = check_weekday_mode(str(rec_w)), check_weather_scheme(str(rec_s))
-    if calendar_weekday is None:
-        w = rec_w
-    if weather_scheme is None:
-        s = rec_s
-    if (w, s) != (rec_w, rec_s):
+    got = {k: meta.get(k) for k in ("rng_scheme", "rng_layout", "calendar_weekday", "weather_scheme")}
+    want = {"rng_scheme": RNG_SCHEME, "rng_layout": RNG_LAYOUT, "calendar_weekday": WEEKDAY_MODE,
+            "weather_scheme": WEATHER_SCHEME}
+    if got != want:
+        bad = ", ".join(f"{k}={got[k]!r}(要 {want[k]!r})" for k in want if got[k] != want[k])
         raise ValueError(
-            f"暦の規則がテープと違う: テープは calendar_weekday={rec_w}・weather_scheme={rec_s}・"
-            f"今の設定は calendar_weekday={w}・weather_scheme={s}"
-            "(--calendar-weekday・--weather-scheme を録画と同じ値にする)"
+            f"このテープは 10e より前(または版上げ 1 回目の活性化より前)の録画で、今の版では再生できない"
+            f"({tape_dir.name}: {bad})。旧値の再現の切替口は版上げ 1 回目の後に消した"
         )
-    return w, s
 
 
 def decision_layers_summary(counts: np.ndarray) -> dict[str, Any]:
@@ -583,10 +489,10 @@ def _named_closed_lookup(
     失敗の通しの時刻 T の日番号 + 1 の ``table_weekday``。``day_index`` モードでは ``(day_index + 日 + 1) % 7``
     =1 日のランでは今の ``(day_index + 1) % 7`` と同じ)。W7 が無い(合成世界)・区間が無い店は
     ``-1``(時刻を出さない)。逐次ループ宣言: なし(引くのは描画 1 回につき 1 件)。
-    ``calendar`` に整数を渡したときは旧い口(``day_index``)として ``SimCalendar.legacy`` で包む。
+    ``calendar`` に整数を渡したときは ``SimCalendar.default``(2026-07-13 + その日数)で包む(〔第330・RET〕旧い口 legacy を消した)。
     """
     if not isinstance(calendar, SimCalendar):
-        calendar = SimCalendar.legacy(int(calendar), tick_seconds=int(tick_seconds))
+        calendar = SimCalendar.default(int(calendar), tick_seconds=int(tick_seconds))
     opening = getattr(runner, "opening", None) if runner is not None else None
     om = getattr(opening, "open_matrix", None)
     pa = getattr(opening, "assets", None)
@@ -708,9 +614,8 @@ MOTION_RNG_DOMAINS: dict[str, str] = {
     "llm.mock.out_of_cell_target": "mock のセル外の店の対象",
     "perception.attention.p_see": "注視ゲート(看板・親しみの露出)",
     "perception.p_notice": "顕著行為に気づくか",
-    "world.salient": "顕著行為の発生(stateful)",
+    # 〔第330・RET〕stateful の 2 本(world.salient・world.public_service_dispatch)は切替口と一緒に消した
     "world.salient.counter": "顕著行為の発生(counter)",
-    "world.public_service_dispatch": "出動の遅れ(stateful)",
     "world.public_service_dispatch.counter": "出動の遅れ(counter)",
     "world.delivery_inbound": "入荷の抽選(つなぎ: 本来は店の発注と配達員の行動)",
     "world.delivery_last_mile": "配達の予約(引くだけ)",
@@ -787,27 +692,13 @@ class Checkpoint:
     behavior_hash: str = ""
     #: 10b: **full-hash**(SoA+知覚 SoA+外の状態のうち軸 2 が要る・導出できる・不明の行)。``combined`` には混ぜない。
     full_hash: str = ""
-    #: 10e(E1): final の定義(``HASH_SCHEMES``)。``behavior``(既定)=``combined`` は behavior-hash /
-    #: ``full``=旧い組み立て(``legacy_combined``・旧値の再現だけ。版上げの最後に消す)。
-    hash_scheme: str = DEFAULT_HASH_SCHEME
-
-    @property
-    def legacy_combined(self) -> str:
-        """10e より前の final の組み立て(SoA の全列+母集団+予定表(+活動))。"""
-        parts = [self.agents_hash, self.world_hash, self.population_hash, self.schedule_hash]
-        if self.activity_hash:
-            parts.append(self.activity_hash)
-        return blake3_hex("\x1f".join(parts).encode("utf-8"))
 
     @property
     def combined(self) -> str:
-        """final(T1/T2 の一致判定)。10e(E1)から既定は behavior-hash。``full`` は旧い組み立て。"""
-        if self.hash_scheme == "full":
-            return self.legacy_combined
-        if self.hash_scheme != "behavior":
-            raise ValueError(f"未知の hash_scheme: {self.hash_scheme!r}")
+        """final(T1/T2 の一致判定)=behavior-hash(10e E1)。〔第330・RET〕旧い組み立て(``--hash-scheme full``・
+        ``legacy_combined``)は版上げ 1 回目の後に消した。"""
         if not self.behavior_hash:
-            raise ValueError("hash_scheme='behavior' の checkpoint に behavior_hash が無い")
+            raise ValueError("checkpoint に behavior_hash が無い(final は behavior-hash)")
         return self.behavior_hash
 
 
@@ -1111,12 +1002,11 @@ class RunResult:
     response_delay: int = DEFAULT_RESPONSE_DELAY
     #: 回した日数(``run_day(sim_days=…)``・既定 1)。
     sim_days: int = 1
-    #: 10c: 顕著行為の発生と出動の遅れの乱数の方式(``RNG_SCHEMES``・既定 ``stateful``)。manifest に載る。
-    rng_scheme: str = DEFAULT_RNG_SCHEME
-    #: 10e(E1): final の定義(``HASH_SCHEMES``・既定 ``behavior``)。manifest に載る。
-    hash_scheme: str = DEFAULT_HASH_SCHEME
-    #: 10e(B1): 旧資産の切替口(``world.assets.AssetSource.manifest``)。使わないランは ``None``=manifest に欄を出さない。
-    world_assets_pre10e: dict[str, Any] | None = None
+    #: 10c・10e: 乱数の方式の名前(manifest の ``rng_scheme``=``counter`` だけ・〔第330・RET〕stateful は消した)。
+    rng_scheme: str = RNG_SCHEME
+    #: 10e(E1): final の定義(manifest の ``hash_scheme``)。〔第330・RET〕切替口を消したので常に ``behavior``(記録だけ)。
+    hash_scheme: str = FINAL_DEFINITION
+
     #: 10e(B6): 天気の規則と日ごとの暦の日付・再生日・層・影・警告(``EnvironmentProcess.weather_manifest``)。
     #: 世界過程の無いランは規則だけ。manifest の ``weather``(設定の節)。
     weather: dict[str, Any] = field(default_factory=dict)
@@ -1487,8 +1377,7 @@ class RunResult:
             "environment_seed": (self.seed if self.environment_seed is None else self.environment_seed),
             # ---- 10e(E1): final の定義(behavior=behavior-hash が既定・full=旧い組み立て)。列追加のみ ----
             "hash_scheme": str(self.hash_scheme),
-            # ---- 10e(B1): 旧資産の切替口(使ったランだけ欄を出す=既定の manifest は不変)。版上げ 1 回目の直後に消す ----
-            **({"world_assets_pre10e": dict(self.world_assets_pre10e)} if self.world_assets_pre10e else {}),
+
             # ---- 10e(B6): 天気の規則と日ごとの暦の日付・再生日・層・影(列追加のみ) ----
             "weather": copy.deepcopy(self.weather),
         }
@@ -1758,7 +1647,6 @@ def _resolve_population(
     n_agents: int,
     seed: int | str,
     n_cells: int,
-    rng_scheme: str = DEFAULT_RNG_SCHEME,
 ) -> "Population | None":
     """``population`` 引数 → 実体(``None``=資産が無い/切っている)。
 
@@ -1782,7 +1670,7 @@ def _resolve_population(
             # (明示的に population= を渡したときだけ食い違いを例外にする)。
             return None
     if pop.n > n_agents:
-        pop = sample_population(pop, n_agents, seed, rng_scheme=rng_scheme)  # 10e(E4・K19): 層の鍵の並べ方
+        pop = sample_population(pop, n_agents, seed)  # 10e(E4・K19): 層の鍵の並べ方
     return pop
 
 
@@ -2105,19 +1993,16 @@ def run_day(
     rel_copresent: bool | str = False,
     sim_days: int = 1,
     start_sim_datetime: "datetime | str | None" = None,
-    calendar_weekday: str | None = None,
     holiday_csv: "str | Path" = DEFAULT_HOLIDAY_CSV,
     school_holidays: Any = (),
     response_delay: int | None = None,
-    rng_scheme: str | None = None,
-    hash_scheme: str = DEFAULT_HASH_SCHEME,
+
     state_out: "str | Path | None" = None,
     stop_at_tick: int | None = None,
     resume_from: "str | Path | None" = None,
     run_id: str = "",
     checkpoint_detail: bool = False,
-    world_assets_pre10e: "str | Path | None" = None,
-    weather_scheme: str | None = None,
+
     weather_perturb: bool = False,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
@@ -2444,32 +2329,22 @@ def run_day(
             営業時間(W7)・世界過程の日ごとの乱数の表・食事の予定は 0 日目の表を繰り返す(宣言・10d README)。
             再生(replay)とは一緒に使えない。
         start_sim_datetime: **10a(A1-1)の開始日の欄**(``datetime``・``date``・``"YYYY-MM-DD"``)。``None``
-            (既定)は今までどおり ``DEFAULT_START_DATETIME + day_index 日``(気象の再生実日があればその日)。
-            渡すと T=0 の世界内日時(プロンプトの日付)と暦の日付になる。``calendar_weekday="real"`` では必須。
-        calendar_weekday: **10a の曜日の切替口**。〔第330・ACT〕``None``(未指定)=既定 ``DEFAULT_WEEKDAY_MODE``
-            (``real``)・再生ではテープの meta の値(記録の無い旧テープは ``day_index``=``resolve_calendar_schemes``)。
-            ``"real"``=``start_sim_datetime``(無ければ ``DEFAULT_WORLD_START``)の実の曜日と祝日(祝日は土休・曜日
-            7 日の表では日曜の行・W7 は PH の行)/ ``"day_index"``=10e より前の約束(``day_index=0`` を月曜・祝日は
-            見ない・旧値の再現だけ)。曜日・土休・祝日を引く 18 か所は暦の口(``engine.calendar.SimCalendar``)を通す。
-        holiday_csv: 祝日 CSV の場所(既定 ``data/calendar/syukujitsu.csv``)。無ければ祝日を空にして警告 1 回。
+            (既定)は ``DEFAULT_WORLD_START``(2026-07-13・月)+ ``day_index`` 日。渡すと T=0 の世界内日時(プロンプトの
+            日付)と暦の日付になる。曜日・土休・祝日は日付と内閣府の祝日から(祝日は土休・曜日 7 日の表では日曜の行・W7 は
+            PH の行)。曜日・土休・祝日を引く 18 か所は暦の口(``engine.calendar.SimCalendar``)を通す。〔第330・RET〕10e
+            より前の曜日の決め方 ``day_index`` と切替口 ``calendar_weekday`` は消した。
+        holiday_csv: 祝日 CSV の場所(既定 ``data/calendar/syukujitsu.csv``)。読めなければ開始日の検査で止める。
             読んだ md5 を manifest の ``calendar.holiday_csv_md5`` に書く。
         school_holidays: 学校の長期休みの区間の一覧(``"YYYY-MM-DD:YYYY-MM-DD,…"`` か組の列)。開始日の検査で
-            当たれば止める(``real``)/ 警告(``day_index``)。既定は空(表の中身は K7 の判断待ち)。
+            当たれば止める。既定は空(表の中身は K7 の判断待ち)。
         response_delay: **10a(A9)の応答の遅れの切替口**(``None``=未指定は 1。再生ではテープの脇の meta の値と
             突き合わせて違えば止め、値の無い旧テープは 2 とみなす=検収後 P3)。``1``=艦隊/再生の到着の受け取りを①の
             直前に置き下限 ``max(t_apply, tick)``(発射 +1 tick で反映)/ ``2``=旧(受け取りは④′・下限
             ``tick + 1``=+2 tick)。旧い実 LLM テープの再生は ``2`` で回す。mock(``fleet=None`` かつ再生の
             到着が無い)はこの分岐を通らない=結果は動かない。
-        rng_scheme: **10c(Q8)の乱数の切替口**。〔10e(E4)〕``None``(未指定)は録画・mock では既定 ``counter``・再生では
-            テープの値。``counter`` は K19 の鍵の並べ方(``core.rng.k19_counters``)も含む / ``stateful``=10e より前
-            (旧値の再現)。以下は 10c の文言: ``stateful``(既定=今のまま)/ ``counter``=顕著行為の発生を
-            ``(seed, 名前, T)``・出動の遅れを ``(seed, 名前, T, セル, k)`` から毎回作る(状態を持たない・
-            ``core.rng.run_tick_key``)。世界過程を止めたランでも値は検査して manifest に載せる。
-            この名前は切替口の名前で、manifest の設計の ``rng.scheme``(生成器の名前 ``"numpy-philox4x64"``)とは別物。
-        hash_scheme: **10e(E1)の final の定義の切替口**。``behavior``(既定)=final は behavior-hash(状態台帳の
-            軸 1 が behavior の SoA の列と外の状態の行)/ ``full``=10e より前の final(SoA の全列+母集団+予定表+活動。
-            消した死蔵の列は ``core.soa.retired_columns_in_hash`` の中で元の位置に初期値で混ざる=旧値の再現)。
-            挙動には効かない(checkpoint の値だけが変わる)ので再開の指紋には入れない。版上げの最後に ``full`` を消す。
+        (乱数: 10c・10e の counter=顕著行為の発生を ``(seed, 名前, T)``・出動の遅れを ``(seed, 名前, T, セル, k)`` から毎回
+        作る・K19 の鍵の並べ方。〔第330・RET〕10e より前の ``stateful`` と切替口 ``rng_scheme`` は消した。manifest の
+        ``rng_scheme`` は ``counter`` の記録)
         state_out: **10d の状態の書き出し先**(ディレクトリ)。渡すと各日の締めの後(複数日のランの途中の日)と、
             ``stop_at_tick`` で止めたとき、ランの最後(``finished: true``)に、状態のまとまりを 1 ファイルずつ
             書く(``engine.resume``・名前は ``state-T<次に回す T>.npz``=10f の npz+json。10d の ``.pkl`` は 10e で読み口を消した)。``None``(既定)=書かない。
@@ -2483,23 +2358,11 @@ def run_day(
         run_id: manifest のラン ID(空なら設定の指紋・始めの T・親のラン ID から作る)。
         checkpoint_detail: checkpoint ごとに列ごと・外の状態の行ごとの digest も控える(食い違いの場所を探す道具
             ``docs/bench/analysis/wallbounce-1003/10d/first_diff.py`` 用・既定 off=費用 0)。
-        world_assets_pre10e: **10e(B1)旧資産の切替口**(ユーザーの答え 1-5)。``None``(既定)=使わない。ディレクトリを
-            渡すと、W10(騒音の段 2 本と街路点)・W12(時刻表と方面ノード)・W13(天気 2 本)・W9(影)のうち、そこに
-            そろっている族を ``world_dir`` の代わりにそこから読む(``world.assets.asset_source``・退避先は
-            ``data/world/v2_pre_10e_2026-10-12``・段ごとの写し ``data/world/v2_10e_steps/<段>`` はその段の族だけ)。
-            騒音の地図の 2 つの読み手(``world`` の資産と知覚)は同じ口を通し、集約後の段が違えば止める。``world`` を
-            渡すときは同じ退避先で読んだ世界を渡す(``cli.run`` はそうする)。**版上げ 1 回目が済み、動いた量を記録したら
-            消す**。manifest の ``world_assets_pre10e`` に退避先と族を書く。
-        weather_scheme: **10e(E3・B6)の天気と暦の規則**(``engine.calendar.WEATHER_SCHEMES``)。``None``(既定)=
-            ``DEFAULT_WEATHER_SCHEME``(〔第330・ACT〕``calendar``)・再生ではテープの meta の値(記録の無い旧テープは
-            ``legacy``)。``legacy``=10e より前(旧値の再現だけ・開始日を
-            渡さないランの世界の日付=気象の再生実日)/ ``calendar``=世界の日付は暦(開始日を渡さなければ
-            ``DEFAULT_WORLD_START``=2026-07-13 + ``day_index`` 日)・天気は再生日の行・日の出と日の入りと太陽高度と
-            影は暦の日付(ユーザーの答え 1-3・``engine.processes.environment``)。``calendar`` では ``real`` の曜日に
-            開始日を渡さなくてよい(既定の開始日を使う)。
+        (天気と暦の規則: 世界の日付は暦・天気は再生日の行・日の出と日の入りと太陽高度と影は暦の日付=ユーザーの答え 1-3・
+        ``engine.processes.environment``。〔第330・RET〕10e より前の ``legacy`` と切替口 ``weather_scheme`` は消した)
         weather_perturb: **10e(B6)天気を揺らす**(アンサンブル・既定 ``False``)。``True`` では暦の日付が窓の中でも
             実際の天気を使わず、同じ季節 × 平日/土休の層から天候型を日数の割合で引く(鍵は環境の seed)。アンサンブルは
-            これを付けて ``environment_seed`` を変えて回す。``calendar`` でだけ効く(``legacy`` は今のまま)。
+            これを付けて ``environment_seed`` を変えて回す。
             「環境の seed を動きの seed と別の値にしたら揺らす」にしなかった理由: salt の比較(10f)は環境の seed を
             固定して動きの seed だけを変えるので、salt ごとに天気が揺れて共通の乱数(CRN)が崩れる。
 
@@ -2517,31 +2380,17 @@ def run_day(
         _call_args["population_seed"] = pop_seed
     if not _same_seed(env_seed, seed):
         _call_args["environment_seed"] = env_seed
-    # 10e(B1): 旧資産の切替口は使ったときだけ指紋に載せる(既定のランの指紋=旧い状態のファイルの再開は今のまま)
-    if world_assets_pre10e is None or str(world_assets_pre10e) == "":
-        _call_args.pop("world_assets_pre10e", None)
-    # 10e(E3・B6): 天気と暦の規則。legacy(今)のときは指紋に載せない(旧い状態のファイルの再開は今のまま)
-    # 〔第330・ACT〕未指定は既定・再生ではテープの meta の値(記録の無い旧テープは day_index・legacy)
-    calendar_weekday, weather_scheme = resolve_calendar_schemes(calendar_weekday, weather_scheme, mode, replay)
-    _call_args["calendar_weekday"] = calendar_weekday  # 指紋は決めた値(未指定と同じ値の明示は同じラン)
-    _call_args.pop("weather_scheme", None)
-    if weather_scheme != WEATHER_SCHEMES[0]:
-        _call_args["weather_scheme"] = weather_scheme
+
     weather_perturb = bool(weather_perturb)
     if not weather_perturb:
         _call_args.pop("weather_perturb", None)
-    _pre10e_src = (
-        asset_source(world_dir, world_assets_pre10e)
-        if (world_dir is not None and world_assets_pre10e is not None and str(world_assets_pre10e) != "")
-        else None
-    )
+
     t_start = time.perf_counter()
     budget_mode_enum = BudgetMode.parse(budget_mode)
     # ---- 10a(A1・A1-1・A1-2・A1-3・A9): 暦の口・通しの時刻 T・応答の遅れ(世界を触る前に検査) ----
-    calendar_weekday = check_weekday_mode(calendar_weekday)
+    check_replay_tape(mode, replay)  # 〔第330・RET〕10e より前・活性化より前の録画は止める
     response_delay = _resolve_response_delay(response_delay, mode, replay)
-    rng_scheme = resolve_rng_scheme(rng_scheme, mode, replay)  # 10c: 再生ではテープの meta と突き合わせる
-    hash_scheme = check_hash_scheme(hash_scheme)  # 10e(E1)
+
     if mode == "replay" and replay is not None:  # 10f: 録画した環境が違えば警告を 1 行(挙動は変えない)
         _rtd = _replay_tape_dir(replay)
         RS.warn_if_other_environment(read_run_meta(_rtd).get("environment"), f"再生するテープ {_rtd.name}")
@@ -2549,16 +2398,10 @@ def run_day(
     if sim_days < 1:
         raise ValueError(f"sim_days は 1 以上(いま {sim_days})")
     start_given = parse_start(start_sim_datetime)
-    if calendar_weekday == "real" and start_given is None and weather_scheme != "calendar":
-        raise ValueError("calendar_weekday='real' には start_sim_datetime(開始日)が要る(A1-1)")
-    # 10e(E3): 暦の 0 日目。渡されたらその日・暦の規則(calendar)では既定の開始日 2026-07-13 + day_index 日・
-    # legacy では今までどおり DEFAULT_START_DATETIME + day_index 日(後で気象の再生実日へ置き換える=旧値の再現)
+    # 10e(E3): 暦の 0 日目。渡されたらその日・渡さなければ既定の開始日 2026-07-13 + day_index 日
     calendar = SimCalendar(
-        start_given if start_given is not None
-        else (DEFAULT_WORLD_START if weather_scheme == "calendar" else DEFAULT_START_DATETIME)
-        + timedelta(days=int(day_index)),
+        start_given if start_given is not None else DEFAULT_WORLD_START + timedelta(days=int(day_index)),
         tick_seconds=int(tick_seconds),
-        weekday_mode=calendar_weekday,
         day_index=int(day_index),
         holidays=load_holidays(holiday_csv),
         school_holidays=parse_school_holidays(school_holidays),
@@ -2799,11 +2642,11 @@ def run_day(
     # 10f(K26 (a)): 環境の欄と env_id(manifest・状態の見出しと同じ値)もテープの脇の meta に書く
     _env_fields = RS.environment_fields()
     tape_writer = (TapeWriter(Path(tape_path), run_meta={"response_delay": int(response_delay),
-                                                            "rng_scheme": str(rng_scheme),
+                                                            "rng_scheme": RNG_SCHEME,
                                                             "rng_layout": RNG_LAYOUT,  # 10e(検収 L1)
-                                                            # 〔第330・ACT〕暦の規則(再生の既定=resolve_calendar_schemes)
-                                                            "calendar_weekday": str(calendar_weekday),
-                                                            "weather_scheme": str(weather_scheme),
+                                                            # 〔第330・ACT・RET〕暦の規則(再生では check_replay_tape が確かめる)
+                                                            "calendar_weekday": WEEKDAY_MODE,
+                                                            "weather_scheme": WEATHER_SCHEME,
                                                             "env_id": str(_env_fields["env_id"]),
                                                             "environment": copy.deepcopy(_env_fields)})
                    if tape_path is not None else None)
@@ -2811,7 +2654,7 @@ def run_day(
             if conversations else None)
     # 10f(K21 (a)): mock 日課・W16 の抽出は母集団の seed から(既定は seed と同じ値)
     schedule = synthesize(n_agents, pop_seed, world.n_cells)
-    pop = _resolve_population(population, world_dir, n_agents, pop_seed, world.n_cells, rng_scheme)
+    pop = _resolve_population(population, world_dir, n_agents, pop_seed, world.n_cells)
     # ---- D-66: 週次表(W17)は SoA を確保する前に読む(層の有無で列が 1 本変わるため) ----
     # ``load_weekly`` / ``restrict_to`` は純粋な読み込み(乱数を 1 語も引かない)なので、
     # ここへ繰り上げても帰無腕のバイト列は動かない。
@@ -2894,7 +2737,7 @@ def run_day(
             ),
         )
         if not _resuming:  # 10d(A11): 空腹の初期値・体の定数は保存した状態から
-            R.initialize_energy(agents, energy_layer, pop_seed, rng_scheme)  # 10f: 体の定数は母集団の側・10e: 鍵の並べ方
+            R.initialize_energy(agents, energy_layer, pop_seed)  # 10f: 体の定数は母集団の側・10e: 鍵の並べ方
     agents.freeze()
     world.freeze()
 
@@ -2904,16 +2747,14 @@ def run_day(
         runner = WorldProcessRunner(
             world=world,
             agents=agents,
-            assets=load_process_assets_or_synthetic(world_dir, world.assets, pre10e=_pre10e_src),
+            assets=load_process_assets_or_synthetic(world_dir, world.assets),
             seed=seed,
             population_seed=pop_seed,  # 10f: 域外居住は母集団の側
             environment_seed=env_seed,  # 10f 第 2 段の直し(S1): 気象・大きな催し・道路工事は環境の側
             day_index=day_index,
             tick_seconds=tick_seconds,
             calendar=calendar,  # 10a: #2・#3・#7・#10・#11・#20 は暦の口から
-            weather_scheme=weather_scheme,  # 10e(E3・B6): 天気=再生日・太陽と影=暦の日付(calendar)
             weather_perturb=weather_perturb,  # 10e(B6): 天気を揺らす(アンサンブル)
-            rng_scheme=rng_scheme,  # 10c
             initial_placement=not _resuming,  # 10d(A11): 再開では域外へ置かない
             schedule=schedule,
             ledger=ledger,
@@ -2947,7 +2788,7 @@ def run_day(
             assets=(
                 runner.assets
                 if runner is not None
-                else load_process_assets_or_synthetic(world_dir, world.assets, pre10e=_pre10e_src)
+                else load_process_assets_or_synthetic(world_dir, world.assets)
             ),
             ticks=ticks,
             exit_mode=exit_mode,
@@ -2963,19 +2804,9 @@ def run_day(
         if runner is not None:
             runner.attach_presence(presence)  # hotel の母数・civic の引き込み候補
 
-    # ---- 10a #1・10e(E3): T=0 の世界内日時(暦の開始日)。**世界の日付(暦)と再生日(天気の行を引く日)は別の
-    # 変数**: ``world_start`` は暦・``replay_date0`` は 0 日目の天気の行の日。渡されたら・暦の規則(calendar)なら上で
-    # 決めた暦の 0 日目のまま。legacy(旧値の再現)だけが「既定の開始日 + day_index」を気象の再生実日(D-W15)で置き換える。
-    replay_date0 = runner.replay_date if runner is not None else ""
-    if start_given is not None or weather_scheme == "calendar":
-        world_start = calendar.start_sim_datetime
-    else:
-        world_start = DEFAULT_START_DATETIME + timedelta(days=int(day_index))
-        if replay_date0:
-            world_start = datetime.fromisoformat(replay_date0)
-    calendar = calendar.with_start(world_start)
-    #: 開始日の検査(real は違反で止める・day_index は警告だけ・祝日表の範囲外はどちらも止める)。
-    #: 検収後 P1: 気象の再生実日へ置き換えた後の暦で走らせる(manifest の ``start_sim_datetime`` と同じ日を見る)。
+    # ---- 10a #1・10e(E3): T=0 の世界内日時=暦の開始日(世界の日付は暦・天気の行を引く再生日とは別)。
+    # 〔第330・RET〕10e より前の「既定の開始日 + day_index を気象の再生実日で置き換える」導き方(legacy)は消した。
+    #: 開始日の検査(違反で止める・祝日表の範囲外・祝日の表が読めないも止める)。
     start_check = calendar.check_start(sim_days)
 
     # ---- 知覚レンダラ(C3 結線・B0-B6 の本物) ----
@@ -2984,15 +2815,7 @@ def run_day(
     #: C9c-1: 実測面積の資産 SHA(``area_source="plateau"`` のときだけ入る)。
     walkable_sources: dict[str, str] = {}
     if renderer is None:
-        assets = PerceptionAssets.load_or_synthetic(world_dir, world, pre10e=_pre10e_src)
-        # 10e(B1): 騒音の地図を読む 2 か所(世界の資産と知覚)が同じ地図を読んだか(片方だけ旧い地図=止める)
-        _wn = (getattr(world.assets, "asset_sources", {}) or {}).get("noise_stage_cells")
-        _pn = (getattr(assets, "asset_sources", {}) or {}).get("noise_stage_cells")
-        if _wn and _pn and _wn != _pn:
-            raise ValueError(
-                "騒音の地図を読んだ 2 か所(world の資産・知覚)の集約後の段が違う=片方だけが別の地図を読んだ"
-                "(--world-assets-pre10e は world を読むときにも渡す)"
-            )
+        assets = PerceptionAssets.load_or_synthetic(world_dir, world)
         # ---- C9c-1: 歩行可能面積を実測に差し替える(**分母は 1 本**=二重定義を作らない) ----
         # ``PerceptionAssets`` は frozen なので ``dataclasses.replace`` で作り直す。差し替えは
         # レンダラを作る**前**なので、B4 の LOS 段・起床条件 (i)・Kladek 減速が同じ値を見る。
@@ -3212,7 +3035,7 @@ def run_day(
         _q25_renderer.weather_date_fn = lambda: (_env.replay_date or None)
         # ---- 10e(B6): 天気の規則 calendar では B3 の語を環境の過程と同じ規則で作る(天候=再生日の行・日照=暦の日付の
         # 日の出と日の入り・暑さ=体感温度と同じ暑さ段)。天候の語はレンダラの W13 の表を再生日で引く(欠けた時の扱いも今と同じ)
-        if weather_scheme == "calendar" and runner.assets.has_weather and hasattr(_q25_renderer, "weather_words_fn"):
+        if runner.assets.has_weather and hasattr(_q25_renderer, "weather_words_fn"):
             _wr = _q25_renderer
 
             def _b3_words(when: datetime) -> tuple[str, str, str]:
@@ -4649,11 +4472,7 @@ def run_day(
                 schedule.population_hash, schedule_hash, _owners, memo=_memo,
             )
             result.full_hash_bytes = _full_bytes
-            if hash_scheme == "full":  # 10e(E1): 旧い final の再現(消した死蔵の列を元の位置に初期値で混ぜる)
-                with retired_columns_in_hash():
-                    _agents_h = agents.state_hash()
-            else:
-                _agents_h = agents.state_hash()
+            _agents_h = agents.state_hash()
             result.checkpoints.append(
                 Checkpoint(
                     tick, _agents_h, world.state_hash(),
@@ -4665,7 +4484,6 @@ def run_day(
                         memo=_memo,
                     ),
                     full_hash=_full,
-                    hash_scheme=hash_scheme,
                 )
             )
             _dt_ckpt = time.perf_counter() - t0
@@ -4813,7 +4631,7 @@ def run_day(
     # 10e(B6): 天気の規則と日ごとの記録
     result.weather = (
         runner.environment.weather_manifest() if runner is not None
-        else {"scheme": weather_scheme, "perturbed": False, "days": [], "warnings": []}
+        else {"scheme": WEATHER_SCHEME, "perturbed": False, "days": [], "warnings": []}
     )
     result.renderer_name = (
         "perception.Renderer" if perception is not None else type(renderer_obj).__name__
@@ -4832,9 +4650,9 @@ def run_day(
     result.calendar_fields = {**calendar.manifest_fields(sim_days), "start_check": list(start_check)}
     result.response_delay = int(response_delay)
     result.sim_days = int(sim_days)
-    result.rng_scheme = str(runner.rng_scheme) if runner is not None else str(rng_scheme)  # 10c
-    result.hash_scheme = str(hash_scheme)  # 10e(E1)
-    result.world_assets_pre10e = _pre10e_src.manifest() if _pre10e_src is not None else None  # 10e(B1)
+    result.rng_scheme = RNG_SCHEME  # 10c・〔第330・RET〕counter だけ(記録)
+
+
     # ablation 第1陣 ②③⑥ の腕(manifest の同定欄)。⑥ は**実際に描いた側**が正。
     result.p_notice_ablation = _pnotice_ablation_name(
         runner.salient.ablation if runner is not None else p_notice_ablation
@@ -5198,24 +5016,12 @@ def add_fleet_args(ap: "argparse.ArgumentParser") -> None:
 
 def add_calendar_args(ap: "argparse.ArgumentParser") -> None:
     """暦の口の引数(10a・A1-1・A1-2。``engine.run`` と ``shibuya.cli`` で同じ綴りにするため 1 か所に置く)。"""
-    ap.add_argument("--calendar-weekday", choices=WEEKDAY_MODES, default=None,
-                    help=("曜日の決め方(10a)。real=開始日の実の曜日と内閣府の祝日(既定・第330 ACT)/"
-                          " day_index=10e より前の約束(day 0=月曜・祝日を見ない・旧値の再現だけ)。"
-                          "未指定=engine.calendar の既定・再生ではテープの記録"))
     ap.add_argument("--start-date", type=str, default="",
-                    help="開始日 YYYY-MM-DD(A1-1・manifest の start_sim_datetime)。空=今までの導き方")
+                    help="開始日 YYYY-MM-DD(A1-1・manifest の start_sim_datetime)。空=2026-07-13(月)+ --day-index 日")
     ap.add_argument("--holiday-csv", type=str, default=DEFAULT_HOLIDAY_CSV,
-                    help="内閣府の祝日 CSV(cp932)。無ければ祝日を空にして警告(既定 data/calendar/syukujitsu.csv)")
+                    help="内閣府の祝日 CSV(cp932)。読めなければ開始日の検査で止める(既定 data/calendar/syukujitsu.csv)")
     ap.add_argument("--school-holidays", type=str, default="",
                     help="学校の長期休みの区間 YYYY-MM-DD:YYYY-MM-DD をカンマ区切り(開始日の検査・既定は空)")
-    # 10c(Q8): D-102 の土台の切替口。同じ綴りを engine.run と shibuya.cli で使うためここに置く
-    ap.add_argument("--rng-scheme", choices=RNG_SCHEMES, default=None,
-                    help=("顕著行為の発生と出動の遅れの乱数(10c)と K19 の鍵の並べ方(10e)。counter=(seed, 名前, T[, セル, k])"
-                          "から毎回作る=状態を持たない・鍵の 0 語目を空ける(既定・10e)/ stateful=10e より前(旧値の再現だけ)"))
-    # 10e(E1): final の定義の切替口(同じ綴りを engine.run と shibuya.cli で使う)
-    ap.add_argument("--hash-scheme", choices=HASH_SCHEMES, default=DEFAULT_HASH_SCHEME,
-                    help=("final の定義(10e)。behavior=behavior-hash(既定)/ full=10e より前の final"
-                          "(旧値の再現だけ・版上げの最後に消す)"))
     # 10d(親の答え 7): 複数日の通しランと再開の口(同じ綴りを engine.run と shibuya.cli で使う)
     ap.add_argument("--sim-days", type=int, default=1,
                     help="通しで回す日数(10d)。2 以上では各日の終わりに締め・日の頭の初期化は走らせない(既定 1)")
@@ -5223,36 +5029,23 @@ def add_calendar_args(ap: "argparse.ArgumentParser") -> None:
                     help="再開する状態のファイル(10d・state-T<T>.npz)。設定は親と同じにする(違えば止める)")
     ap.add_argument("--state-out", type=str, default="",
                     help="状態の書き出し先のディレクトリ(10d)。各日の締めの後とランの最後に state-T<T>.npz を書く")
-    # 10e(E3・B6): 天気と暦の規則(同じ綴りを engine.run と shibuya.cli で使う)
-    ap.add_argument("--weather-scheme", choices=WEATHER_SCHEMES, default=None,
-                    help=("天気と暦の規則(10e)。legacy=今(世界の日付=再生日・日の出と影も再生日)/ calendar=世界の日付は暦"
-                          "(既定の開始日 2026-07-13)・天気は再生日・太陽と影は暦の日付。未指定=engine.calendar の既定"))
+    # 10e(B6): 天気を揺らす(同じ綴りを engine.run と shibuya.cli で使う)
     ap.add_argument("--weather-perturb", action="store_true",
-                    help=("天気を揺らす(10e B6・アンサンブル)。calendar で、窓の中でも同じ季節 × 平日/土休の層から天候型を日数の"
+                    help=("天気を揺らす(10e B6・アンサンブル)。窓の中でも同じ季節 × 平日/土休の層から天候型を日数の"
                           "割合で引く(鍵は --environment-seed)。既定は付けない=その日の実際の天気"))
-    # 10e(B1): 旧資産の切替口(同じ綴りを engine.run と shibuya.cli で使う)。版上げ 1 回目の直後に消す
-    ap.add_argument("--world-assets-pre10e", type=str, default="",
-                    help=("旧資産の切替口(10e B1)。W10・W12・W13・W9 のうち、このディレクトリにそろっている族をそこから読む"
-                          "(退避先 data/world/v2_pre_10e_2026-10-12 など)。空=使わない(既定)。版上げ 1 回目の直後に消す"))
+
 
 
 def calendar_kwargs_from_args(args: Any) -> dict[str, Any]:
-    """``add_calendar_args``(10c の ``--rng-scheme``・10d の ``--sim-days``・``--resume-from``・``--state-out`` を含む)と
+    """``add_calendar_args``(10d の ``--sim-days``・``--resume-from``・``--state-out``・10e の ``--weather-perturb`` を含む)と
     ``--response-delay`` の結果 → ``run_day`` の引数。"""
     out: dict[str, Any] = {
-        # 〔第330・ACT〕None=未指定(録画・mock は既定・再生はテープの記録=``resolve_calendar_schemes``)
-        "calendar_weekday": getattr(args, "calendar_weekday", None),
         "start_sim_datetime": (getattr(args, "start_date", "") or None),
         "holiday_csv": str(getattr(args, "holiday_csv", DEFAULT_HOLIDAY_CSV)),
         "school_holidays": str(getattr(args, "school_holidays", "") or ""),
         # None=未指定(録画・mock は 1、再生はテープの記録に合わせる=``_resolve_response_delay``)
         "response_delay": getattr(args, "response_delay", None),
-        # 10c: 乱数の方式。10e: None=未指定(録画・mock は既定 counter・再生はテープの値=``resolve_rng_scheme``)
-        "rng_scheme": getattr(args, "rng_scheme", None),
     }
-    # 10e(E1): final の定義(既定のときは欄を足さない=既定の引数は今のまま)
-    if str(getattr(args, "hash_scheme", DEFAULT_HASH_SCHEME)) != DEFAULT_HASH_SCHEME:
-        out["hash_scheme"] = str(args.hash_scheme)
     # 10d: 複数日と再開の口(既定のときは欄を足さない=既定の引数は今のまま)
     if int(getattr(args, "sim_days", 1) or 1) != 1:
         out["sim_days"] = int(args.sim_days)
@@ -5260,14 +5053,9 @@ def calendar_kwargs_from_args(args: Any) -> dict[str, Any]:
         out["resume_from"] = str(args.resume_from)
     if getattr(args, "state_out", ""):
         out["state_out"] = str(args.state_out)
-    # 10e(E3・B6): 天気と暦の規則(未指定のときは欄を足さない=既定の引数は今のまま)
-    if getattr(args, "weather_scheme", None):
-        out["weather_scheme"] = str(args.weather_scheme)
+    # 10e(B6): 天気を揺らす(未指定のときは欄を足さない=既定の引数は今のまま)
     if getattr(args, "weather_perturb", False):
         out["weather_perturb"] = True
-    # 10e(B1): 旧資産の切替口(既定のときは欄を足さない)
-    if getattr(args, "world_assets_pre10e", ""):
-        out["world_assets_pre10e"] = str(args.world_assets_pre10e)
     return out
 
 
@@ -5360,8 +5148,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     _pop_seed = resolve_population_seed(args.seed, args.population_seed)  # 10f: 合成世界は母集団の側
-    world = World.load_or_synthetic(Path(args.world), n_cells=args.cells, seed=_pop_seed,
-                                    pre10e=(getattr(args, "world_assets_pre10e", "") or None))  # 10e(B1)
+    world = World.load_or_synthetic(Path(args.world), n_cells=args.cells, seed=_pop_seed)
     res = run_day(
         n_agents=args.agents,
         seed=args.seed,

@@ -155,10 +155,13 @@ def test_cli_flag_and_manifest():
 #: 第2波 §2A 項 3-1: 3 本とも**交際の相手の旧規則**(``classical_social="near_first"``=近接行の最初の人)の値。
 #: 既定(``acquaintance``)の値は ``CLASSICAL_1500_GOLDEN_ACQ``。
 #: 10f(K26 (1)): 一番外側の鍵は環境の ``platform_id``(``tests/golden_env.py``)。行の無い環境では A/A だけ。値は 10f の前のまま。
+#: 〔改訂(第330・RET)〕前の 3 本は 10e より前の final の定義・乱数・世界の資産・暦の値(hash 91732f34…/26,869・
+#: hash_order_id e0a6f3f9…/26,845・classical_tie_id 803f0441…/26,753=ACT の commit で切替口を通して再現できた)。
+#: 旧値を再現する切替口を消したので、今の値(final=behavior-hash)に張り替えた。
 CLASSICAL_1500_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
-    "hash": ("91732f34f9e2da62d543f77fef773f4600a8b94380f6bafd42203e98f5b8417c", 26_869),
-    "hash_order_id": ("e0a6f3f90fd8fe388312ff4f472239e59cc0194fed50accc4b5073d4bfdfc1a0", 26_845),
-    "classical_tie_id": ("803f04417718539898234b865bb5c6c16b50d7328b28ebd6e412b2b4db311d3b", 26_753),
+    "hash": ("87492778f4582d8fa067757d32b1953516997c92494089ab124840aaaa765bdb", 25_890),
+    "hash_order_id": ("b7697fcafb4ba63b18f486b70b99ad12068e4a12b66482a9be13d4ad8414e97b", 25_828),
+    "classical_tie_id": ("49c3fae02c2de5ecb68c93366fcd6d38139b967a7883b2c5960fa16219cd75d3", 25_877),
 }}
 #: 今の環境の行(無ければ ``None``=A/A だけ)。
 CLASSICAL_1500_GOLDEN = GE.row(CLASSICAL_1500_GOLDEN_BY_ENV)
@@ -172,13 +175,9 @@ def test_classical_checkpoint_moves_with_hash_and_id_reproduces_the_old_one():
     world = Path("data/world/v2")
     if not (world / "w2_cells.parquet").exists():
         pytest.skip("実世界資産 data/world/v2 が無い")
-    # 10e(E1): 3 本とも 10e より前の final の定義の値=hash_scheme="full" で比べる
-    # 〔改訂(第330・ACT)〕値は 10e より前の世界の資産と暦で録った=退避先の資産と day_index・legacy を渡す
-    if not (GE.PRE10E_ASSETS / "MANIFEST.sha256").is_file():
-        pytest.skip("10e より前の世界の資産の退避先が無い=旧値の再現は回せない")
+    # 〔改訂(第330・RET)〕前は 3 本とも 10e より前の値を切替口(hash full・rng stateful・旧資産・暦)で再現した=今の値に
     kw = dict(n_agents=1500, seed=1, world_dir=str(world), vocab_version="v3", policy="classical",
-              chooser="classical", classical_social="near_first", hash_scheme="full", rng_scheme="stateful",
-              **GE.PRE10E_RUN_KW)
+              chooser="classical", classical_social="near_first")
     new = cli.run(**kw)
     old = cli.run(near_tiebreak="id", near_order="id", **kw)
     if CLASSICAL_1500_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(既定の hash の 1 本)+切替が効くこと

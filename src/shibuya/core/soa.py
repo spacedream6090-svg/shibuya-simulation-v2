@@ -32,8 +32,6 @@ expedient(本モジュール分)
 from __future__ import annotations
 
 import re
-from contextlib import contextmanager
-from contextvars import ContextVar
 from dataclasses import dataclass
 from typing import Any, Final, Iterable, Iterator, Mapping
 
@@ -50,23 +48,10 @@ __all__ = [
     "AGENT_CAP_BUDGET_ROW",
     "CELL_CAP_BUDGET_ROW",
     "default_per_entity_byte_cap",
-    "retired_columns_in_hash",
 ]
 
-#: 10e(E1・版上げ 1 回目): 消した死蔵の列を、旧い final(``--hash-scheme full``)の再現のためだけに
-#: ハッシュの中で元の位置に初期値で並べ直す印。**既定は off**=消した列はどこにも現れない。
-#: ``--hash-scheme full`` と一緒に版上げの最後で消す(切替口は旧値の再現のためだけ=計画 §0 の 2)。
-_RETIRED_IN_HASH: ContextVar[bool] = ContextVar("shibuya_soa_retired_in_hash", default=False)
-
-
-@contextmanager
-def retired_columns_in_hash() -> Iterator[None]:
-    """この中の ``Registry.state_hash`` は、``retire`` で控えた消した列を元の位置に初期値で混ぜる(10e)。"""
-    token = _RETIRED_IN_HASH.set(True)
-    try:
-        yield
-    finally:
-        _RETIRED_IN_HASH.reset(token)
+#: 〔第330・RET〕10e(E1)の「消した死蔵の列を旧い final の再現のためだけにハッシュの中で元の位置に並べ直す」口
+#: (``retired_columns_in_hash``・``Registry.retire``)は ``--hash-scheme full`` と一緒に消した。
 
 #: 個体あたりバイト上限の根拠行(予算宣言表)。
 AGENT_CAP_BUDGET_ROW: Final[str] = "M1"
@@ -237,9 +222,7 @@ class Registry:
             self.cap_source = "呼び出し側指定"
         self._decls: dict[str, FieldDecl] = {}
         self._arrays: dict[str, np.ndarray] = {}
-        #: 10e(E1): 消した列の控え(直前の列の名前 → [(名前, dtype, 形, 初期値)])。配列は確保しない。
-        #: ``retired_columns_in_hash`` の中のハッシュだけが読む(旧い final の再現)。
-        self._retired: dict[str, list[tuple[str, np.dtype, tuple[int, ...], Any]]] = {}
+
 
     # ---- 生成ヘルパ ----
     @classmethod
@@ -323,20 +306,6 @@ class Registry:
         self._arrays[field] = arr
         return arr
 
-    def retire(self, after: str, field: str, dtype: Any, shape_per_agent: tuple[int, ...] = (), *,
-               fill: Any = 0) -> None:
-        """10e(E1): 消した列 ``field`` を ``after`` の直後にあった列として控える(配列は確保しない)。
-
-        ``retired_columns_in_hash`` の中の ``state_hash`` だけが、この列を初期値 ``fill`` の配列として元の位置に
-        混ぜる=消す前の ``state_hash`` と同じバイト列(旧い final の再現・``--hash-scheme full``)。
-        ``after`` は先に宣言した列でなければならない。
-        """
-        if after not in self._decls:
-            raise ValueError(f"retire: 直前の列 {after!r} が未宣言")
-        if field in self._decls:
-            raise ValueError(f"retire: {field!r} は宣言されている列")
-        shape = tuple(int(x) for x in shape_per_agent)
-        self._retired.setdefault(after, []).append((field, np.dtype(dtype), shape, fill))
 
     # ---- 参照 ----
     @property
@@ -425,7 +394,6 @@ class Registry:
                 確かめる口。既定の空では従来と 1 バイトも変わらない)。
         """
         skip = frozenset(exclude)
-        retired = self._retired if _RETIRED_IN_HASH.get() else {}
         h = blake3.blake3()
         h.update(b"shibuya.core.soa/v1" + _SEP)
         h.update(self.kind.encode("utf-8") + _SEP)
@@ -442,7 +410,4 @@ class Registry:
         for d in self._decls.values():
             if d.name not in skip:
                 feed(d.name, d.dtype, self._arrays[d.name])
-            for name, dtype, shape, fill in retired.get(d.name, ()):  # 10e: 旧い final の再現だけ
-                if name not in skip:
-                    feed(name, dtype, np.full((self.n_entities, *shape), fill, dtype=dtype))
         return h.hexdigest()

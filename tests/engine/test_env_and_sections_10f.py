@@ -46,7 +46,8 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 10e(E1): ``hash_scheme``(final の定義・設定)を足した(前の値 457d8666…)。
 #: 10e(B1・第330): ``world_assets_pre10e``(旧資産の切替口・使ったランだけ出る欄・設定)を足した(前の値 c2d09b29…)。
 #: 10e(B6・第330): ``weather``(天気の規則と日ごとの暦の日付・再生日・層・影・設定)を足した(前の値 6e81ca53…)。
-CONFIG_PATHS_SHA256 = "8e53b14525bc87f27b9dedabcdc9e59040173ac3f4497457b7cbc2824dde6ea8"
+#: 〔改訂(第330・RET)〕旧資産の切替口の欄 ``world_assets_pre10e`` を設定の節から消した(前 ``8e53b145…dde6ea8``)。
+CONFIG_PATHS_SHA256 = "58bb312404e76b244b811aba550eac480efb80e7a3551778ad535cfadff40d7c"
 world_assets = pytest.mark.skipif(not (WORLD / "w2_cells.parquet").exists(), reason="実世界資産 data/world/v2 が無い")
 
 
@@ -305,9 +306,11 @@ def test_golden_tables_are_keyed_by_platform_and_values_unchanged():
     # 旧値の行は退避先の資産と day_index・legacy(GE.PRE10E_RUN_KW)で再現する。
     assert (g["v3_default_final"], g["v3_default_llm_calls"]) == ("5f7ae9ff24005314", 65_597)
     assert (g["null_arm_final"], g["null_arm_llm_calls"]) == ("354f49ca9a61b986", 97_234)
-    assert (g["v3_default_final_stateful"], g["null_arm_final_stateful"]) == ("4985ff2fb3c771c4", "065a36d238aae477")
-    assert (g["v3_default_final_pre10e"], g["null_arm_final_pre10e"]) == ("993276d5e5bb5cbe", "72cb9cd52982da74")
-    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "full")] == ("40409ebed834126b", 72_930)
+    # 〔改訂(第330・RET)〕*_stateful・*_pre10e と関係 on の full の行は切替口と一緒に消した(前: 4985ff2f…/065a36d2…・
+    # 993276d5…/72cb9cd5…・40409ebe…/72,930)。関係 on の v1 は今の値の行
+    assert not {k for k in g if k.endswith(("_stateful", "_pre10e"))}
+    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v1", "behavior")] == ("380e8651a96b1829", 69_406)
+    assert set(TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F]) == {("v1", "behavior"), ("v2", "behavior")}
     assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "behavior")] == ("73a78288ab5e1498", 69_111)
 
 
@@ -459,7 +462,8 @@ def test_seed_exchangeability_sections_mode_on_synthetic_runs():
 # ================================================================= 小さな直し(§2-6)
 def test_o75_split_flow_dir8_and_coherence_are_diag():
     """O75 の flow_dir8・coherence は src に読み手が無い → O95(diag)。描画が読む flow は O75(behavior)に残る。"""
-    assert SL.LEDGER_VERSION == "state-ledger/10e"  # 10f で上げた版を 10e(E1・死蔵の 5 列の削除)でもう一度上げた
+    # 10f で上げた版を 10e(E1・死蔵の 5 列の削除)でもう一度上げた・〔第330・RET〕K15 の 2 列の削除でもう一度上げた
+    assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     o75, o95 = SL.row("O75"), SL.row("O95")
     assert o75.behavior == SL.BEHAVIOR and "runner.crowd.flow" in o75.items
     assert not ({"runner.crowd.flow_dir8", "runner.crowd.coherence"} & set(o75.items))

@@ -32,6 +32,7 @@ from shibuya.engine import resolve as R
 from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.run import run_day
 from shibuya.world.state import World
+from tests import golden_env as GE
 
 W2_REPORT_SECONDS = 60.0
 
@@ -79,7 +80,8 @@ def test_wiring_does_not_change_the_state_hashes_when_goods_processes_are_off():
     plain = run_day(n_agents=500, seed=2, n_cells=64, **kw)
     # 10e(E1): 既定の final(behavior-hash)は台帳の外の状態の行(金と物の台帳)を含むので台帳の有無で違う。
     # 「帳簿を足すだけ」は SoA の全列の組み立て(10e より前の final=legacy_combined)で見る
-    assert [c.legacy_combined for c in res.checkpoints] == [c.legacy_combined for c in plain.checkpoints]
+    # 〔第330・RET〕legacy_combined は消した=同じ式を試験の側で組む(GE.soa_combined)
+    assert [GE.soa_combined(c) for c in res.checkpoints] == [GE.soa_combined(c) for c in plain.checkpoints]
     assert res.money_end == plain.money_end and res.revenue_end == plain.revenue_end
     assert int(res.column("purchases").sum()) == int(plain.column("purchases").sum())
 
@@ -366,7 +368,7 @@ def test_w2_five_thousand_agents_with_the_ledger_wired():
         n_agents=5_000, seed=1, ticks=1_440, checkpoint_every=360, n_cells=139,
         processes_disabled=GOODS_PROCESS_IDS,
     )
-    assert plain_goods.checkpoints[-1].legacy_combined == plain_off.checkpoints[-1].legacy_combined  # 10e(E1)
+    assert GE.soa_combined(plain_goods.checkpoints[-1]) == GE.soa_combined(plain_off.checkpoints[-1])  # 10e(E1)・〔第330・RET〕
     assert wall <= W2_REPORT_SECONDS
     assert res.conserved and res.min_stock >= 0
     assert int(bundle.money.sector_totals(BalanceLine.CASH).sum()) == 0

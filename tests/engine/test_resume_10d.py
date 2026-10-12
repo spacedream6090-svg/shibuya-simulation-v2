@@ -374,7 +374,7 @@ def test_resume_refuses_a_ledger_that_was_already_endowed(tmp_path, monkeypatch)
 # ================================================================= (vii) counter の乱数
 def test_counter_rng_resume_draws_once(tmp_path):
     kw = dict(n_agents=200, seed=1, n_cells=25, ticks=TPD, sim_days=2, checkpoint_every=10,
-              rng_scheme="counter", salient_rate_per_10k=3000.0)
+              salient_rate_per_10k=3000.0)  # 〔第330・RET〕rng_scheme を消した(counter だけ)
     straight = run_day(tape_path=tmp_path / "s", **kw)
     a, b = _split(run_day, kw, 1000, tmp_path)
     _assert_resume_equals_straight(straight, tmp_path / "s", a, b, tmp_path, 1000)
@@ -490,14 +490,14 @@ def test_daily_tables_are_relaid_from_the_calendar_day(tmp_path):
 
     res = cli.run(checkpoint_every=360, **WORLD_KW)
     rn = res.runner
-    cal_key1 = 1  # day_index モード(既定 0)の 1 日目の日の鍵=0+1
+    cal_key1 = 1  # 1 日目の日の鍵=日番号 1(〔第330・RET〕前の注: day_index モードの 0+1=同じ値)
     assert rn.opening.day_index == 1                     # 火曜の行(table_weekday(1))
     from shibuya.engine.processes.goods_flow import DELIVERY_WINDOW
 
     from shibuya.core.rng import k19_counters
 
     # 10e(E4・K19・U2): counter(既定)は日の鍵を 1 語目に置く
-    plan = stream(1, "world.delivery_inbound", *k19_counters("counter", cal_key1)).integers(
+    plan = stream(1, "world.delivery_inbound", *k19_counters(cal_key1)).integers(  # 〔第330・RET〕方式の引数を消した
         *DELIVERY_WINDOW, size=res.world.n_poi)
     assert np.array_equal(rn.delivery_inbound.plan_minute, plan) and rn.delivery_inbound.day_index == cal_key1
     one = cli.run(checkpoint_every=360, **dict(WORLD_KW, sim_days=1))

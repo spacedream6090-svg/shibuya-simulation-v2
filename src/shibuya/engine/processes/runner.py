@@ -31,7 +31,6 @@ from typing import Any, Final, Iterable, Mapping
 import numpy as np
 
 from shibuya.agents.state import AgentState
-from shibuya.core.rng import DEFAULT_RNG_SCHEME, check_rng_scheme
 from shibuya.engine import resolve as R
 from shibuya.engine.calendar import SimCalendar
 from shibuya.engine.processes.civic import (
@@ -120,14 +119,12 @@ class WorldProcessRunner:
         day_index: 曜日(0=月曜)。``calendar`` が無いときだけ使う(旧い口)。
         tick_seconds: 1 tick の秒数。
         calendar: 暦の口(``engine.calendar.SimCalendar``・10a)。平日/土休・曜日の表の行・
-            日ごとの乱数の鍵の日番号(``day_key``)はここから引く。``None`` なら ``day_index`` だけの暦
-            (``SimCalendar.legacy``=今と同じ値)。
+            日ごとの乱数の鍵の日番号(``day_key``)はここから引く。``None`` なら ``SimCalendar.default(day_index)``
+            (2026-07-13 + ``day_index`` 日・祝日の表なし)。
         schedule: mock 日課(鉄道の到着便割り当てに使う)。
         ledger: 金/物の台帳(運賃の脚に使う。``None`` 可)。
         enabled / disabled: 過程 id か感度試験 id(``AB-*``)の集合。
         retention_days: ``ActualLog`` の保持窓(D-R2-6)。
-        rng_scheme: 10c の乱数の方式(``stateful``=既定・今のまま / ``counter``=顕著行為の発生と出動の遅れを
-            状態を持たない乱数にする)。
         population_seed: 10f(K21 (a))母集団の seed。域外居住の抽選だけに使う(``None``=``master_seed`` と同じ)。
         environment_seed: 10f 第 2 段の直し(S1)環境の seed。気象の再生実日・大きな催し・道路工事に使う
             (``None``=``master_seed`` と同じ)。ほかの過程の乱数は ``master_seed``(動きの seed)。
@@ -156,7 +153,7 @@ class WorldProcessRunner:
         enabled: Iterable[str] | None = None,
         disabled: Iterable[str] | None = None,
         retention_days: int = 7,
-        prefer_shadow_days: bool = True,
+
         p_notice_ablation: str | int = "A4",
         p_notice_d50_scale: float = 1.0,
         salient_rate_per_10k: float | None = None,
@@ -164,11 +161,10 @@ class WorldProcessRunner:
         seat_area_m2: Mapping[str, float] | None = None,
         default_seat_area_m2: float | None = None,
         calendar: Any | None = None,
-        rng_scheme: str = DEFAULT_RNG_SCHEME,
         initial_placement: bool = True,
         population_seed: int | str | None = None,
         environment_seed: int | str | None = None,
-        weather_scheme: str = "legacy",
+
         weather_perturb: bool = False,
     ) -> None:
         if world is None or agents is None:
@@ -181,17 +177,14 @@ class WorldProcessRunner:
         self.master_seed = seed if master_seed is None else master_seed
         self.day_index = int(day_index)
         self.tick_seconds = int(tick_seconds)
-        #: 10c: 顕著行為の発生と出動の遅れの乱数の方式(manifest の ``rng_scheme``)。
-        self.rng_scheme = check_rng_scheme(rng_scheme)
         self.calendar = (
             calendar if calendar is not None
-            else SimCalendar.legacy(self.day_index, tick_seconds=self.tick_seconds)
+            else SimCalendar.default(self.day_index, tick_seconds=self.tick_seconds)
         )
         #: 10a #20: 日ごとの乱数の鍵(顕著行為・出動・大きな催し・入荷・工事・配達)の日番号。
-        #: ``day_index`` モード(既定)では今と同じ ``day_index``(``SimCalendar.day_key``)。
+        #: 日番号(``SimCalendar.day_key``・0 日目は 0)。
         day_key = int(self.calendar.day_key(0))
-        #: 10a #7: 営業時間の表(W7)の曜日の行。``day_index`` モードでは ``day_index % 7``。
-        #: 〔第330・10e E3〕``real`` の祝日は W7 の祝日の行(``opening_row``・PH の無い店は日曜の行=今の値)。
+        #: 10a #7: 営業時間の表(W7)の曜日の行。〔第330・10e E3〕祝日は W7 の祝日の行(``opening_row``・PH の無い店は日曜の行)。
         table_weekday = int(self.calendar.opening_row(0))
         self.ledger = ledger
         #: **D-66 計画実行層**のラン(``engine.presence.PlanExecutor`` が在圏の出入りを持つ)。
@@ -225,8 +218,8 @@ class WorldProcessRunner:
         self.environment = EnvironmentProcess(
             world, agents, self.assets,
             master_seed=_env_seed, day_index=self.day_index, tick_seconds=self.tick_seconds,
-            prefer_shadow_days=prefer_shadow_days, calendar=self.calendar,
-            weather_scheme=weather_scheme, perturbed=bool(weather_perturb),  # 10e(B6): 天気を揺らす(明示の切替口)
+            calendar=self.calendar,
+            perturbed=bool(weather_perturb),  # 10e(B6): 天気を揺らす(明示の切替口)
         )
         self.rail = RailProcess(
             world, agents, self.assets,
@@ -252,7 +245,6 @@ class WorldProcessRunner:
         self.delivery_inbound = DeliveryInboundProcess(
             world, ledger=ledger, shelf=self.shelf, master_seed=self.master_seed,
             day_index=day_key, tick_seconds=self.tick_seconds, actual_log=self.log,
-            rng_scheme=self.rng_scheme,  # 10e(E4・K19)
         )
         self.waste = WasteCollectionProcess(
             world, agents, ledger=ledger, tick_seconds=self.tick_seconds,
@@ -284,7 +276,6 @@ class WorldProcessRunner:
         self.road_works = RoadWorksProcess(
             world, self.assets, master_seed=_env_seed, day_index=day_key,  # 10f(S1): 環境の側
             tick_seconds=self.tick_seconds, actual_log=self.log,
-            rng_scheme=self.rng_scheme,  # 10e(E4・K19)
         )
         self.hotel = HotelProcess(
             world, agents, self.assets,
@@ -301,7 +292,7 @@ class WorldProcessRunner:
         )
         self.dispatch = PublicServiceDispatchProcess(
             world, master_seed=self.master_seed, day_index=day_key,
-            tick_seconds=self.tick_seconds, actual_log=self.log, rng_scheme=self.rng_scheme,
+            tick_seconds=self.tick_seconds, actual_log=self.log,
         )
         self.salient = SalientProcess(
             world, agents, master_seed=self.master_seed, day_index=day_key,
@@ -310,7 +301,6 @@ class WorldProcessRunner:
             ablation=_p_notice_ablation(p_notice_ablation, enabled),
             rate_per_10k_per_day=salient_rate_per_10k,
             d50_scale=p_notice_d50_scale,
-            rng_scheme=self.rng_scheme,
         )
 
         self._procs: dict[str, Any] = {
@@ -411,8 +401,8 @@ class WorldProcessRunner:
         """10d: ``day`` 日目の日の頭で、各過程の「その日の分」の表を張り直す(暦の口の日から決まる=再開でも同じ)。
 
         鉄道の時刻表(T の座標で末尾に足す)・天気の実日・営業時間の曜日の行(W7・``table_weekday(日)``)・
-        日ごとの乱数の表(入荷の時刻・工事・大きな催しの会場・顕著行為と出動の stateful の流れ=``day_key(日)``)・
-        宅配のその日の配達済み。日の鍵は ``day_index`` モードでは day_index+日・``real`` では日番号(10a)。
+        日ごとの乱数の表(入荷の時刻・工事・大きな催しの会場=``day_key(日)``)・宅配のその日の配達済み。日の鍵は日番号
+        (10a の real・〔第330・RET〕day_index のモードと顕著行為・出動の stateful の流れは消した)。
         """
         d = int(day)
         key = int(self.calendar.day_key(d))
@@ -423,8 +413,6 @@ class WorldProcessRunner:
         self.road_works.relay_day(key)
         self.large_event.relay_day(key)
         self.last_mile.relay_day()
-        self.salient.relay_day(key)
-        self.dispatch.relay_day(key)
 
     def end_of_day(self, tick: int, *, flush_rail: bool = True) -> int:
         """日末の締め: 最終 tick に発車する便を流し切り、``ActualLog`` を畳む(D-R2-6)。

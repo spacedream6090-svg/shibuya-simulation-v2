@@ -46,7 +46,7 @@ from typing import Final
 import numpy as np
 
 from shibuya.agents.state import AgentKind, AgentState
-from shibuya.core.rng import DEFAULT_RNG_SCHEME, check_rng_scheme, k19_counters, stream
+from shibuya.core.rng import k19_counters, stream
 from shibuya.engine import resolve as R
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.state import World
@@ -325,7 +325,6 @@ class DeliveryInboundProcess:
         day_index: int = 0,
         tick_seconds: int = 60,
         actual_log=None,
-        rng_scheme: str = DEFAULT_RNG_SCHEME,
     ) -> None:
         self.world = world
         self.ledger = ledger
@@ -333,8 +332,6 @@ class DeliveryInboundProcess:
         self.tick_seconds = int(tick_seconds)
         self.log = actual_log
         self.master_seed = master_seed
-        #: 10e(E4・K19): 日の鍵の流れの並べ方(``core.rng.k19_counters``)。
-        self.rng_scheme = check_rng_scheme(rng_scheme)
         self._plan(int(day_index))
         self.n_runs = 0
         self.n_delayed = 0
@@ -345,7 +342,7 @@ class DeliveryInboundProcess:
         self.day_index = int(day_key)
         n = self.world.n_poi
         # 10e(E4・K19・U2): counter は日の鍵を 1 語目に置く(次の日の流れの頭と重ならない)
-        g = stream(self.master_seed, "world.delivery_inbound", *k19_counters(self.rng_scheme, int(day_key)))
+        g = stream(self.master_seed, "world.delivery_inbound", *k19_counters(int(day_key)))
         lo, hi = DELIVERY_WINDOW
         self.plan_minute = (
             g.integers(lo, hi, size=n).astype(np.int64) if n else np.zeros(0, np.int64)

@@ -3,7 +3,7 @@
 - P1 開始日の検査は気象の再生実日へ置き換えた後の暦で走る(manifest の開始日と同じ日を見る)。
 - P2 0:00 でない開始時刻は止める。
 - P3 応答の遅れをテープの脇の meta に書き、再生で突き合わせる(違えば止める・値の無い旧テープは 2 とみなす)。
-- P4 祝日 CSV の相対パスはリポの根から。読めないときは real で止め、day_index は md5・範囲を null。
+- P4 祝日 CSV の相対パスはリポの根から。読めないときは止める(〔第330・RET〕day_index の null の扱いは消した)。
 - P5 給料日の前営業日への寄せが月をまたぐ分。
 - T1 +2 の経路の既知の答え(HEAD の写しで取った final)。T2〜T6 は README の検収後の直しの表を参照。
 """
@@ -41,31 +41,25 @@ def table(tmp_path):
 
 # ================================================================= P1
 def test_start_check_runs_on_the_calendar_after_the_weather_date(monkeypatch):
-    """世界過程が気象の再生実日を決めたら、検査はその日を見る(manifest の開始日と同じ日)。
+    """開始日の検査は manifest の開始日(暦)と同じ日を見る。
 
-    〔改訂(第330・ACT)〕「世界の日付=再生日」は legacy(10e より前)の規則。暦の既定が calendar・real になったので
-    day_index・legacy を明示する(calendar では世界の日付は暦のまま=``test_calendar_10e_e3.py``)。"""
+    〔改訂(第330・RET)〕前は legacy の規則(世界の日付=気象の再生実日 2026-07-22 に置き換えた後の暦で検査・day_index の
+    違反は警告だけ)を見た(ACT の commit で day_index・legacy を渡して通った)。legacy と day_index を消したので、世界の
+    日付は暦のまま(再生日を差し込んでも動かない)・学校の休みに当たれば止める、を見る。"""
     orig = RUN.WorldProcessRunner
 
     def runner(*a, **k):
         r = orig(*a, **k)
-        r.environment.replay_date = "2026-07-22"   # 合成世界には気象の資産が無いので再生実日を差し込む
+        r.environment.replay_date = "2026-07-22"   # 再生日を差し込んでも世界の日付は暦のまま
         return r
 
     monkeypatch.setattr(RUN, "WorldProcessRunner", runner)
-    with pytest.warns(CalendarWarning, match="2026-07-22"):
-        res = run_day(n_agents=10, n_cells=9, ticks=5, school_holidays="2026-07-21:2026-07-23",
-                      calendar_weekday="day_index", weather_scheme="legacy")
+    with pytest.raises(ValueError, match="学校の長期休み"):
+        run_day(n_agents=10, n_cells=9, ticks=5, school_holidays="2026-07-12:2026-07-14")
+    res = run_day(n_agents=10, n_cells=9, ticks=5, school_holidays="2026-07-21:2026-07-23")
     m = res.run_manifest_fields()
-    assert m["start_sim_datetime"] == "2026-07-22T00:00:00"
-    assert m["calendar"]["start_sim_datetime"] == "2026-07-22T00:00:00"
-    assert any("2026-07-22" in w for w in m["calendar"]["start_check"])
-    # 再生実日が区間の外なら警告は出ない(置き換える前の 2026-07-28 ではなく 07-22 を見ている)
-    with warnings.catch_warnings():
-        warnings.simplefilter("error", CalendarWarning)
-        res = run_day(n_agents=10, n_cells=9, ticks=5, school_holidays="2026-07-27:2026-07-29",
-                      calendar_weekday="day_index", weather_scheme="legacy")
-    assert res.run_manifest_fields()["calendar"]["start_check"] == []
+    assert m["start_sim_datetime"] == m["calendar"]["start_sim_datetime"] == "2026-07-13T00:00:00"
+    assert m["calendar"]["start_check"] == []
 
 
 # ================================================================= P2
@@ -121,8 +115,15 @@ def test_the_tape_carries_the_response_delay_and_mismatches_stop(tmp_path):
 
 
 def test_a_tape_without_the_value_is_replayed_as_2_with_one_warning(tmp_path):
+    """〔改訂(第330・RET)〕前は meta のファイルごと消した(10a より前の録画の形)。meta の無いテープは 10e より前の録画として
+    止まる(``check_replay_tape``)ので、``response_delay`` の欄だけを消して「値が無ければ 2」を見る。"""
+    import json
+
     rec = _record(tmp_path, "old", 2)
-    os.remove(tmp_path / "old" / RUN_META_FILENAME)            # 10a より前の録画と同じ形
+    mp = tmp_path / "old" / RUN_META_FILENAME
+    d = json.loads(mp.read_text(encoding="utf-8"))
+    d.pop("response_delay")
+    mp.write_text(json.dumps(d) + "\n", encoding="utf-8")
     with pytest.warns(ResponseDelayWarning) as got:
         rep = _replay(tmp_path / "old")
     assert len([w for w in got if issubclass(w.category, ResponseDelayWarning)]) == 1
@@ -133,6 +134,9 @@ def test_a_tape_without_the_value_is_replayed_as_2_with_one_warning(tmp_path):
         _replay(tmp_path / "old")                              # 同じテープで 2 回目は警告しない
     with pytest.raises(ValueError, match="テープは response_delay=2・今の設定は 1"):
         _replay(tmp_path / "old", response_delay=1)
+    os.remove(mp)                                              # meta の無いテープ=10e より前の録画は止める
+    with pytest.raises(ValueError, match="10e より前"):
+        _replay(tmp_path / "old")
 
 
 # ================================================================= P4
@@ -147,30 +151,19 @@ def test_relative_holiday_csv_is_resolved_from_the_repo_root(tmp_path, monkeypat
 
 
 def test_unreadable_csv_stops_real_and_nulls_the_manifest_in_day_index(tmp_path):
+    """〔改訂(第330・RET)〕前は「day_index では止めず manifest の md5・範囲を null」も見た(day_index を消した)。暦は real
+    だけなので、読めない CSV は開始日を渡しても渡さなくても止まる。"""
     missing = tmp_path / "none.csv"
-    with pytest.raises(ValueError, match="祝日の表"):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", CalendarWarning)
-            run_day(n_agents=10, n_cells=9, ticks=5, calendar_weekday="real", holiday_csv=missing,
-                    start_sim_datetime="2026-08-03")
-    with warnings.catch_warnings(record=True) as got:
-        warnings.simplefilter("always")
-        # 〔改訂(第330・ACT)〕day_index を明示(前は既定)。既定(real)では読めない CSV で止まる(上と同じ)
-        res = run_day(n_agents=10, n_cells=9, ticks=5, holiday_csv=tmp_path / "none2.csv",
-                      calendar_weekday="day_index", weather_scheme="legacy")
-    assert any(issubclass(w.category, CalendarWarning) for w in got)
-    cal = res.run_manifest_fields()["calendar"]
-    assert cal["holiday_csv_md5"] is None and cal["holiday_csv_range"] is None
-    with pytest.raises(ValueError, match="祝日の表"):    # 範囲外の開始日も、読めない時点で real は止まる
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", CalendarWarning)
-            run_day(n_agents=10, n_cells=9, ticks=5, calendar_weekday="real", holiday_csv=missing,
-                    start_sim_datetime="2030-01-07")
+    for start in ("2026-08-03", None, "2030-01-07"):
+        with pytest.raises(ValueError, match="祝日の表"):
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", CalendarWarning)
+                run_day(n_agents=10, n_cells=9, ticks=5, holiday_csv=missing, start_sim_datetime=start)
 
 
 # ================================================================= P5
 def test_payday_moved_back_across_the_month_boundary(table):
-    c = SimCalendar(datetime(2026, 7, 1), weekday_mode="real", holidays=table, payday_day_of_month=1)
+    c = SimCalendar(datetime(2026, 7, 1), holidays=table, payday_day_of_month=1)
     got = [c.date_of_day(d) for d in range(123) if c.is_payday(d)]   # 2026-07-01〜10-31
     # 8/1(土)→ 7/31(金)。11/1(日)の分も前の営業日 10/30(金)へ寄るので 10 月の中に入る(検算の 4 日+1)。
     assert got == [date(2026, 7, 1), date(2026, 7, 31), date(2026, 9, 1), date(2026, 10, 1), date(2026, 10, 30)]
@@ -181,7 +174,10 @@ def test_payday_moved_back_across_the_month_boundary(table):
 # ================================================================= T1 +2 の経路の既知の答え
 #: HEAD(3342b65・src は a08109a と同じ)の写しで取った final(偽 vLLM・pair_talk・合成世界 2 セル・
 #: 200 体 × 600 tick・fleet_wait_s=10・stub・過程なし)。HEAD には切替口が無い=旧の +2。
-HEAD_PLUS2_FINAL = "79821d778ea4addf"
+#: 〔改訂(第330・RET)〕前の値 79821d778ea4addf は 10e より前の final の定義と乱数(hash full・rng stateful)で HEAD を
+#: 再現した値(ACT の commit で通った)。切替口を消したので今の値(同じ設定・final=behavior-hash・暦 2026-07-13)に張り替えた。
+#: 会話 7・呼数 414 は今の値の記録(試験では見ない)。
+HEAD_PLUS2_FINAL = "3dc9605f573de1be"
 
 
 def test_plus2_path_reproduces_the_head_final():
@@ -193,8 +189,7 @@ def test_plus2_path_reproduces_the_head_final():
             s.pair_talk = True
         res = run_day(n_agents=CONV_AGENTS, seed=1, world=_conv_world(), ticks=CONV_TICKS,
                       fleet=make_client(servers), fleet_wait_s=10.0, renderer="stub", processes=False,
-                      population=False, world_dir=None, response_delay=2,
-                      hash_scheme="full", rng_scheme="stateful")  # 10e(E1・E4): HEAD の値は 10e より前の定義と乱数
+                      population=False, world_dir=None, response_delay=2)
     finally:
         for s in servers:
             s.close()
@@ -210,10 +205,9 @@ def test_datetime_uses_tick_seconds():
 
 
 def test_real_day_key_is_the_day_number(table):
-    c = SimCalendar(datetime(2026, 8, 3), weekday_mode="real", day_index=5, holidays=table)
+    c = SimCalendar(datetime(2026, 8, 3), day_index=5, holidays=table)
     assert [c.day_key(d) for d in range(4)] == [0, 1, 2, 3]
-    # 〔改訂(第330・ACT)〕day_index を明示(前は既定)。既定は real=日番号
-    assert SimCalendar(datetime(2026, 8, 3), weekday_mode="day_index", day_index=5).day_key(2) == 7
+    # 〔改訂(第330・RET)〕day_index の暦(鍵 = day_index + 日 = 7)は消した。暦は real だけ=日番号
     assert SimCalendar(datetime(2026, 8, 3), day_index=5).day_key(2) == 2
 
 
@@ -233,7 +227,7 @@ def test_real_mode_rest_day_reaches_the_mock_schedule(tmp_path, monkeypatch, sta
     monkeypatch.setattr(MockWeeklySchedule, "events_of_day", spy)
     # 土休の日は real の開始日の検査で止まるので、検査だけを空にして mock 日課へ渡る値を見る
     monkeypatch.setattr(SimCalendar, "check_start", lambda self, n=1: [])
-    run_day(n_agents=10, n_cells=9, ticks=5, calendar_weekday="real", holiday_csv=write_csv(tmp_path / "h.csv"),
+    run_day(n_agents=10, n_cells=9, ticks=5, holiday_csv=write_csv(tmp_path / "h.csv"),
             start_sim_datetime=start)
     assert seen == [rest]
 

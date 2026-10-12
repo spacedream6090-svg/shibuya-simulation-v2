@@ -27,9 +27,7 @@ __all__ = [
     "philox",
     "stream",
     "MASK64",
-    "RNG_SCHEMES",
-    "DEFAULT_RNG_SCHEME",
-    "check_rng_scheme",
+    "RNG_SCHEME",
     "run_tick_key",
     "k19_counters",
 ]
@@ -88,46 +86,32 @@ def stream(master_seed: int | str, domain: str, *counters: int) -> np.random.Gen
     return np.random.Generator(philox(master_seed, domain, *counters))
 
 
-# ---------------------------------------------------------------- 10c: 状態を持つ乱数の切替口
-#: ``--rng-scheme`` の値(先頭が既定)。``stateful`` = 今のまま(日の頭に作った Generator を tick ごとに
-#: 進める=再開には Generator の状態の保存が要る)/ ``counter`` = 毎回 (seed, 用途, 鍵) から作る
-#: (状態を持たない=再開で保存するものが無い)。対象は顕著行為の発生と出動の遅れの 2 本(10c・Q8)。
-RNG_SCHEMES: tuple[str, ...] = ("stateful", "counter")
-#: 10e(E4・版上げ 1 回目): 既定を ``counter`` に切り替えた。``stateful`` は旧値の再現の切替口(版上げの最後に消すかは親が決める)。
-DEFAULT_RNG_SCHEME: str = "counter"
+# ---------------------------------------------------------------- 10c・10e: 状態を持たない乱数(counter)
+#: 乱数の方式の名前(manifest の ``rng_scheme``・テープの脇の meta の値)。毎回 (seed, 用途, 鍵) から作る=状態を持たない
+#: (10c・Q8・10e E4 で既定)。〔第330・RET〕10e より前の ``stateful``(日の頭に作った Generator を tick ごとに進める)と
+#: 切替口 ``--rng-scheme`` は版上げ 1 回目の後に消した(旧値の再現は第330 ACT の commit で記録)。
+RNG_SCHEME: str = "counter"
 
 
-def check_rng_scheme(value: str) -> str:
-    """``--rng-scheme`` の値を検査して返す。"""
-    v = str(value)
-    if v not in RNG_SCHEMES:
-        raise ValueError(f"rng_scheme は {RNG_SCHEMES} のどれか(いま {value!r})")
-    return v
-
-
-def k19_counters(rng_scheme: str, *words: int) -> tuple[int, ...]:
-    """10e(E4・K19)の鍵の並べ方。``counter``(既定)は 0 語目を 0 に空け、鍵の語を 1〜3 語目に置く。
+def k19_counters(*words: int) -> tuple[int, ...]:
+    """10e(E4・K19)の鍵の並べ方。0 語目を 0 に空け、鍵の語を 1〜3 語目に置く。
 
     numpy の Philox は 1 ブロック(4 語)引くごとに 0 語目を 1 進める。0 語目に値(体・層・日の鍵・事象の番号)を置くと、
     2 ブロック以上引いた流れが「その値 +1」の流れの頭と重なる(10c 検収 P1〜P3・R3・R4・10f の U2=日の鍵の流れが
     次の日に 1 ブロックずれた写しになる)。0 語目を 0 にすれば、同じ鍵の流れは 2^64 ブロック引くまで隣と重ならない
-    (10c の counter の 2 本と同じ形)。``stateful`` は旧の並び(旧値の再現だけ・重なりはそのまま=``rng_audit`` の
-    ``STATEFUL_ONLY``)。鍵の語は 3 つまで(Philox のカウンタは 4 語)。
+    (10c の counter の 2 本と同じ形)。鍵の語は 3 つまで(Philox のカウンタは 4 語)。
     """
-    v = check_rng_scheme(rng_scheme)
     w = tuple(int(x) for x in words)
-    if v == "counter":
-        if len(w) > 3:
-            raise ValueError(f"k19_counters: 鍵の語は 3 つまで(いま {len(w)})")
-        return (0, *w)
-    return w
+    if len(w) > 3:
+        raise ValueError(f"k19_counters: 鍵の語は 3 つまで(いま {len(w)})")
+    return (0, *w)
 
 
 def run_tick_key(day_key0: int, T: int, tick_seconds: int) -> int:
     """counter の乱数の鍵に入れる時刻 = ``day_key0 × 1 日の tick 数 + T``。
 
     ``T`` はランの通しの時刻(10a)。``day_key0`` はランの 0 日目の日の鍵(``SimCalendar.day_key(0)``:
-    ``real`` では 0=鍵は T そのもの、``day_index`` では ``day_index``=stateful が日の鍵に入れていた値)。
+    日番号=0=鍵は T そのもの。〔第330・RET〕``day_index`` のモードは消した)。
     ``day_key(日) = day_key0 + 日`` なので、この値は「日の鍵 × 1 日の tick 数 + 日の中の tick」と同じ。
     """
     tpd = 86_400 // max(1, int(tick_seconds))

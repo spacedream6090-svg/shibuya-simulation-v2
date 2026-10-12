@@ -236,7 +236,7 @@ class RailProcess:
         self.assets = passets
         self.master_seed = master_seed
         self.day_index = int(day_index)
-        self.calendar = calendar if calendar is not None else SimCalendar.legacy(int(day_index))
+        self.calendar = calendar if calendar is not None else SimCalendar.default(int(day_index))
         self.schedule = schedule
         self.log = actual_log
         self.fare_yen = int(fare_yen)
@@ -321,7 +321,7 @@ class RailProcess:
         a = self.assets
         if not a.has_timetable or a.line_platform_cell is None:
             return None
-        # 10a #10: 平日/土休ダイヤは暦の口から(day_index モードは ``day_index % 7 >= 5`` と同じ値)
+        # 10a #10: 平日/土休ダイヤは暦の口から
         tt_cal = 1 if self.calendar.is_rest_day(int(day)) else 0
         sel = np.flatnonzero(np.asarray(a.tt_calendar) == tt_cal)
         if sel.size == 0:

@@ -19,6 +19,7 @@ from shibuya.agents.state import STORE_MEMORY_FIELDS, AgentState, ResultCode
 from shibuya.engine import memory as M
 from shibuya.engine import store_memory as SM
 from shibuya.engine import wom as W
+from tests import golden_env as GE
 
 SRC = Path("src/shibuya")
 
@@ -252,8 +253,7 @@ def test_default_has_no_wom_and_mock_extracts_nothing():
     _real_world_or_skip()
     from shibuya import cli
 
-    kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3",  # 会話の起きる規模(mock)
-              hash_scheme="full")  # 10e(E1): AgentState.state_hash の差し替えで欄を除く比べ方は旧い final の定義(full)でだけ効く
+    kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3")  # 会話の起きる規模(mock)・10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
     off = cli.run(**kw)
     assert off.run_manifest_fields()["wom"] == {}
     mem = cli.run(memory="on", **kw)
@@ -264,7 +264,7 @@ def test_default_has_no_wom_and_mock_extracts_nothing():
         on = cli.run(memory="on", store_memory="on", **kw)
     finally:
         mp.undo()
-    assert on.final_hash == mem.final_hash and on.llm_calls == mem.llm_calls
+    assert GE.soa_combined(on.checkpoints[-1]) == GE.soa_combined(mem.checkpoints[-1]) and on.llm_calls == mem.llm_calls
     w = on.run_manifest_fields()["wom"]
     assert w["counts"].get("utterances", 0) > 0 and w["counts"].get("wom_extracted", 0) == 0
     assert w["store_rows_with_wom"] == 0
@@ -293,7 +293,7 @@ def test_a_talking_llm_writes_word_of_mouth_rows_for_listeners_only():
     from shibuya.engine.run import _default_mock
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", memory="on",
-              wom_source="reason-target", hash_scheme="full")  # 10e(E1): AgentState.state_hash の差し替えで欄を除く比べ方は旧い final の定義(full)でだけ効く
+              wom_source="reason-target")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
     base = cli.run(llm=_TalkingLLM(_default_mock(1, "v3"), "スターバックス"), **kw)
     mp = pytest.MonkeyPatch()
     mp.setattr(AgentState, "state_hash", lambda self: self.registry.state_hash(exclude=STORE_MEMORY_FIELDS))
@@ -301,7 +301,7 @@ def test_a_talking_llm_writes_word_of_mouth_rows_for_listeners_only():
         on = cli.run(llm=_TalkingLLM(_default_mock(1, "v3"), "スターバックス"), store_memory="on", **kw)
     finally:
         mp.undo()
-    assert on.final_hash == base.final_hash and on.llm_calls == base.llm_calls  # 書くだけ
+    assert GE.soa_combined(on.checkpoints[-1]) == GE.soa_combined(base.checkpoints[-1]) and on.llm_calls == base.llm_calls  # 書くだけ
     w = on.run_manifest_fields()["wom"]
     assert w["source"] == "reason-target" and w["text_fields"]["v3"] == ["reason", "target"]
     assert w["counts"]["wom_extracted"] == w["counts"]["utterances"] > 0

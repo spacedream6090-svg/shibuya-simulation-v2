@@ -1,4 +1,8 @@
-"""10e B6(第330): 天気=再生日・太陽と影=暦の日付の規則(``weather_scheme="calendar"``・既定は ``legacy`` のまま)。
+"""10e B6(第330): 天気=再生日・太陽と影=暦の日付の規則(``calendar``)。
+
+〔改訂(第330・RET)〕ACT で既定にし、RET で 10e より前の ``legacy`` と切替口(``weather_scheme``・``calendar_weekday``)を
+消した。legacy と比べた試験 2 件(legacy の既定のまま・暦の日付=再生日のランは legacy と層の名前のほか同じ)は ACT の
+commit で通ったことを 10e の記録 §RET に書いて、今の規則だけを見る形に直した。
 
 ユーザーの答え 1-3。試験は合成の W13(2025-09-01〜2026-08-31 の 1 年ぶん)と実資産(35 日・2026-07-28〜08-31)で:
 
@@ -9,7 +13,7 @@
 - 影は暦の日付のファイル。無ければいちばん近い日の影を読んで警告と記録。
 - 描画の天気(B3)・体感温度・日の出と日の入りの語が同じ規則(README §E6-1「B6 のための注」の (1)〜(3))。
 - 複数日は日ごとに暦の日付が進んで引き直す。乱数は環境の seed だけ(母集団の seed・動きの seed では動かない)。
-- 暦の日付=再生日のランは、legacy のランと層の名前(O56 の ``stratum``)のほかは全部同じ(既知の答え)。
+- 暦の日付が窓の中のランは、その日の実際の天気と影(代用なし)で回り、同じ設定の 2 回は全 checkpoint が同じ。
 """
 
 from __future__ import annotations
@@ -80,13 +84,12 @@ def _synthetic_w13(tmp_path: Path, *, drop_season: str | None = None, shadow_dat
     )
 
 
-def _env(passets, start: str, *, seed=1, perturbed=False, scheme="calendar", mode="real"):
+def _env(passets, start: str, *, seed=1, perturbed=False):
     world = World.synthetic(n_cells=9, seed=1)
     agents = AgentState(10)
     table = load_holidays(HOLIDAYS)
-    cal = SimCalendar(dt.datetime.fromisoformat(start), weekday_mode=mode, holidays=table)
-    return ENV.EnvironmentProcess(world, agents, passets, master_seed=seed, calendar=cal,
-                                  weather_scheme=scheme, perturbed=perturbed)
+    cal = SimCalendar(dt.datetime.fromisoformat(start), holidays=table)
+    return ENV.EnvironmentProcess(world, agents, passets, master_seed=seed, calendar=cal, perturbed=perturbed)
 
 
 # ================================================================ 太陽の式=構築段
@@ -225,8 +228,8 @@ def test_b6_days_advance_and_only_the_environment_seed_moves_the_draws(tmp_path)
         agents = AgentState(20)
         agents.freeze()
         world.freeze()
-        cal = SimCalendar(dt.datetime.fromisoformat(start), weekday_mode="real", holidays=load_holidays(HOLIDAYS))
-        r = WorldProcessRunner(world=world, agents=agents, assets=pa, calendar=cal, weather_scheme="calendar",
+        cal = SimCalendar(dt.datetime.fromisoformat(start), holidays=load_holidays(HOLIDAYS))
+        r = WorldProcessRunner(world=world, agents=agents, assets=pa, calendar=cal,
                                schedule=synthesize(20, 1, world.n_cells), **kw)
         return r.environment
 
@@ -248,11 +251,16 @@ def test_b6_days_advance_and_only_the_environment_seed_moves_the_draws(tmp_path)
 
 
 def test_b6_legacy_default_is_untouched(tmp_path):
+    """〔改訂(第330・RET)〕前は「legacy は今のまま(影のある日に絞る・日の出は再生日の行)」を見た(legacy を消した)。
+    天気の規則は calendar だけ=過程は ``weather_scheme`` を受け取らない。"""
     pa = _synthetic_w13(tmp_path)
-    env = _env(pa, "2026-07-13", scheme="legacy", mode="day_index")
-    assert env.weather_scheme == "legacy" and env.weather_days[0]["how"] == "legacy"
-    assert env.replay_date in pa.shadow_dates                       # legacy は影のある日に絞る(今のまま)
-    assert env._sunrise == 300.0                                    # 日の出は再生日の行(今のまま)
+    env = _env(pa, "2026-07-13")
+    assert env.weather_scheme == "calendar" and env.weather_days[0]["how"] == "actual"
+    world = World.synthetic(n_cells=9, seed=1)
+    with pytest.raises(TypeError):
+        ENV.EnvironmentProcess(world, AgentState(4), pa, weather_scheme="legacy")
+    with pytest.raises(TypeError):
+        ENV.EnvironmentProcess(world, AgentState(4), pa, prefer_shadow_days=True)
 
 
 # ================================================================ 実資産のラン
@@ -261,27 +269,21 @@ SMALL = dict(n_agents=200, seed=1, ticks=1440, checkpoint_every=360)
 
 @needs_world
 def test_b6_known_answer_calendar_on_the_replay_day_equals_legacy_but_the_label(monkeypatch):
-    """暦の日付=再生日(窓の中=実際の天気)のランは legacy と O56 の層の名前のほかは全部同じ。
+    """暦の日付が窓の中のランは、その日の実際の天気と影(代用なし)で回る・同じ設定の 2 回は全 checkpoint が同じ。
 
-    〔改訂(第330・ACT)〕legacy の再生日は影のある日に絞って引く(``prefer_shadow_days``)ので、影が 07-28 だけだった
-    資産では 07-28、影 6 日(07-13〜17+07-28)の資産では seed 1 で 07-14 になる。暦の日付は legacy の再生日に合わせる
-    (前: 07-28 の固定)。"""
+    〔改訂(第330・RET)〕前は「暦の日付=legacy の再生日のランは legacy と O56 の層の名前のほか全行が同じ」(既知の答え)を
+    見た(ACT の commit で通った。legacy を消した)。いまは開始日 2026-07-13(雨・窓の中・影あり・月曜)を明示したランと開始日を
+    渡さないランが全 checkpoint の全行で同じ(既定の開始日=明示と同じラン)ことを見る。"""
     from shibuya import cli
 
-    a = cli.run(world_dir=str(WORLD_DIR), checkpoint_detail=True, weather_scheme="legacy",
-                calendar_weekday="day_index", **SMALL)
-    rd = a.run_manifest_fields()["replay_date"]
-    b = cli.run(world_dir=str(WORLD_DIR), checkpoint_detail=True, weather_scheme="calendar",
-                calendar_weekday="day_index", start_sim_datetime=rd, **SMALL)
-    assert a.llm_calls == b.llm_calls
-    for da, db in zip(a.checkpoint_details, b.checkpoint_details):
-        diff = sorted(k for k in set(da["items"]) | set(db["items"]) if da["items"].get(k) != db["items"].get(k))
-        assert diff == ["O56:runner.environment.stratum"], diff
-        assert {k: v for k, v in da.items() if k != "items"} == {k: v for k, v in db.items() if k != "items"}
-    wb = b.run_manifest_fields()["weather"]
-    assert wb["days"][0]["how"] == "actual" and wb["days"][0]["replay_date"] == rd
-    assert wb["days"][0]["shadow_date"] == rd and not wb["days"][0]["shadow_fallback"]
-    assert a.run_manifest_fields()["weather"]["scheme"] == "legacy"
+    a = cli.run(world_dir=str(WORLD_DIR), checkpoint_detail=True, start_sim_datetime="2026-07-13", **SMALL)
+    b = cli.run(world_dir=str(WORLD_DIR), checkpoint_detail=True, **SMALL)
+    assert a.llm_calls == b.llm_calls and a.checkpoint_details == b.checkpoint_details
+    wb = a.run_manifest_fields()["weather"]
+    assert wb["scheme"] == "calendar"
+    assert wb["days"][0]["how"] == "actual" and wb["days"][0]["replay_date"] == "2026-07-13"
+    assert wb["days"][0]["shadow_date"] == "2026-07-13" and not wb["days"][0]["shadow_fallback"]
+    assert a.run_manifest_fields()["start_sim_datetime"] == "2026-07-13T00:00:00"
 
 
 @needs_world

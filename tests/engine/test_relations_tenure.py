@@ -171,9 +171,11 @@ def test_switch_is_checked_and_on_the_cli_and_sets_the_default_tau():
 #: 10f(K26 (1)): 一番外側の鍵は環境の ``platform_id``(``tests/golden_env.py``)。行の無い環境では A/A だけ。値は 10f の前のまま。
 #: 10e(E1・版上げ 1 回目): 既定の final が behavior-hash になった。鍵は (関係の寿命のハッシュの版, final の定義)。
 #: 既定(v2・behavior)の値を張り替え、旧値(v1 と 10e より前の v2)は ``hash_scheme="full"`` で再現する。
+#: 〔改訂(第330・RET)〕旧い final の定義の 2 行(("v1","full") e4f84d1d176e6ec0 / 72,940・("v2","full") 40409ebed834126b /
+#: 72,930=ACT の commit で切替口を通して再現できた)は切替口と一緒に消した。v1(生きている切替口 rel_tenure_hash)は
+#: 今の値の行 ("v1","behavior") にした。鍵の 2 つ目は final の定義(いまは behavior だけ)。
 REL_ON_5000_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
-    ("v1", "full"): ("e4f84d1d176e6ec0", 72_940),
-    ("v2", "full"): ("40409ebed834126b", 72_930),
+    ("v1", "behavior"): ("380e8651a96b1829", 69_406),
     # 〔改訂(第330)〕10e 構築側(第330 B3 丸め・B4 W10 ON+Q7・B5 W13 の年間化)で世界の資産が動いた=既定の行だけ張り替えた(E4・E5 は 64f48b6571ec2ea1 / 74,616)。
     # full の 2 行は旧い世界の資産で録った値=旧資産を読む切替口(エンジン側 B1)で再現する(張り替えない)。
     # 〔改訂(第330・ACT)〕版上げ 1 回目の活性化(暦の一本化・開始日 2026-07-13・影 6 日)で既定の行が動いた
@@ -195,13 +197,7 @@ def test_relations_on_arm_golden_old_and_new():
     if REL_ON_5000_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(既定の v2)
         GE.assert_aa(lambda: cli.run(rel_tenure_hash="v2", **kw), lambda r: (r.final_hash[:16], int(r.llm_calls)))
         return
-    have_pre10e = (GE.PRE10E_ASSETS / "MANIFEST.sha256").is_file()
     for (ver, scheme), (final, calls) in REL_ON_5000_GOLDEN.items():
-        # 10e(E4): full の行は 10e より前の値=乱数も 10e より前の並べ方(stateful)
-        # 〔改訂(第330・ACT)〕full の行は 10e より前の世界の資産と暦で録った=退避先の資産と day_index・legacy を渡す
-        # (退避先が無い環境では full の行を省く)
-        if scheme == "full" and not have_pre10e:
-            continue
-        rng = {"rng_scheme": "stateful", **GE.PRE10E_RUN_KW} if scheme == "full" else {}
-        r = cli.run(rel_tenure_hash=ver, hash_scheme=scheme, **rng, **kw)
+        assert scheme == "behavior"  # 〔第330・RET〕final の定義は behavior だけ
+        r = cli.run(rel_tenure_hash=ver, **kw)
         assert (r.final_hash[:16], int(r.llm_calls)) == (final, calls), (ver, scheme)

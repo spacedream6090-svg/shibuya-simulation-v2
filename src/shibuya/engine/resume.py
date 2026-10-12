@@ -61,8 +61,7 @@ ABSENT_MARK: Final[str] = "<shibuya.resume.absent>"
 FINGERPRINT_SKIP: Final[frozenset[str]] = frozenset({
     "checkpoint_every", "tape_path", "census_out", "occupancy_every", "occupancy_path", "fleet_debug_dir",
     "sim_days", "state_out", "stop_at_tick", "resume_from", "run_id", "checkpoint_detail",
-    # 10e(E1): final の定義は挙動に効かない(checkpoint の値だけ)=再開の指紋に入れない
-    "hash_scheme",
+
     # 注入する物(下の ``_describe_objects`` で同定だけを入れる)
     "llm", "fleet", "world", "renderer", "replay", "ledger", "population",
 })
@@ -92,7 +91,7 @@ def _canon(v: Any) -> Any:
 
 
 #: 指紋で「パスの文字列」ではなく中身で同定する引数(10d 検収 L3)。
-PATH_ARGS: Final[frozenset[str]] = frozenset({"world_dir", "holiday_csv", "world_assets_pre10e"})  # 10e(B1)
+PATH_ARGS: Final[frozenset[str]] = frozenset({"world_dir", "holiday_csv"})  # 〔第330・RET〕旧資産の切替口を消した
 
 
 def path_identity(path: Any) -> str | None:

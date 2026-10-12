@@ -42,6 +42,7 @@ from shibuya.perception import templates as T
 from shibuya.perception.channels import estimate_tokens
 from shibuya.perception.renderer import Renderer, memory_item_text
 from shibuya.world.state import World
+from tests import golden_env as GE
 
 SRC = Path("src/shibuya")
 GEN = int(WakeCondition.PLAN_GENERAL)
@@ -292,7 +293,7 @@ def runs(tmp_path_factory):
     from shibuya.engine.run import run_day
 
     d = tmp_path_factory.mktemp("mem6b")
-    kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3", hash_scheme="full")  # 10e(E1): AgentState.state_hash の差し替えで欄を除く比べ方は旧い final の定義(full)でだけ効く
+    kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
     off = run_day(tape_path=d / "off", **kw)
     mp = pytest.MonkeyPatch()
     mp.setattr(AgentState, "state_hash", lambda self: self.registry.state_hash(exclude=MEMORY_FIELDS))
@@ -305,7 +306,7 @@ def runs(tmp_path_factory):
 
 def test_run_on_puts_memory_lines_and_mock_behavior_is_unchanged(runs):
     off, on, d = runs
-    assert on.final_hash == off.final_hash and on.llm_calls == off.llm_calls
+    assert GE.soa_combined(on.checkpoints[-1]) == GE.soa_combined(off.checkpoints[-1]) and on.llm_calls == off.llm_calls
     s = on.run_manifest_fields()["memory_summary"]
     rec, ren = s["recall"], s["render"]
     assert rec["tau"] == M.RECALL_TAU and rec["k_conversation"] == 3 and rec["k_other"] == 2

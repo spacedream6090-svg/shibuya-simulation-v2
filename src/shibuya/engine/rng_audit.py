@@ -11,8 +11,9 @@
   別の流れとの重なりを数える(``StreamRecorder``)。実際の重なりがある用途名と、``c0`` に値を置いて 2 ブロック以上を
   引いた用途名は、理由つきの許可の表(``K19_ALLOW``)に載っていなければ落とす。
 - 〔10e(E4)〕重なりを直した: K19 の 8 用途名は ``--rng-scheme counter``(既定)では鍵の 0 語目を空けた(``core.rng.k19_counters``・
-  10c の counter の 2 本と同じ形)。許可の表から ``overlap`` を消し、**既定(counter)では重なりが 1 つでも出たら落ちる**。
-  旧の並びの流れは旧値の再現の切替口 ``stateful`` でだけ作られ、そのときだけ重なりを許す(扱い ``stateful``)。
+  10c の counter の 2 本と同じ形)。許可の表から ``overlap`` を消し、**重なりが 1 つでも出たら落ちる**。
+  〔第330・RET〕旧の並びの流れを作る切替口 ``stateful`` は版上げ 1 回目の後に消した=許可の表の扱い ``stateful`` の
+  8 用途名も消した(``world.salient``・``world.public_service_dispatch`` の日の頭の Generator は作らなくなった)。
   束ねる鍵に master seed を入れた(10f 第 3 段の検収 U8: 3 つの seed の別の鍵どうしを重なりと数えない)。同じ鍵の
   作り直しは、理由つきの表(``K19_RECREATED``)に載る用途名だけに許す。
 
@@ -212,7 +213,8 @@ def scan_sites(root: Path, files: Iterable[Path] | None = None) -> list[StreamSi
     return out
 
 
-#: 静的に安全な呼び手(ファイル・関数・用途名)。増えても減っても落とす(10f の時点の 15 か所・〔第330〕B6 で 1 つ足して 16 か所)。
+#: 静的に安全な呼び手(ファイル・関数・用途名)。増えても減っても落とす(10f の時点の 15 か所・〔第330〕B6 で 1 つ足して 16 か所・
+#: 〔第330・RET〕legacy の天気の 2 か所(`EnvironmentProcess._pick_day`・`select_day`)を消して 14 か所)。
 SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     # 1 語目が無いか定数(隣の流れが無い)7 か所
     ("agents/population.py", "sample_population", "w16.sample.reserved"),
@@ -222,12 +224,10 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     ("engine/processes/rail.py", "RailProcess._build_external_home", "engine.processes.rail"),
     ("engine/processes/salient.py", "SalientProcess._collapse_events", "world.salient.counter"),
     ("world/assets.py", "synthetic_assets", "world.synthetic"),
-    # 引く語数が定数で 4 以内 9 か所(〔第330〕+1)
+    # 引く語数が定数で 4 以内 7 か所(〔第330〕+1・RET −2)
     ("engine/chooser.py", "draw_index", "engine.chooser"),
     ("engine/classical.py", "ClassicalPolicy.render", "policy.classical"),
     ("engine/conversation.py", "ConversationManager._accepts", "expr:self.domain"),
-    ("engine/processes/environment.py", "EnvironmentProcess._pick_day", "engine.processes.environment"),
-    ("engine/processes/environment.py", "select_day", "engine.processes.environment"),
     # 〔第330・10e B6〕天気の規則 calendar の再生日の抽選(鍵 1 語=層の名前と日番号のハッシュ・引く語数 2)
     ("engine/processes/environment.py", "sample_calendar_day", "engine.processes.environment"),
     ("llm/mock.py", "MockLLM._draws", "expr:self.domain"),
@@ -238,33 +238,27 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
 #: 静的に決まらない呼び手(ファイル・関数・用途名)→ 実行時の検査での扱い。ここに無い呼び手が出たら落とす。
 UNDETERMINED_SITES: Final[dict[tuple[str, str, str], str]] = {
     ("agents/population.py", "sample_population", "w16.sample.stratum"):
-        "permutation の大きさ=層の人数。1 語目は層の番号。隣の層と重なる(10c 検収 P1)=K19_ALLOW",
+        "permutation の大きさ=層の人数。0 語目を空け 1 語目に層の番号(10e K19・10c 検収 P1 を直した)=実行時に重なり 0 を見る",
     ("agents/schedule.py", "draw_words", "agent.schedule"):
         "random_raw の語数が式。1 語目は体 × BLOCKS_PER_AGENT の刻みつきの設計=実行時に重なり 0 を見る",
     ("agents/schedule.py", "draw_words_per_agent", "agent.schedule"): "同上(体ごとの流れ)",
     ("engine/energy.py", "EnergyModel.draw_bodies", "body.eer"):
-        "正規乱数の棄却。まれに 2 ブロック(10c 検収 R3)=K19_ALLOW",
+        "正規乱数の棄却。まれに 2 ブロック(10c 検収 R3)。0 語目を空けた(10e K19)=実行時に重なり 0 を見る",
     ("engine/energy.py", "EnergyModel.draw_bodies", "body.weight"): "同上",
     ("engine/processes/civic.py", "LargeEventProcess._plan", "world.large_event"):
         "choice の大きさが式(会場の候補)。1 語目は日の鍵=実行時に見る",
-    ("engine/processes/civic.py", "PublicServiceDispatchProcess.__init__", "world.public_service_dispatch"):
-        "stateful の Generator(日の鍵)を持ち、tick ごとに引く。--rng-scheme counter では使わない=実行時に見る",
-    ("engine/processes/civic.py", "PublicServiceDispatchProcess.relay_day", "world.public_service_dispatch"): "同上(日の頭)",
     ("engine/processes/goods_flow.py", "DeliveryInboundProcess._plan", "world.delivery_inbound"):
         "店の数の random・幾何分布・integers。1 語目は日の鍵(10c 検収 P3)=実行時に見る",
     ("engine/processes/logistics.py", "LastMileProcess.__init__", "world.delivery_last_mile"):
         "予約だけ(作って引かない=0 ブロック)。実行時に見る",
     ("engine/processes/logistics.py", "RoadWorksProcess._plan", "world.road_works"):
         "choice の大きさが工事の数。1 語目は日の鍵(10c 検収 R4)=実行時に見る",
-    ("engine/processes/salient.py", "SalientProcess.__init__", "world.salient"):
-        "stateful の Generator(日の鍵)を持ち、tick ごとに引く。--rng-scheme counter では使わない=実行時に見る",
-    ("engine/processes/salient.py", "SalientProcess.relay_day", "world.salient"): "同上(日の頭)",
     ("llm/mock.py", "MockLLM._stream", "expr:self.domain"):
         "Generator を返し、呼び手(MockLLM の応答)が引く。1 語目は tick=実行時に見る",
     ("perception/attention.py", "gate_stage1", "perception.attention.p_see"):
         "random(n) の n が式(呼び手はどれも 1 件=10c 検収)=実行時に見る",
     ("perception/p_notice.py", "notice_event", "perception.p_notice"):
-        "random((2, 候補の数))。同じ tick の事象 k と k+1 が重なる(10c 検収 P2)=K19_ALLOW",
+        "random((2, 候補の数))。0 語目を空け事象の番号を 1 語目に(10e K19・10c 検収 P2 を直した)=実行時に重なり 0 を見る",
 }
 
 
@@ -391,27 +385,13 @@ class StreamRecorder:
         return dict(st)
 
 
-#: 許可の表: 用途名 → (扱い, 理由)。扱いは ``stateful``(旧値の再現の切替口 ``--rng-scheme stateful`` のランでだけ
-#: 実際の重なりと潜在を許す=10e より前の鍵の並べ方)か ``latent``(1 語目に値を置いて 2 ブロック以上を引くが、
-#: このランの中では重ならない形)。10e(E4)で ``overlap``(どの方式でも重なりを許す)を消した。
-STATEFUL_ONLY: Final[str] = "stateful"
+#: 許可の表: 用途名 → (扱い, 理由)。扱いは ``latent``(1 語目に値を置いて 2 ブロック以上を引くが、このランの中では
+#: 重ならない形)だけ。10e(E4)で ``overlap`` を消した。〔第330・RET〕扱い ``stateful``(旧値の再現の切替口
+#: ``--rng-scheme stateful`` のランでだけ重なりを許した 8 用途名=w16.sample.stratum・body.weight・body.eer・
+#: perception.p_notice・world.delivery_inbound・world.road_works・world.salient・world.public_service_dispatch)は切替口と
+#: 一緒に消した=いまは空(重なりも潜在も 1 つでも出たら落ちる)。
 LATENT: Final[str] = "latent"
-#: 10f の時点の実測で重なっていた 8 用途名。10e(E4)で既定(counter)の鍵の 0 語目を空けて直した。``stateful`` の流れは
-#: 旧値の再現のためにそのまま残すので、``stateful`` のランでだけ重なりを許す(既定の counter で出たら落ちる)。
-K19_ALLOW: Final[dict[str, tuple[str, str]]] = {
-    "w16.sample.stratum": (STATEFUL_ONLY, "10c 検収 P1: 層の抽出(permutation・最大 2,602 ブロック)が隣の層の流れと重なる"
-                                          "(既定 v3・5,000 体・seed 1 で 185)。10e: counter は層の番号を 1 語目に"),
-    "body.weight": (STATEFUL_ONLY, "10c 検収 R3: 正規乱数の棄却でまれに 2 ブロック(5,000 体で 1)。10e: counter は体を 1 語目に"),
-    "body.eer": (STATEFUL_ONLY, "body.weight と同じ"),
-    "perception.p_notice": (STATEFUL_ONLY, "10c 検収 P2: 同じ tick の事象 k と k+1 の引きが重なる(率 ×1000 で出る)。"
-                                           "10e: counter は事象の番号を 1 語目に"),
-    "world.delivery_inbound": (STATEFUL_ONLY, "10c 検収 P3・10f U2: 日の鍵の流れが次の日の流れの頭と重なる(1 日に最大"
-                                              " 1,487 ブロック)。10e: counter は日の鍵を 1 語目に"),
-    "world.road_works": (STATEFUL_ONLY, "10c 検収 R4・10f U2: 日の鍵で 2 ブロック。10e: counter は日の鍵を 1 語目に"),
-    "world.salient": (STATEFUL_ONLY, "stateful の日の頭の Generator(1 語目=日の鍵)。counter では作らない"
-                                     "(world.salient.counter=0 語目が 0)"),
-    "world.public_service_dispatch": (STATEFUL_ONLY, "world.salient と同じ形。counter では作らない"),
-}
+K19_ALLOW: Final[dict[str, tuple[str, str]]] = {}
 #: 10e(U8): 同じ鍵(seed・用途名・4 語)の流れを作り直してよい用途名と理由。ここに無い用途名の作り直しは落とす。
 K19_RECREATED: Final[dict[str, str]] = {
     "w16.sample.stratum": "W16 の抽出が cli の世帯の財布と run_day の母集団で 2 回走る=同じ鍵の同じ列(同じ行を選ぶための設計)",
@@ -421,30 +401,26 @@ K19_RECREATED: Final[dict[str, str]] = {
 
 
 def check_overlaps(stats: dict[str, DomainStats], allow: dict[str, tuple[str, str]] | None = None, *,
-                   rng_scheme: str = "counter", recreated: dict[str, str] | None = None) -> list[str]:
+                   recreated: dict[str, str] | None = None) -> list[str]:
     """実行時の数えの検査(空なら合格)。
 
-    10e(E4): 既定(``rng_scheme="counter"``)では実際の重なりは 1 つも許さない。``stateful``(旧値の再現の切替口)の
-    ランでは扱い ``stateful`` の用途名だけ許す。潜在(1 語目に値・2 ブロック以上)は ``latent`` か、``stateful`` のランの
-    ``stateful`` の用途名だけ。同じ鍵の作り直しは ``K19_RECREATED`` の用途名だけ(U8)。
+    10e(E4): 実際の重なりは 1 つも許さない。潜在(1 語目に値・2 ブロック以上)は ``latent`` の用途名だけ。同じ鍵の
+    作り直しは ``K19_RECREATED`` の用途名だけ(U8)。〔第330・RET〕``rng_scheme="stateful"`` の扱いは消した。
     """
     allow = K19_ALLOW if allow is None else allow
     rec_ok = K19_RECREATED if recreated is None else recreated
-    stateful = str(rng_scheme) == "stateful"
     out: list[str] = []
     for dom, d in sorted(stats.items()):
         kind = allow.get(dom, ("", ""))[0]
-        ok_stateful = stateful and kind == STATEFUL_ONLY
-        if d.actual_overlaps and not ok_stateful:
+        if d.actual_overlaps:
             out.append(f"{dom}: 実際のブロックの重なり {d.actual_overlaps}(最大 {d.max_blocks} ブロック・例 {d.examples[:2]})"
-                       f"が許可の表に無い(rng_scheme={rng_scheme})")
-        elif d.keyed and d.ge2 and not (kind == LATENT or ok_stateful):
-            out.append(f"{dom}: 1 語目に値を置いて 2 ブロック以上を引く流れ {d.ge2}(最大 {d.max_blocks})が許可の表に無い"
-                       f"(rng_scheme={rng_scheme})")
+                       f"が許可されない")
+        elif d.keyed and d.ge2 and kind != LATENT:
+            out.append(f"{dom}: 1 語目に値を置いて 2 ブロック以上を引く流れ {d.ge2}(最大 {d.max_blocks})が許可の表に無い")
         if d.same_key_recreated and dom not in rec_ok:
             out.append(f"{dom}: 同じ鍵の流れの作り直し {d.same_key_recreated} が K19_RECREATED に無い")
     for dom, (kind, reason) in allow.items():
-        if kind not in (STATEFUL_ONLY, LATENT) or not reason:
+        if kind != LATENT or not reason:
             out.append(f"{dom}: 許可の扱いか理由が違う({kind!r})")
     for dom, reason in rec_ok.items():
         if not reason:

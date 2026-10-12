@@ -573,12 +573,11 @@ def set_plan_state(
     agents: AgentState,
     agent_id=None,
     *,
-    activity=None,
     flags=None,
     flags_set: int | None = None,
     flags_clear: int | None = None,
 ) -> None:
-    """``plan_activity`` / ``plan_flags``(D-66 計画実行層の 2 欄)への**唯一の書き込み口**。
+    """``plan_flags``(D-66 計画実行層の欄)への**唯一の書き込み口**(〔第330・RET〕K15 で ``plan_activity`` を消した)。
 
     欄は ``AgentState(plan_columns=True)`` のランにしか無い(帰無腕は欄ごと無い)ので、
     **欄が無ければ黙って何もしない**=帰無腕・既存テストは 1 バイトも動かない。
@@ -586,7 +585,6 @@ def set_plan_state(
     Args:
         agents: 個体状態。
         agent_id: 書く体(``None``=全体に一括代入)。
-        activity: ``ACTIVITY_WORDS`` の索引(``agent_id`` と同じ長さかスカラー)。
         flags: ``plan_flags`` をそのまま置き換える値。
         flags_set / flags_clear: 立てる/落とすビット(``FLAG_*``)。
 
@@ -595,18 +593,12 @@ def set_plan_state(
         ``resolve`` 以外から行わない規律(運用設計書 §2.2)に合わせてここに置く。
     """
     r = agents.registry
-    if "plan_activity" not in r.arrays:
+    if "plan_flags" not in r.arrays:
         return
     a = None if agent_id is None else np.asarray(agent_id, dtype=np.int64).ravel()
     if a is not None and a.size == 0:
         return
     with agents.writable():
-        if activity is not None:
-            v = np.asarray(activity, dtype=np.int8)
-            if a is None:
-                r.plan_activity[:] = v
-            else:
-                r.plan_activity[a] = v
         if flags is not None:
             v = np.asarray(flags, dtype=np.int8)
             if a is None:
@@ -1072,7 +1064,6 @@ def fail_intent(agents: AgentState, agent_id, code: ResultCode, tick: int) -> No
         r.last_action[a] = r.intent_action[a]
         r.last_result[a] = int(code)
         r.last_result_tick[a] = int(tick)
-        r.fail_streak[a] = np.minimum(r.fail_streak[a].astype(np.int16) + 1, 255).astype(np.uint8)
         moving = a[r.activity[a] == int(Activity.MOVING)]
         r.activity[moving] = int(Activity.IDLE)
         r.target_node[a] = -1
@@ -1158,7 +1149,7 @@ def advance_body(agents: AgentState, tick: int, energy: Any = None) -> None:
 
 
 # ---------------------------------------------------------------- 5 段目 5a エネルギー収支
-def initialize_energy(agents: AgentState, energy: Any, seed: int | str, rng_scheme: str = "counter") -> None:
+def initialize_energy(agents: AgentState, energy: Any, seed: int | str) -> None:
     """体の定数(体重・EER)を抽選し、食後の消費・収支・``hunger`` の写しと段を置く(ラン開始時 1 回)。
 
     ``initialize`` の直後・``freeze`` の前に呼ぶ(``energy_columns`` のランだけ)。``hunger_stage``
@@ -1169,7 +1160,7 @@ def initialize_energy(agents: AgentState, energy: Any, seed: int | str, rng_sche
     model: EnergyModel = energy.model
     r = agents.registry
     with agents.writable():
-        weight, eer = model.draw_bodies(r.age, r.sex, seed, rng_scheme)  # 10e(E4・K19): 鍵の並べ方
+        weight, eer = model.draw_bodies(r.age, r.sex, seed)  # 10e(E4・K19): 鍵の並べ方
         r.weight_kg[:] = weight
         r.eer_kcal[:] = eer
         r.since_meal_kcal[:] = model.initial_since_meal(eer)
@@ -1463,9 +1454,6 @@ def apply(
             held = held[r.intent_action[held] != INTENT_NONE]
             if held.size:
                 _clear_intent_fields(r, held)
-            r.fail_streak[la] = np.minimum(r.fail_streak[la].astype(np.int16) + 1, 255).astype(
-                np.uint8
-            )
             out.add_result(ResultCode.LOST_ARBITRATION, int(la.size))
 
         # ---- D-51 乗車待ちの捌き(停車中の列車へ FIFO・打ち切り) ----
@@ -1524,7 +1512,6 @@ def _ok(agents: AgentState, aid: np.ndarray, tick: int, out: ResolveOutcome) -> 
     r = agents.registry
     r.last_result[aid] = int(ResultCode.OK)
     r.last_result_tick[aid] = int(tick)
-    r.fail_streak[aid] = 0
     out.add_result(ResultCode.OK, int(aid.size))
 
 
@@ -1536,7 +1523,6 @@ def _fail(
     r = agents.registry
     r.last_result[aid] = int(code)
     r.last_result_tick[aid] = int(tick)
-    r.fail_streak[aid] = np.minimum(r.fail_streak[aid].astype(np.int16) + 1, 255).astype(np.uint8)
     out.add_result(code, int(aid.size))
 
 
@@ -3052,7 +3038,6 @@ def balk_queue(agents: AgentState, agent_ids, tick: int) -> None:
         r.activity[a] = int(Activity.IDLE)
         r.last_result[a] = int(ResultCode.INTERRUPTED)
         r.last_result_tick[a] = int(tick)
-        r.fail_streak[a] = np.minimum(r.fail_streak[a].astype(np.int16) + 1, 255).astype(np.uint8)
 
 
 def request_open_close(
@@ -3097,7 +3082,7 @@ def request_open_close(
             world.pois.open_now[p[ok]] = w[ok].astype(np.int8)
             out_code[ok] = int(ResultCode.OK)
             r.last_result[a[ok]] = int(ResultCode.OK)
-            r.fail_streak[a[ok]] = 0
+
         if (~ok).any():
             r.last_result[a[~ok]] = int(ResultCode.NO_PERMISSION)
         r.last_result_tick[a] = int(tick)

@@ -4,14 +4,12 @@
 すべてこの 1 つの口(``SimCalendar``)を通す。入力は ``start_sim_datetime``(T=0 の世界内日時)と
 通しの時刻 T(``T = 日 × 1 日の tick 数 + 日の中の tick``)だけ。
 
-曜日の決め方の切替口(``--calendar-weekday``)
-- ``day_index``(10e より前の既定・〔第330・ACT〕旧値の再現だけ): 曜日 = ``(day_index + 日) % 7``(``day_index=0`` は月曜)。
-  日付(``start_sim_datetime`` の日付)とは独立で、**祝日は曜日の扱いに効かせない**(今のコードは祝日を
-  見ていない=既定の結果を 1 バイトも動かさないため)。祝日かどうか(``is_holiday``)は日付の事実として
-  返すが、``is_rest_day``・``table_weekday``・``day_kind`` には入らない。
-- ``real``(〔第330・ACT〕**既定**): ``start_sim_datetime`` の実の曜日と内閣府の祝日表から引く。祝日は「土休」として扱い、
-  曜日 7 日の表(古典の事前分布・W17 の曜日の行)では**日曜**の行を使う(親案「祝日は土休扱い」に沿った
-  expedient・未リサーチ)。W7 の営業時間は PH の行(構築側の列 ``holiday_content``・規則の無い店は日曜の行)。
+曜日: ``start_sim_datetime`` の実の曜日と内閣府の祝日表から引く(``real``)。祝日は「土休」として扱い、
+曜日 7 日の表(古典の事前分布・W17 の曜日の行)では**日曜**の行を使う(親案「祝日は土休扱い」に沿った
+expedient・未リサーチ)。W7 の営業時間は PH の行(構築側の列 ``holiday_content``・規則の無い店は日曜の行)。
+〔第330・RET〕10e より前の曜日の決め方 ``day_index``(曜日 = ``(day_index + 日) % 7``・祝日を見ない)と切替口
+``--calendar-weekday``・``--weather-scheme legacy``・定数 ``CALENDAR_UNIFIED`` は版上げ 1 回目の後に消した
+(旧値の再現は第330 ACT の commit で記録)。
 
 祝日の表(A1-2): 内閣府「国民の祝日」CSV(``data/calendar/syukujitsu.csv``・cp932・列
 ``国民の祝日・休日月日``・``国民の祝日・休日名称``・1955/1/1〜2027/11/23)。振替休日と国民の休日は
@@ -20,12 +18,8 @@
 
 季節: 気象庁の季節の区分(春=3〜5 月・夏=6〜8 月・秋=9〜11 月・冬=12〜2 月)を日付の月から引く。
 
-〔改訂(第330・10e E3)〕**暦の一本化の既定の切り替えは ``CALENDAR_UNIFIED`` の 1 か所**。``False``(10e より前)=曜日は
-``day_index``・開始日は再生日(``engine.run`` の旧い導き方)・天気は ``legacy``。``True``(〔第330・ACT〕いま)=
-``--calendar-weekday`` の既定が ``real``・``--weather-scheme`` の既定が ``calendar``(開始日を渡さないランの暦の
-開始日は ``DEFAULT_WORLD_START``=2026-07-13(月)+ ``day_index`` 日・ユーザーの答え 1-4)。切り替えで動く所の一覧は
-``docs/bench/analysis/wallbounce-1012/10e/README.md`` §E3。W7 の祝日(``PH``)の行は ``opening_row`` で引く
-(``real`` の祝日=``OPENING_ROW_PH``。資産に PH の行が無い店は日曜の行=10a の「祝日は土休扱い」のまま)。
+開始日を渡さないランの暦の開始日は ``DEFAULT_WORLD_START``=2026-07-13(月)+ ``day_index`` 日(ユーザーの答え 1-4)。
+W7 の祝日(``PH``)の行は ``opening_row`` で引く(祝日=``OPENING_ROW_PH``。資産に PH の行が無い店は日曜の行)。
 
 給料日: 規則は賃金の段(指示書 §6 ⑧)で決める。既定 ``payday_day_of_month=None`` は給料日なし
 (``is_payday`` は常に False)。日を渡したときは「毎月その日。土休なら前の営業日へ寄せる」
@@ -35,8 +29,7 @@
 慣行の休みは入れていない(未リサーチ・宣言)。
 
 開始日の検査(A1-1・A1-3): ``check_start`` が「祝日でない平日の月曜」「複数日なら連続する平日」
-「学校の長期休みの区間に当たらない」「祝日表の範囲の中」を見る。``real`` では違反で止め(``ValueError``)、
-``day_index`` では警告だけ(祝日表の範囲外だけはどちらでも止める)。学校の長期休みの区間の表は
+「学校の長期休みの区間に当たらない」「祝日表の範囲の中」を見る。違反で止める(``ValueError``)。学校の長期休みの区間の表は
 manifest の欄(``school_holidays``)で渡す形だけを作り、中身は空(K7 の判断待ち)。
 
 逐次ループ宣言(P4): ``load_holidays`` が CSV の行数ぶん(約 1,070 行・起動時 1 回)。ほかはなし。
@@ -56,21 +49,16 @@ from typing import Any, Final, Iterable, Mapping
 from shibuya.core.types import DEFAULT_TICK_SECONDS, MINUTES_PER_SIM_DAY
 
 __all__ = [
-    "CALENDAR_UNIFIED",
     "CalendarWarning",
     "DEFAULT_HOLIDAY_CSV",
-    "DEFAULT_WEATHER_SCHEME",
-    "DEFAULT_WEEKDAY_MODE",
     "DEFAULT_WORLD_START",
     "OPENING_ROW_PH",
-    "WEATHER_SCHEMES",
-    "check_weather_scheme",
+    "WEATHER_SCHEME",
+    "WEEKDAY_MODE",
     "HOLIDAY_CSV_COLUMNS",
     "HolidayTable",
     "SEASON_OF_MONTH",
     "SimCalendar",
-    "WEEKDAY_MODES",
-    "check_weekday_mode",
     "holidays_between",
     "load_holidays",
     "parse_school_holidays",
@@ -83,23 +71,15 @@ __all__ = [
 DEFAULT_HOLIDAY_CSV: Final[str] = "data/calendar/syukujitsu.csv"
 #: 内閣府 CSV の列名(見出しの行)。
 HOLIDAY_CSV_COLUMNS: Final[tuple[str, str]] = ("国民の祝日・休日月日", "国民の祝日・休日名称")
-#: 〔第330・10e E3/B6〕**暦の一本化の既定の切り替え(ここ 1 か所)**。``True`` で ``DEFAULT_WEEKDAY_MODE`` が ``real``・
-#: ``DEFAULT_WEATHER_SCHEME`` が ``calendar`` になる(開始日を渡さないランは ``DEFAULT_WORLD_START + day_index`` 日)。
-#: 親が構築側(W13 の年間化・W9 の開始日の影・W7 の PH)を取り込んだ後に切り替える。
-#: 〔改訂(第330・ACT)〕版上げ 1 回目の活性化で ``True`` にした(構築側=W13 の年間化・W9 の 07-13〜07-17 の影・W7 の
-#: ``holiday_content`` を取り込んだ後)。
-CALENDAR_UNIFIED: Final[bool] = True
 #: 〔第330・10e E3〕既定の開始日(ユーザーの答え 1-4: 2026-07-13(月)・世界の資産の時点に最も近く季節が同じで学期中)。
-#: 暦の規則(``weather_scheme="calendar"``)で開始日を渡さないランの暦の 0 日目(``+ day_index`` 日)。
+#: 開始日を渡さないランの暦の 0 日目(``+ day_index`` 日)。
 DEFAULT_WORLD_START: Final[datetime] = datetime(2026, 7, 13, 0, 0)
-#: 曜日の決め方(``--calendar-weekday``)。既定は ``CALENDAR_UNIFIED`` で決まる(〔第330・ACT〕``real``)。
-WEEKDAY_MODES: Final[tuple[str, ...]] = ("day_index", "real")
-DEFAULT_WEEKDAY_MODE: Final[str] = "real" if CALENDAR_UNIFIED else WEEKDAY_MODES[0]
-#: 〔第330・10e B6〕天気の規則(``--weather-scheme``)。``legacy``=10e より前(再生日を層から一様に引き、日の出・日の入り・影も
-#: 再生日・世界の日付も再生日)/ ``calendar``=天気は再生日・太陽と影は暦の日付(ユーザーの答え 1-3)。
-WEATHER_SCHEMES: Final[tuple[str, ...]] = ("legacy", "calendar")
-DEFAULT_WEATHER_SCHEME: Final[str] = "calendar" if CALENDAR_UNIFIED else WEATHER_SCHEMES[0]
-#: 〔第330・10e E3〕W7 の営業時間の祝日の行(``PH``)の番号(曜日 0〜6 の次)。``opening_row`` が ``real`` の祝日に返す。
+#: 曜日の決め方の名前(manifest の ``calendar.calendar_weekday``・テープの脇の meta の値)。〔第330・RET〕``real`` だけ。
+WEEKDAY_MODE: Final[str] = "real"
+#: 天気の規則の名前(manifest の ``weather.scheme``・テープの脇の meta の値)。天気は再生日・太陽と影は暦の日付
+#: (ユーザーの答え 1-3)。〔第330・RET〕``calendar`` だけ(10e より前の ``legacy`` は消した)。
+WEATHER_SCHEME: Final[str] = "calendar"
+#: 〔第330・10e E3〕W7 の営業時間の祝日の行(``PH``)の番号(曜日 0〜6 の次)。``opening_row`` が祝日に返す。
 OPENING_ROW_PH: Final[int] = 7
 #: 気象庁の季節の区分(月 → 季節)。
 SEASON_OF_MONTH: Final[Mapping[int, str]] = {
@@ -112,28 +92,12 @@ SEASON_OF_MONTH: Final[Mapping[int, str]] = {
 _DAY_KIND_OF_WEEKDAY: Final[tuple[str, ...]] = (
     "weekday", "weekday", "weekday", "weekday", "weekday", "saturday", "sunday",
 )
-#: 祝日を曜日 7 日の表で引くときの行(``real`` のときだけ・日曜)。
+#: 祝日を曜日 7 日の表で引くときの行(日曜)。
 HOLIDAY_TABLE_WEEKDAY: Final[int] = 6
 
 
 class CalendarWarning(UserWarning):
-    """暦の口の警告(祝日 CSV が無い・``day_index`` での開始日の検査の違反)。"""
-
-
-def check_weekday_mode(mode: str) -> str:
-    """``--calendar-weekday`` の値を検査して返す。"""
-    m = str(mode)
-    if m not in WEEKDAY_MODES:
-        raise ValueError(f"calendar_weekday は {WEEKDAY_MODES} のどれか(いま {mode!r})")
-    return m
-
-
-def check_weather_scheme(value: str | None) -> str:
-    """``--weather-scheme`` の値を検査して返す(``None`` は既定 ``DEFAULT_WEATHER_SCHEME``)。"""
-    v = DEFAULT_WEATHER_SCHEME if value is None else str(value)
-    if v not in WEATHER_SCHEMES:
-        raise ValueError(f"weather_scheme は {WEATHER_SCHEMES} のどれか(いま {value!r})")
-    return v
+    """暦の口の警告(祝日 CSV が無い)。"""
 
 
 def ticks_per_day(tick_seconds: int = DEFAULT_TICK_SECONDS) -> int:
@@ -282,8 +246,7 @@ class SimCalendar:
     Attributes:
         start_sim_datetime: T=0 の世界内日時。
         tick_seconds: 1 tick の秒数。
-        weekday_mode: ``day_index``(既定・今の約束)/ ``real``(実の曜日と祝日)。
-        day_index: ``day_index`` モードの 0 日目の曜日(0=月曜)。
+        day_index: 開始日を ``DEFAULT_WORLD_START`` から何日ずらしたか(manifest の記録だけ・曜日は日付から)。
         holidays: 祝日の表。
         school_holidays: 学校の長期休みの区間(両端を含む・今は空)。
         payday_day_of_month: 給料日の日(None=給料日なし・既定)。
@@ -291,7 +254,6 @@ class SimCalendar:
 
     start_sim_datetime: datetime
     tick_seconds: int = DEFAULT_TICK_SECONDS
-    weekday_mode: str = DEFAULT_WEEKDAY_MODE
     day_index: int = 0
     holidays: HolidayTable = field(default_factory=HolidayTable)
     school_holidays: tuple[tuple[date, date], ...] = ()
@@ -300,7 +262,6 @@ class SimCalendar:
     def __post_init__(self) -> None:
         if not isinstance(self.start_sim_datetime, datetime):
             raise TypeError("start_sim_datetime は datetime")
-        check_weekday_mode(self.weekday_mode)
         ticks_per_day(self.tick_seconds)  # 割り切れない tick 長はここで止める
         # 検収後 P2: T=0 は日の頭(0:00)。日の中の tick(``T % 1 日の tick 数``)と時計の時刻を一致させるため、
         # 0:00 でない開始時刻は止める(tz の有無は問わない)。
@@ -311,14 +272,17 @@ class SimCalendar:
             raise ValueError("payday_day_of_month は 1〜31 か None")
 
     @classmethod
-    def legacy(cls, day_index: int = 0, *, start_sim_datetime: datetime | None = None,
-               tick_seconds: int = DEFAULT_TICK_SECONDS) -> "SimCalendar":
-        """``day_index`` だけを持つ呼び手(単体テスト・旧い口)のための暦(祝日の表は読まない)。"""
-        start = start_sim_datetime if start_sim_datetime is not None else datetime(2026, 7, 28, 0, 0)
-        return cls(start, tick_seconds=tick_seconds, weekday_mode="day_index", day_index=int(day_index))
+    def default(cls, day_index: int = 0, *, tick_seconds: int = DEFAULT_TICK_SECONDS) -> "SimCalendar":
+        """暦を渡されない呼び手(過程の単体の組み立て)のための暦: ``DEFAULT_WORLD_START + day_index`` 日・祝日の表なし。
+
+        〔第330・RET〕旧い口 ``legacy``(``day_index`` の曜日・開始日 2026-07-28)の置き換え。曜日は日付から
+        (2026-07-13 は月曜=``day_index % 7`` と同じ)・日の鍵は日番号。
+        """
+        return cls(DEFAULT_WORLD_START + timedelta(days=int(day_index)), tick_seconds=tick_seconds,
+                   day_index=int(day_index))
 
     def with_start(self, start_sim_datetime: datetime) -> "SimCalendar":
-        """開始の日時だけを差し替えた暦(曜日の決め方・祝日の表はそのまま)。"""
+        """開始の日時だけを差し替えた暦(祝日の表はそのまま)。"""
         return replace(self, start_sim_datetime=start_sim_datetime)
 
     # ---- T ----
@@ -349,13 +313,11 @@ class SimCalendar:
         return self.start_sim_datetime.date() + timedelta(days=int(day))
 
     def weekday(self, day: int) -> int:
-        """日番号 → 曜日(0=月曜)。``day_index`` では ``(day_index + 日) % 7``。"""
-        if self.weekday_mode == "real":
-            return self.date_of_day(day).weekday()
-        return (int(self.day_index) + int(day)) % 7
+        """日番号 → 曜日(0=月曜・日付から)。"""
+        return self.date_of_day(day).weekday()
 
     def is_holiday(self, day: int) -> bool:
-        """その日付が祝日の表にあるか(日付の事実・曜日の決め方に依らない)。"""
+        """その日付が祝日の表にあるか(日付の事実)。"""
         return self.date_of_day(day) in self.holidays.days
 
     def holiday_name(self, day: int) -> str:
@@ -363,21 +325,19 @@ class SimCalendar:
         return str(self.holidays.days.get(self.date_of_day(day), ""))
 
     def is_rest_day(self, day: int) -> bool:
-        """土休か(土日。``real`` では祝日も)。"""
-        if self.weekday(day) >= 5:
-            return True
-        return self.weekday_mode == "real" and self.is_holiday(day)
+        """土休か(土日と祝日)。"""
+        return self.weekday(day) >= 5 or self.is_holiday(day)
 
     def table_weekday(self, day: int) -> int:
-        """曜日 7 日の表を引くときの曜日(``real`` の祝日は日曜の行)。"""
-        if self.weekday_mode == "real" and self.is_holiday(day):
+        """曜日 7 日の表を引くときの曜日(祝日は日曜の行)。"""
+        if self.is_holiday(day):
             return HOLIDAY_TABLE_WEEKDAY
         return self.weekday(day)
 
     def opening_row(self, day: int) -> int:
-        """W7 の営業時間の表の行(〔第330・10e E3〕)。``real`` の祝日は ``OPENING_ROW_PH``(祝日の行・無い店は日曜の行)、
-        ほかは ``table_weekday`` と同じ(``day_index`` モードと平日の値は今のまま)。"""
-        if self.weekday_mode == "real" and self.is_holiday(day):
+        """W7 の営業時間の表の行(〔第330・10e E3〕)。祝日は ``OPENING_ROW_PH``(祝日の行・無い店は日曜の行)、
+        ほかは ``table_weekday`` と同じ。"""
+        if self.is_holiday(day):
             return OPENING_ROW_PH
         return self.table_weekday(day)
 
@@ -419,14 +379,8 @@ class SimCalendar:
         return (d - self.start_sim_datetime.date()).days
 
     def day_key(self, day: int) -> int:
-        """日ごとの乱数・締めの鍵の日番号。
-
-        ``day_index`` モードでは今までの値(``day_index + 日``)を保つ(今のコードは曜日の ``day_index`` を
-        そのまま鍵にしている=既定の結果を動かさない)。``real`` では日番号そのもの。
-        """
-        if self.weekday_mode == "real":
-            return int(day)
-        return int(self.day_index) + int(day)
+        """日ごとの乱数・締めの鍵の日番号(日番号そのもの=10a の real。〔第330・RET〕``day_index + 日`` の旧い鍵は消した)。"""
+        return int(day)
 
     def in_school_holiday(self, day: int) -> bool:
         """学校の長期休みの区間に当たるか。"""
@@ -437,8 +391,8 @@ class SimCalendar:
     def start_problems(self, sim_days: int = 1) -> tuple[list[str], list[str]]:
         """開始日の検査。``(止める違反, 規則の違反)`` を返す。
 
-        止める違反(どのモードでも止める): 祝日の表の範囲外の日を含む(表が読めていて範囲の外)。
-        規則の違反(``real`` では止める・``day_index`` では警告): 0 日目が月曜でない・0 日目が祝日・
+        止める違反: 祝日の表の範囲外の日を含む(表が読めていて範囲の外)・祝日の表が読めていない。
+        規則の違反(止める): 0 日目が月曜でない・0 日目が祝日・
         どれかの日が土休(連続する平日に収まらない)・どれかの日が学校の長期休みの区間。
         """
         n = int(sim_days)
@@ -452,8 +406,8 @@ class SimCalendar:
                 fatal.append(
                     f"祝日の表の範囲外の日を含む({out[0]}・表は {self.holidays.first}〜{self.holidays.last})"
                 )
-        elif self.weekday_mode == "real":
-            fatal.append("祝日の表が読めていない(real では祝日を確かめられない)")
+        else:
+            fatal.append("祝日の表が読めていない(祝日を確かめられない)")
         if self.weekday(0) != 0:
             rule.append(f"0 日目が月曜でない(曜日 {self.weekday(0)}・{self.date_of_day(0)})")
         if self.is_holiday(0):
@@ -467,19 +421,17 @@ class SimCalendar:
         return fatal, rule
 
     def check_start(self, sim_days: int = 1) -> list[str]:
-        """開始日の検査を走らせる。止める違反は ``ValueError``・``day_index`` の規則違反は警告。
+        """開始日の検査を走らせる。違反があれば ``ValueError``(〔第330・RET〕``day_index`` の「警告だけ」は消した)。
 
         Returns:
-            警告した文言(``day_index`` の規則違反)。``real`` では違反があれば ``ValueError``。
+            空の一覧(manifest の ``start_check`` の欄=違反が無かった)。
         """
         fatal, rule = self.start_problems(sim_days)
         if fatal:
             raise ValueError("開始日の検査で止めた: " + " / ".join(fatal))
-        if rule and self.weekday_mode == "real":
+        if rule:
             raise ValueError("開始日の検査で止めた(real): " + " / ".join(rule))
-        for msg in rule:
-            warnings.warn(f"開始日の検査(day_index・警告だけ): {msg}", CalendarWarning, stacklevel=2)
-        return list(rule)
+        return []
 
     # ---- manifest ----
     def manifest_fields(self, sim_days: int = 1) -> dict[str, Any]:
@@ -489,7 +441,7 @@ class SimCalendar:
             "tick_seconds": int(self.tick_seconds),
             "ticks_per_day": int(self.ticks_per_day),
             "sim_days": int(sim_days),
-            "calendar_weekday": str(self.weekday_mode),
+            "calendar_weekday": WEEKDAY_MODE,
             "day_index": int(self.day_index),
             "holiday_csv": str(self.holidays.path),
             # 検収後 P4: 読めなかったときは明示的に null(空文字・空の列と取り違えない)

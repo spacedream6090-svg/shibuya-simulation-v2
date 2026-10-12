@@ -35,7 +35,7 @@ from typing import Final, Sequence
 import numpy as np
 
 from shibuya.core.hashing import blake3_hex
-from shibuya.core.rng import stream, DEFAULT_RNG_SCHEME, k19_counters
+from shibuya.core.rng import stream, k19_counters
 
 __all__ = [
     "POPULATION_FILE",
@@ -217,7 +217,6 @@ def load_population(
     seed: int | str = 1,
     *,
     n_cells: int | None = None,
-    rng_scheme: str = DEFAULT_RNG_SCHEME,
 ) -> Population | None:
     """W16 母集団を読む。資産が無ければ ``None``。
 
@@ -273,19 +272,17 @@ def load_population(
                 )
     if n is None or n >= pop.n:
         return pop
-    return sample_population(pop, n, seed, rng_scheme=rng_scheme)  # 10e(検収 L2): engine と同じ鍵の並べ方
+    return sample_population(pop, n, seed)  # 10e(検収 L2): engine と同じ鍵の並べ方
 
 
-def sample_population(pop: Population, n: int, seed: int | str = 1, *,
-                      rng_scheme: str = DEFAULT_RNG_SCHEME) -> Population:
+def sample_population(pop: Population, n: int, seed: int | str = 1) -> Population:
     """二層抽出(定員先取り層+統計層)。同 seed 同結果。
 
     Args:
         pop: 全体。
         n: 目標体数。
         seed: ``core.rng`` の master_seed。
-        rng_scheme: 10e(E4・K19)の鍵の並べ方(``core.rng.k19_counters``)。``counter``(既定)は層の番号を 1 語目に
-            置く(隣の層の並べ替えと重ならない)/ ``stateful`` は旧の並び(旧値の再現だけ)。
+        (10e(E4・K19)の鍵の並べ方=``core.rng.k19_counters``: 層の番号を 1 語目に置く=隣の層の並べ替えと重ならない)
 
     Returns:
         ``agent_id`` 昇順に並べ直した部分集合。
@@ -335,7 +332,7 @@ def sample_population(pop: Population, n: int, seed: int | str = 1, *,
         if take <= 0:
             continue
         members = rest[inverse == s]
-        order = stream(seed, "w16.sample.stratum", *k19_counters(rng_scheme, int(uniq[s]))).permutation(members.size)
+        order = stream(seed, "w16.sample.stratum", *k19_counters(int(uniq[s]))).permutation(members.size)
         picked.append(members[order[:take]])
     rows = np.sort(np.concatenate([reserved, *picked])) if picked else np.sort(reserved)
     return pop.take(rows)

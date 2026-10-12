@@ -87,7 +87,7 @@ from shibuya.perception.attention import (
     rank_by_saliency,
     strip_imperatives,
 )
-from shibuya.world.assets import CELL_SIZE_M, AssetSource, WorldAssets, array_sha256, asset_source, file_sha256
+from shibuya.world.assets import CELL_SIZE_M, WorldAssets, array_sha256, file_sha256
 from shibuya.world.state import LANDMARK_CATS, World
 
 __all__ = [
@@ -700,21 +700,18 @@ class PerceptionAssets:
 
     @classmethod
     def load_or_synthetic(
-        cls, path: str | Path | None, world: World, *, pre10e: "str | Path | AssetSource | None" = None
+        cls, path: str | Path | None, world: World
     ) -> "PerceptionAssets":
         """資産があれば読み、無ければ合成へ落ちる(``World.load_or_synthetic`` と同じ作法)。"""
         if cls.available(path) and world.assets.source != "synthetic":
-            return cls.load(path, world, pre10e=pre10e)  # type: ignore[arg-type]
+            return cls.load(path, world)  # type: ignore[arg-type]
         return cls.synthetic(world)
 
     @classmethod
     def load(
-        cls, path: str | Path, world: World, *, pre10e: "str | Path | AssetSource | None" = None
+        cls, path: str | Path, world: World
     ) -> "PerceptionAssets":
         """``data/world/v2`` から読む(W2/W6/W8/W10/W11/W13)。
-
-        ``pre10e``: 10e(B1)旧資産の切替口の退避先(``world.assets.asset_source``)。W10 と W13 はその口から読む
-        (世界の側の騒音の読み手と同じ口=片方だけが旧い地図を読むことは起きない)。
 
         Note:
             逐次ループ宣言(P4)3: 可視性表の行数ぶんの集約 1 本(**起動時 1 回**)。
@@ -722,7 +719,6 @@ class PerceptionAssets:
         import pyarrow.parquet as pq
 
         p = Path(path)
-        src = asset_source(p, pre10e)
         asset_sources: dict[str, str] = {}
         cells = pq.read_table(p / "w2_cells.parquet", columns=["place_id"]).to_pydict()
         place_ids = tuple(str(s) for s in cells["place_id"])
@@ -791,7 +787,7 @@ class PerceptionAssets:
             vis_land.append(tuple(lands))
 
         # ---- W10 街路点 → セル別 歩行可能面積・騒音段階(最頻値) ----
-        area, has_street, ns_day, ns_night = _street_aggregate(p, world.assets, n, source=src, sources=asset_sources)
+        area, has_street, ns_day, ns_night = _street_aggregate(p, world.assets, n, sources=asset_sources)
 
         # ---- W14/W15 の凍結静的文(在れば使う・無ければ従来の合成文) ----
         frozen_sources: dict[str, str] = {}
@@ -803,7 +799,7 @@ class PerceptionAssets:
         )
 
         # ---- W13 天候 ----
-        f13 = src.path("w13_weather_hourly.parquet")
+        f13 = p / "w13_weather_hourly.parquet"
         asset_sources[f13.name] = file_sha256(f13)
         w13 = pq.read_table(
             f13,
@@ -872,17 +868,16 @@ def _load_frozen_text(
 
 def _street_aggregate(
     path: Path, assets: WorldAssets, n_cells: int, *,
-    source: AssetSource | None = None, sources: dict[str, str] | None = None,
+    sources: dict[str, str] | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """W10 街路点 → (歩行可能面積, 街路の有無, 昼騒音段, 夜騒音段)。全てベクトル演算。
 
-    10e(B0・B1): ファイルは ``source``(旧資産の切替口)の ``path`` から読み、読んだファイルの sha256 と集約後の
-    騒音の段の指紋(``noise_stage_cells``)を ``sources`` に書く。
+    10e(B0): 読んだファイルの sha256 と集約後の騒音の段の指紋(``noise_stage_cells``)を ``sources`` に書く。
     """
     import pyarrow.parquet as pq
 
-    src = source if source is not None else AssetSource(Path(path))
-    f_pts = src.path("w10_street_points.parquet")
+    root = Path(path)
+    f_pts = root / "w10_street_points.parquet"
     if sources is not None:
         sources[f_pts.name] = file_sha256(f_pts)
     d = pq.read_table(f_pts, columns=["x", "y", "band"]).to_pydict()
@@ -915,7 +910,7 @@ def _street_aggregate(
     ns_night = np.zeros(n_cells, dtype=np.uint8)
     read_both = True
     for name, out in (("w10_noise_stage_day.npy", ns_day), ("w10_noise_stage_night.npy", ns_night)):
-        f = src.path(name)
+        f = root / name
         if not f.exists():
             read_both = False
             continue

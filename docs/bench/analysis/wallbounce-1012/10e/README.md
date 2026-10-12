@@ -336,6 +336,8 @@ final・呼数・行動の件数・起床の内訳・顕著行為・出動・気
 
 ### E6-1 「版上げの最後に消す」切替口の一覧(消していない=親が決める)
 
+〔改訂(第330・RET)〕この表の切替口(旧 pickle の口は E2 で消した)と K15 の 2 列は、第330 の RET で全部消した(§RET-1・§締め-2)。
+
 | 切替口 | 何を再現するか | 消すときに書き直す試験 |
 |---|---|---|
 | `--hash-scheme full`(`Checkpoint.legacy_combined`・`core.soa.retired_columns_in_hash`・`Registry.retire`・`agents/state.py` の 3 行) | 10e より前の final | `AgentState.state_hash` を差し替えて腕の欄を除く 9 か所 / 段ごとの旧値(`test_presence_executor` の段 2c・3 段目・5 段目・`*_pre10e`・`test_relations_tenure` の full の行・`test_classical_social` の `_PRE10E`・`test_near_tiebreak`・`test_10a_review_fixes` の +2)/ `PRE10E_SYN`・`test_e1_retired_columns_…`。`test_ledger_wiring` の 2 本は `legacy_combined` の欄を使う |
@@ -894,3 +896,118 @@ side の全体は `sides/base.json`・`sides/b3.json`・`sides/b4.json`・`sides
 3. **増えた 6 行の 3 分類**は実装役の案(未リサーチ)。`W10#11`(交通の過程との食い違い)を ii、`W13#8`(窓の最初の日の 0 時台)を iii にした。
 4. **W7 の PH の読みの粒度**: `holiday_content` の JSON が壊れていればその店の PH は無し(週表の壊れと同じ扱い=黙って飛ばす)。止める形にするかは親が決める。
 5. **呼数が 19/19 で 6〜17% 減る**(既定 v3 −7.0%・v1 −14.5%)。日付の違いだけで動いたことは既知の答えで確かめたが、どの要素が効いたかは分けていない。
+
+# 第330 RET 切替口と K15 の削除(版上げ 1 回目の後・◎ 動く量なし)
+
+> 実行役(Opus 5.5)の記録。親の検収の前・commit していない(snap_ACT の上に重ねる)。発注: 第330 発注 H の RET。ユーザーの答え 1-5(旧資産の切替口は版上げ 1 回目の後に消す)・実装の計画 §2 第 0 期の注(切替口と K15 の削除の 1 commit)。
+
+## RET-1 消したもの
+
+| 切替口・列 | 消した中身 | 残したもの(記録だけ) |
+|---|---|---|
+| `--hash-scheme full` | `run_day(hash_scheme=…)`・CLI・`Checkpoint.hash_scheme`・`Checkpoint.legacy_combined`・`state_hashes.HASH_SCHEMES`・`check_hash_scheme`・`core.soa.retired_columns_in_hash`・`Registry.retire`(と `state_hash` の中の並べ直し)・`agents/state.py` の `retire` の 3 行・再開の指紋の除外の 1 行 | manifest の `hash_scheme`=`behavior`(`state_hashes.FINAL_DEFINITION`・final の定義の記録) |
+| `--rng-scheme stateful` | `run_day(rng_scheme=…)`・CLI・`core.rng.RNG_SCHEMES`・`DEFAULT_RNG_SCHEME`・`check_rng_scheme`・`k19_counters` の方式の引数(旧の並び)・顕著行為と出動の日の頭の Generator(作る・日の頭で引き直す `relay_day`)・母集団・体の定数・配送・工事・p_notice・世帯の財布の `rng_scheme` の引数・`rng_audit` の扱い `stateful`(`K19_ALLOW` の 8 用途名・`STATEFUL_ONLY`・`check_overlaps(rng_scheme=…)`)・静的の一覧の 4 か所(Generator の作成と `relay_day`)・動きの側の乱数の表の 2 本 | manifest とテープの脇の meta の `rng_scheme`=`counter`(`core.rng.RNG_SCHEME`)・`rng_layout`。**`runner.salient.rng`・`runner.dispatch.rng` の属性は常に `None` で残した**(§RET-4 の 1) |
+| `--calendar-weekday day_index` | `run_day(calendar_weekday=…)`・CLI・`SimCalendar.weekday_mode`(day_index の曜日・祝日を見ない・鍵 = day_index + 日・開始日の違反は警告だけ)・`WEEKDAY_MODES`・`DEFAULT_WEEKDAY_MODE`・`check_weekday_mode`・`SimCalendar.legacy`(→ `SimCalendar.default(day_index)`=2026-07-13 + day_index 日・祝日の表なし・real) | manifest とテープの meta の `calendar_weekday`=`real`(`calendar.WEEKDAY_MODE`) |
+| `--weather-scheme legacy` | `run_day(weather_scheme=…)`・CLI・`WEATHER_SCHEMES`・`DEFAULT_WEATHER_SCHEME`・`check_weather_scheme`・環境の過程の legacy の実日の選び方(`select_day`・`prefer_shadow_days`・影のある日に絞る・日の出と日の入りを再生日の行から)・`run_day` の「世界の日付=再生日」の置き換え・`DEFAULT_START_DATETIME` の開始日 | manifest とテープの meta の `weather_scheme`=`calendar`(`calendar.WEATHER_SCHEME`) |
+| `--world-assets-pre10e`(B1 の口ごと) | `run_day(world_assets_pre10e=…)`・CLI・`AssetSource`・`asset_source`・`PRE10E_FAMILIES`・`PRE10E_DEFAULT_DIR`・`load_assets`/`load_process_assets`/`PerceptionAssets.load`/`World.load` の `pre10e`・騒音の 2 つの読み手の食い違いの検査・manifest の欄と設定の節の行・再開の指紋の道筋の 1 行 | B0 の資産の指紋(`frozen_sources`)はそのまま。退避先 `data/world/v2_pre_10e_2026-10-12/` はそのまま(読むだけ・消していない) |
+| `CALENDAR_UNIFIED` | 定数(True の側だけ残した=上の 2 つの名前) | — |
+| K15 の 2 列 | `agents.fail_streak`(u1・resolve の 6 か所の書き込み)・`agents.plan_activity`(i1・計画実行層の `set_plan_state(activity=…)` と日の頭・境界の 3 か所の書き込み・`_plan_activity_at`)・状態台帳の 2 行(187 行・版 `state-ledger/10e` → **`state-ledger/10e-ret`**) | イベント列の `ev_act`(状態台帳の行の一部)は変えない |
+| テープ | 再生の既定を meta から決める `resolve_rng_scheme`・`resolve_calendar_schemes`・`RngSchemeWarning`・`CalendarSchemeWarning`・旧テープを `stateful`/`day_index`/`legacy` とみなす口 | **`check_replay_tape`**: meta が `rng_scheme=counter`・`rng_layout=10e`・`calendar_weekday=real`・`weather_scheme=calendar` でないテープは止める(警告でなく例外・文言に違う欄)。`response_delay` の「値が無ければ 2」は残した |
+
+**手元の 53 本の実テープ**(`data/` の下の `calls.parquet`・`realworld_live` を除く): どれも `run_meta.json` が無い(10a より前の録画)=**全部止まる**(`check_replay_tape` で 0/53 が通る)。ACT の commit では `stateful`・`day_index`・`legacy` とみなして警告つきで回った(§ACT-4)。再生が要るときは ACT の commit(か 10e より前の commit)で回す。
+
+## RET-2 動いてはいけない量(19 構成・ACT と比べた)
+
+[ret_vs_act.json](ret_vs_act.json)(前=[sides/act.json](sides/act.json)・後=[sides/ret.json](sides/ret.json)・どちらも ACT の資産の写しの木): **19/19 で final・呼数・行動の件数・blocks・テープの列と中身・顕著行為と出動・気づいた延べ・食事・behavior-hash・暦の欄・`frozen_sources` が同じ**。動いたのは `full_last`(最後の checkpoint の full-hash)と `end_of_day` の `full_hash` だけ=**K15 の 2 列が SoA の full から抜けた分**(`end_of_day` の behavior-hash と外の状態の直列化のバイト数 `full_external_bytes` は 19/19 同じ=外の状態は動いていない)。試験の直しの後の最後のコードでもう一度回し、計時の欄のほか全欄が 1 回目と同じだった(`sides/ret.json` は 2 回目)。
+
+## RET-3 試験
+
+- **消した旧値の再現の試験**(ACT の commit で `GE.PRE10E_RUN_KW`=退避先の資産+`day_index`+`legacy` と `hash_scheme="full"`・`rng_scheme="stateful"` を渡して**通った**=§ACT-8 の全体テストに入っている): `test_presence_executor.py::test_hash_scheme_full_reproduces_the_pre_10e_checkpoints` と `W17_GOLDEN` の `*_stateful`・`*_pre10e` の行/`test_classical_social.py` の `CLASSICAL_1500_GOLDEN_ACQ_PRE10E`/`test_relations_tenure.py` の `("v1","full")`・`("v2","full")`/`test_state_checks_10f.py` の stateful の既知の答え(w16 185・body 1・final `4985ff2f`)/`test_state_ledger_10b.py` の `PRE10E_SYN`(5 構成)と `test_e1_retired_columns_reproduce_the_old_registry_hash`/`test_activation_10e.py` の旧テープの再生(day_index・legacy)/`test_rng_scheme_10c.py` の stateful のテープの再生・stateful と counter の比べ/`test_weather_calendar_10e.py` の legacy と比べる 2 件/`test_calendar*.py` の day_index の暦の 3 件/`test_assets_10e_b0_b1.py` の B1 の 4 件/`processes/test_environment.py` の `select_day` の 3 件/`test_calendar_sites.py` の `select_day` の鍵の 1 件。どれも「切替口が無い」ことを見る試験か、今の規則の試験に置き換えた。
+- **今の値に張り替えた**(生きている切替口=`l4_scale`・`hunger_model`・`leave_effect`・`poi_target`・`near_tiebreak`/`near_order`・`rel_tenure_hash` の値。前は 10e より前の定義・乱数・資産・暦の値):
+
+| 試験 | 定数 | 前(10e より前の値) | 後(RET の今の値=final は behavior-hash) |
+|---|---|---|---|
+| `test_presence_executor.py` | `null_arm_final_l4x1`/呼数 | `ed1863e089c8480e` / 41,141 | **`f02d7fd4fbb4dc4f` / 40,979** |
+| 同 | `v3_default_final_l4x1` | `6845e3acb8906210` / 36,502 | **`a18594506e4a0ea5` / 36,172** |
+| 同 | `null_arm_final_hunger_v1` | `e0083baff1ff50b7` / 97,028 | **`f655d1eb601d7bb4` / 94,435** |
+| 同 | `v3_default_final_hunger_v1` | `a1036ab5b06e461c` / 68,781 | **`1767737a4183a436` / 64,977** |
+| 同 | `null_arm_final_leave_off` | `18f8807264d04018` / 100,509 | **`a33c00469ca28832` / 98,017** |
+| 同 | `v3_default_final_leave_off` | `c9ab05383accca2e` / 69,603 | **`1761eef0e3c48dd5` / 65,634** |
+| `test_intent_chooser.py`(Q13) | v3 / 帰無腕 | `02bd03126d5f41cb` / 36,460・`b4ad8140fe4176db` / 41,072 | **`9bc6929fbb0da5e8` / 36,275・`ce33abec7629c811` / 40,963** |
+| `test_near_tiebreak.py` | `hash`・`hash_order_id`・`classical_tie_id` | `91732f34…` / 26,869・`e0a6f3f9…` / 26,845・`803f0441…` / 26,753 | **`87492778…` / 25,890・`b7697fca…` / 25,828・`49c3fae0…` / 25,877** |
+| `test_relations_tenure.py` | `("v1","behavior")`(前 `("v1","full")`) | `e4f84d1d176e6ec0` / 72,940 | **`380e8651a96b1829` / 69,406** |
+| `test_10a_review_fixes.py` | `HEAD_PLUS2_FINAL` | `79821d778ea4addf` | **`3dc9605f573de1be`**(2 回回して同じ) |
+| `test_state_ledger_10b.py` | 台帳の行数・版 | 189 行(agents 76・SoA 93)・`state-ledger/10e` | **187 行(agents 74・SoA 91)・`state-ledger/10e-ret`** |
+| `test_state_checks_10f.py` | `SAFE_SITES`・`UNDETERMINED_SITES` の数 | 16・16 | **14・12** |
+
+  値は写しの木(RET のコード+ACT の資産)で 1 本ずつ回した(`ret_goldens.py` の記録は §RET-5)。
+- **比べ方を変えた**(`AgentState.state_hash` を差し替えて腕の欄を除き「腕を足しても挙動は同じ」を見る試験=§E6-1 の 9 か所): 前は `hash_scheme="full"` で final を旧い組み立てにしていた。切替口を消したので、試験の側の **`tests/golden_env.py::soa_combined`**(checkpoint の `agents_hash`・`world_hash`・母集団・予定表・活動から 10e より前の式で組む)で比べる形にした(`test_familiarity`・`test_memory_recall`・`test_memory_record`・`test_relations`・`test_store_memory`・`test_wom` ×2・`test_ledger_wiring` ×2・`test_tape_deferred`・`test_two_layer_activity`)。
+- **day_index の鍵の試験**(`test_rng_scheme_10c.py::test_run_day_passes_day_key0_to_the_counter_key`・`test_salt_seed_split_10f.py::test_road_works_day_key_with_nonzero_day_index`): real の暦の鍵(日番号=0)で見る形にした(`day_index=14`=2026-07-27・月曜)。
+- **K15**: `fail_streak` を読んでいた 5 か所の確かめ(`test_resolve` ×2・`test_two_phase`・`test_conversation_invite`・`test_presence_exit_walk`)を消した(列が無い)。AST の試験の「読み手 0 の no の列」の例は `fail_streak` → `rel_last` に替えた。
+- 残した記録用の道具(`docs/bench/analysis/wallbounce-1003/10c/*.py`・`10d/resume_check_10d.py`・`10b/hash_order_check.py`・`c10-relations…/rel8b_measure.py`・10e の `population_swap_check.py`・`tools/c7/attr_arms.py` の `population_for(rng_scheme=…)`)は消した切替口の名前を引数に持つ。過去の記録を作った道具なので直していない(今のコードで回すと止まる=**親に確かめてほしい点**)。
+
+## RET-4 全体テスト
+
+- **写しの木(RET のコード+ACT の資産)・1 プロセスで全部**(`python -m pytest -q -p no:cacheprovider -o addopts="" -rfEs`・壁時計 3,690 秒): **3,841 件を集めて 3,837 passed・1 failed・2 skipped・1 xfailed**。落ちた 1 件は `vocab/test_registry_from_tape.py::test_ab7_seed1_open_matches_the_parent_report`(既知=テープの道筋・§E6-5)。skip は `test_state_format_10f.py` の「commit 129da80 が無い」(写しの木に git が無い)ほか 1。
+- その前に 6 組で回した回(1,115 秒)では、試験の直しの漏れ 4 件(`test_weather_calendar_10e.py` の既知の答えの開始日=火曜で開始日の検査に止められた・`test_resume_10d.py` の `k19_counters` の旧い引数・`test_env_and_sections_10f.py` の設定の節の sha と台帳の版)と、`test_version_bump_10e.py` の書き換えで飾り(parametrize)が二重になった集めの error 1 件(その組の 34 ファイルが回らなかった)が出た。直して上の 1 プロセスの全体で確かめた。
+- 件数は ACT(§ACT-8 の 3,847 件+後から足した manifest の expedient の 1 件=3,848)から 7 件減った(消した旧値の再現の試験・B1 の 4 件・`select_day` の 3 件などと、置き換えた「切替口が無い」の試験の差し引き)。
+
+## RET-5 スナップショットと値の出どころ
+
+- `snap_RET`(HEAD `a5eec83` からの累積=ACT を含む)。
+- 張り替えた値は [ret_goldens.py](ret_goldens.py)(写しの木で `cli.run` を 1 本ずつ・5 本同時)の出力=[ret_goldens.json](ret_goldens.json)。`HEAD_PLUS2_FINAL` は同じ木で偽 vLLM 3 台の +2 の経路を 2 回回して同じ値。
+
+# 第330 締め(版上げ 1 回目)
+
+## 締め-1 段ごとの動いた量(19 構成・5,000 体・seed 1・1 日・既定の引数)
+
+| 段 | 何が | v3 既定 final / 呼数 | 帰無腕 final / 呼数 | 呼数の合計 | 記録 |
+|---|---|---|---|---|---|
+| HEAD(10e の前) | — | `993276d5e5bb5cbe` / 69,978 | `72cb9cd52982da74` / 100,439 | 1,259,151 | `sides/head.json` |
+| E1 | final を behavior-hash に・死蔵の 5 列 | `3264c9fc190b3eb9` / 69,978 | `db765499cec1fef5` / 100,439 | 1,259,151 | §E1 |
+| E2 | 会話の掃除(O39) | `4985ff2fb3c771c4` / 69,978 | `065a36d238aae477` / 100,439 | 1,259,151 | §E2 |
+| E4 | 乱数 counter・K19(住人が入れ替わる) | `4fbf61616af1e3d2` / 70,421 | `6c81c5ad8a99437a` / 101,969 | 1,264,661 | §E4 |
+| E5 | テープ版 4 | 同上 | 同上 | 1,264,661 | §E5 |
+| B0・B1・E3・B6eng | 指紋・旧資産の口・暦と天気の切替口(既定不変) | 同上 | 同上 | 1,264,661 | §第330 |
+| B3 | W12 の丸め | `e1bf096f58bce57f` / 70,500 | `91439d0c2276cbf1` / 101,278 | 1,265,034 | §B3 |
+| B4 | W10 ON+Q7 | `54ba78d0bdf643b4` / 70,501 | `3fc1395865db177e` / 101,773 | 1,267,129 | §B4 |
+| B5 | W13 の年間化(final だけ) | `0483d1165e245bed` / 70,501 | `aaaa89d936f1674e` / 101,773 | 1,267,129 | §B5 |
+| B6build | W7 の PH の列(不変) | 同上 | 同上 | 1,267,129 | §B6 |
+| **ACT** | 暦の一本化・開始日 07-13・影 6 日 | **`5f7ae9ff24005314` / 65,597** | **`354f49ca9a61b986` / 97,234** | **1,129,811** | §ACT |
+| **RET** | 切替口と K15 の削除(full-hash だけ動く) | 同上 | 同上 | 1,129,811 | §RET |
+
+## 締め-2 消した切替口(§E6-1 の表の行き先)
+
+`--hash-scheme full`・`--rng-scheme stateful`・`--calendar-weekday day_index`(と `day_index` の暦)・`--weather-scheme legacy`(と legacy の実日の選び方)・`--world-assets-pre10e`(B1 の口ごと)・`CALENDAR_UNIFIED`・K15 の 2 列。旧 pickle の口は E2 で消した。残る 10e の切替口は `--weather-perturb`(アンサンブル・既定 off)だけ。
+
+## 締め-3 予算表(5,000 体)
+
+| 項目 | 10e の前 | 版上げ 1 回目の後 | 宣言・門 |
+|---|---|---|---|
+| agents の SoA(既定・実測) | 137 B/体(E1 で −5) | **131 B/体**(K15 で −1) | M1 ≤30 KB/体 |
+| agents の SoA(計画実行層つき) | — | **132 B/体**(K15 で −2) | 同上 |
+| agents の SoA(全腕) | — | **5,366 B/体**(K15 で −2) | 同上 |
+| 知覚 SoA | 18 B/体 | 2 B/体(E1) | 自主の上限 24 B/体 |
+| 状態のファイル・テープ・checkpoint の時間 | §E6-3 | 変えていない(K15 の 2 列の分だけ状態のファイルが小さくなる・測り直していない) | §E6-3 |
+| W9 の影 | 1 日 12,842,624 B(07-28 だけ) | **6 日 77,055,744 B**(容量のゲート 10 MB/日は FAIL のまま) | D-W10 |
+
+(SoA の値は `AgentState(1000)` の配列の合計 ÷ 体数=写しの木で測った。10e の前の 137 は E1 の記録の 132+5 から逆算=**推測**)
+
+## 締め-4 つなぎの台帳に載せるもの(親へ・本書は書かない)
+
+1. **W18 の X**(構築側 §B6 の発注 (4)・凍結カタログの改訂は 10e の外)。
+2. **W12 の土休 > 平日**(等間隔の推定のダイヤで 1 日の本数が土休 > 平日=5 線とも・§B3 の表。実データの時刻表で直す=答え §2)。
+3. **W11 の神泉の出口**(井の頭線の到着の元=答え §2-3 の表)。
+4. **影の近い日**(暦の日付の影が無いときは近い日・同じ近さなら前の日=expedient・`WEATHER_EXPEDIENTS`・manifest の `weather.expedients`)。
+5. **層を広げる順**(隣の季節 → 全季節 → 平日/土休を問わず=expedient・同上)。
+6. (実行役から足す)W9 の影を作る日は `SHADOW_DATES` の 6 日だけ=7 月 18 日以降・別の開始日・2 日を超えるランは近い日の影(警告)。
+
+## 締め-5 親に確かめてほしい点
+
+1. **O46・O47 の `rng` の道筋を残した**: stateful を消すと `runner.salient.rng`・`runner.dispatch.rng` は常に `None` になるが、状態台帳の外の状態の行(behavior)に道筋として載っており、behavior-hash は「無い」の印を道筋の名前つきで混ぜる。道筋を消すと 19/19 で final が動く(発注の「RET は動く量なし」に反する)ので、属性(常に `None`)と台帳の道筋を残し、行の注に理由を書いた。消すなら final が動く変更として別に回す。
+2. **状態台帳の版を `state-ledger/10e-ret` に上げた**(「列や行の判定を変えたら上げる」の規則)。ACT までの状態のファイルからは再開できない(列が違う)。
+3. **手元の 53 本の実テープは今の版で再生できない**(§RET-1)。止める文言に違う欄が出る。
+4. **ACT の資産の取り込み**: 本体の `data/world/v2` へ `v2_10e_steps/ACT/` の 13 ファイルを写すまで、作業木と本体の全体テストは ACT の golden で落ちる(§ACT-9 の 1)。
+5. **旧い記録の道具**(§RET-3 の最後)は消した切替口の引数を持ったまま。直すか、凍結の印を付けるかは親が決める。
+6. **`SimCalendar.default`**(暦を渡されない過程の暦)は 2026-07-13 + day_index 日で、日の鍵は日番号 0。前の `legacy` は鍵 = day_index。単体の試験で `day_index` を渡して過程を作ると、乱数の鍵が前と違う(実ランは暦を渡すので関係しない)。
+7. **全体テストの回し方**: 本体の `data/world/v2` を書き換えない約束のため、ACT と RET の全体テストと byte-check は「作業木のコードの写し+ACT の資産の写し」の木で回した(作業木の `data` のつなぎを付け替える操作は権限で止められた)。

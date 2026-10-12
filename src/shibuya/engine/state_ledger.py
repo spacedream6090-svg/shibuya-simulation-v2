@@ -12,6 +12,7 @@
   知覚の ``last_b2_hash``・``last_b4_hash``=A4)を SoA から消したので **93 行**(agents 76・cells 5・pois 9・知覚 3)。
   死蔵の行は知覚の ``invocation_distance``(単体ベンチの逃げ道・既定では確保しない)の 1 行だけが残る。
   〔10e(E1・検収 R1)〕外の状態に O96(O44 から ``run_day.replay_inbox`` を分けた行・軸 1 no)を足して **96 行**・全体 189 行。
+  〔第330・RET〕K15 の 2 列(agents の ``fail_streak``・``plan_activity``)を消して SoA **91 行**(agents 74)・全体 **187 行**。
 - **SoA の外の状態 94 行**(O1〜O65=材料・O66〜O89=10b-2 で持ち主のクラスの属性を棚卸しして足した行・
   O90〜O94=10d の再開の試験と検収で見つけた保存し忘れを元の行から移した行):
   ``place`` は ``external``。``items`` はその行が指す属性の道筋
@@ -35,8 +36,8 @@ full-hash に入れるのは軸 2 が ``required``・``derivable``・``unknown``
 
 親の宣言(expedient・アジェンダ §3 の下の段落と指示): 知覚 SoA の ``heading``・``task_flag`` は事象の直前に
 貼り直す派生の値なので ``no``。``OutOfAreaMeals.d_armed`` は ``required``(日をまたぐ印として持ち越す)。
-金・物・ActualLog のリング 3 行は ``discardable``(K16 の既定案)。``fail_streak``・``plan_activity`` は
-``no`` かつ復元 ``unknown``(K15)。
+金・物・ActualLog のリング 3 行は ``discardable``(K16 の既定案)。〔第330・RET〕K15 の ``fail_streak``・``plan_activity``
+(``no`` かつ復元 ``unknown``・書くだけで誰も読まない)は列ごと消した(台帳の 2 行も消した)。
 
 10b-2(親の答え): 外の状態の持ち主のクラス(``OWNER_CLASSES``)の属性は、どれかの行の ``items`` か、明示の除外の
 一覧 ``EXCLUDED``((ii) キャッシュ・導出 / (iii) 定数・設定 / (iv) 参照・理由つき)のどちらかに必ず載る
@@ -51,7 +52,8 @@ from typing import Final, Iterable
 
 #: 表の版(列や行の判定を変えたら上げる。manifest の ``state_hashes.ledger_version`` に出る)。
 #: 10e(E1): 死蔵の 5 列(Q9 の 3 列+A4 の 2 列)を消して 193 → 188 行・O44 から replay_inbox を O96 に分けて 189 行。
-LEDGER_VERSION: Final[str] = "state-ledger/10e"
+#: 〔第330・RET〕K15 の 2 列(``fail_streak``・``plan_activity``)を消して 187 行=版を上げた(前 ``state-ledger/10e``)。
+LEDGER_VERSION: Final[str] = "state-ledger/10e-ret"
 
 BEHAVIOR: Final[str] = "behavior"
 NO: Final[str] = "no"
@@ -205,9 +207,7 @@ _SOA: tuple[LedgerRow, ...] = (
     _s("agents", "last_action", "i1", "1", "既定", B, R_, "agents/state.py:708・intent.py:394"),
     _s("agents", "last_result", "i1", "1", "既定", B, R_, "agents/state.py:711・activity.py:297"),
     _s("agents", "last_result_tick", "i4", "4", "既定", B, R_, "agents/state.py:713・activity.py:296・renderer.py:2504"),
-    _s("agents", "fail_streak", "u1", "1", "既定", N_, U_,
-       "agents/state.py:715・resolve.py:1074,1465,1526,1538,3054,3099(自分に 1 を足すか 0 に戻すだけ・読み 0)",
-       note="10-06 K15 で削除と決定。`--hash-scheme full` を消す commit で消す(動く量なし)。それまでは behavior-hash から外し full-hash には入れる=安全側"),
+
     _s("agents", "edge_id", "i4", "4", "腕 edge", B, R_, "agents/state.py:519・resolve.py:1432"),
     _s("agents", "edge_s", "f4", "4", "腕 edge", B, R_, "agents/state.py:522・resolve.py:1432"),
     _s("agents", "focus_target", "i4", "4", "腕 attention", B, R_, "agents/state.py:527・resolve.py:1622・renderer.py:1130"),
@@ -218,8 +218,7 @@ _SOA: tuple[LedgerRow, ...] = (
     _s("agents", "since_meal_kcal", "f4", "4", "腕 energy", B, R_, "agents/state.py:562・resolve.py:1156"),
     _s("agents", "energy_balance", "f4", "4", "腕 energy", D_, R_, "agents/state.py:564・energy.py:903(日次センサスと要約だけ)",
        allow=_ALLOW_ENERGY_BALANCE, note="センサスの項(日をまたいで足していく値)"),
-    _s("agents", "plan_activity", "i1", "1", "腕 plan", N_, U_, "agents/state.py:620・AST: 読み 0",
-       note="10-06 K15 で削除と決定。`--hash-scheme full` を消す commit で消す(動く量なし)。それまでは behavior-hash から外し full-hash には入れる=安全側"),
+
     _s("agents", "plan_flags", "i1", "1", "腕 plan", B, R_, "agents/state.py:623・presence.py:1560"),
     _s("agents", "activity_until", "i4", "4", "腕 activity", B, R_, "agents/state.py:628・activity.py:350"),
     _s("agents", "activity_kind", "i1", "1", "腕 activity", B, R_, "agents/state.py:631・resolve.py:1133・renderer.py:1572"),
@@ -436,10 +435,12 @@ _EXT: tuple[LedgerRow, ...] = (
        note="None だと日の頭に全セル起床"),
     _o(46, "SalientProcess rng・event_seen_tick・budget", "salient.py:153-176", "Generator・i4 体数", B, R_,
        ("runner.salient.rng", "runner.salient.event_seen_tick", "runner.salient.budget"),
-       note="10c: rng は --rng-scheme stateful(既定)だけ Generator。counter では None(保存するものが無い)"),
+       note="10c: rng は counter では None(保存するものが無い)。〔第330・RET〕stateful を消したので常に None。道筋は behavior-hash の"
+            "定義の一部(「無い」の印)なので行と道筋は残す(消すと final が動く)"),
     _o(47, "PublicServiceDispatchProcess rng・pending", "civic.py:116-117", "Generator・list", B, R_,
        ("runner.dispatch.rng", "runner.dispatch.pending"),
-       note="10c: rng は --rng-scheme stateful(既定)だけ Generator。counter では None(保存するものが無い)"),
+       note="10c: rng は counter では None(保存するものが無い)。〔第330・RET〕stateful を消したので常に None。道筋は behavior-hash の"
+            "定義の一部(「無い」の印)なので行と道筋は残す(消すと final が動く)"),
     _o(48, "HotelProcess rooms_occupied・bed_cell", "civic.py:271,278", "配列", B, R_,
        ("runner.hotel.rooms_occupied", "runner.hotel.bed_cell")),
     _o(49, "LargeEventProcess _inside", "civic.py:449", "配列", B, R_, ("runner.large_event._inside",)),
@@ -871,18 +872,18 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("runner", REF, _REFR + "(過程の辞書 _procs を含む)", "registry", "world", "agents", "assets", "clock",
        "calendar", "ledger", "presence", "_procs"),
     _x("runner", CONST, _CFG + "・世界側台帳の検査の結果", "master_seed", "day_index", "tick_seconds", "plan_executor",
-       "constitution_report", "constitution_ok", "registry_hash", "enabled", "rng_scheme"),
+       "constitution_report", "constitution_ok", "registry_hash", "enabled"),
     _x("runner.salient", REF, _REFR + "(知覚 SoA は台帳の perception の 5 行で数える)", "world", "agents", "dispatch",
        "press", "environment", "pstate"),
     _x("runner.salient", CONST, _CFG + "・クラスの定数", "tick_seconds", "master_seed", "day_index", "ablation",
-       "d50_scale", "params", "d50_by_kind", "rate", "process_ids", "ablation_id", "rng_scheme"),
+       "d50_scale", "params", "d50_by_kind", "rate", "process_ids", "ablation_id"),
     _x("runner.salient", CACHE, "step の頭で空に戻すその tick の事象・行・気づいた体と、セルの索引",
        "events", "cell_lines", "noticed_agents", "_neighbours", "_cell_index_tick", "_order", "_start"),
     _x("runner.dispatch", REF, _REFR, "world", "log"),
     _x("runner.dispatch", CONST, _FIELD + "・" + _CFG, "tick_seconds", "process_ids", "ablation_id", "master_seed",
-       "day_index", "rng_scheme"),
+       "day_index"),
     _x("runner.dispatch", CACHE, "10c の counter の k の数え(同じ T の中だけ。T が変わると空に戻す=tick の境目で再開すれば"
-       "空から数え直して同じ値。stateful では使わない)", "_k_tick", "_k_next"),
+       "空から数え直して同じ値)", "_k_tick", "_k_next"),
     _x("runner.hotel", REF, _REFR, "world", "agents", "log"),
     _x("runner.hotel", CONST, _FIELD + "・" + _CFG, "tick_seconds", "process_ids", "ablation_id"),
     _x("runner.hotel", CACHE, _TAB, "hotel_poi", "hotel_cell", "rooms_total", "hotel_of_cell", "external_home"),
@@ -914,7 +915,7 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "staff_of_poi"),
     _x("runner.delivery_inbound", REF, _REFR, "world", "ledger", "shelf", "log"),
     _x("runner.delivery_inbound", CONST, _FIELD + "・" + _CFG, "tick_seconds", "master_seed", "process_ids",
-       "ablation_id", "plan_spec_id", "rng_scheme"),
+       "ablation_id", "plan_spec_id"),
     _x("runner.delivery_inbound", CACHE, _DAY, "day_index"),
     _x("runner.delivery_inbound", CACHE, _TAB, "plan_minute"),
     _x("runner.waste", REF, _REFR, "world", "agents", "ledger", "log"),
@@ -931,7 +932,7 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("runner.bus_taxi", CACHE, _TAB, "stop_cell", "phase", "n_departures_planned"),
     _x("runner.road_works", REF, _REFR, "world", "assets", "log"),
     _x("runner.road_works", CONST, _FIELD + "・" + _CFG, "tick_seconds", "process_ids", "ablation_id",
-       "plan_spec_id", "master_seed", "n_works", "rng_scheme"),
+       "plan_spec_id", "master_seed", "n_works"),
     _x("runner.road_works", CACHE, _TAB, "planned_edges", "edge_cell"),
     _x("runner.traffic", REF, _REFR, "world", "assets"),
     _x("runner.traffic", CONST, _FIELD + "・" + _CFG, "tick_seconds", "through_ratio", "process_ids", "ablation_id"),
@@ -945,7 +946,7 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("runner.opening", CACHE, "SoA の kind から作る担当従業者の表(導出・10d: 再開では rebuild_derived で作り直す)",
        "staff_of_poi"),
     _x("runner.environment", REF, _REFR, "calendar", "world", "agents", "assets"),
-    _x("runner.environment", CONST, _FIELD + "・" + _CFG, "prefer_shadow_days", "master_seed", "day_index",
+    _x("runner.environment", CONST, _FIELD + "・" + _CFG, "master_seed", "day_index",
        "tick_seconds", "process_ids"),
     _x("runner.environment", CACHE, "日の出・日の入り・セルの点・日陰の面(資産と日付から作る)と日陰のキャッシュの印",
        "_planes", "_sunrise", "_sunset", "_cell_point", "_shade_cache_frame"),
