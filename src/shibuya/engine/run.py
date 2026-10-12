@@ -248,6 +248,7 @@ from shibuya.perception.templates import (
 from shibuya.world.assets import (
     AREA_SOURCES,
     DEFAULT_AREA_SOURCE,
+    asset_source,
     check_area_source,
     load_process_assets_or_synthetic,
     load_walkable_area_m2,
@@ -1051,6 +1052,8 @@ class RunResult:
     rng_scheme: str = DEFAULT_RNG_SCHEME
     #: 10e(E1): final の定義(``HASH_SCHEMES``・既定 ``behavior``)。manifest に載る。
     hash_scheme: str = DEFAULT_HASH_SCHEME
+    #: 10e(B1): 旧資産の切替口(``world.assets.AssetSource.manifest``)。使わないランは ``None``=manifest に欄を出さない。
+    world_assets_pre10e: dict[str, Any] | None = None
     # ---- 10b: 状態台帳の 2 つのハッシュ(final には混ぜない) ----
     #: 最後の checkpoint の full-hash の外の状態の行ごとの直列化のバイト数(台帳の鍵 → B)。
     full_hash_bytes: dict[str, int] = field(default_factory=dict)
@@ -1418,6 +1421,8 @@ class RunResult:
             "environment_seed": (self.seed if self.environment_seed is None else self.environment_seed),
             # ---- 10e(E1): final の定義(behavior=behavior-hash が既定・full=旧い組み立て)。列追加のみ ----
             "hash_scheme": str(self.hash_scheme),
+            # ---- 10e(B1): 旧資産の切替口(使ったランだけ欄を出す=既定の manifest は不変)。版上げ 1 回目の直後に消す ----
+            **({"world_assets_pre10e": dict(self.world_assets_pre10e)} if self.world_assets_pre10e else {}),
         }
 
     def l4_audit_fields(self) -> dict[str, Any]:
@@ -2043,6 +2048,7 @@ def run_day(
     resume_from: "str | Path | None" = None,
     run_id: str = "",
     checkpoint_detail: bool = False,
+    world_assets_pre10e: "str | Path | None" = None,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -2405,6 +2411,13 @@ def run_day(
         run_id: manifest のラン ID(空なら設定の指紋・始めの T・親のラン ID から作る)。
         checkpoint_detail: checkpoint ごとに列ごと・外の状態の行ごとの digest も控える(食い違いの場所を探す道具
             ``docs/bench/analysis/wallbounce-1003/10d/first_diff.py`` 用・既定 off=費用 0)。
+        world_assets_pre10e: **10e(B1)旧資産の切替口**(ユーザーの答え 1-5)。``None``(既定)=使わない。ディレクトリを
+            渡すと、W10(騒音の段 2 本と街路点)・W12(時刻表と方面ノード)・W13(天気 2 本)・W9(影)のうち、そこに
+            そろっている族を ``world_dir`` の代わりにそこから読む(``world.assets.asset_source``・退避先は
+            ``data/world/v2_pre_10e_2026-10-12``・段ごとの写し ``data/world/v2_10e_steps/<段>`` はその段の族だけ)。
+            騒音の地図の 2 つの読み手(``world`` の資産と知覚)は同じ口を通し、集約後の段が違えば止める。``world`` を
+            渡すときは同じ退避先で読んだ世界を渡す(``cli.run`` はそうする)。**版上げ 1 回目が済み、動いた量を記録したら
+            消す**。manifest の ``world_assets_pre10e`` に退避先と族を書く。
 
     Returns:
         ``RunResult``。
@@ -2420,6 +2433,14 @@ def run_day(
         _call_args["population_seed"] = pop_seed
     if not _same_seed(env_seed, seed):
         _call_args["environment_seed"] = env_seed
+    # 10e(B1): 旧資産の切替口は使ったときだけ指紋に載せる(既定のランの指紋=旧い状態のファイルの再開は今のまま)
+    if world_assets_pre10e is None or str(world_assets_pre10e) == "":
+        _call_args.pop("world_assets_pre10e", None)
+    _pre10e_src = (
+        asset_source(world_dir, world_assets_pre10e)
+        if (world_dir is not None and world_assets_pre10e is not None and str(world_assets_pre10e) != "")
+        else None
+    )
     t_start = time.perf_counter()
     budget_mode_enum = BudgetMode.parse(budget_mode)
     # ---- 10a(A1・A1-1・A1-2・A1-3・A9): 暦の口・通しの時刻 T・応答の遅れ(世界を触る前に検査) ----
@@ -2783,7 +2804,7 @@ def run_day(
         runner = WorldProcessRunner(
             world=world,
             agents=agents,
-            assets=load_process_assets_or_synthetic(world_dir, world.assets),
+            assets=load_process_assets_or_synthetic(world_dir, world.assets, pre10e=_pre10e_src),
             seed=seed,
             population_seed=pop_seed,  # 10f: 域外居住は母集団の側
             environment_seed=env_seed,  # 10f 第 2 段の直し(S1): 気象・大きな催し・道路工事は環境の側
@@ -2824,7 +2845,7 @@ def run_day(
             assets=(
                 runner.assets
                 if runner is not None
-                else load_process_assets_or_synthetic(world_dir, world.assets)
+                else load_process_assets_or_synthetic(world_dir, world.assets, pre10e=_pre10e_src)
             ),
             ticks=ticks,
             exit_mode=exit_mode,
@@ -2859,7 +2880,15 @@ def run_day(
     #: C9c-1: 実測面積の資産 SHA(``area_source="plateau"`` のときだけ入る)。
     walkable_sources: dict[str, str] = {}
     if renderer is None:
-        assets = PerceptionAssets.load_or_synthetic(world_dir, world)
+        assets = PerceptionAssets.load_or_synthetic(world_dir, world, pre10e=_pre10e_src)
+        # 10e(B1): 騒音の地図を読む 2 か所(世界の資産と知覚)が同じ地図を読んだか(片方だけ旧い地図=止める)
+        _wn = (getattr(world.assets, "asset_sources", {}) or {}).get("noise_stage_cells")
+        _pn = (getattr(assets, "asset_sources", {}) or {}).get("noise_stage_cells")
+        if _wn and _pn and _wn != _pn:
+            raise ValueError(
+                "騒音の地図を読んだ 2 か所(world の資産・知覚)の集約後の段が違う=片方だけが別の地図を読んだ"
+                "(--world-assets-pre10e は world を読むときにも渡す)"
+            )
         # ---- C9c-1: 歩行可能面積を実測に差し替える(**分母は 1 本**=二重定義を作らない) ----
         # ``PerceptionAssets`` は frozen なので ``dataclasses.replace`` で作り直す。差し替えは
         # レンダラを作る**前**なので、B4 の LOS 段・起床条件 (i)・Kladek 減速が同じ値を見る。
@@ -4683,6 +4712,7 @@ def run_day(
     result.sim_days = int(sim_days)
     result.rng_scheme = str(runner.rng_scheme) if runner is not None else str(rng_scheme)  # 10c
     result.hash_scheme = str(hash_scheme)  # 10e(E1)
+    result.world_assets_pre10e = _pre10e_src.manifest() if _pre10e_src is not None else None  # 10e(B1)
     # ablation 第1陣 ②③⑥ の腕(manifest の同定欄)。⑥ は**実際に描いた側**が正。
     result.p_notice_ablation = _pnotice_ablation_name(
         runner.salient.ablation if runner is not None else p_notice_ablation
@@ -5070,6 +5100,10 @@ def add_calendar_args(ap: "argparse.ArgumentParser") -> None:
                     help="再開する状態のファイル(10d・state-T<T>.npz)。設定は親と同じにする(違えば止める)")
     ap.add_argument("--state-out", type=str, default="",
                     help="状態の書き出し先のディレクトリ(10d)。各日の締めの後とランの最後に state-T<T>.npz を書く")
+    # 10e(B1): 旧資産の切替口(同じ綴りを engine.run と shibuya.cli で使う)。版上げ 1 回目の直後に消す
+    ap.add_argument("--world-assets-pre10e", type=str, default="",
+                    help=("旧資産の切替口(10e B1)。W10・W12・W13・W9 のうち、このディレクトリにそろっている族をそこから読む"
+                          "(退避先 data/world/v2_pre_10e_2026-10-12 など)。空=使わない(既定)。版上げ 1 回目の直後に消す"))
 
 
 def calendar_kwargs_from_args(args: Any) -> dict[str, Any]:
@@ -5095,6 +5129,9 @@ def calendar_kwargs_from_args(args: Any) -> dict[str, Any]:
         out["resume_from"] = str(args.resume_from)
     if getattr(args, "state_out", ""):
         out["state_out"] = str(args.state_out)
+    # 10e(B1): 旧資産の切替口(既定のときは欄を足さない)
+    if getattr(args, "world_assets_pre10e", ""):
+        out["world_assets_pre10e"] = str(args.world_assets_pre10e)
     return out
 
 
@@ -5187,7 +5224,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     _pop_seed = resolve_population_seed(args.seed, args.population_seed)  # 10f: 合成世界は母集団の側
-    world = World.load_or_synthetic(Path(args.world), n_cells=args.cells, seed=_pop_seed)
+    world = World.load_or_synthetic(Path(args.world), n_cells=args.cells, seed=_pop_seed,
+                                    pre10e=(getattr(args, "world_assets_pre10e", "") or None))  # 10e(B1)
     res = run_day(
         n_agents=args.agents,
         seed=args.seed,

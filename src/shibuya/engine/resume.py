@@ -92,7 +92,7 @@ def _canon(v: Any) -> Any:
 
 
 #: 指紋で「パスの文字列」ではなく中身で同定する引数(10d 検収 L3)。
-PATH_ARGS: Final[frozenset[str]] = frozenset({"world_dir", "holiday_csv"})
+PATH_ARGS: Final[frozenset[str]] = frozenset({"world_dir", "holiday_csv", "world_assets_pre10e"})  # 10e(B1)
 
 
 def path_identity(path: Any) -> str | None:

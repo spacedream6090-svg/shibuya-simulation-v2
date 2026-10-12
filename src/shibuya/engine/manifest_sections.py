@@ -63,6 +63,8 @@ PATHS: Final[dict[str, str]] = {
     "population_seed": _C,
     # ---- 10f 第 2 段の直し(S1): 環境の seed(気象・大きな催し・道路工事) ----
     "environment_seed": _C,
+    # ---- 10e(B1・第330): 旧資産の切替口(使ったランだけ出る欄・版上げ 1 回目の直後に消す) ----
+    "world_assets_pre10e": _C,
     # ---- 状態のハッシュ・再開・日ごとの締め(観測) ----
     "state_hashes": _O, "state_hashes.ledger_version": _C,
     "state_hashes_end_of_day": _O,

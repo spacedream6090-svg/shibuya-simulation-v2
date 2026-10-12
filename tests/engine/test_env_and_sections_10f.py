@@ -43,7 +43,8 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 10f 第 2 段: ``population_seed``(K21 (a)の母集団の seed・設定)を足した(前の値 170e1c30…)。
 #: 10f 第 2 段の直し(S1): ``environment_seed``(環境の seed・設定)を足した(前の値 3fe95edb…)。
 #: 10e(E1): ``hash_scheme``(final の定義・設定)を足した(前の値 457d8666…)。
-CONFIG_PATHS_SHA256 = "c2d09b29fd8183d9fd1b4834570ec9924b50f3dc3036f178af0d50eff399c458"
+#: 10e(B1・第330): ``world_assets_pre10e``(旧資産の切替口・使ったランだけ出る欄・設定)を足した(前の値 c2d09b29…)。
+CONFIG_PATHS_SHA256 = "6e81ca539712a338f4f23c83c0955ca198b05e9b899833c5c12fadc05879989e"
 world_assets = pytest.mark.skipif(not (WORLD / "w2_cells.parquet").exists(), reason="実世界資産 data/world/v2 が無い")
 
 

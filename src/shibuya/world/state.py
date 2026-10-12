@@ -185,17 +185,17 @@ class World:
         return cls(synthetic_assets(n_cells=n_cells, seed=seed))
 
     @classmethod
-    def load(cls, path) -> "World":
-        """``data/world/v2`` の資産から作る。"""
-        return cls(load_assets(path))
+    def load(cls, path, *, pre10e=None) -> "World":
+        """``data/world/v2`` の資産から作る(``pre10e``=10e B1 旧資産の切替口の退避先・既定は使わない)。"""
+        return cls(load_assets(path, pre10e=pre10e))
 
     @classmethod
-    def load_or_synthetic(cls, path, *, n_cells: int = 139, seed: int | str = 0) -> "World":
+    def load_or_synthetic(cls, path, *, n_cells: int = 139, seed: int | str = 0, pre10e=None) -> "World":
         """資産があれば読み、無ければ合成世界へ落ちる(CLI の既定動作)。"""
         from shibuya.world.assets import assets_available
 
         if assets_available(path):
-            return cls.load(path)
+            return cls.load(path, pre10e=pre10e)
         return cls.synthetic(n_cells=n_cells, seed=seed)
 
     # ---- 規模 ----

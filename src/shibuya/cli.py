@@ -453,7 +453,9 @@ def run(
     # 10f(K21 (a)): 合成世界・世帯の財布(W16 の抽出を含む)は母集団の seed から(省略=seed と同じ=今と同じ)
     pop_seed = resolve_population_seed(seed, population_seed)
     wd = Path(world_dir) if world_dir is not None else None
-    world = World.load_or_synthetic(wd, n_cells=n_cells, seed=pop_seed) if wd is not None else World.synthetic(
+    # 10e(B1): 旧資産の切替口は世界(騒音の地図)にも同じ退避先を渡す(run_day の知覚・世界過程と同じ口)
+    _pre10e = kwargs.get("world_assets_pre10e") or None
+    world = World.load_or_synthetic(wd, n_cells=n_cells, seed=pop_seed, pre10e=_pre10e) if wd is not None else World.synthetic(
         n_cells=n_cells, seed=pop_seed
     )
     run_world_dir = wd if (wd is not None and wd.exists()) else None

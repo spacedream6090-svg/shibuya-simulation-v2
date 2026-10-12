@@ -115,3 +115,103 @@ def test_b0_hashes_stay_out_of_the_final(monkeypatch):
     assert a.final_hash == b.final_hash
     assert [c.combined for c in a.checkpoints] == [c.combined for c in b.checkpoints]
     assert a.llm_calls == b.llm_calls
+
+
+# ================================================================ B1 旧資産の切替口
+def _copy_families(dst: Path, families=("W10", "W12", "W13", "W9")) -> Path:
+    """今の資産のうち、エンジンが読む族のファイルを ``dst`` に写す(退避先が空でも試験できる)。"""
+    dst.mkdir(parents=True, exist_ok=True)
+    for fam in families:
+        names = WA.PRE10E_FAMILIES[fam] or tuple(p.name for p in WORLD_DIR.glob(WA.SHADOW_GLOB))
+        for name in names:
+            shutil.copy2(WORLD_DIR / name, dst / name)
+    return dst
+
+
+def test_b1_asset_source_routes_by_family(tmp_path):
+    wd = tmp_path / "world"
+    wd.mkdir()
+    # 切替口を使わない=全部 world_dir
+    src = WA.asset_source(wd, None)
+    assert src.alt_dir is None and src.manifest() is None
+    assert src.path("w10_noise_stage_day.npy") == wd / "w10_noise_stage_day.npy"
+    # 無い退避先・空の退避先・族の一部だけ=止める
+    with pytest.raises(ValueError, match="無い"):
+        WA.asset_source(wd, tmp_path / "nope")
+    (tmp_path / "empty").mkdir()
+    with pytest.raises(ValueError, match="どれも無い"):
+        WA.asset_source(wd, tmp_path / "empty")
+    part = tmp_path / "part"
+    part.mkdir()
+    (part / "w10_noise_stage_day.npy").write_bytes(b"x")
+    with pytest.raises(ValueError, match="W10 が欠けている"):
+        WA.asset_source(wd, part)
+    # 段ごとの写し(W12 だけ)=W12 だけを退避先から読む
+    steps = tmp_path / "B3"
+    steps.mkdir()
+    for name in WA.PRE10E_FAMILIES["W12"]:
+        (steps / name).write_bytes(b"x")
+    src = WA.asset_source(wd, steps)
+    assert src.families == ("W12",)
+    assert src.path("w12_timetables.parquet") == steps / "w12_timetables.parquet"
+    assert src.path("w13_weather_days.parquet") == wd / "w13_weather_days.parquet"
+    assert src.path("w2_cells.parquet") == wd / "w2_cells.parquet"   # 族の外は常に world_dir
+    assert src.shadow_dir() == wd
+    assert src.manifest() == {"dir": steps.as_posix(), "families": ["W12"]}
+    (steps / "w9_shadow_2026-07-13.npy").write_bytes(b"x")
+    src = WA.asset_source(wd, steps)
+    assert src.families == ("W12", "W9") and src.shadow_dir() == steps
+    assert src.path("w9_shadow_2026-07-13.npy") == steps / "w9_shadow_2026-07-13.npy"
+
+
+@needs_world
+def test_b1_the_current_assets_read_from_the_alt_dir_give_the_same_run(tmp_path):
+    from shibuya import cli
+
+    alt = _copy_families(tmp_path / "pre10e")
+    a = cli.run(world_dir=str(WORLD_DIR), **SMALL)
+    b = cli.run(world_dir=str(WORLD_DIR), world_assets_pre10e=str(alt), **SMALL)
+    assert a.final_hash == b.final_hash
+    assert [c.combined for c in a.checkpoints] == [c.combined for c in b.checkpoints]
+    ma, mb = a.run_manifest_fields(), b.run_manifest_fields()
+    assert ma["frozen_sources"] == mb["frozen_sources"]   # 同じ中身=同じ指紋
+    assert "world_assets_pre10e" not in ma                 # 既定の manifest は欄が増えない
+    assert mb["world_assets_pre10e"] == {"dir": alt.as_posix(), "families": ["W10", "W12", "W13", "W9"]}
+    assert b.runner.assets.shadow_dir == str(alt)
+
+
+@needs_world
+def test_b1_both_noise_readers_switch_together_and_a_one_sided_read_stops(tmp_path):
+    from shibuya import cli
+    from shibuya.engine.run import run_day
+    from shibuya.world.state import World
+
+    alt = _copy_families(tmp_path / "pre10e", families=("W10",))
+    day = np.load(alt / "w10_noise_stage_day.npy")
+    np.save(alt / "w10_noise_stage_day.npy", np.full_like(day, 3))   # 昼の地図を全部「段 3」にした旧資産
+    base = cli.run(world_dir=str(WORLD_DIR), **SMALL)
+    res = cli.run(world_dir=str(WORLD_DIR), world_assets_pre10e=str(alt), **SMALL)
+    fs, fb = res.run_manifest_fields()["frozen_sources"], base.run_manifest_fields()["frozen_sources"]
+    sha = WA.file_sha256(alt / "w10_noise_stage_day.npy")
+    assert fs["world:w10_noise_stage_day.npy"] == fs["perception:w10_noise_stage_day.npy"] == sha
+    assert fs["world:noise_stage_cells"] == fs["perception:noise_stage_cells"] != fb["world:noise_stage_cells"]
+    wa = res.runner.world.assets
+    assert int(wa.noise_stage_day[wa.noise_stage_day > 0].min()) == 3   # 街路のあるセルは全部 段 3
+    assert fs["process:w13_weather_days.parquet"] == fb["process:w13_weather_days.parquet"]  # 族の外は今の資産
+    assert res.run_manifest_fields()["world_assets_pre10e"]["families"] == ["W10"]
+    # 片方だけ旧い地図(world は今の資産で読み、run_day には退避先を渡す)=止める
+    world = World.load_or_synthetic(WORLD_DIR, seed=1)
+    with pytest.raises(ValueError, match="2 か所"):
+        run_day(world=world, world_dir=str(WORLD_DIR), world_assets_pre10e=str(alt), **SMALL)
+
+
+def test_b1_cli_switch_and_defaults():
+    import argparse
+
+    from shibuya.engine.run import add_calendar_args, calendar_kwargs_from_args
+
+    ap = argparse.ArgumentParser()
+    add_calendar_args(ap)
+    assert "world_assets_pre10e" not in calendar_kwargs_from_args(ap.parse_args([]))
+    kw = calendar_kwargs_from_args(ap.parse_args(["--world-assets-pre10e", WA.PRE10E_DEFAULT_DIR]))
+    assert kw["world_assets_pre10e"] == "data/world/v2_pre_10e_2026-10-12"
