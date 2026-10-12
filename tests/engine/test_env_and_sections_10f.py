@@ -35,12 +35,15 @@ WORLD = ROOT / "data" / "world" / "v2"
 NEW_KEYS = ("env_id", "environment", "manifest_sections")
 #: 10f 第 2 段(K21 (a))で末尾に足した欄。
 STAGE2_KEYS = ("population_seed", "environment_seed")
+#: 10e(版上げ 1 回目)で末尾に足した欄(E1: final の定義)。
+E10_KEYS = ("hash_scheme",)
 PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite", "blake3", "os", "os_release",
                  "os_version", "machine", "cpu", "numpy_simd", "deps", "deps_sha256", "deps_count"}
 #: 設定の節の道筋の一覧の sha256(環境に依らない golden=検収 N3 の 3)。節を変えたら理由を記録に書いて更新する。
 #: 10f 第 2 段: ``population_seed``(K21 (a)の母集団の seed・設定)を足した(前の値 170e1c30…)。
 #: 10f 第 2 段の直し(S1): ``environment_seed``(環境の seed・設定)を足した(前の値 3fe95edb…)。
-CONFIG_PATHS_SHA256 = "457d86667edc617a5a398711fe5c2cbbcf39d7ece54fb6eaec74fb8fe2312f58"
+#: 10e(E1): ``hash_scheme``(final の定義・設定)を足した(前の値 457d8666…)。
+CONFIG_PATHS_SHA256 = "c2d09b29fd8183d9fd1b4834570ec9924b50f3dc3036f178af0d50eff399c458"
 world_assets = pytest.mark.skipif(not (WORLD / "w2_cells.parquet").exists(), reason="実世界資産 data/world/v2 が無い")
 
 
@@ -189,7 +192,8 @@ def test_t1_two_processes_write_the_same_env_id_and_final_to_the_files(tmp_path)
     drop = lambda m: {k: v for k, v in m.items() if k not in NEW_KEYS + ("resume",)}  # noqa: E731
     assert drop(c1["manifest"]) == drop(c2["manifest"])
     assert c1["manifest"]["resume"]["run_id"] != c2["manifest"]["resume"]["run_id"]
-    assert list(c1["manifest"])[-5:] == list(NEW_KEYS + STAGE2_KEYS)  # 列追加のみ(末尾に 3 つ+第 2 段の 2 つ)
+    # 列追加のみ(末尾に 3 つ+第 2 段の 2 つ+10e の欄)
+    assert list(c1["manifest"])[-(5 + len(E10_KEYS)):] == list(NEW_KEYS + STAGE2_KEYS + E10_KEYS)
 
 
 # ================================================================= 再開・再生で環境の違いを警告(§8 の 6)
@@ -289,9 +293,13 @@ def test_golden_tables_are_keyed_by_platform_and_values_unchanged():
               TNT.CLASSICAL_1500_GOLDEN_BY_ENV, TCS.CLASSICAL_1500_GOLDEN_ACQ_BY_ENV):
         assert set(t) == {GE.PLATFORM_10F}
     g = TPE.W17_GOLDEN_BY_ENV[GE.PLATFORM_10F]["3113e9ba7abb"]
-    assert (g["v3_default_final"], g["v3_default_llm_calls"]) == ("993276d5e5bb5cbe", 69_978)
-    assert (g["null_arm_final"], g["null_arm_llm_calls"]) == ("72cb9cd52982da74", 100_439)
-    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F]["v2"] == ("40409ebed834126b", 72_930)
+    # 10e(E1): 既定の final は behavior-hash(検収 R1 の後は HEAD の写しで O96 を外し O43・O44 を多重集合にした値)・10e より前の値は *_pre10e
+    assert (g["v3_default_final"], g["v3_default_llm_calls"]) == ("4fbf61616af1e3d2", 70_421)  # E4 の値
+    assert (g["null_arm_final"], g["null_arm_llm_calls"]) == ("6c81c5ad8a99437a", 101_969)
+    assert (g["v3_default_final_stateful"], g["null_arm_final_stateful"]) == ("4985ff2fb3c771c4", "065a36d238aae477")
+    assert (g["v3_default_final_pre10e"], g["null_arm_final_pre10e"]) == ("993276d5e5bb5cbe", "72cb9cd52982da74")
+    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "full")] == ("40409ebed834126b", 72_930)
+    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "behavior")] == ("64f48b6571ec2ea1", 74_616)
 
 
 # ================================================================= manifest の節(K22 (a)・検収 N1・N3)
@@ -417,7 +425,8 @@ def test_seed_exchangeability_sections_mode_on_synthetic_runs():
     d2o["manifest"]["action_usage"] = {"x": 1}
     ro = sx.compare([d1, d2o], ["s1", "s2"])
     assert ro["exchangeable"] is True and "manifest.llm_calls_total" in ro["diff_observed"]
-    for key, val in (("rng_scheme", "counter"), ("memory_n", 7), ("l4_scale", 3.0), ("attendance_rate", 0.5)):
+    # 10e(E4): 乱数の既定が counter になったので、違う値は stateful
+    for key, val in (("rng_scheme", "stateful"), ("memory_n", 7), ("l4_scale", 3.0), ("attendance_rate", 0.5)):
         d2c = json.loads(json.dumps(d2))
         d2c["manifest"][key] = val
         rc = sx.compare([d1, d2c], ["s1", "s2"])
@@ -441,7 +450,7 @@ def test_seed_exchangeability_sections_mode_on_synthetic_runs():
 # ================================================================= 小さな直し(§2-6)
 def test_o75_split_flow_dir8_and_coherence_are_diag():
     """O75 の flow_dir8・coherence は src に読み手が無い → O95(diag)。描画が読む flow は O75(behavior)に残る。"""
-    assert SL.LEDGER_VERSION == "state-ledger/10f"
+    assert SL.LEDGER_VERSION == "state-ledger/10e"  # 10f で上げた版を 10e(E1・死蔵の 5 列の削除)でもう一度上げた
     o75, o95 = SL.row("O75"), SL.row("O95")
     assert o75.behavior == SL.BEHAVIOR and "runner.crowd.flow" in o75.items
     assert not ({"runner.crowd.flow_dir8", "runner.crowd.coherence"} & set(o75.items))

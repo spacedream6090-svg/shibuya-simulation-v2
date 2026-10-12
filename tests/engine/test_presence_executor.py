@@ -50,7 +50,9 @@ def w17_digest(world_dir: Path = WORLD_DIR) -> str:
 #: A/A(同じ設定の 2 回の一致)だけを確かめる。値は 10f の前のまま。
 W17_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     "11a7129beaea": {
-        "null_arm_final": "c96baf821c9a046f", "null_arm_llm_calls": 37_111,
+        # 10e(E1): この表の帰無腕の値は 10e より前の final の定義(``hash_scheme="full"``)の値。
+        # behavior-hash の値は録っていない(W17 v1 はリポに無い=親が再実行して足す)。
+        "null_arm_final_pre10e": "c96baf821c9a046f", "null_arm_llm_calls": 37_111,
         "v1_outside_blocks": 306_410, "v1_outside_dist": [85_766, 214_998, 45_631, 50],
         "s5000_v1": {"n_blocks": 4_918, "zero": 1_107, "outside": 4_077, "in": 841},
         "s5000_v2": {"n_blocks": 4_021, "zero": 1_350, "outside": 3_180, "in": 841},
@@ -87,20 +89,37 @@ W17_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
         # mock の腕の final と呼数が動いた。5 段目の値(``leave_effect=False`` で再現・下の *_leave_off と
         # ``test_leave_effect_off_reproduces_the_stage_5_checkpoints`` で固定)= 帰無腕 18f8807264d04018 /
         # 100,509・v3 既定 c9ab05383accca2e / 69,603。記録: docs/bench/analysis/presence-shape-2026-09-29/README.md §9a
-        "null_arm_final": "72cb9cd52982da74", "null_arm_llm_calls": 100_439,
+        # **10e(E1・版上げ 1 回目)**: final の定義が behavior-hash になった(``--hash-scheme behavior`` が既定)。
+        # 呼数・行動の件数・テープは不変。旧い final(10e より前の定義)は ``hash_scheme="full"`` で再現
+        # (``*_pre10e`` と ``test_hash_scheme_full_reproduces_the_pre_10e_checkpoints`` で固定)。
+        # 下の ``*_leave_off``・``*_hunger_v1``・``*_l4x1`` は 10e より前の定義の値=試験は ``hash_scheme="full"`` で比べる。
+        # 記録: docs/bench/analysis/wallbounce-1012/10e/README.md §E1
+        # **10e(E2)**: 会話の管理の期限つきの辞書 3 つの掃除で O39 の中身が変わり behavior-hash が動いた(呼数は同じ)。
+        # E1 の値= 帰無腕 db765499cec1fef5・v3 既定 3264c9fc190b3eb9。
+        # **10e(E4)**: 既定の乱数が counter になり、K19 の鍵の並べ方で W16 の抽出(層の並べ替え)・体の定数・配送・工事・
+        # p_notice の引きが変わった=母集団から動く(呼数も動く)。E2 の値(旧い並べ方)は rng_scheme="stateful" で再現
+        # (``*_stateful``)。10e より前の値は hash_scheme="full" と rng_scheme="stateful"(``*_pre10e``)。
+        "null_arm_final": "6c81c5ad8a99437a", "null_arm_llm_calls": 101_969,
+        "null_arm_final_stateful": "065a36d238aae477",
+        "null_arm_final_pre10e": "72cb9cd52982da74", "null_arm_llm_calls_pre10e": 100_439,
         "null_arm_final_leave_off": "18f8807264d04018", "null_arm_llm_calls_leave_off": 100_509,
         "null_arm_final_hunger_v1": "e0083baff1ff50b7", "null_arm_llm_calls_hunger_v1": 97_028,
         "null_arm_final_l4x1": "ed1863e089c8480e", "null_arm_llm_calls_l4x1": 41_141,
         # 第277(二層の段 3): **語彙 v3 の既定**(=CLI の新しい既定・activity on・mock v3 形)。
         # v1 の行は上のまま残す(ライブラリの既定は v1=切替口)。
         # 記録: docs/bench/analysis/two-layer-2026-09-27/README.md §0
-        "v3_default_final": "993276d5e5bb5cbe", "v3_default_llm_calls": 69_978,
+        "v3_default_final": "4fbf61616af1e3d2", "v3_default_llm_calls": 70_421,
+        "v3_default_final_stateful": "4985ff2fb3c771c4",
+        "v3_default_final_pre10e": "993276d5e5bb5cbe", "v3_default_llm_calls_pre10e": 69_978,
         "v3_default_final_leave_off": "c9ab05383accca2e", "v3_default_llm_calls_leave_off": 69_603,
         "v3_default_final_hunger_v1": "a1036ab5b06e461c", "v3_default_llm_calls_hunger_v1": 68_781,
         "v3_default_final_l4x1": "6845e3acb8906210", "v3_default_llm_calls_l4x1": 36_502,
         "v1_outside_blocks": 590_430, "v1_outside_dist": [92, 160_033, 133_575, 47_861],
-        "s5000_v1": {"n_blocks": 8_589, "zero": 1, "outside": 7_733, "in": 856},
-        "s5000_v2": {"n_blocks": 6_377, "zero": 150, "outside": 5_521, "in": 856},
+        # 10e(E4): 5,000 体の標本は既定の counter の抽出(層の鍵の並べ方)。stateful の値(10e より前)=
+        # v1 {"n_blocks": 8_589, "zero": 1, "outside": 7_733, "in": 856}・v2 {"n_blocks": 6_377, "zero": 150,
+        # "outside": 5_521, "in": 856}(``sample_population(..., rng_scheme="stateful")`` で再現)
+        "s5000_v1": {"n_blocks": 8_542, "zero": 0, "outside": 7_658, "in": 884},
+        "s5000_v2": {"n_blocks": 6_406, "zero": 154, "outside": 5_522, "in": 884},
     },
 }}
 #: 今の環境の行(無ければ ``None``=A/A だけ)。
@@ -279,7 +298,7 @@ def test_null_arm_reproduces_the_recorded_checkpoint():
         GE.assert_aa(_run, _FINAL_CALLS, first=res)
         return
     g = W17_GOLDEN.get(w17_digest())
-    if g is None:
+    if g is None or "null_arm_final" not in g:
         pytest.skip(f"実 W17 の golden が無い(md5 {w17_digest()})=親が再実行して W17_GOLDEN に足す")
     assert res.final_hash.startswith(g["null_arm_final"])
     assert res.run_manifest_fields()["plan_executor"] is False
@@ -328,12 +347,14 @@ def test_l4_scale_1_reproduces_the_stage_2c_checkpoints():
         pytest.skip(f"実 W17 の l4x1 golden が無い(md5 {w17_digest()})")
     # 5 段目 5a(第291): 段 2c の値は空腹 v1 で録られている=旧規則を明示する
     # 9a(第302): 退去の効果の前の値=旧挙動(leave_effect=False)を明示する
+    # 10e(E1): 段 2c の値は 10e より前の final の定義=hash_scheme="full" で比べる
     null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-                   report_precondition=False, l4_scale=1.0, hunger_model="v1", leave_effect=False)
+                   report_precondition=False, l4_scale=1.0, hunger_model="v1", leave_effect=False,
+                   hash_scheme="full", rng_scheme="stateful")
     assert null.final_hash.startswith(g["null_arm_final_l4x1"])
     assert int(null.llm_calls) == g["null_arm_llm_calls_l4x1"]
     v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
-                 l4_scale=1.0, hunger_model="v1", leave_effect=False)
+                 l4_scale=1.0, hunger_model="v1", leave_effect=False, hash_scheme="full", rng_scheme="stateful")
     assert v3.final_hash.startswith(g["v3_default_final_l4x1"])
     assert int(v3.llm_calls) == g["v3_default_llm_calls_l4x1"]
     assert v3.run_manifest_fields()["l4_exceeded"] is False
@@ -356,13 +377,15 @@ def test_hunger_model_v1_reproduces_the_stage_3_checkpoints():
     if g is None or "v3_default_final_hunger_v1" not in g:
         pytest.skip(f"実 W17 の hunger v1 golden が無い(md5 {w17_digest()})")
     # 9a(第302): 3 段目の値は退去の効果の前=旧挙動(leave_effect=False)を明示する
+    # 10e(E1): 3 段目の値は 10e より前の final の定義=hash_scheme="full" で比べる
     null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-                   report_precondition=False, hunger_model="v1", leave_effect=False)
+                   report_precondition=False, hunger_model="v1", leave_effect=False, hash_scheme="full",
+                   rng_scheme="stateful")
     assert null.final_hash.startswith(g["null_arm_final_hunger_v1"])
     assert int(null.llm_calls) == g["null_arm_llm_calls_hunger_v1"]
     assert null.run_manifest_fields()["hunger_model"] == "v1"
     v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
-                 hunger_model="v1", leave_effect=False)
+                 hunger_model="v1", leave_effect=False, hash_scheme="full", rng_scheme="stateful")
     assert v3.final_hash.startswith(g["v3_default_final_hunger_v1"])
     assert int(v3.llm_calls) == g["v3_default_llm_calls_hunger_v1"]
     assert v3.energy == {}
@@ -383,14 +406,48 @@ def test_leave_effect_off_reproduces_the_stage_5_checkpoints():
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final_leave_off" not in g:
         pytest.skip(f"実 W17 の leave off golden が無い(md5 {w17_digest()})")
+    # 10e(E1): 5 段目の値は 10e より前の final の定義=hash_scheme="full" で比べる
     null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-                   report_precondition=False, leave_effect=False)
+                   report_precondition=False, leave_effect=False, hash_scheme="full", rng_scheme="stateful")
     assert null.final_hash.startswith(g["null_arm_final_leave_off"])
     assert int(null.llm_calls) == g["null_arm_llm_calls_leave_off"]
-    v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3", leave_effect=False)
+    v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3", leave_effect=False,
+                 hash_scheme="full", rng_scheme="stateful")
     assert v3.final_hash.startswith(g["v3_default_final_leave_off"])
     assert int(v3.llm_calls) == g["v3_default_llm_calls_leave_off"]
     assert v3.run_manifest_fields()["leave_effects"]["enabled"] is False
+
+
+@real_data
+def test_hash_scheme_full_reproduces_the_pre_10e_checkpoints():
+    """10e(E1・版上げ 1 回目): 旧い final の定義 ``hash_scheme="full"`` で 10e より前の既定の値を再現する。
+
+    死蔵の 3 列は SoA から消えたが、``full`` のハッシュの中だけ元の位置に初期値で混ざる(``core.soa`` の
+    ``retired_columns_in_hash``)。呼数は既定(behavior)と同じ=挙動は動いていない。``full`` は版上げの最後に消す。
+    """
+    from shibuya.cli import run as cli_run
+
+    if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(帰無腕の 1 本)
+        GE.assert_aa(lambda: cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
+                                     report_precondition=False, hash_scheme="full"), _FINAL_CALLS)
+        return
+    g = W17_GOLDEN.get(w17_digest())
+    if g is None or "v3_default_final_pre10e" not in g:
+        pytest.skip(f"実 W17 の 10e 前の golden が無い(md5 {w17_digest()})")
+    # 10e(E2・E4): 会話の掃除の前の O39 と 10e より前の乱数の並べ方=旧い定義では O39 は final に入らない。
+    # 乱数は rng_scheme="stateful"(10e より前の既定)を明示する
+    null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
+                   report_precondition=False, hash_scheme="full", rng_scheme="stateful")
+    assert null.final_hash.startswith(g["null_arm_final_pre10e"])
+    assert int(null.llm_calls) == g["null_arm_llm_calls_pre10e"]
+    assert null.run_manifest_fields()["hash_scheme"] == "full"
+    assert null.run_manifest_fields()["rng_scheme"] == "stateful"
+    v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3", hash_scheme="full",
+                 rng_scheme="stateful")
+    assert v3.final_hash.startswith(g["v3_default_final_pre10e"])
+    assert int(v3.llm_calls) == g["v3_default_llm_calls_pre10e"]
+    # full でも behavior-hash の欄は同じ値=旧い乱数の並べ方の behavior-hash(E2 の値)
+    assert v3.checkpoints[-1].behavior_hash.startswith(g["v3_default_final_stateful"])
 
 
 # ================================================================= ③ T4 規模不変

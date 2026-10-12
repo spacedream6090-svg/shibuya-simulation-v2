@@ -102,8 +102,9 @@ def test_the_tape_carries_the_response_delay_and_mismatches_stop(tmp_path):
     rec1 = _record(tmp_path, "d1", 1)
     rec2 = _record(tmp_path, "d2", 2)
     # 10f: 環境の欄(env_id・environment)も書く=それを除いた形は今までと同じ
-    assert _meta_wo_env(read_run_meta(tmp_path / "d1")) == {"response_delay": 1, "rng_scheme": "stateful"}
-    assert _meta_wo_env(read_run_meta(tmp_path / "d2")) == {"response_delay": 2, "rng_scheme": "stateful"}
+    # 10e(E4): 乱数の既定は counter
+    assert _meta_wo_env(read_run_meta(tmp_path / "d1")) == {"response_delay": 1, "rng_scheme": "counter", "rng_layout": "10e"}
+    assert _meta_wo_env(read_run_meta(tmp_path / "d2")) == {"response_delay": 2, "rng_scheme": "counter", "rng_layout": "10e"}
     with pytest.raises(ValueError, match="テープは response_delay=1・今の設定は 2"):
         _replay(tmp_path / "d1", response_delay=2)
     with pytest.raises(ValueError, match="テープは response_delay=2・今の設定は 1"):
@@ -183,7 +184,8 @@ def test_plus2_path_reproduces_the_head_final():
             s.pair_talk = True
         res = run_day(n_agents=CONV_AGENTS, seed=1, world=_conv_world(), ticks=CONV_TICKS,
                       fleet=make_client(servers), fleet_wait_s=10.0, renderer="stub", processes=False,
-                      population=False, world_dir=None, response_delay=2)
+                      population=False, world_dir=None, response_delay=2,
+                      hash_scheme="full", rng_scheme="stateful")  # 10e(E1・E4): HEAD の値は 10e より前の定義と乱数
     finally:
         for s in servers:
             s.close()
@@ -253,7 +255,7 @@ def test_tape_meta_does_not_touch_the_parquet(tmp_path):
 
     run_day(n_agents=30, n_cells=9, ticks=10, tape_path=tmp_path / "t", renderer="stub", sleep_suppression=False)
     t = Tape(tmp_path / "t")
-    assert _meta_wo_env(t.run_meta) == {"response_delay": 1, "rng_scheme": "stateful"}  # 10c: 乱数の方式も書く
-    assert set(t.run_meta) == {"response_delay", "rng_scheme", "env_id", "environment"}  # 10f: 環境の欄
+    assert _meta_wo_env(t.run_meta) == {"response_delay": 1, "rng_scheme": "counter", "rng_layout": "10e"}  # 10c: 乱数の方式も書く(10e: 既定 counter)
+    assert set(t.run_meta) == {"response_delay", "rng_scheme", "rng_layout", "env_id", "environment"}  # 10f: 環境の欄・10e: 鍵の配置の印
     assert "response_delay" not in t.calls.schema.names
     assert Path(tmp_path / "t" / RUN_META_FILENAME).read_bytes().endswith(b"\n")

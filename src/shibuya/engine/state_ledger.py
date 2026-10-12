@@ -8,6 +8,10 @@
 材料の値=a08109a の行番号。パスは ``src/shibuya/`` を省略):
 
 - **SoA の列 98 行**(agents 79・cells 5・pois 9・知覚 5): ``place`` は ``agents``・``cells``・``pois``・``perception``。
+  〔10e(E1)〕死蔵の 5 列(agents の ``plan_cursor``・``invocation_distance``・``wake_pending_class``=Q9、
+  知覚の ``last_b2_hash``・``last_b4_hash``=A4)を SoA から消したので **93 行**(agents 76・cells 5・pois 9・知覚 3)。
+  死蔵の行は知覚の ``invocation_distance``(単体ベンチの逃げ道・既定では確保しない)の 1 行だけが残る。
+  〔10e(E1・検収 R1)〕外の状態に O96(O44 から ``run_day.replay_inbox`` を分けた行・軸 1 no)を足して **96 行**・全体 189 行。
 - **SoA の外の状態 94 行**(O1〜O65=材料・O66〜O89=10b-2 で持ち主のクラスの属性を棚卸しして足した行・
   O90〜O94=10d の再開の試験と検収で見つけた保存し忘れを元の行から移した行):
   ``place`` は ``external``。``items`` はその行が指す属性の道筋
@@ -46,7 +50,8 @@ from dataclasses import dataclass
 from typing import Final, Iterable
 
 #: 表の版(列や行の判定を変えたら上げる。manifest の ``state_hashes.ledger_version`` に出る)。
-LEDGER_VERSION: Final[str] = "state-ledger/10f"
+#: 10e(E1): 死蔵の 5 列(Q9 の 3 列+A4 の 2 列)を消して 193 → 188 行・O44 から replay_inbox を O96 に分けて 189 行。
+LEDGER_VERSION: Final[str] = "state-ledger/10e"
 
 BEHAVIOR: Final[str] = "behavior"
 NO: Final[str] = "no"
@@ -113,6 +118,9 @@ class LedgerRow:
     #: 印のある行の辞書は挿入順のまま直列化する(印の無い行の辞書は鍵の昇順=順に依らない)。
     #: ``collections.OrderedDict`` は印が無くても挿入順のまま流す(型が順序を持つ約束)。
     ordered: bool = False
+    #: 10e(E1・検収 R1 の続き): 並びが状態でない list の道筋(``items`` の部分集合)。ハッシュは要素の多重集合で取る
+    #: (直列化の昇順)。再開の保存は並びのまま(戻すときの値は変えない)。
+    multiset: tuple[str, ...] = ()
 
     @property
     def is_soa(self) -> bool:
@@ -127,7 +135,7 @@ class LedgerRow:
         return self.restore in FULL_RESTORE
 
 
-# ---------------------------------------------------------------- SoA の列(98 行)
+# ---------------------------------------------------------------- SoA の列(98 行 → 10e で 93 行)
 def _s(place: str, name: str, dtype: str, nbytes: str, alloc: str, behavior: str, restore: str,
        basis: str, *, dead: bool = False, allow: tuple[AstAllow, ...] = (), note: str = "",
        by_config: tuple[tuple[str, str], ...] = ()) -> LedgerRow:
@@ -178,10 +186,8 @@ _SOA: tuple[LedgerRow, ...] = (
     _s("agents", "money", "i4", "4", "既定", B, R_, "agents/state.py:567・run.py:2208・resolve.py:2170"),
     _s("agents", "holdings", "u1", "1", "既定", B, R_, "agents/state.py:569・goods_flow.py:473・renderer.py:1815"),
     _s("agents", "activity", "i1", "1", "既定", B, R_, "agents/state.py:572・activity.py:432 ほか"),
-    _s("agents", "plan_cursor", "i2", "2", "既定", N_, X_, "agents/state.py:574・宣言 1 件のみ(Q9 で消す)", dead=True),
     _s("agents", "talk_partner", "i4", "4", "既定", B, R_, "agents/state.py:576・memory.py:355・run.py:2639",
        note="A2 (b): 記憶の腕・店の記憶の腕のときだけ読む"),
-    _s("agents", "invocation_distance", "u2", "2", "既定", N_, X_, "agents/state.py:578・宣言のみ(Q9 で消す)", dead=True),
     _s("agents", "transit_state", "i1", "1", "既定", B, R_, "agents/state.py:581・activity.py:433 ほか"),
     _s("agents", "transit_ref", "i4", "4", "既定", B, R_, "agents/state.py:584・rail.py:650・civic.py:496"),
     _s("agents", "board_line", "i1", "1", "既定", B, R_, "agents/state.py:588・presence.py:1422"),
@@ -196,14 +202,12 @@ _SOA: tuple[LedgerRow, ...] = (
     _s("agents", "queue_poi", "i4", "4", "既定", B, R_, "agents/state.py:614・memory.py:366・presence.py:1321"),
     _s("agents", "queue_since", "i4", "4", "既定", B, R_, "agents/state.py:616・crowd.py:242"),
     _s("agents", "refractory_until", "i4x11", "44", "既定", B, R_, "agents/state.py:702・run.py:3108,3160"),
-    _s("agents", "wake_pending_class", "i1", "1", "既定", N_, X_, "agents/state.py:705・agents/state.py:724(初期値 -1 だけ・Q9 で消す)",
-       dead=True),
     _s("agents", "last_action", "i1", "1", "既定", B, R_, "agents/state.py:708・intent.py:394"),
     _s("agents", "last_result", "i1", "1", "既定", B, R_, "agents/state.py:711・activity.py:297"),
     _s("agents", "last_result_tick", "i4", "4", "既定", B, R_, "agents/state.py:713・activity.py:296・renderer.py:2504"),
     _s("agents", "fail_streak", "u1", "1", "既定", N_, U_,
        "agents/state.py:715・resolve.py:1074,1465,1526,1538,3054,3099(自分に 1 を足すか 0 に戻すだけ・読み 0)",
-       note="K15 の答えで直す欄(今は behavior-hash から外し full-hash には入れる=安全側)"),
+       note="10-06 K15 で削除と決定。`--hash-scheme full` を消す commit で消す(動く量なし)。それまでは behavior-hash から外し full-hash には入れる=安全側"),
     _s("agents", "edge_id", "i4", "4", "腕 edge", B, R_, "agents/state.py:519・resolve.py:1432"),
     _s("agents", "edge_s", "f4", "4", "腕 edge", B, R_, "agents/state.py:522・resolve.py:1432"),
     _s("agents", "focus_target", "i4", "4", "腕 attention", B, R_, "agents/state.py:527・resolve.py:1622・renderer.py:1130"),
@@ -215,7 +219,7 @@ _SOA: tuple[LedgerRow, ...] = (
     _s("agents", "energy_balance", "f4", "4", "腕 energy", D_, R_, "agents/state.py:564・energy.py:903(日次センサスと要約だけ)",
        allow=_ALLOW_ENERGY_BALANCE, note="センサスの項(日をまたいで足していく値)"),
     _s("agents", "plan_activity", "i1", "1", "腕 plan", N_, U_, "agents/state.py:620・AST: 読み 0",
-       note="K15 の答えで直す欄(今は behavior-hash から外し full-hash には入れる=安全側)"),
+       note="10-06 K15 で削除と決定。`--hash-scheme full` を消す commit で消す(動く量なし)。それまでは behavior-hash から外し full-hash には入れる=安全側"),
     _s("agents", "plan_flags", "i1", "1", "腕 plan", B, R_, "agents/state.py:623・presence.py:1560"),
     _s("agents", "activity_until", "i4", "4", "腕 activity", B, R_, "agents/state.py:628・activity.py:350"),
     _s("agents", "activity_kind", "i1", "1", "腕 activity", B, R_, "agents/state.py:631・resolve.py:1133・renderer.py:1572"),
@@ -266,13 +270,11 @@ _SOA: tuple[LedgerRow, ...] = (
     _s("pois", "open_from", "i2", "2", "既定", B, V_, "world/state.py:146・world/state.py:393・renderer.py:1546"),
     _s("pois", "open_to", "i2", "2", "既定", B, V_, "world/state.py:148・world/state.py:393"),
     _s("pois", "open_now", "i1", "1", "既定", B, R_, "world/state.py:150・opening.py:181・world/state.py:389"),
-    # ---- 知覚 SoA(5 列・perception/state.py:98-108・runner.salient.pstate) ----
+    # ---- 知覚 SoA(5 列 → 10e で 3 列・perception/state.py:98-108・runner.salient.pstate) ----
     _s("perception", "heading", "u1", "1", "既定(知覚 SoA)", N_, V_, "perception/state.py:98・salient.py:205-214,400-414",
        allow=_ALLOW_HEADING, note="親の宣言: 事象の直前に毎回貼り直す派生の値なので behavior-hash に入れない"),
     _s("perception", "task_flag", "u1", "1", "既定(知覚 SoA)", N_, V_, "perception/state.py:100・salient.py:205-214",
        allow=_ALLOW_TASK, note="親の宣言: heading と同じ"),
-    _s("perception", "last_b2_hash", "u8", "8", "既定(知覚 SoA)", N_, X_, "perception/state.py:103・宣言のみ(A4 で消す)", dead=True),
-    _s("perception", "last_b4_hash", "u8", "8", "既定(知覚 SoA)", N_, X_, "perception/state.py:105・宣言のみ(A4 で消す)", dead=True),
     _s("perception", "invocation_distance", "u2", "2", "単体ベンチの条件付き", N_, X_, "perception/state.py:108・宣言のみ",
        dead=True),
 )
@@ -280,10 +282,12 @@ _SOA: tuple[LedgerRow, ...] = (
 
 # ---------------------------------------------------------------- 外の状態(65 行)
 def _o(n: int, name: str, where: str, dtype: str, behavior: str, restore: str, items: Iterable[str], *,
-       skip: Iterable[str] = (), note: str = "", ordered: bool = False) -> LedgerRow:
+       skip: Iterable[str] = (), note: str = "", ordered: bool = False,
+       multiset: Iterable[str] = ()) -> LedgerRow:
     return LedgerRow(key=f"O{n}", name=name, place=EXTERNAL, dtype=dtype, nbytes="", alloc="",
                      behavior=behavior, restore=restore, dead=False, basis=where,
-                     items=tuple(items), hash_skip=tuple(skip), note=note, ordered=ordered)
+                     items=tuple(items), hash_skip=tuple(skip), note=note, ordered=ordered,
+                     multiset=tuple(multiset))
 
 
 _EXT: tuple[LedgerRow, ...] = (
@@ -405,20 +409,29 @@ _EXT: tuple[LedgerRow, ...] = (
         "conv._pair_invite_until", "conv._speaker_invite_until"),
        ordered=True,
        note="直列化の書き手=engine.state_hashes.to_state。sessions・pending_invites の走査の順が話し手と被招待の"
-            "起床の順になる(conversation.py:617,627)=順を保つ"),
+            "起床の順になる(conversation.py:617,627)=順を保つ。10e(E2): 期限つきの辞書 3 つ(_refusal_until・"
+            "_pair_invite_until・_speaker_invite_until)は tick ごとに期限の切れた項を落とす(purge_expired)="
+            "日数に比例して増えない。挙動は不変(期限切れは「無い」と同じ)・中身が変わるので 2 つのハッシュは動く"),
     _o(40, "ConversationManager join_events", "conversation.py:280-313", "list", B, R_, ("conv.join_events",),
        note="A2 (b)・記憶の腕が _next_join で読む"),
     _o(41, "ConversationManager origin_counts ほかの計数", "conversation.py:280-313", "計数", D_, X_,
        ("conv.origin_counts", "conv.n_ignored_invites", "conv.n_gate_rejected", "conv.n_invites",
         "conv.n_accepted", "conv.n_declined", "conv.n_pending_expired", "conv.n_invite_refractory_blocked",
         "conv.n_blocks", "conv.n_backchannels", "conv.n_interrupts", "conv.closed_by_reason", "conv.ignored_events",
-        "conv.size_hist")),
+        "conv.size_hist", "conv.n_expired_purged")),
     _o(42, "Arbiter _pending・_pool・queue・_last_tick", "arbiter.py:535-543", "配列・float・辞書", B, R_,
        ("arbiter._pending", "arbiter._pool", "arbiter.queue", "arbiter._last_tick")),
     _o(43, "run_day の局所 pending(適用待ちの応答)", "run.py:2696", "list[13 要素の組]", B, R_, ("run_day.pending",),
-       note="10b で組に発射の tick と call_id を足した(13 要素)。直列化の書き手=to_state"),
-    _o(44, "run_day の局所 fleet_deferred・fleet_waiting・replay_inbox", "run.py:2393-2402", "list・set・dict", B, R_,
-       ("run_day.fleet_deferred", "run_day.fleet_waiting", "run_day.replay_inbox"), note="A2 (b)・艦隊と再生のランだけ"),
+       multiset=("run_day.pending",),
+       note="10b で組に発射の tick と call_id を足した(13 要素)。直列化の書き手=to_state。10e(E1・検収 R1 の続き): "
+            "並びは艦隊の到着の順(録画)とテープの行の順(再生)で違うが、適用は (t_apply, 級, 撹拌鍵, 体) の lexsort の"
+            "順=並びに依らない=並びは状態でない。ハッシュは多重集合で取る(multiset の印)"),
+    _o(44, "run_day の局所 fleet_deferred・fleet_waiting", "run.py:2393-2402", "list・set", B, R_,
+       ("run_day.fleet_deferred", "run_day.fleet_waiting"), multiset=("run_day.fleet_deferred",),
+       note="A2 (b)・艦隊のランだけ。10e(E1・検収 R1): replay_inbox は O96 に分けた。fleet_deferred(繰り延べた呼の"
+            "(体, 条件, 級, 起床の起点) の list)の並びは、録画では艦隊が返した順・再生ではテープの行の順で違うが、"
+            "翌 tick の再投入は配列にして候補へ混ぜるだけで並びに依らない(録画と再生で呼数・legacy の final が一致)"
+            "=並びは状態でない。ハッシュは多重集合で取る(multiset の印)"),
     _o(45, "ChangeDetector _prev_raw", "change_detect.py:274,299", "i4 セル×4", B, R_, ("detector._prev_raw",),
        note="None だと日の頭に全セル起床"),
     _o(46, "SalientProcess rng・event_seen_tick・budget", "salient.py:153-176", "Generator・i4 体数", B, R_,
@@ -481,7 +494,12 @@ _EXT: tuple[LedgerRow, ...] = (
     _o(64, "PerceptionRenderer の口 acquaintance_fn・memory_recall・session_partner_fn・named_closed_lookup・"
            "signage_exposures", "perception/renderer.py:1171 ほか・run.py の配線", "関数・tick の中", N_, X_,
        ("renderer.acquaintance_fn", "renderer.memory_recall", "renderer.session_partner_fn",
-        "renderer.named_closed_lookup", "renderer.signage_exposures")),
+        "renderer.named_closed_lookup", "renderer.signage_exposures"),
+       note="10e(E2・10f の残り O64 の答え=親案): signage_exposures は描画が集めた看板の露出を同じ tick の 6 段目で"
+            "記憶と親しみの層が読んで空にする**挙動の読み**だが、tick の中だけの口で checkpoint と日の境目の保存の"
+            "時点では常に空。behavior にしてもハッシュの値は変わらず、全構成の behavior-hash を動かす理由が無いので"
+            "軸 1 no・軸 2 discardable のまま。持ち主の外の読みは state_ledger_ast.EXT_AST_ALLOW に理由つきで許す"
+            "(場所・当たる数・関数の名前を固定)。空であることは試験で確かめる"),
     _o(65, "LLMBridge・TapeWriter・FleetBridge の計数・行・処理中の呼", "llm_bridge.py:537-554・tape.py:242-278・llm/fleet.py",
        "計数・ファイル", N_, X_, (), note="テープはファイルに出る・処理中の呼は O44 と同じ扱い"),
     # ---- 10b-2(親の答え 1): 持ち主のクラスの属性の棚卸しで見つけた状態(tick をまたいで残る値) ----
@@ -622,6 +640,13 @@ _EXT: tuple[LedgerRow, ...] = (
             "tests/engine/processes/test_crowd.py だけ・getattr の文字列も無い・10f の材料 §3-3 の AST でも 0)。"
             "crowd.py の docstring どおり「診断・将来用」=軸 1 を diag に。描画が使う 3 値の flow は O75 に残る"
             "(coherence は flow を作る途中の局所変数 coh として使われ、属性は読まれない)。軸 2 は O75 と同じ unknown"),
+    _o(96, "run_day の局所 replay_inbox(再生の到着待ち)", "run.py:2393-2402", "dict", N_, R_,
+       ("run_day.replay_inbox",),
+       note="10e(E1・検収 R1): 元 O44(behavior)。再生の到着待ちは、テープの observed_tick から導ける「応答がいつ届くか」の"
+            "表し方で、世界の挙動ではない(録画の側では同じ応答は艦隊の中=O65 にあり checkpoint の時点で知り得ない)。"
+            "behavior に入れると、艦隊で録ったランとその再生で behavior-hash(=既定の final)が食い違う(在途の呼があれば"
+            "途中の checkpoint は必ず・最後の tick に在途の呼があれば final も)。軸 1 は no にして behavior-hash から外す。"
+            "再開には要る=軸 2 は required のまま(full-hash と状態のファイルには入る)"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -889,7 +914,7 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "staff_of_poi"),
     _x("runner.delivery_inbound", REF, _REFR, "world", "ledger", "shelf", "log"),
     _x("runner.delivery_inbound", CONST, _FIELD + "・" + _CFG, "tick_seconds", "master_seed", "process_ids",
-       "ablation_id", "plan_spec_id"),
+       "ablation_id", "plan_spec_id", "rng_scheme"),
     _x("runner.delivery_inbound", CACHE, _DAY, "day_index"),
     _x("runner.delivery_inbound", CACHE, _TAB, "plan_minute"),
     _x("runner.waste", REF, _REFR, "world", "agents", "ledger", "log"),
@@ -906,7 +931,7 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("runner.bus_taxi", CACHE, _TAB, "stop_cell", "phase", "n_departures_planned"),
     _x("runner.road_works", REF, _REFR, "world", "assets", "log"),
     _x("runner.road_works", CONST, _FIELD + "・" + _CFG, "tick_seconds", "process_ids", "ablation_id",
-       "plan_spec_id", "master_seed", "n_works"),
+       "plan_spec_id", "master_seed", "n_works", "rng_scheme"),
     _x("runner.road_works", CACHE, _TAB, "planned_edges", "edge_cell"),
     _x("runner.traffic", REF, _REFR, "world", "assets"),
     _x("runner.traffic", CONST, _FIELD + "・" + _CFG, "tick_seconds", "through_ratio", "process_ids", "ablation_id"),

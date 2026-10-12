@@ -169,9 +169,12 @@ def test_switch_is_checked_and_on_the_cli_and_sets_the_default_tau():
 #: 関係 on の腕の final(mock 5,000 体・seed 1・v3・記憶 on・関係 on・CLI 既定=energy)。v1=HEAD b4c8b1c の値
 #: (旧の再現)・v2=修正後(既定)。記録 ``docs/bench/analysis/wave2-2026-09-30/`` §2A-0。
 #: 10f(K26 (1)): 一番外側の鍵は環境の ``platform_id``(``tests/golden_env.py``)。行の無い環境では A/A だけ。値は 10f の前のまま。
+#: 10e(E1・版上げ 1 回目): 既定の final が behavior-hash になった。鍵は (関係の寿命のハッシュの版, final の定義)。
+#: 既定(v2・behavior)の値を張り替え、旧値(v1 と 10e より前の v2)は ``hash_scheme="full"`` で再現する。
 REL_ON_5000_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
-    "v1": ("e4f84d1d176e6ec0", 72_940),
-    "v2": ("40409ebed834126b", 72_930),
+    ("v1", "full"): ("e4f84d1d176e6ec0", 72_940),
+    ("v2", "full"): ("40409ebed834126b", 72_930),
+    ("v2", "behavior"): ("64f48b6571ec2ea1", 74_616),  # 10e(E4) の値(E1 は e27e45f3e9b62749・E2 は fe19250259a7058d)
 }}
 #: 今の環境の行(無ければ ``None``=A/A だけ)。
 REL_ON_5000_GOLDEN = GE.row(REL_ON_5000_GOLDEN_BY_ENV)
@@ -188,6 +191,8 @@ def test_relations_on_arm_golden_old_and_new():
     if REL_ON_5000_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(既定の v2)
         GE.assert_aa(lambda: cli.run(rel_tenure_hash="v2", **kw), lambda r: (r.final_hash[:16], int(r.llm_calls)))
         return
-    for ver, (final, calls) in REL_ON_5000_GOLDEN.items():
-        r = cli.run(rel_tenure_hash=ver, **kw)
-        assert (r.final_hash[:16], int(r.llm_calls)) == (final, calls), ver
+    for (ver, scheme), (final, calls) in REL_ON_5000_GOLDEN.items():
+        # 10e(E4): full の行は 10e より前の値=乱数も 10e より前の並べ方(stateful)
+        rng = {"rng_scheme": "stateful"} if scheme == "full" else {}
+        r = cli.run(rel_tenure_hash=ver, hash_scheme=scheme, **rng, **kw)
+        assert (r.final_hash[:16], int(r.llm_calls)) == (final, calls), (ver, scheme)

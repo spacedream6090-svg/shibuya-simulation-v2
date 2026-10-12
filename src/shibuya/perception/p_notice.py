@@ -45,7 +45,7 @@ from typing import Final
 
 import numpy as np
 
-from shibuya.core.rng import stream
+from shibuya.core.rng import stream, k19_counters
 
 __all__ = [
     "D50_DEFAULT_M",
@@ -410,6 +410,7 @@ def notice_event(
     params: PNoticeParams | None = None,
     already_noticed: np.ndarray | None = None,
     counters: Counters | None = None,
+    rng_scheme: str = "counter",
 ) -> NoticeResult:
     """1つの顕著イベントについて、候補群の「気づいた/気づかない」を引く(§3.1)。
 
@@ -428,6 +429,9 @@ def notice_event(
         already_noticed: ``(n,)`` bool。**この tick に既に気づいている**候補(他イベント由来)。
             社会項の N の初期値に入る。
         counters: 診断計数(省略可)。
+        rng_scheme: 10e(E4・K19)の鍵の並べ方(``core.rng.k19_counters``)。``counter``(既定)は
+            ``stream(seed, "perception.p_notice", 0, event_id, tick)``=同じ tick の事象 k と k+1 の引きが重ならない
+            (10c 検収 P2)/ ``stateful`` は旧の並び(旧値の再現だけ)。
 
     Returns:
         ``NoticeResult``(打ち切り 80 m 内の候補のみ)。
@@ -475,7 +479,7 @@ def notice_event(
         d50_eff = d50 * m_light * m_ecc * m_dens
         p1 = p1_primary(d, d50_eff, m_load)
 
-    g = stream(seed, "perception.p_notice", int(event_id), int(tick))
+    g = stream(seed, "perception.p_notice", *k19_counters(rng_scheme, int(event_id), int(tick)))
     draws = g.random((2, d.size))
     noticed_primary = draws[0] < p1
 

@@ -494,7 +494,11 @@ def test_daily_tables_are_relaid_from_the_calendar_day(tmp_path):
     assert rn.opening.day_index == 1                     # 火曜の行(table_weekday(1))
     from shibuya.engine.processes.goods_flow import DELIVERY_WINDOW
 
-    plan = stream(1, "world.delivery_inbound", cal_key1).integers(*DELIVERY_WINDOW, size=res.world.n_poi)
+    from shibuya.core.rng import k19_counters
+
+    # 10e(E4・K19・U2): counter(既定)は日の鍵を 1 語目に置く
+    plan = stream(1, "world.delivery_inbound", *k19_counters("counter", cal_key1)).integers(
+        *DELIVERY_WINDOW, size=res.world.n_poi)
     assert np.array_equal(rn.delivery_inbound.plan_minute, plan) and rn.delivery_inbound.day_index == cal_key1
     one = cli.run(checkpoint_every=360, **dict(WORLD_KW, sim_days=1))
     assert not np.array_equal(one.runner.road_works.planned_edges, rn.road_works.planned_edges) or         rn.road_works.planned_edges.size == 0

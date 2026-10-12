@@ -24,7 +24,7 @@ from typing import Final
 
 import numpy as np
 
-from shibuya.core.rng import stream
+from shibuya.core.rng import DEFAULT_RNG_SCHEME, check_rng_scheme, k19_counters, stream
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.state import World
@@ -281,6 +281,7 @@ class RoadWorksProcess:
         tick_seconds: int = 60,
         actual_log=None,
         n_works: int = ROADWORKS_PER_NIGHT,
+        rng_scheme: str = DEFAULT_RNG_SCHEME,
     ) -> None:
         self.world = world
         self.assets = passets
@@ -293,6 +294,8 @@ class RoadWorksProcess:
         edge_cell = getattr(passets, "edge_cell", None)
         self.master_seed = master_seed
         self.n_works = int(n_works)
+        #: 10e(E4・K19): 日の鍵の流れの並べ方(``core.rng.k19_counters``)。
+        self.rng_scheme = check_rng_scheme(rng_scheme)
         self._plan(int(day_index))
         self.edge_cell = (
             np.zeros(0, dtype=np.int64) if edge_cell is None
@@ -303,7 +306,8 @@ class RoadWorksProcess:
         """その日の工事の辺(日の鍵の乱数・10a #20)。"""
         edge_cell = getattr(self.assets, "edge_cell", None)
         n_edges = 0 if edge_cell is None else int(np.asarray(edge_cell).size)
-        g = stream(self.master_seed, "world.road_works", int(day_key))
+        # 10e(E4・K19・U2): counter は日の鍵を 1 語目に置く(次の日の流れの頭と重ならない)
+        g = stream(self.master_seed, "world.road_works", *k19_counters(self.rng_scheme, int(day_key)))
         k = min(int(self.n_works), n_edges)
         self.planned_edges = (
             np.sort(g.choice(n_edges, size=k, replace=False)).astype(np.int64)

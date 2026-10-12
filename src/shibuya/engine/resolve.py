@@ -1158,7 +1158,7 @@ def advance_body(agents: AgentState, tick: int, energy: Any = None) -> None:
 
 
 # ---------------------------------------------------------------- 5 段目 5a エネルギー収支
-def initialize_energy(agents: AgentState, energy: Any, seed: int | str) -> None:
+def initialize_energy(agents: AgentState, energy: Any, seed: int | str, rng_scheme: str = "counter") -> None:
     """体の定数(体重・EER)を抽選し、食後の消費・収支・``hunger`` の写しと段を置く(ラン開始時 1 回)。
 
     ``initialize`` の直後・``freeze`` の前に呼ぶ(``energy_columns`` のランだけ)。``hunger_stage``
@@ -1169,7 +1169,7 @@ def initialize_energy(agents: AgentState, energy: Any, seed: int | str) -> None:
     model: EnergyModel = energy.model
     r = agents.registry
     with agents.writable():
-        weight, eer = model.draw_bodies(r.age, r.sex, seed)
+        weight, eer = model.draw_bodies(r.age, r.sex, seed, rng_scheme)  # 10e(E4・K19): 鍵の並べ方
         r.weight_kg[:] = weight
         r.eer_kcal[:] = eer
         r.since_meal_kcal[:] = model.initial_since_meal(eer)

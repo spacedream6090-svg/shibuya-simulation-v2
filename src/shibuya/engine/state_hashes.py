@@ -1,6 +1,10 @@
 """behavior-hash と full-hash(10b・A2・A3)。表は ``engine.state_ledger`` だけから読む。
 
-- **final(今の ``Checkpoint.combined``)は定義を変えない**。本モジュールは checkpoint の記録と manifest に
+- 〔10e(E1・版上げ 1 回目)〕**既定の final は behavior-hash**(``--hash-scheme behavior``)。旧い final
+  (``combined`` の旧い組み立て=SoA の全列+母集団+予定表+活動)は ``--hash-scheme full`` で再現する
+  (消した死蔵の列は ``core.soa.retired_columns_in_hash`` の中だけで元の位置に初期値で混ざる)。
+  ``full`` は旧値の再現のためだけの切替口で、版上げの最後に消す(消すかは親が決める)。
+- 〔10b の文言〕final(今の ``Checkpoint.combined``)は定義を変えない。本モジュールは checkpoint の記録と manifest に
   2 本の値を**足すだけ**(テープ・final には混ぜない)。
 - **behavior-hash** = 今の ``combined`` と同じ組み立てで、agents と world の SoA だけ
   ``Registry.state_hash(exclude=軸 1 が no/diag の列)`` に替え、末尾に外の状態のうち軸 1 が behavior の行の
@@ -35,6 +39,17 @@ from shibuya.core.hashing import blake3_hex
 from shibuya.engine import state_ledger as SL
 
 FULL_HEADER: Final[bytes] = b"shibuya.engine.state_hashes/full/v1"
+#: 10e(E1): final の定義の切替口。``behavior``=behavior-hash(既定)/ ``full``=旧い ``combined``(旧値の再現だけ)。
+HASH_SCHEMES: Final[tuple[str, ...]] = ("behavior", "full")
+DEFAULT_HASH_SCHEME: Final[str] = "behavior"
+
+
+def check_hash_scheme(value: str) -> str:
+    """``--hash-scheme`` の値を検査する(10e)。"""
+    v = str(value)
+    if v not in HASH_SCHEMES:
+        raise ValueError(f"hash_scheme は {HASH_SCHEMES} のどれか(いま {value!r})")
+    return v
 _SEP: Final[bytes] = b"\x1f"
 _LEN = struct.Struct("<Q")
 #: ``vars()`` で欄を並べてよい値のクラス(``__dict__`` を持つが dataclass でないもの)。
@@ -257,6 +272,8 @@ def behavior_hash(agents: Any, world: Any, population_hash: str, schedule_hash: 
 _ABSENT = object()
 #: 行の鍵 → ``ordered`` の印(台帳から 1 回だけ作る)。
 _ORDERED: Final[dict[str, bool]] = {r.key: r.ordered for r in SL.external_rows()}
+#: 10e(E1・検収 R1 の続き): 並びが状態でない list の道筋(台帳の ``multiset`` の印)。ハッシュは多重集合で取る。
+_MULTISET: Final[frozenset[str]] = frozenset(p for r in SL.external_rows() for p in r.multiset)
 
 
 def resolve_item(owners: Mapping[str, Any], path: str) -> Any:
@@ -281,6 +298,8 @@ def item_digest(owners: Mapping[str, Any], key: str, path: str) -> tuple[bytes, 
     v = resolve_item(owners, path)
     if v is _ABSENT:
         return b"-", 1
+    if path in _MULTISET and isinstance(v, (list, tuple)):
+        v = sorted(v, key=to_state)  # 並びは状態でない=要素の直列化の昇順(多重集合)
     f = _Feed(_blake3.blake3())
     try:
         _feed(f, v, 0, _ORDERED.get(key, False))

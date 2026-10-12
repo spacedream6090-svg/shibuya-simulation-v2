@@ -301,6 +301,8 @@ class ConversationManager:
         self.n_blocks = 0
         self.n_backchannels = 0
         self.n_interrupts = 0
+        #: 10e(E2): ``purge_expired`` で落とした期限切れの項の数(診断)。
+        self.n_expired_purged = 0
         self.closed_by_reason: dict[str, int] = {r: 0 for r in CLOSE_REASONS}
         #: 「無視された」イベント(呼を消費しない)。``(tick, inviter, invitee)``。
         self.ignored_events: list[tuple[int, int, int]] = []
@@ -826,6 +828,31 @@ class ConversationManager:
             return None
         self._close(s, int(tick), reason)
         return s
+
+    def purge_expired(self, tick: int) -> int:
+        """10e(E2・10b 検収 P3): 期限つきの辞書 3 つから、期限の切れた項を落とす(有界化)。
+
+        ``_refusal_until``・``_pair_invite_until``・``_speaker_invite_until`` は「``tick < 期限`` なら抑止」としか
+        読まれない(``refused_recently``・``invite_blocked_by_refractory``)。期限 ``<= tick`` の項はこの tick から先の
+        どの読みでも「無い」と同じなので、落としても挙動は変わらない(呼数・行動の件数は不変)。落とさないと日数に
+        比例して増える(10b 検収の再現: 合成 2,000 体・3 日で O39 の直列化 2,291 B → 253,229 B)。
+        状態(O39・挿入順つき)の中身が変わるので behavior-hash と full-hash は動く。呼ぶのは tick ごとに 1 回
+        (会話の段の終わり)。掃除の時刻は T だけで決まる=checkpoint の間隔や再開の位置に依らない。
+
+        逐次ループ宣言(P4): 生きている項の数ぶん(期限の窓の中の項だけが残る)。
+
+        Returns:
+            落とした項の数。
+        """
+        t = int(tick)
+        n = 0
+        for table in (self._refusal_until, self._pair_invite_until, self._speaker_invite_until):
+            dead = [k for k, until in table.items() if until <= t]
+            for k in dead:
+                del table[k]
+            n += len(dead)
+        self.n_expired_purged += n
+        return n
 
     def purge_terminal(self) -> int:
         """TERMINAL のセッションを表から落とす(有界化 D-R2-6)。

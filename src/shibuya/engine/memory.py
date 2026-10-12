@@ -215,6 +215,8 @@ class RecallItem(NamedTuple):
     gist: str
     valence: int = 0
     source: int = 0
+    #: 10e(E5・A8): その記憶が最初に書かれた時刻(``mem_tick``・店の行は ``sm_first``=通しの T)。テープ版 4 の同定。
+    first_tick: int = -1
 
 
 def activation_rows(n: np.ndarray, first_tick: np.ndarray, tick: int, minutes_per_tick: float,
@@ -401,11 +403,12 @@ class MemoryLayer:
             rs["calls_zero"] += 1
             return []
         last, part, res, cel = f("mem_last")[i], f("mem_partner")[i], f("mem_result")[i], f("mem_cell")[i]
+        first = f("mem_tick")[i]
         out = [
             RecallItem(
                 row=int(j), last_tick=int(last[j]), kind=int(kind[j]), partner=int(part[j]),
                 obj=int(m_obj[j]), result=int(res[j]), cell=int(cel[j]),
-                gist=self.gist.get((i, int(j)), ""),
+                gist=self.gist.get((i, int(j)), ""), first_tick=int(first[j]),
             )
             for j in picked  # 高々 k(≤ 3)
         ]
@@ -483,7 +486,9 @@ class MemoryLayer:
             rs["calls_zero"] += 1
             return []
         last, part, res, cel = f("mem_last")[i], f("mem_partner")[i], f("mem_result")[i], f("mem_cell")[i]
+        first = f("mem_tick")[i]
         s_last = f("sm_last")[i]
+        s_first = f("sm_first")[i]
         s_src = f("sm_source")[i]
         s_sign = (np.sign(st.valence_now(agents, np.asarray([i]), tick)[0]).astype(np.int64)
                   if any(typ == 1 for typ, _ in picked) else None)
@@ -493,7 +498,7 @@ class MemoryLayer:
                 out.append(RecallItem(
                     row=int(j), last_tick=int(last[j]), kind=int(kind[j]), partner=int(part[j]),
                     obj=int(m_obj[j]), result=int(res[j]), cell=int(cel[j]),
-                    gist=self.gist.get((i, int(j)), ""),
+                    gist=self.gist.get((i, int(j)), ""), first_tick=int(first[j]),
                 ))
                 rs["recalled_kind:" + str(KIND_NAMES.get(int(kind[j]), int(kind[j])))] += 1
             else:
@@ -503,7 +508,7 @@ class MemoryLayer:
                 out.append(RecallItem(
                     row=self.n_rows + row, last_tick=int(s_last[row]), kind=STORE_ITEM_KIND, partner=-1,
                     obj=int(s_poi[j]), result=0, cell=pc, gist="", valence=int(s_sign[row]),
-                    source=int(s_src[row]),
+                    source=int(s_src[row]), first_tick=int(s_first[row]),
                 ))
                 rs["recalled_kind:store"] += 1
         return out

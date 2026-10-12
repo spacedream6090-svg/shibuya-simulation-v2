@@ -27,9 +27,16 @@ PROMPT = "[B5 近接] 近くの人物: P-3(未知)、P-7(知人)、P-5(知人)�
 #: classical 1,500 体・seed 1・v3 の既定(acquaintance・関係 off)の final と呼数(旧は
 #: ``tests/perception/test_near_tiebreak.CLASSICAL_1500_GOLDEN["hash"]`` を ``classical_social="near_first"`` で再現)。
 #: 10f(K26 (1)): 一番外側の鍵は環境の ``platform_id``(``tests/golden_env.py``)。行の無い環境では A/A だけ。値は 10f の前のまま。
+#: 10e(E1・版上げ 1 回目): 既定の final が behavior-hash になった。旧値(10e より前の定義)は
+#: ``CLASSICAL_1500_GOLDEN_ACQ_PRE10E`` と ``hash_scheme="full"`` で再現する(下の試験)。
 CLASSICAL_1500_GOLDEN_ACQ_BY_ENV = {
+    # 10e(E4): 乱数 counter(K19 の鍵の並べ方で母集団から動く)。E1・E2 の値は 56384ee8…/25,808
+    GE.PLATFORM_10F: ("4c8a9e083943bae971e5371a0ad9e2fbbd341112eeb9fefe5f929d1e138916c5", 26_156),
+}
+CLASSICAL_1500_GOLDEN_ACQ_PRE10E_BY_ENV = {
     GE.PLATFORM_10F: ("4f78f3c0ce95d8e205c700952d756cd2e443da86bd54c60c073f39cafd5ec00a", 25_808),
 }
+CLASSICAL_1500_GOLDEN_ACQ_PRE10E = GE.row(CLASSICAL_1500_GOLDEN_ACQ_PRE10E_BY_ENV)
 #: 今の環境の行(無ければ ``None``=A/A だけ)。
 CLASSICAL_1500_GOLDEN_ACQ = GE.row(CLASSICAL_1500_GOLDEN_ACQ_BY_ENV)
 
@@ -145,6 +152,9 @@ def test_run_golden_and_arms():
         GE.assert_aa(lambda: cli.run(**kw), lambda x: (x.final_hash, int(x.llm_calls)), first=r)
     else:
         assert (r.final_hash, int(r.llm_calls)) == CLASSICAL_1500_GOLDEN_ACQ
+        # 10e(E1): 旧い final の定義(full)で 10e より前の値を再現する(呼数は同じ=挙動は不変)
+        old = cli.run(hash_scheme="full", rng_scheme="stateful", **kw)  # 10e(E4): 乱数も 10e より前
+        assert (old.final_hash, int(old.llm_calls)) == CLASSICAL_1500_GOLDEN_ACQ_PRE10E
     m = r.run_manifest_fields()["classical"]
     assert m["social"] == "acquaintance"
     c = m["counts"]

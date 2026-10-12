@@ -293,12 +293,14 @@ def test_poi_target_legacy_reproduces_the_pre_2a_checkpoints_q13(monkeypatch):
     # 3 段目(第289): CLI/cli.run の既定が無制限になったので旧挙動の上限(l4_scale=1.0)を明示する
     # 5 段目 5a(第291): cli.run の空腹の既定が energy になったので旧規則(hunger_model="v1")を明示する
     # 9a(第302): 退去の効果(所属解除)が既定になったので旧挙動(leave_effect=False)を明示する
+    # 10e(E1): 段 2a 前の値は 10e より前の final の定義=hash_scheme="full" で比べる(死蔵の列は full の中だけで混ざる)
     v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
-                 poi_target="legacy", l4_scale=1.0, hunger_model="v1", leave_effect=False)
+                 poi_target="legacy", l4_scale=1.0, hunger_model="v1", leave_effect=False, hash_scheme="full",
+                 rng_scheme="stateful")
     assert v3.final_hash.startswith("02bd03126d5f41cb") and int(v3.llm_calls) == 36_460
     null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
                    report_precondition=False, poi_target="legacy", l4_scale=1.0,
-                   hunger_model="v1", leave_effect=False)
+                   hunger_model="v1", leave_effect=False, hash_scheme="full", rng_scheme="stateful")
     assert null.final_hash.startswith("b4ad8140fe4176db") and int(null.llm_calls) == 41_072
 
 

@@ -14,13 +14,13 @@
     (C2 が実装済み)。M12 の 2 byte を**二重計上しない**ため、本レジストリは既定では
     宣言しない。``PerceptionState(n, include_invocation_distance=True)`` は、知覚側だけを
     単体で回すベンチ/テスト用の逃げ道(その場合 M12 の 4 byte は本レジストリに閉じる)。
+    〔10e(E1・Q9)〕``AgentState`` の ``invocation_distance`` は読み手の無い死蔵だったので消した。
+    本レジストリの逃げ道(既定 off・単体ベンチだけ)は残している(状態台帳の死蔵の行)。
 
 バイト予算(宣言)
     heading 1 + task_flag 1 = **2 byte/体**(M12 の p_notice 状態・契約書の逐語)
-    last_b2_hash 8 + last_b4_hash 8 = **16 byte/体**(契約書に行が無い=本モジュールの宣言)
-      理由: dormant 再送抑止(§5 三役の 3 本目)は「前回送ったバイト列」を個体ごとに覚えて
-      いないと成立しない。u64 より短くすると衝突で**送るべき変化を握り潰す**(取りこぼしは
-      再送抑止では致命的)。40万体で 6.4 MB=M8 の総額に対して無視できる。
+    〔10e(E1・A4)〕dormant 再送抑止の last_b2_hash 8 + last_b4_hash 8 = 16 byte/体 は、書き手も読み手も
+    無い死蔵だったので消した(D-102 A4・ユーザー決定 2026-10-03)。再送抑止を作るときに改めて宣言する。
     合計 ≤ ``PERCEPTION_BYTE_CAP`` = 24 byte/体(M1 30KB/体 の内数として自主的に切った上限)。
 
 逐次ループ宣言(P4): ``_set_writeable`` のフィールド数ぶんのみ(4-5 本)。
@@ -99,11 +99,8 @@ class PerceptionState:
                   doc="向きの量子化(16セクタ・22.5°刻み・M12 p_notice の m_ecc)")
         r.declare("task_flag", np.uint8, byte_budget_per_agent=1, mechanism=True,
                   doc="課題従事フラグ(TaskLoad 手空き/歩きスマホ/会話・M12 p_notice の m_load)")
-        # ---- dormant 再送抑止(§5 三役の 3 本目) ----
-        r.declare("last_b2_hash", np.uint64, byte_budget_per_agent=8, mechanism=True,
-                  doc="前回その個体へ送った B2 の描画バイト xxh64(dormant 再送抑止)")
-        r.declare("last_b4_hash", np.uint64, byte_budget_per_agent=8, mechanism=True,
-                  doc="前回その個体へ送った B4 の描画バイト xxh64(dormant 再送抑止)")
+        # 10e(E1・A4): dormant 再送抑止の ``last_b2_hash``・``last_b4_hash``(u8 ×2=16 B/体)は書き手も読み手も
+        # 無い死蔵だったので消した(旧い final には知覚 SoA が入らないので retire は要らない)
         if include_invocation_distance:
             r.declare("invocation_distance", np.uint16, byte_budget_per_agent=2, mechanism=False,
                       doc="次の計画境界までの残時間[分](M12・agents.state が持つときは重複宣言しない)")

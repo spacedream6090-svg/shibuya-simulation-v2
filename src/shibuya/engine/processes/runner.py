@@ -248,6 +248,7 @@ class WorldProcessRunner:
         self.delivery_inbound = DeliveryInboundProcess(
             world, ledger=ledger, shelf=self.shelf, master_seed=self.master_seed,
             day_index=day_key, tick_seconds=self.tick_seconds, actual_log=self.log,
+            rng_scheme=self.rng_scheme,  # 10e(E4・K19)
         )
         self.waste = WasteCollectionProcess(
             world, agents, ledger=ledger, tick_seconds=self.tick_seconds,
@@ -279,6 +280,7 @@ class WorldProcessRunner:
         self.road_works = RoadWorksProcess(
             world, self.assets, master_seed=_env_seed, day_index=day_key,  # 10f(S1): 環境の側
             tick_seconds=self.tick_seconds, actual_log=self.log,
+            rng_scheme=self.rng_scheme,  # 10e(E4・K19)
         )
         self.hotel = HotelProcess(
             world, agents, self.assets,

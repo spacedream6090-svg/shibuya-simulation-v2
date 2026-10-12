@@ -273,13 +273,19 @@ def test_bundle_is_checked_against_the_ledger(mid_state, tmp_path):
         b.soa["agents"]["cell"] = b.soa["agents"]["cell"][:-1].copy()
 
     def discardable_column(b):
+        # 10e(E1): 死蔵の plan_cursor を消したので、残る捨ててよい列(知覚の単体ベンチの逃げ道)で見る
+        b.soa.setdefault("perception", {})["invocation_distance"] = np.zeros(len(b.soa["agents"]["cell"]),
+                                                                             dtype=np.uint16)
+
+    def removed_column(b):  # 10e(E1): 消した死蔵の列は台帳に無い列として止まる
         b.soa["agents"]["plan_cursor"] = np.zeros(len(b.soa["agents"]["cell"]), dtype=np.int16)
 
     def missing_item(b):
         b.items.pop(next(iter(b.items)))
 
     for i, (edit, msg) in enumerate([(wrong_dtype, "台帳の宣言"), (wrong_width, "台帳の宣言"), (short_column, "長さ"),
-                                     (discardable_column, "捨ててよい"), (missing_item, "道筋")]):
+                                     (discardable_column, "捨ててよい"), (removed_column, "台帳に無い"),
+                                     (missing_item, "道筋")]):
         out = _rewrite(path, tmp_path / f"e{i}", edit)
         with pytest.raises(ValueError, match=msg):
             RS.read_state(out)
@@ -321,33 +327,47 @@ def test_check_item_kinds_ignores_none_and_numbers():
         RS.check_item_kinds(owners, dict(items, **{"x.d": {"1": 2}}))
 
 
-# ================================================================= 旧の pickle(10e まで・切替口つきだけ)
-def test_legacy_pickle_still_reads_with_a_warning(mid_state, tmp_path):
+# ================================================================= 旧の pickle(10e(E2)で読み口を消した)
+#: 10d の pickle の形式の版(試験の材料=10d の形の先頭の行を作るだけ。src からは 10e で消した)。
+STATE_FORMAT_PICKLE_10D = "shibuya.engine.resume/state/v1"
+
+
+def _pickle_10d(path: Path, bundle) -> None:
+    """10d の形(先頭の行+pickle)で書く(試験の材料=src の ``write_state_pickle`` は 10e で消した)。"""
+    import hashlib
+
+    header = dict(bundle.header, format=STATE_FORMAT_PICKLE_10D)
+    payload = pickle.dumps({"header": header, "soa": bundle.soa, "items": bundle.items,
+                            "inflight": bundle.inflight}, protocol=5)
+    head = b" ".join([RS.MAGIC, STATE_FORMAT_PICKLE_10D.encode("ascii"), str(header["run_id"]).encode("utf-8"),
+                      hashlib.sha256(payload).hexdigest().encode("ascii"), str(len(payload)).encode("ascii")]) + b"\n"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(head + payload)
+    path.with_suffix(".json").write_text(json.dumps(header, ensure_ascii=False), encoding="utf-8")
+
+
+def test_legacy_pickle_is_no_longer_read(mid_state, tmp_path, monkeypatch):
+    """10e(E2): 10d の pickle の読み口を消した。自分が書いた形の ``.pkl`` でも開かずに止まる(pickle を開かない)。"""
+    import inspect
+
     straight, path = mid_state
     bundle = RS.read_state(path)
-    old = tmp_path / RS.STATE_NAME_PICKLE.format(T=750)
-    RS.write_state_pickle(old, bundle)
-    assert old.read_bytes().startswith(RS.MAGIC + b" " + RS.STATE_FORMAT_PICKLE.encode())
-    with pytest.raises(SC.StateFormatError, match="pickle の形式"):  # U1: 切替口が無ければ開かない
+    old = tmp_path / "state-T00000750.pkl"
+    _pickle_10d(old, bundle)
+
+    def boom(*a, **k):
+        raise AssertionError("pickle を開いた")
+
+    monkeypatch.setattr(pickle, "loads", boom)
+    with pytest.raises(SC.StateFormatError, match="pickle の形式"):
         RS.read_state(old)
     with pytest.raises(SC.StateFormatError, match="pickle の形式"):
         run_day(resume_from=old, **SMALL)
-    with pytest.warns(RS.LegacyStateFormatWarning):
-        got = RS.read_state(old, allow_legacy_pickle=True)
-    assert got.header["format"] == RS.STATE_FORMAT_PICKLE and set(got.items) == set(bundle.items)
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", RS.LegacyStateFormatWarning)
-        b = run_day(resume_from=old, resume_legacy_pickle=True, **SMALL)
-    H = lambda r: [(c.tick, c.combined, c.behavior_hash, c.full_hash) for c in r.checkpoints if c.tick >= 750]  # noqa
-    assert H(b) == H(straight)
-    # 旧の形式も壊れたものは開かない(先頭の行の sha256)
-    data = old.read_bytes()
-    broken = tmp_path / "x" / old.name
-    broken.parent.mkdir()
-    broken.write_bytes(data[:-1] + bytes([data[-1] ^ 1]))
-    broken.with_suffix(".json").write_bytes(old.with_suffix(".json").read_bytes())
-    with pytest.raises(ValueError, match="sha256"):
-        RS.read_state(broken, allow_legacy_pickle=True)
+    assert "allow_legacy_pickle" not in inspect.signature(RS.read_state).parameters
+    assert "resume_legacy_pickle" not in inspect.signature(run_day).parameters
+    for name in ("write_state_pickle", "LegacyStateFormatWarning", "STATE_FORMAT_PICKLE", "STATE_NAME_PICKLE"):
+        assert not hasattr(RS, name), name
+    assert "pickle" not in RS.__dict__  # resume.py は pickle を import しない
 
 
 class _Evil:
@@ -365,21 +385,20 @@ def _evil_state(path: Path, marker: Path, *, magic: bool = True) -> None:
     import hashlib
 
     payload = pickle.dumps({"header": {"run_id": "run-evil"}, "x": _Evil(str(marker))}, protocol=5)
-    head = b" ".join([RS.MAGIC, RS.STATE_FORMAT_PICKLE.encode("ascii"), b"run-evil",
+    head = b" ".join([RS.MAGIC, STATE_FORMAT_PICKLE_10D.encode("ascii"), b"run-evil",
                       hashlib.sha256(payload).hexdigest().encode("ascii"), str(len(payload)).encode("ascii")]) + b"\n"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes((head if magic else b"") + payload)
     path.with_suffix(".json").write_text(json.dumps({"run_id": "run-evil"}), encoding="utf-8")
 
 
-@pytest.mark.parametrize("name,magic,allow", [
-    ("state-T00000750.npz", True, False),   # 検収役の再現(名前は .npz)
-    ("state-T00000750.npz", True, True),    # 切替口があっても .pkl でなければ開かない
-    ("state-T00000750.pkl", True, False),   # .pkl でも切替口が無ければ開かない
-    ("state-T00000750.npz", False, True),   # 先頭の行の無い生の pickle
-    ("state-T00000750.pkl", False, False),
-], ids=["npz_name", "npz_name_with_switch", "pkl_without_switch", "raw_pickle_with_switch", "raw_pickle_pkl"])
-def test_u1_pickle_is_never_opened_without_the_switch_and_pkl(tmp_path, monkeypatch, name, magic, allow):
+@pytest.mark.parametrize("name,magic", [
+    ("state-T00000750.npz", True),   # 検収役の再現(名前は .npz)
+    ("state-T00000750.pkl", True),   # 10d の名前でも(10e で切替口ごと消した)
+    ("state-T00000750.npz", False),  # 先頭の行の無い生の pickle
+    ("state-T00000750.pkl", False),
+], ids=["npz_name", "pkl_name", "raw_pickle_npz", "raw_pickle_pkl"])
+def test_u1_pickle_is_never_opened(tmp_path, monkeypatch, name, magic):
     marker = tmp_path / "marker"
     path = tmp_path / "st" / name
     _evil_state(path, marker, magic=magic)
@@ -389,14 +408,14 @@ def test_u1_pickle_is_never_opened_without_the_switch_and_pkl(tmp_path, monkeypa
 
     monkeypatch.setattr(pickle, "loads", boom)
     with pytest.raises(SC.StateFormatError):
-        RS.read_state(path, allow_legacy_pickle=allow)
-    if not allow:
-        with pytest.raises(SC.StateFormatError):
-            run_day(resume_from=path, n_agents=20, seed=1, n_cells=9, ticks=TPD, sim_days=2)
+        RS.read_state(path)
+    with pytest.raises(SC.StateFormatError):
+        run_day(resume_from=path, n_agents=20, seed=1, n_cells=9, ticks=TPD, sim_days=2)
     assert not marker.exists()
 
 
-def test_u1_cli_flag_for_the_legacy_pickle():
+def test_u1_cli_flag_for_the_legacy_pickle_is_gone():
+    """10e(E2): CLI の ``--resume-legacy-pickle`` を消した(``engine.run`` と ``shibuya.cli`` で同じ口)。"""
     import argparse
 
     from shibuya.engine.run import add_calendar_args, calendar_kwargs_from_args
@@ -404,8 +423,9 @@ def test_u1_cli_flag_for_the_legacy_pickle():
     ap = argparse.ArgumentParser()
     add_calendar_args(ap)
     assert "resume_legacy_pickle" not in calendar_kwargs_from_args(ap.parse_args(["--resume-from", "x.pkl"]))
-    got = calendar_kwargs_from_args(ap.parse_args(["--resume-from", "x.pkl", "--resume-legacy-pickle"]))
-    assert got["resume_legacy_pickle"] is True and "resume_legacy_pickle" in RS.FINGERPRINT_SKIP
+    with pytest.raises(SystemExit):
+        ap.parse_args(["--resume-from", "x.pkl", "--resume-legacy-pickle"])
+    assert "resume_legacy_pickle" not in RS.FINGERPRINT_SKIP
 
 
 _HEAD_CHILD = r"""
@@ -416,13 +436,13 @@ assert "head_src" in shibuya.__file__, shibuya.__file__
 run_day(state_out=sys.argv[1], stop_at_tick=750, n_agents=60, seed=1, n_cells=16, ticks=1440, sim_days=2,
         checkpoint_every=60, vocab_version="v3", memory="on", relations="on")
 """
-#: 10d の pickle を書いた最後の commit(10f 第 3 段の前)。10e で旧の読み口と一緒にこの試験を消す。
+#: 10d の pickle を書いた最後の commit(10f 第 3 段の前)。
 LEGACY_COMMIT = "129da80"
 
 
-def test_u1_resume_from_a_pkl_written_by_the_pickle_commit(tmp_path):
-    """``129da80``(第 3 段の前の HEAD)の写しの src で書いた ``.pkl`` から、切替口つきで再開すると通しと全点一致する。
-    切替口が無ければ開かない。"""
+def test_u1_resume_from_a_pkl_written_by_the_pickle_commit(tmp_path, monkeypatch):
+    """``129da80``(第 3 段の前の HEAD)の写しの src で書いた本物の ``.pkl`` は、10e(E2)で読み口を消したので
+    開かずに止まる(10f では切替口つきで通しと全点一致した試験。読み口と一緒に「止まる」試験に替えた)。"""
     import os
     import shutil
     import subprocess
@@ -448,13 +468,15 @@ def test_u1_resume_from_a_pkl_written_by_the_pickle_commit(tmp_path):
     assert c.returncode == 0, c.stderr[-2000:]
     pkl = next(out.glob("state-T*.pkl"))
     assert pkl.read_bytes().startswith(RS.MAGIC)
-    with pytest.raises(SC.StateFormatError):
+
+    def boom(*a, **k):
+        raise AssertionError("pickle を開いた")
+
+    monkeypatch.setattr(pickle, "loads", boom)
+    with pytest.raises(SC.StateFormatError, match="pickle の形式"):
+        RS.read_state(pkl)
+    with pytest.raises(SC.StateFormatError, match="pickle の形式"):
         run_day(resume_from=pkl, **SMALL)
-    straight = run_day(**SMALL)
-    with pytest.warns(RS.LegacyStateFormatWarning):
-        b = run_day(resume_from=pkl, resume_legacy_pickle=True, **SMALL)
-    H = lambda r_: [(x.tick, x.combined, x.behavior_hash, x.full_hash) for x in r_.checkpoints if x.tick >= 750]  # noqa
-    assert H(b) == H(straight) and len(H(b)) > 30
 
 
 # ================================================================= U4: 部品の宣言と展開した後の大きさ
@@ -588,7 +610,9 @@ def test_size_and_time_5000(tmp_path, monkeypatch):
     t = time.perf_counter()
     RS.read_state(tmp_path / "w" / "x.npz")
     t_read = time.perf_counter() - t
-    n_old = RS.write_state_pickle(tmp_path / "p" / "x.pkl", bundle)
+    # 10d の pickle の大きさ(比べるだけ=src の書き手は 10e で消した。中身は同じまとまりの pickle)
+    n_old = len(pickle.dumps({"header": bundle.header, "soa": bundle.soa, "items": bundle.items,
+                              "inflight": bundle.inflight}, protocol=5))
     print(json.dumps({"npz_bytes": size, "pickle_bytes": n_old, "ratio": round(size / n_old, 3),
                       "write_s": round(t_write, 3), "read_s": round(t_read, 3)}))
     assert size < 0.35 * n_old

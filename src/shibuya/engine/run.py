@@ -205,6 +205,8 @@ from shibuya.engine.llm_bridge import (
     delta_think_ticks,
 )
 from shibuya.engine.scheduler import DIAG_COLUMNS
+from shibuya.core.soa import retired_columns_in_hash
+from shibuya.engine.state_hashes import DEFAULT_HASH_SCHEME, HASH_SCHEMES, check_hash_scheme
 from shibuya.engine.state_hashes import behavior_hash as behavior_state_hash
 from shibuya.engine.state_hashes import full_hash as full_state_hash
 from shibuya.engine.state_hashes import component_digests
@@ -409,17 +411,23 @@ class RngSchemeWarning(UserWarning):
 _WARNED_RNG: set[str] = set()
 
 
-def _resolve_rng_scheme(value: str, mode: str, replay: Any) -> str:
-    """乱数の方式を決める(10c)。
+#: 10e(検収 L1): テープの脇の meta に書く乱数の鍵の配置の印。10c〜10f の counter(K19 の並べ方の前)と見分ける。
+RNG_LAYOUT: Final[str] = "10e"
 
-    - 録画・mock: 渡された値(既定 ``stateful``)。
+
+def resolve_rng_scheme(value: str | None, mode: str = "record", replay: Any = None) -> str:
+    """乱数の方式を決める(10c・10e で ``None``=未指定を足した)。``cli.run`` も母集団の抽出の前にこれを呼ぶ。
+
+    - 録画・mock: 渡された値。``None``(未指定)は既定 ``counter``(10e・E4)。
     - 再生: テープの脇の meta(``run_meta.json``)の ``rng_scheme`` と突き合わせ、違えば止める(文言に両方の値)。
-      meta に値が無いテープ(10c より前の録画)は ``stateful`` とみなし、警告を 1 回出す(``response_delay`` と同じ形。
-      10e で既定を counter にしたとき、旧テープが黙って回らないことに気づけるように=10c の検収の答え (b))。
+      ``None``(未指定)ならテープの値で回す(``response_delay`` と同じ形=旧テープを既定のまま正しく回す)。
+      meta に値が無いテープ(10c より前の録画=実 LLM の 17 本)は ``stateful`` とみなし、警告を 1 回出す
+      (10c の検収の答え (b))。
     - 名前の注意(検収の答え (a)): この ``rng_scheme`` は「状態を持つ乱数か」の切替口の名前で、manifest の設計の
       ``rng.scheme``(生成器の名前 ``"numpy-philox4x64"``・``manifest/schema.py``)とは別物。
     """
-    v = check_rng_scheme(value)
+    given = value is not None
+    v = check_rng_scheme(value if given else DEFAULT_RNG_SCHEME)
     if mode != "replay" or replay is None:
         return v
     tape_dir = _replay_tape_dir(replay)
@@ -435,6 +443,15 @@ def _resolve_rng_scheme(value: str, mode: str, replay: Any) -> str:
             )
         rec = LEGACY_TAPE_RNG_SCHEME
     rec = str(rec)
+    meta = read_run_meta(tape_dir)
+    if rec == "counter" and meta.get("rng_layout") != RNG_LAYOUT:
+        # 10e(検収 L1): 10c〜10f の counter は K19 の鍵の並べ方の前(母集団の抽出・体の定数・気づき・日の鍵が違う)
+        raise ValueError(
+            f"このテープは 10c〜10f の counter の鍵の配置で録られている(run_meta.json に rng_layout={RNG_LAYOUT!r} が無い)"
+            f"=10e の counter とは乱数の並びが違うので再生しない({tape_dir.name})"
+        )
+    if not given:  # 10e: 未指定はテープの値で回す
+        v = check_rng_scheme(rec)
     if rec != v:
         raise ValueError(
             f"乱数の方式がテープと違う: テープは rng_scheme={rec}・今の設定は {v}"
@@ -706,13 +723,28 @@ class Checkpoint:
     behavior_hash: str = ""
     #: 10b: **full-hash**(SoA+知覚 SoA+外の状態のうち軸 2 が要る・導出できる・不明の行)。``combined`` には混ぜない。
     full_hash: str = ""
+    #: 10e(E1): final の定義(``HASH_SCHEMES``)。``behavior``(既定)=``combined`` は behavior-hash /
+    #: ``full``=旧い組み立て(``legacy_combined``・旧値の再現だけ。版上げの最後に消す)。
+    hash_scheme: str = DEFAULT_HASH_SCHEME
 
     @property
-    def combined(self) -> str:
+    def legacy_combined(self) -> str:
+        """10e より前の final の組み立て(SoA の全列+母集団+予定表(+活動))。"""
         parts = [self.agents_hash, self.world_hash, self.population_hash, self.schedule_hash]
         if self.activity_hash:
             parts.append(self.activity_hash)
         return blake3_hex("\x1f".join(parts).encode("utf-8"))
+
+    @property
+    def combined(self) -> str:
+        """final(T1/T2 の一致判定)。10e(E1)から既定は behavior-hash。``full`` は旧い組み立て。"""
+        if self.hash_scheme == "full":
+            return self.legacy_combined
+        if self.hash_scheme != "behavior":
+            raise ValueError(f"未知の hash_scheme: {self.hash_scheme!r}")
+        if not self.behavior_hash:
+            raise ValueError("hash_scheme='behavior' の checkpoint に behavior_hash が無い")
+        return self.behavior_hash
 
 
 @dataclass
@@ -1017,6 +1049,8 @@ class RunResult:
     sim_days: int = 1
     #: 10c: 顕著行為の発生と出動の遅れの乱数の方式(``RNG_SCHEMES``・既定 ``stateful``)。manifest に載る。
     rng_scheme: str = DEFAULT_RNG_SCHEME
+    #: 10e(E1): final の定義(``HASH_SCHEMES``・既定 ``behavior``)。manifest に載る。
+    hash_scheme: str = DEFAULT_HASH_SCHEME
     # ---- 10b: 状態台帳の 2 つのハッシュ(final には混ぜない) ----
     #: 最後の checkpoint の full-hash の外の状態の行ごとの直列化のバイト数(台帳の鍵 → B)。
     full_hash_bytes: dict[str, int] = field(default_factory=dict)
@@ -1382,6 +1416,8 @@ class RunResult:
             "population_seed": (self.seed if self.population_seed is None else self.population_seed),
             # ---- 10f 第 2 段の直し(S1): 環境の seed(気象・大きな催し・道路工事)。列追加のみ ----
             "environment_seed": (self.seed if self.environment_seed is None else self.environment_seed),
+            # ---- 10e(E1): final の定義(behavior=behavior-hash が既定・full=旧い組み立て)。列追加のみ ----
+            "hash_scheme": str(self.hash_scheme),
         }
 
     def l4_audit_fields(self) -> dict[str, Any]:
@@ -1648,6 +1684,7 @@ def _resolve_population(
     n_agents: int,
     seed: int | str,
     n_cells: int,
+    rng_scheme: str = DEFAULT_RNG_SCHEME,
 ) -> "Population | None":
     """``population`` 引数 → 実体(``None``=資産が無い/切っている)。
 
@@ -1671,7 +1708,7 @@ def _resolve_population(
             # (明示的に population= を渡したときだけ食い違いを例外にする)。
             return None
     if pop.n > n_agents:
-        pop = sample_population(pop, n_agents, seed)
+        pop = sample_population(pop, n_agents, seed, rng_scheme=rng_scheme)  # 10e(E4・K19): 層の鍵の並べ方
     return pop
 
 
@@ -1998,13 +2035,13 @@ def run_day(
     holiday_csv: "str | Path" = DEFAULT_HOLIDAY_CSV,
     school_holidays: Any = (),
     response_delay: int | None = None,
-    rng_scheme: str = DEFAULT_RNG_SCHEME,
+    rng_scheme: str | None = None,
+    hash_scheme: str = DEFAULT_HASH_SCHEME,
     state_out: "str | Path | None" = None,
     stop_at_tick: int | None = None,
     resume_from: "str | Path | None" = None,
     run_id: str = "",
     checkpoint_detail: bool = False,
-    resume_legacy_pickle: bool = False,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -2344,13 +2381,19 @@ def run_day(
             直前に置き下限 ``max(t_apply, tick)``(発射 +1 tick で反映)/ ``2``=旧(受け取りは④′・下限
             ``tick + 1``=+2 tick)。旧い実 LLM テープの再生は ``2`` で回す。mock(``fleet=None`` かつ再生の
             到着が無い)はこの分岐を通らない=結果は動かない。
-        rng_scheme: **10c(Q8)の乱数の切替口**。``stateful``(既定=今のまま)/ ``counter``=顕著行為の発生を
+        rng_scheme: **10c(Q8)の乱数の切替口**。〔10e(E4)〕``None``(未指定)は録画・mock では既定 ``counter``・再生では
+            テープの値。``counter`` は K19 の鍵の並べ方(``core.rng.k19_counters``)も含む / ``stateful``=10e より前
+            (旧値の再現)。以下は 10c の文言: ``stateful``(既定=今のまま)/ ``counter``=顕著行為の発生を
             ``(seed, 名前, T)``・出動の遅れを ``(seed, 名前, T, セル, k)`` から毎回作る(状態を持たない・
             ``core.rng.run_tick_key``)。世界過程を止めたランでも値は検査して manifest に載せる。
             この名前は切替口の名前で、manifest の設計の ``rng.scheme``(生成器の名前 ``"numpy-philox4x64"``)とは別物。
+        hash_scheme: **10e(E1)の final の定義の切替口**。``behavior``(既定)=final は behavior-hash(状態台帳の
+            軸 1 が behavior の SoA の列と外の状態の行)/ ``full``=10e より前の final(SoA の全列+母集団+予定表+活動。
+            消した死蔵の列は ``core.soa.retired_columns_in_hash`` の中で元の位置に初期値で混ざる=旧値の再現)。
+            挙動には効かない(checkpoint の値だけが変わる)ので再開の指紋には入れない。版上げの最後に ``full`` を消す。
         state_out: **10d の状態の書き出し先**(ディレクトリ)。渡すと各日の締めの後(複数日のランの途中の日)と、
             ``stop_at_tick`` で止めたとき、ランの最後(``finished: true``)に、状態のまとまりを 1 ファイルずつ
-            書く(``engine.resume``・名前は ``state-T<次に回す T>.npz``=10f の npz+json。10d の ``.pkl`` は読むだけ)。``None``(既定)=書かない。
+            書く(``engine.resume``・名前は ``state-T<次に回す T>.npz``=10f の npz+json。10d の ``.pkl`` は 10e で読み口を消した)。``None``(既定)=書かない。
         stop_at_tick: **10d の止める時刻**(通しの時刻 T・その tick の手前で止める)。日の境目(1 日の tick 数の
             倍数)なら直前の日の締めの後、日の途中(試験用・A10)なら締めずにそこで状態を書いて止める。
             ``state_out`` が要る。止めたランは ``finished: false``。
@@ -2361,9 +2404,6 @@ def run_day(
         run_id: manifest のラン ID(空なら設定の指紋・始めの T・親のラン ID から作る)。
         checkpoint_detail: checkpoint ごとに列ごと・外の状態の行ごとの digest も控える(食い違いの場所を探す道具
             ``docs/bench/analysis/wallbounce-1003/10d/first_diff.py`` 用・既定 off=費用 0)。
-        resume_legacy_pickle: **10f の旧の形式の切替口**(既定 False)。True で、``resume_from`` が拡張子 ``.pkl``
-            の 10d の pickle のときだけ開く(自分が書いたファイルに限る・10e で消す)。False では pickle の中身を
-            開かずに止める(``engine.resume.read_state``)。指紋には入れない。
 
     Returns:
         ``RunResult``。
@@ -2384,7 +2424,8 @@ def run_day(
     # ---- 10a(A1・A1-1・A1-2・A1-3・A9): 暦の口・通しの時刻 T・応答の遅れ(世界を触る前に検査) ----
     calendar_weekday = check_weekday_mode(calendar_weekday)
     response_delay = _resolve_response_delay(response_delay, mode, replay)
-    rng_scheme = _resolve_rng_scheme(rng_scheme, mode, replay)  # 10c: 再生ではテープの meta と突き合わせる
+    rng_scheme = resolve_rng_scheme(rng_scheme, mode, replay)  # 10c: 再生ではテープの meta と突き合わせる
+    hash_scheme = check_hash_scheme(hash_scheme)  # 10e(E1)
     if mode == "replay" and replay is not None:  # 10f: 録画した環境が違えば警告を 1 行(挙動は変えない)
         _rtd = _replay_tape_dir(replay)
         RS.warn_if_other_environment(read_run_meta(_rtd).get("environment"), f"再生するテープ {_rtd.name}")
@@ -2421,7 +2462,7 @@ def run_day(
     _read_seconds = 0.0
     if resume_from is not None:
         _t_read = time.perf_counter()
-        _bundle = RS.read_state(resume_from, allow_legacy_pickle=bool(resume_legacy_pickle))
+        _bundle = RS.read_state(resume_from)
         _read_seconds = time.perf_counter() - _t_read
         _h = _bundle.header
         # 10f: 親を書いた環境が違えば警告を 1 行(挙動は変えない)
@@ -2640,6 +2681,7 @@ def run_day(
     _env_fields = RS.environment_fields()
     tape_writer = (TapeWriter(Path(tape_path), run_meta={"response_delay": int(response_delay),
                                                             "rng_scheme": str(rng_scheme),
+                                                            "rng_layout": RNG_LAYOUT,  # 10e(検収 L1)
                                                             "env_id": str(_env_fields["env_id"]),
                                                             "environment": copy.deepcopy(_env_fields)})
                    if tape_path is not None else None)
@@ -2647,7 +2689,7 @@ def run_day(
             if conversations else None)
     # 10f(K21 (a)): mock 日課・W16 の抽出は母集団の seed から(既定は seed と同じ値)
     schedule = synthesize(n_agents, pop_seed, world.n_cells)
-    pop = _resolve_population(population, world_dir, n_agents, pop_seed, world.n_cells)
+    pop = _resolve_population(population, world_dir, n_agents, pop_seed, world.n_cells, rng_scheme)
     # ---- D-66: 週次表(W17)は SoA を確保する前に読む(層の有無で列が 1 本変わるため) ----
     # ``load_weekly`` / ``restrict_to`` は純粋な読み込み(乱数を 1 語も引かない)なので、
     # ここへ繰り上げても帰無腕のバイト列は動かない。
@@ -2730,7 +2772,7 @@ def run_day(
             ),
         )
         if not _resuming:  # 10d(A11): 空腹の初期値・体の定数は保存した状態から
-            R.initialize_energy(agents, energy_layer, pop_seed)  # 10f: 体の定数は母集団の側
+            R.initialize_energy(agents, energy_layer, pop_seed, rng_scheme)  # 10f: 体の定数は母集団の側・10e: 鍵の並べ方
     agents.freeze()
     world.freeze()
 
@@ -4075,6 +4117,13 @@ def run_day(
                             since_tick=int(sel.since_tick[i]),
                             prompt_hash_hint=rendered.prompt_hash,
                             recalled_rows=tuple(getattr(rendered, "recalled_rows", ())),
+                            # 10e(E5・A8・K1): テープ版 4 の列の材料
+                            recalled_first_tick=tuple(getattr(rendered, "recalled_first_tick", ())),
+                            recalled_kind=tuple(getattr(rendered, "recalled_kind", ())),
+                            recalled_object=tuple(getattr(rendered, "recalled_object", ())),
+                            acquaintance_ids=tuple(getattr(rendered, "acquaintance_ids", ())),
+                            b5_text=str(getattr(rendered, "b5_text", "")),
+                            b6_text=str(getattr(rendered, "b6_text", "")),
                         )
                     )
                 # 発射は**非ブロッキング**。返るのは「キューに入らなかった」分だけ。
@@ -4330,6 +4379,7 @@ def run_day(
                 )
                 R.revert_conversation(agents, done)
             conv.purge_terminal()
+            conv.purge_expired(tick)  # 10e(E2): 期限の切れた不応期・拒否の控えを落とす(挙動は不変・有界化)
 
         # ---- 二層の段 2: この tick に適用した応答の活動を書き、到着・会話成立で満了させる ----
         # **resolve.apply と会話の後**(行為の成否と会話セッションが確定してから)。
@@ -4448,9 +4498,14 @@ def run_day(
                 schedule.population_hash, schedule_hash, _owners, memo=_memo,
             )
             result.full_hash_bytes = _full_bytes
+            if hash_scheme == "full":  # 10e(E1): 旧い final の再現(消した死蔵の列を元の位置に初期値で混ぜる)
+                with retired_columns_in_hash():
+                    _agents_h = agents.state_hash()
+            else:
+                _agents_h = agents.state_hash()
             result.checkpoints.append(
                 Checkpoint(
-                    tick, agents.state_hash(), world.state_hash(),
+                    tick, _agents_h, world.state_hash(),
                     schedule.population_hash,
                     schedule_hash,
                     _act_hash,
@@ -4459,6 +4514,7 @@ def run_day(
                         memo=_memo,
                     ),
                     full_hash=_full,
+                    hash_scheme=hash_scheme,
                 )
             )
             _dt_ckpt = time.perf_counter() - t0
@@ -4609,6 +4665,7 @@ def run_day(
     result.response_delay = int(response_delay)
     result.sim_days = int(sim_days)
     result.rng_scheme = str(runner.rng_scheme) if runner is not None else str(rng_scheme)  # 10c
+    result.hash_scheme = str(hash_scheme)  # 10e(E1)
     # ablation 第1陣 ②③⑥ の腕(manifest の同定欄)。⑥ は**実際に描いた側**が正。
     result.p_notice_ablation = _pnotice_ablation_name(
         runner.salient.ablation if runner is not None else p_notice_ablation
@@ -4982,17 +5039,18 @@ def add_calendar_args(ap: "argparse.ArgumentParser") -> None:
     ap.add_argument("--school-holidays", type=str, default="",
                     help="学校の長期休みの区間 YYYY-MM-DD:YYYY-MM-DD をカンマ区切り(開始日の検査・既定は空)")
     # 10c(Q8): D-102 の土台の切替口。同じ綴りを engine.run と shibuya.cli で使うためここに置く
-    ap.add_argument("--rng-scheme", choices=RNG_SCHEMES, default=DEFAULT_RNG_SCHEME,
-                    help=("顕著行為の発生と出動の遅れの乱数(10c)。stateful=今のまま(既定)/"
-                          " counter=(seed, 名前, T[, セル, k])から毎回作る=状態を持たない"))
+    ap.add_argument("--rng-scheme", choices=RNG_SCHEMES, default=None,
+                    help=("顕著行為の発生と出動の遅れの乱数(10c)と K19 の鍵の並べ方(10e)。counter=(seed, 名前, T[, セル, k])"
+                          "から毎回作る=状態を持たない・鍵の 0 語目を空ける(既定・10e)/ stateful=10e より前(旧値の再現だけ)"))
+    # 10e(E1): final の定義の切替口(同じ綴りを engine.run と shibuya.cli で使う)
+    ap.add_argument("--hash-scheme", choices=HASH_SCHEMES, default=DEFAULT_HASH_SCHEME,
+                    help=("final の定義(10e)。behavior=behavior-hash(既定)/ full=10e より前の final"
+                          "(旧値の再現だけ・版上げの最後に消す)"))
     # 10d(親の答え 7): 複数日の通しランと再開の口(同じ綴りを engine.run と shibuya.cli で使う)
     ap.add_argument("--sim-days", type=int, default=1,
                     help="通しで回す日数(10d)。2 以上では各日の終わりに締め・日の頭の初期化は走らせない(既定 1)")
     ap.add_argument("--resume-from", type=str, default="",
                     help="再開する状態のファイル(10d・state-T<T>.npz)。設定は親と同じにする(違えば止める)")
-    ap.add_argument("--resume-legacy-pickle", action="store_true",
-                    help=("10d の pickle(state-T<T>.pkl)から再開する切替口(10f・10e まで)。拡張子 .pkl と両方がそろった"
-                          "ときだけ開く。pickle は開くとコードが動きうるので、自分が書いたファイルに限る"))
     ap.add_argument("--state-out", type=str, default="",
                     help="状態の書き出し先のディレクトリ(10d)。各日の締めの後とランの最後に state-T<T>.npz を書く")
 
@@ -5007,16 +5065,17 @@ def calendar_kwargs_from_args(args: Any) -> dict[str, Any]:
         "school_holidays": str(getattr(args, "school_holidays", "") or ""),
         # None=未指定(録画・mock は 1、再生はテープの記録に合わせる=``_resolve_response_delay``)
         "response_delay": getattr(args, "response_delay", None),
-        # 10c: 乱数の方式(既定 stateful)
-        "rng_scheme": str(getattr(args, "rng_scheme", DEFAULT_RNG_SCHEME)),
+        # 10c: 乱数の方式。10e: None=未指定(録画・mock は既定 counter・再生はテープの値=``resolve_rng_scheme``)
+        "rng_scheme": getattr(args, "rng_scheme", None),
     }
+    # 10e(E1): final の定義(既定のときは欄を足さない=既定の引数は今のまま)
+    if str(getattr(args, "hash_scheme", DEFAULT_HASH_SCHEME)) != DEFAULT_HASH_SCHEME:
+        out["hash_scheme"] = str(args.hash_scheme)
     # 10d: 複数日と再開の口(既定のときは欄を足さない=既定の引数は今のまま)
     if int(getattr(args, "sim_days", 1) or 1) != 1:
         out["sim_days"] = int(args.sim_days)
     if getattr(args, "resume_from", ""):
         out["resume_from"] = str(args.resume_from)
-    if bool(getattr(args, "resume_legacy_pickle", False)):
-        out["resume_legacy_pickle"] = True
     if getattr(args, "state_out", ""):
         out["state_out"] = str(args.state_out)
     return out

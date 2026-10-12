@@ -263,6 +263,7 @@ class SalientProcess:
                 seed=self.master_seed,
                 event_id=ev_id,
                 tick=int(tick),
+                rng_scheme=self.rng_scheme,  # 10e(E4・K19): 鍵の並べ方
                 params=self.params,
                 already_noticed=already[cand],
                 counters=self.budget.counters,

@@ -406,7 +406,9 @@ def test_environment_seed_only_changes_weather_events_and_works(monkeypatch):
 
 # ---------------------------------------------------------------- T3: 回す役と CRN の健全性
 def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path):
-    arms = {"base": {}, "sal": {"salient_rate_per_10k": 100.0}}
+    # 10e(E4): 乱数 counter では率 100 だと 200 体・1 日で事象が 0 件の salt がある(腕が基準と同じランになる)ので
+    # 率を上げて、どの salt でも腕が食い違うようにした
+    arms = {"base": {}, "sal": {"salient_rate_per_10k": 1000.0}}
     out = tmp_path / "runs.json"
     r = subprocess.run([sys.executable, str(ROOT / "tools" / "c7" / "salt_runs.py"), "plan", "--arms", json.dumps(arms),
                         "--base", "base", "--arm", "sal", "--salts", "1,2", "--population-seed", "1", "--agents", "200",

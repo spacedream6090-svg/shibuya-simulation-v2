@@ -322,7 +322,8 @@ def test_run_default_is_off_and_relations_on_keeps_behavior():
     _real_world_or_skip()
     from shibuya import cli
 
-    kw = dict(n_agents=2000, seed=1, world_dir=WORLD, vocab_version="v3", memory="on")
+    kw = dict(n_agents=2000, seed=1, world_dir=WORLD, vocab_version="v3", memory="on",
+              hash_scheme="full")  # 10e(E1): AgentState.state_hash の差し替えで欄を除く比べ方は旧い final の定義(full)でだけ効く
     mem = cli.run(**kw)
     # 8b の相手選択・知人出現を切った on(=8a の「書くだけ」)は関係の欄を除いて記憶 on と同じ
     kw_on = dict(relations="on", rel_invite="off", rel_acq_wake="off")

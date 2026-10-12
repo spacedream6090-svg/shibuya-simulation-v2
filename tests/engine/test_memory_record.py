@@ -215,7 +215,7 @@ def test_gists_are_capped_per_agent():
 def test_run_default_is_off_and_memory_on_keeps_mock_behavior(monkeypatch):
     from shibuya.engine.run import run_day
 
-    kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3")
+    kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3", hash_scheme="full")  # 10e(E1): AgentState.state_hash の差し替えで欄を除く比べ方は旧い final の定義(full)でだけ効く
     off = run_day(**kw)
     assert off.memory is False and off.memory_summary == {}
     assert off.run_manifest_fields()["memory"] is False

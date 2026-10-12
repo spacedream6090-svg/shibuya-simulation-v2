@@ -57,7 +57,7 @@ PATHS: Final[dict[str, str]] = {
     "manifest_sections": _C,
     # ---- データ・暦・時間 ----
     "registry_hash": _C, "replay_date": _C, "tick_seconds": _C, "start_sim_datetime": _C, "sim_days": _C,
-    "calendar": _C, "response_delay": _C, "rng_scheme": _C, "template_sha256": _C, "catalog_sha16": _C,
+    "calendar": _C, "response_delay": _C, "rng_scheme": _C, "hash_scheme": _C, "template_sha256": _C, "catalog_sha16": _C,
     "frozen_sources": _C, "process_ids": _C, "ablations": _C, "fleet": _C,
     # ---- 10f 第 2 段(K21 (a)): 母集団の seed(salt の比較では揃える=設定) ----
     "population_seed": _C,

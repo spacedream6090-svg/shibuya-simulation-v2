@@ -9,8 +9,12 @@
   決まらない一覧は理由つきの表(``UNDETERMINED_SITES``)に載っていなければ落とす=新しい呼び手を実行時の検査に回す合図。
 - **実行時**: ``core.rng.philox`` を包んで、ランで作った全部の流れの「使ったブロック」と、同じ (用途名, 1〜3 語目) の
   別の流れとの重なりを数える(``StreamRecorder``)。実際の重なりがある用途名と、``c0`` に値を置いて 2 ブロック以上を
-  引いた用途名は、理由つきの許可の表(``K19_ALLOW``)に載っていなければ落とす。**重なりの修正そのものは版上げ
-  1 回目(10e)**(K19 の答え=指示書 10-06 §6)なので、ここでは一覧に載せて固定するだけ。
+  引いた用途名は、理由つきの許可の表(``K19_ALLOW``)に載っていなければ落とす。
+- 〔10e(E4)〕重なりを直した: K19 の 8 用途名は ``--rng-scheme counter``(既定)では鍵の 0 語目を空けた(``core.rng.k19_counters``・
+  10c の counter の 2 本と同じ形)。許可の表から ``overlap`` を消し、**既定(counter)では重なりが 1 つでも出たら落ちる**。
+  旧の並びの流れは旧値の再現の切替口 ``stateful`` でだけ作られ、そのときだけ重なりを許す(扱い ``stateful``)。
+  束ねる鍵に master seed を入れた(10f 第 3 段の検収 U8: 3 つの seed の別の鍵どうしを重なりと数えない)。同じ鍵の
+  作り直しは、理由つきの表(``K19_RECREATED``)に載る用途名だけに許す。
 
 数え方・分類の規則は実行役の自前の構成(**未リサーチ(expedient)**・10f の材料 §4 の案)。0 語目の繰り上がり(2^64)は
 扱わない。
@@ -309,6 +313,8 @@ class StreamRecorder:
 
     def __init__(self) -> None:
         self.made: list[tuple[str, tuple[int, ...], int, Any]] = []
+        #: 10e(U8): ``made`` と同じ並びの master seed(正準の文字列)。
+        self.seeds: list[str] = []
         self._patched: list[tuple[Any, str, Any]] = []
 
     def install(self) -> "StreamRecorder":
@@ -318,10 +324,12 @@ class StreamRecorder:
 
         orig = RNG.philox
         made = self.made
+        seeds = self.seeds
 
         def wrapped(master_seed: Any, domain: str, *counters: int) -> Any:
             bg = orig(master_seed, domain, *counters)
             made.append((str(domain), tuple(int(c) for c in counters), int(bg.state["state"]["counter"][0]), bg))
+            seeds.append(RNG._seed_to_text(master_seed))  # 10e(U8): 束ねる鍵に seed
             return bg
 
         for name, mod in list(sys.modules.items()):
@@ -342,12 +350,14 @@ class StreamRecorder:
         self.uninstall()
 
     def analyze(self) -> dict[str, DomainStats]:
-        """用途名 → 数え。``blocks`` = 作った時と今の 0 語目の差。重なり = 同じ (用途名, 1〜3 語目) で 0 語目の違う
-        流れどうしの使ったブロックの区間の重なり(カウンタの全語が同じ作り直しは数えない)。"""
+        """用途名 → 数え。``blocks`` = 作った時と今の 0 語目の差。重なり = 同じ (master seed, 用途名, 1〜3 語目) で
+        0 語目の違う流れどうしの使ったブロックの区間の重なり(カウンタの全語が同じ作り直しは数えない)。
+        10e(U8): 束ねる鍵に master seed を入れた(seed が違えば Philox の鍵が違う=重ならない)。"""
         st: dict[str, DomainStats] = defaultdict(DomainStats)
         groups: dict[tuple[Any, ...], list[tuple[int, int, int]]] = defaultdict(list)
         seen: set[tuple[Any, ...]] = set()
         for i, (dom, ctr, c0, bg) in enumerate(self.made):
+            sd = self.seeds[i] if i < len(self.seeds) else ""
             blocks = int(bg.state["state"]["counter"][0]) - c0
             d = st[dom]
             d.streams += 1
@@ -356,13 +366,13 @@ class StreamRecorder:
             words = ctr + (0,) * (4 - len(ctr))
             if words[0] != 0:
                 d.keyed = True
-            full = (dom,) + tuple(words)
+            full = (sd, dom) + tuple(words)
             if full in seen:
                 d.same_key_recreated += 1
                 continue
             seen.add(full)
             if blocks > 0:
-                groups[(dom,) + tuple(words[1:])].append((c0 + 1, c0 + blocks, i))
+                groups[(sd, dom) + tuple(words[1:])].append((c0 + 1, c0 + blocks, i))
         for key, iv in groups.items():
             if len(iv) < 2:
                 continue
@@ -370,7 +380,7 @@ class StreamRecorder:
             hi_end, hi_i = iv[0][1], iv[0][2]
             for s, e, i in iv[1:]:
                 if s <= hi_end and self.made[i][1] != self.made[hi_i][1]:
-                    d = st[key[0]]
+                    d = st[key[1]]
                     d.actual_overlaps += 1
                     if len(d.examples) < 3:
                         d.examples.append({"a": list(self.made[hi_i][1]), "b": list(self.made[i][1])})
@@ -379,48 +389,62 @@ class StreamRecorder:
         return dict(st)
 
 
-#: 許可の表: 用途名 → (扱い, 理由)。扱いは ``overlap``(実際の重なりを許す=10e で直す)か ``latent``(1 語目に値を
-#: 置いて 2 ブロック以上を引くが、このランの中では重ならない形)。
-OVERLAP: Final[str] = "overlap"
+#: 許可の表: 用途名 → (扱い, 理由)。扱いは ``stateful``(旧値の再現の切替口 ``--rng-scheme stateful`` のランでだけ
+#: 実際の重なりと潜在を許す=10e より前の鍵の並べ方)か ``latent``(1 語目に値を置いて 2 ブロック以上を引くが、
+#: このランの中では重ならない形)。10e(E4)で ``overlap``(どの方式でも重なりを許す)を消した。
+STATEFUL_ONLY: Final[str] = "stateful"
 LATENT: Final[str] = "latent"
-#: 10f の時点の実測(この表の外で重なりが出たら落とす)。**直すのは 10e(版上げ 1 回目)**。
-#: 日の鍵の流れ(配送・工事・stateful の顕著行為と出動)は、次の日の流れが前の日の列を 1 ブロック(4 語)ずらした
-#: **写し**になる(第 3 段の検収 U2)。10e まで、2 日以上のランのこれらの日ごとの差を主張に使わない。
+#: 10f の時点の実測で重なっていた 8 用途名。10e(E4)で既定(counter)の鍵の 0 語目を空けて直した。``stateful`` の流れは
+#: 旧値の再現のためにそのまま残すので、``stateful`` のランでだけ重なりを許す(既定の counter で出たら落ちる)。
 K19_ALLOW: Final[dict[str, tuple[str, str]]] = {
-    # ---- 既定 v3(世界資産 5,000 体・1 日)で実際に重なる 3 つ
-    "w16.sample.stratum": (OVERLAP, "10e で直す。10c 検収 P1: 層の抽出(permutation・最大 2,602 ブロック)が隣の層の流れ"
-                                    "と重なる。既定 v3・5,000 体・seed 1 で 185(10f の材料 §4-2)"),
-    "body.weight": (OVERLAP, "10e で直す。10c 検収 R3: 正規乱数の棄却でまれに 2 ブロック。5,000 体で 1 体が次の体の"
-                             "流れの頭と重なる"),
-    "body.eer": (OVERLAP, "10e で直す。body.weight と同じ(5,000 体で 1)"),
-    # ---- 既定の率では出ないか、2 日以上のランで出るもの
-    "perception.p_notice": (OVERLAP, "10e で直す。10c 検収 P2: 同じ tick の事象 k と k+1 の引きが重なる。既定の率では"
-                                     "事象が 0 件で出ない。率 ×1000 で出る"),
-    "world.delivery_inbound": (OVERLAP, "10e で直す。10c 検収 P3: 1 語目が日の鍵で、1 日に最大 1,487 ブロックを引く。"
-                                        "2 日以上のランでは 0 日目と 1 日目の流れが実際に重なる(10f で確認)"),
-    "world.road_works": (OVERLAP, "10e で直す。10c 検収 R4: 日の鍵で 2 ブロック。2 日以上のランで実際に重なる"
-                                  "(世界資産・10f で確認)"),
-    "world.salient": (OVERLAP, "10e で直す。stateful(既定の --rng-scheme)の日の頭の Generator(1 語目=日の鍵)が"
-                               "1 日に数百ブロックを引き、2 日以上のランで次の日の Generator と重なる(10f で確認)。"
-                               "counter では使わない"),
-    "world.public_service_dispatch": (OVERLAP, "10e で直す。world.salient と同じ形(stateful の日の Generator・"
-                                               "合成世界 率 ×1000 の 2 日で重なる)"),
+    "w16.sample.stratum": (STATEFUL_ONLY, "10c 検収 P1: 層の抽出(permutation・最大 2,602 ブロック)が隣の層の流れと重なる"
+                                          "(既定 v3・5,000 体・seed 1 で 185)。10e: counter は層の番号を 1 語目に"),
+    "body.weight": (STATEFUL_ONLY, "10c 検収 R3: 正規乱数の棄却でまれに 2 ブロック(5,000 体で 1)。10e: counter は体を 1 語目に"),
+    "body.eer": (STATEFUL_ONLY, "body.weight と同じ"),
+    "perception.p_notice": (STATEFUL_ONLY, "10c 検収 P2: 同じ tick の事象 k と k+1 の引きが重なる(率 ×1000 で出る)。"
+                                           "10e: counter は事象の番号を 1 語目に"),
+    "world.delivery_inbound": (STATEFUL_ONLY, "10c 検収 P3・10f U2: 日の鍵の流れが次の日の流れの頭と重なる(1 日に最大"
+                                              " 1,487 ブロック)。10e: counter は日の鍵を 1 語目に"),
+    "world.road_works": (STATEFUL_ONLY, "10c 検収 R4・10f U2: 日の鍵で 2 ブロック。10e: counter は日の鍵を 1 語目に"),
+    "world.salient": (STATEFUL_ONLY, "stateful の日の頭の Generator(1 語目=日の鍵)。counter では作らない"
+                                     "(world.salient.counter=0 語目が 0)"),
+    "world.public_service_dispatch": (STATEFUL_ONLY, "world.salient と同じ形。counter では作らない"),
+}
+#: 10e(U8): 同じ鍵(seed・用途名・4 語)の流れを作り直してよい用途名と理由。ここに無い用途名の作り直しは落とす。
+K19_RECREATED: Final[dict[str, str]] = {
+    "w16.sample.stratum": "W16 の抽出が cli の世帯の財布と run_day の母集団で 2 回走る=同じ鍵の同じ列(同じ行を選ぶための設計)",
+    "w16.sample.reserved": "w16.sample.stratum と同じ(定員先取り層)",
+    "engine.processes.rail": "_build_external_home と _assign_external が同じ鍵 0 で同じ列を引く=規則を同じにするための設計",
 }
 
 
-def check_overlaps(stats: dict[str, DomainStats], allow: dict[str, tuple[str, str]] | None = None) -> list[str]:
-    """実行時の数えの検査(空なら合格)。実際の重なりは ``overlap`` の許可だけ・潜在(1 語目に値・2 ブロック以上)は
-    ``overlap`` か ``latent`` の許可が要る。"""
+def check_overlaps(stats: dict[str, DomainStats], allow: dict[str, tuple[str, str]] | None = None, *,
+                   rng_scheme: str = "counter", recreated: dict[str, str] | None = None) -> list[str]:
+    """実行時の数えの検査(空なら合格)。
+
+    10e(E4): 既定(``rng_scheme="counter"``)では実際の重なりは 1 つも許さない。``stateful``(旧値の再現の切替口)の
+    ランでは扱い ``stateful`` の用途名だけ許す。潜在(1 語目に値・2 ブロック以上)は ``latent`` か、``stateful`` のランの
+    ``stateful`` の用途名だけ。同じ鍵の作り直しは ``K19_RECREATED`` の用途名だけ(U8)。
+    """
     allow = K19_ALLOW if allow is None else allow
+    rec_ok = K19_RECREATED if recreated is None else recreated
+    stateful = str(rng_scheme) == "stateful"
     out: list[str] = []
     for dom, d in sorted(stats.items()):
         kind = allow.get(dom, ("", ""))[0]
-        if d.actual_overlaps and kind != OVERLAP:
+        ok_stateful = stateful and kind == STATEFUL_ONLY
+        if d.actual_overlaps and not ok_stateful:
             out.append(f"{dom}: 実際のブロックの重なり {d.actual_overlaps}(最大 {d.max_blocks} ブロック・例 {d.examples[:2]})"
-                       "が許可の表に無い")
-        elif d.keyed and d.ge2 and kind not in (OVERLAP, LATENT):
-            out.append(f"{dom}: 1 語目に値を置いて 2 ブロック以上を引く流れ {d.ge2}(最大 {d.max_blocks})が許可の表に無い")
+                       f"が許可の表に無い(rng_scheme={rng_scheme})")
+        elif d.keyed and d.ge2 and not (kind == LATENT or ok_stateful):
+            out.append(f"{dom}: 1 語目に値を置いて 2 ブロック以上を引く流れ {d.ge2}(最大 {d.max_blocks})が許可の表に無い"
+                       f"(rng_scheme={rng_scheme})")
+        if d.same_key_recreated and dom not in rec_ok:
+            out.append(f"{dom}: 同じ鍵の流れの作り直し {d.same_key_recreated} が K19_RECREATED に無い")
     for dom, (kind, reason) in allow.items():
-        if kind not in (OVERLAP, LATENT) or not reason:
+        if kind not in (STATEFUL_ONLY, LATENT) or not reason:
             out.append(f"{dom}: 許可の扱いか理由が違う({kind!r})")
+    for dom, reason in rec_ok.items():
+        if not reason:
+            out.append(f"{dom}: K19_RECREATED の理由が空")
     return out

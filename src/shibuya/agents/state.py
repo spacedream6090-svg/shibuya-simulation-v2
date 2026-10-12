@@ -571,12 +571,10 @@ class AgentState:
         # ---- 行動・計画 ----
         r.declare("activity", np.int8, byte_budget_per_agent=1, mechanism=True,
                   doc="Activity(idle/moving/…/riding・M2)")
-        r.declare("plan_cursor", np.int16, byte_budget_per_agent=2, mechanism=True,
-                  doc="T0 スケジュールの何番目の境界まで消化したか")
+        # 10e(E1・Q9): 死蔵の ``plan_cursor``(i2)はここにあった=消した(旧い final の再現は下の retire)
         r.declare("talk_partner", np.int32, byte_budget_per_agent=4, mechanism=True,
                   doc="会話中の相手 agent_id(-1=なし・行動契約書 §3)")
-        r.declare("invocation_distance", np.uint16, byte_budget_per_agent=2, mechanism=False,
-                  doc="次の計画境界までの残時間[分](M12・知覚契約書 §6 三役・expedient)")
+        # 10e(E1・Q9): 死蔵の ``invocation_distance``(u2・M12)はここにあった=消した
         # ---- 交通(C4 鉄道運行・行動契約書 §2.1 乗車/降車・運用設計書 §2.6) ----
         r.declare("transit_state", np.int8, byte_budget_per_agent=1, mechanism=True,
                   doc="0=bbox 内 / 1=乗車中 / 2=域外ノード滞在(U10 §1.1)。"
@@ -702,8 +700,7 @@ class AgentState:
         r.declare("refractory_until", np.int32, (N_WAKE_CONDITIONS,),
                   byte_budget_per_agent=4 * N_WAKE_CONDITIONS, mechanism=True,
                   doc="体×条件ごとの「次に起床してよい tick」(§6 運用規定②)")
-        r.declare("wake_pending_class", np.int8, byte_budget_per_agent=1, mechanism=True,
-                  doc="保留中の起床クラス(EventClass・-1=なし)")
+        # 10e(E1・Q9): 死蔵の ``wake_pending_class``(i1・初期値 -1)はここにあった=消した
         # ---- 直前の結果(行動契約書 §6) ----
         r.declare("last_action", np.int8, byte_budget_per_agent=1, mechanism=True,
                   doc="直前に**試みた**行動コード(llm.contract.ACTION_CODES・§6「直前の結果」の"
@@ -715,13 +712,18 @@ class AgentState:
         r.declare("fail_streak", np.uint8, byte_budget_per_agent=1, mechanism=False,
                   doc="同一失敗の連続回数(行動契約書 §6「4回で打ち切り」・expedient)")
 
+        # 10e(E1): 消した死蔵の 3 列を元の位置に控える(配列は確保しない)。``--hash-scheme full``(旧い final の
+        # 再現)のハッシュの中だけで初期値の列として混ざる。**版上げの最後に ``--hash-scheme full`` と一緒に消す**。
+        r.retire("activity", "plan_cursor", np.int16, fill=0)
+        r.retire("talk_partner", "invocation_distance", np.uint16, fill=0)
+        r.retire("refractory_until", "wake_pending_class", np.int8, fill=-1)
+
         # 既定値(0 では意味が壊れる欄だけ)
         self.registry.cell[:] = -1
         self.registry.node[:] = -1
         self.registry.path_next_node[:] = -1
         self.registry.target_node[:] = -1
         self.registry.talk_partner[:] = -1
-        self.registry.wake_pending_class[:] = -1
         self.registry.last_result_tick[:] = -1
         self.registry.last_action[:] = LAST_ACTION_NONE
         self.registry.transit_ref[:] = -1

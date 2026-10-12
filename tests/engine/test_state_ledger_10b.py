@@ -2,6 +2,8 @@
 
 アジェンダ ``docs/design/v2-d102-10b-agenda.md`` §4 の T1(準備)・T2・T3・T4・T5・T6 と既知の答え(2 日のラン)。
 final(``Checkpoint.combined``)は今の定義のまま=既定の結果は動かない(byte-check は記録 10b/README.md)。
+〔10e(E1・版上げ 1 回目)〕既定の final は behavior-hash になり、死蔵の 5 列を消した(台帳 188 行)。旧い final は
+``hash_scheme="full"`` で再現する(消した 3 列は ``core.soa.retired_columns_in_hash`` の中だけで元の位置に混ざる)。
 """
 
 from __future__ import annotations
@@ -20,7 +22,7 @@ import shibuya.engine.resolve as RES
 import shibuya.engine.run as RUN
 from shibuya.agents.state import AgentState
 from shibuya.core.hashing import blake3_hex
-from shibuya.core.soa import Registry
+from shibuya.core.soa import Registry, retired_columns_in_hash
 from shibuya.engine import state_hashes as SH
 from shibuya.engine import state_ledger as SL
 from shibuya.engine import state_ledger_ast as SA
@@ -38,22 +40,30 @@ TPD = 1_440
 ALL_ARMS = dict(vocab_version="v3", memory="on", relations="on", store_memory="on", familiarity="on",
                 hunger_model="energy", rel_copresent="on")
 CLASSICAL_ARMS = dict(ALL_ARMS, policy="classical", chooser="classical")
-#: Q9 の 3 列+A4 の 2 列(10e で消す死蔵の列)。
+#: Q9 の 3 列+A4 の 2 列(10e(E1)で消した死蔵の列)。
 DEAD5 = ("agents.plan_cursor", "agents.invocation_distance", "agents.wake_pending_class",
          "perception.last_b2_hash", "perception.last_b4_hash")
+#: T7(10e で門の形を確定): 目標=宣言値(5,000 体で 1 回の checkpoint ≤ 100 ms・超えたら警告)/ 門=checkpoint の
+#: 壁時計の合計がシミュ全体の壁時計に占める割合 ≤ 1%(**未リサーチ(expedient)**・実測は既定 v3 で約 0.2%)。
+T7_TARGET_SECONDS = 0.100
+T7_SHARE_CAP = 0.01
+#: T7 で確かめる既定 v3 の final(10e の版上げの段ごとに張り替える)。
+T7_V3_FINAL = "4fbf61616af1e3d2"  # E4 の値(E1 は 3264c9fc190b3eb9・E2 は 4985ff2fb3c771c4)
 #: A2 (b): 構成で読み手が変わる 6 列(どの構成でも behavior)。
 A2B_SIX = ("age", "sex", "talk_partner", "weight_kg", "sm_last", "mem_last")
 
 
 # ================================================================= 1. 状態台帳の宣言(A3)
-def test_ledger_has_193_rows_in_two_axes():
+def test_ledger_has_189_rows_in_two_axes():
     """材料の 163 行(SoA 98+外の状態 65)+10b-2 の棚卸しで足した外の状態 24 行(O66〜O89)+10d の 5 行(O90〜O94)
-    +10f の 1 行(O95=O75 から読み手 0 の 2 属性を diag に分けた)。"""
+    +10f の 1 行(O95=O75 から読み手 0 の 2 属性を diag に分けた)−10e(E1)の死蔵の 5 列(Q9 の 3 列+A4 の 2 列)
+    +10e(E1・検収 R1)の 1 行(O96=O44 から再生の到着待ちを軸 1 no に分けた)。"""
     c = SL.counts()
-    assert c == {"agents": 79, "cells": 5, "pois": 9, "perception": 5, "external": 95, "soa": 98, "total": 193}
+    assert c == {"agents": 76, "cells": 5, "pois": 9, "perception": 3, "external": 96, "soa": 93, "total": 189}
+    assert SL.LEDGER_VERSION == "state-ledger/10e"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
-    assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 96)]
+    assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 97)]
     for r in SL.LEDGER:
         assert r.behavior in SL.AXIS1_VALUES, r.key
         assert r.restore in SL.AXIS2_VALUES, r.key
@@ -86,7 +96,10 @@ def test_ledger_declarations_from_the_decisions():
     assert row("O31").restore == SL.REQUIRED and row("O31").items == ("energy.out_of_area.d_armed",)
     for key in ("O58", "O60", "O61"):  # リング 3 行(K16 の既定案)
         assert row(key).restore == SL.DISCARDABLE
-    assert {r.key for r in SL.LEDGER if r.dead} == set(DEAD5) | {"perception.invocation_distance"}
+    # 10e(E1): 死蔵の 5 列は台帳から消えた(残る死蔵は知覚の単体ベンチの逃げ道 1 行だけ)
+    assert {r.key for r in SL.LEDGER if r.dead} == {"perception.invocation_distance"}
+    keys = {r.key for r in SL.LEDGER}
+    assert not (set(DEAD5) & keys)
 
 
 def _all_columns_state(n: int = 3) -> tuple[AgentState, World, PerceptionState]:
@@ -152,8 +165,9 @@ def test_ast_check_fails_through_a_name_table(scanned):
 
 
 def test_ast_check_fails_when_a_behavior_column_has_no_reader(scanned):
-    out = SA.check(scanned, _flip("agents.plan_cursor", SL.BEHAVIOR))
-    assert any("agents.plan_cursor: 軸 1 が behavior なのに読み手 0" in v for v in out), out
+    # 10e(E1): 死蔵の plan_cursor を消したので、書くだけ(自分に足すか 0 に戻す)で読み手 0 の fail_streak で見る
+    out = SA.check(scanned, _flip("agents.fail_streak", SL.BEHAVIOR))
+    assert any("agents.fail_streak: 軸 1 が behavior なのに読み手 0" in v for v in out), out
 
 
 @pytest.mark.parametrize("code", [
@@ -242,7 +256,8 @@ def test_t2_exclude_equals_deleting_the_columns():
     """``state_hash(exclude=S)`` == 「S を宣言から消した ``state_hash()``」(10e の手順の前提・材料 §2-3)。"""
     a, w, _ = _all_columns_state(50)
     _fill_random(a.registry, 1)
-    for drop in (frozenset(k.split(".")[1] for k in DEAD5 if k.startswith("agents.")),
+    # 10e(E1): 死蔵の 3 列は消えたので、no の 2 列(K15)で「除いて計算」と「消して計算」を比べる
+    for drop in (frozenset({"fail_streak", "plan_activity"}),
                  SL.behavior_excluded("agents"), frozenset()):
         assert a.registry.state_hash(exclude=drop) == _registry_without(a.registry, drop).state_hash()
         if drop:
@@ -266,14 +281,102 @@ def test_t2_behavior_hash_equals_the_final_after_deleting_the_non_behavior_colum
     ext = SH.external_digest(owners, SL.behavior_items())[0]
     # 10e の final = 今の combined の組み立て(列を消した SoA)の末尾に外の状態の behavior の行の digest
     assert beh == blake3_hex("\x1f".join([a2, w2, "pop", "sched", "act", ext]).encode("utf-8"))
-    # 何も除かない列の組なら今の final と同じ組み立て
-    assert Checkpoint(0, a.state_hash(), w.state_hash(), "pop", "sched", "act").combined == blake3_hex(
+    # 何も除かない列の組なら 10e より前の final と同じ組み立て(``legacy_combined``=``hash_scheme="full"``)
+    assert Checkpoint(0, a.state_hash(), w.state_hash(), "pop", "sched", "act").legacy_combined == blake3_hex(
         "\x1f".join([a.state_hash(), w.state_hash(), "pop", "sched", "act"]).encode("utf-8"))
+    # 10e(E1): 既定の final は behavior-hash そのもの
+    assert Checkpoint(0, a.state_hash(), w.state_hash(), "pop", "sched", "act", behavior_hash=beh).combined == beh
 
 
-def test_checkpoint_combined_ignores_the_new_fields():
-    base = Checkpoint(0, "a", "w", "p", "s", "x")
+def test_checkpoint_combined_follows_the_hash_scheme():
+    """10e(E1): 既定(behavior)の final は behavior-hash・``full`` は旧い組み立て(新しい欄を見ない)。"""
+    base = Checkpoint(0, "a", "w", "p", "s", "x", hash_scheme="full")
     assert dataclasses.replace(base, behavior_hash="b", full_hash="f").combined == base.combined
+    assert base.combined == base.legacy_combined == blake3_hex("\x1f".join(("a", "w", "p", "s", "x")).encode("utf-8"))
+    beh = Checkpoint(0, "a", "w", "p", "s", "x", behavior_hash="b", full_hash="f")
+    assert beh.hash_scheme == "behavior" and beh.combined == "b"
+    assert dataclasses.replace(beh, agents_hash="a2").combined == "b"  # 全列のハッシュは final に効かない
+    with pytest.raises(ValueError):
+        Checkpoint(0, "a", "w", "p", "s").combined  # behavior の final に behavior-hash が無い
+    with pytest.raises(ValueError):
+        Checkpoint(0, "a", "w", "p", "s", behavior_hash="b", hash_scheme="other").combined
+    with pytest.raises(ValueError):
+        run_day(n_agents=4, ticks=2, hash_scheme="other")
+
+
+def _old_agents_registry(a: AgentState) -> Registry:
+    """消す前の宣言を組み直した写し: 死蔵の 3 列を元の位置に初期値で宣言する(10e の前の SoA を模す)。"""
+    after = {"activity": ("plan_cursor", np.int16, 0), "talk_partner": ("invocation_distance", np.uint16, 0),
+             "refractory_until": ("wake_pending_class", np.int8, -1)}
+    reg = a.registry
+    out = Registry(reg.n_entities, kind=reg.kind, per_entity_byte_cap=None)
+    for d in reg.decls:
+        out.declare(d.name, d.dtype, d.shape_per_entity, byte_budget_per_agent=d.byte_budget_per_entity,
+                    mechanism=d.mechanism, doc=d.doc)
+        out.field(d.name)[...] = reg.field(d.name)
+        if d.name in after:
+            name, dt, fill = after[d.name]
+            out.declare(name, dt, byte_budget_per_agent=np.dtype(dt).itemsize, mechanism=True, doc="10e 前の死蔵",
+                        fill=fill)
+    return out
+
+
+def test_e1_retired_columns_reproduce_the_old_registry_hash():
+    """10e(E1): 消した死蔵の 3 列は ``retired_columns_in_hash`` の中だけで元の位置に初期値で混ざる。
+
+    消す前の宣言を組み直した写しの ``state_hash`` と同じバイト列(除外つきも)。外では混ざらない=既定は消えたまま。
+    """
+    for a in (AgentState(7), _all_columns_state(9)[0]):
+        _fill_random(a.registry, 3)
+        old = _old_agents_registry(a)
+        assert not ({"plan_cursor", "invocation_distance", "wake_pending_class"} & set(a.registry.arrays))
+        with retired_columns_in_hash():
+            assert a.registry.state_hash() == old.state_hash()
+            for drop in (frozenset({"hunger", "plan_cursor"}), frozenset({"activity", "talk_partner"})):
+                assert a.registry.state_hash(exclude=drop) == old.state_hash(exclude=drop)
+        assert a.registry.state_hash() != old.state_hash()
+        assert a.registry.state_hash() == _registry_without(old, frozenset(
+            {"plan_cursor", "invocation_distance", "wake_pending_class"})).state_hash()
+    with pytest.raises(ValueError):
+        Registry(3, per_entity_byte_cap=None).retire("nope", "x", np.int8)
+
+
+def test_e1_r1_replay_inbox_is_out_of_the_behavior_hash():
+    """10e(E1・検収 R1): 再生の到着待ち(``run_day.replay_inbox``)は軸 1 no・軸 2 required(O96)。behavior-hash の項に
+    無く、full-hash の項にはある。艦隊の繰り延べと待ち(O44)は behavior のまま。"""
+    beh = {p for _k, p in SL.behavior_items()}
+    full = {p for _k, p in SL.full_items()}
+    assert "run_day.replay_inbox" not in beh and "run_day.replay_inbox" in full
+    assert {"run_day.fleet_deferred", "run_day.fleet_waiting"} <= beh
+    o96 = SL.row("O96")
+    assert (o96.behavior, o96.restore, o96.items) == (SL.NO, SL.REQUIRED, ("run_day.replay_inbox",))
+
+
+def test_e1_r1_fleet_deferred_is_hashed_as_a_multiset():
+    """10e(E1・検収 R1 の続き): 艦隊の繰り延べの list は並びに依らず、中身(多重集合)が変われば動く。"""
+    from types import SimpleNamespace
+
+    assert SL.row("O44").multiset == ("run_day.fleet_deferred",)
+    assert SL.row("O43").multiset == ("run_day.pending",)
+    items = [(3, 10, 3, 0), (1, 10, 3, 0), (3, 10, 3, 0)]
+
+    def dig(lst):
+        rd = SimpleNamespace(fleet_deferred=lst)
+        return SH.item_digest({"run_day": rd}, "O44", "run_day.fleet_deferred")[0]
+
+    assert dig(items) == dig(list(reversed(items))) == dig([items[1], items[0], items[2]])
+    assert dig(items) != dig(items[:2]) and dig(items) != dig(items + [(1, 10, 3, 0)])
+
+
+def test_e1_dead_columns_are_gone_from_the_soa():
+    """10e(E1・Q9・A4): 死蔵の 5 列は SoA から消え、宣言のバイトが減った(agents −5 B/体・知覚 −16 B/体)。"""
+    a, _w, p = _all_columns_state(3)
+    for key in DEAD5:
+        place, name = key.split(".")
+        reg = a.registry if place == "agents" else p.registry
+        assert name not in reg.arrays, key
+    assert set(PerceptionState(3).registry.arrays) == {"heading", "task_flag"}
+    assert PerceptionState(3).declared_bytes_per_agent == 2
 
 
 def test_to_state_is_canonical_and_strict():
@@ -393,13 +496,11 @@ def test_t4_full_hash_detects_one_element_of_required_external_state(all_arms_ca
 @pytest.mark.parametrize("key,full_moves,beh_moves", [
     ("agents.hunger", True, True),            # behavior・要る
     ("agents.fail_streak", True, False),      # no・不明(安全側で full に入る)
-    ("agents.plan_cursor", False, False),     # 死蔵・捨ててよい
     ("agents.energy_balance", True, False),   # diag・要る
     ("pois.revenue", True, False),            # diag・要る
     ("cells.open_count", True, False),        # no・導出できる
     ("pois.stock", True, True),
     ("perception.heading", True, False),      # 派生(no)・導出できる
-    ("perception.last_b2_hash", False, False),  # 死蔵(A4)
 ])
 def test_t4_soa_rows_move_the_hashes_by_their_axes(all_arms_capture, key, full_moves, beh_moves):
     _, c = all_arms_capture
@@ -532,8 +633,10 @@ def test_t5_perturbing_no_columns_changes_nothing(monkeypatch, tmp_path, kw):
     shaken, done = _perturbing_run(monkeypatch, _syn(kw), NO_COLUMNS, tape=tmp_path / "shaken")
     assert done["n"] > 100
     assert _observed(shaken, tmp_path / "shaken") == _observed(base, tmp_path / "base")
-    # 揺らしは効いていた: 今の final には no の列(fail_streak など)が入るので final は動く
-    assert shaken.final_hash != base.final_hash
+    # 10e(E1): 既定の final は behavior-hash=no の列を揺らしても動かない
+    assert shaken.final_hash == base.final_hash
+    # 揺らしは効いていた: 全列のハッシュ(旧い final の組み立て)には no の列(fail_streak など)が入るので動く
+    assert shaken.checkpoints[-1].legacy_combined != base.checkpoints[-1].legacy_combined
     # 陽性対照: hunger を揺らすと変わる
     pos, _ = _perturbing_run(monkeypatch, _syn(kw), ("agents.hunger",), tape=tmp_path / "pos")
     assert _observed(pos, tmp_path / "pos") != _observed(base, tmp_path / "base")
@@ -549,18 +652,52 @@ def test_t5_weight_kg_is_read_only_at_initialization(monkeypatch, tmp_path):
     assert {k: v for k, v in ow.items() if k != "behavior"} == {k: v for k, v in ob.items() if k != "behavior"}
 
 
+#: 10e(E1): HEAD ``66472a0``(10e の前)の写しの src で回した値(final・behavior-hash の頭 16 桁・呼数)。
+#: ``_syn`` と同じ合成世界(100 体・16 セル・1 日)。behavior-hash は検収 R1 の直しに合わせ、HEAD の写しで
+#: ``state_ledger.behavior_items`` から ``run_day.replay_inbox`` を外して計算した値(10e の behavior-hash と同じ定義)。
+#: 記録 docs/bench/analysis/wallbounce-1012/10e/README.md §E1。
+PRE10E_SYN = {
+    "v1": ("fbfcea01be6c7766", "d8017936ce05c5d0", 1403),
+    "v3": ("5974faae8d206c15", "13eec0457f55e071", 1330),
+    "v2_edge_attention": ("023c1ebf4714f4b5", "59a793016a2f5375", 1521),
+    "all_arms": ("bcb1424406ffc76b", "3a24ecf70465e550", 1222),
+    "classical": ("ec0ff8ad5fd51053", "dfd5da1654ce92e1", 1923),
+}
+#: 今の既定の final(=behavior-hash)の頭 16 桁(段ごとに張り替える)。
+CUR_SYN = {
+    "v1": "a36995c487c3f214", "v3": "92290af2f272b811", "v2_edge_attention": "863d35e1bfdb55f9",
+    "all_arms": "ab8201f624b4dfa7", "classical": "2297d5c5947551f0",
+}
+
+
 @pytest.mark.parametrize("kw", [
     {}, {"vocab_version": "v3"}, {"vocab_version": "v2", "geometry": "edge"}, ALL_ARMS, CLASSICAL_ARMS,
 ], ids=["v1", "v3", "v2_edge_attention", "all_arms", "classical"])
-def test_t1_prep_ignoring_the_dead_columns_changes_nothing(monkeypatch, tmp_path, kw):
-    """T1 の準備: 死蔵 5 列(Q9 の 3 列+A4 の 2 列)を毎 tick 乱数で埋めても(=列を無視しても)、呼数・行動の件数・
-    prompt_hash・behavior-hash は動かない(削除そのものは 10e)。"""
-    base, _ = _perturbing_run(monkeypatch, _syn(kw), (), tape=tmp_path / "base")
-    shaken, done = _perturbing_run(monkeypatch, _syn(kw), DEAD5, every=1, start=360, tape=tmp_path / "dead")
-    assert done["n"] > 1000 and done["keys"] == set(DEAD5) - {"perception.invocation_distance"}
-    assert _observed(shaken, tmp_path / "dead") == _observed(base, tmp_path / "base")
-    # 陽性対照(検収 4-1): agents の死蔵 3 列は今の final に入るので、書き込みが列に届いていれば final は動く
-    assert shaken.final_hash != base.final_hash
+def test_t1_deleting_the_dead_columns_changes_nothing(request, tmp_path, kw, monkeypatch):
+    """T1(10e・E1): 死蔵 5 列を消しても、呼数・行動の件数・prompt_hash・behavior-hash は 10e の前(HEAD の写し)と同じ。
+
+    - 既定の final は behavior-hash そのもの・``hash_scheme="full"`` に替えても挙動(呼数・行動・prompt・behavior-hash)は同じ。
+    - ``hash_scheme="full", rng_scheme="stateful"`` は 10e の前の final を再現する。
+    - 10e の前の behavior-hash(``beh_old``)は、10e で挙動を動かした 2 つ(E2 の会話の控えの掃除・E4 の乱数の既定)を
+      止めたラン(``purge_expired`` を何もしない・``rng_scheme="stateful"``)で再現する=死蔵の列の削除そのものは何も変えない。
+
+    (10b の T1 の準備=「死蔵の列を毎 tick 乱数で埋めても動かない」は、列そのものが無くなったので、この形に置き換えた)
+    """
+    from shibuya.engine.conversation import ConversationManager
+
+    cid = request.node.callspec.id
+    final_old, beh_old, calls_old = PRE10E_SYN[cid]
+    new = _syn(kw)(tmp_path / "new")
+    new_full = _syn(dict(kw, hash_scheme="full"))(tmp_path / "new_full")
+    assert new.final_hash == new.checkpoints[-1].behavior_hash and new.final_hash[:16] == CUR_SYN[cid]
+    assert _observed(new, tmp_path / "new") == _observed(new_full, tmp_path / "new_full")  # final の定義は挙動に効かない
+    old = _syn(dict(kw, hash_scheme="full", rng_scheme="stateful"))(tmp_path / "old")
+    assert old.final_hash[:16] == final_old and int(old.llm_calls) == calls_old
+    monkeypatch.setattr(ConversationManager, "purge_expired", lambda self, tick: 0, raising=False)
+    mid = _syn(dict(kw, rng_scheme="stateful"))(tmp_path / "mid")
+    assert mid.checkpoints[-1].behavior_hash[:16] == beh_old
+    wo_beh = lambda r, t: {k: v for k, v in _observed(r, t).items() if k != "behavior"}  # noqa: E731
+    assert wo_beh(mid, tmp_path / "mid") == wo_beh(old, tmp_path / "old")
 
 
 @real_data
@@ -575,8 +712,7 @@ def test_t5_and_t1_on_real_assets(monkeypatch, tmp_path):
     shaken, done = _perturbing_run(monkeypatch, f, NO_COLUMNS, tape=tmp_path / "shaken")
     assert done["n"] > 100
     # 実資産のランでは plan_activity(K15)・energy_balance・知覚の 4 列も揺らした
-    assert {"agents.plan_activity", "agents.energy_balance", "perception.heading",
-            "perception.last_b2_hash"} <= done["keys"]
+    assert {"agents.plan_activity", "agents.energy_balance", "perception.heading"} <= done["keys"]
     assert _observed(shaken, tmp_path / "shaken") == _observed(base, tmp_path / "base")
     pos, _ = _perturbing_run(monkeypatch, f, ("agents.hunger",), tape=tmp_path / "pos")
     assert _observed(pos, tmp_path / "pos") != _observed(base, tmp_path / "base")
@@ -591,7 +727,7 @@ def test_two_day_run_reports_both_hashes_every_day(kw):
     assert len(two.checkpoints) == 8
     for c in two.checkpoints:
         assert len(c.behavior_hash) == 64 and len(c.full_hash) == 64
-        assert c.behavior_hash != c.combined
+        assert c.behavior_hash == c.combined != c.legacy_combined  # 10e(E1): 既定の final は behavior-hash
     d1 = [c for c in two.checkpoints if c.tick < TPD]
     d2 = [c for c in two.checkpoints if c.tick >= TPD]
     assert d1[-1].behavior_hash != d2[-1].behavior_hash
@@ -715,25 +851,45 @@ def test_memo_does_not_change_the_hashes(all_arms_capture):
 @pytest.mark.parametrize("kw", [{"vocab_version": "v3"}, dict(ALL_ARMS, home_meal="plan", meal_sleep_defer="on")],
                          ids=["v3_default", "all_arms"])
 def test_t7_hash_cost_within_the_declared_cap(kw):
-    """親の宣言(T7): 5,000 体で 1 回の checkpoint の 2 本の合計 ≤ 100 ms。checkpoint ごとの**最大**で見る
-    (今の final の SoA 部分を含めた checkpoint の時間=上側に寄せた測り方・検収 4-3)。"""
+    """T7(10e で門の形を確定・ユーザー決定 10-12=10f のアジェンダ §6-2): **門は checkpoint のハッシュの壁時計が
+    シミュ全体の壁時計に占める割合**(``T7_SHARE_CAP``)。宣言値(5,000 体で 1 回の checkpoint の 2 本の合計 ≤ 100 ms)
+    は守れたらよい**目標**として併記し、超えたら警告だけ出す(「シミュにかかる時間に影響しないなら上回ってもよい」)。
+    checkpoint の時間は今の final の SoA 部分を含めた checkpoint ごとの値(上側に寄せた測り方・検収 4-3)。
+
+    経緯(第321): 全体テストの大きな束の中で all_arms が 1 回だけ宣言の 100 ms を超え、単独では通った(壁時計が
+    揺れる)ので、門を宣言の 3 倍(300 ms)にしていた。指示書 10-06 §6 の「つなぎ」で期限を付けることになり、
+    10e で門を割合の形に替えた(3 倍の門は消した)。割合は分母も同じ束の中で揺れるので、揺れに強い。
+    """
     from shibuya import cli
 
     res = cli.run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), **kw)
     if kw == {"vocab_version": "v3"}:
         if GE.platform_id() in GE.REGISTERED:  # 10f: golden は登録した環境だけ(未登録は警告=黙って通さない)
-            assert res.final_hash[:16] == "993276d5e5bb5cbe"
+            assert res.final_hash[:16] == T7_V3_FINAL  # 10e: behavior-hash(10e の前の値 993276d5…)
         else:
             GE.warn_unregistered("T7 の既定 v3 の final")
     assert len(res.checkpoint_seconds) == len(res.checkpoints) == 4
-    # 宣言の上限は 100 ms(10b のアジェンダ §3 K-T7)。全体テストの大きな束の中では壁時計が揺れる
-    # (第321 で all_arms が 1 回だけ超え、単独では通った)ので、ここでは宣言の 3 倍を門にし、
-    # 宣言値そのものは毎晩の性能テスト(指示書 10-03 §6 6-5)で見る。測った値は失敗の文言に残す。
-    cap_declared = 0.100
-    assert max(res.checkpoint_seconds) <= 3 * cap_declared, (
-        f"checkpoint の最大 {max(res.checkpoint_seconds):.4f} s が宣言 {cap_declared} s の 3 倍を超えた",
-        res.checkpoint_seconds,
+    hashed = float(sum(res.checkpoint_seconds))
+    share = hashed / float(res.wall_seconds)
+    print(f"\n[T7] checkpoint の合計 {hashed * 1e3:.1f} ms/日・シム日の壁時計 {res.wall_seconds:.1f} s・"
+          f"割合 {share:.4%}(門 {T7_SHARE_CAP:.0%})・最大 {max(res.checkpoint_seconds) * 1e3:.1f} ms(目標 "
+          f"{T7_TARGET_SECONDS * 1e3:.0f} ms)")
+    assert share <= T7_SHARE_CAP, (
+        f"checkpoint のハッシュがシミュ全体の壁時計の {share:.3%} を占めた(門 {T7_SHARE_CAP:.0%})",
+        res.checkpoint_seconds, res.wall_seconds,
     )
+    if max(res.checkpoint_seconds) > T7_TARGET_SECONDS:  # 目標(宣言値)は警告だけ=全体の時間に効かなければ合格
+        import warnings
+
+        warnings.warn(f"T7: checkpoint の最大 {max(res.checkpoint_seconds):.4f} s が目標 {T7_TARGET_SECONDS} s を超えた"
+                      f"(割合 {share:.3%} は門の中)")
+
+
+def test_t7_gate_is_the_share_of_the_whole_wall_clock():
+    """T7 の門の形の単体: 割合の門は宣言値を超える checkpoint でも、全体に占める割合が小さければ通す。"""
+    assert T7_TARGET_SECONDS == 0.100 and 0 < T7_SHARE_CAP <= 0.05
+    # 1 回 150 ms(目標超え)× 4 回 / シム日 60 s = 1.0%(門の内側)・1 回 1 s × 4 / 60 s = 6.7%(門の外)
+    assert 4 * 0.150 / 60.0 <= T7_SHARE_CAP < 4 * 1.0 / 60.0
 
 
 # ================================================================= 8. 検収後の直し(10b-3)
@@ -756,15 +912,22 @@ def test_p1_full_hash_sees_the_order_of_ordered_rows(all_arms_capture):
     base = _full(c)
     # O39: 印つきの行の普通の dict(会話の管理の辞書)の並びを逆にすると full が動く
     conv = o["conv"]
+    # 10e(E2): 期限の切れた項は tick ごとに落とすので、checkpoint の時点で生きた項が 2 件あるとは限らない。
+    # 期限の遠い控えを 2 件足してから並びを逆にする(足した状態を基準に取り直す)
+    big = 10**9
+    conv._refusal_until[(big, big + 1)] = big
+    conv._refusal_until[(big + 2, big + 3)] = big
+    base_probe = _full(c)
     saved = dict(conv._refusal_until)
-    assert len(saved) >= 2, "全腕の 1 日で断りの控えが 2 件以上あるはず"
+    assert len(saved) >= 2
     conv._refusal_until.clear()
     conv._refusal_until.update(reversed(list(saved.items())))
     try:
-        assert _full(c) != base
+        assert _full(c) != base_probe
     finally:
         conv._refusal_until.clear()
         conv._refusal_until.update(saved)
+        del conv._refusal_until[(big, big + 1)], conv._refusal_until[(big + 2, big + 3)]
     assert _full(c) == base
     # O8: 要旨の並び(OrderedDict・popitem(last=False) で古い順に落とす)
     # (100 体 1 日では要旨が 2 行以上の体がいないので、2 行の並びを 1 つ足して入れ替える)

@@ -97,9 +97,12 @@ def declared_fields(cls: type) -> frozenset[str]:
     return CLASS_FIELDS[name]
 
 
-#: 展開した後の大きさの上限(npz の中の全部の部品の宣言の合計・バイト)。39 万体の見込み(pickle 336 MB・
-#: 非圧縮の npz+json 約 347 MB=10f の材料 §5-3)の約 6 倍。**未リサーチ(expedient)**・10e の予算の再宣言で見直す。
-MAX_UNCOMPRESSED_BYTES: Final[int] = 2 * 1024 ** 3
+#: 展開した後の大きさの上限(npz の中の全部の部品の宣言の合計・バイト)。**未リサーチ(expedient)**。
+#: 〔10e(E2)の再宣言〕10f の 2 GiB は既定 v3 の見込み(約 347 MB)の約 6 倍として決めたが、5,000 体の実測
+#: (docs/bench/analysis/wallbounce-1012/10e/budget_10e.json)から 39 万体へ線形に外挿すると、記憶+関係で約 1.69 GB・
+#: 全腕(記憶・関係・店の記憶・親しみ)で約 2.41 GB になり、全腕の 39 万体の状態のファイルを自分の読み口が拒む。
+#: 全腕の外挿の約 3.5 倍の 8 GiB に上げた(巨大な形を宣言する見出しで先に確保するのを止める目的は変わらない)。
+MAX_UNCOMPRESSED_BYTES: Final[int] = 8 * 1024 ** 3
 #: meta(JSON)の部品の上限(バイト)。
 MAX_META_BYTES: Final[int] = 512 * 1024 ** 2
 

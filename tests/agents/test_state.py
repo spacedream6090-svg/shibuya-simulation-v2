@@ -96,7 +96,8 @@ def test_defaults_use_minus_one_sentinels():
     st = AgentState(3)
     for name in ("cell", "node", "path_next_node", "target_node", "talk_partner"):
         assert np.all(st.registry.field(name) == -1), name
-    assert np.all(st.wake_pending_class == -1)
+    # 10e(E1・Q9): 死蔵の wake_pending_class(初期値 -1 だけ)は消した
+    assert "wake_pending_class" not in st.registry.arrays
     assert np.all(st.activity == int(Activity.IDLE))
 
 

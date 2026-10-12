@@ -32,6 +32,8 @@ SRC = ROOT / "src" / "shibuya"
 WORLD_DIR = Path("data/world/v2")
 real_data = pytest.mark.skipif(not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="実世界資産が無い")
 TPD = 1_440
+#: 10e(E4): 既定 v3・5,000 体・seed 1・1 日の final(乱数 counter・K19 の鍵の並べ方)。
+K19_V3_FINAL_COUNTER = "4fbf61616af1e3d2"
 
 
 # ================================================================= K24 軸 1(AST)
@@ -135,6 +137,26 @@ def test_u5_allow_entries_have_a_fixed_hit_count(tmp_path, ext_scan):
                       encoding="utf-8")
     problems = SA.check_external(SA.scan_external(root))
     assert any("当たる数が 2(宣言は 1)" in x and "n_arrivals" in x for x in problems), problems
+
+
+def test_v3_allow_entries_pin_the_function_of_the_line(tmp_path, ext_scan):
+    """10e(E2・10f 第 3 段の検収 V3): 許可した行を別の関数へ**移す**(数は同じ)と、関数の名前で落ちる。"""
+    import dataclasses as dc
+    import shutil
+
+    assert all(len(e.funcs) == e.count for e in SA.EXT_AST_ALLOW)
+    wrong = tuple(dc.replace(e, funcs=("other",)) if e.attr == "seconds" else e for e in SA.EXT_AST_ALLOW)
+    assert any("当たる行の関数" in x and "seconds" in x for x in SA.check_external(ext_scan, allow=wrong))
+    root = tmp_path / "src" / "shibuya"
+    shutil.copytree(SRC, root, ignore=shutil.ignore_patterns("build", "__pycache__"))
+    clock = root / "engine" / "clock.py"
+    text = clock.read_text(encoding="utf-8")
+    assert text.count("delta.seconds") == 1
+    # 許可した行(timedelta.seconds)の式を元の関数から消し、同じ式を別の関数(挙動の場所のつもり)へ移す
+    moved = text.replace("delta.seconds", "0") + "\n\ndef _moved(delta):\n    return delta.seconds\n"
+    clock.write_text(moved, encoding="utf-8")
+    problems = SA.check_external(SA.scan_external(root))
+    assert any("当たる行の関数" in x and "_moved" in x for x in problems), problems
 
 
 def test_axis1_stale_allow_and_collision_entries_fail(ext_scan):
@@ -318,7 +340,7 @@ SYN1000 = dict(n_agents=200, seed=1, n_cells=25, ticks=TPD, sim_days=2, budget=1
 
 @pytest.fixture(scope="module")
 def k19_runs():
-    """合成世界・率 ×1000・2 日を stateful(既定)と counter の 2 通り。"""
+    """合成世界・率 ×1000・2 日を stateful(10e より前の既定=旧値の再現の切替口)と counter(10e の既定)の 2 通り。"""
     out = {}
     for scheme in ("stateful", "counter"):
         st, res = _record(dict(SYN1000, rng_scheme=scheme))
@@ -328,22 +350,28 @@ def k19_runs():
 
 @pytest.mark.parametrize("scheme", ("stateful", "counter"))
 def test_k19_runtime_overlaps_only_in_the_allow_list(k19_runs, scheme):
+    """10e(E4): 既定の counter では実際の重なりが 0(許可の表に ``overlap`` は無い)。stateful(旧値の再現)だけ、
+    扱い ``stateful`` の用途名の重なりを許す。"""
     st, res = k19_runs[scheme]
-    assert RA.check_overlaps(st) == []
+    assert RA.check_overlaps(st, rng_scheme=scheme) == []
     ov = {d for d, s in st.items() if s.actual_overlaps}
-    assert "perception.p_notice" in ov and "world.delivery_inbound" in ov
     if scheme == "stateful":
+        assert "perception.p_notice" in ov and "world.delivery_inbound" in ov
         assert {"world.salient", "world.public_service_dispatch"} <= ov
-    else:  # counter の 2 本は 1 語目が 0(隣が無い)
-        assert not ({"world.salient", "world.public_service_dispatch"} & ov)
-        assert st["world.salient.counter"].keyed is False
+        assert RA.check_overlaps(st, rng_scheme="counter")  # 同じ数えを既定の方式で見ると落ちる
+    else:  # counter: 鍵の 0 語目を空けた=隣が無い
+        assert ov == set()
+        assert st["world.salient.counter"].keyed is False and st["perception.p_notice"].keyed is False
+        assert st["world.delivery_inbound"].keyed is False
+    assert {k for k, (kind, _r) in RA.K19_ALLOW.items() if kind != RA.STATEFUL_ONLY} == set()
+    assert not hasattr(RA, "OVERLAP")
     # 計器は結果を変えない(包まないランと同じ final)
     assert run_day(**dict(SYN1000, rng_scheme=scheme)).final_hash == res.final_hash
 
 
 def test_k19_empty_allow_list_reports_every_overlap(k19_runs):
     st, _ = k19_runs["stateful"]
-    problems = RA.check_overlaps(st, allow={})
+    problems = RA.check_overlaps(st, allow={}, rng_scheme="stateful")
     assert any("perception.p_notice" in x for x in problems)
     assert all("許可の表に無い" in x for x in problems)
 
@@ -371,23 +399,36 @@ def test_t5_runtime_fifth_word_caller_fails(monkeypatch):
 
 @real_data
 def test_k19_runtime_world_two_days(monkeypatch):
-    """世界資産 300 体・2 日(既定 v3): 日の鍵の流れ(配送・工事・顕著行為)が 2 日のランの中で重なる=許可の中。"""
-    st, _ = _record(dict(n_agents=300, seed=1, world_dir=str(WORLD_DIR), sim_days=2, vocab_version="v3",
-                         activity=True), runner=cli.run)
+    """世界資産 300 体・2 日(既定 v3)。10e(E4・U2): 既定の counter では日の鍵の流れ(配送・工事)も重ならない。
+    stateful(旧値の再現)では 10f のとおり 2 日のランの中で重なる=扱い ``stateful`` の中だけ。"""
+    kw = dict(n_agents=300, seed=1, world_dir=str(WORLD_DIR), sim_days=2, vocab_version="v3", activity=True)
+    st, _ = _record(kw, runner=cli.run)
     assert RA.check_overlaps(st) == []
+    assert {d for d, s in st.items() if s.actual_overlaps} == set()
+    assert st["world.delivery_inbound"].streams >= 2 and st["world.road_works"].streams >= 2  # 2 日ぶん作っている
+    old, _ = _record(dict(kw, rng_scheme="stateful"), runner=cli.run)
+    assert RA.check_overlaps(old, rng_scheme="stateful") == []
     assert {"world.delivery_inbound", "world.road_works", "world.salient"} <= {
-        d for d, s in st.items() if s.actual_overlaps}
+        d for d, s in old.items() if s.actual_overlaps}
 
 
 @real_data
 @pytest.mark.slow
 def test_k19_runtime_default_v3_5000_known_counts():
-    """既定 v3・5,000 体・seed 1・1 日: 10f の材料 §4-2 の実測(既知の答え)。w16 185・body 1 ずつ・final は包まないランと同じ。"""
-    st, res = _record(dict(n_agents=5000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3", activity=True),
-                      runner=cli.run)
-    assert RA.check_overlaps(st) == []
+    """既定 v3・5,000 体・seed 1・1 日。10e(E4): 既定の counter では実際の重なり 0。stateful(旧値の再現)では
+    10f の材料 §4-2 の実測(既知の答え)=w16 185・body 1 ずつ。final は包まないランと同じ。"""
+    kw = dict(n_agents=5000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3", activity=True)
+    cur, res_c = _record(kw, runner=cli.run)
+    assert RA.check_overlaps(cur) == [] and {d for d, s in cur.items() if s.actual_overlaps} == set()
+    assert res_c.final_hash.startswith(K19_V3_FINAL_COUNTER)
+    # U8: 同じ鍵の作り直しは許可の表の用途名だけ(w16 の抽出が cli と run_day で 2 回走る=186 層+定員先取り層)
+    assert {d for d, s in cur.items() if s.same_key_recreated} <= set(RA.K19_RECREATED)
+    assert cur["w16.sample.stratum"].same_key_recreated == 186
+    st, res = _record(dict(kw, rng_scheme="stateful"), runner=cli.run)
+    assert RA.check_overlaps(st, rng_scheme="stateful") == []
     assert st["w16.sample.stratum"].actual_overlaps == 185 and st["w16.sample.stratum"].max_blocks == 2602
     assert st["body.weight"].actual_overlaps == 1 and st["body.eer"].actual_overlaps == 1
-    assert res.final_hash.startswith("993276d5e5bb5cbe") and int(res.llm_calls) == 69_978
+    # 10e: final は behavior-hash(10e の前の値 993276d5e5bb5cbe・E1 の値 3264c9fc190b3eb9)。stateful の値は E2 の既定の値
+    assert res.final_hash.startswith("4985ff2fb3c771c4") and int(res.llm_calls) == 69_978
     # 3 つ以外の実際の重なりは無い(1 日のランでは日の鍵の流れに相手が無い)
     assert {d for d, s in st.items() if s.actual_overlaps} == {"w16.sample.stratum", "body.weight", "body.eer"}

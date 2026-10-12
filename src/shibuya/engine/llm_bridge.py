@@ -88,6 +88,7 @@ from shibuya.engine.tape import (
     TapeRow,
     TapeWriter,
     block_id_for,
+    tape_v4_fields,
 )
 from shibuya.llm import (
     ACTION_CODES,
@@ -213,6 +214,16 @@ class RenderedPrompt:
     group_tokens: tuple[tuple[str, int], ...] = ()
     #: 記憶 第 1 段 6b: B5「記憶」行に載せた記憶の行番号(テープ版 3 の列・記憶の無いラン=空)。
     recalled_rows: tuple[int, ...] = ()
+    #: テープ版 4(10e・E5・A8): 引いた記憶の同定(``recalled_rows`` と同じ並び)。最初に書かれた時刻(通しの T)・
+    #: 種類(``memory.EVENT_KINDS``・店の行は ``STORE_ITEM_KIND``)・対象(``mem_object`` の符号化・店の行は POI)。
+    recalled_first_tick: tuple[int, ...] = ()
+    recalled_kind: tuple[int, ...] = ()
+    recalled_object: tuple[int, ...] = ()
+    #: テープ版 4: 「(知人)」の印を見せた相手の体 id(B5 の本文に出た順・重複なし)。
+    acquaintance_ids: tuple[int, ...] = ()
+    #: テープ版 4(K1): 本人ブロックの本文。B5 は列に直接・B6 はブロック表に intern(空=描画が無い経路)。
+    b5_text: str = ""
+    b6_text: str = ""
 
     @property
     def block_ids(self) -> tuple[str, ...]:
@@ -361,6 +372,12 @@ class PerceptionRendererAdapter:
             prompt_hash=out.prompt_hash,
             group_tokens=tuple(sorted(out.group_tokens.items())),
             recalled_rows=tuple(getattr(out, "recalled_rows", ())),
+            recalled_first_tick=tuple(getattr(out, "recalled_first_tick", ())),
+            recalled_kind=tuple(getattr(out, "recalled_kind", ())),
+            recalled_object=tuple(getattr(out, "recalled_object", ())),
+            acquaintance_ids=tuple(getattr(out, "acquaintance_ids", ())),
+            b5_text=out.blocks["B5"].decode("utf-8") if "B5" in out.blocks else "",
+            b6_text=out.blocks["B6"].decode("utf-8") if "B6" in out.blocks else "",
         )
 
     # ---- 診断 ----
@@ -788,6 +805,7 @@ class LLMBridge:
                 deferred_reason=deferred_reason,
                 observed_tick=int(observed_tick),
                 recalled_rows=tuple(getattr(rendered, "recalled_rows", ())),
+                **tape_v4_fields(rendered, self.tape),  # 10e(E5・A8・K1): テープ版 4 の列
             )
         )
         self.n_tape_rows += 1

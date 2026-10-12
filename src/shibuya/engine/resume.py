@@ -12,13 +12,11 @@
   組み立てる=外から来たファイルでも、読むだけでコードは動かない。読んだ値の形・dtype・鍵を台帳の宣言と突き合わせる
   (``check_bundle``)。再開では戻す前に今の値の型とも突き合わせる(``check_item_kinds``)。同じオブジェクトを 2 か所
   から指す値(凍結した ``Target``・金の台帳の配列)は 1 つのまま戻る(印 ``__r``・``__nd``)。
-- **旧の形式**(10d の pickle・``state-T<T>.pkl``): 10e まで読める口を残す。ただし **明示の切替口**
-  (``read_state(..., allow_legacy_pickle=True)``・``run_day(resume_legacy_pickle=True)``・CLI の
-  ``--resume-legacy-pickle``)と**拡張子 ``.pkl``** がそろったときだけ pickle を開く(``LegacyStateFormatWarning`` を
-  出す)。それ以外で中身が pickle なら、開かずに ``StateFormatError`` で止める(10f 第 3 段の検収 U1: 中身の先頭の
-  バイトで自動で選ぶと、外から来たファイルでコードが動いた)。pickle は開いた時点で任意のコードが動きうるので、
-  切替口を付けるのは**自分が書いたファイルに限る**(先頭の行の sha256 と写しの検査は壊れたファイルと取り違えを
-  止めるだけで、出どころの証明にはならない)。
+- **旧の形式**(10d の pickle・``state-T<T>.pkl``): 〔10e(E2・K23 (a))〕読み口を消した(切替口
+  ``--resume-legacy-pickle``・``read_state(allow_legacy_pickle=)``・``run_day(resume_legacy_pickle=)`` と、試験用の
+  書き手 ``write_state_pickle``)。中身が pickle(10d の先頭の行か pickle の印)のファイルは、名前に関係なく
+  **開かずに** ``StateFormatError`` で止める(pickle は開いた時点で任意のコードが動きうる=10f 第 3 段の検収 U1)。
+  10d の版で書いた状態のファイルは台帳の版も違うので、どのみち読めない。
   〔訂正(10f)〕10d の版の「``sessions`` と ``_of_agent`` が同じ ``Session`` を指す」は今のコードでは当たらない。
   ``_of_agent`` は体 → 会話の番号の**整数**の辞書(``engine/conversation.py`` の ``ConversationManager``)で、
   ``Session`` を指さない。同じオブジェクトを 2 か所から指すのは、日の境目の保存では ``run_day.pending`` の中の
@@ -37,7 +35,6 @@ from __future__ import annotations
 import dataclasses
 import json
 import os
-import pickle
 import platform
 import sys
 from datetime import date, datetime
@@ -55,19 +52,17 @@ from shibuya.engine.state_hashes import _ABSENT, resolve_item
 
 #: 状態のファイルの形式の版(中身の組み立てを変えたら上げる)。10f: v2 = npz+json(``engine.state_codec``)。
 STATE_FORMAT: Final[str] = "shibuya.engine.resume/state/v2"
-#: 10d の pickle の形式の版(10e まで読むだけ・``LegacyStateFormatWarning``)。
-STATE_FORMAT_PICKLE: Final[str] = "shibuya.engine.resume/state/v1"
 #: 状態のファイルの名前(``state_out`` のディレクトリの中・通しの時刻 T で並ぶ)。
 STATE_NAME: Final[str] = "state-T{T:08d}.npz"
-#: 10d の pickle のファイルの名前(読むだけ)。
-STATE_NAME_PICKLE: Final[str] = "state-T{T:08d}.pkl"
 #: 「腕が立っていない(持ち主が ``None``)」の印(``_ABSENT`` は pickle できないので文字列で持つ)。
 ABSENT_MARK: Final[str] = "<shibuya.resume.absent>"
 
 #: 指紋に入れない ``run_day`` の引数(観測だけ・出力先・日数・状態の口・注入する物そのもの)。
 FINGERPRINT_SKIP: Final[frozenset[str]] = frozenset({
     "checkpoint_every", "tape_path", "census_out", "occupancy_every", "occupancy_path", "fleet_debug_dir",
-    "sim_days", "state_out", "stop_at_tick", "resume_from", "resume_legacy_pickle", "run_id", "checkpoint_detail",
+    "sim_days", "state_out", "stop_at_tick", "resume_from", "run_id", "checkpoint_detail",
+    # 10e(E1): final の定義は挙動に効かない(checkpoint の値だけ)=再開の指紋に入れない
+    "hash_scheme",
     # 注入する物(下の ``_describe_objects`` で同定だけを入れる)
     "llm", "fleet", "world", "renderer", "replay", "ledger", "population",
 })
@@ -446,11 +441,7 @@ def _atomic_write(path: Path, data: bytes) -> None:
 
 
 
-class LegacyStateFormatWarning(UserWarning):
-    """10d の pickle の状態のファイルを読んだ(10e まで残す読み口・10f の K23 (a))。"""
-
-
-#: pickle(プロトコル 2 以上)の最初のバイト(この中身は開かない=U1)。
+#: pickle(プロトコル 2 以上)の最初のバイト(この中身は開かない=U1・10e で読み口を消した後も止める印)。
 PICKLE_PROTO: Final[bytes] = bytes([0x80])
 #: 10d の pickle のファイルの先頭の 1 行の印(``MAGIC 形式の版 ラン ID 中身の sha256 中身のバイト数``)。
 MAGIC: Final[bytes] = b"SHIBUYA-STATE"
@@ -488,43 +479,21 @@ def write_state(path: str | Path, bundle: StateBundle) -> int:
     return len(data)
 
 
-def write_state_pickle(path: str | Path, bundle: StateBundle) -> int:
-    """10d の pickle の形式で書く(**試験だけ**=旧の形式の読み口の試験の材料。10e で読み口と一緒に消す)。"""
-    import hashlib
-
-    p = Path(path)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    header = dict(bundle.header)
-    header["format"] = STATE_FORMAT_PICKLE
-    payload = pickle.dumps({"header": header, "soa": bundle.soa, "items": bundle.items,
-                            "inflight": bundle.inflight}, protocol=5)
-    run_id = str(header.get("run_id", ""))
-    head = b" ".join([MAGIC, STATE_FORMAT_PICKLE.encode("ascii"), run_id.encode("utf-8"),
-                      hashlib.sha256(payload).hexdigest().encode("ascii"), str(len(payload)).encode("ascii")]) + b"\n"
-    side = json.dumps(header, ensure_ascii=False, indent=1, sort_keys=True) + "\n"
-    _atomic_write(p.with_suffix(".json"), side.encode("utf-8"))
-    _atomic_write(p, head + payload)
-    return len(head) + len(payload)
-
-
-def _read_side(p: Path, run_id: str | None = None) -> dict[str, Any]:
+def _read_side(p: Path) -> dict[str, Any]:
     side_path = p.with_suffix(".json")
     if not side_path.exists():
         raise SC.StateFormatError(f"見出しの写し({side_path.name})が無い状態のファイルは読まない")
     side = json.loads(side_path.read_text(encoding="utf-8"))
     if not isinstance(side, dict):
         raise SC.StateFormatError(f"見出しの写し({side_path.name})の形が違う")
-    if run_id is not None and str(side.get("run_id", "")) != run_id:
-        raise SC.StateFormatError(f"見出しの写しのラン ID が状態のファイルと違う({side.get('run_id')!r} != {run_id!r})")
     return side
 
 
-def read_state(path: str | Path, *, allow_legacy_pickle: bool = False) -> StateBundle:
-    """状態のまとまりを読む。既定は npz+json だけ(外から来たファイルでもコードを動かさない)。
+def read_state(path: str | Path) -> StateBundle:
+    """状態のまとまりを読む。npz+json だけ(外から来たファイルでもコードを動かさない)。
 
-    10d の pickle は ``allow_legacy_pickle=True`` と拡張子 ``.pkl`` がそろったときだけ開く(自分が書いたファイルに限る)。
-    それ以外で中身が pickle(``SHIBUYA-STATE`` の先頭の行か pickle の印)なら開かずに ``StateFormatError``。
-    拒否は全部 ``StateFormatError``(``ValueError`` の子)。
+    10e(E2): 10d の pickle の読み口は消した。中身が pickle(``SHIBUYA-STATE`` の先頭の行か pickle の印)なら、名前に
+    関係なく開かずに ``StateFormatError``。拒否は全部 ``StateFormatError``(``ValueError`` の子)。
 
     npz+json: 1. 見出しの写し(``.json``)があり、写しの ``file`` の sha256・バイト数がファイルと同じ(壊れた・取り違えた
     ファイルを止める)。2. ``np.load(allow_pickle=False)`` と許可の表で組み立てる(``engine.state_codec``)。
@@ -537,12 +506,9 @@ def read_state(path: str | Path, *, allow_legacy_pickle: bool = False) -> StateB
     p = Path(path)
     data = p.read_bytes()
     if data.startswith(MAGIC + b" ") or data[:1] == PICKLE_PROTO:
-        if not (allow_legacy_pickle and p.suffix == ".pkl"):
-            raise SC.StateFormatError(
-                f"{p.name} は 10d の pickle の形式(開かない)。自分が書いた .pkl だけを、切替口"
-                "(read_state の allow_legacy_pickle=True・run_day の resume_legacy_pickle=True・CLI の --resume-legacy-pickle)"
-                "を付けて読む。拡張子が .pkl でないものは切替口があっても開かない")
-        return _read_state_pickle(p, data)
+        raise SC.StateFormatError(
+            f"{p.name} は 10d の pickle の形式(開かない)。10e で旧の形式の読み口を消した"
+            "(npz+json の状態のファイルだけを読む)")
     if not data.startswith(SC.ZIP_MAGIC):
         raise SC.StateFormatError(f"状態のファイルの形が違う(npz の印が無い): {p.name}")
     side = _read_side(p)
@@ -581,42 +547,6 @@ def _check_ledger_version(h: Mapping[str, Any]) -> None:
             f"状態台帳の版が違う: ファイルは {h.get('ledger_version')!r}・今は {SL.LEDGER_VERSION!r}"
             "(状態の範囲が変わったので読めない)"
         )
-
-
-def _read_state_pickle(p: Path, data: bytes) -> StateBundle:
-    """10d の pickle の形式(10e まで)。**自分が書いたものだけ**を読む検査を pickle を開く前に通す。
-
-    1. 先頭の行の印と形式の版が 10d の版。2. 中身のバイト数と sha256 が先頭の行と同じ。3. 見出しの写し(``.json``)が
-    あり、ラン ID が先頭の行と同じ。開いた後: 4. 見出しのラン ID・full-hash が写しと同じ。5. 状態台帳の版が今と同じ。
-    6. 中身を台帳の宣言と突き合わせる。
-    """
-    import hashlib
-    import warnings
-
-    nl = data.find(b"\n")
-    parts = data[:nl].split(b" ") if nl > 0 else []
-    if len(parts) != 5 or parts[0] != MAGIC:
-        raise SC.StateFormatError(f"状態のファイルの形が違う(先頭の行に印が無い): {p.name}")
-    if parts[1].decode("ascii", "replace") != STATE_FORMAT_PICKLE:
-        raise SC.StateFormatError(f"状態のファイルの形式の版が違う: {parts[1]!r}(10d の pickle は {STATE_FORMAT_PICKLE!r})")
-    run_id = parts[2].decode("utf-8", "replace")
-    payload = data[nl + 1:]
-    if str(len(payload)).encode("ascii") != parts[4] or hashlib.sha256(payload).hexdigest().encode("ascii") != parts[3]:
-        raise SC.StateFormatError(f"状態のファイルの中身が先頭の行の sha256 と合わない(壊れたか差し替えられた): {p.name}")
-    side = _read_side(p, run_id)
-    warnings.warn(LegacyStateFormatWarning(
-        f"{p.name} は 10d の pickle の形式(10e まで読める・自分が書いたファイルだけを開く)。npz+json に書き直すには"
-        " このファイルから再開して状態を書く"), stacklevel=3)
-    doc = pickle.loads(payload)  # 自分で書いたファイルだけ(上の検査を通ったもの)を開く
-    bundle = _bundle_from_doc(doc, p.name)
-    h = bundle.header
-    if h.get("format") != STATE_FORMAT_PICKLE:
-        raise SC.StateFormatError(f"状態のファイルの形式の版が違う: {h.get('format')!r}(10d の pickle は {STATE_FORMAT_PICKLE!r})")
-    if str(h.get("run_id", "")) != run_id or h.get("hashes") != side.get("hashes"):
-        raise SC.StateFormatError("状態のファイルの見出しが写し(.json)と違う(ラン ID か full-hash)")
-    _check_ledger_version(h)
-    check_bundle(bundle)
-    return bundle
 
 
 # ---------------------------------------------------------------- 台帳の宣言との突き合わせ(10f・K23 (a))

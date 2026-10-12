@@ -252,7 +252,8 @@ def test_default_has_no_wom_and_mock_extracts_nothing():
     _real_world_or_skip()
     from shibuya import cli
 
-    kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3")  # 会話の起きる規模(mock)
+    kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3",  # 会話の起きる規模(mock)
+              hash_scheme="full")  # 10e(E1): AgentState.state_hash の差し替えで欄を除く比べ方は旧い final の定義(full)でだけ効く
     off = cli.run(**kw)
     assert off.run_manifest_fields()["wom"] == {}
     mem = cli.run(memory="on", **kw)
@@ -292,7 +293,7 @@ def test_a_talking_llm_writes_word_of_mouth_rows_for_listeners_only():
     from shibuya.engine.run import _default_mock
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", memory="on",
-              wom_source="reason-target")
+              wom_source="reason-target", hash_scheme="full")  # 10e(E1): AgentState.state_hash の差し替えで欄を除く比べ方は旧い final の定義(full)でだけ効く
     base = cli.run(llm=_TalkingLLM(_default_mock(1, "v3"), "スターバックス"), **kw)
     mp = pytest.MonkeyPatch()
     mp.setattr(AgentState, "state_hash", lambda self: self.registry.state_hash(exclude=STORE_MEMORY_FIELDS))

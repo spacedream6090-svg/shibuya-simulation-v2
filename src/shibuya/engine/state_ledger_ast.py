@@ -815,6 +815,7 @@ def check_external(scan: ExtScan, allow: Iterable[ExtAllow] | None = None,
     coll = EXT_NAME_COLLISIONS if collisions_allow is None else collisions_allow
     out: list[str] = []
     hits: dict[int, int] = defaultdict(int)
+    hit_funcs: dict[int, list[str]] = defaultdict(list)
     for attr, sites in sorted(scan.sites.items()):
         for s in sites:
             why = ext_reason(s, scan)
@@ -826,6 +827,7 @@ def check_external(scan: ExtScan, allow: Iterable[ExtAllow] | None = None,
                       if e.attr == attr and e.allow.path == s.path and e.allow.contains in s.text), None)
             if i is not None:
                 hits[i] += 1
+                hit_funcs[i].append(s.func)
                 continue
             rows = ",".join(f"{k}:{o}.{attr}({b})" for o, k, b in scan.rows.get(attr, []))
             out.append(f"{rows}: 軸 1 が no/diag なのに持ち主の外で読まれる {s}  {s.text.strip()[:100]}")
@@ -834,6 +836,9 @@ def check_external(scan: ExtScan, allow: Iterable[ExtAllow] | None = None,
             out.append(f"{e.attr}: 許可 {e.allow.path} 「{e.allow.contains}」がどの読みにも当たらない(古い許可)")
         elif hits[j] != e.count:
             out.append(f"{e.attr}: 許可 {e.allow.path} 「{e.allow.contains}」の当たる数が {hits[j]}(宣言は {e.count})")
+        elif tuple(sorted(hit_funcs[j])) != tuple(sorted(e.funcs)):  # 10e(E2・V3): 行の関数の名前も固定
+            out.append(f"{e.attr}: 許可 {e.allow.path} 「{e.allow.contains}」の当たる行の関数が "
+                       f"{sorted(hit_funcs[j])}(宣言は {sorted(e.funcs)})")
         if not e.allow.reason:
             out.append(f"{e.attr}: 許可 {e.allow.path} の理由が空")
     for a in sorted(set(scan.collisions) - set(coll)):
@@ -873,11 +878,17 @@ EXT_NAME_COLLISIONS: dict[str, str] = {
 
 @dataclass(frozen=True)
 class ExtAllow:
-    """外の状態の軸 1 の場所ごとの許可(属性の名前・当たる数・場所と理由)。"""
+    """外の状態の軸 1 の場所ごとの許可(属性の名前・当たる数・場所と理由・当たる行の関数の名前)。
+
+    10e(E2・10f 第 3 段の検収 V3): 当たる数に加えて、当たる行がある関数の名前(``クラス.メソッド`` か関数名)の並びも
+    固定する。許可した行を別の関数(挙動の場所)へ**移す**と、数が同じでも落ちる。限界: 同じ関数の中で移したものは
+    見えない(``run_day`` は 1 つの大きな関数=README に明記)。
+    """
 
     attr: str
     count: int
     allow: SL.AstAllow
+    funcs: tuple[str, ...] = ()
 
 
 #: 場所ごとの許可(属性の名前・場所・当たる数)。10f の時点で規則に当たらなかった持ち主の外の読みを 1 つずつ見て理由を書いた。
@@ -885,36 +896,36 @@ class ExtAllow:
 EXT_AST_ALLOW: tuple[ExtAllow, ...] = (
     ExtAllow("last_habit", 1, SL.AstAllow("engine/poi_target.py", 'getattr(self.chooser, "last_habit", -1)',
                                "店の決め手の名前(named/habit/visible)を StoreChoice.note に渡すだけ。決め手は O13 の"
-                               "choice_reason と O68 の決め手別の数え(diag)にしか入らない")),
+                               "choice_reason と O68 の決め手別の数え(diag)にしか入らない"), funcs=('TargetResolver.resolve',)),
     ExtAllow("n_arrivals", 1, SL.AstAllow("engine/run.py", "_pres0 = int(presence.n_arrivals)",
-                               "層別の起床の数え(layer_counts=診断の表)の差分の基準")),
+                               "層別の起床の数え(layer_counts=診断の表)の差分の基準"), funcs=('run_day',)),
     ExtAllow("n_arrivals", 1, SL.AstAllow("engine/run.py", "int(presence.n_arrivals) + int(presence.n_departures) - _pres0",
-                               "同上(層別の起床の数えの差分)")),
-    ExtAllow("n_departures", 1, SL.AstAllow("engine/run.py", "_pres0 = int(presence.n_arrivals)", "同上")),
+                               "同上(層別の起床の数えの差分)"), funcs=('run_day',)),
+    ExtAllow("n_departures", 1, SL.AstAllow("engine/run.py", "_pres0 = int(presence.n_arrivals)", "同上"), funcs=('run_day',)),
     ExtAllow("n_departures", 1, SL.AstAllow("engine/run.py",
-                                 "int(presence.n_arrivals) + int(presence.n_departures) - _pres0", "同上")),
+                                 "int(presence.n_arrivals) + int(presence.n_departures) - _pres0", "同上"), funcs=('run_day',)),
     ExtAllow("n_tape_misses", 2, SL.AstAllow("engine/run.py", "prev_tape_misses = bridge.n_tape_misses",
-                                  "診断の行(RunResult.diagnostics)の差分の基準(10d 検収 L1)")),
+                                  "診断の行(RunResult.diagnostics)の差分の基準(10d 検収 L1)"), funcs=('run_day', 'run_day')),
     ExtAllow("n_tape_misses", 1, SL.AstAllow("engine/run.py", "bridge.n_tape_misses - prev_tape_misses",
-                                  "診断の行の列(テープに無い呼の数)")),
+                                  "診断の行の列(テープに無い呼の数)"), funcs=('run_day',)),
     ExtAllow("n_transfers", 1, SL.AstAllow("engine/run.py", 'int(getattr(ledger.money, "n_transfers", 0)) != 0',
-                                "再開に渡す台帳の検査(参入資本や財布を入れた台帳なら止める=挙動ではなく誤用の拒否)")),
+                                "再開に渡す台帳の検査(参入資本や財布を入れた台帳なら止める=挙動ではなく誤用の拒否)"), funcs=('run_day',)),
     ExtAllow("origin_of", 1, SL.AstAllow("engine/run.py", "rel_layer.origin_of.clear()",
-                              "tick の終わりに会話の起点の控え(O19・diag)を捨てる書き。読みではない")),
+                              "tick の終わりに会話の起点の控え(O19・diag)を捨てる書き。読みではない"), funcs=('run_day',)),
     ExtAllow("seconds", 1, SL.AstAllow("engine/clock.py", "delta.seconds",
-                            "標準ライブラリの timedelta.seconds(GroupNormMeter.seconds とは別物)")),
+                            "標準ライブラリの timedelta.seconds(GroupNormMeter.seconds とは別物)"), funcs=('SimClock.to_tick_offset',)),
     ExtAllow("signage_exposures", 1, SL.AstAllow("engine/run.py", '_fam_renderer is not None and getattr(',
                                       "**挙動の読み**: 描画が集めた看板の露出を、同じ tick の 6 段目で記憶と親しみの層が"
                                       "読んで空にする。tick の中だけの口(checkpoint の時点では常に空)なので O64 の"
-                                      "軸 1 no・軸 2 discardable のままでもハッシュと再開は変わらない(10f で親に確かめる点)")),
-    ExtAllow("signage_exposures", 1, SL.AstAllow("engine/run.py", "_exp = list(_fam_renderer.signage_exposures)", "同上")),
-    ExtAllow("signage_exposures", 1, SL.AstAllow("engine/run.py", "_fam_renderer.signage_exposures.clear()", "同上(空にする書き)")),
+                                      "軸 1 no・軸 2 discardable のままでもハッシュと再開は変わらない(10f で親に確かめる点)"), funcs=('run_day',)),
+    ExtAllow("signage_exposures", 1, SL.AstAllow("engine/run.py", "_exp = list(_fam_renderer.signage_exposures)", "同上"), funcs=('run_day',)),
+    ExtAllow("signage_exposures", 1, SL.AstAllow("engine/run.py", "_fam_renderer.signage_exposures.clear()", "同上(空にする書き)"), funcs=('run_day',)),
     ExtAllow("sleep_counts", 1, SL.AstAllow("engine/run.py", "for _k, _v in presence.sleep_counts.items():",
-                                 "RunResult.planned_sleep_counts の組み立て(ランの最後)")),
+                                 "RunResult.planned_sleep_counts の組み立て(ランの最後)"), funcs=('run_day',)),
     ExtAllow("stats", 1, SL.AstAllow("engine/run.py", '_cs = getattr(getattr(poi_resolver, "chooser", None), "stats", None)',
-                          "RunResult.chooser_stats の組み立て(ランの最後)")),
+                          "RunResult.chooser_stats の組み立て(ランの最後)"), funcs=('run_day',)),
     ExtAllow("stats", 1, SL.AstAllow("engine/run.py", "for k, v in fam_layer.stats.items()",
-                          "RunResult.familiarity_summary の組み立て(ランの最後)")),
+                          "RunResult.familiarity_summary の組み立て(ランの最後)"), funcs=('run_day',)),
     ExtAllow("text_id", 1, SL.AstAllow("engine/run.py", "+ act_layer.until_kind.nbytes + act_layer.text_id.nbytes",
-                            "成長の検査(RunResult.growth_measured)のバイト数")),
+                            "成長の検査(RunResult.growth_measured)のバイト数"), funcs=('run_day',)),
 )

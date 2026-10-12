@@ -60,6 +60,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Callable, ClassVar, Final, Mapping, Sequence
 
+import re
+
 import numpy as np
 
 from shibuya.agents.state import (
@@ -555,6 +557,13 @@ class Rendered:
     cache_misses: int = 0
     #: 記憶 第 1 段 6b: B5「記憶」行に載せた記憶の行番号(テープ版 3 の ``recalled_rows``)。
     recalled_rows: tuple[int, ...] = ()
+    #: テープ版 4(10e・E5・A8): 引いた記憶の同定(``recalled_rows`` と同じ並び)。最初に書かれた時刻(通しの T)・
+    #: 種類(``memory.EVENT_KINDS``・店の行は ``STORE_ITEM_KIND``)・対象(``mem_object`` の符号化・店の行は POI)。
+    recalled_first_tick: tuple[int, ...] = ()
+    recalled_kind: tuple[int, ...] = ()
+    recalled_object: tuple[int, ...] = ()
+    #: テープ版 4: 「(知人)」の印を見せた相手の体 id(B5 の本文に出た順・重複なし)。
+    acquaintance_ids: tuple[int, ...] = ()
 
     @property
     def tokens_total(self) -> int:
@@ -1347,8 +1356,9 @@ class Renderer:
         blocks["B5"] = self._with_intent_line(i, blocks["B5"], b6)
         # 記憶 第 1 段 6b: 想起した記憶を B5 の**最後**に 1 行(on のランだけ・0 件なら出さない)
         recalled: tuple[int, ...] = ()
+        recalled_meta: tuple[tuple[int, int, int], ...] = ()
         if self.memory_recall is not None:
-            blocks["B5"], recalled = self._with_memory_line(
+            blocks["B5"], recalled, recalled_meta = self._with_memory_line(
                 i, int(tick), blocks["B5"], b6, wake_reason, inviter
             )
         blocks["B6"] = b6
@@ -1389,6 +1399,10 @@ class Renderer:
             group_tokens=groups,
             truncations=tuple(trunc),
             recalled_rows=recalled,
+            recalled_first_tick=tuple(m[0] for m in recalled_meta),
+            recalled_kind=tuple(m[1] for m in recalled_meta),
+            recalled_object=tuple(m[2] for m in recalled_meta),
+            acquaintance_ids=acquaintance_ids_in(blocks["B5"]),
             cache_hits=self.cache_hits - hits0,
             cache_misses=self.cache_misses - misses0,
         )
@@ -1894,12 +1908,16 @@ class Renderer:
 
     def _with_memory_line(
         self, i: int, tick: int, b5: bytes, b6: bytes, wake_reason: int | str, inviter: int | None
-    ) -> tuple[bytes, tuple[int, ...]]:
-        """B5 の最後に「記憶」の 1 行(6b・M4)。チャネル 60 tok・個体枠 300 を超えるなら末尾の項から削る。"""
+    ) -> tuple[bytes, tuple[int, ...], tuple[tuple[int, int, int], ...]]:
+        """B5 の最後に「記憶」の 1 行(6b・M4)。返り値の 3 つ目は 10e(E5)の同定(最初の時刻・種類・対象)。チャネル 60 tok・個体枠 300 を超えるなら末尾の項から削る。"""
         cond = int(wake_reason) if isinstance(wake_reason, (int, np.integer)) else -1
         items = list(self.memory_recall(i, int(tick), cond, -1 if inviter is None else int(inviter)))
+        # 10e(E5・A8): テープ版 4 の同定(最初の時刻・種類・対象)。行番号と同じ並び・載せた分だけ返す
+        meta = tuple(
+            (int(getattr(it, "first_tick", -1)), int(getattr(it, "kind")), int(getattr(it, "obj"))) for it in items
+        )
         if not items:
-            return b5, ()
+            return b5, (), ()
         when = self.clock_fn(int(tick))
         texts: list[str] = []
         rows: list[int] = []
@@ -1926,13 +1944,13 @@ class Renderer:
             self.memory_items_dropped_for_budget += prev - n_keep
         if not n_keep:
             self.memory_lines_over_budget += 1
-            return b5, ()
+            return b5, (), ()
         kept = texts[:n_keep]
         self.memory_lines += 1
         self.memory_items += len(kept)
         tok = ch.estimate_tokens(line)
         self.memory_line_tokens[tok] = self.memory_line_tokens.get(tok, 0) + 1
-        return out, tuple(rows[: len(kept)])
+        return out, tuple(rows[: len(kept)]), meta[: len(kept)]
 
     def memory_summary(self) -> dict:
         """manifest ``memory_summary.render``: 記憶の行を載せた描画・項の件数・行の tok の分布。"""
@@ -2566,6 +2584,21 @@ class Renderer:
 
 
 # ------------------------------------------------------------------ 補助
+_ACQ_RE = re.compile(r"P-(\d+)\(" + re.escape(T.NEAR_PERSON_MARKS[1]) + r"\)")
+
+
+def acquaintance_ids_in(b5: bytes) -> tuple[int, ...]:
+    """10e(E5・A8): B5 の本文に「(知人)」の印つきで出た相手の体 id(出た順・重複なし)=テープ版 4 の列。
+
+    印を付けるのは近接人物の行だけ(``P-<id>(知人)``=``person_word`` と ``NEAR_PERSON_MARKS``)。本文から引くので、
+    チャネルの切り詰めで消えた人は入らない(見せた相手だけ)。
+    """
+    seen: dict[int, None] = {}
+    for m in _ACQ_RE.finditer(b5.decode("utf-8")):
+        seen.setdefault(int(m.group(1)), None)
+    return tuple(seen)
+
+
 def person_word(agent_id: int) -> str:
     """個体 id → 観測に出る人 ID の表層(``P-17``)。
 

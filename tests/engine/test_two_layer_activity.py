@@ -240,11 +240,12 @@ def test_checkpoint_includes_the_activity_text():
     h1 = layer.state_hash()
     layer.after_resolve(a, 1, [0], [NONE_ACTION_CODE], [_payload(text="休む")])
     assert len({h0, h1, layer.state_hash()}) == 3
+    # 10e(E1): 既定の final は behavior-hash になった。活動の欄の混ぜ方は 10e より前の組み立て(legacy_combined)で見る
     base = Checkpoint(0, "a", "w", "p", "s")
-    assert base.combined == blake3_hex("\x1f".join(("a", "w", "p", "s")).encode("utf-8")), (
+    assert base.legacy_combined == blake3_hex("\x1f".join(("a", "w", "p", "s")).encode("utf-8")), (
         "活動層の無い checkpoint は従来の式のまま"
     )
-    assert Checkpoint(0, "a", "w", "p", "s", h1).combined != base.combined
+    assert Checkpoint(0, "a", "w", "p", "s", h1).legacy_combined != base.legacy_combined
 
 
 def test_v3_run_checkpoints_carry_the_activity_hash_and_are_deterministic():

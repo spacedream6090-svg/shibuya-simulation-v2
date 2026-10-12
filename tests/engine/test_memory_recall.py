@@ -254,14 +254,15 @@ def test_the_channel_keeps_the_whole_line_within_60_tokens():
 # ================================================================= (d) テープ版 3
 def test_tape_v3_writes_recalled_rows_and_keeps_the_v2_columns_in_place(tmp_path):
     names = list(CALLS_SCHEMA.names)
-    assert names[-1] == "recalled_rows" and names.index("wake_class") == 3
-    assert TAPE_SCHEMA_VERSION == "shibuya.tape/3"
+    # 10e(E5): 版 4 は版 3 の 14 列の後ろに 7 列を足しただけ=recalled_rows は 14 列目のまま
+    assert names[13] == "recalled_rows" and names.index("wake_class") == 3 and len(names) == 21
+    assert TAPE_SCHEMA_VERSION == "shibuya.tape/4"
     with TapeWriter(tmp_path / "t") as w:
         b = w.intern_block("共有")
         w.append(TapeRow("c0", 0, 1, 1, "ph0", (b,), "pa", "応答", recalled_rows=(3, 7)))
         w.append(TapeRow("c1", 1, 1, 1, "ph1", (b,), "pa", "応答"))
     tape = Tape(tmp_path / "t")
-    assert tape.schema_version == "shibuya.tape/3"
+    assert tape.schema_version == "shibuya.tape/4"
     assert tape.column("recalled_rows") == [[3, 7], []]
     assert [r.recalled_rows for r in tape.rows()] == [(3, 7), ()]
 
@@ -291,7 +292,7 @@ def runs(tmp_path_factory):
     from shibuya.engine.run import run_day
 
     d = tmp_path_factory.mktemp("mem6b")
-    kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3")
+    kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3", hash_scheme="full")  # 10e(E1): AgentState.state_hash の差し替えで欄を除く比べ方は旧い final の定義(full)でだけ効く
     off = run_day(tape_path=d / "off", **kw)
     mp = pytest.MonkeyPatch()
     mp.setattr(AgentState, "state_hash", lambda self: self.registry.state_hash(exclude=MEMORY_FIELDS))

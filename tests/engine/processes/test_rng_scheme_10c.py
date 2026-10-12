@@ -43,8 +43,9 @@ Z_MAX = 3.0
 
 
 # ================================================================= 0. 切替口
-def test_scheme_values_and_default_is_stateful():
-    assert RNG_SCHEMES == ("stateful", "counter") and DEFAULT_RNG_SCHEME == "stateful"
+def test_scheme_values_and_default_is_counter():
+    # 10e(E4・版上げ 1 回目): 既定を counter に切り替えた(stateful は旧値の再現の切替口)
+    assert RNG_SCHEMES == ("stateful", "counter") and DEFAULT_RNG_SCHEME == "counter"
     assert check_rng_scheme("counter") == "counter"
     with pytest.raises(ValueError):
         check_rng_scheme("philox")
@@ -148,7 +149,9 @@ def test_cli_flag_is_shared_by_engine_run_and_cli():
 
     ap = argparse.ArgumentParser()
     RUN.add_calendar_args(ap)
-    assert RUN.calendar_kwargs_from_args(ap.parse_args([]))["rng_scheme"] == "stateful"
+    assert RUN.calendar_kwargs_from_args(ap.parse_args([]))["rng_scheme"] is None  # 10e: 未指定(録画は counter)
+    assert RUN.resolve_rng_scheme(None) == "counter"
+    assert RUN.calendar_kwargs_from_args(ap.parse_args(["--rng-scheme", "stateful"]))["rng_scheme"] == "stateful"
     assert RUN.calendar_kwargs_from_args(ap.parse_args(["--rng-scheme", "counter"]))["rng_scheme"] == "counter"
     with pytest.raises(SystemExit):
         ap.parse_args(["--rng-scheme", "other"])
@@ -192,8 +195,8 @@ def test_counter_dispatch_delay_depends_only_on_T_cell_k():
     got_b = [b.request(5, 3, (0.0, 0.0)) for _ in range(3)] + [b.request(5, 9, (0.0, 0.0))]
     assert got_a == got_b
     # stateful は前の出動で列が進む(=再開で保存が要る状態)
-    s1 = PublicServiceDispatchProcess(world, master_seed=7)
-    s2 = PublicServiceDispatchProcess(world, master_seed=7)
+    s1 = PublicServiceDispatchProcess(world, master_seed=7, rng_scheme="stateful")  # 10e: 既定は counter
+    s2 = PublicServiceDispatchProcess(world, master_seed=7, rng_scheme="stateful")
     for c in range(40):
         s2.request(1, c % 16, (0.0, 0.0))
     one = [s1.request(5, 3, (0.0, 0.0)) for _ in range(30)]
@@ -231,8 +234,10 @@ def test_counter_collapse_at_T_does_not_depend_on_earlier_ticks():
     assert walked.n_collapse > 0
     assert _events(fresh, 30) == _events(walked, 30)
     # stateful は前の tick を回したかで変わる
-    s_fresh = SalientProcess(world, agents, master_seed=4, rate_per_10k_per_day=RATE_X1000 * 10)
-    s_walked = SalientProcess(world, agents, master_seed=4, rate_per_10k_per_day=RATE_X1000 * 10)
+    s_fresh = SalientProcess(world, agents, master_seed=4, rate_per_10k_per_day=RATE_X1000 * 10,
+                             rng_scheme="stateful")  # 10e: 既定は counter
+    s_walked = SalientProcess(world, agents, master_seed=4, rate_per_10k_per_day=RATE_X1000 * 10,
+                              rng_scheme="stateful")
     for t in range(30):
         s_walked.step(t)
     assert [_events(s_fresh, t) for t in range(30, 60)] != [_events(s_walked, t) for t in range(30, 60)]
@@ -331,8 +336,9 @@ def test_counter_run_twice_is_identical():
     assert [c.combined for c in a.checkpoints] == [c.combined for c in b.checkpoints]
     assert (a.salient_events, a.dispatches, a.noticed) == (b.salient_events, b.dispatches, b.noticed)
     assert a.dispatches > 0
-    st = run_day(seed=3, ticks=TPD, salient_rate_per_10k=RATE_X1000, **KW)
-    assert st.final_hash != a.final_hash  # 方式を変えると引きが変わる(既定は stateful)
+    st = run_day(seed=3, ticks=TPD, salient_rate_per_10k=RATE_X1000, rng_scheme="stateful", **KW)
+    assert st.final_hash != a.final_hash  # 方式を変えると引きが変わる(10e から既定は counter)
+    assert run_day(seed=3, ticks=TPD, salient_rate_per_10k=RATE_X1000, **KW).final_hash == a.final_hash
 
 
 def test_two_day_counter_keys_carry_T(monkeypatch):
@@ -362,7 +368,7 @@ def test_two_day_counter_keys_carry_T(monkeypatch):
     assert not np.array_equal(raw1, raw2)
     # stateful の 2 日のランは counter の用途名を 1 本も作らない
     seen.clear()
-    run_day(seed=1, ticks=TPD, sim_days=2, salient_rate_per_10k=RATE_X1000, **KW)
+    run_day(seed=1, ticks=TPD, sim_days=2, salient_rate_per_10k=RATE_X1000, rng_scheme="stateful", **KW)
     assert not [d for d, _ in seen if d in (SAL.SALIENT_COUNTER_DOMAIN, CIV.DISPATCH_COUNTER_DOMAIN)]
 
 
@@ -423,10 +429,12 @@ def test_the_tape_carries_the_scheme_and_a_mismatch_stops(tmp_path):
     assert rec.dispatches > 0
     assert read_run_meta(tmp_path / "c")["rng_scheme"] == "counter"
     with pytest.raises(ValueError, match="テープは rng_scheme=counter・今の設定は stateful"):
-        _rep(tmp_path, "c")                                    # counter で録って既定(stateful)で再生 → 止まる
+        _rep(tmp_path, "c", rng_scheme="stateful")             # counter で録って stateful で再生 → 止まる
     rep = _rep(tmp_path, "c", rng_scheme="counter")
     assert rep.final_hash == rec.final_hash and rep.tape_miss_count == 0
-    st = _rec(tmp_path, "s")
+    # 10e: 未指定の再生はテープの値で回す
+    assert _rep(tmp_path, "c").final_hash == rec.final_hash
+    st = _rec(tmp_path, "s", rng_scheme="stateful")
     assert read_run_meta(tmp_path / "s")["rng_scheme"] == "stateful"
     with pytest.raises(ValueError, match="テープは rng_scheme=stateful・今の設定は counter"):
         _rep(tmp_path, "s", rng_scheme="counter")
@@ -438,7 +446,7 @@ def test_a_tape_without_the_value_is_replayed_as_stateful(tmp_path):
 
     from shibuya.engine.tape import RUN_META_FILENAME, read_run_meta
 
-    rec = _rec(tmp_path, "old")
+    rec = _rec(tmp_path, "old", rng_scheme="stateful")  # 10e: 10c より前の録画は stateful だった
     meta = tmp_path / "old" / RUN_META_FILENAME
     d = json.loads(meta.read_text(encoding="utf-8"))
     d.pop("rng_scheme")                                        # 10c より前の録画と同じ形(response_delay は残す)

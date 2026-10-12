@@ -212,7 +212,7 @@ def test_decay_modes():
 def runs():
     from shibuya.engine.run import run_day
 
-    kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3")
+    kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3", hash_scheme="full")  # 10e(E1): AgentState.state_hash の差し替えで欄を除く比べ方は旧い final の定義(full)でだけ効く
     off = run_day(**kw)
     mem = run_day(memory="on", **kw)
     mp = pytest.MonkeyPatch()

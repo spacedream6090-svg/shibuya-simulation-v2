@@ -68,7 +68,7 @@ from typing import Any, Final, Mapping
 import numpy as np
 
 from shibuya.agents.state import Activity, ActivityKind
-from shibuya.core.rng import stream
+from shibuya.core.rng import stream, DEFAULT_RNG_SCHEME, k19_counters
 from shibuya.engine.calendar import ticks_per_day as _ticks_per_day
 
 __all__ = [
@@ -372,15 +372,19 @@ class EnergyModel:
 
     # ---- 体の定数(ラン開始時に 1 回) ----
     def draw_bodies(
-        self, age: np.ndarray, sex: np.ndarray, seed: int | str
+        self, age: np.ndarray, sex: np.ndarray, seed: int | str, rng_scheme: str = DEFAULT_RNG_SCHEME
     ) -> tuple[np.ndarray, np.ndarray]:
-        """体重と EER(``float32``)。逐次ループ宣言 1(起動時 1 回・体数ぶん)。"""
+        """体重と EER(``float32``)。逐次ループ宣言 1(起動時 1 回・体数ぶん)。
+
+        10e(E4・K19): ``counter``(既定)は体の番号を 1 語目に置く(正規乱数の棄却で 2 ブロック引いても次の体と
+        重ならない=10c 検収 R3)。``stateful`` は旧の並び(旧値の再現だけ)。
+        """
         n = int(np.asarray(age).size)
         zw = np.empty(n, dtype=np.float64)
         ze = np.empty(n, dtype=np.float64)
         for i in range(int(n)):  # 逐次ループ宣言 1: 起動時 1 回・体数ぶん
-            zw[i] = stream(seed, "body.weight", i).standard_normal()
-            ze[i] = stream(seed, "body.eer", i).standard_normal()
+            zw[i] = stream(seed, "body.weight", *k19_counters(rng_scheme, i)).standard_normal()
+            ze[i] = stream(seed, "body.eer", *k19_counters(rng_scheme, i)).standard_normal()
         return self.bodies_from_z(age, sex, zw, ze)
 
     def bodies_from_z(
