@@ -394,6 +394,17 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #87 10e 版上げ 1 回目(エンジン側)E1・E2・E4・E5: 既定の final を behavior-hash に・掃除と旧 pickle の口の削除・counter の既定化と K19・テープ版 4(第329・2026-10-12〜13・実装役 Opus 5.5・親検収+別のサブの検収 2 回)
+
+- 正典: [実装の計画 10-12](docs/design/v2-implementation-plan-2026-10-12.md) §2 第 0 期・ユーザーの [回答](docs/design/v2-plan-answers-2026-10-12.md) 6-4(10e の実行の確認)・[指示書 10-03](docs/design/v2-wallbounce-decisions-2026-10-03.md) §3-3 A6・§3-4 A8・[10-06](docs/design/v2-wallbounce-decisions-2026-10-06.md) §6 K1・K15・K19・[実装の記録](docs/bench/analysis/wallbounce-1012/10e/README.md)・[検収の記録](docs/bench/analysis/wallbounce-1012/10e/review-10e-engine.md)。**変更ごとに commit を分けた**(E1・E2・E4・E5 の 4 本)。E3(暦の一本化)と構築側(W10 ON・W12・山手線・騒音の指紋・W13 の年間化=[材料](docs/bench/analysis/wallbounce-1012/10e-build-side-prep.md))は**ユーザーの答えの後**(版上げ 1 回目はまだ完了していない)。
+- **E1**: 既定の final を behavior-hash に(`--hash-scheme {behavior,full}`)・死蔵 5 列を削除(台帳 189 行・`state-ledger/10e`)。検収 R1=既定の final が艦隊の録画と再生で一致しなかった(O44 の `replay_inbox`・繰り延べの順)→ `replay_inbox` を O96(no・required)に分け、O43/O44 は多重集合でハッシュ。艦隊の録画=再生が全設定で一致(T2 の試験・正の対照つき)。19 構成で呼数・行動・テープ・full-hash は不変、`--hash-scheme full` は HEAD の final を再現。**K15(`fail_streak`・`plan_activity`)は `full` を消す commit で消す**(動く量なし)。
+- **E2**: 期限つきの辞書 3 つの掃除(O39 159,138 → 2,490 B)・旧 pickle の口の削除・読み口の上限 2 → 8 GiB(expedient・全腕 39 万体の外挿 2.41 GB)・O64 は no・V3・T7 の門=全体の壁時計の 1% 以下(実測 0.11%)。呼数・行動・テープは不変、final は O39 が behavior の行なので動く(挙動は不変)。
+- **E4**: 既定の乱数を counter に・K19 の鍵の配置 `k19_counters`(重なり 0・U2)・`overlap` の許可を廃止・テープ meta に `rng_layout`(10c〜10f の配置の counter テープは再生で止める)・`run_day(rng_scheme=None)`=記録は counter・再生はテープの値。`--rng-scheme stateful` は E2 の全欄を再現。**動いた量: 母集団から動き、既定 5,000 体の住人 4,191 体が入れ替わる(共通 809)**・既定 v3 の呼数 69,978 → 70,421(3 段の表=stateful → counter 10c 配置 → counter 10e 配置は記録 §E4-3)。10-03 A6 の「動くのは顕著行為と出動の件数だけ」は成り立たない。
+- **E5**: テープ版 4(7 列)・旧テープ 52 本は日=0 で読める・1 呼あたり +21〜50 B。試験 T1・T3・T4。
+- **切替口(消す時期は親が決める=PENDING §2)**: `--hash-scheme full`・`--rng-scheme stateful`(消すときに書き直す試験の一覧は記録 §E6-1)・`--calendar-weekday day_index`(E3 まで既定)。
+- **低い指摘(宣言)**: 在途の呼の中身は両側とも behavior-hash に入らない(10b からの限界)/ `pending` の適用の lexsort で完全な同点のときは list の順が決める(再送 0 で未発生・直すなら call_id を足す)/ `PRE10E_SYN` の注に多重集合の記述なし。
+- 既定の結果は動く(版上げ)。テスト: 全体 **3,797 件(3,795 passed・failed 0・skipped 1・xfailed 1)**(親が実行。1 回目は性能の門 `test_p2_edge_geometry_under_300ms_at_400k_agents` が検収役のランと並走して落ち、単独で通過=10e は幾何に触れていない)。
+
 ### #86 D-102 の土台 10f 第 3 段: AST と実行時の検査(K24)・K19 の検査(K25)・保存の形式 npz+json(K23)(第327・2026-10-07・実装役 Opus 5.5・親検収+別のサブの検収 2 回)
 
 - 正典: [10f のアジェンダ](docs/design/v2-d102-10f-agenda.md) §2 の 3・4・5・K23〜K25(親推奨で確定)・[実装の記録](docs/bench/analysis/wallbounce-1006/10f/README.md) 第 3 段。
