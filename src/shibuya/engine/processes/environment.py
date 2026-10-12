@@ -28,11 +28,31 @@ expedient(本モジュール分)
 - 影グリッドが無い日(``w9_shadow_<date>.npy`` は 2026-07-28 の 1 日ぶんだけ実在)は
   **全セル日向**として扱い ``shadow_missing`` を計数する。
 - 気象資産が無い世界(合成)は「穏やかな 1 日」= 体感温度 5 の固定値。
+
+〔改訂(第330・10e B6)〕天気の規則 ``weather_scheme``(``engine.calendar.WEATHER_SCHEMES``・既定 ``legacy``=上のまま)。
+``calendar``(ユーザーの答え 1-3)では:
+
+1. 天気(雨・気温・湿度・天候型・WBGT の入力)は**再生日**の W13 の行から。日の出・日の入り・太陽高度・影は**暦の日付**
+   (``calendar.date_of_day``)から計算する(``engine.solar``・影は ``w9_shadow_<暦の日付>.npy``)。WBGT は「再生日の
+   気温・湿度・風・日照 × 暦の日付の太陽高度」で計算し直す(構築段と同じ式。再生日=暦の日付なら W13 の値と同じ)。
+2. 再生日の既定は**その日の実際の天気**: 暦の日付が W13 の窓の中(行がある)なら再生日=暦の日付。
+3. **揺らすとき**(``run_day(weather_perturb=True)``・``--weather-perturb``=``perturbed``。アンサンブルは環境の seed を
+   変えて回す)と暦の日付が窓の外のときは、同じ**季節**
+   (気象庁の区分)× **平日/土休** × **天候型**の層の中から、窓の中で実際に起きた日数の割合で引く(天候型を日数の
+   割合で引き、その型の日を一様に引く)。層が空なら隣の季節へ広げ(次に全季節・最後に平日/土休を問わず)警告する
+   (**expedient**・未リサーチ)。「再生日は影のある日に絞る」は使わない(影は暦の日付で引く)。
+4. 暦の日付の影が無いときは止めずに、いちばん近い日付の影を読み(同じ近さなら前の日)、警告と manifest の記録
+   (``weather.days[].shadow_fallback``)を残す(**expedient**)。
+5. 描画の天気(B3)は ``b3_words`` で同じ規則から作る(天候の語=再生日の行・日照の語=暦の日付の日の出と日の入り・
+   暑さの語=体感温度と同じ暑さ段)。
+6. 複数日のランは日ごとに暦の日付が進み、その日の規則で引き直す(乱数の鍵は環境の seed と日番号)。
 """
 
 from __future__ import annotations
 
 import datetime as dt
+import math
+import warnings
 from typing import Any, Final
 
 import numpy as np
@@ -41,7 +61,8 @@ from shibuya.agents.state import AgentState
 from shibuya.core.hashing import blake3_hex
 from shibuya.core.rng import stream
 from shibuya.engine import resolve as R
-from shibuya.engine.calendar import SimCalendar, check_weather_scheme
+from shibuya.engine import solar as SOL
+from shibuya.engine.calendar import SEASON_OF_MONTH, SimCalendar, check_weather_scheme
 from shibuya.world.assets import (
     HEAT_STAGE_ORDER,
     SHADOW_FRAMES_PER_DAY,
@@ -58,6 +79,11 @@ __all__ = [
     "THERMAL_STEP_MINUTES",
     "FALLBACK_THERMAL",
     "RNG_DOMAIN",
+    "SEASON_NEIGHBOURS",
+    "WeatherWarning",
+    "calendar_candidates",
+    "nearest_shadow_date",
+    "sample_calendar_day",
     "select_day",
     "EnvironmentProcess",
 ]
@@ -79,6 +105,78 @@ FALLBACK_THERMAL: Final[int] = 5
 
 #: 実日の乱択に使う乱数ドメイン(構築段 ``build.w13`` とは**別**=上記の食い違い 2)。
 RNG_DOMAIN: Final[str] = "engine.processes.environment"
+
+#: 10e(B6): 層が空のときに広げる隣の季節(気象庁の区分の前後)。
+SEASON_NEIGHBOURS: Final[dict[str, tuple[str, str]]] = {
+    "春": ("冬", "夏"), "夏": ("春", "秋"), "秋": ("夏", "冬"), "冬": ("秋", "春"),
+}
+
+
+class WeatherWarning(UserWarning):
+    """10e(B6): 天気の規則の警告(層を広げた・暦の日付の影が無く近い日の影を読んだ)。"""
+
+
+def _season_of(iso: str) -> str:
+    return SEASON_OF_MONTH[int(str(iso)[5:7])]
+
+
+def calendar_candidates(passets: ProcessAssets, season: str, kind: str) -> tuple[list[int], str]:
+    """10e(B6): 季節 × 平日/土休 の W13 の行(昇順の索引)と、広げた段(``""``=広げていない)。
+
+    広げる順(層が空のとき・expedient): 隣の季節(前後 2 つ)→ 全季節 → 全季節で平日/土休を問わない。
+    """
+    a = passets
+    seasons = [_season_of(d) for d in a.weather_dates]
+    kinds = list(a.weather_weekday_kind)
+    steps = (
+        ("", {season}, True),
+        ("隣の季節", {season, *SEASON_NEIGHBOURS[season]}, True),
+        ("全季節", set(SEASON_NEIGHBOURS), True),
+        ("全季節・平日/土休を問わず", set(SEASON_NEIGHBOURS), False),
+    )
+    for label, ss, same_kind in steps:  # 逐次ループ宣言: 段 4 つ × 行数(日の頭に 1 回)
+        rows = [i for i in range(len(seasons)) if seasons[i] in ss and (not same_kind or kinds[i] == kind)]
+        if rows:
+            return rows, label
+    return [], "候補なし"
+
+
+def sample_calendar_day(
+    master_seed: int | str, day: int, season: str, kind: str, passets: ProcessAssets
+) -> tuple[str, str, str]:
+    """10e(B6): 季節 × 平日/土休 × 天候型の層から、窓の中で実際に起きた日数の割合で再生日を引く。
+
+    天候型を「その季節 × 平日/土休 の中の型ごとの日数」の割合で引き、その型の日を一様に引く(2 回の抽選・同じ
+    Generator)。鍵は ``(環境の seed, RNG_DOMAIN, blake3("calendar|季節|平日/土休|日番号"))``。
+
+    Returns:
+        ``(再生日, 層の名前「季節|平日/土休|天候型」, 広げた段)``。
+    """
+    a = passets
+    rows, widened = calendar_candidates(a, season, kind)
+    if not rows:
+        raise KeyError("W13 に候補日が無い")
+    by_type: dict[str, list[str]] = {}
+    for i in rows:
+        by_type.setdefault(a.weather_type[i], []).append(a.weather_dates[i])
+    types = sorted(by_type)
+    counts = np.asarray([len(by_type[t]) for t in types], dtype=np.int64)
+    key = f"calendar|{season}|{kind}|{int(day)}"
+    rng = stream(master_seed, RNG_DOMAIN, int(blake3_hex(key.encode("utf-8"))[:16], 16))
+    u = int(rng.integers(0, int(counts.sum())))
+    wtype = types[int(np.searchsorted(np.cumsum(counts), u, side="right"))]
+    days = sorted(by_type[wtype])
+    date = days[int(rng.integers(0, len(days)))]
+    i = a.day_index_of(date)
+    return date, f"{_season_of(date)}|{a.weather_weekday_kind[i]}|{wtype}", widened
+
+
+def nearest_shadow_date(dates: tuple[str, ...], target: str) -> str | None:
+    """10e(B6): ``target`` にいちばん近い影の日(同じ近さなら前の日)。影が無ければ ``None``。"""
+    if not dates:
+        return None
+    t = dt.date.fromisoformat(str(target))
+    return min(dates, key=lambda d: (abs((dt.date.fromisoformat(d) - t).days), d))
 
 
 def select_day(
@@ -148,7 +246,7 @@ class EnvironmentProcess:
         perturbed: bool = False,
     ) -> None:
         self.prefer_shadow_days = bool(prefer_shadow_days)
-        #: 10e(E3・B6): 天気と暦の規則(``engine.calendar.WEATHER_SCHEMES``)と、天気を揺らすか(環境の seed を別に渡した)
+        #: 10e(E3・B6): 天気と暦の規則(``engine.calendar.WEATHER_SCHEMES``)と、天気を揺らすか(``--weather-perturb``)
         self.weather_scheme = check_weather_scheme(weather_scheme)
         self.perturbed = bool(perturbed)
         self.calendar = (
@@ -176,6 +274,13 @@ class EnvironmentProcess:
         self._shade_cache_frame = -1
         self._shade: np.ndarray = np.zeros(world.n_cells, dtype=bool)
         self.shadow_sources: dict[str, str] = {}
+        #: 10e(B6): 暦の規則の時ごとの WBGT と暑さ段(``(24,)``・日の頭に作る)・暦の日付の日の出と日の入り(丸めない分)
+        self._cal_wbgt: np.ndarray | None = None
+        self._cal_stage: np.ndarray | None = None
+        self._sun_exact: tuple[float | None, float | None] = (None, None)
+        #: 10e(B6): 日ごとの天気の記録(manifest の ``weather.days``)と警告(``weather.warnings``)
+        self.weather_days: dict[int, dict[str, Any]] = {}
+        self.weather_warnings: list[str] = []
         self._pick_day()
 
     # ------------------------------------------------------------------ 実日の決定
@@ -191,6 +296,9 @@ class EnvironmentProcess:
 
         いまのランは起動時に 0 日目だけを選ぶ(日ごとの選び直しは日の頭の初期化=10g で結ぶ)。
         """
+        if self.weather_scheme == "calendar":
+            self._pick_day_calendar(int(day))
+            return
         a = self.assets
         if not a.has_weather:
             return
@@ -237,6 +345,98 @@ class EnvironmentProcess:
             self._note_shadow(self.replay_date)
         if self._planes is None:
             self.shadow_missing = 1
+        self.weather_days[int(day)] = {
+            "day": int(day), "replay_date": self.replay_date, "stratum": self.stratum, "how": "legacy",
+            "shadow_date": self.replay_date if self._planes is not None else "",
+        }
+
+    # ------------------------------------------------------------------ 10e(B6) 暦の規則
+    def _warn(self, msg: str) -> None:
+        if msg not in self.weather_warnings:  # 再開で同じ日を引き直しても 1 回だけ記録する
+            self.weather_warnings.append(msg)
+        warnings.warn(msg, WeatherWarning, stacklevel=3)
+
+    def _pick_day_calendar(self, day: int) -> None:
+        """10e(B6): 天気=再生日の行・日の出と日の入りと太陽高度と影=暦の日付(モジュールの注の 1〜4)。"""
+        a = self.assets
+        cal_date = self.calendar.date_of_day(int(day))
+        iso = cal_date.isoformat()
+        self._sun_exact = SOL.sun_times(cal_date)
+        self._sunrise, self._sunset = SOL.sun_minutes(cal_date)
+        rec: dict[str, Any] = {"day": int(day), "calendar_date": iso, "replay_date": "", "stratum": "",
+                               "how": "", "widened": "", "shadow_date": "", "shadow_fallback": False,
+                               "sunrise_min": self._sunrise, "sunset_min": self._sunset}
+        if a.has_weather:
+            kind = self._weekday_kind(int(day))
+            season = SEASON_OF_MONTH[cal_date.month]
+            if not self.perturbed and iso in a.weather_dates:
+                i = a.day_index_of(iso)
+                replay, stratum, widened, how = iso, f"{season}|{a.weather_weekday_kind[i]}|{a.weather_type[i]}", "", "actual"
+            else:
+                replay, stratum, widened = sample_calendar_day(self.master_seed, int(day), season, kind, a)
+                how = "sampled"
+                if widened:
+                    self._warn(f"天気の層 {season}|{kind} が W13 に無い({iso}): {widened}へ広げて引いた(expedient)")
+            self.replay_date, self.stratum = replay, stratum
+            self._row = a.day_index_of(replay)
+            self._cal_heat(cal_date)
+            rec.update(replay_date=replay, stratum=stratum, how=how, widened=widened)
+        if a.has_shadow:
+            sd = iso if iso in a.shadow_dates else nearest_shadow_date(a.shadow_dates, iso)
+            if sd is not None:
+                if sd != iso:
+                    rec["shadow_fallback"] = True
+                    self._warn(f"暦の日付 {iso} の影(W9)が無い: いちばん近い {sd} の影を読んだ(expedient)")
+                self._planes = a.shadow_planes(sd)
+                self._cell_point = a.cell_street_point
+                self._note_shadow(sd)
+                rec["shadow_date"] = sd if self._planes is not None else ""
+        if self._planes is None:
+            self.shadow_missing = 1
+        self.weather_days[int(day)] = rec
+
+    def _cal_heat(self, cal_date: dt.date) -> None:
+        """10e(B6): 再生日の行の気象 × 暦の日付の太陽高度 → 時ごとの WBGT(2 桁に丸め=W13 と同じ)と暑さ段。
+
+        WBGT の入力の列が無い資産は、再生日の行の WBGT と暑さ段をそのまま使う(警告)。
+        """
+        a = self.assets
+        wbgt = np.full(24, np.nan, dtype=np.float64)
+        stage = np.zeros(24, dtype=np.int8)
+        r = self._row
+        if r >= 0 and a.hourly_temp_c is not None and a.hourly_rh is not None:
+            for h in range(24):  # 逐次ループ宣言: 24 時(日の頭に 1 回)
+                w = SOL.hourly_wbgt(
+                    cal_date, h, float(a.hourly_temp_c[r, h]), float(a.hourly_rh[r, h]),
+                    float(a.hourly_wind_ms[r, h]) if a.hourly_wind_ms is not None else float("nan"),
+                    float(a.hourly_sunshine_h[r, h]) if a.hourly_sunshine_h is not None else float("nan"),
+                )
+                if w is not None:
+                    wbgt[h] = round(w, 2)
+                    stage[h] = SOL.heat_stage(w)
+        elif r >= 0:
+            self._warn("W13 に WBGT の入力の列が無い: 再生日の行の WBGT と暑さ段をそのまま使う")
+            wbgt[:] = a.hourly_wbgt[r]
+            stage[:] = a.hourly_heat_stage[r]
+        self._cal_wbgt, self._cal_stage = wbgt, stage
+
+    def b3_sun_heat(self, hour: int) -> tuple[str, str]:
+        """10e(B6): 描画の B3 の日照と暑さの語(時の中ほどを暦の日付の日の出・日の入りと比べる・暑さ=体感温度と同じ段)。"""
+        h = min(23, max(0, int(hour)))
+        sr, ss = self._sun_exact
+        daylight = SOL.daylight_phase(h * 60 + 30.0, sr, ss)
+        if self._cal_stage is None or self._cal_wbgt is None or not np.isfinite(self._cal_wbgt[h]):
+            return daylight, ""
+        return daylight, HEAT_STAGE_ORDER[int(self._cal_stage[h])]
+
+    def weather_manifest(self) -> dict[str, Any]:
+        """manifest の ``weather``(規則・揺らしたか・日ごとの暦の日付と再生日と層と影・警告)。"""
+        return {
+            "scheme": self.weather_scheme,
+            "perturbed": bool(self.perturbed),
+            "days": [dict(self.weather_days[d]) for d in sorted(self.weather_days)],
+            "warnings": list(self.weather_warnings),
+        }
 
     def _note_shadow(self, date: str) -> None:
         """10e(B0): 開いた影のファイルの sha256 を控える(同じ日は 1 回だけ読む)。"""
@@ -288,6 +488,8 @@ class EnvironmentProcess:
         if not a.has_weather or self._row < 0:
             return -1, float("nan")
         hour = min(23, max(0, minute // 60))
+        if self.weather_scheme == "calendar" and self._cal_stage is not None and self._cal_wbgt is not None:
+            return int(self._cal_stage[hour]), float(self._cal_wbgt[hour])  # 10e(B6)
         stage = int(a.hourly_heat_stage[self._row, hour])
         return stage, float(a.hourly_wbgt[self._row, hour])
 

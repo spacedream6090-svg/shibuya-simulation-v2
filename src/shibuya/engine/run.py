@@ -1060,6 +1060,9 @@ class RunResult:
     hash_scheme: str = DEFAULT_HASH_SCHEME
     #: 10e(B1): 旧資産の切替口(``world.assets.AssetSource.manifest``)。使わないランは ``None``=manifest に欄を出さない。
     world_assets_pre10e: dict[str, Any] | None = None
+    #: 10e(B6): 天気の規則と日ごとの暦の日付・再生日・層・影・警告(``EnvironmentProcess.weather_manifest``)。
+    #: 世界過程の無いランは規則だけ。manifest の ``weather``(設定の節)。
+    weather: dict[str, Any] = field(default_factory=dict)
     # ---- 10b: 状態台帳の 2 つのハッシュ(final には混ぜない) ----
     #: 最後の checkpoint の full-hash の外の状態の行ごとの直列化のバイト数(台帳の鍵 → B)。
     full_hash_bytes: dict[str, int] = field(default_factory=dict)
@@ -1429,6 +1432,8 @@ class RunResult:
             "hash_scheme": str(self.hash_scheme),
             # ---- 10e(B1): 旧資産の切替口(使ったランだけ欄を出す=既定の manifest は不変)。版上げ 1 回目の直後に消す ----
             **({"world_assets_pre10e": dict(self.world_assets_pre10e)} if self.world_assets_pre10e else {}),
+            # ---- 10e(B6): 天気の規則と日ごとの暦の日付・再生日・層・影(列追加のみ) ----
+            "weather": copy.deepcopy(self.weather),
         }
 
     def l4_audit_fields(self) -> dict[str, Any]:
@@ -2056,6 +2061,7 @@ def run_day(
     checkpoint_detail: bool = False,
     world_assets_pre10e: "str | Path | None" = None,
     weather_scheme: str | None = None,
+    weather_perturb: bool = False,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -2431,6 +2437,11 @@ def run_day(
             ``DEFAULT_WORLD_START``=2026-07-13 + ``day_index`` 日)・天気は再生日の行・日の出と日の入りと太陽高度と
             影は暦の日付(ユーザーの答え 1-3・``engine.processes.environment``)。``calendar`` では ``real`` の曜日に
             開始日を渡さなくてよい(既定の開始日を使う)。
+        weather_perturb: **10e(B6)天気を揺らす**(アンサンブル・既定 ``False``)。``True`` では暦の日付が窓の中でも
+            実際の天気を使わず、同じ季節 × 平日/土休の層から天候型を日数の割合で引く(鍵は環境の seed)。アンサンブルは
+            これを付けて ``environment_seed`` を変えて回す。``calendar`` でだけ効く(``legacy`` は今のまま)。
+            「環境の seed を動きの seed と別の値にしたら揺らす」にしなかった理由: salt の比較(10f)は環境の seed を
+            固定して動きの seed だけを変えるので、salt ごとに天気が揺れて共通の乱数(CRN)が崩れる。
 
     Returns:
         ``RunResult``。
@@ -2454,6 +2465,9 @@ def run_day(
     _call_args.pop("weather_scheme", None)
     if weather_scheme != WEATHER_SCHEMES[0]:
         _call_args["weather_scheme"] = weather_scheme
+    weather_perturb = bool(weather_perturb)
+    if not weather_perturb:
+        _call_args.pop("weather_perturb", None)
     _pre10e_src = (
         asset_source(world_dir, world_assets_pre10e)
         if (world_dir is not None and world_assets_pre10e is not None and str(world_assets_pre10e) != "")
@@ -2833,6 +2847,7 @@ def run_day(
             tick_seconds=tick_seconds,
             calendar=calendar,  # 10a: #2・#3・#7・#10・#11・#20 は暦の口から
             weather_scheme=weather_scheme,  # 10e(E3・B6): 天気=再生日・太陽と影=暦の日付(calendar)
+            weather_perturb=weather_perturb,  # 10e(B6): 天気を揺らす(アンサンブル)
             rng_scheme=rng_scheme,  # 10c
             initial_placement=not _resuming,  # 10d(A11): 再開では域外へ置かない
             schedule=schedule,
@@ -3130,6 +3145,19 @@ def run_day(
     ):
         _env = runner.environment
         _q25_renderer.weather_date_fn = lambda: (_env.replay_date or None)
+        # ---- 10e(B6): 天気の規則 calendar では B3 の語を環境の過程と同じ規則で作る(天候=再生日の行・日照=暦の日付の
+        # 日の出と日の入り・暑さ=体感温度と同じ暑さ段)。天候の語はレンダラの W13 の表を再生日で引く(欠けた時の扱いも今と同じ)
+        if weather_scheme == "calendar" and runner.assets.has_weather and hasattr(_q25_renderer, "weather_words_fn"):
+            _wr = _q25_renderer
+
+            def _b3_words(when: datetime) -> tuple[str, str, str]:
+                rd = _env.replay_date
+                wd = (datetime.strptime(rd, "%Y-%m-%d").replace(hour=int(when.hour)) if rd else when)
+                daylight, heat = _env.b3_sun_heat(int(when.hour))
+                return _wr.assets.weather(wd)[0], daylight, heat
+
+            _wr.weather_words_fn = _b3_words
+            _wr.weather_words_key_fn = lambda when: (_env.replay_date, when.date().isoformat())
     # ---- 4 段目: 親しみの表(値を決める層・書き手は resolve.write_familiarity) ----
     _fam_renderer = getattr(perception, "renderer", None) if perception is not None else None
     _fam_has_renderer = _fam_renderer is not None and hasattr(_fam_renderer, "signage_exposures")
@@ -4717,6 +4745,11 @@ def run_day(
             {f"process:{k}": v for k, v in (getattr(runner.environment, "shadow_sources", {}) or {}).items()}
         )
     result.frozen_sources = frozen_sources_map
+    # 10e(B6): 天気の規則と日ごとの記録
+    result.weather = (
+        runner.environment.weather_manifest() if runner is not None
+        else {"scheme": weather_scheme, "perturbed": False, "days": [], "warnings": []}
+    )
     result.renderer_name = (
         "perception.Renderer" if perception is not None else type(renderer_obj).__name__
     )
@@ -5128,6 +5161,9 @@ def add_calendar_args(ap: "argparse.ArgumentParser") -> None:
     ap.add_argument("--weather-scheme", choices=WEATHER_SCHEMES, default=None,
                     help=("天気と暦の規則(10e)。legacy=今(世界の日付=再生日・日の出と影も再生日)/ calendar=世界の日付は暦"
                           "(既定の開始日 2026-07-13)・天気は再生日・太陽と影は暦の日付。未指定=engine.calendar の既定"))
+    ap.add_argument("--weather-perturb", action="store_true",
+                    help=("天気を揺らす(10e B6・アンサンブル)。calendar で、窓の中でも同じ季節 × 平日/土休の層から天候型を日数の"
+                          "割合で引く(鍵は --environment-seed)。既定は付けない=その日の実際の天気"))
     # 10e(B1): 旧資産の切替口(同じ綴りを engine.run と shibuya.cli で使う)。版上げ 1 回目の直後に消す
     ap.add_argument("--world-assets-pre10e", type=str, default="",
                     help=("旧資産の切替口(10e B1)。W10・W12・W13・W9 のうち、このディレクトリにそろっている族をそこから読む"
@@ -5160,6 +5196,8 @@ def calendar_kwargs_from_args(args: Any) -> dict[str, Any]:
     # 10e(E3・B6): 天気と暦の規則(未指定のときは欄を足さない=既定の引数は今のまま)
     if getattr(args, "weather_scheme", None):
         out["weather_scheme"] = str(args.weather_scheme)
+    if getattr(args, "weather_perturb", False):
+        out["weather_perturb"] = True
     # 10e(B1): 旧資産の切替口(既定のときは欄を足さない)
     if getattr(args, "world_assets_pre10e", ""):
         out["world_assets_pre10e"] = str(args.world_assets_pre10e)

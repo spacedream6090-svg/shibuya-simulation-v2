@@ -90,11 +90,11 @@ def test_b0_manifest_lists_what_the_run_read_and_the_two_noise_readers_agree():
                  "w12_external_nodes.parquet", "w10_street_points.parquet"):
         assert fs[f"process:{name}"] == WA.file_sha256(WORLD_DIR / name)
     assert fs["perception:w13_weather_hourly.parquet"] == WA.file_sha256(WORLD_DIR / "w13_weather_hourly.parquet")
-    # 影は開いた日のファイルだけ(既定のランは再生日 1 日)
+    # 影は開いた日のファイルだけ(1 日のランは 1 日。legacy では再生日・calendar では暦の日付か近い日)
     shadows = sorted(k for k in fs if k.startswith("process:w9_shadow_"))
-    replay = res.run_manifest_fields()["replay_date"]
-    assert shadows == [f"process:w9_shadow_{replay}.npy"]
-    assert fs[shadows[0]] == WA.file_sha256(WORLD_DIR / f"w9_shadow_{replay}.npy")
+    sd = res.run_manifest_fields()["weather"]["days"][0]["shadow_date"]
+    assert shadows == [f"process:w9_shadow_{sd}.npy"]
+    assert fs[shadows[0]] == WA.file_sha256(WORLD_DIR / f"w9_shadow_{sd}.npy")
     # W14・W15 の凍結文の欄は今のまま(印なし)
     assert {k for k in fs if ":" not in k} >= {"w14_signage.parquet", "w15_cell_static.parquet"}
 

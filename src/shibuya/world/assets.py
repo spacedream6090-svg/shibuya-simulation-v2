@@ -981,6 +981,12 @@ class ProcessAssets:
     poi_cat_names: tuple[str, ...] = ()
     bus_stop_cell: np.ndarray | None = None
     hotel_poi: np.ndarray | None = None
+    #: 10e(B6): W13 の時別の気象の値(``(n_days, 24)``・欠けは NaN)。天気の規則 ``calendar`` で WBGT を
+    #: 「再生日の気象 × 暦の日付の太陽高度」から計算し直すために読む(``legacy`` では使わない)。列が無い資産は ``None``。
+    hourly_temp_c: np.ndarray | None = None
+    hourly_rh: np.ndarray | None = None
+    hourly_wind_ms: np.ndarray | None = None
+    hourly_sunshine_h: np.ndarray | None = None
     #: 10e(B0): 世界過程が読んだファイル → sha256(W13 の 2 本・W12 の 2 本・影の点の対応に使う W10 の街路点)。
     #: manifest の ``frozen_sources`` に ``process:`` を付けて写す。影(W9)は開いた日だけ環境の過程が足す。
     asset_sources: Mapping[str, str] = field(default_factory=dict)
@@ -1240,6 +1246,7 @@ def load_process_assets(
     wtype: tuple[str, ...] = ()
     sunrise = sunset = None
     hourly_wbgt = hourly_heat = None
+    hourly_inputs: dict[str, np.ndarray] = {}
     fd = src.path(PROCESS_FILES["weather_days"])
     fh = src.path(PROCESS_FILES["weather_hourly"])
     if fd.exists() and fh.exists():
@@ -1268,6 +1275,16 @@ def load_process_assets(
         ok = (hd >= 0) & (hh >= 0) & (hh < 24)
         hourly_wbgt[hd[ok], hh[ok]] = hv[ok]
         hourly_heat[hd[ok], hh[ok]] = hs[ok]
+        # 10e(B6): WBGT の入力(気温・湿度・風・日照)。天気の規則 calendar でだけ使う(列が無い資産は空のまま)
+        names = set(pq.read_schema(fh).names)
+        cols = [c for c in ("temp_c", "rh", "wind_ms", "sunshine_h") if c in names]
+        if len(cols) == 4:
+            hin = pq.read_table(fh, columns=cols).to_pydict()
+            for c in cols:  # 逐次ループ宣言: 列 4 本(起動時 1 回)
+                arr = np.full((len(dates), 24), np.nan, dtype=np.float64)
+                val = np.array([np.nan if v is None else float(v) for v in hin[c]], dtype=np.float64)
+                arr[hd[ok], hh[ok]] = val[ok]
+                hourly_inputs[c] = arr
 
     # ---- W9: 影グリッド(実在する日だけ) ----
     shadow_root = src.shadow_dir()
@@ -1463,6 +1480,10 @@ def load_process_assets(
         hotel_poi=np.flatnonzero(
             np.asarray([str(c) == "hotel" for c in assets.poi_cat], dtype=bool)
         ).astype(np.int64),
+        hourly_temp_c=hourly_inputs.get("temp_c"),
+        hourly_rh=hourly_inputs.get("rh"),
+        hourly_wind_ms=hourly_inputs.get("wind_ms"),
+        hourly_sunshine_h=hourly_inputs.get("sunshine_h"),
         asset_sources=sources,
     )
 

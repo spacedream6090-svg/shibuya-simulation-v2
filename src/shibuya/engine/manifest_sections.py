@@ -65,6 +65,8 @@ PATHS: Final[dict[str, str]] = {
     "environment_seed": _C,
     # ---- 10e(B1・第330): 旧資産の切替口(使ったランだけ出る欄・版上げ 1 回目の直後に消す) ----
     "world_assets_pre10e": _C,
+    # ---- 10e(B6・第330): 天気の規則と日ごとの暦の日付・再生日・層・影(replay_date と同じ設定) ----
+    "weather": _C,
     # ---- 状態のハッシュ・再開・日ごとの締め(観測) ----
     "state_hashes": _O, "state_hashes.ledger_version": _C,
     "state_hashes_end_of_day": _O,

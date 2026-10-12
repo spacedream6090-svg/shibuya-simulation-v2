@@ -35,8 +35,9 @@ WORLD = ROOT / "data" / "world" / "v2"
 NEW_KEYS = ("env_id", "environment", "manifest_sections")
 #: 10f 第 2 段(K21 (a))で末尾に足した欄。
 STAGE2_KEYS = ("population_seed", "environment_seed")
-#: 10e(版上げ 1 回目)で末尾に足した欄(E1: final の定義)。
-E10_KEYS = ("hash_scheme",)
+#: 10e(版上げ 1 回目)で末尾に足した欄(E1: final の定義・〔第330 B6〕天気の規則と日ごとの記録)。
+#: B1 の ``world_assets_pre10e`` は切替口を使ったランだけ ``weather`` の前に出る(既定のランには無い)。
+E10_KEYS = ("hash_scheme", "weather")
 PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite", "blake3", "os", "os_release",
                  "os_version", "machine", "cpu", "numpy_simd", "deps", "deps_sha256", "deps_count"}
 #: 設定の節の道筋の一覧の sha256(環境に依らない golden=検収 N3 の 3)。節を変えたら理由を記録に書いて更新する。
@@ -44,7 +45,8 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 10f 第 2 段の直し(S1): ``environment_seed``(環境の seed・設定)を足した(前の値 3fe95edb…)。
 #: 10e(E1): ``hash_scheme``(final の定義・設定)を足した(前の値 457d8666…)。
 #: 10e(B1・第330): ``world_assets_pre10e``(旧資産の切替口・使ったランだけ出る欄・設定)を足した(前の値 c2d09b29…)。
-CONFIG_PATHS_SHA256 = "6e81ca539712a338f4f23c83c0955ca198b05e9b899833c5c12fadc05879989e"
+#: 10e(B6・第330): ``weather``(天気の規則と日ごとの暦の日付・再生日・層・影・設定)を足した(前の値 6e81ca53…)。
+CONFIG_PATHS_SHA256 = "8e53b14525bc87f27b9dedabcdc9e59040173ac3f4497457b7cbc2824dde6ea8"
 world_assets = pytest.mark.skipif(not (WORLD / "w2_cells.parquet").exists(), reason="実世界資産 data/world/v2 が無い")
 
 

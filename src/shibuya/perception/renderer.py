@@ -1209,6 +1209,10 @@ class Renderer:
         #: 10d 検収 D1: B3 の天候を引く日(``YYYY-MM-DD``)を返す口。``engine.run`` が世界過程の再生の実日
         #: (``environment.replay_date``=体の暑さと同じ源)を差し込む。``None`` か空なら今までどおり暦の日付で引く。
         self.weather_date_fn: Callable[[], str | None] | None = None
+        #: 10e(B6): 天気の規則 ``calendar`` で ``engine.run`` が差し込む口(世界内日時 → (天候, 日照, 暑さ) の語・
+        #: 天候=再生日の行・日照=暦の日付・暑さ=体感温度と同じ段)と、キャッシュの鍵(再生日・暦の日付)。``None``=今まで。
+        self.weather_words_fn: Callable[[datetime], tuple[str, str, str]] | None = None
+        self.weather_words_key_fn: Callable[[datetime], tuple] | None = None
         self.named_closed_notes = 0
         #: 4 段目(M17 露出): 看板行が載った (体, POI) の控え(``engine.run`` が tick ごとに取り出す)。
         #: ``None``=控えない(既定)。
@@ -1720,6 +1724,22 @@ class Renderer:
     def _b3(self, tc: _TickCache) -> bytes:
         # 10d 検収 D1: 天候は「その日の再生の実日」の W13 の行で引く(体の暑さ=環境の過程と同じ行)。時刻の語は暦。
         # 再生の実日が無ければ(合成世界)今までどおり暦の日付で引く。1 日のランは再生の実日=暦の開始日=同じ値。
+        if self.weather_words_fn is not None:  # 10e(B6): 天気=再生日・太陽=暦の日付(体の暑さと同じ規則)
+            key = ("calendar",) + tuple(self.weather_words_key_fn(tc.when)) + (int(tc.band5),)  # type: ignore[misc]
+            got = self._b3_cache.get(key)
+            if got is not None:
+                self.cache_hits += 1
+                return got
+            self.cache_misses += 1
+            h, m = N.format_time(tc.when)
+            weather, daylight, heat = self.weather_words_fn(tc.when)
+            out = N.join_lines([
+                T.TEMPLATES["B3.time"].format(hour=h, minute=m),
+                T.TEMPLATES["B3.weather"].format(weather=weather, daylight=daylight),
+                T.TEMPLATES["B3.heat"].format(heat=heat),
+            ]).encode("utf-8")
+            self._b3_cache[key] = out
+            return out
         wdate = self.weather_date_fn() if self.weather_date_fn is not None else None
         key = (str(wdate) if wdate else tc.when.toordinal(), int(tc.band5))
         got = self._b3_cache.get(key)

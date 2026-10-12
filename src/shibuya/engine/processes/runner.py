@@ -169,6 +169,7 @@ class WorldProcessRunner:
         population_seed: int | str | None = None,
         environment_seed: int | str | None = None,
         weather_scheme: str = "legacy",
+        weather_perturb: bool = False,
     ) -> None:
         if world is None or agents is None:
             raise ValueError("WorldProcessRunner は world と agents を要る")
@@ -221,15 +222,11 @@ class WorldProcessRunner:
         # (各過程の ``master_seed`` に入る)
         _pop_seed = self.master_seed if population_seed is None else population_seed
         _env_seed = self.master_seed if environment_seed is None else environment_seed
-        #: 10e(B6): 天気を揺らすか=環境の seed を動きの seed と別に渡したとき(``1`` と ``"1"`` は別の鍵)
-        _perturbed = environment_seed is not None and not (
-            type(environment_seed) is type(self.master_seed) and environment_seed == self.master_seed
-        )
         self.environment = EnvironmentProcess(
             world, agents, self.assets,
             master_seed=_env_seed, day_index=self.day_index, tick_seconds=self.tick_seconds,
             prefer_shadow_days=prefer_shadow_days, calendar=self.calendar,
-            weather_scheme=weather_scheme, perturbed=_perturbed,
+            weather_scheme=weather_scheme, perturbed=bool(weather_perturb),  # 10e(B6): 天気を揺らす(明示の切替口)
         )
         self.rail = RailProcess(
             world, agents, self.assets,

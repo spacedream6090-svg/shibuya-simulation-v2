@@ -212,7 +212,7 @@ def scan_sites(root: Path, files: Iterable[Path] | None = None) -> list[StreamSi
     return out
 
 
-#: 静的に安全な呼び手(ファイル・関数・用途名)。増えても減っても落とす(10f の時点の 15 か所)。
+#: 静的に安全な呼び手(ファイル・関数・用途名)。増えても減っても落とす(10f の時点の 15 か所・〔第330〕B6 で 1 つ足して 16 か所)。
 SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     # 1 語目が無いか定数(隣の流れが無い)7 か所
     ("agents/population.py", "sample_population", "w16.sample.reserved"),
@@ -222,12 +222,14 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     ("engine/processes/rail.py", "RailProcess._build_external_home", "engine.processes.rail"),
     ("engine/processes/salient.py", "SalientProcess._collapse_events", "world.salient.counter"),
     ("world/assets.py", "synthetic_assets", "world.synthetic"),
-    # 引く語数が定数で 4 以内 8 か所
+    # 引く語数が定数で 4 以内 9 か所(〔第330〕+1)
     ("engine/chooser.py", "draw_index", "engine.chooser"),
     ("engine/classical.py", "ClassicalPolicy.render", "policy.classical"),
     ("engine/conversation.py", "ConversationManager._accepts", "expr:self.domain"),
     ("engine/processes/environment.py", "EnvironmentProcess._pick_day", "engine.processes.environment"),
     ("engine/processes/environment.py", "select_day", "engine.processes.environment"),
+    # 〔第330・10e B6〕天気の規則 calendar の再生日の抽選(鍵 1 語=層の名前と日番号のハッシュ・引く語数 2)
+    ("engine/processes/environment.py", "sample_calendar_day", "engine.processes.environment"),
     ("llm/mock.py", "MockLLM._draws", "expr:self.domain"),
     ("llm/mock.py", "MockLLM._move_target", "expr:self.domain + _MOVE_TARGET_DOMAIN_SUFFIX"),
     ("llm/mock.py", "MockLLM._shop_target", "expr:self.domain + _SHOP_TARGET_DOMAIN_SUFFIX"),

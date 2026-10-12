@@ -951,6 +951,9 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "_planes", "_sunrise", "_sunset", "_cell_point", "_shade_cache_frame"),
     # 第330(10e E3・B6): 天気と暦の規則・天気を揺らすか(初期化で渡す設定)
     _x("runner.environment", CONST, _CFG, "weather_scheme", "perturbed"),
+    _x("runner.environment", CACHE, "10e B6: 暦の規則の時ごとの WBGT・暑さ段・日の出と日の入り(資産・暦の日付・再生日から作る)"
+       "と日ごとの天気の記録・警告(manifest の記録だけ)", "_cal_wbgt", "_cal_stage", "_sun_exact", "weather_days",
+       "weather_warnings"),
     # 第330(10e B0): 開いた影のファイルの sha256(manifest の frozen_sources の記録だけ・資産と日付から作り直せる)
     _x("runner.environment", CACHE, "10e B0: 開いた影のファイルの sha256(manifest の記録だけ)", "shadow_sources"),
     _x("ledger.money", CONST, _CFG + "(他所の現金の扱いの印は初期化で 1 回だけ立てる)", "sizes", "_foreign_cash",
@@ -966,6 +969,8 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "clock_fn", "_focus_target"),
     _x("renderer", REF, "10d 検収 D1: B3 の天候の日を返す口(engine.run が世界過程の再生の実日を差し込む・関数)",
        "weather_date_fn"),
+    _x("renderer", REF, "10e B6: B3 の天候・日照・暑さの語とキャッシュの鍵を返す口(天気の規則 calendar で engine.run が"
+       "差し込む・関数)", "weather_words_fn", "weather_words_key_fn"),
     _x("renderer", CONST, _CFG + "(知人の初期表・被注視数は初期化で渡す値)", "seed", "acquaintances", "watched_by",
        "budget_mode", "strict_group_budget", "signage_enabled", "signage_p_see", "p_see_activity", "_p_see_mult",
        "_p_see_identity", "intent_mode", "vocab_version", "role_words", "near_tiebreak", "near_order",

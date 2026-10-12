@@ -68,9 +68,12 @@ def test_e3_run_day_and_cli_defaults_are_unchanged():
     assert sig.parameters["calendar_weekday"].default == CAL.DEFAULT_WEEKDAY_MODE
     ap = argparse.ArgumentParser()
     add_calendar_args(ap)
-    assert "weather_scheme" not in calendar_kwargs_from_args(ap.parse_args([]))
-    kw = calendar_kwargs_from_args(ap.parse_args(["--weather-scheme", "calendar", "--calendar-weekday", "real"]))
-    assert kw["weather_scheme"] == "calendar" and kw["calendar_weekday"] == "real"
+    assert sig.parameters["weather_perturb"].default is False
+    d = calendar_kwargs_from_args(ap.parse_args([]))
+    assert "weather_scheme" not in d and "weather_perturb" not in d
+    kw = calendar_kwargs_from_args(ap.parse_args(["--weather-scheme", "calendar", "--calendar-weekday", "real",
+                                                  "--weather-perturb"]))
+    assert kw["weather_scheme"] == "calendar" and kw["calendar_weekday"] == "real" and kw["weather_perturb"] is True
 
 
 # ================================================================ W7 の祝日の行
@@ -146,7 +149,8 @@ def test_e3_two_days_advance_on_the_calendar_and_the_weekday_rows_come_from_it(m
     monkeypatch.setattr(OP.OpeningProcess, "relay_day", spy_o)
     monkeypatch.setattr(PlanExecutor, "relay_day", spy_p)
     out = {}
-    for name, kw in (("legacy", {}), ("unified", {"calendar_weekday": "real", "weather_scheme": "calendar"})):
+    for name, kw in (("legacy", {"calendar_weekday": "day_index", "weather_scheme": "legacy"}),
+                     ("unified", {"calendar_weekday": "real", "weather_scheme": "calendar"})):
         seen["opening"], seen["presence"] = [], []
         res = cli.run(n_agents=40, seed=1, world_dir=str(WORLD_DIR), sim_days=2, ticks=1440,
                       checkpoint_every=1440, **kw)

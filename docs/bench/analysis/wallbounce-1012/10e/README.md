@@ -186,6 +186,8 @@ final(=behavior-hash)・full-hash・締めの後の 2 本が、会話の起き�
 
 親の指示の変更(第329)で本発注からは外した。`--calendar-weekday` の既定は `day_index` のまま。B6 のための注は §E6-1 の最後。
 
+〔改訂(第330)〕E3 は第330 で切替口の裏に仕上げた(既定は変えていない)=§第330-E3。
+
 ## E4 既定の乱数を counter に・K19・U2・U8
 
 ### E4-1 変えたこと
@@ -339,6 +341,8 @@ final・呼数・行動の件数・起床の内訳・顕著行為・出動・気
 | `--hash-scheme full`(`Checkpoint.legacy_combined`・`core.soa.retired_columns_in_hash`・`Registry.retire`・`agents/state.py` の 3 行) | 10e より前の final | `AgentState.state_hash` を差し替えて腕の欄を除く 9 か所 / 段ごとの旧値(`test_presence_executor` の段 2c・3 段目・5 段目・`*_pre10e`・`test_relations_tenure` の full の行・`test_classical_social` の `_PRE10E`・`test_near_tiebreak`・`test_10a_review_fixes` の +2)/ `PRE10E_SYN`・`test_e1_retired_columns_…`。`test_ledger_wiring` の 2 本は `legacy_combined` の欄を使う |
 | `--rng-scheme stateful`(`k19_counters` の旧の並び・salient と dispatch の Generator・`K19_ALLOW` の `stateful` の扱い) | E4 の前の乱数(10e より前の既定) | 上の段ごとの旧値の試験の全部・`*_stateful`・10c の stateful を明示した試験・K19 の stateful の分 |
 | `--calendar-weekday day_index` | (E3 をやっていないので今も既定) | — |
+| 〔第330〕`--world-assets-pre10e`(`AssetSource`・`PRE10E_FAMILIES`) | 10e で動いた量を資産ごとに測る(旧資産の退避先) | `test_assets_10e_b0_b1.py` の B1 の 4 件。**版上げ 1 回目の直後に消す**(答え 1-5) |
+| 〔第330〕`--weather-scheme legacy`・`CALENDAR_UNIFIED=False` | 暦の一本化の前(世界の日付=再生日) | §第330-E3 の「張り替える golden」 |
 | 旧 pickle の口 | — | **E2 で消した**(発注書 E2 の指示・10f の K23 (a)「10e まで」) |
 | (K15)`fail_streak`・`plan_activity` | — | **K15 の 2 列の削除もここで**(親の決定=§E1-6・動く量なし) |
 
@@ -442,3 +446,113 @@ E1 は final の定義だけ・E2 は O39 の掃除(呼数は不変)・E4 は乱
 | E4 | 全体(`PYTHONPATH` を木の src に・3,790 件) | 3,786 passed・2 skipped・1 xfailed・1 failed=`tests/vocab/test_registry_from_tape.py` のテープの道筋が相対パスにならない(木の `data` がリポへのつなぎのため・作業木では通る) |
 
 新しい試験の置き場: `tests/engine/test_version_bump_10e.py`(E2 4・E4 11・E5 7=22 件)と、既存のファイルに足した E1 の 8 件(R1 の 2 件・T2 の 2 件を含む)・E2 の 3 件・K19 の書き直し。
+
+## 第330 B0・B1・E3・B6(エンジン側)
+
+> 実行役(Opus 5.5)の記録。親の検収の前・commit していない(親が snap_B0 → B1 → E3 → B6eng の順に重ねて commit する)。発注: 第330(親 Fable 5.1)。ユーザーの答え: [v2-answers-2026-10-12b.md](../../../../design/v2-answers-2026-10-12b.md) §1(1-3・1-4・1-5)。材料: [10e-build-side-prep.md](../10e-build-side-prep.md) §3・§4-2・§4-5・§5・§6。構築側(W12・W10 ON・W13 の年間化・W9 の影の日付・W7 の PH)は別の実行役。
+> byte-check の基準は HEAD `0389689` の写し(`git archive`・[sides/head_0389689.json](sides/head_0389689.json))。各段は作業木の src をその段の時点で写した木で回した(手順は §1 と同じ・`--jobs 4〜5`)。HEAD の final は §E6-2 の E5 の列と 19/19 同じ。
+
+### 第330-B0 資産の指紋(◎ 不変)
+
+- **変えたこと**: manifest の `frozen_sources` に、ランが実際に読んだファイルの sha256 を、読み手ごとの印を付けて足した。`world:`=世界の資産(`world.assets._noise_stage_per_cell`)が読んだ騒音の地図 3 本(`w10_noise_stage_day.npy`・`w10_noise_stage_night.npy`・`w10_street_points.parquet`)/`perception:`=知覚(`perception.renderer._street_aggregate`)が読んだ同じ 3 本と W13 の時別/`process:`=世界過程が読んだ W13 の 2 本・W12 の 2 本(時刻表・方面ノード)・影の点の対応に使う W10 の街路点・**開いた影** `w9_shadow_<日付>.npy`(複数日は開いた日の全部)。騒音の 2 つの読み手には集約後のセル別の段(昼・夜)の補助の指紋 `noise_stage_cells` も出す=**2 つが同じ地図を読んだことが記録から分かる**。W14/W15 の凍結文の欄(印なし)は今のまま。
+- 10f の表は足していない(`frozen_sources` は設定の節・子の鍵は道筋 1 つ)。
+- **動いてはいけない量**: [b0_vs_head.json](b0_vs_head.json) = 19/19 で動いたのは `frozen_sources` だけ(final・呼数・行動・blocks・テープの列・behavior/full・締めの後の 2 本・暦の欄は同じ)。
+- **動いた量**: manifest の `frozen_sources` だけ。既定 v3 の値(先頭 16 桁): `world:`/`perception:` の `w10_noise_stage_day.npy` `d4d02af1a770016f`・`night` `33ba443230ecb050`・`w10_street_points.parquet` `de1340b15bda281c`・`noise_stage_cells` `4649c1ca48b097ba`(両方同じ)・`process:w12_timetables.parquet` `154021c2e072a383`・`process:w12_external_nodes.parquet` `031fe09e9a566eff`・`process:w13_weather_days.parquet` `dcdd0989870c5123`・`w13_weather_hourly.parquet` `2552d1887fe831de`・`process:w9_shadow_2026-07-28.npy` `ad8b6c0e2579a7f8`。
+- **試験**(`tests/engine/test_assets_10e_b0_b1.py`): 合成の W10 で指紋(同じ中身=同じ・1 点変えると変わる)/世界資産で 2 つの読み手の sha と段の指紋が一致しファイルの sha256 と一致/sha を偽の値にしても final・全 checkpoint・呼数が同じ。
+- 発注の 3 本+W13+W9 に加えて、W12 の 2 本と影の点の対応の W10 街路点(世界過程の読み手)も足した(B1 の切替口で読んだ場所の証拠になる・manifest だけ)。
+
+### 第330-B1 旧資産の切替口(◎ 不変)
+
+- **変えたこと**: `--world-assets-pre10e <dir>`(`run_day(world_assets_pre10e=…)`・`cli.run`・`engine.run` の main)。読む場所の口は 1 つ(`world.assets.AssetSource`・`asset_source`)で、世界の資産(騒音)・知覚(騒音と W13)・世界過程(W13・W12・影の点・影)・計画実行層の資産がすべてこの口の `path` を通す。退避先の中で**ファイルがそろっている族だけ**を退避先から読む(`PRE10E_FAMILIES`: W10=騒音の段 2 本と街路点/W12=時刻表と方面ノード/W13=天気 2 本/W9=影)。`data/world/v2_pre_10e_2026-10-12`(構築役が写す)は 4 族とも、段ごとの写し `data/world/v2_10e_steps/<段>` はその段の族だけになる。族の一部だけ・退避先が無い・4 族のどれも無い=止める。**騒音の地図を読む 2 か所の集約後の段が違えば止める**(片方だけ旧い地図=`world` を退避先なしで読んで `run_day` に退避先を渡したとき)。manifest の `world_assets_pre10e`(退避先と族)は使ったランだけ出る。指紋(再開)には使ったときだけ載る(中身で同定=`PATH_ARGS`)。docstring・CLI の help・定数の注に「**版上げ 1 回目の直後に消す**」。
+- **動いてはいけない量**: 既定=[b1_vs_b0.json](b1_vs_b0.json) 19/19 全欄同じ。切替口あり(今の資産の写しを一時の退避先に置いた・3 構成)=[b1_pre_vs_b1.json](b1_pre_vs_b1.json) 3/3 全欄同じ(final・呼数・行動・テープ・`frozen_sources`)。記録の退避先の場所は `<一時の写し>` に伏せた。
+- **動いた量**: なし。10f の設定の節の表に `world_assets_pre10e` の 1 行(`CONFIG_PATHS_SHA256` `c2d09b29…` → `6e81ca53…`)。
+- **試験**: 族の振り分けと止める 3 つ/今の資産を退避先から読んだランが既定と同じ/昼の騒音を全部「段 3」にした退避先で 2 つの読み手が同じ地図を読み、`world` だけ今の資産のときは止まる/CLI。
+- W7(`w7_plan_spec.parquet`)は族に入れていない(答え 1-5 は 4 つ)。構築側の B6 で W7 の PH が動くので、W7 も分けて測るなら族を足す(親が決める)。
+
+### 第330-E3 暦の一本化(切替口の裏・既定は不変)
+
+- **切り替えは 1 か所**: `engine/calendar.py` の `CALENDAR_UNIFIED`(いま `False`)。`True` にすると `DEFAULT_WEEKDAY_MODE` が `real`・`DEFAULT_WEATHER_SCHEME` が `calendar` になり、`run_day`・CLI(`--calendar-weekday`・`--weather-scheme`)の既定がそろって変わる。開始日を渡さないランの暦の 0 日目は `DEFAULT_WORLD_START`(2026-07-13(月)・答え 1-4)+ `day_index` 日。試験は定数 1 つを書き換えた写しで既定がそろって変わることを確かめる。
+- **世界の日付と再生日を分けた**(`engine/run.py`): `world_start`(暦)と `replay_date0`(0 日目の天気の行の日)は別の変数。`weather_scheme="calendar"` では世界の日付は暦のまま(再生日に置き換えない)。`legacy`(旧値の再現)だけが今までどおり「既定の開始日 + day_index」を再生日に置き換える。`calendar` では `real` でも開始日を渡さずに回せる(既定の開始日を使う)。
+- **W7 の PH**: `SimCalendar.opening_row`(`real` の祝日=`OPENING_ROW_PH`=7・ほかは `table_weekday`)を W7 の行(0 日目・日の頭の張り直し・閉店中の店の翌日)で使う。`opening.rows_of_day` は PH の規則を持つ店は PH の区間、持たない店は日曜の行(10a の「祝日は土休扱い」のまま)。**資産の形は実行役の提案**: 営業時間の週の 8 つ目の要素=PH(`[]`=祝日は休み・`null`/無し=規則なし・`ProcessAssets.plan_ph_poi`)。**構築役の W7 の形と合わせる必要がある**。今の W7 は 7 要素なので何も動かない。曜日 7 日の表(W17・古典・mock 日課)の祝日=日曜は変えていない。
+- **動いてはいけない量**: [e3_vs_b1.json](e3_vs_b1.json) 19/19 全欄同じ。
+- **試験**(`tests/engine/test_calendar_10e_e3.py` 6 件): 定数 1 つの切り替え/既定の引数/内閣府 CSV で 7/20(海の日)=PH の行/PH の区間か日曜の行/W7 の 8 つ目の要素の読み口/世界資産の 2 日のラン(`real`+`calendar`)で日付が 07-13 → 07-14 と進み、W7・W17(計画実行層)・鉄道・古典の曜日の行が legacy の 2 日のランと同じ(月曜始まり)。既存の `test_calendar_sites.py::test_runner_reads_the_real_calendar` の祝日の行の期待を「6」→「PH の行(PH の無い店は日曜の行)」に直した(定義の変更)。
+
+**切り替えたときに動く所**(`CALENDAR_UNIFIED=True`・開始日なし・`day_index=0`):
+
+| 何が | 今(legacy・day_index) | 切り替え後(calendar・real) | 根拠 |
+|---|---|---|---|
+| 世界の日付(manifest の `start_sim_datetime`・`calendar.days`) | 再生日(07-28) | 2026-07-13 + day_index 日 | `engine/run.py` の暦の 0 日目 |
+| 曜日・土休 | day_index・祝日を見ない | 実の曜日+内閣府の祝日(祝日=土休・曜日 7 日の表は日曜・W7 は PH の行) | `SimCalendar` |
+| 日ごとの乱数の鍵(`day_key`) | day_index + 日 | 日番号(day_index=0 なら同じ) | `SimCalendar.day_key` |
+| 開始日の検査 | 違反は警告 | 違反で止める: 0 日目が月曜でない(day_index ≠ 0)・複数日が平日に収まらない(6 日以上のラン)・学校の長期休み | `check_start` |
+| 天気の再生日 | 層から一様(影のある日に絞る=07-28) | 暦の日付の実際の天気。窓の外(今の 35 日では 07-13)は夏×平日の層から日数の割合で | §第330-B6 |
+| 日の出・日の入り・太陽高度 | 再生日の W13 の行 | 暦の日付から計算(07-13 は 04:35/18:59) | `engine.solar` |
+| 体感温度(WBGT・暑さ段) | 再生日の W13 の値 | 再生日の気象 × 暦の日付の太陽高度 | 同上 |
+| 影 | 再生日の影 | 暦の日付の影(無ければ近い日+警告) | 同上 |
+| 描画 B3 | 再生日の行の語 | 天候=再生日・日照=暦の日付・暑さ=体感温度と同じ段 | `renderer.weather_words_fn` |
+| 合成世界(気象資産なし) | 日の出 5:00・日の入り 19:00 の固定 | 暦の日付の日の出と日の入り(体感温度は 5 の固定のまま) | `EnvironmentProcess._pick_day_calendar` |
+| 再開の指紋 | — | `weather_scheme="calendar"` が載る(切り替え前の状態のファイルからは再開できない=止まる) | `run_day` の指紋 |
+| テープの再生 | — | 切り替え前に録ったテープは `weather_scheme="legacy"`・`calendar_weekday="day_index"` を渡して再生する(テープの meta にまだ記録していない) | 親に確かめてほしい点 |
+
+**親が既定を切り替えるときの手順**: (1) 構築側を取り込む(W13 の年間化=07-13 が窓の中・W9 の 07-13〜07-17 の影・W7 の PH の形をこの節の形にそろえる)(2) `engine/calendar.py` の `CALENDAR_UNIFIED` を `True` にする(この 1 行だけ)(3) 下の golden を張り替える(4) byte-check 19 構成で動いた量を記録する(下の B6 の表は今の資産=07-13 が窓の外での値)。
+
+**張り替える golden の一覧**(定数を `True` にした写しで全体テストを回して落ちたもの・写し=作業木の最終の版に `CALENDAR_UNIFIED=True` の 1 行だけを替えた木・`data` は本体へのつなぎ・51 分・3,789 passed / 29 failed / 2 skipped / 1 xfailed):
+
+29 件(全体 3,821 件のうち)=A 12 件+B 14 件+C 3 件。A・B は作業木の既定(`False`)では通る。
+
+- **A. final・呼数の golden(張り替え・値の前後を記録に)12 件**: `test_presence_executor.py` の 6 件(`test_null_arm_reproduces_the_recorded_checkpoint`・`test_v3_default_reproduces_the_recorded_checkpoint`・`test_l4_scale_1_reproduces_the_stage_2c_checkpoints`・`test_hunger_model_v1_reproduces_the_stage_3_checkpoints`・`test_leave_effect_off_reproduces_the_stage_5_checkpoints`・`test_hash_scheme_full_reproduces_the_pre_10e_checkpoints`)/`test_classical_social.py::test_run_golden_and_arms`/`test_relations_tenure.py::test_relations_on_arm_golden_old_and_new`/`test_intent_chooser.py::test_poi_target_legacy_reproduces_the_pre_2a_checkpoints_q13`/`perception/test_near_tiebreak.py::test_classical_checkpoint_moves_with_hash_and_id_reproduces_the_old_one`/`test_state_checks_10f.py::test_k19_runtime_default_v3_5000_known_counts`/`test_state_ledger_10b.py::test_t7_hash_cost_within_the_declared_cap[v3_default]`(T7 の final)。旧値の再現の golden(段 2c・3 段目・5 段目・`full`)は、`weather_scheme="legacy"`・`calendar_weekday="day_index"` を渡して旧値を保つか、張り替えるかを親が決める。
+- **B. 今の既定の約束を書いた試験(明示の引数を足すか書き直す)14 件**: `test_calendar_10e_e3.py::test_e3_defaults_come_from_one_constant`(切り替えの試験そのもの)/`test_calendar_sites.py::test_cli_switches_and_defaults`/`test_calendar.py::test_day_index_mode_ignores_holidays_and_keeps_the_old_values`/`test_10a_review_fixes.py` の 3 件(`test_start_check_runs_on_the_calendar_after_the_weather_date`・`test_unreadable_csv_stops_real_and_nulls_the_manifest_in_day_index`・`test_real_day_key_is_the_day_number`)/`test_sim_time_T.py` の 4 件(`test_manifest_records_tick_seconds_and_start`・`test_real_calendar_run_needs_a_valid_start`・`test_start_date_moves_the_prompt_clock`・`test_school_holiday_in_day_index_mode_only_warns`)/`day_index ≠ 0` を real の既定で回して開始日の検査で止まる 2 件(`processes/test_rng_scheme_10c.py::test_run_day_passes_day_key0_to_the_counter_key`・`test_salt_seed_split_10f.py::test_road_works_day_key_with_nonzero_day_index`)/seed の交換可能性の 2 件(`test_env_and_sections_10f.py::test_seed_exchangeability_passes_for_v3_seeds_and_fails_on_a_config_change`・`test_relations_on_5000_seeds_are_exchangeable_and_config_leaves_do_not_move`=今の W13 では 07-13 が窓の外で、層からの抽選の鍵が環境の seed=seed なので seed 1 と 2 で再生日が違う。W13 の年間化の後は 07-13 が窓の中=実際の天気になり、この 2 件は落ちない見込み=推測)。
+- **C. 写しの木と環境の都合(切り替えとは関係ない)3 件**: `test_resume_10d.py::test_resume_in_a_fresh_process_with_empty_caches`(子のプロセスが写しでなく本体の src を読み、指紋が親と違う)・`vocab/test_registry_from_tape.py::test_ab7_seed1_open_matches_the_parent_report`(`data` がつなぎのためテープの道筋が相対にならない・作業木でも落ちる)・`test_env_and_sections_10f.py::test_t1_two_processes_write_the_same_env_id_and_final_to_the_files`(子のプロセスの env_id が親と違う=写しには `.git` が無い・作業木でも全体テストの中で 1 回落ちた=下の全体テストの注)。
+
+### 第330-B6 天気=再生日・太陽と影=暦の日付(エンジン側・切替口の裏・既定 legacy)
+
+- **切替口**: `--weather-scheme {legacy,calendar}`(`run_day(weather_scheme=None)`=`DEFAULT_WEATHER_SCHEME`=いま `legacy`)と、揺らす口 `--weather-perturb`(`run_day(weather_perturb=False)`)。
+- **規則**(答え 1-3・`engine/processes/environment.py` の注 1〜6):
+  1. 天気(雨・気温・湿度・天候型・WBGT の入力)は**再生日**の W13 の行。日の出・日の入り・太陽高度・影は**暦の日付**から(`engine/solar.py`=構築段 `build.field.w13_weather` と同じ式の写し・同じ入力で同じ浮動小数を返すことを試験で固定)。WBGT は「再生日の気温・湿度・風・日照 × 暦の日付の太陽高度」で計算し直す(W13 の時別の 4 列を読む)。
+  2. 再生日の既定は**その日の実際の天気**(暦の日付に W13 の行があれば再生日=暦の日付)。
+  3. **揺らすとき**=`--weather-perturb`(アンサンブルはこれを付けて環境の seed を変えて回す)と、**暦の日付が窓の外のとき**は、同じ季節(気象庁の区分)× 平日/土休 の中から、天候型を窓の中の日数の割合で引き、その型の日を一様に引く(`sample_calendar_day`・鍵は環境の seed と `blake3("calendar|季節|平日/土休|日番号")`)。層が空なら隣の季節 → 全季節 → 平日/土休を問わず、と広げて警告(`WeatherWarning`・**expedient**・未リサーチ)。「再生日は影のある日に絞る」は calendar では使わない。
+  4. 暦の日付の影が無いときは、いちばん近い日付の影(同じ近さなら前の日)を読み、警告と manifest の記録(`weather.days[].shadow_fallback`)を残す(**expedient**)。
+  5. 描画の B3: `engine.run` が `renderer.weather_words_fn` を差し込む(天候の語=レンダラの W13 の表を再生日で引く・日照の語=暦の日付の日の出と日の入りを時の中ほどと比べる・暑さの語=体感温度と同じ暑さ段)。
+  6. 複数日のランは日ごとに暦の日付が進み、その日の規則で引き直す。乱数は環境の seed だけ(母集団の seed・動きの seed では動かない)。
+- **manifest**: 新しい欄 `weather`(`scheme`・`perturbed`・日ごとの `calendar_date`・`replay_date`・`stratum`・`how`(actual/sampled/legacy)・`widened`・`shadow_date`・`shadow_fallback`・日の出と日の入り・`warnings`)。設定の節(`replay_date` と同じ)・`CONFIG_PATHS_SHA256` `6e81ca53…` → `8e53b145…`・manifest の末尾の欄の試験の `E10_KEYS` に `weather`。
+- 乱数の監査: `sample_calendar_day` の流れを `rng_audit.SAFE_SITES` に足した(鍵 1 語・引く語数 2・15 → 16 か所・`test_state_checks_10f.py` の数を直した)。seed の近くのハッシュの場所の表(`test_salt_seed_split_10f.py::_HASH_SITES`)にも「層の名前と日番号を数にするだけ」で足した。
+- 状態台帳: 新しい属性はすべて `EXCLUDED`(環境の過程の `weather_scheme`・`perturbed`=CONST/`_cal_wbgt`・`_cal_stage`・`_sun_exact`・`weather_days`・`weather_warnings`・`shadow_sources`=CACHE/レンダラの `weather_words_fn`・`weather_words_key_fn`=REF)。表の行と軸は変えていない(既定の behavior-hash は不変)。
+- **動いてはいけない量**(既定 legacy): [b6_vs_e3.json](b6_vs_e3.json) 19/19 全欄同じ。
+- **既知の答え**: 世界資産 200 体・1 日で、`calendar`+開始日 2026-07-28(窓の中=実際の天気・再生日=暦の日付)のランは、legacy のランと **O56 の `stratum`(層の名前「夏|平日|雨」/「平日|雨」)のほかは全 checkpoint の全行が同じ**(呼数も同じ)。実資産の 35 日すべてで、暦の日付=再生日なら計算し直した WBGT(2 桁)・暑さ段・日の出・日の入りが W13 の値と一致。
+- **切り替えたときに動く量**(今の資産=W13 は 35 日・07-13 は窓の外・影は 07-28 だけ。`weather_scheme=calendar`・`calendar_weekday=real`・開始日なし・[b6_unified_vs_b6.json](b6_unified_vs_b6.json)): 19 構成とも世界の日付 2026-07-13・再生日 **2026-08-31**(夏×平日の層から引いた・層を広げていない)・影は 07-28(近い日・警告 1 件)・日の出 04:35/日の入り 18:59。顕著行為 10・出動 5 は同じ。
+
+| 構成 | 既定(B6)final / 呼数 | 切り替え後 final / 呼数 | 気づいた延べの差 | 食事の差 |
+|---|---|---|---|---|
+| w6_v3_default | `4fbf61616af1e3d2` / 70,421 | `de954c74b2153515` / 65,604 | +73 | -117 |
+| w6_v3_activity_off | `6ef311ea2bcabbaa` / 58,495 | `8dbc024aa57236d7` / 49,941 | -19 | -335 |
+| w6_v1_default | `9180ff01f380448a` / 60,899 | `5bbbb130dacbe29e` / 52,104 | -390 | +0 |
+| w6_v1_derive_v2_1 | `d69cc0795cb27294` / 54,491 | `4f9a9dea5d3a9c08` / 45,502 | +62 | +0 |
+| w6_v2 | `88dc42eabbc8623e` / 60,758 | `a6376b105ad3e1af` / 52,381 | +51 | -264 |
+| w6_v1_edge | `abd6801c4e3ce142` / 54,313 | `9f328dfdca6cc58c` / 46,370 | -67 | +0 |
+| w6_v2_edge | `00c7b8d57be27d15` / 54,326 | `285a095143ec9453` / 46,695 | +464 | -159 |
+| w6_v1_edge_plateau | `a289e41bf7383db0` / 55,505 | `71a56784549fb3b5` / 48,657 | +157 | +0 |
+| w6_old_v1_default | `fb7b4b4755eb90c1` / 60,899 | `fb9f2d2153adb66c` / 52,104 | -390 | +0 |
+| w6_old_v1_derive_v2_1 | `ef68f751065530ad` / 54,491 | `9fac7c8ac99efbc6` / 45,502 | +62 | +0 |
+| w6_old_v2 | `4eacbf3c1a141d89` / 60,758 | `70e53e9fc7f32690` / 52,381 | +51 | -264 |
+| w6_old_v1_edge | `2722cf8449b984bf` / 54,313 | `b76dee513ec8c223` / 46,370 | -67 | +0 |
+| w6_old_v2_edge | `14aff5b3c963e363` / 54,326 | `868a896ee5564ba4` / 46,695 | +464 | -159 |
+| w6_old_v1_edge_plateau | `79149e728b5e85a2` / 55,505 | `77a1282e45dfb402` / 48,657 | +157 | +0 |
+| w6_golden_null_arm | `6c81c5ad8a99437a` / 101,969 | `67e4e5a2c3478c8b` / 98,192 | -1,185 | +0 |
+| v3_mem_store | `785b26683ed45a35` / 70,421 | `2151a9d1841ada99` / 65,604 | +73 | -117 |
+| v3_mem_rel | `64f48b6571ec2ea1` / 74,616 | `2f211f760d4fd165` / 69,403 | -117 | -127 |
+| v3_classical | `1470f952565a5d31` / 96,961 | `4f1177b44185fa7e` / 93,829 | +838 | -38 |
+| v3_classical_mem_rel | `e9a4fa4d2403acbb` / 111,194 | `ccf54a1ee81cd500` / 107,088 | +864 | -132 |
+
+- **試験**(`tests/engine/test_weather_calendar_10e.py` 11 件): 太陽の式=構築段/35 日の WBGT・暑さ段・日の出と日の入りが W13 と同じ/合成の W13(2025-09-01〜2026-08-31)で: 窓の中=実際の天気と暦の日付の太陽/揺らしたときの天候型が日数の割合(夏の平日の猛暑・晴・雨がおよそ 3:2:1)に沿う(1,200 回)/窓の外=層から・冬の無い W13 で隣の季節へ広げて警告/影は暦の日付・無ければ近い日と警告/WBGT は再生日の気象 × 暦の日付の太陽/日が進む・揺らさない限り seed を変えても実際の天気・揺らすと環境の seed だけで引き直す(動きの seed・母集団の seed では動かない)/legacy は今のまま/世界資産の既知の答え(上)/**B3・体感温度・日の出と日の入りの語が同じ規則**(README §E6-1 B6 のための注 (1)〜(3)・07-13=窓の外で層から引き警告が出る)。
+
+### 第330 テスト・スナップショット・親に確かめてほしい点
+
+- **全体テスト**(作業木・`python -m pytest -q -p no:cacheprovider -o addopts="" -rf`): **3,821 件を集めて 3,817 passed・2 failed・1 skipped・1 xfailed**(58 分・この機械)。落ちた 2 件はどちらも環境の都合で、今回の変更とは関係しない: (1) `vocab/test_registry_from_tape.py::test_ab7_seed1_open_matches_the_parent_report`(`data` が本体へのつなぎのためテープの道筋が相対にならない=§E6-5 の E4 の段の注と同じ)/(2) `test_env_and_sections_10f.py::test_t1_two_processes_write_the_same_env_id_and_final_to_the_files`(子のプロセス `python -c` が作業木でなく本体の src=editable の版を読むので env_id の git の欄が親と違う。HEAD の試験ファイル `test_area_source_c9c.py` の後に回しても落ち、`PYTHONPATH=<作業木>/src` を付けた回(関係する 66 件・この試験を含む)では通った)。全体の前の版(`--weather-perturb` に直す前)の全体テストでは、ほかに `test_change_detect_p6.py::test_p6_change_detection_under_2ms_at_400k_agents`(並べて回した負荷で 3.4 ms)と、直した 2 件(seed の近くのハッシュの表・K19 の静的な安全な呼び手)が落ちた。
+- スナップショット: `snap_B0`・`snap_B1`・`snap_E3`・`snap_B6eng`(HEAD からの累積)。
+- 親に確かめてほしい点:
+  1. **W7 の PH の形**(週の 8 つ目の要素)は実行役の提案。構築役の W7 と合わせる。
+  2. **「揺らす」の口**: 発注の「`--environment-seed` を変えたとき」を、明示の切替口 `--weather-perturb` にした(揺らすときは環境の seed を変える)。最初は「環境の seed が動きの seed と違えば揺らす」で作ったが、10f の salt の比較(環境の seed を固定し動きの seed だけを変える)で salt ごとに `weather.perturbed` が変わり、`test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks` の交換可能性が落ちた(calendar では salt ごとに天気が揺れて共通の乱数が崩れる)。「環境の seed を明示したら揺らす」も 10f の「省略と同じ値の明示は同じラン」に反する。暦の日付が窓の外のときの抽選の鍵は、揺らさなくても環境の seed。
+  3. 層を広げる順(隣の季節 → 全季節 → 平日/土休を問わず)と、近い日の影の選び方(同じ近さなら前の日)は expedient。
+  4. 切り替え後は合成世界(気象資産なし)でも日の出と日の入りが暦の日付になる(物理の規則を優先した・固定の 5:00/19:00 にしたいなら 1 行で戻せる)。
+  5. 切り替え前に録ったテープを切り替え後に再生するときは `weather_scheme="legacy"`・`calendar_weekday="day_index"` を渡す必要がある(テープの meta への記録は入れていない)。
+  6. B0 で W12 と影の点の W10 街路点の指紋も足した(発注より広い・manifest だけ)。B1 の族に W7 は入れていない。

@@ -198,6 +198,8 @@ _HASH_SITES = {
     ("core/hashing.py", "xxh64_array"): "汎用のハッシュ(引数の名前が seed)",
     ("perception/hashes.py", "block_hash"): "汎用のハッシュ(引数の名前が seed)",
     ("engine/processes/environment.py", "select_day"): "層の名前を数にするだけ(乱数は core.rng の環境の流れ)",
+    # 〔第330・10e B6〕天気の規則 calendar の再生日の抽選
+    ("engine/processes/environment.py", "sample_calendar_day"): "層の名前と日番号を数にするだけ(乱数は core.rng の環境の流れ)",
     ("engine/run.py", "run_day"): "状態のハッシュ(seed を入れない)",
 }
 _HASH_FUNCS = {"blake3", "blake3_hex", "blake3_u64", "xxh64", "xxh64_intdigest", "xxh3_64"}

@@ -294,7 +294,8 @@ def test_u7_pulled_in_today_is_outside_this_check(monkeypatch):
 def test_k19_static_sites_are_frozen():
     sites = RA.scan_sites(SRC)
     assert RA.check_sites(sites) == []
-    assert len(RA.SAFE_SITES) == 15 and len(RA.UNDETERMINED_SITES) == 16
+    # 〔第330・10e B6〕SAFE_SITES に天気の規則 calendar の再生日の抽選(sample_calendar_day)を足して 15 → 16
+    assert len(RA.SAFE_SITES) == 16 and len(RA.UNDETERMINED_SITES) == 16
     # httpx の client.stream(llm/fleet.py)は乱数ではない=一覧に入らない
     assert all(s.path != "llm/fleet.py" for s in sites)
 
