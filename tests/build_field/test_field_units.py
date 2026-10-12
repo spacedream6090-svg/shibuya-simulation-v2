@@ -13,6 +13,7 @@ from __future__ import annotations
 import datetime as dt
 import inspect
 import math
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -467,6 +468,29 @@ def test_equal_interval_departures_headways():
     off = [m for m in mins if 660 <= m < 720]
     assert len(peak) == 20 and len(off) == 10
     assert w12.equal_interval_departures(0, 0.5, 300, 1400) == []
+
+
+@pytest.mark.parametrize("tph", [18, 19, 24, 27])
+def test_equal_interval_departures_hourly_count_equals_declared(tph):
+    """〔改訂(第330)・答え 10-12b 1-1〕1 時間の本数=宣言(60 の約数でない本数でも)。
+
+    旧は間隔を整数分に丸めて積んだので 18→20・19→20・24→30・27→30 本/時になっていた。
+    間隔が一定の時間帯(比 1.0)は、どの 1 時間も宣言の本数ちょうど。
+    """
+    deps = w12.equal_interval_departures(tph, 1.0, 300, 1440)
+    mins = [w12._minute(d) for d in deps]
+    assert mins == sorted(mins) and len(set(mins)) == len(mins)
+    per_hour = Counter(m // 60 for m in mins)
+    assert all(per_hour[h] == tph for h in range(5, 24)), dict(per_hour)
+    # ピークとオフピークが入れ替わる日: ピークの真ん中の時(8 時台・18 時台)は宣言どおり、
+    # 境の時(7・9・17・19 時台)は入る時刻の端数で宣言から 1 本までずれうる(小数で積む規則)
+    deps2 = w12.equal_interval_departures(tph, 0.5, 300, 1440)
+    ph = Counter(w12._minute(d) // 60 for d in deps2)
+    assert ph[8] == tph and ph[18] == tph
+    assert all(tph - 1 <= ph[h] <= tph for h in (7, 9, 17, 19)), dict(ph)
+    # オフピーク(比 0.5)の真ん中の時は宣言 × 比(端数は前後の時に振り分く=合計で合う)
+    assert all(abs(ph[h] - tph * 0.5) <= 1 for h in range(11, 16)), dict(ph)
+    assert abs(sum(ph[h] for h in range(10, 17)) - 7 * tph * 0.5) <= 1
 
 
 def test_equal_interval_departures_pm_peak_defaults_to_am():

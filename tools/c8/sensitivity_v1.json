@@ -257,7 +257,7 @@
    "design_anchor": "D-W14",
    "source": "世界データ構築仕様書 §2 D-W14「感度: …JR等間隔ダイヤの位相ずらし」",
    "expedient": "JR3 線・東急2 線・京王=等間隔ダイヤ(F10・実ダイヤはメトロ3 線のみ)",
-   "declared": "w12_timetables.parquet の 9,574 便(うち equal_interval_expedient 7,978)",
+   "declared": "w12_timetables.parquet の 9,014 便(うち equal_interval_expedient 7,418)〔改訂(第330 B3): 丸めの直しで 9,574 便(等間隔 7,978)から変わった。下の result は直す前の資産で測った値(2026-09-10)〕",
    "control": "等間隔の便だけ (路線, 方向, 曜日種別) ごとに中央運転間隔の 1/2 だけ位相をずらす",
    "exec_form": "build_rerun",
    "runner": "w12_jr_phase",

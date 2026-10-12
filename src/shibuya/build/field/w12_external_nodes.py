@@ -30,7 +30,9 @@ expedient
 
 from __future__ import annotations
 
+import math
 from collections import Counter, defaultdict
+from fractions import Fraction
 from typing import Any, Sequence
 
 import numpy as np
@@ -38,7 +40,8 @@ import numpy as np
 from . import common as C
 
 STAGE = "W12"
-STAGE_VERSION = "1.0.0"
+#: 1.1.0(第330 B3): 等間隔ダイヤの丸めを「小数で積み切り捨て」に直した(時刻表の行が変わる)。
+STAGE_VERSION = "1.1.0"
 
 STATION_FLOW = ("realworld", "transport_census", "station_flow_12.json")
 TIME_DIST = ("realworld", "transport_census", "time_dist_12.json")
@@ -313,10 +316,14 @@ def equal_interval_departures(
         return []
     pm = peak_tph if peak_tph_pm is None else peak_tph_pm
     out: list[str] = []
-    t = first_min
+    # 〔改訂(第330)・答え 10-12b 1-1 (i)〕時刻を**小数で積み**、出す分だけ切り捨てる。旧は間隔を
+    # 整数分に丸めて積んでいた(`round(60/tph)`=偶数への丸めで 24 本/時が 2.5→2 分=30 本/時)。
+    # 有理数で積むので浮動小数の誤差で 1 時間の本数がずれない(間隔が一定の時間帯は本数=宣言)。
+    t = Fraction(first_min)
     while t <= last_min:
-        out.append(C.min_to_hhmm(t))
-        hour = (t // 60) % 24
+        minute = math.floor(t)
+        out.append(C.min_to_hhmm(minute))
+        hour = (minute // 60) % 24
         if hour in PEAK_HOURS_AM:
             tph = float(peak_tph)
         elif hour in PEAK_HOURS_PM:
@@ -324,7 +331,7 @@ def equal_interval_departures(
         else:
             tph = peak_tph * offpeak_ratio
         tph = max(tph, 1.0)
-        t += max(int(round(60.0 / tph)), 1)
+        t += Fraction(60) / Fraction(tph)
     return out
 
 

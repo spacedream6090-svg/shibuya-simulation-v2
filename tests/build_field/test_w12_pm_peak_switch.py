@@ -86,8 +86,13 @@ def test_switch_changes_pm_peak_in_run_output(tmp_path, monkeypatch):
         am0, am1 = _per_hour(tt0, ln, range(7, 10)), _per_hour(tt1, ln, range(7, 10))
         pm0, pm1 = _per_hour(tt0, ln, range(17, 20)), _per_hour(tt1, ln, range(17, 20))
         assert am0 == am1, f"{ln}: 朝ピークが動いた"
-        assert list(pm0.values()) == list(am0.values()), f"{ln}: 既定で夕≠朝"
-        assert pm1 == {17: 10, 18: 10, 19: 10}, f"{ln}: 夕ピークが表の値にならない {pm1}"
+        # 既定=夕=朝: 真ん中の時(18 時台と 8 時台)は同じ本数。境の時(17・19 時台)は入る時刻の
+        # 端数で 1 本までずれうる(第330 B3 の「小数で積み切り捨て」)。
+        assert pm0[18] == am0[8], f"{ln}: 既定で夕≠朝 {pm0} {am0}"
+        assert all(abs(pm0[h] - am0[8]) <= 1 for h in (17, 19)), f"{ln}: {pm0}"
+        assert pm1[18] == 10 and all(9 <= pm1[h] <= 10 for h in (17, 19)), (
+            f"{ln}: 夕ピークが表の値にならない {pm1}"
+        )
         assert pm1 != pm0, f"{ln}: 切替口が効かない"
     # メトロの実ダイヤの行は切替口で動かない
     real0 = [(a, b, c) for a, b, c, s in zip(tt0["line"], tt0["direction"], tt0["departure"], tt0["source"]) if s == "real"]
