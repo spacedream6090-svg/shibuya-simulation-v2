@@ -394,6 +394,18 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #88 10e 版上げ 1 回目の完了=構築側 B2〜B6・エンジン側 B0/B1/E3/B6・活性化 ACT・切替口と K15 の削除 RET(第330・2026-10-12〜13・実装役 Opus 5.5 ×3・親検収)
+
+- 正典: [回答 10-12b](docs/design/v2-answers-2026-10-12b.md) §1(構築側の 6 点)・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) §2 第 0 期・[10e の材料](docs/bench/analysis/wallbounce-1012/10e-build-side-prep.md)・[実装の記録](docs/bench/analysis/wallbounce-1012/10e/README.md)(§第330・§B0〜§B8・§ACT・§RET・§締め)。**段ごとに commit**(エンジン側 `e1b9ea2`〜`6249a44`・構築側 `3737a3d`〜`a5eec83`・ACT `d688cfd`・RET `cd1e6b7`)。実装役ごとに git worktree を切り、親が依存の順に取り込んだ(回答 §6-3)。
+- **エンジン側**: B0 指紋(manifest の `frozen_sources` に W10・W13・W12・W9 の sha256 を読み手ごとに)・B1 旧資産の切替口(1 か所の退避先から読む `AssetSource`)・E3 暦の一本化(世界の日付と再生日を分離・既定の開始日 2026-07-13・W7 の PH の行を暦の口で)・B6 天気=再生日/太陽と影=暦の日付(`engine/solar.py`・その日の実際の天気が既定・揺らすのは `--weather-perturb` で季節 × 平日/土休 の層から実際の割合・影が無ければ近い日)。既定は不変で 19/19 全欄同じ。
+- **構築側**: B2 夕ピークの切替口を効くように(表が無ければ ValueError・他社の比は当てない)/ B3 等間隔ダイヤの丸め(Fraction で積み切り捨て・5 線・7,978 → 7,418 本)/ B4 W10 ON+Q7(第 2 波の sha と一致・ゲート 0 → 202・主の物差しは 2 点の診断=循環を記録)/ B5 W13 の年間化(窓 2025-09-01〜2026-08-31・etrn 10 分値 365 頁+時別値 330 頁・内閣府の祝日・季節の表・W19 は読んだファイルだけ・35 日 3,219 点一致。**挙動は不変だが final は動いた**=環境の行 35 → 330・07-28 の 0〜8 時の 9 行)/ B6 W7 の PH を列 `holiday_content` に。
+- **ACT**: `CALENDAR_UNIFIED=True`・影 07-13〜07-17+07-28・テープの meta に暦と天気の方式・感度の台帳の判定を作り直し(D-44 に `pending`)・golden 6 定数。**動いた量: 日付と再生日と影が 07-28 → 07-13(その日の実際の天気)・既定 v3 の呼数 70,501 → 65,597・19 構成の合計 1,267,129 → 1,129,811(−10.8%)・顕著行為と出動は不変**。2 日のランで 07-13 → 07-14。
+- **RET**: `--hash-scheme full`・`--rng-scheme stateful`・`--calendar-weekday day_index`・`--weather-scheme legacy`・`--world-assets-pre10e`・`CALENDAR_UNIFIED`・K15 の 2 列を削除(台帳 187 行・`state-ledger/10e-ret`)。19 構成で final・呼数・テープ・behavior-hash が全欄同じ(動いたのは K15 の抜けた full-hash だけ)。残る 10e の切替口は `--weather-perturb` だけ。**手元の実 LLM テープ 53 本は今の版で再生できない**(meta が無い=記録)。
+- **親検収**: 段ごとの commit の前に一覧とステージの突き合わせ(`tools/commit_check.py`)/ 本体に取り込んだ後の 4 構成の byte-check が構築側の記録 `sides/final.json` と一致(違いは B0 の `frozen_sources` だけ)/ ACT の資産(13 ファイル・build_hash `5ff1bacf7fd9c773`)を本体に写した後の 4 構成の byte-check=4 構成とも実行役の RET の記録 sides/ret.json と全欄一致(動いた量 0・parent_main_vs_ret_4cfg.json) / 親の全体テスト=3,841 件を集めて 3,839 passed・0 failed・1 skipped・1 xfailed(61 分・本体・ACT の資産。作業木で落ちた既知のテープの道筋の 1 件は本体では通る)。本体の作業木にあった CRLF の追跡ファイル 206 本(git の中身は LF・W12/W16 の `input_hash` を狂わせていた)を index から取り直した。
+- **住人の入れ替わり 4,191/5,000(E4)の分布の比較**: [偏りなし](docs/bench/analysis/wallbounce-1012/10e/population_swap_check.md)(19 属性・989 区分・別 seed 100 本のフロアの中・共通 809 は期待どおり)。
+- **つなぎの台帳に載せるもの**(第 1 期 1-4 で載せる): W18 の X(凍結カタログの天候の現実の数が 35 日のまま)・W12 の土休 > 平日(実データの時刻表で直す)・W11 の神泉の出口・影の近い日・層を広げる順・影は `SHADOW_DATES` の 6 日だけ。
+- **10-03 の予想が外れたもの(記録のとおり・ユーザー了承)**: E2 の final・E4 の母集団・B5 の final。
+
 ### #87 10e 版上げ 1 回目(エンジン側)E1・E2・E4・E5: 既定の final を behavior-hash に・掃除と旧 pickle の口の削除・counter の既定化と K19・テープ版 4(第329・2026-10-12〜13・実装役 Opus 5.5・親検収+別のサブの検収 2 回)
 
 - 正典: [実装の計画 10-12](docs/design/v2-implementation-plan-2026-10-12.md) §2 第 0 期・ユーザーの [回答](docs/design/v2-plan-answers-2026-10-12.md) 6-4(10e の実行の確認)・[指示書 10-03](docs/design/v2-wallbounce-decisions-2026-10-03.md) §3-3 A6・§3-4 A8・[10-06](docs/design/v2-wallbounce-decisions-2026-10-06.md) §6 K1・K15・K19・[実装の記録](docs/bench/analysis/wallbounce-1012/10e/README.md)・[検収の記録](docs/bench/analysis/wallbounce-1012/10e/review-10e-engine.md)。**変更ごとに commit を分けた**(E1・E2・E4・E5 の 4 本)。E3(暦の一本化)と構築側(W10 ON・W12・山手線・騒音の指紋・W13 の年間化=[材料](docs/bench/analysis/wallbounce-1012/10e-build-side-prep.md))は**ユーザーの答えの後**(版上げ 1 回目はまだ完了していない)。

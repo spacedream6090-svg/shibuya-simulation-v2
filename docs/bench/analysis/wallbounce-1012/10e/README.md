@@ -1011,3 +1011,12 @@ side の全体は `sides/base.json`・`sides/b3.json`・`sides/b4.json`・`sides
 5. **旧い記録の道具**(§RET-3 の最後)は消した切替口の引数を持ったまま。直すか、凍結の印を付けるかは親が決める。
 6. **`SimCalendar.default`**(暦を渡されない過程の暦)は 2026-07-13 + day_index 日で、日の鍵は日番号 0。前の `legacy` は鍵 = day_index。単体の試験で `day_index` を渡して過程を作ると、乱数の鍵が前と違う(実ランは暦を渡すので関係しない)。
 7. **全体テストの回し方**: 本体の `data/world/v2` を書き換えない約束のため、ACT と RET の全体テストと byte-check は「作業木のコードの写し+ACT の資産の写し」の木で回した(作業木の `data` のつなぎを付け替える操作は権限で止められた)。
+
+## 親検収(第330・版上げ 1 回目の締め)
+
+- 段の commit: 実装役の累積スナップショットを作業木の枝に順に重ね、段ごとに「一覧=ステージ」を `tools/commit_check.py` で確かめて commit(エンジン側 4・構築側 5・ACT・RET)。本体の枝へは rebase と fast-forward(README の追記の衝突 1 回は両方を残す形で解決・試験 2 本は自動で合流)。
+- 本体の作業木の CRLF: 追跡ファイル 206 本が CRLF(git の中身は LF・古い checkout の名残)で、W12/W16 の `input_hash` が構築役の作業木と食い違っていた。index から取り直して全部 LF にした(中身の差 0)。
+- 資産: 最後の版(構築側・25 ファイル)と ACT の 13 ファイル(影 5 日・build_hash `5ff1bacf7fd9c773`)を本体の `data/world/v2` に写した(sha256 を MANIFEST と突き合わせ)。
+- byte-check(親・本体・4 構成=v3 既定・v3 活動層 off・v1 既定・v3 記憶+関係): 構築側の最後の版=`sides/final.json` と全欄一致(違いは B0 の `frozen_sources` だけ)。ACT+RET の後=4 構成とも実行役の RET の記録 sides/ret.json と全欄一致(動いた量 0・parent_main_vs_ret_4cfg.json)。
+- 全体テスト(親・本体・ACT の資産): 3,841 件を集めて 3,839 passed・0 failed・1 skipped・1 xfailed(61 分・本体・ACT の資産。作業木で落ちた既知のテープの道筋の 1 件は本体では通る)。
+- 旧い記録の道具(10b〜10e・c10・`tools/c7/attr_arms.py`)は消した切替口の引数を持ったまま=凍結の印を付けず残す(回し直すときに直す・つなぎの台帳)。
