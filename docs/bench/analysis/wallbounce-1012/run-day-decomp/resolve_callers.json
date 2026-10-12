@@ -1,0 +1,918 @@
+{
+ "calls": {
+  "_advance_focus": {
+   "engine/resolve.py:apply": [
+    1515
+   ]
+  },
+  "_apply_buy": {
+   "engine/resolve.py:_apply_queue": [
+    2404
+   ]
+  },
+  "_apply_eat": {
+   "engine/resolve.py:_apply_queue": [
+    2402
+   ]
+  },
+  "_approach_dest_node": {
+   "engine/resolve.py:_apply_move": [
+    1663
+   ]
+  },
+  "_board_riders": {
+   "engine/resolve.py:_serve_board_queue": [
+    2039
+   ]
+  },
+  "_cell_of_node": {
+   "engine/resolve.py:_enter_board_queue": [
+    1855
+   ],
+   "engine/resolve.py:_apply_board": [
+    1922
+   ],
+   "engine/resolve.py:_serve_board_queue": [
+    2007
+   ],
+   "engine/resolve.py:begin_exit_walk": [
+    3001
+   ]
+  },
+  "_clear_focus": {
+   "engine/resolve.py:_apply_move": [
+    1679
+   ],
+   "engine/resolve.py:_set_focus": [
+    1779
+   ]
+  },
+  "_clear_intent_fields": {
+   "engine/resolve.py:clear_intent": [
+    1057
+   ],
+   "engine/resolve.py:fail_intent": [
+    1079
+   ],
+   "engine/resolve.py:relabel_intent_failure": [
+    1098
+   ],
+   "engine/resolve.py:apply": [
+    1416,
+    1465
+   ]
+  },
+  "_complete_buy": {
+   "engine/resolve.py:_apply_buy": [
+    2197
+   ],
+   "engine/resolve.py:_serve_poi_queue": [
+    2959
+   ]
+  },
+  "_complete_eat": {
+   "engine/resolve.py:_apply_eat": [
+    2342
+   ],
+   "engine/resolve.py:_serve_poi_queue": [
+    2961
+   ]
+  },
+  "_energy_meal": {
+   "engine/resolve.py:energy_out_of_area_meal": [
+    1260
+   ],
+   "engine/resolve.py:energy_home_meal": [
+    1283
+   ],
+   "engine/resolve.py:_complete_eat": [
+    2369
+   ]
+  },
+  "_energy_snack": {
+   "engine/resolve.py:_complete_buy": [
+    2272
+   ]
+  },
+  "_enter_board_queue": {
+   "engine/resolve.py:_apply_board": [
+    1931,
+    1972
+   ],
+   "engine/resolve.py:_apply_engine_step": [
+    1585
+   ]
+  },
+  "_fail": {
+   "engine/resolve.py:_apply_move": [
+    1654,
+    1680
+   ],
+   "engine/resolve.py:_apply_board": [
+    1908,
+    1912,
+    1919,
+    1977
+   ],
+   "engine/resolve.py:_apply_alight": [
+    2131,
+    2140
+   ],
+   "engine/resolve.py:_apply_buy": [
+    2173,
+    2174,
+    2175,
+    2176
+   ],
+   "engine/resolve.py:_apply_eat": [
+    2320,
+    2321,
+    2322
+   ],
+   "engine/resolve.py:_apply_queue": [
+    2394
+   ],
+   "engine/resolve.py:_apply_talk": [
+    2509,
+    2510,
+    2511
+   ],
+   "engine/resolve.py:_apply_report": [
+    2582
+   ],
+   "engine/resolve.py:_apply_help": [
+    2589
+   ],
+   "engine/resolve.py:_apply_sleep": [
+    2624
+   ],
+   "engine/resolve.py:_apply_engine_step": [
+    1599
+   ],
+   "engine/resolve.py:_settle_approach": [
+    1639
+   ],
+   "engine/resolve.py:_serve_board_queue": [
+    2035,
+    2038,
+    2053
+   ],
+   "engine/resolve.py:_serve_poi_queue": [
+    2917,
+    2946,
+    2947
+   ],
+   "engine/resolve.py:_board_riders": [
+    2095
+   ],
+   "engine/resolve.py:_complete_buy": [
+    2218,
+    2227,
+    2252
+   ],
+   "engine/resolve.py:_complete_eat": [
+    2354
+   ]
+  },
+  "_focus_xy": {
+   "engine/resolve.py:_settle_approach": [
+    1628
+   ],
+   "engine/resolve.py:_set_focus": [
+    1774
+   ],
+   "engine/resolve.py:_advance_focus": [
+    1810
+   ]
+  },
+  "_ok": {
+   "engine/resolve.py:_board_riders": [
+    2122
+   ],
+   "engine/resolve.py:_apply_alight": [
+    2152
+   ],
+   "engine/resolve.py:_complete_buy": [
+    2287
+   ],
+   "engine/resolve.py:_complete_eat": [
+    2382
+   ],
+   "engine/resolve.py:_apply_wait": [
+    2423
+   ],
+   "engine/resolve.py:_apply_talk": [
+    2519
+   ],
+   "engine/resolve.py:_apply_leave": [
+    2538,
+    2555
+   ],
+   "engine/resolve.py:_apply_record_only": [
+    2560
+   ],
+   "engine/resolve.py:_apply_rest": [
+    2599
+   ],
+   "engine/resolve.py:_apply_sleep": [
+    2631
+   ],
+   "engine/resolve.py:_apply_move": [
+    1678
+   ],
+   "engine/resolve.py:_apply_board": [
+    1932,
+    1973
+   ],
+   "engine/resolve.py:_apply_report": [
+    2575,
+    2581
+   ],
+   "engine/resolve.py:_apply_buy": [
+    2191
+   ],
+   "engine/resolve.py:_apply_eat": [
+    2336
+   ]
+  },
+  "_plan_exit_mask": {
+   "engine/resolve.py:_board_riders": [
+    2085
+   ],
+   "engine/resolve.py:_enter_board_queue": [
+    1874
+   ],
+   "engine/resolve.py:_serve_board_queue": [
+    2022
+   ]
+  },
+  "_platform_table": {
+   "engine/resolve.py:_apply_board": [
+    1916
+   ],
+   "engine/resolve.py:begin_exit_walk": [
+    2991
+   ],
+   "engine/resolve.py:_enter_board_queue": [
+    1852
+   ]
+  },
+  "_remember_queue_action": {
+   "engine/resolve.py:_apply_buy": [
+    2189
+   ],
+   "engine/resolve.py:_apply_eat": [
+    2334
+   ]
+  },
+  "_require_thawed": {
+   "engine/resolve.py:_complete_buy": [
+    2261,
+    2263
+   ],
+   "engine/resolve.py:_complete_eat": [
+    2361
+   ],
+   "engine/resolve.py:set_refractory": [
+    818
+   ],
+   "engine/resolve.py:clear_refractory": [
+    848
+   ],
+   "engine/resolve.py:set_activity": [
+    866
+   ],
+   "engine/resolve.py:set_activity_until": [
+    877
+   ],
+   "engine/resolve.py:write_familiarity": [
+    927
+   ],
+   "engine/resolve.py:write_memory": [
+    950
+   ],
+   "engine/resolve.py:write_store_memory": [
+    976
+   ],
+   "engine/resolve.py:write_relations": [
+    998
+   ],
+   "engine/resolve.py:join_conversation": [
+    1020
+   ],
+   "engine/resolve.py:set_intent": [
+    1042
+   ],
+   "engine/resolve.py:clear_intent": [
+    1056
+   ],
+   "engine/resolve.py:fail_intent": [
+    1070
+   ],
+   "engine/resolve.py:relabel_intent_failure": [
+    1092
+   ],
+   "engine/resolve.py:set_conversing": [
+    2455
+   ],
+   "engine/resolve.py:consume": [
+    2716
+   ]
+  },
+  "_restore_array_into": {
+   "engine/resolve.py:_restore_value": [
+    3245
+   ]
+  },
+  "_restore_value": {
+   "engine/resolve.py:restore_items": [
+    3308
+   ],
+   "engine/resolve.py:_restore_value": [
+    3252,
+    3264
+   ]
+  },
+  "_serve_board_queue": {
+   "engine/resolve.py:apply": [
+    1474
+   ]
+  },
+  "_serve_poi_queue": {
+   "engine/resolve.py:apply": [
+    1421
+   ]
+  },
+  "_set_focus": {
+   "engine/resolve.py:_apply_wait": [
+    2422
+   ],
+   "engine/resolve.py:_apply_move": [
+    1677
+   ]
+  },
+  "_settle_approach": {
+   "engine/resolve.py:_apply_engine_step": [
+    1597
+   ]
+  },
+  "_tick_minute": {
+   "engine/resolve.py:_energy_meal": [
+    1200
+   ],
+   "engine/resolve.py:_energy_snack": [
+    1229
+   ]
+  },
+  "advance_body": {
+   "engine/run.py:run_day": [
+    3636
+   ]
+  },
+  "apply": {
+   "engine/run.py:run_day": [
+    4193
+   ]
+  },
+  "apply_detection": {
+   "engine/run.py:run_day": [
+    3817
+   ]
+  },
+  "balk_queue": {
+   "engine/presence.py:PlanExecutor._release_affiliations": [
+    1426
+   ],
+   "engine/processes/crowd.py:CrowdProcess.step": [
+    245
+   ],
+   "engine/resolve.py:_apply_leave": [
+    2545
+   ]
+  },
+  "begin_exit_walk": {
+   "engine/presence.py:PlanExecutor._begin_walk": [
+    1458
+   ]
+  },
+  "begin_planned_sleep": {
+   "engine/presence.py:PlanExecutor._run_type": [
+    1328
+   ],
+   "engine/run.py:run_day": [
+    3865
+   ]
+  },
+  "clear_board_intent": {
+   "engine/presence.py:PlanExecutor._flush_walkers": [
+    1544
+   ]
+  },
+  "clear_intent": {
+   "engine/intent.py:IntentLayer._sweep": [
+    452,
+    467
+   ]
+  },
+  "clear_refractory": {
+   "engine/run.py:run_day": [
+    3930
+   ]
+  },
+  "collect_waste": {
+   "engine/processes/goods_flow.py:WasteCollectionProcess._collect_batch": [
+    519
+   ]
+  },
+  "consume": {
+   "engine/processes/goods_flow.py:WasteCollectionProcess._household_consumption": [
+    498
+   ]
+  },
+  "discard_to_bin": {
+   "engine/processes/goods_flow.py:WasteCollectionProcess._sell_leftovers_to_bin": [
+    478
+   ]
+  },
+  "energy_home_meal": {
+   "engine/run.py:run_day": [
+    3893
+   ]
+  },
+  "energy_out_of_area_meal": {
+   "engine/run.py:run_day": [
+    3644,
+    3650
+   ]
+  },
+  "fail_intent": {
+   "engine/intent.py:IntentLayer._sweep": [
+    459
+   ]
+  },
+  "initialize": {
+   "engine/run.py:run_day": [
+    2742
+   ]
+  },
+  "initialize_energy": {
+   "engine/run.py:run_day": [
+    2775
+   ]
+  },
+  "intent_kept_by": {
+   "engine/intent.py:IntentLayer.arrival_intents": [
+    231
+   ],
+   "engine/resolve.py:apply": [
+    1414
+   ]
+  },
+  "join_conversation": {
+   "engine/run.py:run_day": [
+    4303
+   ]
+  },
+  "normalized_refractory_scale": {
+   "engine/run.py:run_day": [
+    2638
+   ]
+  },
+  "place_at_external": {
+   "engine/presence.py:PlanExecutor.initialize": [
+    1235,
+    1252
+   ],
+   "engine/processes/runner.py:WorldProcessRunner.__init__": [
+    342
+   ]
+  },
+  "rail_arrive": {
+   "engine/presence.py:PlanExecutor._do_arrive": [
+    1372
+   ],
+   "engine/presence.py:PlanExecutor.initialize": [
+    1249
+   ],
+   "engine/processes/civic.py:LargeEventProcess._arrive": [
+    529
+   ],
+   "engine/processes/rail.py:RailProcess.step": [
+    770
+   ]
+  },
+  "rail_depart": {
+   "engine/presence.py:PlanExecutor._depart_now": [
+    1435
+   ],
+   "engine/presence.py:PlanExecutor._begin_walk": [
+    1455,
+    1460
+   ],
+   "engine/processes/civic.py:LargeEventProcess._leave": [
+    549
+   ],
+   "engine/processes/rail.py:RailProcess.step": [
+    785
+   ]
+  },
+  "refractory_ticks": {
+   "engine/run.py:run_day": [
+    2637
+   ]
+  },
+  "relabel_intent_failure": {
+   "engine/intent.py:IntentLayer._sweep": [
+    464
+   ],
+   "engine/intent.py:IntentLayer._settle_proposals": [
+    421
+   ]
+  },
+  "release_indoor": {
+   "engine/presence.py:PlanExecutor._release_affiliations": [
+    1422
+   ],
+   "engine/processes/crowd.py:CrowdProcess.step": [
+    233
+   ],
+   "engine/resolve.py:_apply_leave": [
+    2542
+   ]
+  },
+  "request_open_close": {
+   "engine/processes/opening.py:OpeningProcess.step": [
+    219
+   ]
+  },
+  "restock": {
+   "engine/processes/goods_flow.py:ShelfRestockProcess.step": [
+    264
+   ]
+  },
+  "restore_items": {
+   "engine/run.py:run_day": [
+    3605
+   ]
+  },
+  "restore_soa": {
+   "engine/run.py:run_day": [
+    3602
+   ]
+  },
+  "revert_conversation": {
+   "engine/run.py:_settle_pending_invites": [
+    1836
+   ],
+   "engine/run.py:run_day": [
+    4365,
+    4380
+   ]
+  },
+  "set_activity": {
+   "engine/activity.py:ActivityLayer.after_resolve": [
+    320
+   ],
+   "engine/activity.py:ActivityLayer.force_arrival": [
+    345
+   ]
+  },
+  "set_activity_until": {
+   "engine/activity.py:ActivityLayer.settle_events": [
+    372,
+    379
+   ],
+   "engine/intent.py:IntentLayer._sweep": [
+    461
+   ]
+  },
+  "set_conversing": {
+   "engine/run.py:_settle_pending_invites": [
+    1830
+   ],
+   "engine/run.py:run_day": [
+    4340
+   ]
+  },
+  "set_initial_activity": {
+   "engine/run.py:run_day": [
+    2991
+   ]
+  },
+  "set_intent": {
+   "engine/intent.py:IntentLayer._settle_proposals": [
+    400
+   ]
+  },
+  "set_notice_state": {
+   "engine/processes/salient.py:SalientProcess._update_notice_state": [
+    442
+   ]
+  },
+  "set_open_flags": {
+   "engine/processes/opening.py:OpeningProcess.step": [
+    232
+   ]
+  },
+  "set_plan_state": {
+   "engine/presence.py:PlanExecutor.start_day": [
+    887
+   ],
+   "engine/presence.py:PlanExecutor.initialize": [
+    1232,
+    1250
+   ],
+   "engine/presence.py:PlanExecutor._do_arrive": [
+    1373
+   ],
+   "engine/presence.py:PlanExecutor._defer": [
+    1415
+   ],
+   "engine/presence.py:PlanExecutor._depart_now": [
+    1436
+   ],
+   "engine/presence.py:PlanExecutor._begin_walk": [
+    1468,
+    1474
+   ],
+   "engine/presence.py:PlanExecutor.notify_departed_by_plan": [
+    1593
+   ],
+   "engine/presence.py:PlanExecutor.notify_pulled_in": [
+    1678
+   ],
+   "engine/presence.py:PlanExecutor._run_type": [
+    1350
+   ],
+   "engine/presence.py:PlanExecutor._flush_walkers": [
+    1527
+   ],
+   "engine/presence.py:PlanExecutor._flush_deferred_exits": [
+    1645
+   ]
+  },
+  "set_refractory": {
+   "engine/run.py:run_day": [
+    4044
+   ]
+  },
+  "set_thermal": {
+   "engine/processes/environment.py:EnvironmentProcess.step": [
+    289,
+    299
+   ]
+  },
+  "sync_transit_activity": {
+   "engine/processes/rail.py:RailProcess.step": [
+    812
+   ]
+  },
+  "talk_within_reach": {
+   "engine/resolve.py:_apply_talk": [
+    2501
+   ],
+   "engine/run.py:classical_acq_addressable": [
+    1924
+   ],
+   "engine/run.py:_settle_pending_invites": [
+    1819
+   ],
+   "engine/run.py:run_day": [
+    4300,
+    4306
+   ]
+  },
+  "wake_condition_index": {
+   "cli.py:parse_refractory_scale": [
+    171
+   ],
+   "engine/resolve.py:refractory_ticks": [
+    311
+   ],
+   "engine/resolve.py:normalized_refractory_scale": [
+    322,
+    324
+   ]
+  },
+  "wake_from_plan": {
+   "engine/presence.py:PlanExecutor._run_type": [
+    1344
+   ],
+   "engine/run.py:run_day": [
+    3874
+   ]
+  },
+  "write_familiarity": {
+   "engine/familiarity.py:FamiliarityLayer._touch": [
+    355
+   ]
+  },
+  "write_memory": {
+   "engine/memory.py:MemoryLayer._write": [
+    544
+   ]
+  },
+  "write_relations": {
+   "engine/relations.py:RelationLayer.seed_initial": [
+    672
+   ],
+   "engine/relations.py:RelationLayer._write_round": [
+    743
+   ],
+   "engine/relations.py:RelationLayer.copresent_step": [
+    976
+   ]
+  },
+  "write_store_memory": {
+   "engine/store_memory.py:StoreMemory._write_round": [
+    317
+   ]
+  }
+ },
+ "external_files": {
+  "_advance_focus": [],
+  "_apply_buy": [],
+  "_apply_eat": [],
+  "_approach_dest_node": [],
+  "_board_riders": [],
+  "_cell_of_node": [],
+  "_clear_focus": [],
+  "_clear_intent_fields": [],
+  "_complete_buy": [],
+  "_complete_eat": [],
+  "_energy_meal": [],
+  "_energy_snack": [],
+  "_enter_board_queue": [],
+  "_fail": [],
+  "_focus_xy": [],
+  "_ok": [],
+  "_plan_exit_mask": [],
+  "_platform_table": [],
+  "_remember_queue_action": [],
+  "_require_thawed": [],
+  "_restore_array_into": [],
+  "_restore_value": [],
+  "_serve_board_queue": [],
+  "_serve_poi_queue": [],
+  "_set_focus": [],
+  "_settle_approach": [],
+  "_tick_minute": [],
+  "advance_body": [
+   "engine/run.py"
+  ],
+  "apply": [
+   "engine/run.py"
+  ],
+  "apply_detection": [
+   "engine/run.py"
+  ],
+  "balk_queue": [
+   "engine/presence.py",
+   "engine/processes/crowd.py"
+  ],
+  "begin_exit_walk": [
+   "engine/presence.py"
+  ],
+  "begin_planned_sleep": [
+   "engine/presence.py",
+   "engine/run.py"
+  ],
+  "clear_board_intent": [
+   "engine/presence.py"
+  ],
+  "clear_intent": [
+   "engine/intent.py"
+  ],
+  "clear_refractory": [
+   "engine/run.py"
+  ],
+  "collect_waste": [
+   "engine/processes/goods_flow.py"
+  ],
+  "consume": [
+   "engine/processes/goods_flow.py"
+  ],
+  "discard_to_bin": [
+   "engine/processes/goods_flow.py"
+  ],
+  "energy_home_meal": [
+   "engine/run.py"
+  ],
+  "energy_out_of_area_meal": [
+   "engine/run.py"
+  ],
+  "fail_intent": [
+   "engine/intent.py"
+  ],
+  "initialize": [
+   "engine/run.py"
+  ],
+  "initialize_energy": [
+   "engine/run.py"
+  ],
+  "intent_kept_by": [
+   "engine/intent.py"
+  ],
+  "join_conversation": [
+   "engine/run.py"
+  ],
+  "normalized_refractory_scale": [
+   "engine/run.py"
+  ],
+  "place_at_external": [
+   "engine/presence.py",
+   "engine/processes/runner.py"
+  ],
+  "rail_arrive": [
+   "engine/presence.py",
+   "engine/processes/civic.py",
+   "engine/processes/rail.py"
+  ],
+  "rail_depart": [
+   "engine/presence.py",
+   "engine/processes/civic.py",
+   "engine/processes/rail.py"
+  ],
+  "refractory_ticks": [
+   "engine/run.py"
+  ],
+  "relabel_intent_failure": [
+   "engine/intent.py"
+  ],
+  "release_indoor": [
+   "engine/presence.py",
+   "engine/processes/crowd.py"
+  ],
+  "request_open_close": [
+   "engine/processes/opening.py"
+  ],
+  "restock": [
+   "engine/processes/goods_flow.py"
+  ],
+  "restore_items": [
+   "engine/run.py"
+  ],
+  "restore_soa": [
+   "engine/run.py"
+  ],
+  "revert_conversation": [
+   "engine/run.py"
+  ],
+  "set_activity": [
+   "engine/activity.py"
+  ],
+  "set_activity_until": [
+   "engine/activity.py",
+   "engine/intent.py"
+  ],
+  "set_conversing": [
+   "engine/run.py"
+  ],
+  "set_initial_activity": [
+   "engine/run.py"
+  ],
+  "set_intent": [
+   "engine/intent.py"
+  ],
+  "set_notice_state": [
+   "engine/processes/salient.py"
+  ],
+  "set_open_flags": [
+   "engine/processes/opening.py"
+  ],
+  "set_plan_state": [
+   "engine/presence.py"
+  ],
+  "set_refractory": [
+   "engine/run.py"
+  ],
+  "set_thermal": [
+   "engine/processes/environment.py"
+  ],
+  "sync_transit_activity": [
+   "engine/processes/rail.py"
+  ],
+  "talk_within_reach": [
+   "engine/run.py"
+  ],
+  "wake_condition_index": [
+   "cli.py"
+  ],
+  "wake_from_plan": [
+   "engine/presence.py",
+   "engine/run.py"
+  ],
+  "write_familiarity": [
+   "engine/familiarity.py"
+  ],
+  "write_memory": [
+   "engine/memory.py"
+  ],
+  "write_relations": [
+   "engine/relations.py"
+  ],
+  "write_store_memory": [
+   "engine/store_memory.py"
+  ]
+ }
+}

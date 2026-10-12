@@ -1,0 +1,7848 @@
+{
+ "source": "engine/run.py @ HEAD 0389689",
+ "run_day_lines": [
+  1928,
+  4979
+ ],
+ "run_day_n_lines": 3052,
+ "n_params": 115,
+ "n_locals": 449,
+ "n_nested_direct": 21,
+ "nested_direct": [
+  "_revert",
+  "_rebuild_derived",
+  "_save_state",
+  "_close_day_midrun",
+  "_day_record",
+  "_ledger_close",
+  "_start_day",
+  "_relay_tables",
+  "_w17_weekday",
+  "_bodies_now",
+  "_money_now",
+  "_eod_hashes",
+  "_act_hash_now",
+  "_pst_now",
+  "_hash_owners",
+  "_receive_arrivals",
+  "_utter",
+  "_session_partners",
+  "_classical_partner",
+  "_classical_acq",
+  "_onoff"
+ ],
+ "n_nested_all": 21,
+ "segments": {
+  "S0 引数の指紋・暦・再開の見出し": {
+   "lines": [
+    2411,
+    2498
+   ],
+   "n_lines": 88,
+   "reads": [
+    "_bundle",
+    "_call_args",
+    "_diff",
+    "_fp",
+    "_h",
+    "_rtd",
+    "_state_mode",
+    "_t_read",
+    "budget_mode",
+    "calendar",
+    "calendar_weekday",
+    "day_index",
+    "env_seed",
+    "environment_seed",
+    "hash_scheme",
+    "holiday_csv",
+    "mode",
+    "parent_run",
+    "pop_seed",
+    "population_seed",
+    "replay",
+    "response_delay",
+    "resume_from",
+    "rng_scheme",
+    "run_id",
+    "school_holidays",
+    "seed",
+    "sim_days",
+    "start_given",
+    "start_sim_datetime",
+    "state_out",
+    "stop_at_tick",
+    "t_begin",
+    "tick_seconds",
+    "ticks",
+    "total_ticks",
+    "tpd"
+   ],
+   "binds": [
+    "_bundle",
+    "_call_args",
+    "_diff",
+    "_fp",
+    "_h",
+    "_read_seconds",
+    "_resuming",
+    "_rtd",
+    "_state_mode",
+    "_t_read",
+    "budget_mode_enum",
+    "calendar",
+    "calendar_weekday",
+    "env_seed",
+    "hash_scheme",
+    "parent_run",
+    "pop_seed",
+    "response_delay",
+    "rng_scheme",
+    "run_id",
+    "sim_days",
+    "start_given",
+    "t_begin",
+    "t_end",
+    "t_start",
+    "total_ticks",
+    "tpd"
+   ],
+   "mutates": [
+    "_call_args"
+   ],
+   "calls_nested": []
+  },
+  "S1 腕の検査・選び手・方策・mock": {
+   "lines": [
+    2499,
+    2677
+   ],
+   "n_lines": 179,
+   "reads": [
+    "_onoff",
+    "_prior_doc",
+    "_prior_md5",
+    "activity",
+    "activity_region",
+    "area_source",
+    "attendance_rate",
+    "calendar",
+    "chooser",
+    "classical_habit_p",
+    "classical_policy",
+    "classical_social",
+    "classical_tau",
+    "conv_max_participants",
+    "derive_rule",
+    "eatery",
+    "energy_rate",
+    "exit_mode",
+    "familiarity",
+    "familiarity_k",
+    "fleet",
+    "geometry",
+    "group_norms",
+    "home_meal",
+    "hunger_model",
+    "hunger_words",
+    "intent_max_ticks",
+    "intent_mode",
+    "k",
+    "llm",
+    "meal_gate",
+    "meal_sleep_defer",
+    "memory",
+    "memory_n",
+    "memory_on",
+    "memory_tau",
+    "mock_move_target_p",
+    "mock_out_of_cell_target_p",
+    "mode",
+    "move_search_radius",
+    "n_cells",
+    "near_order",
+    "near_tiebreak",
+    "p_notice_d50_scale",
+    "p_see_activity",
+    "p_see_activity_table",
+    "poi_target",
+    "policy",
+    "pop_seed",
+    "refractory_scale",
+    "rel_acq_wake",
+    "rel_copresent",
+    "rel_copresent_on",
+    "rel_d",
+    "rel_init_density",
+    "rel_invite",
+    "rel_k",
+    "rel_tau",
+    "rel_tenure_hash",
+    "rel_tenure_weeks",
+    "relations",
+    "relations_on",
+    "replay",
+    "role_words",
+    "seat_area_eatery_m2",
+    "seat_area_retail_m2",
+    "seed",
+    "signage_p_see",
+    "store_decay",
+    "store_memory",
+    "store_memory_n",
+    "store_memory_on",
+    "store_recall_scope",
+    "store_sigma",
+    "store_signage",
+    "store_wom",
+    "v",
+    "vocab_version",
+    "wom_source",
+    "world"
+   ],
+   "binds": [
+    "_prior_doc",
+    "_prior_md5",
+    "activity",
+    "activity_on",
+    "activity_region",
+    "area_source",
+    "chooser",
+    "classical_policy",
+    "classical_social",
+    "eatery",
+    "energy_on",
+    "energy_rate",
+    "familiarity_on",
+    "geometry",
+    "group_norms_on",
+    "home_meal",
+    "hunger_model",
+    "hunger_words",
+    "intent_mode",
+    "k",
+    "llm",
+    "meal_gate",
+    "meal_sleep_defer",
+    "memory_on",
+    "mock_move_target_p",
+    "mock_out_of_cell_target_p",
+    "near_order",
+    "near_tiebreak",
+    "p_notice_d50_scale",
+    "p_see_activity_identity",
+    "p_see_activity_table",
+    "poi_resolver",
+    "poi_target",
+    "policy",
+    "refractory_scale_norm",
+    "refractory_table",
+    "rel_acq_wake_on",
+    "rel_copresent_on",
+    "rel_invite_on",
+    "rel_tau",
+    "rel_tenure_hash",
+    "relations_on",
+    "role_words",
+    "seat_area_table",
+    "signage_p_see",
+    "store_decay",
+    "store_memory_on",
+    "store_sigma_table",
+    "store_signage_on",
+    "store_wom_on",
+    "v",
+    "v3_hints",
+    "vocab_version",
+    "wom_source",
+    "world"
+   ],
+   "mutates": [],
+   "calls_nested": [
+    "_onoff"
+   ]
+  },
+  "S2 塩・テープ・会話・母集団・SoA 確保・初期化・エネルギー": {
+   "lines": [
+    2678,
+    2777
+   ],
+   "n_lines": 100,
+   "reads": [
+    "_ablated",
+    "_anc",
+    "_anc_md5",
+    "_emodel",
+    "_env_fields",
+    "_resuming",
+    "activity_on",
+    "agents",
+    "attention_on",
+    "calendar",
+    "conv_max_participants",
+    "conversations",
+    "day_index",
+    "energy_layer",
+    "energy_on",
+    "energy_rate",
+    "familiarity_k",
+    "familiarity_on",
+    "geometry",
+    "home_meal",
+    "ledger",
+    "meal_sleep_defer",
+    "memory_n",
+    "memory_on",
+    "n_agents",
+    "plan_exec_on",
+    "plan_executor",
+    "pop",
+    "pop_seed",
+    "population",
+    "processes_disabled",
+    "rel_k",
+    "relations_on",
+    "response_delay",
+    "rng_scheme",
+    "schedule",
+    "seed",
+    "store_memory_n",
+    "store_memory_on",
+    "tape_path",
+    "tick_seconds",
+    "ticks",
+    "vocab_version",
+    "weekly",
+    "world",
+    "world_dir",
+    "x"
+   ],
+   "binds": [
+    "_ablated",
+    "_anc",
+    "_anc_md5",
+    "_emodel",
+    "_env_fields",
+    "agents",
+    "attention_on",
+    "conv",
+    "energy_layer",
+    "plan_exec_on",
+    "plan_executor",
+    "pop",
+    "salt",
+    "schedule",
+    "tape_writer",
+    "weekly",
+    "x"
+   ],
+   "mutates": [],
+   "calls_nested": []
+  },
+  "S3 世界過程・計画実行層・開始日": {
+   "lines": [
+    2779,
+    2853
+   ],
+   "n_lines": 75,
+   "reads": [
+    "_resuming",
+    "agents",
+    "attendance_rate",
+    "calendar",
+    "day_index",
+    "derive_rule",
+    "env_seed",
+    "exit_mode",
+    "intent_max_ticks",
+    "ledger",
+    "p_notice_ablation",
+    "p_notice_d50_scale",
+    "plan_exec_on",
+    "pop",
+    "pop_seed",
+    "presence",
+    "processes",
+    "processes_disabled",
+    "processes_enabled",
+    "rng_scheme",
+    "runner",
+    "salient_rate_per_10k",
+    "schedule",
+    "seat_area_retail_m2",
+    "seat_area_table",
+    "seed",
+    "sim_days",
+    "start_given",
+    "tick_seconds",
+    "ticks",
+    "weekly",
+    "world",
+    "world_dir",
+    "world_start"
+   ],
+   "binds": [
+    "calendar",
+    "presence",
+    "runner",
+    "start_check",
+    "world_start"
+   ],
+   "mutates": [],
+   "calls_nested": []
+  },
+  "S4 知覚・橋・艦隊・検出・幾何・アービタ": {
+   "lines": [
+    2855,
+    2978
+   ],
+   "n_lines": 124,
+   "reads": [
+    "agents",
+    "area_sha",
+    "area_source",
+    "assets",
+    "attention_on",
+    "bridge",
+    "budget",
+    "budget_mode_enum",
+    "calendar",
+    "effective_budget",
+    "fleet",
+    "fleet_debug_dir",
+    "frozen_sources_map",
+    "geometry",
+    "hunger_words",
+    "intent_mode",
+    "landmarks",
+    "lane",
+    "llm",
+    "mode",
+    "n_agents",
+    "near_order",
+    "near_tiebreak",
+    "new_area",
+    "p_see_activity_table",
+    "perception",
+    "pop_seed",
+    "renderer",
+    "renderer_obj",
+    "replay",
+    "role_words",
+    "salt",
+    "seed",
+    "signage",
+    "signage_p_see",
+    "tape_writer",
+    "tick_seconds",
+    "vocab_version",
+    "walkable",
+    "walkable_sources",
+    "world",
+    "world_dir"
+   ],
+   "binds": [
+    "arbiter",
+    "area_sha",
+    "assets",
+    "bridge",
+    "detector",
+    "effective_budget",
+    "fleet_bridge",
+    "fleet_deferred",
+    "fleet_inflight",
+    "fleet_waiting",
+    "frozen_sources_map",
+    "geom",
+    "geometry_hops",
+    "geometry_jammed",
+    "landmarks",
+    "n_fleet_reinjected",
+    "n_fleet_resent",
+    "new_area",
+    "perception",
+    "renderer_obj",
+    "replay_inbox",
+    "space",
+    "walkable",
+    "walkable_sources"
+   ],
+   "mutates": [
+    "frozen_sources_map"
+   ],
+   "calls_nested": []
+  },
+  "S5 計画境界・方策の結線・層(活動/意図/親しみ/記憶/店/関係/口コミ)": {
+   "lines": [
+    2980,
+    3196
+   ],
+   "n_lines": 217,
+   "reads": [
+    "_classical_acq",
+    "_classical_partner",
+    "_env",
+    "_fam_has_renderer",
+    "_fam_renderer",
+    "_has_work",
+    "_init",
+    "_m",
+    "_pa",
+    "_q25_renderer",
+    "_resuming",
+    "_session_partners",
+    "_t_rel",
+    "_wd0",
+    "act_layer",
+    "activity_on",
+    "agents",
+    "b_agent",
+    "b_slot",
+    "b_tick",
+    "c_",
+    "calendar",
+    "classical_policy",
+    "conv",
+    "conv_max_participants",
+    "energy_layer",
+    "fam_layer",
+    "familiarity_k",
+    "familiarity_on",
+    "geom",
+    "geometry",
+    "intent_layer",
+    "intent_max_ticks",
+    "leave_effect",
+    "mem_layer",
+    "memory_n",
+    "memory_on",
+    "memory_tau",
+    "n_agents",
+    "p_see_activity_identity",
+    "perception",
+    "plan_sleep",
+    "poi_resolver",
+    "pop",
+    "rel_acq_wake_on",
+    "rel_copresent_on",
+    "rel_d",
+    "rel_init_density",
+    "rel_invite_on",
+    "rel_k",
+    "rel_layer",
+    "rel_tau",
+    "rel_tenure_hash",
+    "rel_tenure_weeks",
+    "relations_on",
+    "runner",
+    "salt",
+    "schedule",
+    "seed",
+    "store_decay",
+    "store_memory_n",
+    "store_memory_on",
+    "store_recall_scope",
+    "store_sigma_table",
+    "store_signage_on",
+    "tick_seconds",
+    "ticks",
+    "weekly",
+    "wom_source",
+    "world"
+   ],
+   "binds": [
+    "_call_layer",
+    "_env",
+    "_fam_has_renderer",
+    "_fam_renderer",
+    "_has_work",
+    "_init",
+    "_m",
+    "_pa",
+    "_q25_renderer",
+    "_t_rel",
+    "_wd0",
+    "act_layer",
+    "b_agent",
+    "b_cell",
+    "b_cond",
+    "b_slot",
+    "b_start",
+    "b_tick",
+    "fam_layer",
+    "intent_layer",
+    "layer_counts",
+    "leave_closed",
+    "leave_counts",
+    "mem_layer",
+    "rel_layer",
+    "schedule",
+    "schedule_hash",
+    "wom_ex"
+   ],
+   "mutates": [
+    "_fam_renderer",
+    "_has_work",
+    "_q25_renderer",
+    "act_layer",
+    "classical_policy",
+    "energy_layer",
+    "mem_layer",
+    "poi_resolver",
+    "rel_layer"
+   ],
+   "calls_nested": []
+  },
+  "S6 _utter・RunResult・計器・tick をまたぐ入れ物": {
+   "lines": [
+    3198,
+    3297
+   ],
+   "n_lines": 100,
+   "reads": [
+    "_env_fields",
+    "agents",
+    "attention_on",
+    "env_seed",
+    "group_norms_on",
+    "k",
+    "mode",
+    "n_agents",
+    "pop_seed",
+    "result",
+    "runner",
+    "seed",
+    "t_begin",
+    "t_end",
+    "tape_path",
+    "tick_seconds",
+    "vocab_version",
+    "world"
+   ],
+   "binds": [
+    "applied_activity",
+    "applied_now",
+    "awake_sum",
+    "awake_ticks",
+    "calls_by_cond",
+    "diag_rows",
+    "focus_request",
+    "intero_cross",
+    "k",
+    "n_outside_calls",
+    "n_undefined_total",
+    "norm_meter",
+    "occ_counts",
+    "occ_kind",
+    "occ_ticks",
+    "occ_transit",
+    "peak_backlog",
+    "peak_intents",
+    "peak_pending",
+    "pending",
+    "per_action_total",
+    "phase",
+    "prev_sessions",
+    "prev_tape_misses",
+    "result",
+    "sleep_counts",
+    "talk_stats"
+   ],
+   "mutates": [
+    "result"
+   ],
+   "calls_nested": []
+  },
+  "S7 入れ子の関数(到着・ハッシュ・日の頭/締め・保存)": {
+   "lines": [
+    3298,
+    3592
+   ],
+   "n_lines": 295,
+   "reads": [],
+   "binds": [
+    "daily_records",
+    "day_heads",
+    "state_files",
+    "w17_substituted"
+   ],
+   "mutates": [],
+   "calls_nested": []
+  },
+  "S8 再開の復元": {
+   "lines": [
+    3593,
+    3630
+   ],
+   "n_lines": 38,
+   "reads": [
+    "_bundle",
+    "_calls_r",
+    "_d",
+    "_full_r",
+    "_hash_owners",
+    "_pst_now",
+    "_rebuild_derived",
+    "_relay_tables",
+    "_t_r",
+    "agents",
+    "bridge",
+    "c_",
+    "conv",
+    "d_",
+    "fleet_bridge",
+    "fleet_deferred",
+    "fleet_inflight",
+    "result",
+    "schedule",
+    "schedule_hash",
+    "t_begin",
+    "tpd",
+    "world"
+   ],
+   "binds": [
+    "_",
+    "_calls_r",
+    "_d",
+    "_full_r",
+    "_restore_seconds",
+    "_t_r",
+    "c_",
+    "d_",
+    "prev_sessions",
+    "prev_tape_misses"
+   ],
+   "mutates": [
+    "fleet_deferred",
+    "fleet_inflight",
+    "result"
+   ],
+   "calls_nested": [
+    "_hash_owners",
+    "_pst_now",
+    "_rebuild_derived",
+    "_relay_tables"
+   ]
+  },
+  "L0 日の頭(_relay_tables・_start_day)": {
+   "lines": [
+    3632,
+    3635
+   ],
+   "n_lines": 4,
+   "reads": [
+    "_relay_tables",
+    "_start_day",
+    "td",
+    "tick",
+    "tpd"
+   ],
+   "binds": [
+    "td"
+   ],
+   "mutates": [],
+   "calls_nested": [
+    "_relay_tables",
+    "_start_day"
+   ]
+  },
+  "L1 体の更新・範囲外の食事": {
+   "lines": [
+    3636,
+    3651
+   ],
+   "n_lines": 16,
+   "reads": [
+    "_ea",
+    "_ed",
+    "_ef",
+    "_es",
+    "agents",
+    "classical_policy",
+    "energy_layer",
+    "meal_sleep_defer",
+    "tick"
+   ],
+   "binds": [
+    "_ea",
+    "_ed",
+    "_ef",
+    "_es"
+   ],
+   "mutates": [],
+   "calls_nested": []
+  },
+  "L2 世界過程 runner.step": {
+   "lines": [
+    3652,
+    3657
+   ],
+   "n_lines": 6,
+   "reads": [
+    "runner",
+    "tick"
+   ],
+   "binds": [],
+   "mutates": [],
+   "calls_nested": []
+  },
+  "L3 計画実行層 presence.step": {
+   "lines": [
+    3658,
+    3670
+   ],
+   "n_lines": 13,
+   "reads": [
+    "_pres0",
+    "act_layer",
+    "agents",
+    "layer_counts",
+    "phase",
+    "presence",
+    "t0",
+    "tick",
+    "tick_seconds"
+   ],
+   "binds": [
+    "_pres0",
+    "t0"
+   ],
+   "mutates": [
+    "layer_counts",
+    "phase"
+   ],
+   "calls_nested": []
+  },
+  "L4 知覚の前計算 prepare_tick": {
+   "lines": [
+    3671,
+    3691
+   ],
+   "n_lines": 21,
+   "reads": [
+    "act_layer",
+    "agents",
+    "perception",
+    "runner",
+    "tick",
+    "tick_seconds",
+    "world"
+   ],
+   "binds": [
+    "field_rows"
+   ],
+   "mutates": [],
+   "calls_nested": []
+  },
+  "L5 到着の受け取り(delay=1)": {
+   "lines": [
+    3692,
+    3695
+   ],
+   "n_lines": 4,
+   "reads": [
+    "_receive_arrivals",
+    "response_delay",
+    "tick"
+   ],
+   "binds": [
+    "n_parse_errors_fleet"
+   ],
+   "mutates": [],
+   "calls_nested": [
+    "_receive_arrivals"
+   ]
+  },
+  "L6 ① 応答の反映(招待の解決・intents_from_responses・焦点)": {
+   "lines": [
+    3696,
+    3812
+   ],
+   "n_lines": 117,
+   "reads": [
+    "a",
+    "act_layer",
+    "ag",
+    "agents",
+    "agents_in_order",
+    "ak",
+    "attention_on",
+    "codes",
+    "cond",
+    "consumed",
+    "conv",
+    "due",
+    "ev_class",
+    "focus_request",
+    "i",
+    "intent_layer",
+    "k",
+    "keep",
+    "kept_agents",
+    "move_dest",
+    "n_undefined",
+    "n_undefined_total",
+    "norm_meter",
+    "order",
+    "p",
+    "parsed_targets",
+    "payloads",
+    "pending",
+    "phase",
+    "poi_resolver",
+    "rel_layer",
+    "salt",
+    "schedule",
+    "space",
+    "t",
+    "t0",
+    "t_apply",
+    "talk_stats",
+    "tgt_hint",
+    "tgt_person",
+    "tgt_poi",
+    "tick",
+    "v3_hints",
+    "vocab_version",
+    "wmask",
+    "world"
+   ],
+   "binds": [
+    "a",
+    "ag",
+    "agents_in_order",
+    "ak",
+    "applied_activity",
+    "applied_now",
+    "codes",
+    "cond",
+    "consumed",
+    "due",
+    "ev_class",
+    "i",
+    "k",
+    "keep",
+    "kept_agents",
+    "llm_intents",
+    "move_dest",
+    "n_undefined",
+    "n_undefined_total",
+    "order",
+    "p",
+    "parsed_targets",
+    "payloads",
+    "pending",
+    "t",
+    "t0",
+    "t_apply",
+    "tgt_hint",
+    "tgt_person",
+    "tgt_poi",
+    "wmask"
+   ],
+   "mutates": [
+    "focus_request",
+    "move_dest",
+    "phase"
+   ],
+   "calls_nested": []
+  },
+  "L7 ② 変化検出と活動/意図の抑止・満了入口": {
+   "lines": [
+    3813,
+    3840
+   ],
+   "n_lines": 28,
+   "reads": [
+    "act_layer",
+    "agents",
+    "d_agent",
+    "d_class",
+    "d_cond",
+    "det",
+    "detector",
+    "e_agent",
+    "e_class",
+    "e_cond",
+    "field_rows",
+    "intent_layer",
+    "intero_cross",
+    "phase",
+    "t0",
+    "tick",
+    "world"
+   ],
+   "binds": [
+    "d_agent",
+    "d_class",
+    "d_cond",
+    "det",
+    "e_agent",
+    "e_class",
+    "e_cond",
+    "t0"
+   ],
+   "mutates": [
+    "phase"
+   ],
+   "calls_nested": []
+  },
+  "L8 計画境界の起床と就寝": {
+   "lines": [
+    3841,
+    3886
+   ],
+   "n_lines": 46,
+   "reads": [
+    "agents",
+    "b_agent",
+    "b_cell",
+    "b_cond",
+    "b_start",
+    "c",
+    "got",
+    "hi",
+    "k",
+    "layer_counts",
+    "lo",
+    "p_agent",
+    "p_cond",
+    "phase",
+    "plan_sleep",
+    "presence",
+    "schedule",
+    "sleep_counts",
+    "t0",
+    "td",
+    "tick",
+    "tick_seconds",
+    "to_bed",
+    "v",
+    "world"
+   ],
+   "binds": [
+    "c",
+    "got",
+    "hi",
+    "k",
+    "lo",
+    "p_agent",
+    "p_class",
+    "p_cond",
+    "t0",
+    "to_bed",
+    "v"
+   ],
+   "mutates": [
+    "layer_counts",
+    "phase",
+    "sleep_counts"
+   ],
+   "calls_nested": []
+  },
+  "L9 自宅の食事": {
+   "lines": [
+    3887,
+    3894
+   ],
+   "n_lines": 8,
+   "reads": [
+    "_ha",
+    "_hr",
+    "_hs",
+    "agents",
+    "energy_layer",
+    "tick"
+   ],
+   "binds": [
+    "_ha",
+    "_hr",
+    "_hs"
+   ],
+   "mutates": [],
+   "calls_nested": []
+  },
+  "L10 会話ターン・顕著行為の起床候補": {
+   "lines": [
+    3895,
+    3911
+   ],
+   "n_lines": 17,
+   "reads": [
+    "conv",
+    "runner",
+    "tick"
+   ],
+   "binds": [
+    "c_agent",
+    "c_class",
+    "c_cond",
+    "s_agent",
+    "s_class",
+    "s_cond"
+   ],
+   "mutates": [],
+   "calls_nested": []
+  },
+  "L11 到着(delay=2)・艦隊の再投入": {
+   "lines": [
+    3912,
+    3938
+   ],
+   "n_lines": 27,
+   "reads": [
+    "_receive_arrivals",
+    "agents",
+    "f_agent",
+    "f_cond",
+    "fleet_deferred",
+    "n_fleet_reinjected",
+    "response_delay",
+    "tick",
+    "x"
+   ],
+   "binds": [
+    "f_agent",
+    "f_class",
+    "f_cond",
+    "f_since",
+    "n_fleet_reinjected",
+    "n_parse_errors_fleet",
+    "x"
+   ],
+   "mutates": [
+    "fleet_deferred"
+   ],
+   "calls_nested": [
+    "_receive_arrivals"
+   ]
+  },
+  "L12 抑止の例外・歩く退出・知人出現・候補の組み立て": {
+   "lines": [
+    3939,
+    4005
+   ],
+   "n_lines": 67,
+   "reads": [
+    "_elig",
+    "a_agent",
+    "a_class",
+    "a_cond",
+    "agents",
+    "c_agent",
+    "c_class",
+    "c_cond",
+    "d_agent",
+    "d_class",
+    "d_cond",
+    "e_agent",
+    "e_class",
+    "e_cond",
+    "f_agent",
+    "f_class",
+    "f_cond",
+    "f_exempt",
+    "f_since",
+    "n_agents",
+    "outside_suppression",
+    "p_agent",
+    "p_class",
+    "p_cond",
+    "plan_exec_on",
+    "presence",
+    "rel_layer",
+    "s_agent",
+    "s_class",
+    "s_cond",
+    "sleep_suppression",
+    "t0",
+    "tick"
+   ],
+   "binds": [
+    "_elig",
+    "a_agent",
+    "a_class",
+    "a_cond",
+    "cands",
+    "d_agent",
+    "d_class",
+    "d_cond",
+    "e_agent",
+    "e_class",
+    "e_cond",
+    "f_exempt",
+    "p_agent",
+    "p_class",
+    "p_cond",
+    "t0"
+   ],
+   "mutates": [
+    "rel_layer"
+   ],
+   "calls_nested": []
+  },
+  "L13 ③ アービタ・起床率": {
+   "lines": [
+    4006,
+    4026
+   ],
+   "n_lines": 21,
+   "reads": [
+    "_h",
+    "agents",
+    "arbiter",
+    "asleep",
+    "asleep_now",
+    "awake_sum",
+    "awake_ticks",
+    "cands",
+    "n_agents",
+    "outside_mask",
+    "outside_now",
+    "outside_suppression",
+    "phase",
+    "plan_exec_on",
+    "sleep_suppression",
+    "t0",
+    "td",
+    "tick"
+   ],
+   "binds": [
+    "_h",
+    "asleep",
+    "asleep_now",
+    "decision",
+    "outside_mask",
+    "outside_now",
+    "t0"
+   ],
+   "mutates": [
+    "awake_sum",
+    "awake_ticks",
+    "phase"
+   ],
+   "calls_nested": []
+  },
+  "L14 ④ 呼(mock/再生/艦隊)": {
+   "lines": [
+    4027,
+    4154
+   ],
+   "n_lines": 128,
+   "reads": [
+    "_acq_sel",
+    "_call_layer",
+    "_utter",
+    "a",
+    "act",
+    "agents",
+    "arbiter",
+    "bridge",
+    "c_",
+    "calls",
+    "calls_by_cond",
+    "cell",
+    "classical_policy",
+    "cls",
+    "cond",
+    "conv",
+    "d",
+    "decision",
+    "fleet_bridge",
+    "fleet_deferred",
+    "fleet_inflight",
+    "fleet_waiting",
+    "hun",
+    "i",
+    "item",
+    "lane",
+    "last_act",
+    "layer_counts",
+    "n_fleet_resent",
+    "n_outside_calls",
+    "n_parse_errors",
+    "n_parse_errors_fleet",
+    "outside_now",
+    "peak_backlog",
+    "peak_pending",
+    "pending",
+    "phase",
+    "presence",
+    "refractory_table",
+    "rel_layer",
+    "rendered",
+    "replay_inbox",
+    "res",
+    "result",
+    "sel",
+    "sys_txt",
+    "t0",
+    "td",
+    "tick",
+    "tick_seconds",
+    "usr_txt"
+   ],
+   "binds": [
+    "_acq_sel",
+    "a",
+    "act",
+    "c_",
+    "calls",
+    "calls_by_cond",
+    "cell",
+    "cls",
+    "cond",
+    "d",
+    "hun",
+    "i",
+    "item",
+    "last_act",
+    "n_fleet_resent",
+    "n_outside_calls",
+    "n_parse_errors",
+    "peak_backlog",
+    "peak_pending",
+    "rendered",
+    "res",
+    "sel",
+    "sys_txt",
+    "t0",
+    "usr_txt"
+   ],
+   "mutates": [
+    "calls",
+    "fleet_deferred",
+    "fleet_inflight",
+    "fleet_waiting",
+    "layer_counts",
+    "pending",
+    "phase",
+    "replay_inbox",
+    "result"
+   ],
+   "calls_nested": [
+    "_utter"
+   ]
+  },
+  "L15 ⑤ Phase A": {
+   "lines": [
+    4155,
+    4183
+   ],
+   "n_lines": 29,
+   "reads": [
+    "act_layer",
+    "agents",
+    "arrival_intents",
+    "intent_layer",
+    "intents",
+    "layer_counts",
+    "llm_intents",
+    "peak_intents",
+    "phase",
+    "space",
+    "t0",
+    "tick",
+    "tick_seconds",
+    "wander_intents"
+   ],
+   "binds": [
+    "arrival_intents",
+    "intents",
+    "llm_intents",
+    "peak_intents",
+    "t0",
+    "wander_intents"
+   ],
+   "mutates": [
+    "layer_counts",
+    "phase"
+   ],
+   "calls_nested": []
+  },
+  "L16 ⑥ Phase B": {
+   "lines": [
+    4184,
+    4190
+   ],
+   "n_lines": 7,
+   "reads": [
+    "intents",
+    "phase",
+    "salt",
+    "space",
+    "t0",
+    "tick",
+    "world"
+   ],
+   "binds": [
+    "plan",
+    "t0"
+   ],
+   "mutates": [
+    "phase"
+   ],
+   "calls_nested": []
+  },
+  "L17 ⑦ Phase C と結果の積算": {
+   "lines": [
+    4191,
+    4249
+   ],
+   "n_lines": 59,
+   "reads": [
+    "_code",
+    "_k",
+    "_n",
+    "agents",
+    "attention_on",
+    "energy_layer",
+    "fam_layer",
+    "focus_request",
+    "geom",
+    "geometry_hops",
+    "geometry_jammed",
+    "leave_counts",
+    "leave_effect",
+    "ledger",
+    "mem_layer",
+    "norm_meter",
+    "outcome",
+    "per_action_total",
+    "phase",
+    "plan",
+    "queue_service",
+    "report_precondition",
+    "result",
+    "runner",
+    "schedule",
+    "t0",
+    "tick",
+    "vocab_version",
+    "world"
+   ],
+   "binds": [
+    "_code",
+    "_k",
+    "_n",
+    "geometry_hops",
+    "geometry_jammed",
+    "outcome",
+    "t0"
+   ],
+   "mutates": [
+    "leave_counts",
+    "per_action_total",
+    "phase",
+    "result"
+   ],
+   "calls_nested": []
+  },
+  "L18 会話セッション": {
+   "lines": [
+    4250,
+    4383
+   ],
+   "n_lines": 134,
+   "reads": [
+    "_lv",
+    "_revert",
+    "act_now",
+    "agents",
+    "applied_now",
+    "attention_on",
+    "b_code",
+    "b_named",
+    "cell_now",
+    "conv",
+    "done",
+    "finished",
+    "invitee",
+    "invitees",
+    "inviter",
+    "inviters",
+    "j",
+    "leave_closed",
+    "leave_effect",
+    "mutual",
+    "opened",
+    "origin",
+    "outcome",
+    "p",
+    "plan",
+    "rel_layer",
+    "reverted",
+    "s",
+    "s_join",
+    "same_cell",
+    "stale",
+    "talk",
+    "tick"
+   ],
+   "binds": [
+    "_lv",
+    "act_now",
+    "b_code",
+    "b_named",
+    "cell_now",
+    "done",
+    "finished",
+    "invitee",
+    "invitees",
+    "inviter",
+    "inviters",
+    "j",
+    "leave_closed",
+    "mutual",
+    "opened",
+    "origin",
+    "p",
+    "reverted",
+    "s",
+    "s_join",
+    "same_cell",
+    "stale",
+    "talk"
+   ],
+   "mutates": [
+    "conv",
+    "opened",
+    "rel_layer"
+   ],
+   "calls_nested": [
+    "_revert"
+   ]
+  },
+  "L19 活動層・意図の後処理": {
+   "lines": [
+    4384,
+    4394
+   ],
+   "n_lines": 11,
+   "reads": [
+    "act_layer",
+    "agents",
+    "applied_activity",
+    "conv",
+    "intent_layer",
+    "tick"
+   ],
+   "binds": [],
+   "mutates": [],
+   "calls_nested": []
+  },
+  "L20 記憶・親しみ・エネルギーの tick の後": {
+   "lines": [
+    4395,
+    4428
+   ],
+   "n_lines": 34,
+   "reads": [
+    "_exp",
+    "_fam_renderer",
+    "agents",
+    "conv",
+    "energy_layer",
+    "fam_layer",
+    "mem_layer",
+    "outcome",
+    "plan",
+    "runner",
+    "tick",
+    "tick_seconds"
+   ],
+   "binds": [
+    "_exp"
+   ],
+   "mutates": [
+    "_fam_renderer"
+   ],
+   "calls_nested": []
+  },
+  "L21 診断の行": {
+   "lines": [
+    4429,
+    4460
+   ],
+   "n_lines": 32,
+   "reads": [
+    "arbiter",
+    "bridge",
+    "cands",
+    "conv",
+    "decision",
+    "diag_rows",
+    "intents",
+    "n_parse_errors",
+    "n_undefined",
+    "outcome",
+    "pending",
+    "plan",
+    "prev_sessions",
+    "prev_tape_misses",
+    "r",
+    "sleep_counts",
+    "tick"
+   ],
+   "binds": [
+    "prev_sessions",
+    "prev_tape_misses",
+    "r"
+   ],
+   "mutates": [
+    "diag_rows",
+    "sleep_counts"
+   ],
+   "calls_nested": []
+  },
+  "L22 在圏の標本・計器・在圏 journal": {
+   "lines": [
+    4461,
+    4477
+   ],
+   "n_lines": 17,
+   "reads": [
+    "_c",
+    "_k",
+    "_kc",
+    "_ok",
+    "_tk",
+    "_ts",
+    "agents",
+    "norm_meter",
+    "occ_counts",
+    "occ_kind",
+    "occ_ticks",
+    "occ_transit",
+    "occupancy_every",
+    "presence",
+    "tick",
+    "world"
+   ],
+   "binds": [
+    "_c",
+    "_k",
+    "_kc",
+    "_ok",
+    "_tk",
+    "_ts"
+   ],
+   "mutates": [
+    "occ_counts",
+    "occ_kind",
+    "occ_ticks",
+    "occ_transit"
+   ],
+   "calls_nested": []
+  },
+  "L23 checkpoint": {
+   "lines": [
+    4478,
+    4526
+   ],
+   "n_lines": 49,
+   "reads": [
+    "_act_hash",
+    "_agents_h",
+    "_dt_ckpt",
+    "_full",
+    "_full_bytes",
+    "_hash_owners",
+    "_memo",
+    "_owners",
+    "_pst_now",
+    "act_layer",
+    "agents",
+    "checkpoint_detail",
+    "checkpoint_every",
+    "hash_scheme",
+    "intent_layer",
+    "phase",
+    "result",
+    "runner",
+    "schedule",
+    "schedule_hash",
+    "t0",
+    "tick",
+    "total_ticks",
+    "world"
+   ],
+   "binds": [
+    "_act_hash",
+    "_agents_h",
+    "_dt_ckpt",
+    "_full",
+    "_full_bytes",
+    "_memo",
+    "_owners",
+    "t0"
+   ],
+   "mutates": [
+    "phase",
+    "result"
+   ],
+   "calls_nested": [
+    "_hash_owners",
+    "_pst_now"
+   ]
+  },
+  "L24 途中の日の締めと保存": {
+   "lines": [
+    4527,
+    4532
+   ],
+   "n_lines": 6,
+   "reads": [
+    "_close_day_midrun",
+    "_save_state",
+    "state_out",
+    "td",
+    "tick",
+    "total_ticks",
+    "tpd"
+   ],
+   "binds": [],
+   "mutates": [],
+   "calls_nested": [
+    "_close_day_midrun",
+    "_save_state"
+   ]
+  },
+  "E0 止めたラン・艦隊/再生の吸い切り": {
+   "lines": [
+    4533,
+    4581
+   ],
+   "n_lines": 49,
+   "reads": [
+    "_save_state",
+    "_stopped",
+    "fleet_bridge",
+    "fleet_deferred",
+    "fleet_inflight",
+    "is_deferred",
+    "item",
+    "n_late",
+    "pending",
+    "replay_inbox",
+    "res",
+    "result",
+    "t",
+    "t_end",
+    "tick_seconds",
+    "total_ticks",
+    "tpd"
+   ],
+   "binds": [
+    "_stopped",
+    "is_deferred",
+    "item",
+    "n_late",
+    "res",
+    "t"
+   ],
+   "mutates": [
+    "fleet_deferred",
+    "fleet_inflight",
+    "pending",
+    "replay_inbox",
+    "result"
+   ],
+   "calls_nested": [
+    "_save_state"
+   ]
+  },
+  "E1 締め・締めの後のハッシュ・保存": {
+   "lines": [
+    4582,
+    4623
+   ],
+   "n_lines": 42,
+   "reads": [
+    "_day_record",
+    "_eod_hashes",
+    "_ledger_close",
+    "_save_state",
+    "_stopped",
+    "_ws",
+    "bridge",
+    "checkpoint_every",
+    "ledger",
+    "result",
+    "runner",
+    "sim_days",
+    "state_out",
+    "t_end",
+    "total_ticks",
+    "tpd"
+   ],
+   "binds": [
+    "_ws",
+    "ledger_growth"
+   ],
+   "mutates": [
+    "result"
+   ],
+   "calls_nested": [
+    "_day_record",
+    "_eod_hashes",
+    "_ledger_close",
+    "_save_state"
+   ]
+  },
+  "E2 結果の組み立て": {
+   "lines": [
+    4624,
+    4903
+   ],
+   "n_lines": 280,
+   "reads": [
+    "_by",
+    "_cs",
+    "_fam_renderer",
+    "_fs",
+    "_k",
+    "_nr",
+    "_psr",
+    "_rr",
+    "_sc",
+    "_v",
+    "_wk",
+    "act_layer",
+    "activity_on",
+    "activity_region",
+    "agents",
+    "arbiter",
+    "area_source",
+    "attendance_rate",
+    "attention_on",
+    "awake_sum",
+    "awake_ticks",
+    "bridge",
+    "budget_mode_enum",
+    "calendar",
+    "calls_by_cond",
+    "chooser",
+    "classical_habit_p",
+    "classical_policy",
+    "classical_tau",
+    "conv",
+    "d",
+    "derive_rule",
+    "diag_rows",
+    "eatery",
+    "energy_layer",
+    "energy_on",
+    "energy_rate",
+    "exit_mode",
+    "fam_layer",
+    "familiarity_k",
+    "familiarity_on",
+    "fleet",
+    "fleet_bridge",
+    "frozen_sources_map",
+    "geometry",
+    "geometry_hops",
+    "geometry_jammed",
+    "h",
+    "hash_scheme",
+    "home_meal",
+    "hunger_model",
+    "hunger_words",
+    "i",
+    "intent_layer",
+    "intent_max_ticks",
+    "intent_mode",
+    "intero_cross",
+    "k",
+    "l4_scale",
+    "layer_counts",
+    "leave_closed",
+    "leave_counts",
+    "leave_effect",
+    "meal_sleep_defer",
+    "mem_layer",
+    "memory_n",
+    "memory_on",
+    "mock_move_target_p",
+    "mock_out_of_cell_target_p",
+    "move_search_radius",
+    "n_agents",
+    "n_fleet_reinjected",
+    "n_fleet_resent",
+    "n_outside_calls",
+    "near_order",
+    "near_tiebreak",
+    "norm_meter",
+    "outside_suppression",
+    "p_notice_ablation",
+    "p_notice_d50_scale",
+    "p_see_activity_identity",
+    "p_see_activity_table",
+    "per_action_total",
+    "perception",
+    "phase",
+    "plan_exec_on",
+    "plan_sleep",
+    "poi_resolver",
+    "poi_target",
+    "policy",
+    "presence",
+    "refractory_scale_norm",
+    "rel_layer",
+    "renderer_obj",
+    "response_delay",
+    "result",
+    "rng_scheme",
+    "role_words",
+    "runner",
+    "s",
+    "seat_area_eatery_m2",
+    "seat_area_retail_m2",
+    "signage",
+    "signage_p_see",
+    "sim_days",
+    "sleep_counts",
+    "sleep_suppression",
+    "start_check",
+    "store_memory_on",
+    "store_recall_scope",
+    "store_signage_on",
+    "store_wom_on",
+    "suffix",
+    "t_end",
+    "t_start",
+    "talk_stats",
+    "tick_seconds",
+    "v",
+    "var",
+    "vocab_version",
+    "walkable",
+    "wom_ex",
+    "world"
+   ],
+   "binds": [
+    "_by",
+    "_cs",
+    "_fs",
+    "_k",
+    "_nr",
+    "_psr",
+    "_rr",
+    "_sc",
+    "_v",
+    "_wk",
+    "d",
+    "h",
+    "i",
+    "k",
+    "s",
+    "suffix",
+    "v",
+    "var"
+   ],
+   "mutates": [
+    "_fs",
+    "result",
+    "sleep_counts"
+   ],
+   "calls_nested": []
+  },
+  "E3 状態成長の検査": {
+   "lines": [
+    4904,
+    4947
+   ],
+   "n_lines": 44,
+   "reads": [
+    "_ad",
+    "act_layer",
+    "agg",
+    "declarations",
+    "diag_rows",
+    "led_decls",
+    "led_measured",
+    "ledger_growth",
+    "log_decls",
+    "measured",
+    "n_agents",
+    "peak_backlog",
+    "peak_intents",
+    "peak_pending",
+    "raw",
+    "raw_bytes",
+    "result",
+    "runner",
+    "t",
+    "t_begin",
+    "t_end",
+    "tick_seconds"
+   ],
+   "binds": [
+    "_ad",
+    "agg",
+    "declarations",
+    "led_decls",
+    "led_measured",
+    "log_decls",
+    "measured",
+    "raw",
+    "raw_bytes",
+    "t"
+   ],
+   "mutates": [
+    "declarations",
+    "measured",
+    "result"
+   ],
+   "calls_nested": []
+  },
+  "E4 再開の欄・在圏の書き出し": {
+   "lines": [
+    4948,
+    4979
+   ],
+   "n_lines": 32,
+   "reads": [
+    "_read_seconds",
+    "_restore_seconds",
+    "_stopped",
+    "agents",
+    "daily_records",
+    "day_heads",
+    "day_index",
+    "fleet_inflight",
+    "ledger",
+    "occ_counts",
+    "occ_kind",
+    "occ_ticks",
+    "occ_transit",
+    "occupancy_path",
+    "parent_run",
+    "result",
+    "run_id",
+    "schedule",
+    "sim_days",
+    "state_files",
+    "t_begin",
+    "t_end",
+    "tick_seconds",
+    "w17_substituted",
+    "world"
+   ],
+   "binds": [],
+   "mutates": [
+    "result"
+   ],
+   "calls_nested": []
+  }
+ },
+ "nested": {
+  "_onoff": {
+   "lines": [
+    2571,
+    2576
+   ],
+   "n_lines": 6,
+   "free_reads": [],
+   "nonlocal": [],
+   "mutates_free": []
+  },
+  "_utter": {
+   "lines": [
+    3198,
+    3223
+   ],
+   "n_lines": 26,
+   "free_reads": [
+    "agents",
+    "conv",
+    "mem_layer",
+    "store_wom_on",
+    "vocab_version",
+    "wom_ex"
+   ],
+   "nonlocal": [],
+   "mutates_free": []
+  },
+  "_receive_arrivals": {
+   "lines": [
+    3298,
+    3360
+   ],
+   "n_lines": 63,
+   "free_reads": [
+    "_utter",
+    "conv",
+    "fleet_bridge",
+    "fleet_deferred",
+    "fleet_inflight",
+    "fleet_wait_s",
+    "fleet_waiting",
+    "pending",
+    "phase",
+    "replay_inbox",
+    "tick_seconds"
+   ],
+   "nonlocal": [],
+   "mutates_free": [
+    "fleet_deferred",
+    "fleet_inflight",
+    "fleet_waiting",
+    "pending",
+    "phase",
+    "replay_inbox"
+   ]
+  },
+  "_hash_owners": {
+   "lines": [
+    3363,
+    3374
+   ],
+   "n_lines": 12,
+   "free_reads": [
+    "act_layer",
+    "arbiter",
+    "bridge",
+    "classical_policy",
+    "conv",
+    "detector",
+    "energy_layer",
+    "fam_layer",
+    "fleet_bridge",
+    "fleet_deferred",
+    "fleet_waiting",
+    "intent_layer",
+    "ledger",
+    "mem_layer",
+    "norm_meter",
+    "pending",
+    "perception",
+    "poi_resolver",
+    "presence",
+    "rel_layer",
+    "replay_inbox",
+    "runner",
+    "wom_ex"
+   ],
+   "nonlocal": [],
+   "mutates_free": []
+  },
+  "_pst_now": {
+   "lines": [
+    3386,
+    3387
+   ],
+   "n_lines": 2,
+   "free_reads": [
+    "runner"
+   ],
+   "nonlocal": [],
+   "mutates_free": []
+  },
+  "_act_hash_now": {
+   "lines": [
+    3389,
+    3394
+   ],
+   "n_lines": 6,
+   "free_reads": [
+    "act_layer",
+    "intent_layer"
+   ],
+   "nonlocal": [],
+   "mutates_free": []
+  },
+  "_eod_hashes": {
+   "lines": [
+    3396,
+    3407
+   ],
+   "n_lines": 12,
+   "free_reads": [
+    "_act_hash_now",
+    "_hash_owners",
+    "_pst_now",
+    "agents",
+    "schedule",
+    "schedule_hash",
+    "world"
+   ],
+   "nonlocal": [],
+   "mutates_free": []
+  },
+  "_money_now": {
+   "lines": [
+    3409,
+    3413
+   ],
+   "n_lines": 5,
+   "free_reads": [
+    "agents",
+    "ledger"
+   ],
+   "nonlocal": [],
+   "mutates_free": []
+  },
+  "_bodies_now": {
+   "lines": [
+    3415,
+    3419
+   ],
+   "n_lines": 5,
+   "free_reads": [
+    "agents"
+   ],
+   "nonlocal": [],
+   "mutates_free": []
+  },
+  "_w17_weekday": {
+   "lines": [
+    3421,
+    3431
+   ],
+   "n_lines": 11,
+   "free_reads": [
+    "calendar",
+    "weekly"
+   ],
+   "nonlocal": [],
+   "mutates_free": []
+  },
+  "_relay_tables": {
+   "lines": [
+    3433,
+    3470
+   ],
+   "n_lines": 38,
+   "free_reads": [
+    "_w17_weekday",
+    "act_layer",
+    "b_agent",
+    "b_cell",
+    "b_cond",
+    "b_start",
+    "b_tick",
+    "calendar",
+    "classical_policy",
+    "poi_resolver",
+    "presence",
+    "runner",
+    "schedule",
+    "ticks",
+    "tpd",
+    "w17_substituted",
+    "weekly"
+   ],
+   "nonlocal": [
+    "b_agent",
+    "b_cell",
+    "b_cond",
+    "b_start",
+    "b_tick"
+   ],
+   "mutates_free": [
+    "w17_substituted"
+   ]
+  },
+  "_start_day": {
+   "lines": [
+    3472,
+    3480
+   ],
+   "n_lines": 9,
+   "free_reads": [
+    "_bodies_now",
+    "_money_now",
+    "day_heads",
+    "presence",
+    "tpd"
+   ],
+   "nonlocal": [],
+   "mutates_free": [
+    "day_heads"
+   ]
+  },
+  "_ledger_close": {
+   "lines": [
+    3482,
+    3514
+   ],
+   "n_lines": 33,
+   "free_reads": [
+    "calendar",
+    "census_out",
+    "ledger",
+    "result",
+    "sim_days"
+   ],
+   "nonlocal": [],
+   "mutates_free": [
+    "result"
+   ]
+  },
+  "_day_record": {
+   "lines": [
+    3516,
+    3526
+   ],
+   "n_lines": 11,
+   "free_reads": [
+    "_bodies_now",
+    "_money_now",
+    "daily_records",
+    "ledger",
+    "result",
+    "tpd"
+   ],
+   "nonlocal": [],
+   "mutates_free": [
+    "daily_records"
+   ]
+  },
+  "_close_day_midrun": {
+   "lines": [
+    3528,
+    3540
+   ],
+   "n_lines": 13,
+   "free_reads": [
+    "_day_record",
+    "_eod_hashes",
+    "_ledger_close",
+    "checkpoint_every",
+    "ledger",
+    "result",
+    "runner",
+    "tpd"
+   ],
+   "nonlocal": [],
+   "mutates_free": [
+    "result"
+   ]
+  },
+  "_save_state": {
+   "lines": [
+    3542,
+    3578
+   ],
+   "n_lines": 37,
+   "free_reads": [
+    "_act_hash_now",
+    "_env_fields",
+    "_fp",
+    "_hash_owners",
+    "_pst_now",
+    "agents",
+    "fleet_inflight",
+    "parent_run",
+    "pending",
+    "run_id",
+    "schedule",
+    "schedule_hash",
+    "sim_days",
+    "state_files",
+    "state_out",
+    "tpd",
+    "world"
+   ],
+   "nonlocal": [],
+   "mutates_free": [
+    "state_files"
+   ]
+  },
+  "_rebuild_derived": {
+   "lines": [
+    3580,
+    3591
+   ],
+   "n_lines": 12,
+   "free_reads": [
+    "classical_policy",
+    "runner"
+   ],
+   "nonlocal": [],
+   "mutates_free": []
+  },
+  "_session_partners": {
+   "lines": [
+    3180,
+    3182
+   ],
+   "n_lines": 3,
+   "free_reads": [
+    "conv"
+   ],
+   "nonlocal": [],
+   "mutates_free": []
+  },
+  "_classical_acq": {
+   "lines": [
+    3145,
+    3153
+   ],
+   "n_lines": 9,
+   "free_reads": [
+    "agents",
+    "attention_on",
+    "rel_layer"
+   ],
+   "nonlocal": [],
+   "mutates_free": []
+  },
+  "_revert": {
+   "lines": [
+    4260,
+    4268
+   ],
+   "n_lines": 9,
+   "free_reads": [
+    "conv",
+    "reverted"
+   ],
+   "nonlocal": [],
+   "mutates_free": [
+    "reverted"
+   ]
+  },
+  "_classical_partner": {
+   "lines": [
+    3160,
+    3167
+   ],
+   "n_lines": 8,
+   "free_reads": [
+    "agents",
+    "rel_layer"
+   ],
+   "nonlocal": [],
+   "mutates_free": []
+  }
+ },
+ "n_shared": 241,
+ "shared": {
+  "day_index": {
+   "segments": [
+    "E4",
+    "S0",
+    "S2",
+    "S3"
+   ],
+   "writers": []
+  },
+  "t_begin": {
+   "segments": [
+    "E3",
+    "E4",
+    "S0",
+    "S6",
+    "S8"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "hash_scheme": {
+   "segments": [
+    "E2",
+    "L23",
+    "S0"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "seed": {
+   "segments": [
+    "S0",
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6"
+   ],
+   "writers": []
+  },
+  "mode": {
+   "segments": [
+    "S0",
+    "S1",
+    "S4",
+    "S6"
+   ],
+   "writers": []
+  },
+  "_read_seconds": {
+   "segments": [
+    "E4",
+    "S0"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "_bundle": {
+   "segments": [
+    "S0",
+    "S8"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "state_out": {
+   "segments": [
+    "E1",
+    "L24",
+    "S0"
+   ],
+   "writers": []
+  },
+  "response_delay": {
+   "segments": [
+    "E2",
+    "L11",
+    "L5",
+    "S0",
+    "S2"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "parent_run": {
+   "segments": [
+    "E4",
+    "S0"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "env_seed": {
+   "segments": [
+    "S0",
+    "S3",
+    "S6"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "sim_days": {
+   "segments": [
+    "E1",
+    "E2",
+    "E4",
+    "S0",
+    "S3"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "t_end": {
+   "segments": [
+    "E0",
+    "E1",
+    "E2",
+    "E3",
+    "E4",
+    "S0",
+    "S6"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "_resuming": {
+   "segments": [
+    "S0",
+    "S2",
+    "S3",
+    "S5"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "start_given": {
+   "segments": [
+    "S0",
+    "S3"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "ticks": {
+   "segments": [
+    "S0",
+    "S2",
+    "S3",
+    "S5"
+   ],
+   "writers": []
+  },
+  "tpd": {
+   "segments": [
+    "E0",
+    "E1",
+    "L0",
+    "L24",
+    "S0",
+    "S8"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "_h": {
+   "segments": [
+    "L13",
+    "S0"
+   ],
+   "writers": [
+    "L13",
+    "S0"
+   ]
+  },
+  "tick_seconds": {
+   "segments": [
+    "E0",
+    "E2",
+    "E3",
+    "E4",
+    "L14",
+    "L15",
+    "L20",
+    "L3",
+    "L4",
+    "L8",
+    "S0",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6"
+   ],
+   "writers": []
+  },
+  "total_ticks": {
+   "segments": [
+    "E0",
+    "E1",
+    "L23",
+    "L24",
+    "S0"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "replay": {
+   "segments": [
+    "S0",
+    "S1",
+    "S4"
+   ],
+   "writers": []
+  },
+  "calendar": {
+   "segments": [
+    "E2",
+    "S0",
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5"
+   ],
+   "writers": [
+    "S0",
+    "S3"
+   ]
+  },
+  "rng_scheme": {
+   "segments": [
+    "E2",
+    "S0",
+    "S2",
+    "S3"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "pop_seed": {
+   "segments": [
+    "S0",
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S6"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "run_id": {
+   "segments": [
+    "E4",
+    "S0"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "t_start": {
+   "segments": [
+    "E2",
+    "S0"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "budget_mode_enum": {
+   "segments": [
+    "E2",
+    "S0",
+    "S4"
+   ],
+   "writers": [
+    "S0"
+   ]
+  },
+  "home_meal": {
+   "segments": [
+    "E2",
+    "S1",
+    "S2"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "rel_copresent_on": {
+   "segments": [
+    "S1",
+    "S5"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "memory_tau": {
+   "segments": [
+    "S1",
+    "S5"
+   ],
+   "writers": []
+  },
+  "chooser": {
+   "segments": [
+    "E2",
+    "S1"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "world": {
+   "segments": [
+    "E2",
+    "E4",
+    "L16",
+    "L17",
+    "L22",
+    "L23",
+    "L4",
+    "L6",
+    "L7",
+    "L8",
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6",
+    "S8"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "hunger_model": {
+   "segments": [
+    "E2",
+    "S1"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "rel_invite_on": {
+   "segments": [
+    "S1",
+    "S5"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "energy_rate": {
+   "segments": [
+    "E2",
+    "S1",
+    "S2"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "signage_p_see": {
+   "segments": [
+    "E2",
+    "S1",
+    "S4"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "geometry": {
+   "segments": [
+    "E2",
+    "S1",
+    "S2",
+    "S4",
+    "S5"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "wom_source": {
+   "segments": [
+    "S1",
+    "S5"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "derive_rule": {
+   "segments": [
+    "E2",
+    "S1",
+    "S3"
+   ],
+   "writers": []
+  },
+  "refractory_scale_norm": {
+   "segments": [
+    "E2",
+    "S1"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "p_see_activity_identity": {
+   "segments": [
+    "E2",
+    "S1",
+    "S5"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "poi_resolver": {
+   "segments": [
+    "E2",
+    "L6",
+    "S1",
+    "S5"
+   ],
+   "writers": [
+    "S1",
+    "S5"
+   ]
+  },
+  "store_signage_on": {
+   "segments": [
+    "E2",
+    "S1",
+    "S5"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "fleet": {
+   "segments": [
+    "E2",
+    "S1",
+    "S4"
+   ],
+   "writers": []
+  },
+  "store_sigma_table": {
+   "segments": [
+    "S1",
+    "S5"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "p_notice_d50_scale": {
+   "segments": [
+    "E2",
+    "S1",
+    "S3"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "refractory_table": {
+   "segments": [
+    "L14",
+    "S1"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "rel_tau": {
+   "segments": [
+    "S1",
+    "S5"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "move_search_radius": {
+   "segments": [
+    "E2",
+    "S1"
+   ],
+   "writers": []
+  },
+  "classical_tau": {
+   "segments": [
+    "E2",
+    "S1"
+   ],
+   "writers": []
+  },
+  "role_words": {
+   "segments": [
+    "E2",
+    "S1",
+    "S4"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "meal_sleep_defer": {
+   "segments": [
+    "E2",
+    "L1",
+    "S1",
+    "S2"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "seat_area_eatery_m2": {
+   "segments": [
+    "E2",
+    "S1"
+   ],
+   "writers": []
+  },
+  "near_tiebreak": {
+   "segments": [
+    "E2",
+    "S1",
+    "S4"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "v3_hints": {
+   "segments": [
+    "L6",
+    "S1"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "rel_d": {
+   "segments": [
+    "S1",
+    "S5"
+   ],
+   "writers": []
+  },
+  "group_norms_on": {
+   "segments": [
+    "S1",
+    "S6"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "eatery": {
+   "segments": [
+    "E2",
+    "S1"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "store_memory_on": {
+   "segments": [
+    "E2",
+    "S1",
+    "S2",
+    "S5"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "mock_out_of_cell_target_p": {
+   "segments": [
+    "E2",
+    "S1"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "store_memory_n": {
+   "segments": [
+    "S1",
+    "S2",
+    "S5"
+   ],
+   "writers": []
+  },
+  "v": {
+   "segments": [
+    "E2",
+    "L8",
+    "S1"
+   ],
+   "writers": [
+    "E2",
+    "L8",
+    "S1"
+   ]
+  },
+  "area_source": {
+   "segments": [
+    "E2",
+    "S1",
+    "S4"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "familiarity_on": {
+   "segments": [
+    "E2",
+    "S1",
+    "S2",
+    "S5"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "k": {
+   "segments": [
+    "E2",
+    "L6",
+    "L8",
+    "S1",
+    "S6"
+   ],
+   "writers": [
+    "E2",
+    "L6",
+    "L8",
+    "S1",
+    "S6"
+   ]
+  },
+  "exit_mode": {
+   "segments": [
+    "E2",
+    "S1",
+    "S3"
+   ],
+   "writers": []
+  },
+  "memory_n": {
+   "segments": [
+    "E2",
+    "S1",
+    "S2",
+    "S5"
+   ],
+   "writers": []
+  },
+  "seat_area_table": {
+   "segments": [
+    "S1",
+    "S3"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "policy": {
+   "segments": [
+    "E2",
+    "S1"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "store_decay": {
+   "segments": [
+    "S1",
+    "S5"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "mock_move_target_p": {
+   "segments": [
+    "E2",
+    "S1"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "energy_on": {
+   "segments": [
+    "E2",
+    "S1",
+    "S2"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "poi_target": {
+   "segments": [
+    "E2",
+    "S1"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "activity_on": {
+   "segments": [
+    "E2",
+    "S1",
+    "S2",
+    "S5"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "rel_tenure_hash": {
+   "segments": [
+    "S1",
+    "S5"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "intent_max_ticks": {
+   "segments": [
+    "E2",
+    "S1",
+    "S3",
+    "S5"
+   ],
+   "writers": []
+  },
+  "vocab_version": {
+   "segments": [
+    "E2",
+    "L17",
+    "L6",
+    "S1",
+    "S2",
+    "S4",
+    "S6"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "store_wom_on": {
+   "segments": [
+    "E2",
+    "S1"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "rel_k": {
+   "segments": [
+    "S1",
+    "S2",
+    "S5"
+   ],
+   "writers": []
+  },
+  "conv_max_participants": {
+   "segments": [
+    "S1",
+    "S2",
+    "S5"
+   ],
+   "writers": []
+  },
+  "memory_on": {
+   "segments": [
+    "E2",
+    "S1",
+    "S2",
+    "S5"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "rel_init_density": {
+   "segments": [
+    "S1",
+    "S5"
+   ],
+   "writers": []
+  },
+  "store_recall_scope": {
+   "segments": [
+    "E2",
+    "S1",
+    "S5"
+   ],
+   "writers": []
+  },
+  "relations_on": {
+   "segments": [
+    "S1",
+    "S2",
+    "S5"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "seat_area_retail_m2": {
+   "segments": [
+    "E2",
+    "S1",
+    "S3"
+   ],
+   "writers": []
+  },
+  "attendance_rate": {
+   "segments": [
+    "E2",
+    "S1",
+    "S3"
+   ],
+   "writers": []
+  },
+  "familiarity_k": {
+   "segments": [
+    "E2",
+    "S1",
+    "S2",
+    "S5"
+   ],
+   "writers": []
+  },
+  "rel_tenure_weeks": {
+   "segments": [
+    "S1",
+    "S5"
+   ],
+   "writers": []
+  },
+  "near_order": {
+   "segments": [
+    "E2",
+    "S1",
+    "S4"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "llm": {
+   "segments": [
+    "S1",
+    "S4"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "classical_policy": {
+   "segments": [
+    "E2",
+    "L1",
+    "L14",
+    "S1",
+    "S5"
+   ],
+   "writers": [
+    "S1",
+    "S5"
+   ]
+  },
+  "intent_mode": {
+   "segments": [
+    "E2",
+    "S1",
+    "S4"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "p_see_activity_table": {
+   "segments": [
+    "E2",
+    "S1",
+    "S4"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "rel_acq_wake_on": {
+   "segments": [
+    "S1",
+    "S5"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "activity_region": {
+   "segments": [
+    "E2",
+    "S1"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "hunger_words": {
+   "segments": [
+    "E2",
+    "S1",
+    "S4"
+   ],
+   "writers": [
+    "S1"
+   ]
+  },
+  "classical_habit_p": {
+   "segments": [
+    "E2",
+    "S1"
+   ],
+   "writers": []
+  },
+  "tape_writer": {
+   "segments": [
+    "S2",
+    "S4"
+   ],
+   "writers": [
+    "S2"
+   ]
+  },
+  "n_agents": {
+   "segments": [
+    "E2",
+    "E3",
+    "L12",
+    "L13",
+    "S2",
+    "S4",
+    "S5",
+    "S6"
+   ],
+   "writers": []
+  },
+  "salt": {
+   "segments": [
+    "L16",
+    "L6",
+    "S2",
+    "S4",
+    "S5"
+   ],
+   "writers": [
+    "S2"
+   ]
+  },
+  "_env_fields": {
+   "segments": [
+    "S2",
+    "S6"
+   ],
+   "writers": [
+    "S2"
+   ]
+  },
+  "agents": {
+   "segments": [
+    "E2",
+    "E4",
+    "L1",
+    "L11",
+    "L12",
+    "L13",
+    "L14",
+    "L15",
+    "L17",
+    "L18",
+    "L19",
+    "L20",
+    "L22",
+    "L23",
+    "L3",
+    "L4",
+    "L6",
+    "L7",
+    "L8",
+    "L9",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6",
+    "S8"
+   ],
+   "writers": [
+    "S2"
+   ]
+  },
+  "weekly": {
+   "segments": [
+    "S2",
+    "S3",
+    "S5"
+   ],
+   "writers": [
+    "S2"
+   ]
+  },
+  "attention_on": {
+   "segments": [
+    "E2",
+    "L17",
+    "L18",
+    "L6",
+    "S2",
+    "S4",
+    "S6"
+   ],
+   "writers": [
+    "S2"
+   ]
+  },
+  "energy_layer": {
+   "segments": [
+    "E2",
+    "L1",
+    "L17",
+    "L20",
+    "L9",
+    "S2",
+    "S5"
+   ],
+   "writers": [
+    "S2",
+    "S5"
+   ]
+  },
+  "x": {
+   "segments": [
+    "L11",
+    "S2"
+   ],
+   "writers": [
+    "L11",
+    "S2"
+   ]
+  },
+  "pop": {
+   "segments": [
+    "S2",
+    "S3",
+    "S5"
+   ],
+   "writers": [
+    "S2"
+   ]
+  },
+  "ledger": {
+   "segments": [
+    "E1",
+    "E4",
+    "L17",
+    "S2",
+    "S3"
+   ],
+   "writers": []
+  },
+  "schedule": {
+   "segments": [
+    "E4",
+    "L17",
+    "L23",
+    "L6",
+    "L8",
+    "S2",
+    "S3",
+    "S5",
+    "S8"
+   ],
+   "writers": [
+    "S2",
+    "S5"
+   ]
+  },
+  "conv": {
+   "segments": [
+    "E2",
+    "L10",
+    "L14",
+    "L18",
+    "L19",
+    "L20",
+    "L21",
+    "L6",
+    "S2",
+    "S5",
+    "S8"
+   ],
+   "writers": [
+    "L18",
+    "S2"
+   ]
+  },
+  "plan_exec_on": {
+   "segments": [
+    "E2",
+    "L12",
+    "L13",
+    "S2",
+    "S3"
+   ],
+   "writers": [
+    "S2"
+   ]
+  },
+  "processes_disabled": {
+   "segments": [
+    "S2",
+    "S3"
+   ],
+   "writers": []
+  },
+  "world_dir": {
+   "segments": [
+    "S2",
+    "S3",
+    "S4"
+   ],
+   "writers": []
+  },
+  "tape_path": {
+   "segments": [
+    "S2",
+    "S6"
+   ],
+   "writers": []
+  },
+  "presence": {
+   "segments": [
+    "E2",
+    "L12",
+    "L14",
+    "L22",
+    "L3",
+    "L8",
+    "S3"
+   ],
+   "writers": [
+    "S3"
+   ]
+  },
+  "start_check": {
+   "segments": [
+    "E2",
+    "S3"
+   ],
+   "writers": [
+    "S3"
+   ]
+  },
+  "p_notice_ablation": {
+   "segments": [
+    "E2",
+    "S3"
+   ],
+   "writers": []
+  },
+  "runner": {
+   "segments": [
+    "E1",
+    "E2",
+    "E3",
+    "L10",
+    "L17",
+    "L2",
+    "L20",
+    "L23",
+    "L4",
+    "S3",
+    "S5",
+    "S6"
+   ],
+   "writers": [
+    "S3"
+   ]
+  },
+  "detector": {
+   "segments": [
+    "L7",
+    "S4"
+   ],
+   "writers": [
+    "S4"
+   ]
+  },
+  "renderer_obj": {
+   "segments": [
+    "E2",
+    "S4"
+   ],
+   "writers": [
+    "S4"
+   ]
+  },
+  "geom": {
+   "segments": [
+    "L17",
+    "S4",
+    "S5"
+   ],
+   "writers": [
+    "S4"
+   ]
+  },
+  "space": {
+   "segments": [
+    "L15",
+    "L16",
+    "L6",
+    "S4"
+   ],
+   "writers": [
+    "S4"
+   ]
+  },
+  "arbiter": {
+   "segments": [
+    "E2",
+    "L13",
+    "L14",
+    "L21",
+    "S4"
+   ],
+   "writers": [
+    "S4"
+   ]
+  },
+  "geometry_hops": {
+   "segments": [
+    "E2",
+    "L17",
+    "S4"
+   ],
+   "writers": [
+    "L17",
+    "S4"
+   ]
+  },
+  "signage": {
+   "segments": [
+    "E2",
+    "S4"
+   ],
+   "writers": []
+  },
+  "fleet_waiting": {
+   "segments": [
+    "L14",
+    "S4"
+   ],
+   "writers": [
+    "L14",
+    "S4"
+   ]
+  },
+  "fleet_bridge": {
+   "segments": [
+    "E0",
+    "E2",
+    "L14",
+    "S4",
+    "S8"
+   ],
+   "writers": [
+    "S4"
+   ]
+  },
+  "n_fleet_resent": {
+   "segments": [
+    "E2",
+    "L14",
+    "S4"
+   ],
+   "writers": [
+    "L14",
+    "S4"
+   ]
+  },
+  "geometry_jammed": {
+   "segments": [
+    "E2",
+    "L17",
+    "S4"
+   ],
+   "writers": [
+    "L17",
+    "S4"
+   ]
+  },
+  "frozen_sources_map": {
+   "segments": [
+    "E2",
+    "S4"
+   ],
+   "writers": [
+    "S4"
+   ]
+  },
+  "bridge": {
+   "segments": [
+    "E1",
+    "E2",
+    "L14",
+    "L21",
+    "S4",
+    "S8"
+   ],
+   "writers": [
+    "S4"
+   ]
+  },
+  "n_fleet_reinjected": {
+   "segments": [
+    "E2",
+    "L11",
+    "S4"
+   ],
+   "writers": [
+    "L11",
+    "S4"
+   ]
+  },
+  "fleet_deferred": {
+   "segments": [
+    "E0",
+    "L11",
+    "L14",
+    "S4",
+    "S8"
+   ],
+   "writers": [
+    "E0",
+    "L11",
+    "L14",
+    "S4",
+    "S8"
+   ]
+  },
+  "lane": {
+   "segments": [
+    "L14",
+    "S4"
+   ],
+   "writers": []
+  },
+  "perception": {
+   "segments": [
+    "E2",
+    "L4",
+    "S4",
+    "S5"
+   ],
+   "writers": [
+    "S4"
+   ]
+  },
+  "fleet_inflight": {
+   "segments": [
+    "E0",
+    "E4",
+    "L14",
+    "S4",
+    "S8"
+   ],
+   "writers": [
+    "E0",
+    "L14",
+    "S4",
+    "S8"
+   ]
+  },
+  "replay_inbox": {
+   "segments": [
+    "E0",
+    "L14",
+    "S4"
+   ],
+   "writers": [
+    "E0",
+    "L14",
+    "S4"
+   ]
+  },
+  "walkable": {
+   "segments": [
+    "E2",
+    "S4"
+   ],
+   "writers": [
+    "S4"
+   ]
+  },
+  "b_agent": {
+   "segments": [
+    "L8",
+    "S5"
+   ],
+   "writers": [
+    "S5"
+   ]
+  },
+  "leave_effect": {
+   "segments": [
+    "E2",
+    "L17",
+    "L18",
+    "S5"
+   ],
+   "writers": []
+  },
+  "plan_sleep": {
+   "segments": [
+    "E2",
+    "L8",
+    "S5"
+   ],
+   "writers": []
+  },
+  "b_cond": {
+   "segments": [
+    "L8",
+    "S5"
+   ],
+   "writers": [
+    "S5"
+   ]
+  },
+  "c_": {
+   "segments": [
+    "L14",
+    "S5",
+    "S8"
+   ],
+   "writers": [
+    "L14",
+    "S8"
+   ]
+  },
+  "b_start": {
+   "segments": [
+    "L8",
+    "S5"
+   ],
+   "writers": [
+    "S5"
+   ]
+  },
+  "leave_counts": {
+   "segments": [
+    "E2",
+    "L17",
+    "S5"
+   ],
+   "writers": [
+    "L17",
+    "S5"
+   ]
+  },
+  "intent_layer": {
+   "segments": [
+    "E2",
+    "L15",
+    "L19",
+    "L23",
+    "L6",
+    "L7",
+    "S5"
+   ],
+   "writers": [
+    "S5"
+   ]
+  },
+  "b_cell": {
+   "segments": [
+    "L8",
+    "S5"
+   ],
+   "writers": [
+    "S5"
+   ]
+  },
+  "rel_layer": {
+   "segments": [
+    "E2",
+    "L12",
+    "L14",
+    "L18",
+    "L6",
+    "S5"
+   ],
+   "writers": [
+    "L12",
+    "L18",
+    "S5"
+   ]
+  },
+  "mem_layer": {
+   "segments": [
+    "E2",
+    "L17",
+    "L20",
+    "S5"
+   ],
+   "writers": [
+    "S5"
+   ]
+  },
+  "_fam_renderer": {
+   "segments": [
+    "E2",
+    "L20",
+    "S5"
+   ],
+   "writers": [
+    "L20",
+    "S5"
+   ]
+  },
+  "schedule_hash": {
+   "segments": [
+    "L23",
+    "S5",
+    "S8"
+   ],
+   "writers": [
+    "S5"
+   ]
+  },
+  "wom_ex": {
+   "segments": [
+    "E2",
+    "S5"
+   ],
+   "writers": [
+    "S5"
+   ]
+  },
+  "leave_closed": {
+   "segments": [
+    "E2",
+    "L18",
+    "S5"
+   ],
+   "writers": [
+    "L18",
+    "S5"
+   ]
+  },
+  "_call_layer": {
+   "segments": [
+    "L14",
+    "S5"
+   ],
+   "writers": [
+    "S5"
+   ]
+  },
+  "fam_layer": {
+   "segments": [
+    "E2",
+    "L17",
+    "L20",
+    "S5"
+   ],
+   "writers": [
+    "S5"
+   ]
+  },
+  "act_layer": {
+   "segments": [
+    "E2",
+    "E3",
+    "L15",
+    "L19",
+    "L23",
+    "L3",
+    "L4",
+    "L6",
+    "L7",
+    "S5"
+   ],
+   "writers": [
+    "S5"
+   ]
+  },
+  "layer_counts": {
+   "segments": [
+    "E2",
+    "L14",
+    "L15",
+    "L3",
+    "L8",
+    "S5"
+   ],
+   "writers": [
+    "L14",
+    "L15",
+    "L3",
+    "L8",
+    "S5"
+   ]
+  },
+  "applied_now": {
+   "segments": [
+    "L18",
+    "L6",
+    "S6"
+   ],
+   "writers": [
+    "L6",
+    "S6"
+   ]
+  },
+  "prev_sessions": {
+   "segments": [
+    "L21",
+    "S6",
+    "S8"
+   ],
+   "writers": [
+    "L21",
+    "S6",
+    "S8"
+   ]
+  },
+  "peak_intents": {
+   "segments": [
+    "E3",
+    "L15",
+    "S6"
+   ],
+   "writers": [
+    "L15",
+    "S6"
+   ]
+  },
+  "diag_rows": {
+   "segments": [
+    "E2",
+    "E3",
+    "L21",
+    "S6"
+   ],
+   "writers": [
+    "L21",
+    "S6"
+   ]
+  },
+  "focus_request": {
+   "segments": [
+    "L17",
+    "L6",
+    "S6"
+   ],
+   "writers": [
+    "L6",
+    "S6"
+   ]
+  },
+  "awake_sum": {
+   "segments": [
+    "E2",
+    "L13",
+    "S6"
+   ],
+   "writers": [
+    "L13",
+    "S6"
+   ]
+  },
+  "sleep_counts": {
+   "segments": [
+    "E2",
+    "L21",
+    "L8",
+    "S6"
+   ],
+   "writers": [
+    "E2",
+    "L21",
+    "L8",
+    "S6"
+   ]
+  },
+  "occ_ticks": {
+   "segments": [
+    "E4",
+    "L22",
+    "S6"
+   ],
+   "writers": [
+    "L22",
+    "S6"
+   ]
+  },
+  "peak_pending": {
+   "segments": [
+    "E3",
+    "L14",
+    "S6"
+   ],
+   "writers": [
+    "L14",
+    "S6"
+   ]
+  },
+  "n_undefined_total": {
+   "segments": [
+    "L6",
+    "S6"
+   ],
+   "writers": [
+    "L6",
+    "S6"
+   ]
+  },
+  "result": {
+   "segments": [
+    "E0",
+    "E1",
+    "E2",
+    "E3",
+    "E4",
+    "L14",
+    "L17",
+    "L23",
+    "S6",
+    "S8"
+   ],
+   "writers": [
+    "E0",
+    "E1",
+    "E2",
+    "E3",
+    "E4",
+    "L14",
+    "L17",
+    "L23",
+    "S6",
+    "S8"
+   ]
+  },
+  "occ_kind": {
+   "segments": [
+    "E4",
+    "L22",
+    "S6"
+   ],
+   "writers": [
+    "L22",
+    "S6"
+   ]
+  },
+  "per_action_total": {
+   "segments": [
+    "E2",
+    "L17",
+    "S6"
+   ],
+   "writers": [
+    "L17",
+    "S6"
+   ]
+  },
+  "pending": {
+   "segments": [
+    "E0",
+    "L14",
+    "L21",
+    "L6",
+    "S6"
+   ],
+   "writers": [
+    "E0",
+    "L14",
+    "L6",
+    "S6"
+   ]
+  },
+  "applied_activity": {
+   "segments": [
+    "L19",
+    "L6",
+    "S6"
+   ],
+   "writers": [
+    "L6",
+    "S6"
+   ]
+  },
+  "calls_by_cond": {
+   "segments": [
+    "E2",
+    "L14",
+    "S6"
+   ],
+   "writers": [
+    "L14",
+    "S6"
+   ]
+  },
+  "intero_cross": {
+   "segments": [
+    "E2",
+    "L7",
+    "S6"
+   ],
+   "writers": [
+    "S6"
+   ]
+  },
+  "awake_ticks": {
+   "segments": [
+    "E2",
+    "L13",
+    "S6"
+   ],
+   "writers": [
+    "L13",
+    "S6"
+   ]
+  },
+  "occ_counts": {
+   "segments": [
+    "E4",
+    "L22",
+    "S6"
+   ],
+   "writers": [
+    "L22",
+    "S6"
+   ]
+  },
+  "prev_tape_misses": {
+   "segments": [
+    "L21",
+    "S6",
+    "S8"
+   ],
+   "writers": [
+    "L21",
+    "S6",
+    "S8"
+   ]
+  },
+  "peak_backlog": {
+   "segments": [
+    "E3",
+    "L14",
+    "S6"
+   ],
+   "writers": [
+    "L14",
+    "S6"
+   ]
+  },
+  "norm_meter": {
+   "segments": [
+    "E2",
+    "L17",
+    "L22",
+    "L6",
+    "S6"
+   ],
+   "writers": [
+    "S6"
+   ]
+  },
+  "occ_transit": {
+   "segments": [
+    "E4",
+    "L22",
+    "S6"
+   ],
+   "writers": [
+    "L22",
+    "S6"
+   ]
+  },
+  "phase": {
+   "segments": [
+    "E2",
+    "L13",
+    "L14",
+    "L15",
+    "L16",
+    "L17",
+    "L23",
+    "L3",
+    "L6",
+    "L7",
+    "L8",
+    "S6"
+   ],
+   "writers": [
+    "L13",
+    "L14",
+    "L15",
+    "L16",
+    "L17",
+    "L23",
+    "L3",
+    "L6",
+    "L7",
+    "L8",
+    "S6"
+   ]
+  },
+  "n_outside_calls": {
+   "segments": [
+    "E2",
+    "L14",
+    "S6"
+   ],
+   "writers": [
+    "L14",
+    "S6"
+   ]
+  },
+  "talk_stats": {
+   "segments": [
+    "E2",
+    "L6",
+    "S6"
+   ],
+   "writers": [
+    "S6"
+   ]
+  },
+  "day_heads": {
+   "segments": [
+    "E4",
+    "S7"
+   ],
+   "writers": [
+    "S7"
+   ]
+  },
+  "w17_substituted": {
+   "segments": [
+    "E4",
+    "S7"
+   ],
+   "writers": [
+    "S7"
+   ]
+  },
+  "daily_records": {
+   "segments": [
+    "E4",
+    "S7"
+   ],
+   "writers": [
+    "S7"
+   ]
+  },
+  "state_files": {
+   "segments": [
+    "E4",
+    "S7"
+   ],
+   "writers": [
+    "S7"
+   ]
+  },
+  "_pst_now": {
+   "segments": [
+    "L23",
+    "S8"
+   ],
+   "writers": []
+  },
+  "_hash_owners": {
+   "segments": [
+    "L23",
+    "S8"
+   ],
+   "writers": []
+  },
+  "_restore_seconds": {
+   "segments": [
+    "E4",
+    "S8"
+   ],
+   "writers": [
+    "S8"
+   ]
+  },
+  "_relay_tables": {
+   "segments": [
+    "L0",
+    "S8"
+   ],
+   "writers": []
+  },
+  "td": {
+   "segments": [
+    "L0",
+    "L13",
+    "L14",
+    "L24",
+    "L8"
+   ],
+   "writers": [
+    "L0"
+   ]
+  },
+  "tick": {
+   "segments": [
+    "L0",
+    "L1",
+    "L10",
+    "L11",
+    "L12",
+    "L13",
+    "L14",
+    "L15",
+    "L16",
+    "L17",
+    "L18",
+    "L19",
+    "L2",
+    "L20",
+    "L21",
+    "L22",
+    "L23",
+    "L24",
+    "L3",
+    "L4",
+    "L5",
+    "L6",
+    "L7",
+    "L8",
+    "L9"
+   ],
+   "writers": []
+  },
+  "t0": {
+   "segments": [
+    "L12",
+    "L13",
+    "L14",
+    "L15",
+    "L16",
+    "L17",
+    "L23",
+    "L3",
+    "L6",
+    "L7",
+    "L8"
+   ],
+   "writers": [
+    "L12",
+    "L13",
+    "L14",
+    "L15",
+    "L16",
+    "L17",
+    "L23",
+    "L3",
+    "L6",
+    "L7",
+    "L8"
+   ]
+  },
+  "field_rows": {
+   "segments": [
+    "L4",
+    "L7"
+   ],
+   "writers": [
+    "L4"
+   ]
+  },
+  "_receive_arrivals": {
+   "segments": [
+    "L11",
+    "L5"
+   ],
+   "writers": []
+  },
+  "n_parse_errors_fleet": {
+   "segments": [
+    "L11",
+    "L14",
+    "L5"
+   ],
+   "writers": [
+    "L11",
+    "L5"
+   ]
+  },
+  "llm_intents": {
+   "segments": [
+    "L15",
+    "L6"
+   ],
+   "writers": [
+    "L15",
+    "L6"
+   ]
+  },
+  "cond": {
+   "segments": [
+    "L14",
+    "L6"
+   ],
+   "writers": [
+    "L14",
+    "L6"
+   ]
+  },
+  "t": {
+   "segments": [
+    "E0",
+    "E3",
+    "L6"
+   ],
+   "writers": [
+    "E0",
+    "E3",
+    "L6"
+   ]
+  },
+  "n_undefined": {
+   "segments": [
+    "L21",
+    "L6"
+   ],
+   "writers": [
+    "L6"
+   ]
+  },
+  "a": {
+   "segments": [
+    "L14",
+    "L6"
+   ],
+   "writers": [
+    "L14",
+    "L6"
+   ]
+  },
+  "p": {
+   "segments": [
+    "L18",
+    "L6"
+   ],
+   "writers": [
+    "L18",
+    "L6"
+   ]
+  },
+  "i": {
+   "segments": [
+    "E2",
+    "L14",
+    "L6"
+   ],
+   "writers": [
+    "E2",
+    "L14",
+    "L6"
+   ]
+  },
+  "e_cond": {
+   "segments": [
+    "L12",
+    "L7"
+   ],
+   "writers": [
+    "L12",
+    "L7"
+   ]
+  },
+  "e_agent": {
+   "segments": [
+    "L12",
+    "L7"
+   ],
+   "writers": [
+    "L12",
+    "L7"
+   ]
+  },
+  "d_class": {
+   "segments": [
+    "L12",
+    "L7"
+   ],
+   "writers": [
+    "L12",
+    "L7"
+   ]
+  },
+  "d_agent": {
+   "segments": [
+    "L12",
+    "L7"
+   ],
+   "writers": [
+    "L12",
+    "L7"
+   ]
+  },
+  "e_class": {
+   "segments": [
+    "L12",
+    "L7"
+   ],
+   "writers": [
+    "L12",
+    "L7"
+   ]
+  },
+  "d_cond": {
+   "segments": [
+    "L12",
+    "L7"
+   ],
+   "writers": [
+    "L12",
+    "L7"
+   ]
+  },
+  "p_class": {
+   "segments": [
+    "L12",
+    "L8"
+   ],
+   "writers": [
+    "L12",
+    "L8"
+   ]
+  },
+  "p_agent": {
+   "segments": [
+    "L12",
+    "L8"
+   ],
+   "writers": [
+    "L12",
+    "L8"
+   ]
+  },
+  "p_cond": {
+   "segments": [
+    "L12",
+    "L8"
+   ],
+   "writers": [
+    "L12",
+    "L8"
+   ]
+  },
+  "c_class": {
+   "segments": [
+    "L10",
+    "L12"
+   ],
+   "writers": [
+    "L10"
+   ]
+  },
+  "c_cond": {
+   "segments": [
+    "L10",
+    "L12"
+   ],
+   "writers": [
+    "L10"
+   ]
+  },
+  "c_agent": {
+   "segments": [
+    "L10",
+    "L12"
+   ],
+   "writers": [
+    "L10"
+   ]
+  },
+  "s_agent": {
+   "segments": [
+    "L10",
+    "L12"
+   ],
+   "writers": [
+    "L10"
+   ]
+  },
+  "s_cond": {
+   "segments": [
+    "L10",
+    "L12"
+   ],
+   "writers": [
+    "L10"
+   ]
+  },
+  "s_class": {
+   "segments": [
+    "L10",
+    "L12"
+   ],
+   "writers": [
+    "L10"
+   ]
+  },
+  "f_cond": {
+   "segments": [
+    "L11",
+    "L12"
+   ],
+   "writers": [
+    "L11"
+   ]
+  },
+  "f_agent": {
+   "segments": [
+    "L11",
+    "L12"
+   ],
+   "writers": [
+    "L11"
+   ]
+  },
+  "f_since": {
+   "segments": [
+    "L11",
+    "L12"
+   ],
+   "writers": [
+    "L11"
+   ]
+  },
+  "f_class": {
+   "segments": [
+    "L11",
+    "L12"
+   ],
+   "writers": [
+    "L11"
+   ]
+  },
+  "cands": {
+   "segments": [
+    "L12",
+    "L13",
+    "L21"
+   ],
+   "writers": [
+    "L12"
+   ]
+  },
+  "sleep_suppression": {
+   "segments": [
+    "E2",
+    "L12",
+    "L13"
+   ],
+   "writers": []
+  },
+  "outside_suppression": {
+   "segments": [
+    "E2",
+    "L12",
+    "L13"
+   ],
+   "writers": []
+  },
+  "outside_now": {
+   "segments": [
+    "L13",
+    "L14"
+   ],
+   "writers": [
+    "L13"
+   ]
+  },
+  "decision": {
+   "segments": [
+    "L13",
+    "L14",
+    "L21"
+   ],
+   "writers": [
+    "L13"
+   ]
+  },
+  "item": {
+   "segments": [
+    "E0",
+    "L14"
+   ],
+   "writers": [
+    "E0",
+    "L14"
+   ]
+  },
+  "res": {
+   "segments": [
+    "E0",
+    "L14"
+   ],
+   "writers": [
+    "E0",
+    "L14"
+   ]
+  },
+  "n_parse_errors": {
+   "segments": [
+    "L14",
+    "L21"
+   ],
+   "writers": [
+    "L14"
+   ]
+  },
+  "d": {
+   "segments": [
+    "E2",
+    "L14"
+   ],
+   "writers": [
+    "E2",
+    "L14"
+   ]
+  },
+  "intents": {
+   "segments": [
+    "L15",
+    "L16",
+    "L21"
+   ],
+   "writers": [
+    "L15"
+   ]
+  },
+  "plan": {
+   "segments": [
+    "L16",
+    "L17",
+    "L18",
+    "L20",
+    "L21"
+   ],
+   "writers": [
+    "L16"
+   ]
+  },
+  "_k": {
+   "segments": [
+    "E2",
+    "L17",
+    "L22"
+   ],
+   "writers": [
+    "E2",
+    "L17",
+    "L22"
+   ]
+  },
+  "outcome": {
+   "segments": [
+    "L17",
+    "L18",
+    "L20",
+    "L21"
+   ],
+   "writers": [
+    "L17"
+   ]
+  },
+  "s": {
+   "segments": [
+    "E2",
+    "L18"
+   ],
+   "writers": [
+    "E2",
+    "L18"
+   ]
+  },
+  "checkpoint_every": {
+   "segments": [
+    "E1",
+    "L23"
+   ],
+   "writers": []
+  },
+  "_save_state": {
+   "segments": [
+    "E0",
+    "E1",
+    "L24"
+   ],
+   "writers": []
+  },
+  "_stopped": {
+   "segments": [
+    "E0",
+    "E1",
+    "E4"
+   ],
+   "writers": [
+    "E0"
+   ]
+  },
+  "ledger_growth": {
+   "segments": [
+    "E1",
+    "E3"
+   ],
+   "writers": [
+    "E1"
+   ]
+  }
+ },
+ "loop_carried": {
+  "_h": {
+   "written_in": [
+    "L13"
+   ],
+   "read_in": [
+    "L13"
+   ]
+  },
+  "v": {
+   "written_in": [
+    "L8"
+   ],
+   "read_in": [
+    "L8"
+   ]
+  },
+  "k": {
+   "written_in": [
+    "L6",
+    "L8"
+   ],
+   "read_in": [
+    "L6",
+    "L8"
+   ]
+  },
+  "x": {
+   "written_in": [
+    "L11"
+   ],
+   "read_in": [
+    "L11"
+   ]
+  },
+  "conv": {
+   "written_in": [
+    "L18"
+   ],
+   "read_in": [
+    "L6",
+    "L10",
+    "L14",
+    "L18",
+    "L19",
+    "L20",
+    "L21"
+   ]
+  },
+  "geometry_hops": {
+   "written_in": [
+    "L17"
+   ],
+   "read_in": [
+    "L17"
+   ]
+  },
+  "fleet_waiting": {
+   "written_in": [
+    "L14"
+   ],
+   "read_in": [
+    "L14"
+   ]
+  },
+  "n_fleet_resent": {
+   "written_in": [
+    "L14"
+   ],
+   "read_in": [
+    "L14"
+   ]
+  },
+  "geometry_jammed": {
+   "written_in": [
+    "L17"
+   ],
+   "read_in": [
+    "L17"
+   ]
+  },
+  "n_fleet_reinjected": {
+   "written_in": [
+    "L11"
+   ],
+   "read_in": [
+    "L11"
+   ]
+  },
+  "fleet_deferred": {
+   "written_in": [
+    "L11",
+    "L14"
+   ],
+   "read_in": [
+    "L11",
+    "L14"
+   ]
+  },
+  "fleet_inflight": {
+   "written_in": [
+    "L14"
+   ],
+   "read_in": [
+    "L14"
+   ]
+  },
+  "replay_inbox": {
+   "written_in": [
+    "L14"
+   ],
+   "read_in": [
+    "L14"
+   ]
+  },
+  "c_": {
+   "written_in": [
+    "L14"
+   ],
+   "read_in": [
+    "L14"
+   ]
+  },
+  "leave_counts": {
+   "written_in": [
+    "L17"
+   ],
+   "read_in": [
+    "L17"
+   ]
+  },
+  "rel_layer": {
+   "written_in": [
+    "L12",
+    "L18"
+   ],
+   "read_in": [
+    "L6",
+    "L12",
+    "L14",
+    "L18"
+   ]
+  },
+  "_fam_renderer": {
+   "written_in": [
+    "L20"
+   ],
+   "read_in": [
+    "L20"
+   ]
+  },
+  "leave_closed": {
+   "written_in": [
+    "L18"
+   ],
+   "read_in": [
+    "L18"
+   ]
+  },
+  "layer_counts": {
+   "written_in": [
+    "L3",
+    "L8",
+    "L14",
+    "L15"
+   ],
+   "read_in": [
+    "L3",
+    "L8",
+    "L14",
+    "L15"
+   ]
+  },
+  "prev_sessions": {
+   "written_in": [
+    "L21"
+   ],
+   "read_in": [
+    "L21"
+   ]
+  },
+  "peak_intents": {
+   "written_in": [
+    "L15"
+   ],
+   "read_in": [
+    "L15"
+   ]
+  },
+  "diag_rows": {
+   "written_in": [
+    "L21"
+   ],
+   "read_in": [
+    "L21"
+   ]
+  },
+  "focus_request": {
+   "written_in": [
+    "L6"
+   ],
+   "read_in": [
+    "L6",
+    "L17"
+   ]
+  },
+  "awake_sum": {
+   "written_in": [
+    "L13"
+   ],
+   "read_in": [
+    "L13"
+   ]
+  },
+  "sleep_counts": {
+   "written_in": [
+    "L8",
+    "L21"
+   ],
+   "read_in": [
+    "L8",
+    "L21"
+   ]
+  },
+  "occ_ticks": {
+   "written_in": [
+    "L22"
+   ],
+   "read_in": [
+    "L22"
+   ]
+  },
+  "peak_pending": {
+   "written_in": [
+    "L14"
+   ],
+   "read_in": [
+    "L14"
+   ]
+  },
+  "n_undefined_total": {
+   "written_in": [
+    "L6"
+   ],
+   "read_in": [
+    "L6"
+   ]
+  },
+  "result": {
+   "written_in": [
+    "L14",
+    "L17",
+    "L23"
+   ],
+   "read_in": [
+    "L14",
+    "L17",
+    "L23"
+   ]
+  },
+  "occ_kind": {
+   "written_in": [
+    "L22"
+   ],
+   "read_in": [
+    "L22"
+   ]
+  },
+  "per_action_total": {
+   "written_in": [
+    "L17"
+   ],
+   "read_in": [
+    "L17"
+   ]
+  },
+  "pending": {
+   "written_in": [
+    "L6",
+    "L14"
+   ],
+   "read_in": [
+    "L6",
+    "L14",
+    "L21"
+   ]
+  },
+  "calls_by_cond": {
+   "written_in": [
+    "L14"
+   ],
+   "read_in": [
+    "L14"
+   ]
+  },
+  "awake_ticks": {
+   "written_in": [
+    "L13"
+   ],
+   "read_in": [
+    "L13"
+   ]
+  },
+  "occ_counts": {
+   "written_in": [
+    "L22"
+   ],
+   "read_in": [
+    "L22"
+   ]
+  },
+  "prev_tape_misses": {
+   "written_in": [
+    "L21"
+   ],
+   "read_in": [
+    "L21"
+   ]
+  },
+  "peak_backlog": {
+   "written_in": [
+    "L14"
+   ],
+   "read_in": [
+    "L14"
+   ]
+  },
+  "occ_transit": {
+   "written_in": [
+    "L22"
+   ],
+   "read_in": [
+    "L22"
+   ]
+  },
+  "phase": {
+   "written_in": [
+    "L3",
+    "L6",
+    "L7",
+    "L8",
+    "L13",
+    "L14",
+    "L15",
+    "L16",
+    "L17",
+    "L23"
+   ],
+   "read_in": [
+    "L3",
+    "L6",
+    "L7",
+    "L8",
+    "L13",
+    "L14",
+    "L15",
+    "L16",
+    "L17",
+    "L23"
+   ]
+  },
+  "n_outside_calls": {
+   "written_in": [
+    "L14"
+   ],
+   "read_in": [
+    "L14"
+   ]
+  },
+  "td": {
+   "written_in": [
+    "L0"
+   ],
+   "read_in": [
+    "L0",
+    "L8",
+    "L13",
+    "L14",
+    "L24"
+   ]
+  },
+  "t0": {
+   "written_in": [
+    "L3",
+    "L6",
+    "L7",
+    "L8",
+    "L12",
+    "L13",
+    "L14",
+    "L15",
+    "L16",
+    "L17",
+    "L23"
+   ],
+   "read_in": [
+    "L3",
+    "L6",
+    "L7",
+    "L8",
+    "L12",
+    "L13",
+    "L14",
+    "L15",
+    "L16",
+    "L17",
+    "L23"
+   ]
+  },
+  "llm_intents": {
+   "written_in": [
+    "L6",
+    "L15"
+   ],
+   "read_in": [
+    "L15"
+   ]
+  },
+  "cond": {
+   "written_in": [
+    "L6",
+    "L14"
+   ],
+   "read_in": [
+    "L6",
+    "L14"
+   ]
+  },
+  "t": {
+   "written_in": [
+    "L6"
+   ],
+   "read_in": [
+    "L6"
+   ]
+  },
+  "n_undefined": {
+   "written_in": [
+    "L6"
+   ],
+   "read_in": [
+    "L6",
+    "L21"
+   ]
+  },
+  "a": {
+   "written_in": [
+    "L6",
+    "L14"
+   ],
+   "read_in": [
+    "L6",
+    "L14"
+   ]
+  },
+  "p": {
+   "written_in": [
+    "L6",
+    "L18"
+   ],
+   "read_in": [
+    "L6",
+    "L18"
+   ]
+  },
+  "i": {
+   "written_in": [
+    "L6",
+    "L14"
+   ],
+   "read_in": [
+    "L6",
+    "L14"
+   ]
+  },
+  "e_cond": {
+   "written_in": [
+    "L7",
+    "L12"
+   ],
+   "read_in": [
+    "L7",
+    "L12"
+   ]
+  },
+  "e_agent": {
+   "written_in": [
+    "L7",
+    "L12"
+   ],
+   "read_in": [
+    "L7",
+    "L12"
+   ]
+  },
+  "d_class": {
+   "written_in": [
+    "L7",
+    "L12"
+   ],
+   "read_in": [
+    "L7",
+    "L12"
+   ]
+  },
+  "d_agent": {
+   "written_in": [
+    "L7",
+    "L12"
+   ],
+   "read_in": [
+    "L7",
+    "L12"
+   ]
+  },
+  "e_class": {
+   "written_in": [
+    "L7",
+    "L12"
+   ],
+   "read_in": [
+    "L7",
+    "L12"
+   ]
+  },
+  "d_cond": {
+   "written_in": [
+    "L7",
+    "L12"
+   ],
+   "read_in": [
+    "L7",
+    "L12"
+   ]
+  },
+  "p_class": {
+   "written_in": [
+    "L8",
+    "L12"
+   ],
+   "read_in": [
+    "L12"
+   ]
+  },
+  "p_agent": {
+   "written_in": [
+    "L8",
+    "L12"
+   ],
+   "read_in": [
+    "L8",
+    "L12"
+   ]
+  },
+  "p_cond": {
+   "written_in": [
+    "L8",
+    "L12"
+   ],
+   "read_in": [
+    "L8",
+    "L12"
+   ]
+  },
+  "f_cond": {
+   "written_in": [
+    "L11"
+   ],
+   "read_in": [
+    "L11",
+    "L12"
+   ]
+  },
+  "f_agent": {
+   "written_in": [
+    "L11"
+   ],
+   "read_in": [
+    "L11",
+    "L12"
+   ]
+  },
+  "outside_now": {
+   "written_in": [
+    "L13"
+   ],
+   "read_in": [
+    "L13",
+    "L14"
+   ]
+  },
+  "item": {
+   "written_in": [
+    "L14"
+   ],
+   "read_in": [
+    "L14"
+   ]
+  },
+  "res": {
+   "written_in": [
+    "L14"
+   ],
+   "read_in": [
+    "L14"
+   ]
+  },
+  "n_parse_errors": {
+   "written_in": [
+    "L14"
+   ],
+   "read_in": [
+    "L14",
+    "L21"
+   ]
+  },
+  "d": {
+   "written_in": [
+    "L14"
+   ],
+   "read_in": [
+    "L14"
+   ]
+  },
+  "intents": {
+   "written_in": [
+    "L15"
+   ],
+   "read_in": [
+    "L15",
+    "L16",
+    "L21"
+   ]
+  },
+  "_k": {
+   "written_in": [
+    "L17",
+    "L22"
+   ],
+   "read_in": [
+    "L17",
+    "L22"
+   ]
+  },
+  "outcome": {
+   "written_in": [
+    "L17"
+   ],
+   "read_in": [
+    "L17",
+    "L18",
+    "L20",
+    "L21"
+   ]
+  },
+  "s": {
+   "written_in": [
+    "L18"
+   ],
+   "read_in": [
+    "L18"
+   ]
+  }
+ },
+ "loop_vars": {
+  "_act_hash_now": {
+   "cat": "read_only",
+   "first_read": 4531,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_env_fields": {
+   "cat": "read_only",
+   "first_read": 4531,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_fp": {
+   "cat": "read_only",
+   "first_read": 4531,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_hash_owners": {
+   "cat": "read_only",
+   "first_read": 4493,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_pst_now": {
+   "cat": "read_only",
+   "first_read": 4525,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "agents": {
+   "cat": "read_only",
+   "first_read": 3636,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "fleet_inflight": {
+   "cat": "persistent_mutated",
+   "first_read": 3694,
+   "first_bind": null,
+   "mut_lines": [
+    3694,
+    3917,
+    4131,
+    4133
+   ],
+   "n_mut": 4
+  },
+  "parent_run": {
+   "cat": "read_only",
+   "first_read": 4531,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "pending": {
+   "cat": "carried_rebind",
+   "first_read": 3694,
+   "first_bind": 3702,
+   "mut_lines": [
+    3694,
+    3917,
+    4081
+   ],
+   "n_mut": 3
+  },
+  "run_id": {
+   "cat": "read_only",
+   "first_read": 4531,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "schedule": {
+   "cat": "read_only",
+   "first_read": 3634,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "schedule_hash": {
+   "cat": "read_only",
+   "first_read": 4498,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "sim_days": {
+   "cat": "read_only",
+   "first_read": 4531,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "state_files": {
+   "cat": "persistent_mutated",
+   "first_read": 4531,
+   "first_bind": null,
+   "mut_lines": [
+    4531
+   ],
+   "n_mut": 1
+  },
+  "state_out": {
+   "cat": "read_only",
+   "first_read": 4530,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "tpd": {
+   "cat": "read_only",
+   "first_read": 3632,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "world": {
+   "cat": "read_only",
+   "first_read": 3681,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "tick": {
+   "cat": "read_only",
+   "first_read": 3632,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_save_state": {
+   "cat": "read_only",
+   "first_read": 4531,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_day_record": {
+   "cat": "read_only",
+   "first_read": 4529,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_eod_hashes": {
+   "cat": "read_only",
+   "first_read": 4529,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_ledger_close": {
+   "cat": "read_only",
+   "first_read": 4529,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "checkpoint_every": {
+   "cat": "read_only",
+   "first_read": 4478,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "ledger": {
+   "cat": "read_only",
+   "first_read": 4200,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "result": {
+   "cat": "persistent_mutated",
+   "first_read": 4138,
+   "first_bind": null,
+   "mut_lines": [
+    4138,
+    4142,
+    4223,
+    4224,
+    4225,
+    4226,
+    4227,
+    4228,
+    4229,
+    4230,
+    4231,
+    4232
+   ],
+   "n_mut": 27
+  },
+  "runner": {
+   "cat": "read_only",
+   "first_read": 3634,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_close_day_midrun": {
+   "cat": "read_only",
+   "first_read": 4529,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "total_ticks": {
+   "cat": "read_only",
+   "first_read": 4478,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "td": {
+   "cat": "tick_local",
+   "first_read": 3633,
+   "first_bind": 3632,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_owners": {
+   "cat": "tick_local",
+   "first_read": 4498,
+   "first_bind": 4493,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "checkpoint_detail": {
+   "cat": "read_only",
+   "first_read": 4523,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_dt_ckpt": {
+   "cat": "tick_local",
+   "first_read": 4521,
+   "first_bind": 4520,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "phase": {
+   "cat": "persistent_mutated",
+   "first_read": 3669,
+   "first_bind": null,
+   "mut_lines": [
+    3669,
+    3694,
+    3811,
+    3839,
+    3859,
+    3917,
+    4025,
+    4153,
+    4182,
+    4189,
+    4216,
+    4219
+   ],
+   "n_mut": 14
+  },
+  "t0": {
+   "cat": "tick_local",
+   "first_read": 3669,
+   "first_bind": 3660,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "hash_scheme": {
+   "cat": "read_only",
+   "first_read": 4501,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_full": {
+   "cat": "tick_local",
+   "first_read": 4516,
+   "first_bind": 4495,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_memo": {
+   "cat": "tick_local",
+   "first_read": 4498,
+   "first_bind": 4494,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_act_hash": {
+   "cat": "tick_local",
+   "first_read": 4511,
+   "first_bind": 4480,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_agents_h": {
+   "cat": "tick_local",
+   "first_read": 4508,
+   "first_bind": 4503,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_full_bytes": {
+   "cat": "tick_local",
+   "first_read": 4500,
+   "first_bind": 4495,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "act_layer": {
+   "cat": "read_only",
+   "first_read": 3634,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "arbiter": {
+   "cat": "read_only",
+   "first_read": 4020,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "bridge": {
+   "cat": "read_only",
+   "first_read": 4057,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "classical_policy": {
+   "cat": "read_only",
+   "first_read": 3634,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "conv": {
+   "cat": "persistent_mutated",
+   "first_read": 3694,
+   "first_bind": null,
+   "mut_lines": [
+    4320,
+    4326,
+    4337
+   ],
+   "n_mut": 3
+  },
+  "detector": {
+   "cat": "read_only",
+   "first_read": 3815,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "energy_layer": {
+   "cat": "read_only",
+   "first_read": 3636,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "fam_layer": {
+   "cat": "read_only",
+   "first_read": 4212,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "fleet_bridge": {
+   "cat": "read_only",
+   "first_read": 3694,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "fleet_deferred": {
+   "cat": "persistent_mutated",
+   "first_read": 3694,
+   "first_bind": null,
+   "mut_lines": [
+    3694,
+    3917,
+    3932,
+    4075,
+    4134
+   ],
+   "n_mut": 5
+  },
+  "fleet_waiting": {
+   "cat": "persistent_mutated",
+   "first_read": 3694,
+   "first_bind": null,
+   "mut_lines": [
+    3694,
+    3917,
+    4067,
+    4080,
+    4109
+   ],
+   "n_mut": 5
+  },
+  "intent_layer": {
+   "cat": "read_only",
+   "first_read": 3792,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "mem_layer": {
+   "cat": "read_only",
+   "first_read": 4089,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "norm_meter": {
+   "cat": "read_only",
+   "first_read": 3730,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "perception": {
+   "cat": "read_only",
+   "first_read": 3676,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "poi_resolver": {
+   "cat": "read_only",
+   "first_read": 3634,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "presence": {
+   "cat": "read_only",
+   "first_read": 3634,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "rel_layer": {
+   "cat": "persistent_mutated",
+   "first_read": 3793,
+   "first_bind": null,
+   "mut_lines": [
+    3968,
+    3972,
+    4363
+   ],
+   "n_mut": 3
+  },
+  "replay_inbox": {
+   "cat": "persistent_mutated",
+   "first_read": 3694,
+   "first_bind": null,
+   "mut_lines": [
+    3694,
+    3917,
+    4072,
+    4078
+   ],
+   "n_mut": 4
+  },
+  "wom_ex": {
+   "cat": "read_only",
+   "first_read": 4089,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_tk": {
+   "cat": "tick_local",
+   "first_read": 4477,
+   "first_bind": 4476,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "occ_transit": {
+   "cat": "persistent_mutated",
+   "first_read": 4477,
+   "first_bind": null,
+   "mut_lines": [
+    4477
+   ],
+   "n_mut": 1
+  },
+  "_ts": {
+   "cat": "tick_local",
+   "first_read": 4476,
+   "first_bind": 4475,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_k": {
+   "cat": "tick_local",
+   "first_read": 4241,
+   "first_bind": 4240,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_kc": {
+   "cat": "tick_local",
+   "first_read": 4472,
+   "first_bind": 4471,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "occ_kind": {
+   "cat": "persistent_mutated",
+   "first_read": 4472,
+   "first_bind": null,
+   "mut_lines": [
+    4472
+   ],
+   "n_mut": 1
+  },
+  "_ok": {
+   "cat": "tick_local",
+   "first_read": 4471,
+   "first_bind": 4470,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_c": {
+   "cat": "tick_local",
+   "first_read": 4470,
+   "first_bind": 4469,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "occ_counts": {
+   "cat": "persistent_mutated",
+   "first_read": 4467,
+   "first_bind": null,
+   "mut_lines": [
+    4467
+   ],
+   "n_mut": 1
+  },
+  "occ_ticks": {
+   "cat": "persistent_mutated",
+   "first_read": 4466,
+   "first_bind": null,
+   "mut_lines": [
+    4466
+   ],
+   "n_mut": 1
+  },
+  "occupancy_every": {
+   "cat": "read_only",
+   "first_read": 4465,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "outcome": {
+   "cat": "tick_local",
+   "first_read": 4219,
+   "first_bind": 4193,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "sleep_counts": {
+   "cat": "persistent_mutated",
+   "first_read": 3870,
+   "first_bind": null,
+   "mut_lines": [
+    3870,
+    3874,
+    4457
+   ],
+   "n_mut": 3
+  },
+  "prev_sessions": {
+   "cat": "carried_rebind",
+   "first_read": 4449,
+   "first_bind": 4455,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "prev_tape_misses": {
+   "cat": "carried_rebind",
+   "first_read": 4448,
+   "first_bind": 4454,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "decision": {
+   "cat": "tick_local",
+   "first_read": 4029,
+   "first_bind": 4020,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "n_parse_errors": {
+   "cat": "tick_local",
+   "first_read": 4447,
+   "first_bind": 4036,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "n_undefined": {
+   "cat": "tick_local",
+   "first_read": 3717,
+   "first_bind": 3699,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "plan": {
+   "cat": "tick_local",
+   "first_read": 4194,
+   "first_bind": 4186,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "intents": {
+   "cat": "tick_local",
+   "first_read": 4181,
+   "first_bind": 4175,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "cands": {
+   "cat": "tick_local",
+   "first_read": 4021,
+   "first_bind": 3978,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "r": {
+   "cat": "tick_local",
+   "first_read": 4432,
+   "first_bind": 4432,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "diag_rows": {
+   "cat": "persistent_mutated",
+   "first_read": 4429,
+   "first_bind": null,
+   "mut_lines": [
+    4429
+   ],
+   "n_mut": 1
+  },
+  "tick_seconds": {
+   "cat": "read_only",
+   "first_read": 3663,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_exp": {
+   "cat": "tick_local",
+   "first_read": 4418,
+   "first_bind": 4395,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_fam_renderer": {
+   "cat": "persistent_mutated",
+   "first_read": 4396,
+   "first_bind": null,
+   "mut_lines": [
+    4400
+   ],
+   "n_mut": 1
+  },
+  "applied_activity": {
+   "cat": "tick_local",
+   "first_read": 4387,
+   "first_bind": 3700,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "done": {
+   "cat": "tick_local",
+   "first_read": 4380,
+   "first_bind": 4377,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "s": {
+   "cat": "tick_local",
+   "first_read": 4378,
+   "first_bind": 4378,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "p": {
+   "cat": "tick_local",
+   "first_read": 3704,
+   "first_bind": 3704,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "finished": {
+   "cat": "tick_local",
+   "first_read": 4373,
+   "first_bind": 4366,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "attention_on": {
+   "cat": "read_only",
+   "first_read": 3765,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "reverted": {
+   "cat": "tick_local",
+   "first_read": 4289,
+   "first_bind": 4258,
+   "mut_lines": [
+    4289,
+    4322,
+    4335,
+    4355,
+    4361
+   ],
+   "n_mut": 5
+  },
+  "stale": {
+   "cat": "tick_local",
+   "first_read": 4361,
+   "first_bind": 4360,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_revert": {
+   "cat": "read_only",
+   "first_read": 4289,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "origin": {
+   "cat": "tick_local",
+   "first_read": 4321,
+   "first_bind": 4315,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "inviter": {
+   "cat": "tick_local",
+   "first_read": 4289,
+   "first_bind": 4286,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "same_cell": {
+   "cat": "tick_local",
+   "first_read": 4331,
+   "first_bind": 4305,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "cell_now": {
+   "cat": "tick_local",
+   "first_read": 4330,
+   "first_bind": 4256,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "invitee": {
+   "cat": "tick_local",
+   "first_read": 4288,
+   "first_bind": 4287,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "opened": {
+   "cat": "tick_local",
+   "first_read": 4333,
+   "first_bind": 4329,
+   "mut_lines": [
+    4339
+   ],
+   "n_mut": 1
+  },
+  "mutual": {
+   "cat": "tick_local",
+   "first_read": 4319,
+   "first_bind": 4318,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "b_named": {
+   "cat": "tick_local",
+   "first_read": 4318,
+   "first_bind": 4313,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "b_code": {
+   "cat": "tick_local",
+   "first_read": 4318,
+   "first_bind": 4313,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "applied_now": {
+   "cat": "tick_local",
+   "first_read": 4313,
+   "first_bind": 3754,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "s_join": {
+   "cat": "tick_local",
+   "first_read": 4300,
+   "first_bind": 4299,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "act_now": {
+   "cat": "tick_local",
+   "first_read": 4291,
+   "first_bind": 4257,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "j": {
+   "cat": "tick_local",
+   "first_read": 4286,
+   "first_bind": 4285,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "invitees": {
+   "cat": "tick_local",
+   "first_read": 4287,
+   "first_bind": 4283,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "inviters": {
+   "cat": "tick_local",
+   "first_read": 4285,
+   "first_bind": 4282,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "talk": {
+   "cat": "tick_local",
+   "first_read": 4281,
+   "first_bind": 4280,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "leave_closed": {
+   "cat": "tick_local",
+   "first_read": null,
+   "first_bind": 4277,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_lv": {
+   "cat": "tick_local",
+   "first_read": 4276,
+   "first_bind": 4274,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "leave_effect": {
+   "cat": "read_only",
+   "first_read": 4207,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_n": {
+   "cat": "tick_local",
+   "first_read": 4248,
+   "first_bind": 4247,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_code": {
+   "cat": "tick_local",
+   "first_read": 4248,
+   "first_bind": 4247,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "per_action_total": {
+   "cat": "persistent_mutated",
+   "first_read": 4248,
+   "first_bind": null,
+   "mut_lines": [
+    4248
+   ],
+   "n_mut": 1
+  },
+  "leave_counts": {
+   "cat": "persistent_mutated",
+   "first_read": 4241,
+   "first_bind": null,
+   "mut_lines": [
+    4241
+   ],
+   "n_mut": 1
+  },
+  "geometry_jammed": {
+   "cat": "tick_local",
+   "first_read": null,
+   "first_bind": 4222,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "geometry_hops": {
+   "cat": "tick_local",
+   "first_read": null,
+   "first_bind": 4221,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "focus_request": {
+   "cat": "persistent_mutated",
+   "first_read": 3796,
+   "first_bind": null,
+   "mut_lines": [
+    3797,
+    3800,
+    3806,
+    3810
+   ],
+   "n_mut": 4
+  },
+  "geom": {
+   "cat": "read_only",
+   "first_read": 4209,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "vocab_version": {
+   "cat": "read_only",
+   "first_read": 3788,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "queue_service": {
+   "cat": "read_only",
+   "first_read": 4206,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "report_precondition": {
+   "cat": "read_only",
+   "first_read": 4205,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "space": {
+   "cat": "read_only",
+   "first_read": 3775,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "salt": {
+   "cat": "read_only",
+   "first_read": 3708,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "peak_intents": {
+   "cat": "tick_local",
+   "first_read": 4181,
+   "first_bind": 4181,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "llm_intents": {
+   "cat": "tick_local",
+   "first_read": 4159,
+   "first_bind": 3698,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "arrival_intents": {
+   "cat": "tick_local",
+   "first_read": 4171,
+   "first_bind": 4166,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "wander_intents": {
+   "cat": "tick_local",
+   "first_read": 4176,
+   "first_bind": 4158,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "layer_counts": {
+   "cat": "persistent_mutated",
+   "first_read": 3663,
+   "first_bind": null,
+   "mut_lines": [
+    3663,
+    3851,
+    4144,
+    4170
+   ],
+   "n_mut": 4
+  },
+  "peak_backlog": {
+   "cat": "tick_local",
+   "first_read": 4152,
+   "first_bind": 4152,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "peak_pending": {
+   "cat": "tick_local",
+   "first_read": 4151,
+   "first_bind": 4151,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "n_parse_errors_fleet": {
+   "cat": "tick_local",
+   "first_read": 4150,
+   "first_bind": 3694,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "sel": {
+   "cat": "tick_local",
+   "first_read": 4032,
+   "first_bind": 4029,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_call_layer": {
+   "cat": "read_only",
+   "first_read": 4145,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "calls_by_cond": {
+   "cat": "tick_local",
+   "first_read": null,
+   "first_bind": 4139,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "d": {
+   "cat": "tick_local",
+   "first_read": 4133,
+   "first_bind": 4132,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "calls": {
+   "cat": "tick_local",
+   "first_read": 4110,
+   "first_bind": 4093,
+   "mut_lines": [
+    4110
+   ],
+   "n_mut": 1
+  },
+  "c_": {
+   "cat": "tick_local",
+   "first_read": 4131,
+   "first_bind": 4130,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "rendered": {
+   "cat": "tick_local",
+   "first_read": 4105,
+   "first_bind": 4098,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "i": {
+   "cat": "tick_local",
+   "first_read": 3712,
+   "first_bind": 3712,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "a": {
+   "cat": "tick_local",
+   "first_read": 3769,
+   "first_bind": 3769,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "cell": {
+   "cat": "tick_local",
+   "first_read": 4059,
+   "first_bind": 4045,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "lane": {
+   "cat": "read_only",
+   "first_read": 4115,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "usr_txt": {
+   "cat": "tick_local",
+   "first_read": 4114,
+   "first_bind": 4104,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "sys_txt": {
+   "cat": "tick_local",
+   "first_read": 4114,
+   "first_bind": 4104,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "cond": {
+   "cat": "tick_local",
+   "first_read": 3775,
+   "first_bind": 3707,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "cls": {
+   "cat": "tick_local",
+   "first_read": 4058,
+   "first_bind": 4053,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "n_fleet_resent": {
+   "cat": "tick_local",
+   "first_read": null,
+   "first_bind": 4066,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "last_act": {
+   "cat": "tick_local",
+   "first_read": 4060,
+   "first_bind": 4048,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "hun": {
+   "cat": "tick_local",
+   "first_read": 4059,
+   "first_bind": 4047,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "act": {
+   "cat": "tick_local",
+   "first_read": 4059,
+   "first_bind": 4046,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "store_wom_on": {
+   "cat": "read_only",
+   "first_read": 4089,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "res": {
+   "cat": "tick_local",
+   "first_read": 4063,
+   "first_bind": 4057,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_utter": {
+   "cat": "read_only",
+   "first_read": 3694,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "item": {
+   "cat": "tick_local",
+   "first_read": 4072,
+   "first_bind": 4069,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "refractory_table": {
+   "cat": "read_only",
+   "first_read": 4044,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_acq_sel": {
+   "cat": "tick_local",
+   "first_read": 4041,
+   "first_bind": 4040,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "outside_now": {
+   "cat": "tick_local",
+   "first_read": 4019,
+   "first_bind": 4016,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "n_outside_calls": {
+   "cat": "tick_local",
+   "first_read": null,
+   "first_bind": 4033,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "outside_mask": {
+   "cat": "tick_local",
+   "first_read": 4022,
+   "first_bind": 4019,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "asleep": {
+   "cat": "tick_local",
+   "first_read": 4021,
+   "first_bind": 4014,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "plan_exec_on": {
+   "cat": "read_only",
+   "first_read": 3964,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "outside_suppression": {
+   "cat": "read_only",
+   "first_read": 3964,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "asleep_now": {
+   "cat": "tick_local",
+   "first_read": 4012,
+   "first_bind": 4008,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "sleep_suppression": {
+   "cat": "read_only",
+   "first_read": 3962,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_h": {
+   "cat": "tick_local",
+   "first_read": 4012,
+   "first_bind": 4011,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "awake_ticks": {
+   "cat": "persistent_mutated",
+   "first_read": 4013,
+   "first_bind": null,
+   "mut_lines": [
+    4013
+   ],
+   "n_mut": 1
+  },
+  "n_agents": {
+   "cat": "read_only",
+   "first_read": 3961,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "awake_sum": {
+   "cat": "persistent_mutated",
+   "first_read": 4012,
+   "first_bind": null,
+   "mut_lines": [
+    4012
+   ],
+   "n_mut": 1
+  },
+  "e_agent": {
+   "cat": "tick_local",
+   "first_read": 3833,
+   "first_bind": 3829,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "f_exempt": {
+   "cat": "tick_local",
+   "first_read": 4000,
+   "first_bind": 3946,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "s_agent": {
+   "cat": "tick_local",
+   "first_read": 3979,
+   "first_bind": 3906,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "c_agent": {
+   "cat": "tick_local",
+   "first_read": 3979,
+   "first_bind": 3897,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "d_agent": {
+   "cat": "tick_local",
+   "first_read": 3824,
+   "first_bind": 3818,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "p_agent": {
+   "cat": "tick_local",
+   "first_read": 3861,
+   "first_bind": 3844,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "f_since": {
+   "cat": "tick_local",
+   "first_read": 3990,
+   "first_bind": 3927,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "e_class": {
+   "cat": "tick_local",
+   "first_read": 3833,
+   "first_bind": 3829,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "f_class": {
+   "cat": "tick_local",
+   "first_read": 3983,
+   "first_bind": 3925,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "s_class": {
+   "cat": "tick_local",
+   "first_read": 3983,
+   "first_bind": 3906,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "c_class": {
+   "cat": "tick_local",
+   "first_read": 3983,
+   "first_bind": 3897,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "d_class": {
+   "cat": "tick_local",
+   "first_read": 3824,
+   "first_bind": 3818,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "p_class": {
+   "cat": "tick_local",
+   "first_read": 3951,
+   "first_bind": 3877,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "e_cond": {
+   "cat": "tick_local",
+   "first_read": 3833,
+   "first_bind": 3829,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "f_cond": {
+   "cat": "tick_local",
+   "first_read": 3930,
+   "first_bind": 3923,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "s_cond": {
+   "cat": "tick_local",
+   "first_read": 3981,
+   "first_bind": 3906,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "c_cond": {
+   "cat": "tick_local",
+   "first_read": 3981,
+   "first_bind": 3897,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "d_cond": {
+   "cat": "tick_local",
+   "first_read": 3824,
+   "first_bind": 3818,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "p_cond": {
+   "cat": "tick_local",
+   "first_read": 3849,
+   "first_bind": 3845,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "f_agent": {
+   "cat": "tick_local",
+   "first_read": 3930,
+   "first_bind": 3921,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "a_class": {
+   "cat": "tick_local",
+   "first_read": 3976,
+   "first_bind": 3966,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "a_cond": {
+   "cat": "tick_local",
+   "first_read": 3975,
+   "first_bind": 3966,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "a_agent": {
+   "cat": "tick_local",
+   "first_read": 3967,
+   "first_bind": 3955,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_elig": {
+   "cat": "tick_local",
+   "first_read": 3966,
+   "first_bind": 3961,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "n_fleet_reinjected": {
+   "cat": "tick_local",
+   "first_read": null,
+   "first_bind": 3931,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "x": {
+   "cat": "tick_local",
+   "first_read": 3921,
+   "first_bind": 3921,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "fleet_wait_s": {
+   "cat": "read_only",
+   "first_read": 3694,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_receive_arrivals": {
+   "cat": "read_only",
+   "first_read": 3694,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "response_delay": {
+   "cat": "read_only",
+   "first_read": 3694,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_hs": {
+   "cat": "tick_local",
+   "first_read": 3893,
+   "first_bind": 3891,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_ha": {
+   "cat": "tick_local",
+   "first_read": 3892,
+   "first_bind": 3891,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_hr": {
+   "cat": "tick_local",
+   "first_read": 3891,
+   "first_bind": 3890,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "c": {
+   "cat": "tick_local",
+   "first_read": 3878,
+   "first_bind": 3878,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "to_bed": {
+   "cat": "tick_local",
+   "first_read": 3852,
+   "first_bind": 3849,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "v": {
+   "cat": "tick_local",
+   "first_read": 3870,
+   "first_bind": 3869,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "k": {
+   "cat": "carried_rebind",
+   "first_read": 3755,
+   "first_bind": 3756,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "got": {
+   "cat": "tick_local",
+   "first_read": 3869,
+   "first_bind": 3865,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "hi": {
+   "cat": "tick_local",
+   "first_read": 3843,
+   "first_bind": 3842,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "lo": {
+   "cat": "tick_local",
+   "first_read": 3843,
+   "first_bind": 3842,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "b_cell": {
+   "cat": "read_only",
+   "first_read": 3634,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "plan_sleep": {
+   "cat": "read_only",
+   "first_read": 3848,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "b_cond": {
+   "cat": "read_only",
+   "first_read": 3634,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "b_agent": {
+   "cat": "read_only",
+   "first_read": 3634,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "b_start": {
+   "cat": "read_only",
+   "first_read": 3634,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "det": {
+   "cat": "tick_local",
+   "first_read": 3816,
+   "first_bind": 3815,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "intero_cross": {
+   "cat": "read_only",
+   "first_read": 3816,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "field_rows": {
+   "cat": "tick_local",
+   "first_read": 3815,
+   "first_bind": 3675,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "keep": {
+   "cat": "tick_local",
+   "first_read": 3775,
+   "first_bind": 3767,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "tgt_poi": {
+   "cat": "tick_local",
+   "first_read": 3786,
+   "first_bind": 3726,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "tgt_person": {
+   "cat": "tick_local",
+   "first_read": 3755,
+   "first_bind": 3718,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "tgt_hint": {
+   "cat": "tick_local",
+   "first_read": 3785,
+   "first_bind": 3723,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "kept_agents": {
+   "cat": "tick_local",
+   "first_read": 3799,
+   "first_bind": 3798,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "agents_in_order": {
+   "cat": "tick_local",
+   "first_read": 3731,
+   "first_bind": 3729,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "parsed_targets": {
+   "cat": "tick_local",
+   "first_read": 3790,
+   "first_bind": 3735,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "t": {
+   "cat": "tick_local",
+   "first_read": 3790,
+   "first_bind": 3790,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "move_dest": {
+   "cat": "tick_local",
+   "first_read": 3747,
+   "first_bind": 3736,
+   "mut_lines": [
+    3747
+   ],
+   "n_mut": 1
+  },
+  "talk_stats": {
+   "cat": "read_only",
+   "first_read": 3787,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "v3_hints": {
+   "cat": "read_only",
+   "first_read": 3780,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "codes": {
+   "cat": "tick_local",
+   "first_read": 3716,
+   "first_bind": 3711,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "order": {
+   "cat": "tick_local",
+   "first_read": 3712,
+   "first_bind": 3709,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "consumed": {
+   "cat": "tick_local",
+   "first_read": 3769,
+   "first_bind": 3763,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "wmask": {
+   "cat": "tick_local",
+   "first_read": 3745,
+   "first_bind": 3741,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "payloads": {
+   "cat": "tick_local",
+   "first_read": 3739,
+   "first_bind": 3733,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "due": {
+   "cat": "tick_local",
+   "first_read": 3703,
+   "first_bind": 3702,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "ag": {
+   "cat": "tick_local",
+   "first_read": 3708,
+   "first_bind": 3706,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "n_undefined_total": {
+   "cat": "tick_local",
+   "first_read": null,
+   "first_bind": 3717,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "t_apply": {
+   "cat": "tick_local",
+   "first_read": 3708,
+   "first_bind": 3704,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "ev_class": {
+   "cat": "tick_local",
+   "first_read": 3709,
+   "first_bind": 3705,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "ak": {
+   "cat": "tick_local",
+   "first_read": 3709,
+   "first_bind": 3708,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_pres0": {
+   "cat": "tick_local",
+   "first_read": 3664,
+   "first_bind": 3661,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_ed": {
+   "cat": "tick_local",
+   "first_read": 3650,
+   "first_bind": 3646,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_ef": {
+   "cat": "tick_local",
+   "first_read": 3644,
+   "first_bind": 3642,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_es": {
+   "cat": "tick_local",
+   "first_read": 3644,
+   "first_bind": 3642,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_ea": {
+   "cat": "tick_local",
+   "first_read": 3643,
+   "first_bind": 3642,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "meal_sleep_defer": {
+   "cat": "read_only",
+   "first_read": 3641,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_bodies_now": {
+   "cat": "read_only",
+   "first_read": 3635,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_money_now": {
+   "cat": "read_only",
+   "first_read": 3635,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "day_heads": {
+   "cat": "persistent_mutated",
+   "first_read": 3635,
+   "first_bind": null,
+   "mut_lines": [
+    3635
+   ],
+   "n_mut": 1
+  },
+  "_start_day": {
+   "cat": "read_only",
+   "first_read": 3635,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_w17_weekday": {
+   "cat": "read_only",
+   "first_read": 3634,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "b_tick": {
+   "cat": "read_only",
+   "first_read": 3634,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "calendar": {
+   "cat": "read_only",
+   "first_read": 3634,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "ticks": {
+   "cat": "read_only",
+   "first_read": 3634,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "w17_substituted": {
+   "cat": "persistent_mutated",
+   "first_read": 3634,
+   "first_bind": null,
+   "mut_lines": [
+    3634
+   ],
+   "n_mut": 1
+  },
+  "weekly": {
+   "cat": "read_only",
+   "first_read": 3634,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  },
+  "_relay_tables": {
+   "cat": "read_only",
+   "first_read": 3634,
+   "first_bind": null,
+   "mut_lines": [],
+   "n_mut": 0
+  }
+ },
+ "loop_vars_by_cat": {
+  "read_only": [
+   "_act_hash_now",
+   "_bodies_now",
+   "_call_layer",
+   "_close_day_midrun",
+   "_day_record",
+   "_env_fields",
+   "_eod_hashes",
+   "_fp",
+   "_hash_owners",
+   "_ledger_close",
+   "_money_now",
+   "_pst_now",
+   "_receive_arrivals",
+   "_relay_tables",
+   "_revert",
+   "_save_state",
+   "_start_day",
+   "_utter",
+   "_w17_weekday",
+   "act_layer",
+   "agents",
+   "arbiter",
+   "attention_on",
+   "b_agent",
+   "b_cell",
+   "b_cond",
+   "b_start",
+   "b_tick",
+   "bridge",
+   "calendar",
+   "checkpoint_detail",
+   "checkpoint_every",
+   "classical_policy",
+   "detector",
+   "energy_layer",
+   "fam_layer",
+   "fleet_bridge",
+   "fleet_wait_s",
+   "geom",
+   "hash_scheme",
+   "intent_layer",
+   "intero_cross",
+   "lane",
+   "leave_effect",
+   "ledger",
+   "meal_sleep_defer",
+   "mem_layer",
+   "n_agents",
+   "norm_meter",
+   "occupancy_every",
+   "outside_suppression",
+   "parent_run",
+   "perception",
+   "plan_exec_on",
+   "plan_sleep",
+   "poi_resolver",
+   "presence",
+   "queue_service",
+   "refractory_table",
+   "report_precondition",
+   "response_delay",
+   "run_id",
+   "runner",
+   "salt",
+   "schedule",
+   "schedule_hash",
+   "sim_days",
+   "sleep_suppression",
+   "space",
+   "state_out",
+   "store_wom_on",
+   "talk_stats",
+   "tick",
+   "tick_seconds",
+   "ticks",
+   "total_ticks",
+   "tpd",
+   "v3_hints",
+   "vocab_version",
+   "weekly",
+   "wom_ex",
+   "world"
+  ],
+  "persistent_mutated": [
+   "_fam_renderer",
+   "awake_sum",
+   "awake_ticks",
+   "conv",
+   "day_heads",
+   "diag_rows",
+   "fleet_deferred",
+   "fleet_inflight",
+   "fleet_waiting",
+   "focus_request",
+   "layer_counts",
+   "leave_counts",
+   "occ_counts",
+   "occ_kind",
+   "occ_ticks",
+   "occ_transit",
+   "per_action_total",
+   "phase",
+   "rel_layer",
+   "replay_inbox",
+   "result",
+   "sleep_counts",
+   "state_files",
+   "w17_substituted"
+  ],
+  "carried_rebind": [
+   "k",
+   "pending",
+   "prev_sessions",
+   "prev_tape_misses"
+  ],
+  "tick_local": [
+   "_acq_sel",
+   "_act_hash",
+   "_agents_h",
+   "_c",
+   "_code",
+   "_dt_ckpt",
+   "_ea",
+   "_ed",
+   "_ef",
+   "_elig",
+   "_es",
+   "_exp",
+   "_full",
+   "_full_bytes",
+   "_h",
+   "_ha",
+   "_hr",
+   "_hs",
+   "_k",
+   "_kc",
+   "_lv",
+   "_memo",
+   "_n",
+   "_ok",
+   "_owners",
+   "_pres0",
+   "_tk",
+   "_ts",
+   "a",
+   "a_agent",
+   "a_class",
+   "a_cond",
+   "act",
+   "act_now",
+   "ag",
+   "agents_in_order",
+   "ak",
+   "applied_activity",
+   "applied_now",
+   "arrival_intents",
+   "asleep",
+   "asleep_now",
+   "b_code",
+   "b_named",
+   "c",
+   "c_",
+   "c_agent",
+   "c_class",
+   "c_cond",
+   "calls",
+   "calls_by_cond",
+   "cands",
+   "cell",
+   "cell_now",
+   "cls",
+   "codes",
+   "cond",
+   "consumed",
+   "d",
+   "d_agent",
+   "d_class",
+   "d_cond",
+   "decision",
+   "det",
+   "done",
+   "due",
+   "e_agent",
+   "e_class",
+   "e_cond",
+   "ev_class",
+   "f_agent",
+   "f_class",
+   "f_cond",
+   "f_exempt",
+   "f_since",
+   "field_rows",
+   "finished",
+   "geometry_hops",
+   "geometry_jammed",
+   "got",
+   "hi",
+   "hun",
+   "i",
+   "intents",
+   "invitee",
+   "invitees",
+   "inviter",
+   "inviters",
+   "item",
+   "j",
+   "keep",
+   "kept_agents",
+   "last_act",
+   "leave_closed",
+   "llm_intents",
+   "lo",
+   "move_dest",
+   "mutual",
+   "n_fleet_reinjected",
+   "n_fleet_resent",
+   "n_outside_calls",
+   "n_parse_errors",
+   "n_parse_errors_fleet",
+   "n_undefined",
+   "n_undefined_total",
+   "opened",
+   "order",
+   "origin",
+   "outcome",
+   "outside_mask",
+   "outside_now",
+   "p",
+   "p_agent",
+   "p_class",
+   "p_cond",
+   "parsed_targets",
+   "payloads",
+   "peak_backlog",
+   "peak_intents",
+   "peak_pending",
+   "plan",
+   "r",
+   "rendered",
+   "res",
+   "reverted",
+   "s",
+   "s_agent",
+   "s_class",
+   "s_cond",
+   "s_join",
+   "same_cell",
+   "sel",
+   "stale",
+   "sys_txt",
+   "t",
+   "t0",
+   "t_apply",
+   "talk",
+   "td",
+   "tgt_hint",
+   "tgt_person",
+   "tgt_poi",
+   "to_bed",
+   "usr_txt",
+   "v",
+   "wander_intents",
+   "wmask",
+   "x"
+  ]
+ }
+}
