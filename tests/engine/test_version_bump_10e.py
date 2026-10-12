@@ -134,3 +134,322 @@ def test_e2_o64_signage_exposures_are_empty_at_every_checkpoint():
     c = res.run_manifest_fields()["familiarity_summary"]["counts"]
     assert c["exposures_signage_render"] > 0  # 露出は実際に集まっていた
     assert sizes and all(n == 0 for n in sizes), sizes
+
+
+# ================================================================= E4: 既定の乱数を counter に・K19 の鍵の並べ方・U2
+def test_e4_default_rng_scheme_is_counter_and_stateful_is_the_old_switch():
+    import argparse
+
+    from shibuya.core import rng as R
+    from shibuya.engine.run import add_calendar_args, calendar_kwargs_from_args
+
+    assert R.DEFAULT_RNG_SCHEME == "counter" and R.RNG_SCHEMES == ("stateful", "counter")
+    ap = argparse.ArgumentParser()
+    add_calendar_args(ap)
+    assert calendar_kwargs_from_args(ap.parse_args([]))["rng_scheme"] is None  # 未指定=録画は既定 counter
+    assert calendar_kwargs_from_args(ap.parse_args(["--rng-scheme", "stateful"]))["rng_scheme"] == "stateful"
+    res = run_day(n_agents=10, seed=1, n_cells=9, ticks=30, checkpoint_every=30)
+    assert res.run_manifest_fields()["rng_scheme"] == "counter"
+    assert R.k19_counters("counter", 7) == (0, 7) and R.k19_counters("counter", 1, 2, 3) == (0, 1, 2, 3)
+    assert R.k19_counters("stateful", 7) == (7,) and R.k19_counters("stateful") == ()
+    with pytest.raises(ValueError):
+        R.k19_counters("counter", 1, 2, 3, 4)
+    with pytest.raises(ValueError):
+        R.k19_counters("other", 1)
+
+
+@pytest.mark.parametrize("domain", ["world.delivery_inbound", "world.road_works", "w16.sample.stratum", "body.weight",
+                                    "perception.p_notice"])
+def test_e4_u2_next_key_is_no_longer_a_shifted_copy(domain):
+    """U2(既知の答え): 旧の並び(stateful)では「鍵 d+1 の流れ」が「鍵 d の流れを 1 ブロック(4 語)ずらした写し」になる。
+    counter では 0 語目を空けたので、鍵 d の流れを何ブロック引いても鍵 d+1 の流れと同じ語は出ない。"""
+    from shibuya.core.rng import k19_counters, stream
+
+    for d in (0, 3):
+        old_d = stream(1, domain, *k19_counters("stateful", d)).integers(0, 2**63, 40, dtype=np.int64)
+        old_n = stream(1, domain, *k19_counters("stateful", d + 1)).integers(0, 2**63, 36, dtype=np.int64)
+        assert np.array_equal(old_d[4:], old_n)  # 旧: 次の鍵の流れは写し
+        new_d = stream(1, domain, *k19_counters("counter", d)).integers(0, 2**63, 4000, dtype=np.int64)
+        new_n = stream(1, domain, *k19_counters("counter", d + 1)).integers(0, 2**63, 40, dtype=np.int64)
+        assert not set(new_n.tolist()) & set(new_d.tolist())
+
+
+def test_e4_u2_two_day_run_has_independent_day_streams():
+    """U2: 2 日のラン(合成世界・既定 counter)で、日の鍵の流れ(配送・工事)はどれも重ならない=日ごとの差を主張に使える。
+    stateful(旧値の再現)では 1 日目の配送の流れが 0 日目の流れと重なる(10f の U2)。"""
+    from shibuya.engine import rng_audit as RA
+
+    kw = dict(n_agents=120, seed=2, n_cells=16, ticks=TPD, sim_days=2, checkpoint_every=360, budget=120.0)
+    with RA.StreamRecorder() as rec:
+        run_day(**kw)
+    st = rec.analyze()
+    assert RA.check_overlaps(st) == [] and {d for d, s in st.items() if s.actual_overlaps} == set()
+    assert st["world.delivery_inbound"].streams >= 2 and st["world.delivery_inbound"].keyed is False
+    with RA.StreamRecorder() as rec_old:
+        run_day(rng_scheme="stateful", **kw)
+    old = rec_old.analyze()
+    assert old["world.delivery_inbound"].actual_overlaps >= 1
+    assert RA.check_overlaps(old, rng_scheme="stateful") == [] and RA.check_overlaps(old) != []
+
+
+def test_e4_recorder_groups_by_seed_u8():
+    """U8: 束ねる鍵に master seed を入れた=seed の違う同じ用途名・同じカウンタの流れを重なりと数えない。"""
+    from shibuya.core.rng import stream
+    from shibuya.engine import rng_audit as RA
+
+    with RA.StreamRecorder() as rec:
+        for seed in (1, 2):
+            for k in (0, 1):
+                stream(seed, "test.e4.u8", k).random(9)  # 1 語目に値・3 ブロック=同じ seed の中では重なる
+    st = rec.analyze()["test.e4.u8"]
+    assert st.streams == 4 and st.actual_overlaps == 2  # seed ごとに 1 つずつ(seed をまたいだ 2 つは数えない)
+
+
+# ================================================================= E5: テープ版 4(A8・K1)
+def test_e5_schema_is_version_4_and_appends_seven_columns():
+    from shibuya.engine import tape as TP
+
+    assert TP.TAPE_SCHEMA_VERSION == "shibuya.tape/4"
+    names = TP.CALLS_SCHEMA.names
+    v3 = list(TP.CALLS_SCHEMA_V1_NAMES) + list(TP.CALLS_SCHEMA_V2_DEFAULTS) + list(TP.CALLS_SCHEMA_V3_DEFAULTS)
+    assert names[: len(v3)] == v3  # 版 3 までの 14 列は順序ごと不変
+    assert names[len(v3):] == list(TP.CALLS_SCHEMA_V4_DEFAULTS) == [
+        "recalled_first_tick", "recalled_kind", "recalled_object", "recalled_source", "acquaintance_ids",
+        "b5_text", "b6_block_id"]
+
+
+def test_e5_a_version_3_tape_reads_as_day_0_and_replays(tmp_path):
+    """旧版(版 3)のテープは「日=0」として読める: 新しい 7 列は空で埋まり、鍵(tick=日の中の tick=T)で再生できる。"""
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    from shibuya.engine import tape as TP
+
+    kw = dict(n_agents=60, seed=1, n_cells=9, ticks=360, checkpoint_every=60, budget=60.0, vocab_version="v3")
+    rec = run_day(tape_path=tmp_path / "rec", **kw)
+    t = pq.read_table(tmp_path / "rec" / TP.CALLS_FILENAME)
+    v3_names = list(TP.CALLS_SCHEMA.names)[: -len(TP.CALLS_SCHEMA_V4_DEFAULTS)]
+    old = pa.Table.from_arrays([t.column(n) for n in v3_names], names=v3_names).replace_schema_metadata(
+        {TP.TAPE_SCHEMA_METADATA_KEY: b"shibuya.tape/3"})
+    d3 = tmp_path / "v3"
+    d3.mkdir()
+    pq.write_table(old, d3 / TP.CALLS_FILENAME)
+    (d3 / TP.BLOCKS_FILENAME).write_bytes((tmp_path / "rec" / TP.BLOCKS_FILENAME).read_bytes())
+    (d3 / TP.RUN_META_FILENAME).write_bytes((tmp_path / "rec" / TP.RUN_META_FILENAME).read_bytes())
+    tape = TP.Tape(d3)
+    assert tape.schema_version == "shibuya.tape/3"
+    rows = list(tape.rows())
+    assert rows and all(r.b5_text == "" and r.b6_block_id == "" and r.acquaintance_ids == () for r in rows)
+    assert all(0 <= r.tick < 360 for r in rows)  # 日=0: tick は日の中の tick(=T)
+    from tests.engine.test_tape_wiring import BoomLLM
+
+    rep = run_day(mode="replay", replay=d3, llm=BoomLLM(), **kw)
+    assert rep.final_hash == rec.final_hash and rep.tape_miss_count == 0
+
+
+def test_e5_key_has_the_day_through_T(tmp_path):
+    """鍵に日(A8 の 1): 2 日のランのテープの tick は通しの T(1 日目は 1,440 以上)・鍵は日をまたいで衝突しない。"""
+    from shibuya.engine import tape as TP
+
+    run_day(n_agents=40, seed=1, n_cells=9, ticks=TPD, sim_days=2, checkpoint_every=360, budget=40.0,
+            vocab_version="v3", tape_path=tmp_path / "t")
+    rows = list(TP.Tape(tmp_path / "t").rows())
+    ticks = [r.tick for r in rows]
+    assert min(ticks) < TPD <= max(ticks) < 2 * TPD
+    keys = [r.key for r in rows]
+    assert len(set(keys)) == len(keys)
+
+
+@pytest.fixture(scope="module")
+def v4_tape(tmp_path_factory):
+    """世界資産 300 体・1 日・語彙 v3・記憶 on・関係 on(初期の関係辺がある=知人の印が出る)。"""
+    if not (WORLD_DIR / "w17_schedule.parquet").exists():
+        pytest.skip("実世界資産が無い")
+    from shibuya import cli
+    from shibuya.engine import tape as TP
+
+    d = tmp_path_factory.mktemp("e5")
+    res = cli.run(n_agents=300, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3", memory="on", relations="on",
+                  tape_path=d / "t")
+    return res, TP.Tape(d / "t"), d
+
+
+def test_e5_b5_b6_texts_rebuild_the_prompt_hash(v4_tape):
+    """B5 は列に直接・B6 は intern(K1): 共有ブロック 6 本+B5+B6 の本文から ``prompt_hash`` を作り直せる(再描画の検算)。"""
+    from shibuya.core.hashing import sha256_cbor
+
+    _res, tape, _d = v4_tape
+    rows = [r for r in tape.rows() if not r.deferred]
+    assert rows
+    n_checked = 0
+    for r in rows:
+        assert r.b5_text and r.b6_block_id
+        shared = [tape.block_text(b) for b in r.block_ids]
+        assert len(shared) == 6
+        body = "\n".join(shared + [r.b5_text, tape.block_text(r.b6_block_id)])
+        assert sha256_cbor(body) == r.prompt_hash  # テープの鍵=本文の sha256_cbor(LLMRequest.prompt_hash)
+        n_checked += 1
+    assert n_checked == len(rows)
+
+
+def test_e5_recalled_memory_identity_and_acquaintances(v4_tape):
+    """引いた記憶の同定(A8 の 2)と「(知人)」の相手の id・出どころの予約(A8 の 3)。"""
+    res, tape, _d = v4_tape
+    rows = list(tape.rows())
+    with_mem = [r for r in rows if r.recalled_rows]
+    assert with_mem, "記憶 on の 1 日で想起のある呼があるはず"
+    for r in with_mem:
+        n = len(r.recalled_rows)
+        assert len(r.recalled_first_tick) == len(r.recalled_kind) == len(r.recalled_object) == n
+        assert all(-10**9 < t <= r.tick for t in r.recalled_first_tick)
+        assert all(k > 0 for k in r.recalled_kind)
+    assert all(r.recalled_source == () for r in rows)  # 予約(記憶の作り直しまでは空)
+    with_acq = [r for r in rows if r.acquaintance_ids]
+    assert with_acq, "関係 on のランでは知人の印が出るはず"
+    for r in with_acq:
+        for a in r.acquaintance_ids:
+            assert f"P-{a}(知人)" in r.b5_text
+    for r in rows:
+        if "(知人)" not in r.b5_text:
+            assert r.acquaintance_ids == ()
+
+
+# ================================================================= E4 の検収の直し(L1・L2・L3)
+def test_e4_l1_tape_meta_carries_the_rng_layout_and_old_counter_tapes_stop(tmp_path):
+    """L1: テープの脇の meta に鍵の配置の印(``rng_layout``)。10c〜10f の counter で録ったテープ(印が無く
+    ``rng_scheme=counter``)は再生で明示的に止まる。meta の無い実テープ(stateful 扱い)は今のまま回る。"""
+    import json
+
+    from shibuya.engine.run import RNG_LAYOUT
+    from shibuya.engine.tape import RUN_META_FILENAME, read_run_meta
+    from tests.engine.test_tape_wiring import BoomLLM
+
+    kw = dict(n_agents=40, seed=3, n_cells=9, ticks=120, checkpoint_every=60, budget=40.0,
+              salient_rate_per_10k=30000.0)
+    rec = run_day(tape_path=tmp_path / "c", **kw)
+    meta = read_run_meta(tmp_path / "c")
+    assert meta["rng_scheme"] == "counter" and meta["rng_layout"] == RNG_LAYOUT == "10e"
+    assert run_day(mode="replay", replay=tmp_path / "c", llm=BoomLLM(), **kw).final_hash == rec.final_hash
+    # 10c〜10f の counter のテープ(印が無い)は止まる=未指定でも counter を明示しても
+    p = tmp_path / "c" / RUN_META_FILENAME
+    d = json.loads(p.read_text(encoding="utf-8"))
+    d.pop("rng_layout")
+    p.write_text(json.dumps(d) + "\n", encoding="utf-8")
+    for extra in ({}, {"rng_scheme": "counter"}):
+        with pytest.raises(ValueError, match="10c〜10f の counter"):
+            run_day(mode="replay", replay=tmp_path / "c", llm=BoomLLM(), **kw, **extra)
+    # stateful のテープは印が無くても回る(meta の無い実テープと同じ扱い)
+    st = run_day(tape_path=tmp_path / "s", rng_scheme="stateful", **kw)
+    p = tmp_path / "s" / RUN_META_FILENAME
+    d = json.loads(p.read_text(encoding="utf-8"))
+    d.pop("rng_layout")
+    p.write_text(json.dumps(d) + "\n", encoding="utf-8")
+    assert run_day(mode="replay", replay=tmp_path / "s", llm=BoomLLM(), **kw).final_hash == st.final_hash
+
+
+def test_e4_l2_load_population_and_three_argument_samplers_follow_the_engine(monkeypatch):
+    """L2: ``load_population(n=…)`` は engine と同じ鍵の並べ方(既定 counter・``rng_scheme`` で切替)。
+    3 引数の抽出の差し替え(凍結した測りの道具)も engine から呼べる。"""
+    import numpy as np
+
+    import shibuya.engine.run as RUN
+    from shibuya.agents import population as POP
+
+    if not (WORLD_DIR / "w16_population.parquet").exists():
+        pytest.skip("W16 が無い")
+    full = POP.load_population(WORLD_DIR, n=None, seed=1)
+    for scheme in ("counter", "stateful"):
+        a = POP.load_population(WORLD_DIR, n=500, seed=1, rng_scheme=scheme)
+        b = POP.sample_population(full, 500, 1, rng_scheme=scheme)
+        assert np.array_equal(a.source_agent_id, b.source_agent_id)
+    assert np.array_equal(POP.load_population(WORLD_DIR, n=500, seed=1).source_agent_id,
+                          POP.sample_population(full, 500, 1, rng_scheme="counter").source_agent_id)
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "rel8b_measure", Path("docs/bench/analysis/c10-relations-2026-09-28/rel8b_measure.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)  # type: ignore[union-attr]
+    monkeypatch.setattr(RUN, "sample_population", mod.stratified_sample)
+    pop = RUN._resolve_population(None, WORLD_DIR, 300, 1, 520, "counter")  # TypeError にならない(世界資産は 520 セル)
+    assert pop is not None and pop.n == 300
+
+
+def test_e4_l3_checkpoints_payload_is_version_2():
+    """L3: CLI の checkpoints の JSON は版 2(``combined`` は既定で behavior-hash)。"""
+    from shibuya import cli
+
+    res = run_day(n_agents=10, seed=1, n_cells=9, ticks=30, checkpoint_every=30)
+    doc = cli.checkpoints_payload(res)
+    assert doc["schema"] == "shibuya.cli/checkpoints/2"
+    assert doc["checkpoints"][-1]["combined"] == doc["checkpoints"][-1]["behavior_hash"] == res.final_hash
+
+
+# ================================================================= E5 の検収の直し(T1・T3)
+def test_e5_t1_fleet_rows_carry_b5_b6_and_rebuild_the_prompt_hash(tmp_path):
+    """T1: 艦隊の経路(``FleetBridge``)の応答の行と繰り延べの行にも B5・B6 が入り、``prompt_hash`` を本文から作り直せる。"""
+    from shibuya.core.hashing import sha256_cbor
+    from shibuya.engine import tape as TP
+    from shibuya.world.state import World
+    from tests.engine.test_tape_deferred import make_client
+    from tests.llm.test_fleet import FakeVLLM
+
+    servers = [FakeVLLM(), FakeVLLM()]
+    try:
+        for srv in servers:
+            srv.total_delay_s = 0.02
+        client = make_client(servers, per_replica_in_flight=4, queue_capacity=8)
+        run_day(n_agents=120, seed=1, world=World.synthetic(n_cells=16, seed=1), ticks=40, processes=False,
+                population=False, world_dir=None, sleep_suppression=False, vocab_version="v3", checkpoint_every=10,
+                budget=30.0, fleet=client, tape_path=tmp_path / "t", fleet_wait_s=2.0)
+    finally:
+        for srv in servers:
+            srv.close()
+    tape = TP.Tape(tmp_path / "t")
+    rows = list(tape.rows())
+    answered = [r for r in rows if not r.deferred]
+    deferred = [r for r in rows if r.deferred]
+    assert answered and deferred, "応答の行と繰り延べの行が混ざる設定のはず"
+    for r in rows:
+        assert r.b5_text and r.b6_block_id, r.call_id
+        body = "\n".join([tape.block_text(b) for b in r.block_ids] + [r.b5_text, tape.block_text(r.b6_block_id)])
+        assert sha256_cbor(body) == r.prompt_hash, r.call_id
+
+
+def test_e5_t3_recalled_identity_matches_the_memory_table(tmp_path, monkeypatch):
+    """T3: 引いた記憶の同定 3 列を、想起した時点の記憶の表(``mem_tick``・``mem_kind``・``mem_object``・店の行は
+    ``sm_first``・``sm_poi``)と突き合わせる。並びのずれ・種類と対象の取り違えで落ちる。"""
+    from shibuya.engine import tape as TP
+    from shibuya.engine.memory import STORE_ITEM_KIND, MemoryLayer
+
+    seen: dict[tuple[int, int], list[tuple[int, tuple[int, int, int]]]] = {}
+    real = MemoryLayer.recall
+
+    def spy(self, agents, agent_id, tick, condition, inviter=-1):
+        items = real(self, agents, agent_id, tick, condition, inviter)
+        f = agents.registry.field
+        out = []
+        for it in items:
+            if it.kind == STORE_ITEM_KIND:  # 店の行(row = N + 店の行)
+                j = int(it.row) - int(self.n_rows)
+                ident = (int(f("sm_first")[agent_id][j]), int(STORE_ITEM_KIND), int(f("sm_poi")[agent_id][j]))
+            else:
+                j = int(it.row)
+                ident = (int(f("mem_tick")[agent_id][j]), int(f("mem_kind")[agent_id][j]),
+                         int(f("mem_object")[agent_id][j]))
+            out.append((int(it.row), ident))
+        seen.setdefault((int(agent_id), int(tick)), []).append(out)
+        return items
+
+    monkeypatch.setattr(MemoryLayer, "recall", spy)
+    run_day(n_agents=100, seed=2, ticks=TPD, vocab_version="v3", memory="on", store_memory="on",
+            tape_path=tmp_path / "t")
+    rows = [r for r in TP.Tape(tmp_path / "t").rows() if r.recalled_rows]
+    assert len(rows) > 100
+    n_store = 0
+    for r in rows:
+        got = list(zip(r.recalled_rows, zip(r.recalled_first_tick, r.recalled_kind, r.recalled_object)))
+        cands = seen[(int(r.agent_id), int(r.tick))]
+        assert any(c[: len(got)] == got for c in cands), (r.call_id, got, cands)
+        n_store += sum(1 for k in r.recalled_kind if k == STORE_ITEM_KIND)
+    assert n_store > 0, "店の行も想起されるはず(記憶+店の記憶)"
