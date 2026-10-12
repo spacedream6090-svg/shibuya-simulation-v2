@@ -174,7 +174,9 @@ def test_switch_is_checked_and_on_the_cli_and_sets_the_default_tau():
 REL_ON_5000_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     ("v1", "full"): ("e4f84d1d176e6ec0", 72_940),
     ("v2", "full"): ("40409ebed834126b", 72_930),
-    ("v2", "behavior"): ("64f48b6571ec2ea1", 74_616),  # 10e(E4) の値(E1 は e27e45f3e9b62749・E2 は fe19250259a7058d)
+    # 〔改訂(第330)〕10e 構築側(第330 B3 丸め・B4 W10 ON+Q7・B5 W13 の年間化)で世界の資産が動いた=既定の行だけ張り替えた(E4・E5 は 64f48b6571ec2ea1 / 74,616)。
+    # full の 2 行は旧い世界の資産で録った値=旧資産を読む切替口(エンジン側 B1)で再現する(張り替えない)。
+    ("v2", "behavior"): ("25b5ce1304f6db68", 74_056),  # 10e(E4) の値(E1 は e27e45f3e9b62749・E2 は fe19250259a7058d)
 }}
 #: 今の環境の行(無ければ ``None``=A/A だけ)。
 REL_ON_5000_GOLDEN = GE.row(REL_ON_5000_GOLDEN_BY_ENV)

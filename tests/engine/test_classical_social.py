@@ -31,7 +31,9 @@ PROMPT = "[B5 近接] 近くの人物: P-3(未知)、P-7(知人)、P-5(知人)�
 #: ``CLASSICAL_1500_GOLDEN_ACQ_PRE10E`` と ``hash_scheme="full"`` で再現する(下の試験)。
 CLASSICAL_1500_GOLDEN_ACQ_BY_ENV = {
     # 10e(E4): 乱数 counter(K19 の鍵の並べ方で母集団から動く)。E1・E2 の値は 56384ee8…/25,808
-    GE.PLATFORM_10F: ("4c8a9e083943bae971e5371a0ad9e2fbbd341112eeb9fefe5f929d1e138916c5", 26_156),
+    # 〔改訂(第330)〕10e 構築側(第330 B3 丸め・B4 W10 ON+Q7・B5 W13 の年間化)で世界の資産が動いた。E4・E5 の値は 4c8a9e08…/26,156。
+    # 下の *_PRE10E は旧い世界の資産で録った値=旧資産を読む切替口(エンジン側 B1)で再現する(張り替えない)。
+    GE.PLATFORM_10F: ("e9ef51cca7409cf13c91c551153a28407af459414285e1b40a2098df306b8d07", 26_043),
 }
 CLASSICAL_1500_GOLDEN_ACQ_PRE10E_BY_ENV = {
     GE.PLATFORM_10F: ("4f78f3c0ce95d8e205c700952d756cd2e443da86bd54c60c073f39cafd5ec00a", 25_808),

@@ -664,3 +664,108 @@ E1 は final の定義だけ・E2 は O39 の掃除(呼数は不変)・E4 は乱
 
   **報告だけのゲート**: 平日の各天候型が 1 日以上ある季節は夏と秋だけ。春と冬の平日に猛暑の日が無い(日最高 35 ℃ 以上=気象庁の定義・春と冬に無いのは物理として自然)。足りない組は `春|平日|猛暑`・`冬|平日|猛暑` の 2 つ。合計 平日 245・土休 120(祝日 18 日を含む)・晴 167・曇 73・雨 115・猛暑 10。
 - 段の後の出力: `data/world/v2_10e_steps/B5/`(W13 の 2 本とヘッダ・W9 の影と面の表とヘッダ・W18〜W20・受入パック・manifest=14 ファイル+`MANIFEST.sha256`)。
+
+## B6 構築側(影の日付・W7 の祝日)(W7 は ◎=ランは不変・影 5 日は既定のランを動かすので既定にする前で止めた・再構築 4〜5 回目)
+
+### B6-1 変えたこと
+
+- `build/vis/w9_shadow.py`: 発注どおり `SHADOW_DATES` を **2026-07-28(先頭=主の日・旧値の再現用)+ 2026-07-13〜07-17 の 5 日**にして影を作り(1 日 約 1 秒=W9 段 5.75 秒・1 日 12,842,624 B・容量のゲート 10 MB/日は FAIL のまま=今と同じ)、測った(§B6-3)。**既定のランが動くと分かったので、最後のコードでは `SHADOW_DATES` を `("2026-07-28",)` に戻した**(5 日を足すのは 1 行・注に書いた)。作った影 5 本は `data/world/v2_10e_steps/B6/` にある。一覧に無い日の影を消す規則は `remove_stale_shadows()` に分けて試験を足した(`test_vis_units.py::test_remove_stale_shadows_keeps_only_the_listed_days`)。
+- `build/field/w7_planspec.py`(`STAGE_VERSION` 1.0.0 → **1.1.0**): OSM の `opening_hours` の **PH(祝日)の規則**を捨てずに読む `parse_holiday_hours()`。祝日の 1 日ぶんの区間を**新しい列 `holiday_content`**(最後の列・`[[開,閉],…]` の JSON・PH の規則が無い POI は空文字・`PH off` は `[]`)に入れ、法規上限の窓で週表と同じように切る。**週表 `content` は変えない**(エンジン=`poi_id`・`kind`・`content` だけを読む・W14=`content` が 7 日でないと止まる・W17 の構築=7 日でない行を捨てる、の 3 つを壊さないため)。入力に内閣府の CSV を足し(W19 の資産表に載る)、CSV の範囲を notes に書く。どの日が祝日かは内閣府の CSV(エンジンの暦の口)で決まり、PH の規則の無い POI の祝日はエンジンの宣言(親案=土休扱い)に従う。
+  - **解釈(親に確かめてほしい)**: 発注の「W7 の `PH`(祝日)の行を内閣府の CSV で拾い直す」を「OSM の PH の規則を祝日の行(列)として拾い、祝日の日付は CSV で引く」と読んだ。W7 自身は祝日の日付を使っていない(週の表なので日付に依らない)。
+- 試験: `test_field_units.py::test_parse_holiday_hours`(`Su,PH`・`PH off`・`Mo-Su,PH`・PH なし・`24/7`・2 区間・週表は不変・入力に CSV)・`test_field_pipeline.py::test_w7_plan_spec`(`holiday_content` が 2,337 行・ゲートの値と一致)。
+
+### B6-2 再構築と動いた量(資産)
+
+- **影 6 日の版の再構築 ×2**: 121 ファイル(影 5 本が増えた)の sha256 が全部一致。B5 の後と比べて動いたのは 16 ファイル: `w7_plan_spec.parquet` `e904d8e64a6d69ba` → **`7a6014e0cc84203e`**(列が 1 本増えただけ=ほかの 18 列は全行同じことを確かめた)・W7 のヘッダ・**影 5 本**(`w9_shadow_2026-07-13.npy` `8200c6dbe83baa3d` ほか=§B6 の段の `MANIFEST.sha256`)・W9 のヘッダ・W14 のヘッダ(`input_hash` だけ=W7 の parquet が入力のため。W14 の出力は不変)・W18〜W20 のヘッダ・`w19_freeze.json`・受入パックの表 2 本・manifest。**07-28 の影 `ad8b6c0e2579a7f8` と面の表 `0d3680f94546d207` は不変**。
+- PH の規則を持つ POI は **40**(うち `PH off` 1)。法規上限で切られた祝日の区間は 0。
+- **最後の版(影は 07-28 だけ)の再構築 ×2**: 116 ファイル一致(W9 が影 5 本を消した)。B5 の後と比べて動いたのは 10 ファイル(W7 の parquet とヘッダ・W14 のヘッダ・W18〜W20 のヘッダ・`w19_freeze.json`・受入パックの表 2 本・manifest)。**エンジンは 19/19 構成で全欄が B5 の後と同じ**([b6build_final_vs_b5.json](b6build_final_vs_b5.json)・`sides/final.json`)=W7 の新しい列はランに効かない。`build_hash` `89fd7376a70d004c…`(影 6 日の版は `5ff1bacf7fd9c773…`)。
+
+### B6-3 影を 6 日にすると既定のランは不変ではない(発注の見込みと違う=既定にする前で止めた)
+
+- 影 6 日の世界で 19 構成を回すと、**19/19 構成で再生日が 2026-07-28 → 2026-07-14 に動いた**(世界の日付 `start_sim_datetime` も 07-14)。呼数の合計 1,267,129 → **1,330,624(+63,495)**。既定 v3 70,501 → 73,039・v3 活動層 off 58,958 → 62,852・v1 既定 60,591 → 65,103([b6shadow6_vs_b5.json](b6shadow6_vs_b5.json)・`sides/b6_shadow6.json`)。
+- **原因**: エンジンの天気の再生日の選び方(`engine/processes/environment.py` の `_pick_day`・`prefer_shadow_days`)が「**影のある日を引ける層に絞る**」expedient を持つ(材料 §4-2 の (ii))。影が 07-28(平日|雨)だけのときは平日の天候型が雨に絞られて 07-28 しか引けなかったが、影が 07-13(雨)・07-14(晴)・07-15(晴)・07-16(曇)・07-17(雨)に増えたので、平日の天候型の候補が {雨・晴・曇} に広がり、seed 1 では「晴」→ 07-14 を引いた。
+- **W7 の列は効いていない**ことを確かめた: 影 5 本だけを一時的に世界から外して既定 v3 と古典の 2 構成を回すと、final(behavior・full とも)と呼数が B5 の後と一致した(W7 の新しい列はエンジンが読まない)。
+- **止めた理由**: 発注の「資産が増えるだけで、既定のラン(07-28)は不変」はエンジンの `prefer_shadow_days` があるので成り立たない。既定のランを動かす変更は共通の約束(範囲を超える変更の前で止める)に当たるので、影 5 日を既定にするのは親の判断に回した。影を暦の日付で引く(答え 1-3)エンジン側 B6 が入れば、この絞り込みは外れる見込み(推測)。
+- 段の後の出力: `data/world/v2_10e_steps/B6/`=**影 6 日の版**(影 6 本と面の表・W7・W9・W14・W18〜W20・受入パック・manifest=18 ファイル+`MANIFEST.sha256`)。最後の版(影 07-28 だけ)の資産は作業木の `data/world/v2` そのもの(§B7)。
+
+### B6-4 段ごとの final と呼数(19 構成・5,000 体・seed 1・1 シミュ日・既定の引数)
+
+side の全体は `sides/base.json`・`sides/b3.json`・`sides/b4.json`・`sides/b5.json`・`sides/final.json`・`sides/b6_shadow6.json`(`base`=B の前の私有の写し=E5 の side と全欄一致・`final`=最後の版=B5 と全欄一致)。
+
+| 構成 | 前(=E5) final・呼数 | B3 | B4 | B5(=最後の版) | B6 影 6 日の版(既定にしていない) |
+|---|---|---|---|---|---|
+| w6_v3_default | `4fbf61616af1` 70,421 | `e1bf096f58bc` 70,500 | `54ba78d0bdf6` 70,501 | `0483d1165e24` 70,501 | `4fb81d6171c0` 73,039 |
+| w6_v3_activity_off | `6ef311ea2bca` 58,495 | `fa332cbf1b69` 58,900 | `48746516b74a` 58,958 | `125f16335476` 58,958 | `944bb3098287` 62,852 |
+| w6_v1_default | `9180ff01f380` 60,899 | `dfce0df1fef1` 61,918 | `2332c2a0494b` 60,591 | `9f6cfcf54cd8` 60,591 | `39f81c57cfe9` 65,103 |
+| w6_v1_derive_v2_1 | `d69cc0795cb2` 54,491 | `594ae8f623d6` 54,510 | `726bdb1c5279` 55,424 | `fa483a24c61e` 55,424 | `4a1b930d15d2` 58,914 |
+| w6_v2 | `88dc42eabbc8` 60,758 | `d2c9512e7ff4` 59,405 | `8561a179544b` 60,579 | `40dab07ad9c3` 60,579 | `99e9557389b6` 64,130 |
+| w6_v1_edge | `abd6801c4e3c` 54,313 | `b12661407798` 54,239 | `acd67c6ded32` 54,302 | `582d7f934096` 54,302 | `098f9d1f64ab` 57,820 |
+| w6_v2_edge | `00c7b8d57be2` 54,326 | `857e3f8b176e` 54,453 | `192dd1ca1408` 54,348 | `f55b97e6cae9` 54,348 | `2cc4b6462389` 57,883 |
+| w6_v1_edge_plateau | `a289e41bf738` 55,505 | `ff4ae9791a12` 55,987 | `8a69a1dc66bb` 56,038 | `3c8cd47b8cd7` 56,038 | `640bdd9bd4de` 59,866 |
+| w6_old_v1_default | `fb7b4b4755eb` 60,899 | `66b77fc56361` 61,918 | `e0bda39963bc` 60,591 | `8c6bd89ef728` 60,591 | `b7ca9a494b81` 65,103 |
+| w6_old_v1_derive_v2_1 | `ef68f7510655` 54,491 | `b6db72a0207f` 54,510 | `a37781b7970c` 55,424 | `ebced6f597ac` 55,424 | `710217d23a33` 58,914 |
+| w6_old_v2 | `4eacbf3c1a14` 60,758 | `1acf942d8f1c` 59,405 | `6b2ea0a13907` 60,579 | `8072feee6c51` 60,579 | `75c31b229a09` 64,130 |
+| w6_old_v1_edge | `2722cf8449b9` 54,313 | `2356b0ae0991` 54,239 | `9de90c2edee2` 54,302 | `8465cffa5f83` 54,302 | `20fdd8bb886f` 57,820 |
+| w6_old_v2_edge | `14aff5b3c963` 54,326 | `c8427e46c5b8` 54,453 | `9e7e05eb85ec` 54,348 | `8e52736a2422` 54,348 | `452e89af78c8` 57,883 |
+| w6_old_v1_edge_plateau | `79149e728b5e` 55,505 | `191cdf645f77` 55,987 | `77f12806589c` 56,038 | `a0a319c992a2` 56,038 | `361a0e813b11` 59,866 |
+| w6_golden_null_arm | `6c81c5ad8a99` 101,969 | `91439d0c2276` 101,278 | `3fc1395865db` 101,773 | `aaaa89d936f1` 101,773 | `6f55e3638514` 104,740 |
+| v3_mem_store | `785b26683ed4` 70,421 | `e805142cefe5` 70,500 | `d331a4bf51d2` 70,501 | `a16b260e4f8b` 70,501 | `cace303dc995` 73,039 |
+| v3_mem_rel | `64f48b6571ec` 74,616 | `4f4ba4a07a96` 74,055 | `33775324bae3` 74,056 | `25b5ce1304f6` 74,056 | `cc2cd858bfe4` 76,671 |
+| v3_classical | `1470f952565a` 96,961 | `aa18b0055065` 97,766 | `f29552bb8057` 97,766 | `a514cf85402d` 97,766 | `5f76ab03e79a` 100,236 |
+| v3_classical_mem_rel | `e9a4fa4d2403` 111,194 | `29737492000a` 111,011 | `82678093dfbd` 111,010 | `f6f5ec7b706b` 111,010 | `3e4a57ce6299` 112,615 |
+| 呼数の合計 | 1,264,661 | 1,265,034 | 1,267,129 | 1,267,129 | 1,330,624 |
+
+- 影 6 日の版の `v3_mem_store` は 6 本同時の回で numpy の確保に失敗した(`_ArrayMemoryError` 4.88 MiB=同じ機械でエンジン側の実行役の byte-check も回っていたためのメモリの圧迫)ので、1 本で回し直して差し替えた(`sides/b6_shadow6.json` の `note_rerun`)。
+
+## B7 取り込みの手順(親へ)
+
+1. **本体の改行の直し(先に)**: 本体の作業コピーの `docs/bench/pt_shibuya/pt6_summary_core0241.json` は CRLF(§B0)。作業木の世界はこの LF の写しで作ったので、W12・W16 のヘッダの `input_hash` が本体の今の資産と違う。取り込む前に本体のこのファイルを git の中身(LF)に揃える(`.gitattributes` の作業=親の予定と同じ)。揃えないまま本体で再構築すると、W12・W16 以降のヘッダが作業木の値とずれる。
+2. **段ごとに写す場合**: `data/world/v2_10e_steps/<段>/` の `MANIFEST.sha256` に載ったファイルを本体の `data/world/v2/` へ写す(B3 → B4 → B5 → B6final の順・各段のファイルは前の段からの差分+指定のヘッダ)。`B6final`=最後の版(W7 の PH・影は 07-28 だけ)。`B6`=影 6 日の版(既定にしていない・写すなら親の判断の後)。B の前の差分(W12・W16 のヘッダの `input_hash`)は `v2_10e_steps/base/` のヘッダ一式にある。
+3. **最後の状態だけを写す場合**(作業木の私有の写しと本体の今の資産の差=25 ファイル): ヘッダ `W7`・`W9`・`W10`・`W12`・`W13`・`W14`・`W16`・`W18`・`W19`・`W20`/出力 `w7_plan_spec.parquet`・`w10_edge_section.parquet`・`w10_noise_day.npy`・`w10_noise_night.npy`・`w10_noise_stage_day.npy`・`w10_noise_stage_night.npy`・`w12_timetables.parquet`・`w13_weather_days.parquet`・`w13_weather_hourly.parquet`・`w19_freeze.json`・`wc_index.json`・`build_manifest.json`・`acceptance/gate_table.md`・`acceptance/noise_day.png`・`acceptance/summary.json`。写した後に本体で `python -m shibuya.build.run --out data/world/v2 --data data --keep-stage W17` を回し、`build_manifest.json` の `build_hash` が作業木の **`89fd7376a70d004c…`**(ファイルの sha256 は `2f9ce268ead0e9e0…`)と一致することを確かめる(1. の改行を揃えた後)。
+4. **B6 の影 5 本は既定のランを動かす**(§B6-3)ので最後の版に入れていない。エンジン側の B6(影を暦の日付で引く)と一緒に入れるなら、`SHADOW_DATES` に 5 日を並べて再構築する(または `v2_10e_steps/B6/` の影 5 本と W9 のヘッダを写す)。
+5. **取得したデータ**(`data/realworld/jma_etrn/`・本体への junction の先=すでに本体にある): `raw10min/` 365 本・`raw/` に 330 本を足した・`MANIFEST_10min.tsv`・`MANIFEST_hourly.tsv`・CSV 2 本。ライセンス台帳に行を足す(§B5-1)。
+
+## B8 試験と張り替えた golden
+
+### B8-1 足した・直した試験(構築側)
+
+- `tests/build_field/test_w12_pm_peak_switch.py`(新・4 件・B2)・`test_field_units.py`(18/19/24/27 本/時・W13 の窓と入力・季節の表とエンジンの一致・10 分値の畳み方・祝日 CSV・PH の規則)・`test_field_pipeline.py`(W10 の既知の落ちるゲート・W13 の 365 日と物理のゲート・W7 の `holiday_content`)・`test_w10_road_names.py`・`test_w10_ruler.py`(§B4)・`tests/build_audit/test_audit_units.py`(W19 の資産表=W13 が読むファイルだけ・`realworld_live` を載せない)・`tests/build_vis/test_vis_pipeline.py`(影の日=定数・ディスクの影=一覧)・`test_vis_units.py`(古い影を消す規則)。
+
+### B8-2 張り替えた golden(既定の値だけ・世界の資産が動いたため)
+
+| 試験 | 定数 | 前(E5) | 後(10e 構築側=B5 の後=最後の版) |
+|---|---|---|---|
+| `tests/engine/test_presence_executor.py` | `W17_GOLDEN["3113e9ba7abb"]["null_arm_final"]`・`null_arm_llm_calls` | `6c81c5ad8a99437a` / 101,969 | **`aaaa89d936f1674e` / 101,773** |
+| 同 | `v3_default_final`・`v3_default_llm_calls` | `4fbf61616af1e3d2` / 70,421 | **`0483d1165e245bed` / 70,501** |
+| `tests/engine/test_state_checks_10f.py` | `K19_V3_FINAL_COUNTER` | `4fbf61616af1e3d2` | **`0483d1165e245bed`** |
+| `tests/engine/test_state_ledger_10b.py` | `T7_V3_FINAL` | `4fbf61616af1e3d2` | **`0483d1165e245bed`** |
+| `tests/engine/test_classical_social.py` | `CLASSICAL_1500_GOLDEN_ACQ_BY_ENV` | `4c8a9e08…916c5` / 26,156 | **`e9ef51cc…6b8d07` / 26,043** |
+| `tests/engine/test_relations_tenure.py` | `REL_ON_5000_GOLDEN[("v2","behavior")]` | `64f48b6571ec2ea1` / 74,616 | **`25b5ce1304f6db68` / 74,056** |
+| `tests/c8/test_sensitivity_ledger.py` | `test_w13_and_w12_real_assets` の時の数 | 840 | **8,760**(B5) |
+| 同 | `PRE_D44_DIGESTS["rows"]`(台帳の 19 行の digest) | `5a34eefd…` | **`e3483f9f…`**(B3 で S-W14-JRPHASE の `declared` を直したため) |
+
+値はこの作業木のエンジンで同じ引数のランを回して取った(`sides/final.json` の同じ構成の値と一致: 既定 v3 `0483d1165e245bed` 70,501・golden の空の腕 `aaaa89d936f1` 101,773・関係 on `25b5ce1304f6` 74,056)。各定数の脇に〔改訂(第330)〕の注で前の値を残した。
+
+### B8-3 張り替えなかった golden(旧い世界の資産で録った「旧値の再現」=エンジン側 B1 の切替口で再現する)
+
+次の試験は、切替口(`hash_scheme="full"`・`rng_scheme="stateful"`・`hunger_model="v1"`・`leave_effect=False`・`l4_scale=1.0`・`poi_target="legacy"`・`near_tiebreak="id"` ほか)で**10e より前の値**を再現する試験で、値は 10e より前の世界の資産(W10 OFF・丸めの前の W12・35 日の W13)で録られている。構築側で資産が動いたので、エンジンの切替口だけでは再現できない。**旧資産を読む切替口(エンジン側 B1・置き場 `data/world/v2_pre_10e_2026-10-12/`・答え 1-5)を通せば再現できるはず**(推測)なので、張り替えず(弱めず)に残した=最後の版では落ちる:
+
+- `test_presence_executor.py`: `test_l4_scale_1_reproduces_the_stage_2c_checkpoints`・`test_hunger_model_v1_reproduces_the_stage_3_checkpoints`・`test_leave_effect_off_reproduces_the_stage_5_checkpoints`・`test_hash_scheme_full_reproduces_the_pre_10e_checkpoints`(`*_stateful` の行を含む)
+- `test_intent_chooser.py::test_poi_target_legacy_reproduces_the_pre_2a_checkpoints_q13`
+- `tests/perception/test_near_tiebreak.py::test_classical_checkpoint_moves_with_hash_and_id_reproduces_the_old_one`
+- `test_state_checks_10f.py::test_k19_runtime_default_v3_5000_known_counts`(既定の部分は通る・`stateful` の部分=E2 の値が落ちる)
+- `test_classical_social.py::test_run_golden_and_arms`(既定の部分は通る・`*_PRE10E` が落ちる)
+- `test_relations_tenure.py::test_relations_on_arm_golden_old_and_new`(既定の行は通る・`full` の 2 行が落ちる)
+
+### B8-4 そのほかの落ちる試験
+
+- `tests/c8/test_sensitivity_ledger.py::test_manifest_judgment_matches_the_live_manifest`: 感度の台帳の判定の表(`build_manifest_judgment`)は世界の manifest の expedient の全行を写したもの。構築側で **expedient が 6 行増え 4 行消えた**(増えた: W10 の交通の過程との食い違い・W13 の日照の空欄=0・W13 の補完の文言・W13 の窓の最初の日の 0 時台・W7 の PH・W9 の影の日の定数/消えた: W13 の旧い補完の文言・W13 の手書きの祝日・W7 の PH を無視・W9 の再生日=W13 の先頭)うえに `manifest_build_hash` も変わった。新しい行の 3 分類(triage)と D-44 の列は親の判断が要るので、台帳は作り直していない。
+- `tests/vocab/test_registry_from_tape.py::test_ab7_seed1_open_matches_the_parent_report`: E6-5 に書いた既知の落ち方(作業木の `data` が本体へのつなぎのため・テープの道筋が相対にならない)。構築側の変更とは関係しない。
+
+### B8-5 全体テスト(最後に 1 回)
+
+- **最後の版(作業木の data/world/v2=影 07-28 だけ・コードは snap_B6build と同じ)・6 組に分けて同時に回した**(`python -m pytest -q -p no:cacheprovider -o addopts="" -rfE <組のファイル>` を 6 本・ディレクトリごとに同じ組・壁時計 1,127 秒): **3,813 件を集めて 3,798 passed・13 failed・1 skipped・1 xfailed**。同じ機械でエンジン側の実行役のランも回っていた。
+- 13 件のうち `test_env_and_sections_10f.py::test_golden_tables_are_keyed_by_platform_and_values_unchanged`(golden の表の値の見張り)は、B8-2 の張り替えに合わせて同じ値に直し、単独で通ることを確かめた(〔改訂(第330)〕の注)。
+- 残る 12 件: B8-3 の **9 件**(旧値の再現=エンジン側 B1 待ち)・B8-4 の 2 件(感度の台帳の判定の表・テープの道筋)・`tests/engine/test_change_detect_p6.py::test_p6_change_detection_under_2ms_at_400k_agents`(400k 体の合成の時間の門 2 ms に 2.08〜2.65 ms。**HEAD のコード(本体の src・`7f18733`)でも同じ時刻に 2.36〜2.52 ms で落ちた**=機械の混み具合。エンジンのコードは触っていない。影 6 日の版の全体テスト(40 分前)では通っていた)。
+- 影 6 日の版(§B6-3)でも全体を 1 回回した: 3,811 件・3,789 passed・**21 failed**。内訳=既定の golden だけの 3 件(帰無腕・v3 既定・T7)・既定と旧値の両方を持つ 3 件(K19・古典・関係 on)・旧値の再現だけの 6 件(`test_presence_executor.py` の 2c/3 段目/5 段目/10e 前・`test_intent_chooser.py`・`test_near_tiebreak.py`)・感度の台帳 4 件(W13 の時の数・判定の表・読み口のグラフ=影のファイルの一覧・digest)・影で再生日が動いて落ちた 3 件(`test_env_and_sections_10f.py` の seed の交換可能性 2 件・`test_presence_exit_walk.py` の 1 件=最後の版では通る)・W7 の試験の書き間違い 1 件(直した)・テープの道筋 1 件。
+

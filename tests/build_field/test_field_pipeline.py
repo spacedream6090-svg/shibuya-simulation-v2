@@ -114,6 +114,9 @@ def test_w7_plan_spec(built):
     )
     assert handled >= before["value"] > 0
     assert _gate(manifest, "W7", "osm_opening_hours_candidates")["value"] == 565
+    # 〔改訂(第330 B6)〕PH(祝日)の規則は列 holiday_content に拾う(週表 content は不変)
+    hol = C.read_parquet_columns(out / "w7_plan_spec.parquet", ["holiday_content"])["holiday_content"]
+    assert len(hol) == 2337 and _gate(manifest, "W7", "holiday_rule_poi")["value"] == sum(1 for h in hol if h) > 0
     notes = _header(manifest, "W7")["notes"]
     assert notes["osm_parse_rate"] >= 0.90
     srcs = notes["src_counts"]

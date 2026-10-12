@@ -33,7 +33,8 @@ WORLD_DIR = Path("data/world/v2")
 real_data = pytest.mark.skipif(not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="実世界資産が無い")
 TPD = 1_440
 #: 10e(E4): 既定 v3・5,000 体・seed 1・1 日の final(乱数 counter・K19 の鍵の並べ方)。
-K19_V3_FINAL_COUNTER = "4fbf61616af1e3d2"
+#: 〔改訂(第330)〕10e 構築側(第330 B3 丸め・B4 W10 ON+Q7・B5 W13 の年間化)で世界の資産が動いた。E5 の値は 4fbf61616af1e3d2。
+K19_V3_FINAL_COUNTER = "0483d1165e245bed"
 
 
 # ================================================================= K24 軸 1(AST)

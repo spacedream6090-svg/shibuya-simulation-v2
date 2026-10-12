@@ -49,7 +49,11 @@ PLANE_MIN = 5
 SHADOW_MAX_M = 300.0
 #: D-W10 の宣言予算 [byte/再生日]。
 BUDGET_BYTES_PER_DAY = 10_000_000
-#: 〔改訂(第330 B5)〕影を作る日の一覧(先頭=主の日)。B5 では 2026-07-28 だけ(10e より前と同じ日)。
+#: 〔改訂(第330 B5・B6)〕影を作る日の一覧(先頭=主の日)。いまは 2026-07-28 だけ(10e より前と同じ日)。
+#: B6(発注)の「07-13〜07-17 の 5 日+07-28」は作って測った(10e の記録 §B6・資産は v2_10e_steps/B6)が、
+#: エンジンの ``prefer_shadow_days``(影のある日に再生日を絞る)のため**既定のランの再生日が 07-28 → 07-14 に
+#: 動く**と分かったので、既定にする前で止めた(親の判断待ち)。足すときはこの一覧に 5 日を並べるだけ
+#: (先頭の 07-28 は主の日のまま)。
 SHADOW_DATES: tuple[str, ...] = ("2026-07-28",)
 
 
@@ -124,6 +128,20 @@ def _shadow_plane(
                 shadow = 1
                 break
         out[i] = shadow
+
+
+def remove_stale_shadows(out: Any, dates: tuple[str, ...]) -> list[str]:
+    """``out`` の ``w9_shadow_<日付>.npy`` のうち ``dates`` に無い日のファイルを消し、消した名前を返す。
+
+    エンジンは ``w9_shadow_*.npy`` を glob して影のある日を拾うので、前の構築の日を残さない(第330 B5)。
+    面の表 ``w9_shadow_planes.parquet`` は名前の形が違うので対象外。
+    """
+    removed: list[str] = []
+    for old in sorted(out.glob("w9_shadow_*.npy")):
+        if old.name[len("w9_shadow_") : -len(".npy")] not in dates:
+            old.unlink()
+            removed.append(old.name)
+    return removed
 
 
 def _shadow_day(
@@ -219,9 +237,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
     if not SHADOW_DATES or len(set(SHADOW_DATES)) != len(SHADOW_DATES):
         raise ValueError(f"SHADOW_DATES が空か重複: {SHADOW_DATES}")
     # 古い出力の規則(docstring): 一覧に無い日の影のファイルを消す
-    for old in sorted(ctx.out.glob("w9_shadow_*.npy")):
-        if old.name[len("w9_shadow_") : -len(".npy")] not in SHADOW_DATES:
-            old.unlink()
+    remove_stale_shadows(ctx.out, SHADOW_DATES)
 
     per_date: dict[str, dict[str, Any]] = {}
     for date_str in SHADOW_DATES:

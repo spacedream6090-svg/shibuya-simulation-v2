@@ -99,7 +99,11 @@ W17_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
         # **10e(E4)**: 既定の乱数が counter になり、K19 の鍵の並べ方で W16 の抽出(層の並べ替え)・体の定数・配送・工事・
         # p_notice の引きが変わった=母集団から動く(呼数も動く)。E2 の値(旧い並べ方)は rng_scheme="stateful" で再現
         # (``*_stateful``)。10e より前の値は hash_scheme="full" と rng_scheme="stateful"(``*_pre10e``)。
-        "null_arm_final": "6c81c5ad8a99437a", "null_arm_llm_calls": 101_969,
+        # **10e 構築側(第330)**: 10e 構築側(第330 B3 丸め・B4 W10 ON+Q7・B5 W13 の年間化)で世界の資産が動いた=既定の 2 行(帰無腕・v3 既定)を張り替えた。
+        # E5 の値= 帰無腕 6c81c5ad8a99437a / 101,969・v3 既定 4fbf61616af1e3d2 / 70,421。段ごとの値は
+        # docs/bench/analysis/wallbounce-1012/10e/README.md §B6-4。*_stateful・*_pre10e・*_leave_off・*_hunger_v1・*_l4x1 は
+        # 旧い世界の資産で録った値=旧資産を読む切替口(エンジン側 B1)で再現する(張り替えない)。
+        "null_arm_final": "aaaa89d936f1674e", "null_arm_llm_calls": 101_773,
         "null_arm_final_stateful": "065a36d238aae477",
         "null_arm_final_pre10e": "72cb9cd52982da74", "null_arm_llm_calls_pre10e": 100_439,
         "null_arm_final_leave_off": "18f8807264d04018", "null_arm_llm_calls_leave_off": 100_509,
@@ -108,7 +112,7 @@ W17_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
         # 第277(二層の段 3): **語彙 v3 の既定**(=CLI の新しい既定・activity on・mock v3 形)。
         # v1 の行は上のまま残す(ライブラリの既定は v1=切替口)。
         # 記録: docs/bench/analysis/two-layer-2026-09-27/README.md §0
-        "v3_default_final": "4fbf61616af1e3d2", "v3_default_llm_calls": 70_421,
+        "v3_default_final": "0483d1165e245bed", "v3_default_llm_calls": 70_501,
         "v3_default_final_stateful": "4985ff2fb3c771c4",
         "v3_default_final_pre10e": "993276d5e5bb5cbe", "v3_default_llm_calls_pre10e": 69_978,
         "v3_default_final_leave_off": "c9ab05383accca2e", "v3_default_llm_calls_leave_off": 69_603,

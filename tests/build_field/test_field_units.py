@@ -70,6 +70,19 @@ def test_parse_opening_hours_off():
     assert got[6] == [(240, 1380)]
 
 
+def test_parse_holiday_hours():
+    """〔改訂(第330 B6)〕PH(祝日)の規則を祝日の 1 日ぶんの区間として拾う(週表は変えない)。"""
+    assert w7.parse_holiday_hours("Mo-Fr 07:00-21:00; Sa 08:00-20:00; Su,PH 08:00-19:00") == [(480, 1140)]
+    assert w7.parse_holiday_hours("Mo,Tu,Fr,Sa 17:00-24:00; We off; Th off; Su 04:00-23:00; PH off") == []
+    assert w7.parse_holiday_hours("Mo-Su,PH 00:00-24:00") == [(0, 1440)]
+    assert w7.parse_holiday_hours("Mo-Fr 10:00-20:00") is None  # PH の規則が無い
+    assert w7.parse_holiday_hours("24/7") is None
+    assert w7.parse_holiday_hours("PH 10:00-12:00,13:00-18:00") == [(600, 720), (780, 1080)]
+    # 週表の読み方は今と同じ(PH は週表に入らない)
+    assert w7.parse_opening_hours("Mo-Fr 07:00-21:00; Sa 08:00-20:00; Su,PH 08:00-19:00")[6] == [(480, 1140)]
+    assert w7.INPUT_FILES[-1] == ("calendar", "syukujitsu.csv")
+
+
 @pytest.mark.parametrize(
     "text",
     [

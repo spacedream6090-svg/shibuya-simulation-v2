@@ -261,7 +261,8 @@ def test_w16_area_apportionment_real(sensitivity, world_dir, data_dir):
 @real_data
 def test_w13_and_w12_real_assets(sensitivity, world_dir):
     t = sensitivity.w13_temp_plus(world_dir)
-    assert t["n_hours"] == 840
+    # 〔改訂(第330 B5)〕W13 の年間化で 35 日 × 24 = 840 → 365 日 × 24 = 8,760 時
+    assert t["n_hours"] == 8_760
     u = sensitivity.w12_hour_uniform(world_dir)
     assert u["n_weight_rows"] > 0
     j = sensitivity.w12_jr_phase(world_dir)
@@ -429,7 +430,9 @@ def test_triage_validation_catches_bad_rows(sensitivity, ledger):
 #: 第311 の前の台帳(第310 bd19e0c 時点)から計算した digest。既存の 19 行・過程の id 22 本・旧注記・
 #: (a)(c)・Q146 の列が 1 バイトも動いていないことを固定する(D-44 は別の鍵 ``d44``/``d44_summary`` にだけ書く)。
 PRE_D44_DIGESTS = {
-    "rows": "5a34eefd0baf3d8c7753d40248c4c3b134d8fe7dda7fe7d96d107d3bad59f8b2",
+    # 〔改訂(第330 B3)〕S-W14-JRPHASE の declared を丸めの直しの値(9,014 便・等間隔 7,418)に直した
+    # (発注どおり・result は直す前のまま)。旧値 5a34eefd0baf3d8c7753d40248c4c3b134d8fe7dda7fe7d96d107d3bad59f8b2
+    "rows": "e3483f9f17437d9efbd2df07e69cb1b5df306e967a7cbf91c2bc6aaf3ea916de",
     "process_ablations": "cfe7fa204d28f98fe457dcb27260854f082e41fb99c52f5b72372d19380c68c7",
     "build_manifest_expedients": "036a4bd1090d3381c59b97f6c0b27f2749a119fd5da85b7f26d39427d768c899",
     "judgment_rows_without_d44": "541acb8cc5ed2a3ba39f36205fa2beed9aade03861c4d34a69507d35e15c2f28",
