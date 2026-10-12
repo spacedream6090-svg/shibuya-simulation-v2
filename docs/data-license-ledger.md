@@ -266,3 +266,13 @@
 |---|---|---|---|---|
 | data/odpt/station_timetable_metro_chiyoda_{omotesando,meijijingumae,yoyogikoen}.json・station_timetable_metro_ginza_omotesando.json・train_timetable_metro_ginza.json・stations_metro_chiyoda_edge.json・busstop_pole_near_shibuya.json・busroute_pattern_{toei,tokyubus}.json(公開枠 9 本。代々木公園は親が取得) | https://api.odpt.org/api/v4/(キーは環境変数) | 2026-10-12(調査役と親) | 公共交通オープンデータ基本ライセンス(営利・非営利を問わず可・出典表示・第三者が再利用できる形での公開と再配布は禁止=第 8 条 4 項(1)) | 千代田線 3 駅(範囲の端)・銀座線の渋谷の到着(列車時刻表)・範囲のバス停とバス系統(都営・東急バス)。世界の時点 2026-07-13 との版の食い違いは timetables/README.md §6 に宣言 |
 | data/odpt/challenge/(16 本: JR 山手線・埼京線・湘南新宿ライン、東急 東横線・田園都市線、京王 井の頭線の駅の時刻表 10 本と列車時刻表 5 本ほか) | https://api-challenge.odpt.org/api/v4/(キーは環境変数) | 2026-10-12(調査役) | **公共交通オープンデータチャレンジ限定ライセンス(2026-07-01 制定・2026-08-28 改定)**: 第 4 条 1 項 利用の目的はチャレンジへの応募に限る・第 8 条 4 項 再配布と公開の禁止・**第 13 条 許諾は 2027-03-12 に終わり削除**・JR 東日本の特定利用条件(2026-08-06・競合サービス不可・特許の通知) | **判断待ち(PENDING §1-1)**。親案は削除(応募しない限り使えない)。再配布しない・git に入れない。日次取得 `realworld_live/odpt_rt` の東急・京王・JR の分も同じ条件 |
+
+## 2026-10-12 追加 その 12(R-112 建物の内部と物の材料=リサーチの指示 10-06 §2 E5・読み取り目的・gitignore 下の data/research_cache/r112 に取得・md5 は同じ場所の MANIFEST.md)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/r112/mlit_001381403_kousoku_r2_shiryo4.pdf・mlit_001474873_indoor_map_guide_2022.pdf・mlit_001994867_bim_kakunin.pdf(国交省 高精度測位社会プロジェクト 令和 2 年度 第 1 回検討会 資料 4・屋内地図/屋内測位環境構築の手引き 2022-03・建築 BIM の取組状況) | https://www.mlit.go.jp/common/001381403.pdf ほか(MANIFEST) | 2026-10-12(リサーチ役・親がドメインを確認) | 国土交通省のサイトの利用規約(政府標準利用規約 第 2.0 版に準拠) | 渋谷駅の屋内電子地図の範囲と公開の状態・屋内地図の作り方・建築確認の BIM の時期 |
+| data/research_cache/r112/tokyo_toshiseibi_digital08_3.pdf・digital07_4.pdf・digital_r03_shiryou04.pdf(東京都 都市整備局 3D デジタルマップの WG 資料) | https://www.toshiseibi.metro.tokyo.lg.jp/...(MANIFEST・同ドメインの中の転送だけ) | 2026-10-12(同) | 東京都公式ホームページのサイトポリシー | 都の 3D デジタルマップの整備状況と仕様 |
+| data/research_cache/r112/osm_objects_w1_20261012.json(W1 の bbox の街路の設備・屋内タグ 2,115 要素・osm_base 2026-10-12T07:57:35Z・クエリは同名の .query.txt) | https://overpass-api.de/api/interpreter(Overpass API=許可の一覧の中) | 2026-10-12(同) | ODbL 1.0(出典表示「© OpenStreetMap contributors」・派生データベースは同じ条件で) | 物の形の公開データの数え(ベンチ・ごみ箱・自販機・駐輪場・看板・店名 2,813) |
+
+- 読んだだけ(保存せず・一覧の外): 商業施設 23 ドメインの robots.txt と利用条件の頁(R-112 §空欄 A の表)・soumu.go.jp のカメラ画像利活用ガイドブック・Mapillary の規約・PLATEAU 標準製品仕様書の頁(mlit.go.jp)。zip・点群・施設サイトの中身は取っていない。
