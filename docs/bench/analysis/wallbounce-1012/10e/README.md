@@ -415,6 +415,20 @@ E1 は final の定義だけ・E2 は O39 の掃除(呼数は不変)・E4 は乱
 8. **V3 の限界**: 同じ関数の中の移動は見えない。
 9. リポの根の空のファイル `overlay_paths.txt`(検収 L5)は実行役が作ったものではない。スナップショットにも入れていない。
 
+### E6-6 段ごとの commit と記録の対応(第330・ユーザーの指示=[回答 10-12b](../../../design/v2-answers-2026-10-12b.md) §7 の 2 (1): 切り直しはしない)
+
+4 つの段の commit は、親の重ね書きの道具の欠陥(一覧ファイルの改行が CRLF で `git add` が末尾の 1 本にしか効かなかった)で**試験 1 本ずつしか入っていない**。実体は訂正 commit `0389689` に 1 つで入っている。段ごとの帰属は次の表のとおり(ファイルの一覧は `0389689` の commit メッセージ)。
+
+| 段 | 段の commit(中身=試験 1 本) | 実体の commit | 記録(動いてはいけない量・動いた量) | 節 |
+|---|---|---|---|---|
+| E1 | `e57c982` | `0389689` | `e1_vs_head.json`・`e1_full_vs_head.json`・`e1_vs_head_minus.json`・`sides/` | §E1 |
+| E2 | `90e4a75` | `0389689` | `e2_vs_e1.json`・`e2_counter_vs_e2.json`・`budget_10e.json` | §E2 |
+| E4 | `1f734fb` | `0389689` | `e4_vs_e2.json`・`e4_stateful_vs_e2.json`・`e4_vs_e2_counter.json`・[住人の入れ替わりの分布の比較](population_swap_check.md)(第330) | §E4 |
+| E5 | `b0c7ddf` | `0389689` | `e5_vs_e4.json`・§E5-3 のテープの表 | §E5 |
+| 文書 | `0e366cc` | — | IMPLEMENTED #87・PENDING・devlog・[検収の記録](review-10e-engine.md) | — |
+
+再発防止はリポの仕組みにした(第330): `.gitattributes` は `* text=auto eol=lf` で改行を固定済み(事故は**リポの外**の一覧ファイルが原因)。`tools/commit_check.py` が「入れるはずのファイルの一覧(改行は正規化)」と `git diff --cached --name-only` を突き合わせ、`.githooks/pre-commit` が一覧ファイルがあるときに同じ検査と、記録の絶対パスの検査を行う。手順は README の「コミットの前」。
+
 ### E6-5 テスト
 
 **全体(検収の直しの後に 1 回・作業木=E5・`python -m pytest -q -p no:cacheprovider -o addopts="" -rf`・この機械・51 分)**: **3,797 件を集めて 3,795 passed・0 failed・1 skipped・1 xfailed**(発注の時点の 3,769 件から +28・検収の前の 3,788 件から +9)。警告は 3 件(既知の暦の 2 件と、テープの脇の meta を消して旧テープを再生する 10a の試験の `RngSchemeWarning` 1 件=予定どおり)。

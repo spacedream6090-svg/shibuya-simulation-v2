@@ -323,3 +323,7 @@ R-83 §6 と DM10 のとおり、見張りの教師は本家 Jev と d1 には�
 ## lit README 追記行
 
 | R-94 | 判断モデルの候補の再調査(R-83 の更新: 即断ほか日本語の判断モデル・OpenDecider の人の票との一致・S1MB と GLiNER の順位の入れ替わり・d1 の規約・LFM のライセンス・2 段の組・連続した量の出力の形) | 2026-10-06 | B(親検収 未) | [v2-r94-judgment-model-candidates-update.md](v2-r94-judgment-model-candidates-update.md) |
+
+## 〔答え(第330・2026-10-12 午後・ユーザー承認=[回答 10-12b](../design/v2-answers-2026-10-12b.md) §3)〕 条件 2 件
+
+- 親案どおり: LFM Open License は条件だけ記録(年商 1,000 万ドル以上の法人は商用不可)・argos1111(CC BY-SA 4.0)は SA の及ぶ範囲を確かめてから。

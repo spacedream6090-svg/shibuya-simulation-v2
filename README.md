@@ -147,8 +147,10 @@ python -m venv .venv
 .venv\Scripts\python.exe -m pip install -e ".[dev]"
 .venv\Scripts\lint-imports.exe          # 層契約(実装計画書 §3)
 .venv\Scripts\python.exe -m pytest -q   # 単体・性質テスト(GPU 不要)
-git config core.hooksPath .githooks      # コミット前の秘密スキャン(CLAUDE.md §7)
+git config core.hooksPath .githooks      # コミット前の検査(秘密スキャン・道筋・ステージの突き合わせ=CLAUDE.md §7)
 ```
+
+**コミットの前(第330・CLAUDE.md §7)**: 入れるはずのファイルの一覧を 1 行 1 パスで作り(改行は何でもよい=道具が正規化する)、明示パスで `git add` したあと、`python tools/commit_check.py --expect <一覧>` で「一覧=ステージ」を確かめてから `git commit`。一覧を `COMMIT_EXPECT` に入れておけば `.githooks/pre-commit` が同じ検査をして、足りない/余計なファイルがあれば commit を止める(第329 の事故=一覧の CRLF で `git add` が 1 本にしか効かず 4 commit が空だった、の再発防止)。一覧が無いときも、記録してはいけない道筋(絶対パス・ユーザー名・サーバー名)の検査は毎回かかる。改行は `.gitattributes`(`* text=auto eol=lf`)で LF に固定している。
 
 - 実 LLM ランは vLLM(検証は 0.28.0)を `VLLM_BATCH_INVARIANT=1` で起動する。再現性を主張するランは必ず ON(B14)。艦隊の起動と事故の型は [docs/ops/v2-server-lessons.md](docs/ops/v2-server-lessons.md)。
 - 工程 C0〜C8 の手順と無人運転の規律は [実装計画書 §9](docs/design/v2-implementation-plan.md)。
