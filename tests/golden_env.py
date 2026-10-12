@@ -83,3 +83,23 @@ def assert_aa(run: Callable[[], Any], key: Callable[[Any], Any], *, first: Any =
     ka, kb = key(a), key(b)
     assert ka == kb, f"A/A が一致しない(環境 {platform_id()} には golden の行が無い): {ka!r} != {kb!r}"
     return a
+
+
+# ------------------------------------------------------------------ 〔第330・ACT〕10e より前の値の再現(版上げ 1 回目)
+from pathlib import Path as _Path  # noqa: E402
+
+import pytest as _pytest  # noqa: E402
+
+#: 10e より前の世界の資産の退避先(W10・W12・W13・W9=エンジン側 B1 の切替口 ``--world-assets-pre10e``)。
+PRE10E_ASSETS = _Path(__file__).resolve().parents[1] / "data" / "world" / "v2_pre_10e_2026-10-12"
+#: 10e より前の値(旧い世界の資産と 10e より前の暦=day_index・legacy)を再現する ``cli.run`` の引数(第330 ACT)。
+#: 活性化(``CALENDAR_UNIFIED=True``・影 6 日)の後でも、この引数で旧い golden がそのまま再現できることを固定する。
+#: **切替口と一緒に版上げ 1 回目の RET で消す**(ユーザーの答え 1-5)。
+PRE10E_RUN_KW: dict[str, Any] = {
+    "world_assets_pre10e": str(PRE10E_ASSETS), "calendar_weekday": "day_index", "weather_scheme": "legacy",
+}
+#: 退避先の無い環境は skip(理由を書く)。
+needs_pre10e = _pytest.mark.skipif(
+    not (PRE10E_ASSETS / "MANIFEST.sha256").is_file(),
+    reason="10e より前の世界の資産の退避先(data/world/v2_pre_10e_2026-10-12)が無い=旧値の再現は回せない",
+)

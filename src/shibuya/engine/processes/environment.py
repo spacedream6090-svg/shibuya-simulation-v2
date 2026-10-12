@@ -80,6 +80,7 @@ __all__ = [
     "FALLBACK_THERMAL",
     "RNG_DOMAIN",
     "SEASON_NEIGHBOURS",
+    "WEATHER_EXPEDIENTS",
     "WeatherWarning",
     "calendar_candidates",
     "nearest_shadow_date",
@@ -110,6 +111,14 @@ RNG_DOMAIN: Final[str] = "engine.processes.environment"
 SEASON_NEIGHBOURS: Final[dict[str, tuple[str, str]]] = {
     "春": ("冬", "夏"), "夏": ("春", "秋"), "秋": ("夏", "冬"), "冬": ("秋", "春"),
 }
+
+
+#: 〔第330・ACT〕暦の規則(``calendar``)の expedient の宣言(親の決定 (3)=manifest と記録に書く)。manifest の
+#: ``weather.expedients`` に載る(``calendar`` のランだけ)。どちらも未リサーチ。
+WEATHER_EXPEDIENTS: Final[tuple[str, ...]] = (
+    "天気の層が空のときに広げる順=隣の季節(前後 2 つ)→ 全季節 → 全季節で平日/土休を問わない(未リサーチ)",
+    "暦の日付の影(W9)が無いときは、いちばん近い日付の影を読む・同じ近さなら前の日(未リサーチ)",
+)
 
 
 class WeatherWarning(UserWarning):
@@ -431,12 +440,15 @@ class EnvironmentProcess:
 
     def weather_manifest(self) -> dict[str, Any]:
         """manifest の ``weather``(規則・揺らしたか・日ごとの暦の日付と再生日と層と影・警告)。"""
-        return {
+        out: dict[str, Any] = {
             "scheme": self.weather_scheme,
             "perturbed": bool(self.perturbed),
             "days": [dict(self.weather_days[d]) for d in sorted(self.weather_days)],
             "warnings": list(self.weather_warnings),
         }
+        if self.weather_scheme == "calendar":  # 〔第330・ACT〕expedient の宣言
+            out["expedients"] = list(WEATHER_EXPEDIENTS)
+        return out
 
     def _note_shadow(self, date: str) -> None:
         """10e(B0): 開いた影のファイルの sha256 を控える(同じ日は 1 回だけ読む)。"""

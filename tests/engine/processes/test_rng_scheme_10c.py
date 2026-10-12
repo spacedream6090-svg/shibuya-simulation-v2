@@ -118,7 +118,10 @@ def test_run_day_passes_day_key0_to_the_counter_key(monkeypatch):
         return real(seed, domain, *ctr)
 
     monkeypatch.setattr(SAL, "stream", spy)
-    res = run_day(n_agents=20, seed=1, n_cells=9, ticks=5, day_index=3, rng_scheme="counter")
+    # 〔改訂(第330・ACT)〕暦の既定が real になった(鍵は日番号・0 日目が月曜でない開始は止める)=day_index を鍵にする
+    # 規則の確かめなので day_index・legacy を明示する
+    res = run_day(n_agents=20, seed=1, n_cells=9, ticks=5, day_index=3, rng_scheme="counter",
+                  calendar_weekday="day_index", weather_scheme="legacy")
     assert res.runner.salient.day_index == 3 and res.runner.dispatch.day_index == 3
     assert seen == [(0, 3 * TPD + t) for t in range(5)]
 

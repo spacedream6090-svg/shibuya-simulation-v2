@@ -300,12 +300,15 @@ def test_golden_tables_are_keyed_by_platform_and_values_unchanged():
     # 〔改訂(第330)〕10e 構築側(B3〜B5)で世界の資産が動いたので既定の 2 行と関係 on の既定の行を張り替えた
     # (E4・E5 の値= v3 既定 4fbf61616af1e3d2 / 70,421・帰無腕 6c81c5ad8a99437a / 101,969・関係 on 64f48b6571ec2ea1 / 74,616)。
     # *_stateful・*_pre10e・full の行は旧い資産の値のまま(旧資産を読む切替口=エンジン側 B1 で再現する)。
-    assert (g["v3_default_final"], g["v3_default_llm_calls"]) == ("0483d1165e245bed", 70_501)
-    assert (g["null_arm_final"], g["null_arm_llm_calls"]) == ("aaaa89d936f1674e", 101_773)
+    # 〔改訂(第330・ACT)〕活性化(暦の一本化・開始日 07-13・影 6 日)で既定の 2 行・関係 on の既定の行・古典 1,500 体を張り替えた
+    # (B6build の値= v3 既定 0483d1165e245bed / 70,501・帰無腕 aaaa89d936f1674e / 101,773・関係 on 25b5ce1304f6db68 / 74,056)。
+    # 旧値の行は退避先の資産と day_index・legacy(GE.PRE10E_RUN_KW)で再現する。
+    assert (g["v3_default_final"], g["v3_default_llm_calls"]) == ("5f7ae9ff24005314", 65_597)
+    assert (g["null_arm_final"], g["null_arm_llm_calls"]) == ("354f49ca9a61b986", 97_234)
     assert (g["v3_default_final_stateful"], g["null_arm_final_stateful"]) == ("4985ff2fb3c771c4", "065a36d238aae477")
     assert (g["v3_default_final_pre10e"], g["null_arm_final_pre10e"]) == ("993276d5e5bb5cbe", "72cb9cd52982da74")
     assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "full")] == ("40409ebed834126b", 72_930)
-    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "behavior")] == ("25b5ce1304f6db68", 74_056)
+    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "behavior")] == ("73a78288ab5e1498", 69_111)
 
 
 # ================================================================= manifest の節(K22 (a)・検収 N1・N3)

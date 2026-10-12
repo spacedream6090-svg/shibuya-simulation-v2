@@ -103,7 +103,11 @@ W17_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
         # E5 の値= 帰無腕 6c81c5ad8a99437a / 101,969・v3 既定 4fbf61616af1e3d2 / 70,421。段ごとの値は
         # docs/bench/analysis/wallbounce-1012/10e/README.md §B6-4。*_stateful・*_pre10e・*_leave_off・*_hunger_v1・*_l4x1 は
         # 旧い世界の資産で録った値=旧資産を読む切替口(エンジン側 B1)で再現する(張り替えない)。
-        "null_arm_final": "aaaa89d936f1674e", "null_arm_llm_calls": 101_773,
+        # **第330 ACT(版上げ 1 回目の活性化)**: 暦の一本化(既定 real・calendar・開始日 2026-07-13=その日の実際の天気・
+        # 影 6 日)で既定の 2 行が動いた。B6build の値= 帰無腕 aaaa89d936f1674e / 101,773・v3 既定 0483d1165e245bed / 70,501。
+        # 旧値の行(*_stateful・*_pre10e・*_leave_off・*_hunger_v1・*_l4x1)は退避先の資産と day_index・legacy
+        # (``GE.PRE10E_RUN_KW``)で再現する。記録: docs/bench/analysis/wallbounce-1012/10e/README.md §ACT
+        "null_arm_final": "354f49ca9a61b986", "null_arm_llm_calls": 97_234,
         "null_arm_final_stateful": "065a36d238aae477",
         "null_arm_final_pre10e": "72cb9cd52982da74", "null_arm_llm_calls_pre10e": 100_439,
         "null_arm_final_leave_off": "18f8807264d04018", "null_arm_llm_calls_leave_off": 100_509,
@@ -112,7 +116,7 @@ W17_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
         # 第277(二層の段 3): **語彙 v3 の既定**(=CLI の新しい既定・activity on・mock v3 形)。
         # v1 の行は上のまま残す(ライブラリの既定は v1=切替口)。
         # 記録: docs/bench/analysis/two-layer-2026-09-27/README.md §0
-        "v3_default_final": "0483d1165e245bed", "v3_default_llm_calls": 70_501,
+        "v3_default_final": "5f7ae9ff24005314", "v3_default_llm_calls": 65_597,
         "v3_default_final_stateful": "4985ff2fb3c771c4",
         "v3_default_final_pre10e": "993276d5e5bb5cbe", "v3_default_llm_calls_pre10e": 69_978,
         "v3_default_final_leave_off": "c9ab05383accca2e", "v3_default_llm_calls_leave_off": 69_603,
@@ -333,6 +337,7 @@ def test_v3_default_reproduces_the_recorded_checkpoint():
 
 
 @real_data
+@GE.needs_pre10e
 def test_l4_scale_1_reproduces_the_stage_2c_checkpoints():
     """3 段目(D-99 (a′)・D-110): 上限スイッチ ``l4_scale=1.0`` で旧挙動(L4 按分・持ち越し 2 tick)。
 
@@ -349,22 +354,25 @@ def test_l4_scale_1_reproduces_the_stage_2c_checkpoints():
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final_l4x1" not in g:
         pytest.skip(f"実 W17 の l4x1 golden が無い(md5 {w17_digest()})")
+    # 〔改訂(第330・ACT)〕旧値は 10e より前の世界の資産と暦で録った=退避先の資産(W10・W12・W13・W9)と day_index・
+    # legacy を渡して再現する(GE.PRE10E_RUN_KW・活性化の後も同じ値)。
     # 5 段目 5a(第291): 段 2c の値は空腹 v1 で録られている=旧規則を明示する
     # 9a(第302): 退去の効果の前の値=旧挙動(leave_effect=False)を明示する
     # 10e(E1): 段 2c の値は 10e より前の final の定義=hash_scheme="full" で比べる
     null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
                    report_precondition=False, l4_scale=1.0, hunger_model="v1", leave_effect=False,
-                   hash_scheme="full", rng_scheme="stateful")
+                   hash_scheme="full", rng_scheme="stateful", **GE.PRE10E_RUN_KW)
     assert null.final_hash.startswith(g["null_arm_final_l4x1"])
     assert int(null.llm_calls) == g["null_arm_llm_calls_l4x1"]
     v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
-                 l4_scale=1.0, hunger_model="v1", leave_effect=False, hash_scheme="full", rng_scheme="stateful")
+                 l4_scale=1.0, hunger_model="v1", leave_effect=False, hash_scheme="full", rng_scheme="stateful", **GE.PRE10E_RUN_KW)
     assert v3.final_hash.startswith(g["v3_default_final_l4x1"])
     assert int(v3.llm_calls) == g["v3_default_llm_calls_l4x1"]
     assert v3.run_manifest_fields()["l4_exceeded"] is False
 
 
 @real_data
+@GE.needs_pre10e
 def test_hunger_model_v1_reproduces_the_stage_3_checkpoints():
     """5 段目 5a(D-118 K5 (a)): 空腹の旧規則 ``hunger_model="v1"`` で 3 段目の既定値をそのまま再現する。
 
@@ -380,22 +388,25 @@ def test_hunger_model_v1_reproduces_the_stage_3_checkpoints():
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final_hunger_v1" not in g:
         pytest.skip(f"実 W17 の hunger v1 golden が無い(md5 {w17_digest()})")
+    # 〔改訂(第330・ACT)〕旧値は 10e より前の世界の資産と暦で録った=退避先の資産(W10・W12・W13・W9)と day_index・
+    # legacy を渡して再現する(GE.PRE10E_RUN_KW・活性化の後も同じ値)。
     # 9a(第302): 3 段目の値は退去の効果の前=旧挙動(leave_effect=False)を明示する
     # 10e(E1): 3 段目の値は 10e より前の final の定義=hash_scheme="full" で比べる
     null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
                    report_precondition=False, hunger_model="v1", leave_effect=False, hash_scheme="full",
-                   rng_scheme="stateful")
+                   rng_scheme="stateful", **GE.PRE10E_RUN_KW)
     assert null.final_hash.startswith(g["null_arm_final_hunger_v1"])
     assert int(null.llm_calls) == g["null_arm_llm_calls_hunger_v1"]
     assert null.run_manifest_fields()["hunger_model"] == "v1"
     v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
-                 hunger_model="v1", leave_effect=False, hash_scheme="full", rng_scheme="stateful")
+                 hunger_model="v1", leave_effect=False, hash_scheme="full", rng_scheme="stateful", **GE.PRE10E_RUN_KW)
     assert v3.final_hash.startswith(g["v3_default_final_hunger_v1"])
     assert int(v3.llm_calls) == g["v3_default_llm_calls_hunger_v1"]
     assert v3.energy == {}
 
 
 @real_data
+@GE.needs_pre10e
 def test_leave_effect_off_reproduces_the_stage_5_checkpoints():
     """9a(第302・D-112 ④): 退去の効果の切替口 ``leave_effect=False`` で 5 段目の既定値をそのまま再現する。
 
@@ -410,19 +421,22 @@ def test_leave_effect_off_reproduces_the_stage_5_checkpoints():
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final_leave_off" not in g:
         pytest.skip(f"実 W17 の leave off golden が無い(md5 {w17_digest()})")
+    # 〔改訂(第330・ACT)〕旧値は 10e より前の世界の資産と暦で録った=退避先の資産(W10・W12・W13・W9)と day_index・
+    # legacy を渡して再現する(GE.PRE10E_RUN_KW・活性化の後も同じ値)。
     # 10e(E1): 5 段目の値は 10e より前の final の定義=hash_scheme="full" で比べる
     null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-                   report_precondition=False, leave_effect=False, hash_scheme="full", rng_scheme="stateful")
+                   report_precondition=False, leave_effect=False, hash_scheme="full", rng_scheme="stateful", **GE.PRE10E_RUN_KW)
     assert null.final_hash.startswith(g["null_arm_final_leave_off"])
     assert int(null.llm_calls) == g["null_arm_llm_calls_leave_off"]
     v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3", leave_effect=False,
-                 hash_scheme="full", rng_scheme="stateful")
+                 hash_scheme="full", rng_scheme="stateful", **GE.PRE10E_RUN_KW)
     assert v3.final_hash.startswith(g["v3_default_final_leave_off"])
     assert int(v3.llm_calls) == g["v3_default_llm_calls_leave_off"]
     assert v3.run_manifest_fields()["leave_effects"]["enabled"] is False
 
 
 @real_data
+@GE.needs_pre10e
 def test_hash_scheme_full_reproduces_the_pre_10e_checkpoints():
     """10e(E1・版上げ 1 回目): 旧い final の定義 ``hash_scheme="full"`` で 10e より前の既定の値を再現する。
 
@@ -438,16 +452,18 @@ def test_hash_scheme_full_reproduces_the_pre_10e_checkpoints():
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final_pre10e" not in g:
         pytest.skip(f"実 W17 の 10e 前の golden が無い(md5 {w17_digest()})")
+    # 〔改訂(第330・ACT)〕旧値は 10e より前の世界の資産と暦で録った=退避先の資産(W10・W12・W13・W9)と day_index・
+    # legacy を渡して再現する(GE.PRE10E_RUN_KW・活性化の後も同じ値)。
     # 10e(E2・E4): 会話の掃除の前の O39 と 10e より前の乱数の並べ方=旧い定義では O39 は final に入らない。
     # 乱数は rng_scheme="stateful"(10e より前の既定)を明示する
     null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-                   report_precondition=False, hash_scheme="full", rng_scheme="stateful")
+                   report_precondition=False, hash_scheme="full", rng_scheme="stateful", **GE.PRE10E_RUN_KW)
     assert null.final_hash.startswith(g["null_arm_final_pre10e"])
     assert int(null.llm_calls) == g["null_arm_llm_calls_pre10e"]
     assert null.run_manifest_fields()["hash_scheme"] == "full"
     assert null.run_manifest_fields()["rng_scheme"] == "stateful"
     v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3", hash_scheme="full",
-                 rng_scheme="stateful")
+                 rng_scheme="stateful", **GE.PRE10E_RUN_KW)
     assert v3.final_hash.startswith(g["v3_default_final_pre10e"])
     assert int(v3.llm_calls) == g["v3_default_llm_calls_pre10e"]
     # full でも behavior-hash の欄は同じ値=旧い乱数の並べ方の behavior-hash(E2 の値)

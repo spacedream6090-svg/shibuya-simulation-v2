@@ -970,8 +970,8 @@ class ProcessAssets:
     plan_day: np.ndarray | None = None
     plan_start: np.ndarray | None = None
     plan_end: np.ndarray | None = None
-    #: 〔第330・10e E3〕W7 に祝日の規則(``PH``=営業時間の週の 8 つ目の要素)を持つ店(昇順)。資産に無ければ ``None``。
-    #: 祝日の区間は ``plan_day == 7``。空の 8 つ目(``[]``)=祝日は休み・``null``/無し=祝日の規則なし。
+    #: 〔第330・10e E3・ACT〕W7 に祝日の規則(``PH``=列 ``holiday_content``)を持つ店(昇順)。資産に無ければ ``None``。
+    #: 祝日の区間は ``plan_day == 7``。``[]``=祝日は休み・空文字/列なし=祝日の規則なし(日曜の行)。
     plan_ph_poi: np.ndarray | None = None
     edge_klass_code: np.ndarray | None = None
     edge_cell: np.ndarray | None = None
@@ -1390,7 +1390,14 @@ def load_process_assets(
         cmap = {name: i for i, name in enumerate(poi_cat_names)}
         poi_cat_code = np.array([cmap[str(c)] for c in poi["cat"]], dtype=np.int16)
         if fp.exists():
-            ps = pq.read_table(fp, columns=["poi_id", "kind", "content"]).to_pydict()
+            # 〔第330・ACT〕祝日(PH)の区間は構築側の列 ``holiday_content``(W7 1.1.0・``[[開,閉],…]`` の JSON・
+            # 空文字=PH の規則なし=日曜の行・``[]``=祝日は休み)から読む(親の決定 (1)=構築側の形に合わせる)。
+            # 列の無い W7(1.1.0 より前の資産・合成の資産)は PH の規則なし。週表 ``content`` は曜日 0〜6 の 7 要素だけを読む。
+            _ps_cols = ["poi_id", "kind", "content"]
+            if "holiday_content" in pq.read_schema(fp).names:
+                _ps_cols.append("holiday_content")
+            ps = pq.read_table(fp, columns=_ps_cols).to_pydict()
+            hol = ps.get("holiday_content")
             rp: list[int] = []
             ph: set[int] = set()
             rd: list[int] = []
@@ -1407,12 +1414,20 @@ def load_process_assets(
                     week = json.loads(str(ps["content"][i]))
                 except (ValueError, TypeError):
                     continue
-                # 〔第330・10e E3〕8 つ目の要素は祝日(PH)の行(``plan_day == 7``)。null/無し=規則なし
-                for day, spans in enumerate(list(week)[:8]):
+                days_spans: list[tuple[int, Any]] = list(enumerate(list(week)[:7]))
+                # 〔第330・ACT〕祝日の行(``plan_day == 7``)は列 ``holiday_content`` から
+                h_txt = str(hol[i] or "") if hol is not None else ""
+                if h_txt:
+                    try:
+                        h_spans = json.loads(h_txt)
+                    except (ValueError, TypeError):
+                        h_spans = None
+                    if h_spans is not None:
+                        ph.add(j)
+                        days_spans.append((7, h_spans))
+                for day, spans in days_spans:
                     if spans is None:
                         continue
-                    if day == 7:
-                        ph.add(j)
                     for span in spans:
                         if len(span) != 2:
                             continue

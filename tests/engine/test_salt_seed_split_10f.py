@@ -282,9 +282,11 @@ def test_population_and_motion_streams_use_their_own_seed_synthetic(monkeypatch)
     {"vocab_version": "v1", "geometry": "edge"},                                 # 希望歩行速度
 ])
 def test_population_and_motion_streams_use_their_own_seed_world(monkeypatch, kw):
+    # 〔改訂(第330・ACT)〕暦の既定(calendar)では 07-13 が窓の中=その日の実際の天気で、気象の層の抽選を引かない。
+    # 環境の流れ(engine.processes.environment)を引かせるため天気を揺らす(--weather-perturb・鍵は環境の seed)
     seen = _record_keys(monkeypatch)
     cli.run(n_agents=300, seed=3, population_seed=7, environment_seed=11, world_dir=str(WORLD), ticks=240,
-            checkpoint_every=60, **kw)
+            checkpoint_every=60, weather_perturb=True, **kw)
     used = _check_split(seen, 3, 7, 11)
     assert {"wallet.initial", "agent.schedule", "engine.processes.environment", "world.large_event",
             "world.road_works", "world.delivery_inbound"} <= used
@@ -499,7 +501,10 @@ def test_road_works_day_key_with_nonzero_day_index():
     """
     from shibuya.engine.processes.logistics import RoadWorksProcess
 
-    kw = dict(n_agents=300, world_dir=str(WORLD), ticks=30, checkpoint_every=0)  # 合成世界の資産には工事の辺が無い
+    # 〔改訂(第330・ACT)〕暦の既定が real になった(real の鍵は日番号=day_index に依らない・0 日目が月曜でない開始は
+    # 止める)。この試験は day_index を鍵にする規則の確かめなので day_index・legacy を明示する
+    kw = dict(n_agents=300, world_dir=str(WORLD), ticks=30, checkpoint_every=0,  # 合成世界の資産には工事の辺が無い
+              calendar_weekday="day_index", weather_scheme="legacy")
     for env, day in ((1, 3), (5, 3), (5, 2)):
         r = cli.run(seed=1, environment_seed=env, day_index=day, **kw)
         rw = r.runner.road_works

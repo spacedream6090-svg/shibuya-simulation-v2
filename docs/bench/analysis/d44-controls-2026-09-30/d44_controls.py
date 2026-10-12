@@ -624,12 +624,14 @@ def _ph_day(value: str):
 def c_w7_7(E: Env) -> dict[str, Any]:
     import datetime as dt
 
-    import shibuya.build.field.w13_weather as W13
     import shibuya.build.field.w7_planspec as W7
+    from shibuya.engine.calendar import load_holidays
 
     t0 = time.perf_counter()
     replay = json.loads((E.base / "W9.header.json").read_text(encoding="utf-8"))["notes"]["replay_date"]
-    is_holiday = replay in W13.HOLIDAYS_2026
+    # 〔改訂(第330・ACT)〕祝日かどうかは暦の口(内閣府 CSV=engine.calendar.load_holidays)で引く(前: W13 の手書きの
+    # HOLIDAYS_2026=10e の B5 で消した)。D-44 の回し直しはしない(記録の値はこの直しの前に測ったもの)。
+    is_holiday = dt.date.fromisoformat(replay) in load_holidays(DATA / "calendar" / "syukujitsu.csv").days
     ids, weeks, keys, srcs = w7_weeks(E.base)
     primary = cmp(open_hours_vector(weeks), open_hours_vector(weeks))  # 再生日が祝日でない=対照=宣言
     # 参考: 再生日が祝日だったら(PH 規則をその曜日へ当てる)

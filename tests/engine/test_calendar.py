@@ -118,7 +118,10 @@ def test_real_weekday_and_holidays(table):
 
 
 def test_day_index_mode_ignores_holidays_and_keeps_the_old_values(table):
-    """既定の暦は今の式と同じ値: 曜日 = (day_index + 日) % 7・土休 = 曜日 >= 5・祝日は効かない。"""
+    """day_index の暦は旧い式と同じ値: 曜日 = (day_index + 日) % 7・土休 = 曜日 >= 5・祝日は効かない。
+
+    〔改訂(第330・ACT)〕暦の既定は real になった(``CALENDAR_UNIFIED=True``)ので、最後の確かめは day_index を明示する
+    (前: 既定の暦=day_index)。既定(real)では同じ日が祝日=土休・日曜の行になる。"""
     for day_index in range(0, 15):
         c = SimCalendar(datetime(2026, 5, 4), weekday_mode="day_index", day_index=day_index, holidays=table)
         for d in range(0, 9):
@@ -129,8 +132,10 @@ def test_day_index_mode_ignores_holidays_and_keeps_the_old_values(table):
             assert c.day_kind(d) == day_kind_of(day_index + d)  # #18 の旧い式
             assert c.day_key(d) == day_index + d                # #20・#21 の旧い鍵
     # 祝日の事実は返すが、土休には入らない(2026-05-04 は祝日の月曜)
-    c = SimCalendar(datetime(2026, 5, 4), holidays=table)
+    c = SimCalendar(datetime(2026, 5, 4), weekday_mode="day_index", holidays=table)
     assert c.is_holiday(0) and not c.is_rest_day(0) and c.table_weekday(0) == 0
+    d = SimCalendar(datetime(2026, 5, 4), holidays=table)      # 既定=real
+    assert d.weekday_mode == "real" and d.is_holiday(0) and d.is_rest_day(0) and d.table_weekday(0) == 6
 
 
 def test_legacy_calendar_equals_day_index_mode():

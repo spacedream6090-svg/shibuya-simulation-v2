@@ -47,7 +47,8 @@ expedient(本モジュール分)
   「招待→応答判定」の応答判定を resolve の直後に置いた)。相手側の ``activity`` は
   resolve が変えないため、相手の離脱は ``cell`` 監視で検出する。
 - 週の曜日は ``day_index``(既定 0=月曜)。週 7 日表は C4 の PlanSpec。10a からは曜日・土休・祝日を引く箇所は
-  すべて暦の口を通す(``--calendar-weekday day_index`` が既定=今の値)。
+  すべて暦の口を通す(〔第330・ACT〕既定は ``--calendar-weekday real``・``--weather-scheme calendar``・開始日
+  2026-07-13(月)=``engine.calendar.CALENDAR_UNIFIED``)。
 - **応答の遅れ**(10a・A9): 既定 ``response_delay=1``=艦隊/再生の到着の受け取りを①(反映)の直前に置き、
   下限を ``max(t_apply, tick)`` にする=tick T に発射した呼は T+1 の①で反映される。``2`` は旧(受け取りは
   ④′・下限 ``tick + 1``=T+2)で、旧い実 LLM テープ(17 本)の再生のために残す。mock は同期で既に +1。
@@ -464,6 +465,62 @@ def resolve_rng_scheme(value: str | None, mode: str = "record", replay: Any = No
             "(--rng-scheme を録画と同じ値にする)"
         )
     return v
+
+
+#: 〔第330・ACT〕暦の規則の記録が無いテープ(版上げ 1 回目の活性化より前の録画)の値=当時の既定。
+LEGACY_TAPE_CALENDAR_WEEKDAY: Final[str] = "day_index"
+LEGACY_TAPE_WEATHER_SCHEME: Final[str] = "legacy"
+
+
+class CalendarSchemeWarning(UserWarning):
+    """再生するテープに暦の規則(``calendar_weekday``・``weather_scheme``)の記録が無い(活性化より前の録画)ときの警告。"""
+
+
+#: 「記録が無いので day_index・legacy とみなす」の警告を出したテープ(1 回だけ出すため)。
+_WARNED_CAL: set[str] = set()
+
+
+def resolve_calendar_schemes(
+    calendar_weekday: str | None, weather_scheme: str | None, mode: str = "record", replay: Any = None,
+) -> tuple[str, str]:
+    """〔第330・ACT〕曜日の決め方と天気の規則を決める(親の決定 (5)=``rng_scheme`` と同じ形)。
+
+    - 録画・mock: 渡された値。``None``(未指定)は既定(``DEFAULT_WEEKDAY_MODE``・``DEFAULT_WEATHER_SCHEME``)。
+    - 再生: テープの脇の meta(``run_meta.json``)の ``calendar_weekday``・``weather_scheme`` を既定にし、明示の値が
+      違えば止める(文言に両方の値)。記録の無いテープ(活性化より前の録画)は ``day_index``・``legacy`` とみなし、
+      警告を 1 回出す(``CalendarSchemeWarning``)。
+    """
+    w = check_weekday_mode(DEFAULT_WEEKDAY_MODE if calendar_weekday is None else calendar_weekday)
+    s = check_weather_scheme(weather_scheme)
+    if mode != "replay" or replay is None:
+        return w, s
+    tape_dir = _replay_tape_dir(replay)
+    meta = read_run_meta(tape_dir)
+    rec_w, rec_s = meta.get("calendar_weekday"), meta.get("weather_scheme")
+    if rec_w is None or rec_s is None:
+        key = str(tape_dir)
+        if key not in _WARNED_CAL:
+            _WARNED_CAL.add(key)
+            warnings.warn(
+                "再生するテープに暦の規則の記録が無い(版上げ 1 回目の活性化より前の録画): "
+                f"calendar_weekday={LEGACY_TAPE_CALENDAR_WEEKDAY}・weather_scheme={LEGACY_TAPE_WEATHER_SCHEME} "
+                f"とみなす({tape_dir.name})",
+                CalendarSchemeWarning, stacklevel=3,
+            )
+        rec_w = LEGACY_TAPE_CALENDAR_WEEKDAY if rec_w is None else rec_w
+        rec_s = LEGACY_TAPE_WEATHER_SCHEME if rec_s is None else rec_s
+    rec_w, rec_s = check_weekday_mode(str(rec_w)), check_weather_scheme(str(rec_s))
+    if calendar_weekday is None:
+        w = rec_w
+    if weather_scheme is None:
+        s = rec_s
+    if (w, s) != (rec_w, rec_s):
+        raise ValueError(
+            f"暦の規則がテープと違う: テープは calendar_weekday={rec_w}・weather_scheme={rec_s}・"
+            f"今の設定は calendar_weekday={w}・weather_scheme={s}"
+            "(--calendar-weekday・--weather-scheme を録画と同じ値にする)"
+        )
+    return w, s
 
 
 def decision_layers_summary(counts: np.ndarray) -> dict[str, Any]:
@@ -2048,7 +2105,7 @@ def run_day(
     rel_copresent: bool | str = False,
     sim_days: int = 1,
     start_sim_datetime: "datetime | str | None" = None,
-    calendar_weekday: str = DEFAULT_WEEKDAY_MODE,
+    calendar_weekday: str | None = None,
     holiday_csv: "str | Path" = DEFAULT_HOLIDAY_CSV,
     school_holidays: Any = (),
     response_delay: int | None = None,
@@ -2389,9 +2446,11 @@ def run_day(
         start_sim_datetime: **10a(A1-1)の開始日の欄**(``datetime``・``date``・``"YYYY-MM-DD"``)。``None``
             (既定)は今までどおり ``DEFAULT_START_DATETIME + day_index 日``(気象の再生実日があればその日)。
             渡すと T=0 の世界内日時(プロンプトの日付)と暦の日付になる。``calendar_weekday="real"`` では必須。
-        calendar_weekday: **10a の曜日の切替口**。``"day_index"``(既定)=今の約束(``day_index=0`` を月曜・
-            祝日は見ない)/ ``"real"``=``start_sim_datetime`` の実の曜日と祝日(祝日は土休・曜日 7 日の表では
-            日曜の行)。曜日・土休・祝日を引く 18 か所は暦の口(``engine.calendar.SimCalendar``)を通す。
+        calendar_weekday: **10a の曜日の切替口**。〔第330・ACT〕``None``(未指定)=既定 ``DEFAULT_WEEKDAY_MODE``
+            (``real``)・再生ではテープの meta の値(記録の無い旧テープは ``day_index``=``resolve_calendar_schemes``)。
+            ``"real"``=``start_sim_datetime``(無ければ ``DEFAULT_WORLD_START``)の実の曜日と祝日(祝日は土休・曜日
+            7 日の表では日曜の行・W7 は PH の行)/ ``"day_index"``=10e より前の約束(``day_index=0`` を月曜・祝日は
+            見ない・旧値の再現だけ)。曜日・土休・祝日を引く 18 か所は暦の口(``engine.calendar.SimCalendar``)を通す。
         holiday_csv: 祝日 CSV の場所(既定 ``data/calendar/syukujitsu.csv``)。無ければ祝日を空にして警告 1 回。
             読んだ md5 を manifest の ``calendar.holiday_csv_md5`` に書く。
         school_holidays: 学校の長期休みの区間の一覧(``"YYYY-MM-DD:YYYY-MM-DD,…"`` か組の列)。開始日の検査で
@@ -2432,7 +2491,8 @@ def run_day(
             渡すときは同じ退避先で読んだ世界を渡す(``cli.run`` はそうする)。**版上げ 1 回目が済み、動いた量を記録したら
             消す**。manifest の ``world_assets_pre10e`` に退避先と族を書く。
         weather_scheme: **10e(E3・B6)の天気と暦の規則**(``engine.calendar.WEATHER_SCHEMES``)。``None``(既定)=
-            ``DEFAULT_WEATHER_SCHEME``(今は ``legacy``・``CALENDAR_UNIFIED`` で切り替わる)。``legacy``=今のまま(開始日を
+            ``DEFAULT_WEATHER_SCHEME``(〔第330・ACT〕``calendar``)・再生ではテープの meta の値(記録の無い旧テープは
+            ``legacy``)。``legacy``=10e より前(旧値の再現だけ・開始日を
             渡さないランの世界の日付=気象の再生実日)/ ``calendar``=世界の日付は暦(開始日を渡さなければ
             ``DEFAULT_WORLD_START``=2026-07-13 + ``day_index`` 日)・天気は再生日の行・日の出と日の入りと太陽高度と
             影は暦の日付(ユーザーの答え 1-3・``engine.processes.environment``)。``calendar`` では ``real`` の曜日に
@@ -2461,7 +2521,9 @@ def run_day(
     if world_assets_pre10e is None or str(world_assets_pre10e) == "":
         _call_args.pop("world_assets_pre10e", None)
     # 10e(E3・B6): 天気と暦の規則。legacy(今)のときは指紋に載せない(旧い状態のファイルの再開は今のまま)
-    weather_scheme = check_weather_scheme(weather_scheme)
+    # 〔第330・ACT〕未指定は既定・再生ではテープの meta の値(記録の無い旧テープは day_index・legacy)
+    calendar_weekday, weather_scheme = resolve_calendar_schemes(calendar_weekday, weather_scheme, mode, replay)
+    _call_args["calendar_weekday"] = calendar_weekday  # 指紋は決めた値(未指定と同じ値の明示は同じラン)
     _call_args.pop("weather_scheme", None)
     if weather_scheme != WEATHER_SCHEMES[0]:
         _call_args["weather_scheme"] = weather_scheme
@@ -2739,6 +2801,9 @@ def run_day(
     tape_writer = (TapeWriter(Path(tape_path), run_meta={"response_delay": int(response_delay),
                                                             "rng_scheme": str(rng_scheme),
                                                             "rng_layout": RNG_LAYOUT,  # 10e(検収 L1)
+                                                            # 〔第330・ACT〕暦の規則(再生の既定=resolve_calendar_schemes)
+                                                            "calendar_weekday": str(calendar_weekday),
+                                                            "weather_scheme": str(weather_scheme),
                                                             "env_id": str(_env_fields["env_id"]),
                                                             "environment": copy.deepcopy(_env_fields)})
                    if tape_path is not None else None)
@@ -5133,9 +5198,10 @@ def add_fleet_args(ap: "argparse.ArgumentParser") -> None:
 
 def add_calendar_args(ap: "argparse.ArgumentParser") -> None:
     """暦の口の引数(10a・A1-1・A1-2。``engine.run`` と ``shibuya.cli`` で同じ綴りにするため 1 か所に置く)。"""
-    ap.add_argument("--calendar-weekday", choices=WEEKDAY_MODES, default=DEFAULT_WEEKDAY_MODE,
-                    help=("曜日の決め方(10a)。day_index=今の約束(day 0=月曜・祝日を見ない・既定)/"
-                          " real=開始日の実の曜日と内閣府の祝日(--start-date が要る)"))
+    ap.add_argument("--calendar-weekday", choices=WEEKDAY_MODES, default=None,
+                    help=("曜日の決め方(10a)。real=開始日の実の曜日と内閣府の祝日(既定・第330 ACT)/"
+                          " day_index=10e より前の約束(day 0=月曜・祝日を見ない・旧値の再現だけ)。"
+                          "未指定=engine.calendar の既定・再生ではテープの記録"))
     ap.add_argument("--start-date", type=str, default="",
                     help="開始日 YYYY-MM-DD(A1-1・manifest の start_sim_datetime)。空=今までの導き方")
     ap.add_argument("--holiday-csv", type=str, default=DEFAULT_HOLIDAY_CSV,
@@ -5174,7 +5240,8 @@ def calendar_kwargs_from_args(args: Any) -> dict[str, Any]:
     """``add_calendar_args``(10c の ``--rng-scheme``・10d の ``--sim-days``・``--resume-from``・``--state-out`` を含む)と
     ``--response-delay`` の結果 → ``run_day`` の引数。"""
     out: dict[str, Any] = {
-        "calendar_weekday": str(getattr(args, "calendar_weekday", DEFAULT_WEEKDAY_MODE)),
+        # 〔第330・ACT〕None=未指定(録画・mock は既定・再生はテープの記録=``resolve_calendar_schemes``)
+        "calendar_weekday": getattr(args, "calendar_weekday", None),
         "start_sim_datetime": (getattr(args, "start_date", "") or None),
         "holiday_csv": str(getattr(args, "holiday_csv", DEFAULT_HOLIDAY_CSV)),
         "school_holidays": str(getattr(args, "school_holidays", "") or ""),

@@ -176,7 +176,9 @@ REL_ON_5000_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     ("v2", "full"): ("40409ebed834126b", 72_930),
     # 〔改訂(第330)〕10e 構築側(第330 B3 丸め・B4 W10 ON+Q7・B5 W13 の年間化)で世界の資産が動いた=既定の行だけ張り替えた(E4・E5 は 64f48b6571ec2ea1 / 74,616)。
     # full の 2 行は旧い世界の資産で録った値=旧資産を読む切替口(エンジン側 B1)で再現する(張り替えない)。
-    ("v2", "behavior"): ("25b5ce1304f6db68", 74_056),  # 10e(E4) の値(E1 は e27e45f3e9b62749・E2 は fe19250259a7058d)
+    # 〔改訂(第330・ACT)〕版上げ 1 回目の活性化(暦の一本化・開始日 2026-07-13・影 6 日)で既定の行が動いた
+    # (B6build の値 25b5ce1304f6db68 / 74,056)。full の 2 行は退避先の資産と day_index・legacy で再現する。
+    ("v2", "behavior"): ("73a78288ab5e1498", 69_111),  # 10e(E4) の値(E1 は e27e45f3e9b62749・E2 は fe19250259a7058d)
 }}
 #: 今の環境の行(無ければ ``None``=A/A だけ)。
 REL_ON_5000_GOLDEN = GE.row(REL_ON_5000_GOLDEN_BY_ENV)
@@ -193,8 +195,13 @@ def test_relations_on_arm_golden_old_and_new():
     if REL_ON_5000_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(既定の v2)
         GE.assert_aa(lambda: cli.run(rel_tenure_hash="v2", **kw), lambda r: (r.final_hash[:16], int(r.llm_calls)))
         return
+    have_pre10e = (GE.PRE10E_ASSETS / "MANIFEST.sha256").is_file()
     for (ver, scheme), (final, calls) in REL_ON_5000_GOLDEN.items():
         # 10e(E4): full の行は 10e より前の値=乱数も 10e より前の並べ方(stateful)
-        rng = {"rng_scheme": "stateful"} if scheme == "full" else {}
+        # 〔改訂(第330・ACT)〕full の行は 10e より前の世界の資産と暦で録った=退避先の資産と day_index・legacy を渡す
+        # (退避先が無い環境では full の行を省く)
+        if scheme == "full" and not have_pre10e:
+            continue
+        rng = {"rng_scheme": "stateful", **GE.PRE10E_RUN_KW} if scheme == "full" else {}
         r = cli.run(rel_tenure_hash=ver, hash_scheme=scheme, **rng, **kw)
         assert (r.final_hash[:16], int(r.llm_calls)) == (final, calls), (ver, scheme)

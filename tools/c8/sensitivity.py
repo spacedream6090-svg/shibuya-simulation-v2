@@ -602,10 +602,28 @@ D44_DIR = c8lib.REPO_ROOT / "docs" / "bench" / "analysis" / "d44-controls-2026-0
 D44_RESULTS_PATH = D44_DIR / "d44_results.json"
 D44_MOCK_PATH = D44_DIR / "mock_controls.json"
 #: 集計の 5 値(ユーザー指示: 駆動しえない/ラン対照へ/測れない/対照を定義できない/対象外)。
-D44_STATUSES: tuple[str, ...] = ("not_driving", "needs_run", "unmeasurable", "no_control", "out_of_scope")
+#: 〔改訂(第330・ACT)〕6 つ目の値 ``pending``(未判定)=D-44 の後(10e の構築側)に増えた・中身の変わった行の印
+#: (親の決定=3 分類は実装役の案で付け、D-44 の列は未判定の印。D-44 の回し直しは 10e の外)。
+D44_STATUSES: tuple[str, ...] = (
+    "not_driving", "needs_run", "unmeasurable", "no_control", "out_of_scope", "pending",
+)
 D44_STATUS_JA: dict[str, str] = {
     "not_driving": "駆動しえない", "needs_run": "ラン対照へ", "unmeasurable": "測れない",
     "no_control": "対照を定義できない", "out_of_scope": "対象外(ランに届かない)",
+    "pending": "未判定(D-44 の後に増えた行)",
+}
+#: 〔第330・ACT〕D-44 の結果(``d44_results.json``・行の鍵は 2026-09-30 の build_manifest の番号)と今の番号の対応。
+#: 10e の構築側で W13 の expedient の行が増減し番号がずれた行だけ(今の鍵 → 結果の鍵・文言は同じ)。
+D44_KEY_REMAP: dict[str, str] = {"W13#5": "W13#6"}
+#: 〔第330・ACT〕D-44 の後に増えた・文言の変わった行(今の鍵)。D-44 の結果を当てず ``pending`` にする
+#: (同じ鍵の古い結果は別の文言の行のもの=当てると取り違える)。(iii) と読まない行は今までどおりの値。
+D44_PENDING: dict[str, str] = {
+    "W7#7": "第330 B6: PH(祝日)の規則を列 holiday_content に拾う(前の行=PH を無視)",
+    "W9#5": "第330 B5・ACT: 影を作る日=定数 SHADOW_DATES(前の行=再生日=W13 の先頭日)",
+    "W10#11": "第330 B4: 静的な騒音場は区間別・動く車は klass 既定のまま(食い違いの宣言・新しい行)",
+    "W13#6": "第330 B5: 10 分値の欠けを etrn 時別値で補完(前の行=アメダスの欠測を時別値で補完)",
+    "W13#7": "第330 B5: 10 分値の日照の空欄=0 分(新しい行)",
+    "W13#8": "第330 B5: 窓の最初の日の 0 時台は 5 本(新しい行)",
 }
 D44_RULE_NOTE: str = (
     "D-44(第311・ユーザー決定 2026-09-30): (i) 構築の再計算で対照を当て、宣言 vs 対照の**入力側** JSD を片側規則で判定"
@@ -662,6 +680,9 @@ def attach_d44(judged: dict[str, Any], results: Mapping[str, Any], mock: Mapping
                  "reason": "ランに届かない(出力を読むのは構築の検査・画像の段 W18〜W20 だけ=D-44 (c))。構築仕様書 §0-7 第311 追記の限定で感度試験の対象外"}
         elif cls == "iii":
             d = {"status": "no_control", "where": "—", "reason": r["triage"]["control"]}
+        elif r["key"] in D44_PENDING:  # 〔第330・ACT〕D-44 の後に増えた・文言の変わった行
+            d = {"status": "pending", "where": "—",
+                 "reason": "未判定(D-44 の後に増えた行・回し直しは 10e の外): " + D44_PENDING[r["key"]]}
         elif cls == "ii":
             spec = D44_II.get(r["key"], {})
             c = controls.get(spec.get("mock", ""), None)
@@ -676,7 +697,7 @@ def attach_d44(judged: dict[str, Any], results: Mapping[str, Any], mock: Mapping
                 d = {"status": "unmeasurable", "where": "—", "needed_knob": spec.get("knob", ""),
                      "reason": "口が無い(src の変更・LLM の再生成が要る)=測らず、必要な口を報告"}
         elif cls == "i":
-            res = rows_r.get(r["key"])
+            res = rows_r.get(D44_KEY_REMAP.get(r["key"], r["key"]))  # 〔第330・ACT〕番号のずれた行は結果の鍵へ
             if res is None:
                 d = {"status": "unmeasurable", "where": "—", "reason": "結果が無い"}
             elif res["status"] == "unmeasurable":
@@ -779,6 +800,8 @@ def validate_ledger(ledger: Mapping[str, Any]) -> list[str]:
                 problems.append(f"build_manifest_judgment {r.get('key')}: d44 の判定に JSD が無い")
             if st == "unmeasurable" and not (d.get("reason") or d.get("needed_knob")):
                 problems.append(f"build_manifest_judgment {r.get('key')}: 測れない行に理由が無い")
+            if st == "pending" and not d.get("reason"):  # 〔第330・ACT〕
+                problems.append(f"build_manifest_judgment {r.get('key')}: 未判定の行に理由が無い")
         dt = {s: sum(1 for r in rows_d if r["d44"].get("status") == s) for s in D44_STATUSES}
         if dt != judged["d44_summary"].get("tally"):
             problems.append("build_manifest_judgment.d44_summary: tally が行と合わない")

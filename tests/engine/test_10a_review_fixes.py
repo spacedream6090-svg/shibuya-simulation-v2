@@ -41,7 +41,10 @@ def table(tmp_path):
 
 # ================================================================= P1
 def test_start_check_runs_on_the_calendar_after_the_weather_date(monkeypatch):
-    """世界過程が気象の再生実日を決めたら、検査はその日を見る(manifest の開始日と同じ日)。"""
+    """世界過程が気象の再生実日を決めたら、検査はその日を見る(manifest の開始日と同じ日)。
+
+    〔改訂(第330・ACT)〕「世界の日付=再生日」は legacy(10e より前)の規則。暦の既定が calendar・real になったので
+    day_index・legacy を明示する(calendar では世界の日付は暦のまま=``test_calendar_10e_e3.py``)。"""
     orig = RUN.WorldProcessRunner
 
     def runner(*a, **k):
@@ -51,7 +54,8 @@ def test_start_check_runs_on_the_calendar_after_the_weather_date(monkeypatch):
 
     monkeypatch.setattr(RUN, "WorldProcessRunner", runner)
     with pytest.warns(CalendarWarning, match="2026-07-22"):
-        res = run_day(n_agents=10, n_cells=9, ticks=5, school_holidays="2026-07-21:2026-07-23")
+        res = run_day(n_agents=10, n_cells=9, ticks=5, school_holidays="2026-07-21:2026-07-23",
+                      calendar_weekday="day_index", weather_scheme="legacy")
     m = res.run_manifest_fields()
     assert m["start_sim_datetime"] == "2026-07-22T00:00:00"
     assert m["calendar"]["start_sim_datetime"] == "2026-07-22T00:00:00"
@@ -59,7 +63,8 @@ def test_start_check_runs_on_the_calendar_after_the_weather_date(monkeypatch):
     # 再生実日が区間の外なら警告は出ない(置き換える前の 2026-07-28 ではなく 07-22 を見ている)
     with warnings.catch_warnings():
         warnings.simplefilter("error", CalendarWarning)
-        res = run_day(n_agents=10, n_cells=9, ticks=5, school_holidays="2026-07-27:2026-07-29")
+        res = run_day(n_agents=10, n_cells=9, ticks=5, school_holidays="2026-07-27:2026-07-29",
+                      calendar_weekday="day_index", weather_scheme="legacy")
     assert res.run_manifest_fields()["calendar"]["start_check"] == []
 
 
@@ -103,8 +108,10 @@ def test_the_tape_carries_the_response_delay_and_mismatches_stop(tmp_path):
     rec2 = _record(tmp_path, "d2", 2)
     # 10f: 環境の欄(env_id・environment)も書く=それを除いた形は今までと同じ
     # 10e(E4): 乱数の既定は counter
-    assert _meta_wo_env(read_run_meta(tmp_path / "d1")) == {"response_delay": 1, "rng_scheme": "counter", "rng_layout": "10e"}
-    assert _meta_wo_env(read_run_meta(tmp_path / "d2")) == {"response_delay": 2, "rng_scheme": "counter", "rng_layout": "10e"}
+    # 〔改訂(第330・ACT)〕暦の規則(calendar_weekday・weather_scheme)も書く(親の決定 (5)・再生の既定)
+    cal = {"calendar_weekday": "real", "weather_scheme": "calendar"}
+    assert _meta_wo_env(read_run_meta(tmp_path / "d1")) == {"response_delay": 1, "rng_scheme": "counter", "rng_layout": "10e", **cal}
+    assert _meta_wo_env(read_run_meta(tmp_path / "d2")) == {"response_delay": 2, "rng_scheme": "counter", "rng_layout": "10e", **cal}
     with pytest.raises(ValueError, match="テープは response_delay=1・今の設定は 2"):
         _replay(tmp_path / "d1", response_delay=2)
     with pytest.raises(ValueError, match="テープは response_delay=2・今の設定は 1"):
@@ -148,7 +155,9 @@ def test_unreadable_csv_stops_real_and_nulls_the_manifest_in_day_index(tmp_path)
                     start_sim_datetime="2026-08-03")
     with warnings.catch_warnings(record=True) as got:
         warnings.simplefilter("always")
-        res = run_day(n_agents=10, n_cells=9, ticks=5, holiday_csv=tmp_path / "none2.csv")
+        # 〔改訂(第330・ACT)〕day_index を明示(前は既定)。既定(real)では読めない CSV で止まる(上と同じ)
+        res = run_day(n_agents=10, n_cells=9, ticks=5, holiday_csv=tmp_path / "none2.csv",
+                      calendar_weekday="day_index", weather_scheme="legacy")
     assert any(issubclass(w.category, CalendarWarning) for w in got)
     cal = res.run_manifest_fields()["calendar"]
     assert cal["holiday_csv_md5"] is None and cal["holiday_csv_range"] is None
@@ -203,7 +212,9 @@ def test_datetime_uses_tick_seconds():
 def test_real_day_key_is_the_day_number(table):
     c = SimCalendar(datetime(2026, 8, 3), weekday_mode="real", day_index=5, holidays=table)
     assert [c.day_key(d) for d in range(4)] == [0, 1, 2, 3]
-    assert SimCalendar(datetime(2026, 8, 3), day_index=5).day_key(2) == 7
+    # 〔改訂(第330・ACT)〕day_index を明示(前は既定)。既定は real=日番号
+    assert SimCalendar(datetime(2026, 8, 3), weekday_mode="day_index", day_index=5).day_key(2) == 7
+    assert SimCalendar(datetime(2026, 8, 3), day_index=5).day_key(2) == 2
 
 
 @pytest.mark.parametrize("start,rest", [("2026-08-08", True), ("2026-08-09", True), ("2026-08-11", True),
@@ -255,7 +266,9 @@ def test_tape_meta_does_not_touch_the_parquet(tmp_path):
 
     run_day(n_agents=30, n_cells=9, ticks=10, tape_path=tmp_path / "t", renderer="stub", sleep_suppression=False)
     t = Tape(tmp_path / "t")
-    assert _meta_wo_env(t.run_meta) == {"response_delay": 1, "rng_scheme": "counter", "rng_layout": "10e"}  # 10c: 乱数の方式も書く(10e: 既定 counter)
-    assert set(t.run_meta) == {"response_delay", "rng_scheme", "rng_layout", "env_id", "environment"}  # 10f: 環境の欄・10e: 鍵の配置の印
+    assert _meta_wo_env(t.run_meta) == {"response_delay": 1, "rng_scheme": "counter", "rng_layout": "10e",  # 10c: 乱数の方式も書く(10e: 既定 counter)
+                                        "calendar_weekday": "real", "weather_scheme": "calendar"}  # 〔第330・ACT〕暦の規則
+    assert set(t.run_meta) == {"response_delay", "rng_scheme", "rng_layout", "env_id", "environment",  # 10f: 環境の欄・10e: 鍵の配置の印
+                               "calendar_weekday", "weather_scheme"}  # 〔改訂(第330・ACT)〕暦の規則の 2 欄
     assert "response_delay" not in t.calls.schema.names
     assert Path(tmp_path / "t" / RUN_META_FILENAME).read_bytes().endswith(b"\n")

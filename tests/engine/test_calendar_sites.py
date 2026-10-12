@@ -152,7 +152,8 @@ def test_cli_switches_and_defaults():
     add_calendar_args(ap)
     args = ap.parse_args([])
     kw = calendar_kwargs_from_args(args)
-    assert kw == {"calendar_weekday": "day_index", "start_sim_datetime": None,
+    # 〔改訂(第330・ACT)〕calendar_weekday は None=未指定(既定 real・再生はテープの記録)(前: "day_index")
+    assert kw == {"calendar_weekday": None, "start_sim_datetime": None,
                   "holiday_csv": "data/calendar/syukujitsu.csv", "school_holidays": "",
                   "response_delay": None,     # 未指定(録画・mock は 1・再生はテープに合わせる=検収後 P3)
                   "rng_scheme": None}   # 10c: 乱数の方式。10e: 未指定(録画・mock は counter・再生はテープ)

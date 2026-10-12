@@ -33,7 +33,9 @@ CLASSICAL_1500_GOLDEN_ACQ_BY_ENV = {
     # 10e(E4): 乱数 counter(K19 の鍵の並べ方で母集団から動く)。E1・E2 の値は 56384ee8…/25,808
     # 〔改訂(第330)〕10e 構築側(第330 B3 丸め・B4 W10 ON+Q7・B5 W13 の年間化)で世界の資産が動いた。E4・E5 の値は 4c8a9e08…/26,156。
     # 下の *_PRE10E は旧い世界の資産で録った値=旧資産を読む切替口(エンジン側 B1)で再現する(張り替えない)。
-    GE.PLATFORM_10F: ("e9ef51cca7409cf13c91c551153a28407af459414285e1b40a2098df306b8d07", 26_043),
+    # 〔改訂(第330・ACT)〕版上げ 1 回目の活性化(暦の一本化・既定の開始日 2026-07-13・影 6 日)で動いた。
+    # B6build(構築側の最後の版)の値は e9ef51cc…6b8d07/26,043。
+    GE.PLATFORM_10F: ("78399f8cedec1c62518b86d600200537f67b532a8500e337feebc17469e48b41", 25_082),
 }
 CLASSICAL_1500_GOLDEN_ACQ_PRE10E_BY_ENV = {
     GE.PLATFORM_10F: ("4f78f3c0ce95d8e205c700952d756cd2e443da86bd54c60c073f39cafd5ec00a", 25_808),
@@ -155,8 +157,11 @@ def test_run_golden_and_arms():
     else:
         assert (r.final_hash, int(r.llm_calls)) == CLASSICAL_1500_GOLDEN_ACQ
         # 10e(E1): 旧い final の定義(full)で 10e より前の値を再現する(呼数は同じ=挙動は不変)
-        old = cli.run(hash_scheme="full", rng_scheme="stateful", **kw)  # 10e(E4): 乱数も 10e より前
-        assert (old.final_hash, int(old.llm_calls)) == CLASSICAL_1500_GOLDEN_ACQ_PRE10E
+        # 〔改訂(第330・ACT)〕10e より前の値は旧い世界の資産と暦で録った=退避先の資産と day_index・legacy を渡す
+        # (退避先が無い環境では旧値の再現だけを省く)
+        if (GE.PRE10E_ASSETS / "MANIFEST.sha256").is_file():
+            old = cli.run(hash_scheme="full", rng_scheme="stateful", **GE.PRE10E_RUN_KW, **kw)  # 10e(E4): 乱数も 10e より前
+            assert (old.final_hash, int(old.llm_calls)) == CLASSICAL_1500_GOLDEN_ACQ_PRE10E
     m = r.run_manifest_fields()["classical"]
     assert m["social"] == "acquaintance"
     c = m["counts"]

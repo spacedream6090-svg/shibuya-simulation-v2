@@ -314,10 +314,11 @@ def test_manifest_records_tick_seconds_and_start():
     res = run_day(n_agents=20, seed=1, n_cells=9, ticks=30, checkpoint_every=10)
     m = res.run_manifest_fields()
     assert m["tick_seconds"] == 60
-    assert m["start_sim_datetime"] == "2026-07-28T00:00:00"     # 合成世界=気象の再生実日なし=既定の開始日
+    # 〔改訂(第330・ACT)〕既定の暦は real・calendar=既定の開始日 2026-07-13(月)(前: 2026-07-28・day_index)
+    assert m["start_sim_datetime"] == "2026-07-13T00:00:00"     # 合成世界でも暦の既定の開始日
     assert m["sim_days"] == 1 and m["response_delay"] == 1
     cal = m["calendar"]
-    assert cal["calendar_weekday"] == "day_index" and cal["day_index"] == 0
+    assert cal["calendar_weekday"] == "real" and cal["day_index"] == 0
     assert cal["days"][0]["weekday"] == 0 and cal["start_check"] == []
     assert "holiday_csv" in cal and "holiday_csv_md5" in cal
 
@@ -326,8 +327,11 @@ def test_real_calendar_run_needs_a_valid_start(tmp_path):
     from tests.engine.test_calendar import write_csv
 
     csv = write_csv(tmp_path / "h.csv")
+    # 〔改訂(第330・ACT)〕「real には開始日が要る」は legacy の天気の規則のとき(暦の規則 calendar=既定では既定の開始日)
     with pytest.raises(ValueError, match="開始日"):
-        run_day(n_agents=10, n_cells=9, ticks=10, calendar_weekday="real", holiday_csv=csv)
+        run_day(n_agents=10, n_cells=9, ticks=10, calendar_weekday="real", holiday_csv=csv, weather_scheme="legacy")
+    got = run_day(n_agents=10, n_cells=9, ticks=10, calendar_weekday="real", holiday_csv=csv)
+    assert got.run_manifest_fields()["start_sim_datetime"] == "2026-07-13T00:00:00"
     with pytest.raises(ValueError, match="祝日"):
         run_day(n_agents=10, n_cells=9, ticks=10, calendar_weekday="real", holiday_csv=csv,
                 start_sim_datetime="2026-07-20")
@@ -357,13 +361,16 @@ def test_start_date_moves_the_prompt_clock(tmp_path):
     finally:
         mp.undo()
     assert seen[0].clock_fn(TPD + 90) == datetime(2026, 8, 4, 1, 30)
-    assert seen[1].clock_fn(90) == datetime(2026, 7, 28, 1, 30)
+    # 〔改訂(第330・ACT)〕渡さないランは暦の既定の開始日 2026-07-13(前: 2026-07-28=legacy の既定)
+    assert seen[1].clock_fn(90) == datetime(2026, 7, 13, 1, 30)
 
 
 def test_school_holiday_in_day_index_mode_only_warns():
     from shibuya.engine.calendar import CalendarWarning
 
+    # 〔改訂(第330・ACT)〕day_index を明示(前は既定)。real(既定)の違反は止める(test_10a_review_fixes ほか)
     with pytest.warns(CalendarWarning, match="学校の長期休み"):
-        res = run_day(n_agents=10, n_cells=9, ticks=5, school_holidays="2026-07-21:2026-08-31")
+        res = run_day(n_agents=10, n_cells=9, ticks=5, school_holidays="2026-07-21:2026-08-31",
+                      calendar_weekday="day_index", weather_scheme="legacy")
     assert res.run_manifest_fields()["calendar"]["school_holidays"] == [["2026-07-21", "2026-08-31"]]
     assert res.run_manifest_fields()["calendar"]["start_check"]

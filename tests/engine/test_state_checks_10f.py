@@ -34,7 +34,8 @@ real_data = pytest.mark.skipif(not (WORLD_DIR / "w17_schedule.parquet").exists()
 TPD = 1_440
 #: 10e(E4): 既定 v3・5,000 体・seed 1・1 日の final(乱数 counter・K19 の鍵の並べ方)。
 #: 〔改訂(第330)〕10e 構築側(第330 B3 丸め・B4 W10 ON+Q7・B5 W13 の年間化)で世界の資産が動いた。E5 の値は 4fbf61616af1e3d2。
-K19_V3_FINAL_COUNTER = "0483d1165e245bed"
+#: 〔改訂(第330・ACT)〕版上げ 1 回目の活性化(暦の一本化・開始日 2026-07-13・影 6 日)で動いた。B6build の値は 0483d1165e245bed。
+K19_V3_FINAL_COUNTER = "5f7ae9ff24005314"
 
 
 # ================================================================= K24 軸 1(AST)
@@ -426,7 +427,13 @@ def test_k19_runtime_default_v3_5000_known_counts():
     # U8: 同じ鍵の作り直しは許可の表の用途名だけ(w16 の抽出が cli と run_day で 2 回走る=186 層+定員先取り層)
     assert {d for d, s in cur.items() if s.same_key_recreated} <= set(RA.K19_RECREATED)
     assert cur["w16.sample.stratum"].same_key_recreated == 186
-    st, res = _record(dict(kw, rng_scheme="stateful"), runner=cli.run)
+    # 〔改訂(第330・ACT)〕stateful の既知の答えは 10e より前の世界の資産と暦で録った=退避先の資産と day_index・legacy を
+    # 渡す(退避先が無い環境では省く)
+    from tests import golden_env as GE
+
+    if not (GE.PRE10E_ASSETS / "MANIFEST.sha256").is_file():
+        pytest.skip("10e より前の世界の資産の退避先が無い=stateful の既知の答え(旧値)は回せない(既定の部分は通った)")
+    st, res = _record(dict(kw, rng_scheme="stateful", **GE.PRE10E_RUN_KW), runner=cli.run)
     assert RA.check_overlaps(st, rng_scheme="stateful") == []
     assert st["w16.sample.stratum"].actual_overlaps == 185 and st["w16.sample.stratum"].max_blocks == 2602
     assert st["body.weight"].actual_overlaps == 1 and st["body.eer"].actual_overlaps == 1

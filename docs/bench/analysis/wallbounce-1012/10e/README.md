@@ -769,3 +769,128 @@ side の全体は `sides/base.json`・`sides/b3.json`・`sides/b4.json`・`sides
 - 残る 12 件: B8-3 の **9 件**(旧値の再現=エンジン側 B1 待ち)・B8-4 の 2 件(感度の台帳の判定の表・テープの道筋)・`tests/engine/test_change_detect_p6.py::test_p6_change_detection_under_2ms_at_400k_agents`(400k 体の合成の時間の門 2 ms に 2.08〜2.65 ms。**HEAD のコード(本体の src・`7f18733`)でも同じ時刻に 2.36〜2.52 ms で落ちた**=機械の混み具合。エンジンのコードは触っていない。影 6 日の版の全体テスト(40 分前)では通っていた)。
 - 影 6 日の版(§B6-3)でも全体を 1 回回した: 3,811 件・3,789 passed・**21 failed**。内訳=既定の golden だけの 3 件(帰無腕・v3 既定・T7)・既定と旧値の両方を持つ 3 件(K19・古典・関係 on)・旧値の再現だけの 6 件(`test_presence_executor.py` の 2c/3 段目/5 段目/10e 前・`test_intent_chooser.py`・`test_near_tiebreak.py`)・感度の台帳 4 件(W13 の時の数・判定の表・読み口のグラフ=影のファイルの一覧・digest)・影で再生日が動いて落ちた 3 件(`test_env_and_sections_10f.py` の seed の交換可能性 2 件・`test_presence_exit_walk.py` の 1 件=最後の版では通る)・W7 の試験の書き間違い 1 件(直した)・テープの道筋 1 件。
 
+
+# 第330 ACT 版上げ 1 回目の活性化(既定の切り替え・影 6 日・W7 の形の整合・試験の直し)
+
+> 実行役(Opus 5.5)の記録。親の検収の前・commit していない(親が snap_ACT → snap_RET の順に重ねて commit する)。発注: 第330 発注 H(親 Fable 5.1)。ユーザーの答え: [v2-answers-2026-10-12b.md](../../../../design/v2-answers-2026-10-12b.md) §1(1-3・1-4・1-5)。作業木 `10e/activation`(HEAD `a5eec83`)。
+> **試験と byte-check の世界**: 作業木の `data` は本体へのつなぎで、本体の `data/world/v2` は書き換えない約束なので、ACT の資産(`data/world/v2` に下の影 5 本と W9・W18〜W20 のヘッダほか 13 ファイルを重ねたもの)で回す試験と byte-check は、作業用の写しの木で回した(コードは作業木と同じ・`data/world/v2` だけが ACT の資産の写し・ほかの `data` はつなぎ)。**親が本体へ写すまで、作業木そのものの全体テストは ACT の golden で落ちる**(§ACT-7)。
+
+## ACT-1 変えたこと
+
+| ファイル | 何を |
+|---|---|
+| `engine/calendar.py` | `CALENDAR_UNIFIED=True`(=`--calendar-weekday real`・`--weather-scheme calendar`・開始日を渡さないランの暦の 0 日目は 2026-07-13(月)+`day_index` 日)。docstring の既定の記述 |
+| `build/vis/w9_shadow.py` | `SHADOW_DATES` = 2026-07-28(先頭=主の日・旧値の再現用)+ 2026-07-13〜07-17 の 5 日 |
+| `world/assets.py` | W7 の PH の読みを構築側の列 `holiday_content` に直した(親の決定 (1))。`[]`=祝日は休み・空文字=規則なし=日曜の行・列の無い W7(1.1.0 より前・合成)は規則なし。週表 `content` は曜日 0〜6 の 7 要素だけ読む(前: 週の 8 つ目の要素=実行役の提案の形) |
+| `engine/run.py` | `resolve_calendar_schemes`(親の決定 (5)=`rng_scheme` と同じ形): テープの脇の meta に `calendar_weekday`・`weather_scheme` を書き、再生では meta の値を既定にする。明示の値が違えば止める。記録の無いテープ(活性化より前の録画)は `day_index`・`legacy` とみなして `CalendarSchemeWarning` を 1 回。`run_day(calendar_weekday=None)`・CLI `--calendar-weekday` の既定 None(指紋には決めた値) |
+| `engine/processes/environment.py` | `WEATHER_EXPEDIENTS`(層を広げる順・同じ近さの影は前の日)を manifest の `weather.expedients` に載せる(calendar のランだけ・親の決定 (3)) |
+| `tools/c8/sensitivity.py`・`sensitivity_v1.json`・`expedient_triage_v1.json`・`docs/bench/c8/sensitivity_v1.*` | 感度の台帳の判定の表を ACT の build_manifest(`5ff1bacf…`・123 行)で作り直した(§ACT-5) |
+| `docs/.../d44-controls-2026-09-30/d44_controls.py` | `c_w7_7` の祝日の判定を暦の口(内閣府 CSV=`engine.calendar.load_holidays`)に(W13 の `HOLIDAYS_2026` は B5 で消した)。D-44 は回し直していない(07-28 で同じ値=JSD 0 と 2.98e-06 を確かめた) |
+| `tests/golden_env.py` | `PRE10E_ASSETS`・`PRE10E_RUN_KW`(`world_assets_pre10e`+`day_index`+`legacy`)・`needs_pre10e`(退避先が無ければ skip・理由つき)。**RET で消す** |
+| 試験 | §ACT-6 |
+| `docs/.../10e/two_day_check_act.py`(新) | 2 日のランの控えと検査 |
+
+## ACT-2 W9 の影 6 日(ステージング)
+
+- 作り方: `data/world/v2` の 1 階のファイルと `acceptance/` を作業用の場所に 2 つ写し、`SHADOW_DATES` を 6 日にした作業木のコードで `python -m shibuya.build.run --out <写し> --data data --keep-stage W17` を 2 回(各約 30 秒・終了コード 1=既知の 2 ゲート=W10 の較正 7.3・W9 の容量 12,842,624 B/日)。
+- **2 回の 121 ファイルの sha256 が全部一致**。`build_hash` **`5ff1bacf7fd9c773…`**(構築役の §B6-2 の影 6 日の版と同じ値)。
+- 今の `data/world/v2`(116 ファイル)と比べて **108 ファイルが同じ**(W0〜W17 の出力・W7 1.1.0 ほか=今の資産を作り直しで再現した)。動いたのは 13 ファイル: 影 5 本(追加)・W9・W18・W19・W20 のヘッダ・`w19_freeze.json`・受入パックの `gate_table.md`・`summary.json`・`build_manifest.json`。**07-28 の影 `ad8b6c0e2579a7f8` と面の表 `0d3680f94546d207` は不変**(先頭=主の日のまま)。
+- ステージング: `data/world/v2_10e_steps/ACT/`(13 ファイル+`MANIFEST.sha256`=sha256・パス・added/moved)。影の sha(先頭 16 桁): 07-13 `8200c6dbe83baa3d`・07-14 `5f49667b17d0c3ab`・07-15 `98e0b40836193879`・07-16 `a3ba8f19b38cb32e`・07-17 `b561e2f7691f2340`(構築役の `v2_10e_steps/B6` と同じ値)。
+- **親の取り込み**: `v2_10e_steps/ACT/MANIFEST.sha256` の 13 ファイルを `data/world/v2/` へ写す(影 5 本は追加・ほかは置き換え)。写した後の `build_manifest.json` の `build_hash` が `5ff1bacf7fd9c773…` になることを確かめる。
+
+## ACT-3 W7 の PH(親の決定 (1))
+
+- 世界資産: PH の規則を持つ店 **40**(うち休み `[]` 1)。祝日の行の営業の行列を parquet の列から直に作った値と一致(試験)。日曜の行と違う店は 1(休みの店・1,140 分)。
+- 既定の開始日 07-13〜17 に祝日は無い(次の祝日は 07-20 海の日・08-11 山の日)=**既定のランでは W7 の PH は効かない**(動いた量の理由に入らない)。
+
+## ACT-4 テープの meta(親の決定 (5))
+
+- 録画: `run_meta.json` に `calendar_weekday`・`weather_scheme`(既定 `real`・`calendar`)。
+- 再生: 未指定は meta の値。明示の値が違えば止める(文言に両方の値)。**記録の無い旧テープ(手元の版 1〜4・活性化より前の録画)は `day_index`・`legacy` とみなし警告 1 回で、録画と同じ final・テープの取りこぼし 0 で再生される**(試験 `test_activation_10e.py`=世界資産 60 体・480 tick で `day_index`+`legacy` で録って meta の 2 欄を消したテープ)。合成世界では暦の規則で値が動かないので、世界資産で確かめた。
+
+## ACT-5 感度の台帳の判定の表(§B8-4・親の決定)
+
+- 構築側で build_manifest の expedient が **121 → 123 行**(+6・−4)。`--judge-manifest → --read-graph → --triage → --d44` で作り直した(ACT の manifest)。**同じ文言の行は、鍵が `W13#6 → W13#5` に変わった 1 行のほか全欄が前と同じ**(突き合わせた)。
+- 増えた・文言の変わった行の 3 分類は実装役の案(未リサーチ)=`W7#7` i・`W9#5` i・`W10#11` ii・`W13#6` i・`W13#7` i・`W13#8` iii(窓の境界の宣言=対照を定義できない)。表の注に前の行の値を残した。
+- D-44 の列: 6 つ目の値 **`pending`(未判定・D-44 の後に増えた行)** を足した(`sensitivity.D44_PENDING`=増えた・文言の変わった 6 行。(iii) の `W13#8` は今までの規則どおり `no_control`)。番号のずれた `W13#5` は D-44 の結果を前の鍵 `W13#6` から引く(`D44_KEY_REMAP`)。同じ鍵の古い結果(別の文言の行のもの)を当てない。
+- 集計: 判定不能 105 → **107**・読む 96 → **98**・3 分類 i 66 / ii 13 → 14 / iii 17 → 18・D-44 駆動しえない 39 → 38・ラン対照へ 27 → 25・測れない 13 → 12・対照を定義できない 17 → 18・対象外 9・**未判定 5**。
+- 試験の張り替え(`tests/c8/test_sensitivity_ledger.py`): 121 → 123・105 → 107・96 → 98・分類の数・digest 3 つ(`build_manifest_expedients` `036a4bd1…` → `309a443e…`・`judgment_rows_without_d44` `541acb8c…` → `ffc43608…`・`judgment_rest_without_d44` `eb70c08c…` → `1fc90c5f…`)。新しい試験 1 件(番号のずれと未判定の行)。
+
+## ACT-6 試験の直し
+
+**落ちる 29+12 件の行き先**(§第330-E3・§B8-3・§B8-4 の一覧):
+
+| 一覧 | 件数 | 直し方 |
+|---|---|---|
+| A. final・呼数の golden | 12 | 既定の値は**張り替え**(下の表)。旧値の再現(段 2c・3 段目・5 段目・`full`・Q13・近接の同点・K19 の stateful・古典の `_PRE10E`・関係の full)は `GE.PRE10E_RUN_KW`(退避先の資産+`day_index`+`legacy`)を渡して**旧値のまま通る**(張り替えない・退避先が無い環境は skip) |
+| B. 今の既定の約束を書いた試験 | 14 | 切り替えの試験・CLI の既定・`SimCalendar` の既定・manifest の開始日は新しい既定に直した(前の値は注)。`day_index` を鍵にする規則の確かめ(`day_index≠0` の 2 件・10a の 3 件・学校の休み)は `day_index`・`legacy` を明示。seed の交換可能性の 2 件は直さずに通った(W13 の年間化で 07-13 が窓の中=推測どおり) |
+| C. 写しの木と環境 | 3 | §ACT-7 |
+| §B8-3 の旧値の再現 | 9 | 上の A と同じ(9 件とも通る) |
+| §B8-4 | 2 | 感度の台帳=§ACT-5。テープの道筋=環境(§ACT-7) |
+| P6 の時間の門 | 1 | 環境(§ACT-7) |
+
+ほかに活性化で落ちた試験(一覧の外): `test_weather_calendar_10e.py` の 2 件(B6 のエンジン側の試験は 35 日の W13・影 07-28 だけで書かれていた=07-13 が窓の外の前提。既知の答えは「legacy の再生日に暦を合わせる」形に、B3 の語の試験は「既定=実際の天気(警告なし)+揺らしたランで再生日と暦を分ける」形に直した)・`test_salt_seed_split_10f.py::test_population_and_motion_streams_use_their_own_seed_world` 3 件(calendar で窓の中の日は気象の層を引かない=環境の流れを引かせるため `weather_perturb=True`)・`test_10a_review_fixes.py` のテープの meta の形 2 件(2 欄を足した)。
+
+**張り替えた golden(既定の値・前 → 後)**:
+
+| 試験 | 定数 | 前(B6build) | 後(ACT) |
+|---|---|---|---|
+| `test_presence_executor.py` | `null_arm_final`・`null_arm_llm_calls` | `aaaa89d936f1674e` / 101,773 | **`354f49ca9a61b986` / 97,234** |
+| 同 | `v3_default_final`・`v3_default_llm_calls` | `0483d1165e245bed` / 70,501 | **`5f7ae9ff24005314` / 65,597** |
+| `test_state_checks_10f.py` | `K19_V3_FINAL_COUNTER` | `0483d1165e245bed` | **`5f7ae9ff24005314`** |
+| `test_state_ledger_10b.py` | `T7_V3_FINAL` | `0483d1165e245bed` | **`5f7ae9ff24005314`** |
+| `test_classical_social.py` | `CLASSICAL_1500_GOLDEN_ACQ` | `e9ef51cc…6b8d07` / 26,043 | **`78399f8c…e48b41` / 25,082** |
+| `test_relations_tenure.py` | `REL_ON_5000_GOLDEN[("v2","behavior")]` | `25b5ce1304f6db68` / 74,056 | **`73a78288ab5e1498` / 69,111** |
+| `test_env_and_sections_10f.py` | golden の表の見張り(上の 3 行の写し) | 同上 | 同上 |
+| `test_sim_time_T.py` | 開始日・暦の欄(2 か所) | `2026-07-28`・`day_index` | **`2026-07-13`・`real`** |
+| `tests/c8/test_sensitivity_ledger.py` | 行数・分類・digest 3 | §ACT-5 | §ACT-5 |
+
+値は byte-check の ACT の side(`sides/act.json`)の同じ構成と一致(古典 1,500 体は同じ写しの木で 1 本回した)。
+
+## ACT-7 動いた量(19 構成・5,000 体・seed 1・1 日・既定の引数)
+
+- 前=HEAD `a5eec83` の写し+今の `data/world/v2`(B6build の最後の版・影 07-28 だけ)=[sides/b6build_head.json](sides/b6build_head.json)。§B6-4 の B5(最後の版)の side と 19/19 で `frozen_sources` のほか全欄同じ(B0 の欄)。
+- 後=ACT の作業木+ACT の資産(写しの木)=[sides/act.json](sides/act.json)。比べ: [act_vs_b6build.json](act_vs_b6build.json)。
+- **19/19 構成で final が動いた**。呼数の合計 1,267,129 → **1,129,811(−137,318)**。顕著行為 10・出動 5 は 19/19 同じ。世界の日付 07-28 → **07-13**・再生日 07-28 → **07-13**(その日の実際の天気・`how=actual`)・影 07-28 → **07-13**(近い日の代用なし・警告 0)・暦の曜日 `day_index` → `real`(どちらも月曜)・`frozen_sources` の影の行が `w9_shadow_2026-07-13.npy`。
+
+| 構成 | 前 final / 呼数 | 後 final / 呼数 | 呼数の差 | 気づいた延べ | 食事 | 行動の件数 | blocks の行 |
+|---|---|---|---|---|---|---|---|
+| w6_v3_default | `0483d1165e245bed` / 70,501 | `5f7ae9ff24005314` / 65,597 | -4,904 | 310 → 237 | 4,664 → 4,559 | 313,774 → 291,935 | 8,128 → 7,975 |
+| w6_v3_activity_off | `125f163354761be2` / 58,958 | `e0054a837c6ec4c1` / 50,301 | -8,657 | 562 → 719 | 3,756 → 3,342 | 196,407 → 173,688 | 2,862 → 2,660 |
+| w6_v1_default | `9f6cfcf54cd847f3` / 60,591 | `24375ee3dab349e8` / 51,835 | -8,756 | 447 → 692 | 0 → 0 | 206,554 → 180,082 | 2,854 → 2,731 |
+| w6_v1_derive_v2_1 | `fa483a24c61e9c22` / 55,424 | `59329a9a3611c16c` / 46,032 | -9,392 | 649 → 570 | 0 → 0 | 190,741 → 166,461 | 2,680 → 2,461 |
+| w6_v2 | `40dab07ad9c33534` / 60,579 | `7e3a16b4190c10b5` / 52,268 | -8,311 | 270 → 575 | 2,367 → 2,100 | 193,663 → 170,829 | 2,789 → 2,607 |
+| w6_v1_edge | `582d7f9340963ff1` / 54,302 | `0e0430daa24c109e` / 46,325 | -7,977 | 470 → 438 | 0 → 0 | 107,543 → 95,066 | 2,608 → 2,514 |
+| w6_v2_edge | `f55b97e6cae96873` / 54,348 | `8151c3ee812ef412` / 46,601 | -7,747 | 514 → 376 | 2,096 → 1,886 | 104,815 → 91,998 | 2,218 → 2,139 |
+| w6_v1_edge_plateau | `3c8cd47b8cd74cb8` / 56,038 | `a9d0c78a8e3bb079` / 47,912 | -8,126 | 940 → 407 | 0 → 0 | 111,816 → 98,226 | 2,634 → 2,527 |
+| w6_old_v1_default | `8c6bd89ef728528c` / 60,591 | `5f3665e29e8c55e1` / 51,835 | -8,756 | 447 → 692 | 0 → 0 | 206,554 → 180,082 | 2,851 → 2,726 |
+| w6_old_v1_derive_v2_1 | `ebced6f597ac9ac7` / 55,424 | `f1ac9740ef2d04ca` / 46,032 | -9,392 | 649 → 570 | 0 → 0 | 190,741 → 166,461 | 2,677 → 2,458 |
+| w6_old_v2 | `8072feee6c517738` / 60,579 | `24efbaa77c1ce701` / 52,268 | -8,311 | 270 → 575 | 2,367 → 2,100 | 193,663 → 170,829 | 2,785 → 2,603 |
+| w6_old_v1_edge | `8465cffa5f8317a4` / 54,302 | `607b93b4cef8f716` / 46,325 | -7,977 | 470 → 438 | 0 → 0 | 107,543 → 95,066 | 2,606 → 2,510 |
+| w6_old_v2_edge | `8e52736a242225c8` / 54,348 | `c1056e6fda20f2c5` / 46,601 | -7,747 | 514 → 376 | 2,096 → 1,886 | 104,815 → 91,998 | 2,216 → 2,136 |
+| w6_old_v1_edge_plateau | `a0a319c992a27900` / 56,038 | `8a15b93709c7ebdf` / 47,912 | -8,126 | 940 → 407 | 0 → 0 | 111,816 → 98,226 | 2,632 → 2,524 |
+| w6_golden_null_arm | `aaaa89d936f1674e` / 101,773 | `354f49ca9a61b986` / 97,234 | -4,539 | 1,278 → 563 | 0 → 0 | 298,104 → 290,189 | 4,048 → 3,939 |
+| v3_mem_store | `a16b260e4f8bc0ff` / 70,501 | `f7ff0a6953fb9a38` / 65,597 | -4,904 | 310 → 237 | 4,664 → 4,559 | 313,774 → 291,935 | 8,128 → 7,975 |
+| v3_mem_rel | `25b5ce1304f6db68` / 74,056 | `73a78288ab5e1498` / 69,111 | -4,945 | 517 → 396 | 4,752 → 4,658 | 311,994 → 298,472 | 8,874 → 8,544 |
+| v3_classical | `a514cf85402d8ed7` / 97,766 | `202a05a22c5bd8e1` / 93,460 | -4,306 | 927 → 901 | 9,457 → 9,298 | 441,078 → 433,042 | 8,550 → 8,566 |
+| v3_classical_mem_rel | `f6f5ec7b706bc086` / 111,010 | `4c512a1fdc2a70c0` / 106,565 | -4,445 | 910 → 906 | 9,871 → 9,802 | 474,645 → 461,935 | 8,880 → 8,969 |
+| 呼数の合計 | 1,267,129 | 1,129,811 | -137,318 | | | | |
+
+- **動く理由**(前と後で違うのは「何日の天気と太陽と影か」だけ=曜日の行・日の鍵・母集団は同じ): (1) **再生日**: 07-28(雨・6.5 mm・日照 1.3 h・日最高 28.6 ℃)→ 07-13(雨・1.0 mm・日照 0 h・日最高 29.0 ℃・暑さ段「暑い」が 6 時からで 07-28 より 4 時間早い)。どちらも層は「平日|雨」。(2) **日の出と日の入り**: W13 の 07-28 の行(04:45/18:50)→ 暦の日付の 07-13(04:35/18:59)。(3) **影**: 07-13 の影。(4) W7 の PH は 07-13 に祝日が無いので効かない。呼数が減る主因がどれかは分けて測っていない(**推測**: 暑さ段が早く上がる・日照 0 の日の扱い)。既知の答え(試験): ACT の資産でも、暦の日付を legacy の再生日に合わせた calendar のランは legacy と O56 の層の名前のほか全行が同じ=動いたのは日付の違いだけ。
+- **2 日のラン**([two_day_check_act.json](two_day_check_act.json)・`two_day_check_act.py`): 5,000 体・seed 1・`sim_days=2`・既定 v3・テープつき。暦の日付 **2026-07-13 → 07-14**(月・火)・各日の再生日=暦の日付(`actual`)・07-13 は「夏|平日|雨」・07-14 は「夏|平日|晴」(W13 の行の天候型と一致)・影も各日の暦の日付(代用なし)・日の出と日の入り 04:35/18:59 → 04:35/18:58。final `912446bd2b42b6ab`・140,913 呼。検査 `check` は問題 0。
+
+## ACT-8 全体テスト
+
+**全体(ACT の写しの木・`python -m pytest -q -p no:cacheprovider -o addopts="" -rfEs` を 6 組に分けて同時に・`tests/engine` はファイルごと・ほかはディレクトリごとの組・壁時計 1,016 秒)**: **3,847 件を集めて 3,843 passed・1 failed・2 skipped・1 xfailed**。落ちた 1 件は `vocab/test_registry_from_tape.py::test_ab7_seed1_open_matches_the_parent_report`(既知=`data` が本体へのつなぎのためテープの道筋が相対にならない・§E6-5)。
+
+- この全体テストの後に足した manifest の `weather.expedients`(§ACT-1)と試験 1 件は、関係する 5 ファイルを回し直した: **116 件・115 passed・1 skipped**(skip は `test_state_format_10f.py` の「commit 129da80 が無い」=作業木の外の写しの木に git が無い・全体テストでも同じ)。
+- 比べ: 活性化の前の基準(HEAD `a5eec83` の写し+今の `data/world/v2`・同じ回し方)は **3,842 件・3,825 passed・14 failed・2 skipped・1 xfailed**。14 件=§B8-3 の旧値の再現 9・§B8-4 の 2(感度の台帳・テープの道筋)・`test_weather_calendar_10e.py::test_b6_b3_words_body_heat_and_sun_follow_one_rule`(B6 のエンジン側の試験が W13 の年間化の資産と合わない=HEAD の時点で落ちる・一覧の外)・`test_env_and_sections_10f.py::test_t1_two_processes_write_the_same_env_id_and_final_to_the_files`(子のプロセスが本体の src を読んだ・写しの木の都合)・P6 の時間の門(機械の混み具合)。ACT ではこのうち 13 件が通り、テープの道筋の 1 件だけが残る。件数の差 +5 は ACT で足した試験(`test_activation_10e.py` の 3・W7 の PH の 2・感度の台帳の 1 から、置き換えた W7 の読みの試験 1 を引いた数)。
+- 組の分け方: ファイルごとに分けると `tests/build_sched`・`tests/c7`・`tests/c8` で conftest の fixture が見えず誤って落ちる(46 件の error)ので、`tests/engine` のほかはディレクトリごとの組にした(基準もこの分け方で回し直した)。子のプロセスを使う試験のため `PYTHONPATH` は写しの木の `src` の絶対パスにした。
+
+## ACT-9 親に確かめてほしい点
+
+1. **取り込みの順**: 本体の `data/world/v2` へ `v2_10e_steps/ACT/` の 13 ファイルを写すまで、作業木(と本体)の全体テストは ACT の golden(§ACT-6 の表)と `tests/build_vis` の影の一覧で落ちる。写した後に `build_hash` `5ff1bacf7fd9c773…` を確かめる。
+2. **D-44 の 6 つ目の値 `pending`**: 「D-44 の列は未判定の印」を、既存の 5 値のどれかに寄せず新しい値にした(測れない=口が無い、とは意味が違うため)。
+3. **増えた 6 行の 3 分類**は実装役の案(未リサーチ)。`W10#11`(交通の過程との食い違い)を ii、`W13#8`(窓の最初の日の 0 時台)を iii にした。
+4. **W7 の PH の読みの粒度**: `holiday_content` の JSON が壊れていればその店の PH は無し(週表の壊れと同じ扱い=黙って飛ばす)。止める形にするかは親が決める。
+5. **呼数が 19/19 で 6〜17% 減る**(既定 v3 −7.0%・v1 −14.5%)。日付の違いだけで動いたことは既知の答えで確かめたが、どの要素が効いたかは分けていない。

@@ -35,29 +35,31 @@ needs_csv = pytest.mark.skipif(not HOLIDAYS.is_file(), reason="祝日 CSV が無
 
 # ================================================================ 切り替えは 1 か所
 def test_e3_defaults_come_from_one_constant():
-    assert CAL.CALENDAR_UNIFIED is False
-    assert CAL.DEFAULT_WEEKDAY_MODE == "day_index" and CAL.DEFAULT_WEATHER_SCHEME == "legacy"
+    # 〔改訂(第330・ACT)〕版上げ 1 回目の活性化で定数を True にした(前: False・day_index・legacy)
+    assert CAL.CALENDAR_UNIFIED is True
+    assert CAL.DEFAULT_WEEKDAY_MODE == "real" and CAL.DEFAULT_WEATHER_SCHEME == "calendar"
     assert CAL.DEFAULT_WORLD_START == datetime(2026, 7, 13) and CAL.DEFAULT_WORLD_START.weekday() == 0
     assert CAL.WEATHER_SCHEMES == ("legacy", "calendar")
-    assert CAL.check_weather_scheme(None) == "legacy"
+    assert CAL.check_weather_scheme(None) == "calendar"
     with pytest.raises(ValueError):
         CAL.check_weather_scheme("sunny")
-    # 定数 1 つを True にした写しを読むと、曜日と天気の既定がそろって切り替わる
+    # 定数 1 つを False にした写しを読むと、曜日と天気の既定がそろって 10e より前に戻る(切り替えは 1 か所)
     src = Path(CAL.__file__).read_text(encoding="utf-8")
-    line = "CALENDAR_UNIFIED: Final[bool] = False"
+    line = "CALENDAR_UNIFIED: Final[bool] = True"
     assert src.count(line) == 1
     mod = types.ModuleType("calendar_unified_copy")
     mod.__file__ = CAL.__file__       # 祝日 CSV の場所(リポの根)を同じに
     sys.modules[mod.__name__] = mod   # dataclass の組み立てが自分のモジュールを引く
     try:
-        exec(compile(src.replace(line, "CALENDAR_UNIFIED: Final[bool] = True"), "calendar_copy", "exec"), mod.__dict__)
+        exec(compile(src.replace(line, "CALENDAR_UNIFIED: Final[bool] = False"), "calendar_copy", "exec"), mod.__dict__)
     finally:
         sys.modules.pop(mod.__name__, None)
-    assert mod.DEFAULT_WEEKDAY_MODE == "real" and mod.DEFAULT_WEATHER_SCHEME == "calendar"
-    assert mod.check_weather_scheme(None) == "calendar"
+    assert mod.DEFAULT_WEEKDAY_MODE == "day_index" and mod.DEFAULT_WEATHER_SCHEME == "legacy"
+    assert mod.check_weather_scheme(None) == "legacy"
 
 
 def test_e3_run_day_and_cli_defaults_are_unchanged():
+    # 〔改訂(第330・ACT)〕calendar_weekday も None=未指定(既定・再生はテープの記録=resolve_calendar_schemes)
     import argparse
     import inspect
 
@@ -65,12 +67,14 @@ def test_e3_run_day_and_cli_defaults_are_unchanged():
 
     sig = inspect.signature(run_day)
     assert sig.parameters["weather_scheme"].default is None          # None=engine.calendar の既定
-    assert sig.parameters["calendar_weekday"].default == CAL.DEFAULT_WEEKDAY_MODE
+    assert sig.parameters["calendar_weekday"].default is None
     ap = argparse.ArgumentParser()
     add_calendar_args(ap)
     assert sig.parameters["weather_perturb"].default is False
     d = calendar_kwargs_from_args(ap.parse_args([]))
-    assert "weather_scheme" not in d and "weather_perturb" not in d
+    assert "weather_scheme" not in d and "weather_perturb" not in d and d["calendar_weekday"] is None
+    from shibuya.engine.run import resolve_calendar_schemes
+    assert resolve_calendar_schemes(None, None) == ("real", "calendar")
     kw = calendar_kwargs_from_args(ap.parse_args(["--weather-scheme", "calendar", "--calendar-weekday", "real",
                                                   "--weather-perturb"]))
     assert kw["weather_scheme"] == "calendar" and kw["calendar_weekday"] == "real" and kw["weather_perturb"] is True
@@ -110,22 +114,67 @@ def test_e3_ph_row_uses_the_ph_spans_or_the_sunday_row():
                           OP.build_open_matrix(3, plan_poi, plan_day, plan_start, plan_end, 6, None))
 
 
-def test_e3_w7_reader_takes_the_eighth_element_as_ph(tmp_path):
+def test_act_w7_reader_takes_the_holiday_content_column_as_ph(tmp_path):
+    # 〔改訂(第330・ACT)〕親の決定 (1): W7 の PH は構築側の列 ``holiday_content``(W7 1.1.0)から読む
+    # (旧: 週の 8 つ目の要素=実行役の提案の形・資産に無かった)。``[]``=祝日は休み・空文字=規則なし=日曜の行。
     from shibuya.world.assets import load_process_assets, synthetic_assets
 
     wa = synthetic_assets(n_cells=4, seed=1)
     ids = [f"p{j}" for j in range(wa.n_poi)]
     pq.write_table(pa.table({"poi_id": ids, "cat": list(wa.poi_cat)}), tmp_path / "w6_poi.parquet")
     week7 = [[[540, 1080]]] * 7
-    contents = [json.dumps(week7 + [[]]), json.dumps(week7 + [[[600, 660]]]), json.dumps(week7 + [None]),
-                json.dumps(week7)] + [json.dumps(week7)] * (wa.n_poi - 4)
-    pq.write_table(pa.table({"poi_id": ids, "kind": ["opening_hours"] * wa.n_poi, "content": contents}),
-                   tmp_path / "w7_plan_spec.parquet")
+    contents = [json.dumps(week7)] * wa.n_poi
+    contents[3] = json.dumps(week7 + [[[1, 2]]])      # 週表の 8 つ目の要素は読まない(PH は列から)
+    hol = ["[]", "[[600, 660], [700, 720]]", "", ""] + [""] * (wa.n_poi - 4)
+    pq.write_table(pa.table({"poi_id": ids, "kind": ["opening_hours"] * wa.n_poi, "content": contents,
+                             "holiday_content": hol}), tmp_path / "w7_plan_spec.parquet")
     pa_ = load_process_assets(tmp_path, wa)
     assert pa_.plan_ph_poi.tolist() == [0, 1]
     ph = pa_.plan_day == 7
-    assert pa_.plan_poi[ph].tolist() == [1] and pa_.plan_start[ph].tolist() == [600]
-    assert int((pa_.plan_day < 7).sum()) == 7 * wa.n_poi
+    assert pa_.plan_poi[ph].tolist() == [1, 1] and pa_.plan_start[ph].tolist() == [600, 700]
+    assert int((pa_.plan_day < 7).sum()) == 7 * wa.n_poi and int(pa_.plan_day.max()) == 7
+    # 列の無い W7(1.1.0 より前の資産)=PH の規則なし(祝日は全部日曜の行)
+    pq.write_table(pa.table({"poi_id": ids, "kind": ["opening_hours"] * wa.n_poi, "content": contents}),
+                   tmp_path / "w7_plan_spec.parquet")
+    pb_ = load_process_assets(tmp_path, wa)
+    assert pb_.plan_ph_poi is None and int(pb_.plan_day.max()) == 6
+
+
+@needs_world
+def test_act_holiday_opening_hours_come_from_holiday_content_or_the_sunday_row():
+    # 〔第330・ACT〕世界資産の W7: 祝日に PH の規則を持つ店(40・うち休み 1)の営業時間は列 holiday_content の区間、
+    # 持たない店は日曜の行(週表 content の 7 つ目)。期待値は parquet の列から直に作る
+    from shibuya.world.assets import load_assets, load_process_assets
+
+    wa = load_assets(WORLD_DIR)
+    pa_ = load_process_assets(WORLD_DIR, wa)
+    poi_ids = pq.read_table(WORLD_DIR / "w6_poi.parquet", columns=["poi_id"]).to_pydict()["poi_id"]
+    idx = {str(x): i for i, x in enumerate(poi_ids)}
+    t = pq.read_table(WORLD_DIR / "w7_plan_spec.parquet",
+                      columns=["poi_id", "kind", "content", "holiday_content"]).to_pydict()
+    n = len(poi_ids)
+    want = np.zeros((n, 1440), dtype=bool)
+    ph_rows = closed = 0
+    for pid, kind, content, hol in zip(t["poi_id"], t["kind"], t["content"], t["holiday_content"]):
+        j = idx.get(str(pid), -1)
+        if kind != "opening_hours" or j < 0:
+            continue
+        spans = json.loads(hol) if hol else json.loads(content)[6]
+        ph_rows += bool(hol)
+        closed += hol == "[]"
+        for s, e in spans:
+            want[j, max(0, s):min(1440, e)] = True
+            if e > 1440:
+                want[j, 0:min(1440, e - 1440)] = True
+    assert ph_rows == 40 and closed == 1 and len(pa_.plan_ph_poi) == 40
+    got = OP.build_open_matrix(n, pa_.plan_poi, pa_.plan_day, pa_.plan_start, pa_.plan_end, OP.PH_ROW,
+                               pa_.plan_ph_poi)
+    assert np.array_equal(got, want)
+    # PH の規則が日曜と違う店がある(列が効いている)・曜日 0〜6 は PH の行を混ぜない
+    sun = OP.build_open_matrix(n, pa_.plan_poi, pa_.plan_day, pa_.plan_start, pa_.plan_end, 6, pa_.plan_ph_poi)
+    assert int((got != sun).any(axis=1).sum()) >= 1
+    assert np.array_equal(sun, OP.build_open_matrix(n, pa_.plan_poi, pa_.plan_day, pa_.plan_start,
+                                                    pa_.plan_end, 6, None))
 
 
 # ================================================================ 世界の日付と再生日・2 日のラン

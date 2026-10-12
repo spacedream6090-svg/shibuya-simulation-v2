@@ -261,27 +261,37 @@ SMALL = dict(n_agents=200, seed=1, ticks=1440, checkpoint_every=360)
 
 @needs_world
 def test_b6_known_answer_calendar_on_the_replay_day_equals_legacy_but_the_label(monkeypatch):
-    """暦の日付=再生日(07-28・窓の中=実際の天気)のランは legacy と O56 の層の名前のほかは全部同じ。"""
+    """暦の日付=再生日(窓の中=実際の天気)のランは legacy と O56 の層の名前のほかは全部同じ。
+
+    〔改訂(第330・ACT)〕legacy の再生日は影のある日に絞って引く(``prefer_shadow_days``)ので、影が 07-28 だけだった
+    資産では 07-28、影 6 日(07-13〜17+07-28)の資産では seed 1 で 07-14 になる。暦の日付は legacy の再生日に合わせる
+    (前: 07-28 の固定)。"""
     from shibuya import cli
 
     a = cli.run(world_dir=str(WORLD_DIR), checkpoint_detail=True, weather_scheme="legacy",
                 calendar_weekday="day_index", **SMALL)
+    rd = a.run_manifest_fields()["replay_date"]
     b = cli.run(world_dir=str(WORLD_DIR), checkpoint_detail=True, weather_scheme="calendar",
-                calendar_weekday="day_index", start_sim_datetime="2026-07-28", **SMALL)
+                calendar_weekday="day_index", start_sim_datetime=rd, **SMALL)
     assert a.llm_calls == b.llm_calls
     for da, db in zip(a.checkpoint_details, b.checkpoint_details):
         diff = sorted(k for k in set(da["items"]) | set(db["items"]) if da["items"].get(k) != db["items"].get(k))
         assert diff == ["O56:runner.environment.stratum"], diff
         assert {k: v for k, v in da.items() if k != "items"} == {k: v for k, v in db.items() if k != "items"}
     wb = b.run_manifest_fields()["weather"]
-    assert wb["days"][0]["how"] == "actual" and wb["days"][0]["replay_date"] == "2026-07-28"
+    assert wb["days"][0]["how"] == "actual" and wb["days"][0]["replay_date"] == rd
+    assert wb["days"][0]["shadow_date"] == rd and not wb["days"][0]["shadow_fallback"]
     assert a.run_manifest_fields()["weather"]["scheme"] == "legacy"
 
 
 @needs_world
 def test_b6_b3_words_body_heat_and_sun_follow_one_rule(monkeypatch):
     """README §E6-1 B6 のための注 (1)〜(3): 描画の天気(B3)・体感温度・日の出と日の入りの語が同じ規則
-    (天気=再生日・太陽=暦の日付)。実資産の 35 日は 07-13 を持たない=窓の外で層から引く(警告も出る)。"""
+    (天気=再生日・太陽=暦の日付)。
+
+    〔改訂(第330・ACT)〕前は「実資産の 35 日は 07-13 を持たない=窓の外で層から引く(警告も出る)」で再生日と暦の日付を
+    分けていた。W13 の年間化(B5)と影 6 日(ACT)の後は 07-13 が窓の中で影もあるので、既定のランは実際の天気
+    (再生日=暦の日付・警告なし)。再生日と暦の日付を分けるのは ``weather_perturb=True``(同じ層から引く)で行う。"""
     from shibuya import cli
     from shibuya.perception import normalize as N
     from shibuya.perception import renderer as REN
@@ -294,15 +304,26 @@ def test_b6_b3_words_body_heat_and_sun_follow_one_rule(monkeypatch):
         made.append(self)
 
     monkeypatch.setattr(REN.Renderer, "__init__", spy)
+    # 既定(暦の規則・揺らさない): 07-13 は窓の中=その日の実際の天気・影も暦の日付の 07-13(警告なし)
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
-        res = cli.run(world_dir=str(WORLD_DIR), weather_scheme="calendar", **SMALL)
-    assert any(issubclass(w.category, ENV.WeatherWarning) for w in caught)
+        res0 = cli.run(world_dir=str(WORLD_DIR), **SMALL)
+    assert not any(issubclass(w.category, ENV.WeatherWarning) for w in caught)
+    d0 = res0.run_manifest_fields()["weather"]["days"][0]
+    assert (d0["calendar_date"], d0["replay_date"], d0["how"]) == ("2026-07-13", "2026-07-13", "actual")
+    assert d0["shadow_date"] == "2026-07-13" and not d0["shadow_fallback"]
+    env0 = res0.runner.environment
+    r0 = res0.runner.assets.day_index_of(env0.replay_date)
+    assert (env0._sunrise, env0._sunset) == SOL.sun_minutes(dt.date(2026, 7, 13))
+    assert (env0._sunrise, env0._sunset) == (res0.runner.assets.sunrise_min[r0], res0.runner.assets.sunset_min[r0])
+    # 揺らしたラン: 再生日は同じ層(夏|平日)から引いた別の日・太陽と影は暦の日付のまま
+    res = cli.run(world_dir=str(WORLD_DIR), weather_perturb=True, **SMALL)
     m = res.run_manifest_fields()
     env = res.runner.environment
     day = m["weather"]["days"][0]
     assert m["start_sim_datetime"] == "2026-07-13T00:00:00" and day["calendar_date"] == "2026-07-13"
-    assert day["how"] == "sampled" and day["replay_date"] != "2026-07-13" and day["shadow_fallback"]
+    assert day["how"] == "sampled" and day["replay_date"] != "2026-07-13" and m["weather"]["perturbed"]
+    assert day["shadow_date"] == "2026-07-13" and not day["shadow_fallback"]
     assert day["stratum"].startswith("夏|平日|")
     ren = made[-1]
     cal = dt.date(2026, 7, 13)

@@ -5,14 +5,13 @@
 通しの時刻 T(``T = 日 × 1 日の tick 数 + 日の中の tick``)だけ。
 
 曜日の決め方の切替口(``--calendar-weekday``)
-- ``day_index``(**既定**): 今までの約束のまま。曜日 = ``(day_index + 日) % 7``(``day_index=0`` は月曜)。
+- ``day_index``(10e より前の既定・〔第330・ACT〕旧値の再現だけ): 曜日 = ``(day_index + 日) % 7``(``day_index=0`` は月曜)。
   日付(``start_sim_datetime`` の日付)とは独立で、**祝日は曜日の扱いに効かせない**(今のコードは祝日を
   見ていない=既定の結果を 1 バイトも動かさないため)。祝日かどうか(``is_holiday``)は日付の事実として
   返すが、``is_rest_day``・``table_weekday``・``day_kind`` には入らない。
-- ``real``: ``start_sim_datetime`` の実の曜日と内閣府の祝日表から引く。祝日は「土休」として扱い、
-  曜日 7 日の表(W7 の営業時間・古典の事前分布・W17 の曜日の行)では**日曜**の行を使う
-  (親案「祝日は土休扱い」に沿った expedient・未リサーチ。W7 の ``PH`` の拾い直しは資産が動くので
-  版上げ 1 回目)。
+- ``real``(〔第330・ACT〕**既定**): ``start_sim_datetime`` の実の曜日と内閣府の祝日表から引く。祝日は「土休」として扱い、
+  曜日 7 日の表(古典の事前分布・W17 の曜日の行)では**日曜**の行を使う(親案「祝日は土休扱い」に沿った
+  expedient・未リサーチ)。W7 の営業時間は PH の行(構築側の列 ``holiday_content``・規則の無い店は日曜の行)。
 
 祝日の表(A1-2): 内閣府「国民の祝日」CSV(``data/calendar/syukujitsu.csv``・cp932・列
 ``国民の祝日・休日月日``・``国民の祝日・休日名称``・1955/1/1〜2027/11/23)。振替休日と国民の休日は
@@ -21,8 +20,8 @@
 
 季節: 気象庁の季節の区分(春=3〜5 月・夏=6〜8 月・秋=9〜11 月・冬=12〜2 月)を日付の月から引く。
 
-〔改訂(第330・10e E3)〕**暦の一本化の既定の切り替えは ``CALENDAR_UNIFIED`` の 1 か所**。``False``(今)=曜日は
-``day_index``・開始日は再生日(``engine.run`` の旧い導き方)・天気は ``legacy``。``True``(親が B6 の活性化で切り替える)=
+〔改訂(第330・10e E3)〕**暦の一本化の既定の切り替えは ``CALENDAR_UNIFIED`` の 1 か所**。``False``(10e より前)=曜日は
+``day_index``・開始日は再生日(``engine.run`` の旧い導き方)・天気は ``legacy``。``True``(〔第330・ACT〕いま)=
 ``--calendar-weekday`` の既定が ``real``・``--weather-scheme`` の既定が ``calendar``(開始日を渡さないランの暦の
 開始日は ``DEFAULT_WORLD_START``=2026-07-13(月)+ ``day_index`` 日・ユーザーの答え 1-4)。切り替えで動く所の一覧は
 ``docs/bench/analysis/wallbounce-1012/10e/README.md`` §E3。W7 の祝日(``PH``)の行は ``opening_row`` で引く
@@ -87,14 +86,16 @@ HOLIDAY_CSV_COLUMNS: Final[tuple[str, str]] = ("国民の祝日・休日月日",
 #: 〔第330・10e E3/B6〕**暦の一本化の既定の切り替え(ここ 1 か所)**。``True`` で ``DEFAULT_WEEKDAY_MODE`` が ``real``・
 #: ``DEFAULT_WEATHER_SCHEME`` が ``calendar`` になる(開始日を渡さないランは ``DEFAULT_WORLD_START + day_index`` 日)。
 #: 親が構築側(W13 の年間化・W9 の開始日の影・W7 の PH)を取り込んだ後に切り替える。
-CALENDAR_UNIFIED: Final[bool] = False
+#: 〔改訂(第330・ACT)〕版上げ 1 回目の活性化で ``True`` にした(構築側=W13 の年間化・W9 の 07-13〜07-17 の影・W7 の
+#: ``holiday_content`` を取り込んだ後)。
+CALENDAR_UNIFIED: Final[bool] = True
 #: 〔第330・10e E3〕既定の開始日(ユーザーの答え 1-4: 2026-07-13(月)・世界の資産の時点に最も近く季節が同じで学期中)。
 #: 暦の規則(``weather_scheme="calendar"``)で開始日を渡さないランの暦の 0 日目(``+ day_index`` 日)。
 DEFAULT_WORLD_START: Final[datetime] = datetime(2026, 7, 13, 0, 0)
-#: 曜日の決め方(``--calendar-weekday``)。既定は ``CALENDAR_UNIFIED`` で決まる(今は先頭の ``day_index``)。
+#: 曜日の決め方(``--calendar-weekday``)。既定は ``CALENDAR_UNIFIED`` で決まる(〔第330・ACT〕``real``)。
 WEEKDAY_MODES: Final[tuple[str, ...]] = ("day_index", "real")
 DEFAULT_WEEKDAY_MODE: Final[str] = "real" if CALENDAR_UNIFIED else WEEKDAY_MODES[0]
-#: 〔第330・10e B6〕天気の規則(``--weather-scheme``)。``legacy``=今(再生日を層から一様に引き、日の出・日の入り・影も
+#: 〔第330・10e B6〕天気の規則(``--weather-scheme``)。``legacy``=10e より前(再生日を層から一様に引き、日の出・日の入り・影も
 #: 再生日・世界の日付も再生日)/ ``calendar``=天気は再生日・太陽と影は暦の日付(ユーザーの答え 1-3)。
 WEATHER_SCHEMES: Final[tuple[str, ...]] = ("legacy", "calendar")
 DEFAULT_WEATHER_SCHEME: Final[str] = "calendar" if CALENDAR_UNIFIED else WEATHER_SCHEMES[0]
