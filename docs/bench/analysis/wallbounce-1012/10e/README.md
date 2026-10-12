@@ -598,3 +598,26 @@ E1 は final の定義だけ・E2 は O39 の掃除(呼数は不変)・E4 は乱
 - **D-44 の判定の前提が変わる**(答え 1-1): [D-44 の記録](../../d44-controls-2026-09-30/README.md) の W12#5(山手線 18 vs 16/20)と W12#7(夕ピーク)は、間隔の丸めで「18 と 20 が同じダイヤ」・「夕の切替口が効かない」資産の上で「駆動しえない」と判定した。直した後は 18・16・20 が別のダイヤになり、夕の切替口も効く。回し直すかは感度試験の段で決める(10e の外)。
 - **宣言の台帳**: `tools/c8/sensitivity_v1.json` の S-W14-JRPHASE の `declared` を「9,574 便(うち等間隔 7,978)」→「**9,014 便(うち等間隔 7,418)**」に直し、〔改訂(第330 B3)〕の注で「下の result は直す前の資産で測った値(2026-09-10)」と書いた。result の数値は変えていない。
 - 段の後の出力: `data/world/v2_10e_steps/B3/`(動いた 10 ファイル+`MANIFEST.sha256`)。
+
+## B4 W10 ON+Q7(▲ 動く・再構築 2 回目)
+
+- **変えたこと**(`build/field/w10_noise.py`・第 2 波 W10-6 の手順書 1〜3): `USE_ROAD_NAME_MATCH=True`・`ROAD_NAME_REQUIRE_NAMED_SAME_CLASS=True`(Q9 は False のまま)・`STAGE_VERSION` 1.1.0 → **1.2.0**。docstring と定数の注の「既定 OFF」を直し、`road_name_match_off_reason` は OFF のとき「旧値の再現の切替口・段 1c の時点の理由」と書く形にした。**交通の過程との食い違いの宣言**(10-03 §9-4 の 1・3-2・第 2 波 Q-W10e)を ON のときだけ expedients と notes(`traffic_process_mismatch`)に 1 行足した: 「静的な騒音場は区間別・動く車(`engine/processes/traffic.py`)は klass 既定のまま=食い違いを宣言して進む(車の段 R-67 まで)」。
+- **再構築 ×2**: 2 回の 116 ファイルの sha256 が全部一致。W10 の出力は第 2 波の ON+Q7 と一致: `w10_noise_stage_day.npy` **`e760a6dcbcb08003`**・`w10_noise_stage_night.npy` **`9cd06ebd13d2feb9`**・`w10_noise_day.npy` **`022121e08d508d5d`**・`w10_noise_night.npy` **`f8cccfd4376613e1`**・`w10_edge_section.parquet` **`6bd90df450347d18`**・街路点 `de1340b15bda281c`(不変)。ゲート `primary_secondary_sections_matched` 0 → **202(PASS)**・当てた辺 0 → 225・`calibration_max_abs_residual_db` は **7.3 のまま**(FAIL・終了コード 1 は今と同じ)。落ちるゲートは W10 の較正と W9 の容量の 2 つになった。
+- **動かなかった**(B3 の後と比べて 102 ファイルが同じ): 街路点・W8・W9・W12・W13・W15・W16・W17・W18 の `wc_index.json`/`wc_reverse_index.json`。**動いた** 14 ファイル: W10 の 5 本とヘッダ・W18〜W20 のヘッダ・`w19_freeze.json`・受入パックの `noise_day.png`・`gate_table.md`・`summary.json`・`build_manifest.json`。
+- **騒音段階が変わるセル**(エンジンの集約 `world.assets._noise_stage_per_cell` で退避先の資産と比べた・[b4_w10_cell_stage_diff.json](b4_w10_cell_stage_diff.json)): 520 セルのうち**昼 27・夜 22**(第 2 波の値と同じ)。昼は「騒がしい→うるさい」10・「うるさい→騒がしい」6 ほか、夜は「騒がしい→うるさい」15 ほか。道具 [w10_cell_stage_diff.py](w10_cell_stage_diff.py)。
+- **主の物差し(診断・答え 1-6 の 3)**: [w10_primary_ruler.py](w10_primary_ruler.py)・[b4_w10_primary_ruler.json](b4_w10_primary_ruler.json)。W10 の段には結線しない(`w10_ruler.py` と同じ扱い)。W10 のヘッダの notes には入れない。
+  - 作り方(**未リサーチ(expedient)**): ON の世界の対応表で、点の路線(No.61=`6:423:渋谷経堂線`・No.79=`4:317:環状六号線`)に当てた辺を集め、辺ごとに「その辺に当てた区間の諸元」で、距離 d=実測の車道端距離+区間の幅員/2 の LAeq を `laeq_at` で出す。舗装は騒音場と同じ密粒。**路線の辺が複数あるときは辺ごとの値の下側中央値**(親案)。OFF の値は同じ辺に klass 既定を当てて並べた(OFF の騒音場がその辺に当てる値)。klass 既定表は `run()` と同じ作り方で作り直し、ヘッダの `census_defaults` と一致することを道具の中で確かめた。
+
+    | 点 | 辺 | 実測 昼/夜 | ON の残差 昼/夜 | OFF の残差 昼/夜 | 較正の残差 昼/夜(ヘッダ) |
+    |---|---|---|---|---|---|
+    | No.61 渋谷経堂線 | secondary 8 | 64/60 | **+5.1/+4.5** | +6.6/+6.6 | +5.1/+4.5 |
+    | No.79 環状六号線 | primary 33 | 67/66 | **+6.0/+3.8** | +5.9/+3.8 | +1.0/−1.2 |
+
+  - **循環である**: ON の辺に当てる値は較正 `calibrate()` と同じ `median_section`(路線名で引いたセンサスの区間の中央値)なので、ON の残差は較正の残差と**同じ計算**になる。No.61 は較正と一致した(+5.1/+4.5)。No.79 の差(+6.0 と +1.0)は舗装だけ(較正は点の CSV の低騒音舗装欄=排水性・ここは騒音場と同じ密粒)。路線の辺はどれも同じ値なので、中央値の規則はここでは効いていない(範囲が 1 点)。**現実との照合にはならない**。意味があるのは OFF との差だけ(No.61 で −1.5/−2.1 dB・No.79 で +0.1/0.0 dB)。
+  - **現実との照合**は、較正に使っていない別の測定点で行う(リサーチ F6・10e の外)。
+- **エンジンの動いた量**(19 構成・B3 の後と比べた・[b4_vs_b3.json](b4_vs_b3.json)): **19/19 構成で final が動いた**(騒音段階は B4 の文面とハッシュに入る・場所の起床が動く)。呼数の合計 1,265,034 → 1,267,129(+2,095)。既定 v3 70,500 → 70,501・v3 活動層 off 58,900 → 58,958・v1 既定 61,918 → 60,591。古典(v3_classical)は呼数・行動の件数・食事・気づきが同じで final だけ動いた。構成ごとの表は §B6-4。
+- **張り替えた試験**(W10 の既定が ON+Q7 になったため・値は第 2 波の記録と同じ):
+  - `tests/build_field/test_w10_road_names.py`: `test_w10_declares_the_switch_and_the_input`(既定 True/True/False・版 1.2.0)・`test_w10_road_name_match_on_real_data`(段 1c の規則=Q7 を False と明示)・`test_w10_default_off_…` → `test_w10_off_noise_field_equals_the_pre_1c_asset`(OFF を明示)。
+  - `tests/build_field/test_w10_ruler.py`: `test_switch_off_reproduces_the_promoted_w10_outputs` を 2 本に分けた=`test_default_on_q7_reproduces_the_promoted_w10_outputs`(既定=昇格版の manifest と一致+ON+Q7 の先頭 12 桁)と `test_switch_off_reproduces_the_pre_10e_w10_outputs`(OFF=退避先の先頭 12 桁)。`test_ruler_values_on_the_promoted_field` → `test_ruler_values_on_the_off_field`(OFF の騒音場を一時ディレクトリに作って測る・値は同じ)。
+  - `tests/build_field/test_field_pipeline.py`: 既知の落ちるゲートから `("W10", "primary_secondary_sections_matched")` を外した(202/202 で PASS)。
+- 段の後の出力: `data/world/v2_10e_steps/B4/`(W10 の 6 本とヘッダ・W18〜W20 のヘッダと出力・受入パック・manifest=17 ファイル+`MANIFEST.sha256`)。

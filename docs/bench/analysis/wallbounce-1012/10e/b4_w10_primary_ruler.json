@@ -1,0 +1,78 @@
+{
+ "what": "W10 の主の物差し(診断・循環=ON は較正とほぼ同じ計算)",
+ "world_w10_stage_version": "1.2.0",
+ "road_name_match_applied": true,
+ "require_named_same_class": true,
+ "edge_set_rule": "ON の世界の対応表で census_route=点の路線 かつ traffic_from_census の辺。on=その辺に当てた路線の区間・off=同じ辺の klass 既定(OFF の騒音場がその辺に当てる値)",
+ "rows": [
+  {
+   "no": "61",
+   "route": "6:423:渋谷経堂線",
+   "status": "OK",
+   "n_edges": 8,
+   "klass_of_edges": {
+    "secondary": 8
+   },
+   "measured_day_db": 64.0,
+   "measured_night_db": 60.0,
+   "on_model_day_db": 69.1,
+   "on_model_night_db": 64.5,
+   "on_residual_day_db": 5.1,
+   "on_residual_night_db": 4.5,
+   "on_edge_day_db_range": [
+    69.1,
+    69.1
+   ],
+   "off_model_day_db": 70.6,
+   "off_model_night_db": 66.6,
+   "off_residual_day_db": 6.6,
+   "off_residual_night_db": 6.6,
+   "off_edge_day_db_range": [
+    70.6,
+    70.6
+   ]
+  },
+  {
+   "no": "79",
+   "route": "4:317:環状六号線",
+   "status": "OK",
+   "n_edges": 33,
+   "klass_of_edges": {
+    "primary": 33
+   },
+   "measured_day_db": 67.0,
+   "measured_night_db": 66.0,
+   "on_model_day_db": 73.0,
+   "on_model_night_db": 69.8,
+   "on_residual_day_db": 6.0,
+   "on_residual_night_db": 3.8,
+   "on_edge_day_db_range": [
+    73.0,
+    73.0
+   ],
+   "off_model_day_db": 72.9,
+   "off_model_night_db": 69.8,
+   "off_residual_day_db": 5.9,
+   "off_residual_night_db": 3.8,
+   "off_edge_day_db_range": [
+    72.9,
+    72.9
+   ]
+  }
+ ],
+ "calibration_residuals_same_points": {
+  "61": [
+   5.1,
+   4.5
+  ],
+  "79": [
+   1.0,
+   -1.2
+  ]
+ },
+ "circularity_note": "ON の辺に当てる値は較正と同じ median_section(路線名で引いたセンサスの区間の中央値)。較正との違いは舗装(ここは nonsteady_dense・較正は点の CSV の低騒音舗装欄)と幅員・車線の出どころだけ。現実との照合は較正に使っていない別の測定点で行う(リサーチ F6・10e の外)。",
+ "expedients": [
+  "路線の辺が複数あるときは辺ごとの値の下側中央値(親案)",
+  "舗装は騒音場と同じ密粒"
+ ]
+}

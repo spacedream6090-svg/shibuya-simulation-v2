@@ -2,7 +2,7 @@
 
 - 検算: 合成の騒音場(点の位置に既知の値を置く)で、物差しが既知の差を返すこと。
 - 住所 → 小地域名(.dbf の S_NAME の書き方)・面積重心。
-- 実データ: 切替口 OFF は昇格版の build_manifest と W10 の出力 6 本が sha256 一致・ON+Q7 の
+- 実データ: 既定(ON+Q7・第330 B4 で昇格)は昇格版の build_manifest と W10 の出力 6 本が sha256 一致・OFF は段 1c の資産と一致・ON+Q7 の
   ゲート(当てた辺 225・primary+secondary 202/202・階級の不一致 0・既定比の最大 10 倍)・
   物差しが 7 点のうち渋谷区の 5 点に座標を付ける。
 """
@@ -299,13 +299,40 @@ def _manifest_w10() -> dict[str, str]:
     return {o["path"]: o["sha256"] for o in st["outputs"]}
 
 
+#: 〔改訂(第330 B4)〕段 1c の資産(W10 1.1.0・OFF)の出力の sha256 の先頭(第 2 波 W10-5 の OFF・
+#: 退避先 ``data/world/v2_pre_10e_2026-10-12/MANIFEST.sha256`` と同じ値)。
+OFF_SHA_PREFIX = {
+    "w10_noise_day.npy": "6f3e3b0f2b4c", "w10_noise_night.npy": "4d682d3ac1eb",
+    "w10_noise_stage_day.npy": "d4d02af1a770", "w10_noise_stage_night.npy": "33ba443230ec",
+    "w10_street_points.parquet": "de1340b15bda", "w10_edge_section.parquet": "c4c93313aa89",
+}
+#: ON+Q7(既定・W10 1.2.0)の出力の sha256 の先頭(第 2 波 W10-5 の ON+Q7・第330 B4 の再構築で一致)。
+ON_Q7_SHA_PREFIX = {
+    "w10_noise_day.npy": "022121e08d50", "w10_noise_night.npy": "f8cccfd43766",
+    "w10_noise_stage_day.npy": "e760a6dcbcb0", "w10_noise_stage_night.npy": "9cd06ebd13d2",
+    "w10_street_points.parquet": "de1340b15bda", "w10_edge_section.parquet": "6bd90df45034",
+}
+
+
 @real
-def test_switch_off_reproduces_the_promoted_w10_outputs(tmp_path):
-    """切替口 OFF(既定)の W10 の出力 6 本は、昇格版の build_manifest の sha256 と一致する。"""
-    assert W.USE_ROAD_NAME_MATCH is False and W.ROAD_NAME_REQUIRE_NAMED_SAME_CLASS is False
-    res, _ = _w10(tmp_path, "off")
+def test_default_on_q7_reproduces_the_promoted_w10_outputs(tmp_path):
+    """〔改訂(第330 B4)〕既定(ON+Q7)の W10 の出力 6 本は、昇格版の build_manifest の sha256 と一致する。"""
+    assert W.USE_ROAD_NAME_MATCH is True and W.ROAD_NAME_REQUIRE_NAMED_SAME_CLASS is True
+    assert W.ROAD_NAME_REQUIRE_SAME_BAND is False
+    res, _ = _w10(tmp_path, "on")
     got = {o["path"]: o["sha256"] for o in res.outputs}
     assert got == _manifest_w10()
+    assert all(got[k].startswith(v) for k, v in ON_Q7_SHA_PREFIX.items()), got
+
+
+@real
+def test_switch_off_reproduces_the_pre_10e_w10_outputs(tmp_path, monkeypatch):
+    """〔改訂(第330 B4)〕切替口 OFF(旧値の再現)の W10 の出力 6 本は、段 1c の資産の sha256 と一致する。"""
+    monkeypatch.setattr(W, "USE_ROAD_NAME_MATCH", False)
+    monkeypatch.setattr(W, "ROAD_NAME_REQUIRE_NAMED_SAME_CLASS", False)
+    res, _ = _w10(tmp_path, "off")
+    got = {o["path"]: o["sha256"] for o in res.outputs}
+    assert all(got[k].startswith(v) for k, v in OFF_SHA_PREFIX.items()), got
 
 
 @real
@@ -365,9 +392,16 @@ def test_ruler_places_the_five_shibuya_points_on_the_promoted_field():
 
 
 @real
-def test_ruler_values_on_the_promoted_field():
-    """README §W10 の見出しの数値(昇格版=OFF の騒音場)を固定する。"""
-    rows = {r["no"]: r for r in R.ruler_from_world(WORLD, DATA_DIR)}
+def test_ruler_values_on_the_off_field(tmp_path, monkeypatch):
+    """README §W10 の見出しの数値(段 1c の昇格版=OFF の騒音場)を固定する。
+
+    〔改訂(第330 B4)〕世界の資産は ON+Q7 に昇格したので、OFF の騒音場を一時ディレクトリに作って測る
+    (旧名 test_ruler_values_on_the_promoted_field・値は同じ)。
+    """
+    monkeypatch.setattr(W, "USE_ROAD_NAME_MATCH", False)
+    monkeypatch.setattr(W, "ROAD_NAME_REQUIRE_NAMED_SAME_CLASS", False)
+    _, off_out = _w10(tmp_path, "offruler")
+    rows = {r["no"]: r for r in R.ruler_from_world(off_out, DATA_DIR)}
     assert {k: r["status"] for k, r in rows.items()} == {
         "61": "NO_BOUNDARY", "75": "NO_BOUNDARY", "78": "OK", "79": "OK",
         "80": "OUTSIDE_WORLD", "81": "OUTSIDE_WORLD", "82": "OK",

@@ -165,12 +165,12 @@ def test_the_filters_need_the_edge_attributes():
 
 
 def test_w10_declares_the_switch_and_the_input():
-    # 既定 OFF(親決定・段 1c の検収): 対応表は作るが騒音場には当てない
-    assert W.USE_ROAD_NAME_MATCH is False
-    assert W.ROAD_NAME_REQUIRE_NAMED_SAME_CLASS is False
+    # 〔改訂(第330 B4)〕既定 ON+Q7(版上げ 1 回目で昇格)。Q9 は不要(09-30 の決定)。
+    assert W.USE_ROAD_NAME_MATCH is True
+    assert W.ROAD_NAME_REQUIRE_NAMED_SAME_CLASS is True
     assert W.ROAD_NAME_REQUIRE_SAME_BAND is False
     assert W.ROAD_NAMES == ("realworld", "osm", "road_names_overpass_20260928.json")
-    assert W.STAGE_VERSION == "1.1.0"
+    assert W.STAGE_VERSION == "1.2.0"
     assert RN.MATCH_BUFFER_M == 8.0
 
 
@@ -184,8 +184,12 @@ def _w10(tmp_path: Path, name: str):
 
 @real
 def test_w10_road_name_match_on_real_data(tmp_path, monkeypatch):
-    """実データ: 写像率・名寄せ・primary/secondary 190/202・残差は突合に依存しない・OFF は当てない。"""
+    """実データ: 写像率・名寄せ・primary/secondary 190/202・残差は突合に依存しない・OFF は当てない。
+
+    〔改訂(第330 B4)〕段 1c の規則(Q7 なし)を明示する(既定は Q7=True になった)。
+    """
     monkeypatch.setattr(W, "USE_ROAD_NAME_MATCH", True)
+    monkeypatch.setattr(W, "ROAD_NAME_REQUIRE_NAMED_SAME_CLASS", False)
     on = _w10(tmp_path, "w10on")
     gates = {g.name: g.to_json() for g in on.gates}
     rep = on.notes["road_name_match"]
@@ -201,7 +205,7 @@ def test_w10_road_name_match_on_real_data(tmp_path, monkeypatch):
     on_out = {o["path"]: o["sha256"] for o in on.outputs}
     assert "w10_edge_section.parquet" in on_out
 
-    # 切替口 OFF(既定)= 対応表は作る(診断)が当てない。騒音場のバイトが違い、較正の残差は同じ。
+    # 切替口 OFF(旧値の再現)= 対応表は作る(診断)が当てない。騒音場のバイトが違い、較正の残差は同じ。
     monkeypatch.setattr(W, "USE_ROAD_NAME_MATCH", False)
     off = _w10(tmp_path, "w10off")
     off_gates = {g.name: g.to_json() for g in off.gates}
@@ -221,12 +225,16 @@ def test_w10_road_name_match_on_real_data(tmp_path, monkeypatch):
 
 
 @real
-def test_w10_default_off_noise_field_equals_the_pre_1c_asset(tmp_path):
-    """既定(OFF)の騒音場 4 本は、段 1c 前の資産(W10 1.0.0 の出力)とバイト一致する。"""
+def test_w10_off_noise_field_equals_the_pre_1c_asset(tmp_path, monkeypatch):
+    """OFF の騒音場 4 本は、段 1c 前の資産(W10 1.0.0 の出力)とバイト一致する。
+
+    〔改訂(第330 B4)〕既定は ON+Q7 になったので OFF を明示する(旧名 ``…_default_off_…``)。
+    """
     import pyarrow.parquet as pq
 
+    monkeypatch.setattr(W, "USE_ROAD_NAME_MATCH", False)
+    monkeypatch.setattr(W, "ROAD_NAME_REQUIRE_NAMED_SAME_CLASS", False)
     off = _w10(tmp_path, "w10default")
-    assert W.USE_ROAD_NAME_MATCH is False
     out = {o["path"]: o["sha256"] for o in off.outputs}
     # 1.0.0 の出力の sha256(段 1a の build_manifest=第284 の記録)
     assert out["w10_noise_day.npy"].startswith("6f3e3b0f2b4c")
