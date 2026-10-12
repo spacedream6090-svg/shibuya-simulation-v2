@@ -94,9 +94,13 @@ from shibuya.engine import state_ledger as SL
 from shibuya.engine.activity import ActivityLayer, payload_of
 from shibuya.engine.calendar import (
     DEFAULT_HOLIDAY_CSV,
+    DEFAULT_WEATHER_SCHEME,
     DEFAULT_WEEKDAY_MODE,
+    DEFAULT_WORLD_START,
+    WEATHER_SCHEMES,
     WEEKDAY_MODES,
     SimCalendar,
+    check_weather_scheme,
     check_weekday_mode,
     load_holidays,
     parse_school_holidays,
@@ -181,6 +185,7 @@ from shibuya.engine.geometry import (
 )
 from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.processes.crowd import SEAT_AREA_M2
+from shibuya.engine.processes.opening import rows_of_day as _opening_rows_of_day
 from shibuya.engine.processes.runner import WorldProcessRunner
 from shibuya.engine.processes.salient import (
     ablation_name as _pnotice_ablation_name,
@@ -541,8 +546,9 @@ def _named_closed_lookup(
             if later.size:
                 nxt = minute + 1 + int(later[0])
             elif pa is not None and getattr(pa, "plan_poi", None) is not None:
-                nxt_wd = calendar.table_weekday(calendar.day_of(t) + 1)  # 10a #8: 翌日の曜日の行
-                sel = (np.asarray(pa.plan_poi) == poi) & (np.asarray(pa.plan_day) == int(nxt_wd))
+                nxt_wd = calendar.opening_row(calendar.day_of(t) + 1)  # 10a #8: 翌日の行(〔第330〕祝日は PH)
+                sel = (np.asarray(pa.plan_poi) == poi) & _opening_rows_of_day(
+                    pa.plan_poi, pa.plan_day, int(nxt_wd), getattr(pa, "plan_ph_poi", None))
                 if bool(np.any(sel)):
                     nxt = int(np.asarray(pa.plan_start)[sel].min()) % 1_440
         return poi, t, nxt
@@ -2049,6 +2055,7 @@ def run_day(
     run_id: str = "",
     checkpoint_detail: bool = False,
     world_assets_pre10e: "str | Path | None" = None,
+    weather_scheme: str | None = None,
 ) -> RunResult:
     """1 シミュ日(既定 1,440 tick)の mock ランを回す。
 
@@ -2418,6 +2425,12 @@ def run_day(
             騒音の地図の 2 つの読み手(``world`` の資産と知覚)は同じ口を通し、集約後の段が違えば止める。``world`` を
             渡すときは同じ退避先で読んだ世界を渡す(``cli.run`` はそうする)。**版上げ 1 回目が済み、動いた量を記録したら
             消す**。manifest の ``world_assets_pre10e`` に退避先と族を書く。
+        weather_scheme: **10e(E3・B6)の天気と暦の規則**(``engine.calendar.WEATHER_SCHEMES``)。``None``(既定)=
+            ``DEFAULT_WEATHER_SCHEME``(今は ``legacy``・``CALENDAR_UNIFIED`` で切り替わる)。``legacy``=今のまま(開始日を
+            渡さないランの世界の日付=気象の再生実日)/ ``calendar``=世界の日付は暦(開始日を渡さなければ
+            ``DEFAULT_WORLD_START``=2026-07-13 + ``day_index`` 日)・天気は再生日の行・日の出と日の入りと太陽高度と
+            影は暦の日付(ユーザーの答え 1-3・``engine.processes.environment``)。``calendar`` では ``real`` の曜日に
+            開始日を渡さなくてよい(既定の開始日を使う)。
 
     Returns:
         ``RunResult``。
@@ -2436,6 +2449,11 @@ def run_day(
     # 10e(B1): 旧資産の切替口は使ったときだけ指紋に載せる(既定のランの指紋=旧い状態のファイルの再開は今のまま)
     if world_assets_pre10e is None or str(world_assets_pre10e) == "":
         _call_args.pop("world_assets_pre10e", None)
+    # 10e(E3・B6): 天気と暦の規則。legacy(今)のときは指紋に載せない(旧い状態のファイルの再開は今のまま)
+    weather_scheme = check_weather_scheme(weather_scheme)
+    _call_args.pop("weather_scheme", None)
+    if weather_scheme != WEATHER_SCHEMES[0]:
+        _call_args["weather_scheme"] = weather_scheme
     _pre10e_src = (
         asset_source(world_dir, world_assets_pre10e)
         if (world_dir is not None and world_assets_pre10e is not None and str(world_assets_pre10e) != "")
@@ -2455,11 +2473,14 @@ def run_day(
     if sim_days < 1:
         raise ValueError(f"sim_days は 1 以上(いま {sim_days})")
     start_given = parse_start(start_sim_datetime)
-    if calendar_weekday == "real" and start_given is None:
+    if calendar_weekday == "real" and start_given is None and weather_scheme != "calendar":
         raise ValueError("calendar_weekday='real' には start_sim_datetime(開始日)が要る(A1-1)")
+    # 10e(E3): 暦の 0 日目。渡されたらその日・暦の規則(calendar)では既定の開始日 2026-07-13 + day_index 日・
+    # legacy では今までどおり DEFAULT_START_DATETIME + day_index 日(後で気象の再生実日へ置き換える=旧値の再現)
     calendar = SimCalendar(
         start_given if start_given is not None
-        else DEFAULT_START_DATETIME + timedelta(days=int(day_index)),
+        else (DEFAULT_WORLD_START if weather_scheme == "calendar" else DEFAULT_START_DATETIME)
+        + timedelta(days=int(day_index)),
         tick_seconds=int(tick_seconds),
         weekday_mode=calendar_weekday,
         day_index=int(day_index),
@@ -2811,6 +2832,7 @@ def run_day(
             day_index=day_index,
             tick_seconds=tick_seconds,
             calendar=calendar,  # 10a: #2・#3・#7・#10・#11・#20 は暦の口から
+            weather_scheme=weather_scheme,  # 10e(E3・B6): 天気=再生日・太陽と影=暦の日付(calendar)
             rng_scheme=rng_scheme,  # 10c
             initial_placement=not _resuming,  # 10d(A11): 再開では域外へ置かない
             schedule=schedule,
@@ -2861,14 +2883,16 @@ def run_day(
         if runner is not None:
             runner.attach_presence(presence)  # hotel の母数・civic の引き込み候補
 
-    # ---- 10a #1: T=0 の世界内日時(暦の開始日)。渡されたらその日・無ければ今までどおり
-    # 「既定の開始日 + day_index」を気象の再生実日(D-W15)で置き換える(day_index モードの既定=今の値)。
-    if start_given is not None:
-        world_start = start_given
+    # ---- 10a #1・10e(E3): T=0 の世界内日時(暦の開始日)。**世界の日付(暦)と再生日(天気の行を引く日)は別の
+    # 変数**: ``world_start`` は暦・``replay_date0`` は 0 日目の天気の行の日。渡されたら・暦の規則(calendar)なら上で
+    # 決めた暦の 0 日目のまま。legacy(旧値の再現)だけが「既定の開始日 + day_index」を気象の再生実日(D-W15)で置き換える。
+    replay_date0 = runner.replay_date if runner is not None else ""
+    if start_given is not None or weather_scheme == "calendar":
+        world_start = calendar.start_sim_datetime
     else:
         world_start = DEFAULT_START_DATETIME + timedelta(days=int(day_index))
-        if runner is not None and runner.replay_date:
-            world_start = datetime.fromisoformat(runner.replay_date)
+        if replay_date0:
+            world_start = datetime.fromisoformat(replay_date0)
     calendar = calendar.with_start(world_start)
     #: 開始日の検査(real は違反で止める・day_index は警告だけ・祝日表の範囲外はどちらも止める)。
     #: 検収後 P1: 気象の再生実日へ置き換えた後の暦で走らせる(manifest の ``start_sim_datetime`` と同じ日を見る)。
@@ -5100,6 +5124,10 @@ def add_calendar_args(ap: "argparse.ArgumentParser") -> None:
                     help="再開する状態のファイル(10d・state-T<T>.npz)。設定は親と同じにする(違えば止める)")
     ap.add_argument("--state-out", type=str, default="",
                     help="状態の書き出し先のディレクトリ(10d)。各日の締めの後とランの最後に state-T<T>.npz を書く")
+    # 10e(E3・B6): 天気と暦の規則(同じ綴りを engine.run と shibuya.cli で使う)
+    ap.add_argument("--weather-scheme", choices=WEATHER_SCHEMES, default=None,
+                    help=("天気と暦の規則(10e)。legacy=今(世界の日付=再生日・日の出と影も再生日)/ calendar=世界の日付は暦"
+                          "(既定の開始日 2026-07-13)・天気は再生日・太陽と影は暦の日付。未指定=engine.calendar の既定"))
     # 10e(B1): 旧資産の切替口(同じ綴りを engine.run と shibuya.cli で使う)。版上げ 1 回目の直後に消す
     ap.add_argument("--world-assets-pre10e", type=str, default="",
                     help=("旧資産の切替口(10e B1)。W10・W12・W13・W9 のうち、このディレクトリにそろっている族をそこから読む"
@@ -5129,6 +5157,9 @@ def calendar_kwargs_from_args(args: Any) -> dict[str, Any]:
         out["resume_from"] = str(args.resume_from)
     if getattr(args, "state_out", ""):
         out["state_out"] = str(args.state_out)
+    # 10e(E3・B6): 天気と暦の規則(未指定のときは欄を足さない=既定の引数は今のまま)
+    if getattr(args, "weather_scheme", None):
+        out["weather_scheme"] = str(args.weather_scheme)
     # 10e(B1): 旧資産の切替口(既定のときは欄を足さない)
     if getattr(args, "world_assets_pre10e", ""):
         out["world_assets_pre10e"] = str(args.world_assets_pre10e)

@@ -40,6 +40,7 @@ import numpy as np
 
 from shibuya.agents.state import AgentKind, AgentState
 from shibuya.engine import resolve as R
+from shibuya.engine.calendar import OPENING_ROW_PH
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.state import World
@@ -54,6 +55,27 @@ _CODE_SCHEDULED: Final[int] = DEVIATION_CODES[DeviationVocab.SCHEDULED]
 _CODE_REPLACEMENT: Final[int] = DEVIATION_CODES[DeviationVocab.REPLACEMENT]
 
 
+#: 〔第330・10e E3〕W7 の祝日の行(暦の口の ``opening_row`` が祝日に返す値)。
+PH_ROW: Final[int] = OPENING_ROW_PH
+#: 祝日の行の無い店が祝日に使う行(日曜=10a の「祝日は土休扱い」・expedient・未リサーチ)。
+PH_FALLBACK_ROW: Final[int] = 6
+
+
+def rows_of_day(plan_poi: np.ndarray, plan_day: np.ndarray, row: int,
+                ph_poi: np.ndarray | None = None) -> np.ndarray:
+    """その日の行(曜日 0〜6・祝日 ``PH_ROW``)に当たる W7 の区間の真偽の列。
+
+    〔第330・10e E3〕祝日の行は、W7 に祝日の規則(``PH``)を持つ店(``ph_poi``)はその行・持たない店は日曜の行。
+    曜日 0〜6 は今と同じ(``plan_day == row % 7``)。
+    """
+    day = np.asarray(plan_day, dtype=np.int64)
+    if int(row) != PH_ROW:
+        return day == int(row) % 7
+    poi = np.asarray(plan_poi, dtype=np.int64)
+    has_ph = np.isin(poi, np.asarray(ph_poi if ph_poi is not None else (), dtype=np.int64))
+    return np.where(has_ph, day == PH_ROW, day == PH_FALLBACK_ROW)
+
+
 def build_open_matrix(
     n_poi: int,
     plan_poi: np.ndarray,
@@ -61,13 +83,15 @@ def build_open_matrix(
     plan_start: np.ndarray,
     plan_end: np.ndarray,
     weekday: int,
+    ph_poi: np.ndarray | None = None,
 ) -> np.ndarray:
     """W7 の区間 → ``(n_poi, 1440)`` の開閉行列(日跨ぎは同じ日へ巻き戻す)。
 
     Args:
         n_poi: POI 数。
-        plan_poi / plan_day / plan_start / plan_end: W7 の区間列(``day`` は 0=月)。
-        weekday: 対象の曜日(0=月)。
+        plan_poi / plan_day / plan_start / plan_end: W7 の区間列(``day`` は 0=月・7=祝日の行)。
+        weekday: 対象の曜日(0=月)。〔第330〕``PH_ROW``(7)は祝日の行(``rows_of_day``)。
+        ph_poi: 祝日の規則を持つ店(``ProcessAssets.plan_ph_poi``)。
 
     Returns:
         bool 行列。``[j, m]`` = POI j が分 m に営業しているか。
@@ -79,7 +103,7 @@ def build_open_matrix(
     out = np.zeros((int(n_poi), MINUTES_PER_DAY), dtype=bool)
     if plan_poi is None or plan_poi.size == 0:
         return out
-    sel = np.flatnonzero(np.asarray(plan_day, dtype=np.int64) == int(weekday) % 7)
+    sel = np.flatnonzero(rows_of_day(plan_poi, plan_day, int(weekday), ph_poi))
     # 逐次ループ宣言: 当日の区間ぶん
     for k in sel.tolist():
         j = int(plan_poi[k])
@@ -134,6 +158,7 @@ class OpeningProcess:
             passets.plan_start,
             passets.plan_end,
             self.day_index,
+            passets.plan_ph_poi,
         ) if passets.has_plan_spec else np.zeros((0, 0), dtype=bool)
         self.staff_of_poi = self._assign_staff()
 
@@ -167,6 +192,7 @@ class OpeningProcess:
                 self.assets.plan_start,
                 self.assets.plan_end,
                 self.day_index,
+                self.assets.plan_ph_poi,
             )
 
     def rebuild_derived(self) -> None:

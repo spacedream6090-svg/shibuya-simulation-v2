@@ -970,6 +970,9 @@ class ProcessAssets:
     plan_day: np.ndarray | None = None
     plan_start: np.ndarray | None = None
     plan_end: np.ndarray | None = None
+    #: 〔第330・10e E3〕W7 に祝日の規則(``PH``=営業時間の週の 8 つ目の要素)を持つ店(昇順)。資産に無ければ ``None``。
+    #: 祝日の区間は ``plan_day == 7``。空の 8 つ目(``[]``)=祝日は休み・``null``/無し=祝日の規則なし。
+    plan_ph_poi: np.ndarray | None = None
     edge_klass_code: np.ndarray | None = None
     edge_cell: np.ndarray | None = None
     edge_length_m: np.ndarray | None = None
@@ -1358,6 +1361,7 @@ def load_process_assets(
 
     # ---- W6/W7: POI カテゴリと営業時間 PlanSpec ----
     plan_poi = plan_day = plan_start = plan_end = None
+    plan_ph_poi = None
     poi_cat_code = None
     poi_cat_names: tuple[str, ...] = ()
     fp = p / PROCESS_FILES["plan_spec"]
@@ -1371,6 +1375,7 @@ def load_process_assets(
         if fp.exists():
             ps = pq.read_table(fp, columns=["poi_id", "kind", "content"]).to_pydict()
             rp: list[int] = []
+            ph: set[int] = set()
             rd: list[int] = []
             rs: list[int] = []
             re_: list[int] = []
@@ -1385,7 +1390,12 @@ def load_process_assets(
                     week = json.loads(str(ps["content"][i]))
                 except (ValueError, TypeError):
                     continue
-                for day, spans in enumerate(list(week)[:7]):
+                # 〔第330・10e E3〕8 つ目の要素は祝日(PH)の行(``plan_day == 7``)。null/無し=規則なし
+                for day, spans in enumerate(list(week)[:8]):
+                    if spans is None:
+                        continue
+                    if day == 7:
+                        ph.add(j)
                     for span in spans:
                         if len(span) != 2:
                             continue
@@ -1397,6 +1407,7 @@ def load_process_assets(
             plan_day = np.asarray(rd, dtype=np.int8)
             plan_start = np.asarray(rs, dtype=np.int32)
             plan_end = np.asarray(re_, dtype=np.int32)
+            plan_ph_poi = np.asarray(sorted(ph), dtype=np.int64) if ph else None
 
     # ---- W1: 道路の辺(断面自動車交通) ----
     edge_klass_code = edge_cell = edge_len = None
@@ -1439,6 +1450,7 @@ def load_process_assets(
         plan_day=plan_day,
         plan_start=plan_start,
         plan_end=plan_end,
+        plan_ph_poi=plan_ph_poi,
         edge_klass_code=edge_klass_code,
         edge_cell=edge_cell,
         edge_length_m=edge_len,

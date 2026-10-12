@@ -41,7 +41,7 @@ from shibuya.agents.state import AgentState
 from shibuya.core.hashing import blake3_hex
 from shibuya.core.rng import stream
 from shibuya.engine import resolve as R
-from shibuya.engine.calendar import SimCalendar
+from shibuya.engine.calendar import SimCalendar, check_weather_scheme
 from shibuya.world.assets import (
     HEAT_STAGE_ORDER,
     SHADOW_FRAMES_PER_DAY,
@@ -144,8 +144,13 @@ class EnvironmentProcess:
         tick_seconds: int = 60,
         prefer_shadow_days: bool = True,
         calendar: Any | None = None,
+        weather_scheme: str = "legacy",
+        perturbed: bool = False,
     ) -> None:
         self.prefer_shadow_days = bool(prefer_shadow_days)
+        #: 10e(E3・B6): 天気と暦の規則(``engine.calendar.WEATHER_SCHEMES``)と、天気を揺らすか(環境の seed を別に渡した)
+        self.weather_scheme = check_weather_scheme(weather_scheme)
+        self.perturbed = bool(perturbed)
         self.calendar = (
             calendar if calendar is not None
             else SimCalendar.legacy(int(day_index), tick_seconds=int(tick_seconds))

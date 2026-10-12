@@ -168,6 +168,7 @@ class WorldProcessRunner:
         initial_placement: bool = True,
         population_seed: int | str | None = None,
         environment_seed: int | str | None = None,
+        weather_scheme: str = "legacy",
     ) -> None:
         if world is None or agents is None:
             raise ValueError("WorldProcessRunner は world と agents を要る")
@@ -189,7 +190,8 @@ class WorldProcessRunner:
         #: ``day_index`` モード(既定)では今と同じ ``day_index``(``SimCalendar.day_key``)。
         day_key = int(self.calendar.day_key(0))
         #: 10a #7: 営業時間の表(W7)の曜日の行。``day_index`` モードでは ``day_index % 7``。
-        table_weekday = int(self.calendar.table_weekday(0))
+        #: 〔第330・10e E3〕``real`` の祝日は W7 の祝日の行(``opening_row``・PH の無い店は日曜の行=今の値)。
+        table_weekday = int(self.calendar.opening_row(0))
         self.ledger = ledger
         #: **D-66 計画実行層**のラン(``engine.presence.PlanExecutor`` が在圏の出入りを持つ)。
         #: rail の乱数 12% と D-61 帰りの便を止め、起動時の域外配置も層に任せる。
@@ -219,10 +221,15 @@ class WorldProcessRunner:
         # (各過程の ``master_seed`` に入る)
         _pop_seed = self.master_seed if population_seed is None else population_seed
         _env_seed = self.master_seed if environment_seed is None else environment_seed
+        #: 10e(B6): 天気を揺らすか=環境の seed を動きの seed と別に渡したとき(``1`` と ``"1"`` は別の鍵)
+        _perturbed = environment_seed is not None and not (
+            type(environment_seed) is type(self.master_seed) and environment_seed == self.master_seed
+        )
         self.environment = EnvironmentProcess(
             world, agents, self.assets,
             master_seed=_env_seed, day_index=self.day_index, tick_seconds=self.tick_seconds,
             prefer_shadow_days=prefer_shadow_days, calendar=self.calendar,
+            weather_scheme=weather_scheme, perturbed=_perturbed,
         )
         self.rail = RailProcess(
             world, agents, self.assets,
@@ -414,7 +421,7 @@ class WorldProcessRunner:
         key = int(self.calendar.day_key(d))
         self.rail.append_day(d, ticks_per_day=int(ticks_per_day))
         self.environment.pick_day(d)
-        self.opening.relay_day(int(self.calendar.table_weekday(d)))
+        self.opening.relay_day(int(self.calendar.opening_row(d)))  # 〔第330〕祝日は W7 の PH の行
         self.delivery_inbound.relay_day(key)
         self.road_works.relay_day(key)
         self.large_event.relay_day(key)

@@ -88,7 +88,12 @@ def test_runner_reads_the_real_calendar(table):
     cal = _real(datetime(2026, 7, 20), table)                         # 海の日(月曜)
     r = _runner(calendar=cal)
     assert r.environment._weekday_kind() == "土休"                    # noqa: SLF001 - 祝日は土休
-    assert r.opening.day_index == 6                                   # 祝日は日曜の行
+    # 〔第330・10e E3〕祝日は W7 の祝日の行(PH)。PH の規則の無い店(今の W7 は全部)は日曜の行=今と同じ開閉
+    from shibuya.engine.calendar import OPENING_ROW_PH
+    from shibuya.engine.processes.opening import rows_of_day
+    assert r.opening.day_index == OPENING_ROW_PH
+    _pd = np.arange(8, dtype=np.int8)
+    assert np.array_equal(rows_of_day(np.zeros(8), _pd, OPENING_ROW_PH, None), _pd == 6)   # 祝日は日曜の行
     assert r.salient.day_index == 0                                   # real の鍵は日番号
     r = _runner(calendar=_real(datetime(2026, 7, 21), table))         # 火曜
     assert r.environment._weekday_kind() == "平日" and r.opening.day_index == 1  # noqa: SLF001

@@ -21,6 +21,13 @@
 
 季節: 気象庁の季節の区分(春=3〜5 月・夏=6〜8 月・秋=9〜11 月・冬=12〜2 月)を日付の月から引く。
 
+〔改訂(第330・10e E3)〕**暦の一本化の既定の切り替えは ``CALENDAR_UNIFIED`` の 1 か所**。``False``(今)=曜日は
+``day_index``・開始日は再生日(``engine.run`` の旧い導き方)・天気は ``legacy``。``True``(親が B6 の活性化で切り替える)=
+``--calendar-weekday`` の既定が ``real``・``--weather-scheme`` の既定が ``calendar``(開始日を渡さないランの暦の
+開始日は ``DEFAULT_WORLD_START``=2026-07-13(月)+ ``day_index`` 日・ユーザーの答え 1-4)。切り替えで動く所の一覧は
+``docs/bench/analysis/wallbounce-1012/10e/README.md`` §E3。W7 の祝日(``PH``)の行は ``opening_row`` で引く
+(``real`` の祝日=``OPENING_ROW_PH``。資産に PH の行が無い店は日曜の行=10a の「祝日は土休扱い」のまま)。
+
 給料日: 規則は賃金の段(指示書 §6 ⑧)で決める。既定 ``payday_day_of_month=None`` は給料日なし
 (``is_payday`` は常に False)。日を渡したときは「毎月その日。土休なら前の営業日へ寄せる」
 (expedient・未リサーチ。今は誰も読まない)。
@@ -50,9 +57,15 @@ from typing import Any, Final, Iterable, Mapping
 from shibuya.core.types import DEFAULT_TICK_SECONDS, MINUTES_PER_SIM_DAY
 
 __all__ = [
+    "CALENDAR_UNIFIED",
     "CalendarWarning",
     "DEFAULT_HOLIDAY_CSV",
+    "DEFAULT_WEATHER_SCHEME",
     "DEFAULT_WEEKDAY_MODE",
+    "DEFAULT_WORLD_START",
+    "OPENING_ROW_PH",
+    "WEATHER_SCHEMES",
+    "check_weather_scheme",
     "HOLIDAY_CSV_COLUMNS",
     "HolidayTable",
     "SEASON_OF_MONTH",
@@ -71,9 +84,22 @@ __all__ = [
 DEFAULT_HOLIDAY_CSV: Final[str] = "data/calendar/syukujitsu.csv"
 #: 内閣府 CSV の列名(見出しの行)。
 HOLIDAY_CSV_COLUMNS: Final[tuple[str, str]] = ("国民の祝日・休日月日", "国民の祝日・休日名称")
-#: 曜日の決め方(``--calendar-weekday``)。先頭が既定。
+#: 〔第330・10e E3/B6〕**暦の一本化の既定の切り替え(ここ 1 か所)**。``True`` で ``DEFAULT_WEEKDAY_MODE`` が ``real``・
+#: ``DEFAULT_WEATHER_SCHEME`` が ``calendar`` になる(開始日を渡さないランは ``DEFAULT_WORLD_START + day_index`` 日)。
+#: 親が構築側(W13 の年間化・W9 の開始日の影・W7 の PH)を取り込んだ後に切り替える。
+CALENDAR_UNIFIED: Final[bool] = False
+#: 〔第330・10e E3〕既定の開始日(ユーザーの答え 1-4: 2026-07-13(月)・世界の資産の時点に最も近く季節が同じで学期中)。
+#: 暦の規則(``weather_scheme="calendar"``)で開始日を渡さないランの暦の 0 日目(``+ day_index`` 日)。
+DEFAULT_WORLD_START: Final[datetime] = datetime(2026, 7, 13, 0, 0)
+#: 曜日の決め方(``--calendar-weekday``)。既定は ``CALENDAR_UNIFIED`` で決まる(今は先頭の ``day_index``)。
 WEEKDAY_MODES: Final[tuple[str, ...]] = ("day_index", "real")
-DEFAULT_WEEKDAY_MODE: Final[str] = WEEKDAY_MODES[0]
+DEFAULT_WEEKDAY_MODE: Final[str] = "real" if CALENDAR_UNIFIED else WEEKDAY_MODES[0]
+#: 〔第330・10e B6〕天気の規則(``--weather-scheme``)。``legacy``=今(再生日を層から一様に引き、日の出・日の入り・影も
+#: 再生日・世界の日付も再生日)/ ``calendar``=天気は再生日・太陽と影は暦の日付(ユーザーの答え 1-3)。
+WEATHER_SCHEMES: Final[tuple[str, ...]] = ("legacy", "calendar")
+DEFAULT_WEATHER_SCHEME: Final[str] = "calendar" if CALENDAR_UNIFIED else WEATHER_SCHEMES[0]
+#: 〔第330・10e E3〕W7 の営業時間の祝日の行(``PH``)の番号(曜日 0〜6 の次)。``opening_row`` が ``real`` の祝日に返す。
+OPENING_ROW_PH: Final[int] = 7
 #: 気象庁の季節の区分(月 → 季節)。
 SEASON_OF_MONTH: Final[Mapping[int, str]] = {
     3: "春", 4: "春", 5: "春",
@@ -99,6 +125,14 @@ def check_weekday_mode(mode: str) -> str:
     if m not in WEEKDAY_MODES:
         raise ValueError(f"calendar_weekday は {WEEKDAY_MODES} のどれか(いま {mode!r})")
     return m
+
+
+def check_weather_scheme(value: str | None) -> str:
+    """``--weather-scheme`` の値を検査して返す(``None`` は既定 ``DEFAULT_WEATHER_SCHEME``)。"""
+    v = DEFAULT_WEATHER_SCHEME if value is None else str(value)
+    if v not in WEATHER_SCHEMES:
+        raise ValueError(f"weather_scheme は {WEATHER_SCHEMES} のどれか(いま {value!r})")
+    return v
 
 
 def ticks_per_day(tick_seconds: int = DEFAULT_TICK_SECONDS) -> int:
@@ -338,6 +372,13 @@ class SimCalendar:
         if self.weekday_mode == "real" and self.is_holiday(day):
             return HOLIDAY_TABLE_WEEKDAY
         return self.weekday(day)
+
+    def opening_row(self, day: int) -> int:
+        """W7 の営業時間の表の行(〔第330・10e E3〕)。``real`` の祝日は ``OPENING_ROW_PH``(祝日の行・無い店は日曜の行)、
+        ほかは ``table_weekday`` と同じ(``day_index`` モードと平日の値は今のまま)。"""
+        if self.weekday_mode == "real" and self.is_holiday(day):
+            return OPENING_ROW_PH
+        return self.table_weekday(day)
 
     def day_kind(self, day: int) -> str:
         """古典の事前分布の曜日の鍵(``weekday``/``saturday``/``sunday``)。"""
