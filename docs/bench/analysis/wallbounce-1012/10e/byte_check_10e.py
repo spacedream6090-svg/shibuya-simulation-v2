@@ -114,6 +114,10 @@ def cmd_one(args: argparse.Namespace) -> int:
         "calendar_weekday": cal.get("calendar_weekday", ""),
         "start_sim_datetime": str(man.get("start_sim_datetime", "")),
         "replay_date": str(man.get("replay_date", getattr(res, "replay_date", ""))),
+        # 第330(B0・B1・B6): manifest の資産の指紋・旧資産の切替口・天気の記録(欄が無い版は「(欄なし)」)
+        "frozen_sources": dict(man.get("frozen_sources", {}) or {}),
+        "world_assets_pre10e": man.get("world_assets_pre10e", "(欄なし)"),
+        "weather": man.get("weather", "(欄なし)"),
         "salient_events": int(getattr(res, "salient_events", 0)),
         "collapse": int(pc.get("salient.collapse", -1)),
         "noticed": int(getattr(res, "noticed", 0)),
@@ -173,7 +177,9 @@ def cmd_side(args: argparse.Namespace) -> int:
 COMPARE_KEYS = ("final", "calls", "blocks_rows", "blocks_sha", "calls_rows", "calls_column_names", "calls_columns_sha",
                 "action_usage_total", "action_usage_sha", "calls_by_condition", "salient_events", "collapse",
                 "noticed", "dispatches", "arrived", "mean_delay_min", "meals", "behavior_last", "full_last",
-                "end_of_day", "start_sim_datetime", "replay_date", "calendar_weekday", "rng_scheme")
+                "end_of_day", "start_sim_datetime", "replay_date", "calendar_weekday", "rng_scheme",
+                # 第330(B0): manifest の frozen_sources(B0 で動く量はこれだけ)
+                "frozen_sources")
 
 
 def cmd_compare(args: argparse.Namespace) -> int:

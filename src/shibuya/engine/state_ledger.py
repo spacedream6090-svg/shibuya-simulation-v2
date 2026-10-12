@@ -949,6 +949,8 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "tick_seconds", "process_ids"),
     _x("runner.environment", CACHE, "日の出・日の入り・セルの点・日陰の面(資産と日付から作る)と日陰のキャッシュの印",
        "_planes", "_sunrise", "_sunset", "_cell_point", "_shade_cache_frame"),
+    # 第330(10e B0): 開いた影のファイルの sha256(manifest の frozen_sources の記録だけ・資産と日付から作り直せる)
+    _x("runner.environment", CACHE, "10e B0: 開いた影のファイルの sha256(manifest の記録だけ)", "shadow_sources"),
     _x("ledger.money", CONST, _CFG + "(他所の現金の扱いの印は初期化で 1 回だけ立てる)", "sizes", "_foreign_cash",
        "retention_days", "raw_capacity"),
     _x("ledger.money", CACHE, "書き込み窓の入れ子の深さ(checkpoint では 0)", "_depth"),

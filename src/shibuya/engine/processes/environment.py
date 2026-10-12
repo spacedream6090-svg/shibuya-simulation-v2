@@ -47,6 +47,7 @@ from shibuya.world.assets import (
     SHADOW_FRAMES_PER_DAY,
     SHADOW_MINUTES_PER_FRAME,
     ProcessAssets,
+    file_sha256,
 )
 from shibuya.world.state import World
 
@@ -122,6 +123,8 @@ class EnvironmentProcess:
 
     Attributes:
         replay_date: 再生する実日(資産が無ければ ``""``)。
+        shadow_sources: 10e(B0): 開いた影のファイル(``w9_shadow_<日付>.npy``)→ sha256。``engine.run`` が manifest の
+            ``frozen_sources`` に ``process:`` を付けて写す(複数日のランでは日ごとに開いた全部)。
         daylight: 直近の日照 3 値(0=夜明け前 / 1=日中 / 2=日没後)。
         heat_stage: 直近の暑さ段(0-4)。
         wbgt: 直近の WBGT 推定値[℃](資産が無ければ NaN)。
@@ -167,6 +170,7 @@ class EnvironmentProcess:
         self._cell_point: np.ndarray | None = None
         self._shade_cache_frame = -1
         self._shade: np.ndarray = np.zeros(world.n_cells, dtype=bool)
+        self.shadow_sources: dict[str, str] = {}
         self._pick_day()
 
     # ------------------------------------------------------------------ 実日の決定
@@ -225,8 +229,17 @@ class EnvironmentProcess:
         if a.has_shadow:
             self._planes = a.shadow_planes(self.replay_date)
             self._cell_point = a.cell_street_point
+            self._note_shadow(self.replay_date)
         if self._planes is None:
             self.shadow_missing = 1
+
+    def _note_shadow(self, date: str) -> None:
+        """10e(B0): 開いた影のファイルの sha256 を控える(同じ日は 1 回だけ読む)。"""
+        if self._planes is None:
+            return
+        p = self.assets.shadow_path(date)
+        if p is not None and p.name not in self.shadow_sources:
+            self.shadow_sources[p.name] = file_sha256(p)
 
     def pick_day(self, day: int) -> None:
         """10d: 日の頭で ``day`` 日目の再生実日を引き直す(鍵は 10a の日番号つき・0 日目は起動時に引いた日)。

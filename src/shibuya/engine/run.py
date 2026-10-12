@@ -1593,8 +1593,9 @@ class RunResult:
                 f"{int(self.bridge_counters.get('fleet_resent', 0)):,} / 終端未応答 "
                 f"{self.fleet_unanswered_at_end:,}"
             )
-        if self.frozen_sources:
-            lines.append("  凍結静的文 " + " ".join(f"{k}={v[:16]}" for k, v in sorted(self.frozen_sources.items())))
+        _frozen_text = {k: v for k, v in self.frozen_sources.items() if ":" not in k}  # 10e(B0): 資産の指紋は除く
+        if _frozen_text:
+            lines.append("  凍結静的文 " + " ".join(f"{k}={v[:16]}" for k, v in sorted(_frozen_text.items())))
         if self.registry_hash:
             lines.append(
                 f"  世界過程 台帳 {self.registry_hash[:16]}… 憲法5 "
@@ -2868,6 +2869,10 @@ def run_day(
             walkable_sources = dict(area_sha)
         frozen_sources_map = dict(getattr(assets, "frozen_sources", {}) or {})
         frozen_sources_map.update(walkable_sources)
+        # 10e(B0): 知覚が読んだ騒音の地図(W10)と天気(W13)の sha256・集約後の段の指紋(``perception:``)
+        frozen_sources_map.update(
+            {f"perception:{k}": v for k, v in (getattr(assets, "asset_sources", {}) or {}).items()}
+        )
         # 世界内日時 = 暦の口(10a #1)= ``world_start + T × tick_seconds``(tick_seconds=60 では
         # 今の ``start + T 分`` と同じ値)。``world_start`` は上で決めた(既定は気象の再生実日)。
         perception = PerceptionRendererAdapter(
@@ -4646,6 +4651,18 @@ def run_day(
             np.count_nonzero(agents.registry.activity == int(Activity.CONVERSING))
         )
     result.renderer_counters = dict(perception.counters()) if perception is not None else {}
+    # 10e(B0): 世界の資産(``world:``=騒音の地図)と世界過程(``process:``=W13・W12・影の点の W10・開いた影 W9)が
+    # 読んだファイルの sha256 を同じ辞書に足す(manifest の設定の節。final・checkpoint には入らない)
+    frozen_sources_map.update(
+        {f"world:{k}": v for k, v in (getattr(world.assets, "asset_sources", {}) or {}).items()}
+    )
+    if runner is not None:
+        frozen_sources_map.update(
+            {f"process:{k}": v for k, v in (getattr(runner.assets, "asset_sources", {}) or {}).items()}
+        )
+        frozen_sources_map.update(
+            {f"process:{k}": v for k, v in (getattr(runner.environment, "shadow_sources", {}) or {}).items()}
+        )
     result.frozen_sources = frozen_sources_map
     result.renderer_name = (
         "perception.Renderer" if perception is not None else type(renderer_obj).__name__
