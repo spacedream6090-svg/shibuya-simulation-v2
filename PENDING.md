@@ -19,6 +19,9 @@
 | 区民意識調査の振り分け | 設問を「検証/人物づくり/使わない」に振り分けた表(リサーチ F11)が出たら承認。承認まで全部検証専用 | 表が出てから | [指示書 10-12 §4-10](docs/design/v2-wallbounce-decisions-2026-10-12.md) |
 | **1-0 run_day の分解の口の案** | 第 1 期の最初に入れる分解(系の境目と口)の紙の草案を、別の検収役と親が確かめた後に 1 回報告する(回答 10-12b §6-7)。**着手は報告の後** | 草案 [v2-run-day-decomposition-draft.md](docs/design/v2-run-day-decomposition-draft.md)(第330 起草中) | [実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 第 1 期 1-0 |
 | 時刻表と構内図の足りないもの | ユーザーが手で入手する残り(路線 × 方面 × 平日/土休・端の駅・構内図)の一覧が出たら入手を頼む(回答 §2-2 の 5) | 一覧は [timetables/README.md](docs/bench/analysis/wallbounce-1012/timetables/README.md)(第330) | §1-4 へ |
+| **JR の時刻表の注記** | JR の 18 本の頁に「交通新聞社の JR 時刻表 2026 年 10 月号に基づく・電磁媒体への加工を禁じる」の注記(親が原文で確認)。回答 10-12b §2-1 の判断で足りるか | 親は判断を書かない(データの元が JR でなく交通新聞社)。確認までは JR の読み取りを止める | [timetables/README.md](docs/bench/analysis/wallbounce-1012/timetables/README.md) §5・§6 |
+| **ODPT チャレンジ枠の処遇** | (1) 保存した 16 本(JR・東急・京王の時刻表)を使うか削除するか(限定ライセンス 第 4 条 1 項=応募以外の目的は不可・第 13 条=2027-03-12 に削除) (2) 日次取得 `realworld_live/odpt_rt` の東急・京王・JR の分も同じ条件 | 親案: (1) 削除し公式の時刻表だけを使う (2) 検証専用のまま続けるなら応募か削除の期限(2027-03-12)を台帳に書く | [odpt-check.md](docs/bench/analysis/wallbounce-1012/timetables/odpt-check.md) §2-2 |
+| W12 の土休 > 平日の欠陥 | 等間隔の推定の 4 線で土休の本数が平日より多い(10e の丸めとは別の欠陥) | 親案: 10e では直さず、鉄道の段で実ダイヤに置き換えるまでつなぎの台帳へ | [odpt-check.md](docs/bench/analysis/wallbounce-1012/timetables/odpt-check.md) §2-3 |
 | E2 の既定 | プロンプトの短い書き方を既定に切り替えるか(既定は文章のまま・比較の腕で実験) | 結果の表を見てから | [計画 v0](docs/design/v2-prompt-compute-reduction-experiment-plan.md) |
 | 有料の資料 | ASJ RTN-Model 2023 の解説書と計算プログラム(図書館で読めない場合の購入) | リサーチ F6 の後 | [R-98](docs/research/v2-r98-asj-rtn-model-2023-sources.md) |
 | 平面図のドメイン | 商業施設の公式平面図のサイト(cocoti を除く)の取得前の承認 | 一覧が出たら(リサーチ E5 (ii)) | [R-91](docs/research/v2-r91-official-diagram-extraction.md) |
@@ -37,7 +40,7 @@
 
 ### 1-4 あなたの手が要る作業
 
-- **村田研への問い合わせを送る**([下書き](docs/ops/murata-lab-inquiry-draft-2026-10-12.md)・回答 10-12b §5)。**足りない時刻表・構内図の入手**(一覧は [timetables/README.md](docs/bench/analysis/wallbounce-1012/timetables/README.md))。
+- **村田研への問い合わせを送る**([下書き](docs/ops/murata-lab-inquiry-draft-2026-10-12.md)・回答 10-12b §5)。**足りない時刻表・構内図の入手**: 京王 渋谷(吉祥寺方面)・神泉(両方向+構内図)・下北沢(渋谷方面)=急行の渋谷着の元(京王が渋谷の到着時刻表を出していればそれで可・有無の確認)・小田急 代々木八幡(両方向+構内図)・JR 渋谷の号車の図・`ty01-shibuya_1.pdf` の有無([timetables/README.md](docs/bench/analysis/wallbounce-1012/timetables/README.md) §6)。
 - **基盤地図情報の利用者登録**(SR1)。**gBizINFO の規約を読む**(K12)。**JR 東日本の利用規約をブラウザで読む**(R-91・R-58)。**フロアガイドの無作為 30 組の確認**(SR1)。**U-9 の照会文を送る**([下書き](docs/ops/u9-inquiry-draft-2026-09-30.md))。
 - **ブラウザで読むだけの確認(第 5 群の空欄)**: 東急の記事の駅係員の人数(R-100)・Clark 2008 と Givi & Kirk(R-102)・有償の本文 5 本(R-103)。急がない。
 - **データ提供の依頼(将来・優先度は中・法人化の後が通りやすい・指示書 10-12 §9-2)**: 国交省(渋谷駅の屋内電子地図 令和元年度/PLATEAU uc24-13)・JR 東日本コンサルタンツ(uc24-13)・関東地方整備局(国道 246 地下歩道の BIM/CIM)・東急グループ(東急建設 UiM・フロアマップ)・各施設の管理者(uc24-13 の再提供の許諾)。

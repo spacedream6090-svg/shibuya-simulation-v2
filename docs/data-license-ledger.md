@@ -259,3 +259,10 @@
 | ファイル | 出典 | 取得日 | 利用規約 | 用途・注意 |
 |---|---|---|---|---|
 | data/user_timetables/ 以下(JR 東日本・東急・京王・東京メトロの渋谷と周辺の駅の時刻表 PDF・駅構内図・のりば図ほか。一覧は [timetables/README.md](bench/analysis/wallbounce-1012/timetables/README.md)) | 各社の公式サイト(**ユーザーが 2026-10-12 にブラウザで手で入手**。Claude Code は取得していない) | 2026-10-12(ユーザー) | 各社の利用規約(JR 東日本・東京メトロ=自動アクセス不可・東急=私的使用の外は許諾・京王=複製と電磁的加工を断る=R-90・R-91)。**研究開発の段階でユーザーの判断で使用(商用でない)・商用の前に各社の許諾が要る**。根拠の整理(法律の助言ではない): 発車時刻は事実で著作物でない・取り出すのは事実だけで図の表現は使わない(著作権法 30 条の 4 の情報解析に近い) | 時刻表=発車時刻・種別・行き先・平日/土休・方面・版(2 回独立に読んで突き合わせ)。構内図=改札・通路・階・エスカレーターの向き・号車の位置の事実だけ(SR17)。図そのものは使わず公開しない。取り出した表も data/ の下。NAVITIME の画面の保存(`3544.pdf` など)は使わない=`_excluded_navitime/` へ |
+
+## 2026-10-12 追加 その 11(ODPT の公開枠とチャレンジ枠=[回答 10-12b](design/v2-answers-2026-10-12b.md) §2-2 の 4・§2-3・発注 D [odpt-check.md](bench/analysis/wallbounce-1012/timetables/odpt-check.md)・gitignore 下の data/odpt/・md5 とキーを伏せた URL は data/odpt/MANIFEST_20261012.md)
+
+| ファイル | 出典 URL | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/odpt/station_timetable_metro_chiyoda_{omotesando,meijijingumae,yoyogikoen}.json・station_timetable_metro_ginza_omotesando.json・train_timetable_metro_ginza.json・stations_metro_chiyoda_edge.json・busstop_pole_near_shibuya.json・busroute_pattern_{toei,tokyubus}.json(公開枠 9 本。代々木公園は親が取得) | https://api.odpt.org/api/v4/(キーは環境変数) | 2026-10-12(調査役と親) | 公共交通オープンデータ基本ライセンス(営利・非営利を問わず可・出典表示・第三者が再利用できる形での公開と再配布は禁止=第 8 条 4 項(1)) | 千代田線 3 駅(範囲の端)・銀座線の渋谷の到着(列車時刻表)・範囲のバス停とバス系統(都営・東急バス)。世界の時点 2026-07-13 との版の食い違いは timetables/README.md §6 に宣言 |
+| data/odpt/challenge/(16 本: JR 山手線・埼京線・湘南新宿ライン、東急 東横線・田園都市線、京王 井の頭線の駅の時刻表 10 本と列車時刻表 5 本ほか) | https://api-challenge.odpt.org/api/v4/(キーは環境変数) | 2026-10-12(調査役) | **公共交通オープンデータチャレンジ限定ライセンス(2026-07-01 制定・2026-08-28 改定)**: 第 4 条 1 項 利用の目的はチャレンジへの応募に限る・第 8 条 4 項 再配布と公開の禁止・**第 13 条 許諾は 2027-03-12 に終わり削除**・JR 東日本の特定利用条件(2026-08-06・競合サービス不可・特許の通知) | **判断待ち(PENDING §1-1)**。親案は削除(応募しない限り使えない)。再配布しない・git に入れない。日次取得 `realworld_live/odpt_rt` の東急・京王・JR の分も同じ条件 |
