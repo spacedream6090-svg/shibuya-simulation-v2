@@ -9,8 +9,9 @@
 - `run_day` は署名と説明(HEAD のまま)+本体 4 行(`_call_args = dict(locals())` → `conduct(_call_args)`)になった。組み立て・tick のループ・ランの終わりは `engine/systems/` の 25 個のモジュール(系 31 個の宣言の表・状態の箱・進行役・書きの検査・系ごとの差の測り)。`engine/run.py` は 5,188 行 → 2,484 行。
 - **結果不変**: byte-check 19 構成(5,000 体・seed 1・1 日・テープつき)の全 25 欄・2 日のラン(final `912446bd2b42b6ab`・140,913 呼・テープの中身)・再開の 19×2(38 本とも checkpoint の全点・呼数・final)・manifest 7 本(環境の 5 欄=git の commit と汚れ・env_id を除く全欄と鍵の集合)・19 構成に無い腕 12 本が HEAD と同じ。**系ごとの指紋**(1,000 体・全 tick・6 構成)は全部の系・全部の tick で HEAD と同じ(2 構成は文字列のハッシュの種を両側で固定したとき=HEAD からある並びの揺れ・§3-3)。
 - 「宣言の外を書いたら落ちる」は既定で入る(段 A ①②=実行時の SoA・段 C=scratch・段 D=pytest の AST・段 B=試験のときの全欄の差)。負の対照 12 本(世界資産 1,000 体)はどれも書いた行で落ちた(§3-4)。T5 で閉包の漏れ 1 つ(close_final の計画の印)と持ち主をまたぐ別名の書き 1 つ(食事で古典の門の H)を見つけて宣言に足した(§3-5・§3-6)。
-- 複数の系が書く列の一覧(ユーザーの条件): [multi-writer-columns.md](multi-writer-columns.md)(SoA で 2 系以上=観測 33・宣言 56・外の状態の行=観測 30)。
+- 複数の系が書く列の一覧(ユーザーの条件): [multi-writer-columns.md](multi-writer-columns.md)(SoA で 2 系以上=観測 33・宣言 56・外の状態の行=観測 30〔段 FIX の後は 32〕)。
 - 段は A → CB → DEF の 3 つにした(草案の A〜F の 6 段から変えた=§1-1)。
+- **〔段 FIX〕** 独立の検収([review-impl-1-0.md](review-impl-1-0.md)・条件つき受入)の §1 の 1〜10 を直した(§7)。外の状態の行の観測は 30 → 32(段 FIX の測りを足した・`O61`・`O63`)。
 
 ## 1. 段と門
 
@@ -63,7 +64,7 @@
 |---|---|---|
 | A ① | `core/write_permit.py`(いまの系の許可)+解除口 `AgentState.thaw`・`World.thaw`・`PerceptionState._set_writeable` が許可の列だけを解く | 入れる(切替口 `SHIBUYA_WRITE_GUARD=off`・`write_permit.set_enabled(False)`) |
 | A ② | `resolve._require_thawed(*objs)` が配列を渡されたら配列ごとに `flags.writeable` を見る。ufunc.at の 5 か所が書く配列を渡す | 入れる |
-| C | `TickScratch.__setattr__`(`guard.SCRATCH_PERMIT`) | 入れる(同じ切替口) |
+| C | `TickScratch.__setattr__`(`guard.SCRATCH_PERMIT`)〔段 FIX: `Buffers.__setattr__`(`guard.BUFFERS_PERMIT`)も=§7〕 | 入れる(同じ切替口) |
 | D | `tests/engine/systems/test_stage_a_guard.py`(④⑤⑥⑦)・`test_systems_table.py`(①②③⑧・順・scratch の受け渡しの順)・`test_two_phase.py` の hot path に systems を足した | pytest |
 | B | `probe.py`(系の境目ごとに全欄の digest・差を系に帰属)+`conductor.declared_check`。`SHIBUYA_SYSTEMS_CHECK=<間引き>` で既存の試験の上でも回る(T5) | 試験のときだけ |
 
@@ -72,7 +73,7 @@
 - `full_state_hash` の差し替え(`test_state_ledger_10b`・`discard_probe`・`test_rng_scheme_10c`・`test_version_bump_10e`): 的を `engine.systems.state_io.full_state_hash` にした(checkpoint・日の締めの後・状態の書き出し・再開の検算がどれもこの名を通す)。差し替えが使われたことの確かめを足した(`test_version_bump_10e` の purge_runs・`test_state_ledger_10b` の揺らし)。
 - 組み立ての名(`FleetBridge`・`PerceptionRendererAdapter`・`WorldProcessRunner`・`Arbiter`・`ConversationManager`・`MemoryLayer.enable_relations`): 的を `engine.systems.build` にした(`test_sim_time_T`・`test_fleet_wiring`・`test_renderer_wiring`・`test_10a_review_fixes`)。`test_response_delay` は `FleetBridge.submit` をクラスで差し替え。`test_10a_review_fixes` に差し替えが使われた確かめを足した。
 - `_split_due`・`_call_ref`・`sample_population` は `engine.run` に残した(系は呼ぶ時に `engine.run` から引く)=試験はそのまま効く。`test_t2_call_id` の道の表は (ファイル, 行) にした(§3-5)。
-- `engine/run.py` から使わなくなった import 104 個を外した(古い的を突く差し替えは `monkeypatch.setattr` が AttributeError で落ちる=黙って通らない)。
+- `engine/run.py` から使わなくなった import を外した〔段 FIX で訂正: 「104 個」は誤り。頂上の import 187 → 88=99 個・関数の中を含めた異なる名前 202 → 100=103 個=§7-1 の 10〕(古い的を突く差し替えは `monkeypatch.setattr` が AttributeError で落ちる=黙って通らない)。
 - 状態台帳の AST の場所ごとの許可(`EXT_AST_ALLOW`・`_ALLOW_REVENUE`・`RESULT_FILES`)を系の置き場と関数名に付け替えた(弱めない=対象を広げる・当たる数と関数名は固定のまま)。
 
 ### 2-6. 危ない所 22(草案 §3-3)をどう潰したか
@@ -215,3 +216,69 @@ HEAD の側はどれも本体の src(`ee3abc7` と同じ中身。本体の HEAD 
 - A(13): `src/shibuya/core/write_permit.py`(新)・`agents/state.py`・`world/state.py`・`perception/state.py`・`engine/resolve.py`・`engine/state_ledger.py`・`engine/state_ledger_ast.py`・`engine/systems/__init__.py`・`allow.py`・`probe.py`(新)・`tests/engine/systems/__init__.py`・`test_stage_a_guard.py`(新)・`docs/.../run-day-decomp/probe_run.py`(新)。
 - CB(31=A に足す): `engine/run.py`・`engine/systems/boxes.py`・`conductor.py`・`guard.py`・`observe.py`・`report.py`・`spec.py`・`state_io.py`・`table.py`(新)・`tests/engine/systems/test_boxes.py`(新)・`tests/engine/test_two_phase.py`・`test_state_ledger_10b.py`・`discard_probe.py`・`processes/test_rng_scheme_10c.py`・`test_version_bump_10e.py`・`test_state_checks_10f.py`・`docs/.../local_assignment.py`・`local-assignment.json`(新)。
 - DEF(累積の最後): CB に加えて `engine/systems/act.py`・`body.py`・`build.py`・`day.py`・`decide.py`・`judge.py`・`llm_io.py`・`overrides.py`・`perceive.py`・`remember.py`・`run_end.py`・`static_check.py`・`talk.py`・`world.py`(新)・`tests/engine/systems/test_guard_runs.py`・`test_systems_table.py`(新)・`tests/engine/test_10a_review_fixes.py`・`test_fleet_wiring.py`・`test_renderer_wiring.py`・`test_response_delay.py`・`test_sim_time_T.py`・`test_salt_seed_split_10f.py`・記録と道具(この記録・`multi_writers.py`・`multi-writer-columns.*`・`guard_runs.py`・`resume_19x2.py`・`manifest_check_1_0.py`・`arms_check.py`・`sides/`・比較の JSON)。
+
+## 7. 検収の後の直し(段 FIX)
+
+独立の検収 [review-impl-1-0.md](review-impl-1-0.md) は「条件つき受入」だった。§1 の 1〜10(宣言の外を書いても落ちない穴と記録の食い違い)を、同じ作業木で段 FIX として直した。スナップショットは `snap_FIX`(HEAD からの累積)。
+
+### 7-0. 結論
+
+- 中の 3 件(箱の形の ufunc.at・scratch の中身の書き換え・許可を外す口)は、どれも「植えた行で落ちる」負の対照を付けて塞いだ。ただし ufunc.at と scratch の中身は、既定のランでは止まらない。止まるのは試験の形(段 B・静的な D)だけで、限界は §7-3 の表に書いた。
+- 直したことで、宣言の漏れが 4 つ見つかった。どれも宣言を足して閉じた。値は変えていない。
+  1. world の `O63:renderer._tickc`: `_tickc.flow` は `runner.flow` と同じ配列(別名)。
+  2. checkpoint の `phase`
+  3. report の `frozen_sources_map`
+  4. observe の `occ_counts`・`occ_kind`・`occ_transit`
+- 結果不変: 門 FIX1 の byte-check 19 構成は 19/19 で全 25 欄が同じ。全体の pytest は 3,961 passed で、落ちたのは既知の 1 件だけ(§7-4)。段 B の 6 構成(scratch の中身を含む・1,000 体・1 日)は宣言の外の変化が 0 件で、final は段 DEF の測りと同じ。
+
+### 7-1. 項ごとの直し方と負の対照
+
+| 検収 §1 | 直し方 | 負の対照(植えた行で落ちる) |
+|---|---|---|
+| 1(中)resolve の外の箱の形の ufunc.at(L1) | `tests/engine/test_add_at_guard.py` の `STATE_ROOTS` に `b.soa`・`box.soa` を足した。局所の別名は不動点までたどる(組の代入・注釈つきの代入を含む)。別名は、行き先の根が状態の根かどうかで判定する。系のモジュール(`engine/systems/`)を全部走査する試験も足した | `test_box_rooted_and_aliased_ufunc_at_outside_resolve_is_found`: 植えた 4 つの形(`b.soa.agents.registry.money`・`r = b.soa.agents.registry; r.money`・組の別名・`box.soa.world.pois`)が全部見つかる。実行時の側は `test_guard_runs.py::test_box_rooted_ufunc_at_outside_resolve_is_caught_by_B`(perceive_prepare に植えると、段 B が `agents.money` を perceive_prepare に出す) |
+| 2(中)scratch の中身をその場で書き換える(L4・L4b) | `probe.view_of` が scratch を渡す。段 B の族に `"scratch"` を足した(`SHIBUYA_SYSTEMS_CHECK` の `_conduct_checked`・試験)。scratch の digest は `objs=True`: dataclass・配列・辞書・列は中身を見る。根の知らない物は `__dict__`・`__slots__` を見る。入れ子の知らない物・関数・外の状態の持ち主・SoA は同一性(物の番号)だけを見る。tick の頭に境目 `(tick_head)` を置き、scratch を空にした差を前の系に帰属させない。`declared_check` の `scratch.` の分岐はこれで使われるようになった。L4b の `object.__setattr__` は、系のモジュール(`boxes.py` の外)で使わないことを静的に固定した | `test_scratch_in_place_write_by_a_non_writer_shows_in_B`: phase_c の前に `scratch.plan.confirmed.action_code[0] += 1` を植えると、段 B が `(phase_c, scratch.plan)` を出す。`test_bypass_setattr_check_catches_a_planted_line`: `object.__setattr__(b.scratch, "outcome", …)` が見つかる |
+| 3(中〜低)許可を外す口(L2・L11) | `tests/engine/systems/test_fix_guards.py::test_permit_switches_are_called_only_from_known_places` を足した。`core.write_permit` を import してよいのは状態のモジュール 3 つ・`engine/systems/guard.py`・`write_permit.py` だけ。`scope`・`enabled` は guard だけ、`allows` は状態のモジュールだけが呼べる。`set_enabled`・`current` は src のどこからも呼ばない(切替口は環境変数と試験だけ)。`guard.system_scope` は conductor だけが呼べる。許可の大域(`_PERMIT`・`_ENABLED`・`SCRATCH_PERMIT`・`BUFFERS_PERMIT`・`CURRENT`)は、持ち主のモジュールの外で代入しない(`setattr` の定数の名も見る) | `test_permit_check_catches_planted_switches`: 系に `WP.scope(None)`・`set_enabled(False)`・`G.system_scope(…)`・`G.SCRATCH_PERMIT = None`・`WP._PERMIT = None` を植えると全部見つかる |
+| 4(低)Buffers に段 C が無い(L5) | `Buffers.__setattr__` を足した。系の `writes.buffers` に無い欄を差し替えると `AttributeError` になる(`guard.BUFFERS_PERMIT`・`system_scope` の 4 つ目の引数)。§2-4 の C の行は「TickScratch」だけでなく「TickScratch・Buffers」になる | `test_buffers_replacement_outside_the_declaration_fails`: detect に `b.buffers.focus_request = …` を植えると `AttributeError` |
+| 5(低)D⑥ の別名の形(L3) | `test_fix_guards.py::test_d6_no_layer_holds_a_soa_array_view_or_alias` を足した。見る形は `registry.arrays["x"]`・`getattr(r, "x")`・`r.field(変数)`・局所の別名(不動点)・`np.asarray`・`.view`・`.reshape`・`.ravel`・組の代入・辞書・列。新しく 1 件見つかった: `engine/processes/civic.py` の `self.bed_cell[got] = …`。層の ndarray の要素への代入で、値の写しなので別名にはならない。理由を付けて許可の表に入れた | `test_d6_finds_the_alias_forms`: 植えた 11 行のうち別名の 10 形が見つかり、`self.ok = 3` は見つからない。`np.asarray` は dtype によって写しにもビューにもなるので、見つける側に倒した |
+| 6(低)D① の別名(L9) | `static_check` が resolve を指す名を全部集める。モジュールの頂上と関数の中の `from shibuya.engine import resolve as X`・`import shibuya.engine.resolve as X`、素の import の `from shibuya.engine.resolve import 口 [as y]` が対象 | `test_d1_sees_plain_imports_and_other_aliases`: 素の import・別名・関数の中の import で呼んだ口が `resolve_calls` に出る |
+| 7(低)observe の積算と静的な検査 | `table.py` の observe の `writes.tally` に `occ_counts occ_kind occ_transit` を足した。probe の `STATS_NAMES` に `occ_counts`・`occ_kind`・`occ_transit`・`ledger_growth`・`state_files`(壁時計の `seconds` は外す)・`frozen_sources_map` を足した。`static_check` は RunStats の欄の別名をたどる: `x = b.runstats.f`・`x = rs.f`・組の代入、その別名への `x[...] =`・`x +=`・変更のメソッド・属性への代入。これで新しく 2 件見つかり、宣言を足した: checkpoint の `phase`(`result, phase = rs.result, rs.phase` の `phase["checkpoint"] +=`)と report の `frozen_sources_map`(`.update`) | `test_d3_tally_writes_through_tuple_aliases_are_seen`: 組の別名を通した書きが `tally_stores` に出る |
+| 8(低)段 B が見えない外の道筋 7 本 | probe の外の道筋の digest で `item_digest` が例外になったら、`SH.resolve_item` で値を取る。取れたら `X:` の digest(`objs=True`・関数は名と物の番号)で見る。`ERR` のまま残るのは、持ち主に属性が無いときだけ(腕が立たない=値は変わらない) | 段 FIX の 6 構成(`data/runs/1-0_probe_fix2`)で変化を観測: `O25:poi_resolver.chooser.stats`(古典の腕・768 回)、`O61:runner.log`(1,147 回)、`O63:renderer._tickc`(2,6xx〜2,798 回)。world の `_tickc` の変化は、宣言の外として出た(上の結論 1・宣言を足して 0 件)。O64 の 3 本(組み立てで差し込む関数)は 1 本のランの中で変わらない。差し替えれば物の番号が変わるので B に出る |
+| 9(設計の注)外の道筋の宣言が粗い | 直さない(1-0 は行を割らない約束)。数を [ext_coarse.json](ext_coarse.json)(`ext_coarse.py`)に残した。台帳の外の道筋は 489 行。`writes.paths` の宣言は 180 個(検収の 179 個+world の O63)で、そのうち `*` は 174 個。宣言上の (系, 道筋) は 2,197 対、観測は 383 対(段 DEF と段 FIX の測りの和)で、約 5.7 倍。道筋の単位に割るのは土台(話題ごとにまとめ直すとき)の課題 | — |
+| 10(記録) | (1) run.py から外した import: §2-6 の「104 個」は誤り。頂上の import は 187 → 88 で **99 個**。関数の中の import を含めると、名前の数で 205 → 103(102 個)、異なる名前で 202 → 100(**103 個**=検収の数)。(2) `local-assignment.json` の `ledger_growth` を `box:stats.ledger_growth` に直した(`box:stats` 35 → 36・`end` 26 → 25)。(3) `SystemSpec.soa_declared` を消した。恒真だった `test_d2_detects_a_hand_written_mismatch` も消した。D② は凍結した表 `tests/engine/systems/writes_soa_frozen.json`(31 系の閉包)と、いまの閉包の突き合わせにした | `test_d2_detects_a_widened_or_narrowed_permit`: perceive_prepare の `resolve_ops` に `set_refractory` を足す(許可が広がる)・phase_c から口を 1 つ外す(狭まる)と、凍結の表と食い違ってその系の名が出る |
+
+### 7-2. 直したことで見つかった宣言の漏れ(値は変えない)
+
+| 系 | 足した宣言 | どこで見つかったか | 理由 |
+|---|---|---|---|
+| world | `paths` に `O63:renderer._tickc` | 段 B(§1 の 8 の代わりの digest) | 前の tick の描画の前計算 `_tickc.flow` は `runner.flow` と同じ配列(`prepare_tick` の `np.asarray(flow, uint8)` は写さない)。世界過程が流れの段をその場で書くと見える=持ち主をまたぐ別名(O21 と同じ型) |
+| checkpoint | `tally` に `phase` | D③(§1 の 7 の組の別名) | `phase["checkpoint"] += …`(壁時計・`STATS_NAMES` に入れない=段 B では見ない) |
+| report | `tally` に `frozen_sources_map` | D③(欄の別名の変更のメソッド) | `frozen_sources_map.update(…)` |
+| observe | `tally` に `occ_counts occ_kind occ_transit` | 検収 §1 の 7 | `append` |
+
+ほかに、scratch の中身を見るようにした最初の測りで、`scratch.outcome` が memory・activity_intent・energy_after・close_final に出た。原因は `Outcome` が世界過程・台帳・層への参照(`rail`・`crowd`・`hotel`・`salient`・`ledger`・`energy`)を持つことで、参照の先の持ち主の変化が outcome の digest に入っていた。scratch の書きではないので、宣言は足していない。digest の側で、持ち主と入れ子の知らない物を同一性だけで見るように直した(持ち主の中身は外の道筋の族で見る)。
+
+### 7-3. 限界(直せなかったもの・試験の形だけのもの)
+
+| 穴 | 既定のラン(A・C) | 試験(B) | 静的(D) | 残る理由 |
+|---|---|---|---|---|
+| resolve の外の ufunc.at(L1) | 止まらない(numpy の `ufunc.at` は `writeable` を見ない) | 書いた系に出る | `test_add_at_guard`: 状態の根・`b.soa`・`box.soa`・局所の別名 | 実行時に止めるには、`ufunc.at` を包むか、状態の配列を numpy の外の型にする必要がある(1-0 の外)。D の形の外(関数の引数や戻り値で渡した配列・`getattr` で取った配列)は B だけが見る |
+| scratch・buffers の中身のその場の書き換え(L4) | 止まらない(段 C は欄の差し替えだけ) | 書いた系に出る(試験のときだけ・`SHIBUYA_SYSTEMS_CHECK`) | `object.__setattr__` の素通りだけ | 毎 tick 全欄の digest を取るのは既定のランには重い。入れ子の知らない物(dataclass でない層の物)の中身は同一性だけで見る。物の番号は、古い物が消えて同じ番号に新しい物が来ると見逃す |
+| 許可を外す口の動的な呼び出し | — | — | 静的に置き場を固定(import・属性・素の名・`setattr` の定数の名) | `importlib`・`getattr(WP, 変数)`・`sys.modules` 経由は見ない |
+| D⑥ の残りの形 | — | B が書きを出す | 10 形 | 関数をまたぐ別名(引数・戻り値)・別のメソッドで足す入れ物(`self.xs.append(view)`)・`setattr(self, 変数, …)`。的が `X[i]`(添字の代入)だと、配列(値の写し)か辞書(参照)かを AST では決められない(見つける側に倒し、`civic.py` の 1 件は許可の表へ) |
+| D① の残りの形 | 列が許可の外なら A が止める | — | 素の import・モジュールの別名 | `getattr(R, 変数)`・口を値として渡す(`partial(R.x)` など) |
+| 段 B の外の道筋で `ERR` のまま | — | 持ち主に属性が無い腕だけ(値は変わらない) | — | — |
+| 外の道筋の宣言の粗さ(§1 の 9) | — | `*` の中の書きは宣言の中として通る | — | 1-0 は台帳の行を割らない。道筋の単位に割るのは土台の課題(宣言 180 個のうち `*` は 174 個・宣言 2,197 対/観測 383 対) |
+
+### 7-4. 結果不変と試験(段 FIX の最後の状態)
+
+- 門 FIX1(HEAD+`snap_FIX` の写し・`gate.sh`): byte-check 19 構成は **19/19 で全 25 欄が HEAD と同じ**([byte_check_FIX_vs_head.json](byte_check_FIX_vs_head.json))。全体の pytest は 3,961 passed・1 failed。落ちた 1 件は既知の `test_ab7_seed1_open_matches_the_parent_report`(写しの junction で起きる・DEF2 と同じ)。門のスナップショットの後に、`test_fix_guards.py` の D② の負の対照を作り直した(`test_d2_detects_a_widened_or_narrowed_permit`)。この 1 本は作業木で回して通った(10 passed)。
+- 段 B の 6 構成(`probe_run.py run --families soa,ext,stats,buffers,scratch`・1,000 体・1 日・`data/runs/1-0_probe_fix2`): 宣言の外の変化は 6 構成とも 0 件。final は段 DEF の測り(`data/runs/1-0_probe`)と同じ(v3_default は段 DEF が 2 日なので比べていない)。
+- systems の試験と `test_add_at_guard.py`: 130 passed(新しい負の対照を含む)。状態台帳の AST の検査(`test_state_ledger_10b.py`)は、probe の `getattr` の 2 行を許可の表 `UNRESOLVED_ALLOW` に合わせた(文字列が変わった 1 行と、`__slots__` の 1 行を足した)。
+- 注: `probe_compare.json`(HEAD と 1-0 の系ごとの指紋の一致・§3-3)は段 FIX の前の測り。段 FIX は `STATS_NAMES` に 6 つ足し、`objs=True` の digest を足した。既定の digest(`objs=False`)の取り方は変えていない。HEAD との比べは回し直していない(空欄)。
+- `multi-writer-columns.md`・`.json` は、段 DEF と段 FIX の測りの和で作り直した。SoA の観測は 33 列のまま。外の道筋の観測は 64 → 66(行の単位 30 → 32)で、`O61`・`O63` が足された。
+
+### 7-5. 段 FIX で変わったファイル(`snap_FIX/list.txt` は HEAD からの累積)
+
+- src: `engine/systems/boxes.py`(Buffers の段 C)・`guard.py`(`BUFFERS_PERMIT`)・`conductor.py`(buffers の許可・`(tick_head)` の境目・段 B の族に scratch)・`overrides.py`(`wrap_fn`)・`probe.py`(scratch・積算の欄・代わりの digest・同一性)・`spec.py`(`soa_declared` を消した)・`static_check.py`(作り直し)・`table.py`(宣言 4 つ)・`engine/state_ledger_ast.py`(許可の表 2 行)。
+- tests: `tests/engine/test_add_at_guard.py`・`tests/engine/systems/test_fix_guards.py`(新)・`writes_soa_frozen.json`(新)・`test_guard_runs.py`(負の対照 3 つと scratch を含む正)・`test_systems_table.py`(恒真の試験を消した)。
+- 記録と道具: この記録・`local_assignment.py`・`local-assignment.json`・`multi_writers.py`・`multi-writer-columns.*`・`probe_run.py`(`--families`)・`ext_coarse.py`(新)・`ext_coarse.json`(新)・`byte_check_FIX_vs_head.json`(新)。

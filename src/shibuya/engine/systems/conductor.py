@@ -24,7 +24,7 @@ def run_system(spec: SystemSpec, ctx: Any, box: Any) -> Any:
     """系 ``spec`` を 1 回呼ぶ(``ctx`` はその tick の ``TickCtx``・ランの単位の系は ``None``)。"""
     _PR.at(spec.name, None if ctx is None else ctx.T, box)
     t0 = time.perf_counter()
-    with _G.system_scope(spec.name, spec.writes.soa, spec.writes.scratch):
+    with _G.system_scope(spec.name, spec.writes.soa, spec.writes.scratch, spec.writes.buffers):
         out = spec.fn(ctx, box)
     ss = box.runstats.system_seconds
     ss[spec.name] = ss.get(spec.name, 0.0) + (time.perf_counter() - t0)
@@ -55,6 +55,9 @@ def declared_check(specs: dict[str, SystemSpec]):
 
     return check
 
+
+#: tick の頭の境目の名(系ではない=宣言を持たない。scratch を空にする差の帰属先)。
+TICK_HEAD = "(tick_head)"
 
 #: 試験(T4)のとき真: tick の頭で scratch を番兵で埋め、その tick に書かれる前に読むと落とす。
 STRICT_SCRATCH: bool = False
@@ -107,6 +110,7 @@ def conduct(call_args: dict) -> Any:
     s_head, s_close = SPECS["day_head"], SPECS["day_close"]
     for T in range(cfg.t_begin, cfg.t_end):
         ctx = _BX.TickCtx.of(T, tpd)
+        _PR.at(TICK_HEAD, T, box)  # 試験だけ: scratch を空にした差を前の系に帰属させない境目(既定のランでは何もしない)
         box.scratch.reset(unset)  # tick の中の受け渡しは tick の頭で空にする(Buffers は空にしない=R1)
         if _DAY.day_head_due(T, ctx.td):
             run_system(s_head, ctx, box)
@@ -129,7 +133,8 @@ def _conduct_checked(call_args: dict, every: str) -> Any:
 
     k = max(1, int(every)) if every.isdigit() else 1
     T_max = 10 ** 8
-    pr = _PR.Probe(check=declared_check(SPECS), ticks=frozenset(range(0, T_max, k)) if k > 1 else None)
+    pr = _PR.Probe(check=declared_check(SPECS), ticks=frozenset(range(0, T_max, k)) if k > 1 else None,
+                   families=("soa", "ext", "stats", "buffers", "scratch"))  # 段 FIX: scratch の中身も
     prev_strict = STRICT_SCRATCH
     _PR.ACTIVE, STRICT_SCRATCH = pr, True
     try:

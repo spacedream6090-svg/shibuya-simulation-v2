@@ -16,7 +16,7 @@
 from __future__ import annotations
 
 import fnmatch
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, replace
 from typing import Any, Callable
 
 from shibuya.engine.systems import allow as AL
@@ -49,8 +49,6 @@ class SystemSpec:
     calls_llm: str = ""
     when: str = ""
     origin: str = ""
-    #: 手で書いた ``writes.soa``(``None``=閉包だけ)。閉包と食い違えば試験で落とす(D ②)。
-    soa_declared: frozenset[str] | None = field(default=None, compare=False)
 
 
 def _fs(x: Any) -> frozenset[str]:

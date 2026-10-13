@@ -13,10 +13,10 @@
   "box:llm": 5,
   "box:scratch": 34,
   "box:soa": 2,
-  "box:stats": 35,
+  "box:stats": 36,
   "build": 105,
   "ctx": 2,
-  "end": 26,
+  "end": 25,
   "fn": 16,
   "tick": 86,
   "tick/end": 16
@@ -2008,7 +2008,7 @@
     "close_final",
     "report"
    ],
-   "to": "end:close_final,report(系の局所)"
+   "to": "box:stats.ledger_growth"
   },
   "llm": {
    "param": true,

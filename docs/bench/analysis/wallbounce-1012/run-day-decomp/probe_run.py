@@ -90,7 +90,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     from shibuya import cli
 
     P = _probe_mod()
-    pr = P.Probe()
+    pr = P.Probe(families=tuple(args.families.split(",")))  # 段 FIX: --families soa,ext,stats,buffers,scratch
     kw = dict(CONFIGS[args.config])
     t0 = time.perf_counter()
     if args.head:
@@ -169,6 +169,7 @@ def main(argv=None) -> int:
     r.add_argument("--agents", type=int, default=1000)
     r.add_argument("--days", type=int, default=1)
     r.add_argument("--out", required=True)
+    r.add_argument("--families", default="soa,ext,stats,buffers")
     c = sub.add_parser("compare")
     c.add_argument("--a", required=True)
     c.add_argument("--b", required=True)

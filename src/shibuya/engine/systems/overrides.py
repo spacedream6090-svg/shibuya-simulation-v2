@@ -15,7 +15,7 @@ from typing import Iterator
 
 from shibuya.engine.systems import table as _TB
 
-__all__ = ["drop_soa", "drop_scratch", "drop_path", "replace_spec"]
+__all__ = ["drop_soa", "drop_scratch", "drop_path", "replace_spec", "wrap_fn"]
 
 
 @contextmanager
@@ -59,3 +59,32 @@ def drop_path(name: str, pattern: str) -> Iterator[None]:
         raise KeyError(f"{pattern} は {name} の書く道筋に無い")
     with replace_spec(name, paths=frozenset(old - {pattern})):
         yield
+
+
+@contextmanager
+def wrap_fn(name: str, inject, *, when: str = "before", T: int = 0) -> Iterator[dict]:
+    """系 ``name`` の関数を包み、T 以後の最初の 1 回だけ ``inject(ctx, b)`` を前か後に呼ぶ(段 FIX の負の対照)。
+    ``inject`` は宣言の外の書きをわざとする関数。返り値の辞書の ``n`` に差し込んだ回数が入る。"""
+    old = _TB.SPECS[name]
+    base = old.fn
+    done = {"n": 0}
+
+    def fn(ctx, b):  # noqa: ANN001, ANN202
+        due = (ctx is None or ctx.T >= T) and not done["n"]
+        if due and when == "before":
+            done["n"] += bool(inject(ctx, b))
+        out = base(ctx, b)
+        if due and when == "after" and not done["n"]:
+            done["n"] += bool(inject(ctx, b))
+        return out
+
+    new = replace(old, fn=fn)
+    systems, specs = _TB.SYSTEMS, dict(_TB.SPECS)
+    _TB.SYSTEMS = tuple(new if s.name == name else s for s in systems)
+    _TB.SPECS[name] = new
+    try:
+        yield done
+    finally:
+        _TB.SYSTEMS = systems
+        _TB.SPECS.clear()
+        _TB.SPECS.update(specs)

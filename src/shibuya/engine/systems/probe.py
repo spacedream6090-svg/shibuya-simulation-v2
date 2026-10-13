@@ -41,6 +41,8 @@ STATS_NAMES: tuple[str, ...] = (
     "n_outside_calls", "geometry_hops", "geometry_jammed", "leave_closed", "peak_pending",
     "peak_intents", "peak_backlog", "prev_sessions", "prev_tape_misses", "intero_cross",
     "diag_rows", "daily_records", "day_heads", "occ_ticks",
+    # 〔段 FIX・検収 §1 の 7〕HEAD との比べ(probe_compare.json)の後に足した欄(state_files は壁時計の秒を外して digest)
+    "occ_counts", "occ_kind", "occ_transit", "ledger_growth", "state_files", "frozen_sources_map",
 )
 #: 外の状態の道筋のうち値が壁時計のもの(変わったことは記録するが、指紋には値を入れない=2 本のランで揃わない)。
 NONDET_PATHS: frozenset[str] = frozenset({
@@ -79,10 +81,19 @@ def _arr_digest(arr: Any) -> str:
     return _hx(a.view(np.uint8).reshape(-1).tobytes() if a.size else b"") + f"{a.dtype.str}{a.shape}"
 
 
-def plain(v: Any, depth: int = 0) -> Any:
-    """比べるための素の値(配列は digest・辞書は鍵の repr の順・dataclass は欄・知らない物は型の名だけ)。"""
+def plain(v: Any, depth: int = 0, objs: bool = False, refs: frozenset[int] = frozenset()) -> Any:
+    """比べるための素の値(配列は digest・辞書は鍵の repr の順・dataclass は欄・知らない物は型の名だけ)。
+
+    ``objs=True``(段 FIX・scratch と digest できない外の道筋の代わり): 根の知らない物は中身(``__dict__``・``__slots__``)を
+    たどり、入れ子の知らない物と関数は型の名と物の番号(``id``=1 本のランの中で差し替えを見る)にする(dataclass・
+    配列・辞書・列は今までどおり中身)。``refs``(物の番号の集合=外の状態の持ち主・SoA)に入る入れ子の物は dataclass でも
+    同一性だけ(``outcome.energy`` のような持ち主への参照の先の変化を scratch の書きと取り違えない。中身は持ち主の道筋の族で
+    見る)。HEAD との比べの既定の digest は変えない。
+    """
     if depth > 12:
         return "<deep>"
+    if objs and depth > 0 and id(v) in refs:
+        return ("ref", type(v).__qualname__, id(v))
     if v is None or isinstance(v, (bool, int, float, str, bytes)):
         return v
     if isinstance(v, np.generic):
@@ -90,19 +101,34 @@ def plain(v: Any, depth: int = 0) -> Any:
     if isinstance(v, np.ndarray):
         return ("nd", _arr_digest(v))
     if isinstance(v, Mapping):
-        return sorted(((repr(k), plain(x, depth + 1)) for k, x in v.items()), key=lambda kv: kv[0])
+        return sorted(((repr(k), plain(x, depth + 1, objs, refs)) for k, x in v.items()), key=lambda kv: kv[0])
     if isinstance(v, (list, tuple)):
-        return [plain(x, depth + 1) for x in v]
+        return [plain(x, depth + 1, objs, refs) for x in v]
     if isinstance(v, (set, frozenset)):
-        return sorted((plain(x, depth + 1) for x in v), key=repr)
+        return sorted((plain(x, depth + 1, objs, refs) for x in v), key=repr)
     if dataclasses.is_dataclass(v) and not isinstance(v, type):
-        return (type(v).__qualname__, [(f.name, plain(getattr(v, f.name, None), depth + 1))
+        return (type(v).__qualname__, [(f.name, plain(getattr(v, f.name, None), depth + 1, objs, refs))
                                         for f in dataclasses.fields(v)])
+    if objs:
+        import functools
+        import inspect
+
+        if inspect.isroutine(v) or isinstance(v, (functools.partial, type)):
+            return ("fn", getattr(v, "__qualname__", type(v).__qualname__), id(v))
+        if depth > 0:
+            # 入れ子の物(dataclass でない=層・世界過程・ログの物)は同一性だけ(物の番号)。中身は持ち主の道筋(外の
+            # 道筋の族)で見る=``outcome.crowd`` のような参照の先の変化を scratch の書きと取り違えない
+            return ("ref", type(v).__qualname__, id(v))
+        if hasattr(v, "__dict__"):
+            return (type(v).__qualname__, plain({k: x for k, x in vars(v).items()}, depth + 1, objs, refs))
+        slots = [s for c in type(v).__mro__ for s in getattr(c, "__slots__", ())]
+        if slots:
+            return (type(v).__qualname__, [(s, plain(getattr(v, s, None), depth + 1, objs, refs)) for s in slots])
     return ("obj", type(v).__module__ + "." + type(v).__qualname__)
 
 
-def _digest_value(v: Any) -> str:
-    return _hx(repr(plain(v)).encode("utf-8"))
+def _digest_value(v: Any, objs: bool = False, refs: frozenset[int] = frozenset()) -> str:
+    return _hx(repr(plain(v, 0, objs, refs)).encode("utf-8"))
 
 
 def _result_digest(res: Any) -> str:
@@ -137,6 +163,8 @@ def snapshot(view: View, *, families: Iterable[str] = ("soa", "ext", "stats", "b
 
     fam = set(families)
     out: dict[str, str] = {}
+    # 持ち主(外の状態の根)と SoA の物の番号=objs の digest で入れ子に出たら同一性だけにする(段 FIX)
+    refs = frozenset(id(o) for o in (*view.owners.values(), view.agents, view.world, view.pstate) if o is not None)
     if "soa" in fam:
         regs = (("agents", view.agents.registry), ("cells", view.world.cells), ("pois", view.world.pois),
                 ("perception", None if view.pstate is None else view.pstate.registry))
@@ -150,22 +178,31 @@ def snapshot(view: View, *, families: Iterable[str] = ("soa", "ext", "stats", "b
             try:
                 d, _n = SH.item_digest(view.owners, key, path)
                 out[f"{key}:{path}"] = d.hex()[:24]
-            except Exception as e:  # noqa: BLE001 — 持ち主の組み立ての途中など(記録だけ)
-                out[f"{key}:{path}"] = f"ERR:{type(e).__name__}"
+            except Exception as e:  # noqa: BLE001 — 状態の直列化の書き手が無い型(関数・ログの物)など
+                # 〔段 FIX・検収 §1 の 8〕代わりに中身をたどる digest(関数は名と物の番号)。持ち主に属性が無い
+                # (腕で立たない)ときだけ ``ERR`` のまま(値が変わらない=見えない道筋は記録の限界の表)
+                try:
+                    v = SH.resolve_item(view.owners, path)
+                    out[f"{key}:{path}"] = "X:" + _digest_value(v, objs=True, refs=refs)
+                except Exception:  # noqa: BLE001
+                    out[f"{key}:{path}"] = f"ERR:{type(e).__name__}"
     if "stats" in fam:
         for nm in STATS_NAMES:
             if nm in view.tally:
                 v = view.tally[nm]
                 if nm == "diag_rows":
                     v = (len(v), v[-1] if v else None)
+                elif nm == "state_files":
+                    v = [{k: x for k, x in f.items() if k != "seconds"} for f in v]
                 out[f"stats.{nm}"] = _digest_value(v)
         out["stats.result"] = _result_digest(view.result)
     if "buffers" in fam:
         for nm, v in view.buffers.items():
             out[f"buffers.{nm}"] = _digest_value(v)
     if "scratch" in fam:
+        # 〔段 FIX・検収 §1 の 2〕中身(配列・dataclass・物の属性)まで digest=宣言の外の系がその場で書き換えると変わる
         for nm, v in view.scratch.items():
-            out[f"scratch.{nm}"] = _digest_value(v)
+            out[f"scratch.{nm}"] = _digest_value(v, objs=True, refs=refs)
     return out
 
 
@@ -259,7 +296,8 @@ def view_of(box: Any) -> View:
 
     return View(agents=box.soa.agents, world=box.soa.world, pstate=SIO.pst_now(box), owners=SIO.hash_owners(box),
                 tally=box.tally_view(), result=box.runstats.result,
-                buffers={"focus_request": box.buffers.focus_request})
+                buffers={"focus_request": box.buffers.focus_request},
+                scratch=box.scratch.as_dict())  # 段 FIX: families に "scratch" があるときだけ digest する
 
 
 def at(name: str, T: int | None, box: Any) -> None:

@@ -76,7 +76,7 @@ STATS = ("result phase diag_rows layer_counts leave_counts sleep_counts awake_su
          "per_action_total talk_stats intero_cross occ_ticks occ_counts occ_kind occ_transit daily_records day_heads "
          "state_files frozen_sources_map leave_closed geometry_hops geometry_jammed n_fleet_reinjected n_fleet_resent "
          "n_outside_calls n_undefined_total peak_backlog peak_intents peak_pending prev_sessions prev_tape_misses "
-         "t_start").split()
+         "t_start ledger_growth").split()  # 段 FIX(検収 §1 の 10): ledger_growth は RunStats の欄
 BOX.update({n: f"stats.{n}" for n in STATS})
 BOX.update({"_read_seconds": "stats.read_seconds", "_restore_seconds": "stats.restore_seconds"})
 BOX.update({

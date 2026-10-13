@@ -93,7 +93,10 @@ def main() -> int:
           "- ユーザーの条件(2026-10-13): 同じ列を複数の区間(系)が書いている所を、後で話題ごとにまとめ直すときの課題として記録する。",
           "- 作り方: `multi_writers.py`(このフォルダ)。**宣言**=系の表 `SYSTEMS` の書く欄(SoA は resolve の口の静的な閉包=上限・"
           "外の状態は道筋の宣言を台帳の項目に当てた)。**観測**=系ごとの全欄の差(1-0 のラン・"
-          f"{len(configs)} 構成・1,000 体・seed 1・全 tick: {', '.join(c for c in configs if c)})で実際に値を変えた系。",
+          f"{len(set(configs))} 構成・ラン {len(configs)} 本・1,000 体・seed 1・全 tick: "
+          f"{', '.join(dict.fromkeys(c for c in configs if c))})で実際に値を変えた系。"
+          "段 FIX の後は段 DEF の測り(`1-0_probe`)と段 FIX の測り(`1-0_probe_fix2`=scratch の中身と digest できない"
+          "外の道筋の代わりの digest つき・1 日)の和。",
           "- 並びは呼ぶ順(表の順)。後の系が前の系の書いた値を上書きする=系の順を入れ替えると結果が動く(草案 §3-3 の 12)。",
           f"- 数: SoA の列で 2 系以上が書く=宣言 {len(multi_soa_decl)}・観測 {len(multi_soa_obs)}。外の状態の道筋で 2 系以上="
           f"宣言 {len(multi_ext_decl)}・観測 {len(multi_ext_obs)}(行の単位の観測 {len(multi_rows_obs)})。"

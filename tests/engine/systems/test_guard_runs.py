@@ -105,3 +105,76 @@ def test_strict_scratch_no_stale_reads(base_final):
         assert run_day(**KW).final_hash == base_final
     finally:
         CD.STRICT_SCRATCH = False
+
+
+# ================================================================= 段 FIX(検収 review-impl-1-0.md §1)
+FAM = ("soa", "ext", "stats", "buffers", "scratch")
+
+
+def _probe_run(ticks):
+    pr = PR.Probe(check=CD.declared_check(SPECS), ticks=frozenset(ticks), families=FAM)
+    PR.ACTIVE = pr
+    try:
+        run_day(**KW)
+    finally:
+        PR.ACTIVE = None
+    return pr
+
+
+def test_declared_writes_cover_the_observed_changes_including_scratch():
+    """段 B(正・段 FIX): scratch の中身(配列・dataclass・物の属性)まで含めて、変わった欄 ⊆ 宣言。"""
+    pr = _probe_run(range(0, 720, 7))
+    assert pr.n_snap > 0 and not pr.violations, pr.violations[:10]
+
+
+def test_scratch_in_place_write_by_a_non_writer_shows_in_B():
+    """負の対照(検収 L4): 書き手でない phase_c が scratch.plan の中身をその場で書き換えると、段 B が phase_c に出す。"""
+
+    def inject(ctx, b):  # noqa: ANN001, ANN202
+        ac = b.scratch.plan.confirmed.action_code
+        if len(ac) == 0:
+            return False
+        ac[0] = ac[0] + 1
+        return True
+
+    with OV.wrap_fn("phase_c", inject, when="before", T=400) as done:
+        pr = PR.Probe(check=CD.declared_check(SPECS), ticks=frozenset(range(400, 720)), families=FAM)
+        PR.ACTIVE = pr
+        try:
+            run_day(**KW)
+        finally:
+            PR.ACTIVE = None
+    assert done["n"] == 1
+    assert any(s == "phase_c" and k == "scratch.plan" for _t, s, k in pr.violations), pr.violations[:5]
+
+
+def test_buffers_replacement_outside_the_declaration_fails():
+    """負の対照(検収 L5・段 C): 宣言の無い系が ``b.buffers.focus_request`` を差し替えると ``AttributeError``。"""
+
+    def inject(ctx, b):  # noqa: ANN001, ANN202
+        b.buffers.focus_request = b.buffers.focus_request
+        return True
+
+    with OV.wrap_fn("detect", inject, when="before", T=10):
+        with pytest.raises(AttributeError, match="buffers.focus_request"):
+            run_day(**KW)
+
+
+def test_box_rooted_ufunc_at_outside_resolve_is_caught_by_B():
+    """検収 L1 の実行時の側: resolve の外の ``np.add.at(b.soa.agents.registry.money, …)`` は段 A では止まらない
+    (numpy の ufunc.at は旗を見ない=限界)。段 B(試験)が書いた系に出し、静的(D⑦)が置き場で落とす。"""
+    import numpy as np
+
+    def inject(ctx, b):  # noqa: ANN001, ANN202
+        np.add.at(b.soa.agents.registry.money, [0], 1)
+        return True
+
+    with OV.wrap_fn("perceive_prepare", inject, when="before", T=300) as done:
+        pr = PR.Probe(check=CD.declared_check(SPECS), ticks=frozenset(range(300, 320)), families=FAM)
+        PR.ACTIVE = pr
+        try:
+            run_day(**KW)
+        finally:
+            PR.ACTIVE = None
+    assert done["n"] == 1
+    assert any(s == "perceive_prepare" and k == "agents.money" for _t, s, k in pr.violations), pr.violations[:5]

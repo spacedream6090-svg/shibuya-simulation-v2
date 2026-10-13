@@ -64,8 +64,10 @@ UNRESOLVED_ALLOW: tuple[SL.AstAllow, ...] = (
                 "ハッシュの直列化の書き手が dataclass の欄を読む(SoA の列ではない・状態を読んで挙動を決めない)"),
     SL.AstAllow("engine/state_codec.py", "out[s] = getattr(v, s)",
                 "10f: 状態のファイルの書き手が値のクラスの __slots__ の属性を読む(SoA の列ではない・挙動を決めない)"),
-    SL.AstAllow("engine/systems/probe.py", "plain(getattr(v, f.name, None), depth + 1)",
+    SL.AstAllow("engine/systems/probe.py", "plain(getattr(v, f.name, None), depth + 1, objs, refs)",
                 "1-0: 試験のときだけの系ごとの差の測り(dataclass の欄を素の値にして digest を取る・挙動を決めない)"),
+    SL.AstAllow("engine/systems/probe.py", "plain(getattr(v, s, None), depth + 1, objs, refs)",
+                "1-0 段 FIX: 同上(scratch と外の道筋の代わりの digest で、根の物の __slots__ の属性を読む・挙動を決めない)"),
 )
 
 

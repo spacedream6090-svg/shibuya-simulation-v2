@@ -34,19 +34,25 @@
   "report"
  ],
  "probe_configs": [
-  "v3_default",
-  "v3_mem_rel_store",
-  "v3_classical_mem_rel",
+  "golden_null_arm",
   "v1_edge",
   "v2_edge_attention",
-  "golden_null_arm"
+  "v3_classical_mem_rel",
+  "v3_default",
+  "v3_mem_rel_store",
+  "golden_null_arm",
+  "v1_edge",
+  "v2_edge_attention",
+  "v3_classical_mem_rel",
+  "v3_default",
+  "v3_mem_rel_store"
  ],
  "counts": {
   "soa_declared_multi": 56,
   "soa_observed_multi": 33,
   "ext_paths_declared_multi": 456,
-  "ext_paths_observed_multi": 64,
-  "ext_rows_observed_multi": 30
+  "ext_paths_observed_multi": 66,
+  "ext_rows_observed_multi": 32
  },
  "soa": [
   {
@@ -3830,7 +3836,10 @@
     "day_close",
     "close_final"
    ],
-   "observed": []
+   "observed": [
+    "world",
+    "close_final"
+   ]
   },
   {
    "key": "O62:undefined.counts",
@@ -3927,10 +3936,14 @@
    "key": "O63:renderer._tickc",
    "axis1": "no",
    "declared": [
+    "world",
     "perceive_prepare",
     "decide"
    ],
-   "observed": []
+   "observed": [
+    "world",
+    "perceive_prepare"
+   ]
   },
   {
    "key": "O64:renderer.acquaintance_fn",
@@ -7398,6 +7411,15 @@
   "O60": [
    "world",
    "phase_c"
+  ],
+  "O61": [
+   "world",
+   "close_final"
+  ],
+  "O63": [
+   "world",
+   "perceive_prepare",
+   "decide"
   ],
   "O64": [
    "decide",

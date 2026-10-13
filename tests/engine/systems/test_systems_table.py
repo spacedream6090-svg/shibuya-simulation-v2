@@ -1,7 +1,8 @@
 """1-0: 系の宣言の表 ``SYSTEMS`` の約束(草案 §2-2・§2-5・§2-6 の D ①②③⑧)。
 
 - 呼ぶ順の 1 つの表(tick の中 25・日の頭 D1・日の終わり D2・ランの単位 R1〜R3 と最後の締め)。
-- D ②: ``writes.soa`` は ``resolve_ops`` の静的な閉包そのもの(手で書いた値と食い違えば落ちる=負の対照つき)。
+- D ②: ``writes.soa`` は ``resolve_ops`` の静的な閉包そのもの。〔段 FIX〕閉包を凍結した表
+  ``writes_soa_frozen.json`` との突き合わせと負の対照は ``test_fix_guards.py``(旧の手書きの対照は恒真だったので消した)。
 - D ①: 系のコードが直接呼ぶ resolve の口 ⊆ ``resolve_ops``。
 - D ③: 系のコードの箱の属性の参照 ⊆ ``reads.box``・scratch への書き ⊆ ``writes.scratch``・RunStats の欄への書き ⊆
   ``writes.tally``(負の対照つき)。
@@ -19,7 +20,7 @@ from shibuya.engine import state_ledger as SL
 from shibuya.engine.systems import allow as AL
 from shibuya.engine.systems import boxes as BX
 from shibuya.engine.systems import static_check as SC
-from shibuya.engine.systems.spec import TIMINGS, make
+from shibuya.engine.systems.spec import TIMINGS
 from shibuya.engine.systems.table import SPECS, SYSTEMS
 
 ORDER = (
@@ -43,13 +44,6 @@ def test_order_and_counts():
 @pytest.mark.parametrize("spec", SYSTEMS, ids=lambda s: s.name)
 def test_d2_writes_soa_is_the_static_closure(spec):
     assert spec.writes.soa == AL.writes_for_ops(spec.resolve_ops)
-
-
-def test_d2_detects_a_hand_written_mismatch():
-    """負の対照(T2・D ②): 手で書いた書く列が閉包と食い違えば見つかる。"""
-    s = make("x", "g", "tick", None, resolve_ops="set_refractory")
-    hand = frozenset({"agents.refractory_until", "agents.money"})
-    assert hand != s.writes.soa and s.writes.soa == frozenset({"agents.refractory_until"})
 
 
 @pytest.mark.parametrize("spec", [s for s in SYSTEMS if s.name != "build"], ids=lambda s: s.name)

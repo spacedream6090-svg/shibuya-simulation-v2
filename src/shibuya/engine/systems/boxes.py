@@ -212,9 +212,21 @@ class DayTables:
 
 @dataclass
 class Buffers:
-    """使い回すバッファ(物は 1 回だけ作る・tick の頭で空にしない=草案 R1)。"""
+    """使い回すバッファ(物は 1 回だけ作る・tick の頭で空にしない=草案 R1)。
+
+    段 C(段 FIX・検収 L5・草案 §2-6 の C): 書きの検査が入っているとき、いまの系の ``writes.buffers`` に無い欄の差し替え
+    (``b.buffers.focus_request = …``)を落とす。中身のその場の書き(``focus_request[:] = …``)は見ない=段 B(試験)が見る。
+    """
 
     focus_request: Any
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        from shibuya.engine.systems import guard as _G
+
+        p = _G.BUFFERS_PERMIT
+        if p is not None and name not in p:
+            raise AttributeError(f"系 {_G.CURRENT} は buffers.{name} を書く宣言を持たない(段 C)")
+        object.__setattr__(self, name, value)
 
 
 #: tick の中の受け渡しの欄(書き手の系 → 読み手の系)。名は HEAD の ``run_day`` の局所の名と同じ。

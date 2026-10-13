@@ -67,7 +67,10 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                      "collect_waste consume discard_to_bin restock request_open_close set_open_flags set_notice_state "
                      "set_plan_state",
          paths="O3[5-7]:presence.* O70:presence.* O4[6-9]:runner.* O5[0-6]:runner.* O61:runner.* O7[2-6]:runner.* "
-               "O95:runner.* O5[7-9]:ledger.* O60:ledger.* O7[7-9]:ledger.* O8[01]:ledger.* O9[23]:ledger.*",
+               "O95:runner.* O5[7-9]:ledger.* O60:ledger.* O7[7-9]:ledger.* O8[01]:ledger.* O9[23]:ledger.* "
+               # 段 FIX: 前の tick の描画の前計算 ``renderer._tickc.flow`` は ``runner.flow`` と同じ配列(prepare_tick の
+               # ``np.asarray(flow, uint8)`` は写さない)=世界過程が流れの段をその場で書くと見える(別名)
+               "O63:renderer._tickc",
          reads="layers.runner",
          origin=f"L2・run.py:3629-3630 @{_E}"),
     make("presence", "体", "tick", _BD.sys_presence,
@@ -245,7 +248,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
     make("observe", "計器", "tick", _OB.observe,
          paths="O34:norm_meter.* O70:presence.*",
          scratch_r="decision cands intents plan outcome n_undefined parse_errors",
-         tally="diag_rows prev_tape_misses prev_sessions sleep_counts occ_ticks",
+         tally="diag_rows prev_tape_misses prev_sessions sleep_counts occ_ticks occ_counts occ_kind occ_transit",
          reads="cfg.occupancy_every layers.arbiter layers.bridge layers.conv layers.norm_meter "
                "layers.presence llm.pending runstats.diag_rows runstats.occ_counts runstats.occ_kind "
                "runstats.occ_ticks runstats.occ_transit runstats.prev_sessions "
@@ -255,7 +258,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          origin=f"L21+L22・run.py:4403-4451 @{_E}"),
     make("checkpoint", "計器", "tick", _OB.checkpoint,
          paths="O2:act_layer._digest_cache",
-         tally="result",
+         tally="result phase",  # 段 FIX: phase["checkpoint"](壁時計)=組の別名 ``result, phase = rs.result, rs.phase``
          reads="cfg.checkpoint_detail cfg.checkpoint_every cfg.total_ticks fx.schedule "
                "fx.schedule_hash layers.act_layer layers.arbiter layers.bridge layers.classical "
                "layers.conv layers.detector layers.energy layers.fam_layer layers.fleet_bridge "
@@ -311,7 +314,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "runstats.ledger_growth runstats.result runstats.state_files soa.agents soa.world",
          origin=f"E1・run.py:4551-4592 @{_E}"),
     make("report", "計器", "run_end", _RP.report,
-         tally="result sleep_counts",
+         tally="result sleep_counts frozen_sources_map",  # 段 FIX: 欄の別名 ``frozen_sources_map.update``
          reads="cfg.activity_on cfg.activity_region cfg.area_source cfg.attendance_rate "
                "cfg.attention_on cfg.budget_mode_enum cfg.chooser cfg.classical_habit_p "
                "cfg.classical_tau cfg.day_index cfg.derive_rule cfg.eatery cfg.energy_on "

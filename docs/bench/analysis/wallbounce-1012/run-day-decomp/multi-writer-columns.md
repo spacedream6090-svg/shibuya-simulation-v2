@@ -1,9 +1,9 @@
 # 複数の系が書く列の一覧(1-0)
 
 - ユーザーの条件(2026-10-13): 同じ列を複数の区間(系)が書いている所を、後で話題ごとにまとめ直すときの課題として記録する。
-- 作り方: `multi_writers.py`(このフォルダ)。**宣言**=系の表 `SYSTEMS` の書く欄(SoA は resolve の口の静的な閉包=上限・外の状態は道筋の宣言を台帳の項目に当てた)。**観測**=系ごとの全欄の差(1-0 のラン・6 構成・1,000 体・seed 1・全 tick: v3_default, v3_mem_rel_store, v3_classical_mem_rel, v1_edge, v2_edge_attention, golden_null_arm)で実際に値を変えた系。
+- 作り方: `multi_writers.py`(このフォルダ)。**宣言**=系の表 `SYSTEMS` の書く欄(SoA は resolve の口の静的な閉包=上限・外の状態は道筋の宣言を台帳の項目に当てた)。**観測**=系ごとの全欄の差(1-0 のラン・6 構成・ラン 12 本・1,000 体・seed 1・全 tick: golden_null_arm, v1_edge, v2_edge_attention, v3_classical_mem_rel, v3_default, v3_mem_rel_store)で実際に値を変えた系。段 FIX の後は段 DEF の測り(`1-0_probe`)と段 FIX の測り(`1-0_probe_fix2`=scratch の中身と digest できない外の道筋の代わりの digest つき・1 日)の和。
 - 並びは呼ぶ順(表の順)。後の系が前の系の書いた値を上書きする=系の順を入れ替えると結果が動く(草案 §3-3 の 12)。
-- 数: SoA の列で 2 系以上が書く=宣言 56・観測 33。外の状態の道筋で 2 系以上=宣言 456・観測 64(行の単位の観測 30)。草案 §1-5 の測り(HEAD・6 構成・窓の tick)は SoA 28 列・外の行 27。
+- 数: SoA の列で 2 系以上が書く=宣言 56・観測 33。外の状態の道筋で 2 系以上=宣言 456・観測 66(行の単位の観測 32)。草案 §1-5 の測り(HEAD・6 構成・窓の tick)は SoA 28 列・外の行 27。
 
 ## SoA の列(観測で 2 系以上)
 
@@ -95,6 +95,8 @@
 | O58 | world → phase_c |
 | O59 | world → phase_c → day_close → close_final |
 | O60 | world → phase_c |
+| O61 | world → close_final |
+| O63 | world → perceive_prepare → decide |
 | O64 | decide → memory |
 | O66 | apply_responses → detect → phase_a → activity_intent |
 | O70 | world → presence → plan_boundary → observe → close_final |
@@ -150,6 +152,8 @@
 | `O60:ledger.goods._dl_poi` | no | world → phase_c | world → phase_c → day_close → close_final |
 | `O60:ledger.goods._dl_qty` | no | world → phase_c | world → phase_c → day_close → close_final |
 | `O60:ledger.goods._dl_tick` | no | world → phase_c | world → phase_c → day_close → close_final |
+| `O61:runner.log` | no | world → close_final | day_head → world → day_close → close_final |
+| `O63:renderer._tickc` | no | world → perceive_prepare | world → perceive_prepare → decide |
 | `O64:renderer.signage_exposures` | no | decide → memory | decide → memory |
 | `O70:presence.n_departed_by_llm` | diag | world → close_final | day_head → world → presence → plan_boundary → wake_filter → decide → observe → day_close → close_final |
 | `O73:runner.rail.n_departed_riders` | diag | world → close_final | day_head → world → presence → plan_boundary → phase_c → day_close → close_final |
