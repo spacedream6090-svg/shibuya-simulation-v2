@@ -337,12 +337,24 @@ def _require_thawed(*states: object) -> None:
     Raises:
         ValueError: 凍結中の状態へ ``ufunc.at`` を撃とうとした(=書き込み窓の外)。
 
+    1-0 段 A(草案 §2-6 の A ②・K1): 系ごとの許可(``core.write_permit``)では解除口が許可の列だけを解くので、
+    状態の物の ``frozen`` だけでは宣言の外の列への ``ufunc.at`` を止められない。引数に**書く配列そのもの**も渡し、
+    配列ごとに ``flags.writeable`` を見る(``economy/ledger.py`` の ``_apply_cash`` と同じ形)。配列は numpy の配列、
+    状態の物は ``frozen`` を持つ物として見分ける。
+
     Note:
         静的側の相方は ``tests/engine/test_add_at_guard.py``
-        (``world.``/``agents.`` 由来の配列への ``np.<ufunc>.at`` は resolve.py にしか書けない)。
+        (``world.``/``agents.`` 由来の配列への ``np.<ufunc>.at`` は resolve.py にしか書けない・直前の
+        ``_require_thawed`` が書く配列を引数に持つ)。
     """
     for s in states:
-        if bool(getattr(s, "frozen", False)):
+        if isinstance(s, np.ndarray):
+            if not s.flags.writeable:
+                raise ValueError(
+                    "読み取り専用の列へ ufunc.at(np.add.at 等)を撃とうとした。"
+                    "この系の書く列の宣言の外(1-0 段 A・草案 §2-6)か、書き込み窓の外"
+                )
+        elif bool(getattr(s, "frozen", False)):
             raise ValueError(
                 "凍結中の状態へ ufunc.at(np.add.at 等)を撃とうとした。"
                 "書き込みは resolve の writable() 窓の中だけ(運用設計書 §2.2)"
@@ -807,8 +819,8 @@ def set_refractory(
             return
     until = (int(tick) + tab[c]).astype(np.int32)
     with agents.writable():
-        _require_thawed(agents)
         cur = agents.registry.refractory_until
+        _require_thawed(agents, cur)
         np.maximum.at(cur, (a, c), until)
 
 
@@ -2244,9 +2256,9 @@ def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
             world.pois.stock.dtype
         )
     else:
-        _require_thawed(world)
+        _require_thawed(world, world.pois.stock)
         np.add.at(world.pois.stock, bought, -1)
-    _require_thawed(world)
+    _require_thawed(world, world.pois.revenue)
     np.add.at(world.pois.revenue, bought, paid)
     r.holdings[buyers] = np.minimum(r.holdings[buyers].astype(np.int16) + 1, 255).astype(np.uint8)
     if out.energy is None:
@@ -2344,7 +2356,7 @@ def _complete_eat(agents, world, eaters, shops, paid, tick, out) -> None:
                 return
     else:
         r.money[eaters] = (r.money[eaters].astype(np.int64) - paid).astype(np.int32)
-    _require_thawed(world)
+    _require_thawed(world, world.pois.revenue)
     np.add.at(world.pois.revenue, shops, paid)
     if out.energy is None:
         r.hunger[eaters] = np.maximum(
@@ -2699,7 +2711,7 @@ def consume(
         have = holdings[a].astype(np.int64) >= q
         ok = np.asarray(ledger.goods.consume_many(sku, np.where(have, q, 0), tick))
         if ok.any():
-            _require_thawed(agents)
+            _require_thawed(agents, holdings)
             np.add.at(holdings, a[ok], (-q[ok]).astype(holdings.dtype))
     return ok
 

@@ -154,7 +154,9 @@ _ALLOW_BAND = (AstAllow("world/assets.py", 'cells["band"]',
 _ALLOW_B4 = (AstAllow("world/state.py", "return self.cells.b4_hash",
                       "プロパティ World.b4_hash の中の読み。プロパティの呼び手は 0(材料 §2-4 の誤検出 2)"),)
 _ALLOW_REVENUE = (AstAllow("engine/run.py", "result.revenue_end =",
-                           "保存則の検査とラン要約の値(RunResult.revenue_end)だけ=診断"),)
+                           "保存則の検査とラン要約の値(RunResult.revenue_end)だけ=診断"),
+                  AstAllow("engine/resolve.py", "_require_thawed(world, world.pois.revenue)",
+                           "1-0 段 A: ufunc.at の前の配列単位の書き込みの旗の検査(値を見ない=読みではない)"))
 _ALLOW_ENERGY_BALANCE = (AstAllow("engine/energy.py", "bal = np.asarray(r.energy_balance",
                                   "EnergyLayer.summary(日次センサスと要約)だけ=診断"),)
 _ALLOW_HEADING = (AstAllow("engine/processes/salient.py", "heading = np.asarray(self.pstate.heading)",

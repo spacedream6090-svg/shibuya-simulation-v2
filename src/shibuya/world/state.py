@@ -33,6 +33,7 @@ from typing import Final, Iterator
 
 import numpy as np
 
+from shibuya.core import write_permit as _WP
 from shibuya.core.hashing import blake3_hex
 from shibuya.core.soa import Registry
 from shibuya.world.assets import WorldAssets, load_assets, synthetic_assets
@@ -434,10 +435,13 @@ class World:
         self._frozen = True
 
     def thaw(self) -> None:
-        """全配列を書き込み可能に戻す(``writable`` 以外から呼ばない)。"""
-        for reg in (self.cells, self.pois):
-            for arr in reg.arrays.values():
-                arr.flags.writeable = True
+        """全配列を書き込み可能に戻す(``writable`` 以外から呼ばない)。
+
+        1-0 段 A: 系の許可(``core.write_permit``)があれば許可の列だけを解く(``AgentState.thaw`` と同じ)。
+        """
+        for place, reg in (("cells", self.cells), ("pois", self.pois)):
+            for name, arr in reg.arrays.items():
+                arr.flags.writeable = _WP.allows(place, name)
         self._frozen = False
 
     @contextmanager

@@ -94,6 +94,7 @@ from typing import Final, Iterator
 
 import numpy as np
 
+from shibuya.core import write_permit as _WP
 from shibuya.core.soa import Registry
 from shibuya.core.types import EventClass
 
@@ -783,9 +784,13 @@ class AgentState:
         self._frozen = True
 
     def thaw(self) -> None:
-        """全配列を書き込み可能に戻す(``writable`` 以外から呼ばない)。"""
-        for arr in self.registry.arrays.values():
-            arr.flags.writeable = True
+        """全配列を書き込み可能に戻す(``writable`` 以外から呼ばない)。
+
+        1-0 段 A: 進行役が系の許可(``core.write_permit``)を置いているときは、許可の列だけを解く(ほかは読み取り専用の
+        まま=宣言の外の列への書きは numpy が ``ValueError`` で止める)。許可が無ければ今までどおり全部。
+        """
+        for name, arr in self.registry.arrays.items():
+            arr.flags.writeable = _WP.allows("agents", name)
         self._frozen = False
 
     @contextmanager

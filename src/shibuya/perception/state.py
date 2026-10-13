@@ -39,6 +39,7 @@ from typing import Final, Iterator
 
 import numpy as np
 
+from shibuya.core import write_permit as _WP
 from shibuya.core.soa import Registry
 from shibuya.perception.p_notice import HEADING_SECTORS, DensityClass, TaskLoad
 
@@ -132,8 +133,9 @@ class PerceptionState:
             agents/state.py と world/state.py だけ」)の趣旨=「解除口を公開しない」に
             より強く従うため。解除は ``writable()`` の中でだけ起きる。
         """
-        for arr in self.registry.arrays.values():
-            arr.flags.writeable = flag
+        for name, arr in self.registry.arrays.items():
+            # 1-0 段 A: 解くときは系の許可(``core.write_permit``)の列だけ(許可が無ければ全部)
+            arr.flags.writeable = bool(flag) and _WP.allows("perception", name)
 
     def freeze(self) -> None:
         """全配列を読み取り専用にする。"""
