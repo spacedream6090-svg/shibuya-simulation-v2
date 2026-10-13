@@ -27,6 +27,7 @@ RETENTION_DAYS: dict[str, int | None] = {
     "wbgt_forecast": 0,  # 予測は上書きされる = その日に取らないと消える
     "shibuya_jinryu": None,
     "odpt_rt": 0,        # dct:valid=5分。後追い不可
+    "odpt_static": None, # 版はダイヤ改正ごと。古い版は API から消える(後追いは今の版だけ)
     "jma_xml": 3,        # 長期フィードは「数日分」を掲載
     # ↓ P4 境界較正の静的ソース。5年に1度/年1回の更新なので期限の概念が無い(日次対象外)。
     "transport_census": None,
@@ -241,4 +242,257 @@ def format_report(rows, today: _date, *, sources=None, lookback_days: int = 30) 
     lines.append(f"合計: URGENT {n_urgent} 日 / LOST {n_lost} 日")
     if n_urgent:
         lines.append("→ `python scripts/rw_fetch_daily.py --backfill` で後追い取得できる。")
+    return "\n".join(lines)
+
+
+# ================================================================ odpt_rt の欠けた時間帯(第333)
+# 取得はユーザーの PC が動いている間しか回らない。止まっていた時間帯を台帳から数える(ネット不使用)。
+RT_SOURCE = "odpt_rt"
+RT_TYPES = ("odpt:TrainInformation", "odpt:Train", "odpt:Bus")
+RT_TYPE_LABEL = {"odpt:TrainInformation": "運行情報", "odpt:Train": "在線", "odpt:Bus": "バス"}
+_RT_TARGET_TYPE = {"TrainInformation": "odpt:TrainInformation", "Train": "odpt:Train",
+                   "Bus": "odpt:Bus"}
+# 同じ種類の行が何秒以内なら 1 回のスナップショットとみなすか(`snapshot_jst` の無い古い行用)。
+SNAPSHOT_CLUSTER_S = 60
+
+
+def _parse_iso(text):
+    if not isinstance(text, str) or not text:
+        return None
+    try:
+        from datetime import datetime
+        dt = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=common.JST)
+    return dt.astimezone(common.JST)
+
+
+def rt_row_time(row: dict):
+    """行の時刻(JST)。`extra.snapshot_jst` があればそれ、無ければ `ts_utc`。"""
+    ex = row.get("extra") if isinstance(row.get("extra"), dict) else {}
+    return _parse_iso(ex.get("snapshot_jst")) or _parse_iso(row.get("ts_utc"))
+
+
+def rt_row_type(row: dict) -> str | None:
+    ex = row.get("extra") if isinstance(row.get("extra"), dict) else {}
+    if ex.get("datatype") in RT_TYPES:
+        return ex["datatype"]
+    head = str(row.get("target") or "").split("/", 1)[0]
+    return _RT_TARGET_TYPE.get(head)
+
+
+def _count_snapshots(times) -> int:
+    """時刻の並びを `SNAPSHOT_CLUSTER_S` 秒の隙間で区切った塊の数。"""
+    ts = sorted(times)
+    n = 0
+    prev = None
+    for t in ts:
+        if prev is None or (t - prev).total_seconds() > SNAPSHOT_CLUSTER_S:
+            n += 1
+        prev = t
+    return n
+
+
+def _hour_runs(hours: list[int]) -> list[tuple[int, int]]:
+    """欠けた時(0..23)の並びを、連続した区間 (始め, 終わり) にまとめる。"""
+    runs: list[tuple[int, int]] = []
+    for h in sorted(hours):
+        if runs and h == runs[-1][1] + 1:
+            runs[-1] = (runs[-1][0], h)
+        else:
+            runs.append((h, h))
+    return runs
+
+
+def rt_gap_report(rows, today: _date, *, now=None, lookback_days: int = 30,
+                  cadence: dict | None = None) -> dict:
+    """odpt_rt の日ごとの「取得の無かった 1 時間の枠」と、種類ごとのスナップショット数。
+
+    - 期間の始まりは `today - lookback_days` と、odpt_rt の最初の行の日の遅い方
+      (集め始める前の日を欠けと数えない)。最初の日は最初の行の時から数える。
+    - 今日は、いまの時より前の(終わった)枠だけを数える。
+    - 期待するスナップショット数 = 数えた時間 × 3600 / 間隔(今の `cadence`)。
+    """
+    now = now or common.now_jst()
+    cadence = dict(cadence or {t: 300 for t in RT_TYPES})
+    rt = [r for r in rows if isinstance(r, dict) and r.get("source") == RT_SOURCE]
+    out = {"days": [], "total_missing_hours": 0, "n_days": 0, "first_day": None,
+           "window_start": None, "window_end": today.isoformat()}
+    timed = [(rt_row_time(r), r) for r in rt]
+    timed = [(t, r) for t, r in timed if t is not None]
+    if not timed:
+        return out
+    first_t = min(t for t, _ in timed)
+    first_day = first_t.date()
+    start = max(today - timedelta(days=lookback_days), first_day)
+    out["first_day"] = first_day.isoformat()
+    out["window_start"] = start.isoformat()
+
+    ok_hours: dict[str, set[int]] = {}
+    any_hours: dict[str, set[int]] = {}
+    snap_times: dict[tuple[str, str], list] = {}
+    capped: dict[tuple[str, str], int] = {}
+    for t, r in timed:
+        day = t.date().isoformat()
+        any_hours.setdefault(day, set()).add(t.hour)
+        if not r.get("ok"):
+            continue
+        ok_hours.setdefault(day, set()).add(t.hour)
+        dt = rt_row_type(r)
+        if dt:
+            snap_times.setdefault((day, dt), []).append(t)
+            ex = r.get("extra") if isinstance(r.get("extra"), dict) else {}
+            if ex.get("capped"):
+                capped[(day, dt)] = capped.get((day, dt), 0) + 1
+
+    for d in common.date_range(start, today):
+        day = d.isoformat()
+        h0 = first_t.hour if d == first_day else 0
+        h1 = 24
+        if d == now.date():
+            h1 = now.hour
+        elif d > now.date():
+            h1 = h0
+        expected_hours = list(range(h0, max(h0, h1)))
+        covered = ok_hours.get(day, set())
+        missing = [h for h in expected_hours if h not in covered]
+        fail_only = [h for h in missing if h in any_hours.get(day, set())]
+        snaps = {dt: _count_snapshots(snap_times.get((day, dt), [])) for dt in RT_TYPES}
+        expected = {dt: int(round(len(expected_hours) * 3600 / max(1, int(cadence.get(dt, 300)))))
+                    for dt in RT_TYPES}
+        out["days"].append({
+            "day": day, "hours_counted": len(expected_hours), "hours_missing": len(missing),
+            "gaps": [(f"{a:02d}:00", f"{b:02d}:59") for a, b in _hour_runs(missing)],
+            "fail_only_hours": len(fail_only), "snapshots": snaps, "expected": expected,
+            "capped_rows": {dt: capped.get((day, dt), 0) for dt in RT_TYPES},
+        })
+        out["total_missing_hours"] += len(missing)
+    out["n_days"] = len(out["days"])
+    return out
+
+
+def format_rt_report(rows, today: _date, *, now=None, lookback_days: int = 30,
+                     cadence: dict | None = None) -> str:
+    rep = rt_gap_report(rows, today, now=now, lookback_days=lookback_days, cadence=cadence)
+    lines = ["", "-" * 72,
+             "ODPT リアルタイム(odpt_rt)の欠けた時間帯(1 時間の枠・JST・取得の成功が無い枠)",
+             "-" * 72]
+    if not rep["days"]:
+        lines.append("odpt_rt の行が台帳に無い。")
+        return "\n".join(lines)
+    for day in rep["days"]:
+        snaps = "  ".join(f"{RT_TYPE_LABEL[dt]} {day['snapshots'][dt]}/{day['expected'][dt]}"
+                          for dt in RT_TYPES)
+        gaps = ", ".join(f"{a}-{b}" for a, b in day["gaps"]) or "なし"
+        fail = f"(うち失敗だけの枠 {day['fail_only_hours']})" if day["fail_only_hours"] else ""
+        lines.append(f"  {day['day']}  欠けた枠 {day['hours_missing']}/{day['hours_counted']}"
+                     f"{fail}  欠け {gaps}")
+        lines.append(f"              スナップショット(実際/期待) {snaps}")
+        cap = {dt: n for dt, n in day["capped_rows"].items() if n}
+        if cap:
+            lines.append("              ⚠ 1,000 件の打ち切りが残った行 "
+                         + "  ".join(f"{RT_TYPE_LABEL[dt]} {n}" for dt, n in cap.items()))
+    lines.append("")
+    lines.append(f"合計: 欠け {rep['total_missing_hours']} 時間 / {rep['n_days']} 日"
+                 f"({rep['window_start']}〜{rep['window_end']}。最初の日は最初の取得の時から、"
+                 "今日は終わった枠だけ)")
+    return "\n".join(lines)
+
+
+# ================================================================ ディスクの量(第333)
+RT_FILE_PREFIX = (("traininformation_", "運行情報"), ("train_", "在線"), ("bus_", "バス"))
+
+
+def _category(rel_parts: tuple[str, ...]) -> str:
+    if len(rel_parts) == 1:
+        return "(直下のファイル: 台帳・ログ)"
+    top = rel_parts[0]
+    if top == RT_SOURCE:
+        name = rel_parts[-1]
+        for pre, label in RT_FILE_PREFIX:
+            if name.startswith(pre):
+                return f"{RT_SOURCE}/{label}"
+        return f"{RT_SOURCE}/その他"
+    return top
+
+
+def _day_of(rel_parts: tuple[str, ...], mtime: float) -> str:
+    for p in reversed(rel_parts[:-1]):
+        if len(p) == 10 and p[4] == "-" and p[7] == "-" and p.replace("-", "").isdigit():
+            return p
+    from datetime import datetime
+    return datetime.fromtimestamp(mtime, common.JST).date().isoformat()
+
+
+def disk_usage(root: Path, today: _date, *, days: int = 7) -> dict:
+    """`root` の下のファイルの大きさを種類ごとに足す(中身は読まない)。
+
+    日は道筋の `YYYY-MM-DD` の段(無ければ更新時刻の日)。直近 `days` 日(今日を除く)の
+    1 日あたりの増え方と、その 365 倍の年の見込みを出す。
+    """
+    import os
+
+    root = Path(root)
+    cats: dict[str, dict] = {}
+    window = {(today - timedelta(days=i)).isoformat() for i in range(1, days + 1)}
+    stack = [root]
+    while stack:
+        cur = stack.pop()
+        try:
+            it = os.scandir(cur)
+        except OSError:
+            continue
+        with it:
+            for e in it:
+                try:
+                    if e.is_dir(follow_symlinks=False):
+                        stack.append(Path(e.path))
+                        continue
+                    stt = e.stat(follow_symlinks=False)
+                except OSError:
+                    continue
+                rel = Path(e.path).relative_to(root).parts
+                cat = _category(rel)
+                c = cats.setdefault(cat, {"files": 0, "bytes": 0, "window_bytes": 0,
+                                          "today_bytes": 0})
+                c["files"] += 1
+                c["bytes"] += stt.st_size
+                day = _day_of(rel, stt.st_mtime)
+                if day in window:
+                    c["window_bytes"] += stt.st_size
+                elif day == today.isoformat():
+                    c["today_bytes"] += stt.st_size
+    for c in cats.values():
+        c["per_day_bytes"] = c["window_bytes"] / days
+        c["per_year_gb"] = c["per_day_bytes"] * 365 / 1e9
+    return {"root_name": root.name, "days": days, "categories": cats}
+
+
+def _pad(text: str, width: int) -> str:
+    """全角を 2 桁と数えて左寄せで埋める(表の桁をそろえる)。"""
+    import unicodedata
+
+    w = sum(2 if unicodedata.east_asian_width(c) in ("F", "W") else 1 for c in text)
+    return text + " " * max(0, width - w)
+
+
+def format_disk_report(root: Path, today: _date, *, days: int = 7) -> str:
+    rep = disk_usage(root, today, days=days)
+    lines = ["", "-" * 72,
+             f"ディスクの量(ファイルの大きさだけ・中身は読まない。増え方は今日を除く直近 {days} 日の平均)",
+             "-" * 72,
+             _pad("種類", 30) + f"{'files':>9}{'total_MB':>11}{'MB/day':>9}{'GB/yr':>8}{'today_MB':>9}"]
+    tot = {"files": 0, "bytes": 0, "per_day_bytes": 0.0, "today_bytes": 0}
+    for cat in sorted(rep["categories"]):
+        c = rep["categories"][cat]
+        lines.append(_pad(cat, 30) + f"{c['files']:>9}{c['bytes'] / 1e6:>11.1f}"
+                     f"{c['per_day_bytes'] / 1e6:>9.2f}{c['per_year_gb']:>8.2f}"
+                     f"{c['today_bytes'] / 1e6:>9.2f}")
+        for k in tot:
+            tot[k] += c[k]
+    lines.append(_pad("合計", 30) + f"{tot['files']:>9}{tot['bytes'] / 1e6:>11.1f}"
+                 f"{tot['per_day_bytes'] / 1e6:>9.2f}{tot['per_day_bytes'] * 365 / 1e9:>8.2f}"
+                 f"{tot['today_bytes'] / 1e6:>9.2f}")
     return "\n".join(lines)

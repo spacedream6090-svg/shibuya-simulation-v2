@@ -77,6 +77,15 @@ ATTRIBUTION: dict[str, dict] = {
         # ★チャレンジ枠は再配布不可の可能性 → data/realworld/odpt_rt/README.md に明記する。
         "redistribution": "restricted",
     },
+    "odpt_static": {
+        "source_name": "公共交通オープンデータセンター(ODPT) 静的データ(オープン枠の版)",
+        "source_url": "https://www.odpt.org/",
+        "license": "公共交通オープンデータ基本ライセンス(出典表示義務・派生物にも継承)",
+        "license_url": "https://developer.odpt.org/terms",
+        "attribution": "本データは公共交通オープンデータセンターのデータを利用して作成。",
+        # 基本ライセンス 第 8 条 4 項(1): 第三者が再利用できる形での公開・再配布をしない。
+        "redistribution": "restricted",
+    },
     "jma_xml": {
         "source_name": "気象庁 防災情報XML(Atom フィード)",
         "source_url": "https://xml.kishou.go.jp/xmlpull.html",
@@ -237,9 +246,54 @@ def reset_request_count() -> None:
     _REQUEST_COUNT = 0
 
 
+class CrossHostRedirect(Exception):
+    """転送先のホストが元の要求と違うので追わなかった(第333)。
+
+    取得してよいドメインは CLAUDE.md §7 の一覧だけで、転送先が一覧の外なら取得せず報告する
+    決まり。`http_get(..., same_host_only=True)` の要求にだけ効く(他のソースの挙動は変えない)。
+    `host` は転送先のホスト名だけ(URL の問い合わせ部=キーは持たない)。
+    """
+
+    def __init__(self, host: str):
+        super().__init__(host)
+        self.host = host
+
+
+class _GuardedRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """`req.same_host_only` が真の要求は、別のホストへの転送を拒む。それ以外は標準どおり。"""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if getattr(req, "same_host_only", False):
+            old = (urllib.parse.urlsplit(req.full_url).hostname or "").lower()
+            new = (urllib.parse.urlsplit(newurl).hostname or "").lower()
+            if new != old:
+                try:
+                    fp.close()
+                except Exception:   # pragma: no cover - 閉じられなくても拒否は変わらない
+                    pass
+                raise CrossHostRedirect(new or "?")
+        new_req = super().redirect_request(req, fp, code, msg, headers, newurl)
+        if new_req is not None and getattr(req, "same_host_only", False):
+            new_req.same_host_only = True
+        return new_req
+
+
+_OPENER = None
+
+
+def _opener():
+    global _OPENER
+    if _OPENER is None:
+        _OPENER = urllib.request.build_opener(_GuardedRedirectHandler())
+    return _OPENER
+
+
 def _urlopen(req, timeout):  # pragma: no cover - テストは必ずここを差し替える
-    """ネットワークの唯一の出口。テストはこの1点をモンキーパッチする。"""
-    return urllib.request.urlopen(req, timeout=timeout)
+    """ネットワークの唯一の出口。テストはこの1点をモンキーパッチする。
+
+    `urllib.request.urlopen` と同じ既定のハンドラ群に、転送の検査だけを足した opener を使う。
+    """
+    return _opener().open(req, timeout=timeout)
 
 
 @dataclass
@@ -269,10 +323,13 @@ def decode_text(body: bytes, encodings: tuple[str, ...] = ("utf-8-sig", "utf-8",
 
 
 def http_get(url: str, *, timeout: float = 30.0, retries: int = 2, backoff: float = 1.0,
-             sleep_fn=None, headers: dict | None = None) -> HttpResult:
+             sleep_fn=None, headers: dict | None = None,
+             same_host_only: bool = False) -> HttpResult:
     """GET。指数バックオフで**小回数**だけ再試行する。例外文面は型名/コードのみ返す。
 
     URL にキーが載り得るので、戻り値・ログには `scrub` 済みのものしか出さない。
+    `same_host_only=True` なら別のホストへの転送を追わず、`error` を
+    `cross-host-redirect-refused:<転送先のホスト>` にして再試行しない(第333)。
     """
     sleep_fn = time.sleep if sleep_fn is None else sleep_fn
     hdrs = {"User-Agent": USER_AGENT}
@@ -287,12 +344,18 @@ def http_get(url: str, *, timeout: float = 30.0, retries: int = 2, backoff: floa
         _REQUEST_COUNT += 1
         try:
             req = urllib.request.Request(url, headers=hdrs)
+            if same_host_only:
+                req.same_host_only = True
             with _urlopen(req, timeout) as resp:
                 res.status = getattr(resp, "status", None) or resp.getcode()
                 res.body = resp.read()
             res.error = None if res.status == 200 else f"HTTP {res.status}"
             if res.status == 200 or res.status not in RETRY_STATUS:
                 break
+        except CrossHostRedirect as exc:           # 転送先のホスト名だけを残す(再試行しない)
+            res.status, res.body = None, None
+            res.error = f"cross-host-redirect-refused:{scrub(exc.host)}"
+            break
         except urllib.error.HTTPError as exc:      # exc は URL を含むので code だけ使う
             res.status, res.body, res.error = exc.code, None, f"HTTP {exc.code}"
             if exc.code not in RETRY_STATUS:
@@ -366,6 +429,50 @@ def write_bytes(path: Path, data: bytes) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(safe)
     return path
+
+
+# gzip は標準ライブラリ(第333)。定期実行は venv でない系統の Python 3.12 で回るので、
+# 外部の zstandard を前提にできない(3.14 の compression.zstd もまだ使えない)。
+GZIP_LEVEL = 6
+
+
+def json_bytes_compact(obj) -> bytes:
+    """保存と同じ形(区切りの空白なし・ensure_ascii=False・末尾改行)の UTF-8 バイト列。scrub 済み。"""
+    return scrub(json.dumps(obj, ensure_ascii=False, separators=(",", ":")) + "\n").encode("utf-8")
+
+
+def write_json_gz(path: Path, obj, *, level: int = GZIP_LEVEL) -> tuple[Path, int, int]:
+    """gzip した JSON の保存。**書く直前に必ず scrub** する(`write_json` と同じ)。
+
+    戻り値 = (path, 圧縮前のバイト数, 圧縮後のバイト数)。gzip の見出しの時刻は 0 に固定する
+    (同じ中身なら同じバイト列)。途中で落ちても半端なファイルを残さないよう、一時ファイルに
+    書いてから置き換える。
+    """
+    import gzip
+
+    text = json.dumps(obj, ensure_ascii=False, separators=(",", ":")) + "\n"
+    safe = scrub(text)
+    if safe != text:
+        log(f"[warn] 保存物に秘密が含まれていたため {MASK} に置換した: {path.name}", err=True)
+    raw = safe.encode("utf-8")
+    gz = gzip.compress(raw, compresslevel=level, mtime=0)
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_bytes(gz)
+    os.replace(tmp, path)
+    return path, len(raw), len(gz)
+
+
+def read_json_any(path: Path):
+    """`.json` と `.json.gz` の両方を読む(ネット不使用)。"""
+    import gzip
+
+    path = Path(path)
+    if path.name.endswith(".gz"):
+        with gzip.open(path, "rt", encoding="utf-8") as fh:
+            return json.load(fh)
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def day_dir(root: Path, source: str, d: _date) -> Path:
