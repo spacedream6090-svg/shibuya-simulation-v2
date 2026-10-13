@@ -41,12 +41,13 @@ DATASETS: list[dict] = [
 ]
 DATASET_BY_KEY = {d["key"]: d for d in DATASETS}
 
-USAGE_SCOPE = ("L1 パラメータ較正専用。2018-01〜2024-12 の月次で、時間帯・日種の次元が無く、"
-               "本選期間(2026年8月)の事後検証には使えない(docs/research/rw-data-acquisition.md R8)。")
+USAGE_SCOPE = ("検証専用(holdout・較正には使わない=パターン台帳 §10)。2018-01〜2024-12 の月次。性別の 2 表に"
+               "時間帯 24 区分(5〜28 時)があり、日種(平日/休日)の次元は無い。本選期間(2026年8月)の事後検証には"
+               "使えない(docs/research/rw-data-acquisition.md R8)。開封済み kddi_la と同じ元=独立でない(照合用・第333)。")
 
 CAVEATS = [
-    "月次合計人数(千人単位に丸め)。時間帯別・平日休日別の次元は無い。",
-    "2018年1月〜2024年12月で系列が終わる。2026年8月の検証には使えない(L1較正専用)。",
+    "月次合計人数(千人単位に丸め)。性別の 2 表(taizai_sex・tsuko_sex)だけ時間帯 24 区分がある。平日休日別の次元は無い(第333 訂正)。",
+    "2018年1月〜2024年12月で系列が終わる。2026年8月の検証には使えない(検証専用・較正には使わない)。",
     "auスマートフォンユーザーのうち個別同意を得たユーザーの集計値であり、実人口ではない。",
     "CSV は UTF-8 BOM 付き。BOM は読み込み時に除去しているが値そのものは無加工。",
 ]
@@ -113,6 +114,30 @@ def parse_csv(text: str) -> tuple[list[dict], list[str], int]:
     return out, header, n_missing
 
 
+#: 〔第333・R-114〕開封済みの層(事前登録 v1.3 で 2018〜2024 を開けた)に入れてよい最後の年。
+#: 区が同じデータセットに 2025 年以降の行を足した場合、再取得(--force)でその行が同じ層に混ざると、
+#: 封印すべき K5(時刻別滞在人口の 2025 年以降=検証専用・パターン台帳 §10-1)が開封済みの層に入ってしまう。
+#: そこで年がこれより後の行は別の層 ``shibuya_jinryu_k5`` に分けて書き、本層には入れない(値は読まない)。
+OPENED_LAYER_MAX_YEAR = 2024
+K5_SOURCE = "shibuya_jinryu_k5"
+
+
+def _year_of(rec: dict) -> int | None:
+    raw = str(rec.get("年", "")).strip()
+    digits = "".join(ch for ch in raw if ch.isdigit())
+    return int(digits[:4]) if len(digits) >= 4 else None
+
+
+def split_k5(records: list[dict], max_year: int = OPENED_LAYER_MAX_YEAR) -> tuple[list[dict], list[dict]]:
+    """戻り値 = (本層に入れる行(年 <= max_year か年が読めない行), K5 の候補(年 > max_year))。"""
+    keep: list[dict] = []
+    k5: list[dict] = []
+    for rec in records:
+        y = _year_of(rec)
+        (k5 if (y is not None and y > max_year) else keep).append(rec)
+    return keep, k5
+
+
 def summarize(records: list[dict], header: list[str]) -> dict:
     """空間・時間のカバレッジ要約(較正で最初に見る数字)。"""
     names = sorted({r.get("名称", "") for r in records if r.get("名称")})
@@ -149,21 +174,34 @@ def fetch_one(root: Path, ds: dict, d: _date, *, timeout: float = 60.0, retries:
         return None, [ledger.make_entry(
             SOURCE, ds["key"], ok=False, http_status=res.status, date_jst=d.isoformat(),
             error=f"parse: {exc}", path=str(raw))]
+    records, k5_rows = split_k5(records)
+    k5_path = None
+    if k5_rows:
+        # 〔第333・R-114〕2025 年以降の行は別の層へ(封印=値は読まない)。生 CSV も混ざるので本層には保存しない。
+        k5_meta = common.build_meta(
+            K5_SOURCE, module="shibuya_jinryu.py", urls=[url], n_records=len(k5_rows), n_missing=0,
+            caveats=CAVEATS + ["K5(時刻別滞在人口の 2025 年以降)の候補。検証専用・封印=構築と較正で読まない。"],
+            notes=[f"同じデータセットの年 > {OPENED_LAYER_MAX_YEAR} の行だけ。本層(shibuya_jinryu)には入れていない。"],
+            extra={"dataset": ds, "fetch_date_jst": d.isoformat(), "max_year_opened": OPENED_LAYER_MAX_YEAR})
+        k5_path = common.day_dir(root, K5_SOURCE, d) / f"{ds['key']}.json"
+        common.write_json(k5_path, {"_meta": k5_meta, "data": k5_rows})
     meta = common.build_meta(
         SOURCE, module="shibuya_jinryu.py", urls=[url], n_records=len(records),
         n_missing=n_missing, caveats=CAVEATS,
-        notes=["月次データにつき期間中1回の取得で足りる(既取得なら --force なしではスキップ)。"],
+        notes=["月次データにつき期間中1回の取得で足りる(既取得なら --force なしではスキップ)。",
+               f"年 > {OPENED_LAYER_MAX_YEAR} の行は shibuya_jinryu_k5 へ分けた(件数は k5_rows_split)。"],
         extra={"dataset": ds, "usage_scope": USAGE_SCOPE,
-               "summary": summarize(records, header), "fetch_date_jst": d.isoformat()})
+               "summary": summarize(records, header), "fetch_date_jst": d.isoformat(),
+               "k5_rows_split": len(k5_rows), "k5_path": (str(k5_path) if k5_path else None)})
     doc = {"_meta": meta, "data": records}
     path = out_path(root, ds["key"], d)
     common.write_json(path, doc)
-    if save_raw:
+    if save_raw and not k5_rows:
         common.write_bytes(path.with_suffix(".csv"), res.body or b"")
     return doc, [ledger.make_entry(
         SOURCE, ds["key"], ok=True, http_status=200, n_records=len(records),
         n_missing=n_missing, path=str(path), date_jst=d.isoformat(),
-        extra={"complete": True})]
+        extra={"complete": True, "k5_rows_split": len(k5_rows)})]
 
 
 def fetch_all(root: Path, d: _date, *, datasets=None, timeout: float = 60.0, retries: int = 2,

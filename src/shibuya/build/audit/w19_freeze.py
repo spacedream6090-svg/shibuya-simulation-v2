@@ -29,7 +29,7 @@ from ..geo import w0_crs, w1_walk_graph, w4_heights, w5_entrances, w6_poi_org, w
 from ..pop import w16_population
 
 STAGE = "W19"
-STAGE_VERSION = "1.0.0"
+STAGE_VERSION = "1.0.0"  # 〔第333〕層の元の表(layer_independence)を notes に足した。資産の作り直しは版上げ 2 回目で
 
 #: 封印方式(運用設計書 §1.2: D=ダイジェスト/S=層別/P=第三者)。
 SEAL_SCHEME = "S"
@@ -44,6 +44,66 @@ HOLDOUT_LAYERS: tuple[tuple[str, tuple[str, ...]], ...] = (
 )
 #: 静的ゲートで探す語(= holdout 層名。本モジュールは検査対象から外す)。
 HOLDOUT_TOKENS: tuple[str, ...] = tuple(name for name, _ in HOLDOUT_LAYERS)
+
+#: 〔第333・回答 10-13b §1 1-2〕**層の元**(データセットの系)。holdout 層と構築の入力が同じ元を持つかを機械で照らす
+#: 表。名前の静的ゲート(``scan_build_sources``)は層の**名前**しか探さないので、同じ元を別のファイル名で読む形
+#: (``boundary_counts`` と W12 の大都市交通センサス)は捕まえない(仕分け C X1・X2)。元は「提供元/データセット」の語で
+#: 書き、ファイル名ではなく系で合わせる。
+SOURCE_FAMILIES: dict[str, str] = {
+    # 渋谷区オープンデータの KDDI Location Analyzer(滞在人口・通過人口)。kddi_la は事前登録 v1.3 で開封済み。
+    "kddi_la": "kddi_location_analyzer/shibuya_city_opendata",
+    # 同じ区のオープンデータの 6 層(5 表)=kddi_la と列名・行数が一致(月次・日の欄なし)。
+    "shibuya_jinryu": "kddi_location_analyzer/shibuya_city_opendata",
+    # 大都市交通センサス(station_flow/time_dist/transfer)+ODPT 乗降人員=W12 の構築の入力と同じ系。
+    "boundary_counts": "transport_census_12+odpt_passenger_survey",
+}
+#: 構築の入力の元(系 → その系から読む入力。W12 の定数から組む=手書きの重複を避ける)。
+BUILD_INPUT_FAMILIES: dict[str, tuple[str, ...]] = {
+    "transport_census_12+odpt_passenger_survey": tuple(
+        "/".join(getattr(w12_external_nodes, c))
+        for c in ("STATION_FLOW", "TIME_DIST", "TRANSFER", "PASSENGER_SURVEY")
+        if getattr(w12_external_nodes, c, None)
+    ),
+}
+#: 開封済みの層(事前登録で 1 回開けた。値は読まないが「独立」ではない)。
+OPENED_LAYERS: dict[str, str] = {
+    "kddi_la": "事前登録 v1.3(c7-day-4・3 seed・0/4)で開封済み=docs/bench/c7",
+}
+
+
+def layer_independence() -> list[dict[str, Any]]:
+    """holdout 層ごとに「元」「構築の入力と同じ元か」「独立か」「印」を返す(値は読まない・表だけ)。
+
+    独立でない層は一覧から消さず「照合用」の印を付ける(回答 10-13b §1 1-2=一覧の変更はユーザー承認)。
+    """
+    out: list[dict[str, Any]] = []
+    families_of_opened = {SOURCE_FAMILIES[n] for n in OPENED_LAYERS if n in SOURCE_FAMILIES}
+    for name, _members in HOLDOUT_LAYERS:
+        fam = SOURCE_FAMILIES.get(name)
+        shares_build = fam in BUILD_INPUT_FAMILIES
+        same_as_opened = (name not in OPENED_LAYERS) and (fam in families_of_opened)
+        opened = name in OPENED_LAYERS
+        independent = (fam is not None) and not shares_build and not same_as_opened and not opened
+        reasons: list[str] = []
+        if fam is None:
+            reasons.append("元が未登録(SOURCE_FAMILIES に足す)")
+        if shares_build:
+            reasons.append("構築の入力と同じ元: " + ", ".join(BUILD_INPUT_FAMILIES[fam]))
+        if same_as_opened:
+            reasons.append("開封済みの層と同じ元: " + ", ".join(sorted(n for n in OPENED_LAYERS if SOURCE_FAMILIES.get(n) == fam)))
+        if opened:
+            reasons.append(OPENED_LAYERS[name])
+        out.append({
+            "name": name,
+            "source_family": fam,
+            "shares_build_input": shares_build,
+            "same_family_as_opened": same_as_opened,
+            "opened": opened,
+            "independent": independent,
+            "mark": "独立" if independent else "照合用(独立でない)",
+            "reasons": reasons,
+        })
+    return out
 #: 本モジュールのファイル名(自己 HIT を避ける)。
 SELF_NAME = "w19_freeze.py"
 
@@ -155,6 +215,12 @@ def run(ctx: C.Ctx) -> C.StageResult:
 
     build_root = Path(__file__).resolve().parents[1]
     hits = scan_build_sources(build_root)
+    independence = layer_independence()
+    for lyr in layers:
+        row = next(r for r in independence if r["name"] == lyr["name"])
+        lyr["source_family"] = row["source_family"]
+        lyr["independent"] = row["independent"]
+        lyr["mark"] = row["mark"]
 
     # --- W0..W18 の出力ダイジェスト(最終 build_hash は build.run が全段階で組む)---
     stage_digests: list[dict[str, Any]] = []
@@ -181,6 +247,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
         "data_assets": assets,
         "data_assets_missing": missing,
         "holdout_seal": {"seal_scheme": SEAL_SCHEME, "layers": layers},
+        "layer_independence": independence,
         "stage_digests": stage_digests,
         "partial_build_hash_w0_w18": partial,
     }
@@ -189,6 +256,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
         "seal_scheme": SEAL_SCHEME,
         "sealed_utc": SEALED_UTC,
         "holdout_layers": {name: list(members) for name, members in HOLDOUT_LAYERS},
+        "source_families": dict(SOURCE_FAMILIES),
         "sealed_utc_note": "実行時刻を使わない(§0-1 決定論・T1 再構築一致のため固定パラメータ)",
     }
     res = C.StageResult(
@@ -216,6 +284,9 @@ def run(ctx: C.Ctx) -> C.StageResult:
                         "n_members": len(lyr["members"]),
                         "sealed_utc": lyr["sealed_utc"],
                         "opened": lyr["opened"],
+                        "source_family": lyr["source_family"],
+                        "independent": lyr["independent"],
+                        "mark": lyr["mark"],
                     }
                     for lyr in layers
                 ],

@@ -151,7 +151,7 @@
 | **M17 の形** | 潜在的な親しみを店選びにどう掛けるか | α(走査順 rank′=rank−β·A)+候補入り確率(ACT-R の想起確率・s=0.25 宣言)・2 閾値。値は宣言+感度腕 | [記憶アジェンダ M17](v2-memory-agenda.md) |
 | **Q53**(M17 補) | 親しみの表で露出と訪問の行を分けるか | 分けない。追い出しは露出だけの行を先に落とす(訪問の行を守る) | [記録 §5c-2](../bench/analysis/energy-classical-2026-09-28/README.md) |
 | **W10 対応表 ON** | 道路名突合を騒音場に適用するか(いまは対応表を生成するだけ) | ON+W10 の絞り込み Q7 を「次に checkpoint を動かす commit」に束ねる(較正残差は動かない・15 腕の checkpoint が動く)〔第311 訂正: W10 の Q9 は Q7 の後で何も変えないので不要・物差し W10 の Q6 を同時に作る=ユーザー決定 09-30〕 | [W10 の記録](../bench/analysis/w10-roadnames-2026-09-28/README.md) |
-| **Q123**(D-115 ③) | 事前登録 v2 の H5(属性構成)の定義 | KDDI の定義どおりの腕(エリア単位+滞在 30 分+20 歳未満除外)を定義にし、kind は継続の記録。平日の日次(`shibuya_jinryu`)で比べる | [記録 §9b-3](../bench/analysis/presence-shape-2026-09-29/README.md)・[R-56](../research/v2-r56-kddi-attribute-definition-check.md) |
+| **Q123**(D-115 ③) | 事前登録 v2 の H5(属性構成)の定義 | KDDI の定義どおりの腕(エリア単位+滞在 30 分+20 歳未満除外)を定義にし、kind は継続の記録。平日の日次(`shibuya_jinryu`)で比べる〔訂正(第333)=`shibuya_jinryu` は月次で日の欄が無く、開封済み `kddi_la` と同じ元。test は [回答 10-13b](v2-answers-2026-10-13b.md) §1 1-2 の K5+D1b に〕 | [記録 §9b-3](../bench/analysis/presence-shape-2026-09-29/README.md)・[R-56](../research/v2-r56-kddi-attribute-definition-check.md) |
 
 ### 3-2 実装の分岐(一言で決まる)
 
