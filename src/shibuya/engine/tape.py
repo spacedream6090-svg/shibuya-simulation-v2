@@ -51,6 +51,11 @@ D-58「テープ繰り延べ行」(2026-09-10・自前規約は実装計画書 �
     いる(版 4 で確かめた・列は足さない)。旧テープ(版1〜3)は「日=0」として読める(T = 日の中の tick)。
     新しい 7 列は既定値(空の list・空文字)で埋める。B5・B6 は ``prompt_hash`` の材料なので、``prompt_hash`` の鍵は不変。
 
+**腕の列**(第 1 期 1-6 M0・版 4 の中=回答 10-13b §3 1-6)= 腕を立てたランだけ末尾に足す列(``ARM_COLUMNS``・
+``TapeWriter.arm_columns``)。既定のランは足さない(列は版 4 の 21 列のまま)。列の無いテープを読むときは空で埋める。
+      recalled_event_ids(list<string>): ``recalled_rows`` と同じ並びの、見せた記憶の行の目印 ``"t_ns:seq"``
+          (記憶の器 ``engine.memory_store``・腕 ``--memory-store events``・器の外の行は空文字)。
+
 逐次ループ宣言(P4)
 - ``TapeWriter.append`` / ``flush``: 1呼ごとの Python 呼び出しと、バッファ行数ぶんの
   列組み立てループ(LLM 呼び出し自体が 1件/呼で、1呼=数十〜数百 ms のため律速にならない)。
@@ -68,7 +73,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable, Iterator, Mapping
+from types import MappingProxyType
+from typing import Any, Callable, Iterable, Iterator, Mapping
 
 import json
 
@@ -98,6 +104,7 @@ __all__ = [
     "block_id_for",
     "tape_v4_fields",
     "CALLS_SCHEMA_V4_DEFAULTS",
+    "ARM_COLUMNS",
 ]
 
 CALLS_FILENAME = "calls.parquet"
@@ -184,6 +191,13 @@ CALLS_SCHEMA_V4_DEFAULTS: Mapping[str, Any] = {
     "b5_text": "",
     "b6_block_id": "",
 }
+#: 〔第 1 期 1-6 M0〕腕の列(版 4 の中で足す=回答 10-13b §3 1-6)。**腕を立てたランだけ** ``calls.parquet`` の末尾に足す
+#: (既定のランの列は版 4 の 21 列のまま=byte-check の ``calls_column_names`` は動かない)。名 → (Arrow の欄, 列の無い
+#: テープを読むときの値)。``recalled_event_ids``: ``recalled_rows`` と同じ並びの、見せた記憶の行の目印 ``"t_ns:seq"``
+#: (記憶の器の外の行=店の評価の行は空文字・``engine.memory_store``・腕 ``--memory-store events``)。
+ARM_COLUMNS: Mapping[str, tuple[Any, Any]] = MappingProxyType({
+    "recalled_event_ids": (pa.field("recalled_event_ids", pa.list_(pa.string()), nullable=False), ()),
+})
 
 BLOCKS_SCHEMA = pa.schema(
     [
@@ -323,10 +337,27 @@ class TapeWriter:
     _writer: pq.ParquetWriter | None = field(default=None, init=False, repr=False)
     _n_written: int = field(default=0, init=False, repr=False)
     _n_deferred: int = field(default=0, init=False, repr=False)
+    #: 〔第 1 期 1-6 M0〕腕の列の値を作る口(名 → 行 → 値・名は ``ARM_COLUMNS`` の中)。組み立てが最初の行の前に置く。
+    #: 空なら列を足さない(既定=版 4 の 21 列のまま)。値は ``append`` のときに作る(行と同じ順)。
+    arm_columns: dict[str, Callable[[TapeRow], Any]] = field(default_factory=dict)
+    _arm_values: list[tuple[Any, ...]] = field(default_factory=list, init=False, repr=False)
 
     def __post_init__(self) -> None:
         self.path = Path(self.path)
         self.path.mkdir(parents=True, exist_ok=True)
+
+    def _arm_names(self) -> list[str]:
+        bad = sorted(n for n in self.arm_columns if n not in ARM_COLUMNS)
+        if bad:
+            raise ValueError(f"テープの腕の列は {tuple(ARM_COLUMNS)} の中だけ(いま {bad})")
+        return [n for n in ARM_COLUMNS if n in self.arm_columns]
+
+    def calls_schema(self) -> pa.Schema:
+        """このテープの ``calls.parquet`` のスキーマ(腕の列を立てたランだけ末尾に足す・版の印は ``shibuya.tape/4`` のまま)。"""
+        names = self._arm_names()
+        if not names:
+            return CALLS_SCHEMA
+        return pa.schema(list(CALLS_SCHEMA) + [ARM_COLUMNS[n][0] for n in names], metadata=CALLS_SCHEMA.metadata)
 
     # ---- ブロック intern ----
     def intern_block(self, text: str, tokens: int = -1) -> str:
@@ -354,6 +385,8 @@ class TapeWriter:
     def append(self, row: TapeRow) -> None:
         """1呼を追加する(応答行でも**繰り延べ行**でも同じ口)。"""
         self._rows.append(row)
+        if self.arm_columns:  # 1-6 M0: 腕の列の値(行と同じ順)
+            self._arm_values.append(tuple(self.arm_columns[n](row) for n in self._arm_names()))
         if row.deferred:
             self._n_deferred += 1
         if len(self._rows) >= self.flush_rows:
@@ -367,8 +400,7 @@ class TapeWriter:
         """バッファを Parquet へ書き出す。"""
         if not self._rows:
             return
-        table = pa.Table.from_pydict(
-            {
+        cols: dict[str, list[Any]] = {
                 "call_id": [r.call_id for r in self._rows],
                 "agent_id": [int(r.agent_id) for r in self._rows],
                 "tick": [int(r.tick) for r in self._rows],
@@ -392,16 +424,19 @@ class TapeWriter:
                 "acquaintance_ids": [[int(x) for x in getattr(r, "acquaintance_ids", ())] for r in self._rows],
                 "b5_text": [str(getattr(r, "b5_text", "")) for r in self._rows],
                 "b6_block_id": [str(getattr(r, "b6_block_id", "")) for r in self._rows],
-            },
-            schema=CALLS_SCHEMA,
-        )
+        }
+        schema = self.calls_schema()
+        for j, name in enumerate(self._arm_names()):  # 1-6 M0: 腕の列(立てたランだけ・列の数ぶん)
+            cols[name] = [list(v[j]) for v in self._arm_values]
+        table = pa.Table.from_pydict(cols, schema=schema)
         if self._writer is None:
             self._writer = pq.ParquetWriter(
-                self.path / CALLS_FILENAME, CALLS_SCHEMA, compression=TAPE_COMPRESSION
+                self.path / CALLS_FILENAME, schema, compression=TAPE_COMPRESSION
             )
         self._writer.write_table(table)
         self._n_written += len(self._rows)
         self._rows.clear()
+        self._arm_values.clear()
 
     def close(self) -> None:
         """バッファを吐き、ブロック表を書いて閉じる。"""
@@ -411,7 +446,7 @@ class TapeWriter:
             self._writer = None
         elif not (self.path / CALLS_FILENAME).exists():
             pq.write_table(
-                CALLS_SCHEMA.empty_table(),
+                self.calls_schema().empty_table(),
                 self.path / CALLS_FILENAME,
                 compression=TAPE_COMPRESSION,
             )
@@ -501,6 +536,9 @@ class Tape:
         if name in CALLS_SCHEMA_V4_DEFAULTS:  # 10e(E5): 旧テープ(版1〜3)は空で読む
             d = CALLS_SCHEMA_V4_DEFAULTS[name]
             return [list(d) if isinstance(d, list) else d for _ in range(self.calls.num_rows)]
+        if name in ARM_COLUMNS:  # 1-6 M0: 腕の列の無いテープ(既定のラン)は空で読む
+            d = ARM_COLUMNS[name][1]
+            return [list(d) if isinstance(d, (list, tuple)) else d for _ in range(self.calls.num_rows)]
         return [CALLS_SCHEMA_V2_DEFAULTS[name]] * self.calls.num_rows
 
     def rows(self) -> Iterator[TapeRow]:

@@ -1254,6 +1254,15 @@ def main(argv: list[str] | None = None) -> int:
         help="第 1 期 1-3: 出来事の記録(既定 on)。off で記録しない(環境変数 SHIBUYA_EVENTS=off と同じ)。"
              "記録は結果を変えないので設定の指紋には入らない(manifest の日次の記録 events.on に出る)",
     )
+    ap.add_argument(
+        "--memory-store",
+        choices=("mem", "events"),
+        default=None,
+        help="第 1 期 1-6 記憶の器 M0 の腕(既定 mem=今の記憶の表だけ・環境変数 SHIBUYA_MEMORY_STORE と同じ。指定すれば"
+             "環境変数より強い)。events で --memory on のランに記憶の器(出来事の記録への目印)を作り、想起を器から引き、"
+             "テープに列 recalled_event_ids を足す。器は結果を変えないので設定の指紋には入らない"
+             "(manifest の memory_summary.memory_store に出る)",
+    )
     # --llm / --endpoints / --model / --mode / --run-id / --tape / --temperature /
     # --max-tokens / --fleet-wait-s(C6-a)
     add_fleet_args(ap)
@@ -1282,6 +1291,10 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine.events import log as _events_log
 
         _events_log.set_enabled(str(args.events) == "on")
+    if args.memory_store is not None:  # 第 1 期 1-6: 記憶の器の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine import memory_store as _memory_store
+
+        _memory_store.set_arm(str(args.memory_store))
     res = run(  # 第 1 期 1-4(検収 M2): ランの種類は run が決める(試験 > CLI の既定と違う腕 > 再現)
         n_agents=args.agents,
         seed=args.seed,

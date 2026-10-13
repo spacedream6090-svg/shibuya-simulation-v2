@@ -13,6 +13,11 @@
 書きは段 B(試験)と、段 C と同じ実行時の検査(``guard.events_write_allowed``)が落とす。凍結の表は
 ``tests/engine/events/writes_paths_events.json``。
 
+〔第 1 期 1-6〕記憶の器(状態台帳の行 ``M0``・``M0R``・腕 ``--memory-store events`` のランだけ)を書く系: memory(``M0*``=
+その刻みの出来事と計数)・decide と llm_receive(``M0*``=発話の記憶・想起の計数・見せた行の録画・テープの列の控え)・drain
+(``M0R``=艦隊の残りの呼のテープの列)。宣言の外の書きは段 B と、器の口の実行時の検査
+(``engine.memory_store`` の ``_check_permit``=出来事の記録と同じ形)が落とす。
+
 〔親の決め〕世界過程が持ち主をまたいで書く所(鉄道と大きな催しが計画実行層の O36・O37・O70 と鉄道の O74 を書く)は
 1-0 では宣言で認める(``world`` の ``writes.paths``)。
 
@@ -97,7 +102,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          resolve_ops="write_memory write_store_memory",
          paths="O43:run_day.* O44:run_day.* O96:run_day.* O39:conv.* O40:conv.* O41:conv.* O91:conv.* "
                "O8:mem_layer.* O9:mem_layer.* O1[01]:mem_layer.* O12:mem_layer.* O15:wom.* O8[89]:fleet_bridge.* "
-               "O87:bridge.* O62:undefined.* O8[23]:undefined.*",
+               "O87:bridge.* O62:undefined.* O8[23]:undefined.* "
+               "M0*:mem_layer.memory_store.*",  # 1-6: 記憶の器(会話の発話の記憶・テープの列の控え)
          scratch_w="n_parse_errors_fleet", calls_llm="receive",
          tally="phase", reads="cfg.fleet_wait_s cfg.response_delay cfg.store_wom_on cfg.tick_seconds "
                "cfg.vocab_version layers.conv layers.fleet_bridge layers.mem_layer layers.wom "
@@ -185,7 +191,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "O8:mem_layer.* O9:mem_layer.* O1[01]:mem_layer.* O12:mem_layer.* O15:wom.* O17:rel_layer.* "
                "O19:rel_layer.* O2[0-4]:classical.* O69:classical.* O90:classical.* O6[34]:renderer.* O84:renderer.* "
                "O85:bridge.* O86:bridge.* O87:bridge.* O8[89]:fleet_bridge.* O62:undefined.* O8[23]:undefined.* "
-               "O35:presence.* O70:presence.*",
+               "O35:presence.* O70:presence.* "
+               "M0*:mem_layer.memory_store.*",  # 1-6: 記憶の器(想起の計数・見せた行の録画・発話の記憶・テープの列)
          scratch_r="decision outside_now n_parse_errors_fleet", scratch_w="parse_errors",
          tally="calls_by_cond layer_counts n_fleet_resent n_outside_calls peak_backlog peak_pending phase result",
          calls_llm="send", reads="cfg.call_layer cfg.lane cfg.refractory_table cfg.store_wom_on cfg.tick_seconds "
@@ -239,7 +246,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
     make("memory", "記憶", "tick", _RM.sys_memory,
          resolve_ops="write_memory write_relations write_store_memory",
          paths="O[89]:mem_layer.* O1[0-2]:mem_layer.* O1[6-9]:rel_layer.* O64:renderer.* O1[34]:poi_resolver.* "
-               "O68:poi_resolver.* O15:wom.*",
+               "O68:poi_resolver.* O15:wom.* "
+               "M0*:mem_layer.memory_store.*",  # 1-6: 記憶の器(この刻みの出来事を器にも覚えさせる・計数と新しい行の録画の印)
          scratch_r="plan outcome", scratch_w="exposures", reads="layers.conv layers.fam_layer layers.mem_layer layers.renderer layers.runner "
                "scratch.exposures scratch.outcome scratch.plan soa.agents",
          origin=f"L20 前半・run.py:4369-4393 @{_E}"),
@@ -294,7 +302,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          origin=f"L24・run.py:4497-4500 @{_E}"),
     # ================================================================ ランの終わり
     make("drain", "判断", "run_end", _RE.sys_drain,
-         paths="O43:run_day.* O44:run_day.* O96:run_day.* O8[89]:fleet_bridge.* O87:bridge.*",
+         paths="O43:run_day.* O44:run_day.* O96:run_day.* O8[89]:fleet_bridge.* O87:bridge.* "
+               "M0R:mem_layer.memory_store.*",  # 1-6: 艦隊の残りの呼のテープの行=記憶の器の録画の控えを取り出す
          tally="result state_files", calls_llm="drain", reads="cfg.fp cfg.parent_run cfg.run_id cfg.sim_days cfg.state_out cfg.t_end "
                "cfg.tick_seconds cfg.total_ticks cfg.tpd fx.env_fields fx.schedule fx.schedule_hash "
                "layers.act_layer layers.arbiter layers.bridge layers.classical layers.conv "

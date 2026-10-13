@@ -1,6 +1,6 @@
 """状態台帳の宣言(10b・A3「挙動」と「復元」の 2 軸・機械可読の 1 ファイル)。
 
-**読み口は 1 つ**: ``LEDGER``(188 行の組=〔第 1 期 1-3〕出来事の記録の行 ``E`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
+**読み口は 1 つ**: ``LEDGER``(190 行の組=〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
 ``soa_rows``・``external_rows``・``behavior_excluded``・``full_excluded``・``full_items``・``behavior_items``)。表・AST の検査(``engine.state_ledger_ast``)・
 2 つのハッシュ(``engine.state_hashes``)・揺らし試験はどれもこの表から作る。
 
@@ -56,6 +56,8 @@ from typing import Final, Iterable
 #: 〔第 1 期 1-3〕出来事の記録の行 ``E``(軸 1 diag・軸 2 discardable)を足したが版は上げない(仮採用): この行は
 #: behavior-hash・full-hash・状態のファイル(``full_items``)のどれにも入らず、上げると manifest の
 #: ``state_hashes.ledger_version`` の値が動き、前の版で書いた状態のファイルから再開できなくなる(どちらも中身は同じ)。
+#: 〔第 1 期 1-6〕記憶の器の行 ``M0``(軸 1 no・軸 2 derivable・中身は全部 hash_skip)と ``M0R``(diag・discardable)を
+#: 足したが版は上げない(1-3 と同じ仮採用): どちらのハッシュにも状態のファイルにも入らない(190 行)。
 LEDGER_VERSION: Final[str] = "state-ledger/10e-ret"
 
 BEHAVIOR: Final[str] = "behavior"
@@ -293,6 +295,11 @@ def _o(n: int, name: str, where: str, dtype: str, behavior: str, restore: str, i
                      items=tuple(items), hash_skip=tuple(skip), note=note, ordered=ordered,
                      multiset=tuple(multiset))
 
+
+#: 〔第 1 期 1-6〕記憶の器 M0 の行 M0 の道筋(記憶の行の列・仮の出来事の表・注釈)。
+_M0_ITEMS: Final[tuple[str, ...]] = tuple(f"mem_layer.memory_store.{a}" for a in (
+    "_ms_ev_t_ns", "_ms_ev_seq", "_ms_n", "_ms_imp", "_ms_first_ns", "_ms_origin",
+    "_lg_kind", "_lg_partner", "_lg_object", "_lg_result", "_lg_cell", "_ms_note", "_ms_note_order"))
 
 _EXT: tuple[LedgerRow, ...] = (
     _o(1, "ActivityLayer text・until_kind", "activity.py:178-179", "list[str]・配列(体数)", B, R_,
@@ -607,8 +614,9 @@ _EXT: tuple[LedgerRow, ...] = (
            "n_dictionary_mapped", "n_unknown_action", "n_undefined_mapped", "n_role_actions", "n_tape_misses",
            "n_deferred", "n_tape_rows"))),
     _o(87, "TapeWriter の書き出し待ちの行と計数", "engine/tape.py", "list・計数", N_, X_,
-       ("bridge.tape._rows", "bridge.tape._blocks", "bridge.tape._n_written", "bridge.tape._n_deferred"),
-       note="テープはファイルに出る(O65)"),
+       ("bridge.tape._rows", "bridge.tape._blocks", "bridge.tape._n_written", "bridge.tape._n_deferred",
+        "bridge.tape._arm_values"),
+       note="テープはファイルに出る(O65)。〔第 1 期 1-6 M0〕_arm_values=腕の列の書き出し待ちの値(_rows と同じ並び)"),
     _o(88, "FleetBridge _interned", "llm/fleet.py", "set", N_, R_, ("fleet_bridge._interned",),
        note="LLMBridge._interned と同じ(10d: required)"),
     _o(89, "FleetBridge の計数", "llm/fleet.py", "計数", D_, X_,
@@ -667,6 +675,27 @@ _EXT: tuple[LedgerRow, ...] = (
              "(再開のランは空から書く=どちらのハッシュにも状態のファイルにも入らない=記録の有無で final・behavior-hash は"
              "不変)。id は (t_ns, seq) なので刻みの境目からの再開でも通しのランと同じ id。行の鍵は O の通し番号でなく "
              "E(系の宣言は E:events.*)。書く系は world・checkpoint・day_close・close_final"),
+    # ---- 第 1 期 1-6(記憶の器 M0・MR11 (b)・MR16・腕 --memory-store events): 足す前に軸を決めた行 ----
+    LedgerRow(
+        key="M0", name="MemoryStore(記憶の器 M0・第 1 期 1-6)の行・仮の出来事の表・注釈", place=EXTERNAL,
+        dtype="列(SoA 風・行 32 B+仮の出来事 14 B)・注釈の dict", nbytes="", alloc="", behavior=NO,
+        restore=DERIVABLE, dead=False,
+        basis="engine/memory_store.py(MemoryStore)・engine/memory.py(_write・_recall_from_store・rebuild_memory_store)",
+        items=_M0_ITEMS, hash_skip=_M0_ITEMS,
+        note="1-6: 腕のランだけ確保(既定は持ち主が None)。M0 の器は記憶の表 mem_*(behavior・required)と要旨 O8 の"
+             "写し(同じ出来事を同じ行に書く=_write が行の食い違いを落とす・行は全部が出どころ legacy)=軸 1 no(派生と"
+             "宣言=想起の中身は mem_* と O8 と同じ値で既に behavior-hash に入っている)・軸 2 derivable(再開では"
+             "rebuild_memory_store が戻した mem_* と O8 から作り直す)・中身は hash_skip(作り直せる表=キャッシュと同じ扱い"
+             "=どちらのハッシュにも状態のファイルにも入らない=腕を足しても既定の final は不変)。M1 で器を既定の記憶に"
+             "する(mem_* を消す)ときに behavior・required へ移す(版上げ)。書く系は decide・llm_receive・memory・drain"
+             "(宣言 M0*:mem_layer.memory_store.*)"),
+    LedgerRow(
+        key="M0R", name="MemoryStore の録画(見せた時刻)・テープの列への控え・計数(第 1 期 1-6)", place=EXTERNAL,
+        dtype="列(8 B/行)・dict・Counter", nbytes="", alloc="", behavior=DIAG, restore=DISCARDABLE, dead=False,
+        basis="engine/memory_store.py(mark_shown・take_shown・recall の計数・summary)",
+        items=tuple(f"mem_layer.memory_store.{a}" for a in ("_ms_shown_ns", "_ms_tape", "_ms_stats", "_ms_last")),
+        note="1-6: 録画(MR16)は診断=読み手はテープの列 recalled_event_ids と manifest の計器だけ(挙動は読まない)・"
+             "再開のランは空から(捨ててよい)"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -738,6 +767,8 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "fam_layer": ("engine/familiarity.py", "FamiliarityLayer"),
     "mem_layer": ("engine/memory.py", "MemoryLayer"),
     "mem_layer.store": ("engine/store_memory.py", "StoreMemory"),
+    # 第 1 期 1-6: 記憶の器 M0(状態台帳の行 M0・M0R・腕 --memory-store events のランだけ)
+    "mem_layer.memory_store": ("engine/memory_store.py", "MemoryStore"),
     "poi_resolver": ("engine/poi_target.py", "TargetResolver"),
     "poi_resolver.store_choice": ("engine/store_choice.py", "StoreChoice"),
     "poi_resolver.chooser": ("engine/chooser.py", "ClassicalChooser"),
@@ -836,6 +867,9 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("mem_layer.store", CONST, _CFG, "n", "n_rows", "minutes_per_tick", "d", "sigma", "decay", "weight",
        "signage"),
     _x("mem_layer.store", CACHE, _TAB, "poi_cell"),
+    # 第 1 期 1-6: 記憶の器 M0 の設定(今の表と同じ定数・テープに列を足すランかの印=組み立てが 1 回だけ置く)
+    _x("mem_layer.memory_store", CONST, _CFG, "n", "n_rows", "ns_per_step", "minutes_per_step", "d", "w_r", "w_i",
+       "tau", "tape_on"),
     _x("mem_layer.store", REF, "店の選び手の口(関数)", "visit_hook"),
     _x("poi_resolver", CACHE, _TAB, "_cat", "_sub", "_names", "_names_by_len", "_cat_words", "_cat_exact",
        "_buyable", "_by_cell", "_off", "_skip", "_cell_of_place", "_landmark"),
@@ -1001,6 +1035,7 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("bridge", REF, _REFR + "(未定義行動の台帳・再生・応答の口)", "renderer", "undefined", "replay", "client"),
     _x("bridge.tape", CONST, _CFG, "path", "flush_rows", "run_meta"),
     _x("bridge.tape", REF, "parquet の書き手(ファイル)", "_writer"),
+    _x("bridge.tape", REF, "〔第 1 期 1-6 M0〕腕の列の値を作る口(関数・組み立てが置く)", "arm_columns"),
     _x("fleet_bridge", REF, _REFR + "(艦隊・テープ・未定義行動の台帳・デバッグのファイル)", "client", "tape",
        "tape_row_factory", "undefined", "_debug_fp"),
     _x("fleet_bridge", CONST, _CFG, "vocab_version", "landmarks", "_engine_codes", "params", "source",

@@ -8,6 +8,9 @@
 6a=**記録と読み口**・**6b=想起**(:meth:`MemoryLayer.recall` → 描画の B5「記憶」行・第295)。
 D-120 7a〜7c: 店の評価の記憶(``engine.store_memory``・:meth:`MemoryLayer.enable_store`)を同じ入れ物に持ち、
 7c で想起の k の内側に店の行をエピソードと同じ score 順で競わせる(B5 の店の項・テンプレ v1.3・第298)。
+〔第 1 期 1-6 M0〕記憶の器(``engine/memory_store.py``・:meth:`MemoryLayer.enable_memory_store`・腕
+``--memory-store events``)=出来事の記録への目印・強さ・注釈・出どころ・録画の行。腕のランでは、この表に書く所で同じ
+出来事を器にも書き(:meth:`_write`)、想起を器から引く(:meth:`_recall_from_store`)。既定(腕 ``mem``)は器を作らない。
 
 表(``AgentState(memory_columns=True)`` のランだけ確保・``--memory on``)
     体ごとに N 行(:data:`MEMORY_N`=128・M2・感度 64/256)。1 行=``mem_kind`` u8(事象の種類=
@@ -257,6 +260,48 @@ class MemoryLayer:
         #: C10 8a: 関係辺(``--relations on`` のランだけ・:meth:`enable_relations`)。
         self.relations: Any = None
         self._next_join = 0
+        #: 第 1 期 1-6 M0: 記憶の器(腕 ``--memory-store events`` のランだけ・:meth:`enable_memory_store`)。
+        self.memory_store: Any = None
+
+    def enable_memory_store(self, *, step_seconds: int) -> Any:
+        """記憶の器 M0(``engine.memory_store.MemoryStore``)を持たせる(1-6・腕 ``--memory-store events``)。
+
+        器はこの表と同じ行数・同じ規則で、この表に書く所で同じ出来事を書く(:meth:`_write` が行の食い違いを落とす)。
+        想起は器から引く(:meth:`recall`)。τ は今の :attr:`tau`(組み立てが置いた後に呼ぶ)。
+        """
+        from shibuya.engine.memory_store import MemoryStore
+
+        self.memory_store = MemoryStore(
+            self.n, self.n_rows, step_seconds=int(step_seconds), minutes_per_step=self.minutes_per_tick,
+            d=self.d, w_r=self.w_r, w_i=self.w_i, tau=self.tau,
+        )
+        return self.memory_store
+
+    def on_shown(self, agent_id: int, step: int, wake_class: int, rows: Sequence[int]) -> None:
+        """描き方が B5 に載せた記憶の行の録画(1-6 M0・MR16)。``PerceptionRendererAdapter`` が 1 描画ごとに呼ぶ。"""
+        ms = self.memory_store
+        if ms is None:
+            return
+        t_ns = int(step) * ms.ns_per_step
+        ms.mark_shown(int(agent_id), tuple(int(x) for x in rows), t_ns, call=(int(agent_id), t_ns, int(wake_class)))
+
+    def tape_event_ids(self, row: Any) -> list[str]:
+        """テープの列 ``recalled_event_ids`` の値(1-6 M0)。テープの書き手が 1 行ごとに呼ぶ(行の呼び出しの鍵で引く)。"""
+        ms = self.memory_store
+        if ms is None:
+            return []
+        return list(ms.take_shown((int(row.agent_id), int(row.tick) * ms.ns_per_step, int(row.wake_class))))
+
+    def rebuild_memory_store(self, agents: Any) -> int:
+        """再開: 戻した記憶の表と要旨から器を作り直す(1-6 M0・状態台帳の行 M0=作り直せる)→ 行の数。"""
+        ms = self.memory_store
+        if ms is None:
+            return 0
+        r = agents.registry
+        got = ms.rebuild(r.mem_kind, r.mem_tick, r.mem_last, r.mem_cell, r.mem_partner, r.mem_object,
+                         r.mem_result, r.mem_importance, r.mem_n, self.gist, self._gist_order)
+        self.stats["memory_store_rebuilt_rows"] += int(got)
+        return got
 
     def enable_relations(self, k: int | None = None, *, tau: float | None = None,
                          d: float | None = None) -> Any:
@@ -323,6 +368,116 @@ class MemoryLayer:
         return order[np.isfinite(s[order])][: int(k)]
 
     # ------------------------------------------------------------------ 想起(6b)
+    def _query(self, agents: Any, i: int, inviter: int) -> tuple[int, int, int, int, int]:
+        """想起の手がかり q=(現在セル・相手・対象・直前の結果の種類・結果)(M4 (a)・6b)。体の状態を読むだけ。
+
+        相手=会話の招待者 > 会話の相手 > 人の意図の対象。対象=POI の意図 > 在席の POI > 列の POI。
+        """
+        r = agents.registry
+        f = r.field
+        q_cell = int(f("cell")[i])
+        q_partner = int(inviter) if int(inviter) >= 0 else int(f("talk_partner")[i])
+        has_intent = "intent_kind" in r
+        ik = int(f("intent_kind")[i]) if has_intent else 0
+        it = int(f("intent_target")[i]) if has_intent else -1
+        if q_partner < 0 and ik == _INTENT_PERSON:
+            q_partner = it
+        if ik in _INTENT_POI:
+            q_obj = it
+        elif int(f("poi_ref")[i]) >= 0:
+            q_obj = int(f("poi_ref")[i])
+        else:
+            q_obj = int(f("queue_poi")[i])
+        q_kind = ACTION_KIND.get(int(f("last_action")[i]), 0)
+        q_result = int(f("last_result")[i])
+        return q_cell, q_partner, q_obj, q_kind, q_result
+
+    def _shop_arrays(self, agents: Any, i: int, step: int, s_used: np.ndarray, q_obj: int,
+                     q_cell: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """7c: 店の評価の行の (POI・score・A ≥ τ・q に一致) と計数(店の行の score=A+0.5×min(4, 精度))。配列演算だけ。"""
+        from shibuya.engine.store_memory import STORE_SCORE_P_CAP, STORE_SCORE_W_P
+
+        rs = self.recall_stats
+        f = agents.registry.field
+        st = self.store
+        sA = st.activation(agents, np.asarray([i]), step)[0][s_used]
+        s_poi = f("sm_poi")[i][s_used].astype(np.int64)
+        s_prec = f("sm_precision")[i][s_used].astype(np.float64)
+        s_score = sA + STORE_SCORE_W_P * np.minimum(STORE_SCORE_P_CAP, s_prec)
+        s_live = sA >= self.tau
+        s_match = np.zeros(s_used.size, dtype=bool)
+        if q_obj >= 0:
+            s_match |= s_poi == q_obj
+        if q_cell >= 0 and st.poi_cell is not None:
+            inside = (s_poi >= 0) & (s_poi < st.poi_cell.size)
+            s_match |= inside & (st.poi_cell[np.where(inside, s_poi, 0)] == q_cell)
+        rs["store_rows_candidate"] += int(np.count_nonzero(s_match))
+        rs["store_rows_used"] += int(s_used.size)
+        rs["store_rows_used_below_tau"] += int(np.count_nonzero(~s_live))
+        return s_poi, s_score, s_live, s_match
+
+    def _recall_from_store(self, agents: Any, i: int, step: int, k: int, entrance: str, store_on: bool,
+                           s_used: np.ndarray, inviter: int) -> list[RecallItem]:
+        """1-6 M0 の腕: 想起を記憶の器から引く(手がかり q・k・計数は今の :meth:`recall` と同じ)→ 描き方の ``RecallItem``。
+
+        店の記憶 on(7c)のランは、店の評価の行(今の ``sm_*``)を器の想起の内側で同じ score の順に競わせる。逐次ループ
+        宣言: 返した行の数ぶん(≤ k)。
+        """
+        from shibuya.engine.memory_store import CLARITY_WORDS, GRAIN_WORDS, Cue, MemoryView, ShopPool, to_item
+
+        rs = self.recall_stats
+        ms = self.memory_store
+        if not ms.has_rows(i) and s_used.size == 0:
+            rs["calls_empty_table"] += 1
+            return []
+        q_cell, q_partner, q_obj, q_kind, q_result = self._query(agents, i, inviter)
+        pool = None
+        if store_on:
+            st = self.store
+            f = agents.registry.field
+            s_poi, s_score, s_live, s_match = self._shop_arrays(agents, i, step, s_used, q_obj, q_cell)
+            sign_box: list[np.ndarray] = []
+            ns = ms.ns_per_step
+
+            def shop_view(j: int) -> MemoryView:
+                if not sign_box:  # 店の行を選んだときだけ向きを読む(今の 7c と同じ値)
+                    sign_box.append(np.sign(st.valence_now(agents, np.asarray([i]), step)[0]).astype(np.int64))
+                row = int(s_used[j])
+                pc = (int(st.poi_cell[s_poi[j]]) if st.poi_cell is not None
+                      and 0 <= s_poi[j] < st.poi_cell.size else -1)
+                return MemoryView(  # 器の外の行(今の sm_*)=目印なし。言葉は A ≥ τ の段(器の行と同じ境目)
+                    row=self.n_rows + row, event_id=None, origin=None,
+                    clarity=CLARITY_WORDS[0] if bool(s_live[j]) else CLARITY_WORDS[1],
+                    grain=GRAIN_WORDS[0], kind=STORE_ITEM_KIND, partner=-1, obj=int(s_poi[j]), result=0, cell=pc,
+                    annotation="",
+                    when_ns=int(f("sm_last")[i][row]) * ns, first_ns=int(f("sm_first")[i][row]) * ns,
+                    valence=int(sign_box[0][row]), source=int(f("sm_source")[i][row]),
+                )
+
+            pool = ShopPool(score=s_score, live=s_live, match=s_match, key=s_poi, view=shop_view)
+        views = ms.recall(i, int(step) * ms.ns_per_step, k,
+                          cue=Cue(q_cell, q_partner, q_obj, q_kind, q_result), pool=pool, tau=self.tau)
+        rep = ms.last_recall
+        rs["rows_candidate"] += rep.rows_candidate
+        rs["rows_candidate_below_tau"] += rep.rows_candidate_below_tau
+        rs["rows_used"] += rep.rows_used
+        rs["rows_used_below_tau"] += rep.rows_used_below_tau
+        if rep.dedup_skipped:
+            rs["store_dedup_skipped"] += rep.dedup_skipped
+        if rep.filled:
+            rs["filled_rows"] += rep.filled
+            rs["calls_filled"] += 1
+        rs["recalled_rows"] += len(views)
+        rs["recalled_rows:" + entrance] += len(views)
+        if not views:
+            rs["calls_zero"] += 1
+            return []
+        out = [to_item(v, ms.ns_per_step) for v in views]  # 高々 k(≤ 3)
+        for it_ in out:
+            rs["recalled_kind:" + ("store" if it_.kind == STORE_ITEM_KIND
+                                   else str(KIND_NAMES.get(it_.kind, it_.kind)))] += 1
+        return out
+
     def recall(self, agents: Any, agent_id: int, tick: int, condition: int,
                inviter: int = -1) -> list[RecallItem]:
         """1 呼の想起(M4 (a)+修正 2・M5 (a)・M16 (a))→ 行(score の降順)。本段の描画が読む。
@@ -347,27 +502,15 @@ class MemoryLayer:
             getattr(self, "store_recall_scope", "all") == "all" or conversation)
         s_used = (np.flatnonzero(agents.registry.sm_poi[i] >= 0) if store_on
                   else np.zeros(0, dtype=np.int64))
+        if self.memory_store is not None:  # 1-6 M0 の腕: 想起は記憶の器から(同じ q・同じ k・同じ計数)
+            return self._recall_from_store(agents, i, tick, k, entrance, store_on, s_used, inviter)
         if not bool(used.any()) and s_used.size == 0:
             rs["calls_empty_table"] += 1
             return []
         A = activation_rows(f("mem_n")[i], f("mem_tick")[i], tick, self.minutes_per_tick, self.d)
         score = self.w_r * A + self.w_i * f("mem_importance")[i]
         # ---- q ----
-        q_cell = int(f("cell")[i])
-        q_partner = int(inviter) if int(inviter) >= 0 else int(f("talk_partner")[i])
-        has_intent = "intent_kind" in r
-        ik = int(f("intent_kind")[i]) if has_intent else 0
-        it = int(f("intent_target")[i]) if has_intent else -1
-        if q_partner < 0 and ik == _INTENT_PERSON:
-            q_partner = it
-        if ik in _INTENT_POI:
-            q_obj = it
-        elif int(f("poi_ref")[i]) >= 0:
-            q_obj = int(f("poi_ref")[i])
-        else:
-            q_obj = int(f("queue_poi")[i])
-        q_kind = ACTION_KIND.get(int(f("last_action")[i]), 0)
-        q_result = int(f("last_result")[i])
+        q_cell, q_partner, q_obj, q_kind, q_result = self._query(agents, i, inviter)
         m_obj = f("mem_object")[i]
         match = np.zeros(kind.size, dtype=bool)
         if q_partner >= 0:
@@ -425,25 +568,10 @@ class MemoryLayer:
         残り(両方)から score 順(``A ≥ τ`` の行だけ)。同じ店のエピソード(購入/食事/並ぶ/看板)と店の行は
         先に選んだ方だけ載せる(宣言)。配列演算だけ(≤ N+32 行)。
         """
-        from shibuya.engine.store_memory import STORE_SCORE_P_CAP, STORE_SCORE_W_P
-
         rs = self.recall_stats
         f = agents.registry.field
         st = self.store
-        sA = st.activation(agents, np.asarray([i]), tick)[0][s_used]
-        s_poi = f("sm_poi")[i][s_used].astype(np.int64)
-        s_prec = f("sm_precision")[i][s_used].astype(np.float64)
-        s_score = sA + STORE_SCORE_W_P * np.minimum(STORE_SCORE_P_CAP, s_prec)
-        s_live = sA >= self.tau
-        s_match = np.zeros(s_used.size, dtype=bool)
-        if q_obj >= 0:
-            s_match |= s_poi == q_obj
-        if q_cell >= 0 and st.poi_cell is not None:
-            inside = (s_poi >= 0) & (s_poi < st.poi_cell.size)
-            s_match |= inside & (st.poi_cell[np.where(inside, s_poi, 0)] == q_cell)
-        rs["store_rows_candidate"] += int(np.count_nonzero(s_match))
-        rs["store_rows_used"] += int(s_used.size)
-        rs["store_rows_used_below_tau"] += int(np.count_nonzero(~s_live))
+        s_poi, s_score, s_live, s_match = self._shop_arrays(agents, i, tick, s_used, q_obj, q_cell)
         m_obj = f("mem_object")[i].astype(np.int64)
         kind = f("mem_kind")[i].astype(np.int64)
         shop_like = ((kind >= 1) & (kind <= 3)) | (kind == 11)  # _SHOP_OBJ_KINDS(購入/食事/並ぶ/看板)
@@ -515,8 +643,14 @@ class MemoryLayer:
 
     # ------------------------------------------------------------------ 書き手の本体
     def _write(self, agents: Any, tick: int, a: np.ndarray, kind: np.ndarray, partner: np.ndarray,
-               obj: np.ndarray, result: np.ndarray, cell: np.ndarray) -> np.ndarray:
-        """1 体 1 件の事象を統合/新規/追い出しで 1 行に書く(配列演算)→ 書いた行番号。"""
+               obj: np.ndarray, result: np.ndarray, cell: np.ndarray,
+               annotation: Sequence[str | None] | None = None) -> np.ndarray:
+        """1 体 1 件の事象を統合/新規/追い出しで 1 行に書く(配列演算)→ 書いた行番号。
+
+        1-6 M0 の腕(:attr:`memory_store`)では同じ事象を記憶の器にも覚えさせる(出来事の記録に無い体の出来事=
+        出どころ legacy の仮の行)。器が選んだ行がこの表の行と違えば ``RuntimeError``(器は同じ規則の写し=M0)。
+        ``annotation`` は器の注釈(会話の要旨・:meth:`note_utterance`)。この表の要旨は呼び手が書く。
+        """
         r = agents.registry
         rk = r.mem_kind[a].astype(np.int64)
         hit = ((rk == kind[:, None]) & (r.mem_partner[a].astype(np.int64) == partner[:, None])
@@ -543,13 +677,34 @@ class MemoryLayer:
         imp = importance_of(kind, result, ~found)
         R.write_memory(agents, a, slot, kind, first_tick, np.full(a.size, int(tick)), cell, partner,
                        obj, result, imp, n)
+        ms = self.memory_store
+        if ms is not None:  # 1-6 M0 の腕: 同じ出来事を器へ(重みの素=重要度の base・器が初回 +1 と上限を掛ける)
+            from shibuya.engine.memory_store import ORIGIN_LEGACY, LegacyEvent
+
+            got = ms.remember(
+                a, LegacyEvent(np.full(a.size, int(tick) * ms.ns_per_step), kind, partner, obj, result, cell),
+                importance_of(kind, result, np.zeros(a.size, dtype=bool)), ORIGIN_LEGACY, annotation=annotation,
+            )
+            if not np.array_equal(got, slot):
+                raise RuntimeError("1-6 M0: 記憶の器の行が記憶の表の行と食い違う(器は同じ規則の写し)")
+            # 行だけでなく値も(仮の出来事・強さ・目印・出どころ)。器はハッシュに入らない=ずれても final とハッシュに
+            # 出ないので、書くたびにここで止める(書きの検査の切替口でも外さない)
+            ms.check_against_table(
+                a, slot, kind=r.mem_kind[a, slot], partner=r.mem_partner[a, slot], obj=r.mem_object[a, slot],
+                result=r.mem_result[a, slot], cell=r.mem_cell[a, slot], first_step=r.mem_tick[a, slot],
+                last_step=r.mem_last[a, slot], n=r.mem_n[a, slot], importance=r.mem_importance[a, slot],
+            )
         self.stats["merged"] += int(np.count_nonzero(found))
         self.stats["new_rows"] += int(np.count_nonzero(new))
         return slot
 
     def record(self, agents: Any, tick: int, a: np.ndarray, kind: np.ndarray, partner: np.ndarray,
-               obj: np.ndarray, result: np.ndarray, cell: np.ndarray, *, relations: bool = True) -> np.ndarray:
-        """事象の配列 → 表へ(体ごとに 1 件ずつの回に分ける)→ 各事象の行番号(入力の並び)。"""
+               obj: np.ndarray, result: np.ndarray, cell: np.ndarray, *, relations: bool = True,
+               annotation: Sequence[str | None] | None = None) -> np.ndarray:
+        """事象の配列 → 表へ(体ごとに 1 件ずつの回に分ける)→ 各事象の行番号(入力の並び)。
+
+        ``annotation``(1-6 M0): 事象ごとの器の注釈(入力の並び・``None`` は付けない)。器の無いランでは読まない。
+        """
         a = np.asarray(a, dtype=np.int64)
         out = np.full(a.size, -1, dtype=np.int64)
         if a.size == 0:
@@ -574,7 +729,8 @@ class MemoryLayer:
         for rnd in range(int(rank.max()) + 1):
             sel = np.flatnonzero(rank == rnd)
             out[sel] = self._write(agents, tick, a[sel], kind[sel], partner[sel], obj[sel],
-                                   result[sel], cell[sel])
+                                   result[sel], cell[sel],
+                                   None if annotation is None else [annotation[x] for x in sel.tolist()])
         if self.store is not None:  # D-120 7a: 同じエピソードの配列から店の評価の行へ
             self.store.on_episodes(agents, tick, a, kind, obj, result)
         if relations and self.relations is not None:  # C10 8a: 相互作用のエピソードから関係辺へ
@@ -608,12 +764,7 @@ class MemoryLayer:
         if key is None:
             return
         partner, shop = key
-        rows = self.record(agents, tick, np.asarray([int(agent_id)]),
-                           np.asarray([EVENT_KINDS["talk"]]), np.asarray([partner]),
-                           np.asarray([shop]), np.asarray([int(ResultCode.OK)]),
-                           np.asarray([int(agents.registry.cell[int(agent_id)])]),
-                           relations=False)  # C10 8a: 発話ごとの n+1 は辺に写さない(1 セッション 1 本)
-        self.stats["utterances"] += 1
+        # 要旨を先に決める(1-6 M0: 器の注釈を同じ回で渡す。表の書き順と値・計数は前と同じ)
         text = str(comment or "").strip()
         sk = (int(agent_id), int(session.session_id))
         if not text or text == "なし":
@@ -623,13 +774,22 @@ class MemoryLayer:
                 self.stats["gist_source:reason"] += 1
         else:
             self.stats["gist_source:comment"] += 1
-        if not text or text == "なし":
-            return
-        if sk in self._gist_done:
+        put = bool(text) and text != "なし" and sk not in self._gist_done
+        rows = self.record(agents, tick, np.asarray([int(agent_id)]),
+                           np.asarray([EVENT_KINDS["talk"]]), np.asarray([partner]),
+                           np.asarray([shop]), np.asarray([int(ResultCode.OK)]),
+                           np.asarray([int(agents.registry.cell[int(agent_id)])]),
+                           relations=False,  # C10 8a: 発話ごとの n+1 は辺に写さない(1 セッション 1 本)
+                           annotation=[text[:GIST_CHARS] if put else None])
+        self.stats["utterances"] += 1
+        if not put:
             return
         self._gist_done.add(sk)
         self._put_gist(int(agent_id), int(rows[0]), text[:GIST_CHARS])
         self.stats["gists"] += 1
+        ms = self.memory_store
+        if ms is not None and ms.annotation(int(agent_id), int(rows[0])) != text[:GIST_CHARS]:
+            raise RuntimeError("1-6 M0: 記憶の器の注釈が記憶の表の要旨と食い違う(器は表の写し)")
 
     # ------------------------------------------------------------------ 1 tick の記録
     def after_tick(
@@ -813,6 +973,9 @@ class MemoryLayer:
             "used_below_tau_share": round(
                 rs.get("rows_used_below_tau", 0) / max(1, rs.get("rows_used", 0)), 4),
         }
+        extra: dict[str, Any] = {}
+        if self.memory_store is not None:  # 1-6 M0 の腕: 器の計器(腕の名・行数・出どころの分布・録画)
+            extra["memory_store"] = self.memory_store.summary()
         return {
             "recall": recall,
             "k2_motif_repeats": self._k2(agents),
@@ -837,6 +1000,7 @@ class MemoryLayer:
             "score": q((self.w_r * A + self.w_i * r.mem_importance.astype(np.float64))[used]),
             "gists": int(len(self.gist)),
             "gist_agents": int(len(self._gist_order)),
+            **extra,
         }
 
     def _k2(self, agents: Any) -> dict[str, Any]:

@@ -984,6 +984,18 @@ def build(_call_args: dict[str, Any]) -> Any:
     # ---- 記憶 第 1 段 6b: 想起の口(on のランだけ描画に差し込む・off は None=描画バイト不変) ----
     if mem_layer is not None:
         mem_layer.tau = float(memory_tau)
+    # ---- 第 1 期 1-6 記憶の器 M0(腕 --memory-store events・既定 mem=器を作らない)。器は記憶の表と同じ規則の写しで、
+    # 表に書く所で同じ出来事を書き、想起を器から引く。見せた行の録画(描画の口)とテープの列 recalled_event_ids
+    # (版 4 の中・腕のランだけ)。状態台帳の行 M0(作り直せる)・M0R(録画と計数=捨ててよい) ----
+    from shibuya.engine import memory_store as _MS
+
+    if mem_layer is not None and _MS.arm() == _MS.ARM_EVENTS:
+        _m0 = mem_layer.enable_memory_store(step_seconds=int(tick_seconds))
+        if perception is not None:
+            perception.memory_shown = mem_layer.on_shown
+        if tape_writer is not None:
+            tape_writer.arm_columns[_MS.TAPE_COLUMN] = mem_layer.tape_event_ids
+            _m0.attach_tape()
     # ---- D-120 7a: 店の評価の記憶(エピソードの書き手に乗る・本段では誰も読まない) ----
     if mem_layer is not None and store_memory_on:
         mem_layer.enable_store(int(store_memory_n), sigma=store_sigma_table, decay=store_decay,
@@ -1244,6 +1256,8 @@ def build(_call_args: dict[str, Any]) -> Any:
         _SIO.rebuild_derived(box)  # 10d(親の答え 2): 起動時に SoA から作る表を、戻した SoA から作り直す
         RS.check_item_kinds(_SIO.hash_owners(box), _bundle.items)  # 10f(K23 (a)): 戻す前に今の値の型と突き合わせる
         R.restore_items(_SIO.hash_owners(box), _bundle.items)
+        if mem_layer is not None and mem_layer.memory_store is not None:
+            mem_layer.rebuild_memory_store(agents)  # 1-6 M0: 器は戻した記憶の表と要旨から作り直す(台帳の行 M0)
         _full_r, _ = _SIO.full_state_hash(agents, world, _SIO.pst_now(box), schedule.population_hash, schedule_hash,
                                      _SIO.hash_owners(box), memo={})
         if _full_r != str(_bundle.header.get("hashes", {}).get("full_hash", "")):

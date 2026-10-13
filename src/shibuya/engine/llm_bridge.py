@@ -79,7 +79,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Final, Mapping, Protocol, runtime_checkable
+from typing import Any, Callable, Final, Mapping, Protocol, runtime_checkable
 
 from shibuya.engine.tape import (
     Replay,
@@ -318,6 +318,9 @@ class PerceptionRendererAdapter:
         self.group_token_sums: dict[str, int] = {g: 0 for g in PT.GROUP_TOKEN_BUDGET}
         self.n_renders = 0
         self.prompt_tokens_sum = 0
+        #: 第 1 期 1-6 M0: B5 に載せた記憶の行の録画の口 ``(体, 刻み, 起床の級, 行) → None``(腕
+        #: ``--memory-store events`` のランだけ組み立てが置く=``MemoryLayer.on_shown``。既定 None=何もしない)。
+        self.memory_shown: Callable[[int, int, int, tuple[int, ...]], None] | None = None
 
     # ---- 1 tick 1 回の前計算 ----
     def prepare_tick(self, tick: int, **kwargs: Any) -> None:
@@ -352,6 +355,9 @@ class PerceptionRendererAdapter:
             int(agent_id), int(tick), wake_reason=int(condition), last_action=word,
             inviter=int(inviter) if int(inviter) >= 0 else None,
         )
+        if self.memory_shown is not None:  # 1-6 M0: 見せた記憶の行の録画(MR16)
+            self.memory_shown(int(agent_id), int(tick), int(wake_class),
+                              tuple(int(x) for x in getattr(out, "recalled_rows", ())))
         blocks: list[tuple[str, str]] = []
         for bid in SHARED_BLOCK_IDS:  # 逐次ループ宣言: 共有ブロック 6 本
             body = out.blocks[bid]

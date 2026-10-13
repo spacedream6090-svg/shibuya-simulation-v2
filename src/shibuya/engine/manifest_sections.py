@@ -130,6 +130,9 @@ PATHS: Final[dict[str, str]] = {
     **_mixed("memory_summary.recall", config=("tau", "k_conversation", "k_other"), observed=(
         "counts", "filled_call_share", "empty_table_share", "zero_recall_share", "recalled_call_share",
         "recalled_rows_per_call", "candidate_below_tau_share", "used_below_tau_share")),
+    # 〔第 1 期 1-6 M0〕記憶の器の計器(腕 --memory-store events のランだけ出る)。中身ごと観測(設定の節の golden は
+    # 変えない=腕の名・行の幅も計器の一部として観測に置いた)
+    "memory_summary.memory_store": _O,
     **_mixed("store_memory_summary", config=(
         "n_rows", "sigma", "precision_per_event", "decay", "tau", "d", "row_bytes_actual", "row_bytes_declared"),
         observed=("counts", "rows_used_per_agent", "rows_used_total", "full_agents", "agents_with_rows",
