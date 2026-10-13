@@ -13,6 +13,8 @@ import ast
 import json
 from pathlib import Path
 
+import pytest
+
 from shibuya.engine import state_ledger_ast as A
 from shibuya.engine.systems import allow as AL
 from shibuya.engine.systems import static_check as SC
@@ -29,18 +31,40 @@ WP_CALLS = {"allows": STATE_MODULES, "scope": {"engine/systems/guard.py"}, "enab
 WP_IMPORTERS = STATE_MODULES | {"engine/systems/guard.py", "core/write_permit.py"}
 #: guard の口 → 呼んでよい置き場。
 GUARD_CALLS = {"system_scope": {"engine/systems/conductor.py"}}
+#: 属性 ``_WP``(状態のモジュールと guard が持つ write_permit の再輸出の名)を読んでよい置き場(段 FIX2・再検収 R1)。
+#: 試験は src の外=ここに出ない。conductor は今は読まないが、指示書どおり置き場に入れておく。
+WP_ATTR_PLACES = WP_IMPORTERS | {"engine/systems/conductor.py"}
+#: 許可を持つモジュール(別名に ``setattr(X, 変数, …)`` をすると許可の大域に届く)。
+PERMIT_MODULES = {"shibuya.core.write_permit", "shibuya.engine.systems.guard", "shibuya.agents.state",
+                  "shibuya.world.state", "shibuya.perception.state"}
+
 #: 書き換えてはいけない許可の大域(その置き場の外で代入しない)。
 PERMIT_GLOBALS = {"_PERMIT": "core/write_permit.py", "_ENABLED": "core/write_permit.py",
                   "SCRATCH_PERMIT": "engine/systems/guard.py", "BUFFERS_PERMIT": "engine/systems/guard.py",
                   "CURRENT": "engine/systems/guard.py"}
 
 
+def _chain(expr: ast.AST) -> list[str]:
+    """属性の鎖の名(根から順に)。``a.b.c`` → ``["a", "b", "c"]``。根が名でなければ空。"""
+    names = []
+    while isinstance(expr, ast.Attribute):
+        names.append(expr.attr)
+        expr = expr.value
+    if not isinstance(expr, ast.Name):
+        return []
+    return [expr.id] + names[::-1]
+
+
 def permit_offenders(rel: str, tree: ast.AST) -> list[str]:
     out: list[str] = []
     wp_alias, wp_direct, g_alias, g_direct = set(), {}, set(), {}
+    mod_alias: set[str] = set()  # 許可を持つモジュールの別名(setattr の的)
     for n in ast.walk(tree):
         if isinstance(n, ast.ImportFrom):
             for a in n.names:
+                full = f"{n.module}.{a.name}"
+                if full in PERMIT_MODULES:
+                    mod_alias.add(a.asname or a.name)
                 if n.module == "shibuya.core" and a.name == "write_permit":
                     wp_alias.add(a.asname or a.name)
                 elif n.module == "shibuya.core.write_permit":
@@ -49,14 +73,39 @@ def permit_offenders(rel: str, tree: ast.AST) -> list[str]:
                     g_alias.add(a.asname or a.name)
                 elif n.module == "shibuya.engine.systems.guard":
                     g_direct[a.asname or a.name] = a.name
+                if a.name == "_WP":  # 再輸出の名の輸入(段 FIX2・R1')
+                    wp_alias.add(a.asname or a.name)
+                    if rel not in WP_ATTR_PLACES:
+                        out.append(f"{rel}:{n.lineno}: 再輸出の名 _WP を輸入する(置き場の外)")
         elif isinstance(n, ast.Import):
             for a in n.names:
+                if a.name in PERMIT_MODULES:
+                    mod_alias.add(a.asname or a.name.split(".")[0])
                 if a.name == "shibuya.core.write_permit":
                     wp_alias.add(a.asname or a.name)
                 if a.name == "shibuya.engine.systems.guard":
                     g_alias.add(a.asname or a.name)
     if (wp_alias or wp_direct) and rel not in WP_IMPORTERS:
         out.append(f"{rel}: write_permit を import してよい置き場の外")
+    for n in ast.walk(tree):
+        # 段 FIX2(R1): 置き場の外で属性 ``_WP`` を読む(``G._WP``・``ST._WP``・``getattr(X, "_WP")``)
+        if isinstance(n, ast.Attribute) and n.attr == "_WP" and rel not in WP_ATTR_PLACES:
+            out.append(f"{rel}:{n.lineno}: 再輸出の名 _WP を読む(置き場の外)")
+        if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id in ("getattr", "setattr") \
+                and len(n.args) >= 2:
+            key = n.args[1]
+            if isinstance(key, ast.Constant) and key.value == "_WP" and rel not in WP_ATTR_PLACES:
+                out.append(f"{rel}:{n.lineno}: {n.func.id} で _WP に触る(置き場の外)")
+            root = _chain(n.args[0])[:1]
+            if n.func.id == "setattr" and not isinstance(key, ast.Constant) and root and (
+                    root[0] in mod_alias | wp_alias | g_alias or "_WP" in _chain(n.args[0])):
+                out.append(f"{rel}:{n.lineno}: 許可を持つモジュールに setattr(変数の名)")
+        # 段 FIX2(R1): 許可の関数は属性の鎖の最後の名で見る(鎖に _WP か write_permit の別名があるとき)
+        if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr in WP_CALLS:
+            ch = _chain(n.func)
+            if ch and len(ch) > 2 and ("_WP" in ch[:-1] or "write_permit" in ch[:-1] or ch[0] in wp_alias) \
+                    and rel not in WP_CALLS[n.func.attr]:
+                out.append(f"{rel}:{n.lineno}: 鎖の {'.'.join(ch)} で {n.func.attr} を呼ぶ(置き場の外)")
     for n in ast.walk(tree):
         if isinstance(n, ast.Call):
             f = n.func
@@ -111,6 +160,29 @@ def test_permit_check_catches_planted_switches():
     assert any("import してよい" in x for x in got)
     for word in ("scope", "set_enabled", "system_scope", "SCRATCH_PERMIT", "_PERMIT"):
         assert any(word in x for x in got), (word, got)
+
+
+@pytest.mark.parametrize("src,words", [
+    # 再検収 R1・R1' の 4 行(検収役の形)
+    ("from shibuya.engine.systems import guard as G\n"
+     "def sys_x(ctx, b):\n    with G._WP.scope(None):\n        pass\n", ("_WP を読む", "G._WP.scope")),
+    ("from shibuya.agents.state import _WP as X\n"
+     "def sys_x(ctx, b):\n    X.set_enabled(False)\n", ("_WP を輸入", "set_enabled を呼んでよい")),
+    ("import shibuya.agents.state as ST\n"
+     "def sys_x(ctx, b):\n    with ST._WP.scope(None):\n        pass\n", ("_WP を読む", "ST._WP.scope")),
+    ("from shibuya.engine.systems import guard as G\n"
+     "def sys_x(ctx, b, name):\n    setattr(G, name, None)\n", ("setattr(変数の名)",)),
+    # 同じ型の変種
+    ("import shibuya.agents.state\n"
+     "def sys_x(ctx, b):\n    shibuya.agents.state._WP.set_enabled(False)\n", ("_WP を読む", "set_enabled")),
+    ("from shibuya.engine.systems import guard as G\n"
+     "def sys_x(ctx, b):\n    wp = getattr(G, '_WP')\n", ("getattr で _WP",)),
+])
+def test_permit_check_catches_reexported_names(src, words):
+    """負の対照(再検収 R1・段 FIX2): 再輸出の名 ``_WP`` を通して許可を外す形が見つかる。"""
+    got = permit_offenders("engine/systems/fake.py", ast.parse(src))
+    for w in words:
+        assert any(w in x for x in got), (w, got)
 
 
 # ================================================================= 5: D⑥ の別名の形を広げる

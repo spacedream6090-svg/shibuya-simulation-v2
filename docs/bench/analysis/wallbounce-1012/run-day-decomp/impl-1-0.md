@@ -263,7 +263,8 @@ HEAD の側はどれも本体の src(`ee3abc7` と同じ中身。本体の HEAD 
 |---|---|---|---|---|
 | resolve の外の ufunc.at(L1) | 止まらない(numpy の `ufunc.at` は `writeable` を見ない) | 書いた系に出る | `test_add_at_guard`: 状態の根・`b.soa`・`box.soa`・局所の別名 | 実行時に止めるには、`ufunc.at` を包むか、状態の配列を numpy の外の型にする必要がある(1-0 の外)。D の形の外(関数の引数や戻り値で渡した配列・`getattr` で取った配列)は B だけが見る |
 | scratch・buffers の中身のその場の書き換え(L4) | 止まらない(段 C は欄の差し替えだけ) | 書いた系に出る(試験のときだけ・`SHIBUYA_SYSTEMS_CHECK`) | `object.__setattr__` の素通りだけ | 毎 tick 全欄の digest を取るのは既定のランには重い。入れ子の知らない物(dataclass でない層の物)の中身は同一性だけで見る。物の番号は、古い物が消えて同じ番号に新しい物が来ると見逃す |
-| 許可を外す口の動的な呼び出し | — | — | 静的に置き場を固定(import・属性・素の名・`setattr` の定数の名) | `importlib`・`getattr(WP, 変数)`・`sys.modules` 経由は見ない |
+| scratch・buffers の段 C を `object.__setattr__` 以外の形で素通りする(再検収 R2) | 止まらない | 書いた系に出る(値が変わったとき) | 見つからない | `super(type(b.scratch), b.scratch).__setattr__(…)`・スロットの記述子 `type(b.scratch).plan.__set__(…)`・`o = object; o.__setattr__(…)`・`type(x).__mro__[-1].__setattr__(…)`・`vars(b.buffers)[…] = …`。D の `bypass_setattr_sites` は `object.__setattr__` の形だけを見る。素通りの形は Python では閉じきれないので、B だけが見る |
+| 許可を外す口の動的な呼び出し | — | — | 静的に置き場を固定(import・属性・素の名・`setattr` の定数の名)。〔段 FIX2〕再輸出の名 `_WP` の読み・輸入・`getattr(X, "_WP")` を置き場の外で禁じ、許可の関数は属性の鎖の最後の名で見る。許可を持つモジュールへの `setattr(X, 変数, …)` も見る | `importlib`・`getattr(WP, 変数)`・`getattr(X, 変数)` で `_WP` を取る形・`sys.modules`・`vars(G)["_WP"]` 経由は見ない |
 | D⑥ の残りの形 | — | B が書きを出す | 10 形 | 関数をまたぐ別名(引数・戻り値)・別のメソッドで足す入れ物(`self.xs.append(view)`)・`setattr(self, 変数, …)`。的が `X[i]`(添字の代入)だと、配列(値の写し)か辞書(参照)かを AST では決められない(見つける側に倒し、`civic.py` の 1 件は許可の表へ) |
 | D① の残りの形 | 列が許可の外なら A が止める | — | 素の import・モジュールの別名 | `getattr(R, 変数)`・口を値として渡す(`partial(R.x)` など) |
 | 段 B の外の道筋で `ERR` のまま | — | 持ち主に属性が無い腕だけ(値は変わらない) | — | — |
@@ -274,6 +275,7 @@ HEAD の側はどれも本体の src(`ee3abc7` と同じ中身。本体の HEAD 
 - 門 FIX1(HEAD+`snap_FIX` の写し・`gate.sh`): byte-check 19 構成は **19/19 で全 25 欄が HEAD と同じ**([byte_check_FIX_vs_head.json](byte_check_FIX_vs_head.json))。全体の pytest は 3,961 passed・1 failed。落ちた 1 件は既知の `test_ab7_seed1_open_matches_the_parent_report`(写しの junction で起きる・DEF2 と同じ)。門のスナップショットの後に、`test_fix_guards.py` の D② の負の対照を作り直した(`test_d2_detects_a_widened_or_narrowed_permit`)。この 1 本は作業木で回して通った(10 passed)。
 - 段 B の 6 構成(`probe_run.py run --families soa,ext,stats,buffers,scratch`・1,000 体・1 日・`data/runs/1-0_probe_fix2`): 宣言の外の変化は 6 構成とも 0 件。final は段 DEF の測り(`data/runs/1-0_probe`)と同じ(v3_default は段 DEF が 2 日なので比べていない)。
 - systems の試験と `test_add_at_guard.py`: 130 passed(新しい負の対照を含む)。状態台帳の AST の検査(`test_state_ledger_10b.py`)は、probe の `getattr` の 2 行を許可の表 `UNRESOLVED_ALLOW` に合わせた(文字列が変わった 1 行と、`__slots__` の 1 行を足した)。
+- 〔親の注・再検収 R-7〕作業木で親が回した段 FIX の全体テストは 3,960 passed・1 failed で、落ちたのは `tests/engine/test_change_detect_p6.py::test_p6_change_detection_under_2ms_at_400k_agents`(400k 体で 2 ms 以内という時間の門)。親がこのファイルを単独で回し直すと 11 passed だった。検収のランと並べて回した負荷による落ちで、段 FIX の変更による落ちではない。
 - 注: `probe_compare.json`(HEAD と 1-0 の系ごとの指紋の一致・§3-3)は段 FIX の前の測り。段 FIX は `STATS_NAMES` に 6 つ足し、`objs=True` の digest を足した。既定の digest(`objs=False`)の取り方は変えていない。HEAD との比べは回し直していない(空欄)。
 - `multi-writer-columns.md`・`.json` は、段 DEF と段 FIX の測りの和で作り直した。SoA の観測は 33 列のまま。外の道筋の観測は 64 → 66(行の単位 30 → 32)で、`O61`・`O63` が足された。
 
@@ -282,3 +284,16 @@ HEAD の側はどれも本体の src(`ee3abc7` と同じ中身。本体の HEAD 
 - src: `engine/systems/boxes.py`(Buffers の段 C)・`guard.py`(`BUFFERS_PERMIT`)・`conductor.py`(buffers の許可・`(tick_head)` の境目・段 B の族に scratch)・`overrides.py`(`wrap_fn`)・`probe.py`(scratch・積算の欄・代わりの digest・同一性)・`spec.py`(`soa_declared` を消した)・`static_check.py`(作り直し)・`table.py`(宣言 4 つ)・`engine/state_ledger_ast.py`(許可の表 2 行)。
 - tests: `tests/engine/test_add_at_guard.py`・`tests/engine/systems/test_fix_guards.py`(新)・`writes_soa_frozen.json`(新)・`test_guard_runs.py`(負の対照 3 つと scratch を含む正)・`test_systems_table.py`(恒真の試験を消した)。
 - 記録と道具: この記録・`local_assignment.py`・`local-assignment.json`・`multi_writers.py`・`multi-writer-columns.*`・`probe_run.py`(`--families`)・`ext_coarse.py`(新)・`ext_coarse.json`(新)・`byte_check_FIX_vs_head.json`(新)。
+
+### 7-6. 再検収の後(段 FIX2)
+
+再検収([review-impl-1-0.md](review-impl-1-0.md) 末尾「再検収(段 FIX)」)は条件つき受入だった。条件 R1 を直し、R2 を §7-3 の限界の表に足した。**実行時のコード(src の系・箱・guard・write_permit・resolve)は変えていない**。変えたのは試験 `tests/engine/systems/test_fix_guards.py` と記録だけ。
+
+| 再検収 | 直し方 | 負の対照 |
+|---|---|---|
+| R1(直す)再輸出の名から許可を外す口に届く | `permit_offenders` に 3 つ足した。(1) 置き場の外で属性 `_WP` を読む・名 `_WP` を輸入する・`getattr`/`setattr` の定数 `"_WP"` で触ると見つかる。置き場は write_permit を使う 4 モジュール(状態のモジュール 3 つと `engine/systems/guard.py`)・`write_permit.py`・conductor。試験は src の外。(2) 許可の関数(`scope`・`set_enabled`・`current`・`allows`・`enabled`)を属性の鎖の最後の名で見る。鎖に `_WP`・`write_permit`、または write_permit の別名(`_WP` の輸入を含む)があり、その関数を呼んでよい置き場の外なら見つかる。(3) 許可を持つモジュール(write_permit・guard・状態のモジュール 3 つ)の別名への `setattr(X, 変数, …)` が見つかる。いまの src に新しく当たる行は無い | `test_permit_check_catches_reexported_names`(6 本): 検収役の 4 行(`G._WP.scope(None)`・`from shibuya.agents.state import _WP as X; X.set_enabled(False)`・`ST._WP.scope(None)`・`setattr(G, 変数, None)`)と、同じ型の変種 2 行(`shibuya.agents.state._WP.set_enabled(False)`・`getattr(G, "_WP")`)。どれも見つかる |
+| R2(限界に足す)scratch の段 C を `object.__setattr__` 以外の形で素通りする | §7-3 の表に 1 行足した(`super().__setattr__`・スロットの記述子 `__set__`・`o = object` の別名・`__mro__`・`vars(…)[…]`=D は見つけず、B だけが見る) | —(限界) |
+
+- 再検収の R3(Buffers の中身のその場の書き)・R4(scratch の入れ子の入れ子)・R6(ufunc.at を補助関数の引数や `getattr` で渡す)は、§7-3 の表の行のとおり B が捕まえる。R5(D⑥ の許可が (ファイル, 的の文字列) だけで右辺も件数も見ない)は直していない(低。今の `civic.py` の `bed_cell` は ndarray で、要素の代入は写し)。
+- 試験(段 FIX2 の最後の状態): `tests/engine/systems`(127)・`test_add_at_guard.py`(9)・`test_two_phase.py`(14)・`test_state_ledger_10b.py`(73)をまとめて回して **223 passed**(状態台帳の試験のファイルは `test_state_ledger_10b.py` の 1 本だけ)。全体テストは回していない(実行時のコードを変えていないので、親の段 FIX の全体テストのまま)。
+- スナップショット: `snap_FIX2`(HEAD からの累積)と `list.txt`。

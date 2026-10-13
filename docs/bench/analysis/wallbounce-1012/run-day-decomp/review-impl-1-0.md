@@ -161,3 +161,86 @@ probe の `snapshot` で `item_digest` が例外になり、値が `ERR:…` の
 - 既存の実 LLM テープの再生(手元に再生できる物が無い=10e の RET)。
 - 世界資産の上での歩いて乗る退出・親しみ・古典 per_hour の腕(T5 で見つかった 2 件)は回し直していない。
 - 重さの静かな機械での測り直し。
+
+## 再検収(段 FIX)
+
+- 対象: 作業木の段 FIX の後の状態(実装の記録 §7)。前回と同じく、作業木と本体は変えず、自前の道具で確かめた(`data/runs/rev_1-0/tools/rev_loopholes_fix.py`・`rev_static.py`・`rev_static2.py`・生の出力は `loopholes_fix.jsonl`)。段 B は試験の形と同じ族(`soa, ext, stats, buffers, scratch`)で回した。
+- 判定: **条件つき受入**(条件は軽い)。前回の中の 3 件は、どれも負の対照つきの検査で捕まるようになった。直しの後で開いた穴は 1 つで、許可を外す口に再輸出の名(`guard._WP`・`agents.state._WP`)から届く(R1)。R1 を直すか、§7-3 の限界の表に足すことを条件にする。結果不変は保たれていた。
+
+### R-1. 前回の抜け道の今の捕まり方
+
+合成 80 体・300 tick・記憶+関係+店+同席の腕で、T=200 に 1 回だけ差し込んだ。「A・C」は既定のラン、「B」は試験の形、「D」は静的な検査(植えた行で確かめた)。
+
+| 前回 | 抜け道 | A・C(実行のたび) | B(試験) | D(静的) | 前回との違い |
+|---|---|---|---|---|---|
+| 1 / L1 | 箱の形の ufunc.at(`b.soa.agents.registry.money`・`r = b.soa.agents.registry`) | 落ちない(限界のとおり) | 落ちる | **見つかる**(`test_add_at_guard` の根に `b.soa`・`box.soa`) | D が捕まえる |
+| 2 / L4 | scratch の中身のその場の書き換え(phase_c の前・conversation の後) | 落ちない(限界のとおり) | **落ちる**(`scratch.plan` を書いた系に出る) | 見つからない(限界のとおり) | B が捕まえる |
+| 2 / L4b | `object.__setattr__(b.scratch, …)` | 落ちない | 値が変わったときだけ落ちる | **見つかる** | D が捕まえる |
+| 3 / L2 | `write_permit.scope(None)`(素の import) | 落ちない | 落ちる | **見つかる** | D が捕まえる |
+| 3 / L11 | `set_enabled(False)` | 落ちない | (後の書きがあれば落ちる) | **見つかる** | D が捕まえる |
+| 4 / L5 | `b.buffers.focus_request = …`(宣言の無い系) | **落ちる**(段 C・`AttributeError`) | — | — | C が捕まえる |
+| 5 / L3 | 凍結の前に作ったビュー | 落ちない | 落ちる | 前回の 9 形が全部見つかる(`self.xs.append(…)`・`setattr(self, 変数, …)` は §7-3 の限界のとおり見つからない) | D が広がった |
+| 6 / L9 | 素の import で呼ぶ resolve の口 | 落ちない(列が許可の中) | 落ちない | **見つかる**(`resolve_calls` に `revert_conversation`・`set_activity`) | D が捕まえる |
+| — | L6 外の状態・L10 台帳の配列の差し替え・L12 宣言の無い積算 | 落ちない | 落ちる | — | 同じ |
+| — | L7 drain・L8 report の SoA の書き | 落ちる | — | — | 同じ |
+
+前回「捕まらない」だった 3 つ(箱の形の ufunc.at・scratch の中身・許可を外す口)は、どれも少なくとも 1 つの負の対照つきの段で捕まる。ufunc.at は D、scratch の中身は B、許可を外す口は D が捕まえる。
+
+### R-2. 新しい抜け道(直しの副作用を狙ったもの)
+
+| # | 抜け道 | A・C | B | D | final |
+|---|---|---|---|---|---|
+| R1 | 再輸出の名から許可を外す: `from shibuya.engine.systems import guard as G; with G._WP.scope(None): R.set_refractory(…)`(checkpoint から) | **落ちない** | 落ちる(`agents.refractory_until`) | **見つからない** | **動いた** |
+| R1' | 同じ形の静的な変種: `from shibuya.agents.state import _WP as X; X.set_enabled(False)`・`import shibuya.agents.state as ST; ST._WP.scope(None)`・`setattr(G, 変数, None)` | — | — | **見つからない**(`permit_offenders` が空) | — |
+| R2 | scratch の段 C を `object.__setattr__` 以外で素通りする: `super(type(b.scratch), b.scratch).__setattr__("plan", …)`・スロットの記述子 `type(b.scratch).plan.__set__(…)`・`o = object; o.__setattr__`・`__mro__[-1].__setattr__` | 落ちない | 落ちる(`scratch.plan` を memory に帰属) | 見つからない(`bypass_setattr_sites` は `object.__setattr__` の形だけ) | 動かず |
+| R3 | Buffers の中身の配列にその場で書く(`focus_request[:] = 0`・detect・v2 edge 300 体) | 落ちない(段 C は欄の差し替えだけ=限界のとおり) | 落ちる(`buffers.focus_request`) | — | 動かず |
+| R4 | scratch の入れ子の入れ子(`scratch.outcome.crowd.coherence` をその場で書く・memory) | 落ちない | 落ちる。scratch の digest は同一性だけだが、外の道筋の族が `O95:runner.crowd.coherence` を memory に出す | — | 動かず |
+| R5 | D⑥ の許可 `("engine/processes/civic.py", "self.bed_cell[got]")` の悪用 | — | — | 別の的(`self.bed_cell[0] = agents.registry.cell`)は見つかる。同じ的の 2 行目は許可で通る(許可は (ファイル, 的の文字列) だけで、行数も右辺も見ない) | — |
+| R6 | ufunc.at を補助関数の引数や `getattr` で渡す | 落ちない | 落ちる(試していないが L1 と同じ配列) | 見つからない(`field("money")` は見つかる) | — |
+
+- R1 は直しの 3(許可を外す口)を素通りする。`guard.py` は `_WP` を、状態のモジュール 3 つは `_WP` をモジュールの属性として持つ。`permit_offenders` は `write_permit` を直接 import した名と、`X.scope` のように 1 段の属性しか見ない。§7-3 の限界の表は `importlib`・`getattr(WP, 変数)`・`sys.modules` を挙げているが、この形は無い。直し方の案: 許可の関数(`scope`・`set_enabled`・`enabled`・`allows`・`current`)を、属性の鎖の最後の名で見る。あるいは、置き場の外で属性 `_WP` を読むことを禁じる(負の対照に R1 と R1' の 4 行)。
+- R2・R3・R6 は、§7-3 の限界の表に書いた「B だけが見る」に当たる。ただし R2 の表の D の欄は「`object.__setattr__` の素通りだけ」なので、ほかの素通りの形(super・記述子・別名・`vars(b.buffers)[…]`)は D の外で、B だけが見る、と 1 行足すとよい。
+- R5 は低い。今の civic の `bed_cell` は ndarray で、要素の代入は写しになる。許可を (ファイル, 的, 右辺の文字列) か件数で固定すると、前の `ExtAllow` と同じ強さになる。
+
+### R-3. 足した宣言 4 つは妥当か
+
+| 系 | 宣言 | 確かめたこと | 判定 |
+|---|---|---|---|
+| world | `O63:renderer._tickc`(`*` でない 1 本) | `_tickc` は描画の前計算で、perceive_prepare の `prepare_tick` が毎 tick 作り直す(`renderer.py` の `self._tickc = _TickCache(…)`)。`render` は `_tickc.tick != tick` なら作り直す。world が書くのは前の tick の `_tickc.flow`(`runner.flow` と同じ配列)で、作り直す前に読む所は無い。HEAD にも同じ別名がある | 妥当。結果に効く書きを認めたものではなく、HEAD からある別名を宣言に写しただけ(行 O63 は軸 1 no・derivable) |
+| checkpoint | `tally` に `phase` | `phase["checkpoint"] +=` の壁時計 | 妥当(診断・`STATS_NAMES` の外) |
+| report | `tally` に `frozen_sources_map` | `.update(…)` の後、`result.frozen_sources` へ。HEAD の E2〜E4 と同じ所 | 妥当(ランの最後・manifest の欄) |
+| observe | `tally` に `occ_counts`・`occ_kind`・`occ_transit` | `append` の在圏 journal | 妥当(前回の §1 の 7 の宣言漏れ) |
+
+### R-4. D② は本物になったか
+
+- `tests/engine/systems/writes_soa_frozen.json` の 31 系は、いまの閉包(`writes_for_ops(resolve_ops)`)とも、系が持つ `writes.soa` とも全部一致した。
+- 実装役の対照(perceive_prepare を広げる・phase_c を狭める)とは別に、自分で 4 本当てた。どれも当たった系の名だけが出た。
+  - decide の口に `write_relations` を足す → `['decide']`
+  - world から `consume` を外す → `['world']`
+  - `resolve_ops` は変えず、observe の `writes.soa` に手で `agents.money` を足す → `['observe']`
+  - resolve の中身が変わった場合(`set_refractory` の直接の書きに `agents.cell` を足す)→ `['decide']`
+- 恒真だった試験と使われない欄 `soa_declared` は消えている。限界: 凍結の表は作り直せば通る(更新の手順は試験の説明文にある)。
+
+### R-5. 記録 §7 の数の再計算
+
+- 試験の数: 作業木で 3,964 件を集めた。3,961 passed+1 failed(既知)+1 skipped+1 xfailed = 3,964 で合う。`tests/engine/systems`+`test_add_at_guard.py` は 130 件で、記録の 130 passed と同じ。passed の数そのものは親の全体テストで確かめる。
+- byte-check: `byte_check_FIX_vs_head.json` は 19 構成とも `moved` が空(19/19・25 欄)。
+- 外の道筋の粗さ(`ext_coarse.json`): 台帳の道筋は 489 本。宣言は 180 個で、そのうち `*` は 174 個。宣言の対 2,197・観測の対 383(`multi-writer-columns.json` の観測の和と同じ)・比は 5.74 倍。どれも再計算と一致した。
+- `local-assignment.json`: `box:stats` 36・`end` 25。合計は 450 のまま。`ledger_growth` は `box:stats.ledger_growth`。
+- `multi-writer-columns.json`: SoA の観測 33・外の道筋の観測 66・行 32。記録と同じ。
+- import の数(§7-1 の 10): 頂上の 99 と、関数の中を含めた 103 は前回の実測と同じ。
+- 限界の表 §7-3: R1(再輸出の名)と R2 の素通りの形を除き、試した形はどれも表のとおりの段で捕まった。
+
+### R-6. 結果不変の軽い再確認
+
+段 FIX の作業木で、1,000 体の 2 構成を前回の HEAD の出力と比べた。
+
+| 構成 | final | 呼数 | 違い |
+|---|---|---|---|
+| v3 既定・2 日 | `fc2fde3ae17a96e8` | 25,698 | なし(checkpoint 48 点・成分の digest・RunResult の全欄・SoA・テープ) |
+| v3 記憶+関係+店 | `4b8fc9783b71c63f` | 11,928 | manifest の壁時計の欄だけ(前回と同じ) |
+
+### R-7. 空欄
+
+- 親の全体テスト(作業木・段 FIX): 3,960 passed・1 failed・1 skipped・1 deselected・1 xfailed(rc=1)。落ちたのは `tests/engine/test_change_detect_p6.py::test_p6_change_detection_under_2ms_at_400k_agents`(400k 体で 2 ms 以内という時間の試験)。検収のランを同じ機械で並べて回していたので、負荷による落ちと推測する(確かめていない)。単独で回し直すかは親の判断。§7 の 3,961 passed との差 1 はこの 1 件。
+- R6 の実行時の確かめ(試していない)。
