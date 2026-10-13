@@ -21,7 +21,7 @@
 
 物の同一性(草案 §2-1 の 6): 箱は組み立ての物をそのまま指す(写しを作らない)。
 
-逐次ループ宣言: ``TickScratch.reset`` は欄の数ぶん(34・刻みに 1 回)。
+逐次ループ宣言: ``TickScratch.reset`` は欄の数ぶん(35=1-0 の 34+第 1 期 1-2 の ``percepts``・刻みに 1 回)。
 """
 
 from __future__ import annotations
@@ -157,6 +157,7 @@ class RunConfig:
     refractory_table: Any
     refractory_scale_norm: Any
     budget_mode_enum: Any
+    #: 〔第 1 期 1-2〕看板の注視の活動の乗数は消した=表は None・恒等は True(1-0 の割り当ての欄として残す)
     p_see_activity_table: Any
     p_see_activity_identity: bool
     call_layer: int
@@ -272,6 +273,9 @@ SCRATCH_FIELDS: tuple[str, ...] = (
     "plan",                  # phase_b → phase_c・conversation・memory・observe
     "outcome",               # phase_c → conversation・memory・familiarity・observe
     "exposures",             # memory → familiarity(HEAD の ``_exp``)
+    # 〔第 1 期 1-2〕知覚の事実 ``perception.facts.Percept``(体 → その刻みに描いた Percept・HEAD の局所ではない)。decide が書く
+    # =判断の入力の形(1-8 の DecisionPort.choose(ctx, …))。状態台帳の行 P(軸 1 no・軸 2 discardable)。刻みの頭で空になる
+    "percepts",              # decide → (1-8 の判断の口)
 )
 
 

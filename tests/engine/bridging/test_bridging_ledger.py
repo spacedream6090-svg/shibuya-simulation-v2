@@ -116,7 +116,8 @@ def test_the_counts_by_form(decls):
     assert S.count_by_form(decls) == {"conf": 0, "expedients": 139, "docstring": 5, "heading": 74, "process": 18,
                                       "fallback": 5}
     heads = [d for d in decls if d.form == S.FORM_HEADING]
-    assert len({d.path for d in heads}) == 71 and sum(d.items for d in heads) == 338
+    # 〔第 1 期 1-2〕p_notice の expedient の項 m_load(歩きスマホの負荷の係数)を消した=338 → 337(記録 p12/README.md §15)
+    assert len({d.path for d in heads}) == 71 and sum(d.items for d in heads) == 337
 
 
 def test_process_and_fallback_rows(ledger, decls):

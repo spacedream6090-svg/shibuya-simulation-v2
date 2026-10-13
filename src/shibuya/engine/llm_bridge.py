@@ -224,6 +224,9 @@ class RenderedPrompt:
     #: テープ版 4(K1): 本人ブロックの本文。B5 は列に直接・B6 はブロック表に intern(空=描画が無い経路)。
     b5_text: str = ""
     b6_text: str = ""
+    #: 第 1 期 1-2: 描いた知覚の事実(``perception.facts.Percept``・本物の描画だけ・スタブは None)。テープには書かない
+    #: (刻みの中の一時=``TickScratch.percepts`` と判断の入力へ渡す)。
+    percept: Any = None
 
     @property
     def block_ids(self) -> tuple[str, ...]:
@@ -384,6 +387,7 @@ class PerceptionRendererAdapter:
             acquaintance_ids=tuple(getattr(out, "acquaintance_ids", ())),
             b5_text=out.blocks["B5"].decode("utf-8") if "B5" in out.blocks else "",
             b6_text=out.blocks["B6"].decode("utf-8") if "B6" in out.blocks else "",
+            percept=getattr(out, "percept", None),
         )
 
     # ---- 診断 ----
@@ -598,6 +602,7 @@ class LLMBridge:
         lane: str | None = None,
         targets: tuple[str, ...] = (),
         inviter: int = -1,
+        percept_out: list | None = None,
     ) -> BridgeResult:
         """1呼。**必ず**テープへ書き、必ずパースし、必ず ``t_apply`` を決める。
 
@@ -607,6 +612,9 @@ class LLMBridge:
             inviter: 被招待起床(``WakeCondition.CONVERSATION_TURN`` で返事待ち)のとき
                 **招待者の個体 id**。レンダラが B6 起床行で名指す(知覚契約書 §6 起床(ii))。
                 -1=招待なし(描画は 1 バイトも変わらない)。
+            percept_out: 第 1 期 1-2: 描画が作った知覚の事実(``perception.facts.Percept``)を受ける列(呼び手=decide の
+                局所)。本物の描画のときだけ 1 つ足す。**結果(``BridgeResult``)には載せない**=再生の到着待ち
+                (``run_day.replay_inbox``・状態台帳 O96=軸 2 required)に入らない=刻みの中だけ(検収 M1)。
         """
         lane = lane or self.lane
         rendered = self.renderer.render(
@@ -620,6 +628,8 @@ class LLMBridge:
             last_action=int(last_action),
             inviter=int(inviter),
         )
+        if percept_out is not None and getattr(rendered, "percept", None) is not None:
+            percept_out.append(rendered.percept)
         request = LLMRequest(
             agent_id=int(agent_id),
             tick=int(tick),

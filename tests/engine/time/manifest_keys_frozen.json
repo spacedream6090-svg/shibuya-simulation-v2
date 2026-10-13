@@ -1,6 +1,6 @@
 {
  "schema": "shibuya.tests/t0/manifest-keys/1",
- "note": "run_manifest_fields() の一番上の鍵(順も)。第 1 期 1-1 T0 で末尾に TM9 の 4 つ(calls_by_model・clock_kind・step_seconds・bridges_count)を足した。第 1 期 1-4 で末尾に rules_version・run_kind・bridges_version を足した(bridges_count は null から件数に)。欄を足したら理由を記録に書いて更新する。第 1 期 1-9(K17)で末尾(1-4 の後)に economy(金の生ログの輪の容量と溢れ・transfer の計器)を足した",
+ "note": "run_manifest_fields() の一番上の鍵(順も)。第 1 期 1-1 T0 で末尾に TM9 の 4 つ(calls_by_model・clock_kind・step_seconds・bridges_count)を足した。第 1 期 1-4 で末尾に rules_version・run_kind・bridges_version を足した(bridges_count は null から件数に)。欄を足したら理由を記録に書いて更新する。第 1 期 1-9(K17)で末尾(1-4 の後)に economy(金の生ログの輪の容量と溢れ・transfer の計器)を足した。〔第 1 期 1-2〕知覚の事実の計器 percept を末尾(1-9 の economy の後)に足した(記録 p12/README.md)。1-2 で係数(看板の注視の活動の乗数)を消した=p_see_activity の欄は残して値は null。",
  "keys": [
   "registry_hash",
   "replay_date",
@@ -113,6 +113,7 @@
   "rules_version",
   "run_kind",
   "bridges_version",
-  "economy"
+  "economy",
+  "percept"
  ]
 }

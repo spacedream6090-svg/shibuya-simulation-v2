@@ -111,7 +111,6 @@ from shibuya.perception.renderer import Renderer as PerceptionRenderer
 from shibuya.perception.renderer import check_hunger_words
 from shibuya.perception.renderer import check_near_order
 from shibuya.perception.renderer import check_near_tiebreak
-from shibuya.perception.renderer import check_p_see_activity
 from shibuya.perception.renderer import check_signage_p_see
 from shibuya.perception.templates import check_intent_mode
 from shibuya.perception.templates import check_role_words
@@ -386,8 +385,12 @@ def build(_call_args: dict[str, Any]) -> Any:
         raise ValueError(f"seat_area_retail_m2 は正の値(いま {seat_area_retail_m2})")
     # ---- D-59 (b) 看板の注視ゲート: 同上(過程を切ったランでも腕の値を検査する) ----
     signage_p_see = check_signage_p_see(signage_p_see)
-    p_see_activity_table = check_p_see_activity(p_see_activity)
-    p_see_activity_identity = all(v == 1.0 for v in p_see_activity_table.values())
+    # 〔第 1 期 1-2・決定 10-12 §1-6〕看板の注視の活動の乗数(表と腕)は消した。引数は設定の指紋と 1-0 の引数の数を
+    # 変えないため残し、None 以外は止める。箱の欄(1-0 の割り当て)は「表は無い」の値のまま
+    if p_see_activity is not None:
+        raise ValueError("p_see_activity は第 1 期 1-2 で消した(看板の注視に活動の乗数を掛けない=決定 10-12 §1-6)")
+    p_see_activity_table = None
+    p_see_activity_identity = True
     # ---- AB7 自由意図の腕: 値の検査は**レンダラを作る前**にする(manifest が嘘をつかない) ----
     intent_mode = check_intent_mode(intent_mode)
     role_words = check_role_words(role_words)
@@ -739,7 +742,6 @@ def build(_call_args: dict[str, Any]) -> Any:
                 budget_mode=budget_mode_enum,
                 signage_enabled=signage,
                 signage_p_see=signage_p_see,
-                p_see_activity=p_see_activity_table,
                 intent_mode=intent_mode,
                 vocab_version=vocab_version,
                 role_words=role_words,
@@ -747,6 +749,8 @@ def build(_call_args: dict[str, Any]) -> Any:
                 near_salt=run_salt_for(seed),
                 near_order=near_order,
                 hunger_words=hunger_words,
+                # 第 1 期 1-2: 知覚の事実の時刻の見方(暦の日の種類)。描画の文は読まない
+                day_kind_fn=lambda T_: calendar.day_kind(calendar.day_of(T_)),
             )
         )
         renderer_obj: Any = perception
@@ -958,12 +962,6 @@ def build(_call_args: dict[str, Any]) -> Any:
             ),
             p_see=float(getattr(_fam_renderer, "signage_p_see", 1.0)) if _fam_has_renderer else 1.0,
             seed=getattr(_fam_renderer, "seed", seed) if _fam_has_renderer else seed,
-            # 5c: 乗数表が全部 1.0(既定)なら渡さない=従来のスカラー p_see の経路のまま
-            p_see_fn=(
-                _fam_renderer.effective_p_see
-                if (_fam_has_renderer and not p_see_activity_identity)
-                else None
-            ),
             kind_fn=(
                 _fam_renderer.activity_classes
                 if (_fam_has_renderer and hasattr(_fam_renderer, "activity_classes"))

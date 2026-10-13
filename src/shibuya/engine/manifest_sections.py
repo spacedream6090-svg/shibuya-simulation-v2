@@ -72,6 +72,8 @@ PATHS: Final[dict[str, str]] = {
     "rules_version": _C, "run_kind": _C,
     # ---- 1-4 検収 L1: つなぎの台帳の中身の sha(設定) ----
     "bridges_version": _C,
+    # 第 1 期 1-2: Percept の形・欄の数・空の欄(コードで決まる=設定)
+    "percept": _C,
     # ---- 状態のハッシュ・再開・日ごとの締め(観測) ----
     "state_hashes": _O, "state_hashes.ledger_version": _C,
     "state_hashes_end_of_day": _O,
@@ -121,8 +123,8 @@ PATHS: Final[dict[str, str]] = {
     **_mixed("chooser_stats", config=("name", "p_h", "tau", "activity_region"), observed=("counts",)),
     **_mixed("decision_layers", config=("definition", "entrances"), observed=(
         "totals", "share", "by_entrance", "by_hour", "by_hour_layer_entrance", "conversation_origins")),
-    **_mixed("p_see_activity", config=("table", "identity", "signage_p_see", "applies_to"),
-             observed=("by_kind", "effective_p_see")),
+    # 〔第 1 期 1-2〕看板の注視の活動の乗数は消した=値は null(設定)
+    "p_see_activity": _C,
     **_mixed("memory_summary", config=("n_rows", "d", "w_r", "w_i", "row_bytes_declared", "row_bytes_actual"),
              observed=("recall", "k2_motif_repeats", "k5_failure_avoidance", "counts", "rows_used_per_agent",
                        "full_agents", "agents_with_rows", "rows_by_kind", "failure_rows_by_result", "importance",

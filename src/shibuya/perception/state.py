@@ -99,7 +99,7 @@ class PerceptionState:
         r.declare("heading", np.uint8, byte_budget_per_agent=1, mechanism=True,
                   doc="向きの量子化(16セクタ・22.5°刻み・M12 p_notice の m_ecc)")
         r.declare("task_flag", np.uint8, byte_budget_per_agent=1, mechanism=True,
-                  doc="課題従事フラグ(TaskLoad 手空き/歩きスマホ/会話・M12 p_notice の m_load)")
+                  doc="課題従事フラグ(TaskLoad 手空き/歩きスマホ/会話・M12・〔1-2〕負荷の係数は消した=p_notice は受けるだけ)")
         # 10e(E1・A4): dormant 再送抑止の ``last_b2_hash``・``last_b4_hash``(u8 ×2=16 B/体)は書き手も読み手も
         # 無い死蔵だったので消した(旧い final には知覚 SoA が入らないので retire は要らない)
         if include_invocation_distance:

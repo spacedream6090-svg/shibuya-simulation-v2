@@ -198,7 +198,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "O85:bridge.* O86:bridge.* O87:bridge.* O8[89]:fleet_bridge.* O62:undefined.* O8[23]:undefined.* "
                "O35:presence.* O70:presence.* "
                "M0*:mem_layer.memory_store.*",  # 1-6: 記憶の器(想起の計数・見せた行の録画・発話の記憶・テープの列)
-         scratch_r="decision outside_now n_parse_errors_fleet", scratch_w="parse_errors",
+         # 第 1 期 1-2: 描いた知覚の事実 ``percepts``(``TickScratch`` の欄・状態台帳の行 P)
+         scratch_r="decision outside_now n_parse_errors_fleet", scratch_w="parse_errors percepts",
          tally="calls_by_cond layer_counts n_fleet_resent n_outside_calls peak_backlog peak_pending phase result",
          calls_llm="send", reads="cfg.call_layer cfg.lane cfg.refractory_table cfg.store_wom_on cfg.tick_seconds "
                "cfg.vocab_version layers.arbiter layers.bridge layers.classical layers.conv "
@@ -207,7 +208,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "runstats.calls_by_cond runstats.layer_counts runstats.n_fleet_resent "
                "runstats.n_outside_calls runstats.peak_backlog runstats.peak_pending runstats.phase "
                "runstats.result scratch.decision scratch.n_parse_errors_fleet scratch.outside_now "
-               "scratch.parse_errors soa.agents",
+               "scratch.parse_errors scratch.percepts soa.agents",
          origin=f"L14・run.py:4002-4127 @{_E}"),
     make("phase_a", "行為の解決", "tick", _AC.sys_phase_a,
          resolve_ops="intent_kept_by",
@@ -349,7 +350,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "cfg.mock_move_target_p cfg.mock_out_of_cell_target_p cfg.move_search_radius "
                "cfg.n_agents cfg.near_order cfg.near_tiebreak cfg.occupancy_path "
                "cfg.outside_suppression cfg.p_notice_ablation cfg.p_notice_d50_scale "
-               "cfg.p_see_activity_identity cfg.p_see_activity_table cfg.parent_run cfg.plan_exec_on "
+               "cfg.parent_run cfg.plan_exec_on "
                "cfg.plan_sleep cfg.poi_target cfg.policy cfg.refractory_scale_norm cfg.response_delay "
                "cfg.role_words cfg.run_id cfg.seat_area_eatery_m2 cfg.seat_area_retail_m2 cfg.signage "
                "cfg.signage_p_see cfg.sim_days cfg.sleep_suppression cfg.stopped cfg.store_memory_on "

@@ -2661,7 +2661,7 @@
   },
   {
    "id": "HD-perception.p_notice-16ea5cb3",
-   "what": "src/shibuya/perception/p_notice.py の docstring の見出し「expedient(本モジュール分・§3.1 の「expedient明示」を写したもの)」の下の項 6 個",
+   "what": "src/shibuya/perception/p_notice.py の docstring の見出し「expedient(本モジュール分・§3.1 の「expedient明示」を写したもの)」の下の項 5 個",
    "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 空間の段 3 の気づく確率(SR7)",
    "remove_at": "5-3",
    "declared_in": "src/shibuya/perception/p_notice.py#heading:16ea5cb3",

@@ -2749,7 +2749,8 @@ def set_notice_state(pstate, heading, task_flag, indices=None) -> None:
 
     ``perception.state.PerceptionState`` は ``agents``/``world`` と同じ凍結規律を持ち、
     ``writable()`` を呼んでよいのは本ファイルだけ(``tests/engine/test_two_phase.py``)。
-    p_notice(知覚契約書 §3.1)の ``m_ecc``/``m_load`` はこの 2 byte/体を読む。
+    p_notice(知覚契約書 §3.1)の ``m_ecc`` は向きを読む。課題従事フラグは受けるだけ(〔第 1 期 1-2〕負荷の係数 ``m_load`` は
+    消した=確率に効かない)。
 
     Args:
         pstate: ``PerceptionState``(型は import しない=engine→perception の依存を増やさない)。

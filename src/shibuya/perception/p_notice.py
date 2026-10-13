@@ -6,7 +6,10 @@
   ``d50_eff = d50(事象クラス) × m_light × m_ecc × m_density``。
   ``m_light`` = 昼1.0/夜0.68(Fotios 8.9/13.0)、``m_ecc = E2/(E_ang+E2)``(E2=6.22°・
   ``|E_ang|>110°`` で 0 = 背後は一次視覚ゼロ)、``m_density`` = 疎1.0/中0.5/密0.2。
-  ``P1' = P1 × m_load``(歩きスマホ0.46・会話1.0・手空き1.0)。**動く事象は d50 を1.5倍**。
+  **動く事象は d50 を1.5倍**。〔第 1 期 1-2・決定 10-12 §1-6「係数で持たない」〕契約書の負荷の係数
+  ``P1' = P1 × m_load``(歩きスマホ0.46・会話1.0・手空き1.0)は消した(既定のランで効く道が無かった=歩きスマホの旗を
+  立てる口が無い・byte-check 19 構成で結果不変=記録 ``docs/bench/analysis/wallbounce-1012/p12/README.md``)。0.46 は
+  パターン台帳 §10 の検証専用の値(Hyman 2010)。本モジュールでは ``P1'`` = ``P1``。
 - **二次検出(社会伝播)**: ``P2 = 0.92·N^1.05/(1.2^1.05+N^1.05)``(Milgram 1969 データへの
   ヒル型フィット・N=**半径15 m 内で当該 tick に既に気づいた人数**)。
 - **合成**: ``p = 1−(1−P1')(1−P2)``。**発生 tick での一発ベルヌーイ**
@@ -14,8 +17,8 @@
 - **打ち切り 80 m**(±1リング=9セル)。
 - 検算表(d50=40 m・前方・昼・疎・手空き): 10 m 0.9995 / 20 m 0.945 / 40 m 0.500 /
   60 m 0.217 / 80 m 0.108 / 100 m 0.061 / 200 m 0.010 → ``tests/perception/test_p_notice.py``。
-- **ablation**: A0 定数0.54(Simons & Chabris)→A1+距離→A2+負荷・照明→A3+偏心・密度→
-  A4+社会伝播(=完成形)。
+- **ablation**: A0 定数0.54(Simons & Chabris)→A1+距離→A2+照明(〔1-2〕負荷の係数は消した=名の
+  ``A2_LOAD_LIGHT`` は manifest と CLI の値のまま)→A3+偏心・密度→A4+社会伝播(=完成形)。
 - **性能予算(§3.1/§7 P7)**: 「イベント時のベクトル演算1回=約10 ops/体×近傍在席者
   (~26,000体)=**0.26 MOPS/イベント**」・顕著イベント**上限200/tick**・
   追加状態=向き量子化1 byte+課題従事フラグ1 byte=**2 byte/体**(M12)。
@@ -28,7 +31,6 @@ expedient(本モジュール分・§3.1 の「expedient明示」を写したも�
 - ``d50=40 m``(Fotios 注視距離を Johnson の検出:認識=1:4 で外挿)
 - ``m_density``(クラッタで N50 が 0.5→2.5 になる写像)
 - 打ち切り ``80 m``
-- ``m_load``(Hyman は距離/密度を統制していない)
 - 社会項の適用半径 ``15 m``
 - **本モジュール独自の expedient**: ①「一発ベルヌーイ」を一次→二次の**2段抽選**として実装した
   (合成確率 ``1−(1−P1')(1−P2)`` と数学的に等価。N が一次検出の結果に依存するため、
@@ -55,7 +57,6 @@ __all__ = [
     "M_LIGHT_DAY",
     "M_LIGHT_NIGHT",
     "M_DENSITY",
-    "M_LOAD",
     "MOVING_D50_MULTIPLIER",
     "SOCIAL_RADIUS_M",
     "SOCIAL_A",
@@ -97,8 +98,6 @@ M_LIGHT_DAY: Final[float] = 1.0
 M_LIGHT_NIGHT: Final[float] = 0.68
 #: 密度係数(疎/中/密・expedient)。
 M_DENSITY: Final[tuple[float, float, float]] = (1.0, 0.5, 0.2)
-#: 負荷係数(手空き/歩きスマホ/会話・expedient)。
-M_LOAD: Final[tuple[float, float, float]] = (1.0, 0.46, 1.0)
 #: 動く事象の d50 倍率(動標的の N50=静止の 2/3 → d50 は 1.5 倍側)。
 MOVING_D50_MULTIPLIER: Final[float] = 1.5
 #: 社会伝播の適用半径[m](expedient)。
@@ -116,7 +115,7 @@ HEADING_SECTORS: Final[int] = 16
 
 
 class TaskLoad(IntEnum):
-    """課題従事フラグ(``m_load`` の索引・M12 の 1 byte)。"""
+    """課題従事フラグ(M12 の 1 byte)。〔第 1 期 1-2〕負荷の係数は消した=値は事実として残す(心の向きの仕組みの入力の候補)。"""
 
     FREE = 0  # 手空き
     PHONE = 1  # 歩きスマホ
@@ -151,7 +150,6 @@ class PNoticeParams:
     ecc_cutoff_deg: float = ECC_CUTOFF_DEG
     m_light_night: float = M_LIGHT_NIGHT
     m_density: tuple[float, float, float] = M_DENSITY
-    m_load: tuple[float, float, float] = M_LOAD
     moving_multiplier: float = MOVING_D50_MULTIPLIER
     social_radius_m: float = SOCIAL_RADIUS_M
     social_a: float = SOCIAL_A
@@ -275,9 +273,8 @@ def eccentricity_deg(
 def p1_primary(
     distance_m: np.ndarray,
     d50_eff_m: np.ndarray | float,
-    m_load: np.ndarray | float = 1.0,
 ) -> np.ndarray:
-    """TTPF 一次検出 ``P1' = P1 × m_load``。``d50_eff=0``(背後)は 0 を返す。"""
+    """TTPF 一次検出 ``P1``。``d50_eff=0``(背後)は 0 を返す(〔1-2〕負荷の係数 ``m_load`` は消した)。"""
     d = np.asarray(distance_m, dtype=np.float64)
     d50 = np.broadcast_to(np.asarray(d50_eff_m, dtype=np.float64), d.shape)
     ok = (d50 > 0.0) & (d > 0.0)
@@ -289,7 +286,7 @@ def p1_primary(
     p1 = np.where(ok, se / (1.0 + se), 0.0)
     # d=0(同一点)は確実に見える
     p1 = np.where((d == 0.0) & (d50 > 0.0), 1.0, p1)
-    return p1 * np.asarray(m_load, dtype=np.float64)
+    return p1
 
 
 def p2_social(
@@ -417,7 +414,7 @@ def notice_event(
         event_xy: 事象の平面座標[m]。
         agent_xy: ``(n, 2)`` 候補の平面座標[m]。
         heading_u8: ``(n,)`` 量子化された向き(0..15)。
-        task_flag: ``TaskLoad``(スカラーまたは ``(n,)``)。
+        task_flag: ``TaskLoad``(スカラーまたは ``(n,)``)。〔第 1 期 1-2〕受けるだけ(負荷の係数は消した=確率に効かない)。
         density_class: ``DensityClass``(スカラーまたは ``(n,)``)。
         night: 夜間なら True(``m_light``)。
         moving: 動く事象なら True(d50 を 1.5 倍)。
@@ -451,7 +448,6 @@ def notice_event(
     d = d_all[idx]
     pos = xy[idx]
     heads = np.asarray(heading_u8, dtype=np.uint8).reshape(-1)[idx]
-    loads = np.broadcast_to(np.asarray(task_flag, dtype=np.int64).reshape(-1), (n_all,))[idx]
     dens = np.broadcast_to(np.asarray(density_class, dtype=np.int64).reshape(-1), (n_all,))[idx]
 
     ab = prm.ablation
@@ -462,10 +458,8 @@ def notice_event(
         if moving:
             d50 *= prm.moving_multiplier
         m_light = 1.0
-        m_load = np.ones(d.shape, dtype=np.float64)
         if ab >= Ablation.A2_LOAD_LIGHT:
             m_light = prm.m_light_night if night else M_LIGHT_DAY
-            m_load = np.asarray(prm.m_load, dtype=np.float64)[np.clip(loads, 0, 2)]
         m_ecc = np.ones(d.shape, dtype=np.float64)
         m_dens = np.ones(d.shape, dtype=np.float64)
         if ab >= Ablation.A3_ECC_DENSITY:
@@ -475,7 +469,7 @@ def notice_event(
             )
             m_dens = np.asarray(prm.m_density, dtype=np.float64)[np.clip(dens, 0, 2)]
         d50_eff = d50 * m_light * m_ecc * m_dens
-        p1 = p1_primary(d, d50_eff, m_load)
+        p1 = p1_primary(d, d50_eff)
 
     g = stream(seed, "perception.p_notice", *k19_counters(int(event_id), int(tick)))
     draws = g.random((2, d.size))

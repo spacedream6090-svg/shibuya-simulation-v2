@@ -129,6 +129,7 @@ from shibuya.llm.contract import TargetKind
 from shibuya.llm.fleet import FleetClient
 from shibuya.llm.mock import MockLLM
 from shibuya.perception.channels import BudgetMode
+from shibuya.perception.facts import percept_manifest as _percept_manifest
 from shibuya.perception.renderer import (
     DEFAULT_HUNGER_WORDS,
     DEFAULT_NEAR_ORDER,
@@ -699,7 +700,8 @@ class RunResult:
     chooser_stats: dict[str, Any] = field(default_factory=dict)
     decision_layers: dict[str, Any] = field(default_factory=dict)
     #: 5 段目 5c(D-117): 看板の注視 p_see の活動の種別の乗数表・活動の種別ごとの計数・実効 p_see の分布。
-    p_see_activity: dict[str, Any] = field(default_factory=dict)
+    #: 〔第 1 期 1-2〕看板の注視の活動の乗数は消した=値は常に None(manifest の欄は残す)。
+    p_see_activity: Any = None
     #: 6 段目 6a(記憶 第 1 段の記録): 表を確保したか(``--memory on``)・行数 N・要約。
     memory: bool = False
     memory_n: int = MEMORY_N
@@ -1211,7 +1213,7 @@ class RunResult:
             "chooser_stats": dict(self.chooser_stats),
             "decision_layers": dict(self.decision_layers),
             # ---- 5 段目 5c(D-117 M1〜M4): 活動 → 知覚の乗数。列追加のみ ----
-            "p_see_activity": dict(self.p_see_activity),
+            "p_see_activity": None,  # 〔第 1 期 1-2〕活動の乗数は消した(欄は残して null)
             # ---- 6 段目 6a(記憶 第 1 段の記録): 腕。列追加のみ ----
             "memory": bool(self.memory),
             "memory_n": int(self.memory_n),
@@ -1291,6 +1293,9 @@ class RunResult:
             # ---- 第 1 期 1-9(CP2 の段階 1・K17): 金の生ログの輪の容量と溢れ・transfer の計器(台帳が無いランは空)。
             # 末尾=T0 の TM9 → 1-4 の欄 → 1-9。列追加のみ ----
             "economy": self.economy_fields(),
+            # ---- 第 1 期 1-2(知覚の分離): Percept の形の版・欄の数と名・空の欄の一覧(計器・設定)。末尾=T0 の TM9 →
+            # 1-4 の欄 → 1-9 の economy → 1-2。列追加のみ ----
+            "percept": _percept_manifest(),
         }
 
     def economy_fields(self) -> dict[str, Any]:
@@ -2189,11 +2194,10 @@ def run_day(
             ハザードを積算して換算(**第2波 §2B の規則**・体ごとの H 4 B/体・``engine.classical``)。既定の切り替えは食事の束の版上げで確認する(指示書 §8-2)。
         classical_habit_p / classical_tau: ``chooser="classical"`` の習慣の確率 p_h(宣言 0.5)と
             満足化の揺らぎ τ(宣言 1.0)。
-        p_see_activity: **5 段目 5c(D-117・M1 (a)・M2 (b)・M4 (a))**。看板の注視ゲート p_see に掛ける
-            活動の種別の乗数表(``perception.renderer.P_SEE_ACTIVITY_KINDS`` の鍵 → 乗数・欠けた鍵は 1.0・
-            辞書か JSON 文字列)。実効 p_see=min(1, p_see × 乗数)。**p_see にだけ**掛ける(B2 の可視の行は
-            変えない)=注視ゲートと親しみの表の露出(入った回)が変わる。既定 ``None``=全部 1.0=
-            **描画バイトも checkpoint も 1 バイトも変わらない**。
+        p_see_activity: 〔第 1 期 1-2・決定 10-12 §1-6「係数で持たない」〕5 段目 5c(D-117)の看板の注視 p_see に
+            掛ける活動の種別の乗数は**消した**(既定のランで効く道が無かった=byte-check 19 構成で結果不変)。引数は
+            設定の指紋(``_call_args``)と 1-0 の引数の数を変えないため残し、``None`` 以外は ``ValueError``。
+            manifest の欄 ``p_see_activity`` は残して値は null。
         memory: **6 段目 6a(記憶 第 1 段の記録)**。``True``/``"on"`` で体 × N 行の記憶の表
             (``AgentState(memory_columns=True)``・実 25 B/行・宣言 32 B/行)を確保し、行動の成否・会話・
             気づき・強い看板(初見)を書く(``engine.memory``)。読み手は 6b の想起(下)。既定 ``False``=

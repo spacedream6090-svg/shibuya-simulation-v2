@@ -1,6 +1,6 @@
 """状態台帳の宣言(10b・A3「挙動」と「復元」の 2 軸・機械可読の 1 ファイル)。
 
-**読み口は 1 つ**: ``LEDGER``(191 行の組=〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
+**読み口は 1 つ**: ``LEDGER``(192 行の組=〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
 ``soa_rows``・``external_rows``・``behavior_excluded``・``full_excluded``・``full_items``・``behavior_items``)。表・AST の検査(``engine.state_ledger_ast``)・
 2 つのハッシュ(``engine.state_hashes``)・揺らし試験はどれもこの表から作る。
 
@@ -58,6 +58,7 @@ from typing import Final, Iterable
 #: ``state_hashes.ledger_version`` の値が動き、前の版で書いた状態のファイルから再開できなくなる(どちらも中身は同じ)。
 #: 〔第 1 期 1-6〕記憶の器の行 ``M0``(軸 1 no・軸 2 derivable・中身は全部 hash_skip)と ``M0R``(diag・discardable)を
 #: 足したが版は上げない(1-3 と同じ仮採用): どちらのハッシュにも状態のファイルにも入らない(190 行)。
+#: 〔第 1 期 1-2〕知覚の事実の行 ``P``(軸 1 no・軸 2 discardable・道筋なし)も同じ理由で版は上げない(仮採用)。
 LEDGER_VERSION: Final[str] = "state-ledger/10e-ret"
 
 BEHAVIOR: Final[str] = "behavior"
@@ -603,8 +604,7 @@ _EXT: tuple[LedgerRow, ...] = (
            "memory_lines", "memory_items", "memory_line_tokens", "memory_items_dropped_for_budget",
            "memory_items_dropped_for_channel", "memory_lines_over_budget", "near_order_ties", "near_tie_breaks",
            "near_tie_candidates", "cache_hits", "cache_misses", "renders", "truncation_count", "intent_lines",
-           "intent_lines_over_budget", "named_closed_notes", "signage_gate_draws", "signage_gate_shown",
-           "signage_by_kind", "signage_effective_p"))),
+           "intent_lines_over_budget", "named_closed_notes", "signage_gate_draws", "signage_gate_shown"))),
     _o(85, "LLMBridge _interned(テープへ書いた共有ブロック)", "engine/llm_bridge.py:554,771-774", "set", N_, R_,
        ("bridge._interned",), note="テープの block 行を 1 回だけ書く印。10d: 記録の継続に要る=required(再開のテープは"
                                    "新しい block だけを持ち、親のテープと連結して読む)"),
@@ -710,6 +710,18 @@ _EXT: tuple[LedgerRow, ...] = (
              " economy と日次の記録の計器と試験だけ)・軸 2 discardable(輪の中身 O58・O60 と同じく再開で空から=どちらの"
              "ハッシュにも状態のファイルにも入らない)。行の鍵は O の通し番号でなく A(CP1 の A=湧かないもの=お金。1-5 の権利=CP1 の C と取り違えないため・検収 L3)。系の宣言は A:ledger.*。"
              "書く系は phase_c・world・day_close・close_final"),
+    # ---- 第 1 期 1-2(知覚の分離・§1-13): 足す前に軸を決めた行(口の約束 1-2 の約束 (3)) ----
+    LedgerRow(
+        key="P", name="TickScratch.percepts(知覚の事実 Percept・第 1 期 1-2)", place=EXTERNAL,
+        dtype="体 → perception.facts.Percept(凍結の dataclass)", nbytes="", alloc="", behavior=NO,
+        restore=DISCARDABLE, dead=False,
+        basis="perception/facts.py(Percept)・perception/renderer.py(perceive・render_percept)・"
+              "engine/systems/decide.py(書く)・engine/systems/boxes.py(SCRATCH_FIELDS)",
+        items=(),
+        note="1-2: 軸 1 no(描画は Percept から文を描くが、Percept は刻みの中で個体 SoA・世界・刻みの前計算から作り直す派生の値="
+             "知覚 SoA の heading・task_flag と同じ扱い。scratch の欄を読む系は今は無い=1-8 の判断の口が読む)・軸 2 discardable"
+             "(刻みの頭で空になる=どちらのハッシュにも状態のファイルにも入らない)。持ち主の物ではなく TickScratch の欄なので"
+             "道筋(items)は持たない。書く系は decide だけ(writes.scratch=段 C の守り)。行の鍵は O の通し番号でなく P"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -874,7 +886,7 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("intent_layer", CACHE, _TAB, "_poi_cell"),
     _x("fam_layer", CONST, _CFG, "n", "k", "minutes_per_tick", "d", "p_see", "seed"),
     _x("fam_layer", CACHE, _TAB, "signage_poi_by_cell"),
-    _x("fam_layer", REF, "描画の側の関数(配線)", "p_see_fn", "kind_fn"),
+    _x("fam_layer", REF, "描画の側の関数(配線・〔第 1 期 1-2〕乗数つきの p_see_fn は消した)", "kind_fn"),
     _x("mem_layer", CONST, _CFG, "n", "n_rows", "minutes_per_tick", "d", "w_r", "w_i", "tau",
        "store_recall_scope"),
     _x("mem_layer", REF, "関係辺の層(rel_layer の側で数える)", "relations"),
@@ -1045,10 +1057,12 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "weather_date_fn"),
     _x("renderer", REF, "10e B6: B3 の天候・日照・暑さの語とキャッシュの鍵を返す口(天気の規則 calendar で engine.run が"
        "差し込む・関数)", "weather_words_fn", "weather_words_key_fn"),
+    _x("renderer", REF, "第 1 期 1-2: 暦の日の種類を返す口(組み立てが暦の SimCalendar.day_kind を渡す・関数・"
+       "Percept.time_view の材料・描画の文は読まない)", "day_kind_fn"),
     _x("renderer", CONST, _CFG + "(知人の初期表・被注視数は初期化で渡す値)", "seed", "acquaintances", "watched_by",
-       "budget_mode", "strict_group_budget", "signage_enabled", "signage_p_see", "p_see_activity", "_p_see_mult",
-       "_p_see_identity", "intent_mode", "vocab_version", "role_words", "near_tiebreak", "near_order",
-       "_near_salt64", "_b0", "_b4b", "_hunger_words", "hunger_words", "_hunger_min_stage"),
+       "budget_mode", "strict_group_budget", "signage_enabled", "signage_p_see", "intent_mode", "vocab_version",
+       "role_words", "near_tiebreak", "near_order", "_near_salt64", "_b0", "_b4b", "_hunger_words", "hunger_words",
+       "_hunger_min_stage"),
     _x("bridge", CONST, _CFG, "mode", "vocab_version", "landmarks", "_engine_codes", "params", "lane", "tick_seconds"),
     _x("bridge", REF, _REFR + "(未定義行動の台帳・再生・応答の口)", "renderer", "undefined", "replay", "client"),
     _x("bridge.tape", CONST, _CFG, "path", "flush_rows", "run_meta"),

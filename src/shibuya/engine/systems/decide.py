@@ -5,6 +5,9 @@
 刻みの中の受け渡しを ``TickScratch`` へ書く後置きだけを足した(文は変えない・``box.`` は ``b.``)。
 ``engine.run`` で定義された補助(``_split_due`` など)は呼ぶ時に ``engine.run`` から引く(試験の差し替えが効く)。
 
+〔第 1 期 1-2〕描画が作った知覚の事実(``perception.facts.Percept``)を体ごとに集め、``TickScratch.percepts`` に書く
+(判断の入力の形=1-8 の ``DecisionPort.choose(ctx, …)``・刻みの中の一時=状態台帳の行 P)。呼の中身は変えない。
+
 逐次ループ宣言: 区間の中の宣言は HEAD のまま(各関数の中の注を見る)。ほかに新しい逐次ループは無い。
 """
 
@@ -12,6 +15,7 @@ from __future__ import annotations
 
 import functools
 import time
+from types import MappingProxyType
 from typing import Any
 
 import numpy as np
@@ -69,6 +73,8 @@ def sys_decide(ctx: Any, b: Any) -> None:
             np.count_nonzero(outside_now[sel.agent_id.astype(np.int64)])
         )
     n_parse_errors = 0
+    #: 第 1 期 1-2: この刻みに描いた知覚の事実(体 → ``perception.facts.Percept``・スタブの描画は入らない)
+    percepts: dict[int, Any] = {}
     if presence is not None and presence.exit_mode == "walk_to_platform" and len(sel):
         presence.note_calls(sel.agent_id)
     if rel_layer is not None and rel_layer.acq_wake_on and len(sel):
@@ -89,12 +95,16 @@ def sys_decide(ctx: Any, b: Any) -> None:
                 cond = int(sel.condition[i])
                 if classical_policy is not None:
                     classical_policy.set_call(a, cond, _inviter_of(conv, a, cond))
+                _pcs: list = []  # 第 1 期 1-2: 描画の知覚の事実を受ける列(刻みの中だけ・結果には載せない=検収 M1)
                 res = bridge.call(
                     a, tick, cls, cond,
                     cell=int(cell[a]), activity=int(act[a]), hunger=int(hun[a]),
                     last_action=int(last_act[a]),
                     inviter=_inviter_of(conv, a, cond),
+                    percept_out=_pcs,
                 )
+                if _pcs:
+                    percepts[a] = _pcs[-1]
                 if res.deferred or res.observed_tick >= 0:
                     # 艦隊で録ったテープの再生(D-58)。本番と同じ「発射→後で届く」形に戻す。
                     if a in fleet_waiting:
@@ -136,6 +146,9 @@ def sys_decide(ctx: Any, b: Any) -> None:
                     last_action=int(last_act[a]),
                     inviter=_inviter_of(conv, a, cond),
                 )
+                _pc = getattr(rendered, "percept", None)
+                if _pc is not None:
+                    percepts[a] = _pc
                 sys_txt, usr_txt = split_system_user(
                     rendered.text, rendered.blocks[0][1] if rendered.blocks else ""
                 )
@@ -187,3 +200,5 @@ def sys_decide(ctx: Any, b: Any) -> None:
     b.runstats.peak_backlog = max(b.runstats.peak_backlog, arbiter.n_pending())
     phase["llm"] += time.perf_counter() - t0
     b.scratch.parse_errors = n_parse_errors
+    # 第 1 期 1-2: 知覚の事実は刻みの中だけ(読むだけの写し・刻みの頭で空になる=状態台帳の行 P)
+    b.scratch.percepts = MappingProxyType(percepts)

@@ -3636,6 +3636,14 @@
     "wake_filter"
    ],
    "to": "tick/end:系ごとの別の一時(build,wake_filter)"
+  },
+  "percepts": {
+   "param": false,
+   "systems": [
+    "decide"
+   ],
+   "to": "box:scratch.percepts",
+   "note": "第 1 期 1-2 で足した欄(HEAD の run_day の局所ではない=n_locals と kinds は HEAD のまま)。知覚の事実 Percept を decide が書く"
   }
  }
 }

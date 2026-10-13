@@ -76,8 +76,6 @@ def report(ctx: Any, b: Any) -> Any:
     outside_suppression = cfg.outside_suppression
     p_notice_ablation = cfg.p_notice_ablation
     p_notice_d50_scale = cfg.p_notice_d50_scale
-    p_see_activity_identity = cfg.p_see_activity_identity
-    p_see_activity_table = cfg.p_see_activity_table
     parent_run = cfg.parent_run
     plan_exec_on = cfg.plan_exec_on
     plan_sleep = cfg.plan_sleep
@@ -262,12 +260,8 @@ def report(ctx: Any, b: Any) -> Any:
         else {}
     )
     result.decision_layers = decision_layers_summary(layer_counts)
-    _psr = getattr(perception, "renderer", None) if perception is not None else None
-    result.p_see_activity = (
-        _psr.p_see_activity_summary()
-        if (_psr is not None and hasattr(_psr, "p_see_activity_summary"))
-        else {"table": dict(p_see_activity_table), "identity": bool(p_see_activity_identity)}
-    )
+    # 〔第 1 期 1-2〕看板の注視の活動の乗数は消した=manifest の欄 ``p_see_activity`` は残して値は null
+    result.p_see_activity = None
     result.poi_target = str(poi_target)
     result.target_resolution = (
         resolution_summary(poi_resolver.stats, poi_resolver.entropy_sum)
