@@ -43,9 +43,10 @@ def two_days():
 # ================================================================= manifest の欄
 def test_the_fields_are_at_the_end_and_frozen(two_days):
     keys = list(two_days.run_manifest_fields())
-    # 1-9 が末尾に economy、1-2 がその後ろに percept を足した(T0 の TM9 → 1-4 の 3 欄 → 1-9 → 1-2)=1-4 の 3 欄は
-    # 末尾の 2 つ前までの続きの並び
-    assert keys == TOP and keys[-5:-2] == R14 and keys[-6] == "bridges_count" and keys[-2:] == ["economy", "percept"]
+    # 1-9 が末尾に economy、1-2 がその後ろに percept、1-5 がその後ろに rights を足した(T0 の TM9 → 1-4 の 3 欄 →
+    # 1-9 → 1-2 → 1-5)=1-4 の 3 欄は末尾の 3 つ前までの続きの並び
+    assert keys == TOP and keys[-6:-3] == R14 and keys[-7] == "bridges_count"
+    assert keys[-3:] == ["economy", "percept", "rights"]
 
 
 def test_values_match_the_ledger_and_the_table(two_days):

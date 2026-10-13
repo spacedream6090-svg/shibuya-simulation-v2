@@ -70,7 +70,10 @@ expedient(本モジュール分)
   レンダラは C3-subE)。**文面凍結の対象ではない**(スタブであることを名前で宣言している)。
 - ``call_id = "<tick>:<agent>:<class>"``(艦隊ルーティング ``xxhash(call_id) mod 7`` 用)。
 - 役割語(§2.2)は ``_APPLY`` に対応分岐が無い(効果先は C4)。intent としては
-  **待機**へ落とし、``role_action`` 計数と ``NO_PERMISSION`` 相当の印だけ残す。
+  **待機**へ落とし、``role_action`` 計数を残す。〔第 1 期 1-5・CP3〕権利は止める理由にしない: 落とすのは効果の先
+  (世界の部品)が無いから。権利台帳の確かめの口(``role_rights``=``engine.rights.record.RoleActCheck``)が挿して
+  あれば、許可の無い役割語と判定しない職務の語を数える(``n_role_unauthorized``・``n_role_unjudged``=計器)。行動は
+  起きていない(待機に落ちる)ので出来事は書かない(検収 L4)。
 - テープ外(``TapeMiss``)のときは本文を空にして未定義行動扱い(=待機)。**実LLMは呼ばない**。
 """
 
@@ -432,7 +435,7 @@ class BridgeResult:
         undefined_stage: §7 の段(写ったら 0/4・記録なら 1・裁定を出したら 2・該当なしは -1)。
         target_hint: 段0 辞書 v4 が語に付けた**対象のヒント**(C9b G5・``""``=なし)。
             解決(どのセル/誰/どの POI か)は engine 側の仕事。
-        role_action: §2.2 の役割語だったか(権限検査待ち=当面 待機 へ落とす)。
+        role_action: §2.2 の役割語だったか(効果の先が無い=当面 待機 へ落とす。権利は 1-5 で数えるだけ)。
         tape_miss: リプレイでテープ外だったか。
         deferred: リプレイで**繰り延べ行**を引いたか(D-58)。True のとき ``text`` は空・
             ``parse``/``action_code`` は意味を持たない(呼び出し側は intent を作らず
@@ -573,12 +576,21 @@ class LLMBridge:
         self.n_unknown_action = 0
         self.n_undefined_mapped = 0
         self.n_role_actions = 0
+        #: 〔1-5〕役割語の権利の確かめの口(``engine.rights.record.RoleActCheck``・組み立てが挿す・``None``=確かめない)。
+        self.role_rights: Any | None = None
+        #: 〔1-5〕役割語のうち権利台帳で許可の無かった数・判定しなかった(職務の語)数(計器・状態台帳の O86)。
+        self.n_role_unauthorized = 0
+        self.n_role_unjudged = 0
         self.n_tape_misses = 0
         #: 再生で**繰り延べ行**を引いた回数(D-58)。record 経路(mock)では常に 0。
         self.n_deferred = 0
         self.n_tape_rows = 0
         #: すでに intern 済みの共有ブロック id(blake3 の再計算を避ける)。
         self._interned: set[str] = set()
+
+    def attach_role_rights(self, check: Any) -> None:
+        """〔1-5〕役割語の権利の確かめの口を挿す(組み立てが 1 回だけ呼ぶ)。"""
+        self.role_rights = check
 
     # ---------------------------------------------------------------- 1 tick 1 回
     def prepare_tick(self, tick: int, **kwargs: Any) -> None:
@@ -716,6 +728,13 @@ class LLMBridge:
         role_action = bool(parse.is_role_action)
         if role_action:
             self.n_role_actions += 1
+            if self.role_rights is not None:
+                # 1-5(CP3): 権利は止める理由にしない=確かめて数えるだけ(落とし方は変えない・行動は起きない=出来事は書かない)
+                verdict = self.role_rights(int(agent_id), int(tick), str(parse.action))
+                if verdict is False:
+                    self.n_role_unauthorized += 1
+                elif verdict is None:
+                    self.n_role_unjudged += 1
             # 役割語は effects 先が C4。当面は安全弁(待機・**語彙 v3 は なし**)へ落とす(expedient)。
             action_code = int(self._engine_codes[safe_action_word(self.vocab_version)])
         if not parse.format_ok:
@@ -862,6 +881,8 @@ class LLMBridge:
             "unknown_action": self.n_unknown_action,
             "undefined_mapped": self.n_undefined_mapped,
             "role_actions": self.n_role_actions,
+            "role_unauthorized": self.n_role_unauthorized,  # 1-5: 権利台帳で許可の無かった役割語
+            "role_unjudged": self.n_role_unjudged,  # 1-5: 判定しない職務の語
             "tape_misses": self.n_tape_misses,
             "tape_miss_rate": self.tape_miss_rate,
             "tape_deferred": self.n_deferred,

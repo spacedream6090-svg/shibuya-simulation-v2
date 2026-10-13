@@ -1,0 +1,380 @@
+{
+ "schema": "shibuya.bench/r15/manifest-check/1",
+ "agents": 5000,
+ "world": "data/world/v2",
+ "how": "10f の manifest_check_10f.py side の 7 本(HEAD=本体の HEAD の src の写し・r15=作業木の src・両側 PYTHONHASHSEED=0)の checkpoints の JSON を平坦化して比べる(壁時計の欄は除く・daily の行は行ごとに平坦化)。足してよいのは一番上の rights(末尾)とその中・節の表の 1 行。動いてよいのは bridges_count(一番上と daily の各行・273 → 277)と bridges_version だけ。環境の欄は必ず違う",
+ "all_ok": true,
+ "rows": [
+  {
+   "config": "w6_v3_default",
+   "seed": 1,
+   "final_head": "5f7ae9ff24005314",
+   "final_r15": "5f7ae9ff24005314",
+   "fields_compared": 1737,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": 273,
+     "r15": 277
+    },
+    "manifest.bridges_version": {
+     "head": "470a7a543f5c5b61",
+     "r15": "99311158c5cb6093"
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": 273,
+     "r15": 277
+    }
+   },
+   "added_fields_count": 22,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_r15_at_end": true,
+   "r15": {
+    "bridges_count": 277,
+    "rights_rows": 7095,
+    "rights_by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "rights_by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "rights_unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  {
+   "config": "w6_v3_default",
+   "seed": 2,
+   "final_head": "db0746a3efc4a8cb",
+   "final_r15": "db0746a3efc4a8cb",
+   "fields_compared": 1741,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": 273,
+     "r15": 277
+    },
+    "manifest.bridges_version": {
+     "head": "470a7a543f5c5b61",
+     "r15": "99311158c5cb6093"
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": 273,
+     "r15": 277
+    }
+   },
+   "added_fields_count": 22,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_r15_at_end": true,
+   "r15": {
+    "bridges_count": 277,
+    "rights_rows": 7095,
+    "rights_by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "rights_by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "rights_unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  {
+   "config": "w6_golden_null_arm",
+   "seed": 1,
+   "final_head": "354f49ca9a61b986",
+   "final_r15": "354f49ca9a61b986",
+   "fields_compared": 1737,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": 273,
+     "r15": 277
+    },
+    "manifest.bridges_version": {
+     "head": "470a7a543f5c5b61",
+     "r15": "99311158c5cb6093"
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": 273,
+     "r15": 277
+    }
+   },
+   "added_fields_count": 22,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_r15_at_end": true,
+   "r15": {
+    "bridges_count": 277,
+    "rights_rows": 7095,
+    "rights_by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "rights_by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "rights_unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  {
+   "config": "v3_mem_rel",
+   "seed": 1,
+   "final_head": "73a78288ab5e1498",
+   "final_r15": "73a78288ab5e1498",
+   "fields_compared": 2253,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": 273,
+     "r15": 277
+    },
+    "manifest.bridges_version": {
+     "head": "470a7a543f5c5b61",
+     "r15": "99311158c5cb6093"
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": 273,
+     "r15": 277
+    }
+   },
+   "added_fields_count": 22,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_r15_at_end": true,
+   "r15": {
+    "bridges_count": 277,
+    "rights_rows": 7095,
+    "rights_by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "rights_by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "rights_unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  {
+   "config": "v3_mem_rel",
+   "seed": 2,
+   "final_head": "c615df9a771cda41",
+   "final_r15": "c615df9a771cda41",
+   "fields_compared": 2238,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": 273,
+     "r15": 277
+    },
+    "manifest.bridges_version": {
+     "head": "470a7a543f5c5b61",
+     "r15": "99311158c5cb6093"
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": 273,
+     "r15": 277
+    }
+   },
+   "added_fields_count": 22,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_r15_at_end": true,
+   "r15": {
+    "bridges_count": 277,
+    "rights_rows": 7095,
+    "rights_by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "rights_by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "rights_unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  {
+   "config": "v3_classical_mem_rel",
+   "seed": 1,
+   "final_head": "4c512a1fdc2a70c0",
+   "final_r15": "4c512a1fdc2a70c0",
+   "fields_compared": 2250,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": 273,
+     "r15": 277
+    },
+    "manifest.bridges_version": {
+     "head": "470a7a543f5c5b61",
+     "r15": "99311158c5cb6093"
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": 273,
+     "r15": 277
+    }
+   },
+   "added_fields_count": 22,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_r15_at_end": true,
+   "r15": {
+    "bridges_count": 277,
+    "rights_rows": 7095,
+    "rights_by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "rights_by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "rights_unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  {
+   "config": "v3_classical_mem_rel",
+   "seed": 2,
+   "final_head": "2615535c06c09e84",
+   "final_r15": "2615535c06c09e84",
+   "fields_compared": 2223,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": 273,
+     "r15": 277
+    },
+    "manifest.bridges_version": {
+     "head": "470a7a543f5c5b61",
+     "r15": "99311158c5cb6093"
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": 273,
+     "r15": 277
+    }
+   },
+   "added_fields_count": 22,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_r15_at_end": true,
+   "r15": {
+    "bridges_count": 277,
+    "rights_rows": 7095,
+    "rights_by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "rights_by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "rights_unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  }
+ ]
+}

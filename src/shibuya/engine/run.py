@@ -1106,9 +1106,12 @@ class RunResult:
             第 1 期 1-4: 末尾に ``bridges_count``(つなぎの台帳の active の行の数)・``rules_version``(規則の表の
             sha)・``run_kind``(ランの種類=``engine.run_kind``・``run_day`` を直に呼んだランは ``None``)・
             ``bridges_version``(台帳の中身の sha)。台帳と表のファイルが無い写しでは台帳と表の欄は ``None``。
+            第 1 期 1-5: 末尾に ``rights``(権利台帳の行数と種類の分布・空欄のつなぎの台帳の行・許可のない行動の数。
+            世界過程の無いランは ``None``)。
         """
         from shibuya.engine import manifest_sections as _MS
         from shibuya.engine import run_kind as _RK
+        from shibuya.engine.rights import record as _RR
         from shibuya.engine.bridging import ledger as _BR
         from shibuya.engine.rules import table as _RT
         from shibuya.perception import templates as _T
@@ -1296,6 +1299,9 @@ class RunResult:
             # ---- 第 1 期 1-2(知覚の分離): Percept の形の版・欄の数と名・空の欄の一覧(計器・設定)。末尾=T0 の TM9 →
             # 1-4 の欄 → 1-9 の economy → 1-2。列追加のみ ----
             "percept": _percept_manifest(),
+            # ---- 第 1 期 1-5: 権利台帳の行数と種類の分布・空欄のつなぎの台帳の行・許可のない行動の数(計器・CP4・CP3)。
+            # 世界過程の無いランは None。記録だけ(final・behavior-hash は manifest を読まない)。列追加のみ ----
+            "rights": _RR.manifest_fields(getattr(self, "runner", None), self.bridge_counters),
         }
 
     def economy_fields(self) -> dict[str, Any]:

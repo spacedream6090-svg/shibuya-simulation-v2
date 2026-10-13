@@ -74,6 +74,8 @@ PATHS: Final[dict[str, str]] = {
     "bridges_version": _C,
     # 第 1 期 1-2: Percept の形・欄の数・空の欄(コードで決まる=設定)
     "percept": _C,
+    # ---- 第 1 期 1-5: 権利台帳の行数と分布・許可のない行動の数(計器=観測。権利は行動で変わる段=2-1 で動く) ----
+    "rights": _O,
     # ---- 状態のハッシュ・再開・日ごとの締め(観測) ----
     "state_hashes": _O, "state_hashes.ledger_version": _C,
     "state_hashes_end_of_day": _O,

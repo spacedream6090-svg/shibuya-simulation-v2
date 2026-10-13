@@ -129,6 +129,8 @@ class WorldProcessRunner:
         population_seed: 10f(K21 (a))母集団の seed。域外居住の抽選だけに使う(``None``=``master_seed`` と同じ)。
         environment_seed: 10f 第 2 段の直し(S1)環境の seed。気象の再生実日・大きな催し・道路工事に使う
             (``None``=``master_seed`` と同じ)。ほかの過程の乱数は ``master_seed``(動きの seed)。
+        org_of_agent: 〔第 1 期 1-5〕体 → W16 の ``org_id``(権利台帳の雇用の行の材料・開閉の過程へ渡す。``None``=
+            母集団の無いラン)。
 
     Attributes:
         registry_hash: 台帳の blake3(manifest の同定欄へ)。
@@ -167,6 +169,7 @@ class WorldProcessRunner:
         environment_seed: int | str | None = None,
 
         weather_perturb: bool = False,
+        org_of_agent: Any | None = None,
     ) -> None:
         if world is None or agents is None:
             raise ValueError("WorldProcessRunner は world と agents を要る")
@@ -231,6 +234,7 @@ class WorldProcessRunner:
         self.opening = OpeningProcess(
             world, agents, self.assets,
             day_index=table_weekday, tick_seconds=self.tick_seconds, actual_log=self.log,
+            org_of_agent=org_of_agent,  # 1-5: 権利台帳の雇用の行(W16)
         )
         self.crowd = CrowdProcess(
             world, agents, tick_seconds=self.tick_seconds,
@@ -359,6 +363,31 @@ class WorldProcessRunner:
 
         proc_of = {pid: key for key in PROCESS_ORDER for pid in getattr(self._procs[key], "process_ids", ())}
         self.log.event_sink = ActualLogLink(events, proc_of)
+
+    # ------------------------------------------------------------------ 第 1 期 1-5: 権利台帳
+    @property
+    def rights(self):
+        """権利台帳(``engine.rights.ledger.Rights``・持ち主は開閉の過程=1-5 の置き場・仮採用)。"""
+        return self.opening.rights
+
+    def role_act_check(self):
+        """判断の応答の役割語を権利台帳で確かめる口(``engine.rights.record.RoleActCheck``・``LLMBridge`` に挿す)。"""
+        from shibuya.engine.rights.record import RoleActCheck
+
+        return RoleActCheck(self.opening)
+
+    def rights_fields(self) -> dict[str, Any]:
+        """manifest の ``rights``(権利台帳の行数と分布・空欄のつなぎの台帳の行・許可のない行動の数=計器)。
+
+        役割語の数えは判断の口の持ち物(``engine.rights.record.manifest_fields`` が足す)。
+        """
+        from shibuya.engine.rights import initial as _RI
+
+        return {
+            **self.opening.rights.tally(),
+            "blank_bridges": dict(_RI.BLANK_BRIDGES),
+            "unauthorized": self.opening.unauthorized_tally(),
+        }
 
     # ------------------------------------------------------------------ トグル
     def _names_of(self, key: str) -> tuple[str, ...]:

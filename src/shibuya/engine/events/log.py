@@ -120,14 +120,14 @@ class LlmCall(_Cause):
 
 @dataclass(frozen=True)
 class Process(_Cause):
-    """原因=過程(世界過程の名か区切りの名=``vocab.PROCESS_NAMES``)。"""
+    """原因=過程(世界過程の名か区切りの名=``vocab.PROCESS_NAMES``・〔1-5〕検査の名=``vocab.CHECK_PROCESSES``)。"""
 
     name: str
     kind: ClassVar[str] = "process"
 
     def __post_init__(self) -> None:
-        if self.name not in V.PROCESS_NAMES:
-            raise ValueError(f"Process の名が過程の名の表の外: {self.name!r}(表は {V.PROCESS_NAMES})")
+        if self.name not in V.CAUSE_PROCESS_NAMES:
+            raise ValueError(f"Process の名が過程の名の表の外: {self.name!r}(表は {V.CAUSE_PROCESS_NAMES})")
 
 
 def _only_from_gate(caller: Any) -> None:

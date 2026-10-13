@@ -3066,8 +3066,15 @@ def request_open_close(
     tick: int,
     *,
     permitted=None,
+    on_unauthorized=None,
 ) -> np.ndarray:
-    """役割行動「開閉店」(行動契約書 §2.2)。権限=当該 POI の担当従業者だけ。
+    """役割行動「開閉店」(行動契約書 §2.2)。権利=当該 POI の担当従業者(権利台帳の ``employ`` の行)。
+
+    〔第 1 期 1-5・CP3・決定 10-12 §1-4〕**権利の無い行も止めない**: 効果(開閉のフラグ)は権利のある行と同じに確定し、
+    結果も ``OK``(行動は起きた)。権利の無い行は ``on_unauthorized(agent_ids, poi_ids)`` に渡す(呼び手の過程が出来事の
+    記録へ「許可のない行動」として書く=``engine.rights.record.record_unauthorized``。印は出来事の記録にだけ=検収 L2)。
+    止めるのは物理と機械の決まった動きだけ(現場に居るかは呼び手の過程が見る)。今の既定(19 構成)で権利の無い行は
+    0 回(1-5 の数え)=結果は変わらない。
 
     Args:
         agents / world: 状態。
@@ -3075,19 +3082,19 @@ def request_open_close(
         poi_ids: 対象 POI。
         want_open: 開けるなら True。
         tick: 現在 tick。
-        permitted: 行ごとの権限 bool(``None`` なら全て権限なし=``NO_PERMISSION``)。
+        permitted: 行ごとの権利 bool(``None`` なら全て権利なし)。
+        on_unauthorized: 権利の無い行の記録の口(``None`` なら記録しない)。
 
     Returns:
-        行ごとの ``ResultCode``(0=OK / 14=権限なし)。
+        行ごとの ``ResultCode``(全部 0=OK。権利の有無は結果に出さない)。
 
     Note:
         効果は PlanSpec の**実績確定**(``ActualLog``)であり、フラグの反映もここで行う。
-        契約書は失敗の意味論を「権限なし」の 1 つだけ与えている。
     """
     a = np.asarray(agent_ids, dtype=np.int64).ravel()
     p = np.asarray(poi_ids, dtype=np.int64).ravel()
     w = np.asarray(want_open, dtype=bool).ravel()
-    out_code = np.full(a.size, int(ResultCode.NO_PERMISSION), dtype=np.int64)
+    out_code = np.full(a.size, int(ResultCode.OK), dtype=np.int64)
     if a.size == 0:
         return out_code
     ok = (
@@ -3095,14 +3102,11 @@ def request_open_close(
     )
     with agents.writable(), world.writable():
         r = agents.registry
-        if ok.any():
-            world.pois.open_now[p[ok]] = w[ok].astype(np.int8)
-            out_code[ok] = int(ResultCode.OK)
-            r.last_result[a[ok]] = int(ResultCode.OK)
-
-        if (~ok).any():
-            r.last_result[a[~ok]] = int(ResultCode.NO_PERMISSION)
+        world.pois.open_now[p] = w.astype(np.int8)  # 1-5: 権利の無い行も止めない(CP3)
+        r.last_result[a] = int(ResultCode.OK)  # 1-5 検収 L2: 行動は起きた=OK(許可のない印は出来事の記録にだけ)
         r.last_result_tick[a] = int(tick)
+    if (~ok).any() and on_unauthorized is not None:
+        on_unauthorized(a[~ok], p[~ok])
     return out_code
 
 

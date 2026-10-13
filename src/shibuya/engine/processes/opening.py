@@ -24,9 +24,14 @@
         (「予定は実現したが実行主体が代替」の意味で使う=expedient)。
     これで PlanSpec の遵守率(``ActualLog`` の SCHEDULED 率)が「どれだけ層2で回せたか」を測る。
 
+〔第 1 期 1-5〕担当従業者の表 ``staff_of_poi`` は権利台帳(``engine.rights``)の ``employ`` の行(体 → 店)から読む。
+台帳はこの過程が持ち(``rights``・最初の中身は ``engine.rights.initial.build_initial``)、再開では戻した SoA から作り
+直す。開閉店を権利の無い体が行っても止めない(``resolve.request_open_close`` が権利の無い行を返し、この過程が出来事の
+記録へ ``行為:許可のない行動`` を書いて数える=CP3・記録の口は ActualLog の ``event_sink`` から引く)。
+
 expedient(本モジュール分)
-- 担当従業者の割り当て(``kind=従業者`` を POI へ決定論で丸振り)。組織台帳(W6 org)との
-  対応は C5(母集団合成)待ち。
+- 担当従業者の割り当て(``kind=従業者`` を POI へ決定論で丸振り)。規則は権利台帳の組み立て
+  (``engine.rights.initial``)へ移し、ここは台帳の ``employ`` の行から読む。組織台帳(W6 org)との対応は無い。
 - 日跨ぎ区間の畳み方: ``end>1440`` は同じ日の ``end-1440`` へ回す(1 日周期とみなす)。
 - ``REPLACEMENT`` を「代替実行主体」の意味で使う(GTFS-RT の原義は代替便)。
 - 5 分刻み(正規化規約⑨と同じ刻み。契約書は開閉の評価間隔を与えていない)。
@@ -39,8 +44,12 @@ from typing import Final
 import numpy as np
 
 from shibuya.agents.state import AgentKind, AgentState
+from shibuya.core.types import t_sim_ns
 from shibuya.engine import resolve as R
 from shibuya.engine.calendar import OPENING_ROW_PH
+from shibuya.engine.rights import initial as _RI
+from shibuya.engine.rights import record as _RR
+from shibuya.engine.rights.ledger import AGENT, EMPLOY, STORE
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.state import World
@@ -126,6 +135,8 @@ class OpeningProcess:
     Attributes:
         n_role_actions: 担当従業者が現場に居て実行した開閉の件数。
         n_fallback: engine_rule フォールバックで開閉した件数(**返済対象**)。
+        rights: 〔1-5〕権利台帳(``engine.rights.ledger.Rights``・SoA の種別・W16 の ``org_id``・POI の数から作る導出)。
+        n_unauthorized: 〔1-5〕権利の無い体が開閉した件数(止めずに出来事の記録へ書いた行=計器・状態台帳の O73)。
     """
 
     process_ids: Final[tuple[str, ...]] = ("store_opening",)
@@ -141,10 +152,14 @@ class OpeningProcess:
         day_index: int = 0,
         tick_seconds: int = 60,
         actual_log=None,
+        org_of_agent=None,
     ) -> None:
         self.world = world
         self.agents = agents
         self.assets = passets
+        #: 〔1-5〕体 → W16 の ``org_id``(権利台帳の (a) 雇用の行の材料・``None``=母集団の無いラン)。
+        self.org_of_agent = None if org_of_agent is None else np.asarray(org_of_agent, dtype=np.int64).copy()
+        self.n_unauthorized = 0
         self.day_index = int(day_index)
         self.tick_seconds = int(tick_seconds)
         self.log = actual_log
@@ -160,26 +175,33 @@ class OpeningProcess:
             self.day_index,
             passets.plan_ph_poi,
         ) if passets.has_plan_spec else np.zeros((0, 0), dtype=bool)
-        self.staff_of_poi = self._assign_staff()
+        self.rights = self._build_rights()
+        self.staff_of_poi = self._staff_from_rights()
 
     @property
     def active(self) -> bool:
         """W7 PlanSpec を持っているか(合成世界では False=C2 の 10:00-22:00 既定に任せる)。"""
         return self.open_matrix.size > 0
 
-    # ------------------------------------------------------------------ 従業者の割り当て
-    def _assign_staff(self) -> np.ndarray:
-        """POI → 担当従業者(``kind=従業者`` を決定論で丸振り・expedient)。-1=担当なし。"""
-        out = np.full(self.world.n_poi, -1, dtype=np.int64)
-        if self.world.n_poi == 0:
-            return out
-        workers = np.flatnonzero(
-            self.agents.registry.field("kind") == int(AgentKind.WORKER)
-        ).astype(np.int64)
-        if workers.size == 0:
-            return out
-        out[:] = workers[np.arange(self.world.n_poi) % workers.size]
-        return out
+    # ------------------------------------------------------------------ 従業者の割り当て(1-5: 権利台帳から読む)
+    def _build_rights(self):
+        """〔1-5〕権利台帳の最初の中身を今の SoA の種別から作る(``engine.rights.initial.build_initial``)。"""
+        return _RI.build_initial(self.agents.registry.field("kind"), self.world.n_poi, self.org_of_agent)
+
+    def _staff_from_rights(self) -> np.ndarray:
+        """〔1-5〕POI → 担当従業者を権利台帳の ``employ`` の行(体 → 店)から読む。-1=担当なし。
+
+        台帳の行は開始前から終わりなし(ラン中に権利を変える行動は無い=2-1 の段)なので、時刻 0 で読む。
+        """
+        return _RI.staff_of_poi(self.rights, self.world.n_poi, 0)
+
+    def _record_unauthorized(self, agent_ids, poi_ids) -> None:
+        """〔1-5〕権利の無い体の開閉(旗は確定した=行動は起きた)を出来事の記録へ書いて数える。"""
+        self.n_unauthorized += _RR.record_unauthorized(_RR.events_of(self.log), agent_ids, poi_ids)
+
+    def unauthorized_tally(self) -> dict[str, int]:
+        """〔1-5〕manifest の ``rights.unauthorized`` の開閉の分(この過程の持ち物の数え)。"""
+        return {"open_close": int(self.n_unauthorized)}
 
     def relay_day(self, weekday: int) -> None:
         """10d(親の答え 5): 日の頭でその日の曜日の行(W7)の開閉行列を作り直す(暦の口の ``table_weekday(日)``)。"""
@@ -198,9 +220,11 @@ class OpeningProcess:
     def rebuild_derived(self) -> None:
         """10d: SoA の ``kind`` から作る担当従業者の表を今の SoA から作り直す(再開で SoA を戻した後)。
 
-        配列は差し替えずに中身を書き換える(補充の過程が同じ配列を持つ)。
+        配列は差し替えずに中身を書き換える(補充の過程が同じ配列を持つ)。〔1-5〕権利台帳も今の SoA から作り直し、
+        表は台帳から読む。
         """
-        got = self._assign_staff()
+        self.rights = self._build_rights()
+        got = self._staff_from_rights()
         if self.staff_of_poi.shape == got.shape:
             self.staff_of_poi[...] = got
         else:
@@ -242,14 +266,19 @@ class OpeningProcess:
         want = desired[changed].astype(np.int8)
         by_staff = changed[present]
         if by_staff.size:
+            actors = self.staff_of_poi[by_staff]
             R.request_open_close(
                 self.agents,
                 self.world,
-                self.staff_of_poi[by_staff],
+                actors,
                 by_staff,
                 desired[by_staff],
                 int(tick),
-                permitted=np.ones(by_staff.size, dtype=bool),
+                # 1-5: 権利は権利台帳に聞く(担当の表は台帳から読んだ=全部 真)。無い行も止めずに記録の口へ
+                permitted=self.rights.holds_each(
+                    actors, by_staff, kind=EMPLOY, holder_kind=AGENT, object_kind=STORE,
+                    t_ns=t_sim_ns(int(tick), tick_seconds=self.tick_seconds)),
+                on_unauthorized=self._record_unauthorized,
             )
             self.n_role_actions += int(by_staff.size)
         fallback = changed[~present]

@@ -564,6 +564,7 @@ _EXT: tuple[LedgerRow, ...] = (
         "runner.street_cleaning.n_swept_cells", "runner.last_mile.n_batches", "runner.bus_taxi.n_arrivals",
         "runner.road_works.n_started", "runner.road_works.n_finished", "runner.traffic.daily_vehicle_km",
         "runner.opening.n_role_actions", "runner.opening.n_fallback", "runner.opening.n_events",
+        "runner.opening.n_unauthorized",  # 第 1 期 1-5: 権利の無い体の開閉(止めずに記録した行)
         "runner.environment.n_updates", "runner.environment.shadow_missing", "runner.n_steps",
         "runner.phase_seconds"),
        note="phase_seconds は壁時計(非決定)"),
@@ -612,7 +613,9 @@ _EXT: tuple[LedgerRow, ...] = (
        tuple(f"bridge.{a}" for a in (
            "n_calls", "n_parse_errors", "n_parse_errors_strict", "n_label_alias", "n_positional",
            "n_dictionary_mapped", "n_unknown_action", "n_undefined_mapped", "n_role_actions", "n_tape_misses",
-           "n_deferred", "n_tape_rows"))),
+           "n_deferred", "n_tape_rows",
+           # 第 1 期 1-5: 役割語のうち権利台帳で許可の無かった数・判定しなかった数(decide の持ち物=検収 L10)
+           "n_role_unauthorized", "n_role_unjudged"))),
     _o(87, "TapeWriter の書き出し待ちの行と計数", "engine/tape.py", "list・計数", N_, X_,
        ("bridge.tape._rows", "bridge.tape._blocks", "bridge.tape._n_written", "bridge.tape._n_deferred",
         "bridge.tape._arm_values"),
@@ -674,7 +677,8 @@ _EXT: tuple[LedgerRow, ...] = (
         note="1-3: 軸 1 diag(読み手は日次の記録の計器=state_io.day_record と試験だけ。挙動は読まない)・軸 2 discardable"
              "(再開のランは空から書く=どちらのハッシュにも状態のファイルにも入らない=記録の有無で final・behavior-hash は"
              "不変)。id は (t_ns, seq) なので刻みの境目からの再開でも通しのランと同じ id。行の鍵は O の通し番号でなく "
-             "E(系の宣言は E:events.*)。書く系は world・checkpoint・day_close・close_final"),
+             "E(系の宣言は E:events.*)。書く系は world・phase_c(1-9)・checkpoint・day_close・close_final"
+             "(凍結の表 writes_paths_events.json と同じ。1-5 の役割語は出来事を書かない=decide は書く系でない)"),
     # ---- 第 1 期 1-6(記憶の器 M0・MR11 (b)・MR16・腕 --memory-store events): 足す前に軸を決めた行 ----
     LedgerRow(
         key="M0", name="MemoryStore(記憶の器 M0・第 1 期 1-6)の行・仮の出来事の表・注釈", place=EXTERNAL,
@@ -1026,6 +1030,11 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("runner.opening", CACHE, _TAB, "open_matrix"),
     _x("runner.opening", CACHE, "SoA の kind から作る担当従業者の表(導出・10d: 再開では rebuild_derived で作り直す)",
        "staff_of_poi"),
+    # 第 1 期 1-5: 権利台帳(SoA の kind・W16 の org_id・POI の数から作る導出=再開では rebuild_derived で作り直す。
+    # ラン中に権利を変える行動は無い=2-1 で状態の行にする)・その材料
+    _x("runner.opening", CACHE, "権利台帳(1-5・SoA の kind と W16 の org_id と POI の数から作る導出・再開では作り直す)",
+       "rights"),
+    _x("runner.opening", CONST, _CFG + "(1-5: 権利台帳の雇用の行の材料=W16 の org_id)", "org_of_agent"),
     _x("runner.environment", REF, _REFR, "calendar", "world", "agents", "assets"),
     _x("runner.environment", CONST, _FIELD + "・" + _CFG, "master_seed", "day_index",
        "tick_seconds", "process_ids"),
@@ -1065,6 +1074,8 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "_hunger_min_stage"),
     _x("bridge", CONST, _CFG, "mode", "vocab_version", "landmarks", "_engine_codes", "params", "lane", "tick_seconds"),
     _x("bridge", REF, _REFR + "(未定義行動の台帳・再生・応答の口)", "renderer", "undefined", "replay", "client"),
+    # 第 1 期 1-5: 役割語の権利の確かめの口(開閉の過程の権利台帳を読むだけ・状態を持たない。数えは bridge の O86)
+    _x("bridge", REF, _REFR + "(1-5: 役割語の権利の確かめの口=読むだけ)", "role_rights"),
     _x("bridge.tape", CONST, _CFG, "path", "flush_rows", "run_meta"),
     _x("bridge.tape", REF, "parquet の書き手(ファイル)", "_writer"),
     _x("bridge.tape", REF, "〔第 1 期 1-6 M0〕腕の列の値を作る口(関数・組み立てが置く)", "arm_columns"),

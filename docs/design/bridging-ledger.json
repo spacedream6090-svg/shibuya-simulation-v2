@@ -2453,8 +2453,8 @@
   {
    "id": "HD-engine.processes.opening-1af925f4",
    "what": "src/shibuya/engine/processes/opening.py の docstring の見出し「expedient(本モジュール分)」の下の項 4 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 1-5 権利台帳の器(staff_of_poi の丸振りを台帳からの読みに)",
-   "remove_at": "1-5",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 4-1(組織と関係の実データ=人+関係+権利台帳)。1-5 では丸振りを権利台帳からの読み(engine.rights.initial の employ の行)に移しただけ=つなぎは外れていない・実データは 4-1(1-5 の検収 L6・親の判断 第334 で 1-5 → 4-1)",
+   "remove_at": "4-1",
    "declared_in": "src/shibuya/engine/processes/opening.py#heading:1af925f4",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3140,6 +3140,67 @@
    "why": "1-9 の K17(回答 10-13b §3=実測 4.07 行/体/日の 1.5 倍以上)。実測は 5,000 体 mock の 1 日の 1 本だけ(39 万体の実測は無い)=係数そのものは expedient。輪は診断(軸 1 diag)で final は変えないが、full-hash の O92 の位置は容量で動く。外す段は計画に無く、主張の前に感度試験(係数と溢れ)で示す",
    "remove_at": "7",
    "declared_in": "docs/bench/analysis/wallbounce-1012/cp2/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "HD-engine.rights.initial-1af925f4",
+   "what": "src/shibuya/engine/rights/initial.py の docstring の見出し「expedient(本モジュール分)」の下の項 3 個",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。第 1 期 1-5 で足した: 権利台帳の最初の中身の近似(担当従業者の丸振り=HEAD の opening._assign_staff の規則を移した・店の賃借=すべての POI を店とし区画は POI の番号で代用・最初の行の時刻は開始前から終わりなし)。外す段: 4-1(組織のデータ=人+関係+権利台帳。丸振りの項は HD-engine.processes.opening の項 1 と同じつなぎ=検収 L6 でそろえた。賃借と時刻の項は 4-2 の中身と一緒に外す)",
+   "remove_at": "4-1",
+   "declared_in": "src/shibuya/engine/rights/initial.py#heading:1af925f4",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "HD-engine.rights.record-1af925f4",
+   "what": "src/shibuya/engine/rights/record.py の docstring の見出し「expedient(本モジュール分)」の下の項 2 個",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。第 1 期 1-5 で足した: 役割語の権利の判定(雇用の行を 1 つでも持てば許可・対象の店を見ない・職務の語は判定しない)と許可のない行動の出来事の欄。外す段: 6-6 ②(人の仕事を働く人のエージェントへ=役割語の効果と対象の解決を作る段)",
+   "remove_at": "6-6",
+   "declared_in": "src/shibuya/engine/rights/record.py#heading:1af925f4",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "BR-RIGHTS-LICENCE-BLANK",
+   "what": "権利台帳の営業許可(licence)の行は 0(空欄)。渋谷区の「食品等営業許可・届出一覧」(SHIBUYA OPEN DATA・CC BY 4.0・39,304 件)は記録の上ではあるが取得していない。POI と突き合わせる規則も決まっていない",
+   "why": "口の約束 1-5〔決定(回答 10-13b §3)〕営業許可のオープンデータは許可の一覧の中で探し、無ければ空。記録(R-76 #17・R-106 §2-1 の表)では一覧はあるが data/ に取得の記録が無い=空にして宣言(取得は親に頼む・記録 r15/README.md §2)。中身は 4-2(権利台帳の中身=営業許可・計画 4-2)",
+   "remove_at": "4-2",
+   "declared_in": "docs/design/v2-foundation-contracts-2026-10-13.md §1-5",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/rights/initial.py"
+   ]
+  },
+  {
+   "id": "BR-RIGHTS-DWELLING-BLANK",
+   "what": "権利台帳の住まい(持ち家=所有・借家=賃借)の行は 0(空欄)。国勢調査の住宅の所有の関係(表 18-4・町丁目)は表の場所だけ分かり、値は未取得",
+   "why": "計画 1-5 の最初の中身「住まい=国勢調査の割合」(決定 10-12 §4-5 CP4)。割合の出どころが無いので行を作らない(R-106 §2-1 の表 #40 △=値は未取得)。発注: 住まいの権利は 4-2 で(賃貸借=計画 4-2・持ち家の所有は計画の文に段が無い=実装役が当てた)",
+   "remove_at": "4-2",
+   "declared_in": "docs/design/v2-implementation-plan-2026-10-12.md 第 1 期 1-5",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/rights/initial.py"
+   ]
+  },
+  {
+   "id": "BR-RIGHTS-FLEET-ROLE-CHECK",
+   "what": "艦隊(fleet)の経路の役割語に権利台帳の確かめの口(RoleActCheck)を挿していない=艦隊のランでは役割語の許可なし・判定しないの数(n_role_unauthorized・n_role_unjudged)が 0 のまま",
+   "why": "1-5 の検収 L8。役割語を待機/なしに落とす所は llm/fleet.py(llm の層=engine の権利台帳を読めない)にあり、確かめの口は mock/テープの判断の口(engine/llm_bridge.py)にだけ挿した。艦隊の受け取りの系(llm_io)で同じ口を呼ぶ形にする段=6-4(親の判断 第334)",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/r15/README.md §15",
    "conf": "expedient",
    "since": "2026-10-14",
    "status": "active",

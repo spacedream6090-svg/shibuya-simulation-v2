@@ -669,6 +669,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             plan_executor=plan_exec_on,
             seat_area_m2=seat_area_table,
             default_seat_area_m2=seat_area_retail_m2,
+            org_of_agent=_org_of_agent(pop, n_agents),  # 第 1 期 1-5: 権利台帳の雇用の行(W16 の org_id)
         )
 
     # ---- ⓪a-2 計画実行層(D-66・engine.presence)。W17 + W16 のあるランだけ立つ ----
@@ -1175,6 +1176,8 @@ def build(_call_args: dict[str, Any]) -> Any:
     events = _EV.EventLog(enabled=_EV.enabled())
     if runner is not None:
         runner.attach_events(events)
+        # 第 1 期 1-5(CP3): 判断の応答の役割語を権利台帳で確かめて数える(止めない・行動は起きない=出来事は書かない)
+        bridge.attach_role_rights(runner.role_act_check())
     if ledger is not None:  # 第 1 期 1-9: 原因を渡した金の移動が出来事を書き、金と物の台帳の行に id の目印を付ける
         from shibuya.engine.events.links import MoneyEventLink
 
@@ -1285,3 +1288,14 @@ def build(_call_args: dict[str, Any]) -> Any:
                     (int(d_.call.agent_id), int(d_.call.condition), int(d_.call.wake_class), int(d_.call.wake_since))
                 )
     return box
+
+
+def _org_of_agent(pop: Any, n_agents: int) -> Any:
+    """第 1 期 1-5: 体 → W16 の ``org_id``(母集団の行は体の番号の順=``_schedule_with_population`` と同じ並び。
+    母集団より多い体は -1=組織なし。母集団の無いランは ``None``)。"""
+    if pop is None:
+        return None
+    out = np.full(int(n_agents), -1, dtype=np.int64)
+    m = min(int(n_agents), int(pop.n))
+    out[:m] = np.asarray(pop.org_id, dtype=np.int64)[:m]
+    return out
