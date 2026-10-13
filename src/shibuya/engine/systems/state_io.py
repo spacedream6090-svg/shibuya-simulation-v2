@@ -243,6 +243,9 @@ def day_record(b: Any, d: int) -> None:
     # (計器・口の約束 1-3 の約束 (3))。保持窓の外の行はここで落とす。記録の欄が増えるだけ(状態に入らない)。
     events = b.layers.events
     mark_boundary(events, "day_close")
+    # 第 1 期 1-9: その日の transfer の計器(行・額・溢れ=K17・原因の無い行・出来事の行)と流れの表の検算(締めの後の値)。
+    # 記録の欄が増えるだけ(状態に入らない)。台帳が無いランは空。
+    rec["economy"] = ledger.economy_day_record() if ledger is not None else {}
     rec["events"] = events.close_day(int(d)) if events is not None else dict(EVENTS_OFF_RECORD)
     b.runstats.daily_records.append(rec)
 

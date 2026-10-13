@@ -1288,7 +1288,17 @@ class RunResult:
             "run_kind": _RK.resolve(self.run_kind),
             # 1-4 検収 L1: つなぎの台帳の中身の sha(件数が同じ書き換えも見分ける=CP10 の版とハッシュ)。列追加のみ
             "bridges_version": _BR.bridges_version(),
+            # ---- 第 1 期 1-9(CP2 の段階 1・K17): 金の生ログの輪の容量と溢れ・transfer の計器(台帳が無いランは空)。
+            # 末尾=T0 の TM9 → 1-4 の欄 → 1-9。列追加のみ ----
+            "economy": self.economy_fields(),
         }
+
+    def economy_fields(self) -> dict[str, Any]:
+        """第 1 期 1-9: manifest の ``economy``(K17 の輪の容量 ``raw_capacity``・溢れ ``raw_overflow``・transfer の行
+        ``transfers_total`` ほか=``LedgerBundle.economy_record``)。台帳の無いランは空。計器はこのランの中で数えた分。"""
+        led = getattr(self, "ledger", None)
+        fn = getattr(led, "economy_record", None) if led is not None else None
+        return dict(fn()) if fn is not None else {}
 
     def l4_audit_fields(self) -> dict[str, Any]:
         """L4 の監査欄(D-110「ランごとの総呼数を必ず記録」)。

@@ -223,7 +223,10 @@ def test_the_bundle_declaration_survives_the_c7_scale(wired):
     assert rep.declared_over_cap == (), rep.as_text()
     assert rep.ok, rep.as_text()
     caps = {r.name: r.cap for r in rep.rows}
-    assert caps["transfer_log"] == 28_084_824 and caps["delivery_log"] == 12_482_144
+    # 〔1-9・K17〕金の輪の係数 3.0 → 6.5 行/体/日: 容量 ceil(6.5 × 390,067)=2,535,436 行 × 24 B(前は 28,084,824)。
+    # 目印の列(12 B/行)は別の宣言(金・物とも輪と同じ容量)
+    assert caps["transfer_log"] == 60_850_464 and caps["delivery_log"] == 12_482_144
+    assert caps["transfer_log_event_ids"] == 30_425_232 and caps["delivery_log_event_ids"] == 9_361_608
     # 小さいラン(``wired`` = 500 体×1 日)も同じ宣言で通る(下限容量の側)
     res, bundle = wired
     assert res.growth_report is not None and res.growth_report.declared_over_cap == ()

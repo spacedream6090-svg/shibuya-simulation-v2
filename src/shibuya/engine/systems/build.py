@@ -1177,6 +1177,10 @@ def build(_call_args: dict[str, Any]) -> Any:
     events = _EV.EventLog(enabled=_EV.enabled())
     if runner is not None:
         runner.attach_events(events)
+    if ledger is not None:  # 第 1 期 1-9: 原因を渡した金の移動が出来事を書き、金と物の台帳の行に id の目印を付ける
+        from shibuya.engine.events.links import MoneyEventLink
+
+        ledger.attach_events(MoneyEventLink(events), step_seconds=int(tick_seconds))
 
     # ---- 1-0 段 C: 状態の箱(局所の割り当ての表 local-assignment.json・草案 §2-3)。物はそのまま指す(写しを作らない) ----
     box = _BX.Box(

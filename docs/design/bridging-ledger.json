@@ -3111,6 +3111,39 @@
    "since": "2026-10-14",
    "status": "active",
    "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-money-fare-cause-rail",
+   "what": "運賃の移動(世帯 → 外界・持ち出し)の原因=過程 rail(Process(\"rail\"))。乗車を決めた呼(LlmCall)ではない",
+   "why": "1-9(CP2 の段階 1)。乗車の呼の id(call_id)は適用の口(IntentBatch)に届かないので、改札で運賃を取る鉄道の過程を原因にした(10b-prep §3-2 の E2・engine/processes/rail.py の FARE_CAUSE)。呼の id を配線する段で乗車の呼に替える",
+   "remove_at": "1-8",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/cp2/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-money-uncaused-rows",
+   "what": "原因の無い金の行(購入・食事=E1・初期の財布=E3・参入資本=E4)は出来事を書かず、生ログの目印の列が空(数は計器 economy.transfers_uncaused。5,000 体の既定 v3 で原因つきの行は 16.6%)",
+   "why": "1-9。購入と食事の呼の id は適用の口に届かず(1-8 の配線)、1-3 の検収 M2(LlmCall を配線する前に原因の表を列にする)がある。組み立て(境界)の原因の名は語彙表に無い。purchase_many に LlmCall を渡す段で外す",
+   "remove_at": "1-8",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/cp2/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-k17-raw-ring-coefficient",
+   "what": "金の生ログの輪の係数 TRANSFERS_PER_AGENT_PER_DAY = 6.5 行/体/日(容量 = max(16,384, ⌈6.5 × N⌉ × 保持日数))",
+   "why": "1-9 の K17(回答 10-13b §3=実測 4.07 行/体/日の 1.5 倍以上)。実測は 5,000 体 mock の 1 日の 1 本だけ(39 万体の実測は無い)=係数そのものは expedient。輪は診断(軸 1 diag)で final は変えないが、full-hash の O92 の位置は容量で動く。外す段は計画に無く、主張の前に感度試験(係数と溢れ)で示す",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/cp2/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
   }
  ]
 }

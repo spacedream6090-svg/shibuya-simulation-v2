@@ -6,6 +6,8 @@ economy は engine(``engine.ledger_api`` の Protocol)と core/manifest だけ�
 
 C4 第1陣(境界・経済設計書 §2.7 + 世界過程設計書 §7.1):
 - ``accounts``: 6部門・貸借対照表6行・取引科目の列挙と faucet/sink 表
+- ``ops``: 〔第 1 期 1-9〕お金の基本操作「移す」``transfer(ledger, src, dst, amount, what, cause, t_ns)``
+  (残高・流れの表・生ログを書くのはこれだけ。帳簿の口は検査をしてからここへ渡す)
 - ``ledger``: ``transfer`` 単一API + 取引フロー行列 + 生ログ(D-R2-6)
 - ``goods``: ``move_goods`` 単一API + SKU 別収支 + 廃棄 band(U-Goods)
 - ``checks``: 検算2本・残差ゲート・退蔵・ex nihilo

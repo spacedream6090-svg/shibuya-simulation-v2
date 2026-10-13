@@ -79,6 +79,7 @@ from shibuya.agents.state import AgentState
 from shibuya.core.rng import philox
 from shibuya.engine import resolve as R
 from shibuya.engine.calendar import SimCalendar
+from shibuya.engine.events.log import Process
 from shibuya.engine.ledger_api import SECTOR_HOUSEHOLD, SECTOR_ROW
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.processes.records import DeviationVocab
@@ -110,6 +111,9 @@ __all__ = [
 #: 鉄道事業者は境界・経済設計書 §2.1 の 6 部門に無く、§1.1 は「経済の外界(RoW)は同一実体」と
 #: 宣言しているので、運賃は RoW への持ち出しとして落ちる。
 ACCOUNT_CODE_CARRY_OUT: Final[int] = 8
+#: 〔第 1 期 1-9〕運賃の移動の原因(1-3 の原因=過程 ``rail``)。未リサーチ(expedient): 乗車の呼ではなく過程にした
+#: (乗車の呼の id は適用の口に届かない=1-8 の配線の後で見直す)。
+FARE_CAUSE: Final[Process] = Process("rail")
 
 #: 停車時間[tick]の既定(**通過型ホーム**)。``dep_tick`` の 1 tick だけホームに居る。
 #: **mechanism**(D-51 答申 §3-1 行 1・親一次確認): 実停車時分 = 乗降 10〜45 秒 + 確認 8.7〜20.5 秒
@@ -715,7 +719,11 @@ class RailProcess:
         np.maximum(self.occupancy, 0, out=self.occupancy)
 
     def pay_fares(self, money_ledger, riders, fare: int, tick: int) -> np.ndarray:
-        """運賃の金の脚(世帯 → 外界・科目「持ち出し」)。行ごとの ``TransferStatus``。"""
+        """運賃の金の脚(世帯 → 外界・科目「持ち出し」)。行ごとの ``TransferStatus``。
+
+        〔第 1 期 1-9〕原因は過程 ``rail``(改札で運賃を取る=鉄道の過程。10b-prep §3-2 の E2・元は乗車の呼)。
+        基本操作 ``economy.ops.transfer`` が行ごとに出来事を書き、生ログの行に id の目印を付ける。
+        """
         r = np.asarray(riders, dtype=np.int64)
         status = money_ledger.transfer_many(
             SECTOR_HOUSEHOLD,
@@ -725,6 +733,7 @@ class RailProcess:
             np.full(r.size, int(fare), dtype=np.int64),
             ACCOUNT_CODE_CARRY_OUT,
             int(tick),
+            cause=FARE_CAUSE,
         )
         bad = int(np.count_nonzero(np.asarray(status) != 0))
         self.n_fare_rejected += bad

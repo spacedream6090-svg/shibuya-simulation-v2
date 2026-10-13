@@ -21,7 +21,7 @@ import numpy as np
 from shibuya.engine.events import vocab as V
 from shibuya.engine.events.log import Event, EventLog, Process
 
-__all__ = ["ActualLogLink"]
+__all__ = ["ActualLogLink", "MoneyEventLink"]
 
 
 class ActualLogLink:
@@ -58,4 +58,37 @@ class ActualLogLink:
         for k in range(n):  # 逐次ループ宣言: ActualLog の行数ぶん
             eid = self.log.append(ev)
             t[k], s[k] = eid  # type: ignore[misc]
+        return t, s
+
+
+class MoneyEventLink:
+    """〔第 1 期 1-9〕金の生ログ(``economy.ledger``)の口: 原因を渡した transfer の行ごとに出来事を 1 行書き、id の 2 列を返す。
+
+    economy は ``engine.events`` を import できない(層の契約 forbidden「economy → llm」: 語彙表が ``llm.contract`` を読む)。
+    engine の側(``LedgerBundle.attach_events``)がこの口を作って台帳に挿し、基本操作 ``economy.ops.transfer`` が呼ぶ
+    (``ActualLogLink`` と同じ依存逆転)。行の中身(払い手・受け手・店の POI・額)は台帳が渡す。
+
+    逐次ループ宣言: ``__call__`` は行数ぶん(``EventLog.append`` を 1 行ずつ)。
+    """
+
+    __slots__ = ("log",)
+
+    def __init__(self, log: EventLog) -> None:
+        self.log = log
+
+    @property
+    def enabled(self) -> bool:
+        return bool(self.log.enabled)
+
+    def __call__(self, what: str, cause: object, t_ns: int, who: list, whom: list, where: list,
+                 how_much: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """``len(how_much)`` 行の出来事を書き、id の 2 列 ``(t_ns, seq)`` を返す(書かなかった行は -1)。"""
+        k = int(len(how_much))
+        t = np.full(k, -1, dtype=np.int64)
+        s = np.full(k, -1, dtype=np.int32)
+        for j in range(k):  # 逐次ループ宣言: 行数ぶん
+            eid = self.log.append(Event(t_ns=int(t_ns), who=who[j], what=what, whom=whom[j], where=where[j],
+                                        how_much=int(how_much[j]), cause=cause))  # type: ignore[arg-type]
+            if eid is not None:
+                t[j], s[j] = eid
         return t, s

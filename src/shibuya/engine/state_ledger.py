@@ -1,6 +1,6 @@
 """状態台帳の宣言(10b・A3「挙動」と「復元」の 2 軸・機械可読の 1 ファイル)。
 
-**読み口は 1 つ**: ``LEDGER``(190 行の組=〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
+**読み口は 1 つ**: ``LEDGER``(191 行の組=〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
 ``soa_rows``・``external_rows``・``behavior_excluded``・``full_excluded``・``full_items``・``behavior_items``)。表・AST の検査(``engine.state_ledger_ast``)・
 2 つのハッシュ(``engine.state_hashes``)・揺らし試験はどれもこの表から作る。
 
@@ -696,6 +696,20 @@ _EXT: tuple[LedgerRow, ...] = (
         items=tuple(f"mem_layer.memory_store.{a}" for a in ("_ms_shown_ns", "_ms_tape", "_ms_stats", "_ms_last")),
         note="1-6: 録画(MR16)は診断=読み手はテープの列 recalled_event_ids と manifest の計器だけ(挙動は読まない)・"
              "再開のランは空から(捨ててよい)"),
+    # ---- 第 1 期 1-9(お金の基本操作・CP2 の段階 1): 足す前に軸を決めた行 ----
+    LedgerRow(
+        key="A", name="金と物の台帳の行の目印の列・transfer の計器(第 1 期 1-9)", place=EXTERNAL,
+        dtype="列(生ログ・納品ログの輪と同じ長さ・12 B/行)・計器の dataclass",
+        nbytes="", alloc="", behavior=DIAG, restore=DISCARDABLE, dead=False,
+        basis="economy/ops.py(transfer・TransferMeter)・economy/ledger.py・economy/goods.py・"
+              "engine/systems/state_io.py(day_record の計器)・engine/run.py(manifest の economy)",
+        items=("ledger.money._raw_event_t_ns", "ledger.money._raw_event_seq", "ledger.money.meter",
+               "ledger.goods._dl_event_t_ns", "ledger.goods._dl_event_seq"),
+        note="1-9: 生ログ(O58)と納品ログ(O60)の行ごとの出来事の id((t_ns, seq)・無い行は -1)と、基本操作 transfer の"
+             "計器(行・額・原因の無い行・出来事の行・輪の溢れ=K17・日の締めの流れの表の検算)。軸 1 diag(読み手は manifest の"
+             " economy と日次の記録の計器と試験だけ)・軸 2 discardable(輪の中身 O58・O60 と同じく再開で空から=どちらの"
+             "ハッシュにも状態のファイルにも入らない)。行の鍵は O の通し番号でなく A(CP1 の A=湧かないもの=お金。1-5 の権利=CP1 の C と取り違えないため・検収 L3)。系の宣言は A:ledger.*。"
+             "書く系は phase_c・world・day_close・close_final"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -1015,6 +1029,10 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("ledger.money", CONST, _CFG + "(他所の現金の扱いの印は初期化で 1 回だけ立てる)", "sizes", "_foreign_cash",
        "retention_days", "raw_capacity"),
     _x("ledger.money", CACHE, "書き込み窓の入れ子の深さ(checkpoint では 0)", "_depth"),
+    # 第 1 期 1-9: 出来事の記録への参照(状態台帳の行 E の側で数える)・刻みの幅と K17 の容量の係数(初期化の設定)
+    _x("ledger.money", REF, _REFR + "(1-3 の出来事の記録の口 MoneyEventLink・build が挿す)", "_events"),
+    _x("ledger.money", CONST, _CFG + "(1-9: 刻みの幅[ns]・作ったときの K17 の容量の係数)", "_step_ns",
+       "raw_rows_per_agent_day"),
     _x("ledger.money", CONST, "初期の財布(cli._HouseholdWalletLedger・母集団の財布=初期化で渡す定数)", "wallets"),
     _x("ledger.goods", CONST, _CFG + "・クラスの定数", "sku", "n_poi", "slots", "cat", "poi_sku", "_n_slots_used",
        "static_store_waste_g", "unit_cost", "n_agents", "retention_days", "STORE_WASTE_BAND_NOTE"),

@@ -170,6 +170,10 @@ PATHS: Final[dict[str, str]] = {
         "propagation")),
     **_mixed("waste_sink", config=("band_store_t", "expected_store_t", "band_basis", "band_check",
                                    "ward_total_comparison"), observed=("total_t", "breakdown_t", "band_ok")),
+    # ---- 第 1 期 1-9(K17): 金の生ログの輪の容量(体数と係数で決まる=設定)と溢れ・transfer の計器(観測) ----
+    **_mixed("economy", config=("raw_capacity", "raw_rows_per_agent_day", "raw_row_bytes", "raw_link_bytes",
+                                "raw_overflow_policy"), observed=(
+        "raw_overflow", "transfers_total", "transfers_amount", "transfers_uncaused", "transfer_events")),
 }
 
 

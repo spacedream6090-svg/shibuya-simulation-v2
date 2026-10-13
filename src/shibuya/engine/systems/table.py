@@ -17,6 +17,9 @@
 その刻みの出来事と計数)・decide と llm_receive(``M0*``=発話の記憶・想起の計数・見せた行の録画・テープの列の控え)・drain
 (``M0R``=艦隊の残りの呼のテープの列)。宣言の外の書きは段 B と、器の口の実行時の検査
 (``engine.memory_store`` の ``_check_permit``=出来事の記録と同じ形)が落とす。
+〔第 1 期 1-9〕金の移動(基本操作 ``economy.ops.transfer``)の目印の列と計器(状態台帳の行 ``A``=CP1 の A 湧かないもの)を書く系は
+``writes.paths`` に ``A:ledger.*`` を載せる: phase_c(購入・食事・運賃)・world(補充の代金)・day_close と close_final(締めの計器と検算)。
+原因を渡す移動は出来事も書く=phase_c(運賃=過程 rail)に ``E:events.*`` を足した(world は 1-3 で宣言済み)。
 
 〔親の決め〕世界過程が持ち主をまたいで書く所(鉄道と大きな催しが計画実行層の O36・O37・O70 と鉄道の O74 を書く)は
 1-0 では宣言で認める(``world`` の ``writes.paths``)。
@@ -82,7 +85,9 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                # ``np.asarray(flow, uint8)`` は写さない)=世界過程が流れの段をその場で書くと見える(別名)
                "O63:renderer._tickc "
                # 第 1 期 1-3: ActualLog の行ごとの出来事(原因=過程)と行の目印(ActualLog の口 event_sink から)
-               "E:events.*",
+               "E:events.* "
+               # 第 1 期 1-9: 補充の代金の transfer(原因=過程 shelf)の目印の列と計器(状態台帳の行 A)
+               "A:ledger.*",
          reads="layers.runner",
          origin=f"L2・run.py:3629-3630 @{_E}"),
     make("presence", "体", "tick", _BD.sys_presence,
@@ -221,7 +226,9 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "O94:poi_resolver.* O26:poi_resolver.* O[4-6]:intent_layer.* O66:act_layer.* "
                # 〔T5 で見つけた持ち主をまたぐ書き〕食事で per_hour の門の H を 0 に(resolve._energy_meal が
                # EnergyLayer.meal_reset=ClassicalPolicy._gate_hazard の同じ配列を書く=別名)
-               "O21:classical._gate_hazard",
+               "O21:classical._gate_hazard "
+               # 第 1 期 1-9: 購入・食事・運賃の transfer の目印の列と計器(行 A)・運賃の出来事(原因=過程 rail)
+               "A:ledger.* E:events.*",
          scratch_r="plan", buffers_r="focus_request", scratch_w="outcome",
          tally="geometry_hops geometry_jammed leave_counts per_action_total phase result",
          reads="buffers.focus_request cfg.attention_on cfg.leave_effect cfg.queue_service "
@@ -289,7 +296,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          paths="O2:act_layer._digest_cache O5[0-6]:runner.* O61:runner.* O7[2-6]:runner.* O95:runner.* "
                "O5[7-9]:ledger.* O60:ledger.* O7[7-9]:ledger.* O8[01]:ledger.* O9[23]:ledger.* O70:presence.* "
                "O3[5-8]:presence.* "
-               "E:events.*",  # 1-3: E(診断)の区切りの行(日の締め)・その日の記録の計器と保持窓
+               "E:events.* A:ledger.*",  # 1-3: E(診断)の区切りの行(日の締め)・その日の記録の計器と保持窓/1-9: 金の計器の締め
          tally="daily_records state_files result", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.run_id cfg.sim_days "
                "cfg.state_out cfg.tick_seconds cfg.tpd fx.calendar fx.env_fields fx.schedule fx.schedule_hash "
                "layers.act_layer layers.arbiter layers.bridge layers.classical layers.conv "
@@ -320,7 +327,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          paths="O2:act_layer._digest_cache O5[0-6]:runner.* O61:runner.* O7[2-6]:runner.* O95:runner.* "
                "O5[7-9]:ledger.* O60:ledger.* O7[7-9]:ledger.* O8[01]:ledger.* O9[23]:ledger.* O70:presence.* "
                "O3[5-8]:presence.* O8[5-7]:bridge.* "
-               "E:events.*",  # 1-3: 最後の便の ActualLog の行の出来事・E の区切りの行(日の締め)・計器と保持窓
+               "E:events.* A:ledger.*",  # 1-3: 最後の便の ActualLog の行の出来事・E の区切りの行・計器と保持窓/1-9: 金の計器
          tally="daily_records ledger_growth result state_files", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.run_id cfg.sim_days "
                "cfg.state_out cfg.stopped cfg.t_end cfg.tick_seconds cfg.total_ticks cfg.tpd fx.calendar fx.env_fields "
                "fx.schedule fx.schedule_hash layers.act_layer layers.arbiter layers.bridge "

@@ -67,17 +67,20 @@ def test_ledger_has_187_rows_in_two_axes():
     〔第 1 期 1-3〕出来事の記録の行 ``E``(軸 1 diag・軸 2 discardable)を足して外の状態 97 行・全体 188 行(試験の名は
     187 のまま=履歴)。どちらのハッシュにも状態のファイルにも入らない行なので版は上げない(仮採用・記録 e13/README.md)。
     〔第 1 期 1-6〕記憶の器の行 ``M0``(軸 1 no・軸 2 derivable・中身は全部 hash_skip)と ``M0R``(diag・discardable)を
-    足して外の状態 99 行・全体 190 行。どちらもハッシュと状態のファイルに入らない=版は上げない(記録 m0/README.md)。"""
+    足して外の状態 99 行・全体 190 行。どちらもハッシュと状態のファイルに入らない=版は上げない(記録 m0/README.md)。
+    〔第 1 期 1-9〕金と物の台帳の行の目印の列と transfer の計器の行 ``A``(軸 1 diag・軸 2 discardable)を足して外の状態
+    100 行・全体 191 行(1-6 の 2 行と合わせて・同じ理由で版は上げない=記録 cp2/README.md)。"""
     c = SL.counts()
-    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 99, "soa": 91, "total": 190}
+    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 100, "soa": 91, "total": 191}
     assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
-    assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 97)] + ["E", "M0", "M0R"]
+    assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 97)] + ["E", "M0", "M0R", "A"]
     assert (SL.row("E").behavior, SL.row("E").restore) == (SL.DIAG, SL.DISCARDABLE)
     assert (SL.row("M0").behavior, SL.row("M0").restore) == (SL.NO, SL.DERIVABLE)
     assert set(SL.row("M0").hash_skip) == set(SL.row("M0").items)
     assert (SL.row("M0R").behavior, SL.row("M0R").restore) == (SL.DIAG, SL.DISCARDABLE)
+    assert (SL.row("A").behavior, SL.row("A").restore) == (SL.DIAG, SL.DISCARDABLE)
     for r in SL.LEDGER:
         assert r.behavior in SL.AXIS1_VALUES, r.key
         assert r.restore in SL.AXIS2_VALUES, r.key

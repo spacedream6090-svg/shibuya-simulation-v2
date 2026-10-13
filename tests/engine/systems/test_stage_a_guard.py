@@ -276,9 +276,14 @@ def test_closure_follows_tables_and_local_aliases():
 
 
 def test_alias_table_covers_ledger_money_writes():
+    # 〔第 1 期 1-9〕台帳越しの agents.money(旧 _apply_cash の別名の 4 行)は基本操作 economy.ops.transfer の中に閉じた
+    # =手の表から消え、帳簿の口(TRANSFER_PORTS_HOUSEHOLD)の呼び出しから AST で引く。閉包は前と同じ。
+    callers = {f for f, _ln, _port in AL.index().transfer_callers}
     for fn in ("_complete_buy", "_complete_eat", "_board_riders", "initialize"):
-        assert "agents.money" in AL.ALIAS_WRITES[fn][0], fn
+        assert fn not in AL.ALIAS_WRITES, fn
+        assert fn in callers, fn
         assert "agents.money" in AL.writes_for_ops({fn})
+    assert not any("_apply_cash" in why for _w, why in AL.ALIAS_WRITES.values())
     assert set(AL.ALIAS_WRITES["apply_detection"][0]) == {
         "agents.fatigue_stage", "agents.hunger_stage", "agents.thermal_stage"}
 

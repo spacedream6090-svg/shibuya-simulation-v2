@@ -616,6 +616,11 @@ DIAG_EXITS: tuple[DiagExit, ...] = (
     DiagExit("engine/llm_bridge.py", "PerceptionRendererAdapter.counters", "描画の計数の要約(報告)"),
     DiagExit("engine/norm_meter.py", "GroupNormMeter.summary", "集団規範の計器の要約(報告)"),
     DiagExit("engine/presence.py", "PlanExecutor.counters", "計画実行層の計数の要約(報告)"),
+    # 第 1 期 1-9: 基本操作 transfer は台帳(持ち主 economy/ledger.py:Ledger)の中の旧 _apply_cash・_record を移したもの。
+    # 読む no/diag の属性(流れの表・生ログの位置と容量・最後に動いた日・計器)は移動の記録と計器にしか使わず、
+    # 行動の選びは決めない(書き手は 1 つ=tests/economy/cp2/test_cp2_transfer_only_writer.py)
+    DiagExit("economy/ops.py", "transfer", "お金の基本操作(1-9)=台帳の書き手。移動の記録・生ログの位置・計器だけを読む"),
+    DiagExit("engine/ledger_api.py", "LedgerBundle.economy_day_record", "日次の記録の金の計器(1-9・報告)"),
 )
 
 #: 受け手の名前で持ち主を指す別名(``run_day`` の局所の名前など)。既定は持ち主の道筋の最後の名前。

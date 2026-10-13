@@ -1,0 +1,14 @@
+{
+ "schema": "shibuya.tests/cp2/money-writers/1",
+ "note": "第 1 期 1-9(CP2 の段階 1): お金の列(economy.ops.MONEY_PATHS)を基本操作 economy/ops.py の transfer の外で書く場所の全部(凍結。行は減るだけ=段階 2・3 で transfer へ載せ替えたら消す。足すときは理由を記録 cp2/README.md に書いて親の承認を取る)。kind: 組み立て=ランの頭で配列を作る/採用する・締め=日の締め(流れの表を 0 に・保持窓の先頭を進める)・評価替え=金は動かない(在庫の評価額)・段階 2=resolve の行動の適用の中(engine は economy を import できない=層の契約。台帳の無い経路 C2 と店の売上の写し)",
+ "writers": [
+  {"path": "economy/ledger.py", "func": "Ledger.__init__", "attrs": ["_flow", "_last_change_day", "_lines", "_raw_amt", "_raw_code", "_raw_event_seq", "_raw_event_t_ns", "_raw_head", "_raw_pi", "_raw_pos", "_raw_ps", "_raw_qi", "_raw_qs", "_raw_tick"], "kind": "組み立て", "why": "台帳の配列を作る(0 と -1 で埋める)。金は動かない"},
+  {"path": "economy/ledger.py", "func": "Ledger.attach_household_cash", "attrs": ["_lines"], "kind": "組み立て", "why": "世帯の現金の行に agents.money をそのまま採用する(写しを作らない・残高が 0 のときだけ)"},
+  {"path": "economy/ledger.py", "func": "Ledger.on_day_end", "attrs": ["_flow", "_raw_head"], "kind": "締め", "why": "日の締め: その日の流れの表を集約行へ畳んで 0 に戻す・保持窓の外の生ログの先頭を進める(移動ではない)"},
+  {"path": "economy/ledger.py", "func": "Ledger.revalue_inventory", "attrs": ["_lines"], "kind": "評価替え", "why": "在庫の評価額の書き換え(金は動かない=transfer ではない・engine からは呼ばれていない)"},
+  {"path": "engine/resolve.py", "func": "initialize", "attrs": ["money"], "kind": "段階 2", "why": "台帳の経路は money を 0 にしてから endow_households(=transfer)で入れる。台帳の無い経路(C2)は初期の財布をそのまま書く"},
+  {"path": "engine/resolve.py", "func": "_board_riders", "attrs": ["money"], "kind": "段階 2", "why": "台帳の無い経路(C2)の運賃。台帳の経路は rail.pay_fares → Ledger.transfer_many → transfer"},
+  {"path": "engine/resolve.py", "func": "_complete_buy", "attrs": ["money", "revenue"], "kind": "段階 2", "why": "台帳の無い経路(C2)の購入の現金と、両方の経路の店の売上の写し pois.revenue(診断・物が売れた行だけ=台帳の経路では金の移動の後の物の脚の後に足す)"},
+  {"path": "engine/resolve.py", "func": "_complete_eat", "attrs": ["money", "revenue"], "kind": "段階 2", "why": "台帳の無い経路(C2)の食事の現金と、両方の経路の店の売上の写し pois.revenue(診断)"}
+ ]
+}

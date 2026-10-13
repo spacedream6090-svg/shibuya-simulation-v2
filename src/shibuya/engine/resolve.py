@@ -340,7 +340,7 @@ def _require_thawed(*states: object) -> None:
 
     1-0 段 A(草案 §2-6 の A ②・K1): 系ごとの許可(``core.write_permit``)では解除口が許可の列だけを解くので、
     状態の物の ``frozen`` だけでは宣言の外の列への ``ufunc.at`` を止められない。引数に**書く配列そのもの**も渡し、
-    配列ごとに ``flags.writeable`` を見る(``economy/ledger.py`` の ``_apply_cash`` と同じ形)。配列は numpy の配列、
+    配列ごとに ``flags.writeable`` を見る(``economy/ops.py`` の ``transfer``=旧 ``_apply_cash`` と同じ形)。配列は numpy の配列、
     状態の物は ``frozen`` を持つ物として見分ける。
 
     Note:
@@ -2639,11 +2639,13 @@ def restock(
     tick: int,
     *,
     slot: np.ndarray | None = None,
+    cause: Any = None,
 ) -> np.ndarray:
     """店舗補充・納品(外界→棚)。代金は域外仕入(店舗→外界)で払う。
 
     起動するのは店員・納品ドライバーの行動(C4-subH)。ここは**世界への書き戻し口**として
-    ``world.pois.stock``(棚の写し)を更新する役だけを持つ。
+    ``world.pois.stock``(棚の写し)を更新する役だけを持つ。〔第 1 期 1-9〕``cause``(1-3 の原因)は代金の
+    移動(基本操作 ``economy.ops.transfer``)に渡す(出来事を書き、金と物の台帳の行に id の目印を付ける)。
 
     Returns:
         行ごとの成否 bool。
@@ -2651,7 +2653,8 @@ def restock(
     if ledger.goods is None:
         raise ValueError("物の台帳が注入されていない")
     s = np.asarray(stores, dtype=np.int64).ravel()
-    ok = ledger.goods.restock_many(s, qty, tick, money=ledger.money, slot=slot)
+    kw = {} if cause is None else {"cause": cause}
+    ok = ledger.goods.restock_many(s, qty, tick, money=ledger.money, slot=slot, **kw)
     with world.writable():
         touched = s[np.asarray(ok)]
         if touched.size:

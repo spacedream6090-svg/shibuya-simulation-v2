@@ -73,6 +73,8 @@ _HOT_PATHS = (
     "engine/resolve.py",
     "engine/commit.py",
     "engine/change_detect.py",
+    # 第 1 期 1-9: お金の基本操作(購入・運賃・補充の代金が毎刻み通る=口の約束 1-9 の受入の試験)
+    "economy/ops.py",
     # 1-0: run_day を系に分けた先(弱めない=対象を広げる・草案 §3-3 の 16)
     *sorted(str(p.relative_to(SRC)).replace("\\", "/") for p in (SRC / "engine" / "systems").glob("*.py")),
 )

@@ -43,7 +43,8 @@ def two_days():
 # ================================================================= manifest の欄
 def test_the_fields_are_at_the_end_and_frozen(two_days):
     keys = list(two_days.run_manifest_fields())
-    assert keys == TOP and keys[-3:] == R14 and keys[-4] == "bridges_count"
+    # 1-9 が末尾に economy を足した(T0 の TM9 → 1-4 の 3 欄 → 1-9)=1-4 の 3 欄は末尾の 1 つ前までの続きの並び
+    assert keys == TOP and keys[-4:-1] == R14 and keys[-5] == "bridges_count" and keys[-1] == "economy"
 
 
 def test_values_match_the_ledger_and_the_table(two_days):
@@ -67,7 +68,8 @@ def test_daily_records_carry_the_count_and_the_version_before_events(two_days):
     for d in daily:
         keys = list(d)
         assert [k for k in keys if k in EV_FROZEN["daily_keys_before_1_3"]] == EV_FROZEN["daily_keys_before_1_3"]
-        assert keys[-3:] == ["bridges_count", "rules_version", "events"]
+        # 1-9 が 1-4 の 2 欄の後ろ(events の前)に economy を足した
+        assert keys[-4:] == ["bridges_count", "rules_version", "economy", "events"]
         assert d["bridges_count"] == BR.default_ledger().count()
         assert d["rules_version"] == RT.default_rules().sha
 

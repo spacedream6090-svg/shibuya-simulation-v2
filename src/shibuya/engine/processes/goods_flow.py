@@ -48,6 +48,7 @@ import numpy as np
 from shibuya.agents.state import AgentKind, AgentState
 from shibuya.core.rng import k19_counters, stream
 from shibuya.engine import resolve as R
+from shibuya.engine.events.log import Process
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.state import World
 from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
@@ -81,6 +82,8 @@ _DELAY: Final[int] = DEVIATION_CODES[DeviationVocab.DELAY]
 #: **感度が高い**: 0.80 にすると 5,000 体・1 日では補充が 1 件も立たない
 #: (5,000 体 = 実渋谷の昼間人口の約 1%=購買による棚の減りが小さすぎる)。``AB-SHELF-REORDER``。
 REORDER_FILL_RATIO: Final[float] = 0.95
+#: 〔第 1 期 1-9〕補充の代金(域外仕入=店舗 → 外界)の原因(1-3 の原因=過程 ``shelf``・10b-prep §3-2 の E5)。
+RESTOCK_CAUSE: Final[Process] = Process("shelf")
 #: 補充を評価する刻み[分](expedient・正規化規約⑨と同じ)。
 RESTOCK_STEP_MINUTES: Final[int] = 5
 #: engine_rule フォールバックを回す時刻[分](10:00・expedient)。
@@ -261,7 +264,7 @@ class ShelfRestockProcess:
         slot = _best_slot(goods.shelf, goods.poi_sku, stores)
         cost = np.asarray(goods.unit_cost, dtype=np.int64)[stores] * q
         ok = np.asarray(
-            R.restock(self.world, self.ledger, stores, q, int(tick), slot=slot), dtype=bool
+            R.restock(self.world, self.ledger, stores, q, int(tick), slot=slot, cause=RESTOCK_CAUSE), dtype=bool
         )
         self.n_rejected += int((~ok).sum())  # 店舗の現金不足(域外仕入が払えない)
         if ok.any():
