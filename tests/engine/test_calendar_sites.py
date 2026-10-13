@@ -31,6 +31,7 @@ from shibuya.engine.run import (
 )
 from shibuya.world.state import World
 
+from tests import _data_ids as D
 from tests.engine.test_calendar import write_csv
 
 
@@ -166,15 +167,14 @@ def test_cli_main_accepts_the_switches():
 
 
 # ================================================================= #10 鉄道(実の資産があるときだけ)
-@pytest.mark.skipif(not Path("data/world/v2").is_dir(), reason="世界資産(gitignore 下)が無い環境")
+@pytest.mark.requires_data("world_v2")
 def test_rail_timetable_kind_comes_from_the_calendar(table):
     from shibuya.engine.processes.rail import RailProcess
     from shibuya.world.assets import load_process_assets_or_synthetic
 
     world = World.load_or_synthetic(Path("data/world/v2"), n_cells=139, seed=1)
     pa = load_process_assets_or_synthetic("data/world/v2", world.assets)
-    if not pa.has_timetable:
-        pytest.skip("時刻表の資産が無い")
+    D.skip_unless("timetables", have=pa.has_timetable)
     agents = AgentState(10)
 
     def n_trains(**kw):

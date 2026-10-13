@@ -12,7 +12,14 @@ for p in sys.argv[1:]:
     if 0 in head:  # NUL を含む=PNG 等のバイナリ。文字化けが偽陽性になるので検査対象外(第202)
         print(f"SKIP binary {p}")
         continue
-    text = pathlib.Path(p).read_text(encoding="utf-8", errors="replace")
+    raw = pathlib.Path(p).read_bytes()
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        try:  # 〔第333〕cp932 のファイル(内閣府の祝日 CSV の fixture)は UTF-8 で読むと文字化けが偽陽性になる
+            text = raw.decode("cp932")
+        except UnicodeDecodeError:
+            text = raw.decode("utf-8", errors="replace")
     for i, line in enumerate(text.splitlines(), 1):
         m = PAT.search(line)
         if m:

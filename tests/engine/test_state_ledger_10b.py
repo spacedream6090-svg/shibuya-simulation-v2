@@ -37,7 +37,7 @@ from shibuya.world.state import World
 
 SRC = Path(__file__).resolve().parents[2] / "src" / "shibuya"
 WORLD_DIR = Path("data/world/v2")
-real_data = pytest.mark.skipif(not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="実世界資産が無い")
+real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 
 N = 100
 CELLS = 16

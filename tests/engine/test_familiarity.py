@@ -221,7 +221,7 @@ def test_cli_passes_the_familiarity_flags(monkeypatch):
 
 
 # ------------------------------------------------------------------ (f) on でも挙動は変えない
-@pytest.mark.skipif(not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="実世界資産が無い")
+@pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_on_counts_contacts_and_does_not_change_behaviour_on_the_real_world(monkeypatch):
     from shibuya.agents import state as S
     from shibuya.cli import run as cli_run

@@ -240,7 +240,7 @@ def test_b_a_full_body_at_the_gate_gets_zero_and_the_hazard_is_cleared():
     assert (p, stage) == (0.0, 0) and float(pol._gate_hazard[0]) == 0.0
 
 
-@pytest.mark.skipif(not Path("data/world/v2/w17_schedule.parquet").exists(), reason="実資産が無い")
+@pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_e_no_gate_pass_while_full_in_a_real_per_hour_run():
     """(e) 実資産の classical per_hour のラン(1,500 体)で満腹の段で門を通った回数が 0(5,000 体は記録の計測)。"""
     from shibuya import cli

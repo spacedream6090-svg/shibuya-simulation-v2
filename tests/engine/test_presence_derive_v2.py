@@ -360,7 +360,7 @@ def test_v21_does_not_touch_mid_run_moves_or_in_area_residents():
 
 
 # ================================================================= 実 W17(v1 表)の golden
-@pytest.mark.skipif(not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="W17 が無い")
+@pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_v2_rule_on_the_real_w17_matches_the_parent_verified_counts():
     """親検証値(2026-09-12・全 390,067 体・day0)。表ごとに golden を持つ(``REAL_GOLDEN``・第170):
     W17 v1: v1 読み口 [85,766 / 214,998 / 45,631 / 50] → v2 読み口 [97,242 / 247,395 / 1,808 / 0]

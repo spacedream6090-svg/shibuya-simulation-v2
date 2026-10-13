@@ -310,15 +310,12 @@ def test_copresence_days_counts_weekdays_with_any_shared_slot():
 WORLD = "data/world/v2"
 
 
-def _real_world_or_skip() -> None:
-    from shibuya.world.assets import assets_available
-
-    if not assets_available(WORLD):
-        pytest.skip("W 資産(data/world/v2)が無い")
+#: 〔第333〕前は関数の頭で ``assets_available(WORLD)`` を見て飛ばしていた(``_real_world_or_skip``)=印 ``world_v2`` に。
+real_world = pytest.mark.requires_data("world_v2")
 
 
+@real_world
 def test_run_8b_on_is_deterministic_and_reports_origins_and_l4_share():
-    _real_world_or_skip()
     from shibuya import cli
 
     kw = dict(n_agents=1500, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", relations="on",

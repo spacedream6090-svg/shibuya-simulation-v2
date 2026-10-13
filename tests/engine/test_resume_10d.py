@@ -42,7 +42,7 @@ from shibuya.engine.tape import Tape
 from tests.engine.test_sim_time_T import ALL_ARMS
 
 WORLD_DIR = Path("data/world/v2")
-real_data = pytest.mark.skipif(not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="実世界資産が無い")
+real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 TPD = 1_440
 #: 日中の 3 点(7:00・12:30・22:00)・日の境目・2 日目の日中(7:00)。
 STOPS = (420, 750, 1320, 1440, 1860)

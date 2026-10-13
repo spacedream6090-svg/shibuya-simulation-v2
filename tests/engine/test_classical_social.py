@@ -136,11 +136,8 @@ def test_busy_or_asleep_or_out_of_reach_acquaintances_are_skipped():
 
 
 # ================================================================= (c) ラン
+@pytest.mark.requires_data("world_v2")
 def test_run_golden_and_arms():
-    from shibuya.world.assets import assets_available
-
-    if not assets_available(WORLD):
-        pytest.skip("W 資産(data/world/v2)が無い")
     from shibuya import cli
     from shibuya.engine.run import run_day
 

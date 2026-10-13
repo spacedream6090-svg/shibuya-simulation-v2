@@ -312,15 +312,12 @@ def test_three_person_join_and_counters():
 WORLD = "data/world/v2"
 
 
-def _real_world_or_skip() -> None:
-    from shibuya.world.assets import assets_available
-
-    if not assets_available(WORLD):
-        pytest.skip("W 資産(data/world/v2)が無い")
+#: 〔第333〕前は関数の頭で ``assets_available(WORLD)`` を見て飛ばしていた(``_real_world_or_skip``)=印 ``world_v2`` に。
+real_world = pytest.mark.requires_data("world_v2")
 
 
+@real_world
 def test_run_default_is_off_and_relations_on_keeps_behavior():
-    _real_world_or_skip()
     from shibuya import cli
 
     kw = dict(n_agents=2000, seed=1, world_dir=WORLD, vocab_version="v3", memory="on")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る

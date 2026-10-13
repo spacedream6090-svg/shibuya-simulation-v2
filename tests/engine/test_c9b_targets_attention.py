@@ -198,9 +198,7 @@ def test_landmark_resolution_order_prefers_the_tightest_name():
     assert resolve_landmark("ハチ公", None) is None
 
 
-@pytest.mark.skipif(
-    not (Path("data/world/v2") / "w6_poi.parquet").exists(), reason="実世界資産が無い"
-)
+@pytest.mark.requires_data("world_v2:w6_poi.parquet")
 def test_real_assets_have_the_68_landmarks_and_resolve_hachiko():
     """実資産(W6): landmark 56 + attraction 12 = 68 件・「ハチ公像」→ 忠犬ハチ公像。"""
     w = World.load("data/world/v2")

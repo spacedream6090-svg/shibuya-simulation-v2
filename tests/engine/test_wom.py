@@ -242,15 +242,12 @@ class _TalkingLLM:
 WORLD = "data/world/v2"
 
 
-def _real_world_or_skip() -> None:
-    from shibuya.world.assets import assets_available
-
-    if not assets_available(WORLD):
-        pytest.skip("W 資産(data/world/v2)が無い=会話の起きる世界が無い")
+#: 〔第333〕前は関数の頭で ``assets_available(WORLD)`` を見て飛ばしていた(``_real_world_or_skip``)=印 ``world_v2`` に。
+real_world = pytest.mark.requires_data("world_v2")
 
 
+@real_world
 def test_default_has_no_wom_and_mock_extracts_nothing():
-    _real_world_or_skip()
     from shibuya import cli
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3")  # 会話の起きる規模(mock)・10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
@@ -270,9 +267,9 @@ def test_default_has_no_wom_and_mock_extracts_nothing():
     assert w["store_rows_with_wom"] == 0
 
 
+@real_world
 def test_a_reason_writing_llm_leaks_nothing_by_default():
     """第2波 §2A 項 1 (i): 理由欄に店名と評価語を書く LLM でも、既定(utterance)は抽出 0・伝聞の行 0。"""
-    _real_world_or_skip()
     from shibuya import cli
     from shibuya.engine.run import _default_mock
 
@@ -286,9 +283,9 @@ def test_a_reason_writing_llm_leaks_nothing_by_default():
     assert int(np.count_nonzero(r.sm_source & SM.STORE_SOURCE_BIT["wom"])) == 0
 
 
+@real_world
 def test_a_talking_llm_writes_word_of_mouth_rows_for_listeners_only():
     """旧の源(``wom_source="reason-target"``)で第297 の挙動を再現する(第2波 §2A 項 1 (ii))。"""
-    _real_world_or_skip()
     from shibuya import cli
     from shibuya.engine.run import _default_mock
 

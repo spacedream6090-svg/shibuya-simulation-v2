@@ -430,8 +430,7 @@ def test_all_keeps_the_individual_blocks_within_budget():
 WORLD = "data/world/v2"
 
 
-@pytest.mark.skipif(not __import__("pathlib").Path(WORLD, "w17_schedule.parquet").exists(),
-                    reason="実資産(W17)が無い")
+@pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_run_wiring_defaults_are_old_and_switches_reach_the_run():
     from shibuya import cli
     from shibuya.agents.weekly import load_weekly

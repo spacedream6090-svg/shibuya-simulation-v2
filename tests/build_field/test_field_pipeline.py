@@ -16,15 +16,14 @@ import pytest
 
 from shibuya.build import run as build_run
 from shibuya.build.geo import common as C
+from tests import _data_ids as D
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = REPO_ROOT / "data"
 OSM = DATA_DIR / "realworld" / "osm" / "shibuya_osm_wide_v8.json"
 KASYO = DATA_DIR / "realworld" / "road_census_r3" / "kasyo13.csv"
 
-pytestmark = pytest.mark.skipif(
-    not (OSM.exists() and KASYO.exists()), reason="data/ absent (CI)"
-)
+pytestmark = pytest.mark.requires_data(*D.ids_of(OSM, KASYO))
 
 #: 実データで**現に落ちる**ゲート(理由つき)。増減したら気づけるように固定する。
 KNOWN_FAILING_GATES: dict[tuple[str, str], str] = {

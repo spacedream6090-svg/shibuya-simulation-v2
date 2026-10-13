@@ -384,11 +384,10 @@ def g():
     assert sensitivity._output_token("acceptance/cells.png") == "cells.png"
 
 
+@pytest.mark.requires_data("world_v2:build_manifest.json")
 def test_read_graph_matches_the_source(c8lib, sensitivity, ledger, world_dir):
     """台帳の依存グラフはいまの src から作り直しても同じ(実データの manifest があるとき)。"""
     mp = world_dir / "build_manifest.json"
-    if not mp.exists():
-        pytest.skip("実世界資産 data/world/v2 が無い")
     g = sensitivity.engine_read_graph(c8lib.load_json(mp))
     stored = ledger["build_manifest_judgment"]["read_graph"]["stages"]
     for st, si in g["stages"].items():

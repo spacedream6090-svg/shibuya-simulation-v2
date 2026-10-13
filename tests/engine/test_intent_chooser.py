@@ -274,7 +274,7 @@ def test_poi_target_switch_values_q13():
     assert res.target_resolution == {}
 
 
-@pytest.mark.skipif(not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="実世界資産が無い")
+@pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_poi_target_legacy_reproduces_the_pre_2a_checkpoints_q13():
     """親決定 Q13: ``--poi-target legacy``(段 2a 前の対象の選び方)の値を固定する。
 
@@ -303,7 +303,7 @@ def test_category_table_uses_known_w6_values_only():
         assert s <= set(PC.SUBCAT_TOPCAT), word
 
 
-@pytest.mark.skipif(not (WORLD_DIR / "w8_t1_cell.parquet").exists(), reason="実世界資産が無い")
+@pytest.mark.requires_data("world_v2:w8_t1_cell.parquet")
 def test_poi_visibility_is_read_from_w8_on_the_real_world():
     w = World.load_or_synthetic(WORLD_DIR, n_cells=139, seed=1)
     v = w.poi_visibility

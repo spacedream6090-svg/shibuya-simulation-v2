@@ -27,8 +27,8 @@ from shibuya.engine.processes import opening as OP
 REPO = Path(__file__).resolve().parents[2]
 WORLD_DIR = REPO / "data" / "world" / "v2"
 HOLIDAYS = REPO / "data" / "calendar" / "syukujitsu.csv"
-needs_world = pytest.mark.skipif(not (WORLD_DIR / "w7_plan_spec.parquet").is_file(), reason="世界資産が無い環境")
-needs_csv = pytest.mark.skipif(not HOLIDAYS.is_file(), reason="祝日 CSV が無い環境")
+needs_world = pytest.mark.requires_data("world_v2:w7_plan_spec.parquet")
+needs_csv = pytest.mark.requires_data("calendar")
 
 
 # ================================================================ 切り替えは 1 か所
@@ -162,6 +162,8 @@ def test_act_holiday_opening_hours_come_from_holiday_content_or_the_sunday_row()
 
 
 # ================================================================ 世界の日付と再生日・2 日のラン
+@needs_world  # 〔第333〕印の付け忘れ(世界資産でランを回す)
+@pytest.mark.requires_data("world_v2:w17_schedule.parquet")  # 〔第333 検収 L5〕W17 の行(計画実行層)も読む
 def test_e3_two_days_advance_on_the_calendar_and_the_weekday_rows_come_from_it(monkeypatch):
     """〔改訂(第330・RET)〕前は legacy(day_index)の 2 日のランと曜日の行を比べた(legacy を消した)。今は暦の値だけを見る。"""
     from shibuya import cli

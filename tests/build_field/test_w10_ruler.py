@@ -20,6 +20,7 @@ from shibuya.build.field import road_names as RN
 from shibuya.build.field import w10_noise as W
 from shibuya.build.field import w10_ruler as R
 from shibuya.build.pop import shapefile as SH
+from tests import _data_ids as D
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = REPO_ROOT / "data"
@@ -38,7 +39,7 @@ REAL_INPUTS = (
     WORLD / "build_manifest.json",
 )
 #: 実資産(R5 の CSV・境界の .shp/.dbf・街路点・騒音場・W1・manifest)が 1 つでも無ければ skip。
-real = pytest.mark.skipif(not all(p.exists() for p in REAL_INPUTS), reason="data/ absent (CI)")
+real = pytest.mark.requires_data(*D.ids_of(*REAL_INPUTS))
 
 
 # ------------------------------------------------------------------ 住所・幾何

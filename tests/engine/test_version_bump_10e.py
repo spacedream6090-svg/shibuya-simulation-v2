@@ -10,6 +10,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from tests import _data_ids as D
+
 import shibuya.engine.run as RUN
 from shibuya.engine.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
 from shibuya.engine.conversation import (
@@ -20,7 +22,7 @@ from shibuya.engine.conversation import (
 from shibuya.engine.run import run_day
 
 WORLD_DIR = Path("data/world/v2")
-real_data = pytest.mark.skipif(not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="実世界資産が無い")
+real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 TPD = 1_440
 
 
@@ -261,8 +263,7 @@ def test_e5_key_has_the_day_through_T(tmp_path):
 @pytest.fixture(scope="module")
 def v4_tape(tmp_path_factory):
     """世界資産 300 体・1 日・語彙 v3・記憶 on・関係 on(初期の関係辺がある=知人の印が出る)。"""
-    if not (WORLD_DIR / "w17_schedule.parquet").exists():
-        pytest.skip("実世界資産が無い")
+    D.skip_unless("world_v2:w17_schedule.parquet")
     from shibuya import cli
     from shibuya.engine import tape as TP
 
@@ -342,6 +343,7 @@ def test_e4_l1_tape_meta_carries_the_rng_layout_and_old_counter_tapes_stop(tmp_p
         run_day(mode="replay", replay=tmp_path / "c", llm=BoomLLM(), **kw)
 
 
+@pytest.mark.requires_data("world_v2:w16_population.parquet")
 def test_e4_l2_load_population_and_three_argument_samplers_follow_the_engine(monkeypatch):
     """L2: ``load_population(n=…)`` は engine と同じ鍵の並べ方(counter)。3 引数の抽出の差し替え(凍結した測りの道具)も
     engine から呼べる。〔改訂(第330・RET)〕前は ``rng_scheme`` の 2 通り(counter・stateful)で見た(stateful を消した)。"""
@@ -350,8 +352,6 @@ def test_e4_l2_load_population_and_three_argument_samplers_follow_the_engine(mon
     import shibuya.engine.run as RUN
     from shibuya.agents import population as POP
 
-    if not (WORLD_DIR / "w16_population.parquet").exists():
-        pytest.skip("W16 が無い")
     full = POP.load_population(WORLD_DIR, n=None, seed=1)
     a = POP.load_population(WORLD_DIR, n=500, seed=1)
     b = POP.sample_population(full, 500, 1)

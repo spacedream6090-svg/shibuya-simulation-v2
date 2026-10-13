@@ -547,7 +547,7 @@ def test_manifest_intent_and_the_layer_is_off_outside_v3_activity_candidates():
         run_day(n_agents=10, seed=1, ticks=2, renderer="stub", mock_out_of_cell_target_p=2.0)
 
 
-@pytest.mark.skipif(not (WORLD_DIR / "w8_t1_cell.parquet").exists(), reason="実世界資産が無い")
+@pytest.mark.requires_data("world_v2:w8_t1_cell.parquet")
 def test_mock_arm_sets_arrives_and_executes_intents_on_the_real_world():
     from shibuya.cli import run as cli_run
 

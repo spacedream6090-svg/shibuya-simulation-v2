@@ -85,7 +85,7 @@ def test_missing_csv_gives_an_empty_table_and_warns_once(tmp_path):
         load_holidays(p)  # 2 回目は警告しない
 
 
-@pytest.mark.skipif(not REAL_CSV.is_file(), reason="本物の祝日 CSV(gitignore 下)が無い環境")
+@pytest.mark.requires_data("calendar")
 def test_the_real_cabinet_office_csv():
     t = load_holidays(REAL_CSV)
     assert t.md5 == "733fabb6b488794a0cd3d94df4b1f24a"

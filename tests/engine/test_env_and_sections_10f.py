@@ -48,7 +48,7 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 10e(B6・第330): ``weather``(天気の規則と日ごとの暦の日付・再生日・層・影・設定)を足した(前の値 6e81ca53…)。
 #: 〔改訂(第330・RET)〕旧資産の切替口の欄 ``world_assets_pre10e`` を設定の節から消した(前 ``8e53b145…dde6ea8``)。
 CONFIG_PATHS_SHA256 = "58bb312404e76b244b811aba550eac480efb80e7a3551778ad535cfadff40d7c"
-world_assets = pytest.mark.skipif(not (WORLD / "w2_cells.parquet").exists(), reason="実世界資産 data/world/v2 が無い")
+world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 
 def _small(**kw):
@@ -59,6 +59,18 @@ def _small(**kw):
 
 def _canon_id(v):
     return blake3_hex(json.dumps(v, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8"))[:16]
+
+
+def _str_leaves(v):
+    """dict・list・tuple をたどって文字列の葉(値)を全部出す(dict の鍵は欄の名前なので見ない)。"""
+    if isinstance(v, dict):
+        for x in v.values():
+            yield from _str_leaves(x)
+    elif isinstance(v, (list, tuple)):
+        for x in v:
+            yield from _str_leaves(x)
+    elif isinstance(v, str):
+        yield v
 
 
 # ================================================================= 環境の欄
@@ -89,7 +101,9 @@ def test_environment_fields_shape_and_ids():
 
     node = platform.node()
     if node:
-        assert node not in json.dumps(RS.environment_fields(), ensure_ascii=False)
+        # 〔第333〕値の葉(文字列)との完全一致で見る。前の部分一致(``json.dumps`` の中を探す)は、短いホスト名
+        # (CI の「vm」)が依存の一覧の「llvmlite==…」に当たって偽赤になった。``deps`` の各要素も葉として見る。
+        assert node not in set(_str_leaves(RS.environment_fields()))
 
 
 def test_missing_git_gives_empty_values_and_keeps_the_fields(monkeypatch):
@@ -292,7 +306,10 @@ def test_golden_tables_are_keyed_by_platform_and_values_unchanged():
     from tests.engine import test_relations_tenure as TRT
     from tests.perception import test_near_tiebreak as TNT
 
-    assert GE.platform_id() in GE.REGISTERED, "この環境は golden に未登録(記録の機械と違う)"
+    # 〔第333〕K26 (1)「未登録の環境は golden と比べず A/A だけ・fail にしない」に合わせる(前は未登録で落ちた)。
+    # 表の鍵と値の検査は環境に依らない(辞書の中身を見るだけ)ので、未登録でも警告だけ出して続ける=CI でも値の改変を捕まえる。
+    if not GE.announce_once():
+        GE.warn_unregistered("golden の表の鍵と値の検査(表の中身だけ見る)")
     for t in (TPE.W17_GOLDEN_BY_ENV, TPD.REAL_GOLDEN_BY_ENV, TRT.REL_ON_5000_GOLDEN_BY_ENV,
               TNT.CLASSICAL_1500_GOLDEN_BY_ENV, TCS.CLASSICAL_1500_GOLDEN_ACQ_BY_ENV):
         assert set(t) == {GE.PLATFORM_10F}

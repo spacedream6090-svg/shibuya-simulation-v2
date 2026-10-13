@@ -18,6 +18,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
+from tests import _data_ids as D
 from tests import golden_env as GE
 
 from shibuya.agents.weekly import WeeklySchedule
@@ -108,14 +109,11 @@ def test_tenure_u_is_rank_independent_of_the_tie_hash():
 
 
 # ================================================================= (d) 全母集団
+@pytest.mark.requires_data("world_v2")
 def test_full_population_initial_net_is_uniform_in_every_kind_and_direction():
     """全 390,067 体(W16+W17)。v2: 種別(世帯/職場/学校)× 向き(元 id の大小)のどれでも在職 2 週未満が
     8.3% ± 1 ポイント・U と同点の順のハッシュの順位相関 < 0.01・u→v と v→u で同じ・τ の再逆算(8b′ と同じ手順=
     ラン開始時の 15 番目の辺の A の中央値を小数 3 桁で切り下げ)が :data:`REL_TAU_V2`。v1 は同じ網で偏る(旧の事実)。"""
-    from shibuya.world.assets import assets_available
-
-    if not assets_available(WORLD):
-        pytest.skip("W 資産(data/world/v2)が無い")
     from shibuya.agents.population import load_population
     from shibuya.agents.weekly import load_weekly
 
@@ -152,10 +150,7 @@ def test_switch_is_checked_and_on_the_cli_and_sets_the_default_tau():
     text = (SRC / "cli.py").read_text(encoding="utf-8")
     assert '"--rel-tenure-hash"' in text and "rel_tenure_hash=str(args.rel_tenure_hash)" in text
     assert RL.check_rel_tenure_hash("v1") == "v1" and RL.REL_TENURE_HASHES == ("v2", "v1")
-    from shibuya.world.assets import assets_available
-
-    if not assets_available(WORLD):
-        pytest.skip("W 資産(data/world/v2)が無い")
+    D.skip_unless("world_v2")  # 前の assert は data なしでも回す
     from shibuya import cli
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", relations="on", ticks=30)
@@ -186,11 +181,8 @@ REL_ON_5000_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
 REL_ON_5000_GOLDEN = GE.row(REL_ON_5000_GOLDEN_BY_ENV)
 
 
+@pytest.mark.requires_data("world_v2")
 def test_relations_on_arm_golden_old_and_new():
-    from shibuya.world.assets import assets_available
-
-    if not assets_available(WORLD):
-        pytest.skip("W 資産(data/world/v2)が無い")
     from shibuya import cli
 
     kw = dict(n_agents=5000, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", relations="on")

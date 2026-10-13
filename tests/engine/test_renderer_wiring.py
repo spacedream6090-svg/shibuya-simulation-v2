@@ -28,9 +28,8 @@ from shibuya.perception.renderer import PerceptionAssets, Renderer as Perception
 from shibuya.world.state import World
 
 WORLD_DIR = Path("data/world/v2")
-real_data = pytest.mark.skipif(
-    not PerceptionAssets.available(WORLD_DIR), reason="実世界資産 data/world/v2 が無い"
-)
+#: ``PerceptionAssets.available(WORLD_DIR)`` と同じ判定(読み込みに要るファイルが全部ある)。
+real_data = pytest.mark.requires_data(*(f"world_v2:{f}" for f in PerceptionAssets.REQUIRED_FILES))
 
 #: ``recording`` フィクスチャが作ったアダプタの置き場。
 _BUILT: list["RecordingAdapter"] = []

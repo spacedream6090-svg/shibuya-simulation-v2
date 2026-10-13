@@ -20,6 +20,7 @@ import pytest
 
 from shibuya.build.field import common as C
 from shibuya.build.field import w12_external_nodes as w12
+from tests import _data_ids as D
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = REPO_ROOT / "data"
@@ -46,10 +47,7 @@ def test_default_has_no_pm_table():
     assert w12.PM_PEAK_TRAINS_PER_HOUR is None
 
 
-needs_data = pytest.mark.skipif(
-    not all((WORLD / n).exists() for n in _UPSTREAM) or not (DATA_DIR / "odpt").exists(),
-    reason="data/ absent (CI)",
-)
+needs_data = pytest.mark.requires_data(*D.ids_of(*(WORLD / n for n in _UPSTREAM), DATA_DIR / "odpt"))
 
 
 def _run_w12(tmp: Path) -> tuple[C.StageResult, dict]:

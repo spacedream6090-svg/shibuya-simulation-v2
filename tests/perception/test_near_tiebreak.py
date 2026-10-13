@@ -167,14 +167,13 @@ CLASSICAL_1500_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
 CLASSICAL_1500_GOLDEN = GE.row(CLASSICAL_1500_GOLDEN_BY_ENV)
 
 
+@pytest.mark.requires_data("world_v2:w2_cells.parquet")
 def test_classical_checkpoint_moves_with_hash_and_id_reproduces_the_old_one():
     from pathlib import Path
 
     from shibuya import cli
 
     world = Path("data/world/v2")
-    if not (world / "w2_cells.parquet").exists():
-        pytest.skip("実世界資産 data/world/v2 が無い")
     # 〔改訂(第330・RET)〕前は 3 本とも 10e より前の値を切替口(hash full・rng stateful・旧資産・暦)で再現した=今の値に
     kw = dict(n_agents=1500, seed=1, world_dir=str(world), vocab_version="v3", policy="classical",
               chooser="classical", classical_social="near_first")

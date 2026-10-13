@@ -133,9 +133,7 @@ W17_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
 #: 今の環境の行(無ければ ``None``=A/A だけ)。
 W17_GOLDEN = GE.row(W17_GOLDEN_BY_ENV)
 _FINAL_CALLS = (lambda r: (r.final_hash, int(r.llm_calls)))
-real_data = pytest.mark.skipif(
-    not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="実世界資産が無い"
-)
+real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 
 ACT_SLEEP = ACTIVITY_WORDS.index("就寝")
 ACT_WORK = ACTIVITY_WORDS.index("勤務")

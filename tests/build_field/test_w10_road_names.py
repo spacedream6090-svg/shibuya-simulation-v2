@@ -17,16 +17,14 @@ import pytest
 from shibuya.build.field import common as C
 from shibuya.build.field import road_names as RN
 from shibuya.build.field import w10_noise as W
+from tests import _data_ids as D
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = REPO_ROOT / "data"
 WORLD = DATA_DIR / "world" / "v2"
 ROAD_NAMES_P = DATA_DIR.joinpath(*RN.ROAD_NAMES)
 KASYO_P = DATA_DIR.joinpath(*W.KASYO)
-real = pytest.mark.skipif(
-    not (ROAD_NAMES_P.exists() and KASYO_P.exists() and (WORLD / "w1_edges.parquet").exists()),
-    reason="data/ absent (CI)",
-)
+real = pytest.mark.requires_data(*D.ids_of(ROAD_NAMES_P, KASYO_P, WORLD / "w1_edges.parquet"))
 
 
 def _sec(kind: str, no: str, name: str, city: str, q12: float = 1000.0) -> dict:

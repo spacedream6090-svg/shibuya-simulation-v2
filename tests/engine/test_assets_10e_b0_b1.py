@@ -25,7 +25,7 @@ from shibuya.world import assets as WA
 
 WORLD_DIR = Path(__file__).resolve().parents[2] / "data" / "world" / "v2"
 HAS_WORLD = WA.assets_available(WORLD_DIR) and (WORLD_DIR / "w10_noise_stage_day.npy").is_file()
-needs_world = pytest.mark.skipif(not HAS_WORLD, reason="世界資産(gitignore 下)が無い環境")
+needs_world = pytest.mark.requires_data("world_v2", "world_v2:w10_noise_stage_day.npy")
 
 #: 小さな実ラン(世界資産・40 体・5 tick)。
 SMALL = dict(n_agents=40, seed=1, ticks=5, checkpoint_every=5)

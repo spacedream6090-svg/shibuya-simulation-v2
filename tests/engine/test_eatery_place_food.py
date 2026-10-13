@@ -24,9 +24,7 @@ from shibuya.world.state import (
 )
 
 WORLD_DIR = Path("data/world/v2")
-real_data = pytest.mark.skipif(
-    not (WORLD_DIR / "w6_poi.parquet").exists(), reason="実世界資産が無い"
-)
+real_data = pytest.mark.requires_data("world_v2:w6_poi.parquet")
 
 
 def _world_with(cats: list[str], subcats: list[str] | None) -> World:

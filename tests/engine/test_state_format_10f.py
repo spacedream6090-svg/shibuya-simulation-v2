@@ -22,6 +22,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from tests import _time_gates as TG
+
 from shibuya import cli
 from shibuya.engine import resume as RS
 from shibuya.engine import state_codec as SC
@@ -29,7 +31,7 @@ from shibuya.engine import state_ledger as SL
 from shibuya.engine.run import run_day
 
 WORLD_DIR = Path("data/world/v2")
-real_data = pytest.mark.skipif(not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="実世界資産が無い")
+real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 TPD = 1_440
 SMALL = dict(n_agents=60, seed=1, n_cells=16, ticks=TPD, sim_days=2, checkpoint_every=60, vocab_version="v3",
              memory="on", relations="on")
@@ -616,5 +618,5 @@ def test_size_and_time_5000(tmp_path, monkeypatch):
     print(json.dumps({"npz_bytes": size, "pickle_bytes": n_old, "ratio": round(size / n_old, 3),
                       "write_s": round(t_write, 3), "read_s": round(t_read, 3)}))
     assert size < 0.35 * n_old
-    assert t_write < 5.0 and t_read < 5.0  # 日に 1 回(予算の目安は 10e で再宣言)
+    assert TG.check(t_write < 5.0 and t_read < 5.0, f"状態の書き {t_write:.3f}s・読み {t_read:.3f}s(上限 5 s)")  # 日に 1 回(予算の目安は 10e で再宣言)
     assert SL.LEDGER_VERSION == bundle.header["ledger_version"]

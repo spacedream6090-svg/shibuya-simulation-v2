@@ -20,6 +20,8 @@ import time
 import numpy as np
 import pytest
 
+from tests import _time_gates as TG
+
 from shibuya.agents.schedule import synthesize
 from shibuya.agents.state import AgentState
 from shibuya.economy import census as CS
@@ -369,7 +371,7 @@ def test_w2_five_thousand_agents_with_the_ledger_wired():
         processes_disabled=GOODS_PROCESS_IDS,
     )
     assert GE.soa_combined(plain_goods.checkpoints[-1]) == GE.soa_combined(plain_off.checkpoints[-1])  # 10e(E1)・〔第330・RET〕
-    assert wall <= W2_REPORT_SECONDS
+    assert TG.check(wall <= W2_REPORT_SECONDS, f"W2 台帳あり {wall:.2f}s(報告閾値 {W2_REPORT_SECONDS}s)")
     assert res.conserved and res.min_stock >= 0
     assert int(bundle.money.sector_totals(BalanceLine.CASH).sum()) == 0
     assert CK.net_worth_equals_real_assets(bundle.money, bundle.goods).ok

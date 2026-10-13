@@ -17,6 +17,8 @@ from pathlib import Path
 
 import pytest
 
+from tests import _data_ids as D
+
 from shibuya.build import run as build_run
 from shibuya.build.geo import common as C
 
@@ -139,10 +141,8 @@ def test_the_protected_md5_is_the_promoted_w17_golden_key():
     assert build_run.PROTECTED_OUTPUTS["W17"]["w17_schedule.parquet"] == ("3113e9ba7abb",)
     real = REPO_ROOT / "data" / "world" / "v2"
     p = real / "w17_schedule.parquet"
-    if not p.exists():
-        pytest.skip("実世界資産が無い")
-    if not hashlib.md5(p.read_bytes()).hexdigest().startswith("3113e9ba7abb"):
-        pytest.skip("実 W17 が昇格版ではない")
+    D.skip_unless("world_v2:w17_schedule.parquet")
+    D.skip_unless("w17_promoted", have=hashlib.md5(p.read_bytes()).hexdigest().startswith("3113e9ba7abb"))
     # 読むだけの関数(何も走らせない)
     assert build_run.protected_output_hits(real, ["W17"], set())
     assert build_run.protected_output_hits(real, ["W17"], {"W17"}) == []

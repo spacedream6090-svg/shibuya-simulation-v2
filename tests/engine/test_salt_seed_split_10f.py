@@ -33,7 +33,7 @@ sys.path.insert(0, str(ROOT / "tools" / "c7"))
 import salt_compare as sc  # noqa: E402
 
 WORLD = ROOT / "data" / "world" / "v2"
-world_assets = pytest.mark.skipif(not (WORLD / "w2_cells.parquet").exists(), reason="実世界資産 data/world/v2 が無い")
+world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 NO_WORLD = "data/world/__none__"  # 無い置き場=合成小世界(139 セル)
 
 

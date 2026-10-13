@@ -37,7 +37,7 @@ from shibuya.world.state import World
 REPO = Path(__file__).resolve().parents[2]
 WORLD_DIR = REPO / "data" / "world" / "v2"
 HOLIDAYS = REPO / "data" / "calendar" / "syukujitsu.csv"
-needs_world = pytest.mark.skipif(not (WORLD_DIR / "w13_weather_hourly.parquet").is_file(), reason="世界資産が無い環境")
+needs_world = pytest.mark.requires_data("world_v2:w13_weather_hourly.parquet")
 TYPES = ("晴", "曇", "雨", "猛暑")
 
 

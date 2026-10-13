@@ -19,7 +19,7 @@ from shibuya.engine.tape import RUN_META_FILENAME, read_run_meta
 
 REPO = Path(__file__).resolve().parents[2]
 WORLD_DIR = REPO / "data" / "world" / "v2"
-pytestmark = pytest.mark.skipif(not (WORLD_DIR / "w13_weather_days.parquet").is_file(), reason="世界資産が無い環境")
+pytestmark = pytest.mark.requires_data("world_v2:w13_weather_days.parquet")
 #: 世界資産で回す(合成世界は気象の資産が無く、暦の規則で値が動かない)
 KW = dict(n_agents=60, seed=3, ticks=480, checkpoint_every=240)
 
