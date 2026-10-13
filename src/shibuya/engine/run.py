@@ -893,6 +893,9 @@ class RunResult:
     rng_scheme: str = RNG_SCHEME
     #: 10e(E1): final の定義(manifest の ``hash_scheme``)。〔第330・RET〕切替口を消したので常に ``behavior``(記録だけ)。
     hash_scheme: str = FINAL_DEFINITION
+    #: 第 1 期 1-4(CP5-5): ランの種類(``engine.run_kind``)。``cli.run`` が決めて置く(``cli.main`` も同じ)。``None``=
+    #: 決めていない(``run_day`` を直に呼んだラン=manifest は null)。記録だけ(状態にも指紋にも入らない)。
+    run_kind: str | None = None
 
     #: 10e(B6): 天気の規則と日ごとの暦の日付・再生日・層・影・警告(``EnvironmentProcess.weather_manifest``)。
     #: 世界過程の無いランは規則だけ。manifest の ``weather``(設定の節)。
@@ -1098,8 +1101,14 @@ class RunResult:
             ``t3_ok``(T3=冗長方程式の検算の合否。``None``=月次センサスが立たなかった
             ラン=**未実行**。D-85 (a))・``catalog_sha16``(世界カタログ v0.2 の凍結 SHA)・
             ``process_ids``(実際に回した過程 id の昇順)・``ablations``(切った過程/感度試験 id)。
+            第 1 期 1-4: 末尾に ``bridges_count``(つなぎの台帳の active の行の数)・``rules_version``(規則の表の
+            sha)・``run_kind``(ランの種類=``engine.run_kind``・``run_day`` を直に呼んだランは ``None``)・
+            ``bridges_version``(台帳の中身の sha)。台帳と表のファイルが無い写しでは台帳と表の欄は ``None``。
         """
         from shibuya.engine import manifest_sections as _MS
+        from shibuya.engine import run_kind as _RK
+        from shibuya.engine.bridging import ledger as _BR
+        from shibuya.engine.rules import table as _RT
         from shibuya.perception import templates as _T
 
         runner = getattr(self, "runner", None)
@@ -1268,11 +1277,17 @@ class RunResult:
             # ---- 10e(B6): 天気の規則と日ごとの暦の日付・再生日・層・影(列追加のみ) ----
             "weather": copy.deepcopy(self.weather),
             # ---- 第 1 期 1-1 T0(TM9・GPU 無しの欄・10f と一体): 呼び出し数を判断モデルと LLM に分けた欄(判断モデルは
-            # まだ無い=0)・時計の種類と幅・つなぎの台帳の数(台帳は 1-4 で入る=今は null)。列追加のみ ----
+            # まだ無い=0)・時計の種類と幅・つなぎの台帳の数。列追加のみ ----
             "calls_by_model": {"judge_model": 0, "llm": int(self.llm_calls)},
             "clock_kind": CLOCK_KIND,
             "step_seconds": int(self.tick_seconds),
-            "bridges_count": None,
+            # ---- 第 1 期 1-4: つなぎの台帳の件数(T0 で null にした欄を件数に)・規則の表の版(表の sha=CP10)・
+            # ランの種類(CP5-5)。どれも記録だけ(final・behavior-hash は manifest を読まない)。列追加のみ ----
+            "bridges_count": _BR.bridges_count(),
+            "rules_version": _RT.rules_version(),
+            "run_kind": _RK.resolve(self.run_kind),
+            # 1-4 検収 L1: つなぎの台帳の中身の sha(件数が同じ書き換えも見分ける=CP10 の版とハッシュ)。列追加のみ
+            "bridges_version": _BR.bridges_version(),
         }
 
     def l4_audit_fields(self) -> dict[str, Any]:

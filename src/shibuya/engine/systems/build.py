@@ -280,6 +280,13 @@ def build(_call_args: dict[str, Any]) -> Any:
 
     t_start = time.perf_counter()
     budget_mode_enum = BudgetMode.parse(budget_mode)
+    # ---- 第 1 期 1-4(検収 L10): つなぎの台帳と規則の表をランの始めに 1 回読む(壊れていればここで落ちる=1 日回した
+    # 後の日の締めで落ちない。無い写しは警告して null。読むだけ=状態にも指紋にも入らない) ----
+    from shibuya.engine.bridging import ledger as _BR
+    from shibuya.engine.rules import table as _RT
+
+    _BR.bridges_count()
+    _RT.rules_version()
     # ---- 10a(A1・A1-1・A1-2・A1-3・A9): 暦の口・通しの時刻 T・応答の遅れ(世界を触る前に検査) ----
     check_replay_tape(mode, replay)  # 〔第330・RET〕10e より前・活性化より前の録画は止める
     response_delay = _resolve_response_delay(response_delay, mode, replay)

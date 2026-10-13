@@ -2,9 +2,10 @@
 「時計の種類と幅」「つなぎの台帳の数」を足した。欄が増えるだけ(既存の欄の名・順・値は変えない)。
 
 - manifest の一番上の鍵(順も)は ``manifest_keys_frozen.json`` と同じ(``writes_soa_frozen.json`` と同じ凍結の方式。
-  欄を足したら理由を記録に書いて更新する)。TM9 の 4 つは末尾。
+  欄を足したら理由を記録に書いて更新する)。TM9 の 4 つは T0 の時点の末尾(1-4 でその後ろに ``rules_version``・
+  ``run_kind``・``bridges_version`` を足した=TM9 の 4 つは続きの並びのまま)。
 - 判断モデルはまだ無い=0。LLM は発射数(``llm_calls_total`` と同じ)。日次の LLM はこのランの中で数えた分の日ごとの差。
-- つなぎの台帳は 1-4 で入る=今は ``None``(欄だけ)。
+- つなぎの台帳は 1-4 で入った=件数(T0 では ``None``。1-4 の試験は ``tests/engine/bridging/``)。
 - TM9 の欄は状態に入らない(final・behavior-hash は manifest を読まない)ことは byte-check 19 構成で HEAD と同じ final を
   確かめた(記録 ``docs/bench/analysis/wallbounce-1012/t0/``)。ここでは「欄の値を変えても final が同じ」を見る。
 """
@@ -18,6 +19,7 @@ import pytest
 
 from shibuya.core import time_consts as TC
 from shibuya.engine import manifest_sections as MS
+from shibuya.engine.bridging import ledger as BR
 from shibuya.engine.run import run_day
 
 FROZEN = Path(__file__).with_name("manifest_keys_frozen.json")
@@ -40,7 +42,9 @@ def test_manifest_keys_match_the_frozen_list(two_days):
     keys = list(two_days.run_manifest_fields())
     frozen = json.loads(FROZEN.read_text(encoding="utf-8"))["keys"]
     assert keys == frozen
-    assert keys[-len(TM9):] == list(TM9)  # 列追加のみ(末尾)
+    i = keys.index(TM9[0])
+    assert keys[i:i + len(TM9)] == list(TM9)  # 列追加のみ(T0 の末尾=続きの並び。1-4 の欄はその後ろ)
+    assert keys[i + len(TM9):] == ["rules_version", "run_kind", "bridges_version"]
 
 
 def test_manifest_tm9_values(two_days):
@@ -49,7 +53,7 @@ def test_manifest_tm9_values(two_days):
     assert m["calls_by_model"] == {"judge_model": 0, "llm": m["llm_calls_total"]}
     assert m["clock_kind"] == TC.CLOCK_KIND == "steps"
     assert m["step_seconds"] == m["tick_seconds"] == TC.STEP_SECONDS
-    assert m["bridges_count"] is None
+    assert m["bridges_count"] == BR.default_ledger().count() > 0  # 1-4 で null から件数に
 
 
 def test_sections_of_tm9_fields():
@@ -62,7 +66,8 @@ def test_daily_records_have_tm9_and_the_days_add_up(two_days):
     daily = m["daily"]
     assert [d["day"] for d in daily] == [0, 1]
     for d in daily:
-        assert d["clock_kind"] == "steps" and d["step_seconds"] == 60 and d["bridges_count"] is None
+        assert d["clock_kind"] == "steps" and d["step_seconds"] == 60
+        assert d["bridges_count"] == BR.default_ledger().count()  # 1-4 で null から件数に
         assert d["calls_by_model"]["judge_model"] == 0 and d["calls_by_model"]["llm"] >= 0
     assert sum(d["calls_by_model"]["llm"] for d in daily) == m["llm_calls_total"]
     assert all(d["calls_by_model"]["llm"] > 0 for d in daily)

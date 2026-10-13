@@ -44,6 +44,7 @@ from shibuya.economy import census as CS
 from shibuya.economy import entry_capital as EC
 from shibuya.economy.accounts import BalanceLine, Sector
 from shibuya.engine import resolve as R
+from shibuya.engine import run_kind as _RK
 from shibuya.engine.arbiter import call_budget_per_tick
 from shibuya.engine.geometry import DEFAULT_GEOMETRY, GEOMETRY_MODES
 from shibuya.engine.ledger_api import LedgerBundle
@@ -397,6 +398,7 @@ def run(
     l4_scale: float | None = None,
     population_seed: int | None = None,
     environment_seed: int | None = None,
+    run_kind: str | None = None,
     **kwargs,
 ) -> RunResult:
     """台帳つきの 1 シミュ日ラン(C4 の標準入口)。
@@ -429,8 +431,14 @@ def run(
 
     **5 段目 5a(D-118)**: ``hunger_model`` の既定(渡さないとき)は ``CLI_DEFAULT_HUNGER_MODEL``
     (**energy**)。``hunger_model="v1"`` で旧規則(旧 checkpoint)を再現する(テストで固定)。
+
+    **第 1 期 1-4(CP5-5・検収 M2)**: ``run_kind`` はランの種類(``engine.run_kind.RUN_KINDS``)。省略すると
+    ここで決める=試験の中は ``test``・CLI の既定(``arm_baseline``)と違う腕の引数が 1 つでもあれば ``arm``・ほかは
+    ``reproduction``(``run_arms``・``NON_ARM_RUN_KWARGS`` は数えない)。結果の ``run_kind`` に置くだけで、``run_day``
+    には渡さない(設定の指紋 ``_call_args`` は変わらない)。``main`` もこの決め方を使う。
     """
     budget = kwargs.pop("budget", None)
+    run_kind = None if run_kind is None else _RK.check(run_kind)  # 第 1 期 1-4: 名の誤りはランの前に止める
     # 5 段目 5a: 空腹のモデルの既定は energy(``CLI_DEFAULT_HUNGER_MODEL``)
     kwargs.setdefault("hunger_model", CLI_DEFAULT_HUNGER_MODEL)
     if l4_scale is None:
@@ -440,6 +448,10 @@ def run(
         scale = float(l4_scale)
     if scale < 0.0:
         raise ValueError("l4_scale は 0 以上(0=無制限)")
+    if run_kind is None:  # 第 1 期 1-4(検収 M2): 腕は CLI の既定と比べて決める(記録だけ)
+        arms = run_arms({**kwargs, "budget": budget, "l4_scale": scale, "use_population": use_population,
+                         "store_capital_yen": store_capital_yen})
+        run_kind = _RK.decide(arms_on=bool(arms))
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
     applied = apply_fleet_queue_default(kwargs.get("fleet"), scale, n_agents)
@@ -482,6 +494,8 @@ def run(
     )
     if note:
         res.l4_notes.append(note)
+    # 第 1 期 1-4(CP5-5): ランの種類(記録だけ。run_day の引数=設定の指紋には入れない)
+    res.run_kind = run_kind
     return res
 
 
@@ -638,6 +652,82 @@ def undefined_registry_payload(
         "records": records,
         "words": dict(sorted(words.items(), key=lambda kv: (-kv[1]["n_rows"], kv[0]))),
     }
+
+
+#: **第 1 期 1-4(CP5-5・検収 M2)**: ランの種類の規則で「腕」に数えない ``cli.run``/``run_day`` の引数。規模と seed・
+#: データと出力の置き場・再開と状態の書き出し・テープの記録と再生・暦の日付とデータの置き場・LLM の接続。これ以外の
+#: 引数が CLI の既定(``arm_baseline``)と違えば腕(``engine.run_kind`` の expedient の段落・台帳 ``BR-RUN-KIND-CLI-ARMS``)。
+#: CLI の引数では ``--events``(出来事の記録=指紋に入らない・``run`` の引数でない)・``--checkpoints-out``・
+#: ``--undefined-out`` も腕でない。LLM の復号(``--temperature``・``--max-tokens``)は ``fleet`` の中=腕でない。
+NON_ARM_RUN_KWARGS: Final[frozenset[str]] = frozenset({
+    "n_agents", "seed", "population_seed", "environment_seed", "n_cells", "ticks", "sim_days", "day_index",
+    "world", "world_dir", "ledger", "checkpoint_every", "checkpoint_detail", "occupancy_every", "occupancy_path",
+    "census_out", "state_out", "stop_at_tick", "resume_from", "run_id", "tape_path", "mode", "replay",
+    "start_sim_datetime", "holiday_csv", "school_holidays", "llm", "fleet", "fleet_wait_s", "fleet_debug_dir",
+})
+
+
+def _engine_run_day() -> Any:
+    """``engine.run.run_day`` そのもの(このモジュールの名 ``run_day`` を差し替えた試験でも既定を正しく読む)。"""
+    from shibuya.engine import run as _ENGINE_RUN
+
+    return _ENGINE_RUN.run_day
+
+
+def arm_baseline() -> dict[str, Any]:
+    """腕の比べの元=CLI の既定の ``run_day`` の引数(``run_day`` の既定に、CLI と ``cli.run`` が違う既定を重ねた)。
+
+    CLI の既定と ``run_day`` の既定が違う所は 3 つ(語彙の版 ``CLI_DEFAULT_VOCAB_VERSION``・空腹のモデル
+    ``CLI_DEFAULT_HUNGER_MODEL``・呼数の倍率 ``CLI_DEFAULT_L4_SCALE``)と ``cli.run`` の 2 つ(``use_population=True``・
+    ``store_capital_yen=None``)。``on``/``off`` と真偽・空の並びの書き方の違いは ``_arm_norm`` でそろえる(試験
+    ``test_manifest_rules_bridges.py`` が ``main`` の既定の引数とこの表が同じことを確かめる)。
+    """
+    import inspect
+
+    base = {k: p.default for k, p in inspect.signature(_engine_run_day()).parameters.items()
+            if p.default is not inspect.Parameter.empty}
+    base.update(vocab_version=CLI_DEFAULT_VOCAB_VERSION, hunger_model=CLI_DEFAULT_HUNGER_MODEL,
+                l4_scale=float(CLI_DEFAULT_L4_SCALE), use_population=True, store_capital_yen=None)
+    return base
+
+
+def _arm_norm(key: str, v: Any) -> Any:
+    """比べるための値の形(``on``→真・``off``→偽・空→None・列挙→値・``budget_mode`` は列挙の値に)。"""
+    import enum
+
+    from shibuya.perception.channels import BudgetMode
+
+    if key == "budget_mode" and v is not None:
+        return BudgetMode.parse(v).value
+    if isinstance(v, enum.Enum):
+        v = v.value
+    if v is True or v == "on":
+        return True
+    if v is False or v == "off":
+        return False
+    if v is None or (isinstance(v, (str, tuple, list, dict, set, frozenset)) and len(v) == 0):
+        return None
+    if isinstance(v, (list, tuple)):
+        return tuple(_arm_norm(key, x) for x in v)
+    if isinstance(v, Mapping):
+        return tuple(sorted((str(k), _arm_norm(key, x)) for k, x in v.items()))
+    if isinstance(v, float) and v.is_integer():
+        return int(v)
+    return v
+
+
+def run_arms(passed: Mapping[str, Any]) -> tuple[str, ...]:
+    """``cli.run`` に渡された引数のうち、CLI の既定と違う腕の名(昇順)。渡さなかった引数は ``run_day`` の既定で比べる
+    (``vocab_version`` を渡さない ``cli.run`` はライブラリの既定 v1=CLI の既定 v3 と違う=腕)。"""
+    import inspect
+
+    base = arm_baseline()
+    rd = {k: p.default for k, p in inspect.signature(_engine_run_day()).parameters.items()
+          if p.default is not inspect.Parameter.empty}
+    eff = {**rd, **dict(passed)}
+    out = [k for k in sorted(set(base) | set(eff))
+           if k not in NON_ARM_RUN_KWARGS and _arm_norm(k, eff.get(k)) != _arm_norm(k, base.get(k))]
+    return tuple(out)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1192,7 +1282,7 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine.events import log as _events_log
 
         _events_log.set_enabled(str(args.events) == "on")
-    res = run(
+    res = run(  # 第 1 期 1-4(検収 M2): ランの種類は run が決める(試験 > CLI の既定と違う腕 > 再現)
         n_agents=args.agents,
         seed=args.seed,
         population_seed=args.population_seed,

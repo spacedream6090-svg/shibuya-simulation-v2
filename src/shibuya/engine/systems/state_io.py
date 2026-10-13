@@ -17,6 +17,8 @@ import numpy as np
 
 from shibuya.core.hashing import blake3_hex
 from shibuya.core.time_consts import CLOCK_KIND
+from shibuya.engine.bridging import ledger as _BR
+from shibuya.engine.rules import table as _RT
 from shibuya.engine.state_hashes import behavior_hash as behavior_state_hash
 from shibuya.engine.state_hashes import component_digests
 from shibuya.engine.state_hashes import full_hash as full_state_hash
@@ -228,12 +230,15 @@ def day_record(b: Any, d: int) -> None:
         rec["state_hashes_end_of_day"] = dict(result.state_hashes_end_of_day)
     # 第 1 期 1-1 T0(TM9・GPU 無しの欄): この日の呼び出し数を判断モデルと LLM に分ける(判断モデルはまだ無い=0。
     # LLM は発射数の積算 ``RunResult.llm_calls`` のこの記録までの増え=このランの中で数えた分。再開したランの最初の日は
-    # 再開した時刻からの分)・時計の種類と幅・つなぎの台帳の数(1-4 の前=null)。記録の欄が増えるだけ(状態に入らない)。
+    # 再開した時刻からの分)・時計の種類と幅・つなぎの台帳の数。記録の欄が増えるだけ(状態に入らない)。
     llm_before = sum(int(r["calls_by_model"]["llm"]) for r in b.runstats.daily_records if "calls_by_model" in r)
     rec["calls_by_model"] = {"judge_model": 0, "llm": int(result.llm_calls) - llm_before}
     rec["clock_kind"] = CLOCK_KIND
     rec["step_seconds"] = int(b.cfg.tick_seconds)
-    rec["bridges_count"] = None
+    # 第 1 期 1-4: つなぎの台帳の件数(T0 の null を件数に)と規則の表の版(表の sha)。TM9 の行に並べる(``events`` の前)。
+    # どちらもリポの docs の表を 1 回だけ読む(状態に入らない=記録だけ)。
+    rec["bridges_count"] = _BR.bridges_count()
+    rec["rules_version"] = _RT.rules_version()
     # 第 1 期 1-3: E(診断)の区切りの行(日の締め)を書き、その日の出来事の記録の行数・バイト・種類の分布を記録の欄に出す
     # (計器・口の約束 1-3 の約束 (3))。保持窓の外の行はここで落とす。記録の欄が増えるだけ(状態に入らない)。
     events = b.layers.events

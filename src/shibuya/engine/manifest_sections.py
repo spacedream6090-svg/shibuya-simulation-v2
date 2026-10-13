@@ -68,6 +68,10 @@ PATHS: Final[dict[str, str]] = {
     "weather": _C,
     # ---- 第 1 期 1-1 T0(TM9・GPU 無しの欄): 時計の種類と幅・つなぎの台帳の数は設定、呼び出し数(判断モデル/LLM)は観測 ----
     "clock_kind": _C, "step_seconds": _C, "bridges_count": _C, "calls_by_model": _O,
+    # ---- 第 1 期 1-4: 規則の表の版(表の sha=CP10)・ランの種類(CP5-5)。どちらもランの前に決まる=設定 ----
+    "rules_version": _C, "run_kind": _C,
+    # ---- 1-4 検収 L1: つなぎの台帳の中身の sha(設定) ----
+    "bridges_version": _C,
     # ---- 状態のハッシュ・再開・日ごとの締め(観測) ----
     "state_hashes": _O, "state_hashes.ledger_version": _C,
     "state_hashes_end_of_day": _O,

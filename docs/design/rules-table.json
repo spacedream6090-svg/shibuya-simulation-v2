@@ -1,0 +1,93 @@
+{
+ "schema": "shibuya.rules-table/1",
+ "note": "規則の表(第 1 期 1-4・CP10・決定 10-12 §1-12)。1-4 では器と実在の規則 3 行だけ(読み手は無い=挙動は変わらない)。中身は E4(R-106)の後に 4-2 で入れる。出典と版は R-106(docs/research/v2-r106-rights-institutions-tax-credit.md・親検収 第329)と W7 の一次確認(docs/research/v2-w7-law-primary-check-research.md・等級 A)から写した(新しい取得はしていない)。asof=この行の値が効く最初の日。kind: machine=機械が守らせる / human=人が取り締まる。形式は src/shibuya/engine/rules/table.py。",
+ "rules": [
+  {
+   "id": "consumption_tax.standard_rate",
+   "kind": "machine",
+   "asof": "2019-10-01",
+   "source": [
+    {
+     "law": "消費税法",
+     "law_id": "363AC0000000108",
+     "article": "29 条 1 号",
+     "version": "2026-10-01",
+     "url": "https://laws.e-gov.go.jp/api/2/law_data/363AC0000000108?asof=2026-10-01",
+     "retrieved": "2026-10-12"
+    },
+    {
+     "law": "地方税法",
+     "law_id": "325AC0000000226",
+     "article": "72 条の 83",
+     "version": "2026-10-01",
+     "url": "https://laws.e-gov.go.jp/api/2/law_data/325AC0000000226?asof=2026-10-01",
+     "retrieved": "2026-10-12"
+    }
+   ],
+   "params": {
+    "national_rate": 0.078,
+    "local_tax_ratio": [22, 78],
+    "combined_rate": 0.1
+   },
+   "applies_to": "",
+   "note": "標準税率 国 7.8%+地方消費税 7.8%×22/78=2.2% → 合計 10%(R-106 §3-1・○)。asof の 2019-10-01 は税率 10% の施行日(R-106 §6-1 の例=平成 24 年法律第 68 号)。読んだ条文の版は e-Gov の現行版 2026-10-01(R-106 §0-2)=世界の時点 2026-07-13 より後の版(税率の条は同じ)。軽減税率 6.24%・レジの端数(1 枚につき税率ごとに 1 回)は 4-2 で足す。"
+  },
+  {
+   "id": "minimum_wage.tokyo",
+   "kind": "machine",
+   "asof": "2026-10-01",
+   "source": [
+    {
+     "law": "厚生労働省 東京労働局 報道発表「東京都最低賃金」",
+     "article": "報道発表(2026-09-30)",
+     "version": "2026-09-30",
+     "url": "https://jsite.mhlw.go.jp/tokyo-roudoukyoku/news_topics/houdou/20260930chinginka_00001.html"
+    },
+    {
+     "law": "最低賃金法",
+     "law_id": "334AC0000000137",
+     "article": "4 条・14 条",
+     "version": "2025-06-01",
+     "url": "https://laws.e-gov.go.jp/api/2/law_data/334AC0000000137?asof=2025-06-01",
+     "retrieved": "2026-10-12"
+    }
+   ],
+   "params": {
+    "yen_per_hour": 1280,
+    "area": "東京都"
+   },
+   "applies_to": "",
+   "note": "東京都の最低賃金 1,280 円・効力 2026-10-01(R-106 #17・○・親検収)。最低賃金に足りない部分は無効で最低賃金と同じ定めとみなす(最賃法 4 条 2 項)=機械が守らせる側(R-106 §振り分けの例)。世界の時点 2026-07-13 では前の 1,226 円(2025-10-03〜)だが R-106 では △(報道)なので表に入れていない=その日に引くと版が無い(4-2 で版を足す)。"
+  },
+  {
+   "id": "late_night_alcohol.residential_ban",
+   "kind": "human",
+   "asof": "2025-11-28",
+   "source": [
+    {
+     "law": "風俗営業等の規制及び業務の適正化等に関する法律",
+     "law_id": "323AC0000000122",
+     "article": "33 条 1 項(深夜における酒類提供飲食店営業の届出)",
+     "version": "2025-11-28",
+     "url": "https://laws.e-gov.go.jp/api/2/law_data/323AC0000000122?asof=2025-11-28",
+     "retrieved": "2026-10-12"
+    },
+    {
+     "law": "風俗営業等の規制及び業務の適正化等に関する法律施行条例(東京都・昭和 59 年条例第 128 号)",
+     "article": "15 条",
+     "version": "2020-03-31(最終改正 令和 2 年条例第 48 号)",
+     "url": "https://reiki.metro.tokyo.lg.jp/reiki/reiki_honbun/g101RG00002214.html",
+     "retrieved": "2026-09-16"
+    }
+   ],
+   "params": {
+    "business": "深夜における酒類提供飲食店営業(風営法 33 条 1 項)",
+    "area": "住居集合地域",
+    "closed_from": "00:00",
+    "closed_until": "06:00"
+   },
+   "applies_to": "plan.law_cap_key == 'shinya_shurui'",
+   "note": "都施行条例 15 条「住居集合地域においては、法第三十三条第一項に規定する酒類提供飲食店営業を午前零時から午前六時までの時間において営んではならない。」(W7 の一次確認 §2・親再取得・逐語一致)。届出は営業所ごとに開始の 10 日前まで(規則 103 条 3 項)・違反は指示と営業停止(34 条)=人が取り締まる側(R-106 §1 の表)。asof は読んだ法の版(2025-11-28)を下限にした=施行の初日は未確認。今の W7 は地域を見ずに全 POI に同じ窓を当てる(D-72 ①=W7#9 のつなぎ)。"
+  }
+ ]
+}
