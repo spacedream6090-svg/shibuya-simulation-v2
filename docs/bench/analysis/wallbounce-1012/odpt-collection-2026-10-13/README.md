@@ -317,3 +317,9 @@ $env:PYTHONIOENCODING = "utf-8"
 - ODPT の「カタログ」(CKAN)は許可の一覧の外なので見ていない。洗い出しは API の `odpt:Operator` と、種類ごとの問い合わせで行った。
 - 1 分ごとの取得が ODPT の利用の条件(要求の頻度)に合うかは確かめていない。
 - 本番の 5 分ごとの実行は止めていない。写した直後の最初の実行で、`odpt_rt/README.md` と出力の根の `README.md` が新しい文に書き換わり、`odpt_rt/_last_fetch.json` が作られる。古い形のファイル(`train_<HHMMSS>.json` など)はそのまま残る。
+
+## 10. 親の注(第333・2026-10-14)
+
+- 間隔は **案 1**(3 種類とも 5 分・運行情報だけ変化分・gzip)。根拠は台帳の odpt_rt の行(遅延は分の単位で動き 5 分の系列で遅延の日を再現できる・1 分は要求 3 倍で ODPT の要求の頻度の条件が未確認)。1 日の実測は 10-14 以降の `--report` で見て、台帳の見込みを置き換える。
+- 静的データの版 1(§7 のコマンド・`--timeout 120 --retries 2`): 404 組 全部 ok・1,034,592 件・HTTP 2,833 本・106 ファイル・56 MB(gzip)・約 2 時間。`odpt:BusstopPoleTimetable` は入れない(仮採用=PENDING §1-1b)。
+- 判断待ち(ユーザー): ダンプの口の転送先 `dataodpt.blob.core.windows.net` の許可・取得タスクの電池の設定(`DisallowStartIfOnBatteries`)。
