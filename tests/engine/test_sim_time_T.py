@@ -26,6 +26,7 @@ from shibuya.core.hashing import apply_key_array
 from shibuya.core.types import EventClass
 from shibuya.engine import resolve as R
 from shibuya.engine import run as RUN
+from shibuya.engine.systems import build as BLD  # 1-0: 層の組み立ての名前の差し替えの的
 from shibuya.engine.activity import UNTIL_MAX_MINUTES, ActivityLayer
 from shibuya.engine.arbiter import Arbiter, WakeCandidates
 from shibuya.engine.calendar import SimCalendar
@@ -156,10 +157,10 @@ def test_day2_draws_differ_from_day1_for_the_same_tick_and_agent():
 # ================================================================= (iv) 経過時間が負にならない
 def test_no_negative_elapsed_time_in_any_tick_column_every_tick(monkeypatch):
     seen: dict[str, object] = {}
-    orig_conv = RUN.ConversationManager
-    orig_arb = RUN.Arbiter
-    orig_runner = RUN.WorldProcessRunner
-    orig_enable = RUN.MemoryLayer.enable_relations
+    orig_conv = BLD.ConversationManager
+    orig_arb = BLD.Arbiter
+    orig_runner = BLD.WorldProcessRunner
+    orig_enable = BLD.MemoryLayer.enable_relations
 
     def conv_factory(*a, **k):
         seen["conv"] = obj = orig_conv(*a, **k)
@@ -177,10 +178,10 @@ def test_no_negative_elapsed_time_in_any_tick_column_every_tick(monkeypatch):
         seen["rel"] = obj = orig_enable(self, *a, **k)
         return obj
 
-    monkeypatch.setattr(RUN, "ConversationManager", conv_factory)
-    monkeypatch.setattr(RUN, "Arbiter", arb_factory)
-    monkeypatch.setattr(RUN, "WorldProcessRunner", runner_factory)
-    monkeypatch.setattr(RUN.MemoryLayer, "enable_relations", enable)
+    monkeypatch.setattr(BLD, "ConversationManager", conv_factory)  # 1-0: 組み立ては engine.systems.build
+    monkeypatch.setattr(BLD, "Arbiter", arb_factory)
+    monkeypatch.setattr(BLD, "WorldProcessRunner", runner_factory)
+    monkeypatch.setattr(BLD.MemoryLayer, "enable_relations", enable)
 
     refr_max = int(np.max(R.refractory_ticks()))
     until_cap = int(np.ceil(UNTIL_MAX_MINUTES)) + 1

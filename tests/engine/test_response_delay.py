@@ -22,6 +22,7 @@ from shibuya.engine import commit as C
 from shibuya.engine import run as RUN
 from shibuya.engine.run import run_day
 from shibuya.engine.tape import Tape
+from shibuya.llm.fleet import FleetBridge  # 1-0: run.py は FleetBridge を import しない(組み立ては engine.systems.build)
 
 from tests.engine.test_fleet_wiring import (
     CONV_AGENTS,
@@ -156,13 +157,13 @@ def test_utterances_are_recorded_at_the_receiving_tick(fleet_servers, monkeypatc
     monkeypatch.setattr(ConversationManager, "utterance", spy)
     turn = int(WakeCondition.CONVERSATION_TURN)
     fired: list[tuple[int, int]] = []
-    orig_submit = RUN.FleetBridge.submit
+    orig_submit = FleetBridge.submit
 
     def submit(self, batch, now_tick):
         fired.extend((int(c.agent_id), int(c.tick)) for c in batch if int(c.condition) == turn)
         return orig_submit(self, batch, now_tick=now_tick)
 
-    monkeypatch.setattr(RUN.FleetBridge, "submit", submit)
+    monkeypatch.setattr(FleetBridge, "submit", submit)
     client = make_client(fleet_servers)
     res = run_day(n_agents=CONV_AGENTS, seed=1, world=_conv_world(), ticks=CONV_TICKS, fleet=client,
                   fleet_wait_s=10.0, renderer="stub", processes=False, population=False, world_dir=None,

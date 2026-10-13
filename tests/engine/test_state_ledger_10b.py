@@ -1023,12 +1023,20 @@ def test_p2_end_of_day_differs_after_the_ledger_close():
     assert r.final_hash == r2.final_hash
 
 
-def _call_ref_sites() -> dict[int, str]:
-    """``run.py`` の ``*_call_ref(`` の行 → 道の名(run_day の中の出現順)。"""
+def _call_ref_sites() -> dict[tuple[str, int], str]:
+    """``*_call_ref(`` の行(ファイル・行)→ 道の名。1-0: HEAD の run_day の 5 か所は 3 つの系の関数へ移った
+    (到着の受け取り ``llm_io.receive_arrivals``・呼 ``decide.sys_decide``・ランの終わり ``run_end.sys_drain``)。"""
     import inspect
 
-    src, start = inspect.getsourcelines(RUN.run_day)
-    lines = [start + i for i, ln in enumerate(src) if "*_call_ref(" in ln]
+    from shibuya.engine.systems import decide as DEC
+    from shibuya.engine.systems import llm_io as LIO
+    from shibuya.engine.systems import run_end as RE
+
+    lines: list[tuple[str, int]] = []
+    for fn in (LIO.receive_arrivals, DEC.sys_decide, RE.sys_drain):
+        src, start = inspect.getsourcelines(fn)
+        path = inspect.getsourcefile(fn)
+        lines += [(path, start + i) for i, ln in enumerate(src) if "*_call_ref(" in ln]
     assert len(lines) == 5, lines
     # 出現順: 再生の到着(④′-r)・艦隊の到着(④′)・mock(④)・艦隊の終端の drain・再生の終端
     return dict(zip(lines, ("replay_arrival", "fleet_arrival", "mock", "fleet_drain", "replay_end")))
@@ -1049,9 +1057,10 @@ def test_t2_call_id_on_the_fleet_and_replay_paths(tmp_path, monkeypatch):
     real_split = RUN._split_due
 
     def ref_spy(res):
-        line = sys._getframe(1).f_lineno
-        cand = [ln for ln in sites if ln <= line]  # 呼び手の行のいちばん近い手前の印の行=その道
-        seen_paths.add(sites[max(cand)] if cand else "?")
+        fr = sys._getframe(1)
+        line, path = fr.f_lineno, fr.f_code.co_filename
+        cand = [k for k in sites if k[0] == path and k[1] <= line]  # 呼び手の行のいちばん近い手前の印の行=その道
+        seen_paths.add(sites[max(cand, key=lambda k: k[1])] if cand else "?")
         out = real_ref(res)
         cid = getattr(res, "call_id", "")
         if cid:

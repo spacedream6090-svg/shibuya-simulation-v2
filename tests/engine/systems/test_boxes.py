@@ -115,3 +115,23 @@ def test_scratch_reset_keeps_buffers():
 def test_tick_ctx():
     c = BX.TickCtx.of(1441, 1440)
     assert (c.T, c.td, c.day) == (1441, 1, 1)
+
+
+def test_run_day_signature_is_unchanged_and_build_unpacks_every_argument():
+    """草案 §3-3 の 3: 設定の指紋 ``_call_args = dict(locals())`` は run_day の頭のまま。組み立ては引数を全部結ぶ。"""
+    import ast
+    import inspect
+
+    from shibuya.engine import run as RUN
+
+    params = list(inspect.signature(RUN.run_day).parameters)
+    assert len(params) == 113
+    src = inspect.getsource(RUN.run_day)
+    body = ast.parse(src).body[0].body
+    first = body[1] if isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant) else body[0]
+    assert ast.unparse(first) == "_call_args = dict(locals())"
+    bsrc = Path("src/shibuya/engine/systems/build.py").read_text(encoding="utf-8")
+    import re
+
+    got = re.findall(r"^    (\w+) = _call_args\['(\w+)'\]$", bsrc, flags=re.M)
+    assert [a for a, _ in got] == [b for _, b in got] == params

@@ -133,9 +133,9 @@ def test_u5_allow_entries_have_a_fixed_hit_count(tmp_path, ext_scan):
     assert any("当たる数が 1(宣言は 2)" in x for x in SA.check_external(ext_scan, allow=wrong))
     root = tmp_path / "src" / "shibuya"
     shutil.copytree(SRC, root, ignore=shutil.ignore_patterns("build", "__pycache__"))
-    run_py = root / "engine" / "run.py"
+    run_py = root / "engine" / "systems" / "body.py"  # 1-0: 層別の起床の数えは系 presence(engine/systems/body.py)
     text = run_py.read_text(encoding="utf-8")
-    # 許可した行(層別の起床の数えの基準)と同じ文字列の行を、run.py の別の関数に足す
+    # 許可した行(層別の起床の数えの基準)と同じ文字列の行を、同じファイルの別の関数に足す
     run_py.write_text(text + "\n\ndef _copied(presence):\n    _pres0 = int(presence.n_arrivals) + 1\n    return _pres0\n",
                       encoding="utf-8")
     problems = SA.check_external(SA.scan_external(root))

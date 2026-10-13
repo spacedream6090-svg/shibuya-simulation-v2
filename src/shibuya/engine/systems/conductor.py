@@ -9,6 +9,7 @@
 
 from __future__ import annotations
 
+import os
 import time
 from typing import Any
 
@@ -54,3 +55,87 @@ def declared_check(specs: dict[str, SystemSpec]):
 
     return check
 
+
+#: 試験(T4)のとき真: tick の頭で scratch を番兵で埋め、その tick に書かれる前に読むと落とす。
+STRICT_SCRATCH: bool = False
+
+#: 立つ条件(``SystemSpec.when``)の名 → 箱を見る述語(組み立ての後は変わらない=ランの頭で 1 回だけ見る)。
+WHEN = {
+    "": lambda b: True,
+    "presence": lambda b: b.layers.presence is not None,
+    "rel_layer": lambda b: b.layers.rel_layer is not None,
+    "conv": lambda b: b.layers.conv is not None,
+    "act_layer": lambda b: b.layers.act_layer is not None,
+    "fam_layer": lambda b: b.layers.fam_layer is not None,
+    "energy": lambda b: b.layers.energy is not None,
+    "home_meals": lambda b: b.layers.energy is not None and b.layers.energy.home_meals is not None,
+}
+
+
+def tick_plan(box: Any, specs: tuple[SystemSpec, ...]) -> list[SystemSpec]:
+    """tick の中で呼ぶ系の並び(表の順・立たない系を外す・``llm_receive`` の位置を応答の遅れで選ぶ=草案 §2-2)。"""
+    plan = [s for s in specs if s.timing == "tick" and WHEN[s.when](box)]
+    if int(box.cfg.response_delay) == 2:  # 位置 B(旧): wake_sources の後
+        rec = next(s for s in plan if s.name == "llm_receive")
+        plan.remove(rec)
+        plan.insert(next(k for k, s in enumerate(plan) if s.name == "wake_sources") + 1, rec)
+    return plan
+
+
+def conduct(call_args: dict) -> Any:
+    """``run_day`` の本体: 組み立て(R1)→ tick のループ(日の頭 D1・tick の系・日の終わり D2)→ ランの終わり(R2・締め・R3)。
+
+    逐次ループ宣言1: tick 数ぶん(10a: ``T`` は通しの時刻・``td`` はその日の中の tick)。1 tick の中身は系の並び。
+    """
+    from shibuya.engine.systems import boxes as _BX
+    from shibuya.engine.systems import build as _BLD
+    from shibuya.engine.systems import day as _DAY
+    from shibuya.engine.systems.table import SPECS, SYSTEMS
+
+    check = os.environ.get("SHIBUYA_SYSTEMS_CHECK", "").strip()  # 試験(T5): 既存の試験の上で段 B と番兵を回す口
+    if check and _PR.ACTIVE is None:
+        return _conduct_checked(call_args, check)
+    t0 = time.perf_counter()
+    box = _BLD.build(call_args)
+    box.runstats.system_seconds["build"] = time.perf_counter() - t0
+    if STRICT_SCRATCH:
+        box.scratch = _BX.TickScratchStrict()
+    unset = _BX.UNSET if STRICT_SCRATCH else None
+    cfg = box.cfg
+    tpd, total = int(cfg.tpd), int(cfg.total_ticks)
+    plan = tick_plan(box, SYSTEMS)
+    s_head, s_close = SPECS["day_head"], SPECS["day_close"]
+    for T in range(cfg.t_begin, cfg.t_end):
+        ctx = _BX.TickCtx.of(T, tpd)
+        box.scratch.reset(unset)  # tick の中の受け渡しは tick の頭で空にする(Buffers は空にしない=R1)
+        if _DAY.day_head_due(T, ctx.td):
+            run_system(s_head, ctx, box)
+        for spec in plan:
+            run_system(spec, ctx, box)
+        if _DAY.day_close_due(T, ctx.td, tpd, total):
+            run_system(s_close, ctx, box)
+    run_system(SPECS["drain"], None, box)
+    run_system(SPECS["close_final"], None, box)
+    result = run_system(SPECS["report"], None, box)
+    _PR.at("END", None, box)
+    return result
+
+
+def _conduct_checked(call_args: dict, every: str) -> Any:
+    """``SHIBUYA_SYSTEMS_CHECK=<間引き>`` のとき(試験だけ・T5): 段 B(系の前後で変わった欄 ⊆ 宣言)と番兵の scratch(T4)を
+    入れて回し、宣言の外の変化があれば ``AssertionError``。``<間引き>`` は snapshot を取る tick の間隔(``1``=全部)。"""
+    global STRICT_SCRATCH
+    from shibuya.engine.systems.table import SPECS
+
+    k = max(1, int(every)) if every.isdigit() else 1
+    T_max = 10 ** 8
+    pr = _PR.Probe(check=declared_check(SPECS), ticks=frozenset(range(0, T_max, k)) if k > 1 else None)
+    prev_strict = STRICT_SCRATCH
+    _PR.ACTIVE, STRICT_SCRATCH = pr, True
+    try:
+        out = conduct(call_args)
+    finally:
+        _PR.ACTIVE, STRICT_SCRATCH = None, prev_strict
+    if pr.violations:
+        raise AssertionError(f"1-0 段 B: 宣言の外の変化 {len(pr.violations)} 件(先頭 {pr.violations[:5]})")
+    return out

@@ -1,0 +1,7458 @@
+{
+ "format": "shibuya.bench/1-0/multi-writer/1",
+ "order": [
+  "build",
+  "day_head",
+  "body",
+  "world",
+  "presence",
+  "perceive_prepare",
+  "llm_receive",
+  "apply_responses",
+  "detect",
+  "plan_boundary",
+  "home_meal",
+  "wake_sources",
+  "wake_filter",
+  "relations_wake",
+  "wake_assemble",
+  "arbiter",
+  "decide",
+  "phase_a",
+  "phase_b",
+  "phase_c",
+  "conversation",
+  "activity_intent",
+  "memory",
+  "familiarity",
+  "energy_after",
+  "observe",
+  "checkpoint",
+  "day_close",
+  "drain",
+  "close_final",
+  "report"
+ ],
+ "probe_configs": [
+  "v3_default",
+  "v3_mem_rel_store",
+  "v3_classical_mem_rel",
+  "v1_edge",
+  "v2_edge_attention",
+  "golden_null_arm"
+ ],
+ "counts": {
+  "soa_declared_multi": 56,
+  "soa_observed_multi": 33,
+  "ext_paths_declared_multi": 456,
+  "ext_paths_observed_multi": 64,
+  "ext_rows_observed_multi": 30
+ },
+ "soa": [
+  {
+   "key": "agents.activity",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "presence",
+    "apply_responses",
+    "plan_boundary",
+    "phase_c",
+    "conversation",
+    "activity_intent",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "presence",
+    "apply_responses",
+    "plan_boundary",
+    "phase_c",
+    "conversation",
+    "close_final"
+   ]
+  },
+  {
+   "key": "agents.activity_kind",
+   "axis1": "behavior",
+   "declared": [
+    "presence",
+    "activity_intent"
+   ],
+   "observed": [
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "agents.activity_until",
+   "axis1": "behavior",
+   "declared": [
+    "presence",
+    "activity_intent"
+   ],
+   "observed": [
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "agents.band",
+   "axis1": "no",
+   "declared": [
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "presence",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.board_line",
+   "axis1": "behavior",
+   "declared": [
+    "presence",
+    "plan_boundary",
+    "phase_c"
+   ],
+   "observed": [
+    "plan_boundary",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.board_since",
+   "axis1": "behavior",
+   "declared": [
+    "presence",
+    "plan_boundary",
+    "phase_c"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.cell",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "presence",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.edge_id",
+   "axis1": "behavior",
+   "declared": [
+    "phase_c"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.edge_s",
+   "axis1": "behavior",
+   "declared": [
+    "phase_c"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.energy_balance",
+   "axis1": "diag",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c"
+   ],
+   "observed": [
+    "body",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.fam_exposures",
+   "axis1": "behavior",
+   "declared": [
+    "familiarity"
+   ],
+   "observed": []
+  },
+  {
+   "key": "agents.fam_first",
+   "axis1": "behavior",
+   "declared": [
+    "familiarity"
+   ],
+   "observed": []
+  },
+  {
+   "key": "agents.fam_last",
+   "axis1": "no",
+   "declared": [
+    "familiarity"
+   ],
+   "observed": []
+  },
+  {
+   "key": "agents.fam_thing",
+   "axis1": "behavior",
+   "declared": [
+    "familiarity"
+   ],
+   "observed": []
+  },
+  {
+   "key": "agents.fam_visits",
+   "axis1": "behavior",
+   "declared": [
+    "familiarity"
+   ],
+   "observed": []
+  },
+  {
+   "key": "agents.fatigue",
+   "axis1": "behavior",
+   "declared": [
+    "body",
+    "phase_c"
+   ],
+   "observed": [
+    "body",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.fatigue_stage",
+   "axis1": "behavior",
+   "declared": [
+    "detect"
+   ],
+   "observed": [
+    "detect"
+   ]
+  },
+  {
+   "key": "agents.focus_target",
+   "axis1": "behavior",
+   "declared": [
+    "phase_c"
+   ],
+   "observed": []
+  },
+  {
+   "key": "agents.focus_ttl",
+   "axis1": "behavior",
+   "declared": [
+    "phase_c"
+   ],
+   "observed": []
+  },
+  {
+   "key": "agents.holdings",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "phase_c"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.hunger",
+   "axis1": "behavior",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c"
+   ],
+   "observed": [
+    "body",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.hunger_stage",
+   "axis1": "behavior",
+   "declared": [
+    "detect",
+    "home_meal"
+   ],
+   "observed": [
+    "detect"
+   ]
+  },
+  {
+   "key": "agents.intent_action",
+   "axis1": "behavior",
+   "declared": [
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "phase_c",
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "agents.intent_kind",
+   "axis1": "behavior",
+   "declared": [
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "phase_c",
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "agents.intent_since",
+   "axis1": "behavior",
+   "declared": [
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "phase_c",
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "agents.intent_target",
+   "axis1": "behavior",
+   "declared": [
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "phase_c",
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "agents.last_action",
+   "axis1": "behavior",
+   "declared": [
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.last_result",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "conversation",
+    "activity_intent"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.last_result_tick",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "conversation",
+    "activity_intent"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.mem_cell",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.mem_importance",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "decide",
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.mem_kind",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.mem_last",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "decide",
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.mem_n",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "decide",
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.mem_object",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.mem_partner",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.mem_result",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.mem_tick",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.money",
+   "axis1": "behavior",
+   "declared": [
+    "phase_c"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.node",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "presence",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.path_next_node",
+   "axis1": "behavior",
+   "declared": [
+    "phase_c"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.plan_flags",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "presence"
+   ]
+  },
+  {
+   "key": "agents.poi_ref",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c"
+   ],
+   "observed": [
+    "world",
+    "presence",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.poi_since",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c"
+   ],
+   "observed": [
+    "world",
+    "presence",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.queue_poi",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.queue_since",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.refractory_until",
+   "axis1": "behavior",
+   "declared": [
+    "wake_filter",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "agents.rel_first",
+   "axis1": "behavior",
+   "declared": [
+    "relations_wake",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.rel_kind",
+   "axis1": "behavior",
+   "declared": [
+    "relations_wake",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.rel_last",
+   "axis1": "no",
+   "declared": [
+    "relations_wake",
+    "memory"
+   ],
+   "observed": [
+    "relations_wake",
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.rel_n",
+   "axis1": "behavior",
+   "declared": [
+    "relations_wake",
+    "memory"
+   ],
+   "observed": [
+    "relations_wake",
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.rel_partner",
+   "axis1": "behavior",
+   "declared": [
+    "relations_wake",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.rel_sign",
+   "axis1": "behavior",
+   "declared": [
+    "relations_wake",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.since_meal_kcal",
+   "axis1": "behavior",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c"
+   ],
+   "observed": [
+    "body",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.sleep_pending",
+   "axis1": "behavior",
+   "declared": [
+    "presence",
+    "plan_boundary",
+    "phase_c"
+   ],
+   "observed": [
+    "plan_boundary",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.sm_first",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.sm_last",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.sm_n",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.sm_poi",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.sm_precision",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.sm_source",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.sm_valence",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "agents.talk_partner",
+   "axis1": "behavior",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "conversation"
+   ],
+   "observed": [
+    "apply_responses",
+    "phase_c",
+    "conversation"
+   ]
+  },
+  {
+   "key": "agents.target_node",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "activity_intent",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "agents.thermal",
+   "axis1": "behavior",
+   "declared": [
+    "world"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "agents.thermal_stage",
+   "axis1": "behavior",
+   "declared": [
+    "detect"
+   ],
+   "observed": [
+    "detect"
+   ]
+  },
+  {
+   "key": "agents.transit_ref",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "presence",
+    "phase_c",
+    "close_final"
+   ]
+  },
+  {
+   "key": "agents.transit_state",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "presence",
+    "phase_c",
+    "close_final"
+   ]
+  },
+  {
+   "key": "agents.xy",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "presence",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "cells.b4_hash",
+   "axis1": "no",
+   "declared": [
+    "detect"
+   ],
+   "observed": [
+    "detect"
+   ]
+  },
+  {
+   "key": "cells.density",
+   "axis1": "behavior",
+   "declared": [
+    "phase_c"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "cells.density_stage",
+   "axis1": "behavior",
+   "declared": [
+    "phase_c"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "cells.open_count",
+   "axis1": "no",
+   "declared": [
+    "phase_c"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "perception.heading",
+   "axis1": "no",
+   "declared": [
+    "world"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "perception.task_flag",
+   "axis1": "no",
+   "declared": [
+    "world"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "pois.open_now",
+   "axis1": "behavior",
+   "declared": [
+    "world"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "pois.revenue",
+   "axis1": "diag",
+   "declared": [
+    "phase_c"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "pois.stock",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "phase_c"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  }
+ ],
+ "ext": [
+  {
+   "key": "O1:act_layer.text",
+   "axis1": "behavior",
+   "declared": [
+    "presence",
+    "activity_intent"
+   ],
+   "observed": [
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "O1:act_layer.until_kind",
+   "axis1": "behavior",
+   "declared": [
+    "presence",
+    "activity_intent"
+   ],
+   "observed": [
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "O2:act_layer._digest_cache",
+   "axis1": "no",
+   "declared": [
+    "presence",
+    "activity_intent",
+    "checkpoint",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "checkpoint"
+   ]
+  },
+  {
+   "key": "O2:act_layer._text_ids",
+   "axis1": "no",
+   "declared": [
+    "presence",
+    "activity_intent"
+   ],
+   "observed": [
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "O2:act_layer._texts",
+   "axis1": "no",
+   "declared": [
+    "presence",
+    "activity_intent"
+   ],
+   "observed": [
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "O2:act_layer.text_id",
+   "axis1": "no",
+   "declared": [
+    "presence",
+    "activity_intent"
+   ],
+   "observed": [
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "O3:act_layer._bt_agent",
+   "axis1": "no",
+   "declared": [
+    "activity_intent"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O3:act_layer._bt_start",
+   "axis1": "no",
+   "declared": [
+    "activity_intent"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O3:act_layer._bt_tick",
+   "axis1": "no",
+   "declared": [
+    "activity_intent"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O4:intent_layer._payload",
+   "axis1": "behavior",
+   "declared": [
+    "apply_responses",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "O5:intent_layer._executing",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "phase_a",
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "O5:intent_layer._kept_walk",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "phase_a",
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "O5:intent_layer._proposals",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "apply_responses",
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "O6:intent_layer.stats",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "detect",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "apply_responses",
+    "detect",
+    "phase_a",
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "O6:intent_layer.ticks_n",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "detect",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "O6:intent_layer.ticks_sum",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "detect",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "O7:fam_layer.prev_cell",
+   "axis1": "behavior",
+   "declared": [
+    "familiarity"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O8:mem_layer._gist_order",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O8:mem_layer.gist",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O9:mem_layer._gist_done",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O9:mem_layer._session_key",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "O10:mem_layer._next_join",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O10:mem_layer._next_session",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "O11:mem_layer._target",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O11:mem_layer.recall_stats",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O11:mem_layer.stats",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "decide",
+    "memory"
+   ]
+  },
+  {
+   "key": "O12:mem_layer.store.stats",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "O13:poi_resolver.store_choice.by_hour",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "memory"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O13:poi_resolver.store_choice.choice_poi",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "memory"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O13:poi_resolver.store_choice.choice_reason",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "memory"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O13:poi_resolver.store_choice.stats",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "memory"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O14:poi_resolver.store_choice._b_off",
+   "axis1": "no",
+   "declared": [
+    "memory"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O14:poi_resolver.store_choice._b_tick",
+   "axis1": "no",
+   "declared": [
+    "memory"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O15:wom.stats",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O15:wom.top",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O15:wom.unmatched_words",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "memory"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O16:rel_layer._prev_cell",
+   "axis1": "behavior",
+   "declared": [
+    "relations_wake",
+    "memory"
+   ],
+   "observed": [
+    "relations_wake"
+   ]
+  },
+  {
+   "key": "O17:rel_layer._acq_until",
+   "axis1": "behavior",
+   "declared": [
+    "relations_wake",
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O18:rel_layer._co_active",
+   "axis1": "behavior",
+   "declared": [
+    "relations_wake",
+    "memory"
+   ],
+   "observed": [
+    "relations_wake"
+   ]
+  },
+  {
+   "key": "O18:rel_layer._co_day",
+   "axis1": "behavior",
+   "declared": [
+    "relations_wake",
+    "memory"
+   ],
+   "observed": [
+    "relations_wake"
+   ]
+  },
+  {
+   "key": "O18:rel_layer._co_since",
+   "axis1": "behavior",
+   "declared": [
+    "relations_wake",
+    "memory"
+   ],
+   "observed": [
+    "relations_wake"
+   ]
+  },
+  {
+   "key": "O19:rel_layer._invite_salt",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "relations_wake",
+    "decide",
+    "conversation",
+    "memory"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O19:rel_layer.chosen_count",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "relations_wake",
+    "decide",
+    "conversation",
+    "memory"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O19:rel_layer.init_audit",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "relations_wake",
+    "decide",
+    "conversation",
+    "memory"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O19:rel_layer.origin_of",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "relations_wake",
+    "decide",
+    "conversation",
+    "memory"
+   ],
+   "observed": [
+    "apply_responses",
+    "conversation"
+   ]
+  },
+  {
+   "key": "O19:rel_layer.stats",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "relations_wake",
+    "decide",
+    "conversation",
+    "memory"
+   ],
+   "observed": [
+    "apply_responses",
+    "relations_wake",
+    "decide",
+    "memory"
+   ]
+  },
+  {
+   "key": "O19:rel_layer.wall",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "relations_wake",
+    "decide",
+    "conversation",
+    "memory"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O20:classical._prev",
+   "axis1": "behavior",
+   "declared": [
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O21:classical._gate_hazard",
+   "axis1": "behavior",
+   "declared": [
+    "body",
+    "home_meal",
+    "decide",
+    "phase_c"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O22:classical._condition",
+   "axis1": "no",
+   "declared": [
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O22:classical._eating_cells",
+   "axis1": "no",
+   "declared": [
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O22:classical._eating_tick",
+   "axis1": "no",
+   "declared": [
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O22:classical._tick",
+   "axis1": "no",
+   "declared": [
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O23:classical._b_off",
+   "axis1": "no",
+   "declared": [
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O23:classical._b_tick",
+   "axis1": "no",
+   "declared": [
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O23:classical.by_hour",
+   "axis1": "no",
+   "declared": [
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O23:classical.counts",
+   "axis1": "no",
+   "declared": [
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O24:classical.acq_fn",
+   "axis1": "no",
+   "declared": [
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O24:classical.home_cell",
+   "axis1": "no",
+   "declared": [
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O25:poi_resolver.chooser.last_habit",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O25:poi_resolver.chooser.stats",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O26:poi_resolver._cat_mask_cache",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "phase_c"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O26:poi_resolver.entropy_sum",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "phase_c"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O26:poi_resolver.move_stats",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "phase_c"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O26:poi_resolver.stats",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "phase_c"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O27:energy.bmr",
+   "axis1": "behavior",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O28:energy.counts",
+   "axis1": "diag",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c",
+    "energy_after"
+   ],
+   "observed": [
+    "body",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O28:energy.intake_kcal",
+   "axis1": "diag",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c",
+    "energy_after"
+   ],
+   "observed": [
+    "body",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O28:energy.meal_bits",
+   "axis1": "diag",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c",
+    "energy_after"
+   ],
+   "observed": [
+    "body",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O28:energy.meal_start_home",
+   "axis1": "diag",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c",
+    "energy_after"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O28:energy.meal_start_in",
+   "axis1": "diag",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c",
+    "energy_after"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O28:energy.meal_start_out",
+   "axis1": "diag",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c",
+    "energy_after"
+   ],
+   "observed": [
+    "body"
+   ]
+  },
+  {
+   "key": "O28:energy.n_meals",
+   "axis1": "diag",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c",
+    "energy_after"
+   ],
+   "observed": [
+    "body",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O28:energy.n_snacks",
+   "axis1": "diag",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c",
+    "energy_after"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O28:energy.snack_start",
+   "axis1": "diag",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c",
+    "energy_after"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O28:energy.stage_ticks",
+   "axis1": "diag",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c",
+    "energy_after"
+   ],
+   "observed": [
+    "energy_after"
+   ]
+  },
+  {
+   "key": "O28:energy.stage_ticks_awake_by_hour",
+   "axis1": "diag",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c",
+    "energy_after"
+   ],
+   "observed": [
+    "energy_after"
+   ]
+  },
+  {
+   "key": "O29:energy.out_of_area._start",
+   "axis1": "no",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O29:energy.out_of_area.agent",
+   "axis1": "no",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O29:energy.out_of_area.from_row",
+   "axis1": "no",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O29:energy.out_of_area.slot",
+   "axis1": "no",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O29:energy.out_of_area.tick",
+   "axis1": "no",
+   "declared": [
+    "body",
+    "home_meal",
+    "phase_c"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O30:energy.out_of_area.d_agent",
+   "axis1": "no",
+   "declared": [
+    "body",
+    "home_meal"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O30:energy.out_of_area.d_arm_tick",
+   "axis1": "no",
+   "declared": [
+    "body",
+    "home_meal"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O30:energy.out_of_area.d_eat_tick",
+   "axis1": "no",
+   "declared": [
+    "body",
+    "home_meal"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O30:energy.out_of_area.d_slot",
+   "axis1": "no",
+   "declared": [
+    "body",
+    "home_meal"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O30:energy.out_of_area.d_wake_min",
+   "axis1": "no",
+   "declared": [
+    "body",
+    "home_meal"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O31:energy.out_of_area.d_armed",
+   "axis1": "behavior",
+   "declared": [
+    "body",
+    "home_meal"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O32:energy.home_meals._start",
+   "axis1": "no",
+   "declared": [
+    "body",
+    "home_meal"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O32:energy.home_meals.agent",
+   "axis1": "no",
+   "declared": [
+    "body",
+    "home_meal"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O32:energy.home_meals.home_cell",
+   "axis1": "no",
+   "declared": [
+    "body",
+    "home_meal"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O32:energy.home_meals.slot",
+   "axis1": "no",
+   "declared": [
+    "body",
+    "home_meal"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O32:energy.home_meals.tick",
+   "axis1": "no",
+   "declared": [
+    "body",
+    "home_meal"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O33:energy.home_meals.n_asleep",
+   "axis1": "diag",
+   "declared": [
+    "body",
+    "home_meal",
+    "energy_after"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O33:energy.home_meals.n_not_home",
+   "axis1": "diag",
+   "declared": [
+    "body",
+    "home_meal",
+    "energy_after"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O33:energy.out_of_area.n_armed",
+   "axis1": "diag",
+   "declared": [
+    "body",
+    "home_meal",
+    "energy_after"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O33:energy.out_of_area.n_deferred_not_out",
+   "axis1": "diag",
+   "declared": [
+    "body",
+    "home_meal",
+    "energy_after"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O33:energy.out_of_area.n_skipped_past_window",
+   "axis1": "diag",
+   "declared": [
+    "body",
+    "home_meal",
+    "energy_after"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O34:norm_meter._cowalk_pairs_seen",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O34:norm_meter._ctx",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O34:norm_meter._pair_keys",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O34:norm_meter._pair_len",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O34:norm_meter._prev_xy",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O34:norm_meter._role_rows",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O34:norm_meter.cowalk_agent_minutes",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O34:norm_meter.cowalk_episodes",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O34:norm_meter.cowalk_pairs_max_tick",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O34:norm_meter.cowalk_ticks_skipped",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O34:norm_meter.group_size_minutes",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O34:norm_meter.inst_group_count",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O34:norm_meter.inst_grouped_minutes",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O34:norm_meter.inst_pairs_max_tick",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O34:norm_meter.inst_size_minutes",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O34:norm_meter.inst_ticks_skipped",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O34:norm_meter.inst_walker_minutes",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O34:norm_meter.moving_agent_minutes",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O34:norm_meter.n_actions_counted",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O34:norm_meter.n_actions_off_stage",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O34:norm_meter.n_ticks",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O34:norm_meter.no_permission_total",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O34:norm_meter.role_by_kind",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O34:norm_meter.role_result",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O34:norm_meter.seconds",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O34:norm_meter.tick_ms_max",
+   "axis1": "no",
+   "declared": [
+    "apply_responses",
+    "phase_c",
+    "observe"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O35:presence._plan_rider",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "decide",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O35:presence._rewalk_deadline",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "decide",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O35:presence._rewalk_ids",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "decide",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O35:presence._rewalk_line",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "decide",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O35:presence._rewalked",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "decide",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O35:presence._walk_line",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "decide",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O35:presence._walk_since",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "decide",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O36:presence._defer_deadline",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "presence"
+   ]
+  },
+  {
+   "key": "O36:presence._defer_ids",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "presence"
+   ]
+  },
+  {
+   "key": "O36:presence._defer_line",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "presence"
+   ]
+  },
+  {
+   "key": "O36:presence._defer_walk",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "presence"
+   ]
+  },
+  {
+   "key": "O36:presence._extra",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "presence"
+   ]
+  },
+  {
+   "key": "O36:presence._skip_depart_at",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "presence"
+   ]
+  },
+  {
+   "key": "O37:presence._pulled_in_today",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_head",
+    "world"
+   ]
+  },
+  {
+   "key": "O38:presence.absent",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O38:presence.arrival_cell",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O38:presence.arrival_tick",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O38:presence.arrival_train",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_head"
+   ]
+  },
+  {
+   "key": "O38:presence.arrival_train_e1",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_head"
+   ]
+  },
+  {
+   "key": "O38:presence.blocks",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O38:presence.ev_act",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O38:presence.ev_agent",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O38:presence.ev_arg",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O38:presence.ev_place",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O38:presence.ev_tick",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O38:presence.ev_type",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "presence",
+    "plan_boundary",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O39:conv._next_id",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O39:conv._of_agent",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "apply_responses",
+    "conversation"
+   ]
+  },
+  {
+   "key": "O39:conv._pair_invite_until",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "conversation"
+   ]
+  },
+  {
+   "key": "O39:conv._refusal_until",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "apply_responses",
+    "conversation"
+   ]
+  },
+  {
+   "key": "O39:conv._speaker_invite_until",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "conversation"
+   ]
+  },
+  {
+   "key": "O39:conv.pending_invites",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "apply_responses",
+    "conversation"
+   ]
+  },
+  {
+   "key": "O39:conv.sessions",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "apply_responses",
+    "decide",
+    "conversation"
+   ]
+  },
+  {
+   "key": "O40:conv.join_events",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "decide",
+    "conversation"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O41:conv.closed_by_reason",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "decide",
+    "conversation"
+   ]
+  },
+  {
+   "key": "O41:conv.ignored_events",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "conversation"
+   ]
+  },
+  {
+   "key": "O41:conv.n_accepted",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O41:conv.n_backchannels",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O41:conv.n_blocks",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O41:conv.n_declined",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O41:conv.n_expired_purged",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "conversation"
+   ]
+  },
+  {
+   "key": "O41:conv.n_gate_rejected",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "apply_responses",
+    "conversation"
+   ]
+  },
+  {
+   "key": "O41:conv.n_ignored_invites",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "conversation"
+   ]
+  },
+  {
+   "key": "O41:conv.n_interrupts",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O41:conv.n_invite_refractory_blocked",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "conversation"
+   ]
+  },
+  {
+   "key": "O41:conv.n_invites",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "conversation"
+   ]
+  },
+  {
+   "key": "O41:conv.n_pending_expired",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "conversation"
+   ]
+  },
+  {
+   "key": "O41:conv.origin_counts",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "apply_responses",
+    "conversation"
+   ]
+  },
+  {
+   "key": "O41:conv.size_hist",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "wake_sources",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "decide",
+    "conversation"
+   ]
+  },
+  {
+   "key": "O42:arbiter._last_tick",
+   "axis1": "behavior",
+   "declared": [
+    "arbiter"
+   ],
+   "observed": [
+    "arbiter"
+   ]
+  },
+  {
+   "key": "O42:arbiter._pending",
+   "axis1": "behavior",
+   "declared": [
+    "arbiter"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O42:arbiter._pool",
+   "axis1": "behavior",
+   "declared": [
+    "arbiter"
+   ],
+   "observed": [
+    "arbiter"
+   ]
+  },
+  {
+   "key": "O42:arbiter.queue",
+   "axis1": "behavior",
+   "declared": [
+    "arbiter"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O43:run_day.pending",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "decide",
+    "drain"
+   ],
+   "observed": [
+    "apply_responses",
+    "decide"
+   ]
+  },
+  {
+   "key": "O44:run_day.fleet_deferred",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "wake_filter",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O44:run_day.fleet_waiting",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "wake_filter",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O45:detector._prev_raw",
+   "axis1": "behavior",
+   "declared": [
+    "detect"
+   ],
+   "observed": [
+    "detect"
+   ]
+  },
+  {
+   "key": "O46:runner.salient.budget",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "wake_sources",
+    "phase_c"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O46:runner.salient.event_seen_tick",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "wake_sources",
+    "phase_c"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O46:runner.salient.rng",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "wake_sources",
+    "phase_c"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O47:runner.dispatch.pending",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "phase_c"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O47:runner.dispatch.rng",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "phase_c"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O48:runner.hotel.bed_cell",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "phase_c"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O48:runner.hotel.rooms_occupied",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "phase_c"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O49:runner.large_event._inside",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O50:runner.rail._inbound",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O50:runner.rail._inbound_ready",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O50:runner.rail._return_queue",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O50:runner.rail.occupancy",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_head",
+    "world",
+    "phase_c",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O50:runner.rail.peak_ratio",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_head",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O51:runner.crowd.queue_action",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O52:runner.shelf._acted_today",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O52:runner.shelf.backroom",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O53:runner.street_cleaning._cursor",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O53:runner.street_cleaning.litter_g",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O53:runner.street_cleaning.swept_g",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O53:runner.waste._cursor",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O53:runner.waste.waste_g_collected",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O54:runner.road_works.blocked_cells",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O54:runner.road_works.occupied_edges",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O55:runner.delivery_inbound.delay_minute",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_head"
+   ]
+  },
+  {
+   "key": "O55:runner.infra.power_kwh",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O55:runner.last_mile._cum",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O55:runner.last_mile.delivered",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_head",
+    "world"
+   ]
+  },
+  {
+   "key": "O55:runner.traffic.cell_hourly",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O55:runner.traffic.cell_vehicles",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O56:runner.environment._row",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_head"
+   ]
+  },
+  {
+   "key": "O56:runner.environment._shade",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O56:runner.environment.replay_date",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_head"
+   ]
+  },
+  {
+   "key": "O56:runner.environment.stratum",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_head"
+   ]
+  },
+  {
+   "key": "O57:ledger.money._day",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_close",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O57:ledger.money._lines",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O58:ledger.money._raw_amt",
+   "axis1": "no",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O58:ledger.money._raw_code",
+   "axis1": "no",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O58:ledger.money._raw_pi",
+   "axis1": "no",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O58:ledger.money._raw_ps",
+   "axis1": "no",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O58:ledger.money._raw_qi",
+   "axis1": "no",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O58:ledger.money._raw_qs",
+   "axis1": "no",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O58:ledger.money._raw_tick",
+   "axis1": "no",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O59:ledger.goods._bin",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O59:ledger.goods._day",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_close",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O59:ledger.goods._shelf",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O59:ledger.goods._sold_today",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "phase_c",
+    "day_close",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O60:ledger.goods._dl_code",
+   "axis1": "no",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O60:ledger.goods._dl_poi",
+   "axis1": "no",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O60:ledger.goods._dl_qty",
+   "axis1": "no",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O60:ledger.goods._dl_slot",
+   "axis1": "no",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O60:ledger.goods._dl_tick",
+   "axis1": "no",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O61:runner.log",
+   "axis1": "no",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O62:undefined.counts",
+   "axis1": "no",
+   "declared": [
+    "llm_receive",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O62:undefined.log",
+   "axis1": "no",
+   "declared": [
+    "llm_receive",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O62:undefined.precedents",
+   "axis1": "no",
+   "declared": [
+    "llm_receive",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O63:renderer._acq_cache",
+   "axis1": "no",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O63:renderer._b1_cache",
+   "axis1": "no",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O63:renderer._b2_cache",
+   "axis1": "no",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O63:renderer._b3_cache",
+   "axis1": "no",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O63:renderer._b4_cache",
+   "axis1": "no",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O63:renderer._rank_cell_cache",
+   "axis1": "no",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O63:renderer._tickc",
+   "axis1": "no",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O64:renderer.acquaintance_fn",
+   "axis1": "no",
+   "declared": [
+    "decide",
+    "memory"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O64:renderer.memory_recall",
+   "axis1": "no",
+   "declared": [
+    "decide",
+    "memory"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O64:renderer.named_closed_lookup",
+   "axis1": "no",
+   "declared": [
+    "decide",
+    "memory"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O64:renderer.session_partner_fn",
+   "axis1": "no",
+   "declared": [
+    "decide",
+    "memory"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O64:renderer.signage_exposures",
+   "axis1": "no",
+   "declared": [
+    "decide",
+    "memory"
+   ],
+   "observed": [
+    "decide",
+    "memory"
+   ]
+  },
+  {
+   "key": "O66:act_layer.kind_counts",
+   "axis1": "diag",
+   "declared": [
+    "presence",
+    "apply_responses",
+    "detect",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "O66:act_layer.n_arrival_expired",
+   "axis1": "diag",
+   "declared": [
+    "presence",
+    "apply_responses",
+    "detect",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "O66:act_layer.n_cell_suppressed",
+   "axis1": "diag",
+   "declared": [
+    "presence",
+    "apply_responses",
+    "detect",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "detect"
+   ]
+  },
+  {
+   "key": "O66:act_layer.n_expiry_candidates",
+   "axis1": "diag",
+   "declared": [
+    "presence",
+    "apply_responses",
+    "detect",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "detect"
+   ]
+  },
+  {
+   "key": "O66:act_layer.n_fail_immediate",
+   "axis1": "diag",
+   "declared": [
+    "presence",
+    "apply_responses",
+    "detect",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O66:act_layer.n_intent_moves",
+   "axis1": "diag",
+   "declared": [
+    "presence",
+    "apply_responses",
+    "detect",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "O66:act_layer.n_leave_expired",
+   "axis1": "diag",
+   "declared": [
+    "presence",
+    "apply_responses",
+    "detect",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O66:act_layer.n_partner_expired",
+   "axis1": "diag",
+   "declared": [
+    "presence",
+    "apply_responses",
+    "detect",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O66:act_layer.n_set",
+   "axis1": "diag",
+   "declared": [
+    "presence",
+    "apply_responses",
+    "detect",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "activity_intent"
+   ]
+  },
+  {
+   "key": "O66:act_layer.n_wander_bad",
+   "axis1": "diag",
+   "declared": [
+    "presence",
+    "apply_responses",
+    "detect",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O66:act_layer.n_wander_steps",
+   "axis1": "diag",
+   "declared": [
+    "presence",
+    "apply_responses",
+    "detect",
+    "phase_a",
+    "phase_c",
+    "activity_intent"
+   ],
+   "observed": [
+    "phase_a"
+   ]
+  },
+  {
+   "key": "O67:fam_layer.stats",
+   "axis1": "diag",
+   "declared": [
+    "familiarity"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O68:poi_resolver.store_choice.first_by_reason",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "O68:poi_resolver.store_choice.visits_by_reason",
+   "axis1": "diag",
+   "declared": [
+    "apply_responses",
+    "memory"
+   ],
+   "observed": [
+    "memory"
+   ]
+  },
+  {
+   "key": "O69:classical.n_calls",
+   "axis1": "diag",
+   "declared": [
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O70:presence.exit_cell_by_hour",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O70:presence.exit_stage_max_by_hour",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O70:presence.fallback_minutes",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.in_area_by_hour",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O70:presence.lost_why",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.match_in_den",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O70:presence.match_in_num",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O70:presence.match_out_den",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O70:presence.match_out_num",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O70:presence.n_arrivals",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "presence"
+   ]
+  },
+  {
+   "key": "O70:presence.n_arrive_skipped",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "presence"
+   ]
+  },
+  {
+   "key": "O70:presence.n_arrive_skipped_in_area",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "presence"
+   ]
+  },
+  {
+   "key": "O70:presence.n_arrive_skipped_pulled",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "presence"
+   ]
+  },
+  {
+   "key": "O70:presence.n_depart_dropped",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "presence"
+   ]
+  },
+  {
+   "key": "O70:presence.n_depart_skipped",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "presence"
+   ]
+  },
+  {
+   "key": "O70:presence.n_departed_by_llm",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O70:presence.n_departures",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "presence"
+   ]
+  },
+  {
+   "key": "O70:presence.n_exit_deferred",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "presence"
+   ]
+  },
+  {
+   "key": "O70:presence.n_exit_forced",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_exit_gate_immediate",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_exit_lost",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_exit_lost_deferred",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_exit_lost_final",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_exit_no_platform",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_exit_rewalk_forced",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_exit_rewalk_gone",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_exit_rewalk_queued",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_exit_rewalk_started",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_exit_too_far",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_exit_walk_boarded",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_exit_walk_departed",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_exit_walk_gone",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_exit_walk_restarted",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_exit_walk_started",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_exit_walk_waiting_at_start",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_gate_arrivals",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_home_out_slept_inside",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_placed_at_start",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_pulled_in",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O70:presence.n_pushed_out",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O70:presence.n_queue_balked",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_rearmed",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O70:presence.n_returned_to_block",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O70:presence.n_shopping_interrupted",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "presence"
+   ]
+  },
+  {
+   "key": "O70:presence.n_spread_moved",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_spread_overflow",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_walk_calls",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.n_walk_wakes_suppressed",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O70:presence.platform_cell_by_hour",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O70:presence.sample_hours",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O70:presence.sample_in_area",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O70:presence.sleep_counts",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "plan_boundary"
+   ]
+  },
+  {
+   "key": "O70:presence.wake_in_area_by_hour",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "observe"
+   ]
+  },
+  {
+   "key": "O70:presence.walk_minutes",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "wake_filter",
+    "decide",
+    "observe",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O71:arbiter._diag_total",
+   "axis1": "diag",
+   "declared": [
+    "arbiter"
+   ],
+   "observed": [
+    "arbiter"
+   ]
+  },
+  {
+   "key": "O71:arbiter._merged_total",
+   "axis1": "diag",
+   "declared": [
+    "arbiter"
+   ],
+   "observed": [
+    "arbiter"
+   ]
+  },
+  {
+   "key": "O71:arbiter._outside_total",
+   "axis1": "diag",
+   "declared": [
+    "arbiter"
+   ],
+   "observed": [
+    "arbiter"
+   ]
+  },
+  {
+   "key": "O71:arbiter._sleep_total",
+   "axis1": "diag",
+   "declared": [
+    "arbiter"
+   ],
+   "observed": [
+    "arbiter"
+   ]
+  },
+  {
+   "key": "O71:arbiter.budget_unused",
+   "axis1": "diag",
+   "declared": [
+    "arbiter"
+   ],
+   "observed": [
+    "arbiter"
+   ]
+  },
+  {
+   "key": "O71:arbiter.n_calls_total",
+   "axis1": "diag",
+   "declared": [
+    "arbiter"
+   ],
+   "observed": [
+    "arbiter"
+   ]
+  },
+  {
+   "key": "O72:runner.salient.n_broadcast_lines",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "wake_sources",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O72:runner.salient.n_collapse",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "wake_sources",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O72:runner.salient.n_events",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "wake_sources",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O72:runner.salient.n_noticed",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "wake_sources",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O72:runner.salient.n_over_cap",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "wake_sources",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O73:runner.bus_taxi.n_arrivals",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.crowd.n_balked",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.crowd.n_released",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.crowd.peak_occupancy",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.crowd.peak_queue",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.delivery_inbound.n_delayed",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.delivery_inbound.n_runs",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.delivery_inbound.units_delivered",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.dispatch.delay_minutes_total",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.dispatch.n_arrived",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.dispatch.n_dispatched",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.environment.n_updates",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.environment.shadow_missing",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O73:runner.hotel.n_checkin",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.hotel.n_checkout",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.hotel.n_no_bed",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O73:runner.infra.water_m3",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.large_event.n_in",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.large_event.n_out",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.last_mile.n_batches",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.n_steps",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.opening.n_events",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.opening.n_fallback",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.opening.n_role_actions",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O73:runner.phase_seconds",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O73:runner.press.n_releases",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.rail.n_arrivals",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.rail.n_board_applicants",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O73:runner.rail.n_board_dropped",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O73:runner.rail.n_board_intent",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O73:runner.rail.n_board_timeout",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O73:runner.rail.n_board_unreachable",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O73:runner.rail.n_board_waiting",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O73:runner.rail.n_board_waiting_plan_exit",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O73:runner.rail.n_board_walking",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O73:runner.rail.n_boarded_from_queue",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O73:runner.rail.n_boarded_plan_exit",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O73:runner.rail.n_departed_riders",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O73:runner.rail.n_departures",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O73:runner.rail.n_fare_rejected",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O73:runner.rail.n_left_behind",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O73:runner.rail.n_no_return",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O73:runner.rail.n_return_arrived",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.rail.n_return_no_train",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O73:runner.rail.n_return_scheduled",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.road_works.n_finished",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.road_works.n_started",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.shelf.n_fallback",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.shelf.n_no_backroom",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O73:runner.shelf.n_rejected",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O73:runner.shelf.n_role_actions",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O73:runner.shelf.units_restocked",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.shelf.yen_paid",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.street_cleaning.n_swept_cells",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.traffic.daily_vehicle_km",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O73:runner.waste.consumed_g",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.waste.n_bin_rows",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.waste.n_consumed",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O73:runner.waste.n_stops",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O74:runner.rail.arrival_train",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O74:runner.rail.external_line",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O75:runner.crowd.flow",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O75:runner.crowd.occupancy",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O75:runner.crowd.queue_len",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "presence",
+    "plan_boundary",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O76:runner.environment.daylight",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O76:runner.environment.heat_stage",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O76:runner.environment.wbgt",
+   "axis1": "behavior",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O77:ledger.money._flow",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O77:ledger.money._last_change_day",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O77:ledger.money._last_close",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_close",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O77:ledger.money._snap0",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O78:ledger.money.rejections",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O79:ledger.goods._household_sku",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O79:ledger.goods._shelf_age",
+   "axis1": "behavior",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "day_close",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O80:ledger.goods._day_waste_g",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "day_close",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O80:ledger.goods._inflow",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "day_close",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O80:ledger.goods._last_close",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_close",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O80:ledger.goods._open_stock",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_close",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O80:ledger.goods._outflow",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "day_close",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O80:ledger.goods._residual",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O80:ledger.goods._row_sku",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O80:ledger.goods._waste_g_daily",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_close",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O80:ledger.goods._waste_sku",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O80:ledger.goods.store_waste_g_total",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O81:ledger.goods.n_moves",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O81:ledger.goods.rejections",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O82:undefined._agents",
+   "axis1": "no",
+   "declared": [
+    "llm_receive",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O82:undefined.proposals",
+   "axis1": "no",
+   "declared": [
+    "llm_receive",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O82:undefined.vocabulary_extension",
+   "axis1": "no",
+   "declared": [
+    "llm_receive",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O83:undefined.n_adjudication_calls",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O83:undefined.n_dictionary_mapped",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O83:undefined.n_dropped_records",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O84:renderer.cache_hits",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O84:renderer.cache_misses",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O84:renderer.intent_lines",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O84:renderer.intent_lines_over_budget",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O84:renderer.memory_items",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O84:renderer.memory_items_dropped_for_budget",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O84:renderer.memory_items_dropped_for_channel",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O84:renderer.memory_line_tokens",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O84:renderer.memory_lines",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O84:renderer.memory_lines_over_budget",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O84:renderer.named_closed_notes",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O84:renderer.near_order_ties",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O84:renderer.near_tie_breaks",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O84:renderer.near_tie_candidates",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O84:renderer.renders",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O84:renderer.signage_by_kind",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O84:renderer.signage_effective_p",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O84:renderer.signage_gate_draws",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O84:renderer.signage_gate_shown",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O84:renderer.truncation_count",
+   "axis1": "diag",
+   "declared": [
+    "perceive_prepare",
+    "decide"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O85:bridge._interned",
+   "axis1": "no",
+   "declared": [
+    "decide",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O86:bridge.n_calls",
+   "axis1": "diag",
+   "declared": [
+    "decide",
+    "close_final"
+   ],
+   "observed": [
+    "decide"
+   ]
+  },
+  {
+   "key": "O86:bridge.n_deferred",
+   "axis1": "diag",
+   "declared": [
+    "decide",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O86:bridge.n_dictionary_mapped",
+   "axis1": "diag",
+   "declared": [
+    "decide",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O86:bridge.n_label_alias",
+   "axis1": "diag",
+   "declared": [
+    "decide",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O86:bridge.n_parse_errors",
+   "axis1": "diag",
+   "declared": [
+    "decide",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O86:bridge.n_parse_errors_strict",
+   "axis1": "diag",
+   "declared": [
+    "decide",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O86:bridge.n_positional",
+   "axis1": "diag",
+   "declared": [
+    "decide",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O86:bridge.n_role_actions",
+   "axis1": "diag",
+   "declared": [
+    "decide",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O86:bridge.n_tape_misses",
+   "axis1": "diag",
+   "declared": [
+    "decide",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O86:bridge.n_tape_rows",
+   "axis1": "diag",
+   "declared": [
+    "decide",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O86:bridge.n_undefined_mapped",
+   "axis1": "diag",
+   "declared": [
+    "decide",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O86:bridge.n_unknown_action",
+   "axis1": "diag",
+   "declared": [
+    "decide",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O87:bridge.tape._blocks",
+   "axis1": "no",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O87:bridge.tape._n_deferred",
+   "axis1": "no",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O87:bridge.tape._n_written",
+   "axis1": "no",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O87:bridge.tape._rows",
+   "axis1": "no",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain",
+    "close_final"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O88:fleet_bridge._interned",
+   "axis1": "no",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O89:fleet_bridge.n_calls",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O89:fleet_bridge.n_debug_rows",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O89:fleet_bridge.n_debug_skipped",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O89:fleet_bridge.n_deferred",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O89:fleet_bridge.n_deferred_rows",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O89:fleet_bridge.n_dictionary_mapped",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O89:fleet_bridge.n_label_alias",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O89:fleet_bridge.n_parse_errors",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O89:fleet_bridge.n_parse_errors_strict",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O89:fleet_bridge.n_positional",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O89:fleet_bridge.n_role_actions",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O89:fleet_bridge.n_tape_rows",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O89:fleet_bridge.n_undefined_mapped",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O89:fleet_bridge.n_unknown_action",
+   "axis1": "diag",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O90:classical._ipf_cache",
+   "axis1": "behavior",
+   "declared": [
+    "decide"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O91:conv.n_opened",
+   "axis1": "behavior",
+   "declared": [
+    "llm_receive",
+    "apply_responses",
+    "decide",
+    "conversation"
+   ],
+   "observed": [
+    "apply_responses"
+   ]
+  },
+  {
+   "key": "O92:ledger.money._day_marks",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_close",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O92:ledger.money._flow_daily",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_close",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O92:ledger.money._raw_head",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "close_final"
+   ]
+  },
+  {
+   "key": "O92:ledger.money._raw_pos",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O92:ledger.money._snap",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_close",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O92:ledger.money.n_raw_dropped",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "close_final"
+   ]
+  },
+  {
+   "key": "O92:ledger.money.n_transfers",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O93:ledger.goods._dl_head",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "close_final"
+   ]
+  },
+  {
+   "key": "O93:ledger.goods._dl_marks",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "day_close",
+    "close_final"
+   ]
+  },
+  {
+   "key": "O93:ledger.goods._dl_pos",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world",
+    "phase_c"
+   ]
+  },
+  {
+   "key": "O93:ledger.goods.n_delivery_dropped",
+   "axis1": "diag",
+   "declared": [
+    "world",
+    "phase_c",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "close_final"
+   ]
+  },
+  {
+   "key": "O94:poi_resolver.named_closed",
+   "axis1": "behavior",
+   "declared": [
+    "apply_responses",
+    "phase_c"
+   ],
+   "observed": []
+  },
+  {
+   "key": "O95:runner.crowd.coherence",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O95:runner.crowd.flow_dir8",
+   "axis1": "diag",
+   "declared": [
+    "day_head",
+    "world",
+    "day_close",
+    "close_final"
+   ],
+   "observed": [
+    "world"
+   ]
+  },
+  {
+   "key": "O96:run_day.replay_inbox",
+   "axis1": "no",
+   "declared": [
+    "llm_receive",
+    "decide",
+    "drain"
+   ],
+   "observed": []
+  }
+ ],
+ "ext_rows_observed_multi": {
+  "O2": [
+   "activity_intent",
+   "checkpoint"
+  ],
+  "O5": [
+   "apply_responses",
+   "phase_a",
+   "activity_intent"
+  ],
+  "O6": [
+   "apply_responses",
+   "detect",
+   "phase_a",
+   "activity_intent"
+  ],
+  "O9": [
+   "decide",
+   "memory"
+  ],
+  "O11": [
+   "decide",
+   "memory"
+  ],
+  "O19": [
+   "apply_responses",
+   "relations_wake",
+   "decide",
+   "conversation",
+   "memory"
+  ],
+  "O28": [
+   "body",
+   "phase_c",
+   "energy_after"
+  ],
+  "O34": [
+   "apply_responses",
+   "observe"
+  ],
+  "O36": [
+   "world",
+   "presence"
+  ],
+  "O37": [
+   "day_head",
+   "world"
+  ],
+  "O39": [
+   "apply_responses",
+   "decide",
+   "conversation"
+  ],
+  "O41": [
+   "apply_responses",
+   "decide",
+   "conversation"
+  ],
+  "O43": [
+   "apply_responses",
+   "decide"
+  ],
+  "O50": [
+   "day_head",
+   "world",
+   "phase_c",
+   "close_final"
+  ],
+  "O55": [
+   "day_head",
+   "world"
+  ],
+  "O56": [
+   "day_head",
+   "world"
+  ],
+  "O57": [
+   "world",
+   "phase_c",
+   "day_close",
+   "close_final"
+  ],
+  "O58": [
+   "world",
+   "phase_c"
+  ],
+  "O59": [
+   "world",
+   "phase_c",
+   "day_close",
+   "close_final"
+  ],
+  "O60": [
+   "world",
+   "phase_c"
+  ],
+  "O64": [
+   "decide",
+   "memory"
+  ],
+  "O66": [
+   "apply_responses",
+   "detect",
+   "phase_a",
+   "activity_intent"
+  ],
+  "O70": [
+   "world",
+   "presence",
+   "plan_boundary",
+   "observe",
+   "close_final"
+  ],
+  "O73": [
+   "world",
+   "phase_c",
+   "close_final"
+  ],
+  "O77": [
+   "world",
+   "phase_c",
+   "day_close",
+   "close_final"
+  ],
+  "O79": [
+   "world",
+   "phase_c",
+   "day_close",
+   "close_final"
+  ],
+  "O80": [
+   "world",
+   "day_close",
+   "close_final"
+  ],
+  "O81": [
+   "world",
+   "phase_c"
+  ],
+  "O92": [
+   "world",
+   "phase_c",
+   "day_close",
+   "close_final"
+  ],
+  "O93": [
+   "world",
+   "phase_c",
+   "day_close",
+   "close_final"
+  ]
+ }
+}

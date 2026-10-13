@@ -19,6 +19,7 @@ import numpy as np
 import pytest
 
 from shibuya.engine import run as RUN
+from shibuya.engine.systems import build as BLD  # 1-0: 層の組み立ての名前の差し替えの的
 from shibuya.engine.calendar import CalendarWarning, SimCalendar, load_holidays, resolve_repo_path
 from shibuya.engine.energy import HomeMeals
 from shibuya.engine.run import ResponseDelayWarning, run_day
@@ -46,20 +47,23 @@ def test_start_check_runs_on_the_calendar_after_the_weather_date(monkeypatch):
     〔改訂(第330・RET)〕前は legacy の規則(世界の日付=気象の再生実日 2026-07-22 に置き換えた後の暦で検査・day_index の
     違反は警告だけ)を見た(ACT の commit で day_index・legacy を渡して通った)。legacy と day_index を消したので、世界の
     日付は暦のまま(再生日を差し込んでも動かない)・学校の休みに当たれば止める、を見る。"""
-    orig = RUN.WorldProcessRunner
+    orig = BLD.WorldProcessRunner  # 1-0: 組み立ては engine.systems.build
+    made: list[object] = []
 
     def runner(*a, **k):
         r = orig(*a, **k)
+        made.append(r)
         r.environment.replay_date = "2026-07-22"   # 再生日を差し込んでも世界の日付は暦のまま
         return r
 
-    monkeypatch.setattr(RUN, "WorldProcessRunner", runner)
+    monkeypatch.setattr(BLD, "WorldProcessRunner", runner)
     with pytest.raises(ValueError, match="学校の長期休み"):
         run_day(n_agents=10, n_cells=9, ticks=5, school_holidays="2026-07-12:2026-07-14")
     res = run_day(n_agents=10, n_cells=9, ticks=5, school_holidays="2026-07-21:2026-07-23")
     m = res.run_manifest_fields()
     assert m["start_sim_datetime"] == m["calendar"]["start_sim_datetime"] == "2026-07-13T00:00:00"
     assert m["calendar"]["start_check"] == []
+    assert made, "WorldProcessRunner の差し替えが使われていない"
 
 
 # ================================================================= P2

@@ -64,7 +64,7 @@ class RecordingAdapter(PerceptionRendererAdapter):
 def recording(monkeypatch):
     """``run_day`` が作るアダプタを記録つきに差し替える。"""
     _BUILT.clear()
-    monkeypatch.setattr("shibuya.engine.run.PerceptionRendererAdapter", RecordingAdapter)
+    monkeypatch.setattr("shibuya.engine.systems.build.PerceptionRendererAdapter", RecordingAdapter)  # 1-0
     yield _BUILT
     _BUILT.clear()
 

@@ -1,6 +1,8 @@
 """engine.systems.state_io — 箱から状態台帳の持ち主・知覚 SoA・ハッシュの材料を組む口(第 1 期 1-0)。
 
-HEAD ``ee3abc7`` の ``run_day`` の入れ子の関数 ``_hash_owners``・``_pst_now``・``_act_hash_now`` を、箱を受け取る関数にしたもの(中身は同じ)。
+HEAD ``ee3abc7`` の ``run_day`` の入れ子の関数(``_hash_owners``・``_pst_now``・``_act_hash_now``・``_eod_hashes``・
+``_money_now``・``_bodies_now``・``_w17_weekday``・``_relay_tables``・``_start_day``・``_ledger_close``・``_day_record``・
+``_close_day_midrun``・``_save_state``・``_rebuild_derived``)を、箱を受け取る関数にしたもの(中身は同じ)。
 持ち主の名・順・``run_day`` の持ち主のクラス(``engine.run._RunDayLocals``)は変えない(ハッシュに道筋の文字列が入る=
 草案 §3-3 の 2)。
 
@@ -11,12 +13,16 @@ from __future__ import annotations
 
 from typing import Any
 
+import numpy as np
+
 from shibuya.core.hashing import blake3_hex
 from shibuya.engine.state_hashes import behavior_hash as behavior_state_hash
 from shibuya.engine.state_hashes import component_digests
 from shibuya.engine.state_hashes import full_hash as full_state_hash
 
-__all__ = ["hash_owners", "pst_now", "act_hash_now", "full_state_hash", "behavior_state_hash", "component_digests"]
+__all__ = ["hash_owners", "pst_now", "act_hash_now", "full_state_hash", "behavior_state_hash", "component_digests",
+           "eod_hashes", "money_now", "bodies_now", "w17_weekday", "relay_tables", "start_day", "ledger_close",
+           "day_record", "close_day_midrun", "save_state", "rebuild_derived"]
 
 # 〔1-0 の注〕``full_state_hash`` は checkpoint・日の締めの後・状態の書き出し・再開の検算がどれも**この名前を通して**呼ぶ
 # (試験の差し替えの的を 1 つにする=草案 §3-3 の 15。HEAD では ``engine.run.full_state_hash``)。
@@ -54,3 +60,246 @@ def act_hash_now(b: Any) -> str:
         return act_layer.state_hash()
     return blake3_hex(f"{act_layer.state_hash()}\x1f{intent_layer.state_hash()}".encode())
 
+
+def eod_hashes(b: Any) -> dict[str, Any]:
+    """日の締めの**後**の behavior-hash・full-hash(10b 検収後 P2・10d の再開の判定はこちら)。読むだけ。HEAD の ``_eod_hashes``。"""
+    agents, world = b.soa.agents, b.soa.world
+    schedule, schedule_hash = b.fx.schedule, b.fx.schedule_hash
+    _owners_e = hash_owners(b)
+    _memo_e: dict[str, tuple[bytes, int]] = {}
+    _full_e, _bytes_e = full_state_hash(agents, world, pst_now(b), schedule.population_hash, schedule_hash,
+                                        _owners_e, memo=_memo_e)
+    return {
+        "behavior_hash": behavior_state_hash(agents, world, schedule.population_hash, schedule_hash,
+                                             act_hash_now(b), _owners_e, memo=_memo_e),
+        "full_hash": _full_e,
+        "full_external_bytes": int(sum(_bytes_e.values())),
+    }
+
+
+def money_now(b: Any) -> dict[str, int]:
+    """HEAD の ``_money_now``。"""
+    agents, ledger = b.soa.agents, b.layers.ledger
+    out = {"households": int(np.asarray(agents.registry.money, dtype=np.int64).sum())}
+    if ledger is not None and ledger.money is not None:
+        out["money_supply"] = int(ledger.money.money_supply())
+    return out
+
+
+def bodies_now(b: Any) -> dict[str, int]:
+    """HEAD の ``_bodies_now``。"""
+    st = np.asarray(b.soa.agents.registry.transit_state, dtype=np.int64)
+    return {"n": int(st.size), "in_area": int(np.count_nonzero(st == 0)),
+            "riding": int(np.count_nonzero(st == 1)), "outside": int(np.count_nonzero(st == 2)),
+            "other": int(np.count_nonzero((st < 0) | (st > 2)))}
+
+
+def w17_weekday(b: Any, d: int) -> int:
+    """その日に引く W17 の曜日の行(0 日目は暦のまま=今と同じ)。HEAD の ``_w17_weekday``。
+
+    K9 (a)(つなぎ・宣言): W17 v2 は曜日 0(月曜)の行しか無いので、行の無い曜日は月曜の行で引く。
+    """
+    calendar, weekly = b.fx.calendar, b.fx.weekly
+    wd = int(calendar.table_weekday(int(d)))
+    if int(d) == 0 or weekly is None:
+        return wd
+    if weekly.agent_rows_of_day(wd).size == 0:
+        return 0
+    return wd
+
+
+def relay_tables(b: Any, d: int) -> None:
+    """10d: ``d`` 日目の日の頭の**表の張り直し**(資産・暦・日番号だけから決まる=再開でも同じ表)。HEAD の ``_relay_tables``。
+
+    鉄道の時刻表(T の座標で末尾に足す)・天気の実日・計画実行層の在圏ブロックとイベント(出勤率の欠席を
+    日番号つきで引き直す)・計画境界の表(W17 は K9 のつなぎ)。体の状態は書かない(``start_day``)。
+    〔1-0〕HEAD の nonlocal 5 つ(b_*)は ``DayTables`` の欄(草案 §3-3 の 5)。
+    """
+    from shibuya.agents.state import WakeCondition
+
+    runner, presence = b.layers.runner, b.layers.presence
+    act_layer, classical_policy, poi_resolver = b.layers.act_layer, b.layers.classical, b.layers.poi_resolver
+    calendar, weekly, schedule = b.fx.calendar, b.fx.weekly, b.fx.schedule
+    tpd, ticks = b.cfg.tpd, b.cfg.ticks
+    w17_substituted = b.day.w17_substituted
+    d = int(d)
+    if runner is not None:
+        runner.relay_day(d, ticks_per_day=tpd)  # 時刻表・天気・営業時間の曜日の行・日ごとの乱数の表
+    wd = w17_weekday(b, d)
+    if weekly is not None and wd != int(calendar.table_weekday(d)) and d not in w17_substituted:
+        w17_substituted.append(d)
+    if presence is not None:
+        presence.relay_day(d, t0=d * tpd, weekday=wd)
+    if weekly is not None:
+        na, nc, nt, ncell = weekly.boundary_events_full(wd)
+    else:
+        na, ns, nt = schedule.events_of_day(calendar.table_weekday(d), rest_day=calendar.is_rest_day(d))
+        ncell = np.full(na.size, -1, dtype=np.int32)
+        nc = np.array(
+            [int(WakeCondition.PLAN_GENERAL), int(WakeCondition.PLAN_TRANSIT), int(WakeCondition.PLAN_GENERAL),
+             int(WakeCondition.PLAN_TRANSIT), int(WakeCondition.PLAN_SLEEPING)],
+            dtype=np.int8,
+        )[ns]
+    dt = b.day
+    same = all(np.array_equal(x, y) for x, y in ((na, dt.b_agent), (nc, dt.b_cond), (nt, dt.b_tick), (ncell, dt.b_cell)))
+    if same:
+        return
+    if (act_layer is not None or classical_policy is not None
+            or getattr(poi_resolver, "store_choice", None) is not None):
+        # 活動層・方策 classical・想起優先の候補合成は起動時に計画境界の表を写して持つ。日で表が変わる
+        # (休日の mock 日課・W17 の別の曜日の行)ランでの張り直しは 10d の範囲の外(止めて問いにする)
+        raise NotImplementedError(
+            f"{d} 日目の計画境界の表が前の日と違う(休日など)。活動層・classical・想起優先の候補合成の表の"
+            "張り直しは K9 の解消まで入れていない(K9 のつなぎ=平日は月曜の行の間は通らない)"
+        )
+    dt.b_agent, dt.b_cond, dt.b_tick, dt.b_cell = na, nc, nt, ncell
+    dt.b_start = np.searchsorted(dt.b_tick, np.arange(ticks + 1), side="left")
+
+
+def start_day(b: Any, d: int) -> None:
+    """10d: ``d`` 日目の日の頭の体の側の書き換え(通しのランだけ・再開では保存した値を読む)。HEAD の ``_start_day``。
+
+    日の頭の初期化(``initialize``・初期の活動・域外の配置・空腹の初期値・初期の財布・参入資本・帳簿の作り
+    直し)は**走らせない**(A11)。計画実行層の「今日の計画」の写しと日ごとの印だけを今日の表から置く。
+    """
+    presence, tpd = b.layers.presence, b.cfg.tpd
+    if presence is not None:
+        presence.start_day()
+    b.runstats.day_heads.append({"day": int(d), "T": int(d) * tpd, "money": money_now(b), "bodies": bodies_now(b)})
+
+
+def ledger_close(b: Any, day: int) -> tuple[dict[str, Any], dict[str, int]]:
+    """金と物の台帳の日の締め・日次センサス・月次 T3・センサスの書き出し(1 日のランは今のまま)。HEAD の ``_ledger_close``。"""
+    from pathlib import Path
+
+    calendar, ledger, result = b.fx.calendar, b.layers.ledger, b.runstats.result
+    census_out, sim_days = b.cfg.census_out, b.cfg.sim_days
+    # 日次の畳み込み(D-R2-6: 生ログは保持窓・取引行列は日次集約行へ)。
+    # **締めを捨てない**——締めると取引行列も当日の廃棄も 0 に戻るので、締めたあとに
+    # 現在値でセンサスを回すと faucet/sink/廃棄が全部 0 の空虚な行になり、ゲートが
+    # 素通りする(層2レビュー指摘)。``daily_census`` は ``day_index`` の締めを読む。
+    # 10a #21: 締めの日番号は暦の口の ``day_key``(day_index モードでは今の ``day_index``)。
+    _close_day = calendar.day_key(int(day))
+    closes = ledger.end_of_day(_close_day)
+    result.day_closed = int(closes.day)
+    growth = ledger.growth_parts()
+    # 日次(軽量)センサス+ゲート(境界・経済設計書 §2.4)。
+    # engine は economy を import できない(層契約)ので、行の作り手は
+    # ``LedgerBundle.census``(economy 側が注入する呼び出し可能)。**失敗しても raise しない**
+    # =診断の赤(§2.4「ゲート失敗=較正・holdout 照合に使わない」)。
+    row = ledger.daily_census(_close_day)
+    if row is not None:
+        result.census_row = dict(row)
+        result.census_pass = bool(row.get("gate_ok", False))
+    # 月次センサスの T3(冗長方程式の検算・D-85 (a)・ユーザー決定 2026-09-17)。
+    # 月次が立たない日は None(=未実行)。**``census_out`` とは無関係に**毎日呼ぶ
+    # ——書き出しの有無で manifest が動くと「観測が世界を変えない」が崩れるため。
+    t3 = ledger.monthly_t3(_close_day)
+    if t3 is not None:
+        result.t3_report = dict(t3)
+        result.t3_ok = bool(t3.get("ok", False))
+    # 日次センサス/月次 MER の出力口(§2.4)。**``census_out`` を渡したときだけ**書く。
+    # 書き手は economy 側の注入(engine は economy を import できない=層契約)。
+    # 10d: 複数日のランでは日ごとの置き場(``day-NNNN``)に書く(1 日のランは今のまま)。
+    if census_out is not None:
+        _out = str(census_out) if sim_days == 1 else str(Path(census_out) / f"day-{int(day):04d}")
+        result.census_paths = ledger.write_census(_close_day, _out)
+    return growth
+
+
+def day_record(b: Any, d: int) -> None:
+    """HEAD の ``_day_record``。"""
+    ledger, result, tpd = b.layers.ledger, b.runstats.result, b.cfg.tpd
+    rec: dict[str, Any] = {"day": int(d), "end_T": (int(d) + 1) * tpd, "money": money_now(b),
+                           "bodies": bodies_now(b)}
+    if ledger is not None:
+        rec["day_closed"] = int(result.day_closed)
+        rec["census_pass"] = bool(result.census_pass)
+        rec["census_row"] = {k: v for k, v in dict(result.census_row).items()
+                             if isinstance(v, (bool, int, float, str))}
+    if result.state_hashes_end_of_day:
+        rec["state_hashes_end_of_day"] = dict(result.state_hashes_end_of_day)
+    b.runstats.daily_records.append(rec)
+
+
+def close_day_midrun(b: Any, d: int) -> None:
+    """10d: 複数日のランの途中の日の締め(1 日 1 回・最後の tick の後・次の日の tick 0 の前)。HEAD の ``_close_day_midrun``。
+
+    鉄道の最後の便は流さない(次の日の頭の tick が流す=同じ発車を 2 度処理しない)。台帳の締め・センサス・
+    締めの後の 2 つのハッシュは最後の日と同じ。
+    """
+    runner, ledger, result = b.layers.runner, b.layers.ledger, b.runstats.result
+    tpd, checkpoint_every = b.cfg.tpd, b.cfg.checkpoint_every
+    if runner is not None:
+        runner.end_of_day((int(d) + 1) * tpd - 1, flush_rail=False)
+    if ledger is not None:
+        ledger_close(b, int(d))
+    if checkpoint_every:
+        result.state_hashes_end_of_day = eod_hashes(b)
+    day_record(b, int(d))
+
+
+def save_state(b: Any, T_next: int, *, finished: bool, closed: bool) -> None:
+    """10d: 状態のまとまりを 1 ファイルに書く(SoA の列・外の状態・進捗の印・艦隊の未着の呼)。HEAD の ``_save_state``。"""
+    import copy
+    import time
+
+    from shibuya.engine import resume as RS
+    from shibuya.engine import state_ledger as SL
+
+    agents, world = b.soa.agents, b.soa.world
+    schedule, schedule_hash, _env_fields = b.fx.schedule, b.fx.schedule_hash, b.fx.env_fields
+    cfg = b.cfg
+    run_id, parent_run, sim_days, tpd, _fp, state_out = (cfg.run_id, cfg.parent_run, cfg.sim_days, cfg.tpd, cfg.fp,
+                                                         cfg.state_out)
+    fleet_inflight = b.llm.fleet_inflight
+    t0_ = time.perf_counter()
+    owners_ = hash_owners(b)
+    memo_: dict[str, tuple[bytes, int]] = {}
+    full_, _ = full_state_hash(agents, world, pst_now(b), schedule.population_hash, schedule_hash, owners_,
+                               memo=memo_)
+    beh_ = behavior_state_hash(agents, world, schedule.population_hash, schedule_hash, act_hash_now(b),
+                               owners_, memo=memo_)
+    soa_ = RS.collect_soa(agents, world, pst_now(b))
+    items_ = RS.collect_items(owners_)
+    header = {
+        "format": RS.STATE_FORMAT,
+        "ledger_version": SL.LEDGER_VERSION,
+        "run_id": run_id,
+        "parent_run": parent_run,
+        "finished": bool(finished),
+        "progress": {
+            "next_T": int(T_next), "day": int(T_next) // tpd, "tick_of_day": int(T_next) % tpd,
+            "days_closed": int(T_next) // tpd, "closed_at_day_end": bool(closed),
+            "sim_days": int(sim_days), "ticks_per_day": int(tpd),
+        },
+        "fingerprint": _fp,
+        "platform": copy.deepcopy(_env_fields),
+        "env_id": str(_env_fields["env_id"]),  # 10f: manifest・run_meta.json と同じ値
+        "hashes": {"behavior_hash": beh_, "full_hash": full_},
+        "counts": {
+            "soa_columns": {k: len(v) for k, v in soa_.items()},
+            "external_items": len(items_),
+            "inflight_calls": len(fleet_inflight),
+            "pending_responses": len(b.llm.pending),
+        },
+    }
+    path = RS.state_path(state_out, int(T_next))
+    nbytes = RS.write_state(path, RS.StateBundle(header, soa_, items_, list(fleet_inflight.values())))
+    b.runstats.state_files.append({"file": path.name, "T": int(T_next), "bytes": int(nbytes), "finished": bool(finished),
+                                   "full_hash": full_, "seconds": round(time.perf_counter() - t0_, 3)})
+
+
+def rebuild_derived(b: Any) -> None:
+    """10d(親の答え 2): 起動時に**SoA の値から**作る表を、戻した SoA から決定的に作り直す(再開だけ)。HEAD の ``_rebuild_derived``。
+
+    通しのランではこれらの表は ``initialize`` の後の SoA(体の種別)から作られる。再開では初期化を呼ばないので、
+    保存から戻した SoA で作り直す(種別はラン中に変わらない=通しと同じ表)。表は状態台帳の除外の一覧の
+    キャッシュ(導出)に載る: 方策 classical の ``employed``・開閉の過程の担当従業者 ``staff_of_poi``
+    (補充の過程が同じ配列を持つ)。
+    """
+    classical_policy, runner = b.layers.classical, b.layers.runner
+    if classical_policy is not None:
+        classical_policy.rebuild_derived()
+    if runner is not None:
+        runner.opening.rebuild_derived()

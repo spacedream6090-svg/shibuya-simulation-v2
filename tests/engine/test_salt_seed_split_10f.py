@@ -200,7 +200,8 @@ _HASH_SITES = {
     # 〔第330・RET〕legacy の select_day は消した
     # 〔第330・10e B6〕天気の規則 calendar の再生日の抽選
     ("engine/processes/environment.py", "sample_calendar_day"): "層の名前と日番号を数にするだけ(乱数は core.rng の環境の流れ)",
-    ("engine/run.py", "run_day"): "状態のハッシュ(seed を入れない)",
+    # 〔1-0〕HEAD の ("engine/run.py", "run_day")=「状態のハッシュ(seed を入れない)」は、checkpoint の活動層のハッシュが
+    # 系 checkpoint(engine/systems/observe.py・seed を引数に持たない)へ移ったので、この表の対象から外れた
 }
 _HASH_FUNCS = {"blake3", "blake3_hex", "blake3_u64", "xxh64", "xxh64_intdigest", "xxh3_64"}
 
