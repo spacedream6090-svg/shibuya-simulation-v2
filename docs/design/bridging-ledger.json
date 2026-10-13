@@ -3100,6 +3100,19 @@
     "src/shibuya/economy/anchors.py"
    ],
    "rule_id": "minimum_wage.tokyo"
+  },
+  {
+   "id": "DOC-memory-store-legacy",
+   "what": "記憶の器 M0 の仮の出来事の表(origin=legacy)=1-3 の出来事の記録に体の出来事が無いため、目印の先が 100% 仮の行",
+   "why": "1-6 の検収 M2。体の出来事(行為の結果・LLM の呼び出し)が出来事の記録に載る段まで、器は表の写しを仮の行で持つ",
+   "remove_at": "1-8",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/m0/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": null,
+   "rule_id": ""
   }
  ]
 }
