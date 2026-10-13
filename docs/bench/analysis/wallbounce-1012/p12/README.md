@@ -218,3 +218,4 @@
 4. `run-day-decomp/local-assignment.json` の `percepts` は残した(自動で合わさった)。`SCRATCH_FIELDS` は 35(1-4・1-6・1-9 は scratch の欄を足していない)。
 
 **試験**(解いた後・作業木): `tests/perception tests/engine/systems tests/engine/time tests/engine/events tests/engine/memory tests/engine/bridging tests/engine/rules tests/economy tests/engine/test_state_ledger_10b.py tests/engine/test_env_and_sections_10f.py tests/engine/test_state_checks_10f.py tests/engine/test_resume_10d.py tests/test_cli.py`(`-m "not gpu and not slow" -n 4 --dist loadfile`)=**1,151 passed**(11 分 8 秒・飛ばした 0 件)。byte-check は親が回す。
+- **rebase の後(第334)**: 枝を本体(1-4・1-6・1-9 取り込み済み a3a8104)に rebase(衝突 6 本=manifest の節・状態台帳・系の宣言の表・凍結の鍵・10f の試験・台帳の行数の試験=両方の追加を残す形で実装役が解き、合わせ(台帳の p_notice の項数 6 → 5・manifest の末尾の並び TM9 → 1-4 → economy → percept・再生の試験の土台 a3a8104)も済ませ、親が add と continue)。rebase 後に親が試験の一部 1,105 passed(8 分 33 秒)と byte-check 4 構成(新しい本体の src と比べて final 同じ・動いた欄 0=parent_head_vs_p12_rebased_4cfg.json)を確かめた。
