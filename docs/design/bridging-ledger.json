@@ -3110,9 +3110,7 @@
    "conf": "expedient",
    "since": "2026-10-14",
    "status": "active",
-   "remove_basis": "inferred",
-   "code_at": null,
-   "rule_id": ""
+   "remove_basis": "inferred"
   }
  ]
 }
