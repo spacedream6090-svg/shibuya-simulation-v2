@@ -348,6 +348,18 @@ class WorldProcessRunner:
         self.large_event.presence = presence
         self.rail.presence = presence  # LLM の乗車で域外へ出た体の張り直し(D-66 §4)
 
+    # ------------------------------------------------------------------ 出来事の記録(第 1 期 1-3)
+    def attach_events(self, events: Any) -> None:
+        """出来事の記録を挿す(組み立てが 1 回だけ呼ぶ)。ActualLog の行ごとに出来事を 1 行書き、行に id の目印を付ける。
+
+        台帳の過程の id(``rail_operation_static`` など)→ 実行器の過程の名(``rail`` など=語彙表の「過程」)の表を渡す。
+        記録の物は ActualLog の口(``event_sink``)だけが持つ(実行器の属性は増やさない)。
+        """
+        from shibuya.engine.events.links import ActualLogLink
+
+        proc_of = {pid: key for key in PROCESS_ORDER for pid in getattr(self._procs[key], "process_ids", ())}
+        self.log.event_sink = ActualLogLink(events, proc_of)
+
     # ------------------------------------------------------------------ トグル
     def _names_of(self, key: str) -> tuple[str, ...]:
         p = self._procs[key]

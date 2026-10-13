@@ -1,0 +1,117 @@
+"""engine.events.vocab — 出来事の記録の語彙表(第 1 期 1-3・CP12・5W1H の ``what``)。**閉じた表**。
+
+決定(口の約束 1-3 の〔空欄 1〕=親案どおり・回答 10-13b §3): ``what`` の最初の中身は 4 つの族。
+
+| 族 | 中身 | 正(写しの元) |
+|---|---|---|
+| ``行為`` | 行為 12 語 | ``llm.contract.ACTION_VOCAB_V3``(語彙 v3 の横断語=import して使う) |
+| ``過程`` | 世界過程の名 18 個+区切りの名 2 個 | ``engine.processes.runner.PROCESS_ORDER``(写し)+``BOUNDARY_PROCESSES`` |
+| ``金`` | お金の科目 15 個 | ``economy.accounts.ACCOUNT_NAMES``(写し) |
+| ``物`` | 物の出入り 8 個 | ``economy.goods.GOODS_CODE_NAMES``(写し) |
+
+- 語は ``族:語``(``"行為:移動"``・``"過程:rail"``・``"金:賃金"``・``"物:販売"``)。族を付けるのは、``金`` と ``物`` に
+  同じ語「域外仕入」があるため(族が無いと 1 語で 2 つの意味になる)。
+- ``金`` と ``物`` の写し: engine は economy を import できない(層の契約 ``economy > engine``)。値の二重定義の食い違いは
+  試験 ``tests/engine/events/test_e_vocab_is_closed.py`` が economy の表と突き合わせて落とす。``過程`` の写しも同じ
+  試験が ``PROCESS_ORDER`` と突き合わせる(runner を import すると世界過程の全モジュールを読む=語彙表を軽く保つ)。
+- 区切りの名(``day_close``・``checkpoint``)は E(診断)の行の過程の名(口の約束 1-3 の〔空欄 2〕=日の締めと
+  checkpoint)。``Process("day_close")`` の名にも使う。**仮採用**(区切りの名を「過程」の族に入れた=発注の
+  ``Process("day_close")`` の形に合わせた・未リサーチ(expedient))。
+- 表の外の語は ``Event`` を作るときに ``ValueError``(``code_of``)。語を足すのは版上げ(試験の数も変わる)。
+
+``via``(CT9 の道具の欄)の語: 対面・通話・メッセージ・グループ・SNS・無し(決定 10-12 §4-4 CT9 (b) の 5 つ+無し)。
+``where`` の種類: セル・ノード・POI(口の約束 1-3)。
+
+逐次ループ宣言: なし(表を作るのは import のときに 1 回)。
+"""
+
+from __future__ import annotations
+
+from types import MappingProxyType
+from typing import Mapping, Final
+
+from shibuya.llm.contract import ACTION_VOCAB_V3
+
+__all__ = [
+    "FAMILY_ACT", "FAMILY_PROCESS", "FAMILY_MONEY", "FAMILY_GOODS", "FAMILIES",
+    "ACT_WORDS", "WORLD_PROCESSES", "BOUNDARY_PROCESSES", "PROCESS_NAMES", "MONEY_WORDS", "GOODS_WORDS",
+    "VOCAB", "VOCAB_CODES", "VOCAB_VERSION", "word", "code_of", "family_of",
+    "VIA_WORDS", "VIA_NONE", "VIA_CODES", "WHERE_KINDS",
+]
+
+#: 表の版(語を足したら上げる)。
+VOCAB_VERSION: Final[str] = "events-vocab/1-3"
+
+FAMILY_ACT: Final[str] = "行為"
+FAMILY_PROCESS: Final[str] = "過程"
+FAMILY_MONEY: Final[str] = "金"
+FAMILY_GOODS: Final[str] = "物"
+FAMILIES: Final[tuple[str, ...]] = (FAMILY_ACT, FAMILY_PROCESS, FAMILY_MONEY, FAMILY_GOODS)
+
+#: 行為 12 語(語彙 v3 の横断語・並びは v3 の表のまま)。
+ACT_WORDS: Final[tuple[str, ...]] = tuple(ACTION_VOCAB_V3)
+
+#: 世界過程の名(``engine.processes.runner.PROCESS_ORDER`` の写し・並びも同じ)。
+WORLD_PROCESSES: Final[tuple[str, ...]] = (
+    "environment", "rail", "opening", "crowd", "traffic",
+    "delivery_inbound", "shelf", "waste", "street_cleaning",
+    "last_mile", "bus_taxi", "road_works", "hotel", "infra", "press", "large_event", "dispatch",
+    "salient",
+)
+#: E(診断)の区切りの名(日の締め・checkpoint)。
+BOUNDARY_PROCESSES: Final[tuple[str, ...]] = ("day_close", "checkpoint")
+#: ``Process(name)`` の名に使える名(世界過程+区切り)。
+PROCESS_NAMES: Final[tuple[str, ...]] = WORLD_PROCESSES + BOUNDARY_PROCESSES
+
+#: お金の科目(``economy.accounts.ACCOUNT_NAMES`` の写し・並びも同じ)。
+MONEY_WORDS: Final[tuple[str, ...]] = (
+    "消費支出", "賃金", "域外仕入", "税", "利子", "家賃", "預金純増",
+    "来街者持込", "持ち出し", "参入資本", "配当/内部留保", "減価償却",
+    "残差科目", "退蔵項", "逸脱比例コスト",
+)
+#: 物の出入り(``economy.goods.GOODS_CODE_NAMES`` の写し・並びも同じ)。
+GOODS_WORDS: Final[tuple[str, ...]] = (
+    "域外仕入", "持込物", "販売", "廃棄ビンへ", "消費", "廃棄搬出", "返品/域外出荷", "棚卸差異",
+)
+
+
+def word(family: str, w: str) -> str:
+    """族と語 → 表の語(``"過程:rail"``)。表の外なら ``ValueError``。"""
+    q = f"{family}:{w}"
+    if q not in VOCAB_CODES:
+        raise ValueError(f"出来事の語彙表の外: {q!r}(族は {FAMILIES})")
+    return q
+
+
+#: 表の全部(族の順 → 族の中の順)。コードはこの並びの位置(記録の列に入る int16)。
+VOCAB: Final[tuple[str, ...]] = (
+    tuple(f"{FAMILY_ACT}:{w}" for w in ACT_WORDS)
+    + tuple(f"{FAMILY_PROCESS}:{w}" for w in PROCESS_NAMES)
+    + tuple(f"{FAMILY_MONEY}:{w}" for w in MONEY_WORDS)
+    + tuple(f"{FAMILY_GOODS}:{w}" for w in GOODS_WORDS)
+)
+VOCAB_CODES: Final[Mapping[str, int]] = MappingProxyType({w: i for i, w in enumerate(VOCAB)})  # 検収 L7: 実行時に語を足せない
+assert len(VOCAB_CODES) == len(VOCAB), "語彙表に同じ語が 2 回ある"
+
+
+def code_of(what: str) -> int:
+    """表の語 → コード。表の外なら ``ValueError``(閉じた表)。"""
+    try:
+        return VOCAB_CODES[what]
+    except (KeyError, TypeError):
+        raise ValueError(f"出来事の語彙表の外: {what!r}(表は {len(VOCAB)} 語・形は '族:語')") from None
+
+
+def family_of(what: str) -> str:
+    """表の語の族(``"金:賃金"`` → ``"金"``)。"""
+    code_of(what)
+    return what.split(":", 1)[0]
+
+
+#: CT9 の道具の欄(届いた経路)。``無し`` は道具を使わない出来事(世界過程・区切り・本人だけの行為)。
+VIA_WORDS: Final[tuple[str, ...]] = ("対面", "通話", "メッセージ", "グループ", "SNS", "無し")
+VIA_NONE: Final[str] = "無し"
+VIA_CODES: Final[Mapping[str, int]] = MappingProxyType({w: i for i, w in enumerate(VIA_WORDS)})
+
+#: ``where`` の種類(セル・歩行網のノード・POI)。
+WHERE_KINDS: Final[tuple[str, ...]] = ("cell", "node", "poi")

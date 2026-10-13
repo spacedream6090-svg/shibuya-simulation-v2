@@ -8,6 +8,11 @@
 - 外の道筋は ``鍵:道筋``(末尾の ``*`` で前方一致・``[...]`` で行の範囲)。行は割らない(草案 §0-2)。
 - 群は名札(体・世界・知覚・判断・会話・行為の解決・記憶・計器・暦・組み立て)。話題ごとのまとめ直しは T1 の後。
 
+〔第 1 期 1-3〕出来事の記録(状態台帳の行 ``E``)を書く系は ``writes.paths`` に ``E:events.*`` を載せる: world(ActualLog の
+行ごとの出来事)・checkpoint と day_close(E=診断の区切りの行)・close_final(最後の便の行と最後の日の締め)。宣言の外の
+書きは段 B(試験)と、段 C と同じ実行時の検査(``guard.events_write_allowed``)が落とす。凍結の表は
+``tests/engine/events/writes_paths_events.json``。
+
 〔親の決め〕世界過程が持ち主をまたいで書く所(鉄道と大きな催しが計画実行層の O36・O37・O70 と鉄道の O74 を書く)は
 1-0 では宣言で認める(``world`` の ``writes.paths``)。
 
@@ -70,7 +75,9 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "O95:runner.* O5[7-9]:ledger.* O60:ledger.* O7[7-9]:ledger.* O8[01]:ledger.* O9[23]:ledger.* "
                # 段 FIX: 前の刻みの描画の前計算 ``renderer._tickc.flow`` は ``runner.flow`` と同じ配列(``prepare_tick`` の
                # ``np.asarray(flow, uint8)`` は写さない)=世界過程が流れの段をその場で書くと見える(別名)
-               "O63:renderer._tickc",
+               "O63:renderer._tickc "
+               # 第 1 期 1-3: ActualLog の行ごとの出来事(原因=過程)と行の目印(ActualLog の口 event_sink から)
+               "E:events.*",
          reads="layers.runner",
          origin=f"L2・run.py:3629-3630 @{_E}"),
     make("presence", "体", "tick", _BD.sys_presence,
@@ -257,7 +264,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "soa.agents soa.world",
          origin=f"L21+L22・run.py:4403-4451 @{_E}"),
     make("checkpoint", "計器", "tick", _OB.checkpoint,
-         paths="O2:act_layer._digest_cache",
+         paths="O2:act_layer._digest_cache E:events.*",  # 1-3: E(診断)の区切りの行(checkpoint)
          tally="result phase",  # 段 FIX: phase["checkpoint"](壁時計)=組の別名 ``result, phase = rs.result, rs.phase``
          reads="cfg.checkpoint_detail cfg.checkpoint_every cfg.total_ticks fx.schedule "
                "fx.schedule_hash layers.act_layer layers.arbiter layers.bridge layers.classical "
@@ -265,7 +272,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.intent_layer layers.ledger layers.mem_layer layers.norm_meter "
                "layers.poi_resolver layers.presence layers.rel_layer layers.renderer layers.runner "
                "layers.wom llm.fleet_deferred llm.fleet_waiting llm.pending llm.replay_inbox "
-               "runstats.phase runstats.result soa.agents soa.world",
+               "runstats.phase runstats.result soa.agents soa.world layers.events",
          origin=f"L23・run.py:4452-4495 @{_E}"),
     # ================================================================ 日の終わり
     make("day_close", "暦", "day_end", _DY.sys_day_close,
@@ -273,7 +280,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          resolve_ops="rail_arrive rail_depart sync_transit_activity set_plan_state",
          paths="O2:act_layer._digest_cache O5[0-6]:runner.* O61:runner.* O7[2-6]:runner.* O95:runner.* "
                "O5[7-9]:ledger.* O60:ledger.* O7[7-9]:ledger.* O8[01]:ledger.* O9[23]:ledger.* O70:presence.* "
-               "O3[5-8]:presence.*",
+               "O3[5-8]:presence.* "
+               "E:events.*",  # 1-3: E(診断)の区切りの行(日の締め)・その日の記録の計器と保持窓
          tally="daily_records state_files result", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.run_id cfg.sim_days "
                "cfg.state_out cfg.tick_seconds cfg.tpd fx.calendar fx.env_fields fx.schedule fx.schedule_hash "
                "layers.act_layer layers.arbiter layers.bridge layers.classical layers.conv "
@@ -282,7 +290,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.poi_resolver layers.presence layers.rel_layer layers.renderer layers.runner "
                "layers.wom llm.fleet_deferred llm.fleet_inflight llm.fleet_waiting llm.pending "
                "llm.replay_inbox runstats.daily_records runstats.result runstats.state_files "
-               "soa.agents soa.world",
+               "soa.agents soa.world layers.events",
          origin=f"L24・run.py:4497-4500 @{_E}"),
     # ================================================================ ランの終わり
     make("drain", "判断", "run_end", _RE.sys_drain,
@@ -302,7 +310,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          resolve_ops="rail_arrive rail_depart sync_transit_activity set_plan_state",
          paths="O2:act_layer._digest_cache O5[0-6]:runner.* O61:runner.* O7[2-6]:runner.* O95:runner.* "
                "O5[7-9]:ledger.* O60:ledger.* O7[7-9]:ledger.* O8[01]:ledger.* O9[23]:ledger.* O70:presence.* "
-               "O3[5-8]:presence.* O8[5-7]:bridge.*",
+               "O3[5-8]:presence.* O8[5-7]:bridge.* "
+               "E:events.*",  # 1-3: 最後の便の ActualLog の行の出来事・E の区切りの行(日の締め)・計器と保持窓
          tally="daily_records ledger_growth result state_files", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.run_id cfg.sim_days "
                "cfg.state_out cfg.stopped cfg.t_end cfg.tick_seconds cfg.total_ticks cfg.tpd fx.calendar fx.env_fields "
                "fx.schedule fx.schedule_hash layers.act_layer layers.arbiter layers.bridge "
@@ -311,7 +320,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.norm_meter layers.poi_resolver layers.presence layers.rel_layer "
                "layers.renderer layers.runner layers.wom llm.fleet_deferred llm.fleet_inflight "
                "llm.fleet_waiting llm.pending llm.replay_inbox runstats.daily_records "
-               "runstats.ledger_growth runstats.result runstats.state_files soa.agents soa.world",
+               "runstats.ledger_growth runstats.result runstats.state_files soa.agents soa.world layers.events",
          origin=f"E1・run.py:4551-4592 @{_E}"),
     make("report", "計器", "run_end", _RP.report,
          tally="result sleep_counts frozen_sources_map",  # 段 FIX: 欄の別名 ``frozen_sources_map.update``

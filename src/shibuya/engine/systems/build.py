@@ -1150,6 +1150,14 @@ def build(_call_args: dict[str, Any]) -> Any:
     #: 書いた状態のファイル(名前・T・バイト・``finished``・書くのにかかった秒=壁時計)。
     state_files: list[dict[str, Any]] = []
 
+    # ---- 第 1 期 1-3: 出来事の記録(CP12・既定 on・切替口 SHIBUYA_EVENTS=off/CLI --events off)。状態台帳の行 E
+    # (軸 1 diag・軸 2 discardable)=ハッシュにも状態のファイルにも入らない。再開のランは空から書く(id は (t_ns, seq)
+    # なので刻みの境目からの再開でも通しのランと同じ id になる)。ActualLog の行に id の目印を付ける口を実行器に挿す ----
+    from shibuya.engine.events import log as _EV
+
+    events = _EV.EventLog(enabled=_EV.enabled())
+    if runner is not None:
+        runner.attach_events(events)
 
     # ---- 1-0 段 C: 状態の箱(局所の割り当ての表 local-assignment.json・草案 §2-3)。物はそのまま指す(写しを作らない) ----
     box = _BX.Box(
@@ -1187,7 +1195,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             energy=energy_layer, norm_meter=norm_meter, presence=presence, conv=conv, arbiter=arbiter,
             detector=detector, runner=runner, ledger=ledger,
             renderer=getattr(perception, "renderer", None) if perception is not None else None,
-            bridge=bridge, fleet_bridge=fleet_bridge,
+            bridge=bridge, fleet_bridge=fleet_bridge, events=events,
         ),
         llm=_BX.LlmIo(pending=pending, fleet_deferred=fleet_deferred, fleet_waiting=fleet_waiting,
                       fleet_inflight=fleet_inflight, replay_inbox=replay_inbox),

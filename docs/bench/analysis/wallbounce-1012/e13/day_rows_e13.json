@@ -1,0 +1,54 @@
+{
+ "schema": "shibuya.bench/e13/day-rows/1",
+ "agents": 5000,
+ "seed": 1,
+ "world": "data/world/v2",
+ "config": "cli.run・vocab_version=v3(CLI の既定と同じ・ほかは cli.run の既定=byte-check の w6_v3_default と同じ構成)",
+ "final_on": "5f7ae9ff24005314",
+ "final_off": "5f7ae9ff24005314",
+ "calls_on": 65597,
+ "calls_off": 65597,
+ "same_final_and_calls": true,
+ "daily_events": {
+  "on": true,
+  "rows": 28835,
+  "bytes": 2076120,
+  "by_what": {
+   "過程:rail": 3911,
+   "過程:opening": 6546,
+   "過程:delivery_inbound": 2337,
+   "過程:shelf": 56,
+   "過程:waste": 234,
+   "過程:last_mile": 2758,
+   "過程:bus_taxi": 12954,
+   "過程:road_works": 12,
+   "過程:hotel": 3,
+   "過程:press": 3,
+   "過程:large_event": 6,
+   "過程:dispatch": 10,
+   "過程:day_close": 1,
+   "過程:checkpoint": 4
+  },
+  "by_cause": {
+   "process": 28835
+  },
+  "live_rows": 28835,
+  "live_bytes": 2076120,
+  "evicted": 0
+ },
+ "rows_per_agent_day": 5.767,
+ "row_bytes": 72,
+ "names_table": 13,
+ "causes_table": 14,
+ "actual_log": {
+  "rows": 28830,
+  "appended": 28830,
+  "linked": 28830,
+  "link_bytes": 345960
+ },
+ "wall_s": {
+  "on": 25.2,
+  "off": 24.8,
+  "note": "1 本ずつ(ばらつきは測っていない)"
+ }
+}

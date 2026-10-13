@@ -1157,6 +1157,13 @@ def main(argv: list[str] | None = None) -> int:
         help="録画テープのディレクトリを与えると mode=replay(テープ完全一致・LLM 呼なし)で回す"
              "(C7 T2-c: 本番テープの再生で checkpoint 列を復元する)",
     )
+    ap.add_argument(
+        "--events",
+        choices=("on", "off"),
+        default="on",
+        help="第 1 期 1-3: 出来事の記録(既定 on)。off で記録しない(環境変数 SHIBUYA_EVENTS=off と同じ)。"
+             "記録は結果を変えないので設定の指紋には入らない(manifest の日次の記録 events.on に出る)",
+    )
     # --llm / --endpoints / --model / --mode / --run-id / --tape / --temperature /
     # --max-tokens / --fleet-wait-s(C6-a)
     add_fleet_args(ap)
@@ -1181,6 +1188,10 @@ def main(argv: list[str] | None = None) -> int:
             )
     except argparse.ArgumentTypeError as exc:  # 使い方の誤りは traceback ではなく usage で返す
         ap.error(str(exc))
+    if str(args.events) in ("off", "on"):  # 第 1 期 1-3: 出来事の記録の切替口(組み立てが読む。CLI は環境変数より強い=検収 L3)
+        from shibuya.engine.events import log as _events_log
+
+        _events_log.set_enabled(str(args.events) == "on")
     res = run(
         n_agents=args.agents,
         seed=args.seed,

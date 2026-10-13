@@ -1,6 +1,6 @@
 """状態台帳の宣言(10b・A3「挙動」と「復元」の 2 軸・機械可読の 1 ファイル)。
 
-**読み口は 1 つ**: ``LEDGER``(187 行の組)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
+**読み口は 1 つ**: ``LEDGER``(188 行の組=〔第 1 期 1-3〕出来事の記録の行 ``E`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
 ``soa_rows``・``external_rows``・``behavior_excluded``・``full_excluded``・``full_items``・``behavior_items``)。表・AST の検査(``engine.state_ledger_ast``)・
 2 つのハッシュ(``engine.state_hashes``)・揺らし試験はどれもこの表から作る。
 
@@ -53,6 +53,9 @@ from typing import Final, Iterable
 #: 表の版(列や行の判定を変えたら上げる。manifest の ``state_hashes.ledger_version`` に出る)。
 #: 10e(E1): 死蔵の 5 列(Q9 の 3 列+A4 の 2 列)を消して 193 → 188 行・O44 から replay_inbox を O96 に分けて 189 行。
 #: 〔第330・RET〕K15 の 2 列(``fail_streak``・``plan_activity``)を消して 187 行=版を上げた(前 ``state-ledger/10e``)。
+#: 〔第 1 期 1-3〕出来事の記録の行 ``E``(軸 1 diag・軸 2 discardable)を足したが版は上げない(仮採用): この行は
+#: behavior-hash・full-hash・状態のファイル(``full_items``)のどれにも入らず、上げると manifest の
+#: ``state_hashes.ledger_version`` の値が動き、前の版で書いた状態のファイルから再開できなくなる(どちらも中身は同じ)。
 LEDGER_VERSION: Final[str] = "state-ledger/10e-ret"
 
 BEHAVIOR: Final[str] = "behavior"
@@ -650,6 +653,20 @@ _EXT: tuple[LedgerRow, ...] = (
             "behavior に入れると、艦隊で録ったランとその再生で behavior-hash(=既定の final)が食い違う(在途の呼があれば"
             "途中の checkpoint は必ず・最後の tick に在途の呼があれば final も)。軸 1 は no にして behavior-hash から外す。"
             "再開には要る=軸 2 は required のまま(full-hash と状態のファイルには入る)"),
+    # ---- 第 1 期 1-3(出来事の記録・CP12): 足す前に軸を決めた行(口の約束 1-3 の約束 (1)) ----
+    LedgerRow(
+        key="E", name="EventLog(出来事の記録・第 1 期 1-3)", place=EXTERNAL, dtype="列(SoA 風・1 行 72 B)・名と原因の表",
+        nbytes="", alloc="", behavior=DIAG, restore=DISCARDABLE, dead=False,
+        basis="engine/events/log.py(EventLog)・engine/systems/state_io.py(day_record の計器)",
+        items=tuple(f"events.{a}" for a in (
+            "_ev_t_ns", "_ev_seq", "_ev_who", "_ev_what", "_ev_whom", "_ev_where_kind", "_ev_where_id",
+            "_ev_how_much", "_ev_via", "_ev_received_ns", "_ev_read_ns", "_ev_origin", "_ev_cause", "_ev_n",
+            "_ev_names", "_ev_name_codes", "_ev_causes", "_ev_cause_codes", "_ev_now_ns", "_ev_seq_next",
+            "_ev_day_mark", "_ev_n_appended", "_ev_n_evicted")),
+        note="1-3: 軸 1 diag(読み手は日次の記録の計器=state_io.day_record と試験だけ。挙動は読まない)・軸 2 discardable"
+             "(再開のランは空から書く=どちらのハッシュにも状態のファイルにも入らない=記録の有無で final・behavior-hash は"
+             "不変)。id は (t_ns, seq) なので刻みの境目からの再開でも通しのランと同じ id。行の鍵は O の通し番号でなく "
+             "E(系の宣言は E:events.*)。書く系は world・checkpoint・day_close・close_final"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -762,6 +779,8 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "bridge": ("engine/llm_bridge.py", "LLMBridge"),
     "bridge.tape": ("engine/tape.py", "TapeWriter"),
     "fleet_bridge": ("llm/fleet.py", "FleetBridge"),
+    # 第 1 期 1-3: 出来事の記録(状態台帳の行 E)
+    "events": ("engine/events/log.py", "EventLog"),
 }
 
 #: (ii) キャッシュ・導出。中身は 3 通り: (a) 毎 tick(か事象のある tick)作り直す作業の値・印
@@ -986,6 +1005,8 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "tape_row_factory", "undefined", "_debug_fp"),
     _x("fleet_bridge", CONST, _CFG, "vocab_version", "landmarks", "_engine_codes", "params", "source",
        "_params_hash", "debug_dir", "debug_max_rows"),
+    # 第 1 期 1-3: 出来事の記録の設定(記録するか=切替口・保持窓の日数)
+    _x("events", CONST, _CFG, "enabled", "retention_days"),
 )
 
 

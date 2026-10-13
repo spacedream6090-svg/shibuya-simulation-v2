@@ -5,7 +5,8 @@
 - observe: 診断の行(``RunStats.diag_rows``)・診断の差分の基準(``prev_tape_misses``・``prev_sessions``)・計画の就寝の数え・
   在圏の標本(``presence.sample``=O70)・規範の計器(``norm_meter.observe_tick``=O34)・在圏 journal(``occ_*``)。
 - checkpoint: behavior-hash と full-hash(``state_io.full_state_hash`` を通す)と checkpoint の記録(読むだけ。
-  活動層の文の digest のキャッシュ O2 を書く)。
+  活動層の文の digest のキャッシュ O2 を書く)。〔第 1 期 1-3〕ハッシュの後に出来事の記録へ E(診断)の区切りの行を 1 行
+  (``state_io.mark_boundary``・状態台帳の行 ``E``=どちらのハッシュにも入らない)。
 
 逐次ループ宣言: なし(配列演算・刻みに 1 回)。
 """
@@ -143,3 +144,5 @@ def checkpoint(ctx: Any, b: Any) -> None:
             result.checkpoint_details.append(
                 {"tick": int(tick), **SIO.component_digests(agents, world, SIO.pst_now(b), _owners)}
             )
+        # ---- 第 1 期 1-3: E(診断)の区切りの行(checkpoint)。ハッシュの後に書く(記録はどちらのハッシュにも入らない) ----
+        SIO.mark_boundary(L.events, "checkpoint")

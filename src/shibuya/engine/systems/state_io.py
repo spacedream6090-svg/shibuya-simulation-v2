@@ -23,7 +23,8 @@ from shibuya.engine.state_hashes import full_hash as full_state_hash
 
 __all__ = ["hash_owners", "pst_now", "act_hash_now", "full_state_hash", "behavior_state_hash", "component_digests",
            "eod_hashes", "money_now", "bodies_now", "w17_weekday", "relay_tables", "start_day", "ledger_close",
-           "day_record", "close_day_midrun", "save_state", "rebuild_derived"]
+           "day_record", "close_day_midrun", "save_state", "rebuild_derived", "mark_boundary",
+           "EVENTS_OFF_RECORD", "BOUNDARY_WHO"]
 
 # 〔1-0 の注〕``full_state_hash`` は checkpoint・日の締めの後・状態の書き出し・再開の検算がどれも**この名前を通して**呼ぶ
 # (試験の差し替えの的を 1 つにする=草案 §3-3 の 15。HEAD では ``engine.run.full_state_hash``)。
@@ -36,7 +37,11 @@ def pst_now(b: Any) -> Any:
 
 
 def hash_owners(b: Any) -> dict[str, Any]:
-    """10b: 状態台帳の外の状態の持ち主(``items`` の根の鍵)。HEAD の ``_hash_owners`` と同じ鍵・同じ順・同じ物。"""
+    """10b: 状態台帳の外の状態の持ち主(``items`` の根の鍵)。HEAD の ``_hash_owners`` と同じ鍵・同じ順・同じ物。
+
+    〔第 1 期 1-3〕末尾に ``events``(出来事の記録・状態台帳の行 ``E``=軸 1 diag・軸 2 discardable)を足した。2 つのハッシュと
+    状態のファイルは軸で選んだ行の道筋だけを読むので、値は変わらない(段 B の全欄の差と書きの網羅が読む)。
+    """
     from shibuya.engine.run import _RunDayLocals
 
     L, io = b.layers, b.llm
@@ -49,6 +54,7 @@ def hash_owners(b: Any) -> dict[str, Any]:
         "renderer": L.renderer,
         "bridge": L.bridge, "fleet_bridge": L.fleet_bridge,
         "run_day": _RunDayLocals(io.pending, io.fleet_deferred, io.fleet_waiting, io.replay_inbox),
+        "events": getattr(L, "events", None),
     }
 
 
@@ -228,7 +234,33 @@ def day_record(b: Any, d: int) -> None:
     rec["clock_kind"] = CLOCK_KIND
     rec["step_seconds"] = int(b.cfg.tick_seconds)
     rec["bridges_count"] = None
+    # 第 1 期 1-3: E(診断)の区切りの行(日の締め)を書き、その日の出来事の記録の行数・バイト・種類の分布を記録の欄に出す
+    # (計器・口の約束 1-3 の約束 (3))。保持窓の外の行はここで落とす。記録の欄が増えるだけ(状態に入らない)。
+    events = b.layers.events
+    mark_boundary(events, "day_close")
+    rec["events"] = events.close_day(int(d)) if events is not None else dict(EVENTS_OFF_RECORD)
     b.runstats.daily_records.append(rec)
+
+
+#: 1-3: 記録の物が無いときの日次の記録の欄(``EventLog.close_day`` の記録しないときと同じ形)。
+EVENTS_OFF_RECORD: dict[str, Any] = {"on": False, "rows": 0, "bytes": 0, "by_what": {}, "by_cause": {},
+                                     "live_rows": 0, "live_bytes": 0, "evicted": 0}
+#: 1-3: 区切りの行の ``who``(持ち主の名=エンジンの区切り)。未リサーチ(expedient)。
+BOUNDARY_WHO: str = "engine"
+
+
+def mark_boundary(events: Any, name: str) -> None:
+    """1-3: E(診断)の区切りの行(``day_close``・``checkpoint``)を記録の時計の時刻で 1 行書く(記録しないときは何もしない)。
+
+    原因は ``Process(name)``・``what`` は ``過程:<name>``(語彙表の区切りの名)。
+    """
+    if events is None or not events.enabled:
+        return
+    from shibuya.engine.events import log as _EV
+    from shibuya.engine.events import vocab as _V
+
+    events.append(_EV.Event(t_ns=events.now_ns, who=BOUNDARY_WHO, what=_V.word(_V.FAMILY_PROCESS, name),
+                            cause=_EV.Process(name)))
 
 
 def close_day_midrun(b: Any, d: int) -> None:

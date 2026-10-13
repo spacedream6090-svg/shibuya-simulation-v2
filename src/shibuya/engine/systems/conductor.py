@@ -24,7 +24,7 @@ def run_system(spec: SystemSpec, ctx: Any, box: Any) -> Any:
     """系 ``spec`` を 1 回呼ぶ(``ctx`` はその刻みの ``TickCtx``・ランの単位の系は ``None``)。"""
     _PR.at(spec.name, None if ctx is None else ctx.T, box)
     t0 = time.perf_counter()
-    with _G.system_scope(spec.name, spec.writes.soa, spec.writes.scratch, spec.writes.buffers):
+    with _G.system_scope(spec.name, spec.writes.soa, spec.writes.scratch, spec.writes.buffers, spec.writes.paths):
         out = spec.fn(ctx, box)
     ss = box.runstats.system_seconds
     ss[spec.name] = ss.get(spec.name, 0.0) + (time.perf_counter() - t0)
@@ -109,10 +109,13 @@ def conduct(call_args: dict) -> Any:
     step_s = int(cfg.tick_seconds)  # 1-1 T0: 刻みの幅[秒](``TickCtx`` の ``t_ns``・``tod_s`` の換算)
     plan = tick_plan(box, SYSTEMS)
     s_head, s_close = SPECS["day_head"], SPECS["day_close"]
+    events = box.layers.events  # 第 1 期 1-3: 出来事の記録(状態台帳の行 E・軸 1 diag・軸 2 discardable)
     for T in range(cfg.t_begin, cfg.t_end):
         ctx = _BX.TickCtx.of(T, tpd, step_s)
         _PR.at(TICK_HEAD, T, box)  # 試験だけ: scratch を空にした差を前の系に帰属させない境目(既定のランでは何もしない)
         box.scratch.reset(unset)  # 刻みの中の受け渡しは刻みの頭で空にする(Buffers は空にしない=R1)
+        if events is not None:
+            events.begin_step(ctx.t_ns)  # 1-3: 記録の時計=この刻みの頭の時刻(id の (t_ns, seq) の seq はここから数える)
         if _DAY.day_head_due(T, ctx.td):
             run_system(s_head, ctx, box)
         for spec in plan:

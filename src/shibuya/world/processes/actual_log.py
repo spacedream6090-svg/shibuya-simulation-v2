@@ -172,6 +172,13 @@ class ActualLog:
         #: (過程コード, 日) → 遅延分の合計。
         self._agg_delay: dict[tuple[int, int], int] = {}
         self._max_tick = 0
+        # ---- 第 1 期 1-3: 出来事の記録への目印(行ごとの出来事の id ``(t_ns, seq)``・目印の無い行は seq=-1) ----
+        # 固定幅レコード(``ACTUAL_LOG_DTYPE``=凍結)は変えず、並びの列として持つ。``nbytes``(成長の宣言の実測)にも
+        # 入れない(目印の列のバイトは出来事の記録の計器が数える)。``event_sink`` は engine が置く呼べる物
+        # (``engine.events.links.ActualLogLink``)。world は engine を import しない(層の契約)ので形だけで呼ぶ。
+        self.event_sink: Any = None
+        self._event_t_ns = np.zeros(int(capacity), dtype=np.int64)
+        self._event_seq = np.full(int(capacity), -1, dtype=np.int32)
 
     # ------------------------------------------------------------------ 基本情報
     def __len__(self) -> int:
@@ -221,6 +228,27 @@ class ActualLog:
         grown = np.zeros(cap, dtype=ACTUAL_LOG_DTYPE)
         grown[: self._n] = self._rows[: self._n]
         self._rows = grown
+        et = np.zeros(cap, dtype=np.int64)
+        es = np.full(cap, -1, dtype=np.int32)
+        et[: self._n] = self._event_t_ns[: self._n]
+        es[: self._n] = self._event_seq[: self._n]
+        self._event_t_ns, self._event_seq = et, es
+
+    def _link_events(self, process_id: str, start: int, n: int) -> None:
+        """1-3: 書いた ``n`` 行(位置 ``start`` から)に出来事の id の目印を付ける(口が無い・記録しないときは付けない)。"""
+        sink = self.event_sink
+        if sink is None:
+            return
+        got = sink(process_id, int(n))
+        if got is None:
+            return
+        t, s = got
+        self._event_t_ns[start: start + n] = t
+        self._event_seq[start: start + n] = s
+
+    def event_ids(self) -> tuple[np.ndarray, np.ndarray]:
+        """1-3: 生存行の出来事の id の 2 列 ``(t_ns, seq)``(目印の無い行は seq=-1・読み取り専用の写し)。"""
+        return self._event_t_ns[: self._n].copy(), self._event_seq[: self._n].copy()
 
     def append(
         self,
@@ -257,6 +285,7 @@ class ActualLog:
         self._n += 1
         self._next_entry_id += 1
         self._max_tick = max(self._max_tick, entry.tick)
+        self._link_events(process_id, pos, 1)
         return entry
 
     def append_many(
@@ -315,9 +344,11 @@ class ActualLog:
         self._rows["deviation"][sl] = codes
         self._rows["delay_min"][sl] = delays
         self._index[code].extend(range(self._n, self._n + n))
+        start = self._n
         self._n += n
         self._next_entry_id += n
         self._max_tick = max(self._max_tick, int(tk.max()))
+        self._link_events(process_id, start, n)
         return n
 
     # ------------------------------------------------------------------ 読み出し(索引経由)
@@ -413,6 +444,10 @@ class ActualLog:
         n_keep = int(kept.size)
         self._rows[:n_keep] = kept
         self._rows[n_keep : self._n] = np.zeros(self._n - n_keep, dtype=ACTUAL_LOG_DTYPE)
+        # 1-3: 目印の列も同じ行を残す(行と目印の 1 対 1 を保つ)
+        et, es = self._event_t_ns[: self._n][keep], self._event_seq[: self._n][keep]
+        self._event_t_ns[:n_keep], self._event_seq[:n_keep] = et, es
+        self._event_t_ns[n_keep : self._n], self._event_seq[n_keep : self._n] = 0, -1
         self._n = n_keep
         for code, positions in self._index.items():
             if not positions:

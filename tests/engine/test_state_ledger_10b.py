@@ -63,13 +63,16 @@ def test_ledger_has_187_rows_in_two_axes():
     """材料の 163 行(SoA 98+外の状態 65)+10b-2 の棚卸しで足した外の状態 24 行(O66〜O89)+10d の 5 行(O90〜O94)
     +10f の 1 行(O95=O75 から読み手 0 の 2 属性を diag に分けた)−10e(E1)の死蔵の 5 列(Q9 の 3 列+A4 の 2 列)
     +10e(E1・検収 R1)の 1 行(O96=O44 から再生の到着待ちを軸 1 no に分けた)−〔第330・RET〕K15 の 2 列
-    (前: agents 76・SoA 93・全体 189・版 ``state-ledger/10e``)。"""
+    (前: agents 76・SoA 93・全体 189・版 ``state-ledger/10e``)。
+    〔第 1 期 1-3〕出来事の記録の行 ``E``(軸 1 diag・軸 2 discardable)を足して外の状態 97 行・全体 188 行(試験の名は
+    187 のまま=履歴)。どちらのハッシュにも状態のファイルにも入らない行なので版は上げない(仮採用・記録 e13/README.md)。"""
     c = SL.counts()
-    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 96, "soa": 91, "total": 187}
+    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 97, "soa": 91, "total": 188}
     assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
-    assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 97)]
+    assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 97)] + ["E"]
+    assert (SL.row("E").behavior, SL.row("E").restore) == (SL.DIAG, SL.DISCARDABLE)
     for r in SL.LEDGER:
         assert r.behavior in SL.AXIS1_VALUES, r.key
         assert r.restore in SL.AXIS2_VALUES, r.key
