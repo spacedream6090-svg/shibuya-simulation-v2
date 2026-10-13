@@ -153,7 +153,7 @@ _ALLOW_BAND = (AstAllow("world/assets.py", 'cells["band"]',
                         "資産の表(W2 の parquet)の列 band を読む行。SoA の agents.band ではない(材料 §2-4 の誤検出 1)"),)
 _ALLOW_B4 = (AstAllow("world/state.py", "return self.cells.b4_hash",
                       "プロパティ World.b4_hash の中の読み。プロパティの呼び手は 0(材料 §2-4 の誤検出 2)"),)
-_ALLOW_REVENUE = (AstAllow("engine/run.py", "result.revenue_end =",
+_ALLOW_REVENUE = (AstAllow("engine/systems/report.py", "result.revenue_end =",
                            "保存則の検査とラン要約の値(RunResult.revenue_end)だけ=診断"),
                   AstAllow("engine/resolve.py", "_require_thawed(world, world.pois.revenue)",
                            "1-0 段 A: ufunc.at の前の配列単位の書き込みの旗の検査(値を見ない=読みではない)"))

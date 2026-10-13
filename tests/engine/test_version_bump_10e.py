@@ -11,6 +11,7 @@ import numpy as np
 import pytest
 
 import shibuya.engine.run as RUN
+from shibuya.engine.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
 from shibuya.engine.conversation import (
     PAIR_INVITE_REFRACTORY_TICKS,
     SPEAKER_INVITE_REFRACTORY_TICKS,
@@ -57,7 +58,7 @@ def purge_runs(tmp_path_factory):
     kw = dict(n_agents=300, seed=3, n_cells=16, ticks=TPD, sim_days=2, checkpoint_every=360, budget=300.0,
               vocab_version="v3", memory="on", relations="on")
     seen: dict[str, list] = {"on": [], "off": []}
-    real = RUN.full_state_hash
+    real = SIO.full_state_hash
 
     def spy(label):
         def f(agents, world, pstate, pop, sched, owners, **k):
@@ -70,13 +71,14 @@ def purge_runs(tmp_path_factory):
 
     mp = pytest.MonkeyPatch()
     try:
-        mp.setattr(RUN, "full_state_hash", spy("on"))
+        mp.setattr(SIO, "full_state_hash", spy("on"))
         on = run_day(tape_path=d / "on", **kw)
-        mp.setattr(RUN, "full_state_hash", spy("off"))
+        mp.setattr(SIO, "full_state_hash", spy("off"))
         mp.setattr(ConversationManager, "purge_expired", lambda self, tick: 0)
         off = run_day(tape_path=d / "off", **kw)
     finally:
         mp.undo()
+    assert seen["on"] and seen["off"], "full_state_hash の差し替えが使われていない(1-0: state_io を通す)"
     return on, off, seen, d
 
 
@@ -118,7 +120,7 @@ def test_e2_o64_signage_exposures_are_empty_at_every_checkpoint():
     row = SL.row("O64")
     assert (row.behavior, row.restore) == (SL.NO, SL.DISCARDABLE) and "renderer.signage_exposures" in row.items
     sizes: list[int] = []
-    real = RUN.full_state_hash
+    real = SIO.full_state_hash
 
     def spy(agents, world, pstate, pop, sched, owners, **k):
         r = owners.get("renderer")
@@ -127,7 +129,7 @@ def test_e2_o64_signage_exposures_are_empty_at_every_checkpoint():
 
     mp = pytest.MonkeyPatch()
     try:
-        mp.setattr(RUN, "full_state_hash", spy)
+        mp.setattr(SIO, "full_state_hash", spy)
         res = cli.run(n_agents=500, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3", familiarity="on")
     finally:
         mp.undo()

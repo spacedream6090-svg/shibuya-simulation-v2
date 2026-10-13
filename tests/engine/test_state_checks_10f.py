@@ -101,7 +101,8 @@ def test_t4_axis1_reading_a_no_attribute_in_a_behavior_place_fails(tmp_path, ext
     '''), encoding="utf-8")
     sc2 = SA.scan_external(root)
     assert any("fake_behavior.py" in str(s) for s in sc2.sites["n_wander_bad"])
-    assert len(SA.check_external(sc2)) == 1  # run.py の外の result.… は出口ではない(場所は engine/run.py だけ)
+    assert len(SA.check_external(sc2)) == 1  # 結果の組み立ての置き場(RESULT_FILES)の外の result.… は出口ではない
+    assert "engine/processes/fake_behavior.py" not in SA.RESULT_FILES
 
 
 def test_t4_axis1_collision_needs_the_owner_receiver(tmp_path):

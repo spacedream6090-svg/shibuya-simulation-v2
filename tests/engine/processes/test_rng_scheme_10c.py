@@ -26,6 +26,7 @@ import pytest
 import shibuya.engine.processes.civic as CIV
 import shibuya.engine.processes.salient as SAL
 import shibuya.engine.run as RUN
+from shibuya.engine.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
 from shibuya.core.rng import RNG_SCHEME, run_tick_key
 from shibuya.core.rng import stream as core_stream
 from shibuya.engine import state_hashes as SH
@@ -360,16 +361,16 @@ def test_two_day_counter_keys_carry_T(monkeypatch):
 # ================================================================= 台帳の軸 2: 保存が要る状態を増やさない
 def _full_values(monkeypatch) -> dict[str, object]:
     got: list[dict] = []
-    real = RUN.full_state_hash
+    real = SIO.full_state_hash
 
     def spy(agents, world, pstate, pop, sched, owners, **kw):
         got.append(owners)
         return real(agents, world, pstate, pop, sched, owners, **kw)
 
-    monkeypatch.setattr(RUN, "full_state_hash", spy)
+    monkeypatch.setattr(SIO, "full_state_hash", spy)
     run_day(seed=1, ticks=60, checkpoint_every=60, salient_rate_per_10k=RATE_X1000, **{
         k: v for k, v in KW.items() if k != "checkpoint_every"})
-    monkeypatch.setattr(RUN, "full_state_hash", real)
+    monkeypatch.setattr(SIO, "full_state_hash", real)
     owners = got[-1]
     return {path: SH.resolve_item(owners, path) for _, path in SL.full_items()}
 

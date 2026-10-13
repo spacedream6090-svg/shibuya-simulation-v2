@@ -73,6 +73,8 @@ _HOT_PATHS = (
     "engine/resolve.py",
     "engine/commit.py",
     "engine/change_detect.py",
+    # 1-0: run_day を系に分けた先(弱めない=対象を広げる・草案 §3-3 の 16)
+    *sorted(str(p.relative_to(SRC)).replace("\\", "/") for p in (SRC / "engine" / "systems").glob("*.py")),
 )
 #: 個体数ぶんの Python ループ(P4 で禁止)を疑う書き方。
 _AGENT_LOOP_RE = re.compile(

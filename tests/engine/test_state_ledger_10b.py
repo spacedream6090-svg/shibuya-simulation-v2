@@ -24,6 +24,7 @@ from tests import golden_env as GE
 
 import shibuya.engine.resolve as RES
 import shibuya.engine.run as RUN
+from shibuya.engine.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
 from shibuya.agents.state import AgentState
 from shibuya.core.hashing import blake3_hex
 from shibuya.core.soa import Registry
@@ -381,13 +382,13 @@ def test_to_state_is_canonical_and_strict():
 def _spy_hash_inputs(monkeypatch) -> Iterator[list[dict[str, Any]]]:
     """checkpoint ごとに full-hash の入力(agents・world・知覚 SoA・owners)を控える。"""
     seen: list[dict[str, Any]] = []
-    real = RUN.full_state_hash
+    real = SIO.full_state_hash
 
     def spy(agents, world, pstate, pop, sched, owners, **kw):
         seen.append(dict(agents=agents, world=world, pstate=pstate, pop=pop, sched=sched, owners=owners))
         return real(agents, world, pstate, pop, sched, owners, **kw)
 
-    monkeypatch.setattr(RUN, "full_state_hash", spy)
+    monkeypatch.setattr(SIO, "full_state_hash", spy)
     yield seen
 
 
@@ -548,7 +549,7 @@ def _perturbing_run(monkeypatch, run_fn, targets: tuple[str, ...], *, every: int
     揺らすのは各 tick の頭(``resolve.advance_body`` の直後)。"""
     real_adv = RES.advance_body
     holder: dict[str, Any] = {}
-    real_full = RUN.full_state_hash
+    real_full = SIO.full_state_hash
     rng = np.random.default_rng(12345)
     n_done: dict[str, Any] = {"n": 0, "keys": set()}
 
@@ -574,12 +575,13 @@ def _perturbing_run(monkeypatch, run_fn, targets: tuple[str, ...], *, every: int
                 n_done["keys"].add(key)
         return out
 
-    monkeypatch.setattr(RUN, "full_state_hash", spy)
+    monkeypatch.setattr(SIO, "full_state_hash", spy)
     monkeypatch.setattr(RES, "advance_body", adv)
     try:
         res = run_fn(tape)
     finally:
         monkeypatch.undo()
+    assert "world" in holder, "full_state_hash の差し替えが使われていない(1-0: state_io を通す)"
     return res, n_done
 
 

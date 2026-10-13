@@ -570,6 +570,10 @@ def runtime_uncovered(owners: "dict[str, object]") -> dict[str, list[str]]:
 # (``al = act_layer; al.n_wander_bad``)でも落ちる。``getattr(obj, 変数)`` は見えない。文ごとに見るので、
 # ``result.… = …`` の行に ``;`` で挙動の読みを足すと落ちる。
 
+#: 1-0: ランの結果(``result.…`` への代入の文)を組み立てる置き場(HEAD は ``engine/run.py`` だけ。run_day を系に分けた先を
+#: 足した=対象を広げる)。
+RESULT_FILES: tuple[str, ...] = ("engine/run.py", "engine/systems/report.py", "engine/systems/run_end.py")
+
 #: 直列化・ハッシュ・保存と戻しの書き手(属性を読むが挙動を決めない)。
 GENERIC_FILES: tuple[str, ...] = (
     "engine/state_hashes.py", "engine/resume.py", "engine/state_ledger.py", "engine/state_ledger_ast.py",
@@ -802,7 +806,7 @@ def ext_reason(site: ExtSite, scan: ExtScan) -> str | None:
         return "generic"
     if any(d.hits(site.path, site.func) for d in DIAG_EXITS):
         return "exit"
-    if site.path == "engine/run.py" and site.result_stmt:
+    if site.path in RESULT_FILES and site.result_stmt:
         return "result"
     owners = [o for o, _k, _b in scan.rows.get(site.attr, [])]
     if site.attr in scan.collisions and not _owner_recv(site, owners):
@@ -884,7 +888,7 @@ class ExtAllow:
 
     10e(E2・10f 第 3 段の検収 V3): 当たる数に加えて、当たる行がある関数の名前(``クラス.メソッド`` か関数名)の並びも
     固定する。許可した行を別の関数(挙動の場所)へ**移す**と、数が同じでも落ちる。限界: 同じ関数の中で移したものは
-    見えない(``run_day`` は 1 つの大きな関数=README に明記)。
+    見えない(HEAD の ``run_day`` は 1 つの大きな関数だった。1-0 で系の関数に分けたので、系をまたいで移すと落ちる)。
     """
 
     attr: str
@@ -906,10 +910,12 @@ EXT_AST_ALLOW: tuple[ExtAllow, ...] = (
     ExtAllow("n_departures", 1, SL.AstAllow("engine/run.py", "_pres0 = int(presence.n_arrivals)", "同上"), funcs=('run_day',)),
     ExtAllow("n_departures", 1, SL.AstAllow("engine/run.py",
                                  "int(presence.n_arrivals) + int(presence.n_departures) - _pres0", "同上"), funcs=('run_day',)),
-    ExtAllow("n_tape_misses", 2, SL.AstAllow("engine/run.py", "prev_tape_misses = bridge.n_tape_misses",
-                                  "診断の行(RunResult.diagnostics)の差分の基準(10d 検収 L1)"), funcs=('run_day', 'run_day')),
-    ExtAllow("n_tape_misses", 1, SL.AstAllow("engine/run.py", "bridge.n_tape_misses - prev_tape_misses",
-                                  "診断の行の列(テープに無い呼の数)"), funcs=('run_day',)),
+    ExtAllow("n_tape_misses", 1, SL.AstAllow("engine/run.py", "prev_tape_misses = bridge.n_tape_misses",
+                                  "診断の行(RunResult.diagnostics)の差分の基準(10d 検収 L1)・再開で戻す"), funcs=('run_day',)),
+    ExtAllow("n_tape_misses", 1, SL.AstAllow("engine/systems/observe.py", "rs.prev_tape_misses = bridge.n_tape_misses",
+                                  "診断の行(RunResult.diagnostics)の差分の基準(10d 検収 L1)・tick ごと"), funcs=('observe',)),
+    ExtAllow("n_tape_misses", 1, SL.AstAllow("engine/systems/observe.py", "bridge.n_tape_misses - rs.prev_tape_misses",
+                                  "診断の行の列(テープに無い呼の数)"), funcs=('observe',)),
     ExtAllow("n_transfers", 1, SL.AstAllow("engine/run.py", 'int(getattr(ledger.money, "n_transfers", 0)) != 0',
                                 "再開に渡す台帳の検査(参入資本や財布を入れた台帳なら止める=挙動ではなく誤用の拒否)"), funcs=('run_day',)),
     ExtAllow("origin_of", 1, SL.AstAllow("engine/run.py", "rel_layer.origin_of.clear()",
@@ -922,12 +928,12 @@ EXT_AST_ALLOW: tuple[ExtAllow, ...] = (
                                       "軸 1 no・軸 2 discardable のままでもハッシュと再開は変わらない(10f で親に確かめる点)"), funcs=('run_day',)),
     ExtAllow("signage_exposures", 1, SL.AstAllow("engine/run.py", "_exp = list(_fam_renderer.signage_exposures)", "同上"), funcs=('run_day',)),
     ExtAllow("signage_exposures", 1, SL.AstAllow("engine/run.py", "_fam_renderer.signage_exposures.clear()", "同上(空にする書き)"), funcs=('run_day',)),
-    ExtAllow("sleep_counts", 1, SL.AstAllow("engine/run.py", "for _k, _v in presence.sleep_counts.items():",
-                                 "RunResult.planned_sleep_counts の組み立て(ランの最後)"), funcs=('run_day',)),
-    ExtAllow("stats", 1, SL.AstAllow("engine/run.py", '_cs = getattr(getattr(poi_resolver, "chooser", None), "stats", None)',
-                          "RunResult.chooser_stats の組み立て(ランの最後)"), funcs=('run_day',)),
-    ExtAllow("stats", 1, SL.AstAllow("engine/run.py", "for k, v in fam_layer.stats.items()",
-                          "RunResult.familiarity_summary の組み立て(ランの最後)"), funcs=('run_day',)),
-    ExtAllow("text_id", 1, SL.AstAllow("engine/run.py", "+ act_layer.until_kind.nbytes + act_layer.text_id.nbytes",
-                            "成長の検査(RunResult.growth_measured)のバイト数"), funcs=('run_day',)),
+    ExtAllow("sleep_counts", 1, SL.AstAllow("engine/systems/report.py", "for _k, _v in presence.sleep_counts.items():",
+                                 "RunResult.planned_sleep_counts の組み立て(ランの最後)"), funcs=('report',)),
+    ExtAllow("stats", 1, SL.AstAllow("engine/systems/report.py", '_cs = getattr(getattr(poi_resolver, "chooser", None), "stats", None)',
+                          "RunResult.chooser_stats の組み立て(ランの最後)"), funcs=('report',)),
+    ExtAllow("stats", 1, SL.AstAllow("engine/systems/report.py", "for k, v in fam_layer.stats.items()",
+                          "RunResult.familiarity_summary の組み立て(ランの最後)"), funcs=('report',)),
+    ExtAllow("text_id", 1, SL.AstAllow("engine/systems/report.py", "+ act_layer.until_kind.nbytes + act_layer.text_id.nbytes",
+                            "成長の検査(RunResult.growth_measured)のバイト数"), funcs=('report',)),
 )

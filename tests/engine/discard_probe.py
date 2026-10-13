@@ -33,6 +33,7 @@ import numpy as np
 
 from shibuya.engine import resolve as R
 from shibuya.engine import run as RUN
+from shibuya.engine.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
 from shibuya.engine import state_ledger as SL
 from shibuya.engine.state_hashes import _ABSENT, resolve_item
 
@@ -136,13 +137,13 @@ def install(monkeypatch: Any, T: int, paths: Iterable[str] | None = None) -> Dis
         monkeypatch.setattr(c, "__init__", wrap(c))
 
     owners_box: dict[str, Any] = {}
-    orig_full = RUN.full_state_hash
+    orig_full = SIO.full_state_hash
 
     def full_spy(agents, world, pstate, ph, sh, owners, *a, **k):  # noqa: ANN001
         owners_box["owners"] = owners
         return orig_full(agents, world, pstate, ph, sh, owners, *a, **k)
 
-    monkeypatch.setattr(RUN, "full_state_hash", full_spy)
+    monkeypatch.setattr(SIO, "full_state_hash", full_spy)
     orig_ab = R.advance_body
 
     started: list[bool] = []
