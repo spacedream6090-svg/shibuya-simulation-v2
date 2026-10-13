@@ -232,3 +232,4 @@
   - L5: `MemoryView` に録画の同定の欄(`row`・`event_id`・`origin`・`first_ns`)が入っている。描き方には渡さない(§2)。`first_ns` は強さの 1 列の写しでもあるので、LLM に見せる形を厳密にするなら同定の欄を別の組に分ける(1-2 の `Percept` に結線するときに)。
   - L7: 既定のランの manifest でも `manifest_sections.paths` の葉が 1 つ増える(観測の節)。親が「既存の欄は不変」の範囲として認めた(§8)。
   - L8: 艦隊の道(再送・落ちた呼)の録画の控えは試験が無い。残った控えは `_ms_tape` に溜まる(計器 `tape_pending` に出る)。偽 vLLM の道の試験は後で。
+- **rebase の後(第334)**: 枝を本体(1-4 取り込み済み 6b82be2)に rebase(衝突は cli.py の 1 か所=1-4 の run_kind の呼び口と 1-6 の腕の口・両方を残して親が解決)。rebase 後に親が試験の一部 516 passed(5 分 38 秒)と byte-check 4 構成(新しい本体の src と比べて final 同じ・動いた欄 0=parent_head_vs_m0_rebased_4cfg.json)を確かめた。
