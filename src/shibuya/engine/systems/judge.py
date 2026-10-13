@@ -2,7 +2,7 @@
 
 中身は HEAD ``ee3abc7`` の ``engine/run.py`` の ``run_day`` の同じ区間のまま。系の関数は ``(ctx, b)`` を受け取り、
 区間の外から来る名前を箱から結ぶ前置き(局所の割り当ての表 ``local-assignment.json`` と同じ写像)と、
-tick の中の受け渡しを ``TickScratch`` へ書く後置きだけを足した(文は変えない・``box.`` は ``b.``)。
+刻みの中の受け渡しを ``TickScratch`` へ書く後置きだけを足した(文は変えない・``box.`` は ``b.``)。
 ``engine.run`` で定義された補助(``_split_due`` など)は呼ぶ時に ``engine.run`` から引く(試験の差し替えが効く)。
 
 逐次ループ宣言: 区間の中の宣言は HEAD のまま(各関数の中の注を見る)。ほかに新しい逐次ループは無い。
@@ -22,6 +22,7 @@ from shibuya.core.hashing import apply_key_array
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.engine.arbiter import WakeCandidates
+from shibuya.core.time_consts import HOURS_PER_DAY, STEPS_PER_HOUR
 
 
 def sys_arbiter(ctx: Any, b: Any) -> None:
@@ -41,8 +42,8 @@ def sys_arbiter(ctx: Any, b: Any) -> None:
     t0 = time.perf_counter()
     asleep_now = np.asarray(agents.registry.activity) == int(Activity.SLEEPING)
     # ---- 起床率/時 の計測(D-62 の検証欄・a(h) との照合用) ----
-    # 測る場所は**アービタの直前**(この tick の候補を絞る時点の「起きている割合」)。
-    _h = (td // 60) % 24  # 10a: 日の中の tick から(1 日のランでは今と同じ)
+    # 測る場所は**アービタの直前**(この刻みの候補を絞る時点の「起きている割合」)。
+    _h = (td // STEPS_PER_HOUR) % HOURS_PER_DAY  # 10a: 日の中の刻みから(1 日のランでは今と同じ)
     awake_sum[_h] += n_agents - int(np.count_nonzero(asleep_now))
     awake_ticks[_h] += 1
     asleep = asleep_now if sleep_suppression else None

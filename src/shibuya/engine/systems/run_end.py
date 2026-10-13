@@ -2,7 +2,7 @@
 
 中身は HEAD ``ee3abc7`` の ``engine/run.py`` の ``run_day`` の同じ区間のまま。系の関数は ``(ctx, b)`` を受け取り、
 区間の外から来る名前を箱から結ぶ前置き(局所の割り当ての表 ``local-assignment.json`` と同じ写像)と、
-tick の中の受け渡しを ``TickScratch`` へ書く後置きだけを足した(文は変えない・``box.`` は ``b.``)。
+刻みの中の受け渡しを ``TickScratch`` へ書く後置きだけを足した(文は変えない・``box.`` は ``b.``)。
 ``engine.run`` で定義された補助(``_split_due`` など)は呼ぶ時に ``engine.run`` から引く(試験の差し替えが効く)。
 
 逐次ループ宣言: 区間の中の宣言は HEAD のまま(各関数の中の注を見る)。ほかに新しい逐次ループは無い。
@@ -46,8 +46,8 @@ def sys_drain(ctx: Any, b: Any) -> None:
         fleet_bridge.close()
     elif fleet_bridge is not None:
         n_late = 0
-        # ``now_tick=total_ticks``= ラン終端(最後の tick の 1 つ先)。再生側はこの値の項目を
-        # 「tick ループ中には届かなかった」として同じ位置で処理する(D-58)。
+        # ``now_tick=total_ticks``= ラン終端(最後の刻みの 1 つ先)。再生側はこの値の項目を
+        # 「刻みのループ中には届かなかった」として同じ位置で処理する(D-58)。
         for res in fleet_bridge.drain(now_tick=total_ticks):
             fleet_inflight.pop(str(res.call.call_id if isinstance(res, FleetDeferred) else res.call_id), None)
             if isinstance(res, FleetDeferred):
@@ -67,7 +67,7 @@ def sys_drain(ctx: Any, b: Any) -> None:
         result.fleet_unanswered_at_end = len(fleet_deferred)
         fleet_bridge.close()
     elif replay_inbox and not _stopped:
-        # ---- 再生の終端処理(D-58): tick ループ中に届かなかった分=本番の drain 相当 ----
+        # ---- 再生の終端処理(D-58): 刻みのループ中に届かなかった分=本番の drain 相当 ----
         n_late = 0
         for t in sorted(replay_inbox):  # 逐次ループ宣言: 残件数ぶん(通常 0)
             for is_deferred, item in replay_inbox[t]:

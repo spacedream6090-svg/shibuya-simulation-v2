@@ -50,6 +50,7 @@ from shibuya.core.rng import k19_counters, stream
 from shibuya.engine import resolve as R
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.state import World
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
     "REORDER_FILL_RATIO",
@@ -74,7 +75,6 @@ _REPLACEMENT: Final[int] = DEVIATION_CODES[DeviationVocab.REPLACEMENT]
 _SKIPPED: Final[int] = DEVIATION_CODES[DeviationVocab.SKIPPED]
 _DELAY: Final[int] = DEVIATION_CODES[DeviationVocab.DELAY]
 
-MINUTES_PER_DAY: Final[int] = 1_440
 
 #: 補充点 = 棚容量のこの割合を割ったら補充する(expedient)。
 #: 小売の実務は「棚は満杯を目指す」(発注点は満杯の直下)なので 0.95 を置く。
@@ -86,14 +86,14 @@ RESTOCK_STEP_MINUTES: Final[int] = 5
 #: engine_rule フォールバックを回す時刻[分](10:00・expedient)。
 #: 行動契約書 §2.2 の補充は前提に「**営業中**」を含むので、開店前(05:00)に置くと
 #: ``open_mask`` で全件落ちて 1 件も動かない。既定の開店時刻に合わせた。
-RESTOCK_FALLBACK_MINUTE: Final[int] = 10 * 60
+RESTOCK_FALLBACK_MINUTE: Final[int] = 10 * MINUTES_PER_HOUR
 #: フォールバックの conf(台帳の ``shelf_stock_restock`` は executor=llm_agent で conf 欄が空。
 #: 「担い手が居ないときエンジンが代打する」行が台帳に無い=**設計の欠落として親へ報告**。
 #: 値は ``store_opening`` の 0.5 に揃えた=expedient)。
 RESTOCK_FALLBACK_CONF: Final[float] = 0.5
 
 #: 納品の時間帯[分](05:00-08:00・expedient)。
-DELIVERY_WINDOW: Final[tuple[int, int]] = (5 * 60, 8 * 60)
+DELIVERY_WINDOW: Final[tuple[int, int]] = (5 * MINUTES_PER_HOUR, 8 * MINUTES_PER_HOUR)
 #: 納品ロット = 補充ロットの何倍か(expedient)。
 DELIVERY_LOT_FACTOR: Final[int] = 2
 #: 遅延する便の割合(expedient)。
@@ -103,24 +103,24 @@ DELIVERY_DELAY_P: Final[float] = 1.0 / 6.0
 DELIVERY_DELAY_MAX_MIN: Final[int] = 30
 
 #: 廃棄物収集の時間帯[分](06:00-10:00・expedient)。
-COLLECT_WINDOW: Final[tuple[int, int]] = (6 * 60, 10 * 60)
+COLLECT_WINDOW: Final[tuple[int, int]] = (6 * MINUTES_PER_HOUR, 10 * MINUTES_PER_HOUR)
 #: 売れ残りをビンへ落とす時刻[分](05:00・expedient)。
 #: 収集の窓(06:00-10:00)より**前**に置く——実務でも廃棄は朝の収集便に合わせて出す。
 #: 23:00(閉店時)に置くと 1 日ランでは翌朝まで回収されず、検算②の当日 sink が常に 0 になる。
-WASTE_TO_BIN_MINUTE: Final[int] = 5 * 60
+WASTE_TO_BIN_MINUTE: Final[int] = 5 * MINUTES_PER_HOUR
 #: 世帯が所持を消費する時刻[分](19:00・expedient)。
-HOUSEHOLD_CONSUME_MINUTE: Final[int] = 19 * 60
+HOUSEHOLD_CONSUME_MINUTE: Final[int] = 19 * MINUTES_PER_HOUR
 
 #: 街路ごみの発生[g/人/tick](expedient・原単位は空欄)。
 LITTER_G_PER_PERSON_TICK: Final[float] = 0.05
 #: 街路清掃のシフト[分](早朝と昼過ぎ・expedient)。
-CLEANING_WINDOWS: Final[tuple[tuple[int, int], ...]] = ((5 * 60, 7 * 60), (13 * 60, 15 * 60))
+CLEANING_WINDOWS: Final[tuple[tuple[int, int], ...]] = ((5 * MINUTES_PER_HOUR, 7 * MINUTES_PER_HOUR), (13 * MINUTES_PER_HOUR, 15 * MINUTES_PER_HOUR))
 #: 1 tick に掃くセル数(expedient)。
 CELLS_PER_SWEEP_TICK: Final[int] = 8
 
 
 def _minute(tick: int, tick_seconds: int) -> int:
-    return int(int(tick) * int(tick_seconds) // 60) % MINUTES_PER_DAY
+    return int(int(tick) * int(tick_seconds) // SECONDS_PER_MINUTE) % MINUTES_PER_DAY
 
 
 def _best_slot(shelf: np.ndarray, poi_sku: np.ndarray, stores: np.ndarray) -> np.ndarray:
@@ -399,7 +399,7 @@ class DeliveryInboundProcess:
         return (
             f"納品: 便 {self.n_runs:,}(遅延 {self.n_delayed:,}) / 入荷枠 "
             f"{self.units_delivered:,} 個 "
-            f"(窓 {DELIVERY_WINDOW[0] // 60:02d}:00-{DELIVERY_WINDOW[1] // 60:02d}:00=expedient)"
+            f"(窓 {DELIVERY_WINDOW[0] // MINUTES_PER_HOUR:02d}:00-{DELIVERY_WINDOW[1] // MINUTES_PER_HOUR:02d}:00=expedient)"
         )
 
 

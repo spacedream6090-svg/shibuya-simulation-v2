@@ -7,7 +7,7 @@
 - checkpoint: behavior-hash と full-hash(``state_io.full_state_hash`` を通す)と checkpoint の記録(読むだけ。
   活動層の文の digest のキャッシュ O2 を書く)。
 
-逐次ループ宣言: なし(配列演算・tick に 1 回)。
+逐次ループ宣言: なし(配列演算・刻みに 1 回)。
 """
 
 from __future__ import annotations

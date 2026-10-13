@@ -36,6 +36,7 @@ import numpy as np
 
 from shibuya.agents.state import MOCK_KIND_COUNT, Activity
 from shibuya.core.rng import philox
+from shibuya.core.time_consts import MINUTES_PER_DAY
 
 __all__ = [
     "SCHEDULE_DOMAIN",
@@ -59,7 +60,7 @@ BLOCKS_PER_AGENT: Final[int] = WORDS_PER_AGENT // 4
 N_BOUNDARIES: Final[int] = 5
 BOUNDARY_NAMES: Final[tuple[str, ...]] = ("起床", "外出", "昼", "帰宅", "就寝")
 
-_MINUTES_PER_DAY: Final[int] = 1_440
+_MINUTES_PER_DAY: Final[int] = MINUTES_PER_DAY
 
 
 def draw_words(master_seed: int | str, n_agents: int, *, start_agent: int = 0) -> np.ndarray:

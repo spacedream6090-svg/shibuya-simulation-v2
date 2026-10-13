@@ -89,6 +89,7 @@ from shibuya.perception.attention import (
 )
 from shibuya.world.assets import CELL_SIZE_M, WorldAssets, array_sha256, file_sha256
 from shibuya.world.state import LANDMARK_CATS, World
+from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR
 
 __all__ = [
     "HUNGER_WORDS_MODES",
@@ -462,7 +463,7 @@ def named_closed_note(name: str, open_minute: int = -1) -> str:
         n = NAMED_CLOSED_FALLBACK_NAME
     m = int(open_minute)
     opens = (
-        NAMED_CLOSED_OPENS.format(hhmm=f"{(m // 60) % 24:02d}:{m % 60:02d}") if m >= 0 else ""
+        NAMED_CLOSED_OPENS.format(hhmm=f"{(m // MINUTES_PER_HOUR) % HOURS_PER_DAY:02d}:{m % MINUTES_PER_HOUR:02d}") if m >= 0 else ""
     )
     line = NAMED_CLOSED_NOTE.format(name=n, opens=opens)
     while ch.estimate_tokens(line) > NAMED_CLOSED_NOTE_MAX_TOKENS and len(n) > 1:
@@ -1591,8 +1592,8 @@ class Renderer:
         frozen = A.poi_signage[j] if j < len(A.poi_signage) else ""
         if frozen:
             return strip_imperatives(frozen).kept
-        frm = int(w.pois.open_from[j]) // 60
-        to = int(w.pois.open_to[j]) // 60
+        frm = int(w.pois.open_from[j]) // MINUTES_PER_HOUR
+        to = int(w.pois.open_to[j]) // MINUTES_PER_HOUR
         return strip_imperatives(f"{A.poi_name[j]}の表示。営業は{frm}時から{to}時。").kept
 
     def signage_poi_by_cell(self) -> np.ndarray:
@@ -2597,7 +2598,7 @@ class Renderer:
         m = self.world.pois.cell == cell
         if not m.any():
             return None
-        return int(self.world.pois.open_from[m].min()) // 60
+        return int(self.world.pois.open_from[m].min()) // MINUTES_PER_HOUR
 
     # ---------------------------------------------------------- 監査
     @property

@@ -24,6 +24,7 @@ from shibuya.engine.poi_target import move_resolution_summary, resolution_summar
 from shibuya.engine.processes.salient import ablation_name as _pnotice_ablation_name
 from shibuya.perception.channels import BudgetMode
 from shibuya.perception.renderer import P_SEE_ACTIVITY_KINDS
+from shibuya.core.time_consts import SECONDS_PER_MINUTE
 
 __all__ = ["report"]
 
@@ -438,7 +439,7 @@ def report(ctx: Any, b: Any) -> Any:
     result.phase_seconds = phase
     if norm_meter is not None:
         result.phase_seconds["group_norms"] = float(norm_meter.seconds)  # 第308: 計器の費用(壁時計)
-        result.phase_seconds["group_norms_tick_ms_max"] = float(norm_meter.tick_ms_max)  # 第309: 1 tick の最大
+        result.phase_seconds["group_norms_tick_ms_max"] = float(norm_meter.tick_ms_max)  # 第309: 1 刻みの最大
     result.wall_seconds = time.perf_counter() - rs.t_start
     result.arbiter_counters = {k: dict(v) for k, v in arbiter.counters().items()}
     result.money_end = int(agents.registry.money.astype(np.int64).sum())
@@ -449,7 +450,7 @@ def report(ctx: Any, b: Any) -> Any:
     # エンジンの 5 バッファ + **O(t) ログ本体**(ActualLog・取引ログ・納品ログ)。
     # 層2レビュー指摘: 5 バッファだけを外挿しても、D-R2-6 が名指しした「O(t) が本質」の
     # ログ(ActualLog と同型)は 1 バイトも測っていなかった。診断表(``diagnostics_rows``)は
-    # 元から測っている(tick あたり 1 行)。
+    # 元から測っている(1 刻みあたり 1 行)。
     declarations: dict[str, Any] = dict(GD.declarations())
     measured: dict[str, int] = {
         "pending_apply": rs.peak_pending * GD.PENDING_APPLY_ROW_BYTES,
@@ -485,8 +486,8 @@ def report(ctx: Any, b: Any) -> Any:
     result.growth_report = check_growth(
         declarations,
         measured,
-        steps=t_end - t_begin,  # 10a: 回した通しの tick 数(1 日のランでは ticks)・10d: このランの区間
-        minutes_per_step=max(1, tick_seconds // 60),
+        steps=t_end - t_begin,  # 10a: 回した通しの刻みの数(1 日のランでは ``ticks``)・10d: このランの区間
+        minutes_per_step=max(1, tick_seconds // SECONDS_PER_MINUTE),
         n_entities=n_agents,
     )
     # ---- 10d: 再開の欄と日ごとの記録 ----

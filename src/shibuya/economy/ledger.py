@@ -67,6 +67,7 @@ from shibuya.economy.accounts import (
     is_allowed,
 )
 from shibuya.engine.ledger_api import EntityRef, TransferStatus
+from shibuya.core.time_consts import STEPS_PER_DAY
 
 __all__ = [
     "RAW_ROW_BYTES",
@@ -105,7 +106,7 @@ INSIDE_SECTORS: Final[tuple[Sector, ...]] = (Sector.HOUSEHOLD, Sector.STORE, Sec
 
 _N_SECTORS: Final[int] = len(Sector)
 _N_CODES: Final[int] = len(AccountCode)
-_TICKS_PER_DAY: Final[int] = 1_440
+_TICKS_PER_DAY: Final[int] = STEPS_PER_DAY
 
 
 def raw_capacity_for(

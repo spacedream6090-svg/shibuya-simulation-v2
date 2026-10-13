@@ -31,6 +31,7 @@ import numpy as np
 
 from ..geo import common as C
 from ..vis.png import Canvas, ramp_rgb, write_png
+from shibuya.core.time_consts import MINUTES_PER_HOUR
 
 STAGE = "W20"
 STAGE_VERSION = "1.0.0"
@@ -243,7 +244,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
     shadow_noon_share: float | None = None
     if shadow_files:
         planes = np.load(shadow_files[0])
-        noon = np.unpackbits(planes[(12 * 60) // 5])[: px.shape[0]]
+        noon = np.unpackbits(planes[(12 * MINUTES_PER_HOUR) // 5])[: px.shape[0]]
         shadow_noon_share = float(noon.mean())
         gray_flat = np.full(height * width, 25, dtype=np.uint8)
         acc = np.zeros(height * width, dtype=np.float64)

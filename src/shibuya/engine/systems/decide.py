@@ -2,7 +2,7 @@
 
 中身は HEAD ``ee3abc7`` の ``engine/run.py`` の ``run_day`` の同じ区間のまま。系の関数は ``(ctx, b)`` を受け取り、
 区間の外から来る名前を箱から結ぶ前置き(局所の割り当ての表 ``local-assignment.json`` と同じ写像)と、
-tick の中の受け渡しを ``TickScratch`` へ書く後置きだけを足した(文は変えない・``box.`` は ``b.``)。
+刻みの中の受け渡しを ``TickScratch`` へ書く後置きだけを足した(文は変えない・``box.`` は ``b.``)。
 ``engine.run`` で定義された補助(``_split_due`` など)は呼ぶ時に ``engine.run`` から引く(試験の差し替えが効く)。
 
 逐次ループ宣言: 区間の中の宣言は HEAD のまま(各関数の中の注を見る)。ほかに新しい逐次ループは無い。
@@ -22,6 +22,7 @@ from shibuya.engine import resolve as R
 from shibuya.engine.systems import llm_io as _LLM_IO
 from shibuya.llm.fleet import LLMCall
 from shibuya.llm.fleet import split_system_user
+from shibuya.core.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, STEPS_PER_HOUR
 
 
 def sys_decide(ctx: Any, b: Any) -> None:
@@ -81,7 +82,7 @@ def sys_decide(ctx: Any, b: Any) -> None:
         hun = agents.registry.hunger
         last_act = agents.registry.last_action
         if fleet_bridge is None:
-            # 逐次ループ宣言2: 選抜された呼数ぶん(平均 35/tick)
+            # 逐次ループ宣言2: 選抜された呼数ぶん(平均 35/刻み)
             for i in range(len(sel)):
                 a = int(sel.agent_id[i])
                 cls = int(decision.selected_eff_class[i])
@@ -102,16 +103,16 @@ def sys_decide(ctx: Any, b: Any) -> None:
                     if res.deferred:
                         item = (a, cond, cls, int(sel.since_tick[i]))
                         if res.observed_tick > tick:
-                            # タイムアウト等=**観測した tick** の ④′ で再投入される
+                            # タイムアウト等=**観測した刻み** の ④′ で再投入される
                             replay_inbox.setdefault(res.observed_tick, []).append((True, item))
                         else:
-                            # キュー満杯=発射のその場で判明 → 翌 tick の再投入枠へ
+                            # キュー満杯=発射のその場で判明 → 次の刻みの再投入枠へ
                             fleet_deferred.append(item)
                         continue
                     if res.observed_tick > tick:
                         replay_inbox.setdefault(res.observed_tick, []).append((False, res))
                         continue
-                    fleet_waiting.discard(a)  # 同 tick で届いた=待ちにならない
+                    fleet_waiting.discard(a)  # 同じ刻みで届いた=待ちにならない
                 b.llm.pending.append((
                     res.t_apply, cls, a, cond, res.text, res.action_code,
                     _target_person(res.target), *_pending_extra(res), *_call_ref(res),
@@ -173,14 +174,14 @@ def sys_decide(ctx: Any, b: Any) -> None:
         calls_by_cond += np.bincount(
             np.asarray(sel.condition, dtype=np.int64), minlength=N_WAKE_CONDITIONS_ALL
         )[:N_WAKE_CONDITIONS_ALL]
-        result.calls_by_hour[(td // 60) % 24] += len(sel)  # D-56 の検証欄(10a: 日の中の tick から)
+        result.calls_by_hour[(td // STEPS_PER_HOUR) % HOURS_PER_DAY] += len(sel)  # D-56 の検証欄(10a: 日の中の刻みから)
         # 5b 層の記録: 発射した呼=System 1.5(方策 classical)か 2(LLM/mock)× 起床入口
         np.add.at(
-            layer_counts[(tick * tick_seconds // 3600) % 24, _call_layer],
+            layer_counts[(tick * tick_seconds // SECONDS_PER_HOUR) % HOURS_PER_DAY, _call_layer],
             _ENTRANCE_OF_CONDITION[np.asarray(sel.condition, dtype=np.int64)],
             1,
         )
-    # 艦隊経路の書式エラーは ④′(到着時)で数える=選抜が 0 の tick でも計上する
+    # 艦隊経路の書式エラーは ④′(到着時)で数える=選抜が 0 の刻みでも計上する
     n_parse_errors += n_parse_errors_fleet
     b.runstats.peak_pending = max(b.runstats.peak_pending, len(b.llm.pending))
     b.runstats.peak_backlog = max(b.runstats.peak_backlog, arbiter.n_pending())

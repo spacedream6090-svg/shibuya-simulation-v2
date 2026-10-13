@@ -43,6 +43,8 @@ from dataclasses import dataclass, replace
 from enum import IntEnum
 from typing import Final, Mapping
 
+from shibuya.core.time_consts import MINUTES_PER_HOUR
+
 __all__ = [
     "REASON_MAX_CHARS",
     "COMMENT_MAX_CHARS",
@@ -1224,7 +1226,7 @@ def parse_until(text: str | None) -> Until:
         h, mins = m.group(1), m.group(2) or "0"
         if len(h) > 4 or len(mins) > 6:
             return Until(UntilKind.MINUTES, UNTIL_MAX_MINUTES)
-        return Until(UntilKind.MINUTES, min(int(h) * 60 + int(mins), UNTIL_MAX_MINUTES))
+        return Until(UntilKind.MINUTES, min(int(h) * MINUTES_PER_HOUR + int(mins), UNTIL_MAX_MINUTES))
     m = _UNTIL_MINUTES_RE.search(t)
     if m:
         digits = m.group(1)
@@ -1234,7 +1236,7 @@ def parse_until(text: str | None) -> Until:
     if m:
         hh, mm = int(m.group(1)), int(m.group(2))
         if hh <= 23 and mm <= 59:
-            return Until(UntilKind.CLOCK, hh * 60 + mm)
+            return Until(UntilKind.CLOCK, hh * MINUTES_PER_HOUR + mm)
         return DEFAULT_UNTIL
     if "次の予定" in t:
         return Until(UntilKind.NEXT_SCHEDULE)

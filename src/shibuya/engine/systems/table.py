@@ -1,6 +1,6 @@
 """engine.systems.table — 系の宣言の表 ``SYSTEMS``(呼ぶ順の 1 つの表)(第 1 期 1-0・草案 §2-2・§2-5)。
 
-- 並び=呼ぶ順(ランの頭 → 日の頭 → tick の中 25 → 日の終わり → ランの終わり)。進行役はこの順にしか呼ばない。
+- 並び=呼ぶ順(ランの頭 → 日の頭 → 刻みの中 25 → 日の終わり → ランの終わり)。進行役はこの順にしか呼ばない。
   ``llm_receive`` は 1 つの系で、位置が 2 つ(``response_delay=1`` は ``perceive_prepare`` の後・``2`` は ``wake_sources`` の後)。
   表には 1 回だけ載せ、進行役が設定で位置を選ぶ(草案 §2-2)。
 - ``writes.soa`` は ``resolve_ops`` の静的な閉包(``spec.make``・手で書かない)。``resolve_ops``・``writes.paths``・
@@ -56,7 +56,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.classical layers.ledger layers.poi_resolver layers.presence layers.runner "
                "runstats.day_heads soa.agents",
          origin=f"L0・run.py:3607-3609 @{_E}"),
-    # ================================================================ tick の中(25)
+    # ================================================================ 刻みの中(25)
     make("body", "体", "tick", _BD.sys_body,
          resolve_ops="advance_body energy_out_of_area_meal",
          paths="O2[7-9]:energy.* O3[0-3]:energy.* O21:classical.*",
@@ -68,7 +68,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                      "set_plan_state",
          paths="O3[5-7]:presence.* O70:presence.* O4[6-9]:runner.* O5[0-6]:runner.* O61:runner.* O7[2-6]:runner.* "
                "O95:runner.* O5[7-9]:ledger.* O60:ledger.* O7[7-9]:ledger.* O8[01]:ledger.* O9[23]:ledger.* "
-               # 段 FIX: 前の tick の描画の前計算 ``renderer._tickc.flow`` は ``runner.flow`` と同じ配列(prepare_tick の
+               # 段 FIX: 前の刻みの描画の前計算 ``renderer._tickc.flow`` は ``runner.flow`` と同じ配列(``prepare_tick`` の
                # ``np.asarray(flow, uint8)`` は写さない)=世界過程が流れの段をその場で書くと見える(別名)
                "O63:renderer._tickc",
          reads="layers.runner",
@@ -275,7 +275,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "O5[7-9]:ledger.* O60:ledger.* O7[7-9]:ledger.* O8[01]:ledger.* O9[23]:ledger.* O70:presence.* "
                "O3[5-8]:presence.*",
          tally="daily_records state_files result", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.run_id cfg.sim_days "
-               "cfg.state_out cfg.tpd fx.calendar fx.env_fields fx.schedule fx.schedule_hash "
+               "cfg.state_out cfg.tick_seconds cfg.tpd fx.calendar fx.env_fields fx.schedule fx.schedule_hash "
                "layers.act_layer layers.arbiter layers.bridge layers.classical layers.conv "
                "layers.detector layers.energy layers.fam_layer layers.fleet_bridge "
                "layers.intent_layer layers.ledger layers.mem_layer layers.norm_meter "
@@ -304,7 +304,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "O5[7-9]:ledger.* O60:ledger.* O7[7-9]:ledger.* O8[01]:ledger.* O9[23]:ledger.* O70:presence.* "
                "O3[5-8]:presence.* O8[5-7]:bridge.*",
          tally="daily_records ledger_growth result state_files", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.run_id cfg.sim_days "
-               "cfg.state_out cfg.stopped cfg.t_end cfg.total_ticks cfg.tpd fx.calendar fx.env_fields "
+               "cfg.state_out cfg.stopped cfg.t_end cfg.tick_seconds cfg.total_ticks cfg.tpd fx.calendar fx.env_fields "
                "fx.schedule fx.schedule_hash layers.act_layer layers.arbiter layers.bridge "
                "layers.classical layers.conv layers.detector layers.energy layers.fam_layer "
                "layers.fleet_bridge layers.intent_layer layers.ledger layers.mem_layer "
@@ -349,5 +349,5 @@ SYSTEMS: tuple[SystemSpec, ...] = (
 )
 
 SPECS: dict[str, SystemSpec] = {s.name: s for s in SYSTEMS}
-#: tick の中の系の呼ぶ順(``llm_receive`` は位置 A=``perceive_prepare`` の後に置いた順。位置 B は進行役が選ぶ)。
+#: 刻みの中の系の呼ぶ順(``llm_receive`` は位置 A=``perceive_prepare`` の後に置いた順。位置 B は進行役が選ぶ)。
 TICK_ORDER: tuple[str, ...] = tuple(s.name for s in SYSTEMS if s.timing == "tick")

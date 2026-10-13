@@ -66,6 +66,8 @@ PATHS: Final[dict[str, str]] = {
     # ---- 〔第330・RET〕10e(B1)の旧資産の切替口の欄 world_assets_pre10e は切替口と一緒に消した ----
     # ---- 10e(B6・第330): 天気の規則と日ごとの暦の日付・再生日・層・影(replay_date と同じ設定) ----
     "weather": _C,
+    # ---- 第 1 期 1-1 T0(TM9・GPU 無しの欄): 時計の種類と幅・つなぎの台帳の数は設定、呼び出し数(判断モデル/LLM)は観測 ----
+    "clock_kind": _C, "step_seconds": _C, "bridges_count": _C, "calls_by_model": _O,
     # ---- 状態のハッシュ・再開・日ごとの締め(観測) ----
     "state_hashes": _O, "state_hashes.ledger_version": _C,
     "state_hashes_end_of_day": _O,

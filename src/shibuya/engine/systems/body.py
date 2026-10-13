@@ -2,7 +2,7 @@
 
 中身は HEAD ``ee3abc7`` の ``engine/run.py`` の ``run_day`` の同じ区間のまま。系の関数は ``(ctx, b)`` を受け取り、
 区間の外から来る名前を箱から結ぶ前置き(局所の割り当ての表 ``local-assignment.json`` と同じ写像)と、
-tick の中の受け渡しを ``TickScratch`` へ書く後置きだけを足した(文は変えない・``box.`` は ``b.``)。
+刻みの中の受け渡しを ``TickScratch`` へ書く後置きだけを足した(文は変えない・``box.`` は ``b.``)。
 ``engine.run`` で定義された補助(``_split_due`` など)は呼ぶ時に ``engine.run`` から引く(試験の差し替えが効く)。
 
 逐次ループ宣言: 区間の中の宣言は HEAD のまま(各関数の中の注を見る)。ほかに新しい逐次ループは無い。
@@ -19,6 +19,7 @@ from shibuya.agents.state import WAKE_CONDITION_CLASS
 from shibuya.agents.state import WakeCondition
 from shibuya.engine import resolve as R
 from shibuya.engine.energy import DEFAULT_MEAL_SLEEP_DEFER
+from shibuya.core.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
 
 
 def sys_body(ctx: Any, b: Any) -> None:
@@ -60,7 +61,7 @@ def sys_presence(ctx: Any, b: Any) -> None:
         t0 = time.perf_counter()
         _pres0 = int(presence.n_arrivals) + int(presence.n_departures)
         presence.step(tick)
-        layer_counts[(tick * tick_seconds // 3600) % 24, 0, _ENTRANCE_PLAN] += (
+        layer_counts[(tick * tick_seconds // SECONDS_PER_HOUR) % HOURS_PER_DAY, 0, _ENTRANCE_PLAN] += (
             int(presence.n_arrivals) + int(presence.n_departures) - _pres0
         )
         # 9a: 歩いて乗る退出の体の活動=目的地つき移動・到着まで(段 2c の意図と同じ形)
@@ -84,7 +85,7 @@ def sys_plan_boundary(ctx: Any, b: Any) -> None:
     tick_seconds = b.cfg.tick_seconds
     world = b.soa.world
     _ENTRANCE_PLAN = _RUN._ENTRANCE_PLAN
-    lo, hi = int(b.day.b_start[td]), int(b.day.b_start[td + 1])  # 10a: 日の中の tick で引く
+    lo, hi = int(b.day.b_start[td]), int(b.day.b_start[td + 1])  # 10a: 日の中の刻みで引く
     if hi > lo:
         p_agent = b.day.b_agent[lo:hi]
         p_cond = b.day.b_cond[lo:hi]
@@ -93,7 +94,7 @@ def sys_plan_boundary(ctx: Any, b: Any) -> None:
         if plan_sleep:
             to_bed = p_cond == int(WakeCondition.PLAN_SLEEPING)
             # 5b 層の記録: 就寝境界はエンジンが実行する(System 1=予定で呼ばない)
-            layer_counts[(tick * tick_seconds // 3600) % 24, 0, _ENTRANCE_PLAN] += int(
+            layer_counts[(tick * tick_seconds // SECONDS_PER_HOUR) % HOURS_PER_DAY, 0, _ENTRANCE_PLAN] += int(
                 np.count_nonzero(to_bed)
             )
             if presence is not None:
@@ -152,7 +153,7 @@ def sys_energy_after(ctx: Any, b: Any) -> None:
     tick = ctx.T
     tick_seconds = b.cfg.tick_seconds
     if energy_layer is not None:
-        energy_layer.after_tick(agents, tick, int(tick * tick_seconds // 60))
+        energy_layer.after_tick(agents, tick, int(tick * tick_seconds // SECONDS_PER_MINUTE))
 
 
 def sys_activity_intent(ctx: Any, b: Any) -> None:

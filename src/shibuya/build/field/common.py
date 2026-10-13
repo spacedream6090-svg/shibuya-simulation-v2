@@ -39,6 +39,7 @@ from ..geo.common import (  # noqa: F401  (再輸出)
     write_npz,
     write_parquet,
 )
+from shibuya.core.time_consts import MINUTES_PER_HOUR
 
 __all__ = [
     "BAND_OF_LAYER",
@@ -131,12 +132,12 @@ def normalize_jp(text: str) -> str:
 def hhmm_to_min(text: str) -> int:
     """``HH:MM`` → 0時からの分。``24:00`` は 1440。"""
     hh, mm = text.strip().split(":")
-    return int(hh) * 60 + int(mm)
+    return int(hh) * MINUTES_PER_HOUR + int(mm)
 
 
 def min_to_hhmm(minutes: int) -> str:
     """0時からの分 → ``HH:MM``(24時以降は 25:10 のように繰り上げ表記)。"""
-    return f"{minutes // 60:02d}:{minutes % 60:02d}"
+    return f"{minutes // MINUTES_PER_HOUR:02d}:{minutes % MINUTES_PER_HOUR:02d}"
 
 
 def json_text(obj: object) -> str:

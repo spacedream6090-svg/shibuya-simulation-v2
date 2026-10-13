@@ -38,6 +38,7 @@ from typing import Any, Sequence
 import numpy as np
 
 from . import common as C
+from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 STAGE = "W12"
 #: 1.1.0(第330 B3): 等間隔ダイヤの丸めを「小数で積み切り捨て」に直した(時刻表の行が変わる)。
@@ -233,7 +234,7 @@ def hour_shares(time_dist_rows: Sequence[dict], flow: str) -> dict[str, list[flo
         if r["flow"] == flow:
             by_purpose[r["purpose"]].append(r)
     for purpose, rows in by_purpose.items():
-        vec = [0.0] * 24
+        vec = [0.0] * HOURS_PER_DAY
         for r in rows:
             hours = _pt_bin_to_hours(r["bin"])
             for h in hours:
@@ -296,8 +297,8 @@ SERVICE_DAY_CUT_MIN = 240  # 04:00
 def _minute(hhmm: str) -> int:
     """``HH:MM`` → **運行日**の分(00:02 の終電は 24:02 = 1442 になる)。"""
     h, m = hhmm.split(":")
-    v = int(h) * 60 + int(m)
-    return v + 1440 if v < SERVICE_DAY_CUT_MIN else v
+    v = int(h) * MINUTES_PER_HOUR + int(m)
+    return v + MINUTES_PER_DAY if v < SERVICE_DAY_CUT_MIN else v
 
 
 def equal_interval_departures(
@@ -323,7 +324,7 @@ def equal_interval_departures(
     while t <= last_min:
         minute = math.floor(t)
         out.append(C.min_to_hhmm(minute))
-        hour = (minute // 60) % 24
+        hour = (minute // MINUTES_PER_HOUR) % HOURS_PER_DAY
         if hour in PEAK_HOURS_AM:
             tph = float(peak_tph)
         elif hour in PEAK_HOURS_PM:
@@ -331,7 +332,7 @@ def equal_interval_departures(
         else:
             tph = peak_tph * offpeak_ratio
         tph = max(tph, 1.0)
-        t += Fraction(60) / Fraction(tph)
+        t += Fraction(MINUTES_PER_HOUR) / Fraction(tph)
     return out
 
 
@@ -343,7 +344,7 @@ def offpeak_ratio_from(rows: Sequence[dict[str, Any]]) -> tuple[float, int, floa
     """
     if not rows:
         return 1.0, 0, 0.0
-    per_hour: Counter = Counter(_minute(r["departure"]) // 60 for r in rows)
+    per_hour: Counter = Counter(_minute(r["departure"]) // MINUTES_PER_HOUR for r in rows)
     peak = max((per_hour[h] for h in PEAK_HOURS_AM), default=0)
     off = [per_hour[h] for h in OFFPEAK_HOURS]
     off_mean = sum(off) / len(off) if off else 0.0
@@ -575,7 +576,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
     first_min = metro_mins[0] if metro_mins else 300
     last_min = metro_mins[-1] if metro_mins else 1500
     if last_min < first_min:
-        last_min += 1440
+        last_min += MINUTES_PER_DAY
 
     expedient_lines = {
         "田園都市線": "東急電鉄",

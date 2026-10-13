@@ -37,6 +37,7 @@ from shibuya.perception import attention as AT
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.state import World
+from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
     "DISPATCH_MEDIAN_MIN",
@@ -59,7 +60,6 @@ __all__ = [
 _SCHEDULED: Final[int] = DEVIATION_CODES[DeviationVocab.SCHEDULED]
 _REPLACEMENT: Final[int] = DEVIATION_CODES[DeviationVocab.REPLACEMENT]
 _DELAY: Final[int] = DEVIATION_CODES[DeviationVocab.DELAY]
-MINUTES_PER_DAY: Final[int] = 1_440
 
 #: 出動の到着遅延[分]の中央値(親指示・対数正規)。
 DISPATCH_MEDIAN_MIN: Final[float] = 8.0
@@ -71,26 +71,26 @@ DISPATCH_MAX_MIN: Final[int] = 60
 DISPATCH_COUNTER_DOMAIN: Final[str] = "world.public_service_dispatch.counter"
 
 #: 公式発信の時刻[分](expedient)。
-PRESS_MINUTES: Final[tuple[int, ...]] = (7 * 60, 12 * 60, 18 * 60)
+PRESS_MINUTES: Final[tuple[int, ...]] = (7 * MINUTES_PER_HOUR, 12 * MINUTES_PER_HOUR, 18 * MINUTES_PER_HOUR)
 #: 公式発信の本文(命令文なし・世界内テキスト)。
 PRESS_BODY: Final[str] = "鉄道各線は平常どおり運行しています"
 
 #: ホテル 1 POI あたりの客室数(expedient・実データ空欄)。
 HOTEL_ROOMS_PER_POI: Final[int] = 120
-HOTEL_CHECKIN_MINUTE: Final[int] = 21 * 60
-HOTEL_CHECKOUT_MINUTE: Final[int] = 9 * 60
+HOTEL_CHECKIN_MINUTE: Final[int] = 21 * MINUTES_PER_HOUR
+HOTEL_CHECKOUT_MINUTE: Final[int] = 9 * MINUTES_PER_HOUR
 
 #: インフラ原単位(expedient・出典なし)。
 POWER_KWH_PER_PERSON_HOUR: Final[float] = 0.35
 WATER_M3_PER_PERSON_HOUR: Final[float] = 0.012
 
 #: 大規模イベントの窓[分]と来街増分(expedient)。
-EVENT_WINDOW: Final[tuple[int, int]] = (18 * 60, 21 * 60)
+EVENT_WINDOW: Final[tuple[int, int]] = (18 * MINUTES_PER_HOUR, 21 * MINUTES_PER_HOUR)
 EVENT_VISITOR_DELTA: Final[int] = 200
 
 
 def _minute(tick: int, tick_seconds: int) -> int:
-    return int(int(tick) * int(tick_seconds) // 60) % MINUTES_PER_DAY
+    return int(int(tick) * int(tick_seconds) // SECONDS_PER_MINUTE) % MINUTES_PER_DAY
 
 
 class PublicServiceDispatchProcess:
@@ -155,7 +155,7 @@ class PublicServiceDispatchProcess:
             )
         )
         minutes = int(round(delay))
-        arrive = int(tick) + max(1, minutes * 60 // max(1, self.tick_seconds))
+        arrive = int(tick) + max(1, minutes * SECONDS_PER_MINUTE // max(1, self.tick_seconds))
         self.pending.append((arrive, int(cell), float(xy[0]), float(xy[1])))
         self.n_dispatched += 1
         self.delay_minutes_total += minutes
@@ -420,9 +420,9 @@ class InfraLoadProcess:
         return True
 
     def step(self, tick: int) -> None:
-        hour = int(int(tick) * self.tick_seconds // 3_600) % 24
+        hour = int(int(tick) * self.tick_seconds // SECONDS_PER_HOUR) % HOURS_PER_DAY
         inside = float(int(np.count_nonzero(np.asarray(self.agents.registry.cell) >= 0)))
-        frac = float(self.tick_seconds) / 3_600.0
+        frac = float(self.tick_seconds) / SECONDS_PER_HOUR
         self.power_kwh[hour] += inside * POWER_KWH_PER_PERSON_HOUR * frac
         self.water_m3[hour] += inside * WATER_M3_PER_PERSON_HOUR * frac
 
@@ -565,6 +565,6 @@ class LargeEventProcess:
             return "大規模イベント: セルが無い(休む)"
         return (
             f"大規模イベント: 会場 {self.venue_cells.size} セル / 来街増分 "
-            f"{self.n_in:,} 人(窓 {EVENT_WINDOW[0] // 60:02d}:00-"
-            f"{EVENT_WINDOW[1] // 60:02d}:00・conf 0.3=expedient)"
+            f"{self.n_in:,} 人(窓 {EVENT_WINDOW[0] // MINUTES_PER_HOUR:02d}:00-"
+            f"{EVENT_WINDOW[1] // MINUTES_PER_HOUR:02d}:00・conf 0.3=expedient)"
         )

@@ -25,6 +25,8 @@ import datetime as dt
 import math
 from typing import Final
 
+from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR
+
 __all__ = [
     "DAYLIGHT_VOCAB",
     "HEAT_BOUNDS",
@@ -68,7 +70,7 @@ SOLAR_CONST_KW: Final[float] = 0.9
 def _solar_terms(date: dt.date, hour_utc: float) -> tuple[float, float]:
     """(赤緯 [rad], 均時差 [min])。"""
     doy = date.timetuple().tm_yday
-    gamma = 2.0 * math.pi / 365.0 * (doy - 1 + (hour_utc - 12.0) / 24.0)
+    gamma = 2.0 * math.pi / 365.0 * (doy - 1 + (hour_utc - 12.0) / HOURS_PER_DAY)
     eqtime = 229.18 * (
         0.000075
         + 0.001868 * math.cos(gamma)
@@ -92,7 +94,7 @@ def sun_times(
     date: dt.date, lat: float = LAT, lon: float = LON, tz_offset_min: int = TZ_OFFSET_MIN
 ) -> tuple[float | None, float | None]:
     """日の出・日の入り(地方時の 0 時からの分)。極夜・白夜は ``(None, None)``。"""
-    decl, eqtime = _solar_terms(date, 12.0 - tz_offset_min / 60.0)
+    decl, eqtime = _solar_terms(date, 12.0 - tz_offset_min / MINUTES_PER_HOUR)
     lat_r = math.radians(lat)
     cos_ha = math.cos(math.radians(90.833)) / (math.cos(lat_r) * math.cos(decl)) - math.tan(
         lat_r
@@ -112,7 +114,7 @@ def sun_minutes(date: dt.date) -> tuple[float, float]:
     """
     sr, ss = sun_times(date)
     if sr is None or ss is None:
-        return 5.0 * 60.0, 19.0 * 60.0
+        return 5.0 * MINUTES_PER_HOUR, 19.0 * MINUTES_PER_HOUR
     return float(int(round(sr))), float(int(round(ss)))
 
 
@@ -124,7 +126,7 @@ def solar_elevation_deg(
     tz_offset_min: int = TZ_OFFSET_MIN,
 ) -> float:
     """地方時 ``local_min``(0 時からの分)の太陽高度 [deg]。"""
-    hour_utc = (local_min - tz_offset_min) / 60.0
+    hour_utc = (local_min - tz_offset_min) / MINUTES_PER_HOUR
     decl, eqtime = _solar_terms(date, hour_utc)
     true_solar_min = local_min + eqtime + 4.0 * lon - tz_offset_min
     ha = math.radians(true_solar_min / 4.0 - 180.0)
@@ -175,7 +177,7 @@ def hourly_wbgt(
     """
     if temp_c is None or rh is None or math.isnan(temp_c) or math.isnan(rh):
         return None
-    mid = hour * 60 + 30.0
+    mid = hour * MINUTES_PER_HOUR + 30.0
     elev = solar_elevation_deg(date, mid)
     ratio = None if (sunshine_h is None or math.isnan(sunshine_h)) else sunshine_h
     solar_kw = max(math.sin(math.radians(elev)), 0.0) * SOLAR_CONST_KW * (ratio or 0.0)

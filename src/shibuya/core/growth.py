@@ -36,7 +36,7 @@
     文字列に ``"O(N·t)+2.5"`` のように係数を書いた場合は ``per_day_growth_coef`` と
     一致していなければならない(二重記載の食い違いを検出する)。
 
-逐次ループ宣言(P4): 宣言数(構造体の数=数十)ぶんのループのみ。個体数・tick 数に比例するループなし。
+逐次ループ宣言(P4): 宣言数(構造体の数=数十)ぶんのループのみ。個体数・刻みの数に比例するループなし。
 
 expedient(本モジュール分)
 - **実測側**の外挿は線形(測定期間の増分を 1 シミュ日あたりへ割り戻し、実効日数倍する)。
@@ -46,7 +46,7 @@ expedient(本モジュール分)
   ``measured_over_declared`` に出る。
 - ``retention.days`` があるときの実効期間 = ``min(horizon_days, retention.days)``
   (保持窓を超えた分は ``retention.target`` へ退避される、という D-R2-6 の運用を素直に写した)。
-- ``O(t)``(規模に依存せず時間だけで伸びる)は D-R2-6 の列挙に無いが、tick 単位の診断行など
+- ``O(t)``(規模に依存せず時間だけで伸びる)は D-R2-6 の列挙に無いが、刻みごとの診断行など
   実在する形なので**受理する**。受理を本書の expedient として登録。
 """
 
@@ -55,6 +55,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from typing import Any, Final, Mapping
+
+from shibuya.core.time_consts import MINUTES_PER_DAY
 
 __all__ = [
     "MINUTES_PER_SIM_DAY",
@@ -68,8 +70,8 @@ __all__ = [
     "check_growth",
 ]
 
-#: 1 シミュ日の分数(1分tick×1440)。
-MINUTES_PER_SIM_DAY: int = 1_440
+#: 1 シミュ日の分数(1 分の刻み × 1,440)。
+MINUTES_PER_SIM_DAY: int = MINUTES_PER_DAY
 #: 外挿の地平(D-R2-6「30日」)。
 DEFAULT_HORIZON_DAYS: int = 30
 #: スモークの既定 step 数(D-R2-6「24step」)。
@@ -120,7 +122,7 @@ class GrowthDeclaration:
             ``"O(N·t)"``(``"O(N·t)+2.5"`` のように係数を併記してもよい)。
         per_day_growth_coef: 上の係数(バイト。位数ごとの意味はモジュール docstring の表)。
         retention: ``Retention``(保持日数+圧縮先)。
-        worst_case_ops_per_tick: tick あたり最悪演算数(P4/P5 接続)。
+        ``worst_case_ops_per_tick``: 1 刻みあたり最悪演算数(P4/P5 接続)。
 
     必須(ゲートの同定と閾値・D-R2-6 の 5 欄ではない):
         name: 構造体名(例 ``"actual_log"``)。
@@ -347,7 +349,7 @@ def check_growth(
         declarations: 構造体名 → 宣言(タプルでも可)。
         measured_after_steps: 構造体名 → ``steps`` step 後の**増分バイト**(初期状態を除いた成長分)。
         steps: スモークの step 数(既定 24)。
-        minutes_per_step: 1 step の分数(1分tick なら 1)。
+        minutes_per_step: 1 step の分数(1 分の刻みなら 1)。
         horizon_days: 外挿の地平(既定 30 日)。
         declared_tolerance: 実測/宣言 がこの倍率を超えたら ``over_declared`` に載せる
             (失敗にはしない=宣言の delta 改訂を促す)。
@@ -375,7 +377,7 @@ def check_growth(
     over_declared: list[str] = []
     declared_over_cap: list[str] = []
 
-    # 逐次ループ宣言(P4): 宣言数(数十)ぶん。個体数・tick 数には比例しない。
+    # 逐次ループ宣言(P4): 宣言数(数十)ぶん。個体数・刻みの数には比例しない。
     for name, decl in decls.items():
         declared_proj = decl.declared_projected_bytes(horizon_days, n_entities)
         if declared_proj > float(decl.cap):

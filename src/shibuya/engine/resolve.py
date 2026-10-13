@@ -99,6 +99,7 @@ from shibuya.engine.commit import (
 )
 from shibuya.llm.contract import DEFAULT_VOCAB_VERSION, check_vocab_version
 from shibuya.world.state import World
+from shibuya.core.time_consts import MINUTES_PER_DAY
 
 __all__ = [
     "revert_conversation",
@@ -1187,7 +1188,7 @@ def initialize_energy(agents: AgentState, energy: Any, seed: int | str) -> None:
 
 
 def _tick_minute(energy: Any, tick: int) -> int:
-    return int(int(tick) * float(energy.model.minutes_per_tick)) % 1440
+    return int(int(tick) * float(energy.model.minutes_per_tick)) % MINUTES_PER_DAY
 
 
 def _energy_meal(

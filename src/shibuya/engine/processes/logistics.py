@@ -28,6 +28,7 @@ from shibuya.core.rng import k19_counters, stream
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.state import World
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
     "PARCELS_PER_DAY_WARD",
@@ -45,7 +46,6 @@ __all__ = [
 
 _SCHEDULED: Final[int] = DEVIATION_CODES[DeviationVocab.SCHEDULED]
 _REPLACEMENT: Final[int] = DEVIATION_CODES[DeviationVocab.REPLACEMENT]
-MINUTES_PER_DAY: Final[int] = 1_440
 
 #: 渋谷区への按分後の宅配個数[個/日](台帳 W2 の「≈2.7万個/日」・expedient)。
 PARCELS_PER_DAY_WARD: Final[int] = 27_000
@@ -62,16 +62,16 @@ PARCEL_HOUR_CURVE: Final[tuple[tuple[int, float], ...]] = (
 #: バスの運行間隔[分](expedient)。
 BUS_HEADWAY_MIN: Final[int] = 10
 #: バスの運行帯[分](06:00-23:00・expedient)。
-BUS_SERVICE_WINDOW: Final[tuple[int, int]] = (6 * 60, 23 * 60)
+BUS_SERVICE_WINDOW: Final[tuple[int, int]] = (6 * MINUTES_PER_HOUR, 23 * MINUTES_PER_HOUR)
 
 #: 道路占用の時間帯[分](22:00-05:00・expedient)。
-ROADWORK_WINDOW: Final[tuple[int, int]] = (22 * 60, 5 * 60)
+ROADWORK_WINDOW: Final[tuple[int, int]] = (22 * MINUTES_PER_HOUR, 5 * MINUTES_PER_HOUR)
 #: 1 晩に立つ工事件数(expedient)。
 ROADWORKS_PER_NIGHT: Final[int] = 6
 
 
 def _minute(tick: int, tick_seconds: int) -> int:
-    return int(int(tick) * int(tick_seconds) // 60) % MINUTES_PER_DAY
+    return int(int(tick) * int(tick_seconds) // SECONDS_PER_MINUTE) % MINUTES_PER_DAY
 
 
 class LastMileProcess:
@@ -136,9 +136,9 @@ class LastMileProcess:
         if not self.active:
             return
         minute = _minute(tick, self.tick_seconds)
-        hour = minute // 60
+        hour = minute // MINUTES_PER_HOUR
         weight = self._hours.get(hour)
-        if weight is None or minute % 60:
+        if weight is None or minute % MINUTES_PER_HOUR:
             return
         want = np.floor(self.parcels_per_cell * float(weight)).astype(np.int64)
         room = np.maximum(0, self.parcels_per_cell - self.delivered)
@@ -254,8 +254,8 @@ class BusTaxiProcess:
             return "バス・タクシー: 停留所データが無い(休む)"
         return (
             f"バス・タクシー: 停留所 {self.stop_cell.size} / 到着 {self.n_arrivals:,} "
-            f"(等間隔 {self.headway} 分・{BUS_SERVICE_WINDOW[0] // 60:02d}:00-"
-            f"{BUS_SERVICE_WINDOW[1] // 60:02d}:00=expedient・乗降なし)"
+            f"(等間隔 {self.headway} 分・{BUS_SERVICE_WINDOW[0] // MINUTES_PER_HOUR:02d}:00-"
+            f"{BUS_SERVICE_WINDOW[1] // MINUTES_PER_HOUR:02d}:00=expedient・乗降なし)"
         )
 
 

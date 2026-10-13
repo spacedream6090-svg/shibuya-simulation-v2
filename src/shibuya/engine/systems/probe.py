@@ -227,7 +227,7 @@ class Probe:
         return T is None or self.ticks is None or int(T) in self.ticks
 
     def point(self, name: str, T: int | None, view: View) -> None:
-        """系 ``name`` の始まり(T はその tick・ランの終わりは None)。直前の境目からの差を直前の系に帰属させる。"""
+        """系 ``name`` の始まり(T はその刻み・ランの終わりは None)。直前の境目からの差を直前の系に帰属させる。"""
         if not self.wants(T):
             self._last = None
             return

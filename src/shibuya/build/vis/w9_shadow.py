@@ -37,6 +37,7 @@ from numba import njit, prange
 from ..field.w13_weather import LAT, LON, TZ_OFFSET_MIN, _solar_terms, solar_elevation_deg
 from ..geo import common as C
 from .w8_visibility import EYE_M, RASTER_M, STEP_M, _dem_sample, build_scene
+from shibuya.core.time_consts import MINUTES_PER_HOUR
 
 STAGE = "W9"
 STAGE_VERSION = "1.0.0"
@@ -64,7 +65,7 @@ def sun_vector(date: dt.date, local_min: float) -> tuple[float, float, float]:
 
     W13 の ``_solar_terms`` をそのまま使う(赤緯・均時差の定義を1本にする)。
     """
-    hour_utc = (local_min - TZ_OFFSET_MIN) / 60.0
+    hour_utc = (local_min - TZ_OFFSET_MIN) / MINUTES_PER_HOUR
     decl, eqtime = _solar_terms(date, hour_utc)
     true_solar_min = local_min + eqtime + 4.0 * LON - TZ_OFFSET_MIN
     ha = math.radians(true_solar_min / 4.0 - 180.0)
@@ -253,7 +254,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
     fractions = per_date[date_str]["fractions"]
     n_night = per_date[date_str]["n_night"]
 
-    noon_plane = (12 * 60) // PLANE_MIN
+    noon_plane = (12 * MINUTES_PER_HOUR) // PLANE_MIN
     day_planes = [i for i, e in enumerate(elevations) if e > 0.0]
 
     params: dict[str, Any] = {
@@ -295,8 +296,8 @@ def run(ctx: C.Ctx) -> C.StageResult:
             "per_date": {
                 d: {
                     "planes_daylight": sum(1 for e in v["elevations"] if e > 0.0),
-                    "solar_elev_at_noon_deg": v["elevations"][(12 * 60) // PLANE_MIN],
-                    "shadow_fraction_noon": round(v["fractions"][(12 * 60) // PLANE_MIN], 5),
+                    "solar_elev_at_noon_deg": v["elevations"][(12 * MINUTES_PER_HOUR) // PLANE_MIN],
+                    "shadow_fraction_noon": round(v["fractions"][(12 * MINUTES_PER_HOUR) // PLANE_MIN], 5),
                     "in_w13_window": d in w13_row,
                 }
                 for d, v in per_date.items()

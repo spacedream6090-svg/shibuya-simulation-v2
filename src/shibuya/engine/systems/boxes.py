@@ -5,13 +5,13 @@
 
 | 箱 | 中身 | 状態台帳 |
 |---|---|---|
-| ``RunConfig``(凍結) | 検査済みの腕と値・tpd・total_ticks・t_begin/t_end・設定の指紋 | 対象外(設定) |
+| ``RunConfig``(凍結) | 検査済みの腕と値・tpd・``total_ticks``・t_begin/t_end・設定の指紋 | 対象外(設定) |
 | ``SoAState`` | agents・world | SoA |
 | ``Layers`` | 台帳の持ち主(名は ``hash_owners`` の鍵と同じ・``undefined``・``run_day`` は導く) | 外の状態 |
 | ``LlmIo`` | pending・fleet_deferred・fleet_waiting・fleet_inflight・replay_inbox | O43・O44・O96(持ち主の名 ``run_day``) |
 | ``DayTables`` | 計画境界の表 b_*・w17_substituted | 対象外(資産と暦から作り直せる) |
-| ``Buffers`` | 使い回すバッファ ``focus_request``(tick の頭で空にしない=R1) | 対象外 |
-| ``TickScratch`` | tick の中の受け渡し(tick の頭で空にする・試験では番兵) | 対象外 |
+| ``Buffers`` | 使い回すバッファ ``focus_request``(刻みの頭で空にしない=R1) | 対象外 |
+| ``TickScratch`` | 刻みの中の受け渡し(刻みの頭で空にする・試験では番兵) | 対象外 |
 | ``RunStats`` | 診断の積算・``RunResult``・記録 | 対象外(診断) |
 | ``Fixtures``(草案に足した) | 組み立てで作り、ランの間は読むだけの物(暦・日課・週次表・資源の空間・幾何・描画の口・艦隊) | 対象外 |
 
@@ -21,13 +21,15 @@
 
 物の同一性(草案 §2-1 の 6): 箱は組み立ての物をそのまま指す(写しを作らない)。
 
-逐次ループ宣言: ``TickScratch.reset`` は欄の数ぶん(34・tick に 1 回)。
+逐次ループ宣言: ``TickScratch.reset`` は欄の数ぶん(34・刻みに 1 回)。
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field, fields
 from typing import Any
+
+from shibuya.core.time_consts import NS_PER_SECOND, STEP_SECONDS
 
 __all__ = [
     "RunConfig", "SoAState", "Layers", "LlmIo", "DayTables", "Buffers", "TickScratch", "TickScratchStrict",
@@ -44,15 +46,27 @@ OWNER_NAMES: tuple[str, ...] = (
 
 @dataclass(frozen=True)
 class TickCtx:
-    """系が受け取る時刻(``T``=通しの時刻・``td``=日の中の tick・``day``=日番号)。ランの単位の系は ``T=None``。"""
+    """系が受け取る時刻。ランの単位の系は ``T=None``(ほかの欄も ``None``)。
+
+    - ``T``=通しの刻みの番号・``td``=日の中の刻みの番号・``day``=日番号(1-0 のまま。値も意味も変えない)。
+    - 〔第 1 期 1-1 T0・TM7〕``t_ns``=通しの時刻のナノ秒(``core.types.SimTime``・``t_sim_ns(T)`` と同じ値)=
+      ``T × 刻みの幅[秒] × 1e9``。``tod_s``=その日の中の秒=``td × 刻みの幅[秒]``。幅はランの設定(``RunConfig`` の
+      ``tick_seconds``)から進行役が渡す。T0 では系はまだ読まない(足しただけ=結果不変)。
+    - 名の ``TickCtx`` は 1-0 の箱の名のまま(識別子の置き換えは段階的=``tests/engine/time/tick_word_allow.json``)。
+    """
 
     T: int | None
     td: int | None = None
     day: int | None = None
+    t_ns: int | None = None
+    tod_s: int | None = None
 
     @staticmethod
-    def of(T: int, tpd: int) -> "TickCtx":
-        return TickCtx(T=int(T), td=int(T) % int(tpd), day=int(T) // int(tpd))
+    def of(T: int, tpd: int, step_seconds: int = STEP_SECONDS) -> "TickCtx":
+        """通しの刻みの番号 ``T``・1 日の刻みの数 ``tpd``・刻みの幅 ``step_seconds``[秒] → 時刻(整数だけ)。"""
+        t, n, w = int(T), int(tpd), int(step_seconds)
+        td = t % n
+        return TickCtx(T=t, td=td, day=t // n, t_ns=t * w * NS_PER_SECOND, tod_s=td * w)
 
 
 @dataclass(frozen=True)
@@ -212,7 +226,7 @@ class DayTables:
 
 @dataclass
 class Buffers:
-    """使い回すバッファ(物は 1 回だけ作る・tick の頭で空にしない=草案 R1)。
+    """使い回すバッファ(物は 1 回だけ作る・刻みの頭で空にしない=草案 R1)。
 
     段 C(段 FIX・検収 L5・草案 §2-6 の C): 書きの検査が入っているとき、いまの系の ``writes.buffers`` に無い欄の差し替え
     (``b.buffers.focus_request = …``)を落とす。中身のその場の書き(``focus_request[:] = …``)は見ない=段 B(試験)が見る。
@@ -229,7 +243,7 @@ class Buffers:
         object.__setattr__(self, name, value)
 
 
-#: tick の中の受け渡しの欄(書き手の系 → 読み手の系)。名は HEAD の ``run_day`` の局所の名と同じ。
+#: 刻みの中の受け渡しの欄(書き手の系 → 読み手の系)。名は HEAD の ``run_day`` の局所の名と同じ。
 SCRATCH_FIELDS: tuple[str, ...] = (
     "field_rows",            # perceive_prepare → detect
     "n_parse_errors_fleet",  # llm_receive → decide
@@ -257,7 +271,7 @@ SCRATCH_FIELDS: tuple[str, ...] = (
 
 
 class _Unset:
-    """番兵(試験のとき tick の頭で scratch をこれで埋める=T4)。"""
+    """番兵(試験のとき刻みの頭で scratch をこれで埋める=T4)。"""
 
     __slots__ = ()
 
@@ -269,7 +283,7 @@ UNSET = _Unset()
 
 
 class TickScratch:
-    """tick の中の受け渡し(tick の頭で空にする)。
+    """刻みの中の受け渡し(刻みの頭で空にする)。
 
     段 C(実行時): 書きの検査が入っているとき(``guard.scratch_permit`` が置かれているとき)、いまの系の
     ``writes.scratch`` に無い欄への代入を落とす。
@@ -298,7 +312,7 @@ class TickScratch:
 
 
 class TickScratchStrict(TickScratch):
-    """試験の番兵つき(T4): tick の頭で ``UNSET`` を置き、その tick に書かれる前に読むと落ちる。"""
+    """試験の番兵つき(T4): 刻みの頭で ``UNSET`` を置き、その刻みに書かれる前に読むと落ちる。"""
 
     __slots__ = ()
 

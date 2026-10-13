@@ -50,6 +50,7 @@ import numpy as np
 import pyarrow as pa
 
 from . import common as C
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 STAGE = "W7"
 #: 1.1.0(第330 B6): PH(祝日)の規則を列 ``holiday_content`` に拾い直した。
@@ -135,7 +136,7 @@ LAW_CAPS: dict[str, dict[str, Any]] = {
         "citation": "東京都風俗営業等の規制及び業務の適正化等に関する法律施行条例11条",
         "closed_window": "0:00-6:00",
         "closed_windows_min": ((0, 360),),
-        "close_cap_min": 1440,
+        "close_cap_min": MINUTES_PER_DAY,
     },
     "minor_entry_limit": {
         "label": "18歳未満の立入制限(興行場・カラオケボックス・ネットカフェ等)",
@@ -222,28 +223,28 @@ EXPEDIENTS: tuple[str, ...] = (
 # price_tier ∈ {free, low, mid, high}(経済台帳 wage_tier と整合させる語彙)。
 CATEGORY_DEFAULTS: dict[tuple[str, str | None], dict[str, Any]] = {
     ("attraction", None): {"open": 600, "close": 1200, "closed_days": (), "price_tier": "mid"},
-    ("cinema", None): {"open": 540, "close": 1440, "closed_days": (), "price_tier": "mid"},
+    ("cinema", None): {"open": 540, "close": MINUTES_PER_DAY, "closed_days": (), "price_tier": "mid"},
     ("education", None): {"open": 540, "close": 1260, "closed_days": (5, 6), "price_tier": "mid"},
     ("food", None): {"open": 660, "close": 1380, "closed_days": (), "price_tier": "mid"},
     ("hall", None): {"open": 600, "close": 1320, "closed_days": (), "price_tier": "high"},
-    ("hotel", None): {"open": 0, "close": 1440, "closed_days": (), "price_tier": "high"},
-    ("hotel", "love_hotel"): {"open": 0, "close": 1440, "closed_days": (), "price_tier": "mid"},
-    ("landmark", None): {"open": 0, "close": 1440, "closed_days": (), "price_tier": "free"},
+    ("hotel", None): {"open": 0, "close": MINUTES_PER_DAY, "closed_days": (), "price_tier": "high"},
+    ("hotel", "love_hotel"): {"open": 0, "close": MINUTES_PER_DAY, "closed_days": (), "price_tier": "mid"},
+    ("landmark", None): {"open": 0, "close": MINUTES_PER_DAY, "closed_days": (), "price_tier": "free"},
     ("landmark", "worship"): {"open": 360, "close": 1020, "closed_days": (), "price_tier": "free"},
     ("leisure", None): {"open": 600, "close": 1320, "closed_days": (), "price_tier": "mid"},
-    ("leisure", "arcade"): {"open": 600, "close": 1440, "closed_days": (), "price_tier": "low"},
+    ("leisure", "arcade"): {"open": 600, "close": MINUTES_PER_DAY, "closed_days": (), "price_tier": "low"},
     ("nightlife", None): {"open": 1020, "close": 1740, "closed_days": (), "price_tier": "mid"},
     ("nightlife", "club"): {"open": 1320, "close": 1800, "closed_days": (), "price_tier": "high"},
     ("nightlife", "karaoke"): {"open": 660, "close": 1740, "closed_days": (), "price_tier": "low"},
-    ("nightlife", "net_cafe"): {"open": 0, "close": 1440, "closed_days": (), "price_tier": "low"},
+    ("nightlife", "net_cafe"): {"open": 0, "close": MINUTES_PER_DAY, "closed_days": (), "price_tier": "low"},
     ("nightlife", "sauna"): {"open": 660, "close": 1740, "closed_days": (), "price_tier": "mid"},
     ("office", None): {"open": 540, "close": 1080, "closed_days": (5, 6), "price_tier": "free"},
     ("school", None): {"open": 480, "close": 1020, "closed_days": (5, 6), "price_tier": "free"},
     ("school", "childcare"): {"open": 450, "close": 1140, "closed_days": (6,), "price_tier": "mid"},
     ("service", None): {"open": 540, "close": 1080, "closed_days": (5, 6), "price_tier": "mid"},
-    ("service", "hospital"): {"open": 0, "close": 1440, "closed_days": (), "price_tier": "high"},
+    ("service", "hospital"): {"open": 0, "close": MINUTES_PER_DAY, "closed_days": (), "price_tier": "high"},
     ("shop", None): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
-    ("shop", "convenience"): {"open": 0, "close": 1440, "closed_days": (), "price_tier": "low"},
+    ("shop", "convenience"): {"open": 0, "close": MINUTES_PER_DAY, "closed_days": (), "price_tier": "low"},
     ("shop", "pachinko"): {"open": 600, "close": 1380, "closed_days": (), "price_tier": "mid"},
     # --- W6 の subcat 改訂(2026-09-17・geo/poi_class.py)で現れる対 ---
     # **親 cat の行をそのまま継ぐ**(= 既定の営業窓・価格帯は 1 件も動かない
@@ -355,10 +356,10 @@ def _parse_time_ranges(text: str) -> list[tuple[int, int]]:
         oh, om, ch, cm = (int(g) for g in m.groups())
         if om > 59 or cm > 59 or oh > 48 or ch > 48:
             raise OpeningHoursParseError(f"時刻の値域外: {part!r}")
-        o = oh * 60 + om
-        c = ch * 60 + cm
+        o = oh * MINUTES_PER_HOUR + om
+        c = ch * MINUTES_PER_HOUR + cm
         if c <= o:  # 日跨ぎ(11:30-02:00)
-            c += 1440
+            c += MINUTES_PER_DAY
         out.append((o, c))
     return sorted(out)
 
@@ -378,7 +379,7 @@ def parse_opening_hours(value: str) -> list[list[tuple[int, int]]]:
     if not text:
         raise OpeningHoursParseError("空文字")
     if text in ("24/7", "24/7 open", "Mo-Su 00:00-24:00", "Mo-Su,PH 00:00-24:00"):
-        return [[(0, 1440)] for _ in range(7)]
+        return [[(0, MINUTES_PER_DAY)] for _ in range(7)]
     week: list[list[tuple[int, int]]] = [[] for _ in range(7)]
     touched = [False] * 7
     rules: list[str] = []
@@ -429,7 +430,7 @@ def parse_holiday_hours(value: str) -> list[tuple[int, int]] | None:
     """
     text = value.strip()
     if text in ("Mo-Su,PH 00:00-24:00",):
-        return [(0, 1440)]
+        return [(0, MINUTES_PER_DAY)]
     rules: list[str] = []
     for chunk in text.split(";"):
         chunk = chunk.strip()
@@ -477,7 +478,7 @@ def law_key_for(cat: str, subcat: str | None, tags: dict[str, str]) -> str:
 
 
 #: 区間を評価する絶対軸の幅 [分](開店日0時 → 翌々日0時)。日跨ぎ区間の上界。
-SPAN_MIN = 2880
+SPAN_MIN = 2 * MINUTES_PER_DAY
 
 
 class LawCapEffect(NamedTuple):
@@ -504,10 +505,10 @@ def prohibited_intervals(
     for start, end in closed_windows:
         if end <= start:
             raise ValueError(f"営業不可窓は end>start でなければならない: {(start, end)}")
-        k = -(end // 1440) - 1
-        while start + 1440 * k < span_min:
-            a = start + 1440 * k
-            b = end + 1440 * k
+        k = -(end // MINUTES_PER_DAY) - 1
+        while start + MINUTES_PER_DAY * k < span_min:
+            a = start + MINUTES_PER_DAY * k
+            b = end + MINUTES_PER_DAY * k
             k += 1
             a2, b2 = max(a, 0), min(b, span_min)
             if b2 > a2:

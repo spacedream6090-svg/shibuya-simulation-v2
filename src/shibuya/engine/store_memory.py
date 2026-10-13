@@ -59,6 +59,7 @@ import numpy as np
 from shibuya.agents.state import STORE_MEMORY_EMPTY, ResultCode
 from shibuya.engine import resolve as R
 from shibuya.engine.memory import EVENT_KINDS
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 __all__ = [
     "STORE_MEMORY_N",
@@ -307,7 +308,7 @@ class StoreMemory:
         old_last = r.sm_last[a, slot].astype(np.int64)
         old_src = r.sm_source[a, slot].astype(np.int64)
         if self.decay == "citysim":  # 中立への回帰(前回から今回までの日数ぶん)
-            days = np.maximum(0.0, (int(tick) - old_last) * self.minutes_per_tick / 1_440.0)
+            days = np.maximum(0.0, (int(tick) - old_last) * self.minutes_per_tick / MINUTES_PER_DAY)
             old_v = old_v * np.exp(-CITYSIM_LAMBDA_PER_DAY * days)
         v = np.where(found, old_v, 0.0) + w * valence
         p = np.where(found, old_p, 0.0) + w
@@ -328,7 +329,7 @@ class StoreMemory:
         empty = r.sm_poi[a] == STORE_MEMORY_EMPTY
         if self.decay == "ga":
             hours = np.maximum(0.0, (int(tick) - r.sm_last[a].astype(np.float64))
-                               * self.minutes_per_tick / 60.0)
+                               * self.minutes_per_tick / MINUTES_PER_HOUR)
             A = hours * math.log(GA_RECENCY_PER_HOUR)
         else:
             nn = r.sm_n[a].astype(np.float64)
@@ -344,7 +345,7 @@ class StoreMemory:
         v = r.sm_valence[a].astype(np.float64)
         if self.decay == "citysim":
             days = np.maximum(0.0, (int(tick) - r.sm_last[a].astype(np.float64))
-                              * self.minutes_per_tick / 1_440.0)
+                              * self.minutes_per_tick / MINUTES_PER_DAY)
             v = v * np.exp(-CITYSIM_LAMBDA_PER_DAY * days)
         return v
 

@@ -21,7 +21,7 @@ __all__ = ["run_system", "declared_check"]
 
 
 def run_system(spec: SystemSpec, ctx: Any, box: Any) -> Any:
-    """系 ``spec`` を 1 回呼ぶ(``ctx`` はその tick の ``TickCtx``・ランの単位の系は ``None``)。"""
+    """系 ``spec`` を 1 回呼ぶ(``ctx`` はその刻みの ``TickCtx``・ランの単位の系は ``None``)。"""
     _PR.at(spec.name, None if ctx is None else ctx.T, box)
     t0 = time.perf_counter()
     with _G.system_scope(spec.name, spec.writes.soa, spec.writes.scratch, spec.writes.buffers):
@@ -56,10 +56,10 @@ def declared_check(specs: dict[str, SystemSpec]):
     return check
 
 
-#: tick の頭の境目の名(系ではない=宣言を持たない。scratch を空にする差の帰属先)。
+#: 刻みの頭の境目の名(系ではない=宣言を持たない。scratch を空にする差の帰属先)。
 TICK_HEAD = "(tick_head)"
 
-#: 試験(T4)のとき真: tick の頭で scratch を番兵で埋め、その tick に書かれる前に読むと落とす。
+#: 試験(T4)のとき真: 刻みの頭で scratch を番兵で埋め、その刻みに書かれる前に読むと落とす。
 STRICT_SCRATCH: bool = False
 
 #: 立つ条件(``SystemSpec.when``)の名 → 箱を見る述語(組み立ての後は変わらない=ランの頭で 1 回だけ見る)。
@@ -76,7 +76,7 @@ WHEN = {
 
 
 def tick_plan(box: Any, specs: tuple[SystemSpec, ...]) -> list[SystemSpec]:
-    """tick の中で呼ぶ系の並び(表の順・立たない系を外す・``llm_receive`` の位置を応答の遅れで選ぶ=草案 §2-2)。"""
+    """刻みの中で呼ぶ系の並び(表の順・立たない系を外す・``llm_receive`` の位置を応答の遅れで選ぶ=草案 §2-2)。"""
     plan = [s for s in specs if s.timing == "tick" and WHEN[s.when](box)]
     if int(box.cfg.response_delay) == 2:  # 位置 B(旧): wake_sources の後
         rec = next(s for s in plan if s.name == "llm_receive")
@@ -86,9 +86,9 @@ def tick_plan(box: Any, specs: tuple[SystemSpec, ...]) -> list[SystemSpec]:
 
 
 def conduct(call_args: dict) -> Any:
-    """``run_day`` の本体: 組み立て(R1)→ tick のループ(日の頭 D1・tick の系・日の終わり D2)→ ランの終わり(R2・締め・R3)。
+    """``run_day`` の本体: 組み立て(R1)→ 刻みのループ(日の頭 D1・刻みの系・日の終わり D2)→ ランの終わり(R2・締め・R3)。
 
-    逐次ループ宣言1: tick 数ぶん(10a: ``T`` は通しの時刻・``td`` はその日の中の tick)。1 tick の中身は系の並び。
+    逐次ループ宣言1: 刻みの数ぶん(10a: ``T`` は通しの時刻・``td`` はその日の中の刻み)。1 刻みの中身は系の並び。
     """
     from shibuya.engine.systems import boxes as _BX
     from shibuya.engine.systems import build as _BLD
@@ -106,12 +106,13 @@ def conduct(call_args: dict) -> Any:
     unset = _BX.UNSET if STRICT_SCRATCH else None
     cfg = box.cfg
     tpd, total = int(cfg.tpd), int(cfg.total_ticks)
+    step_s = int(cfg.tick_seconds)  # 1-1 T0: 刻みの幅[秒](``TickCtx`` の ``t_ns``・``tod_s`` の換算)
     plan = tick_plan(box, SYSTEMS)
     s_head, s_close = SPECS["day_head"], SPECS["day_close"]
     for T in range(cfg.t_begin, cfg.t_end):
-        ctx = _BX.TickCtx.of(T, tpd)
+        ctx = _BX.TickCtx.of(T, tpd, step_s)
         _PR.at(TICK_HEAD, T, box)  # 試験だけ: scratch を空にした差を前の系に帰属させない境目(既定のランでは何もしない)
-        box.scratch.reset(unset)  # tick の中の受け渡しは tick の頭で空にする(Buffers は空にしない=R1)
+        box.scratch.reset(unset)  # 刻みの中の受け渡しは刻みの頭で空にする(Buffers は空にしない=R1)
         if _DAY.day_head_due(T, ctx.td):
             run_system(s_head, ctx, box)
         for spec in plan:
@@ -127,7 +128,7 @@ def conduct(call_args: dict) -> Any:
 
 def _conduct_checked(call_args: dict, every: str) -> Any:
     """``SHIBUYA_SYSTEMS_CHECK=<間引き>`` のとき(試験だけ・T5): 段 B(系の前後で変わった欄 ⊆ 宣言)と番兵の scratch(T4)を
-    入れて回し、宣言の外の変化があれば ``AssertionError``。``<間引き>`` は snapshot を取る tick の間隔(``1``=全部)。"""
+    入れて回し、宣言の外の変化があれば ``AssertionError``。``<間引き>`` は snapshot を取る刻みの間隔(``1``=全部)。"""
     global STRICT_SCRATCH
     from shibuya.engine.systems.table import SPECS
 

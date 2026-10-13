@@ -52,6 +52,7 @@ from shibuya.perception import attention as AT
 from shibuya.perception import p_notice as PN
 from shibuya.perception.state import PerceptionState, heading_from_vector
 from shibuya.world.state import World
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_DAY, SECONDS_PER_MINUTE
 
 __all__ = [
     "COLLAPSE_PER_10K_PER_DAY",
@@ -314,7 +315,7 @@ class SalientProcess:
     # ------------------------------------------------------------------ 事象の源
     def _collapse_events(self, tick: int) -> list[SalientEvent]:
         per_tick = (
-            self.rate * (self.agents.n / 10_000.0) / (86_400.0 / max(1, self.tick_seconds))
+            self.rate * (self.agents.n / 10_000.0) / (SECONDS_PER_DAY / max(1, self.tick_seconds))
         )
         g = stream(
             self.master_seed, SALIENT_COUNTER_DOMAIN,
@@ -437,8 +438,8 @@ class SalientProcess:
                 return bool(env.is_night(int(tick)))
             except Exception:  # pragma: no cover - 環境過程が休んでいるとき
                 pass
-        minute = int(int(tick) * self.tick_seconds // 60) % 1_440
-        return minute >= 18 * 60 or minute < 6 * 60
+        minute = int(int(tick) * self.tick_seconds // SECONDS_PER_MINUTE) % MINUTES_PER_DAY
+        return minute >= 18 * MINUTES_PER_HOUR or minute < 6 * MINUTES_PER_HOUR
 
     # ------------------------------------------------------------------ 診断
     def counters(self) -> dict[str, float]:

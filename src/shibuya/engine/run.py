@@ -140,6 +140,7 @@ from shibuya.perception.renderer import (
 from shibuya.perception.templates import INTENT_MODES, VOCAB_VERSIONS, check_vocab_version
 from shibuya.world.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE
 from shibuya.world.state import World
+from shibuya.core.time_consts import CLOCK_KIND, HOURS_PER_DAY, MINUTES_PER_DAY, SECONDS_PER_DAY, SECONDS_PER_MINUTE
 
 __all__ = [
     "DIAG_RUN_COLUMNS",
@@ -390,7 +391,7 @@ def _named_closed_lookup(
         poi, t = int(got[0]), int(got[1])
         nxt = -1
         if om is not None and om.size and 0 <= poi < om.shape[0]:
-            minute = int(t * int(tick_seconds) // 60) % om.shape[1]
+            minute = int(t * int(tick_seconds) // SECONDS_PER_MINUTE) % om.shape[1]
             later = np.flatnonzero(om[poi, minute + 1:])
             if later.size:
                 nxt = minute + 1 + int(later[0])
@@ -399,7 +400,7 @@ def _named_closed_lookup(
                 sel = (np.asarray(pa.plan_poi) == poi) & _opening_rows_of_day(
                     pa.plan_poi, pa.plan_day, int(nxt_wd), getattr(pa, "plan_ph_poi", None))
                 if bool(np.any(sel)):
-                    nxt = int(np.asarray(pa.plan_start)[sel].min()) % 1_440
+                    nxt = int(np.asarray(pa.plan_start)[sel].min()) % MINUTES_PER_DAY
         return poi, t, nxt
 
     return look
@@ -604,7 +605,7 @@ class RunResult:
     llm_calls: int = 0
     #: 世界内時刻の**時**別の発射数(24 要素・D-56 の検証欄)。Σ = ``llm_calls``。
     #: 時 = ``(tick // 60) % 24``(開始 00:00=テープ meta の ``start_hour`` と同じ約束)。
-    calls_by_hour: list[int] = field(default_factory=lambda: [0] * 24)
+    calls_by_hour: list[int] = field(default_factory=lambda: [0] * HOURS_PER_DAY)
     arbiter_counters: dict[str, Any] = field(default_factory=dict)
     money_start: int = 0
     money_end: int = 0
@@ -803,7 +804,7 @@ class RunResult:
     wake_rate_in_area_by_hour: list[float] = field(default_factory=list)
     #: 世界内時刻の**時**別の「起きている割合」(24 要素・D-62 の検証欄)。
     #: 各 tick の ``activity != SLEEPING`` の割合を、その時の 60 tick で平均した値。
-    wake_rate_by_hour: list[float] = field(default_factory=lambda: [0.0] * 24)
+    wake_rate_by_hour: list[float] = field(default_factory=lambda: [0.0] * HOURS_PER_DAY)
     #: D-62 の計数(``resolve.begin_planned_sleep`` の内訳 ``slept``/``walking``/``riding``/
     #: ``outside``/``conversing``/``asleep``/``unreachable`` + ``arrived``(就寝地へ着いて寝た)+
     #: ``woke``(非就寝の計画境界で起こした))。``plan_sleep=False`` のランは空 dict。
@@ -1266,6 +1267,12 @@ class RunResult:
 
             # ---- 10e(B6): 天気の規則と日ごとの暦の日付・再生日・層・影(列追加のみ) ----
             "weather": copy.deepcopy(self.weather),
+            # ---- 第 1 期 1-1 T0(TM9・GPU 無しの欄・10f と一体): 呼び出し数を判断モデルと LLM に分けた欄(判断モデルは
+            # まだ無い=0)・時計の種類と幅・つなぎの台帳の数(台帳は 1-4 で入る=今は null)。列追加のみ ----
+            "calls_by_model": {"judge_model": 0, "llm": int(self.llm_calls)},
+            "clock_kind": CLOCK_KIND,
+            "step_seconds": int(self.tick_seconds),
+            "bridges_count": None,
         }
 
     def l4_audit_fields(self) -> dict[str, Any]:
@@ -1275,7 +1282,7 @@ class RunResult:
         総呼数 ÷ 体数 ÷ シミュ日数(``ticks × tick_seconds / 86,400``)・``l4_line``=監査線
         ``L4_LINE_PER_AGENT_DAY``(10 呼/体/日)・``l4_exceeded``=線を超えたか・``l4_notes``=注記。
         """
-        days = float(self.ticks) * float(self.tick_seconds) / 86_400.0
+        days = float(self.ticks) * float(self.tick_seconds) / SECONDS_PER_DAY
         per = (
             float(self.llm_calls) / float(self.n_agents) / days
             if (self.n_agents and days > 0.0)

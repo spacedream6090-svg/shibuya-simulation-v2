@@ -73,6 +73,7 @@ import numpy as np
 from shibuya.agents.state import REL_EMPTY, WAKE_CONDITION_CLASS, ResultCode, WakeCondition
 from shibuya.core.hashing import relation_invite_key_array
 from shibuya.engine import resolve as R
+from shibuya.core.time_consts import MINUTES_PER_DAY
 
 __all__ = [
     "REL_K",
@@ -167,7 +168,7 @@ _ACQ: Final[int] = int(WakeCondition.ACQUAINTANCE)
 #: W17 が **1 日ぶんしか無い**(全体が曜日 0 だけ=実資産の事実)とき、その日を「代表日」として「共在のあった
 #: 日数/週」に直す日数(世帯 7・職場 5・学校 5=宣言・expedient)。複数の曜日がある表では共在のあった曜日の数。
 REL_DAYS_PER_WEEK: Final[dict[int, int]] = {1: 7, 2: 5, 3: 5}
-_SLOTS_PER_DAY: Final[int] = 1440 // REL_SLOT_MIN
+_SLOTS_PER_DAY: Final[int] = MINUTES_PER_DAY // REL_SLOT_MIN
 _SLOTS: Final[int] = 7 * _SLOTS_PER_DAY
 _TALK: Final[int] = 7
 #: 招待の層の外(k=50 の腕の 16 番目以降の辺)は「残り」の層に入れる(宣言)。
@@ -299,10 +300,10 @@ def _last_copresence(su: np.ndarray, sv: np.ndarray, day_index: int, daily: bool
     """
     both = (su == sv) & (su >= 0)
     if not bool(both.any()):
-        return -7 * 1440
+        return -7 * MINUTES_PER_DAY
     if daily:
         j = int(np.flatnonzero(both[:_SLOTS_PER_DAY])[-1]) if bool(both[:_SLOTS_PER_DAY].any()) else -1
-        return (j + 1) * REL_SLOT_MIN - 1440 if j >= 0 else -7 * 1440
+        return (j + 1) * REL_SLOT_MIN - MINUTES_PER_DAY if j >= 0 else -7 * MINUTES_PER_DAY
     start = (int(day_index) % 7) * _SLOTS_PER_DAY
     # ランの日の 0 時から過去へ 1 週ぶん遡る並び(逐次なし=配列の回転)
     order = (start - 1 - np.arange(_SLOTS)) % _SLOTS
@@ -317,14 +318,14 @@ _LAST_CHUNK: Final[int] = 4_096
 def _last_copresence_many(sl_u: np.ndarray, sl_v: np.ndarray, day_index: int, daily: bool) -> np.ndarray:
     """``_last_copresence`` の配列版(辺の塊ごと・同じ値)。``sl_u``/``sl_v`` は ``(辺, 7×96)``。"""
     both = (sl_u == sl_v) & (sl_u >= 0)
-    out = np.full(both.shape[0], -7 * 1440, dtype=np.int64)
+    out = np.full(both.shape[0], -7 * MINUTES_PER_DAY, dtype=np.int64)
     if both.shape[0] == 0:
         return out
     if daily:
         b = both[:, :_SLOTS_PER_DAY]
         has = b.any(axis=1)
         j = _SLOTS_PER_DAY - 1 - np.argmax(b[:, ::-1], axis=1)
-        return np.where(has, (j + 1) * REL_SLOT_MIN - 1440, out)
+        return np.where(has, (j + 1) * REL_SLOT_MIN - MINUTES_PER_DAY, out)
     start = (int(day_index) % 7) * _SLOTS_PER_DAY
     order = (start - 1 - np.arange(_SLOTS)) % _SLOTS
     bo = both[:, order]
@@ -522,7 +523,7 @@ def initial_edges(pop: Any, weekly: Any, n_agents: int, *, k: int = REL_K, day_i
     tw = _tenure_weeks(src_id[u], src_id[v], float(tenure_weeks), str(tenure_hash))
     n = np.minimum(65_535, np.round(bk * tw)).astype(np.int64)
     n = np.maximum(n, 1)
-    first = -np.round(tw * 7.0 * 1440.0 / float(minutes_per_tick)).astype(np.int64)
+    first = -np.round(tw * 7.0 * float(MINUTES_PER_DAY) / float(minutes_per_tick)).astype(np.int64)
     A0 = _activation(n, first, 0, minutes_per_tick, d)
     audit["edges_before_tau"] = int(u.size)
     if tau is not None:
@@ -531,7 +532,7 @@ def initial_edges(pop: Any, weekly: Any, n_agents: int, *, k: int = REL_K, day_i
         u, v, kind, mn, n, first, A0 = u[live], v[live], kind[live], mn[live], n[live], first[live], A0[live]
     # 直近の共在(ランの日の前へ遡る)=書く辺だけ・辺の塊ごとの配列演算(逐次ループ宣言 1b: 塊の数ぶん=
     # 辺数/4,096・ラン開始時に 1 回)
-    last = np.full(u.size, -7 * 1440, dtype=np.int64)
+    last = np.full(u.size, -7 * MINUTES_PER_DAY, dtype=np.int64)
     need = np.unique(np.concatenate([u, v])) if u.size else empty
     if need.size:
         sl = slot_cells(weekly, need)
@@ -965,7 +966,7 @@ class RelationLayer:
         self._co_active = flat
         if flat.size == 0:
             return
-        day = int(int(tick) * self.minutes_per_tick // 1440)
+        day = int(int(tick) * self.minutes_per_tick // MINUTES_PER_DAY)
         run = (int(tick) - self._co_since[flat].astype(np.int64) + 1) * self.minutes_per_tick
         fire = (run >= self._co_minutes) & (self._co_day[flat] != day)
         if not bool(fire.any()):
@@ -1055,7 +1056,7 @@ class RelationLayer:
             A = np.log(n / (1.0 - self.d)) - self.d * np.log(L + 1.0)
             Lstar = np.exp((np.log(n / (1.0 - self.d)) - self.tau) / self.d) - 1.0
         live = used & (A >= self.tau)
-        rem = (Lstar - L) / 1440.0
+        rem = (Lstar - L) / MINUTES_PER_DAY
         out: dict[str, Any] = {}
         kind = r.rel_kind.astype(np.int64)
         for name, sel in (("initial", live & (kind != REL_KINDS["acquaintance"])),

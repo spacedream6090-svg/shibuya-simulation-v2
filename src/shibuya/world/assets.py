@@ -41,6 +41,7 @@ from typing import Any, Final, Mapping, Sequence
 import numpy as np
 
 from shibuya.core.rng import stream
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 __all__ = [
     # ---- 10e(B0・B1): 資産の指紋と旧資産の切替口 ----
@@ -959,7 +960,7 @@ def _hhmm_to_min(text: object) -> float:
         return float("nan")
     hh, mm = s.split(":", 1)
     try:
-        return float(int(hh) * 60 + int(mm))
+        return float(int(hh) * MINUTES_PER_HOUR + int(mm))
     except ValueError:
         return float("nan")
 
@@ -1225,7 +1226,7 @@ def load_process_assets(
         tt_line_idx = np.array([lidx[str(x)] for x in t["line"]], dtype=np.int16)
         tt_cal = np.array([1 if str(c) != "Weekday" else 0 for c in t["calendar"]], dtype=np.int8)
         tt_dir = np.array([didx[str(x)] for x in t["direction"]], dtype=np.int16)
-        tt_dep = (np.asarray(t["departure_min"], dtype=np.int64) % 1_440).astype(np.int32)
+        tt_dep = (np.asarray(t["departure_min"], dtype=np.int64) % MINUTES_PER_DAY).astype(np.int32)
 
     # ---- W11: 路線 → 渋谷のホームセル ----
     line_platform_cell = None

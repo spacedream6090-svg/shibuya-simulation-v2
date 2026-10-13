@@ -59,8 +59,8 @@ def receive_arrivals(b: Any, tick: int, floor: int) -> int:
     """④′ 艦隊(と再生の代役)の到着を受け取る(10a・A9)。返り値=書式エラーの件数。
 
     届いた応答は ``max(t_apply, floor)`` で ``pending`` へ入る。``response_delay=1``(既定)は①の直前で
-    ``floor=tick``(=発射 +1 tick の①で反映)、``2`` は旧の位置(②〜会話ターン起床の後)で
-    ``floor=tick + 1``(=+2 tick)。mock(``fleet_bridge is None`` かつ ``replay_inbox`` が空)は何もしない。
+    ``floor=tick``(=発射 +1 刻みの①で反映)、``2`` は旧の位置(②〜会話ターン起床の後)で
+    ``floor=tick + 1``(=+2 刻み)。mock(``fleet_bridge is None`` かつ ``replay_inbox`` が空)は何もしない。
     """
     from shibuya.engine import run as _RUN
 
@@ -74,7 +74,7 @@ def receive_arrivals(b: Any, tick: int, floor: int) -> int:
     n_err = 0
     if fleet_bridge is None and replay_inbox:
         # ---- ④′-r 再生モードの「到着」(D-58)。**艦隊経路と同じ位置・同じ扱い** ----
-        # 逐次ループ宣言: この tick に届く件数ぶん(本番の poll と同じ件数)。
+        # 逐次ループ宣言: この刻みに届く件数ぶん(本番の poll と同じ件数)。
         t0 = time.perf_counter()
         for is_deferred, item in replay_inbox.pop(tick, ()):
             if is_deferred:
@@ -113,7 +113,7 @@ def receive_arrivals(b: Any, tick: int, floor: int) -> int:
                 continue
             fleet_waiting.discard(int(res.agent_id))
             # t_apply = 起床 + δ_perc + δ_think(§2.4)。到着が遅れたぶんは
-            # **破棄せず**この tick 以降へ(締切超過=繰り延べアービタの趣旨)。
+            # **破棄せず**この刻み以降へ(締切超過=繰り延べアービタの趣旨)。
             t_apply = res.tick + delta_think_ticks(res.lane, tick_seconds)
             io.pending.append((
                 max(t_apply, floor), res.wake_class, res.agent_id,

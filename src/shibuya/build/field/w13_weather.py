@@ -38,6 +38,7 @@ import numpy as np
 from shibuya.core.rng import stream
 
 from . import common as C
+from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR
 
 STAGE = "W13"
 #: 1.1.0(第330 B5): 年間化(窓 365 日・etrn の 10 分値が主・時別値で補完・内閣府の祝日 CSV)。
@@ -96,7 +97,7 @@ SOLAR_CONST_KW = 0.9
 def _solar_terms(date: dt.date, hour_utc: float) -> tuple[float, float]:
     """(赤緯 [rad], 均時差 [min])。NOAA の低次近似(1901-2099 で ±1分級)。"""
     doy = date.timetuple().tm_yday
-    gamma = 2.0 * math.pi / 365.0 * (doy - 1 + (hour_utc - 12.0) / 24.0)
+    gamma = 2.0 * math.pi / 365.0 * (doy - 1 + (hour_utc - 12.0) / HOURS_PER_DAY)
     eqtime = 229.18 * (
         0.000075
         + 0.001868 * math.cos(gamma)
@@ -123,7 +124,7 @@ def sun_times(
 
     天頂角 90.833°(大気差 34' + 太陽半径 16')を採る NOAA の標準定義。
     """
-    decl, eqtime = _solar_terms(date, 12.0 - tz_offset_min / 60.0)
+    decl, eqtime = _solar_terms(date, 12.0 - tz_offset_min / MINUTES_PER_HOUR)
     lat_r = math.radians(lat)
     cos_ha = math.cos(math.radians(90.833)) / (math.cos(lat_r) * math.cos(decl)) - math.tan(
         lat_r
@@ -144,7 +145,7 @@ def solar_elevation_deg(
     tz_offset_min: int = TZ_OFFSET_MIN,
 ) -> float:
     """地方時 ``local_min``(0時からの分)の太陽高度 [deg]。"""
-    hour_utc = (local_min - tz_offset_min) / 60.0
+    hour_utc = (local_min - tz_offset_min) / MINUTES_PER_HOUR
     decl, eqtime = _solar_terms(date, hour_utc)
     true_solar_min = local_min + eqtime + 4.0 * lon - tz_offset_min
     ha = math.radians(true_solar_min / 4.0 - 180.0)
@@ -255,7 +256,7 @@ def read_amedas_day(path: Path) -> tuple[str, dict[int, dict[str, float | None]]
             "precip_mm": sum(v for v in precip if v is not None) if any(
                 v is not None for v in precip
             ) else None,
-            "sunshine_h": (sum(v for v in sun if v is not None) / 60.0)
+            "sunshine_h": (sum(v for v in sun if v is not None) / MINUTES_PER_HOUR)
             if any(v is not None for v in sun)
             else None,
             "n_samples": float(len(recs)),
@@ -343,7 +344,7 @@ def read_etrn_10min_csv(
             "precip_mm": sum(v for v in precip if v is not None)
             if any(v is not None for v in precip)
             else None,
-            "sunshine_h": (sum(v for v in sun if v is not None) / 60.0)
+            "sunshine_h": (sum(v for v in sun if v is not None) / MINUTES_PER_HOUR)
             if any(v is not None for v in sun)
             else None,
             "n_samples": float(len(rows)),
@@ -409,7 +410,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
             hours[h] = rec
         date = dt.date.fromisoformat(date_s)
         sunrise, sunset = sun_times(date)
-        possible_h = ((sunset - sunrise) / 60.0) if (sunrise is not None and sunset is not None) else 0.0
+        possible_h = ((sunset - sunrise) / MINUTES_PER_HOUR) if (sunrise is not None and sunset is not None) else 0.0
         present = sorted(hours)
         missing = [h for h in range(24) if h not in hours]
         if missing:
@@ -428,7 +429,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
         wbgt_vals: list[float] = []
         for h in present:
             rec = hours[h]
-            mid = h * 60 + 30.0
+            mid = h * MINUTES_PER_HOUR + 30.0
             elev = solar_elevation_deg(date, mid)
             ratio = rec["sunshine_h"] if rec["sunshine_h"] is not None else None
             solar_kw = max(math.sin(math.radians(elev)), 0.0) * SOLAR_CONST_KW * (ratio or 0.0)

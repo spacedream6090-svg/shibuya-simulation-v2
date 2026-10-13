@@ -2,7 +2,7 @@
 
 中身は HEAD ``ee3abc7`` の ``engine/run.py`` の ``run_day`` の同じ区間のまま。系の関数は ``(ctx, b)`` を受け取り、
 区間の外から来る名前を箱から結ぶ前置き(局所の割り当ての表 ``local-assignment.json`` と同じ写像)と、
-tick の中の受け渡しを ``TickScratch`` へ書く後置きだけを足した(文は変えない・``box.`` は ``b.``)。
+刻みの中の受け渡しを ``TickScratch`` へ書く後置きだけを足した(文は変えない・``box.`` は ``b.``)。
 ``engine.run`` で定義された補助(``_split_due`` など)は呼ぶ時に ``engine.run`` から引く(試験の差し替えが効く)。
 
 逐次ループ宣言: 区間の中の宣言は HEAD のまま(各関数の中の注を見る)。ほかに新しい逐次ループは無い。
@@ -92,7 +92,7 @@ def sys_conversation(ctx: Any, b: Any) -> None:
         # ---- 9a(D-112 ④): 退去した会話中の体のセッションを閉じる(理由「退去」→ CLOSING → TERMINAL) ----
         if leave_effect and outcome.leave_conversing:
             for _lv in np.unique(np.concatenate(outcome.leave_conversing)).tolist():
-                # 逐次ループ宣言: この tick に退去した会話中の体の数ぶん(≤ 1 tick の呼数)
+                # 逐次ループ宣言: この刻みに退去した会話中の体の数ぶん(≤ 1 刻みの呼数)
                 if conv.close_now(int(_lv), tick, "退去") is not None:
                     b.runstats.leave_closed += 1
 
@@ -101,7 +101,7 @@ def sys_conversation(ctx: Any, b: Any) -> None:
         if talk.size:
             inviters = plan.confirmed.agent_id[talk].astype(np.int64)
             invitees = plan.confirmed.target_id[talk].astype(np.int64)
-            # 逐次ループ宣言3b: 会話成立数ぶん(≤ 1 tick の呼数)。個体数に比例しない。
+            # 逐次ループ宣言3b: 会話成立数ぶん(≤ 1 刻みの呼数)。個体数に比例しない。
             for j in range(inviters.size):
                 inviter = int(inviters[j])
                 invitee = int(invitees[j])
@@ -163,8 +163,8 @@ def sys_conversation(ctx: Any, b: Any) -> None:
                             np.array([invitee], dtype=np.int64),
                         )
                 else:
-                    # 相手はまだ**招待を見ていない**(この tick の相手の応答は
-                    # 招待の載っていないプロンプトへの答え)→ **次 tick に被招待で
+                    # 相手はまだ**招待を見ていない**(この刻みの相手の応答は
+                    # 招待の載っていないプロンプトへの答え)→ **次の刻みに被招待で
                     # 起こして本人に答えさせる**(知覚契約書 §6 起床(ii))。
                     # 招待側は CONVERSING のまま待つ。
                     if not conv.register_pending(
@@ -180,7 +180,7 @@ def sys_conversation(ctx: Any, b: Any) -> None:
         for stale in conv.expire_pending(tick):
             _revert(stale)
         if rel_layer is not None:
-            rel_layer.origin_of.clear()  # C10 8b: この tick の起点の控えを捨てる(招待に使わなかった行)
+            rel_layer.origin_of.clear()  # C10 8b: この刻みの起点の控えを捨てる(招待に使わなかった行)
         if reverted:
             R.revert_conversation(agents, np.array(sorted(set(reverted)), dtype=np.int64))
         finished = conv.step(

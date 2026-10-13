@@ -36,6 +36,7 @@ from typing import Any, Final, Mapping
 import numpy as np
 
 from shibuya.agents.state import Activity, AgentState, ResultCode
+from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
     "PLACE_KINDS",
@@ -150,7 +151,7 @@ class GroupNormMeter:
         cc = np.asarray(codes, dtype=np.int64)
         if ids.size:
             kind = self._place_kind(ids)
-            hour = (int(tick) * self.tick_seconds // 60 // 60) % 24
+            hour = (int(tick) * self.tick_seconds // SECONDS_PER_MINUTE // MINUTES_PER_HOUR) % HOURS_PER_DAY
             on = kind >= 0
             self.n_actions_off_stage += int((~on).sum())
             self.n_actions_counted += int(on.sum())

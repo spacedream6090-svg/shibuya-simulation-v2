@@ -57,6 +57,7 @@ from shibuya.core.types import (
     DEFAULT_TICK_SECONDS,
 )
 from shibuya.manifest.schema import DIAG_COLUMNS
+from shibuya.core.time_consts import STEPS_PER_DAY
 
 __all__ = [
     "HORIZON_TICKS",
@@ -76,7 +77,7 @@ __all__ = [
 ]
 
 #: 遠未来予約を heapq へ回す地平(tick)。expedient(上記)。
-HORIZON_TICKS: Final[int] = 1_440
+HORIZON_TICKS: Final[int] = STEPS_PER_DAY
 
 COL_AGENT: Final[int] = 0
 COL_OFFSET: Final[int] = 1

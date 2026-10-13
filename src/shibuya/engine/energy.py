@@ -70,6 +70,7 @@ import numpy as np
 from shibuya.agents.state import Activity, ActivityKind
 from shibuya.core.rng import stream, k19_counters
 from shibuya.engine.calendar import ticks_per_day as _ticks_per_day
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
     "ANCHORS_PATH",
@@ -153,7 +154,7 @@ HUNGER_STAGE_KEYS: Final[tuple[str, str, str, str]] = ("full", "normal", "hungry
 MEAL_WINDOWS_MIN: Final[dict[str, tuple[int, int]]] = {
     "breakfast": (300, 660),
     "lunch": (660, 960),
-    "dinner": (1020, 1440),
+    "dinner": (1020, MINUTES_PER_DAY),
 }
 SLOT_BREAKFAST: Final[int] = 0
 SLOT_LUNCH: Final[int] = 1
@@ -309,7 +310,7 @@ def _class_index(age: np.ndarray, age_lo: np.ndarray) -> np.ndarray:
 
 def minute_slot(minute: np.ndarray | int) -> np.ndarray:
     """その日の分 → 時間帯(朝 0 / 昼 1 / 夕 2 / その他 3)。"""
-    m = np.asarray(minute, dtype=np.int64) % 1440
+    m = np.asarray(minute, dtype=np.int64) % MINUTES_PER_DAY
     out = np.full(m.shape, SLOT_OTHER, dtype=np.int8)
     for s, key in ((SLOT_BREAKFAST, "breakfast"), (SLOT_LUNCH, "lunch"), (SLOT_DINNER, "dinner")):
         lo, hi = MEAL_WINDOWS_MIN[key]
@@ -368,7 +369,7 @@ class EnergyModel:
             "lunch": int(a["derived"]["lunch_default"]["start_min"]),
             "dinner": int(t18["dinner_start"]["mean_min"]),
         }
-        self.ticks_per_day = 1440.0 / float(self.minutes_per_tick)
+        self.ticks_per_day = MINUTES_PER_DAY / float(self.minutes_per_tick)
 
     # ---- 体の定数(ラン開始時に 1 回) ----
     def draw_bodies(
@@ -444,7 +445,7 @@ class EnergyModel:
         bmr: np.ndarray | None = None,
     ) -> np.ndarray:
         """1 tick の消費[kcal](``float32``)。``eer`` 腕=EER/1440×分×METs/AVG・``bmr`` 腕=BMR×METs×分/1440。"""
-        per_min = float(self.minutes_per_tick) / 1440.0
+        per_min = float(self.minutes_per_tick) / MINUTES_PER_DAY
         if self.rate == "bmr":
             if bmr is None:
                 raise ValueError("energy_rate='bmr' は体ごとの BMR が要る")
@@ -488,7 +489,7 @@ class EnergyModel:
 
     def initial_since_meal(self, eer: np.ndarray) -> np.ndarray:
         """tick 0(0:00)の食後の消費=前夜の夕食(既定の分)から 0:00 まで基準日の速さ(宣言)。"""
-        frac = (1440 - self.default_meal_min["dinner"]) / 1440.0
+        frac = (MINUTES_PER_DAY - self.default_meal_min["dinner"]) / MINUTES_PER_DAY
         return (np.asarray(eer, dtype=np.float64) * frac).astype(np.float32)
 
     @staticmethod
@@ -603,7 +604,7 @@ class OutOfAreaMeals:
         minute = np.concatenate(minute_parts) if minute_parts else np.empty(0, dtype=np.int64)
         slot = np.concatenate(slot_parts) if slot_parts else np.empty(0, dtype=np.int64)
         from_row = np.concatenate(from_row_parts) if from_row_parts else np.empty(0, dtype=bool)
-        tick = (minute * 60) // int(tick_seconds)
+        tick = (minute * SECONDS_PER_MINUTE) // int(tick_seconds)
         # ---- 項 1(on): 既定の時刻に W17 で就寝中の既定の食事を分ける(遅らせる/無し) ----
         asleep = np.zeros(agent.size, dtype=bool)
         wake_min = np.full(agent.size, -1, dtype=np.int64)
@@ -628,7 +629,7 @@ class OutOfAreaMeals:
         lo_w = np.asarray([MEAL_WINDOWS_MIN[k][0] for k in ("breakfast", "lunch", "dinner")], dtype=np.int64)
         hi_w = np.asarray([MEAL_WINDOWS_MIN[k][1] for k in ("breakfast", "lunch", "dinner")], dtype=np.int64)
         in_win = (d_wake >= lo_w[d_slot]) & (d_wake < hi_w[d_slot]) if sa.size else np.zeros(0, dtype=bool)
-        d_eat = np.where(in_win, (d_wake * 60) // int(tick_seconds), -1)
+        d_eat = np.where(in_win, (d_wake * SECONDS_PER_MINUTE) // int(tick_seconds), -1)
         d_eat = np.where(d_eat < int(ticks), d_eat, -1)
         self.d_agent = agent[sa].astype(np.int64)
         self.d_slot = d_slot.astype(np.int8)
@@ -755,7 +756,7 @@ class HomeMeals:
                 eat &= home[rows] >= 0
                 agent = rows[eat]
                 minute = np.asarray(weekly.start_min, dtype=np.int64)[idx[eat]]
-        tick = (minute * 60) // int(tick_seconds)
+        tick = (minute * SECONDS_PER_MINUTE) // int(tick_seconds)
         keep = tick < int(ticks)
         order = np.lexsort((agent[keep], tick[keep]))
         self.tick = tick[keep][order].astype(np.int64)
@@ -857,7 +858,7 @@ class EnergyLayer:
         ids = np.asarray(ids, dtype=np.int64)
         if ids.size == 0:
             return
-        q = (int(minute) % 1440) // 15
+        q = (int(minute) % MINUTES_PER_DAY) // 15
         self.intake_kcal[kind] = self.intake_kcal.get(kind, 0.0) + float(kcal)
         if kind in ("meal_in", "meal_out", "meal_home"):
             if kind == "meal_home":
@@ -901,7 +902,7 @@ class EnergyLayer:
         self.stage_ticks[0] += np.bincount(stage[awake_in], minlength=4)[:4]
         self.stage_ticks[1] += np.bincount(stage[asleep & ~away], minlength=4)[:4]
         self.stage_ticks[2] += np.bincount(stage[away], minlength=4)[:4]
-        self.stage_ticks_awake_by_hour[(int(minute) % 1440) // 60] += np.bincount(
+        self.stage_ticks_awake_by_hour[(int(minute) % MINUTES_PER_DAY) // MINUTES_PER_HOUR] += np.bincount(
             stage[awake_in], minlength=4
         )[:4]
 

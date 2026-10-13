@@ -16,6 +16,7 @@ from typing import Any
 import numpy as np
 
 from shibuya.core.hashing import blake3_hex
+from shibuya.core.time_consts import CLOCK_KIND
 from shibuya.engine.state_hashes import behavior_hash as behavior_state_hash
 from shibuya.engine.state_hashes import component_digests
 from shibuya.engine.state_hashes import full_hash as full_state_hash
@@ -219,13 +220,21 @@ def day_record(b: Any, d: int) -> None:
                              if isinstance(v, (bool, int, float, str))}
     if result.state_hashes_end_of_day:
         rec["state_hashes_end_of_day"] = dict(result.state_hashes_end_of_day)
+    # 第 1 期 1-1 T0(TM9・GPU 無しの欄): この日の呼び出し数を判断モデルと LLM に分ける(判断モデルはまだ無い=0。
+    # LLM は発射数の積算 ``RunResult.llm_calls`` のこの記録までの増え=このランの中で数えた分。再開したランの最初の日は
+    # 再開した時刻からの分)・時計の種類と幅・つなぎの台帳の数(1-4 の前=null)。記録の欄が増えるだけ(状態に入らない)。
+    llm_before = sum(int(r["calls_by_model"]["llm"]) for r in b.runstats.daily_records if "calls_by_model" in r)
+    rec["calls_by_model"] = {"judge_model": 0, "llm": int(result.llm_calls) - llm_before}
+    rec["clock_kind"] = CLOCK_KIND
+    rec["step_seconds"] = int(b.cfg.tick_seconds)
+    rec["bridges_count"] = None
     b.runstats.daily_records.append(rec)
 
 
 def close_day_midrun(b: Any, d: int) -> None:
-    """10d: 複数日のランの途中の日の締め(1 日 1 回・最後の tick の後・次の日の tick 0 の前)。HEAD の ``_close_day_midrun``。
+    """10d: 複数日のランの途中の日の締め(1 日 1 回・最後の刻みの後・次の日の刻み 0 の前)。HEAD の ``_close_day_midrun``。
 
-    鉄道の最後の便は流さない(次の日の頭の tick が流す=同じ発車を 2 度処理しない)。台帳の締め・センサス・
+    鉄道の最後の便は流さない(次の日の頭の刻みが流す=同じ発車を 2 度処理しない)。台帳の締め・センサス・
     締めの後の 2 つのハッシュは最後の日と同じ。
     """
     runner, ledger, result = b.layers.runner, b.layers.ledger, b.runstats.result

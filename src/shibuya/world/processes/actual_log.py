@@ -50,6 +50,7 @@ from shibuya.world.processes.records import (
     PlanSpec,
 )
 from shibuya.world.processes.relations import Realizes, Relation
+from shibuya.core.time_consts import STEPS_PER_DAY, STEPS_PER_HOUR
 
 __all__ = [
     "ACTUAL_LOG_DTYPE",
@@ -85,7 +86,7 @@ AGG_ROW_BYTES: Final[int] = (len(DEVIATION_CODES) + 1) * 8
 #: D-R2-6 の保持窓(生ログ)。
 RETENTION_DAYS: Final[int] = 7
 #: 1シミュ日の tick 数(1分tick)。
-TICKS_PER_DAY: Final[int] = 1_440
+TICKS_PER_DAY: Final[int] = STEPS_PER_DAY
 #: 1対象あたりの1日の記録件数(見積り=expedient)。
 ENTRIES_PER_SUBJECT_PER_DAY: Final[int] = 4
 
@@ -522,7 +523,7 @@ class ActualLog:
             if self.retention_days is not None
             else Retention(None, ""),
             worst_case_ops_per_tick=int(
-                max(1, ENTRIES_PER_SUBJECT_PER_DAY * 1000 // max(1, self.ticks_per_day // 60))
+                max(1, ENTRIES_PER_SUBJECT_PER_DAY * 1000 // max(1, self.ticks_per_day // STEPS_PER_HOUR))
             ),
             cap=int(raw_cap_bytes),
             cap_budget_row="S1",

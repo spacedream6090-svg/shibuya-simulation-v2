@@ -58,6 +58,7 @@ import numpy as np
 from . import common as C
 from . import road_names as RN
 from .street_grid import segment_arrays, street_points
+from shibuya.core.time_consts import SECONDS_PER_HOUR
 
 STAGE = "W10"
 #: 1.0.0 = 対応表は空(全辺 klass 既定)/ 1.1.0 = 道路名の突合(段 1c・D-1 (a))+対応表の出力。
@@ -273,7 +274,7 @@ def lane_energy_coeff(vehicle: str, v_kmh: float, n_per_hour: float, regime: str
     v_ms = C.clamp(v_kmh, V_MIN_NONSTEADY, V_MAX_NONSTEADY) / 3.6
     return C.power_from_db(l_wa(vehicle, v_kmh, regime) - PROPAGATION_OFFSET_DB + DELTA_L_DB) * (
         math.pi / v_ms
-    ) * n_per_hour / 3600.0
+    ) * n_per_hour / SECONDS_PER_HOUR
 
 
 def lane_offsets(width_m: float, lanes: int) -> list[float]:

@@ -57,6 +57,7 @@ from ..pop.w16_population import (
 )
 from . import pool_facts as PF
 from . import vocab as V
+from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 STAGE = "W17"
 STAGE_VERSION = "1.2.0"  # 1.1.0 = 第1回パイロット後の改版 / 1.2.0 = 第2回後=日見出し形+構造化出力 regex(§4 登録簿)
@@ -471,7 +472,7 @@ def build_facts(world_dir: Path, data_dir: Path) -> AgentFacts:
         if k == KIND_CREW:
             start = CREW_SHIFT_STARTS[s % len(CREW_SHIFT_STARTS)]
             hours = int(pool.duty_hours[i]) if pool.duty_hours[i] > 0 else 8
-            work_open[i], work_close[i] = start, start + hours * 60
+            work_open[i], work_close[i] = start, start + hours * MINUTES_PER_HOUR
             days = int(pool.duty_days[i]) or PF.ALL_DAYS_MASK
             work_days[i] = days & ~_pick_days(s >> 11, 2)  # 交代2=週2日の休み
         elif k == KIND_DISPATCHER:
@@ -535,8 +536,8 @@ def _days_word(mask: int) -> str:
 
 
 def _hm(minute: int) -> str:
-    m = int(minute) % 1440
-    return f"{m // 60:02d}{m % 60:02d}"
+    m = int(minute) % MINUTES_PER_DAY
+    return f"{m // MINUTES_PER_HOUR:02d}{m % MINUTES_PER_HOUR:02d}"
 
 
 def user_prompt(f: AgentFacts, i: int) -> str:
@@ -566,7 +567,7 @@ def user_prompt(f: AgentFacts, i: int) -> str:
         lines.append(
             f"勤務: {where} {_days_word(int(f.work_days[i]))} "
             f"{_hm(int(f.work_open[i]))}-{_hm(int(f.work_close[i]))}"
-            + ("(夜勤)" if int(f.work_close[i]) > 1440 else "")
+            + ("(夜勤)" if int(f.work_close[i]) > MINUTES_PER_DAY else "")
         )
     elif duty == V.ACT_SCHOOL:
         stage = f.duty_stage[i] or p.col("school_stage")[i] or "学校"
@@ -806,7 +807,7 @@ def hour_curves(world_dir: Path) -> dict[str, np.ndarray]:
     out: dict[str, np.ndarray] = {}
     for p, h, w in zip(cols["purpose"], cols["hour"], cols["weight"]):
         vec = out.setdefault(str(p), np.zeros(24, dtype=np.float64))
-        vec[int(h) % 24] += float(w)
+        vec[int(h) % HOURS_PER_DAY] += float(w)
     for p, vec in out.items():
         s = vec.sum()
         if s > 0:
@@ -892,7 +893,7 @@ def open_share(world_dir: Path) -> np.ndarray:
             continue
         for d, intervals in enumerate(days):
             for a, b in intervals:
-                lo, hi = int(a) // 60, min(24, (int(b) + 59) // 60)
+                lo, hi = int(a) // MINUTES_PER_HOUR, min(24, (int(b) + 59) // MINUTES_PER_HOUR)
                 if hi > lo:
                     counts[place, d, lo:hi] += 1.0
     share = np.zeros_like(counts)
@@ -918,7 +919,7 @@ def skeleton_day(f: AgentFacts, i: int, d: int) -> list[V.Act]:
     jit = (s >> 17) % 41 - 20  # ±20 分(決定論)
     bed = int(f.bed_min[i])
     sleep = int(f.sleep_min[i])
-    wake = (bed + sleep) % 1440
+    wake = (bed + sleep) % MINUTES_PER_DAY
     duty = int(f.duty_activity[i])
     acts: list[V.Act] = []
     home_in = int(f.home_cell[i]) >= 0
@@ -938,25 +939,25 @@ def skeleton_day(f: AgentFacts, i: int, d: int) -> list[V.Act]:
         acts.append(V.Act(d, 0, wake, V.ACT_SLEEP, V.PLACE_HOME))
     if working:
         lo = max(wake + 30, min(int(f.work_open[i]), 1380))
-        hi = min(int(f.work_close[i]), 1440)
+        hi = min(int(f.work_close[i]), MINUTES_PER_DAY)
         if hi <= lo:
-            hi = min(1440, lo + 240)
+            hi = min(MINUTES_PER_DAY, lo + 240)
         place = V.PLACE_SCHOOL if duty == V.ACT_SCHOOL else V.PLACE_WORK
         acts.append(V.Act(d, wake, min(lo, wake + 45), V.ACT_PREP, V.PLACE_HOME))
         acts.append(V.Act(d, min(lo, wake + 45), lo, V.ACT_MOVE, V.PLACE_STATION))
         acts.append(V.Act(d, lo, hi, duty, place))
-        back = min(1440, hi + 45)
+        back = min(MINUTES_PER_DAY, hi + 45)
         acts.append(V.Act(d, hi, back, V.ACT_MOVE, V.PLACE_HOME if home_in
                           else V.PLACE_OUTSIDE))
-        if back < 1440:
-            acts.append(V.Act(d, back, 1440, V.ACT_REST, V.PLACE_HOME))
+        if back < MINUTES_PER_DAY:
+            acts.append(V.Act(d, back, MINUTES_PER_DAY, V.ACT_REST, V.PLACE_HOME))
     else:
-        acts.append(V.Act(d, wake, min(1440, wake + 60), V.ACT_PREP, V.PLACE_HOME))
+        acts.append(V.Act(d, wake, min(MINUTES_PER_DAY, wake + 60), V.ACT_PREP, V.PLACE_HOME))
         mid = min(1400, wake + 240)
-        acts.append(V.Act(d, min(1440, wake + 60), mid, V.ACT_REST, V.PLACE_HOME))
-        acts.append(V.Act(d, mid, min(1440, mid + 60), V.ACT_MEAL, V.PLACE_FOOD))
-        if mid + 60 < 1440:
-            acts.append(V.Act(d, min(1440, mid + 60), 1440, V.ACT_REST, V.PLACE_HOME))
+        acts.append(V.Act(d, min(MINUTES_PER_DAY, wake + 60), mid, V.ACT_REST, V.PLACE_HOME))
+        acts.append(V.Act(d, mid, min(MINUTES_PER_DAY, mid + 60), V.ACT_MEAL, V.PLACE_FOOD))
+        if mid + 60 < MINUTES_PER_DAY:
+            acts.append(V.Act(d, min(MINUTES_PER_DAY, mid + 60), MINUTES_PER_DAY, V.ACT_REST, V.PLACE_HOME))
     return [a for a in acts if a.end > a.start]
 
 
@@ -1125,7 +1126,7 @@ def repair_day(
             rf.append(fl)
             continue
         if a.place in ENVELOPE_PLACES:  # 5. 営業エンベロープ
-            h = a.start // 60
+            h = a.start // MINUTES_PER_HOUR
             if share[a.place, day].sum() > 0 and share[a.place, day, h] < OPEN_SHARE_MIN:
                 openh = np.flatnonzero(share[a.place, day] >= OPEN_SHARE_MIN)
                 if openh.size == 0:
@@ -1134,7 +1135,7 @@ def repair_day(
                     continue
                 nh = int(openh[np.argmin(np.abs(openh - h))])
                 dur = a.end - a.start
-                s = min(V.MINUTES_PER_DAY - MIN_ACT_MINUTES, nh * 60 + a.start % 60)
+                s = min(V.MINUTES_PER_DAY - MIN_ACT_MINUTES, nh * MINUTES_PER_HOUR + a.start % MINUTES_PER_HOUR)
                 result.append(
                     V.Act(day, s, min(V.MINUTES_PER_DAY, s + dur), a.activity, a.place)
                 )
@@ -1288,7 +1289,7 @@ def _groups(
 
 
 def _hour_hist(start: np.ndarray, rows: np.ndarray) -> np.ndarray:
-    return np.bincount((start[rows] // 60).astype(np.int64), minlength=24).astype(np.int64)
+    return np.bincount((start[rows] // MINUTES_PER_HOUR).astype(np.int64), minlength=24).astype(np.int64)
 
 
 def rake(
@@ -1386,7 +1387,7 @@ def rake(
         allow = min(budget_rows, quota[pt])
         if allow <= 0:
             continue
-        hours = (start[rows] // 60).astype(np.int64)
+        hours = (start[rows] // MINUTES_PER_HOUR).astype(np.int64)
         obs = np.bincount(hours, minlength=24).astype(np.int64)
         want = want_of[pt]
 
@@ -1409,7 +1410,7 @@ def rake(
         if m == 0:
             continue
         src, dst = src[:m], dst[:m]
-        delta = ((dst - start[src] // 60) * 60).astype(np.int32)
+        delta = ((dst - start[src] // MINUTES_PER_HOUR) * MINUTES_PER_HOUR).astype(np.int32)
 
         g = group_of[src]
         keep = (~shifted[g]) & (delta != 0)

@@ -2,7 +2,7 @@
 
 中身は HEAD ``ee3abc7`` の ``engine/run.py`` の ``run_day`` の同じ区間のまま。系の関数は ``(ctx, b)`` を受け取り、
 区間の外から来る名前を箱から結ぶ前置き(局所の割り当ての表 ``local-assignment.json`` と同じ写像)と、
-tick の中の受け渡しを ``TickScratch`` へ書く後置きだけを足した(文は変えない・``box.`` は ``b.``)。
+刻みの中の受け渡しを ``TickScratch`` へ書く後置きだけを足した(文は変えない・``box.`` は ``b.``)。
 ``engine.run`` で定義された補助(``_split_due`` など)は呼ぶ時に ``engine.run`` から引く(試験の差し替えが効く)。
 
 逐次ループ宣言: 区間の中の宣言は HEAD のまま(各関数の中の注を見る)。ほかに新しい逐次ループは無い。
@@ -15,6 +15,7 @@ from typing import Any
 
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
+from shibuya.core.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR
 
 
 def sys_phase_a(ctx: Any, b: Any) -> None:
@@ -37,14 +38,14 @@ def sys_phase_a(ctx: Any, b: Any) -> None:
         if act_layer is not None
         else C.IntentBatch.empty()
     )
-    # 段 2c: 着いた体の意図の行為(LLM を呼ばない=System 1・この tick に応答が来た体は除く)
+    # 段 2c: 着いた体の意図の行為(LLM を呼ばない=System 1・この刻みに応答が来た体は除く)
     # (親決定 Q20: なし/待機/同じ行き先の移動は意図を保つ=着いた体のその応答の行は外して実行)
     if intent_layer is not None:
         arrival_intents, llm_intents = intent_layer.arrival_intents(
             agents, space, tick, llm=llm_intents
         )
         # 5b 層の記録: 着いた意図の行為はエンジンが実行する(System 1・入口=満了)
-        layer_counts[(tick * tick_seconds // 3600) % 24, 0, _ENTRANCE_EXPIRY] += len(
+        layer_counts[(tick * tick_seconds // SECONDS_PER_HOUR) % HOURS_PER_DAY, 0, _ENTRANCE_EXPIRY] += len(
             arrival_intents
         )
     else:

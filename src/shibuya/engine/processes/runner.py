@@ -62,6 +62,7 @@ from shibuya.world.assets import ProcessAssets
 from shibuya.world.processes.actual_log import ActualLog
 from shibuya.world.processes.first_batch import build_registry
 from shibuya.world.state import World
+from shibuya.core.time_consts import SECONDS_PER_DAY
 
 __all__ = ["PROCESS_ORDER", "WorldProcessRunner"]
 
@@ -207,7 +208,7 @@ class WorldProcessRunner:
         self.log = ActualLog(
             "actual_log",
             retention_days=int(retention_days),
-            ticks_per_day=max(1, 86_400 // max(1, self.tick_seconds)),
+            ticks_per_day=max(1, SECONDS_PER_DAY // max(1, self.tick_seconds)),
         )
 
         # 10f(K21 (a)): 域外居住(体の属性)は母集団の seed から。10f 第 2 段の直し(S1): 気象の再生実日・大きな催し・

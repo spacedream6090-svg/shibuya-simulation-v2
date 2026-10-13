@@ -72,6 +72,7 @@ from shibuya.world.assets import (
     file_sha256,
 )
 from shibuya.world.state import World
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
     "DAYLIGHT_VOCAB",
@@ -245,8 +246,8 @@ class EnvironmentProcess:
         self.shadow_missing = 0
         self._planes = None
         self._row = -1
-        self._sunrise = 5.0 * 60.0
-        self._sunset = 19.0 * 60.0
+        self._sunrise = 5.0 * MINUTES_PER_HOUR
+        self._sunset = 19.0 * MINUTES_PER_HOUR
         self._cell_point: np.ndarray | None = None
         self._shade_cache_frame = -1
         self._shade: np.ndarray = np.zeros(world.n_cells, dtype=bool)
@@ -345,7 +346,7 @@ class EnvironmentProcess:
         """10e(B6): 描画の B3 の日照と暑さの語(時の中ほどを暦の日付の日の出・日の入りと比べる・暑さ=体感温度と同じ段)。"""
         h = min(23, max(0, int(hour)))
         sr, ss = self._sun_exact
-        daylight = SOL.daylight_phase(h * 60 + 30.0, sr, ss)
+        daylight = SOL.daylight_phase(h * MINUTES_PER_HOUR + 30.0, sr, ss)
         if self._cal_stage is None or self._cal_wbgt is None or not np.isfinite(self._cal_wbgt[h]):
             return daylight, ""
         return daylight, HEAT_STAGE_ORDER[int(self._cal_stage[h])]
@@ -378,14 +379,14 @@ class EnvironmentProcess:
         self._planes = None
         self._cell_point = None
         self._row = -1
-        self._sunrise = 5.0 * 60.0
-        self._sunset = 19.0 * 60.0
+        self._sunrise = 5.0 * MINUTES_PER_HOUR
+        self._sunset = 19.0 * MINUTES_PER_HOUR
         self._shade_cache_frame = -1
         self._pick_day(int(day))
 
     # ------------------------------------------------------------------ 1 tick
     def _minute_of_day(self, tick: int) -> int:
-        return int(int(tick) * self.tick_seconds // 60) % 1_440
+        return int(int(tick) * self.tick_seconds // SECONDS_PER_MINUTE) % MINUTES_PER_DAY
 
     def _shade_mask(self, minute: int) -> np.ndarray:
         """セル別の日陰フラグ(影グリッドが無ければ全て日向)。"""
@@ -410,7 +411,7 @@ class EnvironmentProcess:
         a = self.assets
         if not a.has_weather or self._row < 0:
             return -1, float("nan")
-        hour = min(23, max(0, minute // 60))
+        hour = min(23, max(0, minute // MINUTES_PER_HOUR))
         if self._cal_stage is not None and self._cal_wbgt is not None:
             return int(self._cal_stage[hour]), float(self._cal_wbgt[hour])  # 10e(B6)
         stage = int(a.hourly_heat_stage[self._row, hour])

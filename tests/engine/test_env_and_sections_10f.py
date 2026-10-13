@@ -38,6 +38,8 @@ STAGE2_KEYS = ("population_seed", "environment_seed")
 #: 10e(版上げ 1 回目)で末尾に足した欄(E1: final の定義・〔第330 B6〕天気の規則と日ごとの記録)。
 #: B1 の ``world_assets_pre10e`` は切替口を使ったランだけ ``weather`` の前に出る(既定のランには無い)。
 E10_KEYS = ("hash_scheme", "weather")
+#: 第 1 期 1-1 T0(TM9)で末尾に足した欄(呼び出し数を判断モデルと LLM に分けた欄・時計の種類と幅・つなぎの台帳の数)。
+T0_KEYS = ("calls_by_model", "clock_kind", "step_seconds", "bridges_count")
 PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite", "blake3", "os", "os_release",
                  "os_version", "machine", "cpu", "numpy_simd", "deps", "deps_sha256", "deps_count"}
 #: 設定の節の道筋の一覧の sha256(環境に依らない golden=検収 N3 の 3)。節を変えたら理由を記録に書いて更新する。
@@ -47,7 +49,8 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 10e(B1・第330): ``world_assets_pre10e``(旧資産の切替口・使ったランだけ出る欄・設定)を足した(前の値 c2d09b29…)。
 #: 10e(B6・第330): ``weather``(天気の規則と日ごとの暦の日付・再生日・層・影・設定)を足した(前の値 6e81ca53…)。
 #: 〔改訂(第330・RET)〕旧資産の切替口の欄 ``world_assets_pre10e`` を設定の節から消した(前 ``8e53b145…dde6ea8``)。
-CONFIG_PATHS_SHA256 = "58bb312404e76b244b811aba550eac480efb80e7a3551778ad535cfadff40d7c"
+#: 第 1 期 1-1 T0(TM9): ``clock_kind``・``step_seconds``・``bridges_count``(設定)を足した(前 ``58bb3124…fadff40d7c``)。
+CONFIG_PATHS_SHA256 = "d16f26e63f6937403a36acedcb2ef9f8fc27d3b7f0b58a0a94cce02d656a08a6"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 
@@ -210,8 +213,8 @@ def test_t1_two_processes_write_the_same_env_id_and_final_to_the_files(tmp_path)
     drop = lambda m: {k: v for k, v in m.items() if k not in NEW_KEYS + ("resume",)}  # noqa: E731
     assert drop(c1["manifest"]) == drop(c2["manifest"])
     assert c1["manifest"]["resume"]["run_id"] != c2["manifest"]["resume"]["run_id"]
-    # 列追加のみ(末尾に 3 つ+第 2 段の 2 つ+10e の欄)
-    assert list(c1["manifest"])[-(5 + len(E10_KEYS)):] == list(NEW_KEYS + STAGE2_KEYS + E10_KEYS)
+    # 列追加のみ(末尾に 3 つ+第 2 段の 2 つ+10e の欄+1-1 T0 の欄)
+    assert list(c1["manifest"])[-(5 + len(E10_KEYS) + len(T0_KEYS)):] == list(NEW_KEYS + STAGE2_KEYS + E10_KEYS + T0_KEYS)
 
 
 # ================================================================= 再開・再生で環境の違いを警告(§8 の 6)

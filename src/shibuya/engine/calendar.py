@@ -47,6 +47,7 @@ from pathlib import Path
 from typing import Any, Final, Iterable, Mapping
 
 from shibuya.core.types import DEFAULT_TICK_SECONDS, MINUTES_PER_SIM_DAY
+from shibuya.core.time_consts import SECONDS_PER_MINUTE
 
 __all__ = [
     "CalendarWarning",
@@ -105,7 +106,7 @@ def ticks_per_day(tick_seconds: int = DEFAULT_TICK_SECONDS) -> int:
     ts = int(tick_seconds)
     if ts <= 0:
         raise ValueError("tick_seconds は正の整数")
-    seconds = MINUTES_PER_SIM_DAY * 60
+    seconds = MINUTES_PER_SIM_DAY * SECONDS_PER_MINUTE
     if seconds % ts:
         raise ValueError(f"tick_seconds={ts} は 1 日を割り切らない")
     return seconds // ts

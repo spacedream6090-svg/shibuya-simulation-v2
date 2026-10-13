@@ -38,6 +38,7 @@ from shibuya.core.hashing import blake3_hex
 from shibuya.core.soa import Registry
 from shibuya.world.assets import WorldAssets, load_assets, synthetic_assets
 from shibuya.world.graph import WalkGraph
+from shibuya.core.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, STEPS_PER_DAY
 
 __all__ = [
     "DENSITY_STAGE_EDGES",
@@ -390,7 +391,7 @@ class World:
         now = self.pois.open_now
         if now.size and bool(np.any(now >= 0)):
             return np.asarray(now > 0)
-        t = int(tick) % 1_440
+        t = int(tick) % STEPS_PER_DAY
         return (self.pois.open_from <= t) & (t < self.pois.open_to)
 
     def open_count_per_cell(self, tick: int) -> np.ndarray:
@@ -419,7 +420,7 @@ class World:
         dyn = self.cells.noise_stage
         if dyn.size and bool(np.any(dyn)):
             return np.asarray(dyn, dtype=np.uint8)
-        hour = int(int(tick) * int(tick_seconds) // 3_600) % 24
+        hour = int(int(tick) * int(tick_seconds) // SECONDS_PER_HOUR) % HOURS_PER_DAY
         return self.assets.noise_stage_for_hour(hour)
 
     # ---- 書き込みガード ----

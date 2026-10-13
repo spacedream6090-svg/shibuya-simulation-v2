@@ -55,6 +55,7 @@ from shibuya.core.rng import stream
 from shibuya.engine.calendar import ticks_per_day as _ticks_per_day
 from shibuya.llm import LLMRequest, LLMResponse, estimate_tokens
 from shibuya.llm.contract import TARGET_WANDER, format_two_line_v3
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
     "ACTIVITY_PRIOR_PATH",
@@ -211,7 +212,7 @@ def meal_gate_interval_p(p_hour: float, dt_minutes: float) -> float:
     dt = max(0.0, float(dt_minutes))
     if p >= 1.0:
         return 1.0 if dt > 0.0 else 0.0
-    return float(1.0 - (1.0 - p) ** (dt / 60.0))
+    return float(1.0 - (1.0 - p) ** (dt / MINUTES_PER_HOUR))
 
 
 def check_activity_region(name: str) -> str:
@@ -341,7 +342,7 @@ class ClassicalPolicy:
         n = int(agents.n)
         self.agents = agents
         self.world = world
-        self.minutes_per_tick = float(tick_seconds) / 60.0
+        self.minutes_per_tick = float(tick_seconds) / SECONDS_PER_MINUTE
         self._tpd = _ticks_per_day(int(tick_seconds))  # 10a: 計画境界は日の中の tick で引く
         self.home_cell = np.asarray(home_cell, dtype=np.int64)
         self.work_cell = np.asarray(work_cell, dtype=np.int64)
@@ -409,7 +410,7 @@ class ClassicalPolicy:
 
     # ---- 状態 ----
     def _minute(self, tick: int) -> int:
-        return int(int(tick) * self.minutes_per_tick) % 1440
+        return int(int(tick) * self.minutes_per_tick) % MINUTES_PER_DAY
 
     def _next_plan_minutes(self, aid: int, tick: int) -> int:
         lo, hi = int(self._b_off[aid]), int(self._b_off[aid + 1])
@@ -485,7 +486,7 @@ class ClassicalPolicy:
             return
         stage = np.searchsorted(np.asarray(_HUNGER_EDGES, dtype=np.int64),
                                 np.asarray(r.hunger, dtype=np.int64)[ok], side="right")
-        self._gate_hazard[ok] += (_HAZARD_PER_HOUR[stage] * (self.minutes_per_tick / 60.0)).astype(np.float32)
+        self._gate_hazard[ok] += (_HAZARD_PER_HOUR[stage] * (self.minutes_per_tick / MINUTES_PER_HOUR)).astype(np.float32)
 
     def _meal_p_word(self, aid: int, tick: int, base: float | None = None) -> tuple[float, int]:
         """語 × カレンダー × 周囲(上限 1)。``per_wake`` ではこれがそのまま門の確率。``base`` を渡すと語の値の代わりに
@@ -621,7 +622,7 @@ class ClassicalPolicy:
         cell = int(r.cell[aid])
         g = stream(self.seed, "policy.classical", tick, aid, max(0, cond))
         u_meal, u_act = float(g.random()), float(g.random())
-        hour = self._minute(tick) // 60
+        hour = self._minute(tick) // MINUTES_PER_HOUR
         if cond == int(WakeCondition.CONVERSATION_TURN) and inviter >= 0:
             self.counts["reply_talk"] = self.counts.get("reply_talk", 0) + 1
             self.by_hour[hour, 1] += 1

@@ -43,6 +43,7 @@ import numpy as np
 from shibuya.agents.state import STORE_MEMORY_EMPTY
 from shibuya.engine.chooser import draw_index, hunger_stage_of
 from shibuya.engine.store_memory import STORE_SOURCE_BIT, STORE_SOURCES
+from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 __all__ = [
     "CHOICE_REASONS",
@@ -84,9 +85,9 @@ class StoreChoice:
         self.n = int(n_agents)
         self.seed = seed
         self.minutes_per_tick = float(minutes_per_tick)
-        self.ticks_per_hour = max(1, int(round(60.0 / self.minutes_per_tick)))
+        self.ticks_per_hour = max(1, int(round(MINUTES_PER_HOUR / self.minutes_per_tick)))
         #: 10a: 計画境界の表は日の中の tick。通しの時刻 T は ``T % 1 日の tick 数`` で引く。
-        self._tpd = max(1, int(round(1440.0 / self.minutes_per_tick)))
+        self._tpd = max(1, int(round(MINUTES_PER_DAY / self.minutes_per_tick)))
         self.intent_max_ticks = int(intent_max_ticks)
         self.recall_first = bool(recall_first)
         self.poi_cell = np.asarray(world.pois.cell, dtype=np.int64)
@@ -189,7 +190,7 @@ class StoreChoice:
         code = _REASON_CODE[reason]
         self.choice_poi[int(aid)] = int(poi)
         self.choice_reason[int(aid)] = code
-        hour = (int(tick) // self.ticks_per_hour) % 24
+        hour = (int(tick) // self.ticks_per_hour) % HOURS_PER_DAY
         self.by_hour[hour, code] += 1
         self.stats[f"choice:{reason}"] += 1
 

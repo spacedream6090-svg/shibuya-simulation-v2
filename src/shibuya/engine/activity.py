@@ -61,6 +61,7 @@ from shibuya.llm.contract import (
     UntilKind,
 )
 from shibuya.perception import normalize as PN
+from shibuya.core.time_consts import MINUTES_PER_DAY, SECONDS_PER_MINUTE  # MINUTES_PER_DAY は再輸出(1 日の分=時刻 HH:MM の解決に使う)
 
 __all__ = [
     "WANDER_RADIUS_CELLS",
@@ -77,8 +78,6 @@ __all__ = [
 WANDER_RADIUS_CELLS: Final[int] = 2
 #: 「まで: 相手」の上限[分](待ちぼうけの打ち切り・アジェンダ §2・expedient)。
 PARTNER_MAX_MINUTES: Final[int] = 60
-#: 1 日の分(時刻 HH:MM の解決に使う)。
-MINUTES_PER_DAY: Final[int] = 1_440
 
 
 class ActivityPayload(NamedTuple):
@@ -175,7 +174,7 @@ class ActivityLayer:
     ) -> None:
         self.n = int(n_agents)
         self.salt = bytes(run_salt)
-        self.minutes_per_tick = float(tick_seconds) / 60.0
+        self.minutes_per_tick = float(tick_seconds) / SECONDS_PER_MINUTE
         #: 10a: 計画境界の表は日の中の tick。通しの時刻 T は ``T % 1 日の tick 数`` で引き、
         #: 返す境界はその日の頭 ``T − 日の中の tick`` を足した通しの時刻に戻す。
         self._tpd = _ticks_per_day(int(tick_seconds))

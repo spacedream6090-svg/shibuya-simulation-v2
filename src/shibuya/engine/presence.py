@@ -59,6 +59,7 @@ from shibuya.agents.weekly import (
 from shibuya.core.hashing import blake3_hex
 from shibuya.engine import resolve as R
 from shibuya.world.state import World
+from shibuya.core.time_consts import HOURS_PER_DAY, STEPS_PER_HOUR
 
 __all__ = [
     "ARRIVAL_SPREAD_MAX_TRAINS",
@@ -726,10 +727,10 @@ class PlanExecutor:
         self.match_in_den = 0
         self.match_out_num = 0
         self.match_out_den = 0
-        self.in_area_by_hour: list[float] = [float("nan")] * 24
+        self.in_area_by_hour: list[float] = [float("nan")] * HOURS_PER_DAY
         #: 正時の「**在圏の体のうち**起きている割合」(``RunResult.wake_rate_by_hour`` は
         #: 域外の体も「起きている」に数えるので、a(h) と並べるならこちら=診断の補助欄)。
-        self.wake_in_area_by_hour: list[float] = [float("nan")] * 24
+        self.wake_in_area_by_hour: list[float] = [float("nan")] * HOURS_PER_DAY
         #: **域外常住(``home_out``)なのに舞台の中で寝た**体の延べ数(=「職場で寝る」の直接計測)。
         self.n_home_out_slept_inside = 0
         # ---- 退出の繰り延べ(§4)----
@@ -774,9 +775,9 @@ class PlanExecutor:
         self.lost_why: dict[str, int] = {}
         self.fallback_minutes: list[int] = []
         #: 正時の「出口セル・ホームセルの在圏」と出口セルの密度段の最大(9a・両方の形で数える)。
-        self.exit_cell_by_hour: list[float] = [float("nan")] * 24
-        self.platform_cell_by_hour: list[float] = [float("nan")] * 24
-        self.exit_stage_max_by_hour: list[float] = [float("nan")] * 24
+        self.exit_cell_by_hour: list[float] = [float("nan")] * HOURS_PER_DAY
+        self.platform_cell_by_hour: list[float] = [float("nan")] * HOURS_PER_DAY
+        self.exit_stage_max_by_hour: list[float] = [float("nan")] * HOURS_PER_DAY
         # ---- 動的に張り直す到着(civic の押し出し・LLM の乗車)----
         self._extra: dict[int, list[tuple[int, int]]] = {}
         #: **落とす DEPART の tick**(域外へ出た体の進行中ブロックぶん。-1=落とさない)。
@@ -1785,12 +1786,12 @@ class PlanExecutor:
     # ------------------------------------------------------------------ 診断(§5)
     def sample(self, tick: int) -> None:
         """正時の標本(計画一致率 両側・在圏人数)。E9。**run.py が在圏 journal と同じ位置で呼ぶ**。"""
-        if int(tick) % 60:
+        if int(tick) % STEPS_PER_HOUR:
             return
         r = self.agents.registry
         st = np.asarray(r.transit_state)
         in_area = st == 0
-        self.sample_hours.append((tick // 60) % 24)
+        self.sample_hours.append((tick // STEPS_PER_HOUR) % HOURS_PER_DAY)
         self.sample_in_area.append(int(np.count_nonzero(in_area)))
         want = self.blocks.in_area_at(tick % MINUTES_PER_DAY)
         m = min(self.n, want.size)
@@ -1801,7 +1802,7 @@ class PlanExecutor:
         self.match_in_num += int(np.count_nonzero(w & in_area[:m]))
         self.match_out_den += int(np.count_nonzero(o))
         self.match_out_num += int(np.count_nonzero(o & ~in_area[:m]))
-        h = (tick // 60) % 24
+        h = (tick // STEPS_PER_HOUR) % HOURS_PER_DAY
         if self.exit_cell_by_hour[h] != self.exit_cell_by_hour[h]:  # 9a: 出口/ホームのセルの在圏と密度段
             cell = np.asarray(r.cell, dtype=np.int64)
             ex = self._exit_cells()

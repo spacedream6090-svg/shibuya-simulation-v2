@@ -44,12 +44,12 @@ from shibuya.engine.calendar import OPENING_ROW_PH
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.state import World
+from shibuya.core.time_consts import MINUTES_PER_DAY, SECONDS_PER_MINUTE
 
 __all__ = ["STEP_MINUTES", "MINUTES_PER_DAY", "OpeningProcess"]
 
 #: 開閉を評価する刻み[分](正規化規約⑨と同じ)。
 STEP_MINUTES: Final[int] = 5
-MINUTES_PER_DAY: Final[int] = 1_440
 
 _CODE_SCHEDULED: Final[int] = DEVIATION_CODES[DeviationVocab.SCHEDULED]
 _CODE_REPLACEMENT: Final[int] = DEVIATION_CODES[DeviationVocab.REPLACEMENT]
@@ -224,7 +224,7 @@ class OpeningProcess:
     def step(self, tick: int) -> None:
         if not self.active:
             return
-        minute = int(int(tick) * self.tick_seconds // 60) % MINUTES_PER_DAY
+        minute = int(int(tick) * self.tick_seconds // SECONDS_PER_MINUTE) % MINUTES_PER_DAY
         if minute % STEP_MINUTES:
             return
         desired = self.open_matrix[:, minute]

@@ -94,6 +94,7 @@ from shibuya.engine.energy import (
     HUNGER_MODELS,
 )
 from shibuya.world.state import DEFAULT_EATERY_MODE, EATERY_MODES, World
+from shibuya.core.time_consts import STEPS_PER_HOUR
 
 #: **CLI の既定の語彙版**(二層の段 3・第277=``--vocab-version`` を渡さないランは v3)。
 #: ライブラリの既定(``templates.DEFAULT_VOCAB_VERSION``/``run_day``/``cli.run``)は **v1 のまま**
@@ -605,7 +606,7 @@ def undefined_registry_payload(
         w["_agents"].add(int(row["agent_id"]))
         if row["cell"] is not None:
             w["_cells"].add(str(row["cell"]))
-        w["_hours"].add(int(row["tick"]) // 60)
+        w["_hours"].add(int(row["tick"]) // STEPS_PER_HOUR)
         w["first_tick"] = min(int(w["first_tick"]), int(row["tick"]))
         if len(w["samples"]) < int(n_samples):
             w["samples"].append(

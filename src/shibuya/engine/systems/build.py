@@ -1,6 +1,6 @@
 """engine.systems.build — 組み立て(R1・S0〜S8 と再開の復元)(第 1 期 1-0・段 F)。
 
-``build(_call_args)`` は HEAD ``ee3abc7`` の ``run_day`` の頭(``_call_args = dict(locals())`` の次の文)から tick のループの
+``build(_call_args)`` は HEAD ``ee3abc7`` の ``run_day`` の頭(``_call_args = dict(locals())`` の次の文)から刻みのループの
 前までを、そのままの文で回して状態の箱(``Box``)を返す。前置きは run_day の引数 113 個を ``_call_args`` から結ぶ行だけ
 (``_call_args`` の写し方・設定の指紋 ``RS.fingerprint(_call_args)`` は HEAD と同じ=草案 §3-3 の 3)。
 HEAD の入れ子の関数のうち状態と日の口(``_hash_owners`` ほか 14)は ``engine.systems.state_io`` の箱を受け取る関数にした。
@@ -122,6 +122,7 @@ from shibuya.world.assets import load_process_assets_or_synthetic
 from shibuya.world.assets import load_walkable_area_m2
 from shibuya.world.state import World
 from shibuya.world.state import check_eatery_mode
+from shibuya.core.time_consts import HOURS_PER_DAY, SECONDS_PER_MINUTE
 
 
 __all__ = ["build"]
@@ -602,7 +603,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     if energy_on:
         _anc, _anc_md5 = load_anchors()
         _emodel = EnergyModel(
-            _anc, _anc_md5, rate=energy_rate, minutes_per_tick=float(tick_seconds) / 60.0
+            _anc, _anc_md5, rate=energy_rate, minutes_per_tick=float(tick_seconds) / SECONDS_PER_MINUTE
         )
         energy_layer = EnergyLayer(
             model=_emodel,
@@ -721,7 +722,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         frozen_sources_map.update(
             {f"perception:{k}": v for k, v in (getattr(assets, "asset_sources", {}) or {}).items()}
         )
-        # 世界内日時 = 暦の口(10a #1)= ``world_start + T × tick_seconds``(tick_seconds=60 では
+        # 世界内日時 = 暦の口(10a #1)= ``world_start + T × tick_seconds``(``tick_seconds=60`` では
         # 今の ``start + T 分`` と同じ値)。``world_start`` は上で決めた(既定は気象の再生実日)。
         perception = PerceptionRendererAdapter(
             PerceptionRenderer(
@@ -792,7 +793,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         else None
     )
     #: 艦隊で繰り延べになった呼 ``(agent, condition, class_rank, since_tick)``。
-    #: 次 tick の起床候補へ**そのまま再投入**する(破棄禁止=憲法1)。
+    #: 次の刻みの起床候補へ**そのまま再投入**する(破棄禁止=憲法1)。
     fleet_deferred: list[tuple[int, int, int, int]] = []
     n_fleet_reinjected = 0
     n_fleet_resent = 0
@@ -801,7 +802,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     #: 10d(A10): 艦隊へ**出したが返っていない呼**(call_id → ``LLMCall``・発射の順)。状態を書くときに保存し、
     #: 再開のときに同じ call_id(=同じ seed)で出し直す。艦隊の無いランでは空のまま。
     fleet_inflight: dict[str, Any] = {}
-    #: **再生モードの艦隊の代役**(D-58)。``observed_tick`` → その tick で「届く」項目。
+    #: **再生モードの艦隊の代役**(D-58)。``observed_tick`` → その刻みで「届く」項目。
     #: 項目は ``(繰り延べか, ペイロード)``。繰り延べは ``(agent, cond, class, since_tick)``、
     #: 応答は ``BridgeResult`` そのもの。テープが版1(``observed_tick=-1``)なら常に空
     #: =mock 経路は 1 バイトも変わらない。
@@ -825,7 +826,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     #: edge 幾何の診断(ラン通算)。node では 0 のまま。
     geometry_hops = 0
     geometry_jammed = 0
-    #: このランの 1 tick の呼数上限(``None`` なら L4 按分)。manifest の ``budget_per_tick``。
+    #: このランの 1 刻みの呼数上限(``None`` なら L4 按分)。manifest の ``budget_per_tick``。
     effective_budget = float(budget) if budget is not None else call_budget_per_tick(n_agents)
     arbiter = Arbiter(n_agents, salt, effective_budget)
     space = C.ResourceSpace(world.n_poi, n_agents, world.n_cells)
@@ -838,7 +839,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         _wd0 = calendar.table_weekday(0)
         b_agent, b_cond, b_tick, b_cell = weekly.boundary_events_full(_wd0)
         schedule = apply_to_mock_schedule(schedule, weekly, _wd0)  # 拠点セル(自宅/職場)の上書き
-        # ---- D-62 (b): tick 0 の activity を W17 の 0:00 時点の活動から立てる ----
+        # ---- D-62 (b): 刻み 0 の activity を W17 の 0:00 時点の活動から立てる ----
         # ``initialize`` は全員 SLEEPING(週次表の無い世界の既定)。ここで立て直す。
         if plan_sleep and not _resuming:  # 10d(A11): 再開では初期の活動を立てない
             R.set_initial_activity(agents, weekly.initial_activity(_wd0))
@@ -943,7 +944,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     _fam_has_renderer = _fam_renderer is not None and hasattr(_fam_renderer, "signage_exposures")
     fam_layer: FamiliarityLayer | None = (
         FamiliarityLayer(
-            n_agents, int(familiarity_k), minutes_per_tick=float(tick_seconds) / 60.0,
+            n_agents, int(familiarity_k), minutes_per_tick=float(tick_seconds) / SECONDS_PER_MINUTE,
             # 親決定 (f): 入った回 × そのセルで B2 に載る看板 × p_see(描画と同じ集合・同じ流れ)
             signage_poi_by_cell=(
                 _fam_renderer.signage_poi_by_cell() if _fam_has_renderer else None
@@ -967,12 +968,12 @@ def build(_call_args: dict[str, Any]) -> Any:
     )
     # ---- 6 段目 6a: 記憶の表(値を決める層・書き手は resolve.write_memory) ----
     mem_layer: MemoryLayer | None = (
-        MemoryLayer(n_agents, int(memory_n), minutes_per_tick=float(tick_seconds) / 60.0)
+        MemoryLayer(n_agents, int(memory_n), minutes_per_tick=float(tick_seconds) / SECONDS_PER_MINUTE)
         if memory_on
         else None
     )
     if (fam_layer is not None or mem_layer is not None) and _fam_has_renderer:
-        _fam_renderer.signage_exposures = []  # 描画による露出の控え(tick ごとに取り出す)
+        _fam_renderer.signage_exposures = []  # 描画による露出の控え(刻みごとに取り出す)
     # ---- 記憶 第 1 段 6b: 想起の口(on のランだけ描画に差し込む・off は None=描画バイト不変) ----
     if mem_layer is not None:
         mem_layer.tau = float(memory_tau)
@@ -989,7 +990,7 @@ def build(_call_args: dict[str, Any]) -> Any:
                 walk_m_per_tick=_walk_m_per_tick(world, n_agents, geometry=str(geometry), geom=geom,
                                                   tick_seconds=int(tick_seconds)),
                 intent_max_ticks=int(intent_max_ticks),
-                minutes_per_tick=float(tick_seconds) / 60.0,
+                minutes_per_tick=float(tick_seconds) / SECONDS_PER_MINUTE,
             )
     # ---- C10 8a: 関係辺(機械的初期化=W16+W17 の共在・書き手は記憶のエピソード・知人の結線) ----
     rel_layer = None
@@ -999,7 +1000,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         _init = _rel_initial_edges(
             pop, weekly, n_agents, k=int(rel_k), day_index=int(calendar.table_weekday(0)),  # 10a #19
             density=float(rel_init_density),
-            minutes_per_tick=float(tick_seconds) / 60.0, d=float(rel_d), tau=float(rel_tau),
+            minutes_per_tick=float(tick_seconds) / SECONDS_PER_MINUTE, d=float(rel_d), tau=float(rel_tau),
             tenure_weeks=float(rel_tenure_weeks), tenure_hash=str(rel_tenure_hash),
         ) if (pop is not None and not _resuming) else None  # 10d(A11): 再開では初期の辺を作らない
         if _init is not None:
@@ -1071,7 +1072,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         seed=seed,
         population_seed=pop_seed,  # 10f(K21 (a))
         environment_seed=env_seed,  # 10f 第 2 段の直し(S1)
-        ticks=t_end - t_begin,  # 10a: 回した通しの tick 数(1 日のランでは ``ticks``)・10d: 再開・止めたランはその区間
+        ticks=t_end - t_begin,  # 10a: 回した通しの刻みの数(1 日のランでは ``ticks``)・10d: 再開・止めたランはその区間
         world_source=world.assets.source,
         tape_path=str(tape_path) if tape_path is not None else "",
         mode=mode,
@@ -1099,22 +1100,22 @@ def build(_call_args: dict[str, Any]) -> Any:
                               "phase_b", "phase_c", "movement", "movement_cpu", "checkpoint")}
     diag_rows: list[tuple[int, ...]] = []
     # (t_apply, class, agent, condition, text, action_code, target_person,
-    #  **target_hint**, **target_poi**, **activity**, **target**, **fire_tick**, **call_id**)
+    #  **target_hint**, **target_poi**, **activity**, **target**, **``fire_tick``**, **call_id**)
     # ``activity`` = 二層の段 2 の活動(``engine.activity.ActivityPayload``・v3 以外は None)。
     # ``target_person`` = LLM が「対象」欄に書いた個体 id(-1=名指しなし・C6 09-09)。
     # ``target_hint`` = 段0 辞書 v4 の対象ヒント索引(C9b G5・0=なし)。
     # ``target_poi`` = 「対象」欄が目印 POI に解決できたときの索引(C9b G6 a′・-1=なし)。
-    # 10b(① の前提): 末尾に**発射の tick** と **call_id**(``"{発射の tick}:{体}:{級}"``=テープの call_id)。
+    # 10b(① の前提): 末尾に**発射の刻み** と **call_id**(``"{発射の刻み}:{体}:{級}"``=テープの call_id)。
     # 読む側は今は無い(原因の欄は ① の記録で)=組の形が変わるだけで既定の結果は動かない。
     pending: list[tuple[int, int, int, int, str, int, int, int, int, Any, Any, int, str]] = []
-    #: この tick に適用した応答の (体, 行動コード, 活動)。``resolve.apply`` の後に活動層が書く。
+    #: この刻みに適用した応答の (体, 行動コード, 活動)。``resolve.apply`` の後に活動層が書く。
     applied_activity: tuple[list[int], list[int], list[Any]] = ([], [], [])
-    #: C9b G3/G4: この tick に LLM が言った**焦点の要求**(-1=なし)。使い回す 1 本の
-    #: バッファ(毎 tick 触った行だけ戻す=個体数ぶんの確保は 1 回きり)。
+    #: C9b G3/G4: この刻みに LLM が言った**焦点の要求**(-1=なし)。使い回す 1 本の
+    #: バッファ(毎刻み触った行だけ戻す=個体数ぶんの確保は 1 回きり)。
     focus_request = (
         np.full(n_agents, int(FOCUS_NONE), dtype=np.int64) if attention_on else None
     )
-    #: この tick に応答を適用した個体 → 行動コード(会話の被招待の返事を読むのに使う)。
+    #: この刻みに応答を適用した個体 → 行動コード(会話の被招待の返事を読むのに使う)。
     applied_now: dict[int, int] = {}
     #: 会話の相手の由来(``conv_*`` 診断行の素材)。
     talk_stats: dict[str, int] = {}
@@ -1130,9 +1131,9 @@ def build(_call_args: dict[str, Any]) -> Any:
     #: ``resolve.begin_planned_sleep`` の内訳 + ``arrived``(就寝地へ着いて寝た)+
     #: ``woke``(非就寝の計画境界で起こした)。
     sleep_counts: dict[str, int] = {}
-    #: 世界内時刻の**時**別「起きている体」の延べ数と tick 数(起床率/時 の分子・分母)。
-    awake_sum = [0] * 24
-    awake_ticks = [0] * 24
+    #: 世界内時刻の**時**別「起きている体」の延べ数と刻みの数(起床率/時 の分子・分母)。
+    awake_sum = [0] * HOURS_PER_DAY
+    awake_ticks = [0] * HOURS_PER_DAY
     #: 5 段目 5a(診断): 内受容の跨ぎ(変数 3 × 上げ/下げ × 全体/起きて範囲内)。
     intero_cross = np.zeros((3, 2, 2), dtype=np.int64)
 
@@ -1236,7 +1237,7 @@ def build(_call_args: dict[str, Any]) -> Any:
                 f"保存 {str(_bundle.header.get('hashes', {}).get('full_hash', ''))[:16]}・戻した後 {_full_r[:16]})"
             )
         result.money_start = int(agents.registry.money.astype(np.int64).sum())
-        # 10d 検収 L1: 診断の行の差分の基準(前の tick の終わりの値)を戻した状態から置く(通しと同じ差分になる)
+        # 10d 検収 L1: 診断の行の差分の基準(前の刻みの終わりの値)を戻した状態から置く(通しと同じ差分になる)
         box.runstats.prev_sessions = conv.n_opened if conv is not None else 0
         box.runstats.prev_tape_misses = bridge.n_tape_misses
         box.runstats.restore_seconds = time.perf_counter() - _t_r

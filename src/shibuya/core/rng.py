@@ -1,14 +1,14 @@
 """core.rng — カウンタベース乱数(numpy Philox4x64)のドメイン分離。
 
 設計根拠: 実装計画書 §2(RNG=numpy.random.Philox・manifest欄 ``numpy-philox4x64``)・§3
-(鍵=ドメイン・カウンタ=tick/個体/抽選番号)・運用設計書 §1.4 T4(n=5,000 と 5,001 で既存個体の乱数列が
+(鍵=ドメイン・カウンタ=刻み/個体/抽選番号)・運用設計書 §1.4 T4(n=5,000 と 5,001 で既存個体の乱数列が
 不変=カウンタベースの実証)・計器盤設計書 G-5(seed = blake3(manifest_sha256 ‖ run_index) の決定的写像)。
 
 規約
 - ``master_seed`` はランの manifest から与えられる 64bit 整数(または run_id 文字列)。
 - ``domain`` は用途を表す短い文字列(例 ``"agent.habit"``・``"llm.sample"``・``"world.weather"``)。
   ドメイン表の版は manifest の ``rng.domain_table_version`` に記録する(本モジュールは表を持たない)。
-- 個体 ID や tick はカウンタ側に置く。鍵は (master_seed, domain) のみから導く。
+- 個体 ID や刻みの番号はカウンタ側に置く。鍵は (master_seed, domain) のみから導く。
   → 同じ (master_seed, domain, counters) は常に同じ列。個体数を増やしても既存個体の列は変わらない(T4)。
 - OS 乱数・暗黙 seed は禁止(G-5)。本モジュール以外で ``np.random.default_rng()`` を引数なしで呼ばない。
 
@@ -22,6 +22,8 @@ from typing import Iterable
 import blake3
 import numpy as np
 
+from shibuya.core.time_consts import NS_PER_SECOND, SECONDS_PER_DAY
+
 __all__ = [
     "derive_key",
     "philox",
@@ -29,6 +31,7 @@ __all__ = [
     "MASK64",
     "RNG_SCHEME",
     "run_tick_key",
+    "time_key_from_t_ns",
     "k19_counters",
 ]
 
@@ -88,7 +91,7 @@ def stream(master_seed: int | str, domain: str, *counters: int) -> np.random.Gen
 
 # ---------------------------------------------------------------- 10c・10e: 状態を持たない乱数(counter)
 #: 乱数の方式の名前(manifest の ``rng_scheme``・テープの脇の meta の値)。毎回 (seed, 用途, 鍵) から作る=状態を持たない
-#: (10c・Q8・10e E4 で既定)。〔第330・RET〕10e より前の ``stateful``(日の頭に作った Generator を tick ごとに進める)と
+#: (10c・Q8・10e E4 で既定)。〔第330・RET〕10e より前の ``stateful``(日の頭に作った Generator を刻みごとに進める)と
 #: 切替口 ``--rng-scheme`` は版上げ 1 回目の後に消した(旧値の再現は第330 ACT の commit で記録)。
 RNG_SCHEME: str = "counter"
 
@@ -108,14 +111,31 @@ def k19_counters(*words: int) -> tuple[int, ...]:
 
 
 def run_tick_key(day_key0: int, T: int, tick_seconds: int) -> int:
-    """counter の乱数の鍵に入れる時刻 = ``day_key0 × 1 日の tick 数 + T``。
+    """counter の乱数の鍵に入れる時刻 = ``day_key0 × 1 日の刻みの数 + T``。
 
     ``T`` はランの通しの時刻(10a)。``day_key0`` はランの 0 日目の日の鍵(``SimCalendar.day_key(0)``:
     日番号=0=鍵は T そのもの。〔第330・RET〕``day_index`` のモードは消した)。
-    ``day_key(日) = day_key0 + 日`` なので、この値は「日の鍵 × 1 日の tick 数 + 日の中の tick」と同じ。
+    ``day_key(日) = day_key0 + 日`` なので、この値は「日の鍵 × 1 日の刻みの数 + 日の中の刻み」と同じ。
     """
-    tpd = 86_400 // max(1, int(tick_seconds))
+    tpd = SECONDS_PER_DAY // max(1, int(tick_seconds))
     v = int(day_key0) * tpd + int(T)
     if v < 0 or v > MASK64:
         raise ValueError(f"鍵の時刻は 0..2^64-1(いま {v})")
     return v
+
+
+def time_key_from_t_ns(day_key0: int, t_ns: int, step_seconds: int) -> int:
+    """〔第 1 期 1-1 T0・TM7 (d) の準備〕``run_tick_key`` と同じ鍵の値を、刻みの番号でなく通しの時刻 ``t_ns``
+    (ナノ秒=``core.types.SimTime``)から作る。
+
+    刻みの番号は ``t_ns // (幅 × 1e9)``(床=その時刻を含む刻み)。刻みの頭の時刻(``TickCtx.t_ns``)を渡せば
+    ``run_tick_key(day_key0, T, 幅)`` と同じ値(``tests/engine/time/test_t0_rng_key.py`` が全刻みで検算)。
+    **呼び手はまだ無い**(鍵の値は 10c の counter のまま=結果不変)。鍵の材料を出来事の時刻と中身に替えるのは後の段。
+
+    Raises:
+        ValueError: 幅が正の整数でない・鍵が 0..2^64-1 の外。
+    """
+    w = int(step_seconds)
+    if w <= 0:
+        raise ValueError(f"刻みの幅(秒)は正の整数: {step_seconds!r}")
+    return run_tick_key(day_key0, int(t_ns) // (w * NS_PER_SECOND), w)
