@@ -394,6 +394,16 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #89 第 1 期 1-0 `run_day` の分解(結果不変)=状態の箱・系 31 の宣言の表・進行役・宣言の外を書いたら落ちる検査(第331・2026-10-13〜14・実装役 Opus 5.5・別の検収役 2 回・親検収)
+
+- 正典: [回答 10-12b](docs/design/v2-answers-2026-10-12b.md) §6-1・[回答 10-13](docs/design/v2-answers-2026-10-13.md) の 1(切り方の承認・条件=複数の系が書く列の一覧)・紙の草案 [v2-run-day-decomposition-draft.md](docs/design/v2-run-day-decomposition-draft.md)(検収 2 回=受入)・実装の記録 [impl-1-0.md](docs/bench/analysis/wallbounce-1012/run-day-decomp/impl-1-0.md)・検収の記録 [review-impl-1-0.md](docs/bench/analysis/wallbounce-1012/run-day-decomp/review-impl-1-0.md)。**段ごとに commit**(A `b086cf1` → CB `0e2d5d6` → DEF `4d88c47` → FIX `3278a44` → FIX2 `502d5bd`)。作業木 `1-0/run-day-decomp` を親が ff で取り込み。
+- **形**: `run_day` は署名(HEAD のまま=設定の指紋 `_call_args` 不変)+4 行(`conduct(_call_args)`)。`engine/systems/` 25 モジュール=状態の箱(`RunConfig` 凍結・`SoAState`・`Layers`=持ち主 19+2・`LlmIo`・`DayTables`・`Buffers`・`TickScratch`・`RunStats`・`Fixtures`)・宣言 `SystemSpec`(`writes.soa` は resolve の口の静的な閉包から機械で作る)・`SYSTEMS` 31 個(tick の中 25=今の実行順の区間・日の頭 1・日の終わり 2・ランの単位 3)・進行役 `conductor.run_system/conduct`。`run.py` 5,188 → 2,484 行。話題(体・世界・知覚・判断・行為の解決・会話・記憶・計器)は群の名札。局所 450 個の割り当ての表(割り当て無し 0)。
+- **宣言の外を書いたら落ちる**(既定で入る・切替口 `SHIBUYA_WRITE_GUARD=off`): 段 A(解除口が系の許可の列だけを解く+`_require_thawed` が配列ごとに `ufunc.at` を見る)・段 C(scratch と Buffers の `__setattr__`)・段 D(pytest の AST=閉包・旗の直書き・ビュー・別名 10 形・許可を外す口の呼べる場所・`object.__setattr__` の禁止)・段 B(試験のとき系の前後の全欄の差 ⊆ 宣言・scratch を含む)。負の対照 12 本+検収の抜け道 10 形。**限界**(記録 §7-3): resolve の外の `ufunc.at` と scratch の中身のその場の書き換えは実行のたびには止まらず B と D だけが捕まえる。
+- **結果不変**: 実装役=byte-check 19 構成(5,000 体・1 日・全 25 欄)・2 日のラン(final `912446bd2b42b6ab`・140,913 呼)・再開 19×2・manifest 7 本・腕 12 本・系ごとの指紋 6 構成。検収役=7 構成・艦隊の録画と再生 8 本・再開 4 本で独立に同じ。**親=4 構成(v3 既定・v3 活動層 off・v1 既定・v3 記憶+関係)の byte-check を 1-0 と FIX で 2 回=全 25 欄同じ**・全体テスト 2 回(3,946 passed / 3,960 passed+時間の門 1 件は単独で 11 passed=並べて回した負荷)・系の試験 223 passed。
+- **ユーザーの条件**: [multi-writer-columns.md](docs/bench/analysis/wallbounce-1012/run-day-decomp/multi-writer-columns.md)=同じ SoA の列を 2 系以上が書く=観測 33・宣言 56(`activity` は 7 系)・外の状態の行 32。T1 の後の話題ごとのまとめ直しの課題。
+- **T5 で見つけて宣言に足した持ち主をまたぐ書き**: 歩いて乗る退出の腕で close_final が `set_plan_state` を呼ぶ / 食事で `resolve._energy_meal` が `O21 classical._gate_hazard` を別名で書く / world の `O63 renderer._tickc`(`runner.flow` の別名)。口を通す形に直すのは第 3 期以降(草案 §0-2)。
+- **残る課題(記録 §5・§7)**: 外の道筋の宣言が粗い(180 のうち 174 が `*`・宣言 2,197 対/観測 383 対)=土台の段で絞る / 静かな機械での重さの測り直し(+5〜9% の推測)/ 世界過程 18 本の下位の宣言 / `growth_report` の行の並びが `PYTHONHASHSEED` で揺れる(HEAD からある・final に入らない)。
+
 ### #88 10e 版上げ 1 回目の完了=構築側 B2〜B6・エンジン側 B0/B1/E3/B6・活性化 ACT・切替口と K15 の削除 RET(第330・2026-10-12〜13・実装役 Opus 5.5 ×3・親検収)
 
 - 正典: [回答 10-12b](docs/design/v2-answers-2026-10-12b.md) §1(構築側の 6 点)・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) §2 第 0 期・[10e の材料](docs/bench/analysis/wallbounce-1012/10e-build-side-prep.md)・[実装の記録](docs/bench/analysis/wallbounce-1012/10e/README.md)(§第330・§B0〜§B8・§ACT・§RET・§締め)。**段ごとに commit**(エンジン側 `e1b9ea2`〜`6249a44`・構築側 `3737a3d`〜`a5eec83`・ACT `d688cfd`・RET `cd1e6b7`)。実装役ごとに git worktree を切り、親が依存の順に取り込んだ(回答 §6-3)。

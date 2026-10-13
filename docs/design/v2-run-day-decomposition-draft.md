@@ -1,5 +1,7 @@
 # run_day の分解の口の案(第 1 期 1-0・紙の設計・草案)
 
+> **〔実装済(第331・#89)〕** ユーザー承認(2026-10-13・[回答 10-13](v2-answers-2026-10-13.md) の 1)の後に実装した。実装と草案の違い(段の順 A → CB → DEF・`Fixtures` の箱・`close_final` を別の系・改名 7 か所・指紋は新しい道具 `probe.py`・世界過程 18 本は `world` の 1 つの系の中)と限界の表は [impl-1-0.md](../bench/analysis/wallbounce-1012/run-day-decomp/impl-1-0.md) §5-2・§7-3。行番号は起草時の HEAD `0389689` のもの。
+
 - 第330・調査役 Opus 5.5 起草。別の検収役の判定は「条件つき受入」([検収の記録](../bench/analysis/wallbounce-1012/run-day-decomp/review-decomposition-draft.md))。本版はその条件と親の決定で直した版。**再検収(2 回目)=受入**([記録](../bench/analysis/wallbounce-1012/run-day-decomp/review-decomposition-draft-round2.md)・正 7 本と負の対照 10 本を検収役が再現)・親が §0〜§3 を読んで受入(第330)。**切るのはユーザーへの報告(§0-1 の問い 1 件)の後**([回答 10-12b](v2-answers-2026-10-12b.md) §6-1・§6-7)。
 - 指示の正: [回答 10-12b](v2-answers-2026-10-12b.md) §6(6-1〜6-7)。計画: [実装の計画 2026-10-12](v2-implementation-plan-2026-10-12.md) §1・第 1 期。
 - 行番号はすべて HEAD `0389689` の `engine/run.py`(`src/shibuya/` は省く)。数は実測。測った道具と生の記録は [run-day-decomp/](../bench/analysis/wallbounce-1012/run-day-decomp/)(§5)。
