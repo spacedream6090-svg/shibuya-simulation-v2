@@ -394,6 +394,17 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #101 第 2 期 2-4 版上げ 2 回目(段ごと 7 commit・既定の結果が動く=動いた量を記録)(第334・2026-10-14・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 2-4 の行と §3・10e の記録の形。記録 [vb24](docs/bench/analysis/wallbounce-1012/vb24/README.md)(§0 結論・V1〜V7・締め・[review.md](docs/bench/analysis/wallbounce-1012/vb24/review.md))。commit=V1 `be108b7` → V2 `ec5bdb9` → V3 `ab4a0d0` → V4 `01d5cd4` → V5 `7a3531b` → V6 `7e5d33e` → V7 `a231ef9`(取り込み `d35a9b6`)。
+- **V1 資産の活性化**: W12 1.2.0 の実ダイヤ(2-3b)+W9 の影 7 日(2-3)を 1 つの資産に(`v2_stage_2-4`・build_hash `5ff1bacf` → `6a7d34e8`・2 回一致)。親が `activate_vb24.py apply`(退避 `v2_pre_2-4`・`verify` 同じ)。動いた量: 19/19 構成で final が動く(原因は全部 W12 の時刻表・呼数 +1,088)・2-0 の計器 156 件中 52 件。W9 のゲートは 13 MB/日(案 A)。
+- **V2 近接 distance を既定**(11a): 18/19 構成・呼数 −10,046(−0.9%)・`--proximity cell` で旧値 25 欄同じ。派生の列 `agents.band` を読んでいた所を `cell_band[cell]` から導く形に直した。
+- **V3 在席の印を歩き出しで解く**(`engine/seat_release.py`): 15/19 構成・呼数 −2,266・店のセルの外にいる在席の体 × 刻み 4.36% → 1.91%(残り 88% は乗車へ歩く体=版上げ 3 回目)・`--seat-release legacy` で旧値。
+- **V4 経済 stage2 を既定**: 19/19 構成で final が動く(呼数 −40)・輪 16.0(予算 約 246.6 MB)・pois.revenue は税抜き・2 日のラン 残差 0・溢れ 0・財布 −1,606/−1,173 → −734/−438 円/体/日・`--economy-stage2 off` で旧値・再開=通し。
+- **V5** `group_norms.cost.ticks` を観測の節へ(不変)。**V6** 混在の錨ファイルを分離(`presence_calib/validation`・`hunger_energy_build/validation`=値を読まず鍵で・不変・energy.py は検証側を読む形のまま=PENDING §1-1)。**V7** 切替口の一覧(残す 5・消す候補 10=版上げ 3 回目まで残す)。
+- **検収**: 別の検収役 1(動いた量の独立の再現・旧値の再現・V6 の鍵の集合)+親(段ごとの commit を写しから作成・活性化・rebase の衝突 1=予算の宣言の同じ行への追記を両方残した・範囲の試験)。全体試験 4905 passed。
+- 仮採用: PENDING §1-1b 仮-22。実装役の問い: 外す段 2-4 の残りの行は 7 か 4-2 に・乗車の歩き出しの在席は 4-3 の候補・ランの種類は経済の腕も数える・切替口は残す。
+
 ### #100 第 2 期 2-3 複数日の mock(10g・腕 a=記憶の目印を記録の出来事に・W9 の影 7 日・既定は不変)(第334・2026-10-14・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [指示書 10-03](docs/design/v2-wallbounce-decisions-2026-10-03.md) §4-3(10g の順番・暫定の印)・§6 ⑧ 8-1・計画の 2-3 の行。記録 [md23](docs/bench/analysis/wallbounce-1012/md23/README.md)([review.md](docs/bench/analysis/wallbounce-1012/md23/review.md))。commit `9f631b0`。
