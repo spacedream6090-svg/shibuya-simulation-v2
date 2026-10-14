@@ -491,3 +491,11 @@ python docs/bench/analysis/wallbounce-1012/tt23c/tools/activate_tt23c.py apply -
 }
 ```
 <!-- golden-end -->
+
+## §親の検収(第336・Fable 5.1・rebase の後)
+
+- 本体 d518a3d へ rebase(衝突 0=台帳の JSON は 3 方向で自動・e7bbc3e)。範囲の試験(build_rail・build_field・build_audit・build_vis・bridging・time・processes・c8・tools・状態台帳・10f・活性化・経済 stage2)**934 passed・1 xfailed**(8 分 29 秒)。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・両側とも本体の木=data と rules-table.json がある)=**final 同じ・25 欄とも差なし**(`parent_head_vs_tt23c_4cfg.json`)。検収役の 4 構成と実装役の 19 構成も同じ。
+- **data 無しの写し(detached の作業木・junction なし)で CI-1 と同じ引数の全体試験(tests/c7 を含む)=4,865 passed・229 skipped・failed 0**(22 分 49 秒)=第335 の教訓の手順。
+- 独立検収([review.md](review.md))=条件つき受入(中 1=相鉄線と大崎方面の重なりの検査が重複を除いた後の行で 0 しか返さない・低 6=負の対照 4 本・origin_flag のゲート・配列の読み取り専用・10e の写しの手順に rules-table.json・README の食い違い・HD の行の分け)→ 全部直した(資産の build_hash は 6f2de0e0 → 5a3e8a89=ヘッダのゲートと版の表の欄が増えた分・本数と parquet の sha は同じ・2 構成の final と呼数は同じ)。親の判断: HD-engine.processes.rail は項ごとに分け(停車/到着便/域外居住=4-3・運賃/定員/混雑率=7)・新しい読み取り(東急の当駅始発の印)は data に足してよい(事実だけ・git に入れない=ライセンス台帳 その 16)・取り出す事実の一覧への追加はユーザーに確認(PENDING §1-1)・10e の写しの手順は本段で直した(HEAD_TREE_FILES)。
+- 判定: **受入**(第 2 期 2-3c の完了=資産の活性化は版上げ 3 回目 4-3・エンジンの読む口は器だけ)。
