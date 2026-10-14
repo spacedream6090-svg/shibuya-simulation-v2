@@ -23,6 +23,13 @@
 - ``revert`` : ``--backup`` から戻す(moved は写し戻し・added は消す)。戻した後の sha256 と build_hash が plan の「前」と
   同じか確かめる。
 - ``verify`` : 本体の v2 が plan の「後」(``--want after``)か「前」(``--want before``)と同じかを確かめるだけ。
+- ``materialize``〔2-4 検収 M1〕: 退避 ``--backup``(既定 ``data/world/v2_pre_2-4``)は置き換えた 11 本と ``MANIFEST.sha256``・
+  ``plan.json`` だけ=**前の資産そのものではない**(エンジンの ``--world`` に渡せない)。そこで ``--out``(空か無い置き場)に
+  前の資産を組む: 置き換えたファイルは退避から、変わっていないファイルは本体の v2(``--live``)から写し、活性化で
+  足したファイルは写さない(W17 のプロンプトと応答の jsonl は ``stage`` と同じく写さない=エンジンは読まない)。
+  組んだ後に ``verify --want before`` と同じ確かめ(動いた 14 本の「前」の sha256 と build_hash ``5ff1bacf…``)を
+  ``--out`` に掛ける。本体の v2 と退避は読むだけ。``--hardlink`` は変わっていないファイルを写さずにハードリンクで置く
+  (同じボリュームのとき・置き場のファイルを書き換えると本体の v2 も変わるので、読むだけのランに限る)。
 
 ファイルの中身は読まない(sha256・md5・バイト数だけ)。build_hash は ``build_manifest.json`` の 1 欄だけを読む。
 封印の層には触れない(W19 は既存の規則どおり封印の層の sha256 を取る=方式 S・中身は解かない)。
@@ -288,6 +295,69 @@ def cmd_revert(a: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_materialize(a: argparse.Namespace) -> int:
+    """〔2-4 検収 M1〕前の資産を ``--out`` に組み、plan の「前」と同じかを確かめる(本体の v2 と退避は読むだけ)。"""
+    live, backup, out = Path(a.live), Path(a.backup), Path(a.out)
+    if out.exists() and any(out.iterdir()):
+        print(f"--out が空でない(止める): {out}", file=sys.stderr)
+        return 2
+    plan_p, man_p = backup / PLAN, backup / MANIFEST
+    if not plan_p.exists() or not man_p.exists():
+        print(f"退避に {PLAN} か {MANIFEST} が無い(止める): {backup}", file=sys.stderr)
+        return 2
+    plan = json.loads(plan_p.read_text(encoding="utf-8"))
+    rows = {r["path"]: r for r in plan["rows"]}
+    backed: dict[str, str] = {}
+    for line in man_p.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            h, rel, action = line.split("  ")
+            if action == "moved":
+                backed[rel] = h
+    moved = sorted(r["path"] for r in plan["rows"] if r["action"] == "moved")
+    if sorted(backed) != moved:
+        print("退避の MANIFEST と plan の置き換えの一覧が違う(止める)", file=sys.stderr)
+        return 2
+    missing = [rel for rel in moved if not (backup / rel).is_file()]
+    if missing:
+        print("退避に無いファイル(止める):", *missing, sep="\n  ", file=sys.stderr)
+        return 2
+    side = "after" if not _check_side(live, plan, "after") else ("before" if not _check_side(live, plan, "before") else "")
+    if not side:
+        print("本体の v2 が plan の前とも後とも違う(止める)", file=sys.stderr)
+        return 2
+    src = asset_files(live)
+    n = {"from_backup": 0, "from_live": 0, "skipped_added": 0}
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "acceptance").mkdir(exist_ok=True)
+    for rel, p in src.items():
+        r = rows.get(rel)
+        action = r["action"] if r else "kept_live_only"
+        if action == "added":
+            if side == "after":
+                n["skipped_added"] += 1
+                continue
+        dst = out / rel
+        if action == "moved" and side == "after":
+            shutil.copy2(backup / rel, dst)
+            if sha256(dst) != r["sha256_before"]:
+                raise RuntimeError(f"退避の sha256 が plan の前と違う: {rel}")
+            n["from_backup"] += 1
+            continue
+        if a.hardlink:
+            os.link(p, dst)
+        else:
+            shutil.copy2(p, dst)
+        if action == "same" and sha256(dst) != r["sha256_before"]:
+            raise RuntimeError(f"変わっていないはずのファイルの sha256 が plan と違う: {rel}")
+        n["from_live"] += 1
+    bad = _check_side(out, plan, "before")
+    print(f"組んだ: 退避から {n['from_backup']}・本体の v2 から {n['from_live']}"
+          f"・活性化で足したファイルを除いた {n['skipped_added']}(本体の v2 は plan の{'後' if side == 'after' else '前'})")
+    print("plan の前と: " + ("同じ" if not bad else "違う: " + ", ".join(bad)))
+    print(f"build_hash {build_hash(out)[:16]}")
+    return 0 if not bad else 1
+
+
 def cmd_verify(a: argparse.Namespace) -> int:
     plan = _load_plan(Path(a.steps))
     bad = _check_side(Path(a.live), plan, a.want)
@@ -318,13 +388,18 @@ def main(argv: list[str] | None = None) -> int:
         sp.add_argument("--dry-run", action="store_true")
         if name == "apply":
             sp.add_argument("--steps", default="data/world/v2_steps_2-4")
+    sp = sub.add_parser("materialize")
+    sp.add_argument("--live", default="data/world/v2")
+    sp.add_argument("--backup", default="data/world/v2_pre_2-4")
+    sp.add_argument("--out", required=True)
+    sp.add_argument("--hardlink", action="store_true")
     sp = sub.add_parser("verify")
     sp.add_argument("--live", default="data/world/v2")
     sp.add_argument("--steps", default="data/world/v2_steps_2-4")
     sp.add_argument("--want", choices=("before", "after"), default="after")
     a = ap.parse_args(argv)
     return {"stage": cmd_stage, "plan": cmd_plan, "apply": cmd_apply, "revert": cmd_revert,
-            "verify": cmd_verify}[a.cmd](a)
+            "verify": cmd_verify, "materialize": cmd_materialize}[a.cmd](a)
 
 
 if __name__ == "__main__":

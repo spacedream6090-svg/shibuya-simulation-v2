@@ -3,7 +3,8 @@
 - ``SHADOW_DATES`` が窓の 7 日と主の日 07-28 を持つ(先頭=主の日は前のまま)。
 - 窓の中の日は暦の日付の影を読む=近い日の影(つなぎ ``BR-SHADOW-NEAREST-DAY``)を使わない。窓の外(07-20)は使う。
   計器=manifest の ``weather.days[].shadow_fallback``(世界資産 ``data/world/v2_stage_2-3/`` の 8 日のラン)。
-- つなぎの台帳: ``BR-SHADOW-NEAREST-DAY``・``W9#5`` は「窓の外の日だけ」=外す段 2-4(窓を広げる版上げ)・active のまま。
+- つなぎの台帳: ``BR-SHADOW-NEAREST-DAY``・``W9#5`` は「窓の外の日だけ」=active のまま。外す段は 2-4(窓を広げる版上げ)
+  → 〔第334・2-4〕7(親の判断=窓の外の日は残る)。
   ``DOC-memory-store-legacy`` は removed(2-3)。近接に左右される値の暫定の印の行(外す段 5-2)。
 """
 
@@ -35,7 +36,7 @@ def test_bridging_rows_after_2_3():
     led = load_ledger()
     for rid in ("BR-SHADOW-NEAREST-DAY", "W9#5"):
         r = led.get(rid)
-        assert (r.status, r.remove_at) == ("active", "2-4"), rid
+        assert (r.status, r.remove_at) == ("active", "7"), rid  # 〔第334・2-4〕外す段を改めた(親)=2-4 → 7
         assert "窓の外" in r.why, rid
     r = led.get("DOC-memory-store-legacy")
     assert (r.status, r.remove_at) == ("removed", "2-3")

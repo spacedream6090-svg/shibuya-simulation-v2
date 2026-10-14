@@ -2,12 +2,16 @@
  "a": {
   "label": "v3",
   "kw": {},
-  "src": "作業木"
+  "src": "作業木",
+  "env": {}
  },
  "b": {
   "label": "v4off",
   "kw": {},
-  "src": "作業木"
+  "src": "作業木",
+  "env": {
+   "SHIBUYA_ECONOMY_STAGE2": "off"
+  }
  },
  "note": "V4 の切替口 off(SHIBUYA_ECONOMY_STAGE2=off)が V3 を再現するか(4 構成)(比べた構成 4 本だけ)",
  "keys": [
@@ -174,5 +178,6 @@
    "action_usage_delta": 0,
    "noticed_delta": 0
   }
- }
+ },
+ "env_note": "〔2-4 検収 L2〕env は後から書き足した(side を回したときの切替口の環境変数・記録 vb24/README.md の §V2-3・§V3-4・§V4-3 の文と同じ)。side の JSON には env の欄が無かった(10e の道具に欄を足したのは 2-4 の検収の後)"
 }

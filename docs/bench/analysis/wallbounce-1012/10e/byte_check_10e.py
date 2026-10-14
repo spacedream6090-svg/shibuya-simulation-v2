@@ -8,9 +8,15 @@ HEAD の写しには HEAD に無い引数を渡さない)。
 
 使い方(リポの根で・``$D`` = この置き場・``$W`` = 作業用の**短い**ディレクトリ):
 
-    git archive <HEAD> src docs/bench/anchors/hunger_energy_anchors_v0.json \\
-        docs/bench/anchors/ssb2021_activity_prior_v0.json docs/bench/anchors/commute_time_dist_r3.json \\
+    git archive <HEAD> src docs/bench/anchors/hunger_energy_build_anchors_v0.json \\
+        docs/bench/anchors/hunger_energy_validation_anchors_v0.json docs/bench/anchors/ssb2021_activity_prior_v0.json \\
         docs/design/v2-budget-declaration.md docs/bench/analysis/w6-regen-2026-09-28 | tar -x -C $W/head_src
+    # 〔第 2 期 2-4 検収 L3〕エンジンが開く錨は src を ``_anchors_v0.json`` と ``docs/bench/anchors`` で grep して決める。
+    # 2-4 V6 より後の src では 3 本=空腹の 2 本(engine/energy.py: hunger_energy_build_anchors_v0.json・
+    # hunger_energy_validation_anchors_v0.json)+活動の事前分布(engine/classical.py: ssb2021_activity_prior_v0.json)。
+    # V6 より前の HEAD では空腹の錨は 1 本 hunger_energy_anchors_v0.json(その版の git archive にはこちらを渡す)。
+    # commute_time_dist_r3.json は構築側(build/sched/trial.py)と 2-0 の計器だけが開く=エンジンは開かない(前の版の
+    # 手順は写していた=写しても挙動は変わらない)。
     # 〔第334〕錨はエンジンが開く 3 本だけを写す(docs/bench/anchors を丸ごと写すと、較正側と検証側が混ざる
     # presence_anchors_v0.json・diversity_anchors_v0.json の写しが作業用の置き場に残る=2-2 の検収 L7)。
     mkdir -p $W/head_src/data/calendar && cp data/calendar/syukujitsu.csv $W/head_src/data/calendar/
@@ -21,6 +27,10 @@ HEAD の写しには HEAD に無い引数を渡さない)。
 
 ``compare`` は 2 つの side を構成ごとに比べ、欄ごとに「同じ/動いた」と前後の値を書く。壁時計は比べない。
 絶対パスは JSON に書かない。
+
+〔第 2 期 2-4 検収 L2〕side は切替口の環境変数(:data:`SWITCH_ENV` のうち設定されていたもの)を ``env`` に書き、
+compare は ``a``・``b`` に写す(切替口は環境変数で渡すことが多く、``kw`` だけでは何を戻したかが分からないため)。
+道筋やホストを持つ変数(``*_MD``・``*_PORT``)は書かない。
 """
 
 from __future__ import annotations
@@ -142,6 +152,19 @@ def cmd_one(args: argparse.Namespace) -> int:
     return 0
 
 
+#: 〔2-4 検収 L2〕side の JSON に残す切替口の環境変数(値に道筋やホストを持たないものだけ)。
+SWITCH_ENV: tuple[str, ...] = (
+    "SHIBUYA_PROXIMITY", "SHIBUYA_PROXIMITY_D", "SHIBUYA_SEAT_RELEASE", "SHIBUYA_ECONOMY_STAGE2",
+    "SHIBUYA_ECONOMY_STAGE2_PARTS", "SHIBUYA_MEMORY_STORE", "SHIBUYA_EVENTS", "SHIBUYA_TOOL_EVENTS",
+    "SHIBUYA_WRITE_GUARD", "SHIBUYA_SYSTEMS_CHECK", "SHIBUYA_WARD_AREA_M2",
+)
+
+
+def switch_env() -> dict[str, str]:
+    """今の環境の切替口の環境変数(設定されていたものだけ)。"""
+    return {k: os.environ[k] for k in SWITCH_ENV if k in os.environ}
+
+
 def cmd_side(args: argparse.Namespace) -> int:
     w2 = _wave2()
     scratch = Path(args.scratch)
@@ -170,6 +193,7 @@ def cmd_side(args: argparse.Namespace) -> int:
             print(row["config"], row.get("final"), row.get("calls"), row.get("salient_events"),
                   row.get("dispatches"), row.get("src_is_worktree"), (row.get("error") or "")[-300:], flush=True)
     doc = {"label": args.label, "kw": json.loads(args.kw or "{}"), "src": "写し" if args.src else "作業木",
+           "env": switch_env(),
            "drop_behavior_item": args.drop_behavior_item or "", "multiset_items": args.multiset_items or "",
            "agents": args.agents, "seed": args.seed, "runs": got}
     Path(args.out).write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
@@ -207,8 +231,8 @@ def cmd_compare(args: argparse.Namespace) -> int:
                       "action_usage_delta": ((rb.get("action_usage_total", 0) or 0)
                                              - (ra.get("action_usage_total", 0) or 0)),
                       "noticed_delta": (rb.get("noticed", 0) or 0) - (ra.get("noticed", 0) or 0)}
-    doc = {"a": {"label": a.get("label"), "kw": a.get("kw"), "src": a.get("src")},
-           "b": {"label": b.get("label"), "kw": b.get("kw"), "src": b.get("src")},
+    doc = {"a": {"label": a.get("label"), "kw": a.get("kw"), "src": a.get("src"), "env": a.get("env")},
+           "b": {"label": b.get("label"), "kw": b.get("kw"), "src": b.get("src"), "env": b.get("env")},
            "note": args.note, "keys": list(COMPARE_KEYS), "rows": rows}
     Path(args.out).write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
     n_same_final = sum(1 for r in rows.values() if "moved" in r and "final" not in r["moved"])

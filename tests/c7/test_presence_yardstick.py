@@ -2,6 +2,11 @@
 """``tools/c7/presence_yardstick.py`` の検査。
 
 **合成 journal だけ**を使う(holdout も実世界資産も開かない)。実データでの実行は親が回す。
+
+〔第 2 期 2-4 検収 H1〕錨は**較正側のファイル**(``presence_calib_anchors_v0.json``=中核 9 町丁目の 3 本)と
+**検証側の作り物**(鍵の名だけ ``presence_validation_anchors_v0.json`` と同じ・値は試験の中で作る・
+``source: "synthetic(test)"``)を合わせたもの。検証側のファイルは試験の過程で開かない(既定の道筋で読もうとすると
+落ちる番人を置く=:func:`_no_default_validation_file`)。
 """
 
 from __future__ import annotations
@@ -18,8 +23,39 @@ TOOLS_C7 = REPO_ROOT / "tools" / "c7"
 if str(TOOLS_C7) not in sys.path:  # conftest と同じ作法(単体実行でも通るように)
     sys.path.insert(0, str(TOOLS_C7))
 
-#: 〔第 2 期 2-4 V6〕fixture は較正側だけを読む(検証側=PT 由来〔灰〕・第 4-1 表〔検〕は試験の過程でも開かない)。
+#: 〔第 2 期 2-4 V6〕fixture は較正側のファイルだけを読む(検証側=PT 由来〔灰〕・第 4-1 表〔検〕は試験の過程でも開かない)。
 ANCHORS_PATH = REPO_ROOT / "docs" / "bench" / "anchors" / "presence_calib_anchors_v0.json"
+
+#: 〔2-4 検収 H1〕検証側の錨の作り物の出どころの印。
+SYNTH_SOURCE = "synthetic(test)"
+#: 作り物の鍵(``tools/c7/presence_yardstick.py`` の ``measures``・``metric_entries``・``anchors_echo``・``main`` が
+#: ``a[...]`` で引く鍵と、下の試験が名指す鍵)。名前だけ検証側のファイルと同じ。
+SYNTH_KEYS = ("pt_area_daytime_peak", "night_presence_estimate", "wake_rate_tokyo_weekday",
+              "homebound_boarding_time_dist_2015", "attendance_rate", "full_population")
+
+
+def synth_validation_anchors() -> dict:
+    """検証側の錨の**作り物**(値は試験の中で作る=検証側のファイルの値ではない)。
+
+    起床率 a(h) の 0・3・12・23 時は、下の試験が名指す数(この試験のファイルに前から書いてある数)に合わせた。
+    ほかの時刻と錨の値は作り物で、既存の assert が通るように選んだ(深夜の帯は合成 journal の 03 時の在圏を含まない・
+    昼のピークは合成の 09 時の在圏より大きい)。``verified_by`` も同じ印(作り物=親が確かめた値ではない。
+    〔親〕台帳の検査 ``check_anchors`` は欄の存在だけを見る)。
+    """
+    wake = [50.0] * 24
+    wake[0], wake[3], wake[12], wake[23] = 20.5, 3.5, 97.8, 46.2
+
+    def row(tag: str, **kw) -> dict:
+        return {"source": SYNTH_SOURCE, "verified_by": SYNTH_SOURCE, "tag": tag, **kw}
+
+    return {
+        "pt_area_daytime_peak": row("anchor", value=100_000),
+        "night_presence_estimate": row("estimate", low=12_000, high=24_000),
+        "wake_rate_tokyo_weekday": row("anchor", values=wake, caveat="作り物(試験)"),
+        "homebound_boarding_time_dist_2015": row("anchor", shares=[1.0 / 19] * 19),
+        "attendance_rate": row("expedient", value=0.5),
+        "full_population": row("anchor", value=400_000),
+    }
 
 #: 合成世界: 6 セル = 5 エリア各 1 + 域外 1。
 AREA_OF_CELL = np.array([0, 1, 2, 3, 4, -1], dtype=np.int8)
@@ -36,9 +72,25 @@ def yard():
     return _m
 
 
+@pytest.fixture(scope="module", autouse=True)
+def _no_default_validation_file(yard, tmp_path_factory):
+    """〔2-4 検収 H1〕番人: 既定の道筋(較正側+検証側)で錨を読もうとしたら、検証側を無いファイルに差し替えて落とす
+    (試験の過程で検証側のファイルを開かない)。"""
+    absent = tmp_path_factory.mktemp("no_validation") / "absent_validation_anchors.json"
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(yard, "DEFAULT_ANCHORS_PATHS", (yard.DEFAULT_ANCHORS_PATHS[0], absent))
+        yield
+
+
 @pytest.fixture(scope="module")
 def anchors(yard):
-    return yard.load_anchors(ANCHORS_PATH)  # 〔2-4 V6〕較正側だけ
+    """〔2-4 V6・検収 H1〕較正側のファイル+検証側の作り物(:func:`synth_validation_anchors`)。"""
+    doc = yard.load_anchors(ANCHORS_PATH)  # 較正側のファイルだけを開く
+    clash = set(doc["anchors"]) & set(SYNTH_KEYS)
+    assert not clash, f"較正側のファイルに作り物と同じ鍵がある: {sorted(clash)}"
+    doc["anchors"] = {**doc["anchors"], **synth_validation_anchors()}
+    yard.check_anchors(doc)
+    return doc
 
 
 @pytest.fixture()
@@ -103,13 +155,22 @@ SUMMARY_TEXT_IN_AREA = SUMMARY_TEXT + (
 
 
 def test_anchors_json_has_source_and_tag(yard, anchors):
-    """台帳の全項目に source / verified_by / tag があり、値を持つ。"""
+    """台帳の全項目に source / verified_by / tag があり、値を持つ。
+
+    〔2-4 検収 H1〕較正側の 3 本はファイルの値・検証側の鍵は作り物(:func:`synth_validation_anchors`)。
+    """
     assert ANCHORS_PATH.exists()
     a = anchors["anchors"]
+    assert {k for k in a if a[k]["source"] == SYNTH_SOURCE} == set(SYNTH_KEYS)
+    assert {k for k in a if a[k]["source"] != SYNTH_SOURCE} == {
+        "core9_daytime_population", "core9_night_population", "core9_day_night_ratio"}
     assert len(a) >= 8
     for key, row in a.items():
         assert row["source"], key
-        assert row["verified_by"].startswith("parent"), key
+        if row["source"] == SYNTH_SOURCE:  # 〔2-4 検収 H1・親〕作り物は親が確かめた値ではない=印をそのまま
+            assert row["verified_by"] == SYNTH_SOURCE, key
+        else:
+            assert row["verified_by"].startswith("parent"), key
         assert row["tag"] in yard.ANCHOR_TAGS, key
         assert any(k in row for k in ("value", "values", "low", "shares")), key
     assert len(a["wake_rate_tokyo_weekday"]["values"]) == 24
@@ -389,9 +450,15 @@ def test_series_rejects_wrong_shape(yard, tmp_path):
         yard.presence_from_series(p2)
 
 
-def test_cli_writes_json_and_md(yard, amap, tmp_path, monkeypatch, capsys):
-    """CLI が ``presence_yardstick.json`` と ``.md`` を書く(写像表は合成を注入)。"""
+def test_cli_writes_json_and_md(yard, anchors, amap, tmp_path, monkeypatch, capsys):
+    """CLI が ``presence_yardstick.json`` と ``.md`` を書く(写像表は合成を注入)。
+
+    〔2-4 検収 H1〕錨は ``--anchors`` で fixture(較正側+作り物)を渡す=既定の道筋(検証側のファイル)を開かない。
+    """
     monkeypatch.setattr(yard, "_area_map", lambda args: amap)
+    anc = tmp_path / "anchors.json"
+    anc.write_text(json.dumps({k: v for k, v in anchors.items() if k != "_path"}, ensure_ascii=False),
+                   encoding="utf-8")
     a = synth_journal(tmp_path / "a.npz", hour_mult({9: 10}))
     b = synth_journal(tmp_path / "b.npz", hour_mult({9: 5}))
     sp = tmp_path / "s.txt"
@@ -399,7 +466,7 @@ def test_cli_writes_json_and_md(yard, amap, tmp_path, monkeypatch, capsys):
     out = tmp_path / "out"
     rc = yard.main(["--journal", str(a), "--summary", str(sp), "--label", "after",
                     "--before", str(b), "--before-label", "before",
-                    "--out", str(out)])
+                    "--anchors", str(anc), "--out", str(out)])
     assert rc == 0
     doc = json.loads((out / "presence_yardstick.json").read_text(encoding="utf-8"))
     assert doc["schema"] == "shibuya.tools.c7/presence_yardstick/1"

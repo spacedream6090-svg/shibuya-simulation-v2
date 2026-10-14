@@ -412,8 +412,8 @@
   {
    "id": "EX-build.field.w12_external_nodes-f2cc7f0a",
    "what": "等間隔ダイヤ(F10)の道=切替口 USE_REAL_TIMETABLES=False(1.1.0 の時刻表の再現)と実データの無い線だけ(2-3b の既定では 0 線)。上下同数・ピーク本数は資料3(山手線は 16-20 本/h の中央 18・夕は朝と同数か引数の表)・オフピーク比と初終発は切替口 False でメトロ実ダイヤ(初終発は平日)・残る線では実ダイヤ全線(平日/土休それぞれ)から",
-   "why": "構築の段 W12 が宣言した近似(2-3b の実ダイヤ・モジュールの表 EQUAL_INTERVAL_TIMETABLE_EXPEDIENTS の 1 番目・記録 docs/bench/analysis/wallbounce-1012/tt23b/README.md)。外す段: 2-4 活性化(切替口 False=1.1.0 の時刻表の再現の道を、活性化の後に残すかを決める段)",
-   "remove_at": "2-4",
+   "why": "構築の段 W12 が宣言した近似(2-3b の実ダイヤ・モジュールの表 EQUAL_INTERVAL_TIMETABLE_EXPEDIENTS の 1 番目・記録 docs/bench/analysis/wallbounce-1012/tt23b/README.md)。外す段: 2-4 活性化(切替口 False=1.1.0 の時刻表の再現の道を、活性化の後に残すかを決める段)〔第334・2-4〕外す段を改めた(親)=2-4 → 7(等間隔の推定の道は京王の切替口(USE_ODPT_CHALLENGE=False)と実データの無い線が使う=残す・外す段が計画に無い=主張の前に感度試験で示す)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/field/w12_external_nodes.py#expedients:f2cc7f0a",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -1611,8 +1611,8 @@
   {
    "id": "W9#5",
    "what": "影を作る日=定数 SHADOW_DATES(第330 B5・先頭=主の日・D-W15 の候補日選定は未決)",
-   "why": "構築の段 W9 が宣言した近似(StageResult.expedients の 5 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W9#5)。外す段: 2-3 複数日の mock で暦の日付ごとの影が要る。#88(10e 締め-4 の 6)の「影は SHADOW_DATES の 6 日だけ」〔第 2 期 2-3・外す段 2-3 → 2-4〕SHADOW_DATES を複数日の mock の 7 日の窓に広げた(07-13〜07-19+07-28)。宣言の文(影を作る日=定数)は窓の外の日が残る限り続く=**窓の外の日だけ**のつなぎ。活性化(本体の資産の差し替え)は 2-4",
-   "remove_at": "2-4",
+   "why": "構築の段 W9 が宣言した近似(StageResult.expedients の 5 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W9#5)。外す段: 2-3 複数日の mock で暦の日付ごとの影が要る。#88(10e 締め-4 の 6)の「影は SHADOW_DATES の 6 日だけ」〔第 2 期 2-3・外す段 2-3 → 2-4〕SHADOW_DATES を複数日の mock の 7 日の窓に広げた(07-13〜07-19+07-28)。宣言の文(影を作る日=定数)は窓の外の日が残る限り続く=**窓の外の日だけ**のつなぎ。活性化(本体の資産の差し替え)は 2-4〔第334・2-4〕外す段を改めた(親)=2-4 → 7(窓の外の日の影は残る・外す段が計画に無い=主張の前に感度試験で示す)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/vis/w9_shadow.py#expedients:75ac3726",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -1655,8 +1655,8 @@
   {
    "id": "BR-SHADOW-NEAREST-DAY",
    "what": "暦の日付の影(W9)が無いときは、いちばん近い日付の影を読む・同じ近さなら前の日(未リサーチ)",
-   "why": "コードの宣言(expedients)。外す段: #88(10e 締め-4 の 4)の「影の近い日」。2-3 複数日の mock で暦の日付ごとの影を作れば使わない〔第 2 期 2-3・外す段 2-3 → 2-4〕7 日の窓(2026-07-13〜07-19)の影を W9 で組んだ(資産 data/world/v2_stage_2-3・SHADOW_DATES は窓の 7 日+主の日 07-28)=窓の中の日は暦の日付の影を読み、この近い日の影は**窓の外の日だけ**で使う(試験 tests/engine/multiday/test_md23_w9_window.py=窓の中は計器 0・07-20 は 1)。窓を広げる版上げ(活性化と一緒の 2-4)で外す日を足す(記録 md23/README.md)",
-   "remove_at": "2-4",
+   "why": "コードの宣言(expedients)。外す段: #88(10e 締め-4 の 4)の「影の近い日」。2-3 複数日の mock で暦の日付ごとの影を作れば使わない〔第 2 期 2-3・外す段 2-3 → 2-4〕7 日の窓(2026-07-13〜07-19)の影を W9 で組んだ(資産 data/world/v2_stage_2-3・SHADOW_DATES は窓の 7 日+主の日 07-28)=窓の中の日は暦の日付の影を読み、この近い日の影は**窓の外の日だけ**で使う(試験 tests/engine/multiday/test_md23_w9_window.py=窓の中は計器 0・07-20 は 1)。窓を広げる版上げ(活性化と一緒の 2-4)で外す日を足す(記録 md23/README.md)〔第334・2-4〕外す段を改めた(親)=2-4 → 7(窓の外の日は近い日の影を読む道が残る・外す段が計画に無い=主張の前に感度試験で示す)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/engine/processes/environment.py#expedients:a5d3ddf2",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3366,8 +3366,8 @@
   {
    "id": "BR-PHONE-TABLE-BLANK",
    "what": "店の番号の場所の表(engine.tools.places.PhoneTable)は空。読み口 phone_of は全部 None。OSM の phone タグを持つ要素の数は数えた(記録 c0/README.md §5)。w6_poi.parquet には OSM の番号の列が無いが、元の JSON(shibuya_osm_wide_v8.json の pois)の行の並びで OSM の番号に結べる見込み(2,259 行・phone 477 行=記録 c0/README.md §5)。2-4 で確かめる",
-   "why": "口の約束 1-7〔決定(回答 10-13b §3)〕店の番号の場所の表は OSM の phone タグから作る(ライセンスを増やさない)。発注(第 1 期 1-7)=データの資産は本段では作らず、構築の段(W6 の POI)に欄を足す形で版上げ 2 回目に埋める(OSM の番号で結べない行の扱いはその前に決める)。外す段: 2-4(版上げ 2 回目)",
-   "remove_at": "2-4",
+   "why": "口の約束 1-7〔決定(回答 10-13b §3)〕店の番号の場所の表は OSM の phone タグから作る(ライセンスを増やさない)。発注(第 1 期 1-7)=データの資産は本段では作らず、構築の段(W6 の POI)に欄を足す形で版上げ 2 回目に埋める(OSM の番号で結べない行の扱いはその前に決める)。外す段: 2-4(版上げ 2 回目)〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2",
+   "remove_at": "4-2",
    "declared_in": "docs/design/v2-foundation-contracts-2026-10-13.md §1-7",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3558,8 +3558,8 @@
   {
    "id": "DOC-ec21-atm-fixture",
    "what": "ATM の表(Fixtures.atms)は組み立てで OSM の amenity=atm・atm=yes・amenity=bank(銀行の支店=atm の印に関わらず全部・検収 L3)の 55 点から作る(セル・営業時間・銀行名は持たない)",
-   "why": "2-1(EC4「ATM は実データ(場所・営業時間)」)。世界の資産(W6 の POI)に ATM の行が無いため、取得物(poi_tags_overpass_20260928.json・poi_opening_hours_overpass_20260907.json・ODbL)から組み立てで写す。2-4 で W6 の POI に ATM の行を足して外す",
-   "remove_at": "2-4",
+   "why": "2-1(EC4「ATM は実データ(場所・営業時間)」)。世界の資産(W6 の POI)に ATM の行が無いため、取得物(poi_tags_overpass_20260928.json・poi_opening_hours_overpass_20260907.json・ODbL)から組み立てで写す。2-4 で W6 の POI に ATM の行を足して外す〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2",
+   "remove_at": "4-2",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3572,8 +3572,8 @@
   {
    "id": "DOC-ec21-atm-hours-and-cells",
    "what": "営業時間の無い ATM(単独の ATM・店の中の ATM)は 24 時間・祝日は曜日の規則のまま(OSM の PH を読まない)・セルは地上の層を先に",
-   "why": "2-1。55 点のうち営業時間のある点は一部(24/7 と Mo-Fr 09:00-15:00 だけ)。〔検収 L3〕atm の印の無い銀行を外した理由(窓口だけ)は確かめていなかった=銀行の支店は全部入れ、営業時間の無い支店は DOC-ec21-bank-branch-default-hours。W6 の POI に ATM の行を足す段で営業時間の出どころと合わせて見直す",
-   "remove_at": "2-4",
+   "why": "2-1。55 点のうち営業時間のある点は一部(24/7 と Mo-Fr 09:00-15:00 だけ)。〔検収 L3〕atm の印の無い銀行を外した理由(窓口だけ)は確かめていなかった=銀行の支店は全部入れ、営業時間の無い支店は DOC-ec21-bank-branch-default-hours。W6 の POI に ATM の行を足す段で営業時間の出どころと合わせて見直す〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2",
+   "remove_at": "4-2",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3704,8 +3704,8 @@
   {
    "id": "DOC-ec21-account-two-rows",
    "what": "口座の決済(カード・IC・振込)を「銀行の決済の行(預金純増)+本体の行」の 2 行で書く(世帯の現金は動かない)",
-   "why": "2-1。検算①の「部門ごとの Σ科目 = Δ現金」と預金脚・検算②をそのまま満たす形(未リサーチ)。生ログの行が増える(K17 の係数を腕 on で測る)。預金の流れの表を持つ形に替えるかは版上げ 2 回目で決める",
-   "remove_at": "2-4",
+   "why": "2-1。検算①の「部門ごとの Σ科目 = Δ現金」と預金脚・検算②をそのまま満たす形(未リサーチ)。生ログの行が増える(K17 の係数を腕 on で測る)。預金の流れの表を持つ形に替えるかは版上げ 2 回目で決める〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2",
+   "remove_at": "4-2",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3718,8 +3718,8 @@
   {
    "id": "DOC-ec21-consumption-pair-for-outside-sales",
    "what": "域外の取引先の支払い(外界 → 店舗・外界 → 雇用主)を科目「消費支出」に載せる(段階 2 の組 STAGE2_PAIRS=腕のランだけ許す)",
-   "why": "2-1。12 科目に「売上・輸出」が無く、科目を足すと流れの表の形(6 × 6 × 15)が変わり既定のランの残高のハッシュが動くため。科目を足すかは版上げ 2 回目で決める",
-   "remove_at": "2-4",
+   "why": "2-1。12 科目に「売上・輸出」が無く、科目を足すと流れの表の形(6 × 6 × 15)が変わり既定のランの残高のハッシュが動くため。科目を足すかは版上げ 2 回目で決める〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2",
+   "remove_at": "4-2",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3748,8 +3748,8 @@
   {
    "id": "DOC-ec21-bank-branch-default-hours",
    "what": "営業時間の無い(読めない)銀行の支店(amenity=bank・55 点のうち 20 点)は平日 9:00-15:00・土日は閉(BANK_DEFAULT_HOURS・祝日は曜日の規則のまま)。atm の印の無い支店も引き出しの場所に入れる(窓口の引き出し)",
-   "why": "2-1・検収 L3(親の判断)。銀行の窓口の一般的な営業時間として置いた値(未リサーチ)。atm=yes で営業時間の無い支店 7 点は前の版の 24 時間から変わる。W6 の POI に営業時間を足す段で外す",
-   "remove_at": "2-4",
+   "why": "2-1・検収 L3(親の判断)。銀行の窓口の一般的な営業時間として置いた値(未リサーチ)。atm=yes で営業時間の無い支店 7 点は前の版の 24 時間から変わる。W6 の POI に営業時間を足す段で外す〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2",
+   "remove_at": "4-2",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -4028,6 +4028,21 @@
    "code_at": [
     "src/shibuya/engine/events/body.py",
     "src/shibuya/engine/events/log.py"
+   ]
+  },
+  {
+   "id": "DOC-vb24-seat-not-released-on-board",
+   "what": "在席の印(poi_ref)は歩き出し(resolve._apply_move)でだけ解く。乗車の歩き出しでは在席を解かない(_apply_board の歩き出しと計画の出口の乗車が MOVING にする道=乗った時に解く)。2-4 V3 の後も、店のセルの外にいる在席の体 × 刻みの残り 1.91% の 88%(3,888)はこの道(5,000 体・1 日・語彙 v3・記憶 on・近接 distance)",
+   "why": "2-4 V3(記録 docs/bench/analysis/wallbounce-1012/vb24/README.md §V3-3)。V3 の発注は _apply_move の範囲=乗車の歩き出しは範囲の外。同じ口を乗車の歩き出しにも足すと既定の結果がまた動く=版上げ 3 回目の候補。外す段 4-3 は親の判断(〔第334・2-4〕)",
+   "remove_at": "4-3",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/vb24/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/resolve.py",
+    "src/shibuya/engine/seat_release.py"
    ]
   }
  ]

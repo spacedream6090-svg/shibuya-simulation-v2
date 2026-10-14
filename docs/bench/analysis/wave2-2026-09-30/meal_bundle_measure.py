@@ -263,14 +263,18 @@ def cmd_all(args: argparse.Namespace) -> int:
             rows.append(row)
             print(row.get("policy"), row.get("arm"), row.get("final"), row.get("calls"),
                   (row.get("breakfast_skip") or {}).get("all"), (row.get("error") or "")[-400:], flush=True)
-    anc = json.loads((REPO / "docs/bench/anchors/hunger_energy_anchors_v0.json").read_text(encoding="utf-8"))
+    # 〔第 2 期 2-4 V6・検収 L3〕錨は構築側と検証側の 2 本(前は 1 本 hunger_energy_anchors_v0.json=消した)=
+    # energy.load_anchors()(2 本を 1 つの辞書に戻す口=分ける前の 1 本と同じ辞書)で読む。
+    from shibuya.engine import energy as _E  # noqa: PLC0415
+
+    anc = _E.load_anchors()[0]
     t10 = anc["nhns_t10_breakfast_skip"]
     doc = {
         "schema": "shibuya.bench/wave2-2026-09-30/meal-bundle-2b/1",
         "how": "5,000 体・seed 1・語彙 v3・energy・1 シミュ日(月曜)。3 方策 × 5 腕。判定しない",
         "skip_definition": "朝の窓 5:00〜10:59 に食事(範囲内・範囲外・自宅の予定の実行)が 1 回も無い体(軽食だけは欠食)",
         "anchor_t10_breakfast_skip_pct": {"age_classes": t10["age_classes"], "pct": t10["pct"],
-                                          "source": "国民健康・栄養調査 令和6年 第10表(錨 hunger_energy_anchors_v0)"},
+                                          "source": "国民健康・栄養調査 令和6年 第10表(錨 hunger_energy_validation_anchors_v0=2-4 V6 で分けた検証側)"},
         "rows": rows,
     }
     Path(args.out).write_text(json.dumps(doc, ensure_ascii=False, indent=1, default=str) + "\n",
