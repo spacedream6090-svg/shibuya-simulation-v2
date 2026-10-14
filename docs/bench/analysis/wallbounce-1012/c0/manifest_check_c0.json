@@ -1,0 +1,425 @@
+{
+ "schema": "shibuya.bench/c0/manifest-check/1",
+ "agents": 5000,
+ "world": "data/world/v2",
+ "how": "10f の manifest_check_10f.py side の 7 本(HEAD=本体の HEAD の src の写し・c0=作業木の src・両側 PYTHONHASHSEED=0)の checkpoints の JSON を平坦化して比べる(壁時計の欄は除く・daily の行は行ごとに平坦化)。足してよいのは一番上の tools(末尾)とその中・節の表の 1 行。動いてよいのは bridges_count(一番上と daily の各行・282 → 284)と bridges_version だけ。環境の欄は必ず違う",
+ "all_ok": true,
+ "rows": [
+  {
+   "config": "w6_v3_default",
+   "seed": 1,
+   "final_head": "5f7ae9ff24005314",
+   "final_c0": "5f7ae9ff24005314",
+   "fields_compared": 1766,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": 282,
+     "c0": 284
+    },
+    "manifest.bridges_version": {
+     "head": "3b7e73ad707bf9b1",
+     "c0": "9520069a801b8065"
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": 282,
+     "c0": 284
+    }
+   },
+   "added_fields_count": 25,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_c0_at_end": true,
+   "c0": {
+    "bridges_count": 284,
+    "n_tools": 7,
+    "groups": {
+     "rows": 1854,
+     "family": 474,
+     "workplace": 1380,
+     "members": {
+      "家族": 475,
+      "職場": 2421
+     }
+    },
+    "contact_flags": null,
+    "contact_flags_by_kind": null,
+    "phone_table_rows": 0,
+    "signboard": {
+     "origin": "signboard:synthetic",
+     "bridge": "BR-SIGNAGE-FICTION",
+     "what": "道具:看板",
+     "events_arm": false,
+     "read_events": 0
+    }
+   }
+  },
+  {
+   "config": "w6_v3_default",
+   "seed": 2,
+   "final_head": "db0746a3efc4a8cb",
+   "final_c0": "db0746a3efc4a8cb",
+   "fields_compared": 1770,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": 282,
+     "c0": 284
+    },
+    "manifest.bridges_version": {
+     "head": "3b7e73ad707bf9b1",
+     "c0": "9520069a801b8065"
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": 282,
+     "c0": 284
+    }
+   },
+   "added_fields_count": 25,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_c0_at_end": true,
+   "c0": {
+    "bridges_count": 284,
+    "n_tools": 7,
+    "groups": {
+     "rows": 1838,
+     "family": 475,
+     "workplace": 1363,
+     "members": {
+      "家族": 475,
+      "職場": 2421
+     }
+    },
+    "contact_flags": null,
+    "contact_flags_by_kind": null,
+    "phone_table_rows": 0,
+    "signboard": {
+     "origin": "signboard:synthetic",
+     "bridge": "BR-SIGNAGE-FICTION",
+     "what": "道具:看板",
+     "events_arm": false,
+     "read_events": 0
+    }
+   }
+  },
+  {
+   "config": "w6_golden_null_arm",
+   "seed": 1,
+   "final_head": "354f49ca9a61b986",
+   "final_c0": "354f49ca9a61b986",
+   "fields_compared": 1766,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": 282,
+     "c0": 284
+    },
+    "manifest.bridges_version": {
+     "head": "3b7e73ad707bf9b1",
+     "c0": "9520069a801b8065"
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": 282,
+     "c0": 284
+    }
+   },
+   "added_fields_count": 25,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_c0_at_end": true,
+   "c0": {
+    "bridges_count": 284,
+    "n_tools": 7,
+    "groups": {
+     "rows": 1854,
+     "family": 474,
+     "workplace": 1380,
+     "members": {
+      "家族": 475,
+      "職場": 2421
+     }
+    },
+    "contact_flags": null,
+    "contact_flags_by_kind": null,
+    "phone_table_rows": 0,
+    "signboard": {
+     "origin": "signboard:synthetic",
+     "bridge": "BR-SIGNAGE-FICTION",
+     "what": "道具:看板",
+     "events_arm": false,
+     "read_events": 0
+    }
+   }
+  },
+  {
+   "config": "v3_mem_rel",
+   "seed": 1,
+   "final_head": "73a78288ab5e1498",
+   "final_c0": "73a78288ab5e1498",
+   "fields_compared": 2282,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": 282,
+     "c0": 284
+    },
+    "manifest.bridges_version": {
+     "head": "3b7e73ad707bf9b1",
+     "c0": "9520069a801b8065"
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": 282,
+     "c0": 284
+    }
+   },
+   "added_fields_count": 37,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_c0_at_end": true,
+   "c0": {
+    "bridges_count": 284,
+    "n_tools": 7,
+    "groups": {
+     "rows": 1854,
+     "family": 474,
+     "workplace": 1380,
+     "members": {
+      "家族": 475,
+      "職場": 2421
+     }
+    },
+    "contact_flags": 5732,
+    "contact_flags_by_kind": {
+     "household": 2,
+     "work": 5730,
+     "school": 0,
+     "regular": 0,
+     "acquaintance": 0
+    },
+    "phone_table_rows": 0,
+    "signboard": {
+     "origin": "signboard:synthetic",
+     "bridge": "BR-SIGNAGE-FICTION",
+     "what": "道具:看板",
+     "events_arm": false,
+     "read_events": 0
+    }
+   }
+  },
+  {
+   "config": "v3_mem_rel",
+   "seed": 2,
+   "final_head": "c615df9a771cda41",
+   "final_c0": "c615df9a771cda41",
+   "fields_compared": 2267,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": 282,
+     "c0": 284
+    },
+    "manifest.bridges_version": {
+     "head": "3b7e73ad707bf9b1",
+     "c0": "9520069a801b8065"
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": 282,
+     "c0": 284
+    }
+   },
+   "added_fields_count": 37,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_c0_at_end": true,
+   "c0": {
+    "bridges_count": 284,
+    "n_tools": 7,
+    "groups": {
+     "rows": 1838,
+     "family": 475,
+     "workplace": 1363,
+     "members": {
+      "家族": 475,
+      "職場": 2421
+     }
+    },
+    "contact_flags": 6106,
+    "contact_flags_by_kind": {
+     "household": 0,
+     "work": 6106,
+     "school": 0,
+     "regular": 0,
+     "acquaintance": 0
+    },
+    "phone_table_rows": 0,
+    "signboard": {
+     "origin": "signboard:synthetic",
+     "bridge": "BR-SIGNAGE-FICTION",
+     "what": "道具:看板",
+     "events_arm": false,
+     "read_events": 0
+    }
+   }
+  },
+  {
+   "config": "v3_classical_mem_rel",
+   "seed": 1,
+   "final_head": "4c512a1fdc2a70c0",
+   "final_c0": "4c512a1fdc2a70c0",
+   "fields_compared": 2278,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": 282,
+     "c0": 284
+    },
+    "manifest.bridges_version": {
+     "head": "3b7e73ad707bf9b1",
+     "c0": "9520069a801b8065"
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": 282,
+     "c0": 284
+    }
+   },
+   "added_fields_count": 37,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_c0_at_end": true,
+   "c0": {
+    "bridges_count": 284,
+    "n_tools": 7,
+    "groups": {
+     "rows": 1854,
+     "family": 474,
+     "workplace": 1380,
+     "members": {
+      "家族": 475,
+      "職場": 2421
+     }
+    },
+    "contact_flags": 5734,
+    "contact_flags_by_kind": {
+     "household": 2,
+     "work": 5732,
+     "school": 0,
+     "regular": 0,
+     "acquaintance": 0
+    },
+    "phone_table_rows": 0,
+    "signboard": {
+     "origin": "signboard:synthetic",
+     "bridge": "BR-SIGNAGE-FICTION",
+     "what": "道具:看板",
+     "events_arm": false,
+     "read_events": 0
+    }
+   }
+  },
+  {
+   "config": "v3_classical_mem_rel",
+   "seed": 2,
+   "final_head": "2615535c06c09e84",
+   "final_c0": "2615535c06c09e84",
+   "fields_compared": 2251,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": 282,
+     "c0": 284
+    },
+    "manifest.bridges_version": {
+     "head": "3b7e73ad707bf9b1",
+     "c0": "9520069a801b8065"
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": 282,
+     "c0": 284
+    }
+   },
+   "added_fields_count": 37,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_c0_at_end": true,
+   "c0": {
+    "bridges_count": 284,
+    "n_tools": 7,
+    "groups": {
+     "rows": 1838,
+     "family": 475,
+     "workplace": 1363,
+     "members": {
+      "家族": 475,
+      "職場": 2421
+     }
+    },
+    "contact_flags": 6109,
+    "contact_flags_by_kind": {
+     "household": 0,
+     "work": 6109,
+     "school": 0,
+     "regular": 0,
+     "acquaintance": 0
+    },
+    "phone_table_rows": 0,
+    "signboard": {
+     "origin": "signboard:synthetic",
+     "bridge": "BR-SIGNAGE-FICTION",
+     "what": "道具:看板",
+     "events_arm": false,
+     "read_events": 0
+    }
+   }
+  }
+ ]
+}

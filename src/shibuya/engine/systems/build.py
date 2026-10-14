@@ -1182,6 +1182,11 @@ def build(_call_args: dict[str, Any]) -> Any:
         from shibuya.engine.events.links import MoneyEventLink
 
         ledger.attach_events(MoneyEventLink(events), step_seconds=int(tick_seconds))
+    # ---- 第 1 期 1-7(道具の台帳 C0): 道具の一式(台帳・グループの一覧=W16・店の番号の表=空・看板の口=腕のときだけ)。
+    # 組み立てで作り、ランの間は読むだけ(箱 Fixtures.tools=状態台帳の対象外)。既定のランでは誰も読まない ----
+    from shibuya.engine.tools import record as _TOOLS
+
+    _tools_fx = _TOOLS.build_fixture(pop, n_agents, events)
 
     # ---- 第 1 期 1-8 J0: 候補の口の腕(既定 legacy=層を作らない=今の道)。port のランだけ層を作り、判断の系が 1 呼を口に通す
     # (状態台帳の行 J0=軸 1 diag・軸 2 discardable)。実装は方策で選ぶ(古典 → ClassicalPort・記録の mock → MockPort・
@@ -1207,6 +1212,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             port=_port, vocab=cross_action_words(vocab_version), continue_word=safe_action_word(vocab_version),
             word_of_code=_WORDS, events=events, world=world, home_cell=np.asarray(schedule.home_cell),
             station_cells=getattr(_pa_j0, "line_platform_cell", None),
+            tools=_tools_fx.registry,  # 1-7: 候補の源「周りが示すできること」に道具の台帳(Fixtures.tools と同じ物)
         )
 
     # ---- 1-0 段 C: 状態の箱(局所の割り当ての表 local-assignment.json・草案 §2-3)。物はそのまま指す(写しを作らない) ----
@@ -1268,7 +1274,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         fx=_BX.Fixtures(
             calendar=calendar, schedule=schedule, schedule_hash=schedule_hash, weekly=weekly, space=space,
             geom=geom, perception=perception, renderer_obj=renderer_obj, walkable=walkable,
-            env_fields=_env_fields, start_check=start_check, fleet=fleet,
+            env_fields=_env_fields, start_check=start_check, fleet=fleet, tools=_tools_fx,
         ),
     )
     del pending, n_undefined_total, n_fleet_reinjected, n_fleet_resent, n_outside_calls, geometry_hops

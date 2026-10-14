@@ -347,10 +347,14 @@ def rebuild_derived(b: Any) -> None:
     通しのランではこれらの表は ``initialize`` の後の SoA(体の種別)から作られる。再開では初期化を呼ばないので、
     保存から戻した SoA で作り直す(種別はラン中に変わらない=通しと同じ表)。表は状態台帳の除外の一覧の
     キャッシュ(導出)に載る: 方策 classical の ``employed``・開閉の過程の担当従業者 ``staff_of_poi``
-    (補充の過程が同じ配列を持つ)。
+    (補充の過程が同じ配列を持つ)。〔第 1 期 1-7〕関係の記憶の連絡先の印(``rel_layer._contact_flags``=状態台帳の行 CT5)も
+    戻した辺の種別から作り直す。
     """
     classical_policy, runner = b.layers.classical, b.layers.runner
     if classical_policy is not None:
         classical_policy.rebuild_derived()
     if runner is not None:
         runner.opening.rebuild_derived()
+    # 第 1 期 1-7 CT5: 連絡先の印(関係の記憶の contact_flags)を戻した辺の種別から作り直す(状態台帳の行 CT5=導出)
+    if b.layers.rel_layer is not None:
+        b.layers.rel_layer.rebuild_contacts(b.soa.agents)

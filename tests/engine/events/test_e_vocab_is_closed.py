@@ -25,12 +25,12 @@ def test_families_are_copies_of_their_sources():
 
 
 def test_vocab_size_and_uniqueness():
-    assert len(V.VOCAB) == 12 + (18 + 2) + 15 + 8 + 1 == 56  # 1-5: 行為:許可のない行動 を末尾に足した
+    assert len(V.VOCAB) == 12 + (18 + 2) + 15 + 8 + 1 + 1 == 57  # 1-5: 行為:許可のない行動・1-7: 道具:看板 を末尾に足した
     assert len(set(V.VOCAB)) == len(V.VOCAB)
     assert all(w.split(":", 1)[0] in V.FAMILIES for w in V.VOCAB)
     # 族を付けた理由: 金と物に同じ語(域外仕入)がある
     assert "金:域外仕入" in V.VOCAB_CODES and "物:域外仕入" in V.VOCAB_CODES
-    assert V.VOCAB_VERSION == "events-vocab/1-5"
+    assert V.VOCAB_VERSION == "events-vocab/1-7"
 
 
 @pytest.mark.parametrize("what", [

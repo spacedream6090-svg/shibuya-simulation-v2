@@ -9,8 +9,8 @@ J0 の作り(結果不変=腕 ``--decision-port port`` でも mock の行為は�
 2. 近い予定(``plan``): 知覚の事実の今の意図(``Percept.intent`` の行為)。
 3. 本人の経験(``experience``): 想起した記憶(``Percept.memories``)の種類を行為の語に戻した物(記憶の表の
    ``engine.memory.ACTION_KIND`` の逆=新しい表は作らない)。元の出来事 id(1-6 の器の行で出どころが記録の物)を ``basis`` に。
-4. 周りが示すできること(``affordance``): 場所の種類と営業時間から機械的に作る(1-7 の道具の台帳が入るまでのつなぎ=
-   ``engine.decision.layer.DecisionLayer.affordance_words``)。
+4. 周りが示すできること(``affordance``): 場所の種類と営業時間と知覚の読みと、1-7 の道具の台帳(道具 → 語の表=今は空)
+   から作る(``engine.decision.layer.DecisionLayer.affordance_words``)。
 5. よく考える(``deliberate``): 1 つ(行為の語ではない=エンジンは実行しない)。
 
 どの源も出さなかった語彙の語は ``vocab``(つなぎの印=今の道の設計者の一覧)で残す(mock が今と同じ語から引くため)。同じ語を

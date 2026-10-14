@@ -1,0 +1,171 @@
+{
+ "a": {
+  "label": "head2_port",
+  "kw": {},
+  "src": "写し"
+ },
+ "b": {
+  "label": "c0r_port",
+  "kw": {},
+  "src": "写し"
+ },
+ "note": "腕 port(SHIBUYA_DECISION_PORT=port)・HEAD=4995147 の写し(結線の前)・c0r=作業木の src(結線の後)。candidate_sequences=道具 c0/tools/port_pair_c0.py(判断ごとの候補の (id, 源) の列・提示の番号と選んだ id・適用したコードの並びの sha・manifest の decision_port の観測の子)",
+ "keys": [
+  "final",
+  "calls",
+  "blocks_rows",
+  "blocks_sha",
+  "calls_rows",
+  "calls_column_names",
+  "calls_columns_sha",
+  "action_usage_total",
+  "action_usage_sha",
+  "calls_by_condition",
+  "salient_events",
+  "collapse",
+  "noticed",
+  "dispatches",
+  "arrived",
+  "mean_delay_min",
+  "meals",
+  "behavior_last",
+  "full_last",
+  "end_of_day",
+  "start_sim_datetime",
+  "replay_date",
+  "calendar_weekday",
+  "rng_scheme",
+  "frozen_sources"
+ ],
+ "rows": {
+  "w6_v3_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources"
+   ],
+   "moved": {},
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "v3_mem_rel": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources"
+   ],
+   "moved": {},
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  }
+ },
+ "candidate_sequences": {
+  "schema": "shibuya.bench/c0/port-pair/1",
+  "a": "head_4995147",
+  "b": "c0_wired",
+  "all_same": true,
+  "how": "腕 port・5,000 体・seed 1・1 日・世界資産。判断ごとの候補の (id, 源) の列・提示の番号と選んだ id・適用したコードの並びの sha と final・呼数・manifest の decision_port の観測の子を比べる",
+  "rows": {
+   "w6_v3_default": {
+    "same": [
+     "final",
+     "calls",
+     "candidates",
+     "chosen",
+     "applied",
+     "decision_port"
+    ],
+    "moved": {},
+    "a_has_tools": false,
+    "b_has_tools": true,
+    "decisions": 65597,
+    "candidates": {
+     "rows": 65597,
+     "sha": "0dbe4ace03052466"
+    },
+    "chosen": {
+     "rows": 65597,
+     "sha": "c2e569a75feacac9"
+    },
+    "applied": {
+     "rows": 65597,
+     "sha": "d3316868df82f266"
+    }
+   },
+   "v3_mem_rel": {
+    "same": [
+     "final",
+     "calls",
+     "candidates",
+     "chosen",
+     "applied",
+     "decision_port"
+    ],
+    "moved": {},
+    "a_has_tools": false,
+    "b_has_tools": true,
+    "decisions": 69111,
+    "candidates": {
+     "rows": 69111,
+     "sha": "2e0d43abae3c402f"
+    },
+    "chosen": {
+     "rows": 69111,
+     "sha": "f111eb5aebbf207e"
+    },
+    "applied": {
+     "rows": 69111,
+     "sha": "7942d81de0cec0a8"
+    }
+   }
+  }
+ }
+}

@@ -12,6 +12,10 @@
 1 呼を判断の口に通す(``DecisionLayer.decide_one``=前半 → 候補 → 口 → 後半)。結果の行為のコードは口が選んだ候補のコード
 (mock と古典は今と同じ番号)。艦隊の道は J0 では口を通さない(数えるだけ)。既定の道の文は変えない。
 
+〔第 1 期 1-7〕道具の台帳 C0(CT9): 腕 ``SHIBUYA_TOOL_EVENTS``(既定 off)のランだけ、描いた知覚の事実から看板を読んだ
+出来事(``道具:看板``・作り物の印 ``signboard:synthetic``)を出来事の記録へ書く(``fx.tools.signboard_link``)。描画の後に
+事実を読むだけ=描画・判断・テープは変わらない。
+
 逐次ループ宣言: 区間の中の宣言は HEAD のまま(各関数の中の注を見る)。ほかに新しい逐次ループは無い。
 """
 
@@ -217,5 +221,9 @@ def sys_decide(ctx: Any, b: Any) -> None:
     b.runstats.peak_backlog = max(b.runstats.peak_backlog, arbiter.n_pending())
     phase["llm"] += time.perf_counter() - t0
     b.scratch.parse_errors = n_parse_errors
+    # 第 1 期 1-7(CT9・腕 SHIBUYA_TOOL_EVENTS・既定 off): 看板を読んだ出来事に作り物の印(記録だけ・描画は変えない)
+    _tools = b.fx.tools
+    if _tools is not None and _tools.signboard_link is not None and percepts:
+        _tools.signboard_link(percepts)
     # 第 1 期 1-2: 知覚の事実は刻みの中だけ(読むだけの写し・刻みの頭で空になる=状態台帳の行 P)
     b.scratch.percepts = MappingProxyType(percepts)

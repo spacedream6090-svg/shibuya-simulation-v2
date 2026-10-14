@@ -312,6 +312,10 @@ def report(ctx: Any, b: Any) -> Any:
     result.relations = (
         rel_layer.summary(agents, max(0, int(t_end) - 1)) if rel_layer is not None else {}
     )
+    # 第 1 期 1-7: manifest の tools(道具の数・グループの数・連絡先の印の数・店の番号の表・看板の印=計器・記録だけ)
+    from shibuya.engine.tools import record as _TOOLS
+
+    result.tools = _TOOLS.manifest_fields(fx.tools, rel_layer, agents, daily_records)
     if rel_layer is not None and conv is not None and conv.origin_names is not None:
         # C10 8b 診断行: 起点ごとの 招待/承諾/断り/期限切れ/門で落ちた(decision_layers の入口にも同じ表)
         result.relations["origins"] = conv.origin_summary()

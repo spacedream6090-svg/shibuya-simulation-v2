@@ -73,13 +73,16 @@ def test_ledger_has_187_rows_in_two_axes():
     〔第 1 期 1-2〕知覚の事実の行 ``P``(``TickScratch.percepts``・軸 1 no・軸 2 discardable・道筋なし)を足して外の状態
     101 行・全体 192 行(1-6・1-9 の行の後・版は上げない=同じ理由・記録 p12/README.md)。
     〔第 1 期 1-8 J0〕候補の口の行 ``J0``(``DecisionLayer`` の計器と営業中の店の控え・軸 1 diag・軸 2 discardable)を足して
-    外の状態 102 行・全体 193 行(1-2 の行の後・版は上げない=同じ理由・記録 j0/README.md)。"""
+    外の状態 102 行・全体 193 行(1-2 の行の後・版は上げない=同じ理由・記録 j0/README.md)。
+    〔第 1 期 1-7〕連絡先の印の行 ``CT5``(``rel_layer._contact_flags``・軸 1 diag・軸 2 derivable・中身は全部 hash_skip=M0 と同じ形)
+    を足して外の状態 103 行・全体 194 行(1-8 の J0 の後・版は上げない=同じ理由・記録 c0/README.md)。"""
     c = SL.counts()
-    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 102, "soa": 91, "total": 193}
+    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 103, "soa": 91, "total": 194}
     assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
-    assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 97)] + ["E", "M0", "M0R", "A", "P", "J0"]
+    assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 97)] + ["E", "M0", "M0R", "A", "P", "J0",
+                                                                                     "CT5"]
     assert (SL.row("E").behavior, SL.row("E").restore) == (SL.DIAG, SL.DISCARDABLE)
     assert (SL.row("M0").behavior, SL.row("M0").restore) == (SL.NO, SL.DERIVABLE)
     assert set(SL.row("M0").hash_skip) == set(SL.row("M0").items)
@@ -87,6 +90,8 @@ def test_ledger_has_187_rows_in_two_axes():
     assert (SL.row("A").behavior, SL.row("A").restore) == (SL.DIAG, SL.DISCARDABLE)
     assert (SL.row("P").behavior, SL.row("P").restore, SL.row("P").items) == (SL.NO, SL.DISCARDABLE, ())
     assert (SL.row("J0").behavior, SL.row("J0").restore) == (SL.DIAG, SL.DISCARDABLE)
+    assert (SL.row("CT5").behavior, SL.row("CT5").restore) == (SL.DIAG, SL.DERIVABLE)
+    assert set(SL.row("CT5").hash_skip) == set(SL.row("CT5").items) == {"rel_layer._contact_flags"}
     for r in SL.LEDGER:
         assert r.behavior in SL.AXIS1_VALUES, r.key
         assert r.restore in SL.AXIS2_VALUES, r.key

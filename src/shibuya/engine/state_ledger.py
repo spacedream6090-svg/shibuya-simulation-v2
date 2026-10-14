@@ -1,6 +1,6 @@
 """状態台帳の宣言(10b・A3「挙動」と「復元」の 2 軸・機械可読の 1 ファイル)。
 
-**読み口は 1 つ**: ``LEDGER``(193 行の組=〔第 1 期 1-8〕候補の口の行 ``J0``・〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
+**読み口は 1 つ**: ``LEDGER``(194 行の組=〔第 1 期 1-8〕候補の口の行 ``J0``・〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P``・〔第 1 期 1-7〕連絡先の印の行 ``CT5`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
 ``soa_rows``・``external_rows``・``behavior_excluded``・``full_excluded``・``full_items``・``behavior_items``)。表・AST の検査(``engine.state_ledger_ast``)・
 2 つのハッシュ(``engine.state_hashes``)・揺らし試験はどれもこの表から作る。
 
@@ -60,6 +60,8 @@ from typing import Final, Iterable
 #: 足したが版は上げない(1-3 と同じ仮採用): どちらのハッシュにも状態のファイルにも入らない(190 行)。
 #: 〔第 1 期 1-2〕知覚の事実の行 ``P``(軸 1 no・軸 2 discardable・道筋なし)も同じ理由で版は上げない(仮採用)。
 #: 〔第 1 期 1-8 J0〕候補の口の行 ``J0``(軸 1 diag・軸 2 discardable)も同じ理由で版は上げない(仮採用)。
+#: 〔第 1 期 1-7〕連絡先の印の行 ``CT5``(軸 1 diag・軸 2 derivable・中身は全部 hash_skip=1-6 の ``M0`` と同じ形)も同じ理由で
+#: 版は上げない(仮採用)。
 LEDGER_VERSION: Final[str] = "state-ledger/10e-ret"
 
 BEHAVIOR: Final[str] = "behavior"
@@ -747,6 +749,23 @@ _EXT: tuple[LedgerRow, ...] = (
              "(軸 1 diag)。営業中の店の控えは刻みの頭の世界から作り直す(候補の源 affordance を作るだけ=行為は口の実装が"
              "選ぶ・mock と古典は候補の源を読まない)。軸 2 discardable(再開のランは空から=どちらのハッシュにも状態のファイルにも"
              "入らない)。書く系は decide だけ(宣言 J0:decision.*)。行の鍵は O の通し番号でなく J0"),
+    # ---- 第 1 期 1-7(道具の台帳 C0・CT5 個人の連絡先): 足す前に軸を決めた行 ----
+    LedgerRow(
+        key="CT5", name="RelationLayer contact_flags(個人の連絡先の手段ごとの印・第 1 期 1-7)", place=EXTERNAL,
+        dtype="u1 体×k(関係辺の欄と同じ位置)・k B/体", nbytes="", alloc="", behavior=DIAG, restore=DERIVABLE,
+        dead=False,
+        basis="engine/relations.py(_write_contacts・seed_initial・_reset_slots・rebuild_contacts)・"
+              "engine/tools/contacts.py(印の作り方と数え方)・engine/systems/state_io.py(rebuild_derived)",
+        items=("rel_layer._contact_flags",), hash_skip=("rel_layer._contact_flags",),
+        note="1-7: 関係の記憶(--relations on のランだけ)に足した連絡先の手段ごとの印(決定 10-12 §4-4 CT5 (c))。軸 1 diag"
+             "(読み手は持ち主の数えの口 contact_tally=manifest の tools.contact_flags と試験だけ=C0 では挙動が読まない・"
+             "値は C1 で使う)・軸 2 derivable"
+             "(C0 では印は辺の種別の写像そのもの=家族と職場は初めから・新しい相手は 0。再開では rebuild_derived が戻した"
+             " rel_kind・rel_partner から作り直す)・中身は hash_skip(作り直せる表=キャッシュと同じ扱い=どちらのハッシュ"
+             "にも状態のファイルにも入らない=既定の final・full-hash は不変。1-6 の M0 と同じ形)。C1 で本人が連絡先を"
+             "交換し始めたら種別から作れない=behavior・required へ移す(版上げ)。書く系は memory(新しい相手の欄を消す="
+             "宣言 CT5:rel_layer._contact_flags)と組み立て(初めの辺)。中身は _contact_flags(公開の contact_flags は"
+             "読み取り専用の view の property=検収 L1)。行の鍵は O の通し番号でなく CT5"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -1111,8 +1130,9 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     # 第 1 期 1-8 J0: 候補の口の層の設定(腕の名・語彙・続ける語・語の表)・参照(口の実装・出来事の記録・世界)・資産の表
     _x("decision", CONST, _CFG, "arm", "vocab", "continue_word", "word_of_code", "kind_words", "event_words",
        "n_cells"),
-    _x("decision", REF, _REFR + "(口の実装=口の後ろの今の道の bridge と方策を指す・出来事の記録・世界)",
-       "port", "events", "world"),
+    _x("decision", REF, _REFR + "(口の実装=口の後ろの今の道の bridge と方策を指す・出来事の記録・世界・〔1-7〕道具の台帳"
+       "=組み立ての Fixtures.tools と同じ物)",
+       "port", "events", "world", "tools"),
     _x("decision", CACHE, _TAB, "_poi_cell", "_eatery", "_station", "_home_cell"),
 )
 

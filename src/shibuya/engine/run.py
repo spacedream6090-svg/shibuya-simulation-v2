@@ -928,6 +928,9 @@ class RunResult:
     environment_seed: int | str | None = None
     #: checkpoint ごとの列・外の状態の行の digest(``checkpoint_detail=True`` のときだけ・manifest には出さない)。
     checkpoint_details: list[dict[str, Any]] = field(default_factory=list)
+    #: 〔第 1 期 1-7〕道具の台帳 C0 の計器(``engine.tools.record.manifest_fields``)。manifest の ``tools``(観測)。組み立てを
+    #: 通らない結果は ``None``。
+    tools: dict[str, Any] | None = None
 
     # ---- 便利参照 ----
     def column(self, name: str) -> np.ndarray:
@@ -1110,6 +1113,8 @@ class RunResult:
             ``bridges_version``(台帳の中身の sha)。台帳と表のファイルが無い写しでは台帳と表の欄は ``None``。
             第 1 期 1-5: 末尾に ``rights``(権利台帳の行数と種類の分布・空欄のつなぎの台帳の行・許可のない行動の数。
             世界過程の無いランは ``None``)。
+            第 1 期 1-7: 末尾に ``tools``(道具の台帳の数と名・グループの数・連絡先の印の数・店の番号の表・看板の作り物の
+            印。組み立てを通らない結果は ``None``)。
         """
         from shibuya.engine import manifest_sections as _MS
         from shibuya.engine import run_kind as _RK
@@ -1308,6 +1313,10 @@ class RunResult:
             # T0 の TM9 → 1-4 の欄 → 1-9 の economy → 1-2 の percept → 1-5 の rights → 1-8。腕 legacy のランは観測の子が
             # null。列追加のみ ----
             "decision_port": _DECISION.manifest_fields(getattr(self, "decision_layer", None)),
+            # ---- 第 1 期 1-7(道具の台帳 C0・CT0・CT5・CT10): 道具の数・グループの数・連絡先の印の数・店の番号の表・看板の
+            # 作り物の印(計器)。末尾=… → 1-5 の rights → 1-8 の decision_port → 1-7。記録だけ(final・behavior-hash は
+            # manifest を読まない)。列追加のみ ----
+            "tools": copy.deepcopy(self.tools),
         }
 
     def economy_fields(self) -> dict[str, Any]:

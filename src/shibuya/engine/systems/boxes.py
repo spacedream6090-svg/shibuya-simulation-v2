@@ -401,6 +401,8 @@ class Fixtures:
     env_fields: Any
     start_check: Any
     fleet: Any
+    #: 〔第 1 期 1-7〕道具の一式(``engine.tools.record.ToolsFixture``=道具の台帳・グループの一覧・店の番号の表・看板の口)。
+    tools: Any = None
 
 
 @dataclass

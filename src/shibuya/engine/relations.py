@@ -59,6 +59,17 @@ A と強さ(M12 (a)・D-93 (a))::
        その当たりだけの配列演算。抽選は会話の行 × k の配列演算(起点の控えは会話の行の数ぶん)。
     SoA の外(腕だけ): 同席=欄ごとの始まりの tick int32+日 int16(体あたり 90 B)・知人出現=同一相手の不応期
     int32(体あたり 60 B)・前 tick のセル int32(4 B)・相手に選ばれた回数 int64(8 B)。
+    〔第 1 期 1-7 CT5〕個人の連絡先の手段ごとの印 ``contact_flags``(体 × k の uint8=体あたり k B・``--relations on`` の
+    ランだけ)。
+
+〔第 1 期 1-7 CT5〕個人の連絡先の手段ごとの印(決定 10-12 §4-4 CT5 (c)・``engine.tools.contacts``)
+    ``contact_flags``(体 × k・欄の位置は ``rel_*`` の列と同じ)。既存の ``rel_*`` の列と書き方は変えない。中身は
+    ``_contact_flags`` に置き、``contact_flags`` は読み取り専用の view を返す property(口の外から書けない・付け替えられない=
+    検収 L1。``_contact_flags`` の付け替えと消去も ``__setattr__``/``__delattr__`` で止める)。書くのは
+    :meth:`RelationLayer._write_contacts` の 1 つだけ(呼ぶのは初めの辺=:meth:`seed_initial`・欄の相手が替わった=
+    :meth:`_reset_slots`・再開の作り直し=:meth:`rebuild_contacts`=試験の AST)。家族(世帯の辺)と職場(職場の辺)は
+    初めから印あり。C0 では誰も読まない(C1 で使う)=印は辺の種別の写像そのもの(状態台帳の行 ``CT5``=軸 1 diag・
+    軸 2 derivable・中身は hash_skip)。
 """
 
 from __future__ import annotations
@@ -73,6 +84,7 @@ import numpy as np
 from shibuya.agents.state import REL_EMPTY, WAKE_CONDITION_CLASS, ResultCode, WakeCondition
 from shibuya.core.hashing import relation_invite_key_array
 from shibuya.engine import resolve as R
+from shibuya.engine.tools import contacts as _CT
 from shibuya.core.time_consts import MINUTES_PER_DAY
 
 __all__ = [
@@ -175,6 +187,8 @@ _TALK: Final[int] = 7
 _REST_SHARE: Final[float] = 1.0 - sum(s for _, s in REL_INVITE_LAYERS)
 _HELP: Final[int] = 9
 _SIGN_LABEL: Final[dict[int, str]] = {1: "+1", 0: "0", -1: "-1"}
+#: 〔1-7 CT5・検収 L1〕付け替えと消去を止める属性(連絡先の印の中身)。
+_CONTACT_GUARDED: Final[frozenset[str]] = frozenset({"_contact_flags"})
 _SIGN_OF_RESULT: Final[dict[int, int]] = {
     int(ResultCode.OK): 1, int(ResultCode.REFUSED): -1, int(ResultCode.PARTNER_BUSY): 0,
     int(ResultCode.PARTNER_GONE): 0,
@@ -648,6 +662,27 @@ class RelationLayer:
         self._acq_pending: tuple[np.ndarray, np.ndarray] = (np.zeros(0, dtype=np.int64), np.zeros(0, dtype=np.int64))
         #: 壁時計(決定論でない・manifest の ``wall_seconds_nondeterministic``)。
         self.wall: Counter = Counter()
+        #: 〔第 1 期 1-7 CT5〕個人の連絡先の手段ごとの印の中身(体 × k・``engine.tools.contacts.MEANS`` のビット)。書くのは
+        #: ``_write_contacts`` だけ・読むのは ``contact_flags``(読み取り専用の view)。C0 では誰も読まない(状態台帳の行 CT5)。
+        self._contact_flags = np.zeros((self.n, self.k), dtype=_CT.FLAG_DTYPE)
+
+    # ------------------------------------------------------------------ 1-7 CT5(検収 L1): 実行時の守り
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name in _CONTACT_GUARDED and name in self.__dict__:
+            raise AttributeError(f"RelationLayer の {name} は付け替えられない(連絡先の印を書く口は _write_contacts だけ)")
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        if name in _CONTACT_GUARDED:
+            raise AttributeError(f"RelationLayer の {name} は消せない(連絡先の印を書く口は _write_contacts だけ)")
+        object.__delattr__(self, name)
+
+    @property
+    def contact_flags(self) -> np.ndarray:
+        """連絡先の印(体 × k の読み取り専用の view=口の外から書けない。書く口は ``_write_contacts``)。"""
+        v = self._contact_flags.view()
+        v.flags.writeable = False
+        return v
 
     @property
     def copresent_on(self) -> bool:
@@ -672,6 +707,8 @@ class RelationLayer:
         ok = slot < self.k
         R.write_relations(agents, u[ok], slot[ok], init.v[ok], init.kind[ok], np.zeros(int(ok.sum())),
                           init.first[ok], init.last[ok], init.n[ok])
+        # 1-7 CT5: 家族(世帯の辺)と職場(職場の辺)は初めから連絡先の印あり(ほかの種別は 0)
+        self._write_contacts(u[ok], slot[ok], _CT.flags_from_kinds(init.kind[ok]))
         self.stats["init_edges"] += int(ok.sum())
         for kd, c in Counter(init.kind[ok].tolist()).items():  # 種別の数ぶん(≤ 5)
             self.stats[f"init_edges:{REL_KIND_NAMES[int(kd)]}"] += int(c)
@@ -756,6 +793,27 @@ class RelationLayer:
             self._co_active = self._co_active[~np.isin(self._co_active, f)]
         if self._acq_until is not None:
             self._acq_until[a, slot] = -1
+        # 1-7 CT5: 新しい相手の連絡先は知らない(交換は本人の行動=C1)
+        self._write_contacts(a, slot, 0)
+
+    # ------------------------------------------------------------------ 1-7 CT5: 連絡先の印(書く口は 1 つ)
+    def _write_contacts(self, a: np.ndarray, slot: np.ndarray, flags: Any) -> None:
+        """連絡先の印の欄 ``(a, slot)`` に ``flags`` を書く。**印を書く口はこれ 1 つ**(呼ぶのは ``seed_initial``・
+        ``_reset_slots``・``rebuild_contacts`` だけ=試験の AST)。"""
+        self._contact_flags[np.asarray(a, dtype=np.int64), np.asarray(slot, dtype=np.int64)] = flags
+
+    def contact_tally(self, agents: Any) -> dict[str, Any]:
+        """manifest の ``tools.contact_flags``(印を持つ辺の数・手段ごと・種別ごと=``engine.tools.contacts.tally``)。読むだけ。"""
+        r = agents.registry
+        return {**_CT.tally(self._contact_flags, r.rel_kind, r.rel_partner), "means": list(_CT.MEANS)}
+
+    def rebuild_contacts(self, agents: Any) -> None:
+        """再開: 戻した辺の種別から連絡先の印を作り直す(C0 では印は種別の写像そのもの=通しのランと同じ値)。"""
+        r = agents.registry
+        kind = np.asarray(r.rel_kind)
+        rows, cols = np.indices(kind.shape)
+        self._write_contacts(rows.reshape(-1), cols.reshape(-1),
+                             _CT.flags_from_kinds(kind, np.asarray(r.rel_partner)).reshape(-1))
 
     # ------------------------------------------------------------------ 読み口
     def activation(self, agents: Any, agent_ids: np.ndarray, tick: int) -> np.ndarray:

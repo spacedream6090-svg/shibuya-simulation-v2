@@ -45,9 +45,10 @@ def test_manifest_keys_match_the_frozen_list(two_days):
     i = keys.index(TM9[0])
     assert keys[i:i + len(TM9)] == list(TM9)  # 列追加のみ(T0 の末尾=続きの並び。1-4 の欄はその後ろ)
     # 1-4 の 3 欄の後ろに 1-9 の economy(金の生ログの輪と transfer の計器)・その後ろに 1-2 の percept(知覚の事実の
-    # 計器)・その後ろに 1-5 の rights(権利台帳の計器)・その後ろに 1-8 J0 の decision_port(候補の口の計器)=列追加のみ(末尾)
+    # 計器)・その後ろに 1-5 の rights(権利台帳の計器)・その後ろに 1-8 J0 の decision_port(候補の口の計器)・その後ろに
+    # 1-7 の tools(道具の台帳の計器)=列追加のみ(末尾)
     assert keys[i + len(TM9):] == ["rules_version", "run_kind", "bridges_version", "economy", "percept", "rights",
-                                   "decision_port"]
+                                   "decision_port", "tools"]
 
 
 def test_manifest_tm9_values(two_days):

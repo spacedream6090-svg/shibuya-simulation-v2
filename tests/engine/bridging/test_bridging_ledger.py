@@ -114,14 +114,16 @@ def test_code_declarations_and_ledger_rows_are_one_to_one(ledger, decls):
 def test_the_counts_by_form(decls):
     """記録 r14/README.md の表と同じ数(形が増減したら記録も直す)。"""
     # 〔第 1 期 1-5〕見出し 74 → 76(engine/rights/initial.py・record.py)。〔第 1 期 1-8 J0〕候補の口の 3 つの見出し
-    # (port・sources・layer=項 3+2+1)を足した=76 → 79(記録 j0/README.md)
-    assert S.count_by_form(decls) == {"conf": 0, "expedients": 139, "docstring": 5, "heading": 79, "process": 18,
+    # (port・sources・layer=項 3+2+1)を足した=76 → 79(記録 j0/README.md)。〔第 1 期 1-7〕engine/tools/contacts.py の
+    # 見出しを足した=79 → 80(記録 c0/README.md §4)
+    assert S.count_by_form(decls) == {"conf": 0, "expedients": 139, "docstring": 5, "heading": 80, "process": 18,
                                       "fallback": 5}
     heads = [d for d in decls if d.form == S.FORM_HEADING]
     # 〔第 1 期 1-2〕p_notice の expedient の項 m_load(歩きスマホの負荷の係数)を消した=338 → 337(記録 p12/README.md §15)
     # 〔第 1 期 1-5〕engine/rights/initial.py(項 3)・record.py(項 2)の見出しを足した=71 → 73・337 → 342
     # 〔第 1 期 1-8 J0〕engine/decision/port.py(項 3)・sources.py(項 2)・layer.py(項 1)=73 → 76・342 → 348
-    assert len({d.path for d in heads}) == 76 and sum(d.items for d in heads) == 348
+    # 〔第 1 期 1-7〕engine/tools/contacts.py(項 3)の見出しを足した=76 → 77・348 → 351(記録 c0/README.md §4)
+    assert len({d.path for d in heads}) == 77 and sum(d.items for d in heads) == 351
 
 
 def test_process_and_fallback_rows(ledger, decls):
@@ -168,7 +170,11 @@ def test_heading_rows_carry_the_heading_and_the_item_count(ledger, decls):
         assert r.id == f"HD-{rel.removesuffix('.py').replace('/', '.')}-{key}", (r.id, d.path)
         assert f"「{d.text}」" in r.what and f"項 {d.items} 個" in r.what, r.id
         assert r.conf == "expedient" and r.remove_basis == "inferred" and r.remove_at in L.PLAN_STAGES
-    assert sum(1 for r in ledger if r.id.startswith("HD-")) == 79  # 1-5: 74 → 76・〔第 1 期 1-8 J0〕+3
+    # 1-5: 74 → 76・〔第 1 期 1-8 J0〕+3・〔1-7〕+1・〔1-7 の 1-8 への結線〕layer.py の見出しを替えた=旧い行
+    # HD-engine.decision.layer-2d3672ba は removed で残し、新しい見出しの行を足した(active は 80 のまま・行は 81)
+    assert sum(1 for r in ledger if r.id.startswith("HD-")) == 81
+    assert sum(1 for r in ledger if r.id.startswith("HD-") and r.status == "active") == 80
+    assert {r.id: r.status for r in ledger}["HD-engine.decision.layer-2d3672ba"] == "removed"
 
 
 def test_build_stage_ids_are_the_c8_d44_row_ids(ledger):

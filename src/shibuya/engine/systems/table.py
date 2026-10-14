@@ -21,6 +21,10 @@
 ``writes.paths`` に ``A:ledger.*`` を載せる: phase_c(購入・食事・運賃)・world(補充の代金)・day_close と close_final(締めの計器と検算)。
 原因を渡す移動は出来事も書く=phase_c(運賃=過程 rail)に ``E:events.*`` を足した(world は 1-3 で宣言済み)。
 
+〔第 1 期 1-7〕道具の台帳 C0: decide は看板を読んだ出来事(腕 ``SHIBUYA_TOOL_EVENTS``・既定 off=既定のランでは書かない)を
+書くので ``E:events.*``(1-8 J0 の判断の出来事と同じ宣言=1 つにまとめた)と、口を持つ ``fx.tools`` の読みを載せた。memory は新しい相手の欄の連絡先の印を消す(状態台帳の
+行 ``CT5``=``CT5:rel_layer._contact_flags``)。report は manifest の ``tools`` を作るので ``fx.tools`` を読む。
+
 〔親の決め〕世界過程が持ち主をまたいで書く所(鉄道と大きな催しが計画実行層の O36・O37・O70 と鉄道の O74 を書く)は
 1-0 では宣言で認める(``world`` の ``writes.paths``)。
 
@@ -198,7 +202,9 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "O85:bridge.* O86:bridge.* O87:bridge.* O8[89]:fleet_bridge.* O62:undefined.* O8[23]:undefined.* "
                "O35:presence.* O70:presence.* "
                "M0*:mem_layer.memory_store.*"  # 1-6: 記憶の器(想起の計数・見せた行の録画・発話の記憶・テープの列)
-               " J0:decision.* E:events.*",  # 1-8 J0: 腕 port の候補の口の計器・営業中の店の控えと判断の出来事の行
+               # 1-8 J0: 腕 port の候補の口の計器・営業中の店の控えと判断の出来事の行/1-7: 看板を読んだ出来事(作り物の印・
+               # 腕 SHIBUYA_TOOL_EVENTS・既定 off)=E:events.* は 1-8 と 1-7 で 1 つ
+               " J0:decision.* E:events.*",
          # 第 1 期 1-2: 描いた知覚の事実 ``percepts``(``TickScratch`` の欄・状態台帳の行 P)
          scratch_r="decision outside_now n_parse_errors_fleet", scratch_w="parse_errors percepts",
          tally="calls_by_cond layer_counts n_fleet_resent n_outside_calls peak_backlog peak_pending phase result",
@@ -209,7 +215,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "runstats.calls_by_cond runstats.layer_counts runstats.n_fleet_resent "
                "runstats.n_outside_calls runstats.peak_backlog runstats.peak_pending runstats.phase "
                "runstats.result scratch.decision scratch.n_parse_errors_fleet scratch.outside_now "
-               "scratch.parse_errors scratch.percepts soa.agents",
+               "scratch.parse_errors scratch.percepts soa.agents fx.tools",
          origin=f"L14・run.py:4002-4127 @{_E}"),
     make("phase_a", "行為の解決", "tick", _AC.sys_phase_a,
          resolve_ops="intent_kept_by",
@@ -256,7 +262,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          resolve_ops="write_memory write_relations write_store_memory",
          paths="O[89]:mem_layer.* O1[0-2]:mem_layer.* O1[6-9]:rel_layer.* O64:renderer.* O1[34]:poi_resolver.* "
                "O68:poi_resolver.* O15:wom.* "
-               "M0*:mem_layer.memory_store.*",  # 1-6: 記憶の器(この刻みの出来事を器にも覚えさせる・計数と新しい行の録画の印)
+               "M0*:mem_layer.memory_store.* "  # 1-6: 記憶の器(この刻みの出来事を器にも覚えさせる・計数と新しい行の録画の印)
+               "CT5:rel_layer._contact_flags",  # 1-7: 新しい相手の欄の連絡先の印を消す(関係辺の書き手と同じ所)
          scratch_r="plan outcome", scratch_w="exposures", reads="layers.conv layers.fam_layer layers.mem_layer layers.renderer layers.runner "
                "scratch.exposures scratch.outcome scratch.plan soa.agents",
          origin=f"L20 前半・run.py:4369-4393 @{_E}"),
@@ -372,7 +379,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "runstats.occ_transit runstats.peak_backlog runstats.peak_intents "
                "runstats.peak_pending runstats.per_action_total runstats.phase runstats.read_seconds "
                "runstats.restore_seconds runstats.result runstats.sleep_tally runstats.state_files "
-               "runstats.t_start runstats.talk_stats soa.agents soa.world",
+               "runstats.t_start runstats.talk_stats soa.agents soa.world fx.tools",
          origin=f"E2〜E4・run.py:4593-4965 @{_E}"),
 )
 

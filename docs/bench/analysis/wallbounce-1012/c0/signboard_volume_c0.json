@@ -1,0 +1,38 @@
+{
+ "config": "w6_v3_default",
+ "agents": 5000,
+ "seed": 1,
+ "runs": {
+  "off": {
+   "final": "5f7ae9ff24005314",
+   "calls": 65597,
+   "events_rows": [
+    32158
+   ],
+   "signboard_rows": [
+    0
+   ],
+   "events_bytes": [
+    2315376
+   ],
+   "manifest_read_events": 0,
+   "wall_seconds_nondeterministic": 48.2
+  },
+  "on": {
+   "final": "5f7ae9ff24005314",
+   "calls": 65597,
+   "events_rows": [
+    97160
+   ],
+   "signboard_rows": [
+    65002
+   ],
+   "events_bytes": [
+    6995520
+   ],
+   "manifest_read_events": 65002,
+   "wall_seconds_nondeterministic": 47.7
+  }
+ },
+ "same_final_and_calls": true
+}

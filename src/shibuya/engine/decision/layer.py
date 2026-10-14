@@ -15,16 +15,20 @@
 - 判断の出来事(1-3 の出来事の記録): 口が選んだ行為ごとに 1 行(``who``=体・``what``=``行為:<語>``・``where``=セル・
   ``cause``=``LlmCall(call_id, 候補の元の出来事 id)``)。候補の源の記録=口の約束 1-8 の約束 (3)。語彙 v1/v2 の語のうち
   出来事の語彙表(v3 の行為 12 語)に無い語(降車・待機・休憩)と「その他」は書かず数える(``events_unlogged``)。
-- 周りが示すできること(``affordance_words``): 場所の種類と営業時間から機械的に作る(下の expedient)。刻みごとの営業中の
-  店の表を持つ(``_aff_*``=刻みの中で作り直す控え)。
+- 周りが示すできること(``affordance_words``): (i) 場所の種類と営業時間と知覚から作る語(世界の状態の読み=移動=いつでも
+  (歩ける面)・乗車=路線のホームのセル・購入=セルに営業中の飲食店でない店・食事=セルに営業中の飲食店・並ぶ=セルに営業中の
+  店・会話=知覚の事実に見えた人がいる・就寝=自宅のセル・断る=招待がある)と、(ii)〔第 1 期 1-7 の結線〕道具の台帳
+  (``Fixtures.tools`` の ``ToolRegistry``=組み立てが同じ物を渡す)から「この体が知っていて・要るものが満たされ・今の世界で
+  使う段」の道具を、道具 → 判断の語彙の語の凍結の表(``engine.tools.registry.TOOL_ACTION_WORDS``)で語に写した物(下の
+  expedient=表は空)。刻みごとの営業中の店の表を持つ(``_aff_*``=刻みの中で作り直す控え)。
 
 逐次ループ宣言(P4): ``decide_one`` は 1 呼=候補の数ぶん(≤ 20)。``affordance_words`` は刻みに 1 回の POI の数の配列演算と
 1 呼の語彙の語の数ぶん。新しい逐次ループは無い(呼数ぶんのループは decide の宣言 2 のまま)。
 
-expedient(周りが示すできること=1-7 の道具の台帳で外す)
-- 移動=いつでも(歩ける面)・乗車=路線のホームのセル・購入=セルに営業中の飲食店でない店・食事=セルに営業中の飲食店・並ぶ=
-  セルに営業中の店・会話=知覚の事実に見えた人がいる・就寝=自宅のセル・断る=招待がある(場所の種類と営業時間と知覚から
-  機械的に作る仮の源)。
+expedient(道具を使う行為の語は判断の語彙に無い=道具 → 語の表は空・6-4 C1 で語を足す)
+- 道具 → 判断の語彙の語の表(``TOOL_ACTION_WORDS``)は空: 看板を読む・電話をかけるなどの道具を使う行為の語が判断の語彙
+  (v1〜v3)に無いので、道具の台帳から読んだ道具は候補の語にならない(候補の列は結線の前と同じ)。持ち物の台帳も無い
+  (``Percept.belongings`` は空)ので、要るもののある道具は満たされない扱い。
 """
 
 from __future__ import annotations
@@ -122,6 +126,8 @@ class DecisionLayer:
         world: 世界(POI の置き場・営業時間・飲食店の印=読むだけ)。
         home_cell: 体ごとの自宅のセル(無ければ -1)。
         station_cells: 路線のホームのセル。
+        tools: 〔1-7〕道具の台帳(``engine.tools.registry.ToolRegistry``=``Fixtures.tools.registry`` と同じ物・無ければ道具の
+            語を足さない)。
     """
 
     def __init__(
@@ -135,6 +141,7 @@ class DecisionLayer:
         world: Any = None,
         home_cell: Any = None,
         station_cells: Any = None,
+        tools: Any = None,
     ) -> None:
         from shibuya.engine.events.log import CANDIDATE_SOURCES
 
@@ -162,6 +169,8 @@ class DecisionLayer:
             self._station[sc] = True
         self._home_cell = (np.asarray(home_cell, dtype=np.int64) if home_cell is not None
                            else np.zeros(0, dtype=np.int64))
+        #: 〔1-7〕道具の台帳(読むだけ・状態台帳の除外の参照)。
+        self.tools = tools
         #: 計器(状態台帳の行 J0・軸 1 diag・軸 2 discardable)。
         self.meter: dict[str, Any] = _empty_meter()
         #: 刻みごとの営業中の店の控え(刻みの番号・セルの bool 3 本=店・飲食店・飲食店でない店)。
@@ -170,7 +179,7 @@ class DecisionLayer:
         self._aff_eatery = np.zeros(n_cells, dtype=bool)
         self._aff_shop = np.zeros(n_cells, dtype=bool)
 
-    # ------------------------------------------------------------------ 周りが示すできること(1-7 までのつなぎ)
+    # ------------------------------------------------------------------ 周りが示すできること(世界の状態の読み+道具の台帳)
     def _open_cells(self, step: int) -> None:
         if self._aff_step == int(step) or self.world is None or self.n_cells == 0:
             return
@@ -203,6 +212,12 @@ class DecisionLayer:
             "就寝": home >= 0 and home == c,
             "断る": int(ctx.inviter) >= 0,
         }
+        if self.tools is not None:
+            # 〔1-7 の結線〕道具の台帳から、この体が知っていて・要るものが満たされ・今の世界で使う段の道具の語(表は今は空)
+            from shibuya.engine.tools.registry import affordance_words as _tool_words
+
+            for w in _tool_words(self.tools, a, getattr(p, "belongings", None) if p is not None else None):
+                ok[w] = True
         return tuple(w for w in vocab if ok.get(w, False))
 
     # ------------------------------------------------------------------ 計器(manifest の観測の子)
