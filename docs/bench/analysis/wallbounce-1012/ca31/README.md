@@ -557,3 +557,11 @@ final `b8eadcb5…`・`768b2262…`・`19ee17b1…`・`9dd9d568…`)。規則の
 - byte-check は 10e の道具 `../10e/byte_check_10e.py`(side・compare)。HEAD の写しは `git archive d35a9b6 src` と、エンジンが開く
   錨 3 本・予算の宣言・w6-regen の置き場に加えて **`docs/design/rules-table.json`・`docs/design/bridging-ledger.json`** を写す
   (規則の表が無い写しは経済の段階 2 の規則が変わり final が動く=§8 の注)。
+
+## §親の検収(第336・Fable 5.1・rebase の後)
+
+- 本体 0f415c1(2-3c・3-2・4-1・3-5 の後)へ実装役が commit の無い枝の手順で rebase(衝突は末尾だけ=cli・状態台帳 BW・BD → CAL・systems の 5 本・manifest batching・body → calendar_shadow・台帳 410 行(3-2 → 4-1 → 3-5 → 3-1)・試験 9 本+3-5 の末尾の試験 1 本・CONFIG_PATHS_SHA256 68c3ffd0…・expedients 192・c8 の読みのグラフを作り直し=W16 の consumers に W20・digest 改訂)。親が 0239a3b(3-5 の文書)へ乗せ直し(衝突 0・47749f2)。範囲の試験(build_sched・calendar・systems・body・batching・time・bridging・rights・rules・tools・perception・再開・状態台帳・10f・build_audit・**c8**・**economy/cp2**・multiday・experiment)**1,827 passed**(12 分 3 秒)。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・両側とも本体の木)=**final 同じ・25 欄とも差なし**(`parent_head_vs_ca31_4cfg.json`)。検収役の 4 構成・実装役の 19 構成(既定 w17)と腕 1a 対 w17 4 構成も同じ(違うのは manifest の calendar_shadow と run_kind だけ)。
+- **data 無しの写し(detached の作業木・junction なし)で CI-1 と同じ引数の全体試験(tests/c7 を含む)=5,076 passed・250 skipped・failed 0**(19 分 18 秒・b3b6f19 の木=47749f2 とは本体の文書だけの差)****。
+- 独立検収([review.md](review.md))=条件つき受入(中 3=席を持つ高校生 4,346・毎週 7 日の 5,629・影の層の守り/ 低 9)→ 全部直した(席=W16 の明示の事実を優先し勤務 4,197・授業は空欄・労働基準法 35 条 1 項の週 1 休=規則の表の行(親が e-Gov の法令 API 2026-07-17 版で 1 項・2 項の逐語を実読)・役員は対象外・休みの曜日は働かない率に比例・下回り最大 −1.6 点は宣言 W20cal#9・`CalendarShadow` の守り・帰宅の作り直し・README・台帳の量は道具から・CLI と指紋の試験)。親の判断: 曜日の予定は第 74-6 表そのもの(予定は実現値を下回らない=行ごと)・第 19 表は年間の整合の計器・補正(p′)はしない・W20cal は build_manifest の外(4-3 で決める)・10e の `SWITCH_ENV` に `SHIBUYA_CALENDAR_SHADOW`(済=623da48)・パターン台帳 §10-2 の行(第 74-6/74-9 表を構築側へ・第 14/15 表は目視済み)は親が書く。
+- 判定: **受入**(第 3 期 3-1 の完了=既定 w17 は不変・腕 1a は計器だけ・資産 `v2_stage_3-1` の活性化は 4-3・1b(出入りを本人へ)は 6-2)。
