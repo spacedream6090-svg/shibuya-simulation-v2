@@ -2356,7 +2356,10 @@ class Renderer:
         rule, idx = nv.rule, nv.index  # type: ignore[attr-defined]
         if not (0 <= cell < tc.los_stage.size):
             return []
-        xi, yi, bi = float(a.xy[i, 0]), float(a.xy[i, 1]), int(a.band[i])
+        # 〔第 2 期 2-4 V2〕自分の層はセルの層から導く(SoA の派生の列 agents.band=軸 1 no を読まない・値は同じ)
+        xi, yi = float(a.xy[i, 0]), float(a.xy[i, 1])
+        _c = int(a.cell[i])
+        bi = int(self.world.assets.cell_band[_c]) if _c >= 0 else 0
         _q, ids, _d = idx.query_many(xi, yi, bi, float(rule.b5_radius_m))
         pi = int(idx.pos[i]) if 0 <= i < idx.pos.size else -1
         um = idx.unit_members(int(idx.unit[pi])) if pi >= 0 else np.zeros(0, dtype=np.int64)

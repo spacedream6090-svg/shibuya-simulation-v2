@@ -53,7 +53,7 @@ DEAD5 = ("agents.plan_cursor", "agents.invocation_distance", "agents.wake_pendin
 T7_TARGET_SECONDS = 0.100
 T7_SHARE_CAP = 0.01
 #: T7 で確かめる既定 v3 の final(10e の版上げの段ごとに張り替える)。
-T7_V3_FINAL = "4bcca9f0216362bb"  # 〔改訂(第330・ACT)〕活性化の値(B6build は 0483d1165e245bed・E4・E5 は 4fbf61616af1e3d2・E1 は 3264c9fc190b3eb9・E2 は 4985ff2fb3c771c4)  # 〔2-4 V1〕前 5f7ae9ff24005314
+T7_V3_FINAL = "7857ecb16b9665cd"  # 〔改訂(第330・ACT)〕活性化の値(B6build は 0483d1165e245bed・E4・E5 は 4fbf61616af1e3d2・E1 は 3264c9fc190b3eb9・E2 は 4985ff2fb3c771c4)  # 〔2-4 V1〕前 5f7ae9ff24005314  # 〔2-4 V2〕前 4bcca9f0216362bb
 #: A2 (b): 構成で読み手が変わる 6 列(どの構成でも behavior)。
 A2B_SIX = ("age", "sex", "talk_partner", "weight_kg", "sm_last", "mem_last")
 
@@ -266,14 +266,16 @@ def test_ast_false_positives_band_and_b4_hash_are_explicit(scanned):
     """材料 §2-4 の誤検出 2 列は、読みの場所と根拠つきで許す(黙って外さない)。
 
     〔第 2 期 2-2 段 11a〕``agents.band`` には腕 ``--proximity distance`` だけの読み手 2 か所(``engine/proximity.py`` の
-    1 か所に集めた読み・``perception/renderer.py`` の B5 の近接行の自分の層)の許可を足した(3 個=誤検出 1 と合わせて)。"""
-    n_allow = {"agents.band": 3, "cells.b4_hash": 1}
+    1 か所に集めた読み・``perception/renderer.py`` の B5 の近接行の自分の層)の許可を足した(3 個=誤検出 1 と合わせて)。
+    〔第 2 期 2-4 V2〕近接の既定が distance になり、組み立ての規則と描画は体の層を ``agents.cell`` から導く形に替えた=
+    描画の許可は消した(2 個=誤検出 1+試験の合成の規則の道)。"""
+    n_allow = {"agents.band": 2, "cells.b4_hash": 1}
     for key, path in (("agents.band", "world/assets.py"), ("cells.b4_hash", "world/state.py")):
         r = SL.row(key)
         assert r.behavior == SL.NO and len(r.ast_allow) == n_allow[key] and r.ast_allow[0].path == path
         hits = [s for s in scanned.loose[r.name] if SA._allowed(s, r.ast_allow)]
         assert hits, key
-    assert [a.path for a in SL.row("agents.band").ast_allow[1:]] == ["engine/proximity.py", "perception/renderer.py"]
+    assert [a.path for a in SL.row("agents.band").ast_allow[1:]] == ["engine/proximity.py"]
     # b4_hash のプロパティ World.b4_hash の呼び手は 0(属性 .b4_hash の読みはプロパティの中の 1 か所だけ)
     assert [str(s) for s in scanned.loose["b4_hash"]] == [str(s) for s in scanned.loose["b4_hash"]
                                                          if s.path == "world/state.py"]
@@ -689,7 +691,7 @@ def test_t5_weight_kg_is_read_only_at_initialization(monkeypatch, tmp_path):
 #: 今の既定の final(=behavior-hash)の頭 16 桁(段ごとに張り替える)。
 CUR_SYN = {
     "v1": "a36995c487c3f214", "v3": "92290af2f272b811", "v2_edge_attention": "863d35e1bfdb55f9",
-    "all_arms": "ab8201f624b4dfa7", "classical": "2297d5c5947551f0",
+    "all_arms": "9071edfd618d42d8", "classical": "2297d5c5947551f0",  # 〔2-4 V2〕前 all_arms ab8201f624b4dfa7(近接の既定 distance)
 }
 
 

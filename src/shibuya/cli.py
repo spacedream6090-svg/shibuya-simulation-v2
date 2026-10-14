@@ -485,7 +485,7 @@ def run(
         # 第 1 期 1-8b: 発話の口の腕(環境変数か --speech-port・run の引数ではない)は結果を変える=on は腕に数える
         # 〔第 3 期 3-3〕申込書を渡したランは反実仮想(試験 > 反実仮想 > 腕 > 再現)
         run_kind = _RK.decide(arms_on=bool(arms) or _speech_layer.arm() != _speech_layer.ARM_OFF
-                              or _proximity.arm() != _proximity.MODE_CELL,
+                              or _proximity.arm() != _proximity.DEFAULT_MODE,  # 〔2-4 V2〕既定は distance
                               counterfactual=exp_form is not None)
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
@@ -1334,10 +1334,10 @@ def main(argv: list[str] | None = None) -> int:
         "--proximity",
         choices=("cell", "distance"),
         default=None,
-        help="第 2 期 2-2 段 11a 近接の判定の腕(既定 cell=今の判定=同じセル・環境変数 SHIBUYA_PROXIMITY と同じ。指定すれば"
+        help="第 2 期 2-2 段 11a 近接の判定の腕(〔2-4 V2〕既定 distance・環境変数 SHIBUYA_PROXIMITY と同じ。指定すれば"
              "環境変数より強い)。distance で会話・返事待ち・3 人会話・離脱・招待の相手・偶然・知人出現(気づく確率)・同席・"
-             "B5 の近接行を「同じ層・距離 ≤ d(同じ店の区画の中は距離を見ない)」で判定する。腕は設定の指紋に入れない"
-             "(manifest の proximity に出る・ランの種類は arm)",
+             "B5 の近接行を「同じ層・距離 ≤ d(同じ店の区画の中は距離を見ない)」で判定する。cell=2-2 までの判定(同じセル)"
+             "=切替口(旧値の再現)。腕は設定の指紋に入れない(manifest の proximity に出る・既定と違えばランの種類は arm)",
     )
     ap.add_argument(
         "--proximity-d",

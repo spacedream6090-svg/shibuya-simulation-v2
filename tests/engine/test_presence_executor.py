@@ -111,17 +111,17 @@ W17_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
         # 消した。*_stateful・*_pre10e の行と ``test_hash_scheme_full_reproduces_the_pre_10e_checkpoints`` は消した(ACT の
         # commit で通った)。*_leave_off・*_hunger_v1・*_l4x1 は生きている切替口(leave_effect・hunger_model・l4_scale)の
         # 今の値に張り替えた(前の値は記録 §RET の表)。
-        "null_arm_final": "767f0224d82ba9a9", "null_arm_llm_calls": 98_046,  # 〔2-4 V1〕前 354f49ca9a61b986 / 97_234
-        "null_arm_final_leave_off": "e88892cd271a638d", "null_arm_llm_calls_leave_off": 97_644,  # 〔第330・RET〕前 18f8807264d04018 / 100_509  # 〔2-4 V1〕前 a33c00469ca28832 / 98_017
-        "null_arm_final_hunger_v1": "4ced1f4211af5e5f", "null_arm_llm_calls_hunger_v1": 94_793,  # 〔第330・RET〕前 e0083baff1ff50b7 / 97_028  # 〔2-4 V1〕前 f655d1eb601d7bb4 / 94_435
-        "null_arm_final_l4x1": "d9e43bf14475a17c", "null_arm_llm_calls_l4x1": 40_979,  # 〔第330・RET〕前 ed1863e089c8480e / 41_141  # 〔2-4 V1〕前 f02d7fd4fbb4dc4f
+        "null_arm_final": "d341ca5c9e3e89d3", "null_arm_llm_calls": 96_797,  # 〔2-4 V1〕前 354f49ca9a61b986 / 97_234  # 〔2-4 V2〕前 767f0224d82ba9a9 / 98_046
+        "null_arm_final_leave_off": "62c0de517b1689ec", "null_arm_llm_calls_leave_off": 97_690,  # 〔第330・RET〕前 18f8807264d04018 / 100_509  # 〔2-4 V1〕前 a33c00469ca28832 / 98_017  # 〔2-4 V2〕前 e88892cd271a638d / 97_644
+        "null_arm_final_hunger_v1": "eff11abb4169f319", "null_arm_llm_calls_hunger_v1": 94_030,  # 〔第330・RET〕前 e0083baff1ff50b7 / 97_028  # 〔2-4 V1〕前 f655d1eb601d7bb4 / 94_435  # 〔2-4 V2〕前 4ced1f4211af5e5f / 94_793
+        "null_arm_final_l4x1": "23d6397b39afb614", "null_arm_llm_calls_l4x1": 40_976,  # 〔第330・RET〕前 ed1863e089c8480e / 41_141  # 〔2-4 V1〕前 f02d7fd4fbb4dc4f  # 〔2-4 V2〕前 d9e43bf14475a17c / 40_979
         # 第277(二層の段 3): **語彙 v3 の既定**(=CLI の新しい既定・activity on・mock v3 形)。
         # v1 の行は上のまま残す(ライブラリの既定は v1=切替口)。
         # 記録: docs/bench/analysis/two-layer-2026-09-27/README.md §0
-        "v3_default_final": "4bcca9f0216362bb", "v3_default_llm_calls": 65_400,  # 〔2-4 V1〕前 5f7ae9ff24005314 / 65_597
-        "v3_default_final_leave_off": "53a0856c5fcc1c84", "v3_default_llm_calls_leave_off": 65_735,  # 〔第330・RET〕前 c9ab05383accca2e / 69_603  # 〔2-4 V1〕前 1761eef0e3c48dd5 / 65_634
-        "v3_default_final_hunger_v1": "20f96720567a5847", "v3_default_llm_calls_hunger_v1": 65_019,  # 〔第330・RET〕前 a1036ab5b06e461c / 68_781  # 〔2-4 V1〕前 1767737a4183a436 / 64_977
-        "v3_default_final_l4x1": "1cc39b43dfc834ee", "v3_default_llm_calls_l4x1": 36_190,  # 〔第330・RET〕前 6845e3acb8906210 / 36_502  # 〔2-4 V1〕前 a18594506e4a0ea5 / 36_172
+        "v3_default_final": "7857ecb16b9665cd", "v3_default_llm_calls": 64_635,  # 〔2-4 V1〕前 5f7ae9ff24005314 / 65_597  # 〔2-4 V2〕前 4bcca9f0216362bb / 65_400
+        "v3_default_final_leave_off": "210747ea9fa71919", "v3_default_llm_calls_leave_off": 64_704,  # 〔第330・RET〕前 c9ab05383accca2e / 69_603  # 〔2-4 V1〕前 1761eef0e3c48dd5 / 65_634  # 〔2-4 V2〕前 53a0856c5fcc1c84 / 65_735
+        "v3_default_final_hunger_v1": "62c5ea236fe4271d", "v3_default_llm_calls_hunger_v1": 64_268,  # 〔第330・RET〕前 a1036ab5b06e461c / 68_781  # 〔2-4 V1〕前 1767737a4183a436 / 64_977  # 〔2-4 V2〕前 20f96720567a5847 / 65_019
+        "v3_default_final_l4x1": "b2a1acae57abca9e", "v3_default_llm_calls_l4x1": 36_239,  # 〔第330・RET〕前 6845e3acb8906210 / 36_502  # 〔2-4 V1〕前 a18594506e4a0ea5 / 36_172  # 〔2-4 V2〕前 1cc39b43dfc834ee / 36_190
         "v1_outside_blocks": 590_430, "v1_outside_dist": [92, 160_033, 133_575, 47_861],
         # 10e(E4): 5,000 体の標本は既定の counter の抽出(層の鍵の並べ方)。stateful の値(10e より前)=
         # v1 {"n_blocks": 8_589, "zero": 1, "outside": 7_733, "in": 856}・v2 {"n_blocks": 6_377, "zero": 150,

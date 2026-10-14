@@ -182,12 +182,12 @@ R_, V_, X_, U_ = REQUIRED, DERIVABLE, DISCARDABLE, UNKNOWN
 
 _ALLOW_BAND = (AstAllow("world/assets.py", 'cells["band"]',
                         "資産の表(W2 の parquet)の列 band を読む行。SoA の agents.band ではない(材料 §2-4 の誤検出 1)"),
-               # 〔第 2 期 2-2 段 11a〕腕 --proximity distance だけの読み手(既定の腕 cell では読まない)。band はセルの層
-               # (cell_band[cell])から導く派生の列=同じ値は behavior-hash のセルの列に入っている(軸 1 no のまま)
+               # 〔第 2 期 2-2 段 11a〕腕 --proximity distance の読み手。〔改訂(第 2 期 2-4 V2)〕近接の既定が distance に
+               # なったので、組み立ての規則(rule_from)は体の層を behavior の列 agents.cell から導く(cell_band[cell]=値は同じ)
+               # =この列を読むのは cell_band を持たない規則(試験の合成の規則)の道だけ。描画(B5 の近接行の自分の層)の読みは
+               # セルから導く形に替えて消した(軸 1 no のまま)
                AstAllow("engine/proximity.py", "return np.asarray(r.band)",
-                        "第 2 期 2-2: 腕 distance の判定(同じ層)と近傍の索引の材料(既定の腕 cell では読まない・セルから導く派生)"),
-               AstAllow("perception/renderer.py", "bi = float(a.xy[i, 0]), float(a.xy[i, 1]), int(a.band[i])",
-                        "第 2 期 2-2: 腕 distance の B5 の近接行の自分の層(既定の腕 cell では読まない・セルから導く派生)"))
+                        "第 2 期 2-2: cell_band を持たない規則(試験の合成の規則)だけの読み(組み立ての規則はセルから導く=2-4 V2)"))
 _ALLOW_B4 = (AstAllow("world/state.py", "return self.cells.b4_hash",
                       "プロパティ World.b4_hash の中の読み。プロパティの呼び手は 0(材料 §2-4 の誤検出 2)"),)
 _ALLOW_REVENUE = (AstAllow("engine/systems/report.py", "result.revenue_end =",
@@ -829,7 +829,7 @@ _EXT: tuple[LedgerRow, ...] = (
         basis="engine/proximity.py(ProximityLayer.build_index・observed)・engine/systems/perceive.py(書く)・"
               "engine/run.py(manifest の proximity)",
         items=("proximity._meter",),
-        note="2-2 段 11a: 腕 --proximity distance のランだけ層を作る(既定 cell は持ち主が None)。計器(索引を作った回数・"
+        note="2-2 段 11a: 腕 --proximity distance のランだけ層を作る(〔2-4 V2〕既定。切替口 cell は持ち主が None)。計器(索引を作った回数・"
              "索引の体の数の最大・B5 の単位の在室人数の最大と分布)は診断=読み手は manifest の proximity と試験だけ(軸 1 diag)。"
              "判定の規則(rule)は設定・気づいた印の読み口(_marks=関係の層)は参照(除外の一覧)。軸 2 discardable(再開のランは 0 から=どちらのハッシュにも状態のファイルにも"
              "入らない)。書く系は perceive_prepare だけ(宣言 PX:proximity.*)。行の鍵は O の通し番号でなく PX"),

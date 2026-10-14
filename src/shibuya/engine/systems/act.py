@@ -94,7 +94,7 @@ def sys_phase_c(ctx: Any, b: Any) -> None:
     per_action_total = b.runstats.per_action_total
     phase = b.runstats.phase
     plan = b.scratch.plan
-    proximity = b.layers.proximity  # 第 2 期 2-2: 腕 --proximity distance の層(既定 None=今の判定)
+    proximity = b.layers.proximity  # 第 2 期 2-2: 腕 --proximity distance の層(〔2-4 V2〕既定。切替口 cell は None=同じセル)
     queue_service = b.cfg.queue_service
     report_precondition = b.cfg.report_precondition
     result = b.runstats.result

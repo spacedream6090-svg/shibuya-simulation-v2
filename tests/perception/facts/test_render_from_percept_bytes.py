@@ -307,8 +307,13 @@ def test_the_19_configs_are_the_byte_check_set():
 def test_19_configs_render_the_same_bytes_as_head(config, monkeypatch, tmp_path):
     from shibuya import cli
 
+    from shibuya.engine import proximity as P
+
     kw = dict(_wave2_configs()[config])
     stats = _shadow(monkeypatch)
+    # 〔第 2 期 2-4 V2〕近接の既定は distance になった。比べる相手(HEAD 136fdbb の描画の写し)は B5 の近接行の
+    # distance の道(2-2 の _nearby_people_distance)を持たない=1-2 の分離の一致は切替口 cell の道で見る(前と同じ比べ)
+    monkeypatch.setattr(P, "_ARM", P.MODE_CELL)
     cli.run(n_agents=N_AGENTS, seed=1, world_dir=str(ROOT / "data" / "world" / "v2"), ticks=WINDOWS[-1][1],
             tape_path=tmp_path / "tape", **kw)
     assert stats["bad"] == [], stats["bad"][:5]

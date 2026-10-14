@@ -4,10 +4,12 @@
 (2026-10-03)」B1〜B8・決定 ``docs/design/v2-wallbounce-decisions-2026-10-03.md`` §4(4-2 気づく確率)。
 
 腕(切替口): ``--proximity {cell,distance}``(環境変数 ``SHIBUYA_PROXIMITY``・:func:`set_arm`)と会話の距離 d の感度の腕
-``--proximity-d {1.0,2.0,2.5}``(環境変数 ``SHIBUYA_PROXIMITY_D``・:func:`set_d`)。既定 ``cell``=今の判定(同じセル)=
-層を作らない(final・テープ・manifest の既存の欄は不変)。腕は組み立てのときに読む(``run_day`` の引数にしない=設定の
-指紋に入れない=記憶の器と候補の口の腕と同じ扱い)。腕の名と値は manifest の ``proximity`` と状態のファイルの見出しの
-``proximity`` に出る(再開のときに今の腕と違えば止める=組み立て)。
+``--proximity-d {1.0,2.0,2.5}``(環境変数 ``SHIBUYA_PROXIMITY_D``・:func:`set_d`)。〔第 2 期 2-4 V2・版上げ 2 回目〕既定は
+``distance``(:data:`DEFAULT_MODE`=10-03 §4 の決定どおり・d=2.0 m)。``cell``=2-2 までの判定(同じセル)=層を作らない=
+**切替口**(旧値の再現=2-4 の記録 ``docs/bench/analysis/wallbounce-1012/vb24/README.md`` の V2)。腕は組み立てのときに読む
+(``run_day`` の引数にしない=設定の指紋に入れない=記憶の器と候補の口の腕と同じ扱い)。腕の名と値は manifest の
+``proximity`` と状態のファイルの見出しの ``proximity`` に出る(再開のときに今の腕と違えば止める=組み立て。見出しに無い
+状態のファイル=2-4 より前の既定の cell のラン)。
 
 ``distance`` の判定(:meth:`ProximityRule.reach`):
 
@@ -66,7 +68,7 @@ from shibuya.core.rng import k19_counter_array, philox_array, run_tick_key, unit
 from shibuya.engine.spatial_index import INDEX_CELL_M, SpatialIndex
 
 __all__ = [
-    "MODE_CELL", "MODE_DISTANCE", "MODES", "D_DEFAULT", "D_ARMS", "LEAVE_MARGIN_M", "NOTICE_D75_M", "NOTICE_D25_M",
+    "MODE_CELL", "MODE_DISTANCE", "MODES", "DEFAULT_MODE", "D_DEFAULT", "D_ARMS", "LEAVE_MARGIN_M", "NOTICE_D75_M", "NOTICE_D25_M",
     "NOTICE_D50_M", "NOTICE_SCALE_M", "NOTICE_CUTOFF_M", "NOTICE_SOURCE", "NOTICE_DOMAIN", "B5_RADIUS_M",
     "B5_RADIUS_SOURCE", "INDEX_CELL_M", "UNIT_SOURCE", "SCHEMA", "arm", "set_arm", "d", "set_d", "notice_p",
     "ProximityRule", "NearView", "ProximityLayer", "manifest_fields", "CONFIG_KEYS", "OBSERVED_KEYS",
@@ -76,6 +78,8 @@ __all__ = [
 MODE_CELL: Final[str] = "cell"
 MODE_DISTANCE: Final[str] = "distance"
 MODES: Final[tuple[str, ...]] = (MODE_CELL, MODE_DISTANCE)
+#: 〔第 2 期 2-4 V2〕既定の腕(10-03 §4 の決定=11a を版上げ 2 回目で既定に)。``cell`` は切替口(2-2 までの値の再現)。
+DEFAULT_MODE: Final[str] = MODE_DISTANCE
 #: 会話の距離 d[m](B3: 2 m の決め打ちを既定にし宣言=``engine.resolve.TALK_OPEN_METERS`` と同じ値・試験で突き合わせる)。
 D_DEFAULT: Final[float] = 2.0
 #: 感度の腕(B3)。
@@ -105,7 +109,7 @@ UNIT_SOURCE: Final[str] = "agents.poi_ref(在席中の POI の区画 id)∧ 体�
 SCHEMA: Final[str] = "shibuya.proximity/3"
 
 # ------------------------------------------------------------------ 腕(組み立てのときに読む)
-_ARM: str = os.environ.get("SHIBUYA_PROXIMITY", MODE_CELL).strip().lower() or MODE_CELL
+_ARM: str = os.environ.get("SHIBUYA_PROXIMITY", DEFAULT_MODE).strip().lower() or DEFAULT_MODE
 if _ARM not in MODES:
     raise ValueError(f"SHIBUYA_PROXIMITY は {MODES} のどれか(いま {_ARM!r})")
 
@@ -124,7 +128,7 @@ _D: float = _check_d(os.environ.get("SHIBUYA_PROXIMITY_D", str(D_DEFAULT)).strip
 
 
 def arm() -> str:
-    """いまの腕(``cell``=既定・``distance``=実距離)。組み立てのときに読む。"""
+    """いまの腕(``distance``=実距離=既定〔2-4 V2〕・``cell``=同じセル=切替口)。組み立てのときに読む。"""
     return _ARM
 
 
@@ -176,9 +180,19 @@ def notice_p(dist: Any) -> np.ndarray:
     return 1.0 / (1.0 + np.exp(np.clip(x, -700.0, 700.0)))
 
 
-def _bands(r: Any) -> np.ndarray:
-    """体の層(``agents.band``=セルの層から導く派生の列=状態台帳の軸 1 no)。読むのはこの 1 か所だけ(台帳の読みの許可)。"""
-    return np.asarray(r.band)
+def _bands(r: Any, cell_band: Any = None) -> np.ndarray:
+    """体の層=セルの層 ``cell_band[agents.cell]``(舞台の外は 0)。
+
+    〔第 2 期 2-4 V2〕前は SoA の派生の列 ``agents.band``(状態台帳の軸 1 no・刻みの終わりの位置の確定で ``node_band`` から
+    作り直す)を読んでいた。近接の既定が distance になると既定のランがこの列を読む=軸 1 no の列が挙動に効く(試験 T5 が
+    落ちた)ので、behavior の列 ``agents.cell`` から導き直す(``node_band[n] == cell_band[node_cell[n]]``=資産と合成の世界で
+    全ノード一致・値は同じ)。``cell_band`` を持たない規則(試験の合成の規則)だけ今までどおり列を読む。
+    """
+    if cell_band is None:
+        return np.asarray(r.band)
+    cell = np.asarray(r.cell).astype(np.int64)
+    cb = np.asarray(cell_band)
+    return np.where(cell >= 0, cb[np.maximum(cell, 0)], 0).astype(np.int8)
 
 
 # ------------------------------------------------------------------ 判定の規則(凍結)
@@ -199,6 +213,8 @@ class ProximityRule:
     step_seconds: int = 60
     geometry: str = "node"
     poi_cell: Any = field(default=None, compare=False, repr=False)
+    #: 〔第 2 期 2-4 V2〕セルの層(``world.assets.cell_band``・読むだけの写し)。体の層はここから導く(:func:`_bands`)。
+    cell_band: Any = field(default=None, compare=False, repr=False)
 
     def __post_init__(self) -> None:
         if self.mode not in MODES:
@@ -209,6 +225,10 @@ class ProximityRule:
             pc = np.array(self.poi_cell, dtype=np.int64)
             pc.setflags(write=False)
             object.__setattr__(self, "poi_cell", pc)
+        if self.cell_band is not None:
+            cb = np.array(self.cell_band, dtype=np.int8)
+            cb.setflags(write=False)
+            object.__setattr__(self, "cell_band", cb)
 
     # ---------------------------------------------------------- B5 の単位(親の判断 10-14 の 2)
     def _unit_at(self, r: Any, ids: Any) -> np.ndarray:
@@ -249,7 +269,7 @@ class ProximityRule:
         b = np.asarray(b, dtype=np.int64)
         cell = np.asarray(r.cell)
         on = (cell[a] >= 0) & (cell[b] >= 0)
-        band = _bands(r)
+        band = _bands(r, self.cell_band)
         same_band = band[a] == band[b]
         xy = np.asarray(r.xy)
         dd = xy[a].astype(np.float64) - xy[b].astype(np.float64)
@@ -371,10 +391,11 @@ def batch_partners(agents: Any, rule: ProximityRule, batch: Any, rows: Any, orde
     if members.size == 0:
         return out
     units = rule.units(agents)
-    idx = SpatialIndex.build(r.xy, _bands(r), members, unit=units, n_total=int(agents.n))
+    band = _bands(r, rule.cell_band)
+    idx = SpatialIndex.build(r.xy, band, members, unit=units, n_total=int(agents.n))
     qa = batch[rows]
     xy = np.asarray(r.xy)
-    q, cand, _d = idx.query_many(xy[qa, 0].astype(np.float64), xy[qa, 1].astype(np.float64), _bands(r)[qa], rule.d)
+    q, cand, _d = idx.query_many(xy[qa, 0].astype(np.float64), xy[qa, 1].astype(np.float64), band[qa], rule.d)
     # B5 の単位の仲間(届く=距離を見ない・単位は店のセルの中の体)
     w, ids_u = idx.unit_members_many(units[qa])
     q = np.concatenate([q, w])
@@ -454,7 +475,8 @@ class ProximityLayer:
         """この刻みの近傍の索引(舞台の中の体=セル ≥ 0)を作り、計器を数える。"""
         r = agents.registry
         ids = np.flatnonzero(np.asarray(r.cell) >= 0).astype(np.int64)
-        idx = SpatialIndex.build(r.xy, _bands(r), ids, unit=self.rule.units(agents), n_total=int(agents.n))
+        idx = SpatialIndex.build(r.xy, _bands(r, self.rule.cell_band), ids, unit=self.rule.units(agents),
+                                 n_total=int(agents.n))
         m = self._meter
         m["index_builds"] += 1
         m["indexed_max"] = max(int(m["indexed_max"]), int(ids.size))
@@ -503,9 +525,11 @@ def manifest_fields(layer: "ProximityLayer | None") -> dict[str, Any]:
 
 
 def rule_from(*, mode: str, d_m: float, seed: Any, day_key0: int, step_seconds: int,
-              geometry: str, poi_cell: Any) -> ProximityRule:
-    """組み立ての口(``seed``=動きの側の seed=気づく抽選の counter の流れの鍵・``poi_cell``=``world.pois.cell``)。"""
+              geometry: str, poi_cell: Any, cell_band: Any = None) -> ProximityRule:
+    """組み立ての口(``seed``=動きの側の seed=気づく抽選の counter の流れの鍵・``poi_cell``=``world.pois.cell``・
+    ``cell_band``=``world.assets.cell_band``=体の層をセルから導く〔2-4 V2〕)。"""
     if poi_cell is None:
         raise ValueError("rule_from: poi_cell(world.pois.cell)が要る(B5 の単位を店のセルの中に絞る)")
     return ProximityRule(mode=str(mode), d=float(d_m), seed=seed, day_key0=int(day_key0),
-                         step_seconds=int(step_seconds), geometry=str(geometry), poi_cell=poi_cell)
+                         step_seconds=int(step_seconds), geometry=str(geometry), poi_cell=poi_cell,
+                         cell_band=cell_band)

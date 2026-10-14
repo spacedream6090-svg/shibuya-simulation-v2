@@ -213,7 +213,7 @@ class Layers:
     #: ランだけ組み立てが置く(既定 None=今の道)。
     speech: Any = None
     #: 〔第 2 期 2-2 段 11a〕近接の層(``engine.proximity.ProximityLayer``・状態台帳の行 ``PX``)。腕
-    #: ``--proximity distance`` のランだけ組み立てが置く(既定 None=今の判定=同じセル)。
+    #: ``--proximity distance`` のランだけ組み立てが置く(〔2-4 V2〕既定。切替口 cell は None=同じセル)。
     proximity: Any = None
     #: 〔第 3 期 3-3〕申込書の持ち主(``engine.experiment.layer.ExperimentLayer``・状態台帳の行 ``X``)。申込書を渡したランだけ
     #: 組み立てが置く(既定 None=系 ``experiment`` が立たない=今の道)。

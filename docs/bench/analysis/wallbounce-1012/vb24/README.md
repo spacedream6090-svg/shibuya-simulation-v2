@@ -188,3 +188,125 @@
 | `EX-build.field.w12_external_nodes-f2cc7f0a` | 等間隔ダイヤの道(切替口 False と実データの無い線) | 京王の切替口(V1)がこの道を使う=残す。外す段を仮-15 の確認の後に改める案 |
 | `BR-PHONE-TABLE-BLANK` | 店の番号の表は空(W6 の POI に OSM の番号を足すのは版上げ 2 回目) | 本段の発注(V1〜V7)に入っていない=構築側の別の発注 |
 | `DOC-ec21-*` 8 行 | 経済の段階 2 の宣言 | V4 で扱う(§V4) |
+
+## V2 近接 distance を既定に(`--proximity` の既定 cell → distance・d=2.0 m)
+
+### V2-1 変えたこと
+
+| ファイル | 何を |
+|---|---|
+| `src/shibuya/engine/proximity.py` | `DEFAULT_MODE = MODE_DISTANCE`(10-03 §4 の決定=11a を版上げ 2 回目で既定に)・環境変数 `SHIBUYA_PROXIMITY` の既定を `DEFAULT_MODE` に・docstring。`cell` は**切替口**(2-2 までの判定=旧値の再現)。manifest の `proximity.schema` は上げていない(欄の意味は同じ) |
+| `src/shibuya/cli.py` | ランの種類の決め方を「近接の腕が既定(distance)と違えば腕」に(前は cell と違えば腕)・`--proximity` の説明 |
+| `src/shibuya/engine/systems/{build,act,boxes,judge,talk}.py`・`engine/state_ledger.py` | 既定の記述の注 |
+| `src/shibuya/engine/proximity.py`・`src/shibuya/perception/renderer.py`・`engine/systems/build.py`・`engine/state_ledger.py` | **体の層をセルから導く**(§V2-5 の T5 の発見): 規則に `cell_band`(`world.assets.cell_band` の読むだけの写し・`rule_from(cell_band=…)`)を足し、`_bands` は `cell_band[agents.cell]`(舞台の外は 0)を返す・描画の B5 の近接行の自分の層も同じ。SoA の派生の列 `agents.band`(軸 1 no)を既定のランで読まない。`node_band[n] == cell_band[node_cell[n]]` は資産(3,499 ノード)と合成の世界で全部一致=**値は同じ**(19 構成で 25 欄とも同じ=[v2fix_vs_v2.json](v2fix_vs_v2.json))。状態台帳の `agents.band` の読みの許可から描画の 1 本を消した(残るのは誤検出 1 と、`cell_band` を持たない試験の合成の規則の道) |
+| 試験 | §V2-5 |
+
+- 状態のファイルの見出し: 既定のランは見出しに `proximity`(`mode=distance`・`d_m=2.0`)を書く。見出しに無い状態のファイル=2-4 より前の既定(cell)のラン=今の既定で再開すると止まる(2-2 の検収 M1 の守り=腕の違う再開を止める)。
+
+### V2-2 動いた量(19 構成・前=V1・後=V2・どちらも作業木の src と組んだ資産)
+
+比べ: [v2_vs_v1.json](v2_vs_v1.json)。**18/19 構成で final が動いた**。`frozen_sources`・暦・顕著行為 10・出動 5 は 19/19 同じ。
+
+| 構成 | 前 final / 呼数 | 後 final / 呼数 | 呼数の差 | 気づいた延べ | 食事 | 行動の件数 | blocks の行 | 動いた欄 |
+|---|---|---|---|---|---|---|---|---|
+| w6_v3_default | `4bcca9f0216362bb` / 65,400 | `7857ecb16b9665cd` / 64,635 | -765 | 302 → 534 | 4,400 → 4,365 | 296,016 → 295,235 | 8,157 → 7,826 | 15/25 |
+| w6_v3_activity_off | `dee82f1ebaa73ebe` / 50,155 | `736915ca953a1aab` / 50,397 | +242 | 471 → 774 | 3,360 → 3,303 | 174,152 → 174,047 | 2,698 → 2,462 | 15/25 |
+| w6_v1_default | `2c0e05968641f380` / 51,835 | `2d327566a182139d` / 51,655 | -180 | 496 → 620 | 0 → 0 | 180,450 → 183,345 | 2,744 → 2,442 | 14/25 |
+| w6_v1_derive_v2_1 | `6c580488f3125d5e` / 45,572 | `317e9dd18767373c` / 44,807 | -765 | 539 → 741 | 0 → 0 | 165,704 → 162,504 | 2,427 → 2,162 | 14/25 |
+| w6_v2 | `72a0ab2e7829de5d` / 52,619 | `de90869e494390c3` / 51,366 | -1,253 | 652 → 712 | 2,057 → 2,039 | 173,785 → 169,661 | 2,577 → 2,323 | 15/25 |
+| w6_v1_edge | `f471394fe28facbf` / 46,242 | `1b6b9ecf75a741f9` / 46,054 | -188 | 425 → 546 | 0 → 0 | 95,273 → 94,791 | 2,483 → 2,287 | 14/25 |
+| w6_v2_edge | `ef4ab573bb92b093` / 46,737 | `62178a0e488bc989` / 46,655 | -82 | 523 → 482 | 1,870 → 1,869 | 92,053 → 91,383 | 2,113 → 2,173 | 15/25 |
+| w6_v1_edge_plateau | `8ff2b1e1097f805e` / 48,056 | `cc4eb08c30b1ed31` / 47,871 | -185 | 429 → 468 | 0 → 0 | 98,727 → 98,038 | 2,528 → 2,331 | 14/25 |
+| w6_old_v1_default | `5cb9041dded9bdf3` / 51,835 | `71d0e6720220f45a` / 51,655 | -180 | 496 → 620 | 0 → 0 | 180,450 → 183,345 | 2,739 → 2,438 | 14/25 |
+| w6_old_v1_derive_v2_1 | `78c8a8704e9a4ade` / 45,572 | `34c53e6e19f7d6f2` / 44,807 | -765 | 539 → 741 | 0 → 0 | 165,704 → 162,504 | 2,423 → 2,158 | 14/25 |
+| w6_old_v2 | `1dcdf8ff51017bdf` / 52,619 | `22931e874d600ab1` / 51,366 | -1,253 | 652 → 712 | 2,057 → 2,039 | 173,785 → 169,661 | 2,574 → 2,319 | 15/25 |
+| w6_old_v1_edge | `825a96be442b8749` / 46,242 | `32773d86549a11c1` / 46,054 | -188 | 425 → 546 | 0 → 0 | 95,273 → 94,791 | 2,480 → 2,281 | 14/25 |
+| w6_old_v2_edge | `6c489a3b3b55defd` / 46,737 | `f24c502e520f426a` / 46,655 | -82 | 523 → 482 | 1,870 → 1,869 | 92,053 → 91,383 | 2,108 → 2,170 | 15/25 |
+| w6_old_v1_edge_plateau | `5ac11d74be30416e` / 48,056 | `3a04d3f798004d4d` / 47,871 | -185 | 429 → 468 | 0 → 0 | 98,727 → 98,038 | 2,525 → 2,327 | 14/25 |
+| w6_golden_null_arm | `767f0224d82ba9a9` / 98,046 | `d341ca5c9e3e89d3` / 96,797 | -1,249 | 2,572 → 1,299 | 0 → 0 | 289,960 → 287,854 | 3,937 → 3,481 | 14/25 |
+| v3_mem_store | `452001a2517d7fb3` / 65,400 | `1dd3e329443349eb` / 64,635 | -765 | 302 → 534 | 4,400 → 4,365 | 296,016 → 295,235 | 8,157 → 7,826 | 15/25 |
+| v3_mem_rel | `c506dec249bb4328` / 69,114 | `874ea26628f6be2e` / 68,213 | -901 | 190 → 375 | 4,691 → 4,603 | 299,407 → 299,366 | 8,453 → 8,036 | 15/25 |
+| v3_classical | `f62a8d0ba0aa952f` / 93,685 | `f62a8d0ba0aa952f` / 93,685 | +0 | 903 → 903 | 9,314 → 9,314 | 434,083 → 434,083 | 8,449 → 8,449 | 1/25 |
+| v3_classical_mem_rel | `18bd9bfea8f51c11` / 106,977 | `059461c683d135c7` / 105,675 | -1,302 | 905 → 914 | 9,771 → 9,851 | 467,266 → 466,399 | 8,837 → 8,864 | 15/25 |
+| 呼数の合計 | 1,130,899 | 1,120,853 | -10,046 | | | | | |
+
+- `v3_classical`(古典・記憶 off・関係 off)だけは final・呼数・行動・blocks が同じで、テープの `prompt_hash` と `tokens_in` の列だけ動いた(B5 の近接行の描画が distance の道=半径 10.3 m・B5 の単位になる。古典の方策は描画の文を選択に使わず、関係 off で知人の会話も無い)。
+- 動く理由(2-2 の記録 §2-1 のとおり): 会話の開始・返事待ち・3 人会話・離脱・招待の相手・偶然の出会い・同席・B5 の近接行が「同じ層・距離 ≤ 2 m か同じ B5 の単位(在席の印 ∧ 店のセルの中)」になる・知人出現の起床が気づく確率 p(d) の抽選になる。会話の起床の呼が減り(2-2 の記録 §14-4 と同じ向き)、呼数の合計は −10,046(−0.9%)。
+
+### V2-3 切替口 cell で V1 の値が再現する(4 構成)
+
+`SHIBUYA_PROXIMITY=cell` で V2 の src を回した 4 構成(w6_v3_default・w6_v1_default・v3_mem_rel・v3_classical_mem_rel)は **V1 と 25 欄とも同じ**(final・呼数・テープの列・行動・blocks・full-hash ほか)=[v2cell_vs_v1.json](v2cell_vs_v1.json)。
+
+### V2-4 11c の読み直しの既定の列・B5 の単位の在室人数・再開
+
+- 11c の計器(2-2 の道具 [prox22/tools/reread_11c.py](../prox22/tools/reread_11c.py) をそのまま・活性化の資産 `--world data/world/v2_stage_2-4`・5,000 体・層化抽出・seed 1・語彙 v3・記憶 on・1 日・node 幾何)を、**既定の列=distance**・切替口の列=cell で回した=[v2_reread_11c.json](v2_reread_11c.json)(2-2 の記録の表は「既定 cell/腕 distance」の並び=列の役が入れ替わった)。
+
+| 量 | distance/node mock | distance/node classical | cell/node mock | cell/node classical |
+|---|---|---|---|---|
+| 会話の成立時の距離が 2 m 超の割合(関係 on) | 0.0299 | 0.0088 | 0.4116 | 0.4029 |
+| 同・10 m 超の割合(関係 on) | 0.0249 | 0.0059 | 0.2957 | 0.3395 |
+| 同・最大[m](関係 on) | 80.83 | 31.36 | 92.96 | 119.9 |
+| 会話のセッション(関係 off / on) | 155 / 201 | 0 / 341 | 211 / 328 | 0 / 489 |
+| 知人出現の起床の呼(関係 on) | 9,593 | 35,232 | 10,953 | 38,867 |
+| 知人出現の時点の距離の中央値[m](関係 on) | 2.154 | 0 | 28 | 28.25 |
+| B5 の近接行の項/描画(関係 on) | 2.79 | 5.01 | 3.207 | 6.021 |
+| B5 の近接行の 2 m 内の割合(関係 on) | 0.9417 | 0.9327 | 0.7975 | 0.7118 |
+| B5 の近接行の 10 m 超の割合(関係 on) | 0.005 | 0.0024 | 0.1508 | 0.2384 |
+| B5 の単位の在室人数の最大(絞った単位・関係 on) | 30 | 30 | 30 | 30 |
+| 同・絞る前の在席の印の最大(関係 on) | 30 | 30 | 30 | 30 |
+| 在席の体 × 刻みのうち店のセルの外(関係 on) | 11,171 | 44,556 | 12,772 | 44,269 |
+| 同じ点に重なる体の最大(関係 on) | 184 | 467 | 172 | 461 |
+
+- **再開=通し**(5,000 体・2 日・1 日目の終わりで保存 → 2 日目を再開・[tools/resume_vb24.py](tools/resume_vb24.py)・腕は今の既定=distance): v3_mem_rel `c1629175f053dbf0`(145,931 呼)・w6_v3_default `7330047ab379ec19`(139,311 呼)とも **final と日の境目の後の checkpoint 4 点(behavior/full)が通しと同じ**=[v2_resume_v3_mem_rel.json](v2_resume_v3_mem_rel.json)・[v2_resume_w6_v3_default.json](v2_resume_w6_v3_default.json)。
+- **費用(P4)**: 既定のランは毎刻み近傍の索引を作り、関係 on では辺の見え方と気づく抽選を引く(2-2 の記録 §6・§14-1)。予算の宣言への追記案(親が書く=2-2 の記録 §10 の 10): 「近接の判定(既定 distance・39 万体・刻みあたり・上側): 索引 ≤ 90 ms+関係辺の集め ≤ 0.17 s+辺の見え方 ≤ 0.20 s+気づく抽選 27〜30 ms(配列)+開いている会話 1 つあたり 0.01 ms+描画 1 回あたり +0.03〜0.08 ms。切替口 cell は 0」。5,000 体・1 日の壁時計は §V2-2 の side で cell に対して(参考・同居のランあり=決定論でない)。
+
+### V2-5 試験
+
+- 写しの木で全体: `-m "not slow and not gpu" -n 8 --dist loadfile --ignore=tests/c7`(`tests/w17/test_diversity_yardstick.py` は写しの木に封印の錨を写さないので外した=§V1-7)= **4,854 passed・7 failed・2 skipped・1 xfailed**(13 分 44 秒)。落ちた 7 本=T5 の 3 本(下の発見)・C9b の既定の診断 2 本・T1 の合成の final 1 本・既知の junction の 1 本(ab7)。直した後に関係する 10 ファイルを写しの木で回し直した(`-m "not gpu"`=slow を含む・V3 の作業木なので在席の切替口 legacy で V2 と同じ挙動=§V2-1 の 19 構成の一致で確かめた): **393 passed・1 skipped**(4 分 43 秒・`CONFIG_PATHS_SHA256` の 1 本は V3 の設定の道筋で落ちる=V3 で直す)
+- 張り替えた golden(V1 → V2)=下の表。`tests/engine/proximity/test_runs.py` の `HEAD_GOLDEN`(腕 cell を明示)と `tests/engine/test_classical_social.py`(古典・関係 off)は動かない。
+
+| 試験のファイル | 構成(goldens_vb24 の名) | 前 | 後 |
+|---|---|---|---|
+| `tests/engine/test_presence_executor.py` | pe_null | `767f0224d82ba9a9` | `d341ca5c9e3e89d3` |
+| `tests/engine/test_presence_executor.py` | pe_null | `98_046` | `96_797` |
+| `tests/engine/test_presence_executor.py` | pe_null_leave | `e88892cd271a638d` | `62c0de517b1689ec` |
+| `tests/engine/test_presence_executor.py` | pe_null_leave | `97_644` | `97_690` |
+| `tests/engine/test_presence_executor.py` | pe_null_hv1 | `4ced1f4211af5e5f` | `eff11abb4169f319` |
+| `tests/engine/test_presence_executor.py` | pe_null_hv1 | `94_793` | `94_030` |
+| `tests/engine/test_presence_executor.py` | pe_null_l4x1 | `d9e43bf14475a17c` | `23d6397b39afb614` |
+| `tests/engine/test_presence_executor.py` | pe_null_l4x1 | `40_979` | `40_976` |
+| `tests/engine/test_presence_executor.py` | pe_v3 | `4bcca9f0216362bb` | `7857ecb16b9665cd` |
+| `tests/engine/test_presence_executor.py` | pe_v3 | `65_400` | `64_635` |
+| `tests/engine/test_presence_executor.py` | pe_v3_leave | `53a0856c5fcc1c84` | `210747ea9fa71919` |
+| `tests/engine/test_presence_executor.py` | pe_v3_leave | `65_735` | `64_704` |
+| `tests/engine/test_presence_executor.py` | pe_v3_hv1 | `20f96720567a5847` | `62c5ea236fe4271d` |
+| `tests/engine/test_presence_executor.py` | pe_v3_hv1 | `65_019` | `64_268` |
+| `tests/engine/test_presence_executor.py` | pe_v3_l4x1 | `1cc39b43dfc834ee` | `b2a1acae57abca9e` |
+| `tests/engine/test_presence_executor.py` | pe_v3_l4x1 | `36_190` | `36_239` |
+| `tests/engine/test_state_ledger_10b.py` | pe_v3 | `4bcca9f0216362bb` | `7857ecb16b9665cd` |
+| `tests/engine/test_state_checks_10f.py` | pe_v3 | `4bcca9f0216362bb` | `7857ecb16b9665cd` |
+| `tests/engine/test_intent_chooser.py` | q13_v3 | `bff3eed45a39ea62` | `6d0ad8b13125ea5a` |
+| `tests/engine/test_intent_chooser.py` | q13_v3 | `36_296` | `36_246` |
+| `tests/engine/test_intent_chooser.py` | q13_null | `4679b0a6f6d2fa1e` | `319e347ffe08946b` |
+| `tests/engine/test_intent_chooser.py` | q13_null | `40_963` | `40_957` |
+| `tests/perception/test_near_tiebreak.py` | nt_hash | `26b748695ffbf7f9…` | `e313dfaace60e425…` |
+| `tests/perception/test_near_tiebreak.py` | nt_hash | `25_638` | `25_363` |
+| `tests/perception/test_near_tiebreak.py` | nt_mid | `0dc35b774a45a23b…` | `348df7c410fca9ec…` |
+| `tests/perception/test_near_tiebreak.py` | nt_mid | `25_653` | `25_297` |
+| `tests/perception/test_near_tiebreak.py` | nt_old | `b5373e67f4122256…` | `aaf28867cc84660d…` |
+| `tests/perception/test_near_tiebreak.py` | nt_old | `25_716` | `25_335` |
+| `tests/engine/test_relations_tenure.py` | rel_v1 | `edc6b366feece21c` | `967a0f2eedb3576d` |
+| `tests/engine/test_relations_tenure.py` | rel_v1 | `69_306` | `67_907` |
+| `tests/engine/test_relations_tenure.py` | rel_v2 | `c506dec249bb4328` | `874ea26628f6be2e` |
+| `tests/engine/test_relations_tenure.py` | rel_v2 | `69_114` | `68_213` |
+| `tests/engine/test_env_and_sections_10f.py` | pe_v3 | `4bcca9f0216362bb` | `7857ecb16b9665cd` |
+| `tests/engine/test_env_and_sections_10f.py` | pe_v3 | `65_400` | `64_635` |
+| `tests/engine/test_env_and_sections_10f.py` | pe_null | `767f0224d82ba9a9` | `d341ca5c9e3e89d3` |
+| `tests/engine/test_env_and_sections_10f.py` | pe_null | `98_046` | `96_797` |
+| `tests/engine/test_env_and_sections_10f.py` | rel_v1 | `edc6b366feece21c` | `967a0f2eedb3576d` |
+| `tests/engine/test_env_and_sections_10f.py` | rel_v1 | `69_306` | `67_907` |
+| `tests/engine/test_env_and_sections_10f.py` | rel_v2 | `c506dec249bb4328` | `874ea26628f6be2e` |
+| `tests/engine/test_env_and_sections_10f.py` | rel_v2 | `69_114` | `68_213` |
+
+- **見つけたこと(T5)**: 状態台帳の試験 T5(軸 1 が no の列を刻みの頭で揺らしても挙動は動かない・`tests/engine/test_state_ledger_10b.py`)が、既定を distance にすると落ちた(合成の世界の all_arms・classical と実資産 300 体の 3 本)。近接の判定と描画が `agents.band`(セルの層から導く派生の列=軸 1 no・2-2 では「既定の腕 cell では読まない」という読みの許可つき)を読むため。直し方は列を behavior にする(behavior-hash が動く)のではなく、読み手を behavior の列 `agents.cell` から導く形に替えた(上の表・値は同じ)。直した後は T5 の 4 本とも通る。
+- 直した試験(既定の約束を書いた試験): `tests/engine/test_c9b_targets_attention.py::test_default_arms_have_no_attention_columns_and_no_new_counters`(`n_talk_by_distance` は近接の腕の実距離の成立も数える=C9b の診断が立たないことは切替口 cell で見る)・`tests/engine/test_state_ledger_10b.py`(T1 の今の既定の final `CUR_SYN["all_arms"]` `ab8201f624b4dfa7` → `9071edfd618d42d8`・読みの許可の数 3 → 2)・`tests/perception/facts/test_render_from_percept_bytes.py` の (B)(19 構成の描画を HEAD `136fdbb` の描画の写しと比べる=写しは distance の道を持たない=切替口 cell で比べる・前と同じ比べ)。`tests/engine/bridging/test_bridging_ledger.py::test_build_stage_ids_are_the_c8_d44_row_ids`(**V1 の直し**=活性化の後の C8 の表 126 行・W12#4〜#11 は台帳の EX の行と文で合う・前の W12#4〜#8 は removed)。

@@ -70,13 +70,19 @@ class BoomLLM:
         {"geometry": "edge"},
     ],
 )
-def test_default_arms_have_no_attention_columns_and_no_new_counters(arm):
+def test_default_arms_have_no_attention_columns_and_no_new_counters(arm, monkeypatch):
     """既定の 3 腕(node/v1・node/v2・edge/v1)は C9b の欄も診断も持たない。
 
     本番の 4 種 checkpoint(既定 / ``--derive-rule v2.1`` / ``--vocab-version v2`` /
     ``--geometry edge``)が 1 バイトも動かないことの構造的な根拠=
     **``attention_columns`` が立たない**(SoA の宣言列が増えないので ``state_hash`` が動かない)。
+
+    〔第 2 期 2-4 V2〕近接の既定が distance になり、``n_talk_by_distance`` は近接の腕の実距離の成立も数える(2-2)=
+    C9b の診断が立たないことは近接の切替口 cell で見る(欄が立たないことは腕によらない)。
     """
+    from shibuya.engine import proximity as P
+
+    monkeypatch.setattr(P, "_ARM", P.MODE_CELL)
     res = run_day(**SMALL, **arm)
     assert res.attention is False
     assert res.run_manifest_fields()["attention"] is False

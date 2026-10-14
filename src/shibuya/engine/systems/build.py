@@ -601,7 +601,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     # 既定の 4 腕(node/v1・--derive-rule v2.1・--vocab-version v2・--geometry edge)は
     # どれも片方しか持たないので **checkpoint は 1 バイトも動かない**。
     attention_on = (geometry == "edge") and (vocab_version == "v2")
-    # ---- 第 2 期 2-2 段 11a: 近接の判定の腕(既定 cell=層を作らない=今の判定=同じセル)。distance のランだけ層を作り、
+    # ---- 第 2 期 2-2 段 11a: 近接の判定の腕(〔2-4 V2〕既定 distance=層を作る。切替口 cell=層を作らない=同じセル)。distance のランだけ層を作り、
     # 会話・返事待ち・3 人会話・離脱・招待の相手・偶然・知人出現・同席・B5 の近接行を「舞台の中・同じ層・距離 ≤ d(B5 の
     # 単位の中は距離を見ない)」で判定する(状態台帳の行 PX=軸 1 diag・軸 2 discardable)。腕は環境変数と CLI だけ
     # (run_day の引数にしない=設定の指紋に入れない=記憶の器と候補の口の腕と同じ扱い) ----
@@ -610,7 +610,8 @@ def build(_call_args: dict[str, Any]) -> Any:
     # 規則はここで作る(古典の交際の候補の閉包が使う)・層は関係の層の後(気づいた印の読み口=関係の層を渡す)
     _px_rule = (
         _PXM.rule_from(mode=_PXM.MODE_DISTANCE, d_m=_PXM.d(), seed=seed, day_key0=int(day_index),
-                       step_seconds=int(tick_seconds), geometry=str(geometry), poi_cell=world.pois.cell)
+                       step_seconds=int(tick_seconds), geometry=str(geometry), poi_cell=world.pois.cell,
+                       cell_band=world.assets.cell_band)  # 〔2-4 V2〕体の層はセルから導く
         if _PXM.arm() == _PXM.MODE_DISTANCE else None
     )
     _px_kw: dict = {} if _px_rule is None else {"proximity": _px_rule}
