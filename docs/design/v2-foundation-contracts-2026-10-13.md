@@ -82,6 +82,13 @@
 - **受入の試験**: tests/engine/proximity/(不変条件 7 本・p(d) の 2 点・感度の腕 1.0/2.5・B5 の単位・再開の一致と負の対照)。byte-check 19 構成(cell)。
 - **依存**: 1-2・1-3・1-8。正は docs/design/v2-proximity-distance-implementation-agenda.md(§0〜§2・§4・§7・末尾のユーザー決定 B1〜B8)。既定にするのは 2-4 版上げ 2 回目の束(10-03 の決定)。
 
+## 3-3 反実仮想の器(10-12 §4-5 CP5・CP12・CP14・R-71 §1-6)〔第334 追加=実装の後に口を写した〕
+
+- **口**: engine/experiment/ の ExperimentForm(申込書=schema・kind(探索/確認)・subject(level L0〜L4・ids・category=申込書の値=地名や業種名はコードに書かない)・content(決定の列・空なら A/A)・start/end(ナノ秒)・notice(to・at・via)・question・metrics(主 1 つ・副)・ensemble・preregistration(確認だけ)。知らない欄はエラー)と **apply(form, world, t) 1 つ**(決定を表に入れるだけ・実行は世界の中の過程・出来事ログに 実験:改変 と 実験:届いた情報 を gate.admit 経由で)。分岐=branch(T0 までテープを再生・T0 で改変・T0 から今の方策・R-71 の 4 つの確認を毎回)。ensemble(半分を封印・探索/確認・対の差は salt_compare の形・技量スコアは器だけ)。腕 --experiment <申込書>・--experiment-branch <基準のラン>・--experiment-aa。
+- **約束**: (1) 申込書を渡さないランは final・テープ・描画が不変(19 構成)。(2) 改変は決定だけ=人の心・物理の法則・空間を直接書かない。(3) 効かせていない改変は記録して続ける(unapplied)。(4) 4 つの確認=(a) 入力の一致 (b) T0 より前の全 checkpoint の状態 hash の一致 (c) T0 以後で最初に食い違った刻みと系 (d) A/A の差が厳密に 0。(5) 申込書の指紋を状態の見出しに書き再開で照合・run_kind=counterfactual。
+- **受入の試験**: tests/engine/experiment/(申込書の欄・固有名詞の不在・L0/L1・unapplied・分岐の 4 つの確認・A/A・封印の指紋・対の差の形)。byte-check 19 構成(申込書なし)。
+- **依存**: 1-3・1-4・10d・10f。正は決定 §4-5。実装の記録は docs/bench/analysis/wallbounce-1012/cf33/README.md。
+
 ## 受入の順と門(親)
 
 | 順 | 段 | 門(◎=byte-check 19 構成+2 日+再開・系ごとの指紋) | 検収 |

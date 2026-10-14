@@ -394,6 +394,14 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #99 第 3 期 3-3 反実仮想の器(申込書・効かせる口・分岐の 4 つの確認・封印=使わないとき不変)(第334・2026-10-14・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-5(CP5-1〜CP5-6・CP12・CP14・探索と確認)・§1-1・[R-71](docs/research/v2-r71-stochastic-comparison-statistics.md) §1-6・§2。口の約束に 3-3 の節(実装の後に写した)。記録 [cf33](docs/bench/analysis/wallbounce-1012/cf33/README.md)(§11 仮採用・§12 問い・[review.md](docs/bench/analysis/wallbounce-1012/cf33/review.md))。commit `a684f20`。
+- **中身**: `engine/experiment/{form,apply,layer,branch,ensemble}.py`。申込書(知らない欄はエラー・to_json は正準形・地名や業種名はコードに無い=試験)。効かせる口は `apply` 1 つ(系 `experiment` が刻みの頭で呼ぶ=申込書のあるランだけ・決定は表に入れるだけ・実行は世界の過程・出来事 `実験:改変`/`実験:届いた情報`=gate.admit 経由)。L0(天気の日付・祝日)と L1(営業時間・休業・催しの告知)を実装・L2〜L4 は宣言・unapplied は理由の鍵 11 種。分岐=T0 までテープを再生・T0 で改変・T0 から今の方策。**4 つの確認**(1,000 体 2 日・T0=2 日目の正午・200 店の休業): (a) 設定の差は experiment.* と run_kind だけ (b) T0 より前の checkpoint 12 本が同じ・テープ外の呼 0 (c) 最初の食い違い=刻み 2,160・系 world・pois.open_now (d) A/A は厳密に同じ。封印(半分を回す前に封印・指紋)・事前登録(確認だけ)・対の差は `salt_compare` の形・技量スコアは器だけ。run_kind=counterfactual・manifest の末尾 `experiment`・状態台帳の行 X(diag)・CLI 3 つ。
+- **結果不変**: 実装役 19/19(申込書なし)・検収役 4 構成+分岐の 4 つの確認の独立の再現・親の byte-check 4 構成。試験 82 本。つなぎの台帳 DOC-cf33-* 12 行。
+- **検収と親の判断**: 分岐の例は担当のいる世界(5,000 体)で回し直し、休業を実行したのが担当の従業者か(n_fallback)を記録(§1-1)。`group_norms.cost.ticks` は 2-4 で観測の節へ。実装役が全体試験の 1 回目で tests/c7 を回した(値は使っていない)=規律の記録。
+- 仮採用: PENDING §1-1b 仮-20。残り(CP5-1 の順・CP5-3 慣らし・CP5-6 自動判定・艦隊の分岐・L2〜L4)は計画の 3-3 行の注。
+
 ### #98 第 2 期 2-1 経済 EC(CP2 の段階 2・腕 `--economy-stage2`・既定 off=結果不変)(第334・2026-10-14・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-11(EC1〜EC6・税・信用)・[口の約束 1-9](docs/design/v2-foundation-contracts-2026-10-13.md) 約束 (3)・[経済の設計](docs/design/v2-boundary-economy-design.md) §2。記録 [ec21](docs/bench/analysis/wallbounce-1012/ec21/README.md)(§10 expedient・§11 限界・§13 検収の直しと親の判断・[review.md](docs/bench/analysis/wallbounce-1012/ec21/review.md))。commit `fea27d2`。
