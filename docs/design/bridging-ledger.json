@@ -1171,7 +1171,7 @@
   {
    "id": "W16#9",
    "what": "通学者・業務来街・私事来街の体数=PT(2018)の目的別到着比を従業者数へ当てた値",
-   "why": "構築の段 W16 が宣言した近似(StageResult.expedients の 9 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W16#9)。外す段: 4-1 段 10 で W16 を合成人口に差し替える(計画 第 4 期)",
+   "why": "構築の段 W16 が宣言した近似(StageResult.expedients の 9 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W16#9)。外す段: 4-1 段 10 で W16 を合成人口に差し替える(計画 第 4 期)〔第336・R-116 §6 の 4〕PT の目的別の到着比は 10-13b §1 1-3 で検証側(集中量)になった=今の W16 の構築に検証側の比が入っている(段 10 で外れるまでの既知の弱点・値は見直さない)。",
    "remove_at": "4-1",
    "declared_in": "src/shibuya/build/pop/w16_population.py#expedients:8305acdb",
    "conf": "expedient",
