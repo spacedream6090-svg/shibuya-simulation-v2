@@ -394,6 +394,14 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #94 第 2 期 2-3b 鉄道の実ダイヤ(構築側 W12 だけ・エンジン不変・活性化は 2-4)(第334・2026-10-14・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [回答 10-13](docs/design/v2-answers-2026-10-13.md) の 2・3・7・[回答 10-13b](docs/design/v2-answers-2026-10-13b.md) §2(銀座線=9 月改正の版)・[時刻表の記録](docs/bench/analysis/wallbounce-1012/timetables/README.md) §7。記録 [tt23b](docs/bench/analysis/wallbounce-1012/tt23b/README.md)(§7 版の宣言・§12 台帳・§13 検収の直しと rebase・[review.md](docs/bench/analysis/wallbounce-1012/tt23b/review.md))。commit `162df21`。
+- **中身**: `build/field/w12_real_timetables.py`(読み口=ユーザー提供の公式 PDF の読み取り CSV(JR 2 線+湘南新宿ライン・東急 2 線)・京王 井の頭線=ODPT チャレンジ枠の CSV・銀座線=ODPT オープン枠の静的データ版 1 の TrainTimetable(最初の停車が渋谷・dct:issued 2026-09-19=**世界の時点より後の版と宣言**)・渋谷の発車だけ・方面の写像の表・土休の ◆ 臨時 4 本を除外・重複 0)・`w12_external_nodes.py` 版 1.2.0(切替口 `USE_REAL_TIMETABLES`=既定 True・False は 1.1.0 と sha256 一致・派生は実ダイヤから・`w12_timetable_versions.json`・ゲート 6 つ)・W19 の層の元に `user_timetables`・`odpt_challenge`・`odpt_static`。**8 線とも実ダイヤ=等間隔の残り 0 線**・行 9,014 → 6,273・土休 > 平日 の欠陥は消えた。資産は `data/world/v2_stage_2-3b/`(build_hash `591c8543…`・2 回一致・本体の v2 は上書きしない=2-4 で差し替え)。
+- **動いた量(2-4 の束の材料)**: 4 構成とも final が動く・呼数 65,597 → 65,400 ほか・`frozen_sources` で動いたのは `w12_timetables.parquet` だけ・到着の波のピークは田園都市線と山手線 9 → 8 時台・東横線 8 → 9 時台。
+- **検収**: 条件つき受入(高 1=expedient の宣言を星付きで渡したため走査器に見えず `tests/engine/bridging` 11 failed=CI-1 が赤になる → モジュールの表に直し 49 passed・低 5)→ 全部直した。検収役の本数の数え直し 12 マス一致・資産の再現 107 ファイル一致・W12.run が開くのは白い一覧だけ。つなぎの台帳: W12#4〜#8 と BR-W12-HOLIDAY-GT-WEEKDAY を removed・新しい宣言 9 行・終点の到着と直通の二重計上は **2-3c**(新設・`PLAN_STAGES` に追加)。
+- 仮採用: PENDING §1-1b 仮-15(京王チャレンジ枠の行を本体の資産に入れる読み=ユーザーの最終確認・山手線の内回り=上り は推測)。ライセンス台帳 その 15。試験 20 本(`requires_data` の id `user_timetables`・`odpt_static`)。
+
 ### #93 第 2 期 2-0 較正側の錨の計器(エンジン不変・tools だけ)(第334・2026-10-14・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [回答 10-13b](docs/design/v2-answers-2026-10-13b.md) §1 1-8(仕分け 3-8)・[R-115](docs/research/v2-r115-calibration-anchors-inventory-for-2-0.md) §2〜§5。記録 [gauge20](docs/bench/analysis/wallbounce-1012/gauge20/README.md)(§9 検収の直し・§10 親の検収・[review.md](docs/bench/analysis/wallbounce-1012/gauge20/review.md))。commit `f2405e3`。
