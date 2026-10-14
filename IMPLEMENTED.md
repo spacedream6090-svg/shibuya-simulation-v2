@@ -394,6 +394,14 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #103 第 3 期 3-2 TM T1 計算のまとめ(窓の待ち行列・幅 60 秒で今と同じ=結果不変)(第336・2026-10-15・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-2(TM3 (f)・TM4・TM6 の T1)・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 3-2 の行。記録 [tm32](docs/bench/analysis/wallbounce-1012/tm32/README.md)([review.md](docs/bench/analysis/wallbounce-1012/tm32/review.md))。取り込み `260264b`。
+- **進行役の書き換え**(`engine/batching.py`・`systems/conductor.py`): `for T in range(t_begin, t_end)` → 窓の待ち行列 `while queue.head_ns < end_ns: queue.run_window(...)`(`Scheduler` を流用・幅 W は `core/time_consts` から)。T1 の事象は「刻みの事象」(体 −1)だけで、処理の中身は旧ループと同じ。窓の中は時刻順(同時刻=体の番号 → 種類の順位 → 通し番号)・同じ種類は配列で 1 回・窓の中に予約された事象は同じ窓・上限 2^24 で持ち越し(止めない)・境目で配達する種類(TM1 の形)。探りの境目 `WINDOW_MARK` で待ち行列の変更は系に請求されない。
+- **不変**: W=60 で byte-check 19/19(25 欄)・2 日のラン・再開(刻み 1,440 と 2,211)・系ごとの指紋(台帳の行 BW と日次の bridges_count を除く)。幅の腕 `--batch-width-s` の 30・10・5 も 19 構成で同じ(事象の粒度が 60 秒=T2 で細かく)。負の対照=合成の境目の配達の事象(80 秒)が W=60 で 120 秒・W=30 で 90 秒・W=10 で 80 秒。
+- **道具** `tools/instruments/batch_width_gauge.py`(TM4 の試験=幅の列で同じ seed・salt の対を回し「まとめ無しの時刻順」との差と salt のばらつきを並べる口・遅刻と待ち合わせの成否は空欄)。manifest の末尾 `batching`(幅・窓の数・持ち越し・上限に当たった数)・状態台帳の行 BW(diag・discardable)・台帳 4 行(remove_at T2)。性能: 窓の待ち行列は 43〜63 µs/刻み(W=60)・89 µs(W=5)=約 0.2%。
+- 検収: 別の検収役 1+親。全体試験 4986 passed。仮採用: PENDING §1-1b 仮-25。
+
 ### #102 第 2 期 2-3c 鉄道の実ダイヤの残り(到着の表と直通のまとめ・W12 1.3.0・結果不変)(第336・2026-10-15・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 2-3c の行・2-3b の記録 §7。記録 [tt23c](docs/bench/analysis/wallbounce-1012/tt23c/README.md)([review.md](docs/bench/analysis/wallbounce-1012/tt23c/review.md))。取り込み `44cfba5`。
