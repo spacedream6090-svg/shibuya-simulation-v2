@@ -394,6 +394,14 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #100 第 2 期 2-3 複数日の mock(10g・腕 a=記憶の目印を記録の出来事に・W9 の影 7 日・既定は不変)(第334・2026-10-14・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [指示書 10-03](docs/design/v2-wallbounce-decisions-2026-10-03.md) §4-3(10g の順番・暫定の印)・§6 ⑧ 8-1・計画の 2-3 の行。記録 [md23](docs/bench/analysis/wallbounce-1012/md23/README.md)([review.md](docs/bench/analysis/wallbounce-1012/md23/review.md))。commit `9f631b0`。
+- **中身**: `engine/events/body.py`(体の出来事の口=腕 `--memory-store events` のときだけ・行為の成否・会話の番と終わり・顕著行為・知覚・原因は LlmCall か Process)・`memory_store.remember(origin=None)`(記録にある id だけ・who と what の写像を確かめる・負の対照 3 本)・器の行は 100% 記録の出来事(legacy 0=`DOC-memory-store-legacy` を removed)・想起の同値 0 件(1-6 の試験を腕 a で)・腕の行 M0L(再開の目印)・W9 の `SHADOW_DATES` を 07-13〜07-19+07-28 に(資産 `data/world/v2_stage_2-3/`・build_hash 2 回一致・活性化は 2-4・窓の中は近い日の影を読まない)・複数日の計器 `md23/tools/multiday_md23.py`。
+- **複数日の表(5,000 体・土台 v3_mem_rel・既定と腕 4 組)**: 正は 5 日(月〜金=エンジンの検査 A1-3・CA10 が 7 日を止める・7 日は付録 A=test_only)。既定と腕 a の final は同じ(10cc8891…・381,302 呼)。財布は既定 −1,625 → −664 円/体/日・腕 c −786 → −85・腕 d −725 → −136(賃金は窓に 25 日が無く 0=緩みは引き出し 257 → 143 回/日)・関係辺の満杯率 1.40 → 1.64%(5 日では満杯にならない・外挿 1,479 日=推測)・腕 b は会話 約 2 割減(234 → 191)・壁時計 7 日 1 本 290〜397 秒。曜日の比較はしない(K9)。保持窓の外に出た記憶の目印は「要旨だけ」の粗さで想起(本文は空・6-5 で決め直し)。
+- **結果不変**: 実装役 19/19・再開=通し(5,000 体 2 日・既定と腕 d)・検収役 4 構成+独立の確かめ・親の byte-check 4 構成。全体試験 4,884(tests/c7 を除く) passed。
+- 仮採用: PENDING §1-1b 仮-21。腕 a の量(14.6 行/体/日)は既定にする前に決め直し(予算の宣言)。
+
 ### #99 第 3 期 3-3 反実仮想の器(申込書・効かせる口・分岐の 4 つの確認・封印=使わないとき不変)(第334・2026-10-14・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-5(CP5-1〜CP5-6・CP12・CP14・探索と確認)・§1-1・[R-71](docs/research/v2-r71-stochastic-comparison-statistics.md) §1-6・§2。口の約束に 3-3 の節(実装の後に写した)。記録 [cf33](docs/bench/analysis/wallbounce-1012/cf33/README.md)(§11 仮採用・§12 問い・[review.md](docs/bench/analysis/wallbounce-1012/cf33/review.md))。commit `a684f20`。
