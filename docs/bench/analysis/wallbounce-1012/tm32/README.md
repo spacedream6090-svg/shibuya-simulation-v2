@@ -259,3 +259,11 @@ byte-check の 19 構成を、環境変数 `SHIBUYA_BATCH_WIDTH_S` で幅を変�
 - 親が書くもの(触っていない): L3(10e の `SWITCH_ENV` に `SHIBUYA_BATCH_WIDTH_S`)・L8(P4 の性能=予算の宣言の行)・L9(`_bc/` は取り込みに載せない)。検収役の問い 3(TM4 (g) の salt 間のばらつき=正解の腕の `width_base`)は expedient の宣言のまま。
 - byte-check(直しの後・既定 W=60・4 構成=w6_v3_default・w6_v3_activity_off・w6_v1_default・v3_mem_rel・HEAD の写しの条件は前と同じ・[byte_check_tm32_review4.json](byte_check_tm32_review4.json)): **4/4 構成で 25 欄とも同じ**(final は §6 の値と同じ)。
 - 試験(直しの後): 新しい試験は 61 本(`test_window_queue.py` 36・`test_conductor_windows.py` 18・`test_batch_width_gauge.py` 7)。範囲(`tests/engine/batching`・`tests/engine/systems`・`tests/engine/time`・`tests/tools/test_batch_width_gauge.py`・`test_resume_10d.py`・`test_state_ledger_10b.py`・`test_state_checks_10f.py`・`tests/engine/bridging`・8 並列・slow を含む): **421 passed**(11 分 53 秒)。`lint-imports` は 5 契約とも守られている(230 ファイル)。
+
+## §親の検収(第336・Fable 5.1・rebase の後)
+
+- 本体 82eeab0 へ rebase(衝突 0・36230c5)。範囲の試験(batching・道具・systems・time・events・bridging・rights・tools・perception・experiment・llm・再開・状態台帳・10f・multiday・経済 stage2・活性化)**1,628 passed**(12 分 12 秒)。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・両側とも本体の木=data と rules-table.json がある)=**final 同じ・25 欄とも差なし**(`parent_head_vs_tm32_4cfg.json`)。検収役の 4 構成と実装役の 19 構成(W=60・W=30/10/5)も同じ。
+- **data 無しの写し(detached の作業木・junction なし)で CI-1 と同じ引数の全体試験(tests/c7 を含む)=4,925 passed・230 skipped・failed 0**(18 分 44 秒)。
+- 独立検収([review.md](review.md))=条件つき受入(中 1=`WindowQueue` に実行時の守りが無い・低 9)→ M1・L1・L2・L4〜L7 を直した(守り=`__setattr__`/`__delattr__`・`MappingProxyType`・読み取り専用の配列・`register` は始まった後と重複で落ちる・負の対照 16 本・`declared_check` は `BW:` の鍵だけ・時間の直書き 0・同時刻の束の例外は宣言)。親が足すもの: 10e の `SWITCH_ENV` に幅の環境変数(L3)・予算の宣言に P4 の行(L8)・`_bc/` は載せない(L9)。親の判断: 同時刻の束の処理中に同じ時刻へ足した事象は束の後(規則として宣言)・TM4 (g) の salt 間のばらつき=正解の腕の `width_base`(t·s/√n)の読みは expedient のまま・性能の回帰の試験は負荷で揺れるので置かない(記録の測定値と予算の宣言で)。
+- 判定: **受入**(第 3 期 3-2 の完了=既定 W=60 は不変・幅の腕は既定 off 相当=同じ結果・TM4 の既定の幅の試験は T2 で事象の粒度が細かくなってから)。
