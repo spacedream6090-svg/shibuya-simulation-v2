@@ -806,3 +806,10 @@ python $D/tools/split_anchors_vb24.py split && python $D/tools/split_anchors_vb2
 | `tests/engine/test_activation_2_4.py`(6)・`tests/engine/bridging`(49)・`tests/tools`(51)・`tests/economy`(281)・`tests/engine/multiday/test_md23_w9_window.py`(3)・`tests/engine/tools`(70) | `-m "not gpu and not slow" -n 4 --dist loadfile` | **460 passed**・failed 0 |
 | `tests/c7`(監査フックつき=上の H1) | `-m "not gpu and not slow"`(CI-1 と同じ印) | **168 passed**・検証側のファイルを開いた回数 0 |
 | 層の契約 `lint-imports --no-cache` | — | **5 kept・0 broken** |
+
+## §親の検収(第334〜335・Fable 5.1・rebase の後)
+
+- 本体 5f38e37 へ rebase(衝突 1=予算の宣言の同じ行への追記を親が両方残した。range-diff は V4 だけ「!」で他は「=」=review.md)。資産は親が活性化(`activate_vb24.py apply`・退避 `v2_pre_2-4`・`verify` 同じ)。範囲の試験(economy・proximity・systems・events・time・bridging・experiment・multiday・build_field/vis/audit・c8・活性化・在席・再開・状態台帳・10f・perception・llm・cli)**2,093 passed・1 xfailed**(12 分 49 秒)。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・資産は両側とも活性化の後の v2)=**final は 4 構成とも違う**(既定が動く段 V2 distance・V3 在席・V4 stage2 の分=情報として記録 `parent_head_vs_vb24_4cfg.json`・25 欄のうち同じなのは列の名と日付の類だけ)。旧値の再現は検収役の独立の再現(切替口 3 つ+前の資産=base と 25 欄同じ・`5f7ae9ff…`/65,597)と V8 の materialize の再現を根拠にする。動いた量は検収役が 5 本のランで段ごとに再現(呼数の差 −197/−765/−109/+2=記録と同じ)。
+- 独立検収([review.md](review.md))=条件つき受入(高 1=tests/c7 の fixture が検証側の鍵を欠き CI-1 が赤になる見込み・中 1=退避は前の資産そのものではない・低 8)→ **V8(309d168)で全部直した**+親の判断(remove_at=2-4 の 9 行を 7 と 4-2 に・乗車の歩き出しの在席は 4-3 の行・切替口は版上げ 3 回目まで残す・remove_at=2-1 の 10 行は 4-2 の着手時に棚卸し・作り物の錨の `verified_by` は `synthetic(test)`=親が確かめた値ではない印)。親の試験: 作業木で 275 passed(tests/c7 の合成・活性化・台帳・道具)。**data 無しの写し(detached の作業木)で CI-1 と同じ印 `-m "not gpu and not slow"` の tests/c7・tests/tools・活性化・台帳=268 passed・6 skipped(data が要る印)・failed 0**=CI-1 の赤の見込みは消えた。
+- 判定: **受入**(第 2 期 2-4 の完了=第 2 期 7 段が全部完了)。仮採用は PENDING §1-1b 仮-22(W9 のゲート 13 MB/日=案 A・energy.py が検証側を読む形は判断待ち・京王の行は活性化した資産に含む)。
