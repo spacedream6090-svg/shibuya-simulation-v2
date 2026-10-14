@@ -394,6 +394,13 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #107 第 6 期 6-1 判断モデルの評価の器(GPU の前の分・道具だけ=結果不変)(第336・2026-10-15・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-7(DM-0・DM1・DM4・DM5・DM9)・§4-8・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 6-1 と回答 2-1・1-10 の評価セット(340 件)・R-108(位置の偏り)。記録 [dm61](docs/bench/analysis/wallbounce-1012/dm61/README.md)([review.md](docs/bench/analysis/wallbounce-1012/dm61/review.md))。取り込み `76d3899`。
+- **器** `tools/instruments/dm_eval/`(`situations.py`=状況の読み口と候補の口・`judge.py`=当て口 `Scorer`・採点・速さの式・厳密モード・`bias.py`=位置の偏りの対照・`table.py`・`cli.py`): DM4 の短い版/長い版は `engine/decision/port.compose` 1 つ(共通部分が前)・長さの腕 t300(B0 を外す=字数 395/516.5/583)と t1000(1,603/1,724.5/1,791)・「数字はお金と時刻だけ」の計器(中央 4/21 個)。採点=JSD(底 2)・順位相関・自己整合・迷い(`Hesitation.of`)・驚きの語 0〜5・人のデータとの照合は欄だけ(**正解の表は作らない**)。位置の偏りの対照(340 件 × 巡回 4 通り)=mock/古典/テープは 1 位が変わる率 0・番号 1 を選ぶ率 0.070/0.079/0.075・正の対照 1/0.961/9.5e-7。厳密モード=同じ入力 2 回と並びを逆にした 1 回でバイト同じ(負の対照あり)。表=当て口 8 × 言語 1 × 長さ 2・25 列・順位なし・GPU 時間の式(呼数/日 64,528 × 人口/5,000 × 1 件の秒 ÷ 3,600 ÷ GPU 数)。
+- 当て口: mock(Dirichlet(1))・古典(`engine.classical` の `ActivityPrior` を器の側で=expedient)・テープ(10e の 52 本)を実装。Clef-flash・Clef・Kev-9B・即断・(G) は口だけ(値は S6 の後)。engine 差分 0。台帳 `DOC-dm61-eval-harness`。
+- 検収: 別の検収役 1+親。全体試験 5,198 passed。仮採用: PENDING §1-1b 仮-29(10 件=記録 §10)。残り: engine の口 3 つ(人ごとの短い特徴量の描画・古典の源・数字はお金と時刻だけ)・`requires_data("evalset")` の id(取り込みで登録)。
+
 ### #106 第 3 期 3-1 カレンダー 1a 影(W20cal・腕 `--calendar-shadow 1a`・既定 w17=結果不変)(第336・2026-10-15・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-1(CA1・CA2 (a)・CA8・CA9〜CA11)・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 3-1 の行と第 4 期の注。記録 [ca31](docs/bench/analysis/wallbounce-1012/ca31/README.md)([review.md](docs/bench/analysis/wallbounce-1012/ca31/review.md))。取り込み `5924be9`。
