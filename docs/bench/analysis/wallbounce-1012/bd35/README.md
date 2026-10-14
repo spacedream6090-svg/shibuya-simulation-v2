@@ -375,3 +375,10 @@ commit の無い枝の手順: 変えた追跡ファイル 29 本と新しい置�
   - data は junction でなく、本体の data から 3 本(祝日の CSV・OSM の 2 本)をバイトのまま写した(道具の `HEAD_TREE_FILES` の data の 3 本と同じ物=写しの木の検査が通る)。前に junction の後片付けで外す口が断られたため、ドライブの根を指す誤りや本体の data へのつなぎを `_bc` に残さない形を選んだ。世界資産は両側とも作業木の根の `data/world/v2`(本体の v2)を読む。
 - **reserve=sweep 2 構成**(両側とも計器あり): `w6_v3_default`・`v3_mem_rel` で 27 欄とも同じ([rb_sweep_vs_reserve_2cfg.json](rb_sweep_vs_reserve_2cfg.json))。計器ありの境目の列は rebase の前の 19 構成の値と同じ。
 
+## §親の検収(第336・Fable 5.1・rebase の後)
+
+- 本体 60dadc4(2-3c・3-2・4-1 の後)へ実装役が commit の無い枝の手順で rebase(衝突は末尾だけ=OWNER_NAMES/hash_owners/状態台帳 BW → BD/manifest batching → body/cli/凍結の表/台帳 398 行・expedients 183・CONFIG_PATHS_SHA256 8c1610ad…)。親が 5aed8a3(4-1 の文書と c8 の読みのグラフ)へ乗せ直し(衝突 0)。範囲の試験(body・systems・batching・time・events・bridging・rights・tools・perception・experiment・再開・状態台帳・10f・エネルギー・sim_time・**economy**・multiday・**c8**)**1,780 passed**(11 分 41 秒)。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・両側とも本体の木)=**final 同じ・25 欄とも差なし**(`parent_head_vs_bd35_4cfg.json`・名の直しの後)。検収役の 4 構成と実装役の 19 構成(sweep)・reserve=sweep 2 構成(計器あり)も同じ。
+- **data 無しの写し(detached の作業木・junction なし)で CI-1 と同じ引数の全体試験=4bb741c で 5,049 passed・240 skipped・1 failed**(`tests/economy/cp2/test_cp2_write_window.py`=体の層の書く口の印 `_open…` が経済の守りの走査(文字列 '_open')に当たった=名の直し 687411d)→ 名を改めた後、対象の置き場(economy・body・systems・batching・time・events・perception)の data 無しの試験 **1,024 passed・29 skipped・failed 0**。
+- 独立検収([review.md](review.md))=条件つき受入(中 1=sweep でも予約の配列を確保・低 8)→ 全部直した(予約の配列は reserve のときだけ・段の境目の計器は `SHIBUYA_BODY_BOUNDARY_GAUGE=1` で opt-in=既定の性能は HEAD 相当 +1.3%(5,000 体)/+0.5%(39 万体)・`BodySchedule` の守り・tick の語・`collapse_draw` の口・README・`VALUE_CLASSES` の注)。親が足すもの: 10e の `SWITCH_ENV`(済=623da48)・予算の宣言に P4 の行。親の判断: 境目の計器は opt-in・reserve は T3 の版上げまで既定にしない・仮採用 6 点は PENDING へ。
+- 判定: **受入**(第 3 期 3-5 の完了=既定 sweep は不変・TM5 の予約は腕)。残り: 器だけの 3 件の裏付けと倒れる率の出典のリサーチ(第 5 期・6-5)。
