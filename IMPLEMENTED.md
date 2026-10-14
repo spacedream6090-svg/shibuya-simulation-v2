@@ -394,6 +394,14 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #97 第 2 期 2-2 近接 11a → 11c(腕 distance・既定 cell=結果不変)(第334・2026-10-14・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [実装アジェンダ](docs/design/v2-proximity-distance-implementation-agenda.md) §0〜§2・§4・§7・B1〜B8・[指示書 10-03](docs/design/v2-wallbounce-decisions-2026-10-03.md) §4・[口の約束 2-2](docs/design/v2-foundation-contracts-2026-10-13.md)。記録 [prox22](docs/bench/analysis/wallbounce-1012/prox22/README.md)(§13 検収の直し・§14 親の判断の後・[review.md](docs/bench/analysis/wallbounce-1012/prox22/review.md))。commit `e8e6eb3`。
+- **中身**: `engine/proximity.py`(`ProximityRule`=舞台の中・同じ層(band)・距離 ≤ d、または同じ B5 の単位(同じ店に在席かつ店のセルの中)・`ProximityLayer`・manifest の `proximity`)・`engine/spatial_index.py`(2.5 m の格子・層ごと・刻みごとに作って捨てる・総当たりと一致)・腕 `--proximity {cell,distance}`(既定 cell)・`--proximity-d {1.0,2.0,2.5}`(既定 2.0 m=B3)・離脱 d+1 m・切り替えた対象=会話の開始・返事待ち・招待・3 人会話・離脱・招待の候補・偶然の出会い・同席・B5 近接行(半径 10.3 m)・知人出現(p(d)=R-62 の 2 点を通るロジスティック・100 m 打ち切り・抽選は Philox の配列の口=K19 の配置)。腕の違う状態からの再開は止める。11c の読み直しは計器だけ(既定 cell は HEAD と 6/6 一致)。
+- **結果不変**: 実装役 19/19(cell)・検収役 4 構成+描画 11,928 回の digest 同じ+全会話の距離の数え直し(d 超えかつ単位外 0 件)+索引と総当たり 900 点一致+再開=通し・親の byte-check 4 構成。腕 distance の動いた量(4 構成)は記録。
+- **検収**: 条件つき受入(中 3=腕の違う再開を止めない・39 万体の費用の抜け・11c の読み(最大 30 は席数の上限)/ 低 9)→ 全部直した。親の判断: 鍵は Philox の配列の口・B5 の単位は店のセルの中・B5 近接行は半径の中だけ・ハブの懸念は「いまは測れない」(5-2)・店を出た体の在席の印は 2-4 の候補。
+- 仮採用: PENDING §1-1b 仮-18。既定にするのは 2-4 版上げ 2 回目の束。
+
 ### #96 第 1 期 1-8b 発話の口(Q57 (d)・腕・既定 off=結果不変)(第334・2026-10-14・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [口の約束 1-8b](docs/design/v2-foundation-contracts-2026-10-13.md)・[回答 10-13b](docs/design/v2-answers-2026-10-13b.md) §1 1-5。記録 [s8b](docs/bench/analysis/wallbounce-1012/s8b/README.md)(§11 仮採用・§14 検収の直し・§15/§16 rebase と再確認・[review.md](docs/bench/analysis/wallbounce-1012/s8b/review.md))。commit `42cd8f0`。
