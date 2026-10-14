@@ -1993,7 +1993,7 @@
   },
   {
    "id": "BR-REFRACTORY-ACQUAINTANCE",
-   "what": "不応期「知人出現」10 分(起床条件 ACQUAINTANCE・知覚契約書 §6 の表・同一相手 60 分は C2 未実装)",
+   "what": "不応期「知人出現」10 分(起床条件 ACQUAINTANCE・知覚契約書 §6 の表・同一相手 60 分は relations.REL_ACQ_PAIR_REFRACTORY_MIN=関係 on で働く〔第334 訂正・前の注「C2 未実装」は古い〕)",
    "why": "「いつ考えるか」(起床の検出と再呼び出しの間隔)をエンジンが強制している。驚き駆動で判断モデルへ移す(回答 10-13b §4-1)。T3 で外す(回答 10-13b §4-2 の 2・カレンダー 1b と同じ版上げ)",
    "remove_at": "T3",
    "declared_in": "docs/design/v2-answers-2026-10-13b.md §4-2 の 2",

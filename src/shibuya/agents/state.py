@@ -310,7 +310,7 @@ REFRACTORY_MINUTES: Final[tuple[int, ...]] = (
     60,  # 計画境界: 一般活動(expedient)
     15,  # 計画境界: 移動・待機中(expedient)
     45,  # 内受容閾値(expedient・ヒステリシスで置換を試す)
-    10,  # 知人出現(expedient・同一相手 60 分は C2 未実装)
+    10,  # 知人出現(expedient・同一相手 60 分は relations.REL_ACQ_PAIR_REFRACTORY_MIN=関係 on で働く。〔第334 訂正〕前の注「C2 未実装」は古い)
     15,  # 近接入替(expedient・最大の暴発源)
     5,  # 被注視(expedient)
     5,  # 傍受(expedient・同一話者 30 分は C2 未実装)
