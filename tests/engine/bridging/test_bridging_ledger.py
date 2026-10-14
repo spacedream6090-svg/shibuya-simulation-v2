@@ -116,7 +116,9 @@ def test_the_counts_by_form(decls):
     # 〔第 1 期 1-5〕見出し 74 → 76(engine/rights/initial.py・record.py)。〔第 1 期 1-8 J0〕候補の口の 3 つの見出し
     # (port・sources・layer=項 3+2+1)を足した=76 → 79(記録 j0/README.md)。〔第 1 期 1-7〕engine/tools/contacts.py の
     # 見出しを足した=79 → 80(記録 c0/README.md §4)
-    assert S.count_by_form(decls) == {"conf": 0, "expedients": 139, "docstring": 5, "heading": 80, "process": 18,
+    # 〔第 2 期 2-3b〕W12 の等間隔の 5 行(W12#4〜#8=removed)を消し、実ダイヤの表 8 行と等間隔の道の表 1 行を足した
+    # =expedients 139 → 143(記録 tt23b/README.md §13)
+    assert S.count_by_form(decls) == {"conf": 0, "expedients": 143, "docstring": 5, "heading": 80, "process": 18,
                                       "fallback": 5}
     heads = [d for d in decls if d.form == S.FORM_HEADING]
     # 〔第 1 期 1-2〕p_notice の expedient の項 m_load(歩きスマホの負荷の係数)を消した=338 → 337(記録 p12/README.md §15)

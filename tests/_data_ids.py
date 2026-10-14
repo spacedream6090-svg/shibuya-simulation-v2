@@ -48,6 +48,9 @@ ROOTS: dict[str, Path] = {
     "persona_pool": DATA / "persona_pool_v2",    # 人物の素材の pool
     "tape": DATA / "tape",                       # 回収したテープ
     "calendar": DATA / "calendar",               # 祝日の表(無ければ conftest が fixture を写す)
+    # 〔第 2 期 2-3b〕W12 の実ダイヤの入力(どちらも gitignore の下・読むだけ)
+    "user_timetables": DATA / "user_timetables",  # ユーザーが入手した時刻表の読み取り+ODPT チャレンジ枠の CSV
+    "odpt_static": DATA / "realworld_live" / "odpt_static",  # ODPT オープン枠の静的データ(版の日付のフォルダ)
 }
 
 

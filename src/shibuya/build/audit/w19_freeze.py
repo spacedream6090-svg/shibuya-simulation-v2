@@ -23,7 +23,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from ..field import w7_planspec, w10_noise, w12_external_nodes, w13_weather
+from ..field import w7_planspec, w10_noise, w12_external_nodes, w12_real_timetables, w13_weather
 from ..geo import common as C
 from ..geo import w0_crs, w1_walk_graph, w4_heights, w5_entrances, w6_poi_org, w11_station_exits
 from ..pop import w16_population
@@ -56,14 +56,24 @@ SOURCE_FAMILIES: dict[str, str] = {
     "shibuya_jinryu": "kddi_location_analyzer/shibuya_city_opendata",
     # 大都市交通センサス(station_flow/time_dist/transfer)+ODPT 乗降人員=W12 の構築の入力と同じ系。
     "boundary_counts": "transport_census_12+odpt_passenger_survey",
+    # 〔第 2 期 2-3b〕構築の入力の層(holdout ではない)=W12 の実ダイヤ。元の語は層の名と同じにする
+    # (``w12_real_timetables.INPUT_FAMILIES``)。ユーザーが各社の公式サイトから手で入手した時刻表の読み取り(JR・東急)。
+    "user_timetables": w12_real_timetables.FAMILY_USER,
+    # ODPT チャレンジ枠(京王 井の頭線・利用は応募と照合の範囲・生の行は再配布しない)。
+    "odpt_challenge": w12_real_timetables.FAMILY_CHALLENGE,
+    # ODPT オープン枠の静的データ版 1(銀座線の列車時刻表)。日次の実時間の取得(odpt_rt)とは別の系。
+    "odpt_static": w12_real_timetables.FAMILY_STATIC,
 }
 #: 構築の入力の元(系 → その系から読む入力。W12 の定数から組む=手書きの重複を避ける)。
+#: 〔第 2 期 2-3b〕W12 の実ダイヤの入力の層を 3 つ足した(``w12_real_timetables.input_rel_paths`` から組む)。
+#: holdout の層がこれらと同じ元を持つ形になれば ``layer_independence`` が「構築の入力と同じ元」と印を付ける。
 BUILD_INPUT_FAMILIES: dict[str, tuple[str, ...]] = {
     "transport_census_12+odpt_passenger_survey": tuple(
         "/".join(getattr(w12_external_nodes, c))
         for c in ("STATION_FLOW", "TIME_DIST", "TRANSFER", "PASSENGER_SURVEY")
         if getattr(w12_external_nodes, c, None)
     ),
+    **{fam: w12_real_timetables.input_rel_paths(fam) for fam in w12_real_timetables.INPUT_FAMILIES},
 }
 #: 開封済みの層(事前登録で 1 回開けた。値は読まないが「独立」ではない)。
 OPENED_LAYERS: dict[str, str] = {
@@ -130,8 +140,12 @@ def data_asset_paths(data_root: Path) -> list[str]:
         parts = getattr(w12_external_nodes, const, None)
         if parts:
             rel.add(_joined(tuple(parts)))
-    for _line, fname in w12_external_nodes.METRO_TIMETABLES:
+    # 〔第 2 期 2-3b〕W12 が実際に読むファイルだけ。実ダイヤ(既定)では ODPT の駅の時刻表は半蔵門線・副都心線だけで、
+    # 実ダイヤの入力 3 層(ユーザー提供の時刻表の読み取り・ODPT チャレンジ枠・ODPT オープン枠の静的データ版 1)を足す。
+    for _line, fname in w12_external_nodes.metro_timetables_in_use():
         rel.add(f"odpt/{fname}")
+    if w12_external_nodes.USE_REAL_TIMETABLES:
+        rel.update(w12_real_timetables.all_input_rel_paths())
     # 〔改訂(第330 B5)〕W13 が実際に読むファイルだけ(窓の CSV 2 本と祝日 CSV)。旧は
     # data/realworld/amedas を rglob して、構築が読まない日次取得の日まで載せうる形だった。
     for parts in w13_weather.INPUT_FILES:

@@ -57,9 +57,10 @@ CONFS: Final[tuple[str, ...]] = ("expedient", "mechanism")
 STATUSES: Final[tuple[str, ...]] = ("active", "removed")
 REMOVE_BASES: Final[tuple[str, ...]] = ("plan", "declared", "inferred")
 #: 外す段の閉じた表(実装の計画 10-12 §2 の段の番号・``5-N``=空間の段 N・``T1``〜``T4``=時計の段・``7``=第 7 期)。
+#: 〔第 2 期 2-3b・親の指示〕``2-3c``(鉄道の続き=終点の到着・直通の二重計上のまとめ方=2-3b は渋谷の発車だけ)を足した。
 PLAN_STAGES: Final[frozenset[str]] = frozenset({
     *(f"1-{i}" for i in range(11)), "1-0b", "1-8b",
-    "2-0", "2-0b", "2-1", "2-2", "2-3", "2-3b", "2-4",
+    "2-0", "2-0b", "2-1", "2-2", "2-3", "2-3b", "2-3c", "2-4",
     *(f"3-{i}" for i in range(1, 6)),
     "4-1", "4-1b", "4-2", "4-3",
     *(f"5-{i}" for i in range(7)),

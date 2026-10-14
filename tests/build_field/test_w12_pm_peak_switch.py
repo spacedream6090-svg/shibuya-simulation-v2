@@ -8,6 +8,10 @@
 - 既定(True)= 夕=朝・params に新しい鍵を足さない(param_hash 不変)。
 - False = 夕ピークは引数の表 ``PM_PEAK_TRAINS_PER_HOUR`` から。既定の表は無い(None)ので、
   False で表が無い・線が無いときは ValueError(黙って夕=朝に戻さない)。他社の比で埋めない。
+
+〔第 2 期 2-3b〕W12 1.2.0 から既定は実ダイヤ(等間隔の線 0)。夕ピークの切替口は等間隔の推定の道(実データの
+無い線が出たとき)にだけ効くので、``run()`` を通す試験は実ダイヤの切替口 ``USE_REAL_TIMETABLES=False``(1.1.0 の形=
+5 線が等間隔)で回す。
 """
 
 from __future__ import annotations
@@ -72,6 +76,7 @@ def _per_hour(tt: dict, line: str, hours: range) -> dict[int, int]:
 
 @needs_data
 def test_switch_changes_pm_peak_in_run_output(tmp_path, monkeypatch):
+    monkeypatch.setattr(w12, "USE_REAL_TIMETABLES", False)  # 〔2-3b〕等間隔の道(1.1.0 の形)で回す
     res0, tt0 = _run_w12(tmp_path / "default")
     assert "pm_peak_trains_per_hour" not in res0.params  # 既定の param_hash は不変
     table = {ln: 10 for ln in LINES}  # 試験用の小さな表(出典の無い値=試験の中だけ)
@@ -100,6 +105,7 @@ def test_switch_changes_pm_peak_in_run_output(tmp_path, monkeypatch):
 
 @needs_data
 def test_switch_without_table_raises(tmp_path, monkeypatch):
+    monkeypatch.setattr(w12, "USE_REAL_TIMETABLES", False)  # 〔2-3b〕等間隔の道(1.1.0 の形)で回す
     monkeypatch.setattr(w12, "PM_PEAK_ASSUMED_EQUAL_TO_AM", False)
     monkeypatch.setattr(w12, "PM_PEAK_TRAINS_PER_HOUR", None)
     with pytest.raises(ValueError):

@@ -238,8 +238,13 @@ def test_math_helpers_are_pure():
 
 
 def test_w19_assets_are_only_the_files_w13_reads(tmp_path):
-    """〔改訂(第330 B5)〕W19 の資産表は W13 が実際に読むファイルだけ。``realworld_live``(検証専用)と
-    ``realworld/amedas``(旧の rglob の先・日次取得の日が黙って入りえた)は data 根に在っても載らない。"""
+    """〔改訂(第330 B5)〕W19 の資産表は W13 が実際に読むファイルだけ。``realworld/amedas``(旧の rglob の先・日次取得の
+    日が黙って入りえた)と ``realworld_live`` の日次の取得は data 根に在っても載らない。
+
+    〔第 2 期 2-3b・検収 L1〕``realworld_live`` の下で載るのは W12 の実ダイヤの入力=ODPT オープン枠の静的データ
+    版 1(``odpt_static/<版の日付>/``=構築側の版・日付で固定)の 1 本だけ。``odpt_rt``(検証専用=実時間の取得)と
+    ``amedas``(検証専用)は載らない。"""
+    from shibuya.build.field import w12_real_timetables as W12RT
     from shibuya.build.field import w13_weather as W13
 
     for rel in ("realworld_live/amedas/2026/10/2026-10-01/amedas_44132_20261001.json",
@@ -248,6 +253,30 @@ def test_w19_assets_are_only_the_files_w13_reads(tmp_path):
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text("{}", encoding="utf-8")
     paths = W19.data_asset_paths(tmp_path)
-    assert not any(x.startswith(("realworld_live/", "realworld/amedas/")) for x in paths)
+    assert not any(x.startswith(("realworld_live/amedas/", "realworld/amedas/")) for x in paths)
     for parts in W13.INPUT_FILES:
         assert "/".join(parts) in paths
+    live = {x for x in paths if x.startswith("realworld_live/")}
+    assert live == set(W12RT.input_rel_paths(W12RT.FAMILY_STATIC))
+    assert len(live) == 1 and not any("/odpt_rt/" in x for x in live)
+
+
+def test_w19_assets_never_list_the_realtime_odpt_layer(tmp_path):
+    """〔第 2 期 2-3b・検収 L1〕負の対照: data 根に ``realworld_live/odpt_rt/``(検証専用)と別の日付の
+    ``odpt_static/`` の偽のファイルを置いても、W19 の資産表の ``realworld_live`` の下は静的データ版 1 の 1 本のまま。"""
+    from shibuya.build.field import w12_real_timetables as W12RT
+
+    fakes = ("realworld_live/odpt_rt/2026-10-13/trainposition_TokyoMetro.json.gz",
+             "realworld_live/odpt_rt/2026-10-14/traininformation_TokyoMetro.json",
+             "realworld_live/odpt_static/2026-10-14/traintimetable_TokyoMetro.json.gz")
+    for rel in fakes:
+        p = tmp_path / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(b"{}")
+    paths = W19.data_asset_paths(tmp_path)
+    live = {x for x in paths if x.startswith("realworld_live/")}
+    assert live == set(W12RT.input_rel_paths(W12RT.FAMILY_STATIC))
+    assert not (set(fakes) & set(paths))
+    assert not any(x.startswith("realworld_live/odpt_rt/") for x in paths)
+    # 置き場の版の日付は定数で固定(別の日付のフォルダは読まない)
+    assert W12RT.ODPT_STATIC_DIR == ("realworld_live", "odpt_static", "2026-10-13")

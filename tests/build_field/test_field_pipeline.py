@@ -23,7 +23,8 @@ DATA_DIR = REPO_ROOT / "data"
 OSM = DATA_DIR / "realworld" / "osm" / "shibuya_osm_wide_v8.json"
 KASYO = DATA_DIR / "realworld" / "road_census_r3" / "kasyo13.csv"
 
-pytestmark = pytest.mark.requires_data(*D.ids_of(OSM, KASYO))
+#: 〔第 2 期 2-3b〕W12 1.2.0 は実ダイヤの入力(ユーザー提供の時刻表の読み取り・ODPT の静的データ版 1)も読む。
+pytestmark = pytest.mark.requires_data(*D.ids_of(OSM, KASYO), "user_timetables", "odpt_static")
 
 #: 実データで**現に落ちる**ゲート(理由つき)。増減したら気づけるように固定する。
 KNOWN_FAILING_GATES: dict[tuple[str, str], str] = {
@@ -219,7 +220,11 @@ def test_w12_external_nodes(built):
     nodes = C.read_parquet_columns(out / "w12_external_nodes.parquet")
     assert all(c >= 1 for c in nodes["n_attached_cells"])
     tt = C.read_parquet_columns(out / "w12_timetables.parquet")
-    assert set(tt["source"]) == {"real", "equal_interval_expedient"}
+    # 〔第 2 期 2-3b〕全 8 線が実ダイヤ(等間隔の行 0)。旧: {"real", "equal_interval_expedient"}
+    assert set(tt["source"]) == {
+        "real", "real_odpt_open_metro_2026-09", "real_user_pdf_jr_east", "real_user_pdf_tokyu",
+        "real_odpt_challenge_keio",
+    }
     assert set(tt["calendar"]) == {"Weekday", "SaturdayHoliday"}
     weights = C.read_parquet_columns(out / "w12_generation_weights.parquet")
     assert abs(sum(weights["weight"]) - 1.0) < 1e-9
@@ -230,15 +235,12 @@ def test_w12_external_nodes(built):
     assert ratios["SaturdayHoliday"] != ratios["Weekday"]
     assert header["notes"]["metro_peak_am_trains_holiday"] > 0
     assert header["notes"]["pm_peak_assumed_equal_to_am"] is True
-    # 等間隔ダイヤの本数が曜日種別で実際に変わる(比の分岐が効いている)
-    exp_rows = [
-        (c, d)
-        for c, d, src in zip(tt["calendar"], tt["departure_min"], tt["source"])
-        if src == "equal_interval_expedient"
-    ]
-    n_weekday = sum(1 for c, _d in exp_rows if c == "Weekday")
-    n_holiday = sum(1 for c, _d in exp_rows if c == "SaturdayHoliday")
-    assert n_weekday > 0 and n_holiday > 0 and n_weekday != n_holiday
+    # 〔第 2 期 2-3b〕等間隔で残る線 0・線ごとに土休 ≦ 平日(第330 §6 の欠陥=等間隔の推定で土休 > 平日が消えた)。
+    # 旧: 等間隔ダイヤの本数が曜日種別で変わる(比の分岐の検査)は等間隔の道の単体試験(test_w12_pm_peak_switch)へ。
+    assert _gate(manifest, "W12", "equal_interval_lines_remaining")["value"] == 0
+    assert _gate(manifest, "W12", "lines_holiday_gt_weekday")["value"] == 0
+    assert "equal_interval_expedient" not in set(tt["source"])
+    assert (out / "w12_timetable_versions.json").exists()
     # 初終発の妥当域(04:30-01:30)
     assert 270 <= min(tt["departure_min"]) <= 330
     assert 1410 <= max(tt["departure_min"]) <= 1530

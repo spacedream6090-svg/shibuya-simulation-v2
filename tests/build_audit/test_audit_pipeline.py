@@ -22,7 +22,8 @@ OSM = DATA_DIR / "realworld" / "osm" / "shibuya_osm_wide_v8.json"
 TERRAIN = DATA_DIR / "plateau" / "terrain.npz"
 KASYO = DATA_DIR / "realworld" / "road_census_r3" / "kasyo13.csv"
 
-pytestmark = pytest.mark.requires_data(*D.ids_of(OSM, TERRAIN, KASYO))
+#: 〔第 2 期 2-3b〕W12 1.2.0 は実ダイヤの入力(ユーザー提供の時刻表の読み取り・ODPT の静的データ版 1)も読む。
+pytestmark = pytest.mark.requires_data(*D.ids_of(OSM, TERRAIN, KASYO), "user_timetables", "odpt_static")
 
 
 @pytest.fixture(scope="module")
