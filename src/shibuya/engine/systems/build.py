@@ -1238,6 +1238,13 @@ def build(_call_args: dict[str, Any]) -> Any:
     from shibuya.engine.tools import record as _TOOLS
 
     _tools_fx = _TOOLS.build_fixture(pop, n_agents, events)
+    # ---- 第 2 期 2-3: 体の出来事の口(腕 --memory-store events かつ出来事の記録のあるランだけ)。記憶が書く体の出来事を記録へ書き、
+    # 器の目印をその出来事にする(出どころ None)。1-7 の看板の口が立っていれば看板の初見はその行を目印にする ----
+    _m0s = getattr(mem_layer, "memory_store", None) if mem_layer is not None else None
+    if _m0s is not None and events.enabled:
+        from shibuya.engine.events.body import BodyEventLink
+
+        _m0s.attach_events(BodyEventLink(events, signboard_reads=_tools_fx.signboard_link is not None))
 
     # ---- 第 1 期 1-8 J0: 候補の口の腕(既定 legacy=層を作らない=今の道)。port のランだけ層を作り、判断の系が 1 呼を口に通す
     # (状態台帳の行 J0=軸 1 diag・軸 2 discardable)。実装は方策で選ぶ(古典 → ClassicalPort・記録の mock → MockPort・

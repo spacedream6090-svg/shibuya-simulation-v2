@@ -48,6 +48,11 @@ def sys_memory(ctx: Any, b: Any) -> None:
                 else ()
             ),
             signage=_exp,
+            # 第 2 期 2-3: この刻みに適用した意図の呼の id(体の出来事の口のあるランだけ読む=行為の成否・会話の始まりの原因)
+            calls=(
+                (plan.confirmed.agent_id, plan.confirmed.call_id),
+                (plan.losers.agent_id, plan.losers.call_id),
+            ),
         )
     b.scratch.exposures = _exp
 

@@ -1,0 +1,166 @@
+{
+ "a": "data/world/v2",
+ "b": "data/world/v2_stage_2-3",
+ "w9": {
+  "a": {
+   "stage_version": "1.0.0",
+   "param_hash": "fda7d9ddb77e987d",
+   "input_hash": "08f15d9f8df26010",
+   "shadow_dates": [
+    "2026-07-28",
+    "2026-07-13",
+    "2026-07-14",
+    "2026-07-15",
+    "2026-07-16",
+    "2026-07-17"
+   ],
+   "failed_gates": [
+    "shadow_bytes_per_day_le_10mb"
+   ]
+  },
+  "b": {
+   "stage_version": "1.0.0",
+   "param_hash": "ad4a3ee8630ec2a1",
+   "input_hash": "08f15d9f8df26010",
+   "shadow_dates": [
+    "2026-07-28",
+    "2026-07-13",
+    "2026-07-14",
+    "2026-07-15",
+    "2026-07-16",
+    "2026-07-17",
+    "2026-07-18",
+    "2026-07-19"
+   ],
+   "failed_gates": [
+    "shadow_bytes_per_day_le_10mb"
+   ]
+  }
+ },
+ "b_build_hash": "f241eb4fe5a176d3",
+ "b_kept": [
+  "W0",
+  "W1",
+  "W2",
+  "W3",
+  "W4",
+  "W5",
+  "W6",
+  "W7",
+  "W8",
+  "W10",
+  "W11",
+  "W12",
+  "W13",
+  "W14",
+  "W15",
+  "W16",
+  "W17"
+ ],
+ "shadows_b": [
+  {
+   "date": "2026-07-13",
+   "bytes": 12842624,
+   "sha256_16": "8200c6dbe83baa3d",
+   "same_as_a": true
+  },
+  {
+   "date": "2026-07-14",
+   "bytes": 12842624,
+   "sha256_16": "5f49667b17d0c3ab",
+   "same_as_a": true
+  },
+  {
+   "date": "2026-07-15",
+   "bytes": 12842624,
+   "sha256_16": "98e0b40836193879",
+   "same_as_a": true
+  },
+  {
+   "date": "2026-07-16",
+   "bytes": 12842624,
+   "sha256_16": "a3ba8f19b38cb32e",
+   "same_as_a": true
+  },
+  {
+   "date": "2026-07-17",
+   "bytes": 12842624,
+   "sha256_16": "b561e2f7691f2340",
+   "same_as_a": true
+  },
+  {
+   "date": "2026-07-18",
+   "bytes": 12842624,
+   "sha256_16": "143400d4db326c45",
+   "same_as_a": false
+  },
+  {
+   "date": "2026-07-19",
+   "bytes": 12842624,
+   "sha256_16": "82f5e4f36bd119d7",
+   "same_as_a": false
+  },
+  {
+   "date": "2026-07-28",
+   "bytes": 12842624,
+   "sha256_16": "ad8b6c0e2579a7f8",
+   "same_as_a": true
+  }
+ ],
+ "files_moved": [
+  {
+   "name": "W18.header.json",
+   "a": "35e07624930caa66",
+   "b": "b3cb226331f220bc"
+  },
+  {
+   "name": "W19.header.json",
+   "a": "ac2ae4d3f18cc106",
+   "b": "7acd48adc3decb13"
+  },
+  {
+   "name": "W20.header.json",
+   "a": "72de2748a7cac25c",
+   "b": "4a685b82d09877a7"
+  },
+  {
+   "name": "W9.header.json",
+   "a": "5b6be04d8a2547fd",
+   "b": "3cb674478c3080ac"
+  },
+  {
+   "name": "build_manifest.json",
+   "a": "7d53badfb7e9a0ae",
+   "b": "ef1a31c29c3d10e0"
+  },
+  {
+   "name": "w19_freeze.json",
+   "a": "60dbcb6bdf3f2942",
+   "b": "ac1abfc84e5a9058"
+  }
+ ],
+ "files_same": 91,
+ "only_a": [
+  "w17_pilot_prompts.jsonl",
+  "w17_pilot_responses.jsonl",
+  "w17_prompts.0of7.jsonl",
+  "w17_prompts.1of7.jsonl",
+  "w17_prompts.2of7.jsonl",
+  "w17_prompts.3of7.jsonl",
+  "w17_prompts.4of7.jsonl",
+  "w17_prompts.5of7.jsonl",
+  "w17_prompts.6of7.jsonl",
+  "w17_prompts.jsonl",
+  "w17_responses.0of7.jsonl",
+  "w17_responses.1of7.jsonl",
+  "w17_responses.2of7.jsonl",
+  "w17_responses.3of7.jsonl",
+  "w17_responses.4of7.jsonl",
+  "w17_responses.5of7.jsonl",
+  "w17_responses.6of7.jsonl"
+ ],
+ "only_b": [
+  "w9_shadow_2026-07-18.npy",
+  "w9_shadow_2026-07-19.npy"
+ ]
+}

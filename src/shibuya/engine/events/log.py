@@ -626,6 +626,73 @@ class EventLog:
             raise KeyError(eid)
         return self.event(i)
 
+    def positions(self, t_ns: Any, seq: Any, *, verify: bool = True) -> np.ndarray:
+        """〔第 2 期 2-3〕id の組の配列 ``(t_ns, seq)`` → 生きている行の位置(無い id は ``-1``)。読むだけ。
+
+        記憶の器が「記録にある出来事の id だけ」を目印にする守り(``engine.memory_store.MemoryStore.remember``)の読み口。
+        時刻の列は書く口の規則(刻みの頭より前は書けない)でふつうは非減少=二分探索で同じ時刻の行の範囲を絞り、範囲の中で
+        seq を二分探索して値を突き合わせる。見つからない id だけ全部の行を走査して確かめる(並びが崩れていても誤らない=
+        無い id の道だけ重い)。``verify=False`` は全部の行の走査を省く(計器が大量の id を引くとき=並びが崩れていれば見落とす)。
+        逐次ループ宣言: 時刻の種類の数ぶん(1 回の呼びではふつう 1)+見つからない id の数ぶん(``verify`` のときだけ)。
+        """
+        t = np.atleast_1d(np.asarray(t_ns, dtype=np.int64))
+        q = np.atleast_1d(np.asarray(seq, dtype=np.int64))
+        if t.shape != q.shape:
+            raise ValueError("positions の t_ns と seq は同じ長さ")
+        n = self._ev_n
+        out = np.full(t.size, -1, dtype=np.int64)
+        if n == 0 or t.size == 0:
+            return out
+        col_t = self._ev_t_ns[:n]
+        col_s = self._ev_seq[:n].astype(np.int64)
+        for tv in np.unique(t).tolist():  # 時刻の種類の数ぶん
+            a = int(np.searchsorted(col_t, tv, side="left"))
+            b = int(np.searchsorted(col_t, tv, side="right"))
+            sel = np.flatnonzero(t == tv)
+            if b > a:
+                k = a + np.searchsorted(col_s[a:b], q[sel])
+                ok = (k < b) & (col_t[np.minimum(k, n - 1)] == tv) & (col_s[np.minimum(k, n - 1)] == q[sel])
+                out[sel[ok]] = k[ok]
+        for j in (np.flatnonzero(out < 0).tolist() if verify else ()):  # 見つからない id の数ぶん(全部の行を走査)
+            hit = np.flatnonzero((col_t == t[j]) & (col_s == q[j]))
+            if hit.size:
+                out[j] = int(hit[0])
+        return out
+
+    def who_what(self, pos: Any) -> tuple[np.ndarray, np.ndarray]:
+        """〔第 2 期 2-3〕位置の配列 → ``(who, what)`` の列の値(``who`` は体の id・持ち主の名は負=``-1-番号``・``what`` は語彙の
+        コード)。読むだけ(写しを返す)。"""
+        i = np.asarray(pos, dtype=np.int64)
+        if i.size and (int(i.min()) < 0 or int(i.max()) >= self._ev_n):
+            raise IndexError("who_what の位置が生きている行の外")
+        return self._ev_who[i].copy(), self._ev_what[i].astype(np.int64)
+
+    def find(self, t_ns: int, who: int, what: str, where: tuple[str, int] | None) -> int:
+        """〔第 2 期 2-3〕時刻 ``t_ns`` の行のうち ``who``・``what``・``where`` が同じ最初の行の seq(無ければ ``-1``)。読むだけ。
+
+        記憶の書き手が、同じ刻みに 1-7 の口が書いた「看板を読んだ」出来事を目印にする(腕 ``SHIBUYA_TOOL_EVENTS`` と
+        ``--memory-store events`` の両方のランだけ)。逐次ループ宣言: なし(同じ時刻の行の範囲の配列演算)。
+        """
+        n = self._ev_n
+        if n == 0:
+            return -1
+        col_t = self._ev_t_ns[:n]
+        a = int(np.searchsorted(col_t, int(t_ns), side="left"))
+        b = int(np.searchsorted(col_t, int(t_ns), side="right"))
+        if b <= a or not bool((col_t[a:b] == int(t_ns)).all()):
+            idx = np.flatnonzero(col_t == int(t_ns))
+        else:
+            idx = np.arange(a, b)
+        if idx.size == 0:
+            return -1
+        m = (self._ev_who[idx] == int(who)) & (self._ev_what[idx] == V.VOCAB_CODES[what])
+        if where is None:
+            m &= self._ev_where_kind[idx] == -1
+        else:
+            m &= (self._ev_where_kind[idx] == V.WHERE_KINDS.index(where[0])) & (self._ev_where_id[idx] == int(where[1]))
+        hit = np.flatnonzero(m)
+        return int(self._ev_seq[idx[hit[0]]]) if hit.size else -1
+
     def events(self) -> Iterator[Event]:
         """生きている行を順に(試験・診断用。大きい記録には使わない)。"""
         for i in range(self._ev_n):

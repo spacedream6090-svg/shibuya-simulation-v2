@@ -43,7 +43,7 @@ def utter(b: Any, agent_id: int, t_now: int, action: Any, comment: str, reason: 
                       if (wom_ex is not None or speech is not None) else -1)
     s = conv.utterance(agent_id, t_now, action=action, comment=comment)
     if mem_layer is not None:
-        mem_layer.note_utterance(agents, int(agent_id), int(t_now), s, comment, reason)
+        mem_layer.note_utterance(agents, int(agent_id), int(t_now), s, comment, reason, call_id=call_id)
     if speech is not None:
         from shibuya.engine.speech.layer import speak_turn
 

@@ -90,7 +90,9 @@ def _check(pr: Probe, off: Any, on: Any) -> None:
     assert (on.final_hash, on.llm_calls) == (off.final_hash, off.llm_calls)
     assert on.memory_summary["recall"] == off.memory_summary["recall"]
     ms = on.memory_summary["memory_store"]
-    assert ms["arm"] == "events" and ms["origins"]["log"] == 0 and ms["origins"]["legacy"] == ms["rows"] > 0
+    # 〔第 2 期 2-3〕体の出来事が記録に載った=目印は全部記録の出来事(出どころ None)・仮の行 0(記録のあるラン)
+    assert ms["arm"] == "events" and ms["origins"]["legacy"] == 0 and ms["origins"]["log"] == ms["rows"] > 0
+    assert ms["targets_log_live"] == ms["rows"] and ms["targets_log_gone"] == 0
     assert "memory_store" not in off.memory_summary
 
 
@@ -134,9 +136,14 @@ def test_manifest_differs_only_by_the_store_instrument():
     on = _flat(run_with_arm("events", run_day, **KW).run_manifest_fields())
     keep = lambda d: {k: v for k, v in d.items() if not any(s in k for s in SKIP_LEAVES)}  # noqa: E731
     off, on = keep(off), keep(on)
-    added = sorted(set(on) - set(off))
+    # 〔第 2 期 2-3〕腕 on は体の出来事を記録に書く(日次の記録の events の葉)・記録の目印の seq は腕の行 M0L(full-hash と
+    # 状態のファイルの末尾=state_hashes の full の葉)。behavior-hash・final・ほかの既存の葉は同じ
+    arm = lambda k: (".events." in k or k.startswith("state_hashes") and "full" in k  # noqa: E731
+                     or k.startswith("daily[") and ".state_hashes_end_of_day.full" in k)
+    added = sorted(k for k in set(on) - set(off) if not arm(k))
     assert set(off) <= set(on) and added and all(k.startswith("memory_summary.memory_store.") for k in added)
-    assert [k for k in off if off[k] != on[k]] == []
+    assert [k for k in off if off[k] != on[k] and not arm(k)] == []
+    assert any(off[k] != on[k] for k in off if ".events.rows" in k)  # 体の出来事が記録に増えた
     assert on["memory_summary.memory_store.arm"] == "events"
 
 

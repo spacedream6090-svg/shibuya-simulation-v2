@@ -263,7 +263,8 @@ def test_vocabulary_has_the_two_words():
     from shibuya.engine.events import vocab as V
 
     assert V.code_of(AP.WHAT_DECISION) == 60 and V.code_of(AP.WHAT_NOTICE) == 61  # 2-1 の金の 2 語(58・59)の後ろ
-    assert V.family_of(AP.WHAT_NOTICE) == "実験" and V.VOCAB_VERSION == "events-vocab/3-3"
+    # 〔第 2 期 2-3〕その後ろに体の出来事の 3 語を足して版を events-vocab/2-3 にした(60・61 は動かない)
+    assert V.family_of(AP.WHAT_NOTICE) == "実験" and V.VOCAB_VERSION == "events-vocab/2-3"
 
 
 def test_module_tables_are_read_only():

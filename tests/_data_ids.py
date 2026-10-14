@@ -51,6 +51,8 @@ ROOTS: dict[str, Path] = {
     # 〔第 2 期 2-3b〕W12 の実ダイヤの入力(どちらも gitignore の下・読むだけ)
     "user_timetables": DATA / "user_timetables",  # ユーザーが入手した時刻表の読み取り+ODPT チャレンジ枠の CSV
     "odpt_static": DATA / "realworld_live" / "odpt_static",  # ODPT オープン枠の静的データ(版の日付のフォルダ)
+    # 〔第 2 期 2-3〕W9 の影を 7 日の窓に広げた世界資産(活性化は 2-4・本体の v2 は上書きしない)
+    "world_stage_2-3": DATA / "world" / "v2_stage_2-3",
 }
 
 

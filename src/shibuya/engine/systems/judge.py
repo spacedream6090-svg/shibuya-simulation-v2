@@ -192,6 +192,10 @@ def sys_apply_responses(ctx: Any, b: Any) -> None:
             # 金の行の原因 LlmCall(call_id) になる(既定=腕の無いランは付けない=意図の形は今のまま)。
             if _stage2_on(b) and len(llm_intents) == int(keep.sum()):
                 llm_intents = _with_stage2_calls(llm_intents, due, order, codes, keep)
+            elif _body_events_on(b) and len(llm_intents) == int(keep.sum()):
+                # 〔第 2 期 2-3〕体の出来事の口の腕(--memory-store events+記録)のランだけ: 行ごとの呼の id だけを付ける
+                # (行為の成否と会話の始まりの出来事の原因 LlmCall(call_id)・段階 2 の印は付けない=経済の腕の外は今のまま)
+                llm_intents = _with_calls(llm_intents, due, order, keep)
             # ---- C9b G3/G4: 焦点の要求を 1 本のバッファへ散らす ----
             if focus_request is not None:
                 focus_request[:] = int(FOCUS_NONE)
@@ -220,6 +224,22 @@ def _stage2_on(b: Any) -> bool:
     led = b.layers.ledger
     money = getattr(led, "money", None) if led is not None else None
     return getattr(money, "stage2", None) is not None
+
+
+def _body_events_on(b: Any) -> bool:
+    """〔2-3〕記憶の器に体の出来事の口を挿したランか(腕 ``--memory-store events`` と出来事の記録・既定は偽)。"""
+    mem = b.layers.mem_layer
+    ms = getattr(mem, "memory_store", None) if mem is not None else None
+    link = getattr(ms, "body_events", None) if ms is not None else None
+    return link is not None and bool(link.enabled)
+
+
+def _with_calls(intents: Any, due: list, order: np.ndarray, keep: np.ndarray) -> Any:
+    """〔2-3〕LLM の意図の行に呼の id(保留の組の 12 番=``run._call_ref``)だけを付ける(体の出来事の原因)。意図の形・印は
+    今のまま(``s2_flags`` は付けない)。逐次ループ宣言: この刻みに適用する応答の数ぶん(≤ 1 刻みの呼数)。"""
+    rows = [due[int(i)] for i in order]
+    cid = np.array([r[12] if len(r) > 12 else None for r in rows], dtype=object)
+    return dataclasses.replace(intents, call_id=cid[keep])
 
 
 def _with_stage2_calls(intents: Any, due: list, order: np.ndarray, codes: np.ndarray, keep: np.ndarray) -> Any:

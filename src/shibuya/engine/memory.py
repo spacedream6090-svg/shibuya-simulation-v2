@@ -11,6 +11,10 @@ D-120 7a〜7c: 店の評価の記憶(``engine.store_memory``・:meth:`MemoryLaye
 〔第 1 期 1-6 M0〕記憶の器(``engine/memory_store.py``・:meth:`MemoryLayer.enable_memory_store`・腕
 ``--memory-store events``)=出来事の記録への目印・強さ・注釈・出どころ・録画の行。腕のランでは、この表に書く所で同じ
 出来事を器にも書き(:meth:`_write`)、想起を器から引く(:meth:`_recall_from_store`)。既定(腕 ``mem``)は器を作らない。
+〔第 2 期 2-3〕腕のランで出来事の記録(1-3)があれば、書く出来事を体の出来事の口(``engine.events.body``・器が持つ)で記録にも
+書き、器の目印をその出来事にする(出どころ None)。行の出どころ(行為の成否・到着・会話の始まり・会話の番・気づき・看板)と
+この刻みに適用した判断の呼の id を口へ運ぶ(:meth:`after_tick` の ``calls``・:meth:`note_utterance` の ``call_id``)。既定の
+道は前と同じ(引数は読まない)。
 
 表(``AgentState(memory_columns=True)`` のランだけ確保・``--memory on``)
     体ごとに N 行(:data:`MEMORY_N`=128・M2・感度 64/256)。1 行=``mem_kind`` u8(事象の種類=
@@ -229,6 +233,32 @@ def activation_rows(n: np.ndarray, first_tick: np.ndarray, tick: int, minutes_pe
     L = np.maximum(0.0, (int(tick) - np.asarray(first_tick, dtype=np.float64)) * float(minutes_per_tick))
     with np.errstate(divide="ignore"):
         return np.log(nn / (1.0 - float(d))) - float(d) * np.log(L + 1.0)
+
+
+#: 〔2-3〕体の出来事の出どころ(``engine.events.body.SRC_*`` と同じ番号=試験が突き合わせる)。
+_SRC_ACT, _SRC_ARRIVE, _SRC_TALK_OPEN, _SRC_TURN, _SRC_NOTICE, _SRC_SIGNAGE = range(6)
+
+
+def _default_src(kind: np.ndarray) -> np.ndarray:
+    """〔2-3〕出どころを渡さない書き(試験・直の ``record``)の出どころ=種類から(気づき・看板・ほかは行為の成否)。"""
+    k = np.asarray(kind, dtype=np.int64)
+    return np.where(k == EVENT_KINDS["notice"], _SRC_NOTICE, np.where(k == EVENT_KINDS["signage"], _SRC_SIGNAGE, _SRC_ACT))
+
+
+def _call_ids_of(a: np.ndarray, src: np.ndarray, calls: Sequence[tuple[np.ndarray, Any]] | None) -> list[Any]:
+    """〔2-3〕行ごとの判断の呼の id(行為の成否と会話の始まりの行だけ・この刻みに適用した意図の呼・無ければ ``None``)。
+
+    逐次ループ宣言: 適用した意図の数ぶん(辞書を作る)+行の数ぶん(≤ 1 刻みの記憶の書き)。
+    """
+    have: dict[int, str] = {}
+    for ag, cid in calls or ():  # 確定と落選の 2 本
+        if cid is None:
+            continue
+        for x, c in zip(np.asarray(ag, dtype=np.int64).tolist(), list(cid)):
+            if c is not None and str(c).strip():
+                have[int(x)] = str(c)
+    use = (src == _SRC_ACT) | (src == _SRC_TALK_OPEN)
+    return [have.get(int(x)) if bool(u) else None for x, u in zip(a.tolist(), use.tolist())]
 
 
 class MemoryLayer:
@@ -644,12 +674,15 @@ class MemoryLayer:
     # ------------------------------------------------------------------ 書き手の本体
     def _write(self, agents: Any, tick: int, a: np.ndarray, kind: np.ndarray, partner: np.ndarray,
                obj: np.ndarray, result: np.ndarray, cell: np.ndarray,
-               annotation: Sequence[str | None] | None = None) -> np.ndarray:
+               annotation: Sequence[str | None] | None = None, src: np.ndarray | None = None,
+               call_ids: Sequence[Any] | None = None) -> np.ndarray:
         """1 体 1 件の事象を統合/新規/追い出しで 1 行に書く(配列演算)→ 書いた行番号。
 
         1-6 M0 の腕(:attr:`memory_store`)では同じ事象を記憶の器にも覚えさせる(出来事の記録に無い体の出来事=
         出どころ legacy の仮の行)。器が選んだ行がこの表の行と違えば ``RuntimeError``(器は同じ規則の写し=M0)。
         ``annotation`` は器の注釈(会話の要旨・:meth:`note_utterance`)。この表の要旨は呼び手が書く。
+        〔2-3〕器に体の出来事の口があれば(腕+記録)、同じ事象を記録に書き(``src``=出どころ・``call_ids``=判断の呼の id)、
+        器の目印をその出来事にする(出どころ None)。
         """
         r = agents.registry
         rk = r.mem_kind[a].astype(np.int64)
@@ -679,12 +712,22 @@ class MemoryLayer:
                        obj, result, imp, n)
         ms = self.memory_store
         if ms is not None:  # 1-6 M0 の腕: 同じ出来事を器へ(重みの素=重要度の base・器が初回 +1 と上限を掛ける)
-            from shibuya.engine.memory_store import ORIGIN_LEGACY, LegacyEvent
+            from shibuya.engine.memory_store import ORIGIN_LEGACY, LegacyEvent, LoggedEvent
 
-            got = ms.remember(
-                a, LegacyEvent(np.full(a.size, int(tick) * ms.ns_per_step), kind, partner, obj, result, cell),
-                importance_of(kind, result, np.zeros(a.size, dtype=bool)), ORIGIN_LEGACY, annotation=annotation,
-            )
+            base = importance_of(kind, result, np.zeros(a.size, dtype=bool))
+            link = ms.body_events
+            log_seq = None
+            if link is not None and link.enabled:  # 〔2-3〕体の出来事を記録へ → 器の目印はその出来事(出どころ None)
+                ts, log_seq = link.write(a, kind, partner, obj, result, cell,
+                                         _default_src(kind) if src is None else np.asarray(src, dtype=np.int64),
+                                         call_ids)
+                got = ms.remember(a, LoggedEvent(ts, log_seq, kind, partner, obj, result, cell), base, None,
+                                  annotation=annotation)
+            else:
+                got = ms.remember(
+                    a, LegacyEvent(np.full(a.size, int(tick) * ms.ns_per_step), kind, partner, obj, result, cell),
+                    base, ORIGIN_LEGACY, annotation=annotation,
+                )
             if not np.array_equal(got, slot):
                 raise RuntimeError("1-6 M0: 記憶の器の行が記憶の表の行と食い違う(器は同じ規則の写し)")
             # 行だけでなく値も(仮の出来事・強さ・目印・出どころ)。器はハッシュに入らない=ずれても final とハッシュに
@@ -693,6 +736,7 @@ class MemoryLayer:
                 a, slot, kind=r.mem_kind[a, slot], partner=r.mem_partner[a, slot], obj=r.mem_object[a, slot],
                 result=r.mem_result[a, slot], cell=r.mem_cell[a, slot], first_step=r.mem_tick[a, slot],
                 last_step=r.mem_last[a, slot], n=r.mem_n[a, slot], importance=r.mem_importance[a, slot],
+                log_seq=log_seq,
             )
         self.stats["merged"] += int(np.count_nonzero(found))
         self.stats["new_rows"] += int(np.count_nonzero(new))
@@ -700,10 +744,13 @@ class MemoryLayer:
 
     def record(self, agents: Any, tick: int, a: np.ndarray, kind: np.ndarray, partner: np.ndarray,
                obj: np.ndarray, result: np.ndarray, cell: np.ndarray, *, relations: bool = True,
-               annotation: Sequence[str | None] | None = None) -> np.ndarray:
+               annotation: Sequence[str | None] | None = None, src: np.ndarray | None = None,
+               call_ids: Sequence[Any] | None = None) -> np.ndarray:
         """事象の配列 → 表へ(体ごとに 1 件ずつの回に分ける)→ 各事象の行番号(入力の並び)。
 
         ``annotation``(1-6 M0): 事象ごとの器の注釈(入力の並び・``None`` は付けない)。器の無いランでは読まない。
+        ``src``・``call_ids``(〔2-3〕): 事象ごとの出どころ(``engine.events.body.SRC_*``)と判断の呼の id(入力の並び)。
+        器に体の出来事の口の無いランでは読まない。
         """
         a = np.asarray(a, dtype=np.int64)
         out = np.full(a.size, -1, dtype=np.int64)
@@ -730,7 +777,9 @@ class MemoryLayer:
             sel = np.flatnonzero(rank == rnd)
             out[sel] = self._write(agents, tick, a[sel], kind[sel], partner[sel], obj[sel],
                                    result[sel], cell[sel],
-                                   None if annotation is None else [annotation[x] for x in sel.tolist()])
+                                   None if annotation is None else [annotation[x] for x in sel.tolist()],
+                                   None if src is None else np.asarray(src, dtype=np.int64)[sel],
+                                   None if call_ids is None else [call_ids[x] for x in sel.tolist()])
         if self.store is not None:  # D-120 7a: 同じエピソードの配列から店の評価の行へ
             self.store.on_episodes(agents, tick, a, kind, obj, result)
         if relations and self.relations is not None:  # C10 8a: 相互作用のエピソードから関係辺へ
@@ -753,10 +802,11 @@ class MemoryLayer:
             self.stats["gist_dropped"] += 1
 
     def note_utterance(self, agents: Any, agent_id: int, tick: int, session: Any,
-                       comment: str, reason: str = "") -> None:
+                       comment: str, reason: str = "", *, call_id: str = "") -> None:
         """発話 1 回(``conv.utterance`` の戻りのセッション)→ 会話の行の ``mem_n``+1・最初の要旨。
 
         要旨の源(第294 の親の暫定・Q57): 空でない「ひと言」(v1/v2)・無ければ理由欄(v3)。
+        ``call_id``(〔2-3〕): その会話の番の呼の id(体の出来事 ``行為:会話`` の原因)。器に口の無いランでは読まない。
         """
         if session is None:
             return
@@ -780,7 +830,8 @@ class MemoryLayer:
                            np.asarray([shop]), np.asarray([int(ResultCode.OK)]),
                            np.asarray([int(agents.registry.cell[int(agent_id)])]),
                            relations=False,  # C10 8a: 発話ごとの n+1 は辺に写さない(1 セッション 1 本)
-                           annotation=[text[:GIST_CHARS] if put else None])
+                           annotation=[text[:GIST_CHARS] if put else None],
+                           src=np.asarray([_SRC_TURN]), call_ids=[call_id])
         self.stats["utterances"] += 1
         if not put:
             return
@@ -803,6 +854,7 @@ class MemoryLayer:
         conv: Any = None,
         salient_events: Sequence[Any] = (),
         signage: Sequence[tuple[int, int]] | None = None,
+        calls: Sequence[tuple[np.ndarray, Any]] | None = None,
     ) -> None:
         """この tick の事象を記録する(Phase C・活動層・意図の層の後・親しみの表の前に 1 回)。
 
@@ -814,6 +866,8 @@ class MemoryLayer:
             conv: 会話の管理(この tick に開いたセッションを読む)。
             salient_events: この tick の顕著行為(``.cell``・``.noticed``)。
             signage: p_see を通って B2 に看板行が載った ``(体, POI)``(``Renderer.signage_exposures``)。
+            calls: 〔2-3〕この刻みに適用した意図の ``(体, 呼の id)`` の組(確定と落選・呼の id の無い行は ``None``)。器に
+                体の出来事の口のあるランだけ読む(行為の成否と会話の始まりの原因 ``LlmCall``)。
         """
         from shibuya.engine import commit as C
 
@@ -862,7 +916,7 @@ class MemoryLayer:
                 sv = shop & (res == int(ResultCode.OK))
                 obj[sv] = np.where(self._target[ids[sv]] >= 0, self._target[ids[sv]], obj[sv])
                 touched.append(va)
-            parts.append((ids, kind, partner, obj, res, cell_now[ids]))
+            parts.append((ids, kind, partner, obj, res, cell_now[ids], np.full(ids.size, _SRC_ACT)))
         for ag in touched:
             self._target[ag] = -1
         # ---- (a′) 移動の到着 ----
@@ -872,7 +926,7 @@ class MemoryLayer:
             if arr.size:
                 parts.append((arr, np.full(arr.size, EVENT_KINDS["move"]), np.full(arr.size, -1),
                               place_thing(cell_now[arr]), np.full(arr.size, int(ResultCode.OK)),
-                              cell_now[arr]))
+                              cell_now[arr], np.full(arr.size, _SRC_ARRIVE)))
         # ---- (b) 会話: この tick に開いたセッションの参加者ごとに 1 行 ----
         if conv is not None:
             upto = int(getattr(conv, "n_opened", 0))
@@ -890,7 +944,8 @@ class MemoryLayer:
                     self._session_key[(p, int(sid))] = (other, shop_id)
                     parts.append((np.asarray([p]), np.asarray([EVENT_KINDS["talk"]]),
                                   np.asarray([other]), np.asarray([shop_id]),
-                                  np.asarray([int(ResultCode.OK)]), np.asarray([int(cell_now[p])])))
+                                  np.asarray([int(ResultCode.OK)]), np.asarray([int(cell_now[p])]),
+                                  np.asarray([_SRC_TALK_OPEN])))
                 self.stats["sessions"] += 1
             self._next_session = upto
             # C10 8a(D-93 (d)): 3 人目の参加=参加した体と既存の参加者の間に会話の行(両向き)
@@ -908,7 +963,7 @@ class MemoryLayer:
                         ref = int(r.poi_ref[x])
                         parts.append((np.asarray([x]), np.asarray([EVENT_KINDS["talk"]]), np.asarray([y]),
                                       np.asarray([ref if ref >= 0 else -1]), np.asarray([int(ResultCode.OK)]),
-                                      np.asarray([int(cell_now[x])])))
+                                      np.asarray([int(cell_now[x])]), np.asarray([_SRC_TALK_OPEN])))
                 self.stats["session_joins"] += 1
             self._next_join = len(joins)
         # ---- (c) 気づき ----
@@ -918,7 +973,8 @@ class MemoryLayer:
                 c = int(getattr(ev, "cell", -1))
                 parts.append((got, np.full(got.size, EVENT_KINDS["notice"]), np.full(got.size, -1),
                               np.full(got.size, place_thing(np.asarray([max(c, 0)]))[0] if c >= 0 else -1),
-                              np.full(got.size, int(ResultCode.OK)), np.full(got.size, c)))
+                              np.full(got.size, int(ResultCode.OK)), np.full(got.size, c),
+                              np.full(got.size, _SRC_NOTICE)))
         # ---- (d) 強い看板=初見だけ ----
         if signage:
             pairs = sorted(set((int(x), int(y)) for x, y in signage))  # 逐次ループ宣言 4: 露出の件数ぶん
@@ -932,10 +988,16 @@ class MemoryLayer:
             if bool(first.any()):
                 fa, fp = sa[first], sp[first]
                 parts.append((fa, np.full(fa.size, EVENT_KINDS["signage"]), np.full(fa.size, -1), fp,
-                              np.full(fa.size, int(ResultCode.OK)), cell_now[fa]))
+                              np.full(fa.size, int(ResultCode.OK)), cell_now[fa], np.full(fa.size, _SRC_SIGNAGE)))
         if not parts:
             return
         cat = [np.concatenate([np.asarray(p[j], dtype=np.int64) for p in parts]) for j in range(6)]
+        ms = self.memory_store
+        if ms is not None and ms.body_events is not None and ms.body_events.enabled:
+            # 〔2-3〕体の出来事の口: 出どころと、行為の成否・会話の始まりの行にはこの刻みの判断の呼の id
+            src = np.concatenate([np.asarray(p[6], dtype=np.int64) for p in parts])
+            self.record(agents, t, *cat, src=src, call_ids=_call_ids_of(cat[0], src, calls))
+            return
         self.record(agents, t, *cat)
 
     # ------------------------------------------------------------------ 監査

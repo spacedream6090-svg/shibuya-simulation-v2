@@ -76,6 +76,9 @@ def sys_conversation(ctx: Any, b: Any) -> None:
     tick = ctx.T
     # 第 2 期 2-2 段 11a: 腕 --proximity distance の判定の規則(既定 None=今の判定=同じセル)
     prox_rule = None if b.layers.proximity is None else b.layers.proximity.rule
+    # 第 2 期 2-3: 体の出来事の口(腕 --memory-store events と記録のあるランだけ・既定 None=今のまま)
+    _mem = b.layers.mem_layer
+    body_events = getattr(getattr(_mem, "memory_store", None), "body_events", None) if _mem is not None else None
     if conv is not None:
         cell_now = agents.registry.cell
         act_now = agents.registry.activity
@@ -198,6 +201,9 @@ def sys_conversation(ctx: Any, b: Any) -> None:
             # 第 2 期 2-2: 腕 distance の離脱=同じ層・距離 ≤ d+1 m、または同じ B5 の単位(既定 None=今のまま)
             near_fn=None if prox_rule is None else (lambda a_, b_: prox_rule.stay(agents, a_, b_)),
         )
+        if finished and body_events is not None:
+            # 第 2 期 2-3: 会話の終わり(参加者ごとに 1 行・原因=過程 conversation)を出来事の記録へ(腕のランだけ)
+            body_events.conversation_end(finished, cell_now)
         if finished:
             # 終了したセッションの参加者を解放する(行動契約書 §3「終了はエンジン」)。
             # C3 では CLOSING→TERMINAL のあと ``activity`` が CONVERSING のまま残っていた

@@ -65,7 +65,7 @@ def test_event_ids_follow_the_recalled_rows(runs):
                 shop += 1
                 continue
             t_ns, seq = (int(x) for x in s.split(":"))
-            assert seq == -1 - (int(agent) * n_rows + int(r))  # 仮の出来事=行と同じ番地
+            assert seq >= 0  # 〔第 2 期 2-3〕記録の出来事の id(前は仮の出来事=seq は −1−番地)
             assert 0 <= t_ns <= int(step) * NS_PER_STEP  # 見せた記憶はその呼び出しより前の出来事
             shown += 1
     assert shown > 0 and shop > 0

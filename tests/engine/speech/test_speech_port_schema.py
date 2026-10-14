@@ -117,8 +117,9 @@ def test_the_word_is_appended_to_the_1_3_vocabulary():
     # 1-5 の「行為:許可のない行動」=55・1-7 の「道具:看板」=56 のコードは動かない(発話は 1-7 の組の後ろの別の組)
     assert V.VOCAB[55:58] == ("行為:許可のない行動", "道具:看板", "行為:発話") and V.SPEECH_WORDS == ("発話",)
     assert V.VOCAB[58:60] == ("金:引き出し", "金:カード")  # 2-1(その後ろに 3-3 の実験の族の 2 語)
+    assert V.VOCAB[62:] == ("行為:会話の始まり", "行為:会話の終わり", "知覚:気づき")  # 〔第 2 期 2-3〕体の出来事の 3 語(3-3 の後ろ)
     assert "発話" not in V.ACT_WORDS  # 判断の語彙(v3 の 12 語)の外
-    assert V.VOCAB_VERSION == "events-vocab/3-3"  # 〔第 3 期 3-3〕実験の族で版を上げた(前 events-vocab/2-1)
+    assert V.VOCAB_VERSION == "events-vocab/2-3"  # 〔第 2 期 2-3〕体の出来事の 3 語で版を上げた(前 events-vocab/3-3)
 
 
 def test_the_field_line_is_the_same_text_in_llm_and_perception():
@@ -154,7 +155,7 @@ def test_ledger_arm_rows_and_arm_items():
     assert (s8.behavior, s8.restore, s8.items, s8.arm, s8.arm_owner) == (
         SL.BEHAVIOR, SL.REQUIRED, ("speech.inbox",), "speech-port", "speech")
     assert (s8m.behavior, s8m.restore) == (SL.DIAG, SL.DISCARDABLE)
-    assert [r.key for r in SL.arm_rows()] == ["S8", "S8M"]
+    assert [r.key for r in SL.arm_rows()] == ["S8", "S8M", "M0L"]  # 〔第 2 期 2-3〕記憶の器の記録の目印の seq(腕 memory-store)
     # 腕の行は静的な表に入らない(既定の 2 つのハッシュと状態のファイルは前と同じ道筋)
     assert all(k not in ("S8", "S8M") for k, _ in SL.behavior_items() + SL.full_items())
     assert SL.arm_items({"speech": None}, behavior=True) == () == SL.arm_items({}, behavior=False)

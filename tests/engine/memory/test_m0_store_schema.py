@@ -76,7 +76,8 @@ def test_row_columns_bytes_and_ranges():
         assert a.dtype == np.dtype(dt) and a.shape == (12,) and (a == fill).all(), name
     assert not ms.has_rows(0) and ms.event_id(0, 0) is None
     assert MS.ORIGINS == (None, "legacy") and MS.CLARITY_WORDS == ("はっきり", "うろ覚え")
-    assert MS.GRAIN_WORDS == ("そのまま",) and MS.TAPE_COLUMN == "recalled_event_ids"
+    # 〔第 2 期 2-3・親の判断 M3〕「要旨だけ」=目印の先が記録の保持窓の外に出た行
+    assert MS.GRAIN_WORDS == ("そのまま", "要旨だけ") and MS.TAPE_COLUMN == "recalled_event_ids"
 
 
 def test_view_has_words_and_content_but_no_strength_number():
@@ -290,9 +291,14 @@ def test_ledger_rows_are_out_of_both_hashes_and_the_state_file():
     assert not [p for p in paths if "memory_store" in p]
     assert SL.OWNER_CLASSES["mem_layer.memory_store"] == ("engine/memory_store.py", "MemoryStore")
     slots = set(MS.MemoryStore.__slots__)
-    declared = {it.rsplit(".", 1)[1] for r in (m0, m0r) for it in r.items}
+    # 〔第 2 期 2-3〕記録の目印の seq は腕の行 M0L(軸 1 no・軸 2 required=腕のランだけ full-hash と状態のファイル)
+    m0l = SL.row("M0L")
+    assert (m0l.behavior, m0l.restore, m0l.arm, m0l.arm_owner) == (SL.NO, SL.REQUIRED, "memory-store",
+                                                                   "mem_layer.memory_store")
+    declared = {it.rsplit(".", 1)[1] for r in (m0, m0r, m0l) for it in r.items}
     excluded = set(SL.excluded_attrs()["mem_layer.memory_store"])
-    assert slots == declared | excluded and not declared & excluded
+    # 〔第 2 期 2-3〕腕の行の腕の名 LEDGER_ARM はクラスの定数(slots の外)=除外の一覧に載る
+    assert slots | {"LEDGER_ARM"} == declared | excluded and not declared & excluded
     assert "bridge.tape._arm_values" in SL.row("O87").items
     assert "arm_columns" in SL.excluded_attrs()["bridge.tape"]
 

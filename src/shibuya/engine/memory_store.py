@@ -14,16 +14,22 @@ package にせず、import-linter と setuptools の検査の中に置く)。計
       刻みの単位の近似 #56。秒化は M1)。
     - ``annotation``(一人ずつの注釈): 会話の要旨(今の ``MemoryLayer.gist`` と同じ 40 字・体あたり 16 件・古い順に落とす)。
     - ``origin``(出どころの欄=範囲の外からの印): ``None``=出来事の記録(1-3)にある出来事への目印 / ``"legacy"``=記録に
-      無い出来事(体の出来事=1-3 では体の系を記録に配線していない)の**仮の行**。
+      無い出来事の**仮の行**。〔第 2 期 2-3〕腕のランでは記憶の書き手が体の出来事を記録に書き(``engine.events.body``)、
+      器の目印はその出来事(``None``)になる。``legacy`` は記録の無い器(``--events off``)と、器だけを使う試験の道に残る。
     - ``shown``(録画=MR16): 最後に LLM に見せた時刻 ``t_ns``(−1=まだ見せていない)。この呼び出しで見せたか=
       ``shown_ns`` がその呼び出しの時刻と同じか。
     仮の出来事の表(``_lg_*``): 記録に無い出来事の中身(種類・相手・対象・結果・セル)。行と同じ番地 k に置き、目印は
-    ``(t_ns, −1 − k)``(seq が負=記録の外の仮の id。記録の id の seq は 0 以上なので重ならない)。体の出来事が出来事の
-    記録に載る段で、仮の行は記録の目印に置き換わる(この表は消える)。仮の行はつなぎ=外す段は親が台帳(1-4)で決める
-    (候補 1-8)。
+    ``(t_ns, −1 − k)``(seq が負=記録の外の仮の id。記録の id の seq は 0 以上なので重ならない)。〔第 2 期 2-3〕記録の
+    目印の行(``None``)もこの表に中身の写しを持つ(想起は配列で中身を引く・記録は保持窓 7 日で行を落とし再開では空から=
+    中身を記録だけに置くと想起が引けない)。中身の写しが記録の行と合うこと(``who``=体・``what``=種類)は覚えるときに
+    確かめる(:meth:`MemoryStore.remember`)。
+    〔第 2 期 2-3〕記録の目印の seq(``_ms_log_seq``・−1=仮の行): 状態台帳の腕の行 ``M0L``(軸 1 no・軸 2 required=腕の
+    ランだけ状態のファイルと full-hash の末尾)。再開では作り直し(:meth:`MemoryStore.rebuild`)がこの列から目印を戻す
+    (前の日の出来事は再開のランの記録に無い=記録は discardable・目印は残る=宣言・記録 md23/README.md)。
 
 書く口は 2 つ: :meth:`MemoryStore.remember`(出来事を覚える=同じ鍵は重ねる・空の行・満杯なら score 最小を追い出す=
-今の表 ``engine.memory`` と同じ規則)と :meth:`MemoryStore.mark_shown`(録画)。ほかに再開のときの作り直し
+今の表 ``engine.memory`` と同じ規則・〔2-3〕目印は記録にある出来事の id だけ=無い id は ``ValueError``)と
+:meth:`MemoryStore.mark_shown`(録画)。ほかに再開のときの作り直し
 :meth:`MemoryStore.rebuild`(系の外だけ・行 M0 の欄だけ)(記憶の表から作り直す=状態台帳の行 M0 は「作り直せる」)と、テープの列へ渡す控えの取り出し
 :meth:`MemoryStore.take_shown`。欄の付け替えは ``__setattr__`` が落とす(配列の中身の書き換えは口の中だけ=約束)。
 
@@ -62,7 +68,9 @@ from typing import Any, Callable, Final, Mapping, NamedTuple, Sequence
 import numpy as np
 
 from shibuya.core.time_consts import NS_PER_SECOND, NS_PER_STEP
-from shibuya.engine.events.log import EventId
+from shibuya.engine.events import body as _BODY
+from shibuya.engine.events import vocab as _VOCAB
+from shibuya.engine.events.log import NS_PER_DAY, RETENTION_DAYS, EventId
 from shibuya.engine.familiarity import place_thing
 from shibuya.engine.memory import (
     EVENT_KINDS,
@@ -97,6 +105,9 @@ __all__ = [
     "SHOWN_PATH",
     "Cue",
     "LegacyEvent",
+    "LoggedEvent",
+    "LOG_SEQ_PATH",
+    "LOG_SEQ_BYTES",
     "MemoryView",
     "ShopPool",
     "RecallReport",
@@ -138,10 +149,13 @@ ORIGINS: Final[tuple[str | None, ...]] = (None, ORIGIN_LEGACY)
 _ORIGIN_NAMES: Final[tuple[str, ...]] = ("log", ORIGIN_LEGACY)  # manifest の鍵(None は "log")
 _EMPTY_ORIGIN: Final[int] = -1
 _LEGACY_CODE: Final[int] = 1
+#: 〔2-3〕出どころ None(記録の出来事への目印)の番号。
+_LOG_CODE: Final[int] = 0
 #: 言葉(強さの段・MR-0)。M0 の境目は想起の閾値 τ(A ≥ τ=はっきり)=expedient。M0 の想起は A ≥ τ の行だけを返す。
 CLARITY_WORDS: Final[tuple[str, ...]] = ("はっきり", "うろ覚え")
-#: 中身の粗さ(MR-0)。M0 は「そのまま」だけ(粗くする段と描き方は M1 以降)。
-GRAIN_WORDS: Final[tuple[str, ...]] = ("そのまま",)
+#: 中身の粗さ(MR-0)。M0 は「そのまま」だけ(粗くする段と描き方は M1 以降)。〔第 2 期 2-3・親の判断 M3〕「要旨だけ」=目印の先
+#: (記録の出来事)が記録の保持窓の外に出た行=本文(中身)が無く、要旨(注釈)と強さ(言葉)だけで想起に使う。
+GRAIN_WORDS: Final[tuple[str, ...]] = ("そのまま", "要旨だけ")
 #: テープの列(録画 MR16・腕 on のランだけ calls.parquet の末尾に足す=版 4 の中)。``recalled_rows`` と同じ並びで、
 #: 見せた記憶の行の目印 ``"t_ns:seq"``(器の外の行=店の評価の行は空文字)。
 TAPE_COLUMN: Final[str] = "recalled_event_ids"
@@ -173,12 +187,20 @@ _SHOWN_COLS: Final[frozenset[str]] = frozenset({"_ms_shown_ns"})
 #: 状態台帳の道筋の代表(系の宣言 ``writes.paths`` がこれに当たれば書いてよい=段 C と同じ実行時の検査)。
 ROW_PATH: Final[str] = "M0:mem_layer.memory_store._ms_n"
 SHOWN_PATH: Final[str] = "M0R:mem_layer.memory_store._ms_shown_ns"
+#: 〔2-3〕記録の目印の seq の列(状態台帳の腕の行 ``M0L``)。
+LOG_SEQ_PATH: Final[str] = "M0L:mem_layer.memory_store._ms_log_seq"
+#: 〔2-3〕記録の目印の seq の列の 1 行のバイト(i4・行 ``M0L``=腕のランだけ状態のファイルに入る)。
+LOG_SEQ_BYTES: Final[int] = 4
 
 #: 今の表の「店の行と重なる」種類(購入・食事・並ぶ・看板)=7c の重なりの鍵(``engine.memory._SHOP_OBJ_KINDS`` と同じ)。
 _SHOP_KINDS: Final[tuple[int, ...]] = (
     EVENT_KINDS["buy"], EVENT_KINDS["eat"], EVENT_KINDS["queue"], EVENT_KINDS["signage"],
 )
 
+
+#: 〔2-3〕出来事の語のコード → 記憶の種類(``engine.events.body.kind_of_what`` の表=覚えるときの中身の写像の検査)。
+_KIND_OF_CODE: Final[np.ndarray] = np.asarray([_BODY.kind_of_what(c) for c in range(len(_VOCAB.VOCAB))], dtype=np.int64)
+_KIND_OF_CODE.setflags(write=False)
 
 _COL_SPEC: Final[Mapping[str, tuple[Any, int]]] = MappingProxyType(
     {n: (t, f) for n, t, f in _ROW_COLS + _LEGACY_COLS})
@@ -216,6 +238,21 @@ class LegacyEvent(NamedTuple):
     """出来事の記録に無い出来事(仮の行の中身)。配列か整数。``t_ns`` はその回の時刻。"""
 
     t_ns: Any
+    kind: Any
+    partner: Any
+    obj: Any
+    result: Any
+    cell: Any
+
+
+class LoggedEvent(NamedTuple):
+    """〔第 2 期 2-3〕出来事の記録にある出来事への目印(``(t_ns, seq)``)と中身の写し。配列か整数。
+
+    中身(種類・相手・対象・結果・セル)は器の想起が配列で引く写し(記録の行の ``what``・``who`` と合うことは覚えるときに確かめる)。
+    """
+
+    t_ns: Any
+    seq: Any
     kind: Any
     partner: Any
     obj: Any
@@ -304,7 +341,10 @@ class MemoryStore:
     __slots__ = _COL_NAMES + (
         "n", "n_rows", "ns_per_step", "minutes_per_step", "d", "w_r", "w_i", "tau", "tape_on",
         "_ms_note", "_ms_note_order", "_ms_tape", "_ms_stats", "_ms_last",
+        "_ms_log_seq", "body_events",
     )
+    #: 〔2-3〕状態台帳の腕の行の腕の名(行 ``M0L``=``state_ledger.arm_items`` が持ち主の名と照合する)。
+    LEDGER_ARM: str = "memory-store"
 
     def __init__(self, n_agents: int, n_rows: int, *, step_seconds: int, minutes_per_step: float,
                  d: float = MEMORY_D, w_r: float = MEMORY_W_R, w_i: float = MEMORY_W_I,
@@ -335,6 +375,10 @@ class MemoryStore:
         self._lg_object = _column("_lg_object", size)
         self._lg_result = _column("_lg_result", size)
         self._lg_cell = _column("_lg_cell", size)
+        #: 〔2-3〕記録の目印の seq(−1=仮の行か空の行)。状態台帳の腕の行 M0L(再開で目印を戻す)。
+        self._ms_log_seq = np.full(size, -1, dtype=np.int32)
+        #: 〔2-3〕体の出来事の口(``engine.events.body.BodyEventLink``・組み立てが腕と記録のあるランだけ置く)。
+        self.body_events: Any = None
         #: 注釈(番地 → 文字列)と体ごとの順(古い順に落とす=今の ``MemoryLayer._gist_order`` と同じ)。
         self._ms_note: dict[int, str] = {}
         self._ms_note_order: dict[int, "OrderedDict[int, None]"] = {}
@@ -398,6 +442,12 @@ class MemoryStore:
         """計数の写し(manifest ``memory_summary.memory_store.counts``)。"""
         return {k: int(v) for k, v in sorted(self._ms_stats.items())}
 
+    def attach_events(self, link: Any) -> None:
+        """〔2-3〕体の出来事の口を置く(組み立てが 1 回だけ呼ぶ=記録のある腕のラン)。置いた器の目印は記録の出来事になる。"""
+        if self.body_events is not None:
+            raise RuntimeError("体の出来事の口は 1 回だけ置く")
+        object.__setattr__(self, "body_events", link)
+
     def attach_tape(self) -> None:
         """テープに列 ``recalled_event_ids`` を足すランで、録画の控えを持つようにする(組み立てが 1 回だけ呼ぶ)。"""
         object.__setattr__(self, "tape_on", True)
@@ -424,20 +474,32 @@ class MemoryStore:
 
         Args:
             agent: 体(整数か 1 次元の配列)。**1 回の呼びで 1 体 1 件**(今の表の書き手と同じ回の分け方)。
-            event_id: 目印。``origin="legacy"`` のときは :class:`LegacyEvent`(記録に無い出来事の中身)=器が行と同じ
-                番地に仮の出来事を書き、目印 ``(t_ns, −1 − 番地)`` を付ける。
+            event_id: 目印。``origin=None`` のときは :class:`LoggedEvent`(記録の id と中身の写し)=**記録にある出来事の
+                id だけ**(〔2-3〕無い id・``who`` が体と違う・``what`` が種類と合わない目印は ``ValueError``)。
+                ``origin="legacy"`` のときは :class:`LegacyEvent`(記録に無い出来事の中身)=器が行と同じ番地に仮の出来事を
+                書き、目印 ``(t_ns, −1 − 番地)`` を付ける。
             strength: System 1 の重みの素(M0=重要度の固定表の base: 失敗 3・会話 2・成功/気づき/看板 1)。新しい行は
                 初回 +1・上限 4、重ねた行は base(今の表の規則 M3 (b)・Q56)。回数は重ねるごとに +1。
-            origin: ``"legacy"``(M0 で書けるのはこれだけ)か ``None``(記録の出来事=体の出来事を記録に載せる段で使う)。
+            origin: ``None``(記録の出来事=〔2-3〕体の出来事の口を置いた器だけ)か ``"legacy"``(記録に無い出来事)。
             annotation: 一人ずつの注釈(会話の要旨・入力の並び・``None`` は付けない=既存の注釈は残す)。
         """
         _check_permit(ROW_PATH, "行")
         _check_permit(SHOWN_PATH, "計数と新しい行の録画の印")
-        if origin != ORIGIN_LEGACY:
-            raise ValueError("M0 で器に書けるのは出どころ legacy(出来事の記録に無い体の出来事)だけ。記録の出来事への"
-                             "目印(出どころ None)は、体の出来事を記録に載せる段(親が台帳で決める・候補 1-8)で中身の写像と一緒に足す")
-        if not isinstance(event_id, LegacyEvent):
-            raise TypeError("出どころ legacy の目印は LegacyEvent(仮の出来事の中身)")
+        if origin == ORIGIN_LEGACY:
+            if not isinstance(event_id, LegacyEvent):
+                raise TypeError("出どころ legacy の目印は LegacyEvent(仮の出来事の中身)")
+            logged = False
+        elif origin is None:
+            link = self.body_events
+            if link is None or not bool(link.enabled):
+                raise ValueError("出どころ None(記録の出来事への目印)は記録にある出来事の id だけ。体の出来事の口の無い器"
+                                 "(記録 off・器だけの道)に書けるのは出どころ legacy(記録に無い出来事の仮の行)だけ")
+            if not isinstance(event_id, LoggedEvent):
+                raise TypeError("出どころ None の目印は LoggedEvent(記録の id と中身の写し)")
+            _check_permit(LOG_SEQ_PATH, "記録の目印の seq")
+            logged = True
+        else:
+            raise ValueError(f"出どころは {ORIGINS} のどれか(いま {origin!r}・legacy=記録に無い出来事の仮の行)")
         a = np.atleast_1d(np.asarray(agent, dtype=np.int64))
         m = a.size
         if m == 0:
@@ -446,7 +508,11 @@ class MemoryStore:
             raise ValueError("remember は 1 回の呼びで 1 体 1 件(同じ体の出来事は回を分ける)")
         if (a < 0).any() or (a >= self.n).any():
             raise IndexError("体の番号が範囲の外")
-        ev = LegacyEvent(*(np.broadcast_to(np.asarray(x, dtype=np.int64), (m,)) for x in event_id))
+        if logged:
+            ev = LoggedEvent(*(np.broadcast_to(np.asarray(x, dtype=np.int64), (m,)) for x in event_id))
+            self._check_logged(a, ev)
+        else:
+            ev = LegacyEvent(*(np.broadcast_to(np.asarray(x, dtype=np.int64), (m,)) for x in event_id))
         if (ev.t_ns < 0).any():
             raise ValueError("出来事の時刻 t_ns は 0 以上")
         base = np.broadcast_to(np.asarray(strength, dtype=np.int64), (m,))
@@ -481,28 +547,51 @@ class MemoryStore:
         first = np.where(found, self._ms_first_ns[g], ev.t_ns)
         imp = np.where(found, np.minimum(base, IMPORTANCE_MAX),
                        np.minimum(base + IMPORTANCE["first_bonus"], IMPORTANCE_MAX))
-        # 仮の出来事(行と同じ番地)と目印(最後の回)
+        # 中身(行と同じ番地=仮の出来事の中身か記録の出来事の中身の写し)と目印(最後の回)
         self._lg_kind[g] = ev.kind.astype(np.uint8)
         self._lg_partner[g] = ev.partner.astype(np.int32)
         self._lg_object[g] = ev.obj.astype(np.int32)
         self._lg_result[g] = ev.result.astype(np.uint8)
         self._lg_cell[g] = ev.cell.astype(np.int32)
         self._ms_ev_t_ns[g] = ev.t_ns
-        self._ms_ev_seq[g] = (-1 - g).astype(np.int32)
+        if logged:
+            self._ms_ev_seq[g] = ev.seq.astype(np.int32)
+            self._ms_log_seq[g] = ev.seq.astype(np.int32)
+            self._ms_origin[g] = _LOG_CODE
+            self._ms_stats["log_events"] += int(m)
+        else:
+            self._ms_ev_seq[g] = (-1 - g).astype(np.int32)
+            self._ms_log_seq[g] = -1
+            self._ms_origin[g] = _LEGACY_CODE
+            self._ms_stats["legacy_events"] += int(m)
         self._ms_n[g] = n_new.astype(np.uint16)
         self._ms_imp[g] = imp.astype(np.uint8)
         self._ms_first_ns[g] = first
-        self._ms_origin[g] = _LEGACY_CODE
         self._ms_shown_ns[g[new]] = -1  # 新しい記憶(空の行・追い出した行)はまだ見せていない
         self._ms_stats["remember"] += int(m)
         self._ms_stats["merged"] += int(np.count_nonzero(found))
         self._ms_stats["new_rows"] += int(np.count_nonzero(new))
-        self._ms_stats["legacy_events"] += int(m)
         if ann is not None:
             for x, y, t in zip(a.tolist(), slot.tolist(), ann):  # 注釈のある出来事の数ぶん(会話の要旨=1 件)
                 if t is not None:
                     self._put_note(int(x), int(y), str(t))
         return slot.astype(np.int64)
+
+    def _check_logged(self, a: np.ndarray, ev: LoggedEvent) -> None:
+        """〔2-3〕目印の出来事が記録にあり、``who``=体・``what`` が記憶の種類と合うか(中身の写像)。違えば ``ValueError``。"""
+        log = self.body_events.log
+        if (ev.seq < 0).any():
+            raise ValueError("記録の目印の seq は 0 以上(記録に無い出来事の仮の行は出どころ legacy)")
+        pos = log.positions(ev.t_ns, ev.seq)
+        if (pos < 0).any():
+            j = int(np.flatnonzero(pos < 0)[0])
+            raise ValueError(f"記録に無い出来事の id は目印にできない(記録にある出来事の id だけ・いま "
+                             f"({int(ev.t_ns[j])}, {int(ev.seq[j])})=記録に無い出来事は出どころ legacy の仮の行)")
+        who, what = log.who_what(pos)
+        if not np.array_equal(who.astype(np.int64), a):
+            raise ValueError("目印の出来事の who が覚える体と違う(体の出来事は本人の記憶にだけ書く)")
+        if not np.array_equal(_KIND_OF_CODE[what], ev.kind):
+            raise ValueError("目印の出来事の what が記憶の種類と合わない(中身の写像=engine.events.body.kind_of_what)")
 
     # ------------------------------------------------------------------ 注釈(今の要旨と同じ規則)
     def _drop_note(self, agent: int, row: int) -> None:
@@ -597,7 +686,10 @@ class MemoryStore:
             match |= (cel == int(c.cell)) | (obj == int(place_thing(int(c.cell))))
         if int(c.kind) > 0 and 0 <= int(c.result) <= 255:
             match |= (kind == int(c.kind)) & (res == int(c.result))
-        match &= used
+        # 〔2-3・親の判断 M3〕目印の先が記録の保持窓の外に出た行は本文が無い=手がかりの一致には使わず(要旨と強さだけ)、
+        # score の順の補いにだけ出る(LegacyEvent にはしない=目印と出どころはそのまま)
+        far = self._beyond_window(g0, g1, int(t_ns))
+        match &= used & ~far
         live = used & (A >= th)
         counts = (int(np.count_nonzero(used)), int(np.count_nonzero(used & ~live)),
                   int(np.count_nonzero(match)), int(np.count_nonzero(match & ~live)))
@@ -617,7 +709,7 @@ class MemoryStore:
             kd = kind.astype(np.int64)
             shop_like = np.isin(kd, _SHOP_KINDS)
             ob = obj.astype(np.int64)
-            ep_key = np.where(shop_like & (ob >= 0), ob, -1)
+            ep_key = np.where(shop_like & (ob >= 0) & ~far, ob, -1)
             p_score = np.asarray(pool.score, dtype=np.float64)
             p_live = np.asarray(pool.live, dtype=bool)
             p_match = np.asarray(pool.match, dtype=bool)
@@ -653,16 +745,31 @@ class MemoryStore:
                 views.append(pool.view(j))  # type: ignore[union-attr]
                 continue
             g = g0 + j
+            if bool(far[j]):  # 〔M3〕要旨だけ(本文=種類・相手・対象・結果・セルは無い)
+                body = {"grain": GRAIN_WORDS[1], "kind": 0, "partner": -1, "obj": -1, "result": 0, "cell": -1}
+            else:
+                body = {"grain": GRAIN_WORDS[0], "kind": int(kind[j]), "partner": int(part[j]), "obj": int(obj[j]),
+                        "result": int(res[j]), "cell": int(cel[j])}
             views.append(MemoryView(
                 row=int(j), event_id=(int(self._ms_ev_t_ns[g]), int(self._ms_ev_seq[g])),
-                origin=ORIGINS[int(self._ms_origin[g])], clarity=clarity_of(float(A[j]), th), grain=GRAIN_WORDS[0],
-                kind=int(kind[j]), partner=int(part[j]), obj=int(obj[j]), result=int(res[j]), cell=int(cel[j]),
+                origin=ORIGINS[int(self._ms_origin[g])], clarity=clarity_of(float(A[j]), th),
                 annotation=self._ms_note.get(g, ""), when_ns=int(self._ms_ev_t_ns[g]),
-                first_ns=int(self._ms_first_ns[g]),
+                first_ns=int(self._ms_first_ns[g]), **body,
             ))
         object.__setattr__(self, "_ms_last", RecallReport(False, *counts, filled, dedup, len(picked)))
         self._ms_stats["recall_calls"] += 1
         return tuple(views)
+
+    def _beyond_window(self, g0: int, g1: int, now_ns: int) -> np.ndarray:
+        """〔第 2 期 2-3・親の判断 M3〕体の行の範囲 → 目印の先(記録の出来事=出どころ None)が記録の保持窓の外に出た行。
+
+        保持窓は記録の ``retention_days``(口が無ければ 1-3 の ``RETENTION_DAYS``)。日の締め ``close_day(d)`` が
+        ``(d + 1 − 窓)`` 日より前の行を落とすので、日 D の中では ``D − 窓`` 日より前の日の出来事が窓の外。時刻だけから決まる
+        (記録の中身を見ない)=再開しても通しと同じ。仮の行(legacy)は対象の外。逐次ループ宣言: なし(配列演算)。
+        """
+        days = int(self.body_events.log.retention_days) if self.body_events is not None else int(RETENTION_DAYS)
+        cut = (int(now_ns) // NS_PER_DAY - days) * NS_PER_DAY
+        return (self._ms_origin[g0:g1] == _LOG_CODE) & (self._ms_ev_t_ns[g0:g1] < cut)
 
     # ------------------------------------------------------------------ 再開: 記憶の表から作り直す
     def rebuild(self, kind: np.ndarray, first_step: np.ndarray, last_step: np.ndarray, cell: np.ndarray,
@@ -670,9 +777,11 @@ class MemoryStore:
                 notes: dict[tuple[int, int], str], note_order: dict[int, "OrderedDict[int, None]"]) -> int:
         """今の記憶の表(``(体, n_rows)`` の配列)と要旨から器を作り直す(再開のとき・状態台帳の行 M0=作り直せる)。
 
-        M0 の器の行は全部が記憶の表の写し(出どころ legacy)なので、行・仮の出来事・強さ・注釈は同じ値に戻る。目印の
-        seq は番地から決まるので通しのランと同じ。書くのは行 M0 の欄だけ(録画・控え・計数=行 M0R は触らない=再開の器は
-        空から始まる)。系の中(ランの途中)では呼べない。→ 行の数。
+        器の行は全部が記憶の表の写しなので、行・中身・強さ・注釈は同じ値に戻る。仮の行(legacy)の目印の seq は番地から
+        決まる。〔2-3〕記録の目印の行は、戻した記録の目印の seq(``_ms_log_seq``=状態台帳の腕の行 M0L)から目印と出どころを
+        戻す(通しのランと同じ目印=先の出来事は再開のランの記録に無い=記録は discardable)。書くのは行 M0 の欄だけ(録画・
+        控え・計数=行 M0R と、記録の目印の seq=行 M0L は触らない=再開の器の録画は空から始まる)。系の中(ランの途中)では
+        呼べない。→ 行の数。
         """
         if _G.CURRENT is not None:
             raise RuntimeError(f"記憶の器の作り直しは再開の組み立て(系の外)だけ(いまの系 {_G.CURRENT})")
@@ -698,6 +807,11 @@ class MemoryStore:
         self._ms_imp[g] = np.asarray(importance).reshape(-1)[g]
         self._ms_first_ns[g] = np.asarray(first_step, dtype=np.int64).reshape(-1)[g] * self.ns_per_step
         self._ms_origin[g] = _LEGACY_CODE
+        ls = self._ms_log_seq[g].astype(np.int64)
+        lg = ls >= 0
+        if bool(lg.any()):  # 〔2-3〕記録の目印の行(戻した行 M0L の seq)
+            self._ms_ev_seq[g[lg]] = ls[lg].astype(np.int32)
+            self._ms_origin[g[lg]] = _LOG_CODE
         self._ms_note.clear()
         self._ms_note_order.clear()
         for agent, od in note_order.items():  # 注釈の件数ぶん(体あたり ≤ 16)
@@ -712,11 +826,13 @@ class MemoryStore:
     # ------------------------------------------------------------------ 実行時の検査(器=記憶の表の写し)
     def check_against_table(self, agent: np.ndarray, rows: np.ndarray, *, kind: np.ndarray, partner: np.ndarray,
                             obj: np.ndarray, result: np.ndarray, cell: np.ndarray, first_step: np.ndarray,
-                            last_step: np.ndarray, n: np.ndarray, importance: np.ndarray) -> None:
+                            last_step: np.ndarray, n: np.ndarray, importance: np.ndarray,
+                            log_seq: np.ndarray | None = None) -> None:
         """書いた行の器の値が記憶の表の値と同じかを配列で比べ、違えば ``RuntimeError``(読むだけ・M0 の宣言の前提)。
 
-        比べるのは仮の出来事(種類・相手・対象・結果・セル)・強さ(回数・重要度・最初の時刻)・目印(最後の時刻と
-        seq=−1−番地)・出どころ(legacy)。書きの検査の切替口(``SHIBUYA_WRITE_GUARD``)でも外さない(器の値は
+        比べるのは中身(種類・相手・対象・結果・セル)・強さ(回数・重要度・最初の時刻)・目印(最後の時刻と seq)・出どころ。
+        ``log_seq`` を渡さないときは仮の行(seq=−1−番地・出どころ legacy・記録の seq −1)、渡すときは記録の目印の行
+        (seq=記録の seq・出どころ None)=〔2-3〕。書きの検査の切替口(``SHIBUYA_WRITE_GUARD``)でも外さない(器の値は
         ハッシュに入らない=ずれても final とハッシュに出ないので、ここで止める)。逐次ループ宣言: なし(配列演算)。
         """
         a = np.asarray(agent, dtype=np.int64)
@@ -728,7 +844,9 @@ class MemoryStore:
             ("重要度", self._ms_imp[g], importance),
             ("最初の時刻", self._ms_first_ns[g], np.asarray(first_step, dtype=np.int64) * ns),
             ("目印の時刻", self._ms_ev_t_ns[g], np.asarray(last_step, dtype=np.int64) * ns),
-            ("目印の seq", self._ms_ev_seq[g], -1 - g), ("出どころ", self._ms_origin[g], np.full(g.size, _LEGACY_CODE)),
+            ("目印の seq", self._ms_ev_seq[g], -1 - g if log_seq is None else np.asarray(log_seq, dtype=np.int64)),
+            ("出どころ", self._ms_origin[g], np.full(g.size, _LEGACY_CODE if log_seq is None else _LOG_CODE)),
+            ("記録の seq", self._ms_log_seq[g], np.full(g.size, -1) if log_seq is None else np.asarray(log_seq, dtype=np.int64)),
         )
         bad = [name for name, got, want in pairs
                if not np.array_equal(np.asarray(got).astype(np.int64), np.asarray(want).astype(np.int64))]
@@ -754,7 +872,19 @@ class MemoryStore:
             "shown_rows_live": int(np.count_nonzero(used & (self._ms_shown_ns >= 0))),
             "tape_pending": int(sum(len(v) for v in self._ms_tape.values())),
             "counts": self.store_counts,
+            # 〔2-3〕記録の目印の行のうち、いまの記録に先がある行/無い行(再開のランは前の日の出来事が記録に無い・保持窓の外)
+            **self._log_targets(used),
         }
+
+    def _log_targets(self, used: np.ndarray) -> dict[str, int]:
+        """〔2-3〕manifest の 2 欄: 記録の目印の行(出どころ None)のうち先がいまの記録にある行(``targets_log_live``)と無い行
+        (``targets_log_gone``)。器に口が無いランは両方 0。逐次ループ宣言: なし(記録の位置の二分探索=時刻の種類の数ぶん)。"""
+        g = np.flatnonzero(used & (self._ms_origin == _LOG_CODE))
+        if g.size == 0 or self.body_events is None:
+            return {"targets_log_live": 0, "targets_log_gone": int(g.size)}
+        pos = self.body_events.log.positions(self._ms_ev_t_ns[g], self._ms_ev_seq[g].astype(np.int64), verify=False)
+        live = int(np.count_nonzero(pos >= 0))
+        return {"targets_log_live": live, "targets_log_gone": int(g.size) - live}
 
 
 # ================================================================ 描き方(今の B5「記憶」の 1 行と同じバイト)

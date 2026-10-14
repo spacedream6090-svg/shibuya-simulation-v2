@@ -27,9 +27,11 @@ def test_families_are_copies_of_their_sources():
 def test_vocab_size_and_uniqueness():
     # 1-5: 行為:許可のない行動・1-7: 道具:看板 を末尾に足した・〔第 1 期 1-8b〕行為:発話 をその後ろ(別の組)に足した・
     # 〔第 2 期 2-1〕金:引き出し・金:カード をその後ろ(別の組)に足した・〔第 3 期 3-3〕実験:改変・実験:届いた情報 をその後ろに足した
-    assert len(V.VOCAB) == 12 + (18 + 2) + 15 + 8 + 1 + 1 + 1 + 2 + 2 == 62
-    assert V.VOCAB[-7:] == ("行為:許可のない行動", "道具:看板", "行為:発話", "金:引き出し", "金:カード", "実験:改変",
-                            "実験:届いた情報")
+    # 〔第 2 期 2-3〕行為:会話の始まり・行為:会話の終わり・知覚:気づき(族 知覚)をその後ろ(別の組)に足した
+    assert len(V.VOCAB) == 12 + (18 + 2) + 15 + 8 + 1 + 1 + 1 + 2 + 2 + 3 == 65
+    assert V.VOCAB[-10:] == ("行為:許可のない行動", "道具:看板", "行為:発話", "金:引き出し", "金:カード", "実験:改変",
+                             "実験:届いた情報", "行為:会話の始まり", "行為:会話の終わり", "知覚:気づき")
+    assert V.code_of("行為:会話の始まり") == 62 and V.code_of("知覚:気づき") == 64
     assert V.code_of("道具:看板") == 56 and V.code_of("行為:発話") == 57  # 1-7・1-8b の語のコードは動かない
     assert V.code_of("金:引き出し") == 58 and V.code_of("金:カード") == 59  # 2-1 の語のコードは動かない
     assert V.code_of("実験:改変") == 60 and V.code_of("実験:届いた情報") == 61
@@ -37,7 +39,7 @@ def test_vocab_size_and_uniqueness():
     assert all(w.split(":", 1)[0] in V.FAMILIES for w in V.VOCAB)
     # 族を付けた理由: 金と物に同じ語(域外仕入)がある
     assert "金:域外仕入" in V.VOCAB_CODES and "物:域外仕入" in V.VOCAB_CODES
-    assert V.VOCAB_VERSION == "events-vocab/3-3"  # 〔第 3 期 3-3〕版を上げた(前 events-vocab/2-1)
+    assert V.VOCAB_VERSION == "events-vocab/2-3"  # 〔第 2 期 2-3〕版を上げた(前 events-vocab/3-3=版の文字列は段の名)
 
 
 @pytest.mark.parametrize("what", [

@@ -1,6 +1,6 @@
 """状態台帳の宣言(10b・A3「挙動」と「復元」の 2 軸・機械可読の 1 ファイル)。
 
-**読み口は 1 つ**: ``LEDGER``(203 行の組=〔第 3 期 3-3〕申込書の控えの行 ``X``・〔第 2 期 2-1〕経済の段階 2 の行 ``EC``・``ATM``・``CR``・``EM``・〔第 1 期 1-8〕候補の口の行 ``J0``・〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P``・〔第 1 期 1-7〕連絡先の印の行 ``CT5``・〔第 1 期 1-8b〕発話の口の腕の行 ``S8``・``S8M``・〔第 2 期 2-2〕近接の層の行 ``PX``・近傍の索引の行 ``PX0`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
+**読み口は 1 つ**: ``LEDGER``(204 行の組=〔第 2 期 2-3〕記憶の器の記録の目印の腕の行 ``M0L``・〔第 3 期 3-3〕申込書の控えの行 ``X``・〔第 2 期 2-1〕経済の段階 2 の行 ``EC``・``ATM``・``CR``・``EM``・〔第 1 期 1-8〕候補の口の行 ``J0``・〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P``・〔第 1 期 1-7〕連絡先の印の行 ``CT5``・〔第 1 期 1-8b〕発話の口の腕の行 ``S8``・``S8M``・〔第 2 期 2-2〕近接の層の行 ``PX``・近傍の索引の行 ``PX0`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
 ``soa_rows``・``external_rows``・``behavior_excluded``・``full_excluded``・``full_items``・``behavior_items``・〔1-8b〕``arm_rows``・``arm_items``)。表・AST の検査(``engine.state_ledger_ast``)・
 2 つのハッシュ(``engine.state_hashes``)・揺らし試験はどれもこの表から作る。
 
@@ -8,6 +8,8 @@
 (発話の口の未読の列 ``S8``)。``behavior_items``・``full_items`` の表には入れず、根の持ち主が居るランだけ ``arm_items`` が
 2 つのハッシュと状態のファイルの末尾に足す(持ち主が None のランでは「無い」の印も入れない=既定の final・full-hash・状態の
 ファイルは腕の行を足す前と同じバイト)。腕を取り違えた再開は、道筋の集合の食い違いで止まる(``resolve.restore_items``)。
+〔第 2 期 2-3〕腕の行の持ち主は道筋の最後の属性の前まで(``LedgerRow.arm_owner``=``speech.inbox`` → ``speech``・
+``mem_layer.memory_store._ms_log_seq`` → ``mem_layer.memory_store``)。根の持ち主から属性をたどり、途中が None なら「居ない」。
 
 行の中身(材料 ``docs/bench/analysis/wallbounce-1003/10b-prep.md`` §1 の表を写した。根拠の ``path:line`` は
 材料の値=a08109a の行番号。パスは ``src/shibuya/`` を省略):
@@ -153,8 +155,9 @@ class LedgerRow:
 
     @property
     def arm_owner(self) -> str:
-        """腕の行の根の持ち主の名(腕の行でなければ ``""``)。"""
-        return self.items[0].split(".", 1)[0] if (self.arm and self.items) else ""
+        """腕の行の持ち主の道筋(腕の行でなければ ``""``)。〔第 2 期 2-3〕道筋の最後の属性の前まで(``speech.inbox`` →
+        ``speech``・``mem_layer.memory_store._ms_log_seq`` → ``mem_layer.memory_store``)。"""
+        return self.items[0].rpartition(".")[0] if (self.arm and self.items) else ""
 
     @property
     def in_behavior(self) -> bool:
@@ -907,6 +910,19 @@ _EXT: tuple[LedgerRow, ...] = (
              "X:experiment.*)。xchecks はランの後に分岐の道具 branch.run_branch が持ち主の口 record_checks で 1 回だけ書く(系の外="
              "ランの間は書かない)。持ち主の欄は 1 回だけ置ける(__setattr__・__delattr__ の守り=検収 M4)。行の鍵は O の通し番号で"
              "なく X"),
+    # ---- 第 2 期 2-3(体の出来事を記録へ・器の目印=記録の出来事): 足す前に軸を決めた行(腕の行=腕 --memory-store events) ----
+    LedgerRow(
+        key="M0L", name="MemoryStore の記録の目印の seq(第 2 期 2-3)", place=EXTERNAL,
+        dtype="列(i4・行の数=体 × n_rows・−1=仮の行か空の行)", nbytes="4 B/行(5,000 体で 2.56 MB)",
+        alloc="--memory-store events", behavior=NO, restore=REQUIRED, dead=False,
+        basis="engine/memory_store.py(remember・rebuild・check_against_table)・engine/events/body.py(BodyEventLink)",
+        items=("mem_layer.memory_store._ms_log_seq",), arm="memory-store",
+        note="2-3: 腕のランで記憶の器の目印が出来事の記録(1-3)の出来事になった(出どころ None)。目印の seq は記録が付ける"
+             "(同じ時刻の行の通し)ので記憶の表 mem_* からは作り直せない=軸 2 required(腕の行=器の居るランだけ full-hash と"
+             "状態のファイルの末尾に入る=既定の final・full-hash・状態のファイルは不変)。軸 1 no(想起の中身は mem_* と O8 で"
+             "既に behavior-hash に入る=目印は録画とテープの列だけが読む)。再開では rebuild がこの列から目印と出どころを戻す"
+             "(前の日の出来事は再開のランの記録に無い=記録は discardable のまま=目印は残る・記録 md23/README.md)。書く系は"
+             "decide・llm_receive・memory(宣言 M0*:mem_layer.memory_store.*)。行の鍵は O の通し番号でなく M0L"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -977,7 +993,7 @@ def arm_items(owners: Mapping[str, object], *, behavior: bool) -> tuple[tuple[st
     for r in arm_rows():
         if (r.behavior != BEHAVIOR) if behavior else (not r.in_full):
             continue
-        owner = owners.get(r.arm_owner)
+        owner = _owner_at(owners, r.arm_owner)
         if owner is None:
             continue
         got = getattr(type(owner), "LEDGER_ARM", None)
@@ -986,6 +1002,17 @@ def arm_items(owners: Mapping[str, object], *, behavior: bool) -> tuple[tuple[st
         skip = set(r.hash_skip)
         out.extend((r.key, it) for it in r.items if it not in skip)
     return tuple(out)
+
+
+def _owner_at(owners: Mapping[str, object], path: str) -> object | None:
+    """〔第 2 期 2-3〕持ち主の道筋(根の鍵から ``.`` でたどる)→ 物(途中が無いか None なら ``None``)。"""
+    root, *rest = path.split(".")
+    cur = owners.get(root)
+    for a in rest:  # 逐次ループ宣言: 道筋の段の数(≤ 2)
+        if cur is None:
+            return None
+        cur = getattr(cur, a, None)
+    return cur
 
 
 def counts() -> dict[str, int]:
@@ -1117,6 +1144,10 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     # 第 1 期 1-6: 記憶の器 M0 の設定(今の表と同じ定数・テープに列を足すランかの印=組み立てが 1 回だけ置く)
     _x("mem_layer.memory_store", CONST, _CFG, "n", "n_rows", "ns_per_step", "minutes_per_step", "d", "w_r", "w_i",
        "tau", "tape_on"),
+    # 第 2 期 2-3: 体の出来事の口(出来事の記録への参照=記録は行 E の側で数える)と腕の行の腕の名
+    _x("mem_layer.memory_store", REF, "体の出来事の口(engine.events.body.BodyEventLink=記録 E の側で数える・組み立てが 1 回だけ置く)",
+       "body_events"),
+    _x("mem_layer.memory_store", CONST, _FIELD + "(腕の行の腕の名 LEDGER_ARM)", "LEDGER_ARM"),
     _x("mem_layer.store", REF, "店の選び手の口(関数)", "visit_hook"),
     _x("poi_resolver", CACHE, _TAB, "_cat", "_sub", "_names", "_names_by_len", "_cat_words", "_cat_exact",
        "_buyable", "_by_cell", "_off", "_skip", "_cell_of_place", "_landmark"),

@@ -58,10 +58,14 @@ def table_vs_store(agents: Any, layer: Any) -> list[str]:
         bad.append("first")
     if not np.array_equal(np.asarray(r.mem_last).reshape(-1)[g].astype(np.int64) * ns, ms._ms_ev_t_ns[g]):
         bad.append("last=目印の時刻")
-    if not np.array_equal(ms._ms_ev_seq[g].astype(np.int64), -1 - g):
-        bad.append("目印の seq(仮の出来事の番地)")
-    if not (ms._ms_origin[g] == 1).all():
-        bad.append("出どころ(legacy でない行)")
+    # 〔第 2 期 2-3〕腕のランで記録があれば目印は記録の出来事(出どころ None=0・seq=記録の seq=行 M0L)・無ければ仮の行
+    log = ms._ms_origin[g] == 0
+    want = np.where(log, ms._ms_log_seq[g].astype(np.int64), -1 - g)
+    if not np.array_equal(ms._ms_ev_seq[g].astype(np.int64), want):
+        bad.append("目印の seq(仮の出来事の番地・記録の seq)")
+    if (not np.isin(ms._ms_origin[g], (0, 1)).all() or (ms._ms_log_seq[g][log] < 0).any()
+            or (ms._ms_log_seq[g][~log] != -1).any()):
+        bad.append("出どころ(legacy か記録の出来事)")
     notes = {(int(k) // N, int(k) % N): v for k, v in ms._ms_note.items()}
     if notes != dict(layer.gist):
         bad.append("注釈と要旨")

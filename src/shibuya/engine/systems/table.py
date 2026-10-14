@@ -37,6 +37,11 @@ decide(届ける=描画の ``perceive`` の ``take_heard``・話す=会話の番
 再生日(L0=``O56:runner.environment.*``)。営業時間の表(``runner.opening.open_matrix``)と暦の祝日の表は台帳の外(キャッシュと
 組み立ての物)。
 
+〔第 2 期 2-3〕体の出来事の口(腕 ``--memory-store events`` と出来事の記録のあるランだけ・``engine.events.body``)を書く系:
+memory(その刻みの記憶の出来事)・conversation(会話の終わり)は ``E:events.*`` を足した(decide と llm_receive=会話の番は宣言済み)。
+記憶の器の記録の目印の seq(状態台帳の腕の行 ``M0L``)は ``M0*:mem_layer.memory_store.*`` に入る。apply_responses は意図に呼の id を
+付けるかを見る(``layers.mem_layer`` を読む)・conversation は口を ``layers.mem_layer`` から引く。
+
 〔親の決め〕世界過程が持ち主をまたいで書く所(鉄道と大きな催しが計画実行層の O36・O37・O70 と鉄道の O74 を書く)は
 1-0 では宣言で認める(``world`` の ``writes.paths``)。
 
@@ -154,7 +159,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "runstats.n_undefined_total runstats.phase runstats.talk_stats "
                "scratch.applied_activity scratch.applied_now scratch.llm_intents scratch.n_undefined "
                "soa.agents soa.world "
-               "layers.proximity",  # 第 2 期 2-2: 腕 distance の判定の規則(返事待ち・会話の相手)
+               "layers.proximity "  # 第 2 期 2-2: 腕 distance の判定の規則(返事待ち・会話の相手)
+               "layers.mem_layer",  # 第 2 期 2-3: 体の出来事の口のあるランか(意図に呼の id を付ける)
          origin=f"L6・run.py:3671-3785 @{_E}"),
     make("detect", "知覚", "tick", _PC.sys_detect,
          resolve_ops="apply_detection",
@@ -278,11 +284,13 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          origin=f"L17・run.py:4166-4222 @{_E}"),
     make("conversation", "会話", "tick", _TK.sys_conversation,
          resolve_ops="revert_conversation join_conversation set_conversing talk_within_reach",
-         paths="O39:conv.* O40:conv.* O41:conv.* O91:conv.* O19:rel_layer.*",
+         paths="O39:conv.* O40:conv.* O41:conv.* O91:conv.* O19:rel_layer.* "
+               "E:events.*",  # 第 2 期 2-3: 会話の終わりの出来事(体の出来事の口・腕のランだけ)
          scratch_r="plan applied_now outcome", tally="leave_closed",
          when="conv", reads="cfg.attention_on cfg.leave_effect layers.conv layers.rel_layer runstats.leave_closed "
                "scratch.applied_now scratch.outcome scratch.plan soa.agents "
-               "layers.proximity",  # 第 2 期 2-2: 腕 distance の判定の規則(招待・3 人会話・離脱)
+               "layers.proximity "  # 第 2 期 2-2: 腕 distance の判定の規則(招待・3 人会話・離脱)
+               "layers.mem_layer",  # 第 2 期 2-3: 体の出来事の口(記憶の器が持つ)
          origin=f"L18・run.py:4229-4356 @{_E}"),
     make("activity_intent", "体", "tick", _BD.sys_activity_intent,
          resolve_ops="set_activity set_activity_until clear_intent fail_intent relabel_intent_failure set_intent",
@@ -294,6 +302,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          paths="O[89]:mem_layer.* O1[0-2]:mem_layer.* O1[6-9]:rel_layer.* O64:renderer.* O1[34]:poi_resolver.* "
                "O68:poi_resolver.* O15:wom.* "
                "M0*:mem_layer.memory_store.* "  # 1-6: 記憶の器(この刻みの出来事を器にも覚えさせる・計数と新しい行の録画の印)
+               "E:events.* "  # 第 2 期 2-3: 体の出来事の口(この刻みの記憶の出来事を記録へ・腕のランだけ)
                "CT5:rel_layer._contact_flags",  # 1-7: 新しい相手の欄の連絡先の印を消す(関係辺の書き手と同じ所)
          scratch_r="plan outcome", scratch_w="exposures", reads="layers.conv layers.fam_layer layers.mem_layer layers.renderer layers.runner "
                "scratch.exposures scratch.outcome scratch.plan soa.agents",

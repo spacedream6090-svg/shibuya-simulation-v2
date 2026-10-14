@@ -78,6 +78,8 @@ def _hx(b: bytes) -> str:
 
 def _arr_digest(arr: Any) -> str:
     a = np.ascontiguousarray(np.asarray(arr))
+    if a.dtype == object:  # 〔第 2 期 2-3〕物の配列(意図の行の呼の id の列 IntentBatch.call_id)は要素の repr で
+        return _hx(repr(a.tolist()).encode("utf-8")) + f"{a.dtype.str}{a.shape}"
     return _hx(a.view(np.uint8).reshape(-1).tobytes() if a.size else b"") + f"{a.dtype.str}{a.shape}"
 
 

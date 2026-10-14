@@ -1,0 +1,1583 @@
+{
+ "schema": "shibuya.md23/multiday/1",
+ "config": "d",
+ "arms": {
+  "memory_store": "events",
+  "proximity": "distance",
+  "economy_stage2": "on"
+ },
+ "base": {
+  "vocab_version": "v3",
+  "memory": "on",
+  "relations": "on"
+ },
+ "agents": 5000,
+ "seed": 1,
+ "days": 7,
+ "world": "data/world/v2",
+ "final": "0a5df0df20deabc4",
+ "calls": 523646,
+ "money_start": 113062205,
+ "memory_store": {
+  "arm": "events",
+  "n_rows": 128,
+  "row_bytes": 32,
+  "legacy_row_bytes": 14,
+  "rows": 238781,
+  "agents_with_rows": 4822,
+  "origins": {
+   "log": 238781,
+   "legacy": 0
+  },
+  "annotations": 2522,
+  "shown_rows_live": 197162,
+  "tape_pending": 0,
+  "counts": {
+   "evictions": 12,
+   "log_events": 489069,
+   "merged": 250276,
+   "new_rows": 238793,
+   "recall_calls": 518807,
+   "remember": 489069,
+   "shown_calls": 523646,
+   "shown_rows": 988217
+  },
+  "targets_log_live": 238781,
+  "targets_log_gone": 0
+ },
+ "start_check_waived": [
+  "複数日が連続する平日に収まらない(5 日目=2026-07-18)"
+ ],
+ "test_only": true,
+ "daily": [
+  {
+   "day": 0,
+   "llm_calls": 68337,
+   "money": {
+    "households": 109437085,
+    "money_supply": 1161223753
+   },
+   "events": {
+    "on": true,
+    "rows": 127133,
+    "bytes": 9153576,
+    "by_what": {
+     "行為:移動": 9121,
+     "行為:乗車": 8866,
+     "行為:購入": 5912,
+     "行為:食事": 5788,
+     "行為:会話": 3591,
+     "行為:通報": 5549,
+     "行為:手伝い": 5657,
+     "行為:就寝": 5476,
+     "行為:並ぶ": 5851,
+     "過程:rail": 3904,
+     "過程:opening": 6546,
+     "過程:delivery_inbound": 2337,
+     "過程:shelf": 52,
+     "過程:waste": 234,
+     "過程:last_mile": 2758,
+     "過程:bus_taxi": 12954,
+     "過程:road_works": 12,
+     "過程:hotel": 4,
+     "過程:press": 3,
+     "過程:large_event": 6,
+     "過程:dispatch": 10,
+     "過程:day_close": 1,
+     "過程:checkpoint": 4,
+     "金:消費支出": 9545,
+     "金:域外仕入": 46,
+     "金:税": 9545,
+     "金:持ち出し": 3257,
+     "道具:看板": 15501,
+     "金:引き出し": 267,
+     "金:カード": 3234,
+     "行為:会話の始まり": 382,
+     "行為:会話の終わり": 384,
+     "知覚:気づき": 336
+    },
+    "by_cause": {
+     "llm_call": 53448,
+     "process": 73685
+    },
+    "live_rows": 127133,
+    "live_bytes": 9153576,
+    "evicted": 0
+   },
+   "stage2": {
+    "day": 0,
+    "payday": false,
+    "endow": {
+     "deposit_rows": 3958,
+     "deposit_amount": 736710000,
+     "visitor_rows": 1042,
+     "visitor_amount": 26486025
+    },
+    "wages": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0
+    },
+    "withdraw": {
+     "asked": 11773,
+     "count": 267,
+     "amount": 3825000,
+     "wallet_ok": 11433,
+     "no_deposit": 73
+    },
+    "payment": {
+     "cash_rows": 9544,
+     "cash_amount": 7445800,
+     "account_rows": 1,
+     "account_amount": 800,
+     "short": 0,
+     "fare_ic_rows": 3233,
+     "fare_ic_amount": 581940,
+     "fare_cash_rows": 24,
+     "fare_cash_amount": 4320
+    },
+    "tax": {
+     "rows": 9545,
+     "amount": 671367
+    },
+    "external_sales": {
+     "rows": 0,
+     "amount": 0
+    },
+    "calls": {
+     "noted": 15209,
+     "pay_answers": 0,
+     "purchase_caused": 9545,
+     "purchase_uncaused": 0,
+     "pay_answer_rows": 0,
+     "withdraw_caused": 254,
+     "withdraw_chosen": 0
+    },
+    "wallet": {
+     "p10": 7679,
+     "p50": 18350,
+     "p90": 40391
+    },
+    "deposit": {
+     "p10": 20693,
+     "p50": 170820,
+     "p90": 171000
+    },
+    "wallet_mean": 21887.417,
+    "deposit_mean": 151757.657,
+    "wallet_zero": 0
+   }
+  },
+  {
+   "day": 1,
+   "llm_calls": 77988,
+   "money": {
+    "households": 107334105,
+    "money_supply": 1159797986
+   },
+   "events": {
+    "on": true,
+    "rows": 122299,
+    "bytes": 8805528,
+    "by_what": {
+     "行為:移動": 10734,
+     "行為:乗車": 9772,
+     "行為:購入": 6820,
+     "行為:食事": 6507,
+     "行為:会話": 4196,
+     "行為:通報": 6531,
+     "行為:手伝い": 6567,
+     "行為:就寝": 6304,
+     "行為:並ぶ": 6576,
+     "過程:rail": 3911,
+     "過程:opening": 4264,
+     "過程:delivery_inbound": 2337,
+     "過程:shelf": 174,
+     "過程:waste": 233,
+     "過程:last_mile": 2758,
+     "過程:bus_taxi": 12954,
+     "過程:road_works": 6,
+     "過程:hotel": 3,
+     "過程:press": 3,
+     "過程:large_event": 6,
+     "過程:day_close": 1,
+     "過程:checkpoint": 4,
+     "金:消費支出": 6924,
+     "金:域外仕入": 153,
+     "金:税": 6924,
+     "金:持ち出し": 3666,
+     "道具:看板": 9267,
+     "金:引き出し": 207,
+     "金:カード": 3659,
+     "行為:会話の始まり": 418,
+     "行為:会話の終わり": 420
+    },
+    "by_cause": {
+     "llm_call": 57200,
+     "process": 65099
+    },
+    "live_rows": 249432,
+    "live_bytes": 17959104,
+    "evicted": 0
+   },
+   "stage2": {
+    "day": 1,
+    "payday": false,
+    "endow": {
+     "deposit_rows": 0,
+     "deposit_amount": 0,
+     "visitor_rows": 0,
+     "visitor_amount": 0
+    },
+    "wages": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0
+    },
+    "withdraw": {
+     "asked": 11764,
+     "count": 207,
+     "amount": 3411000,
+     "wallet_ok": 11431,
+     "no_deposit": 126
+    },
+    "payment": {
+     "cash_rows": 6900,
+     "cash_amount": 5508400,
+     "account_rows": 24,
+     "account_amount": 19800,
+     "short": 0,
+     "fare_ic_rows": 3635,
+     "fare_ic_amount": 654300,
+     "fare_cash_rows": 31,
+     "fare_cash_amount": 5580
+    },
+    "tax": {
+     "rows": 6924,
+     "amount": 498583
+    },
+    "external_sales": {
+     "rows": 0,
+     "amount": 0
+    },
+    "calls": {
+     "noted": 12397,
+     "pay_answers": 0,
+     "purchase_caused": 6924,
+     "purchase_uncaused": 0,
+     "pay_answer_rows": 0,
+     "withdraw_caused": 191,
+     "withdraw_chosen": 0
+    },
+    "wallet": {
+     "p10": 7467,
+     "p50": 18327,
+     "p90": 39486
+    },
+    "deposit": {
+     "p10": 20585,
+     "p50": 170640,
+     "p90": 171000
+    },
+    "wallet_mean": 21466.821,
+    "deposit_mean": 150940.637,
+    "wallet_zero": 0
+   }
+  },
+  {
+   "day": 2,
+   "llm_calls": 77791,
+   "money": {
+    "households": 106529625,
+    "money_supply": 1158424913
+   },
+   "events": {
+    "on": true,
+    "rows": 116262,
+    "bytes": 8370864,
+    "by_what": {
+     "行為:移動": 10763,
+     "行為:乗車": 9832,
+     "行為:購入": 6514,
+     "行為:食事": 6437,
+     "行為:会話": 4119,
+     "行為:通報": 6436,
+     "行為:手伝い": 6517,
+     "行為:就寝": 6339,
+     "行為:並ぶ": 6702,
+     "過程:rail": 3911,
+     "過程:opening": 4257,
+     "過程:delivery_inbound": 2337,
+     "過程:shelf": 391,
+     "過程:waste": 232,
+     "過程:last_mile": 2758,
+     "過程:bus_taxi": 12954,
+     "過程:road_works": 6,
+     "過程:hotel": 4,
+     "過程:press": 3,
+     "過程:large_event": 6,
+     "過程:day_close": 1,
+     "過程:checkpoint": 4,
+     "金:消費支出": 4714,
+     "金:域外仕入": 232,
+     "金:税": 4714,
+     "金:持ち出し": 3727,
+     "道具:看板": 7771,
+     "金:引き出し": 171,
+     "金:カード": 3712,
+     "行為:会話の始まり": 348,
+     "行為:会話の終わり": 350
+    },
+    "by_cause": {
+     "llm_call": 54748,
+     "process": 61514
+    },
+    "live_rows": 365694,
+    "live_bytes": 26329968,
+    "evicted": 0
+   },
+   "stage2": {
+    "day": 2,
+    "payday": false,
+    "endow": {
+     "deposit_rows": 0,
+     "deposit_amount": 0,
+     "visitor_rows": 0,
+     "visitor_amount": 0
+    },
+    "wages": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0
+    },
+    "withdraw": {
+     "asked": 10890,
+     "count": 171,
+     "amount": 2895000,
+     "wallet_ok": 10613,
+     "no_deposit": 106
+    },
+    "payment": {
+     "cash_rows": 4673,
+     "cash_amount": 3689400,
+     "account_rows": 41,
+     "account_amount": 37200,
+     "short": 0,
+     "fare_ic_rows": 3671,
+     "fare_ic_amount": 660780,
+     "fare_cash_rows": 56,
+     "fare_cash_amount": 10080
+    },
+    "tax": {
+     "rows": 4714,
+     "amount": 336151
+    },
+    "external_sales": {
+     "rows": 0,
+     "amount": 0
+    },
+    "calls": {
+     "noted": 9843,
+     "pay_answers": 0,
+     "purchase_caused": 4714,
+     "purchase_uncaused": 0,
+     "pay_answer_rows": 0,
+     "withdraw_caused": 157,
+     "withdraw_chosen": 0
+    },
+    "wallet": {
+     "p10": 7465,
+     "p50": 18392,
+     "p90": 38844
+    },
+    "deposit": {
+     "p10": 20408,
+     "p50": 170460,
+     "p90": 171000
+    },
+    "wallet_mean": 21305.925,
+    "deposit_mean": 150222.041,
+    "wallet_zero": 0
+   }
+  },
+  {
+   "day": 3,
+   "llm_calls": 79037,
+   "money": {
+    "households": 106015365,
+    "money_supply": 1157150395
+   },
+   "events": {
+    "on": true,
+    "rows": 115849,
+    "bytes": 8341128,
+    "by_what": {
+     "行為:移動": 11074,
+     "行為:乗車": 10059,
+     "行為:購入": 6731,
+     "行為:食事": 6472,
+     "行為:会話": 4195,
+     "行為:通報": 6413,
+     "行為:手伝い": 6630,
+     "行為:就寝": 6279,
+     "行為:並ぶ": 6670,
+     "過程:rail": 3911,
+     "過程:opening": 4268,
+     "過程:delivery_inbound": 2337,
+     "過程:shelf": 350,
+     "過程:waste": 221,
+     "過程:last_mile": 2758,
+     "過程:bus_taxi": 12954,
+     "過程:road_works": 6,
+     "過程:hotel": 2,
+     "過程:press": 3,
+     "過程:large_event": 6,
+     "過程:dispatch": 4,
+     "過程:day_close": 1,
+     "過程:checkpoint": 4,
+     "金:消費支出": 4266,
+     "金:域外仕入": 179,
+     "金:税": 4266,
+     "金:持ち出し": 3832,
+     "道具:看板": 7098,
+     "金:引き出し": 160,
+     "金:カード": 3776,
+     "行為:会話の始まり": 404,
+     "行為:会話の終わり": 404,
+     "知覚:気づき": 116
+    },
+    "by_cause": {
+     "llm_call": 54747,
+     "process": 61102
+    },
+    "live_rows": 481543,
+    "live_bytes": 34671096,
+    "evicted": 0
+   },
+   "stage2": {
+    "day": 3,
+    "payday": false,
+    "endow": {
+     "deposit_rows": 0,
+     "deposit_amount": 0,
+     "visitor_rows": 0,
+     "visitor_amount": 0
+    },
+    "wages": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0
+    },
+    "withdraw": {
+     "asked": 10863,
+     "count": 160,
+     "amount": 2831000,
+     "wallet_ok": 10547,
+     "no_deposit": 156
+    },
+    "payment": {
+     "cash_rows": 4245,
+     "cash_amount": 3331400,
+     "account_rows": 21,
+     "account_amount": 16500,
+     "short": 0,
+     "fare_ic_rows": 3755,
+     "fare_ic_amount": 675900,
+     "fare_cash_rows": 77,
+     "fare_cash_amount": 13860
+    },
+    "tax": {
+     "rows": 4266,
+     "amount": 301964
+    },
+    "external_sales": {
+     "rows": 0,
+     "amount": 0
+    },
+    "calls": {
+     "noted": 9434,
+     "pay_answers": 0,
+     "purchase_caused": 4266,
+     "purchase_uncaused": 0,
+     "pay_answer_rows": 0,
+     "withdraw_caused": 145,
+     "withdraw_chosen": 0
+    },
+    "wallet": {
+     "p10": 7442,
+     "p50": 18326,
+     "p90": 38634
+    },
+    "deposit": {
+     "p10": 20375,
+     "p50": 170280,
+     "p90": 171000
+    },
+    "wallet_mean": 21203.073,
+    "deposit_mean": 149517.361,
+    "wallet_zero": 0
+   }
+  },
+  {
+   "day": 4,
+   "llm_calls": 70196,
+   "money": {
+    "households": 105335885,
+    "money_supply": 1155923366
+   },
+   "events": {
+    "on": true,
+    "rows": 105221,
+    "bytes": 7575912,
+    "by_what": {
+     "行為:移動": 9973,
+     "行為:乗車": 8803,
+     "行為:購入": 5938,
+     "行為:食事": 5997,
+     "行為:会話": 3817,
+     "行為:通報": 5878,
+     "行為:手伝い": 5867,
+     "行為:就寝": 5696,
+     "行為:並ぶ": 5806,
+     "過程:rail": 3911,
+     "過程:opening": 4273,
+     "過程:delivery_inbound": 2337,
+     "過程:shelf": 472,
+     "過程:waste": 220,
+     "過程:last_mile": 2758,
+     "過程:bus_taxi": 12954,
+     "過程:road_works": 6,
+     "過程:hotel": 4,
+     "過程:press": 3,
+     "過程:large_event": 6,
+     "過程:day_close": 1,
+     "過程:checkpoint": 4,
+     "金:消費支出": 3684,
+     "金:域外仕入": 191,
+     "金:税": 3684,
+     "金:持ち出し": 3289,
+     "道具:看板": 5563,
+     "金:引き出し": 130,
+     "金:カード": 3202,
+     "行為:会話の始まり": 376,
+     "行為:会話の終わり": 378
+    },
+    "by_cause": {
+     "llm_call": 48919,
+     "process": 56302
+    },
+    "live_rows": 586764,
+    "live_bytes": 42247008,
+    "evicted": 0
+   },
+   "stage2": {
+    "day": 4,
+    "payday": false,
+    "endow": {
+     "deposit_rows": 0,
+     "deposit_amount": 0,
+     "visitor_rows": 0,
+     "visitor_amount": 0
+    },
+    "wages": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0
+    },
+    "withdraw": {
+     "asked": 10050,
+     "count": 130,
+     "amount": 2236000,
+     "wallet_ok": 9752,
+     "no_deposit": 168
+    },
+    "payment": {
+     "cash_rows": 3650,
+     "cash_amount": 2893700,
+     "account_rows": 34,
+     "account_amount": 33500,
+     "short": 0,
+     "fare_ic_rows": 3168,
+     "fare_ic_amount": 570240,
+     "fare_cash_rows": 121,
+     "fare_cash_amount": 21780
+    },
+    "tax": {
+     "rows": 3684,
+     "amount": 264083
+    },
+    "external_sales": {
+     "rows": 0,
+     "amount": 0
+    },
+    "calls": {
+     "noted": 8295,
+     "pay_answers": 0,
+     "purchase_caused": 3684,
+     "purchase_uncaused": 0,
+     "pay_answer_rows": 0,
+     "withdraw_caused": 118,
+     "withdraw_chosen": 0
+    },
+    "wallet": {
+     "p10": 7454,
+     "p50": 18231,
+     "p90": 38193
+    },
+    "deposit": {
+     "p10": 20151,
+     "p50": 170100,
+     "p90": 171000
+    },
+    "wallet_mean": 21067.177,
+    "deposit_mean": 148949.413,
+    "wallet_zero": 0
+   }
+  },
+  {
+   "day": 5,
+   "llm_calls": 71357,
+   "money": {
+    "households": 104510965,
+    "money_supply": 1154728807
+   },
+   "events": {
+    "on": true,
+    "rows": 106651,
+    "bytes": 7678872,
+    "by_what": {
+     "行為:移動": 9990,
+     "行為:乗車": 9028,
+     "行為:購入": 6071,
+     "行為:食事": 6049,
+     "行為:会話": 3784,
+     "行為:通報": 5995,
+     "行為:手伝い": 5913,
+     "行為:就寝": 5936,
+     "行為:並ぶ": 6055,
+     "過程:rail": 5108,
+     "過程:opening": 3661,
+     "過程:delivery_inbound": 2337,
+     "過程:shelf": 301,
+     "過程:waste": 217,
+     "過程:last_mile": 2758,
+     "過程:bus_taxi": 12954,
+     "過程:road_works": 6,
+     "過程:hotel": 2,
+     "過程:press": 3,
+     "過程:large_event": 6,
+     "過程:dispatch": 8,
+     "過程:day_close": 1,
+     "過程:checkpoint": 4,
+     "金:消費支出": 3646,
+     "金:域外仕入": 203,
+     "金:税": 3646,
+     "金:持ち出し": 3424,
+     "道具:看板": 5353,
+     "金:引き出し": 102,
+     "金:カード": 3339,
+     "行為:会話の始まり": 368,
+     "行為:会話の終わり": 368,
+     "知覚:気づき": 15
+    },
+    "by_cause": {
+     "llm_call": 49763,
+     "process": 56888
+    },
+    "live_rows": 693415,
+    "live_bytes": 49925880,
+    "evicted": 0
+   },
+   "stage2": {
+    "day": 5,
+    "payday": false,
+    "endow": {
+     "deposit_rows": 0,
+     "deposit_amount": 0,
+     "visitor_rows": 0,
+     "visitor_amount": 0
+    },
+    "wages": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0
+    },
+    "withdraw": {
+     "asked": 7356,
+     "count": 102,
+     "amount": 1872000,
+     "wallet_ok": 7086,
+     "no_deposit": 168
+    },
+    "payment": {
+     "cash_rows": 3612,
+     "cash_amount": 2675500,
+     "account_rows": 34,
+     "account_amount": 31100,
+     "short": 0,
+     "fare_ic_rows": 3305,
+     "fare_ic_amount": 594900,
+     "fare_cash_rows": 119,
+     "fare_cash_amount": 21420
+    },
+    "tax": {
+     "rows": 3646,
+     "amount": 243988
+    },
+    "external_sales": {
+     "rows": 0,
+     "amount": 0
+    },
+    "calls": {
+     "noted": 8404,
+     "pay_answers": 0,
+     "purchase_caused": 3646,
+     "purchase_uncaused": 0,
+     "pay_answer_rows": 0,
+     "withdraw_caused": 88,
+     "withdraw_chosen": 0
+    },
+    "wallet": {
+     "p10": 7366,
+     "p50": 18096,
+     "p90": 37996
+    },
+    "deposit": {
+     "p10": 20013,
+     "p50": 169920,
+     "p90": 171000
+    },
+    "wallet_mean": 20902.193,
+    "deposit_mean": 148449.813,
+    "wallet_zero": 0
+   }
+  },
+  {
+   "day": 6,
+   "llm_calls": 78940,
+   "money": {
+    "households": 103624345,
+    "money_supply": 1153495457
+   },
+   "events": {
+    "on": true,
+    "rows": 114608,
+    "bytes": 8251776,
+    "by_what": {
+     "行為:移動": 10745,
+     "行為:乗車": 10155,
+     "行為:購入": 6745,
+     "行為:食事": 6571,
+     "行為:会話": 4193,
+     "行為:通報": 6614,
+     "行為:手伝い": 6626,
+     "行為:就寝": 6482,
+     "行為:並ぶ": 6662,
+     "過程:rail": 5105,
+     "過程:opening": 3600,
+     "過程:delivery_inbound": 2337,
+     "過程:shelf": 345,
+     "過程:waste": 220,
+     "過程:last_mile": 2758,
+     "過程:bus_taxi": 12954,
+     "過程:road_works": 6,
+     "過程:hotel": 2,
+     "過程:press": 3,
+     "過程:large_event": 6,
+     "過程:dispatch": 4,
+     "過程:day_close": 1,
+     "過程:checkpoint": 4,
+     "金:消費支出": 3933,
+     "金:域外仕入": 168,
+     "金:税": 3933,
+     "金:持ち出し": 3840,
+     "道具:看板": 5496,
+     "金:引き出し": 108,
+     "金:カード": 3736,
+     "行為:会話の始まり": 388,
+     "行為:会話の終わり": 388,
+     "知覚:気づき": 480
+    },
+    "by_cause": {
+     "llm_call": 54880,
+     "process": 59728
+    },
+    "live_rows": 808023,
+    "live_bytes": 58177656,
+    "evicted": 0
+   },
+   "stage2": {
+    "day": 6,
+    "payday": false,
+    "endow": {
+     "deposit_rows": 0,
+     "deposit_amount": 0,
+     "visitor_rows": 0,
+     "visitor_amount": 0
+    },
+    "wages": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0
+    },
+    "withdraw": {
+     "asked": 7992,
+     "count": 108,
+     "amount": 1964000,
+     "wallet_ok": 7746,
+     "no_deposit": 138
+    },
+    "payment": {
+     "cash_rows": 3893,
+     "cash_amount": 2824700,
+     "account_rows": 40,
+     "account_amount": 34500,
+     "short": 0,
+     "fare_ic_rows": 3696,
+     "fare_ic_amount": 665280,
+     "fare_cash_rows": 144,
+     "fare_cash_amount": 25920
+    },
+    "tax": {
+     "rows": 3933,
+     "amount": 257687
+    },
+    "external_sales": {
+     "rows": 0,
+     "amount": 0
+    },
+    "calls": {
+     "noted": 9112,
+     "pay_answers": 0,
+     "purchase_caused": 3933,
+     "purchase_uncaused": 0,
+     "pay_answer_rows": 0,
+     "withdraw_caused": 100,
+     "withdraw_chosen": 0
+    },
+    "wallet": {
+     "p10": 7372,
+     "p50": 17906,
+     "p90": 37365
+    },
+    "deposit": {
+     "p10": 19806,
+     "p50": 169740,
+     "p90": 171000
+    },
+    "wallet_mean": 20724.869,
+    "deposit_mean": 147917.057,
+    "wallet_zero": 0
+   }
+  }
+ ],
+ "probe": [
+  {
+   "day": 0,
+   "wall_s_nondeterministic": 53.8,
+   "conv": {
+    "opened": 192,
+    "closed": 192,
+    "joined": 0
+   },
+   "relations": {
+    "k": 15,
+    "tau_rel": -2.322,
+    "edges_filled": 9213,
+    "edges_live": 8952,
+    "edges_per_agent": 1.843,
+    "full_rate": 0.0142,
+    "full_live_rate": 0.0124,
+    "acquaintance_edges": 357,
+    "by_kind": {
+     "household": 2,
+     "work": 5729,
+     "school": 3125,
+     "regular": 0,
+     "acquaintance": 357
+    },
+    "tau_recalibrated": null,
+    "share_with_k_edges": 0.0142
+   },
+   "memory": {
+    "rows": 55327,
+    "rows_per_agent": {
+     "p10": 4.0,
+     "p50": 11.0,
+     "p90": 18.0,
+     "mean": 11.1
+    },
+    "full_agents": 0,
+    "evictions": 0,
+    "store": {
+     "rows": 55327,
+     "origins": {
+      "log": 55327,
+      "legacy": 0
+     },
+     "targets_log_live": 55327,
+     "targets_log_gone": 0
+    }
+   },
+   "money": {
+    "cash_total": 109437085,
+    "cash_per_agent": {
+     "p10": 7678.6,
+     "p50": 18349.5,
+     "p90": 40390.9,
+     "mean": 21887.4
+    },
+    "cash_zero": 0
+   }
+  },
+  {
+   "day": 1,
+   "wall_s_nondeterministic": 59.6,
+   "conv": {
+    "opened": 402,
+    "closed": 402,
+    "joined": 0
+   },
+   "relations": {
+    "k": 15,
+    "tau_rel": -2.322,
+    "edges_filled": 9584,
+    "edges_live": 8882,
+    "edges_per_agent": 1.917,
+    "full_rate": 0.0148,
+    "full_live_rate": 0.0102,
+    "acquaintance_edges": 732,
+    "by_kind": {
+     "household": 2,
+     "work": 5728,
+     "school": 3122,
+     "regular": 0,
+     "acquaintance": 732
+    },
+    "tau_recalibrated": null,
+    "share_with_k_edges": 0.0148
+   },
+   "memory": {
+    "rows": 98260,
+    "rows_per_agent": {
+     "p10": 8.0,
+     "p50": 20.0,
+     "p90": 31.0,
+     "mean": 19.7
+    },
+    "full_agents": 0,
+    "evictions": 0,
+    "store": {
+     "rows": 98260,
+     "origins": {
+      "log": 98260,
+      "legacy": 0
+     },
+     "targets_log_live": 98260,
+     "targets_log_gone": 0
+    }
+   },
+   "money": {
+    "cash_total": 107334105,
+    "cash_per_agent": {
+     "p10": 7467.4,
+     "p50": 18327.0,
+     "p90": 39486.3,
+     "mean": 21466.8
+    },
+    "cash_zero": 0
+   }
+  },
+  {
+   "day": 2,
+   "wall_s_nondeterministic": 59.4,
+   "conv": {
+    "opened": 577,
+    "closed": 577,
+    "joined": 0
+   },
+   "relations": {
+    "k": 15,
+    "tau_rel": -2.322,
+    "edges_filled": 9888,
+    "edges_live": 8747,
+    "edges_per_agent": 1.978,
+    "full_rate": 0.0148,
+    "full_live_rate": 0.0086,
+    "acquaintance_edges": 1040,
+    "by_kind": {
+     "household": 2,
+     "work": 5725,
+     "school": 3121,
+     "regular": 0,
+     "acquaintance": 1040
+    },
+    "tau_recalibrated": null,
+    "share_with_k_edges": 0.0148
+   },
+   "memory": {
+    "rows": 133465,
+    "rows_per_agent": {
+     "p10": 12.0,
+     "p50": 27.0,
+     "p90": 41.0,
+     "mean": 26.7
+    },
+    "full_agents": 0,
+    "evictions": 0,
+    "store": {
+     "rows": 133465,
+     "origins": {
+      "log": 133465,
+      "legacy": 0
+     },
+     "targets_log_live": 133465,
+     "targets_log_gone": 0
+    }
+   },
+   "money": {
+    "cash_total": 106529625,
+    "cash_per_agent": {
+     "p10": 7464.7,
+     "p50": 18392.0,
+     "p90": 38843.7,
+     "mean": 21305.9
+    },
+    "cash_zero": 0
+   }
+  },
+  {
+   "day": 3,
+   "wall_s_nondeterministic": 61.3,
+   "conv": {
+    "opened": 779,
+    "closed": 779,
+    "joined": 0
+   },
+   "relations": {
+    "k": 15,
+    "tau_rel": -2.322,
+    "edges_filled": 10239,
+    "edges_live": 8746,
+    "edges_per_agent": 2.048,
+    "full_rate": 0.015,
+    "full_live_rate": 0.0078,
+    "acquaintance_edges": 1397,
+    "by_kind": {
+     "household": 2,
+     "work": 5723,
+     "school": 3117,
+     "regular": 0,
+     "acquaintance": 1397
+    },
+    "tau_recalibrated": null,
+    "share_with_k_edges": 0.015
+   },
+   "memory": {
+    "rows": 165187,
+    "rows_per_agent": {
+     "p10": 15.0,
+     "p50": 33.0,
+     "p90": 51.0,
+     "mean": 33.0
+    },
+    "full_agents": 0,
+    "evictions": 0,
+    "store": {
+     "rows": 165187,
+     "origins": {
+      "log": 165187,
+      "legacy": 0
+     },
+     "targets_log_live": 165187,
+     "targets_log_gone": 0
+    }
+   },
+   "money": {
+    "cash_total": 106015365,
+    "cash_per_agent": {
+     "p10": 7442.2,
+     "p50": 18326.5,
+     "p90": 38633.7,
+     "mean": 21203.1
+    },
+    "cash_zero": 0
+   }
+  },
+  {
+   "day": 4,
+   "wall_s_nondeterministic": 52.7,
+   "conv": {
+    "opened": 968,
+    "closed": 968,
+    "joined": 0
+   },
+   "relations": {
+    "k": 15,
+    "tau_rel": -2.322,
+    "edges_filled": 10569,
+    "edges_live": 8641,
+    "edges_per_agent": 2.114,
+    "full_rate": 0.0152,
+    "full_live_rate": 0.0054,
+    "acquaintance_edges": 1731,
+    "by_kind": {
+     "household": 2,
+     "work": 5723,
+     "school": 3113,
+     "regular": 0,
+     "acquaintance": 1731
+    },
+    "tau_recalibrated": null,
+    "share_with_k_edges": 0.0152
+   },
+   "memory": {
+    "rows": 190099,
+    "rows_per_agent": {
+     "p10": 18.0,
+     "p50": 38.0,
+     "p90": 59.0,
+     "mean": 38.0
+    },
+    "full_agents": 0,
+    "evictions": 0,
+    "store": {
+     "rows": 190099,
+     "origins": {
+      "log": 190099,
+      "legacy": 0
+     },
+     "targets_log_live": 190099,
+     "targets_log_gone": 0
+    }
+   },
+   "money": {
+    "cash_total": 105335885,
+    "cash_per_agent": {
+     "p10": 7454.4,
+     "p50": 18231.0,
+     "p90": 38193.2,
+     "mean": 21067.2
+    },
+    "cash_zero": 0
+   }
+  },
+  {
+   "day": 5,
+   "wall_s_nondeterministic": 52.2,
+   "conv": {
+    "opened": 1152,
+    "closed": 1152,
+    "joined": 0
+   },
+   "relations": {
+    "k": 15,
+    "tau_rel": -2.322,
+    "edges_filled": 10891,
+    "edges_live": 8645,
+    "edges_per_agent": 2.178,
+    "full_rate": 0.0162,
+    "full_live_rate": 0.0048,
+    "acquaintance_edges": 2056,
+    "by_kind": {
+     "household": 2,
+     "work": 5723,
+     "school": 3110,
+     "regular": 0,
+     "acquaintance": 2056
+    },
+    "tau_recalibrated": null,
+    "share_with_k_edges": 0.0162
+   },
+   "memory": {
+    "rows": 213817,
+    "rows_per_agent": {
+     "p10": 20.0,
+     "p50": 43.0,
+     "p90": 65.0,
+     "mean": 42.8
+    },
+    "full_agents": 0,
+    "evictions": 0,
+    "store": {
+     "rows": 213817,
+     "origins": {
+      "log": 213817,
+      "legacy": 0
+     },
+     "targets_log_live": 213817,
+     "targets_log_gone": 0
+    }
+   },
+   "money": {
+    "cash_total": 104510965,
+    "cash_per_agent": {
+     "p10": 7365.5,
+     "p50": 18095.5,
+     "p90": 37996.0,
+     "mean": 20902.2
+    },
+    "cash_zero": 0
+   }
+  },
+  {
+   "day": 6,
+   "wall_s_nondeterministic": 55.7,
+   "conv": {
+    "opened": 1346,
+    "closed": 1346,
+    "joined": 0
+   },
+   "relations": {
+    "k": 15,
+    "tau_rel": -2.322,
+    "edges_filled": 11258,
+    "edges_live": 8601,
+    "edges_per_agent": 2.252,
+    "full_rate": 0.0166,
+    "full_live_rate": 0.0048,
+    "acquaintance_edges": 2426,
+    "by_kind": {
+     "household": 2,
+     "work": 5723,
+     "school": 3107,
+     "regular": 0,
+     "acquaintance": 2426
+    },
+    "tau_recalibrated": null,
+    "share_with_k_edges": 0.0166
+   },
+   "memory": {
+    "rows": 238781,
+    "rows_per_agent": {
+     "p10": 23.0,
+     "p50": 48.0,
+     "p90": 73.0,
+     "mean": 47.8
+    },
+    "full_agents": 1,
+    "evictions": 12,
+    "store": {
+     "rows": 238781,
+     "origins": {
+      "log": 238781,
+      "legacy": 0
+     },
+     "targets_log_live": 238781,
+     "targets_log_gone": 0
+    }
+   },
+   "money": {
+    "cash_total": 103624345,
+    "cash_per_agent": {
+     "p10": 7371.9,
+     "p50": 17906.0,
+     "p90": 37364.8,
+     "mean": 20724.9
+    },
+    "cash_zero": 0
+   }
+  }
+ ],
+ "gauge": [
+  {
+   "day": 0,
+   "presence_peak": {
+    "stage": 10,
+    "total5": 10
+   },
+   "presence_level": {
+    "stage": 3761704.9,
+    "total5": 2937573.0
+   },
+   "presence_peak_value": {
+    "stage": 277116.3,
+    "total5": 224999.5
+   },
+   "arrivals_n": 7993,
+   "arrivals_weighted": 611016.7,
+   "arrivals_peak_hour": 9
+  },
+  {
+   "day": 1,
+   "presence_peak": {
+    "stage": 10,
+    "total5": 11
+   },
+   "presence_level": {
+    "stage": 3866497.2,
+    "total5": 3160473.2
+   },
+   "presence_peak_value": {
+    "stage": 276527.9,
+    "total5": 229960.3
+   },
+   "arrivals_n": 7871,
+   "arrivals_weighted": 594560.0,
+   "arrivals_peak_hour": 9
+  },
+  {
+   "day": 2,
+   "presence_peak": {
+    "stage": 10,
+    "total5": 10
+   },
+   "presence_level": {
+    "stage": 3828418.8,
+    "total5": 3077906.1
+   },
+   "presence_peak_value": {
+    "stage": 274707.1,
+    "total5": 226211.1
+   },
+   "arrivals_n": 7929,
+   "arrivals_weighted": 600283.3,
+   "arrivals_peak_hour": 9
+  },
+  {
+   "day": 3,
+   "presence_peak": {
+    "stage": 10,
+    "total5": 10
+   },
+   "presence_level": {
+    "stage": 3807217.2,
+    "total5": 3103994.6
+   },
+   "presence_peak_value": {
+    "stage": 274086.4,
+    "total5": 225339.6
+   },
+   "arrivals_n": 8029,
+   "arrivals_weighted": 608047.1,
+   "arrivals_peak_hour": 9
+  },
+  {
+   "day": 4,
+   "presence_peak": {
+    "stage": 10,
+    "total5": 10
+   },
+   "presence_level": {
+    "stage": 3797632.7,
+    "total5": 3061281.0
+   },
+   "presence_peak_value": {
+    "stage": 272399.1,
+    "total5": 223184.9
+   },
+   "arrivals_n": 7572,
+   "arrivals_weighted": 574758.0,
+   "arrivals_peak_hour": 9
+  },
+  {
+   "day": 5,
+   "presence_peak": {
+    "stage": 10,
+    "total5": 10
+   },
+   "presence_level": {
+    "stage": 3776239.8,
+    "total5": 3061415.3
+   },
+   "presence_peak_value": {
+    "stage": 271250.6,
+    "total5": 224392.1
+   },
+   "arrivals_n": 7720,
+   "arrivals_weighted": 582942.3,
+   "arrivals_peak_hour": 9
+  },
+  {
+   "day": 6,
+   "presence_peak": {
+    "stage": 10,
+    "total5": 11
+   },
+   "presence_level": {
+    "stage": 3766618.9,
+    "total5": 3096442.1
+   },
+   "presence_peak_value": {
+    "stage": 270651.8,
+    "total5": 227943.4
+   },
+   "arrivals_n": 8055,
+   "arrivals_weighted": 609674.1,
+   "arrivals_peak_hour": 9
+  }
+ ],
+ "weather": [
+  {
+   "day": 0,
+   "calendar_date": "2026-07-13",
+   "replay_date": "2026-07-13",
+   "how": "actual",
+   "shadow_date": "2026-07-13",
+   "shadow_fallback": false
+  },
+  {
+   "day": 1,
+   "calendar_date": "2026-07-14",
+   "replay_date": "2026-07-14",
+   "how": "actual",
+   "shadow_date": "2026-07-14",
+   "shadow_fallback": false
+  },
+  {
+   "day": 2,
+   "calendar_date": "2026-07-15",
+   "replay_date": "2026-07-15",
+   "how": "actual",
+   "shadow_date": "2026-07-15",
+   "shadow_fallback": false
+  },
+  {
+   "day": 3,
+   "calendar_date": "2026-07-16",
+   "replay_date": "2026-07-16",
+   "how": "actual",
+   "shadow_date": "2026-07-16",
+   "shadow_fallback": false
+  },
+  {
+   "day": 4,
+   "calendar_date": "2026-07-17",
+   "replay_date": "2026-07-17",
+   "how": "actual",
+   "shadow_date": "2026-07-17",
+   "shadow_fallback": false
+  },
+  {
+   "day": 5,
+   "calendar_date": "2026-07-18",
+   "replay_date": "2026-07-18",
+   "how": "actual",
+   "shadow_date": "2026-07-17",
+   "shadow_fallback": true
+  },
+  {
+   "day": 6,
+   "calendar_date": "2026-07-19",
+   "replay_date": "2026-07-19",
+   "how": "actual",
+   "shadow_date": "2026-07-17",
+   "shadow_fallback": true
+  }
+ ],
+ "state_files": [
+  {
+   "name": "state-T00001440.json",
+   "bytes": 5912
+  },
+  {
+   "name": "state-T00001440.npz",
+   "bytes": 1397514
+  },
+  {
+   "name": "state-T00002880.json",
+   "bytes": 5912
+  },
+  {
+   "name": "state-T00002880.npz",
+   "bytes": 1874276
+  },
+  {
+   "name": "state-T00004320.json",
+   "bytes": 5912
+  },
+  {
+   "name": "state-T00004320.npz",
+   "bytes": 2257274
+  },
+  {
+   "name": "state-T00005760.json",
+   "bytes": 5912
+  },
+  {
+   "name": "state-T00005760.npz",
+   "bytes": 2601598
+  },
+  {
+   "name": "state-T00007200.json",
+   "bytes": 5912
+  },
+  {
+   "name": "state-T00007200.npz",
+   "bytes": 2873709
+  },
+  {
+   "name": "state-T00008640.json",
+   "bytes": 5912
+  },
+  {
+   "name": "state-T00008640.npz",
+   "bytes": 3137532
+  },
+  {
+   "name": "state-T00010080.json",
+   "bytes": 5912
+  },
+  {
+   "name": "state-T00010080.npz",
+   "bytes": 3404676
+  }
+ ],
+ "wall_s_nondeterministic": 396.8
+}

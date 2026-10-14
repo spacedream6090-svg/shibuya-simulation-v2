@@ -84,16 +84,20 @@ def test_ledger_has_187_rows_in_two_axes():
     版は上げない=同じ理由・記録 prox22/README.md)。
     〔第 2 期 2-1〕経済の段階 2 の行 ``EC``(中身・behavior・derivable・hash_skip)・``ATM``(ATM の表・同)・``CR``(信用の器・
     diag・derivable・hash_skip)・``EM``(生ログの支払いの方法の列・diag・discardable)を足して外の状態 111 行・全体 202 行
-    (2-2 の PX0 の後・どれもハッシュにも状態のファイルにも入らない=版は上げない・記録 ec21/README.md)。"""
+    (2-2 の PX0 の後・どれもハッシュにも状態のファイルにも入らない=版は上げない・記録 ec21/README.md)。
+    〔第 2 期 2-3〕記憶の器の記録の目印の seq の腕の行 ``M0L``(軸 1 no・軸 2 required・腕 memory-store)を足して外の状態 113 行・
+    全体 204 行(3-3 の X の後・腕の行=既定のランのハッシュと状態のファイルは不変=版は上げない・記録 md23/README.md)。"""
     c = SL.counts()
     # 〔第 3 期 3-3〕申込書の控えの行 X(diag・discardable・どちらのハッシュにも状態のファイルにも入らない)を足して 112・203
-    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 112, "soa": 91, "total": 203}
+    # 〔第 2 期 2-3〕その後に腕の行 M0L を足して 113・204
+    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 113, "soa": 91, "total": 204}
     assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
     assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 97)] + ["E", "M0", "M0R", "A", "P", "J0",
                                                                                      "CT5", "S8", "S8M",
-                                                                                     "PX", "PX0", "EC", "ATM", "CR", "EM", "X"]
+                                                                                     "PX", "PX0", "EC", "ATM", "CR", "EM", "X",
+                                                                                     "M0L"]
     assert (SL.row("X").behavior, SL.row("X").restore, SL.row("X").arm) == (SL.DIAG, SL.DISCARDABLE, "")
     assert (SL.row("E").behavior, SL.row("E").restore) == (SL.DIAG, SL.DISCARDABLE)
     assert (SL.row("M0").behavior, SL.row("M0").restore) == (SL.NO, SL.DERIVABLE)
@@ -106,7 +110,7 @@ def test_ledger_has_187_rows_in_two_axes():
     assert set(SL.row("CT5").hash_skip) == set(SL.row("CT5").items) == {"rel_layer._contact_flags"}
     assert (SL.row("S8").behavior, SL.row("S8").restore, SL.row("S8").arm) == (SL.BEHAVIOR, SL.REQUIRED, "speech-port")
     assert (SL.row("S8M").behavior, SL.row("S8M").restore) == (SL.DIAG, SL.DISCARDABLE)
-    assert [r.key for r in SL.LEDGER if r.arm] == ["S8", "S8M"]  # 腕の行(1-8b)は 2 行だけ
+    assert [r.key for r in SL.LEDGER if r.arm] == ["S8", "S8M", "M0L"]  # 腕の行(1-8b の 2 行+2-3 の M0L)
     assert (SL.row("PX").behavior, SL.row("PX").restore, SL.row("PX").items) == (SL.DIAG, SL.DISCARDABLE,
                                                                                 ("proximity._meter",))
     assert (SL.row("PX0").behavior, SL.row("PX0").restore, SL.row("PX0").items) == (SL.NO, SL.DISCARDABLE, ())
