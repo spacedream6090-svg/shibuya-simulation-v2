@@ -364,3 +364,12 @@ SHIBUYA_SPEECH_PORT=on PYTHONPATH=src python $D/tools/arm_meters.py --only $ONLY
   **final `7819c26aee432fe4` が通しと同じ**・checkpoint・締めも同じ・呼数 34,411+19,698=54,109。
 
 残りの確かめ: 1. 返事が載るまでの遅れ(断った後の遅い入力に古い返事が載る)を測るか(実 LLM の段=6-2 で中身と合わせて見るのが筋・この段では測っていない)。
+
+## 17. 親の検収(第334・Fable 5.1・rebase の後)
+
+- 本体 533846b へ rebase(衝突なし=1-8b の 2 回目の rebase 922ea76 の後に本体に入ったのは文書と agents/state.py の注だけ)。範囲の試験(speech・tools・events・decision・systems・time・bridging・rights・llm・perception・再開・状態台帳・10f)1,547 passed(11 分 4 秒)。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・既定 off)=final 同じ・25 欄とも差なし(parent_head_vs_s8b_rebased_4cfg.json)。
+- 独立検収(review.md)=条件つき受入(中 2・低 10)→ 全部直した。検収役の既定 off の全プロンプト 11,873 本の digest の一致・2 日・状態のファイルの互換・系ごとの指紋・腕 on の再開の一致を受入の根拠にする。
+- 親の判断 8 件(§14)と「返事も窓なし」(§16=届かない率 全体 67.7% → 10.8%・残りはランの終わりの未読)。B6 の枠は予算の宣言に「腕 on では ≤ 93 tok・0.015%・門にしない」と書く(親)。
+- 腕の行(LedgerRow.arm)は共有の仕組みとして仮採用(PENDING 仮-17)=他の段の腕にも使ってよい(持ち主の LEDGER_ARM と行の arm を照合する形を守る)。
+- 判定: 受入(第 1 期 1-8b の完了=第 1 期 13 段が全部完了)。
