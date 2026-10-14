@@ -394,6 +394,22 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #93 第 2 期 2-0 較正側の錨の計器(エンジン不変・tools だけ)(第334・2026-10-14・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [回答 10-13b](docs/design/v2-answers-2026-10-13b.md) §1 1-8(仕分け 3-8)・[R-115](docs/research/v2-r115-calibration-anchors-inventory-for-2-0.md) §2〜§5。記録 [gauge20](docs/bench/analysis/wallbounce-1012/gauge20/README.md)(§9 検収の直し・§10 親の検収・[review.md](docs/bench/analysis/wallbounce-1012/gauge20/review.md))。commit `f2405e3`。
+- **計器** `tools/instruments/anchor_gauge.py`(record/gauge/run/compare)+`read_guard.py`(読む道筋の allow list・落とす語 2 段・`open` の監査フック=一覧の外を開くと落ちる・record の段で開いたファイルを journal の meta に控える・抜け道 5 つを宣言)。4 つの量(在圏のピーク時刻・来街者/居住者の比・駅ごとの到着の波・勤務の始業の分布)× 2 腕(mock・classical)× 錨との差=**合否なし**。v1.4 の母集団 P′(`is_foreign` で除く・age≥20・P は継続の列)・30 分は 1 日の合計が本則・θ は秒で比べる・ω_k=N_k/n_k。最初の記録 `docs/bench/instruments/anchor_gauge/2026-10-14_2bc7a4b/`(記録器の有無で final と呼数が同じ)・事前登録 v1.4 の定義の草案(holdout は開けない)・材料待ちの列(PT c-2・錨 4〔灰〕=空)。
+- **最初の値(目を引くもの)**: 5 エリア計の在圏のピークはラン 10 時・計画 11 時・W12 13 時 / 始業は classical 平均 10:05(錨 1 より +61 分)・mock は職場に 30 分続けて居る体 36%(エンジンの挙動として記録)/ 到着の線の割合は W12 と ±0.011 以内。
+- **検収**: 条件つき受入(中 1・低 10)→ 全部直した。負の対照 51/51 が落ちる・3-2 と 3-4 の独立の再計算 一致・錨の写し検査 一致。**検収で発覚した宣言とコードの食い違い**: `engine/energy.py` が第 18-1 表の平均時刻と 15 分の食事率(検証専用と宣言)を既定の食事時刻に使う → PENDING §1-1 の判断待ち(親案 (b)=2-4 で W17 v2 の計画の分布に置き換え)。封印の境界の宣言 3 件(§10)。
+- 仮採用: PENDING §1-1b 仮-12(計器の仮の値)・仮-13(〔灰〕は決まるまで検証側と同じ・`presence_anchors_v0.json` の分離は 2-4)。試験 23 本(親: tests/tools 51 passed・slow 1 passed)。
+
+### #92 第 1 期 1-7 道具の台帳 C0(CT0・CT5・CT9・CT10・結果不変)+1-8 の候補の源の結線(第334・2026-10-14・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [口の約束 1-7](docs/design/v2-foundation-contracts-2026-10-13.md)・[指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-4 CT。記録 [c0](docs/bench/analysis/wallbounce-1012/c0/README.md)(§10 仮採用・§11 検収の直し・§12 結線・§13 親の検収・[review.md](docs/bench/analysis/wallbounce-1012/c0/review.md))。commit `353cb36`→`bf52089`。
+- **器**: `engine/tools/{registry,contacts,groups,places,record}.py`(Tool 10 欄・ToolRegistry=書く口 `register` 1 つ・`__init__` の呼び直しは RuntimeError・最初の中身 7 行=看板・掲示・電話・連絡先・グループ・乗換案内・地図)・連絡先の印 CT5=`RelationLayer._contact_flags`(体 × 4 手段・SoA の外・読み取り専用の view・書く口 1 つ・再開は `rebuild_contacts`・状態台帳 CT5 diag/derivable/hash_skip)・グループ CT10(全母集団 37,276=世帯 27,404+事業所 9,872)・店の番号の表は空(OSM の `phone` 575/3,516・W6 の POI 2,259 行中 477 行=2-4 で番号で結ぶ)・看板を読んだ出来事(`道具:看板`・`origin=signboard:synthetic`・`Process("perception")`)は腕 `SHIBUYA_TOOL_EVENTS`(既定 off)。
+- **1-8 への結線**: `DecisionLayer(tools=Fixtures.tools)`・`ToolRegistry.usable`・凍結の表 `TOOL_ACTION_WORDS`(空=道具を使う行為の語は語彙に無い)→ 候補は不変。つなぎの台帳の行 `HD-engine.decision.layer-2d3672ba`(remove_at 1-7)を removed にし、新しい行(外す段 6-4)。台帳 286 → 289 行。
+- **結果不変**: 実装役 19/19・2 日のラン同じ・親の byte-check 4 構成(rebase の前後とも同じ)+腕 port 2 構成(同じ)・検収役 4 構成+腕 on/off の描画の digest 65,597 回同じ+印をでたらめにしたランで final 同じ+再開の作り直しの印が一致。検収=条件つき受入 → M1(AST の広さ=`tests/engine/ast_writers.py` に共通化・負の対照 23 形)・L1〜L3 を直した。試験 70 本。全体試験(取り込み後)4,654 passed・0 failed。
+- 仮採用 12 件=PENDING §1-1b 仮-14。予算の宣言に連絡先の印 約 5.9 MB・グループ 約 2.8 MB の行。用語集に `origin` の 2 義。
+
 ### #91 第 1 期の土台 9 段(T0・1-3・1-4・1-6・1-9・1-2・1-10・1-5・1-8)=結果不変の約束のまま並列で取り込み(第334・2026-10-14・実装役 Opus 5.5 ×9・別の検収役 ×8・親検収)
 
 - 正典: [回答 10-13b](docs/design/v2-answers-2026-10-13b.md) §0(自律運転)・§1 1-1〜1-8・§3 空欄(K17=6.5)・§4(起床の 3 種と知人出現=知覚の事実)・[口の約束 10-13](docs/design/v2-foundation-contracts-2026-10-13.md)・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 第 1 期。ユーザーの割り込み(10-14)「並列で進められる実装は並列で」→ 依存の無い段を作業木で同時に進め、親が rebase の順(1-4 → 1-6 → 1-9 → 1-2 → 1-5 → 1-8)で ff で取り込んだ。**取り込みごとに**: 実装役 → 別の検収役(独立の byte-check と負の対照)→ 親の byte-check 4 構成 → rebase(衝突は実装役が解く)→ 本体の全体試験 → push → CI。全体試験は 4,180 → 4,222 → 4,309 → 4,396 → 4,503 → 4,562 passed・0 failed。CI は push ごとに緑(例外 1 ラン=02464cd の台帳の行の形 → 9dd7dde)。記録は `docs/bench/analysis/wallbounce-1012/` の各フォルダ(実装役の README・検収役の review.md・親の byte-check の JSON)。
