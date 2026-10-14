@@ -452,7 +452,10 @@ PRE_D44_DIGESTS = {
     "judgment_rows_without_d44": "16e625d280f13b058affc499a2222454f41e8c9aa9b8008eae5293273fb13a6c",
     # 読み口の「:行番号」を落とした後の digest(第313 後の修正: 旧値 b759c1be…=行番号込み)。HEAD 01b6f5b の台帳と
     # 読み口を再生成した作業木の台帳で同じ値=再生成で変わったのは行番号だけ
-    "judgment_rest_without_d44": "c1ce486e678bed4b4b96a5ee10e2fe0232dea2ecd3202b2ad4f9b392aff0316d",
+    # 〔改訂(第336・第 4 期 4-1 段 1〜3)〕構築側の新しい段 W21(build/pop/)が W2・W4・W16 を読むので、読みのグラフを
+    # 作り直した(--read-graph)=consumers に W21 が増えただけ(行番号を除く engine_sites と verdict は不変・rows の digest も
+    # 不変)。旧値 c1ce486e678bed4b…
+    "judgment_rest_without_d44": "824743c7c5836c9402068e65c6c3ad924fdbb12e80c6ddab1fb3a785e820317a",
 }
 D44_DIR_REL = ("docs", "bench", "analysis", "d44-controls-2026-09-30")
 

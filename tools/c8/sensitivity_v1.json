@@ -4033,7 +4033,8 @@
       "W15",
       "W16",
       "W18",
-      "W20"
+      "W20",
+      "W21"
      ],
      "engine_sites": [
       "w2_cells.parquet ← perception/renderer.py:722",
@@ -4063,7 +4064,8 @@
       "W8",
       "W9",
       "W16",
-      "W18"
+      "W18",
+      "W21"
      ],
      "engine_sites": [],
      "other_sites": []
@@ -4095,7 +4097,7 @@
       "W20"
      ],
      "engine_sites": [
-      "w6_org.parquet ← economy/ledger.py:192",
+      "w6_org.parquet ← economy/ledger.py:194",
       "w6_poi.parquet ← perception/renderer.py:723",
       "w6_poi.parquet ← world/assets.py:100"
      ],
@@ -4247,7 +4249,8 @@
      "via_path": [],
      "consumers": [
       "W17",
-      "W18"
+      "W18",
+      "W21"
      ],
      "engine_sites": [
       "w16_population.parquet ← agents/population.py:53"

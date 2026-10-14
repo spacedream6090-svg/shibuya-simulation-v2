@@ -394,6 +394,15 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #104 第 4 期 4-1 段 1〜3 ペルソナと人口の作り直し(W21・構築側だけ・資産は活性化しない=結果不変)(第336・2026-10-15・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 第 4 期(回答 2-0)・[設計書](docs/design/v2-persona-population-rebuild-design.md)・[R-116](docs/research/v2-r116-ps-stage0-materials.md)(段 0・親検収済)・PENDING 仮-23。記録 [pop41](docs/bench/analysis/wallbounce-1012/pop41/README.md)([review.md](docs/bench/analysis/wallbounce-1012/pop41/review.md))。取り込み `60dadc4`。
+- **W21**(`build/pop/w21_sources.py`=材料の台帳 37 表と read_guard(検証側=R-116 §1 の 11 行を開くと止まる・PT c-2 は許可の列だけ)・`w21_frame.py`=段 1 の枠 13 行(空欄 6)・`w21_tables.py`/`w21_households.py`=段 2(2025 の区の雛形 → 2020 の町丁目へ IPF → 整数化 → 標本なしの世帯員の組み立て → 焼きなましの詰め(誤差 5,654.6 → 3,130.2・下げ止まりは町丁目をまたぐ合計の食い違い)→ 建物への配置 → 外国人)・`attr_fns.py`=属性から作る純粋な関数 12 本の登録表・`w21_attrs.py`=段 3・`w21_checks.py`=計器・`w21_build.py`)。住民 42,642 人・一般世帯 27,751+施設等 539 人・1 人世帯 69.5%・複製 0・決定性(2 回組んで 6 本の sha 一致・seed を変えると人は変わり枠は変わらない)。
+- **取得**: e-Stat から 21 本(ライセンス台帳 その 17・転送なし・MANIFEST の md5=親が 21/21 再計算)。検証側は開いていない(監査フック・負の対照)。
+- **資産** `data/world/v2_stage_4-1/`(本体の v2 の写し 107 本+W21 の 6 本・本体の build_hash は不変=W21 は `build.run` の段に入れない・`w21_build_hash` 0c855067…)。活性化の道具は plan/`apply --dry-run`/`verify --want before` まで(apply はしない=段 10)。`engine/` の差分 0・4 構成の byte-check 同じ。
+- 計器(構築に使った表=点検だけ): 舞台全体の SRMSE 世帯人員 0.0032・家族類型 0.0026・年齢 × 男女 0.0263・配偶関係 0.0482・産業 0.0193・在学 0.0567。家族の整合 0 件(子が親より年上・15 歳未満の世帯主・id の重複)。空欄: 15 歳未満 3,245・就業者でない 15,580・industry_key 17,388(就業者 1,808=公務 S ほか)・国籍と duty_role は全員。
+- 検収: 別の検収役 1+親。全体試験 5,055(c8 の読みのグラフの台帳を W21 で作り直してから=作り直す前は 1 failed) passed。仮採用: PENDING §1-1b 仮-26(`W21_EXPEDIENTS` 24 行=台帳)。残り: employment_status の語を W20(3-1)と合わせる・段 10 の差し替えと agent_id の対応(段 4〜9 の後)・第 15-1 表は段 3 の細分で。
+
 ### #103 第 3 期 3-2 TM T1 計算のまとめ(窓の待ち行列・幅 60 秒で今と同じ=結果不変)(第336・2026-10-15・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-2(TM3 (f)・TM4・TM6 の T1)・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 3-2 の行。記録 [tm32](docs/bench/analysis/wallbounce-1012/tm32/README.md)([review.md](docs/bench/analysis/wallbounce-1012/tm32/review.md))。取り込み `260264b`。
