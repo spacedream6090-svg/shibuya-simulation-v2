@@ -60,6 +60,9 @@ W12 の等間隔の推定(JR 山手線・埼京線〈湘南新宿ラインを含
 
 渋谷の発車だけを使う(到着の表は使わない)。エンジンの便は「ホームに居る区間=発車の前の停車時分」で、着く体も
 同じ便から降りる(今のメトロ 3 線と同じ扱い)。井の頭線と銀座線は渋谷が終点なので発車の 1 方向だけになる。
+〔2-3c〕到着の行と直通のまとめは別の表(:mod:`shibuya.build.field.w12_rail_events` の ``w12_rail_events.parquet``)。
+その入力(京王の渋谷着・東急の当駅始発の印・成田エクスプレスの表=確かめだけ)も本モジュールの :func:`input_rel_paths`
+に載せる(W19 の資産の表と ``input_hash`` に入る)。発車の行(本モジュールの出力)は 2-3c で変えていない。
 
 土休の ◆(運転日注意)の特急のうち ODPT に無い 4 本(踊り子 3・サフィール踊り子 1)は臨時と見て外す
 (README §7・extraction-jr.md 親検収の (2)=推測)。見分けは種別(:data:`TEMPORARY_TRAIN_TYPES`)で行い、外す行に
@@ -113,6 +116,20 @@ INPUT_FAMILIES: tuple[str, ...] = (FAMILY_USER, FAMILY_CHALLENGE, FAMILY_STATIC)
 #: W12 の等間隔の推定の道(``w12_external_nodes`` の残る線=notes ``equal_interval_lines``・ゲート
 #: ``equal_interval_lines_remaining`` が 1)で作る=戻す口。W19 の ``BUILD_INPUT_FAMILIES``(元の宣言)は切替口に依らない。
 USE_ODPT_CHALLENGE = True
+
+#: 〔2-3c〕渋谷の発着の表(``w12_rail_events``)の入力。京王の渋谷着(チャレンジ枠の列車時刻表から作った CSV・
+#: 切替口 :data:`USE_ODPT_CHALLENGE` に従う)・東急 渋谷の下りの 2 表の当駅始発の印(2-3c の読み取り=記録 tt23c §2)・
+#: 成田エクスプレスの表(湘南新宿ラインの表に含まれることの確かめだけ=発車の行には入れない)。
+KEIO_ARRIVAL_STEM = "京王_井の頭線_渋谷_到着"
+TOKYU_MARKS_FILE = "東急_印.final.csv"
+#: (成田エクスプレスの表, 含まれる先の湘南新宿ラインの表)。
+NEX_TABLES: tuple[tuple[str, str], ...] = (
+    ("JR_成田エクスプレス_渋谷_成田空港方面", "JR_湘南新宿ライン_渋谷_南行"),
+    ("JR_成田エクスプレス_渋谷_新宿方面", "JR_湘南新宿ライン_渋谷_北行"),
+)
+#: 相鉄線直通の表と、同じ向き(南行)の大崎方面の表(まとめる組の確かめ)。
+SOTETSU_TABLE = "JR_相鉄線直通_渋谷_相鉄線方面"
+OSAKI_TABLE = "JR_埼京線_渋谷_大崎方面"
 
 #: 暦(CSV の値 → W12 の値)。
 CALENDARS: tuple[tuple[str, str], ...] = (("平日", "Weekday"), ("土休", "SaturdayHoliday"))
@@ -284,12 +301,19 @@ def input_rel_paths(family: str, *, in_use: bool = True) -> tuple[str, ...]:
             if spec.family == FAMILY_USER:
                 out.extend(table_rel_paths(spec))
         out.append("/".join((*USER_TIMETABLE_DIR, JR_NOTES_FILE)))
+        # 〔2-3c〕発着の表の入力(成田エクスプレスの表・東急の当駅始発の印)
+        for stem, _into in NEX_TABLES:
+            out.extend("/".join((*USER_TIMETABLE_DIR, f"{stem}_{cal_ja}_final.csv")) for cal_ja, _ in CALENDARS)
+        out.append("/".join((*USER_TIMETABLE_DIR, TOKYU_MARKS_FILE)))
         return tuple(out)
     if family == FAMILY_CHALLENGE:
         out = []
         for spec in specs:
             if spec.family == FAMILY_CHALLENGE:
                 out.extend(table_rel_paths(spec))
+        if any(s.family == FAMILY_CHALLENGE for s in specs):
+            # 〔2-3c〕京王の渋谷着(チャレンジ枠の表を読むときだけ)
+            out.extend("/".join((*ODPT_CHALLENGE_DIR, f"{KEIO_ARRIVAL_STEM}_{cal_ja}_odpt.csv")) for cal_ja, _ in CALENDARS)
         return tuple(out)
     if family == FAMILY_STATIC:
         return ("/".join((*ODPT_STATIC_DIR, ODPT_STATIC_METRO_TRAIN_TIMETABLE)),)

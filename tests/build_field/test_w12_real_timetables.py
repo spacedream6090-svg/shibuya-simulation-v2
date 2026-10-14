@@ -185,7 +185,8 @@ def test_no_rail_line_is_left_for_equal_interval_statically():
     covered |= {RT.FOLD_LINES.get(ln, ln) for ln in list(covered)}
     assert node_lines - covered == set()
     assert w12.USE_REAL_TIMETABLES is True
-    assert w12.STAGE_VERSION == "1.2.0"
+    # 〔第 2 期 2-3c〕1.3.0=発着の表を足した(時刻表の行は 1.2.0 と同じ=tests/build_rail/test_w12_arrivals_2_3c.py)
+    assert w12.STAGE_VERSION == "1.3.0"
 
 
 def test_world_time_point_matches_the_calendar_default():

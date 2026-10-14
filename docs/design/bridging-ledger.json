@@ -324,8 +324,8 @@
   {
    "id": "EX-build.field.w12_external_nodes-ea8dc0c1",
    "what": "実ダイヤ(2-3b)は渋谷の発車の表だけ(到着の表は使わない=着く体も発車の便から降りる・終点の到着は 2-3c)",
-   "why": "構築の段 W12 が宣言した近似(2-3b の実ダイヤ・モジュールの表 REAL_TIMETABLE_EXPEDIENTS の 1 番目・記録 docs/bench/analysis/wallbounce-1012/tt23b/README.md)。外す段: 2-3c(終点の到着・直通の二重計上のまとめ方=2-3b の残り)",
-   "remove_at": "2-3c",
+   "why": "構築の段 W12 が宣言した近似(2-3b の実ダイヤ・モジュールの表 REAL_TIMETABLE_EXPEDIENTS の 1 番目・記録 docs/bench/analysis/wallbounce-1012/tt23b/README.md)。外す段: 2-3c(終点の到着・直通の二重計上のまとめ方=2-3b の残り)。〔2-3c・2026-10-15〕到着の行は W12 1.3.0 の別の表 w12_rail_events.parquet に入った(銀座線・半蔵門線・副都心線=ODPT オープン枠の列車時刻表・井の頭線=チャレンジ枠の列車時刻表)。エンジンが読む発車の表 w12_timetables.parquet は 1.2.0 とバイト一致で、エンジンは既定で到着の行を読まない(読む口の器 engine/processes/rail_events.py・READ_RAIL_EVENTS=False)=着く体は発車の便から降りるまま。外す段=資産を活性化する版上げ 3 回目(4-3)でエンジンが到着の行を読むかを決める段(記録 docs/bench/analysis/wallbounce-1012/tt23c/README.md)",
+   "remove_at": "4-3",
    "declared_in": "src/shibuya/build/field/w12_external_nodes.py#expedients:ea8dc0c1",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -401,11 +401,22 @@
   {
    "id": "EX-build.field.w12_external_nodes-7b7c8bd2",
    "what": "東横線・田園都市線の上り=直通の副都心線・半蔵門線と同じ列車(W12 では線ごとに 1 回ずつ現れる=直通の二重は 2-3c)",
-   "why": "構築の段 W12 が宣言した近似(2-3b の実ダイヤ・モジュールの表 REAL_TIMETABLE_EXPEDIENTS の 8 番目・記録 docs/bench/analysis/wallbounce-1012/tt23b/README.md)。外す段: 2-3c(終点の到着・直通の二重計上のまとめ方=2-3b の残り)",
-   "remove_at": "2-3c",
+   "why": "構築の段 W12 が宣言した近似(2-3b の実ダイヤ・モジュールの表 REAL_TIMETABLE_EXPEDIENTS の 8 番目・記録 docs/bench/analysis/wallbounce-1012/tt23b/README.md)。外す段: 2-3c(終点の到着・直通の二重計上のまとめ方=2-3b の残り)。〔2-3c・2026-10-15〕w12_rail_events.parquet で同じ列車の 2 行を列車の鍵(train_key)で結び、数えるのは地下鉄の行の 1 回(counted)にした(規則 up_merge=conf mechanism・平日 259+289・土休 238+209 組)。エンジンの発車の表は線ごとに 2 行のまま(方面ノードの線で便を引く=world.assets の E2)=エンジンが列車の鍵を読むまで残る。外す段=4-3(到着の行と同じ段で決める・記録 docs/bench/analysis/wallbounce-1012/tt23c/README.md)",
+   "remove_at": "4-3",
    "declared_in": "src/shibuya/build/field/w12_external_nodes.py#expedients:7b7c8bd2",
    "conf": "expedient",
    "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.field.w12_external_nodes-b2c96d6a",
+   "what": "下りの直通の結び(2-3c): 地下鉄の渋谷着と東急の下りの渋谷発(当駅始発の印の無い便)を同じ暦・同じ行き先ごとに時刻の順に 1 対 1 で結ぶ=同じ行き先の便は渋谷で追い越さないと見る(推測・東急の表に列車番号が無い)",
+   "why": "構築の段 W12 が宣言した近似(2-3c の発着の表・モジュールの表 RAIL_EVENT_EXPEDIENTS の 1 番目・規則 down_through・記録 docs/bench/analysis/wallbounce-1012/tt23c/README.md)。当駅始発の印(●・⑤・②)で結ぶ便の集まりは決まる(チャレンジ枠の isOrigin と 185/185 一致=照合)が、同じ行き先の便どうしの組み方は追い越しなしの推測。外す段: 7(東急の列車番号つきの時刻表を使う段が計画に無い=主張の前に感度試験で示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/field/w12_external_nodes.py#expedients:b2c96d6a",
+   "conf": "expedient",
+   "since": "2026-10-15",
    "status": "active",
    "remove_basis": "inferred"
   },
@@ -1843,8 +1854,8 @@
   {
    "id": "BR-W11-SHINSEN-EXIT",
    "what": "W11 の神泉の出口(井の頭線の渋谷の到着の元=範囲の端の駅)",
-   "why": "終点の到着は手前の駅(神泉)の渋谷方面の発車から作る(回答 10-12b §2-1〜3)。計画 2-3b(終点の到着)。〔2-3b・2026-10-14〕2-3b は渋谷の発車だけ=残り(終点の到着・直通の二重計上のまとめ方)は 2-3c",
-   "remove_at": "2-3c",
+   "why": "終点の到着は手前の駅(神泉)の渋谷方面の発車から作る(回答 10-12b §2-1〜3)。計画 2-3b(終点の到着)。〔2-3b・2026-10-14〕2-3b は渋谷の発車だけ=残り(終点の到着・直通の二重計上のまとめ方)は 2-3c。〔2-3c・2026-10-15〕井の頭線の渋谷着は列車時刻表の渋谷着(京王_井の頭線_渋谷_到着・チャレンジ枠)から作り、神泉の発車は使わない=到着の元としての役は外れた。残るのは W11 が神泉の出口 3 か所を渋谷に割り当てること(odpt-check.md §5-2)=空間の段 0 で直す(timetables/README.md §6 の親の注)",
+   "remove_at": "5-0",
    "declared_in": "docs/bench/analysis/wallbounce-1012/10e/README.md 締め-4 の 3",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -2563,13 +2574,97 @@
   {
    "id": "HD-engine.processes.rail-1af925f4",
    "what": "src/shibuya/engine/processes/rail.py の docstring の見出し「expedient(本モジュール分)」の下の項 6 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 2-3b 鉄道の実ダイヤ(停車と折返し)。〔2-3b・2026-10-14〕2-3b は渋谷の発車だけ=残り(終点の到着・直通の二重計上のまとめ方)は 2-3c",
-   "remove_at": "2-3c",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 2-3b 鉄道の実ダイヤ(停車と折返し)。〔2-3b・2026-10-14〕2-3b は渋谷の発車だけ=残り(終点の到着・直通の二重計上のまとめ方)は 2-3c。〔2-3c・2026-10-15〕終点の到着(銀座線・井の頭線)と地下鉄の直通の到着の時刻は W12 1.3.0 の発着の表に入った(折返し時分の元)。エンジンはまだ読まない(既定)=停車と折返しの項は残る。外す段=4-3(到着の行を読むかを決める段)。運賃・定員・域外居住・到着便の割り当て・混雑率の項は 2-3c の外(見出し単位の 1 行=項ごとに分けるかは親の判断)。〔2-3c 検収 L6・2026-10-15・親の判断〕項ごとの行 DOC-tt23c-rail-*(6 行)に分けた。見出しの行はコードの宣言と 1 対 1 のために残し、外す段は項の最後の段(7)にした(項の外す段は項ごとの行)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/engine/processes/rail.py#heading:1af925f4",
    "conf": "expedient",
    "since": "2026-10-14",
    "status": "active",
    "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-tt23c-rail-dwell",
+   "what": "rail.py の expedient の項 1: 停車時分の線別表(終端 2 tick は折返し時分が未取得=45 秒の最低停車時間+α・通過型 1 tick は実値 30〜60 秒の上界の丸め)",
+   "why": "停車と折返しの項。2-3c で終点の到着(銀座線・井の頭線)と地下鉄の直通の到着の時刻が W12 1.3.0 の発着の表に入った(折返し時分の元)。エンジンが到着の行を読むかを決める段=資産を活性化する版上げ 3 回目(4-3)(項ごとの行=見出しの行 HD-engine.processes.rail-1af925f4 から分けた・2026-10-15・検収 L6)",
+   "remove_at": "4-3",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tt23c/README.md §11",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/processes/rail.py"
+   ]
+  },
+  {
+   "id": "DOC-tt23c-rail-fare",
+   "what": "rail.py の expedient の項 2: 運賃 FARE_YEN(運賃表は未取得=空欄)・IC/切符の区別を持たない",
+   "why": "運賃表を取る段が計画に無い(主張の前に感度試験で示す=7)。IC と現金の別は第 2 期 2-1 の経済の段階 2 の支払いの部品で入った(項の文の後半は古い=rail.py の docstring を直すかは親の判断)(項ごとの行=見出しの行 HD-engine.processes.rail-1af925f4 から分けた・2026-10-15・検収 L6)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tt23c/README.md §11",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/processes/rail.py"
+   ]
+  },
+  {
+   "id": "DOC-tt23c-rail-capacity",
+   "what": "rail.py の expedient の項 3: 定員の空欄(東横線・半蔵門線・銀座線)は車両数からの推定",
+   "why": "線別の輸送力(国交省の資料)を足す段が計画に無い=7(主張の前に感度試験)(項ごとの行=見出しの行 HD-engine.processes.rail-1af925f4 から分けた・2026-10-15・検収 L6)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tt23c/README.md §11",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/processes/rail.py"
+   ]
+  },
+  {
+   "id": "DOC-tt23c-rail-external-home",
+   "what": "rail.py の expedient の項 4: 通勤者の「域外に住む割合」EXTERNAL_HOME_PERMILLE(mock 日課には方面が無い=C5 の W17 待ち)",
+   "why": "計画実行層の無いラン(帰無腕)だけで使う。域外の住人は人口の作り直し(4-1 の段 7 外の人)で作り、版上げ 3 回目(4-3)でW16 と入れ替える=その段で割合の乱数をやめられる見込み(推測)(項ごとの行=見出しの行 HD-engine.processes.rail-1af925f4 から分けた・2026-10-15・検収 L6)",
+   "remove_at": "4-3",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tt23c/README.md §11",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/processes/rail.py"
+   ]
+  },
+  {
+   "id": "DOC-tt23c-rail-arrival-assign",
+   "what": "rail.py の expedient の項 5: 到着便の割り当て=「自分の外出時刻以降で最初の当該路線の便」(乗換・所要時間を持たない)",
+   "why": "到着の行(渋谷着の時刻・直通の相手の線)は 2-3c で W12 1.3.0 の発着の表に入った。エンジンが到着の便で降ろすかを決める段=4-3(停車と折返しの項と同じ段)(項ごとの行=見出しの行 HD-engine.processes.rail-1af925f4 から分けた・2026-10-15・検収 L6)",
+   "remove_at": "4-3",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tt23c/README.md §11",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/processes/rail.py"
+   ]
+  },
+  {
+   "id": "DOC-tt23c-rail-congestion",
+   "what": "rail.py の expedient の項 6: 混雑率はシミュ内の乗客だけで測る(域外区間の既存乗客を外生投入しない=第2陣)。5,000 体規模では受容関数は発火せず乗り残しは 0",
+   "why": "域外区間の既存乗客を入れる段が計画に無い(rail.py の「第2陣」を計画の段の番号に読み替えられない)=7(主張の前に感度試験)(項ごとの行=見出しの行 HD-engine.processes.rail-1af925f4 から分けた・2026-10-15・検収 L6)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tt23c/README.md §11",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/processes/rail.py"
+   ]
   },
   {
    "id": "HD-engine.processes.salient-1af925f4",

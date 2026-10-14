@@ -10,7 +10,18 @@ HEAD の写しには HEAD に無い引数を渡さない)。
 
     git archive <HEAD> src docs/bench/anchors/hunger_energy_build_anchors_v0.json \\
         docs/bench/anchors/hunger_energy_validation_anchors_v0.json docs/bench/anchors/ssb2021_activity_prior_v0.json \\
-        docs/design/v2-budget-declaration.md docs/bench/analysis/w6-regen-2026-09-28 | tar -x -C $W/head_src
+        docs/design/v2-budget-declaration.md docs/design/rules-table.json docs/design/bridging-ledger.json \\
+        docs/design/v2-perception-contract.md docs/design/v2-pattern-ledger.md \\
+        docs/bench/analysis/w6-regen-2026-09-28 | tar -x -C $W/head_src
+    # 〔第 2 期 2-3c 検収 L4〕写しの木がリポの根から読む追跡ファイル(:data:`HEAD_TREE_FILES`)と data を全部そろえる。
+    # 決め方: src を ``RELPATH``・``parents[3]``・``parents[4]``・``resolve_repo_path`` で grep する(2-3c の時点=
+    # rules/table.py の rules-table.json・bridging/ledger.py の bridging-ledger.json・core/budget.py の予算の md・
+    # world/processes/constitution.py の 2 本・energy.py と classical.py の錨 3 本・calendar.py の祝日の CSV・
+    # economy_stage2.py の OSM の店の札と営業時間=``data/realworld/osm``)。rules-table.json が無いと規則の表が空になり、
+    # data が無いと経済の段階 2 の店の札が空になり(本人の所持金が変わる)、どちらも final が HEAD と違って見える
+    # (2-3c の記録 tt23c/README.md §9・検収)。data は本体の data へのつなぎ(junction)を写しの木に置き、回し終えたら
+    # ``cmd /c rmdir`` でつなぎだけを外す(中を消さない)。side は ``--src`` の木に足りないものがあれば止まる
+    # (``--allow-incomplete-tree`` で続ける=足りないものは side の JSON の ``tree_missing`` に残る)。
     # 〔第 2 期 2-4 検収 L3〕エンジンが開く錨は src を ``_anchors_v0.json`` と ``docs/bench/anchors`` で grep して決める。
     # 2-4 V6 より後の src では 3 本=空腹の 2 本(engine/energy.py: hunger_energy_build_anchors_v0.json・
     # hunger_energy_validation_anchors_v0.json)+活動の事前分布(engine/classical.py: ssb2021_activity_prior_v0.json)。
@@ -19,8 +30,9 @@ HEAD の写しには HEAD に無い引数を渡さない)。
     # 手順は写していた=写しても挙動は変わらない)。
     # 〔第334〕錨はエンジンが開く 3 本だけを写す(docs/bench/anchors を丸ごと写すと、較正側と検証側が混ざる
     # presence_anchors_v0.json・diversity_anchors_v0.json の写しが作業用の置き場に残る=2-2 の検収 L7)。
-    mkdir -p $W/head_src/data/calendar && cp data/calendar/syukujitsu.csv $W/head_src/data/calendar/
+    cmd /c mklink /J <$W の Windows の道筋>\\head_src\\data <本体の data の Windows の道筋>   # 〔2-3c〕data へのつなぎ
     python $D/byte_check_10e.py side --src $W/head_src/src --label head --scratch $W --out $W/head.json
+    cmd /c rmdir <$W の Windows の道筋>\\head_src\\data                                     # つなぎだけを外す
     python $D/byte_check_10e.py side --label e1 --scratch $W --out $W/e1.json
     python $D/byte_check_10e.py side --label e1_old --kw '{"hash_scheme": "full"}' --scratch $W --out $W/e1_old.json
     python $D/byte_check_10e.py compare --a $W/head.json --b $W/e1.json --out $D/<名前>.json
@@ -165,15 +177,44 @@ def switch_env() -> dict[str, str]:
     return {k: os.environ[k] for k in SWITCH_ENV if k in os.environ}
 
 
+#: 〔2-3c 検収 L4〕``--src`` の写しの木(``src`` の親)に要る追跡ファイルと data(リポの根から読む=docstring の決め方)。
+HEAD_TREE_FILES: tuple[str, ...] = (
+    "docs/design/rules-table.json",
+    "docs/design/bridging-ledger.json",
+    "docs/design/v2-budget-declaration.md",
+    "docs/design/v2-perception-contract.md",
+    "docs/design/v2-pattern-ledger.md",
+    "docs/bench/anchors/hunger_energy_build_anchors_v0.json",
+    "docs/bench/anchors/hunger_energy_validation_anchors_v0.json",
+    "docs/bench/anchors/ssb2021_activity_prior_v0.json",
+    "data/calendar/syukujitsu.csv",
+    "data/realworld/osm/poi_tags_overpass_20260928.json",
+    "data/realworld/osm/poi_opening_hours_overpass_20260907.json",
+)
+
+
+def head_tree_missing(src: str | Path) -> list[str]:
+    """``--src`` の写しの木に足りないもの(:data:`HEAD_TREE_FILES` のうち無いもの)。"""
+    root = Path(src).resolve().parent
+    return [rel for rel in HEAD_TREE_FILES if not (root / rel).exists()]
+
+
 def cmd_side(args: argparse.Namespace) -> int:
     w2 = _wave2()
     scratch = Path(args.scratch)
     names = list(w2.configs()) if not args.only else [s for s in args.only.split(",") if s]
     env = dict(os.environ)
     env["PYTHONIOENCODING"] = "utf-8"
+    tree_missing: list[str] = []
     if args.src:
         env["PYTHONPATH"] = str(Path(args.src).resolve())
         env["SHIBUYA_BUDGET_MD"] = "docs/design/v2-budget-declaration.md"
+        # 〔2-3c 検収 L4〕写しの木に足りないものがあると HEAD の側が別の世界になる=止める(比べる欄は変えない)
+        tree_missing = head_tree_missing(args.src)
+        if tree_missing and not args.allow_incomplete_tree:
+            print("--src の写しの木に足りないもの(docstring の手順で写す・data はつなぎ):", *tree_missing,
+                  sep="\n  ", file=sys.stderr)
+            return 2
 
     def one(name: str) -> dict[str, Any]:
         cmd = [sys.executable, str(Path(__file__)), "one", "--config", name, "--world", args.world,
@@ -193,7 +234,7 @@ def cmd_side(args: argparse.Namespace) -> int:
             print(row["config"], row.get("final"), row.get("calls"), row.get("salient_events"),
                   row.get("dispatches"), row.get("src_is_worktree"), (row.get("error") or "")[-300:], flush=True)
     doc = {"label": args.label, "kw": json.loads(args.kw or "{}"), "src": "写し" if args.src else "作業木",
-           "env": switch_env(),
+           "env": switch_env(), "tree_missing": tree_missing,
            "drop_behavior_item": args.drop_behavior_item or "", "multiset_items": args.multiset_items or "",
            "agents": args.agents, "seed": args.seed, "runs": got}
     Path(args.out).write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
@@ -263,6 +304,7 @@ def main(argv: list[str] | None = None) -> int:
             sp.add_argument("--out", required=True)
             sp.add_argument("--only", default="")
             sp.add_argument("--jobs", type=int, default=4)
+            sp.add_argument("--allow-incomplete-tree", action="store_true")
     sp = sub.add_parser("compare")
     sp.add_argument("--a", required=True)
     sp.add_argument("--b", required=True)

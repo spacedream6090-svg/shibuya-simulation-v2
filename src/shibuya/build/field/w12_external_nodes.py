@@ -14,7 +14,10 @@
     使う(今は 0 線=ゲート ``equal_interval_lines_remaining``)。旧値(1.1.0=メトロ3線=実・他=等間隔
     expedient)は :data:`USE_REAL_TIMETABLES` = False で作れる(切替口)。
   - ``w12_timetable_versions.json``(1.2.0・実ダイヤのときだけ): 線ごとの版の宣言(世界の時点との前後)と
-    入力の md5。``source`` の列とは別に置く。
+    入力の md5。``source`` の列とは別に置く。〔1.3.0〕節 ``rail_events`` に発着の表の要約と直通のまとめの規則(conf つき)。
+  - ``w12_rail_events.parquet``(1.3.0・実ダイヤのときだけ): 渋谷の発着の表(発車の行=``w12_timetables`` の行と 1 対 1+
+    到着の行・直通で結んだ列車の鍵・数える印)。:mod:`shibuya.build.field.w12_rail_events`。**エンジンは読まない**
+    (``w12_timetables.parquet`` は 1.2.0 とバイト一致=活性化しても結果は変わらない)。
 
 版の注
   - 1.1.0(第330 B3): 等間隔ダイヤの丸め。
@@ -22,6 +25,9 @@
     東横線・田園都市線・井の頭線)を実ダイヤに置き換え、銀座線を 9 月改正の版に。オフピーク比・ピーク本数の
     派生は実ダイヤ(全線)から計算し直す(等間隔の線が残ったときだけ使う)。方面ノード・生成の重み・
     時間帯配分(``time_dist_12``)・流量(``station_flow_12``)は変えない。
+  - 1.3.0(第 2 期 2-3c・計画 2-3c の行): 渋谷の到着(銀座線・半蔵門線・副都心線=ODPT オープン枠の列車時刻表・
+    井の頭線=チャレンジ枠の列車時刻表)と直通の二重計上のまとめ(東急の上り=地下鉄の行と同じ列車・下りの直通の結び・
+    成田エクスプレス ⊂ 湘南新宿ライン・相鉄線直通)を別の表 ``w12_rail_events.parquet`` に。発車の表は変えない。
 
 流量の作り方(D-W14)
   - 鉄道: 大都市交通センサス第12回(2015)駅別発着表(ticket=合計)の **降車 − 当該路線発の改札内乗換**
@@ -54,13 +60,15 @@ from typing import Any, Sequence
 import numpy as np
 
 from . import common as C
+from . import w12_rail_events as RE
 from . import w12_real_timetables as RT
 from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 STAGE = "W12"
 #: 1.1.0(第330 B3): 等間隔ダイヤの丸めを「小数で積み切り捨て」に直した(時刻表の行が変わる)。
 #: 1.2.0(第 2 期 2-3b): 等間隔の 5 線を実ダイヤに置き換え・銀座線を 9 月改正の版に(時刻表の行が変わる)。
-STAGE_VERSION = "1.2.0"
+#: 1.3.0(第 2 期 2-3c): 渋谷の発着の表 ``w12_rail_events.parquet`` を足す(時刻表の行は変えない=バイト一致)。
+STAGE_VERSION = "1.3.0"
 
 #: 〔2-3b〕実ダイヤの切替口。True(既定)=実ダイヤ(:mod:`w12_real_timetables`)。False=1.1.0 の形
 #: (メトロ 3 線=7 月の取得の実ダイヤ・他の 5 線=等間隔)=旧値の再現(時刻表の parquet が 1.1.0 とバイト一致)。
@@ -83,6 +91,12 @@ REAL_TIMETABLE_EXPEDIENTS: tuple[str, ...] = (
     "銀座線=世界の時点(2026-07-13)より後の版(2026-09-19 改正・回答 10-13b §2 のユーザー決定)",
     "井の頭線の版=ODPT チャレンジ枠の dct:issued 2025-03-15/17 が世界の時点に効いていたと推測(改正日の欄は空欄)",
     "東横線・田園都市線の上り=直通の副都心線・半蔵門線と同じ列車(W12 では線ごとに 1 回ずつ現れる=直通の二重は 2-3c)",
+)
+#: 〔2-3c〕発着の表(``w12_rail_events``)の宣言(モジュールの表=走査器の形 B・台帳の ``EX-build.field.w12_external_nodes-*``)。
+#: 規則 ``down_through``(``w12_rail_events.RULE_CONF`` で conf=expedient)の宣言の文。
+RAIL_EVENT_EXPEDIENTS: tuple[str, ...] = (
+    "下りの直通の結び(2-3c): 地下鉄の渋谷着と東急の下りの渋谷発(当駅始発の印の無い便)を同じ暦・同じ行き先ごとに"
+    "時刻の順に 1 対 1 で結ぶ=同じ行き先の便は渋谷で追い越さないと見る(推測・東急の表に列車番号が無い)",
 )
 #: 〔2-3b・検収 H1〕等間隔ダイヤの道の宣言(切替口 False=1.1.0 の時刻表の再現と、実データの無い線だけで足す)。
 #: 1.1.0 の 5 行(台帳 W12#4〜#8=2-3b で removed)をこの 1 行にまとめた。動的な中身(残る線の名・夕ピークの規則)は
@@ -751,6 +765,10 @@ def run(ctx: C.Ctx) -> C.StageResult:
     by_line_cal = {k: dict(v) for k, v in sorted(by_line_cal.items())}
     lines_holiday_gt_weekday = [ln for ln, v in by_line_cal.items() if v["SaturdayHoliday"] > v["Weekday"]]
     lines_missing_calendar = [ln for ln, v in by_line_cal.items() if min(v.values()) <= 0]
+    # 〔2-3c〕渋谷の発着の表(発車の行はこの時刻表の行と 1 対 1・時刻表は変えない)
+    events: RE.RailEvents | None = None
+    if real is not None:
+        events = RE.build_rail_events(ctx.data, tt_cols, metro_docs)
 
     params: dict[str, Any] = {
         "nodes": [
@@ -795,6 +813,17 @@ def run(ctx: C.Ctx) -> C.StageResult:
                 "source": RT.GINZA_SPEC.source,
             },
             "versions_file": VERSIONS_FILE,
+        }
+        # 〔2-3c〕発着の表の規則(conf つき)と出力の名
+        params["rail_events"] = {
+            "stage": RE.STAGE_TAG,
+            "file": RE.EVENTS_FILE,
+            "columns": list(RE.COLUMNS),
+            "rules": {rid: {"rule": RE.THROUGH_RULES[rid], "conf": RE.RULE_CONF[rid]} for rid in RE.THROUGH_RULES},
+            "through_dwell_max_min": RE.THROUGH_DWELL_MAX_MIN,
+            "tokyu_origin_marks": "/".join((*RT.USER_TIMETABLE_DIR, RT.TOKYU_MARKS_FILE)),
+            "nex_tables": [list(x) for x in RT.NEX_TABLES],
+            "keio_arrival_stem": RT.KEIO_ARRIVAL_STEM,
         }
     pm_expedient = (
         "夕ピーク本数=朝ピークと同数(資料3は朝ピークのみ=D-W14 の空欄)"
@@ -900,6 +929,8 @@ def run(ctx: C.Ctx) -> C.StageResult:
     # 〔2-3b・検収 H1〕時刻表の宣言はモジュールの表から足す(星付きの要素で渡さない=走査器が数える形)。
     if real is not None:
         res.expedients.extend(REAL_TIMETABLE_EXPEDIENTS)
+    if events is not None:
+        res.expedients.extend(RAIL_EVENT_EXPEDIENTS)
     if real is None or remaining_lines:
         res.expedients.extend(EQUAL_INTERVAL_TIMETABLE_EXPEDIENTS)
     if real is not None and remaining_lines:
@@ -929,6 +960,9 @@ def run(ctx: C.Ctx) -> C.StageResult:
             **real_notes,
             "timetable_versions_file": VERSIONS_FILE,
         })
+    if events is not None:
+        # 〔2-3c〕発着の表の要約(時刻は書かない)。規則と空欄の文は版の表と params にある。
+        res.notes["rail_events"] = {k: v for k, v in events.summary.items() if k not in ("rules", "blanks")}
     res.outputs.append(C.write_parquet(ctx.out, "w12_external_nodes.parquet", node_cols))
     res.outputs.append(
         C.write_parquet(
@@ -948,7 +982,11 @@ def run(ctx: C.Ctx) -> C.StageResult:
         versions = timetable_versions_doc(
             ctx, real, by_line_cal, tt_line, tt_operator, tt_src, metro_docs, metro_in_use, remaining_lines
         )
+        if events is not None:
+            versions["rail_events"] = events.summary  # 〔2-3c〕規則(conf つき)・本数・空欄の宣言
         res.outputs.append(C.write_json(ctx.out, VERSIONS_FILE, versions, rows=len(versions["lines"])))
+    if events is not None:
+        res.outputs.append(C.write_parquet(ctx.out, RE.EVENTS_FILE, events.columns))
 
     share_sums_ok = all(
         abs(sum(v) - 1.0) < 1e-6 for v in list(hour_share_alight.values()) + list(hour_share_board.values())
@@ -1005,6 +1043,19 @@ def run(ctx: C.Ctx) -> C.StageResult:
             C.Gate("dedup_removed", int(sum(real.dedup_removed.values())), None),
             C.Gate("ginza_departures_from_shibuya", real.ginza_check.get("n_departures_from_origin", 0), None,
                    passed=real.ginza_check.get("n_departures_from_origin", 0) > 0),
+        ]
+    if events is not None:
+        n_dep_ev = int(events.summary["rows_by_event"].get(RE.EVENT_JA[RE.EVENT_DEPARTURE], 0))
+        n_arr_ev = int(events.summary["rows_by_event"].get(RE.EVENT_JA[RE.EVENT_ARRIVAL], 0))
+        res.gates += [
+            # 〔2-3c〕発着の表の発車の行は時刻表の行と 1 対 1・到着の行がある・残った疑わしい組 0
+            C.Gate("rail_events_departure_rows_match", n_dep_ev == len(tt_dep), True),
+            C.Gate("rail_events_arrival_rows", n_arr_ev, None, passed=n_arr_ev > 0),
+            C.Gate("rail_events_suspicious_pairs", RE.suspicious_total(events.summary), 0),
+            # 〔検収 M1・L2〕同じ分の 2 便で潰れた属性・始発の印の食い違い(どちらも上の和にも入る)
+            C.Gate("rail_events_attr_collapsed", int(events.summary["attr_collapsed"]), 0),
+            C.Gate("rail_events_origin_flag_mismatch",
+                   int(events.summary["metro_dep_join"]["origin_flag_mismatch_station_vs_train_timetable"]), 0),
         ]
     return res
 

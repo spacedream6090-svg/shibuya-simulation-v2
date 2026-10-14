@@ -121,7 +121,9 @@ def test_the_counts_by_form(decls):
     # 〔第 1 期 1-8b〕engine/speech/port.py の docstring の段落 1(モーラ数)と見出し 2(port.py 項 3・layer.py 項 3)を
     # 足した=docstring 5 → 6・見出し 80 → 82(記録 s8b/README.md)
     # 〔第 2 期 2-2 段 11a〕engine/proximity.py の見出し(項 5)を足した=82 → 83(記録 prox22/README.md)
-    assert S.count_by_form(decls) == {"conf": 0, "expedients": 143, "docstring": 6, "heading": 83, "process": 18,
+    # 〔第 2 期 2-3c〕W12 の発着の表の宣言の表 RAIL_EVENT_EXPEDIENTS(1 行=下りの直通の結び)を足した=expedients 143 → 144
+    # (記録 tt23c/README.md)
+    assert S.count_by_form(decls) == {"conf": 0, "expedients": 144, "docstring": 6, "heading": 83, "process": 18,
                                       "fallback": 5}
     heads = [d for d in decls if d.form == S.FORM_HEADING]
     # 〔第 1 期 1-2〕p_notice の expedient の項 m_load(歩きスマホの負荷の係数)を消した=338 → 337(記録 p12/README.md §15)
