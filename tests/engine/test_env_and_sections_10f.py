@@ -56,6 +56,8 @@ C07_KEYS = ("tools",)
 S8B_KEYS = ("speech_port",)
 #: 第 2 期 2-2 段 11a で末尾(1-8b の speech_port の後)に足した欄(近接の判定の腕・計器)。
 PX22_KEYS = ("proximity",)
+#: 〔第 3 期 3-3〕末尾(2-2 の proximity の後)に足した欄(反実仮想の申込書の節・申込書を渡さないランは null)。
+X33_KEYS = ("experiment",)
 PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite", "blake3", "os", "os_release",
                  "os_version", "machine", "cpu", "numpy_simd", "deps", "deps_sha256", "deps_count"}
 #: 設定の節の道筋の一覧の sha256(環境に依らない golden=検収 N3 の 3)。節を変えたら理由を記録に書いて更新する。
@@ -85,7 +87,10 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 記録 docs/bench/analysis/wallbounce-1012/prox22/README.md)。
 #: 第 2 期 2-1: ``economy.stage2`` の設定の子 8(arm・parts・payday_day_of_month・expedients・hours_source・plan・
 #: faucet_sink_registry・atms)を足した(2-2 の後に・前 ``1ec094a4…91503d3``・記録 ec21/README.md §14)。
-CONFIG_PATHS_SHA256 = "f78dd574c2e91ccdd9acbae00312dcf0ef5cacd0b98068bfa871a5892cfbc947"
+#: 第 3 期 3-3: ``experiment`` の設定の子 17 個(schema・form_sha256・kind・level・aa・decisions・t0_ns・t0_step・end_ns・
+#: notice・registration_sha256・preregistration_sha256・seal_sha256・branch_t0_step・member・half・aa_of)を足した(2-1 の後に・
+#: 前 ``f78dd574…bfc947``・記録 docs/bench/analysis/wallbounce-1012/cf33/README.md)。
+CONFIG_PATHS_SHA256 = "415620b048e8be5a3d906f34c0fbd8bd2d2e3ae43b019a0bf3fd8b4ffb3e4f44"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 
@@ -249,9 +254,9 @@ def test_t1_two_processes_write_the_same_env_id_and_final_to_the_files(tmp_path)
     assert drop(c1["manifest"]) == drop(c2["manifest"])
     assert c1["manifest"]["resume"]["run_id"] != c2["manifest"]["resume"]["run_id"]
     # 列追加のみ(末尾に 3 つ+第 2 段の 2 つ+10e の欄+1-1 T0 の欄+1-4 の欄+1-9 の欄+1-2 の欄+1-5 の欄+1-8 J0 の欄+1-7 の欄
-    # +1-8b の欄+2-2 の欄)
+    # +1-8b の欄+2-2 の欄+3-3 の欄)
     tail = (NEW_KEYS + STAGE2_KEYS + E10_KEYS + T0_KEYS + R14_KEYS + C19_KEYS + P12_KEYS + R15_KEYS + J08_KEYS
-            + C07_KEYS + S8B_KEYS + PX22_KEYS)
+            + C07_KEYS + S8B_KEYS + PX22_KEYS + X33_KEYS)
     assert list(c1["manifest"])[-len(tail):] == list(tail)
 
 

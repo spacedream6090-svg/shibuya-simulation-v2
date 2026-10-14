@@ -25,6 +25,7 @@ from shibuya.engine.systems.table import SPECS, SYSTEMS
 
 ORDER = (
     "build", "day_head",
+    "experiment",  # 〔第 3 期 3-3〕申込書の改変を効かせる系(申込書を渡したランだけ立つ)
     "body", "world", "presence", "perceive_prepare", "llm_receive", "apply_responses", "detect", "plan_boundary",
     "home_meal", "wake_sources", "wake_filter", "relations_wake", "wake_assemble", "arbiter", "decide", "phase_a",
     "phase_b", "phase_c", "conversation", "activity_intent", "memory", "familiarity", "energy_after", "observe",
@@ -35,7 +36,7 @@ ORDER = (
 
 def test_order_and_counts():
     assert tuple(s.name for s in SYSTEMS) == ORDER
-    assert sum(1 for s in SYSTEMS if s.timing == "tick") == 25
+    assert sum(1 for s in SYSTEMS if s.timing == "tick") == 26  # 〔3-3〕25+申込書の系 experiment
     ranks = [TIMINGS.index(s.timing) for s in SYSTEMS]
     assert ranks == sorted(ranks)  # ランの頭 → 日の頭 → tick → 日の終わり → ランの終わり
     assert all(s.fn is not None and s.group and s.origin for s in SYSTEMS)

@@ -223,7 +223,8 @@ def test_negative_control_second_writer_is_found():
 # ================================================================= 語彙の族「道具」との結び
 def test_tool_words_are_names_of_the_registry_and_appended_at_the_end():
     assert set(V.TOOL_WORDS) <= set(TR.TOOL_NAMES)
-    assert V.FAMILIES[-1] == V.FAMILY_TOOL == "道具"
+    # 〔第 3 期 3-3〕族の並びの末尾に「実験」を足した=道具はその 1 つ前
+    assert V.FAMILIES[-2] == V.FAMILY_TOOL == "道具" and V.FAMILIES[-1] == V.FAMILY_EXPERIMENT == "実験"
     assert V.VOCAB_CODES["行為:許可のない行動"] == 55 and V.VOCAB_CODES["道具:看板"] == 56  # 1-5 までのコードは動かない
     # 〔第 2 期 2-1〕知覚の名の後ろに経済の段階 2 の過程の名(payroll・atm・register)を足した(知覚の名の位置は動かない)
     assert V.PERCEPTION_PROCESSES == ("perception",)

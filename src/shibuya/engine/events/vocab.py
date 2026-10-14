@@ -38,6 +38,11 @@
   別の組で足した**=1-8b までの 58 語のコード(``行為:発話``=57)は動かない(``金:引き出し``=58・``金:カード``=59)。原因の名に
   経済の段階 2 の過程の名 ``payroll``・``atm``・``register``(``ECONOMY_PROCESSES``)を末尾(1-7 の ``perception`` の後ろ)に足した
   (``Process(name)`` の名だけ・``過程`` の族の語ではない=1-5 の ``rights`` と同じ)。版 ``events-vocab/2-1``。
+- 〔第 3 期 3-3〕族を 1 つ足した: ``実験``(反実仮想の申込書の改変=決定 10-12 §4-5 CP5・CP6・CP12)。語は ``改変``(申込書の決定が
+  世界に入った=原因は実験の条件・口は ``engine.experiment.gate.admit`` だけ)と ``届いた情報``(外での決定が境界を越えて届いた=
+  告知の宛先ごとに 1 行・``via``=道具・``received_ns``=届いた時刻)。**表の末尾(2-1 の ``金:カード`` の後ろ)に足した**=2-1
+  までの 60 語のコード(``金:カード``=59)は動かない(``実験:改変``=60・``実験:届いた情報``=61)。版 ``events-vocab/3-3``。
+  **仮採用**(族の名と語は実行役の構成=未リサーチ(expedient)・10-13b §0-3)。
 
 ``via``(CT9 の道具の欄)の語: 対面・通話・メッセージ・グループ・SNS・無し(決定 10-12 §4-4 CT9 (b) の 5 つ+無し)。
 ``where`` の種類: セル・ノード・POI(口の約束 1-3)。
@@ -53,16 +58,16 @@ from typing import Mapping, Final
 from shibuya.llm.contract import ACTION_VOCAB_V3
 
 __all__ = [
-    "FAMILY_ACT", "FAMILY_PROCESS", "FAMILY_MONEY", "FAMILY_GOODS", "FAMILY_TOOL", "FAMILIES",
+    "FAMILY_ACT", "FAMILY_PROCESS", "FAMILY_MONEY", "FAMILY_GOODS", "FAMILY_TOOL", "FAMILY_EXPERIMENT", "FAMILIES",
     "ACT_WORDS", "WORLD_PROCESSES", "BOUNDARY_PROCESSES", "PROCESS_NAMES", "MONEY_WORDS", "GOODS_WORDS",
     "ACT_EXTRA_WORDS", "CHECK_PROCESSES", "PERCEPTION_PROCESSES", "CAUSE_PROCESS_NAMES", "TOOL_WORDS", "SPEECH_WORDS",
-    "MONEY_EXTRA_WORDS", "ECONOMY_PROCESSES",
+    "MONEY_EXTRA_WORDS", "ECONOMY_PROCESSES", "EXPERIMENT_WORDS",
     "VOCAB", "VOCAB_CODES", "VOCAB_VERSION", "word", "code_of", "family_of",
     "VIA_WORDS", "VIA_NONE", "VIA_CODES", "WHERE_KINDS",
 ]
 
 #: 表の版(語を足したら上げる)。
-VOCAB_VERSION: Final[str] = "events-vocab/2-1"
+VOCAB_VERSION: Final[str] = "events-vocab/3-3"
 
 FAMILY_ACT: Final[str] = "行為"
 FAMILY_PROCESS: Final[str] = "過程"
@@ -70,7 +75,10 @@ FAMILY_MONEY: Final[str] = "金"
 FAMILY_GOODS: Final[str] = "物"
 #: 〔1-7〕道具を使った出来事の族(族の並びの末尾)。
 FAMILY_TOOL: Final[str] = "道具"
-FAMILIES: Final[tuple[str, ...]] = (FAMILY_ACT, FAMILY_PROCESS, FAMILY_MONEY, FAMILY_GOODS, FAMILY_TOOL)
+#: 〔3-3〕反実仮想の申込書の改変の族(族の並びの末尾)。
+FAMILY_EXPERIMENT: Final[str] = "実験"
+FAMILIES: Final[tuple[str, ...]] = (FAMILY_ACT, FAMILY_PROCESS, FAMILY_MONEY, FAMILY_GOODS, FAMILY_TOOL,
+                                    FAMILY_EXPERIMENT)
 
 #: 行為 12 語(語彙 v3 の横断語・並びは v3 の表のまま)。
 ACT_WORDS: Final[tuple[str, ...]] = tuple(ACTION_VOCAB_V3)
@@ -126,9 +134,12 @@ SPEECH_WORDS: Final[tuple[str, ...]] = ("発話",)
 #: 〔2-1〕金の族に足した科目の名でない語(``economy.ops.MONEY_EXTRA_WHAT`` の写し・並びも同じ)。1-8b の ``SPEECH_WORDS`` の後ろの
 #: 別の組(1-8b までの語のコードを動かさない=``金:引き出し``=58・``金:カード``=59)。
 MONEY_EXTRA_WORDS: Final[tuple[str, ...]] = ("引き出し", "カード")
+#: 〔3-3〕実験の族の語(``改変``=申込書の決定が世界に入った・``届いた情報``=外での決定が境界を越えて届いた)。2-1 の
+#: ``MONEY_EXTRA_WORDS`` の後ろの別の組(2-1 までの語のコードを動かさない=``実験:改変``=60・``実験:届いた情報``=61)。
+EXPERIMENT_WORDS: Final[tuple[str, ...]] = ("改変", "届いた情報")
 
 #: 表の全部(1-3 の 55 語は族の順 → 族の中の順・その後ろに 1-5 で足した語・その後ろに 1-7 で足した語・その後ろに 1-8b で
-#: 足した語・その後ろに 2-1 で足した金の 2 語)。コードはこの並びの位置(記録の列に入る int16)。
+#: 足した語・その後ろに 2-1 で足した金の 2 語・その後ろに 3-3 で足した実験の 2 語)。コードはこの並びの位置(記録の列に入る int16)。
 VOCAB: Final[tuple[str, ...]] = (
     tuple(f"{FAMILY_ACT}:{w}" for w in ACT_WORDS)
     + tuple(f"{FAMILY_PROCESS}:{w}" for w in PROCESS_NAMES)
@@ -138,6 +149,7 @@ VOCAB: Final[tuple[str, ...]] = (
     + tuple(f"{FAMILY_TOOL}:{w}" for w in TOOL_WORDS)
     + tuple(f"{FAMILY_ACT}:{w}" for w in SPEECH_WORDS)
     + tuple(f"{FAMILY_MONEY}:{w}" for w in MONEY_EXTRA_WORDS)
+    + tuple(f"{FAMILY_EXPERIMENT}:{w}" for w in EXPERIMENT_WORDS)
 )
 VOCAB_CODES: Final[Mapping[str, int]] = MappingProxyType({w: i for i, w in enumerate(VOCAB)})  # 検収 L7: 実行時に語を足せない
 assert len(VOCAB_CODES) == len(VOCAB), "語彙表に同じ語が 2 回ある"

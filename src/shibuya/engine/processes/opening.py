@@ -217,6 +217,28 @@ class OpeningProcess:
                 self.assets.plan_ph_poi,
             )
 
+    def set_plan_rows(self, pois, minutes) -> None:
+        """〔第 3 期 3-3〕申込書の決定(L1 営業時間の変更・休業)=対象の店の営業時間の表の行を差し替える。
+
+        呼ぶのは申込書の効かせる口(``engine.experiment.apply``)だけ。開け閉めそのものは ``step`` が担当の従業者に行わせる
+        (居なければ今の conf 宣言つきのつなぎ)=エンジンは決定を表に入れるだけ(決定 10-12 §1-1 CP6)。``minutes`` は 1 日の
+        分の真偽の列。表は日の頭で W7 から張り直す(``relay_day``)ので、口が日ごとに当て直す。
+        """
+        if self.open_matrix.size:
+            self.open_matrix[np.asarray(pois, dtype=np.int64), :] = np.asarray(minutes, dtype=bool)
+
+    def restore_plan_rows(self, pois) -> None:
+        """〔第 3 期 3-3〕対象の店の行をその日の W7 の行に戻す(申込書の終わり・``engine.experiment.apply`` だけが呼ぶ)。"""
+        if not self.open_matrix.size:
+            return
+        p = np.asarray(pois, dtype=np.int64)
+        a = self.assets
+        sel = np.isin(np.asarray(a.plan_poi), p)
+        fresh = build_open_matrix(self.world.n_poi, np.asarray(a.plan_poi)[sel], np.asarray(a.plan_day)[sel],
+                                  np.asarray(a.plan_start)[sel], np.asarray(a.plan_end)[sel], self.day_index,
+                                  a.plan_ph_poi)
+        self.open_matrix[p, :] = fresh[p, :]
+
     def rebuild_derived(self) -> None:
         """10d: SoA の ``kind`` から作る担当従業者の表を今の SoA から作り直す(再開で SoA を戻した後)。
 

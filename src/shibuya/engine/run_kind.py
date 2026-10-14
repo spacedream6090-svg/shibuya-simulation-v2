@@ -9,6 +9,11 @@ expedient: ランの種類は ``cli.run`` の引数から決める 1 つの規�
 引数が ``cli.arm_baseline``(``run_day`` の既定+CLI の既定)と違うか(``cli.run_arms``)。``cli.main`` も同じ決め方。
 反実仮想は 3-3 の申込書で決める(今の規則は ``counterfactual`` を返さない)。``run_day`` を直に呼ぶランは決めない。
 
+〔第 3 期 3-3〕申込書(``engine.experiment``)を渡した ``cli.run`` は ``counterfactual``(``decide(counterfactual=True)``)。順は
+試験 > 反実仮想 > 腕 > 再現(試験の中は今までどおり ``test``)。申込書は設定の指紋に入れない(申込書の指紋は manifest の
+``experiment`` の節)。上の段落の「今の規則は ``counterfactual`` を返さない」は 3-3 より前の記述(つなぎの台帳の行
+``BR-RUN-KIND-CLI-ARMS`` の写しの元なので文は変えない=3-3 からは申込書を渡したランが ``counterfactual``)。
+
 〔第 1 期 1-8b〕``cli.run`` の引数でない腕のうち、結果を変える腕も ``arm`` に数える: 発話の口 ``--speech-port on``(環境変数
 ``SHIBUYA_SPEECH_PORT=on`` でも同じ=組み立てが読む腕・設定の指紋にも on のときだけ入る)。結果を変えない腕(1-8 J0 の
 ``--decision-port port``・1-6 の ``--memory-store events``)は数えない。
@@ -40,10 +45,12 @@ def in_test() -> bool:
     return bool(os.environ.get(PYTEST_ENV))
 
 
-def decide(*, arms_on: bool, testing: bool | None = None) -> str:
-    """``cli.run`` の規則: 試験 > 腕 > 再現 の順。``testing`` を省くと ``in_test()``。"""
+def decide(*, arms_on: bool, testing: bool | None = None, counterfactual: bool = False) -> str:
+    """``cli.run`` の規則: 試験 > 反実仮想(〔3-3〕申込書を渡した)> 腕 > 再現 の順。``testing`` を省くと ``in_test()``。"""
     if in_test() if testing is None else testing:
         return TEST
+    if counterfactual:
+        return COUNTERFACTUAL
     return ARM if arms_on else REPRODUCTION
 
 

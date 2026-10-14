@@ -1,6 +1,6 @@
 """状態台帳の宣言(10b・A3「挙動」と「復元」の 2 軸・機械可読の 1 ファイル)。
 
-**読み口は 1 つ**: ``LEDGER``(202 行の組=〔第 2 期 2-1〕経済の段階 2 の行 ``EC``・``ATM``・``CR``・``EM``・〔第 1 期 1-8〕候補の口の行 ``J0``・〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P``・〔第 1 期 1-7〕連絡先の印の行 ``CT5``・〔第 1 期 1-8b〕発話の口の腕の行 ``S8``・``S8M``・〔第 2 期 2-2〕近接の層の行 ``PX``・近傍の索引の行 ``PX0`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
+**読み口は 1 つ**: ``LEDGER``(203 行の組=〔第 3 期 3-3〕申込書の控えの行 ``X``・〔第 2 期 2-1〕経済の段階 2 の行 ``EC``・``ATM``・``CR``・``EM``・〔第 1 期 1-8〕候補の口の行 ``J0``・〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P``・〔第 1 期 1-7〕連絡先の印の行 ``CT5``・〔第 1 期 1-8b〕発話の口の腕の行 ``S8``・``S8M``・〔第 2 期 2-2〕近接の層の行 ``PX``・近傍の索引の行 ``PX0`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
 ``soa_rows``・``external_rows``・``behavior_excluded``・``full_excluded``・``full_items``・``behavior_items``・〔1-8b〕``arm_rows``・``arm_items``)。表・AST の検査(``engine.state_ledger_ast``)・
 2 つのハッシュ(``engine.state_hashes``)・揺らし試験はどれもこの表から作る。
 
@@ -70,6 +70,7 @@ from typing import Final, Iterable, Mapping
 #: 〔第 1 期 1-8b〕発話の口の腕の行 ``S8``(behavior・required)・``S8M``(diag・discardable)も版は上げない(仮採用): 腕の行は
 #: 腕 on のランだけハッシュと状態のファイルに入る=既定 off のランの状態のファイルは前の版と同じ中身。
 #: 〔第 2 期 2-2 段 11a〕近接の層の行 ``PX``(diag・discardable)と近傍の索引の行 ``PX0``(no・discardable)も同じ理由で上げない。
+#: 〔第 3 期 3-3〕申込書の控えの行 ``X``(diag・discardable)も版は上げない(仮採用): どちらのハッシュにも状態のファイルにも入らない。
 LEDGER_VERSION: Final[str] = "state-ledger/10e-ret"
 
 BEHAVIOR: Final[str] = "behavior"
@@ -886,6 +887,26 @@ _EXT: tuple[LedgerRow, ...] = (
         note="2-1: 生ログの行ごとの支払いの方法(0=現金・1=口座)。読み手は記録と試験だけ(軸 1 diag)・輪の中身 O58 と同じく"
              "再開で空から(軸 2 discardable)。腕の無いランは全部 0。書く系は生ログを書く系と同じ(world・phase_c・day_close・"
              "close_final=宣言 EM:ledger.*)"),
+    # ---- 第 3 期 3-3(反実仮想の申込書・CP5・CP12): 足す前に軸を決めた行 ----
+    LedgerRow(
+        key="X", name="ExperimentLayer(申込書の改変の控え・4 つの確認の結果・第 3 期 3-3)", place=EXTERNAL,
+        dtype="WorldHandle(口が触る世界の物の束と控え rec=効かせた/効かせていない行の list・計数の dict・決定の番号の集合)・"
+              "4 つの確認の結果の読み取り専用の dict",
+        nbytes="", alloc="申込書を渡したラン(cli.run の experiment・--experiment)", behavior=DIAG, restore=DISCARDABLE,
+        dead=False,
+        basis="engine/experiment/apply.py(ApplyRecord・WorldHandle・apply)・engine/experiment/layer.py(ExperimentLayer・"
+              "manifest・record_checks)・engine/experiment/branch.py(run_branch が record_checks を呼ぶ)",
+        items=("experiment.handle", "experiment.xchecks"),
+        note="3-3: 申込書を渡したランだけ持ち主を作る(既定は持ち主が None)。handle は口 apply が触る世界の物の束(参照)と"
+             "改変の控え handle.rec(効かせた・効かせていない行・計数・決定の番号の集合)。控えの行と計数と 4 つの確認の結果"
+             "(xchecks)は診断=読み手は manifest の experiment(持ち主のメソッド manifest)と分岐の報告と試験だけ(軸 1 diag)。"
+             "控えの中の決定の番号の集合(記録した・効いている・日ごとに当てた・終わった)は口 apply の当て直しの印だが、申込書と"
+             "時刻と世界の資産から決まる派生(世界に入った結果=店の開閉の旗・天気の再生日 O56・暦は世界の側の状態とテープにある)。"
+             "軸 2 discardable(再開のランは申込書と時刻と親の状態の見出しの申込書の指紋から作り直す=どちらのハッシュにも状態の"
+             "ファイルにも入らない=申込書つきの A/A の枝の final は基準のランと同じ)。書く系は experiment だけ(宣言 "
+             "X:experiment.*)。xchecks はランの後に分岐の道具 branch.run_branch が持ち主の口 record_checks で 1 回だけ書く(系の外="
+             "ランの間は書かない)。持ち主の欄は 1 回だけ置ける(__setattr__・__delattr__ の守り=検収 M4)。行の鍵は O の通し番号で"
+             "なく X"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -1036,6 +1057,8 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "speech": ("engine/speech/port.py", "SpeechPort"),
     # 第 2 期 2-2 段 11a: 近接の層(状態台帳の行 PX・腕 --proximity distance のランだけ)
     "proximity": ("engine/proximity.py", "ProximityLayer"),
+    # 第 3 期 3-3: 申込書の持ち主(状態台帳の行 X・申込書を渡したランだけ)
+    "experiment": ("engine/experiment/layer.py", "ExperimentLayer"),
 }
 
 #: (ii) キャッシュ・導出。中身は 3 通り: (a) 毎 tick(か事象のある tick)作り直す作業の値・印
@@ -1304,6 +1327,10 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("rel_layer", CACHE, "2-2: 刻みの中だけの控え(腕 distance の辺の見え方=同席と知人出現で共有)", "_ev", "_ev_step"),
     # 第 2 期 2-1: 経済の段階 2 の組み立ての物への参照(状態台帳の行 EC の側で数える)・段階 2 の組を許す印(組み立てで 1 回)
     _x("decision", REF, _REFR + "(2-1: 経済の段階 2 の組み立ての物=ATM の表と部品を読むだけ)", "money_stage2"),
+    # 第 3 期 3-3: 申込書の持ち主の設定(申込書=凍結・T0 とランの範囲の刻み・メンバーと半分)と参照(T0 で切り替える LLM の口)
+    _x("experiment", CONST, _CFG + "(申込書は凍結の ExperimentForm・刻みはランの範囲・アンサンブルのメンバーと半分=入口で"
+       "決まる)", "form", "t0_step", "begin_step", "end_step", "total_steps", "member", "half"),
+    _x("experiment", REF, _REFR + "(T0 で切り替える LLM の口 BranchClient・計器は manifest の experiment.replay)", "branch"),
 )
 
 

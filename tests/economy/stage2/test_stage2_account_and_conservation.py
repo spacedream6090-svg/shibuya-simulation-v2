@@ -159,7 +159,8 @@ def test_extra_money_words_map_to_deposit_net_and_are_in_the_vocab():
     assert tuple(w.split(":", 1)[1] for w in OPS.MONEY_EXTRA_WHAT) == V.MONEY_EXTRA_WORDS
     assert all(c == AccountCode.DEPOSIT_NET for c in OPS.MONEY_EXTRA_WHAT.values())
     assert all(w in V.VOCAB_CODES for w in OPS.MONEY_EXTRA_WHAT)
-    assert V.VOCAB[-2:] == ("金:引き出し", "金:カード") and V.VOCAB_VERSION == "events-vocab/2-1"
+    # 〔第 3 期 3-3〕その後ろに実験の族の 2 語(版 events-vocab/3-3)=金の 2 語のコードは 58・59 のまま
+    assert V.VOCAB[58:60] == ("金:引き出し", "金:カード") and V.VOCAB_VERSION == "events-vocab/3-3"
     assert V.ECONOMY_PROCESSES == ("payroll", "atm", "register") and V.CAUSE_PROCESS_NAMES[-3:] == V.ECONOMY_PROCESSES
     led = _led()
     _deposit(led, [0], [5_000])

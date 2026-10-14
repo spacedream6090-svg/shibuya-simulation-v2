@@ -3801,6 +3801,138 @@
    "code_at": [
     "src/shibuya/economy/stage2.py"
    ]
+  },
+  {
+   "id": "DOC-cf33-notice-rows-only",
+   "what": "反実仮想の申込書の告知(CP6)は宛先ごとの「届いた情報」の出来事の行まで(via・received_ns)。住人が受け取って本人が変わる段(道具で届く・読む・覚える)は無い。宛先 staff は権利台帳の雇用の行の担当(OpeningProcess.staff_of_poi)",
+   "why": "第 3 期 3-3(発注「告知 CP6 は『届いた情報』の出来事まで」・決定 10-12 §1-1 の段取り)。CT の道具の段(C1 メッセージ・グループ・電話=6-4)で、届いた情報を本人の入力と記憶に載せる",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/cf33/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "plan"
+  },
+  {
+   "id": "DOC-cf33-fallback-executes",
+   "what": "担当のいない店(担当の従業者が店のセルに居ないときを含む)の休業・営業時間の変更は conf 0.5 のつなぎ(engine_rule)が実行する。決定 10-12 §1-1「分岐の実験ではエンジンが代わりに実行する仕組みを使わない」は 6-6 まで宣言のまま置き、分岐の報告に実行の内訳(担当の役割行動・つなぎ・担当のいる店の数)と、4 つの確認とは別の欄 executed_by_agents を出す",
+   "why": "第 3 期 3-3(親の判断 M3)。1,000 体の世界資産は担当 0 人=全部つなぎ・5,000 体は担当のいる世界で内訳を記録(記録 §4)。人の仕事を働く人のエージェントへ(6-6 の ② 権利台帳・カレンダー 3 の後)で、開け閉めを担当の人に移し、つなぎの実行を再現度の欠陥として数える",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/cf33/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-cf33-start-zero-order",
+   "what": "申込書の「最初から」(始まり 0)は 0 の刻みの頭で当てる。CP5-1 の順(改変を当ててから、ランの前の経験=通勤の経験・親しみ・記憶の初期の中身を作る)と CP5-3 のペルソナの文の点検(改変した物を名指ししていないか)は未実装",
+   "why": "第 3 期 3-3(主に使うのは途中から=CP5-1)。ペルソナと開始前の経験の作り直し(4-1 の段 6・9)で、組み立ての中で改変を経験の前に当てる口と点検を足す",
+   "remove_at": "4-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/cf33/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-cf33-burn-in-not-judged",
+   "what": "慣らしと測る期間(CP5-6)の自動判定(MSER-5 など・速い指標と遅い指標)と 3 区間(構え・切り替わり・新しい日常)の事前登録は未実装(申込書に欄が無い)",
+   "why": "第 3 期 3-3(発注「慣らしの自動判定 CP5-6 は未実装=宣言」・リサーチ E2)。外に出す主張の前(第 7 期)に判定と区間の欄を足す",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/cf33/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-cf33-skill-empty",
+   "what": "技量スコア(CP14)は器だけ=単純な基準 3 つ(去年の同じ日・平均・前の週)の誤差と 1 − 誤差/基準の誤差の式の置き場で、値は空。事前登録の記録の公開の置き場(docs/predictions/)は作っていない",
+   "why": "第 3 期 3-3(発注「技量スコアは器だけ」・計画 §4 の CP14 の親案)。外に出す予測の前(第 7 期)に答え合わせの道具と置き場を作る",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/cf33/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "plan"
+  },
+  {
+   "id": "DOC-cf33-l2-declared",
+   "what": "改変の水準 L2(入口や通路の開閉・仮の柵・家具・行列の場所)は申込書の欄だけ(効かせる口は「宣言して未実装(L2)」として記録して続ける)",
+   "why": "第 3 期 3-3(決定 10-12 §4-5 の改変のレベル=L2 は空間の段 1〜2 の後)",
+   "remove_at": "5-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/cf33/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "plan"
+  },
+  {
+   "id": "DOC-cf33-l3-declared",
+   "what": "改変の水準 L3(大きな物理)は申込書の欄だけ(宣言して未実装)。決定 10-12 §1-1 は開始前に作り込むか工事を作業員の仕事にする",
+   "why": "第 3 期 3-3(§1-1・L3 を時刻 T に直接置く旧案は撤回)。工事を作業員の仕事にする段(6-6 の ②)で",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/cf33/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-cf33-l4-declared",
+   "what": "改変の水準 L4(運賃・運休・新しい店・来る人の構成)は申込書の欄だけ(宣言して未実装)",
+   "why": "第 3 期 3-3。運賃と新しい店は権利台帳と規則の表の中身(4-2)・来る人の構成は人口の作り直し(4-1)の後。外す段は 4-2 で代表させた(1 行に 1 段)",
+   "remove_at": "4-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/cf33/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-cf33-branch-fleet",
+   "what": "分岐(T0 までテープを再生して T0 から今の方策)は同期の LLM の口(mock・古典・注入した LLM)だけ。艦隊(非同期の実 LLM)の分岐は未実装(組み立てで止める)",
+   "why": "第 3 期 3-3。反実仮想の T からの実 LLM(6-7)で艦隊の口を同じ切り替えに通す",
+   "remove_at": "6-7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/cf33/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "plan"
+  },
+  {
+   "id": "DOC-cf33-branch-probe",
+   "what": "分岐の確認 (c) は T0 以後の全 checkpoint を走査して最初に behavior-hash が食い違った checkpoint を見つけ、その前で一致した最後の checkpoint からの刻みの窓に系ごとの指紋(probe の形)をかけて A/A の枝と改変の枝を回し直す(ランは 4 本)。ランをまたいで比べられない digest(入れ子の物の番号を含む X:)は外す(外した欄の名は報告に書く)。状態は T0 より前の最後の日の境目から",
+   "why": "第 3 期 3-3(実行役の構成・未リサーチ(expedient))。窓の長さと外す欄は分岐の実測で見直す(第 7 期の主張の前)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/cf33/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-cf33-reapply-unit",
+   "what": "申込書の表への当て直しの単位=日が替わるごと(日の頭で過程が表を張り直した後の最初の刻み)・祝日は翌日以後だけ(当日の表は張り直し済み)・終わりに戻す形(W7 の行の作り直し・その日の実際の天気の引き直し)",
+   "why": "第 3 期 3-3(実行役の構成)。雇い主・祝日をカレンダーに入れる段(6-2 のカレンダー 3)で、祝日と営業の決定を暦と雇い主の側の表に移す",
+   "remove_at": "6-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/cf33/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-cf33-ensemble-seeds",
+   "what": "アンサンブルの seed の割り振り(初期状態 i → 母集団と環境の seed=seed0+i・偶然 c → 動きの seed=seed0+c)と封印の並べ方(単位=初期状態=親の判断 M2・アンサンブルの指紋と初期状態の正準の JSON の sha256 の昇順・先頭 n//2 を封印・初期状態が 1 つなら封印は空)",
+   "why": "第 3 期 3-3(実行役の構成・未リサーチ(expedient))。初期状態をヒストリーマッチングで作る段(第 7 期の前)で割り振りを決め直す",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/cf33/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
   }
  ]
 }

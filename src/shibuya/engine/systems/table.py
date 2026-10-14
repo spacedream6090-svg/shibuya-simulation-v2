@@ -32,6 +32,10 @@ decide(届ける=描画の ``perceive`` の ``take_heard``・話す=会話の番
 書く系: phase_c(引き出し・支払いの方法・レジの税)・day_close と close_final(給料日の賃金・日の欄)は ``EC:ledger.*``・
 ``EM:ledger.*``、world(補充の代金の行の方法の列=0)は ``EM:ledger.*``。ATM の表(行 ``ATM``)と信用の器(行 ``CR``)は
 組み立ての後は書かない。
+〔第 3 期 3-3〕申込書の改変を効かせる系 ``experiment``(刻みの中の最初=日の頭の後・``when="experiment"``=申込書を渡したランだけ
+立つ=既定のランでは呼ばない=結果不変)。書くのは申込書の控え(状態台帳の行 ``X``)・決定と告知の出来事(``E:events.*``)・天気の
+再生日(L0=``O56:runner.environment.*``)。営業時間の表(``runner.opening.open_matrix``)と暦の祝日の表は台帳の外(キャッシュと
+組み立ての物)。
 
 〔親の決め〕世界過程が持ち主をまたいで書く所(鉄道と大きな催しが計画実行層の O36・O37・O70 と鉄道の O74 を書く)は
 1-0 では宣言で認める(``world`` の ``writes.paths``)。
@@ -54,6 +58,7 @@ from shibuya.engine.systems import report as _RP
 from shibuya.engine.systems import run_end as _RE
 from shibuya.engine.systems import talk as _TK
 from shibuya.engine.systems import world as _WD
+from shibuya.engine.experiment import layer as _EXP
 from shibuya.engine.systems.spec import SystemSpec, make
 
 __all__ = ["SYSTEMS", "SPECS", "TICK_ORDER"]
@@ -81,7 +86,12 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.classical layers.ledger layers.poi_resolver layers.presence layers.runner "
                "runstats.day_heads soa.agents",
          origin=f"L0・run.py:3607-3609 @{_E}"),
-    # ================================================================ 刻みの中(25)
+    # ================================================================ 刻みの中(25+〔3-3〕申込書の系 1)
+    # 〔第 3 期 3-3〕申込書の改変を効かせる口(申込書を渡したランだけ立つ・刻みの中の最初=日の頭で張り直した表の後)
+    make("experiment", "実験", "tick", _EXP.sys_experiment,
+         paths="X:experiment.* E:events.* O56:runner.environment.*",
+         when="experiment", reads="layers.experiment",
+         origin="第 3 期 3-3(新設・HEAD の区間なし)"),
     make("body", "体", "tick", _BD.sys_body,
          resolve_ops="advance_body energy_out_of_area_meal",
          paths="O2[7-9]:energy.* O3[0-3]:energy.* O21:classical.*",
@@ -337,7 +347,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.wom llm.fleet_deferred llm.fleet_inflight llm.fleet_waiting llm.pending "
                "llm.replay_inbox runstats.daily_records runstats.result runstats.state_files "
                "soa.agents soa.world layers.events "
-               "layers.proximity",  # 第 2 期 2-2(検収 M1): 状態のファイルの見出しに近接の腕を書く
+               "layers.proximity "  # 第 2 期 2-2(検収 M1): 状態のファイルの見出しに近接の腕を書く
+               "layers.experiment",  # 3-3(検収 L7): 状態の見出しに申込書の指紋(save_state)
          origin=f"L24・run.py:4497-4500 @{_E}"),
     # ================================================================ ランの終わり
     make("drain", "判断", "run_end", _RE.sys_drain,
@@ -351,7 +362,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.poi_resolver layers.presence layers.rel_layer layers.renderer layers.runner "
                "layers.wom llm.fleet_deferred llm.fleet_inflight llm.fleet_waiting llm.pending "
                "llm.replay_inbox runstats.result runstats.state_files soa.agents soa.world "
-               "layers.proximity",  # 第 2 期 2-2(検収 M1): 状態のファイルの見出しに近接の腕を書く
+               "layers.proximity "  # 第 2 期 2-2(検収 M1): 状態のファイルの見出しに近接の腕を書く
+               "layers.experiment",  # 3-3(検収 L7): 状態の見出しに申込書の指紋(save_state)
          origin=f"E0・run.py:4503-4549 @{_E}"),
     make("close_final", "暦", "run_end", _RE.sys_close_final,
          # 〔T5 で見つけた漏れ〕歩いて乗る退出の腕では最後の便の発車が計画の印を落とす(presence.notify_departed_by_plan
@@ -373,7 +385,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "runstats.ledger_growth runstats.result runstats.state_files soa.agents soa.world layers.events "
                "layers.decision "  # 1-8 J0: 候補の口の層を結果に渡す(manifest の decision_port)
                "layers.speech "  # 1-8b: 発話の口を結果に渡す(manifest の speech_port)
-               "layers.proximity",  # 第 2 期 2-2: 近接の層を結果に渡す(manifest の proximity)
+               "layers.proximity "  # 第 2 期 2-2: 近接の層を結果に渡す(manifest の proximity)
+               "layers.experiment",  # 3-3: 申込書の持ち主を結果に渡す(manifest の experiment)
          origin=f"E1・run.py:4551-4592 @{_E}"),
     make("report", "計器", "run_end", _RP.report,
          tally="result sleep_counts frozen_sources_map",  # 段 FIX: 欄の別名 ``frozen_sources_map.update``

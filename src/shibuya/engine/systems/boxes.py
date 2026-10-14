@@ -43,10 +43,12 @@ __all__ = [
 #: 足してもハッシュの値は変わらない。〔第 1 期 1-8 J0〕末尾に ``decision``(候補の口の層=状態台帳の行 ``J0``・腕 port の
 #: ランだけ・既定 None)を足した(同じ理由で値は変わらない)。〔第 1 期 1-8b〕末尾に ``speech``(発話の口=状態台帳の腕の行
 #: ``S8``・``S8M``・腕 on のランだけ・既定 None)を足した(腕の行は持ち主が None のランではハッシュに入らない=値は変わらない)。
+#: 〔第 3 期 3-3〕末尾(2-2 の ``proximity`` の後)に ``experiment``(申込書の持ち主=状態台帳の行 ``X``・軸 1 diag・軸 2 discardable・申込書を渡したランだけ・
+#: 既定 None)を足した(どちらのハッシュにも状態のファイルにも入らない=値は変わらない)。
 OWNER_NAMES: tuple[str, ...] = (
     "act_layer", "intent_layer", "fam_layer", "mem_layer", "poi_resolver", "wom", "rel_layer", "classical",
     "energy", "norm_meter", "presence", "conv", "arbiter", "detector", "runner", "ledger", "undefined",
-    "renderer", "bridge", "fleet_bridge", "run_day", "events", "decision", "speech", "proximity",
+    "renderer", "bridge", "fleet_bridge", "run_day", "events", "decision", "speech", "proximity", "experiment",
 )
 
 
@@ -213,6 +215,9 @@ class Layers:
     #: 〔第 2 期 2-2 段 11a〕近接の層(``engine.proximity.ProximityLayer``・状態台帳の行 ``PX``)。腕
     #: ``--proximity distance`` のランだけ組み立てが置く(既定 None=今の判定=同じセル)。
     proximity: Any = None
+    #: 〔第 3 期 3-3〕申込書の持ち主(``engine.experiment.layer.ExperimentLayer``・状態台帳の行 ``X``)。申込書を渡したランだけ
+    #: 組み立てが置く(既定 None=系 ``experiment`` が立たない=今の道)。
+    experiment: Any = None
 
     @property
     def undefined(self) -> Any:
@@ -416,6 +421,8 @@ class Fixtures:
     tools: Any = None
     #: 〔第 2 期 2-1〕ATM の表(``engine.economy_stage2.AtmTable``・腕 ``--economy-stage2 on`` のランだけ・既定 ``None``)。
     atms: Any = None
+    #: 〔第 3 期 3-3〕申込書(``engine.experiment.form.ExperimentForm``・凍結)。申込書を渡したランだけ(既定 None)。
+    experiment: Any = None
 
 
 @dataclass

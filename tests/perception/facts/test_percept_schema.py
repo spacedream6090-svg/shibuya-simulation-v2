@@ -219,6 +219,7 @@ def test_run_manifest_has_the_percept_section():
     assert m["percept"] == F.percept_manifest()
     keys = list(m)
     # 末尾=T0 の TM9 → 1-4 の欄 → 1-9 の economy → 1-2 → 1-5 の rights → 1-8 J0 の decision_port → 1-7 の tools
-    # → 1-8b の speech_port → 2-2 の proximity(列追加のみ)
-    assert keys[-7:] == ["economy", "percept", "rights", "decision_port", "tools", "speech_port", "proximity"]
+    # → 1-8b の speech_port → 2-2 の proximity → 3-3 の experiment(列追加のみ)
+    assert keys[-8:] == ["economy", "percept", "rights", "decision_port", "tools", "speech_port", "proximity",
+                         "experiment"]
     assert np.isfinite(m["percept"]["n_fields"])

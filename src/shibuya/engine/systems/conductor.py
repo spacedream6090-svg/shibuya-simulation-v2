@@ -72,6 +72,8 @@ WHEN = {
     "fam_layer": lambda b: b.layers.fam_layer is not None,
     "energy": lambda b: b.layers.energy is not None,
     "home_meals": lambda b: b.layers.energy is not None and b.layers.energy.home_meals is not None,
+    # 〔第 3 期 3-3〕申込書を渡したランだけ(既定のランでは系 experiment が立たない=結果不変)
+    "experiment": lambda b: b.layers.experiment is not None,
 }
 
 

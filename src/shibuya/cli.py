@@ -415,6 +415,10 @@ def run(
     population_seed: int | None = None,
     environment_seed: int | None = None,
     run_kind: str | None = None,
+    experiment: Any = None,
+    experiment_aa: bool = False,
+    experiment_branch: Any = None,
+    experiment_model: str | None = None,
     **kwargs,
 ) -> RunResult:
     """台帳つきの 1 シミュ日ラン(C4 の標準入口)。
@@ -452,7 +456,15 @@ def run(
     ここで決める=試験の中は ``test``・CLI の既定(``arm_baseline``)と違う腕の引数が 1 つでもあれば ``arm``・ほかは
     ``reproduction``(``run_arms``・``NON_ARM_RUN_KWARGS`` は数えない)。結果の ``run_kind`` に置くだけで、``run_day``
     には渡さない(設定の指紋 ``_call_args`` は変わらない)。``main`` もこの決め方を使う。
+
+    **第 3 期 3-3(反実仮想の器)**: ``experiment`` は申込書(``engine.experiment.form.ExperimentForm``・その JSON のパス・辞書)。
+    渡すと組み立てに置き(``engine.experiment.layer.staged``=``run_day`` の引数は増やさない)、ランの種類は ``counterfactual``
+    (試験の中は ``test``)。``experiment_aa`` は改変を空にした A/A の枝(``ExperimentForm.aa``)。``experiment_branch`` は分岐の
+    指定(``engine.experiment.branch.BranchSpec``=T0 までテープを再生・``run_branch`` が渡す)。``experiment_model`` は申込書の
+    アンサンブルのモデルの札(札が 1 つなら省略可・組み立てが seed の 3 つと合わせて封印の入口で照合する)。どれも設定の指紋に入れない。
+    渡さないランは何も変わらない。
     """
+    exp_form = _experiment_form(experiment, aa=experiment_aa, branch=experiment_branch)
     budget = kwargs.pop("budget", None)
     run_kind = None if run_kind is None else _RK.check(run_kind)  # 第 1 期 1-4: 名の誤りはランの前に止める
     # 5 段目 5a: 空腹のモデルの既定は energy(``CLI_DEFAULT_HUNGER_MODEL``)
@@ -471,8 +483,10 @@ def run(
         from shibuya.engine.speech import layer as _speech_layer
 
         # 第 1 期 1-8b: 発話の口の腕(環境変数か --speech-port・run の引数ではない)は結果を変える=on は腕に数える
+        # 〔第 3 期 3-3〕申込書を渡したランは反実仮想(試験 > 反実仮想 > 腕 > 再現)
         run_kind = _RK.decide(arms_on=bool(arms) or _speech_layer.arm() != _speech_layer.ARM_OFF
-                              or _proximity.arm() != _proximity.MODE_CELL)
+                              or _proximity.arm() != _proximity.MODE_CELL,
+                              counterfactual=exp_form is not None)
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
     applied = apply_fleet_queue_default(kwargs.get("fleet"), scale, n_agents)
@@ -498,26 +512,50 @@ def run(
         seed=pop_seed, world_dir=run_world_dir, use_population=use_population,
         endow=kwargs.get("resume_from") is None,  # 10d(A11): 再開では参入資本を入れ直さない
     )
-    res = run_day(
-        n_agents=n_agents,
-        seed=seed,
-        population_seed=population_seed,
-        environment_seed=environment_seed,
-        world=world,
-        ticks=ticks,
-        checkpoint_every=checkpoint_every,
-        world_dir=run_world_dir,
-        ledger=bundle,
-        population=None if use_population else False,
-        budget=budget,
-        l4_scale=scale,
-        **kwargs,
-    )
+    import contextlib
+
+    from shibuya.engine.experiment import layer as _EXPL
+
+    _stage = (contextlib.nullcontext() if exp_form is None
+              else _EXPL.staged(exp_form, branch=experiment_branch, model=experiment_model))
+    with _stage:  # 3-3: 申込書は組み立てが受け取る(run_day の引数・設定の指紋は今のまま)
+        res = run_day(
+            n_agents=n_agents,
+            seed=seed,
+            population_seed=population_seed,
+            environment_seed=environment_seed,
+            world=world,
+            ticks=ticks,
+            checkpoint_every=checkpoint_every,
+            world_dir=run_world_dir,
+            ledger=bundle,
+            population=None if use_population else False,
+            budget=budget,
+            l4_scale=scale,
+            **kwargs,
+        )
     if note:
         res.l4_notes.append(note)
     # 第 1 期 1-4(CP5-5): ランの種類(記録だけ。run_day の引数=設定の指紋には入れない)
     res.run_kind = run_kind
     return res
+
+
+def _experiment_form(experiment: Any, *, aa: bool = False, branch: Any = None) -> Any:
+    """〔第 3 期 3-3〕``cli.run`` の ``experiment`` → 申込書(``None``=渡さない)。``aa`` は改変を空にした A/A の枝。"""
+    from shibuya.engine.experiment.form import ExperimentForm
+
+    if experiment is None or (isinstance(experiment, str) and not experiment):
+        if aa or branch is not None:
+            raise ValueError("experiment_aa・experiment_branch には申込書(experiment)が要る")
+        return None
+    if isinstance(experiment, ExperimentForm):
+        form = experiment
+    elif isinstance(experiment, Mapping):
+        form = ExperimentForm.from_dict(experiment)
+    else:
+        form = ExperimentForm.load(experiment)
+    return form.aa() if aa else form
 
 
 def checkpoints_payload(res: RunResult, *, run_id: str = "") -> dict[str, Any]:
@@ -1323,6 +1361,25 @@ def main(argv: list[str] | None = None) -> int:
         help="第 2 期 2-1 経済の段階 2 の部品(カンマ区切り・既定=全部 wages,withdraw,payment,tax,visitors・環境変数 "
              "SHIBUYA_ECONOMY_STAGE2_PARTS と同じ)。1 つずつ測るため",
     )
+    ap.add_argument(
+        "--experiment", type=str, default="",
+        help="第 3 期 3-3 反実仮想の申込書(JSON のパス・engine.experiment.form)。既定なし=今と同じ。渡すとランの種類は "
+             "counterfactual・申込書の指紋は manifest の experiment に出る(設定の指紋には入らない)",
+    )
+    ap.add_argument(
+        "--experiment-branch", type=str, default="",
+        help="第 3 期 3-3 分岐の基準のランの記録(tape/・state/・checkpoints.json のあるディレクトリ)。--experiment と一緒に"
+             "使う。T0 までテープを再生して T0 から今の方策で続け、A/A の枝 2 本と改変の枝 1 本を回して R-71 の 4 つの確認を"
+             "書く(<記録>/branches/<申込書の指紋の先頭 16 字>/branch_report.json)",
+    )
+    ap.add_argument(
+        "--experiment-model", type=str, default="",
+        help="第 3 期 3-3 申込書のアンサンブルのモデルの札(札が 2 つ以上のときに渡す・封印の入口で seed の 3 つと合わせて照合)",
+    )
+    ap.add_argument(
+        "--experiment-aa", action="store_true",
+        help="第 3 期 3-3 改変を空にした A/A の枝として回す(--experiment-branch と一緒なら 3 本とも A/A)",
+    )
     # --llm / --endpoints / --model / --mode / --run-id / --tape / --temperature /
     # --max-tokens / --fleet-wait-s(C6-a)
     add_fleet_args(ap)
@@ -1378,7 +1435,7 @@ def main(argv: list[str] | None = None) -> int:
             _ES2.set_parts(str(args.economy_stage2_parts))
         except ValueError as exc:
             ap.error(str(exc))
-    res = run(  # 第 1 期 1-4(検収 M2): ランの種類は run が決める(試験 > CLI の既定と違う腕 > 再現)
+    run_kwargs = dict(  # 第 1 期 1-4(検収 M2): ランの種類は run が決める(試験 > 反実仮想 > CLI の既定と違う腕 > 再現)
         n_agents=args.agents,
         seed=args.seed,
         population_seed=args.population_seed,
@@ -1467,6 +1524,24 @@ def main(argv: list[str] | None = None) -> int:
         **calendar_kwargs_from_args(args),  # 10a: 暦の口と応答の遅れ(--response-delay)
         **({"mode": "replay", "replay": args.replay} if args.replay else {}),
     )
+    if args.experiment_aa and not args.experiment:
+        ap.error("--experiment-aa には --experiment(申込書)が要る")
+    if args.experiment_branch:  # 第 3 期 3-3: 分岐(T0 までテープを再生・A/A の枝 2 本+改変の枝 1 本・4 つの確認)
+        if not args.experiment:
+            ap.error("--experiment-branch には --experiment(申込書)が要る")
+        from shibuya.engine.experiment import branch as _BRANCH
+
+        outcome = _BRANCH.run_branch(_experiment_form(args.experiment), args.experiment_branch, runner=run,
+                                     run_kwargs=run_kwargs, aa_only=bool(args.experiment_aa))
+        res = outcome.branch
+        sm = outcome.report["summary"]
+        print(f"[分岐] T0={outcome.report['T0_step']} 確認 a={sm['a']} b={sm['b']} d={sm['d']} "
+              f"最初の食い違い 刻み={sm['c_step']} 系={sm['c_system']} → "
+              f"{outcome.report_path.name if outcome.report_path else '-'}")
+    else:
+        # 3-3: 申込書を渡したときだけ欄を足す(既定の引数は今のまま=腕の数え方も変わらない)
+        res = run(**run_kwargs, **({"experiment": args.experiment, "experiment_aa": bool(args.experiment_aa),
+                                    "experiment_model": (args.experiment_model or None)} if args.experiment else {}))
     print(res.summary())
     if args.checkpoints_out:
         out = Path(args.checkpoints_out)

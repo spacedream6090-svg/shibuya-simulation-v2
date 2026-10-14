@@ -325,6 +325,21 @@ class SimCalendar:
         """祝日の名称(祝日でなければ空文字)。"""
         return str(self.holidays.days.get(self.date_of_day(day), ""))
 
+    def set_holiday(self, d: date, *, on: bool, name: str = "") -> bool:
+        """〔第 3 期 3-3〕祝日の表を書く唯一の口(申込書の L0 祝日の決定=``engine.experiment.apply`` だけが呼ぶ)。
+
+        表はランごとに読み直した辞書(``load_holidays``)=そのランの中だけ。``on`` で ``d`` を祝日に(名は ``name``)・外す。
+        表が書けない形(辞書でない)なら何もせず ``False``。
+        """
+        days = self.holidays.days
+        if not isinstance(days, dict):
+            return False
+        if on:
+            days[d] = str(name)
+        else:
+            days.pop(d, None)
+        return True
+
     def is_rest_day(self, day: int) -> bool:
         """土休か(土日と祝日)。"""
         return self.weekday(day) >= 5 or self.is_holiday(day)

@@ -206,6 +206,14 @@ PATHS: Final[dict[str, str]] = {
     **_mixed("proximity", config=("schema", "mode", "d_m", "d_arms", "leave_m", "b5_radius_m", "b5_radius_source",
                                   "notice", "unit_source", "index_cell_m", "position_source", "marks"), observed=(
         "index_builds", "indexed_max", "unit_occupancy_max", "units_occupied_max", "unit_occupancy_hist")),
+    # ---- 第 3 期 3-3: 反実仮想の申込書(形式・申込書の指紋・種類・水準・A/A か・決定の名・T0・終わり・告知の有無・登録と封印の
+    # 指紋・分岐の T0=設定/効かせた・効かせていない改変の数と行・計器・T0 より前の再生の計器・4 つの確認の結果=観測。申込書を
+    # 渡さないランは null。子の鍵は engine.experiment.layer の MANIFEST_CONFIG・MANIFEST_OBSERVED と同じ=試験が突き合わせる) ----
+    **_mixed("experiment", config=(
+        "schema", "form_sha256", "kind", "level", "aa", "decisions", "t0_ns", "t0_step", "end_ns", "notice",
+        "registration_sha256", "preregistration_sha256", "seal_sha256", "branch_t0_step", "member", "half", "aa_of"),
+        observed=(
+        "applied", "unapplied", "applied_rows", "unapplied_rows", "meter", "replay", "checks")),
 }
 
 

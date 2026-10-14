@@ -317,6 +317,29 @@ class EnvironmentProcess:
             self.shadow_missing = 1
         self.weather_days[int(day)] = rec
 
+    def set_replay_date(self, day: int, date: str, *, how: str = "experiment") -> bool:
+        """〔第 3 期 3-3〕申込書の決定(L0 天気の日付の差し替え)=``day`` 日目の再生日を ``date``(W13 の日)にする。
+
+        呼ぶのは申込書の効かせる口(``engine.experiment.apply``)だけ。天気(雨・気温・湿度・天候型・WBGT の入力)は ``date`` の行・
+        日の出と日の入りと太陽高度と影は暦の日付のまま(天気の規則 1)。日ごとの記録(``weather_days``)の ``how`` を書き換える。
+        W13 に無い日・気象の資産の無い世界は何もせず ``False``。
+        """
+        a = self.assets
+        if not a.has_weather:
+            return False
+        i = a.day_index_of(str(date))
+        if i < 0:
+            return False
+        cal_date = self.calendar.date_of_day(int(day))
+        self.replay_date = str(date)
+        self.stratum = f"{SEASON_OF_MONTH[cal_date.month]}|{a.weather_weekday_kind[i]}|{a.weather_type[i]}"
+        self._row = i
+        self._cal_heat(cal_date)
+        rec = self.weather_days.get(int(day))
+        if rec is not None:
+            rec.update(replay_date=str(date), stratum=self.stratum, how=str(how), widened="")
+        return True
+
     def _cal_heat(self, cal_date: dt.date) -> None:
         """10e(B6): 再生日の行の気象 × 暦の日付の太陽高度 → 時ごとの WBGT(2 桁に丸め=W13 と同じ)と暑さ段。
 

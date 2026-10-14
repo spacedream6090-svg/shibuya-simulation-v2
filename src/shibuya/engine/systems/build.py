@@ -322,6 +322,14 @@ def build(_call_args: dict[str, Any]) -> Any:
     if _SPEECH.arm() == _SPEECH.ARM_ON:
         # 第 1 期 1-8b: 発話の口の腕は結果を変える(相手の入力に発話が載る)=on のときだけ設定の指紋に足す(既定は今の指紋)
         _fp["speech_port"] = _SPEECH.ARM_ON
+    # ---- 第 3 期 3-3: 反実仮想の申込書(``cli.run`` が ``engine.experiment.layer.staged`` で置いた物・無ければ None=今の道)。
+    # 設定の指紋には入れない(申込書の指紋は manifest の experiment の節=分岐が基準のランの状態から再開できる) ----
+    from shibuya.engine.experiment import layer as _EXPL
+
+    _exp_staged = _EXPL.current()
+    # 〔親の判断 M1〕封印の入口: ランの seed の 3 つとモデルの札がアンサンブルのどの半分か(探索が封印した半分なら止める)
+    _exp_entry = _EXPL.entrance(_exp_staged, seed=seed, population_seed=pop_seed, environment_seed=env_seed)
+    _exp_inherited = False
     _bundle: "RS.StateBundle | None" = None
     t_begin = 0
     parent_run: dict[str, Any] | None = None
@@ -358,6 +366,8 @@ def build(_call_args: dict[str, Any]) -> Any:
             "state_file": Path(resume_from).name,
             "state_full_hash": str(_h.get("hashes", {}).get("full_hash", "")),
         }
+        # 3-3: 親が申込書つきなら同じ申込書でなければ止める(親が申込書なし=基準のランからの分岐は通す)
+        _exp_inherited = _EXPL.check_resume(_exp_staged, _h)
     t_end = total_ticks
     if stop_at_tick is not None:
         if state_out is None:
@@ -1270,6 +1280,14 @@ def build(_call_args: dict[str, Any]) -> Any:
             _fam_renderer.heard_seen_fn = speech_port.report_shown  # 検収 低8: B6 に載せた後で「届いた」に数える
             _fam_renderer.speech_field = True
 
+    # ---- 第 3 期 3-3: 申込書の持ち主(申込書を渡したランだけ・既定 None=系 experiment が立たない=今の道)。分岐なら LLM の口を
+    # T0 で切り替える口に包む(T0 より前はテープ・T0 から今の方策=engine.experiment.branch)。状態台帳の行 X(diag・discardable) ----
+    experiment_layer = _EXPL.make_layer(
+        _exp_staged, world=world, runner=runner, calendar=calendar, events=events, n_agents=n_agents,
+        step_seconds=int(tick_seconds), steps_per_day=tpd, begin_step=t_begin, end_step=t_end,
+        total_steps=total_ticks, inherited=_exp_inherited, bridge=bridge, fleet=fleet, entry=_exp_entry,
+    )
+
     # ---- 1-0 段 C: 状態の箱(局所の割り当ての表 local-assignment.json・草案 §2-3)。物はそのまま指す(写しを作らない) ----
     box = _BX.Box(
         cfg=_BX.RunConfig(
@@ -1308,6 +1326,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             renderer=getattr(perception, "renderer", None) if perception is not None else None,
             bridge=bridge, fleet_bridge=fleet_bridge, events=events, decision=decision_layer, speech=speech_port,
             proximity=proximity_layer,
+            experiment=experiment_layer,
         ),
         llm=_BX.LlmIo(pending=pending, fleet_deferred=fleet_deferred, fleet_waiting=fleet_waiting,
                       fleet_inflight=fleet_inflight, replay_inbox=replay_inbox),
@@ -1332,6 +1351,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             geom=geom, perception=perception, renderer_obj=renderer_obj, walkable=walkable,
             env_fields=_env_fields, start_check=start_check, fleet=fleet, tools=_tools_fx,
             atms=(economy_plan.atms if economy_plan is not None else None),  # 第 2 期 2-1: ATM の表(腕のランだけ)
+            experiment=None if _exp_staged is None else _exp_staged.form,
         ),
     )
     del pending, n_undefined_total, n_fleet_reinjected, n_fleet_resent, n_outside_calls, geometry_hops

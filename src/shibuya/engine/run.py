@@ -133,6 +133,7 @@ from shibuya.perception.facts import percept_manifest as _percept_manifest
 from shibuya.engine.decision import layer as _DECISION
 from shibuya.engine.speech import layer as _SPEECH
 from shibuya.engine import proximity as _PROX
+from shibuya.engine.experiment import layer as _EXPERIMENT
 from shibuya.perception.renderer import (
     DEFAULT_HUNGER_WORDS,
     DEFAULT_NEAR_ORDER,
@@ -1331,6 +1332,11 @@ class RunResult:
             # 位置の出どころと「暫定」の印(設定)/索引と B5 の単位の在室人数の計器(観測)。末尾=… → 1-8 の decision_port →
             # 1-7 の tools → 1-8b の speech_port → 2-2。腕 cell のランは観測の子が null。列追加のみ ----
             "proximity": _PROX.manifest_fields(getattr(self, "proximity_layer", None)),
+            # ---- 第 3 期 3-3(反実仮想の器): 申込書の指紋・種類・水準・T0・決定・登録と封印の指紋(設定)と、効かせた/効かせて
+            # いない改変の数と行・計器・T0 より前の再生の計器・4 つの確認の結果(観測)。末尾=… → 1-8b の speech_port → 2-2 の proximity → 3-3。
+            # 申込書を渡さないランは null。記録だけ(final・behavior-hash は manifest を読まない)。列追加のみ ----
+            "experiment": _EXPERIMENT.manifest_fields(getattr(self, "experiment_layer", None),
+                                                      finished=bool(self.resume.get("finished", True))),
         }
 
     def economy_fields(self) -> dict[str, Any]:

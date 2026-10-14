@@ -116,9 +116,9 @@ def test_the_word_is_appended_to_the_1_3_vocabulary():
     assert P.WHAT == "行為:発話" and V.VOCAB[57] == P.WHAT and V.code_of(P.WHAT) == 57
     # 1-5 の「行為:許可のない行動」=55・1-7 の「道具:看板」=56 のコードは動かない(発話は 1-7 の組の後ろの別の組)
     assert V.VOCAB[55:58] == ("行為:許可のない行動", "道具:看板", "行為:発話") and V.SPEECH_WORDS == ("発話",)
-    assert V.VOCAB[58:] == ("金:引き出し", "金:カード")  # 2-1
+    assert V.VOCAB[58:60] == ("金:引き出し", "金:カード")  # 2-1(その後ろに 3-3 の実験の族の 2 語)
     assert "発話" not in V.ACT_WORDS  # 判断の語彙(v3 の 12 語)の外
-    assert V.VOCAB_VERSION == "events-vocab/2-1"  # 〔第 2 期 2-1〕金の 2 語で版を上げた(前 events-vocab/1-8b)
+    assert V.VOCAB_VERSION == "events-vocab/3-3"  # 〔第 3 期 3-3〕実験の族で版を上げた(前 events-vocab/2-1)
 
 
 def test_the_field_line_is_the_same_text_in_llm_and_perception():

@@ -49,7 +49,7 @@ def test_manifest_keys_match_the_frozen_list(two_days):
     # 1-7 の tools(道具の台帳の計器)・その後ろに 1-8b の speech_port(発話の口の計器)・その後ろに 2-2 の proximity(近接の
     # 判定の腕・計器)=列追加のみ(末尾)
     assert keys[i + len(TM9):] == ["rules_version", "run_kind", "bridges_version", "economy", "percept", "rights",
-                                   "decision_port", "tools", "speech_port", "proximity"]
+                                   "decision_port", "tools", "speech_port", "proximity", "experiment"]  # 〔3-3〕
 
 
 def test_manifest_tm9_values(two_days):
