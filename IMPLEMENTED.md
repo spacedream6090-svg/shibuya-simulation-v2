@@ -394,6 +394,15 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #98 第 2 期 2-1 経済 EC(CP2 の段階 2・腕 `--economy-stage2`・既定 off=結果不変)(第334・2026-10-14・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-11(EC1〜EC6・税・信用)・[口の約束 1-9](docs/design/v2-foundation-contracts-2026-10-13.md) 約束 (3)・[経済の設計](docs/design/v2-boundary-economy-design.md) §2。記録 [ec21](docs/bench/analysis/wallbounce-1012/ec21/README.md)(§10 expedient・§11 限界・§13 検収の直しと親の判断・[review.md](docs/bench/analysis/wallbounce-1012/ec21/review.md))。commit `fea27d2`。
+- **中身**: `engine/economy_stage2.py`(腕と部品・`AtmTable`=OSM の ATM 43 点と銀行の支店 23 点・`Stage2Plan`)・`economy/stage2.py`(`MoneyStage2`)・`economy/credit.py`(信用の器=呼び手なし)・`ops.transfer` に支払いの方法 `method`・`accounts.FLOW_REGISTRY`(faucet/sink の**全登録** 17 行・`faucet_sink_table` 77 → 79)・`checks.conservation_check`(部門の残高の合計の変化=faucet−sink・残差 0・負の対照 2 本)・`anchors.py` が規則の表の最初の読み手(最低賃金 `Rules.get(asof)`)・`monthly_wages` の最初の呼び手(25 日の締め・雇用契約=権利台帳の employ の行・原資は外界)・引き出しは本人の判断(ATM か銀行の支店・営業時間内・mock/古典の規則は expedient)・支払いは現金かカード(預金から店へ)・運賃は IC・税=レジで 10% を店 → 政府・来街者の口座・購入の呼の `call_id` を `purchase_many` へ運ぶ配線(腕 port で LLM の答えが行為に運ばれる=台帳の行 DOC-money-uncaused-rows を外した)・腕を状態の見出しに書き再開で違えば止める。
+- **動いた量(腕 on・5,000 体・2 日)**: 賃金 2,392 人 112,838,004 円・引き出し 305 回・口座の購入 28 行・IC 7,339 行・税 1,151,765 円・来街者の口座 1,042 体・残差 毎日 0・現金の増減 off −1,625/−1,168 → on −839/−521 円/体/日(減り方は緩んだが止まってはいない=W17 の勤務の時間が短い=判断待ち)。
+- **結果不変**: 実装役 19/19(off)+4/4・検収役 4 構成+2 日のラン(17f89bf0…・145,049 呼)+manifest の既存の欄+独立の再計算(部門ごとの Δ現金=流れの表・ΔM−境界の流れ=0・税・賃金の和が一致)+段 B の宣言の検査 11,606 回で違反 0・親の byte-check 4 構成。
+- **検収**: 条件つき受入(中 1=記録の言いすぎ・低 6=実行時の守り・来街者の持ち込みの分け方・銀行の支店・引数名 tick・系ごとの指紋・faucet_sink_table の既定)→ 全部直した。親の判断 9 件(§13)。
+- 仮採用: PENDING §1-1b 仮-19。判断待ち: W17 の勤務の時間(PENDING §1-1)。予算の宣言に `method` の列と輪の係数の行。既定にするのは 2-4。
+
 ### #97 第 2 期 2-2 近接 11a → 11c(腕 distance・既定 cell=結果不変)(第334・2026-10-14・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [実装アジェンダ](docs/design/v2-proximity-distance-implementation-agenda.md) §0〜§2・§4・§7・B1〜B8・[指示書 10-03](docs/design/v2-wallbounce-decisions-2026-10-03.md) §4・[口の約束 2-2](docs/design/v2-foundation-contracts-2026-10-13.md)。記録 [prox22](docs/bench/analysis/wallbounce-1012/prox22/README.md)(§13 検収の直し・§14 親の判断の後・[review.md](docs/bench/analysis/wallbounce-1012/prox22/review.md))。commit `e8e6eb3`。
