@@ -8,8 +8,11 @@ HEAD の写しには HEAD に無い引数を渡さない)。
 
 使い方(リポの根で・``$D`` = この置き場・``$W`` = 作業用の**短い**ディレクトリ):
 
-    git archive <HEAD> src docs/bench/anchors docs/design/v2-budget-declaration.md \\
-        docs/bench/analysis/w6-regen-2026-09-28 | tar -x -C $W/head_src
+    git archive <HEAD> src docs/bench/anchors/hunger_energy_anchors_v0.json \\
+        docs/bench/anchors/ssb2021_activity_prior_v0.json docs/bench/anchors/commute_time_dist_r3.json \\
+        docs/design/v2-budget-declaration.md docs/bench/analysis/w6-regen-2026-09-28 | tar -x -C $W/head_src
+    # 〔第334〕錨はエンジンが開く 3 本だけを写す(docs/bench/anchors を丸ごと写すと、較正側と検証側が混ざる
+    # presence_anchors_v0.json・diversity_anchors_v0.json の写しが作業用の置き場に残る=2-2 の検収 L7)。
     mkdir -p $W/head_src/data/calendar && cp data/calendar/syukujitsu.csv $W/head_src/data/calendar/
     python $D/byte_check_10e.py side --src $W/head_src/src --label head --scratch $W --out $W/head.json
     python $D/byte_check_10e.py side --label e1 --scratch $W --out $W/e1.json
