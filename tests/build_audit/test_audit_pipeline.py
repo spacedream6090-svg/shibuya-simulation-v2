@@ -133,7 +133,9 @@ def test_w20_acceptance_pack(built):
     assert len(summary["stages"]) == len(build_run.ALL_STAGES) - 1  # W20 自身は含まない
     # 落ちたゲートは隠さない
     failed = {(g["stage"], g["gate"]) for g in summary["gates_failed"]}
-    assert ("W9", "shadow_bytes_per_day_le_10mb") in failed
+    # 〔第 2 期 2-4〕W9 の容量のゲートは宣言を実測に合わせて PASS(旧 shadow_bytes_per_day_le_10mb)。W10 の較正は落ちたまま
+    assert ("W10", "calibration_max_abs_residual_db") in failed
+    assert not any(stage == "W9" for stage, _name in failed)
     for stage, name in failed:
         assert f"| {stage} | {name} |" in md
 

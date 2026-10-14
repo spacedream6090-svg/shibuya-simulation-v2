@@ -367,14 +367,14 @@ def test_golden_tables_are_keyed_by_platform_and_values_unchanged():
     # 〔改訂(第330・ACT)〕活性化(暦の一本化・開始日 07-13・影 6 日)で既定の 2 行・関係 on の既定の行・古典 1,500 体を張り替えた
     # (B6build の値= v3 既定 0483d1165e245bed / 70,501・帰無腕 aaaa89d936f1674e / 101,773・関係 on 25b5ce1304f6db68 / 74,056)。
     # 旧値の行は退避先の資産と day_index・legacy(GE.PRE10E_RUN_KW)で再現する。
-    assert (g["v3_default_final"], g["v3_default_llm_calls"]) == ("5f7ae9ff24005314", 65_597)
-    assert (g["null_arm_final"], g["null_arm_llm_calls"]) == ("354f49ca9a61b986", 97_234)
+    assert (g["v3_default_final"], g["v3_default_llm_calls"]) == ("4bcca9f0216362bb", 65_400)  # 〔2-4 V1〕前 5f7ae9ff24005314 / 65_597
+    assert (g["null_arm_final"], g["null_arm_llm_calls"]) == ("767f0224d82ba9a9", 98_046)  # 〔2-4 V1〕前 354f49ca9a61b986 / 97_234
     # 〔改訂(第330・RET)〕*_stateful・*_pre10e と関係 on の full の行は切替口と一緒に消した(前: 4985ff2f…/065a36d2…・
     # 993276d5…/72cb9cd5…・40409ebe…/72,930)。関係 on の v1 は今の値の行
     assert not {k for k in g if k.endswith(("_stateful", "_pre10e"))}
-    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v1", "behavior")] == ("380e8651a96b1829", 69_406)
+    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v1", "behavior")] == ("edc6b366feece21c", 69_306)  # 〔2-4 V1〕前 380e8651a96b1829 / 69_406
     assert set(TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F]) == {("v1", "behavior"), ("v2", "behavior")}
-    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "behavior")] == ("73a78288ab5e1498", 69_111)
+    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "behavior")] == ("c506dec249bb4328", 69_114)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111
 
 
 # ================================================================= manifest の節(K22 (a)・検収 N1・N3)

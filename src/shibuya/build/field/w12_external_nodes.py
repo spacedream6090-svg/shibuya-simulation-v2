@@ -1035,6 +1035,9 @@ def timetable_versions_doc(
     lines_doc: dict[str, Any] = {}
     for ln in sorted(by_line_cal):
         decl = RT.VERSION_DECLARATIONS.get(ln, {"declared": "(宣言なし)", "relation_to_world_time": "unknown"})
+        if ln in remaining_lines:  # 〔2-4〕実データの無い線(京王の切替口 False の井の頭線など)=等間隔の推定
+            decl = {"declared": "実データなし=等間隔の推定(EQUAL_INTERVAL_TIMETABLE_EXPEDIENTS)",
+                    "relation_to_world_time": "unknown"}
         d: dict[str, Any] = {
             "operator": operator_of.get(ln, ""),
             "sources": sorted(sources[ln]),

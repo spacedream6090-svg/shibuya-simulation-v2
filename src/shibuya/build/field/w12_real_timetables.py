@@ -107,6 +107,13 @@ FAMILY_CHALLENGE = "odpt_challenge"
 FAMILY_STATIC = "odpt_static"
 INPUT_FAMILIES: tuple[str, ...] = (FAMILY_USER, FAMILY_CHALLENGE, FAMILY_STATIC)
 
+#: 〔第 2 期 2-4〕ODPT チャレンジ枠(京王 井の頭線)の表を読む切替口。True(既定)=読む(回答 10-13 の 3・7=作品は本
+#: シミュレーション・チャレンジ枠は応募と照合用。PENDING 仮-15=ユーザーの最終の確認待ちの間は京王の行を含めたまま活性化)。
+#: False=チャレンジ枠の表を読まない(入力の一覧・W19 の資産の表からも外れる)。井の頭線は実データの無い線になり、
+#: W12 の等間隔の推定の道(``w12_external_nodes`` の残る線=notes ``equal_interval_lines``・ゲート
+#: ``equal_interval_lines_remaining`` が 1)で作る=戻す口。W19 の ``BUILD_INPUT_FAMILIES``(元の宣言)は切替口に依らない。
+USE_ODPT_CHALLENGE = True
+
 #: 暦(CSV の値 → W12 の値)。
 CALENDARS: tuple[tuple[str, str], ...] = (("平日", "Weekday"), ("土休", "SaturdayHoliday"))
 CALENDAR_OF: dict[str, str] = dict(CALENDARS)
@@ -259,18 +266,28 @@ def table_rel_paths(spec: TableSpec) -> list[str]:
     return ["/".join((*spec.rel_dir(), spec.file_name(cal_ja))) for cal_ja, _ in CALENDARS]
 
 
-def input_rel_paths(family: str) -> tuple[str, ...]:
-    """入力の層 → 読むファイル(data 根からの相対・読む順)。W19 の資産表と ``input_hash`` に使う。"""
+def tables_in_use() -> tuple[TableSpec, ...]:
+    """〔2-4〕読む表=:data:`USER_TABLES` から、切替口 :data:`USE_ODPT_CHALLENGE` が False ならチャレンジ枠の表を除く。"""
+    return tuple(s for s in USER_TABLES if USE_ODPT_CHALLENGE or s.family != FAMILY_CHALLENGE)
+
+
+def input_rel_paths(family: str, *, in_use: bool = True) -> tuple[str, ...]:
+    """入力の層 → 読むファイル(data 根からの相対・読む順)。W19 の資産表と ``input_hash`` に使う。
+
+    〔2-4〕``in_use=True``(既定)は読む表(:func:`tables_in_use`)だけ。``in_use=False`` は切替口に依らない元の宣言
+    (W19 の ``BUILD_INPUT_FAMILIES``=holdout の層と同じ元かの照合に使う)。
+    """
+    specs = tables_in_use() if in_use else USER_TABLES
     if family == FAMILY_USER:
         out: list[str] = []
-        for spec in USER_TABLES:
+        for spec in specs:
             if spec.family == FAMILY_USER:
                 out.extend(table_rel_paths(spec))
         out.append("/".join((*USER_TIMETABLE_DIR, JR_NOTES_FILE)))
         return tuple(out)
     if family == FAMILY_CHALLENGE:
         out = []
-        for spec in USER_TABLES:
+        for spec in specs:
             if spec.family == FAMILY_CHALLENGE:
                 out.extend(table_rel_paths(spec))
         return tuple(out)
@@ -473,7 +490,7 @@ def load_real_timetables(data_root: Path, *, fold_lines: Mapping[str, str] | Non
 
     raw_rows: list[dict[str, Any]] = []
     counts: dict[str, dict[str, int]] = {}
-    for spec in USER_TABLES:
+    for spec in tables_in_use():  # 〔2-4〕切替口 USE_ODPT_CHALLENGE が False ならチャレンジ枠の表を読まない
         counts[spec.stem] = {}
         for cal_ja, cal in CALENDARS:
             p = root.joinpath(*spec.rel_dir(), spec.file_name(cal_ja))

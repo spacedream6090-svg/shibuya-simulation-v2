@@ -29,10 +29,8 @@ pytestmark = pytest.mark.requires_data(*D.ids_of(OSM, TERRAIN, KASYO), "user_tim
 
 #: 実データで**現に落ちる**ゲート(理由つき)。
 KNOWN_FAILING: dict[tuple[str, str], str] = {
-    ("W9", "shadow_bytes_per_day_le_10mb"): (
-        "D-W10 の 8.6MB/日 は 239,028点前提。本実装の街路格子は W10 と同じ 356,732点なので"
-        "288×44,592B=12.84MB になる。点を間引いて予算に合わせることはしない"
-    ),
+    # ("W9", "shadow_bytes_per_day_le_10mb") は第 2 期 2-4 で宣言を実測に合わせた(≤13,000,000 B/日・ゲートの名は
+    # shadow_bytes_per_day_le_budget)=PASS。旧の理由: D-W10 の 8.6MB/日 は 239,028点前提・街路格子は 356,732点で 12.84MB。
 }
 
 #: §1 W8 のゲート「前計算 ≤5分」。

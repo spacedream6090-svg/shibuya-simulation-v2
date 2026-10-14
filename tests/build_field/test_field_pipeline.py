@@ -33,10 +33,8 @@ KNOWN_FAILING_GATES: dict[tuple[str, str], str] = {
         "遮音壁を見ない(ΔL=0)ため高速3号の点が過大・路線中央値が点の実区間と一致しない"
     ),
     # ("W13", "days_with_missing_hours") は 2026-09-08 に etrn 時別値の補完で解消(親レーン)。
-    ("W9", "shadow_bytes_per_day_le_10mb"): (
-        "D-W10 の 8.6MB/日 は 239,028点前提。街路格子は W10 と同じ 356,732点なので"
-        "288面×44,592B=12.84MB。点を間引いて予算に合わせることはしない(可視性レーン)"
-    ),
+    # ("W9", "shadow_bytes_per_day_le_10mb") は第 2 期 2-4 で宣言を実測に合わせた(≤13,000,000 B/日・ゲートの名は
+    # shadow_bytes_per_day_le_budget)=PASS。旧の理由: D-W10 の 8.6MB/日 は 239,028点前提・街路格子は 356,732点で 12.84MB。
 }
 
 

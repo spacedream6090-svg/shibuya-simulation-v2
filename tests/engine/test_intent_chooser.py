@@ -288,9 +288,9 @@ def test_poi_target_legacy_reproduces_the_pre_2a_checkpoints_q13():
     kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), poi_target="legacy", l4_scale=1.0,
               hunger_model="v1", leave_effect=False)
     v3 = cli_run(vocab_version="v3", **kw)
-    assert v3.final_hash.startswith("9bc6929fbb0da5e8") and int(v3.llm_calls) == 36_275
+    assert v3.final_hash.startswith("bff3eed45a39ea62") and int(v3.llm_calls) == 36_296  # 〔2-4 V1〕前 9bc6929fbb0da5e8 / 36_275
     null = cli_run(plan_executor=False, report_precondition=False, **kw)
-    assert null.final_hash.startswith("ce33abec7629c811") and int(null.llm_calls) == 40_963
+    assert null.final_hash.startswith("4679b0a6f6d2fa1e") and int(null.llm_calls) == 40_963  # 〔2-4 V1〕前 ce33abec7629c811
 
 
 def test_category_table_uses_known_w6_values_only():

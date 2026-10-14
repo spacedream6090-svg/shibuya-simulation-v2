@@ -159,9 +159,9 @@ def test_cli_flag_and_manifest():
 #: hash_order_id e0a6f3f9…/26,845・classical_tie_id 803f0441…/26,753=ACT の commit で切替口を通して再現できた)。
 #: 旧値を再現する切替口を消したので、今の値(final=behavior-hash)に張り替えた。
 CLASSICAL_1500_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
-    "hash": ("87492778f4582d8fa067757d32b1953516997c92494089ab124840aaaa765bdb", 25_890),
-    "hash_order_id": ("b7697fcafb4ba63b18f486b70b99ad12068e4a12b66482a9be13d4ad8414e97b", 25_828),
-    "classical_tie_id": ("49c3fae02c2de5ecb68c93366fcd6d38139b967a7883b2c5960fa16219cd75d3", 25_877),
+    "hash": ("26b748695ffbf7f928f57352d9169fea630f12ca86efc13af383693411e0c578", 25_638),  # 〔2-4 V1〕前 87492778f4582d8fa067757d32b1953516997c92494089ab124840aaaa765bdb / 25_890
+    "hash_order_id": ("0dc35b774a45a23ba0f3e5e2cd79a5cb2f77f5f88ce60dddb9df7b05dc36dc68", 25_653),  # 〔2-4 V1〕前 b7697fcafb4ba63b18f486b70b99ad12068e4a12b66482a9be13d4ad8414e97b / 25_828
+    "classical_tie_id": ("b5373e67f412225616d1ab6084c2e1ac9fcde380f086b8b78d5b1646ba9547c1", 25_716),  # 〔2-4 V1〕前 49c3fae02c2de5ecb68c93366fcd6d38139b967a7883b2c5960fa16219cd75d3 / 25_877
 }}
 #: 今の環境の行(無ければ ``None``=A/A だけ)。
 CLASSICAL_1500_GOLDEN = GE.row(CLASSICAL_1500_GOLDEN_BY_ENV)

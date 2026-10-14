@@ -192,11 +192,22 @@ def test_build_stage_ids_are_the_c8_d44_row_ids(ledger):
         m = re.match(r"^\| (W\d+#\d+) \| W\d+ \| ([^|]+) \|", line)
         if m and m.group(1) not in rows:
             rows[m.group(1)] = m.group(2).strip()
-    stage_ids = [r.id for r in ledger if re.fullmatch(r"W\d+#\d+", r.id)]
-    assert len(stage_ids) == len(rows) == 123
+    # 〔第 2 期 2-4・V1 の活性化〕C8 の台帳は活性化の後の build_manifest(126 行)。W12 1.2.0 の実ダイヤの宣言 8 行(C8 の
+    # W12#4〜#11)は台帳では走査器の鍵の行(EX-build.field.w12_external_nodes-*)で、前の W12#4〜#8(等間隔の推定の 5 行=
+    # 1.1.0 の build_manifest の番号)は removed。=有効な W の行は C8 の同じ番号の行と、C8 のほかの行は有効な EX の行と文で合う。
+    stage = [r for r in ledger if re.fullmatch(r"W\d+#\d+", r.id)]
+    stage_ids = [r.id for r in stage if r.status == "active"]
+    assert len(stage) == 123 and len(stage_ids) == 118 and len(rows) == 126
+    assert {r.id for r in stage if r.status != "active"} == {"W12#4", "W12#5", "W12#6", "W12#7", "W12#8"}
     norm = lambda s: re.sub(r"\s+", "", s)  # noqa: E731
     for i in stage_ids:
         assert norm(ledger.get(i).what).startswith(norm(rows[i])), (i, rows[i])
+    ex = [r for r in ledger if r.id.startswith("EX-build.") and r.status == "active"]
+    rest = {k: v for k, v in rows.items() if k not in set(stage_ids)}
+    assert set(rest) == {f"W12#{n}" for n in range(4, 12)}
+    for k, v in rest.items():
+        hit = [r.id for r in ex if norm(r.what).startswith(norm(v))]
+        assert len(hit) == 1, (k, v, hit)
 
 
 # ================================================================= 負の対照

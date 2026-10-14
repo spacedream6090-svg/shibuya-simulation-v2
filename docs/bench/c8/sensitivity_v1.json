@@ -570,34 +570,34 @@
   ]
  },
  "build_manifest_expedients": {
-  "note": "〔改訂(第330 ACT)〕data/world/v2/build_manifest.json の各段階 expedients 欄に 123 行の自由文がある(W1 3・W2 4・W3 3・W4 2・W5 2・W6 3・W7 13・W8 9・W9 5・W10 11・W11 5・W12 8・W13 8・W14 7・W15 10・W16 15・W17 6・W18 5・W19 2・W20 2)。10e の構築側(第330 B3〜B6)で 121 行から 6 行増え 4 行消えた(W10 +1・W13 +1・W7 と W9 は 1 行ずつ文言が替わった)。本台帳の 14 行は**設計書が感度試験を宣言したもの**だけで、残り 107 行は『感度試験の宣言が無い expedient』。判定は build_manifest_judgment(D-44 (a)・(c)・3 分類・D-44 の列。増えた行の 3 分類は実装役の案・D-44 の列は未判定の印)。前の注記は note_2026_10_12_pre_act。",
+  "note": "〔改訂(第 2 期 2-4・V1 の活性化)〕data/world/v2/build_manifest.json の各段階 expedients 欄に 126 行の自由文がある(W1 3・W2 4・W3 3・W4 2・W5 2・W6 3・W7 13・W8 9・W9 5・W10 11・W11 5・W12 11・W13 8・W14 7・W15 10・W16 15・W17 6・W18 5・W19 2・W20 2)。2-3b の W12 1.2.0(実ダイヤ)で 123 行から 8 行増え 5 行消えた(等間隔の推定の 5 行=前の W12#4〜#8 → 実ダイヤの宣言 8 行=W12#4〜#11)。W9 は 5 行のまま(SHADOW_DATES の文言は同じ)。増えた行の 3 分類は実装役の案(未リサーチ)・D-44 の列は未判定の印(D44_PENDING)。前の注記は note_2026_10_14_pre_2_4(と note_2026_10_12_pre_act)。",
   "note_2026_10_12_pre_act": "data/world/v2/build_manifest.json の各段階 expedients 欄に 121 行の自由文がある(W1 3・W2 4・W3 3・W4 2・W5 2・W6 3・W7 13・W8 9・W9 5・W10 10・W11 5・W12 8・W13 7・W14 7・W15 10・W16 15・W17 6・W18 5・W19 2・W20 2)。**第306 更新(Q141・第307)**: 09-09 の 122 行から段の改版で W6 +1・W7 +5・W10 +1・W17 −8(差し引き −1)。本台帳の 14 行は**設計書が感度試験を宣言したもの**だけ(build_manifest の 15 行に当たる+RAKE が 1 行)で、残り 105 行は『感度試験の宣言が無い expedient』=構築仕様書 §0-7 の『感度試験なしの expedient は出荷不可』に照らすと**未宣言の穴**。判定は build_manifest_judgment(D-44 (a)・(c))。",
-  "count": 123,
-  "note_2026_09_09": "data/world/v2/build_manifest.json の各段階 expedients 欄に 122 行の自由文がある(W1 3・W2 4・W3 3・W4 2・W5 2・W6 2・W7 8・W8 9・W9 5・W10 9・W11 5・W12 8・W13 7・W14 7・W15 10・W16 15・W17 14・W18 5・W19 2・W20 2)。本台帳の 14 行は**設計書が感度試験を宣言したもの**だけで、残りは『感度試験の宣言が無い expedient』=構築仕様書 §0-7 の『感度試験なしの expedient は出荷不可』に照らすと**未宣言の穴**。親判断待ち。"
+  "count": 126,
+  "note_2026_09_09": "data/world/v2/build_manifest.json の各段階 expedients 欄に 122 行の自由文がある(W1 3・W2 4・W3 3・W4 2・W5 2・W6 2・W7 8・W8 9・W9 5・W10 9・W11 5・W12 8・W13 7・W14 7・W15 10・W16 15・W17 14・W18 5・W19 2・W20 2)。本台帳の 14 行は**設計書が感度試験を宣言したもの**だけで、残りは『感度試験の宣言が無い expedient』=構築仕様書 §0-7 の『感度試験なしの expedient は出荷不可』に照らすと**未宣言の穴**。親判断待ち。",
+  "note_2026_10_14_pre_2_4": "〔改訂(第330 ACT)〕data/world/v2/build_manifest.json の各段階 expedients 欄に 123 行の自由文がある(W1 3・W2 4・W3 3・W4 2・W5 2・W6 3・W7 13・W8 9・W9 5・W10 11・W11 5・W12 8・W13 8・W14 7・W15 10・W16 15・W17 6・W18 5・W19 2・W20 2)。10e の構築側(第330 B3〜B6)で 121 行から 6 行増え 4 行消えた(W10 +1・W13 +1・W7 と W9 は 1 行ずつ文言が替わった)。本台帳の 14 行は**設計書が感度試験を宣言したもの**だけで、残り 107 行は『感度試験の宣言が無い expedient』。判定は build_manifest_judgment(D-44 (a)・(c)・3 分類・D-44 の列。増えた行の 3 分類は実装役の案・D-44 の列は未判定の印)。前の注記は note_2026_10_12_pre_act。"
  },
  "open_questions": [
   "『結果を駆動していない』の合格線が設計書に無い(方法論は『振って結果非依存を示す』とだけ)。本台帳は帰無参照(同分布 2 標本の JSD 95% 点)を仮の物差しに置いた=expedient。",
-  "build_manifest の expedient 123 行(〔改訂(第330 ACT)〕10e の構築側で 121 行から +6・−4。09-09 は 122・第306 の段の改版で −1)のうち、設計書が感度試験を宣言しているのは 14 アンカー(build_manifest の 15 行)+RAKE 1 行だけ。残り 107 行の扱い=D-44 (a)(第229 決定)で一括判定(build_manifest_judgment)・(c) 依存グラフ(第307)の次はユーザー判断。増えた 6 行の D-44 は未判定(10e の外)。",
+  "build_manifest の expedient 126 行(〔改訂(第 2 期 2-4)〕W12 の実ダイヤで 123 行から +8・−5。〔改訂(第330 ACT)〕10e の構築側で 121 行から +6・−4。09-09 は 122・第306 の段の改版で −1)のうち、設計書が感度試験を宣言しているのは 14 アンカー(build_manifest の 14 行・S-W14-JRPHASE の行=等間隔ダイヤは消えた)+RAKE 1 行だけ。残り 111 行の扱い=D-44 (a)(第229 決定)で一括判定(build_manifest_judgment)・(c) 依存グラフ(第307)の次はユーザー判断。増えた行(10e の 6 行・2-4 の W12 8 行)の D-44 は未判定。",
   "D-W8 だけが『感度(必須)』。他は必須でない=優先順位の根拠は §8 の ablation 優先規則(expedient の量 × 駆動可能性 ÷ コスト)を構築側にも当てるのが自然だが、設計書は当てていない。"
  ],
  "build_manifest_judgment": {
   "note": "D-44 (a)(第229 決定)の一括判定。build_manifest の expedient 全行を並べ、既存の台帳行が扱う行は「既存の台帳行」、残りを既存の構築記録の入力側 JSD だけで判定した(第306)。",
   "rule_note": "判定の規則(D-44 (a)・第229 決定・片側): 構築段階の入力側の JSD(宣言 vs 対照)が帰無参照の内側なら、入力が動かないのでその expedient はランの結果を**駆動しえない**。超えたら駆動する**かもしれない**=ラン対照へ(5,000 体の逐次群スクリーニング CSB)。JSD が記録に無ければ**判定不能**。**検出可能効果量の床(第200)**: 2 seed の感度試験は f≈1 未満の効果を検出できない=ラン対照で差が見えないことは「結果を駆動していない」の証明ではなく「特大の駆動が無い」の証明にとどまる。本表は既存の記録だけで作った(新しいラン・構築の再実行はしない)。",
-  "manifest_build_hash": "5ff1bacf7fd9c773b5e363a344e33d6f858dcd6d6660c7c061a352b0748dfad6",
-  "count": 123,
-  "covered": 16,
-  "judged": 107,
+  "manifest_build_hash": "6a7d34e858e07210d39614f86bd5e47510dd0eb9d424b032672fd21b59702f68",
+  "count": 126,
+  "covered": 15,
+  "judged": 111,
   "tally": {
    "not_driving": 0,
    "needs_run": 0,
-   "undetermined": 107,
-   "covered": 16
+   "undetermined": 111,
+   "covered": 15
   },
   "ledger_rows_covering": [
    "S-W11-AADT",
    "S-W13-CONCOURSE",
    "S-W14-HOURUNIFORM",
-   "S-W14-JRPHASE",
    "S-W15-TEMP",
    "S-W16-FLOOR",
    "S-W17-RAKE",
@@ -611,6 +611,7 @@
   ],
   "ledger_rows_without_manifest_row": [
    "S-W10-SHADOW",
+   "S-W14-JRPHASE",
    "S-W17-T2",
    "S-AB1-BUDGET",
    "S-C7-BOUNDARY",
@@ -2376,20 +2377,32 @@
    {
     "key": "W12#4",
     "stage": "W12",
-    "expedient": "JR・東急・京王=等間隔ダイヤ(F10)・上下同数",
-    "covered_by": "S-W14-JRPHASE",
-    "input_jsd": 2.3700939809102645e-05,
-    "null_p95": 0.0011435518763081968,
-    "jsd_source": "既存の台帳行 S-W14-JRPHASE(状態 done)",
-    "null_ref": "既存の台帳行のとおり",
-    "verdict": "covered",
-    "existing_verdict": "not_driving",
-    "note": ""
+    "expedient": "実ダイヤ(2-3b)は渋谷の発車の表だけ(到着の表は使わない=着く体も発車の便から降りる・終点の到着は 2-3c)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "ii",
+     "control": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕渋谷の発車の表だけ vs 到着の表で降りる便を作る(井の頭線は到着の表が手元にある)→ 5,000 体の CSB 対照(エンジンに到着の便の口が要る=2-3c)",
+     "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "pending",
+     "where": "—",
+     "reason": "未判定(D-44 の後に増えた行・回し直しは 10e の外): 2-3b・2-4: 実ダイヤは渋谷の発車の表だけ(新しい行・前の W12#4=等間隔ダイヤ)",
+     "unresearched": false
+    }
    },
    {
     "key": "W12#5",
     "stage": "W12",
-    "expedient": "山手線ピーク本数=資料3の 16-20 本/h の中央 18",
+    "expedient": "方面の上り/下りの写像: JR 山手線 内回り=上り・外回り=下り(線路名称の品川起点による推測・未リサーチ)・相鉄線直通の表は題名の『下り』ではなく向き(南行)で上りに",
     "covered_by": null,
     "input_jsd": null,
     "null_p95": null,
@@ -2401,27 +2414,20 @@
     "engine_reads_via": "直接",
     "triage": {
      "class": "i",
-     "control": "山手線ピーク 18 本 vs 16/20 本 → 便の時刻分布 JSD",
+     "control": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕山手線 内回り=上り・外回り=下り vs 逆 → 向きごとの便の時刻分布 JSD(エンジンは向きを便の並びの決め方にだけ使う=tt23b §11 の 6)",
      "cost_seconds_estimate": 1
     },
     "d44": {
-     "status": "not_driving",
-     "where": "build",
-     "control": "山手線ピーク 18 本/h(宣言)vs 16 / 20 本/h",
-     "metric": "便の (路線 × 曜日種別 × 時) の分布",
-     "jsd_bits": 0.0013530620567893193,
-     "null_p95": 0.013897460862228917,
-     "variant": "16 本/h",
-     "n_variants": 2,
-     "n_variants_detected": 0,
-     "seconds": 1.47,
-     "unresearched": true
+     "status": "pending",
+     "where": "—",
+     "reason": "未判定(D-44 の後に増えた行・回し直しは 10e の外): 2-3b・2-4: 方面の上り/下りの写像(新しい行・前の W12#5=山手線ピーク 18 本)",
+     "unresearched": false
     }
    },
    {
     "key": "W12#6",
     "stage": "W12",
-    "expedient": "オフピーク比はメトロ実ダイヤから移植(平日は平日ダイヤ・土休は土休ダイヤ)",
+    "expedient": "湘南新宿ラインの便は埼京線に畳む(エンジンの方面ノード E2 と同じ畳み方・線別の定員表に行が無い)",
     "covered_by": null,
     "input_jsd": null,
     "null_p95": null,
@@ -2432,28 +2438,21 @@
     "engine_reads": "reads",
     "engine_reads_via": "直接",
     "triage": {
-     "class": "i",
-     "control": "メトロ実ダイヤのオフピーク比 vs 一様 → 便の時刻分布 JSD",
-     "cost_seconds_estimate": 1
+     "class": "ii",
+     "control": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕湘南新宿ラインを埼京線に畳む vs 別の線(エンジンの線別の定員・混雑率の表と方面ノードの線を同じ版で足す口が要る=6-2)→ 5,000 体の CSB 対照",
+     "cost_seconds_estimate": null
     },
     "d44": {
-     "status": "needs_run",
-     "where": "build",
-     "control": "オフピーク比=メトロ実ダイヤから(宣言)vs 比 1.0(一様)",
-     "metric": "便の (路線 × 曜日種別 × 時) の分布",
-     "jsd_bits": 0.017736847945337867,
-     "null_p95": 0.013897460862228917,
-     "variant": "比 1.0",
-     "n_variants": 1,
-     "n_variants_detected": 1,
-     "seconds": 0.94,
-     "unresearched": true
+     "status": "pending",
+     "where": "—",
+     "reason": "未判定(D-44 の後に増えた行・回し直しは 10e の外): 2-3b・2-4: 湘南新宿ラインを埼京線に畳む(新しい行・前の W12#6=オフピーク比の移植)",
+     "unresearched": false
     }
    },
    {
     "key": "W12#7",
     "stage": "W12",
-    "expedient": "夕ピーク本数=朝ピークと同数(資料3は朝ピークのみ=D-W14 の空欄)",
+    "expedient": "土休の ◆ 特急 4 本(踊り子・サフィール踊り子)は ODPT に無いので臨時と見て外す(推測)",
     "covered_by": null,
     "input_jsd": null,
     "null_p95": null,
@@ -2465,27 +2464,45 @@
     "engine_reads_via": "直接",
     "triage": {
      "class": "i",
-     "control": "夕ピーク=朝ピーク vs 夕ピーク −20%(仮)→ 便の時刻分布 JSD",
+     "control": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕土休の ◆ 特急 4 本を外す vs 残す → 土休の便の時刻分布 JSD",
      "cost_seconds_estimate": 1
     },
     "d44": {
-     "status": "not_driving",
-     "where": "build",
-     "control": "夕ピーク=朝ピークと同数(宣言)vs 夕ピーク −20%",
-     "metric": "便の (路線 × 曜日種別 × 時) の分布",
-     "jsd_bits": 0.0029942742488705152,
-     "null_p95": 0.013897460862228917,
-     "variant": "夕ピーク −20%",
-     "n_variants": 1,
-     "n_variants_detected": 0,
-     "seconds": 0.92,
-     "unresearched": true
+     "status": "pending",
+     "where": "—",
+     "reason": "未判定(D-44 の後に増えた行・回し直しは 10e の外): 2-3b・2-4: 土休の ◆ 特急 4 本を外す(新しい行・前の W12#7=夕ピーク=朝ピーク)",
+     "unresearched": false
     }
    },
    {
     "key": "W12#8",
     "stage": "W12",
-    "expedient": "初終発時刻はメトロ**平日**ダイヤから移植(土休の初終発は別に測っていない)",
+    "expedient": "JR の版=2026-03-14 改正と同じと推測(頁は JR 時刻表 2026 年 10 月号に基づく・改正日の記載なし)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕JR の版の宣言(2026-03-14 改正と推測)=別の版の表が手元に無く対照を定義できない",
+     "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕JR の版の宣言(2026-03-14 改正と推測)=別の版の表が手元に無く対照を定義できない",
+     "unresearched": false
+    }
+   },
+   {
+    "key": "W12#9",
+    "stage": "W12",
+    "expedient": "銀座線=世界の時点(2026-07-13)より後の版(2026-09-19 改正・回答 10-13b §2 のユーザー決定)",
     "covered_by": null,
     "input_jsd": null,
     "null_p95": null,
@@ -2497,21 +2514,64 @@
     "engine_reads_via": "直接",
     "triage": {
      "class": "i",
-     "control": "平日の初終発 vs 土休の初終発 → 便の時刻分布 JSD(土休ダイヤの日)",
+     "control": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕銀座線=9 月改正の版 vs 7 月の取得(2026-07-07・世界の時点の版・手元にある)→ 便の時刻分布 JSD",
      "cost_seconds_estimate": 1
     },
     "d44": {
-     "status": "not_driving",
-     "where": "build",
-     "control": "初終発=メトロ平日ダイヤ 5:01-0:20(宣言)vs 土休ダイヤ 5:01-0:20(土休の等間隔ダイヤだけ)",
-     "metric": "土休の便の (路線 × 時) の分布",
-     "jsd_bits": 0.0,
-     "null_p95": 0.012718944394285774,
-     "variant": "土休の初終発",
-     "n_variants": 1,
-     "n_variants_detected": 0,
-     "seconds": 0.17,
-     "unresearched": true
+     "status": "pending",
+     "where": "—",
+     "reason": "未判定(D-44 の後に増えた行・回し直しは 10e の外): 2-3b・2-4: 銀座線=世界の時点より後の版(新しい行)",
+     "unresearched": false
+    }
+   },
+   {
+    "key": "W12#10",
+    "stage": "W12",
+    "expedient": "井の頭線の版=ODPT チャレンジ枠の dct:issued 2025-03-15/17 が世界の時点に効いていたと推測(改正日の欄は空欄)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "iii",
+     "control": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕井の頭線の版の宣言(dct:issued が世界の時点に効いていたと推測)=別の版の表が無く対照を定義できない",
+     "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "no_control",
+     "where": "—",
+     "reason": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕井の頭線の版の宣言(dct:issued が世界の時点に効いていたと推測)=別の版の表が無く対照を定義できない",
+     "unresearched": false
+    }
+   },
+   {
+    "key": "W12#11",
+    "stage": "W12",
+    "expedient": "東横線・田園都市線の上り=直通の副都心線・半蔵門線と同じ列車(W12 では線ごとに 1 回ずつ現れる=直通の二重は 2-3c)",
+    "covered_by": null,
+    "input_jsd": null,
+    "null_p95": null,
+    "jsd_source": "構築の記録(acceptance/summary.json・W*.header.json・sensitivity_v1)に宣言 vs 対照の JSD が無い",
+    "null_ref": "—(JSD が無いので比べない)",
+    "verdict": "undetermined",
+    "note": "",
+    "engine_reads": "reads",
+    "engine_reads_via": "直接",
+    "triage": {
+     "class": "ii",
+     "control": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕直通の二重(東横線・田園都市線の上り=副都心線・半蔵門線と同じ列車)vs 二重を除く→ 5,000 体の CSB 対照(直通のまとめ方は 2-3c)",
+     "cost_seconds_estimate": null
+    },
+    "d44": {
+     "status": "pending",
+     "where": "—",
+     "reason": "未判定(D-44 の後に増えた行・回し直しは 10e の外): 2-3b・2-4: 東横線・田園都市線の上り=直通の二重(新しい行)",
+     "unresearched": false
     }
    },
    {
@@ -3911,11 +3971,11 @@
   "read_graph": {
    "rule_note": "読む=段の出力をエンジン側(engine・perception・agents・economy・world)のコードの文字列リテラルが名指し(直接)/下流の構築段が読み、その段がエンジンに届く(推移)。読まない=エンジン側の読み口が無く、出力を読むのが構築の検査・画像の段(W18〜W20)だけで、その段自身も検査・画像の段。読み口が見つからないだけなら不明(推測で読まないにしない)。段の単位で判定する(段のどれか 1 つの出力が読まれれば、その段の行は全部『読む』)。",
    "tally": {
-    "reads": 98,
+    "reads": 102,
     "not_read": 9,
     "unknown": 0
    },
-   "n_direct": 97,
+   "n_direct": 101,
    "n_transitive": 1,
    "not_read_rows": [
     "W18#1",
@@ -3935,7 +3995,7 @@
      "via_path": [],
      "consumers": [],
      "engine_sites": [
-      "world_crs.json ← world/assets.py:884"
+      "world_crs.json ← world/assets.py:794"
      ],
      "other_sites": []
     },
@@ -3955,8 +4015,8 @@
       "W20"
      ],
      "engine_sites": [
-      "w1_edges.parquet ← world/assets.py:99",
-      "w1_nodes.parquet ← world/assets.py:98"
+      "w1_edges.parquet ← world/assets.py:96",
+      "w1_nodes.parquet ← world/assets.py:95"
      ],
      "other_sites": []
     },
@@ -3976,8 +4036,8 @@
       "W20"
      ],
      "engine_sites": [
-      "w2_cells.parquet ← perception/renderer.py:684",
-      "w2_cells.parquet ← world/assets.py:100"
+      "w2_cells.parquet ← perception/renderer.py:722",
+      "w2_cells.parquet ← world/assets.py:97"
      ],
      "other_sites": []
     },
@@ -3987,8 +4047,8 @@
      "via_path": [],
      "consumers": [],
      "engine_sites": [
-      "w3_cell_dist.npy ← world/assets.py:102",
-      "w3_next_hop.npy ← world/assets.py:101"
+      "w3_cell_dist.npy ← world/assets.py:99",
+      "w3_next_hop.npy ← world/assets.py:98"
      ],
      "other_sites": []
     },
@@ -4035,9 +4095,9 @@
       "W20"
      ],
      "engine_sites": [
-      "w6_org.parquet ← economy/ledger.py:163",
-      "w6_poi.parquet ← perception/renderer.py:685",
-      "w6_poi.parquet ← world/assets.py:103"
+      "w6_org.parquet ← economy/ledger.py:192",
+      "w6_poi.parquet ← perception/renderer.py:723",
+      "w6_poi.parquet ← world/assets.py:100"
      ],
      "other_sites": []
     },
@@ -4051,7 +4111,7 @@
       "W18"
      ],
      "engine_sites": [
-      "w7_plan_spec.parquet ← world/assets.py:873"
+      "w7_plan_spec.parquet ← world/assets.py:783"
      ],
      "other_sites": []
     },
@@ -4065,10 +4125,10 @@
       "W20"
      ],
      "engine_sites": [
-      "w8_t1_cell.parquet ← perception/renderer.py:687",
-      "w8_t1_cell.parquet ← world/assets.py:600",
-      "w8_targets.parquet ← perception/renderer.py:686",
-      "w8_targets.parquet ← world/assets.py:600"
+      "w8_t1_cell.parquet ← perception/renderer.py:725",
+      "w8_t1_cell.parquet ← world/assets.py:512",
+      "w8_targets.parquet ← perception/renderer.py:724",
+      "w8_targets.parquet ← world/assets.py:512"
      ],
      "other_sites": []
     },
@@ -4081,12 +4141,14 @@
       "W20"
      ],
      "engine_sites": [
-      "w9_shadow_2026-07-13.npy ← world/assets.py:131",
-      "w9_shadow_2026-07-14.npy ← world/assets.py:131",
-      "w9_shadow_2026-07-15.npy ← world/assets.py:131",
-      "w9_shadow_2026-07-16.npy ← world/assets.py:131",
-      "w9_shadow_2026-07-17.npy ← world/assets.py:131",
-      "w9_shadow_2026-07-28.npy ← world/assets.py:131"
+      "w9_shadow_2026-07-13.npy ← world/assets.py:119",
+      "w9_shadow_2026-07-14.npy ← world/assets.py:119",
+      "w9_shadow_2026-07-15.npy ← world/assets.py:119",
+      "w9_shadow_2026-07-16.npy ← world/assets.py:119",
+      "w9_shadow_2026-07-17.npy ← world/assets.py:119",
+      "w9_shadow_2026-07-18.npy ← world/assets.py:119",
+      "w9_shadow_2026-07-19.npy ← world/assets.py:119",
+      "w9_shadow_2026-07-28.npy ← world/assets.py:119"
      ],
      "other_sites": []
     },
@@ -4101,12 +4163,12 @@
       "W20"
      ],
      "engine_sites": [
-      "w10_noise_stage_day.npy ← perception/renderer.py:917",
-      "w10_noise_stage_day.npy ← world/assets.py:125",
-      "w10_noise_stage_night.npy ← perception/renderer.py:917",
-      "w10_noise_stage_night.npy ← world/assets.py:125",
-      "w10_street_points.parquet ← perception/renderer.py:688",
-      "w10_street_points.parquet ← world/assets.py:125"
+      "w10_noise_stage_day.npy ← perception/renderer.py:950",
+      "w10_noise_stage_day.npy ← world/assets.py:596",
+      "w10_noise_stage_night.npy ← perception/renderer.py:950",
+      "w10_noise_stage_night.npy ← world/assets.py:596",
+      "w10_street_points.parquet ← perception/renderer.py:726",
+      "w10_street_points.parquet ← world/assets.py:595"
      ],
      "other_sites": []
     },
@@ -4123,9 +4185,9 @@
       "W20"
      ],
      "engine_sites": [
-      "w11_station_exits.parquet ← perception/renderer.py:689",
-      "w11_station_exits.parquet ← world/assets.py:871",
-      "w11_station_graph_nodes.parquet ← world/assets.py:870"
+      "w11_station_exits.parquet ← perception/renderer.py:727",
+      "w11_station_exits.parquet ← world/assets.py:781",
+      "w11_station_graph_nodes.parquet ← world/assets.py:780"
      ],
      "other_sites": []
     },
@@ -4139,8 +4201,8 @@
       "W18"
      ],
      "engine_sites": [
-      "w12_external_nodes.parquet ← world/assets.py:126",
-      "w12_timetables.parquet ← world/assets.py:126"
+      "w12_external_nodes.parquet ← world/assets.py:782",
+      "w12_timetables.parquet ← world/assets.py:779"
      ],
      "other_sites": []
     },
@@ -4153,9 +4215,9 @@
       "W18"
      ],
      "engine_sites": [
-      "w13_weather_days.parquet ← world/assets.py:127",
-      "w13_weather_hourly.parquet ← perception/renderer.py:690",
-      "w13_weather_hourly.parquet ← world/assets.py:127"
+      "w13_weather_days.parquet ← world/assets.py:777",
+      "w13_weather_hourly.parquet ← perception/renderer.py:728",
+      "w13_weather_hourly.parquet ← world/assets.py:778"
      ],
      "other_sites": []
     },
@@ -4165,7 +4227,7 @@
      "via_path": [],
      "consumers": [],
      "engine_sites": [
-      "w14_signage.parquet ← perception/renderer.py:799"
+      "w14_signage.parquet ← perception/renderer.py:833"
      ],
      "other_sites": []
     },
@@ -4175,7 +4237,7 @@
      "via_path": [],
      "consumers": [],
      "engine_sites": [
-      "w15_cell_static.parquet ← perception/renderer.py:802"
+      "w15_cell_static.parquet ← perception/renderer.py:836"
      ],
      "other_sites": []
     },
@@ -4198,7 +4260,7 @@
      "via_path": [],
      "consumers": [],
      "engine_sites": [
-      "w17_schedule.parquet ← agents/weekly.py:58"
+      "w17_schedule.parquet ← agents/weekly.py:59"
      ],
      "other_sites": []
     },
@@ -4233,15 +4295,15 @@
    }
   },
   "triage_summary": {
-   "note": "D-44 の 3 分類(第308・Q146)。**実装役の自前の構成=未リサーチ(expedient)**: 対照の候補と費用の見込みは既存の記録(構築の通し 12.3 s・W8 前計算 1.15 s・W9 影 数分・W16 対照 0.29 s・W17 再取り込み 約 90 s)から置いた目安で、実測していない。(i) 構築段階の再計算で対照が測れる(宣言値 vs 対照の入力側 JSD=既存の 5 本のランナーの形)/(ii) ランが要る(入力側の JSD では効きが決まらない・LLM の再生成が要る=5,000 体の CSB 対照)/(iii) 対照を定義できない(門・文面・閾値・範囲の宣言)。〔改訂(第330 ACT)〕10e の構築側で build_manifest の expedient が 6 行増え 4 行消えた(123 行)。W13#5 は前の W13#6 の行(番号のずれ・文言は同じ)。W7#7・W9#5・W10#11・W13#6・W13#7・W13#8 の 3 分類と対照は実装役の案(未リサーチ)。前の行の値: {\"W7#7\": {\"class\": \"i\", \"control\": \"祝日規則を無視 vs 当てる → 再生日の営業中 POI×時(祝日でなければ差 0 の見込み)\", \"cost_seconds_estimate\": 2}, \"W9#5\": {\"class\": \"i\", \"control\": \"再生日=W13 の先頭日 vs 別の候補日 → セルの日陰率の分布 JSD\", \"cost_seconds_estimate\": 300}, \"W13#5\": {\"class\": \"i\", \"control\": \"2026 年 7-8 月のハードコード vs 内閣府 CSV → 再生日の祝日(差 0 の見込み)\", \"cost_seconds_estimate\": 1}, \"W13#6\": {\"class\": \"i\", \"control\": \"時別=平均/合計 vs 正時値 → 時別気象の分布 JSD\", \"cost_seconds_estimate\": 1}, \"W13#7\": {\"class\": \"i\", \"control\": \"etrn 時別値で補完 vs 線形補間 → 補完した時の気象の分布\", \"cost_seconds_estimate\": 1}}",
+   "note": "D-44 の 3 分類(第308・Q146)。**実装役の自前の構成=未リサーチ(expedient)**: 対照の候補と費用の見込みは既存の記録(構築の通し 12.3 s・W8 前計算 1.15 s・W9 影 数分・W16 対照 0.29 s・W17 再取り込み 約 90 s)から置いた目安で、実測していない。(i) 構築段階の再計算で対照が測れる(宣言値 vs 対照の入力側 JSD=既存の 5 本のランナーの形)/(ii) ランが要る(入力側の JSD では効きが決まらない・LLM の再生成が要る=5,000 体の CSB 対照)/(iii) 対照を定義できない(門・文面・閾値・範囲の宣言)。〔改訂(第330 ACT)〕10e の構築側で build_manifest の expedient が 6 行増え 4 行消えた(123 行)。W13#5 は前の W13#6 の行(番号のずれ・文言は同じ)。W7#7・W9#5・W10#11・W13#6・W13#7・W13#8 の 3 分類と対照は実装役の案(未リサーチ)。前の行の値: {\"W7#7\": {\"class\": \"i\", \"control\": \"祝日規則を無視 vs 当てる → 再生日の営業中 POI×時(祝日でなければ差 0 の見込み)\", \"cost_seconds_estimate\": 2}, \"W9#5\": {\"class\": \"i\", \"control\": \"再生日=W13 の先頭日 vs 別の候補日 → セルの日陰率の分布 JSD\", \"cost_seconds_estimate\": 300}, \"W13#5\": {\"class\": \"i\", \"control\": \"2026 年 7-8 月のハードコード vs 内閣府 CSV → 再生日の祝日(差 0 の見込み)\", \"cost_seconds_estimate\": 1}, \"W13#6\": {\"class\": \"i\", \"control\": \"時別=平均/合計 vs 正時値 → 時別気象の分布 JSD\", \"cost_seconds_estimate\": 1}, \"W13#7\": {\"class\": \"i\", \"control\": \"etrn 時別値で補完 vs 線形補間 → 補完した時の気象の分布\", \"cost_seconds_estimate\": 1}}〔改訂(第 2 期 2-4・V1 の活性化)〕W12 の expedient が 8 → 11 行(等間隔の推定の 5 行=前の W12#4〜#8 が消え、実ダイヤの宣言 8 行が W12#4〜#11 に入る・build_manifest は 123 → 126 行)。W12#4〜#11 の 3 分類と対照は実装役の案(未リサーチ)。前の行の値(等間隔の推定の行のもの): {\"W12#5\": {\"class\": \"i\", \"control\": \"山手線ピーク 18 本 vs 16/20 本 → 便の時刻分布 JSD\", \"cost_seconds_estimate\": 1}, \"W12#6\": {\"class\": \"i\", \"control\": \"メトロ実ダイヤのオフピーク比 vs 一様 → 便の時刻分布 JSD\", \"cost_seconds_estimate\": 1}, \"W12#7\": {\"class\": \"i\", \"control\": \"夕ピーク=朝ピーク vs 夕ピーク −20%(仮)→ 便の時刻分布 JSD\", \"cost_seconds_estimate\": 1}, \"W12#8\": {\"class\": \"i\", \"control\": \"平日の初終発 vs 土休の初終発 → 便の時刻分布 JSD(土休ダイヤの日)\", \"cost_seconds_estimate\": 1}}",
    "source": "tools/c8/expedient_triage_v1.json",
    "tally": {
-    "i": 66,
-    "ii": 14,
-    "iii": 18
+    "i": 65,
+    "ii": 17,
+    "iii": 20
    },
-   "n_reads_rows": 98,
-   "i_cost_seconds_sum_one_at_a_time": 3607.0,
+   "n_reads_rows": 102,
+   "i_cost_seconds_sum_one_at_a_time": 3606.0,
    "i_cost_seconds_max_per_stage": {
     "W1": 35.0,
     "W2": 35.0,
@@ -4262,23 +4324,23 @@
   "d44_summary": {
    "rule_note": "D-44(第311・ユーザー決定 2026-09-30): (i) 構築の再計算で対照を当て、宣言 vs 対照の**入力側** JSD を片側規則で判定(帰無参照=同分布 2 標本の JSD 95% 点=c8lib.compare_counts・対照が複数の値を持つ行はどれか 1 つでも超えたら『ラン対照へ』)。(ii) ランが要る行は mock 5,000 体の対照ランで、既存の口(--world)で測れるものだけ測った。(iii) 対照を定義できない行は印だけ。読まない行(W18〜W20)は感度試験の対象外(ランに届かない・構築仕様書 §0-7 第311 追記)。**検出可能効果量の床(第200)**: 2 seed の感度試験は f≈1 未満の効果を検出できない=ラン対照で差が見えないことは「特大の駆動が無い」の証明にとどまる。**対照のずらし値・指標・階級幅は実装役の自前の構成=未リサーチ**。帰無参照の N は資産の要素数(点×面・POI×時など)で、大きい N では帰無参照がほぼ 0 になり決定論の差はほぼ全て検出される(保守側)。",
    "source": "docs/bench/analysis/d44-controls-2026-09-30/(d44_results.json・mock_controls.json)",
-   "n_rows": 107,
+   "n_rows": 111,
    "tally": {
-    "not_driving": 38,
-    "needs_run": 25,
+    "not_driving": 35,
+    "needs_run": 24,
     "unmeasurable": 12,
-    "no_control": 18,
+    "no_control": 20,
     "out_of_scope": 9,
-    "pending": 5
+    "pending": 11
    },
    "by_class": {
     "i": {
-     "not_driving": 35,
-     "needs_run": 24,
+     "not_driving": 32,
+     "needs_run": 23,
      "unmeasurable": 3,
      "no_control": 0,
      "out_of_scope": 0,
-     "pending": 4
+     "pending": 7
     },
     "ii": {
      "not_driving": 3,
@@ -4286,13 +4348,13 @@
      "unmeasurable": 9,
      "no_control": 0,
      "out_of_scope": 0,
-     "pending": 1
+     "pending": 4
     },
     "iii": {
      "not_driving": 0,
      "needs_run": 0,
      "unmeasurable": 0,
-     "no_control": 18,
+     "no_control": 20,
      "out_of_scope": 0,
      "pending": 0
     },
@@ -4333,5 +4395,8 @@
  },
  "open_questions_pre_act": [
   "build_manifest の expedient 121 行(09-09 は 122・第306 の段の改版で −1)のうち、設計書が感度試験を宣言しているのは 14 アンカー(build_manifest の 15 行)+RAKE 1 行だけ。残り 105 行の扱い=D-44 (a)(第229 決定)で一括判定(build_manifest_judgment)・(c) 依存グラフ(第307)の次はユーザー判断。"
+ ],
+ "open_questions_pre_2_4": [
+  "build_manifest の expedient 123 行(〔改訂(第330 ACT)〕10e の構築側で 121 行から +6・−4。09-09 は 122・第306 の段の改版で −1)のうち、設計書が感度試験を宣言しているのは 14 アンカー(build_manifest の 15 行)+RAKE 1 行だけ。残り 107 行の扱い=D-44 (a)(第229 決定)で一括判定(build_manifest_judgment)・(c) 依存グラフ(第307)の次はユーザー判断。増えた 6 行の D-44 は未判定(10e の外)。"
  ]
 }

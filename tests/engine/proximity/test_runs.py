@@ -41,7 +41,7 @@ WORLD = "data/world/v2"
 world_assets = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 #: 本体 HEAD ``2bc7a4b`` の src(``git archive`` の写し)で回した既定の腕の final と呼数(世界資産・300 体・1 日・語彙 v3・
 #: 記憶+関係+同席)。作業木の腕 cell で同じ値=今と同じ(記録 prox22/README.md §6)。
-HEAD_GOLDEN = ("f0503a35ccb501aae79dd64da80a81a65e560df143c8d18da5395a7de17d69ce", 3062)
+HEAD_GOLDEN = ("f1ec0336ef617de06d985fcb02bbb632476703ca917998c777d6db769f139101", 3_077)  # 〔2-4 V1〕前 f0503a35ccb501aae79dd64da80a81a65e560df143c8d18da5395a7de17d69ce / 3062
 GOLDEN_KW = dict(n_agents=300, seed=1, world_dir=WORLD, ticks=1440, vocab_version="v3", memory="on", relations="on",
                  rel_copresent="on")
 

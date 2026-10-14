@@ -1,0 +1,43 @@
+{
+ "rebuild_stages": [
+  "W9",
+  "W12",
+  "W18",
+  "W19",
+  "W20"
+ ],
+ "keep_stages": [
+  "W0",
+  "W1",
+  "W2",
+  "W3",
+  "W4",
+  "W5",
+  "W6",
+  "W7",
+  "W8",
+  "W10",
+  "W11",
+  "W13",
+  "W14",
+  "W15",
+  "W16",
+  "W17"
+ ],
+ "runs": 2,
+ "exit_codes": [
+  0,
+  0
+ ],
+ "build_hashes": [
+  "6a7d34e858e07210d39614f86bd5e47510dd0eb9d424b032672fd21b59702f68",
+  "6a7d34e858e07210d39614f86bd5e47510dd0eb9d424b032672fd21b59702f68"
+ ],
+ "deterministic": true,
+ "gates_failed": [
+  [
+   "W10",
+   "calibration_max_abs_residual_db"
+  ]
+ ]
+}

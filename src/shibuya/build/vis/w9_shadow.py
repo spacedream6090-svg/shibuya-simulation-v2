@@ -7,6 +7,11 @@
   (c) バンドが UG(地下街)= 常に日陰(expedient)
 
 出力は ``np.packbits`` した (288, ceil(N/8)) uint8。D-W10 の宣言予算は **≤10MB/再生日**。
+〔改訂(第 2 期 2-4・仮採用=親の判断待ち)〕宣言を実測に合わせて **≤13,000,000 B/再生日** に直した
+(:data:`BUDGET_BYTES_PER_DAY`・ゲート ``shadow_bytes_per_day_le_budget``)。8.6MB/日 は 239,028 点の前提で、
+点の集合は W10 と同じ 356,732 点=288 面 × 44,592 B=12,842,496 B(ファイル 12,842,624 B)。点を間引いて予算に
+合わせることはしない(前からの方針)。影の形を縮める案(昼の面だけ・zlib)は記録
+``docs/bench/analysis/wallbounce-1012/vb24/README.md`` の V1 に比べた。
 
 太陽位置は W13(``field.w13_weather``)の NOAA 近似を**そのまま輸入**する
 (``_solar_terms`` から赤緯・均時差を取り、同じ時角の式で高度と方位を出す)。
@@ -48,8 +53,9 @@ N_PLANES = 288
 PLANE_MIN = 5
 #: 影の最大追跡距離 [m](expedient)。
 SHADOW_MAX_M = 300.0
-#: D-W10 の宣言予算 [byte/再生日]。
-BUDGET_BYTES_PER_DAY = 10_000_000
+#: D-W10 の宣言予算 [byte/再生日]。〔改訂(第 2 期 2-4・仮採用)〕10_000_000(239,028 点の前提)→ 13_000_000
+#: (356,732 点 × 288 面のビット表=12,842,624 B/日の実測に約 1.2% の余白)。ゲートの名は値を持たない形にした。
+BUDGET_BYTES_PER_DAY = 13_000_000
 #: 〔改訂(第330 B5・B6・ACT)〕影を作る日の一覧(先頭=主の日)。先頭の 2026-07-28 は 10e より前と同じ日(旧値の再現用・
 #: 面ごとの表と W20 の正午の図はこの日)。〔改訂(第330 ACT)〕版上げ 1 回目の活性化で既定の開始日 2026-07-13(月)からの
 #: 平日 5 日(07-13〜07-17)を足した(ユーザーの答え 10-12b 1-3・1-4=影は暦の日付で引く・ランで使う日だけ作る)。
@@ -352,7 +358,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
         C.Gate("bits_per_plane_cover_points", int(planes.shape[1]) * 8 >= n_pts, True),
         C.Gate("night_planes_all_shadow", night_ok, True),
         C.Gate(
-            "shadow_bytes_per_day_le_10mb",
+            "shadow_bytes_per_day_le_budget",  # 〔2-4〕旧名 shadow_bytes_per_day_le_10mb(宣言の値を名に持たない形に)
             int(shadow_bytes),
             BUDGET_BYTES_PER_DAY,
             passed=shadow_bytes <= BUDGET_BYTES_PER_DAY,

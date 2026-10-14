@@ -73,7 +73,8 @@ BUILD_INPUT_FAMILIES: dict[str, tuple[str, ...]] = {
         for c in ("STATION_FLOW", "TIME_DIST", "TRANSFER", "PASSENGER_SURVEY")
         if getattr(w12_external_nodes, c, None)
     ),
-    **{fam: w12_real_timetables.input_rel_paths(fam) for fam in w12_real_timetables.INPUT_FAMILIES},
+    # 〔2-4〕元の宣言は W12 の京王の切替口(USE_ODPT_CHALLENGE)に依らない=in_use=False(既定の値は前と同じ)
+    **{fam: w12_real_timetables.input_rel_paths(fam, in_use=False) for fam in w12_real_timetables.INPUT_FAMILIES},
 }
 #: 開封済みの層(事前登録で 1 回開けた。値は読まないが「独立」ではない)。
 OPENED_LAYERS: dict[str, str] = {
