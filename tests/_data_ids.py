@@ -53,6 +53,9 @@ ROOTS: dict[str, Path] = {
     "odpt_static": DATA / "realworld_live" / "odpt_static",  # ODPT オープン枠の静的データ(版の日付のフォルダ)
     # 〔第 2 期 2-3〕W9 の影を 7 日の窓に広げた世界資産(活性化は 2-4・本体の v2 は上書きしない)
     "world_stage_2-3": DATA / "world" / "v2_stage_2-3",
+    # 〔第 6 期 6-1〕判断モデルの評価の器(tools/instruments/dm_eval)の実データ(どちらも gitignore の下・読むだけ)
+    "evalset": DATA / "evalset",                  # 固定の評価セット(1-10 の situations.jsonl・summary.json)
+    "server_retrieval": DATA / "server_retrieval",  # サーバーから回収したテープの元の置き場(1-10 の材料の大半)
 }
 
 

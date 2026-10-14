@@ -4765,6 +4765,17 @@
    "code_at": [
     "src/shibuya/build/sched/w20_calendar_1a.py"
    ]
+  },
+  {
+   "id": "DOC-dm61-eval-harness",
+   "what": "判断モデルの評価の器(tools/instruments/dm_eval)=採点の値は GPU の後。候補 Clef-flash・Clef・Kev-9B・即断と基準 (G) は口だけ(人らしさ・速さ・1 シム日あたりの GPU 時間の欄は空欄)・実装は mock・古典・テープの 3 つだけ。長さの腕 t300 は B0 を外すだけ・目安の文字数はトークン数 × 1.0(tokenizer で後で測る)・本人の経験の代わりはテープの前の呼の語(B5・B6 が無い)",
+   "why": "回答 2-1(第 6 期のコードを GPU の前に仮のモデルで作る)と S6(GPU が要る実行=判断モデルの選定は止まる地点)。器と空欄の欄を先に置き、重みを取って GPU で測る段(6-1 の J1)で値を入れ、表をユーザーに見せて選ぶ。外す段: 6-1",
+   "remove_at": "6-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/dm61/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan"
   }
  ]
 }
