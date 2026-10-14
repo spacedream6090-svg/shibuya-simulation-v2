@@ -487,3 +487,12 @@ rebase はしていない(1-8b の取り込みの後に親の合図)。既定の
 - 腕 distance の再開 == 通し(世界資産 1,000 体・止める 750): [resume_rebased.json](resume_rebased.json)=final `e0a62eaf…` が同じ・呼数 4,710+7,100=11,810・止めた後の checkpoint 12 本のハッシュが同じ・気づく抽選 141 本([tools/resume_check.py](tools/resume_check.py))。
 
 **当たり(親の判断)**: 1-8b のつなぎの台帳の行 `DOC-s8b-reach-session`(発話の口の届く範囲=会話のセッションの参加者・距離を見ない)の外す段が `2-2` になっている。2-2 の発注には発話の口の届く範囲は入っていないので、この段では触っていない(行は active のまま)。外す段を動かすか、2-2 の続きで届く範囲を近接の判定に替えるかは親の判断。
+
+## §16 親の検収(第334・Fable 5.1・rebase の後)
+
+- 本体 db40de2 へ rebase(衝突 19 ファイルを実装役が手で解いた=本体の分 → 2-2 の分の順)。範囲の試験(proximity・speech・tools・systems・events・decision・time・bridging・再開・状態台帳・10f・salt・perception・llm)1,525 passed(10 分 46 秒)。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・既定 cell)=final 同じ・25 欄とも差なし(parent_head_vs_prox22_rebased_4cfg.json)。腕 distance の 4 構成は実装役の rebase の前後で同じ(byte_check_prox22_distance_rebased.json)=親は既定の不変だけを自分で確かめ、腕の値は実装役と検収役の記録を根拠にする。
+- 独立検収(review.md)=条件つき受入(中 3・低 9)→ 全部直した+親の判断(鍵は Philox の配列の口・B5 の単位は店のセルの中・近接行は半径の中・ハブは測れないと宣言・名指しの相手へ寄る口は 5-2)。検収役の全会話の距離の数え直し・索引と総当たり 900 点・描画の digest 11,928 回・再開=通しの一致を受入の根拠にする。
+- 親の判断(§15 の問い): 1-8b の台帳の行 DOC-s8b-reach-session(届く範囲=セッションの参加者・外す段 2-2)は**外す段を 5-3 に改める**(発話の届く範囲を「聞こえた範囲」にするのは音の場の段 5-3 と傍受 T3=2-2 の近接は会話の相手の判定)。親が取り込みの文書で台帳を直す。
+- 2-4 の候補: 歩き出したときに在席の印 poi_ref を解く(既定の席の数え方が変わる=版上げで)。既定 distance にするのも 2-4 の束。
+- 判定: 受入(第 2 期 2-2 の完了)。
