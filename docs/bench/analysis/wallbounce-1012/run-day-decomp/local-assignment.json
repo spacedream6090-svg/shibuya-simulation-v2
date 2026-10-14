@@ -3644,6 +3644,14 @@
    ],
    "to": "box:scratch.percepts",
    "note": "第 1 期 1-2 で足した欄(HEAD の run_day の局所ではない=n_locals と kinds は HEAD のまま)。知覚の事実 Percept を decide が書く"
+  },
+  "near_index": {
+   "param": false,
+   "systems": [
+    "perceive_prepare"
+   ],
+   "to": "box:scratch.near_index",
+   "note": "第 2 期 2-2 段 11a で足した欄(HEAD の run_day の局所ではない=n_locals と kinds は HEAD のまま)。近傍の索引 SpatialIndex を perceive_prepare が書く(腕 --proximity distance の刻みだけ・既定 None)"
   }
  }
 }

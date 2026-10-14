@@ -17,6 +17,7 @@ import numpy as np
 
 from shibuya.core.hashing import blake3_hex
 from shibuya.core.time_consts import CLOCK_KIND
+from shibuya.engine import proximity as _PROX
 from shibuya.engine.bridging import ledger as _BR
 from shibuya.engine.rules import table as _RT
 from shibuya.engine.state_hashes import behavior_hash as behavior_state_hash
@@ -46,6 +47,7 @@ def hash_owners(b: Any) -> dict[str, Any]:
     〔第 1 期 1-8 J0〕その後に ``decision``(候補の口の層・状態台帳の行 ``J0``=軸 1 diag・軸 2 discardable・腕 port のランだけ)。
     〔第 1 期 1-8b〕その後に ``speech``(発話の口・状態台帳の腕の行 ``S8``=軸 1 behavior・軸 2 required と ``S8M``=診断・
     腕 on のランだけ。腕の行は持ち主が None のランでは 2 つのハッシュにも状態のファイルにも入らない=既定は不変)。
+    〔第 2 期 2-2 段 11a〕その後に ``proximity``(近接の層・状態台帳の行 ``PX``=軸 1 diag・軸 2 discardable・腕 distance のランだけ)。
     """
     from shibuya.engine.run import _RunDayLocals
 
@@ -62,6 +64,7 @@ def hash_owners(b: Any) -> dict[str, Any]:
         "events": getattr(L, "events", None),
         "decision": getattr(L, "decision", None),
         "speech": getattr(L, "speech", None),
+        "proximity": getattr(L, "proximity", None),
     }
 
 
@@ -338,6 +341,10 @@ def save_state(b: Any, T_next: int, *, finished: bool, closed: bool) -> None:
             "pending_responses": len(b.llm.pending),
         },
     }
+    # 第 2 期 2-2(検収 M1): 腕 distance のランだけ近接の腕を書く(再開で今の腕と突き合わせる・腕 cell は今の見出しのまま)
+    _px = _PROX.header_fields(b.layers.proximity)
+    if _px is not None:
+        header["proximity"] = _px
     path = RS.state_path(state_out, int(T_next))
     nbytes = RS.write_state(path, RS.StateBundle(header, soa_, items_, list(fleet_inflight.values())))
     b.runstats.state_files.append({"file": path.name, "T": int(T_next), "bytes": int(nbytes), "finished": bool(finished),

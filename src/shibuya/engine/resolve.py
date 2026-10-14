@@ -472,6 +472,9 @@ class ResolveOutcome:
     n_focus_lost: int = 0
     #: **実距離**で成立した会話招待の件数(G7・node/同一セル代理のランでは 0)。
     n_talk_by_distance: int = 0
+    #: 〔第 2 期 2-2 段 11a〕腕 ``--proximity distance`` の判定の規則(``engine.proximity.ProximityRule``)。``None``
+    #: (既定の腕 cell)では 1 分岐も通らない。会話の開始の判定を「同じ層・距離 ≤ d、または同じ B5 の単位」にする。
+    proximity: Any = None
     #: 語彙 v3「並ぶ」を食事/購入へ委譲した件数(第275 #2)。v1/v2 では 0。
     n_queue_to_eat: int = 0
     n_queue_to_buy: int = 0
@@ -1316,6 +1319,7 @@ def apply(
     energy: Any = None,
     track_events: bool = False,
     leave_effect: bool = True,
+    proximity: Any = None,
 ) -> ResolveOutcome:
     """Phase C: 確定した intent だけを世界へ適用する(**唯一の書き手**)。
 
@@ -1353,6 +1357,9 @@ def apply(
             「近づく」の目的ノードにだけ効く(焦点は持てないので ``TARGET_GONE`` も出ない)。
         talk_by_distance: **C9b G7**。``True`` で会話の成立判定が「同一セル代理」から
             ``TALK_OPEN_METERS``(2 m)の実距離になる。``False``(既定)は現行のまま。
+        proximity: 〔第 2 期 2-2 段 11a〕腕 ``--proximity distance`` の判定の規則(``engine.proximity.ProximityRule``)。
+            渡すと会話の開始の判定が「舞台の中・同じ層・距離 ≤ d、または同じ B5 の単位」になる(``talk_by_distance``
+            より強い)。``None``(既定)は 1 分岐も通らない。
         track_visits: **4 段目(M13 訪問)**。``True`` で購入/食事の成立した行(体, POI)を
             ``ResolveOutcome.visit_agents``/``visit_pois`` に控える(``engine.familiarity`` が読む)。
             控えるだけ=世界は変えない。
@@ -1386,6 +1393,7 @@ def apply(
         energy=energy,
         track_events=bool(track_events),
         leave_effect=bool(leave_effect),
+        proximity=proximity,
     )
     r = agents.registry
     with agents.writable(), world.writable():
@@ -2468,15 +2476,21 @@ def set_conversing(agents: AgentState, inviters, invitees) -> None:
 _UNADDRESSABLE: Final[tuple[int, ...]] = (int(Activity.CONVERSING), int(Activity.SLEEPING))
 
 
-def talk_within_reach(agents, a, b, *, by_distance: bool) -> np.ndarray:
+def talk_within_reach(agents, a, b, *, by_distance: bool, rule: Any = None) -> np.ndarray:
     """会話が届くか(**C9b G7**)。``by_distance=False`` は現行の「同一セル代理」。
 
     ``True`` のときは同一セルに加えて ``距離 ≤ TALK_OPEN_METERS``(2 m)を課す
     (行動契約書 §3 開始ゲート「同一セル ∧ 距離≦d_talk」の後半を**実距離で**満たす)。
     同一セルを残すのは層(UG/GL/DECK)を跨いだ 2 m を成立させないため。
 
+    〔第 2 期 2-2 段 11a〕``rule``(``engine.proximity.ProximityRule``・腕 ``--proximity distance``)を渡すと、同じセルの
+    条件を外し「舞台の中・同じ層・距離 ≤ d、または同じ B5 の単位」で見る(``by_distance`` より強い)。``None``(既定)は
+    今のまま。
+
     逐次ループ宣言(P4): なし。
     """
+    if rule is not None and rule.is_distance:
+        return rule.reach(agents, a, b)
     r = agents.registry
     ca = np.asarray(r.cell, dtype=np.int64)[a]
     cb = np.asarray(r.cell, dtype=np.int64)[b]
@@ -2498,9 +2512,9 @@ def _apply_talk(agents, world, aid, tgt, tick, out, schedule) -> None:
     has = (tgt >= 0) & (tgt < agents.n) & (tgt != aid)
     partner = np.clip(tgt, 0, max(0, agents.n - 1))
     same_cell = has & talk_within_reach(
-        agents, aid, partner, by_distance=out.talk_by_distance
+        agents, aid, partner, by_distance=out.talk_by_distance, rule=out.proximity
     )
-    if out.talk_by_distance:
+    if out.talk_by_distance or out.proximity is not None:  # 第 2 期 2-2: 腕 distance も実距離の成立を数える
         out.n_talk_by_distance += int(np.count_nonzero(same_cell))
     pact = r.activity[partner]
     addressable = same_cell & ~np.isin(pact, _UNADDRESSABLE)

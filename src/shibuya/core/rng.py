@@ -17,7 +17,7 @@ expedient: 鍵導出のハッシュ入力形式(UTF-8 の ``"i:<int>"`` また�
 
 from __future__ import annotations
 
-from typing import Iterable
+from typing import Any, Iterable
 
 import blake3
 import numpy as np
@@ -33,6 +33,9 @@ __all__ = [
     "run_tick_key",
     "time_key_from_t_ns",
     "k19_counters",
+    "philox_array",
+    "k19_counter_array",
+    "unit_float",
 ]
 
 MASK64 = (1 << 64) - 1
@@ -139,3 +142,115 @@ def time_key_from_t_ns(day_key0: int, t_ns: int, step_seconds: int) -> int:
     if w <= 0:
         raise ValueError(f"刻みの幅(秒)は正の整数: {step_seconds!r}")
     return run_tick_key(day_key0, int(t_ns) // (w * NS_PER_SECOND), w)
+
+
+# ---------------------------------------------------------------- 第 2 期 2-2: 配列で回す Philox(同じ出力)
+#: Philox4x64-10 の定数(Random123・numpy の ``philox.h`` と同じ値)。
+_PHILOX_M0: int = 0xD2E7470EE14C6C93
+_PHILOX_M1: int = 0xCA5A826395121157
+_PHILOX_W0: int = 0x9E3779B97F4A7C15
+_PHILOX_W1: int = 0xBB67AE8584CAA73B
+_PHILOX_ROUNDS: int = 10
+_LO32 = np.uint64(0xFFFFFFFF)
+_SH32 = np.uint64(32)
+
+
+def _mulhilo(a: np.ndarray, m: int) -> tuple[np.ndarray, np.ndarray]:
+    """``a × m`` の 128 bit の上 64 bit と下 64 bit(配列・``m`` は定数)。32 bit に割って掛ける(どの積も 64 bit に収まる)。"""
+    m_lo, m_hi = np.uint64(m & 0xFFFFFFFF), np.uint64(m >> 32)
+    a_lo = a & _LO32
+    a_hi = a >> _SH32
+    ll = a_lo * m_lo
+    lh = a_lo * m_hi
+    hl = a_hi * m_lo
+    hh = a_hi * m_hi
+    mid = (ll >> _SH32) + (lh & _LO32) + (hl & _LO32)
+    hi = hh + (lh >> _SH32) + (hl >> _SH32) + (mid >> _SH32)
+    lo = ((mid & _LO32) << _SH32) | (ll & _LO32)
+    return hi, lo
+
+
+def _philox_block(key: tuple[int, int], ctr: np.ndarray) -> np.ndarray:
+    """Philox4x64-10 の 1 ブロック(``ctr``: (n, 4) uint64 → (n, 4) uint64)。逐次ループ宣言: 段の数ぶん(10)。"""
+    k0, k1 = int(key[0]) & MASK64, int(key[1]) & MASK64
+    c0, c1, c2, c3 = (ctr[:, j].copy() for j in range(4))
+    for r in range(_PHILOX_ROUNDS):  # 逐次: 段の数ぶん(10・体の数に依らない)
+        if r:
+            k0, k1 = (k0 + _PHILOX_W0) & MASK64, (k1 + _PHILOX_W1) & MASK64
+        hi0, lo0 = _mulhilo(c0, _PHILOX_M0)
+        hi1, lo1 = _mulhilo(c2, _PHILOX_M1)
+        c0, c1, c2, c3 = hi1 ^ c1 ^ np.uint64(k0), lo1, hi0 ^ c3 ^ np.uint64(k1), lo0
+    return np.stack([c0, c1, c2, c3], axis=1)
+
+
+def _counter_array(counters: Any) -> np.ndarray:
+    """鍵の語の配列((n, m)・m ≤ 4・整数・0..2^64-1)→ 4 語に詰めた (n, 4) uint64(足りない語は 0=``_counter_words`` と同じ)。"""
+    c = np.asarray(counters)
+    if c.ndim != 2 or c.shape[1] > 4:
+        raise ValueError(f"カウンタの配列は (行の数, 語の数 ≤ 4)(いま {c.shape})")
+    if c.size and not np.issubdtype(c.dtype, np.integer):
+        raise TypeError(f"カウンタの配列は整数(いま {c.dtype})")
+    if c.size and np.issubdtype(c.dtype, np.signedinteger) and bool((c < 0).any()):
+        raise ValueError("カウンタ語は 0..2^64-1")
+    out = np.zeros((c.shape[0], 4), dtype=np.uint64)
+    out[:, : c.shape[1]] = c.astype(np.uint64, copy=False)
+    return out
+
+
+def _advance(ctr: np.ndarray, k: int) -> np.ndarray:
+    """カウンタ(4 語・0 語目が下の桁)に ``k`` を足す(繰り上がりつき・2^256 で回る=numpy と同じ)。"""
+    out = ctr.copy()
+    add = np.full(out.shape[0], np.uint64(k), dtype=np.uint64)
+    for j in range(4):  # 逐次: 語の数ぶん(4)
+        new = out[:, j] + add
+        carry = new < out[:, j]
+        out[:, j] = new
+        add = carry.astype(np.uint64)
+        if not bool(carry.any()):
+            break
+    return out
+
+
+def philox_array(master_seed: int | str, domain: str, counters: Any, *, words: int = 1) -> np.ndarray:
+    """``philox(master_seed, domain, *counters[i]).random_raw(words)`` を全行まとめて引く((n, words) の uint64)。
+
+    鍵は :func:`derive_key`(1 回)・行ごとのカウンタは ``counters`` の行(4 語に詰める=:func:`philox` と同じ)。numpy の
+    Philox は引く前にカウンタを 1 進める(繰り上がりつき)ので、``b`` ブロック目(0 から)は「行のカウンタ + b + 1」の
+    ブロック。出力は numpy の ``np.random.Philox`` と同じ(試験=1 万行の一致)。状態を持たない(毎回作り直す流れと同じ)。
+    逐次ループ宣言: ブロックの数ぶん(``ceil(words / 4)``)× 段の数(10)=行の数に依らない。
+    """
+    w = int(words)
+    if w < 1:
+        raise ValueError(f"引く語数は 1 以上(いま {words!r})")
+    key = derive_key(master_seed, domain)
+    ctr = _counter_array(counters)
+    out = np.empty((ctr.shape[0], w), dtype=np.uint64)
+    if ctr.shape[0] == 0:
+        return out
+    for b in range(-(-w // 4)):  # 逐次: ブロックの数ぶん
+        blk = _philox_block(key, _advance(ctr, b + 1))
+        take = min(4, w - 4 * b)
+        out[:, 4 * b: 4 * b + take] = blk[:, :take]
+    return out
+
+
+def k19_counter_array(*cols: Any) -> np.ndarray:
+    """:func:`k19_counters` の配列の版(0 語目を 0 に空け、鍵の列を 1〜3 語目に置く=(n, 1 + 列の数) の uint64)。"""
+    if len(cols) > 3:
+        raise ValueError(f"k19_counter_array: 鍵の列は 3 つまで(いま {len(cols)})")
+    arrs = [np.atleast_1d(np.asarray(c)) for c in cols]
+    n = max((a.size for a in arrs), default=0)
+    out = np.zeros((n, 1 + len(arrs)), dtype=np.uint64)
+    for j, a in enumerate(arrs):  # 逐次: 列の数ぶん(3 まで)
+        if a.size and not np.issubdtype(a.dtype, np.integer):
+            raise TypeError(f"鍵の列は整数(いま {a.dtype})")
+        if a.size and np.issubdtype(a.dtype, np.signedinteger) and bool((a < 0).any()):
+            raise ValueError("鍵の語は 0..2^64-1")
+        out[:, 1 + j] = np.broadcast_to(a, (n,)).astype(np.uint64, copy=False)
+    return out
+
+
+def unit_float(raw: Any) -> np.ndarray:
+    """uint64 → [0, 1) の float64(numpy の ``Generator.random()`` と同じ写し方=上の 53 bit × 2^-53)。"""
+    u = np.asarray(raw, dtype=np.uint64)
+    return (u >> np.uint64(11)).astype(np.float64) * (1.0 / 9007199254740992.0)

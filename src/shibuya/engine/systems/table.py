@@ -106,9 +106,11 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "runstats.phase soa.agents",
          origin=f"L3・run.py:3633-3643 @{_E}"),
     make("perceive_prepare", "知覚", "tick", _PC.sys_perceive_prepare,
-         paths="O63:renderer.* O84:renderer.*",
-         scratch_w="field_rows", reads="cfg.tick_seconds fx.perception layers.act_layer layers.runner scratch.field_rows "
-               "soa.agents soa.world",
+         paths="O63:renderer.* O84:renderer.* "
+               "PX:proximity.*",  # 第 2 期 2-2: 腕 distance の近傍の索引の計器(状態台帳の行 PX)
+         scratch_w="field_rows near_index", reads="cfg.tick_seconds fx.perception layers.act_layer layers.runner scratch.field_rows "
+               "soa.agents soa.world "
+               "layers.proximity scratch.near_index",  # 第 2 期 2-2: 腕 distance の近傍の索引(既定 None)
          origin=f"L4・run.py:3649-3664 @{_E}"),
     make("llm_receive", "判断", "tick", _LIO.sys_llm_receive,
          resolve_ops="write_memory write_store_memory",
@@ -134,7 +136,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.norm_meter layers.poi_resolver layers.rel_layer llm.pending "
                "runstats.n_undefined_total runstats.phase runstats.talk_stats "
                "scratch.applied_activity scratch.applied_now scratch.llm_intents scratch.n_undefined "
-               "soa.agents soa.world",
+               "soa.agents soa.world "
+               "layers.proximity",  # 第 2 期 2-2: 腕 distance の判定の規則(返事待ち・会話の相手)
          origin=f"L6・run.py:3671-3785 @{_E}"),
     make("detect", "知覚", "tick", _PC.sys_detect,
          resolve_ops="apply_detection",
@@ -180,7 +183,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          paths="O1[6-9]:rel_layer.*",
          scratch_r="e_agent e_cond e_class", scratch_w="e_agent e_cond e_class",
          when="rel_layer", reads="cfg.n_agents cfg.outside_suppression cfg.plan_exec_on cfg.sleep_suppression "
-               "layers.rel_layer scratch.e_agent scratch.e_class scratch.e_cond soa.agents",
+               "layers.rel_layer scratch.e_agent scratch.e_class scratch.e_cond soa.agents "
+               "layers.proximity",  # 第 2 期 2-2: 腕 distance の判定の規則(同席・知人出現)
          origin=f"L12 中・run.py:3929-3950 @{_E}"),
     make("wake_assemble", "判断", "tick", _JG.sys_wake_assemble,
          scratch_r="p_agent p_cond p_class det_agent det_cond det_class c_agent c_cond c_class s_agent s_cond s_class "
@@ -250,14 +254,16 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.fam_layer layers.ledger layers.mem_layer layers.norm_meter layers.runner "
                "runstats.geometry_hops runstats.geometry_jammed runstats.leave_counts "
                "runstats.per_action_total runstats.phase runstats.result scratch.outcome scratch.plan "
-               "soa.agents soa.world",
+               "soa.agents soa.world "
+               "layers.proximity",  # 第 2 期 2-2: 腕 distance の判定の規則(会話の開始)
          origin=f"L17・run.py:4166-4222 @{_E}"),
     make("conversation", "会話", "tick", _TK.sys_conversation,
          resolve_ops="revert_conversation join_conversation set_conversing talk_within_reach",
          paths="O39:conv.* O40:conv.* O41:conv.* O91:conv.* O19:rel_layer.*",
          scratch_r="plan applied_now outcome", tally="leave_closed",
          when="conv", reads="cfg.attention_on cfg.leave_effect layers.conv layers.rel_layer runstats.leave_closed "
-               "scratch.applied_now scratch.outcome scratch.plan soa.agents",
+               "scratch.applied_now scratch.outcome scratch.plan soa.agents "
+               "layers.proximity",  # 第 2 期 2-2: 腕 distance の判定の規則(招待・3 人会話・離脱)
          origin=f"L18・run.py:4229-4356 @{_E}"),
     make("activity_intent", "体", "tick", _BD.sys_activity_intent,
          resolve_ops="set_activity set_activity_until clear_intent fail_intent relabel_intent_failure set_intent",
@@ -320,7 +326,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.poi_resolver layers.presence layers.rel_layer layers.renderer layers.runner "
                "layers.wom llm.fleet_deferred llm.fleet_inflight llm.fleet_waiting llm.pending "
                "llm.replay_inbox runstats.daily_records runstats.result runstats.state_files "
-               "soa.agents soa.world layers.events",
+               "soa.agents soa.world layers.events "
+               "layers.proximity",  # 第 2 期 2-2(検収 M1): 状態のファイルの見出しに近接の腕を書く
          origin=f"L24・run.py:4497-4500 @{_E}"),
     # ================================================================ ランの終わり
     make("drain", "判断", "run_end", _RE.sys_drain,
@@ -333,7 +340,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.intent_layer layers.ledger layers.mem_layer layers.norm_meter "
                "layers.poi_resolver layers.presence layers.rel_layer layers.renderer layers.runner "
                "layers.wom llm.fleet_deferred llm.fleet_inflight llm.fleet_waiting llm.pending "
-               "llm.replay_inbox runstats.result runstats.state_files soa.agents soa.world",
+               "llm.replay_inbox runstats.result runstats.state_files soa.agents soa.world "
+               "layers.proximity",  # 第 2 期 2-2(検収 M1): 状態のファイルの見出しに近接の腕を書く
          origin=f"E0・run.py:4503-4549 @{_E}"),
     make("close_final", "暦", "run_end", _RE.sys_close_final,
          # 〔T5 で見つけた漏れ〕歩いて乗る退出の腕では最後の便の発車が計画の印を落とす(presence.notify_departed_by_plan
@@ -353,7 +361,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "llm.fleet_waiting llm.pending llm.replay_inbox runstats.daily_records "
                "runstats.ledger_growth runstats.result runstats.state_files soa.agents soa.world layers.events "
                "layers.decision "  # 1-8 J0: 候補の口の層を結果に渡す(manifest の decision_port)
-               "layers.speech",  # 1-8b: 発話の口を結果に渡す(manifest の speech_port)
+               "layers.speech "  # 1-8b: 発話の口を結果に渡す(manifest の speech_port)
+               "layers.proximity",  # 第 2 期 2-2: 近接の層を結果に渡す(manifest の proximity)
          origin=f"E1・run.py:4551-4592 @{_E}"),
     make("report", "計器", "run_end", _RP.report,
          tally="result sleep_counts frozen_sources_map",  # 段 FIX: 欄の別名 ``frozen_sources_map.update``

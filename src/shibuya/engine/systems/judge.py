@@ -75,6 +75,8 @@ def sys_apply_responses(ctx: Any, b: Any) -> None:
     phase = b.runstats.phase
     poi_resolver = b.layers.poi_resolver
     rel_layer = b.layers.rel_layer
+    # 第 2 期 2-2 段 11a: 腕 --proximity distance の判定の規則(既定 None=今の判定=同じセル)
+    prox_rule = None if b.layers.proximity is None else b.layers.proximity.rule
     salt = b.cfg.salt
     schedule = b.fx.schedule
     space = b.fx.space
@@ -153,7 +155,7 @@ def sys_apply_responses(ctx: Any, b: Any) -> None:
             # B の行を intent から外す(承諾は新しい招待ではない)。
             consumed = _settle_pending_invites(
                 conv, agents, tick, agents_in_order, codes, tgt_person, R, np,
-                attention_on,
+                attention_on, **({} if prox_rule is None else {"rule": prox_rule}),
             )
             keep = (
                 np.array(
@@ -182,6 +184,7 @@ def sys_apply_responses(ctx: Any, b: Any) -> None:
                 poi_resolver=poi_resolver,
                 intent_hold=intent_layer,
                 talk_chooser=rel_layer,
+                **({} if prox_rule is None else {"proximity": prox_rule}),
             )
             # ---- C9b G3/G4: 焦点の要求を 1 本のバッファへ散らす ----
             if focus_request is not None:

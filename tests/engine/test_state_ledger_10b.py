@@ -78,14 +78,18 @@ def test_ledger_has_187_rows_in_two_axes():
     を足して外の状態 103 行・全体 194 行(1-8 の J0 の後・版は上げない=同じ理由・記録 c0/README.md)。
     〔第 1 期 1-8b〕発話の口の腕の行 ``S8``(未読の列・軸 1 behavior・軸 2 required・腕の行=腕 on のランだけハッシュと状態の
     ファイルに入る)と ``S8M``(計器・diag・discardable)を足して外の状態 105 行・全体 196 行(1-7 の CT5 の後・版は上げない=
-    既定 off のランの状態のファイルは前と同じ中身・記録 s8b/README.md)。"""
+    既定 off のランの状態のファイルは前と同じ中身・記録 s8b/README.md)。
+    〔第 2 期 2-2 段 11a〕近接の層の行 ``PX``(``ProximityLayer`` の計器・軸 1 diag・軸 2 discardable)と近傍の索引の行 ``PX0``
+    (``TickScratch.near_index``・軸 1 no・軸 2 discardable・道筋なし)を足して外の状態 107 行・全体 198 行(1-8b の S8M の後・
+    版は上げない=同じ理由・記録 prox22/README.md)。"""
     c = SL.counts()
-    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 105, "soa": 91, "total": 196}
+    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 107, "soa": 91, "total": 198}
     assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
     assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 97)] + ["E", "M0", "M0R", "A", "P", "J0",
-                                                                                     "CT5", "S8", "S8M"]
+                                                                                     "CT5", "S8", "S8M",
+                                                                                     "PX", "PX0"]
     assert (SL.row("E").behavior, SL.row("E").restore) == (SL.DIAG, SL.DISCARDABLE)
     assert (SL.row("M0").behavior, SL.row("M0").restore) == (SL.NO, SL.DERIVABLE)
     assert set(SL.row("M0").hash_skip) == set(SL.row("M0").items)
@@ -98,6 +102,9 @@ def test_ledger_has_187_rows_in_two_axes():
     assert (SL.row("S8").behavior, SL.row("S8").restore, SL.row("S8").arm) == (SL.BEHAVIOR, SL.REQUIRED, "speech-port")
     assert (SL.row("S8M").behavior, SL.row("S8M").restore) == (SL.DIAG, SL.DISCARDABLE)
     assert [r.key for r in SL.LEDGER if r.arm] == ["S8", "S8M"]  # 腕の行(1-8b)は 2 行だけ
+    assert (SL.row("PX").behavior, SL.row("PX").restore, SL.row("PX").items) == (SL.DIAG, SL.DISCARDABLE,
+                                                                                ("proximity._meter",))
+    assert (SL.row("PX0").behavior, SL.row("PX0").restore, SL.row("PX0").items) == (SL.NO, SL.DISCARDABLE, ())
     for r in SL.LEDGER:
         assert r.behavior in SL.AXIS1_VALUES, r.key
         assert r.restore in SL.AXIS2_VALUES, r.key
@@ -247,12 +254,17 @@ def test_ast_check_fails_on_a_stale_allow(scanned):
 
 
 def test_ast_false_positives_band_and_b4_hash_are_explicit(scanned):
-    """材料 §2-4 の誤検出 2 列は、読みの場所と根拠つきで許す(黙って外さない)。"""
+    """材料 §2-4 の誤検出 2 列は、読みの場所と根拠つきで許す(黙って外さない)。
+
+    〔第 2 期 2-2 段 11a〕``agents.band`` には腕 ``--proximity distance`` だけの読み手 2 か所(``engine/proximity.py`` の
+    1 か所に集めた読み・``perception/renderer.py`` の B5 の近接行の自分の層)の許可を足した(3 個=誤検出 1 と合わせて)。"""
+    n_allow = {"agents.band": 3, "cells.b4_hash": 1}
     for key, path in (("agents.band", "world/assets.py"), ("cells.b4_hash", "world/state.py")):
         r = SL.row(key)
-        assert r.behavior == SL.NO and len(r.ast_allow) == 1 and r.ast_allow[0].path == path
+        assert r.behavior == SL.NO and len(r.ast_allow) == n_allow[key] and r.ast_allow[0].path == path
         hits = [s for s in scanned.loose[r.name] if SA._allowed(s, r.ast_allow)]
         assert hits, key
+    assert [a.path for a in SL.row("agents.band").ast_allow[1:]] == ["engine/proximity.py", "perception/renderer.py"]
     # b4_hash のプロパティ World.b4_hash の呼び手は 0(属性 .b4_hash の読みはプロパティの中の 1 か所だけ)
     assert [str(s) for s in scanned.loose["b4_hash"]] == [str(s) for s in scanned.loose["b4_hash"]
                                                          if s.path == "world/state.py"]

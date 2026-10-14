@@ -1,6 +1,6 @@
 """状態台帳の宣言(10b・A3「挙動」と「復元」の 2 軸・機械可読の 1 ファイル)。
 
-**読み口は 1 つ**: ``LEDGER``(196 行の組=〔第 1 期 1-8〕候補の口の行 ``J0``・〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P``・〔第 1 期 1-7〕連絡先の印の行 ``CT5``・〔第 1 期 1-8b〕発話の口の腕の行 ``S8``・``S8M`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
+**読み口は 1 つ**: ``LEDGER``(198 行の組=〔第 1 期 1-8〕候補の口の行 ``J0``・〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P``・〔第 1 期 1-7〕連絡先の印の行 ``CT5``・〔第 1 期 1-8b〕発話の口の腕の行 ``S8``・``S8M``・〔第 2 期 2-2〕近接の層の行 ``PX``・近傍の索引の行 ``PX0`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
 ``soa_rows``・``external_rows``・``behavior_excluded``・``full_excluded``・``full_items``・``behavior_items``・〔1-8b〕``arm_rows``・``arm_items``)。表・AST の検査(``engine.state_ledger_ast``)・
 2 つのハッシュ(``engine.state_hashes``)・揺らし試験はどれもこの表から作る。
 
@@ -69,6 +69,7 @@ from typing import Final, Iterable, Mapping
 #: 版は上げない(仮採用)。
 #: 〔第 1 期 1-8b〕発話の口の腕の行 ``S8``(behavior・required)・``S8M``(diag・discardable)も版は上げない(仮採用): 腕の行は
 #: 腕 on のランだけハッシュと状態のファイルに入る=既定 off のランの状態のファイルは前の版と同じ中身。
+#: 〔第 2 期 2-2 段 11a〕近接の層の行 ``PX``(diag・discardable)と近傍の索引の行 ``PX0``(no・discardable)も同じ理由で上げない。
 LEDGER_VERSION: Final[str] = "state-ledger/10e-ret"
 
 BEHAVIOR: Final[str] = "behavior"
@@ -176,7 +177,13 @@ B, N_, D_ = BEHAVIOR, NO, DIAG
 R_, V_, X_, U_ = REQUIRED, DERIVABLE, DISCARDABLE, UNKNOWN
 
 _ALLOW_BAND = (AstAllow("world/assets.py", 'cells["band"]',
-                        "資産の表(W2 の parquet)の列 band を読む行。SoA の agents.band ではない(材料 §2-4 の誤検出 1)"),)
+                        "資産の表(W2 の parquet)の列 band を読む行。SoA の agents.band ではない(材料 §2-4 の誤検出 1)"),
+               # 〔第 2 期 2-2 段 11a〕腕 --proximity distance だけの読み手(既定の腕 cell では読まない)。band はセルの層
+               # (cell_band[cell])から導く派生の列=同じ値は behavior-hash のセルの列に入っている(軸 1 no のまま)
+               AstAllow("engine/proximity.py", "return np.asarray(r.band)",
+                        "第 2 期 2-2: 腕 distance の判定(同じ層)と近傍の索引の材料(既定の腕 cell では読まない・セルから導く派生)"),
+               AstAllow("perception/renderer.py", "bi = float(a.xy[i, 0]), float(a.xy[i, 1]), int(a.band[i])",
+                        "第 2 期 2-2: 腕 distance の B5 の近接行の自分の層(既定の腕 cell では読まない・セルから導く派生)"))
 _ALLOW_B4 = (AstAllow("world/state.py", "return self.cells.b4_hash",
                       "プロパティ World.b4_hash の中の読み。プロパティの呼び手は 0(材料 §2-4 の誤検出 2)"),)
 _ALLOW_REVENUE = (AstAllow("engine/systems/report.py", "result.revenue_end =",
@@ -808,6 +815,28 @@ _EXT: tuple[LedgerRow, ...] = (
              "直近の入力の目印は次の発話の出来事の原因の入力(出来事ログ=診断)・口の通し番号は出来事ログを書かないランの"
              "目印(描画は目印を読まない)=軸 1 diag・軸 2 discardable(再開のランは空から)。書く系は decide・llm_receive"
              "(宣言 S8M:speech.*)"),
+    # ---- 第 2 期 2-2 段 11a(近接の判定の切替口): 足す前に軸を決めた行(腕の裏=既定の腕 cell では持ち主が None) ----
+    LedgerRow(
+        key="PX", name="ProximityLayer(近接の層の計器・第 2 期 2-2 段 11a)", place=EXTERNAL,
+        dtype="計器の dict(数と分布)", nbytes="", alloc="SHIBUYA_PROXIMITY=distance", behavior=DIAG,
+        restore=DISCARDABLE, dead=False,
+        basis="engine/proximity.py(ProximityLayer.build_index・observed)・engine/systems/perceive.py(書く)・"
+              "engine/run.py(manifest の proximity)",
+        items=("proximity._meter",),
+        note="2-2 段 11a: 腕 --proximity distance のランだけ層を作る(既定 cell は持ち主が None)。計器(索引を作った回数・"
+             "索引の体の数の最大・B5 の単位の在室人数の最大と分布)は診断=読み手は manifest の proximity と試験だけ(軸 1 diag)。"
+             "判定の規則(rule)は設定・気づいた印の読み口(_marks=関係の層)は参照(除外の一覧)。軸 2 discardable(再開のランは 0 から=どちらのハッシュにも状態のファイルにも"
+             "入らない)。書く系は perceive_prepare だけ(宣言 PX:proximity.*)。行の鍵は O の通し番号でなく PX"),
+    LedgerRow(
+        key="PX0", name="TickScratch.near_index(近傍の索引 SpatialIndex・第 2 期 2-2 段 11a)", place=EXTERNAL,
+        dtype="engine.proximity.SpatialIndex(体の id・座標・層・B5 の単位・格子の鍵の配列)", nbytes="",
+        alloc="SHIBUYA_PROXIMITY=distance", behavior=NO, restore=DISCARDABLE, dead=False,
+        basis="engine/proximity.py(SpatialIndex)・engine/systems/perceive.py(書く)・engine/systems/boxes.py(SCRATCH_FIELDS)・"
+              "perception/renderer.py(B5 の近接行=描画の前計算 _tickc.near)",
+        items=(),
+        note="2-2 段 11a: 軸 1 no(刻みの頭の SoA の xy・band・poi_ref・cell から作り直す派生の値=行 P と同じ扱い)・軸 2 "
+             "discardable(刻みの頭で空になる=どちらのハッシュにも状態のファイルにも入らない)。持ち主の物ではなく TickScratch の"
+             "欄なので道筋(items)は持たない。書く系は perceive_prepare だけ(writes.scratch=段 C の守り)。既定の腕 cell では None"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -956,6 +985,8 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "decision": ("engine/decision/layer.py", "DecisionLayer"),
     # 第 1 期 1-8b: 発話の口(状態台帳の腕の行 S8・S8M・腕 --speech-port on のランだけ)
     "speech": ("engine/speech/port.py", "SpeechPort"),
+    # 第 2 期 2-2 段 11a: 近接の層(状態台帳の行 PX・腕 --proximity distance のランだけ)
+    "proximity": ("engine/proximity.py", "ProximityLayer"),
 }
 
 #: (ii) キャッシュ・導出。中身は 3 通り: (a) 毎 tick(か事象のある tick)作り直す作業の値・印
@@ -1217,6 +1248,11 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "LEDGER_ARM"),
     _x("speech", REF, _REFR + "(出来事の記録・口コミの抽出の口・セッションが開いているかの口=組み立てが置く関数)",
        "events", "wom_fn", "session_active"),
+    # 第 2 期 2-2 段 11a: 近接の層の判定の規則(凍結=腕の名・d・B5 の半径・気づく抽選の塩と時刻の鍵の材料)
+    _x("proximity", CONST, _CFG + "(2-2: 判定の規則=凍結の dataclass)", "rule"),
+    _x("proximity", REF, _REFR + "(2-2 検収 L1: 関係の層=気づいた印の読み口 aware_of を描画へ渡すだけ・読むだけ)", "_marks"),
+    # 第 2 期 2-2(検収 M2): 腕 distance の体 × k の辺の見え方(同じ刻みの同席と知人出現で共有する控え=その刻みの中で使い切る)
+    _x("rel_layer", CACHE, "2-2: 刻みの中だけの控え(腕 distance の辺の見え方=同席と知人出現で共有)", "_ev", "_ev_step"),
 )
 
 

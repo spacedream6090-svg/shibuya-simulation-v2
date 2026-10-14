@@ -28,6 +28,10 @@ def sys_perceive_prepare(ctx: Any, b: Any) -> None:
     tick_seconds = b.cfg.tick_seconds
     world = b.soa.world
     field_rows = None
+    # 第 2 期 2-2 段 11a: 腕 --proximity distance のときだけ、この刻みの近傍の索引を作る(刻みの頭で捨てる=
+    # ``TickScratch.near_index``・状態台帳の行 PX0)。B5 の近接行は描画の前計算に渡す(既定の腕 cell では作らない=None)
+    proximity = b.layers.proximity
+    near_index = None if proximity is None else proximity.build_index(agents)
     if perception is not None:
         perception.prepare_tick(
             tick,
@@ -41,9 +45,11 @@ def sys_perceive_prepare(ctx: Any, b: Any) -> None:
                 if act_layer is not None
                 else {}
             ),
+            **({} if near_index is None else {"near": proximity.view(agents, near_index)}),
         )
         field_rows = perception.b4_field_rows
     b.scratch.field_rows = field_rows
+    b.scratch.near_index = near_index
 
 
 def sys_detect(ctx: Any, b: Any) -> None:

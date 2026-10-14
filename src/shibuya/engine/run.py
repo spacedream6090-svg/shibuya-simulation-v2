@@ -132,6 +132,7 @@ from shibuya.perception.channels import BudgetMode
 from shibuya.perception.facts import percept_manifest as _percept_manifest
 from shibuya.engine.decision import layer as _DECISION
 from shibuya.engine.speech import layer as _SPEECH
+from shibuya.engine import proximity as _PROX
 from shibuya.perception.renderer import (
     DEFAULT_HUNGER_WORDS,
     DEFAULT_NEAR_ORDER,
@@ -505,6 +506,7 @@ MOTION_RNG_DOMAINS: dict[str, str] = {
     "llm.mock.out_of_cell_target": "mock のセル外の店の対象",
     "perception.attention.p_see": "注視ゲート(看板・親しみの露出)",
     "perception.p_notice": "顕著行為に気づくか",
+    "proximity.notice": "知人に気づく抽選(第 2 期 2-2・腕 --proximity distance のランだけ・1 組 1 本の counter の流れ)",
     # 〔第330・RET〕stateful の 2 本(world.salient・world.public_service_dispatch)は切替口と一緒に消した
     "world.salient.counter": "顕著行為の発生(counter)",
     "world.public_service_dispatch.counter": "出動の遅れ(counter)",
@@ -1322,6 +1324,10 @@ class RunResult:
             # 渡った数(計器)。末尾=… → 1-5 の rights → 1-8 の decision_port → 1-7 の tools → 1-8b。腕 off のランは観測の子が null。
             # 列追加のみ ----
             "speech_port": _SPEECH.manifest_fields(getattr(self, "speech_layer", None)),
+            # ---- 第 2 期 2-2 段 11a(近接の判定の切替口): 腕の名・会話の距離 d・B5 の半径・気づく曲線と出典・B5 の単位・
+            # 位置の出どころと「暫定」の印(設定)/索引と B5 の単位の在室人数の計器(観測)。末尾=… → 1-8 の decision_port →
+            # 1-7 の tools → 1-8b の speech_port → 2-2。腕 cell のランは観測の子が null。列追加のみ ----
+            "proximity": _PROX.manifest_fields(getattr(self, "proximity_layer", None)),
         }
 
     def economy_fields(self) -> dict[str, Any]:
@@ -1694,7 +1700,7 @@ def _schedule_with_population(
 
 
 def _settle_pending_invites(
-    conv, agents, tick, agent_ids, codes, named, R, np, by_distance: bool = False
+    conv, agents, tick, agent_ids, codes, named, R, np, by_distance: bool = False, rule: Any = None
 ) -> set[int]:
     """返事待ちの招待を**Phase C の前に**確定する(層2 中-1・09-09)。
 
@@ -1709,6 +1715,9 @@ def _settle_pending_invites(
       - 返事が 会話 でも 対象が **第三者 C** → A へは**拒否**。B の行は intent に残し、
         C への新しい招待として通す。
       - それ以外の行動 → 拒否。
+
+    〔第 2 期 2-2 段 11a〕``rule``(腕 ``--proximity distance`` の ``engine.proximity.ProximityRule``)を渡すと、届くかを
+    「同じ層・距離 ≤ d、または同じ B5 の単位」で見る(``resolve.talk_within_reach`` の ``rule``)。``None``(既定)は今のまま。
 
     Returns:
         **intent から外す**個体(=承諾した被招待。承諾は新しい招待ではない)。
@@ -1727,7 +1736,7 @@ def _settle_pending_invites(
         # C9b G7: ``by_distance`` の腕では「同一セル」に実距離 2 m が加わる。
         same_cell = bool(
             a >= 0
-            and R.talk_within_reach(agents, np.int64(a), np.int64(b), by_distance=by_distance)
+            and R.talk_within_reach(agents, np.int64(a), np.int64(b), by_distance=by_distance, rule=rule)
         )
         aimed_at_inviter = int(named[k]) in (a, -1)
         ok = bool(codes[k] == C.ACT_TALK) and aimed_at_inviter and same_cell
@@ -1818,7 +1827,7 @@ def _split_due(pending: list, tick: int) -> tuple[list, list]:
 
 
 def classical_acq_addressable(agents: Any, aid: int, ids: "list[int]", A: np.ndarray, *,
-                               by_distance: bool) -> np.ndarray:
+                               by_distance: bool, rule: Any = None) -> np.ndarray:
     """第2波 §2A 項 3-1(検収後): 古典の交際の候補の A から、話しかけられない相手(会話中・就寝中=
     ``resolve._UNADDRESSABLE``)と、このランの設定で会話が届かない相手(``resolve.talk_within_reach`` が偽)を
     −inf にする(``resolve._apply_talk`` が PARTNER_BUSY/PARTNER_GONE で落とす相手を先に除く)。
@@ -1832,7 +1841,8 @@ def classical_acq_addressable(agents: Any, aid: int, ids: "list[int]", A: np.nda
     ok = (p >= 0) & (p < agents.n) & (p != int(aid))
     pc = np.clip(p, 0, max(0, agents.n - 1))
     ok &= ~np.isin(np.asarray(agents.registry.activity)[pc], R._UNADDRESSABLE)
-    ok &= R.talk_within_reach(agents, np.full(p.size, int(aid), dtype=np.int64), pc, by_distance=by_distance)
+    ok &= R.talk_within_reach(agents, np.full(p.size, int(aid), dtype=np.int64), pc, by_distance=by_distance,
+                              rule=rule)  # 第 2 期 2-2: 腕 distance は「届く」(rule=None は今のまま)
     return np.where(ok, A, -np.inf)
 
 

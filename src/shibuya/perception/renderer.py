@@ -1008,6 +1008,9 @@ class _TickCache:
     heard: dict = field(default_factory=dict)
     #: 〔1-8b 検収 低8〕届いた発話を口へ報告した体(同じ刻みに同じ体を 2 度数えない)。
     heard_reported: set = field(default_factory=set)
+    #: 〔第 2 期 2-2 段 11a〕腕 ``--proximity distance`` の ``engine.proximity.NearView``(判定の規則・この刻みの近傍の索引・
+    #: 気づいた印の読み口=知覚の層は engine を import しない=形だけ使う)。既定 None=今の B5。
+    near: object = None
 
 
 #: B5 近接行の**距離の同点**の切り方(第300 Q107・小さいもの①)。``hash``(既定)= run_salt の決定論ハッシュ
@@ -1292,6 +1295,7 @@ class Renderer:
         noise_stage: np.ndarray | None = None,
         queues: Sequence[tuple[int, str, int]] | None = None,
         activity_rows: Mapping[int, Sequence[tuple[str, int]]] | None = None,
+        near: object = None,
     ) -> None:
         """この tick のセル配列とハッシュを作る(**セル数ぶんの xxh64 が 1 本**)。
 
@@ -1306,6 +1310,9 @@ class Renderer:
                 **起床条件 (i) の欄(B4 ダイジェスト)には混ぜない**(活動の変化を場所の変化
                 として起床させない=新しい起床の源を足さない・expedient)。固定枠の描画だけに
                 載せる(単一ランキングの腕には載せない・expedient)。
+            near: 〔第 2 期 2-2 段 11a〕腕 ``--proximity distance`` の ``NearView``(規則・この刻みの索引・印の読み口)。渡すと B5 の
+                近接行を「同じ層・半径の中・同じ B5 の単位」の体から選ぶ(:meth:`_nearby_people_distance`)。``None``
+                (既定)では 1 バイトも変わらない。
         """
         w = self.world
         n = w.n_cells
@@ -1373,6 +1380,7 @@ class Renderer:
             b4_field_hash=H.field_row_hashes(rows),
             cell_x=np.ascontiguousarray(xy_all[order, 0]),
             cell_y=np.ascontiguousarray(xy_all[order, 1]),
+            near=near,
             **idx,
         )
 
@@ -2258,6 +2266,8 @@ class Renderer:
         (``np.argpartition`` に渡す配列が旧実装と同一=``d2`` の並びまで同じ)。
         """
         a = self.agents
+        if tc.near is not None:  # 第 2 期 2-2 段 11a: 腕 --proximity distance(今の道は下のまま)
+            return self._nearby_people_distance(i, cell, tc)
         if not (0 <= cell < tc.los_stage.size) or tc.cell_start.size == 0:
             return []
         lo, hi = int(tc.cell_start[cell]), int(tc.cell_end[cell])
@@ -2320,6 +2330,80 @@ class Renderer:
         if self.near_order == "distance" and len(chosen) > 1:
             chosen, q = self._near_sort(i, chosen, q, d2, 1 if focus >= 0 else 0)
         dist = np.sqrt(d2[q])  # 採った数件だけ sqrt(旧: セル在席者ぶんの辞書)
+        act = a.activity
+        return [
+            SeenPerson(
+                id=int(j), direction=None, action=int(act[j]), distance_m=max(float(dv), 0.1),
+                acquainted=(j in friends),
+            )
+            for j, dv in zip(chosen, dist)
+        ]
+
+    def _nearby_people_distance(self, i: int, cell: int, tc: _TickCache) -> list[SeenPerson]:
+        """〔第 2 期 2-2 段 11a〕腕 ``--proximity distance`` の B5 近接行(見えた人)。
+
+        候補=刻みの頭の近傍の索引(``tc.near``)のうち、同じ層で半径(規則の ``b5_radius_m``=10.3 m・仮採用)の中の体と、
+        同じ B5 の単位の体(自分を除く・単位は索引の単位=店のセルの中の体)。人数は今と同じ密度逓減 3/2/1(知覚契約 §3
+        人物④・自分のセルの密度の段)で、近い順(同点は ``near_tiebreak``)。それに足す: **気づいている知人で半径の中の体**
+        (同じ層・半径の中で、関係の層の気づいた印が切れていない相手=``NearView.aware``・描画ごとに引き直さない=検収 L1。
+        半径の外の知人は載せない=気づいたままの印は起床の条件にだけ使う=親の判断 10-14 の 3。印の無いラン=知人出現の
+        起床が無いランは足さない)・会話の参加者と注意の焦点(候補の中に居れば)。並び・焦点の先頭・距離の値の作り方(``max(d, 0.1)``)は今と同じ。自分の位置はいまの値・相手は索引の値
+        (今の B5 のセル順の座標と同じ取り方)。舞台の外(セル < 0)の体は誰も見ない(今と同じ)。
+        逐次ループ宣言: なし(索引の近傍の格子の数ぶんの配列演算・載る数人)。
+        """
+        a = self.agents
+        nv = tc.near
+        rule, idx = nv.rule, nv.index  # type: ignore[attr-defined]
+        if not (0 <= cell < tc.los_stage.size):
+            return []
+        xi, yi, bi = float(a.xy[i, 0]), float(a.xy[i, 1]), int(a.band[i])
+        _q, ids, _d = idx.query_many(xi, yi, bi, float(rule.b5_radius_m))
+        pi = int(idx.pos[i]) if 0 <= i < idx.pos.size else -1
+        um = idx.unit_members(int(idx.unit[pi])) if pi >= 0 else np.zeros(0, dtype=np.int64)
+        peers = (np.union1d(ids, um) if um.size else np.sort(ids)).astype(np.int64)  # id の昇順・重なりなし
+        peers = peers[peers != int(i)]
+        pp = idx.pos[peers]
+        dx = idx.x[pp] - xi
+        dy = idx.y[pp] - yi
+        d2 = dx * dx + dy * dy
+        los = int(tc.los_stage[cell])
+        k = 3 if los <= 1 else (2 if los <= 3 else 1)  # 疎3/中2/密1(今と同じ)
+        take = min(k, peers.size)
+        sel = self._near_take(i, peers, d2, take) if peers.size > take else peers
+        peer_set = {int(x) for x in peers.tolist()}
+        chosen_set = {int(x) for x in sel}
+        if self.session_partner_fn is not None:  # 会話の参加者は候補の中に居れば常に載せる
+            sp = np.asarray(self.session_partner_fn(i), dtype=np.int64)
+            chosen_set |= {int(x) for x in sp.tolist() if int(x) in peer_set}
+        friends, friend_ids = self._acquaintances_of(i, int(tc.tick))
+        aware = nv.aware  # type: ignore[attr-defined]
+        if friend_ids.size and aware is not None:  # 気づいている知人で半径の中(B4・関係の層の印を読むだけ)
+            f = friend_ids[friend_ids != int(i)]
+            pf = idx.pos[f]
+            f, pf = f[pf >= 0], pf[pf >= 0]
+            if f.size:
+                fd = np.sqrt((idx.x[pf] - xi) ** 2 + (idx.y[pf] - yi) ** 2)
+                inr = (idx.bands[pf] == bi) & (fd <= float(rule.b5_radius_m))
+                if bool(inr.any()):
+                    hit = np.asarray(aware(int(i), f[inr], int(tc.tick)), dtype=bool)
+                    chosen_set |= {int(x) for x in f[inr][hit].tolist()}
+        focus = -1
+        if self._focus_target is not None:
+            fo = int(self._focus_target[i])
+            if 0 <= fo < int(a.n) and fo != i and fo in peer_set:
+                focus = fo
+                chosen_set.add(fo)
+        if not chosen_set:
+            return []
+        chosen = sorted(chosen_set)
+        if focus >= 0:
+            chosen = [focus] + [x for x in chosen if x != focus]
+        pc = idx.pos[np.asarray(chosen, dtype=np.int64)]
+        d2c = (idx.x[pc] - xi) ** 2 + (idx.y[pc] - yi) ** 2
+        q = np.arange(len(chosen), dtype=np.int64)
+        if self.near_order == "distance" and len(chosen) > 1:
+            chosen, q = self._near_sort(i, chosen, q, d2c, 1 if focus >= 0 else 0)
+        dist = np.sqrt(d2c[q])
         act = a.activity
         return [
             SeenPerson(

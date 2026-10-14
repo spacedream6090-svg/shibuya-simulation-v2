@@ -56,7 +56,7 @@ _DYNAMIC = {
 _IGNORE = {"seed.check", "/v1/chat/completions"}  # 型の検査だけ・httpx の stream
 #: 変数の用途名をそのまま渡す呼び出しを許す場所(再検収 T4: ``core.rng`` の中の ``philox``・``stream`` だけ)。
 _PASSTHROUGH_OK = {"?domain": {"core/rng.py"}}
-_RNG_FUNCS = ("stream", "philox", "derive_key")
+_RNG_FUNCS = ("stream", "philox", "derive_key", "philox_array")  # 〔第 2 期 2-2〕配列で回す Philox
 _RNG_MODULES = ("shibuya.core.rng", "core.rng", "rng")
 
 

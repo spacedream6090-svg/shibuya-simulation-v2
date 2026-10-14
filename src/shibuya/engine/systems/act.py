@@ -94,6 +94,7 @@ def sys_phase_c(ctx: Any, b: Any) -> None:
     per_action_total = b.runstats.per_action_total
     phase = b.runstats.phase
     plan = b.scratch.plan
+    proximity = b.layers.proximity  # 第 2 期 2-2: 腕 --proximity distance の層(既定 None=今の判定)
     queue_service = b.cfg.queue_service
     report_precondition = b.cfg.report_precondition
     result = b.runstats.result
@@ -125,6 +126,7 @@ def sys_phase_c(ctx: Any, b: Any) -> None:
         track_visits=(fam_layer is not None or mem_layer is not None),
         energy=energy_layer,
         track_events=mem_layer is not None,
+        proximity=None if proximity is None else proximity.rule,
     )
     phase["phase_c"] += time.perf_counter() - t0
     if norm_meter is not None:

@@ -31,7 +31,8 @@ from types import MappingProxyType
 from typing import Any, Final, Iterable, Mapping
 
 # ================================================================ 静的(AST)
-RNG_FUNCS: Final[tuple[str, ...]] = ("stream", "philox")
+#: 〔第 2 期 2-2〕``philox_array``(配列で回す Philox=行ごとに 1 本の流れ・引く語数は ``words``)を足した。
+RNG_FUNCS: Final[tuple[str, ...]] = ("stream", "philox", "philox_array")
 #: 棄却のある分布(引く語数が値で変わる)。
 REJECT: Final[frozenset[str]] = frozenset({
     "standard_normal", "normal", "exponential", "lognormal", "geometric", "poisson", "gamma", "beta",
@@ -156,10 +157,10 @@ def scan_sites(root: Path, files: Iterable[Path] | None = None) -> list[StreamSi
                 continue
             f = n.func
             if isinstance(f, ast.Name) and f.id in names:
-                pass
+                real = names[f.id]
             elif (isinstance(f, ast.Attribute) and f.attr in RNG_FUNCS and isinstance(f.value, ast.Name)
                   and f.value.id in mods):
-                pass
+                real = f.attr
             else:
                 continue  # httpx の ``client.stream`` など(core.rng の外の同名)
             dn = n.args[1] if len(n.args) >= 2 else next((k.value for k in n.keywords if k.arg == "domain"), None)
@@ -170,6 +171,16 @@ def scan_sites(root: Path, files: Iterable[Path] | None = None) -> list[StreamSi
             else:
                 dom = "expr:" + (ast.unparse(dn) if dn is not None else "?")
             ctrs = n.args[2:]
+            if real == "philox_array":
+                # 〔第 2 期 2-2〕行ごとに 1 本の流れ(カウンタ=配列の行=0 語目は式)・引く語数=``words``(既定 1)
+                wk = next((k.value for k in n.keywords if k.arg == "words"), None)
+                wn = "1" if wk is None else (str(wk.value) if isinstance(wk, ast.Constant)
+                                             and isinstance(wk.value, int) else "不定(大きさが式)")
+                total_a = int(wn) if wn.isdigit() else None
+                verdict_a = (UNDETERMINED if total_a is None else (SAFE_STATIC if total_a <= 4 else OVER_STATIC))
+                out.append(StreamSite(rel, _func_of(n, par), dom, n.lineno, "array", (f"philox_array:{wn}",),
+                                      verdict_a))
+                continue
             if any(isinstance(c, ast.Starred) for c in ctrs):
                 w0 = "starred"
             elif not ctrs:
@@ -215,7 +226,7 @@ def scan_sites(root: Path, files: Iterable[Path] | None = None) -> list[StreamSi
 
 
 #: 静的に安全な呼び手(ファイル・関数・用途名)。増えても減っても落とす(10f の時点の 15 か所・〔第330〕B6 で 1 つ足して 16 か所・
-#: 〔第330・RET〕legacy の天気の 2 か所(`EnvironmentProcess._pick_day`・`select_day`)を消して 14 か所)。
+#: 〔第330・RET〕legacy の天気の 2 か所(`EnvironmentProcess._pick_day`・`select_day`)を消して 14 か所・〔第 2 期 2-2〕+1=15 か所)。
 SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     # 1 語目が無いか定数(隣の流れが無い)7 か所
     ("agents/population.py", "sample_population", "w16.sample.reserved"),
@@ -234,6 +245,8 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     ("llm/mock.py", "MockLLM._draws", "expr:self.domain"),
     ("llm/mock.py", "MockLLM._move_target", "expr:self.domain + _MOVE_TARGET_DOMAIN_SUFFIX"),
     ("llm/mock.py", "MockLLM._shop_target", "expr:self.domain + _SHOP_TARGET_DOMAIN_SUFFIX"),
+    # 〔第 2 期 2-2 段 11a〕知人に気づく抽選(0 語目を空け 1〜3 語目に時刻の鍵・体・相手=k19_counters・1 語だけ引く)
+    ("engine/proximity.py", "ProximityRule.notice_u", "proximity.notice"),
 })
 
 #: 静的に決まらない呼び手(ファイル・関数・用途名)→ 実行時の検査での扱い。ここに無い呼び手が出たら落とす。
@@ -304,11 +317,21 @@ class DomainStats:
     examples: list[dict[str, Any]] = field(default_factory=list)
 
 
+class _ArrayDraw:
+    """``philox_array`` の 1 行の控え(``analyze`` が読む 0 語目の「今の値」=作った値 + 使ったブロックの数)。"""
+
+    __slots__ = ("state",)
+
+    def __init__(self, c0_after: int) -> None:
+        self.state = {"state": {"counter": (int(c0_after),)}}
+
+
 class StreamRecorder:
     """``core.rng.philox`` を包んで、作った流れを全部覚える(``install`` で入れ、``uninstall`` で戻す)。
 
     ``philox`` を直に import したモジュール(``agents/schedule.py``・``engine/processes/rail.py`` など)は、
-    ``shibuya.`` の下の読み込み済みのモジュールの属性 ``philox`` が元の関数なら差し替える。
+    ``shibuya.`` の下の読み込み済みのモジュールの属性 ``philox`` が元の関数なら差し替える。〔第 2 期 2-2〕``philox_array``
+    も同じく包み、1 行を 1 本の流れとして覚える(使ったブロック=``ceil(words / 4)``)。
     """
 
     def __init__(self) -> None:
@@ -332,10 +355,26 @@ class StreamRecorder:
             seeds.append(RNG._seed_to_text(master_seed))  # 10e(U8): 束ねる鍵に seed
             return bg
 
+        orig_a = RNG.philox_array
+
+        def wrapped_array(master_seed: Any, domain: str, counters: Any, *, words: int = 1) -> Any:
+            out = orig_a(master_seed, domain, counters, words=words)
+            blocks = -(-int(words) // 4)
+            sd = RNG._seed_to_text(master_seed)
+            for row in RNG._counter_array(counters).tolist():  # 逐次: 行の数ぶん(検査の計器だけ)
+                ctr = tuple(int(c) for c in row)
+                made.append((str(domain), ctr, ctr[0], _ArrayDraw(ctr[0] + blocks)))
+                seeds.append(sd)
+            return out
+
         for name, mod in list(sys.modules.items()):
             if (name == "shibuya.core.rng" or name.startswith("shibuya.")) and getattr(mod, "philox", None) is orig:
                 self._patched.append((mod, "philox", orig))
                 setattr(mod, "philox", wrapped)
+            if ((name == "shibuya.core.rng" or name.startswith("shibuya."))
+                    and getattr(mod, "philox_array", None) is orig_a):
+                self._patched.append((mod, "philox_array", orig_a))
+                setattr(mod, "philox_array", wrapped_array)
         return self
 
     def uninstall(self) -> None:

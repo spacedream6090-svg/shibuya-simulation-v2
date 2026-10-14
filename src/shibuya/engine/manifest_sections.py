@@ -193,6 +193,11 @@ PATHS: Final[dict[str, str]] = {
                                     "heard_max_per_addressee", "mock_utterance"), observed=(
         "turns", "silent", "no_session", "to_inviter", "said", "events", "zero_mora", "posted", "delivered",
         "all_imperative", "dropped_budget", "expired", "overflow", "wom_passed", "pending")),
+    # ---- 第 2 期 2-2 段 11a: 近接の判定の切替口(腕の名・d・離脱の距離・B5 の半径と出典・気づく曲線と出典・B5 の単位・索引の
+    # 格子・位置の出どころ・「暫定」の印=設定/索引と B5 の単位の在室人数の計器=観測。腕 cell のランは観測の子が null) ----
+    **_mixed("proximity", config=("schema", "mode", "d_m", "d_arms", "leave_m", "b5_radius_m", "b5_radius_source",
+                                  "notice", "unit_source", "index_cell_m", "position_source", "marks"), observed=(
+        "index_builds", "indexed_max", "unit_occupancy_max", "units_occupied_max", "unit_occupancy_hist")),
 }
 
 

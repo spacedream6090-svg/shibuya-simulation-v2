@@ -340,6 +340,10 @@ def build(_call_args: dict[str, Any]) -> Any:
         _diff = RS.fingerprint_diff(_h.get("fingerprint", {}), _fp)
         if _diff:
             raise ValueError(f"再開の設定が親と違う(欄 {_diff[:8]})")
+        # 第 2 期 2-2(検収 M1): 近接の腕は設定の指紋に入れない=見出しの proximity(無ければ cell)と今の腕を突き合わせる
+        from shibuya.engine import proximity as _PXR
+
+        _PXR.check_resume(_h.get("proximity"))
         t_begin = int(_h["progress"]["next_T"])
         if not (0 < t_begin < total_ticks):
             raise ValueError(f"再開の時刻 T={t_begin} がこのランの範囲 0〜{total_ticks} の内側に無い(sim_days を見る)")
@@ -582,6 +586,19 @@ def build(_call_args: dict[str, Any]) -> Any:
     # 既定の 4 腕(node/v1・--derive-rule v2.1・--vocab-version v2・--geometry edge)は
     # どれも片方しか持たないので **checkpoint は 1 バイトも動かない**。
     attention_on = (geometry == "edge") and (vocab_version == "v2")
+    # ---- 第 2 期 2-2 段 11a: 近接の判定の腕(既定 cell=層を作らない=今の判定=同じセル)。distance のランだけ層を作り、
+    # 会話・返事待ち・3 人会話・離脱・招待の相手・偶然・知人出現・同席・B5 の近接行を「舞台の中・同じ層・距離 ≤ d(B5 の
+    # 単位の中は距離を見ない)」で判定する(状態台帳の行 PX=軸 1 diag・軸 2 discardable)。腕は環境変数と CLI だけ
+    # (run_day の引数にしない=設定の指紋に入れない=記憶の器と候補の口の腕と同じ扱い) ----
+    from shibuya.engine import proximity as _PXM
+
+    # 規則はここで作る(古典の交際の候補の閉包が使う)・層は関係の層の後(気づいた印の読み口=関係の層を渡す)
+    _px_rule = (
+        _PXM.rule_from(mode=_PXM.MODE_DISTANCE, d_m=_PXM.d(), seed=seed, day_key0=int(day_index),
+                       step_seconds=int(tick_seconds), geometry=str(geometry), poi_cell=world.pois.cell)
+        if _PXM.arm() == _PXM.MODE_DISTANCE else None
+    )
+    _px_kw: dict = {} if _px_rule is None else {"proximity": _px_rule}
     agents = AgentState(
         n_agents,
         plan_columns=plan_exec_on,
@@ -1040,7 +1057,8 @@ def build(_call_args: dict[str, Any]) -> Any:
                 e_ = rel_layer.edges(agents, int(aid_), int(tick_))
                 lut_ = dict(zip(e_.partner.tolist(), e_.A.tolist()))
                 A_ = np.asarray([lut_.get(int(p_), -np.inf) for p_ in ids_], dtype=np.float64)
-                return classical_acq_addressable(agents, int(aid_), ids_, A_, by_distance=attention_on)
+                return classical_acq_addressable(agents, int(aid_), ids_, A_, by_distance=attention_on,
+                                                 rule=_px_rule)
 
             classical_policy.acq_fn = _classical_acq
         # ---- C10 8b: 会話の起点と相手選択・知人出現の起床・同席(腕) ----
@@ -1052,7 +1070,7 @@ def build(_call_args: dict[str, Any]) -> Any:
                     stranger_ = rel_layer.pick_rest(int(tick_), int(aid_), strangers_)
                     got_, _o = rel_layer.choose_talk_partners(
                         agents, int(tick_), np.asarray([int(aid_)]), np.asarray([int(stranger_)]),
-                        np.asarray([False]), np.asarray([-1]), record_origin=False,
+                        np.asarray([False]), np.asarray([-1]), record_origin=False, **_px_kw,
                     )
                     return int(got_[0])
 
@@ -1063,6 +1081,11 @@ def build(_call_args: dict[str, Any]) -> Any:
             rel_layer.enable_copresent()
         if conv is not None:
             conv.track_origins(REL_ORIGINS)
+    # 第 2 期 2-2 段 11a: 近接の層(腕 distance だけ)。描画の B5 の近接行の知人は関係の層の気づいた印を読む(検収 L1)
+    proximity_layer = (
+        None if _px_rule is None else _PXM.ProximityLayer(
+            _px_rule, marks=rel_layer if (rel_layer is not None and rel_layer.acq_wake_on) else None)
+    )
     if (
         conv is not None and int(conv_max_participants) > 2 and _fam_renderer is not None
         and hasattr(_fam_renderer, "session_partner_fn")
@@ -1270,6 +1293,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             detector=detector, runner=runner, ledger=ledger,
             renderer=getattr(perception, "renderer", None) if perception is not None else None,
             bridge=bridge, fleet_bridge=fleet_bridge, events=events, decision=decision_layer, speech=speech_port,
+            proximity=proximity_layer,
         ),
         llm=_BX.LlmIo(pending=pending, fleet_deferred=fleet_deferred, fleet_waiting=fleet_waiting,
                       fleet_inflight=fleet_inflight, replay_inbox=replay_inbox),

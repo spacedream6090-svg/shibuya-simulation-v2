@@ -1,0 +1,11 @@
+{
+ "schema": "shibuya.bench/prox22/check/1",
+ "grid_vs_bruteforce": {
+  "points": 600,
+  "pairs": 781,
+  "equal": true
+ },
+ "reach_copy_equals_engine_rule": true,
+ "hist_bins": true,
+ "all_pass": true
+}

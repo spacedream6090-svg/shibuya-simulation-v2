@@ -33,8 +33,8 @@ def res():
 def test_rights_is_the_last_key_and_observed(res):
     keys = list(res.run_manifest_fields())
     # 〔第 1 期 1-8 J0 の取り込み〕1-8 の decision_port が rights の後ろに入った・〔第 1 期 1-7〕その後ろに tools・
-    # 〔第 1 期 1-8b〕その後ろ(末尾)に speech_port(試験の名は履歴のまま)
-    assert keys == TOP and keys[-4:] == ["rights", "decision_port", "tools", "speech_port"]
+    # 〔第 1 期 1-8b〕その後ろに speech_port・〔第 2 期 2-2 段 11a〕その後ろ(末尾)に proximity(試験の名は履歴のまま)
+    assert keys == TOP and keys[-5:] == ["rights", "decision_port", "tools", "speech_port", "proximity"]
     assert MS.section_of("rights") == MS.OBSERVED and MS.section_of("rights.by_kind") == MS.OBSERVED
 
 

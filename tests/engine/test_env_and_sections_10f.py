@@ -54,6 +54,8 @@ J08_KEYS = ("decision_port",)
 C07_KEYS = ("tools",)
 #: 第 1 期 1-8b で末尾(1-7 の tools の後)に足した欄(発話の口の計器)。
 S8B_KEYS = ("speech_port",)
+#: 第 2 期 2-2 段 11a で末尾(1-8b の speech_port の後)に足した欄(近接の判定の腕・計器)。
+PX22_KEYS = ("proximity",)
 PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite", "blake3", "os", "os_release",
                  "os_version", "machine", "cpu", "numpy_simd", "deps", "deps_sha256", "deps_count"}
 #: 設定の節の道筋の一覧の sha256(環境に依らない golden=検収 N3 の 3)。節を変えたら理由を記録に書いて更新する。
@@ -78,7 +80,10 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 第 1 期 1-8b: ``speech_port`` の設定の子 9 つ(schema・arm・port・reach・via・field_line・heard_ttl_steps・
 #: heard_max_per_addressee・mock_utterance)を足した(1-8 J0 の後に・前 ``89e426b3…0b9065``・
 #: 記録 docs/bench/analysis/wallbounce-1012/s8b/README.md)。
-CONFIG_PATHS_SHA256 = "163fb104d8508fbe4e9fbce17e707b6bc0c0e05a504a3107718a033b71ba4eb8"
+#: 第 2 期 2-2 段 11a: ``proximity`` の設定の子 12(schema・mode・d_m・d_arms・leave_m・b5_radius_m・b5_radius_source・
+#: notice・unit_source・index_cell_m・position_source・marks)を足した(1-8b の後に・前 ``163fb104…71ba4eb8``・
+#: 記録 docs/bench/analysis/wallbounce-1012/prox22/README.md)。
+CONFIG_PATHS_SHA256 = "1ec094a43ef0a1c36746ae0643856bd0e04ebe8019fa1cc99c1847eb491503d3"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 
@@ -242,9 +247,9 @@ def test_t1_two_processes_write_the_same_env_id_and_final_to_the_files(tmp_path)
     assert drop(c1["manifest"]) == drop(c2["manifest"])
     assert c1["manifest"]["resume"]["run_id"] != c2["manifest"]["resume"]["run_id"]
     # 列追加のみ(末尾に 3 つ+第 2 段の 2 つ+10e の欄+1-1 T0 の欄+1-4 の欄+1-9 の欄+1-2 の欄+1-5 の欄+1-8 J0 の欄+1-7 の欄
-    # +1-8b の欄)
+    # +1-8b の欄+2-2 の欄)
     tail = (NEW_KEYS + STAGE2_KEYS + E10_KEYS + T0_KEYS + R14_KEYS + C19_KEYS + P12_KEYS + R15_KEYS + J08_KEYS
-            + C07_KEYS + S8B_KEYS)
+            + C07_KEYS + S8B_KEYS + PX22_KEYS)
     assert list(c1["manifest"])[-len(tail):] == list(tail)
 
 

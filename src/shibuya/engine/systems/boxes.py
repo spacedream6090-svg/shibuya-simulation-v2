@@ -21,7 +21,8 @@
 
 物の同一性(草案 §2-1 の 6): 箱は組み立ての物をそのまま指す(写しを作らない)。
 
-逐次ループ宣言: ``TickScratch.reset`` は欄の数ぶん(35=1-0 の 34+第 1 期 1-2 の ``percepts``・刻みに 1 回)。
+逐次ループ宣言: ``TickScratch.reset`` は欄の数ぶん(36=1-0 の 34+第 1 期 1-2 の ``percepts``+第 2 期 2-2 の ``near_index``・
+刻みに 1 回)。
 """
 
 from __future__ import annotations
@@ -45,7 +46,7 @@ __all__ = [
 OWNER_NAMES: tuple[str, ...] = (
     "act_layer", "intent_layer", "fam_layer", "mem_layer", "poi_resolver", "wom", "rel_layer", "classical",
     "energy", "norm_meter", "presence", "conv", "arbiter", "detector", "runner", "ledger", "undefined",
-    "renderer", "bridge", "fleet_bridge", "run_day", "events", "decision", "speech",
+    "renderer", "bridge", "fleet_bridge", "run_day", "events", "decision", "speech", "proximity",
 )
 
 
@@ -209,6 +210,9 @@ class Layers:
     #: 〔第 1 期 1-8b〕発話の口(``engine.speech.port.SpeechPort``・状態台帳の行 ``S8``・``S8M``)。腕 ``--speech-port on`` の
     #: ランだけ組み立てが置く(既定 None=今の道)。
     speech: Any = None
+    #: 〔第 2 期 2-2 段 11a〕近接の層(``engine.proximity.ProximityLayer``・状態台帳の行 ``PX``)。腕
+    #: ``--proximity distance`` のランだけ組み立てが置く(既定 None=今の判定=同じセル)。
+    proximity: Any = None
 
     @property
     def undefined(self) -> Any:
@@ -284,6 +288,9 @@ SCRATCH_FIELDS: tuple[str, ...] = (
     # 〔第 1 期 1-2〕知覚の事実 ``perception.facts.Percept``(体 → その刻みに描いた Percept・HEAD の局所ではない)。decide が書く
     # =判断の入力の形(1-8 の DecisionPort.choose(ctx, …))。状態台帳の行 P(軸 1 no・軸 2 discardable)。刻みの頭で空になる
     "percepts",              # decide → (1-8 の判断の口)
+    # 〔第 2 期 2-2 段 11a〕近傍の索引 ``engine.proximity.SpatialIndex``(腕 --proximity distance の刻みだけ・既定 None)。
+    # perceive_prepare が書く(B5 の近接行は描画の前計算に渡す)。状態台帳の行 PX0(軸 1 no・軸 2 discardable)
+    "near_index",            # perceive_prepare → (描画の前計算)
 )
 
 

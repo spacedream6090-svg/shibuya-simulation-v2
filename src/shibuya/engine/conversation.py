@@ -713,6 +713,7 @@ class ConversationManager:
         in_conversation: Sequence[bool] | np.ndarray | None = None,
         xy: Sequence[float] | np.ndarray | None = None,
         leave_distance_m: float | None = None,
+        near_fn: Any = None,
     ) -> list[Session]:
         """1 tick 進める(WALKING_OVER→PARTICIPATING・ソフト終了・CLOSING→TERMINAL)。
 
@@ -726,6 +727,9 @@ class ConversationManager:
                 取ること**——同値だと境界の 2 人が毎 tick 作っては壊す(§4 改訂 G7)。
                 ``None``(既定)なら従来どおり ``cell`` の一致で見る。
             leave_distance_m: 離脱距離[m](``engine.resolve.TALK_LEAVE_METERS``)。
+            near_fn: 〔第 2 期 2-2 段 11a〕``(a, b) -> bool の配列``(腕 ``--proximity distance`` の
+                ``engine.proximity.ProximityRule.stay``=同じ層・距離 ≤ d+1 m、または同じ B5 の単位)。渡すと
+                ソフト終了「セル離脱」の判定がこれになる(``xy``・``cell`` より強い)。``None``(既定)は今のまま。
 
         Returns:
             この tick に TERMINAL へ落ちたセッション。
@@ -747,7 +751,11 @@ class ConversationManager:
                     s.state = ConvState.PARTICIPATING
                 continue
             # --- PARTICIPATING のソフト終了 ---
-            if by_distance:
+            if near_fn is not None:  # 第 2 期 2-2: 腕 distance(同じ層・d+1 m・同じ B5 の単位)
+                if self._left_reach(s, near_fn):
+                    self._close(s, int(tick), "left_cell")
+                    continue
+            elif by_distance:
                 if self._left_distance(s, xy_arr, float(leave_distance_m)):
                     self._close(s, int(tick), "left_cell")
                     continue
@@ -783,6 +791,15 @@ class ConversationManager:
             if float(np.sqrt(float(d[0]) ** 2 + float(d[1]) ** 2)) > limit_m:
                 return True
         return False
+
+    @staticmethod
+    def _left_reach(s: Session, near_fn: Any) -> bool:
+        """参加者のどれかが最初の参加者から届かなくなったか(第 2 期 2-2・``near_fn``)。逐次ループ宣言: なし(参加者 ≤ 3)。"""
+        anchor = int(s.participants[0])
+        others = np.asarray(s.participants[1:], dtype=np.int64)
+        if others.size == 0:
+            return False
+        return not bool(np.all(near_fn(np.full(others.size, anchor, dtype=np.int64), others)))
 
     def _left_cell(self, s: Session, cell) -> bool:
         arr = np.asarray(cell)

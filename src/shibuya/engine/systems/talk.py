@@ -35,17 +35,19 @@ def sys_relations_wake(ctx: Any, b: Any) -> None:
     sleep_suppression = b.cfg.sleep_suppression
     tick = ctx.T
     a_agent = None
+    # 第 2 期 2-2 段 11a: 腕 --proximity distance のときだけ規則を渡す(同席=届く辺・知人出現=気づく確率)
+    _pkw = {} if b.layers.proximity is None else {"proximity": b.layers.proximity.rule}
     if rel_layer is not None and (rel_layer.copresent_on or rel_layer.acq_wake_on):
         t0 = time.perf_counter()
         if rel_layer.copresent_on:
-            rel_layer.copresent_step(agents, tick)
+            rel_layer.copresent_step(agents, tick, **_pkw)
         if rel_layer.acq_wake_on:
             _elig = np.ones(n_agents, dtype=bool)
             if sleep_suppression:
                 _elig &= np.asarray(agents.registry.activity) != int(Activity.SLEEPING)
             if outside_suppression and plan_exec_on:
                 _elig &= np.asarray(agents.registry.transit_state) == 0
-            a_agent, a_cond, a_class = rel_layer.acquaintance_candidates(agents, tick, _elig)
+            a_agent, a_cond, a_class = rel_layer.acquaintance_candidates(agents, tick, _elig, **_pkw)
             if a_agent.size:
                 rel_layer.stats["acq_agent_refractory"] += int(np.count_nonzero(
                     np.asarray(agents.registry.refractory_until)[a_agent, int(WakeCondition.ACQUAINTANCE)]
@@ -72,6 +74,8 @@ def sys_conversation(ctx: Any, b: Any) -> None:
     plan = b.scratch.plan
     rel_layer = b.layers.rel_layer
     tick = ctx.T
+    # 第 2 期 2-2 段 11a: 腕 --proximity distance の判定の規則(既定 None=今の判定=同じセル)
+    prox_rule = None if b.layers.proximity is None else b.layers.proximity.rule
     if conv is not None:
         cell_now = agents.registry.cell
         act_now = agents.registry.activity
@@ -119,6 +123,7 @@ def sys_conversation(ctx: Any, b: Any) -> None:
                         s_join = conv.session_of(invitee)
                         if s_join is not None and bool(R.talk_within_reach(
                             agents, np.int64(inviter), np.int64(invitee), by_distance=attention_on,
+                            rule=prox_rule,
                         )) and conv.join(s_join, inviter, tick):
                             R.join_conversation(agents, np.array([inviter]), np.array([invitee]), tick)
                     continue  # resolve が失敗させた(相手が会話中/去った)
@@ -128,6 +133,7 @@ def sys_conversation(ctx: Any, b: Any) -> None:
                         np.int64(inviter),
                         np.int64(invitee),
                         by_distance=attention_on,
+                        rule=prox_rule,
                     )
                 )
                 b_code, b_named = applied_now.get(invitee, (-1, -1))
@@ -189,6 +195,8 @@ def sys_conversation(ctx: Any, b: Any) -> None:
             # C9b G7: 離脱は**実距離 3 m**(成立 2 m より広い=ヒステリシス)。
             xy=agents.registry.xy if attention_on else None,
             leave_distance_m=R.TALK_LEAVE_METERS if attention_on else None,
+            # 第 2 期 2-2: 腕 distance の離脱=同じ層・距離 ≤ d+1 m、または同じ B5 の単位(既定 None=今のまま)
+            near_fn=None if prox_rule is None else (lambda a_, b_: prox_rule.stay(agents, a_, b_)),
         )
         if finished:
             # 終了したセッションの参加者を解放する(行動契約書 §3「終了はエンジン」)。

@@ -3442,6 +3442,103 @@
    "since": "2026-10-14",
    "status": "active",
    "remove_basis": "inferred"
+  },
+  {
+   "id": "HD-engine.proximity-1af925f4",
+   "what": "src/shibuya/engine/proximity.py の docstring の見出し「expedient(本モジュール分)」の下の項 5 個",
+   "why": "コードの宣言(第 4 形・第 2 期 2-2 段 11a)。会話の距離 d=2 m の決め打ち(B3・宣言)と感度の腕 1.0/2.5 m・離脱の距離 d+1 m(C9b G7 の幅)・知人に気づく抽選の打ち切り 100 m(p(d) は R-62=Loftus & Harley 2005 の 2 点=75% が 10.4 m・25% が 23.5 m を通るロジスティック・p(100) < 1e-6)・B5 近接行の半径 10.3 m(Fotios, Yang & Uttley 2015 の他の歩行者を注視する距離の中央値=p_notice 答申・仮採用)・索引の格子 2.5 m。空間の段 3(音の伝わり方・知覚の個人化)で置き換える",
+   "remove_at": "5-3",
+   "declared_in": "src/shibuya/engine/proximity.py#heading:1af925f4",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-prox22-b5-unit",
+   "what": "B5 (a) 屋内の体は同じ単位の中なら距離を見ずに会話できる(単位=店・テナント区画など手元で使える一番小さい単位=今は在席中の POI の区画 agents.poi_ref で、体のセルがその POI のセルと同じ体だけ=在席の印は歩き出しでは解かれず店を出た体にも残るため・親の判断 10-14 の 2)",
+   "why": "10-03 の決定 B5(空間の段 2 までのつなぎ)。腕 --proximity distance の判定(会話・返事待ち・3 人会話・離脱・招待の相手・同席・B5 の近接行)で同じ単位の体は距離を見ない。家・職場・学校は単位を持たない(node の座標で測る)。段 2 の区画・席・部署で置き換える",
+   "remove_at": "5-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/prox22/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/proximity.py"
+   ]
+  },
+  {
+   "id": "DOC-prox22-b6-node-position",
+   "what": "近接の量(会話の成立の距離・偶然・同席・知人出現・B5 の近接行・11c の読み直しの表)の位置の出どころ=node の座標(立っている体は node に重なる・edge 幾何でも立ち止まった体は node)・建物の中の体の位置は店に入る前のノードのまま(建物の中の仮想空間の距離は測れない=B5 の単位で距離を見ない)=「暫定・node 座標」の印(manifest の proximity.marks.B6)",
+   "why": "10-03 の決定 B6(印は位置の出どころで付ける・建物の中の仮想空間で測った距離にも同じ印)。位置の正本が物理の xy(空間の段 1)になれば外す",
+   "remove_at": "5-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/prox22/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/proximity.py"
+   ]
+  },
+  {
+   "id": "DOC-prox22-b8-node-walk-speed",
+   "what": "node 幾何の歩く速さ 0.41 m/s(1 刻み 1 node)に基づく量(移動中の分・群れ歩き・同行・移動中の露出)=「暫定・node の歩く速さ」の印(manifest の proximity.marks.B8・node 幾何のランだけ)",
+   "why": "10-03 の決定 B8。空間の段 1 で歩く速さが実際の値になれば外す",
+   "remove_at": "5-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/prox22/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/proximity.py"
+   ]
+  },
+  {
+   "id": "DOC-prox22-named-partner-no-approach",
+   "what": "名指しの相手へは相手のセルへ歩く=d の中へ寄る口は無い(腕 --proximity distance で同じセルの d より遠い名指しは届く別の体に替わる)",
+   "why": "段 2c の意図の層は名指しの相手のセルへ歩かせるだけで、相手のノード(位置)へは歩かせない(親の判断 第334=空間の段 1・2 まで残す)。位置と移動の段で相手の位置へ寄る口を作る",
+   "remove_at": "5-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/prox22/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/commit.py",
+    "src/shibuya/engine/intent.py"
+   ]
+  },
+  {
+   "id": "DOC-prox22-notice-sticky",
+   "what": "一度気づいた知人は、層が同じで 100 m の中に居る間は気づいたまま(刻みごとに引き直さない)・気づいた印を同一相手の不応期の配列 _acq_until に同居させる(max(今の値, T+2))。印は知人出現の起床の条件にだけ使い、描画の B5 の近接行に載せる知人は印があり半径 10.3 m の中の体だけ(親の判断 10-14 の 3)",
+   "why": "刻みごとに引き直すと 0 m の家族が 5.5% の刻みで見失われ毎時起きるため(親の判断 第334=expedient)。R-62 の値は 1 回見たときの見分けの割合で、刻みごとの抽選は遠い知人に早めに気づく向きに歪む。印を新しい保存の欄にすると既定の腕の full-hash が動くので不応期の配列に同居させた。時計の段 T3(起床の条件を知覚の事実に移す)で気づきの持続を作り直す",
+   "remove_at": "T3",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/prox22/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/relations.py"
+   ]
+  },
+  {
+   "id": "DOC-prox22-b5-unit-hub-unmeasured",
+   "what": "10-03 §4 の B5 の単位のハブの懸念(百貨店・大きなオフィスビルが 1 つの単位で数千人)は測れない=いまの単位は在席中の店だけで、在室は crowd の席数の上限(飲食 60 m² ÷ 2.0 m²=30・expedient)で頭打ち",
+   "why": "11c の在室人数の最大 30 は席の上限で止まった値で、ハブにならない証拠ではない(検収 M3・親の判断 第334)。事務所・家・学校は単位を持たない。空間の段 2 で屋内の単位(区画・席・部署)が入ったら測る",
+   "remove_at": "5-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/prox22/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/proximity.py",
+    "src/shibuya/engine/processes/crowd.py"
+   ]
   }
  ]
 }

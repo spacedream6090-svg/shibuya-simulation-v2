@@ -44,10 +44,10 @@ def two_days():
 def test_the_fields_are_at_the_end_and_frozen(two_days):
     keys = list(two_days.run_manifest_fields())
     # 1-9 が末尾に economy、1-2 がその後ろに percept、1-5 がその後ろに rights、1-8 J0 がその後ろに decision_port、1-7 が
-    # その後ろに tools、1-8b がその後ろに speech_port を足した(T0 の TM9 → 1-4 の 3 欄 → 1-9 → 1-2 → 1-5 → 1-8 → 1-7 → 1-8b)
-    # =1-4 の 3 欄は末尾の 6 つ前までの続きの並び
-    assert keys == TOP and keys[-9:-6] == R14 and keys[-10] == "bridges_count"
-    assert keys[-6:] == ["economy", "percept", "rights", "decision_port", "tools", "speech_port"]
+    # その後ろに tools、1-8b がその後ろに speech_port、2-2 がその後ろに proximity を足した(T0 の TM9 → 1-4 の 3 欄 → 1-9 →
+    # 1-2 → 1-5 → 1-8 → 1-7 → 1-8b → 2-2)=1-4 の 3 欄は末尾の 7 つ前までの続きの並び
+    assert keys == TOP and keys[-10:-7] == R14 and keys[-11] == "bridges_count"
+    assert keys[-7:] == ["economy", "percept", "rights", "decision_port", "tools", "speech_port", "proximity"]
 
 
 def test_values_match_the_ledger_and_the_table(two_days):
