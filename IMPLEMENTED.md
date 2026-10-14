@@ -394,6 +394,15 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #96 第 1 期 1-8b 発話の口(Q57 (d)・腕・既定 off=結果不変)(第334・2026-10-14・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [口の約束 1-8b](docs/design/v2-foundation-contracts-2026-10-13.md)・[回答 10-13b](docs/design/v2-answers-2026-10-13b.md) §1 1-5。記録 [s8b](docs/bench/analysis/wallbounce-1012/s8b/README.md)(§11 仮採用・§14 検収の直し・§15/§16 rebase と再確認・[review.md](docs/bench/analysis/wallbounce-1012/s8b/review.md))。commit `42cd8f0`。
+- **口**: `engine/speech/{port,layer}.py`(`Utterance` 8 欄=speaker・t_ns・text・addressees・via・mora・event_id・modality(空)/ `SpeechPort.say` 1 つ=(a) 出来事ログに `行為:発話` を 1 回(語彙 57 語目・版 events-vocab/1-8b)(b) 届け先の未読に積み、描画が B6 に素性タグ `〔発話・命令文除去〕` つきで載せる(命令文は発話の行だけの型で文単位に落とす)(c) 口コミの抽出へ)。mock と古典も同じ口。腕 `--speech-port {off,on}`(既定 off・on は run_kind=arm と指紋)。B6 の末尾に 2 行(指示の行 10 tok)・5 ラベルとパーサは不変。
+- **腕の行**(新しい共有の仕組み): `LedgerRow.arm`・`arm_items`=持ち主の `LEDGER_ARM` と行の arm を照合・腕 on のときだけ S8/S8M がハッシュと状態のファイルに入る=既定のランは 1 バイトも変わらない。腕 on の再開は通しと同じ(2,000 体 2 日)。
+- **結果不変**: 実装役 19/19(off)・既定 off の全プロンプト 11,873 本の digest が HEAD と同じ(検収役)・2 日のラン・系ごとの指紋・親の byte-check 4 構成(rebase の後も同じ)。腕 on は呼数と行動の件数が同じで final だけ動く(腕の行と記憶の要旨の源)。
+- **検収**: 条件つき受入(中 2=て形の依頼を落とさない・語彙の並びの衝突/ 低 10)→ 全部直した。親の判断 8 件(被招待の返事は招待者へ・返事とセッションの中は窓なし・閉じた後だけ 5 刻み・B6 の枠は門にしない等)。届かない率 全体 67.7% → 10.8%。試験 115 本。
+- 仮採用: PENDING §1-1b 仮-17。予算の宣言に B6 の行。第 1 期はこれで 13 段とも完了。
+
 ### #95 第 2 期 2-0b 不応期を外した腕の計測(記録と道具だけ・src 不変)(第334・2026-10-14・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [回答 10-13b](docs/design/v2-answers-2026-10-13b.md) §4-2 の 3。記録 [refr20b](docs/bench/analysis/wallbounce-1012/refr20b/README.md)(§5 表の外の門・§11 追記・§12 検収の直し・§13 親の検収・[review.md](docs/bench/analysis/wallbounce-1012/refr20b/review.md))。commit `922ea76`。
