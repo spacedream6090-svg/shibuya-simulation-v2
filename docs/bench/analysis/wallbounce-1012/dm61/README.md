@@ -223,3 +223,12 @@
    - L7: 層ごとの一致率(種別・時間帯・場所の種類・起床の級=1-10 の層)を表に足すか。1-10 §6 の「層ごとの一致率」の案。
    - I1: 経験の代わりの循環。本人の経験の候補は同じテープの同じ LLM の前の答えなので、「前にもした」の候補を読む当て口では、対テープの一致が押し上げられうる(テープの LLM の癖を候補に写している)。経験の源を外した腕(`--no-tape-experience`)と比べるか、別のテープの前の呼で代えるかを決める。
 4. `table.md`・`table.json` は壁時計の欄があるので、回すたびに md5 が変わる(golden は `result.json` の digest だけ)。
+
+
+## §親の検収(第336・Fable 5.1・rebase の後)
+
+- 本体 35aa748(3-1 の文書の後)へ rebase=つなぎの台帳の末尾(3-1 の 12 行と本段の 1 行)が 2 か所に割れて衝突し、親が「本体の版の JSON に本段の 1 行を足して作り直す」形で解いた(枝が既存の行を変えていないことを先に確かめた・411 行・id の重なり 0・908d361)。範囲の試験(tools・bridging・economy/cp2・decision・**c8**・experiment・llm・build_audit・状態台帳・10f)**1,031 passed**。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src)=**final 同じ・25 欄とも差なし**(`parent_head_vs_dm61_4cfg.json`)。`src/shibuya` の差分 0(道具だけ)。
+- **data 無しの写し(detached の作業木・junction なし)で CI-1 と同じ引数の全体試験(tests/c7 を含む)=**5,088 passed・243 skipped・failed 0**(1,208 秒・CI の印=`-m "not gpu and not slow" -n 2 --dist loadfile`)**(5e84d5b の木=908d361 とは本体の 3-1 の分だけの差=3-1 の取り込みで同じ全体を 5,076 passed で確かめ済み)。`tests/_data_ids.py` に `evalset`・`server_retrieval` の id を足した分の skip の数は 印 3 か所(`evalset`・`server_retrieval`・`tape`)=data 無しの写しでは飛ぶ(理由の表の先頭は要約の末尾 12 行の外に出た=次からは 40 行残す)。
+- 独立検収([review.md](review.md))=受入(高 0・中 0・低 8=テープの行の位置の偏りの列は構成上 0 の注・AST の負の対照・試験の名・`Scorer` の守り・空欄の 2 つの印・PBS の帰無の床・試験 3 本)→ 全部直した。検収役の独立の再計算(340 件と 32 本の読み直し・位置の偏り・字数・採点の式・golden の digest)は全部一致。親の判断: 正解の表は作らない・候補のモデルの値は S6 の後・engine の口の不足 3 つ(人ごとの短い特徴量の描画・`engine/decision/sources` の古典の源・「数字はお金と時刻だけ」の描画)は PENDING §2 の 6-1 の注に・L7(層ごとの一致率)と I1(経験の代わりの循環)は GPU の後の第 1 回の前の見直しに。
+- 判定: **受入**(第 6 期 6-1 の GPU の前の分=道具だけ・結果不変)。
