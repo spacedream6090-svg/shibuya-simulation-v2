@@ -394,6 +394,15 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #105 第 3 期 3-5 ③群の体の層(engine/body)と TM5 の予約の腕(既定 sweep=結果不変)(第336・2026-10-15・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §1-5 ③・§4-2 TM5・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 3-5 の行。記録 [bd35](docs/bench/analysis/wallbounce-1012/bd35/README.md)([review.md](docs/bench/analysis/wallbounce-1012/bd35/review.md))。取り込み `0f415c1`。
+- **体の層** `engine/body/`(`rules.py`・`model.py`・`schedule.py`・`system1.py`): D8 空腹と疲れ=`BodyModel.step("interoception")`・A2 体感温度=`felt_temperature`(セルごとに丸めてから引く)・D9 倒れる=`collapse_draw`(同じ乱数の流れを同じ順で・率は出典なし=expedient・台帳 `BR-BODY-COLLAPSE-RATE`)・D18=`initial`。体の層は値を返すだけで SoA を書くのは resolve だけ(書く関数 11 個・呼び手 5 か所=HEAD と同じ・AST)。`writes.paths` に `BD:body.*`・持ち主 `body`・状態台帳の行 BD(diag・discardable)・manifest の末尾 `body`。
+- **TM5 の予約**(腕 `--body-schedule reserve`・既定 sweep): 次に段階の境目を越える刻みの下界を体ごとに予約(`Scheduler` を流用)し、予約の刻みに来た体だけを規則に通す(2.7〜6.9%)。引き直しは写しとの比べ。**受入の条件=19 構成で sweep と同じ(27 欄)**・2 日のラン・sweep で止めて reserve で再開=通し・系ごとの指紋 0 系・負の対照(+1 刻みで 15 欄が動く・−1 は同じ)。
+- **器だけの 3 件**: ロンバード効果(5-3)・混雑の中の歩き方と避け方(5-1)・`loud_sound`(`Percept.nearby_change` の種類=5-3)=口は None を返すだけ・描画のバイト不変・台帳 3 行。
+- 性能(P4): 体の層 1 刻み 90 → 108 µs(sweep)・235 µs(reserve)・39 万体 11.5 → 11.9/13.3 ms=1 日 約 17/19 秒。reserve は T3 の版上げ(閉じた式の積み上げ)まで既定にしない。
+- 検収: 別の検収役 1+親。全体試験 5121 passed。仮採用: PENDING §1-1b 仮-27。残り: 器だけの 3 件の裏付けと倒れる率の出典のリサーチ(第 5 期・6-5)。
+
 ### #104 第 4 期 4-1 段 1〜3 ペルソナと人口の作り直し(W21・構築側だけ・資産は活性化しない=結果不変)(第336・2026-10-15・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 第 4 期(回答 2-0)・[設計書](docs/design/v2-persona-population-rebuild-design.md)・[R-116](docs/research/v2-r116-ps-stage0-materials.md)(段 0・親検収済)・PENDING 仮-23。記録 [pop41](docs/bench/analysis/wallbounce-1012/pop41/README.md)([review.md](docs/bench/analysis/wallbounce-1012/pop41/review.md))。取り込み `60dadc4`。
