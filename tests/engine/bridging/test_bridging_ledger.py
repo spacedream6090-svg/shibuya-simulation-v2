@@ -118,14 +118,17 @@ def test_the_counts_by_form(decls):
     # 見出しを足した=79 → 80(記録 c0/README.md §4)
     # 〔第 2 期 2-3b〕W12 の等間隔の 5 行(W12#4〜#8=removed)を消し、実ダイヤの表 8 行と等間隔の道の表 1 行を足した
     # =expedients 139 → 143(記録 tt23b/README.md §13)
-    assert S.count_by_form(decls) == {"conf": 0, "expedients": 143, "docstring": 5, "heading": 80, "process": 18,
+    # 〔第 1 期 1-8b〕engine/speech/port.py の docstring の段落 1(モーラ数)と見出し 2(port.py 項 3・layer.py 項 3)を
+    # 足した=docstring 5 → 6・見出し 80 → 82(記録 s8b/README.md)
+    assert S.count_by_form(decls) == {"conf": 0, "expedients": 143, "docstring": 6, "heading": 82, "process": 18,
                                       "fallback": 5}
     heads = [d for d in decls if d.form == S.FORM_HEADING]
     # 〔第 1 期 1-2〕p_notice の expedient の項 m_load(歩きスマホの負荷の係数)を消した=338 → 337(記録 p12/README.md §15)
     # 〔第 1 期 1-5〕engine/rights/initial.py(項 3)・record.py(項 2)の見出しを足した=71 → 73・337 → 342
     # 〔第 1 期 1-8 J0〕engine/decision/port.py(項 3)・sources.py(項 2)・layer.py(項 1)=73 → 76・342 → 348
     # 〔第 1 期 1-7〕engine/tools/contacts.py(項 3)の見出しを足した=76 → 77・348 → 351(記録 c0/README.md §4)
-    assert len({d.path for d in heads}) == 77 and sum(d.items for d in heads) == 351
+    # 〔第 1 期 1-8b〕engine/speech/port.py(項 3)・layer.py(項 3)=77 → 79・351 → 357(記録 s8b/README.md)
+    assert len({d.path for d in heads}) == 79 and sum(d.items for d in heads) == 357
 
 
 def test_process_and_fallback_rows(ledger, decls):
@@ -173,9 +176,10 @@ def test_heading_rows_carry_the_heading_and_the_item_count(ledger, decls):
         assert f"「{d.text}」" in r.what and f"項 {d.items} 個" in r.what, r.id
         assert r.conf == "expedient" and r.remove_basis == "inferred" and r.remove_at in L.PLAN_STAGES
     # 1-5: 74 → 76・〔第 1 期 1-8 J0〕+3・〔1-7〕+1・〔1-7 の 1-8 への結線〕layer.py の見出しを替えた=旧い行
-    # HD-engine.decision.layer-2d3672ba は removed で残し、新しい見出しの行を足した(active は 80 のまま・行は 81)
-    assert sum(1 for r in ledger if r.id.startswith("HD-")) == 81
-    assert sum(1 for r in ledger if r.id.startswith("HD-") and r.status == "active") == 80
+    # HD-engine.decision.layer-2d3672ba は removed で残し、新しい見出しの行を足した(active は 80 のまま・行は 81)。
+    # 〔第 1 期 1-8b〕engine/speech の見出し 2 行を足した=行 83・active 82
+    assert sum(1 for r in ledger if r.id.startswith("HD-")) == 83
+    assert sum(1 for r in ledger if r.id.startswith("HD-") and r.status == "active") == 82
     assert {r.id: r.status for r in ledger}["HD-engine.decision.layer-2d3672ba"] == "removed"
 
 

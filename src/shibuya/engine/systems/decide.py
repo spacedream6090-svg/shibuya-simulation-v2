@@ -151,7 +151,7 @@ def sys_decide(ctx: Any, b: Any) -> None:
                 if conv is not None and cond == int(WakeCondition.CONVERSATION_TURN):
                     # 会話ターンの応答は**発話ブロック**(1呼=1ブロック・§3)
                     _utter(a, tick, res.parse.action, res.parse.comment, res.parse.reason,
-                           res.parse)
+                           res.parse, call_id=_call_ref(res)[1])
         else:
             # 逐次ループ宣言2′: 同じ呼数ぶん(描画は同じ・往復だけ非同期になる)
             calls: list[LLMCall] = []

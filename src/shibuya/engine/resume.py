@@ -408,9 +408,12 @@ def collect_soa(agents: Any, world: Any, pstate: Any) -> dict[str, dict[str, np.
 
 
 def collect_items(owners: Mapping[str, Any]) -> dict[str, Any]:
-    """外の状態の値(台帳の ``full_items`` の道筋 → 値・宣言順)。持ち主が無い道筋は ``ABSENT_MARK``。"""
+    """外の状態の値(台帳の ``full_items`` の道筋 → 値・宣言順)。持ち主が無い道筋は ``ABSENT_MARK``。
+
+    〔第 1 期 1-8b〕末尾に持ち主の居る腕の行の道筋(``SL.arm_items(owners, behavior=False)``・既定の腕では無い=今と同じ)。
+    """
     out: dict[str, Any] = {}
-    for path in [p for _k, p in SL.full_items()]:
+    for path in [p for _k, p in SL.full_items() + SL.arm_items(owners, behavior=False)]:
         v = resolve_item(owners, path)
         out[path] = ABSENT_MARK if v is _ABSENT else v
     return out
@@ -595,7 +598,17 @@ def check_bundle(bundle: StateBundle) -> None:
             elif int(arr.shape[0]) != n0:
                 raise SC.StateFormatError(f"保存した SoA の列の長さが置き場の中で違う: {place}.{name}")
     want = [p_ for _k, p_ in SL.full_items()]
-    if list(bundle.items) != want:
+    got_list = list(bundle.items)
+    # 〔第 1 期 1-8b〕腕の行: full_items の後ろに、持ち主の居た腕の行の道筋が行ごとにまとめて(宣言順で)続いてよい
+    tail = got_list[len(want):]
+    for r in SL.arm_rows():  # 逐次: 腕の行の数ぶん
+        if not r.in_full:
+            continue
+        paths = [it for it in r.items if it not in set(r.hash_skip)]
+        if tail[: len(paths)] == paths:
+            want = want + paths
+            tail = tail[len(paths):]
+    if got_list != want:
         got = set(bundle.items)
         raise SC.StateFormatError(f"保存した外の状態の道筋が今の台帳と違う(足りない {sorted(set(want) - got)[:5]}・"
                          f"余分 {sorted(got - set(want))[:5]}・順)")

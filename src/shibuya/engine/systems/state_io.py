@@ -44,6 +44,8 @@ def hash_owners(b: Any) -> dict[str, Any]:
     〔第 1 期 1-3〕末尾に ``events``(出来事の記録・状態台帳の行 ``E``=軸 1 diag・軸 2 discardable)を足した。2 つのハッシュと
     状態のファイルは軸で選んだ行の道筋だけを読むので、値は変わらない(段 B の全欄の差と書きの網羅が読む)。
     〔第 1 期 1-8 J0〕その後に ``decision``(候補の口の層・状態台帳の行 ``J0``=軸 1 diag・軸 2 discardable・腕 port のランだけ)。
+    〔第 1 期 1-8b〕その後に ``speech``(発話の口・状態台帳の腕の行 ``S8``=軸 1 behavior・軸 2 required と ``S8M``=診断・
+    腕 on のランだけ。腕の行は持ち主が None のランでは 2 つのハッシュにも状態のファイルにも入らない=既定は不変)。
     """
     from shibuya.engine.run import _RunDayLocals
 
@@ -59,6 +61,7 @@ def hash_owners(b: Any) -> dict[str, Any]:
         "run_day": _RunDayLocals(io.pending, io.fleet_deferred, io.fleet_waiting, io.replay_inbox),
         "events": getattr(L, "events", None),
         "decision": getattr(L, "decision", None),
+        "speech": getattr(L, "speech", None),
     }
 
 

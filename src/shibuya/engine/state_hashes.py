@@ -244,7 +244,8 @@ def behavior_hash(agents: Any, world: Any, population_hash: str, schedule_hash: 
 
     ``Checkpoint.combined`` と同じ組み立て(SoA は軸 1 が behavior の列だけ)の末尾に、外の状態のうち
     軸 1 が behavior の行の digest(``external_digest(owners, SL.behavior_items())``)を 1 つ足したもの
-    (10b-2・親の答え 3=A2 (b) は外の状態にも当てはまる)。
+    (10b-2・親の答え 3=A2 (b) は外の状態にも当てはまる)。〔第 1 期 1-8b〕腕の行は持ち主の居るランだけ項の末尾に足す
+    (``SL.arm_items(owners, behavior=True)``・既定の腕では空=値は変わらない)。
     """
     parts = [
         agents.registry.state_hash(exclude=SL.behavior_excluded("agents")),
@@ -254,7 +255,8 @@ def behavior_hash(agents: Any, world: Any, population_hash: str, schedule_hash: 
     ]
     if activity_hash:
         parts.append(activity_hash)
-    parts.append(external_digest(owners, SL.behavior_items(), memo=memo)[0])
+    items = SL.behavior_items() + SL.arm_items(owners, behavior=True)
+    parts.append(external_digest(owners, items, memo=memo)[0])
     return blake3_hex("\x1f".join(parts).encode("utf-8"))
 
 
@@ -303,11 +305,12 @@ def external_digest(owners: Mapping[str, Any], items: tuple[tuple[str, str], ...
     """外の状態の digest と、行ごとの直列化のバイト数(``items`` の既定=full に入る行)。
 
     属性ごとに digest を取り(``item_digest``)、``行の鍵:道筋`` と並べて束ねる。``memo`` を渡すと同じ checkpoint の
-    behavior-hash と full-hash で同じ属性を 2 度直列化しない(値は同じ=結果は変わらない)。
+    behavior-hash と full-hash で同じ属性を 2 度直列化しない(値は同じ=結果は変わらない)。〔第 1 期 1-8b〕``items`` の既定は
+    ``full_items`` の後ろに持ち主の居る腕の行(``SL.arm_items(owners, behavior=False)``・既定の腕では空)。
     """
     h = _blake3.blake3()
     sizes: dict[str, int] = {}
-    for key, path in (SL.full_items() if items is None else items):
+    for key, path in (SL.full_items() + SL.arm_items(owners, behavior=False) if items is None else items):
         if memo is not None and path in memo:
             d, n = memo[path]
         else:
@@ -358,7 +361,7 @@ def component_digests(agents: Any, world: Any, pstate: Any, owners: Mapping[str,
                 continue
             soa[f"{place}.{name}"] = _blake3.blake3(to_state(np.asarray(arr))).hexdigest()[:32]
     items: dict[str, str] = {}
-    for key, path in SL.full_items():
+    for key, path in SL.full_items() + SL.arm_items(owners, behavior=False):  # 1-8b: 持ち主の居る腕の行も
         d, _n = item_digest(owners, key, path)
         items[f"{key}:{path}"] = d.hex()[:32]
     return {"soa": soa, "items": items}

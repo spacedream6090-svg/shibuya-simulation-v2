@@ -26,19 +26,29 @@ __all__ = ["utter", "receive_arrivals", "sys_llm_receive"]
 
 
 def utter(b: Any, agent_id: int, t_now: int, action: Any, comment: str, reason: str = "",
-          parse: Any = None) -> None:
+          parse: Any = None, call_id: str = "") -> None:
     """会話ターンの発話 1 回(``conv.utterance``)。6a: 記憶の会話の行と要旨(on のときだけ)。
 
     6b(第294 Q57 暫定): 要旨の源=ひと言が空/「なし」なら理由欄の先頭 40 字(語彙 v3)。
     7b(D-120 N3 (a)): 店の記憶 on のランだけ、発話(``wom_source``: 既定=ひと言だけ・旧=v3 で理由+対象)から店名と評価語を
     抽出し、**宛先**(会話の相手=``talk_partner``・セッションの参加者)の店の行へ伝聞として書く。
+    〔第 1 期 1-8b〕腕 ``--speech-port on`` のランだけ(``layers.speech`` がある)、ひと言を発話の口に通す
+    (``engine.speech.layer.speak_turn``=出来事ログに 1 回・相手の次の入力・口コミの抽出は口の (c))。``call_id`` は
+    その会話の番の呼び出しの id(発話の出来事の原因)。既定の腕では ``call_id`` を読まない=今の道のまま。
     """
     agents, conv, mem_layer, wom_ex = b.soa.agents, b.layers.conv, b.layers.mem_layer, b.layers.wom
+    speech = b.layers.speech  # 1-8b: 腕 on のランだけ(既定 None=今の道)
     vocab_version, store_wom_on = b.cfg.vocab_version, b.cfg.store_wom_on
-    partner_before = int(agents.registry.talk_partner[int(agent_id)]) if wom_ex is not None else -1
+    partner_before = (int(agents.registry.talk_partner[int(agent_id)])
+                      if (wom_ex is not None or speech is not None) else -1)
     s = conv.utterance(agent_id, t_now, action=action, comment=comment)
     if mem_layer is not None:
         mem_layer.note_utterance(agents, int(agent_id), int(t_now), s, comment, reason)
+    if speech is not None:
+        from shibuya.engine.speech.layer import speak_turn
+
+        speak_turn(b, speech, int(agent_id), int(t_now), s, comment, reason, parse, call_id, partner_before)
+        return
     if wom_ex is not None and s is not None:
         tgt = getattr(parse, "target", None)
         text = wom_ex.utterance_text(
@@ -91,7 +101,7 @@ def receive_arrivals(b: Any, tick: int, floor: int) -> int:
                 n_err += 1
             if conv is not None and res.condition == int(WakeCondition.CONVERSATION_TURN):
                 utter(b, res.agent_id, tick, res.parse.action, res.parse.comment,
-                      res.parse.reason, res.parse)
+                      res.parse.reason, res.parse, call_id=_call_ref(res)[1])
         phase["llm"] += time.perf_counter() - t0
     if fleet_bridge is not None:
         t0 = time.perf_counter()
@@ -124,7 +134,7 @@ def receive_arrivals(b: Any, tick: int, floor: int) -> int:
                 n_err += 1
             if conv is not None and res.condition == int(WakeCondition.CONVERSATION_TURN):
                 utter(b, res.agent_id, tick, res.parse.action, res.parse.comment,
-                      res.parse.reason, res.parse)
+                      res.parse.reason, res.parse, call_id=_call_ref(res)[1])
         phase["llm"] += time.perf_counter() - t0
     return n_err
 

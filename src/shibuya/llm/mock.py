@@ -27,6 +27,10 @@ expedient
   項目にする(括弧内の店名があればそれだけ=W15 の静的文「飲食店(pioppino)」の形・無ければ項目から
   「の店頭」を外した語)。**mock は世界を読まないのでセル内の店も混じる**(セル外の見える店だけが意図に
   なる)。別の乱数列から引く=p=0 は 1 バイトも変わらない。
+- **第 1 期 1-8b 発話の口**(腕 ``--speech-port on``): 語彙 v3 の出力形で、プロンプトに ``contract.SPEECH_FIELD_LINE``
+  (会話の番の呼び出しだけ B6 の末尾に載る出力の欄の指示)があるときだけ、2 行目の最後に ``ひと言: <MOCK_UTTERANCE>`` を
+  足す(決まった文 1 つ=中身は振る舞いのモデルではない・乱数は引かない=既存の 6 語は動かない)。指示の無いプロンプト
+  (既定の腕・会話の番でない呼び出し)では 1 バイトも変わらない。古典の方策(``engine.classical``)も同じ文を使う。
 """
 
 from __future__ import annotations
@@ -45,11 +49,12 @@ from shibuya.llm import (
     estimate_tokens,
     format_two_line,
 )
-from shibuya.llm.contract import TARGET_WANDER, format_two_line_v3
+from shibuya.llm.contract import SPEECH_FIELD_LINE, TARGET_WANDER, append_comment, format_two_line_v3
 
 __all__ = [
     "MOCK_REASONS",
     "MOCK_COMMENTS",
+    "MOCK_UTTERANCE",
     "MOCK_RNG_DOMAIN",
     "MOCK_FORMS",
     "MOCK_ACTIVITIES_V3",
@@ -84,6 +89,10 @@ MOCK_COMMENTS: Final[tuple[str, ...]] = (
     "また後で",
     "ちょうどいい",
 )
+
+#: 〔第 1 期 1-8b〕会話の番の「ひと言」(語彙 v3・腕 ``--speech-port on`` で B6 が欄を求めたときだけ)。決まった文 1 つ
+#: (20 字以内・命令文でない・店名も評価語も含まない=口コミの抽出は 0)。古典の方策も同じ文。
+MOCK_UTTERANCE: Final[str] = "こんにちは"
 
 #: 出力形。``"v1"``=行動・対象・ひと言(語彙 v1/v2)/``"v3"``=行動・対象・活動・まで(語彙 v3)。
 MOCK_FORMS: Final[tuple[str, ...]] = ("v1", "v3")
@@ -207,7 +216,10 @@ class MockLLM:
         activity = self.activities[e % len(self.activities)]
         untils = MOCK_UNTILS_V3_MOVE if action == _MOVE_WORD else MOCK_UNTILS_V3
         until = untils[f % len(untils)]
-        return format_two_line_v3(reason, action, target, activity, until)
+        out = format_two_line_v3(reason, action, target, activity, until)
+        if SPEECH_FIELD_LINE in str(request.prompt):  # 1-8b: B6 が ひと言 の欄を求めた会話の番だけ(乱数は引かない)
+            out = append_comment(out, MOCK_UTTERANCE)
+        return out
 
     def _move_target(self, request: LLMRequest, default: str) -> str:
         """段 2b: 確率 ``move_target_p`` で、カテゴリ語か B2 に見えている項目を移動の対象にする。"""

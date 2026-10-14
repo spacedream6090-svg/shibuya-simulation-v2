@@ -1,0 +1,11 @@
+{
+ "a": "straight:(無し)",
+ "b": "straight:off",
+ "final_same": true,
+ "calls_a": 54109,
+ "calls_b": 54109,
+ "checkpoints_same": true,
+ "end_of_day_same": true,
+ "final_a": "77cb292594797d79",
+ "final_b": "77cb292594797d79"
+}

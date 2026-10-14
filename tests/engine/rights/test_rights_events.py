@@ -40,8 +40,9 @@ def _unauthorized(log: EV.EventLog) -> list[EV.Event]:
 
 # ================================================================= 語彙と原因
 def test_the_word_and_the_cause_name():
-    # 1-7 で末尾に「道具:看板」を足した(1-5 の語のコード 55 は動かない)
+    # 1-7 で末尾に「道具:看板」・〔第 1 期 1-8b〕その後ろに「行為:発話」を足した(1-5 の語のコード 55 は動かない)
     assert RR.WHAT_UNAUTHORIZED == WHAT and V.VOCAB[55] == WHAT and V.code_of(WHAT) == 55
+    assert V.VOCAB[56:] == ("道具:看板", "行為:発話")
     first55 = (tuple(f"行為:{w}" for w in V.ACT_WORDS) + tuple(f"過程:{w}" for w in V.PROCESS_NAMES)
                + tuple(f"金:{w}" for w in V.MONEY_WORDS) + tuple(f"物:{w}" for w in V.GOODS_WORDS))
     assert V.VOCAB[:55] == first55 and len(first55) == 55   # 1-3 の語のコードは動かない

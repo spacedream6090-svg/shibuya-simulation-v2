@@ -40,11 +40,12 @@ __all__ = [
 #: 〔第 1 期 1-3〕末尾に ``events``(出来事の記録=状態台帳の行 ``E``・軸 1 diag・軸 2 discardable)を足した。既存の 21 個の
 #: 名と順は変えない。2 つのハッシュは軸で選んだ行の道筋だけを読む(``full_items``・``behavior_items``)ので、持ち主を
 #: 足してもハッシュの値は変わらない。〔第 1 期 1-8 J0〕末尾に ``decision``(候補の口の層=状態台帳の行 ``J0``・腕 port の
-#: ランだけ・既定 None)を足した(同じ理由で値は変わらない)。
+#: ランだけ・既定 None)を足した(同じ理由で値は変わらない)。〔第 1 期 1-8b〕末尾に ``speech``(発話の口=状態台帳の腕の行
+#: ``S8``・``S8M``・腕 on のランだけ・既定 None)を足した(腕の行は持ち主が None のランではハッシュに入らない=値は変わらない)。
 OWNER_NAMES: tuple[str, ...] = (
     "act_layer", "intent_layer", "fam_layer", "mem_layer", "poi_resolver", "wom", "rel_layer", "classical",
     "energy", "norm_meter", "presence", "conv", "arbiter", "detector", "runner", "ledger", "undefined",
-    "renderer", "bridge", "fleet_bridge", "run_day", "events", "decision",
+    "renderer", "bridge", "fleet_bridge", "run_day", "events", "decision", "speech",
 )
 
 
@@ -205,6 +206,9 @@ class Layers:
     #: 〔第 1 期 1-8 J0〕候補の口の層(``engine.decision.layer.DecisionLayer``・状態台帳の行 ``J0``)。腕
     #: ``--decision-port port`` のランだけ組み立てが置く(既定 None=今の道)。
     decision: Any = None
+    #: 〔第 1 期 1-8b〕発話の口(``engine.speech.port.SpeechPort``・状態台帳の行 ``S8``・``S8M``)。腕 ``--speech-port on`` の
+    #: ランだけ組み立てが置く(既定 None=今の道)。
+    speech: Any = None
 
     @property
     def undefined(self) -> Any:

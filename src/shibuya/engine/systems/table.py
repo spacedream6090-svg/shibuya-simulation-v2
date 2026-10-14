@@ -20,6 +20,9 @@
 〔第 1 期 1-9〕金の移動(基本操作 ``economy.ops.transfer``)の目印の列と計器(状態台帳の行 ``A``=CP1 の A 湧かないもの)を書く系は
 ``writes.paths`` に ``A:ledger.*`` を載せる: phase_c(購入・食事・運賃)・world(補充の代金)・day_close と close_final(締めの計器と検算)。
 原因を渡す移動は出来事も書く=phase_c(運賃=過程 rail)に ``E:events.*`` を足した(world は 1-3 で宣言済み)。
+〔第 1 期 1-8b〕発話の口(状態台帳の腕の行 ``S8``=未読の列・``S8M``=計器・腕 ``--speech-port on`` のランだけ)を書く系:
+decide(届ける=描画の ``perceive`` の ``take_heard``・話す=会話の番の発話)と llm_receive(艦隊と再生の到着の発話)。どちらも
+発話の出来事 1 行を書く=llm_receive に ``E:events.*`` を足した(decide は 1-8 J0 で宣言済み)。
 
 〔第 1 期 1-7〕道具の台帳 C0: decide は看板を読んだ出来事(腕 ``SHIBUYA_TOOL_EVENTS``・既定 off=既定のランでは書かない)を
 書くので ``E:events.*``(1-8 J0 の判断の出来事と同じ宣言=1 つにまとめた)と、口を持つ ``fx.tools`` の読みを載せた。memory は新しい相手の欄の連絡先の印を消す(状態台帳の
@@ -112,10 +115,11 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          paths="O43:run_day.* O44:run_day.* O96:run_day.* O39:conv.* O40:conv.* O41:conv.* O91:conv.* "
                "O8:mem_layer.* O9:mem_layer.* O1[01]:mem_layer.* O12:mem_layer.* O15:wom.* O8[89]:fleet_bridge.* "
                "O87:bridge.* O62:undefined.* O8[23]:undefined.* "
-               "M0*:mem_layer.memory_store.*",  # 1-6: 記憶の器(会話の発話の記憶・テープの列の控え)
+               "M0*:mem_layer.memory_store.*"  # 1-6: 記憶の器(会話の発話の記憶・テープの列の控え)
+               " S8:speech.* S8M:speech.* E:events.*",  # 1-8b: 腕 on の到着の発話(未読の列・計器・発話の出来事 1 行)
          scratch_w="n_parse_errors_fleet", calls_llm="receive",
          tally="phase", reads="cfg.fleet_wait_s cfg.response_delay cfg.store_wom_on cfg.tick_seconds "
-               "cfg.vocab_version layers.conv layers.fleet_bridge layers.mem_layer layers.wom "
+               "cfg.vocab_version layers.conv layers.fleet_bridge layers.mem_layer layers.speech layers.wom "
                "llm.fleet_deferred llm.fleet_inflight llm.fleet_waiting llm.pending llm.replay_inbox "
                "runstats.phase scratch.n_parse_errors_fleet soa.agents",
          origin=f"L5(遅れ 1)・L11 前半(遅れ 2)・run.py:3668・3890-3891 @{_E}"),
@@ -204,13 +208,15 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "M0*:mem_layer.memory_store.*"  # 1-6: 記憶の器(想起の計数・見せた行の録画・発話の記憶・テープの列)
                # 1-8 J0: 腕 port の候補の口の計器・営業中の店の控えと判断の出来事の行/1-7: 看板を読んだ出来事(作り物の印・
                # 腕 SHIBUYA_TOOL_EVENTS・既定 off)=E:events.* は 1-8 と 1-7 で 1 つ
-               " J0:decision.* E:events.*",
+               " J0:decision.* E:events.*"
+               " S8:speech.* S8M:speech.*",  # 1-8b: 腕 on の発話の口(届ける=描画の perceive・話す=会話の番)
          # 第 1 期 1-2: 描いた知覚の事実 ``percepts``(``TickScratch`` の欄・状態台帳の行 P)
          scratch_r="decision outside_now n_parse_errors_fleet", scratch_w="parse_errors percepts",
          tally="calls_by_cond layer_counts n_fleet_resent n_outside_calls peak_backlog peak_pending phase result",
          calls_llm="send", reads="cfg.call_layer cfg.lane cfg.refractory_table cfg.store_wom_on cfg.tick_seconds "
                "cfg.vocab_version layers.arbiter layers.bridge layers.classical layers.conv "
-               "layers.decision layers.fleet_bridge layers.mem_layer layers.presence layers.rel_layer layers.wom "
+               "layers.decision layers.fleet_bridge layers.mem_layer layers.presence layers.rel_layer layers.speech "
+               "layers.wom "
                "llm.fleet_deferred llm.fleet_inflight llm.fleet_waiting llm.pending llm.replay_inbox "
                "runstats.calls_by_cond runstats.layer_counts runstats.n_fleet_resent "
                "runstats.n_outside_calls runstats.peak_backlog runstats.peak_pending runstats.phase "
@@ -346,7 +352,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.renderer layers.runner layers.wom llm.fleet_deferred llm.fleet_inflight "
                "llm.fleet_waiting llm.pending llm.replay_inbox runstats.daily_records "
                "runstats.ledger_growth runstats.result runstats.state_files soa.agents soa.world layers.events "
-               "layers.decision",  # 1-8 J0: 候補の口の層を結果に渡す(manifest の decision_port)
+               "layers.decision "  # 1-8 J0: 候補の口の層を結果に渡す(manifest の decision_port)
+               "layers.speech",  # 1-8b: 発話の口を結果に渡す(manifest の speech_port)
          origin=f"E1・run.py:4551-4592 @{_E}"),
     make("report", "計器", "run_end", _RP.report,
          tally="result sleep_counts frozen_sources_map",  # 段 FIX: 欄の別名 ``frozen_sources_map.update``

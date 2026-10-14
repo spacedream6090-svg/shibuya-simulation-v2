@@ -93,6 +93,7 @@ from shibuya.perception.attention import (
     SalientItem,
     gate_stage1,
     rank_by_saliency,
+    StripReport,
     strip_imperatives,
 )
 from shibuya.perception.facts import (
@@ -345,6 +346,41 @@ INVITE_REASON: Final[str] = (
     "{person}があなたに話しかけました。"
     "応じるなら 行動: 会話 対象: {person}、応じないなら別の行動を選びます。"
 )
+
+#: 〔第 1 期 1-8b 発話の口〕届いた発話の行(B6 の末尾・腕 ``--speech-port on`` のランだけ)。**テンプレ本体ではない**
+#: (``templates.TEMPLATES`` は不変=``template_sha256`` は動かない・``INVITE_REASON`` と同じ扱い)。素性タグは短い形
+#: ``〔発話・命令文除去〕``(親の判断=B6 の枠 80 tok)。本文は描くときに命令文を文単位で除く(憲法 6・
+#: ``strip_speech_imperatives``)。文面は実装役の自前(台帳の行=``engine/speech/layer.py`` の expedient)。
+SPEECH_HEARD_LINE: Final[str] = "[B6 発話] {person}のひと言:〔発話・命令文除去〕{body}"
+#: 〔第 1 期 1-8b〕会話の番の呼び出しだけ B6 の末尾に足す出力の欄の指示(語彙 v3・10 tok=親の判断)。
+#: ``llm.contract.SPEECH_FIELD_LINE`` と同じ文字列(層契約により二重定義=``tests/engine/speech/test_speech_port_schema.py``
+#: が突き合わせる)。共有部(B0〜B4b)は変えない(B6 は個体ブロック=残り 5 tok の共有の予算を使わない)。
+SPEECH_FIELD_LINE: Final[str] = "2行目末尾に ひと言:<20字内|なし>"
+#: 〔第 1 期 1-8b 検収 中1〕**発話の行だけ**に足す命令文の型(看板・広告の表 ``attention.IMPERATIVE_PATTERNS`` は変えない=
+#: 既定の描画は不変)。て形の依頼(「〜して。」「〜して、」「〜してね」・「〜んで」「〜いで」)・「無視」「忘れて」・英語の
+#: ignore/forget/disregard。**過剰に落とす側**(接続の「〜て、」の平叙文も落ちる)=台帳の expedient。
+SPEECH_IMPERATIVE_PATTERNS: Final[tuple[re.Pattern[str], ...]] = (
+    re.compile(r"(?:て|んで|いで)(?:ね|よ|な|ちょうだい)?(?:[、,。!?！?…]|$)"),
+    re.compile(r"無視|忘れ(?:て|ろ|なさい)"),
+    re.compile(r"(?i)\b(?:ignore|forget|disregard)\b"),
+)
+_SPEECH_SENTENCE_SPLIT: Final[re.Pattern[str]] = re.compile(r"(?<=[。!?！?])")
+
+
+def strip_speech_imperatives(text: str) -> StripReport:
+    """発話の本文 → 看板と同じ表(``strip_imperatives``)で落とした後、発話だけの型(``SPEECH_IMPERATIVE_PATTERNS``)の文も落とす。
+
+    逐次ループ宣言(P4): 文数ぶん(1 発話は 20 字前後=数文)。
+    """
+    base = strip_imperatives(text)
+    kept: list[str] = []
+    removed = list(base.removed)
+    for sent in (x for x in _SPEECH_SENTENCE_SPLIT.split(base.kept) if x.strip()):
+        if any(pt.search(sent) for pt in SPEECH_IMPERATIVE_PATTERNS):
+            removed.append(sent.strip())
+        else:
+            kept.append(sent.strip())
+    return StripReport(kept="".join(kept), removed=tuple(removed))
 
 #: ``Activity`` → 日本語(B5 直近の行動・B6 直前の結果)。
 ACTIVITY_WORDS: Final[tuple[str, ...]] = (
@@ -967,6 +1003,11 @@ class _TickCache:
     #: (描く入力の値で引く=刻みの中の一時のキャッシュ)。
     time_views: dict = field(default_factory=dict)
     b3_text: dict = field(default_factory=dict)
+    #: 〔第 1 期 1-8b〕届いた発話の目印 → (話し手, 本文)(``perceive`` が ``heard_fn`` から受け取った物=刻みの中の一時・
+    #: ``render_percept`` が B6 の末尾に描く材料。腕 off のランは空のまま)。
+    heard: dict = field(default_factory=dict)
+    #: 〔1-8b 検収 低8〕届いた発話を口へ報告した体(同じ刻みに同じ体を 2 度数えない)。
+    heard_reported: set = field(default_factory=set)
 
 
 #: B5 近接行の**距離の同点**の切り方(第300 Q107・小さいもの①)。``hash``(既定)= run_salt の決定論ハッシュ
@@ -1227,6 +1268,18 @@ class Renderer:
         self.signage_gate_draws = 0
         #: そのうち**通った**(看板行を載せた)回数。既定のランでは 0/0。
         self.signage_gate_shown = 0
+        #: 〔第 1 期 1-8b 発話の口〕届いた発話を受け取る口 ``(体, 刻みの番号) → ((目印, 話し手, 本文), …)``(組み立てが腕 on の
+        #: ランだけ ``SpeechPort.take_heard`` を差し込む=呼ぶと未読から外れる)。``None``(既定)=``Percept.heard_speech`` は
+        #: None のまま=描画は 1 バイトも変わらない。
+        self.heard_fn: Callable[[int, int], Sequence[tuple[tuple[int, int], int, str]]] | None = None
+        #: 〔1-8b 検収 低8〕B6 に実際に載せた発話を口へ報告する口 ``(体, 載せた目印, 本文が空(全部が命令文)の数, 予算で外した数)``
+        #: (組み立てが腕 on のランだけ ``SpeechPort.report_shown`` を差し込む・``None``=報告しない)。
+        self.heard_seen_fn: Callable[[int, tuple[tuple[int, int], ...], int, int], None] | None = None
+        #: 〔1-8b〕会話の番の呼び出しの B6 に出力の欄の指示(``SPEECH_FIELD_LINE``)を足すか(腕 on・語彙 v3 のランだけ真)。
+        self.speech_field = False
+        #: 〔1-8b〕B6 に足した発話の行(届いた発話と出力の欄の指示)の数 / 個体群の予算 300 を超えるので外した描画の数。
+        self.speech_lines = 0
+        self.speech_lines_over_budget = 0
 
     # ---------------------------------------------------------- 前計算(1 tick 1 回)
     def prepare_tick(
@@ -1424,13 +1477,20 @@ class Renderer:
             # 記憶 第 1 段 6b: 想起の口(on のランだけ)。0 件でも空の列(描画は行を出さない)
             cond = int(wake_reason) if isinstance(wake_reason, (int, np.integer)) else -1
             memories = tuple(self.memory_recall(i, int(step), cond, -1 if inviter is None else int(inviter)))
+        heard: tuple[tuple[int, int], ...] | None = None
+        if self.heard_fn is not None:
+            # 第 1 期 1-8b: 届いた発話(相手の次の入力=この呼び出し・1 回だけ)。目印を Percept に・本文は刻みの中の控えに
+            got = tuple(self.heard_fn(i, int(step)))
+            for eid, who, text in got:  # 逐次ループ宣言: 届いた発話の数ぶん(≤ 3)
+                tc.heard[(int(eid[0]), int(eid[1]))] = (int(who), str(text))
+            heard = tuple((int(e[0]), int(e[1])) for e, _w, _t in got)
         return Percept(
             agent_id=i, step=int(step), t_ns=int(tc.t_ns), cell=cell, self_view=me,
             seen_objects=objects, seen_people=people, sounds=scene.sounds, time_view=tv,
             body=BodyView(*vals, *stages), wake=wake, intent=intent, memories=memories,
             signage_shown=bool(seen),
             watched_n=0 if self.watched_by is None else int(self.watched_by[i]),
-            scene=scene,
+            scene=scene, heard_speech=heard,
         )
 
     def _scene(self, cell: int, tc: _TickCache) -> SceneView:
@@ -1591,6 +1651,8 @@ class Renderer:
         recalled_meta: tuple[tuple[int, int, int], ...] = ()
         if p.memories is not None:
             blocks["B5"], recalled, recalled_meta = self._with_memory_line(p, blocks["B5"], b6)
+        if p.heard_speech or self.speech_field:  # 第 1 期 1-8b(腕 on のランだけ): 発話の行は B5 を組んだ後に足す
+            b6 = self._with_speech_lines(p, blocks["B5"], b6)
         blocks["B6"] = b6
 
         # §2.4 ⑧: B0-B4b に個体依存語が無いこと(機械検査)
@@ -2651,7 +2713,61 @@ class Renderer:
         return out["B5"]
 
     def _b6(self, p: Percept) -> bytes:
-        """B6(起きた理由・直前の結果・問い)。第 1 期 1-2: ``Percept.wake`` と ``Percept.self_view`` だけから描く。"""
+        """B6(起きた理由・直前の結果・問い)。第 1 期 1-2: ``Percept.wake`` と ``Percept.self_view`` だけから描く。
+        〔第 1 期 1-8b〕発話の行は ``_render_percept`` が B5 を組んだ後に ``_with_speech_lines`` で足す(腕 on のランだけ)。"""
+        return N.join_lines(self._b6_lines(p)).encode("utf-8")
+
+    def _speech_parts(self, p: Percept) -> tuple[list[str], tuple[tuple[int, int], ...], int]:
+        """〔第 1 期 1-8b〕B6 の末尾の発話の行と、載せる発話の目印・本文が空になった(全部が命令文の)発話の数。
+
+        届いた発話(``Percept.heard_speech`` の目印 → 刻みの中の控えの本文・素性タグと発話の命令文の除去つき=本文が空なら行を
+        出さない=検収 低4)と、会話の番の呼び出しの出力の欄の指示(``speech_field`` かつ語彙 v3)。
+        """
+        out: list[str] = []
+        shown: list[tuple[int, int]] = []
+        empty = 0
+        for eid in p.heard_speech or ():  # 逐次ループ宣言: 届いた発話の数ぶん(≤ 3)
+            key = (int(eid[0]), int(eid[1]))
+            got = self._tickc.heard.get(key)
+            if got is None:
+                raise ValueError(f"届いた発話の目印 {eid} の本文がこの刻みの控えに無い(Percept は perceive が作った物だけ描く)")
+            who, text = got
+            body = strip_speech_imperatives(text).kept
+            if not body:
+                empty += 1
+                continue
+            out.append(SPEECH_HEARD_LINE.format(person=person_word(who), body=body))
+            shown.append(key)
+        w = p.wake
+        turn = (w.inviter is not None and int(w.inviter) >= 0) or (
+            not isinstance(w.reason, str) and int(w.reason) == int(WakeCondition.CONVERSATION_TURN))
+        if self.speech_field and self.vocab_version == "v3" and turn:
+            out.append(SPEECH_FIELD_LINE)
+        return out, tuple(shown), empty
+
+    def _with_speech_lines(self, p: Percept, b5: bytes, b6: bytes) -> bytes:
+        """〔第 1 期 1-8b〕B5 を組んだ後の B6 に発話の行を足す。個体群の予算 300 を超えるなら発話の行を外す(記憶の行・意図の
+        行は B5 の側で先に席を取る=検収 低2)。載せた発話・本文が空の発話・予算で外した発話を口へ報告する(低8)。"""
+        lines, shown, empty = self._speech_parts(p)
+        n_drop = 0
+        out = b6
+        if lines:
+            full = N.join_lines([*b6.decode("utf-8").split(N.LINE_SEPARATOR), *lines]).encode("utf-8")
+            if (ch.estimate_tokens(b5.decode("utf-8")) + ch.estimate_tokens(full.decode("utf-8"))
+                    > int(T.GROUP_TOKEN_BUDGET["individual"])):
+                self.speech_lines_over_budget += 1
+                n_drop, shown = len(shown), ()
+            else:
+                self.speech_lines += len(lines)
+                out = full
+        tc = self._tickc
+        if self.heard_seen_fn is not None and (p.heard_speech or ()) and int(p.agent_id) not in tc.heard_reported:
+            tc.heard_reported.add(int(p.agent_id))
+            self.heard_seen_fn(int(p.agent_id), shown, empty, n_drop)
+        return out
+
+    def _b6_lines(self, p: Percept) -> list[str]:
+        """B6 の 1-8b の前の行(起きた理由・直前の結果・問い)。"""
         w = p.wake
         if w.inviter is not None and int(w.inviter) >= 0:
             # §6 起床(ii) 被招待: 誰に話しかけられたかを**個体ブロック**で名指す。
@@ -2693,7 +2809,7 @@ class Renderer:
                 )
             )
         lines.append(T.TEMPLATES["B6.question"])
-        return N.join_lines(lines).encode("utf-8")
+        return lines
 
     def _observation(self, p: Percept) -> str:
         """R4 §6「失敗理由+**観測値**」。第 1 期 1-2: 観測値は ``perceive`` が引いた ``Percept.wake`` の欄。"""

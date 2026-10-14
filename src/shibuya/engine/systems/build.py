@@ -317,6 +317,11 @@ def build(_call_args: dict[str, Any]) -> Any:
     total_ticks = int(ticks) if sim_days == 1 else sim_days * tpd
     # ---- 10d: 再開の読み込み(世界を触る前に見出しを検査する)・止める時刻・ラン ID ----
     _fp = RS.fingerprint(_call_args)
+    from shibuya.engine.speech import layer as _SPEECH
+
+    if _SPEECH.arm() == _SPEECH.ARM_ON:
+        # 第 1 期 1-8b: 発話の口の腕は結果を変える(相手の入力に発話が載る)=on のときだけ設定の指紋に足す(既定は今の指紋)
+        _fp["speech_port"] = _SPEECH.ARM_ON
     _bundle: "RS.StateBundle | None" = None
     t_begin = 0
     parent_run: dict[str, Any] | None = None
@@ -1215,6 +1220,19 @@ def build(_call_args: dict[str, Any]) -> Any:
             tools=_tools_fx.registry,  # 1-7: 候補の源「周りが示すできること」に道具の台帳(Fixtures.tools と同じ物)
         )
 
+    # ---- 第 1 期 1-8b: 発話の口の腕(既定 off=口を作らない=今の道)。on のランだけ口を作り、描画に届いた発話を受け取る口と
+    # 会話の番の出力の欄の指示を挿す(状態台帳の腕の行 S8・S8M)。口コミの抽出は口の (c)=今の道と同じ抽出と転写 ----
+    speech_port = None
+    if _SPEECH.arm() == _SPEECH.ARM_ON:
+        speech_port = _SPEECH.make_port(
+            events=events, wom=wom_ex, vocab_version=vocab_version, agents=agents, mem_layer=mem_layer,
+            store_wom_on=store_wom_on, step_seconds=int(tick_seconds), conv=conv,
+        )
+        if _fam_renderer is not None and hasattr(_fam_renderer, "heard_fn"):
+            _fam_renderer.heard_fn = speech_port.take_heard
+            _fam_renderer.heard_seen_fn = speech_port.report_shown  # 検収 低8: B6 に載せた後で「届いた」に数える
+            _fam_renderer.speech_field = True
+
     # ---- 1-0 段 C: 状態の箱(局所の割り当ての表 local-assignment.json・草案 §2-3)。物はそのまま指す(写しを作らない) ----
     box = _BX.Box(
         cfg=_BX.RunConfig(
@@ -1251,7 +1269,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             energy=energy_layer, norm_meter=norm_meter, presence=presence, conv=conv, arbiter=arbiter,
             detector=detector, runner=runner, ledger=ledger,
             renderer=getattr(perception, "renderer", None) if perception is not None else None,
-            bridge=bridge, fleet_bridge=fleet_bridge, events=events, decision=decision_layer,
+            bridge=bridge, fleet_bridge=fleet_bridge, events=events, decision=decision_layer, speech=speech_port,
         ),
         llm=_BX.LlmIo(pending=pending, fleet_deferred=fleet_deferred, fleet_waiting=fleet_waiting,
                       fleet_inflight=fleet_inflight, replay_inbox=replay_inbox),

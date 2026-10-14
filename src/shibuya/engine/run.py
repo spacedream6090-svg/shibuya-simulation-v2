@@ -131,6 +131,7 @@ from shibuya.llm.mock import MockLLM
 from shibuya.perception.channels import BudgetMode
 from shibuya.perception.facts import percept_manifest as _percept_manifest
 from shibuya.engine.decision import layer as _DECISION
+from shibuya.engine.speech import layer as _SPEECH
 from shibuya.perception.renderer import (
     DEFAULT_HUNGER_WORDS,
     DEFAULT_NEAR_ORDER,
@@ -1317,6 +1318,10 @@ class RunResult:
             # 作り物の印(計器)。末尾=… → 1-5 の rights → 1-8 の decision_port → 1-7。記録だけ(final・behavior-hash は
             # manifest を読まない)。列追加のみ ----
             "tools": copy.deepcopy(self.tools),
+            # ---- 第 1 期 1-8b(発話の口): 腕の名・届く範囲・出力の欄の指示(設定)と、会話の番・発話・届いた数・口コミに
+            # 渡った数(計器)。末尾=… → 1-5 の rights → 1-8 の decision_port → 1-7 の tools → 1-8b。腕 off のランは観測の子が null。
+            # 列追加のみ ----
+            "speech_port": _SPEECH.manifest_fields(getattr(self, "speech_layer", None)),
         }
 
     def economy_fields(self) -> dict[str, Any]:

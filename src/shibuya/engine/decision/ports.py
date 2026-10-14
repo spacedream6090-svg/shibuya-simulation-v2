@@ -11,7 +11,10 @@
 - ``ClassicalPort``: 古典の方策 G(``engine.classical.ClassicalPolicy``)の答えの 5 つ(``answer``)の行動の語を候補に写す
   (G の構造の答え=本文を読み直さない)。口の後ろの道に同じ方策の口を包んで渡す(応答・計数・副作用は今と同じ)。
 
-どの実装も驚き・迷い・連続値・ひと言は空(〔決定〕=空で始める・1-8b)。口は ``ctx`` の値(予想・観測)を解釈しない。
+どの実装も驚き・迷い・連続値は空(〔決定〕=空で始める)。口は ``ctx`` の値(予想・観測)を解釈しない。
+〔第 1 期 1-8b〕「ひと言」の欄 ``Choice.utterance`` は、会話の番の呼び出し(``WakeCondition.CONVERSATION_TURN``)の答えに
+ひと言(空と「なし」でない本文)があるときだけ埋める(会話の行だけに戻す=口の約束 1-8 の約束 (4))。発話の口(``engine.speech``)
+に通すのは会話の系(``engine.systems.llm_io.utter``)で、口は欄を読まない(J0 の判断の番号・行為は変わらない)。
 
 先例(R-113 §9・形だけ): Concordia ``language_model.sample_choice``(実 LLM と mock が同じ入口・Apache-2.0)。
 
@@ -22,12 +25,22 @@ from __future__ import annotations
 
 from typing import Any
 
+from shibuya.agents.state import WakeCondition
 from shibuya.engine.decision.port import OTHER_ID, Candidate, DecisionContext, DecisionPort
+from shibuya.llm.contract import NO_TARGET
 
 __all__ = ["LlmPort", "MockPort", "ClassicalPort", "PORT_NAMES"]
 
 #: 実装の名(manifest の ``decision_port.port``)。
 PORT_NAMES: tuple[str, ...] = ("llm", "mock", "classical")
+
+
+def _utterance_of(ctx: DecisionContext, res: Any) -> str | None:
+    """〔1-8b〕会話の番の答えの「ひと言」(本文)。会話の番でない呼び出し・空・「なし」は ``None``(欄は空のまま)。"""
+    if int(ctx.condition) != int(WakeCondition.CONVERSATION_TURN):
+        return None
+    text = str(getattr(getattr(res, "parse", None), "comment", "") or "").strip()
+    return None if (not text or text == NO_TARGET) else text
 
 
 def _by_kind(presented: tuple[Candidate, ...], word: str | None) -> str | None:
@@ -53,7 +66,7 @@ class LlmPort(DecisionPort):
         parse = res.parse
         cid = _by_kind(presented, getattr(parse, "action", None))
         extra: dict[str, Any] = {"backend": res, "reason": str(getattr(parse, "reason", "") or "") or None,
-                                 "reason_first": True}
+                                 "reason_first": True, "utterance": _utterance_of(ctx, res)}
         if cid is None:
             raw = str(getattr(parse, "raw_action", "") or "")
             return OTHER_ID, {**extra, "other_text": raw}
@@ -82,7 +95,7 @@ class MockPort(DecisionPort):
     def _answer(self, ctx: DecisionContext, presented: tuple[Candidate, ...]) -> tuple[str, dict[str, Any]]:
         res = self.bridge.finish(ctx.request)
         cid = self.pick(ctx, presented)
-        extra: dict[str, Any] = {"backend": res}
+        extra: dict[str, Any] = {"backend": res, "utterance": _utterance_of(ctx, res)}
         if cid == OTHER_ID:
             return OTHER_ID, {**extra, "other_text": ""}
         return cid, extra
@@ -107,7 +120,7 @@ class ClassicalPort(DecisionPort):
             return resp
 
         res = self.bridge.finish(ctx.request, complete=complete)
-        extra: dict[str, Any] = {"backend": res}
+        extra: dict[str, Any] = {"backend": res, "utterance": _utterance_of(ctx, res)}
         if not got:  # 再生のラン(テープの行を引いた)=方策は呼ばれない → 今の道の語で写す
             word = getattr(res.parse, "action", None)
         else:

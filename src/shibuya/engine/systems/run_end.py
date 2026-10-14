@@ -104,6 +104,8 @@ def sys_close_final(ctx: Any, b: Any) -> None:
     result.event_log = L.events  # type: ignore[attr-defined]
     # 第 1 期 1-8 J0: 候補の口の層(腕 port のランだけ・既定 None)も同じ形で渡す(manifest の decision_port が読む)
     result.decision_layer = L.decision  # type: ignore[attr-defined]
+    # 第 1 期 1-8b: 発話の口(腕 on のランだけ・既定 None)も同じ形で渡す(manifest の speech_port が読む)
+    result.speech_layer = L.speech  # type: ignore[attr-defined]
     # AB7 の M1-M3(接地率・未定義率・上位未定義語)は §7 の台帳が持つ。``runner`` と同じく
     # **後付けの属性**として渡すだけ(RunResult の欄は増やさない=既存の出力は不変)。
     result.undefined_registry = bridge.undefined  # type: ignore[attr-defined]

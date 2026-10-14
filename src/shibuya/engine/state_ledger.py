@@ -1,8 +1,13 @@
 """状態台帳の宣言(10b・A3「挙動」と「復元」の 2 軸・機械可読の 1 ファイル)。
 
-**読み口は 1 つ**: ``LEDGER``(194 行の組=〔第 1 期 1-8〕候補の口の行 ``J0``・〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P``・〔第 1 期 1-7〕連絡先の印の行 ``CT5`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
-``soa_rows``・``external_rows``・``behavior_excluded``・``full_excluded``・``full_items``・``behavior_items``)。表・AST の検査(``engine.state_ledger_ast``)・
+**読み口は 1 つ**: ``LEDGER``(196 行の組=〔第 1 期 1-8〕候補の口の行 ``J0``・〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P``・〔第 1 期 1-7〕連絡先の印の行 ``CT5``・〔第 1 期 1-8b〕発話の口の腕の行 ``S8``・``S8M`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
+``soa_rows``・``external_rows``・``behavior_excluded``・``full_excluded``・``full_items``・``behavior_items``・〔1-8b〕``arm_rows``・``arm_items``)。表・AST の検査(``engine.state_ledger_ast``)・
 2 つのハッシュ(``engine.state_hashes``)・揺らし試験はどれもこの表から作る。
+
+〔第 1 期 1-8b〕**腕の行**(``LedgerRow.arm``): 腕が立ったランだけ持ち主がある状態で、軸 1 が behavior か軸 2 が full に入るもの
+(発話の口の未読の列 ``S8``)。``behavior_items``・``full_items`` の表には入れず、根の持ち主が居るランだけ ``arm_items`` が
+2 つのハッシュと状態のファイルの末尾に足す(持ち主が None のランでは「無い」の印も入れない=既定の final・full-hash・状態の
+ファイルは腕の行を足す前と同じバイト)。腕を取り違えた再開は、道筋の集合の食い違いで止まる(``resolve.restore_items``)。
 
 行の中身(材料 ``docs/bench/analysis/wallbounce-1003/10b-prep.md`` §1 の表を写した。根拠の ``path:line`` は
 材料の値=a08109a の行番号。パスは ``src/shibuya/`` を省略):
@@ -48,7 +53,7 @@ full-hash に入れる。``hunger`` は構成で軸 2 が変わる印(``restore_
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Final, Iterable
+from typing import Final, Iterable, Mapping
 
 #: 表の版(列や行の判定を変えたら上げる。manifest の ``state_hashes.ledger_version`` に出る)。
 #: 10e(E1): 死蔵の 5 列(Q9 の 3 列+A4 の 2 列)を消して 193 → 188 行・O44 から replay_inbox を O96 に分けて 189 行。
@@ -62,6 +67,8 @@ from typing import Final, Iterable
 #: 〔第 1 期 1-8 J0〕候補の口の行 ``J0``(軸 1 diag・軸 2 discardable)も同じ理由で版は上げない(仮採用)。
 #: 〔第 1 期 1-7〕連絡先の印の行 ``CT5``(軸 1 diag・軸 2 derivable・中身は全部 hash_skip=1-6 の ``M0`` と同じ形)も同じ理由で
 #: 版は上げない(仮採用)。
+#: 〔第 1 期 1-8b〕発話の口の腕の行 ``S8``(behavior・required)・``S8M``(diag・discardable)も版は上げない(仮採用): 腕の行は
+#: 腕 on のランだけハッシュと状態のファイルに入る=既定 off のランの状態のファイルは前の版と同じ中身。
 LEDGER_VERSION: Final[str] = "state-ledger/10e-ret"
 
 BEHAVIOR: Final[str] = "behavior"
@@ -132,10 +139,20 @@ class LedgerRow:
     #: 10e(E1・検収 R1 の続き): 並びが状態でない list の道筋(``items`` の部分集合)。ハッシュは要素の多重集合で取る
     #: (直列化の昇順)。再開の保存は並びのまま(戻すときの値は変えない)。
     multiset: tuple[str, ...] = ()
+    #: 〔第 1 期 1-8b〕**腕の行**の印(腕の名・空=どの構成でも入る行)。腕の行は ``behavior_items``・``full_items`` の
+    #: 表に入れず、根の持ち主が居るラン(腕が立っているラン)だけ ``arm_items`` で 2 つのハッシュと状態のファイルに入る
+    #: (持ち主が None のランでは「無い」の印も入れない=腕の状態を足しても既定の final・full-hash・状態のファイルは不変)。
+    #: 道筋の根(``items`` の先頭の ``.`` の前)は行の中で 1 つ。
+    arm: str = ""
 
     @property
     def is_soa(self) -> bool:
         return self.place in SOA_PLACES
+
+    @property
+    def arm_owner(self) -> str:
+        """腕の行の根の持ち主の名(腕の行でなければ ``""``)。"""
+        return self.items[0].split(".", 1)[0] if (self.arm and self.items) else ""
 
     @property
     def in_behavior(self) -> bool:
@@ -608,7 +625,9 @@ _EXT: tuple[LedgerRow, ...] = (
            "memory_lines", "memory_items", "memory_line_tokens", "memory_items_dropped_for_budget",
            "memory_items_dropped_for_channel", "memory_lines_over_budget", "near_order_ties", "near_tie_breaks",
            "near_tie_candidates", "cache_hits", "cache_misses", "renders", "truncation_count", "intent_lines",
-           "intent_lines_over_budget", "named_closed_notes", "signage_gate_draws", "signage_gate_shown"))),
+           "intent_lines_over_budget", "named_closed_notes", "signage_gate_draws", "signage_gate_shown",
+           # 第 1 期 1-8b: B6 に足した発話の行の数・個体群の予算で外した描画の数(腕 on のランだけ増える)
+           "speech_lines", "speech_lines_over_budget"))),
     _o(85, "LLMBridge _interned(テープへ書いた共有ブロック)", "engine/llm_bridge.py:554,771-774", "set", N_, R_,
        ("bridge._interned",), note="テープの block 行を 1 回だけ書く印。10d: 記録の継続に要る=required(再開のテープは"
                                    "新しい block だけを持ち、親のテープと連結して読む)"),
@@ -766,6 +785,29 @@ _EXT: tuple[LedgerRow, ...] = (
              "交換し始めたら種別から作れない=behavior・required へ移す(版上げ)。書く系は memory(新しい相手の欄を消す="
              "宣言 CT5:rel_layer._contact_flags)と組み立て(初めの辺)。中身は _contact_flags(公開の contact_flags は"
              "読み取り専用の view の property=検収 L1)。行の鍵は O の通し番号でなく CT5"),
+    # ---- 第 1 期 1-8b(発話の口・Q57 (d)): 足す前に軸を決めた行(口の約束 1-8b の約束 (1)=腕の裏・腕の行 arm) ----
+    LedgerRow(
+        key="S8", name="SpeechPort.inbox(届け先 → 未読の発話の列・第 1 期 1-8b)", place=EXTERNAL,
+        dtype="dict(体 → [(目印 (t_ns, seq), 話し手, 本文, 話した時刻 ns)]・届け先ごとに 3 件まで)", nbytes="",
+        alloc="--speech-port on", behavior=BEHAVIOR, restore=REQUIRED, dead=False,
+        basis="engine/speech/port.py(SpeechPort.say・take_heard)・perception/renderer.py(perceive・_b6)・"
+              "engine/systems/llm_io.py(utter)",
+        items=("speech.inbox",), arm="speech-port",
+        note="1-8b: 腕 --speech-port on のランだけ口を作る(既定は持ち主が None)。未読の発話は相手の次の入力(B6 の末尾)に"
+             "載る=軸 1 behavior・刻みをまたぐ=軸 2 required。腕の行(arm)=持ち主の居るランだけ behavior-hash・full-hash・"
+             "状態のファイルの末尾に入る(arm_items・既定 off のランは「無い」の印も入らない=final・full-hash・状態のファイルは"
+             "腕の行を足す前と同じ)。書く系は decide(届ける=描画の perceive が take_heard・話す=会話の番の発話)と "
+             "llm_receive(艦隊と再生の到着の発話)(宣言 S8:speech.*)。行の鍵は O の通し番号でなく S8"),
+    LedgerRow(
+        key="S8M", name="SpeechPort の計器・直近の入力の目印・口の通し番号(第 1 期 1-8b)", place=EXTERNAL,
+        dtype="計数の dict・体 → 目印の組の dict・(t_ns, seq) の組", nbytes="", alloc="--speech-port on",
+        behavior=DIAG, restore=DISCARDABLE, dead=False,
+        basis="engine/speech/port.py(meter・take_input_ids・_write)・engine/run.py(manifest の speech_port)",
+        items=("speech.meter", "speech._last_input", "speech._own_last"), arm="speech-port",
+        note="1-8b: 計器(会話の番・発話・届いた数・口コミに渡った数ほか)は診断=読み手は manifest の speech_port と試験だけ。"
+             "直近の入力の目印は次の発話の出来事の原因の入力(出来事ログ=診断)・口の通し番号は出来事ログを書かないランの"
+             "目印(描画は目印を読まない)=軸 1 diag・軸 2 discardable(再開のランは空から)。書く系は decide・llm_receive"
+             "(宣言 S8M:speech.*)"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -809,11 +851,39 @@ def full_excluded(place: str) -> frozenset[str]:
 
 
 def full_items() -> tuple[tuple[str, str], ...]:
-    """full-hash に入れる外の状態の ``(行の鍵, 属性の道筋)``(台帳の宣言順)。"""
+    """full-hash に入れる外の状態の ``(行の鍵, 属性の道筋)``(台帳の宣言順)。〔1-8b〕腕の行は入れない(``arm_items``)。"""
     out: list[tuple[str, str]] = []
     for r in external_rows():
-        if not r.in_full:
+        if not r.in_full or r.arm:
             continue
+        skip = set(r.hash_skip)
+        out.extend((r.key, it) for it in r.items if it not in skip)
+    return tuple(out)
+
+
+def arm_rows() -> tuple[LedgerRow, ...]:
+    """〔第 1 期 1-8b〕腕の行(``LedgerRow.arm`` のある外の状態の行・宣言順)。"""
+    return tuple(r for r in external_rows() if r.arm)
+
+
+def arm_items(owners: Mapping[str, object], *, behavior: bool) -> tuple[tuple[str, str], ...]:
+    """〔第 1 期 1-8b〕腕の行のうち根の持ち主が居る(腕が立っている)行の ``(行の鍵, 属性の道筋)``(宣言順・``hash_skip`` を除く)。
+
+    ``behavior=True`` は軸 1 が behavior の行(behavior-hash の末尾に足す)・``False`` は軸 2 が full に入る行(full-hash と
+    状態のファイルの末尾に足す)。持ち主が None か ``owners`` に無いランは何も返さない=既定の 2 つのハッシュと状態のファイルは
+    腕の行を足す前と同じバイト。〔1-8b 検収 低7〕持ち主が居るときは持ち主の腕の名(クラスの定数 ``LEDGER_ARM``)を行の
+    ``arm`` と照合する(違えば配線の誤り=``ValueError``=別の腕の持ち主を同じ根の名に挿しても黙って入れない)。
+    """
+    out: list[tuple[str, str]] = []
+    for r in arm_rows():
+        if (r.behavior != BEHAVIOR) if behavior else (not r.in_full):
+            continue
+        owner = owners.get(r.arm_owner)
+        if owner is None:
+            continue
+        got = getattr(type(owner), "LEDGER_ARM", None)
+        if got != r.arm:
+            raise ValueError(f"状態台帳の腕の行 {r.key} の腕 {r.arm!r} と持ち主 {r.arm_owner} の腕 {got!r} が違う(配線の誤り)")
         skip = set(r.hash_skip)
         out.extend((r.key, it) for it in r.items if it not in skip)
     return tuple(out)
@@ -884,6 +954,8 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "events": ("engine/events/log.py", "EventLog"),
     # 第 1 期 1-8 J0: 候補の口の層(状態台帳の行 J0・腕 --decision-port port のランだけ)
     "decision": ("engine/decision/layer.py", "DecisionLayer"),
+    # 第 1 期 1-8b: 発話の口(状態台帳の腕の行 S8・S8M・腕 --speech-port on のランだけ)
+    "speech": ("engine/speech/port.py", "SpeechPort"),
 }
 
 #: (ii) キャッシュ・導出。中身は 3 通り: (a) 毎 tick(か事象のある tick)作り直す作業の値・印
@@ -1110,6 +1182,11 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "差し込む・関数)", "weather_words_fn", "weather_words_key_fn"),
     _x("renderer", REF, "第 1 期 1-2: 暦の日の種類を返す口(組み立てが暦の SimCalendar.day_kind を渡す・関数・"
        "Percept.time_view の材料・描画の文は読まない)", "day_kind_fn"),
+    _x("renderer", REF, "第 1 期 1-8b: 届いた発話を受け取る口と B6 に載せた発話を報告する口(組み立てが腕 on のランだけ "
+       "SpeechPort.take_heard・report_shown を差し込む・関数・状態は口の側=状態台帳の行 S8・S8M)", "heard_fn",
+       "heard_seen_fn"),
+    _x("renderer", CONST, _CFG + "(第 1 期 1-8b: 会話の番の B6 に出力の欄の指示を足すか=腕 on・語彙 v3)",
+       "speech_field"),
     _x("renderer", CONST, _CFG + "(知人の初期表・被注視数は初期化で渡す値)", "seed", "acquaintances", "watched_by",
        "budget_mode", "strict_group_budget", "signage_enabled", "signage_p_see", "intent_mode", "vocab_version",
        "role_words", "near_tiebreak", "near_order", "_near_salt64", "_b0", "_b4b", "_hunger_words", "hunger_words",
@@ -1134,6 +1211,12 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "=組み立ての Fixtures.tools と同じ物)",
        "port", "events", "world", "tools"),
     _x("decision", CACHE, _TAB, "_poi_cell", "_eatery", "_station", "_home_cell"),
+    # 第 1 期 1-8b: 発話の口の設定(刻みの幅のナノ秒・未読の時間の窓・届け先ごとの上限)と参照(出来事の記録・口コミの抽出の口)
+    _x("speech", CONST, _CFG, "step_ns", "ttl_steps", "max_per_addressee"),
+    _x("speech", CONST, _FIELD + "(実装の名=manifest の speech_port.port・腕の行の腕の名 LEDGER_ARM)", "name",
+       "LEDGER_ARM"),
+    _x("speech", REF, _REFR + "(出来事の記録・口コミの抽出の口・セッションが開いているかの口=組み立てが置く関数)",
+       "events", "wom_fn", "session_active"),
 )
 
 
@@ -1160,10 +1243,11 @@ def item_attrs() -> dict[str, set[str]]:
 
 
 def behavior_items() -> tuple[tuple[str, str], ...]:
-    """behavior-hash に入れる外の状態の ``(行の鍵, 属性の道筋)``(軸 1 が behavior の行・``hash_skip`` を除く)。"""
+    """behavior-hash に入れる外の状態の ``(行の鍵, 属性の道筋)``(軸 1 が behavior の行・``hash_skip`` を除く)。
+    〔1-8b〕腕の行は入れない(``arm_items(owners, behavior=True)``)。"""
     out: list[tuple[str, str]] = []
     for r in external_rows():
-        if r.behavior != BEHAVIOR:
+        if r.behavior != BEHAVIOR or r.arm:
             continue
         skip = set(r.hash_skip)
         out.extend((r.key, it) for it in r.items if it not in skip)

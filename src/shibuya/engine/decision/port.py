@@ -164,7 +164,7 @@ class Choice:
     continuous: Mapping[str, float] | None = None
     reason: str | None = None
     reason_first: bool | None = None
-    #: 「ひと言」(発話)の欄=1-8b の発話の口が埋める(J0 は空)。
+    #: 「ひと言」(発話)の欄。〔1-8b〕会話の番の答えに ひと言(空と「なし」でない本文)があるときだけ実装が埋める(``ports._utterance_of``)。
     utterance: Any = None
     #: 口の後ろの今の道の結果(``LLMBridge`` の ``BridgeResult``)。刻みの中だけ(状態にも結果の箱にも残さない)。
     backend: Any = field(default=None, compare=False, repr=False)

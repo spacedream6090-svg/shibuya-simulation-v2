@@ -3387,6 +3387,61 @@
    "since": "2026-10-14",
    "status": "active",
    "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-s8b-reach-session",
+   "what": "発話の口の届く範囲=会話のセッションの参加者(話し手を除く)。距離を見ない(セッションが続く間は離れても届く・セッションの外の近くの人には届かない)",
+   "why": "第 1 期 1-8b(口の約束 1-8b の約束 (2)・仕分け §3-5「届く範囲は当面セッションの参加者・11a と空間の段 3 で「聞こえた範囲」へ」)。近接 11a(2-2=--proximity distance)で話し手からの距離の範囲に替える。遮蔽・騒音・傍受の残りは空間の段 3(行 DOC-s8b-reach-hearing)",
+   "remove_at": "2-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/s8b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "plan"
+  },
+  {
+   "id": "DOC-s8b-reach-hearing",
+   "what": "発話の口の届く範囲が「聞こえた範囲」でない(遮蔽・騒音・声の大きさ・傍受=非宛先と傍受の重み 0.5・0.2 を見ない)",
+   "why": "第 1 期 1-8b(TM3「会話の LLM の入力には、聞こえた範囲の相手の発言が入ります」・仕分け §3-5)。空間の段 3(会話の距離・遮蔽表)で聞こえた範囲に替え、傍受(Percept.heard_speech の非宛先)を足す",
+   "remove_at": "5-3",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/s8b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "plan"
+  },
+  {
+   "id": "BR-DOC-SPEECH-MORA-KANA",
+   "what": "expedient: モーラ数は仮名の数の近似で数える(読みの辞書を使わない)。仮名 1 字=1 拍(拗音・小書きの母音の\nゃゅょぁぃぅぇぉゎ は前の字と合わせて 1 拍=0 と数える・促音 っ・撥音 ん・長音 ー は 1 拍)・漢字 1 字=2 拍(音読みの多くが\n2 拍=仮の値)・英数字 1 字=1 拍・記号と空白は 0。TM3 の会話の時計(6-3 の T2)で読みの辞書に替える。",
+   "why": "コードの宣言(docstring・第 1 期 1-8b の発話の口)。外す段: TM3 の会話の時計(6-3 の T2=モーラ × 話す速さ)で読みの辞書に替える",
+   "remove_at": "T2",
+   "declared_in": "src/shibuya/engine/speech/port.py#docstring:67c85df9",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "plan"
+  },
+  {
+   "id": "HD-engine.speech.port-6f282ea4",
+   "what": "src/shibuya/engine/speech/port.py の docstring の見出し「expedient(届け方)」の下の項 3 個",
+   "why": "コードの宣言(第 4 形・第 1 期 1-8b の発話の口)。未読は話した刻みより後の入力にだけ・セッションが開いている間と返事待ちの招待への返事は窓なし・閉じた後の最後のひと言だけ時間の窓 5 刻み(会話の沈黙の閾値と同じ)・届け先ごとに 3 件・3 人の会話の whom は最初の届け先。会話の時計(6-3 の T2)で届く時刻を発言の長さから決める段で外す",
+   "remove_at": "T2",
+   "declared_in": "src/shibuya/engine/speech/port.py#heading:6f282ea4",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "HD-engine.speech.layer-1af925f4",
+   "what": "src/shibuya/engine/speech/layer.py の docstring の見出し「expedient(本モジュール分)」の下の項 3 個",
+   "why": "コードの宣言(第 4 形・第 1 期 1-8b の発話の口)。B6 の 2 行の文面(届いた発話の行・出力の欄の指示=短い形)・mock と古典の決まった文・発話の行だけの命令文の型(て形の依頼・無視・忘れ・英語=過剰に落とす側)。既定にする版上げ(カレンダー段 2+C1=6-2)で実 LLM の書式の守り方と命令文の落ち方と合わせて見直す",
+   "remove_at": "6-2",
+   "declared_in": "src/shibuya/engine/speech/layer.py#heading:1af925f4",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
   }
  ]
 }

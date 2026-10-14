@@ -187,6 +187,12 @@ PATHS: Final[dict[str, str]] = {
                                       "other_share_basis"), observed=(
         "decisions", "late", "fleet_legacy", "presented_by_source", "chosen_by_source", "other", "other_ratio",
         "chosen_number", "n_candidates", "mismatch", "events", "events_unlogged")),
+    # ---- 第 1 期 1-8b: 発話の口(腕の名・口の実装・届く範囲・道具・出力の欄の指示・未読の窓と上限・mock の決まった文=設定/
+    # 会話の番・発話にしなかった数・発話・出来事の行・届いた数・口コミに渡った数ほか=観測。腕 off のランは観測の子が null) ----
+    **_mixed("speech_port", config=("schema", "arm", "port", "reach", "via", "field_line", "heard_ttl_steps",
+                                    "heard_max_per_addressee", "mock_utterance"), observed=(
+        "turns", "silent", "no_session", "to_inviter", "said", "events", "zero_mora", "posted", "delivered",
+        "all_imperative", "dropped_budget", "expired", "overflow", "wom_passed", "pending")),
 }
 
 

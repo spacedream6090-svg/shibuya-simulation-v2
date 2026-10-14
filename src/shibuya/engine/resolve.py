@@ -3287,13 +3287,14 @@ def restore_items(owners: Mapping[str, Any], items: Mapping[str, Any]) -> int:
     """10d: 保存した外の状態(``engine.resume.collect_items`` の形)を持ち主の属性へ戻す。返り値=戻した数。
 
     道筋の集合が今の台帳の ``full_items`` と違えば止める。「持ち主が無い(腕が立っていない)」の印は、今の側も
-    無いときだけ通す(片方だけ無い=構成の取り違え)。
+    無いときだけ通す(片方だけ無い=構成の取り違え)。〔第 1 期 1-8b〕腕の行は今の側で持ち主の居る行だけ道筋に足す
+    (``SL.arm_items``)=保存と今で腕が違えば道筋の集合の食い違いで止まる。
     """
     from shibuya.engine import state_ledger as SL
     from shibuya.engine.resume import ABSENT_MARK
     from shibuya.engine.state_hashes import _ABSENT, resolve_item
 
-    paths = [p for _k, p in SL.full_items()]
+    paths = [p for _k, p in SL.full_items() + SL.arm_items(owners, behavior=False)]
     if set(paths) != set(items):
         raise ValueError(
             f"保存した外の状態の道筋が今の台帳と違う(足りない {sorted(set(paths) - set(items))[:5]}・"

@@ -451,7 +451,10 @@ def run(
     if run_kind is None:  # 第 1 期 1-4(検収 M2): 腕は CLI の既定と比べて決める(記録だけ)
         arms = run_arms({**kwargs, "budget": budget, "l4_scale": scale, "use_population": use_population,
                          "store_capital_yen": store_capital_yen})
-        run_kind = _RK.decide(arms_on=bool(arms))
+        from shibuya.engine.speech import layer as _speech_layer
+
+        # 第 1 期 1-8b: 発話の口の腕(環境変数か --speech-port・run の引数ではない)は結果を変える=on は腕に数える
+        run_kind = _RK.decide(arms_on=bool(arms) or _speech_layer.arm() != _speech_layer.ARM_OFF)
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
     applied = apply_fleet_queue_default(kwargs.get("fleet"), scale, n_agents)
@@ -1262,6 +1265,15 @@ def main(argv: list[str] | None = None) -> int:
              "強い)。port で判断の 1 呼を候補の口に通す(候補は 5 つの源・順のシャッフル・番号で返す・mock と古典は今と同じ"
              "番号=結果は同じ)。口は結果を変えないので設定の指紋には入らない(manifest の decision_port に出る)",
     )
+    ap.add_argument(
+        "--speech-port",
+        choices=("off", "on"),
+        default=None,
+        help="第 1 期 1-8b 発話の口の腕(既定 off=今の道・環境変数 SHIBUYA_SPEECH_PORT と同じ。指定すれば環境変数より強い)。"
+             "on で会話の番の呼び出しだけ B6 の末尾に ひと言 の欄を求め(語彙 v3)、答えの ひと言 を発話の口に通す(出来事の"
+             "記録に 1 行・相手の次の入力の B6 に素性タグと命令文の除去つきで載る・口コミの抽出に渡す)。on は結果を変えるので"
+             "設定の指紋に入り、ランの種類は腕(manifest の speech_port に出る)",
+    )
     # --llm / --endpoints / --model / --mode / --run-id / --tape / --temperature /
     # --max-tokens / --fleet-wait-s(C6-a)
     add_fleet_args(ap)
@@ -1298,6 +1310,10 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine.decision import layer as _decision_layer
 
         _decision_layer.set_arm(str(args.decision_port))
+    if args.speech_port is not None:  # 第 1 期 1-8b: 発話の口の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine.speech import layer as _speech_layer
+
+        _speech_layer.set_arm(str(args.speech_port))
     res = run(  # 第 1 期 1-4(検収 M2): ランの種類は run が決める(試験 > CLI の既定と違う腕 > 再現)
         n_agents=args.agents,
         seed=args.seed,

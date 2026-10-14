@@ -9,6 +9,10 @@ expedient: ランの種類は ``cli.run`` の引数から決める 1 つの規�
 引数が ``cli.arm_baseline``(``run_day`` の既定+CLI の既定)と違うか(``cli.run_arms``)。``cli.main`` も同じ決め方。
 反実仮想は 3-3 の申込書で決める(今の規則は ``counterfactual`` を返さない)。``run_day`` を直に呼ぶランは決めない。
 
+〔第 1 期 1-8b〕``cli.run`` の引数でない腕のうち、結果を変える腕も ``arm`` に数える: 発話の口 ``--speech-port on``(環境変数
+``SHIBUYA_SPEECH_PORT=on`` でも同じ=組み立てが読む腕・設定の指紋にも on のときだけ入る)。結果を変えない腕(1-8 J0 の
+``--decision-port port``・1-6 の ``--memory-store events``)は数えない。
+
 逐次ループ宣言: なし。
 """
 

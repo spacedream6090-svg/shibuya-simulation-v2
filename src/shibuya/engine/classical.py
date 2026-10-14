@@ -54,7 +54,8 @@ from shibuya.agents.state import Activity, AgentKind, WakeCondition
 from shibuya.core.rng import stream
 from shibuya.engine.calendar import ticks_per_day as _ticks_per_day
 from shibuya.llm import LLMRequest, LLMResponse, estimate_tokens
-from shibuya.llm.contract import TARGET_WANDER, format_two_line_v3
+from shibuya.llm.contract import SPEECH_FIELD_LINE, TARGET_WANDER, append_comment, format_two_line_v3
+from shibuya.llm.mock import MOCK_UTTERANCE
 from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
@@ -614,8 +615,8 @@ class ClassicalPolicy:
         return int(ids[int(np.argmax(np.where(np.isfinite(A), A, -np.inf)))])  # argmax=最初の最大=行の順
 
     def render(self, request: LLMRequest) -> str:
-        """応答の本文(5 ラベル形)=``answer`` の 5 つを並べた文。"""
-        return format_two_line_v3(*self.answer(request))
+        """応答の本文(5 ラベル形)=``answer`` の 5 つを並べた文(〔1-8b〕B6 が ひと言 の欄を求めた会話の番は欄を足す)。"""
+        return _with_speech(format_two_line_v3(*self.answer(request)), request)
 
     def answer(self, request: LLMRequest) -> tuple[str, str, str, str, str]:
         """方策の答え ``(理由, 行動, 対象, 活動, まで)``(〔第 1 期 1-8 J0〕1-8 の前の ``render`` の中身=乱数・計数・副作用は同じ。
@@ -656,7 +657,7 @@ class ClassicalPolicy:
     def complete_with_answer(self, request: LLMRequest) -> tuple[LLMResponse, tuple[str, str, str, str, str]]:
         """〔第 1 期 1-8 J0〕``complete`` と同じ応答・計数に、方策の答えの 5 つを添えて返す(判断の口の古典の実装が使う)。"""
         ans = self.answer(request)
-        text = format_two_line_v3(*ans)
+        text = _with_speech(format_two_line_v3(*ans), request)
         self.n_calls += 1
         return LLMResponse(text=text, tokens_in=0, tokens_out=estimate_tokens(text), source=self.source), ans
 
@@ -682,6 +683,14 @@ class ClassicalPolicy:
             "counts": dict(sorted(self.counts.items())),
             "calls": int(self.n_calls),
         }
+
+
+def _with_speech(text: str, request: LLMRequest) -> str:
+    """〔第 1 期 1-8b〕B6 が ひと言 の欄を求めた会話の番(``SPEECH_FIELD_LINE`` がプロンプトにある)だけ、mock と同じ決まった
+    文 ``MOCK_UTTERANCE`` を 2 行目の最後に足す(乱数・計数・方策の答えは変えない=指示の無いプロンプトでは同じ文)。"""
+    if SPEECH_FIELD_LINE in str(request.prompt):
+        return append_comment(text, MOCK_UTTERANCE)
+    return text
 
 
 def _first_near_person(prompt: str, aid: int) -> str:
