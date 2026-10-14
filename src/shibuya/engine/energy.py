@@ -4,8 +4,11 @@
 - ``docs/design/v2-energy-classical-implementation-agenda.md`` §1(段 5a の 1〜10・第291 の訂正)。
 - 草案 ``docs/design/v2-hunger-choice-attention-draft.md`` §1-2・§1-2b(紙上計算と D-111 の予想表)・
   §1-3(照合と較正の分離 K6 (i))・§1-6(K1〜K9)。
-- 錨 ``docs/bench/anchors/hunger_energy_anchors_v0.json``(追跡ファイル・
-  ``tools/hunger/build_hunger_anchors.py`` が ``data/calib/hunger/`` から決定論で生成)。
+- 錨 ``docs/bench/anchors/hunger_energy_build_anchors_v0.json``(構築側)と ``hunger_energy_validation_anchors_v0.json``
+  (検証側)の 2 本〔第 2 期 2-4 V6=前は 1 本 ``hunger_energy_anchors_v0.json`` に混在〕(追跡ファイル・
+  ``tools/hunger/build_hunger_anchors.py`` が ``data/calib/hunger/`` から決定論で生成)。読み口は 2 本を 1 つの辞書に
+  戻す(:func:`load_anchors`)=**既定の食事の時刻は検証側のファイル(第 18-1 表・15 分の食事率の導出)を読む形のまま**
+  (宣言とコードの食い違い=置き換えはユーザーの判断の後=PENDING §1-1)。
   **エンジンは data/ を読まない**。
 
 本モジュールの役割
@@ -73,7 +76,10 @@ from shibuya.engine.calendar import ticks_per_day as _ticks_per_day
 from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
-    "ANCHORS_PATH",
+    "ANCHORS_BUILD_PATH",
+    "ANCHORS_VALIDATION_PATH",
+    "ANCHORS_PATHS",
+    "ANCHORS_REL",
     "HUNGER_MODELS",
     "DEFAULT_HUNGER_MODEL",
     "ENERGY_RATES",
@@ -121,10 +127,14 @@ DEFAULT_MEAL_SLEEP_DEFER: Final[str] = "off"
 HOME_MEAL_MODES: Final[tuple[str, ...]] = ("off", "plan")
 DEFAULT_HOME_MEAL: Final[str] = "off"
 
-#: 錨の追跡ファイル(リポ直下からの相対)。
-ANCHORS_PATH: Final[Path] = (
-    Path(__file__).resolve().parents[3] / "docs" / "bench" / "anchors" / "hunger_energy_anchors_v0.json"
-)
+#: 錨の追跡ファイル(リポ直下からの相対)。〔第 2 期 2-4 V6〕構築側(DRI・NHNS 第 14・13 表・METs)と検証側(NHNS 第 10 表・
+#: 社会生活基本調査 第 18-1 表・15 分の食事率と導出)の 2 本(前は 1 本 ``hunger_energy_anchors_v0.json``=混在)。
+_ANCHORS_DIR: Final[Path] = Path(__file__).resolve().parents[3] / "docs" / "bench" / "anchors"
+ANCHORS_BUILD_PATH: Final[Path] = _ANCHORS_DIR / "hunger_energy_build_anchors_v0.json"
+ANCHORS_VALIDATION_PATH: Final[Path] = _ANCHORS_DIR / "hunger_energy_validation_anchors_v0.json"
+ANCHORS_PATHS: Final[tuple[Path, Path]] = (ANCHORS_BUILD_PATH, ANCHORS_VALIDATION_PATH)
+#: manifest の ``energy.anchors`` に書く道筋(リポ直下からの相対・2 本を ``+`` でつなぐ)。
+ANCHORS_REL: Final[str] = "+".join(f"docs/bench/anchors/{q.name}" for q in ANCHORS_PATHS)
 
 #: 空腹のモデル(``--hunger-model``)。``v1``=旧規則(+1/30 分・購入/食事で −4)。
 HUNGER_MODELS: Final[tuple[str, ...]] = ("v1", "energy")
@@ -284,10 +294,25 @@ def w17_wake_minute(
 
 
 def load_anchors(path: str | Path | None = None) -> tuple[dict[str, Any], str]:
-    """錨の追跡ファイルを読む → ``(辞書, md5)``。"""
-    p = Path(path) if path is not None else ANCHORS_PATH
-    raw = p.read_bytes()
-    return json.loads(raw.decode("utf-8")), hashlib.md5(raw).hexdigest()
+    """錨の追跡ファイルを読む → ``(辞書, md5)``。
+
+    〔第 2 期 2-4 V6〕``path`` を省くと構築側と検証側の 2 本(:data:`ANCHORS_PATHS`)を読み、1 つの辞書に戻す(表と
+    ``sources`` を合わせる・見出しは構築側・``split_from`` の注は落とす=分ける前の 1 本と同じ辞書)。md5 は 2 本のバイト列を
+    この順につないだもの。``path`` を渡せばその 1 本だけ(分ける前の形の試験の口)。
+    """
+    if path is not None:
+        raw = Path(path).read_bytes()
+        return json.loads(raw.decode("utf-8")), hashlib.md5(raw).hexdigest()
+    raws = [q.read_bytes() for q in ANCHORS_PATHS]
+    docs = [json.loads(r.decode("utf-8")) for r in raws]
+    out = dict(docs[0])
+    for k, v in docs[1].items():
+        if k == "sources" and isinstance(v, dict):
+            out[k] = {**out.get(k, {}), **v}
+        elif k not in out:
+            out[k] = v
+    out.pop("split_from", None)
+    return out, hashlib.md5(b"".join(raws)).hexdigest()
 
 
 def _sex_rows(male: list[float], female: list[float]) -> np.ndarray:
@@ -527,7 +552,7 @@ class EnergyModel:
             "default_meal_min": dict(self.default_meal_min),
             "initial_since_meal": "eer x (1440 - default dinner min)/1440",
             "eer_floor_pal": EER_FLOOR_PAL,
-            "anchors": "docs/bench/anchors/hunger_energy_anchors_v0.json",
+            "anchors": ANCHORS_REL,  # 〔2-4 V6〕構築側+検証側の 2 本
             "anchors_md5": self.anchors_md5,
         }
 

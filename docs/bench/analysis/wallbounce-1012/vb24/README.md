@@ -581,3 +581,32 @@ ec21 の道具 [stage2_two_day.py](../ec21/tools/stage2_two_day.py) をそのま
 
 - **結果は不変**: 19 構成で 25 欄とも V4 と同じ=[v5_vs_v4.json](v5_vs_v4.json)。
 - 試験(作業木・`-m "not slow and not gpu"`): `tests/engine/test_env_and_sections_10f.py`・`tests/engine/experiment`・`tests/engine/time`・`tests/engine/bridging` = 203 passed・1 failed(負の対照の 1 本=上の直しの前)→ 直して通る。
+
+## V6 錨のファイルの分離(較正側/構築側と検証側・値は変えない)
+
+2-0 の検収(混在)・PENDING 仮-13(〔灰〕は決まるまで検証側と同じ扱い)。**値を読まずに鍵の名で機械的に分けた**([tools/split_anchors_vb24.py](tools/split_anchors_vb24.py)=JSON を読んで鍵の名で振り分けて書くだけ・画面には錨の名の数と較正側/構築側の鍵の名だけ。確かめの `check` は git の版の元のファイルと「2 本を合わせたもの」が鍵と値の全部で同じかを真偽だけで出す=元の写しを作業用の置き場に作らない)。
+
+| 元(消した) | 較正側/構築側 | 検証側 |
+|---|---|---|
+| `docs/bench/anchors/presence_anchors_v0.json` | `presence_calib_anchors_v0.json`=錨 3 本(`core9_daytime_population`・`core9_night_population`・`core9_day_night_ratio`=中核 9 町丁目の昼夜間人口〔非〕)+見出し(`schema`・`version`・`created`)+本道具が書いた `purpose`・`split_from` | `presence_validation_anchors_v0.json`=ほかの錨 6 本(PT 由来〔灰〕・第 4-1 表〔検〕ほか=〔灰〕と区分の決まっていない錨は仮-13 のとおり検証側)+元の `purpose`・`rules`・見出し・`split_from` |
+| `docs/bench/anchors/hunger_energy_anchors_v0.json` | `hunger_energy_build_anchors_v0.json`=`dri2025`・`nhns_t14_weight`・`nhns_t13_meal_kcal`・`mets_2012` と、その `sources`(4 本) | `hunger_energy_validation_anchors_v0.json`=`nhns_t10_breakfast_skip`・`ssb2021_t18_1_weekday`・`ssb2021_meal_rate_15min`・`derived`(昼の既定の時刻=15 分の食事率の導出)と、その `sources`(2 本) |
+
+- 空腹の錨の見出し(`schema`・`generated_by`・`attribution`・`usage`)は両方に写した(`usage` は元の文が自ら「constants … and validation-only anchors (NHNS table 10, SSB table 18-1, 15-min meal rates)」と書く=分け方はこの文に合わせた)。在圏の錨の `rules` と元の `purpose` は検証側(中身を読まずに検証側へ寄せた=保守側)。
+- 確かめ: `split_anchors_vb24.py check` → 2 本とも「合わせると元と同じ: True」。
+- **結果は不変**: 19 構成で 25 欄とも V5 と同じ=[v6_vs_v5.json](v6_vs_v5.json)。manifest で動くのは `energy.anchors`(2 本の道筋を `+` でつないだ文)と `energy.anchors_md5`(2 本のバイト列をつないだ md5)だけ(設定の節の値・道筋の表は同じ)。
+
+読む側の道筋(直したもの):
+
+| ファイル | 前 | 後 |
+|---|---|---|
+| `src/shibuya/engine/energy.py` | `ANCHORS_PATH`(1 本) | `ANCHORS_BUILD_PATH`・`ANCHORS_VALIDATION_PATH`・`ANCHORS_PATHS`・`ANCHORS_REL`。`load_anchors()` は 2 本を 1 つの辞書に戻す(分ける前の 1 本と同じ辞書=鍵の順だけ違う)。**読み口は検証側のファイルを読む形のまま**(既定の食事の時刻=第 18-1 表・`derived.lunch_default`=置き換えはユーザーの判断の後=PENDING §1-1) |
+| `tools/hunger/build_hunger_anchors.py` | 1 本を書く | `split_doc` で 2 本を書く・`--check` も 2 本(分け方の正=本記録の道具も同じ関数を呼ぶ)。**生成器そのものは回していない**(`data/calib/hunger` の原表=計器の段で落とす語に当たる=読まない) |
+| `tools/instruments/read_guard.py`(2-0 の計器) | 落とす語 `presence_anchors`・`hunger_energy_anchors` | 足した: `presence_validation_anchors`・`hunger_energy_validation_anchors`(前の 2 語は残す=古い写しを落とす)。較正側 `presence_calib_anchors`・構築側 `hunger_energy_build_anchors` は落ちない |
+| `tools/c7/presence_yardstick.py` | `DEFAULT_ANCHORS_PATH`(1 本) | `DEFAULT_ANCHORS_PATHS`(2 本)・`load_anchors()` は 2 本を 1 つに戻す(物差しは両方の錨を使う)・`DEFAULT_ANCHORS_PATH` は検証側(記録の表記) |
+| `tools/fig/fig_presence_24h.py`・`fig_calls_by_hour.py` | 1 本 | 在圏の図は 2 本を `+` でつないで錨を合わせる・呼の図(`full_population`)は検証側 |
+| `tests/c7/test_presence_yardstick.py` | fixture が 1 本(混在)を読む | **fixture は較正側だけを読む**(`ANCHORS_PATH`=`presence_calib_anchors_v0.json`)。`tests/c7` は回していない(発注・gauge20 §10)=検証側の錨を使う c7 の試験は較正側だけでは落ちる見込み(**未確かめ**=親が c7 の扱いを決めるときに) |
+| `tests/tools/test_anchor_gauge.py`・`tests/engine/test_energy_balance.py` | 1 本の名 | 2 本の名(落とす語・開いたファイルの印・CR の検査) |
+
+- 試験(作業木・`-m "not slow and not gpu"`): エネルギーと食事の 4 ファイル・`tests/tools`・`tests/engine/bridging`・`test_env_and_sections_10f.py` = **218 passed**。
+- 写しの木(`_bc/tree`)には較正側と構築側と空腹の検証側を写し、在圏の検証側 `presence_validation_anchors_v0.json` は写さない(前の `presence_anchors_v0.json`・`diversity_anchors_v0.json` と同じ扱い)。
+- byte-check の head の写しの手順(10e の道具の docstring)の「錨はエンジンが開く 3 本」は、V6 より後の src では **4 本**(空腹の 2 本+活動の事前分布+通勤時間)。

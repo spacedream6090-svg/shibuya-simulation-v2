@@ -18,7 +18,8 @@ TOOLS_C7 = REPO_ROOT / "tools" / "c7"
 if str(TOOLS_C7) not in sys.path:  # conftest と同じ作法(単体実行でも通るように)
     sys.path.insert(0, str(TOOLS_C7))
 
-ANCHORS_PATH = REPO_ROOT / "docs" / "bench" / "anchors" / "presence_anchors_v0.json"
+#: 〔第 2 期 2-4 V6〕fixture は較正側だけを読む(検証側=PT 由来〔灰〕・第 4-1 表〔検〕は試験の過程でも開かない)。
+ANCHORS_PATH = REPO_ROOT / "docs" / "bench" / "anchors" / "presence_calib_anchors_v0.json"
 
 #: 合成世界: 6 セル = 5 エリア各 1 + 域外 1。
 AREA_OF_CELL = np.array([0, 1, 2, 3, 4, -1], dtype=np.int8)
@@ -37,7 +38,7 @@ def yard():
 
 @pytest.fixture(scope="module")
 def anchors(yard):
-    return yard.load_anchors()
+    return yard.load_anchors(ANCHORS_PATH)  # 〔2-4 V6〕較正側だけ
 
 
 @pytest.fixture()
@@ -302,7 +303,7 @@ def test_display_path_hides_the_personal_directory(yard, tmp_path):
     ``"Z:/nowhere/..."`` は Linux では相対パスになり、CI(ubuntu)で ``<repo>/Z:/...`` に
     解決されて落ちていた(PR #2 の CI 赤の原因)。
     """
-    assert yard.display_path(yard.DEFAULT_ANCHORS_PATH) == "<repo>/docs/bench/anchors/presence_anchors_v0.json"
+    assert yard.display_path(yard.DEFAULT_ANCHORS_PATH) == "<repo>/docs/bench/anchors/presence_validation_anchors_v0.json"
     outside = tmp_path / "anchors.json"
     assert yard.display_path(outside) == str(outside)
     assert yard.display_path(str(outside)) == str(outside)

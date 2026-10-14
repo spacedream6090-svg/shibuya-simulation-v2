@@ -377,7 +377,8 @@ def test_make_guard_rejects_sealed_and_renamed_inputs(G, RG, tmp_path, monkeypat
         raise AssertionError(f"realpath を取った: {p}")
 
     monkeypatch.setattr(RG, "_real", _no_fs)
-    for tok in ("presence_anchors_v0.json", "diversity_anchors_v0.json", "hunger_energy_anchors_v0.json"):
+    for tok in ("presence_anchors_v0.json", "diversity_anchors_v0.json", "hunger_energy_anchors_v0.json",
+                "presence_validation_anchors_v0.json", "hunger_energy_validation_anchors_v0.json"):  # 〔2-4 V6〕分けた検証側
         with pytest.raises(RG.SealedPathError):
             g.check(ROOT / "docs" / "bench" / "anchors" / tok)
     with pytest.raises(RG.SealedPathError):
@@ -583,6 +584,10 @@ def test_arrays_hash_ignores_meta_and_record_tracking(G, RG, tmp_path):
         open(root / "w.json", "rb").close()
     assert run_guard.opened == ["w.json"]
     rows = {r["path"]: r["gauge_deny_token"]
-            for r in G.opened_listing(["docs/bench/anchors/hunger_energy_anchors_v0.json", "data/world/v2/W0.header.json"])}
-    assert rows == {"docs/bench/anchors/hunger_energy_anchors_v0.json": "hunger_energy_anchors",
+            for r in G.opened_listing(["docs/bench/anchors/hunger_energy_validation_anchors_v0.json",
+                                       "docs/bench/anchors/hunger_energy_build_anchors_v0.json",
+                                       "data/world/v2/W0.header.json"])}
+    # 〔2-4 V6〕エンジンが開く空腹の錨は構築側と検証側の 2 本=検証側にだけ印
+    assert rows == {"docs/bench/anchors/hunger_energy_validation_anchors_v0.json": "hunger_energy_validation_anchors",
+                    "docs/bench/anchors/hunger_energy_build_anchors_v0.json": None,
                     "data/world/v2/W0.header.json": None}

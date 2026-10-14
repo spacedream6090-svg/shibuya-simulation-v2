@@ -1,8 +1,11 @@
 """空腹のエネルギー収支(D-118・5 段目 5a)の錨を **追跡ファイル**へ書き出す(決定論)。
 
 入力: ``data/calib/hunger/*.json``(gitignore 下・取得役が MANIFEST つきで取得・親検収済)。
-出力: ``docs/bench/anchors/hunger_energy_anchors_v0.json``(追跡)。**エンジンとテストはこの
-追跡ファイルだけを読む**(``data/`` が無い機械でも動く=アジェンダ §1-9・第291)。
+出力: 〔第 2 期 2-4 V6〕``docs/bench/anchors/hunger_energy_build_anchors_v0.json``(構築側=DRI 2025・国民健康・栄養調査
+第 14・13 表・METs)と ``hunger_energy_validation_anchors_v0.json``(検証側=国民健康・栄養調査 第 10 表・社会生活基本調査
+第 18-1 表・15 分の食事率と、その導出)の 2 本(追跡)。前は 1 本 ``hunger_energy_anchors_v0.json``(混在)。分け方は
+:func:`split_doc`(表と ``sources`` の鍵の名で分ける・値は同じ)。**エンジンとテストはこの追跡ファイルだけを読む**
+(``data/`` が無い機械でも動く=アジェンダ §1-9・第291・エンジンは 2 本を 1 つの辞書に戻して読む)。
 
 中身は **数値とコードだけ**(表の文言=活動名の和文・表題などは入れない)。各値に出典のセル/頁・
 原 JSON と原ファイルの md5・出典表記(PDL1.0 / 政府標準利用規約 2.0 の記載例どおり「…を加工して
@@ -27,7 +30,16 @@ from typing import Any
 
 REPO = Path(__file__).resolve().parents[2]
 SRC_DIR = REPO / "data" / "calib" / "hunger"
-OUT = REPO / "docs" / "bench" / "anchors" / "hunger_energy_anchors_v0.json"
+#: 〔第 2 期 2-4 V6〕構築側と検証側の 2 本(前は 1 本 ``hunger_energy_anchors_v0.json``)。
+OUT_BUILD = REPO / "docs" / "bench" / "anchors" / "hunger_energy_build_anchors_v0.json"
+OUT_VALIDATION = REPO / "docs" / "bench" / "anchors" / "hunger_energy_validation_anchors_v0.json"
+#: 構築側の表(``usage`` の「constants of the energy balance」)と、その元(``sources`` の鍵)。ほかの表は検証側
+#: (``usage`` の「validation-only anchors」)。見出しの 4 欄は両方に写す。
+BUILD_TABLES = ("dri2025", "nhns_t14_weight", "nhns_t13_meal_kcal", "mets_2012")
+BUILD_SOURCES = ("bmr_pal_2025.json", "nhns_r6_height_weight.json", "nhns_r6_meal_kcal.json", "mets_selected.json")
+META_BOTH = ("schema", "generated_by", "attribution", "usage")
+SPLIT_NOTE = ("第 2 期 2-4 V6: 元のファイル hunger_energy_anchors_v0.json を鍵の名で機械的に分けた(値は変えていない・"
+              "値を読まずに分けた)。較正側/構築側と検証側の 2 本=記録 docs/bench/analysis/wallbounce-1012/vb24/README.md の V6")
 
 SCHEMA = "shibuya.anchors/hunger-energy/v0"
 
@@ -308,21 +320,38 @@ def dumps(obj: dict[str, Any]) -> str:
     return json.dumps(obj, ensure_ascii=False, indent=1, sort_keys=False) + "\n"
 
 
+def split_doc(doc: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    """〔第 2 期 2-4 V6〕錨の辞書 → (構築側, 検証側)。表と ``sources`` の鍵の名で分ける(値は同じ・順は元のまま)。"""
+    build: dict[str, Any] = {k: doc[k] for k in META_BOTH if k in doc}
+    valid: dict[str, Any] = {k: doc[k] for k in META_BOTH if k in doc}
+    build["split_from"] = valid["split_from"] = SPLIT_NOTE
+    src = doc.get("sources", {})
+    build["sources"] = {k: v for k, v in src.items() if k in BUILD_SOURCES}
+    valid["sources"] = {k: v for k, v in src.items() if k not in BUILD_SOURCES}
+    for k, v in doc.items():
+        if k in META_BOTH or k == "sources":
+            continue
+        (build if k in BUILD_TABLES else valid)[k] = v
+    return build, valid
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="D-118 5a の錨を追跡ファイルへ書く")
     ap.add_argument("--check", action="store_true", help="追跡ファイルと一致するかだけ見る")
     args = ap.parse_args(argv)
-    text = dumps(build())
+    b, v = split_doc(build())
+    outs = ((OUT_BUILD, dumps(b)), (OUT_VALIDATION, dumps(v)))
     if args.check:
-        cur = OUT.read_text(encoding="utf-8") if OUT.exists() else ""
-        if cur != text:
-            print("不一致: 追跡ファイルは再生成が要る")
+        bad = [p.name for p, text in outs if (p.read_text(encoding="utf-8") if p.exists() else "") != text]
+        if bad:
+            print("不一致: 追跡ファイルは再生成が要る", bad)
             return 1
         print("一致")
         return 0
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_bytes(text.encode("utf-8"))
-    print(f"書いた: {OUT.relative_to(REPO).as_posix()} ({len(text.encode('utf-8')):,} B)")
+    for p, text in outs:
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(text.encode("utf-8"))
+        print(f"書いた: {p.relative_to(REPO).as_posix()} ({len(text.encode('utf-8')):,} B)")
     return 0
 
 
