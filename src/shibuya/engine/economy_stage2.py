@@ -46,6 +46,7 @@ import numpy as np
 from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, NS_PER_SECOND, SECONDS_PER_MINUTE
 
 __all__ = [
+    "DataAbsentWarning",
     "ARM_OFF", "ARM_ON", "ARMS", "DEFAULT_ARM", "PARTS", "arm", "set_arm", "parts", "set_parts", "parse_parts", "active_parts",
     "WITHDRAW_WORD", "PAYMENT_NOTE", "CAUSE_NAMES", "PAYDAY_DAY_OF_MONTH", "OSM_TAGS_RELPATH", "OSM_HOURS_RELPATH",
     "ORIGIN_LATLON", "M_PER_DEG_LAT", "M_PER_DEG_LON", "CELL_M", "AtmTable", "parse_opening_hours",
@@ -240,6 +241,12 @@ def parse_opening_hours(text: str | None) -> np.ndarray | None:
     return out
 
 
+
+class DataAbsentWarning(UserWarning):
+    """取得物(data/ の下)が無い写しで出す注記。〔第335・CI の直し〕data の無い CI でも経済の段階 2 は既定 on なので、
+    数値の異常を表す ``RuntimeWarning`` とは分け(tests/c6 は RuntimeWarning を失敗に昇格する)、``UserWarning`` の系に置く。
+    """
+
 @dataclass(frozen=True)
 class AtmTable:
     """ATM の表(``Fixtures.atms``・状態台帳の行 ATM=軸 1 behavior・軸 2 derivable・中身は hash_skip)。銀行名は持たない。
@@ -335,7 +342,7 @@ def build_atm_table(world: Any, *, tags_path: str | Path | None = None,
     empty = AtmTable(cell=np.zeros(0, np.int64), kind=np.zeros(0, np.int8), hours=np.zeros((0, _N_DAYS, _SLOTS, 2),
                      np.int16), hours_from=np.zeros(0, np.int8), n_cells=n_cells, sources={})
     if not tp.exists():
-        warnings.warn(f"ATM の表の取得物 {OSM_TAGS_RELPATH} が無い写し: ATM は 0 点", RuntimeWarning, stacklevel=2)
+        warnings.warn(f"ATM の表の取得物 {OSM_TAGS_RELPATH} が無い写し: ATM は 0 点", DataAbsentWarning, stacklevel=2)
         return empty
     els = json.loads(tp.read_text(encoding="utf-8")).get("elements", [])
     hours_map: dict[tuple[str, int], str] = {}
