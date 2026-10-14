@@ -439,3 +439,12 @@ byte-check(`10e/byte_check_10e.py` の `side`・`--world` の引数で資産を�
 }
 ```
 <!-- golden-end -->
+
+## §14 親の検収(第334・Fable 5.1・rebase の後)
+
+- 本体 e52c07e へ rebase(衝突 1 か所=test_bridging_ledger.py の数の行・親が案を承認)。範囲の試験(bridging・build_field・build_audit・engine/time・engine/systems)418 passed・1 xfailed(3 分 28 秒)。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・**本体の既定の資産 data/world/v2 のまま**)=final 同じ・25 欄とも差なし(parent_head_vs_tt23b_4cfg.json)=エンジン側の差は PLAN_STAGES の 1 行だけで、資産を差し替えない限り結果は不変。資産の差し替え(活性化)は 2-4 で動いた量と一緒に記録する。
+- 独立検収(review.md)=条件つき受入(高 1・低 5)→ 全部直した。検収役の本数の数え直し 12 マス・資産の再現 107 ファイル・切替口 False の sha256・動いた量 1 構成の再現が一致したことを受入の根拠にする。
+- 封印の境界: 検収役・実装役とも封印の層を開いていない。W19 が holdout の層の sha256 を取る(方式 S・中身は解かない)のは既存のとおり。
+- 親の判断: 京王チャレンジ枠の行を本体の資産に入れる読み(回答 10-13 の 3・7)=PENDING 仮-15 でユーザーの最終確認。ライセンス台帳 その 15。終点の到着と直通の二重計上は 2-3c(計画に行を足す)。
+- 判定: 受入(第 2 期 2-3b の完了)。
