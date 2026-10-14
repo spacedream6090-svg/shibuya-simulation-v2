@@ -238,7 +238,7 @@ def test_the_schedule_refuses_writes_outside_its_ports():
     # 書く口の中は書ける(口を通した後は閉じる)
     assert plan.intero_plan(0, np.array([1, 2]), np.array([30, 40])) == 2
     assert list(bm.reserved_steps()) == [-1, 30, 40, -1, -1]
-    assert not plan.intero_seq.flags.writeable and plan.__dict__["_open"] is False
+    assert not plan.intero_seq.flags.writeable and plan.__dict__["_port_active"] is False
     r = AgentState(5).registry
     bm.step("interoception", r, 0)
     assert all(not a.flags.writeable for a in plan.intero_snap.values())

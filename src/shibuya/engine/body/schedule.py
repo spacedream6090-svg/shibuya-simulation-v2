@@ -151,10 +151,10 @@ def _writing(fn: Callable[..., Any]) -> Callable[..., Any]:
     """``BodySchedule`` の書く口の印: 呼んでいる間だけ欄の付け替えと持ち主の配列の書きを開ける(出るときに閉じる)。"""
 
     @functools.wraps(fn)
-    def _open_and_call(self: "BodySchedule", *a: Any, **k: Any) -> Any:
-        if self.__dict__.get("_open"):
+    def _enter_port_and_call(self: "BodySchedule", *a: Any, **k: Any) -> Any:
+        if self.__dict__.get("_port_active"):
             return fn(self, *a, **k)
-        object.__setattr__(self, "_open", True)
+        object.__setattr__(self, "_port_active", True)
         for arr in self._own_arrays():
             arr.setflags(write=True)
         try:
@@ -162,9 +162,9 @@ def _writing(fn: Callable[..., Any]) -> Callable[..., Any]:
         finally:
             for arr in self._own_arrays():
                 arr.setflags(write=False)
-            object.__setattr__(self, "_open", False)
+            object.__setattr__(self, "_port_active", False)
 
-    return _open_and_call
+    return _enter_port_and_call
 
 
 @dataclass
@@ -197,14 +197,14 @@ class BodySchedule:
     felt_next: np.ndarray | None = None
     felt_serial: int = -1
     #: 書く口の中か(``_writing`` が開け閉めする・最後の欄=組み立ての中は開いている)。
-    _open: bool = False
+    _port_active: bool = False
 
     def __post_init__(self) -> None:
         for arr in self._own_arrays():
             arr.setflags(write=False)
 
     def __setattr__(self, name: str, value: Any) -> None:
-        if self.__dict__.get("_open", True):  # 組み立ての中(まだ _open が無い)と書く口の中だけ
+        if self.__dict__.get("_port_active", True):  # 組み立ての中(まだ _port_active が無い)と書く口の中だけ
             object.__setattr__(self, name, value)
             return
         raise AttributeError(f"予約の列の欄 {name} は書く口の外では付け替えられない")
