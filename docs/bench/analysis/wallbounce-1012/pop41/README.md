@@ -283,3 +283,11 @@
 | 親の判断 | `employment_status` の 5 語はそのまま・W16 の `employment` の 6 値への写像の関数 `w16_employment`(None → 非就業・近似の表に 1 行) | 単体の試験・計器に住民の分布 |
 
 **`w21_build_hash` が変わった理由**(`0c855067…` → `ca823451…`): L4 で配偶関係の目標が変わり詰めの結果(世帯の町丁目)が変わった・L2 で世帯主の年齢の上限と他の親族の続き柄の引き方が変わった=`w21_households.parquet` と `w21_persons.parquet` と `w21_checks.json`(計器の行を足した)が変わった。枠(`w21_frame.json`)は同じ。人数・世帯数・外国人の数は同じ。
+
+## §親の検収(第336・Fable 5.1・rebase の後)
+
+- 本体 260264b(3-2 の後)へ rebase=つなぎの台帳の末尾(3-2 の 4 行と W21 の 27 行)と `test_bridging_ledger.py` の expedients の数(本体 144+27=171)が衝突し、親が両方を残す形で解いた(622cb81・台帳 386 行・active 375・id の重なり 0)。本体 623da48(3-2 の文書)へ乗せ直し(65c82a9)。範囲の試験(build_pop・build_*・bridging・tools・状態台帳・10f・活性化)**783 passed・1 xfailed**(7 分 34 秒)。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・両側とも本体の木)=**final 同じ・25 欄とも差なし**(`parent_head_vs_pop41_4cfg.json`)。`engine/` の差分 0。
+- **data 無しの写し(detached の作業木・junction なし)で CI-1 と同じ引数の全体試験(tests/c7 を含む)=4,985 passed・239 skipped・failed 0**(19 分 1 秒・622cb81 の木=65c82a9 とは本体の文書だけの差)。
+- 独立検収([review.md](review.md))=条件つき受入(中 1=本体の v2 に書かない守り・低 8)→ 全部直した(書き込みのモードは出力先の下だけ・`--out` が本体の v2 なら止める・PT c-2 は見出しだけ文字で読み許可の 2 列だけ `include_columns`=監査フックで列 4 つだけ・祖父母と孫の年齢差の下限・dict の凍結・配偶関係の目標の総数・README・外から来る通学者の関数・sha の定義・検証側の行は id だけ)。親の判断: employment_status の 5 語はそのまま+W16 の 6 値への写像の関数(expedient)・外国人は 2025 の補完値(住基が入ったら置き換え)・外から来る通学者の在学の種類は 20〜24 歳で一様(大学院が多め=第 4 期 段 3 の細分で各歳の形に=記録)。
+- 判定: **受入**(第 4 期 4-1 段 1〜3 の完了=資産 `v2_stage_4-1` は活性化しない(段 10=4-3)・本体の build_hash は不変)。次=段 4 組織と関係(PS5)。
