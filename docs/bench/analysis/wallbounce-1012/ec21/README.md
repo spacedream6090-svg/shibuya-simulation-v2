@@ -360,3 +360,11 @@ rebase の後に直した試験(本体の末尾の並びの試験が 2-1 の語�
 4. 腕 on の 2 日 8 本([two_day_ec21_rebased.json](two_day_ec21_rebased.json)): rebase の前の 8 本([two_day_ec21_fix.json](two_day_ec21_fix.json))と**壁時計の欄の外は全部の欄が同じ**(final・呼数・賃金・引き出し・支払い・税・来街者の口座・呼の配線の計器・分位・日ごとの保存則の検算)。腕 on(全部)は `5a40399e189c7a1e`・144,954 呼・保存則の残差 毎日 0・輪 80,000 行で溢れ 0・腕 off は `17f89bf0a109f2dd`・145,049 呼。
 5. つなぎの台帳: 328 行・active 320(本体 303+2-1 の 18−removed 1)。`tests/engine/bridging` の数(expedients・docstring・heading など)は 2-1 で変わらない(2-1 の行は文書の宣言=`declared_in` が本書)。
 6. 生の出力(`_bc/`=git の外): `rebase/`(控え・3 方向の写し・解き方の道具 `merge3.py`・`resolve.py`・`merge_ledger.py`・`cli_order.py`・`fix_tail_tests.py`)・`headdf_src/`・`bc_headdf.json`・`bc_ec21rb.json`・`probe_headdf.json`・`probe_ec21rb.json`・`keys_headdf.json`・`keys_ec21rb.json`・`two_day_ec21_rebased.json`・`tests_rebased*.log`・`tests_slow_rebased.log`。
+
+## 15. 親の検収(第334・Fable 5.1・rebase の後)
+
+- 本体 df9e2ed へ rebase(衝突 9 ファイルを実装役が手で解いた=本体の分 → 2-1 の分)。範囲の試験(economy・proximity・speech・tools・systems・events・rights・decision・rules・time・bridging・再開・状態台帳・10f・perception・llm・cli)1,938 passed(9 分 0 秒)。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・既定 off)=final 同じ・25 欄とも差なし(parent_head_vs_ec21_rebased_4cfg.json)。腕 on の値(2 日)は実装役の rebase の前後で同一・検収役の独立の再計算(部門ごとの Δ現金・ΔM−境界の流れ=0・税・賃金の和)を根拠にする。
+- 独立検収(review.md)=条件つき受入(中 1・低 6)→ 全部直した+親の判断 9 件(§13)+4 件(§13-3)。CONFIG_PATHS_SHA256 は economy.stage2.* の設定の道筋 8 本の分だけ動く(値は既定=結果は不変)。
+- 判断待ちへ(親が PENDING に): W17 の勤務の時間が短い(月 38 時間=賃金 4.7 万円/月)=月の時間の出どころ(親案 (b)=統計から・EC2 と同じ段で e-Stat を取る)。2-4 の候補: 輪の係数(腕 off 6.5 の余裕 5%)・pois.revenue の税抜き・既定 on にするか。
+- 判定: 受入(第 2 期 2-1 の完了=第 2 期は 2-3 と 2-4 を残すだけ)。
