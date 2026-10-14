@@ -43,6 +43,7 @@ def hash_owners(b: Any) -> dict[str, Any]:
 
     〔第 1 期 1-3〕末尾に ``events``(出来事の記録・状態台帳の行 ``E``=軸 1 diag・軸 2 discardable)を足した。2 つのハッシュと
     状態のファイルは軸で選んだ行の道筋だけを読むので、値は変わらない(段 B の全欄の差と書きの網羅が読む)。
+    〔第 1 期 1-8 J0〕その後に ``decision``(候補の口の層・状態台帳の行 ``J0``=軸 1 diag・軸 2 discardable・腕 port のランだけ)。
     """
     from shibuya.engine.run import _RunDayLocals
 
@@ -57,6 +58,7 @@ def hash_owners(b: Any) -> dict[str, Any]:
         "bridge": L.bridge, "fleet_bridge": L.fleet_bridge,
         "run_day": _RunDayLocals(io.pending, io.fleet_deferred, io.fleet_waiting, io.replay_inbox),
         "events": getattr(L, "events", None),
+        "decision": getattr(L, "decision", None),
     }
 
 

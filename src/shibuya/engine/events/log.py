@@ -14,6 +14,14 @@
   (「書き込むその場で直接の原因だけを記録する」CP12)。
 - 中身は列ごとの配列(SoA 風・1 行 ``ROW_BYTES`` B)。日の締めで保持窓(``RETENTION_DAYS`` 日=ActualLog の
   D-R2-6 と同じ)の外の行を落とす(1 日の行数と種類の分布は manifest の日次の記録に残る)。
+- 〔第 1 期 1-8 J0・1-3 の検収 M2〕**原因の表も列**(``_CZ_COLS``=種類の番号・参照の番号・call_id の 3 つの整数
+  (``"{T}:{体}:{級}"``=テープの call_id の形)・入力の出来事 id の範囲・選んだ候補の源と提示の番号=1-8 の検収 M1)と
+  入力の id の 2 列(``_ci_t``・``_ci_seq``)。1-3 の「呼び出しごとに Python の物 1 つ」(実測 198〜1,002 B/呼)を
+  39 B+入力 1 つ 12 B/呼にした(記録 ``docs/bench/analysis/wallbounce-1012/j0/README.md``)。読み口 ``event(i).cause`` は今の 3 型を組み立てて返す
+  (``LlmCall`` と ``Process`` は列から作る・``Experiment`` は口 ``gate.admit`` が作った物を小さな表に持って返す=
+  口の外では作らない)。同じ原因の行は 1 つにまとめる: 過程と実験は名で・LLM の呼び出しは「直前に書いた LLM の
+  呼び出しと同じ」ときだけ(呼び出しごとの dict を持たない)。参照の番号は、過程=``V.CAUSE_PROCESS_NAMES`` の番号・
+  実験=実験の表の番号・LLM の呼び出し=テープの形でない call_id の文字列の表の番号(テープの形なら -1)。
 
 約束(口の約束 1-3): (1) 記録の有無で final・テープ・behavior-hash は変わらない(状態台帳の行 ``E``=軸 1 diag・
 軸 2 discardable=どちらのハッシュにも状態のファイルにも入らない)。(2) 既存の ActualLog・金と物の生ログ・テープは
@@ -32,7 +40,7 @@ MATSim/SUMO の events(時刻順の 1 本のログ)。R-113 §3。
 (``runner.<過程>``・区切りは ``engine``)。
 
 逐次ループ宣言: ``append`` は 1 行=定数時間(列の倍化は償却)。``close_day`` は保持窓の外の行を落とす numpy の
-ベクトル演算と原因の表の詰め直し(行数に比例・1 日 1 回)。
+ベクトル演算と原因の表の詰め直し(行数に比例・1 日 1 回)。``event`` は 1 行=入力の id の数ぶん(原因の組み立て)。
 """
 
 from __future__ import annotations
@@ -40,7 +48,8 @@ from __future__ import annotations
 import os
 import sys
 from dataclasses import dataclass, fields
-from typing import Any, ClassVar, Final, Iterator, Union
+from types import MappingProxyType
+from typing import Any, ClassVar, Final, Iterator, Mapping, Union
 
 import numpy as np
 
@@ -52,7 +61,9 @@ from shibuya.engine.systems import guard as _G
 
 __all__ = [
     "EventId", "Event", "EVENT_FIELDS", "LlmCall", "Process", "CAUSE_TYPES", "CAUSE_KINDS", "Cause",
-    "EventLog", "ROW_BYTES", "RETENTION_DAYS", "NS_PER_DAY", "enabled", "set_enabled",
+    "CANDIDATE_SOURCES",
+    "EventLog", "ROW_BYTES", "CAUSE_ROW_BYTES", "INPUT_ID_BYTES", "RETENTION_DAYS", "NS_PER_DAY", "enabled",
+    "set_enabled",
 ]
 
 #: 出来事の id=``(t_ns, seq)``(``seq`` は同じ ``t_ns`` の中の通し)。並べると時刻順。
@@ -83,6 +94,11 @@ def _is_int(x: Any) -> bool:
 
 # ================================================================ 原因(3 種類だけ)
 _CAUSE_NAMES: Final[tuple[str, ...]] = ("LlmCall", "Process", "Experiment")
+#: 〔第 1 期 1-8 J0・検収 M1〕判断の口の候補の源(``LlmCall.source`` の語・並びは原因の表の列 ``_cz_src`` の番号)=DM-0 の
+#: 5 つの源+J0 のつなぎの印 ``vocab``(``engine.decision.port.ALL_SOURCES`` と同じ=試験と口の層の組み立てで突き合わせる)。
+CANDIDATE_SOURCES: Final[tuple[str, ...]] = ("experience", "affordance", "plan", "continue", "deliberate", "vocab")
+#: ``LlmCall.number``(提示の番号)の上限(原因の表の列は i1)。
+_NUMBER_MAX: Final[int] = 127
 _SEALED: bool = False
 
 
@@ -101,10 +117,17 @@ class _Cause:
 
 @dataclass(frozen=True)
 class LlmCall(_Cause):
-    """原因=LLM の呼び出し(``call_id``=テープの ``call_id`` 列と同じ値・``input_event_ids``=入力に入っていた出来事の id)。"""
+    """原因=LLM の呼び出し(``call_id``=テープの ``call_id`` 列と同じ値・``input_event_ids``=入力に入っていた出来事の id)。
+
+    〔第 1 期 1-8 J0・検収 M1〕判断の口(``engine.decision``)を通った呼び出しは、選んだ候補の源 ``source``
+    (``CANDIDATE_SOURCES`` の語=5 つの源+つなぎの印 ``vocab``)と提示の番号 ``number``(1 から)も持つ(口の約束 1-8 の
+    約束 (3)=候補の源のどれから来たかを判断ごとに記録)。口を通らない呼び出しは どちらも ``None``。
+    """
 
     call_id: str
     input_event_ids: tuple[EventId, ...] = ()
+    source: str | None = None
+    number: int | None = None
     kind: ClassVar[str] = "llm_call"
 
     def __post_init__(self) -> None:
@@ -116,6 +139,12 @@ class LlmCall(_Cause):
                 raise ValueError(f"LlmCall.input_event_ids の要素は (t_ns, seq) の組(いま {x!r})")
             ids.append((int(x[0]), int(x[1])))
         object.__setattr__(self, "input_event_ids", tuple(ids))
+        if self.source is not None and self.source not in CANDIDATE_SOURCES:
+            raise ValueError(f"LlmCall.source は {CANDIDATE_SOURCES} のどれか None(いま {self.source!r})")
+        if self.number is not None:
+            if not _is_int(self.number) or not 1 <= int(self.number) <= _NUMBER_MAX:
+                raise ValueError(f"LlmCall.number は 1〜{_NUMBER_MAX} の整数か None(いま {self.number!r})")
+            object.__setattr__(self, "number", int(self.number))
 
 
 @dataclass(frozen=True)
@@ -273,6 +302,46 @@ _COLS: Final[tuple[tuple[str, Any, int], ...]] = (
 ROW_BYTES: Final[int] = int(sum(np.dtype(t).itemsize for _n, t, _f in _COLS))
 _COL_NAMES: Final[tuple[str, ...]] = tuple(n for n, _t, _f in _COLS)
 
+#: 〔1-8 J0・1-3 の検収 M2〕原因の表の列(属性の名・型・空の値)。``CAUSE_ROW_BYTES`` はこの和(入力の id は別の 2 列)。
+_CZ_COLS: Final[tuple[tuple[str, Any, int], ...]] = (
+    ("_cz_kind", np.int8, -1),         # CAUSE_KINDS の番号
+    ("_cz_ref", np.int32, -1),         # 過程の名の番号・実験の表の番号・テープの形でない call_id の番号(形なら -1)
+    ("_cz_call_t", np.int64, 0),       # call_id の 1 つ目(発射の刻みの番号 T)
+    ("_cz_call_agent", np.int64, 0),   # call_id の 2 つ目(体)
+    ("_cz_call_cls", np.int32, 0),     # call_id の 3 つ目(起床の級)
+    ("_cz_in_start", np.int64, 0),     # 入力の出来事 id の範囲の頭(``_ci_*`` の位置)
+    ("_cz_in_len", np.int32, 0),       # 入力の出来事 id の数
+    ("_cz_src", np.int8, -1),          # 〔検収 M1〕選んだ候補の源(CANDIDATE_SOURCES の番号・口を通らない呼び出しは -1)
+    ("_cz_num", np.int8, -1),          # 〔検収 M1〕選んだ提示の番号(1 から・口を通らない呼び出しは -1)
+)
+CAUSE_ROW_BYTES: Final[int] = int(sum(np.dtype(t).itemsize for _n, t, _f in _CZ_COLS))
+_CZ_NAMES: Final[tuple[str, ...]] = tuple(n for n, _t, _f in _CZ_COLS)
+#: 入力の出来事 id の 2 列(``(t_ns, seq)``)。1 つ ``INPUT_ID_BYTES`` B。
+_CI_COLS: Final[tuple[tuple[str, Any, int], ...]] = (("_ci_t", np.int64, 0), ("_ci_seq", np.int32, 0))
+_CI_NAMES: Final[tuple[str, ...]] = tuple(n for n, _t, _f in _CI_COLS)
+INPUT_ID_BYTES: Final[int] = int(sum(np.dtype(t).itemsize for _n, t, _f in _CI_COLS))
+_K_LLM, _K_PROC, _K_EXP = CAUSE_KINDS.index("llm_call"), CAUSE_KINDS.index("process"), CAUSE_KINDS.index("experiment")
+#: 過程の名 → 原因の表の参照の番号。〔1-8 の取り込み・検収 H1〕``Process`` の検査と同じ 1 つの定数
+#: ``V.CAUSE_PROCESS_NAMES``(世界過程+区切り+1-5 の検査の名 ``rights``)から作る(``PROCESS_NAMES`` から作ると
+#: ``Process("rights")`` を書くと ``KeyError``)。
+_PROC_CODE: Final[Mapping[str, int]] = MappingProxyType({n: i for i, n in enumerate(V.CAUSE_PROCESS_NAMES)})
+_SRC_CODE: Final[Mapping[str, int]] = MappingProxyType({n: i for i, n in enumerate(CANDIDATE_SOURCES)})
+_I32 = 1 << 31
+
+
+def _canonical_call_id(call_id: str) -> tuple[int, int, int] | None:
+    """テープの形 ``"{T}:{体}:{級}"``(10 進の整数・先頭の 0 なし・級は負もある)なら 3 つの整数、ほかは ``None``。"""
+    parts = call_id.split(":")
+    if len(parts) != 3:
+        return None
+    try:
+        t, a, c = (int(x) for x in parts)
+    except ValueError:
+        return None
+    if f"{t}:{a}:{c}" != call_id or t < 0 or a < 0 or not (-_I32 <= c < _I32):
+        return None
+    return t, a, c
+
 
 class EventLog:
     """出来事の記録(書く口は ``append`` の 1 つ)。
@@ -284,8 +353,9 @@ class EventLog:
     """
 
     __slots__ = ("enabled", "retention_days") + _COL_NAMES + (
-        "_ev_n", "_ev_names", "_ev_name_codes", "_ev_causes", "_ev_cause_codes", "_ev_now_ns", "_ev_seq_next",
-        "_ev_day_mark", "_ev_n_appended", "_ev_n_evicted")
+        "_ev_n", "_ev_names", "_ev_name_codes", "_ev_now_ns", "_ev_seq_next",
+        "_ev_day_mark", "_ev_n_appended", "_ev_n_evicted") + _CZ_NAMES + _CI_NAMES + (
+        "_cz_n", "_ci_n", "_cz_proc_rows", "_cz_exp_rows", "_cz_experiments", "_cz_texts", "_cz_last_llm")
 
     def __init__(self, *, enabled: bool = True, retention_days: int = RETENTION_DAYS, capacity: int = 1024) -> None:
         if int(retention_days) <= 0 or int(capacity) <= 0:
@@ -298,9 +368,20 @@ class EventLog:
         #: 持ち主の名・出どころの印の表(列には番号=``who``/``whom`` は ``-1-番号``・``origin`` は番号)。
         self._ev_names: list[str] = []
         self._ev_name_codes: dict[str, int] = {}
-        #: 原因の表(列には番号)。日の締めで生きている行が指すものだけに詰め直す。
-        self._ev_causes: list[Any] = []
-        self._ev_cause_codes: dict[Any, int] = {}
+        #: 原因の表(列=``_CZ_COLS``・出来事の列 ``_ev_cause`` には行の番号)。日の締めで生きている行が指すものだけに
+        #: 詰め直す。入力の出来事 id は ``_ci_t``・``_ci_seq`` の範囲。
+        for n, t, f in _CZ_COLS + _CI_COLS:
+            setattr(self, n, np.full(64, f, dtype=t))
+        self._cz_n = 0
+        self._ci_n = 0
+        #: 過程の名の番号 → 行・実験の条件の名 → 行(どちらも名の数で頭打ち)。
+        self._cz_proc_rows: dict[int, int] = {}
+        self._cz_exp_rows: dict[str, int] = {}
+        #: 実験の条件の原因(``gate.admit`` が作った物・条件の数で頭打ち)と、テープの形でない call_id の文字列。
+        self._cz_experiments: list[Experiment] = []
+        self._cz_texts: list[str] = []
+        #: 直前に書いた LLM の呼び出しの原因とその行(同じ呼び出しの行を続けて書くときだけ 1 つにまとめる)。
+        self._cz_last_llm: tuple[LlmCall, int] | None = None
         #: 記録の時計(いまの刻みの頭の時刻)。出来事の時刻はこれより前にできない。
         self._ev_now_ns = 0
         #: ``t_ns`` → 次の ``seq``(刻みの頭で古い時刻を落とす)。
@@ -403,12 +484,81 @@ class EventLog:
         return v
 
     def _cause_code(self, c: Any) -> int:
-        k = self._ev_cause_codes.get(c)
-        if k is None:
-            k = len(self._ev_causes)
-            self._ev_causes.append(c)
-            self._ev_cause_codes[c] = k
+        """原因 → 原因の表の行(無ければ 1 行足す)。過程と実験は名でまとめ、LLM の呼び出しは直前と同じときだけ。"""
+        tc = type(c)
+        if tc is Process:
+            pc = _PROC_CODE[c.name]
+            k = self._cz_proc_rows.get(pc)
+            if k is None:
+                k = self._cz_add(_K_PROC, pc)
+                self._cz_proc_rows[pc] = k
+            return k
+        if tc is Experiment:
+            k = self._cz_exp_rows.get(c.cond_id)
+            if k is None:
+                k = self._cz_add(_K_EXP, len(self._cz_experiments))
+                self._cz_experiments.append(c)
+                self._cz_exp_rows[c.cond_id] = k
+            return k
+        last = self._cz_last_llm
+        if last is not None and last[0] == c:
+            return last[1]
+        parts = _canonical_call_id(c.call_id)
+        if parts is None:
+            k = self._cz_add(_K_LLM, len(self._cz_texts))
+            self._cz_texts.append(c.call_id)
+        else:
+            k = self._cz_add(_K_LLM, -1)
+            self._cz_call_t[k], self._cz_call_agent[k], self._cz_call_cls[k] = parts
+        if c.source is not None:
+            self._cz_src[k] = _SRC_CODE[c.source]
+        if c.number is not None:
+            self._cz_num[k] = c.number
+        ids = c.input_event_ids
+        if ids:
+            m = len(ids)
+            j = self._ci_n
+            if j + m > self._ci_t.size:
+                self._grow_cols(_CI_COLS, j, j + m)
+            self._ci_t[j: j + m] = [x[0] for x in ids]
+            self._ci_seq[j: j + m] = [x[1] for x in ids]
+            self._cz_in_start[k] = j
+            self._cz_in_len[k] = m
+            self._ci_n = j + m
+        self._cz_last_llm = (c, k)
         return k
+
+    def _cz_add(self, kind: int, ref: int) -> int:
+        k = self._cz_n
+        if k >= self._cz_kind.size:
+            self._grow_cols(_CZ_COLS, k, k + 1)
+        self._cz_kind[k] = kind
+        self._cz_ref[k] = ref
+        self._cz_n = k + 1
+        return k
+
+    def _grow_cols(self, cols: tuple[tuple[str, Any, int], ...], used: int, need: int) -> None:
+        cap = max(getattr(self, cols[0][0]).size * 2, int(need))
+        for n, t, f in cols:
+            old = getattr(self, n)
+            new = np.full(cap, f, dtype=t)
+            new[:used] = old[:used]
+            setattr(self, n, new)
+
+    def _cause_at(self, k: int) -> Cause:
+        """原因の表の行 → 今の 3 型の物(``LlmCall`` と ``Process`` は列から作る・``Experiment`` は持っている物)。"""
+        kind = int(self._cz_kind[k])
+        ref = int(self._cz_ref[k])
+        if kind == _K_PROC:
+            return Process(V.CAUSE_PROCESS_NAMES[ref])
+        if kind == _K_EXP:
+            return self._cz_experiments[ref]
+        cid = (self._cz_texts[ref] if ref >= 0 else
+               f"{int(self._cz_call_t[k])}:{int(self._cz_call_agent[k])}:{int(self._cz_call_cls[k])}")
+        a, m = int(self._cz_in_start[k]), int(self._cz_in_len[k])
+        src, num = int(self._cz_src[k]), int(self._cz_num[k])
+        return LlmCall(cid, tuple(zip(self._ci_t[a: a + m].tolist(), self._ci_seq[a: a + m].tolist())),
+                       source=None if src < 0 else CANDIDATE_SOURCES[src], number=None if num < 0 else num)
 
     # ------------------------------------------------------------------ 読む口(試験・計器・後の段の読み手)
     def __len__(self) -> int:
@@ -434,7 +584,13 @@ class EventLog:
 
     @property
     def n_causes(self) -> int:
-        return len(self._ev_causes)
+        return self._cz_n
+
+    @property
+    def cause_nbytes(self) -> int:
+        """〔1-8 J0・1-3 の検収 M2〕原因の表の生きている行の列のバイト(行 × ``CAUSE_ROW_BYTES``+入力の id × ``INPUT_ID_BYTES``)。
+        実験の表と、テープの形でない call_id の文字列(試験だけ)は入らない。"""
+        return self._cz_n * CAUSE_ROW_BYTES + self._ci_n * INPUT_ID_BYTES
 
     def ids(self) -> tuple[np.ndarray, np.ndarray]:
         """生きている行の id の 2 列 ``(t_ns, seq)``(読み取り専用の写し)。"""
@@ -461,7 +617,7 @@ class EventLog:
             where=None if wk < 0 else (V.WHERE_KINDS[wk], int(self._ev_where_id[i])),
             how_much=None if hm == _NONE_I64 else hm, via=V.VIA_WORDS[int(self._ev_via[i])],
             received_ns=None if rc < 0 else rc, read_ns=None if rd < 0 else rd,
-            origin=None if og < 0 else self._ev_names[og], cause=self._ev_causes[int(self._ev_cause[i])],
+            origin=None if og < 0 else self._ev_names[og], cause=self._cause_at(int(self._ev_cause[i])),
         )
 
     def get(self, eid: EventId) -> Event:
@@ -484,7 +640,7 @@ class EventLog:
         """位置 ``start`` から後の生きている行の原因の種類の分布。"""
         if self._ev_n <= int(start):
             return {}
-        kinds = np.asarray([CAUSE_KINDS.index(c.kind) for c in self._ev_causes], dtype=np.int64)
+        kinds = self._cz_kind[: self._cz_n].astype(np.int64)  # 種類の番号は CAUSE_KINDS の並び
         c = np.bincount(kinds[self._ev_cause[int(start): self._ev_n].astype(np.int64)], minlength=len(CAUSE_KINDS))
         return {CAUSE_KINDS[k]: int(c[k]) for k in np.flatnonzero(c)}
 
@@ -522,26 +678,76 @@ class EventLog:
         self._ev_n = n_keep
         # 原因の表を生きている行が指すものだけに詰め直す(LLM の呼び出しは 1 回ごとに原因が 1 つ=表が伸び続けない)
         live = np.unique(self._ev_cause[:n_keep])
-        remap = np.full(len(self._ev_causes), -1, dtype=np.int32)
+        remap = np.full(self._cz_n, -1, dtype=np.int32)
         remap[live] = np.arange(live.size, dtype=np.int32)
-        self._ev_causes = [self._ev_causes[int(k)] for k in live]
-        self._ev_cause_codes = {c: i for i, c in enumerate(self._ev_causes)}
+        self._compact_causes(live)
         self._ev_cause[:n_keep] = remap[self._ev_cause[:n_keep]]
+        if self._cz_last_llm is not None:
+            r = int(remap[self._cz_last_llm[1]])
+            self._cz_last_llm = None if r < 0 else (self._cz_last_llm[0], r)
         dropped = n - n_keep
         self._ev_n_evicted += dropped
         return dropped
 
+    def _compact_causes(self, live: np.ndarray) -> None:
+        """原因の表を ``live``(残す行の番号・昇順)だけにする。入力の id とテープの形でない call_id の表も詰める。"""
+        n_live = int(live.size)
+        kind = self._cz_kind[live].copy()
+        ref = self._cz_ref[live].copy()
+        start = self._cz_in_start[live]
+        ln = self._cz_in_len[live].astype(np.int64)
+        # 入力の id: 残す行の範囲をつないだ位置(``np.repeat`` で範囲を 1 本の添字にする)
+        tot = int(ln.sum())
+        new_start = np.zeros(n_live, dtype=np.int64)
+        if n_live:
+            np.cumsum(ln[:-1], out=new_start[1:])
+        if tot:
+            idx = np.repeat(start - new_start, ln) + np.arange(tot, dtype=np.int64)
+            ci_t, ci_seq = self._ci_t[idx].copy(), self._ci_seq[idx].copy()
+        # テープの形でない call_id の文字列(LLM の行で ref ≥ 0)
+        texts: list[str] = []
+        txt_rows = np.flatnonzero((kind == _K_LLM) & (ref >= 0))
+        for j in txt_rows.tolist():  # 逐次ループ宣言: テープの形でない call_id の行の数(ランでは 0)
+            texts.append(self._cz_texts[int(ref[j])])
+            ref[j] = len(texts) - 1
+        made = {"_cz_kind": kind, "_cz_ref": ref, "_cz_in_start": new_start, "_cz_in_len": ln.astype(np.int32)}
+        for n, _t, f in _CZ_COLS:
+            col = getattr(self, n)
+            col[:n_live] = made[n] if n in made else col[live].copy()
+            col[n_live: self._cz_n] = f
+        if tot:
+            self._ci_t[:tot] = ci_t
+            self._ci_seq[:tot] = ci_seq
+        self._ci_t[tot: self._ci_n] = 0
+        self._ci_seq[tot: self._ci_n] = 0
+        self._cz_n, self._ci_n, self._cz_texts = n_live, tot, texts
+        self._cz_proc_rows = {int(ref[j]): int(j) for j in np.flatnonzero(kind == _K_PROC).tolist()}
+        self._cz_exp_rows = {self._cz_experiments[int(ref[j])].cond_id: int(j)
+                             for j in np.flatnonzero(kind == _K_EXP).tolist()}
+
     # ------------------------------------------------------------------ 成長の宣言(D-R2-6 の 5 欄)
-    def growth_declaration(self, *, rows_per_agent_day: float = 1.0, cap_bytes: int = 256 * 1024 * 1024
-                           ) -> GrowthDeclaration:
-        """この記録の成長の宣言(1-3 の見込み=未リサーチ(expedient)。ランの成長の報告にはまだ載せない)。"""
+    def growth_declaration(self, *, rows_per_agent_day: float = 1.0, cap_bytes: int = 256 * 1024 * 1024,
+                           decision_rows_per_agent_day: float = 0.0) -> GrowthDeclaration:
+        """この記録の成長の宣言(1-3 の見込み=未リサーチ(expedient)。ランの成長の報告にはまだ載せない)。
+
+        ``decision_rows_per_agent_day``: 〔第 1 期 1-8 J0・検収 L2〕腕 ``--decision-port port`` のランだけ渡す判断の出来事の
+        行(1 判断 1 行=出来事の行 ``ROW_BYTES``+原因の表の行 ``CAUSE_ROW_BYTES``)。既定 0=腕 legacy(今の宣言のまま)。
+        口の層 ``engine.decision.layer.DecisionLayer.event_growth`` が mock の実測の値で渡す。
+        """
+        d = float(decision_rows_per_agent_day)
+        if d < 0.0:
+            raise ValueError("decision_rows_per_agent_day は 0 以上")
+        rows = float(rows_per_agent_day) + d
+        note = ("expedient(1-3)。1 行 ROW_BYTES の列(SoA)。保持窓は ActualLog と同じ 7 日。1-3 で配線したのは世界過程"
+                "(ActualLog の行)と区切りだけ=行数は 1 日の実測を記録に書いた(全部の系を載せた後に見直す)")
+        if d > 0.0:
+            note += (f"。1-8 J0 の腕 port: 判断の出来事 {d:g} 行/体/日 × (ROW_BYTES {ROW_BYTES}+原因の表の行 "
+                     f"CAUSE_ROW_BYTES {CAUSE_ROW_BYTES}) B を足した(記録 j0/README.md §5)")
         return GrowthDeclaration(
             name="event_log", per_agent_bytes=0, per_cell_bytes=0, per_day_growth="O(N)",
-            per_day_growth_coef=float(rows_per_agent_day * ROW_BYTES),
+            per_day_growth_coef=float(rows_per_agent_day * ROW_BYTES + d * (ROW_BYTES + CAUSE_ROW_BYTES)),
             retention=Retention(self.retention_days, "manifest の日次の記録(行数と種類の分布)"),
-            worst_case_ops_per_tick=int(max(1.0, rows_per_agent_day * 1000 / STEPS_PER_DAY)), cap=int(cap_bytes),
-            cap_budget_row="S1", mechanism=False,
-            note=("expedient(1-3)。1 行 ROW_BYTES の列(SoA)。保持窓は ActualLog と同じ 7 日。1-3 で配線したのは世界過程"
-                  "(ActualLog の行)と区切りだけ=行数は 1 日の実測を記録に書いた(全部の系を載せた後に見直す)"),
-            unit="行", bytes_per_unit=ROW_BYTES, growth_per_simday=float(rows_per_agent_day),
+            worst_case_ops_per_tick=int(max(1.0, rows * 1000 / STEPS_PER_DAY)), cap=int(cap_bytes),
+            cap_budget_row="S1", mechanism=False, note=note,
+            unit="行", bytes_per_unit=ROW_BYTES, growth_per_simday=rows,
         )

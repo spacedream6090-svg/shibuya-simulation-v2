@@ -8,6 +8,10 @@
 〔第 1 期 1-2〕描画が作った知覚の事実(``perception.facts.Percept``)を体ごとに集め、``TickScratch.percepts`` に書く
 (判断の入力の形=1-8 の ``DecisionPort.choose(ctx, …)``・刻みの中の一時=状態台帳の行 P)。呼の中身は変えない。
 
+〔第 1 期 1-8 J0〕腕 ``--decision-port port``(``engine.decision.layer``・既定 legacy=今の道)のランだけ、艦隊の無い道の
+1 呼を判断の口に通す(``DecisionLayer.decide_one``=前半 → 候補 → 口 → 後半)。結果の行為のコードは口が選んだ候補のコード
+(mock と古典は今と同じ番号)。艦隊の道は J0 では口を通さない(数えるだけ)。既定の道の文は変えない。
+
 逐次ループ宣言: 区間の中の宣言は HEAD のまま(各関数の中の注を見る)。ほかに新しい逐次ループは無い。
 """
 
@@ -41,6 +45,7 @@ def sys_decide(ctx: Any, b: Any) -> None:
     classical_policy = b.layers.classical
     conv = b.layers.conv
     decision = b.scratch.decision
+    decision_layer = b.layers.decision  # 第 1 期 1-8 J0: 腕 port のランだけ(既定 None=今の道)
     fleet_bridge = b.layers.fleet_bridge
     fleet_deferred = b.llm.fleet_deferred
     fleet_inflight = b.llm.fleet_inflight
@@ -96,13 +101,23 @@ def sys_decide(ctx: Any, b: Any) -> None:
                 if classical_policy is not None:
                     classical_policy.set_call(a, cond, _inviter_of(conv, a, cond))
                 _pcs: list = []  # 第 1 期 1-2: 描画の知覚の事実を受ける列(刻みの中だけ・結果には載せない=検収 M1)
-                res = bridge.call(
-                    a, tick, cls, cond,
-                    cell=int(cell[a]), activity=int(act[a]), hunger=int(hun[a]),
-                    last_action=int(last_act[a]),
-                    inviter=_inviter_of(conv, a, cond),
-                    percept_out=_pcs,
-                )
+                if decision_layer is None:
+                    res = bridge.call(
+                        a, tick, cls, cond,
+                        cell=int(cell[a]), activity=int(act[a]), hunger=int(hun[a]),
+                        last_action=int(last_act[a]),
+                        inviter=_inviter_of(conv, a, cond),
+                        percept_out=_pcs,
+                    )
+                else:  # 第 1 期 1-8 J0: 判断の口(前半 → 候補 → 口 → 後半)
+                    res, _pc_j0 = decision_layer.decide_one(
+                        bridge, a, tick, cls, cond,
+                        cell=int(cell[a]), activity=int(act[a]), hunger=int(hun[a]),
+                        last_action=int(last_act[a]),
+                        inviter=_inviter_of(conv, a, cond), t_ns=int(ctx.t_ns),
+                    )
+                    if _pc_j0 is not None:
+                        _pcs.append(_pc_j0)
                 if _pcs:
                     percepts[a] = _pcs[-1]
                 if res.deferred or res.observed_tick >= 0:
@@ -174,6 +189,8 @@ def sys_decide(ctx: Any, b: Any) -> None:
                         b6_text=str(getattr(rendered, "b6_text", "")),
                     )
                 )
+            if decision_layer is not None:  # 第 1 期 1-8 J0: 艦隊の道は口を通さない(数えるだけ)
+                decision_layer.note_fleet_calls(len(calls))
             # 発射は**非ブロッキング**。返るのは「キューに入らなかった」分だけ。
             for c_ in calls:  # 10d: 出したが返っていない呼の控え
                 fleet_inflight[str(c_.call_id)] = c_

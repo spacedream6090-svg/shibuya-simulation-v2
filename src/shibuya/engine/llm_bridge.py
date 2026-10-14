@@ -133,6 +133,7 @@ __all__ = [
     "PerceptionRendererAdapter",
     "STUB_SHARED_BLOCK",
     "BridgeResult",
+    "CallStart",
     "LLMBridge",
 ]
 
@@ -361,8 +362,35 @@ class PerceptionRendererAdapter:
             int(agent_id), int(tick), wake_reason=int(condition), last_action=word,
             inviter=int(inviter) if int(inviter) >= 0 else None,
         )
+        return self._wrap(out, int(agent_id), int(tick), int(wake_class))
+
+    # ---- 第 1 期 1-8 J0: 1 描画を「知覚の事実まで」と「文」の 2 つに分ける(判断の口が間で候補を作る) ----
+    def perceive_call(
+        self, *, agent_id: int, step: int, condition: int = 0, last_action: int = -1, inviter: int = -1,
+    ) -> Any:
+        """``render`` の前半(状態 → ``perception.facts.Percept``)。引数は ``render`` と同じ(刻みの番号は ``step``)。
+
+        描画の副作用(看板の注視の抽選・露出の控え・閉店の 1 句・B3 の計数・近接の同点・想起)は ``render`` と同じ回数・
+        同じ順(``Renderer.render`` は前計算の確かめ → ``perceive`` → 文=ここと ``render_call`` を続けて呼んだのと同じ)。
+        """
+        word = ACTION_WORD_BY_CODE.get(int(last_action))
+        return self.renderer.perceive(
+            int(agent_id), int(step), wake_reason=int(condition), last_action=word,
+            inviter=int(inviter) if int(inviter) >= 0 else None,
+        )
+
+    def render_call(self, percept: Any, *, agent_id: int, step: int, wake_class: int = 0) -> RenderedPrompt:
+        """``render`` の後半(``Percept`` → 文 → テープのブロック)。``perceive_call`` の直後に同じ刻みで呼ぶ。
+
+        ``Rendered.cache_hits``・``cache_misses``(1 描画の命中の数=この口の後ろでは読まない)だけは前半の命中を含まない。
+        """
+        out = self.renderer.render_percept(percept)
+        return self._wrap(out, int(agent_id), int(step), int(wake_class))
+
+    def _wrap(self, out: Any, agent_id: int, step: int, wake_class: int) -> RenderedPrompt:
+        """描いた ``Rendered`` → bridge の ``RenderedPrompt``(録画の口・共有ブロックの id・計数)。"""
         if self.memory_shown is not None:  # 1-6 M0: 見せた記憶の行の録画(MR16)
-            self.memory_shown(int(agent_id), int(tick), int(wake_class),
+            self.memory_shown(int(agent_id), int(step), int(wake_class),
                               tuple(int(x) for x in getattr(out, "recalled_rows", ())))
         blocks: list[tuple[str, str]] = []
         for bid in SHARED_BLOCK_IDS:  # 逐次ループ宣言: 共有ブロック 6 本
@@ -496,6 +524,31 @@ def _kept_target(parse: Any, target_hint: str = "") -> Target:
     if target_hint:
         return parse.target
     return NO_TARGET_VALUE
+
+
+@dataclass(frozen=True, slots=True)
+class CallStart:
+    """〔第 1 期 1-8 J0〕1 呼の前半(知覚の事実まで)。``LLMBridge.begin`` が作り ``finish`` が残りを行う。
+
+    判断の口(``engine.decision``)は前半と後半の間で、知覚の事実(``percept``)から候補を作る。前半と後半の間で状態を
+    書かない限り、``finish(begin(…))`` は ``call(…)`` と同じ描画・同じテープの行・同じ結果。``percept`` は本物の描画の
+    とき ``Percept``(スタブや分けられない描き手は ``None``=``finish`` が 1 回で描く)。刻みの中だけの物(結果にも
+    状態にも残さない)。
+    """
+
+    agent_id: int
+    step: int
+    wake_class: int
+    condition: int
+    cell: int
+    activity: int
+    hunger: int
+    last_action: int
+    inviter: int
+    lane: str
+    targets: tuple[str, ...]
+    percept: Any
+    split: bool
 
 
 class LLMBridge:
@@ -642,15 +695,98 @@ class LLMBridge:
         )
         if percept_out is not None and getattr(rendered, "percept", None) is not None:
             percept_out.append(rendered.percept)
+        return self._after_render(int(agent_id), int(tick), int(wake_class), int(condition), lane, targets, rendered)
+
+    # ---------------------------------------------------------------- 第 1 期 1-8 J0: 1 呼を前半と後半に
+    def begin(
+        self,
+        agent_id: int,
+        step: int,
+        wake_class: int,
+        condition: int = 0,
+        *,
+        cell: int = -1,
+        activity: int = 0,
+        hunger: int = 0,
+        last_action: int = -1,
+        lane: str | None = None,
+        targets: tuple[str, ...] = (),
+        inviter: int = -1,
+    ) -> CallStart:
+        """1 呼の前半=知覚の事実まで(引数は ``call`` と同じ・刻みの番号は ``step``)。描き手が分けられなければ何も描かない。"""
+        split = hasattr(self.renderer, "perceive_call") and hasattr(self.renderer, "render_call")
+        percept = None
+        if split:
+            percept = self.renderer.perceive_call(  # type: ignore[attr-defined]
+                agent_id=int(agent_id), step=int(step), condition=int(condition), last_action=int(last_action),
+                inviter=int(inviter),
+            )
+        return CallStart(
+            agent_id=int(agent_id), step=int(step), wake_class=int(wake_class), condition=int(condition),
+            cell=int(cell), activity=int(activity), hunger=int(hunger), last_action=int(last_action),
+            inviter=int(inviter), lane=lane or self.lane, targets=tuple(targets), percept=percept, split=split,
+        )
+
+    def finish(
+        self,
+        start: CallStart,
+        *,
+        complete: Callable[[LLMRequest], Any] | None = None,
+        percept_out: list | None = None,
+    ) -> BridgeResult:
+        """1 呼の後半(文 → 応答 → テープ → 2 行形のパーサ → 語彙)。``call`` の描画の後と同じ道。
+
+        Args:
+            complete: 応答を作る口 ``(LLMRequest) → LLMResponse``(既定 ``self.client.complete``)。判断の口の古典の実装が
+                方策の構造の答えを受け取るために、同じ方策の口を包んで渡す(応答・計数・副作用は同じ)。再生のランでは
+                使わない(テープの行を引く)。
+            percept_out: ``call`` と同じ(本物の描画のとき ``Percept`` を 1 つ足す)。
+        """
+        if start.split:
+            rendered = self.renderer.render_call(  # type: ignore[attr-defined]
+                start.percept, agent_id=start.agent_id, step=start.step, wake_class=start.wake_class,
+            )
+        else:
+            rendered = self.renderer.render(
+                agent_id=start.agent_id, tick=start.step, cell=start.cell, activity=start.activity,
+                hunger=start.hunger, wake_class=start.wake_class, condition=start.condition,
+                last_action=start.last_action, inviter=start.inviter,
+            )
+        if percept_out is not None and getattr(rendered, "percept", None) is not None:
+            percept_out.append(rendered.percept)
+        return self._after_render(start.agent_id, start.step, start.wake_class, start.condition, start.lane,
+                                  start.targets, rendered, complete)
+
+    def code_of_word(self, word: str) -> int:
+        """語彙の語 → エンジンの行動コード(``call`` がパーサの語に当てるのと同じ: 役割語は安全弁・ほかは版のコード)。"""
+        from shibuya.llm.contract import action_code_of, is_role_action
+
+        if is_role_action(word, self.vocab_version):
+            return int(self._engine_codes[safe_action_word(self.vocab_version)])
+        return int(action_code_of(word, self.vocab_version))
+
+    def _after_render(
+        self,
+        agent_id: int,
+        step: int,
+        wake_class: int,
+        condition: int,
+        lane: str,
+        targets: tuple[str, ...],
+        rendered: RenderedPrompt,
+        complete: Callable[[LLMRequest], Any] | None = None,
+    ) -> BridgeResult:
+        """描画の後(``call`` と ``finish`` の共通の道=1-8 J0 で ``call`` の本体から出しただけ・文は同じ。刻みの番号の引数は
+        T0 の規則で ``step``=``call`` の ``tick`` と同じ値)。"""
         request = LLMRequest(
             agent_id=int(agent_id),
-            tick=int(tick),
+            tick=int(step),
             wake_class=int(wake_class),
             prompt=rendered.text,
             block_ids=rendered.block_ids,
             params=self.params,
             targets=targets or rendered.targets,
-            call_id=f"{int(tick)}:{int(agent_id)}:{int(wake_class)}",
+            call_id=f"{int(step)}:{int(agent_id)}:{int(wake_class)}",
         )
 
         text = ""
@@ -667,7 +803,7 @@ class LLMBridge:
             # 逐次ループ宣言: 追加ループなし(dict 参照 1〜2 回)。再生は検死経路(§1.3)。
             try:
                 hit = self.replay.lookup_row(
-                    int(agent_id), int(tick), int(wake_class), request.prompt_hash
+                    int(agent_id), int(step), int(wake_class), request.prompt_hash
                 )
             except TapeMiss:
                 tape_miss = True
@@ -691,10 +827,10 @@ class LLMBridge:
                     )
                     return BridgeResult(
                         agent_id=int(agent_id),
-                        tick=int(tick),
+                        tick=int(step),
                         wake_class=int(wake_class),
                         condition=int(condition),
-                        t_apply=int(tick) + delta_think_ticks(lane, self.tick_seconds),
+                        t_apply=int(step) + delta_think_ticks(lane, self.tick_seconds),
                         lane=lane,
                         text="",
                         parse=parse_two_line("", self.vocab_version, self.landmarks),
@@ -712,7 +848,7 @@ class LLMBridge:
                 tokens_out = estimate_tokens(text)
         else:
             try:
-                response = self.client.complete(request)
+                response = (self.client.complete if complete is None else complete)(request)
                 text = response.text
                 source = response.source
                 tokens_in = int(response.tokens_in) or tokens_in
@@ -730,7 +866,7 @@ class LLMBridge:
             self.n_role_actions += 1
             if self.role_rights is not None:
                 # 1-5(CP3): 権利は止める理由にしない=確かめて数えるだけ(落とし方は変えない・行動は起きない=出来事は書かない)
-                verdict = self.role_rights(int(agent_id), int(tick), str(parse.action))
+                verdict = self.role_rights(int(agent_id), int(step), str(parse.action))
                 if verdict is False:
                     self.n_role_unauthorized += 1
                 elif verdict is None:
@@ -753,7 +889,7 @@ class LLMBridge:
         if parse.action is None:
             self.n_unknown_action += 1
             outcome = self.undefined.observe(
-                parse.raw_action, int(agent_id), int(tick), request.prompt_hash
+                parse.raw_action, int(agent_id), int(step), request.prompt_hash
             )
             stage = outcome.stage
             feedback = outcome.feedback
@@ -778,10 +914,10 @@ class LLMBridge:
 
         return BridgeResult(
             agent_id=int(agent_id),
-            tick=int(tick),
+            tick=int(step),
             wake_class=int(wake_class),
             condition=int(condition),
-            t_apply=int(tick) + delta_think_ticks(lane, self.tick_seconds),
+            t_apply=int(step) + delta_think_ticks(lane, self.tick_seconds),
             lane=lane,
             text=text,
             parse=parse,

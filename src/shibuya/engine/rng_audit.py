@@ -27,7 +27,8 @@ import ast
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Final, Iterable
+from types import MappingProxyType
+from typing import Any, Final, Iterable, Mapping
 
 # ================================================================ 静的(AST)
 RNG_FUNCS: Final[tuple[str, ...]] = ("stream", "philox")
@@ -226,7 +227,7 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     ("world/assets.py", "synthetic_assets", "world.synthetic"),
     # 引く語数が定数で 4 以内 7 か所(〔第330〕+1・RET −2)
     ("engine/chooser.py", "draw_index", "engine.chooser"),
-    ("engine/classical.py", "ClassicalPolicy.render", "policy.classical"),
+    ("engine/classical.py", "ClassicalPolicy.answer", "policy.classical"),  # 〔1-8 J0〕render の中身を answer へ移した
     ("engine/conversation.py", "ConversationManager._accepts", "expr:self.domain"),
     # 〔第330・10e B6〕天気の規則 calendar の再生日の抽選(鍵 1 語=層の名前と日番号のハッシュ・引く語数 2)
     ("engine/processes/environment.py", "sample_calendar_day", "engine.processes.environment"),
@@ -253,6 +254,9 @@ UNDETERMINED_SITES: Final[dict[tuple[str, str, str], str]] = {
         "予約だけ(作って引かない=0 ブロック)。実行時に見る",
     ("engine/processes/logistics.py", "RoadWorksProcess._plan", "world.road_works"):
         "choice の大きさが工事の数。1 語目は日の鍵(10c 検収 R4)=実行時に見る",
+    ("engine/decision/port.py", "present_rng", "decision.present"):
+        "Generator を返し、呼び手(present)が permutation(候補の数)を引く。0 語目を空け 1〜3 語目に刻みの鍵・体・候補の数"
+        "(k19)=実行時に重なり 0 を見る(第 1 期 1-8 J0)",
     ("llm/mock.py", "MockLLM._stream", "expr:self.domain"):
         "Generator を返し、呼び手(MockLLM の応答)が引く。1 語目は tick=実行時に見る",
     ("perception/attention.py", "gate_stage1", "perception.attention.p_see"):
@@ -398,6 +402,17 @@ K19_RECREATED: Final[dict[str, str]] = {
     "w16.sample.reserved": "w16.sample.stratum と同じ(定員先取り層)",
     "engine.processes.rail": "_build_external_home と _assign_external が同じ鍵 0 で同じ列を引く=規則を同じにするための設計",
 }
+#: 〔第 1 期 1-8 J0・検収 M2〕腕 ``--decision-port port`` のランの検査だけに足す作り直しの許可(既定の腕の検査には渡さない
+#: =既定の腕で mock の同じ鍵を 2 回引く欠陥は今までどおり落ちる)。``recreated_for(decision_port=True)`` で渡す。
+K19_RECREATED_DECISION_PORT: Final[Mapping[str, str]] = MappingProxyType({
+    "llm.mock": "腕 --decision-port port の MockPort が、mock の応答と同じ鍵(刻み・体・起床の級)から行為の抽選の 1 語目を"
+                "引き直す=今の mock と同じ番号を選ぶための設計(MockLLM.action_draw)",
+})
+
+
+def recreated_for(*, decision_port: bool = False) -> dict[str, str]:
+    """``check_overlaps`` に渡す作り直しの許可(既定の腕=``K19_RECREATED`` だけ・腕 port のラン=口の分を足す)。"""
+    return {**K19_RECREATED, **(K19_RECREATED_DECISION_PORT if decision_port else {})}
 
 
 def check_overlaps(stats: dict[str, DomainStats], allow: dict[str, tuple[str, str]] | None = None, *,

@@ -3104,8 +3104,8 @@
   {
    "id": "DOC-memory-store-legacy",
    "what": "記憶の器 M0 の仮の出来事の表(origin=legacy)=1-3 の出来事の記録に体の出来事が無いため、目印の先が 100% 仮の行",
-   "why": "1-6 の検収 M2。体の出来事(行為の結果・LLM の呼び出し)が出来事の記録に載る段まで、器は表の写しを仮の行で持つ",
-   "remove_at": "1-8",
+   "why": "1-6 の検収 M2。体の出来事(行為の結果・LLM の呼び出し)が出来事の記録に載る段まで、器は表の写しを仮の行で持つ。〔第334・親の判断=1-8 の後の付け替え〕外す段 1-8 → 2-3: 記憶の器の目印を実の出来事(1-8 J0 の腕 port の判断の出来事など)に替えるのは、複数日の mock で確かめる段 2-3 で行う",
+   "remove_at": "2-3",
    "declared_in": "docs/bench/analysis/wallbounce-1012/m0/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3115,8 +3115,8 @@
   {
    "id": "DOC-money-fare-cause-rail",
    "what": "運賃の移動(世帯 → 外界・持ち出し)の原因=過程 rail(Process(\"rail\"))。乗車を決めた呼(LlmCall)ではない",
-   "why": "1-9(CP2 の段階 1)。乗車の呼の id(call_id)は適用の口(IntentBatch)に届かないので、改札で運賃を取る鉄道の過程を原因にした(10b-prep §3-2 の E2・engine/processes/rail.py の FARE_CAUSE)。呼の id を配線する段で乗車の呼に替える",
-   "remove_at": "1-8",
+   "why": "1-9(CP2 の段階 1)。乗車の呼の id(call_id)は適用の口(IntentBatch)に届かないので、改札で運賃を取る鉄道の過程を原因にした(10b-prep §3-2 の E2・engine/processes/rail.py の FARE_CAUSE)。呼の id を配線する段で乗車の呼に替える。〔第334・親の判断=1-8 の後の付け替え〕外す段 1-8 → 2-1: 乗車の呼の call_id を適用の口(IntentBatch → resolve → economy)へ運ぶ配線は経済の段 2-1 で行う(1-8 J0 は腕 port の判断の出来事に call_id を付けたところまで)",
+   "remove_at": "2-1",
    "declared_in": "docs/bench/analysis/wallbounce-1012/cp2/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3126,8 +3126,8 @@
   {
    "id": "DOC-money-uncaused-rows",
    "what": "原因の無い金の行(購入・食事=E1・初期の財布=E3・参入資本=E4)は出来事を書かず、生ログの目印の列が空(数は計器 economy.transfers_uncaused。5,000 体の既定 v3 で原因つきの行は 16.6%)",
-   "why": "1-9。購入と食事の呼の id は適用の口に届かず(1-8 の配線)、1-3 の検収 M2(LlmCall を配線する前に原因の表を列にする)がある。組み立て(境界)の原因の名は語彙表に無い。purchase_many に LlmCall を渡す段で外す",
-   "remove_at": "1-8",
+   "why": "1-9。購入と食事の呼の id は適用の口に届かず(1-8 の配線)、1-3 の検収 M2(LlmCall を配線する前に原因の表を列にする)がある。組み立て(境界)の原因の名は語彙表に無い。purchase_many に LlmCall を渡す段で外す。〔第334・親の判断=1-8 の後の付け替え〕外す段 1-8 → 2-1: 購入と食事の呼の call_id を IntentBatch → resolve → economy.purchase_many へ運ぶ配線は経済の段 2-1 で行う(1-8 J0 は腕 port の判断の出来事に call_id を付けたところまで)",
+   "remove_at": "2-1",
    "declared_in": "docs/bench/analysis/wallbounce-1012/cp2/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3205,6 +3205,53 @@
    "since": "2026-10-14",
    "status": "active",
    "remove_basis": "inferred"
+  },
+  {
+   "id": "HD-engine.decision.port-1af925f4",
+   "what": "src/shibuya/engine/decision/port.py の docstring の見出し「expedient(本モジュール分)」の下の項 3 個",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・第 1 期 1-8 J0 の候補の口)。「その他」を最後に置く・番号は 1 から・驚きの 6 語・短い版と長い版のブロックの分け方。判断モデルの評価セット(6-1)で言い方と置き方を腕で測って外す",
+   "remove_at": "6-1",
+   "declared_in": "src/shibuya/engine/decision/port.py#heading:1af925f4",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "HD-engine.decision.sources-2eb55c6e",
+   "what": "src/shibuya/engine/decision/sources.py の docstring の見出し「expedient(候補の見せ方と源の決め方=判断モデルの評価の段 6-1 で測る)」の下の項 2 個",
+   "why": "コードの宣言(第 4 形・第 1 期 1-8 J0)。候補の見せ方の文(語(源の注))と、続ける=安全弁の語・近い予定=今の意図だけ・同じ語は先の源の 1 つだけ。候補を頭に浮かんだこととして見せる言い方は R108-7 の空欄=評価セットの腕で測る(6-1)",
+   "remove_at": "6-1",
+   "declared_in": "src/shibuya/engine/decision/sources.py#heading:2eb55c6e",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "HD-engine.decision.layer-2d3672ba",
+   "what": "src/shibuya/engine/decision/layer.py の docstring の見出し「expedient(周りが示すできること=1-7 の道具の台帳で外す)」の下の項 1 個",
+   "why": "コードの宣言(第 4 形・第 1 期 1-8 J0)。候補の源 affordance(周りが示すできること)を場所の種類と営業時間と知覚から機械的に作る仮の源(親の補足: 1-7 の道具の台帳が未着手のため)。1-7 の取り込みの後に道具の台帳から作る形に結ぶ",
+   "remove_at": "1-7",
+   "declared_in": "src/shibuya/engine/decision/layer.py#heading:2d3672ba",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-j0-candidates-vocab",
+   "what": "候補の口 J0 の候補の集合=5 つの源の候補+どの源も出さなかった語彙の横断語の残り(源の印 vocab=今の道の設計者の一覧)",
+   "why": "DM-0(候補は設計者の一覧ではなく 5 つの源から)と口の約束 1-8 の約束 (2)(腕 on で mock の行動の分布が今と同じ=同じ鍵から同じ番号)を両立するため、J0 では語彙の全語を候補に残し、源の無い語に印 vocab を付けて数える(manifest の decision_port.presented_by_source.vocab)。判断モデルを既定にする段(6-1 の J3)で語彙の残りを外す",
+   "remove_at": "6-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/j0/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/decision/sources.py"
+   ]
   }
  ]
 }

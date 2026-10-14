@@ -1,6 +1,6 @@
 """状態台帳の宣言(10b・A3「挙動」と「復元」の 2 軸・機械可読の 1 ファイル)。
 
-**読み口は 1 つ**: ``LEDGER``(192 行の組=〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
+**読み口は 1 つ**: ``LEDGER``(193 行の組=〔第 1 期 1-8〕候補の口の行 ``J0``・〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
 ``soa_rows``・``external_rows``・``behavior_excluded``・``full_excluded``・``full_items``・``behavior_items``)。表・AST の検査(``engine.state_ledger_ast``)・
 2 つのハッシュ(``engine.state_hashes``)・揺らし試験はどれもこの表から作る。
 
@@ -59,6 +59,7 @@ from typing import Final, Iterable
 #: 〔第 1 期 1-6〕記憶の器の行 ``M0``(軸 1 no・軸 2 derivable・中身は全部 hash_skip)と ``M0R``(diag・discardable)を
 #: 足したが版は上げない(1-3 と同じ仮採用): どちらのハッシュにも状態のファイルにも入らない(190 行)。
 #: 〔第 1 期 1-2〕知覚の事実の行 ``P``(軸 1 no・軸 2 discardable・道筋なし)も同じ理由で版は上げない(仮採用)。
+#: 〔第 1 期 1-8 J0〕候補の口の行 ``J0``(軸 1 diag・軸 2 discardable)も同じ理由で版は上げない(仮採用)。
 LEDGER_VERSION: Final[str] = "state-ledger/10e-ret"
 
 BEHAVIOR: Final[str] = "behavior"
@@ -666,19 +667,25 @@ _EXT: tuple[LedgerRow, ...] = (
             "再開には要る=軸 2 は required のまま(full-hash と状態のファイルには入る)"),
     # ---- 第 1 期 1-3(出来事の記録・CP12): 足す前に軸を決めた行(口の約束 1-3 の約束 (1)) ----
     LedgerRow(
-        key="E", name="EventLog(出来事の記録・第 1 期 1-3)", place=EXTERNAL, dtype="列(SoA 風・1 行 72 B)・名と原因の表",
+        key="E", name="EventLog(出来事の記録・第 1 期 1-3)", place=EXTERNAL,
+        dtype="列(SoA 風・1 行 72 B)・名の表・原因の表の列(1 行 39 B+入力の id 12 B/個=1-8 J0)",
         nbytes="", alloc="", behavior=DIAG, restore=DISCARDABLE, dead=False,
         basis="engine/events/log.py(EventLog)・engine/systems/state_io.py(day_record の計器)",
         items=tuple(f"events.{a}" for a in (
             "_ev_t_ns", "_ev_seq", "_ev_who", "_ev_what", "_ev_whom", "_ev_where_kind", "_ev_where_id",
             "_ev_how_much", "_ev_via", "_ev_received_ns", "_ev_read_ns", "_ev_origin", "_ev_cause", "_ev_n",
-            "_ev_names", "_ev_name_codes", "_ev_causes", "_ev_cause_codes", "_ev_now_ns", "_ev_seq_next",
-            "_ev_day_mark", "_ev_n_appended", "_ev_n_evicted")),
+            "_ev_names", "_ev_name_codes", "_ev_now_ns", "_ev_seq_next",
+            "_ev_day_mark", "_ev_n_appended", "_ev_n_evicted",
+            # 〔第 1 期 1-8 J0・1-3 の検収 M2〕原因の表の列(前は Python の物の list と dict=_ev_causes・_ev_cause_codes)
+            "_cz_kind", "_cz_ref", "_cz_call_t", "_cz_call_agent", "_cz_call_cls", "_cz_in_start", "_cz_in_len",
+            "_cz_src", "_cz_num", "_ci_t", "_ci_seq", "_cz_n", "_ci_n", "_cz_proc_rows", "_cz_exp_rows",
+            "_cz_experiments", "_cz_texts", "_cz_last_llm")),
         note="1-3: 軸 1 diag(読み手は日次の記録の計器=state_io.day_record と試験だけ。挙動は読まない)・軸 2 discardable"
              "(再開のランは空から書く=どちらのハッシュにも状態のファイルにも入らない=記録の有無で final・behavior-hash は"
              "不変)。id は (t_ns, seq) なので刻みの境目からの再開でも通しのランと同じ id。行の鍵は O の通し番号でなく "
-             "E(系の宣言は E:events.*)。書く系は world・phase_c(1-9)・checkpoint・day_close・close_final"
-             "(凍結の表 writes_paths_events.json と同じ。1-5 の役割語は出来事を書かない=decide は書く系でない)"),
+             "E(系の宣言は E:events.*)。書く系は world・phase_c(1-9)・checkpoint・day_close・close_final・decide(1-8 J0 の"
+             "腕 --decision-port port の判断の出来事 1 行)(凍結の表 writes_paths_events.json と同じ。1-5 の役割語は出来事を"
+             "書かない)。1-8 J0 で原因の表を列にした(道筋の名だけが替わった)"),
     # ---- 第 1 期 1-6(記憶の器 M0・MR11 (b)・MR16・腕 --memory-store events): 足す前に軸を決めた行 ----
     LedgerRow(
         key="M0", name="MemoryStore(記憶の器 M0・第 1 期 1-6)の行・仮の出来事の表・注釈", place=EXTERNAL,
@@ -726,6 +733,20 @@ _EXT: tuple[LedgerRow, ...] = (
              "知覚 SoA の heading・task_flag と同じ扱い。scratch の欄を読む系は今は無い=1-8 の判断の口が読む)・軸 2 discardable"
              "(刻みの頭で空になる=どちらのハッシュにも状態のファイルにも入らない)。持ち主の物ではなく TickScratch の欄なので"
              "道筋(items)は持たない。書く系は decide だけ(writes.scratch=段 C の守り)。行の鍵は O の通し番号でなく P"),
+    # ---- 第 1 期 1-8(候補の口 J0・DM-0・C-2): 足す前に軸を決めた行(口の約束 1-8 の約束 (1)=腕の裏) ----
+    LedgerRow(
+        key="J0", name="DecisionLayer(候補の口 J0 の計器・刻みごとの営業中の店の控え・第 1 期 1-8)", place=EXTERNAL,
+        dtype="計器の dict(数と分布)・セル数の bool 3 本と刻みの番号", nbytes="", alloc="--decision-port port",
+        behavior=DIAG, restore=DISCARDABLE, dead=False,
+        basis="engine/decision/layer.py(DecisionLayer.decide_one・affordance_words)・engine/systems/decide.py(書く)・"
+              "engine/run.py(manifest の decision_port)",
+        items=("decision.meter", "decision._aff_step", "decision._aff_any", "decision._aff_eatery",
+               "decision._aff_shop"),
+        note="1-8 J0: 腕 --decision-port port のランだけ層を作る(既定は持ち主が None)。計器(判断の数・候補の源の分布・"
+             "「その他」・選んだ番号・今の道との食い違い・判断の出来事の行)は診断=読み手は manifest の decision_port と試験だけ"
+             "(軸 1 diag)。営業中の店の控えは刻みの頭の世界から作り直す(候補の源 affordance を作るだけ=行為は口の実装が"
+             "選ぶ・mock と古典は候補の源を読まない)。軸 2 discardable(再開のランは空から=どちらのハッシュにも状態のファイルにも"
+             "入らない)。書く系は decide だけ(宣言 J0:decision.*)。行の鍵は O の通し番号でなく J0"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -842,6 +863,8 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "fleet_bridge": ("llm/fleet.py", "FleetBridge"),
     # 第 1 期 1-3: 出来事の記録(状態台帳の行 E)
     "events": ("engine/events/log.py", "EventLog"),
+    # 第 1 期 1-8 J0: 候補の口の層(状態台帳の行 J0・腕 --decision-port port のランだけ)
+    "decision": ("engine/decision/layer.py", "DecisionLayer"),
 }
 
 #: (ii) キャッシュ・導出。中身は 3 通り: (a) 毎 tick(か事象のある tick)作り直す作業の値・印
@@ -1085,6 +1108,12 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "_params_hash", "debug_dir", "debug_max_rows"),
     # 第 1 期 1-3: 出来事の記録の設定(記録するか=切替口・保持窓の日数)
     _x("events", CONST, _CFG, "enabled", "retention_days"),
+    # 第 1 期 1-8 J0: 候補の口の層の設定(腕の名・語彙・続ける語・語の表)・参照(口の実装・出来事の記録・世界)・資産の表
+    _x("decision", CONST, _CFG, "arm", "vocab", "continue_word", "word_of_code", "kind_words", "event_words",
+       "n_cells"),
+    _x("decision", REF, _REFR + "(口の実装=口の後ろの今の道の bridge と方策を指す・出来事の記録・世界)",
+       "port", "events", "world"),
+    _x("decision", CACHE, _TAB, "_poi_cell", "_eatery", "_station", "_home_cell"),
 )
 
 

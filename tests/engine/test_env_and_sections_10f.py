@@ -48,6 +48,8 @@ C19_KEYS = ("economy",)
 P12_KEYS = ("percept",)
 #: 第 1 期 1-5 で末尾に足した欄(権利台帳の行数と分布・許可のない行動の数=観測)。
 R15_KEYS = ("rights",)
+#: 第 1 期 1-8 J0 で末尾(1-5 の rights の後)に足した欄(候補の口の計器)。
+J08_KEYS = ("decision_port",)
 PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite", "blake3", "os", "os_release",
                  "os_version", "machine", "cpu", "numpy_simd", "deps", "deps_sha256", "deps_count"}
 #: 設定の節の道筋の一覧の sha256(環境に依らない golden=検収 N3 の 3)。節を変えたら理由を記録に書いて更新する。
@@ -66,7 +68,10 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 第 1 期 1-2: ``percept``(知覚の事実の形・欄の数・空の欄=設定)を足した(1-9 の後に。前 ``1b0edc6d…3dbf9d09``)。
 #: 第 1 期 1-2: 看板の注視の活動の乗数を消した=``p_see_activity`` は欄を残して値は null(混ざった辞書の子の道筋 4 つを消し、
 #: 欄そのものを設定に。1-2 の枝の上では ``7347c44e…`` → ``e6a25217…``)。
-CONFIG_PATHS_SHA256 = "4d75732bf5ca4525587869931c23e404fc6684550f9d032d671f32c692174dc5"
+#: 第 1 期 1-8 J0: ``decision_port`` の設定の子 7 つ(schema・arm・port・sources・bridge_source・other_share_default・
+#: other_share_basis)を足した(1-2 の後に・前 ``4d75732b…92174dc5``・記録 docs/bench/analysis/wallbounce-1012/j0/README.md)。
+#: 1-5 の ``rights`` は観測の節=設定の道筋は変わらない(1-5 を取り込んだ本体の上でも同じ値・第334 の rebase で確かめた)。
+CONFIG_PATHS_SHA256 = "89e426b3be11fd38fbc0b8ab77c08ea7d35923dc4a01edb470df47dae50b9065"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 
@@ -229,8 +234,8 @@ def test_t1_two_processes_write_the_same_env_id_and_final_to_the_files(tmp_path)
     drop = lambda m: {k: v for k, v in m.items() if k not in NEW_KEYS + ("resume",)}  # noqa: E731
     assert drop(c1["manifest"]) == drop(c2["manifest"])
     assert c1["manifest"]["resume"]["run_id"] != c2["manifest"]["resume"]["run_id"]
-    # 列追加のみ(末尾に 3 つ+第 2 段の 2 つ+10e の欄+1-1 T0 の欄+1-4 の欄+1-9 の欄+1-2 の欄+1-5 の欄)
-    tail = NEW_KEYS + STAGE2_KEYS + E10_KEYS + T0_KEYS + R14_KEYS + C19_KEYS + P12_KEYS + R15_KEYS
+    # 列追加のみ(末尾に 3 つ+第 2 段の 2 つ+10e の欄+1-1 T0 の欄+1-4 の欄+1-9 の欄+1-2 の欄+1-5 の欄+1-8 J0 の欄)
+    tail = NEW_KEYS + STAGE2_KEYS + E10_KEYS + T0_KEYS + R14_KEYS + C19_KEYS + P12_KEYS + R15_KEYS + J08_KEYS
     assert list(c1["manifest"])[-len(tail):] == list(tail)
 
 

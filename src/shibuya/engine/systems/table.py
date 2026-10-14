@@ -197,13 +197,14 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "O19:rel_layer.* O2[0-4]:classical.* O69:classical.* O90:classical.* O6[34]:renderer.* O84:renderer.* "
                "O85:bridge.* O86:bridge.* O87:bridge.* O8[89]:fleet_bridge.* O62:undefined.* O8[23]:undefined.* "
                "O35:presence.* O70:presence.* "
-               "M0*:mem_layer.memory_store.*",  # 1-6: 記憶の器(想起の計数・見せた行の録画・発話の記憶・テープの列)
+               "M0*:mem_layer.memory_store.*"  # 1-6: 記憶の器(想起の計数・見せた行の録画・発話の記憶・テープの列)
+               " J0:decision.* E:events.*",  # 1-8 J0: 腕 port の候補の口の計器・営業中の店の控えと判断の出来事の行
          # 第 1 期 1-2: 描いた知覚の事実 ``percepts``(``TickScratch`` の欄・状態台帳の行 P)
          scratch_r="decision outside_now n_parse_errors_fleet", scratch_w="parse_errors percepts",
          tally="calls_by_cond layer_counts n_fleet_resent n_outside_calls peak_backlog peak_pending phase result",
          calls_llm="send", reads="cfg.call_layer cfg.lane cfg.refractory_table cfg.store_wom_on cfg.tick_seconds "
                "cfg.vocab_version layers.arbiter layers.bridge layers.classical layers.conv "
-               "layers.fleet_bridge layers.mem_layer layers.presence layers.rel_layer layers.wom "
+               "layers.decision layers.fleet_bridge layers.mem_layer layers.presence layers.rel_layer layers.wom "
                "llm.fleet_deferred llm.fleet_inflight llm.fleet_waiting llm.pending llm.replay_inbox "
                "runstats.calls_by_cond runstats.layer_counts runstats.n_fleet_resent "
                "runstats.n_outside_calls runstats.peak_backlog runstats.peak_pending runstats.phase "
@@ -337,7 +338,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.norm_meter layers.poi_resolver layers.presence layers.rel_layer "
                "layers.renderer layers.runner layers.wom llm.fleet_deferred llm.fleet_inflight "
                "llm.fleet_waiting llm.pending llm.replay_inbox runstats.daily_records "
-               "runstats.ledger_growth runstats.result runstats.state_files soa.agents soa.world layers.events",
+               "runstats.ledger_growth runstats.result runstats.state_files soa.agents soa.world layers.events "
+               "layers.decision",  # 1-8 J0: 候補の口の層を結果に渡す(manifest の decision_port)
          origin=f"E1・run.py:4551-4592 @{_E}"),
     make("report", "計器", "run_end", _RP.report,
          tally="result sleep_counts frozen_sources_map",  # 段 FIX: 欄の別名 ``frozen_sources_map.update``

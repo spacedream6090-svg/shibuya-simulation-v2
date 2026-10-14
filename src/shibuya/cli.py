@@ -1254,6 +1254,14 @@ def main(argv: list[str] | None = None) -> int:
              "テープに列 recalled_event_ids を足す。器は結果を変えないので設定の指紋には入らない"
              "(manifest の memory_summary.memory_store に出る)",
     )
+    ap.add_argument(
+        "--decision-port",
+        choices=("legacy", "port"),
+        default=None,
+        help="第 1 期 1-8 候補の口 J0 の腕(既定 legacy=今の道・環境変数 SHIBUYA_DECISION_PORT と同じ。指定すれば環境変数より"
+             "強い)。port で判断の 1 呼を候補の口に通す(候補は 5 つの源・順のシャッフル・番号で返す・mock と古典は今と同じ"
+             "番号=結果は同じ)。口は結果を変えないので設定の指紋には入らない(manifest の decision_port に出る)",
+    )
     # --llm / --endpoints / --model / --mode / --run-id / --tape / --temperature /
     # --max-tokens / --fleet-wait-s(C6-a)
     add_fleet_args(ap)
@@ -1286,6 +1294,10 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine import memory_store as _memory_store
 
         _memory_store.set_arm(str(args.memory_store))
+    if args.decision_port is not None:  # 第 1 期 1-8 J0: 候補の口の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine.decision import layer as _decision_layer
+
+        _decision_layer.set_arm(str(args.decision_port))
     res = run(  # 第 1 期 1-4(検収 M2): ランの種類は run が決める(試験 > CLI の既定と違う腕 > 再現)
         n_agents=args.agents,
         seed=args.seed,

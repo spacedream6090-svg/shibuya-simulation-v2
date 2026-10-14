@@ -614,6 +614,12 @@ class ClassicalPolicy:
         return int(ids[int(np.argmax(np.where(np.isfinite(A), A, -np.inf)))])  # argmax=最初の最大=行の順
 
     def render(self, request: LLMRequest) -> str:
+        """応答の本文(5 ラベル形)=``answer`` の 5 つを並べた文。"""
+        return format_two_line_v3(*self.answer(request))
+
+    def answer(self, request: LLMRequest) -> tuple[str, str, str, str, str]:
+        """方策の答え ``(理由, 行動, 対象, 活動, まで)``(〔第 1 期 1-8 J0〕1-8 の前の ``render`` の中身=乱数・計数・副作用は同じ。
+        判断の口の古典の実装 ``engine.decision.ports.ClassicalPort`` が行動の語を候補の番号に写す)。"""
         aid = int(request.agent_id)
         tick = int(request.tick)
         r = self.agents.registry
@@ -626,14 +632,14 @@ class ClassicalPolicy:
         if cond == int(WakeCondition.CONVERSATION_TURN) and inviter >= 0:
             self.counts["reply_talk"] = self.counts.get("reply_talk", 0) + 1
             self.by_hour[hour, 1] += 1
-            return format_two_line_v3(REASON_REPLY, "会話", f"{_PERSON_PREFIX}{inviter}", "話す", "30分")
+            return REASON_REPLY, "会話", f"{_PERSON_PREFIX}{inviter}", "話す", "30分"
         p_meal, stage = self.meal_probability(aid, tick)
         if u_meal < p_meal:
             self.counts["meal"] = self.counts.get("meal", 0) + 1
             self.counts[f"meal_stage:{stage}"] = self.counts.get(f"meal_stage:{stage}", 0) + 1
             self.by_hour[hour, 0] += 1
             reason = REASON_MEAL_HUNGRY if stage >= 2 else REASON_MEAL
-            return format_two_line_v3(reason, "食事", "飲食店", "食事", "30分")
+            return reason, "食事", "飲食店", "食事", "30分"
         p = self.activity_probs(aid, tick)
         k = int(np.searchsorted(np.cumsum(p), u_act * float(p.sum()), side="right"))
         k = min(k, len(SSB_ACTIVITY_CODES) - 1)
@@ -641,16 +647,18 @@ class ClassicalPolicy:
         self._prev[aid] = k + 1
         self.counts[f"activity:{code}"] = self.counts.get(f"activity:{code}", 0) + 1
         self.by_hour[hour, 1] += 1
-        reason, action, target, activity, until = self._respond(
-            code, aid, cell, str(request.prompt), inviter
-        )
-        return format_two_line_v3(reason, action, target, activity, until)
+        return self._respond(code, aid, cell, str(request.prompt), inviter)
 
     def complete(self, request: LLMRequest) -> LLMResponse:
         """``LLMClient`` 契約の同期実装(LLM は呼ばない)。"""
-        text = self.render(request)
+        return self.complete_with_answer(request)[0]
+
+    def complete_with_answer(self, request: LLMRequest) -> tuple[LLMResponse, tuple[str, str, str, str, str]]:
+        """〔第 1 期 1-8 J0〕``complete`` と同じ応答・計数に、方策の答えの 5 つを添えて返す(判断の口の古典の実装が使う)。"""
+        ans = self.answer(request)
+        text = format_two_line_v3(*ans)
         self.n_calls += 1
-        return LLMResponse(text=text, tokens_in=0, tokens_out=estimate_tokens(text), source=self.source)
+        return LLMResponse(text=text, tokens_in=0, tokens_out=estimate_tokens(text), source=self.source), ans
 
     async def acomplete(self, request: LLMRequest) -> LLMResponse:
         return self.complete(request)

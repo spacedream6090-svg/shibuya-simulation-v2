@@ -32,7 +32,8 @@ def res():
 
 def test_rights_is_the_last_key_and_observed(res):
     keys = list(res.run_manifest_fields())
-    assert keys == TOP and keys[-1] == "rights"
+    # 〔第 1 期 1-8 J0 の取り込み〕1-8 の decision_port が rights の後ろ(末尾)に入った(試験の名は履歴のまま)
+    assert keys == TOP and keys[-2:] == ["rights", "decision_port"]
     assert MS.section_of("rights") == MS.OBSERVED and MS.section_of("rights.by_kind") == MS.OBSERVED
 
 

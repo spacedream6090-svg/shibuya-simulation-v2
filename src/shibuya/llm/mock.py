@@ -261,6 +261,18 @@ class MockLLM:
         target = request.targets[c % len(request.targets)] if request.targets else NO_TARGET
         return format_two_line(reason, action, target, comment)
 
+    def action_draw(self, agent_id: int, step: int, wake_class: int) -> int:
+        """〔第 1 期 1-8 J0〕行為の抽選の値 ``a``(``render`` が ``vocab[a % len(vocab)]`` に使う 1 語目)を同じ鍵から引き直す。
+
+        判断の口の mock(``engine.decision.ports.MockPort``)が候補の番号を決めるのに使う(本文は読まない)。``render`` と
+        同じ形で引く(``form="v1"``=3 語・``"v3"``=6 語の 1 語目=どちらも同じ流れの最初の語)。乱数の流れは ``render`` の
+        流れと同じ鍵(刻み・体・起床の級)の作り直し=応答は変わらない。
+        """
+        req = LLMRequest(agent_id=int(agent_id), tick=int(step), wake_class=int(wake_class), prompt="")
+        if self.form == "v3":
+            return int(self._stream(req).integers(0, 1 << 31, size=6)[0])
+        return int(self._draws(req)[0])
+
     def complete(self, request: LLMRequest) -> LLMResponse:
         """``LLMClient`` 契約の同期実装。"""
         text = self.render(request)

@@ -130,6 +130,7 @@ from shibuya.llm.fleet import FleetClient
 from shibuya.llm.mock import MockLLM
 from shibuya.perception.channels import BudgetMode
 from shibuya.perception.facts import percept_manifest as _percept_manifest
+from shibuya.engine.decision import layer as _DECISION
 from shibuya.perception.renderer import (
     DEFAULT_HUNGER_WORDS,
     DEFAULT_NEAR_ORDER,
@@ -498,6 +499,7 @@ MOTION_RNG_DOMAINS: dict[str, str] = {
     "policy.classical": "古典の方策の抽選",
     "conversation.invite": "会話の招待の抽選",
     "llm.mock": "mock の応答(行為の抽選)",
+    "decision.present": "候補の口の提示の並べ替え(第 1 期 1-8 J0・腕 --decision-port port のランだけ)",
     "llm.mock.move_target": "mock の移動の対象",
     "llm.mock.out_of_cell_target": "mock のセル外の店の対象",
     "perception.attention.p_see": "注視ゲート(看板・親しみの露出)",
@@ -1302,6 +1304,10 @@ class RunResult:
             # ---- 第 1 期 1-5: 権利台帳の行数と種類の分布・空欄のつなぎの台帳の行・許可のない行動の数(計器・CP4・CP3)。
             # 世界過程の無いランは None。記録だけ(final・behavior-hash は manifest を読まない)。列追加のみ ----
             "rights": _RR.manifest_fields(getattr(self, "runner", None), self.bridge_counters),
+            # ---- 第 1 期 1-8 J0(候補の口): 腕の名・口の実装・候補の源の分布・「その他」の割合・選んだ番号(計器)。末尾=
+            # T0 の TM9 → 1-4 の欄 → 1-9 の economy → 1-2 の percept → 1-5 の rights → 1-8。腕 legacy のランは観測の子が
+            # null。列追加のみ ----
+            "decision_port": _DECISION.manifest_fields(getattr(self, "decision_layer", None)),
         }
 
     def economy_fields(self) -> dict[str, Any]:

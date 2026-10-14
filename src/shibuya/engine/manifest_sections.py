@@ -178,6 +178,12 @@ PATHS: Final[dict[str, str]] = {
     **_mixed("economy", config=("raw_capacity", "raw_rows_per_agent_day", "raw_row_bytes", "raw_link_bytes",
                                 "raw_overflow_policy"), observed=(
         "raw_overflow", "transfers_total", "transfers_amount", "transfers_uncaused", "transfer_events")),
+    # ---- 第 1 期 1-8 J0: 候補の口(腕の名・口の実装・源の一覧・「その他」の既定=設定/判断の数・源の分布・「その他」の割合・
+    # 選んだ番号の分布・今の道との食い違い・判断の出来事=観測。腕 legacy のランは観測の子が null) ----
+    **_mixed("decision_port", config=("schema", "arm", "port", "sources", "bridge_source", "other_share_default",
+                                      "other_share_basis"), observed=(
+        "decisions", "late", "fleet_legacy", "presented_by_source", "chosen_by_source", "other", "other_ratio",
+        "chosen_number", "n_candidates", "mismatch", "events", "events_unlogged")),
 }
 
 

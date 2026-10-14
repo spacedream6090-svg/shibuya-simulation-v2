@@ -1183,6 +1183,32 @@ def build(_call_args: dict[str, Any]) -> Any:
 
         ledger.attach_events(MoneyEventLink(events), step_seconds=int(tick_seconds))
 
+    # ---- 第 1 期 1-8 J0: 候補の口の腕(既定 legacy=層を作らない=今の道)。port のランだけ層を作り、判断の系が 1 呼を口に通す
+    # (状態台帳の行 J0=軸 1 diag・軸 2 discardable)。実装は方策で選ぶ(古典 → ClassicalPort・記録の mock → MockPort・
+    # ほか(テープの再生・注入の LLM)→ LlmPort) ----
+    from shibuya.engine.decision import layer as _DL
+
+    decision_layer = None
+    if _DL.arm() == _DL.ARM_PORT:
+        from shibuya.engine.decision import ports as _DP
+        from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE as _WORDS
+        from shibuya.llm.contract import cross_action_words, safe_action_word
+        from shibuya.llm.mock import MockLLM as _MockLLM
+
+        _pkw = dict(seed=seed, day_key0=int(day_index), step_seconds=int(tick_seconds))
+        if classical_policy is not None:
+            _port = _DP.ClassicalPort(bridge, classical_policy, **_pkw)
+        elif bridge.replay is None and isinstance(bridge.client, _MockLLM):
+            _port = _DP.MockPort(bridge, bridge.client, **_pkw)
+        else:
+            _port = _DP.LlmPort(bridge, **_pkw)
+        _pa_j0 = getattr(runner, "assets", None) if runner is not None else None
+        decision_layer = _DL.DecisionLayer(
+            port=_port, vocab=cross_action_words(vocab_version), continue_word=safe_action_word(vocab_version),
+            word_of_code=_WORDS, events=events, world=world, home_cell=np.asarray(schedule.home_cell),
+            station_cells=getattr(_pa_j0, "line_platform_cell", None),
+        )
+
     # ---- 1-0 段 C: 状態の箱(局所の割り当ての表 local-assignment.json・草案 §2-3)。物はそのまま指す(写しを作らない) ----
     box = _BX.Box(
         cfg=_BX.RunConfig(
@@ -1219,7 +1245,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             energy=energy_layer, norm_meter=norm_meter, presence=presence, conv=conv, arbiter=arbiter,
             detector=detector, runner=runner, ledger=ledger,
             renderer=getattr(perception, "renderer", None) if perception is not None else None,
-            bridge=bridge, fleet_bridge=fleet_bridge, events=events,
+            bridge=bridge, fleet_bridge=fleet_bridge, events=events, decision=decision_layer,
         ),
         llm=_BX.LlmIo(pending=pending, fleet_deferred=fleet_deferred, fleet_waiting=fleet_waiting,
                       fleet_inflight=fleet_inflight, replay_inbox=replay_inbox),

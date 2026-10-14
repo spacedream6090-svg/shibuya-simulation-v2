@@ -39,11 +39,12 @@ __all__ = [
 #: 状態台帳の外の状態の持ち主の名(``hash_owners`` の鍵・HEAD の ``_hash_owners`` と同じ順)。
 #: 〔第 1 期 1-3〕末尾に ``events``(出来事の記録=状態台帳の行 ``E``・軸 1 diag・軸 2 discardable)を足した。既存の 21 個の
 #: 名と順は変えない。2 つのハッシュは軸で選んだ行の道筋だけを読む(``full_items``・``behavior_items``)ので、持ち主を
-#: 足してもハッシュの値は変わらない。
+#: 足してもハッシュの値は変わらない。〔第 1 期 1-8 J0〕末尾に ``decision``(候補の口の層=状態台帳の行 ``J0``・腕 port の
+#: ランだけ・既定 None)を足した(同じ理由で値は変わらない)。
 OWNER_NAMES: tuple[str, ...] = (
     "act_layer", "intent_layer", "fam_layer", "mem_layer", "poi_resolver", "wom", "rel_layer", "classical",
     "energy", "norm_meter", "presence", "conv", "arbiter", "detector", "runner", "ledger", "undefined",
-    "renderer", "bridge", "fleet_bridge", "run_day", "events",
+    "renderer", "bridge", "fleet_bridge", "run_day", "events", "decision",
 )
 
 
@@ -201,6 +202,9 @@ class Layers:
     fleet_bridge: Any
     #: 〔第 1 期 1-3〕出来事の記録(``engine.events.log.EventLog``・状態台帳の行 ``E``)。組み立てが置く。
     events: Any = None
+    #: 〔第 1 期 1-8 J0〕候補の口の層(``engine.decision.layer.DecisionLayer``・状態台帳の行 ``J0``)。腕
+    #: ``--decision-port port`` のランだけ組み立てが置く(既定 None=今の道)。
+    decision: Any = None
 
     @property
     def undefined(self) -> Any:

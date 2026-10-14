@@ -300,7 +300,9 @@ def test_k19_static_sites_are_frozen():
     # 〔第330・10e B6〕SAFE_SITES に天気の規則 calendar の再生日の抽選(sample_calendar_day)を足して 15 → 16
     # 〔改訂(第330・RET)〕legacy の天気の 2 か所(_pick_day・select_day)を消して 16 → 14・stateful の Generator の
     # 4 か所(salient と dispatch の __init__・relay_day)を消して決まらない呼び手 16 → 12
-    assert len(RA.SAFE_SITES) == 14 and len(RA.UNDETERMINED_SITES) == 12
+    # 〔第 1 期 1-8 J0〕候補の口の提示の並べ替え(present_rng=permutation(候補の数))を決まらない呼び手に足して 12 → 13
+    #(古典の方策の抽選の場所は render から answer へ移っただけ=SAFE_SITES の数は同じ)
+    assert len(RA.SAFE_SITES) == 14 and len(RA.UNDETERMINED_SITES) == 13
     # httpx の client.stream(llm/fleet.py)は乱数ではない=一覧に入らない
     assert all(s.path != "llm/fleet.py" for s in sites)
 
@@ -402,6 +404,9 @@ def test_k19_runtime_world_two_days(monkeypatch):
     assert RA.check_overlaps(st) == []
     assert {d for d, s in st.items() if s.actual_overlaps} == set()
     assert st["world.delivery_inbound"].streams >= 2 and st["world.road_works"].streams >= 2  # 2 日ぶん作っている
+    # 〔第 1 期 1-8 J0・検収 M2〕既定の腕(--decision-port legacy)では mock の同じ鍵の作り直しは 0(MockPort の作り直しの
+    # 許可は腕 port の検査だけ=rng_audit.recreated_for)
+    assert st["llm.mock"].streams > 0 and st["llm.mock"].same_key_recreated == 0
 
 
 @real_data
@@ -417,3 +422,4 @@ def test_k19_runtime_default_v3_5000_known_counts():
     # U8: 同じ鍵の作り直しは許可の表の用途名だけ(w16 の抽出が cli と run_day で 2 回走る=186 層+定員先取り層)
     assert {d for d, s in cur.items() if s.same_key_recreated} <= set(RA.K19_RECREATED)
     assert cur["w16.sample.stratum"].same_key_recreated == 186
+    assert cur["llm.mock"].streams > 0 and cur["llm.mock"].same_key_recreated == 0  # 〔1-8 J0・検収 M2〕既定の腕
