@@ -225,5 +225,8 @@ def test_tool_words_are_names_of_the_registry_and_appended_at_the_end():
     assert set(V.TOOL_WORDS) <= set(TR.TOOL_NAMES)
     assert V.FAMILIES[-1] == V.FAMILY_TOOL == "道具"
     assert V.VOCAB_CODES["行為:許可のない行動"] == 55 and V.VOCAB_CODES["道具:看板"] == 56  # 1-5 までのコードは動かない
-    assert V.PERCEPTION_PROCESSES == ("perception",) and V.CAUSE_PROCESS_NAMES[-1] == "perception"
+    # 〔第 2 期 2-1〕知覚の名の後ろに経済の段階 2 の過程の名(payroll・atm・register)を足した(知覚の名の位置は動かない)
+    assert V.PERCEPTION_PROCESSES == ("perception",)
+    assert V.CAUSE_PROCESS_NAMES[len(V.PROCESS_NAMES) + len(V.CHECK_PROCESSES)] == "perception"
+    assert V.CAUSE_PROCESS_NAMES[-3:] == V.ECONOMY_PROCESSES
     assert "過程:perception" not in V.VOCAB_CODES

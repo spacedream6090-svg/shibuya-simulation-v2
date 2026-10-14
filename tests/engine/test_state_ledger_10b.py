@@ -81,15 +81,18 @@ def test_ledger_has_187_rows_in_two_axes():
     既定 off のランの状態のファイルは前と同じ中身・記録 s8b/README.md)。
     〔第 2 期 2-2 段 11a〕近接の層の行 ``PX``(``ProximityLayer`` の計器・軸 1 diag・軸 2 discardable)と近傍の索引の行 ``PX0``
     (``TickScratch.near_index``・軸 1 no・軸 2 discardable・道筋なし)を足して外の状態 107 行・全体 198 行(1-8b の S8M の後・
-    版は上げない=同じ理由・記録 prox22/README.md)。"""
+    版は上げない=同じ理由・記録 prox22/README.md)。
+    〔第 2 期 2-1〕経済の段階 2 の行 ``EC``(中身・behavior・derivable・hash_skip)・``ATM``(ATM の表・同)・``CR``(信用の器・
+    diag・derivable・hash_skip)・``EM``(生ログの支払いの方法の列・diag・discardable)を足して外の状態 111 行・全体 202 行
+    (2-2 の PX0 の後・どれもハッシュにも状態のファイルにも入らない=版は上げない・記録 ec21/README.md)。"""
     c = SL.counts()
-    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 107, "soa": 91, "total": 198}
+    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 111, "soa": 91, "total": 202}
     assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
     assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 97)] + ["E", "M0", "M0R", "A", "P", "J0",
                                                                                      "CT5", "S8", "S8M",
-                                                                                     "PX", "PX0"]
+                                                                                     "PX", "PX0", "EC", "ATM", "CR", "EM"]
     assert (SL.row("E").behavior, SL.row("E").restore) == (SL.DIAG, SL.DISCARDABLE)
     assert (SL.row("M0").behavior, SL.row("M0").restore) == (SL.NO, SL.DERIVABLE)
     assert set(SL.row("M0").hash_skip) == set(SL.row("M0").items)

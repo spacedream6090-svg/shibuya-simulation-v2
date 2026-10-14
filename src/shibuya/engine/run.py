@@ -835,6 +835,9 @@ class RunResult:
     process_counters: dict[str, float] = field(default_factory=dict)
     #: 支払われた運賃の合計[円](世帯→外界の sink)。
     fares_paid: int = 0
+    #: 〔第 2 期 2-1〕経済の段階 2 の腕のランで、世帯の現金の外から入った額と現金を通らずに払った額の和[円](引き出し+口座の
+    #: 購入・食事+IC の運賃=``economy.stage2.MoneyStage2.cash_terms``)。腕の無いランは 0(``conserved`` の式は今のまま)。
+    money_stage2_in: int = 0
     #: 乗車・降車・待ち行列の件数。
     n_boarded: int = 0
     n_alighted: int = 0
@@ -1371,9 +1374,11 @@ class RunResult:
 
         運賃は境界・経済設計書 §2.2 の sink(世帯→外界・科目「持ち出し」)なので、
         bbox 内の現金合計からは正しく消える。C4 以前(列車なし)は ``fares_paid=0`` で
-        C2 の等式そのまま。
+        C2 の等式そのまま。〔第 2 期 2-1〕経済の段階 2 の腕のランは、現金の外から入った額と現金を通らずに払った額
+        (``money_stage2_in``)を左辺に足す(腕の無いランは 0=今の等式)。帳簿の保存則の検算は日次の記録の
+        ``economy.conservation``。
         """
-        return self.money_start == self.money_end + self.revenue_end + self.fares_paid
+        return self.money_start + self.money_stage2_in == self.money_end + self.revenue_end + self.fares_paid
 
     #: ``phase_seconds`` を要約行に出す順(大きい順ではなく **tick の骨格の順**)。
     PHASE_ORDER: tuple[str, ...] = (

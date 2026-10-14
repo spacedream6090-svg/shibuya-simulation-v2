@@ -32,6 +32,12 @@
   書く=``whom``=届け先・``via``=道具・``how_much``=本文のモーラ数)。判断の語彙(v3 の 12 語)の外=``ACT_WORDS`` には入れない。
   **表の末尾(1-7 の ``道具:看板`` の後ろ)に別の組で足した**=1-7 までの 57 語のコード(``道具:看板``=56)は動かない。
   版 ``events-vocab/1-8b``。
+- 〔第 2 期 2-1〕金の族に科目の名でない語を 2 つ足した: ``金:引き出し``(ATM・銀行で下ろす=銀行 → 世帯の現金)・``金:カード``
+  (口座の決済=カード・電子マネー・IC の引き落とし)。どちらも科目は預金純増(``MONEY_EXTRA_WORDS``=``economy.ops.MONEY_EXTRA_WHAT``
+  の写し・試験が突き合わせる)。``金:賃金``・``金:税`` は 1-3 の科目の語にもうある。**表の末尾(1-8b の ``行為:発話`` の後ろ)に
+  別の組で足した**=1-8b までの 58 語のコード(``行為:発話``=57)は動かない(``金:引き出し``=58・``金:カード``=59)。原因の名に
+  経済の段階 2 の過程の名 ``payroll``・``atm``・``register``(``ECONOMY_PROCESSES``)を末尾(1-7 の ``perception`` の後ろ)に足した
+  (``Process(name)`` の名だけ・``過程`` の族の語ではない=1-5 の ``rights`` と同じ)。版 ``events-vocab/2-1``。
 
 ``via``(CT9 の道具の欄)の語: 対面・通話・メッセージ・グループ・SNS・無し(決定 10-12 §4-4 CT9 (b) の 5 つ+無し)。
 ``where`` の種類: セル・ノード・POI(口の約束 1-3)。
@@ -50,12 +56,13 @@ __all__ = [
     "FAMILY_ACT", "FAMILY_PROCESS", "FAMILY_MONEY", "FAMILY_GOODS", "FAMILY_TOOL", "FAMILIES",
     "ACT_WORDS", "WORLD_PROCESSES", "BOUNDARY_PROCESSES", "PROCESS_NAMES", "MONEY_WORDS", "GOODS_WORDS",
     "ACT_EXTRA_WORDS", "CHECK_PROCESSES", "PERCEPTION_PROCESSES", "CAUSE_PROCESS_NAMES", "TOOL_WORDS", "SPEECH_WORDS",
+    "MONEY_EXTRA_WORDS", "ECONOMY_PROCESSES",
     "VOCAB", "VOCAB_CODES", "VOCAB_VERSION", "word", "code_of", "family_of",
     "VIA_WORDS", "VIA_NONE", "VIA_CODES", "WHERE_KINDS",
 ]
 
 #: 表の版(語を足したら上げる)。
-VOCAB_VERSION: Final[str] = "events-vocab/1-8b"
+VOCAB_VERSION: Final[str] = "events-vocab/2-1"
 
 FAMILY_ACT: Final[str] = "行為"
 FAMILY_PROCESS: Final[str] = "過程"
@@ -83,8 +90,11 @@ PROCESS_NAMES: Final[tuple[str, ...]] = WORLD_PROCESSES + BOUNDARY_PROCESSES
 CHECK_PROCESSES: Final[tuple[str, ...]] = ("rights",)
 #: 〔1-7〕知覚の名(``Process(name)`` の名だけ・``過程`` の族の語ではない)。``perception``=System 1 の知覚(看板を読んだ出来事の原因)。
 PERCEPTION_PROCESSES: Final[tuple[str, ...]] = ("perception",)
-#: ``Process(name)`` の名に使える名(世界過程+区切り+検査+知覚)。
-CAUSE_PROCESS_NAMES: Final[tuple[str, ...]] = PROCESS_NAMES + CHECK_PROCESSES + PERCEPTION_PROCESSES
+#: 〔2-1〕経済の段階 2 の過程の名(``Process(name)`` の名だけ)。``payroll``=給料日の賃金・``atm``=ATM の引き出し・
+#: ``register``=レジの消費税(``engine.economy_stage2.CAUSE_NAMES`` と同じ)。末尾に足した(前の名の番号は動かない)。
+ECONOMY_PROCESSES: Final[tuple[str, ...]] = ("payroll", "atm", "register")
+#: ``Process(name)`` の名に使える名(世界過程+区切り+検査+知覚+〔2-1〕経済の段階 2)。
+CAUSE_PROCESS_NAMES: Final[tuple[str, ...]] = PROCESS_NAMES + CHECK_PROCESSES + PERCEPTION_PROCESSES + ECONOMY_PROCESSES
 
 #: お金の科目(``economy.accounts.ACCOUNT_NAMES`` の写し・並びも同じ)。
 MONEY_WORDS: Final[tuple[str, ...]] = (
@@ -113,9 +123,12 @@ TOOL_WORDS: Final[tuple[str, ...]] = ("看板",)
 #: 〔1-8b〕行為の族の語 ``発話``(発話の口が書く会話の番の「ひと言」)。1-7 の ``TOOL_WORDS`` の後ろの別の組(1-7 までの語の
 #: コードを動かさない=``道具:看板``=56・``行為:発話``=57)。
 SPEECH_WORDS: Final[tuple[str, ...]] = ("発話",)
+#: 〔2-1〕金の族に足した科目の名でない語(``economy.ops.MONEY_EXTRA_WHAT`` の写し・並びも同じ)。1-8b の ``SPEECH_WORDS`` の後ろの
+#: 別の組(1-8b までの語のコードを動かさない=``金:引き出し``=58・``金:カード``=59)。
+MONEY_EXTRA_WORDS: Final[tuple[str, ...]] = ("引き出し", "カード")
 
 #: 表の全部(1-3 の 55 語は族の順 → 族の中の順・その後ろに 1-5 で足した語・その後ろに 1-7 で足した語・その後ろに 1-8b で
-#: 足した語)。コードはこの並びの位置(記録の列に入る int16)。
+#: 足した語・その後ろに 2-1 で足した金の 2 語)。コードはこの並びの位置(記録の列に入る int16)。
 VOCAB: Final[tuple[str, ...]] = (
     tuple(f"{FAMILY_ACT}:{w}" for w in ACT_WORDS)
     + tuple(f"{FAMILY_PROCESS}:{w}" for w in PROCESS_NAMES)
@@ -124,6 +137,7 @@ VOCAB: Final[tuple[str, ...]] = (
     + tuple(f"{FAMILY_ACT}:{w}" for w in ACT_EXTRA_WORDS)
     + tuple(f"{FAMILY_TOOL}:{w}" for w in TOOL_WORDS)
     + tuple(f"{FAMILY_ACT}:{w}" for w in SPEECH_WORDS)
+    + tuple(f"{FAMILY_MONEY}:{w}" for w in MONEY_EXTRA_WORDS)
 )
 VOCAB_CODES: Final[Mapping[str, int]] = MappingProxyType({w: i for i, w in enumerate(VOCAB)})  # 検収 L7: 実行時に語を足せない
 assert len(VOCAB_CODES) == len(VOCAB), "語彙表に同じ語が 2 回ある"

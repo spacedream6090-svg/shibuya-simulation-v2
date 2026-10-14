@@ -105,6 +105,7 @@ def sys_decide(ctx: Any, b: Any) -> None:
                 if classical_policy is not None:
                     classical_policy.set_call(a, cond, _inviter_of(conv, a, cond))
                 _pcs: list = []  # 第 1 期 1-2: 描画の知覚の事実を受ける列(刻みの中だけ・結果には載せない=検収 M1)
+                _s2h: tuple = ()  # 〔2-1・検収 A1〕口の答えの段階 2 の印(お金を下ろす・支払いの方法)=印があるときだけ 1 要素
                 if decision_layer is None:
                     res = bridge.call(
                         a, tick, cls, cond,
@@ -120,6 +121,7 @@ def sys_decide(ctx: Any, b: Any) -> None:
                         last_action=int(last_act[a]),
                         inviter=_inviter_of(conv, a, cond), t_ns=int(ctx.t_ns),
                     )
+                    _s2h = decision_layer.take_stage2_hint(a)
                     if _pc_j0 is not None:
                         _pcs.append(_pc_j0)
                 if _pcs:
@@ -144,7 +146,7 @@ def sys_decide(ctx: Any, b: Any) -> None:
                     fleet_waiting.discard(a)  # 同じ刻みで届いた=待ちにならない
                 b.llm.pending.append((
                     res.t_apply, cls, a, cond, res.text, res.action_code,
-                    _target_person(res.target), *_pending_extra(res), *_call_ref(res),
+                    _target_person(res.target), *_pending_extra(res), *_call_ref(res), *_s2h,
                 ))
                 if not res.format_ok:
                     n_parse_errors += 1

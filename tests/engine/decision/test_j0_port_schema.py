@@ -52,9 +52,11 @@ def test_candidate_fields_frozen_and_number_given_last():
 def test_choice_fields_start_empty():
     names = [f.name for f in dataclasses.fields(P.Choice)]
     assert names == ["candidate_id", "number", "kind", "other_text", "surprise", "hesitation", "continuous",
-                     "reason", "reason_first", "utterance", "backend"]
+                     "reason", "reason_first", "utterance", "payment", "backend"]  # payment=2-1 検収 A1(空で始める)
     ch = P.Choice(candidate_id="vocab:移動", number=3, kind="移動")
-    assert (ch.surprise, ch.hesitation, ch.continuous, ch.utterance, ch.reason_first) == (None,) * 5
+    assert (ch.surprise, ch.hesitation, ch.continuous, ch.utterance, ch.reason_first, ch.payment) == (None,) * 6
+    with pytest.raises(ValueError):
+        P.Choice(candidate_id="x", number=1, payment="小切手")  # 支払いの答えは PAYMENT_ANSWERS の語だけ
     assert not ch.is_other
     with pytest.raises(ValueError):
         P.Choice(candidate_id="x", number=1, surprise=6)

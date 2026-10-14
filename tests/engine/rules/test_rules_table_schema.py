@@ -231,8 +231,9 @@ def _readers() -> set[str]:
 
 def test_only_the_manifest_and_the_daily_record_import_the_table():
     """約束 (1): 規則の表を読んでも挙動は変わらない=読むのは manifest(run.py)と日次の記録(state_io.py)と、ランの始めに
-    壊れた表で落とすための組み立て(systems/build.py=読むだけ・検収 L10)だけ。"""
-    assert _readers() == {"engine/run.py", "engine/systems/state_io.py", "engine/systems/build.py"}
+    壊れた表で落とすための組み立て(systems/build.py=読むだけ・検収 L10)だけ。
+    〔第 2 期 2-1〕最初の読み手 ``economy/anchors.py``(最低賃金・消費税の率=経済の段階 2 の腕のランだけが呼ぶ=既定の挙動は不変)。"""
+    assert _readers() == {"engine/run.py", "engine/systems/state_io.py", "engine/systems/build.py", "economy/anchors.py"}
 
 
 @pytest.mark.parametrize("src,module", [

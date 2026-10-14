@@ -3225,12 +3225,12 @@
   {
    "id": "DOC-money-uncaused-rows",
    "what": "原因の無い金の行(購入・食事=E1・初期の財布=E3・参入資本=E4)は出来事を書かず、生ログの目印の列が空(数は計器 economy.transfers_uncaused。5,000 体の既定 v3 で原因つきの行は 16.6%)",
-   "why": "1-9。購入と食事の呼の id は適用の口に届かず(1-8 の配線)、1-3 の検収 M2(LlmCall を配線する前に原因の表を列にする)がある。組み立て(境界)の原因の名は語彙表に無い。purchase_many に LlmCall を渡す段で外す。〔第334・親の判断=1-8 の後の付け替え〕外す段 1-8 → 2-1: 購入と食事の呼の call_id を IntentBatch → resolve → economy.purchase_many へ運ぶ配線は経済の段 2-1 で行う(1-8 J0 は腕 port の判断の出来事に call_id を付けたところまで)",
+   "why": "1-9。購入と食事の呼の id は適用の口に届かず(1-8 の配線)、1-3 の検収 M2(LlmCall を配線する前に原因の表を列にする)がある。組み立て(境界)の原因の名は語彙表に無い。purchase_many に LlmCall を渡す段で外す。〔第334・親の判断=1-8 の後の付け替え〕外す段 1-8 → 2-1: 購入と食事の呼の call_id を IntentBatch → resolve → economy.purchase_many へ運ぶ配線は経済の段 2-1 で行う(1-8 J0 は腕 port の判断の出来事に call_id を付けたところまで)〔2-1・2026-10-14 外した=検収 A1〕腕 --economy-stage2 on のランで購入・食事の金の行の原因を LlmCall(call_id) にした(判断の系が IntentBatch.call_id に呼の id を付け、resolve が台帳に控え、Ledger.purchase_many が行ごとの原因で書く=記録 ec21/README.md §13)。腕 off(既定)の行と組み立ての行の残りは DOC-ec21-uncaused-rows-arm-off",
    "remove_at": "2-1",
    "declared_in": "docs/bench/analysis/wallbounce-1012/cp2/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "inferred"
   },
   {
@@ -3538,6 +3538,268 @@
    "code_at": [
     "src/shibuya/engine/proximity.py",
     "src/shibuya/engine/processes/crowd.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-payday-25",
+   "what": "給料日=毎月 25 日(土休なら前の営業日=暦の口 SimCalendar.is_payday)・日の締めで払う",
+   "why": "2-1(EC4)。多くの企業の慣行として置いた値で出典は無い(未リサーチ)。雇用契約ごとの給料日は規則と権利の中身の段で契約の欄にする",
+   "remove_at": "4-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/economy_stage2.py",
+    "src/shibuya/economy/stage2.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-atm-fixture",
+   "what": "ATM の表(Fixtures.atms)は組み立てで OSM の amenity=atm・atm=yes・amenity=bank(銀行の支店=atm の印に関わらず全部・検収 L3)の 55 点から作る(セル・営業時間・銀行名は持たない)",
+   "why": "2-1(EC4「ATM は実データ(場所・営業時間)」)。世界の資産(W6 の POI)に ATM の行が無いため、取得物(poi_tags_overpass_20260928.json・poi_opening_hours_overpass_20260907.json・ODbL)から組み立てで写す。2-4 で W6 の POI に ATM の行を足して外す",
+   "remove_at": "2-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/economy_stage2.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-atm-hours-and-cells",
+   "what": "営業時間の無い ATM(単独の ATM・店の中の ATM)は 24 時間・祝日は曜日の規則のまま(OSM の PH を読まない)・セルは地上の層を先に",
+   "why": "2-1。55 点のうち営業時間のある点は一部(24/7 と Mo-Fr 09:00-15:00 だけ)。〔検収 L3〕atm の印の無い銀行を外した理由(窓口だけ)は確かめていなかった=銀行の支店は全部入れ、営業時間の無い支店は DOC-ec21-bank-branch-default-hours。W6 の POI に ATM の行を足す段で営業時間の出どころと合わせて見直す",
+   "remove_at": "2-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/economy_stage2.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-withdraw-rule",
+   "what": "引き出しの mock と古典の方策の規則: 財布 < 1 日の消費 × 1 のとき営業中の ATM のセルで下ろす・額=min(預金, 1 日の消費 × 3) を千円単位に切り下げ・主の行為(語彙 12 語)に添える副の判断",
+   "why": "2-1(EC4「引き出しは本人の判断」)。判断モデルと LLM の答えが無い段の代役の規則(未リサーチ)。行為の語彙を変えないため副の判断にした。腕 port では候補「お金を下ろす」を源 affordance で出し、口が選んだ答えは印(S2_WITHDRAW)で行為の解決へ運ぶ(規則を通さない・原因 LlmCall=検収 A1)。J0 の 3 つの実装は選ばない(LLM の文は今のまま=候補を見せない・mock と古典は語彙の候補だけ)=規則が代役のまま。判断モデルを既定にする段で外す〔親の判断 2026-10-14〕腕 port で口が答えを出さない体には、この規則が代役のまま=6-1(候補を LLM に見せる段)まで。",
+   "remove_at": "6-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/stage2.py",
+    "src/shibuya/engine/resolve.py",
+    "src/shibuya/engine/decision/layer.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-payment-rule",
+   "what": "支払いの方法の mock と古典の規則: 財布が足りれば現金・足りなければ口座(カード・電子マネー)・運賃は IC(口座)が既定で口座が足りなければ現金",
+   "why": "2-1(EC3「支払い方法は本人が選ぶ」)。本人の属性(支払いの好み)が無い段の代役の規則(未リサーチ)。腕 port の購入・食事の候補の文に注を添え、口の答え(Choice.payment=現金/カード)があれば先に従う(足りなければ規則=検収 A1)。J0 の 3 つの実装は答えない(LLM の文は今のまま=注を見せない)=規則が代役のまま。判断モデルを既定にする段で外す〔親の判断 2026-10-14〕腕 port で口が答えを出さない体には、この規則が代役のまま=6-1(候補を LLM に見せる段)まで。",
+   "remove_at": "6-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/stage2.py",
+    "src/shibuya/engine/processes/rail.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-initial-deposit",
+   "what": "初期の預金=来街者でない体は 1 日の消費 × 30 日・来街者(種別 1・6・7)は持ち込み(初期の財布)の 0.5 を財布から預け入れ(visitors の部品・現金+預金の合計は変わらない=検収 L2)。来街者でない体の財布(現金)は今の initial_wallets のまま",
+   "why": "2-1(EC2 の前のつなぎ)。最初の資産を統計から作る関数(賃金構造基本統計調査・全国家計構造調査など)は親が e-Stat の表を取ってから。来街者の口座は第 4 期(外の住人が自分の口座と収入を持つ)までのつなぎ(計画 2-1 の答え)",
+   "remove_at": "4-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/stage2.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-wage-hours-and-rate",
+   "what": "月の賃金=労働時間 × 時給: 労働時間=W17 の「勤務」の週の分 × 52/12 週(W17 の無いランは 160 時間)・時給=最低賃金(規則の表から asof で読む)",
+   "why": "2-1(EC4)。W16/W17 に賃金の属性が無いので最低賃金を時給にした(賃金の分布は空欄)。属性つきの人口の段で体ごとの時給にする。〔検収 A3〕現実の 1/4 程度の見込み=月の時間の出どころは親が PENDING の判断待ちに(W17 の勤務ブロックか統計=毎月勤労統計の所定内労働時間)",
+   "remove_at": "4-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/stage2.py",
+    "src/shibuya/engine/economy_stage2.py",
+    "src/shibuya/economy/anchors.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-employer-funding-exogenous",
+   "what": "雇用主(組織・店の担当従業者の店)の賃金の原資=外界 → 雇用主の消費支出(域外の取引先の支払い)で払う賃金と同じ額を給料日に入れる(外生)",
+   "why": "2-1(第 1 陣の「賃金=雇用主から月次(外生)」のまま)。雇用の内生化(第 2 陣)と規則・権利の中身の段で、雇用主の売上と費用から払う形にする",
+   "remove_at": "4-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/stage2.py",
+    "src/shibuya/economy/accounts.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-payroll-deduction-blank",
+   "what": "給与の天引き(所得税・住民税・社会保険料)は器だけ=規則の表に行が無い=0。自営業の納税も無い",
+   "why": "2-1(決定 10-12 §4-11 の税)。源泉と特別徴収・社会保険料の表と版は 4-2(E4 の後)で規則の表に入れる",
+   "remove_at": "4-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/stage2.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-register-tax-rounding",
+   "what": "レジの消費税=税込の額 × 率 / (1 + 率) の切り捨て(1 行ごと)・軽減税率なし(率は規則の表の標準税率 10%)",
+   "why": "2-1(決定 10-12 §4-11 の税「消費税はレジで」)。端数の処理(1 枚につき税率ごとに 1 回)と軽減税率 6.24% は規則の表の中身の段(4-2)",
+   "remove_at": "4-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/stage2.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-external-store-sales-zero",
+   "what": "店の外界の売上(範囲の外の取引先・EC5)の額は 0(資料なし)。縮小ランの比(体数 / 母集団)を manifest の economy.stage2.plan.population_scale に宣言する",
+   "why": "2-1(EC5)。範囲の外の取引先との取引の割合の資料が無い(未リサーチ)。輪と遠くの住人を作る段(第 7 期)で店の客と外の取引先を分けて見直す",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/stage2.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-account-two-rows",
+   "what": "口座の決済(カード・IC・振込)を「銀行の決済の行(預金純増)+本体の行」の 2 行で書く(世帯の現金は動かない)",
+   "why": "2-1。検算①の「部門ごとの Σ科目 = Δ現金」と預金脚・検算②をそのまま満たす形(未リサーチ)。生ログの行が増える(K17 の係数を腕 on で測る)。預金の流れの表を持つ形に替えるかは版上げ 2 回目で決める",
+   "remove_at": "2-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/ops.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-consumption-pair-for-outside-sales",
+   "what": "域外の取引先の支払い(外界 → 店舗・外界 → 雇用主)を科目「消費支出」に載せる(段階 2 の組 STAGE2_PAIRS=腕のランだけ許す)",
+   "why": "2-1。12 科目に「売上・輸出」が無く、科目を足すと流れの表の形(6 × 6 × 15)が変わり既定のランの残高のハッシュが動くため。科目を足すかは版上げ 2 回目で決める",
+   "remove_at": "2-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/accounts.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-ring-coefficient",
+   "what": "経済の段階 2 の腕のランの金の生ログの輪の係数 STAGE2_TRANSFERS_PER_AGENT_PER_DAY = 16.0 行/体/日(腕の無いランは 6.5 のまま)",
+   "why": "2-1。腕 on の 5,000 体 2 日の実測(0 日目 8.824・1 日目 5.402 行/体=初期の預金の 2 行・IC の運賃の 2 行・レジの税の行を含む)で 6.5 の輪は 38,630 行・13.5(1 日の最大の 1.5 倍)の輪も 3,630 行溢れた(保持窓 1 日の輪は前の日と今日の行を持つ=2 日の和の最大 14.226)。2 日の和の最大の 1.1 倍以上かつ 1 日の最大の 1.5 倍以上で置いた実測 1 本の値。版上げ 2 回目で既定の係数とまとめて決める",
+   "remove_at": "2-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/stage2.py",
+    "src/shibuya/cli.py",
+    "src/shibuya/economy/ledger.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-bank-branch-default-hours",
+   "what": "営業時間の無い(読めない)銀行の支店(amenity=bank・55 点のうち 20 点)は平日 9:00-15:00・土日は閉(BANK_DEFAULT_HOURS・祝日は曜日の規則のまま)。atm の印の無い支店も引き出しの場所に入れる(窓口の引き出し)",
+   "why": "2-1・検収 L3(親の判断)。銀行の窓口の一般的な営業時間として置いた値(未リサーチ)。atm=yes で営業時間の無い支店 7 点は前の版の 24 時間から変わる。W6 の POI に営業時間を足す段で外す",
+   "remove_at": "2-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/economy_stage2.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-revenue-tax-inclusive",
+   "what": "店の売上の写し pois.revenue は税込のまま(腕 on のときだけ帳簿の店の現金=税抜きと食い違う)",
+   "why": "2-1・検収 A6(親の判断)。写しは診断(RunResult.conserved の式が読む)。写しを税抜きにするには resolve の売上の写しの式を変える=段階 2 の行動の適用の段で",
+   "remove_at": "2-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/resolve.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-uncaused-rows-arm-off",
+   "what": "原因の無い金の行の残り: 腕 off(既定)のランの購入・食事の行・組み立ての行(初期の財布・参入資本・初期の預金)・呼の控えの無い体の購入・食事の行(計器 economy.transfers_uncaused・腕 on は economy.stage2 の calls.purchase_uncaused)",
+   "why": "2-1・検収 A1(DOC-money-uncaused-rows を外した残り)。腕 off は結果不変のため意図に呼の id を付けない。組み立て(境界)の原因の名は語彙表に無い。腕を既定にする段で外す",
+   "remove_at": "2-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/systems/judge.py",
+    "src/shibuya/economy/ledger.py"
+   ]
+  },
+  {
+   "id": "DOC-ec21-call-memo-not-saved",
+   "what": "呼の控え(MoneyStage2.last_call・pay_answer=体ごとの最後の金に触れる行為の呼と支払いの方法の答え)は状態のファイルに入れない(再開で空から=状態台帳の行 EC の derivable)",
+   "why": "2-1・検収 A1。再開の後に止める前の呼で実行する購入・食事(着いて実行する意図・列から席へ)は原因なし・支払いの答えは規則に戻る。J0 の 3 つの実装は支払いを答えないので挙動は不変(試験=腕 on の再開が通しと同じ)。口が支払いを答える段(判断モデル)で状態台帳の腕の行にする",
+   "remove_at": "6-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
+   "conf": "expedient",
+   "since": "2026-10-14",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/stage2.py"
    ]
   }
  ]

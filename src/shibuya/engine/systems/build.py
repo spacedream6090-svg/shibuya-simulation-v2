@@ -344,6 +344,11 @@ def build(_call_args: dict[str, Any]) -> Any:
         from shibuya.engine import proximity as _PXR
 
         _PXR.check_resume(_h.get("proximity"))
+        # 第 2 期 2-1(検収 A5): 経済の段階 2 の腕は設定の指紋に入れない=見出しの economy_stage2(無ければ off)と今の腕を
+        # 突き合わせる
+        from shibuya.engine import economy_stage2 as _ES2R
+
+        _ES2R.check_resume(_h.get("economy_stage2"))
         t_begin = int(_h["progress"]["next_T"])
         if not (0 < t_begin < total_ticks):
             raise ValueError(f"再開の時刻 T={t_begin} がこのランの範囲 0〜{total_ticks} の内側に無い(sim_days を見る)")
@@ -628,6 +633,12 @@ def build(_call_args: dict[str, Any]) -> Any:
         schedule = _schedule_with_population(
             schedule, pop, world.n_cells, keep_outside_home=plan_exec_on
         )
+    # ---- 第 2 期 2-1: 経済の段階 2 の腕(既定 off=何もしない)。世帯の初期の財布より前に金の台帳へ挿す(初期の預金)。
+    # 再開でも挿す(設定=組み立てで作り直す・残高は保存した状態から戻す) ----
+    from shibuya.engine import economy_stage2 as _ES2
+
+    economy_plan = _ES2.attach(ledger, schedule=schedule, weekly=weekly, calendar=calendar, world=world,
+                               n_agents=n_agents, tick_seconds=tick_seconds, pop=pop, world_dir=world_dir)
     if not _resuming:  # 10d(A11・親の答え 2): 再開では日の頭の初期化を呼ばない(保存した状態を読む)
         R.initialize(agents, world, schedule, day_index=day_index, ledger=ledger)
     # ---- 5 段目 5a: 体のエネルギー収支(値を決める層・書き手は resolve) ----
@@ -693,6 +704,8 @@ def build(_call_args: dict[str, Any]) -> Any:
             default_seat_area_m2=seat_area_retail_m2,
             org_of_agent=_org_of_agent(pop, n_agents),  # 第 1 期 1-5: 権利台帳の雇用の行(W16 の org_id)
         )
+    if economy_plan is not None:  # 第 2 期 2-1: 賃金の雇用の行は権利台帳(開閉の過程が持つ)から読む
+        economy_plan.runner = runner
 
     # ---- ⓪a-2 計画実行層(D-66・engine.presence)。W17 + W16 のあるランだけ立つ ----
     presence: PlanExecutor | None = None
@@ -1241,6 +1254,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             word_of_code=_WORDS, events=events, world=world, home_cell=np.asarray(schedule.home_cell),
             station_cells=getattr(_pa_j0, "line_platform_cell", None),
             tools=_tools_fx.registry,  # 1-7: 候補の源「周りが示すできること」に道具の台帳(Fixtures.tools と同じ物)
+            money_stage2=economy_plan,  # 第 2 期 2-1: 経済の段階 2 の候補(お金を下ろす・支払いの注)=腕のランだけ
         )
 
     # ---- 第 1 期 1-8b: 発話の口の腕(既定 off=口を作らない=今の道)。on のランだけ口を作り、描画に届いた発話を受け取る口と
@@ -1317,6 +1331,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             calendar=calendar, schedule=schedule, schedule_hash=schedule_hash, weekly=weekly, space=space,
             geom=geom, perception=perception, renderer_obj=renderer_obj, walkable=walkable,
             env_fields=_env_fields, start_check=start_check, fleet=fleet, tools=_tools_fx,
+            atms=(economy_plan.atms if economy_plan is not None else None),  # 第 2 期 2-1: ATM の表(腕のランだけ)
         ),
     )
     del pending, n_undefined_total, n_fleet_reinjected, n_fleet_resent, n_outside_calls, geometry_hops

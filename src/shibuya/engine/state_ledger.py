@@ -1,6 +1,6 @@
 """状態台帳の宣言(10b・A3「挙動」と「復元」の 2 軸・機械可読の 1 ファイル)。
 
-**読み口は 1 つ**: ``LEDGER``(198 行の組=〔第 1 期 1-8〕候補の口の行 ``J0``・〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P``・〔第 1 期 1-7〕連絡先の印の行 ``CT5``・〔第 1 期 1-8b〕発話の口の腕の行 ``S8``・``S8M``・〔第 2 期 2-2〕近接の層の行 ``PX``・近傍の索引の行 ``PX0`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
+**読み口は 1 つ**: ``LEDGER``(202 行の組=〔第 2 期 2-1〕経済の段階 2 の行 ``EC``・``ATM``・``CR``・``EM``・〔第 1 期 1-8〕候補の口の行 ``J0``・〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P``・〔第 1 期 1-7〕連絡先の印の行 ``CT5``・〔第 1 期 1-8b〕発話の口の腕の行 ``S8``・``S8M``・〔第 2 期 2-2〕近接の層の行 ``PX``・近傍の索引の行 ``PX0`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
 ``soa_rows``・``external_rows``・``behavior_excluded``・``full_excluded``・``full_items``・``behavior_items``・〔1-8b〕``arm_rows``・``arm_items``)。表・AST の検査(``engine.state_ledger_ast``)・
 2 つのハッシュ(``engine.state_hashes``)・揺らし試験はどれもこの表から作る。
 
@@ -769,12 +769,14 @@ _EXT: tuple[LedgerRow, ...] = (
         basis="engine/decision/layer.py(DecisionLayer.decide_one・affordance_words)・engine/systems/decide.py(書く)・"
               "engine/run.py(manifest の decision_port)",
         items=("decision.meter", "decision._aff_step", "decision._aff_any", "decision._aff_eatery",
-               "decision._aff_shop"),
+               "decision._aff_shop", "decision._s2_hints"),
         note="1-8 J0: 腕 --decision-port port のランだけ層を作る(既定は持ち主が None)。計器(判断の数・候補の源の分布・"
              "「その他」・選んだ番号・今の道との食い違い・判断の出来事の行)は診断=読み手は manifest の decision_port と試験だけ"
              "(軸 1 diag)。営業中の店の控えは刻みの頭の世界から作り直す(候補の源 affordance を作るだけ=行為は口の実装が"
              "選ぶ・mock と古典は候補の源を読まない)。軸 2 discardable(再開のランは空から=どちらのハッシュにも状態のファイルにも"
-             "入らない)。書く系は decide だけ(宣言 J0:decision.*)。行の鍵は O の通し番号でなく J0"),
+             "入らない)。書く系は decide だけ(宣言 J0:decision.*)。行の鍵は O の通し番号でなく J0。〔第 2 期 2-1・検収 A1〕"
+             "_s2_hints=口の答えの段階 2 の印の控え(decide_one が書き、判断の系が同じ呼の中で take_stage2_hint で取り出す="
+             "刻みの境目ではいつも空・印は保留の組の末尾に移って行為へ運ばれる)"),
     # ---- 第 1 期 1-7(道具の台帳 C0・CT5 個人の連絡先): 足す前に軸を決めた行 ----
     LedgerRow(
         key="CT5", name="RelationLayer contact_flags(個人の連絡先の手段ごとの印・第 1 期 1-7)", place=EXTERNAL,
@@ -837,6 +839,53 @@ _EXT: tuple[LedgerRow, ...] = (
         note="2-2 段 11a: 軸 1 no(刻みの頭の SoA の xy・band・poi_ref・cell から作り直す派生の値=行 P と同じ扱い)・軸 2 "
              "discardable(刻みの頭で空になる=どちらのハッシュにも状態のファイルにも入らない)。持ち主の物ではなく TickScratch の"
              "欄なので道筋(items)は持たない。書く系は perceive_prepare だけ(writes.scratch=段 C の守り)。既定の腕 cell では None"),
+    # ---- 第 2 期 2-1(経済の段階 2・腕 --economy-stage2 on): 足す前に軸を決めた行(腕の無いランは持ち主の属性が None) ----
+    LedgerRow(
+        key="EC", name="経済の段階 2 の中身(MoneyStage2=部品・体の種別・1 日の消費・労働時間・組み立ての物・計器)",
+        place=EXTERNAL, dtype="物(配列 4 本=体の数・dict の計器)", nbytes="", alloc="--economy-stage2 on",
+        behavior=BEHAVIOR, restore=DERIVABLE, dead=False,
+        basis="economy/stage2.py(MoneyStage2)・economy/ledger.py(attach_stage2・purchase_many・endow_households・"
+              "on_day_end)・engine/economy_stage2.py(Stage2Plan・attach)・engine/resolve.py(_payable・_stage2_withdraw)",
+        items=("ledger.money.stage2",), hash_skip=("ledger.money.stage2",),
+        note="2-1: 腕のランだけ挿す(既定は None)。部品と規則(引き出し・支払いの方法・給料日・税)が分岐を決める=軸 1 "
+             "behavior。中身は組み立てで作り直す(種別・母集団・W17・暦・規則の表から)=軸 2 derivable・中身は hash_skip"
+             "(どちらのハッシュにも状態のファイルにも入らない=腕を足しても既定の final は不変)。残高は帳簿の O57 に入る"
+             "(預金も)。計器 s2_meter は診断(manifest の economy.stage2 と日次の記録だけが読む)で再開では 0 から。"
+             "書く系は phase_c(引き出し・支払い・税)・day_close と close_final(賃金・日の欄)・build(挿す)"
+             "(宣言 EC:ledger.*)。〔検収 A1〕呼の控え(last_call・pay_answer=体ごとの最後の金に触れる行為の呼の id と"
+             "支払いの方法の答え)も中身(再開で空から=つなぎの台帳 DOC-ec21-call-memo-not-saved・J0 の 3 つの実装は"
+             "支払いを答えない=挙動は不変)。書く系は phase_c(resolve.apply が意図の呼の id を渡す)"),
+    LedgerRow(
+        key="ATM", name="ATM の表(Fixtures.atms と同じ物・第 2 期 2-1)", place=EXTERNAL,
+        dtype="配列(セル i8・種類 i1・営業の区間 i2 × 7 × 2 × 2・出どころ i1)× 点の数(55)", nbytes="",
+        alloc="--economy-stage2 on", behavior=BEHAVIOR, restore=DERIVABLE, dead=False,
+        basis="engine/economy_stage2.py(AtmTable・build_atm_table・atm_open_cells)・engine/systems/build.py(Fixtures)",
+        items=("ledger.money.stage2.atms",), hash_skip=("ledger.money.stage2.atms",),
+        note="2-1: OSM の amenity=atm・atm=yes・amenity=bank(検収 L3)の 55 点をセルに写し営業時間を曜日 × 分の区間に"
+             "(組み立てで 1 回)。引き出しの"
+             "場所と時刻を決める=軸 1 behavior。取得物から作り直す=軸 2 derivable・中身は hash_skip(取得物の md5 を manifest の"
+             "economy.stage2.atms に出す)。ランの間は書かない(凍結の dataclass・配列は読み取り専用=検収 L1)。2-4 で W6 の POI に"
+             "ATM の行を足して外す"
+             "(つなぎの台帳 DOC-ec21-atm-fixture)"),
+    LedgerRow(
+        key="CR", name="信用の器(CreditBook・第 2 期 2-1・器だけ=行は 0)", place=EXTERNAL,
+        dtype="列(種類 i1・借り手・限度・残高・返済日・返済額・延滞)", nbytes="", alloc="--economy-stage2 on",
+        behavior=DIAG, restore=DERIVABLE, dead=False,
+        basis="economy/credit.py(CreditBook・repay_due=呼び手なし)・economy/ledger.py(attach_stage2)",
+        items=("ledger.money.credit",), hash_skip=("ledger.money.credit",),
+        note="2-1: 決定 10-12 §4-11 の信用 C1〜C3 の器。ランの中で行を足す口も返済の呼び手も無い=読み手は manifest の"
+             "economy.stage2.credit(持ち主の Ledger.economy_record)だけ(軸 1 diag)・いつも空で作り直せる(軸 2 derivable・"
+             "hash_skip)。審査と総量規制は 4-2 の規則の表の後。行が動く段で behavior・required へ"
+             "(版上げ)"),
+    LedgerRow(
+        key="EM", name="金の生ログの支払いの方法の列(_raw_method・第 2 期 2-1)", place=EXTERNAL,
+        dtype="列(i1・輪と同じ長さ)", nbytes="1 B/行(輪の 1 行 24 B の切り上げの空きに入る)", alloc="", behavior=DIAG,
+        restore=DISCARDABLE, dead=False,
+        basis="economy/ops.py(transfer の method)・economy/ledger.py(raw_methods)",
+        items=("ledger.money._raw_method",),
+        note="2-1: 生ログの行ごとの支払いの方法(0=現金・1=口座)。読み手は記録と試験だけ(軸 1 diag)・輪の中身 O58 と同じく"
+             "再開で空から(軸 2 discardable)。腕の無いランは全部 0。書く系は生ログを書く系と同じ(world・phase_c・day_close・"
+             "close_final=宣言 EM:ledger.*)"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -1253,6 +1302,8 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("proximity", REF, _REFR + "(2-2 検収 L1: 関係の層=気づいた印の読み口 aware_of を描画へ渡すだけ・読むだけ)", "_marks"),
     # 第 2 期 2-2(検収 M2): 腕 distance の体 × k の辺の見え方(同じ刻みの同席と知人出現で共有する控え=その刻みの中で使い切る)
     _x("rel_layer", CACHE, "2-2: 刻みの中だけの控え(腕 distance の辺の見え方=同席と知人出現で共有)", "_ev", "_ev_step"),
+    # 第 2 期 2-1: 経済の段階 2 の組み立ての物への参照(状態台帳の行 EC の側で数える)・段階 2 の組を許す印(組み立てで 1 回)
+    _x("decision", REF, _REFR + "(2-1: 経済の段階 2 の組み立ての物=ATM の表と部品を読むだけ)", "money_stage2"),
 )
 
 

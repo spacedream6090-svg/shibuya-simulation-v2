@@ -28,6 +28,11 @@ decide(届ける=描画の ``perceive`` の ``take_heard``・話す=会話の番
 書くので ``E:events.*``(1-8 J0 の判断の出来事と同じ宣言=1 つにまとめた)と、口を持つ ``fx.tools`` の読みを載せた。memory は新しい相手の欄の連絡先の印を消す(状態台帳の
 行 ``CT5``=``CT5:rel_layer._contact_flags``)。report は manifest の ``tools`` を作るので ``fx.tools`` を読む。
 
+〔第 2 期 2-1〕経済の段階 2 の腕(``--economy-stage2 on``・状態台帳の行 ``EC``=中身と計器・``EM``=生ログの支払いの方法の列)を
+書く系: phase_c(引き出し・支払いの方法・レジの税)・day_close と close_final(給料日の賃金・日の欄)は ``EC:ledger.*``・
+``EM:ledger.*``、world(補充の代金の行の方法の列=0)は ``EM:ledger.*``。ATM の表(行 ``ATM``)と信用の器(行 ``CR``)は
+組み立ての後は書かない。
+
 〔親の決め〕世界過程が持ち主をまたいで書く所(鉄道と大きな催しが計画実行層の O36・O37・O70 と鉄道の O74 を書く)は
 1-0 では宣言で認める(``world`` の ``writes.paths``)。
 
@@ -94,7 +99,9 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                # 第 1 期 1-3: ActualLog の行ごとの出来事(原因=過程)と行の目印(ActualLog の口 event_sink から)
                "E:events.* "
                # 第 1 期 1-9: 補充の代金の transfer(原因=過程 shelf)の目印の列と計器(状態台帳の行 A)
-               "A:ledger.*",
+               "A:ledger.* "
+               # 第 2 期 2-1: 生ログの支払いの方法の列(状態台帳の行 EM)
+               "EM:ledger.*",
          reads="layers.runner",
          origin=f"L2・run.py:3629-3630 @{_E}"),
     make("presence", "体", "tick", _BD.sys_presence,
@@ -132,7 +139,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "O66:act_layer.*",
          scratch_w="llm_intents n_undefined applied_activity applied_now", buffers_w="focus_request",
          tally="n_undefined_total phase talk_stats", reads="buffers.focus_request cfg.attention_on cfg.salt cfg.v3_hints cfg.vocab_version "
-               "fx.schedule fx.space layers.act_layer layers.conv layers.intent_layer "
+               "fx.schedule fx.space layers.act_layer layers.conv layers.intent_layer layers.ledger "
                "layers.norm_meter layers.poi_resolver layers.rel_layer llm.pending "
                "runstats.n_undefined_total runstats.phase runstats.talk_stats "
                "scratch.applied_activity scratch.applied_now scratch.llm_intents scratch.n_undefined "
@@ -246,7 +253,9 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                # EnergyLayer.meal_reset=ClassicalPolicy._gate_hazard の同じ配列を書く=別名)
                "O21:classical._gate_hazard "
                # 第 1 期 1-9: 購入・食事・運賃の transfer の目印の列と計器(行 A)・運賃の出来事(原因=過程 rail)
-               "A:ledger.* E:events.*",
+               "A:ledger.* E:events.* "
+               # 第 2 期 2-1: 経済の段階 2(行 EC=引き出し・支払いの方法・税の計器・行 EM=生ログの支払いの方法の列)
+               "EC:ledger.* EM:ledger.*",
          scratch_r="plan", buffers_r="focus_request", scratch_w="outcome",
          tally="geometry_hops geometry_jammed leave_counts per_action_total phase result",
          reads="buffers.focus_request cfg.attention_on cfg.leave_effect cfg.queue_service "
@@ -317,7 +326,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          paths="O2:act_layer._digest_cache O5[0-6]:runner.* O61:runner.* O7[2-6]:runner.* O95:runner.* "
                "O5[7-9]:ledger.* O60:ledger.* O7[7-9]:ledger.* O8[01]:ledger.* O9[23]:ledger.* O70:presence.* "
                "O3[5-8]:presence.* "
-               "E:events.* A:ledger.*",  # 1-3: E(診断)の区切りの行(日の締め)・その日の記録の計器と保持窓/1-9: 金の計器の締め
+               "E:events.* A:ledger.* "  # 1-3: E(診断)の区切りの行(日の締め)・その日の記録の計器と保持窓/1-9: 金の計器の締め
+               "EC:ledger.* EM:ledger.*",  # 2-1: 経済の段階 2(給料日の賃金・日の欄)と生ログの支払いの方法の列
          tally="daily_records state_files result", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.run_id cfg.sim_days "
                "cfg.state_out cfg.tick_seconds cfg.tpd fx.calendar fx.env_fields fx.schedule fx.schedule_hash "
                "layers.act_layer layers.arbiter layers.bridge layers.classical layers.conv "
@@ -350,7 +360,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          paths="O2:act_layer._digest_cache O5[0-6]:runner.* O61:runner.* O7[2-6]:runner.* O95:runner.* "
                "O5[7-9]:ledger.* O60:ledger.* O7[7-9]:ledger.* O8[01]:ledger.* O9[23]:ledger.* O70:presence.* "
                "O3[5-8]:presence.* O8[5-7]:bridge.* "
-               "E:events.* A:ledger.*",  # 1-3: 最後の便の ActualLog の行の出来事・E の区切りの行・計器と保持窓/1-9: 金の計器
+               "E:events.* A:ledger.* "  # 1-3: 最後の便の ActualLog の行の出来事・E の区切りの行・計器と保持窓/1-9: 金の計器
+               "EC:ledger.* EM:ledger.*",  # 2-1: 経済の段階 2(最後の日の給料日の賃金・日の欄)と生ログの支払いの方法の列
          tally="daily_records ledger_growth result state_files", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.run_id cfg.sim_days "
                "cfg.state_out cfg.stopped cfg.t_end cfg.tick_seconds cfg.total_ticks cfg.tpd fx.calendar fx.env_fields "
                "fx.schedule fx.schedule_hash layers.act_layer layers.arbiter layers.bridge "

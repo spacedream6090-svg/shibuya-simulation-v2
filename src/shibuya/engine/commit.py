@@ -52,6 +52,10 @@ from shibuya.llm.undefined import TARGET_HINT_WORDS
 
 __all__ = [
     "UNDEFINED_ACTION",
+    "S2_WITHDRAW",
+    "S2_PAY_CASH",
+    "S2_PAY_ACCOUNT",
+    "S2_MONEY_ACT",
     "parse_action",
     "TARGET_HINT_CODES",
     "TARGET_HINT_NONE",
@@ -212,6 +216,29 @@ def delta_perc_ns(condition) -> np.ndarray:
     return np.rint(k * DELTA_PERC_BASE_NS).astype(np.int64).reshape(cond.shape)
 
 
+#: 〔第 2 期 2-1〕``IntentBatch.s2_flags`` のビット: 判断の口が「お金を下ろす」を選んだ・支払いの方法の答え(現金/口座)・
+#: LLM の答えの行為が金に触れる行為(購入・食事・並ぶ=元の語・遠い店へ歩く移動に変えた行も含む)。
+S2_WITHDRAW: Final[int] = 1
+S2_PAY_CASH: Final[int] = 2
+S2_PAY_ACCOUNT: Final[int] = 4
+S2_MONEY_ACT: Final[int] = 8
+
+
+def _concat_s2(parts: Sequence["IntentBatch"]) -> tuple[np.ndarray | None, np.ndarray | None]:
+    """〔2-1〕任意の 2 列の連結(どの部分も持たなければ ``None``=今のまま・持たない部分は空の値で埋める)。"""
+    has_c = any(p.call_id is not None for p in parts)
+    has_f = any(p.s2_flags is not None for p in parts)
+    cid = None
+    if has_c:
+        cid = np.concatenate([p.call_id if p.call_id is not None else np.full(len(p), None, dtype=object)
+                              for p in parts])
+    flg = None
+    if has_f:
+        flg = np.concatenate([p.s2_flags if p.s2_flags is not None else np.zeros(len(p), dtype=np.int8)
+                              for p in parts]).astype(np.int8)
+    return cid, flg
+
+
 @dataclass(frozen=True)
 class IntentBatch:
     """Phase A の出力(SoA)。1 個体につき 1 件までに畳んである。
@@ -222,6 +249,9 @@ class IntentBatch:
         target_id: int32(行動語で意味が変わる: セル / POI / 相手個体)。-1=なし。
         resource_id: int32(``ResourceSpace`` の番号)。-1=競合しない。
         t_notice_ns: int64(**tick 開始 + δ_perc**。pk の第1要素)。
+        call_id: 〔第 2 期 2-1〕行ごとの呼の id(object・``None``=呼でない行)。経済の段階 2 の腕のランだけ判断の系が
+            付ける(既定 ``None``=列を持たない=今のまま)。購入・食事・引き出しの金の行の原因 ``LlmCall(call_id)``。
+        s2_flags: 〔第 2 期 2-1〕行ごとの段階 2 の印(int8・``S2_*`` のビット)。``call_id`` と同じく腕のランだけ。
     """
 
     agent_id: np.ndarray
@@ -229,11 +259,17 @@ class IntentBatch:
     target_id: np.ndarray
     resource_id: np.ndarray
     t_notice_ns: np.ndarray
+    call_id: np.ndarray | None = None
+    s2_flags: np.ndarray | None = None
 
     def __post_init__(self) -> None:
         n = self.agent_id.size
         for name in ("action_code", "target_id", "resource_id", "t_notice_ns"):
             if getattr(self, name).size != n:
+                raise ValueError(f"IntentBatch.{name} の長さが agent_id と違う")
+        for name in ("call_id", "s2_flags"):
+            v = getattr(self, name)
+            if v is not None and v.size != n:
                 raise ValueError(f"IntentBatch.{name} の長さが agent_id と違う")
 
     def __len__(self) -> int:
@@ -260,6 +296,7 @@ class IntentBatch:
             np.concatenate([p.target_id for p in parts]),
             np.concatenate([p.resource_id for p in parts]),
             np.concatenate([p.t_notice_ns for p in parts]),
+            *_concat_s2(parts),
         )
 
     def take(self, idx) -> "IntentBatch":
@@ -270,6 +307,8 @@ class IntentBatch:
             self.target_id[i],
             self.resource_id[i],
             self.t_notice_ns[i],
+            None if self.call_id is None else self.call_id[i],
+            None if self.s2_flags is None else self.s2_flags[i],
         )
 
     def one_per_agent(self) -> "IntentBatch":

@@ -414,6 +414,8 @@ class Fixtures:
     fleet: Any
     #: 〔第 1 期 1-7〕道具の一式(``engine.tools.record.ToolsFixture``=道具の台帳・グループの一覧・店の番号の表・看板の口)。
     tools: Any = None
+    #: 〔第 2 期 2-1〕ATM の表(``engine.economy_stage2.AtmTable``・腕 ``--economy-stage2 on`` のランだけ・既定 ``None``)。
+    atms: Any = None
 
 
 @dataclass

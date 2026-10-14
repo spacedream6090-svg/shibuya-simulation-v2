@@ -94,6 +94,10 @@ from shibuya.engine.commit import (
     ACT_TALK,
     ACT_WAIT,
     ENGINE_STEP,
+    S2_MONEY_ACT,
+    S2_PAY_ACCOUNT,
+    S2_PAY_CASH,
+    S2_WITHDRAW,
     WANDER_BAD_TARGET,
     IntentBatch,
 )
@@ -1427,6 +1431,10 @@ def apply(
                 if not bool(kept.all()):
                     _clear_intent_fields(r, aid[held[~kept]])
 
+        # ---- 〔第 2 期 2-1・検収 A1〕経済の段階 2 の腕(既定 off=通らない): 金に触れる行為の呼の id を台帳に控える ----
+        # (列の捌き・購入・食事より前=この刻みの答えの支払いと原因に使う)
+        _stage2_note_calls(plan_confirmed, out)
+
         # ---- D-113 ③ 満席の列の捌き(第268): 席が空いた分だけ並んだ順に入れる ----
         # **新しい意図の適用より前**に置く: 先に並んでいた体が空席を取り、この tick に来た
         # 買い手は ``admitted_this_tick`` 越しにその後ろへ並ぶ(FIFO)。
@@ -1476,6 +1484,15 @@ def apply(
             if held.size:
                 _clear_intent_fields(r, held)
             out.add_result(ResultCode.LOST_ARBITRATION, int(la.size))
+
+        # ---- 〔第 2 期 2-1〕経済の段階 2 の腕(既定 off=通らない): この刻みに判断した体の引き出し(本人の判断の副の行為) ----
+        if code.size:
+            _acted = code != ENGINE_STEP
+            _stage2_withdraw(
+                agents, aid[_acted], tick, out,
+                call_ids=None if plan_confirmed.call_id is None else plan_confirmed.call_id[_acted],
+                flags=None if plan_confirmed.s2_flags is None else plan_confirmed.s2_flags[_acted],
+            )
 
         # ---- D-51 乗車待ちの捌き(停車中の列車へ FIFO・打ち切り) ----
         # **行動語の適用の後・位置確定の前**に置く: この tick にホームへ着いた体(エンジン継続)と
@@ -2159,6 +2176,62 @@ def _apply_alight(agents, world, aid, tgt, tick, out, schedule) -> None:
     _ok(agents, win, tick, out)
 
 
+def _stage2_money(out: ResolveOutcome) -> Any:
+    """〔第 2 期 2-1〕経済の段階 2 の中身(``economy.stage2.MoneyStage2``・腕の無いランは ``None``)。"""
+    led = out.ledger
+    money = getattr(led, "money", None) if led is not None else None
+    return getattr(money, "stage2", None) if money is not None else None
+
+
+def _payable(agents: AgentState, out: ResolveOutcome, aid: np.ndarray, price: np.ndarray) -> np.ndarray:
+    """払えるか。腕の無いラン=所持金 ≧ 価格(今のまま)/〔2-1〕支払い(payment)の部品=現金か口座のどちらかで足りる。"""
+    s2 = _stage2_money(out)
+    if s2 is not None and s2.part("payment"):
+        return np.asarray(out.ledger.money.can_pay_many(aid, price), dtype=bool)
+    return agents.registry.money[aid].astype(np.int64) >= price
+
+
+def _stage2_note_calls(batch: IntentBatch, out: ResolveOutcome) -> None:
+    """〔第 2 期 2-1・検収 A1〕意図の行のうち LLM の答えの行為が金に触れる行(購入・食事・並ぶ=``S2_MONEY_ACT``・遠い店へ
+    歩く移動に変えた行も含む)の呼の id と支払いの方法の答え(``S2_PAY_*``)を台帳に控える(``Ledger.note_calls_many``)。
+    購入・食事の金の行の原因 ``LlmCall(call_id)``(着いて実行する意図・列から席へ入った体も同じ呼)。腕の無いランは通らない。"""
+    s2 = _stage2_money(out)
+    if s2 is None or batch.call_id is None or batch.s2_flags is None or len(batch) == 0:
+        return
+    f = batch.s2_flags.astype(np.int64)
+    has = np.fromiter((c is not None for c in batch.call_id), dtype=bool, count=len(batch))
+    m = ((f & S2_MONEY_ACT) != 0) & has
+    if not m.any():
+        return
+    pay = np.where((f & S2_PAY_CASH) != 0, 0, np.where((f & S2_PAY_ACCOUNT) != 0, 1, -1))
+    out.ledger.money.note_calls_many(batch.agent_id[m].astype(np.int64), batch.call_id[m], pay[m])
+
+
+def _stage2_withdraw(agents: AgentState, aid: np.ndarray, step: int, out: ResolveOutcome, *,
+                     call_ids: np.ndarray | None = None, flags: np.ndarray | None = None) -> None:
+    """〔第 2 期 2-1〕引き出し(withdraw の部品): この刻みに判断した体のうち、営業中の ATM・銀行の支店のセルに居る体を台帳に
+    渡す。下ろすか・いくらかは本人の判断(``MoneyStage2.withdraw``=mock と古典の規則・expedient)。世帯の現金は基本操作
+    ``economy.ops.transfer`` が書く(帳簿の口 ``withdraw_many``=口の名の表の外=``apply`` の閉包は ``agents.money`` を
+    もう持つ=試験 ``tests/economy/stage2/test_stage2_writers.py``)。"""
+    s2 = _stage2_money(out)
+    if s2 is None or not s2.part("withdraw") or aid.size == 0:
+        return
+    from shibuya.engine import economy_stage2 as _ES2
+
+    open_cells = _ES2.atm_open_cells(s2.plan, int(step))
+    if open_cells.size == 0:
+        return
+    cell = agents.registry.cell[aid].astype(np.int64)
+    here = (cell >= 0) & (cell < open_cells.size)
+    here[here] = open_cells[cell[here]]
+    who = aid[here]
+    if who.size:
+        # 〔検収 A1〕口が「お金を下ろす」を選んだ行(``S2_WITHDRAW``)は規則を通さない・呼のある行の原因は LlmCall(call_id)
+        wanted = None if flags is None else (np.asarray(flags, dtype=np.int64)[here] & S2_WITHDRAW) != 0
+        cid = None if call_ids is None else np.asarray(call_ids, dtype=object)[here]
+        out.ledger.money.withdraw_many(who, int(step), cause=s2.plan.cause("atm"), wanted=wanted, call_ids=cid)
+
+
 def _apply_buy(agents, world, aid, tgt, tick, out, schedule) -> None:
     """購入: 営業中・在庫>0・所持金≧価格 → 在庫−1・所持金−価格・所持+1・**売上+同額**。
 
@@ -2175,7 +2248,7 @@ def _apply_buy(agents, world, aid, tgt, tick, out, schedule) -> None:
     in_stock = is_open & (world.pois.stock[poi] > 0)
     if led is not None and led.goods is not None and in_stock.any():
         in_stock = in_stock & led.goods.can_sell(poi)  # 棚(SKU 別)が真値
-    can_pay = in_stock & (r.money[aid].astype(np.int64) >= price)
+    can_pay = in_stock & _payable(agents, out, aid, price)  # 〔2-1〕腕の無いランは所持金 ≧ 価格(今のまま)
 
     _fail(agents, aid[~has_target], ResultCode.BAD_TARGET, tick, out)
     _fail(agents, aid[has_target & ~is_open], ResultCode.CLOSED, tick, out)
@@ -2322,7 +2395,7 @@ def _apply_eat(agents, world, aid, tgt, tick, out, schedule) -> None:
         in_eatery = in_eatery & np.asarray(world.eatery_mask, dtype=bool)[poi]
     is_open = in_eatery & world.open_mask(tick)[poi]
     price = world.pois.price[poi].astype(np.int64)
-    can_pay = is_open & (r.money[aid].astype(np.int64) >= price)
+    can_pay = is_open & _payable(agents, out, aid, price)  # 〔2-1〕腕の無いランは所持金 ≧ 価格(今のまま)
 
     _fail(agents, aid[~in_eatery], ResultCode.NOT_IN_EATERY, tick, out)
     _fail(agents, aid[in_eatery & ~is_open], ResultCode.CLOSED, tick, out)

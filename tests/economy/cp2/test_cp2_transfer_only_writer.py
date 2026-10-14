@@ -104,7 +104,8 @@ def test_the_apply_cash_alias_rows_are_gone():
     assert not any("_apply_cash" in why for _w, why in AL.ALIAS_WRITES.values())
     assert set(AL.ALIAS_WRITES) == {"apply_detection"}
     callers = {f for f, _ln, _p in AL.index().transfer_callers}
-    assert callers == {"_complete_buy", "_complete_eat", "_board_riders", "initialize"}
+    # 〔2-1・検収 A7〕引き出しの口(withdraw_many)を呼ぶ _stage2_withdraw が足された(腕 on だけが呼ぶ)
+    assert callers == {"_complete_buy", "_complete_eat", "_board_riders", "initialize", "_stage2_withdraw"}
     assert AL.TRANSFER_WRITES == ("agents.money",)
     for fn in callers:
         assert "agents.money" in AL.writes_for_ops({fn})
@@ -114,11 +115,12 @@ def test_the_household_ports_exist_and_move_household_cash():
     """口の名の表(engine 側)は economy の口と突き合う: 世帯を払い手か受け手にする Ledger の口と運賃の口。"""
     from shibuya.engine.processes.rail import RailProcess
 
-    assert set(AL.TRANSFER_PORTS_HOUSEHOLD) == {"purchase_many", "endow_households", "pay_fares"}
+    assert set(AL.TRANSFER_PORTS_HOUSEHOLD) == {"purchase_many", "endow_households", "pay_fares", "withdraw_many"}
     from types import MappingProxyType
 
     assert isinstance(AL.TRANSFER_PORTS_HOUSEHOLD, MappingProxyType)  # 検収 L6: 実行時に書き換えられない
     assert callable(getattr(Ledger, "purchase_many")) and callable(getattr(Ledger, "endow_households"))
+    assert callable(getattr(Ledger, "withdraw_many"))  # 2-1: 段階 2 の中身(MoneyStage2.withdraw)へ委ねる口
     assert callable(getattr(RailProcess, "pay_fares"))
     # Ledger の口のうち世帯の部門を書くのはこの 2 つ(ほかは transfer/transfer_many=汎用・endow_stores=店・depreciate)
     src = (SRC / "economy" / "ledger.py").read_text(encoding="utf-8")

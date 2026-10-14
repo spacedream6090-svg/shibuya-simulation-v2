@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import time
 from typing import Any
 
@@ -186,6 +187,11 @@ def sys_apply_responses(ctx: Any, b: Any) -> None:
                 talk_chooser=rel_layer,
                 **({} if prox_rule is None else {"proximity": prox_rule}),
             )
+            # 〔第 2 期 2-1・検収 A1〕経済の段階 2 の腕のランだけ: 行ごとの呼の id(保留の組の call_id)と段階 2 の印
+            # (口の答え=お金を下ろす・支払いの方法/LLM の答えの行為が金に触れる=購入・食事・並ぶ)を意図に付ける。
+            # 金の行の原因 LlmCall(call_id) になる(既定=腕の無いランは付けない=意図の形は今のまま)。
+            if _stage2_on(b) and len(llm_intents) == int(keep.sum()):
+                llm_intents = _with_stage2_calls(llm_intents, due, order, codes, keep)
             # ---- C9b G3/G4: 焦点の要求を 1 本のバッファへ散らす ----
             if focus_request is not None:
                 focus_request[:] = int(FOCUS_NONE)
@@ -207,6 +213,24 @@ def sys_apply_responses(ctx: Any, b: Any) -> None:
     b.scratch.n_undefined = n_undefined
     b.scratch.applied_activity = applied_activity
     b.scratch.applied_now = applied_now
+
+
+def _stage2_on(b: Any) -> bool:
+    """〔2-1〕経済の段階 2 の腕を挿した台帳か(``Ledger.stage2``・腕の無いランは偽)。"""
+    led = b.layers.ledger
+    money = getattr(led, "money", None) if led is not None else None
+    return getattr(money, "stage2", None) is not None
+
+
+def _with_stage2_calls(intents: Any, due: list, order: np.ndarray, codes: np.ndarray, keep: np.ndarray) -> Any:
+    """〔2-1・検収 A1〕LLM の意図の行に呼の id(保留の組の 12 番=``run._call_ref``)と段階 2 の印(13 番=口の答え+
+    金に触れる行為の印)を付ける。逐次ループ宣言: この刻みに適用する応答の数ぶん(≤ 1 刻みの呼数)。"""
+    rows = [due[int(i)] for i in order]
+    cid = np.array([r[12] if len(r) > 12 else None for r in rows], dtype=object)
+    flg = np.fromiter((int(r[13]) if len(r) > 13 else 0 for r in rows), dtype=np.int64, count=len(rows))
+    money = np.isin(codes, (C.ACT_BUY, C.ACT_EAT, C.ACT_QUEUE))
+    flg = flg | np.where(money, C.S2_MONEY_ACT, 0)
+    return dataclasses.replace(intents, call_id=cid[keep], s2_flags=flg[keep].astype(np.int8))
 
 
 def sys_wake_sources(ctx: Any, b: Any) -> None:

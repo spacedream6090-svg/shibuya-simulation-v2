@@ -55,7 +55,7 @@ from shibuya.core.rng import k19_counters, run_tick_key, stream
 __all__ = [
     "PORT_SCHEMA", "SOURCES", "SOURCE_EXPERIENCE", "SOURCE_AFFORDANCE", "SOURCE_PLAN", "SOURCE_CONTINUE",
     "SOURCE_DELIBERATE", "SOURCE_VOCAB", "ALL_SOURCES", "DELIBERATE_KIND", "OTHER_ID", "OTHER_TEXT",
-    "SURPRISE_WORDS", "OTHER_SHARE_DEFAULT", "OTHER_SHARE_BASIS", "PRESENT_DOMAIN", "LENGTHS",
+    "SURPRISE_WORDS", "PAYMENT_ANSWERS", "OTHER_SHARE_DEFAULT", "OTHER_SHARE_BASIS", "PRESENT_DOMAIN", "LENGTHS",
     "Candidate", "Hesitation", "Choice", "DecisionContext", "DecisionPort", "present", "present_rng",
     "options_text", "compose",
 ]
@@ -84,6 +84,8 @@ OTHER_ID: Final[str] = "other"
 OTHER_TEXT: Final[str] = "その他(自由に書く)"
 #: 驚き 0〜5 の言葉(DM5 の答え・B 群の後に見直す)。``Choice.surprise`` はこの番号(空=None で始める)。
 SURPRISE_WORDS: Final[tuple[str, ...]] = ("予想どおり", "少し違う", "違う", "かなり意外", "とても意外", "ありえない")
+#: 〔第 2 期 2-1〕支払いの方法の答えの語(``Choice.payment``)。現金=財布・カード=口座(カード・電子マネー・IC=預金の引き落とし)。
+PAYMENT_ANSWERS: Final[tuple[str, ...]] = ("現金", "カード")
 #: 「その他」の割合の既定(〔決定〕=R-108 の値=測った原典なし=未計測)。値を置かない。
 OTHER_SHARE_DEFAULT: Final[float | None] = None
 OTHER_SHARE_BASIS: Final[str] = (
@@ -166,6 +168,9 @@ class Choice:
     reason_first: bool | None = None
     #: 「ひと言」(発話)の欄。〔1-8b〕会話の番の答えに ひと言(空と「なし」でない本文)があるときだけ実装が埋める(``ports._utterance_of``)。
     utterance: Any = None
+    #: 〔第 2 期 2-1〕支払いの方法の答え(``PAYMENT_ANSWERS`` の語か None=答えなし=規則に任せる)。購入・食事の候補を選んだ
+    #: ときだけ意味がある(経済の段階 2 の腕のラン)。J0 の 3 つの実装は空(LLM の文は今のまま=候補の注を見せない)。
+    payment: str | None = None
     #: 口の後ろの今の道の結果(``LLMBridge`` の ``BridgeResult``)。刻みの中だけ(状態にも結果の箱にも残さない)。
     backend: Any = field(default=None, compare=False, repr=False)
 
@@ -185,6 +190,8 @@ class Choice:
         if self.continuous is not None:
             object.__setattr__(self, "continuous", MappingProxyType(
                 {str(k): float(v) for k, v in dict(self.continuous).items()}))
+        if self.payment is not None and self.payment not in PAYMENT_ANSWERS:
+            raise ValueError(f"Choice.payment は {PAYMENT_ANSWERS} のどれか None(いま {self.payment!r})")
 
     @property
     def is_other(self) -> bool:

@@ -82,13 +82,20 @@ class MoneyEventLink:
 
     def __call__(self, what: str, cause: object, t_ns: int, who: list, whom: list, where: list,
                  how_much: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        """``len(how_much)`` 行の出来事を書き、id の 2 列 ``(t_ns, seq)`` を返す(書かなかった行は -1)。"""
+        """``len(how_much)`` 行の出来事を書き、id の 2 列 ``(t_ns, seq)`` を返す(書かなかった行は -1)。
+
+        〔2-1・検収 A1〕``cause`` は 1 つの原因か行ごとの ``list``(None の行は書かない=-1)。
+        """
         k = int(len(how_much))
         t = np.full(k, -1, dtype=np.int64)
         s = np.full(k, -1, dtype=np.int32)
+        per_row = isinstance(cause, list)
         for j in range(k):  # 逐次ループ宣言: 行数ぶん
+            cj = cause[j] if per_row else cause
+            if cj is None:
+                continue
             eid = self.log.append(Event(t_ns=int(t_ns), who=who[j], what=what, whom=whom[j], where=where[j],
-                                        how_much=int(how_much[j]), cause=cause))  # type: ignore[arg-type]
+                                        how_much=int(how_much[j]), cause=cj))  # type: ignore[arg-type]
             if eid is not None:
                 t[j], s[j] = eid
         return t, s

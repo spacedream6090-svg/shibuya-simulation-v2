@@ -42,7 +42,10 @@ from shibuya.economy import GoodsLedger, Ledger
 from shibuya.economy import anchors as AN
 from shibuya.economy import census as CS
 from shibuya.economy import entry_capital as EC
+from shibuya.economy import ledger as LED
+from shibuya.economy import stage2 as S2
 from shibuya.economy.accounts import BalanceLine, Sector
+from shibuya.engine import economy_stage2 as _ES2
 from shibuya.engine import resolve as R
 from shibuya.engine import run_kind as _RK
 from shibuya.engine.arbiter import call_budget_per_tick
@@ -249,15 +252,16 @@ class _HouseholdWalletLedger(Ledger):
     経路(外界 → 世帯・科目 CARRY_IN)は変えない = ex nihilo 禁止・保存則は不変。
     """
 
-    def __init__(self, n_households: int, n_stores: int, wallets: np.ndarray) -> None:
-        super().__init__(n_households, n_stores)
+    def __init__(self, n_households: int, n_stores: int, wallets: np.ndarray, n_employers: int = 1,
+                 rows_per_agent_day: float | None = None) -> None:
+        super().__init__(n_households, n_stores, n_employers, rows_per_agent_day=rows_per_agent_day)
         self.wallets = np.asarray(wallets, dtype=np.int64).ravel()
 
-    def endow_households(self, amounts: np.ndarray, tick: int = 0) -> np.ndarray:
+    def endow_households(self, amounts: np.ndarray, tick: int = 0, *, cause=None) -> np.ndarray:  # noqa: ANN001
         a = np.asarray(amounts, dtype=np.int64).ravel().copy()
         m = min(a.size, self.wallets.size)
         a[:m] = self.wallets[:m]  # 母集団を超える行(縮小ラン)は mock のまま
-        return super().endow_households(a, tick)
+        return super().endow_households(a, tick, cause=cause)
 
 
 def build_ledger_bundle(
@@ -284,11 +288,23 @@ def build_ledger_bundle(
     wallets = household_wallets(
         world, n_agents, seed, world_dir, use_population=use_population
     )
-    led = (
-        Ledger(n_agents, world.n_poi)
-        if wallets is None
-        else _HouseholdWalletLedger(n_agents, world.n_poi, wallets)
-    )
+    # 第 2 期 2-1: 経済の段階 2 の腕(--economy-stage2 on)のランだけ、雇用主の口を W6 の組織の数にする(賃金=権利台帳の
+    # 雇用の行の組織 → 世帯)。腕の無いランは今のまま 1 口(値は不変)。
+    # 生ログの輪の係数も腕のランだけ段階 2 の値(K17 と同じ規則=実測の 1.5 倍以上・economy.stage2)。
+    if _ES2.arm() == _ES2.ARM_ON:
+        n_emp = LED.load_employers(world_dir).n if world_dir is not None else 1
+        rate = S2.STAGE2_TRANSFERS_PER_AGENT_PER_DAY
+        led = (
+            Ledger(n_agents, world.n_poi, n_emp, rows_per_agent_day=rate)
+            if wallets is None
+            else _HouseholdWalletLedger(n_agents, world.n_poi, wallets, n_emp, rows_per_agent_day=rate)
+        )
+    else:  # 腕の無いラン=今の呼び方のまま(1-9 の試験が HEAD の台帳の写しを差し込む口も同じ)
+        led = (
+            Ledger(n_agents, world.n_poi)
+            if wallets is None
+            else _HouseholdWalletLedger(n_agents, world.n_poi, wallets)
+        )
     cats = np.array([hash_free_cat_code(c) for c in world.assets.poi_cat], dtype=np.int64)
     goods = GoodsLedger.from_pois(
         cats, np.asarray(world.pois.stock), np.asarray(world.pois.price), n_agents=n_agents
@@ -1292,6 +1308,21 @@ def main(argv: list[str] | None = None) -> int:
         help="第 2 期 2-2 段 11a 会話の距離 d[m] の感度の腕(既定 2.0=B3 の決め打ち・環境変数 SHIBUYA_PROXIMITY_D と同じ。"
              "--proximity distance のときだけ効く)",
     )
+    ap.add_argument(
+        "--economy-stage2",
+        choices=("off", "on"),
+        default=None,
+        help="第 2 期 2-1 経済の段階 2 の腕(既定 off=今のまま・環境変数 SHIBUYA_ECONOMY_STAGE2 と同じ。指定すれば環境変数より"
+             "強い)。on で賃金(給料日)・引き出し(ATM)・支払いの方法(現金/口座)・レジの消費税・来街者の口座を動かす"
+             "(manifest の economy.stage2 に出る・設定の指紋には入らない)",
+    )
+    ap.add_argument(
+        "--economy-stage2-parts",
+        type=str,
+        default=None,
+        help="第 2 期 2-1 経済の段階 2 の部品(カンマ区切り・既定=全部 wages,withdraw,payment,tax,visitors・環境変数 "
+             "SHIBUYA_ECONOMY_STAGE2_PARTS と同じ)。1 つずつ測るため",
+    )
     # --llm / --endpoints / --model / --mode / --run-id / --tape / --temperature /
     # --max-tokens / --fleet-wait-s(C6-a)
     add_fleet_args(ap)
@@ -1340,6 +1371,13 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine import proximity as _proximity
 
         _proximity.set_d(str(args.proximity_d))
+    if args.economy_stage2 is not None:  # 第 2 期 2-1: 経済の段階 2 の腕(組み立てと台帳の組み立てが読む)
+        _ES2.set_arm(str(args.economy_stage2))
+    if args.economy_stage2_parts is not None:
+        try:
+            _ES2.set_parts(str(args.economy_stage2_parts))
+        except ValueError as exc:
+            ap.error(str(exc))
     res = run(  # 第 1 期 1-4(検収 M2): ランの種類は run が決める(試験 > CLI の既定と違う腕 > 再現)
         n_agents=args.agents,
         seed=args.seed,

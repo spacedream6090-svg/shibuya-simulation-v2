@@ -39,12 +39,15 @@ from typing import Any, Final, Mapping, Sequence
 
 import numpy as np
 
+from shibuya.engine import economy_stage2 as _ES2
 from shibuya.engine.decision.port import (
     ALL_SOURCES,
     OTHER_ID,
     OTHER_SHARE_BASIS,
     OTHER_SHARE_DEFAULT,
+    PAYMENT_ANSWERS,
     PORT_SCHEMA,
+    SOURCE_AFFORDANCE,
     SOURCE_VOCAB,
     SOURCES,
     DecisionContext,
@@ -84,7 +87,7 @@ CONFIG_KEYS: Final[tuple[str, ...]] = (
     "schema", "arm", "port", "sources", "bridge_source", "other_share_default", "other_share_basis")
 OBSERVED_KEYS: Final[tuple[str, ...]] = (
     "decisions", "late", "fleet_legacy", "presented_by_source", "chosen_by_source", "other", "other_ratio",
-    "chosen_number", "n_candidates", "mismatch", "events", "events_unlogged")
+    "chosen_number", "n_candidates", "mismatch", "events", "events_unlogged", "stage2")
 #: 計器の数の鍵(``meter`` の中の整数)。分布は別の dict。
 METER_KEYS: Final[tuple[str, ...]] = (
     "decisions", "late", "fleet_legacy", "other", "mismatch", "events", "events_unlogged")
@@ -96,10 +99,16 @@ METER_KEYS: Final[tuple[str, ...]] = (
 DECISION_EVENT_ROWS_PER_AGENT_DAY: Final[float] = 13.1
 
 
+#: 〔第 2 期 2-1〕経済の段階 2 の腕のランの候補の計器(お金を下ろすを出した数・選んだ数・購入と食事の文に支払いの注を添えた数)。
+#: 〔検収 A1〕``payment_answered``=口が支払いの方法を答えた数(J0 の 3 つの実装は答えない=0)。
+STAGE2_METER_KEYS: Final[tuple[str, ...]] = ("withdraw_presented", "withdraw_chosen", "payment_noted",
+                                             "payment_answered")
+
+
 def _empty_meter() -> dict[str, Any]:
     return {**{k: 0 for k in METER_KEYS}, "presented_by_source": {s: 0 for s in ALL_SOURCES},
             "chosen_by_source": {**{s: 0 for s in ALL_SOURCES}, OTHER_ID: 0}, "chosen_number": {},
-            "n_candidates": {}}
+            "n_candidates": {}, "stage2": {k: 0 for k in STAGE2_METER_KEYS}}
 
 
 def manifest_fields(layer: "DecisionLayer | None") -> dict[str, Any]:
@@ -142,6 +151,7 @@ class DecisionLayer:
         home_cell: Any = None,
         station_cells: Any = None,
         tools: Any = None,
+        money_stage2: Any = None,
     ) -> None:
         from shibuya.engine.events.log import CANDIDATE_SOURCES
 
@@ -171,6 +181,10 @@ class DecisionLayer:
                            else np.zeros(0, dtype=np.int64))
         #: 〔1-7〕道具の台帳(読むだけ・状態台帳の除外の参照)。
         self.tools = tools
+        #: 〔第 2 期 2-1〕経済の段階 2 の組み立ての物(``engine.economy_stage2.Stage2Plan``・腕のランだけ=既定 ``None``)。
+        self.money_stage2 = money_stage2
+        #: 〔2-1・検収 A1〕口の答えの段階 2 の印の控え(体 → 印・``decide_one`` が書き判断の系が同じ呼の中で取り出す)。
+        self._s2_hints: dict[int, int] = {}
         #: 計器(状態台帳の行 J0・軸 1 diag・軸 2 discardable)。
         self.meter: dict[str, Any] = _empty_meter()
         #: 刻みごとの営業中の店の控え(刻みの番号・セルの bool 3 本=店・飲食店・飲食店でない店)。
@@ -220,6 +234,31 @@ class DecisionLayer:
                 ok[w] = True
         return tuple(w for w in vocab if ok.get(w, False))
 
+    # ------------------------------------------------------------------ 〔第 2 期 2-1〕経済の段階 2 の候補
+    def _stage2_candidates(self, ctx: DecisionContext, cands: Sequence[Any]) -> tuple[Any, ...]:
+        """腕 ``--economy-stage2 on`` のラン: 営業中の ATM のセルで「お金を下ろす」(源 affordance)を足し、購入・食事の候補の
+        文に支払いの注を添える(行為の語は変えない=mock と古典の番号は今と同じ)。"""
+        from shibuya.engine.decision.port import Candidate
+
+        plan = self.money_stage2
+        out = list(cands)
+        m0 = self.meter["stage2"]
+        if "payment" in plan.parts:
+            for i, c in enumerate(out):  # 逐次ループ宣言: 候補の数ぶん(≤ 20)
+                if c.kind in ("購入", "食事"):
+                    out[i] = Candidate(id=c.id, kind=c.kind, text=f"{c.text}({_ES2.PAYMENT_NOTE})", source=c.source,
+                                       basis=c.basis)
+                    m0["payment_noted"] += 1
+        if "withdraw" in plan.parts:
+            c0 = int(ctx.cell)
+            open_cells = _ES2.atm_open_cells(plan, int(ctx.step))
+            if 0 <= c0 < open_cells.size and bool(open_cells[c0]):
+                w = Candidate(id=f"{SOURCE_AFFORDANCE}:{_ES2.WITHDRAW_WORD}", kind=_ES2.WITHDRAW_WORD,
+                              text=f"{_ES2.WITHDRAW_WORD}(ここでできる)", source=SOURCE_AFFORDANCE)
+                out.insert(max(0, len(out) - 1), w)  # よく考える(最後)の前
+                m0["withdraw_presented"] += 1
+        return tuple(out)
+
     # ------------------------------------------------------------------ 計器(manifest の観測の子)
     def observed(self) -> dict[str, Any]:
         """manifest の ``decision_port`` の観測の子(``OBSERVED_KEYS`` の順)。"""
@@ -232,6 +271,7 @@ class DecisionLayer:
             "chosen_number": {k: int(v) for k, v in sorted(m["chosen_number"].items(), key=lambda kv: int(kv[0]))},
             "n_candidates": {k: int(v) for k, v in sorted(m["n_candidates"].items(), key=lambda kv: int(kv[0]))},
             "mismatch": int(m["mismatch"]), "events": int(m["events"]), "events_unlogged": int(m["events_unlogged"]),
+            "stage2": dict(m["stage2"]),
         }
 
     # ------------------------------------------------------------------ 1 呼
@@ -269,12 +309,16 @@ class DecisionLayer:
         cands = build_candidates(ctx, vocab=self.vocab, continue_word=self.continue_word,
                                  word_of_code=self.word_of_code, kind_words=self.kind_words,
                                  affordance_words=self.affordance_words)
+        if self.money_stage2 is not None:
+            cands = self._stage2_candidates(ctx, cands)
         choice = self.port.choose(ctx, cands)
         res = choice.backend
         m = self.meter
         if bool(res.deferred) or int(res.observed_tick) > int(step):
             m["late"] += 1
             return res, p
+        if self.money_stage2 is not None:  # 〔2-1〕副の判断=行為の語は今の道のまま・答えは印で行為の解決へ運ぶ(検収 A1)
+            self._note_stage2(int(agent_id), choice)
         if choice.is_other or choice.kind not in self.vocab:
             code = int(res.action_code)
         else:
@@ -297,6 +341,28 @@ class DecisionLayer:
             res = dataclasses.replace(res, action_code=code)
         self._write_event(ctx, choice, cands)
         return res, p
+
+    def _note_stage2(self, agent_id: int, choice: Any) -> None:
+        """〔2-1・検収 A1〕口の答えのうち段階 2 の分を印にして控える(お金を下ろす=``S2_WITHDRAW``・購入と食事の
+        支払いの方法=``S2_PAY_CASH``/``S2_PAY_ACCOUNT``)。判断の系が ``take_stage2_hint`` で保留の組の末尾へ運ぶ。"""
+        from shibuya.engine import commit as _C
+
+        m0 = self.meter["stage2"]
+        flags = 0
+        if choice.kind == _ES2.WITHDRAW_WORD:
+            m0["withdraw_chosen"] += 1
+            flags |= _C.S2_WITHDRAW
+        pay = getattr(choice, "payment", None)
+        if pay is not None and choice.kind in ("購入", "食事"):
+            m0["payment_answered"] += 1
+            flags |= _C.S2_PAY_CASH if pay == PAYMENT_ANSWERS[0] else _C.S2_PAY_ACCOUNT
+        if flags:
+            self._s2_hints[int(agent_id)] = flags
+
+    def take_stage2_hint(self, agent_id: int) -> tuple[int, ...]:
+        """〔2-1・検収 A1〕控えた印を取り出す(``(印,)``・無ければ空=保留の組の形は今のまま)。刻みの中だけの控え。"""
+        f = self._s2_hints.pop(int(agent_id), 0)
+        return (int(f),) if f else ()
 
     def event_growth(self) -> Any:
         """〔検収 L2〕腕 port のランの出来事の記録の成長の宣言(判断の出来事の行を足した ``EventLog.growth_declaration``)。"""

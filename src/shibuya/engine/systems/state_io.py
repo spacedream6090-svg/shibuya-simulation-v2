@@ -18,6 +18,7 @@ import numpy as np
 from shibuya.core.hashing import blake3_hex
 from shibuya.core.time_consts import CLOCK_KIND
 from shibuya.engine import proximity as _PROX
+from shibuya.engine import economy_stage2 as _ES2
 from shibuya.engine.bridging import ledger as _BR
 from shibuya.engine.rules import table as _RT
 from shibuya.engine.state_hashes import behavior_hash as behavior_state_hash
@@ -296,6 +297,14 @@ def close_day_midrun(b: Any, d: int) -> None:
     day_record(b, int(d))
 
 
+def _stage2_plan(b: Any) -> Any:
+    """〔2-1〕経済の段階 2 の組み立ての物(腕の無いランは None)。"""
+    led = b.layers.ledger
+    money = getattr(led, "money", None) if led is not None else None
+    s2 = getattr(money, "stage2", None)
+    return None if s2 is None else s2.plan
+
+
 def save_state(b: Any, T_next: int, *, finished: bool, closed: bool) -> None:
     """10d: 状態のまとまりを 1 ファイルに書く(SoA の列・外の状態・進捗の印・艦隊の未着の呼)。HEAD の ``_save_state``。"""
     import copy
@@ -345,6 +354,10 @@ def save_state(b: Any, T_next: int, *, finished: bool, closed: bool) -> None:
     _px = _PROX.header_fields(b.layers.proximity)
     if _px is not None:
         header["proximity"] = _px
+    # 第 2 期 2-1(検収 A5): 経済の段階 2 の腕のランだけ腕と部品を書く(再開で今の腕と突き合わせる・腕 off は今の見出しのまま)
+    _es2 = _ES2.header_fields(_stage2_plan(b))
+    if _es2 is not None:
+        header["economy_stage2"] = _es2
     path = RS.state_path(state_out, int(T_next))
     nbytes = RS.write_state(path, RS.StateBundle(header, soa_, items_, list(fleet_inflight.values())))
     b.runstats.state_files.append({"file": path.name, "T": int(T_next), "bytes": int(nbytes), "finished": bool(finished),

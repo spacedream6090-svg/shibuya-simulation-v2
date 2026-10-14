@@ -402,6 +402,14 @@ class Rights:
         out[uniq] = hid[first]
         return out
 
+    def pairs(self, kind: str, holder_kind: str, object_kind: str, t_ns: SimTime) -> tuple[np.ndarray, np.ndarray]:
+        """〔第 2 期 2-1〕時刻 ``t_ns`` に ``kind`` の権利の (持つものの番号, 物の番号) の組(行の順・写し)。読むだけ。
+
+        経済の段階 2 の賃金(雇用の行の体 → 雇用主)が読む。
+        """
+        rows = self._pair_rows(kind, holder_kind, object_kind, t_ns)
+        return (self.__st._r_holder_id[rows].astype(np.int64), self.__st._r_object_id[rows].astype(np.int64))
+
     def tally(self) -> dict[str, Any]:
         """行の数と分布(manifest の ``rights`` の中身=計器)。種類は 4 つとも出す(0 も)。"""
         n = self.__st.n

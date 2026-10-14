@@ -41,6 +41,16 @@ Apache-2.0・R-113 §10):
 
 **未リサーチ(expedient)**: 口の名の書き方(世帯=体の id・ほかは ``"部門:索引"``)・``where`` は店の側の POI だけ・
 計器の欄。
+
+〔第 2 期 2-1・経済の段階 2 の腕 ``--economy-stage2``〕``transfer`` に支払いの方法の欄 ``method``(``METHOD_CASH``=現金・
+既定/``METHOD_ACCOUNT``=口座=カード・電子マネー・IC・振込)を足した。生ログに列 ``_raw_method``(1 B/行=輪の 1 行 23 B の
+空きの 1 B に入る=``RAW_ROW_BYTES`` 24 は不変)。``METHOD_ACCOUNT`` の行は、世帯(``ACCOUNT_SECTOR``)の側の脚を現金でなく
+**銀行預金**で動かし、銀行の決済の脚(預金純増=銀行 ↔ 世帯)を同じ呼び出しの中で 1 行足す(行は 2 つ・流れの表の 2 つの欄=
+「部門ごとの Σ科目 = Δ現金」の検算①・預金脚・検算②をそのまま満たす形。世帯の現金 ``agents.money`` は動かない=書き込み窓の
+外の日の締めの賃金も書ける)。決済の行の語: 世帯が払い手=``金:カード``・受け手=``金:預金純増``。新しい金の語(``金:引き出し``・
+``金:カード``)は ``MONEY_EXTRA_WHAT``(1-3 の語彙表の末尾の 2 語・科目は預金純増)。腕の無いラン(既定)は ``METHOD_CASH``
+だけ=値は不変(列 ``_raw_method`` は 0)。
+**未リサーチ(expedient)**: 口座の決済を「預金純増の行+本体の行」の 2 行で書く形(検算①の現金の列を変えないため)。
 """
 
 from __future__ import annotations
@@ -71,9 +81,16 @@ __all__ = [
     "MONEY_FAMILY",
     "CAUSE_KINDS",
     "MONEY_WHAT",
+    "MONEY_EXTRA_WHAT",
     "MONEY_PATHS",
     "MONEY_ATTRS",
     "NO_EVENT",
+    "METHOD_CASH",
+    "METHOD_ACCOUNT",
+    "METHODS",
+    "METHOD_NAMES",
+    "ACCOUNT_SECTOR",
+    "code_of_what",
     "what_of",
     "account_name",
     "transfer",
@@ -98,6 +115,33 @@ CAUSE_KINDS: Final[tuple[str, ...]] = ("llm_call", "process", "experiment")
 MONEY_WHAT: Final[Mapping[str, AccountCode]] = MappingProxyType(
     {f"{MONEY_FAMILY}:{ACCOUNT_NAMES[int(c)]}": c for c in AccountCode}
 )
+#: 〔第 2 期 2-1〕科目の名ではない金の語(1-3 の語彙表の末尾=``engine.events.vocab.MONEY_EXTRA_WORDS`` と同じ並び=試験が
+#: 突き合わせる)→ 科目。``金:引き出し``=ATM・銀行での引き出し(銀行 → 世帯の現金)・``金:カード``=口座の決済(銀行 → 世帯の
+#: 預金の引き落とし=カード・電子マネー・IC の支払いの決済の脚)。どちらも科目は預金純増(流れの表の形は不変)。
+MONEY_EXTRA_WHAT: Final[Mapping[str, AccountCode]] = MappingProxyType({
+    f"{MONEY_FAMILY}:引き出し": AccountCode.DEPOSIT_NET,
+    f"{MONEY_FAMILY}:カード": AccountCode.DEPOSIT_NET,
+})
+
+#: 〔2-1〕支払いの方法(生ログの列 ``_raw_method`` の値)。現金=0(既定・腕の無いランは全部 0)・口座=1。
+METHOD_CASH: Final[int] = 0
+METHOD_ACCOUNT: Final[int] = 1
+METHODS: Final[tuple[int, ...]] = (METHOD_CASH, METHOD_ACCOUNT)
+METHOD_NAMES: Final[tuple[str, ...]] = ("現金", "口座")
+#: 〔2-1〕口座の脚を持つ部門(世帯=銀行預金で払う・受け取る)。帳簿の汎用の口(``Ledger.transfer_many``)は世帯の名を書かずに
+#: これを見る(口の名の表の試験=世帯を書く Ledger の口は購入と初期の財布だけ)。
+ACCOUNT_SECTOR: Final[int] = int(Sector.HOUSEHOLD)
+#: 口座の決済の行の語(世帯が払い手=引き落とし・受け手=入金)。
+_SETTLE_WHAT_PAY: Final[str] = f"{MONEY_FAMILY}:カード"
+_SETTLE_WHAT_RECEIVE: Final[str] = f"{MONEY_FAMILY}:{ACCOUNT_NAMES[int(AccountCode.DEPOSIT_NET)]}"
+
+
+def code_of_what(what: Any) -> AccountCode | None:
+    """金の語 → 科目(科目の名の語と ``MONEY_EXTRA_WHAT`` の語。表の外は ``None``)。"""
+    if not isinstance(what, str):
+        return None
+    c = MONEY_WHAT.get(what)
+    return c if c is not None else MONEY_EXTRA_WHAT.get(what)
 
 #: お金の列(状態台帳の金の道筋=CP1 の A〜D のうち C 金)。**書き手は ``transfer`` だけ**(AST の試験が見る範囲)。
 #: 値は中身。属性の名は ``MONEY_ATTRS``(道筋の末尾)。
@@ -190,6 +234,8 @@ def transfer(
     what: str,
     cause: Any,
     t_ns: int,
+    *,
+    method: int = METHOD_CASH,
 ) -> TransferId:
     """**基本操作「移す」**(お金・A 湧かないもの)。``src`` から ``dst`` へ ``amount`` 円を移し、生ログに記録する。
 
@@ -198,29 +244,45 @@ def transfer(
         src: 払い手の口 ``(部門, 索引)``(索引は整数か配列)。
         dst: 受け手の口 ``(部門, 索引)``(``src`` と同じ行数)。
         amount: 正の整数の円(行ごと)。
-        what: 金の語(``MONEY_WHAT`` の鍵)。
-        cause: 1-3 の原因か ``None``(``None`` の行は出来事を書かない)。
+        what: 金の語(``MONEY_WHAT`` か ``MONEY_EXTRA_WHAT`` の鍵)。
+        cause: 1-3 の原因か ``None``(``None`` の行は出来事を書かない)。〔2-1・検収 A1〕行ごとの原因の ``list``
+            (長さ=行数・要素は 1-3 の原因か ``None``)も受ける(購入・食事・引き出しの行ごとの ``LlmCall(call_id)``)。
         t_ns: 通しの時刻(ナノ秒・刻みの頭)。
+        method: 〔2-1〕支払いの方法(``METHOD_CASH``=既定/``METHOD_ACCOUNT``=世帯の側の脚を銀行預金で動かし、銀行の
+            決済の行を 1 行足す=行は 2 倍)。
 
     Returns:
-        生ログの通し番号の範囲 ``TransferId(first, n)``。
+        生ログの通し番号の範囲 ``TransferId(first, n)``(口座の方法は決済の行を含む ``n``)。
 
     Raises:
         ValueError: 前提が崩れている(口が先に検査する=プログラムの誤り)・世帯の現金が書き込み窓の外。
         TypeError: ``cause`` が 1-3 の 3 型でも ``None`` でもない。
     """
-    code = MONEY_WHAT.get(what) if isinstance(what, str) else None
+    code = code_of_what(what)
     if code is None:
         raise ValueError(f"transfer の what は金の語(語彙 1-3 の族「金」): {what!r}")
     if code in NON_TRANSFERABLE:
         raise ValueError(f"移せない科目: {what}")
+    m = int(method)
+    if m not in METHODS:
+        raise ValueError(f"transfer の method は {METHODS} のどれか(いま {method!r})")
     ps, p = _account(ledger, src, "src")
     qs, q = _account(ledger, dst, "dst")
     a = np.asarray(amount, dtype=np.int64).ravel()
     k = int(a.size)
     if not (p.size == q.size == k):
         raise ValueError(f"transfer の行数が揃っていない: {p.size} / {q.size} / {k}")
-    if cause is not None and getattr(cause, "kind", None) not in CAUSE_KINDS:
+    n_none = 0
+    if isinstance(cause, list):  # 〔2-1・検収 A1〕行ごとの原因
+        if len(cause) != k:
+            raise ValueError(f"transfer の行ごとの原因の数が行数と違う: {len(cause)} / {k}")
+        for c in cause:  # 逐次ループ宣言: 行ごとの原因を渡した行の数ぶん(型の検査)
+            if c is not None and getattr(c, "kind", None) not in CAUSE_KINDS:
+                raise TypeError(f"transfer の cause は 1-3 の原因の 3 型か None(いま {type(c)!r})")
+        n_none = sum(1 for c in cause if c is None)
+        if n_none == k:
+            cause = None
+    elif cause is not None and getattr(cause, "kind", None) not in CAUSE_KINDS:
         raise TypeError(f"transfer の cause は 1-3 の原因の 3 型か None(いま {type(cause)!r})")
     first = int(ledger._raw_pos)
     if k == 0:
@@ -229,7 +291,7 @@ def transfer(
         raise ValueError("transfer の amount は正の整数の円")
     if code == AccountCode.ENTRY_CAPITAL and Sector(ps) not in ENTRY_CAPITAL_PAYERS:
         raise ValueError(f"参入資本の出所が許されない(ex nihilo): {Sector(ps).name}")
-    if not is_allowed(int(code), ps, qs):
+    if not is_allowed(int(code), ps, qs, stage2=bool(getattr(ledger, "_stage2_pairs", False))):
         raise ValueError(f"許されない組: {what} {Sector(ps).name} → {Sector(qs).name}")
     n_p, n_q = ledger.sizes[ps], ledger.sizes[qs]
     if int(p.min()) < 0 or int(p.max()) >= n_p or int(q.min()) < 0 or int(q.max()) >= n_q:
@@ -237,6 +299,14 @@ def transfer(
     self_loop = code == AccountCode.DEPRECIATION
     if self_loop and (ps != qs or not np.array_equal(p, q)):
         raise ValueError("減価償却は自己ループ(src と dst が同じ口)")
+    acct_p = acct_q = False
+    if m == METHOD_ACCOUNT:
+        # 〔2-1〕口座の方法: 世帯の側の脚を預金で動かす(預金純増そのもの・減価償却には使わない=決済の行と重なる)
+        if self_loop or code == AccountCode.DEPOSIT_NET:
+            raise ValueError(f"口座の方法は預金純増と減価償却に使わない: {what}")
+        acct_p, acct_q = ps == ACCOUNT_SECTOR, qs == ACCOUNT_SECTOR
+        if acct_p == acct_q:
+            raise ValueError("口座の方法は世帯の側の脚が 1 つの組だけ(世帯 ↔ 世帯でない・世帯の無い組でない)")
     t = int(t_ns)
     step_ns = int(ledger._step_ns)
     step = t // step_ns
@@ -247,9 +317,11 @@ def transfer(
         lines = ledger._lines
         # ---- 1. 検査の残り: 世帯の現金(agents.money=resolve の書き込み窓)が書けるか。窓を開けた後に見る(台帳の配列は
         #         窓の中で書ける・採用した世帯の現金の旗は resolve が持つ)。np.add.at は writeable=False を無視して書けて
-        #         しまう(numpy 2.5 実測)ので自前で見る ----
+        #         しまう(numpy 2.5 実測)ので自前で見る。〔2-1〕口座の脚の世帯は現金を書かない=見ない ----
         if not self_loop:
-            for sector in (ps, qs):
+            for sector, acct in ((ps, acct_p), (qs, acct_q)):
+                if acct:
+                    continue
                 if not lines[int(BalanceLine.CASH)][sector].flags.writeable:
                     raise ValueError(
                         f"部門 {Sector(sector).name} の現金配列が読み取り専用: "
@@ -258,8 +330,11 @@ def transfer(
 
         # ---- 2. 出来事(1-3)。金を書く前に書く(検収 L5: 記録の口が例外を出したとき金だけが動かない) ----
         sink = ledger._events
+        bank = int(Sector.BANK)
+        zeros = np.zeros(k, dtype=np.int64)
         if cause is None or sink is None or not sink.enabled:
             ev_t = ev_s = None
+            sv_t = sv_s = None
             n_ev = 0
         else:
             store_p, store_q = ps == int(Sector.STORE), qs == int(Sector.STORE)
@@ -267,14 +342,24 @@ def transfer(
             who = [account_name(ps, x) for x in pl]  # 逐次ループ宣言: 原因を渡した行の数ぶん
             whom = [account_name(qs, x) for x in ql]
             where = [("poi", y) if store_q else (("poi", x) if store_p else None) for x, y in zip(pl, ql)]
+            sv_t = sv_s = None
+            if acct_p:  # 〔2-1〕決済の行(銀行 → 世帯の引き落とし)を本体の前に
+                hl = [account_name(ps, x) for x in pl]
+                sv_t, sv_s = sink(_SETTLE_WHAT_PAY, cause, t, [account_name(bank, 0)] * k, hl, [None] * k, a)
             ev_t, ev_s = sink(what, cause, t, who, whom, where, a)
+            if acct_q:  # 〔2-1〕決済の行(世帯の入金 → 銀行)を本体の後に
+                hl = [account_name(qs, x) for x in ql]
+                sv_t, sv_s = sink(_SETTLE_WHAT_RECEIVE, cause, t, hl, [account_name(bank, 0)] * k, [None] * k, a)
             n_ev = int(np.count_nonzero(np.asarray(ev_s) >= 0))
+            if sv_s is not None:
+                n_ev += int(np.count_nonzero(np.asarray(sv_s) >= 0))
 
         # ---- 3. 金(残高・流れの表・最後に動いた日・取引の件数) ----
+        n_rows = k
         if self_loop:
             # 自己ループ: 固定資産だけが減る(現金・最後に動いた日・取引の件数は動かさない=HEAD の depreciate と同じ)
             np.add.at(lines[int(BalanceLine.FIXED_ASSET)][ps], p, -a)
-        else:
+        elif not (acct_p or acct_q):
             cash_p = lines[int(BalanceLine.CASH)][ps]
             cash_q = lines[int(BalanceLine.CASH)][qs]
             np.add.at(cash_p, p, (-a).astype(cash_p.dtype))
@@ -293,45 +378,104 @@ def transfer(
             last[ps][p] = np.int32(ledger._day)
             last[qs][q] = np.int32(ledger._day)
             ledger.n_transfers += k
+        else:
+            # 〔2-1〕口座の方法: 世帯の脚=預金・相手の脚=現金・銀行の決済の脚=銀行の現金と預金負債(借入の行)。
+            # 流れの表は本体の欄と決済の欄(預金純増)の 2 つ=部門ごとの Σ科目 = Δ現金(世帯は 0・銀行は ±額)
+            dep = lines[int(BalanceLine.DEPOSIT)]
+            loan = lines[int(BalanceLine.LOAN)]
+            cash = lines[int(BalanceLine.CASH)]
+            total_a = int(a.sum())
+            if acct_p:
+                np.add.at(dep[ps], p, -a)
+                np.add.at(cash[qs], q, a.astype(cash[qs].dtype))
+                cash[bank][0] -= total_a
+                loan[bank][0] -= total_a
+            else:
+                np.add.at(cash[ps], p, (-a).astype(cash[ps].dtype))
+                np.add.at(dep[qs], q, a)
+                cash[bank][0] += total_a
+                loan[bank][0] += total_a
+            last = ledger._last_change_day
+            last[ps][p] = np.int32(ledger._day)
+            last[qs][q] = np.int32(ledger._day)
+            last[bank][0] = np.int32(ledger._day)
+            n_rows = 2 * k
+            ledger.n_transfers += n_rows
         meter = ledger.meter
         if meter.flow_base is None:
             meter.flow_base = int(ledger._flow.sum())
         total = int(a.sum())
         ledger._flow[ps, qs, int(code)] += total
+        dn = int(AccountCode.DEPOSIT_NET)
+        if acct_p:
+            ledger._flow[bank, ps, dn] += total
+        elif acct_q:
+            ledger._flow[qs, bank, dn] += total
 
         # ---- 4. 生ログ(輪)と目印の列。D-R2-6: 保持窓を超えた分は日次の集約行に畳む・K17: 溢れたら上書きして数える ----
+        #         〔2-1〕口座の方法は決済の行を足す(払い手=世帯なら決済 → 本体・受け手=世帯なら本体 → 決済の順)
         cap = ledger._raw_tick.size
-        pos = first + np.arange(k, dtype=np.int64)
+        r_ps = np.full(k, ps, dtype=np.int8)
+        r_pi = p.astype(np.int32)
+        r_qs = np.full(k, qs, dtype=np.int8)
+        r_qi = q.astype(np.int32)
+        r_code = np.full(k, int(code), dtype=np.int8)
+        r_t = None if ev_s is None else np.asarray(ev_t, dtype=np.int64)
+        r_s = None if ev_s is None else np.asarray(ev_s, dtype=np.int32)
+        r_amt = a
+        if acct_p or acct_q:
+            hh = p if acct_p else q
+            s_ps = np.full(k, bank if acct_p else qs, dtype=np.int8)
+            s_pi = (zeros if acct_p else hh).astype(np.int32)
+            s_qs = np.full(k, ps if acct_p else bank, dtype=np.int8)
+            s_qi = (hh if acct_p else zeros).astype(np.int32)
+            s_code = np.full(k, dn, dtype=np.int8)
+            parts = [(s_ps, s_pi, s_qs, s_qi, s_code), (r_ps, r_pi, r_qs, r_qi, r_code)]
+            ids = [(sv_t, sv_s), (r_t, r_s)]
+            if acct_q:
+                parts.reverse()
+                ids.reverse()
+            r_ps, r_pi, r_qs, r_qi, r_code = (np.concatenate([x[j] for x in parts]) for j in range(5))
+            r_amt = np.concatenate([a, a])
+            if r_t is not None:
+                r_t = np.concatenate([np.asarray(x[0], dtype=np.int64) for x in ids])
+                r_s = np.concatenate([np.asarray(x[1], dtype=np.int32) for x in ids])
+        pos = first + np.arange(n_rows, dtype=np.int64)
         slot = pos % cap
         ledger._raw_tick[slot] = np.int32(step)
-        ledger._raw_ps[slot] = np.int8(ps)
-        ledger._raw_pi[slot] = p.astype(np.int32)
-        ledger._raw_qs[slot] = np.int8(qs)
-        ledger._raw_qi[slot] = q.astype(np.int32)
-        ledger._raw_amt[slot] = a
-        ledger._raw_code[slot] = np.int8(int(code))
-        if ev_s is None:  # 出来事の無い行は空(輪の使い回しで前の周の id を残さない)
+        ledger._raw_ps[slot] = r_ps
+        ledger._raw_pi[slot] = r_pi
+        ledger._raw_qs[slot] = r_qs
+        ledger._raw_qi[slot] = r_qi
+        ledger._raw_amt[slot] = r_amt
+        ledger._raw_code[slot] = r_code
+        ledger._raw_method[slot] = np.int8(m)
+        if r_s is None:  # 出来事の無い行は空(輪の使い回しで前の周の id を残さない)
             ledger._raw_event_t_ns[slot] = NO_EVENT
             ledger._raw_event_seq[slot] = NO_EVENT
         else:
-            ledger._raw_event_t_ns[slot] = ev_t
-            ledger._raw_event_seq[slot] = ev_s
-        ledger._raw_pos += k
+            ledger._raw_event_t_ns[slot] = r_t
+            ledger._raw_event_seq[slot] = r_s
+        ledger._raw_pos += n_rows
         overflow = 0
         if ledger._raw_pos - ledger._raw_head > cap:
             overflow = (ledger._raw_pos - ledger._raw_head) - cap
             ledger._raw_head += overflow
             ledger.n_raw_dropped += int(overflow)
 
-    meter.rows += k
-    meter.amount += total
+    moved = total * (n_rows // k)
+    meter.rows += n_rows
+    meter.amount += moved
     meter.overflow += int(overflow)
     meter.events += n_ev
-    meter.day_rows += k
-    meter.day_amount += total
+    meter.day_rows += n_rows
+    meter.day_amount += moved
     meter.day_overflow += int(overflow)
     meter.day_events += n_ev
     if cause is None:
-        meter.uncaused += k
-        meter.day_uncaused += k
-    return TransferId(first, k)
+        meter.uncaused += n_rows
+        meter.day_uncaused += n_rows
+    elif n_none:  # 〔2-1〕行ごとの原因のうち None の行(と口座の方法の決済の行)
+        meter.uncaused += n_none * (n_rows // k)
+        meter.day_uncaused += n_none * (n_rows // k)
+    return TransferId(first, n_rows)

@@ -725,16 +725,21 @@ class RailProcess:
         基本操作 ``economy.ops.transfer`` が行ごとに出来事を書き、生ログの行に id の目印を付ける。
         """
         r = np.asarray(riders, dtype=np.int64)
-        status = money_ledger.transfer_many(
-            SECTOR_HOUSEHOLD,
-            r,
-            SECTOR_ROW,
-            np.zeros(r.size, dtype=np.int64),
-            np.full(r.size, int(fare), dtype=np.int64),
-            ACCOUNT_CODE_CARRY_OUT,
-            int(tick),
-            cause=FARE_CAUSE,
-        )
+        s2 = getattr(money_ledger, "stage2", None)
+        if s2 is not None and s2.part("payment"):
+            # 〔第 2 期 2-1〕経済の段階 2 の腕の支払い(payment)の部品: IC(口座)が既定・口座が足りなければ現金(expedient)
+            status = money_ledger.pay_fares_many(r, int(fare), int(tick), cause=FARE_CAUSE)
+        else:
+            status = money_ledger.transfer_many(
+                SECTOR_HOUSEHOLD,
+                r,
+                SECTOR_ROW,
+                np.zeros(r.size, dtype=np.int64),
+                np.full(r.size, int(fare), dtype=np.int64),
+                ACCOUNT_CODE_CARRY_OUT,
+                int(tick),
+                cause=FARE_CAUSE,
+            )
         bad = int(np.count_nonzero(np.asarray(status) != 0))
         self.n_fare_rejected += bad
         return np.asarray(status)

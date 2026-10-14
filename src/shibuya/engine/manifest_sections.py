@@ -181,12 +181,20 @@ PATHS: Final[dict[str, str]] = {
     **_mixed("economy", config=("raw_capacity", "raw_rows_per_agent_day", "raw_row_bytes", "raw_link_bytes",
                                 "raw_overflow_policy"), observed=(
         "raw_overflow", "transfers_total", "transfers_amount", "transfers_uncaused", "transfer_events")),
+    # ---- 第 2 期 2-1: 経済の段階 2 の腕(--economy-stage2 on のランだけ欄が立つ)。腕・部品・給料日・expedient の値・
+    # 労働時間の出どころ・組み立ての宣言(縮小の比)・登録の流れの表・ATM の表=設定/規則の asof と値・計器・流れの欄の額・
+    # 信用の器・財布と預金の分位=観測 ----
+    **_mixed("economy.stage2", config=("arm", "parts", "payday_day_of_month", "expedients", "hours_source", "plan",
+                                       "faucet_sink_registry", "atms"), observed=(
+        "rules", "endow", "wages", "withdraw", "payment", "tax", "external_sales", "faucet_sink_by_cell", "credit",
+        "wallet", "deposit", "wallet_mean", "deposit_mean", "wallet_zero", "calls")),  # calls=検収 A1(呼の id の配線)
     # ---- 第 1 期 1-8 J0: 候補の口(腕の名・口の実装・源の一覧・「その他」の既定=設定/判断の数・源の分布・「その他」の割合・
     # 選んだ番号の分布・今の道との食い違い・判断の出来事=観測。腕 legacy のランは観測の子が null) ----
     **_mixed("decision_port", config=("schema", "arm", "port", "sources", "bridge_source", "other_share_default",
                                       "other_share_basis"), observed=(
         "decisions", "late", "fleet_legacy", "presented_by_source", "chosen_by_source", "other", "other_ratio",
-        "chosen_number", "n_candidates", "mismatch", "events", "events_unlogged")),
+        "chosen_number", "n_candidates", "mismatch", "events", "events_unlogged",
+        "stage2")),  # 第 2 期 2-1: 経済の段階 2 の候補の計器(お金を下ろす・支払いの注)
     # ---- 第 1 期 1-8b: 発話の口(腕の名・口の実装・届く範囲・道具・出力の欄の指示・未読の窓と上限・mock の決まった文=設定/
     # 会話の番・発話にしなかった数・発話・出来事の行・届いた数・口コミに渡った数ほか=観測。腕 off のランは観測の子が null) ----
     **_mixed("speech_port", config=("schema", "arm", "port", "reach", "via", "field_line", "heard_ttl_steps",

@@ -53,12 +53,15 @@ TRANSFER_WRITES: tuple[str, ...] = ("agents.money",)
 #: 〔第 1 期 1-9〕世帯の現金を動かす帳簿の口(属性の呼び出しの名 → 中身)。resolve.py の関数がこの名を呼べば
 #: ``TRANSFER_WRITES`` を書く(``index`` が AST で引く)。口を足したら(世帯を払い手か受け手にする口)ここにも足す
 #: (試験 ``tests/economy/cp2/test_cp2_transfer_only_writer.py`` が economy の口と突き合わせる)。実行時に書き換えられない
-#: 表(検収 L6・1-3 の語彙表と同じ ``MappingProxyType``)。限界: 名前のある 3 つの口だけを見る=resolve が汎用の
+#: 表(検収 L6・1-3 の語彙表と同じ ``MappingProxyType``)。限界: 名前のある 4 つの口だけを見る=resolve が汎用の
 #: ``transfer_many`` で世帯を動かすと漏れる(いまは無い・閉包は SoA の直の書きでも ``agents.money`` を持つ)。
+#: 〔第 2 期 2-1・親の承認(検収 A7)〕引き出しの口 ``withdraw_many`` を足した(腕 on だけが呼ぶ・世帯の現金が増える)。
 TRANSFER_PORTS_HOUSEHOLD: Mapping[str, str] = MappingProxyType({
     "purchase_many": "購入・食事(世帯 → 店舗・消費支出)= Ledger.purchase_many → ops.transfer",
     "endow_households": "初期の財布(外界 → 世帯・来街者持込)= Ledger.endow_households → ops.transfer",
     "pay_fares": "運賃(世帯 → 外界・持ち出し)= engine/processes/rail.py → Ledger.transfer_many → ops.transfer",
+    "withdraw_many": "引き出し(銀行 → 世帯・預金純増)= Ledger.withdraw_many → MoneyStage2.withdraw → "
+                     "Ledger.transfer_many → ops.transfer(2-1・腕 on だけ)",
 })
 
 

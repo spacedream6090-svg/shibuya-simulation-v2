@@ -32,6 +32,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import IntEnum
+from types import MappingProxyType
 from typing import Final, Mapping
 
 from shibuya.engine import ledger_api as api
@@ -53,6 +54,11 @@ __all__ = [
     "is_allowed",
     "flow_kind",
     "faucet_sink_table",
+    "STAGE2_PAIRS",
+    "RegisteredFlow",
+    "FLOW_REGISTRY",
+    "registered_cells",
+    "flow_registry_table",
 ]
 
 
@@ -269,14 +275,29 @@ def flow_kind(code: int, payer: int, payee: int) -> FlowKind:
     return FlowKind.INTERNAL
 
 
-def is_allowed(code: int, payer_sector: int, payee_sector: int) -> bool:
+#: 〔第 2 期 2-1〕経済の段階 2 の腕(``--economy-stage2``)のランだけで許す組(科目は増やさない=流れの表の形
+#: (6 × 6 × 15)と科目の列挙は不変)。EC5「範囲の外の取引先からの売上は、外の決定として外界の口座から入れる(faucet)」
+#: =外界 → 店舗・外界 → 雇用主 の消費支出(域外の取引先の支払い)。雇用主の賃金の原資(第 1 陣の「外生」)もこの組で入る。
+#: 腕の無いラン(既定)では ``is_allowed`` が今までどおり ``ACCOUNTS`` の組だけを見る(結果不変)。
+#: **未リサーチ(expedient)**: 域外の取引先の支払いを「消費支出」の科目に載せた(12 科目に「売上・輸出」が無いため・科目を
+#: 足すと流れの表の形が変わる=既定のランの残高のハッシュが動く)。
+STAGE2_PAIRS: Final[Mapping[AccountCode, tuple[tuple[Sector, Sector], ...]]] = MappingProxyType({
+    AccountCode.CONSUMPTION: ((_W, _S), (_W, _E)),
+})  # 〔検収 L1〕実行時に書き換えられない表(1-3 の語彙表と同じ形)
+
+
+def is_allowed(code: int, payer_sector: int, payee_sector: int, *, stage2: bool = False) -> bool:
     """(科目, 支払部門, 受取部門)が faucet/sink 表にあるか。
+
+    ``stage2=True``(〔2-1〕経済の段階 2 の腕のラン)では ``STAGE2_PAIRS`` の組も許す。
 
     Example:
         >>> is_allowed(AccountCode.CONSUMPTION, Sector.HOUSEHOLD, Sector.STORE)
         True
         >>> is_allowed(AccountCode.CONSUMPTION, Sector.STORE, Sector.HOUSEHOLD)
         False
+        >>> is_allowed(AccountCode.CONSUMPTION, Sector.ROW, Sector.EMPLOYER, stage2=True)
+        True
     """
     try:
         c = AccountCode(int(code))
@@ -284,11 +305,17 @@ def is_allowed(code: int, payer_sector: int, payee_sector: int) -> bool:
         b = Sector(int(payee_sector))
     except ValueError:
         return False
-    return (a, b) in ACCOUNTS[c].pairs
+    if (a, b) in ACCOUNTS[c].pairs:
+        return True
+    return bool(stage2) and (a, b) in STAGE2_PAIRS.get(c, ())
 
 
-def faucet_sink_table() -> tuple[tuple[str, str, str, str, str], ...]:
+def faucet_sink_table(*, stage2: bool = False) -> tuple[tuple[str, str, str, str, str], ...]:
     """faucet/sink 表を人が読む形で返す(科目・支払・受取・区分・タグ)。
+
+    〔2-1・検収 L6〕既定(``stage2=False``)は腕の無いランで許された組だけ(今までの表のまま)。``stage2=True`` は段階 2 の腕の
+    組(``STAGE2_PAIRS``)も末尾に足す(タグ ``段階 2:<タグ>``)=腕のランで許された組の全部。名前のある流れ(賃金の原資・外界の売上・初期の財布と預金・参入資本・来街者の持ち込み・税の sink)の表は
+    ``flow_registry_table``。
 
     逐次ループ宣言: 科目 × 許可部門対ぶん(数十行)。
     """
@@ -308,4 +335,68 @@ def faucet_sink_table() -> tuple[tuple[str, str, str, str, str], ...]:
                     spec.tag,
                 )
             )
+    if stage2:
+        for code, pairs in STAGE2_PAIRS.items():
+            for payer, payee in sorted(pairs):
+                rows.append((ACCOUNT_NAMES[int(code)], SECTOR_NAMES[int(payer)], SECTOR_NAMES[int(payee)],
+                             flow_kind(code, payer, payee).name, "段階 2:expedient"))
     return tuple(rows)
+
+
+# ---------------------------------------------------------------- 〔第 2 期 2-1〕名前のある流れの全登録(保存則の検算)
+@dataclass(frozen=True)
+class RegisteredFlow:
+    """名前のある流れ 1 つ(口の約束 1-9 の約束 (3)「faucet/sink の全登録」を 2-1 で直した形)。
+
+    ``kind`` は ``flow_kind`` の規則と同じ値(登録の試験が突き合わせる)。``stage`` は ``"1"``(既定のランにもある流れ)か
+    ``"2"``(経済の段階 2 の腕のランだけ)。同じ (科目, 支払, 受取) の組に名前が 2 つ以上あってよい(流れの表は組で畳む)。
+    """
+
+    name: str
+    code: AccountCode
+    payer: Sector
+    payee: Sector
+    kind: FlowKind
+    stage: str
+    source: str
+
+
+#: 名前のある流れの全登録。保存則の検算(``economy.checks.conservation_check``)は「この表の組」だけを faucet/sink/内部に
+#: 数え、表に無い組の流れ(額が 0 でないもの)は「登録の無い流れ」として検算を落とす。
+FLOW_REGISTRY: Final[tuple[RegisteredFlow, ...]] = (
+    RegisteredFlow("初期の財布", AccountCode.CARRY_IN, _W, _H, FlowKind.FAUCET, "1", "Ledger.endow_households"),
+    RegisteredFlow("参入資本(外界)", AccountCode.ENTRY_CAPITAL, _W, _S, FlowKind.FAUCET, "1", "Ledger.endow_stores"),
+    RegisteredFlow("購入・食事", AccountCode.CONSUMPTION, _H, _S, FlowKind.INTERNAL, "1", "Ledger.purchase_many"),
+    RegisteredFlow("運賃", AccountCode.CARRY_OUT, _H, _W, FlowKind.SINK, "1", "RailProcess.pay_fares"),
+    RegisteredFlow("補充の代金(域外仕入)", AccountCode.IMPORT_PURCHASE, _S, _W, FlowKind.SINK, "1",
+                   "GoodsLedger.restock_many"),
+    RegisteredFlow("逸脱比例コスト", AccountCode.DEVIATION_COST, _S, _G, FlowKind.SINK, "1", "pricing.deviation_cost"),
+    RegisteredFlow("域外雇用主の賃金", AccountCode.WAGE, _W, _H, FlowKind.FAUCET, "1", "anchors.monthly_wages"),
+    RegisteredFlow("預け入れ・口座の入金", AccountCode.DEPOSIT_NET, _H, _B, FlowKind.INTERNAL, "1", "ops.transfer"),
+    RegisteredFlow("引き出し・口座の決済", AccountCode.DEPOSIT_NET, _B, _H, FlowKind.INTERNAL, "1", "ops.transfer"),
+    RegisteredFlow("初期の預金", AccountCode.CARRY_IN, _W, _H, FlowKind.FAUCET, "2", "stage2.endow"),
+    RegisteredFlow("来街者の持ち込みの口座の分(預け入れ)", AccountCode.DEPOSIT_NET, _H, _B, FlowKind.INTERNAL, "2",
+                   "stage2.endow"),
+    RegisteredFlow("賃金(雇用主)", AccountCode.WAGE, _E, _H, FlowKind.INTERNAL, "2", "stage2.payroll"),
+    RegisteredFlow("賃金(店の担当従業者)", AccountCode.WAGE, _S, _H, FlowKind.INTERNAL, "2", "stage2.payroll"),
+    RegisteredFlow("賃金の原資(雇用主の外界の売上)", AccountCode.CONSUMPTION, _W, _E, FlowKind.FAUCET, "2",
+                   "stage2.payroll"),
+    RegisteredFlow("外界の売上(店・賃金の原資と範囲の外の取引先)", AccountCode.CONSUMPTION, _W, _S, FlowKind.FAUCET, "2",
+                   "stage2.payroll・stage2.external_sales"),
+    RegisteredFlow("消費税", AccountCode.TAX, _S, _G, FlowKind.SINK, "2", "stage2.purchase"),
+    RegisteredFlow("給与の天引き(器)", AccountCode.TAX, _H, _G, FlowKind.SINK, "2", "stage2.payroll"),
+)
+
+
+def registered_cells() -> Mapping[tuple[int, int, int], FlowKind]:
+    """登録の (科目, 支払, 受取) → 区分(同じ組の名前が 2 つ以上あっても区分は 1 つ=登録の試験が見る)。"""
+    out: dict[tuple[int, int, int], FlowKind] = {}
+    for f in FLOW_REGISTRY:  # 逐次ループ宣言: 登録の行数(十数行)
+        out[(int(f.code), int(f.payer), int(f.payee))] = f.kind
+    return out
+
+
+def flow_registry_table() -> tuple[tuple[str, str, str, str, str, str], ...]:
+    """名前のある流れの全登録を人が読む形で(名前・科目・支払・受取・区分・段)。"""
+    return tuple((f.name, ACCOUNT_NAMES[int(f.code)], SECTOR_NAMES[int(f.payer)], SECTOR_NAMES[int(f.payee)],
+                  f.kind.name, f.stage) for f in FLOW_REGISTRY)

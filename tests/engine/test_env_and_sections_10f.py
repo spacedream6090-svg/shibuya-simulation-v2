@@ -83,7 +83,9 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 第 2 期 2-2 段 11a: ``proximity`` の設定の子 12(schema・mode・d_m・d_arms・leave_m・b5_radius_m・b5_radius_source・
 #: notice・unit_source・index_cell_m・position_source・marks)を足した(1-8b の後に・前 ``163fb104…71ba4eb8``・
 #: 記録 docs/bench/analysis/wallbounce-1012/prox22/README.md)。
-CONFIG_PATHS_SHA256 = "1ec094a43ef0a1c36746ae0643856bd0e04ebe8019fa1cc99c1847eb491503d3"
+#: 第 2 期 2-1: ``economy.stage2`` の設定の子 8(arm・parts・payday_day_of_month・expedients・hours_source・plan・
+#: faucet_sink_registry・atms)を足した(2-2 の後に・前 ``1ec094a4…91503d3``・記録 ec21/README.md §14)。
+CONFIG_PATHS_SHA256 = "f78dd574c2e91ccdd9acbae00312dcf0ef5cacd0b98068bfa871a5892cfbc947"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 
