@@ -223,3 +223,4 @@
 **突き合わせ**: つなぎの台帳とコードの宣言は 6 形とも欠け 0・余り 0(見出し 76・ファイル 73・項 342・active 282 行)。
 
 **試験(rebase の後・作業木)**: 範囲(`tests/engine/rights`・`systems`・`events`・`time`・`bridging`・`rules`・`memory`・`tests/perception`・`tests/economy`・`tests/engine/processes`・`test_state_ledger_10b.py`・`test_state_checks_10f.py`・`test_env_and_sections_10f.py`・`tests/test_cli.py`・`-m "not slow" -n 4 --dist loadfile`): **1,388 passed・0 failed(6 分 24 秒)**。`slow` の 18 構成の生きた数え(`tests/engine/rights -m slow`): 18 passed(▲ の印なし)。byte-check は親が回す。
+- **rebase の後(第334)**: 枝を本体(1-6・1-9・1-2 取り込み済み fc05011)に rebase(衝突 9 本=台帳・manifest の節・run・build・凍結の鍵・試験 4 本=両方の追加を残す形で実装役が解き、合わせ(末尾の並び … → economy → percept → rights・台帳 282 行・L8 の行・opening の行の外す段 4-1)も済ませ、親が add と continue)。rebase 後に親が試験の一部 1,411 passed(10 分 37 秒)と byte-check 4 構成(新しい本体の src と比べて final 同じ・動いた欄 0=parent_head_vs_r15_rebased_4cfg.json。rebase 前に見えた差は本体の 1-9 の K17 によるもの)を確かめた。
