@@ -7,7 +7,14 @@
 
 ## 0. 結論(段ごと)
 
-(段ごとに追記)
+- **V1 資産の活性化**: W12 1.2.0(8 線とも実ダイヤ・6,273 行)と W9 の影 7 日の窓を 1 つの資産に組み直した(`data/world/v2_stage_2-4`・build_hash `5ff1bacf…` → `6a7d34e8…`・2 回組んで一致・置き換え 11 本・足す 3 本・同じ 93 本)。**本体の `data/world/v2` への写しは親が実行する**(道具 `activate_vb24.py` の `apply --dry-run` は本体の v2 で通った)。19/19 構成で final が動いた。原因は全部 W12 の時刻表で、呼数の合計は +1,088。W9 の 10 MB/日のゲートは案 A(宣言を 13 MB/日に)を仮に入れた(親が決める)。京王の行は切替口 `USE_ODPT_CHALLENGE`(既定 True)で戻せる。C8 の感度の台帳を作り直した(W12 の 8 行)。
+- **V2 近接 distance を既定に**: 18/19 構成で final が動いた(`v3_classical` はプロンプトの列だけ)。呼数の合計は −10,046(−0.9%)。切替口 `--proximity cell` で V1 の値が 25 欄とも再現した(4 構成)。直したもの: 体の層をセルから導く(2-2 の distance の道は派生の列 `agents.band`=軸 1 no を読んでいて、既定にすると状態台帳の試験 T5 が落ちた・直した後も 19 構成で 25 欄とも同じ)。11c の読み直しの既定の列・B5 の単位の在室人数・再開=通しを記録した。
+- **V3 在席の印を歩き出しで解く**: 15/19 構成で final が動いた。呼数の合計は −2,266。店のセルの外にいる在席の体 × 刻みは 4.36% → 1.91%。残りの 88% は乗車へ向かう体で、`_apply_move` の範囲の外(親が決める)。切替口 `--seat-release legacy` で V2 の値が 19/19 構成で再現した。
+- **V4 経済の段階 2 を既定 on に**: 部品 5 つ全部を on にした。19/19 構成で final が動いた(呼数は 13 構成で同じ・合計 −40)。輪の係数は 16.0 行/体/日で、予算の宣言を約 246.6 MB(M8 の約 1.0%)に改めた。`pois.revenue` は税抜きにし、`DOC-ec21-revenue-tax-inclusive` を removed にした。2 日のランは残差 0・溢れ 0。世帯の現金の 1 体の増減は −1,606・−1,173 → −734・−438 円/日。切替口 `--economy-stage2 off` で V3 の値が再現した(4 構成)。再開=通しも確かめた。再開の腕の検査は「効いている腕」で見る形に直した(台帳なしのランの再開が止まったため)。
+- **V5 計器の節**: `group_norms.cost.ticks` を観測の節に移した。結果は 19/19 構成で 25 欄とも不変。`CONFIG_PATHS_SHA256` は `417f0818…`。
+- **V6 錨のファイルの分離**: 値を読まずに、鍵の名で 4 本に分けた(在圏は較正側と検証側・空腹は構築側と検証側)。結果は 19/19 構成で 25 欄とも不変。manifest で動くのは `energy.anchors`・`anchors_md5` だけ。エンジンは今も空腹の検証側のファイルを読む(第 18-1 表・PENDING §1-1)。
+- **V7 切替口**: 一覧だけ作った(残す 5・消す候補 10 行・消していない)。
+- **合計**: 呼数は 1,129,811 → 1,118,547(−1.0%)。試験は写しの木で全体(not slow)が 4,871 passed・1 failed(既知の junction の ab7)。slow は 86 passed・1 failed(性能の試験 P6=10 並列の負荷・単独で回し直して通る=§締め-2)。`tests/c7` は回していない。活性化の前なので、作業木で回すと活性化の golden と `tests/engine/test_activation_2_4.py` は落ちる(親が写した後に通る)。
 
 ## V1 資産の活性化(2-3b の W12 実ダイヤ+2-3 の W9 の影 7 日の窓)
 
@@ -610,3 +617,148 @@ ec21 の道具 [stage2_two_day.py](../ec21/tools/stage2_two_day.py) をそのま
 - 試験(作業木・`-m "not slow and not gpu"`): エネルギーと食事の 4 ファイル・`tests/tools`・`tests/engine/bridging`・`test_env_and_sections_10f.py` = **218 passed**。
 - 写しの木(`_bc/tree`)には較正側と構築側と空腹の検証側を写し、在圏の検証側 `presence_validation_anchors_v0.json` は写さない(前の `presence_anchors_v0.json`・`diversity_anchors_v0.json` と同じ扱い)。
 - byte-check の head の写しの手順(10e の道具の docstring)の「錨はエンジンが開く 3 本」は、V6 より後の src では **4 本**(空腹の 2 本+活動の事前分布+通勤時間)。
+
+## V7 切替口の整理(RET=本段では一覧だけ・消すかは親が決める)
+
+### V7-1 残す(本段で既定を変えた・2-4 の記録の旧値の再現に使う)
+
+| 切替口 | 置き場 | 旧値の再現の確かめ |
+|---|---|---|
+| `--proximity cell`(環境変数 `SHIBUYA_PROXIMITY`) | `engine/proximity.py`(`DEFAULT_MODE`=distance) | §V2-3(4 構成 25 欄) |
+| `--seat-release legacy`(`SHIBUYA_SEAT_RELEASE`) | `engine/seat_release.py`(`DEFAULT_MODE`=walk) | §V3-4(19 構成 25 欄) |
+| `--economy-stage2 off`(`SHIBUYA_ECONOMY_STAGE2`)・`--economy-stage2-parts` | `engine/economy_stage2.py`(`DEFAULT_ARM`=on) | §V4-3(4 構成 25 欄)・§V4-4(部品を 1 つずつ止めた 2 日) |
+| `w12_real_timetables.USE_ODPT_CHALLENGE`(構築側・新) | `build/field/w12_real_timetables.py`(既定 True) | §V1-5(試験で W12 を 2 回組む)=PENDING 仮-15 の確認まで |
+| `--proximity-d {1.0,2.0,2.5}` | `engine/proximity.py` | 感度の腕(2-2 の B3)=旧値ではない |
+
+### V7-2 消す候補(10e・第 1 期・それより前に残した旧値の再現の口=実装役の見立て・親が記録を見て決める)
+
+| 切替口 | 再現するもの | 使う試験(golden) | 実装役の見立て |
+|---|---|---|---|
+| 構築 `w12_external_nodes.USE_REAL_TIMETABLES=False` | W12 1.1.0(等間隔の推定 5 線+メトロ 3 線) | `tests/build_field/test_w12_real_timetables.py`・`test_w12_pm_peak_switch.py` | 候補(つなぎの台帳 `EX-build.field.w12_external_nodes-f2cc7f0a` の外す段が 2-4)。**ただし等間隔の推定の関数そのものは京王の切替口(False)と実データの無い線の道が使う=関数は残す** |
+| `--leave-effect off`(`leave_effect=False`) | 9a(第301)より前の退去 | `test_presence_executor.py` の `*_leave_off`・`test_l4_scale_1_…`・`test_hunger_model_v1_…`・`test_intent_chooser.py` の Q13 | 候補(旧値の再現の試験の束=下の 3 つと一緒に消すかを決める) |
+| `--hunger-model v1` | 5 段目(第291)より前の空腹 | 同上 `*_hunger_v1` | 候補(ただし `run_day` のライブラリの既定が v1=CLI の既定だけ energy=合成の世界の試験が多数 v1 で回る=消すと既定の付け替えが要る) |
+| `--l4-scale 1.0` | 3 段目(第289)より前の呼数の上限 | 同上 `*_l4x1` | 残す見込み(予算の腕 D-99 として意味がある) |
+| `--poi-target legacy` | 段 2a(第288)より前の対象の選び方 | `test_intent_chooser.py` の Q13 | 候補 |
+| `--near-tiebreak id`・`--near-order id` | 第304 Q107・Q130 より前の近接の並び | `tests/perception/test_near_tiebreak.py` | 候補 |
+| `--rel-tenure-hash v1` | 関係の初期化の寿命のハッシュ v1 | `tests/engine/test_relations_tenure.py` の `("v1","behavior")` | 候補 |
+| `report_precondition=False`・`queue_service=False`・`plan_executor=False` | D-113 ②③・D-62 より前 | `test_presence_executor.py` の帰無腕(null arm=計画実行層 off の退化検査) | 残す見込み(帰無腕は退化検査の要=§7) |
+| `--response-delay 2` | 10a より前のテープの再生(+2 刻み) | 10a の試験 | 候補(手元の 53 本の旧テープは RET で再生できなくなった=10e §RET-1) |
+| `SHIBUYA_WRITE_GUARD=off`・`SHIBUYA_EVENTS=off` | 書きの守り・出来事の記録の運用の口 | 1-0・1-3 の試験 | 残す(運用の口=旧値ではない) |
+
+- どれも本段では消していない(発注=一覧だけ)。消すときは 10e の RET と同じ形(旧値の再現の試験を「切替口が無い」ことを見る試験に置き換え・`full-hash` だけ動く列の削除は無い見込み)。
+
+## 締め(版上げ 2 回目)
+
+### 締め-1 段ごとの動いた量(19 構成・5,000 体・seed 1・1 日・既定の引数・資産は V1 から組んだ資産)
+
+| 段 | 中身 | v3 既定 final / 呼数 | v3_mem_rel final / 呼数 | 帰無腕 final / 呼数 | 古典+記憶+関係 final / 呼数 | 呼数の合計(19 構成) |
+|---|---|---|---|---|---|---|
+| **base** | 本体 HEAD 9f631b0+本体の v2(5ff1bacf) | `5f7ae9ff24005314` / 65,597 | `73a78288ab5e1498` / 69,111 | `354f49ca9a61b986` / 97,234 | `4c512a1fdc2a70c0` / 106,565 | 1,129,811 |
+| **V1** | 資産の活性化(W12 1.2.0・W9 の窓・6a7d34e8) | `4bcca9f0216362bb` / 65,400 | `c506dec249bb4328` / 69,114 | `767f0224d82ba9a9` / 98,046 | `18bd9bfea8f51c11` / 106,977 | 1,130,899 |
+| **V2** | 近接 distance を既定に | `7857ecb16b9665cd` / 64,635 | `874ea26628f6be2e` / 68,213 | `d341ca5c9e3e89d3` / 96,797 | `059461c683d135c7` / 105,675 | 1,120,853 |
+| **V3** | 在席の印を歩き出しで解く | `f6488d4d5eadf5ca` / 64,526 | `4a0db59663ef0d7b` / 67,780 | `5c8db46f50eb0945` / 96,695 | `ee4769e87e070519` / 105,394 | 1,118,587 |
+| **V4** | 経済の段階 2 を既定 on・売上の写しは税抜き | `b8eadcb51e8705e7` / 64,528 | `768b2262e3b0999e` / 67,794 | `19ee17b1b1caf44c` / 96,695 | `9dd9d5684891b57c` / 105,363 | 1,118,547 |
+| **V5** | 計器の節の整理(結果不変) | `b8eadcb51e8705e7` / 64,528 | `768b2262e3b0999e` / 67,794 | `19ee17b1b1caf44c` / 96,695 | `9dd9d5684891b57c` / 105,363 | 1,118,547 |
+| **V6** | 錨のファイルの分離(結果不変) | `b8eadcb51e8705e7` / 64,528 | `768b2262e3b0999e` / 67,794 | `19ee17b1b1caf44c` / 96,695 | `9dd9d5684891b57c` / 105,363 | 1,118,547 |
+
+- V1〜V4 で既定の final が動き、V5・V6 は 19 構成で 25 欄とも同じ。呼数の合計は 1,129,811 → 1,118,547(−1.0%)。
+- 切替口で前の段の値が再現する: V2 `--proximity cell`(4 構成)・V3 `--seat-release legacy`(19 構成=§V3-4)・V4 `--economy-stage2 off`(4 構成)とも 25 欄が同じ。
+- 2-0 の計器: V1 の後([2026-10-14_vb24-V1](../../../instruments/anchor_gauge/2026-10-14_vb24-V1/anchor_gauge.md)・最初の記録 `2026-10-14_2bc7a4b` との差 52 件)と版上げの後(V6=[2026-10-14_vb24-V6](../../../instruments/anchor_gauge/2026-10-14_vb24-V6/anchor_gauge.md)・V1 との差 [compare_vs_2026-10-14_vb24-V1.md](../../../instruments/anchor_gauge/2026-10-14_vb24-V6/compare_vs_2026-10-14_vb24-V1.md)=156 件のうち 40 件=在圏のピークの順 1・来街者/居住者の比 25・到着の割合 10・始業 4 ほか・合否は書かない)。mock `b8eadcb51e8705e7`/64,528・classical `ca25874a5e4acb79`/93,017(V6 の byte-check の w6_v3_default・v3_classical と同じ値)。
+- manifest で動いた欄(設定): `frozen_sources`(V1=W12 の時刻表の 1 行)・`proximity`(V2)・`leave_effects.seat_release`(V3)・`economy.stage2`・`economy.raw_capacity`・`raw_rows_per_agent_day`(V4=16.0)・`bridges_version`・`bridges_count`(V4=つなぎの台帳の 3 行)・`energy.anchors`・`anchors_md5`(V6)。`rules_version` は動かない(規則の表を変えていない)。設定の道筋の表 `CONFIG_PATHS_SHA256` は V3(`leave_effects.seat_release`)と V5(`group_norms.cost.note`)で動いた。
+
+### 締め-2 試験
+
+| 段 | 何を | 結果 |
+|---|---|---|
+| V1 | 写しの木で全体(not slow)→ 張り替えの後の 12 ファイル(slow を含む)+ `tests/c8` | 4,845 passed・18 failed・23 errors(§V1-7)→ 403 passed・193 passed |
+| V2 | 写しの木で全体(not slow)→ 直した 10 ファイル(slow を含む・在席 legacy) | 4,854 passed・7 failed → 393 passed |
+| V3 | 写しの木で 17 の場所(slow を含む)→ `tests/engine/systems` | 1,060 passed・5 failed → 129 passed |
+| V4 | 写しの木で全体(not slow)→ 落ちた所と経済(slow を含む) | 4,864 passed・8 failed → 661 passed・22 failed → `tests/economy` slow 26 passed |
+| V5 | 作業木で 4 の場所(not slow) | 203 passed・1 failed → 直して通る |
+| V6 | 作業木で 8 の場所(not slow) | 218 passed |
+| **最後(V6 の後)** | 写しの木で全体 `-m "not slow and not gpu" -n 10 --dist loadfile --ignore=tests/c7`(封印の錨の試験 1 ファイルを外した) | **4,871 passed・1 failed・2 skipped・1 xfailed**(17 分 30 秒)。落ちた 1 本は既知の junction の ab7 |
+| **最後の slow** | 写しの木で `-m "slow and not gpu" -n 10 --ignore=tests/c7` | 86 passed・1 failed・1 skipped(13 分 0 秒)。落ちた 1 本は性能の試験 `tests/engine/test_change_detect_p6.py`(40 万体の変化の検出・最悪 4.522 ms/刻み > 2 ms=10 並列で 5,000 体の試験と同時に回った)→ **単独で回し直して通る**(最悪 1.798 ms/刻み・余裕は小さい)。本段は変化の検出のコード(`engine/change_detect.py`)を変えていない |
+
+- `tests/c7` は回していない(発注)。`tests/w17/test_diversity_yardstick.py` は写しの木に封印の錨 `diversity_anchors_v0.json` を写さないので写しの木では外した(本体では回る・中身は変えていない)。
+- 秘密の走査(`tools/scan_secrets.py`・変えたファイルと新しいファイル全部): CLEAN(変えたファイルと新しいファイル 113 本)。同じ 113 本で CR 0 本・絶対パスと名前の検索 0 件。走査と CR の検査は在圏の検証側の錨のファイルもバイト列で機械的に見た(値は画面に出していない)
+
+### 締め-3 スナップショット(親が段ごとに commit する)
+
+- 作業用の置き場 `_bc/snaps/V1`〜`V6`(git の外)に段ごとの**累積**の写し(`files/<リポからの道筋>`)・`MANIFEST.txt`(sha256・道筋・M/A/D)・`delta.txt`(前の段からの差=その段で commit するファイル)。`added_later.txt` はその段の試験で後から見つけて足した直し(V1: つなぎの台帳の試験・影の形の道具の改行/V3: 系の表の宣言)。V6 の `presence_validation_anchors_v0.json` は写していない(封印の層の写しを置き場に残さない=作業木のファイルをそのまま)。
+- V7 は本記録(README の §0・§V7・締め)と 2-0 の計器の V6 の記録(`docs/bench/instruments/anchor_gauge/2026-10-14_vb24-V6/`=V6 のスナップショットの後に回した)。作業木の今の状態=V7 の累積。
+- 段ごとの commit の順: V1 → V2 → V3 → V4 → V5 → V6 → V7。各段の `delta.txt` のファイルを `files/` から作業木へ写して(または作業木の今のファイルが同じ sha256 ならそのまま)ステージする。V2 のスナップショットは V3 の差し込みを文字で外して作った(`_bc/make_snap_v2.py`)=HEAD に V2 の `src` を重ねた写しで byte-check 6 構成が V2 と 25 欄とも同じ(`_bc/v2snap_vs_v2.json`)。
+
+### 締め-4 限界・仮採用・親に確かめてほしいこと
+
+**仮採用(10-13b §0-3=戻せる形)**
+
+1. **W9 の容量の宣言**(§V1-3): 案 A(宣言を 13,000,000 B/日に)を入れた。B(昼の面だけ/zlib)を選ぶならエンジンの読み口を直して影を組み直す。
+2. **京王の切替口 `USE_ODPT_CHALLENGE`**(§V1-5): 既定 True(京王の行を含めたまま活性化)。仮-15 の確認で扱いが変わるなら False で W12 を組み直す(井の頭線は等間隔の推定=ゲート 1 件 FAIL の宣言)。
+3. **新しい W12 の 8 行の 3 分類と対照**(§V1-6): 実装役の案(未リサーチ)・D-44 は未判定。
+4. **在席の印は `_apply_move` だけ**(§V3-3): 残り 1.9% の 88% は乗車へ歩く体。乗車の歩き出しにも同じ口を足すか(既定の結果がまた動く)。
+5. **`DOC-ec21-uncaused-rows-arm-off` の外す段 4-1**(§V4-1・実装役の案)。
+6. **在圏の錨の分け方**(§V6): 較正側は core9 の 3 本だけ・ほかの 6 本(区分の決まっていない〔灰〕を含む)は検証側=仮-13 のとおり。`rules` と元の `purpose` も検証側。
+7. **`tests/c7` の fixture を較正側だけに**(§V6): 回していない=検証側の錨を使う c7 の試験は落ちる見込み。
+
+**親に確かめてほしいこと**
+
+1. **V1 の写し**(§V1-2): `activate_vb24.py apply --dry-run` → `apply` → `verify`(本体の `data/world/v2` を書く=親が実行)。写すまで作業木と本体の全体の試験は活性化の golden と `tests/engine/test_activation_2_4.py` で落ちる(10e ACT と同じ)。写した後、写しの木は不要(`_bc/tree` は data へのつなぎ=消すときは junction を先に外す)。
+2. **つなぎの台帳で外す段が 2-4 の行の残り**(§V1-8): `W9#5`・`BR-SHADOW-NEAREST-DAY`(窓の外の日=続く)・`EX-build.field.w12_external_nodes-f2cc7f0a`(京王の切替口が使う)・`BR-PHONE-TABLE-BLANK`・`DOC-ec21-atm-fixture`・`DOC-ec21-atm-hours-and-cells`・`DOC-ec21-account-two-rows`・`DOC-ec21-consumption-pair-for-outside-sales`・`DOC-ec21-bank-branch-default-hours` は本段の発注の外=外す段を親が改める(V4 で外したのは `DOC-ec21-revenue-tax-inclusive`・`DOC-ec21-ring-coefficient`・狭めたのは `DOC-ec21-uncaused-rows-arm-off`)。
+3. **近接の費用の予算の宣言**(§V2-4): 追記案を書いた(予算の宣言の設計書は親)。
+4. **ランの種類**(§V4-1): 経済の段階 2 の腕も既定と違えば「腕」にした(2-1 では数えていなかった)。
+5. **錨の名の変更の波及**: 設計書・PENDING・STATUS・各段の記録が `presence_anchors_v0.json`・`hunger_energy_anchors_v0.json` を名指す所(本段の発注の外=親の文書)。byte-check の head の写しの錨は V6 より後の src では 4 本。
+6. 切替口の消す候補(§V7-2)。
+
+**限界**
+
+- 動いた量は 1 日(07-13=給料日でない)と 2 日(08-24〜25)と 2-0 の計器だけ。W9 の窓の影(07-18・07-19)が効くのは 6 日目以降を回すラン=本段では測っていない(5 日の正の表=md23 は窓の中の影が本体の v2 にあった)。
+- 近接に左右される値は暫定(5-2)・在席の印の数え方は node 座標。
+- 賃金の額は現実の 1/4 のまま(W17 の勤務の時間・判断待ち)。給与の天引きは器のまま(4-2)。
+- byte-check の 25 欄は manifest の設定の値(`proximity`・`leave_effects`・`economy` ほか)を比べない=その動きは各段の表と試験で見た。
+
+### 締め-5 触った共有ファイル(親が取り込み順に rebase するときの一覧)
+
+| 段 | ファイル |
+|---|---|
+| V1 | `src/shibuya/build/{vis/w9_shadow.py,field/w12_real_timetables.py,field/w12_external_nodes.py,audit/w19_freeze.py}`・`tools/c8/{sensitivity.py,sensitivity_v1.json,expedient_triage_v1.json}`・`docs/bench/c8/sensitivity_v1.*`・`docs/design/v2-world-data-build-spec.md`・試験(build の 3 つ・c8・golden の 10 ファイル・つなぎの台帳)・`docs/bench/instruments/anchor_gauge/2026-10-14_vb24-V1/` |
+| V2 | `src/shibuya/{cli.py,engine/proximity.py,perception/renderer.py,engine/state_ledger.py,engine/systems/{build,act,boxes,judge,talk}.py}`・試験(golden・描画の (B)・C9b・状態台帳) |
+| V3 | `src/shibuya/{cli.py,engine/seat_release.py(新),engine/resolve.py,engine/manifest_sections.py,engine/systems/{boxes,build,act,report,state_io,table}.py}`・試験(golden・`CONFIG_PATHS_SHA256`・新しい 1 ファイル) |
+| V4 | `src/shibuya/{cli.py,economy/{stage2,ledger}.py,engine/{economy_stage2,resolve}.py,engine/systems/{build,report}.py}`・`docs/design/{bridging-ledger.json,v2-budget-declaration.md}`・試験(golden・経済・台帳の配線・退出の歩き・新しい 1 ファイル) |
+| V5 | `src/shibuya/engine/{manifest_sections.py,experiment/branch.py}`・試験 2 ファイル |
+| V6 | `docs/bench/anchors/*`(2 本を消し 4 本を足す)・`src/shibuya/engine/energy.py`・`tools/{hunger/build_hunger_anchors.py,instruments/read_guard.py,c7/presence_yardstick.py,fig/fig_presence_24h.py,fig/fig_calls_by_hour.py}`・試験 3 ファイル(`tests/c7` を含む) |
+
+- 凍結の表(`manifest_keys_frozen.json`・`writes_soa_frozen.json`・`writes_paths_events.json`)・語彙・状態台帳の行の数は変えていない(V3 の manifest は `leave_effects` の子を足しただけ・状態台帳は V2 の読みの許可の 1 本を消しただけ)。
+
+### 締め-6 再現(リポの根・作業木の src を `PYTHONPATH` に)
+
+```
+D=docs/bench/analysis/wallbounce-1012/vb24
+B=docs/bench/analysis/wallbounce-1012/10e/byte_check_10e.py
+# V1 の資産
+python $D/tools/activate_vb24.py stage --record <作業用>/stage.json        # data/world/v2_stage_2-4(2 回組んで build_hash 一致)
+python $D/tools/activate_vb24.py plan --record $D/v1_activation_plan.json  # data/world/v2_steps_2-4
+python $D/tools/w9_shapes.py data/world/v2_stage_2-4 > $D/v1_w9_shapes.json
+# byte-check(前=本体 HEAD の src の写し+本体の v2・段ごと=作業木の src+組んだ資産)
+python $B side --src <HEAD の写し>/src --label base --scratch <作業用> --out <作業用>/side_base.json
+python $B side --world data/world/v2_stage_2-4 --label vN --scratch <作業用> --out <作業用>/side_vN.json
+SHIBUYA_PROXIMITY=cell python $B side --world data/world/v2_stage_2-4 --label v2cell --only w6_v3_default,w6_v1_default,v3_mem_rel,v3_classical_mem_rel …
+SHIBUYA_SEAT_RELEASE=legacy python $B side … ; SHIBUYA_ECONOMY_STAGE2=off python $B side …
+python $B compare --a <前> --b <後> --out $D/vN_vs_vM.json
+python $D/tools/table_vb24.py --a <前> --b <後>
+# golden(試験と同じ引数で集めて張り替え)
+python $D/tools/goldens_vb24.py all --world data/world/v2_stage_2-4 --out <作業用>/goldens_VN.json
+python $D/tools/regold_vb24.py --goldens <作業用>/goldens_VN.json --stage VN
+# 2-0 の計器
+python tools/instruments/anchor_gauge.py run --scratch <作業用> --world data/world/v2_stage_2-4 --label 2026-10-14_vb24-V1 \
+    --compare docs/bench/instruments/anchor_gauge/2026-10-14_2bc7a4b
+# V2 の 11c・V3 の席・再開・2 日・系ごとの指紋
+python docs/bench/analysis/wallbounce-1012/prox22/tools/reread_11c.py runs --label wt --modes distance,cell --geometries node \
+    --world data/world/v2_stage_2-4 --out <作業用>/r11c.json && python …/reread_11c.py table --runs <作業用>/r11c.json --out $D/v2_reread_11c.json
+python $D/tools/seat_probe_vb24.py --world data/world/v2_stage_2-4 --seat-release {walk,legacy}
+python $D/tools/resume_vb24.py --world data/world/v2_stage_2-4 --scratch <作業用> --label VN --base {v3_mem_rel,w6_v3_default} --out …
+python docs/bench/analysis/wallbounce-1012/ec21/tools/stage2_two_day.py side --world data/world/v2_stage_2-4 --out $D/v4_two_day.json
+PYTHONHASHSEED=0 python docs/bench/analysis/wallbounce-1012/ec21/tools/probe_ec21.py side --label … --out …   # 写しの木で
+python $D/tools/probe_systems_vb24.py --a <前の side> --b <後の side> --out $D/vN_probe_systems.json
+# V6
+python $D/tools/split_anchors_vb24.py split && python $D/tools/split_anchors_vb24.py check
+```
