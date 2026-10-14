@@ -221,3 +221,10 @@ rebase の手順と衝突の解き方は §11 の後半(土台 `4995147`=本体 
 - **店の番号の表**: `w6_poi.parquet` には OSM の番号の列が無いが、元の JSON の行の並びで OSM の番号に結べる見込み(2,259 行・`phone` 477 行)=2-4 で確かめる(§5)。結べない 68 行の扱いも 2-4。
 - **範囲の外の家族**(同じ世帯で体になっていない人)と友人のグループは入っていない(C1 以降・慣らし期間)。
 - 既知の落ち `tests/vocab/test_registry_from_tape.py::test_ab7_seed1_open_matches_the_parent_report` は作業木の `data` が本体への junction であることで起きる(1-3・1-4・1-5 の記録と同じ・本体では通る)。
+
+## 13. 親の検収(第334・Fable 5.1・rebase の後)
+
+- 本体 `f2405e3` へ rebase(衝突なし=2-0 は tools/docs だけ)。範囲の試験 1,050 passed(6 分 32 秒)。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・既定の腕)=final 同じ・25 欄とも差なし(`parent_head_vs_c0_rebased_4cfg.json`)。rebase の前にも 4 構成で同じ(`parent_head_vs_c0_4cfg.json`)。
+- 腕 port の 2 構成(`SHIBUYA_DECISION_PORT=port` を環境に置いて head と c0 の両側を回し比較)=final 同じ・差なし(`parent_head_vs_c0_port_2cfg.json`)。final は既定の腕と同一(1-8 の口は番号列が同じ設計)。環境変数が byte_check の子プロセスへ伝わったことは親では確かめていない=実装役の `port_pair_c0.py`(候補の番号列の比較・65,597/69,111 判断)と検収役の確かめを根拠にする。
+- 判断: 受入。`DecisionContext.tools` は欄だけ(空)のまま=1-8 の契約どおり・値を入れるのは 6-4。仮採用 12 件+検収役の問い(看板の出来事の既定・連絡先の手段と初めの値・学校の辺・2-4 の OSM の番号・`Event.origin` の用法)は PENDING §1-1b に 1 行で。
