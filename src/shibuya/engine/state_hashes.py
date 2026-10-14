@@ -48,6 +48,11 @@ VALUE_CLASSES: Final[frozenset[str]] = frozenset({
     "shibuya.engine.arbiter.WakeCandidates",
     "shibuya.engine.scheduler.DeferralQueue",
     "shibuya.perception.p_notice.EventBudget",
+    # 〔第 3 期 3-5〕本人の体の層の TM5 の予約の列(状態台帳の行 BD=diag・discardable=ハッシュには入らない・系ごとの差の
+    # 測りと試験が読む)。〔検収 L8〕汎用の ``Scheduler`` を名で足した=今は行 BD の ``body._reservations`` の中だけを想定。
+    # ほかの行(とくに behavior・full に入る行)が ``Scheduler`` を持つようになったら、``vars()`` の並べ方(リングの空の
+    # スロット・取り消しの集合・通し番号)が状態として正しいかを見直し、型の検査を行ごとに絞る
+    "shibuya.engine.scheduler.Scheduler",
 })
 
 

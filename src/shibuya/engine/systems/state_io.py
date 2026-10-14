@@ -51,6 +51,7 @@ def hash_owners(b: Any) -> dict[str, Any]:
     〔第 2 期 2-2 段 11a〕その後に ``proximity``(近接の層・状態台帳の行 ``PX``=軸 1 diag・軸 2 discardable・腕 distance のランだけ)。
     〔第 3 期 3-3〕その後に ``experiment``(申込書の持ち主・状態台帳の行 ``X``=軸 1 diag・軸 2 discardable・申込書を渡したランだけ)。
     〔第 3 期 3-2〕その後に ``batching``(計算のまとめの窓・状態台帳の行 ``BW``=軸 1 diag・軸 2 discardable・進行役が置く)。
+    〔第 3 期 3-5〕その後に ``body``(本人の体の層・状態台帳の行 ``BD``=軸 1 diag・軸 2 discardable・どの腕でも置く)。
     """
     from shibuya.engine.run import _RunDayLocals
 
@@ -70,6 +71,7 @@ def hash_owners(b: Any) -> dict[str, Any]:
         "proximity": getattr(L, "proximity", None),
         "experiment": getattr(L, "experiment", None),
         "batching": getattr(L, "batching", None),
+        "body": getattr(L, "body", None),
     }
 
 

@@ -226,6 +226,12 @@ PATHS: Final[dict[str, str]] = {
         "schema", "width_s", "default_width_s", "step_s", "cap_events", "order", "world_id", "kinds"), observed=(
         "windows", "windows_with_events", "events", "dispatches", "in_window", "carried", "cap_hits",
         "max_events_window", "boundary_events", "boundary_delay_ns_max", "boundary_delay_ns_sum", "pending_at_end")),
+    # ---- 第 3 期 3-5: 本人の体の層(形式・持ち主・腕・規則の出典の表・expedient の宣言・器だけの 3 件=設定/体の刻みの回数・
+    # 規則に通した体の延べ・予約・引き直し・体感温度の窓・生きている予約・段の境目の数と列の鎖のハッシュ=観測。子の鍵は
+    # engine.body.model の CONFIG_KEYS・OBSERVED_KEYS と同じ=試験が突き合わせる) ----
+    **_mixed("body", config=("schema", "owner", "arm", "arms", "rules", "expedients", "reserve_expedients", "system1"),
+             observed=("steps", "agent_evals", "due", "replans", "reservations", "felt_frames", "felt_evals", "felt_due",
+                       "felt_moved", "felt_reservations", "felt_tables", "pending", "boundaries", "boundary_digest")),
 }
 
 

@@ -58,6 +58,7 @@ from shibuya.engine.classical import check_meal_gate
 from shibuya.engine.classical import check_policy
 from shibuya.engine.classical import load_activity_prior
 from shibuya.engine.conversation import ConversationManager
+from shibuya.engine.body import BodyModel
 from shibuya.engine.energy import EnergyLayer
 from shibuya.engine.energy import EnergyModel
 from shibuya.engine.energy import HomeMeals
@@ -660,8 +661,12 @@ def build(_call_args: dict[str, Any]) -> Any:
 
     economy_plan = _ES2.attach(ledger, schedule=schedule, weekly=weekly, calendar=calendar, world=world,
                                n_agents=n_agents, tick_seconds=tick_seconds, pop=pop, world_dir=world_dir)
+    # ---- 〔第 3 期 3-5〕本人の体の層(持ち主 body・どの腕でも置く=段の境目の計器と manifest の body)。腕(TM5 の予約)は
+    # 組み立てのときに読む(--body-schedule・環境変数 SHIBUYA_BODY_SCHEDULE・既定 sweep)。再開では予約の列を状態から引き直す
+    # (最初の体の刻みで全員を規則に通す=状態台帳の行 BD は軸 2 discardable) ----
+    body_layer = BodyModel(n_agents, step_seconds=tick_seconds)
     if not _resuming:  # 10d(A11・親の答え 2): 再開では日の頭の初期化を呼ばない(保存した状態を読む)
-        R.initialize(agents, world, schedule, day_index=day_index, ledger=ledger)
+        R.initialize(agents, world, schedule, day_index=day_index, ledger=ledger, body=body_layer)
     # ---- 5 段目 5a: 体のエネルギー収支(値を決める層・書き手は resolve) ----
     energy_layer: EnergyLayer | None = None
     if energy_on:
@@ -694,7 +699,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             ),
         )
         if not _resuming:  # 10d(A11): 空腹の初期値・体の定数は保存した状態から
-            R.initialize_energy(agents, energy_layer, pop_seed)  # 10f: 体の定数は母集団の側・10e: 鍵の並べ方
+            R.initialize_energy(agents, energy_layer, pop_seed, body=body_layer)  # 10f: 体の定数は母集団の側・10e: 鍵の並べ方
     agents.freeze()
     world.freeze()
 
@@ -727,6 +732,8 @@ def build(_call_args: dict[str, Any]) -> Any:
         )
     if economy_plan is not None:  # 第 2 期 2-1: 賃金の雇用の行は権利台帳(開閉の過程が持つ)から読む
         economy_plan.runner = runner
+    if runner is not None:  # 〔第 3 期 3-5〕体感温度は本人の体の層の口(環境の過程へ挿す)
+        runner.attach_body(body_layer)
 
     # ---- ⓪a-2 計画実行層(D-66・engine.presence)。W17 + W16 のあるランだけ立つ ----
     presence: PlanExecutor | None = None
@@ -1349,6 +1356,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             bridge=bridge, fleet_bridge=fleet_bridge, events=events, decision=decision_layer, speech=speech_port,
             proximity=proximity_layer,
             experiment=experiment_layer,
+            body=body_layer,
         ),
         llm=_BX.LlmIo(pending=pending, fleet_deferred=fleet_deferred, fleet_waiting=fleet_waiting,
                       fleet_inflight=fleet_inflight, replay_inbox=replay_inbox),

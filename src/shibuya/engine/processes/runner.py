@@ -352,6 +352,15 @@ class WorldProcessRunner:
         self.large_event.presence = presence
         self.rail.presence = presence  # LLM の乗車で域外へ出た体の張り直し(D-66 §4)
 
+    # ------------------------------------------------------------------ 本人の体の層(第 3 期 3-5)
+    def attach_body(self, body: Any) -> None:
+        """本人の体の層(``engine.body.BodyModel``)を環境の過程へ挿す(組み立てが 1 回だけ呼ぶ)。
+
+        体感温度の値は体の層の口が返し(腕 reserve=TM5 の予約の来た体と移動した体だけ)、書くのは ``resolve.set_thermal``。
+        実行器の属性は増やさない(持つのは環境の過程の ``body``=参照)。
+        """
+        self.environment.body = body
+
     # ------------------------------------------------------------------ 出来事の記録(第 1 期 1-3)
     def attach_events(self, events: Any) -> None:
         """出来事の記録を挿す(組み立てが 1 回だけ呼ぶ)。ActualLog の行ごとに出来事を 1 行書き、行に id の目印を付ける。

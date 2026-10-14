@@ -135,6 +135,7 @@ from shibuya.engine.speech import layer as _SPEECH
 from shibuya.engine import proximity as _PROX
 from shibuya.engine.experiment import layer as _EXPERIMENT
 from shibuya.engine import batching as _BATCHING
+from shibuya.engine.body import model as _BODY_MODEL
 from shibuya.perception.renderer import (
     DEFAULT_HUNGER_WORDS,
     DEFAULT_NEAR_ORDER,
@@ -1344,6 +1345,11 @@ class RunResult:
             # 事象の種類(設定)と、窓の数・事象の数・持ち越し・上限に当たった数・境目で届けた遅れ(観測)。末尾=… → 3-3 の
             # experiment → 3-2。進行役を通らない結果は null。記録だけ(final・behavior-hash は manifest を読まない)。列追加のみ ----
             "batching": _BATCHING.manifest_fields(getattr(self, "batching_layer", None)),
+            # ---- 第 3 期 3-5(本人の体の層・③ 群・TM5 の予約の口): 持ち主・腕・規則の出典の表(conf)・expedient の宣言・器だけの
+            # 3 件(設定)と、体の刻みの回数・規則に通した体の延べ・予約・引き直し・段の境目の数と列の鎖のハッシュ(=腕の一致の
+            # 計器・観測)。末尾=… → 3-3 の experiment → 3-2 の batching → 3-5。記録だけ(final・behavior-hash は manifest を
+            # 読まない)。列追加のみ ----
+            "body": _BODY_MODEL.manifest_fields(getattr(self, "body_layer", None)),
         }
 
     def economy_fields(self) -> dict[str, Any]:

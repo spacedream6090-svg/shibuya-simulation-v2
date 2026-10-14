@@ -60,6 +60,8 @@ PX22_KEYS = ("proximity",)
 X33_KEYS = ("experiment",)
 #: 〔第 3 期 3-2〕末尾(3-3 の experiment の後)に足した欄(計算のまとめの窓の幅・上限・順と計器)。
 TM32_KEYS = ("batching",)
+#: 〔第 3 期 3-5〕末尾(3-2 の batching の後)に足した欄(本人の体の層=持ち主・腕・規則の出典の表・段の境目の計器)。
+BD35_KEYS = ("body",)
 PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite", "blake3", "os", "os_release",
                  "os_version", "machine", "cpu", "numpy_simd", "deps", "deps_sha256", "deps_count"}
 #: 設定の節の道筋の一覧の sha256(環境に依らない golden=検収 N3 の 3)。節を変えたら理由を記録に書いて更新する。
@@ -99,7 +101,9 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 〔第 3 期 3-2〕``batching`` の設定の子 8(schema・width_s・default_width_s・step_s・cap_events・order・world_id・kinds=
 #: 計算のまとめの窓の幅・上限・窓の中の順)を足した(3-3 の後に・前 ``417f0818…c72e42b``=この 8 本を外すと前の値・
 #: 記録 docs/bench/analysis/wallbounce-1012/tm32/README.md)。
-CONFIG_PATHS_SHA256 = "564d5c72807a4a08668091c50b9cceee7ae6fcdf68a65d0d981e8a61ffbeaf57"
+#: 〔第 3 期 3-5〕``body`` の設定の子 8(schema・owner・arm・arms・rules・expedients・reserve_expedients・system1)を足した
+#: (3-2 の後に・前 ``564d5c72…e8a61ffbeaf57``・記録 docs/bench/analysis/wallbounce-1012/bd35/README.md)。
+CONFIG_PATHS_SHA256 = "8c1610adee56845d333011d26a9bb837b02582a307ddbdf88209692fa5209d43"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 
@@ -265,7 +269,7 @@ def test_t1_two_processes_write_the_same_env_id_and_final_to_the_files(tmp_path)
     # 列追加のみ(末尾に 3 つ+第 2 段の 2 つ+10e の欄+1-1 T0 の欄+1-4 の欄+1-9 の欄+1-2 の欄+1-5 の欄+1-8 J0 の欄+1-7 の欄
     # +1-8b の欄+2-2 の欄+3-3 の欄)
     tail = (NEW_KEYS + STAGE2_KEYS + E10_KEYS + T0_KEYS + R14_KEYS + C19_KEYS + P12_KEYS + R15_KEYS + J08_KEYS
-            + C07_KEYS + S8B_KEYS + PX22_KEYS + X33_KEYS + TM32_KEYS)
+            + C07_KEYS + S8B_KEYS + PX22_KEYS + X33_KEYS + TM32_KEYS + BD35_KEYS)
     assert list(c1["manifest"])[-len(tail):] == list(tail)
 
 

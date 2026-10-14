@@ -21,13 +21,16 @@
    同じ層・同じ seed でも構築段と同じ日が出るとは限らない=**expedient**。
 
 expedient(本モジュール分)
-- 暑さ段(WBGT 21/25/28/31 は公的指針=mechanism)→ 体感温度 0-10 の写像
-  ``HEAT_STAGE_TO_THERMAL``(契約書は 0-10 のスケールだけを与え、写像を与えていない)。
-- 日陰係数 0.86 の**掛け先**を「体感温度の生値」にした(契約書は係数の値だけを与える)。
 - セルの日陰=**セル代表点に最も近い W10 街路点 1 点**の日陰ビット(セル内の分布は持たない)。
 - 影グリッドが無い日(``w9_shadow_<date>.npy`` は 2026-07-28 の 1 日ぶんだけ実在)は
   **全セル日向**として扱い ``shadow_missing`` を計数する。
-- 気象資産が無い世界(合成)は「穏やかな 1 日」= 体感温度 5 の固定値。
+
+〔第 3 期 3-5〕体感温度の写像(暑さ段(WBGT 21/25/28/31 は公的指針=mechanism)→ 体感温度 0-10 の
+``HEAT_STAGE_TO_THERMAL``・日陰係数 0.86 の掛け先・気象資産が無い世界の 5 の固定値)は本人の体の層 ``engine.body``
+(``BodyModel.felt_temperature``・宣言は ``engine.body.rules.BODY_EXPEDIENTS``)へ移した(値と名は同じ=ここから写して出す)。
+本モジュールは暑さ段と日陰の面(世界の側)を決め、体の層の口で体感温度にして ``resolve.set_thermal`` で書く。体の層の腕
+reserve(TM5 の予約)は、その日の窓 × セルの体感温度の表(:meth:`EnvironmentProcess.felt_day_table`)から次に値が変わる
+窓を予約し、値の変わりうる体だけを書く(結果は全員を書く版と同じ)。
 
 〔改訂(第330・10e B6・RET)〕天気の規則は ``calendar``(ユーザーの答え 1-3)。10e より前の ``legacy``(再生日を層から一様に
 引き、影のある日に絞り、日の出と日の入りと影も再生日)と ``select_day``・``prefer_shadow_days`` は版上げ 1 回目の後に消した
@@ -63,6 +66,12 @@ from shibuya.core.hashing import blake3_hex
 from shibuya.core.rng import stream
 from shibuya.engine import resolve as R
 from shibuya.engine import solar as SOL
+from shibuya.engine.body.model import BodyModel as _BodyModel
+from shibuya.engine.body.rules import (  # 〔第 3 期 3-5〕体の層へ移した値(同じ名で写して出す)
+    FALLBACK_THERMAL,
+    HEAT_STAGE_TO_THERMAL,
+    SHADE_FACTOR,
+)
 from shibuya.engine.calendar import SEASON_OF_MONTH, WEATHER_SCHEME, SimCalendar
 from shibuya.world.assets import (
     HEAT_STAGE_ORDER,
@@ -93,17 +102,11 @@ __all__ = [
 #: 日照の 3 値(W13/知覚契約書 §3 の「日照」欄と同じ並び)。
 DAYLIGHT_VOCAB: Final[tuple[str, ...]] = ("夜明け前", "日中", "日没後")
 
-#: 暑さ段(0-4)→ 体感温度(0-10)の写像。**expedient**(契約書はスケールだけを与える)。
-HEAT_STAGE_TO_THERMAL: Final[tuple[int, ...]] = (2, 4, 6, 8, 10)
-
-#: 日陰係数(知覚契約書 §3 内受容「係数0.86」・R3-2 決定)。**mechanism**。
-SHADE_FACTOR: Final[float] = 0.86
+# 〔第 3 期 3-5〕``HEAT_STAGE_TO_THERMAL``(暑さ段 → 体感温度の写像・expedient)・``SHADE_FACTOR``(日陰係数 0.86・mechanism)・
+# ``FALLBACK_THERMAL``(気象資産が無い世界の体感温度 5)は ``engine.body.rules`` へ移した(上の import が同じ名で写して出す)。
 
 #: 体感温度を評価する刻み[分](正規化規約⑨の 5 分丸め = D-W10 の影グリッド刻み)。
 THERMAL_STEP_MINUTES: Final[int] = SHADOW_MINUTES_PER_FRAME
-
-#: 気象資産が無い世界の体感温度(「穏やかな 1 日」= C2 の初期値と同値)。
-FALLBACK_THERMAL: Final[int] = 5
 
 #: 実日の乱択に使う乱数ドメイン(構築段 ``build.w13`` とは**別**=上記の食い違い 2)。
 RNG_DOMAIN: Final[str] = "engine.processes.environment"
@@ -259,6 +262,11 @@ class EnvironmentProcess:
         #: 10e(B6): 日ごとの天気の記録(manifest の ``weather.days``)と警告(``weather.warnings``)
         self.weather_days: dict[int, dict[str, Any]] = {}
         self.weather_warnings: list[str] = []
+        #: 〔第 3 期 3-5〕本人の体の層(``engine.body.BodyModel``・組み立てが ``WorldProcessRunner.attach_body`` で 1 回だけ
+        #: 挿す・None=体の層の無いラン=全員を同じ値で書く)と、その日の窓 × セルの体感温度の表(腕 reserve だけ作る・
+        #: 日の頭と天気の日付の差し替えで捨てる=キャッシュ)
+        self.body: Any | None = None
+        self._felt_table: np.ndarray | None = None
         self._pick_day()
 
     # ------------------------------------------------------------------ 実日の決定
@@ -280,6 +288,7 @@ class EnvironmentProcess:
 
     def _pick_day_calendar(self, day: int) -> None:
         """10e(B6): 天気=再生日の行・日の出と日の入りと太陽高度と影=暦の日付(モジュールの注の 1〜4)。"""
+        self._felt_table = None  # 〔3-5〕その日の体感温度の表は引き直す
         a = self.assets
         cal_date = self.calendar.date_of_day(int(day))
         iso = cal_date.isoformat()
@@ -335,6 +344,7 @@ class EnvironmentProcess:
         self.stratum = f"{SEASON_OF_MONTH[cal_date.month]}|{a.weather_weekday_kind[i]}|{a.weather_type[i]}"
         self._row = i
         self._cal_heat(cal_date)
+        self._felt_table = None  # 〔3-5〕天気を差し替えた=その日の体感温度の表は引き直す
         rec = self.weather_days.get(int(day))
         if rec is not None:
             rec.update(replay_date=str(date), stratum=self.stratum, how=str(how), widened="")
@@ -430,6 +440,38 @@ class EnvironmentProcess:
         self._shade_cache_frame = frame
         return out
 
+    def _shade_at(self, frame: int) -> np.ndarray:
+        """〔3-5〕窓 ``frame`` のセル別の日陰(:meth:`_shade_mask` と同じ値・キャッシュの印は触らない)。"""
+        if self._planes is None or self._cell_point is None:
+            return self._shade
+        plane = np.asarray(self._planes[int(frame) % SHADOW_FRAMES_PER_DAY])
+        p = np.asarray(self._cell_point, dtype=np.int64)
+        ok = p >= 0
+        out = np.zeros(self.world.n_cells, dtype=bool)
+        if ok.any():
+            idx = p[ok]
+            byte = plane[idx >> 3]
+            out[ok] = ((byte >> (7 - (idx & 7))) & 1).astype(bool)
+        return out
+
+    def felt_day_table(self) -> np.ndarray:
+        """〔3-5〕その日の窓 × セルの体感温度の表(``uint8``・``(SHADOW_FRAMES_PER_DAY, n_cells + 1)``・末尾の列=舞台の外)。
+
+        体の層の腕 reserve(TM5 の予約)だけが読む(次に値が変わる窓を予約する)。:meth:`step` が窓ごとに作る値と同じ式
+        (暑さ段=:meth:`_heat_now`・日陰=:meth:`_shade_at`・体感=体の層の口 ``BodyModel.felt_cells``)。日の頭と天気の日付の
+        差し替えで捨てて作り直す(同じ日の中は同じ物=体の層は物の同一性で表の替わりを知る)。
+        逐次ループ宣言: 1 日の窓の数ぶん(288)・表を作るときだけ(腕 reserve のランの日の頭のあとの最初の窓)。
+        """
+        if self._felt_table is None:
+            n_c = int(self.world.n_cells)
+            out = np.empty((SHADOW_FRAMES_PER_DAY, n_c + 1), dtype=np.uint8)
+            for f in range(SHADOW_FRAMES_PER_DAY):
+                minute = f * THERMAL_STEP_MINUTES
+                stage, _w = self._heat_now(minute)
+                out[f] = _BodyModel.felt_cells(stage, None if stage < 0 else self._shade_at(f), n_c)
+            self._felt_table = out
+        return self._felt_table
+
     def _heat_now(self, minute: int) -> tuple[int, float]:
         a = self.assets
         if not a.has_weather or self._row < 0:
@@ -451,19 +493,23 @@ class EnvironmentProcess:
         stage, wbgt = self._heat_now(minute)
         self.wbgt = wbgt
         if stage < 0:
-            # 合成世界: 穏やかな 1 日(固定)
+            # 合成世界: 穏やかな 1 日(固定=体の層の FALLBACK_THERMAL)
             self.heat_stage = 0
-            R.set_thermal(self.agents, np.full(self.agents.n, FALLBACK_THERMAL, dtype=np.uint8))
-            self.n_updates += 1
-            return
-        self.heat_stage = stage
-        base = float(HEAT_STAGE_TO_THERMAL[min(stage, len(HEAT_STAGE_TO_THERMAL) - 1)])
-        shade = self._shade_mask(minute)
-        per_cell = np.where(shade, base * SHADE_FACTOR, base)
-        cell = self.agents.registry.cell.astype(np.int64)
-        inside = (cell >= 0) & (cell < self.world.n_cells)
-        value = np.where(inside, per_cell[np.maximum(cell, 0)], base)
-        R.set_thermal(self.agents, np.rint(value).astype(np.int64))
+            shade = None
+        else:
+            self.heat_stage = stage
+            shade = self._shade_mask(minute)
+        # 〔第 3 期 3-5〕体感温度は本人の体の層の口(値は前と同じ: 暑さ段 → 体感 × 日陰・rint・0〜10)
+        n_c = int(self.world.n_cells)
+        body = self.body
+        if body is None:
+            R.set_thermal(self.agents, _BodyModel.felt_temperature(stage, shade, self.agents.registry.cell, n_c))
+        else:
+            serial = (int(tick) * self.tick_seconds // SECONDS_PER_MINUTE) // THERMAL_STEP_MINUTES
+            ids, vals = body.step("felt", self.agents.registry, int(tick), cells=_BodyModel.felt_cells(stage, shade, n_c),
+                                  frame=(minute // THERMAL_STEP_MINUTES) % SHADOW_FRAMES_PER_DAY, serial=serial,
+                                  table_fn=self.felt_day_table)
+            R.set_thermal(self.agents, vals, indices=ids)
         self.n_updates += 1
 
     # ------------------------------------------------------------------ 診断

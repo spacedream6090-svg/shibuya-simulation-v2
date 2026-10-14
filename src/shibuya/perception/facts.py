@@ -42,6 +42,7 @@ __all__ = [
     "EventRef",
     "OBJECT_KINDS",
     "SOUND_KINDS",
+    "NEARBY_CHANGE_KINDS",
     "EMPTY_FIELDS",
     "SeenObject",
     "SeenPerson",
@@ -72,6 +73,9 @@ EventRef = tuple[int, int]
 OBJECT_KINDS: Final[tuple[str, ...]] = ("poi", "landmark", "signage")
 #: 音の種類(今は街の騒音の段だけ。会話の傍受は ``heard_speech`` の欄=値は空間の段)。
 SOUND_KINDS: Final[tuple[str, ...]] = ("noise",)
+#: 〔第 3 期 3-5〕周りの変化 ``Percept.nearby_change`` の種類。``loud_sound``=大きな音に注意が向く(③ 群の System 1 の反応・
+#: 器だけ=値は空・空間の段 3 で入る・``engine.body.system1``)。顔ぶれの変化(入った人・出た人)の種類は空間の段で足す。
+NEARBY_CHANGE_KINDS: Final[tuple[str, ...]] = ("loud_sound",)
 
 #: 欄だけ用意して値は空(None)で始める欄(回答 10-13b §4-2・計画 1-2)。
 EMPTY_FIELDS: Final[tuple[str, ...]] = (
@@ -254,7 +258,7 @@ class Percept:
     watched_by: tuple[int, ...] | None = None
     #: 聞こえる会話(1-8b の ``Utterance`` の出来事の目印=``EventRef`` の列)。
     heard_speech: tuple[EventRef, ...] | None = None
-    #: 周りの顔ぶれの変化(入った人・出た人)。
+    #: 周りの顔ぶれの変化(入った人・出た人)と周りの変化(種類 ``NEARBY_CHANGE_KINDS``=〔3-5〕大きな音 ``loud_sound``)。
     nearby_change: Any = None
     #: 知人の出現(人の id の列)。
     acquaintance_seen: tuple[int, ...] | None = None

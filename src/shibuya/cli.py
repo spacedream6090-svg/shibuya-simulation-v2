@@ -484,6 +484,7 @@ def run(
         from shibuya.engine import proximity as _proximity  # 第 2 期 2-2: 環境変数の腕も腕と数える(結果が変わる腕)
         from shibuya.engine import seat_release as _seat_release  # 〔第 2 期 2-4 V3〕同じ(既定 walk と違えば腕)
         from shibuya.engine import batching as _BATCH  # 〔第 3 期 3-2〕まとめの幅の腕(環境変数か --batch-width-s)
+        from shibuya.engine import body as _body  # 〔第 3 期 3-5〕TM5 の予約の腕(既定 sweep と違えば腕=結果は同じはず)
         from shibuya.engine.speech import layer as _speech_layer
 
         # 第 1 期 1-8b: 発話の口の腕(環境変数か --speech-port・run の引数ではない)は結果を変える=on は腕に数える
@@ -492,7 +493,8 @@ def run(
                               or _proximity.arm() != _proximity.DEFAULT_MODE  # 〔2-4 V2〕既定は distance
                               or _seat_release.arm() != _seat_release.DEFAULT_MODE  # 〔2-4 V3〕既定は walk
                               or _ES2.arm() != _ES2.DEFAULT_ARM  # 〔2-4 V4〕経済の段階 2 も(既定 on と違えば腕)
-                              or not _BATCH.is_default(),  # 〔第 3 期 3-2〕まとめの幅(既定 60 秒と違えば腕)
+                              or not _BATCH.is_default()  # 〔第 3 期 3-2〕まとめの幅(既定 60 秒と違えば腕)
+                              or _body.arm() != _body.DEFAULT_ARM,  # 〔3-5〕体の予約の腕(既定は sweep)
                               counterfactual=exp_form is not None)
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
@@ -1394,6 +1396,15 @@ def main(argv: list[str] | None = None) -> int:
              "は刻みの事象だけ=どの幅でも同じ結果)。既定と違えば設定の指紋に入り、ランの種類は arm(manifest の batching に出る)",
     )
     ap.add_argument(
+        "--body-schedule",
+        choices=("sweep", "reserve"),
+        default=None,
+        help="第 3 期 3-5 TM5 の体の予約の腕(既定 sweep・環境変数 SHIBUYA_BODY_SCHEDULE と同じ。指定すれば環境変数より強い)。"
+             "sweep=毎刻み全員の体を規則に通す(今の形)。reserve=体ごとに次に段の境目(空腹・疲れ・暑さ)を越える刻みを予約し、"
+             "予約の来た体と入力の変わった体だけを規則に通す(結果は sweep と同じでなければならない=T3 で有効)。腕は設定の指紋に"
+             "入れない(manifest の body に出る・既定と違えばランの種類は arm)",
+    )
+    ap.add_argument(
         "--experiment", type=str, default="",
         help="第 3 期 3-3 反実仮想の申込書(JSON のパス・engine.experiment.form)。既定なし=今と同じ。渡すとランの種類は "
              "counterfactual・申込書の指紋は manifest の experiment に出る(設定の指紋には入らない)",
@@ -1468,6 +1479,10 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine import seat_release as _seat_release
 
         _seat_release.set_arm(str(args.seat_release))
+    if args.body_schedule is not None:  # 〔第 3 期 3-5〕TM5 の体の予約の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine import body as _body
+
+        _body.set_arm(str(args.body_schedule))
     if args.economy_stage2 is not None:  # 第 2 期 2-1: 経済の段階 2 の腕(組み立てと台帳の組み立てが読む)
         _ES2.set_arm(str(args.economy_stage2))
     if args.economy_stage2_parts is not None:

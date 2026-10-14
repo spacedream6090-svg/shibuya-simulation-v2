@@ -42,6 +42,10 @@ memory(その刻みの記憶の出来事)・conversation(会話の終わり)は 
 記憶の器の記録の目印の seq(状態台帳の腕の行 ``M0L``)は ``M0*:mem_layer.memory_store.*`` に入る。apply_responses は意図に呼の id を
 付けるかを見る(``layers.mem_layer`` を読む)・conversation は口を ``layers.mem_layer`` から引く。
 
+〔第 3 期 3-5〕本人の体の層(状態台帳の行 ``BD``=段の境目の計器と TM5 の予約の列)を書く系: body(体の刻み=空腹と疲れ)と
+world(5 分の窓の体感温度=環境の過程が体の層の口を呼ぶ)は ``BD:body.*`` を足した。close_final は体の層を結果に渡す
+(``layers.body`` を読む)。系の表の変更は宣言の持ち主の付け替え(体の値の書きは resolve の口のまま=``writes.soa`` は前と同じ)。
+
 〔親の決め〕世界過程が持ち主をまたいで書く所(鉄道と大きな催しが計画実行層の O36・O37・O70 と鉄道の O74 を書く)は
 1-0 では宣言で認める(``world`` の ``writes.paths``)。
 
@@ -99,8 +103,10 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          origin="第 3 期 3-3(新設・HEAD の区間なし)"),
     make("body", "体", "tick", _BD.sys_body,
          resolve_ops="advance_body energy_out_of_area_meal",
-         paths="O2[7-9]:energy.* O3[0-3]:energy.* O21:classical.*",
-         reads="cfg.meal_sleep_defer layers.classical layers.energy soa.agents",
+         paths="O2[7-9]:energy.* O3[0-3]:energy.* O21:classical.* "
+               "BD:body.*",  # 〔第 3 期 3-5〕本人の体の層(段の境目の計器・TM5 の予約の列=状態台帳の行 BD)
+         reads="cfg.meal_sleep_defer layers.classical layers.energy soa.agents "
+               "layers.body",  # 〔第 3 期 3-5〕体の自然変動の値は体の層の口が返す
          origin=f"L1・run.py:3610-3624 @{_E}"),
     make("world", "世界", "tick", _WD.sys_world,
          resolve_ops="rail_arrive rail_depart sync_transit_activity balk_queue release_indoor set_thermal "
@@ -116,7 +122,9 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                # 第 1 期 1-9: 補充の代金の transfer(原因=過程 shelf)の目印の列と計器(状態台帳の行 A)
                "A:ledger.* "
                # 第 2 期 2-1: 生ログの支払いの方法の列(状態台帳の行 EM)
-               "EM:ledger.*",
+               "EM:ledger.* "
+               # 〔第 3 期 3-5〕体感温度は本人の体の層の口(段の境目の計器・TM5 の予約の列=状態台帳の行 BD)
+               "BD:body.*",
          reads="layers.runner",
          origin=f"L2・run.py:3629-3630 @{_E}"),
     make("presence", "体", "tick", _BD.sys_presence,
@@ -395,7 +403,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.decision "  # 1-8 J0: 候補の口の層を結果に渡す(manifest の decision_port)
                "layers.speech "  # 1-8b: 発話の口を結果に渡す(manifest の speech_port)
                "layers.proximity "  # 第 2 期 2-2: 近接の層を結果に渡す(manifest の proximity)
-               "layers.experiment",  # 3-3: 申込書の持ち主を結果に渡す(manifest の experiment)
+               "layers.experiment "  # 3-3: 申込書の持ち主を結果に渡す(manifest の experiment)
+               "layers.body",  # 3-5: 本人の体の層を結果に渡す(manifest の body)
          origin=f"E1・run.py:4551-4592 @{_E}"),
     make("report", "計器", "run_end", _RP.report,
          tally="result sleep_counts frozen_sources_map",  # 段 FIX: 欄の別名 ``frozen_sources_map.update``

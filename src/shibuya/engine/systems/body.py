@@ -23,13 +23,17 @@ from shibuya.core.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, SECONDS_PE
 
 
 def sys_body(ctx: Any, b: Any) -> None:
-    """body(HEAD run.py の同じ区間・文は変えない)。"""
+    """body(HEAD run.py の同じ区間・文は変えない)。
+
+    〔第 3 期 3-5〕体の自然変動の値は本人の体の層(``b.layers.body``=``engine.body.BodyModel``・持ち主 ``body``)が返す
+    (腕 sweep=全員を見る・腕 reserve=TM5 の予約)。書くのは今までどおり ``resolve.advance_body``。
+    """
     agents = b.soa.agents
     classical_policy = b.layers.classical
     energy_layer = b.layers.energy
     meal_sleep_defer = b.cfg.meal_sleep_defer
     tick = ctx.T
-    R.advance_body(agents, tick, energy_layer)
+    R.advance_body(agents, tick, energy_layer, b.layers.body)
     if classical_policy is not None:  # 第2波 §2A 項 4: per_hour の門の「範囲内で起きていた分」(他の腕は no-op)
         classical_policy.accrue_awake()
     # ---- 5 段目 5a(K9 (a)): 範囲外の食事(W17 の食事行の開始・既定の時刻に域外に居る体) ----

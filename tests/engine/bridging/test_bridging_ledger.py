@@ -126,7 +126,10 @@ def test_the_counts_by_form(decls):
     # 〔第 4 期 4-1 段 1〜3〕build/pop/w21_build.py の表 W21_EXPEDIENTS(27 行=検収の直しで 24 → 27)を足した
     # =expedients 143 → 170(記録 pop41/README.md)
     # 〔第336 取り込み〕本体(2-3c の 1 行=144)の後に W21 の 27 行を足した=144 → 171
-    assert S.count_by_form(decls) == {"conf": 0, "expedients": 171, "docstring": 6, "heading": 83, "process": 18,                                      "fallback": 5}
+    # 〔第 3 期 3-5〕本人の体の層の表 3 本(engine/body/rules.py の BODY_EXPEDIENTS 7・schedule.py の RESERVE_EXPEDIENTS 2・
+    # system1.py の SYSTEM1_EXPEDIENTS 3)を足した=171 → 183(記録 bd35/README.md)
+    assert S.count_by_form(decls) == {"conf": 0, "expedients": 183, "docstring": 6, "heading": 83, "process": 18,
+                                      "fallback": 5}
     heads = [d for d in decls if d.form == S.FORM_HEADING]
     # 〔第 1 期 1-2〕p_notice の expedient の項 m_load(歩きスマホの負荷の係数)を消した=338 → 337(記録 p12/README.md §15)
     # 〔第 1 期 1-5〕engine/rights/initial.py(項 3)・record.py(項 2)の見出しを足した=71 → 73・337 → 342
@@ -134,7 +137,8 @@ def test_the_counts_by_form(decls):
     # 〔第 1 期 1-7〕engine/tools/contacts.py(項 3)の見出しを足した=76 → 77・348 → 351(記録 c0/README.md §4)
     # 〔第 1 期 1-8b〕engine/speech/port.py(項 3)・layer.py(項 3)=77 → 79・351 → 357(記録 s8b/README.md)
     # 〔第 2 期 2-2 段 11a〕engine/proximity.py(項 5)=79 → 80・357 → 362(記録 prox22/README.md)
-    assert len({d.path for d in heads}) == 80 and sum(d.items for d in heads) == 362
+    # 〔第 3 期 3-5〕environment.py の項 3(体感温度)と salient.py の項 1(倒れる率)を本人の体の層の表へ移した=362 → 358
+    assert len({d.path for d in heads}) == 80 and sum(d.items for d in heads) == 358
 
 
 def test_process_and_fallback_rows(ledger, decls):

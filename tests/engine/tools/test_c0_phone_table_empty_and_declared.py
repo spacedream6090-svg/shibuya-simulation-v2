@@ -83,5 +83,5 @@ def test_manifest_reports_the_empty_table():
     assert m["phone_table"] == {"rows": 0, "source": "osm:phone", "bridge": PHONE_BRIDGE}
     assert m["n_tools"] == 7 and m["groups"] is None and m["contact_flags"] is None  # 母集団なし・関係なし
     # 〔第 1 期 1-8b〕その後ろに speech_port・〔第 2 期 2-2 段 11a〕その後ろに proximity・〔第 3 期 3-3〕その後ろに experiment・
-    # 〔第 3 期 3-2〕その後ろ(末尾)に batching
-    assert list(res.run_manifest_fields())[-5:] == ["tools", "speech_port", "proximity", "experiment", "batching"]
+    # 〔第 3 期 3-2〕その後ろに batching・〔第 3 期 3-5〕その後ろ(末尾)に body
+    assert list(res.run_manifest_fields())[-6:] == ["tools", "speech_port", "proximity", "experiment", "batching", "body"]

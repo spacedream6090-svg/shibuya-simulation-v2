@@ -1,6 +1,6 @@
 {
  "schema": "shibuya.tests/t0/manifest-keys/1",
- "note": "run_manifest_fields() の一番上の鍵(順も)。第 1 期 1-1 T0 で末尾に TM9 の 4 つ(calls_by_model・clock_kind・step_seconds・bridges_count)を足した。第 1 期 1-4 で末尾に rules_version・run_kind・bridges_version を足した(bridges_count は null から件数に)。欄を足したら理由を記録に書いて更新する。第 1 期 1-9(K17)で末尾(1-4 の後)に economy(金の生ログの輪の容量と溢れ・transfer の計器)を足した。〔第 1 期 1-2〕知覚の事実の計器 percept を末尾(1-9 の economy の後)に足した(記録 p12/README.md)。1-2 で係数(看板の注視の活動の乗数)を消した=p_see_activity の欄は残して値は null。第 1 期 1-5 で末尾(1-2 の percept の後)に rights を足した(権利台帳の行数と分布・許可のない行動の数=観測)。〔第 1 期 1-8 J0〕候補の口の計器 decision_port を末尾(1-5 の rights の後)に足した(腕の名・口の実装・候補の源の分布・「その他」の割合・選んだ番号=記録 docs/bench/analysis/wallbounce-1012/j0/README.md)。第 1 期 1-7 で末尾(1-8 J0 の decision_port の後)に tools を足した(道具の台帳の数・グループの数・連絡先の印の数・店の番号の表・看板の作り物の印=観測)。〔第 1 期 1-8b〕発話の口の計器 speech_port を末尾(1-7 の tools の後)に足した(腕の名・届く範囲・出力の欄の指示・会話の番・発話・届いた数・口コミに渡った数=記録 docs/bench/analysis/wallbounce-1012/s8b/README.md)。〔第 2 期 2-2 段 11a〕近接の判定の腕と計器 proximity を末尾(1-8b の speech_port の後)に足した(腕の名・d・B5 の半径・気づく曲線・B5 の単位・暫定の印・索引と在室人数の計器=記録 docs/bench/analysis/wallbounce-1012/prox22/README.md)。〔第 3 期 3-3〕末尾(2-2 の proximity の後)に experiment(反実仮想の申込書の節・申込書を渡さないランは null)を足した。〔第 3 期 3-2〕計算のまとめの窓の batching を末尾(3-3 の experiment の後)に足した(記録 tm32/README.md)。",
+ "note": "run_manifest_fields() の一番上の鍵(順も)。第 1 期 1-1 T0 で末尾に TM9 の 4 つ(calls_by_model・clock_kind・step_seconds・bridges_count)を足した。第 1 期 1-4 で末尾に rules_version・run_kind・bridges_version を足した(bridges_count は null から件数に)。欄を足したら理由を記録に書いて更新する。第 1 期 1-9(K17)で末尾(1-4 の後)に economy(金の生ログの輪の容量と溢れ・transfer の計器)を足した。〔第 1 期 1-2〕知覚の事実の計器 percept を末尾(1-9 の economy の後)に足した(記録 p12/README.md)。1-2 で係数(看板の注視の活動の乗数)を消した=p_see_activity の欄は残して値は null。第 1 期 1-5 で末尾(1-2 の percept の後)に rights を足した(権利台帳の行数と分布・許可のない行動の数=観測)。〔第 1 期 1-8 J0〕候補の口の計器 decision_port を末尾(1-5 の rights の後)に足した(腕の名・口の実装・候補の源の分布・「その他」の割合・選んだ番号=記録 docs/bench/analysis/wallbounce-1012/j0/README.md)。第 1 期 1-7 で末尾(1-8 J0 の decision_port の後)に tools を足した(道具の台帳の数・グループの数・連絡先の印の数・店の番号の表・看板の作り物の印=観測)。〔第 1 期 1-8b〕発話の口の計器 speech_port を末尾(1-7 の tools の後)に足した(腕の名・届く範囲・出力の欄の指示・会話の番・発話・届いた数・口コミに渡った数=記録 docs/bench/analysis/wallbounce-1012/s8b/README.md)。〔第 2 期 2-2 段 11a〕近接の判定の腕と計器 proximity を末尾(1-8b の speech_port の後)に足した(腕の名・d・B5 の半径・気づく曲線・B5 の単位・暫定の印・索引と在室人数の計器=記録 docs/bench/analysis/wallbounce-1012/prox22/README.md)。〔第 3 期 3-3〕末尾(2-2 の proximity の後)に experiment(反実仮想の申込書の節・申込書を渡さないランは null)を足した。〔第 3 期 3-2〕計算のまとめの窓の batching を末尾(3-3 の experiment の後)に足した(記録 tm32/README.md)。〔第 3 期 3-5〕末尾(3-2 の batching の後)に body(本人の体の層=持ち主・腕・規則の出典の表・器だけの 3 件=設定/体の刻みの回数・予約・段の境目の数と列の鎖のハッシュ=観測・記録 docs/bench/analysis/wallbounce-1012/bd35/README.md)を足した。",
  "keys": [
   "registry_hash",
   "replay_date",
@@ -121,6 +121,7 @@
   "speech_port",
   "proximity",
   "experiment",
-  "batching"
+  "batching",
+  "body"
  ]
 }

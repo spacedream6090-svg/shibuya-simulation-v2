@@ -165,6 +165,8 @@ FLAG_WRITERS = {
     ("perception/state.py", "_set_writeable"),
     ("economy/goods.py", "*"), ("economy/ledger.py", "*"),
     ("engine/resolve.py", "_restore_array_into"),
+    # 〔第 3 期 3-5 検収 L7〕体の層の予約の列(BodySchedule)が自分の配列(SoA ではない)を書く口の中だけ書けるようにする
+    ("engine/body/schedule.py", "_open_and_call"),
 }
 
 

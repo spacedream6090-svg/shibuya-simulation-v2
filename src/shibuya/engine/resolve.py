@@ -22,7 +22,9 @@
 - ``apply``: **行動語ぶんのループ**(12 語+エンジン継続=13 分岐)。個体数に比例するループなし。
 - ``advance_body`` の**エネルギー収支**(5 段目 5a・``energy`` を渡したランだけ): 毎 tick の消費と
   語の段の写しは配列演算だけ(逐次ループの新設なし)。``initialize_energy`` の体の定数の抽選は
-  ``engine.energy.EnergyModel.draw_bodies`` の宣言(起動時 1 回・体数ぶん)。
+  ``engine.energy.EnergyModel.draw_bodies`` の宣言(起動時 1 回・体数ぶん)。〔第 3 期 3-5〕値は体の層
+  ``engine.body``(``BodyModel.step``・``initial``)が返し、本モジュールは書くだけ(体の層の逐次ループ宣言は
+  ``engine.body.schedule``=予約の腕 reserve だけ・相異なる予約の刻みの数ぶん)。
 - ``AgentState.freeze/thaw``: フィールド数ぶん(宣言済み)。
 
 expedient(本モジュール分)
@@ -32,9 +34,9 @@ expedient(本モジュール分)
   なお ``initialize`` は幾何を取らないので **tick 0 の ``density_stage`` だけは人/セルの段**
   (edge モードでも)。tick 0 の ``apply`` 末尾で人/m² の Fruin LOS 段へ貼り替わる
   ——tick 0 は全員が自宅で就寝中なので影響は無いが、黙って一本化しないために書いておく。
-- 内受容の自然変動(``advance_body``): 30 tick ごとに空腹+1・疲労+1、休憩で疲労−3、
-  購入で空腹−4、就寝中は疲労−2。世界過程(C4)が入るまでの**駆動源**。
-  値は自前(契約書に無い)。
+- 行為の効果の内受容(``_apply_rest`` と v1 の購入・食事): 休憩で疲労−3、購入と食事で空腹−4。値は自前(契約書に
+  無い)。〔第 3 期 3-5〕体の自然変動(30 刻みごとの空腹+1・疲労+1・就寝中の疲労−2・休みの回復)は本人の体の層
+  ``engine.body``(``rules.BODY_EXPEDIENTS``)へ移した。
 - 断るは C2 では状態を変えない(記録のみ=契約書の効果先が未実装)。通報は **D-113 ②(第267)** で前提「当該事象を知覚済み」を検査する(``_apply_report``・効果先は未実装のまま)。手伝いは
   「相手が援助要求状態」を持たないので必ず失敗(``BAD_TARGET``)。
 - 乗車は**列車が無い**ので必ず ``NO_TRAIN``、降車は契約書どおり ``NO_STOP``(その駅には止まらない)(列車は C4・§2.6 の混雑率受容関数もそこ)。
@@ -68,12 +70,18 @@ from shibuya.agents.state import (
     N_WAKE_CONDITIONS,
     REFRACTORY_MINUTES,
     Activity,
-    ActivityKind,
     AgentState,
     ResultCode,
     WakeCondition,
 )
 from shibuya.engine.change_detect import DetectResult
+from shibuya.engine.body import rules as _BODY
+from shibuya.engine.body.rules import (  # 〔第 3 期 3-5〕体の層へ移した値(同じ名で写して出す)
+    ACTIVITY_REST_FATIGUE_RELIEF,
+    ACTIVITY_REST_PERIOD_TICKS,
+    BODY_TICK_PERIOD,
+    SLEEP_FATIGUE_RELIEF,
+)
 from shibuya.engine.energy import INTAKE_DRINK, INTAKE_SNACK, EnergyModel
 from shibuya.engine.geometry import EdgeGeometry
 from shibuya.engine.ledger_api import LedgerBundle
@@ -178,17 +186,10 @@ __all__ = [
     "request_open_close",
 ]
 
-#: 内受容の自然変動の周期[tick](expedient)。
-BODY_TICK_PERIOD: Final[int] = 30
+# 〔第 3 期 3-5〕体の自然変動の値(周期・就寝と休みの回復)は本人の体の層 ``engine.body.rules`` に移した(上の import が
+# 同じ名で写して出す=読み手の import は変えない)。行為の効果(休憩・購入・食事)の値はここに残す。
 REST_FATIGUE_RELIEF: Final[int] = 3
 BUY_HUNGER_RELIEF: Final[int] = 4
-SLEEP_FATIGUE_RELIEF: Final[int] = 2
-#: **二層の段 2(第275 親の決め #1)**: 「休んでいる体」(活動の種別が 在店/その場 で持続中)の
-#: 疲労の回復=**10 tick ごとに −1**(30 分で −3 = 旧 休憩 1 回ぶん・``REST_FATIGUE_RELIEF``)。
-#: ``activity_columns`` のラン(語彙 v3 × ``--activity on``)だけで効く=v1/v2 は 1 バイトも動かない。
-#: expedient(感度腕 5/10/20 tick)。
-ACTIVITY_REST_PERIOD_TICKS: Final[int] = 10
-ACTIVITY_REST_FATIGUE_RELIEF: Final[int] = 1
 
 # ---------------------------------------------------------------- C9b 対象と注意(G3/G4/G7)
 #
@@ -509,6 +510,7 @@ def initialize(
     *,
     day_index: int = 0,
     ledger: LedgerBundle | None = None,
+    body: Any = None,
 ) -> None:
     """個体を自宅セルに置き、所持金・種別・内受容の初期段を設定する(**ランの最初に1回**)。
 
@@ -516,10 +518,12 @@ def initialize(
 
     ``ledger`` を渡した場合、初期財布は**直接代入ではなく外界からの transfer**で入れる
     (境界・経済設計書 §2.3 ex nihilo 禁止)。金額は同じなので状態ハッシュは変わらない。
-    """
-    from shibuya.engine.change_detect import INTERO_UP_EDGES
 
+    〔第 3 期 3-5〕刻み 0 の空腹・疲れ・暑さと段(D18)は本人の体の層の口 ``BodyModel.initial``(``body`` を渡さない
+    呼び手は同じ値の ``engine.body.rules.initial_values``)が返し、ここは書くだけ(値は前と同じ)。
+    """
     n = agents.n
+    init = body.initial(n) if body is not None else _BODY.initial_values(n)
     with agents.writable(), world.writable():
         home = np.asarray(schedule.home_cell, dtype=np.int64)[:n]
         # I6 −1 ガード(D-66): 域外居住者は ``home_cell < 0`` のまま来る(計画実行層が
@@ -548,19 +552,11 @@ def initialize(
         else:
             agents.registry.money[:] = money0
         agents.registry.activity[:] = int(Activity.SLEEPING)
-        agents.registry.hunger[:] = 2
-        agents.registry.fatigue[:] = 2
-        agents.registry.thermal[:] = 5
-        for value_field, stage_field in (
-            ("hunger", "hunger_stage"),
-            ("fatigue", "fatigue_stage"),
-            ("thermal", "thermal_stage"),
-        ):
-            v = agents.registry.field(value_field)
-            stage = np.zeros(n, dtype=np.int8)
-            for e in INTERO_UP_EDGES:
-                stage += (v >= e).astype(np.int8)
-            agents.registry.field(stage_field)[:] = stage
+        agents.registry.hunger[:] = init.hunger
+        agents.registry.fatigue[:] = init.fatigue
+        agents.registry.thermal[:] = init.thermal
+        for stage_field in ("hunger_stage", "fatigue_stage", "thermal_stage"):
+            agents.registry.field(stage_field)[:] = init.stages[stage_field]
         world.cells.density[:] = world.compute_density(agents.registry.cell)
         world.cells.density_stage[:] = world.density_stage()
         world.cells.open_count[:] = world.open_count_per_cell(0)
@@ -1114,8 +1110,12 @@ def relabel_intent_failure(agents: AgentState, agent_id, action=None) -> None:
 
 
 # ---------------------------------------------------------------- 身体の自然変動
-def advance_body(agents: AgentState, tick: int, energy: Any = None) -> None:
+def advance_body(agents: AgentState, tick: int, energy: Any = None, body: Any = None) -> None:
     """内受容 3 変数の自然変動(**C4 の世界過程が入るまでの駆動源**・expedient)。
+
+    〔第 3 期 3-5〕値は本人の体の層が返す: ``body``(``engine.body.BodyModel``)を渡したランは ``body.step("interoception",
+    …)``(腕 sweep=全員を見る・腕 reserve=TM5 の予約の来た体と入力の変わった体だけ)、渡さない呼び手は同じ値の
+    ``engine.body.rules.interoception``(全員を見る版)。ここは返った値を書くだけ(式・値・型は下の段落のまま=前と同じ)。
 
     **二層の段 2(第275 親の決め #1)**: ``activity_columns`` のランでは、活動の種別が
     在店/その場 で持続中(``activity_until > tick``)・移動/乗車/就寝中でない体の疲労を
@@ -1128,72 +1128,52 @@ def advance_body(agents: AgentState, tick: int, energy: Any = None) -> None:
     (満腹 1 / ふつう 5 / 空腹 8 / とても空腹 10)に書き直す。疲労・休息の規則は変えない。
     ``None``(既定)は従来と 1 バイトも変わらない。
     """
-    body = int(tick) % BODY_TICK_PERIOD == 0
-    rest = bool(getattr(agents, "activity_columns", False)) and (
-        int(tick) % ACTIVITY_REST_PERIOD_TICKS == 0
-    )
-    if energy is None and not (body or rest):
+    ac = bool(getattr(agents, "activity_columns", False))
+    if body is not None:
+        upd = body.step("interoception", agents.registry, int(tick), energy=energy, activity_columns=ac)
+    else:
+        upd = _BODY.interoception(agents.registry, int(tick), energy=energy, activity_columns=ac)
+    if upd is None:
         return
     with agents.writable():
         r = agents.registry
-        if body:
-            if energy is None:
-                r.hunger[:] = np.minimum(r.hunger.astype(np.int16) + 1, 10).astype(np.uint8)
-            r.fatigue[:] = np.minimum(r.fatigue.astype(np.int16) + 1, 10).astype(np.uint8)
-            sleeping = r.activity == int(Activity.SLEEPING)
-            if sleeping.any():
-                r.fatigue[sleeping] = np.maximum(
-                    r.fatigue[sleeping].astype(np.int16) - SLEEP_FATIGUE_RELIEF, 0
-                ).astype(np.uint8)
-        if rest:
-            kind = r.activity_kind
-            act = r.activity
-            resting = (
-                ((kind == int(ActivityKind.IN_SHOP)) | (kind == int(ActivityKind.IN_PLACE)))
-                & (r.activity_until > int(tick))
-                & (act != int(Activity.MOVING))
-                & (act != int(Activity.RIDING))
-                & (act != int(Activity.SLEEPING))
-            )
-            if resting.any():
-                r.fatigue[resting] = np.maximum(
-                    r.fatigue[resting].astype(np.int16) - ACTIVITY_REST_FATIGUE_RELIEF, 0
-                ).astype(np.uint8)
-        if energy is not None:
-            model: EnergyModel = energy.model
-            mets = model.mets_of(
-                r.activity,
-                r.transit_state,
-                r.activity_kind if getattr(agents, "activity_columns", False) else None,
-            )
-            spent = model.expenditure(r.eer_kcal, mets, energy.bmr)
-            r.since_meal_kcal += spent
-            r.energy_balance -= spent
-            r.hunger[:] = model.hunger_copy(model.stage_of(r.since_meal_kcal, r.eer_kcal))
+        if upd.fatigue is not None:
+            if upd.fatigue_ids is None:
+                r.fatigue[:] = upd.fatigue
+            else:
+                r.fatigue[upd.fatigue_ids] = upd.fatigue
+        if upd.hunger is not None:
+            if upd.hunger_ids is None:
+                r.hunger[:] = upd.hunger
+            else:
+                r.hunger[upd.hunger_ids] = upd.hunger
+        if upd.spent is not None:
+            r.since_meal_kcal[:] = upd.since_meal  # = 前の値 + 消費(float32 の足し算 1 回=前の ``+=`` と同じ値)
+            r.energy_balance -= upd.spent
 
 
 # ---------------------------------------------------------------- 5 段目 5a エネルギー収支
-def initialize_energy(agents: AgentState, energy: Any, seed: int | str) -> None:
+def initialize_energy(agents: AgentState, energy: Any, seed: int | str, body: Any = None) -> None:
     """体の定数(体重・EER)を抽選し、食後の消費・収支・``hunger`` の写しと段を置く(ラン開始時 1 回)。
 
     ``initialize`` の直後・``freeze`` の前に呼ぶ(``energy_columns`` のランだけ)。``hunger_stage``
     (変化検出の前回段)も写しから組み直す=tick 0 に偽の跨ぎを出さない。
-    """
-    from shibuya.engine.change_detect import INTERO_UP_EDGES
 
+    〔第 3 期 3-5〕食後の消費の初期値・空腹の写しと段(D18)は本人の体の層の口 ``BodyModel.initial(energy=…)``(``body`` を
+    渡さない呼び手は同じ値の ``engine.body.rules.initial_energy_values``)が返し、ここは書くだけ(値は前と同じ)。
+    """
     model: EnergyModel = energy.model
     r = agents.registry
     with agents.writable():
         weight, eer = model.draw_bodies(r.age, r.sex, seed)  # 10e(E4・K19): 鍵の並べ方
         r.weight_kg[:] = weight
         r.eer_kcal[:] = eer
-        r.since_meal_kcal[:] = model.initial_since_meal(eer)
+        init = (body.initial(energy=energy, eer=eer) if body is not None
+                else _BODY.initial_energy_values(energy, eer))
+        r.since_meal_kcal[:] = init.since_meal
         r.energy_balance[:] = 0.0
-        r.hunger[:] = model.hunger_copy(model.stage_of(r.since_meal_kcal, r.eer_kcal))
-        stage = np.zeros(r.hunger.size, dtype=np.int8)
-        for e in INTERO_UP_EDGES:  # 段の刻み 3 本ぶん(体数には比例しない)
-            stage += (r.hunger >= e).astype(np.int8)
-        r.hunger_stage[:] = stage
+        r.hunger[:] = init.hunger
+        r.hunger_stage[:] = init.stages["hunger_stage"]
     if model.rate == "bmr":
         energy.bmr = model.bmr_kcal(r.age, r.sex, r.weight_kg).astype(np.float32)
 
@@ -2853,16 +2833,21 @@ def collect_waste(
 # ---------------------------------------------------------------- C4: 世界過程の書き戻し口
 # 世界過程設計書 §3 実装原則3「世界状態への書き込み口は1本(答申原則5=resolve 経由)。
 # **世界過程も例外にしない**」。``engine/processes/*`` は状態を直接触らず、以下の口だけを呼ぶ。
-def set_thermal(agents: AgentState, thermal) -> None:
+def set_thermal(agents: AgentState, thermal, indices=None) -> None:
     """体感温度(内受容3変数の1本)を一括代入する(知覚契約書 §3 内受容・日陰係数0.86)。
 
     Args:
         agents: 個体状態。
         thermal: ``(n,)`` の 0-10 値(呼び出し側で丸め・クリップ済み)。
+        indices: 〔第 3 期 3-5〕書く体(``None``=全員=前と同じ)。TM5 の予約の腕(``engine.body``)は値の変わりうる体だけを
+            渡す(``thermal`` は同じ並び)。
     """
     v = np.asarray(thermal)
     with agents.writable():
-        agents.registry.thermal[:] = np.clip(v, 0, 10).astype(np.uint8)
+        if indices is None:
+            agents.registry.thermal[:] = np.clip(v, 0, 10).astype(np.uint8)
+        else:
+            agents.registry.thermal[np.asarray(indices, dtype=np.int64)] = np.clip(v, 0, 10).astype(np.uint8)
 
 
 def set_notice_state(pstate, heading, task_flag, indices=None) -> None:

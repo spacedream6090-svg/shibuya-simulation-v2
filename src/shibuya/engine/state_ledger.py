@@ -74,6 +74,7 @@ from typing import Final, Iterable, Mapping
 #: 〔第 2 期 2-2 段 11a〕近接の層の行 ``PX``(diag・discardable)と近傍の索引の行 ``PX0``(no・discardable)も同じ理由で上げない。
 #: 〔第 3 期 3-3〕申込書の控えの行 ``X``(diag・discardable)も版は上げない(仮採用): どちらのハッシュにも状態のファイルにも入らない。
 #: 〔第 3 期 3-2〕計算のまとめの窓の行 ``BW``(diag・discardable)も版は上げない(仮採用): どちらのハッシュにも状態のファイルにも入らない。
+#: 〔第 3 期 3-5〕本人の体の層の行 ``BD``(diag・discardable)も同じ理由で版は上げない(仮採用)。
 LEDGER_VERSION: Final[str] = "state-ledger/10e-ret"
 
 BEHAVIOR: Final[str] = "behavior"
@@ -940,6 +941,29 @@ _EXT: tuple[LedgerRow, ...] = (
              "(系の外=窓の境目 WINDOW_MARK に帰属)と刻みの事象の頭の次の予約だけ。T2 で刻みの外の事象(会話の番・届く"
              "メッセージ・体の変化の予約)が入ったら軸 1 behavior・軸 2 required へ見直す(版上げ・つなぎの台帳 DOC-tm32-*)。"
              "行の鍵は O の通し番号でなく BW"),
+    # ---- 第 3 期 3-5(本人の体の層・③ 群・TM5 の予約の口): 足す前に軸を決めた行 ----
+    LedgerRow(
+        key="BD", name="BodyModel(本人の体の層の段の境目の計器と TM5 の予約の列・第 3 期 3-5)", place=EXTERNAL,
+        dtype="計器の dict(数・種類ごとの境目の数・境目の列の鎖のハッシュ)・BodySchedule(予約の列 Scheduler 2 本・体ごとの"
+              "生きている予約の通し番号と刻み/窓・引き直しの写し・その日の体感温度の表と次に変わる窓の表)",
+        nbytes="腕 sweep: 計器だけ/腕 reserve: 体あたり約 56 B(通し番号と刻み/窓と列 8 B × 5・写し 16 B)+予約 1 件 32 B"
+               "+日の表 288 × (セル+1) × (1+4) B",
+        alloc="常に(予約の列の中身は腕 --body-schedule reserve のランだけ)", behavior=DIAG, restore=DISCARDABLE,
+        dead=False,
+        basis="engine/body/model.py(BodyModel.step・initial・observed)・engine/body/schedule.py(BodySchedule)・"
+              "engine/resolve.py(advance_body・initialize・initialize_energy が呼ぶ)・engine/processes/environment.py"
+              "(step が呼ぶ)・engine/run.py(manifest の body)",
+        items=("body._body_meter", "body._reservations"),
+        note="3-5: 組み立てがどの腕でも持ち主を作る(段の境目の計器と manifest の body のため)。計器(体の刻みの回数・規則に"
+             "通した体の延べ・予約・引き直し・種類ごとの境目の数と列の鎖のハッシュ)は診断=読み手は manifest の body と試験だけ。"
+             "予約の列は腕 reserve で「どの体を規則に通すか」を決めるが、受入の条件が「全員を毎回見る版(sweep)と結果が同じ」"
+             "(byte-check 19 構成・境目の列が同じ)=結果を変えない控え=軸 1 diag(親の発注の宣言)。軸 2 discardable(再開では"
+             "状態から引き直す=最初の体の刻みで全員を規則に通す・下界の予約なので引き直した列は通しの列と違ってよい=結果は同じ="
+             "どちらのハッシュにも状態のファイルにも入らない)。腕 sweep では予約の列は空のまま。書く系は body(体の刻み)と "
+             "world(5 分の窓の体感温度=環境の過程が口を呼ぶ)だけ(宣言 BD:body.*)。持ち主の欄は 1 回だけ置ける(__setattr__・"
+             "__delattr__ の守り)・中身を書く口は step と initial だけ(試験 tests/engine/body/test_body_guard.py)。〔検収 M1〕体ごと"
+             "の配列は腕 reserve だけ確保する(腕 sweep は長さ 0=計器だけ)・〔検収 L6〕段の境目の計器は環境変数 "
+             "SHIBUYA_BODY_BOUNDARY_GAUGE=1 のときだけ数える。行の鍵は O の通し番号でなく BD"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -1105,6 +1129,8 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "experiment": ("engine/experiment/layer.py", "ExperimentLayer"),
     # 第 3 期 3-2: 計算のまとめの窓(状態台帳の行 BW・進行役が置く)
     "batching": ("engine/batching.py", "WindowQueue"),
+    # 第 3 期 3-5: 本人の体の層(状態台帳の行 BD・どの腕でも置く)
+    "body": ("engine/body/model.py", "BodyModel"),
 }
 
 #: (ii) キャッシュ・導出。中身は 3 通り: (a) 毎 tick(か事象のある tick)作り直す作業の値・印
@@ -1389,6 +1415,13 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "_bw_rank"),
     _x("batching", CACHE, "3-2: 窓の中だけの作業の値(処理中の時刻・窓の終わり・処理の中で予約した窓の中の行=窓を閉じると空)",
        "_bw_now", "_bw_end", "_bw_new"),
+    # 第 3 期 3-5: 本人の体の層の設定(腕・体の数・刻みの幅=組み立てで決まる)
+    _x("body", CONST, _CFG + "(3-5: TM5 の腕 sweep/reserve・体の数・刻みの幅・段の境目の計器を数えるか)", "arm", "n",
+       "step_seconds", "gauge"),
+    # 第 3 期 3-5: 環境の過程が体感温度を体の層の口で書くための参照と、腕 reserve のその日の体感温度の表(資産と日付と再生日から作る)
+    _x("runner.environment", REF, _REFR + "(3-5: 本人の体の層=組み立てが attach_body で挿す)", "body"),
+    _x("runner.environment", CACHE, "3-5: その日の窓 × セルの体感温度の表(腕 reserve だけ・暑さ段と日陰の面から作る・日の頭と"
+       "天気の日付の差し替えで捨てる)", "_felt_table"),
 )
 
 

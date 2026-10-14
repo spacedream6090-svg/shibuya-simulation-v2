@@ -209,11 +209,11 @@ def test_no_negative_elapsed_time_in_any_tick_column_every_tick(monkeypatch):
         sal = seen["runner"].salient
         assert int(np.asarray(sal.event_seen_tick, dtype=np.int64).max(initial=-1)) <= T
 
-    def advance(agents, tick, energy_layer=None):
+    def advance(agents, tick, energy_layer=None, body=None):  # 〔3-5〕体の層(body)も受けて渡す
         # tick の頭=前の tick の書き込みが済んだ時点(値は T−1 以下のはず・T 以下で見る)
         check(agents, int(tick))
         checked["ticks"] += 1
-        return orig_advance(agents, tick, energy_layer)
+        return orig_advance(agents, tick, energy_layer, body)
 
     monkeypatch.setattr(R, "advance_body", advance)
     res = _run(2, rel_acq_wake="on", **ALL_ARMS)

@@ -2529,8 +2529,8 @@
   },
   {
    "id": "HD-engine.processes.environment-1af925f4",
-   "what": "src/shibuya/engine/processes/environment.py の docstring の見出し「expedient(本モジュール分)」の下の項 5 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 置き換える段が計画に無い(表し方・見積り・自前規約)=主張の前に感度試験で駆動しないことを示す",
+   "what": "src/shibuya/engine/processes/environment.py の docstring の見出し「expedient(本モジュール分)」の下の項 2 個",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 置き換える段が計画に無い(表し方・見積り・自前規約)=主張の前に感度試験で駆動しないことを示す〔第 3 期 3-5〕体感温度の写像・日陰係数の掛け先・気象資産が無い世界の 5 の固定値(③ 群の体の規則=A2)の 3 項は本人の体の層 src/shibuya/engine/body/rules.py の BODY_EXPEDIENTS へ移した(行 BR-BODY-FELT-MAP・BR-BODY-SHADE-TARGET・BR-BODY-FELT-FALLBACK)=この見出しに残るのは日陰の面の 2 項(世界の側)",
    "remove_at": "7",
    "declared_in": "src/shibuya/engine/processes/environment.py#heading:1af925f4",
    "conf": "expedient",
@@ -2668,8 +2668,8 @@
   },
   {
    "id": "HD-engine.processes.salient-1af925f4",
-   "what": "src/shibuya/engine/processes/salient.py の docstring の見出し「expedient(本モジュール分)」の下の項 5 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 倒れる率は出典を探す(10-12 §1-5 D-3)。置き換える段が計画に無い(表し方・見積り・自前規約)=主張の前に感度試験で駆動しないことを示す",
+   "what": "src/shibuya/engine/processes/salient.py の docstring の見出し「expedient(本モジュール分)」の下の項 4 個",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 倒れる率は出典を探す(10-12 §1-5 D-3)。置き換える段が計画に無い(表し方・見積り・自前規約)=主張の前に感度試験で駆動しないことを示す〔第 3 期 3-5〕倒れる率の項(③ 群の体の急変=D9)は本人の体の層 src/shibuya/engine/body/rules.py の BODY_EXPEDIENTS へ移した(行 BR-BODY-COLLAPSE-RATE)=この見出しに残るのは顕著行為の到達と描画の 4 項",
    "remove_at": "7",
    "declared_in": "src/shibuya/engine/processes/salient.py#heading:1af925f4",
    "conf": "expedient",
@@ -2691,7 +2691,7 @@
   {
    "id": "HD-engine.resolve-1af925f4",
    "what": "src/shibuya/engine/resolve.py の docstring の見出し「expedient(本モジュール分)」の下の項 6 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 空間の段 1(1 刻み=1 ノードの移動をナビメッシュの移動に)",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 空間の段 1(1 刻み=1 ノードの移動をナビメッシュの移動に)〔第 3 期 3-5〕内受容の自然変動の項(③ 群の空腹と疲れ=D8)は本人の体の層 src/shibuya/engine/body/rules.py の BODY_EXPEDIENTS へ移した(行 BR-BODY-NATURAL-VARIATION)。この見出しの同じ位置の項は行為の効果の内受容(休憩・購入・食事)に書き直した=項の数は 6 のまま",
    "remove_at": "5-1",
    "declared_in": "src/shibuya/engine/resolve.py#heading:1af925f4",
    "conf": "expedient",
@@ -4494,6 +4494,139 @@
    "conf": "expedient",
    "since": "2026-10-15",
    "status": "active",
-   "remove_basis": "inferred"  }
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "BR-BODY-NATURAL-VARIATION",
+   "what": "内受容の自然変動: 体の刻み(30 刻み)ごとに空腹+1(v1)・疲れ+1、就寝中は疲れ−2(値は自前・契約書に無い・C4 の世界過程が入るまでの駆動源)",
+   "why": "コードの宣言(expedients)。③ 群(意図しない体)の空腹と疲れ=D8(決定 10-12 §1-5・本人の体としてコードに残す)。3-5 で resolve の docstring の見出しの項から移した。外す段: 置き換える段が計画に無い(値は自前)=主張の前に感度試験で駆動しないことを示す",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/engine/body/rules.py#expedients:c51b596e",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "BR-BODY-REST-RECOVERY",
+   "what": "在店/その場で持続中の体の疲れの回復: 10 刻みごとに −1(30 分で −3=旧 休憩 1 回ぶん・第275 親の決め #1・感度腕 5/10/20 刻み)",
+   "why": "コードの宣言(expedients)。③ 群の疲れ=D8(二層の段 2・第275 親の決め #1)。3-5 で resolve の値の注から移した。外す段: 置き換える段が計画に無い(感度腕 5/10/20 刻み)=主張の前に感度試験で示す",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/engine/body/rules.py#expedients:d525c6d6",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "BR-BODY-FELT-MAP",
+   "what": "暑さ段 → 体感温度 0〜10 の写像 2/4/6/8/10(知覚契約書 §3 はスケールだけを与え、写像を与えていない)",
+   "why": "コードの宣言(expedients)。③ 群の体感温度=A2(決定 10-12 §1-5)。3-5 で processes/environment.py の docstring の見出しの項から移した。外す段: 置き換える段が計画に無い=主張の前に感度試験で示す",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/engine/body/rules.py#expedients:2ea3a407",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "BR-BODY-SHADE-TARGET",
+   "what": "日陰係数 0.86 の掛け先を体感温度の生値にした(係数の値は知覚契約書 §3 と R3-2 の決定=mechanism・掛け先は契約書に無い)",
+   "why": "コードの宣言(expedients)。③ 群の体感温度=A2。3-5 で processes/environment.py の docstring の見出しの項から移した(係数の値は mechanism=体の層の規則の表 body.shade_factor)。外す段: 置き換える段が計画に無い=主張の前に感度試験で示す",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/engine/body/rules.py#expedients:9e226d90",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "BR-BODY-FELT-FALLBACK",
+   "what": "気象の資産が無い世界の体感温度は 5 の固定(穏やかな 1 日=刻み 0 の初期値と同じ値)",
+   "why": "コードの宣言(expedients)。③ 群の体感温度=A2(合成の世界だけ)。3-5 で processes/environment.py の docstring の見出しの項から移した。外す段: 置き換える段が計画に無い=主張の前に感度試験で示す",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/engine/body/rules.py#expedients:897ef2b4",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "BR-BODY-COLLAPSE-RATE",
+   "what": "倒れる率 1 万体あたり 1 日 3.0 件(出典なし。東京消防庁の出場件数 935,373 件/年を都の人口で割ると 1 万人・日あたり約 1.8 件だが、救急要請と路上で倒れるは同じでないので同じ桁の丸い値を置いた)",
+   "why": "コードの宣言(expedients)。③ 群の体の急変=D9(決定 10-12 §1-5 の D の論点 3=本人の体・倒れる率は出典を探す=リサーチ)。3-5 で processes/salient.py の docstring の見出しの項から移した。出典が見つかるまで出典なし。外す段: 置き換える段が計画に無い=主張の前に感度試験で示す",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/engine/body/rules.py#expedients:dbe2c73e",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "BR-BODY-INITIAL",
+   "what": "刻み 0 の体の初期値: 空腹 2・疲れ 2・暑さ 5(C2 の初期値・自前)",
+   "why": "コードの宣言(expedients)。刻み 0 の体の状態=D18(洗い出しは群の名指し無し=要確認(親))。3-5 で resolve.initialize の直書きの値から体の層の口 BodyModel.initial へ移した(同じ値)。外す段: 置き換える段が計画に無い=主張の前に感度試験で示す",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/engine/body/rules.py#expedients:505a459e",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "BR-BODY-RESERVE-DETECT",
+   "what": "TM5 の予約の引き直しは、前に規則に通した後の写し(活動・活動の種別と期限・1 刻みの消費・空腹・疲れ・食後の消費・体感温度はセル)との比べで見つける(活動を書く口が resolve に約 40 か所あり 1 つの口が無い=T3 で口の知らせに替える候補)",
+   "why": "コードの宣言(expedients)。TM5 の予約の腕(--body-schedule reserve・既定 sweep・T3 で有効=決定 10-12 §4-2 TM5・TM6)の引き直しの見つけ方。外す段: T3(何かあった人だけの版上げで、活動を書く口の知らせに替える)",
+   "remove_at": "T3",
+   "declared_in": "src/shibuya/engine/body/schedule.py#expedients:abcc32fa",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "BR-BODY-RESERVE-ACCUMULATE",
+   "what": "TM5 の予約の腕でも、エネルギーの積み上げ(食後の消費・収支)は全員を毎刻み配列で足す(float32 の足し算の順を変えると値が動く=予約するのは段の写しの更新だけ・閉じた式の積み上げは T3 の版上げの候補)",
+   "why": "コードの宣言(expedients)。TM5 の予約の腕のエネルギーの積み上げ(結果を sweep と同じにするため)。外す段: T3(閉じた式の積み上げの版上げ=既定の値が動く)",
+   "remove_at": "T3",
+   "declared_in": "src/shibuya/engine/body/schedule.py#expedients:937c0554",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "BR-SYSTEM1-LOMBARD",
+   "what": "ロンバード効果(周りの騒音 → 話す大きさ)の器だけ=口 speech_loudness と W10 の騒音の段の読みの口(値は空=None・聞こえる会話 Percept.heard_speech に効く値は空間の段 3 の音の伝わり方で入る)",
+   "why": "コードの宣言(expedients)。③ 群の System 1 の反応(決定 10-12 §1-5)。今のコードに無い(洗い出しに行が無い)=3-5 で器だけ置いた。外す段: 空間の段 3(音の伝わり方)で値が入る",
+   "remove_at": "5-3",
+   "declared_in": "src/shibuya/engine/body/system1.py#expedients:df29183b",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "BR-SYSTEM1-CROWD-GAIT",
+   "what": "混雑の中の歩き方と避け方の器だけ=口 crowd_gait(値は空=None・空間の段 1 の物理で入る)",
+   "why": "コードの宣言(expedients)。③ 群の System 1 の反応(決定 10-12 §1-5)。今のコードに無い=3-5 で器だけ置いた。外す段: 空間の段 1(物理)で値が入る",
+   "remove_at": "5-1",
+   "declared_in": "src/shibuya/engine/body/system1.py#expedients:717a7090",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "BR-SYSTEM1-LOUD-SOUND",
+   "what": "大きな音に注意が向くの器だけ=知覚の事実 Percept.nearby_change の種類 loud_sound と口 loud_sound_notice(値は空=None・空間の段 3 で入る)",
+   "why": "コードの宣言(expedients)。③ 群の System 1 の反応(決定 10-12 §1-5)。今のコードに無い=3-5 で器だけ置いた(Percept.nearby_change の種類 loud_sound)。外す段: 空間の段 3(音)で値が入る",
+   "remove_at": "5-3",
+   "declared_in": "src/shibuya/engine/body/system1.py#expedients:c59174f1",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  }
  ]
 }

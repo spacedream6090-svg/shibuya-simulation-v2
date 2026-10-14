@@ -47,11 +47,14 @@ __all__ = [
 #: 既定 None)を足した(どちらのハッシュにも状態のファイルにも入らない=値は変わらない)。
 #: 〔第 3 期 3-2〕末尾(3-3 の ``experiment`` の後)に ``batching``(計算のまとめの窓=状態台帳の行 ``BW``・軸 1 diag・
 #: 軸 2 discardable・進行役が窓のループの前に置く)を足した(どちらのハッシュにも状態のファイルにも入らない=値は変わらない)。
+#: 〔第 3 期 3-5〕末尾(3-2 の ``batching`` の後)に ``body``(本人の体の層=状態台帳の行 ``BD``・軸 1 diag・軸 2 discardable)を足した
+#: (同じ理由で値は変わらない)。
 OWNER_NAMES: tuple[str, ...] = (
     "act_layer", "intent_layer", "fam_layer", "mem_layer", "poi_resolver", "wom", "rel_layer", "classical",
     "energy", "norm_meter", "presence", "conv", "arbiter", "detector", "runner", "ledger", "undefined",
     "renderer", "bridge", "fleet_bridge", "run_day", "events", "decision", "speech", "proximity", "experiment",
     "batching",
+    "body",
 )
 
 
@@ -226,6 +229,9 @@ class Layers:
     #: 〔第 3 期 3-2〕計算のまとめの窓(``engine.batching.WindowQueue``・状態台帳の行 ``BW``)。進行役が窓のループの前に置く
     #: (組み立ての間は None)。
     batching: Any = None
+    #: 〔第 3 期 3-5〕本人の体の層(``engine.body.BodyModel``・状態台帳の行 ``BD``)。組み立てがどの腕でも置く(腕 sweep でも
+    #: 段の境目の計器と manifest の ``body`` のため)。None=体の層の無い呼び方(全員を見る版の同じ値)。
+    body: Any = None
 
     @property
     def undefined(self) -> Any:
