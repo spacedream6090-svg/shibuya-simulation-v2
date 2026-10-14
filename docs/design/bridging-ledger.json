@@ -3732,12 +3732,12 @@
   {
    "id": "DOC-ec21-ring-coefficient",
    "what": "経済の段階 2 の腕のランの金の生ログの輪の係数 STAGE2_TRANSFERS_PER_AGENT_PER_DAY = 16.0 行/体/日(腕の無いランは 6.5 のまま)",
-   "why": "2-1。腕 on の 5,000 体 2 日の実測(0 日目 8.824・1 日目 5.402 行/体=初期の預金の 2 行・IC の運賃の 2 行・レジの税の行を含む)で 6.5 の輪は 38,630 行・13.5(1 日の最大の 1.5 倍)の輪も 3,630 行溢れた(保持窓 1 日の輪は前の日と今日の行を持つ=2 日の和の最大 14.226)。2 日の和の最大の 1.1 倍以上かつ 1 日の最大の 1.5 倍以上で置いた実測 1 本の値。版上げ 2 回目で既定の係数とまとめて決める",
+   "why": "2-1。腕 on の 5,000 体 2 日の実測(0 日目 8.824・1 日目 5.402 行/体=初期の預金の 2 行・IC の運賃の 2 行・レジの税の行を含む)で 6.5 の輪は 38,630 行・13.5(1 日の最大の 1.5 倍)の輪も 3,630 行溢れた(保持窓 1 日の輪は前の日と今日の行を持つ=2 日の和の最大 14.226)。2 日の和の最大の 1.1 倍以上かつ 1 日の最大の 1.5 倍以上で置いた実測 1 本の値。版上げ 2 回目で既定の係数とまとめて決める〔第 2 期 2-4 V4・2026-10-14 外した=removed〕経済の段階 2 を既定 on にし、既定のランの係数を 16.0 行/体/日と予算の宣言(docs/design/v2-budget-declaration.md §3 の改訂の行)に書いた=つなぎではなく宣言の値になった(切替口 off は 6.5 のまま)。5,000 体の 2 日のランで溢れ 0(記録 vb24/README.md の V4)",
    "remove_at": "2-4",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "inferred",
    "code_at": [
     "src/shibuya/economy/stage2.py",
@@ -3762,12 +3762,12 @@
   {
    "id": "DOC-ec21-revenue-tax-inclusive",
    "what": "店の売上の写し pois.revenue は税込のまま(腕 on のときだけ帳簿の店の現金=税抜きと食い違う)",
-   "why": "2-1・検収 A6(親の判断)。写しは診断(RunResult.conserved の式が読む)。写しを税抜きにするには resolve の売上の写しの式を変える=段階 2 の行動の適用の段で",
+   "why": "2-1・検収 A6(親の判断)。写しは診断(RunResult.conserved の式が読む)。写しを税抜きにするには resolve の売上の写しの式を変える=段階 2 の行動の適用の段で〔第 2 期 2-4 V4・2026-10-14 外した=removed〕店の売上の写し pois.revenue を税抜きにした(engine/resolve.py の購入と食事が帳簿の行ごとのレジの税=Ledger.last_purchase_tax を引いて足す・RunResult.conserved の左辺から店から政府へ出たレジの税を引く=MoneyStage2.register_tax)。記録 docs/bench/analysis/wallbounce-1012/vb24/README.md の V4",
    "remove_at": "2-4",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "inferred",
    "code_at": [
     "src/shibuya/engine/resolve.py"
@@ -3775,9 +3775,9 @@
   },
   {
    "id": "DOC-ec21-uncaused-rows-arm-off",
-   "what": "原因の無い金の行の残り: 腕 off(既定)のランの購入・食事の行・組み立ての行(初期の財布・参入資本・初期の預金)・呼の控えの無い体の購入・食事の行(計器 economy.transfers_uncaused・腕 on は economy.stage2 の calls.purchase_uncaused)",
-   "why": "2-1・検収 A1(DOC-money-uncaused-rows を外した残り)。腕 off は結果不変のため意図に呼の id を付けない。組み立て(境界)の原因の名は語彙表に無い。腕を既定にする段で外す",
-   "remove_at": "2-4",
+   "what": "原因の無い金の行の残り: 組み立ての行(初期の財布・参入資本・初期の預金)・呼の控えの無い体の購入・食事の行(計器 economy.stage2 の calls.purchase_uncaused)・切替口 off のランの購入・食事の行(計器 economy.transfers_uncaused)。〔2-4 V4〕腕が既定になり、既定のランの購入と食事の行は原因 LlmCall(call_id)つき",
+   "why": "2-1・検収 A1(DOC-money-uncaused-rows を外した残り)。腕 off は結果不変のため意図に呼の id を付けない。組み立て(境界)の原因の名は語彙表に無い。腕を既定にする段で外す〔第 2 期 2-4 V4・親の判断待ち=仮〕腕を既定にしたので「腕 off のランの購入・食事の行」は切替口のランだけになった。組み立て(境界)の原因の名が語彙表に無いのは残る=外す段を 4-1(新しい人口に属性から作る関数をかけ直す段・最初の資産)に改めた(実装役の案)",
+   "remove_at": "4-1",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",

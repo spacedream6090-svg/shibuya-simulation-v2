@@ -446,8 +446,9 @@ def report(ctx: Any, b: Any) -> Any:
     result.money_end = int(agents.registry.money.astype(np.int64).sum())
     result.revenue_end = int(world.pois.revenue.astype(np.int64).sum())
     # 第 2 期 2-1: 経済の段階 2 の腕のラン=現金の外から入った額と現金を通らずに払った額(conserved の式の左辺に足す)
+    # 〔第 2 期 2-4 V4〕店の売上の写し pois.revenue は税抜き=店から政府へ出たレジの税を左辺から引く
     _s2 = getattr(getattr(ledger, "money", None), "stage2", None) if ledger is not None else None
-    result.money_stage2_in = int(_s2.cash_terms()) if _s2 is not None else 0
+    result.money_stage2_in = int(_s2.cash_terms()) - int(_s2.register_tax()) if _s2 is not None else 0
     result.min_stock = int(world.pois.stock.min()) if world.n_poi else 0
 
     # ---- 状態成長宣言の検査(D-R2-6) ----

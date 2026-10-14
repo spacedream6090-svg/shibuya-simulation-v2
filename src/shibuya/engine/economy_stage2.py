@@ -1,8 +1,9 @@
 """engine.economy_stage2 — 経済の段階 2 の腕と engine の側の組み立て(第 2 期 2-1・CP2 の段階 2)。
 
-腕(切替口): ``--economy-stage2 {off,on}``(環境変数 ``SHIBUYA_ECONOMY_STAGE2``・:func:`set_arm`)。既定 ``off``=何も
-作らない(final・帳簿・台帳の行は今のまま)。``on`` で部品(``--economy-stage2-parts``・環境変数
-``SHIBUYA_ECONOMY_STAGE2_PARTS``・既定=全部 ``wages,withdraw,payment,tax,visitors``)を 1 つずつ測れる。腕は組み立ての
+腕(切替口): ``--economy-stage2 {off,on}``(環境変数 ``SHIBUYA_ECONOMY_STAGE2``・:func:`set_arm`)。〔第 2 期 2-4 V4・
+版上げ 2 回目〕既定は ``on``(:data:`DEFAULT_ARM`)。``off``=2-1 までの既定(何も作らない=帳簿・台帳の行は 2-4 より前の
+まま)=**切替口**(旧値の再現)。部品(``--economy-stage2-parts``・環境変数 ``SHIBUYA_ECONOMY_STAGE2_PARTS``・既定=全部
+``wages,withdraw,payment,tax,visitors``)を 1 つずつ止められる。腕は組み立ての
 ときに読む(ランの途中で変えても、そのランは変わらない)。``run_day`` の引数でも設定の指紋でもない(出来事の記録・記憶の器・
 候補の口の腕と同じ扱い)。腕と部品は manifest の ``economy.stage2`` に出る。
 
@@ -45,7 +46,7 @@ import numpy as np
 from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, NS_PER_SECOND, SECONDS_PER_MINUTE
 
 __all__ = [
-    "ARM_OFF", "ARM_ON", "ARMS", "PARTS", "arm", "set_arm", "parts", "set_parts", "parse_parts", "active_parts",
+    "ARM_OFF", "ARM_ON", "ARMS", "DEFAULT_ARM", "PARTS", "arm", "set_arm", "parts", "set_parts", "parse_parts", "active_parts",
     "WITHDRAW_WORD", "PAYMENT_NOTE", "CAUSE_NAMES", "PAYDAY_DAY_OF_MONTH", "OSM_TAGS_RELPATH", "OSM_HOURS_RELPATH",
     "ORIGIN_LATLON", "M_PER_DEG_LAT", "M_PER_DEG_LON", "CELL_M", "AtmTable", "parse_opening_hours",
     "build_atm_table", "set_atm_table", "Stage2Plan", "weekly_work_hours", "attach", "money_stage2",
@@ -77,7 +78,9 @@ M_PER_DEG_LAT: Final[float] = 111132.9
 M_PER_DEG_LON: Final[float] = 111320.0 * math.cos(math.radians(ORIGIN_LATLON[0]))
 CELL_M: Final[float] = 100.0
 
-_ARM: str = os.environ.get("SHIBUYA_ECONOMY_STAGE2", ARM_OFF).strip().lower() or ARM_OFF
+#: 〔第 2 期 2-4 V4〕既定の腕(版上げ 2 回目で on に)。``off`` は切替口(2-1 までの値の再現)。
+DEFAULT_ARM: Final[str] = ARM_ON
+_ARM: str = os.environ.get("SHIBUYA_ECONOMY_STAGE2", DEFAULT_ARM).strip().lower() or DEFAULT_ARM
 if _ARM not in ARMS:
     raise ValueError(f"SHIBUYA_ECONOMY_STAGE2 は {ARMS} のどれか(いま {_ARM!r})")
 
@@ -136,7 +139,7 @@ def header_fields(plan: Any) -> dict[str, Any] | None:
     return {"arm": ARM_ON, "parts": list(plan.parts)}
 
 
-def check_resume(saved: Any) -> None:
+def check_resume(saved: Any, *, effective: bool = True) -> None:
     """〔検収 A5〕再開のときに、保存したランの腕と部品(見出しの ``economy_stage2``・無ければ off)と今の腕が同じかを
     確かめる(違えば止める)。腕は設定の指紋に入れない(``run_day`` の引数ではない)ので指紋の検査では見つからない=ここで
     見る(2-2 の近接の腕と同じ形)。
@@ -144,9 +147,12 @@ def check_resume(saved: Any) -> None:
     s = saved if isinstance(saved, Mapping) else {}
     s_arm = str(s.get("arm", ARM_OFF))
     s_parts = tuple(str(p) for p in s.get("parts", ()))
-    now_parts = tuple(p for p in PARTS if p in active_parts())
-    if s_arm != _ARM or (_ARM == ARM_ON and s_parts != now_parts):
-        raise ValueError(f"再開の経済の段階 2 の腕が親と違う(親 arm={s_arm} parts={list(s_parts)}・今 arm={_ARM} "
+    # 〔第 2 期 2-4 V4〕既定が on になった=金の台帳が無いラン(``run_day`` を台帳なしで直に呼ぶ試験の合成の世界)は腕 on でも
+    # 段階 2 を挿さない(``attach`` が None)=見出しに書かない=効いている腕は off。``effective`` は組み立てが渡す(台帳の有無)。
+    now_arm = _ARM if effective else ARM_OFF
+    now_parts = tuple(p for p in PARTS if p in active_parts()) if now_arm == ARM_ON else ()
+    if s_arm != now_arm or (now_arm == ARM_ON and s_parts != now_parts):
+        raise ValueError(f"再開の経済の段階 2 の腕が親と違う(親 arm={s_arm} parts={list(s_parts)}・今 arm={now_arm} "
                          f"parts={list(now_parts)})=--economy-stage2・--economy-stage2-parts(環境変数 "
                          "SHIBUYA_ECONOMY_STAGE2・SHIBUYA_ECONOMY_STAGE2_PARTS)を親にそろえる")
 

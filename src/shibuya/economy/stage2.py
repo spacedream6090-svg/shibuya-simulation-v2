@@ -223,6 +223,9 @@ class MoneyStage2:
         #: 答え(-1=答えなし・0=現金・1=口座)。着いて実行する意図・列から席へ入った体の支払いも同じ呼を原因にする。
         self.last_call = np.full(n, None, dtype=object)
         self.pay_answer = np.full(n, -1, dtype=np.int8)
+        #: 〔第 2 期 2-4 V4〕直前の ``purchase`` の行ごとのレジの税[円](店 → 政府へ移せた額・ほかは 0)。``resolve`` が店の売上の
+        #: 写し ``pois.revenue`` を税抜きにするのに読む(``Ledger.last_purchase_tax``)。中身だけ変わる箱(組み立ての後は封じる)。
+        self._last_tax: dict[str, np.ndarray] = {"rows": np.zeros(0, dtype=np.int64)}
         for a in (self.kinds, self.daily, self.visitor, self.monthly_hours):
             a.setflags(write=False)
         object.__setattr__(self, "_sealed", True)
@@ -368,6 +371,8 @@ class MoneyStage2:
         s = np.asarray(stores, dtype=np.int64).ravel()
         a = np.asarray(amounts, dtype=np.int64).ravel()
         out = np.full(b.size, int(TransferStatus.OK), dtype=np.int8)
+        last_tax = np.zeros(b.size, dtype=np.int64)
+        self._last_tax["rows"] = last_tax
         if b.size == 0:
             return out
         acct = self._methods(ledger, b, a) if self.part("payment") else np.zeros(b.size, dtype=bool)
@@ -393,7 +398,19 @@ class MoneyStage2:
                                                      cause=self._cause("register")))
                 paid = st == int(TransferStatus.OK)
                 self._add("tax", rows=int(paid.sum()), amount=int(tax[keep][paid].sum()))
+                last_tax[np.flatnonzero(ok)[keep][paid]] = tax[keep][paid]  # 〔2-4 V4〕行ごとの移せた税
         return out
+
+    def last_purchase_tax(self, n: int) -> np.ndarray:
+        """〔第 2 期 2-4 V4〕直前の :meth:`purchase` の行ごとのレジの税[円](行の数 ``n`` と合わなければ止める)。"""
+        rows = self._last_tax["rows"]
+        if rows.size != int(n):
+            raise RuntimeError(f"直前の購入の行の数が違う({rows.size} ≠ {int(n)})")
+        return rows
+
+    def register_tax(self) -> int:
+        """〔第 2 期 2-4 V4〕ランの積算のレジの税[円](店 → 政府)。店の売上の写しは税抜き=``RunResult.conserved`` の左辺から引く。"""
+        return int(self.s2_meter["run"]["tax"]["amount"])
 
     def pay_fares(self, ledger: Any, riders: np.ndarray, fare: int, step: int, *, cause: Any = None) -> np.ndarray:
         """運賃(世帯 → 外界・持ち出し)。IC(口座)が既定・口座が足りなければ現金。行ごとの状態。"""

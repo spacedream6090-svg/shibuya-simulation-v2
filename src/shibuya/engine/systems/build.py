@@ -356,7 +356,8 @@ def build(_call_args: dict[str, Any]) -> Any:
         # 突き合わせる
         from shibuya.engine import economy_stage2 as _ES2R
 
-        _ES2R.check_resume(_h.get("economy_stage2"))
+        _ES2R.check_resume(_h.get("economy_stage2"),  # 〔2-4 V4〕金の台帳が無いランは腕 on でも挿さない=off と同じ
+                           effective=ledger is not None and hasattr(getattr(ledger, "money", None), "attach_stage2"))
         # 〔第 2 期 2-4 V3〕在席の印の腕も設定の指紋に入れない=見出しの seat_release(無ければ legacy)と今の腕を突き合わせる
         from shibuya.engine import seat_release as _SRR
 

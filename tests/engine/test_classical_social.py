@@ -35,7 +35,7 @@ CLASSICAL_1500_GOLDEN_ACQ_BY_ENV = {
     # 下の *_PRE10E は旧い世界の資産で録った値=旧資産を読む切替口(エンジン側 B1)で再現する(張り替えない)。
     # 〔改訂(第330・ACT)〕版上げ 1 回目の活性化(暦の一本化・既定の開始日 2026-07-13・影 6 日)で動いた。
     # B6build(構築側の最後の版)の値は e9ef51cc…6b8d07/26,043。
-    GE.PLATFORM_10F: ("92179becdd6a2ec90daede8d37d45c2fb7147dc9cf62dd5f0d7245f5c787738a", 24_793),  # 〔2-4 V1〕前 78399f8cedec1c62518b86d600200537f67b532a8500e337feebc17469e48b41 / 25_082  # 〔2-4 V3〕前 faeacf8cff1f1faec7e0649e6cb569d90b3aba20219cea8e97947c0b4e73db4b / 24_813
+    GE.PLATFORM_10F: ("87f051103976be282b5ef5af477bfa015498a014982cef0038cbc8fac799cb84", 24_793),  # 〔2-4 V1〕前 78399f8cedec1c62518b86d600200537f67b532a8500e337feebc17469e48b41 / 25_082  # 〔2-4 V3〕前 faeacf8cff1f1faec7e0649e6cb569d90b3aba20219cea8e97947c0b4e73db4b / 24_813  # 〔2-4 V4〕前 92179becdd6a2ec90daede8d37d45c2fb7147dc9cf62dd5f0d7245f5c787738a
 }
 #: 〔第330・RET〕10e より前の値 ``CLASSICAL_1500_GOLDEN_ACQ_PRE10E``(4f78f3c0…ec00a / 25,808=切替口 hash full・rng stateful・
 #: 旧資産・暦で再現した=ACT の commit で通った)は切替口と一緒に消した。

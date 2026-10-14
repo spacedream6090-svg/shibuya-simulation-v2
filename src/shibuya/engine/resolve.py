@@ -2318,13 +2318,16 @@ def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
             buyers, bought, paid = buyers[fits], bought[fits], paid[fits]
             if buyers.size == 0:
                 return
+    # 〔第 2 期 2-4 V4〕レジの税(段階 2 の税の部品が動くランだけ・ほかは 0)=店の売上の写しは税抜き
+    tax = np.zeros(buyers.size, dtype=np.int64)
     if led is not None and led.money is not None:
         status = led.money.purchase_many(buyers, bought, paid, tick)
+        tax = _purchase_tax(led.money, buyers.size)
         ok = np.asarray(status) == 0
         if not ok.all():
             _fail(agents, buyers[~ok], ResultCode.MONEY_SHORT, tick, out)
             out.n_ledger_rejected += int((~ok).sum())
-            buyers, bought, paid = buyers[ok], bought[ok], paid[ok]
+            buyers, bought, paid, tax = buyers[ok], bought[ok], paid[ok], tax[ok]
             if buyers.size == 0:
                 return
     else:
@@ -2349,7 +2352,7 @@ def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
         if not sold.all():
             _fail(agents, buyers[~sold], ResultCode.OUT_OF_STOCK, tick, out)
             out.n_ledger_rejected += int((~sold).sum())
-            buyers, bought, paid = buyers[sold], bought[sold], paid[sold]
+            buyers, bought, paid, tax = buyers[sold], bought[sold], paid[sold], tax[sold]
             if buyers.size == 0:
                 return
         world.pois.stock[bought] = led.goods.aggregate_stock(bought).astype(
@@ -2359,7 +2362,8 @@ def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
         _require_thawed(world, world.pois.stock)
         np.add.at(world.pois.stock, bought, -1)
     _require_thawed(world, world.pois.revenue)
-    np.add.at(world.pois.revenue, bought, paid)
+    net = paid - tax  # 〔第 2 期 2-4 V4〕税抜き(税の無いランは paid と同じ)
+    np.add.at(world.pois.revenue, bought, net)
     r.holdings[buyers] = np.minimum(r.holdings[buyers].astype(np.int16) + 1, 255).astype(np.uint8)
     if out.energy is None:
         r.hunger[buyers] = np.maximum(
@@ -2378,7 +2382,7 @@ def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
     # 購入の件数は**台帳が通した行だけ**(支払いを却下された行・棚から出なかった行は数えない=
     # 第288 #54 の残りの過大計数の修正。以前は台帳の前の人数を数えていた)。
     out.n_purchases += int(buyers.size)
-    out.revenue_delta += int(paid.sum())
+    out.revenue_delta += int(net.sum())
     if out.track_visits:  # 4 段目(M13): 成立した行だけ(台帳が通した行)
         out.visit_agents.append(np.asarray(buyers, dtype=np.int64).copy())
         out.visit_pois.append(np.asarray(bought, dtype=np.int64).copy())
@@ -2440,24 +2444,36 @@ def _apply_eat(agents, world, aid, tgt, tick, out, schedule) -> None:
     _complete_eat(agents, world, aid[win], poi[win], price[win], tick, out)
 
 
+def _purchase_tax(money: Any, n: int) -> np.ndarray:
+    """〔第 2 期 2-4 V4〕直前の ``purchase_many`` の行ごとのレジの税(``Ledger.last_purchase_tax``)。口の無い金の台帳
+    (試験の偽の台帳・段階 2 より前の形)は 0=売上の写しは支払いのまま。"""
+    fn = getattr(money, "last_purchase_tax", None)
+    if fn is None:
+        return np.zeros(int(n), dtype=np.int64)
+    return np.asarray(fn(int(n)), dtype=np.int64)
+
+
 def _complete_eat(agents, world, eaters, shops, paid, tick, out) -> None:
     """食事の完了(支払い・空腹・在店の登録)。``_apply_eat`` の後半を D-113 ③ で関数に
     切り出した(列から席へ入れた体にも同じ完了を使う)。挙動は不変。"""
     r = agents.registry
     led = out.ledger
+    tax = np.zeros(eaters.size, dtype=np.int64)  # 〔第 2 期 2-4 V4〕レジの税(税の部品が動くランだけ)
     if led is not None and led.money is not None:
         status = led.money.purchase_many(eaters, shops, paid, tick)
+        tax = _purchase_tax(led.money, eaters.size)
         ok = np.asarray(status) == 0
         if not ok.all():
             _fail(agents, eaters[~ok], ResultCode.MONEY_SHORT, tick, out)
             out.n_ledger_rejected += int((~ok).sum())
-            eaters, shops, paid = eaters[ok], shops[ok], paid[ok]
+            eaters, shops, paid, tax = eaters[ok], shops[ok], paid[ok], tax[ok]
             if eaters.size == 0:
                 return
     else:
         r.money[eaters] = (r.money[eaters].astype(np.int64) - paid).astype(np.int32)
     _require_thawed(world, world.pois.revenue)
-    np.add.at(world.pois.revenue, shops, paid)
+    net = paid - tax  # 〔第 2 期 2-4 V4〕税抜き(税の無いランは paid と同じ)
+    np.add.at(world.pois.revenue, shops, net)
     if out.energy is None:
         r.hunger[eaters] = np.maximum(
             r.hunger[eaters].astype(np.int16) - EAT_HUNGER_RELIEF, 0
@@ -2476,7 +2492,7 @@ def _complete_eat(agents, world, eaters, shops, paid, tick, out) -> None:
         out.visit_agents.append(np.asarray(eaters, dtype=np.int64).copy())
         out.visit_pois.append(np.asarray(shops, dtype=np.int64).copy())
     out.meal_yen += int(paid.sum())
-    out.revenue_delta += int(paid.sum())
+    out.revenue_delta += int(net.sum())
     _ok(agents, eaters, tick, out)
 
 

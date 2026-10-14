@@ -176,6 +176,9 @@ def _config_names() -> list[str]:
 def test_nineteen_configs_stay_under_the_coefficient(name):
     """byte-check の 19 構成(世界資産・**5,000 体**・1 日)ごとに、行/体/日 < 6.5(K17 の係数)と溢れ 0 件。
 
+    〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=既定のランの係数は段階 2 の 16.0(5,000 体の輪 80,000 行)。
+    行/体/日 < 16.0 と溢れ 0 件を見る(切替口 off の 6.5 は 2-1 の記録と ``test_5k_default_day_does_not_overflow``)。
+
     検収 L2: 前は 300 体で回していた=行(約 3,300)が輪の下限 16,384 行に遠く届かず「溢れ 0」は必ず成り立った(空振り)。
     300 体では店の参入資本の行(POI ごとに 1 行=2,337 行・体の数に依らない)が行/体/日を押し上げる(下限が受け持つ)ので、
     係数の確かめは体の行が支配する 5,000 体で行う(1 構成 約 40〜60 秒)。
@@ -184,19 +187,27 @@ def test_nineteen_configs_stay_under_the_coefficient(name):
 
     assert len(_config_names()) == 19
     kw = _wave2().configs()[name]
+    from shibuya.economy import stage2 as S2
+
     res = cli.run(n_agents=5_000, seed=1, world_dir="data/world/v2", **kw)
     eco = res.run_manifest_fields()["economy"]
-    assert eco["raw_capacity"] == 32_500 and eco["raw_overflow"] == 0, (name, eco)
-    assert 0 < eco["transfers_total"] / 5_000 < LED.TRANSFERS_PER_AGENT_PER_DAY, (name, eco)
+    assert eco["raw_capacity"] == 80_000 and eco["raw_overflow"] == 0, (name, eco)  # 〔2-4 V4〕前 32_500(6.5)
+    assert 0 < eco["transfers_total"] / 5_000 < S2.STAGE2_TRANSFERS_PER_AGENT_PER_DAY, (name, eco)
     assert eco["transfers_total"] <= eco["raw_capacity"]
 
 
 @pytest.mark.slow
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")
-def test_5k_default_day_does_not_overflow():
-    """5,000 体の既定 v3 の 1 日: 実測の行/体/日は 6.5 未満=溢れ 0 件(HEAD の 3.0 では 3,978 行が落ちていた)。"""
-    from shibuya import cli
+def test_5k_default_day_does_not_overflow(monkeypatch):
+    """5,000 体の既定 v3 の 1 日: 実測の行/体/日は 6.5 未満=溢れ 0 件(HEAD の 3.0 では 3,978 行が落ちていた)。
 
+    〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=係数 6.5 は切替口 off のランの値=off で見る(既定 on の 16.0 は
+    ``test_nineteen_configs_stay_under_the_coefficient``)。
+    """
+    from shibuya import cli
+    from shibuya.engine import economy_stage2 as ES2
+
+    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)
     res = cli.run(n_agents=5_000, seed=1, world_dir="data/world/v2", vocab_version="v3")
     eco = res.run_manifest_fields()["economy"]
     assert eco["raw_capacity"] == 32_500 and eco["raw_overflow"] == 0

@@ -122,6 +122,8 @@ DEFAULT_RETENTION_DAYS: Final[int] = 1
 #: 1 体あたりの想定 transfer 行数/日(成長宣言の係数・輪の容量の係数)。
 #: 〔1-9・K17=回答 10-13b §3〕3.0 → **6.5**(実測 4.07 行/体/日=10b-prep #20 の 1.5 倍以上=6.105 以上)。
 #: 実測の値は 5,000 体 mock 1 日の 1 本だけ=係数そのものは expedient(39 万体の実測は無い)。
+#: 〔第 2 期 2-4 V4〕経済の段階 2 を既定 on にしたので、既定のランの係数は ``economy.stage2.STAGE2_TRANSFERS_PER_AGENT_PER_DAY``
+#: (16.0・``cli.build_ledger_bundle`` が渡す)。この値は切替口 off のランと係数を渡さない台帳の組み立ての既定。
 TRANSFERS_PER_AGENT_PER_DAY: Final[float] = 6.5
 #: K17 の根拠の実測(5,000 体 mock 1 日の生ログの行 ÷ 体数)と余裕の倍率(宣言の下限=実測 × 倍率)。
 MEASURED_TRANSFERS_PER_AGENT_DAY: Final[float] = 4.07
@@ -706,6 +708,16 @@ class Ledger:
             int(Sector.HOUSEHOLD), buyers, int(Sector.STORE), stores,
             amounts, int(AccountCode.CONSUMPTION), tick, cause=cause,
         )
+
+    def last_purchase_tax(self, n: int) -> np.ndarray:
+        """〔第 2 期 2-4 V4〕直前の :meth:`purchase_many` の行ごとのレジの税[円](段階 2 が購入を委ねられたランだけ・ほかは 0)。
+
+        ``engine.resolve`` が店の売上の写し ``pois.revenue`` を税抜きにするのに読む(帳簿の店の現金は税を政府へ移した後の額)。
+        """
+        s2 = self.stage2
+        if s2 is None or not s2.handles_purchase:
+            return np.zeros(int(n), dtype=np.int64)
+        return s2.last_purchase_tax(int(n))
 
     def endow_households(self, amounts: np.ndarray, tick: int = 0, *, cause=None) -> np.ndarray:  # noqa: ANN001
         """初期財布(外界→世帯・来街者持込)。**直接代入ではなく transfer**(ex nihilo 禁止)。

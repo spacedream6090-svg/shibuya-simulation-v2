@@ -443,3 +443,129 @@ V2(cell → distance):
 | `tests/engine/test_env_and_sections_10f.py` | rel_v2 | `68_213` | `67_780` |
 
 - 写しの木で関係する試験: `-m "not gpu"`(slow を含む)・`-n 10`・張り替えた golden の 7 ファイル+近接・知覚・処理・CLI・複数日・再開・系の表ほか 17 の場所 = **1,060 passed・5 failed・1 skipped**(12 分 23 秒)。落ちた 5 本は系の表の宣言(`tests/engine/systems/test_systems_table.py::test_d1_d3_code_matches_the_declaration` の phase_c・day_close・drain・close_final・report=新しい `cfg.seat_release` の読みが宣言に無い)→ `src/shibuya/engine/systems/table.py` の 5 つの系の `reads` に `cfg.seat_release` を足した(**V3 のスナップショットに後から足した**)→ `tests/engine/systems` **129 passed**
+
+## V4 経済の段階 2 を既定に(`--economy-stage2` の既定 off → on・部品 5 つ全部)
+
+### V4-1 変えたこと
+
+| ファイル | 何を |
+|---|---|
+| `src/shibuya/engine/economy_stage2.py` | `DEFAULT_ARM = ARM_ON`・環境変数 `SHIBUYA_ECONOMY_STAGE2` の既定を `DEFAULT_ARM` に・docstring。`off` は**切替口**(2-1 までの既定=旧値の再現)。再開の腕の検査を「効いている腕」で見る(`check_resume(…, effective=)`=金の台帳の無いラン=台帳なしの `run_day` は腕 on でも段階 2 を挿さない=見出しに書かない=off と同じ・§V4-5 の発見) |
+| `src/shibuya/engine/systems/build.py` | 再開の検査に `effective`(金の台帳があるか)を渡す |
+| `src/shibuya/cli.py` | ランの種類は経済の段階 2 の腕も既定(on)と違えば腕(2-1 では数えていなかった)・`--economy-stage2` の説明・輪の係数の注 |
+| **`pois.revenue` を税抜きに**: `src/shibuya/economy/stage2.py`・`economy/ledger.py`・`engine/resolve.py`・`engine/systems/report.py` | `MoneyStage2.purchase` が行ごとに店 → 政府へ移せたレジの税を控え(`last_purchase_tax`・中身だけ変わる箱=組み立ての後の封じは今のまま)、`Ledger.last_purchase_tax(n)` が委ねる(段階 2 が購入を委ねられないランは 0)。`resolve._apply_buy`・`_complete_eat` は店の売上の写しに `支払い − 税` を足す(`revenue_delta` も税抜き・`meal_yen` は税込のまま)。`RunResult.conserved` の左辺は `money_stage2_in = cash_terms() − register_tax()`(店から政府へ出たレジの税を引く)。つなぎの台帳 `DOC-ec21-revenue-tax-inclusive` を removed |
+| 輪の係数(予算の宣言) | 既定のランは段階 2 の値 **16.0 行/体/日**(`cli.build_ledger_bundle` が腕 on のランに渡す=2-1 のまま)。`docs/design/v2-budget-declaration.md` §3 に改訂の行(5,000 体 80,000 行・39 万体 6,241,072 行=224.7 MB・金と物の輪の合計 約 246.6 MB=M8 の約 1.0%)・`economy/ledger.py` の係数の注。切替口 off は 6.5 のまま。つなぎの台帳 `DOC-ec21-ring-coefficient` を removed |
+| `docs/design/bridging-ledger.json` | 上の 2 行を removed・`DOC-ec21-uncaused-rows-arm-off` を狭めた(既定のランの購入と食事の行は原因つき・残るのは組み立ての行と呼の控えの無い体の行と切替口 off のラン)・外す段 2-4 → **4-1**(実装役の案=仮)。active 338 → 336 |
+| 試験 | §V4-6 |
+
+- 給与の天引きは器のまま(`payroll_deductions`=規則の表に行が無い=0・4-2)。
+- **宣言(W17 の勤務の時間)**: 賃金は W17 の「勤務」の時間 × 最低賃金で、雇用の行の体の月 38 時間(中央値 39.7 時間)=現実の 1/4 程度の見込み(ec21 §11 の 3・月の時間の出どころは判断待ち)=既定にした賃金の額は現実の 1/4 のまま。
+
+### V4-2 動いた量(19 構成・前=V3・後=V4・1 日=2026-07-13 は給料日でない)
+
+比べ: [v4_vs_v3.json](v4_vs_v3.json)。**19/19 構成で final が動いた**(呼数は 13 構成で同じ)。`frozen_sources`・暦・顕著行為・出動は同じ。
+
+| 構成 | 前 final / 呼数 | 後 final / 呼数 | 呼数の差 | 気づいた延べ | 食事 | 行動の件数 | blocks の行 | 動いた欄 |
+|---|---|---|---|---|---|---|---|---|
+| w6_v3_default | `f6488d4d5eadf5ca` / 64,526 | `b8eadcb51e8705e7` / 64,528 | +2 | 332 → 181 | 4,447 → 4,434 | 295,063 → 295,410 | 7,657 → 7,646 | 15/25 |
+| w6_v3_activity_off | `35cc3ce57f604a0c` / 50,033 | `c88ba9104f45f897` / 50,006 | -27 | 802 → 804 | 3,294 → 3,299 | 172,664 → 172,498 | 2,441 → 2,428 | 14/25 |
+| w6_v1_default | `2d327566a182139d` / 51,655 | `e1288e092ddaca86` / 51,655 | +0 | 620 → 620 | 0 → 0 | 183,345 → 183,345 | 2,442 → 2,440 | 7/25 |
+| w6_v1_derive_v2_1 | `317e9dd18767373c` / 44,807 | `cfbba0d504a27aa7` / 44,807 | +0 | 741 → 741 | 0 → 0 | 162,504 → 162,504 | 2,162 → 2,162 | 5/25 |
+| w6_v2 | `1698f1b7cddc92dd` / 51,266 | `c186b380ae65cb86` / 51,266 | +0 | 406 → 406 | 2,052 → 2,052 | 170,110 → 170,110 | 2,309 → 2,309 | 5/25 |
+| w6_v1_edge | `5ed1bb6f37bf1b68` / 46,054 | `d1c56f85847c21db` / 46,054 | +0 | 546 → 546 | 0 → 0 | 94,791 → 94,791 | 2,287 → 2,287 | 5/25 |
+| w6_v2_edge | `9f89b1a7be01ac12` / 46,655 | `948b975a2ab74231` / 46,655 | +0 | 482 → 482 | 1,870 → 1,870 | 91,383 → 91,383 | 2,173 → 2,173 | 5/25 |
+| w6_v1_edge_plateau | `c13ff90acb300aae` / 47,871 | `ff8fc6b562622640` / 47,871 | +0 | 468 → 468 | 0 → 0 | 98,038 → 98,038 | 2,331 → 2,331 | 5/25 |
+| w6_old_v1_default | `71d0e6720220f45a` / 51,655 | `78b6fec6036b2438` / 51,655 | +0 | 620 → 620 | 0 → 0 | 183,345 → 183,345 | 2,438 → 2,436 | 7/25 |
+| w6_old_v1_derive_v2_1 | `34c53e6e19f7d6f2` / 44,807 | `f647f0483ef3d7ca` / 44,807 | +0 | 741 → 741 | 0 → 0 | 162,504 → 162,504 | 2,158 → 2,158 | 5/25 |
+| w6_old_v2 | `c0788c5c8a3f4f3f` / 51,266 | `9d8a34ee545f484a` / 51,266 | +0 | 406 → 406 | 2,052 → 2,052 | 170,110 → 170,110 | 2,306 → 2,306 | 5/25 |
+| w6_old_v1_edge | `1d15972ddcc39130` / 46,054 | `245b2fdb8aa229ef` / 46,054 | +0 | 546 → 546 | 0 → 0 | 94,791 → 94,791 | 2,281 → 2,281 | 5/25 |
+| w6_old_v2_edge | `47f422bfb758e934` / 46,655 | `2fb54c9ad562faca` / 46,655 | +0 | 482 → 482 | 1,870 → 1,870 | 91,383 → 91,383 | 2,170 → 2,170 | 5/25 |
+| w6_old_v1_edge_plateau | `780236fe3706f4f1` / 47,871 | `dd66261d71c4d6ae` / 47,871 | +0 | 468 → 468 | 0 → 0 | 98,038 → 98,038 | 2,327 → 2,327 | 5/25 |
+| w6_golden_null_arm | `5c8db46f50eb0945` / 96,695 | `19ee17b1b1caf44c` / 96,695 | +0 | 1,293 → 1,293 | 0 → 0 | 289,561 → 289,561 | 3,428 → 3,427 | 7/25 |
+| v3_mem_store | `017e0f95bf0c5685` / 64,526 | `a9f6f9f0adb3f9a4` / 64,528 | +2 | 332 → 181 | 4,447 → 4,434 | 295,063 → 295,410 | 7,657 → 7,646 | 15/25 |
+| v3_mem_rel | `4a0db59663ef0d7b` / 67,780 | `768b2262e3b0999e` / 67,794 | +14 | 470 → 486 | 4,447 → 4,479 | 300,105 → 300,390 | 7,992 → 7,969 | 15/25 |
+| v3_classical | `dc5ba0f6645aa13e` / 93,017 | `ca25874a5e4acb79` / 93,017 | +0 | 922 → 922 | 9,282 → 9,282 | 432,738 → 432,738 | 8,444 → 8,444 | 5/25 |
+| v3_classical_mem_rel | `ee4769e87e070519` / 105,394 | `9dd9d5684891b57c` / 105,363 | -31 | 939 → 939 | 9,760 → 9,764 | 466,658 → 466,666 | 8,739 → 8,727 | 13/25 |
+| 呼数の合計 | 1,118,587 | 1,118,547 | -40 | | | | | |
+
+- 1 日のランで効くのは引き出し(ATM)・支払いの方法(現金/口座)・IC の運賃・レジの税・来街者の口座と、税抜きの売上の写し(`pois.revenue` は behavior-hash の列)。呼数の差は財布の残りで変わる行為の成否(口座の購入・引き出し)から(推測)。
+
+### V4-3 切替口 off で V3 の値が再現する(4 構成)
+
+`SHIBUYA_ECONOMY_STAGE2=off` の 4 構成は **V3 と 25 欄とも同じ**=[v4off_vs_v3.json](v4off_vs_v3.json)。
+
+### V4-4 2 日のラン(財布の推移・残差 0・溢れ)
+
+ec21 の道具 [stage2_two_day.py](../ec21/tools/stage2_two_day.py) をそのまま(活性化の資産・5,000 体・seed 1・語彙 v3・2026-08-24(月)→ 25 日=給料日・近接 distance・在席 walk=V2・V3 の既定)=[v4_two_day.json](v4_two_day.json)。
+
+| 腕・部品 | final | 呼数 | 行/体/日(0・1 日目) | 溢れ | 保存則 残差 | 賃金(人・円) | 引き出し(回・円) | 口座の購入・食事(行・円) | IC(行) | 税(円) | 来街者の口座(体) | 世帯の現金の 1 体の増減(0・1 日目) | conserved |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| off | 7310d5ece7fac6fb | 143,273 | 4.098・2.076 | 0 | 0・0 | 0・0 | 0・0 | 0・0 | 0 | 0 | 0 | -1605.664・-1173.4 | True |
+| on(全部) | 21e62930e8e51822 | 143,744 | 8.591・5.418 | 0 | 0・0 | 2,392・112,838,004 | 455・6,855,000 | 19・17,900 | 7,193 | 1,147,351 | 1,042 | -733.976・-437.552 | True |
+| on − wages | 21e62930e8e51822 | 143,744 | 8.591・4.186 | 0 | 0・0 | 0・0 | 455・6,855,000 | 19・17,900 | 7,193 | 1,147,351 | 1,042 | -733.976・-437.552 | True |
+| on − withdraw | a3325f68dcd88c20 | 143,716 | 8.545・5.403 | 0 | 0・0 | 2,392・112,838,004 | 0・0 | 113・106,600 | 7,228 | 1,150,477 | 1,042 | -1487.94・-1042.56 | True |
+| on − payment | d21e1d73fe37fe4e | 143,687 | 7.888・4.668 | 0 | 0・0 | 2,392・112,838,004 | 474・7,202,000 | 0・0 | 0 | 1,146,232 | 1,042 | -822.108・-540.028 | True |
+| on − tax | e6ac94ee3c02a3d1 | 143,744 | 6.659・4.1 | 0 | 0・0 | 2,392・112,838,004 | 455・6,855,000 | 19・17,900 | 7,193 | 0 | 1,042 | -733.976・-437.552 | True |
+| on − visitors | 42b7ae4091e426be | 143,744 | 8.26・5.301 | 0 | 0・0 | 2,392・112,838,004 | 264・4,735,000 | 18・17,100 | 6,185 | 1,147,351 | 0 | -1042.656・-589.32 | True |
+
+- **財布**: 世帯の現金の 1 体あたりの増減は off(V3)−1,606・−1,173 円/日 → on(V4 の既定)−734・−438 円/日(ec21 の腕 on −736・−406 と同じ向き)。2 日で尽きる型は止まっていない(月の見込みは ec21 §0 のとおり=W17 の勤務の時間が短い)。
+- **残差**: 保存則の検算の残差は 7 本とも毎日 0・`RunResult.conserved` 真(店の売上の写しは税抜き・左辺からレジの税を引く)。
+- **溢れ**: 輪の係数 16.0(on)・6.5(off)とも 0。生ログの行は on で 0 日目 8.59・1 日目 5.42 行/体(2 日の和 14.0 < 16.0)。
+- 部品を 1 つ止めるとその流れが 0(on − wages は賃金 0・final は on と同じ=賃金は 2 日目の締めで払う=最後の checkpoint の後)。
+
+### V4-5 再開=通し・系ごとの指紋
+
+- **再開=通し**(5,000 体・2 日・日の境目・腕は今の既定=distance・walk・on): v3_mem_rel `31c9b19409e18b2f`(145,675 呼)・w6_v3_default `b346bb6e3ecc60af`(138,946 呼)とも **final と日の境目の後の checkpoint 4 点(behavior/full)が通しと同じ**=[v4_resume_v3_mem_rel.json](v4_resume_v3_mem_rel.json)・[v4_resume_w6_v3_default.json](v4_resume_w6_v3_default.json)(状態のファイルの見出しに `proximity`・`economy_stage2`・`seat_release` の 3 つの腕が載り、再開で今の腕と突き合わせる)
+- **見つけたこと(再開の腕の検査)**: 既定を on にすると、金の台帳なしで `run_day` を直に呼ぶ試験(合成の世界)の再開が「親 arm=off・今 arm=on」で止まった(`tests/engine/events/test_e_log_schema.py::test_resume_at_a_step_boundary_gives_the_same_ids`)。台帳が無いランは段階 2 を挿さない=見出しに書かない=効いている腕は off なのに、検査が腕の値だけを見ていたため。検査を「効いている腕」(台帳があるか)で見る形に直した(§V4-1)。試験 `tests/economy/stage2/test_stage2_default_2_4.py`。
+- 系ごとの指紋(切替口 off と既定 on・ec21 の道具を写しの木で): [v4_probe_systems.json](v4_probe_systems.json)。世界資産 300 体の 2 構成は最初の checkpoint(刻み 359=金の台帳の行と生ログ)と判断の系(刻み 360)から動く(初期の預金・口座の支払い・税の行)。合成の世界(台帳なしの `run_day`)は段階 2 を挿さない=0 系(V4-5 の「効いている腕」)。
+
+| 構成 | final 前 → 後 | 呼数 前 → 後 | 動いた系(最初に動いた刻み) |
+|---|---|---|---|
+| syn_mem_rel_store | `d5c5fde554f17dea` → `d5c5fde554f17dea` | 1,028 → 1,028 | 0 系: — |
+| real300_v3_default | `b3a584a0b0082c9c` → `3dfb30508605d14a` | 3,077 → 3,077 | 11 系: checkpoint(359)・decide(360)・phase_c(364)・world(600)・observe(1056)・apply_responses(1057) ほか 5 系 |
+| real300_v3_mem_rel | `1441c65a3728926a` → `5cb03e3afb3d00f7` | 3,084 → 3,084 | 12 系: checkpoint(359)・decide(360)・phase_c(364)・world(600)・memory(1056)・observe(1056) ほか 6 系 |
+
+### V4-6 試験
+
+- 写しの木で全体(`-m "not slow and not gpu" -n 10 --dist loadfile --ignore=tests/c7`・封印の錨の試験 1 ファイルを外した=§V1-7): **4,864 passed・8 failed・2 skipped・1 xfailed**(12 分 12 秒)。落ちた 8 本の行き先: (1) 試験の偽の金の台帳(`_FakeMoney`・`_PickyMoney`)に `last_purchase_tax` が無い 3 本 → `resolve._purchase_tax` が口の無い台帳では税 0(売上の写しは支払いのまま)にした (2) 台帳の配線の試験 3 本(`tests/engine/test_ledger_wiring.py`=段階 2 の外の C4 の帳簿)→ ファイルの頭で切替口 off (3) 退出の歩きの試験の保存則の手書きの式に段階 2 の項 `money_stage2_in` を足した (4) 既知の junction の 1 本(ab7)。ほかに合成の世界で 3 本(§V4-5 の再開の検査・段階 2 の保存則の左辺・1-9 の金の行と出来事の 1 対 1=切替口 off で見る)を作業木で見つけて直した。
+- 直した後の確かめ(写しの木): 落ちた試験のファイル+`tests/economy`+`tests/engine/events`+張り替えた golden のファイル(`-m "not gpu"`=slow を含む): **661 passed・22 failed**(14 分 3 秒)→ 22 本は slow の `tests/economy/cp2` の 2 ファイル(K17 の 19 構成=既定の係数は段階 2 の 16.0・5,000 体の 1 日の 6.5 と 1-9 の HEAD の写しとの同値=切替口 off で見る)→ 直して `tests/economy` の slow **26 passed**(2 分 29 秒)。
+- 新しい試験 `tests/economy/stage2/test_stage2_default_2_4.py`(4 本・data 不要): 既定の腕は on・切替口 off で部品が空・効いている腕で見る再開の検査(台帳なし/あり)・税の切り捨て・合成の世界のランの売上の写し=世帯 → 店の消費支出 − レジの税(保存則が通る)。
+
+- 張り替えた golden(V3 → V4)=下の表。
+
+| 試験のファイル | 構成(goldens_vb24 の名) | 前 | 後 |
+|---|---|---|---|
+| `tests/engine/test_presence_executor.py` | pe_null | `5c8db46f50eb0945` | `19ee17b1b1caf44c` |
+| `tests/engine/test_presence_executor.py` | pe_null_leave | `de42b93d55c91cb8` | `aac7b60677cb985d` |
+| `tests/engine/test_presence_executor.py` | pe_null_hv1 | `3cb80dcb0d5df613` | `c977ca9de2975f1a` |
+| `tests/engine/test_presence_executor.py` | pe_null_hv1 | `95_644` | `95_647` |
+| `tests/engine/test_presence_executor.py` | pe_null_l4x1 | `23d6397b39afb614` | `e539b7c8d5e60a0f` |
+| `tests/engine/test_presence_executor.py` | pe_v3 | `f6488d4d5eadf5ca` | `b8eadcb51e8705e7` |
+| `tests/engine/test_presence_executor.py` | pe_v3 | `64_526` | `64_528` |
+| `tests/engine/test_presence_executor.py` | pe_v3_leave | `da5e1a8ea8544881` | `2838430451abbac1` |
+| `tests/engine/test_presence_executor.py` | pe_v3_leave | `64_293` | `64_327` |
+| `tests/engine/test_presence_executor.py` | pe_v3_hv1 | `ed20b33a7e53864d` | `0776169f2d8f366a` |
+| `tests/engine/test_presence_executor.py` | pe_v3_hv1 | `64_338` | `64_223` |
+| `tests/engine/test_presence_executor.py` | pe_v3_l4x1 | `efd48de9c988cf6c` | `5d227b075985bd68` |
+| `tests/engine/test_presence_executor.py` | pe_v3_l4x1 | `36_244` | `36_225` |
+| `tests/engine/test_state_ledger_10b.py` | pe_v3 | `f6488d4d5eadf5ca` | `b8eadcb51e8705e7` |
+| `tests/engine/test_state_checks_10f.py` | pe_v3 | `f6488d4d5eadf5ca` | `b8eadcb51e8705e7` |
+| `tests/engine/test_intent_chooser.py` | q13_v3 | `6d0ad8b13125ea5a` | `66f0d41736514fa4` |
+| `tests/engine/test_intent_chooser.py` | q13_v3 | `36_246` | `36_146` |
+| `tests/engine/test_intent_chooser.py` | q13_null | `319e347ffe08946b` | `cee40ff700954d37` |
+| `tests/engine/proximity/test_runs.py` | prox_cell300 | `f1ec0336ef617de0…` | `ab5c9d9c0b40a263…` |
+| `tests/perception/test_near_tiebreak.py` | nt_hash | `e4185ac9f6901403…` | `4b3db260a5320a17…` |
+| `tests/perception/test_near_tiebreak.py` | nt_mid | `9a9dc58f833bdfd7…` | `c2a7d4823ef8acc1…` |
+| `tests/perception/test_near_tiebreak.py` | nt_old | `ee6d9b7b47b82618…` | `0a1ce7b6e5c750d6…` |
+| `tests/engine/test_classical_social.py` | cs_acq | `92179becdd6a2ec9…` | `87f051103976be28…` |
+| `tests/engine/test_relations_tenure.py` | rel_v1 | `d696dfa98390e830` | `a2beb00f254b219c` |
+| `tests/engine/test_relations_tenure.py` | rel_v1 | `67_830` | `67_780` |
+| `tests/engine/test_relations_tenure.py` | rel_v2 | `4a0db59663ef0d7b` | `768b2262e3b0999e` |
+| `tests/engine/test_relations_tenure.py` | rel_v2 | `67_780` | `67_794` |
+| `tests/engine/test_env_and_sections_10f.py` | pe_v3 | `f6488d4d5eadf5ca` | `b8eadcb51e8705e7` |
+| `tests/engine/test_env_and_sections_10f.py` | pe_v3 | `64_526` | `64_528` |
+| `tests/engine/test_env_and_sections_10f.py` | pe_null | `5c8db46f50eb0945` | `19ee17b1b1caf44c` |
+| `tests/engine/test_env_and_sections_10f.py` | rel_v1 | `d696dfa98390e830` | `a2beb00f254b219c` |
+| `tests/engine/test_env_and_sections_10f.py` | rel_v1 | `67_830` | `67_780` |
+| `tests/engine/test_env_and_sections_10f.py` | rel_v2 | `4a0db59663ef0d7b` | `768b2262e3b0999e` |
+| `tests/engine/test_env_and_sections_10f.py` | rel_v2 | `67_780` | `67_794` |

@@ -116,7 +116,10 @@ def test_all_parts_move_money_and_keep_the_books(on_run):
         c = d["economy"]["conservation"]
         assert c["ok"] is True and c["residual"] == 0 and c["unregistered"] == 0, c
         assert d["economy"]["flow_sum_ok"] is True and d["census_row"]["flow_ok"] is True
-    assert res.conserved and res.money_stage2_in == led.stage2.cash_terms() > 0
+    # 〔第 2 期 2-4 V4〕店の売上の写し pois.revenue は税抜き=保存則の左辺から店から政府へ出たレジの税を引く
+    assert res.conserved and led.stage2.cash_terms() > 0 and led.stage2.register_tax() == run["tax"]["amount"] > 0
+    assert res.money_stage2_in == led.stage2.cash_terms() - led.stage2.register_tax()
+    assert res.revenue_end == _flow(led, AccountCode.CONSUMPTION, H, S) - run["tax"]["amount"]  # 世帯 → 店の売上 − 税
     # 見張り: 財布と預金の分位(p10/p50/p90)が毎日・manifest に faucet/sink の表
     for d in m["daily"]:
         assert set(d["economy"]["stage2"]["wallet"]) == {"p10", "p50", "p90"}

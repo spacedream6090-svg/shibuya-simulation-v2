@@ -291,6 +291,8 @@ def build_ledger_bundle(
     # 第 2 期 2-1: 経済の段階 2 の腕(--economy-stage2 on)のランだけ、雇用主の口を W6 の組織の数にする(賃金=権利台帳の
     # 雇用の行の組織 → 世帯)。腕の無いランは今のまま 1 口(値は不変)。
     # 生ログの輪の係数も腕のランだけ段階 2 の値(K17 と同じ規則=実測の 1.5 倍以上・economy.stage2)。
+    # 〔第 2 期 2-4 V4〕既定は on=既定のランは雇用主の口が W6 の組織の数・輪の係数 16.0 行/体/日(予算の宣言 §3)。
+    # 切替口 off は 2-1 までのまま(1 口・6.5 行/体/日)。
     if _ES2.arm() == _ES2.ARM_ON:
         n_emp = LED.load_employers(world_dir).n if world_dir is not None else 1
         rate = S2.STAGE2_TRANSFERS_PER_AGENT_PER_DAY
@@ -487,7 +489,8 @@ def run(
         # 〔第 3 期 3-3〕申込書を渡したランは反実仮想(試験 > 反実仮想 > 腕 > 再現)
         run_kind = _RK.decide(arms_on=bool(arms) or _speech_layer.arm() != _speech_layer.ARM_OFF
                               or _proximity.arm() != _proximity.DEFAULT_MODE  # 〔2-4 V2〕既定は distance
-                              or _seat_release.arm() != _seat_release.DEFAULT_MODE,  # 〔2-4 V3〕既定は walk
+                              or _seat_release.arm() != _seat_release.DEFAULT_MODE  # 〔2-4 V3〕既定は walk
+                              or _ES2.arm() != _ES2.DEFAULT_ARM,  # 〔2-4 V4〕経済の段階 2 も(既定 on と違えば腕)
                               counterfactual=exp_form is not None)
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
@@ -1352,9 +1355,9 @@ def main(argv: list[str] | None = None) -> int:
         "--economy-stage2",
         choices=("off", "on"),
         default=None,
-        help="第 2 期 2-1 経済の段階 2 の腕(既定 off=今のまま・環境変数 SHIBUYA_ECONOMY_STAGE2 と同じ。指定すれば環境変数より"
+        help="第 2 期 2-1 経済の段階 2 の腕(〔2-4 V4〕既定 on・環境変数 SHIBUYA_ECONOMY_STAGE2 と同じ。指定すれば環境変数より"
              "強い)。on で賃金(給料日)・引き出し(ATM)・支払いの方法(現金/口座)・レジの消費税・来街者の口座を動かす"
-             "(manifest の economy.stage2 に出る・設定の指紋には入らない)",
+             "(manifest の economy.stage2 に出る・設定の指紋には入らない)。off=2-1 までの既定=切替口(旧値の再現)",
     )
     ap.add_argument(
         "--economy-stage2-parts",

@@ -256,7 +256,8 @@ def test_run_walk_mode_accounts_for_every_exit_and_leave_switch_reproduces_the_o
     pc = dict(walk.process_counters)
     assert pc["rail.boarded_plan_exit"] == ex["walk_boarded"]
     assert walk.fares_paid == int(FARE_YEN) * int(pc["rail.boarded_from_queue"])
-    assert walk.money_start == walk.money_end + walk.revenue_end + walk.fares_paid
+    # 〔第 2 期 2-4 V4〕経済の段階 2 が既定 on=左辺に段階 2 の項(現金の外から入った額−レジの税)を足す(RunResult.conserved の式)
+    assert walk.money_start + walk.money_stage2_in == walk.money_end + walk.revenue_end + walk.fares_paid
     again = cli.run(exit_mode="walk_to_platform", **kw)
     assert again.final_hash == walk.final_hash and again.llm_calls == walk.llm_calls
     imm = cli.run(**kw)

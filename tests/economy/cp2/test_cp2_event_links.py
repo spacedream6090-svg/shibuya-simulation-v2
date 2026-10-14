@@ -126,10 +126,16 @@ def test_restock_goods_row_shares_the_payment_event():
 
 
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")
-def test_run_rows_and_events_are_one_to_one():
-    """ラン(世界資産 200 体・既定 v3・1 日): 金の生ログの目印のある行と出来事の記録の金の行が 1 対 1。"""
-    from shibuya import cli
+def test_run_rows_and_events_are_one_to_one(monkeypatch):
+    """ラン(世界資産 200 体・既定 v3・1 日): 金の生ログの目印のある行と出来事の記録の金の行が 1 対 1。
 
+    〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=この試験(1-9 の土台の金の行=持ち出しと域外仕入だけ)は切替口 off で
+    見る。段階 2 の語(賃金・引き出し・カード・税ほか)と原因の 1 対 1 は ``tests/economy/stage2`` が見る。
+    """
+    from shibuya import cli
+    from shibuya.engine import economy_stage2 as ES2
+
+    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)
     res = cli.run(n_agents=200, seed=1, world_dir="data/world/v2", vocab_version="v3")
     led, g, log = res.ledger.money, res.ledger.goods, res.event_log
     rows = led.raw_rows()
