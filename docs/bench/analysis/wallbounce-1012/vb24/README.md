@@ -569,3 +569,15 @@ ec21 の道具 [stage2_two_day.py](../ec21/tools/stage2_two_day.py) をそのま
 | `tests/engine/test_env_and_sections_10f.py` | rel_v1 | `67_830` | `67_780` |
 | `tests/engine/test_env_and_sections_10f.py` | rel_v2 | `4a0db59663ef0d7b` | `768b2262e3b0999e` |
 | `tests/engine/test_env_and_sections_10f.py` | rel_v2 | `67_780` | `67_794` |
+
+## V5 計器の節の整理(`group_norms.cost.ticks` を manifest の設定の節から観測の節へ)
+
+| ファイル | 何を |
+|---|---|
+| `src/shibuya/engine/manifest_sections.py` | `group_norms` の設定の子から `cost` を外し、`_mixed("group_norms.cost", config=("note",), observed=("ticks",))` を足した(`cost.ticks`=計器が回った刻みの数=再開のランは再開の時刻からの数=**観測**・`cost.note`=定数の文=設定)。`CONFIG_PATHS_SHA256` が動く(`group_norms.cost` → `group_norms.cost.note`・この 1 本を戻すと V3 の値 `ac930362…` に戻る) |
+| `src/shibuya/engine/experiment/branch.py` | `RESUME_DERIVED`(反実仮想の分岐の入力の一致で、再開で動く設定の欄を宣言して許す口)の注: 2-4 より後の manifest どうしの比べでは設定の差に出ない=2-4 より前の節の表で録った基準との比べのために残す(比べは基準の manifest の節の表で見る) |
+| `tests/engine/test_env_and_sections_10f.py` | `CONFIG_PATHS_SHA256` `ac930362…` → `417f0818…` |
+| `tests/engine/experiment/test_x33_branch.py` | 世界資産の分岐の 4 つの確かめ: `resume_derived` は空・`group_norms.cost.ticks` は設定の差に無い。負の対照: 2-4 より前の節の表を載せた基準では宣言の値のときだけ許す(前と同じ)+今の節の表では宣言なしで差に出ない |
+
+- **結果は不変**: 19 構成で 25 欄とも V4 と同じ=[v5_vs_v4.json](v5_vs_v4.json)。
+- 試験(作業木・`-m "not slow and not gpu"`): `tests/engine/test_env_and_sections_10f.py`・`tests/engine/experiment`・`tests/engine/time`・`tests/engine/bridging` = 203 passed・1 failed(負の対照の 1 本=上の直しの前)→ 直して通る。

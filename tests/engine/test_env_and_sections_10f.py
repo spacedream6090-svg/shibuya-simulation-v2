@@ -92,7 +92,9 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 前 ``f78dd574…bfc947``・記録 docs/bench/analysis/wallbounce-1012/cf33/README.md)。
 #: 〔第 2 期 2-4 V3〕``leave_effects.seat_release``(在席の印を歩き出しで解く腕)を足した(前 ``415620b0…3e4f44``=
 #: この 1 本を外すと前の値に戻る・記録 docs/bench/analysis/wallbounce-1012/vb24/README.md の V3)。
-CONFIG_PATHS_SHA256 = "ac9303622c5a296067fde18ccb4a3ff2030b949567175dc62fc48ef351235389"
+#: 〔第 2 期 2-4 V5〕``group_norms.cost``(設定)→ ``group_norms.cost.note``(設定)と ``group_norms.cost.ticks``(観測)=
+#: 再開で必ず動く計器を観測の節へ(3-3 の検収 2・前 ``ac930362…235389``=この 1 本を cost に戻すと前の値)。
+CONFIG_PATHS_SHA256 = "417f08189a1d4f0bcda0e9902e87d9035b7d55aae1786c69c9325fcd7c72e42b"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 

@@ -173,9 +173,12 @@ PATHS: Final[dict[str, str]] = {
         "leave", "released_indoor", "left_queue", "was_conversing", "sessions_closed",
         "released_on_walk")),  # 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く腕(設定)と解いた数(観測)
     **_mixed("near_tiebreak", config=("mode", "order"), observed=("ties_broken", "tie_candidates", "order_ties")),
-    **_mixed("group_norms", config=("enabled", "declared", "cost"), observed=(
+    **_mixed("group_norms", config=("enabled", "declared"), observed=(
         "cowalk", "instant_group_walk", "conversation_group_size_a1", "context_entropy", "role_words",
         "propagation")),
+    # 〔第 2 期 2-4 V5・3-3 の検収 2〕計器の費用 cost の刻みの数 ticks は再開のランで必ず動く(再開の時刻からの数)=観測。
+    # 注 note(定数の文)だけ設定。前は cost ごと設定の節(反実仮想の分岐の入力の一致が RESUME_DERIVED で許していた)
+    **_mixed("group_norms.cost", config=("note",), observed=("ticks",)),
     **_mixed("waste_sink", config=("band_store_t", "expected_store_t", "band_basis", "band_check",
                                    "ward_total_comparison"), observed=("total_t", "breakdown_t", "band_ok")),
     # ---- 第 1 期 1-9(K17): 金の生ログの輪の容量(体数と係数で決まる=設定)と溢れ・transfer の計器(観測) ----

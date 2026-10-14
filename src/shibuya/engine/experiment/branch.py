@@ -83,6 +83,8 @@ SELF_KEY_PREFIXES: Final[tuple[str, ...]] = ("X:", "E:")
 #: を含む ``X:``・読めない ``ERR:``)。ランをまたぐ比べ((c)・(d))から外し、外した欄の名を報告に書く。
 NONPORTABLE_DIGESTS: Final[tuple[str, ...]] = ("X:", "ERR:")
 #: (a) 再開のランで動く設定の欄(10f の節の表で設定に入っている計器)。基準=通しの刻みの数・枝=再開からの刻みの数を宣言して許す。
+#: 〔第 2 期 2-4 V5〕``group_norms.cost.ticks`` は節の表で観測に移した=2-4 より後の manifest どうしの比べでは設定の差に出ない
+#: (比べは基準の manifest の節の表で見るので、2-4 より前に録った基準との比べのために残す)。
 RESUME_DERIVED: Final[Mapping[str, str]] = MappingProxyType({
     "group_norms.cost.ticks": "集団の規範の計器が回った刻みの数(再開のランは再開の時刻からの数=節の表で設定に入っている計器)",
 })

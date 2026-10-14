@@ -86,7 +86,9 @@ def test_world_branch_four_checks(world_branch):
     s = rep["summary"]
     assert s["a"] and s["b"] is True and s["d"] and s["ok"]
     a = rep["checks"]["a_input_match"]
-    assert a["branch"]["config_diffs_outside_arm"] == [] and a["branch"]["resume_derived"][0]["key"] == "group_norms.cost.ticks"
+    # 〔第 2 期 2-4 V5〕group_norms.cost.ticks は観測の節=設定の差に出ない(前は resume_derived で許した)
+    assert a["branch"]["config_diffs_outside_arm"] == [] and a["branch"]["resume_derived"] == []
+    assert "group_norms.cost.ticks" not in a["branch"]["config_diffs"]
     b = rep["checks"]["b_pre_t0"]
     assert b["branch"]["checkpoints_before_T0"] == 12 and b["branch"]["tape_miss_before_t0"] == 0
     assert b["resume_state"]["base_state_matches_base_end_of_day"] is True  # 〔検収 L2〕基準の自己一致
@@ -184,10 +186,21 @@ def test_input_match_negative_controls():
     seed = BR.input_match(base, {**_doc(), "seed": 2})
     assert not seed["ok"] and not seed["seeds_same"]
     # 再開で動く欄は宣言した値のときだけ許す
-    gb = _doc(manifest={**base["manifest"], "group_norms": {"cost": {"ticks": 2880}}})
-    gr = _doc(manifest={**base["manifest"], "group_norms": {"cost": {"ticks": 1440}}})
+    # 〔第 2 期 2-4 V5〕group_norms.cost.ticks は観測の節に移した=今の節の表では設定の差に出ない。RESUME_DERIVED は 2-4 より前の
+    # 節の表(cost ごと設定)で録った基準との比べのために残す=その表を manifest に載せた基準で負の対照を見る
+    from shibuya.engine import manifest_sections as MS
+
+    old_paths = {k: v for k, v in MS.PATHS.items() if not k.startswith("group_norms.cost")}
+    old_paths["group_norms.cost"] = MS.CONFIG
+    old = {**base["manifest"], "manifest_sections": {"paths": old_paths}}
+    gb = _doc(manifest={**old, "group_norms": {"cost": {"ticks": 2880}}})
+    gr = _doc(manifest={**old, "group_norms": {"cost": {"ticks": 1440}}})
     assert BR.input_match(gb, gr, resume_expect={"group_norms.cost.ticks": (2880, 1440)})["ok"]
     assert not BR.input_match(gb, gr, resume_expect={"group_norms.cost.ticks": (2880, 1000)})["ok"]
+    nb = _doc(manifest={**base["manifest"], "group_norms": {"cost": {"ticks": 2880}}})
+    nr = _doc(manifest={**base["manifest"], "group_norms": {"cost": {"ticks": 1440}}})
+    now = BR.input_match(nb, nr)  # 今の節の表=観測=宣言なしでも差に出ない
+    assert now["ok"] and "group_norms.cost.ticks" not in now["config_diffs"]
 
 
 def test_pre_t0_and_aa_negative_controls():
