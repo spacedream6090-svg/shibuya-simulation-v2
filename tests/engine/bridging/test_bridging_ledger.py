@@ -123,8 +123,10 @@ def test_the_counts_by_form(decls):
     # 〔第 2 期 2-2 段 11a〕engine/proximity.py の見出し(項 5)を足した=82 → 83(記録 prox22/README.md)
     # 〔第 2 期 2-3c〕W12 の発着の表の宣言の表 RAIL_EVENT_EXPEDIENTS(1 行=下りの直通の結び)を足した=expedients 143 → 144
     # (記録 tt23c/README.md)
-    assert S.count_by_form(decls) == {"conf": 0, "expedients": 144, "docstring": 6, "heading": 83, "process": 18,
-                                      "fallback": 5}
+    # 〔第 4 期 4-1 段 1〜3〕build/pop/w21_build.py の表 W21_EXPEDIENTS(27 行=検収の直しで 24 → 27)を足した
+    # =expedients 143 → 170(記録 pop41/README.md)
+    # 〔第336 取り込み〕本体(2-3c の 1 行=144)の後に W21 の 27 行を足した=144 → 171
+    assert S.count_by_form(decls) == {"conf": 0, "expedients": 171, "docstring": 6, "heading": 83, "process": 18,                                      "fallback": 5}
     heads = [d for d in decls if d.form == S.FORM_HEADING]
     # 〔第 1 期 1-2〕p_notice の expedient の項 m_load(歩きスマホの負荷の係数)を消した=338 → 337(記録 p12/README.md §15)
     # 〔第 1 期 1-5〕engine/rights/initial.py(項 3)・record.py(項 2)の見出しを足した=71 → 73・337 → 342

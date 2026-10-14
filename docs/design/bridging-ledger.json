@@ -1116,7 +1116,7 @@
   {
    "id": "W16#3",
    "what": "町丁目→セル=住居系建物の床面積(area_m2×levels)按分(D-W16)",
-   "why": "構築の段 W16 が宣言した近似(StageResult.expedients の 3 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W16#3)。外す段: 4-1 段 10 で W16 を合成人口に差し替える(計画 第 4 期)",
+   "why": "構築の段 W16 が宣言した近似(StageResult.expedients の 3 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W16#3)。外す段: 4-1 段 10 で W16 を合成人口に差し替える(計画 第 4 期)〔第 4 期 4-1 段 1〜3・W21〕置き換えの資産ができた(data/world/v2_stage_4-1 の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。差し替えは段 10(=4-3)。W21 は住宅の建て方(第8-1表)の階の区分ごとに町丁目の住居系の建物の床面積で配る。",
    "remove_at": "4-1",
    "declared_in": "src/shibuya/build/pop/w16_population.py#expedients:c33221fd",
    "conf": "expedient",
@@ -1138,7 +1138,7 @@
   {
    "id": "W16#5",
    "what": "住民の年齢不詳(区計 25,380 人)は階級を作らず**既知階級の比率で按分**(男女で不詳率が違う=男 13,538/女 11,842 ので、性別だけは男女別人口総数へIPF で合わせ直す)",
-   "why": "構築の段 W16 が宣言した近似(StageResult.expedients の 5 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W16#5)。外す段: 4-1 段 10 で W16 を合成人口に差し替える(計画 第 4 期)",
+   "why": "構築の段 W16 が宣言した近似(StageResult.expedients の 5 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W16#5)。外す段: 4-1 段 10 で W16 を合成人口に差し替える(計画 第 4 期)〔第 4 期 4-1 段 1〜3・W21〕置き換えの資産ができた(data/world/v2_stage_4-1 の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。差し替えは段 10(=4-3)。W21 は町丁目の年齢不詳を区の 2020 の遡及の不詳補完値と原数値の差の比で割り振る。",
    "remove_at": "4-1",
    "declared_in": "src/shibuya/build/pop/w16_population.py#expedients:bebc2283",
    "conf": "expedient",
@@ -1182,7 +1182,7 @@
   {
    "id": "W16#9",
    "what": "通学者・業務来街・私事来街の体数=PT(2018)の目的別到着比を従業者数へ当てた値",
-   "why": "構築の段 W16 が宣言した近似(StageResult.expedients の 9 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W16#9)。外す段: 4-1 段 10 で W16 を合成人口に差し替える(計画 第 4 期)〔第336・R-116 §6 の 4〕PT の目的別の到着比は 10-13b §1 1-3 で検証側(集中量)になった=今の W16 の構築に検証側の比が入っている(段 10 で外れるまでの既知の弱点・値は見直さない)。",
+   "why": "構築の段 W16 が宣言した近似(StageResult.expedients の 9 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W16#9)。外す段: 4-1 段 10 で W16 を合成人口に差し替える(計画 第 4 期)〔第336・R-116 §6 の 4〕PT の目的別の到着比は 10-13b §1 1-3 で検証側(集中量)になった=今の W16 の構築に検証側の比が入っている(段 10 で外れるまでの既知の弱点・値は見直さない)。〔第 4 期 4-1 段 1〜3・W21〕段 1〜3 で枠の行ができた(data/world/v2_stage_4-1 の w21_frame.json・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。人は段 7 で作る。枠は PT の目的別の到着比を使わない(構築側の値だけ・都市圏の私事と業務の来街は空欄=仮-23)。",
    "remove_at": "4-1",
    "declared_in": "src/shibuya/build/pop/w16_population.py#expedients:8305acdb",
    "conf": "expedient",
@@ -1204,7 +1204,7 @@
   {
    "id": "W16#11",
    "what": "学校セルは学校 POI へ一様(定員データが無い)",
-   "why": "構築の段 W16 が宣言した近似(StageResult.expedients の 11 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W16#11)。外す段: 4-1 段 10 で W16 を合成人口に差し替える(計画 第 4 期)",
+   "why": "構築の段 W16 が宣言した近似(StageResult.expedients の 11 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W16#11)。外す段: 4-1 段 10 で W16 を合成人口に差し替える(計画 第 4 期)〔第 4 期 4-1 段 1〜3・W21〕置き換えの資産ができた(data/world/v2_stage_4-1 の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。差し替えは段 10(=4-3)。W21 は在学の種類(第14表)と通学地(第16-3表)を持つ。学校のセル(定員)はまだ無い。",
    "remove_at": "4-1",
    "declared_in": "src/shibuya/build/pop/w16_population.py#expedients:f9fb50c6",
    "conf": "expedient",
@@ -1215,7 +1215,7 @@
   {
    "id": "W16#12",
    "what": "住民の就業区分は国勢調査の 4 区分へ多項抽選(15 歳以上 75 歳未満)",
-   "why": "構築の段 W16 が宣言した近似(StageResult.expedients の 12 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W16#12)。外す段: 4-1 段 10 で W16 を合成人口に差し替える(計画 第 4 期)",
+   "why": "構築の段 W16 が宣言した近似(StageResult.expedients の 12 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W16#12)。外す段: 4-1 段 10 で W16 を合成人口に差し替える(計画 第 4 期)〔第 4 期 4-1 段 1〜3・W21〕置き換えの資産ができた(data/world/v2_stage_4-1 の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。差し替えは段 10(=4-3)。W21 は労働力状態(第9・10表)と従業地(第16-2表・第8表)を町丁目 × 男女の周辺へ寄せて引く。",
    "remove_at": "4-1",
    "declared_in": "src/shibuya/build/pop/w16_population.py#expedients:1b889138",
    "conf": "expedient",
@@ -1237,7 +1237,7 @@
   {
    "id": "W16#14",
    "what": "世帯は建物内の連番切り分け(世帯構成は再現しない)",
-   "why": "構築の段 W16 が宣言した近似(StageResult.expedients の 14 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W16#14)。外す段: 4-1 段 10 で W16 を合成人口に差し替える(計画 第 4 期)",
+   "why": "構築の段 W16 が宣言した近似(StageResult.expedients の 14 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W16#14)。外す段: 4-1 段 10 で W16 を合成人口に差し替える(計画 第 4 期)〔第 4 期 4-1 段 1〜3・W21〕置き換えの資産ができた(data/world/v2_stage_4-1 の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。差し替えは段 10(=4-3)。W21 は家族類型 × 世帯人員(第5-2・6-1表・2025 第10表)で世帯を組み、続き柄と年齢を条件付きで引く。",
    "remove_at": "4-1",
    "declared_in": "src/shibuya/build/pop/w16_population.py#expedients:017e3041",
    "conf": "expedient",
@@ -1879,7 +1879,7 @@
   {
    "id": "BR-W16-REPLICATED-108142",
    "what": "W16 は複製で足した人を含む(実測 108,142 人=R-109)",
-   "why": "人口の作り直しが済むまでの今の W16 の弱点(計画 第 4 期の注・回答 2-0)。4-1 段 10 で差し替える",
+   "why": "人口の作り直しが済むまでの今の W16 の弱点(計画 第 4 期の注・回答 2-0)。4-1 段 10 で差し替える〔第 4 期 4-1 段 1〜3・W21〕置き換えの資産ができた(data/world/v2_stage_4-1 の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。差し替えは段 10(=4-3)。W21 の住民は複製 0 体(synthetic 0)。通勤・通学の人は段 7。",
    "remove_at": "4-1",
    "declared_in": "docs/design/v2-implementation-plan-2026-10-12.md 第 4 期の注",
    "conf": "expedient",
@@ -1893,7 +1893,7 @@
   {
    "id": "BR-W16-VISITOR-COUNT-BASIS",
    "what": "W16 の来街者の数の根拠が弱い(通勤+通学 249,157 は現実の 1.3〜1.6 倍=R-109)",
-   "why": "人口の作り直しが済むまでの今の W16 の弱点(計画 第 4 期の注)。4-1 段 1(人数の枠)と段 10",
+   "why": "人口の作り直しが済むまでの今の W16 の弱点(計画 第 4 期の注)。4-1 段 1(人数の枠)と段 10〔第 4 期 4-1 段 1〜3・W21〕段 1〜3 で枠の行ができた(data/world/v2_stage_4-1 の w21_frame.json・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。人は段 7 で作る。枠の行: 都市圏の私事・業務の来街は空欄(仮-23)・訪日 4.3〜8.5 万(引)。",
    "remove_at": "4-1",
    "declared_in": "docs/design/v2-implementation-plan-2026-10-12.md 第 4 期の注",
    "conf": "expedient",
@@ -1907,7 +1907,7 @@
   {
    "id": "BR-W16-NO-TRANSFER-ONLY",
    "what": "駅で乗り換えるだけの人が 0(乗り換えか直通 140〜158 万回/日と JR の通過 917,279 人/日は 1 体も無い=R-109)",
-   "why": "人口の作り直しが済むまでの今の W16 の弱点(計画 第 4 期の注)。4-1 段 1(乗り換えだけの人)と段 10",
+   "why": "人口の作り直しが済むまでの今の W16 の弱点(計画 第 4 期の注)。4-1 段 1(乗り換えだけの人)と段 10〔第 4 期 4-1 段 1〜3・W21〕段 1〜3 で枠の行ができた(data/world/v2_stage_4-1 の w21_frame.json・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。人は段 7 で作る。枠の行: 乗り換えだけの人 70〜80 万・JR の通過 約 46 万(引)。",
    "remove_at": "4-1",
    "declared_in": "docs/design/v2-implementation-plan-2026-10-12.md 第 4 期の注",
    "conf": "expedient",
@@ -4198,6 +4198,302 @@
    "code_at": [
     "src/shibuya/engine/batching.py"
    ]
-  }
+  },
+  {
+   "id": "EX-build.pop.w21_build-60537a44",
+   "what": "時点の混ぜ方: 町丁目の表は 2020 の形のまま、区の 2025 の分類ごとの総数へ IPF で合わせる(2025 の小地域の表が出たら差し替える)",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 1 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 4-3 以降=2025 の小地域の表(と小地域の不詳補完値)の公表の後に差し替える(統計局の資料 2 は小地域の公表を「別途」と書く=R-116 §空欄 1)。台帳の段の表に「4-3 以降」が無いので 4-3 と書く(PENDING 仮-23)",
+   "remove_at": "4-3",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:60537a44",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-5af05e9d",
+   "what": "町丁目の年齢・配偶関係・家族類型の「不詳」は、区の 2020 の遡及の不詳補完値と原数値の差の比で割り振る",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 2 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 4-3 以降=2025 の小地域の表(と小地域の不詳補完値)の公表の後に差し替える(統計局の資料 2 は小地域の公表を「別途」と書く=R-116 §空欄 1)。台帳の段の表に「4-3 以降」が無いので 4-3 と書く(PENDING 仮-23)",
+   "remove_at": "4-3",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:5af05e9d",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-ee7d62b5",
+   "what": "町丁目の労働力状態・従業上の地位・従業地・在学・居住期間・住居の種類の「不詳」は、町丁目 × 男女の既知の比で割り振る(不詳は無作為と仮定)",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 3 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 4-3 以降=2025 の小地域の表(と小地域の不詳補完値)の公表の後に差し替える(統計局の資料 2 は小地域の公表を「別途」と書く=R-116 §空欄 1)。台帳の段の表に「4-3 以降」が無いので 4-3 と書く(PENDING 仮-23)",
+   "remove_at": "4-3",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:ee7d62b5",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-564cf9e6",
+   "what": "2025 の区の表が無い町丁目の表(住宅の所有・建て方・就業・在学・居住期間)は 2020 の形のまま総数を人口・世帯の比で直す",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 4 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 4-3 以降=2025 の小地域の表(と小地域の不詳補完値)の公表の後に差し替える(統計局の資料 2 は小地域の公表を「別途」と書く=R-116 §空欄 1)。台帳の段の表に「4-3 以降」が無いので 4-3 と書く(PENDING 仮-23)",
+   "remove_at": "4-3",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:564cf9e6",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-2e497daa",
+   "what": "舞台の範囲は町丁目の被覆率(10m 標本格子)で按分する(W16#1・#2 と同じ)",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 5 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)。W16#1・#2 と同じ按分(差し替えの後も残る)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:2e497daa",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-778e38fb",
+   "what": "世帯員の続き柄の並びは家族類型と世帯人員から自前の表(COMPOSITION)で決め、他の親族の続き柄は区の第13-1表の比で引く",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 6 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:778e38fb",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-ab123210",
+   "what": "年齢の窓: 子は若い方の親より 15 歳以上若く母より 50 歳・父より 65 歳以内、世帯主の父母は 15〜50 歳上、孫は 30 歳以上下、祖父母は 30 歳以上上、兄弟姉妹は ±20 歳(自前の値)",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 7 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:ab123210",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-2520ce74",
+   "what": "ひとり親と子の世帯は親を世帯主にし、夫婦は異性とする(子が世帯主の世帯・同性の夫婦は作らない)",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 8 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:2520ce74",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-2b4e7045",
+   "what": "15 歳未満の世帯主は作らない(区の第12-1表には 14 世帯ある)",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 9 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:2b4e7045",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-cd530651",
+   "what": "施設等の世帯の人は 1 人 1 世帯(家族類型 institution)・男女と年齢は区の総人口と一般世帯人員の差・配偶関係は単独世帯の世帯主の比",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 10 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:cd530651",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-2c8a918d",
+   "what": "世帯人員 7 人以上の世帯は 7 人として組む",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 11 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:2c8a918d",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-bb5e88fe",
+   "what": "単独世帯の世帯主は、町丁目の年齢 × 男女の目標からほかの世帯員を引いた残りの比で数を決める(階級の中の各歳と配偶関係は第12-1表)",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 12 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:bb5e88fe",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-78bb4b2b",
+   "what": "詰め(焼きなまし)の回数 400,000・温度 2.0 から 0.02・目的関数は町丁目 × 年齢 16 階級 × 男女と配偶関係 3 区分 × 男女の誤差の絶対値の和・動かすのは同じ家族類型と世帯人員の世帯どうしの町丁目",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 13 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:78bb4b2b",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-792652c4",
+   "what": "住宅の所有の関係と建て方は、町丁目の中で世帯の型と独立に割り当てる",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 14 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:792652c4",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-a183d1ac",
+   "what": "建て方から建物の階の区分へ(一戸建・長屋建・共同住宅 1・2 階=2 階以下、3〜5、6〜10、11 階以上)・区分の建物が無ければ町丁目の住居系の建物全部",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 15 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:a183d1ac",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-fc5cc072",
+   "what": "外国人は世帯ごとに選ぶ(重み=2025 の補完値の国籍総数 − 日本人の男女 × 年齢の割合)・数は第2表の町丁目の外国人 × 2025 の補完値の総数・国籍は空欄",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 16 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)。住民基本台帳(R-116 §2 の U7=取得はユーザーの判断待ち)が入れば国籍と人数の時点を見直す",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:fc5cc072",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-7e610e40",
+   "what": "就業・従業上の地位・産業・職業・従業地は区の結合表(第3-1・5-1・10-1 表・従業地 第8表)を事前の重みにし、町丁目 × 男女の周辺へ寄せて引く(raking)",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 17 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:7e610e40",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-85e1e667",
+   "what": "完全失業者の年齢の重み(15〜69 歳 1・70 歳以上 0.3)と、就業率の事前の重み(就業者 ÷ 2020 の遡及の補完値の一般世帯人員)",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 18 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:85e1e667",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-0f5c954e",
+   "what": "在学の年齢の窓(SCHOOL_AGE_WEIGHTS)は学年の区切りを年齢に当てた自前の表",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 19 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:0f5c954e",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-2ea154e8",
+   "what": "居住期間は年齢で上限を切るだけで、世帯員どうしをそろえない",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 20 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:2ea154e8",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-4937e444",
+   "what": "産業大分類から industry_key へ(N は経済センサスの駅周辺 13 町丁目の中分類の比で LS/AM・A・B・C・F・S・T は空欄)",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 21 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:4937e444",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-5e669fe9",
+   "what": "従業上の地位から employment_status へ(派遣・パートは non_regular・役員は executive・業主と家庭内職者は self_employed)",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 22 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:5e669fe9",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-7710c72f",
+   "what": "外から来る人の地位は従業地の第8表の産業ごとの地位の組で、雇用者でない人は雇人のない業主に寄せる・職業は第16-1表(産業)だけで年齢を見ない",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 23 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:7710c72f",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-6db753f3",
+   "what": "年齢の上限 105 歳(各歳の表の 105 歳より上は 105 歳に寄せる)",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 24 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:6db753f3",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-ba63710f",
+   "what": "年齢の窓が空になる続き柄は引き直す: 孫と祖父母は世帯主と 30 歳(親子の最小の差 15 歳の 2 倍)以上離し、子の配偶者は世帯主 30 歳以上の世帯だけ・父母のいる世帯の世帯主は 90 歳まで・子の窓の下の端が上の端を越えたら下の端を外す",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 25 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:ba63710f",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-218e0a50",
+   "what": "外から来る通学者(通学地が渋谷区で他の市区町村に住む人)の男女と年齢は第1-3表(5 歳階級の中は一様・15 歳未満は 6〜14 歳)・在学の種類は年齢の窓の在学の 6 区分から・ほかの属性は空欄",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 26 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:218e0a50",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build-f78c06f9",
+   "what": "employment_status から W16 の employment の 6 値(正規・非正規・役員・自営業主・家族従業者・非就業)への写像(空欄と None は非就業)",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 27 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:f78c06f9",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"  }
  ]
 }
