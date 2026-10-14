@@ -485,6 +485,7 @@ def run(
         from shibuya.engine import seat_release as _seat_release  # 〔第 2 期 2-4 V3〕同じ(既定 walk と違えば腕)
         from shibuya.engine import batching as _BATCH  # 〔第 3 期 3-2〕まとめの幅の腕(環境変数か --batch-width-s)
         from shibuya.engine import body as _body  # 〔第 3 期 3-5〕TM5 の予約の腕(既定 sweep と違えば腕=結果は同じはず)
+        from shibuya.engine import calendar_shadow as _calendar_shadow  # 〔第 3 期 3-1〕暦 1a の影(既定 w17 と違えば腕)
         from shibuya.engine.speech import layer as _speech_layer
 
         # 第 1 期 1-8b: 発話の口の腕(環境変数か --speech-port・run の引数ではない)は結果を変える=on は腕に数える
@@ -494,7 +495,8 @@ def run(
                               or _seat_release.arm() != _seat_release.DEFAULT_MODE  # 〔2-4 V3〕既定は walk
                               or _ES2.arm() != _ES2.DEFAULT_ARM  # 〔2-4 V4〕経済の段階 2 も(既定 on と違えば腕)
                               or not _BATCH.is_default()  # 〔第 3 期 3-2〕まとめの幅(既定 60 秒と違えば腕)
-                              or _body.arm() != _body.DEFAULT_ARM,  # 〔3-5〕体の予約の腕(既定は sweep)
+                              or _body.arm() != _body.DEFAULT_ARM  # 〔3-5〕体の予約の腕(既定は sweep)
+                              or _calendar_shadow.arm() != _calendar_shadow.DEFAULT_MODE,  # 〔3-1〕既定は w17
                               counterfactual=exp_form is not None)
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
@@ -1405,6 +1407,14 @@ def main(argv: list[str] | None = None) -> int:
              "入れない(manifest の body に出る・既定と違えばランの種類は arm)",
     )
     ap.add_argument(
+        "--calendar-shadow",
+        choices=("w17", "1a"),
+        default=None,
+        help="第 3 期 3-1 暦 1a の影の腕(既定 w17・環境変数 SHIBUYA_CALENDAR_SHADOW と同じ。指定すれば環境変数より強い)。"
+             "1a=計画実行層の勤務と授業の影を W20 の週の表(<world>/w20_calendar_1a.parquet・SHIBUYA_CALENDAR_W20)から作り、"
+             "manifest の calendar_shadow に出す(計器だけ=出入りは今の W17 のまま・1a のランだけ設定の指紋に入る・ランの種類は arm)",
+    )
+    ap.add_argument(
         "--experiment", type=str, default="",
         help="第 3 期 3-3 反実仮想の申込書(JSON のパス・engine.experiment.form)。既定なし=今と同じ。渡すとランの種類は "
              "counterfactual・申込書の指紋は manifest の experiment に出る(設定の指紋には入らない)",
@@ -1483,6 +1493,10 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine import body as _body
 
         _body.set_arm(str(args.body_schedule))
+    if args.calendar_shadow is not None:  # 〔第 3 期 3-1〕暦 1a の影の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine import calendar_shadow as _calendar_shadow
+
+        _calendar_shadow.set_arm(str(args.calendar_shadow))
     if args.economy_stage2 is not None:  # 第 2 期 2-1: 経済の段階 2 の腕(組み立てと台帳の組み立てが読む)
         _ES2.set_arm(str(args.economy_stage2))
     if args.economy_stage2_parts is not None:

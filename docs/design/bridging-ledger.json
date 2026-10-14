@@ -1270,8 +1270,8 @@
   {
    "id": "W17#2",
    "what": "1 日モード(月曜 d0 のみ)= C7 を 1 日回すためのユーザー決定",
-   "why": "構築の段 W17 が宣言した近似(StageResult.expedients の 2 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W17#2)。外す段: K9: カレンダー化の第 1 段(3-1)で解消するまでのつなぎ(10-12 §4-1 K9)",
-   "remove_at": "3-1",
+   "why": "構築の段 W17 が宣言した近似(StageResult.expedients の 2 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W17#2)。外す段: K9: カレンダー化の第 1 段(3-1)で解消するまでのつなぎ(10-12 §4-1 K9)〔第336・3-1〕1a は影なので外せない=6-2 へ(親)",
+   "remove_at": "6-2",
    "declared_in": "src/shibuya/build/sched/trial.py#expedients:38f681a4",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -1699,7 +1699,7 @@
   {
    "id": "BR-W17-IO-SLEEP",
    "what": "W17 の週次表から、エンジンが到着・退出・就寝・起床を実行する(計画実行層 D-66)",
-   "why": "存在の連続性(10-12 §1-3 の 1)=出入りは境界を歩くか乗り物で越え、寝るのは本人が決める。外す時期はカレンダーの段(CA9: 出入りは段 1b・就寝は疲労の後)。計画 6-2 で E4 と一緒に外す",
+   "why": "存在の連続性(10-12 §1-3 の 1)=出入りは境界を歩くか乗り物で越え、寝るのは本人が決める。外す時期はカレンダーの段(CA9: 出入りは段 1b・就寝は疲労の後)。計画 6-2 で E4 と一緒に外す〔第 3 期 3-1・量〕W17 v2 の月曜の行(K9 で全部の日)で、来街者(種別 1・6・7)96,006 体のうち 95,975 体の来訪(在圏ブロック=読み口 v2・読み口 v1 なら 95,976)と、就寝の行 493,474 行(388,600 体・舞台に住む体 43,487・宿泊 17,492)をエンジンが実行している(数え方の道具 docs/bench/analysis/wallbounce-1012/ca31/tools/count_w17_bridges_ca31.py)。3-1 は影の段=勤務と授業の影だけを W20 から作り(計器)、出入りと就寝は今のまま(記録 docs/bench/analysis/wallbounce-1012/ca31/README.md)",
    "remove_at": "6-2",
    "declared_in": "docs/design/v2-wallbounce-decisions-2026-10-12.md §1-3 の 1",
    "conf": "expedient",
@@ -1741,8 +1741,8 @@
   {
    "id": "BR-K9-MONDAY",
    "what": "W17 v2 は月曜の行しか無く、火〜金も月曜の予定を使う(K9)",
-   "why": "カレンダー化の第 1 段で解消するまでのつなぎ。この期間の複数日の結果は曜日の比較に使わない(10-12 §4-1 K9)",
-   "remove_at": "3-1",
+   "why": "カレンダー化の第 1 段で解消するまでのつなぎ。この期間の複数日の結果は曜日の比較に使わない(10-12 §4-1 K9)〔第336・3-1〕1a は影なので外せない=6-2 へ(親)",
+   "remove_at": "6-2",
    "declared_in": "docs/design/v2-wallbounce-decisions-2026-10-12.md §4-1 K9",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -4102,8 +4102,8 @@
   {
    "id": "DOC-md23-weekend-run-test-only",
    "what": "複数日の mock の 7 日(月〜日)は、記録の道具だけが開始日の検査 A1-3(連続する平日)を外して回した(試験用=分析に使わない印 test_only)。土日も W17 の月曜の行(K9)",
-   "why": "決定 10-03 A1-3 (a)・10-12 CA10 (c)(分析用の週末のランはカレンダー化の第 1 段の後)。エンジンの検査は変えていない。曜日の比較はしない(記録 md23/README.md)",
-   "remove_at": "3-1",
+   "why": "決定 10-03 A1-3 (a)・10-12 CA10 (c)(分析用の週末のランはカレンダー化の第 1 段の後)。エンジンの検査は変えていない。曜日の比較はしない(記録 md23/README.md)〔第336・3-1〕1a は影なので外せない=6-2 へ(親)",
+   "remove_at": "6-2",
    "declared_in": "docs/bench/analysis/wallbounce-1012/md23/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -4627,6 +4627,144 @@
    "since": "2026-10-15",
    "status": "active",
    "remove_basis": "inferred"
+  },
+  {
+   "id": "W20cal#1",
+   "what": "始業・終業=第31/36表の逆算(入力の写し)・出勤と帰宅は同じ一様変数・勤務の長さ [4h, 12h]・切った体の帰宅=終業+片道",
+   "why": "構築の段 W20cal(暦 1a)が宣言した近似(StageResult.expedients の 1 番目)。決定 10-12 §4-1 CA1「始業・終業の統計と実企業のデータが見つかるまでは社会生活基本調査 第 31/36 表からの逆算でつなぎ、入力の写しになることを宣言する」(R-99 A1=始業・終業の時刻そのものの公的統計は無い)。外す段は計画に無い=主張の前に感度試験で示す(7)。記録 docs/bench/analysis/wallbounce-1012/ca31/README.md",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/sched/w20_calendar_1a.py#expedients:3bba666d",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "W20cal#2",
+   "what": "片道の通勤時間=ペルソナの arrival_lead_min(v1 の在庫)・無ければ 30 分",
+   "why": "W20cal の 2 番目。片道の通勤時間はペルソナの arrival_lead_min(v1 の在庫・意味は未確認)。AT2「通勤はランの前に積んだ経験として実際の道のりから初期値を作る」=第 4 期 4-1 の段 6(開始前の経験・通勤の道)で外す",
+   "remove_at": "4-1",
+   "declared_in": "src/shibuya/build/sched/w20_calendar_1a.py#expedients:a5c1e180",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "W20cal#3",
+   "what": "曜日の予定の率=第74-6表の地位・勤務形態の曜日の仕事の率(実現値=予定の下限・W16 に職業の列が無い)・曜日ごとに独立に引く・第19表は年間の整合の計器(診断)",
+   "why": "W20cal の 3 番目。曜日の予定の率=社会生活基本調査 第74-6表(従業上の地位・勤務形態 × 曜日・東京都)の仕事の率そのもの(実現値=休んだ後の率=予定の率の下限・親の判断 第336 (1))・W16 に職業の列が無い(親の判断 2026-10-15 の 1)・曜日ごとに独立に引く。就業構造基本調査 第19表は年間の整合の計器(診断)。CA1「曜日は産業別・雇用形態別の統計から」。雇い主が枠を出す段(カレンダー 3=計画 6-2)で外す",
+   "remove_at": "6-2",
+   "declared_in": "src/shibuya/build/sched/w20_calendar_1a.py#expedients:cefcec88",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "W20cal#4",
+   "what": "従業上の地位=ペルソナの employment(6 値)→ 第6-2表の 6 区分の写像(正規=無期・非正規=有期・役員=有給役員・自営業主=個人業主・家族従業者=無給の家族)→ 第31/36表の行(有期は全国人数比・臨時=アルバイト)",
+   "why": "W20cal の 4 番目。従業上の地位は W16 に無い=ペルソナの employment(国勢調査の 6 値)から作り、経済センサス 第6-2表の無期/有期の 6 区分への写像を宣言する(親の判断 2026-10-15 の 3・R-116 §5)。正規=無期・非正規=有期の読み替えは近似(R-99 §3-3)。第 4 期 段 3(属性=地位)で置き換える(4-1)。記録 docs/bench/analysis/wallbounce-1012/ca31/README.md",
+   "remove_at": "4-1",
+   "declared_in": "src/shibuya/build/sched/w20_calendar_1a.py#expedients:ec5f820f",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan"
+  },
+  {
+   "id": "W20cal#5",
+   "what": "duty_role(v1 の在庫)は第6-2表(渋谷区・中分類)の地位で引き直す・職業・産業・中分類・場所・交替制は DUTY_ROLE_SPEC・職業の分かる体だけ曜日の形に第74-9表の職業/総数の比・W16 の事業所の体の勤務場所は建物",
+   "why": "W20cal の 5 番目。CA1「duty_role の人数は v1 の在庫=経済センサスとの二重計上を確かめ、雇用形態は従業上の地位で引き直す」=duty_role の体だけ第6-2表(渋谷区・中分類)で引き直す(親の判断 2026-10-15 の 4)。役割 → 職業・産業・中分類・場所・交替制の当てはめ(DUTY_ROLE_SPEC)・職業の分かる体だけ曜日の形に第74-9表の比・W16 の事業所の体の勤務場所は建物。二重計上の表は記録 docs/bench/analysis/wallbounce-1012/ca31/README.md。第 4 期 段 4(組織と役割)で置き換える(4-1)〔第337・量〕二重計上: 中分類 42 鉄道業の町丁目の表(13 町丁目)の 4,894 人は W16 の事業所の体(産業の鍵 TR 5,929 体)に入っている上に、duty_role の駅員 300・電車運転士 60・車掌 40=400 体を足している(段のヘッダ notes.duty_role_double_count)",
+   "remove_at": "4-1",
+   "declared_in": "src/shibuya/build/sched/w20_calendar_1a.py#expedients:a6208d35",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan"
+  },
+  {
+   "id": "W20cal#6",
+   "what": "公務は産業の鍵の 15 語に無い=産業の欄は空欄(新しい語を足さない)",
+   "why": "W20cal の 6 番目。公務(産業大分類 S)は industry_key の 15 語に無い=新しい語を足さず空欄の宣言(親の判断 2026-10-15 の 2)。警察官・消防士・救急隊員・指令・議員の産業の欄・ペルソナの PA が空欄=第19表は産業の総数の行。第 4 期(人口の作り直し)で外す",
+   "remove_at": "4-1",
+   "declared_in": "src/shibuya/build/sched/w20_calendar_1a.py#expedients:dedd4219",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan"
+  },
+  {
+   "id": "W20cal#7",
+   "what": "授業の時間帯は空欄・通学は月〜金(規則)・保育所は授業でない",
+   "why": "W20cal の 7 番目。CA1「学校は公式の時程と休業日を使う(取得先は許可を取ってから)」=本段では取得しない=授業の時間帯は空欄・通学の曜日は月〜金(規則)。時程の取得の許可の後(カレンダー 3=計画 6-2 の祝日・休業日と一緒)に外す",
+   "remove_at": "6-2",
+   "declared_in": "src/shibuya/build/sched/w20_calendar_1a.py#expedients:af0786de",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "W20cal#8",
+   "what": "非正規とシフトは週ごとの抽選(雇い主がエージェントになるまで)",
+   "why": "W20cal の 8 番目。CA1「正規雇用は毎週固定、非正規とシフト勤務は週ごとにする(雇い主がエージェントになるまでのつなぎ)」。雇い主が枠を出す段(カレンダー 3=計画 6-2)で外す",
+   "remove_at": "6-2",
+   "declared_in": "src/shibuya/build/sched/w20_calendar_1a.py#expedients:bee199b0",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan"
+  },
+  {
+   "id": "W20cal#9",
+   "what": "週 1 日の休み(労働基準法 35 条 1 項)の曜日=働かない率(1 − 第74-6表の率)に比例して体・週の鍵で 1 日・4 週 4 日の変形休日制(35 条 2 項)は入れない",
+   "why": "W20cal の 9 番目(親の判断 第337 (2))。週 1 日の休みそのものは規則の表の行 labor.weekly_rest_day(労働基準法 35 条 1 項・対象=無期・有期・臨時・有給役員は 9 条の労働者でないので対象外=親の判断 第337 (1))。休みの曜日の選び方=その曜日の働かない率(1 − 第74-6表の率)に比例して体・週の鍵で 1 日(毎週固定の体は週 0=毎週同じ休み)は当てはめ。35 条 2 項(4 週 4 日の変形休日制)は入れない。雇い主が枠を出す段(カレンダー 3=計画 6-2)で外す。記録 docs/bench/analysis/wallbounce-1012/ca31/README.md〔量〕休みを入れた分だけ行の曜日の率は第74-6表の実現値を下回る=正規の行で平日 -0.2・土 -1.2・日 -1.4 点(休みの有無の 2 本の差・期待値 −P7 × q_d=記録 rest_effect.json・道具 rest_effect_ca31.py)",
+   "remove_at": "6-2",
+   "declared_in": "src/shibuya/build/sched/w20_calendar_1a.py#expedients:925ec3ff",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan"
+  },
+  {
+   "id": "HD-build.sched.w20_calendar_1a-078c8433",
+   "what": "src/shibuya/build/sched/w20_calendar_1a.py の docstring の見出し「expedient(本モジュール分・つなぎの台帳へ。未リサーチ=実装役の当てはめ)」の下の項 8 個",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 つ目・見出し単位で 1 行=親の判断 第334・同じファイルの StageResult.expedients の要旨(項は W20cal#1〜#9 の行と重なる))。外す段: カレンダー 1b〜3(計画 6-2)",
+   "remove_at": "6-2",
+   "declared_in": "src/shibuya/build/sched/w20_calendar_1a.py#heading:078c8433",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-ca31-w16-seat-but-nonworking",
+   "what": "W16 の席(種別 0・2)があるのにペルソナの employment が非就業の体 1,379(うち学校段階 149・W16 の弱点=ペルソナと席の食い違い)。W20 は勤務の約束を空欄にした(席は W16 のまま・数を段のヘッダの calendar_counters.seat_nonworking に出す)",
+   "why": "親の判断 第336 (3)。空欄は「勤務の予定を作らない」だけで、非正規=週ごとの抽選に置くより仮定が少ない(雇用形態と曜日と時刻を足さない)。席とペルソナを合わせるのは第 4 期 段 10(W16 の差し替え)。記録 docs/bench/analysis/wallbounce-1012/ca31/README.md",
+   "remove_at": "4-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca31/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/build/sched/w20_calendar_1a.py"
+   ]
+  },
+  {
+   "id": "DOC-ca31-w16-seat-and-school",
+   "what": "W16 の席(種別 0・2)があってペルソナが学校段階か学校のセルを持つ体 4,346(うち勤務の約束 4,197・ペルソナが非就業の 149 は空欄)。W20 は席を優先して勤務の約束にし、授業は空欄にした(数を段のヘッダの calendar_counters.seat_and_school と seat_and_school_work に出す)",
+   "why": "親の判断 第337 中 1(検収)。W16 の席は明示の事実で、ペルソナの学校段階は素材の推定=席を優先した。働く学生の授業を落とす歪み(授業と勤務の両方を持つ体は作らない)。席とペルソナを合わせるのは第 4 期 段 10(W16 の差し替え)。記録 docs/bench/analysis/wallbounce-1012/ca31/README.md",
+   "remove_at": "4-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca31/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/build/sched/w20_calendar_1a.py"
+   ]
   }
  ]
 }

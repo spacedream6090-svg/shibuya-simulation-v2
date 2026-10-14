@@ -1,7 +1,8 @@
 """第 1 期 1-4 規則の表(CP10・決定 10-12 §1-12): 出典と版が必須・asof で版を引ける・表の sha が決定的(口の約束 1-4)。
 
-- リポの表 ``docs/design/rules-table.json`` は実在の規則 3 行(消費税の標準税率・東京都の最低賃金・深夜の酒類提供の
-  住居集合地域での禁止)。数と出典は R-106(親検収済)と W7 の一次確認(等級 A)から写した=写し検査(CLAUDE.md §5)を
+- リポの表 ``docs/design/rules-table.json`` は実在の規則 4 行(消費税の標準税率・東京都の最低賃金・深夜の酒類提供の
+  住居集合地域での禁止・〔第 3 期 3-1〕週 1 日の休日=労働基準法 35 条=W20 の構築側だけが JSON を読む・親の一次確認 第337)。
+  数と出典は R-106(親検収済)と W7 の一次確認(等級 A)から写した=写し検査(CLAUDE.md §5)を
   ここでも機械で見る(法令 ID と版が答申の表の同じ行にある・URL が答申にある)。
 - 1-4 では読み手を作らない(約束 (1))=表を import するのは manifest と日次の記録の 2 か所だけ(AST)。
 - 凍結: 行・出典・値は書き換えられない(1-3 検収 L2・L7 の守り)。
@@ -41,8 +42,9 @@ def _rule(**kw) -> RT.Rule:
 # ================================================================= リポの表
 def test_the_repo_table_has_three_real_rules():
     rules = RT.default_rules()
-    assert rules.ids() == ("consumption_tax.standard_rate", "late_night_alcohol.residential_ban", "minimum_wage.tokyo")
-    assert len(rules) == 3
+    assert rules.ids() == ("consumption_tax.standard_rate", "labor.weekly_rest_day", "late_night_alcohol.residential_ban",
+                           "minimum_wage.tokyo")
+    assert len(rules) == 4  # 〔第 3 期 3-1〕労働基準法 35 条の週 1 日の休日(親の判断 第337 中 2)を足した
     for r in rules:
         assert r.kind in RT.KINDS and r.source
         for s in r.source:

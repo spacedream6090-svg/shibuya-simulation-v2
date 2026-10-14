@@ -133,6 +133,7 @@ from shibuya.perception.facts import percept_manifest as _percept_manifest
 from shibuya.engine.decision import layer as _DECISION
 from shibuya.engine.speech import layer as _SPEECH
 from shibuya.engine import proximity as _PROX
+from shibuya.engine import calendar_shadow as _CALENDAR_SHADOW
 from shibuya.engine.experiment import layer as _EXPERIMENT
 from shibuya.engine import batching as _BATCHING
 from shibuya.engine.body import model as _BODY_MODEL
@@ -1350,6 +1351,11 @@ class RunResult:
             # 計器・観測)。末尾=… → 3-3 の experiment → 3-2 の batching → 3-5。記録だけ(final・behavior-hash は manifest を
             # 読まない)。列追加のみ ----
             "body": _BODY_MODEL.manifest_fields(getattr(self, "body_layer", None)),
+            # ---- 第 3 期 3-1(暦 1a の影・CA2 (a)・CA8): 源(w17/1a)・W20 の版・週の数(設定)と、日ごとの影の数・空欄の数・
+            # 出勤と始業と終業と帰宅の 15 分の分布・通勤時間・15 分ごとの約束の行動者率・W17 との差(参考)(観測)。末尾=… →
+            # 3-3 の experiment → 3-2 の batching → 3-5 の body → 3-1。腕 w17(既定)のランは源だけで観測の子は null。記録だけ(final・
+            # behavior-hash は manifest を読まない)。列追加のみ ----
+            "calendar_shadow": _CALENDAR_SHADOW.manifest_fields(getattr(self, "calendar_shadow_layer", None)),
         }
 
     def economy_fields(self) -> dict[str, Any]:

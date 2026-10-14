@@ -27,6 +27,7 @@ from ..field import w7_planspec, w10_noise, w12_external_nodes, w12_real_timetab
 from ..geo import common as C
 from ..geo import w0_crs, w1_walk_graph, w4_heights, w5_entrances, w6_poi_org, w11_station_exits
 from ..pop import w16_population
+from ..sched import w20_calendar_1a
 
 STAGE = "W19"
 STAGE_VERSION = "1.0.0"  # 〔第333〕層の元の表(layer_independence)を notes に足した。資産の作り直しは版上げ 2 回目で
@@ -75,6 +76,9 @@ BUILD_INPUT_FAMILIES: dict[str, tuple[str, ...]] = {
     ),
     # 〔2-4〕元の宣言は W12 の京王の切替口(USE_ODPT_CHALLENGE)に依らない=in_use=False(既定の値は前と同じ)
     **{fam: w12_real_timetables.input_rel_paths(fam, in_use=False) for fam in w12_real_timetables.INPUT_FAMILIES},
+    # 〔第 3 期 3-1〕構築の段 W20cal(暦 1a・脇の段=ALL_STAGES の外)の構築側の表の元(社会生活基本調査の東京都の 2 表・
+    # 就業構造基本調査の地域の表・経済センサスの市区町村の表)。検証側の表(第 14・15・68-3 表)はここに載らない
+    **{fam: tuple(paths) for fam, paths in w20_calendar_1a.INPUT_FAMILIES.items()},
 }
 #: 開封済みの層(事前登録で 1 回開けた。値は読まないが「独立」ではない)。
 OPENED_LAYERS: dict[str, str] = {
@@ -150,6 +154,9 @@ def data_asset_paths(data_root: Path) -> list[str]:
     # 〔改訂(第330 B5)〕W13 が実際に読むファイルだけ(窓の CSV 2 本と祝日 CSV)。旧は
     # data/realworld/amedas を rglob して、構築が読まない日次取得の日まで載せうる形だった。
     for parts in w13_weather.INPUT_FILES:
+        rel.add(_joined(parts))
+    # 〔第 3 期 3-1〕構築の段 W20cal(暦 1a)の入力(構築側の 4 本の xlsx と産業の写像)。第 31/36 表の錨は data 根の外
+    for parts in w20_calendar_1a.INPUT_FILES:
         rel.add(_joined(parts))
     pool_root = data_root.joinpath(*w16_population.POOL_DIR)
     if pool_root.exists():

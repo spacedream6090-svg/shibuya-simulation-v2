@@ -84,7 +84,7 @@ def test_the_first_contents(ledger):
     assert set(PLAN9 + R88 + SEIBU + W16_WEAK) <= ids
     assert len(PLAN9 + R88 + SEIBU) == 16
     assert {ledger.get(i).remove_at for i in W16_WEAK} == {"4-1"}
-    assert ledger.get("BR-K9-MONDAY").remove_at == "3-1"
+    assert ledger.get("BR-K9-MONDAY").remove_at == "6-2"  # 〔第336・3-1〕1a は影なので外せない=6-2 へ(親)
     assert ledger.get("BR-W17-IO-SLEEP").remove_at == ledger.get("BR-E4-EXIT-VANISH").remove_at == "6-2"
     assert ledger.get("BR-W12-HOLIDAY-GT-WEEKDAY").remove_at == "2-3b"
 
@@ -128,7 +128,9 @@ def test_the_counts_by_form(decls):
     # 〔第336 取り込み〕本体(2-3c の 1 行=144)の後に W21 の 27 行を足した=144 → 171
     # 〔第 3 期 3-5〕本人の体の層の表 3 本(engine/body/rules.py の BODY_EXPEDIENTS 7・schedule.py の RESERVE_EXPEDIENTS 2・
     # system1.py の SYSTEM1_EXPEDIENTS 3)を足した=171 → 183(記録 bd35/README.md)
-    assert S.count_by_form(decls) == {"conf": 0, "expedients": 183, "docstring": 6, "heading": 83, "process": 18,
+    # 〔第 3 期 3-1〕構築の段 W20cal(build/sched/w20_calendar_1a.py)の StageResult.expedients 9 つ(第337 で休みの曜日の
+    # 選び方の 1 つを足した)と見出し 1 つ(項 8)を足した=本体の後に 183 → 192・見出し 83 → 84(記録 ca31/README.md)
+    assert S.count_by_form(decls) == {"conf": 0, "expedients": 192, "docstring": 6, "heading": 84, "process": 18,
                                       "fallback": 5}
     heads = [d for d in decls if d.form == S.FORM_HEADING]
     # 〔第 1 期 1-2〕p_notice の expedient の項 m_load(歩きスマホの負荷の係数)を消した=338 → 337(記録 p12/README.md §15)
@@ -138,7 +140,8 @@ def test_the_counts_by_form(decls):
     # 〔第 1 期 1-8b〕engine/speech/port.py(項 3)・layer.py(項 3)=77 → 79・351 → 357(記録 s8b/README.md)
     # 〔第 2 期 2-2 段 11a〕engine/proximity.py(項 5)=79 → 80・357 → 362(記録 prox22/README.md)
     # 〔第 3 期 3-5〕environment.py の項 3(体感温度)と salient.py の項 1(倒れる率)を本人の体の層の表へ移した=362 → 358
-    assert len({d.path for d in heads}) == 80 and sum(d.items for d in heads) == 358
+    # 〔第 3 期 3-1〕build/sched/w20_calendar_1a.py(項 8)=80 → 81・358 → 366(本体の後に・記録 ca31/README.md)
+    assert len({d.path for d in heads}) == 81 and sum(d.items for d in heads) == 366
 
 
 def test_process_and_fallback_rows(ledger, decls):
@@ -188,8 +191,9 @@ def test_heading_rows_carry_the_heading_and_the_item_count(ledger, decls):
     # 1-5: 74 → 76・〔第 1 期 1-8 J0〕+3・〔1-7〕+1・〔1-7 の 1-8 への結線〕layer.py の見出しを替えた=旧い行
     # HD-engine.decision.layer-2d3672ba は removed で残し、新しい見出しの行を足した(active は 80 のまま・行は 81)。
     # 〔第 1 期 1-8b〕engine/speech の見出し 2 行を足した=行 83・active 82・〔第 2 期 2-2〕+1=行 84・active 83
-    assert sum(1 for r in ledger if r.id.startswith("HD-")) == 84
-    assert sum(1 for r in ledger if r.id.startswith("HD-") and r.status == "active") == 83
+    # 〔第 3 期 3-1〕build/sched/w20_calendar_1a.py の見出し 1 行=行 85・active 84
+    assert sum(1 for r in ledger if r.id.startswith("HD-")) == 85
+    assert sum(1 for r in ledger if r.id.startswith("HD-") and r.status == "active") == 84
     assert {r.id: r.status for r in ledger}["HD-engine.decision.layer-2d3672ba"] == "removed"
 
 

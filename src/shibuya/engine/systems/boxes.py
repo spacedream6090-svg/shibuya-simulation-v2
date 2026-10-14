@@ -55,6 +55,7 @@ OWNER_NAMES: tuple[str, ...] = (
     "renderer", "bridge", "fleet_bridge", "run_day", "events", "decision", "speech", "proximity", "experiment",
     "batching",
     "body",
+    "calendar_shadow",  # 〔第 3 期 3-1〕暦 1a の影(状態台帳の行 CAL・腕 1a のランだけ・中身は hash_skip=値は変わらない)
 )
 
 
@@ -232,6 +233,9 @@ class Layers:
     #: 〔第 3 期 3-5〕本人の体の層(``engine.body.BodyModel``・状態台帳の行 ``BD``)。組み立てがどの腕でも置く(腕 sweep でも
     #: 段の境目の計器と manifest の ``body`` のため)。None=体の層の無い呼び方(全員を見る版の同じ値)。
     body: Any = None
+    #: 〔第 3 期 3-1〕暦 1a の影(``engine.calendar_shadow.CalendarShadow``・状態台帳の行 ``CAL``)。腕 ``--calendar-shadow 1a``
+    #: で母集団のあるランだけ組み立てが置く(既定 None=今の道・影は計器だけ)。
+    calendar_shadow: Any = None
 
     @property
     def undefined(self) -> Any:

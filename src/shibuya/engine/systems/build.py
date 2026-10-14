@@ -328,6 +328,11 @@ def build(_call_args: dict[str, Any]) -> Any:
     if not _BATCH.is_default():
         # 第 3 期 3-2: まとめの幅の腕は既定(刻みの幅)のときだけ設定の指紋に入れない(腕のときは入れる=再開で親と照合)
         _fp[_BATCH.FP_KEY] = int(_BATCH.arm())
+    from shibuya.engine import calendar_shadow as _CSH
+
+    if _CSH.is_on():
+        # 〔第 3 期 3-1〕暦 1a の影の腕は on のときだけ設定の指紋に足す(既定は今の指紋・影は計器だけ=挙動は不変)
+        _fp["calendar_shadow"] = _CSH.MODE_1A
     # ---- 第 3 期 3-3: 反実仮想の申込書(``cli.run`` が ``engine.experiment.layer.staged`` で置いた物・無ければ None=今の道)。
     # 設定の指紋には入れない(申込書の指紋は manifest の experiment の節=分岐が基準のランの状態から再開できる) ----
     from shibuya.engine.experiment import layer as _EXPL
@@ -770,6 +775,10 @@ def build(_call_args: dict[str, Any]) -> Any:
             presence.initialize()  # その時刻に在圏でない体を域外へ(I1 の分母)
         if runner is not None:
             runner.attach_presence(presence)  # hotel の母数・civic の引き込み候補
+
+    # ---- 〔第 3 期 3-1〕暦 1a の影(腕 --calendar-shadow 1a・母集団のあるランだけ・計器だけ=出入りは今の計画実行層が W17 で
+    # 動かす=CA2 (a)・状態台帳の行 CAL=軸 1 diag・軸 2 derivable)。0 日目はここで張る・1 日目からは日の頭の表の張り直し ----
+    calendar_shadow_layer = _CSH.build(world_dir, pop, calendar=calendar, weekly=weekly, n_agents=n_agents)
 
     # ---- 10a #1・10e(E3): T=0 の世界内日時=暦の開始日(世界の日付は暦・天気の行を引く再生日とは別)。
     # 〔第330・RET〕10e より前の「既定の開始日 + day_index を気象の再生実日で置き換える」導き方(legacy)は消した。
@@ -1357,6 +1366,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             proximity=proximity_layer,
             experiment=experiment_layer,
             body=body_layer,
+            calendar_shadow=calendar_shadow_layer,
         ),
         llm=_BX.LlmIo(pending=pending, fleet_deferred=fleet_deferred, fleet_waiting=fleet_waiting,
                       fleet_inflight=fleet_inflight, replay_inbox=replay_inbox),

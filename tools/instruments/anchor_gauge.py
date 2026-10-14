@@ -79,6 +79,9 @@ from read_guard import (  # noqa: E402
 from shibuya.core.time_consts import (  # noqa: E402
     HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_HOUR, SECONDS_PER_MINUTE, STEP_SECONDS,
 )
+# 〔第 3 期 3-1・検収 低 7〕W20cal の組んだ資産の置き場と名はエンジンの読み口の定数を 1 か所で読む
+from shibuya.engine.calendar_shadow import FILE_NAME as _CSH_FILE_NAME  # noqa: E402
+from shibuya.engine.calendar_shadow import STAGE_DIR as _CSH_STAGE_DIR  # noqa: E402
 
 SCHEMA = "shibuya.tools.instruments/anchor_gauge/1"
 JOURNAL_SCHEMA = "shibuya.tools.instruments/anchor_journal/1"
@@ -125,6 +128,8 @@ DEFAULTS: dict[str, str] = {
     "calib_anchors": "docs/bench/instruments/anchor_gauge/calib_anchors_v0.json",
     "pool": "data/persona_pool_v2",
     "records": "docs/bench/instruments/anchor_gauge",
+    # 〔第 3 期 3-1〕3-4 の源「W20」=構築の段 W20cal(暦 1a)の週の表(組んだ資産の置き場・無ければ空の列)
+    "w20": f"{_CSH_STAGE_DIR}/{_CSH_FILE_NAME}",
 }
 #: 世界資産の中の役割 → ファイル名。
 WORLD_FILES: dict[str, str] = {
@@ -142,6 +147,7 @@ ROLE_NAMES: dict[str, str] = {
     "commute_r3": "commute_time_dist_r3.json",
     "ssb_8_1": "ssb2021_activity_prior_v0.json",
     "calib_anchors": "calib_anchors_v0.json",
+    "w20": "w20_calendar_1a.parquet",
 }
 #: 錨の印(R-115 §2)。
 MARKS: dict[str, dict[str, str]] = {
@@ -150,7 +156,8 @@ MARKS: dict[str, dict[str, str]] = {
     "3-3": {"a1": "〔写〕W12 の線の割合", "a2": "〔部〕W12 の時刻の形", "a3": "〔非〕PT c-2(材料待ち)",
             "a4": "〔灰〕線ごとに違う材料(親の判断待ち・読まない)"},
     "3-4": {"a1": "〔写〕第 31 表+arrival_lead(W17 v2 の作り方)", "a2": "〔写〕W17 v2 の勤務の行の始まり",
-            "a3": "〔部〕第 8-1 表 関東大都市圏の仕事の立ち上がり", "a4": "〔非〕PT c-2(材料待ち)"},
+            "a3": "〔部〕第 8-1 表 関東大都市圏の仕事の立ち上がり", "a4": "〔非〕PT c-2(材料待ち)",
+            "a5": "〔写〕W20 暦 1a の始業(第 31/36 表の逆算+通勤=構築側の錨の写し・3-1)"},
 }
 PENDING_MATERIAL = {"value": None, "status": "材料待ち(PT c-2 は tokyo-pt.jp の同意ページ越し=手元に無い・器だけ)"}
 PENDING_GREY = {"value": None, "status": "親の判断待ち(〔灰〕=boundary_counts と同じ元・読まない・R-115 §5 空欄 1)"}
@@ -435,6 +442,8 @@ def make_guard(paths: Mapping[str, Path], *, out_dir: Path | None = None,
     files: dict[str, Path] = {r: Path(paths["world"]) / n for r, n in WORLD_FILES.items()}
     for r in ("area_axes", "time_dist_12", "commute_r3", "ssb_8_1", "calib_anchors"):
         files[r] = Path(paths[r])
+    if paths.get("w20") is not None and Path(paths["w20"]).is_file():  # 〔3-1〕源 W20(組んだ資産があるときだけ)
+        files["w20"] = Path(paths["w20"])
     for r, p in files.items():
         if Path(p).name != ROLE_NAMES[r]:
             raise NotAllowedError(f"役割 {r} のファイルの名は {ROLE_NAMES[r]}(いま {Path(p).name})")
@@ -467,6 +476,8 @@ class Static:
     pool_root: Path
     dilated: dict[str, np.ndarray] = field(default_factory=dict)
     cache: dict[str, Any] = field(default_factory=dict, repr=False)
+    #: 〔第 3 期 3-1〕3-4 の源「W20」(W20cal の週の表・許可の一覧の役割 w20・無ければ None)。
+    w20_path: Path | None = None
 
 
 def _cached(S: Static, key: str, fn: Any) -> Any:
@@ -502,6 +513,7 @@ def load_static(guard: ReadGuard, paths: Mapping[str, Path], *, dilate: Sequence
         calib=guard.read_json(guard.files["calib_anchors"]),
         pool_root=Path(paths["pool"]),
         dilated=dil,
+        w20_path=guard.files.get("w20"),
     )
 
 
@@ -1039,6 +1051,33 @@ def duty_open_anchor(J: Mapping[str, Any], targets: np.ndarray, S: Static, guard
             "n_on_day": int(ok.sum())}
 
 
+def w20_start_anchor(J: Mapping[str, Any], targets: np.ndarray, S: Static, guard: ReadGuard) -> dict[str, Any]:
+    """3-4 錨 5〔写〕(第 3 期 3-1): W20cal(暦 1a)の週の表の、その日の曜日の勤務の約束の始まり(週 0・対象の体)。
+
+    表は許可の一覧の役割 ``w20`` だけで読む(組んだ資産が無ければ空の列)。曜日は journal の計画の曜日(``plan.day_index``)。
+    """
+    p = S.w20_path
+    if p is None:
+        return {"start": None, "status": f"W20 の週の表が無い({_CSH_STAGE_DIR} を組んでいない)=錨 5 は空"}
+    tab = _cached(S, "w20_tab", lambda: guard.read_parquet(p, ["agent_id", "week", "weekday", "commit", "start_min",
+                                                                "depart_min", "lead_min"]))
+    day = int(J["meta"].get("plan", {}).get("day_index", 0))
+    sel = (np.asarray(tab["week"]) == 0) & (np.asarray(tab["weekday"]) == day)
+    aid = np.asarray(tab["agent_id"], dtype=np.int64)[sel]
+    order = np.argsort(aid)
+    aid = aid[order]
+    commit = np.asarray(tab["commit"], dtype=np.int64)[sel][order]
+    start = np.asarray(tab["start_min"], dtype=np.int64)[sel][order]
+    want = np.asarray(J["pop_source_agent_id"], dtype=np.int64)
+    pos = np.clip(np.searchsorted(aid, want), 0, max(aid.size - 1, 0))
+    found = (aid.size > 0) & (aid[pos] == want)
+    work = found & (commit[pos] == 1)
+    st = np.where(work, start[pos], -1)
+    ok = np.asarray(targets, dtype=bool) & work
+    return {"start": st, "ok": ok, "n_targets": int(np.count_nonzero(targets)), "n_work": int(ok.sum()),
+            "n_not_in_table": int(np.count_nonzero(np.asarray(targets, dtype=bool) & ~found)), "weekday": day}
+
+
 # ====================================================================== 1 腕の計器
 def gauge_arm(J: Mapping[str, Any], S: Static, guard: ReadGuard, *, duty_cache: dict[str, Any] | None = None
               ) -> dict[str, Any]:
@@ -1192,6 +1231,13 @@ def gauge_arm(J: Mapping[str, Any], S: Static, guard: ReadGuard, *, duty_cache: 
         a1_stats, a1_info = {"n": 0, "mean": None, "hist15": [0.0] * N_SLOTS}, {"status": duty.get("status")}
     a3 = _cached(S, "ssb_rise", lambda: ssb_work_rise(S.ssb))
     rs_s, rs_p = rise_slot(curve_s), rise_slot(curve_p)
+    w20 = w20_start_anchor(J, tg, S, guard)  # 〔3-1〕源 W20(暦 1a の約束の始まり)
+    if w20.get("start") is not None:
+        ok5 = np.asarray(w20["ok"], dtype=bool)
+        a5_stats = dist_stats(np.asarray(w20["start"])[ok5], omega[ok5])
+        a5_info = {k: w20[k] for k in ("n_targets", "n_work", "n_not_in_table", "weekday")}
+    else:
+        a5_stats, a5_info = {"n": 0, "mean": None, "hist15": [0.0] * N_SLOTS}, {"status": w20.get("status")}
 
     def _d(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
         return {"mean_min": _f((a["mean"] - b["mean"]) if a.get("mean") is not None and b.get("mean") is not None
@@ -1208,6 +1254,9 @@ def gauge_arm(J: Mapping[str, Any], S: Static, guard: ReadGuard, *, duty_cache: 
         "a1_r31_lead": {**a1_stats, **a1_info}, "a2_w17_work_row": a2_stats,
         "a3_ssb_8_1": a3, "a4_pt_c2": dict(PENDING_MATERIAL),
         "diff_vs_a1": _d(sim_stats, a1_stats), "diff_vs_a2": _d(sim_stats, a2_stats),
+        # 〔第 3 期 3-1〕源 W20(暦 1a)と、ランとの差・W17 との差(参考)・錨 1 との差(どちらも第 31 表の写し)
+        "a5_w20": {**a5_stats, **a5_info}, "diff_vs_a5": _d(sim_stats, a5_stats),
+        "a2_minus_a5": _d(a2_stats, a5_stats), "a1_minus_a5": _d(a1_stats, a5_stats),
         "rise_diff_vs_a3_min": None if rs_s is None or a3["rise_slot"] is None else (rs_s - a3["rise_slot"]) * SLOT_MIN,
     }
 
@@ -1268,6 +1317,8 @@ def summarize(arm: Mapping[str, Any]) -> dict[str, Any]:
         s[f"3-4/sim/{k}"] = arm["3-4"]["sim"].get(k)
         s[f"3-4/a1/{k}"] = arm["3-4"]["a1_r31_lead"].get(k)
         s[f"3-4/a2/{k}"] = arm["3-4"]["a2_w17_work_row"].get(k)
+        if "a5_w20" in arm["3-4"]:  # 〔3-1〕源 W20(前の版の記録には無い)
+            s[f"3-4/a5/{k}"] = arm["3-4"]["a5_w20"].get(k)
     s["3-4/sim/rise"] = arm["3-4"]["sim_rise"]
     s["3-4/a3/rise"] = arm["3-4"]["a3_ssb_8_1"]["rise"]
     return s
@@ -1537,7 +1588,8 @@ def _md_arm(arm: str, a: Mapping[str, Any]) -> list[str]:
     out.append("")
     rows = []
     for lab, st, rise in (("ラン", s34["sim"], s34["sim_rise"]), ("錨1〔写〕第 31 表+lead", s34["a1_r31_lead"], None),
-                          ("錨2〔写〕W17 v2 勤務の行", s34["a2_w17_work_row"], s34["plan_rise"])):
+                          ("錨2〔写〕W17 v2 勤務の行", s34["a2_w17_work_row"], s34["plan_rise"]),
+                          ("錨5〔写〕W20 暦 1a の約束", s34.get("a5_w20", {}), None)):
         rows.append([lab, st.get("n"), st.get("mean_hm"), st.get("p10"), st.get("p25"), st.get("p50"), st.get("p75"),
                      st.get("p90"), st.get("on_00_30"), st.get("mode_bin"), rise])
     rows.append(["錨3〔部〕第 8-1 表 仕事", None, None, None, None, None, None, None, None, None,
@@ -1551,6 +1603,13 @@ def _md_arm(arm: str, a: Mapping[str, Any]) -> list[str]:
                f"錨 2 平均 {_c(d2['mean_min'])} 分・p50 {_c(d2['p50_min'])} 分・JSD {_c(d2['jsd15'])} / "
                f"立ち上がり(在席の率 対 第 8-1 表) {_c(s34['rise_diff_vs_a3_min'])} 分。対象 {s34['n_targets']} 体・"
                f"始まりが取れた {s34['n_found']} 体(立ち上がりの行の計画=計画上のセルの在席の率)。")
+    if "diff_vs_a5" in s34:  # 〔第 3 期 3-1〕源 W20(暦 1a)
+        d5, d25 = s34["diff_vs_a5"], s34["a2_minus_a5"]
+        a5 = s34.get("a5_w20", {})
+        out.append(f"〔3-1〕差(ラン − 錨 5=W20): 平均 {_c(d5['mean_min'])} 分・p50 {_c(d5['p50_min'])} 分・JSD "
+                   f"{_c(d5['jsd15'])} / W17 − W20(参考): 平均 {_c(d25['mean_min'])} 分・p50 {_c(d25['p50_min'])} 分・"
+                   f"JSD {_c(d25['jsd15'])}。錨 5 の体 {_c(a5.get('n_work'))}・表に無い体 {_c(a5.get('n_not_in_table'))}"
+                   f"{('・' + str(a5['status'])) if a5.get('status') else ''}(合否にしない)。")
     out.append("")
     sens = a.get("sensitivity_area_dilate", {})
     if sens:

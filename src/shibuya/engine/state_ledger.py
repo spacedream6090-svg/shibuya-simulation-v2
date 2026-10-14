@@ -1,6 +1,6 @@
 """状態台帳の宣言(10b・A3「挙動」と「復元」の 2 軸・機械可読の 1 ファイル)。
 
-**読み口は 1 つ**: ``LEDGER``(204 行の組=〔第 2 期 2-3〕記憶の器の記録の目印の腕の行 ``M0L``・〔第 3 期 3-3〕申込書の控えの行 ``X``・〔第 2 期 2-1〕経済の段階 2 の行 ``EC``・``ATM``・``CR``・``EM``・〔第 1 期 1-8〕候補の口の行 ``J0``・〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P``・〔第 1 期 1-7〕連絡先の印の行 ``CT5``・〔第 1 期 1-8b〕発話の口の腕の行 ``S8``・``S8M``・〔第 2 期 2-2〕近接の層の行 ``PX``・近傍の索引の行 ``PX0``・〔第 3 期 3-2〕計算のまとめの窓の行 ``BW`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
+**読み口は 1 つ**: ``LEDGER``(207 行の組=〔第 3 期 3-1〕暦 1a の影の行 ``CAL``・〔第 2 期 2-3〕記憶の器の記録の目印の腕の行 ``M0L``・〔第 3 期 3-3〕申込書の控えの行 ``X``・〔第 2 期 2-1〕経済の段階 2 の行 ``EC``・``ATM``・``CR``・``EM``・〔第 1 期 1-8〕候補の口の行 ``J0``・〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P``・〔第 1 期 1-7〕連絡先の印の行 ``CT5``・〔第 1 期 1-8b〕発話の口の腕の行 ``S8``・``S8M``・〔第 2 期 2-2〕近接の層の行 ``PX``・近傍の索引の行 ``PX0``・〔第 3 期 3-2〕計算のまとめの窓の行 ``BW`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
 ``soa_rows``・``external_rows``・``behavior_excluded``・``full_excluded``・``full_items``・``behavior_items``・〔1-8b〕``arm_rows``・``arm_items``)。表・AST の検査(``engine.state_ledger_ast``)・
 2 つのハッシュ(``engine.state_hashes``)・揺らし試験はどれもこの表から作る。
 
@@ -75,6 +75,7 @@ from typing import Final, Iterable, Mapping
 #: 〔第 3 期 3-3〕申込書の控えの行 ``X``(diag・discardable)も版は上げない(仮採用): どちらのハッシュにも状態のファイルにも入らない。
 #: 〔第 3 期 3-2〕計算のまとめの窓の行 ``BW``(diag・discardable)も版は上げない(仮採用): どちらのハッシュにも状態のファイルにも入らない。
 #: 〔第 3 期 3-5〕本人の体の層の行 ``BD``(diag・discardable)も同じ理由で版は上げない(仮採用)。
+#: 〔第 3 期 3-1〕暦 1a の影の行 ``CAL``(diag・derivable・中身は全部 hash_skip=CT5 と同じ形)も同じ理由で版は上げない(仮採用)。
 LEDGER_VERSION: Final[str] = "state-ledger/10e-ret"
 
 BEHAVIOR: Final[str] = "behavior"
@@ -964,6 +965,20 @@ _EXT: tuple[LedgerRow, ...] = (
              "__delattr__ の守り)・中身を書く口は step と initial だけ(試験 tests/engine/body/test_body_guard.py)。〔検収 M1〕体ごと"
              "の配列は腕 reserve だけ確保する(腕 sweep は長さ 0=計器だけ)・〔検収 L6〕段の境目の計器は環境変数 "
              "SHIBUYA_BODY_BOUNDARY_GAUGE=1 のときだけ数える。行の鍵は O の通し番号でなく BD"),
+    # ---- 第 3 期 3-1(暦 1a の影・CA2 (a)・腕 --calendar-shadow 1a): 足す前に軸を決めた行(腕の無いランは持ち主が None) ----
+    LedgerRow(
+        key="CAL", name="CalendarShadow(暦 1a の影=その日の勤務と授業の約束と日ごとの計器・第 3 期 3-1)", place=EXTERNAL,
+        dtype="その日の影の dict(体 × 欄の配列 10 本と日・週・曜日)・日番号 → 計器の記録の dict", nbytes="",
+        alloc="--calendar-shadow 1a", behavior=DIAG, restore=DERIVABLE, dead=False,
+        basis="engine/calendar_shadow.py(CalendarShadow.relay_day・manifest)・engine/systems/state_io.py(relay_tables)・"
+              "engine/systems/build.py(組み立てで 0 日目)・engine/run.py(manifest の calendar_shadow)",
+        items=("calendar_shadow.today", "calendar_shadow.shadow_day_log"),
+        hash_skip=("calendar_shadow.today", "calendar_shadow.shadow_day_log"),
+        note="3-1: 腕 1a で母集団のあるランだけ持ち主を作る(既定 w17 は None)。影は計器だけ=出入り・退出・就寝は計画実行層が"
+             "W17 で動かす(CA2 (a))=読み手は manifest の calendar_shadow と試験だけ(軸 1 diag)。その日の影と日ごとの記録は"
+             "W20 の週の表・暦・日番号だけから決まる=軸 2 derivable(再開では組み立てが 0 日目を・表の張り直しが再開の日までを"
+             "作り直す=通しと同じ記録)・中身は hash_skip(どちらのハッシュにも状態のファイルにも入らない=腕 1a のランの final は"
+             "既定と同じ)。書く系は day_head(宣言 CAL:calendar_shadow.*)と組み立て。行の鍵は O の通し番号でなく CAL"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -1131,6 +1146,8 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "batching": ("engine/batching.py", "WindowQueue"),
     # 第 3 期 3-5: 本人の体の層(状態台帳の行 BD・どの腕でも置く)
     "body": ("engine/body/model.py", "BodyModel"),
+    # 第 3 期 3-1: 暦 1a の影(状態台帳の行 CAL・腕 --calendar-shadow 1a のランだけ)
+    "calendar_shadow": ("engine/calendar_shadow.py", "CalendarShadow"),
 }
 
 #: (ii) キャッシュ・導出。中身は 3 通り: (a) 毎 tick(か事象のある tick)作り直す作業の値・印
@@ -1422,6 +1439,10 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("runner.environment", REF, _REFR + "(3-5: 本人の体の層=組み立てが attach_body で挿す)", "body"),
     _x("runner.environment", CACHE, "3-5: その日の窓 × セルの体感温度の表(腕 reserve だけ・暑さ段と日陰の面から作る・日の頭と"
        "天気の日付の差し替えで捨てる)", "_felt_table"),
+    # 第 3 期 3-1: 暦 1a の影の表(W20 の週の表をランの体の並びに引き直した物=資産から作る)・設定・参照(暦と W17 の週次表)
+    _x("calendar_shadow", CACHE, _TAB + "(3-1: W20 の週の表をランの体の並びに引き直した物)", "table"),
+    _x("calendar_shadow", CONST, _CFG + "(3-1: 体の数・源の名 1a)", "n", "source"),
+    _x("calendar_shadow", REF, _REFR + "(3-1: 暦の口と W17 の週次表=参考の差を数えるだけ・読むだけ)", "calendar", "weekly"),
 )
 
 

@@ -86,20 +86,23 @@ def test_ledger_has_187_rows_in_two_axes():
     diag・derivable・hash_skip)・``EM``(生ログの支払いの方法の列・diag・discardable)を足して外の状態 111 行・全体 202 行
     (2-2 の PX0 の後・どれもハッシュにも状態のファイルにも入らない=版は上げない・記録 ec21/README.md)。
     〔第 2 期 2-3〕記憶の器の記録の目印の seq の腕の行 ``M0L``(軸 1 no・軸 2 required・腕 memory-store)を足して外の状態 113 行・
-    全体 204 行(3-3 の X の後・腕の行=既定のランのハッシュと状態のファイルは不変=版は上げない・記録 md23/README.md)。"""
+    全体 204 行(3-3 の X の後・腕の行=既定のランのハッシュと状態のファイルは不変=版は上げない・記録 md23/README.md)。
+    〔第 3 期 3-1〕暦 1a の影の行 ``CAL``(軸 1 diag・軸 2 derivable・中身は全部 hash_skip=CT5 と同じ形・腕 1a のランだけ持ち主)を
+    足して外の状態 114 行・全体 205 行(2-3 の M0L の後・版は上げない=同じ理由・記録 ca31/README.md)。"""
     c = SL.counts()
     # 〔第 3 期 3-3〕申込書の控えの行 X(diag・discardable・どちらのハッシュにも状態のファイルにも入らない)を足して 112・203
     # 〔第 2 期 2-3〕その後に腕の行 M0L を足して 113・204
     # 〔第 3 期 3-2〕その後に計算のまとめの窓の行 BW(diag・discardable・どちらのハッシュにも状態のファイルにも入らない)を足して 114・205
     # 〔第 3 期 3-5〕その後に本人の体の層の行 BD(diag・discardable・どちらのハッシュにも状態のファイルにも入らない)を足して 115・206
-    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 115, "soa": 91, "total": 206}
+    # 〔第 3 期 3-1〕その後に暦 1a の影の行 CAL(diag・derivable・中身は hash_skip)を足して 116・207
+    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 116, "soa": 91, "total": 207}
     assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
     assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 97)] + ["E", "M0", "M0R", "A", "P", "J0",
                                                                                      "CT5", "S8", "S8M",
                                                                                      "PX", "PX0", "EC", "ATM", "CR", "EM", "X",
-                                                                                     "M0L", "BW", "BD"]
+                                                                                     "M0L", "BW", "BD", "CAL"]
     assert (SL.row("X").behavior, SL.row("X").restore, SL.row("X").arm) == (SL.DIAG, SL.DISCARDABLE, "")
     assert (SL.row("BW").behavior, SL.row("BW").restore, SL.row("BW").arm) == (SL.DIAG, SL.DISCARDABLE, "")
     assert (SL.row("E").behavior, SL.row("E").restore) == (SL.DIAG, SL.DISCARDABLE)

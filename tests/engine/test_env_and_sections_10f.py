@@ -62,6 +62,8 @@ X33_KEYS = ("experiment",)
 TM32_KEYS = ("batching",)
 #: 〔第 3 期 3-5〕末尾(3-2 の batching の後)に足した欄(本人の体の層=持ち主・腕・規則の出典の表・段の境目の計器)。
 BD35_KEYS = ("body",)
+#: 〔第 3 期 3-1〕末尾(3-5 の body の後)に足した欄(暦 1a の影の節・腕 w17 のランは源だけ)。
+CA31_KEYS = ("calendar_shadow",)
 PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite", "blake3", "os", "os_release",
                  "os_version", "machine", "cpu", "numpy_simd", "deps", "deps_sha256", "deps_count"}
 #: 設定の節の道筋の一覧の sha256(環境に依らない golden=検収 N3 の 3)。節を変えたら理由を記録に書いて更新する。
@@ -103,7 +105,9 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 記録 docs/bench/analysis/wallbounce-1012/tm32/README.md)。
 #: 〔第 3 期 3-5〕``body`` の設定の子 8(schema・owner・arm・arms・rules・expedients・reserve_expedients・system1)を足した
 #: (3-2 の後に・前 ``564d5c72…e8a61ffbeaf57``・記録 docs/bench/analysis/wallbounce-1012/bd35/README.md)。
-CONFIG_PATHS_SHA256 = "8c1610adee56845d333011d26a9bb837b02582a307ddbdf88209692fa5209d43"
+#: 〔第 3 期 3-1〕``calendar_shadow`` の設定の子 4 つ(schema・source・w20・weeks)を足した(3-5 の後に・前 ``8c1610ad…209d43``→ ``68c3ffd0…``=
+#: この 4 本を外すと前の値に戻る・記録 docs/bench/analysis/wallbounce-1012/ca31/README.md)。
+CONFIG_PATHS_SHA256 = "68c3ffd0b33c818e73729a7bc22336a568127de41d17ffae55bfed7d64c55395"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 
@@ -267,9 +271,9 @@ def test_t1_two_processes_write_the_same_env_id_and_final_to_the_files(tmp_path)
     assert drop(c1["manifest"]) == drop(c2["manifest"])
     assert c1["manifest"]["resume"]["run_id"] != c2["manifest"]["resume"]["run_id"]
     # 列追加のみ(末尾に 3 つ+第 2 段の 2 つ+10e の欄+1-1 T0 の欄+1-4 の欄+1-9 の欄+1-2 の欄+1-5 の欄+1-8 J0 の欄+1-7 の欄
-    # +1-8b の欄+2-2 の欄+3-3 の欄)
+    # +1-8b の欄+2-2 の欄+3-3 の欄+3-1 の欄)
     tail = (NEW_KEYS + STAGE2_KEYS + E10_KEYS + T0_KEYS + R14_KEYS + C19_KEYS + P12_KEYS + R15_KEYS + J08_KEYS
-            + C07_KEYS + S8B_KEYS + PX22_KEYS + X33_KEYS + TM32_KEYS + BD35_KEYS)
+            + C07_KEYS + S8B_KEYS + PX22_KEYS + X33_KEYS + TM32_KEYS + BD35_KEYS + CA31_KEYS)
     assert list(c1["manifest"])[-len(tail):] == list(tail)
 
 

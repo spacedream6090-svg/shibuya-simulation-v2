@@ -112,6 +112,8 @@ def sys_close_final(ctx: Any, b: Any) -> None:
     result.experiment_layer = L.experiment  # type: ignore[attr-defined]
     # 〔第 3 期 3-5〕本人の体の層(どの腕でも組み立てが置く)も同じ形で渡す(manifest の body が読む)
     result.body_layer = L.body  # type: ignore[attr-defined]
+    # 〔第 3 期 3-1〕暦 1a の影(腕 1a のランだけ・既定 None)も同じ形で渡す(manifest の calendar_shadow が読む)
+    result.calendar_shadow_layer = L.calendar_shadow  # type: ignore[attr-defined]
     # AB7 の M1-M3(接地率・未定義率・上位未定義語)は §7 の台帳が持つ。``runner`` と同じく
     # **後付けの属性**として渡すだけ(RunResult の欄は増やさない=既存の出力は不変)。
     result.undefined_registry = bridge.undefined  # type: ignore[attr-defined]

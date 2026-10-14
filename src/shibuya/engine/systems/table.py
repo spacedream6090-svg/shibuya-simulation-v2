@@ -89,11 +89,13 @@ SYSTEMS: tuple[SystemSpec, ...] = (
     make("day_head", "暦", "day_head", _DY.sys_day_head,
          resolve_ops="set_plan_state",
          paths="O3[5-8]:presence.* O70:presence.* O4[6-9]:runner.* O5[0-6]:runner.* O61:runner.* O7[3-6]:runner.* "
-               "O95:runner.*",
+               "O95:runner.* "
+               "CAL:calendar_shadow.*",  # 〔第 3 期 3-1〕暦 1a の影(腕 1a のランだけ・計器=状態台帳の行 CAL)
          tally="day_heads", reads="cfg.ticks cfg.tpd day.b_agent day.b_cell day.b_cond day.b_start day.b_tick "
                "day.w17_substituted fx.calendar fx.schedule fx.weekly layers.act_layer "
                "layers.classical layers.ledger layers.poi_resolver layers.presence layers.runner "
-               "runstats.day_heads soa.agents",
+               "runstats.day_heads soa.agents "
+               "layers.calendar_shadow",
          origin=f"L0・run.py:3607-3609 @{_E}"),
     # ================================================================ 刻みの中(25+〔3-3〕申込書の系 1)
     # 〔第 3 期 3-3〕申込書の改変を効かせる口(申込書を渡したランだけ立つ・刻みの中の最初=日の頭で張り直した表の後)
@@ -404,7 +406,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.speech "  # 1-8b: 発話の口を結果に渡す(manifest の speech_port)
                "layers.proximity "  # 第 2 期 2-2: 近接の層を結果に渡す(manifest の proximity)
                "layers.experiment "  # 3-3: 申込書の持ち主を結果に渡す(manifest の experiment)
-               "layers.body",  # 3-5: 本人の体の層を結果に渡す(manifest の body)
+               "layers.body "  # 3-5: 本人の体の層を結果に渡す(manifest の body)
+               "layers.calendar_shadow",  # 〔第 3 期 3-1〕暦 1a の影を結果に渡す(manifest の calendar_shadow)
          origin=f"E1・run.py:4551-4592 @{_E}"),
     make("report", "計器", "run_end", _RP.report,
          tally="result sleep_counts frozen_sources_map",  # 段 FIX: 欄の別名 ``frozen_sources_map.update``

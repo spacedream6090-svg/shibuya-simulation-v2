@@ -232,6 +232,9 @@ PATHS: Final[dict[str, str]] = {
     **_mixed("body", config=("schema", "owner", "arm", "arms", "rules", "expedients", "reserve_expedients", "system1"),
              observed=("steps", "agent_evals", "due", "replans", "reservations", "felt_frames", "felt_evals", "felt_due",
                        "felt_moved", "felt_reservations", "felt_tables", "pending", "boundaries", "boundary_digest")),
+    # ---- 第 3 期 3-1: 暦 1a の影(源 w17/1a・W20 の版・週の数=設定/日ごとの記録・影の数・空欄の数=観測。腕 w17 のランは
+    # 観測の子が null。子の鍵は engine.calendar_shadow の MANIFEST_CONFIG・MANIFEST_OBSERVED と同じ=試験が突き合わせる) ----
+    **_mixed("calendar_shadow", config=("schema", "source", "w20", "weeks"), observed=("days", "shadows", "blanks")),
 }
 
 
