@@ -53,7 +53,7 @@ DEAD5 = ("agents.plan_cursor", "agents.invocation_distance", "agents.wake_pendin
 T7_TARGET_SECONDS = 0.100
 T7_SHARE_CAP = 0.01
 #: T7 で確かめる既定 v3 の final(10e の版上げの段ごとに張り替える)。
-T7_V3_FINAL = "7857ecb16b9665cd"  # 〔改訂(第330・ACT)〕活性化の値(B6build は 0483d1165e245bed・E4・E5 は 4fbf61616af1e3d2・E1 は 3264c9fc190b3eb9・E2 は 4985ff2fb3c771c4)  # 〔2-4 V1〕前 5f7ae9ff24005314  # 〔2-4 V2〕前 4bcca9f0216362bb
+T7_V3_FINAL = "f6488d4d5eadf5ca"  # 〔改訂(第330・ACT)〕活性化の値(B6build は 0483d1165e245bed・E4・E5 は 4fbf61616af1e3d2・E1 は 3264c9fc190b3eb9・E2 は 4985ff2fb3c771c4)  # 〔2-4 V1〕前 5f7ae9ff24005314  # 〔2-4 V2〕前 4bcca9f0216362bb  # 〔2-4 V3〕前 7857ecb16b9665cd
 #: A2 (b): 構成で読み手が変わる 6 列(どの構成でも behavior)。
 A2B_SIX = ("age", "sex", "talk_partner", "weight_kg", "sm_last", "mem_last")
 

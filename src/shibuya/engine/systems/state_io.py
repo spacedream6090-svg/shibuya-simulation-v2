@@ -360,6 +360,12 @@ def save_state(b: Any, T_next: int, *, finished: bool, closed: bool) -> None:
     _es2 = _ES2.header_fields(_stage2_plan(b))
     if _es2 is not None:
         header["economy_stage2"] = _es2
+    # 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く腕(既定の walk のランだけ書く=legacy は 2-4 より前の見出しのまま)
+    from shibuya.engine import seat_release as _SR
+
+    _sr = _SR.header_fields(b.cfg.seat_release)
+    if _sr is not None:
+        header["seat_release"] = _sr
     from shibuya.engine.experiment import layer as _EXPL
 
     _exp_h = _EXPL.state_header(getattr(b.layers, "experiment", None))

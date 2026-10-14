@@ -274,7 +274,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "EC:ledger.* EM:ledger.*",
          scratch_r="plan", buffers_r="focus_request", scratch_w="outcome",
          tally="geometry_hops geometry_jammed leave_counts per_action_total phase result",
-         reads="buffers.focus_request cfg.attention_on cfg.leave_effect cfg.queue_service "
+         reads="buffers.focus_request cfg.attention_on cfg.leave_effect cfg.queue_service cfg.seat_release "
                "cfg.report_precondition cfg.vocab_version fx.geom fx.schedule layers.energy "
                "layers.fam_layer layers.ledger layers.mem_layer layers.norm_meter layers.runner "
                "runstats.geometry_hops runstats.geometry_jammed runstats.leave_counts "
@@ -347,7 +347,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "O3[5-8]:presence.* "
                "E:events.* A:ledger.* "  # 1-3: E(診断)の区切りの行(日の締め)・その日の記録の計器と保持窓/1-9: 金の計器の締め
                "EC:ledger.* EM:ledger.*",  # 2-1: 経済の段階 2(給料日の賃金・日の欄)と生ログの支払いの方法の列
-         tally="daily_records state_files result", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.run_id cfg.sim_days "
+         tally="daily_records state_files result", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.run_id cfg.seat_release cfg.sim_days "
                "cfg.state_out cfg.tick_seconds cfg.tpd fx.calendar fx.env_fields fx.schedule fx.schedule_hash "
                "layers.act_layer layers.arbiter layers.bridge layers.classical layers.conv "
                "layers.detector layers.energy layers.fam_layer layers.fleet_bridge "
@@ -363,7 +363,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
     make("drain", "判断", "run_end", _RE.sys_drain,
          paths="O43:run_day.* O44:run_day.* O96:run_day.* O8[89]:fleet_bridge.* O87:bridge.* "
                "M0R:mem_layer.memory_store.*",  # 1-6: 艦隊の残りの呼のテープの行=記憶の器の録画の控えを取り出す
-         tally="result state_files", calls_llm="drain", reads="cfg.fp cfg.parent_run cfg.run_id cfg.sim_days cfg.state_out cfg.t_end "
+         tally="result state_files", calls_llm="drain", reads="cfg.fp cfg.parent_run cfg.run_id cfg.seat_release cfg.sim_days cfg.state_out cfg.t_end "
                "cfg.tick_seconds cfg.total_ticks cfg.tpd fx.env_fields fx.schedule fx.schedule_hash "
                "layers.act_layer layers.arbiter layers.bridge layers.classical layers.conv "
                "layers.detector layers.energy layers.fam_layer layers.fleet_bridge "
@@ -383,7 +383,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "O3[5-8]:presence.* O8[5-7]:bridge.* "
                "E:events.* A:ledger.* "  # 1-3: 最後の便の ActualLog の行の出来事・E の区切りの行・計器と保持窓/1-9: 金の計器
                "EC:ledger.* EM:ledger.*",  # 2-1: 経済の段階 2(最後の日の給料日の賃金・日の欄)と生ログの支払いの方法の列
-         tally="daily_records ledger_growth result state_files", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.run_id cfg.sim_days "
+         tally="daily_records ledger_growth result state_files", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.run_id cfg.seat_release cfg.sim_days "
                "cfg.state_out cfg.stopped cfg.t_end cfg.tick_seconds cfg.total_ticks cfg.tpd fx.calendar fx.env_fields "
                "fx.schedule fx.schedule_hash layers.act_layer layers.arbiter layers.bridge "
                "layers.classical layers.conv layers.detector layers.energy layers.fam_layer "
@@ -410,7 +410,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "cfg.outside_suppression cfg.p_notice_ablation cfg.p_notice_d50_scale "
                "cfg.parent_run cfg.plan_exec_on "
                "cfg.plan_sleep cfg.poi_target cfg.policy cfg.refractory_scale_norm cfg.response_delay "
-               "cfg.role_words cfg.run_id cfg.seat_area_eatery_m2 cfg.seat_area_retail_m2 cfg.signage "
+               "cfg.role_words cfg.run_id cfg.seat_area_eatery_m2 cfg.seat_area_retail_m2 cfg.seat_release cfg.signage "
                "cfg.signage_p_see cfg.sim_days cfg.sleep_suppression cfg.stopped cfg.store_memory_on "
                "cfg.store_recall_scope cfg.store_signage_on cfg.store_wom_on cfg.t_begin cfg.t_end "
                "cfg.tick_seconds cfg.vocab_version day.w17_substituted fx.calendar fx.fleet "

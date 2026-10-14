@@ -169,8 +169,9 @@ PATHS: Final[dict[str, str]] = {
         "departures", "deferred", "forced_after_defer", "shopping_interrupted", "queue_balked",
         "exit_cell_in_area_by_hour", "platform_cell_in_area_by_hour", "exit_cell_density_stage_max_by_hour",
         "immediate")),
-    **_mixed("leave_effects", config=("enabled",), observed=(
-        "leave", "released_indoor", "left_queue", "was_conversing", "sessions_closed")),
+    **_mixed("leave_effects", config=("enabled", "seat_release"), observed=(
+        "leave", "released_indoor", "left_queue", "was_conversing", "sessions_closed",
+        "released_on_walk")),  # 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く腕(設定)と解いた数(観測)
     **_mixed("near_tiebreak", config=("mode", "order"), observed=("ties_broken", "tie_candidates", "order_ties")),
     **_mixed("group_norms", config=("enabled", "declared", "cost"), observed=(
         "cowalk", "instant_group_walk", "conversation_group_size_a1", "context_entropy", "role_words",

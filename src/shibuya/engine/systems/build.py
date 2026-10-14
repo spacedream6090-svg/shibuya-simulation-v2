@@ -357,6 +357,10 @@ def build(_call_args: dict[str, Any]) -> Any:
         from shibuya.engine import economy_stage2 as _ES2R
 
         _ES2R.check_resume(_h.get("economy_stage2"))
+        # 〔第 2 期 2-4 V3〕在席の印の腕も設定の指紋に入れない=見出しの seat_release(無ければ legacy)と今の腕を突き合わせる
+        from shibuya.engine import seat_release as _SRR
+
+        _SRR.check_resume(_h.get("seat_release"))
         t_begin = int(_h["progress"]["next_T"])
         if not (0 < t_begin < total_ticks):
             raise ValueError(f"再開の時刻 T={t_begin} がこのランの範囲 0〜{total_ticks} の内側に無い(sim_days を見る)")
@@ -946,7 +950,8 @@ def build(_call_args: dict[str, Any]) -> Any:
     layer_counts = np.zeros((24, 3, len(_ENTRANCES)), dtype=np.int64)
     #: 9a(D-112 ④): 退去の効果の件数(診断だけ)。
     leave_counts: dict[str, int] = {"n_leave": 0, "n_leave_indoor": 0, "n_leave_queue": 0,
-                                    "n_leave_conversing": 0}
+                                    "n_leave_conversing": 0,
+                                    "n_seat_released_walk": 0}  # 〔第 2 期 2-4 V3〕歩き出しで解いた在席の印
     leave_closed = 0
     _call_layer = 1 if classical_policy is not None else 2
     # ---- 二層の段 2: 活動層(「次の予定」は上の計画境界の表から引く) ----
@@ -1297,6 +1302,8 @@ def build(_call_args: dict[str, Any]) -> Any:
     )
 
     # ---- 1-0 段 C: 状態の箱(局所の割り当ての表 local-assignment.json・草案 §2-3)。物はそのまま指す(写しを作らない) ----
+    from shibuya.engine import seat_release as _SRB  # 〔第 2 期 2-4 V3〕
+
     box = _BX.Box(
         cfg=_BX.RunConfig(
             n_agents=n_agents, seed=seed, tick_seconds=tick_seconds, ticks=ticks, fleet_wait_s=fleet_wait_s,
@@ -1324,6 +1331,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             refractory_table=refractory_table, refractory_scale_norm=refractory_scale_norm,
             budget_mode_enum=budget_mode_enum, p_see_activity_table=p_see_activity_table,
             p_see_activity_identity=p_see_activity_identity, call_layer=_call_layer, fp=_fp, parent_run=parent_run,
+            seat_release=_SRB.arm(),  # 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く腕(組み立てで 1 回読む)
         ),
         soa=_BX.SoAState(agents=agents, world=world),
         layers=_BX.Layers(

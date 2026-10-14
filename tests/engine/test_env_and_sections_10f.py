@@ -90,7 +90,9 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 第 3 期 3-3: ``experiment`` の設定の子 17 個(schema・form_sha256・kind・level・aa・decisions・t0_ns・t0_step・end_ns・
 #: notice・registration_sha256・preregistration_sha256・seal_sha256・branch_t0_step・member・half・aa_of)を足した(2-1 の後に・
 #: 前 ``f78dd574…bfc947``・記録 docs/bench/analysis/wallbounce-1012/cf33/README.md)。
-CONFIG_PATHS_SHA256 = "415620b048e8be5a3d906f34c0fbd8bd2d2e3ae43b019a0bf3fd8b4ffb3e4f44"
+#: 〔第 2 期 2-4 V3〕``leave_effects.seat_release``(在席の印を歩き出しで解く腕)を足した(前 ``415620b0…3e4f44``=
+#: この 1 本を外すと前の値に戻る・記録 docs/bench/analysis/wallbounce-1012/vb24/README.md の V3)。
+CONFIG_PATHS_SHA256 = "ac9303622c5a296067fde18ccb4a3ff2030b949567175dc62fc48ef351235389"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 
@@ -367,14 +369,14 @@ def test_golden_tables_are_keyed_by_platform_and_values_unchanged():
     # 〔改訂(第330・ACT)〕活性化(暦の一本化・開始日 07-13・影 6 日)で既定の 2 行・関係 on の既定の行・古典 1,500 体を張り替えた
     # (B6build の値= v3 既定 0483d1165e245bed / 70,501・帰無腕 aaaa89d936f1674e / 101,773・関係 on 25b5ce1304f6db68 / 74,056)。
     # 旧値の行は退避先の資産と day_index・legacy(GE.PRE10E_RUN_KW)で再現する。
-    assert (g["v3_default_final"], g["v3_default_llm_calls"]) == ("7857ecb16b9665cd", 64_635)  # 〔2-4 V1〕前 5f7ae9ff24005314 / 65_597  # 〔2-4 V2〕前 4bcca9f0216362bb / 65_400
-    assert (g["null_arm_final"], g["null_arm_llm_calls"]) == ("d341ca5c9e3e89d3", 96_797)  # 〔2-4 V1〕前 354f49ca9a61b986 / 97_234  # 〔2-4 V2〕前 767f0224d82ba9a9 / 98_046
+    assert (g["v3_default_final"], g["v3_default_llm_calls"]) == ("f6488d4d5eadf5ca", 64_526)  # 〔2-4 V1〕前 5f7ae9ff24005314 / 65_597  # 〔2-4 V2〕前 4bcca9f0216362bb / 65_400  # 〔2-4 V3〕前 7857ecb16b9665cd / 64_635
+    assert (g["null_arm_final"], g["null_arm_llm_calls"]) == ("5c8db46f50eb0945", 96_695)  # 〔2-4 V1〕前 354f49ca9a61b986 / 97_234  # 〔2-4 V2〕前 767f0224d82ba9a9 / 98_046  # 〔2-4 V3〕前 d341ca5c9e3e89d3 / 96_797
     # 〔改訂(第330・RET)〕*_stateful・*_pre10e と関係 on の full の行は切替口と一緒に消した(前: 4985ff2f…/065a36d2…・
     # 993276d5…/72cb9cd5…・40409ebe…/72,930)。関係 on の v1 は今の値の行
     assert not {k for k in g if k.endswith(("_stateful", "_pre10e"))}
-    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v1", "behavior")] == ("967a0f2eedb3576d", 67_907)  # 〔2-4 V1〕前 380e8651a96b1829 / 69_406  # 〔2-4 V2〕前 edc6b366feece21c / 69_306
+    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v1", "behavior")] == ("d696dfa98390e830", 67_830)  # 〔2-4 V1〕前 380e8651a96b1829 / 69_406  # 〔2-4 V2〕前 edc6b366feece21c / 69_306  # 〔2-4 V3〕前 967a0f2eedb3576d / 67_907
     assert set(TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F]) == {("v1", "behavior"), ("v2", "behavior")}
-    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "behavior")] == ("874ea26628f6be2e", 68_213)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111  # 〔2-4 V2〕前 c506dec249bb4328 / 69_114
+    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "behavior")] == ("4a0db59663ef0d7b", 67_780)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111  # 〔2-4 V2〕前 c506dec249bb4328 / 69_114  # 〔2-4 V3〕前 874ea26628f6be2e / 68_213
 
 
 # ================================================================= manifest の節(K22 (a)・検収 N1・N3)

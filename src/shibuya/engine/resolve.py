@@ -491,6 +491,10 @@ class ResolveOutcome:
     leave_conversing: list = field(default_factory=list)
     #: 9a: 退去の効果の切替口(False=第301 以前=IDLE 化と会話相手の解除だけ=旧 golden の再現)。
     leave_effect: bool = True
+    #: 〔第 2 期 2-4 V3〕移動の意図で歩き出した体の在席の印を解く(``engine.seat_release``・既定 walk=True・切替口 legacy=False)。
+    seat_release_walk: bool = False
+    #: 〔第 2 期 2-4 V3〕歩き出しで解いた在席の印の数(診断)。
+    n_seat_released_walk: int = 0
 
     def add_result(self, code: int, n: int) -> None:
         if n:
@@ -1324,6 +1328,7 @@ def apply(
     track_events: bool = False,
     leave_effect: bool = True,
     proximity: Any = None,
+    seat_release_walk: bool = False,
 ) -> ResolveOutcome:
     """Phase C: 確定した intent だけを世界へ適用する(**唯一の書き手**)。
 
@@ -1361,6 +1366,9 @@ def apply(
             「近づく」の目的ノードにだけ効く(焦点は持てないので ``TARGET_GONE`` も出ない)。
         talk_by_distance: **C9b G7**。``True`` で会話の成立判定が「同一セル代理」から
             ``TALK_OPEN_METERS``(2 m)の実距離になる。``False``(既定)は現行のまま。
+        seat_release_walk: 〔第 2 期 2-4 V3〕``True`` で移動の意図(``_apply_move``)で歩き出した体の在席の印
+            (``poi_ref``/``poi_since``)を解く(``engine.seat_release`` の腕 walk=CLI の既定)。``False``(この関数の既定
+            =直に呼ぶ試験・切替口 legacy)は 2-4 より前の挙動(退去・乗車・滞在の上限でしか解かない)。
         proximity: 〔第 2 期 2-2 段 11a〕腕 ``--proximity distance`` の判定の規則(``engine.proximity.ProximityRule``)。
             渡すと会話の開始の判定が「舞台の中・同じ層・距離 ≤ d、または同じ B5 の単位」になる(``talk_by_distance``
             より強い)。``None``(既定)は 1 分岐も通らない。
@@ -1398,6 +1406,7 @@ def apply(
         track_events=bool(track_events),
         leave_effect=bool(leave_effect),
         proximity=proximity,
+        seat_release_walk=bool(seat_release_walk),
     )
     r = agents.registry
     with agents.writable(), world.writable():
@@ -1696,6 +1705,15 @@ def _apply_move(agents, world, aid, tgt, tick, out, schedule) -> None:
             same[good], int(Activity.IDLE), int(Activity.MOVING)
         ).astype(np.int8)
         r.target_node[g] = np.where(same[good], -1, dest_node[good]).astype(np.int32)
+        if out.seat_release_walk:
+            # 〔第 2 期 2-4 V3〕歩き出した体(行き先のノードへ向かう=MOVING)の在席の印を解く=店の席が空く
+            # (2-2 の探り=在席 × 刻みの 4.3% が店のセルの外)。到着済み(same)の体は動かないので解かない。
+            walker = g[~same[good]]
+            seated = walker[r.poi_ref[walker] >= 0]
+            if seated.size:
+                r.poi_ref[seated] = -1
+                r.poi_since[seated] = -1
+                out.n_seat_released_walk += int(seated.size)
         # 「近づく」の対象を**焦点として保持**する(着いたときに居るかを見る=``TARGET_GONE``)。
         # 距離は問わない(遠くの目印に近づくのは正当)=``require_near=False``。
         _set_focus(agents, world, g, tick, out, require_near=False)

@@ -170,12 +170,12 @@ def test_switch_is_checked_and_on_the_cli_and_sets_the_default_tau():
 #: 72,930=ACT の commit で切替口を通して再現できた)は切替口と一緒に消した。v1(生きている切替口 rel_tenure_hash)は
 #: 今の値の行 ("v1","behavior") にした。鍵の 2 つ目は final の定義(いまは behavior だけ)。
 REL_ON_5000_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
-    ("v1", "behavior"): ("967a0f2eedb3576d", 67_907),  # 〔2-4 V1〕前 380e8651a96b1829 / 69_406  # 〔2-4 V2〕前 edc6b366feece21c / 69_306
+    ("v1", "behavior"): ("d696dfa98390e830", 67_830),  # 〔2-4 V1〕前 380e8651a96b1829 / 69_406  # 〔2-4 V2〕前 edc6b366feece21c / 69_306  # 〔2-4 V3〕前 967a0f2eedb3576d / 67_907
     # 〔改訂(第330)〕10e 構築側(第330 B3 丸め・B4 W10 ON+Q7・B5 W13 の年間化)で世界の資産が動いた=既定の行だけ張り替えた(E4・E5 は 64f48b6571ec2ea1 / 74,616)。
     # full の 2 行は旧い世界の資産で録った値=旧資産を読む切替口(エンジン側 B1)で再現する(張り替えない)。
     # 〔改訂(第330・ACT)〕版上げ 1 回目の活性化(暦の一本化・開始日 2026-07-13・影 6 日)で既定の行が動いた
     # (B6build の値 25b5ce1304f6db68 / 74,056)。full の 2 行は退避先の資産と day_index・legacy で再現する。
-    ("v2", "behavior"): ("874ea26628f6be2e", 68_213),  # 10e(E4) の値(E1 は e27e45f3e9b62749・E2 は fe19250259a7058d)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111  # 〔2-4 V2〕前 c506dec249bb4328 / 69_114
+    ("v2", "behavior"): ("4a0db59663ef0d7b", 67_780),  # 10e(E4) の値(E1 は e27e45f3e9b62749・E2 は fe19250259a7058d)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111  # 〔2-4 V2〕前 c506dec249bb4328 / 69_114  # 〔2-4 V3〕前 874ea26628f6be2e / 68_213
 }}
 #: 今の環境の行(無ければ ``None``=A/A だけ)。
 REL_ON_5000_GOLDEN = GE.row(REL_ON_5000_GOLDEN_BY_ENV)

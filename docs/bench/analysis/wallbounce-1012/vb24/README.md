@@ -310,3 +310,136 @@
 
 - **見つけたこと(T5)**: 状態台帳の試験 T5(軸 1 が no の列を刻みの頭で揺らしても挙動は動かない・`tests/engine/test_state_ledger_10b.py`)が、既定を distance にすると落ちた(合成の世界の all_arms・classical と実資産 300 体の 3 本)。近接の判定と描画が `agents.band`(セルの層から導く派生の列=軸 1 no・2-2 では「既定の腕 cell では読まない」という読みの許可つき)を読むため。直し方は列を behavior にする(behavior-hash が動く)のではなく、読み手を behavior の列 `agents.cell` から導く形に替えた(上の表・値は同じ)。直した後は T5 の 4 本とも通る。
 - 直した試験(既定の約束を書いた試験): `tests/engine/test_c9b_targets_attention.py::test_default_arms_have_no_attention_columns_and_no_new_counters`(`n_talk_by_distance` は近接の腕の実距離の成立も数える=C9b の診断が立たないことは切替口 cell で見る)・`tests/engine/test_state_ledger_10b.py`(T1 の今の既定の final `CUR_SYN["all_arms"]` `ab8201f624b4dfa7` → `9071edfd618d42d8`・読みの許可の数 3 → 2)・`tests/perception/facts/test_render_from_percept_bytes.py` の (B)(19 構成の描画を HEAD `136fdbb` の描画の写しと比べる=写しは distance の道を持たない=切替口 cell で比べる・前と同じ比べ)。`tests/engine/bridging/test_bridging_ledger.py::test_build_stage_ids_are_the_c8_d44_row_ids`(**V1 の直し**=活性化の後の C8 の表 126 行・W12#4〜#11 は台帳の EX の行と文で合う・前の W12#4〜#8 は removed)。
+
+## V3 在席の印を歩き出しで解く(`resolve._apply_move`・切替口 `--seat-release legacy`)
+
+### V3-1 変えたこと
+
+| ファイル | 何を |
+|---|---|
+| `src/shibuya/engine/seat_release.py`(新) | 腕 `--seat-release {walk,legacy}`(環境変数 `SHIBUYA_SEAT_RELEASE`・既定 **walk**=`DEFAULT_MODE`)・`header_fields`・`check_resume`(近接・経済の段階 2 の腕と同じ形=設定の指紋に入れず、状態のファイルの見出しで再開の腕を突き合わせる) |
+| `src/shibuya/engine/resolve.py` | `apply(…, seat_release_walk=False)`・`ResolveOutcome.seat_release_walk`・`n_seat_released_walk`。`_apply_move` で**歩き出した体**(行き先のノードへ向かう=`MOVING`)の `poi_ref`/`poi_since` を −1 に(到着済み=行き先のノードに居る体・行けない体・移動しない体は解かない)。`apply` の既定は False(直に呼ぶ試験・切替口 legacy=2-4 より前の挙動) |
+| `src/shibuya/engine/systems/{boxes,build,act,report,state_io}.py` | `RunConfig.seat_release`(組み立てで 1 回読む)・`act` が `apply` へ渡す・解いた数を `leave_counts` に積む・manifest の `leave_effects` に `seat_release`(設定)と `released_on_walk`(観測)・状態のファイルの見出しに `seat_release`(walk のランだけ)・再開の検査 |
+| `src/shibuya/engine/manifest_sections.py` | `leave_effects` の設定に `seat_release`・観測に `released_on_walk`(=`CONFIG_PATHS_SHA256` が動く) |
+| `src/shibuya/cli.py` | `--seat-release`・ランの種類は既定(walk)と違えば腕 |
+| `tests/engine/test_seat_release_2_4.py`(新) | 7 本(§V3-5) |
+
+- 席の数え方: `crowd` の在室の数は刻みごとに `poi_ref` の `bincount` で数え直す=歩き出しで解いた席は次の刻みから空く(退去の `release_indoor` と同じ)。
+- 範囲は発注どおり `_apply_move` だけ。就寝の帰り道(`_apply_sleep` の歩き出し)・乗車の意図でホームへ歩く体(`_apply_board` と計画の出口の乗車=乗った時に解く)は今のまま(§V3-3 に残りの数)。
+
+### V3-2 動いた量(19 構成・前=V2・後=V3)
+
+比べ: [v3_vs_v2.json](v3_vs_v2.json)。**15/19 構成で final が動いた**(語彙 v1 の 2 構成=w6_v1_default・w6_old_v1_default は 25 欄とも同じ・w6_v1_derive_v2_1・w6_old_v1_derive_v2_1 はテープの列の sha の 1 欄だけ)。`frozen_sources`・暦・顕著行為・出動は 19/19 同じ。
+
+| 構成 | 前 final / 呼数 | 後 final / 呼数 | 呼数の差 | 気づいた延べ | 食事 | 行動の件数 | blocks の行 | 動いた欄 |
+|---|---|---|---|---|---|---|---|---|
+| w6_v3_default | `7857ecb16b9665cd` / 64,635 | `f6488d4d5eadf5ca` / 64,526 | -109 | 534 → 332 | 4,365 → 4,447 | 295,235 → 295,063 | 7,826 → 7,657 | 15/25 |
+| w6_v3_activity_off | `736915ca953a1aab` / 50,397 | `35cc3ce57f604a0c` / 50,033 | -364 | 774 → 802 | 3,303 → 3,294 | 174,047 → 172,664 | 2,462 → 2,441 | 15/25 |
+| w6_v1_default | `2d327566a182139d` / 51,655 | `2d327566a182139d` / 51,655 | +0 | 620 → 620 | 0 → 0 | 183,345 → 183,345 | 2,442 → 2,442 | 0/25 |
+| w6_v1_derive_v2_1 | `317e9dd18767373c` / 44,807 | `317e9dd18767373c` / 44,807 | +0 | 741 → 741 | 0 → 0 | 162,504 → 162,504 | 2,162 → 2,162 | 1/25 |
+| w6_v2 | `de90869e494390c3` / 51,366 | `1698f1b7cddc92dd` / 51,266 | -100 | 712 → 406 | 2,039 → 2,052 | 169,661 → 170,110 | 2,323 → 2,309 | 15/25 |
+| w6_v1_edge | `1b6b9ecf75a741f9` / 46,054 | `5ed1bb6f37bf1b68` / 46,054 | +0 | 546 → 546 | 0 → 0 | 94,791 → 94,791 | 2,287 → 2,287 | 4/25 |
+| w6_v2_edge | `62178a0e488bc989` / 46,655 | `9f89b1a7be01ac12` / 46,655 | +0 | 482 → 482 | 1,869 → 1,870 | 91,383 → 91,383 | 2,173 → 2,173 | 8/25 |
+| w6_v1_edge_plateau | `cc4eb08c30b1ed31` / 47,871 | `c13ff90acb300aae` / 47,871 | +0 | 468 → 468 | 0 → 0 | 98,038 → 98,038 | 2,331 → 2,331 | 4/25 |
+| w6_old_v1_default | `71d0e6720220f45a` / 51,655 | `71d0e6720220f45a` / 51,655 | +0 | 620 → 620 | 0 → 0 | 183,345 → 183,345 | 2,438 → 2,438 | 0/25 |
+| w6_old_v1_derive_v2_1 | `34c53e6e19f7d6f2` / 44,807 | `34c53e6e19f7d6f2` / 44,807 | +0 | 741 → 741 | 0 → 0 | 162,504 → 162,504 | 2,158 → 2,158 | 1/25 |
+| w6_old_v2 | `22931e874d600ab1` / 51,366 | `c0788c5c8a3f4f3f` / 51,266 | -100 | 712 → 406 | 2,039 → 2,052 | 169,661 → 170,110 | 2,319 → 2,306 | 15/25 |
+| w6_old_v1_edge | `32773d86549a11c1` / 46,054 | `1d15972ddcc39130` / 46,054 | +0 | 546 → 546 | 0 → 0 | 94,791 → 94,791 | 2,281 → 2,281 | 4/25 |
+| w6_old_v2_edge | `f24c502e520f426a` / 46,655 | `47f422bfb758e934` / 46,655 | +0 | 482 → 482 | 1,869 → 1,870 | 91,383 → 91,383 | 2,170 → 2,170 | 8/25 |
+| w6_old_v1_edge_plateau | `3a04d3f798004d4d` / 47,871 | `780236fe3706f4f1` / 47,871 | +0 | 468 → 468 | 0 → 0 | 98,038 → 98,038 | 2,327 → 2,327 | 4/25 |
+| w6_golden_null_arm | `d341ca5c9e3e89d3` / 96,797 | `5c8db46f50eb0945` / 96,695 | -102 | 1,299 → 1,293 | 0 → 0 | 287,854 → 289,561 | 3,481 → 3,428 | 14/25 |
+| v3_mem_store | `1dd3e329443349eb` / 64,635 | `017e0f95bf0c5685` / 64,526 | -109 | 534 → 332 | 4,365 → 4,447 | 295,235 → 295,063 | 7,826 → 7,657 | 15/25 |
+| v3_mem_rel | `874ea26628f6be2e` / 68,213 | `4a0db59663ef0d7b` / 67,780 | -433 | 375 → 470 | 4,603 → 4,447 | 299,366 → 300,105 | 8,036 → 7,992 | 14/25 |
+| v3_classical | `f62a8d0ba0aa952f` / 93,685 | `dc5ba0f6645aa13e` / 93,017 | -668 | 903 → 922 | 9,314 → 9,282 | 434,083 → 432,738 | 8,449 → 8,444 | 15/25 |
+| v3_classical_mem_rel | `059461c683d135c7` / 105,675 | `ee4769e87e070519` / 105,394 | -281 | 914 → 939 | 9,851 → 9,760 | 466,399 → 466,658 | 8,864 → 8,739 | 15/25 |
+| 呼数の合計 | 1,120,853 | 1,118,587 | -2,266 | | | | | |
+
+- 動いたのは移動の意図を出して店を出る体の多い構成(語彙 v2/v3・古典)。語彙 v1 の既定は在席のまま歩き出す体が無い(在席の印を持つ体が移動を選ぶのは語彙 v2 以降の「食事」と移動の組み合わせ・推測)。edge 幾何の 4 構成は final だけが動き呼数は同じ(席が空いて店の在室の段が変わり、刻みの終わりの体の状態が変わる・呼び出しの条件は同じ)。
+
+### V3-3 席の数え方の前後(在席の体 × 刻み・5,000 体・1 日・語彙 v3・記憶 on・近接 distance)
+
+[v3_seat_probe.json](v3_seat_probe.json)([tools/seat_probe_vb24.py](tools/seat_probe_vb24.py)=2-2 の `probe_poi_ref.py` の数え方+内訳)。
+
+| 量 | 前(legacy=V2) | 後(walk=V3) |
+|---|---|---|
+| 在席の体 × 刻み | 237,399 | 231,285 |
+| うち店のセルの外 | 10,350(**4.36%**) | 4,418(**1.91%**) |
+| うち歩いている(MOVING) | 11,299(4.76%) | 5,164(2.23%) |
+| 店のセルの外の内訳: 乗車へ向かう(`board_line` ≥ 0) | 3,843 | 3,888 |
+| 同・就寝の帰り道 | 29 | 10 |
+| 同・そのほかの移動 | 4,962 | **159** |
+| 同・動いていない | 1,516 | 361 |
+| 同じ単位の組 × 刻み(そのうち店のセルの外の体を含む組) | 837,538(69,637=8.3%) | 798,201(25,781=3.2%) |
+| 店のセルの外の在席の最大(1 刻み) | 31 | 16 |
+| 歩き出しで解いた印(1 日) | 0 | 371 |
+| final / 呼数(この構成) | `89e1a96885862eea` / 64,635 | `fe7f4ec709ef1b30` / 64,526 |
+
+- **残り 1.91% の 88%(3,888)は乗車へ向かう体**(`_apply_board` と計画の出口の乗車が `MOVING` にする道=乗った時に解く)。`_apply_move` の範囲の外=親が決める(案: 乗車へ歩き出した時にも解く=同じ口を `_apply_board` の歩き出しと計画の出口の乗車に足す。既定の結果がまた動く)。
+- 2-2 の記録の数(4.3%・4.7%・7.9%)は活性化の前の資産の腕 cell の値。活性化の後の資産でも cell で 4.29%・4.67%(V2 の下書きの探り)。
+
+### V3-4 切替口 legacy で V2 の値が再現する・系ごとの指紋
+
+- `SHIBUYA_SEAT_RELEASE=legacy` の 4 構成は **V2 と 25 欄とも同じ**=[v3legacy_vs_v2.json](v3legacy_vs_v2.json)。さらに V2 の直し(体の層をセルから導く)の確かめで、V3 の src を legacy で回した 19 構成が V2 と 25 欄とも同じ([v2fix_vs_v2.json](v2fix_vs_v2.json))=**legacy は 19/19 で V2 を再現する**。
+- 系ごとの指紋(1-0 の `engine.systems.probe`・ec21 の道具 [probe_ec21.py](../ec21/tools/probe_ec21.py) を写しの木で・合成の世界 80 体と世界資産 300 体の 2 構成): 切替口 legacy(V2 と同じ)と既定 walk の 2 つの side を比べた=[v3_probe_systems.json](v3_probe_systems.json)([tools/probe_systems_vb24.py](tools/probe_systems_vb24.py)=全部の刻みの (T, 系) ごとの指紋を並べて、食い違った系と最初の刻みを数える)。世界資産 300 体の 2 構成は刻み 424 の行為の解決(phase_c=歩き出しで在席の印を解いた)から動き、final は同じ(1 日の終わりには在席の印が解かれて状態が同じに戻る)。合成の世界は report(manifest の `leave_effects` の欄)だけ。V2 の同じ表は §V2-4 の後に足した(下の 2 つ目の表=前=V1 と同じ挙動の切替口 cell・後=V2)。
+
+V3(legacy → walk):
+
+| 構成 | final 前 → 後 | 呼数 前 → 後 | 動いた系(最初に動いた刻み) |
+|---|---|---|---|
+| syn_mem_rel_store | `d5c5fde554f17dea` → `d5c5fde554f17dea` | 1,028 → 1,028 | 1 系: report(-1) |
+| real300_v3_default | `b3a584a0b0082c9c` → `b3a584a0b0082c9c` | 3,077 → 3,077 | 9 系: phase_c(424)・perceive_prepare(425)・world(425)・presence(859)・checkpoint(1079)・decide(1080) ほか 3 系 |
+| real300_v3_mem_rel | `1441c65a3728926a` → `1441c65a3728926a` | 3,084 → 3,084 | 9 系: phase_c(424)・perceive_prepare(425)・world(425)・decide(451)・presence(859)・checkpoint(1079) ほか 3 系 |
+
+V2(cell → distance):
+
+| 構成 | final 前 → 後 | 呼数 前 → 後 | 動いた系(最初に動いた刻み) |
+|---|---|---|---|
+| syn_mem_rel_store | `22a71f59126a396d` → `d5c5fde554f17dea` | 1,011 → 1,028 | 18 系: decide(0)・perceive_prepare(0)・relations_wake(0)・apply_responses(1)・memory(1)・phase_c(1) ほか 12 系 |
+| real300_v3_default | `70dfa441c88b64d0` → `b3a584a0b0082c9c` | 3,077 → 3,077 | 18 系: perceive_prepare(0)・decide(10)・world(22)・phase_c(433)・apply_responses(491)・conversation(491) ほか 12 系 |
+| real300_v3_mem_rel | `cd67be5fbef8b420` → `1441c65a3728926a` | 3,077 → 3,084 | 20 系: perceive_prepare(0)・relations_wake(0)・decide(10)・world(22)・apply_responses(86)・phase_c(433) ほか 14 系 |
+
+### V3-5 試験
+
+- `tests/engine/test_seat_release_2_4.py`(7 本・data 不要): 歩き出した体だけ解く(walk)/解かない(legacy)・到着済みと移動しない体は解かない・在席でない体は数えない・腕の既定と見出しと再開の検査・合成の世界のランの manifest(walk は数が出る・legacy は 0)・腕の違う再開は止まる(2 通り)・同じ腕は通る。
+- 張り替えた golden(V2 → V3)=下の表。
+
+| 試験のファイル | 構成(goldens_vb24 の名) | 前 | 後 |
+|---|---|---|---|
+| `tests/engine/test_presence_executor.py` | pe_null | `d341ca5c9e3e89d3` | `5c8db46f50eb0945` |
+| `tests/engine/test_presence_executor.py` | pe_null | `96_797` | `96_695` |
+| `tests/engine/test_presence_executor.py` | pe_null_leave | `62c0de517b1689ec` | `de42b93d55c91cb8` |
+| `tests/engine/test_presence_executor.py` | pe_null_leave | `97_690` | `96_651` |
+| `tests/engine/test_presence_executor.py` | pe_null_hv1 | `eff11abb4169f319` | `3cb80dcb0d5df613` |
+| `tests/engine/test_presence_executor.py` | pe_null_hv1 | `94_030` | `95_644` |
+| `tests/engine/test_presence_executor.py` | pe_v3 | `7857ecb16b9665cd` | `f6488d4d5eadf5ca` |
+| `tests/engine/test_presence_executor.py` | pe_v3 | `64_635` | `64_526` |
+| `tests/engine/test_presence_executor.py` | pe_v3_leave | `210747ea9fa71919` | `da5e1a8ea8544881` |
+| `tests/engine/test_presence_executor.py` | pe_v3_leave | `64_704` | `64_293` |
+| `tests/engine/test_presence_executor.py` | pe_v3_hv1 | `62c5ea236fe4271d` | `ed20b33a7e53864d` |
+| `tests/engine/test_presence_executor.py` | pe_v3_hv1 | `64_268` | `64_338` |
+| `tests/engine/test_presence_executor.py` | pe_v3_l4x1 | `b2a1acae57abca9e` | `efd48de9c988cf6c` |
+| `tests/engine/test_presence_executor.py` | pe_v3_l4x1 | `36_239` | `36_244` |
+| `tests/engine/test_state_ledger_10b.py` | pe_v3 | `7857ecb16b9665cd` | `f6488d4d5eadf5ca` |
+| `tests/engine/test_state_checks_10f.py` | pe_v3 | `7857ecb16b9665cd` | `f6488d4d5eadf5ca` |
+| `tests/perception/test_near_tiebreak.py` | nt_hash | `e313dfaace60e425…` | `e4185ac9f6901403…` |
+| `tests/perception/test_near_tiebreak.py` | nt_hash | `25_363` | `25_335` |
+| `tests/perception/test_near_tiebreak.py` | nt_mid | `348df7c410fca9ec…` | `9a9dc58f833bdfd7…` |
+| `tests/perception/test_near_tiebreak.py` | nt_mid | `25_297` | `25_284` |
+| `tests/perception/test_near_tiebreak.py` | nt_old | `aaf28867cc84660d…` | `ee6d9b7b47b82618…` |
+| `tests/perception/test_near_tiebreak.py` | nt_old | `25_335` | `25_307` |
+| `tests/engine/test_classical_social.py` | cs_acq | `faeacf8cff1f1fae…` | `92179becdd6a2ec9…` |
+| `tests/engine/test_classical_social.py` | cs_acq | `24_813` | `24_793` |
+| `tests/engine/test_relations_tenure.py` | rel_v1 | `967a0f2eedb3576d` | `d696dfa98390e830` |
+| `tests/engine/test_relations_tenure.py` | rel_v1 | `67_907` | `67_830` |
+| `tests/engine/test_relations_tenure.py` | rel_v2 | `874ea26628f6be2e` | `4a0db59663ef0d7b` |
+| `tests/engine/test_relations_tenure.py` | rel_v2 | `68_213` | `67_780` |
+| `tests/engine/test_env_and_sections_10f.py` | pe_v3 | `7857ecb16b9665cd` | `f6488d4d5eadf5ca` |
+| `tests/engine/test_env_and_sections_10f.py` | pe_v3 | `64_635` | `64_526` |
+| `tests/engine/test_env_and_sections_10f.py` | pe_null | `d341ca5c9e3e89d3` | `5c8db46f50eb0945` |
+| `tests/engine/test_env_and_sections_10f.py` | pe_null | `96_797` | `96_695` |
+| `tests/engine/test_env_and_sections_10f.py` | rel_v1 | `967a0f2eedb3576d` | `d696dfa98390e830` |
+| `tests/engine/test_env_and_sections_10f.py` | rel_v1 | `67_907` | `67_830` |
+| `tests/engine/test_env_and_sections_10f.py` | rel_v2 | `874ea26628f6be2e` | `4a0db59663ef0d7b` |
+| `tests/engine/test_env_and_sections_10f.py` | rel_v2 | `68_213` | `67_780` |
+
+- 写しの木で関係する試験: `-m "not gpu"`(slow を含む)・`-n 10`・張り替えた golden の 7 ファイル+近接・知覚・処理・CLI・複数日・再開・系の表ほか 17 の場所 = **1,060 passed・5 failed・1 skipped**(12 分 23 秒)。落ちた 5 本は系の表の宣言(`tests/engine/systems/test_systems_table.py::test_d1_d3_code_matches_the_declaration` の phase_c・day_close・drain・close_final・report=新しい `cfg.seat_release` の読みが宣言に無い)→ `src/shibuya/engine/systems/table.py` の 5 つの系の `reads` に `cfg.seat_release` を足した(**V3 のスナップショットに後から足した**)→ `tests/engine/systems` **129 passed**

@@ -127,6 +127,7 @@ def sys_phase_c(ctx: Any, b: Any) -> None:
         energy=energy_layer,
         track_events=mem_layer is not None,
         proximity=None if proximity is None else proximity.rule,
+        seat_release_walk=(b.cfg.seat_release == "walk"),  # 〔第 2 期 2-4 V3〕既定 walk・切替口 legacy
     )
     phase["phase_c"] += time.perf_counter() - t0
     if norm_meter is not None:
@@ -154,6 +155,8 @@ def sys_phase_c(ctx: Any, b: Any) -> None:
     result.n_talk_by_distance += outcome.n_talk_by_distance
     for _k in ("n_leave", "n_leave_indoor", "n_leave_queue", "n_leave_conversing"):  # 4 本
         leave_counts[_k] += int(getattr(outcome, _k))
+    # 〔第 2 期 2-4 V3〕歩き出しで解いた在席の印の数(診断だけ・manifest の leave_effects.released_on_walk)
+    leave_counts["n_seat_released_walk"] += int(outcome.n_seat_released_walk)
     result.n_report_ok += outcome.n_report_ok
     result.n_report_no_event += outcome.n_report_no_event
     result.n_served_from_queue += outcome.n_served_from_queue

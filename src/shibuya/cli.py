@@ -480,12 +480,14 @@ def run(
         arms = run_arms({**kwargs, "budget": budget, "l4_scale": scale, "use_population": use_population,
                          "store_capital_yen": store_capital_yen})
         from shibuya.engine import proximity as _proximity  # 第 2 期 2-2: 環境変数の腕も腕と数える(結果が変わる腕)
+        from shibuya.engine import seat_release as _seat_release  # 〔第 2 期 2-4 V3〕同じ(既定 walk と違えば腕)
         from shibuya.engine.speech import layer as _speech_layer
 
         # 第 1 期 1-8b: 発話の口の腕(環境変数か --speech-port・run の引数ではない)は結果を変える=on は腕に数える
         # 〔第 3 期 3-3〕申込書を渡したランは反実仮想(試験 > 反実仮想 > 腕 > 再現)
         run_kind = _RK.decide(arms_on=bool(arms) or _speech_layer.arm() != _speech_layer.ARM_OFF
-                              or _proximity.arm() != _proximity.DEFAULT_MODE,  # 〔2-4 V2〕既定は distance
+                              or _proximity.arm() != _proximity.DEFAULT_MODE  # 〔2-4 V2〕既定は distance
+                              or _seat_release.arm() != _seat_release.DEFAULT_MODE,  # 〔2-4 V3〕既定は walk
                               counterfactual=exp_form is not None)
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
@@ -1362,6 +1364,15 @@ def main(argv: list[str] | None = None) -> int:
              "SHIBUYA_ECONOMY_STAGE2_PARTS と同じ)。1 つずつ測るため",
     )
     ap.add_argument(
+        "--seat-release",
+        choices=("walk", "legacy"),
+        default=None,
+        help="第 2 期 2-4 V3 在席の印を歩き出しで解く腕(既定 walk・環境変数 SHIBUYA_SEAT_RELEASE と同じ。指定すれば環境変数より"
+             "強い)。walk=移動の意図で歩き出した体の在席の印(店の席)を解く。legacy=2-4 より前の挙動(退去・乗車・滞在の上限で"
+             "しか解かない)=切替口(旧値の再現)。腕は設定の指紋に入れない(manifest の leave_effects.seat_release に出る・"
+             "既定と違えばランの種類は arm)",
+    )
+    ap.add_argument(
         "--experiment", type=str, default="",
         help="第 3 期 3-3 反実仮想の申込書(JSON のパス・engine.experiment.form)。既定なし=今と同じ。渡すとランの種類は "
              "counterfactual・申込書の指紋は manifest の experiment に出る(設定の指紋には入らない)",
@@ -1428,6 +1439,10 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine import proximity as _proximity
 
         _proximity.set_d(str(args.proximity_d))
+    if args.seat_release is not None:  # 〔第 2 期 2-4 V3〕在席の印の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine import seat_release as _seat_release
+
+        _seat_release.set_arm(str(args.seat_release))
     if args.economy_stage2 is not None:  # 第 2 期 2-1: 経済の段階 2 の腕(組み立てと台帳の組み立てが読む)
         _ES2.set_arm(str(args.economy_stage2))
     if args.economy_stage2_parts is not None:

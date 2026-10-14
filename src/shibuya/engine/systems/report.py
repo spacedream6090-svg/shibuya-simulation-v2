@@ -424,7 +424,10 @@ def report(ctx: Any, b: Any) -> Any:
                             "released_indoor": int(leave_counts["n_leave_indoor"]),
                             "left_queue": int(leave_counts["n_leave_queue"]),
                             "was_conversing": int(leave_counts["n_leave_conversing"]),
-                            "sessions_closed": int(rs.leave_closed)}
+                            "sessions_closed": int(rs.leave_closed),
+                            # 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く腕(設定)と解いた数(観測)
+                            "seat_release": str(b.cfg.seat_release),
+                            "released_on_walk": int(leave_counts["n_seat_released_walk"])}
     if presence is not None:
         result.presence_exit = dict(presence.exit_summary())
         result.presence_counters = dict(presence.counters())
