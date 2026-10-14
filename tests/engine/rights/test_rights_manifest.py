@@ -34,8 +34,9 @@ def test_rights_is_the_last_key_and_observed(res):
     keys = list(res.run_manifest_fields())
     # 〔第 1 期 1-8 J0 の取り込み〕1-8 の decision_port が rights の後ろに入った・〔第 1 期 1-7〕その後ろに tools・
     # 〔第 1 期 1-8b〕その後ろに speech_port・〔第 2 期 2-2 段 11a〕その後ろに proximity・〔第 3 期 3-3〕その後ろ(末尾)に
-    # experiment(試験の名は履歴のまま)
-    assert keys == TOP and keys[-6:] == ["rights", "decision_port", "tools", "speech_port", "proximity", "experiment"]
+    # experiment・〔第 3 期 3-2〕その後ろ(末尾)に batching(試験の名は履歴のまま)
+    assert keys == TOP and keys[-7:] == ["rights", "decision_port", "tools", "speech_port", "proximity", "experiment",
+                                         "batching"]
     assert MS.section_of("rights") == MS.OBSERVED and MS.section_of("rights.by_kind") == MS.OBSERVED
 
 

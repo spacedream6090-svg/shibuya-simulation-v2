@@ -322,6 +322,11 @@ def build(_call_args: dict[str, Any]) -> Any:
     if _SPEECH.arm() == _SPEECH.ARM_ON:
         # 第 1 期 1-8b: 発話の口の腕は結果を変える(相手の入力に発話が載る)=on のときだけ設定の指紋に足す(既定は今の指紋)
         _fp["speech_port"] = _SPEECH.ARM_ON
+    from shibuya.engine import batching as _BATCH
+
+    if not _BATCH.is_default():
+        # 第 3 期 3-2: まとめの幅の腕は既定(刻みの幅)のときだけ設定の指紋に入れない(腕のときは入れる=再開で親と照合)
+        _fp[_BATCH.FP_KEY] = int(_BATCH.arm())
     # ---- 第 3 期 3-3: 反実仮想の申込書(``cli.run`` が ``engine.experiment.layer.staged`` で置いた物・無ければ None=今の道)。
     # 設定の指紋には入れない(申込書の指紋は manifest の experiment の節=分岐が基準のランの状態から再開できる) ----
     from shibuya.engine.experiment import layer as _EXPL

@@ -483,6 +483,7 @@ def run(
                          "store_capital_yen": store_capital_yen})
         from shibuya.engine import proximity as _proximity  # 第 2 期 2-2: 環境変数の腕も腕と数える(結果が変わる腕)
         from shibuya.engine import seat_release as _seat_release  # 〔第 2 期 2-4 V3〕同じ(既定 walk と違えば腕)
+        from shibuya.engine import batching as _BATCH  # 〔第 3 期 3-2〕まとめの幅の腕(環境変数か --batch-width-s)
         from shibuya.engine.speech import layer as _speech_layer
 
         # 第 1 期 1-8b: 発話の口の腕(環境変数か --speech-port・run の引数ではない)は結果を変える=on は腕に数える
@@ -490,7 +491,8 @@ def run(
         run_kind = _RK.decide(arms_on=bool(arms) or _speech_layer.arm() != _speech_layer.ARM_OFF
                               or _proximity.arm() != _proximity.DEFAULT_MODE  # 〔2-4 V2〕既定は distance
                               or _seat_release.arm() != _seat_release.DEFAULT_MODE  # 〔2-4 V3〕既定は walk
-                              or _ES2.arm() != _ES2.DEFAULT_ARM,  # 〔2-4 V4〕経済の段階 2 も(既定 on と違えば腕)
+                              or _ES2.arm() != _ES2.DEFAULT_ARM  # 〔2-4 V4〕経済の段階 2 も(既定 on と違えば腕)
+                              or not _BATCH.is_default(),  # 〔第 3 期 3-2〕まとめの幅(既定 60 秒と違えば腕)
                               counterfactual=exp_form is not None)
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
@@ -544,6 +546,13 @@ def run(
     # 第 1 期 1-4(CP5-5): ランの種類(記録だけ。run_day の引数=設定の指紋には入れない)
     res.run_kind = run_kind
     return res
+
+
+def _batch_widths() -> tuple[int, ...]:
+    """〔第 3 期 3-2〕``--batch-width-s`` で選べる幅(``engine.batching.WIDTHS_S``=刻みの幅の約数)。"""
+    from shibuya.engine import batching as _batching
+
+    return tuple(_batching.WIDTHS_S)
 
 
 def _experiment_form(experiment: Any, *, aa: bool = False, branch: Any = None) -> Any:
@@ -1376,6 +1385,15 @@ def main(argv: list[str] | None = None) -> int:
              "既定と違えばランの種類は arm)",
     )
     ap.add_argument(
+        "--batch-width-s",
+        type=int,
+        choices=_batch_widths(),
+        default=None,
+        help="第 3 期 3-2 計算のまとめの幅[秒](既定 60=刻みの幅=今と同じ・環境変数 SHIBUYA_BATCH_WIDTH_S と同じ。指定すれば"
+             "環境変数より強い)。刻みの幅の約数だけ選べる。進行役は窓 [t, t+W) の中の事象を時刻順に処理する(T1 の世界の事象"
+             "は刻みの事象だけ=どの幅でも同じ結果)。既定と違えば設定の指紋に入り、ランの種類は arm(manifest の batching に出る)",
+    )
+    ap.add_argument(
         "--experiment", type=str, default="",
         help="第 3 期 3-3 反実仮想の申込書(JSON のパス・engine.experiment.form)。既定なし=今と同じ。渡すとランの種類は "
              "counterfactual・申込書の指紋は manifest の experiment に出る(設定の指紋には入らない)",
@@ -1442,6 +1460,10 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine import proximity as _proximity
 
         _proximity.set_d(str(args.proximity_d))
+    if args.batch_width_s is not None:  # 〔第 3 期 3-2〕まとめの幅の腕(組み立てと進行役が読む。指定は環境変数より強い)
+        from shibuya.engine import batching as _batching
+
+        _batching.set_arm(int(args.batch_width_s))
     if args.seat_release is not None:  # 〔第 2 期 2-4 V3〕在席の印の腕(組み立てが読む。指定は環境変数より強い)
         from shibuya.engine import seat_release as _seat_release
 

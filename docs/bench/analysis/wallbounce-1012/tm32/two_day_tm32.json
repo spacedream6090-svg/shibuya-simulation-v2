@@ -1,0 +1,217 @@
+{
+ "schema": "shibuya.bench/tm32/two-day/1",
+ "how": "tools/two_day_resume_tm32.py one(5,000 体・seed 1・世界資産・sim_days=2・既定 v3・activity・テープつき)。head=HEAD d35a9b6 の写しの src・ほかは作業木の src。day=刻み 1,440(1 日目の終わり)で止めて再開・mid=刻み 2,211 で止めて再開。再開のランの calls は再開の後の分=止めたランの first_calls と足して比べる。幅の腕は環境変数 SHIBUYA_BATCH_WIDTH_S",
+ "check": {
+  "head_straight": {
+   "final_same_as_head": true,
+   "calls_total": 138946,
+   "calls_same_as_head": true,
+   "checkpoints_same_as_head_tail": true
+  },
+  "w60_straight": {
+   "final_same_as_head": true,
+   "calls_total": 138946,
+   "calls_same_as_head": true,
+   "checkpoints_same_as_head_tail": true
+  },
+  "w60_day": {
+   "final_same_as_head": true,
+   "calls_total": 138946,
+   "calls_same_as_head": true,
+   "checkpoints_same_as_head_tail": true
+  },
+  "w60_mid": {
+   "final_same_as_head": true,
+   "calls_total": 138946,
+   "calls_same_as_head": true,
+   "checkpoints_same_as_head_tail": true
+  },
+  "w30_straight": {
+   "final_same_as_head": true,
+   "calls_total": 138946,
+   "calls_same_as_head": true,
+   "checkpoints_same_as_head_tail": true
+  },
+  "w30_mid": {
+   "final_same_as_head": true,
+   "calls_total": 138946,
+   "calls_same_as_head": true,
+   "checkpoints_same_as_head_tail": true
+  }
+ },
+ "runs": {
+  "head_straight": {
+   "label": "head_straight",
+   "mode": "straight",
+   "batch_width_env": "",
+   "src_is_worktree": false,
+   "final": "b346bb6e3ecc60af",
+   "calls": 138946,
+   "checkpoints_behavior": [
+    "2c8176aaeb60b291",
+    "e88f268c17f61c50",
+    "8ebb7fdc26cc4bbe",
+    "b8eadcb51e8705e7",
+    "f69ee78d7b98a374",
+    "15b46026a5a43355",
+    "ac036653e2483ee0",
+    "b346bb6e3ecc60af"
+   ],
+   "tape_calls_sha": [
+    "7b2ba2027f1288e9"
+   ],
+   "tape_blocks_sha": [
+    "2293072f5e9161fa"
+   ],
+   "batching_width_s": null,
+   "batching_windows": null,
+   "batching_carried": null,
+   "batching_pending_at_end": null,
+   "wall_s": 106.3
+  },
+  "w60_straight": {
+   "label": "w60_straight",
+   "mode": "straight",
+   "batch_width_env": "",
+   "src_is_worktree": true,
+   "final": "b346bb6e3ecc60af",
+   "calls": 138946,
+   "checkpoints_behavior": [
+    "2c8176aaeb60b291",
+    "e88f268c17f61c50",
+    "8ebb7fdc26cc4bbe",
+    "b8eadcb51e8705e7",
+    "f69ee78d7b98a374",
+    "15b46026a5a43355",
+    "ac036653e2483ee0",
+    "b346bb6e3ecc60af"
+   ],
+   "tape_calls_sha": [
+    "7b2ba2027f1288e9"
+   ],
+   "tape_blocks_sha": [
+    "2293072f5e9161fa"
+   ],
+   "batching_width_s": 60,
+   "batching_windows": 2880,
+   "batching_carried": 0,
+   "batching_pending_at_end": 0,
+   "wall_s": 108.2
+  },
+  "w60_day": {
+   "label": "w60_day",
+   "mode": "day",
+   "batch_width_env": "",
+   "src_is_worktree": true,
+   "stop_T": 1440,
+   "first_final": "b8eadcb51e8705e7",
+   "first_calls": 64528,
+   "final": "b346bb6e3ecc60af",
+   "calls": 74418,
+   "checkpoints_behavior": [
+    "f69ee78d7b98a374",
+    "15b46026a5a43355",
+    "ac036653e2483ee0",
+    "b346bb6e3ecc60af"
+   ],
+   "tape_calls_sha": [
+    "d764f2560c917b39",
+    "3dca122c8fc910f7"
+   ],
+   "tape_blocks_sha": [
+    "8de90fbc16572dfa",
+    "ea0b0d20d4d2546c"
+   ],
+   "batching_width_s": 60,
+   "batching_windows": 1440,
+   "batching_carried": 0,
+   "batching_pending_at_end": 0,
+   "wall_s": 110.2
+  },
+  "w60_mid": {
+   "label": "w60_mid",
+   "mode": "mid",
+   "batch_width_env": "",
+   "src_is_worktree": true,
+   "stop_T": 2211,
+   "first_final": "15b46026a5a43355",
+   "first_calls": 101410,
+   "final": "b346bb6e3ecc60af",
+   "calls": 37536,
+   "checkpoints_behavior": [
+    "ac036653e2483ee0",
+    "b346bb6e3ecc60af"
+   ],
+   "tape_calls_sha": [
+    "1c7a2e27bedff742",
+    "4db846c10016dc01"
+   ],
+   "tape_blocks_sha": [
+    "d4ab65ed46bc4001",
+    "2dbe9966b10bee58"
+   ],
+   "batching_width_s": 60,
+   "batching_windows": 669,
+   "batching_carried": 0,
+   "batching_pending_at_end": 0,
+   "wall_s": 99.5
+  },
+  "w30_straight": {
+   "label": "w30_straight",
+   "mode": "straight",
+   "batch_width_env": "30",
+   "src_is_worktree": true,
+   "final": "b346bb6e3ecc60af",
+   "calls": 138946,
+   "checkpoints_behavior": [
+    "2c8176aaeb60b291",
+    "e88f268c17f61c50",
+    "8ebb7fdc26cc4bbe",
+    "b8eadcb51e8705e7",
+    "f69ee78d7b98a374",
+    "15b46026a5a43355",
+    "ac036653e2483ee0",
+    "b346bb6e3ecc60af"
+   ],
+   "tape_calls_sha": [
+    "7b2ba2027f1288e9"
+   ],
+   "tape_blocks_sha": [
+    "2293072f5e9161fa"
+   ],
+   "batching_width_s": 30,
+   "batching_windows": 5760,
+   "batching_carried": 0,
+   "batching_pending_at_end": 0,
+   "wall_s": 96.3
+  },
+  "w30_mid": {
+   "label": "w30_mid",
+   "mode": "mid",
+   "batch_width_env": "30",
+   "src_is_worktree": true,
+   "stop_T": 2211,
+   "first_final": "15b46026a5a43355",
+   "first_calls": 101410,
+   "final": "b346bb6e3ecc60af",
+   "calls": 37536,
+   "checkpoints_behavior": [
+    "ac036653e2483ee0",
+    "b346bb6e3ecc60af"
+   ],
+   "tape_calls_sha": [
+    "1c7a2e27bedff742",
+    "4db846c10016dc01"
+   ],
+   "tape_blocks_sha": [
+    "d4ab65ed46bc4001",
+    "2dbe9966b10bee58"
+   ],
+   "batching_width_s": 30,
+   "batching_windows": 1338,
+   "batching_carried": 0,
+   "batching_pending_at_end": 0,
+   "wall_s": 98.0
+  }
+ }
+}

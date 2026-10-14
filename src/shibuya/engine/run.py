@@ -134,6 +134,7 @@ from shibuya.engine.decision import layer as _DECISION
 from shibuya.engine.speech import layer as _SPEECH
 from shibuya.engine import proximity as _PROX
 from shibuya.engine.experiment import layer as _EXPERIMENT
+from shibuya.engine import batching as _BATCHING
 from shibuya.perception.renderer import (
     DEFAULT_HUNGER_WORDS,
     DEFAULT_NEAR_ORDER,
@@ -1122,6 +1123,8 @@ class RunResult:
             世界過程の無いランは ``None``)。
             第 1 期 1-7: 末尾に ``tools``(道具の台帳の数と名・グループの数・連絡先の印の数・店の番号の表・看板の作り物の
             印。組み立てを通らない結果は ``None``)。
+            第 3 期 3-2: 末尾に ``batching``(計算のまとめの窓の幅・上限・窓の中の順と、窓の数・持ち越し・上限に当たった数。
+            進行役を通らない結果は ``None``)。
         """
         from shibuya.engine import manifest_sections as _MS
         from shibuya.engine import run_kind as _RK
@@ -1337,6 +1340,10 @@ class RunResult:
             # 申込書を渡さないランは null。記録だけ(final・behavior-hash は manifest を読まない)。列追加のみ ----
             "experiment": _EXPERIMENT.manifest_fields(getattr(self, "experiment_layer", None),
                                                       finished=bool(self.resume.get("finished", True))),
+            # ---- 第 3 期 3-2(計算のまとめの窓・時計の段 T1): 形の版・幅・既定の幅・刻みの幅・上限・窓の中の順・世界の番号・
+            # 事象の種類(設定)と、窓の数・事象の数・持ち越し・上限に当たった数・境目で届けた遅れ(観測)。末尾=… → 3-3 の
+            # experiment → 3-2。進行役を通らない結果は null。記録だけ(final・behavior-hash は manifest を読まない)。列追加のみ ----
+            "batching": _BATCHING.manifest_fields(getattr(self, "batching_layer", None)),
         }
 
     def economy_fields(self) -> dict[str, Any]:

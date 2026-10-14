@@ -299,6 +299,19 @@ class Scheduler:
         self._n_pending += n
         return seq
 
+    def reserve_seq(self, n: int) -> np.ndarray:
+        """予約の番号(``seq``)を ``n`` 個だけ払い出す(行は持たない)。
+
+        〔第 3 期 3-2〕計算のまとめの窓(``engine.batching.WindowQueue``)が、処理中の窓の中に予約した事象(呼び手の側で
+        持つ行)にも同じ番号の列から番号を振るための口。予約の行・件数・地平は変えない。
+        """
+        k = int(n)
+        if k < 0:
+            raise ValueError("n は 0 以上")
+        seq = np.arange(self._next_seq, self._next_seq + k, dtype=np.int64)
+        self._next_seq += k
+        return seq
+
     def _push_ring(self, ticks: np.ndarray, rec: np.ndarray) -> None:
         order = np.argsort(ticks, kind="stable")
         sticks = ticks[order]

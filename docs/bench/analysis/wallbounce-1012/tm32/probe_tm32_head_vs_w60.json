@@ -1,0 +1,65 @@
+{
+ "schema": "shibuya.bench/tm32/probe/1",
+ "a": "head",
+ "b": "w60",
+ "a_src_is_worktree": false,
+ "b_src_is_worktree": true,
+ "a_batch_width_env": "",
+ "b_batch_width_env": "",
+ "a_skipped_rows": [],
+ "b_skipped_rows": [
+  "BW"
+ ],
+ "how": "1-0 の probe(全部の刻み・系ごとの全欄の差と指紋)。作業木の側は状態台帳の行 BW(3-2 の窓)を外した(HEAD の写しには無い行)。両側とも digest から物の番号を外し、日次の記録の bridges_count(3-2 でつなぎの台帳に 4 行足した)を外した。PYTHONHASHSEED=0",
+ "a_daily_skip": [
+  "bridges_count"
+ ],
+ "b_daily_skip": [
+  "bridges_count"
+ ],
+ "all_ok": true,
+ "rows": {
+  "syn_mem_rel_store": {
+   "final_a": "d5c5fde554f17dea",
+   "final_b": "d5c5fde554f17dea",
+   "calls_a": 1028,
+   "calls_b": 1028,
+   "n_entries_a": 7051,
+   "n_entries_b": 7051,
+   "systems": 19,
+   "width_s_b": 60,
+   "windows_b": 720,
+   "fp_same_all_systems": true,
+   "fp_diff_systems": [],
+   "first_diff": null
+  },
+  "real300_v3_default": {
+   "final_a": "3dfb30508605d14a",
+   "final_b": "3dfb30508605d14a",
+   "calls_a": 3077,
+   "calls_b": 3077,
+   "n_entries_a": 15600,
+   "n_entries_b": 15600,
+   "systems": 19,
+   "width_s_b": 60,
+   "windows_b": 1440,
+   "fp_same_all_systems": true,
+   "fp_diff_systems": [],
+   "first_diff": null
+  },
+  "real300_v3_mem_rel": {
+   "final_a": "5cb03e3afb3d00f7",
+   "final_b": "5cb03e3afb3d00f7",
+   "calls_a": 3084,
+   "calls_b": 3084,
+   "n_entries_a": 17703,
+   "n_entries_b": 17703,
+   "systems": 21,
+   "width_s_b": 60,
+   "windows_b": 1440,
+   "fp_same_all_systems": true,
+   "fp_diff_systems": [],
+   "first_diff": null
+  }
+ }
+}

@@ -1,6 +1,6 @@
 """状態台帳の宣言(10b・A3「挙動」と「復元」の 2 軸・機械可読の 1 ファイル)。
 
-**読み口は 1 つ**: ``LEDGER``(204 行の組=〔第 2 期 2-3〕記憶の器の記録の目印の腕の行 ``M0L``・〔第 3 期 3-3〕申込書の控えの行 ``X``・〔第 2 期 2-1〕経済の段階 2 の行 ``EC``・``ATM``・``CR``・``EM``・〔第 1 期 1-8〕候補の口の行 ``J0``・〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P``・〔第 1 期 1-7〕連絡先の印の行 ``CT5``・〔第 1 期 1-8b〕発話の口の腕の行 ``S8``・``S8M``・〔第 2 期 2-2〕近接の層の行 ``PX``・近傍の索引の行 ``PX0`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
+**読み口は 1 つ**: ``LEDGER``(204 行の組=〔第 2 期 2-3〕記憶の器の記録の目印の腕の行 ``M0L``・〔第 3 期 3-3〕申込書の控えの行 ``X``・〔第 2 期 2-1〕経済の段階 2 の行 ``EC``・``ATM``・``CR``・``EM``・〔第 1 期 1-8〕候補の口の行 ``J0``・〔第 1 期 1-3〕出来事の記録の行 ``E``・〔1-6〕記憶の器の行 ``M0``・``M0R``・〔1-9〕金と物の目印と計器の行 ``A`` ・〔第 1 期 1-2〕知覚の事実の行 ``P``・〔第 1 期 1-7〕連絡先の印の行 ``CT5``・〔第 1 期 1-8b〕発話の口の腕の行 ``S8``・``S8M``・〔第 2 期 2-2〕近接の層の行 ``PX``・近傍の索引の行 ``PX0``・〔第 3 期 3-2〕計算のまとめの窓の行 ``BW`` を足した)・``OWNER_CLASSES``・``EXCLUDED`` と、その上の小さな関数(``rows``・
 ``soa_rows``・``external_rows``・``behavior_excluded``・``full_excluded``・``full_items``・``behavior_items``・〔1-8b〕``arm_rows``・``arm_items``)。表・AST の検査(``engine.state_ledger_ast``)・
 2 つのハッシュ(``engine.state_hashes``)・揺らし試験はどれもこの表から作る。
 
@@ -73,6 +73,7 @@ from typing import Final, Iterable, Mapping
 #: 腕 on のランだけハッシュと状態のファイルに入る=既定 off のランの状態のファイルは前の版と同じ中身。
 #: 〔第 2 期 2-2 段 11a〕近接の層の行 ``PX``(diag・discardable)と近傍の索引の行 ``PX0``(no・discardable)も同じ理由で上げない。
 #: 〔第 3 期 3-3〕申込書の控えの行 ``X``(diag・discardable)も版は上げない(仮採用): どちらのハッシュにも状態のファイルにも入らない。
+#: 〔第 3 期 3-2〕計算のまとめの窓の行 ``BW``(diag・discardable)も版は上げない(仮採用): どちらのハッシュにも状態のファイルにも入らない。
 LEDGER_VERSION: Final[str] = "state-ledger/10e-ret"
 
 BEHAVIOR: Final[str] = "behavior"
@@ -923,6 +924,22 @@ _EXT: tuple[LedgerRow, ...] = (
              "既に behavior-hash に入る=目印は録画とテープの列だけが読む)。再開では rebuild がこの列から目印と出どころを戻す"
              "(前の日の出来事は再開のランの記録に無い=記録は discardable のまま=目印は残る・記録 md23/README.md)。書く系は"
              "decide・llm_receive・memory(宣言 M0*:mem_layer.memory_store.*)。行の鍵は O の通し番号でなく M0L"),
+    # ---- 第 3 期 3-2(計算のまとめの窓・時計の段 T1): 足す前に軸を決めた行 ----
+    LedgerRow(
+        key="BW", name="WindowQueue(計算のまとめの窓の待ち行列と計器・第 3 期 3-2)", place=EXTERNAL,
+        dtype="Scheduler(幅 W のバケットの輪+遠未来の heapq)・持ち越しの行(int64 × 4 列)・次の窓の頭(int・ns)・"
+              "計器の dict(int)",
+        nbytes="", alloc="既定(進行役が窓のループの前に置く)", behavior=DIAG, restore=DISCARDABLE, dead=False,
+        basis="engine/batching.py(WindowQueue・manifest_fields)・engine/systems/conductor.py(conduct が置いて窓ごとに回す)",
+        items=("batching._bw_sched", "batching._bw_carry", "batching._bw_head", "batching._bw_meter"),
+        note="3-2: 進行役が窓のループの前に持ち主を作る(組み立ての間は None)。T1 の待ち行列に入るのは次の刻みの事象だけ"
+             "(世界の 1 回の系の並び=刻みの番号から決まる派生)。持ち越しは上限に当たった窓の残りだけ(既定のランでは空)。"
+             "計器(窓の数・事象の数・持ち越し・上限に当たった数)の読み手は manifest の batching(持ち主のメソッド "
+             "manifest_fields)と試験だけ(軸 1 diag)。再開のランは進行役がランの始めの刻みから作り直す(軸 2 discardable="
+             "どちらのハッシュにも状態のファイルにも入らない=既定の final・full-hash・状態のファイルは不変)。書くのは進行役"
+             "(系の外=窓の境目 WINDOW_MARK に帰属)と刻みの事象の頭の次の予約だけ。T2 で刻みの外の事象(会話の番・届く"
+             "メッセージ・体の変化の予約)が入ったら軸 1 behavior・軸 2 required へ見直す(版上げ・つなぎの台帳 DOC-tm32-*)。"
+             "行の鍵は O の通し番号でなく BW"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -1086,6 +1103,8 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "proximity": ("engine/proximity.py", "ProximityLayer"),
     # 第 3 期 3-3: 申込書の持ち主(状態台帳の行 X・申込書を渡したランだけ)
     "experiment": ("engine/experiment/layer.py", "ExperimentLayer"),
+    # 第 3 期 3-2: 計算のまとめの窓(状態台帳の行 BW・進行役が置く)
+    "batching": ("engine/batching.py", "WindowQueue"),
 }
 
 #: (ii) キャッシュ・導出。中身は 3 通り: (a) 毎 tick(か事象のある tick)作り直す作業の値・印
@@ -1362,6 +1381,14 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("experiment", CONST, _CFG + "(申込書は凍結の ExperimentForm・刻みはランの範囲・アンサンブルのメンバーと半分=入口で"
        "決まる)", "form", "t0_step", "begin_step", "end_step", "total_steps", "member", "half"),
     _x("experiment", REF, _REFR + "(T0 で切り替える LLM の口 BranchClient・計器は manifest の experiment.replay)", "branch"),
+    # 第 3 期 3-2: 計算のまとめの窓の設定(幅・上限・刻みの幅)・事象の種類の表(名・処理の関数・届け方と順位)・窓の中だけの
+    # 作業の値(処理中の時刻・窓の終わり・処理の中で予約した窓の中の行=窓を閉じるときに空)
+    _x("batching", CONST, _CFG + "(3-2: 幅と上限と刻みの幅=進行役がランの始めに決める)", "width_s", "width_ns", "cap",
+       "step_s"),
+    _x("batching", REF, _REFR + "(3-2: 事象の種類の表=名・処理の関数・届け方と順位の表=ランの始めに置く)", "_bw_kinds",
+       "_bw_rank"),
+    _x("batching", CACHE, "3-2: 窓の中だけの作業の値(処理中の時刻・窓の終わり・処理の中で予約した窓の中の行=窓を閉じると空)",
+       "_bw_now", "_bw_end", "_bw_new"),
 )
 
 

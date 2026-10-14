@@ -45,10 +45,13 @@ __all__ = [
 #: ``S8``・``S8M``・腕 on のランだけ・既定 None)を足した(腕の行は持ち主が None のランではハッシュに入らない=値は変わらない)。
 #: 〔第 3 期 3-3〕末尾(2-2 の ``proximity`` の後)に ``experiment``(申込書の持ち主=状態台帳の行 ``X``・軸 1 diag・軸 2 discardable・申込書を渡したランだけ・
 #: 既定 None)を足した(どちらのハッシュにも状態のファイルにも入らない=値は変わらない)。
+#: 〔第 3 期 3-2〕末尾(3-3 の ``experiment`` の後)に ``batching``(計算のまとめの窓=状態台帳の行 ``BW``・軸 1 diag・
+#: 軸 2 discardable・進行役が窓のループの前に置く)を足した(どちらのハッシュにも状態のファイルにも入らない=値は変わらない)。
 OWNER_NAMES: tuple[str, ...] = (
     "act_layer", "intent_layer", "fam_layer", "mem_layer", "poi_resolver", "wom", "rel_layer", "classical",
     "energy", "norm_meter", "presence", "conv", "arbiter", "detector", "runner", "ledger", "undefined",
     "renderer", "bridge", "fleet_bridge", "run_day", "events", "decision", "speech", "proximity", "experiment",
+    "batching",
 )
 
 
@@ -220,6 +223,9 @@ class Layers:
     #: 〔第 3 期 3-3〕申込書の持ち主(``engine.experiment.layer.ExperimentLayer``・状態台帳の行 ``X``)。申込書を渡したランだけ
     #: 組み立てが置く(既定 None=系 ``experiment`` が立たない=今の道)。
     experiment: Any = None
+    #: 〔第 3 期 3-2〕計算のまとめの窓(``engine.batching.WindowQueue``・状態台帳の行 ``BW``)。進行役が窓のループの前に置く
+    #: (組み立ての間は None)。
+    batching: Any = None
 
     @property
     def undefined(self) -> Any:

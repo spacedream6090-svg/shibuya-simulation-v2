@@ -218,6 +218,14 @@ PATHS: Final[dict[str, str]] = {
         "registration_sha256", "preregistration_sha256", "seal_sha256", "branch_t0_step", "member", "half", "aa_of"),
         observed=(
         "applied", "unapplied", "applied_rows", "unapplied_rows", "meter", "replay", "checks")),
+    # ---- 第 3 期 3-2: 計算のまとめの窓(形の版・幅・既定の幅・刻みの幅・上限・窓の中の順・世界の番号・事象の種類=設定/
+    # 窓の数・窓に事象のあった数・事象の数・処理の呼び数・窓の中で続けた予約・持ち越し・上限に当たった数・窓の最大の事象の数・
+    # 境目で届けた数と遅れ・終わりに残った数=観測。進行役を通らない結果は null。子の鍵は engine.batching の config_keys・
+    # observed_keys と同じ=試験が突き合わせる) ----
+    **_mixed("batching", config=(
+        "schema", "width_s", "default_width_s", "step_s", "cap_events", "order", "world_id", "kinds"), observed=(
+        "windows", "windows_with_events", "events", "dispatches", "in_window", "carried", "cap_hits",
+        "max_events_window", "boundary_events", "boundary_delay_ns_max", "boundary_delay_ns_sum", "pending_at_end")),
 }
 
 

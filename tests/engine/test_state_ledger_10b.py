@@ -90,15 +90,17 @@ def test_ledger_has_187_rows_in_two_axes():
     c = SL.counts()
     # 〔第 3 期 3-3〕申込書の控えの行 X(diag・discardable・どちらのハッシュにも状態のファイルにも入らない)を足して 112・203
     # 〔第 2 期 2-3〕その後に腕の行 M0L を足して 113・204
-    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 113, "soa": 91, "total": 204}
+    # 〔第 3 期 3-2〕その後に計算のまとめの窓の行 BW(diag・discardable・どちらのハッシュにも状態のファイルにも入らない)を足して 114・205
+    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 114, "soa": 91, "total": 205}
     assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
     assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 97)] + ["E", "M0", "M0R", "A", "P", "J0",
                                                                                      "CT5", "S8", "S8M",
                                                                                      "PX", "PX0", "EC", "ATM", "CR", "EM", "X",
-                                                                                     "M0L"]
+                                                                                     "M0L", "BW"]
     assert (SL.row("X").behavior, SL.row("X").restore, SL.row("X").arm) == (SL.DIAG, SL.DISCARDABLE, "")
+    assert (SL.row("BW").behavior, SL.row("BW").restore, SL.row("BW").arm) == (SL.DIAG, SL.DISCARDABLE, "")
     assert (SL.row("E").behavior, SL.row("E").restore) == (SL.DIAG, SL.DISCARDABLE)
     assert (SL.row("M0").behavior, SL.row("M0").restore) == (SL.NO, SL.DERIVABLE)
     assert set(SL.row("M0").hash_skip) == set(SL.row("M0").items)

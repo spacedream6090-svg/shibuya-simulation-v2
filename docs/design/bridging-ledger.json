@@ -4139,6 +4139,65 @@
     "src/shibuya/engine/resolve.py",
     "src/shibuya/engine/seat_release.py"
    ]
+  },
+  {
+   "id": "DOC-tm32-event-time-60s",
+   "what": "計算のまとめの窓(engine.batching.WindowQueue)の待ち行列に入る事象は刻みの事象(世界の 1 回の系の並び)だけ=事象の時刻の粒度は刻みの幅 60 秒。会話の番・計画の境目・届くメッセージ・体の変化の予約は今も刻みの中の系が刻みごとに見る。幅 W は刻みの幅の約数(60・30・20・15・12・10・6・5・4・3・2・1 秒)だけ=刻みの事象はいつも窓の頭に乗り、どの幅でも結果は同じ(19 構成の byte-check で確かめた)=幅の腕は今は結果に効かない",
+   "why": "決定 10-12 §4-2 TM6 の T1(まとめの導入・幅 60 秒で今と同じ)。事象の時刻の粒度を細かくし、TM4 の試験で既定の幅を決めるのは T2(会話の時計とまとめを細かく・版上げ)。記録 tm32/README.md §3・§5",
+   "remove_at": "T2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm32/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/batching.py",
+    "src/shibuya/engine/systems/conductor.py"
+   ]
+  },
+  {
+   "id": "DOC-tm32-same-time-body-order",
+   "what": "窓の中の同じ時刻の事象は体の番号の順(世界の事象=-1 が体より先)・同じ体の同じ時刻は事象の種類の順位 → 予約の番号(seq)の順で処理する(宣言)。同じ時刻・同じ種類の続きは 1 回の処理(体の番号の配列)。例外(規則・3-2 検収 L7): 同じ時刻の束を処理している間に同じ時刻へ足した事象は、束の残りの後(次の回)に回る(体 5・9 の束の中で体 3 を足すと 5 → 9 → 3)",
+   "why": "発注(3-2)の宣言。運用設計書 §2.5 の同時刻の順(時刻・種類の順位・blake3 の塩・体)とも、乱数を出来事の時刻と中身に結ぶ TM7 (d) とも違う。T1 の世界は窓に刻みの事象 1 つだけなので順は効かない。T2 で刻みの外の事象が窓に入るときに同時刻の裁き方を決め直す(記録 tm32/README.md §3)",
+   "remove_at": "T2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm32/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/batching.py",
+    "src/shibuya/engine/systems/conductor.py"
+   ]
+  },
+  {
+   "id": "DOC-tm32-conversation-not-batched",
+   "what": "「1 つの会話の中はまとめない(違う会話どうしはバッチ)」(TM3)を、T1 では会話の番が刻みに 1 回(刻みの事象の中の系 decide・llm_receive・conversation)であることで自動で満たしている=窓の待ち行列には同じ会話の番を同じ処理の束に入れない検査が無い",
+   "why": "決定 10-12 §4-2 TM3。T2 で会話の番を窓の待ち行列の事象にしたら、同じ会話の番を同じ処理の束(種類の続き)に入れない検査を足す(記録 tm32/README.md §3)",
+   "remove_at": "T2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm32/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/batching.py",
+    "src/shibuya/engine/systems/conductor.py"
+   ]
+  },
+  {
+   "id": "DOC-tm32-window-cap",
+   "what": "1 つの窓で処理する事象の数の上限(安全装置)を 2^24=16,777,216 件にした(39 万体 × 窓あたり 43 件=ふつうのランでは当たらない値)。当たったら窓の中の残りを次の窓へ持ち越し、manifest の batching の carried・cap_hits に数える(止めない)",
+   "why": "決定 10-12 §4-2 TM3(上限は安全装置だけで、当たったら記録)。値は実装役の当て(仮採用)。T2 で窓の中の事象(会話の番・メッセージ)の数を実測してから決め直す(記録 tm32/README.md §9)",
+   "remove_at": "T2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm32/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/batching.py"
+   ]
   }
  ]
 }
