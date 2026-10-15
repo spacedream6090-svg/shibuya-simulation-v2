@@ -107,7 +107,9 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: (3-2 の後に・前 ``564d5c72…e8a61ffbeaf57``・記録 docs/bench/analysis/wallbounce-1012/bd35/README.md)。
 #: 〔第 3 期 3-1〕``calendar_shadow`` の設定の子 4 つ(schema・source・w20・weeks)を足した(3-5 の後に・前 ``8c1610ad…209d43``→ ``68c3ffd0…``=
 #: この 4 本を外すと前の値に戻る・記録 docs/bench/analysis/wallbounce-1012/ca31/README.md)。
-CONFIG_PATHS_SHA256 = "68c3ffd0b33c818e73729a7bc22336a568127de41d17ffae55bfed7d64c55395"
+#: 〔第 3 期 3-3b〕``experiment`` の設定の子 4(switch・start0・known_to_model・warmup)を足した(3-1 の後に・前
+#: ``68c3ffd0…c55395``=この 4 本を外すと前の値・記録 docs/bench/analysis/wallbounce-1012/cf33b/README.md)。
+CONFIG_PATHS_SHA256 = "63a87f2f1fcfd2e7dcd14e17f8f7bfe03338785a46282fff31ec1d0d40eab3ed"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 

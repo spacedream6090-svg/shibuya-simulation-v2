@@ -18,6 +18,9 @@
   探索の申込書が封印した半分の初期状態で回ろうとしたら止める(``engine.experiment.ensemble.entrance``)。
 - **持ち主の守り**(〔検収 M4〕): 欄は組み立てで 1 回だけ置ける(付け替え・消去は ``AttributeError``)。4 つの確認の結果は
   持ち主の口 ``record_checks`` で 1 回だけ書く。
+- 〔第 3 期 3-3b〕組み立ては分岐の指定の口 ``make_client``(3-3 の ``BranchSpec``=``BranchClient``・3-3b の ``SwitchSpec``=T からの
+  切り替えの口 ``ReplaySwitch``)で LLM の口を包む。CP5-1 の点検(``checks.warn_start0``=始まり 0 の予期しない改変は警告と記録・
+  拒まない)。manifest の設定に 4 欄を足した(末尾=``switch``・``start0``・``known_to_model``・``warmup``・3-3 の欄は変えない)。
 
 未リサーチ(expedient): 系の位置(刻みの中の最初=日の頭の後)・申込書の受け渡しを文脈の変数にしたこと・「最初から」(始まり 0)
 は 0 の刻みの頭で当てる(CP5-1 の「改変を当ててから経験を作る」順は未実装=宣言)。
@@ -47,6 +50,8 @@ MANIFEST_SCHEMA: Final[str] = "shibuya.engine.experiment/manifest/1"
 MANIFEST_CONFIG: Final[tuple[str, ...]] = (
     "schema", "form_sha256", "kind", "level", "aa", "decisions", "t0_ns", "t0_step", "end_ns", "notice",
     "registration_sha256", "preregistration_sha256", "seal_sha256", "branch_t0_step", "member", "half", "aa_of",
+    # 〔3-3b〕T からの切り替えの口・CP5-1 の点検・CP5-3 の混入の疑いの自己申告・慣らしの規則(事前登録=日付ではなく規則)
+    "switch", "start0", "known_to_model", "warmup",
 )
 MANIFEST_OBSERVED: Final[tuple[str, ...]] = (
     "applied", "unapplied", "applied_rows", "unapplied_rows", "meter", "replay", "checks",
@@ -156,9 +161,13 @@ class ExperimentLayer:
 
     def manifest(self, *, finished: bool = True) -> dict[str, Any]:
         """manifest の ``experiment``(設定 ``MANIFEST_CONFIG``・観測 ``MANIFEST_OBSERVED``)。"""
+        from shibuya.engine.experiment import checks as _CK
+        from shibuya.engine.experiment import warmup as _WU
+
         f, rec, branch = self.form, self.handle.rec, self.branch
         pre = f.preregistration
         unapplied = [dict(r) for r in rec.unapplied] + self._not_started(finished)
+        switch = getattr(branch, "switch_record", None) if branch is not None else None
         return {
             "schema": MANIFEST_SCHEMA, "form_sha256": f.sha256(), "kind": f.kind, "level": f.level, "aa": f.is_aa,
             "decisions": [str(d["decision"]) for d in f.content], "t0_ns": int(f.start),
@@ -168,6 +177,8 @@ class ExperimentLayer:
             "seal_sha256": None if pre is None else str(pre["seal_sha256"]),
             "branch_t0_step": None if branch is None else int(branch.t0_step),
             "member": None if self.member is None else self.member.to_dict(), "half": self.half, "aa_of": f.aa_of,
+            "switch": None if switch is None else switch(), "start0": _CK.start0_check(f),
+            "known_to_model": list(f.known_to_model), "warmup": _WU.rule_record(),
             "applied": len(rec.applied), "unapplied": len(unapplied),
             "applied_rows": [dict(r) for r in rec.applied], "unapplied_rows": unapplied,
             "meter": dict(rec.tallies), "replay": None if branch is None else branch.replay_meter(),
@@ -178,19 +189,23 @@ class ExperimentLayer:
 def make_layer(st: Staged | None, *, world: Any, runner: Any, calendar: Any, events: Any, n_agents: int,
                step_seconds: int, steps_per_day: int, begin_step: int, end_step: int, total_steps: int,
                inherited: bool, bridge: Any = None, fleet: Any = None, entry: Any = None) -> ExperimentLayer | None:
-    """組み立ての口: 申込書が無ければ ``None``(今の道)。分岐なら LLM の口を T0 で切り替える口に包む(``bridge.client``)。"""
+    """組み立ての口: 申込書が無ければ ``None``(今の道)。分岐なら LLM の口を T0 で切り替える口に包む(``bridge.client``)。
+
+    〔3-3b〕包む口は分岐の指定の ``make_client``(``BranchSpec``=3-3 の ``BranchClient``・``SwitchSpec``=``ReplaySwitch``)。
+    CP5-1 の点検(始まり 0 の予期しない改変)は警告と記録だけ(拒まない)。"""
     if st is None:
         return None
     form = st.form
+    from shibuya.engine.experiment import checks as _CK
+
+    _CK.warn_start0(form)  # 〔3-3b〕CP5-1: 警告と記録(manifest の start0)・拒まない
     branch_client = None
     if st.branch is not None:
         if fleet is not None:
             raise ValueError("分岐(T0 までテープを再生)は艦隊(非同期の実 LLM)に未対応(3-3 の宣言)")
         if bridge is None:
             raise ValueError("分岐には LLM の口(bridge)が要る")
-        from shibuya.engine.experiment import branch as _BR
-
-        branch_client = _BR.BranchClient(bridge.client, st.branch)
+        branch_client = st.branch.make_client(bridge.client)
         bridge.client = branch_client
     step_ns = int(step_seconds) * NS_PER_SECOND
     handle = _AP.WorldHandle(

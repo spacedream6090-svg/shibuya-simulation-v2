@@ -51,7 +51,7 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any, Callable, Final, Mapping, Sequence
+from typing import Any, Callable, ClassVar, Final, Mapping, Sequence
 
 from shibuya.core.time_consts import SECONDS_PER_DAY
 from shibuya.engine import manifest_sections as _MS
@@ -99,6 +99,10 @@ class BranchSpec:
     tape: str
     t0_step: int
 
+    def make_client(self, client: Any) -> "BranchClient":
+        """組み立て(``layer.make_layer``)が LLM の口を包む口(3-3 の形=``BranchClient``)。"""
+        return BranchClient(client, self)
+
 
 class BranchClient:
     """LLM の口(``LLMClient`` 契約=``complete``)を T0 で切り替える。T0 より前はテープ・T0 からは今の方策。
@@ -107,46 +111,54 @@ class BranchClient:
       投げる(橋が数えて空の応答=実 LLM へは落とさない=運用設計書 §2.5)。
     - 古典の方策(``ClassicalPolicy``=内部の状態を持つエンジンの方策): T0 より前も方策に答えさせ(状態を同じに進める)、
       テープの答えとの食い違いを数える(``mismatch``)。
+    - 〔3-3b 検収 L8〕計器の数(``n_replayed``・``n_miss``・``n_policy_before``・``n_mismatch``・``n_live``)は読み取り専用の
+      属性(中身は口の中の ``_meters``=口のメソッドだけが足す)。外からの代入は ``AttributeError``((b) が頼る数を書き換えない)。
     """
+
+    #: 計器の数の名(読み取り専用の属性)。
+    METER_NAMES: ClassVar[tuple[str, ...]] = ("n_replayed", "n_miss", "n_policy_before", "n_mismatch", "n_live")
 
     def __init__(self, live: Any, spec: BranchSpec) -> None:
         from shibuya.engine.classical import ClassicalPolicy
         from shibuya.engine.tape import Replay
 
         self.live = live
+        self._meters: dict[str, Any] = {k: 0 for k in self.METER_NAMES}
         self.t0_step = int(spec.t0_step)
         self.replay = Replay(spec.tape)
         self.stateful = isinstance(live, ClassicalPolicy)
-        self.n_replayed = 0
-        self.n_miss = 0
-        self.n_policy_before = 0
-        self.n_mismatch = 0
-        self.n_live = 0
+
+    n_replayed = property(lambda self: self._meters["n_replayed"], doc="T0 より前にテープから答えた呼の数")
+    n_miss = property(lambda self: self._meters["n_miss"], doc="T0 より前のテープ外の呼の数")
+    n_policy_before = property(lambda self: self._meters["n_policy_before"], doc="T0 より前に古典の方策が答えた呼の数")
+    n_mismatch = property(lambda self: self._meters["n_mismatch"], doc="T0 より前の古典の方策とテープの食い違いの数")
+    n_live = property(lambda self: self._meters["n_live"], doc="T0 から今の方策が答えた呼の数")
 
     def complete(self, request: Any) -> Any:
         from shibuya.engine.tape import TapeMiss
         from shibuya.llm import LLMResponse, estimate_tokens
 
+        m = self._meters
         if int(request.tick) < self.t0_step:
             key = (int(request.agent_id), int(request.tick), int(request.wake_class), request.prompt_hash)
             if self.stateful:
                 resp = self.live.complete(request)
-                self.n_policy_before += 1
+                m["n_policy_before"] += 1
                 try:
                     if self.replay.lookup(*key) != resp.text:
-                        self.n_mismatch += 1
+                        m["n_mismatch"] += 1
                 except TapeMiss:
-                    self.n_miss += 1
+                    m["n_miss"] += 1
                 return resp
             try:
                 text = self.replay.lookup(*key)
             except TapeMiss:
-                self.n_miss += 1
+                m["n_miss"] += 1
                 raise
-            self.n_replayed += 1
+            m["n_replayed"] += 1
             return LLMResponse(text=text, tokens_in=estimate_tokens(request.prompt), tokens_out=estimate_tokens(text),
                                source="tape")
-        self.n_live += 1
+        m["n_live"] += 1
         return self.live.complete(request)
 
     async def acomplete(self, request: Any) -> Any:
@@ -159,7 +171,7 @@ class BranchClient:
                 "policy_mismatch_before_t0": self.n_mismatch, "live_from_t0": self.n_live}
 
     def __getattr__(self, name: str) -> Any:  # 包んだ口の属性(source など)はそのまま
-        if name == "live":
+        if name in ("live", "_meters"):
             raise AttributeError(name)
         return getattr(self.live, name)
 
@@ -238,13 +250,19 @@ def pre_t0_match(base: Mapping[str, Any], run: Mapping[str, Any], t0_step: int, 
     bad = [t for t in steps if cb[t].get("behavior_hash") != cr[t].get("behavior_hash")]
     miss = int((replay or {}).get("tape_miss_before_t0", 0))
     mism = int((replay or {}).get("policy_mismatch_before_t0", 0))
+    # 〔3-3b〕切り替えの口の箱の計器(刻みをまたいで残った数・切り替えの刻みに残っていた数=どちらも 0 が条件)。空にしてから
+    # 数えるので作りから 0=空にする処理の退化を捕まえる計器(〔検収 L1〕)。刻みの外へ物を持ち越さない守りの本体は、艦隊で録った
+    # テープ(到着待ちの行=O96 replay_inbox に T をまたいで残る物)を回す前に拒むこと(run_branch・switch.tape_crossing)
+    box = int((replay or {}).get("box_carried", 0) or 0) + int((replay or {}).get("box_at_switch", 0) or 0)
     out: dict[str, Any] = {"T0_step": int(t0_step), "checkpoints_before_T0": len(steps),
                            "first_bad_step": bad[0] if bad else None, "tape_miss_before_t0": miss,
-                           "policy_mismatch_before_t0": mism}
+                           "policy_mismatch_before_t0": mism, "box_left": box}
     if not steps:
         out.update(ok=None, status="未検査", note="T0 より前の checkpoint が無い(checkpoint の間隔を狭める)")
+        if box:
+            out.update(ok=False, status="fail", note="再生の箱に刻みの外の物が残った")
     else:
-        good = not bad and miss == 0 and mism == 0
+        good = not bad and miss == 0 and mism == 0 and box == 0
         out.update(ok=good, status="ok" if good else "fail", note="")
     return out
 
@@ -446,7 +464,8 @@ def executed_by_agents(form: ExperimentForm, exe: Mapping[str, Any] | None) -> b
 
 def run_branch(form: ExperimentForm, base_dir: str | Path, *, runner: Callable[..., Any],
                run_kwargs: Mapping[str, Any], aa_only: bool = False, out_dir: str | Path | None = None,
-               write: bool = True) -> BranchOutcome:
+               write: bool = True, model: str | None = None, live: Callable[[Any], Any] | None = None,
+               deterministic: bool | None = None) -> BranchOutcome:
     """基準のランの記録 ``base_dir`` から申込書 ``form`` の分岐を回し、4 つの確認をして ``branch_report.json`` を書く。
 
     回し方(〔検収 L1〕): 第 1 段=A/A の枝 a と改変の枝を指紋なしで回し、T0 以後の**全 checkpoint** を走査して最初に behavior-hash が
@@ -461,7 +480,19 @@ def run_branch(form: ExperimentForm, base_dir: str | Path, *, runner: Callable[.
             ``experiment_model`` はそのまま渡す)。
         aa_only: 改変の枝も改変を空にする(``--experiment-aa``=全部 A/A)。
         out_dir: 報告の置き場(既定 ``base_dir/branches/<申込書の指紋の先頭 16 字>``)。既にある報告は上書きしない。
+        model・live・deterministic: 〔3-3b〕T からの切り替えの口(``switch.SwitchSpec``)の仮のモデルの札・T からの口を作る関数
+            (``None``=ランの口そのもの)・決定論の宣言(``None``=T からの口の宣言=属性 ``deterministic`` が真偽のとき〔検収 L2〕・
+            それも無ければ札から)。決定論なら (d) は A/A の厳密一致を求める(3-3 の約束 (4)(d))・非決定なら T より前の一致と床。
+
+    〔3-3b〕切り替えの口は ``switch.ReplaySwitch``(T は計算のまとめの窓の頭=基準の manifest の ``batching.width_s``・再生の箱は
+    刻みごとに空にする・艦隊で録ったテープは拒む)。(c) に A/A の枝 2 本の最初の食い違いとの刻みの差(``vs_aa``)、(d) を
+    決定論の確認(``d_determinism``)と床の分布(``d_floor``)に分けた欄を足した(3-3 の欄はそのまま)。
     """
+    from shibuya.core.time_consts import NS_PER_SECOND
+    from shibuya.engine.experiment import ensemble as _EN
+    from shibuya.engine.experiment import switch as _SW
+    from shibuya.engine.tape import Tape
+
     base_dir = Path(base_dir)
     base = json.loads((base_dir / BASE_CHECKPOINTS).read_text(encoding="utf-8"))
     bman = base.get("manifest") or {}
@@ -471,9 +502,18 @@ def run_branch(form: ExperimentForm, base_dir: str | Path, *, runner: Callable[.
     t0 = form.start_step(step_seconds)
     if not (0 < t0 < total):
         raise ValueError(f"分岐の T0(刻み {t0})が基準のランの内側に無い(0〜{total})")
+    # 〔3-3b〕T は計算のまとめの窓の頭(3-2 の窓の待ち行列・幅は基準のランの manifest の batching.width_s)
+    width_s = int((bman.get("batching") or {}).get("width_s") or step_seconds)
+    step_ns = step_seconds * NS_PER_SECOND
+    if _SW.window_head_step(int(form.start), width_s * NS_PER_SECOND, step_ns) != t0:
+        raise AssertionError("窓の頭の刻みと申込書の T0 の刻みが違う")
     tape = base_dir / BASE_TAPE
     if not tape.is_dir():
         raise ValueError(f"基準のランの記録にテープ({BASE_TAPE}/)が無い")
+    cross = _SW.tape_crossing(Tape(tape), t0)
+    if cross["fleet_rows_before_t0"]:
+        raise ValueError(f"テープに T0 より前に出して後で届く行(艦隊で録った到着待ちの行)が {cross['fleet_rows_before_t0']} 行"
+                         f"(うち T0 をまたぐ行 {cross['rows_crossing_t0']}): 再生の箱に刻みの外の物が残る=艦隊の分岐は 6-7 まで")
     state, header = choose_state(base_dir / BASE_STATE, t0)
     begin = int(header["progress"]["next_T"]) if header else 0
     kw = {k: v for k, v in dict(run_kwargs).items()
@@ -481,7 +521,8 @@ def run_branch(form: ExperimentForm, base_dir: str | Path, *, runner: Callable[.
                        "experiment_branch")}
     if state is not None:
         kw["resume_from"] = str(state)
-    spec = BranchSpec(tape=str(tape), t0_step=t0)
+    spec = _SW.SwitchSpec(tape=str(tape), t0_step=t0, t0_ns=int(form.start), window_ns=width_s * NS_PER_SECOND,
+                          step_ns=step_ns, model=model, deterministic=deterministic, live=live)
     aa_form = form.aa()
     main_form = aa_form if aa_only else form
     kw_aa = {**kw, "experiment": aa_form, "experiment_branch": spec}
@@ -530,32 +571,66 @@ def run_branch(form: ExperimentForm, base_dir: str | Path, *, runner: Callable[.
     if state is not None:
         resume_expect = {"group_norms.cost.ticks": (total, total - begin)}
     exe_m, exe_a = execution_breakdown(res_m, t0), execution_breakdown(res_a, t0)
+    rep_b = None
+    lay_b = getattr(res_b, "experiment_layer", None)
+    if lay_b is not None and lay_b.branch is not None:
+        rep_b = lay_b.branch.replay_meter()
+    aa_coarse = first_divergence_coarse(ya, yb, from_step=t0)
+    sw_model = str((rep_a or {}).get("model") or (rep_m or {}).get("model") or "")
+    sw_det = bool((rep_a or {}).get("deterministic", True))
     checks = {
         "a_input_match": {"aa": input_match(base, ya, resume_expect=resume_expect),
                           "branch": input_match(base, ym, derived=derived, resume_expect=resume_expect)},
         "b_pre_t0": {"aa": pre_t0_match(base, ya, t0, replay=rep_a), "branch": pre_t0_match(base, ym, t0, replay=rep_m),
-                     "resume_state": resume_check},
+                     "resume_state": resume_check,
+                     "aa_b": pre_t0_match(base, yb, t0, replay=rep_b)},  # 〔3-3b〕A/A の枝 b も
         "c_first_divergence": {
             "coarse": coarse, "world": world, "any": anyd, "reason": reason, "window_steps": window,
             "probe_rows": {"aa": len(pb), "branch": len(pm)},
             "nonportable_keys": nonportable_keys(list(pb) + list(pm)),
             "branch_repeat_same": None if res_p is None else (res_p.final_hash == res_m.final_hash),
+            # 〔3-3b〕A/A の枝 2 本の最初の食い違いと、改変の枝の最初の食い違いとの刻みの差
+            "aa_coarse": aa_coarse, "vs_aa": _SW.vs_aa(coarse, aa_coarse),
         },
         "d_aa": dict(aa_match(ya, yb), final_equals_base=ya.get("final_hash") == base.get("final_hash")),
     }
+    # 〔3-3b〕(d) の分け=決定論の確認と床の分布(仮-24)
+    twins_pre = pre_t0_match(ya, yb, t0)
+    checks["d_determinism"] = _SW.determinism(
+        model=sw_model, deterministic=sw_det,
+        twins_vs_base=(checks["b_pre_t0"]["aa"]["ok"], checks["b_pre_t0"]["aa_b"]["ok"]),
+        twins_before_t0=twins_pre["ok"], aa_exact=bool(checks["d_aa"]["ok"]),
+        final_equals_base=bool(checks["d_aa"]["final_equals_base"]), expect_base=live is None)
+    cpa, cpb = _cps(ya), _cps(yb)
+    after = sorted(t for t in set(cpa) & set(cpb) if t >= t0)
+    differ = [t for t in after if cpa[t].get("behavior_hash") != cpb[t].get("behavior_hash")]
+    floor_metrics = _EN.floor_summary(_EN.floor_values(main_form, [(ya, yb)]))
+    checks["d_floor"] = {
+        "pairs": 1, "model": sw_model, "deterministic": sw_det, "metrics": floor_metrics,
+        "checkpoints_after_t0": len(after), "checkpoints_differ": len(differ),
+        "first_differ_step": differ[0] if differ else None,
+        "zero": not differ and all(m.get("abs_max") in (0.0, None) for m in floor_metrics.values()),
+        "note": ("T 以後の A/A の枝 2 本の差(b − a)。アンサンブルの各メンバーの対を ensemble.floor_values に並べると床の分布に"
+                 "なる。決定論の札(mock・古典)では 0"),
+    }
     a_ok = checks["a_input_match"]["aa"]["ok"] and checks["a_input_match"]["branch"]["ok"]
-    b_vals = [checks["b_pre_t0"]["aa"]["ok"], checks["b_pre_t0"]["branch"]["ok"]]
+    b_vals = [checks["b_pre_t0"]["aa"]["ok"], checks["b_pre_t0"]["branch"]["ok"], checks["b_pre_t0"]["aa_b"]["ok"]]
     if resume_check is not None:
         b_vals.append(bool(resume_check["base_state_matches_base_end_of_day"]))
     b_ok = None if any(v is None for v in b_vals) else all(b_vals)
-    d_ok = checks["d_aa"]["ok"] and checks["d_aa"]["final_equals_base"]
+    d_ok = checks["d_determinism"]["ok"]  # 〔3-3b〕決定論の札でランの口そのもの=3-3 と同じ(A/A が厳密に同じ・final=基準)
     summary = {
-        "a": bool(a_ok), "b": b_ok, "d": bool(d_ok),
+        "a": bool(a_ok), "b": b_ok, "d": d_ok,
         "c_step": None if world is None else world["step"],
         "c_system": None if world is None else world["system"],
         # ok は 4 つの確認(a・b・d が通り c を報告した)だけ。§1-1 の実行の条件は別の欄(〔親の判断 M3〕)
-        "ok": bool(a_ok) and b_ok is True and bool(d_ok),
+        "ok": bool(a_ok) and b_ok is True and d_ok is True,
         "executed_by_agents": executed_by_agents(main_form, exe_m),
+        # 〔3-3b〕仮のモデル・(c) の A/A との比べ・(d) の床
+        "model": sw_model, "deterministic": sw_det,
+        "c_aa_step": checks["c_first_divergence"]["vs_aa"]["aa_first_step"],
+        "c_gap_steps": checks["c_first_divergence"]["vs_aa"]["gap_steps"],
+        "d_floor_zero": bool(checks["d_floor"]["zero"]),
     }
     report = {
         "schema": REPORT_SCHEMA, "form_sha256": form.sha256(), "aa_form_sha256": aa_form.sha256(),
@@ -565,6 +640,7 @@ def run_branch(form: ExperimentForm, base_dir: str | Path, *, runner: Callable[.
         "runs": {"aa_a": _summary(res_a, wa), "aa_b": _summary(res_b, wb), "branch": _summary(res_m, wm),
                  **({"branch_probe": _summary(res_p, wp)} if res_p is not None else {})},
         "checks": checks, "summary": summary,
+        "switch": None if lay_m is None or lay_m.branch is None else lay_m.branch.switch_record(),
         "execution": {"branch": exe_m, "aa": exe_a,
                       "note": ("対象の店の T0 以後の開け閉め(ActualLog の store_opening)=担当の従業者の役割行動 / conf 0.5 の"
                                "つなぎ。executed_by_agents は決定 10-12 §1-1 の「分岐でフォールバックを使わない」の判定で、"

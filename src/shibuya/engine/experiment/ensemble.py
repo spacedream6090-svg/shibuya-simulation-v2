@@ -19,6 +19,15 @@
   最低 6 対(両側 α=0.05 の p の下限 2/2^6=R-71 §2-3)=``pairs_status``。
 - **技量スコア**(CP14・``skill_container``・``skill_score``): **器だけ**=単純な基準(去年の同じ日・平均・前の週)に対する当たりの比
   ``1 − 誤差/基準の誤差`` の式の置き場と欄。値は空(``None``)。
+- 〔第 3 期 3-3b・仮-24〕技量スコアの**隣に生の点数**の欄(``raw``=fair CRPS・基準の CRPS(点の予測は絶対誤差)・rank histogram・
+  広がりと誤差の比=√((M+1)/M) の補正つき)。技量スコアの形は元の点数が proper でも一般に proper でない(Gneiting & Raftery
+  2007 の式 (8) の注意=R-117 §2-3)ので、複数の予測の優劣は生の点数で決める。値は計器 ``tools/instruments/skill_gauge.py`` が
+  埋める(器の値は空)。
+- 〔3-3b・仮-24〕事前登録の記録に封印の証拠の欄(``evidence``=手元の git の commit と公開リポへの push の記録・第三者の時刻印は
+  無し=値は公開する呼び手が埋める・ランの manifest の ``git_commit`` 等は今の形のまま)と慣らしの規則(``warmup``=
+  ``engine.experiment.warmup.rule_record``)を足した。
+- 〔3-3b・仮-24〕**床の分布**(``floor_values``・``floor_summary``): A/A の枝 2 本の組の列 → 指標ごとの差(b − a)の分布(R-117 §1-2・
+  §6-1=実 LLM では A/A の対の差がばらつきの床)。
 
 未リサーチ(expedient): seed の割り振り(``seed0 + 番号``)・封印の並べ方(初期状態の sha256 の昇順・先頭 ``n // 2``)・初期状態が 1 つのアンサンブルは封印が空(確認には初期状態が 2 つ以上要る)・事前登録の JSON の欄・
 blake3 と sha256 を並べたこと。
@@ -39,6 +48,7 @@ __all__ = [
     "paired_values", "metrics_spec",
     "pairs_status", "MIN_PAIRS_TWO_SIDED", "MIN_PAIRS_ONE_SIDED", "skill_score", "skill_container",
     "SKILL_BASELINES", "SEAL_SCHEMA", "PREREG_SCHEMA", "SKILL_SCHEMA", "get_path",
+    "RAW_SCORES", "EVIDENCE_SCHEMA", "evidence_container", "floor_values", "floor_summary", "FLOOR_SCHEMA",
 ]
 
 SEAL_SCHEMA: Final[str] = "shibuya.engine.experiment/seal/1"
@@ -49,6 +59,10 @@ MIN_PAIRS_TWO_SIDED: Final[int] = 6
 MIN_PAIRS_ONE_SIDED: Final[int] = 5
 #: CP14 の単純な基準(去年の同じ日・平均・前の週)。
 SKILL_BASELINES: Final[tuple[str, ...]] = ("last_year_same_day", "mean", "previous_week")
+#: 〔3-3b〕技量スコアの隣に並べる生の点数(仮-24・R-117 §2-3)。
+RAW_SCORES: Final[tuple[str, ...]] = ("crps_fair", "rank_histogram", "spread_skill")
+EVIDENCE_SCHEMA: Final[str] = "shibuya.engine.experiment/seal-evidence/1"
+FLOOR_SCHEMA: Final[str] = "shibuya.engine.experiment/floor/1"
 
 
 @dataclass(frozen=True)
@@ -248,6 +262,9 @@ def preregister(draft: Mapping[str, Any], s: Seal, *, registered_at: str | None 
         "seal_sha256": s.sealed_sha256, "ensemble_sha256": s.ensemble_sha256, "question": form.question,
         "metrics": canonical_json(form.metrics), "form_sha256": form.sha256(), "registered_at": registered_at,
         "skill": skill_container(form),
+        # 〔3-3b・仮-24〕封印の証拠の欄(値は公開する呼び手が埋める)と慣らしの規則(日付ではなく規則)
+        "evidence": evidence_container(),
+        "warmup": _warmup_record(),
     }
     body = {k: v for k, v in record.items() if k != "registered_at"}
     record["record_sha256"] = sha256_hex(body)
@@ -310,7 +327,73 @@ def skill_score(error: float, baseline_error: float) -> float:
 
 
 def skill_container(form: ExperimentForm) -> dict[str, Any]:
-    """技量スコアの器(指標ごとに単純な基準 3 つの誤差と値の欄・**値は空**=答え合わせの段で埋める)。"""
+    """技量スコアの器(指標ごとに単純な基準 3 つの誤差と値の欄・**値は空**=答え合わせの段で埋める)。
+
+    〔3-3b〕隣に生の点数の欄 ``raw``(fair CRPS・基準の CRPS・rank histogram・広がりと誤差の比・メンバーの数)と注を足した
+    (値は空=``tools/instruments/skill_gauge.py`` が埋める)。"""
     return {"schema": SKILL_SCHEMA, "formula": "1 - error / baseline_error", "baselines": list(SKILL_BASELINES),
             "metrics": {str(m["id"]): {"error": None, "baseline_error": {b: None for b in SKILL_BASELINES},
-                                       "skill": {b: None for b in SKILL_BASELINES}} for m in _metric_list(form)}}
+                                       "skill": {b: None for b in SKILL_BASELINES},
+                                       "raw": {"crps_fair": None, "baseline_crps": {b: None for b in SKILL_BASELINES},
+                                               "rank_histogram": None, "spread_skill": None, "members": None}}
+                        for m in _metric_list(form)},
+            "raw_scores": list(RAW_SCORES), "error_measure": "crps",
+            "spread_skill_correction": "sqrt((M + 1) / M)",
+            "raw_note": ("技量スコアは元の点数が proper でも一般に proper でない(Gneiting & Raftery 2007 の式 (8) の注意)=複数の"
+                         "予測の優劣は生の点数(fair CRPS)で決める")}
+
+
+def evidence_container() -> dict[str, Any]:
+    """〔3-3b・仮-24〕CP14 の封印の証拠の欄(手元の git の commit と公開リポへの push の記録・第三者の時刻印は無し)。値は空=
+    公開する呼び手が埋める。ランの manifest の ``git_commit``・``git_dirty``・``git_diff_sha256`` は今の形のまま。"""
+    return {"schema": EVIDENCE_SCHEMA, "kind": "git+push", "git_commit": None, "pushed_to": None, "pushed_at": None,
+            "third_party_timestamp": False,
+            "note": "手元の git の commit と公開リポへの push の記録を封印の時刻の証拠にする(第三者の時刻印は使わない=仮-24)"}
+
+
+def _warmup_record() -> dict[str, Any]:
+    from shibuya.engine.experiment import warmup as _WU
+
+    return _WU.rule_record()
+
+
+# ================================================================ 床の分布(〔3-3b〕(d) の 2)
+def _num(doc: Mapping[str, Any], path: str) -> float | None:
+    try:
+        v = get_path(doc, path)
+    except KeyError:
+        return None
+    if isinstance(v, bool) or not isinstance(v, (int, float)):
+        return None
+    return float(v)
+
+
+def floor_values(form: ExperimentForm, aa_pairs: Sequence[tuple[Mapping[str, Any], Mapping[str, Any]]]
+                 ) -> dict[str, dict[str, list[float | None]]]:
+    """A/A の枝 2 本の組 (a, b) の列(各メンバーの T 以後の 2 本の checkpoints の JSON)→ 指標ごとの値と差 b − a。
+    道筋が無い・数でない値は ``None``(差も ``None``)。"""
+    out: dict[str, dict[str, list[float | None]]] = {}
+    for m in _metric_list(form):
+        a = [_num(x, str(m["path"])) for x, _y in aa_pairs]
+        b = [_num(y, str(m["path"])) for _x, y in aa_pairs]
+        out[str(m["id"])] = {"a": a, "b": b,
+                             "diff": [None if (u is None or v is None) else v - u for u, v in zip(a, b)]}
+    return out
+
+
+def floor_summary(values: Mapping[str, Mapping[str, Sequence[float | None]]]) -> dict[str, dict[str, Any]]:
+    """床の分布の要約(指標ごと: 対の数・平均・標準偏差(n − 1)・最小・最大・絶対値の最大・差 0 の割合・差の列)。"""
+    out: dict[str, dict[str, Any]] = {}
+    for mid, v in values.items():
+        d = [float(x) for x in v.get("diff", ()) if x is not None]
+        n = len(d)
+        if n == 0:
+            out[str(mid)] = {"schema": FLOOR_SCHEMA, "n": 0, "mean": None, "sd": None, "min": None, "max": None,
+                             "abs_max": None, "zero_share": None, "diffs": list(v.get("diff", ()))}
+            continue
+        mean = sum(d) / n
+        sd = (sum((x - mean) ** 2 for x in d) / (n - 1)) ** 0.5 if n > 1 else None
+        out[str(mid)] = {"schema": FLOOR_SCHEMA, "n": n, "mean": mean, "sd": sd, "min": min(d), "max": max(d),
+                         "abs_max": max(abs(x) for x in d), "zero_share": sum(1 for x in d if x == 0.0) / n,
+                         "diffs": list(v.get("diff", ()))}
+    return out

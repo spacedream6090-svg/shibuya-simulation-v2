@@ -215,7 +215,9 @@ PATHS: Final[dict[str, str]] = {
     # 渡さないランは null。子の鍵は engine.experiment.layer の MANIFEST_CONFIG・MANIFEST_OBSERVED と同じ=試験が突き合わせる) ----
     **_mixed("experiment", config=(
         "schema", "form_sha256", "kind", "level", "aa", "decisions", "t0_ns", "t0_step", "end_ns", "notice",
-        "registration_sha256", "preregistration_sha256", "seal_sha256", "branch_t0_step", "member", "half", "aa_of"),
+        "registration_sha256", "preregistration_sha256", "seal_sha256", "branch_t0_step", "member", "half", "aa_of",
+        # 〔第 3 期 3-3b〕T からの切り替えの口・CP5-1 の点検・CP5-3 の混入の疑いの自己申告・慣らしの規則(末尾に足しただけ)
+        "switch", "start0", "known_to_model", "warmup"),
         observed=(
         "applied", "unapplied", "applied_rows", "unapplied_rows", "meter", "replay", "checks")),
     # ---- 第 3 期 3-2: 計算のまとめの窓(形の版・幅・既定の幅・刻みの幅・上限・窓の中の順・世界の番号・事象の種類=設定/

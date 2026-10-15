@@ -1423,7 +1423,9 @@ def main(argv: list[str] | None = None) -> int:
         "--experiment-branch", type=str, default="",
         help="第 3 期 3-3 分岐の基準のランの記録(tape/・state/・checkpoints.json のあるディレクトリ)。--experiment と一緒に"
              "使う。T0 までテープを再生して T0 から今の方策で続け、A/A の枝 2 本と改変の枝 1 本を回して R-71 の 4 つの確認を"
-             "書く(<記録>/branches/<申込書の指紋の先頭 16 字>/branch_report.json)",
+             "書く(<記録>/branches/<申込書の指紋の先頭 16 字>/branch_report.json)。〔3-3b〕申込書の T0 は計算のまとめの窓の頭"
+             "(基準のランの batching.width_s ずつ)でなければ止める(3-3 では刻みの頭でない T0 を切り上げて受けていた=3-3b で"
+             "止める形に変えた・申込書の T0 を黙って丸めない)",
     )
     ap.add_argument(
         "--experiment-model", type=str, default="",

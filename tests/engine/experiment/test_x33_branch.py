@@ -125,6 +125,25 @@ def test_world_branch_replay_and_manifest(world_branch):
 
 
 @real_data
+def test_world_branch_switch_and_the_split_of_d(world_branch):
+    """〔3-3b〕同じ分岐(世界資産 1,000 体・mock)が T からの切り替えの口を通る: 窓の頭・再生の箱 0・(d) の決定論の確認と床 0・
+    (c) の A/A の枝 2 本は食い違わない(床 0=改変の枝の食い違いは床の外)。"""
+    _base, _f, out, _ids = world_branch
+    rep = out.report
+    s = rep["summary"]
+    assert s["model"] == "mock" and s["deterministic"] and s["d"] is True and s["d_floor_zero"] is True
+    det = rep["checks"]["d_determinism"]
+    assert det["aa_exact"] and det["final_equals_base"] and det["twins_vs_base_before_t0"] is True
+    vs = rep["checks"]["c_first_divergence"]["vs_aa"]
+    assert vs["branch_first_step"] == T0 + 59 and vs["aa_first_step"] is None and vs["gap_steps"] is None
+    assert rep["switch"]["window_ns"] == 60 * NS_PER_SECOND and rep["switch"]["t0_step"] == T0
+    assert rep["checks"]["b_pre_t0"]["aa_b"]["ok"] is True
+    for res in (out.twin_a, out.twin_b, out.branch):
+        r = res.run_manifest_fields()["experiment"]["replay"]
+        assert r["box_carried"] == 0 and r["box_at_switch"] == 0 and r["rows_crossing_t0"] == 0
+
+
+@real_data
 def test_world_branch_report_file(world_branch):
     base, f, out, _ids = world_branch
     p = out.report_path

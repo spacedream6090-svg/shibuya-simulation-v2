@@ -1423,7 +1423,8 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     # 第 3 期 3-3: 申込書の持ち主の設定(申込書=凍結・T0 とランの範囲の刻み・メンバーと半分)と参照(T0 で切り替える LLM の口)
     _x("experiment", CONST, _CFG + "(申込書は凍結の ExperimentForm・刻みはランの範囲・アンサンブルのメンバーと半分=入口で"
        "決まる)", "form", "t0_step", "begin_step", "end_step", "total_steps", "member", "half"),
-    _x("experiment", REF, _REFR + "(T0 で切り替える LLM の口 BranchClient・計器は manifest の experiment.replay)", "branch"),
+    _x("experiment", REF, _REFR + "(T0 で切り替える LLM の口=分岐の指定の make_client が作る口=3-3 の BranchClient か 3-3b の"
+       " ReplaySwitch・計器は manifest の experiment.replay)", "branch"),
     # 第 3 期 3-2: 計算のまとめの窓の設定(幅・上限・刻みの幅)・事象の種類の表(名・処理の関数・届け方と順位)・窓の中だけの
     # 作業の値(処理中の時刻・窓の終わり・処理の中で予約した窓の中の行=窓を閉じるときに空)
     _x("batching", CONST, _CFG + "(3-2: 幅と上限と刻みの幅=進行役がランの始めに決める)", "width_s", "width_ns", "cap",

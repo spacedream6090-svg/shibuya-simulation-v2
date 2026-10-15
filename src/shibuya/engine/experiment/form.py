@@ -18,6 +18,13 @@
 | ``preregistration`` | 確認のランだけ=封印の指紋(``seal_sha256``)と申込書の登録の指紋(``registration_sha256``=``registration_digest``)。探索では ``None`` |
 | ``aa_of`` | 〔検収 L4〕A/A の枝の印=元の申込書の登録の指紋(``aa()`` が置く・ふつうの申込書は ``None``)。置いた申込書は改変と告知が空。確認の A/A の枝は事前登録を引き継ぎ、``aa_of`` が事前登録の ``registration_sha256`` と同じでなければエラー(改変の中身の照合は元の申込書がする) |
 
+〔第 3 期 3-3b〕省略できる欄(``OPTIONAL_FIELDS``=既定のときは正準の形に**書かない**=3-3 の申込書の指紋は変わらない):
+
+| 欄 | 中身 |
+|---|---|
+| ``unexpected`` | CP5-1: 改変が住人にとって予期しない出来事か(真偽・``None``=書かない)。始まり 0 で真なら点検が警告と記録(拒まない=``engine.experiment.checks.start0_check``) |
+| ``known_to_model`` | CP5-3: 混入の疑いの自己申告=LLM が実在の出来事として知っている改変の語の列(実在の閉店・運賃の改定など・空=書かない)。検査は名指しの機械の検査と同じ道具(``checks.contamination``) |
+
 コードに地名や業種名を書かない(対象は番号か申込書の値の種別名で受ける=試験 ``tests/engine/experiment`` が日本語の固有名詞の
 一覧と突き合わせる)。
 
@@ -43,7 +50,7 @@ from shibuya.engine.events import vocab as _V
 
 __all__ = [
     "FORM_SCHEMA", "KINDS", "EXPLORE", "CONFIRM", "LEVELS", "DECISIONS", "DecisionSpec", "FORM_FIELDS",
-    "ExperimentForm", "canonical_json", "sha256_hex", "NOTICE_STAFF",
+    "ExperimentForm", "canonical_json", "sha256_hex", "NOTICE_STAFF", "OPTIONAL_FIELDS",
 ]
 
 FORM_SCHEMA: Final[str] = "shibuya.engine.experiment/form/1"
@@ -59,6 +66,8 @@ FORM_FIELDS: Final[tuple[str, ...]] = (
     "schema", "kind", "subject", "content", "start", "end", "notice", "question", "metrics", "ensemble",
     "preregistration", "aa_of",
 )
+#: 〔第 3 期 3-3b〕省略できる欄(既定=``None``・空の列のときは正準の形に書かない=3-3 の申込書の指紋を変えない)。
+OPTIONAL_FIELDS: Final[tuple[str, ...]] = ("unexpected", "known_to_model")
 _SUBJECT_FIELDS: Final[tuple[str, ...]] = ("level", "ids", "category")
 _NOTICE_FIELDS: Final[tuple[str, ...]] = ("to", "at", "via")
 _METRICS_FIELDS: Final[tuple[str, ...]] = ("primary", "secondary")
@@ -340,7 +349,7 @@ def _prereg(v: Any) -> dict[str, Any] | None:
 def _normalize(d: Any) -> dict[str, Any]:
     """辞書 → 正準の辞書(全部の欄の検査・既定を埋める)。知らない欄・型の誤り・矛盾は ``ValueError``。"""
     d = _mapping("(全体)", d)
-    _unknown("(全体)", d, FORM_FIELDS)
+    _unknown("(全体)", d, FORM_FIELDS + OPTIONAL_FIELDS)
     schema = d.get("schema", FORM_SCHEMA)
     if schema != FORM_SCHEMA:
         raise ValueError(f"申込書の schema は {FORM_SCHEMA!r}(いま {schema!r})")
@@ -375,6 +384,20 @@ def _normalize(d: Any) -> dict[str, Any]:
         "ensemble": _ensemble(d.get("ensemble", {})), "preregistration": _prereg(d.get("preregistration")),
         "aa_of": aa_of,
     }
+    # 〔3-3b〕省略できる欄(既定のときは書かない)
+    unexpected = d.get("unexpected")
+    if unexpected is not None:
+        if not isinstance(unexpected, bool):
+            raise ValueError(f"申込書の unexpected は真偽(いま {unexpected!r})")
+        out["unexpected"] = unexpected
+    known_raw = d.get("known_to_model", ())
+    if known_raw is None:
+        known_raw = ()
+    if not isinstance(known_raw, (list, tuple)):
+        raise ValueError("申込書の known_to_model は語の列")
+    known = sorted({_str(f"known_to_model[{k}]", x) for k, x in enumerate(known_raw)})
+    if known:
+        out["known_to_model"] = known
     prereg = out["preregistration"]
     if kind == EXPLORE and prereg is not None:
         raise ValueError("申込書: 事前登録は確認のランだけ(探索は事前登録なしで傾向を見る)")
@@ -414,6 +437,9 @@ class ExperimentForm:
     ensemble: Mapping[str, Any]
     preregistration: Mapping[str, Any] | None
     aa_of: str | None = None
+    #: 〔3-3b〕CP5-1 の自己申告(``None``=書かない)・CP5-3 の混入の疑いの自己申告(空=書かない)。
+    unexpected: bool | None = None
+    known_to_model: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         mine = self.to_dict()
@@ -427,7 +453,8 @@ class ExperimentForm:
         n = _normalize(d)
         return cls(kind=n["kind"], subject=_freeze(n["subject"]), content=_freeze(n["content"]), start=n["start"],
                    end=n["end"], notice=_freeze(n["notice"]), question=n["question"], metrics=_freeze(n["metrics"]),
-                   ensemble=_freeze(n["ensemble"]), preregistration=_freeze(n["preregistration"]), aa_of=n["aa_of"])
+                   ensemble=_freeze(n["ensemble"]), preregistration=_freeze(n["preregistration"]), aa_of=n["aa_of"],
+                   unexpected=n.get("unexpected"), known_to_model=tuple(n.get("known_to_model", ())))
 
     @classmethod
     def from_json(cls, text: str) -> "ExperimentForm":
@@ -443,13 +470,18 @@ class ExperimentForm:
 
     # ------------------------------------------------------------------ 書き口
     def to_dict(self) -> dict[str, Any]:
-        """正準の辞書(全部の欄・既定を埋めた形=同じ申込書は同じ辞書)。"""
-        return {
+        """正準の辞書(全部の欄・既定を埋めた形=同じ申込書は同じ辞書)。〔3-3b〕省略できる欄は既定でないときだけ末尾に。"""
+        d = {
             "schema": FORM_SCHEMA, "kind": self.kind, "subject": _thaw(self.subject),
             "content": _thaw(self.content), "start": int(self.start), "end": self.end,
             "notice": _thaw(self.notice), "question": self.question, "metrics": _thaw(self.metrics),
             "ensemble": _thaw(self.ensemble), "preregistration": _thaw(self.preregistration), "aa_of": self.aa_of,
         }
+        if self.unexpected is not None:
+            d["unexpected"] = self.unexpected
+        if self.known_to_model:
+            d["known_to_model"] = list(self.known_to_model)
+        return d
 
     def to_json(self) -> str:
         """決定的な JSON(``canonical_json``)。``from_json(to_json())`` は同じ申込書。"""
