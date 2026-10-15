@@ -309,3 +309,12 @@
 | `tests/c8/test_sensitivity_ledger.py` | 衝突 | `--read-graph` で作り直した digest `49dd536770bf25e9…`・注に旧値 2 つ(本体 `c4ea05eed1bced95…`・本段 `d32aa76180bd874a…`) |
 | `tools/c8/sensitivity_v1.json`・`docs/bench/c8/sensitivity_v1.json` | 自動 | rebase の後に作り直した(本体との差は W3・W6・W12 の consumers の W21 だけ・md は不変) |
 | `src/shibuya/build/pop/attr_fns.py`・`w21_build.py`・`w21_checks.py`・`w21_sources.py`・`tests/build_pop/test_w21_attr_fns.py` | 自動(本体は触っていない) | — |
+
+## §親の検収(第336・Fable 5.1・rebase の後)
+
+- 本体 ed7155c(6-1 の文書の後)へ rebase(実装役が控え+早送り+merge-file で=つなぎの台帳は本体の版に `ledger_w21b.py` を回して 441 行・`test_bridging_ledger.py` 220/84・c8 の読みのグラフは作り直し digest 49dd5367…)→ 親が e7261b7(3-3b の後)へ rebase=つなぎの台帳の末尾 1 本だけ衝突 → 本体の版に `ledger_w21b.py` を回して作り直した(450 行・30 追加・既存の行は 10 行の what/why の末尾の追記だけ=親が検査・2 回回して同じバイト)・a85d8f7。範囲の試験(build_pop・build_sched・bridging・rights・tools・**c8**・cp2・状態台帳・10f・keep_stage)****1,064 passed**(438 秒・rebase の後)**。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src)=**final 同じ・25 欄とも差なし**(`parent_head_vs_pop41b_4cfg.json`)。`src/shibuya/engine` の差分 0(構築側 `build/pop` だけ)。
+- **data 無しの写し(detached の作業木・junction なし)で CI-1 と同じ引数の全体試験(tests/c7 を含む)=**5,148 passed・258 skipped・failed 0**(1,199 秒・1ba5668=rebase の前の木。rebase の後の差は 3-3b の分(同じ検査を 5,168 passed で通過)とつなぎの台帳の行だけ=範囲の試験で確認)**。
+- 親の一次確認: e-Stat の 3 本(statInfId 000040067881・000040506657・000040506695)は HEAD で 200・転送なし・Content-Disposition の名(b1_006_2.xlsx・wb02_05.xlsx・wb12_03.xlsx)が記録と一致・手元の md5(be62ee14・4f3d87b9・3d71e06b)が MANIFEST と一致(取得はしていない)。本体の W20 の `DUTY_ROLE_SPEC` の鍵を親が読み、W21b の語との食い違いを検収役に渡した(M1)。
+- 独立検収([review.md](review.md))=条件つき受入(中 2=W20 との接続(語と入力の形)・②群の担当が勤め先の場所を見ない/ 低 11)→ 全部直した(§15=組み直し・`w21b_build_hash` c8996307 → 34798bd5)。検収役の独立の再計算(舞台の割合・人数の内訳・席・権利・関係・部署 k・貯蓄の JSD・JICC・賃金の中央値・容量・傾き・輪・MANIFEST 125 本・段 1〜3 の組み直し・腕 seat-roles off・R-80/JICC/JNTO の写し検査・負の対照 2 本)は全部一致(来る可能性のある人の市区町村の数だけ 1,896 → 1,889 の指摘=浜松市の旧 7 区の落ち=直して 1,892)。親の判断(仮-32): W20 への口は段 10 で W21 から `Attributes` を作る関数・担当は勤め先が舞台の中の体だけ・夜の店は 20 歳未満 0・J-FLEC の持ち物と閉じた表の「店」は PENDING §1-1。
+- 判定: **受入**(第 4 期 4-1 段 4〜7=資産は活性化しない・既定は不変)。
