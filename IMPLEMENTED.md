@@ -394,6 +394,15 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #110 第 6 期 6-5 記憶 M1〜M5 の腕と器(GPU の前の分・既定は不変)(第336・2026-10-15・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-6(MR-0〜MR11)・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 6-5 と回答 2-1・1-6 の M0・2-3 の腕 a。記録 [mr65](docs/bench/analysis/wallbounce-1012/mr65/README.md)([review.md](docs/bench/analysis/wallbounce-1012/mr65/review.md))。取り込み `d6dc561`。
+- **M1 強さの式**(`engine/memory_m1.py`・腕 `--memory-model m1`): ACT-R の折衷=直近 3 回は本当の時刻・古い回は寿命から近似(Petrov 2006 式 (3)=親が実読)・秒・+1 なし・d=0.5・最短の符号化時間 1 秒(expedient)・人ごとの倍率 1+0.15z(Sense 2018・Philox)・β・τ=−3.738(仮)・思い浮かぶ/見覚え/忘れる。単位を変えても全部が同じだけずれる(試験)。M0 との上位 k の一致 52〜73%(負の対照の記録)。
+- **M2 手がかり**(`engine/memory_embed.py`・腕 `--memory-cue embed`): 既定は ID の一致(M0 と同じ想起)・腕は意味の手がかり(cos≥0.5)・Ruri-v3-30m/130m の版と sha を固定(Apache-2.0)・**重みは転送先 `us.aws.cdn.hf.co` が許可の一覧の外で未取得**(PENDING §1-1)・経路は ngram-test で試験。
+- **M5 人も記憶**(`engine/relations_people.py`・腕 `--memory-people memory`): 同じ器・同じ式・関係の表 `rel_*` を読み書きしない(AST+負の対照)・出来事 128 行と店 32 件の固定の上限を外す(`memory_shops.py`=腕の行 M0S。幅は宣言した上限(出来事・人・店 各 256 行/体=expedient)まで倍増し、上限では思い浮かぶ強さ A の一番低い行を消す=検収 M2・M4)・知人出現の起床と同席は作らず計器に。**39 万体の見積り(出来事 6.88 GiB・人 6.88 GiB・店 2.14 GiB)と 5,000 体 7 日の測り(消えた行 0)は予算の外=腕 memory は既定化の条件を満たさない**(予算の宣言 M9 の行・§1-1)。**M3 の器**(`memory_impression.py`=会話の直後の追記と寝たときの書き直し=mock)・**浅い痕跡**(`memory_trace.py`・`Percept.heard_referents`・計器)。**粒度の腕** `--memory-grain day`(14.58 → 10.93 行/体/日=−25%・39 万体 7 日 2.65 GiB=256 MB の宣言を超える=次の手は既定化の前)。
+- 不変: 既定は byte-check 19/19・2 日の通し(final 31c9b194…)・再開=通し(既定と m1)。腕の動いた量(4 構成)は記録 §8。性能(刻みあたり・参考)44.6 ms → m1 49.1・people 50.7(直しの前の値)・embed/grain ±1%。忘れる速さの seed は組み立てで母集団の seed から(検収 M1)・腕の名と埋め込みモデルの名と sha は設定の節と指紋に(`CONFIG_PATHS_SHA256` 改訂)・記憶 off で腕を立てたら止める。状態台帳の行 M0M・M0C・M0X・M0S(M0 の注=既定化で軸を改める)・台帳 +17 行(id は回答 6-2 の段の名)。
+- 検収: 別の検収役 1+親。全体試験 5,362 passed。仮採用: PENDING §1-1b 仮-32(11 件=記録 §14)。
+
 ### #109 第 4 期 4-1 ペルソナと人口の作り直し 段 4〜7(W21b=組織と関係・お金・開始前の経験・外の人・構築側だけ・資産は活性化しない=結果不変)(第336・2026-10-15・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 第 4 期 段 4〜7(回答 2-0)・[設計書](docs/design/v2-persona-population-rebuild-design.md) §2-5(PS4・PS5)・§2-6・§2-7・[R-116](docs/research/v2-r116-ps-stage0-materials.md) §1-4・§1-5・§4・R-107・R-109・R-110 §3・R-80・PENDING 仮-23・仮-26。記録 [pop41b](docs/bench/analysis/wallbounce-1012/pop41b/README.md)([review.md](docs/bench/analysis/wallbounce-1012/pop41b/review.md))。取り込み `86fcff3`。段 1〜3 は #104。
