@@ -320,3 +320,12 @@
 | data/research_cache/pop41/ の xlsx 18 本(令和 7 年国勢調査 人口等基本集計 第 12-1・15-1・19-1 表【原数値】・第 10・13-1(総数・男・女)表【不詳補完値】/ 令和 2 年国勢調査 第 2-1・10・13-1(総数・男・女)表【不詳補完値・遡及】/ 就業状態等基本集計 第 3-1・5-1・10-1 表/ 従業地・通学地集計 第 8・15-1・16-1 表) | e-Stat(www.e-stat.go.jp の file-download・statInfId と md5 は MANIFEST・`curl -sI --max-redirs 0` で 200 と転送なしを確かめた) | 2026-10-15 | 政府標準利用規約(第 2.0 版)=出典の明記で利用可。不詳補完値は参考表(加工の明記が要る) | W21 の段 2(区の雛形=世帯の型 × 人員・世帯主・続き柄・夫婦と親子の年齢差)と段 3(仕事の結合・通勤者の属性)。渋谷区の行だけを `derived/` に写して読む。取ったが使っていない 4 表(2025 第 15-1・従業地 第 15-1・2020 第 13-1 総数・小地域 第 6-3)は記録に宣言 |
 | data/research_cache/pop41/ の CSV 3 本(令和 2 年国勢調査 小地域集計 東京都 第 6-2・6-3・16-3 表) | 同 | 同 | 同 | W21 の段 2(家族類型別の一般世帯人員)・段 3(通学地) |
 | data/research_cache/pop41/derived/*.json 23 本 | 上の xlsx と r116 の xlsx 5 本からの写し(渋谷区の行だけ・2 回写して md5 一致) | 同 | 同(派生=値は書き換えない・元の md5 を照らす) | W21 の読み口 |
+
+## 2026-10-15 追加 その 18(第 4 期 4-1 段 4〜7=W21b の材料・[記録 pop41b](bench/analysis/wallbounce-1012/pop41b/README.md)・gitignore 下の data/research_cache/pop41b/・md5 は同じ場所の MANIFEST.md・資産 data/world/v2_stage_4-1b/ は活性化しない=段 10)
+
+| ファイル | 出典 | 取得日 | 利用規約 | 用途・注意 |
+|---|---|---|---|---|
+| data/research_cache/pop41b/ecensus2021_t6-2_industry_status_muni.xlsx(令和 3 年経済センサス‐活動調査 事業所に関する集計 第 6-2 表・b1_006_2.xlsx・md5 be62ee14…) | e-Stat file-download statInfId=000040067881(転送なし・親が HEAD で確認) | 2026-10-15(実装役) | 政府標準利用規約(第 2.0 版)=出典明記で利用可 | W21b 段 4 の席の地位の割合(渋谷区の行だけ derived/ に写す)。R-99 の在庫と同じファイル(読み口の置き場の都合で取り直し) |
+| data/research_cache/pop41b/census2025_imputed_b02_05_age_single_sex_muni.xlsx(令和 7 年国勢調査 人口等基本集計【不詳補完値】第 2-5 表・wb02_05.xlsx・md5 4f3d87b9…) | 同 statInfId=000040506657 | 同 | 同(補完値は参考表=加工の明記) | W21b 段 5(全国の 20 歳以上の人口)・段 7(流入元の人口) |
+| data/research_cache/pop41b/census2025_imputed_b12_03_head_family_muni.xlsx(同 第 12-3 表【不詳補完値】・wb12_03.xlsx・md5 3d71e06b…) | 同 statInfId=000040506695 | 同 | 同 | W21b 段 7(体のない遠くの人の世帯) |
+| data/research_cache/pop41b/derived/*.json 10 本 | 上の 3 本と、在庫の経済センサス 第 28 表・r109 の第 4 表・pop41 の第 10 表・r107 の賃金構造 4 表からの写し(集計の行だけ) | 同 | 同(派生=値は書き換えない・元の md5 を照らす) | W21b の読み口 |
