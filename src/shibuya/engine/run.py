@@ -488,6 +488,7 @@ POPULATION_RNG_DOMAINS: dict[str, str] = {
     "geometry.desired_speed": "希望歩行速度(engine.geometry.desired_speeds・--geometry edge のときだけ)",
     "engine.processes.rail": "域外居住の通勤者の抽選と路線(計画実行層の無いランだけ)",
     "world.synthetic": "合成小世界の店の種別と在庫(世界資産が無いときだけ・舞台の構造)",
+    "memory.forgetting_rate": "〔第 6 期 6-5〕忘れる速さの人ごとのばらつき 15%(MR8・engine.memory_m1・腕 --memory-model m1 のランだけ)",
 }
 #: **10f 第 2 段の直し(S1・ユーザー決定 2026-10-07)環境の側の乱数**。``run_day(environment_seed=…)`` の値から引く。
 #: 外から与える舞台の出来事(気象・大きな催し・道路工事)。「天気は同じで動きだけ変える」比較では固定し、

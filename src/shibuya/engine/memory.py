@@ -15,6 +15,11 @@ D-120 7a〜7c: 店の評価の記憶(``engine.store_memory``・:meth:`MemoryLaye
 書き、器の目印をその出来事にする(出どころ None)。行の出どころ(行為の成否・到着・会話の始まり・会話の番・気づき・看板)と
 この刻みに適用した判断の呼の id を口へ運ぶ(:meth:`after_tick` の ``calls``・:meth:`note_utterance` の ``call_id``)。既定の
 道は前と同じ(引数は読まない)。
+〔第 6 期 6-5・全部 腕〕器のランだけ 6-5 の腕(``engine.memory_m1`` の切替口=``--memory-model``・``--memory-cue``・
+``--memory-people``・``--memory-grain``)を器に置く(:meth:`_enable_mr65`)。腕 memory(人も記憶の一つ)は器が表の写しでなく
+なる=:meth:`_write` は表と比べず、相手のある出来事で人の行に触れる(:meth:`_touch_people`)・関係の読み口は
+``engine.relations_people.PeopleRelationLayer``。粒度 day は同じ記憶の行の日の 2 回目からを記録に書かない。注意の口
+:meth:`note_attended`(MR6)は口だけ。器の無いランで既定と違う腕を選ぶと記憶の層を作る時に止める。
 
 表(``AgentState(memory_columns=True)`` のランだけ確保・``--memory on``)
     体ごとに N 行(:data:`MEMORY_N`=128・M2・感度 64/256)。1 行=``mem_kind`` u8(事象の種類=
@@ -235,6 +240,10 @@ def activation_rows(n: np.ndarray, first_tick: np.ndarray, tick: int, minutes_pe
         return np.log(nn / (1.0 - float(d))) - float(d) * np.log(L + 1.0)
 
 
+#: 〔第 6 期 6-5〕人の行に触れる出来事の結果(関係の層の書き手の符号の表 ``_SIGN_OF_RESULT`` の鍵と同じ=結果の知れた会話・手伝い)。
+_PEOPLE_RESULTS: Final[tuple[int, ...]] = (
+    int(ResultCode.OK), int(ResultCode.REFUSED), int(ResultCode.PARTNER_BUSY), int(ResultCode.PARTNER_GONE),
+)
 #: 〔2-3〕体の出来事の出どころ(``engine.events.body.SRC_*`` と同じ番号=試験が突き合わせる)。
 _SRC_ACT, _SRC_ARRIVE, _SRC_TALK_OPEN, _SRC_TURN, _SRC_NOTICE, _SRC_SIGNAGE = range(6)
 
@@ -266,6 +275,11 @@ class MemoryLayer:
 
     def __init__(self, n_agents: int, n_rows: int = MEMORY_N, *, minutes_per_tick: float = 1.0,
                  d: float = MEMORY_D, w_r: float = MEMORY_W_R, w_i: float = MEMORY_W_I) -> None:
+        # 〔第 6 期 6-5〕記憶の腕(--memory-model/-cue/-people/-grain)は器のランだけ=器の無いランで既定と違えば止める
+        from shibuya.engine import memory_m1 as _M1
+        from shibuya.engine import memory_store as _MS
+
+        _M1.check_arms(store_on=_MS.arm() == _MS.ARM_EVENTS)
         self.n = int(n_agents)
         self.n_rows = int(n_rows)
         self.minutes_per_tick = float(minutes_per_tick)
@@ -293,11 +307,13 @@ class MemoryLayer:
         #: 第 1 期 1-6 M0: 記憶の器(腕 ``--memory-store events`` のランだけ・:meth:`enable_memory_store`)。
         self.memory_store: Any = None
 
-    def enable_memory_store(self, *, step_seconds: int) -> Any:
+    def enable_memory_store(self, *, step_seconds: int, population_seed: int | str | None = None) -> Any:
         """記憶の器 M0(``engine.memory_store.MemoryStore``)を持たせる(1-6・腕 ``--memory-store events``)。
 
         器はこの表と同じ行数・同じ規則で、この表に書く所で同じ出来事を書く(:meth:`_write` が行の食い違いを落とす)。
         想起は器から引く(:meth:`recall`)。τ は今の :attr:`tau`(組み立てが置いた後に呼ぶ)。
+        ``population_seed``(〔第 6 期 6-5・検収 M1〕)=母集団の seed。腕 ``--memory-model m1`` の人ごとの忘れる速さの鍵
+        (10f S1=母集団の側の乱数は母集団の seed から)。組み立て(``engine.systems.build``)がランごとに渡す。
         """
         from shibuya.engine.memory_store import MemoryStore
 
@@ -305,7 +321,32 @@ class MemoryLayer:
             self.n, self.n_rows, step_seconds=int(step_seconds), minutes_per_step=self.minutes_per_tick,
             d=self.d, w_r=self.w_r, w_i=self.w_i, tau=self.tau,
         )
+        self._enable_mr65(self.memory_store, population_seed)
         return self.memory_store
+
+    def _enable_mr65(self, ms: Any, population_seed: int | str | None) -> None:
+        """〔第 6 期 6-5〕腕を器に置く(既定=何も置かない=器は M0 のまま)。M1 の τ は今の τ(``--memory-tau``)から
+        ``memory_m1.tau_from_m0`` で導く仮の値。埋め込みの腕のモデルが使えなければ ``EmbedUnavailable`` で止める。
+        〔検収 M1〕人ごとの忘れる速さの seed はこの呼びの ``population_seed``(プロセスの大域の値を持たない)。
+        〔検収 L1〕腕の設定の値(``memory_m1.config_of``)を器に置く(manifest の ``memory_summary.mr65_arms``)。"""
+        from shibuya.engine import memory_m1 as _M1
+        from shibuya.engine.memory_store import row_caps
+
+        a = _M1.check_arms(store_on=True)
+        if not _M1.arms_on() and a.cue == _M1.CUE_ID:
+            return
+        m1 = None
+        if a.model == _M1.MODEL_M1:
+            if population_seed is None:
+                raise ValueError("腕 --memory-model m1 は母集団の seed が要る(組み立てが enable_memory_store に渡す)")
+            m1 = _M1.M1State(self.n, ms.n * ms.n_rows, tau=_M1.tau_from_m0(self.tau), seed=population_seed)
+        cue = None
+        if a.cue == _M1.CUE_EMBED:
+            from shibuya.engine.memory_embed import CueState, make_embedder
+
+            cue = CueState(make_embedder(a.embed_model))
+        ms.enable_arms(m1=m1, cue=cue, uncapped=a.people == _M1.PEOPLE_MEMORY, grain=a.grain,
+                       config=_M1.config_of(a, row_caps=row_caps()))
 
     def on_shown(self, agent_id: int, step: int, wake_class: int, rows: Sequence[int]) -> None:
         """描き方が B5 に載せた記憶の行の録画(1-6 M0・MR16)。``PerceptionRendererAdapter`` が 1 描画ごとに呼ぶ。"""
@@ -338,6 +379,15 @@ class MemoryLayer:
         """関係辺(``engine.relations.RelationLayer``)を持たせる(C10 8a)。書き手は :meth:`record` に乗る。"""
         from shibuya.engine.relations import REL_D, REL_K, REL_TAU, RelationLayer
 
+        ms = self.memory_store
+        if ms is not None and ms.uncapped:  # 〔第 6 期 6-5〕人も記憶の一つの腕: 関係の読み口を器の人の行から
+            from shibuya.engine.relations_people import PeopleRelationLayer
+
+            self.relations = PeopleRelationLayer(
+                self.n, REL_K if k is None else int(k), store=ms, minutes_per_tick=self.minutes_per_tick,
+                d=REL_D if d is None else float(d),
+            )
+            return self.relations
         self.relations = RelationLayer(
             self.n, REL_K if k is None else int(k), minutes_per_tick=self.minutes_per_tick,
             d=REL_D if d is None else float(d), tau=REL_TAU if tau is None else float(tau),
@@ -354,11 +404,23 @@ class MemoryLayer:
         """
         from shibuya.engine.store_memory import DEFAULT_STORE_DECAY, STORE_MEMORY_N, StoreMemory
 
-        self.store = StoreMemory(
-            self.n, STORE_MEMORY_N if n_rows is None else int(n_rows),
-            minutes_per_tick=self.minutes_per_tick, d=self.d, sigma=sigma,
-            decay=DEFAULT_STORE_DECAY if decay is None else decay, signage=signage, poi_cell=poi_cell,
-        )
+        ms = self.memory_store
+        if ms is not None and ms.uncapped:
+            # 〔第 6 期 6-5・検収 M4〕人も記憶の一つの腕: 店の評価の行は器の店の行の表(上限 32 の体の表 sm_* を外す道)
+            from shibuya.engine.memory_shops import ShopTable, UncappedStoreMemory
+
+            table = ShopTable(self.n, STORE_MEMORY_N if n_rows is None else int(n_rows), cap=int(ms.caps["shop"]))
+            ms.attach_shops(table)
+            self.store = UncappedStoreMemory(
+                self.n, table=table, minutes_per_tick=self.minutes_per_tick, d=self.d, sigma=sigma,
+                decay=DEFAULT_STORE_DECAY if decay is None else decay, signage=signage, poi_cell=poi_cell,
+            )
+        else:
+            self.store = StoreMemory(
+                self.n, STORE_MEMORY_N if n_rows is None else int(n_rows),
+                minutes_per_tick=self.minutes_per_tick, d=self.d, sigma=sigma,
+                decay=DEFAULT_STORE_DECAY if decay is None else decay, signage=signage, poi_cell=poi_cell,
+            )
         if str(recall_scope) not in STORE_RECALL_SCOPES:
             raise ValueError(f"store_recall_scope は {STORE_RECALL_SCOPES} のどれか(いま {recall_scope!r})")
         #: 7c: B5 の想起で店の行を候補にする入口(all=全入口・conversation=会話だけ=感度腕)。
@@ -428,11 +490,11 @@ class MemoryLayer:
         from shibuya.engine.store_memory import STORE_SCORE_P_CAP, STORE_SCORE_W_P
 
         rs = self.recall_stats
-        f = agents.registry.field
         st = self.store
+        sc = st.columns(agents)  # 〔6-5・検収 M4〕既定=体の表の sm_* そのもの
         sA = st.activation(agents, np.asarray([i]), step)[0][s_used]
-        s_poi = f("sm_poi")[i][s_used].astype(np.int64)
-        s_prec = f("sm_precision")[i][s_used].astype(np.float64)
+        s_poi = sc.poi[i][s_used].astype(np.int64)
+        s_prec = sc.precision[i][s_used].astype(np.float64)
         s_score = sA + STORE_SCORE_W_P * np.minimum(STORE_SCORE_P_CAP, s_prec)
         s_live = sA >= self.tau
         s_match = np.zeros(s_used.size, dtype=bool)
@@ -447,7 +509,7 @@ class MemoryLayer:
         return s_poi, s_score, s_live, s_match
 
     def _recall_from_store(self, agents: Any, i: int, step: int, k: int, entrance: str, store_on: bool,
-                           s_used: np.ndarray, inviter: int) -> list[RecallItem]:
+                           s_used: np.ndarray, inviter: int, conversation: bool = False) -> list[RecallItem]:
         """1-6 M0 の腕: 想起を記憶の器から引く(手がかり q・k・計数は今の :meth:`recall` と同じ)→ 描き方の ``RecallItem``。
 
         店の記憶 on(7c)のランは、店の評価の行(今の ``sm_*``)を器の想起の内側で同じ score の順に競わせる。逐次ループ
@@ -461,10 +523,16 @@ class MemoryLayer:
             rs["calls_empty_table"] += 1
             return []
         q_cell, q_partner, q_obj, q_kind, q_result = self._query(agents, i, inviter)
+        # 〔第 6 期 6-5〕上限なしの腕は器の行の幅が広がる=店の行は大きな番号から(器の行と重ならない)
+        from shibuya.engine.memory_store import UNCAPPED_SHOP_BASE
+
+        shop_base = UNCAPPED_SHOP_BASE if ms.uncapped else self.n_rows
+        # 〔6-5 MR2 問い 4〕意味の手がかりの文(会話中=相手の直前の発言・ほか=本人の直前の理由)
+        cue_text = (ms.cue.text_for(i, bool(conversation)) if ms.cue is not None else None)
         pool = None
         if store_on:
             st = self.store
-            f = agents.registry.field
+            sc = st.columns(agents)  # 〔6-5・検収 M4〕口を通す(既定=体の表の sm_* そのもの)
             s_poi, s_score, s_live, s_match = self._shop_arrays(agents, i, step, s_used, q_obj, q_cell)
             sign_box: list[np.ndarray] = []
             ns = ms.ns_per_step
@@ -476,17 +544,18 @@ class MemoryLayer:
                 pc = (int(st.poi_cell[s_poi[j]]) if st.poi_cell is not None
                       and 0 <= s_poi[j] < st.poi_cell.size else -1)
                 return MemoryView(  # 器の外の行(今の sm_*)=目印なし。言葉は A ≥ τ の段(器の行と同じ境目)
-                    row=self.n_rows + row, event_id=None, origin=None,
+                    row=shop_base + row, event_id=None, origin=None,
                     clarity=CLARITY_WORDS[0] if bool(s_live[j]) else CLARITY_WORDS[1],
                     grain=GRAIN_WORDS[0], kind=STORE_ITEM_KIND, partner=-1, obj=int(s_poi[j]), result=0, cell=pc,
                     annotation="",
-                    when_ns=int(f("sm_last")[i][row]) * ns, first_ns=int(f("sm_first")[i][row]) * ns,
-                    valence=int(sign_box[0][row]), source=int(f("sm_source")[i][row]),
+                    when_ns=int(sc.last[i][row]) * ns, first_ns=int(sc.first[i][row]) * ns,
+                    valence=int(sign_box[0][row]), source=int(sc.source[i][row]),
                 )
 
             pool = ShopPool(score=s_score, live=s_live, match=s_match, key=s_poi, view=shop_view)
         views = ms.recall(i, int(step) * ms.ns_per_step, k,
-                          cue=Cue(q_cell, q_partner, q_obj, q_kind, q_result), pool=pool, tau=self.tau)
+                          cue=Cue(q_cell, q_partner, q_obj, q_kind, q_result), pool=pool, tau=self.tau,
+                          cue_text=cue_text)
         rep = ms.last_recall
         rs["rows_candidate"] += rep.rows_candidate
         rs["rows_candidate_below_tau"] += rep.rows_candidate_below_tau
@@ -503,6 +572,10 @@ class MemoryLayer:
             rs["calls_zero"] += 1
             return []
         out = [to_item(v, ms.ns_per_step) for v in views]  # 高々 k(≤ 3)
+        if ms.grain != "each":  # 〔第 6 期 6-5 粒度 day〕目印は日の最初の回=描く時刻は記憶の表の最後の回(器は表の写し)
+            last = agents.registry.field("mem_last")[i]
+            out = [it._replace(last_tick=int(last[it.row])) if (it.kind != STORE_ITEM_KIND and 0 <= it.row < self.n_rows)
+                   else it for it in out]
         for it_ in out:
             rs["recalled_kind:" + ("store" if it_.kind == STORE_ITEM_KIND
                                    else str(KIND_NAMES.get(it_.kind, it_.kind)))] += 1
@@ -530,10 +603,11 @@ class MemoryLayer:
         rs["calls:" + entrance] += 1
         store_on = self.store is not None and (
             getattr(self, "store_recall_scope", "all") == "all" or conversation)
-        s_used = (np.flatnonzero(agents.registry.sm_poi[i] >= 0) if store_on
+        s_used = (np.flatnonzero(self.store.columns(agents).poi[i] >= 0) if store_on  # 〔6-5・検収 M4〕口を通す
                   else np.zeros(0, dtype=np.int64))
         if self.memory_store is not None:  # 1-6 M0 の腕: 想起は記憶の器から(同じ q・同じ k・同じ計数)
-            return self._recall_from_store(agents, i, tick, k, entrance, store_on, s_used, inviter)
+            return self._recall_from_store(agents, i, tick, k, entrance, store_on, s_used, inviter,
+                                           conversation=bool(conversation))
         if not bool(used.any()) and s_used.size == 0:
             rs["calls_empty_table"] += 1
             return []
@@ -645,9 +719,10 @@ class MemoryLayer:
             return []
         last, part, res, cel = f("mem_last")[i], f("mem_partner")[i], f("mem_result")[i], f("mem_cell")[i]
         first = f("mem_tick")[i]
-        s_last = f("sm_last")[i]
-        s_first = f("sm_first")[i]
-        s_src = f("sm_source")[i]
+        _sc = st.columns(agents)  # 〔6-5・検収 M4〕口を通す(既定=体の表の sm_* そのもの)
+        s_last = _sc.last[i]
+        s_first = _sc.first[i]
+        s_src = _sc.source[i]
         s_sign = (np.sign(st.valence_now(agents, np.asarray([i]), tick)[0]).astype(np.int64)
                   if any(typ == 1 for typ, _ in picked) else None)
         out: list[RecallItem] = []
@@ -717,30 +792,93 @@ class MemoryLayer:
             base = importance_of(kind, result, np.zeros(a.size, dtype=bool))
             link = ms.body_events
             log_seq = None
+            kept = None
             if link is not None and link.enabled:  # 〔2-3〕体の出来事を記録へ → 器の目印はその出来事(出どころ None)
-                ts, log_seq = link.write(a, kind, partner, obj, result, cell,
-                                         _default_src(kind) if src is None else np.asarray(src, dtype=np.int64),
-                                         call_ids)
+                srcv = _default_src(kind) if src is None else np.asarray(src, dtype=np.int64)
+                if ms.grain != "each" and not ms.uncapped:
+                    # 〔第 6 期 6-5 粒度 day〕同じ記憶の行の日の中の 2 回目からは記録に書かない(目印は日の最初の回のまま)
+                    kept = found & ms.pointer_same_day(a, slot, int(link.log.now_ns))
+                if kept is not None and bool(kept.any()):
+                    w = ~kept
+                    ts = np.full(a.size, int(link.log.now_ns), dtype=np.int64)
+                    log_seq = np.full(a.size, -1, dtype=np.int64)
+                    if bool(w.any()):
+                        ts_w, seq_w = link.write(a[w], kind[w], partner[w], obj[w], result[w], cell[w], srcv[w],
+                                                 None if call_ids is None else [call_ids[j] for j in np.flatnonzero(w)])
+                        ts[w], log_seq[w] = ts_w, seq_w
+                else:
+                    ts, log_seq = link.write(a, kind, partner, obj, result, cell, srcv, call_ids)
                 got = ms.remember(a, LoggedEvent(ts, log_seq, kind, partner, obj, result, cell), base, None,
-                                  annotation=annotation)
+                                  annotation=annotation, keep_pointer=kept)
             else:
                 got = ms.remember(
                     a, LegacyEvent(np.full(a.size, int(tick) * ms.ns_per_step), kind, partner, obj, result, cell),
                     base, ORIGIN_LEGACY, annotation=annotation,
                 )
-            if not np.array_equal(got, slot):
-                raise RuntimeError("1-6 M0: 記憶の器の行が記憶の表の行と食い違う(器は同じ規則の写し)")
-            # 行だけでなく値も(仮の出来事・強さ・目印・出どころ)。器はハッシュに入らない=ずれても final とハッシュに
-            # 出ないので、書くたびにここで止める(書きの検査の切替口でも外さない)
-            ms.check_against_table(
-                a, slot, kind=r.mem_kind[a, slot], partner=r.mem_partner[a, slot], obj=r.mem_object[a, slot],
-                result=r.mem_result[a, slot], cell=r.mem_cell[a, slot], first_step=r.mem_tick[a, slot],
-                last_step=r.mem_last[a, slot], n=r.mem_n[a, slot], importance=r.mem_importance[a, slot],
-                log_seq=log_seq,
-            )
+            if not ms.uncapped:  # 〔6-5〕上限なしの腕の器は記憶の表の写しでない(行も値も比べない=宣言)
+                if not np.array_equal(got, slot):
+                    raise RuntimeError("1-6 M0: 記憶の器の行が記憶の表の行と食い違う(器は同じ規則の写し)")
+                # 行だけでなく値も(仮の出来事・強さ・目印・出どころ)。器はハッシュに入らない=ずれても final とハッシュに
+                # 出ないので、書くたびにここで止める(書きの検査の切替口でも外さない)
+                ms.check_against_table(
+                    a, slot, kind=r.mem_kind[a, slot], partner=r.mem_partner[a, slot], obj=r.mem_object[a, slot],
+                    result=r.mem_result[a, slot], cell=r.mem_cell[a, slot], first_step=r.mem_tick[a, slot],
+                    last_step=r.mem_last[a, slot], n=r.mem_n[a, slot], importance=r.mem_importance[a, slot],
+                    log_seq=log_seq, kept=kept,
+                )
+            else:
+                self._touch_people(ms, a, kind, partner, result, cell, int(tick) * ms.ns_per_step)
         self.stats["merged"] += int(np.count_nonzero(found))
         self.stats["new_rows"] += int(np.count_nonzero(new))
         return slot
+
+    # ------------------------------------------------------------------ 〔第 6 期 6-5〕人も記憶の一つ(上限なしの腕)
+    def _touch_people(self, ms: Any, a: np.ndarray, kind: np.ndarray, partner: np.ndarray, result: np.ndarray,
+                      cell: np.ndarray, t_ns: int) -> None:
+        """相手のある出来事(会話・手伝い=関係の層の書き手と同じ選び)→ その人の行に 1 回触れる(MR6=注意が向いた 1 回・
+        会話は番ごとに触れる=自然に強く残る)。新しい人は関係の種類「知人」。1 回の呼びで 1 体 1 件(呼び手の回の分け)。"""
+        from shibuya.engine.memory_m1 import PERSON_KIND
+        from shibuya.engine.memory_store import ORIGIN_LEGACY, LegacyEvent
+        from shibuya.engine.relations import REL_KINDS
+
+        sel = (np.isin(kind, (EVENT_KINDS["talk"], EVENT_KINDS["help"])) & (partner >= 0) & (partner < self.n)
+               & (partner != a) & np.isin(result, _PEOPLE_RESULTS))
+        if not bool(sel.any()):
+            return
+        m = int(np.count_nonzero(sel))
+        ms.remember(a[sel], LegacyEvent(np.full(m, int(t_ns)), np.full(m, PERSON_KIND), partner[sel],
+                                        np.full(m, REL_KINDS["acquaintance"]), np.zeros(m, dtype=np.int64), cell[sel]),
+                    0, ORIGIN_LEGACY)
+        self.stats["people_touches"] += m
+
+    def note_attended(self, agents: Any, step: int, a: Any, persons: Any) -> int:
+        """〔6-5 MR6〕知覚がその人に気づいた(注意が向いた)組 ``(体, 人)`` → 人の行に 1 回触れる(上限なしの腕だけ)→ 触れた数。
+
+        同席で書くのは人の記憶だけ(店・予定・出来事は書かない=C1)。**口だけ**: 知覚の注意(目の向き・心の向き=CT2 と空間の
+        段)から呼ぶ結線は後の段(本段は試験だけが呼ぶ)。逐次ループ宣言: 体あたりの組の数の最大ぶん(回の分け)。
+        """
+        ms = self.memory_store
+        if ms is None or not ms.uncapped:
+            return 0
+        aa = np.asarray(a, dtype=np.int64).reshape(-1)
+        pp = np.asarray(persons, dtype=np.int64).reshape(-1)
+        ok = (pp >= 0) & (pp < self.n) & (pp != aa)
+        aa, pp = aa[ok], pp[ok]
+        if aa.size == 0:
+            return 0
+        cell = np.asarray(agents.registry.cell, dtype=np.int64)[aa]
+        order = np.lexsort((np.arange(aa.size), aa))
+        sa = aa[order]
+        starts = np.flatnonzero(np.concatenate(([True], sa[1:] != sa[:-1])))
+        rank = np.empty(aa.size, dtype=np.int64)
+        rank[order] = np.arange(aa.size) - np.repeat(starts, np.diff(np.append(starts, aa.size)))
+        t_ns = int(step) * ms.ns_per_step
+        for rnd in range(int(rank.max()) + 1):  # 逐次ループ宣言: 体あたりの組の数の最大ぶん
+            s = np.flatnonzero(rank == rnd)
+            self._touch_people(ms, aa[s], np.full(s.size, EVENT_KINDS["talk"]), pp[s],
+                               np.full(s.size, int(ResultCode.OK)), cell[s], t_ns)
+        self.stats["people_attended"] += int(aa.size)
+        return int(aa.size)
 
     def record(self, agents: Any, tick: int, a: np.ndarray, kind: np.ndarray, partner: np.ndarray,
                obj: np.ndarray, result: np.ndarray, cell: np.ndarray, *, relations: bool = True,
@@ -833,13 +971,17 @@ class MemoryLayer:
                            annotation=[text[:GIST_CHARS] if put else None],
                            src=np.asarray([_SRC_TURN]), call_ids=[call_id])
         self.stats["utterances"] += 1
+        ms = self.memory_store
+        if ms is not None and ms.cue is not None:  # 〔6-5 MR2 問い 4〕手がかりの文: 聞き手には相手の発言・本人には理由
+            listeners = [int(q) for q in getattr(session, "participants", ()) if int(q) != int(agent_id)]
+            ms.note_cue(int(agent_id), heard_by=listeners, heard=str(comment or ""), own=str(reason or ""))
         if not put:
             return
         self._gist_done.add(sk)
         self._put_gist(int(agent_id), int(rows[0]), text[:GIST_CHARS])
         self.stats["gists"] += 1
-        ms = self.memory_store
-        if ms is not None and ms.annotation(int(agent_id), int(rows[0])) != text[:GIST_CHARS]:
+        if (ms is not None and not ms.uncapped
+                and ms.annotation(int(agent_id), int(rows[0])) != text[:GIST_CHARS]):
             raise RuntimeError("1-6 M0: 記憶の器の注釈が記憶の表の要旨と食い違う(器は表の写し)")
 
     # ------------------------------------------------------------------ 1 tick の記録
@@ -1038,6 +1180,9 @@ class MemoryLayer:
         extra: dict[str, Any] = {}
         if self.memory_store is not None:  # 1-6 M0 の腕: 器の計器(腕の名・行数・出どころの分布・録画)
             extra["memory_store"] = self.memory_store.summary()
+            _cfg = self.memory_store.arms_config()
+            if _cfg:  # 〔第 6 期 6-5・検収 L1〕腕の名と埋め込みのモデルの名と版=設定の節(既定の腕のランには出ない)
+                extra["mr65_arms"] = _cfg
         return {
             "recall": recall,
             "k2_motif_repeats": self._k2(agents),

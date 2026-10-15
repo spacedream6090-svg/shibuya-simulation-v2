@@ -130,7 +130,9 @@ PATHS: Final[dict[str, str]] = {
         "totals", "share", "by_entrance", "by_hour", "by_hour_layer_entrance", "conversation_origins")),
     # 〔第 1 期 1-2〕看板の注視の活動の乗数は消した=値は null(設定)
     "p_see_activity": _C,
-    **_mixed("memory_summary", config=("n_rows", "d", "w_r", "w_i", "row_bytes_declared", "row_bytes_actual"),
+    # 〔第 6 期 6-5・検収 L1〕mr65_arms=記憶の腕の名・埋め込みのモデルの名と版・行の上限(既定と違う腕のランだけ出る=設定)
+    **_mixed("memory_summary", config=("n_rows", "d", "w_r", "w_i", "row_bytes_declared", "row_bytes_actual",
+                                       "mr65_arms"),
              observed=("recall", "k2_motif_repeats", "k5_failure_avoidance", "counts", "rows_used_per_agent",
                        "full_agents", "agents_with_rows", "rows_by_kind", "failure_rows_by_result", "importance",
                        "n_per_row", "A", "A_by_kind", "score", "gists", "gist_agents", "gist_bytes", "render")),

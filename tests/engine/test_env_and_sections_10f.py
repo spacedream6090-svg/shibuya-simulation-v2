@@ -109,7 +109,10 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: この 4 本を外すと前の値に戻る・記録 docs/bench/analysis/wallbounce-1012/ca31/README.md)。
 #: 〔第 3 期 3-3b〕``experiment`` の設定の子 4(switch・start0・known_to_model・warmup)を足した(3-1 の後に・前
 #: ``68c3ffd0…c55395``=この 4 本を外すと前の値・記録 docs/bench/analysis/wallbounce-1012/cf33b/README.md)。
-CONFIG_PATHS_SHA256 = "63a87f2f1fcfd2e7dcd14e17f8f7bfe03338785a46282fff31ec1d0d40eab3ed"
+#: 〔第 6 期 6-5 検収 L1〕``memory_summary.mr65_arms``(記憶の腕の名・埋め込みのモデルの名と版・行の上限=既定と違う腕のランだけ
+#: 出る設定)を足した(3-3b の後に・前 ``63a87f2f…eab3ed`` → ``b48498e8…0edcaa``=この 1 本を外すと前の値に戻る・記録
+#: docs/bench/analysis/wallbounce-1012/mr65/README.md)。
+CONFIG_PATHS_SHA256 = "b48498e84f07bb9a1552fed87c5aca637805e31cdbc364f9536eeb96bf0edcaa"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 

@@ -155,7 +155,8 @@ def test_ledger_arm_rows_and_arm_items():
     assert (s8.behavior, s8.restore, s8.items, s8.arm, s8.arm_owner) == (
         SL.BEHAVIOR, SL.REQUIRED, ("speech.inbox",), "speech-port", "speech")
     assert (s8m.behavior, s8m.restore) == (SL.DIAG, SL.DISCARDABLE)
-    assert [r.key for r in SL.arm_rows()] == ["S8", "S8M", "M0L"]  # 〔第 2 期 2-3〕記憶の器の記録の目印の seq(腕 memory-store)
+    # 〔第 2 期 2-3〕M0L・〔第 6 期 6-5〕M0M・M0C・〔検収 M4〕M0S
+    assert [r.key for r in SL.arm_rows()] == ["S8", "S8M", "M0L", "M0M", "M0C", "M0S"]
     # 腕の行は静的な表に入らない(既定の 2 つのハッシュと状態のファイルは前と同じ道筋)
     assert all(k not in ("S8", "S8M") for k, _ in SL.behavior_items() + SL.full_items())
     assert SL.arm_items({"speech": None}, behavior=True) == () == SL.arm_items({}, behavior=False)

@@ -819,6 +819,11 @@ class RelationLayer:
                              _CT.flags_from_kinds(kind, np.asarray(r.rel_partner)).reshape(-1))
 
     # ------------------------------------------------------------------ 読み口
+    def _partner_rows(self, agents: Any, agent_ids: np.ndarray) -> np.ndarray:
+        """〔第 6 期 6-5〕体の配列 → ``(体, 幅)`` の辺の相手(空は −1)。既定=``rel_partner`` の写し(幅=k)。人も記憶の一つの腕
+        (``engine.relations_people``)は器の人の行(幅=器の行の幅)。"""
+        return agents.registry.rel_partner[np.asarray(agent_ids, dtype=np.int64)].astype(np.int64)
+
     def activation(self, agents: Any, agent_ids: np.ndarray, tick: int) -> np.ndarray:
         """体の配列 → ``(体, k)`` の A(空の辺は −inf)。"""
         r = agents.registry
@@ -913,7 +918,8 @@ class RelationLayer:
         if a.size == 0:
             return fb.copy(), np.zeros(0, dtype=np.int64)
         r = agents.registry
-        p = r.rel_partner[a].astype(np.int64)
+        p = self._partner_rows(agents, a)  # 〔6-5〕読み口(既定は rel_partner の写し=人も記憶の腕は器の人の行)
+        width = int(p.shape[1])
         A = self.activation(agents, a, tick)
         rank = _rank_live(A, self.tau)
         live = rank >= 0
@@ -941,9 +947,9 @@ class RelationLayer:
             u = (key >> np.uint64(11)).astype(np.float64) / float(1 << 53)
             cum = np.cumsum(np.concatenate([w[pick], w_rest[pick][:, None]], axis=1), axis=1)
             idx = (cum < (u * cum[:, -1])[:, None]).sum(axis=1)
-            idx = np.minimum(idx, self.k)
+            idx = np.minimum(idx, width)
             rows = np.flatnonzero(pick)
-            got_edge = idx < self.k
+            got_edge = idx < width
             out[rows[got_edge]] = p[rows[got_edge], idx[got_edge]]
             r_edge = rank[rows[got_edge], idx[got_edge]]
             for name, sel in (("inner", r_edge < 5), ("next", (r_edge >= 5) & (r_edge < 15)),

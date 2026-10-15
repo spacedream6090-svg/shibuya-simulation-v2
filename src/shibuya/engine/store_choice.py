@@ -141,16 +141,17 @@ class StoreChoice:
         """想起できた店から 1 件(``(POI, 決め手)``)。無ければ ``(-1, "")``(従来の経路へ)。"""
         self.stats["recall:attempts"] += 1
         r = agents.registry
+        c = self.store.columns(agents)  # 〔第 6 期 6-5・検収 M4〕口を通す(既定=体の表の sm_* そのもの)
         i = int(aid)
-        used = np.flatnonzero(r.sm_poi[i] != STORE_MEMORY_EMPTY)
+        used = np.flatnonzero(c.poi[i] != STORE_MEMORY_EMPTY)
         if used.size == 0:
             self.stats["recall:no_rows"] += 1
             return -1, ""
         A = self.store.activation(agents, np.asarray([i]), tick)[0][used]
         v = self.store.valence_now(agents, np.asarray([i]), tick)[0][used]
-        pois = r.sm_poi[i][used].astype(np.int64)
-        prec = r.sm_precision[i][used].astype(np.float64)
-        src = r.sm_source[i][used].astype(np.int64)
+        pois = c.poi[i][used].astype(np.int64)
+        prec = c.precision[i][used].astype(np.float64)
+        src = c.source[i][used].astype(np.int64)
         inside = (pois >= 0) & (pois < fit.size)
         safe = np.where(inside, pois, 0)
         ok = inside & (A >= float(self.memory.tau)) & (np.sign(v) >= 0)

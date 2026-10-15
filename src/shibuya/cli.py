@@ -486,6 +486,7 @@ def run(
         from shibuya.engine import batching as _BATCH  # 〔第 3 期 3-2〕まとめの幅の腕(環境変数か --batch-width-s)
         from shibuya.engine import body as _body  # 〔第 3 期 3-5〕TM5 の予約の腕(既定 sweep と違えば腕=結果は同じはず)
         from shibuya.engine import calendar_shadow as _calendar_shadow  # 〔第 3 期 3-1〕暦 1a の影(既定 w17 と違えば腕)
+        from shibuya.engine import memory_m1 as _memory_m1  # 〔第 6 期 6-5〕記憶の腕(結果を変える腕=既定と違えば腕)
         from shibuya.engine.speech import layer as _speech_layer
 
         # 第 1 期 1-8b: 発話の口の腕(環境変数か --speech-port・run の引数ではない)は結果を変える=on は腕に数える
@@ -496,7 +497,8 @@ def run(
                               or _ES2.arm() != _ES2.DEFAULT_ARM  # 〔2-4 V4〕経済の段階 2 も(既定 on と違えば腕)
                               or not _BATCH.is_default()  # 〔第 3 期 3-2〕まとめの幅(既定 60 秒と違えば腕)
                               or _body.arm() != _body.DEFAULT_ARM  # 〔3-5〕体の予約の腕(既定は sweep)
-                              or _calendar_shadow.arm() != _calendar_shadow.DEFAULT_MODE,  # 〔3-1〕既定は w17
+                              or _calendar_shadow.arm() != _calendar_shadow.DEFAULT_MODE  # 〔3-1〕既定は w17
+                              or _memory_m1.arms_on(),  # 〔6-5〕記憶の腕(--memory-model/-cue/-people/-grain)
                               counterfactual=exp_form is not None)
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
@@ -1332,6 +1334,44 @@ def main(argv: list[str] | None = None) -> int:
              "(manifest の memory_summary.memory_store に出る)",
     )
     ap.add_argument(
+        "--memory-model",
+        choices=("m0", "m1"),
+        default=None,
+        help="第 6 期 6-5 記憶の強さの式の腕(既定 m0=今の式・環境変数 SHIBUYA_MEMORY_MODEL と同じ。指定すれば環境変数より強い)。"
+             "m1=ACT-R の折衷形(時刻は秒・+1 なし・最短の符号化時間・忘れる速さの人ごとのばらつき 15%・境目 τ は仮の値)。"
+             "--memory-store events のランだけ効く(記憶 off のランで立てると止める・結果を変える腕=ランの種類は腕・manifest の"
+             "設定の節 memory_summary.mr65_arms と設定の指紋に入る・計器は memory_summary.memory_store.mr65)",
+    )
+    ap.add_argument(
+        "--memory-cue",
+        choices=("id", "embed"),
+        default=None,
+        help="第 6 期 6-5 想起の手がかりの腕(既定 id=その場の手がかり=ID の一致・環境変数 SHIBUYA_MEMORY_CUE)。embed=意味の手がかり"
+             "(埋め込み=--memory-embed-model・会話中は相手の直前の発言・ほかは本人の直前の理由)",
+    )
+    ap.add_argument(
+        "--memory-embed-model",
+        choices=("ruri-v3-30m", "ruri-v3-130m", "ngram-test"),
+        default=None,
+        help="第 6 期 6-5 埋め込みのモデル(既定 ruri-v3-30m・環境変数 SHIBUYA_MEMORY_EMBED_MODEL)。Ruri の重みは "
+             "data/models/ruri/ に版を固定して置く(本段では未取得)。ngram-test は重みの要らない試験用の代わり(意味ではない)",
+    )
+    ap.add_argument(
+        "--memory-people",
+        choices=("table", "memory"),
+        default=None,
+        help="第 6 期 6-5 人も記憶の一つの腕(既定 table=今の関係の層・環境変数 SHIBUYA_MEMORY_PEOPLE)。memory=人を同じ器・同じ式"
+             "(出来事 128・店 32 の固定の上限を外し、種類ごとの上限 256 まで幅を倍に・上限で思い浮かぶ強さの一番低い行を消す・"
+             "忘れる=消す・関係の表を読まない)。--memory-model m1 が前提・再開には対応しない",
+    )
+    ap.add_argument(
+        "--memory-grain",
+        choices=("each", "day"),
+        default=None,
+        help="第 6 期 6-5 体の出来事を記録へ書く粒度の腕(既定 each=1 回 1 行・環境変数 SHIBUYA_MEMORY_GRAIN)。day=同じ記憶の行は"
+             "日に 1 行(2-3 の 14.6 行/体/日を減らす案)。再開には対応しない",
+    )
+    ap.add_argument(
         "--decision-port",
         choices=("legacy", "port"),
         default=None,
@@ -1467,6 +1507,13 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine import memory_store as _memory_store
 
         _memory_store.set_arm(str(args.memory_store))
+    # 〔第 6 期 6-5〕記憶の腕(組み立てが読む。指定は環境変数より強い)
+    for _mk, _mv in (("model", args.memory_model), ("cue", args.memory_cue), ("embed_model", args.memory_embed_model),
+                     ("people", args.memory_people), ("grain", args.memory_grain)):
+        if _mv is not None:
+            from shibuya.engine import memory_m1 as _memory_m1
+
+            _memory_m1.set_arm(_mk, str(_mv))
     if args.decision_port is not None:  # 第 1 期 1-8 J0: 候補の口の腕(組み立てが読む。指定は環境変数より強い)
         from shibuya.engine.decision import layer as _decision_layer
 

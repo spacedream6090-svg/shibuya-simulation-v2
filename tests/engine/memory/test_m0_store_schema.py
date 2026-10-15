@@ -298,7 +298,11 @@ def test_ledger_rows_are_out_of_both_hashes_and_the_state_file():
     declared = {it.rsplit(".", 1)[1] for r in (m0, m0r, m0l) for it in r.items}
     excluded = set(SL.excluded_attrs()["mem_layer.memory_store"])
     # 〔第 2 期 2-3〕腕の行の腕の名 LEDGER_ARM はクラスの定数(slots の外)=除外の一覧に載る
-    assert slots | {"LEDGER_ARM"} == declared | excluded and not declared & excluded
+    # 〔第 6 期 6-5〕器の子の持ち主(m1=M1 の状態・cue=意味の手がかり・〔検収 M4〕shops=店の行の表)は子の持ち主の鍵で
+    # 網羅される(行 M0M・M0C・M0S・M0X)
+    children = {k.rsplit(".", 1)[1] for k in SL.OWNER_CLASSES if k.startswith("mem_layer.memory_store.")}
+    assert children == {"m1", "cue", "shops"}
+    assert slots | {"LEDGER_ARM"} == declared | excluded | children and not declared & excluded
     assert "bridge.tape._arm_values" in SL.row("O87").items
     assert "arm_columns" in SL.excluded_attrs()["bridge.tape"]
 

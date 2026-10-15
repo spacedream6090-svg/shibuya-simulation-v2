@@ -30,9 +30,10 @@ FIELDS = (
     "wake", "intent", "memories", "signage_shown", "watched_n", "scene",
     "eye_dir", "mind_dir", "belongings", "tool_state", "watched_by", "heard_speech", "nearby_change",
     "acquaintance_seen", "prediction",
+    "heard_referents",  # 〔第 6 期 6-5〕話し手が指した相手の見えない ID(空の欄・版 /2)
 )
 EMPTY = ("eye_dir", "mind_dir", "belongings", "tool_state", "watched_by", "heard_speech", "nearby_change",
-         "acquaintance_seen", "prediction")
+         "acquaintance_seen", "prediction", "heard_referents")
 
 
 def _render_some(n_ticks: int = 3):
@@ -50,7 +51,7 @@ def test_fields_and_order_are_frozen():
     assert F.percept_fields() == FIELDS
     assert F.EMPTY_FIELDS == EMPTY
     assert set(EMPTY) <= set(FIELDS)
-    assert F.PERCEPT_SCHEMA == "shibuya.perception/percept/1"
+    assert F.PERCEPT_SCHEMA == "shibuya.perception/percept/2"  # 〔6-5〕/1 → /2
 
 
 @pytest.mark.parametrize("cls", [F.Percept, F.SeenObject, F.SeenPerson, F.Sound, F.TimeView, F.BodyView, F.SelfView,

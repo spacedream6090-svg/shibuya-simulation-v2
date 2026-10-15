@@ -328,6 +328,14 @@ def build(_call_args: dict[str, Any]) -> Any:
     if not _BATCH.is_default():
         # 第 3 期 3-2: まとめの幅の腕は既定(刻みの幅)のときだけ設定の指紋に入れない(腕のときは入れる=再開で親と照合)
         _fp[_BATCH.FP_KEY] = int(_BATCH.arm())
+    from shibuya.engine import memory_m1 as _MR65
+    from shibuya.engine import memory_store as _MSR65
+
+    _mr65_cfg = _MR65.config_of(_MR65.arms(), row_caps=_MSR65.row_caps())
+    if _mr65_cfg:
+        # 第 6 期 6-5(検収 L1): 記憶の腕は結果を変える=既定と違う腕のときだけ設定の指紋に足す(腕の名・埋め込みのモデルの
+        # 名と版・行の上限=再開で腕と埋め込みのモデルの取り違えを止める。既定のランの指紋は前のまま)
+        _fp[_MR65.FP_KEY] = _mr65_cfg
     from shibuya.engine import calendar_shadow as _CSH
 
     if _CSH.is_on():
@@ -1056,13 +1064,17 @@ def build(_call_args: dict[str, Any]) -> Any:
     # ---- 記憶 第 1 段 6b: 想起の口(on のランだけ描画に差し込む・off は None=描画バイト不変) ----
     if mem_layer is not None:
         mem_layer.tau = float(memory_tau)
+    else:
+        # 第 6 期 6-5(検収 L6): 記憶 off のランで記憶の腕を立てたら止める(黙って効かないランを作らない=check_arms と同じ形)
+        _MR65.check_arms(store_on=False)
     # ---- 第 1 期 1-6 記憶の器 M0(腕 --memory-store events・既定 mem=器を作らない)。器は記憶の表と同じ規則の写しで、
     # 表に書く所で同じ出来事を書き、想起を器から引く。見せた行の録画(描画の口)とテープの列 recalled_event_ids
     # (版 4 の中・腕のランだけ)。状態台帳の行 M0(作り直せる)・M0R(録画と計数=捨ててよい) ----
     from shibuya.engine import memory_store as _MS
 
     if mem_layer is not None and _MS.arm() == _MS.ARM_EVENTS:
-        _m0 = mem_layer.enable_memory_store(step_seconds=int(tick_seconds))
+        # 〔第 6 期 6-5・検収 M1〕腕 m1 の人ごとの忘れる速さの鍵はランごとの母集団の seed(10f S1)
+        _m0 = mem_layer.enable_memory_store(step_seconds=int(tick_seconds), population_seed=pop_seed)
         if perception is not None:
             perception.memory_shown = mem_layer.on_shown
         if tape_writer is not None:

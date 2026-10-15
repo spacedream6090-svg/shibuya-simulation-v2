@@ -16,7 +16,8 @@ from shibuya.world.state import World
 
 #: HEAD の ``percept_manifest()``(欄 26・空の欄 9=1-2 の凍結と同じ)。
 HEAD_EMPTY = ["eye_dir", "mind_dir", "belongings", "tool_state", "watched_by", "heard_speech", "nearby_change",
-              "acquaintance_seen", "prediction"]
+              "acquaintance_seen", "prediction",
+              "heard_referents"]  # 〔第 6 期 6-5〕話し手が指した相手の見えない ID の空の欄を足した(版 /2)
 
 
 def test_ports_return_empty_values():
@@ -40,7 +41,7 @@ def test_loud_sound_is_a_nearby_change_kind_and_the_percept_shape_is_unchanged()
     assert F.NEARBY_CHANGE_KINDS == ("loud_sound",) and S1.LOUD_SOUND in F.NEARBY_CHANGE_KINDS
     assert list(F.EMPTY_FIELDS) == HEAD_EMPTY
     m = F.percept_manifest()
-    assert m["schema"] == "shibuya.perception/percept/1" and m["empty_fields"] == HEAD_EMPTY
+    assert m["schema"] == "shibuya.perception/percept/2" and m["empty_fields"] == HEAD_EMPTY  # 〔6-5〕/2
     for name in ("heard_speech", "nearby_change"):
         f = next(x for x in F.percept_fields() if x == name)
         assert f == name

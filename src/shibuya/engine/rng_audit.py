@@ -226,7 +226,7 @@ def scan_sites(root: Path, files: Iterable[Path] | None = None) -> list[StreamSi
 
 
 #: 静的に安全な呼び手(ファイル・関数・用途名)。増えても減っても落とす(10f の時点の 15 か所・〔第330〕B6 で 1 つ足して 16 か所・
-#: 〔第330・RET〕legacy の天気の 2 か所(`EnvironmentProcess._pick_day`・`select_day`)を消して 14 か所・〔第 2 期 2-2〕+1=15 か所)。
+#: 〔第330・RET〕legacy の天気の 2 か所(`EnvironmentProcess._pick_day`・`select_day`)を消して 14 か所・〔第 2 期 2-2〕+1=15 か所・〔第 6 期 6-5〕+1=16 か所)。
 SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     # 1 語目が無いか定数(隣の流れが無い)7 か所
     ("agents/population.py", "sample_population", "w16.sample.reserved"),
@@ -247,6 +247,8 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     ("llm/mock.py", "MockLLM._shop_target", "expr:self.domain + _SHOP_TARGET_DOMAIN_SUFFIX"),
     # 〔第 2 期 2-2 段 11a〕知人に気づく抽選(0 語目を空け 1〜3 語目に時刻の鍵・体・相手=k19_counters・1 語だけ引く)
     ("engine/proximity.py", "ProximityRule.notice_u", "proximity.notice"),
+    # 〔第 6 期 6-5〕忘れる速さの人ごとのばらつき(0 語目を空け 1 語目に体の番号=k19_counter_array・2 語だけ引く)
+    ("engine/memory_m1.py", "forgetting_scale", "memory.forgetting_rate"),
 })
 
 #: 静的に決まらない呼び手(ファイル・関数・用途名)→ 実行時の検査での扱い。ここに無い呼び手が出たら落とす。

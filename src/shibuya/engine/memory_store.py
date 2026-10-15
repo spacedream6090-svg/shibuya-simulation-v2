@@ -50,9 +50,20 @@ package にせず、import-linter と setuptools の検査の中に置く)。計
 **未リサーチ(expedient)**: 言葉の段の境目(A ≥ τ を「はっきり」=想起の閾値と同じ)・中身の粗さの段(M0 は「そのまま」
 だけ)・仮の出来事の表の形・テープの列の値の形(``"t_ns:seq"`` の文字列)。
 
+〔第 6 期 6-5・全部 腕〕器の子の持ち主と設定(:meth:`MemoryStore.enable_arms`=組み立てで 1 回・既定は置かない=今の器のまま):
+``m1``=M1 の強さ(``engine.memory_m1.M1State``=ACT-R の折衷形・秒・想起の候補と順と言葉)・``cue``=意味の手がかり
+(``engine.memory_embed.CueState``)・``uncapped``=人も記憶の一つ(人の行=種類 ``memory_m1.PERSON_KIND``・出来事の上限を外す・
+忘れる=消す・満杯なら幅を倍に=器は記憶の表の写しでない)・``grain``=体の出来事の粒度(day=同じ記憶の行は日に 1 行だけ記録へ=
+``remember(keep_pointer=)``)。記録 ``docs/bench/analysis/wallbounce-1012/mr65/README.md``。
+〔検収 M2〕上限なしの腕の幅は種類ごとの上限(:data:`ROW_CAPS_DEFAULT`=出来事・人・店の各 256 行/体=expedient)の和まで。
+その種類の行が上限に届いた体は思い浮かぶ強さ A の一番低い行を消す(「忘れた=見覚えも無い」で消す規則は前のまま)。
+〔検収 M4〕店の評価の行は器の子の持ち主 ``shops``(``engine.memory_shops.ShopTable``・状態台帳の腕の行 ``M0S``)=上限 32 の
+固定の表 ``sm_*`` を外す道(同じ作り=幅を倍に・上限で A の一番低い行を消す)。
+
 逐次ループ宣言(P4): ``remember`` は配列演算(1 回の呼びで 1 体 1 件・追い出した行の注釈を落とすのは追い出しの件数ぶん)。
 ``recall`` は 1 体の ``n_rows`` 行の配列演算と、ほかの表の候補がある(7c)ときの k 件で止まる走査(≤ n_rows+店の行)。
 ``mark_shown`` は見せた行の数ぶん(≤ 3)。``rebuild`` は注釈の件数ぶん(再開のときに 1 回)。``summary`` は配列演算。
+〔6-5〕上限なしの腕の幅を倍にする口(``_resize``)は注釈の件数ぶん(広げる回=log2)・消す口は消した行の数ぶん。
 """
 
 from __future__ import annotations
@@ -68,6 +79,7 @@ from typing import Any, Callable, Final, Mapping, NamedTuple, Sequence
 import numpy as np
 
 from shibuya.core.time_consts import NS_PER_SECOND, NS_PER_STEP
+from shibuya.engine import memory_m1 as _M1
 from shibuya.engine.events import body as _BODY
 from shibuya.engine.events import vocab as _VOCAB
 from shibuya.engine.events.log import NS_PER_DAY, RETENTION_DAYS, EventId
@@ -108,6 +120,14 @@ __all__ = [
     "LoggedEvent",
     "LOG_SEQ_PATH",
     "LOG_SEQ_BYTES",
+    "M1_PATH",
+    "CUE_PATH",
+    "SHOP_PATH",
+    "ROW_CAPS_DEFAULT",
+    "set_row_caps",
+    "row_caps",
+    "set_rows0",
+    "rows0",
     "MemoryView",
     "ShopPool",
     "RecallReport",
@@ -191,6 +211,55 @@ SHOWN_PATH: Final[str] = "M0R:mem_layer.memory_store._ms_shown_ns"
 LOG_SEQ_PATH: Final[str] = "M0L:mem_layer.memory_store._ms_log_seq"
 #: 〔2-3〕記録の目印の seq の列の 1 行のバイト(i4・行 ``M0L``=腕のランだけ状態のファイルに入る)。
 LOG_SEQ_BYTES: Final[int] = 4
+#: 〔第 6 期 6-5〕M1 の直近の時刻の列(状態台帳の腕の行 ``M0M``=腕 memory-model・器の子の持ち主 ``m1``)。
+M1_PATH: Final[str] = "M0M:mem_layer.memory_store.m1._t_ns"
+#: 〔6-5〕意味の手がかりの状態(状態台帳の腕の行 ``M0C``=腕 memory-cue・器の子の持ち主 ``cue``)。
+CUE_PATH: Final[str] = "M0C:mem_layer.memory_store.cue._heard"
+#: 〔6-5・検収 M4〕上限なしの腕の店の評価の行(状態台帳の腕の行 ``M0S``=腕 memory-people・器の子の持ち主 ``shops``)。
+SHOP_PATH: Final[str] = "M0S:mem_layer.memory_store.shops._poi"
+#: 〔6-5〕上限なしの腕の店の行の番号の底(器の行の幅が広がるので、器の外の店の行は大きな番号から数える)。
+UNCAPPED_SHOP_BASE: Final[int] = 1 << 24
+#: 〔6-5〕上限なしの腕の最初の行の幅(既定=記憶の表と同じ ``memory_n``。試験は小さくして広がる道を通す=:func:`set_rows0`)。
+_ROWS0: list[int | None] = [None]
+
+
+def set_rows0(rows: int | None) -> None:
+    """上限なしの腕の最初の行の幅(``None``=記憶の表と同じ)。試験と測りの切替口(組み立ての時に読む)。"""
+    if rows is not None and int(rows) < 1:
+        raise ValueError("rows0 は 1 以上か None")
+    _ROWS0[0] = None if rows is None else int(rows)
+
+
+def rows0() -> int | None:
+    return _ROWS0[0]
+
+
+#: 〔第 6 期 6-5・検収 M2〕上限なしの腕の種類ごとの行の上限(体あたり・**未リサーチ(expedient)**・感度の腕の口=
+#: :func:`set_row_caps`)。``episode``=出来事の行(器の行の種類 1〜11)・``person``=人の行(``memory_m1.PERSON_KIND``)・
+#: ``shop``=店の評価の行(``engine.memory_shops.ShopTable``)。器の行の幅(出来事と人で共有)は倍にするたびに
+#: ``episode + person`` までで止まる。上限の種類の行がいっぱいの体は、思い浮かぶ強さ A(手がかり無し)が一番低いその種類の行
+#: から消す(同点は最後に触れた時刻の古い順・次に行の番号=決定的)。つなぎの台帳 ``DOC-mr65-m1-row-caps``。
+ROW_CAPS_DEFAULT: Final[Mapping[str, int]] = MappingProxyType({"episode": 256, "person": 256, "shop": 256})
+_ROW_CAPS: dict[str, int] = dict(ROW_CAPS_DEFAULT)
+#: 器の行の種類の分類(上限の鍵)。
+_CAP_KINDS: Final[tuple[str, ...]] = ("episode", "person")
+
+
+def set_row_caps(**caps: int | None) -> None:
+    """上限なしの腕の種類ごとの行の上限(``episode``・``person``・``shop``・``None``=既定の値に戻す)。試験と感度の腕の口
+    (組み立ての時に読む)。"""
+    for k, v in caps.items():
+        if k not in ROW_CAPS_DEFAULT:
+            raise KeyError(f"行の上限の種類は {tuple(ROW_CAPS_DEFAULT)} のどれか(いま {k!r})")
+        if v is not None and int(v) < 1:
+            raise ValueError("行の上限は 1 以上か None")
+        _ROW_CAPS[k] = ROW_CAPS_DEFAULT[k] if v is None else int(v)
+
+
+def row_caps() -> dict[str, int]:
+    """いまの種類ごとの行の上限(写し)。"""
+    return dict(_ROW_CAPS)
+
 
 #: 今の表の「店の行と重なる」種類(購入・食事・並ぶ・看板)=7c の重なりの鍵(``engine.memory._SHOP_OBJ_KINDS`` と同じ)。
 _SHOP_KINDS: Final[tuple[int, ...]] = (
@@ -342,6 +411,7 @@ class MemoryStore:
         "n", "n_rows", "ns_per_step", "minutes_per_step", "d", "w_r", "w_i", "tau", "tape_on",
         "_ms_note", "_ms_note_order", "_ms_tape", "_ms_stats", "_ms_last",
         "_ms_log_seq", "body_events",
+        "m1", "cue", "uncapped", "grain", "caps", "shops", "arms_cfg",
     )
     #: 〔2-3〕状態台帳の腕の行の腕の名(行 ``M0L``=``state_ledger.arm_items`` が持ち主の名と照合する)。
     LEDGER_ARM: str = "memory-store"
@@ -388,6 +458,19 @@ class MemoryStore:
         self._ms_stats: Counter = Counter()
         #: 最後の想起の計数(``MemoryLayer`` が読む)。
         self._ms_last: RecallReport = RecallReport(True, 0, 0, 0, 0, 0, 0, 0)
+        #: 〔第 6 期 6-5〕腕の子の持ち主と設定(既定は全部 None/偽/each=今の器のまま。:meth:`enable_arms` が 1 回だけ置く)。
+        #: m1=M1 の強さの状態(``engine.memory_m1.M1State``)・cue=意味の手がかり(``engine.memory_embed.CueState``)・
+        #: uncapped=人も記憶の一つの腕(上限なし・忘れる=消す・器は記憶の表の写しでない)・grain=体の出来事の粒度。
+        self.m1: Any = None
+        self.cue: Any = None
+        self.uncapped = False
+        self.grain = _M1.GRAIN_EACH
+        #: 〔検収 M2〕上限なしの腕の種類ごとの行の上限(:func:`row_caps` の写し=組み立てで 1 回)・〔検収 M4〕店の評価の行の
+        #: 器の子の持ち主(``engine.memory_shops.ShopTable``=上限なしの腕で店の記憶のあるランだけ)・〔検収 L1〕腕の設定の値
+        #: (``memory_m1.config_of``=manifest の ``memory_summary.mr65_arms``)。
+        self.caps: Mapping[str, int] = MappingProxyType({})
+        self.shops: Any = None
+        self.arms_cfg: Mapping[str, Any] = MappingProxyType({})
 
     def __setattr__(self, name: str, value: Any) -> None:
         # 欄は最初の 1 回(組み立て)だけ置ける。付け替えは口の中で object.__setattr__ を使う(テープの印・最後の想起の計数)
@@ -418,6 +501,12 @@ class MemoryStore:
         if not 0 <= int(row) < self.n_rows or self._ms_origin[g] < 0:
             return None
         return (int(self._ms_ev_t_ns[g]), int(self._ms_ev_seq[g]))
+
+    def pointer_same_day(self, agent: Any, rows: Any, now_ns: int) -> np.ndarray:
+        """〔第 6 期 6-5 粒度 day〕体の行の目印が「記録の出来事で、いまと同じ日」か(読むだけ・配列)。"""
+        g = np.asarray(agent, dtype=np.int64) * self.n_rows + np.asarray(rows, dtype=np.int64)
+        return ((self._ms_origin[g] == _LOG_CODE) & (self._ms_log_seq[g] >= 0)
+                & (self._ms_ev_t_ns[g] // NS_PER_DAY == int(now_ns) // NS_PER_DAY))
 
     def origin(self, agent: int, row: int) -> str | None:
         g = self.rows_of(agent).start + int(row)
@@ -452,6 +541,177 @@ class MemoryStore:
         """テープに列 ``recalled_event_ids`` を足すランで、録画の控えを持つようにする(組み立てが 1 回だけ呼ぶ)。"""
         object.__setattr__(self, "tape_on", True)
 
+    def enable_arms(self, *, m1: Any = None, cue: Any = None, uncapped: bool = False,
+                    grain: str = _M1.GRAIN_EACH, config: Mapping[str, Any] | None = None) -> None:
+        """〔第 6 期 6-5〕腕の子の持ち主と設定を置く(組み立てが 1 回だけ・系の外)。既定の値のままなら何もしない。
+
+        ``uncapped`` は ``m1`` が前提(人の行の強さと忘れるの判定は M1 の式)。上限なしの器の行の幅は :func:`rows0`(既定=今の
+        ``n_rows``)から始め、満杯の体が出たら忘れた行を消し、それでも足りなければ全員の幅を倍にする(〔検収 M2〕幅は
+        種類ごとの上限の和 ``episode + person`` まで=:func:`row_caps`・その種類の行が上限に届いた体は A の一番低い行を消す)。
+        ``config``(〔検収 L1〕``memory_m1.config_of`` の値)は manifest の設定の節 ``memory_summary.mr65_arms`` に出す。
+        """
+        if _G.CURRENT is not None:
+            raise RuntimeError("6-5 の腕は組み立て(系の外)でだけ置く")
+        if self.m1 is not None or self.cue is not None or self.uncapped or self.grain != _M1.GRAIN_EACH:
+            raise RuntimeError("6-5 の腕は 1 回だけ置く")
+        if grain not in _M1.GRAINS:
+            raise ValueError(f"grain は {_M1.GRAINS} のどれか(いま {grain!r})")
+        if uncapped and m1 is None:
+            raise ValueError("上限なしの腕(人も記憶の一つ)は M1 の強さの状態が前提")
+        if uncapped and grain != _M1.GRAIN_EACH:
+            raise ValueError("上限なしの腕と粒度 day は同時に選べない(本段は別々に測る)")
+        if m1 is not None:
+            object.__setattr__(self, "m1", m1)
+        if cue is not None:
+            object.__setattr__(self, "cue", cue)
+        object.__setattr__(self, "grain", str(grain))
+        if config:
+            object.__setattr__(self, "arms_cfg", MappingProxyType(dict(config)))
+        if uncapped:
+            object.__setattr__(self, "uncapped", True)
+            object.__setattr__(self, "caps", MappingProxyType(row_caps()))
+            r0 = rows0()
+            if r0 is not None and int(r0) > self.max_width:
+                raise ValueError(f"rows0 {r0} が器の行の幅の上限 {self.max_width}(出来事+人の上限)を超える")
+            if r0 is not None and int(r0) != self.n_rows and not bool((self._ms_origin >= 0).any()):
+                self._resize(int(r0))
+            elif r0 is None and self.n_rows > self.max_width:
+                raise ValueError(f"器の行の幅 {self.n_rows} が上限 {self.max_width}(出来事+人の上限)を超える")
+
+    @property
+    def max_width(self) -> int:
+        """〔検収 M2〕上限なしの腕の器の行の幅の上限(出来事と人の上限の和・腕の無い器は今の幅)。"""
+        if not self.uncapped:
+            return int(self.n_rows)
+        return int(sum(int(self.caps[k]) for k in _CAP_KINDS))
+
+    def attach_shops(self, table: Any) -> None:
+        """〔第 6 期 6-5・検収 M4〕店の評価の行の器の子の持ち主を置く(組み立てが 1 回だけ・上限なしの腕で店の記憶のあるラン)。
+
+        店の評価の記憶(``engine.store_memory.StoreMemory`` の子 ``engine.memory_shops.UncappedStoreMemory``)が行をこの表に
+        書く(体の表 ``agents.registry.sm_*`` は使わない=上限 32 の固定の表を外す道)。
+        """
+        if _G.CURRENT is not None:
+            raise RuntimeError("店の行の表は組み立て(系の外)でだけ置く")
+        if not self.uncapped:
+            raise RuntimeError("店の行の表は上限なしの腕(--memory-people memory)だけ")
+        if self.shops is not None:
+            raise RuntimeError("店の行の表は 1 回だけ置く")
+        object.__setattr__(self, "shops", table)
+
+    # ------------------------------------------------------------------ 〔6-5〕上限なしの腕(忘れる=消す・幅を広げる)
+    def _resize(self, new_rows: int) -> None:
+        """体あたりの行の幅を ``new_rows`` に(体の範囲の並びを保つ・広げるだけ=縮めるのは空の器だけ)。口の中だけ。"""
+        old = self.n_rows
+        new = int(new_rows)
+        n = self.n
+        if new < old and bool((self._ms_origin >= 0).any()):
+            raise RuntimeError("行の幅を縮められるのは空の器だけ")
+        keep = min(old, new)
+        for name, _t, fill in _ROW_COLS + _LEGACY_COLS:
+            cur = getattr(self, name).reshape(n, old)
+            out = np.full((n, new), fill, dtype=cur.dtype)
+            out[:, :keep] = cur[:, :keep]
+            object.__setattr__(self, name, out.reshape(-1))
+        cur = self._ms_log_seq.reshape(n, old)
+        out = np.full((n, new), -1, dtype=np.int32)
+        out[:, :keep] = cur[:, :keep]
+        object.__setattr__(self, "_ms_log_seq", out.reshape(-1))
+        notes = dict(self._ms_note)
+        self._ms_note.clear()
+        for g, text in notes.items():  # 逐次ループ宣言: 注釈の件数ぶん(広げるときだけ)
+            a, j = divmod(int(g), old)
+            self._ms_note[a * new + j] = text
+        if self.m1 is not None:
+            self.m1.grow(n, old, new)
+        if self.cue is not None:
+            self.cue.remap(n, old, new)
+        object.__setattr__(self, "n_rows", new)
+        self._ms_stats["rows_resized"] += 1
+
+    def _delete_rows(self, g: np.ndarray, *, reason: str = "forgotten") -> None:
+        """〔6-5〕行を消す(上限なしの腕だけ・口の中から)。``reason``: ``forgotten``=忘れた(見覚えにも届かない)・
+        ``evicted_by_a``=〔検収 M2〕種類の上限で思い浮かぶ強さ A の一番低い行。"""
+        gg = np.asarray(g, dtype=np.int64)
+        if gg.size == 0:
+            return
+        for name, _t, fill in _ROW_COLS + _LEGACY_COLS:
+            getattr(self, name)[gg] = fill
+        self._ms_log_seq[gg] = -1
+        N = self.n_rows
+        for x in gg.tolist():  # 逐次ループ宣言: 消した行の数ぶん
+            self._drop_note(int(x) // N, int(x) % N)
+        if self.m1 is not None:
+            self.m1.clear(gg, reason=reason)
+        self._ms_stats[reason] += int(gg.size)
+
+    def _cap_class(self, kind: Any) -> np.ndarray:
+        """〔検収 M2〕器の行の種類 → 上限の分類(0=出来事・1=人)。"""
+        return (np.asarray(kind, dtype=np.int64) == _M1.PERSON_KIND).astype(np.int64)
+
+    def _at_cap(self, a: np.ndarray, kind: np.ndarray) -> np.ndarray:
+        """〔検収 M2〕体の配列と新しい行の種類 → その種類の行が上限に届いている体か(上限なしの腕だけ)。"""
+        N = self.n_rows
+        g = a[:, None] * N + np.arange(N)[None, :]
+        used = self._ms_origin[g] >= 0
+        cls = self._cap_class(kind)
+        same = used & (self._cap_class(self._lg_kind[g]) == cls[:, None])
+        cap = np.asarray([int(self.caps[_CAP_KINDS[c]]) for c in range(len(_CAP_KINDS))], dtype=np.int64)
+        return same.sum(axis=1) >= cap[cls]
+
+    def _evict_by_a(self, a: np.ndarray, kind: np.ndarray, now_ns: int) -> np.ndarray:
+        """〔検収 M2〕種類の上限に届いた体 → その種類の行のうち思い浮かぶ強さ A(M1・手がかり無し)の一番低い行の番号
+        (同点は最後に触れた時刻=目印の時刻の古い順・次に行の番号=決定的)。行を消し(``evicted_by_a``)、番号を返す。"""
+        N = self.n_rows
+        g = a[:, None] * N + np.arange(N)[None, :]
+        cls = self._cap_class(kind)
+        mask = (self._ms_origin[g] >= 0) & (self._cap_class(self._lg_kind[g]) == cls[:, None])
+        A = np.full(g.shape, np.inf)
+        gu = g[mask]
+        A[mask] = self.m1.strength(gu, gu // N, int(now_ns), self._ms_n[gu], self._ms_first_ns[gu], self._lg_kind[gu],
+                                   self._ms_imp[gu])
+        A = np.where(mask, A, np.inf)
+        c1 = mask & (A == A.min(axis=1)[:, None])
+        t = np.where(c1, self._ms_ev_t_ns[g], np.iinfo(np.int64).max)
+        c2 = c1 & (t == t.min(axis=1)[:, None])
+        slot = np.argmax(c2, axis=1).astype(np.int64)
+        if not bool(c2[np.arange(a.size), slot].all()):
+            raise RuntimeError("上限に届いた体にその種類の行が無い(上限の数え方の誤り)")
+        self._delete_rows(a * N + slot, reason="evicted_by_a")
+        for c in np.unique(cls).tolist():  # 上限の分類の数ぶん(≤ 2)
+            self._ms_stats[f"evicted_by_a:{_CAP_KINDS[int(c)]}"] += int(np.count_nonzero(cls == c))
+        return slot
+
+    def _forgettable(self, a: np.ndarray, now_ns: int) -> np.ndarray:
+        """〔6-5〕体の配列 → ``(体, n_rows)`` の「忘れた(見覚えにも届かない)」行の印(上限なしの腕だけ)。"""
+        N = self.n_rows
+        g = (a[:, None] * N + np.arange(N)[None, :]).reshape(-1)
+        used = self._ms_origin[g] >= 0
+        A_fam = np.full(g.size, -np.inf)
+        if bool(used.any()):
+            gu = g[used]
+            A_fam[used] = self.m1.strength(gu, gu // N, int(now_ns), self._ms_n[gu], self._ms_first_ns[gu],
+                                           self._lg_kind[gu], self._ms_imp[gu], familiar=True)
+        return (used & _M1.forget_mask(A_fam, self.m1.tau)).reshape(a.size, N)
+
+    def _make_room(self, a: np.ndarray, now_ns: int) -> None:
+        """〔6-5〕満杯の体に空きを作る: 忘れた行を消す(意味は前のまま=見覚えにも届かない行)→ それでも満杯の体がいれば全員の
+        幅を倍にする(〔検収 M2〕幅は :attr:`max_width` まで=種類の上限に届いていない体が満杯なら幅は上限より小さい)。"""
+        aa = np.unique(np.asarray(a, dtype=np.int64))
+        if aa.size == 0:
+            return
+        gone = self._forgettable(aa, now_ns)
+        if bool(gone.any()):
+            r, j = np.nonzero(gone)
+            self._delete_rows(aa[r] * self.n_rows + j)
+        N = self.n_rows
+        full = ~((self._ms_origin.reshape(self.n, N)[aa] < 0).any(axis=1))
+        if bool(full.any()):
+            new = min(2 * N, self.max_width)
+            if new <= N:
+                raise RuntimeError(f"器の行の幅が上限 {self.max_width} なのに満杯の体がいる(種類の上限で消す道の誤り)")
+            self._resize(new)
+
     # ------------------------------------------------------------------ System 1 の数(M0=今の式)
     def _activation(self, g0: int, g1: int, now_step: int) -> np.ndarray:
         return activation_rows(self._ms_n[g0:g1], self._ms_first_ns[g0:g1] // self.ns_per_step, int(now_step),
@@ -469,7 +729,7 @@ class MemoryStore:
 
     # ------------------------------------------------------------------ 書く口 1: 覚える
     def remember(self, agent: Any, event_id: Any, strength: Any, origin: str | None, *,
-                 annotation: Sequence[str | None] | None = None) -> np.ndarray:
+                 annotation: Sequence[str | None] | None = None, keep_pointer: Any = None) -> np.ndarray:
         """出来事を覚える → 書いた行(体の範囲の中の番号・入力の並び)。
 
         Args:
@@ -482,9 +742,18 @@ class MemoryStore:
                 初回 +1・上限 4、重ねた行は base(今の表の規則 M3 (b)・Q56)。回数は重ねるごとに +1。
             origin: ``None``(記録の出来事=〔2-3〕体の出来事の口を置いた器だけ)か ``"legacy"``(記録に無い出来事)。
             annotation: 一人ずつの注釈(会話の要旨・入力の並び・``None`` は付けない=既存の注釈は残す)。
+            keep_pointer: 〔第 6 期 6-5・粒度 day の腕〕真の行は目印(記録の出来事の id・出どころ)を変えない(同じ記憶の行の日の
+                中の 2 回目からは記録に書かない=呼び手が記録へ書かなかった行・``LoggedEvent`` の seq は −1 でよい)。
+                回数・重要度・M1 の直近の時刻は進める。
+
+        〔6-5〕人の行(種類 ``memory_m1.PERSON_KIND``)は鍵が (種類, 相手) だけ(対象の欄=関係の種類は重ねても前の値を残す)・
+        重要度 0。上限なしの腕(:attr:`uncapped`)では追い出さず、満杯の体は忘れた行を消すか幅を広げる(:meth:`_make_room`)。
+        M1 の腕(:attr:`m1`)では書いた行の直近の時刻を進める。意味の手がかりの腕(:attr:`cue`)では注釈の埋め込みを置く。
         """
         _check_permit(ROW_PATH, "行")
         _check_permit(SHOWN_PATH, "計数と新しい行の録画の印")
+        if self.m1 is not None:
+            _check_permit(M1_PATH, "M1 の直近の時刻")
         if origin == ORIGIN_LEGACY:
             if not isinstance(event_id, LegacyEvent):
                 raise TypeError("出どころ legacy の目印は LegacyEvent(仮の出来事の中身)")
@@ -508,9 +777,17 @@ class MemoryStore:
             raise ValueError("remember は 1 回の呼びで 1 体 1 件(同じ体の出来事は回を分ける)")
         if (a < 0).any() or (a >= self.n).any():
             raise IndexError("体の番号が範囲の外")
+        kept = (np.zeros(m, dtype=bool) if keep_pointer is None
+                else np.broadcast_to(np.asarray(keep_pointer, dtype=bool), (m,)).copy())
+        if bool(kept.any()) and not logged:
+            raise ValueError("keep_pointer は記録の出来事の目印(出どころ None)の行だけ")
         if logged:
             ev = LoggedEvent(*(np.broadcast_to(np.asarray(x, dtype=np.int64), (m,)) for x in event_id))
-            self._check_logged(a, ev)
+            if bool(kept.any()):  # 〔6-5 粒度 day〕記録に書かなかった行は目印を確かめない(目印は前のまま)
+                w = ~kept
+                self._check_logged(a[w], LoggedEvent(*(x[w] for x in ev)))
+            else:
+                self._check_logged(a, ev)
         else:
             ev = LegacyEvent(*(np.broadcast_to(np.asarray(x, dtype=np.int64), (m,)) for x in event_id))
         if (ev.t_ns < 0).any():
@@ -519,46 +796,65 @@ class MemoryStore:
         ann = None if annotation is None else list(annotation)
         if ann is not None and len(ann) != m:
             raise ValueError("annotation は出来事と同じ数")
-        N = self.n_rows
         now_step = int(ev.t_ns[0]) // self.ns_per_step
         if (ev.t_ns // self.ns_per_step != now_step).any():
             raise ValueError("1 回の呼びの出来事は同じ刻み")
-        used = self._ms_origin.reshape(self.n, N)[a] >= 0
-        rk = self._lg_kind.reshape(self.n, N)[a].astype(np.int64)
-        hit = (used & (rk == ev.kind[:, None])
-               & (self._lg_partner.reshape(self.n, N)[a].astype(np.int64) == ev.partner[:, None])
-               & (self._lg_object.reshape(self.n, N)[a].astype(np.int64) == ev.obj[:, None])
-               & (self._lg_result.reshape(self.n, N)[a].astype(np.int64) == ev.result[:, None]))
-        found = hit.any(axis=1)
-        slot = np.where(found, np.argmax(hit, axis=1), -1)
-        empty = ~used
-        new = ~found
-        has_empty = empty.any(axis=1)
-        slot = np.where(new & has_empty, np.argmax(empty, axis=1), slot)
-        evict = new & ~has_empty
+        person = ev.kind == _M1.PERSON_KIND
+        any_person = bool(person.any())
+        if self.uncapped:  # 〔検収 M2〕種類の上限: 新しい行で、その種類の行が上限に届いた体は A の一番低い行を先に消す
+            capped = ~self._hit(a, ev, person, any_person).any(axis=1) & self._at_cap(a, ev.kind)
+            if bool(capped.any()):
+                self._evict_by_a(a[capped], ev.kind[capped], int(ev.t_ns[0]))
+        for _round in range(2):  # 〔6-5〕上限なしの腕で空きを作った後にもう 1 回(逐次ループ宣言: 2 回まで)
+            N = self.n_rows
+            used = self._ms_origin.reshape(self.n, N)[a] >= 0
+            hit = self._hit(a, ev, person, any_person)
+            found = hit.any(axis=1)
+            slot = np.where(found, np.argmax(hit, axis=1), -1)
+            empty = ~used
+            new = ~found
+            has_empty = empty.any(axis=1)
+            slot = np.where(new & has_empty, np.argmax(empty, axis=1), slot)
+            evict = new & ~has_empty
+            if not (self.uncapped and bool(evict.any())) or _round == 1:
+                break
+            self._make_room(a[evict], int(ev.t_ns[0]))
         if bool(evict.any()):
+            if self.uncapped:
+                raise RuntimeError("上限なしの腕で空きを作れなかった(幅を倍にした後も満杯)")
             slot[evict] = np.argmin(self._evict_scores(a[evict], now_step), axis=1)  # 同点は行番号の小さい方
             self._ms_stats["evictions"] += int(np.count_nonzero(evict))
             for x, y in zip(a[evict].tolist(), slot[evict].tolist()):  # 追い出した行の注釈を落とす(件数ぶん)
                 self._drop_note(int(x), int(y))
         g = a * N + slot
+        if bool(kept.any()) and not bool(found[kept].all()):
+            raise ValueError("keep_pointer の行は重ねる行(同じ鍵の行がある)だけ")
         old_n = self._ms_n[g].astype(np.int64)
         n_new = np.where(found, np.minimum(old_n + 1, 65_535), 1)
         first = np.where(found, self._ms_first_ns[g], ev.t_ns)
         imp = np.where(found, np.minimum(base, IMPORTANCE_MAX),
                        np.minimum(base + IMPORTANCE["first_bonus"], IMPORTANCE_MAX))
+        if any_person:  # 人の行は重要度 0・関係の種類(対象の欄)は重ねても前の値
+            imp = np.where(person, 0, imp)
+            obj = np.where(person & found, self._lg_object[g].astype(np.int64), ev.obj)
+        else:
+            obj = ev.obj
         # 中身(行と同じ番地=仮の出来事の中身か記録の出来事の中身の写し)と目印(最後の回)
         self._lg_kind[g] = ev.kind.astype(np.uint8)
         self._lg_partner[g] = ev.partner.astype(np.int32)
-        self._lg_object[g] = ev.obj.astype(np.int32)
+        self._lg_object[g] = obj.astype(np.int32)
         self._lg_result[g] = ev.result.astype(np.uint8)
         self._lg_cell[g] = ev.cell.astype(np.int32)
-        self._ms_ev_t_ns[g] = ev.t_ns
+        gp = g[~kept] if bool(kept.any()) else g  # 目印を書く行(粒度 day の 2 回目からの行は前の目印のまま)
+        self._ms_ev_t_ns[gp] = ev.t_ns[~kept] if bool(kept.any()) else ev.t_ns
         if logged:
-            self._ms_ev_seq[g] = ev.seq.astype(np.int32)
-            self._ms_log_seq[g] = ev.seq.astype(np.int32)
-            self._ms_origin[g] = _LOG_CODE
-            self._ms_stats["log_events"] += int(m)
+            sq = ev.seq[~kept] if bool(kept.any()) else ev.seq
+            self._ms_ev_seq[gp] = sq.astype(np.int32)
+            self._ms_log_seq[gp] = sq.astype(np.int32)
+            self._ms_origin[gp] = _LOG_CODE
+            self._ms_stats["log_events"] += int(gp.size)
+            if bool(kept.any()):
+                self._ms_stats["pointer_kept"] += int(np.count_nonzero(kept))
         else:
             self._ms_ev_seq[g] = (-1 - g).astype(np.int32)
             self._ms_log_seq[g] = -1
@@ -568,14 +864,114 @@ class MemoryStore:
         self._ms_imp[g] = imp.astype(np.uint8)
         self._ms_first_ns[g] = first
         self._ms_shown_ns[g[new]] = -1  # 新しい記憶(空の行・追い出した行)はまだ見せていない
+        if self.m1 is not None:  # 〔6-5〕M1: 直近の時刻を進める(新しい行は前の回を消してから)
+            self.m1.place(g, new, ev.t_ns)
         self._ms_stats["remember"] += int(m)
         self._ms_stats["merged"] += int(np.count_nonzero(found))
         self._ms_stats["new_rows"] += int(np.count_nonzero(new))
+        if any_person:
+            self._ms_stats["person_touches"] += int(np.count_nonzero(person))
         if ann is not None:
+            put: list[tuple[int, str]] = []
             for x, y, t in zip(a.tolist(), slot.tolist(), ann):  # 注釈のある出来事の数ぶん(会話の要旨=1 件)
                 if t is not None:
                     self._put_note(int(x), int(y), str(t))
+                    put.append((int(x) * N + int(y), str(t)))
+            if put and self.cue is not None:  # 〔6-5 MR2 問い 3〕要旨に埋め込みを付ける(1 回のバッチ)
+                _check_permit(CUE_PATH, "行の埋め込み")
+                self.cue.embed_rows([p[0] for p in put], [p[1] for p in put])
         return slot.astype(np.int64)
+
+    def _hit(self, a: np.ndarray, ev: Any, person: np.ndarray, any_person: bool) -> np.ndarray:
+        """体の配列と出来事 → ``(体, 幅)`` の「同じ鍵の行」(種類・相手・対象・結果=人の行は種類と相手だけ)。読むだけ。"""
+        N = self.n_rows
+        used = self._ms_origin.reshape(self.n, N)[a] >= 0
+        rk = self._lg_kind.reshape(self.n, N)[a].astype(np.int64)
+        same_or = ((self._lg_object.reshape(self.n, N)[a].astype(np.int64) == ev.obj[:, None])
+                   & (self._lg_result.reshape(self.n, N)[a].astype(np.int64) == ev.result[:, None]))
+        if any_person:  # 人の行の鍵は (種類, 相手) だけ
+            same_or = same_or | person[:, None]
+        return (used & (rk == ev.kind[:, None])
+                & (self._lg_partner.reshape(self.n, N)[a].astype(np.int64) == ev.partner[:, None]) & same_or)
+
+    def seed_people(self, agent: Any, partner: Any, rel_kind: Any, n: Any, first_ns: Any, last_ns: Any,
+                    cell: Any = -1) -> int:
+        """〔第 6 期 6-5・人も記憶の一つ〕開始前の経験として人の行を置く(組み立てだけ=系の外・上限なしの腕だけ)→ 行の数。
+
+        最初の関係はデータから(4-1 段 4 の ``w21_relations_initial`` が本体に無い間は、今の関係の層の機械的初期化=W16 の
+        世帯と W17 の共在の辺を入れる)。``first_ns``・``last_ns`` は開始前=負の時刻でよい。同じ (体, 相手) は 1 行。
+        逐次ループ宣言: なし(体ごとの順位の配列演算・行が足りなければ幅を倍にする回数ぶん)。
+        """
+        if _G.CURRENT is not None:
+            raise RuntimeError("人の行の初期化は組み立て(系の外)だけ")
+        if not self.uncapped or self.m1 is None:
+            raise RuntimeError("seed_people は人も記憶の一つの腕(上限なし・M1)だけ")
+        a = np.asarray(agent, dtype=np.int64).reshape(-1)
+        if a.size == 0:
+            return 0
+        p = np.broadcast_to(np.asarray(partner, dtype=np.int64), a.shape)
+        rk = np.broadcast_to(np.asarray(rel_kind, dtype=np.int64), a.shape)
+        nn = np.broadcast_to(np.asarray(n, dtype=np.int64), a.shape)
+        f0 = np.broadcast_to(np.asarray(first_ns, dtype=np.int64), a.shape)
+        f1 = np.broadcast_to(np.asarray(last_ns, dtype=np.int64), a.shape)
+        cc = np.broadcast_to(np.asarray(cell, dtype=np.int64), a.shape)
+        if bool((self._ms_origin >= 0).any()):
+            raise RuntimeError("人の行の初期化はランの始め(器が空)に 1 回だけ")
+        key = np.unique(np.stack([a, p], axis=1), axis=0, return_index=True)[1]  # 同じ (体, 相手) は最初の 1 行
+        key = np.sort(key)
+        a, p, rk, nn, f0, f1, cc = (x[key] for x in (a, p, rk, nn, f0, f1, cc))
+        order = np.lexsort((np.arange(a.size), a))
+        sa = a[order]
+        starts = np.flatnonzero(np.concatenate(([True], sa[1:] != sa[:-1])))
+        rank = np.empty(a.size, dtype=np.int64)
+        rank[order] = np.arange(a.size) - np.repeat(starts, np.diff(np.append(starts, a.size)))
+        if int(rank.max()) >= int(self.caps["person"]):  # 〔検収 M2〕最初の関係も人の行の上限の中
+            raise ValueError(f"最初の関係の人の数 {int(rank.max()) + 1} が人の行の上限 {int(self.caps['person'])} を超える"
+                             "(入れる側=initial_edges の上限で切る)")
+        while int(rank.max()) >= self.n_rows:  # 逐次: 幅を倍にする回数ぶん(幅は max_width まで)
+            self._resize(min(2 * self.n_rows, self.max_width))
+        g = a * self.n_rows + rank
+        self._lg_kind[g] = _M1.PERSON_KIND
+        self._lg_partner[g] = p.astype(np.int32)
+        self._lg_object[g] = rk.astype(np.int32)
+        self._lg_result[g] = 0
+        self._lg_cell[g] = cc.astype(np.int32)
+        self._ms_ev_t_ns[g] = f1
+        self._ms_ev_seq[g] = (-1 - g).astype(np.int32)
+        self._ms_log_seq[g] = -1
+        self._ms_origin[g] = _LEGACY_CODE
+        self._ms_n[g] = np.clip(nn, 1, 65_535).astype(np.uint16)
+        self._ms_imp[g] = 0
+        self._ms_first_ns[g] = np.minimum(f0, f1)
+        self.m1.seed_rows(g, f1)
+        self._ms_stats["people_seeded"] += int(g.size)
+        return int(g.size)
+
+    def people_rows(self, agent_ids: Any, now_ns: int, *, strength: bool = True,
+                    familiar: bool = True) -> tuple[np.ndarray, ...]:
+        """〔6-5〕体の配列 → 人の行 ``(相手, 関係の種類, A, 見覚えの A, 行)``(``(体, 幅)``・人でない行は相手 −1・A は −inf)。
+
+        読むだけ(関係の層の読み口=``engine.relations_people``)。〔検収 L3〕``strength=False`` は A を、``familiar=False`` は
+        見覚えの A を計算しない(その欄は全部 −inf=相手だけ要る読み口・A だけ要る読み口)。逐次ループ宣言: なし(体 × 幅の
+        配列演算)。
+        """
+        a = np.asarray(agent_ids, dtype=np.int64).reshape(-1)
+        N = self.n_rows
+        g = a[:, None] * N + np.arange(N)[None, :]
+        kind = self._lg_kind[g].astype(np.int64)
+        on = (self._ms_origin[g] >= 0) & (kind == _M1.PERSON_KIND)
+        partner = np.where(on, self._lg_partner[g].astype(np.int64), -1)
+        rel = np.where(on, self._lg_object[g].astype(np.int64), 0)
+        A = np.full(g.shape, -np.inf)
+        A_fam = np.full(g.shape, -np.inf)
+        if bool(on.any()) and self.m1 is not None and (strength or familiar):
+            gu = g[on]
+            args = (gu, gu // N, int(now_ns), self._ms_n[gu], self._ms_first_ns[gu], self._lg_kind[gu], self._ms_imp[gu])
+            if strength:
+                A[on] = self.m1.strength(*args)
+            if familiar:
+                A_fam[on] = self.m1.strength(*args, familiar=True)
+        return partner, rel, A, A_fam, np.where(on, g - a[:, None] * N, -1)
 
     def _check_logged(self, a: np.ndarray, ev: LoggedEvent) -> None:
         """〔2-3〕目印の出来事が記録にあり、``who``=体・``what`` が記憶の種類と合うか(中身の写像)。違えば ``ValueError``。"""
@@ -597,6 +993,8 @@ class MemoryStore:
     def _drop_note(self, agent: int, row: int) -> None:
         if self._ms_note.pop(agent * self.n_rows + row, None) is not None:
             self._ms_note_order.get(agent, OrderedDict()).pop(row, None)
+            if self.cue is not None:  # 〔6-5〕注釈の埋め込みも落とす
+                self.cue.drop_rows([agent * self.n_rows + row])
 
     def _put_note(self, agent: int, row: int, text: str) -> None:
         od = self._ms_note_order.setdefault(agent, OrderedDict())
@@ -607,6 +1005,22 @@ class MemoryStore:
             old, _ = od.popitem(last=False)
             self._ms_note.pop(agent * self.n_rows + old, None)
             self._ms_stats["notes_dropped"] += 1
+            if self.cue is not None:  # 〔6-5〕注釈の埋め込みも落とす
+                self.cue.drop_rows([agent * self.n_rows + old])
+
+    def note_cue(self, agent: int, *, heard_by: Sequence[int] = (), heard: str = "", own: str = "") -> None:
+        """〔第 6 期 6-5 MR2 問い 4〕手がかりの文を置く(意味の手がかりの腕だけ・会話の番=``MemoryLayer.note_utterance``)。
+
+        ``heard``=話し手の発言(聞き手 ``heard_by`` の「相手の直前の発言」)・``own``=話し手の理由(本人の直前の理由)。
+        腕の無い器では何もしない。
+        """
+        if self.cue is None:
+            return
+        _check_permit(CUE_PATH, "手がかりの文")
+        if heard and heard_by:
+            self.cue.note_heard([int(x) for x in heard_by], heard)
+        if own:
+            self.cue.note_own(int(agent), own)
 
     # ------------------------------------------------------------------ 書く口 2: 録画
     def mark_shown(self, agent: int, rows: Sequence[int], t_ns: int, *,
@@ -651,12 +1065,17 @@ class MemoryStore:
 
     # ------------------------------------------------------------------ 読み口: 想起
     def recall(self, agent: int, t_ns: int, k: int, *, cue: Cue | None = None, pool: ShopPool | None = None,
-               tau: float | None = None) -> tuple[MemoryView, ...]:
+               tau: float | None = None, cue_text: str | None = None) -> tuple[MemoryView, ...]:
         """1 体の想起 → ``MemoryView`` の組(score の降順・k 件まで)。M0=今の 6b・7c の規則(同値の試験で確かめる)。
 
         手がかり ``cue`` に一致する行(相手 ∨ 対象 ∨ セル ∨ 直前の結果と同じ種類・結果)のうち ``A ≥ τ`` を score の
         降順に k 件、足りなければ ``A ≥ τ`` の残りから score の順に補う。``pool``(ほかの表の候補=7c の店の行)がある
         ときは同じ score の順に並べ、同じ店の行は先に選んだ方だけ(今の 7c)。計数は :attr:`last_recall`。
+
+        〔第 6 期 6-5〕M1 の腕(:attr:`m1`)は A=M1 の強さ(秒・折衷形・β 込み)・score=A・境目は M1 の τ(``tau`` の引数は
+        読まない)・言葉は「はっきり/うろ覚え」。意味の手がかりの腕(:attr:`cue`)は一致を ``cos(手がかりの文, 行の要旨) ≥
+        COS_MATCH`` に替え(ID の一致は使わない=意味の手がかりだけの腕)、score に ``W_CTX · cos`` を足す(``cue_text`` が
+        無ければ一致 0)。上限なしの腕は人の行を出来事の想起に出さない(人は関係の読み口=``engine.relations_people``)。
         """
         _check_permit(SHOWN_PATH, "想起の計数")
         i = int(agent)
@@ -665,12 +1084,23 @@ class MemoryStore:
         r = self.rows_of(i)
         g0, g1 = r.start, r.stop
         used = self._ms_origin[g0:g1] >= 0
+        if self.uncapped:  # 〔6-5〕人の行は出来事の想起の外
+            used = used & (self._lg_kind[g0:g1] < _M1.PERSON_KIND)
         n_pool = 0 if pool is None else int(np.asarray(pool.score).size)
         if not bool(used.any()) and n_pool == 0:
             object.__setattr__(self, "_ms_last", RecallReport(True, 0, 0, 0, 0, 0, 0, 0))
             return ()
-        A = self._activation(g0, g1, int(t_ns) // self.ns_per_step)
-        score = self.w_r * A + self.w_i * self._ms_imp[g0:g1]
+        if self.m1 is not None:  # 〔6-5 M1〕強さ=折衷形(秒)+β・境目=M1 の τ
+            th = float(self.m1.tau)
+            A = np.full(g1 - g0, -np.inf)
+            if bool(used.any()):
+                gu = g0 + np.flatnonzero(used)
+                A[used] = self.m1.strength(gu, i, int(t_ns), self._ms_n[gu], self._ms_first_ns[gu], self._lg_kind[gu],
+                                           self._ms_imp[gu])
+            score = A.copy()
+        else:
+            A = self._activation(g0, g1, int(t_ns) // self.ns_per_step)
+            score = self.w_r * A + self.w_i * self._ms_imp[g0:g1]
         kind = self._lg_kind[g0:g1]
         part = self._lg_partner[g0:g1]
         obj = self._lg_object[g0:g1]
@@ -686,6 +1116,16 @@ class MemoryStore:
             match |= (cel == int(c.cell)) | (obj == int(place_thing(int(c.cell))))
         if int(c.kind) > 0 and 0 <= int(c.result) <= 255:
             match |= (kind == int(c.kind)) & (res == int(c.result))
+        if self.cue is not None:  # 〔6-5 MR2〕意味の手がかりだけの腕: 一致=cos ≥ COS_MATCH・score に W_CTX·cos
+            from shibuya.engine.memory_embed import COS_MATCH, W_CTX
+
+            _check_permit(CUE_PATH, "手がかりの文の埋め込みの控え")
+            cosv = self.cue.cue_cos(np.arange(g0, g1, dtype=np.int64), cue_text)
+            if cosv is not None:
+                score = score + W_CTX * np.where(used, cosv, 0.0)
+                match = cosv >= COS_MATCH
+            else:
+                match = np.zeros(self.n_rows, dtype=bool)
         # 〔2-3・親の判断 M3〕目印の先が記録の保持窓の外に出た行は本文が無い=手がかりの一致には使わず(要旨と強さだけ)、
         # score の順の補いにだけ出る(LegacyEvent にはしない=目印と出どころはそのまま)
         far = self._beyond_window(g0, g1, int(t_ns))
@@ -711,6 +1151,8 @@ class MemoryStore:
             ob = obj.astype(np.int64)
             ep_key = np.where(shop_like & (ob >= 0) & ~far, ob, -1)
             p_score = np.asarray(pool.score, dtype=np.float64)
+            if self.m1 is not None:  # 〔6-5 M1〕店の行は器の外(今の式)=M1 の尺度へは境目の差だけずらして並べる(仮採用)
+                p_score = p_score + (float(self.m1.tau) - (self.tau if tau is None else float(tau)))
             p_live = np.asarray(pool.live, dtype=bool)
             p_match = np.asarray(pool.match, dtype=bool)
             p_key = np.asarray(pool.key, dtype=np.int64)
@@ -752,7 +1194,8 @@ class MemoryStore:
                         "result": int(res[j]), "cell": int(cel[j])}
             views.append(MemoryView(
                 row=int(j), event_id=(int(self._ms_ev_t_ns[g]), int(self._ms_ev_seq[g])),
-                origin=ORIGINS[int(self._ms_origin[g])], clarity=clarity_of(float(A[j]), th),
+                origin=ORIGINS[int(self._ms_origin[g])],
+                clarity=(str(_M1.clarity_words(float(A[j]), th)) if self.m1 is not None else clarity_of(float(A[j]), th)),
                 annotation=self._ms_note.get(g, ""), when_ns=int(self._ms_ev_t_ns[g]),
                 first_ns=int(self._ms_first_ns[g]), **body,
             ))
@@ -785,6 +1228,9 @@ class MemoryStore:
         """
         if _G.CURRENT is not None:
             raise RuntimeError(f"記憶の器の作り直しは再開の組み立て(系の外)だけ(いまの系 {_G.CURRENT})")
+        if self.uncapped or self.grain != _M1.GRAIN_EACH:
+            raise RuntimeError("〔6-5〕上限なしの腕(--memory-people memory)と粒度 day の腕(--memory-grain day)のランは再開に"
+                               "対応しない(器が記憶の表の写しでない=表から作り直せない・本段の限界=記録 mr65/README.md)")
         _check_permit(ROW_PATH, "行の作り直し")
         N = self.n_rows
         shape = (self.n, N)
@@ -821,35 +1267,51 @@ class MemoryStore:
                 if text is not None:
                     new[int(row)] = None
                     self._ms_note[int(agent) * N + int(row)] = text
+        if self.cue is not None:  # 〔6-5〕要旨の埋め込みを作り直す(行 M0C の hash_skip の欄)
+            self.cue.rebuild(dict(self._ms_note))
         return int(g.size)
 
     # ------------------------------------------------------------------ 実行時の検査(器=記憶の表の写し)
     def check_against_table(self, agent: np.ndarray, rows: np.ndarray, *, kind: np.ndarray, partner: np.ndarray,
                             obj: np.ndarray, result: np.ndarray, cell: np.ndarray, first_step: np.ndarray,
                             last_step: np.ndarray, n: np.ndarray, importance: np.ndarray,
-                            log_seq: np.ndarray | None = None) -> None:
+                            log_seq: np.ndarray | None = None, kept: np.ndarray | None = None) -> None:
         """書いた行の器の値が記憶の表の値と同じかを配列で比べ、違えば ``RuntimeError``(読むだけ・M0 の宣言の前提)。
 
         比べるのは中身(種類・相手・対象・結果・セル)・強さ(回数・重要度・最初の時刻)・目印(最後の時刻と seq)・出どころ。
         ``log_seq`` を渡さないときは仮の行(seq=−1−番地・出どころ legacy・記録の seq −1)、渡すときは記録の目印の行
         (seq=記録の seq・出どころ None)=〔2-3〕。書きの検査の切替口(``SHIBUYA_WRITE_GUARD``)でも外さない(器の値は
         ハッシュに入らない=ずれても final とハッシュに出ないので、ここで止める)。逐次ループ宣言: なし(配列演算)。
+
+        〔第 6 期 6-5・粒度 day〕``kept`` の行(記録に書かなかった日の中の 2 回目から)は目印を前のまま=目印の時刻は表の
+        最後の時刻以前で同じ日・出どころは記録・目印の seq は記録の seq(0 以上)と同じ、を確かめる(表の最後の時刻とは比べない)。
         """
         a = np.asarray(agent, dtype=np.int64)
         g = a * self.n_rows + np.asarray(rows, dtype=np.int64)
         ns = self.ns_per_step
+        kp = np.zeros(g.size, dtype=bool) if kept is None else np.asarray(kept, dtype=bool)
+        w = ~kp
+        last_ns = np.asarray(last_step, dtype=np.int64) * ns
+        lseq = None if log_seq is None else np.asarray(log_seq, dtype=np.int64)
         pairs = (
             ("種類", self._lg_kind[g], kind), ("相手", self._lg_partner[g], partner), ("対象", self._lg_object[g], obj),
             ("結果", self._lg_result[g], result), ("セル", self._lg_cell[g], cell), ("回数", self._ms_n[g], n),
             ("重要度", self._ms_imp[g], importance),
             ("最初の時刻", self._ms_first_ns[g], np.asarray(first_step, dtype=np.int64) * ns),
-            ("目印の時刻", self._ms_ev_t_ns[g], np.asarray(last_step, dtype=np.int64) * ns),
-            ("目印の seq", self._ms_ev_seq[g], -1 - g if log_seq is None else np.asarray(log_seq, dtype=np.int64)),
+            ("目印の時刻", self._ms_ev_t_ns[g][w], last_ns[w]),
+            ("目印の seq", self._ms_ev_seq[g][w], (-1 - g if lseq is None else lseq)[w]),
             ("出どころ", self._ms_origin[g], np.full(g.size, _LEGACY_CODE if log_seq is None else _LOG_CODE)),
-            ("記録の seq", self._ms_log_seq[g], np.full(g.size, -1) if log_seq is None else np.asarray(log_seq, dtype=np.int64)),
+            ("記録の seq", self._ms_log_seq[g][w], (np.full(g.size, -1) if lseq is None else lseq)[w]),
         )
         bad = [name for name, got, want in pairs
                if not np.array_equal(np.asarray(got).astype(np.int64), np.asarray(want).astype(np.int64))]
+        if bool(kp.any()):  # 〔6-5 粒度 day〕前のままの目印
+            gk = g[kp]
+            t_k = self._ms_ev_t_ns[gk]
+            if not (bool((t_k <= last_ns[kp]).all()) and bool((t_k // NS_PER_DAY == last_ns[kp] // NS_PER_DAY).all())
+                    and bool((self._ms_ev_seq[gk] == self._ms_log_seq[gk]).all())
+                    and bool((self._ms_log_seq[gk] >= 0).all())):
+                bad.append("前のままの目印(粒度 day)")
         if bad:
             raise RuntimeError(f"1-6 M0: 記憶の器の値が記憶の表と食い違う({'・'.join(bad)})=器は表の写し")
 
@@ -874,7 +1336,58 @@ class MemoryStore:
             "counts": self.store_counts,
             # 〔2-3〕記録の目印の行のうち、いまの記録に先がある行/無い行(再開のランは前の日の出来事が記録に無い・保持窓の外)
             **self._log_targets(used),
+            # 〔第 6 期 6-5〕腕の計器(腕の立ったランだけ=M0 の器だけのランの葉は前と同じ)
+            **self._mr65_summary(used, per),
         }
+
+    def _mr65_summary(self, used: np.ndarray, per: np.ndarray) -> dict[str, Any]:
+        """〔6-5〕manifest ``memory_summary.memory_store.mr65``(観測・腕の立ったランだけ)。"""
+        if self.m1 is None and self.cue is None and not self.uncapped and self.grain == _M1.GRAIN_EACH:
+            return {}
+        kind = self._lg_kind.astype(np.int64)
+        person = used & (kind == _M1.PERSON_KIND)
+        pp = person.reshape(self.n, self.n_rows).sum(axis=1) if self.n else np.zeros(0, dtype=np.int64)
+        arms = _M1.arms()
+        out: dict[str, Any] = {
+            "arms": {"model": _M1.MODEL_M1 if self.m1 is not None else _M1.MODEL_M0,
+                     "cue": _M1.CUE_EMBED if self.cue is not None else _M1.CUE_ID,
+                     "people": _M1.PEOPLE_MEMORY if self.uncapped else _M1.PEOPLE_TABLE,
+                     "embed_model": self.cue.model if self.cue is not None else None,
+                     "grain": self.grain, "env_at_summary": arms._asdict()},
+            "rows_per_agent_max": int(per.max()) if per.size else 0,
+            "uncapped": bool(self.uncapped),
+            # 「LLM が覚えていないのに話を合わせた割合」(MR6 の 5・値は実 LLM の後=None)
+            "played_along_share": None,
+        }
+        if self.m1 is not None:
+            out["m1"] = self.m1.summary(used)
+        if self.cue is not None:
+            out["cue"] = self.cue.summary()
+        if self.uncapped:
+            out["people"] = {"rows": int(np.count_nonzero(person)), "agents": int(np.count_nonzero(pp > 0)),
+                             "per_agent_max": int(pp.max()) if pp.size else 0,
+                             "per_agent_mean": round(float(pp.mean()), 4) if pp.size else 0.0}
+            ep = (used & (kind != _M1.PERSON_KIND)).reshape(self.n, self.n_rows).sum(axis=1) if self.n else pp
+            st = self._ms_stats
+            # 〔検収 M2〕器の行の幅・上限・消した行(忘れた/上限で A の一番低い行)・行のバイト(39 万体の見積りの素)
+            out["capacity"] = {
+                "width": int(self.n_rows), "width_max": int(self.max_width), "caps": dict(self.caps),
+                "episode_per_agent_max": int(ep.max()) if ep.size else 0,
+                "rows_resized": int(st.get("rows_resized", 0)), "forgotten": int(st.get("forgotten", 0)),
+                "evicted_by_a": int(st.get("evicted_by_a", 0)),
+                "evicted_by_a_episode": int(st.get("evicted_by_a:episode", 0)),
+                "evicted_by_a_person": int(st.get("evicted_by_a:person", 0)),
+                "row_bytes": int(ROW_BYTES + LEGACY_BYTES + LOG_SEQ_BYTES
+                                 + (8 * int(self.m1.k) if self.m1 is not None else 0)),
+            }
+            if self.shops is not None:
+                out["shops"] = self.shops.summary()
+        return {"mr65": out}
+
+    def arms_config(self) -> dict[str, Any]:
+        """〔検収 L1〕manifest の設定の節 ``memory_summary.mr65_arms``(腕の名・埋め込みのモデルの名と版・行の上限)。
+        既定の腕の器は空(欄を出さない)。"""
+        return {k: (dict(v) if isinstance(v, Mapping) else v) for k, v in self.arms_cfg.items()}
 
     def _log_targets(self, used: np.ndarray) -> dict[str, int]:
         """〔2-3〕manifest の 2 欄: 記録の目印の行(出どころ None)のうち先がいまの記録にある行(``targets_log_live``)と無い行
@@ -888,14 +1401,23 @@ class MemoryStore:
 
 
 # ================================================================ 描き方(今の B5「記憶」の 1 行と同じバイト)
+#: 〔第 6 期 6-5〕言葉の描き方の口(``words=True``)の項の頭(「うろ覚え」と「要旨だけ」=未リサーチ(expedient)の表記)。
+WORD_PREFIX: Final[Mapping[str, str]] = MappingProxyType({CLARITY_WORDS[1]: "(うろ覚え)", GRAIN_WORDS[1]: "(要旨だけ)"})
+
+
 def render_memories(views: Sequence[MemoryView], *, clock: Callable[[int], datetime], poi_names: Sequence[str],
-                    place_ids: Sequence[str], now_ns: int = 0, ns_per_step: int = NS_PER_STEP) -> str:
+                    place_ids: Sequence[str], now_ns: int = 0, ns_per_step: int = NS_PER_STEP,
+                    words: bool = False) -> str:
     """``MemoryView`` の組 → B5「記憶」の 1 行(今の描き方=``perception.renderer`` の項と行の組み立て・テンプレ v1.3)。
 
     ``clock`` は刻みの番号 → 世界内日時(描画の ``clock_fn`` と同じ口)。項の時刻は ``when_ns``(最後の回)、負なら
     ``now_ns``。チャネル 60 tok で末尾の項から落とす所までが描き方(個体枠 300 との突き合わせは描画の側=B5・B6 の
     本文が要る)。M0 の言葉は全部「はっきり」・粗さは「そのまま」(今のテンプレには言葉の欄が無い)。それ以外は
     ``ValueError``(描き方は M1 以降で決める)。0 件は空文字。
+
+    〔第 6 期 6-5〕``words=True``(M1 の言葉の描き方の口=MR-0): 「うろ覚え」と「要旨だけ」の項の頭に :data:`WORD_PREFIX` を
+    付ける(「はっきり・そのまま」の項は M0 と同じバイト)。今の描画(``perception.renderer``)には結線していない=LLM に
+    言葉を見せるのは描画の側の 1 か所(テンプレの版が動く=親の判断・記録 mr65/README.md)。
     """
     from shibuya.agents.state import RESULT_TEXT
     from shibuya.perception import normalize as _N
@@ -903,10 +1425,13 @@ def render_memories(views: Sequence[MemoryView], *, clock: Callable[[int], datet
 
     texts: list[str] = []
     for v in views:  # 想起の件数ぶん(≤ 3)
-        if v.clarity != CLARITY_WORDS[0] or v.grain != GRAIN_WORDS[0]:
+        if not words and (v.clarity != CLARITY_WORDS[0] or v.grain != GRAIN_WORDS[0]):
             raise ValueError(f"M0 の描き方は「{CLARITY_WORDS[0]}・{GRAIN_WORDS[0]}」だけ(いま {v.clarity}・{v.grain})")
+        if v.clarity not in CLARITY_WORDS or v.grain not in GRAIN_WORDS:
+            raise ValueError(f"言葉は {CLARITY_WORDS}・粗さは {GRAIN_WORDS} のどれか(いま {v.clarity}・{v.grain})")
         when = int(v.when_ns) if int(v.when_ns) >= 0 else int(now_ns)
         h, m = _N.format_time(clock(when // int(ns_per_step)))
-        texts.append(memory_item_text(to_item(v, ns_per_step), hhmm=f"{h}:{m}", poi_names=poi_names,
-                                      place_ids=place_ids, result_text=RESULT_TEXT))
+        head = WORD_PREFIX.get(v.clarity, "") + WORD_PREFIX.get(v.grain, "")
+        texts.append(head + memory_item_text(to_item(v, ns_per_step), hhmm=f"{h}:{m}", poi_names=poi_names,
+                                             place_ids=place_ids, result_text=RESULT_TEXT))
     return compose_memory_line(texts)[0]

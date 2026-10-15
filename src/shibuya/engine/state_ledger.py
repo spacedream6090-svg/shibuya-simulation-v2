@@ -734,7 +734,11 @@ _EXT: tuple[LedgerRow, ...] = (
              "rebuild_memory_store が戻した mem_* と O8 から作り直す)・中身は hash_skip(作り直せる表=キャッシュと同じ扱い"
              "=どちらのハッシュにも状態のファイルにも入らない=腕を足しても既定の final は不変)。M1 で器を既定の記憶に"
              "する(mem_* を消す)ときに behavior・required へ移す(版上げ)。書く系は decide・llm_receive・memory・drain"
-             "(宣言 M0*:mem_layer.memory_store.*)"),
+             "(宣言 M0*:mem_layer.memory_store.*)。〔第 6 期 6-5・検収 M3〕腕 --memory-model m1 と --memory-people memory では"
+             "器の行が挙動を決める(m1=想起の候補と順を器の行の強さで・memory=器は表の写しでなく、人の行が会話の相手選びを・"
+             "出来事の行が想起を決める)のに、この行の軸は既定の器のまま(軸 1 no・hash_skip・軸 2 derivable)=behavior-hash は"
+             "器の人の行と出来事の行を見ない(入るのは腕の行 M0M の時刻と M0S の店の行だけ)。腕 memory と粒度 day は再開を止める"
+             "ので軸 2 の害は無い。既定化(MR10=まとめて 1 回の版上げ)のときに軸を改める(behavior-hash に入れる・required)"),
     LedgerRow(
         key="M0R", name="MemoryStore の録画(見せた時刻)・テープの列への控え・計数(第 1 期 1-6)", place=EXTERNAL,
         dtype="列(8 B/行)・dict・Counter", nbytes="", alloc="", behavior=DIAG, restore=DISCARDABLE, dead=False,
@@ -979,6 +983,57 @@ _EXT: tuple[LedgerRow, ...] = (
              "W20 の週の表・暦・日番号だけから決まる=軸 2 derivable(再開では組み立てが 0 日目を・表の張り直しが再開の日までを"
              "作り直す=通しと同じ記録)・中身は hash_skip(どちらのハッシュにも状態のファイルにも入らない=腕 1a のランの final は"
              "既定と同じ)。書く系は day_head(宣言 CAL:calendar_shadow.*)と組み立て。行の鍵は O の通し番号でなく CAL"),
+    # ---- 第 6 期 6-5(記憶 MR の GPU の前の分・全部 腕): 足す前に軸を決めた行(腕の行=腕のランだけ持ち主がある) ----
+    LedgerRow(
+        key="M0M", name="M1State(記憶の強さ M1 の直近の時刻と人ごとの忘れる速さの倍率・第 6 期 6-5)", place=EXTERNAL,
+        dtype="列(i8 × k=3・行の数=体 × 器の行の幅)・f8(体の数)",
+        nbytes="24 B/行+8 B/体(5,000 体・128 行で 15.4 MB)", alloc="--memory-model m1", behavior=BEHAVIOR,
+        restore=REQUIRED, dead=False,
+        basis="engine/memory_m1.py(M1State・base_level)・engine/memory_store.py(remember・recall・seed_people・"
+              "people_rows・_resize)",
+        items=("mem_layer.memory_store.m1._t_ns", "mem_layer.memory_store.m1._scale"), arm="memory-model",
+        note="6-5: 腕 m1 のランだけ持ち主を作る(既定は持ち主が None=既定の 2 つのハッシュと状態のファイルは不変)。器の行ごとの"
+             "直近 k 回の時刻(秒の時刻=t_ns)は記憶の表 mem_* に無い(表は最初と最後と回数だけ)=作り直せない=軸 2 required・"
+             "想起の候補と順(強さ A=ACT-R の折衷形)を決める=軸 1 behavior。人ごとの倍率は母集団の seed(〔検収 M1〕組み立てが"
+             "enable_memory_store にランごとに渡す)と体の番号から引ける値だが、直近の時刻と同じ持ち主にあるので一緒に保存する"
+             "(required)。書く系は memory・decide・llm_receive(宣言 "
+             "M0*:mem_layer.memory_store.*=器の書く口 remember の中から)。行の鍵は O の通し番号でなく M0M"),
+    LedgerRow(
+        key="M0C", name="CueState(意味の手がかり=手がかりの文と行の埋め込み・第 6 期 6-5)", place=EXTERNAL,
+        dtype="dict(体 → 文)× 2・dict(番地 → f2 の埋め込み)・OrderedDict(文 → 埋め込みの控え)", nbytes="",
+        alloc="--memory-cue embed", behavior=BEHAVIOR, restore=REQUIRED, dead=False,
+        basis="engine/memory_embed.py(CueState)・engine/memory_store.py(note_cue・remember・recall・rebuild)・"
+              "engine/memory.py(note_utterance・_recall_from_store)",
+        items=("mem_layer.memory_store.cue._heard", "mem_layer.memory_store.cue._own", "mem_layer.memory_store.cue._vec",
+               "mem_layer.memory_store.cue._qcache"),
+        hash_skip=("mem_layer.memory_store.cue._vec", "mem_layer.memory_store.cue._qcache"), arm="memory-cue",
+        note="6-5: 腕 embed のランだけ持ち主を作る。手がかりの文(会話の相手の直前の発言・本人の直前の理由)は想起の一致と順を"
+             "決める=軸 1 behavior・会話の番からしか来ない=軸 2 required。行の埋め込みと手がかりの文の埋め込みの控えは注釈(要旨)と"
+             "文から作り直せる=hash_skip(再開では rebuild が要旨から作り直す)。書く系は decide・llm_receive・memory(宣言 "
+             "M0*:mem_layer.memory_store.*)。行の鍵は O の通し番号でなく M0C"),
+    LedgerRow(
+        key="M0X", name="M1State・CueState の計数(第 6 期 6-5)", place=EXTERNAL, dtype="dict(int)", nbytes="",
+        alloc="腕 --memory-model m1・--memory-cue embed", behavior=DIAG, restore=DISCARDABLE, dead=False,
+        basis="engine/memory_m1.py(M1State.summary)・engine/memory_embed.py(CueState.summary)",
+        items=("mem_layer.memory_store.m1._m1_stats", "mem_layer.memory_store.cue._cue_stats",
+               "mem_layer.memory_store.shops._shop_stats"),
+        note="6-5: 計数=読み手は manifest の memory_summary.memory_store.mr65 と試験だけ(軸 1 diag)・再開は空から(軸 2 "
+             "discardable)。宣言 M0*:mem_layer.memory_store.*。〔検収 M4〕店の行の表の計数(幅を倍にした回・上限で上書きした数)も"
+             "ここ。行の鍵は O の通し番号でなく M0X"),
+    LedgerRow(
+        key="M0S", name="ShopTable(人も記憶の一つの腕の店の評価の行・第 6 期 6-5 検収 M4)", place=EXTERNAL,
+        dtype="列(体 × 幅=32 から倍にして上限 256・i4/f4/f4/i4/i4/u2/u1=体の表の sm_* と同じ型)",
+        nbytes="23 B/行(上限 256 行で 5,888 B/体)", alloc="--memory-people memory(と --store-memory on)",
+        behavior=BEHAVIOR, restore=REQUIRED, dead=False,
+        basis="engine/memory_shops.py(ShopTable・UncappedStoreMemory)・engine/store_memory.py(columns・_evict_slots・"
+              "_put)・engine/memory.py(enable_store)",
+        items=tuple(f"mem_layer.memory_store.shops.{a}" for a in (
+            "_poi", "_valence", "_precision", "_first", "_last", "_n", "_source")), arm="memory-people",
+        note="6-5(検収 M4): 腕 memory で店の記憶のあるランだけ持ち主を作る(既定は None=既定の 2 つのハッシュと状態のファイルは"
+             "不変)。体の表の sm_*(上限 32 の固定の表=behavior・required)の代わり=店の選び(7c)と想起(B5)と伝聞の書き手が"
+             "この表を読み書きする=軸 1 behavior・表から作れない=軸 2 required(腕 memory は再開を止める=器の側)。この腕では"
+             "体の表の sm_* は書かない(空のまま)。書く系は memory・decide・llm_receive(宣言 M0*:mem_layer.memory_store.*=器の"
+             "店の行の書く口 put・grow)。行の鍵は O の通し番号でなく M0S"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -1091,6 +1146,11 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "mem_layer.store": ("engine/store_memory.py", "StoreMemory"),
     # 第 1 期 1-6: 記憶の器 M0(状態台帳の行 M0・M0R・腕 --memory-store events のランだけ)
     "mem_layer.memory_store": ("engine/memory_store.py", "MemoryStore"),
+    # 〔第 6 期 6-5〕器の子の持ち主(腕 --memory-model m1 の M1 の状態・腕 --memory-cue embed の意味の手がかり)
+    "mem_layer.memory_store.m1": ("engine/memory_m1.py", "M1State"),
+    "mem_layer.memory_store.cue": ("engine/memory_embed.py", "CueState"),
+    # 〔第 6 期 6-5・検収 M4〕人も記憶の一つの腕の店の評価の行(腕 --memory-people memory で店の記憶のあるラン)
+    "mem_layer.memory_store.shops": ("engine/memory_shops.py", "ShopTable"),
     "poi_resolver": ("engine/poi_target.py", "TargetResolver"),
     "poi_resolver.store_choice": ("engine/store_choice.py", "StoreChoice"),
     "poi_resolver.chooser": ("engine/chooser.py", "ClassicalChooser"),
@@ -1159,6 +1219,10 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
 OWNER_ALT_CLASSES: Final[dict[str, tuple[tuple[str, str], ...]]] = {
     "poi_resolver.chooser": (("engine/chooser.py", "NearestChooser"),),
     "ledger.money": (("cli.py", "_HouseholdWalletLedger"),),
+    # 〔第 6 期 6-5〕人も記憶の一つの腕(--memory-people memory)の関係の読み口=RelationLayer の子クラス
+    "rel_layer": (("engine/relations_people.py", "PeopleRelationLayer"),),
+    # 〔第 6 期 6-5・検収 M4〕人も記憶の一つの腕の店の評価の記憶=StoreMemory の子クラス(行の口だけ差し替える)
+    "mem_layer.store": (("engine/memory_shops.py", "UncappedStoreMemory"),),
 }
 
 CACHE: Final[str] = "cache"
@@ -1444,6 +1508,23 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("calendar_shadow", CACHE, _TAB + "(3-1: W20 の週の表をランの体の並びに引き直した物)", "table"),
     _x("calendar_shadow", CONST, _CFG + "(3-1: 体の数・源の名 1a)", "n", "source"),
     _x("calendar_shadow", REF, _REFR + "(3-1: 暦の口と W17 の週次表=参考の差を数えるだけ・読むだけ)", "calendar", "weekly"),
+    # 第 6 期 6-5: 記憶の器の腕の設定(組み立てが enable_arms で 1 回だけ置く)・子の持ち主の設定と参照
+    _x("mem_layer.memory_store", CONST, _CFG + "(6-5: 上限なしの腕か・体の出来事の粒度=組み立てが 1 回だけ置く)",
+       "uncapped", "grain"),
+    _x("mem_layer.memory_store.m1", CONST, _CFG + "(6-5: 体の数・直近の回数 k・M1 の境目 τ・最短の符号化時間・倍率の seed)",
+       "n", "k", "tau", "t_min_s", "seed"),
+    _x("mem_layer.memory_store.cue", REF, _REFR + "(6-5: 埋め込みの口=モデル)", "embedder"),
+    _x("mem_layer.memory_store.cue", CONST, _CFG + "(6-5: モデルの名と次元)", "model", "dim"),
+    _x("mem_layer.memory_store.m1", CONST, _FIELD + "(6-5: 腕の行の腕の名 LEDGER_ARM)", "LEDGER_ARM"),
+    _x("mem_layer.memory_store.cue", CONST, _FIELD + "(6-5: 腕の行の腕の名 LEDGER_ARM)", "LEDGER_ARM"),
+    _x("rel_layer", REF, _REFR + "(6-5: 人も記憶の一つの腕の記憶の器=状態は器の側で数える)", "_ms"),
+    # 〔第 6 期 6-5 検収 M2・M4・L1〕器の行の上限と腕の設定の値(組み立てが 1 回だけ置く)・店の行の表の設定・店の記憶の子の参照
+    _x("mem_layer.memory_store", CONST, _CFG + "(6-5 検収 M2・L1: 種類ごとの行の上限・腕の設定の値=組み立てが 1 回だけ置く)",
+       "caps", "arms_cfg"),
+    _x("mem_layer.memory_store.shops", CONST, _CFG + "(6-5 検収 M4: 体の数・店の行の上限)", "n", "cap"),
+    _x("mem_layer.memory_store.shops", CONST, _FIELD + "(6-5 検収 M4: 腕の行の腕の名 LEDGER_ARM)", "LEDGER_ARM"),
+    _x("mem_layer.store", REF, _REFR + "(6-5 検収 M4: 腕 memory の店の行の表=状態は器の子の持ち主 shops の側で数える)",
+       "_tab"),
 )
 
 

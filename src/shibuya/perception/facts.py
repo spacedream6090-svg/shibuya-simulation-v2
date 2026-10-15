@@ -15,7 +15,7 @@
   ``Renderer.render_percept`` が B0〜B6 の文に描く(描き方の 1 つ)。判断の入力(1-8 の ``DecisionPort.choose(ctx, …)``)にも
   同じ物を渡す(``PerceptCarrier``)。
 - その場(セルと刻みで決まる事実=同じセルの全員で同じ)は ``SceneView``、時刻の見方は ``TimeView``(同じ刻みの全員で同じ)。
-- **欄だけ(値は空=None)**: ``EMPTY_FIELDS`` の 9 欄。値を作る仕組みは後の段(目の向き・心の向き=CT2、持ち物と道具=1-7、
+- **欄だけ(値は空=None)**: ``EMPTY_FIELDS`` の 10 欄(〔6-5〕``heard_referents`` を足した)。値を作る仕組みは後の段(目の向き・心の向き=CT2、持ち物と道具=1-7、
   被注視・傍受・顔ぶれの変化・知人の出現=空間の段、本人の予想=1-8)。``None`` は「仕組みがまだ無い(未計測)」の意味で、
   空の tuple(=測ったが無かった)とは分ける。
 - ``Percept`` は刻みの中の一時(``engine.systems.boxes.TickScratch`` の欄 ``percepts``・状態台帳の行 ``P``=軸 1 no・
@@ -61,8 +61,9 @@ __all__ = [
     "percept_manifest",
 ]
 
-#: 形の版(欄を足したり意味を変えたりしたら上げる。manifest の ``percept.schema`` に出る)。
-PERCEPT_SCHEMA: Final[str] = "shibuya.perception/percept/1"
+#: 形の版(欄を足したり意味を変えたりしたら上げる。manifest の ``percept.schema`` に出る)。〔第 6 期 6-5〕/2=欄
+#: ``heard_referents``(話し手が指した相手の見えない ID・空の欄)を末尾に足した。
+PERCEPT_SCHEMA: Final[str] = "shibuya.perception/percept/2"
 
 #: 出来事の記録の行の目印(``engine.events.log.EventId`` と同じ形=``(t_ns, seq)``)。層契約(perception は engine を
 #: import できない)のため形を写す。一致は ``tests/perception/facts/test_percept_schema.py`` が見る。
@@ -80,7 +81,7 @@ NEARBY_CHANGE_KINDS: Final[tuple[str, ...]] = ("loud_sound",)
 #: 欄だけ用意して値は空(None)で始める欄(回答 10-13b §4-2・計画 1-2)。
 EMPTY_FIELDS: Final[tuple[str, ...]] = (
     "eye_dir", "mind_dir", "belongings", "tool_state",
-    "watched_by", "heard_speech", "nearby_change", "acquaintance_seen", "prediction",
+    "watched_by", "heard_speech", "nearby_change", "acquaintance_seen", "prediction", "heard_referents",
 )
 
 
@@ -264,6 +265,9 @@ class Percept:
     acquaintance_seen: tuple[int, ...] | None = None
     #: 本人の予想(1-8 で埋める=「今の観測」と並べて判断の入力に載せる)。
     prediction: Any = None
+    #: 〔第 6 期 6-5・MR6 の 2〕聞こえた発話が指した相手の ID(見えない欄=描画しない・聞き手の記憶を引く手がかり)。
+    #: ``(発話の出来事の目印, 指した相手の id の組)`` の列。値を作る口(話し手の発話の形)は会話の段(6-4 C1)と空間の段の後。
+    heard_referents: tuple[tuple[EventRef, tuple[int, ...]], ...] | None = None
 
 
 @runtime_checkable
