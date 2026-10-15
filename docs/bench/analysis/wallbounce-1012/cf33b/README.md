@@ -296,3 +296,11 @@ python -m pytest -q -p no:cacheprovider -o addopts="" -rf -m "not gpu and not sl
 **byte-check(1 構成)**: 本体 `76d3899` の写し(`git archive` の src と `HEAD_TREE_FILES` の追跡ファイル+本体の data へのつなぎ=回し終えて .NET で外した)と作業木で `w6_v3_default`(5,000 体・seed 1・1 日・テープつき・申込書なし)=**25 欄とも同じ**・final `b8eadcb51e8705e7`・呼数 64,528・head は `src_is_worktree` 偽・作業木は真([byte_check_cf33b_after_rebase_1cfg.json](byte_check_cf33b_after_rebase_1cfg.json))。4 構成は親が回す。
 
 **できなかったこと**: O96 `replay_inbox` を T の刻みで読んで (b) の条件に入れること(読む口が無い=系の表は範囲の外・宣言で代えた)。3-3 の契約の約束 (4)(d) の文の書き換え(親がユーザーに確かめる)。
+
+## §親の検収(第336・Fable 5.1・rebase の後)
+
+- 本体 ed7155c(6-1 の文書の後)へ rebase=衝突なし(直し役が 76d3899 へ控え+早送り+merge-file で rebase 済み=つなぎの台帳の末尾(420 行)と `CONFIG_PATHS_SHA256`(68c3ffd0 → 63a87f2f)の 2 本を手で解いた)・810b9eb。範囲の試験(experiment・tools・bridging・状態台帳・10f・cp2・**c8**)**682 passed**(417 秒)。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src)=**final 同じ・25 欄とも差なし**(`parent_head_vs_cf33b_4cfg.json`)。申込書なしのランは 3-3b の口をどこも通らない(検収役の AST)。
+- **data 無しの写し(detached の作業木・junction なし)で CI-1 と同じ引数の全体試験(tests/c7 を含む)=**5,168 passed・254 skipped・failed 0**(1,224 秒・CI の印=`-m "not gpu and not slow" -n 2 --dist loadfile`)**。
+- 独立検収([review.md](review.md))=条件つき受入(中 2=累計の指標 `probe.conv.opened` を流量として扱っていた・計器の読む守りが大文字と junction を通していた/ 低 10)→ 全部直した(§15)。検収役の独立の再計算(1,000 体の分岐の 4 つの確認・MSER の別実装 300/300・fair CRPS・HM・2 日のラン・`CONFIG_PATHS_SHA256`)は全部一致。親の判断: 注入した口は決定論を宣言できる口を足し宣言が無ければ非決定のまま・慣らしの候補は d ≤ n−5 のまま(pymser と 1 つずれる=宣言)・窓の頭でない T は止める(3-3 の切り上げを置き換え)・3-3 の台帳 3 行は「残り=3-3b の行」に(status 不変)・**口の約束 3-3 (4)(d) の文の改めはユーザーに確認(PENDING §1-1)**・O96 `replay_inbox` を (b) の条件に入れる読む口は無い=宣言で代える。
+- 判定: **受入**(第 3 期 3-3b=既定(申込書なし)は不変・CLI の引数は足していない)。
