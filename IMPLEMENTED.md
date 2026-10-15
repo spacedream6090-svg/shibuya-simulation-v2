@@ -394,6 +394,16 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #108 第 3 期 3-3b 反実仮想の器の残り(T からの切り替え・(d) の分け・慣らしの器・技量スコアの隣の点数・HM の器=既定は不変)(第336・2026-10-15・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-5(CP5-1〜CP5-6・CP14)・PENDING 仮-20・仮-24・[R-117](docs/research/v2-r117-e2-counterfactual-ensemble-warmup-precedents.md) §4-6・§2・§3・R-71。記録 [cf33b](docs/bench/analysis/wallbounce-1012/cf33b/README.md)([review.md](docs/bench/analysis/wallbounce-1012/cf33b/review.md))。取り込み `e7261b7`。
+- **T からの切り替え** `engine/experiment/switch.py`(`ReplaySwitch`=T まではテープの再生で LLM を呼ばず・T からは仮のモデル(mock/古典/注入)・T は窓の頭(3-2)でなければ止める・再生の箱は刻みごとに空=残り 0 が (b)・T をまたいで届く行は拒む・負の対照あり)。`run_branch` の既定をこの口に(申込書なしでは何も変わらない=19/19・2 日・再開)。
+- **4 つの確認**: (d) を d_determinism(mock・古典で A/A 2 本が厳密に同じ・final が基準と同じ)と d_floor(T 以後の A/A の対の差=`ensemble.floor_values`/`floor_summary`)に分け、(c) に `vs_aa`(A/A の最初の食い違いとの刻みの差)。1,000 体の例: mock=床 0・種が毎回違う mock=床 ≠ 0(checkpoint 12 本)。3-3 の欄は 1 つも変えていない。
+- **CP5-1** 始まり 0 で予期しない改変=警告と manifest の `start0` に記録(拒まない)。**CP5-3** 申込書の自己申告の欄 `known_to_model`(空なら正準の形に書かない=指紋は不変・検査は名指しと同じ道具)。
+- **慣らしの器** `engine/experiment/warmup.py`(`RULE`=mechanism/expedient/未リサーチの印・manifest と事前登録に規則を写す)+`tools/instruments/warmup_gauge.py`: MSER-5 を 1 バッチ=1 シム日の差の系列に(候補 d ≤ n−5・後半なら無効で 10% 延長・3 回で未収束・最大で束ねる・累積は拒む・在庫は流量に・月の周期は推移の指標・原系列は感度の腕)。合成: 植えた 7 日を 300 種で下回る 0 回・ちょうど 7 が 60.7%・累積の負の対照 42/50 vs 2/50・差の系列 27/40 vs 原系列 0/40・3 区間は植えた値どおり。実際のランの対での判定は 4-1 の後。
+- **技量スコアの隣の点数** `tools/instruments/skill_gauge.py`(fair CRPS・基準の CRPS・rank histogram・spread/skill の √((M+1)/M)・封印の証拠の欄=git+push・値は空)。**HM の器** `tools/instruments/hm_gauge.py`(I=|z−平均|/√(Var_ens+Var_obs+Var_disc)・閾値 3・2 番目に大きい値・候補は seed の組だけ・較正側だけ・封印と検証側の道筋は開く前に落とす)。
+- manifest の `experiment` に設定の子 4 つ(switch・start0・known_to_model・warmup=末尾)・`CONFIG_PATHS_SHA256` の変化は足した分だけ・台帳 +9 行。検収: 別の検収役 1+親。全体試験 5,253 passed。仮採用: PENDING §1-1b 仮-30。
+
 ### #107 第 6 期 6-1 判断モデルの評価の器(GPU の前の分・道具だけ=結果不変)(第336・2026-10-15・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-7(DM-0・DM1・DM4・DM5・DM9)・§4-8・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 6-1 と回答 2-1・1-10 の評価セット(340 件)・R-108(位置の偏り)。記録 [dm61](docs/bench/analysis/wallbounce-1012/dm61/README.md)([review.md](docs/bench/analysis/wallbounce-1012/dm61/review.md))。取り込み `76d3899`。
