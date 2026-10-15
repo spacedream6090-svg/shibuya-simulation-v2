@@ -78,10 +78,11 @@ def test_mapping_tables_have_the_declared_rows():
     assert len(A.EMPLOYMENT_OF_STATUS) == 8 == len(A.EMP_STATUS)
     assert len(A.W16_KIND) == 11
     assert A.SCHOOL_AGE_WEIGHTS.shape == (106, 11) and not A.SCHOOL_AGE_WEIGHTS.flags.writeable
-    assert set(A.REGISTRY) == {"labour_status", "emp_status", "employment_status", "industry_major", "industry_key",
-                               "occupation_major", "workplace_kind", "school_kind", "school_place",
-                               "residence_period", "w16_kind", "duty_role", "student_in_sex", "student_in_age",
-                               "w16_employment"}
+    # 段 1〜3 の関数(段 4〜7 の関数は test_w21_stage4_7.py)
+    assert {f.name for f in A.REGISTRY.values() if f.stage == 3} == {
+        "labour_status", "emp_status", "employment_status", "industry_major", "industry_key", "occupation_major",
+        "workplace_kind", "school_kind", "school_place", "residence_period", "w16_kind", "duty_role",
+        "student_in_sex", "student_in_age", "w16_employment"}
     assert len(A.W16_EMPLOYMENT_OF) == 6
     for f in A.REGISTRY.values():
         assert f.version and f.inputs and callable(f.fn)

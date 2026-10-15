@@ -9,18 +9,23 @@
 - **家族の整合**: 子が親より年上の人 0・親との差が 15 歳未満の子の数・15 歳未満の世帯主 0・夫婦の年齢差の分布。
 - **不詳の割り振り**の数(表ごと)・**空欄**の数(列ごと)。
 
-逐次ループ宣言(P4): 表の数ぶん(≤ 16)と町丁目の数ぶん(42)。体の数に比例するループは無い。
+〔段 4〜7〕``w21_checks_b.json`` の計器(合否なし): 席と人数の差・役割の分布(経済センサス 第6-2表と点検)・権利台帳と関係の
+行の数・資産の分布(東京都の階級の度数と点検)・なじみの場所の数と順位の法則の再現(構築に使った法則=診断だけ)・外の人の層。
+
+逐次ループ宣言(P4): 表の数ぶん(≤ 16)・町丁目の数ぶん(42)・業種の数ぶん(15)・世帯の種類(2)。体の数に比例するループは無い。
 """
 
 from __future__ import annotations
 
+from types import MappingProxyType
 from typing import Any, Mapping
 
 import numpy as np
 
 from . import fitting as F
 
-__all__ = ["table_fit", "uniqueness", "family", "blanks", "overlap"]
+__all__ = ["table_fit", "uniqueness", "family", "blanks", "overlap", "share_target", "role_distribution", "counts_by",
+           "degree_summary", "savings_class_fit", "loglog_slope", "ECEN_MAJOR_OF_KEY", "ECEN_STATUS5", "CENSUS_TO_ECEN5"]
 
 
 def _fit_rows(sim: np.ndarray, tgt: np.ndarray) -> dict[str, Any]:
@@ -158,3 +163,81 @@ def overlap(persons: Mapping[str, np.ndarray]) -> dict[str, Any]:
         "residents_in_transport_H": int((ind == "H").sum()),
         "note_transport": "乗務員と鉄道業の従業者の重なりの手がかり(乗務員は段 4・W16 は v1 の在庫 1,258)",
     }
+
+
+# ================================================================================ 段 4〜7(W21 の続き・``w21_checks_b.json``)
+#: W16 の 15 語 → 経済センサス 第6-2表の産業(大分類の符号・N は生活関連と娯楽をまとめた N のまま)。
+ECEN_MAJOR_OF_KEY = MappingProxyType({"IT": "G", "WR": "I", "FB": "M", "PS": "L", "LS": "N", "AM": "N", "RE": "K",
+                                      "SV": "R", "MW": "P", "ED": "O", "FI": "J", "CN": "D", "MF": "E", "TR": "H",
+                                      "CS": "Q"})
+#: 第6-2表の従業上の地位(5 区分にまとめる)と、国勢調査の地位の写し(派遣は経済センサスでは派遣元=有期にまとめる=自前)。
+ECEN_STATUS5 = ("個人業主", "無給の家族従業者", "有給役員", "無期雇用者", "有期・臨時雇用者")
+CENSUS_TO_ECEN5 = MappingProxyType({"regular": 3, "dispatched": 4, "part_time": 4, "executive": 2, "employer": 0,
+                                    "self_employed": 0, "home_worker": 0, "family_worker": 1})
+
+
+def role_distribution(person_industry_key: np.ndarray, person_status: np.ndarray, seated: np.ndarray,
+                      ecen_rows: list, ecen_items: tuple) -> dict[str, Any]:
+    """席に座った人の地位(5 区分)の分布と、経済センサス 第6-2表(渋谷区・産業大分類)の分布(点検だけ・合否なし)。"""
+    ik = np.asarray(person_industry_key).astype(str)
+    st = np.asarray(person_status).astype(str)
+    sel = np.asarray(seated, dtype=bool)
+    col = {lab: ecen_items.index(f"{lab}|従業者数_男女計") for lab in
+           ("1_個人業主", "2_無給の家族従業者", "3_有給役員", "41_無期雇用者", "42_有期雇用者", "5_臨時雇用者")}
+    major_rows = {str(r[3]): r[-1] for r in ecen_rows if str(r[2]) == "2"}
+    out: dict[str, Any] = {}
+    for key, major in sorted(ECEN_MAJOR_OF_KEY.items()):  # 逐次: 業種の数ぶん(15)
+        v = major_rows.get(major)
+        if v is None:
+            continue
+        tgt = np.array([v[col["1_個人業主"]] or 0, v[col["2_無給の家族従業者"]] or 0, v[col["3_有給役員"]] or 0,
+                        v[col["41_無期雇用者"]] or 0, (v[col["42_有期雇用者"]] or 0) + (v[col["5_臨時雇用者"]] or 0)],
+                       dtype=np.float64)
+        m = sel & (ik == key)
+        sim = np.zeros(5)
+        for s, c in CENSUS_TO_ECEN5.items():  # 逐次: 地位 8
+            sim[c] += float((m & (st == s)).sum())
+        ok = sim.sum() > 0 and tgt.sum() > 0
+        out[key] = {"seated": int(m.sum()), "sim_share": np.round(sim / max(sim.sum(), 1), 4).tolist(),
+                    "ecen_share": np.round(tgt / max(tgt.sum(), 1), 4).tolist(),
+                    "srmse": round(F.srmse(sim, tgt), 6) if ok else None,
+                    "jsd": round(F.jsd(sim, tgt), 6) if ok else None, "ecen_major": major}
+    return {"status5": list(ECEN_STATUS5), "by_industry": out,
+            "note": "国勢調査の地位(人)と経済センサスの地位(席)は区分が対応しない(無期≠正規・派遣は派遣元)=点検だけ"}
+
+
+def counts_by(values: np.ndarray) -> dict[str, int]:
+    u, c = np.unique(np.asarray(values).astype(str), return_counts=True)
+    return {str(a): int(b) for a, b in zip(u, c)}
+
+
+def degree_summary(u: np.ndarray, n: int) -> dict[str, Any]:
+    deg = np.bincount(np.asarray(u, dtype=np.int64), minlength=n)
+    has = deg[deg > 0]
+    return {"people_with_edges": int(has.size), "mean": round(float(has.mean()), 3) if has.size else None,
+            "quantiles_50_90_99": [int(x) for x in np.percentile(has, [50, 90, 99])] if has.size else None,
+            "max": int(has.max()) if has.size else None}
+
+
+def savings_class_fit(sim_class: np.ndarray, sim_type: np.ndarray, freq: np.ndarray, rate_cls: np.ndarray,
+                      zero: np.ndarray) -> dict[str, Any]:
+    """世帯の貯蓄の階級の分布(0 円は 25 万円未満の階級へ)と東京都の世帯数分布(第31-0表)の点検(合否なし)。"""
+    out = {}
+    for t, name in ((1, "multi"), (2, "single")):  # 逐次: 種類 2
+        m = sim_type == t
+        sim = np.bincount(sim_class[m], minlength=freq.shape[1]).astype(np.float64)
+        tgt = freq[t]
+        out[name] = {"households": int(m.sum()), "srmse": round(F.srmse(sim, tgt), 6), "jsd": round(F.jsd(sim, tgt), 6),
+                     "zero_share": round(float(zero[m].mean()), 4) if m.any() else None,
+                     "table_zero_share_tokyo": round(float((freq[t] * (100.0 - rate_cls[t]) / 100.0).sum()
+                                                           / max(freq[t].sum(), 1)), 4)}
+    return out
+
+
+def loglog_slope(x: np.ndarray, y: np.ndarray) -> float | None:
+    x = np.asarray(x, dtype=np.float64)
+    y = np.asarray(y, dtype=np.float64)
+    ok = (x > 0) & (y > 0)
+    if ok.sum() < 2:
+        return None
+    return round(float(np.polyfit(np.log(x[ok]), np.log(y[ok]), 1)[0]), 4)

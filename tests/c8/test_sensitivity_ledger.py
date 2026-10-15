@@ -458,7 +458,12 @@ PRE_D44_DIGESTS = {
     # 〔第336・3-1〕構築の脇の段 W20cal(build/sched/w20_calendar_1a.py=読みのグラフでは W20 の名)が W16 を読むので、読みの
     # グラフを作り直した(--read-graph)=W16 の consumers に W20 が増えただけ(engine_sites・verdict・rows の digest は不変)。
     # 旧値 824743c7c5836c94…
-    "judgment_rest_without_d44": "c4ea05eed1bced95cf3dc6091cf82132baf694470d71dd7fc489435b065962f0",
+    # 〔改訂(第 4 期 4-1 段 4〜7・W21b)〕段 4〜7 の組み立て(build/pop/w21_build_b.py=段 W21 の続き)が W3(w3_cell_dist)・
+    # W6(w6_org・w6_poi)・W12(w12_external_nodes)を読むので、本体 ed7155c へ rebase した後に読みのグラフを作り直した
+    # (--read-graph)=3-1 の W20 に加えて W3・W6・W12 の consumers に W21 が増えただけ(行番号を除く engine_sites と
+    # verdict・reach は不変・rows と judgment_rows_without_d44 の digest も不変・記録 pop41b/README.md)。旧値は 2 つ:
+    # 本体(3-1 の後)c4ea05eed1bced95…・本段の rebase 前(段 1〜3 の後)d32aa76180bd874a…
+    "judgment_rest_without_d44": "49dd536770bf25e9bd08d3630d2ac51ddeb944a4276a1a5420702a22fef3e3ae",
 }
 D44_DIR_REL = ("docs", "bench", "analysis", "d44-controls-2026-09-30")
 

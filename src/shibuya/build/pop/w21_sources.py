@@ -54,6 +54,9 @@ __all__ = [
     "SmallArea",
     "Derived",
     "source",
+    "SOURCES_B",
+    "read_derived_rows",
+    "read_estat_csv",
     "verify_tokens",
     "read_small_area",
     "read_derived",
@@ -219,7 +222,65 @@ SOURCES: Final[tuple[Source, ...]] = (
            columns="sim_buckets", r116_row="#6"),
 )
 
-_BY_ID: Final[Mapping[str, Source]] = MappingProxyType({s.sid: s for s in SOURCES})
+_POP41B = ("research_cache", "pop41b")
+_DERB = ("research_cache", "pop41b", "derived")
+_R107 = ("research_cache", "r107")
+
+
+def _xb(sid: str, title: str, stat: str, path: tuple[str, ...], md5: str, der: str, der_md5: str, year: int,
+        row: str) -> Source:
+    return Source(sid, title, stat, path, md5, year, derived=(*_DERB, f"{der}.json"), derived_md5=der_md5,
+                  r116_row=row)
+
+
+def _csv(sid: str, title: str, stat: str, name: str, md5: str, row: str) -> Source:
+    return Source(sid, title, stat, (*_R107, name), md5, 2024, r116_row=row)
+
+
+#: 段 4〜7(W21 の続き=``w21_build_b``)の材料の台帳(構築側だけ・R-116 §1-4・§1-5 の「構築」の行)。写しは
+#: ``data/research_cache/pop41b/derived/``(``pop41b/tools/xlsx_to_derived_b.py``)。全国家計構造調査は e-Stat API の
+#: CSV をそのまま読む(R-107 の取得物・statsDataId)。**R-116 §1 の検証側の 11 行と、家計調査(貯蓄・負債編を含む=回答
+#: 10-12b §3 (1))・J-FLEC の決済の割合(同 (2))・JICC の異動(R-107 の振り分けの案=検証側)は載せない。**
+SOURCES_B: Final[tuple[Source, ...]] = (
+    _xb("ecen21_t28", "経済センサス2021 活動調査 第28表 区市町村・町丁目・産業大分類別 民営事業所数・従業者数(渋谷区)", "-",
+        ("realworld", "census_r3", "raw", "ka21_dai.xlsx"), "26f7d4f09007631c5583d2bb376dac65", "ecen21_t28",
+        "de5928b2a601c7cd122aa0b73e5880c0", 2021, "#6"),
+    _xb("ecen21_t6_2", "経済センサス2021 活動調査 第6-2表 産業(中分類)・従業上の地位(6区分)・男女別従業者数(民営)",
+        "000040067881", (*_POP41B, "ecensus2021_t6-2_industry_status_muni.xlsx"), "be62ee14e84d3395c14c28c289e999b3",
+        "ecen21_t6_2", "42caf32a9c6126c858a7dd8f2753a3b0", 2021, "#7"),
+    _xb("c20_t04", "国勢調査2020 従業地・通学地 第4表 男女・就業・通学・常住地別 就業者・通学者数(従業地=渋谷区)",
+        "000032214352", ("research_cache", "r109", "census2020_t04_13_workplace_by_residence.xlsx"),
+        "b20fc7f3da0f236dba228475a27272ce", "c20_t04_in", "0b2e5904339117b9f5e8a328f6c9c514", 2020, "#53"),
+    _xb("c25w_b02_05", "国勢調査2025 人口等基本集計 第2-5表 男女・年齢(各歳)別人口(市区町村)【不詳補完値】", "000040506657",
+        (*_POP41B, "census2025_imputed_b02_05_age_single_sex_muni.xlsx"), "4f3d87b95729f0573ecf89004cdcb87f",
+        "c25w_b02_05", "2252317b226a11b666bd5089fe6203ca", 2025, "#52"),
+    _xb("c25w_b12_03", "国勢調査2025 人口等基本集計 第12-3表 世帯主の男女・年齢・家族類型別一般世帯数(市区町村)【不詳補完値】",
+        "000040506695", (*_POP41B, "census2025_imputed_b12_03_head_family_muni.xlsx"),
+        "3d71e06ba38fab47db7a9080aed67606", "c25w_b12_03", "7887eff4025aefc4cf49cedbd69c144b", 2025, "#52"),
+    _xb("c25w_b10_muni", "国勢調査2025 人口等基本集計 第10表 家族類型・世帯人員別一般世帯数(市区町村)【不詳補完値】",
+        "000040506690", (*_POP41, "census2025_imputed_b10_family_type_hhsize_muni.xlsx"),
+        "67443a1adf20e7d5a247c9eaf7d3e941", "c25w_b10_muni", "f6db17858e180acd1558028019493f30", 2025, "#52"),
+    _xb("wage_t9", "賃金構造基本統計調査 令和7年 一般労働者 職種 第9表(職種・性・雇用形態)", "000040421124",
+        (*_R107, "chinkou_r7_ippan_shokushu_t9_occ_sex_emptype.xlsx"), "329bfe762939fd7d4b86123872a79096", "wage_t9",
+        "3b9a446728619f5b0c600f3fe1789fb5", 2025, "#46"),
+    _xb("wage_t6", "同 第6表(職種・性・年齢階級)", "000040421121",
+        (*_R107, "chinkou_r7_ippan_shokushu_t6_occ_sex_age.xlsx"), "c12cbe20a3315dcdf45496be650939d5", "wage_t6",
+        "6c6546a84d0d2c702bfcb0575bee6167", 2025, "#46"),
+    _xb("wage_t18", "同 第18表(職種・性・所定内給与額階級別労働者数と分布特性値)", "000040421134",
+        (*_R107, "chinkou_r7_ippan_shokushu_t18_occ_sex_wagedist.xlsx"), "ba8d70a2a82410ea4c03b49f301dc2ce",
+        "wage_t18", "b1e80e3f9b1fbc5dd9436452d4fe6f50", 2025, "#46"),
+    _xb("wage_t2", "同 短時間労働者 職種 第2表(1時間当たり所定内給与額)", "000040421217",
+        (*_R107, "chinkou_r7_tanjikan_shokushu_t2_hourly.xlsx"), "9367a705b1f3d95b9331af5fe681c0e3", "wage_t2",
+        "ad8a1f6a629dd816f023206b79bd4b4c", 2025, "#46"),
+    _csv("zk_t31_0", "全国家計構造調査2024 第31-0表 東京都 × 世帯の種類 × 貯蓄現在高階級(世帯数分布・1世帯当たり)",
+         "statsDataId:0004056045", "zk2024_t31-0_tokyo_savings_class.csv", "95977ac665e82a48f4eb7182f6aa857b", "#46"),
+    _csv("zk_t23_0", "同 第23-0表 東京都 × 世帯の種類 × 世帯主の年齢(1世帯当たり・保有率)", "statsDataId:0004056039",
+         "zk2024_t23-0_tokyo_age.csv", "dff2af40e11825315957ce603f26e562", "#46"),
+    _csv("zk_t4_4", "同 第4-4表 全国 × 世帯の種類 × 世帯主の性 × 年齢(1世帯当たり・保有率)", "statsDataId:0004056078",
+         "zk2024_t4-4_age_sex_hhtype.csv", "789adcaa3702f72280b42a065b7ff1bd", "#46"),
+)
+
+_BY_ID: Final[Mapping[str, Source]] = MappingProxyType({s.sid: s for s in (*SOURCES, *SOURCES_B)})
 
 
 def source(sid: str) -> Source:
@@ -361,10 +422,11 @@ class W21Guard:
 
     @classmethod
     def for_build(cls, data: Path, *, world: Path | None = None, out: Path | None = None,
-                  extra: Sequence[Path] = ()) -> "W21Guard":
-        """台帳の構築側の全部+世界資産(読むだけ)+出力先を許す。守る根は data 根。"""
+                  extra: Sequence[Path] = (), extra_dirs: Sequence[Path] = ()) -> "W21Guard":
+        """台帳の構築側の全部+世界資産(読むだけ)+出力先を許す。守る根は data 根。``extra_dirs`` は読むだけの置き場
+        (段 4〜7 の段 1〜3 の資産=守る根にも足す=書き込みのモードは止める)。"""
         g = cls(data=Path(data))
-        for s in SOURCES:
+        for s in (*SOURCES, *SOURCES_B):
             g.allow.add(_norm(Path(data).joinpath(*s.path)))
             if s.derived:
                 g.allow.add(_norm(Path(data).joinpath(*s.derived)))
@@ -378,7 +440,20 @@ class W21Guard:
         g.protect.append(_norm(data))
         if world is not None:
             g.protect.append(_norm(world))
+        for d in extra_dirs:
+            g.allow_dirs.append(_norm(d))
+            g.protect.append(_norm(d))
         return g
+
+    @property
+    def files_read(self) -> dict[str, str]:
+        """読み口を通って読んだファイル(相対の道筋 → md5)の写し(段 4〜7 の manifest が使う別名)。"""
+        return dict(self.opened)
+
+    @property
+    def paths_read(self) -> dict[str, Path]:
+        """読み口を通って読んだファイル(相対の道筋 → 道筋)の写し。"""
+        return dict(self.opened_paths)
 
     def _allowed(self, p: str) -> bool:
         if p in self.allow:
@@ -582,6 +657,28 @@ def read_derived_merged(guard: W21Guard, sids: Sequence[str]) -> Derived:
                 raise ValueError(f"写しの鍵が重なる: {k}")
             table[k] = v
     return Derived("+".join(sids), parts[0].dims, parts[0].items, table)
+
+
+def read_derived_rows(guard: W21Guard, sid: str) -> tuple[tuple[str, ...], tuple[str, ...], list[list[Any]]]:
+    """写しを地域の次元も残して読む(市区町村ごとの表=段 7)。返り値は(次元の名, 項目名, 行=[次元の値..., [値...]])。
+    写しの md5 と元の xlsx の md5 の両方を台帳と照らす(:func:`read_derived` と同じ)。"""
+    s = source(sid)
+    if not s.derived:
+        raise ValueError(f"{sid} は写しの表ではない")
+    guard.md5_only(guard.data.joinpath(*s.path), want_md5=s.md5)
+    doc = json.loads(guard.read_bytes(guard.data.joinpath(*s.derived), want_md5=s.derived_md5).decode("utf-8"))
+    if doc.get("source_md5") != s.md5:
+        raise MissingSourceError(f"写しの元の md5 が台帳と違う: {sid}")
+    return tuple(doc["dims"]), tuple(doc["items"]), list(doc["rows"])
+
+
+def read_estat_csv(guard: W21Guard, sid: str) -> list[dict[str, str]]:
+    """e-Stat API の CSV(``"tab_code",...`` の見出しの行から下)→ 行の辞書の並び(md5 を台帳と照らす)。"""
+    text = guard.source_bytes(sid).decode("utf-8-sig")
+    rows = list(csv.reader(io.StringIO(text)))
+    hi = next(i for i, r in enumerate(rows) if r and r[0] == "tab_code")
+    head = rows[hi]
+    return [dict(zip(head, r)) for r in rows[hi + 1:] if len(r) == len(head)]  # 逐次: 表の行の数ぶん
 
 
 def read_estat_json(guard: W21Guard, sid: str) -> dict[tuple[str, str], int]:

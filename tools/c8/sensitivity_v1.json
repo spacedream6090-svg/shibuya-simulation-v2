@@ -4046,7 +4046,9 @@
      "verdict": "reads",
      "reach": "direct",
      "via_path": [],
-     "consumers": [],
+     "consumers": [
+      "W21"
+     ],
      "engine_sites": [
       "w3_cell_dist.npy ← world/assets.py:99",
       "w3_next_hop.npy ← world/assets.py:98"
@@ -4094,7 +4096,8 @@
       "W16",
       "W17",
       "W18",
-      "W20"
+      "W20",
+      "W21"
      ],
      "engine_sites": [
       "w6_org.parquet ← economy/ledger.py:194",
@@ -4200,7 +4203,8 @@
      "consumers": [
       "W16",
       "W17",
-      "W18"
+      "W18",
+      "W21"
      ],
      "engine_sites": [
       "w12_external_nodes.parquet ← world/assets.py:782",

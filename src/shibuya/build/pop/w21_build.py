@@ -20,7 +20,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-from types import MappingProxyType
+from types import MappingProxyType, SimpleNamespace
 from typing import Any, Final, Mapping
 
 import numpy as np
@@ -134,8 +134,8 @@ def build(data: Path, out: Path, *, world: Path | None = None, seed: int | str =
     return res, manifest
 
 
-def _build(guard: S.W21Guard, data: Path, out: Path, world: Path, seed: int | str,
-           anneal: H.AnnealParams) -> tuple[C.StageResult, dict[str, Any]]:
+def prepare(guard: S.W21Guard, data: Path, world: Path) -> SimpleNamespace:
+    """町丁目の境界・被覆率・建物と、段 2 の手順 1・2(区の雛形と町丁目の目標)。段 4〜7(``w21_build_b``)も同じ値を使う。"""
     # ---- 町丁目の境界・被覆率・建物(W16 と同じ読み方)
     shp = guard.check(data.joinpath(*S.source("sa_shp").path))
     dbf = guard.check(data.joinpath(*S.source("sa_dbf").path))
@@ -165,6 +165,17 @@ def _build(guard: S.W21Guard, data: Path, out: Path, world: Path, seed: int | st
     ward = T.load_ward(guard, ct.ward_raw_age16, ct.ward_raw_marital3, ct.ward_raw_group)
     ct = T.fill_unknown(ct, unk, ward)
     tg = T.make_targets(ct, ward, coverage)
+    return SimpleNamespace(polys=polys, chome=chome, keys80=keys80, place_to_cell=place_to_cell, coverage=coverage,
+                           cover_cells=cover_cells, bx=bx, by=by, b_levels_raw=b_levels_raw, b_floor=b_floor,
+                           b_res=b_res, b_cell=b_cell, b_chome=b_chome, ct=ct, unk=unk, ward=ward, tg=tg)
+
+
+def _build(guard: S.W21Guard, data: Path, out: Path, world: Path, seed: int | str,
+           anneal: H.AnnealParams) -> tuple[C.StageResult, dict[str, Any]]:
+    g = prepare(guard, data, world)
+    keys80, coverage, cover_cells = g.keys80, g.coverage, g.cover_cells
+    b_levels_raw, b_floor, b_res, b_cell, b_chome = g.b_levels_raw, g.b_floor, g.b_res, g.b_cell, g.b_chome
+    ct, unk, ward, tg = g.ct, g.unk, g.ward, g.tg
     C_ = tg.stage_idx.size
     stage_keys = [keys80[i] for i in tg.stage_idx]
     key_int = np.array([int(k) for k in stage_keys], dtype=np.int64)
@@ -363,7 +374,7 @@ def _build(guard: S.W21Guard, data: Path, out: Path, world: Path, seed: int | st
         "max_age": T.MAX_AGE, "coverage_step_m": W16.COVERAGE_STEP_M,
         "rng_domains": ["w21.head", "w21.spouse", "w21.other_rel", "w21.member", "w21.single", "w21.anneal",
                         "w21.tenure", "w21.building", "w21.place", "w21.foreign", "w21.attr.<関数の名>"],
-        "attr_fns": {f.name: f.version for f in A.REGISTRY.values()},
+        "attr_fns": A.registry_versions(stages=(3,)),  # 段 1〜3 の関数だけ(段 4〜7 の関数は w21_build_b の manifest)
     }
     opened = dict(sorted(guard.opened.items()))
     manifest = {

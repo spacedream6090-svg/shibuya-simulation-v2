@@ -130,7 +130,9 @@ def test_the_counts_by_form(decls):
     # system1.py の SYSTEM1_EXPEDIENTS 3)を足した=171 → 183(記録 bd35/README.md)
     # 〔第 3 期 3-1〕構築の段 W20cal(build/sched/w20_calendar_1a.py)の StageResult.expedients 9 つ(第337 で休みの曜日の
     # 選び方の 1 つを足した)と見出し 1 つ(項 8)を足した=本体の後に 183 → 192・見出し 83 → 84(記録 ca31/README.md)
-    assert S.count_by_form(decls) == {"conf": 0, "expedients": 192, "docstring": 6, "heading": 84, "process": 18,
+    # 〔第 4 期 4-1 段 4〜7〕build/pop/w21_build_b.py の表 W21B_EXPEDIENTS(28 行)を足した=本体の後に 192 → 220
+    # (記録 pop41b/README.md・見出しは足していない)
+    assert S.count_by_form(decls) == {"conf": 0, "expedients": 220, "docstring": 6, "heading": 84, "process": 18,
                                       "fallback": 5}
     heads = [d for d in decls if d.form == S.FORM_HEADING]
     # 〔第 1 期 1-2〕p_notice の expedient の項 m_load(歩きスマホの負荷の係数)を消した=338 → 337(記録 p12/README.md §15)
