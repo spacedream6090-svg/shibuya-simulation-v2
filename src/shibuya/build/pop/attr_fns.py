@@ -26,8 +26,14 @@ W16 の kind の番号)。
 カード・口座)/住んでいる年数・なじみの場所の容量(約 25 か所)・行ったことのある場所の数(t^0.6)。段 1〜3 の manifest に
 書く版の表は段 3 の関数だけ(:func:`registry_versions`)。
 
+〔段 8〜10=W21 の続き・版 1.2.0〕段 9(見せ方)の言語の関数(``AttrFn.stage`` が 9・``tables`` は :class:`AttrTablesC`):
+国籍(住民の外国人=東京都 外国人人口 第3表=住民基本台帳 2026-01-01 の渋谷区の国籍の人数)・第一言語(国籍 → 主な言語の写像=
+上位 20 の国籍だけ・多言語の国は空欄)・日本語の会話の程度(在留外国人に対する基礎調査 令和 6 年度の国籍別の 6 段=R-110 §3-2 の
+引)。段 10 の材料の関数(``stage`` が 10): 外から来て働く人の地位の分け(段 3 が雇人のない業主に寄せた「雇用者でない人」を
+経済センサス 第6-2表の有給役員・個人業主・無給の家族従業者の比で分ける=段 1〜7 の資産と関数は変えない)。
+
 逐次ループ宣言(P4): ``rake_draw`` の反復の数ぶん(既定 200・収束で打ち切り)・``duty_role_org`` の規則の数ぶん(9)・
-語の種類の数ぶんの写像の引き。体の数に比例するループは無い。
+語の種類の数ぶんの写像の引き・国籍の種類の数ぶん(日本語の程度の行)。体の数に比例するループは無い。
 """
 
 from __future__ import annotations
@@ -92,6 +98,17 @@ __all__ = [
     "calendar_inputs",
     "calendar_inputs_b",
     "age17",
+    "AttrTablesC",
+    "JAPAN",
+    "NATIONALITY_LANGUAGE",
+    "LANGUAGE_NAMES",
+    "JAPANESE_LEVELS",
+    "JAPANESE_LEVEL_TABLE",
+    "JAPANESE_LEVEL_MIN_AGE",
+    "STATUS_SPLIT_WORDS",
+    "STATUS_SPLIT_COLUMNS",
+    "WALK_SPEED_REFERENCE_MS",
+    "walk_seconds",
 ]
 
 #: 産業大分類(A〜T・T=分類不能)。
@@ -1052,6 +1069,140 @@ def f_duty_role_org(attrs, tables: Any, key: AttrKey) -> np.ndarray:
     return out
 
 
+# ------------------------------------------------------------------------------------------ 段 9〜10(W21 の続き)
+#: 日本の国籍の語(東京都の外国人人口の表の外=住民の外国人でない人)。
+JAPAN: Final[str] = "日本"
+#: 国籍(東京都 外国人人口 第3表の国・地域の名)→ 第一言語(ISO 639-1)。**未リサーチ(expedient)**: 渋谷区の上位 20 の
+#: 国籍(R-110 §3-1=外国人の 89.0%)だけを主な言語に写し、多言語の国(フィリピン・インド・シンガポール)とほかの国は空欄。
+#: 母語・家庭で使う言語の公的な統計は無い(R-110 §3-3)=回答の言語の表は「読み書きに選ぶ言語」なので使わない。
+NATIONALITY_LANGUAGE: Final[Mapping[str, str]] = MappingProxyType({
+    JAPAN: "ja", "中国": "zh", "韓国": "ko", "米国": "en", "台湾": "zh", "フランス": "fr", "英国": "en",
+    "フィリピン": "", "ベトナム": "vi", "オーストラリア": "en", "カナダ": "en", "ネパール": "ne", "タイ": "th",
+    "インド": "", "ドイツ": "de", "インドネシア": "id", "イタリア": "it", "ミャンマー": "my", "ロシア": "ru",
+    "ブラジル": "pt", "シンガポール": "",
+})
+#: 言語の名(日本語・英語)。人物の文の言語の欄と「第一言語は…」の語。
+LANGUAGE_NAMES: Final[Mapping[str, tuple[str, str]]] = MappingProxyType({
+    "ja": ("日本語", "Japanese"), "zh": ("中国語", "Chinese"), "ko": ("韓国語", "Korean"), "en": ("英語", "English"),
+    "fr": ("フランス語", "French"), "vi": ("ベトナム語", "Vietnamese"), "ne": ("ネパール語", "Nepali"),
+    "th": ("タイ語", "Thai"), "de": ("ドイツ語", "German"), "id": ("インドネシア語", "Indonesian"),
+    "it": ("イタリア語", "Italian"), "my": ("ミャンマー語", "Burmese"), "ru": ("ロシア語", "Russian"),
+    "pt": ("ポルトガル語", "Portuguese"),
+})
+#: 日本語の会話の程度(在留外国人に対する基礎調査 令和 6 年度の 6 段・単一回答・特別永住者を除く・R-110 §3-2)。
+JAPANESE_LEVELS: Final[tuple[str, ...]] = (
+    "どんな内容であっても相手や状況に合わせて適切に会話を進めることができる", "流ちょうに自然に会話をすることができる",
+    "日常生活で必要な会話ができる", "身近で基本的な情報交換ができる",
+    "よく使われるあいさつや日常的な言い回しを使うことができる", "全くできない",
+)
+#: 国籍 × 6 段の割合[%](R-110 §3-2 の表=#25 p.70〜71・引)。表に無い国籍は「その他」の行。韓国の行は特別永住者を除く
+#: (渋谷区の韓国籍に特別永住者がいる分は見ない=宣言)。
+JAPANESE_LEVEL_TABLE: Final[Mapping[str, tuple[float, ...]]] = MappingProxyType({
+    "中国": (19.6, 27.6, 27.7, 10.4, 12.0, 2.6), "韓国": (49.1, 21.8, 20.1, 3.8, 4.9, 0.3),
+    "台湾": (28.8, 29.4, 27.1, 6.2, 7.3, 1.1), "米国": (17.9, 23.7, 26.9, 19.2, 10.9, 1.3),
+    "フィリピン": (15.0, 18.3, 31.1, 12.3, 19.8, 3.4), "ベトナム": (7.9, 7.5, 39.9, 21.2, 21.3, 2.3),
+    "ネパール": (21.4, 10.7, 44.0, 7.0, 15.6, 1.2), "インドネシア": (14.7, 7.0, 47.5, 6.1, 23.9, 0.9),
+    "ミャンマー": (15.1, 13.2, 49.3, 5.3, 14.5, 2.6), "ブラジル": (15.0, 13.7, 36.4, 15.6, 15.8, 3.5),
+    "その他": (18.8, 16.7, 30.2, 14.8, 16.5, 3.0),
+})
+#: 日本語の程度を引く年齢の下限(調査の対象=18 歳以上)。下は空欄。
+JAPANESE_LEVEL_MIN_AGE: Final[int] = 18
+#: 外から来て働く人の地位の分けの行き先(従業上の地位の語)と、経済センサス 第6-2表の列(同じ並び)。
+STATUS_SPLIT_WORDS: Final[tuple[str, ...]] = ("executive", "self_employed", "family_worker")
+STATUS_SPLIT_COLUMNS: Final[tuple[str, ...]] = ("3_有給役員", "1_個人業主", "2_無給の家族従業者")
+#: 歩く速さの参照値[m/s](Weidmann の自由速度=``engine.geometry.SPEED_REFERENCE_MS`` と同じ値=試験が突き合わせる)。
+#: 構築側は engine を import しない(engine のパッケージが shibuya.llm を読み込むため=人物の文の組み立ての外に置く)。
+WALK_SPEED_REFERENCE_MS: Final[float] = 1.34
+
+
+def walk_seconds(path_m: Any) -> np.ndarray:
+    """歩く道のり[m] → 秒(参照の速さで割るだけ・−1 と負は NaN)。人物の文(分に四捨五入=丸めた言葉)と W20 の片道の時間
+    (分に切り上げ=整数の分)の両方がこの関数を通る。"""
+    p = np.asarray(path_m, dtype=np.float64)
+    return np.where(p >= 0, p / WALK_SPEED_REFERENCE_MS, np.nan)
+
+
+@dataclass(frozen=True)
+class AttrTablesC:
+    """段 9〜10 の材料の表(書き込み禁止)。``nationality_names``/``nationality_w``=渋谷区の外国人の国籍(住民基本台帳
+    2026-01-01・人数)・``status_split``=(産業大分類 20, 3) の第6-2表の人数(有給役員・個人業主・無給の家族従業者=
+    :data:`STATUS_SPLIT_COLUMNS`・民営=公務と分類不能の行は 0)。"""
+
+    nationality_names: np.ndarray
+    nationality_w: np.ndarray
+    status_split: np.ndarray
+    md5: Mapping[str, str] = field(default_factory=dict)
+
+    def freeze(self) -> "AttrTablesC":
+        for v in self.__dict__.values():
+            if isinstance(v, np.ndarray):
+                v.flags.writeable = False
+        if not isinstance(self.md5, MappingProxyType):
+            object.__setattr__(self, "md5", MappingProxyType(dict(self.md5)))
+        return self
+
+
+def f_nationality(attrs, tables: AttrTablesC, key: AttrKey) -> np.ndarray:
+    """国籍の語。住民の外国人(``is_foreign``)=渋谷区の国籍の人数の比で引く(年齢・男女で条件づけない=宣言)・住民の日本人=
+    :data:`JAPAN`・外から来て働く人とほかは空欄(材料が無い)。"""
+    kind = np.asarray(attrs["kind"]).astype(str)
+    fo = np.asarray(attrs["is_foreign"], dtype=bool)
+    out = np.full(kind.size, "", dtype=object)
+    res = kind == "resident"
+    out[res & ~fo] = JAPAN
+    sel = res & fo
+    if sel.any() and np.asarray(tables.nationality_w).sum() > 0:
+        out[sel] = np.asarray(tables.nationality_names, dtype=object)[_categorical(tables.nationality_w,
+                                                                                   key.uniform()[sel, 0])]
+    return out
+
+
+def f_first_language(attrs, tables: Any, key: AttrKey) -> np.ndarray:
+    """第一言語(ISO 639-1)=国籍の写像(:data:`NATIONALITY_LANGUAGE`)。写像に無い国籍と空欄の国籍は空欄。"""
+    nat = np.asarray(attrs["nationality"], dtype=object).astype(str)
+    uniq, inv = np.unique(nat, return_inverse=True)
+    lut = np.array([NATIONALITY_LANGUAGE.get(x, "") for x in uniq.tolist()], dtype=object)  # 逐次: 国籍の種類の数
+    return lut[inv] if nat.size else np.zeros(0, dtype=object)
+
+
+def f_japanese_level(attrs, tables: Any, key: AttrKey) -> np.ndarray:
+    """日本語の会話の程度(:data:`JAPANESE_LEVELS` の番号・−1=空欄)。外国籍で 18 歳以上の人だけ、国籍の行(無ければ
+    「その他」)の割合で引く。日本の国籍・空欄の国籍・18 歳未満は空欄。"""
+    nat = np.asarray(attrs["nationality"], dtype=object).astype(str)
+    age = np.asarray(attrs["age"], dtype=np.int64)
+    out = np.full(nat.size, -1, dtype=np.int64)
+    sel = (nat != "") & (nat != JAPAN) & (age >= JAPANESE_LEVEL_MIN_AGE)
+    if not sel.any():
+        return out
+    u = key.uniform()[:, 0]
+    rows = np.where(np.isin(nat, list(JAPANESE_LEVEL_TABLE)), nat, "その他")
+    for row in np.unique(rows[sel]).tolist():  # 逐次: 国籍の行の数(≤ 11)
+        m = sel & (rows == row)
+        out[m] = _categorical(np.asarray(JAPANESE_LEVEL_TABLE[row], dtype=np.float64), u[m])
+    return out
+
+
+def f_commuter_status_split(attrs, tables: AttrTablesC, key: AttrKey) -> np.ndarray:
+    """外から来て働く人の従業上の地位(段 3 の ``emp_status`` の番号)のうち、段 3 が「雇用者でない人」を寄せた雇人のない業主
+    (``self_employed``)を、産業ごとの第6-2表の有給役員・個人業主・無給の家族従業者の人数の比で役員・業主・家族従業者に
+    分ける(親の判断=仮-31)。個人業主は雇人のある/ないを分けない(第6-2表に区分が無い)=``self_employed`` のまま。
+    住民・ほかの地位・第6-2表に行の無い産業(公務・分類不能)は元のまま。返り値は ``emp_status`` の番号。"""
+    st = np.asarray(attrs["emp_status"], dtype=np.int64)
+    ind = np.asarray(attrs["industry_major"], dtype=np.int64)
+    out = st.copy()
+    sel = _kind_is(attrs, "commuter") & (st == EMP_STATUS.index("self_employed")) & (ind >= 0)
+    if not sel.any():
+        return out
+    w = np.asarray(tables.status_split, dtype=np.float64)[np.clip(ind, 0, None)]
+    ok = sel & (w.sum(axis=1) > 0)
+    if ok.any():
+        u = key.uniform()[:, 0]
+        c = np.cumsum(w[ok], axis=1)
+        k = np.minimum((c < (u[ok] * c[:, -1])[:, None]).sum(axis=1), len(STATUS_SPLIT_WORDS) - 1)
+        out[ok] = np.array([EMP_STATUS.index(x) for x in STATUS_SPLIT_WORDS], dtype=np.int64)[k]
+    return out
+
+
 REGISTRY: Final[Mapping[str, AttrFn]] = MappingProxyType({f.name: f for f in (
     AttrFn("labour_status", "1.0.0", ("kind", "sex", "age", "marital", "chome"), ("c20_c03", "c20w_b13_m",
            "c20w_b13_f", "sa_t09", "sa_t10"), f_labour_status),
@@ -1105,6 +1256,13 @@ REGISTRY: Final[Mapping[str, AttrFn]] = MappingProxyType({f.name: f for f in (
     AttrFn("residence_years", "1.1.0", ("residence_period", "age"), ("sa_t18",), f_residence_years, 6),
     AttrFn("place_capacity", "1.1.0", ("age",), ("alessandretti_2018",), f_place_capacity, 6),
     AttrFn("known_places", "1.1.0", ("place_capacity", "residence_years"), ("song_2010",), f_known_places, 6),
+    # ---- 段 9 見せ方(PS7)の言語(PS2 の「使える言語と程度・国籍」)
+    AttrFn("nationality", "1.2.0", ("kind", "is_foreign"), ("jukiki_tokyo_t3_2026_01",), f_nationality, 9),
+    AttrFn("first_language", "1.2.0", ("nationality",), (), f_first_language, 9),
+    AttrFn("japanese_level", "1.2.0", ("nationality", "age"), ("zairyu_kiso_r6",), f_japanese_level, 9),
+    # ---- 段 10 の材料(段 3 の外から来て働く人の地位の分け=仮-31)
+    AttrFn("commuter_status_split", "1.2.0", ("kind", "emp_status", "industry_major"), ("ecen21_t6_2",),
+           f_commuter_status_split, 10),
 )})
 
 

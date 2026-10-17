@@ -132,7 +132,9 @@ def test_the_counts_by_form(decls):
     # 選び方の 1 つを足した)と見出し 1 つ(項 8)を足した=本体の後に 183 → 192・見出し 83 → 84(記録 ca31/README.md)
     # 〔第 4 期 4-1 段 4〜7〕build/pop/w21_build_b.py の表 W21B_EXPEDIENTS(28 行)を足した=本体の後に 192 → 220
     # (記録 pop41b/README.md・見出しは足していない)
-    assert S.count_by_form(decls) == {"conf": 0, "expedients": 220, "docstring": 6, "heading": 84, "process": 18,
+    # 〔第 4 期 4-1 段 8〜10〕build/pop/w21_build_c.py の表 W21C_EXPEDIENTS(16 行)を足した=220 → 236
+    # (記録 pop41c/README.md・見出しは足していない)
+    assert S.count_by_form(decls) == {"conf": 0, "expedients": 236, "docstring": 6, "heading": 84, "process": 18,
                                       "fallback": 5}
     heads = [d for d in decls if d.form == S.FORM_HEADING]
     # 〔第 1 期 1-2〕p_notice の expedient の項 m_load(歩きスマホの負荷の係数)を消した=338 → 337(記録 p12/README.md §15)

@@ -55,6 +55,7 @@ __all__ = [
     "Derived",
     "source",
     "SOURCES_B",
+    "SOURCES_C",
     "read_derived_rows",
     "read_estat_csv",
     "verify_tokens",
@@ -280,7 +281,29 @@ SOURCES_B: Final[tuple[Source, ...]] = (
          "zk2024_t4-4_age_sex_hhtype.csv", "789adcaa3702f72280b42a065b7ff1bd", "#46"),
 )
 
-_BY_ID: Final[Mapping[str, Source]] = MappingProxyType({s.sid: s for s in (*SOURCES, *SOURCES_B)})
+_R110 = ("research_cache", "r110")
+
+#: 段 8〜10(``w21_build_c``)の材料の台帳(構築側だけ・R-116 §1 の「構築」の行)。段 9 の国籍は東京都の外国人人口
+#: 第3表(住民基本台帳 2026-01-01・R-116 #38)で引く。ほかの 3 本は**構築に使っていない区分**の点検(段 8)だけに読む:
+#: 東京都の外国人人口 第1表(2026-07-01=別の時点の上位 10 か国)・従業地 第15-1表(従業地=渋谷区の男女 × 年齢 × 職業=
+#: 年齢と職業の結合は段 3〜4 が作っていない)・2025 第15-1表(夫の年齢 × 子の数と最年少・最年長の子の年齢=段 2 が作って
+#: いない結合)。どれも段 1〜3 の取得物(``pop41``・``r110``)で、新しく取得していない。
+SOURCES_C: Final[tuple[Source, ...]] = (
+    Source("jukiki_tokyo_t3_2026_01", "東京都 外国人人口 令和8年1月 第3表 区市町村、国籍・地域別外国人人口(住民基本台帳)",
+           "-", (*_R110, "tokyo_gaikoku_2026_ga26ev0300.csv"), "8db4d1e8aa6751aa091ebffcb4902eac", 2026,
+           r116_row="#38"),
+    Source("jukiki_tokyo_t1_2026_07", "東京都 外国人人口 令和8年7月 第1表 区市町村別国籍・地域別外国人人口(上位10)",
+           "-", (*_R110, "tokyo_gaikoku_2026_ga26gv0100.csv"), "8b22e6c71a1d3f9b543b930cda1352cb", 2026,
+           r116_row="#38"),
+    _xl("c20_e15", "国勢調査2020 従業地 第15-1表 男女・年齢(5歳階級)・職業(大分類)別就業者数(従業地=渋谷区)",
+        "000032214571", _POP41, "census2020_e15_01_age_occupation_workplace_muni.xlsx",
+        "18f2ed5ce1a530b1a0a7f97ee6a338ba", "c20_e15_01", "47b409d7b18ee154142e12a5471f4e1f", 2020, "#34"),
+    _xl("c25_b15", "国勢調査2025 人口等基本集計 第15-1表 夫の年齢・子供の有無と数・最年少と最年長の子供の年齢", "000040506479",
+        _POP41, "census2025_b15_01_husband_age_children_wards.xlsx", "7abd104b038e6ba41f6112939716afab", "c25_b15_01",
+        "a1e064af6ebb4ccc8b50ee5d3e4b2755", 2025, "#26"),
+)
+
+_BY_ID: Final[Mapping[str, Source]] = MappingProxyType({s.sid: s for s in (*SOURCES, *SOURCES_B, *SOURCES_C)})
 
 
 def source(sid: str) -> Source:
@@ -422,11 +445,14 @@ class W21Guard:
 
     @classmethod
     def for_build(cls, data: Path, *, world: Path | None = None, out: Path | None = None,
-                  extra: Sequence[Path] = (), extra_dirs: Sequence[Path] = ()) -> "W21Guard":
-        """台帳の構築側の全部+世界資産(読むだけ)+出力先を許す。守る根は data 根。``extra_dirs`` は読むだけの置き場
+                  extra: Sequence[Path] = (), extra_dirs: Sequence[Path] = (),
+                  extra_sources: Sequence["Source"] = ()) -> "W21Guard":
+        """台帳の構築側(段 1〜7=SOURCES・SOURCES_B+``extra_sources``)+世界資産(読むだけ)+出力先を許す。守る根は data 根。``extra_dirs`` は読むだけの置き場
         (段 4〜7 の段 1〜3 の資産=守る根にも足す=書き込みのモードは止める)。"""
         g = cls(data=Path(data))
-        for s in (*SOURCES, *SOURCES_B):
+        # 〔段 8〜10 検収 L7〕SOURCES_C(段 8 の点検だけに読む 3 本と段 9 の国籍の表)は段 8〜10 の組み立てが
+        # ``extra_sources`` で渡したときだけ許す=段 1〜7 の守りでは一覧の外(開く前に止まる)
+        for s in (*SOURCES, *SOURCES_B, *extra_sources):
             g.allow.add(_norm(Path(data).joinpath(*s.path)))
             if s.derived:
                 g.allow.add(_norm(Path(data).joinpath(*s.derived)))

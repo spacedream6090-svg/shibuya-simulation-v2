@@ -12,7 +12,12 @@
 〔段 4〜7〕``w21_checks_b.json`` の計器(合否なし): 席と人数の差・役割の分布(経済センサス 第6-2表と点検)・権利台帳と関係の
 行の数・資産の分布(東京都の階級の度数と点検)・なじみの場所の数と順位の法則の再現(構築に使った法則=診断だけ)・外の人の層。
 
-逐次ループ宣言(P4): 表の数ぶん(≤ 16)・町丁目の数ぶん(42)・業種の数ぶん(15)・世帯の種類(2)。体の数に比例するループは無い。
+〔段 8〜10〕``w21_check.json``・``w21_checks_c.json`` の部品(合否なし): 区分ごとの点検の行(``fit_cells``=SRMSE・JSD・
+最大の差の区分)・属性の多様性(``entropy_bits``・``diversity``=属性ごとと組のエントロピー・``pair_distance``=ペアの距離の
+分布)・属性の組の重複と区別できない組(``tuple_duplicates``)・文の長さの分布(``length_summary``)。
+
+逐次ループ宣言(P4): 表の数ぶん(≤ 16)・町丁目の数ぶん(42)・業種の数ぶん(15)・世帯の種類(2)・属性の数ぶん(≤ 8)。体の数に
+比例するループは無い。
 """
 
 from __future__ import annotations
@@ -25,7 +30,9 @@ import numpy as np
 from . import fitting as F
 
 __all__ = ["table_fit", "uniqueness", "family", "blanks", "overlap", "share_target", "role_distribution", "counts_by",
-           "degree_summary", "savings_class_fit", "loglog_slope", "ECEN_MAJOR_OF_KEY", "ECEN_STATUS5", "CENSUS_TO_ECEN5"]
+           "degree_summary", "savings_class_fit", "loglog_slope", "ECEN_MAJOR_OF_KEY", "ECEN_STATUS5", "CENSUS_TO_ECEN5",
+           "fit_cells", "entropy_bits", "diversity", "pair_distance", "tuple_duplicates", "length_summary",
+           "BASIS_BUILD", "BASIS_NOT_BUILD"]
 
 
 def _fit_rows(sim: np.ndarray, tgt: np.ndarray) -> dict[str, Any]:
@@ -241,3 +248,112 @@ def loglog_slope(x: np.ndarray, y: np.ndarray) -> float | None:
     if ok.sum() < 2:
         return None
     return round(float(np.polyfit(np.log(x[ok]), np.log(y[ok]), 1)[0]), 4)
+
+
+# ================================================================================ 段 8〜10(``w21_check.json``・``w21_checks_c.json``)
+#: 点検の行の印(設計書 PS6 の注=構築に使った統計は点検だけで検証の証拠にしない)。
+BASIS_BUILD = "点検(構築に使った表・合否なし・証拠にしない)"
+BASIS_NOT_BUILD = "点検(構築に使っていない区分・合否なし・R-116 の区分は構築=検証の証拠にしない)"
+
+
+def fit_cells(sim: np.ndarray, tgt: np.ndarray, labels: list[str] | tuple[str, ...]) -> dict[str, Any]:
+    """区分ごとの数(``sim``)と表の数(``tgt``・割合でもよい)の点検: SRMSE・JSD・最大の差の区分(割合の差)。"""
+    s = np.asarray(sim, dtype=np.float64).ravel()
+    t = np.asarray(tgt, dtype=np.float64).ravel()
+    if s.shape != t.shape or len(labels) != s.size:
+        raise ValueError("区分の数が合わない")
+    ok = s.sum() > 0 and t.sum() > 0
+    ss = s / s.sum() if s.sum() > 0 else s
+    ts = t / t.sum() if t.sum() > 0 else t
+    d = ss - ts
+    k = int(np.argmax(np.abs(d))) if d.size else 0
+    return {"cells": int(s.size), "srmse": round(F.srmse(s, t), 6) if ok else None,
+            "jsd": round(F.jsd(s, t), 6) if ok else None,
+            "max_diff": {"cell": str(labels[k]), "sim_share": round(float(ss[k]), 6), "table_share": round(float(ts[k]), 6),
+                         "diff": round(float(d[k]), 6)} if d.size else None,
+            "sim_total": round(float(s.sum()), 3), "table_total": round(float(t.sum()), 3)}
+
+
+def entropy_bits(codes: np.ndarray) -> float:
+    """区分の分布のシャノン・エントロピー(ビット)。"""
+    _u, c = np.unique(np.asarray(codes).astype(str), return_counts=True)
+    p = c / max(c.sum(), 1)
+    return float(-(p * np.log2(p)).sum()) if p.size else 0.0
+
+
+def diversity(cols: Mapping[str, np.ndarray]) -> dict[str, Any]:
+    """属性ごとと属性の組のエントロピー(ビット)・規格化(÷ log2(区分の数))・組の種類・他の人と同じ組を持つ人の割合。"""
+    out: dict[str, Any] = {"attributes": {}}
+    keys = list(cols)
+    combo = None
+    for k in keys:  # 逐次: 属性の数(≤ 8)
+        v = np.asarray(cols[k]).astype(str)
+        _u, c = np.unique(v, return_counts=True)
+        h = entropy_bits(v)
+        out["attributes"][k] = {"categories": int(c.size), "entropy_bits": round(h, 4),
+                                "normalized": round(h / np.log2(c.size), 4) if c.size > 1 else 0.0}
+        combo = v.astype(object) if combo is None else combo + "|" + v.astype(object)
+    if combo is not None and combo.size:
+        _u, inv, cnt = np.unique(combo, return_inverse=True, return_counts=True)
+        out["joint"] = {"columns": keys, "distinct": int(cnt.size), "people": int(combo.size),
+                        "entropy_bits": round(entropy_bits(inv), 4),
+                        "shared_share": round(float((cnt[inv] > 1).mean()), 6),
+                        "largest_group": int(cnt.max())}
+    return out
+
+
+def pair_distance(codes: np.ndarray, n_pairs: int, seed: int | str, domain: str) -> dict[str, Any]:
+    """属性の組(``codes``=(人, 属性) の番号)の無作為なペアのハミング距離の分布(0〜属性の数)。ペアは Philox の鍵
+    (``seed``・``domain``・ペアの番号)で決まる=同じ入力で同じ値。同じ人のペアは数えない。"""
+    from shibuya.core.rng import k19_counter_array, philox_array, unit_float
+
+    X = np.asarray(codes)
+    n, k = X.shape
+    if n < 2:
+        return {"pairs": 0, "hist": [0] * (k + 1), "mean": None, "zero_share": None}
+    ids = np.arange(int(n_pairs), dtype=np.int64)
+    u = unit_float(philox_array(seed, domain, k19_counter_array(ids), words=2))
+    i = np.minimum((u[:, 0] * n).astype(np.int64), n - 1)
+    j = np.minimum((u[:, 1] * n).astype(np.int64), n - 1)
+    keep = i != j
+    d = (X[i[keep]] != X[j[keep]]).sum(axis=1)
+    hist = np.bincount(d, minlength=k + 1)
+    return {"pairs": int(keep.sum()), "hist": hist.astype(int).tolist(), "mean": round(float(d.mean()), 4),
+            "zero_share": round(float((d == 0).mean()), 6)}
+
+
+def tuple_duplicates(keys: np.ndarray, text_group: np.ndarray | None = None) -> dict[str, Any]:
+    """属性の組(``keys``=人ごとの組の語)の重複の数と、重複の中で文まで同じ=区別できない組の数(``text_group``=同じ文の
+    組の番号・``None`` は数えない)。"""
+    k = np.asarray(keys, dtype=object)
+    if k.size == 0:
+        return {"people": 0}
+    _u, inv, cnt = np.unique(k, return_inverse=True, return_counts=True)
+    inv = inv.reshape(-1)
+    shared = cnt[inv] > 1
+    out: dict[str, Any] = {"people": int(k.size), "distinct": int(cnt.size),
+                           "people_in_shared_tuples": int(shared.sum()), "shared_groups": int((cnt > 1).sum()),
+                           "largest_group": int(cnt.max())}
+    if text_group is not None:
+        tg = np.asarray(text_group, dtype=np.int64)
+        order = np.argsort(inv, kind="stable")
+        g = inv[order]
+        starts = np.flatnonzero(np.r_[True, g[1:] != g[:-1]])
+        lo = np.minimum.reduceat(tg[order], starts)
+        hi = np.maximum.reduceat(tg[order], starts)
+        size = np.diff(np.r_[starts, g.size])
+        same = (lo == hi) & (size > 1)
+        out["indistinguishable_groups"] = int(same.sum())
+        out["indistinguishable_people"] = int(size[same].sum())
+    return out
+
+
+def length_summary(chars: np.ndarray) -> dict[str, Any]:
+    """長さの分布(人数・最小・10/50/90% 点・最大・平均)。0 の文(欄だけ)は除く。"""
+    c = np.asarray(chars, dtype=np.int64)
+    c = c[c > 0]
+    if c.size == 0:
+        return {"n": 0}
+    q = np.percentile(c, [10, 50, 90])
+    return {"n": int(c.size), "min": int(c.min()), "p10": int(q[0]), "p50": int(q[1]), "p90": int(q[2]),
+            "max": int(c.max()), "mean": round(float(c.mean()), 2)}

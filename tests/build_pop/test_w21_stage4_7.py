@@ -79,13 +79,14 @@ def _status_codes(words) -> np.ndarray:
 
 # ================================================================================ 登録表
 def test_registry_has_stage_4_to_6_functions_with_stage_marks():
-    names = {f.name: f.stage for f in A.REGISTRY.values() if f.stage >= 4}
+    # 〔段 8〜10〕段 9・10 の関数は test_w21_stage8_9.py(段 4〜6 の集合と版はこのまま)
+    names = {f.name: f.stage for f in A.REGISTRY.values() if 4 <= f.stage <= 6}
     assert names == {
         "commuter_sex": 4, "commuter_age": 4, "origin_muni": 4, "entry_node": 4, "org_role": 4, "weekly_hours": 4,
         "duty_role_org": 4, "wage_monthly": 5, "wage_hourly": 5, "wage_annual": 5, "household_savings": 5,
         "household_deposits": 5, "household_debt": 5, "consumer_credit": 5, "wallet_cash": 5, "card_holding": 5,
         "account_holding": 5, "residence_years": 6, "place_capacity": 6, "known_places": 6}
-    assert all(f.version == "1.1.0" for f in A.REGISTRY.values() if f.stage >= 4)
+    assert all(f.version == "1.1.0" for f in A.REGISTRY.values() if 4 <= f.stage <= 6)
     # 段 1〜3 の manifest に載る版の表は変えない(段 3 の関数だけ)
     assert set(A.registry_versions((3,))) == {f.name for f in A.REGISTRY.values() if f.stage == 3}
     assert B.STAGE_VERSION_B == "1.1.0" and B.STAGE_B == "W21b"
