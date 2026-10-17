@@ -394,6 +394,15 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #112 第 6 期 6-2 カレンダー 1b 出入りを本人へ(腕 `--calendar 1b`・仮のモデル・既定 w17 は不変)(第337・2026-10-17・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-1(CA2 (b)・CA4・CA5・CA7・CA8・AT1〜AT3・経過時間の実感)・§4-4 CT0・§4-2 TM5/TM8・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 6-2・回答 2-1(GPU の前に腕で)。記録 [ca1b](docs/bench/analysis/wallbounce-1012/ca1b/README.md)([review.md](docs/bench/analysis/wallbounce-1012/ca1b/review.md))。取り込み `246d72d`。1a 影は #106。
+- **層 `engine/calendar_self.py`**(状態台帳の腕の行 C1B・計器 C1BM): 本人の予定の器(その日の約束・置き場所・余裕・見積り・次の機会)・思い出し方 AT1(アプリ=通知・アラーム=数える・手帳=その日の最初の刻み・頭の中=30 分ごとに時計=MR7 までのつなぎ)・見積り AT2(W3 の節の数+域外の時間・幅は便の間隔・直近 5 回の実感の平均)・出入りの判断=J0 の候補(plan・continue・deliberate)を `DecisionPort.choose` へ(予想と観測を並べる・通知とアラームの時刻も choose 経由)・実行は resolve の口(来た電車に乗る・歩く・境界を越える)・CA4・TM8(時計を見れば分単位)・実感(待ちは R-111 の式を 3〜15 分だけ)。
+- **エンジンがしないこと**(AT3): 時刻で強制退出 0・逆算して起こす 0(AST の検査)・間に合う便を選ぶ 0・E4 の消去 0=負の対照つき。腕 1b では BR-W17-IO-SLEEP の到着・退出だけが外れ(就寝・起床・来街者・くじは残る)・BR-E4-EXIT-VANISH は管理する体で外れる。
+- **計器**(mock 5,000 体 1 日・合否なし): 管理 2,712 体・位置で数えた計画一致率 9/12/18 時 0.670/0.659/0.628(段で 0.859/0.889/0.909)・遅刻 697(0.257=82% は mock の行為の抽選で歩きが途切れる)・勤務中に舞台を出た体 1,308 のうち戻った 1,238(再提示の規則)・就寝 6,337(既定と同じ)・古典 0.812/0.866/0.849。
+- 共有: systems 7 本・`resolve.begin_walk_to`・`presence.io_hook`・manifest の末尾 `calendar_1b`(腕だけ)・状態台帳(外の状態 122・全体 213)・道具の台帳(時計・天気予報=既定の `tools.n_tools` 7 → 9=宣言)・`CONFIG_PATHS_SHA256` b48498e8 → 02f950ae・台帳 +24 行。既定 w17=byte-check 19/19・2 日・再開。
+- 検収: 別の検収役 1(条件つき受入=高 1・中 2・低 12 → 全部直すか宣言)+親。全体試験 5,450 passed。仮採用: PENDING §1-1b 仮-34。残り: 1b の既定化(6-2 の版上げ=実 LLM の後)・Percept への統一・アラームを System 1 へ・驚き駆動(T3)・CA7・通学。
+
 ### #111 第 4 期 4-1 ペルソナと人口の作り直し 段 8〜9+段 10 の材料(W21c=点検・見せ方=4-1b の器・構築側だけ・資産は活性化しない=結果不変)(第337・2026-10-17・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 第 4 期 段 8〜10・[設計書](docs/design/v2-persona-population-rebuild-design.md) §2-4・§2-5(PS6・PS7)・§2-12・指示書 10-12 §4-10・§4-7 DM4・R-110 §3・R-116 §1・PENDING 仮-31。記録 [pop41c](docs/bench/analysis/wallbounce-1012/pop41c/README.md)([review.md](docs/bench/analysis/wallbounce-1012/pop41c/review.md))。取り込み `cb52444`。段 1〜3 は #104・段 4〜7 は #109。
