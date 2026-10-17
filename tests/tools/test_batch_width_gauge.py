@@ -54,7 +54,8 @@ def test_zero_difference_table_has_every_width_within_and_monotone(G):
         assert r["final_equal"] == 1.0 and r["n_salts"] == 6
         m = r["metrics"]["calls"]
         assert m["diff"] == 0.0 and m["within"] is True and m["salt_width"] > 0
-        assert r["metrics"]["lateness"]["diff"] is None and r["metrics"]["lateness"]["note"] == G.PLACEHOLDER_NOTE
+        # 〔第 6 期 6-3 T4〕遅刻の道筋は manifest の clock.late_arrivals(区域ごとの時計のランだけ)=この記録には無い
+        assert r["metrics"]["lateness"]["diff"] is None and r["metrics"]["lateness"]["note"] == "値の無い記録がある"
         assert r["metrics"]["meeting"]["within"] is None
     assert tab["monotone"]["calls"] is True and tab["monotone"]["lateness"] is None
     assert tab["default_candidate_s"] == 60  # 一番大きい幅(正解そのもの)

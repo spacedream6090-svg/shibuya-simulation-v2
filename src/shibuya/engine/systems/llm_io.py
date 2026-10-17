@@ -32,6 +32,7 @@ def utter(b: Any, agent_id: int, t_now: int, action: Any, comment: str, reason: 
     6b(第294 Q57 暫定): 要旨の源=ひと言が空/「なし」なら理由欄の先頭 40 字(語彙 v3)。
     7b(D-120 N3 (a)): 店の記憶 on のランだけ、発話(``wom_source``: 既定=ひと言だけ・旧=v3 で理由+対象)から店名と評価語を
     抽出し、**宛先**(会話の相手=``talk_partner``・セッションの参加者)の店の行へ伝聞として書く。
+    〔第 6 期 6-3 T2〕腕 ``--talk-clock mora`` のランだけ(``layers.talk_clock`` がある)、ひと言を会話の時計に渡す(計器)。
     〔第 1 期 1-8b〕腕 ``--speech-port on`` のランだけ(``layers.speech`` がある)、ひと言を発話の口に通す
     (``engine.speech.layer.speak_turn``=出来事ログに 1 回・相手の次の入力・口コミの抽出は口の (c))。``call_id`` は
     その会話の番の呼び出しの id(発話の出来事の原因)。既定の腕では ``call_id`` を読まない=今の道のまま。
@@ -42,6 +43,10 @@ def utter(b: Any, agent_id: int, t_now: int, action: Any, comment: str, reason: 
     partner_before = (int(agents.registry.talk_partner[int(agent_id)])
                       if (wom_ex is not None or speech is not None) else -1)
     s = conv.utterance(agent_id, t_now, action=action, comment=comment)
+    talk_clock = getattr(b.layers, "talk_clock", None)  # 〔第 6 期 6-3 T2〕腕 --talk-clock mora のランだけ(既定 None=今の 1 ターンの長さの表)
+    if talk_clock is not None:
+        # 会話の時計: 発言の長さ=モーラ数 × 話す速さ・発言の事象を窓の待ち行列に時刻順に置く(世界の状態は書かない=計器)
+        talk_clock.on_turn(agents, int(agent_id), int(t_now), s, comment)
     if mem_layer is not None:
         mem_layer.note_utterance(agents, int(agent_id), int(t_now), s, comment, reason, call_id=call_id)
     if speech is not None:

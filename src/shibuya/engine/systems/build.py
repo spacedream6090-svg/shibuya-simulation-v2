@@ -346,6 +346,17 @@ def build(_call_args: dict[str, Any]) -> Any:
     if _CAL1B.is_on():
         # 〔第 6 期 6-2〕カレンダー 1b の腕は結果を変える(勤務の出入りを本人へ)=1b のときだけ設定の指紋に足す(既定は今の指紋)
         _fp[_CAL1B.FP_KEY] = _CAL1B.MODE_1B
+    # 〔第 6 期 6-3〕時計の段 T2〜T4 の腕(会話の時計・何かあった体だけ・場所ごとの時計)は既定と違うときだけ設定の指紋に足す
+    # (既定のランの指紋は前のまま=まとめの幅と同じ形・再開で親と照合)
+    from shibuya.engine import regional_clock as _RCK
+    from shibuya.engine import speech_clock as _TCK
+    from shibuya.engine import step_scope as _SSC
+
+    for _tm_mod in (_TCK, _SSC, _RCK):  # 逐次ループ宣言: 腕の数(3)
+        if not _tm_mod.is_default():
+            _fp[_tm_mod.FP_KEY] = _tm_mod.arm()
+    if _RCK.arm() == _RCK.ARM_MIXED:  # 〔6-3 検収 L7〕混合の時計は口だけ=組み立ての段で止める
+        raise NotImplementedError(_RCK.MIXED_NOTE)
     # ---- 第 3 期 3-3: 反実仮想の申込書(``cli.run`` が ``engine.experiment.layer.staged`` で置いた物・無ければ None=今の道)。
     # 設定の指紋には入れない(申込書の指紋は manifest の experiment の節=分岐が基準のランの状態から再開できる) ----
     from shibuya.engine.experiment import layer as _EXPL
@@ -682,7 +693,9 @@ def build(_call_args: dict[str, Any]) -> Any:
     # ---- 〔第 3 期 3-5〕本人の体の層(持ち主 body・どの腕でも置く=段の境目の計器と manifest の body)。腕(TM5 の予約)は
     # 組み立てのときに読む(--body-schedule・環境変数 SHIBUYA_BODY_SCHEDULE・既定 sweep)。再開では予約の列を状態から引き直す
     # (最初の体の刻みで全員を規則に通す=状態台帳の行 BD は軸 2 discardable) ----
-    body_layer = BodyModel(n_agents, step_seconds=tick_seconds)
+    # 〔第 6 期 6-3 T3〕腕 --step-scope changed は体の反映を TM5 の予約(3-5 の reserve)にする(何かあった体だけ)
+    body_layer = BodyModel(n_agents, step_seconds=tick_seconds,
+                           arm=("reserve" if _SSC.arm() == _SSC.ARM_CHANGED else None))
     if not _resuming:  # 10d(A11・親の答え 2): 再開では日の頭の初期化を呼ばない(保存した状態を読む)
         R.initialize(agents, world, schedule, day_index=day_index, ledger=ledger, body=body_layer)
     # ---- 5 段目 5a: 体のエネルギー収支(値を決める層・書き手は resolve) ----
@@ -1340,6 +1353,10 @@ def build(_call_args: dict[str, Any]) -> Any:
         seed=seed, day_key0=int(day_index), step_seconds=int(tick_seconds), steps_per_day=tpd, events=events,
         tools=_tools_fx.registry,  # 〔検収 L4〕時計の道具の行を読む(見れば分単位=TM8)
     )
+    # ---- 〔第 6 期 6-3〕時計の段 T2 の会話の時計(腕 mora のランだけ・既定 table は None=今の道)・T3 の変化の印(腕 changed の
+    # ランだけ)。会話の時計の事象を置く口(窓の待ち行列か区域ごとの時計)は進行役が挿す(状態台帳の腕の行 TCR・TCC・T3M) ----
+    talk_clock = _TCK.make(pop_seed=pop_seed, seed=seed, step_s=int(tick_seconds), rel_layer=rel_layer)
+    step_scope = _SSC.make(n_agents)
 
     # ---- 第 3 期 3-3: 申込書の持ち主(申込書を渡したランだけ・既定 None=系 experiment が立たない=今の道)。分岐なら LLM の口を
     # T0 で切り替える口に包む(T0 より前はテープ・T0 から今の方策=engine.experiment.branch)。状態台帳の行 X(diag・discardable) ----
@@ -1394,6 +1411,8 @@ def build(_call_args: dict[str, Any]) -> Any:
             body=body_layer,
             calendar_shadow=calendar_shadow_layer,
             calendar_self=calendar_self_layer,
+            talk_clock=talk_clock,  # 〔第 6 期 6-3 T2〕
+            step_scope=step_scope,  # 〔第 6 期 6-3 T3〕
         ),
         llm=_BX.LlmIo(pending=pending, fleet_deferred=fleet_deferred, fleet_waiting=fleet_waiting,
                       fleet_inflight=fleet_inflight, replay_inbox=replay_inbox),

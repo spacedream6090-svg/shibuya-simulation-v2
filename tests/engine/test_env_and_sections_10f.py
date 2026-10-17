@@ -115,7 +115,10 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 〔第 6 期 6-2〕``calendar_1b`` の設定の子 12(schema・mode・port・w20・placements・look_interval_min・margins_min・recent_k・
 #: round_min・approx_round_min・felt・bridges=腕 1b のランだけ manifest に出る節)を足した(6-5 の後に・前 ``b48498e8…0edcaa``=
 #: この 12 本を外すと前の値に戻る・記録 docs/bench/analysis/wallbounce-1012/ca1b/README.md)。
-CONFIG_PATHS_SHA256 = "02f950aec97c40b1145909d39ed2ecbace52c7705155ff2c215b6a03b0ee3a1b"
+#: 〔第 6 期 6-3〕時計の段 T2〜T4 の腕の節 ``talk_clock``・``step_scope``・``clock`` の設定の子 31 本(腕のランだけ出る=既定の
+#: manifest には無い)を足した(6-2 の後に・前 ``02f950ae…b0ee3a1b``=この 31 本を外すと前の値に戻る・記録
+#: docs/bench/analysis/wallbounce-1012/tm234/README.md)。
+CONFIG_PATHS_SHA256 = "ffbed6e371d849efb2724a75c9b70fbcd28855c5e1ab8a445d1e4ee2e0d0f252"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 

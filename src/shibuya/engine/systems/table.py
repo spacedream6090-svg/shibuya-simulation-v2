@@ -163,12 +163,16 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "O8:mem_layer.* O9:mem_layer.* O1[01]:mem_layer.* O12:mem_layer.* O15:wom.* O8[89]:fleet_bridge.* "
                "O87:bridge.* O62:undefined.* O8[23]:undefined.* "
                "M0*:mem_layer.memory_store.*"  # 1-6: 記憶の器(会話の発話の記憶・テープの列の控え)
-               " S8:speech.* S8M:speech.* E:events.*",  # 1-8b: 腕 on の到着の発話(未読の列・計器・発話の出来事 1 行)
+               " S8:speech.* S8M:speech.* E:events.*"  # 1-8b: 腕 on の到着の発話(未読の列・計器・発話の出来事 1 行)
+               " TCR:talk_clock.* TCC:talk_clock.*"  # 〔第 6 期 6-3 T2〕腕 mora の会話の時計(話す速さの控え・発言の予約・計器)
+               # 〔6-3 検収 M1〕腕 mora の発言の予約は全体の窓の待ち行列(行 BW)か区域ごとの時計(行 T4W)に事象を置く
+               " BW:batching.* T4W:clock.*",
          scratch_w="n_parse_errors_fleet", calls_llm="receive",
          tally="phase", reads="cfg.fleet_wait_s cfg.response_delay cfg.store_wom_on cfg.tick_seconds "
                "cfg.vocab_version layers.conv layers.fleet_bridge layers.mem_layer layers.speech layers.wom "
                "llm.fleet_deferred llm.fleet_inflight llm.fleet_waiting llm.pending llm.replay_inbox "
-               "runstats.phase scratch.n_parse_errors_fleet soa.agents",
+               "runstats.phase scratch.n_parse_errors_fleet soa.agents "
+               "layers.talk_clock",  # 〔第 6 期 6-3 T2〕会話の時計(腕 mora のランだけ)
          origin=f"L5(遅れ 1)・L11 前半(遅れ 2)・run.py:3668・3890-3891 @{_E}"),
     make("apply_responses", "判断", "tick", _JG.sys_apply_responses,
          resolve_ops="revert_conversation set_conversing talk_within_reach",
@@ -187,11 +191,13 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          origin=f"L6・run.py:3671-3785 @{_E}"),
     make("detect", "知覚", "tick", _PC.sys_detect,
          resolve_ops="apply_detection",
-         paths="O45:detector.* O66:act_layer.* O6:intent_layer.*",
+         paths="O45:detector.* O66:act_layer.* O6:intent_layer.* "
+               "T3M:step_scope.*",  # 〔第 6 期 6-3 T3〕腕 changed の変化の印(内受容の値と段の写し・跨いだ体・計器)
          scratch_r="field_rows", scratch_w="det_agent det_cond det_class e_agent e_cond e_class",
          tally="intero_cross phase", reads="layers.act_layer layers.detector layers.intent_layer runstats.intero_cross "
                "runstats.phase scratch.det_agent scratch.det_class scratch.det_cond scratch.e_agent "
-               "scratch.e_class scratch.e_cond scratch.field_rows soa.agents soa.world",
+               "scratch.e_class scratch.e_cond scratch.field_rows soa.agents soa.world "
+               "layers.step_scope",  # 〔第 6 期 6-3 T3〕何かあった体の印(腕 changed のランだけ)
          origin=f"L7・run.py:3788-3813 @{_E}"),
     make("plan_boundary", "体", "tick", _BD.sys_plan_boundary,
          resolve_ops="balk_queue begin_exit_walk begin_planned_sleep rail_arrive rail_depart release_indoor "
@@ -259,7 +265,10 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                # 1-8 J0: 腕 port の候補の口の計器・営業中の店の控えと判断の出来事の行/1-7: 看板を読んだ出来事(作り物の印・
                # 腕 SHIBUYA_TOOL_EVENTS・既定 off)=E:events.* は 1-8 と 1-7 で 1 つ
                " J0:decision.* E:events.*"
-               " S8:speech.* S8M:speech.*",  # 1-8b: 腕 on の発話の口(届ける=描画の perceive・話す=会話の番)
+               " S8:speech.* S8M:speech.*"  # 1-8b: 腕 on の発話の口(届ける=描画の perceive・話す=会話の番)
+               " TCR:talk_clock.* TCC:talk_clock.*"  # 〔第 6 期 6-3 T2〕腕 mora の会話の時計(話す速さの控え・発言の予約・計器)
+               # 〔6-3 検収 M1〕腕 mora の発言の予約は全体の窓の待ち行列(行 BW)か区域ごとの時計(行 T4W)に事象を置く
+               " BW:batching.* T4W:clock.*",
          # 第 1 期 1-2: 描いた知覚の事実 ``percepts``(``TickScratch`` の欄・状態台帳の行 P)
          scratch_r="decision outside_now n_parse_errors_fleet", scratch_w="parse_errors percepts",
          tally="calls_by_cond layer_counts n_fleet_resent n_outside_calls peak_backlog peak_pending phase result",
@@ -271,7 +280,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "runstats.calls_by_cond runstats.layer_counts runstats.n_fleet_resent "
                "runstats.n_outside_calls runstats.peak_backlog runstats.peak_pending runstats.phase "
                "runstats.result scratch.decision scratch.n_parse_errors_fleet scratch.outside_now "
-               "scratch.parse_errors scratch.percepts soa.agents fx.tools",
+               "scratch.parse_errors scratch.percepts soa.agents fx.tools "
+               "layers.talk_clock",  # 〔第 6 期 6-3 T2〕会話の時計(腕 mora のランだけ)
          origin=f"L14・run.py:4002-4127 @{_E}"),
     make("phase_a", "行為の解決", "tick", _AC.sys_phase_a,
          resolve_ops="intent_kept_by",
@@ -308,12 +318,14 @@ SYSTEMS: tuple[SystemSpec, ...] = (
     make("conversation", "会話", "tick", _TK.sys_conversation,
          resolve_ops="revert_conversation join_conversation set_conversing talk_within_reach",
          paths="O39:conv.* O40:conv.* O41:conv.* O91:conv.* O19:rel_layer.* "
-               "E:events.*",  # 第 2 期 2-3: 会話の終わりの出来事(体の出来事の口・腕のランだけ)
+               "E:events.* "  # 第 2 期 2-3: 会話の終わりの出来事(体の出来事の口・腕のランだけ)
+               "TCC:talk_clock.*",  # 〔第 6 期 6-3 T2〕腕 mora の会話の時計(終わった会話の長さ・時計の行を消す)
          scratch_r="plan applied_now outcome", tally="leave_closed",
          when="conv", reads="cfg.attention_on cfg.leave_effect layers.conv layers.rel_layer runstats.leave_closed "
                "scratch.applied_now scratch.outcome scratch.plan soa.agents "
                "layers.proximity "  # 第 2 期 2-2: 腕 distance の判定の規則(招待・3 人会話・離脱)
-               "layers.mem_layer",  # 第 2 期 2-3: 体の出来事の口(記憶の器が持つ)
+               "layers.mem_layer "  # 第 2 期 2-3: 体の出来事の口(記憶の器が持つ)
+               "layers.talk_clock",  # 〔第 6 期 6-3 T2〕会話の時計(腕 mora のランだけ)
          origin=f"L18・run.py:4229-4356 @{_E}"),
     make("activity_intent", "体", "tick", _BD.sys_activity_intent,
          resolve_ops="set_activity set_activity_until clear_intent fail_intent relabel_intent_failure set_intent",
@@ -381,7 +393,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "llm.replay_inbox runstats.daily_records runstats.result runstats.state_files "
                "soa.agents soa.world layers.events "
                "layers.proximity "  # 第 2 期 2-2(検収 M1): 状態のファイルの見出しに近接の腕を書く
-               "layers.experiment",  # 3-3(検収 L7): 状態の見出しに申込書の指紋(save_state)
+               "layers.experiment "  # 3-3(検収 L7): 状態の見出しに申込書の指紋(save_state)
+               "layers.clock",  # 〔第 6 期 6-3 T4〕日次の記録の時計の種類(区域ごとの時計のランだけ regional)
          origin=f"L24・run.py:4497-4500 @{_E}"),
     # ================================================================ ランの終わり
     make("drain", "判断", "run_end", _RE.sys_drain,
@@ -423,7 +436,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.experiment "  # 3-3: 申込書の持ち主を結果に渡す(manifest の experiment)
                "layers.body "  # 3-5: 本人の体の層を結果に渡す(manifest の body)
                "layers.calendar_shadow "  # 〔第 3 期 3-1〕暦 1a の影を結果に渡す(manifest の calendar_shadow)
-               "layers.calendar_self",  # 〔第 6 期 6-2〕カレンダー 1b を結果に渡す(manifest の末尾の calendar_1b)
+               "layers.calendar_self "  # 〔第 6 期 6-2〕カレンダー 1b を結果に渡す(manifest の末尾の calendar_1b)
+               "layers.talk_clock layers.step_scope layers.clock",  # 〔第 6 期 6-3〕時計の段の腕の持ち主を結果に渡す
          origin=f"E1・run.py:4551-4592 @{_E}"),
     make("report", "計器", "run_end", _RP.report,
          tally="result sleep_counts frozen_sources_map",  # 段 FIX: 欄の別名 ``frozen_sources_map.update``

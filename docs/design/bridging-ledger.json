@@ -4143,7 +4143,7 @@
   {
    "id": "DOC-tm32-event-time-60s",
    "what": "計算のまとめの窓(engine.batching.WindowQueue)の待ち行列に入る事象は刻みの事象(世界の 1 回の系の並び)だけ=事象の時刻の粒度は刻みの幅 60 秒。会話の番・計画の境目・届くメッセージ・体の変化の予約は今も刻みの中の系が刻みごとに見る。幅 W は刻みの幅の約数(60・30・20・15・12・10・6・5・4・3・2・1 秒)だけ=刻みの事象はいつも窓の頭に乗り、どの幅でも結果は同じ(19 構成の byte-check で確かめた)=幅の腕は今は結果に効かない",
-   "why": "決定 10-12 §4-2 TM6 の T1(まとめの導入・幅 60 秒で今と同じ)。事象の時刻の粒度を細かくし、TM4 の試験で既定の幅を決めるのは T2(会話の時計とまとめを細かく・版上げ)。記録 tm32/README.md §3・§5",
+   "why": "決定 10-12 §4-2 TM6 の T1(まとめの導入・幅 60 秒で今と同じ)。事象の時刻の粒度を細かくし、TM4 の試験で既定の幅を決めるのは T2(会話の時計とまとめを細かく・版上げ)。記録 tm32/README.md §3・§5。〔第 6 期 6-3 T2〕腕 --talk-clock mora では会話の時計の発言の事象(種類 talk・ナノ秒の時刻)が窓の待ち行列に入る=事象の時刻の粒度が刻みより細かくなる(この行の前半は腕のランで外れる)。世界の 1 回の系の並びは今も刻みごと=幅の腕が世界の結果に効かないのは変わらない(会話の時計の計器だけが幅で動く)=既定化(T2 の版上げ)まで残る(記録 tm234/README.md §T2)",
    "remove_at": "T2",
    "declared_in": "docs/bench/analysis/wallbounce-1012/tm32/README.md",
    "conf": "expedient",
@@ -4158,7 +4158,7 @@
   {
    "id": "DOC-tm32-same-time-body-order",
    "what": "窓の中の同じ時刻の事象は体の番号の順(世界の事象=-1 が体より先)・同じ体の同じ時刻は事象の種類の順位 → 予約の番号(seq)の順で処理する(宣言)。同じ時刻・同じ種類の続きは 1 回の処理(体の番号の配列)。例外(規則・3-2 検収 L7): 同じ時刻の束を処理している間に同じ時刻へ足した事象は、束の残りの後(次の回)に回る(体 5・9 の束の中で体 3 を足すと 5 → 9 → 3)",
-   "why": "発注(3-2)の宣言。運用設計書 §2.5 の同時刻の順(時刻・種類の順位・blake3 の塩・体)とも、乱数を出来事の時刻と中身に結ぶ TM7 (d) とも違う。T1 の世界は窓に刻みの事象 1 つだけなので順は効かない。T2 で刻みの外の事象が窓に入るときに同時刻の裁き方を決め直す(記録 tm32/README.md §3)",
+   "why": "発注(3-2)の宣言。運用設計書 §2.5 の同時刻の順(時刻・種類の順位・blake3 の塩・体)とも、乱数を出来事の時刻と中身に結ぶ TM7 (d) とも違う。T1 の世界は窓に刻みの事象 1 つだけなので順は効かない。T2 で刻みの外の事象が窓に入るときに同時刻の裁き方を決め直す(記録 tm32/README.md §3)。〔第 6 期 6-3 T2〕腕 mora の発言の事象も同じ順(時刻 → 体 → 種類の順位=刻みの事象 0・発言 1 → 予約の番号)で処理する=宣言のまま(同時刻の裁き方の決め直しは T2 の版上げ)",
    "remove_at": "T2",
    "declared_in": "docs/bench/analysis/wallbounce-1012/tm32/README.md",
    "conf": "expedient",
@@ -4173,7 +4173,7 @@
   {
    "id": "DOC-tm32-conversation-not-batched",
    "what": "「1 つの会話の中はまとめない(違う会話どうしはバッチ)」(TM3)を、T1 では会話の番が刻みに 1 回(刻みの事象の中の系 decide・llm_receive・conversation)であることで自動で満たしている=窓の待ち行列には同じ会話の番を同じ処理の束に入れない検査が無い",
-   "why": "決定 10-12 §4-2 TM3。T2 で会話の番を窓の待ち行列の事象にしたら、同じ会話の番を同じ処理の束(種類の続き)に入れない検査を足す(記録 tm32/README.md §3)",
+   "why": "決定 10-12 §4-2 TM3。T2 で会話の番を窓の待ち行列の事象にしたら、同じ会話の番を同じ処理の束(種類の続き)に入れない検査を足す(記録 tm32/README.md §3)。〔第 6 期 6-3 T2・検収 M3〕腕 mora では 2 つの検査を足した: (1) 会話の番を作るとき(TalkClock.on_turn)に、同じ会話の前の番と同じ時刻に作った番を止める(=1 回の LLM に同じ会話の番を 2 つ書かせない・会話の遅れ=持ち越しの有無によらない)(2) 処理の束(TalkClock.on_dispatch)に同じ会話の発言が 2 つ入ったら止める。どちらも RuntimeError・試験 tests/engine/clock/test_tm2_talk_clock.py の負の対照。この行の「検査が無い」は腕のランで外れる。会話の番そのものは今も刻みに 1 回(DOC-tm234-talk-clock-meter-only)",
    "remove_at": "T2",
    "declared_in": "docs/bench/analysis/wallbounce-1012/tm32/README.md",
    "conf": "expedient",
@@ -4188,7 +4188,7 @@
   {
    "id": "DOC-tm32-window-cap",
    "what": "1 つの窓で処理する事象の数の上限(安全装置)を 2^24=16,777,216 件にした(39 万体 × 窓あたり 43 件=ふつうのランでは当たらない値)。当たったら窓の中の残りを次の窓へ持ち越し、manifest の batching の carried・cap_hits に数える(止めない)",
-   "why": "決定 10-12 §4-2 TM3(上限は安全装置だけで、当たったら記録)。値は実装役の当て(仮採用)。T2 で窓の中の事象(会話の番・メッセージ)の数を実測してから決め直す(記録 tm32/README.md §9)",
+   "why": "決定 10-12 §4-2 TM3(上限は安全装置だけで、当たったら記録)。値は実装役の当て(仮採用)。T2 で窓の中の事象(会話の番・メッセージ)の数を実測してから決め直す(記録 tm32/README.md §9)。〔第 6 期 6-3 T2〕腕 mora の発言の事象もこの上限の数に入る。会話ごとの 1 窓の発言の上限は別の行 DOC-tm234-talk-cap。値の決め直し(窓の中の事象の数の実測=記録 tm234/README.md §T2)は T2 の版上げのまま",
    "remove_at": "T2",
    "declared_in": "docs/bench/analysis/wallbounce-1012/tm32/README.md",
    "conf": "expedient",
@@ -5981,6 +5981,222 @@
    "code_at": [
     "src/shibuya/engine/calendar_self.py",
     "src/shibuya/engine/presence.py"
+   ]
+  },
+  {
+   "id": "DOC-tm234-talk-clock-meter-only",
+   "what": "会話の時計(腕 --talk-clock mora)は会話の中の時刻(発言の始まりと終わり・次の発言=終わり+間)を数えて記録するだけ。会話の番(LLM の呼び出し)は今も刻みに 1 回(系 decide・llm_receive)で、世界の状態・テープ・final は既定と同じ(19 構成の byte-check)。発言の事象は窓の待ち行列に時刻順に入るが、処理は計器だけ。会話の時計の始まりより今の時刻が後の発言は持ち越し(carried・lag)に数える",
+   "why": "決定 10-12 §4-2 TM3・TM6 の T2(会話の時計とまとめを細かく=版上げ)。会話の番を窓の中で時刻順に続けて回す(違う会話どうしを1 回の LLM にまとめ、同じ会話の次の番は前の番が返ってから)のは T2 の版上げ(既定化=GPU の後・回答 2-1)",
+   "remove_at": "T2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm234/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/speech_clock.py",
+    "src/shibuya/engine/systems/conductor.py",
+    "src/shibuya/engine/systems/llm_io.py"
+   ]
+  },
+  {
+   "id": "DOC-tm234-mora-rule",
+   "what": "発言のモーラ数は本文から engine.speech.port.mora_count(1-8b の読みの規則=仮名 1 字 1 拍・拗音と小書きは 0・促音と撥音と長音は 1・漢字 1 字 2 拍・英数字 1 拍)で数える。仮名も漢字も無い本文(英語など)は欄だけ=長さは今の表(刻み 1 つ)でつなぐ(lang_other)",
+   "why": "決定 10-12 §4-2 TM3(モーラ数 × 話す速さ)・R-111 §3-5(LLM の文のモーラ数を数える道具=読みの推定の候補とライセンスは未調査)。読みの辞書と他の言語の速さは T2 の版上げで",
+   "remove_at": "T2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm234/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/speech_clock.py",
+    "src/shibuya/engine/speech/port.py"
+   ]
+  },
+  {
+   "id": "DOC-tm234-rate-distribution",
+   "what": "人ごとのモーラの長さ=対数正規(中心 ln 0.151 秒)を CEJC の話者 18 人の範囲 [0.124, 0.198] 秒で切った形。幅 σ=範囲 ÷ d2(18)=3.640(正規の標本 18 の範囲の期待値で範囲から SD に換算・≈0.1286)。属性(年齢・性別)の項は入れない。中心は中央値(ln 0.151)で非対称に切るので、母集団の平均のモーラの長さは 0.15357 秒(錨より 1.7% 長い)・話す速さの平均は 6.586 モーラ/秒・切らない分布の 8.0% を範囲の外として切る(18 人の範囲を母集団の上下限にする扱い・R-73 §4-2 は「18 人前後」=±1 人で σ が約 1.4% 動く)",
+   "why": "R-111 §3-2 の錨(平均と範囲は石本 2024 ○)。分布の形(対数正規・切る)と範囲から SD への換算は実装役の構成(未リサーチ=expedient)。属性の項は日本語の結果が弱い(R-111 §v2 C4 (a)=腕で比べる)。主張の前に感度試験",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm234/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/speech_clock.py"
+   ]
+  },
+  {
+   "id": "DOC-tm234-within-cv",
+   "what": "発言ごとの揺れ=平均 1 の対数正規・CV 0.42(Quené 2005 のオランダ語の話者の中の CV・句の長さの項を入れないときの値)。句の長さの項(短い発話ほど遅い)は入れない(入れたときの CV 0.28 は記録だけ)",
+   "why": "R-111 §3-2(句ごと CV 0.42 → 句の長さで説明すると 0.28・日本語の話者の中の揺れの数値は空欄=§3-4)。値の選び方は実装役の構成。主張の前に感度試験",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm234/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/speech_clock.py"
+   ]
+  },
+  {
+   "id": "DOC-tm234-familiar-partner",
+   "what": "親しい相手の項: 関係の層で話し手から相手へ生きている辺(A ≥ τ)があれば親しい(倍率 1)・無ければ知らない相手=モーラの長さ ×(1 + 0.096)(Yuan 2006 の英語 +10.9% と中国語 +8.3% の平均)。基準(倍率 1)を CEJC の日常会話=親しい相手と読んだ。関係の層の無いランは欄だけ(familiar_unknown)",
+   "why": "R-111 §3-2(親しい相手 +8〜11%・日本語は z 値だけ=空欄)。平均を取る・基準を親しい相手と読むのは実装役の構成。主張の前に感度試験",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm234/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/speech_clock.py"
+   ]
+  },
+  {
+   "id": "DOC-tm234-gap-constant",
+   "what": "発言と次の発言の間=日本語の応答の開始の間の平均 +7 ms の定数(中央値 0 ms・ばらつきは入れない)。考える時間(TM2=今の表 L4 0.2 秒)は時計に足さない(二重に数えない)",
+   "why": "決定 10-12 §4-2 TM3(間は日本語の値・考える時間は TM2 の側)・R-73 #30(Stivers 2009 ◎=平均と中央値だけ・ばらつきの値は無い)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm234/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/speech_clock.py"
+   ]
+  },
+  {
+   "id": "DOC-tm234-talk-anchor-carry",
+   "what": "会話の時計の最初の発言は作った時刻(刻みの頭)に始まり、次の発言の始まり=前の発言の終わり+間。発言の事象は始まりと今の時刻の遅い方に置く(始まりが今より前=持ち越し)。締めの定型 1 発話・あいづち・重なりは時計に入れない。返事待ちの招待への返事(セッションの外の会話の番=既定 v1 で 76.5%)は時計に入れない",
+   "why": "決定 10-12 §4-2 TM3 (f)(まとめの中は時刻順に順番に回し持ち越す)・あいづちと重なりは後。最初の発言の置き方と持ち越しの読みは実装役の構成(会話の番が刻みに 1 回のあいだの形)。T2 の版上げで会話の番を窓の中で回すと持ち越しは窓に収まらない分だけになる",
+   "remove_at": "T2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm234/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/speech_clock.py"
+   ]
+  },
+  {
+   "id": "DOC-tm234-talk-cap",
+   "what": "1 つの会話が 1 つの窓で処理する発言の数の上限(安全装置)=2^10=1,024。当たったら次の窓の頭へ持ち越して cap_hits に数える(止めない)",
+   "why": "決定 10-12 §4-2 TM3(上限は安全装置だけで当たったら記録)。値は実装役の当て(今は会話の番が刻みに 1 回=当たらない)",
+   "remove_at": "T2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm234/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/speech_clock.py"
+   ]
+  },
+  {
+   "id": "DOC-tm234-chat-blank",
+   "what": "C1(チャットの会話の状態)が刺す口: 道具 チャット の打つ時間 typing_ns・読む間 read_gap_ns は値が空欄(None)。チャット の発言は時計に載せず chat_blank に数える",
+   "why": "決定 10-12 §4-2 TM1(続いているチャットは同じ細かい時計=打つ時間・読む間)・計画 6-4 の C1(チャットの会話の状態)",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm234/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/speech_clock.py"
+   ]
+  },
+  {
+   "id": "DOC-tm234-t3-mark-by-copy",
+   "what": "何かあった体だけ(腕 --step-scope changed)の変化の印は、検出器の判定の入力(内受容の値 3 つと段 3 つ)の写しとの比べ(体の数の配列の比べ 6 本)と前の検出で跨いだ体で付ける。書き手(resolve の 11 の関数)ごとの知らせの口は無い",
+   "why": "決定 10-12 §4-2 TM6 の T3(まず一致の確認・その後に驚き駆動=カレンダー 1b と同じ版上げ)。3-5 の BR-BODY-RESERVE-DETECT と同じ形。外す段=驚き駆動の版上げ(計画 6-2 の 1b+T3)で書き手の知らせの口に替える",
+   "remove_at": "6-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm234/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/step_scope.py",
+    "src/shibuya/engine/change_detect.py"
+   ]
+  },
+  {
+   "id": "DOC-tm234-t3-not-narrowed",
+   "what": "腕 changed で絞らない体の数の走査: セルの描画欄の変化の起床(変化したセルの体を numba の 1 本で拾う)・空腹の語の段の時間の延べ(EnergyLayer.after_tick=全員の和の計器)・計器 observe。知覚の前計算はセルごと(体の数に比例しない)",
+   "why": "決定 10-12 §4-2 TM6 の T3(まず一致)。セルの索引(セル → 体)と計器の差分の和は驚き駆動の版上げで(空間の段 3 でセルが無くなるので索引はそこで決め直す)",
+   "remove_at": "6-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm234/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/step_scope.py"
+   ]
+  },
+  {
+   "id": "DOC-tm234-t4-region",
+   "what": "場所ごとの時計(腕 --clock regional)の区域=セルの重心の 500 m の格子の塊(世界資産 520 セル → 29 区域)+舞台の外の区域。建物・駅の区域は使わない。系は全員の配列を 1 回で処理し、区域ごとに窓を進めるのは区域の事象(会話の時計の発言)と境目の移動の数え",
+   "why": "決定 10-12 §4-2 TM1(区域ごと)・TM6 の T4(一致が条件)・R-73 §7-1 案 b。区域の切り方は実装役の構成(例示はセルの塊・建物・駅)。主張の前に区域の幅の感度試験",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm234/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/regional_clock.py",
+    "src/shibuya/engine/systems/conductor.py"
+   ]
+  },
+  {
+   "id": "DOC-tm234-t4-messages-meeting",
+   "what": "メッセージと電話は今の世界に無い=区域をまたぐメッセージの遅れは欄だけ(遅れの計器は発言を聞く人の区域またぎで測る)。待ち合わせの成否は約束の仕組みが無い=欄だけ(null)。遅刻は計画実行層の日の表の到着の刻みとブロックの始めから数える(本人の出入りではない)。計画の表の遅刻は窓の幅で動かない=TM4 の指標の列は埋まったが差は測れない(本人の到着の遅れは 6-2 の 1b の後)",
+   "why": "決定 10-12 §4-2 TM1・TM4(指標に遅刻と待ち合わせの成否)。メッセージと電話は計画 6-4 の C1・出入りを本人へは 6-2 の 1b",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm234/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/regional_clock.py"
+   ]
+  },
+  {
+   "id": "DOC-tm234-t4-mixed-port",
+   "what": "混合の時計(全体の窓で揃え、窓の中は区域ごとに順序を外す)は口だけ・値は空欄(腕 --clock mixed を選ぶと止める)",
+   "why": "決定 10-12 §4-2 TM1(全体・混合・区域ごとの 3 つを作り比べる)・R-73 §7-1 案 c。計画 6-3 は区域ごとの一致の確認を先に作った。3 つの時計を比べる(行動の一致・メッセージの遅れ・速さ)のは主張の前",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm234/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/regional_clock.py"
+   ]
+  },
+  {
+   "id": "DOC-tm234-t4-structural-identity",
+   "what": "場所ごとの時計(腕 --clock regional)と全体で 1 つの時計の一致(19 構成・25 欄)は構造上の一致: 区域の事象は会話の時計の発言(計器だけ)で世界を書かず、系は全員の配列を 1 回で処理する=区域ごとの処理の正しさ(区域の事象が世界を書く形)はまだ試していない。TM6 の T4 の受入「一致が条件」は条件つき(構造上)",
+   "why": "決定 10-12 §4-2 TM1(正しければ行動は一致=誤りの検出)・TM6 の T4・検収 M4。世界を書く区域の事象(メッセージ・電話=計画 6-4 の C1・会話の番を窓の中で回す T2 の版上げ)が入る段で、区域ごとと全体の一致を意味のある形で試す",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/tm234/README.md",
+   "conf": "expedient",
+   "since": "2026-10-17",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/regional_clock.py",
+    "src/shibuya/engine/systems/conductor.py"
    ]
   }
  ]

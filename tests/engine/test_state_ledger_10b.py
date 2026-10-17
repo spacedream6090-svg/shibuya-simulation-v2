@@ -99,7 +99,9 @@ def test_ledger_has_187_rows_in_two_axes():
     # 〔検収 M4〕店の行の表の腕の行 M0S(腕 memory-people)を足して 120・211
     # 〔第 6 期 6-2〕カレンダー 1b の腕の行 C1B(behavior・required)と C1BM(diag・required)を足して 122・213(腕 calendar の
     # ランだけ持ち主=既定の 2 つのハッシュと状態のファイルは不変・版は上げない=同じ理由・記録 ca1b/README.md)
-    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 122, "soa": 91, "total": 213}
+    # 〔第 6 期 6-3〕その後に時計の段 T2〜T4 の腕の行 TCR・TCC(腕 talk-clock)・T3M(腕 step-scope)・T4W(腕 clock-regional)
+    # (どれも diag・discardable=どちらのハッシュにも状態のファイルにも入らない)を 6-2 の C1B・C1BM の後に足して 126・217
+    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 126, "soa": 91, "total": 217}
     assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
@@ -107,7 +109,8 @@ def test_ledger_has_187_rows_in_two_axes():
                                                                                      "CT5", "S8", "S8M",
                                                                                      "PX", "PX0", "EC", "ATM", "CR", "EM", "X",
                                                                                      "M0L", "BW", "BD", "CAL", "M0M",
-                                                                                     "M0C", "M0X", "M0S", "C1B", "C1BM"]
+                                                                                     "M0C", "M0X", "M0S", "C1B", "C1BM",
+                                                                                     "TCR", "TCC", "T3M", "T4W"]
     assert (SL.row("X").behavior, SL.row("X").restore, SL.row("X").arm) == (SL.DIAG, SL.DISCARDABLE, "")
     assert (SL.row("BW").behavior, SL.row("BW").restore, SL.row("BW").arm) == (SL.DIAG, SL.DISCARDABLE, "")
     assert (SL.row("E").behavior, SL.row("E").restore) == (SL.DIAG, SL.DISCARDABLE)
@@ -122,7 +125,11 @@ def test_ledger_has_187_rows_in_two_axes():
     assert (SL.row("S8").behavior, SL.row("S8").restore, SL.row("S8").arm) == (SL.BEHAVIOR, SL.REQUIRED, "speech-port")
     assert (SL.row("S8M").behavior, SL.row("S8M").restore) == (SL.DIAG, SL.DISCARDABLE)
     # 腕の行(1-8b の 2 行+2-3 の M0L+〔第 6 期 6-5〕M0M・M0C・〔検収 M4〕M0S+〔第 6 期 6-2〕C1B・C1BM)
-    assert [r.key for r in SL.LEDGER if r.arm] == ["S8", "S8M", "M0L", "M0M", "M0C", "M0S", "C1B", "C1BM"]
+    # 〔第 6 期 6-3〕その後に TCR・TCC・T3M・T4W
+    assert [r.key for r in SL.LEDGER if r.arm] == ["S8", "S8M", "M0L", "M0M", "M0C", "M0S", "C1B", "C1BM",
+                                                   "TCR", "TCC", "T3M", "T4W"]
+    for k, arm in (("TCR", "talk-clock"), ("TCC", "talk-clock"), ("T3M", "step-scope"), ("T4W", "clock-regional")):
+        assert (SL.row(k).behavior, SL.row(k).restore, SL.row(k).arm) == (SL.DIAG, SL.DISCARDABLE, arm), k
     assert (SL.row("PX").behavior, SL.row("PX").restore, SL.row("PX").items) == (SL.DIAG, SL.DISCARDABLE,
                                                                                 ("proximity._meter",))
     assert (SL.row("PX0").behavior, SL.row("PX0").restore, SL.row("PX0").items) == (SL.NO, SL.DISCARDABLE, ())

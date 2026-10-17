@@ -57,6 +57,8 @@ OWNER_NAMES: tuple[str, ...] = (
     "body",
     "calendar_shadow",  # 〔第 3 期 3-1〕暦 1a の影(状態台帳の行 CAL・腕 1a のランだけ・中身は hash_skip=値は変わらない)
     "calendar_self",  # 〔第 6 期 6-2〕カレンダー 1b(状態台帳の腕の行 C1B・C1BM・腕 1b のランだけ=既定は None で値は変わらない)
+    # 〔第 6 期 6-3〕時計の段 T2〜T4 の腕の持ち主(状態台帳の腕の行 TCR・TCC・T3M・T4W=軸 1 diag・軸 2 discardable・腕のランだけ)
+    "talk_clock", "step_scope", "clock",
 )
 
 
@@ -240,6 +242,15 @@ class Layers:
     #: 〔第 6 期 6-2〕カレンダー 1b 出入りを本人へ(``engine.calendar_self.CalendarSelf``・状態台帳の腕の行 ``C1B``・``C1BM``)。
     #: 腕 ``--calendar 1b`` で母集団と計画実行層のあるランだけ組み立てが置く(既定 None=今の道)。
     calendar_self: Any = None
+    #: 〔第 6 期 6-3 T2〕会話の時計(``engine.speech_clock.TalkClock``・状態台帳の腕の行 ``TCR``・``TCC``)。腕 ``--talk-clock mora``
+    #: のランだけ組み立てが置く(既定 None=今の 1 ターンの長さの表)。
+    talk_clock: Any = None
+    #: 〔第 6 期 6-3 T3〕何かあった体の印(``engine.step_scope.StepScope``・状態台帳の腕の行 ``T3M``)。腕 ``--step-scope changed``
+    #: のランだけ組み立てが置く(既定 None=全員を毎回見る版)。
+    step_scope: Any = None
+    #: 〔第 6 期 6-3 T4〕場所ごとの時計(``engine.regional_clock.RegionalClock``・状態台帳の腕の行 ``T4W``)。腕 ``--clock regional``
+    #: のランだけ進行役が窓のループの前に置く(既定 None=全体で 1 つの時計)。
+    clock: Any = None
 
     @property
     def undefined(self) -> Any:

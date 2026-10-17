@@ -201,6 +201,10 @@ def sys_conversation(ctx: Any, b: Any) -> None:
             # 第 2 期 2-2: 腕 distance の離脱=同じ層・距離 ≤ d+1 m、または同じ B5 の単位(既定 None=今のまま)
             near_fn=None if prox_rule is None else (lambda a_, b_: prox_rule.stay(agents, a_, b_)),
         )
+        _talk_clock = getattr(b.layers, "talk_clock", None)
+        if finished and _talk_clock is not None:
+            # 〔第 6 期 6-3 T2〕会話の時計: 終わった会話の長さ(会話の中の時計と今の表)を数えて時計の行を消す(計器)
+            _talk_clock.on_close(finished)
         if finished and body_events is not None:
             # 第 2 期 2-3: 会話の終わり(参加者ごとに 1 行・原因=過程 conversation)を出来事の記録へ(腕のランだけ)
             body_events.conversation_end(finished, cell_now)

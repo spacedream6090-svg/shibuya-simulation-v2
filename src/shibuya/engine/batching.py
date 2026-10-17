@@ -276,6 +276,12 @@ class WindowQueue:
         return self._bw_head
 
     @property
+    def now_ns(self) -> int:
+        """〔第 6 期 6-3 T2〕いま処理している時刻(窓の中)か次の窓の頭(窓の外)=予約の下限(``schedule`` の過去の検査と同じ)。
+        会話の時計(``engine.speech_clock``)が発言の事象を置く時刻の下限に読む(読むだけ)。"""
+        return int(self._bw_now) if self._bw_end is not None else int(self._bw_head)
+
+    @property
     def window_counts(self) -> dict[str, int]:
         """計器の写し(読むだけ。名は状態台帳の外の道筋の属性 ``meter``=1-9・1-8・1-8b と衝突させない)。"""
         return dict(self._bw_meter)

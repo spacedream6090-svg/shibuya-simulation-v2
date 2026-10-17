@@ -27,8 +27,10 @@
       各腕の幅 ``width_base`` を当てた。対の差の幅 ``paired_width`` も並べる。
     - (f) ``monotone``: |diff| が W を細かくするほど増えない(幅の大きい順に並べて単調非増加)。
     - 指標の既定: ``calls``(LLM の呼数)・``actions``(行動の件数)・``message_delay_max_s``(境目で届けた事象の遅れの最大
-      [秒]=TM1 の電話・T1 の世界では 0)・``lateness``・``meeting``(**置き場**=遅刻と待ち合わせの成否。計る口がまだ無い
-      =値は null・T2 以降に manifest の道筋を足す)。
+      [秒]=TM1 の電話・T1 の世界では 0。〔第 6 期 6-3 T4〕区域ごとの時計のランは聞く人の区域またぎの遅れも含む=manifest の
+      ``clock.message_delay_ns_max``)・``lateness``(〔6-3 T4〕遅い到着の数=manifest の ``clock.late_arrivals``=腕
+      ``SHIBUYA_CLOCK=regional`` のランだけ値がある)・``meeting``(待ち合わせの成否=``clock.meeting``=約束の仕組みが無い
+      =値は null の欄だけ)。
     - 既定の幅の候補 ``default_candidate``: (g) を測れた指標で全部満たし final の一致も 1.0 の、一番大きい幅(記述)。
 
 使い方(リポの根で・作業木の src)::
@@ -69,8 +71,8 @@ DEFAULT_METRICS: dict[str, str | None] = {
     "calls": "calls",
     "actions": "actions",
     "message_delay_max_s": "message_delay_max_s",
-    "lateness": None,
-    "meeting": None,
+    "lateness": "clock.late_arrivals",  # 〔第 6 期 6-3 T4〕区域ごとの時計の遅刻の計器(腕 regional のランだけ)
+    "meeting": "clock.meeting",  # 〔第 6 期 6-3 T4〕欄だけ(約束の仕組みが無い=null)
 }
 PLACEHOLDER_NOTE = "置き場(計る口がまだ無い=T2 以降に manifest の道筋を足す)"
 
@@ -212,10 +214,14 @@ kw = json.loads(sys.argv[1])
 res = cli.run(**kw)
 m = res.run_manifest_fields()
 b = m.get("batching") or {}
+c = m.get("clock") or {}
 au = dict(getattr(res, "action_usage", {}) or {})
 print(json.dumps({"final": res.final_hash[:16], "calls": int(res.llm_calls),
                   "actions": int(sum(int(v) for v in au.values())), "batching": b,
-                  "message_delay_max_s": (b.get("boundary_delay_ns_max", 0) or 0) / NS_PER_SECOND,
+                  "clock": {k: c.get(k) for k in ("late_arrivals", "late_minutes_sum", "meeting", "message_delay_ns_max",
+                                                  "hear_cross", "cross_moves")} if c else None,
+                  "message_delay_max_s": max(b.get("boundary_delay_ns_max", 0) or 0,
+                                             c.get("message_delay_ns_max", 0) or 0) / NS_PER_SECOND,
                   "run_kind": m.get("run_kind")}, ensure_ascii=False))
 """
 

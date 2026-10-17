@@ -304,7 +304,9 @@ def test_k19_static_sites_are_frozen():
     #(古典の方策の抽選の場所は render から answer へ移っただけ=SAFE_SITES の数は同じ)
     # 〔第 2 期 2-2 段 11a〕知人に気づく抽選(ProximityRule.notice_u=k19 の並べ方・1 語)を SAFE_SITES に足して 14 → 15
     # 〔第 6 期 6-5〕忘れる速さの人ごとのばらつき(forgetting_scale=k19 の並べ方・2 語)を足して 15 → 16
-    assert len(RA.SAFE_SITES) == 16 and len(RA.UNDETERMINED_SITES) == 13
+    # 〔第 6 期 6-3 T2〕会話の時計の人ごとの話す速さ(person_mora_len_s)と発言ごとの揺れ(utterance_jitter)=k19 の並べ方・
+    # どちらも一様 1 語を足して 16 → 18
+    assert len(RA.SAFE_SITES) == 18 and len(RA.UNDETERMINED_SITES) == 13
     # httpx の client.stream(llm/fleet.py)は乱数ではない=一覧に入らない
     assert all(s.path != "llm/fleet.py" for s in sites)
 

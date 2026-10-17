@@ -137,6 +137,9 @@ from shibuya.engine import calendar_shadow as _CALENDAR_SHADOW
 from shibuya.engine import calendar_self as _CALENDAR_SELF
 from shibuya.engine.experiment import layer as _EXPERIMENT
 from shibuya.engine import batching as _BATCHING
+from shibuya.engine import regional_clock as _REGIONAL_CLOCK  # 〔第 6 期 6-3 T4〕
+from shibuya.engine import speech_clock as _SPEECH_CLOCK  # 〔第 6 期 6-3 T2〕
+from shibuya.engine import step_scope as _STEP_SCOPE  # 〔第 6 期 6-3 T3〕
 from shibuya.engine.body import model as _BODY_MODEL
 from shibuya.perception.renderer import (
     DEFAULT_HUNGER_WORDS,
@@ -490,6 +493,7 @@ POPULATION_RNG_DOMAINS: dict[str, str] = {
     "engine.processes.rail": "域外居住の通勤者の抽選と路線(計画実行層の無いランだけ)",
     "world.synthetic": "合成小世界の店の種別と在庫(世界資産が無いときだけ・舞台の構造)",
     "memory.forgetting_rate": "〔第 6 期 6-5〕忘れる速さの人ごとのばらつき 15%(MR8・engine.memory_m1・腕 --memory-model m1 のランだけ)",
+    "talk.rate": "〔第 6 期 6-3 T2〕人ごとの話す速さ(モーラの長さ・engine.speech_clock・腕 --talk-clock mora のランだけ)",
 }
 #: **10f 第 2 段の直し(S1・ユーザー決定 2026-10-07)環境の側の乱数**。``run_day(environment_seed=…)`` の値から引く。
 #: 外から与える舞台の出来事(気象・大きな催し・道路工事)。「天気は同じで動きだけ変える」比較では固定し、
@@ -518,6 +522,7 @@ MOTION_RNG_DOMAINS: dict[str, str] = {
     "world.public_service_dispatch.counter": "出動の遅れ(counter)",
     "world.delivery_inbound": "入荷の抽選(つなぎ: 本来は店の発注と配達員の行動)",
     "world.delivery_last_mile": "配達の予約(引くだけ)",
+    "talk.jitter": "〔第 6 期 6-3 T2〕発言ごとの話す速さの揺れ(engine.speech_clock・腕 --talk-clock mora のランだけ・計器)",
 }
 #: 動きの側の、``core.rng`` の用途名を持たない塩(``seed`` から作る)。
 MOTION_SALTS: dict[str, str] = {
@@ -603,6 +608,22 @@ class Checkpoint:
         if not self.behavior_hash:
             raise ValueError("checkpoint に behavior_hash が無い(final は behavior-hash)")
         return self.behavior_hash
+
+
+def _tm234_sections(res: Any) -> dict[str, Any]:
+    """〔第 6 期 6-3〕manifest の末尾の時計の段の節(腕の持ち主が居るランだけ・既定のランは空=節を出さない)。"""
+    out: dict[str, Any] = {}
+    tc = getattr(res, "talk_clock_layer", None)
+    if tc is not None:
+        out["talk_clock"] = _SPEECH_CLOCK.manifest_fields(tc)
+    ss = getattr(res, "step_scope_layer", None)
+    if ss is not None:
+        out["step_scope"] = _STEP_SCOPE.manifest_fields(
+            ss, body_schedule=str(getattr(getattr(res, "body_layer", None), "arm", "")))
+    ck = getattr(res, "clock_layer", None)
+    if ck is not None:
+        out["clock"] = _REGIONAL_CLOCK.manifest_fields(ck)
+    return out
 
 
 @dataclass
@@ -1309,7 +1330,9 @@ class RunResult:
             # ---- 第 1 期 1-1 T0(TM9・GPU 無しの欄・10f と一体): 呼び出し数を判断モデルと LLM に分けた欄(判断モデルは
             # まだ無い=0)・時計の種類と幅・つなぎの台帳の数。列追加のみ ----
             "calls_by_model": {"judge_model": 0, "llm": int(self.llm_calls)},
-            "clock_kind": CLOCK_KIND,
+            # 〔第 6 期 6-3 T4〕区域ごとの時計のランだけ regional(既定は今の steps)
+            "clock_kind": (CLOCK_KIND if getattr(self, "clock_layer", None) is None
+                           else _REGIONAL_CLOCK.CLOCK_KIND_REGIONAL),
             "step_seconds": int(self.tick_seconds),
             # ---- 第 1 期 1-4: つなぎの台帳の件数(T0 で null にした欄を件数に)・規則の表の版(表の sha=CP10)・
             # ランの種類(CP5-5)。どれも記録だけ(final・behavior-hash は manifest を読まない)。列追加のみ ----
@@ -1366,6 +1389,10 @@ class RunResult:
             # W20 の版・置き場所・仮採用の値・つなぎの台帳の行/観測=日ごとの計器・合計・エンジンがしないこと 3 つの検査)。
             # 既定(w17)のランは欄を足さない=manifest は今のまま。記録だけ(final・behavior-hash は manifest を読まない) ----
             **_CALENDAR_SELF.manifest_fields(getattr(self, "calendar_self_layer", None)),
+            # ---- 〔第 6 期 6-3〕時計の段 T2(会話の時計)・T3(何かあった体だけ)・T4(場所ごとの時計)の節。腕のランだけ出す
+            # (既定のランは節を出さない=既定の manifest は不変)。末尾=… → 3-5 の body → 3-1 の calendar_shadow → 6-3。記録だけ
+            # (final・behavior-hash は manifest を読まない) ----
+            **_tm234_sections(self),
         }
 
     def economy_fields(self) -> dict[str, Any]:

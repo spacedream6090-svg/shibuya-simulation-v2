@@ -245,6 +245,35 @@ PATHS: Final[dict[str, str]] = {
     **_mixed("calendar_1b", config=("schema", "mode", "port", "w20", "placements", "look_interval_min", "margins_min",
                                     "recent_k", "round_min", "approx_round_min", "felt", "bridges"),
              observed=("days", "totals", "checks")),
+    # ---- 第 6 期 6-3: 時計の段 T2〜T4 の腕の節(腕のランだけ出る=既定のランの manifest には無い)。子の鍵は
+    # engine.speech_clock・engine.step_scope・engine.regional_clock の CONFIG_KEYS・OBSERVED_KEYS と同じ=試験が突き合わせる ----
+    # T2 会話の時計(形の版・腕・錨の出典の表・導いた幅・間・考える時間を数える側・モーラの規則・道具・上限・事象の種類と順位・
+    # 計器の区切り=設定/会話の番・発言・持ち越し・上限・束・モーラと長さと話す速さ・区域またぎの聞こえ・会話の長さ・区切りごとの
+    # 数=観測)
+    **_mixed("talk_clock", config=(
+        "schema", "arm", "anchors", "sigma_between", "sigma_within", "familiar_delta", "gap_ns", "think_time",
+        "mora_rule", "modalities", "cap_per_window", "kind", "rank", "bins"), observed=(
+        "turns", "utterances", "silent", "no_session", "lang_other", "chat_blank", "familiar", "unfamiliar",
+        "familiar_unknown", "persons", "carried", "lag_ns_sum", "lag_ns_max", "ahead", "cap_hits", "dispatches",
+        "batch_max", "batch_sum", "mora_sum", "speech_ns_sum", "utterance_ns_max", "gap_ns_sum", "heard", "cross_heard",
+        "hear_delay_ns_sum", "hear_delay_ns_max", "conversations", "conv_silent", "conv_open_at_end", "conv_tm3_ns_sum",
+        "conv_table_s_sum", "conv_span_s_sum", "pending_at_end", "mean_utterance_s", "mean_mora", "mean_rate_mora_per_s",
+        "person_rate_mean", "person_rate_min", "person_rate_max", "mean_conv_tm3_s", "mean_conv_table_s",
+        "mean_conv_span_s", "hist")),
+    # T3 何かあった体だけ(形の版・腕・絞る処理と絞らない処理・印の列・体の反映の腕=設定/検出の回数・全員を見た回数・印の
+    # 延べと最大・跨いだ体・全員を見る版の延べ・壁時計(非決定)・印の平均と割合=観測)
+    **_mixed("step_scope", config=("schema", "arm", "narrowed", "not_narrowed", "mark_columns", "body_schedule"),
+             observed=("steps", "full_steps", "marked", "marked_max", "crossed", "full_equiv",
+                       "detect_seconds_nondeterministic", "marked_mean", "marked_share")),
+    # T4 場所ごとの時計(形の版・腕・時計の種類・区域の幅と作り方と数・舞台の外の区域・窓の幅・メッセージと待ち合わせと混合の
+    # 宣言=設定/窓・区域の窓・事象・区域をまたぐ事象と遅れ・境目の移動・聞く人の区域またぎ・遅刻・メッセージの遅れ・待ち合わせ
+    # (欄だけ)=観測)
+    **_mixed("clock", config=("schema", "arm", "clock_kind", "region_size_m", "regions_from", "n_regions",
+                              "outside_region", "width_s", "messages", "meeting_note", "mixed"), observed=(
+        "windows", "region_windows", "events", "dispatches", "cross_events", "cross_delay_ns_sum", "cross_delay_ns_max",
+        "boundaries", "cross_moves", "cross_move_delay_ns_max", "hear", "hear_cross", "hear_delay_ns_sum",
+        "hear_delay_ns_max", "planned_arrivals", "late_arrivals", "late_minutes_sum", "late_minutes_max",
+        "message_delay_ns_max", "pending_at_end", "meeting")),
 }
 
 

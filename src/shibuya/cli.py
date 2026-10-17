@@ -488,6 +488,9 @@ def run(
         from shibuya.engine import calendar_shadow as _calendar_shadow  # 〔第 3 期 3-1〕暦 1a の影(既定 w17 と違えば腕)
         from shibuya.engine import calendar_self as _calendar_self  # 〔第 6 期 6-2〕カレンダー 1b(既定 w17 と違えば腕)
         from shibuya.engine import memory_m1 as _memory_m1  # 〔第 6 期 6-5〕記憶の腕(結果を変える腕=既定と違えば腕)
+        from shibuya.engine import regional_clock as _regional_clock  # 〔第 6 期 6-3〕時計の段 T2〜T4 の腕(既定と違えば腕)
+        from shibuya.engine import speech_clock as _speech_clock
+        from shibuya.engine import step_scope as _step_scope
         from shibuya.engine.speech import layer as _speech_layer
 
         # 第 1 期 1-8b: 発話の口の腕(環境変数か --speech-port・run の引数ではない)は結果を変える=on は腕に数える
@@ -500,7 +503,10 @@ def run(
                               or _body.arm() != _body.DEFAULT_ARM  # 〔3-5〕体の予約の腕(既定は sweep)
                               or _calendar_shadow.arm() != _calendar_shadow.DEFAULT_MODE  # 〔3-1〕既定は w17
                               or _calendar_self.arm() != _calendar_self.DEFAULT_MODE  # 〔6-2〕既定は w17
-                              or _memory_m1.arms_on(),  # 〔6-5〕記憶の腕(--memory-model/-cue/-people/-grain)
+                              or _memory_m1.arms_on()  # 〔6-5〕記憶の腕(--memory-model/-cue/-people/-grain)
+                              # 〔6-3〕会話の時計・何かあった体だけ・場所ごとの時計(既定 table/all/global と違えば腕)
+                              or not (_speech_clock.is_default() and _step_scope.is_default()
+                                      and _regional_clock.is_default()),
                               counterfactual=exp_form is not None)
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
@@ -1449,6 +1455,33 @@ def main(argv: list[str] | None = None) -> int:
              "入れない(manifest の body に出る・既定と違えばランの種類は arm)",
     )
     ap.add_argument(
+        "--talk-clock",
+        choices=("table", "mora"),
+        default=None,
+        help="第 6 期 6-3 時計の段 T2 会話の時計の腕(既定 table・環境変数 SHIBUYA_TALK_CLOCK と同じ。指定すれば環境変数より"
+             "強い)。table=今の 1 ターンの長さの表(1 呼=1 発話ブロック=刻み 1 つ)。mora=発言の長さをモーラ数 × その人の話す速さ"
+             "(人ごとの値+発言ごとの揺れ・R-111 §3)で数え、会話ごとの時計(間=日本語の平均 7 ms)を窓の待ち行列の事象として"
+             "時刻順に処理する(計器だけ=会話の番は今も刻みに 1 回)。既定と違えば設定の指紋に入り、ランの種類は arm(manifest の"
+             "talk_clock に出る)",
+    )
+    ap.add_argument(
+        "--step-scope",
+        choices=("all", "changed"),
+        default=None,
+        help="第 6 期 6-3 時計の段 T3 何かあった体だけの腕(既定 all・環境変数 SHIBUYA_STEP_SCOPE と同じ。指定すれば環境変数より"
+             "強い)。changed=体の反映を TM5 の予約(3-5 の reserve)にし、内受容の段の跨ぎの判定を変化の印の体だけに通す(結果は"
+             "all と同じでなければならない=一致の確認)。既定と違えば設定の指紋に入り、ランの種類は arm(manifest の step_scope)",
+    )
+    ap.add_argument(
+        "--clock",
+        choices=("global", "regional", "mixed"),
+        default=None,
+        help="第 6 期 6-3 時計の段 T4 場所ごとの時計の腕(既定 global・環境変数 SHIBUYA_CLOCK と同じ。指定すれば環境変数より"
+             "強い)。regional=区域(セルの重心の 500 m の塊)ごとに窓を進め、区域をまたぐ事象は境目で届ける(結果は global と同じ"
+             "でなければならない)。mixed=口だけ(値は空欄=選ぶと止める)。既定と違えば設定の指紋に入り、ランの種類は arm"
+             "(manifest の clock・clock_kind)",
+    )
+    ap.add_argument(
         "--calendar-shadow",
         choices=("w17", "1a"),
         default=None,
@@ -1553,6 +1586,18 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine import body as _body
 
         _body.set_arm(str(args.body_schedule))
+    if args.talk_clock is not None:  # 〔第 6 期 6-3 T2〕会話の時計の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine import speech_clock as _speech_clock
+
+        _speech_clock.set_arm(str(args.talk_clock))
+    if args.step_scope is not None:  # 〔第 6 期 6-3 T3〕何かあった体だけの腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine import step_scope as _step_scope
+
+        _step_scope.set_arm(str(args.step_scope))
+    if args.clock is not None:  # 〔第 6 期 6-3 T4〕場所ごとの時計の腕(組み立てと進行役が読む。指定は環境変数より強い)
+        from shibuya.engine import regional_clock as _regional_clock
+
+        _regional_clock.set_arm(str(args.clock))
     if args.calendar_shadow is not None:  # 〔第 3 期 3-1〕暦 1a の影の腕(組み立てが読む。指定は環境変数より強い)
         from shibuya.engine import calendar_shadow as _calendar_shadow
 

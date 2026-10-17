@@ -17,6 +17,7 @@ import numpy as np
 
 from shibuya.core.hashing import blake3_hex
 from shibuya.core.time_consts import CLOCK_KIND
+from shibuya.engine.regional_clock import CLOCK_KIND_REGIONAL as _CLOCK_KIND_REGIONAL
 from shibuya.engine import proximity as _PROX
 from shibuya.engine import economy_stage2 as _ES2
 from shibuya.engine.bridging import ledger as _BR
@@ -78,6 +79,10 @@ def hash_owners(b: Any) -> dict[str, Any]:
         "body": getattr(L, "body", None),
         "calendar_shadow": getattr(L, "calendar_shadow", None),
         "calendar_self": getattr(L, "calendar_self", None),
+        # 〔第 6 期 6-3〕時計の段 T2〜T4 の腕の持ち主(腕の行=持ち主の居るランだけ・diag・discardable=値は変わらない)
+        "talk_clock": getattr(L, "talk_clock", None),
+        "step_scope": getattr(L, "step_scope", None),
+        "clock": getattr(L, "clock", None),
     }
 
 
@@ -260,7 +265,8 @@ def day_record(b: Any, d: int) -> None:
     # 再開した時刻からの分)・時計の種類と幅・つなぎの台帳の数。記録の欄が増えるだけ(状態に入らない)。
     llm_before = sum(int(r["calls_by_model"]["llm"]) for r in b.runstats.daily_records if "calls_by_model" in r)
     rec["calls_by_model"] = {"judge_model": 0, "llm": int(result.llm_calls) - llm_before}
-    rec["clock_kind"] = CLOCK_KIND
+    # 〔第 6 期 6-3 T4〕時計の種類は区域ごとの時計のランだけ regional(既定は今の steps)
+    rec["clock_kind"] = CLOCK_KIND if getattr(b.layers, "clock", None) is None else _CLOCK_KIND_REGIONAL
     rec["step_seconds"] = int(b.cfg.tick_seconds)
     # 第 1 期 1-4: つなぎの台帳の件数(T0 の null を件数に)と規則の表の版(表の sha)。TM9 の行に並べる(``events`` の前)。
     # どちらもリポの docs の表を 1 回だけ読む(状態に入らない=記録だけ)。

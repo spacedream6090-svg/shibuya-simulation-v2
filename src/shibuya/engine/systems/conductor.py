@@ -44,14 +44,15 @@ def declared_check(specs: dict[str, SystemSpec]):
     ``stats.<名>`` → ``writes.tally``・``buffers.<名>`` → ``writes.buffers``。宣言の無い系の名(``build`` など)は通す。
 
     〔3-2 検収 L1〕系でない境目のうち窓の境目 ``WINDOW_MARK`` は、状態台帳の行 ``BW``(窓の待ち行列と計器)の鍵 ``BW:…``
-    だけを通す(窓を閉じる・開ける・次の刻みの事象の予約のほかの変化がここに出たら宣言の外)。刻みの頭 ``TICK_HEAD`` は
+    だけを通す(窓を閉じる・開ける・次の刻みの事象の予約のほかの変化がここに出たら宣言の外)。〔第 6 期 6-3〕腕のランでは
+    会話の時計の発言の事象の処理(行 ``TCC:…``)と区域ごとの時計の窓(行 ``T4W:…``)も窓の境目に帰属する。刻みの頭 ``TICK_HEAD`` は
     前からの素通りのまま(scratch を空にする・出来事の記録の時計を進める=進行役の決まった文の差の帰属先で、系の宣言を
     持たない。1-0 の段 B の形を変えない)。
     """
 
     def check(name: str, key: str) -> bool:
         if name == WINDOW_MARK:
-            return key.startswith("BW:")
+            return key.startswith(WINDOW_MARK_KEYS)
         sp = specs.get(name)
         if sp is None:
             return True
@@ -75,6 +76,8 @@ TICK_HEAD = "(tick_head)"
 #: 〔第 3 期 3-2〕窓の境目の名(系ではない=宣言を持たない)。窓の中で処理の関数を呼んだ後ごとに置く=その後の待ち行列と計器
 #: (状態台帳の行 ``BW``)の変化の帰属先(前の系に帰属させない)。既定のランでは何もしない(試験のときだけ snapshot)。
 WINDOW_MARK = "(window)"
+#: 窓の境目に帰属してよい状態台帳の行の鍵の頭(3-2 の ``BW``・〔第 6 期 6-3〕会話の時計の ``TCC``・区域ごとの時計の ``T4W``)。
+WINDOW_MARK_KEYS: tuple[str, ...] = ("BW:", "TCC:", "T4W:")
 
 #: 試験(T4)のとき真: 刻みの頭で scratch を番兵で埋め、その刻みに書かれる前に読むと落とす。
 STRICT_SCRATCH: bool = False
@@ -144,6 +147,24 @@ def conduct(call_args: dict) -> Any:
     queue = _BA.WindowQueue(width_s=width_s, start_ns=t_begin * step_ns, step_s=step_s)
     box.layers.batching = queue  # 状態台帳の行 BW の持ち主(軸 1 diag・軸 2 discardable=再開のランはここで作り直す)
     box.runstats.result.batching_layer = queue  # manifest の batching が読む(後付けの属性=RunResult の欄は増やさない)
+    # ---- 〔第 6 期 6-3〕時計の段 T4 の場所ごとの時計(腕 regional のランだけ・既定 global は None)と T2 の会話の時計の事象の口
+    # (腕 mora のランだけ組み立てが置いた持ち主に、全体の窓の待ち行列か区域ごとの時計を挿す)。腕は組み立ての指紋と同じ ----
+    from shibuya.engine import regional_clock as _RCK
+    from shibuya.engine import speech_clock as _TCK
+
+    if str(fp.get(_RCK.FP_KEY, _RCK.DEFAULT_ARM)) != _RCK.arm():
+        raise RuntimeError(f"時計の腕がランの途中で変わった(指紋 {fp.get(_RCK.FP_KEY)}・今 {_RCK.arm()})")
+    regional = _RCK.make(world=box.soa.world, agents=box.soa.agents, width_s=width_s, start_ns=t_begin * step_ns,
+                         step_s=step_s)
+    box.layers.clock = regional  # 状態台帳の腕の行 T4W の持ち主(軸 1 diag・軸 2 discardable)
+    talk_clock = box.layers.talk_clock
+    if talk_clock is not None:
+        if regional is not None:
+            regional.register(_TCK.KIND_TALK, "talk", talk_clock.on_dispatch)
+            talk_clock.attach(regional)
+        else:
+            queue.register(_TCK.KIND_TALK, "talk", talk_clock.on_dispatch, rank=_TCK.RANK_TALK)
+            talk_clock.attach(_TCK.QueueRouter(queue))
 
     def on_step(t_ns: int, _agents: Any, _seqs: Any) -> None:
         """刻みの事象(世界の 1 回の系の並び)。中身は前の刻みのループの 1 回と同じ文の並び。"""
@@ -169,7 +190,11 @@ def conduct(call_args: dict) -> Any:
     while queue.head_ns < end_ns:  # 逐次ループ宣言1: 窓の数ぶん
         # 試験だけ: 処理の関数(刻みの事象=系の並び)を呼んだ後ごとの境目。その後の待ち行列と計器の変化(窓を閉じる・次の
         # 窓を開ける)はこの境目に帰属する(前の系に帰属させない)。最初の窓の前は境目が無い=帰属もしない
+        _w_head = queue.head_ns
         queue.run_window(after_dispatch=functools.partial(_PR.at, WINDOW_MARK, queue.head_ns // step_ns, box))
+        if regional is not None:  # 〔第 6 期 6-3 T4〕全体の窓の後に区域ごとの窓(境目の移動・遅刻・区域の事象)
+            regional.run_windows(_w_head, queue.head_ns, presence=box.layers.presence, tpd=tpd)
+            _PR.at(WINDOW_MARK, _w_head // step_ns, box)
     run_system(SPECS["drain"], None, box)
     run_system(SPECS["close_final"], None, box)
     result = run_system(SPECS["report"], None, box)

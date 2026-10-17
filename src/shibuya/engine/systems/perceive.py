@@ -66,9 +66,15 @@ def sys_detect(ctx: Any, b: Any) -> None:
     world = b.soa.world
     _count_intero_crossings = _RUN._count_intero_crossings
     t0 = time.perf_counter()
-    det = detector.detect(world, agents, tick, field_rows=field_rows)
+    step_scope = getattr(b.layers, "step_scope", None)  # 〔第 6 期 6-3 T3〕腕 --step-scope changed のランだけ(既定 None=全員を毎回見る版)
+    if step_scope is None:
+        det = detector.detect(world, agents, tick, field_rows=field_rows)
+    else:  # 内受容の段の跨ぎは変化の印の体だけ(結果は全員を見る版と同じ)
+        det = step_scope.detect(detector, world, agents, tick, field_rows=field_rows)
     _count_intero_crossings(det, agents, intero_cross)
     R.apply_detection(agents, world, det)
+    if step_scope is not None:
+        step_scope.after_detection(agents, det)
     d_agent, d_cond, d_class = det.candidates()
     # ---- 二層の段 2: 活動中は場所の変化で起こさない+満了入口 ----
     if act_layer is not None:

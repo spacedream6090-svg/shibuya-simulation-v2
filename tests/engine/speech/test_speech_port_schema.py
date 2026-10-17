@@ -156,7 +156,9 @@ def test_ledger_arm_rows_and_arm_items():
         SL.BEHAVIOR, SL.REQUIRED, ("speech.inbox",), "speech-port", "speech")
     assert (s8m.behavior, s8m.restore) == (SL.DIAG, SL.DISCARDABLE)
     # 〔第 2 期 2-3〕M0L・〔第 6 期 6-5〕M0M・M0C・〔検収 M4〕M0S・〔第 6 期 6-2〕カレンダー 1b の C1B・C1BM(腕 calendar)
-    assert [r.key for r in SL.arm_rows()] == ["S8", "S8M", "M0L", "M0M", "M0C", "M0S", "C1B", "C1BM"]
+    # 〔第 6 期 6-3〕その後に時計の段 T2〜T4 の腕の行 TCR・TCC・T3M・T4W
+    assert [r.key for r in SL.arm_rows()] == ["S8", "S8M", "M0L", "M0M", "M0C", "M0S", "C1B", "C1BM",
+                                             "TCR", "TCC", "T3M", "T4W"]
     assert [(SL.row(k).arm, SL.row(k).arm_owner) for k in ("C1B", "C1BM")] == [
         ("calendar", "calendar_self"), ("calendar", "calendar_self")]
     # 腕の行は静的な表に入らない(既定の 2 つのハッシュと状態のファイルは前と同じ道筋)

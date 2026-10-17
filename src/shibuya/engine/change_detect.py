@@ -344,6 +344,48 @@ class ChangeDetector:
             out.append(B5Crossing(var, stage_field, idx, new))
         return tuple(out)
 
+    # ---- (ii) 内受容(〔第 6 期 6-3 T3〕変化の印の体だけ) ----
+    def _interoception_scoped(self, agents: AgentState, idx: np.ndarray) -> tuple[B5Crossing, ...]:
+        """``_interoception`` と同じ判定を体の配列 ``idx``(昇順)だけに通す(``engine.step_scope`` の腕 changed)。
+
+        ``idx`` が「判定の結果が変わりうる体」を全部含めば、全員を見る版と同じ結果(同じ体・同じ昇順・同じ新しい段)。
+        作業の配列は持ち回さない(印の数ぶんの一時の配列)。逐次ループ宣言: 内受容 3 変数 × 段の境目 3 つ(体数に比例しない)。
+        """
+        edges = INTERO_UP_EDGES
+        ups: list[np.ndarray] = []
+        dns: list[np.ndarray] = []
+        hits: list[np.ndarray] = []
+        stages: list[np.ndarray] = []
+        for value_field, stage_field in INTERO_VARS:  # 逐次: 3 変数
+            v = agents.registry.field(value_field)[idx]
+            p = agents.registry.field(stage_field).view(np.uint8)[idx]
+            up = np.zeros(idx.size, dtype=bool)
+            dn = np.zeros(idx.size, dtype=bool)
+            for k, e in enumerate(edges):  # 逐次: 段の境目 3 つ
+                up |= (p == k) & (v >= e)
+                dn |= (p == k + 1) & (v < e - INTERO_HYSTERESIS)
+            ups.append(up)
+            dns.append(dn)
+            hits.append(up | dn)
+            stages.append(p)
+        any_ = hits[0] | hits[1] | hits[2]
+        if not any_.any():
+            return tuple(
+                B5Crossing(var, sf, np.empty(0, dtype=np.int64), np.empty(0, dtype=np.uint8))
+                for var, (_, sf) in enumerate(INTERO_VARS)
+            )
+        sel = np.flatnonzero(any_)
+        out: list[B5Crossing] = []
+        for var, (_, stage_field) in enumerate(INTERO_VARS):  # 逐次: 3 変数
+            sub = sel[hits[var][sel]]
+            new = (
+                stages[var][sub].astype(np.int16)
+                + ups[var][sub].astype(np.int16)
+                - dns[var][sub].astype(np.int16)
+            ).astype(np.uint8)
+            out.append(B5Crossing(var, stage_field, idx[sub].astype(np.int64), new))
+        return tuple(out)
+
     # ---- 本体 ----
     def detect(
         self,
@@ -352,6 +394,7 @@ class ChangeDetector:
         tick: int,
         *,
         field_rows: np.ndarray | None = None,
+        scope: np.ndarray | None = None,
     ) -> DetectResult:
         """1 tick 分の変化検出(**書き込みなし**)。
 
@@ -363,6 +406,8 @@ class ChangeDetector:
                 それを渡す**(``engine.run`` はそうする)= 検出器と描画が同じ 1 本の欄を見る
                 =「起床条件 (i) が鳴らないのに文面が変わる」取りこぼしが構造的に 0 になる。
                 None なら ``b4_block_raw`` が world から作る(単体運転・ベンチ用)。
+            scope: 〔第 6 期 6-3 T3〕内受容の判定を通す体(昇順の int64・``engine.step_scope`` の変化の印)。None(既定)は
+                全員(今の道)。セルの起床は絞らない。
 
         Returns:
             ``DetectResult``。
@@ -376,7 +421,8 @@ class ChangeDetector:
             cell_agents = self._wake_buf[:k].copy()
         else:
             cell_agents = np.empty(0, dtype=np.int64)
-        crossings = self._interoception(agents)
+        crossings = (self._interoception(agents) if scope is None
+                     else self._interoception_scoped(agents, np.asarray(scope, dtype=np.int64)))
         return DetectResult(
             tick=int(tick),
             changed_cells=changed_cells,

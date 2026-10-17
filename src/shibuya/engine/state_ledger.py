@@ -943,7 +943,8 @@ _EXT: tuple[LedgerRow, ...] = (
              "計器(窓の数・事象の数・持ち越し・上限に当たった数)の読み手は manifest の batching(持ち主のメソッド "
              "manifest_fields)と試験だけ(軸 1 diag)。再開のランは進行役がランの始めの刻みから作り直す(軸 2 discardable="
              "どちらのハッシュにも状態のファイルにも入らない=既定の final・full-hash・状態のファイルは不変)。書くのは進行役"
-             "(系の外=窓の境目 WINDOW_MARK に帰属)と刻みの事象の頭の次の予約だけ。T2 で刻みの外の事象(会話の番・届く"
+             "(系の外=窓の境目 WINDOW_MARK に帰属)と刻みの事象の頭の次の予約だけ(〔6-3 検収 M1〕腕 --talk-clock mora のランは"
+             "会話の番の発言の予約=系 decide・llm_receive も書く=宣言 BW:batching.*)。T2 で刻みの外の事象(会話の番・届く"
              "メッセージ・体の変化の予約)が入ったら軸 1 behavior・軸 2 required へ見直す(版上げ・つなぎの台帳 DOC-tm32-*)。"
              "行の鍵は O の通し番号でなく BW"),
     # ---- 第 3 期 3-5(本人の体の層・③ 群・TM5 の予約の口): 足す前に軸を決めた行 ----
@@ -1058,6 +1059,57 @@ _EXT: tuple[LedgerRow, ...] = (
         note="6-2: 読み手は manifest の calendar_1b と試験だけ=軸 1 diag(記録の id の通し番号は機会の参照=器の next_ref に写す"
              "値で、挙動は器の側で数える)。日をまたぐ記録(閉じた日の記録・判断の行・検査の数)は再開で作り直せない=軸 2 required"
              "(再開でも日ごとの記録が通しと同じ)。書く系は day_head と presence(宣言 C1B*:calendar_self.*)。行の鍵は C1BM"),
+    # ---- 第 6 期 6-3(時計の段 T2〜T4・全部 腕): 足す前に軸を決めた行(腕の行=腕のランだけ持ち主がある・既定は空) ----
+    LedgerRow(
+        key="TCR", name="TalkClock の話す速さの控え(体 → モーラの長さ・第 6 期 6-3 T2)", place=EXTERNAL,
+        dtype="dict(int → float)", nbytes="話した体あたり約 100 B(辞書の項)", alloc="--talk-clock mora", behavior=DIAG,
+        restore=DISCARDABLE, dead=False,
+        basis="engine/speech_clock.py(TalkClock.mora_len_s・person_mora_len_s)・engine/systems/llm_io.py(utter が on_turn を呼ぶ)",
+        items=("talk_clock._tc_rate",), arm="talk-clock",
+        note="6-3 T2: 腕 mora のランだけ組み立てが持ち主を作る(既定 table は None=既定の 2 つのハッシュと状態のファイルは不変)。"
+             "人ごとのモーラの長さは母集団の seed と体の番号から引ける値の控え(最初に話したときに引く)。会話の時計は世界の状態を"
+             "書かない(発言の長さと時刻を数えるだけ=記録 tm234/README.md §T2)=読み手は時計の計器と manifest の talk_clock だけ"
+             "(軸 1 diag)・再開では空から引き直す(同じ値=軸 2 discardable)。書く系は decide・llm_receive(会話の番=宣言 "
+             "TCR:talk_clock.*)。行の鍵は O の通し番号でなく TCR"),
+    LedgerRow(
+        key="TCC", name="TalkClock の会話の時計・予約した発言・計器(第 6 期 6-3 T2)", place=EXTERNAL,
+        dtype="dict(会話の番号 → int の組 8=〔検収 M3〕前の番を作った時刻を含む)・dict(予約の番号 → 組)・計器の dict(int・区切りの数の組)・どれも読み取り専用の写し", nbytes="",
+        alloc="--talk-clock mora", behavior=DIAG, restore=DISCARDABLE, dead=False,
+        basis="engine/speech_clock.py(TalkClock.on_turn・on_dispatch・on_close・observed)・engine/systems/conductor.py"
+              "(発言の事象の種類 talk を窓の待ち行列か区域ごとの時計に置く)・engine/systems/talk.py(終わった会話)",
+        items=("talk_clock._tc_line", "talk_clock._tc_pending", "talk_clock._tc_meter"), arm="talk-clock",
+        note="6-3 T2: 会話ごとの時計(最初の発言の始まり・次の発言の始まり・最後の発言の終わり・発言の数・話した長さ・窓と窓の"
+             "中の数)・予約した発言(窓の待ち行列の事象の番号 → 会話・話し手・始まり・長さ・モーラ数・聞く人・作った時刻)・計器"
+             "(持ち越し・上限・束の大きさ・区切りごとの数)。世界の状態を書かない=軸 1 diag(会話の番は今も刻みに 1 回=つなぎの"
+             "台帳 DOC-tm234-talk-clock-meter-only)。再開のランは空から(話し中の会話は再開の後の最初の発言から時計を始め直す="
+             "軸 2 discardable)。書く系は decide・llm_receive(予約)・conversation(終わった会話)・窓の境目 WINDOW_MARK(発言の"
+             "事象の処理)。行の鍵は O の通し番号でなく TCC"),
+    LedgerRow(
+        key="T3M", name="StepScope の変化の印(内受容の値と段の写し・前に跨いだ体・計器・第 6 期 6-3 T3)", place=EXTERNAL,
+        dtype="dict(列の名 → u1 の配列 × 6)・i8 の配列・計器の dict", nbytes="6 B/体+跨いだ体 8 B",
+        alloc="--step-scope changed", behavior=DIAG, restore=DISCARDABLE, dead=False,
+        basis="engine/step_scope.py(StepScope.marks・detect・after_detection)・engine/change_detect.py(detect の scope=)・"
+              "engine/systems/perceive.py(sys_detect)",
+        items=("step_scope._ss_copy", "step_scope._ss_crossed", "step_scope._ss_meter"), arm="step-scope",
+        note="6-3 T3: 腕 changed のランだけ持ち主を作る。写しは「内受容の判定の結果が変わりうる体」を選ぶだけで、判定の結果は"
+             "全員を見る版と同じ(受入=byte-check 19 構成)=結果を変えない控え=軸 1 diag(3-5 の BD と同じ扱い)。再開では写しを"
+             "捨てる(再開の後の最初の検出は全員=軸 2 discardable)。書く系は detect(宣言 T3M:step_scope.*)。行の鍵は T3M"),
+    LedgerRow(
+        key="T4W", name="RegionalClock の区域ごとの窓・区域の事象・体の区域の写し・遅刻の日の表・計器(第 6 期 6-3 T4)",
+        place=EXTERNAL,
+        dtype="i8 の配列(区域の数)・dict(区域 → 事象の組の list)・int・i8 の配列(体)・組(日・i8 × 3・f8)・計器の dict",
+        nbytes="8 B/体(区域の写し)+区域 30 × 8 B+日の表 1,440 × 32 B", alloc="--clock regional", behavior=DIAG,
+        restore=DISCARDABLE, dead=False,
+        basis="engine/regional_clock.py(RegionalClock.schedule・run_windows・hear_delay_ns・observed)・"
+              "engine/systems/conductor.py(窓のループの後に区域ごとの窓)",
+        items=("clock._rc_head", "clock._rc_events", "clock._rc_seq", "clock._rc_snap", "clock._rc_late",
+               "clock._rc_meter"), arm="clock-regional",
+        note="6-3 T4: 腕 regional のランだけ進行役が持ち主を作る(既定 global は None)。区域ごとの窓の頭と区域の事象(会話の"
+             "時計の発言の事象)・境目の移動を数える体の区域の写し・遅刻の日の表・計器(区域の窓・区域をまたぐ事象と遅れ・聞く人の"
+             "区域またぎの遅れ・遅刻)。世界の状態を書かない(系は全員の配列を 1 回で処理する=全体で 1 つの時計と同じ結果=受入の"
+             "条件=構造上いつも成り立つ一致=〔検収 M4〕)=軸 1 diag・再開では進行役が作り直す=軸 2 discardable。書くのは進行役"
+             "(窓の境目 WINDOW_MARK に帰属)と会話の番の発言の予約(〔検収 M1〕系 decide・llm_receive=宣言 T4W:clock.*)。"
+             "行の鍵は O の通し番号でなく T4W"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -1234,6 +1286,10 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "calendar_shadow": ("engine/calendar_shadow.py", "CalendarShadow"),
     # 第 6 期 6-2: カレンダー 1b(状態台帳の腕の行 C1B・C1BM・腕 --calendar 1b のランだけ)
     "calendar_self": ("engine/calendar_self.py", "CalendarSelf"),
+    # 第 6 期 6-3: 時計の段 T2〜T4 の腕の持ち主(状態台帳の腕の行 TCR・TCC・T3M・T4W・腕のランだけ)
+    "talk_clock": ("engine/speech_clock.py", "TalkClock"),
+    "step_scope": ("engine/step_scope.py", "StepScope"),
+    "clock": ("engine/regional_clock.py", "RegionalClock"),
 }
 
 #: (ii) キャッシュ・導出。中身は 3 通り: (a) 毎 tick(か事象のある tick)作り直す作業の値・印
@@ -1562,6 +1618,23 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("calendar_self", CACHE, "6-2: この刻みに歩き始めた体(刻みの中で使い切る)", "walk_started_now"),
     _x("presence", REF, _REFR + "(6-2: カレンダー 1b の層=腕 1b のランだけ組み立てが挿す口・状態は層の側で数える)",
        "io_hook"),
+    # 第 6 期 6-3: 時計の段 T2〜T4 の腕の持ち主の設定・参照・作業の値
+    _x("talk_clock", CONST, _CFG + "(6-3 T2: 話す速さと揺れの乱数の seed・刻みの幅・1 窓の上限)", "rate_seed", "jitter_seed",
+       "step_ns", "cap"),
+    _x("talk_clock", REF, _REFR + "(6-3 T2: 関係の層=親しい相手の判定を読むだけ・事象を置く口=進行役が挿す)", "rel_layer",
+       "_tc_router"),
+    _x("talk_clock", CONST, _FIELD + "(6-3 T2: 持ち主の名・腕の行の腕の名 LEDGER_ARM)", "name", "LEDGER_ARM"),
+    _x("step_scope", CONST, _CFG + "(6-3 T3: 体の数)", "n"),
+    _x("step_scope", CACHE, "6-3 T3: 検出の間だけの作業の値(今の検出で見た体=after_detection で空に戻す)", "_ss_idx"),
+    _x("step_scope", CONST, _FIELD + "(6-3 T3: 持ち主の名・腕の行の腕の名 LEDGER_ARM)", "name", "LEDGER_ARM"),
+    _x("clock", CONST, _CFG + "(6-3 T4: 区域の数・舞台の外の区域・窓と刻みの幅・ランの始め・区域の作り方の名)", "n_regions",
+       "outside", "width_ns", "step_ns", "start_ns", "regions_from"),
+    _x("clock", CACHE, _TAB + "(6-3 T4: セル → 区域の表=世界資産のセルの重心から作る)", "region_of_cell"),
+    _x("clock", REF, _REFR + "(6-3 T4: 体の状態=区域を引くセルを読むだけ・区域の事象の種類の表=名と処理の関数)", "agents",
+       "_rc_kinds"),
+    _x("clock", CACHE, "6-3 T4: 区域の窓の中だけの作業の値(処理中の時刻・窓の終わり・処理し終えた区域=窓を閉じると空)",
+       "_rc_now", "_rc_end", "_rc_done"),
+    _x("clock", CONST, _FIELD + "(6-3 T4: 持ち主の名・腕の行の腕の名 LEDGER_ARM)", "name", "LEDGER_ARM"),
 )
 
 
