@@ -25,7 +25,7 @@ import os
 from datetime import date as _date
 from pathlib import Path
 
-from . import amedas, common, jma_xml, ledger, odpt_rt, odpt_static, shibuya_jinryu, wbgt
+from . import amedas, common, jma_xml, ledger, logrotate, odpt_rt, odpt_static, shibuya_jinryu, wbgt
 
 ALL_SOURCES = ("amedas", "wbgt", "shibuya_jinryu", "odpt_rt", "odpt_static", "jma_xml")
 DAILY_SOURCES = ("amedas", "wbgt", "jma_xml")   # 毎日回す既定(R1 の10日期限が効くのはここ)
@@ -294,6 +294,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--no-raw", action="store_true", help="CSV 等の生ファイルを保存しない")
     p.add_argument("--save-xml", action="store_true", help="防災情報XML の生 XML も保存する")
     p.add_argument("--lookback", type=int, default=30, help="--report の遡り日数")
+    p.add_argument("--rotate-logs", action="store_true",
+                   help="台帳 _ledger.jsonl とタスクのログ(_scheduler_odpt.log・_scheduler.log)を今すぐ回して "
+                        "gzip する(_logs/ の下へ・書き手が開いていれば次の回へ)。ネットワーク不使用。"
+                        "通常の取得の回でも、その日にまだ回していないものを回す(第337)")
     return p
 
 
@@ -319,6 +323,11 @@ def main(argv: list[str] | None = None) -> int:
         common.log(full_report(root, rows, d, sources, args.lookback))
         return 0
 
+    if args.rotate_logs:
+        res = logrotate.maybe_rotate(root, force=True)
+        common.log(logrotate.format_results(res))
+        return 1 if any(r.get("status") == "error" for r in res) else 0
+
     if args.verify:
         n_ok, n_all, problems = verify(root)
         for p in problems:
@@ -343,7 +352,21 @@ def main(argv: list[str] | None = None) -> int:
     n_ok = sum(1 for r in rows if r.get("ok"))
     common.log("")
     common.log(f"[done] 台帳へ {len(rows)} 行追記(成功 {n_ok})。HTTP要求 {common.request_count()} 本。")
+    _rotate_quietly(root)
     return 1 if n_failed else 0
+
+
+def _rotate_quietly(root: Path) -> None:
+    """〔第337〕その日にまだ回していない台帳とログを回す(取得の回を止めない=何が起きても飲み込んで 1 行だけ出す)。"""
+    try:
+        res = logrotate.maybe_rotate(root, tries=1)
+    except Exception as exc:  # noqa: BLE001 - 回しの失敗で取得を落とさない
+        common.log(f"[rotate] 回せなかった({type(exc).__name__})", err=True)
+        return
+    # 書き手が開いている(busy)ものは次の回で回す=ログに毎回書かない(ODPT の回は自分のログを開いたまま走る)
+    shown = [r for r in res if r.get("status") != "busy"]
+    if shown:
+        common.log(logrotate.format_results(shown))
 
 
 if __name__ == "__main__":   # pragma: no cover - 通常は scripts/rw_fetch_daily.py から起動

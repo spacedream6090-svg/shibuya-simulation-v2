@@ -454,7 +454,10 @@ def test_u1_resume_from_a_pkl_written_by_the_pickle_commit(tmp_path, monkeypatch
     root = Path(__file__).resolve().parents[2]
     if shutil.which("git") is None:
         pytest.skip("git が無い")
-    r = subprocess.run(["git", "-C", str(root), "archive", "--format=tar", LEGACY_COMMIT, "src", "docs/bench/anchors",
+    r = subprocess.run(["git", "-C", str(root), "archive", "--format=tar", LEGACY_COMMIT, "src",
+                        # 〔第337〕その版のエンジンが開く錨 2 本だけ(docs/bench/anchors を丸ごと写すと混在の錨の写しが出る)
+                        "docs/bench/anchors/hunger_energy_anchors_v0.json",
+                        "docs/bench/anchors/ssb2021_activity_prior_v0.json",
                         "docs/design/v2-budget-declaration.md"], capture_output=True)
     if r.returncode != 0:
         pytest.skip(f"commit {LEGACY_COMMIT} が無い")

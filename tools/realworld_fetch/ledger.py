@@ -77,18 +77,65 @@ def append(root: Path, rows) -> int:
     for row in rows:
         text = common.scrub(json.dumps(row, ensure_ascii=False, sort_keys=True))
         lines.append(text)
-    with path.open("a", encoding="utf-8", newline="\n") as fh:
-        fh.write("\n".join(lines) + "\n")
+    _append_text(path, "\n".join(lines) + "\n")
     return len(rows)
 
 
+#: 追記の開き直しの回数と間(台帳を回す `logrotate` の改名とぶつかったとき)。
+APPEND_TRIES = 200
+APPEND_WAIT_S = 0.01
+
+
+def _same_file(fh, path: Path) -> bool:
+    """POSIX: 追記の錠(flock)を取り、手の内のファイルが今の名のファイルと同じか(回しに改名されていないか)。
+
+    Windows では開いている間は改名できない(共有違反)ので常に同じ。"""
+    import os
+
+    if os.name == "nt":
+        return True
+    import fcntl
+
+    fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
+    try:
+        return os.fstat(fh.fileno()).st_ino == os.stat(path).st_ino
+    except FileNotFoundError:
+        return False
+
+
+def _append_text(path: Path, text: str) -> None:
+    """1 回の追記。台帳を回す側(`logrotate`)と並んでも行を失わない(第337)。
+
+    - Windows: 回す側が改名している瞬間は開けない(PermissionError)ので、少し待って開き直す。
+    - POSIX: 開いた後に回す側が改名していたら(手の内が今の名と違う)、閉じて開き直す。
+    """
+    import time
+
+    for _ in range(APPEND_TRIES):
+        try:
+            fh = path.open("a", encoding="utf-8", newline="\n")
+        except PermissionError:
+            time.sleep(APPEND_WAIT_S)
+            continue
+        with fh:
+            if _same_file(fh, path):
+                fh.write(text)
+                return
+    raise PermissionError(f"台帳へ追記できない(回しとぶつかり続けた): {path.name}")
+
+
 def read_all(root: Path) -> list[dict]:
-    """台帳を読む。壊れた行は捨てずに `{"_broken": 生テキスト}` として返す(黙って消さない)。"""
+    """台帳を読む。壊れた行は捨てずに `{"_broken": 生テキスト}` として返す(黙って消さない)。
+
+    〔第337〕回した台帳(`_logs/` の gz と、途中で落ちた回しの残り)も元の並びで読む(`logrotate.read_text_all`)。
+    """
+    from . import logrotate
+
     path = ledger_path(root)
-    if not path.exists():
+    if not path.exists() and not logrotate.archives(root, LEDGER_NAME) and not logrotate.pending(root, LEDGER_NAME):
         return []
     out: list[dict] = []
-    for line in path.read_text(encoding="utf-8").splitlines():
+    for line in logrotate.read_text_all(root, LEDGER_NAME, "utf-8").splitlines():
         line = line.strip()
         if not line:
             continue

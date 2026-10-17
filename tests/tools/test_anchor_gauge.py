@@ -378,13 +378,16 @@ def test_make_guard_rejects_sealed_and_renamed_inputs(G, RG, tmp_path, monkeypat
 
     monkeypatch.setattr(RG, "_real", _no_fs)
     for tok in ("presence_anchors_v0.json", "diversity_anchors_v0.json", "hunger_energy_anchors_v0.json",
-                "presence_validation_anchors_v0.json", "hunger_energy_validation_anchors_v0.json"):  # 〔2-4 V6〕分けた検証側
+                "presence_validation_anchors_v0.json", "hunger_energy_validation_anchors_v0.json",  # 〔2-4 V6〕分けた検証側
+                "diversity_validation_anchors_v0.json"):  # 〔第337〕分けた検証側
         with pytest.raises(RG.SealedPathError):
             g.check(ROOT / "docs" / "bench" / "anchors" / tok)
     with pytest.raises(RG.SealedPathError):
         g.check(ROOT / "data" / "realworld" / "boundary_counts.json")
     with pytest.raises(RG.SealedPathError):
         g.check(ROOT / "data" / "calib" / "pt2018" / "pt6_c-2.csv")
+    with pytest.raises(RG.SealedPathError):  # 〔第337〕v1 の頃の ODPT リアルタイムの置き場
+        g.check(ROOT / "data" / "realworld" / "odpt_rt" / "x.json.gz")
 
 
 # ---------------------------------------------------------------------- 書き出しと --compare(合成の世界)

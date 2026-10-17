@@ -54,6 +54,7 @@ SEALED_TOKENS: tuple[str, ...] = (
     "jinryu",             # shibuya_jinryu・shibuya_jinryu_k5・data/jinryu
     "boundary_counts",    # 封印 boundary_counts.json
     "realworld_live",     # data/realworld_live/(現実の生の取得)
+    "realworld/odpt_rt",  # 〔第337〕v1 の頃の ODPT リアルタイムの置き場 data/realworld/odpt_rt/(odpt_rt と同じ種類=検証専用)
     "/holdout/",          # docs/bench/c7/holdout/ ほか holdout の照合の記録
     "holdout_compare",
     "calib/pt2018",       # PT 2018 の c-2(0240〜0243 の集中量=検証側)・b-4(検証側)・c-3・c-4(〔灰〕)
@@ -61,7 +62,8 @@ SEALED_TOKENS: tuple[str, ...] = (
 )
 #: 計器の段で足して落とす語(検証側〔検〕と区分が未決〔灰〕のファイル・R-115 §2)。
 GAUGE_EXTRA_DENY_TOKENS: tuple[str, ...] = (
-    "diversity_anchors",          # 第 30 表由来の錨(tokyo_weekday_depart_* ほか)=〔検〕
+    "diversity_anchors",          # 第 30 表由来の錨(tokyo_weekday_depart_* ほか)=〔検〕(第337 で分けた前の 1 本)
+    "diversity_validation_anchors",  # 〔第337〕分けた検証側(第 30 表〔検〕・Schneider 2013〔灰〕)。構築側 diversity_build_anchors は読める
     "presence_anchors",           # pt_area_daytime_peak(〔灰〕)と wake_rate(第 4-1 表=〔検〕)が混ざる(2-4 V6 で分けた前の 1 本)
     "presence_validation_anchors",  # 〔2-4 V6〕分けた検証側(PT 由来〔灰〕・第 4-1 表〔検〕ほか)。較正側 presence_calib_anchors は読める
     "hunger_energy_anchors",      # 第 4-1・7-1・18-1 表の検証の行が混ざる(K6 (i))(2-4 V6 で分けた前の 1 本)

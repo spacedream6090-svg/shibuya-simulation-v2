@@ -1,0 +1,116 @@
+{
+ "schema": "shibuya.tools.w17/diversity_anchors/1",
+ "version": "v0",
+ "created": "2026-09-11",
+ "split_from": "第337 封印の分離の残り: 元のファイル diversity_anchors_v0.json を鍵の名で機械的に分けた(値は変えていない・値を読まずに分けた)。構築側(検証に使わない側)と検証側の 2 本=記録 docs/bench/analysis/wallbounce-1012/seal_tidy/README.md",
+ "purpose": "個体の行動多様性(D-68)を現実と同じ物差しで測るためのアンカー台帳。tools/w17/diversity_yardstick.py が読む唯一の現実側入力。数値はここにしか書かない(ツール側に定数を複製しない)。転記元 docs/research/v2-d68-behavioral-diversity-research.md §1・§6(親一次確認は同 §11)。",
+ "rules": [
+  "全項目に source(出典URL または転記元) / verified_by(親の一次確認) / tag(anchor|estimate|expedient) を持つ。",
+  "tag=anchor は公的一次資料・査読論文の実数。tag=estimate は図の読み取りや推定(幅つき)。tag=expedient は未リサーチの便宜値。",
+  "verified_by が「未確認」で始まる項目は親の一次確認を経ていない=報告に印を出す。数値をここで作らない(答申に書いていないものは入れない)。",
+  "合格線(PASS/FAIL の閾値)は書かない。距離を測るだけ=判定は親がする(CLAUDE.md §2)。"
+ ],
+ "anchors": {
+  "motif_count": {
+   "value": 17,
+   "unit": "個",
+   "scope": "1 日の軌跡を有向ネットワーク(ノード=地点・辺=移動・重みなし・向きのみ)に落としたときの、出現率 0.5% 以上の形の個数。目的・滞在時間・距離・移動回数は捨てた定義",
+   "tag": "anchor",
+   "source": "Schneider, Belik, Couronné, Smoreda & González 2013, J. R. Soc. Interface 10(84):20130246 §2 https://doi.org/10.1098/rsif.2013.0246 / 全文 https://pmc.ncbi.nlm.nih.gov/articles/PMC3673164/",
+   "verified_by": "parent 2026-09-11(答申 §11 #4・6 項目一致)"
+  },
+  "motif_coverage": {
+   "value": 0.9,
+   "unit": "比率",
+   "scope": "17 モチーフが説明する人日(測定トリップ)の上限被覆率。原文 up to 90 per cent = 上限であって中心値ではない",
+   "tag": "anchor",
+   "source": "Schneider 2013 §2 https://pmc.ncbi.nlm.nih.gov/articles/PMC3673164/",
+   "verified_by": "parent 2026-09-11(答申 §11 #4)"
+  },
+  "motif_threshold": {
+   "value": 0.005,
+   "unit": "比率",
+   "scope": "モチーフの操作的定義=「データセット平均で 0.5% 以上出現する日次ネットワーク」。物差しの閾値はこの値を使う",
+   "tag": "anchor",
+   "source": "Schneider 2013 §2 https://pmc.ncbi.nlm.nih.gov/articles/PMC3673164/",
+   "verified_by": "parent 2026-09-11(答申 §11 #4)"
+  },
+  "daily_locations_lt7_share": {
+   "value": 0.9,
+   "unit": "比率",
+   "scope": "1 日に訪れる相異なる地点数が 7 未満の人の割合(90% of the population visit less than seven locations on a daily basis)",
+   "tag": "anchor",
+   "source": "Schneider 2013 §2・Fig.2 https://pmc.ncbi.nlm.nih.gov/articles/PMC3673164/",
+   "verified_by": "parent 2026-09-11(答申 §11 #4)"
+  },
+  "daily_locations_lognormal": {
+   "values": {
+    "mu": 1.0,
+    "mu_err": 0.1,
+    "sigma": 0.5,
+    "sigma_err": 0.1
+   },
+   "unit": "対数正規のパラメータ",
+   "scope": "1 日の訪問地点数 P(N) の対数正規近似。本文に数表は無く図のみ",
+   "tag": "anchor",
+   "source": "Schneider 2013 Fig.2 https://pmc.ncbi.nlm.nih.gov/articles/PMC3673164/ / 転記 docs/research/v2-d68-behavioral-diversity-research.md §1-3",
+   "verified_by": "parent 2026-09-11(第154・PMC 本文「approximated by a log-normal distribution … μ = 1 ± 0.1 and σ = 0.5 ± 0.1」を WebFetch で逐語確認)",
+   "value": {
+    "mu": 1.0,
+    "mu_err": 0.1,
+    "sigma": 0.5,
+    "sigma_err": 0.1
+   }
+  },
+  "tokyo_weekday_depart_on_00_30": {
+   "value": 0.675,
+   "unit": "比率",
+   "note": "**15 分ビンのラベル**の集計。原表は 15 分刻みの区分(8:00 のビン=8:00〜8:14)なので、この値は「分ちょうどが :00/:30」ではなく「**ラベルが :00/:30 のビンの占有率**」= 分が [0,15) か [30,45) に入る割合。物差し側の対応欄は tools/w17/diversity_yardstick.py の `on_00_30`(分ちょうど版は `exact_00_30` に併記)。",
+   "scope": "東京都・平日・有業者・男女総数の「出勤」時刻のうち 分が :00 または :30 のビンの合計(15 分刻み 58 区分・一様なら 0.50)",
+   "tag": "anchor",
+   "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224420&fileKind=0",
+   "verified_by": "parent 2026-09-11(答申 §11 #1・再計算 67.54%)"
+  },
+  "tokyo_weekday_depart_top_bin_share": {
+   "value": 0.1193,
+   "unit": "比率",
+   "scope": "同 最頻 15 分ビン(8:00)の占有率",
+   "tag": "anchor",
+   "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224420&fileKind=0",
+   "verified_by": "parent 2026-09-11(答申 §11 #1)"
+  },
+  "tokyo_weekday_depart_top_hour_share": {
+   "value": 0.2931,
+   "unit": "比率",
+   "scope": "同 最頻 時間帯(8 時台)の占有率。M2(上位 1 型占有率)の「近い代理」",
+   "tag": "anchor",
+   "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224420&fileKind=0",
+   "verified_by": "parent 2026-09-11(答申 §11 #1・§6-1 表)"
+  },
+  "tokyo_weekday_depart_entropy_bits": {
+   "value": 4.68,
+   "unit": "bit",
+   "scope": "同 15 分刻み 58 区分のシャノンエントロピー(上限 5.858 bit)",
+   "tag": "anchor",
+   "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) https://www.e-stat.go.jp/stat-search/file-download?statInfId=000032224420&fileKind=0",
+   "verified_by": "parent 2026-09-11(答申 §11 #1・再計算 4.680)"
+  },
+  "national_weekday_depart_on_00_30": {
+   "value": 0.664,
+   "unit": "比率",
+   "note": "**15 分ビンのラベル**の集計。原表は 15 分刻みの区分(8:00 のビン=8:00〜8:14)なので、この値は「分ちょうどが :00/:30」ではなく「**ラベルが :00/:30 のビンの占有率**」= 分が [0,15) か [30,45) に入る割合。物差し側の対応欄は tools/w17/diversity_yardstick.py の `on_00_30`(分ちょうど版は `exact_00_30` に併記)。",
+   "scope": "全国・平日・有業者の「出勤」の :00+:30 率。東京都との差 1.1pt が「現実の 1 標本 vs 別標本」のフロア代わり(答申 §7-2 運用の原則 2)",
+   "tag": "anchor",
+   "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) / 転記 docs/research/v2-d68-behavioral-diversity-research.md §6-1",
+   "verified_by": "parent 2026-09-11(第154・a030 00_全国 平日 総数 再計算 0.6637)"
+  },
+  "national_weekday_depart_entropy_bits": {
+   "value": 4.631,
+   "unit": "bit",
+   "scope": "同 全国のエントロピー。東京都との差 0.049 bit がフロア代わり",
+   "tag": "anchor",
+   "source": "総務省統計局 令和3年社会生活基本調査 平均時刻編 第30表(statInfId 000032224420) / 転記 docs/research/v2-d68-behavioral-diversity-research.md §6-1",
+   "verified_by": "parent 2026-09-11(第154・再計算 4.631・平均 8:20・行動者率 82.9)"
+  }
+ }
+}
