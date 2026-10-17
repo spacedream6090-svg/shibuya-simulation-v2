@@ -1,0 +1,83 @@
+{
+ "schema": "shibuya.bench/tm32/perf/1",
+ "config": "w6_v3_default(5,000 体・seed 1・1 日・テープつき)",
+ "how": "byte_check_10e.py one を 1 本ずつ順に(並べない)・head/w60/w5 を交互に reps 回。刻みあたり=run_wall_s ÷ 1,440",
+ "reps": 3,
+ "summary": {
+  "head": {
+   "run_wall_s": [
+    44.56,
+    50.07,
+    70.13
+   ],
+   "median_s": 50.07,
+   "ms_per_step_median": 34.770833333333336,
+   "finals": [
+    "b8eadcb51e8705e7"
+   ],
+   "calls": [
+    64528
+   ],
+   "vs_head_pct": 0.0
+  },
+  "w60": {
+   "run_wall_s": [
+    45.49,
+    57.51,
+    50.4
+   ],
+   "median_s": 50.4,
+   "ms_per_step_median": 35.0,
+   "finals": [
+    "b8eadcb51e8705e7"
+   ],
+   "calls": [
+    64528
+   ],
+   "vs_head_pct": 0.6590772917914878
+  },
+  "w5": {
+   "run_wall_s": [
+    45.65,
+    82.21,
+    44.3
+   ],
+   "median_s": 45.65,
+   "ms_per_step_median": 31.70138888888889,
+   "finals": [
+    "b8eadcb51e8705e7"
+   ],
+   "calls": [
+    64528
+   ],
+   "vs_head_pct": -8.827641302176959
+  }
+ },
+ "queue": {
+  "60": {
+   "day_ms": 90.1,
+   "us_per_step": 62.5,
+   "windows": 1440
+  },
+  "30": {
+   "day_ms": 93.7,
+   "us_per_step": 65.1,
+   "windows": 2880
+  },
+  "10": {
+   "day_ms": 106.3,
+   "us_per_step": 73.8,
+   "windows": 8640
+  },
+  "5": {
+   "day_ms": 128.5,
+   "us_per_step": 89.2,
+   "windows": 17280
+  },
+  "1": {
+   "day_ms": 256.7,
+   "us_per_step": 178.3,
+   "windows": 86400
+  }
+ }
+}

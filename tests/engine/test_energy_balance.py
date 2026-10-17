@@ -2,7 +2,8 @@
 
 正典: ``docs/design/v2-energy-classical-implementation-agenda.md`` §1(1〜10)・草案
 ``docs/design/v2-hunger-choice-attention-draft.md`` §1-2・§1-2b・§1-6。
-錨は追跡ファイル ``docs/bench/anchors/hunger_energy_anchors_v0.json`` だけを読む(data/ は読まない)。
+錨は追跡ファイル ``docs/bench/anchors/hunger_energy_build_anchors_v0.json``・``hunger_energy_validation_anchors_v0.json``
+(〔第 2 期 2-4 V6〕前は 1 本 ``hunger_energy_anchors_v0.json``)だけを読む(data/ は読まない)。
 """
 
 from __future__ import annotations
@@ -75,7 +76,7 @@ def test_default_meal_times_come_from_the_anchors():
 
 def test_anchor_file_holds_numbers_and_codes_only():
     """表の文言(活動名の和文など)は入れない=和文は出典表記の 4 行だけ。"""
-    raw = E.ANCHORS_PATH.read_text(encoding="utf-8")
+    raws = [q.read_text(encoding="utf-8") for q in E.ANCHORS_PATHS]  # 〔2-4 V6〕構築側と検証側
     body = dict(ANC)
     attribution = body.pop("attribution")
     assert len(attribution) == 4
@@ -84,7 +85,7 @@ def test_anchor_file_holds_numbers_and_codes_only():
     import json
 
     assert not CJK.search(json.dumps(body, ensure_ascii=False)), "錨の本体に和文がある"
-    assert raw.count("\r") == 0
+    assert all(raw.count("\r") == 0 for raw in raws)
     for name, src in ANC["sources"].items():
         assert re.fullmatch(r"[0-9a-f]{32}", src["json_md5"]), name
 

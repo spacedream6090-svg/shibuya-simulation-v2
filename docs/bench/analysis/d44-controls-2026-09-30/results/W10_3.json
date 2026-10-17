@@ -1,0 +1,44 @@
+{
+ "key": "W10#3",
+ "control": "大型車混入率・旅行速度は昼夜同一(宣言)vs 昼間 12 h 以外の時間だけ 大型車率 ×1.1 と速度 ×1.1 / ×0.9 と ×0.9",
+ "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+ "variants": [
+  {
+   "name": "夜の大型車率・速度 ×1.1",
+   "jsd_bits": 9.343946881746495e-05,
+   "null_p95": 0.001774917408448474,
+   "detected": false,
+   "tvd": 0.005054214368209187,
+   "n_declared": 713464.0,
+   "n_control": 713464.0,
+   "n_bins": 4168,
+   "share_points_stage_changed_day": 0.0012726640727492907,
+   "share_points_stage_changed_night": 0.013929224179496092
+  },
+  {
+   "name": "夜の大型車率・速度 ×0.9",
+   "jsd_bits": 9.052785350715904e-05,
+   "null_p95": 0.001774917408448474,
+   "detected": false,
+   "tvd": 0.005045804693719657,
+   "n_declared": 713464.0,
+   "n_control": 713464.0,
+   "n_bins": 4168,
+   "share_points_stage_changed_day": 0.0012137963513225614,
+   "share_points_stage_changed_night": 0.013777850038684503
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 20.999166600056924,
+ "outputs_changed": [
+  "w10_noise_day.npy",
+  "w10_noise_night.npy",
+  "w10_noise_stage_day.npy",
+  "w10_noise_stage_night.npy"
+ ],
+ "notes": [],
+ "seconds_wall_row": 25.19,
+ "measured_at": "2026-09-30"
+}

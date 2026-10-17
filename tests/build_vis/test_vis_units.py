@@ -221,3 +221,13 @@ def test_sun_azimuth_is_south_at_solar_noon_and_east_in_morning():
     # 朝は東寄り(方位 < 180)・夕は西寄り(> 180)
     assert W9.sun_vector(date, float(best) - 240.0)[1] < 180.0
     assert W9.sun_vector(date, float(best) + 240.0)[1] > 180.0
+
+
+def test_remove_stale_shadows_keeps_only_the_listed_days(tmp_path):
+    """〔改訂(第330 B5)〕一覧に無い日の影のファイルを消す(エンジンが glob で拾うため)。面の表は残す。"""
+    for name in ("w9_shadow_2026-07-28.npy", "w9_shadow_2025-09-01.npy", "w9_shadow_planes.parquet"):
+        (tmp_path / name).write_bytes(b"x")
+    removed = W9.remove_stale_shadows(tmp_path, ("2026-07-28",))
+    assert removed == ["w9_shadow_2025-09-01.npy"]
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["w9_shadow_2026-07-28.npy", "w9_shadow_planes.parquet"]
+    assert W9.SHADOW_DATES[0] == "2026-07-28" and len(set(W9.SHADOW_DATES)) == len(W9.SHADOW_DATES)

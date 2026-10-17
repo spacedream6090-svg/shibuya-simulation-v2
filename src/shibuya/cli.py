@@ -42,16 +42,23 @@ from shibuya.economy import GoodsLedger, Ledger
 from shibuya.economy import anchors as AN
 from shibuya.economy import census as CS
 from shibuya.economy import entry_capital as EC
+from shibuya.economy import ledger as LED
+from shibuya.economy import stage2 as S2
 from shibuya.economy.accounts import BalanceLine, Sector
+from shibuya.engine import economy_stage2 as _ES2
 from shibuya.engine import resolve as R
+from shibuya.engine import run_kind as _RK
 from shibuya.engine.arbiter import call_budget_per_tick
 from shibuya.engine.geometry import DEFAULT_GEOMETRY, GEOMETRY_MODES
 from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.run import (
     MINUTES_PER_SIM_DAY,
     RunResult,
+    add_calendar_args,
     add_fleet_args,
+    calendar_kwargs_from_args,
     fleet_from_args,
+    resolve_population_seed,
     run_day,
 )
 from shibuya.perception.renderer import SIGNAGE_P_SEE_DEFAULT
@@ -91,6 +98,7 @@ from shibuya.engine.energy import (
     HUNGER_MODELS,
 )
 from shibuya.world.state import DEFAULT_EATERY_MODE, EATERY_MODES, World
+from shibuya.core.time_consts import STEPS_PER_HOUR
 
 #: **CLI の既定の語彙版**(二層の段 3・第277=``--vocab-version`` を渡さないランは v3)。
 #: ライブラリの既定(``templates.DEFAULT_VOCAB_VERSION``/``run_day``/``cli.run``)は **v1 のまま**
@@ -230,7 +238,7 @@ def household_wallets(
         if arr.size and int(arr.max()) >= int(world.n_cells):
             return None  # 合成小世界に実データの母集団は載せない(engine と同じ判断)
     if pop.n > int(n_agents):
-        pop = POP.sample_population(pop, int(n_agents), seed)
+        pop = POP.sample_population(pop, int(n_agents), seed)  # 10e(E4): engine と同じ鍵
     kinds = np.asarray(pop.kind, dtype=np.int64)[: int(n_agents)]
     return AN.initial_wallets(kinds.size, kinds, stream(seed, WALLET_DOMAIN))
 
@@ -244,15 +252,16 @@ class _HouseholdWalletLedger(Ledger):
     経路(外界 → 世帯・科目 CARRY_IN)は変えない = ex nihilo 禁止・保存則は不変。
     """
 
-    def __init__(self, n_households: int, n_stores: int, wallets: np.ndarray) -> None:
-        super().__init__(n_households, n_stores)
+    def __init__(self, n_households: int, n_stores: int, wallets: np.ndarray, n_employers: int = 1,
+                 rows_per_agent_day: float | None = None) -> None:
+        super().__init__(n_households, n_stores, n_employers, rows_per_agent_day=rows_per_agent_day)
         self.wallets = np.asarray(wallets, dtype=np.int64).ravel()
 
-    def endow_households(self, amounts: np.ndarray, tick: int = 0) -> np.ndarray:
+    def endow_households(self, amounts: np.ndarray, tick: int = 0, *, cause=None) -> np.ndarray:  # noqa: ANN001
         a = np.asarray(amounts, dtype=np.int64).ravel().copy()
         m = min(a.size, self.wallets.size)
         a[:m] = self.wallets[:m]  # 母集団を超える行(縮小ラン)は mock のまま
-        return super().endow_households(a, tick)
+        return super().endow_households(a, tick, cause=cause)
 
 
 def build_ledger_bundle(
@@ -263,8 +272,12 @@ def build_ledger_bundle(
     seed: int | str = 1,
     world_dir: str | Path | None = None,
     use_population: bool = True,
+    endow: bool = True,
 ) -> LedgerBundle:
     """世界から金/物の台帳とセンサス呼び出しを組み立てる(engine/ledger_api の Protocol を満たす)。
+
+    ``endow=False``(10d の再開用)は店舗の参入資本を入れない(残高は再開で保存した状態から戻す=A11 の
+    お金の自動補充をしない)。世帯の財布は ``engine.resolve.initialize`` が入れるので、再開ではそちらも走らない。
 
     ``world_dir`` に W16 母集団があれば、世帯の初期財布を ``economy.anchors`` の
     アンカー由来に差し替える(``use_population=False`` で mock のまま)。
@@ -275,17 +288,31 @@ def build_ledger_bundle(
     wallets = household_wallets(
         world, n_agents, seed, world_dir, use_population=use_population
     )
-    led = (
-        Ledger(n_agents, world.n_poi)
-        if wallets is None
-        else _HouseholdWalletLedger(n_agents, world.n_poi, wallets)
-    )
+    # 第 2 期 2-1: 経済の段階 2 の腕(--economy-stage2 on)のランだけ、雇用主の口を W6 の組織の数にする(賃金=権利台帳の
+    # 雇用の行の組織 → 世帯)。腕の無いランは今のまま 1 口(値は不変)。
+    # 生ログの輪の係数も腕のランだけ段階 2 の値(K17 と同じ規則=実測の 1.5 倍以上・economy.stage2)。
+    # 〔第 2 期 2-4 V4〕既定は on=既定のランは雇用主の口が W6 の組織の数・輪の係数 16.0 行/体/日(予算の宣言 §3)。
+    # 切替口 off は 2-1 までのまま(1 口・6.5 行/体/日)。
+    if _ES2.arm() == _ES2.ARM_ON:
+        n_emp = LED.load_employers(world_dir).n if world_dir is not None else 1
+        rate = S2.STAGE2_TRANSFERS_PER_AGENT_PER_DAY
+        led = (
+            Ledger(n_agents, world.n_poi, n_emp, rows_per_agent_day=rate)
+            if wallets is None
+            else _HouseholdWalletLedger(n_agents, world.n_poi, wallets, n_emp, rows_per_agent_day=rate)
+        )
+    else:  # 腕の無いラン=今の呼び方のまま(1-9 の試験が HEAD の台帳の写しを差し込む口も同じ)
+        led = (
+            Ledger(n_agents, world.n_poi)
+            if wallets is None
+            else _HouseholdWalletLedger(n_agents, world.n_poi, wallets)
+        )
     cats = np.array([hash_free_cat_code(c) for c in world.assets.poi_cat], dtype=np.int64)
     goods = GoodsLedger.from_pois(
         cats, np.asarray(world.pois.stock), np.asarray(world.pois.price), n_agents=n_agents
     )
     capital = store_capital_array(world, n_agents, store_capital_yen)
-    if capital.size and int(capital.sum()) > 0:
+    if endow and capital.size and int(capital.sum()) > 0:
         led.endow_stores(capital, tick=0)
     return LedgerBundle(
         money=led,
@@ -387,9 +414,20 @@ def run(
     store_capital_yen: int | None = None,
     use_population: bool = True,
     l4_scale: float | None = None,
+    population_seed: int | None = None,
+    environment_seed: int | None = None,
+    run_kind: str | None = None,
+    experiment: Any = None,
+    experiment_aa: bool = False,
+    experiment_branch: Any = None,
+    experiment_model: str | None = None,
     **kwargs,
 ) -> RunResult:
     """台帳つきの 1 シミュ日ラン(C4 の標準入口)。
+
+    ``population_seed``(10f・K21 (a))は母集団の seed(省略=``seed`` と同じ=今と同じ)。合成世界・世帯の財布・
+    ``run_day`` の母集団の側の乱数(``engine.run.POPULATION_RNG_DOMAINS``)に使う。``seed`` は動きの seed(salt)。
+    ``environment_seed``(10f 第 2 段の直し・S1)は環境の seed(気象・大きな催し・道路工事。省略=``seed`` と同じ)。
 
     ``use_population=False`` は下限対照(``engine.run --no-population`` と同じ意味):
     W16 母集団を読まず合成個体で回し、世帯の初期財布も mock のままにする。
@@ -415,8 +453,22 @@ def run(
 
     **5 段目 5a(D-118)**: ``hunger_model`` の既定(渡さないとき)は ``CLI_DEFAULT_HUNGER_MODEL``
     (**energy**)。``hunger_model="v1"`` で旧規則(旧 checkpoint)を再現する(テストで固定)。
+
+    **第 1 期 1-4(CP5-5・検収 M2)**: ``run_kind`` はランの種類(``engine.run_kind.RUN_KINDS``)。省略すると
+    ここで決める=試験の中は ``test``・CLI の既定(``arm_baseline``)と違う腕の引数が 1 つでもあれば ``arm``・ほかは
+    ``reproduction``(``run_arms``・``NON_ARM_RUN_KWARGS`` は数えない)。結果の ``run_kind`` に置くだけで、``run_day``
+    には渡さない(設定の指紋 ``_call_args`` は変わらない)。``main`` もこの決め方を使う。
+
+    **第 3 期 3-3(反実仮想の器)**: ``experiment`` は申込書(``engine.experiment.form.ExperimentForm``・その JSON のパス・辞書)。
+    渡すと組み立てに置き(``engine.experiment.layer.staged``=``run_day`` の引数は増やさない)、ランの種類は ``counterfactual``
+    (試験の中は ``test``)。``experiment_aa`` は改変を空にした A/A の枝(``ExperimentForm.aa``)。``experiment_branch`` は分岐の
+    指定(``engine.experiment.branch.BranchSpec``=T0 までテープを再生・``run_branch`` が渡す)。``experiment_model`` は申込書の
+    アンサンブルのモデルの札(札が 1 つなら省略可・組み立てが seed の 3 つと合わせて封印の入口で照合する)。どれも設定の指紋に入れない。
+    渡さないランは何も変わらない。
     """
+    exp_form = _experiment_form(experiment, aa=experiment_aa, branch=experiment_branch)
     budget = kwargs.pop("budget", None)
+    run_kind = None if run_kind is None else _RK.check(run_kind)  # 第 1 期 1-4: 名の誤りはランの前に止める
     # 5 段目 5a: 空腹のモデルの既定は energy(``CLI_DEFAULT_HUNGER_MODEL``)
     kwargs.setdefault("hunger_model", CLI_DEFAULT_HUNGER_MODEL)
     if l4_scale is None:
@@ -426,6 +478,30 @@ def run(
         scale = float(l4_scale)
     if scale < 0.0:
         raise ValueError("l4_scale は 0 以上(0=無制限)")
+    if run_kind is None:  # 第 1 期 1-4(検収 M2): 腕は CLI の既定と比べて決める(記録だけ)
+        arms = run_arms({**kwargs, "budget": budget, "l4_scale": scale, "use_population": use_population,
+                         "store_capital_yen": store_capital_yen})
+        from shibuya.engine import proximity as _proximity  # 第 2 期 2-2: 環境変数の腕も腕と数える(結果が変わる腕)
+        from shibuya.engine import seat_release as _seat_release  # 〔第 2 期 2-4 V3〕同じ(既定 walk と違えば腕)
+        from shibuya.engine import batching as _BATCH  # 〔第 3 期 3-2〕まとめの幅の腕(環境変数か --batch-width-s)
+        from shibuya.engine import body as _body  # 〔第 3 期 3-5〕TM5 の予約の腕(既定 sweep と違えば腕=結果は同じはず)
+        from shibuya.engine import calendar_shadow as _calendar_shadow  # 〔第 3 期 3-1〕暦 1a の影(既定 w17 と違えば腕)
+        from shibuya.engine import calendar_self as _calendar_self  # 〔第 6 期 6-2〕カレンダー 1b(既定 w17 と違えば腕)
+        from shibuya.engine import memory_m1 as _memory_m1  # 〔第 6 期 6-5〕記憶の腕(結果を変える腕=既定と違えば腕)
+        from shibuya.engine.speech import layer as _speech_layer
+
+        # 第 1 期 1-8b: 発話の口の腕(環境変数か --speech-port・run の引数ではない)は結果を変える=on は腕に数える
+        # 〔第 3 期 3-3〕申込書を渡したランは反実仮想(試験 > 反実仮想 > 腕 > 再現)
+        run_kind = _RK.decide(arms_on=bool(arms) or _speech_layer.arm() != _speech_layer.ARM_OFF
+                              or _proximity.arm() != _proximity.DEFAULT_MODE  # 〔2-4 V2〕既定は distance
+                              or _seat_release.arm() != _seat_release.DEFAULT_MODE  # 〔2-4 V3〕既定は walk
+                              or _ES2.arm() != _ES2.DEFAULT_ARM  # 〔2-4 V4〕経済の段階 2 も(既定 on と違えば腕)
+                              or not _BATCH.is_default()  # 〔第 3 期 3-2〕まとめの幅(既定 60 秒と違えば腕)
+                              or _body.arm() != _body.DEFAULT_ARM  # 〔3-5〕体の予約の腕(既定は sweep)
+                              or _calendar_shadow.arm() != _calendar_shadow.DEFAULT_MODE  # 〔3-1〕既定は w17
+                              or _calendar_self.arm() != _calendar_self.DEFAULT_MODE  # 〔6-2〕既定は w17
+                              or _memory_m1.arms_on(),  # 〔6-5〕記憶の腕(--memory-model/-cue/-people/-grain)
+                              counterfactual=exp_form is not None)
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
     applied = apply_fleet_queue_default(kwargs.get("fleet"), scale, n_agents)
@@ -435,31 +511,73 @@ def run(
     elif applied is not None:
         note = (f"艦隊 × 呼数無制限(--l4-scale 0)で --fleet-queue-capacity が未指定: 受理待ち枠の既定を体数 "
                 f"{applied:,} にした(第289 Q28・D-55=受理待ちあふれの繰り延べ 0)")
+    # 10f(K21 (a)): 合成世界・世帯の財布(W16 の抽出を含む)は母集団の seed から(省略=seed と同じ=今と同じ)
+    pop_seed = resolve_population_seed(seed, population_seed)
     wd = Path(world_dir) if world_dir is not None else None
-    world = World.load_or_synthetic(wd, n_cells=n_cells, seed=seed) if wd is not None else World.synthetic(
-        n_cells=n_cells, seed=seed
+    world = World.load_or_synthetic(wd, n_cells=n_cells, seed=pop_seed) if wd is not None else World.synthetic(
+        n_cells=n_cells, seed=pop_seed
     )
     run_world_dir = wd if (wd is not None and wd.exists()) else None
+    # 〔第330・RET〕再生するテープが 10e より前の録画なら、台帳を組む前に止める(run_day と同じ検査)
+    from shibuya.engine.run import check_replay_tape
+
+    check_replay_tape(str(kwargs.get("mode", "record")), kwargs.get("replay"))
     bundle = build_ledger_bundle(
         world, n_agents, store_capital_yen,
-        seed=seed, world_dir=run_world_dir, use_population=use_population,
+        seed=pop_seed, world_dir=run_world_dir, use_population=use_population,
+        endow=kwargs.get("resume_from") is None,  # 10d(A11): 再開では参入資本を入れ直さない
     )
-    res = run_day(
-        n_agents=n_agents,
-        seed=seed,
-        world=world,
-        ticks=ticks,
-        checkpoint_every=checkpoint_every,
-        world_dir=run_world_dir,
-        ledger=bundle,
-        population=None if use_population else False,
-        budget=budget,
-        l4_scale=scale,
-        **kwargs,
-    )
+    import contextlib
+
+    from shibuya.engine.experiment import layer as _EXPL
+
+    _stage = (contextlib.nullcontext() if exp_form is None
+              else _EXPL.staged(exp_form, branch=experiment_branch, model=experiment_model))
+    with _stage:  # 3-3: 申込書は組み立てが受け取る(run_day の引数・設定の指紋は今のまま)
+        res = run_day(
+            n_agents=n_agents,
+            seed=seed,
+            population_seed=population_seed,
+            environment_seed=environment_seed,
+            world=world,
+            ticks=ticks,
+            checkpoint_every=checkpoint_every,
+            world_dir=run_world_dir,
+            ledger=bundle,
+            population=None if use_population else False,
+            budget=budget,
+            l4_scale=scale,
+            **kwargs,
+        )
     if note:
         res.l4_notes.append(note)
+    # 第 1 期 1-4(CP5-5): ランの種類(記録だけ。run_day の引数=設定の指紋には入れない)
+    res.run_kind = run_kind
     return res
+
+
+def _batch_widths() -> tuple[int, ...]:
+    """〔第 3 期 3-2〕``--batch-width-s`` で選べる幅(``engine.batching.WIDTHS_S``=刻みの幅の約数)。"""
+    from shibuya.engine import batching as _batching
+
+    return tuple(_batching.WIDTHS_S)
+
+
+def _experiment_form(experiment: Any, *, aa: bool = False, branch: Any = None) -> Any:
+    """〔第 3 期 3-3〕``cli.run`` の ``experiment`` → 申込書(``None``=渡さない)。``aa`` は改変を空にした A/A の枝。"""
+    from shibuya.engine.experiment.form import ExperimentForm
+
+    if experiment is None or (isinstance(experiment, str) and not experiment):
+        if aa or branch is not None:
+            raise ValueError("experiment_aa・experiment_branch には申込書(experiment)が要る")
+        return None
+    if isinstance(experiment, ExperimentForm):
+        form = experiment
+    elif isinstance(experiment, Mapping):
+        form = ExperimentForm.from_dict(experiment)
+    else:
+        form = ExperimentForm.load(experiment)
+    return form.aa() if aa else form
 
 
 def checkpoints_payload(res: RunResult, *, run_id: str = "") -> dict[str, Any]:
@@ -468,9 +586,11 @@ def checkpoints_payload(res: RunResult, *, run_id: str = "") -> dict[str, Any]:
     受入計器 ``tools/c7/c7_accept.py`` の ``normalize_checkpoints`` / ``selfconsistency``
     が読む形(``checkpoints[].{tick, combined, population_hash, schedule_hash}``)。
     ``final_hash`` は summary の「checkpoint N 点 最終 …」と同じ値(16 桁でなく全桁)。
+    〔10e〕版 2: ``combined`` は既定で behavior-hash(``--hash-scheme full`` のランでは 10e より前の組み立て)。
     """
     return {
-        "schema": "shibuya.cli/checkpoints/1",
+        # 10e(検収 L3): 版 2=``combined``(final)の意味が behavior-hash に変わった(manifest の hash_scheme)
+        "schema": "shibuya.cli/checkpoints/2",
         "run_id": run_id,
         "n_agents": int(res.n_agents),
         "seed": res.seed,
@@ -486,6 +606,9 @@ def checkpoints_payload(res: RunResult, *, run_id: str = "") -> dict[str, Any]:
                 "combined": c.combined,
                 # 二層の段 2: 活動層のあるランだけ(既定の payload は 1 キーも増えない)
                 **({"activity_hash": c.activity_hash} if c.activity_hash else {}),
+                # 10b(A2・A3): 状態台帳の 2 つのハッシュ。10e(E1): 既定の final=combined は behavior-hash と同じ値
+                **({"behavior_hash": c.behavior_hash} if c.behavior_hash else {}),
+                **({"full_hash": c.full_hash} if c.full_hash else {}),
             }
             for c in res.checkpoints
         ],
@@ -578,7 +701,7 @@ def undefined_registry_payload(
         w["_agents"].add(int(row["agent_id"]))
         if row["cell"] is not None:
             w["_cells"].add(str(row["cell"]))
-        w["_hours"].add(int(row["tick"]) // 60)
+        w["_hours"].add(int(row["tick"]) // STEPS_PER_HOUR)
         w["first_tick"] = min(int(w["first_tick"]), int(row["tick"]))
         if len(w["samples"]) < int(n_samples):
             w["samples"].append(
@@ -612,10 +735,94 @@ def undefined_registry_payload(
     }
 
 
+#: **第 1 期 1-4(CP5-5・検収 M2)**: ランの種類の規則で「腕」に数えない ``cli.run``/``run_day`` の引数。規模と seed・
+#: データと出力の置き場・再開と状態の書き出し・テープの記録と再生・暦の日付とデータの置き場・LLM の接続。これ以外の
+#: 引数が CLI の既定(``arm_baseline``)と違えば腕(``engine.run_kind`` の expedient の段落・台帳 ``BR-RUN-KIND-CLI-ARMS``)。
+#: CLI の引数では ``--events``(出来事の記録=指紋に入らない・``run`` の引数でない)・``--checkpoints-out``・
+#: ``--undefined-out`` も腕でない。LLM の復号(``--temperature``・``--max-tokens``)は ``fleet`` の中=腕でない。
+NON_ARM_RUN_KWARGS: Final[frozenset[str]] = frozenset({
+    "n_agents", "seed", "population_seed", "environment_seed", "n_cells", "ticks", "sim_days", "day_index",
+    "world", "world_dir", "ledger", "checkpoint_every", "checkpoint_detail", "occupancy_every", "occupancy_path",
+    "census_out", "state_out", "stop_at_tick", "resume_from", "run_id", "tape_path", "mode", "replay",
+    "start_sim_datetime", "holiday_csv", "school_holidays", "llm", "fleet", "fleet_wait_s", "fleet_debug_dir",
+})
+
+
+def _engine_run_day() -> Any:
+    """``engine.run.run_day`` そのもの(このモジュールの名 ``run_day`` を差し替えた試験でも既定を正しく読む)。"""
+    from shibuya.engine import run as _ENGINE_RUN
+
+    return _ENGINE_RUN.run_day
+
+
+def arm_baseline() -> dict[str, Any]:
+    """腕の比べの元=CLI の既定の ``run_day`` の引数(``run_day`` の既定に、CLI と ``cli.run`` が違う既定を重ねた)。
+
+    CLI の既定と ``run_day`` の既定が違う所は 3 つ(語彙の版 ``CLI_DEFAULT_VOCAB_VERSION``・空腹のモデル
+    ``CLI_DEFAULT_HUNGER_MODEL``・呼数の倍率 ``CLI_DEFAULT_L4_SCALE``)と ``cli.run`` の 2 つ(``use_population=True``・
+    ``store_capital_yen=None``)。``on``/``off`` と真偽・空の並びの書き方の違いは ``_arm_norm`` でそろえる(試験
+    ``test_manifest_rules_bridges.py`` が ``main`` の既定の引数とこの表が同じことを確かめる)。
+    """
+    import inspect
+
+    base = {k: p.default for k, p in inspect.signature(_engine_run_day()).parameters.items()
+            if p.default is not inspect.Parameter.empty}
+    base.update(vocab_version=CLI_DEFAULT_VOCAB_VERSION, hunger_model=CLI_DEFAULT_HUNGER_MODEL,
+                l4_scale=float(CLI_DEFAULT_L4_SCALE), use_population=True, store_capital_yen=None)
+    return base
+
+
+def _arm_norm(key: str, v: Any) -> Any:
+    """比べるための値の形(``on``→真・``off``→偽・空→None・列挙→値・``budget_mode`` は列挙の値に)。"""
+    import enum
+
+    from shibuya.perception.channels import BudgetMode
+
+    if key == "budget_mode" and v is not None:
+        return BudgetMode.parse(v).value
+    if isinstance(v, enum.Enum):
+        v = v.value
+    if v is True or v == "on":
+        return True
+    if v is False or v == "off":
+        return False
+    if v is None or (isinstance(v, (str, tuple, list, dict, set, frozenset)) and len(v) == 0):
+        return None
+    if isinstance(v, (list, tuple)):
+        return tuple(_arm_norm(key, x) for x in v)
+    if isinstance(v, Mapping):
+        return tuple(sorted((str(k), _arm_norm(key, x)) for k, x in v.items()))
+    if isinstance(v, float) and v.is_integer():
+        return int(v)
+    return v
+
+
+def run_arms(passed: Mapping[str, Any]) -> tuple[str, ...]:
+    """``cli.run`` に渡された引数のうち、CLI の既定と違う腕の名(昇順)。渡さなかった引数は ``run_day`` の既定で比べる
+    (``vocab_version`` を渡さない ``cli.run`` はライブラリの既定 v1=CLI の既定 v3 と違う=腕)。"""
+    import inspect
+
+    base = arm_baseline()
+    rd = {k: p.default for k, p in inspect.signature(_engine_run_day()).parameters.items()
+          if p.default is not inspect.Parameter.empty}
+    eff = {**rd, **dict(passed)}
+    out = [k for k in sorted(set(base) | set(eff))
+           if k not in NON_ARM_RUN_KWARGS and _arm_norm(k, eff.get(k)) != _arm_norm(k, base.get(k))]
+    return tuple(out)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="台帳(金/物)+世界過程つきの 1 シミュ日ラン(C4)")
     ap.add_argument("--agents", type=int, default=5_000)
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--population-seed", type=int, default=None,
+                    help="10f(K21 (a))母集団の seed(W16 の抽出・mock 日課・体の定数・財布・域外居住・合成世界。気象は"
+                         "--environment-seed。"
+                         "省略=--seed と同じ=今と同じ)。--seed は動きの seed(salt)。salt の比較では母集団の seed を固定して"
+                         " --seed だけを変える")
+    ap.add_argument("--environment-seed", type=int, default=None,
+                    help="10f 環境の seed(気象の再生実日・大きな催し・道路工事。省略=--seed と同じ=今と同じ)。"
+                         "天気は同じで動きだけ変える比較では固定する")
     ap.add_argument("--world", type=str, default="data/world/v2")
     ap.add_argument("--cells", type=int, default=139, help="合成世界のセル数")
     ap.add_argument("--ticks", type=int, default=MINUTES_PER_SIM_DAY)
@@ -679,15 +886,6 @@ def main(argv: list[str] | None = None) -> int:
              "AB6b-AD-NOTICE)。在圏セルの看板行を観測へ入れるかを 体×看板×tick の"
              "決定論的ベルヌーイで決める。既定 1.0=常に載せる(現行のバイト)・"
              "0.30/0.14=実測帯 0.14-0.79 の下側・0.0=⑥ 広告ゼロと同じ描画",
-    )
-    ap.add_argument(
-        "--p-see-activity",
-        default=None,
-        metavar="JSON",
-        help="5 段目 5c(D-117): 看板の注視 p_see に掛ける活動の種別の乗数(JSON。鍵 move_to/wander/"
-             "in_shop/in_place/phone/companion_talk・欠けた鍵は 1.0・実効 p_see=min(1, p_see×乗数)。"
-             "p_see にだけ掛ける=B2 の可視の行は変えない)。既定なし=全部 1.0=現行のバイト。"
-             "例 '{\"phone\": 0.49, \"companion_talk\": 1.39, \"move_to\": 0.5}'",
     )
     ap.add_argument(
         "--l4-scale",
@@ -823,6 +1021,21 @@ def main(argv: list[str] | None = None) -> int:
         help="--policy classical の事前分布の地域(kanto=関東大都市圏・既定/national=全国)",
     )
     ap.add_argument(
+        "--classical-social",
+        choices=("acquaintance", "near_first"),
+        default="acquaintance",
+        help="第2波 §2A 項 3-1(Q42): --policy classical の交際・付き合いの相手。acquaintance=B5 近接行の知人"
+             "(関係辺の相手)のうち活性 A が最大の人・居なければ待つ(既定・関係 off では会話を始めない)/"
+             "near_first=旧(近接行の最初の人=見知らぬ人)",
+    )
+    ap.add_argument(
+        "--meal-gate",
+        choices=("per_wake", "per_hour"),
+        default="per_wake",
+        help="第2波 §2A 項 4(Q48): --policy classical の食事の門の確率の読み方。per_wake=起床ごと(既定=旧)/"
+             "per_hour=1 時間あたりと読み前回の門からの経過分で換算(既定の切り替えは食事の束の版上げで確認)",
+    )
+    ap.add_argument(
         "--classical-habit-p",
         type=float,
         default=HABIT_P,
@@ -937,6 +1150,14 @@ def main(argv: list[str] | None = None) -> int:
         help="D-120 7c: B5 の想起で店の行を候補にする入口(既定 all=全入口・conversation=会話だけ=感度腕)",
     )
     ap.add_argument(
+        "--wom-source",
+        choices=("utterance", "reason-target"),
+        default="utterance",
+        help="第2波 §2A 項 1(Q57): 口コミの抽出の源。utterance=発話の欄(ひと言)だけ(既定・いまの語彙 v3 には"
+             "ひと言欄が無い=抽出 0)/ reason-target=旧(v3 で理由欄+対象欄=本人の内心が聞き手に漏れる欠陥・"
+             "旧の再現用)。--store-memory on のときだけ効く",
+    )
+    ap.add_argument(
         "--relations",
         choices=("off", "on"),
         default="off",
@@ -945,14 +1166,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     ap.add_argument("--rel-k", type=int, default=15, metavar="K",
                     help="関係辺の数(既定 15・感度 5/50)")
-    ap.add_argument("--rel-tau", type=float, default=-2.346, metavar="TAU",
-                    help="辺として残る A の閾値 τ_rel(既定 −2.346=n を共在の日数で数えた全母集団の逆算・感度 ±0.5)")
+    ap.add_argument("--rel-tau", type=float, default=None, metavar="TAU",
+                    help="辺として残る A の閾値 τ_rel(既定=--rel-tenure-hash の版ごとの全母集団の逆算: v2 −2.322・"
+                         "v1 −2.346・感度 ±0.5)")
     ap.add_argument("--rel-d", type=float, default=0.5, metavar="D",
                     help="関係辺の A の減衰 d(既定 0.5=記憶と同じ・感度 0.25/0.75)")
     ap.add_argument("--rel-init-density", type=float, choices=(0.5, 1.0, 2.0), default=1.0,
                     help="初期網の密度の腕(0.5=共在が中央値以上・1.0=共在 > 0・2.0=共在 0 の組も入れる)")
     ap.add_argument("--rel-tenure-weeks", type=float, default=13.0, metavar="W",
                     help="C10 8b(Q89/Q90): 初期辺の在職期間 T_uv の上限[週](既定 13・感度 26)")
+    ap.add_argument("--rel-tenure-hash", choices=("v2", "v1"), default="v2",
+                    help="第2波 §2A 項 2: 初期辺の在職期間のハッシュ。v2=同点の順のハッシュと独立(既定)/ v1=旧"
+                         "(同点の多い組で在職の短い相手ほど選ばれる欠陥・旧 golden の再現用)")
     ap.add_argument("--rel-invite", choices=("off", "on"), default="on",
                     help="C10 8b: 名指しの無い会話の相手を関係辺の重み(5 人 40%%・10 人 20%%・残り 40%%)で引く"
                          "(--relations on のときだけ効く・既定 on)")
@@ -982,6 +1207,26 @@ def main(argv: list[str] | None = None) -> int:
         default=DEFAULT_ENERGY_RATE,
         help="消費の式(--hunger-model energy のときだけ効く)。eer=EER/1440×METs/基準日の平均 METs"
              "(既定・K1 (c))/bmr=基礎代謝量×METs(感度腕・K1 (a))",
+    )
+    ap.add_argument(
+        "--meal-sleep-defer",
+        choices=("off", "on"),
+        default="off",
+        help="第2波 §2B 項 1(Q34 (b)): 範囲外の既定の食事時刻に W17 で就寝中の体。off=旧(そのまま食べる・既定)/"
+             "on=起床の時刻へ遅らせ、時間帯の窓の中なら食べる(過ぎていれば無し)。--hunger-model energy のときだけ効く",
+    )
+    ap.add_argument(
+        "--home-meal",
+        choices=("off", "plan"),
+        default="off",
+        help="第2波 §2B 項 2(Q35 (a)): 範囲内の自宅の食事行。off=旧(食事は飲食店でしか成立しない・既定)/"
+             "plan=行の開始に自宅に居て起きていれば予定の実行として食べる(金と物は動かさない・照合から外す)",
+    )
+    ap.add_argument(
+        "--hunger-words",
+        choices=("hungry", "all"),
+        default="hungry",
+        help="第2波 §2B 項 3(Q31 (b)): B5 の空腹の語。hungry=空腹以上だけ描く(既定=旧)/all=満腹・ふつうも描く",
     )
     ap.add_argument(
         "--eatery",
@@ -1074,9 +1319,177 @@ def main(argv: list[str] | None = None) -> int:
         help="録画テープのディレクトリを与えると mode=replay(テープ完全一致・LLM 呼なし)で回す"
              "(C7 T2-c: 本番テープの再生で checkpoint 列を復元する)",
     )
+    ap.add_argument(
+        "--events",
+        choices=("on", "off"),
+        default="on",
+        help="第 1 期 1-3: 出来事の記録(既定 on)。off で記録しない(環境変数 SHIBUYA_EVENTS=off と同じ)。"
+             "記録は結果を変えないので設定の指紋には入らない(manifest の日次の記録 events.on に出る)",
+    )
+    ap.add_argument(
+        "--memory-store",
+        choices=("mem", "events"),
+        default=None,
+        help="第 1 期 1-6 記憶の器 M0 の腕(既定 mem=今の記憶の表だけ・環境変数 SHIBUYA_MEMORY_STORE と同じ。指定すれば"
+             "環境変数より強い)。events で --memory on のランに記憶の器(出来事の記録への目印)を作り、想起を器から引き、"
+             "テープに列 recalled_event_ids を足す。器は結果を変えないので設定の指紋には入らない"
+             "(manifest の memory_summary.memory_store に出る)",
+    )
+    ap.add_argument(
+        "--memory-model",
+        choices=("m0", "m1"),
+        default=None,
+        help="第 6 期 6-5 記憶の強さの式の腕(既定 m0=今の式・環境変数 SHIBUYA_MEMORY_MODEL と同じ。指定すれば環境変数より強い)。"
+             "m1=ACT-R の折衷形(時刻は秒・+1 なし・最短の符号化時間・忘れる速さの人ごとのばらつき 15%・境目 τ は仮の値)。"
+             "--memory-store events のランだけ効く(記憶 off のランで立てると止める・結果を変える腕=ランの種類は腕・manifest の"
+             "設定の節 memory_summary.mr65_arms と設定の指紋に入る・計器は memory_summary.memory_store.mr65)",
+    )
+    ap.add_argument(
+        "--memory-cue",
+        choices=("id", "embed"),
+        default=None,
+        help="第 6 期 6-5 想起の手がかりの腕(既定 id=その場の手がかり=ID の一致・環境変数 SHIBUYA_MEMORY_CUE)。embed=意味の手がかり"
+             "(埋め込み=--memory-embed-model・会話中は相手の直前の発言・ほかは本人の直前の理由)",
+    )
+    ap.add_argument(
+        "--memory-embed-model",
+        choices=("ruri-v3-30m", "ruri-v3-130m", "ngram-test"),
+        default=None,
+        help="第 6 期 6-5 埋め込みのモデル(既定 ruri-v3-30m・環境変数 SHIBUYA_MEMORY_EMBED_MODEL)。Ruri の重みは "
+             "data/models/ruri/ に版を固定して置く(本段では未取得)。ngram-test は重みの要らない試験用の代わり(意味ではない)",
+    )
+    ap.add_argument(
+        "--memory-people",
+        choices=("table", "memory"),
+        default=None,
+        help="第 6 期 6-5 人も記憶の一つの腕(既定 table=今の関係の層・環境変数 SHIBUYA_MEMORY_PEOPLE)。memory=人を同じ器・同じ式"
+             "(出来事 128・店 32 の固定の上限を外し、種類ごとの上限 256 まで幅を倍に・上限で思い浮かぶ強さの一番低い行を消す・"
+             "忘れる=消す・関係の表を読まない)。--memory-model m1 が前提・再開には対応しない",
+    )
+    ap.add_argument(
+        "--memory-grain",
+        choices=("each", "day"),
+        default=None,
+        help="第 6 期 6-5 体の出来事を記録へ書く粒度の腕(既定 each=1 回 1 行・環境変数 SHIBUYA_MEMORY_GRAIN)。day=同じ記憶の行は"
+             "日に 1 行(2-3 の 14.6 行/体/日を減らす案)。再開には対応しない",
+    )
+    ap.add_argument(
+        "--decision-port",
+        choices=("legacy", "port"),
+        default=None,
+        help="第 1 期 1-8 候補の口 J0 の腕(既定 legacy=今の道・環境変数 SHIBUYA_DECISION_PORT と同じ。指定すれば環境変数より"
+             "強い)。port で判断の 1 呼を候補の口に通す(候補は 5 つの源・順のシャッフル・番号で返す・mock と古典は今と同じ"
+             "番号=結果は同じ)。口は結果を変えないので設定の指紋には入らない(manifest の decision_port に出る)",
+    )
+    ap.add_argument(
+        "--speech-port",
+        choices=("off", "on"),
+        default=None,
+        help="第 1 期 1-8b 発話の口の腕(既定 off=今の道・環境変数 SHIBUYA_SPEECH_PORT と同じ。指定すれば環境変数より強い)。"
+             "on で会話の番の呼び出しだけ B6 の末尾に ひと言 の欄を求め(語彙 v3)、答えの ひと言 を発話の口に通す(出来事の"
+             "記録に 1 行・相手の次の入力の B6 に素性タグと命令文の除去つきで載る・口コミの抽出に渡す)。on は結果を変えるので"
+             "設定の指紋に入り、ランの種類は腕(manifest の speech_port に出る)",
+    )
+    ap.add_argument(
+        "--proximity",
+        choices=("cell", "distance"),
+        default=None,
+        help="第 2 期 2-2 段 11a 近接の判定の腕(〔2-4 V2〕既定 distance・環境変数 SHIBUYA_PROXIMITY と同じ。指定すれば"
+             "環境変数より強い)。distance で会話・返事待ち・3 人会話・離脱・招待の相手・偶然・知人出現(気づく確率)・同席・"
+             "B5 の近接行を「同じ層・距離 ≤ d(同じ店の区画の中は距離を見ない)」で判定する。cell=2-2 までの判定(同じセル)"
+             "=切替口(旧値の再現)。腕は設定の指紋に入れない(manifest の proximity に出る・既定と違えばランの種類は arm)",
+    )
+    ap.add_argument(
+        "--proximity-d",
+        choices=("1.0", "2.0", "2.5"),
+        default=None,
+        help="第 2 期 2-2 段 11a 会話の距離 d[m] の感度の腕(既定 2.0=B3 の決め打ち・環境変数 SHIBUYA_PROXIMITY_D と同じ。"
+             "--proximity distance のときだけ効く)",
+    )
+    ap.add_argument(
+        "--economy-stage2",
+        choices=("off", "on"),
+        default=None,
+        help="第 2 期 2-1 経済の段階 2 の腕(〔2-4 V4〕既定 on・環境変数 SHIBUYA_ECONOMY_STAGE2 と同じ。指定すれば環境変数より"
+             "強い)。on で賃金(給料日)・引き出し(ATM)・支払いの方法(現金/口座)・レジの消費税・来街者の口座を動かす"
+             "(manifest の economy.stage2 に出る・設定の指紋には入らない)。off=2-1 までの既定=切替口(旧値の再現)",
+    )
+    ap.add_argument(
+        "--economy-stage2-parts",
+        type=str,
+        default=None,
+        help="第 2 期 2-1 経済の段階 2 の部品(カンマ区切り・既定=全部 wages,withdraw,payment,tax,visitors・環境変数 "
+             "SHIBUYA_ECONOMY_STAGE2_PARTS と同じ)。1 つずつ測るため",
+    )
+    ap.add_argument(
+        "--seat-release",
+        choices=("walk", "legacy"),
+        default=None,
+        help="第 2 期 2-4 V3 在席の印を歩き出しで解く腕(既定 walk・環境変数 SHIBUYA_SEAT_RELEASE と同じ。指定すれば環境変数より"
+             "強い)。walk=移動の意図で歩き出した体の在席の印(店の席)を解く。legacy=2-4 より前の挙動(退去・乗車・滞在の上限で"
+             "しか解かない)=切替口(旧値の再現)。腕は設定の指紋に入れない(manifest の leave_effects.seat_release に出る・"
+             "既定と違えばランの種類は arm)",
+    )
+    ap.add_argument(
+        "--batch-width-s",
+        type=int,
+        choices=_batch_widths(),
+        default=None,
+        help="第 3 期 3-2 計算のまとめの幅[秒](既定 60=刻みの幅=今と同じ・環境変数 SHIBUYA_BATCH_WIDTH_S と同じ。指定すれば"
+             "環境変数より強い)。刻みの幅の約数だけ選べる。進行役は窓 [t, t+W) の中の事象を時刻順に処理する(T1 の世界の事象"
+             "は刻みの事象だけ=どの幅でも同じ結果)。既定と違えば設定の指紋に入り、ランの種類は arm(manifest の batching に出る)",
+    )
+    ap.add_argument(
+        "--body-schedule",
+        choices=("sweep", "reserve"),
+        default=None,
+        help="第 3 期 3-5 TM5 の体の予約の腕(既定 sweep・環境変数 SHIBUYA_BODY_SCHEDULE と同じ。指定すれば環境変数より強い)。"
+             "sweep=毎刻み全員の体を規則に通す(今の形)。reserve=体ごとに次に段の境目(空腹・疲れ・暑さ)を越える刻みを予約し、"
+             "予約の来た体と入力の変わった体だけを規則に通す(結果は sweep と同じでなければならない=T3 で有効)。腕は設定の指紋に"
+             "入れない(manifest の body に出る・既定と違えばランの種類は arm)",
+    )
+    ap.add_argument(
+        "--calendar-shadow",
+        choices=("w17", "1a"),
+        default=None,
+        help="第 3 期 3-1 暦 1a の影の腕(既定 w17・環境変数 SHIBUYA_CALENDAR_SHADOW と同じ。指定すれば環境変数より強い)。"
+             "1a=計画実行層の勤務と授業の影を W20 の週の表(<world>/w20_calendar_1a.parquet・SHIBUYA_CALENDAR_W20)から作り、"
+             "manifest の calendar_shadow に出す(計器だけ=出入りは今の W17 のまま・1a のランだけ設定の指紋に入る・ランの種類は arm)",
+    )
+    ap.add_argument(
+        "--calendar",
+        choices=("w17", "1b"),
+        default=None,
+        help="第 6 期 6-2 カレンダー 1b の腕(既定 w17・環境変数 SHIBUYA_CALENDAR と同じ。指定すれば環境変数より強い)。"
+             "1b=W20 の時刻つきの勤務の約束を持つ体の出入り(出発するか・いつか・帰るか)を本人の判断(仮のモデル=mock/古典)へ"
+             "渡す(その体の W17 の到着・退出は実行しない・就寝と起床は W17 のまま)。W20 の週の表は <world>/w20_calendar_1a.parquet"
+             "か SHIBUYA_CALENDAR_W20。manifest の末尾に calendar_1b・1b のランだけ設定の指紋に入る・ランの種類は arm",
+    )
+    ap.add_argument(
+        "--experiment", type=str, default="",
+        help="第 3 期 3-3 反実仮想の申込書(JSON のパス・engine.experiment.form)。既定なし=今と同じ。渡すとランの種類は "
+             "counterfactual・申込書の指紋は manifest の experiment に出る(設定の指紋には入らない)",
+    )
+    ap.add_argument(
+        "--experiment-branch", type=str, default="",
+        help="第 3 期 3-3 分岐の基準のランの記録(tape/・state/・checkpoints.json のあるディレクトリ)。--experiment と一緒に"
+             "使う。T0 までテープを再生して T0 から今の方策で続け、A/A の枝 2 本と改変の枝 1 本を回して R-71 の 4 つの確認を"
+             "書く(<記録>/branches/<申込書の指紋の先頭 16 字>/branch_report.json)。〔3-3b〕申込書の T0 は計算のまとめの窓の頭"
+             "(基準のランの batching.width_s ずつ)でなければ止める(3-3 では刻みの頭でない T0 を切り上げて受けていた=3-3b で"
+             "止める形に変えた・申込書の T0 を黙って丸めない)",
+    )
+    ap.add_argument(
+        "--experiment-model", type=str, default="",
+        help="第 3 期 3-3 申込書のアンサンブルのモデルの札(札が 2 つ以上のときに渡す・封印の入口で seed の 3 つと合わせて照合)",
+    )
+    ap.add_argument(
+        "--experiment-aa", action="store_true",
+        help="第 3 期 3-3 改変を空にした A/A の枝として回す(--experiment-branch と一緒なら 3 本とも A/A)",
+    )
     # --llm / --endpoints / --model / --mode / --run-id / --tape / --temperature /
     # --max-tokens / --fleet-wait-s(C6-a)
     add_fleet_args(ap)
+    add_calendar_args(ap)  # 10a: --calendar-weekday / --start-date / --holiday-csv / --school-holidays・10c: --rng-scheme
     args = ap.parse_args(argv)
     try:
         refractory_scale = parse_refractory_scale(args.refractory_scale)
@@ -1097,9 +1510,69 @@ def main(argv: list[str] | None = None) -> int:
             )
     except argparse.ArgumentTypeError as exc:  # 使い方の誤りは traceback ではなく usage で返す
         ap.error(str(exc))
-    res = run(
+    if str(args.events) in ("off", "on"):  # 第 1 期 1-3: 出来事の記録の切替口(組み立てが読む。CLI は環境変数より強い=検収 L3)
+        from shibuya.engine.events import log as _events_log
+
+        _events_log.set_enabled(str(args.events) == "on")
+    if args.memory_store is not None:  # 第 1 期 1-6: 記憶の器の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine import memory_store as _memory_store
+
+        _memory_store.set_arm(str(args.memory_store))
+    # 〔第 6 期 6-5〕記憶の腕(組み立てが読む。指定は環境変数より強い)
+    for _mk, _mv in (("model", args.memory_model), ("cue", args.memory_cue), ("embed_model", args.memory_embed_model),
+                     ("people", args.memory_people), ("grain", args.memory_grain)):
+        if _mv is not None:
+            from shibuya.engine import memory_m1 as _memory_m1
+
+            _memory_m1.set_arm(_mk, str(_mv))
+    if args.decision_port is not None:  # 第 1 期 1-8 J0: 候補の口の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine.decision import layer as _decision_layer
+
+        _decision_layer.set_arm(str(args.decision_port))
+    if args.speech_port is not None:  # 第 1 期 1-8b: 発話の口の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine.speech import layer as _speech_layer
+
+        _speech_layer.set_arm(str(args.speech_port))
+    if args.proximity is not None:  # 第 2 期 2-2 段 11a: 近接の判定の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine import proximity as _proximity
+
+        _proximity.set_arm(str(args.proximity))
+    if args.proximity_d is not None:
+        from shibuya.engine import proximity as _proximity
+
+        _proximity.set_d(str(args.proximity_d))
+    if args.batch_width_s is not None:  # 〔第 3 期 3-2〕まとめの幅の腕(組み立てと進行役が読む。指定は環境変数より強い)
+        from shibuya.engine import batching as _batching
+
+        _batching.set_arm(int(args.batch_width_s))
+    if args.seat_release is not None:  # 〔第 2 期 2-4 V3〕在席の印の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine import seat_release as _seat_release
+
+        _seat_release.set_arm(str(args.seat_release))
+    if args.body_schedule is not None:  # 〔第 3 期 3-5〕TM5 の体の予約の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine import body as _body
+
+        _body.set_arm(str(args.body_schedule))
+    if args.calendar_shadow is not None:  # 〔第 3 期 3-1〕暦 1a の影の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine import calendar_shadow as _calendar_shadow
+
+        _calendar_shadow.set_arm(str(args.calendar_shadow))
+    if args.calendar is not None:  # 〔第 6 期 6-2〕カレンダー 1b の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine import calendar_self as _calendar_self
+
+        _calendar_self.set_arm(str(args.calendar))
+    if args.economy_stage2 is not None:  # 第 2 期 2-1: 経済の段階 2 の腕(組み立てと台帳の組み立てが読む)
+        _ES2.set_arm(str(args.economy_stage2))
+    if args.economy_stage2_parts is not None:
+        try:
+            _ES2.set_parts(str(args.economy_stage2_parts))
+        except ValueError as exc:
+            ap.error(str(exc))
+    run_kwargs = dict(  # 第 1 期 1-4(検収 M2): ランの種類は run が決める(試験 > 反実仮想 > CLI の既定と違う腕 > 再現)
         n_agents=args.agents,
         seed=args.seed,
+        population_seed=args.population_seed,
+        environment_seed=args.environment_seed,
         world_dir=args.world,
         n_cells=args.cells,
         ticks=args.ticks,
@@ -1112,7 +1585,6 @@ def main(argv: list[str] | None = None) -> int:
         refractory_scale=refractory_scale or None,
         signage=not args.no_signage,
         signage_p_see=float(args.signage_p_see),
-        p_see_activity=args.p_see_activity,
         l4_scale=float(args.l4_scale),
         sleep_suppression=not args.no_sleep_suppression,
         plan_sleep=not args.no_plan_sleep,
@@ -1129,6 +1601,8 @@ def main(argv: list[str] | None = None) -> int:
         chooser=str(args.chooser),
         policy=str(args.policy),
         activity_region=str(args.activity_region),
+        classical_social=str(args.classical_social),
+        meal_gate=str(args.meal_gate),
         classical_habit_p=float(args.classical_habit_p),
         classical_tau=float(args.classical_tau),
         poi_target=str(args.poi_target),
@@ -1142,13 +1616,15 @@ def main(argv: list[str] | None = None) -> int:
         store_wom=str(args.store_wom),
         store_signage=str(args.store_signage),
         store_recall_scope=str(args.store_recall_scope),
+        wom_source=str(args.wom_source),
         relations=str(args.relations),
         rel_k=int(args.rel_k),
-        rel_tau=float(args.rel_tau),
+        rel_tau=(float(args.rel_tau) if args.rel_tau is not None else None),
         rel_d=float(args.rel_d),
         rel_init_density=float(args.rel_init_density),
         conv_max_participants=int(args.conv_max_participants),
         rel_tenure_weeks=float(args.rel_tenure_weeks),
+        rel_tenure_hash=str(args.rel_tenure_hash),
         rel_invite=str(args.rel_invite),
         rel_acq_wake=str(args.rel_acq_wake),
         rel_copresent=str(args.rel_copresent),
@@ -1158,6 +1634,9 @@ def main(argv: list[str] | None = None) -> int:
         store_decay=str(args.store_decay),
         hunger_model=str(args.hunger_model),
         energy_rate=str(args.energy_rate),
+        meal_sleep_defer=str(args.meal_sleep_defer),
+        home_meal=str(args.home_meal),
+        hunger_words=str(args.hunger_words),
         role_words=(str(args.role_words) == "on"),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),
@@ -1175,8 +1654,27 @@ def main(argv: list[str] | None = None) -> int:
         occupancy_path=getattr(args, "occupancy_out", "") or None,
         census_out=getattr(args, "census_out", "") or None,
         tape_path=args.tape or None,
+        **calendar_kwargs_from_args(args),  # 10a: 暦の口と応答の遅れ(--response-delay)
         **({"mode": "replay", "replay": args.replay} if args.replay else {}),
     )
+    if args.experiment_aa and not args.experiment:
+        ap.error("--experiment-aa には --experiment(申込書)が要る")
+    if args.experiment_branch:  # 第 3 期 3-3: 分岐(T0 までテープを再生・A/A の枝 2 本+改変の枝 1 本・4 つの確認)
+        if not args.experiment:
+            ap.error("--experiment-branch には --experiment(申込書)が要る")
+        from shibuya.engine.experiment import branch as _BRANCH
+
+        outcome = _BRANCH.run_branch(_experiment_form(args.experiment), args.experiment_branch, runner=run,
+                                     run_kwargs=run_kwargs, aa_only=bool(args.experiment_aa))
+        res = outcome.branch
+        sm = outcome.report["summary"]
+        print(f"[分岐] T0={outcome.report['T0_step']} 確認 a={sm['a']} b={sm['b']} d={sm['d']} "
+              f"最初の食い違い 刻み={sm['c_step']} 系={sm['c_system']} → "
+              f"{outcome.report_path.name if outcome.report_path else '-'}")
+    else:
+        # 3-3: 申込書を渡したときだけ欄を足す(既定の引数は今のまま=腕の数え方も変わらない)
+        res = run(**run_kwargs, **({"experiment": args.experiment, "experiment_aa": bool(args.experiment_aa),
+                                    "experiment_model": (args.experiment_model or None)} if args.experiment else {}))
     print(res.summary())
     if args.checkpoints_out:
         out = Path(args.checkpoints_out)

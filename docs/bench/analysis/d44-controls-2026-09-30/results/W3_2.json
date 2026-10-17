@@ -1,0 +1,38 @@
+{
+ "key": "W3#2",
+ "control": "uint16 メートル丸め(宣言)vs 丸めない(float)",
+ "metric": "セル間距離(上三角)の 10 m 階級分布",
+ "variants": [
+  {
+   "name": "丸めない・10 m 階級",
+   "jsd_bits": 5.328679166379026e-05,
+   "null_p95": 0.0011036899571426108,
+   "detected": false,
+   "tvd": 0.005506150881873429,
+   "n_declared": 134940.0,
+   "n_control": 134940.0,
+   "n_bins": 376,
+   "max_abs_diff_m": 0.5
+  },
+  {
+   "name": "丸めない・1 m 階級(参考)",
+   "jsd_bits": 0.005059495193719243,
+   "null_p95": 0.009394070165956305,
+   "detected": false,
+   "tvd": 0.058803912850155626,
+   "n_declared": 134940.0,
+   "n_control": 134940.0,
+   "n_bins": 3759,
+   "primary": false
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.44983260007575154,
+ "checks": {
+  "declared_recomputed_equals_asset": true
+ },
+ "seconds_wall_row": 4.01,
+ "measured_at": "2026-09-30"
+}

@@ -263,9 +263,7 @@ def test_run_is_reproducible(world_dir: Path):
 
 
 # ---------------------------------------------------------------- 実データ
-@pytest.mark.skipif(
-    not (DATA_DIR / "w8_t1_cell.parquet").exists(), reason="data/world/v2 が無い"
-)
+@pytest.mark.requires_data("world_v2:w8_t1_cell.parquet")
 def test_real_data_prompt_count_and_sha(capsys):
     """実資産で 520 セル(仕様の「≈600」は推定・C1 実測 520)。"""
     from shibuya.perception.channels import estimate_tokens

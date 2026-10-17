@@ -1,0 +1,4932 @@
+{
+ "schema": "shibuya.bench/wave2-2026-09-30/meal-bundle-2b/1",
+ "how": "5,000 体・seed 1・語彙 v3・energy・1 シミュ日(月曜)。3 方策 × 5 腕。判定しない",
+ "skip_definition": "朝の窓 5:00〜10:59 に食事(範囲内・範囲外・自宅の予定の実行)が 1 回も無い体(軽食だけは欠食)",
+ "anchor_t10_breakfast_skip_pct": {
+  "age_classes": [
+   "total",
+   "1-6",
+   "7-14",
+   "15-19",
+   "20-29",
+   "30-39",
+   "40-49",
+   "50-59",
+   "60-69",
+   "70+"
+  ],
+  "pct": {
+   "total": [
+    12.2,
+    3.9,
+    4.2,
+    13.9,
+    31.1,
+    23,
+    18.3,
+    16.1,
+    10.9,
+    3.8
+   ],
+   "male": [
+    13.8,
+    3.5,
+    4.3,
+    12.8,
+    37.3,
+    29.2,
+    21.9,
+    18.3,
+    11.7,
+    3.6
+   ],
+   "female": [
+    10.8,
+    4.4,
+    4.1,
+    14.8,
+    26.5,
+    17,
+    15.1,
+    14.2,
+    10.2,
+    4
+   ]
+  },
+  "source": "国民健康・栄養調査 令和6年 第10表(錨 hunger_energy_anchors_v0)"
+ },
+ "rows": [
+  {
+   "policy": "mock",
+   "arm": "base",
+   "switches": {
+    "vocab_version": "v3"
+   },
+   "final": "993276d5e5bb5cbe",
+   "calls": 69978,
+   "manifest_switches": {
+    "meal_sleep_defer": "off",
+    "home_meal": "off",
+    "hunger_words": "hungry"
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 25.5
+    },
+    "age1plus": {
+     "n": 4995,
+     "skip_pct": 25.4
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 21.9
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 22.7
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 20.8
+    },
+    "home_in_area": {
+     "n": 509,
+     "skip_pct": 83.1
+    },
+    "home_out_of_area": {
+     "n": 4491,
+     "skip_pct": 18.9
+    },
+    "commuter": {
+     "n": 2346,
+     "skip_pct": 23.6
+    },
+    "by_age_class": {
+     "1-6": {
+      "n": 34,
+      "skip_pct": 70.6
+     },
+     "7-14": {
+      "n": 95,
+      "skip_pct": 38.9
+     },
+     "15-19": {
+      "n": 283,
+      "skip_pct": 13.8
+     },
+     "20-29": {
+      "n": 993,
+      "skip_pct": 21.9
+     },
+     "30-39": {
+      "n": 1053,
+      "skip_pct": 25.3
+     },
+     "40-49": {
+      "n": 1030,
+      "skip_pct": 27.0
+     },
+     "50-59": {
+      "n": 656,
+      "skip_pct": 26.8
+     },
+     "60-69": {
+      "n": 366,
+      "skip_pct": 27.6
+     },
+     "70+": {
+      "n": 485,
+      "skip_pct": 27.2
+     }
+    }
+   },
+   "meals_per_agent": {
+    "0": 291,
+    "1": 864,
+    "2": 1560,
+    "3": 1371,
+    "4+": 914
+   },
+   "meal_windows": {
+    "in_area": {
+     "breakfast": 1006,
+     "lunch": 1790,
+     "dinner": 1416,
+     "other": 285
+    },
+    "out_of_area": {
+     "breakfast": 3476,
+     "lunch": 1577,
+     "dinner": 2703,
+     "other": 29
+    },
+    "home_plan": {
+     "breakfast": 0,
+     "lunch": 0,
+     "dinner": 0,
+     "other": 0
+    }
+   },
+   "meal_hourly": {
+    "in_area": [
+     3,
+     2,
+     0,
+     0,
+     2,
+     0,
+     21,
+     172,
+     264,
+     293,
+     256,
+     323,
+     490,
+     423,
+     316,
+     238,
+     278,
+     357,
+     365,
+     186,
+     203,
+     137,
+     136,
+     32
+    ],
+    "out_of_area": [
+     2,
+     0,
+     0,
+     0,
+     1,
+     3,
+     5,
+     3446,
+     14,
+     4,
+     4,
+     92,
+     1417,
+     47,
+     11,
+     10,
+     26,
+     167,
+     271,
+     1923,
+     166,
+     74,
+     57,
+     45
+    ],
+    "home_plan": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": -431.1,
+    "p5": -2212.7,
+    "p25": -1156.0,
+    "p50": -535.0,
+    "p75": 82.1,
+    "p95": 1613.5
+   },
+   "balance_kcal_three_meals": {
+    "n": 1500,
+    "mean": 606.6,
+    "p5": -142.9,
+    "p25": -10.6,
+    "p50": 122.2,
+    "p75": 1005.3,
+    "p95": 2527.2
+   },
+   "balance_over_eer_by_meals": {
+    "0": {
+     "n": 291,
+     "mean": -1.0,
+     "p5": -1.1,
+     "p25": -1.0,
+     "p50": -1.0,
+     "p75": -0.9,
+     "p95": -0.8
+    },
+    "1": {
+     "n": 864,
+     "mean": -0.7,
+     "p5": -0.9,
+     "p25": -0.8,
+     "p50": -0.7,
+     "p75": -0.6,
+     "p95": -0.5
+    },
+    "2": {
+     "n": 1560,
+     "mean": -0.3,
+     "p5": -0.5,
+     "p25": -0.4,
+     "p50": -0.4,
+     "p75": -0.3,
+     "p95": -0.1
+    },
+    "3": {
+     "n": 1371,
+     "mean": -0.0,
+     "p5": -0.2,
+     "p25": -0.1,
+     "p50": -0.0,
+     "p75": 0.0,
+     "p95": 0.3
+    }
+   },
+   "census_per_agent": {
+    "intake_kcal": 2002.4,
+    "expenditure_kcal": 2433.5,
+    "balance_kcal": -431.1,
+    "eer_kcal": 2388.0
+   },
+   "counts": {
+    "meals_in_area": 4497,
+    "meals_out_of_area": 7785,
+    "meals_out_from_row": 1441,
+    "meals_out_default_at_default_time": 6344,
+    "meals_out_deferred": 0,
+    "meals_home_plan": 0,
+    "snacks": 2292
+   },
+   "out_of_area_schedule": {
+    "from_rows": 3658,
+    "defaults": 11526
+   },
+   "home_meal": {},
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.2244,
+     "normal": 0.3229,
+     "hungry": 0.2367,
+     "very_hungry": 0.2159,
+     "agent_ticks": 2518276
+    },
+    "asleep_in_area": {
+     "full": 0.0053,
+     "normal": 0.2223,
+     "hungry": 0.6716,
+     "very_hungry": 0.1007,
+     "agent_ticks": 368298
+    },
+    "away": {
+     "full": 0.1857,
+     "normal": 0.3095,
+     "hungry": 0.438,
+     "very_hungry": 0.0668,
+     "agent_ticks": 4313426
+    }
+   },
+   "invariant_item1_placed_meals_while_w17_asleep": 2541,
+   "w17_row_meals_while_w17_asleep": 2,
+   "w17_row_meals": 1441,
+   "render": {
+    "renders": 69978,
+    "b5_tokens": {
+     "n": 69978,
+     "mean": 78.6,
+     "p5": 66.0,
+     "p25": 76.0,
+     "p50": 77.0,
+     "p75": 84.0,
+     "p95": 88.0
+    },
+    "b5_tokens_max": 103,
+    "individual_group_tokens": {
+     "n": 69978,
+     "mean": 122.6,
+     "p5": 109.0,
+     "p25": 116.0,
+     "p50": 123.0,
+     "p75": 128.0,
+     "p95": 137.0
+    },
+    "individual_group_max": 157,
+    "word_draws": {
+     "空腹": 15923,
+     "とても空腹": 12998
+    },
+    "no_word": 41057,
+    "tape_calls": 69978,
+    "tape_tokens_in": {
+     "n": 69978,
+     "mean": 1025.9,
+     "p5": 1000.0,
+     "p25": 1016.0,
+     "p50": 1026.0,
+     "p75": 1036.0,
+     "p95": 1052.0
+    },
+    "tape_tokens_in_sum": 71787856
+   }
+  },
+  {
+   "policy": "mock",
+   "arm": "defer",
+   "switches": {
+    "vocab_version": "v3",
+    "meal_sleep_defer": "on"
+   },
+   "final": "fc48fea7c337862d",
+   "calls": 69051,
+   "manifest_switches": {
+    "meal_sleep_defer": "on",
+    "home_meal": "off",
+    "hunger_words": "hungry"
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 30.8
+    },
+    "age1plus": {
+     "n": 4995,
+     "skip_pct": 30.8
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 26.3
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 27.9
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 24.3
+    },
+    "home_in_area": {
+     "n": 509,
+     "skip_pct": 82.9
+    },
+    "home_out_of_area": {
+     "n": 4491,
+     "skip_pct": 24.9
+    },
+    "commuter": {
+     "n": 2346,
+     "skip_pct": 32.7
+    },
+    "by_age_class": {
+     "1-6": {
+      "n": 34,
+      "skip_pct": 70.6
+     },
+     "7-14": {
+      "n": 95,
+      "skip_pct": 48.4
+     },
+     "15-19": {
+      "n": 283,
+      "skip_pct": 18.4
+     },
+     "20-29": {
+      "n": 993,
+      "skip_pct": 26.3
+     },
+     "30-39": {
+      "n": 1053,
+      "skip_pct": 30.3
+     },
+     "40-49": {
+      "n": 1030,
+      "skip_pct": 32.2
+     },
+     "50-59": {
+      "n": 656,
+      "skip_pct": 31.9
+     },
+     "60-69": {
+      "n": 366,
+      "skip_pct": 35.2
+     },
+     "70+": {
+      "n": 485,
+      "skip_pct": 34.2
+     }
+    }
+   },
+   "meals_per_agent": {
+    "0": 362,
+    "1": 1056,
+    "2": 1524,
+    "3": 1241,
+    "4+": 817
+   },
+   "meal_windows": {
+    "in_area": {
+     "breakfast": 1009,
+     "lunch": 1742,
+     "dinner": 1340,
+     "other": 310
+    },
+    "out_of_area": {
+     "breakfast": 3191,
+     "lunch": 1476,
+     "dinner": 2442,
+     "other": 28
+    },
+    "home_plan": {
+     "breakfast": 0,
+     "lunch": 0,
+     "dinner": 0,
+     "other": 0
+    }
+   },
+   "meal_hourly": {
+    "in_area": [
+     3,
+     2,
+     0,
+     0,
+     2,
+     0,
+     21,
+     174,
+     258,
+     290,
+     266,
+     319,
+     456,
+     386,
+     311,
+     270,
+     303,
+     348,
+     315,
+     187,
+     193,
+     139,
+     126,
+     32
+    ],
+    "out_of_area": [
+     2,
+     0,
+     0,
+     0,
+     1,
+     3,
+     5,
+     1940,
+     1082,
+     120,
+     41,
+     84,
+     1275,
+     65,
+     25,
+     27,
+     25,
+     170,
+     267,
+     1668,
+     166,
+     71,
+     56,
+     44
+    ],
+    "home_plan": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": -546.8,
+    "p5": -2319.6,
+    "p25": -1299.6,
+    "p50": -648.2,
+    "p75": 12.1,
+    "p95": 1484.4
+   },
+   "balance_kcal_three_meals": {
+    "n": 1253,
+    "mean": 590.0,
+    "p5": -145.6,
+    "p25": -5.0,
+    "p50": 139.8,
+    "p75": 1011.8,
+    "p95": 2431.3
+   },
+   "balance_over_eer_by_meals": {
+    "0": {
+     "n": 362,
+     "mean": -1.0,
+     "p5": -1.1,
+     "p25": -1.0,
+     "p50": -1.0,
+     "p75": -0.9,
+     "p95": -0.8
+    },
+    "1": {
+     "n": 1056,
+     "mean": -0.7,
+     "p5": -0.9,
+     "p25": -0.8,
+     "p50": -0.7,
+     "p75": -0.6,
+     "p95": -0.5
+    },
+    "2": {
+     "n": 1524,
+     "mean": -0.3,
+     "p5": -0.5,
+     "p25": -0.4,
+     "p50": -0.3,
+     "p75": -0.3,
+     "p95": -0.1
+    },
+    "3": {
+     "n": 1241,
+     "mean": 0.0,
+     "p5": -0.2,
+     "p25": -0.1,
+     "p50": -0.0,
+     "p75": 0.0,
+     "p95": 0.3
+    }
+   },
+   "census_per_agent": {
+    "intake_kcal": 1884.2,
+    "expenditure_kcal": 2431.1,
+    "balance_kcal": -546.8,
+    "eer_kcal": 2388.0
+   },
+   "counts": {
+    "meals_in_area": 4401,
+    "meals_out_of_area": 7137,
+    "meals_out_from_row": 1440,
+    "meals_out_default_at_default_time": 3834,
+    "meals_out_deferred": 1863,
+    "meals_home_plan": 0,
+    "snacks": 2235
+   },
+   "out_of_area_schedule": {
+    "from_rows": 3658,
+    "defaults": 11526,
+    "sleep_defer": {
+     "mode": "on",
+     "defaults_asleep_in_w17": 2950,
+     "defaults_asleep_wake_in_window": 2260,
+     "armed_out_of_area_at_default": 2543,
+     "skipped_wake_past_window": 592,
+     "deferred_not_out_of_area_at_wake": 88
+    }
+   },
+   "home_meal": {},
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.2426,
+     "normal": 0.3086,
+     "hungry": 0.2176,
+     "very_hungry": 0.2313,
+     "agent_ticks": 2512765
+    },
+    "asleep_in_area": {
+     "full": 0.0056,
+     "normal": 0.2206,
+     "hungry": 0.6683,
+     "very_hungry": 0.1055,
+     "agent_ticks": 373049
+    },
+    "away": {
+     "full": 0.1528,
+     "normal": 0.2853,
+     "hungry": 0.442,
+     "very_hungry": 0.12,
+     "agent_ticks": 4314186
+    }
+   },
+   "invariant_item1_placed_meals_while_w17_asleep": 0,
+   "w17_row_meals_while_w17_asleep": 2,
+   "w17_row_meals": 1440
+  },
+  {
+   "policy": "mock",
+   "arm": "home",
+   "switches": {
+    "vocab_version": "v3",
+    "home_meal": "plan"
+   },
+   "final": "6fdc00bd0f695efa",
+   "calls": 69557,
+   "manifest_switches": {
+    "meal_sleep_defer": "off",
+    "home_meal": "plan",
+    "hunger_words": "hungry"
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 25.3
+    },
+    "age1plus": {
+     "n": 4995,
+     "skip_pct": 25.3
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 21.6
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 22.3
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 20.6
+    },
+    "home_in_area": {
+     "n": 509,
+     "skip_pct": 82.3
+    },
+    "home_out_of_area": {
+     "n": 4491,
+     "skip_pct": 18.9
+    },
+    "commuter": {
+     "n": 2346,
+     "skip_pct": 23.5
+    },
+    "by_age_class": {
+     "1-6": {
+      "n": 34,
+      "skip_pct": 70.6
+     },
+     "7-14": {
+      "n": 95,
+      "skip_pct": 38.9
+     },
+     "15-19": {
+      "n": 283,
+      "skip_pct": 13.4
+     },
+     "20-29": {
+      "n": 993,
+      "skip_pct": 21.6
+     },
+     "30-39": {
+      "n": 1053,
+      "skip_pct": 25.4
+     },
+     "40-49": {
+      "n": 1030,
+      "skip_pct": 26.9
+     },
+     "50-59": {
+      "n": 656,
+      "skip_pct": 26.8
+     },
+     "60-69": {
+      "n": 366,
+      "skip_pct": 27.3
+     },
+     "70+": {
+      "n": 485,
+      "skip_pct": 27.0
+     }
+    }
+   },
+   "meals_per_agent": {
+    "0": 277,
+    "1": 891,
+    "2": 1566,
+    "3": 1382,
+    "4+": 884
+   },
+   "meal_windows": {
+    "in_area": {
+     "breakfast": 1009,
+     "lunch": 1773,
+     "dinner": 1346,
+     "other": 271
+    },
+    "out_of_area": {
+     "breakfast": 3476,
+     "lunch": 1580,
+     "dinner": 2707,
+     "other": 28
+    },
+    "home_plan": {
+     "breakfast": 5,
+     "lunch": 4,
+     "dinner": 21,
+     "other": 0
+    }
+   },
+   "meal_hourly": {
+    "in_area": [
+     3,
+     2,
+     0,
+     0,
+     2,
+     0,
+     21,
+     172,
+     264,
+     295,
+     257,
+     328,
+     471,
+     399,
+     327,
+     248,
+     264,
+     318,
+     308,
+     184,
+     205,
+     141,
+     142,
+     48
+    ],
+    "out_of_area": [
+     2,
+     0,
+     0,
+     0,
+     1,
+     3,
+     5,
+     3446,
+     14,
+     4,
+     4,
+     90,
+     1421,
+     48,
+     11,
+     10,
+     25,
+     170,
+     275,
+     1921,
+     168,
+     71,
+     56,
+     46
+    ],
+    "home_plan": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     2,
+     1,
+     1,
+     0,
+     0,
+     3,
+     0,
+     0,
+     1,
+     0,
+     3,
+     4,
+     7,
+     5,
+     1,
+     1,
+     0
+    ]
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": -441.4,
+    "p5": -2212.5,
+    "p25": -1154.2,
+    "p50": -529.0,
+    "p75": 52.2,
+    "p95": 1597.9
+   },
+   "balance_kcal_three_meals": {
+    "n": 1514,
+    "mean": 570.2,
+    "p5": -141.0,
+    "p25": -15.9,
+    "p50": 93.2,
+    "p75": 966.9,
+    "p95": 2449.7
+   },
+   "balance_over_eer_by_meals": {
+    "0": {
+     "n": 277,
+     "mean": -1.0,
+     "p5": -1.1,
+     "p25": -1.0,
+     "p50": -1.0,
+     "p75": -0.9,
+     "p95": -0.8
+    },
+    "1": {
+     "n": 891,
+     "mean": -0.7,
+     "p5": -0.9,
+     "p25": -0.8,
+     "p50": -0.7,
+     "p75": -0.6,
+     "p95": -0.4
+    },
+    "2": {
+     "n": 1566,
+     "mean": -0.3,
+     "p5": -0.5,
+     "p25": -0.4,
+     "p50": -0.4,
+     "p75": -0.3,
+     "p95": -0.1
+    },
+    "3": {
+     "n": 1382,
+     "mean": -0.0,
+     "p5": -0.2,
+     "p25": -0.0,
+     "p50": -0.0,
+     "p75": 0.0,
+     "p95": 0.2
+    }
+   },
+   "census_per_agent": {
+    "intake_kcal": 1991.4,
+    "expenditure_kcal": 2432.7,
+    "balance_kcal": -441.4,
+    "eer_kcal": 2388.0
+   },
+   "counts": {
+    "meals_in_area": 4399,
+    "meals_out_of_area": 7791,
+    "meals_out_from_row": 1452,
+    "meals_out_default_at_default_time": 6339,
+    "meals_out_deferred": 0,
+    "meals_home_plan": 30,
+    "snacks": 2275
+   },
+   "out_of_area_schedule": {
+    "from_rows": 3658,
+    "defaults": 11526
+   },
+   "home_meal": {
+    "mode": "plan",
+    "rows": 103,
+    "agents_with_rows": 102,
+    "not_at_home": 73,
+    "asleep": 0
+   },
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.2237,
+     "normal": 0.3267,
+     "hungry": 0.2343,
+     "very_hungry": 0.2153,
+     "agent_ticks": 2516823
+    },
+    "asleep_in_area": {
+     "full": 0.0066,
+     "normal": 0.221,
+     "hungry": 0.6726,
+     "very_hungry": 0.0997,
+     "agent_ticks": 369827
+    },
+    "away": {
+     "full": 0.1853,
+     "normal": 0.309,
+     "hungry": 0.4381,
+     "very_hungry": 0.0675,
+     "agent_ticks": 4313350
+    }
+   },
+   "invariant_item1_placed_meals_while_w17_asleep": 2539,
+   "w17_row_meals_while_w17_asleep": 2,
+   "w17_row_meals": 1452
+  },
+  {
+   "policy": "mock",
+   "arm": "words",
+   "switches": {
+    "vocab_version": "v3",
+    "hunger_words": "all"
+   },
+   "final": "993276d5e5bb5cbe",
+   "calls": 69978,
+   "manifest_switches": {
+    "meal_sleep_defer": "off",
+    "home_meal": "off",
+    "hunger_words": "all"
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 25.5
+    },
+    "age1plus": {
+     "n": 4995,
+     "skip_pct": 25.4
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 21.9
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 22.7
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 20.8
+    },
+    "home_in_area": {
+     "n": 509,
+     "skip_pct": 83.1
+    },
+    "home_out_of_area": {
+     "n": 4491,
+     "skip_pct": 18.9
+    },
+    "commuter": {
+     "n": 2346,
+     "skip_pct": 23.6
+    },
+    "by_age_class": {
+     "1-6": {
+      "n": 34,
+      "skip_pct": 70.6
+     },
+     "7-14": {
+      "n": 95,
+      "skip_pct": 38.9
+     },
+     "15-19": {
+      "n": 283,
+      "skip_pct": 13.8
+     },
+     "20-29": {
+      "n": 993,
+      "skip_pct": 21.9
+     },
+     "30-39": {
+      "n": 1053,
+      "skip_pct": 25.3
+     },
+     "40-49": {
+      "n": 1030,
+      "skip_pct": 27.0
+     },
+     "50-59": {
+      "n": 656,
+      "skip_pct": 26.8
+     },
+     "60-69": {
+      "n": 366,
+      "skip_pct": 27.6
+     },
+     "70+": {
+      "n": 485,
+      "skip_pct": 27.2
+     }
+    }
+   },
+   "meals_per_agent": {
+    "0": 291,
+    "1": 864,
+    "2": 1560,
+    "3": 1371,
+    "4+": 914
+   },
+   "meal_windows": {
+    "in_area": {
+     "breakfast": 1006,
+     "lunch": 1790,
+     "dinner": 1416,
+     "other": 285
+    },
+    "out_of_area": {
+     "breakfast": 3476,
+     "lunch": 1577,
+     "dinner": 2703,
+     "other": 29
+    },
+    "home_plan": {
+     "breakfast": 0,
+     "lunch": 0,
+     "dinner": 0,
+     "other": 0
+    }
+   },
+   "meal_hourly": {
+    "in_area": [
+     3,
+     2,
+     0,
+     0,
+     2,
+     0,
+     21,
+     172,
+     264,
+     293,
+     256,
+     323,
+     490,
+     423,
+     316,
+     238,
+     278,
+     357,
+     365,
+     186,
+     203,
+     137,
+     136,
+     32
+    ],
+    "out_of_area": [
+     2,
+     0,
+     0,
+     0,
+     1,
+     3,
+     5,
+     3446,
+     14,
+     4,
+     4,
+     92,
+     1417,
+     47,
+     11,
+     10,
+     26,
+     167,
+     271,
+     1923,
+     166,
+     74,
+     57,
+     45
+    ],
+    "home_plan": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": -431.1,
+    "p5": -2212.7,
+    "p25": -1156.0,
+    "p50": -535.0,
+    "p75": 82.1,
+    "p95": 1613.5
+   },
+   "balance_kcal_three_meals": {
+    "n": 1500,
+    "mean": 606.6,
+    "p5": -142.9,
+    "p25": -10.6,
+    "p50": 122.2,
+    "p75": 1005.3,
+    "p95": 2527.2
+   },
+   "balance_over_eer_by_meals": {
+    "0": {
+     "n": 291,
+     "mean": -1.0,
+     "p5": -1.1,
+     "p25": -1.0,
+     "p50": -1.0,
+     "p75": -0.9,
+     "p95": -0.8
+    },
+    "1": {
+     "n": 864,
+     "mean": -0.7,
+     "p5": -0.9,
+     "p25": -0.8,
+     "p50": -0.7,
+     "p75": -0.6,
+     "p95": -0.5
+    },
+    "2": {
+     "n": 1560,
+     "mean": -0.3,
+     "p5": -0.5,
+     "p25": -0.4,
+     "p50": -0.4,
+     "p75": -0.3,
+     "p95": -0.1
+    },
+    "3": {
+     "n": 1371,
+     "mean": -0.0,
+     "p5": -0.2,
+     "p25": -0.1,
+     "p50": -0.0,
+     "p75": 0.0,
+     "p95": 0.3
+    }
+   },
+   "census_per_agent": {
+    "intake_kcal": 2002.4,
+    "expenditure_kcal": 2433.5,
+    "balance_kcal": -431.1,
+    "eer_kcal": 2388.0
+   },
+   "counts": {
+    "meals_in_area": 4497,
+    "meals_out_of_area": 7785,
+    "meals_out_from_row": 1441,
+    "meals_out_default_at_default_time": 6344,
+    "meals_out_deferred": 0,
+    "meals_home_plan": 0,
+    "snacks": 2292
+   },
+   "out_of_area_schedule": {
+    "from_rows": 3658,
+    "defaults": 11526
+   },
+   "home_meal": {},
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.2244,
+     "normal": 0.3229,
+     "hungry": 0.2367,
+     "very_hungry": 0.2159,
+     "agent_ticks": 2518276
+    },
+    "asleep_in_area": {
+     "full": 0.0053,
+     "normal": 0.2223,
+     "hungry": 0.6716,
+     "very_hungry": 0.1007,
+     "agent_ticks": 368298
+    },
+    "away": {
+     "full": 0.1857,
+     "normal": 0.3095,
+     "hungry": 0.438,
+     "very_hungry": 0.0668,
+     "agent_ticks": 4313426
+    }
+   },
+   "invariant_item1_placed_meals_while_w17_asleep": 2541,
+   "w17_row_meals_while_w17_asleep": 2,
+   "w17_row_meals": 1441,
+   "render": {
+    "renders": 69978,
+    "b5_tokens": {
+     "n": 69978,
+     "mean": 80.5,
+     "p5": 67.0,
+     "p25": 79.0,
+     "p50": 81.0,
+     "p75": 88.0,
+     "p95": 89.0
+    },
+    "b5_tokens_max": 103,
+    "individual_group_tokens": {
+     "n": 69978,
+     "mean": 124.5,
+     "p5": 110.0,
+     "p25": 119.0,
+     "p50": 125.0,
+     "p75": 130.0,
+     "p95": 139.0
+    },
+    "individual_group_max": 157,
+    "word_draws": {
+     "ふつう": 23655,
+     "空腹": 15923,
+     "満腹": 17402,
+     "とても空腹": 12998
+    },
+    "no_word": 0,
+    "tape_calls": 69978,
+    "tape_tokens_in": {
+     "n": 69978,
+     "mean": 1027.8,
+     "p5": 1001.0,
+     "p25": 1018.0,
+     "p50": 1028.0,
+     "p75": 1038.0,
+     "p95": 1054.0
+    },
+    "tape_tokens_in_sum": 71921263
+   }
+  },
+  {
+   "policy": "mock",
+   "arm": "all_on",
+   "switches": {
+    "vocab_version": "v3",
+    "meal_sleep_defer": "on",
+    "home_meal": "plan",
+    "hunger_words": "all"
+   },
+   "final": "78085fdb13c315ed",
+   "calls": 69337,
+   "manifest_switches": {
+    "meal_sleep_defer": "on",
+    "home_meal": "plan",
+    "hunger_words": "all"
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 30.7
+    },
+    "age1plus": {
+     "n": 4995,
+     "skip_pct": 30.7
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 26.1
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 27.7
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 24.1
+    },
+    "home_in_area": {
+     "n": 509,
+     "skip_pct": 81.9
+    },
+    "home_out_of_area": {
+     "n": 4491,
+     "skip_pct": 24.9
+    },
+    "commuter": {
+     "n": 2346,
+     "skip_pct": 32.7
+    },
+    "by_age_class": {
+     "1-6": {
+      "n": 34,
+      "skip_pct": 70.6
+     },
+     "7-14": {
+      "n": 95,
+      "skip_pct": 48.4
+     },
+     "15-19": {
+      "n": 283,
+      "skip_pct": 18.0
+     },
+     "20-29": {
+      "n": 993,
+      "skip_pct": 26.1
+     },
+     "30-39": {
+      "n": 1053,
+      "skip_pct": 30.3
+     },
+     "40-49": {
+      "n": 1030,
+      "skip_pct": 32.1
+     },
+     "50-59": {
+      "n": 656,
+      "skip_pct": 31.9
+     },
+     "60-69": {
+      "n": 366,
+      "skip_pct": 35.2
+     },
+     "70+": {
+      "n": 485,
+      "skip_pct": 34.0
+     }
+    }
+   },
+   "meals_per_agent": {
+    "0": 353,
+    "1": 1050,
+    "2": 1540,
+    "3": 1259,
+    "4+": 798
+   },
+   "meal_windows": {
+    "in_area": {
+     "breakfast": 1009,
+     "lunch": 1755,
+     "dinner": 1294,
+     "other": 308
+    },
+    "out_of_area": {
+     "breakfast": 3191,
+     "lunch": 1478,
+     "dinner": 2443,
+     "other": 28
+    },
+    "home_plan": {
+     "breakfast": 5,
+     "lunch": 4,
+     "dinner": 21,
+     "other": 1
+    }
+   },
+   "meal_hourly": {
+    "in_area": [
+     3,
+     2,
+     0,
+     0,
+     2,
+     0,
+     21,
+     174,
+     258,
+     289,
+     267,
+     319,
+     458,
+     389,
+     316,
+     273,
+     301,
+     336,
+     306,
+     176,
+     202,
+     133,
+     107,
+     34
+    ],
+    "out_of_area": [
+     2,
+     0,
+     0,
+     0,
+     1,
+     3,
+     5,
+     1940,
+     1082,
+     120,
+     41,
+     84,
+     1277,
+     65,
+     25,
+     27,
+     25,
+     169,
+     265,
+     1671,
+     163,
+     71,
+     61,
+     43
+    ],
+    "home_plan": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     2,
+     1,
+     1,
+     0,
+     0,
+     3,
+     0,
+     0,
+     1,
+     1,
+     2,
+     4,
+     6,
+     6,
+     1,
+     1,
+     1
+    ]
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": -548.1,
+    "p5": -2308.7,
+    "p25": -1293.3,
+    "p50": -639.2,
+    "p75": 7.9,
+    "p95": 1469.2
+   },
+   "balance_kcal_three_meals": {
+    "n": 1240,
+    "mean": 580.0,
+    "p5": -142.9,
+    "p25": -10.8,
+    "p50": 124.5,
+    "p75": 994.7,
+    "p95": 2429.3
+   },
+   "balance_over_eer_by_meals": {
+    "0": {
+     "n": 353,
+     "mean": -1.0,
+     "p5": -1.1,
+     "p25": -1.0,
+     "p50": -1.0,
+     "p75": -0.9,
+     "p95": -0.8
+    },
+    "1": {
+     "n": 1050,
+     "mean": -0.7,
+     "p5": -0.9,
+     "p25": -0.8,
+     "p50": -0.7,
+     "p75": -0.6,
+     "p95": -0.4
+    },
+    "2": {
+     "n": 1540,
+     "mean": -0.3,
+     "p5": -0.5,
+     "p25": -0.4,
+     "p50": -0.3,
+     "p75": -0.3,
+     "p95": -0.1
+    },
+    "3": {
+     "n": 1259,
+     "mean": 0.0,
+     "p5": -0.2,
+     "p25": -0.1,
+     "p50": -0.0,
+     "p75": 0.0,
+     "p95": 0.3
+    }
+   },
+   "census_per_agent": {
+    "intake_kcal": 1882.8,
+    "expenditure_kcal": 2430.9,
+    "balance_kcal": -548.1,
+    "eer_kcal": 2388.0
+   },
+   "counts": {
+    "meals_in_area": 4366,
+    "meals_out_of_area": 7140,
+    "meals_out_from_row": 1438,
+    "meals_out_default_at_default_time": 3839,
+    "meals_out_deferred": 1863,
+    "meals_home_plan": 31,
+    "snacks": 2227
+   },
+   "out_of_area_schedule": {
+    "from_rows": 3658,
+    "defaults": 11526,
+    "sleep_defer": {
+     "mode": "on",
+     "defaults_asleep_in_w17": 2950,
+     "defaults_asleep_wake_in_window": 2260,
+     "armed_out_of_area_at_default": 2541,
+     "skipped_wake_past_window": 590,
+     "deferred_not_out_of_area_at_wake": 88
+    }
+   },
+   "home_meal": {
+    "mode": "plan",
+    "rows": 103,
+    "agents_with_rows": 102,
+    "not_at_home": 72,
+    "asleep": 0
+   },
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.2433,
+     "normal": 0.3094,
+     "hungry": 0.2181,
+     "very_hungry": 0.2292,
+     "agent_ticks": 2510813
+    },
+    "asleep_in_area": {
+     "full": 0.0056,
+     "normal": 0.221,
+     "hungry": 0.6692,
+     "very_hungry": 0.1042,
+     "agent_ticks": 373041
+    },
+    "away": {
+     "full": 0.1525,
+     "normal": 0.2852,
+     "hungry": 0.4423,
+     "very_hungry": 0.12,
+     "agent_ticks": 4316146
+    }
+   },
+   "invariant_item1_placed_meals_while_w17_asleep": 0,
+   "w17_row_meals_while_w17_asleep": 2,
+   "w17_row_meals": 1438
+  },
+  {
+   "policy": "classical_rel",
+   "arm": "base",
+   "switches": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "memory": "on",
+    "relations": "on"
+   },
+   "final": "28ea80375e7ee646",
+   "calls": 110395,
+   "manifest_switches": {
+    "meal_sleep_defer": "off",
+    "home_meal": "off",
+    "hunger_words": "hungry"
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 7.5
+    },
+    "age1plus": {
+     "n": 4995,
+     "skip_pct": 7.5
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 7.2
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 6.3
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 8.1
+    },
+    "home_in_area": {
+     "n": 509,
+     "skip_pct": 51.5
+    },
+    "home_out_of_area": {
+     "n": 4491,
+     "skip_pct": 2.5
+    },
+    "commuter": {
+     "n": 2346,
+     "skip_pct": 0.4
+    },
+    "by_age_class": {
+     "1-6": {
+      "n": 34,
+      "skip_pct": 32.4
+     },
+     "7-14": {
+      "n": 95,
+      "skip_pct": 7.4
+     },
+     "15-19": {
+      "n": 283,
+      "skip_pct": 5.7
+     },
+     "20-29": {
+      "n": 993,
+      "skip_pct": 7.2
+     },
+     "30-39": {
+      "n": 1053,
+      "skip_pct": 6.6
+     },
+     "40-49": {
+      "n": 1030,
+      "skip_pct": 6.9
+     },
+     "50-59": {
+      "n": 656,
+      "skip_pct": 7.8
+     },
+     "60-69": {
+      "n": 366,
+      "skip_pct": 9.3
+     },
+     "70+": {
+      "n": 485,
+      "skip_pct": 8.7
+     }
+    }
+   },
+   "meals_per_agent": {
+    "0": 7,
+    "1": 34,
+    "2": 669,
+    "3": 2296,
+    "4+": 1994
+   },
+   "meal_windows": {
+    "in_area": {
+     "breakfast": 2367,
+     "lunch": 3542,
+     "dinner": 3447,
+     "other": 637
+    },
+    "out_of_area": {
+     "breakfast": 3428,
+     "lunch": 1057,
+     "dinner": 2352,
+     "other": 11
+    },
+    "home_plan": {
+     "breakfast": 0,
+     "lunch": 0,
+     "dinner": 0,
+     "other": 0
+    }
+   },
+   "meal_hourly": {
+    "in_area": [
+     8,
+     36,
+     12,
+     2,
+     5,
+     18,
+     116,
+     744,
+     306,
+     619,
+     564,
+     699,
+     799,
+     942,
+     533,
+     569,
+     574,
+     670,
+     899,
+     639,
+     448,
+     372,
+     280,
+     139
+    ],
+    "out_of_area": [
+     2,
+     0,
+     0,
+     0,
+     1,
+     2,
+     4,
+     3403,
+     14,
+     2,
+     3,
+     63,
+     941,
+     40,
+     7,
+     6,
+     8,
+     121,
+     216,
+     1727,
+     131,
+     60,
+     55,
+     42
+    ],
+    "home_plan": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": 229.8,
+    "p5": -989.0,
+    "p25": -178.7,
+    "p50": 16.0,
+    "p75": 710.2,
+    "p95": 1590.9
+   },
+   "balance_kcal_three_meals": {
+    "n": 3234,
+    "mean": 479.1,
+    "p5": -169.5,
+    "p25": -28.4,
+    "p50": 230.8,
+    "p75": 878.1,
+    "p95": 1711.9
+   },
+   "balance_over_eer_by_meals": {
+    "0": {
+     "n": 7,
+     "mean": -0.8,
+     "p5": -0.9,
+     "p25": -0.9,
+     "p50": -0.9,
+     "p75": -0.8,
+     "p95": -0.8
+    },
+    "1": {
+     "n": 34,
+     "mean": -0.6,
+     "p5": -0.8,
+     "p25": -0.7,
+     "p50": -0.6,
+     "p75": -0.4,
+     "p95": -0.3
+    },
+    "2": {
+     "n": 669,
+     "mean": -0.3,
+     "p5": -0.5,
+     "p25": -0.4,
+     "p50": -0.3,
+     "p75": -0.3,
+     "p95": -0.1
+    },
+    "3": {
+     "n": 2296,
+     "mean": -0.0,
+     "p5": -0.2,
+     "p25": -0.1,
+     "p50": -0.0,
+     "p75": 0.0,
+     "p95": 0.2
+    }
+   },
+   "census_per_agent": {
+    "intake_kcal": 2702.0,
+    "expenditure_kcal": 2472.2,
+    "balance_kcal": 229.8,
+    "eer_kcal": 2388.0
+   },
+   "counts": {
+    "meals_in_area": 9993,
+    "meals_out_of_area": 6848,
+    "meals_out_from_row": 1110,
+    "meals_out_default_at_default_time": 5738,
+    "meals_out_deferred": 0,
+    "meals_home_plan": 0,
+    "snacks": 521
+   },
+   "out_of_area_schedule": {
+    "from_rows": 3658,
+    "defaults": 11526
+   },
+   "home_meal": {},
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.3812,
+     "normal": 0.5079,
+     "hungry": 0.0952,
+     "very_hungry": 0.0158,
+     "agent_ticks": 2874187
+    },
+    "asleep_in_area": {
+     "full": 0.0171,
+     "normal": 0.2496,
+     "hungry": 0.6923,
+     "very_hungry": 0.041,
+     "agent_ticks": 361772
+    },
+    "away": {
+     "full": 0.1889,
+     "normal": 0.3453,
+     "hungry": 0.4434,
+     "very_hungry": 0.0224,
+     "agent_ticks": 3964041
+    }
+   },
+   "invariant_item1_placed_meals_while_w17_asleep": 2529,
+   "w17_row_meals_while_w17_asleep": 2,
+   "w17_row_meals": 1110,
+   "classical_meal_gate": {
+    "mode": "per_wake",
+    "rule": "hazard: H += -ln(1-p_h(stage of each awake-in-area tick)) x min/60; p = 1 - exp(-H) x calendar x surroundings (wave2 2B)",
+    "passed": 13493,
+    "passed_by_stage": {
+     "1": 5096,
+     "2": 6456,
+     "3": 1941
+    }
+   }
+  },
+  {
+   "policy": "classical_rel",
+   "arm": "defer",
+   "switches": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "memory": "on",
+    "relations": "on",
+    "meal_sleep_defer": "on"
+   },
+   "final": "c1e16438166b3cbd",
+   "calls": 110415,
+   "manifest_switches": {
+    "meal_sleep_defer": "on",
+    "home_meal": "off",
+    "hunger_words": "hungry"
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 11.8
+    },
+    "age1plus": {
+     "n": 4995,
+     "skip_pct": 11.7
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 9.6
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 9.3
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 9.9
+    },
+    "home_in_area": {
+     "n": 509,
+     "skip_pct": 51.9
+    },
+    "home_out_of_area": {
+     "n": 4491,
+     "skip_pct": 7.2
+    },
+    "commuter": {
+     "n": 2346,
+     "skip_pct": 8.8
+    },
+    "by_age_class": {
+     "1-6": {
+      "n": 34,
+      "skip_pct": 32.4
+     },
+     "7-14": {
+      "n": 95,
+      "skip_pct": 8.4
+     },
+     "15-19": {
+      "n": 283,
+      "skip_pct": 7.4
+     },
+     "20-29": {
+      "n": 993,
+      "skip_pct": 9.6
+     },
+     "30-39": {
+      "n": 1053,
+      "skip_pct": 10.9
+     },
+     "40-49": {
+      "n": 1030,
+      "skip_pct": 11.8
+     },
+     "50-59": {
+      "n": 656,
+      "skip_pct": 12.3
+     },
+     "60-69": {
+      "n": 366,
+      "skip_pct": 15.8
+     },
+     "70+": {
+      "n": 485,
+      "skip_pct": 15.5
+     }
+    }
+   },
+   "meals_per_agent": {
+    "0": 9,
+    "1": 166,
+    "2": 967,
+    "3": 2142,
+    "4+": 1716
+   },
+   "meal_windows": {
+    "in_area": {
+     "breakfast": 2219,
+     "lunch": 3490,
+     "dinner": 3393,
+     "other": 638
+    },
+    "out_of_area": {
+     "breakfast": 3143,
+     "lunch": 938,
+     "dinner": 2089,
+     "other": 11
+    },
+    "home_plan": {
+     "breakfast": 0,
+     "lunch": 0,
+     "dinner": 0,
+     "other": 0
+    }
+   },
+   "meal_hourly": {
+    "in_area": [
+     8,
+     36,
+     12,
+     2,
+     5,
+     18,
+     116,
+     757,
+     328,
+     541,
+     459,
+     675,
+     703,
+     884,
+     634,
+     594,
+     575,
+     699,
+     847,
+     613,
+     497,
+     347,
+     269,
+     121
+    ],
+    "out_of_area": [
+     2,
+     0,
+     0,
+     0,
+     1,
+     2,
+     4,
+     1897,
+     1082,
+     118,
+     40,
+     63,
+     775,
+     57,
+     21,
+     22,
+     8,
+     121,
+     216,
+     1460,
+     133,
+     61,
+     55,
+     43
+    ],
+    "home_plan": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": 94.6,
+    "p5": -1267.2,
+    "p25": -383.4,
+    "p50": -0.0,
+    "p75": 604.4,
+    "p95": 1572.0
+   },
+   "balance_kcal_three_meals": {
+    "n": 2819,
+    "mean": 472.3,
+    "p5": -188.7,
+    "p25": -30.6,
+    "p50": 184.3,
+    "p75": 852.0,
+    "p95": 1796.1
+   },
+   "balance_over_eer_by_meals": {
+    "0": {
+     "n": 9,
+     "mean": -0.8,
+     "p5": -0.9,
+     "p25": -0.9,
+     "p50": -0.9,
+     "p75": -0.8,
+     "p95": -0.8
+    },
+    "1": {
+     "n": 166,
+     "mean": -0.7,
+     "p5": -0.8,
+     "p25": -0.8,
+     "p50": -0.7,
+     "p75": -0.6,
+     "p95": -0.4
+    },
+    "2": {
+     "n": 967,
+     "mean": -0.4,
+     "p5": -0.5,
+     "p25": -0.5,
+     "p50": -0.4,
+     "p75": -0.3,
+     "p95": -0.1
+    },
+    "3": {
+     "n": 2142,
+     "mean": -0.0,
+     "p5": -0.2,
+     "p25": -0.1,
+     "p50": -0.0,
+     "p75": 0.0,
+     "p95": 0.2
+    }
+   },
+   "census_per_agent": {
+    "intake_kcal": 2565.1,
+    "expenditure_kcal": 2470.5,
+    "balance_kcal": 94.6,
+    "eer_kcal": 2388.0
+   },
+   "counts": {
+    "meals_in_area": 9740,
+    "meals_out_of_area": 6181,
+    "meals_out_from_row": 1111,
+    "meals_out_default_at_default_time": 3209,
+    "meals_out_deferred": 1861,
+    "meals_home_plan": 0,
+    "snacks": 536
+   },
+   "out_of_area_schedule": {
+    "from_rows": 3658,
+    "defaults": 11526,
+    "sleep_defer": {
+     "mode": "on",
+     "defaults_asleep_in_w17": 2950,
+     "defaults_asleep_wake_in_window": 2260,
+     "armed_out_of_area_at_default": 2529,
+     "skipped_wake_past_window": 581,
+     "deferred_not_out_of_area_at_wake": 87
+    }
+   },
+   "home_meal": {},
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.3913,
+     "normal": 0.4996,
+     "hungry": 0.0919,
+     "very_hungry": 0.0172,
+     "agent_ticks": 2874126
+    },
+    "asleep_in_area": {
+     "full": 0.014,
+     "normal": 0.254,
+     "hungry": 0.6897,
+     "very_hungry": 0.0424,
+     "agent_ticks": 361830
+    },
+    "away": {
+     "full": 0.1515,
+     "normal": 0.3138,
+     "hungry": 0.4584,
+     "very_hungry": 0.0764,
+     "agent_ticks": 3964044
+    }
+   },
+   "invariant_item1_placed_meals_while_w17_asleep": 0,
+   "w17_row_meals_while_w17_asleep": 2,
+   "w17_row_meals": 1111,
+   "classical_meal_gate": {
+    "mode": "per_wake",
+    "rule": "hazard: H += -ln(1-p_h(stage of each awake-in-area tick)) x min/60; p = 1 - exp(-H) x calendar x surroundings (wave2 2B)",
+    "passed": 13295,
+    "passed_by_stage": {
+     "1": 4934,
+     "2": 6128,
+     "3": 2233
+    }
+   }
+  },
+  {
+   "policy": "classical_rel",
+   "arm": "home",
+   "switches": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "memory": "on",
+    "relations": "on",
+    "home_meal": "plan"
+   },
+   "final": "beedc5b62eab0e4c",
+   "calls": 110824,
+   "manifest_switches": {
+    "meal_sleep_defer": "off",
+    "home_meal": "plan",
+    "hunger_words": "hungry"
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 7.5
+    },
+    "age1plus": {
+     "n": 4995,
+     "skip_pct": 7.4
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 7.0
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 6.3
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 7.9
+    },
+    "home_in_area": {
+     "n": 509,
+     "skip_pct": 50.9
+    },
+    "home_out_of_area": {
+     "n": 4491,
+     "skip_pct": 2.5
+    },
+    "commuter": {
+     "n": 2346,
+     "skip_pct": 0.4
+    },
+    "by_age_class": {
+     "1-6": {
+      "n": 34,
+      "skip_pct": 32.4
+     },
+     "7-14": {
+      "n": 95,
+      "skip_pct": 7.4
+     },
+     "15-19": {
+      "n": 283,
+      "skip_pct": 5.7
+     },
+     "20-29": {
+      "n": 993,
+      "skip_pct": 7.0
+     },
+     "30-39": {
+      "n": 1053,
+      "skip_pct": 6.6
+     },
+     "40-49": {
+      "n": 1030,
+      "skip_pct": 6.8
+     },
+     "50-59": {
+      "n": 656,
+      "skip_pct": 7.8
+     },
+     "60-69": {
+      "n": 366,
+      "skip_pct": 9.3
+     },
+     "70+": {
+      "n": 485,
+      "skip_pct": 8.5
+     }
+    }
+   },
+   "meals_per_agent": {
+    "0": 5,
+    "1": 35,
+    "2": 647,
+    "3": 2349,
+    "4+": 1964
+   },
+   "meal_windows": {
+    "in_area": {
+     "breakfast": 2359,
+     "lunch": 3556,
+     "dinner": 3417,
+     "other": 627
+    },
+    "out_of_area": {
+     "breakfast": 3428,
+     "lunch": 1057,
+     "dinner": 2353,
+     "other": 11
+    },
+    "home_plan": {
+     "breakfast": 5,
+     "lunch": 2,
+     "dinner": 19,
+     "other": 2
+    }
+   },
+   "meal_hourly": {
+    "in_area": [
+     8,
+     36,
+     12,
+     2,
+     5,
+     18,
+     116,
+     744,
+     306,
+     617,
+     558,
+     710,
+     800,
+     934,
+     538,
+     574,
+     564,
+     684,
+     889,
+     634,
+     449,
+     343,
+     295,
+     123
+    ],
+    "out_of_area": [
+     2,
+     0,
+     0,
+     0,
+     1,
+     2,
+     4,
+     3403,
+     14,
+     2,
+     3,
+     63,
+     941,
+     40,
+     7,
+     6,
+     8,
+     121,
+     216,
+     1727,
+     132,
+     60,
+     55,
+     42
+    ],
+    "home_plan": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     2,
+     1,
+     1,
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     2,
+     2,
+     4,
+     4,
+     6,
+     1,
+     2,
+     0
+    ]
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": 225.4,
+    "p5": -983.9,
+    "p25": -173.3,
+    "p50": 14.4,
+    "p75": 688.3,
+    "p95": 1571.4
+   },
+   "balance_kcal_three_meals": {
+    "n": 3254,
+    "mean": 461.1,
+    "p5": -179.7,
+    "p25": -34.7,
+    "p50": 180.0,
+    "p75": 852.5,
+    "p95": 1707.3
+   },
+   "balance_over_eer_by_meals": {
+    "0": {
+     "n": 5,
+     "mean": -0.8,
+     "p5": -0.9,
+     "p25": -0.9,
+     "p50": -0.8,
+     "p75": -0.8,
+     "p95": -0.8
+    },
+    "1": {
+     "n": 35,
+     "mean": -0.6,
+     "p5": -0.8,
+     "p25": -0.7,
+     "p50": -0.6,
+     "p75": -0.4,
+     "p95": -0.3
+    },
+    "2": {
+     "n": 647,
+     "mean": -0.3,
+     "p5": -0.5,
+     "p25": -0.4,
+     "p50": -0.3,
+     "p75": -0.3,
+     "p95": -0.1
+    },
+    "3": {
+     "n": 2349,
+     "mean": -0.0,
+     "p5": -0.2,
+     "p25": -0.1,
+     "p50": -0.0,
+     "p75": 0.0,
+     "p95": 0.2
+    }
+   },
+   "census_per_agent": {
+    "intake_kcal": 2697.1,
+    "expenditure_kcal": 2471.7,
+    "balance_kcal": 225.4,
+    "eer_kcal": 2388.0
+   },
+   "counts": {
+    "meals_in_area": 9959,
+    "meals_out_of_area": 6849,
+    "meals_out_from_row": 1111,
+    "meals_out_default_at_default_time": 5738,
+    "meals_out_deferred": 0,
+    "meals_home_plan": 28,
+    "snacks": 492
+   },
+   "out_of_area_schedule": {
+    "from_rows": 3658,
+    "defaults": 11526
+   },
+   "home_meal": {
+    "mode": "plan",
+    "rows": 103,
+    "agents_with_rows": 102,
+    "not_at_home": 75,
+    "asleep": 0
+   },
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.3801,
+     "normal": 0.5086,
+     "hungry": 0.0956,
+     "very_hungry": 0.0158,
+     "agent_ticks": 2874900
+    },
+    "asleep_in_area": {
+     "full": 0.0175,
+     "normal": 0.2467,
+     "hungry": 0.695,
+     "very_hungry": 0.0409,
+     "agent_ticks": 361053
+    },
+    "away": {
+     "full": 0.189,
+     "normal": 0.345,
+     "hungry": 0.4437,
+     "very_hungry": 0.0224,
+     "agent_ticks": 3964047
+    }
+   },
+   "invariant_item1_placed_meals_while_w17_asleep": 2529,
+   "w17_row_meals_while_w17_asleep": 2,
+   "w17_row_meals": 1111,
+   "classical_meal_gate": {
+    "mode": "per_wake",
+    "rule": "hazard: H += -ln(1-p_h(stage of each awake-in-area tick)) x min/60; p = 1 - exp(-H) x calendar x surroundings (wave2 2B)",
+    "passed": 13488,
+    "passed_by_stage": {
+     "1": 5038,
+     "2": 6516,
+     "3": 1934
+    }
+   }
+  },
+  {
+   "policy": "classical_rel",
+   "arm": "words",
+   "switches": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "memory": "on",
+    "relations": "on",
+    "hunger_words": "all"
+   },
+   "final": "28ea80375e7ee646",
+   "calls": 110395,
+   "manifest_switches": {
+    "meal_sleep_defer": "off",
+    "home_meal": "off",
+    "hunger_words": "all"
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 7.5
+    },
+    "age1plus": {
+     "n": 4995,
+     "skip_pct": 7.5
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 7.2
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 6.3
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 8.1
+    },
+    "home_in_area": {
+     "n": 509,
+     "skip_pct": 51.5
+    },
+    "home_out_of_area": {
+     "n": 4491,
+     "skip_pct": 2.5
+    },
+    "commuter": {
+     "n": 2346,
+     "skip_pct": 0.4
+    },
+    "by_age_class": {
+     "1-6": {
+      "n": 34,
+      "skip_pct": 32.4
+     },
+     "7-14": {
+      "n": 95,
+      "skip_pct": 7.4
+     },
+     "15-19": {
+      "n": 283,
+      "skip_pct": 5.7
+     },
+     "20-29": {
+      "n": 993,
+      "skip_pct": 7.2
+     },
+     "30-39": {
+      "n": 1053,
+      "skip_pct": 6.6
+     },
+     "40-49": {
+      "n": 1030,
+      "skip_pct": 6.9
+     },
+     "50-59": {
+      "n": 656,
+      "skip_pct": 7.8
+     },
+     "60-69": {
+      "n": 366,
+      "skip_pct": 9.3
+     },
+     "70+": {
+      "n": 485,
+      "skip_pct": 8.7
+     }
+    }
+   },
+   "meals_per_agent": {
+    "0": 7,
+    "1": 34,
+    "2": 669,
+    "3": 2296,
+    "4+": 1994
+   },
+   "meal_windows": {
+    "in_area": {
+     "breakfast": 2367,
+     "lunch": 3542,
+     "dinner": 3447,
+     "other": 637
+    },
+    "out_of_area": {
+     "breakfast": 3428,
+     "lunch": 1057,
+     "dinner": 2352,
+     "other": 11
+    },
+    "home_plan": {
+     "breakfast": 0,
+     "lunch": 0,
+     "dinner": 0,
+     "other": 0
+    }
+   },
+   "meal_hourly": {
+    "in_area": [
+     8,
+     36,
+     12,
+     2,
+     5,
+     18,
+     116,
+     744,
+     306,
+     619,
+     564,
+     699,
+     799,
+     942,
+     533,
+     569,
+     574,
+     670,
+     899,
+     639,
+     448,
+     372,
+     280,
+     139
+    ],
+    "out_of_area": [
+     2,
+     0,
+     0,
+     0,
+     1,
+     2,
+     4,
+     3403,
+     14,
+     2,
+     3,
+     63,
+     941,
+     40,
+     7,
+     6,
+     8,
+     121,
+     216,
+     1727,
+     131,
+     60,
+     55,
+     42
+    ],
+    "home_plan": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": 229.8,
+    "p5": -989.0,
+    "p25": -178.7,
+    "p50": 16.0,
+    "p75": 710.2,
+    "p95": 1590.9
+   },
+   "balance_kcal_three_meals": {
+    "n": 3234,
+    "mean": 479.1,
+    "p5": -169.5,
+    "p25": -28.4,
+    "p50": 230.8,
+    "p75": 878.1,
+    "p95": 1711.9
+   },
+   "balance_over_eer_by_meals": {
+    "0": {
+     "n": 7,
+     "mean": -0.8,
+     "p5": -0.9,
+     "p25": -0.9,
+     "p50": -0.9,
+     "p75": -0.8,
+     "p95": -0.8
+    },
+    "1": {
+     "n": 34,
+     "mean": -0.6,
+     "p5": -0.8,
+     "p25": -0.7,
+     "p50": -0.6,
+     "p75": -0.4,
+     "p95": -0.3
+    },
+    "2": {
+     "n": 669,
+     "mean": -0.3,
+     "p5": -0.5,
+     "p25": -0.4,
+     "p50": -0.3,
+     "p75": -0.3,
+     "p95": -0.1
+    },
+    "3": {
+     "n": 2296,
+     "mean": -0.0,
+     "p5": -0.2,
+     "p25": -0.1,
+     "p50": -0.0,
+     "p75": 0.0,
+     "p95": 0.2
+    }
+   },
+   "census_per_agent": {
+    "intake_kcal": 2702.0,
+    "expenditure_kcal": 2472.2,
+    "balance_kcal": 229.8,
+    "eer_kcal": 2388.0
+   },
+   "counts": {
+    "meals_in_area": 9993,
+    "meals_out_of_area": 6848,
+    "meals_out_from_row": 1110,
+    "meals_out_default_at_default_time": 5738,
+    "meals_out_deferred": 0,
+    "meals_home_plan": 0,
+    "snacks": 521
+   },
+   "out_of_area_schedule": {
+    "from_rows": 3658,
+    "defaults": 11526
+   },
+   "home_meal": {},
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.3812,
+     "normal": 0.5079,
+     "hungry": 0.0952,
+     "very_hungry": 0.0158,
+     "agent_ticks": 2874187
+    },
+    "asleep_in_area": {
+     "full": 0.0171,
+     "normal": 0.2496,
+     "hungry": 0.6923,
+     "very_hungry": 0.041,
+     "agent_ticks": 361772
+    },
+    "away": {
+     "full": 0.1889,
+     "normal": 0.3453,
+     "hungry": 0.4434,
+     "very_hungry": 0.0224,
+     "agent_ticks": 3964041
+    }
+   },
+   "invariant_item1_placed_meals_while_w17_asleep": 2529,
+   "w17_row_meals_while_w17_asleep": 2,
+   "w17_row_meals": 1110,
+   "classical_meal_gate": {
+    "mode": "per_wake",
+    "rule": "hazard: H += -ln(1-p_h(stage of each awake-in-area tick)) x min/60; p = 1 - exp(-H) x calendar x surroundings (wave2 2B)",
+    "passed": 13493,
+    "passed_by_stage": {
+     "1": 5096,
+     "2": 6456,
+     "3": 1941
+    }
+   }
+  },
+  {
+   "policy": "classical_rel",
+   "arm": "all_on",
+   "switches": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "memory": "on",
+    "relations": "on",
+    "meal_sleep_defer": "on",
+    "home_meal": "plan",
+    "hunger_words": "all"
+   },
+   "final": "6fe8b265190f5456",
+   "calls": 110215,
+   "manifest_switches": {
+    "meal_sleep_defer": "on",
+    "home_meal": "plan",
+    "hunger_words": "all"
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 11.7
+    },
+    "age1plus": {
+     "n": 4995,
+     "skip_pct": 11.7
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 9.5
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 9.3
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 9.6
+    },
+    "home_in_area": {
+     "n": 509,
+     "skip_pct": 51.3
+    },
+    "home_out_of_area": {
+     "n": 4491,
+     "skip_pct": 7.2
+    },
+    "commuter": {
+     "n": 2346,
+     "skip_pct": 8.8
+    },
+    "by_age_class": {
+     "1-6": {
+      "n": 34,
+      "skip_pct": 32.4
+     },
+     "7-14": {
+      "n": 95,
+      "skip_pct": 8.4
+     },
+     "15-19": {
+      "n": 283,
+      "skip_pct": 7.4
+     },
+     "20-29": {
+      "n": 993,
+      "skip_pct": 9.5
+     },
+     "30-39": {
+      "n": 1053,
+      "skip_pct": 10.9
+     },
+     "40-49": {
+      "n": 1030,
+      "skip_pct": 11.7
+     },
+     "50-59": {
+      "n": 656,
+      "skip_pct": 12.3
+     },
+     "60-69": {
+      "n": 366,
+      "skip_pct": 15.8
+     },
+     "70+": {
+      "n": 485,
+      "skip_pct": 15.3
+     }
+    }
+   },
+   "meals_per_agent": {
+    "0": 6,
+    "1": 156,
+    "2": 994,
+    "3": 2132,
+    "4+": 1712
+   },
+   "meal_windows": {
+    "in_area": {
+     "breakfast": 2218,
+     "lunch": 3481,
+     "dinner": 3360,
+     "other": 623
+    },
+    "out_of_area": {
+     "breakfast": 3143,
+     "lunch": 938,
+     "dinner": 2089,
+     "other": 11
+    },
+    "home_plan": {
+     "breakfast": 5,
+     "lunch": 2,
+     "dinner": 17,
+     "other": 2
+    }
+   },
+   "meal_hourly": {
+    "in_area": [
+     8,
+     36,
+     12,
+     2,
+     5,
+     18,
+     116,
+     757,
+     328,
+     538,
+     461,
+     681,
+     698,
+     883,
+     628,
+     591,
+     560,
+     684,
+     827,
+     623,
+     463,
+     368,
+     268,
+     127
+    ],
+    "out_of_area": [
+     2,
+     0,
+     0,
+     0,
+     1,
+     2,
+     4,
+     1897,
+     1082,
+     118,
+     40,
+     63,
+     775,
+     57,
+     21,
+     22,
+     8,
+     121,
+     216,
+     1460,
+     133,
+     61,
+     55,
+     43
+    ],
+    "home_plan": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     2,
+     1,
+     1,
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     2,
+     2,
+     4,
+     4,
+     5,
+     1,
+     1,
+     0
+    ]
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": 87.2,
+    "p5": -1257.5,
+    "p25": -373.1,
+    "p50": -0.0,
+    "p75": 590.3,
+    "p95": 1527.5
+   },
+   "balance_kcal_three_meals": {
+    "n": 2823,
+    "mean": 459.1,
+    "p5": -199.1,
+    "p25": -34.2,
+    "p50": 182.8,
+    "p75": 840.9,
+    "p95": 1769.8
+   },
+   "balance_over_eer_by_meals": {
+    "0": {
+     "n": 6,
+     "mean": -0.8,
+     "p5": -0.9,
+     "p25": -0.9,
+     "p50": -0.8,
+     "p75": -0.8,
+     "p95": -0.8
+    },
+    "1": {
+     "n": 156,
+     "mean": -0.7,
+     "p5": -0.9,
+     "p25": -0.8,
+     "p50": -0.7,
+     "p75": -0.6,
+     "p95": -0.4
+    },
+    "2": {
+     "n": 994,
+     "mean": -0.3,
+     "p5": -0.5,
+     "p25": -0.5,
+     "p50": -0.4,
+     "p75": -0.3,
+     "p95": -0.1
+    },
+    "3": {
+     "n": 2132,
+     "mean": -0.0,
+     "p5": -0.2,
+     "p25": -0.1,
+     "p50": -0.0,
+     "p75": 0.0,
+     "p95": 0.2
+    }
+   },
+   "census_per_agent": {
+    "intake_kcal": 2558.1,
+    "expenditure_kcal": 2470.9,
+    "balance_kcal": 87.2,
+    "eer_kcal": 2388.0
+   },
+   "counts": {
+    "meals_in_area": 9682,
+    "meals_out_of_area": 6181,
+    "meals_out_from_row": 1111,
+    "meals_out_default_at_default_time": 3209,
+    "meals_out_deferred": 1861,
+    "meals_home_plan": 26,
+    "snacks": 528
+   },
+   "out_of_area_schedule": {
+    "from_rows": 3658,
+    "defaults": 11526,
+    "sleep_defer": {
+     "mode": "on",
+     "defaults_asleep_in_w17": 2950,
+     "defaults_asleep_wake_in_window": 2260,
+     "armed_out_of_area_at_default": 2529,
+     "skipped_wake_past_window": 581,
+     "deferred_not_out_of_area_at_wake": 87
+    }
+   },
+   "home_meal": {
+    "mode": "plan",
+    "rows": 103,
+    "agents_with_rows": 102,
+    "not_at_home": 77,
+    "asleep": 0
+   },
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.3899,
+     "normal": 0.5006,
+     "hungry": 0.0924,
+     "very_hungry": 0.0171,
+     "agent_ticks": 2874332
+    },
+    "asleep_in_area": {
+     "full": 0.0172,
+     "normal": 0.2515,
+     "hungry": 0.6903,
+     "very_hungry": 0.0411,
+     "agent_ticks": 361624
+    },
+    "away": {
+     "full": 0.1515,
+     "normal": 0.3137,
+     "hungry": 0.4586,
+     "very_hungry": 0.0763,
+     "agent_ticks": 3964044
+    }
+   },
+   "invariant_item1_placed_meals_while_w17_asleep": 0,
+   "w17_row_meals_while_w17_asleep": 2,
+   "w17_row_meals": 1111,
+   "classical_meal_gate": {
+    "mode": "per_wake",
+    "rule": "hazard: H += -ln(1-p_h(stage of each awake-in-area tick)) x min/60; p = 1 - exp(-H) x calendar x surroundings (wave2 2B)",
+    "passed": 13293,
+    "passed_by_stage": {
+     "1": 4902,
+     "2": 6163,
+     "3": 2228
+    }
+   }
+  },
+  {
+   "policy": "classical_rel_hour",
+   "arm": "base",
+   "switches": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "memory": "on",
+    "relations": "on",
+    "meal_gate": "per_hour"
+   },
+   "final": "44088c4b34a4e633",
+   "calls": 106177,
+   "manifest_switches": {
+    "meal_sleep_defer": "off",
+    "home_meal": "off",
+    "hunger_words": "hungry"
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 9.9
+    },
+    "age1plus": {
+     "n": 4995,
+     "skip_pct": 9.9
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 8.7
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 8.0
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 9.4
+    },
+    "home_in_area": {
+     "n": 509,
+     "skip_pct": 64.4
+    },
+    "home_out_of_area": {
+     "n": 4491,
+     "skip_pct": 3.7
+    },
+    "commuter": {
+     "n": 2346,
+     "skip_pct": 1.9
+    },
+    "by_age_class": {
+     "1-6": {
+      "n": 34,
+      "skip_pct": 47.1
+     },
+     "7-14": {
+      "n": 95,
+      "skip_pct": 13.7
+     },
+     "15-19": {
+      "n": 283,
+      "skip_pct": 6.4
+     },
+     "20-29": {
+      "n": 993,
+      "skip_pct": 8.7
+     },
+     "30-39": {
+      "n": 1053,
+      "skip_pct": 8.6
+     },
+     "40-49": {
+      "n": 1030,
+      "skip_pct": 9.8
+     },
+     "50-59": {
+      "n": 656,
+      "skip_pct": 10.4
+     },
+     "60-69": {
+      "n": 366,
+      "skip_pct": 12.8
+     },
+     "70+": {
+      "n": 485,
+      "skip_pct": 10.9
+     }
+    }
+   },
+   "meals_per_agent": {
+    "0": 9,
+    "1": 129,
+    "2": 1765,
+    "3": 2582,
+    "4+": 515
+   },
+   "meal_windows": {
+    "in_area": {
+     "breakfast": 1423,
+     "lunch": 2282,
+     "dinner": 2495,
+     "other": 435
+    },
+    "out_of_area": {
+     "breakfast": 3428,
+     "lunch": 1057,
+     "dinner": 2353,
+     "other": 11
+    },
+    "home_plan": {
+     "breakfast": 0,
+     "lunch": 0,
+     "dinner": 0,
+     "other": 0
+    }
+   },
+   "meal_hourly": {
+    "in_area": [
+     0,
+     16,
+     21,
+     6,
+     5,
+     9,
+     39,
+     430,
+     413,
+     255,
+     277,
+     394,
+     414,
+     633,
+     431,
+     410,
+     387,
+     502,
+     616,
+     505,
+     365,
+     235,
+     198,
+     74
+    ],
+    "out_of_area": [
+     2,
+     0,
+     0,
+     0,
+     1,
+     2,
+     4,
+     3403,
+     14,
+     2,
+     3,
+     63,
+     941,
+     40,
+     7,
+     6,
+     8,
+     121,
+     216,
+     1727,
+     132,
+     60,
+     55,
+     42
+    ],
+    "home_plan": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": -303.0,
+    "p5": -1375.5,
+    "p25": -745.2,
+    "p50": -174.3,
+    "p75": 2.5,
+    "p95": 744.7
+   },
+   "balance_kcal_three_meals": {
+    "n": 2310,
+    "mean": 77.3,
+    "p5": -323.4,
+    "p25": -120.8,
+    "p50": -27.7,
+    "p75": 46.8,
+    "p95": 1012.6
+   },
+   "balance_over_eer_by_meals": {
+    "0": {
+     "n": 9,
+     "mean": -0.8,
+     "p5": -0.9,
+     "p25": -0.9,
+     "p50": -0.8,
+     "p75": -0.8,
+     "p95": -0.8
+    },
+    "1": {
+     "n": 129,
+     "mean": -0.6,
+     "p5": -0.8,
+     "p25": -0.8,
+     "p50": -0.6,
+     "p75": -0.5,
+     "p95": -0.3
+    },
+    "2": {
+     "n": 1765,
+     "mean": -0.4,
+     "p5": -0.5,
+     "p25": -0.4,
+     "p50": -0.4,
+     "p75": -0.3,
+     "p95": -0.1
+    },
+    "3": {
+     "n": 2582,
+     "mean": -0.0,
+     "p5": -0.2,
+     "p25": -0.1,
+     "p50": -0.0,
+     "p75": 0.0,
+     "p95": 0.1
+    }
+   },
+   "census_per_agent": {
+    "intake_kcal": 2165.5,
+    "expenditure_kcal": 2468.5,
+    "balance_kcal": -303.0,
+    "eer_kcal": 2388.0
+   },
+   "counts": {
+    "meals_in_area": 6635,
+    "meals_out_of_area": 6849,
+    "meals_out_from_row": 1111,
+    "meals_out_default_at_default_time": 5738,
+    "meals_out_deferred": 0,
+    "meals_home_plan": 0,
+    "snacks": 540
+   },
+   "out_of_area_schedule": {
+    "from_rows": 3658,
+    "defaults": 11526
+   },
+   "home_meal": {},
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.2726,
+     "normal": 0.4843,
+     "hungry": 0.2102,
+     "very_hungry": 0.0329,
+     "agent_ticks": 2861108
+    },
+    "asleep_in_area": {
+     "full": 0.0125,
+     "normal": 0.2349,
+     "hungry": 0.6941,
+     "very_hungry": 0.0585,
+     "agent_ticks": 374843
+    },
+    "away": {
+     "full": 0.1838,
+     "normal": 0.3212,
+     "hungry": 0.4663,
+     "very_hungry": 0.0287,
+     "agent_ticks": 3964049
+    }
+   },
+   "invariant_item1_placed_meals_while_w17_asleep": 2529,
+   "w17_row_meals_while_w17_asleep": 2,
+   "w17_row_meals": 1111,
+   "classical_meal_gate": {
+    "mode": "per_hour",
+    "rule": "hazard: H += -ln(1-p_h(stage of each awake-in-area tick)) x min/60; p = 1 - exp(-H) x calendar x surroundings (wave2 2B)",
+    "passed": 8136,
+    "passed_by_stage": {
+     "1": 1704,
+     "2": 4681,
+     "3": 1751
+    }
+   }
+  },
+  {
+   "policy": "classical_rel_hour",
+   "arm": "defer",
+   "switches": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "memory": "on",
+    "relations": "on",
+    "meal_gate": "per_hour",
+    "meal_sleep_defer": "on"
+   },
+   "final": "ed26a1327a9725e5",
+   "calls": 105881,
+   "manifest_switches": {
+    "meal_sleep_defer": "on",
+    "home_meal": "off",
+    "hunger_words": "hungry"
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 14.3
+    },
+    "age1plus": {
+     "n": 4995,
+     "skip_pct": 14.2
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 11.4
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 11.4
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 11.4
+    },
+    "home_in_area": {
+     "n": 509,
+     "skip_pct": 63.5
+    },
+    "home_out_of_area": {
+     "n": 4491,
+     "skip_pct": 8.7
+    },
+    "commuter": {
+     "n": 2346,
+     "skip_pct": 10.4
+    },
+    "by_age_class": {
+     "1-6": {
+      "n": 34,
+      "skip_pct": 50.0
+     },
+     "7-14": {
+      "n": 95,
+      "skip_pct": 14.7
+     },
+     "15-19": {
+      "n": 283,
+      "skip_pct": 8.5
+     },
+     "20-29": {
+      "n": 993,
+      "skip_pct": 11.4
+     },
+     "30-39": {
+      "n": 1053,
+      "skip_pct": 13.1
+     },
+     "40-49": {
+      "n": 1030,
+      "skip_pct": 15.0
+     },
+     "50-59": {
+      "n": 656,
+      "skip_pct": 14.6
+     },
+     "60-69": {
+      "n": 366,
+      "skip_pct": 19.4
+     },
+     "70+": {
+      "n": 485,
+      "skip_pct": 17.3
+     }
+    }
+   },
+   "meals_per_agent": {
+    "0": 11,
+    "1": 357,
+    "2": 1968,
+    "3": 2249,
+    "4+": 415
+   },
+   "meal_windows": {
+    "in_area": {
+     "breakfast": 1397,
+     "lunch": 2222,
+     "dinner": 2448,
+     "other": 469
+    },
+    "out_of_area": {
+     "breakfast": 3143,
+     "lunch": 938,
+     "dinner": 2089,
+     "other": 11
+    },
+    "home_plan": {
+     "breakfast": 0,
+     "lunch": 0,
+     "dinner": 0,
+     "other": 0
+    }
+   },
+   "meal_hourly": {
+    "in_area": [
+     0,
+     16,
+     21,
+     6,
+     5,
+     9,
+     39,
+     430,
+     446,
+     259,
+     214,
+     386,
+     390,
+     564,
+     483,
+     399,
+     421,
+     515,
+     582,
+     497,
+     335,
+     246,
+     195,
+     78
+    ],
+    "out_of_area": [
+     2,
+     0,
+     0,
+     0,
+     1,
+     2,
+     4,
+     1897,
+     1082,
+     118,
+     40,
+     63,
+     775,
+     57,
+     21,
+     22,
+     8,
+     121,
+     216,
+     1460,
+     133,
+     61,
+     55,
+     43
+    ],
+    "home_plan": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": -422.6,
+    "p5": -1568.0,
+    "p25": -882.2,
+    "p50": -305.8,
+    "p75": -0.0,
+    "p95": 654.3
+   },
+   "balance_kcal_three_meals": {
+    "n": 1908,
+    "mean": 62.4,
+    "p5": -337.3,
+    "p25": -131.6,
+    "p50": -21.3,
+    "p75": 38.8,
+    "p95": 939.0
+   },
+   "balance_over_eer_by_meals": {
+    "0": {
+     "n": 11,
+     "mean": -0.9,
+     "p5": -1.0,
+     "p25": -0.9,
+     "p50": -0.8,
+     "p75": -0.8,
+     "p95": -0.8
+    },
+    "1": {
+     "n": 357,
+     "mean": -0.7,
+     "p5": -0.9,
+     "p25": -0.8,
+     "p50": -0.7,
+     "p75": -0.6,
+     "p95": -0.4
+    },
+    "2": {
+     "n": 1968,
+     "mean": -0.4,
+     "p5": -0.5,
+     "p25": -0.5,
+     "p50": -0.4,
+     "p75": -0.3,
+     "p95": -0.1
+    },
+    "3": {
+     "n": 2249,
+     "mean": -0.0,
+     "p5": -0.2,
+     "p25": -0.1,
+     "p50": -0.0,
+     "p75": 0.0,
+     "p95": 0.1
+    }
+   },
+   "census_per_agent": {
+    "intake_kcal": 2045.5,
+    "expenditure_kcal": 2468.0,
+    "balance_kcal": -422.6,
+    "eer_kcal": 2388.0
+   },
+   "counts": {
+    "meals_in_area": 6536,
+    "meals_out_of_area": 6181,
+    "meals_out_from_row": 1111,
+    "meals_out_default_at_default_time": 3209,
+    "meals_out_deferred": 1861,
+    "meals_home_plan": 0,
+    "snacks": 563
+   },
+   "out_of_area_schedule": {
+    "from_rows": 3658,
+    "defaults": 11526,
+    "sleep_defer": {
+     "mode": "on",
+     "defaults_asleep_in_w17": 2950,
+     "defaults_asleep_wake_in_window": 2260,
+     "armed_out_of_area_at_default": 2529,
+     "skipped_wake_past_window": 581,
+     "deferred_not_out_of_area_at_wake": 87
+    }
+   },
+   "home_meal": {},
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.2864,
+     "normal": 0.4802,
+     "hungry": 0.1973,
+     "very_hungry": 0.0362,
+     "agent_ticks": 2860773
+    },
+    "asleep_in_area": {
+     "full": 0.0125,
+     "normal": 0.2344,
+     "hungry": 0.6948,
+     "very_hungry": 0.0582,
+     "agent_ticks": 375178
+    },
+    "away": {
+     "full": 0.147,
+     "normal": 0.2924,
+     "hungry": 0.4764,
+     "very_hungry": 0.0842,
+     "agent_ticks": 3964049
+    }
+   },
+   "invariant_item1_placed_meals_while_w17_asleep": 0,
+   "w17_row_meals_while_w17_asleep": 2,
+   "w17_row_meals": 1111,
+   "classical_meal_gate": {
+    "mode": "per_hour",
+    "rule": "hazard: H += -ln(1-p_h(stage of each awake-in-area tick)) x min/60; p = 1 - exp(-H) x calendar x surroundings (wave2 2B)",
+    "passed": 7992,
+    "passed_by_stage": {
+     "1": 1678,
+     "2": 4388,
+     "3": 1926
+    }
+   }
+  },
+  {
+   "policy": "classical_rel_hour",
+   "arm": "home",
+   "switches": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "memory": "on",
+    "relations": "on",
+    "meal_gate": "per_hour",
+    "home_meal": "plan"
+   },
+   "final": "206eb6e5c1febd77",
+   "calls": 106011,
+   "manifest_switches": {
+    "meal_sleep_defer": "off",
+    "home_meal": "plan",
+    "hunger_words": "hungry"
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 9.9
+    },
+    "age1plus": {
+     "n": 4995,
+     "skip_pct": 9.8
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 8.6
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 8.0
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 9.2
+    },
+    "home_in_area": {
+     "n": 509,
+     "skip_pct": 63.9
+    },
+    "home_out_of_area": {
+     "n": 4491,
+     "skip_pct": 3.7
+    },
+    "commuter": {
+     "n": 2346,
+     "skip_pct": 1.9
+    },
+    "by_age_class": {
+     "1-6": {
+      "n": 34,
+      "skip_pct": 47.1
+     },
+     "7-14": {
+      "n": 95,
+      "skip_pct": 13.7
+     },
+     "15-19": {
+      "n": 283,
+      "skip_pct": 6.0
+     },
+     "20-29": {
+      "n": 993,
+      "skip_pct": 8.6
+     },
+     "30-39": {
+      "n": 1053,
+      "skip_pct": 8.6
+     },
+     "40-49": {
+      "n": 1030,
+      "skip_pct": 9.7
+     },
+     "50-59": {
+      "n": 656,
+      "skip_pct": 10.4
+     },
+     "60-69": {
+      "n": 366,
+      "skip_pct": 12.8
+     },
+     "70+": {
+      "n": 485,
+      "skip_pct": 10.9
+     }
+    }
+   },
+   "meals_per_agent": {
+    "0": 9,
+    "1": 122,
+    "2": 1756,
+    "3": 2615,
+    "4+": 498
+   },
+   "meal_windows": {
+    "in_area": {
+     "breakfast": 1422,
+     "lunch": 2283,
+     "dinner": 2471,
+     "other": 447
+    },
+    "out_of_area": {
+     "breakfast": 3428,
+     "lunch": 1057,
+     "dinner": 2353,
+     "other": 11
+    },
+    "home_plan": {
+     "breakfast": 4,
+     "lunch": 2,
+     "dinner": 17,
+     "other": 2
+    }
+   },
+   "meal_hourly": {
+    "in_area": [
+     0,
+     16,
+     21,
+     6,
+     5,
+     9,
+     39,
+     430,
+     413,
+     255,
+     276,
+     392,
+     415,
+     631,
+     433,
+     412,
+     399,
+     497,
+     615,
+     502,
+     346,
+     234,
+     195,
+     82
+    ],
+    "out_of_area": [
+     2,
+     0,
+     0,
+     0,
+     1,
+     2,
+     4,
+     3403,
+     14,
+     2,
+     3,
+     63,
+     941,
+     40,
+     7,
+     6,
+     8,
+     121,
+     216,
+     1727,
+     132,
+     60,
+     55,
+     42
+    ],
+    "home_plan": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     2,
+     0,
+     1,
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     2,
+     2,
+     4,
+     4,
+     6,
+     1,
+     0,
+     0
+    ]
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": -300.4,
+    "p5": -1328.6,
+    "p25": -738.2,
+    "p50": -172.4,
+    "p75": 1.4,
+    "p95": 737.7
+   },
+   "balance_kcal_three_meals": {
+    "n": 2311,
+    "mean": 71.3,
+    "p5": -326.8,
+    "p25": -122.8,
+    "p50": -28.2,
+    "p75": 42.9,
+    "p95": 982.8
+   },
+   "balance_over_eer_by_meals": {
+    "0": {
+     "n": 9,
+     "mean": -0.8,
+     "p5": -1.0,
+     "p25": -0.9,
+     "p50": -0.8,
+     "p75": -0.8,
+     "p95": -0.8
+    },
+    "1": {
+     "n": 122,
+     "mean": -0.6,
+     "p5": -0.8,
+     "p25": -0.8,
+     "p50": -0.6,
+     "p75": -0.5,
+     "p95": -0.3
+    },
+    "2": {
+     "n": 1756,
+     "mean": -0.4,
+     "p5": -0.5,
+     "p25": -0.4,
+     "p50": -0.4,
+     "p75": -0.3,
+     "p95": -0.1
+    },
+    "3": {
+     "n": 2615,
+     "mean": -0.0,
+     "p5": -0.2,
+     "p25": -0.1,
+     "p50": -0.0,
+     "p75": 0.0,
+     "p95": 0.1
+    }
+   },
+   "census_per_agent": {
+    "intake_kcal": 2167.6,
+    "expenditure_kcal": 2467.9,
+    "balance_kcal": -300.4,
+    "eer_kcal": 2388.0
+   },
+   "counts": {
+    "meals_in_area": 6623,
+    "meals_out_of_area": 6849,
+    "meals_out_from_row": 1111,
+    "meals_out_default_at_default_time": 5738,
+    "meals_out_deferred": 0,
+    "meals_home_plan": 25,
+    "snacks": 553
+   },
+   "out_of_area_schedule": {
+    "from_rows": 3658,
+    "defaults": 11526
+   },
+   "home_meal": {
+    "mode": "plan",
+    "rows": 103,
+    "agents_with_rows": 102,
+    "not_at_home": 78,
+    "asleep": 0
+   },
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.2728,
+     "normal": 0.4849,
+     "hungry": 0.2099,
+     "very_hungry": 0.0324,
+     "agent_ticks": 2861615
+    },
+    "asleep_in_area": {
+     "full": 0.0125,
+     "normal": 0.2351,
+     "hungry": 0.6951,
+     "very_hungry": 0.0573,
+     "agent_ticks": 374338
+    },
+    "away": {
+     "full": 0.1839,
+     "normal": 0.3215,
+     "hungry": 0.4659,
+     "very_hungry": 0.0286,
+     "agent_ticks": 3964047
+    }
+   },
+   "invariant_item1_placed_meals_while_w17_asleep": 2529,
+   "w17_row_meals_while_w17_asleep": 2,
+   "w17_row_meals": 1111,
+   "classical_meal_gate": {
+    "mode": "per_hour",
+    "rule": "hazard: H += -ln(1-p_h(stage of each awake-in-area tick)) x min/60; p = 1 - exp(-H) x calendar x surroundings (wave2 2B)",
+    "passed": 8113,
+    "passed_by_stage": {
+     "1": 1710,
+     "2": 4659,
+     "3": 1744
+    }
+   }
+  },
+  {
+   "policy": "classical_rel_hour",
+   "arm": "words",
+   "switches": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "memory": "on",
+    "relations": "on",
+    "meal_gate": "per_hour",
+    "hunger_words": "all"
+   },
+   "final": "44088c4b34a4e633",
+   "calls": 106177,
+   "manifest_switches": {
+    "meal_sleep_defer": "off",
+    "home_meal": "off",
+    "hunger_words": "all"
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 9.9
+    },
+    "age1plus": {
+     "n": 4995,
+     "skip_pct": 9.9
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 8.7
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 8.0
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 9.4
+    },
+    "home_in_area": {
+     "n": 509,
+     "skip_pct": 64.4
+    },
+    "home_out_of_area": {
+     "n": 4491,
+     "skip_pct": 3.7
+    },
+    "commuter": {
+     "n": 2346,
+     "skip_pct": 1.9
+    },
+    "by_age_class": {
+     "1-6": {
+      "n": 34,
+      "skip_pct": 47.1
+     },
+     "7-14": {
+      "n": 95,
+      "skip_pct": 13.7
+     },
+     "15-19": {
+      "n": 283,
+      "skip_pct": 6.4
+     },
+     "20-29": {
+      "n": 993,
+      "skip_pct": 8.7
+     },
+     "30-39": {
+      "n": 1053,
+      "skip_pct": 8.6
+     },
+     "40-49": {
+      "n": 1030,
+      "skip_pct": 9.8
+     },
+     "50-59": {
+      "n": 656,
+      "skip_pct": 10.4
+     },
+     "60-69": {
+      "n": 366,
+      "skip_pct": 12.8
+     },
+     "70+": {
+      "n": 485,
+      "skip_pct": 10.9
+     }
+    }
+   },
+   "meals_per_agent": {
+    "0": 9,
+    "1": 129,
+    "2": 1765,
+    "3": 2582,
+    "4+": 515
+   },
+   "meal_windows": {
+    "in_area": {
+     "breakfast": 1423,
+     "lunch": 2282,
+     "dinner": 2495,
+     "other": 435
+    },
+    "out_of_area": {
+     "breakfast": 3428,
+     "lunch": 1057,
+     "dinner": 2353,
+     "other": 11
+    },
+    "home_plan": {
+     "breakfast": 0,
+     "lunch": 0,
+     "dinner": 0,
+     "other": 0
+    }
+   },
+   "meal_hourly": {
+    "in_area": [
+     0,
+     16,
+     21,
+     6,
+     5,
+     9,
+     39,
+     430,
+     413,
+     255,
+     277,
+     394,
+     414,
+     633,
+     431,
+     410,
+     387,
+     502,
+     616,
+     505,
+     365,
+     235,
+     198,
+     74
+    ],
+    "out_of_area": [
+     2,
+     0,
+     0,
+     0,
+     1,
+     2,
+     4,
+     3403,
+     14,
+     2,
+     3,
+     63,
+     941,
+     40,
+     7,
+     6,
+     8,
+     121,
+     216,
+     1727,
+     132,
+     60,
+     55,
+     42
+    ],
+    "home_plan": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": -303.0,
+    "p5": -1375.5,
+    "p25": -745.2,
+    "p50": -174.3,
+    "p75": 2.5,
+    "p95": 744.7
+   },
+   "balance_kcal_three_meals": {
+    "n": 2310,
+    "mean": 77.3,
+    "p5": -323.4,
+    "p25": -120.8,
+    "p50": -27.7,
+    "p75": 46.8,
+    "p95": 1012.6
+   },
+   "balance_over_eer_by_meals": {
+    "0": {
+     "n": 9,
+     "mean": -0.8,
+     "p5": -0.9,
+     "p25": -0.9,
+     "p50": -0.8,
+     "p75": -0.8,
+     "p95": -0.8
+    },
+    "1": {
+     "n": 129,
+     "mean": -0.6,
+     "p5": -0.8,
+     "p25": -0.8,
+     "p50": -0.6,
+     "p75": -0.5,
+     "p95": -0.3
+    },
+    "2": {
+     "n": 1765,
+     "mean": -0.4,
+     "p5": -0.5,
+     "p25": -0.4,
+     "p50": -0.4,
+     "p75": -0.3,
+     "p95": -0.1
+    },
+    "3": {
+     "n": 2582,
+     "mean": -0.0,
+     "p5": -0.2,
+     "p25": -0.1,
+     "p50": -0.0,
+     "p75": 0.0,
+     "p95": 0.1
+    }
+   },
+   "census_per_agent": {
+    "intake_kcal": 2165.5,
+    "expenditure_kcal": 2468.5,
+    "balance_kcal": -303.0,
+    "eer_kcal": 2388.0
+   },
+   "counts": {
+    "meals_in_area": 6635,
+    "meals_out_of_area": 6849,
+    "meals_out_from_row": 1111,
+    "meals_out_default_at_default_time": 5738,
+    "meals_out_deferred": 0,
+    "meals_home_plan": 0,
+    "snacks": 540
+   },
+   "out_of_area_schedule": {
+    "from_rows": 3658,
+    "defaults": 11526
+   },
+   "home_meal": {},
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.2726,
+     "normal": 0.4843,
+     "hungry": 0.2102,
+     "very_hungry": 0.0329,
+     "agent_ticks": 2861108
+    },
+    "asleep_in_area": {
+     "full": 0.0125,
+     "normal": 0.2349,
+     "hungry": 0.6941,
+     "very_hungry": 0.0585,
+     "agent_ticks": 374843
+    },
+    "away": {
+     "full": 0.1838,
+     "normal": 0.3212,
+     "hungry": 0.4663,
+     "very_hungry": 0.0287,
+     "agent_ticks": 3964049
+    }
+   },
+   "invariant_item1_placed_meals_while_w17_asleep": 2529,
+   "w17_row_meals_while_w17_asleep": 2,
+   "w17_row_meals": 1111,
+   "classical_meal_gate": {
+    "mode": "per_hour",
+    "rule": "hazard: H += -ln(1-p_h(stage of each awake-in-area tick)) x min/60; p = 1 - exp(-H) x calendar x surroundings (wave2 2B)",
+    "passed": 8136,
+    "passed_by_stage": {
+     "1": 1704,
+     "2": 4681,
+     "3": 1751
+    }
+   }
+  },
+  {
+   "policy": "classical_rel_hour",
+   "arm": "all_on",
+   "switches": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "memory": "on",
+    "relations": "on",
+    "meal_gate": "per_hour",
+    "meal_sleep_defer": "on",
+    "home_meal": "plan",
+    "hunger_words": "all"
+   },
+   "final": "c066171e87ea76fb",
+   "calls": 106219,
+   "manifest_switches": {
+    "meal_sleep_defer": "on",
+    "home_meal": "plan",
+    "hunger_words": "all"
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 14.2
+    },
+    "age1plus": {
+     "n": 4995,
+     "skip_pct": 14.2
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 11.3
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 11.4
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 11.2
+    },
+    "home_in_area": {
+     "n": 509,
+     "skip_pct": 63.1
+    },
+    "home_out_of_area": {
+     "n": 4491,
+     "skip_pct": 8.7
+    },
+    "commuter": {
+     "n": 2346,
+     "skip_pct": 10.4
+    },
+    "by_age_class": {
+     "1-6": {
+      "n": 34,
+      "skip_pct": 50.0
+     },
+     "7-14": {
+      "n": 95,
+      "skip_pct": 14.7
+     },
+     "15-19": {
+      "n": 283,
+      "skip_pct": 8.5
+     },
+     "20-29": {
+      "n": 993,
+      "skip_pct": 11.3
+     },
+     "30-39": {
+      "n": 1053,
+      "skip_pct": 13.1
+     },
+     "40-49": {
+      "n": 1030,
+      "skip_pct": 14.9
+     },
+     "50-59": {
+      "n": 656,
+      "skip_pct": 14.6
+     },
+     "60-69": {
+      "n": 366,
+      "skip_pct": 19.4
+     },
+     "70+": {
+      "n": 485,
+      "skip_pct": 17.3
+     }
+    }
+   },
+   "meals_per_agent": {
+    "0": 9,
+    "1": 356,
+    "2": 1941,
+    "3": 2282,
+    "4+": 412
+   },
+   "meal_windows": {
+    "in_area": {
+     "breakfast": 1398,
+     "lunch": 2232,
+     "dinner": 2441,
+     "other": 465
+    },
+    "out_of_area": {
+     "breakfast": 3143,
+     "lunch": 938,
+     "dinner": 2089,
+     "other": 11
+    },
+    "home_plan": {
+     "breakfast": 4,
+     "lunch": 3,
+     "dinner": 20,
+     "other": 2
+    }
+   },
+   "meal_hourly": {
+    "in_area": [
+     0,
+     16,
+     21,
+     6,
+     5,
+     9,
+     39,
+     430,
+     446,
+     258,
+     216,
+     392,
+     391,
+     546,
+     502,
+     401,
+     417,
+     505,
+     579,
+     506,
+     337,
+     239,
+     196,
+     79
+    ],
+    "out_of_area": [
+     2,
+     0,
+     0,
+     0,
+     1,
+     2,
+     4,
+     1897,
+     1082,
+     118,
+     40,
+     63,
+     775,
+     57,
+     21,
+     22,
+     8,
+     121,
+     216,
+     1460,
+     133,
+     61,
+     55,
+     43
+    ],
+    "home_plan": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     2,
+     0,
+     1,
+     0,
+     0,
+     2,
+     0,
+     0,
+     1,
+     2,
+     2,
+     4,
+     4,
+     7,
+     1,
+     1,
+     1
+    ]
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": -415.5,
+    "p5": -1575.8,
+    "p25": -881.4,
+    "p50": -288.5,
+    "p75": 0.0,
+    "p95": 691.8
+   },
+   "balance_kcal_three_meals": {
+    "n": 1911,
+    "mean": 63.5,
+    "p5": -339.5,
+    "p25": -128.8,
+    "p50": -24.1,
+    "p75": 40.4,
+    "p95": 964.8
+   },
+   "balance_over_eer_by_meals": {
+    "0": {
+     "n": 9,
+     "mean": -0.8,
+     "p5": -1.0,
+     "p25": -0.9,
+     "p50": -0.8,
+     "p75": -0.8,
+     "p95": -0.8
+    },
+    "1": {
+     "n": 356,
+     "mean": -0.7,
+     "p5": -0.9,
+     "p25": -0.8,
+     "p50": -0.7,
+     "p75": -0.6,
+     "p95": -0.4
+    },
+    "2": {
+     "n": 1941,
+     "mean": -0.4,
+     "p5": -0.5,
+     "p25": -0.5,
+     "p50": -0.4,
+     "p75": -0.3,
+     "p95": -0.1
+    },
+    "3": {
+     "n": 2282,
+     "mean": -0.0,
+     "p5": -0.2,
+     "p25": -0.1,
+     "p50": -0.0,
+     "p75": 0.0,
+     "p95": 0.2
+    }
+   },
+   "census_per_agent": {
+    "intake_kcal": 2052.1,
+    "expenditure_kcal": 2467.6,
+    "balance_kcal": -415.5,
+    "eer_kcal": 2388.0
+   },
+   "counts": {
+    "meals_in_area": 6536,
+    "meals_out_of_area": 6181,
+    "meals_out_from_row": 1111,
+    "meals_out_default_at_default_time": 3209,
+    "meals_out_deferred": 1861,
+    "meals_home_plan": 29,
+    "snacks": 556
+   },
+   "out_of_area_schedule": {
+    "from_rows": 3658,
+    "defaults": 11526,
+    "sleep_defer": {
+     "mode": "on",
+     "defaults_asleep_in_w17": 2950,
+     "defaults_asleep_wake_in_window": 2260,
+     "armed_out_of_area_at_default": 2529,
+     "skipped_wake_past_window": 581,
+     "deferred_not_out_of_area_at_wake": 87
+    }
+   },
+   "home_meal": {
+    "mode": "plan",
+    "rows": 103,
+    "agents_with_rows": 102,
+    "not_at_home": 74,
+    "asleep": 0
+   },
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.2869,
+     "normal": 0.4811,
+     "hungry": 0.196,
+     "very_hungry": 0.036,
+     "agent_ticks": 2860701
+    },
+    "asleep_in_area": {
+     "full": 0.0138,
+     "normal": 0.2353,
+     "hungry": 0.6939,
+     "very_hungry": 0.0569,
+     "agent_ticks": 375251
+    },
+    "away": {
+     "full": 0.1472,
+     "normal": 0.2926,
+     "hungry": 0.4759,
+     "very_hungry": 0.0843,
+     "agent_ticks": 3964048
+    }
+   },
+   "invariant_item1_placed_meals_while_w17_asleep": 0,
+   "w17_row_meals_while_w17_asleep": 2,
+   "w17_row_meals": 1111,
+   "classical_meal_gate": {
+    "mode": "per_hour",
+    "rule": "hazard: H += -ln(1-p_h(stage of each awake-in-area tick)) x min/60; p = 1 - exp(-H) x calendar x surroundings (wave2 2B)",
+    "passed": 8000,
+    "passed_by_stage": {
+     "1": 1730,
+     "2": 4355,
+     "3": 1915
+    }
+   }
+  }
+ ],
+ "per_hour_rule_note": "classical_rel_hour の行は「いまの実装」=ハザードの積算+食事で H を 0・満腹の門は 0(Q-2B-6 の親の決定)。前の規則(§2A=起きていた分 × 評価時の段)は previous_per_hour_rule・ハザードの積算だけの規則は hazard_only_rule",
+ "previous_per_hour_rule": {
+  "base": {
+   "final": "3af0f54c94efe859",
+   "calls": 108337
+  },
+  "defer": {
+   "final": "12741e560a8692e1",
+   "calls": 108411
+  },
+  "home": {
+   "final": "8f454f4042400d28",
+   "calls": 108467
+  },
+  "words": {
+   "final": "3af0f54c94efe859",
+   "calls": 108337
+  },
+  "all_on": {
+   "final": "cc54b747e103a475",
+   "calls": 108267
+  }
+ },
+ "hazard_only_rule": {
+  "base": {
+   "final": "c722bdbef5ed929f",
+   "calls": 106809,
+   "breakfast_skip_all": 9.9,
+   "gate": {
+    "mode": "per_hour",
+    "rule": "hazard: H += -ln(1-p_h(stage of each awake-in-area tick)) x min/60; p = 1 - exp(-H) x calendar x surroundings (wave2 2B)",
+    "passed": 8593,
+    "passed_by_stage": {
+     "0": 427,
+     "1": 1760,
+     "2": 4649,
+     "3": 1757
+    }
+   },
+   "meals_in_area": 7054,
+   "balance_mean": -245.8,
+   "balance_p50": -149.3
+  },
+  "defer": {
+   "final": "bbe1ff3f071c1d3a",
+   "calls": 106275,
+   "breakfast_skip_all": 14.4,
+   "gate": {
+    "mode": "per_hour",
+    "rule": "hazard: H += -ln(1-p_h(stage of each awake-in-area tick)) x min/60; p = 1 - exp(-H) x calendar x surroundings (wave2 2B)",
+    "passed": 8499,
+    "passed_by_stage": {
+     "0": 452,
+     "1": 1730,
+     "2": 4372,
+     "3": 1945
+    }
+   },
+   "meals_in_area": 6948,
+   "balance_mean": -361.1,
+   "balance_p50": -265.6
+  },
+  "home": {
+   "final": "5b2bae395bdc3148",
+   "calls": 106737,
+   "breakfast_skip_all": 9.8,
+   "gate": {
+    "mode": "per_hour",
+    "rule": "hazard: H += -ln(1-p_h(stage of each awake-in-area tick)) x min/60; p = 1 - exp(-H) x calendar x surroundings (wave2 2B)",
+    "passed": 8606,
+    "passed_by_stage": {
+     "0": 443,
+     "1": 1794,
+     "2": 4619,
+     "3": 1750
+    }
+   },
+   "meals_in_area": 7063,
+   "balance_mean": -236.6,
+   "balance_p50": -143.8
+  },
+  "words": {
+   "final": "c722bdbef5ed929f",
+   "calls": 106809,
+   "breakfast_skip_all": 9.9,
+   "gate": {
+    "mode": "per_hour",
+    "rule": "hazard: H += -ln(1-p_h(stage of each awake-in-area tick)) x min/60; p = 1 - exp(-H) x calendar x surroundings (wave2 2B)",
+    "passed": 8593,
+    "passed_by_stage": {
+     "0": 427,
+     "1": 1760,
+     "2": 4649,
+     "3": 1757
+    }
+   },
+   "meals_in_area": 7054,
+   "balance_mean": -245.8,
+   "balance_p50": -149.3
+  },
+  "all_on": {
+   "final": "17c9f66d2c3a058c",
+   "calls": 105987,
+   "breakfast_skip_all": 14.3,
+   "gate": {
+    "mode": "per_hour",
+    "rule": "hazard: H += -ln(1-p_h(stage of each awake-in-area tick)) x min/60; p = 1 - exp(-H) x calendar x surroundings (wave2 2B)",
+    "passed": 8441,
+    "passed_by_stage": {
+     "0": 435,
+     "1": 1695,
+     "2": 4385,
+     "3": 1926
+    }
+   },
+   "meals_in_area": 6922,
+   "balance_mean": -359.2,
+   "balance_p50": -261.5
+  }
+ }
+}

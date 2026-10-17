@@ -96,7 +96,7 @@ def test_missing_assets_raise(tmp_path):
 
 
 # ---------------------------------------------------------------- 実資産(あれば)
-@pytest.mark.skipif(not HAS_ASSETS, reason="data/world/v2 が無い(C1 の成果物)")
+@pytest.mark.requires_data("world_v2")
 def test_real_assets_load_and_map():
     w = World.load(ASSET_DIR)
     a = w.assets
@@ -112,7 +112,7 @@ def test_real_assets_load_and_map():
     assert isinstance(a.next_hop, np.memmap)
 
 
-@pytest.mark.skipif(not HAS_ASSETS, reason="data/world/v2 が無い")
+@pytest.mark.requires_data("world_v2")
 def test_real_assets_routing_is_vectorized():
     w = World.load(ASSET_DIR)
     src = np.zeros(64, dtype=np.int64)

@@ -1,0 +1,112 @@
+{
+ "config": "v3_default",
+ "final": "08013362b035909d",
+ "calls_llm": 25814,
+ "by_segment": {
+  "S": {
+   "initialize": 1,
+   "initialize_energy": 1,
+   "normalized_refractory_scale": 1,
+   "place_at_external": 1,
+   "rail_arrive": 1,
+   "refractory_ticks": 1,
+   "set_initial_activity": 1,
+   "set_plan_state": 2
+  },
+  "body": {
+   "_energy_meal": 232,
+   "_tick_minute": 232,
+   "advance_body": 2880,
+   "energy_out_of_area_meal": 232
+  },
+  "world": {
+   "_require_thawed": 2,
+   "collect_waste": 468,
+   "consume": 2,
+   "discard_to_bin": 2,
+   "rail_arrive": 2,
+   "rail_depart": 723,
+   "release_indoor": 1186,
+   "restock": 2,
+   "set_notice_state": 2,
+   "set_open_flags": 95,
+   "set_plan_state": 2,
+   "set_thermal": 576,
+   "sync_transit_activity": 2880
+  },
+  "detect": {
+   "apply_detection": 2880
+  },
+  "plan_boundary": {
+   "begin_planned_sleep": 108,
+   "set_plan_state": 2082,
+   "wake_from_plan": 1974
+  },
+  "phase_c": {
+   "_advance_focus": 2880,
+   "_apply_buy": 555,
+   "_apply_eat": 484,
+   "_board_riders": 1310,
+   "_cell_of_node": 3458,
+   "_clear_focus": 1577,
+   "_clear_intent_fields": 70,
+   "_complete_buy": 1249,
+   "_complete_eat": 1085,
+   "_energy_meal": 1085,
+   "_energy_snack": 1249,
+   "_enter_board_queue": 1027,
+   "_fail": 21204,
+   "_ok": 9705,
+   "_plan_exit_mask": 2569,
+   "_platform_table": 2148,
+   "_require_thawed": 2334,
+   "_serve_board_queue": 2880,
+   "_serve_poi_queue": 2880,
+   "_set_focus": 2616,
+   "_settle_approach": 1786,
+   "_tick_minute": 2334,
+   "apply": 2880,
+   "intent_kept_by": 1048,
+   "release_indoor": 114,
+   "talk_within_reach": 1060
+  },
+  "presence": {
+   "rail_arrive": 1294,
+   "rail_depart": 582,
+   "release_indoor": 131,
+   "set_plan_state": 2710
+  },
+  "decide": {
+   "_require_thawed": 2241,
+   "set_refractory": 2487
+  },
+  "activity_intent": {
+   "_clear_intent_fields": 4,
+   "_require_thawed": 3103,
+   "clear_intent": 4,
+   "set_activity": 2619,
+   "set_activity_until": 403,
+   "set_intent": 77
+  },
+  "conversation": {
+   "revert_conversation": 883,
+   "talk_within_reach": 857
+  },
+  "apply_responses": {
+   "_require_thawed": 61,
+   "revert_conversation": 455,
+   "set_conversing": 61,
+   "talk_within_reach": 813
+  },
+  "phase_a": {
+   "intent_kept_by": 33
+  },
+  "day_head": {
+   "set_plan_state": 1
+  },
+  "close_final": {
+   "rail_depart": 1,
+   "sync_transit_activity": 1
+  }
+ }
+}

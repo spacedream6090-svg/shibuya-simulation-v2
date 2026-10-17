@@ -1,0 +1,310 @@
+{
+ "schema": "shibuya.bench/r14/manifest-check/1",
+ "agents": 5000,
+ "world": "data/world/v2",
+ "how": "10f の manifest_check_10f.py side の 7 本(HEAD=本体の HEAD の src の写し・r14=作業木の src・両側 PYTHONHASHSEED=0)の checkpoints の JSON を平坦化して比べる(壁時計の欄は除く・daily の行は行ごとに平坦化)。足してよいのは一番上の rules_version・run_kind・bridges_version(末尾)・daily の各行の rules_version・節の表の 3 行。動いてよいのは bridges_count(一番上と daily の各行・null → 件数)だけ。環境の欄は必ず違う",
+ "all_ok": true,
+ "rows": [
+  {
+   "config": "w6_v3_default",
+   "seed": 1,
+   "final_head": "5f7ae9ff24005314",
+   "final_r14": "5f7ae9ff24005314",
+   "fields_compared": 1730,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": null,
+     "r14": 273
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": null,
+     "r14": 273
+    }
+   },
+   "added_fields": [
+    "manifest.bridges_version",
+    "manifest.daily.0.rules_version",
+    "manifest.manifest_sections.paths.bridges_version",
+    "manifest.manifest_sections.paths.rules_version",
+    "manifest.manifest_sections.paths.run_kind",
+    "manifest.rules_version",
+    "manifest.run_kind"
+   ],
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_r14_at_end": true,
+   "r14": {
+    "bridges_count": 273,
+    "rules_version": "e26d43b4207b5301",
+    "run_kind": "reproduction",
+    "bridges_version": "470a7a543f5c5b61"
+   }
+  },
+  {
+   "config": "w6_v3_default",
+   "seed": 2,
+   "final_head": "db0746a3efc4a8cb",
+   "final_r14": "db0746a3efc4a8cb",
+   "fields_compared": 1734,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": null,
+     "r14": 273
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": null,
+     "r14": 273
+    }
+   },
+   "added_fields": [
+    "manifest.bridges_version",
+    "manifest.daily.0.rules_version",
+    "manifest.manifest_sections.paths.bridges_version",
+    "manifest.manifest_sections.paths.rules_version",
+    "manifest.manifest_sections.paths.run_kind",
+    "manifest.rules_version",
+    "manifest.run_kind"
+   ],
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_r14_at_end": true,
+   "r14": {
+    "bridges_count": 273,
+    "rules_version": "e26d43b4207b5301",
+    "run_kind": "reproduction",
+    "bridges_version": "470a7a543f5c5b61"
+   }
+  },
+  {
+   "config": "w6_golden_null_arm",
+   "seed": 1,
+   "final_head": "354f49ca9a61b986",
+   "final_r14": "354f49ca9a61b986",
+   "fields_compared": 1730,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": null,
+     "r14": 273
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": null,
+     "r14": 273
+    }
+   },
+   "added_fields": [
+    "manifest.bridges_version",
+    "manifest.daily.0.rules_version",
+    "manifest.manifest_sections.paths.bridges_version",
+    "manifest.manifest_sections.paths.rules_version",
+    "manifest.manifest_sections.paths.run_kind",
+    "manifest.rules_version",
+    "manifest.run_kind"
+   ],
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_r14_at_end": true,
+   "r14": {
+    "bridges_count": 273,
+    "rules_version": "e26d43b4207b5301",
+    "run_kind": "arm",
+    "bridges_version": "470a7a543f5c5b61"
+   }
+  },
+  {
+   "config": "v3_mem_rel",
+   "seed": 1,
+   "final_head": "73a78288ab5e1498",
+   "final_r14": "73a78288ab5e1498",
+   "fields_compared": 2246,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": null,
+     "r14": 273
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": null,
+     "r14": 273
+    }
+   },
+   "added_fields": [
+    "manifest.bridges_version",
+    "manifest.daily.0.rules_version",
+    "manifest.manifest_sections.paths.bridges_version",
+    "manifest.manifest_sections.paths.rules_version",
+    "manifest.manifest_sections.paths.run_kind",
+    "manifest.rules_version",
+    "manifest.run_kind"
+   ],
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_r14_at_end": true,
+   "r14": {
+    "bridges_count": 273,
+    "rules_version": "e26d43b4207b5301",
+    "run_kind": "arm",
+    "bridges_version": "470a7a543f5c5b61"
+   }
+  },
+  {
+   "config": "v3_mem_rel",
+   "seed": 2,
+   "final_head": "c615df9a771cda41",
+   "final_r14": "c615df9a771cda41",
+   "fields_compared": 2231,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": null,
+     "r14": 273
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": null,
+     "r14": 273
+    }
+   },
+   "added_fields": [
+    "manifest.bridges_version",
+    "manifest.daily.0.rules_version",
+    "manifest.manifest_sections.paths.bridges_version",
+    "manifest.manifest_sections.paths.rules_version",
+    "manifest.manifest_sections.paths.run_kind",
+    "manifest.rules_version",
+    "manifest.run_kind"
+   ],
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_r14_at_end": true,
+   "r14": {
+    "bridges_count": 273,
+    "rules_version": "e26d43b4207b5301",
+    "run_kind": "arm",
+    "bridges_version": "470a7a543f5c5b61"
+   }
+  },
+  {
+   "config": "v3_classical_mem_rel",
+   "seed": 1,
+   "final_head": "4c512a1fdc2a70c0",
+   "final_r14": "4c512a1fdc2a70c0",
+   "fields_compared": 2243,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": null,
+     "r14": 273
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": null,
+     "r14": 273
+    }
+   },
+   "added_fields": [
+    "manifest.bridges_version",
+    "manifest.daily.0.rules_version",
+    "manifest.manifest_sections.paths.bridges_version",
+    "manifest.manifest_sections.paths.rules_version",
+    "manifest.manifest_sections.paths.run_kind",
+    "manifest.rules_version",
+    "manifest.run_kind"
+   ],
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_r14_at_end": true,
+   "r14": {
+    "bridges_count": 273,
+    "rules_version": "e26d43b4207b5301",
+    "run_kind": "arm",
+    "bridges_version": "470a7a543f5c5b61"
+   }
+  },
+  {
+   "config": "v3_classical_mem_rel",
+   "seed": 2,
+   "final_head": "2615535c06c09e84",
+   "final_r14": "2615535c06c09e84",
+   "fields_compared": 2216,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_commit",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.code.git_dirty",
+    "manifest.environment.env_id"
+   ],
+   "expected_moves": {
+    "manifest.bridges_count": {
+     "head": null,
+     "r14": 273
+    },
+    "manifest.daily.0.bridges_count": {
+     "head": null,
+     "r14": 273
+    }
+   },
+   "added_fields": [
+    "manifest.bridges_version",
+    "manifest.daily.0.rules_version",
+    "manifest.manifest_sections.paths.bridges_version",
+    "manifest.manifest_sections.paths.rules_version",
+    "manifest.manifest_sections.paths.run_kind",
+    "manifest.rules_version",
+    "manifest.run_kind"
+   ],
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_existing_same_and_r14_at_end": true,
+   "r14": {
+    "bridges_count": 273,
+    "rules_version": "e26d43b4207b5301",
+    "run_kind": "arm",
+    "bridges_version": "470a7a543f5c5b61"
+   }
+  }
+ ]
+}

@@ -1,0 +1,98 @@
+{
+ "note": "既定の腕(全部 off)・v3_mem_rel・5,000 体・seed 1・2 日(連続する平日)。head=本体 HEAD 0239a3b の src の写し・mr65=作業木の src",
+ "head": {
+  "final": "31c9b19409e18b2f",
+  "calls": 145675,
+  "blocks_sha": "dc81ff0164a39b5d",
+  "calls_column_names": [
+   "call_id",
+   "agent_id",
+   "tick",
+   "wake_class",
+   "prompt_hash",
+   "block_ids",
+   "params_hash",
+   "response",
+   "tokens_in",
+   "tokens_out",
+   "deferred",
+   "deferred_reason",
+   "observed_tick",
+   "recalled_rows",
+   "recalled_first_tick",
+   "recalled_kind",
+   "recalled_object",
+   "recalled_source",
+   "acquaintance_ids",
+   "b5_text",
+   "b6_block_id"
+  ],
+  "action_usage_sha": "3768812a64ac5a88",
+  "behavior_last": "31c9b19409e18b2fc6949969c0f1e8cc669c5513d3ecb5e5491c2a77afdfa400",
+  "full_last": "00c8aedeb554f3b448e8b7dcfe79aeec82a778f27f62f3a85fe8152c2ad93ad4",
+  "salient_events": 10,
+  "noticed": 486,
+  "meals": 7785
+ },
+ "mr65": {
+  "final": "31c9b19409e18b2f",
+  "calls": 145675,
+  "blocks_sha": "dc81ff0164a39b5d",
+  "calls_column_names": [
+   "call_id",
+   "agent_id",
+   "tick",
+   "wake_class",
+   "prompt_hash",
+   "block_ids",
+   "params_hash",
+   "response",
+   "tokens_in",
+   "tokens_out",
+   "deferred",
+   "deferred_reason",
+   "observed_tick",
+   "recalled_rows",
+   "recalled_first_tick",
+   "recalled_kind",
+   "recalled_object",
+   "recalled_source",
+   "acquaintance_ids",
+   "b5_text",
+   "b6_block_id"
+  ],
+  "action_usage_sha": "3768812a64ac5a88",
+  "behavior_last": "31c9b19409e18b2fc6949969c0f1e8cc669c5513d3ecb5e5491c2a77afdfa400",
+  "full_last": "00c8aedeb554f3b448e8b7dcfe79aeec82a778f27f62f3a85fe8152c2ad93ad4",
+  "salient_events": 10,
+  "noticed": 486,
+  "meals": 7785
+ },
+ "same": {
+  "final": true,
+  "calls": true,
+  "blocks_sha": true,
+  "calls_column_names": true,
+  "calls_columns_sha": true,
+  "action_usage_sha": true,
+  "behavior_last": true,
+  "full_last": true,
+  "salient_events": true,
+  "noticed": true,
+  "meals": true
+ },
+ "events_rows_per_day": {
+  "head": [
+   53940,
+   47908
+  ],
+  "mr65": [
+   53940,
+   47908
+  ]
+ },
+ "wall_s": {
+  "head": 179.07,
+  "mr65": 174.69
+ }
+}

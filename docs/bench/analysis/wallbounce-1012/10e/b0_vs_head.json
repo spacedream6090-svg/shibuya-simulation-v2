@@ -1,0 +1,1167 @@
+{
+ "a": {
+  "label": "head",
+  "kw": {},
+  "src": "写し"
+ },
+ "b": {
+  "label": "b0",
+  "kw": {},
+  "src": "写し"
+ },
+ "note": "第330 B0(資産の指紋)と HEAD 0389689 の比べ。動いてよいのは frozen_sources だけ",
+ "keys": [
+  "final",
+  "calls",
+  "blocks_rows",
+  "blocks_sha",
+  "calls_rows",
+  "calls_column_names",
+  "calls_columns_sha",
+  "action_usage_total",
+  "action_usage_sha",
+  "calls_by_condition",
+  "salient_events",
+  "collapse",
+  "noticed",
+  "dispatches",
+  "arrived",
+  "mean_delay_min",
+  "meals",
+  "behavior_last",
+  "full_last",
+  "end_of_day",
+  "start_sim_datetime",
+  "replay_date",
+  "calendar_weekday",
+  "rng_scheme",
+  "frozen_sources"
+ ],
+ "rows": {
+  "w6_v3_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v3_activity_off": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v1_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v1_derive_v2_1": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v2": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v1_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v2_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v1_edge_plateau": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "c9c_walkable_area.parquet": "131da7680ee98e69c25510e330893389918c148b438022037f0ebb18b0d34814"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "c9c_walkable_area.parquet": "131da7680ee98e69c25510e330893389918c148b438022037f0ebb18b0d34814",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_old_v1_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_old_v1_derive_v2_1": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_old_v2": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_old_v1_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_old_v2_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_old_v1_edge_plateau": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "c9c_walkable_area.parquet": "131da7680ee98e69c25510e330893389918c148b438022037f0ebb18b0d34814"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "c9c_walkable_area.parquet": "131da7680ee98e69c25510e330893389918c148b438022037f0ebb18b0d34814",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_golden_null_arm": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "v3_mem_store": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "v3_mem_rel": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "v3_classical": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "v3_classical_mem_rel": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "perception:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "perception:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "perception:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "world:w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+      "world:w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "4649c1ca48b097ba3d4e56e12e3d05bb7836efd91989201387d65b8ebf42250e",
+      "process:w13_weather_days.parquet": "dcdd0989870c5123016a27d0b1bd28b98f87a8ae2465507bc6299dd06b4f82df",
+      "process:w13_weather_hourly.parquet": "2552d1887fe831de6401b53a9b247779944b6a7e6500a695d67d35d335f2fe2c",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "154021c2e072a3839900bb8cdad94f22a6b87e55a3355e9dd4cd55c25af85fea",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  }
+ }
+}

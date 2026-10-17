@@ -1,0 +1,22 @@
+{
+ "agents": 390067,
+ "visitors": 96006,
+ "day": 0,
+ "visitors_with_blocks_v1": 95976,
+ "visitors_with_blocks_v2": 95975,
+ "visitors_with_blocks_v2_longest_ge_5min": 95974,
+ "short_only_visitors": [
+  {
+   "agent_id": 309537,
+   "kind": 6,
+   "longest_block_min": 4
+  }
+ ],
+ "visitors_with_blocks_v2.1": 95975,
+ "derive_rule_default": "v2",
+ "sleep_rows": 493474,
+ "sleep_agents": 388600,
+ "sleep_agents_home_in": 43487,
+ "sleep_agents_lodging": 17492,
+ "world": "data/world/v2"
+}

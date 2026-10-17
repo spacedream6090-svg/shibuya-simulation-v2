@@ -94,6 +94,7 @@ from typing import Final, Iterator
 
 import numpy as np
 
+from shibuya.core import write_permit as _WP
 from shibuya.core.soa import Registry
 from shibuya.core.types import EventClass
 
@@ -309,7 +310,7 @@ REFRACTORY_MINUTES: Final[tuple[int, ...]] = (
     60,  # 計画境界: 一般活動(expedient)
     15,  # 計画境界: 移動・待機中(expedient)
     45,  # 内受容閾値(expedient・ヒステリシスで置換を試す)
-    10,  # 知人出現(expedient・同一相手 60 分は C2 未実装)
+    10,  # 知人出現(expedient・同一相手 60 分は relations.REL_ACQ_PAIR_REFRACTORY_MIN=関係 on で働く。〔第334 訂正〕前の注「C2 未実装」は古い)
     15,  # 近接入替(expedient・最大の暴発源)
     5,  # 被注視(expedient)
     5,  # 傍受(expedient・同一話者 30 分は C2 未実装)
@@ -439,8 +440,8 @@ class AgentState:
         Args:
             n: 個体数。
             cap_bytes: 個体あたりバイト上限。``"auto"`` = 予算行 M1(30,000 B)を読む。
-            plan_columns: **D-66 計画実行層**(``engine.presence``)の 2 欄
-                (``plan_activity`` / ``plan_flags``・+2 B/体)を確保するか。既定 ``False``=
+            plan_columns: **D-66 計画実行層**(``engine.presence``)の欄 ``plan_flags``(+1 B/体・〔第330・RET〕
+                死蔵の ``plan_activity`` は K15 で消した)を確保するか。既定 ``False``=
                 **帰無腕(``--no-plan-executor``)の ``state_hash`` を 1 バイトも動かさない**
                 (欄を足すと宣言順の全配列を混ぜる ``Registry.state_hash`` が変わるため。
                 設計書 §2 は常設を想定しているが、退化検査の要=親指示を優先した
@@ -571,12 +572,10 @@ class AgentState:
         # ---- 行動・計画 ----
         r.declare("activity", np.int8, byte_budget_per_agent=1, mechanism=True,
                   doc="Activity(idle/moving/…/riding・M2)")
-        r.declare("plan_cursor", np.int16, byte_budget_per_agent=2, mechanism=True,
-                  doc="T0 スケジュールの何番目の境界まで消化したか")
+        # 10e(E1・Q9): 死蔵の ``plan_cursor``(i2)はここにあった=消した(旧い final の再現は下の retire)
         r.declare("talk_partner", np.int32, byte_budget_per_agent=4, mechanism=True,
                   doc="会話中の相手 agent_id(-1=なし・行動契約書 §3)")
-        r.declare("invocation_distance", np.uint16, byte_budget_per_agent=2, mechanism=False,
-                  doc="次の計画境界までの残時間[分](M12・知覚契約書 §6 三役・expedient)")
+        # 10e(E1・Q9): 死蔵の ``invocation_distance``(u2・M12)はここにあった=消した
         # ---- 交通(C4 鉄道運行・行動契約書 §2.1 乗車/降車・運用設計書 §2.6) ----
         r.declare("transit_state", np.int8, byte_budget_per_agent=1, mechanism=True,
                   doc="0=bbox 内 / 1=乗車中 / 2=域外ノード滞在(U10 §1.1)。"
@@ -615,11 +614,9 @@ class AgentState:
                   doc="並んでいる POI 索引(-1=並んでいない)。M/M/c 近似の待ち行列")
         r.declare("queue_since", np.int32, byte_budget_per_agent=4, mechanism=False,
                   doc="並び始めた tick(離脱閾値の判定・expedient)")
-        # ---- 計画実行層(D-66・engine.presence が読み書きする 2 欄・+2 B/体) ----
+        # ---- 計画実行層(D-66・engine.presence が読み書きする欄・+1 B/体) ----
+        # 〔第330・RET〕K15(10-06): 書くだけで誰も読まない ``plan_activity``(i1)はここにあった=消した(軸 1 no=final は動かない)
         if self.plan_columns:
-            r.declare("plan_activity", np.int8, byte_budget_per_agent=1, mechanism=True,
-                      doc="計画上の活動(agents.weekly.ACTIVITY_WORDS 索引・-1=計画なし)。"
-                          "``activity``(実際)と別=計画一致率の分母(設計書 §2)")
             r.declare("plan_flags", np.int8, byte_budget_per_agent=1, mechanism=True,
                       doc="bit0 域外居住 / bit1 当日在圏予定あり / bit2 退出繰り延べ中 / "
                           "bit3 当日到着済(engine.presence の FLAG_* ・設計書 §2)")
@@ -702,8 +699,7 @@ class AgentState:
         r.declare("refractory_until", np.int32, (N_WAKE_CONDITIONS,),
                   byte_budget_per_agent=4 * N_WAKE_CONDITIONS, mechanism=True,
                   doc="体×条件ごとの「次に起床してよい tick」(§6 運用規定②)")
-        r.declare("wake_pending_class", np.int8, byte_budget_per_agent=1, mechanism=True,
-                  doc="保留中の起床クラス(EventClass・-1=なし)")
+        # 10e(E1・Q9): 死蔵の ``wake_pending_class``(i1・初期値 -1)はここにあった=消した
         # ---- 直前の結果(行動契約書 §6) ----
         r.declare("last_action", np.int8, byte_budget_per_agent=1, mechanism=True,
                   doc="直前に**試みた**行動コード(llm.contract.ACTION_CODES・§6「直前の結果」の"
@@ -712,8 +708,8 @@ class AgentState:
                   doc="ResultCode(直前の行動の成否・§6 の 50 tok 欄の素材)")
         r.declare("last_result_tick", np.int32, byte_budget_per_agent=4, mechanism=True,
                   doc="last_result を書いた tick(古い失敗を出さないため)")
-        r.declare("fail_streak", np.uint8, byte_budget_per_agent=1, mechanism=False,
-                  doc="同一失敗の連続回数(行動契約書 §6「4回で打ち切り」・expedient)")
+        # 〔第330・RET〕K15(10-06): 書くだけで誰も読まない ``fail_streak``(u1)はここにあった=消した(軸 1 no=final は動かない)
+
 
         # 既定値(0 では意味が壊れる欄だけ)
         self.registry.cell[:] = -1
@@ -721,7 +717,6 @@ class AgentState:
         self.registry.path_next_node[:] = -1
         self.registry.target_node[:] = -1
         self.registry.talk_partner[:] = -1
-        self.registry.wake_pending_class[:] = -1
         self.registry.last_result_tick[:] = -1
         self.registry.last_action[:] = LAST_ACTION_NONE
         self.registry.transit_ref[:] = -1
@@ -739,8 +734,6 @@ class AgentState:
             self.registry.edge_id[:] = -1
         if self.attention_columns:
             self.registry.focus_target[:] = FOCUS_NONE
-        if self.plan_columns:
-            self.registry.plan_activity[:] = -1
         if self.activity_columns:
             self.registry.activity_until[:] = ACTIVITY_UNTIL_NONE
         if self.familiarity_columns:
@@ -791,9 +784,13 @@ class AgentState:
         self._frozen = True
 
     def thaw(self) -> None:
-        """全配列を書き込み可能に戻す(``writable`` 以外から呼ばない)。"""
-        for arr in self.registry.arrays.values():
-            arr.flags.writeable = True
+        """全配列を書き込み可能に戻す(``writable`` 以外から呼ばない)。
+
+        1-0 段 A: 進行役が系の許可(``core.write_permit``)を置いているときは、許可の列だけを解く(ほかは読み取り専用の
+        まま=宣言の外の列への書きは numpy が ``ValueError`` で止める)。許可が無ければ今までどおり全部。
+        """
+        for name, arr in self.registry.arrays.items():
+            arr.flags.writeable = _WP.allows("agents", name)
         self._frozen = False
 
     @contextmanager

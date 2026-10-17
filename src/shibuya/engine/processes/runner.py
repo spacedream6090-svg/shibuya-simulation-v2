@@ -32,6 +32,7 @@ import numpy as np
 
 from shibuya.agents.state import AgentState
 from shibuya.engine import resolve as R
+from shibuya.engine.calendar import SimCalendar
 from shibuya.engine.processes.civic import (
     HotelProcess,
     InfraLoadProcess,
@@ -61,6 +62,7 @@ from shibuya.world.assets import ProcessAssets
 from shibuya.world.processes.actual_log import ActualLog
 from shibuya.world.processes.first_batch import build_registry
 from shibuya.world.state import World
+from shibuya.core.time_consts import SECONDS_PER_DAY
 
 __all__ = ["PROCESS_ORDER", "WorldProcessRunner"]
 
@@ -115,12 +117,20 @@ class WorldProcessRunner:
         world / agents: 状態。
         assets: ``world.assets.ProcessAssets``(``None`` なら合成=全過程が休む)。
         master_seed: 実日の乱択・域外居住の抽選に使う seed。
-        day_index: 曜日(0=月曜)。
+        day_index: 曜日(0=月曜)。``calendar`` が無いときだけ使う(旧い口)。
         tick_seconds: 1 tick の秒数。
+        calendar: 暦の口(``engine.calendar.SimCalendar``・10a)。平日/土休・曜日の表の行・
+            日ごとの乱数の鍵の日番号(``day_key``)はここから引く。``None`` なら ``SimCalendar.default(day_index)``
+            (2026-07-13 + ``day_index`` 日・祝日の表なし)。
         schedule: mock 日課(鉄道の到着便割り当てに使う)。
         ledger: 金/物の台帳(運賃の脚に使う。``None`` 可)。
         enabled / disabled: 過程 id か感度試験 id(``AB-*``)の集合。
         retention_days: ``ActualLog`` の保持窓(D-R2-6)。
+        population_seed: 10f(K21 (a))母集団の seed。域外居住の抽選だけに使う(``None``=``master_seed`` と同じ)。
+        environment_seed: 10f 第 2 段の直し(S1)環境の seed。気象の再生実日・大きな催し・道路工事に使う
+            (``None``=``master_seed`` と同じ)。ほかの過程の乱数は ``master_seed``(動きの seed)。
+        org_of_agent: 〔第 1 期 1-5〕体 → W16 の ``org_id``(権利台帳の雇用の行の材料・開閉の過程へ渡す。``None``=
+            母集団の無いラン)。
 
     Attributes:
         registry_hash: 台帳の blake3(manifest の同定欄へ)。
@@ -146,13 +156,20 @@ class WorldProcessRunner:
         enabled: Iterable[str] | None = None,
         disabled: Iterable[str] | None = None,
         retention_days: int = 7,
-        prefer_shadow_days: bool = True,
+
         p_notice_ablation: str | int = "A4",
         p_notice_d50_scale: float = 1.0,
         salient_rate_per_10k: float | None = None,
         plan_executor: bool = False,
         seat_area_m2: Mapping[str, float] | None = None,
         default_seat_area_m2: float | None = None,
+        calendar: Any | None = None,
+        initial_placement: bool = True,
+        population_seed: int | str | None = None,
+        environment_seed: int | str | None = None,
+
+        weather_perturb: bool = False,
+        org_of_agent: Any | None = None,
     ) -> None:
         if world is None or agents is None:
             raise ValueError("WorldProcessRunner は world と agents を要る")
@@ -164,6 +181,15 @@ class WorldProcessRunner:
         self.master_seed = seed if master_seed is None else master_seed
         self.day_index = int(day_index)
         self.tick_seconds = int(tick_seconds)
+        self.calendar = (
+            calendar if calendar is not None
+            else SimCalendar.default(self.day_index, tick_seconds=self.tick_seconds)
+        )
+        #: 10a #20: 日ごとの乱数の鍵(顕著行為・出動・大きな催し・入荷・工事・配達)の日番号。
+        #: 日番号(``SimCalendar.day_key``・0 日目は 0)。
+        day_key = int(self.calendar.day_key(0))
+        #: 10a #7: 営業時間の表(W7)の曜日の行。〔第330・10e E3〕祝日は W7 の祝日の行(``opening_row``・PH の無い店は日曜の行)。
+        table_weekday = int(self.calendar.opening_row(0))
         self.ledger = ledger
         #: **D-66 計画実行層**のラン(``engine.presence.PlanExecutor`` が在圏の出入りを持つ)。
         #: rail の乱数 12% と D-61 帰りの便を止め、起動時の域外配置も層に任せる。
@@ -185,23 +211,30 @@ class WorldProcessRunner:
         self.log = ActualLog(
             "actual_log",
             retention_days=int(retention_days),
-            ticks_per_day=max(1, 86_400 // max(1, self.tick_seconds)),
+            ticks_per_day=max(1, SECONDS_PER_DAY // max(1, self.tick_seconds)),
         )
 
+        # 10f(K21 (a)): 域外居住(体の属性)は母集団の seed から。10f 第 2 段の直し(S1): 気象の再生実日・大きな催し・
+        # 道路工事は環境の seed から。どちらも ``None`` なら ``master_seed`` と同じ=今と同じ。値は属性に持たない
+        # (各過程の ``master_seed`` に入る)
+        _pop_seed = self.master_seed if population_seed is None else population_seed
+        _env_seed = self.master_seed if environment_seed is None else environment_seed
         self.environment = EnvironmentProcess(
             world, agents, self.assets,
-            master_seed=self.master_seed, day_index=self.day_index, tick_seconds=self.tick_seconds,
-            prefer_shadow_days=prefer_shadow_days,
+            master_seed=_env_seed, day_index=self.day_index, tick_seconds=self.tick_seconds,
+            calendar=self.calendar,
+            perturbed=bool(weather_perturb),  # 10e(B6): 天気を揺らす(明示の切替口)
         )
         self.rail = RailProcess(
             world, agents, self.assets,
-            master_seed=self.master_seed, day_index=self.day_index,
+            master_seed=_pop_seed, day_index=self.day_index,
             schedule=schedule, actual_log=self.log,
-            plan_executor=self.plan_executor,
+            plan_executor=self.plan_executor, calendar=self.calendar,
         )
         self.opening = OpeningProcess(
             world, agents, self.assets,
-            day_index=self.day_index, tick_seconds=self.tick_seconds, actual_log=self.log,
+            day_index=table_weekday, tick_seconds=self.tick_seconds, actual_log=self.log,
+            org_of_agent=org_of_agent,  # 1-5: 権利台帳の雇用の行(W16)
         )
         self.crowd = CrowdProcess(
             world, agents, tick_seconds=self.tick_seconds,
@@ -216,7 +249,7 @@ class WorldProcessRunner:
         )
         self.delivery_inbound = DeliveryInboundProcess(
             world, ledger=ledger, shelf=self.shelf, master_seed=self.master_seed,
-            day_index=self.day_index, tick_seconds=self.tick_seconds, actual_log=self.log,
+            day_index=day_key, tick_seconds=self.tick_seconds, actual_log=self.log,
         )
         self.waste = WasteCollectionProcess(
             world, agents, ledger=ledger, tick_seconds=self.tick_seconds,
@@ -240,13 +273,13 @@ class WorldProcessRunner:
         )
         self.last_mile = LastMileProcess(
             world, household_per_cell=household, master_seed=self.master_seed,
-            day_index=self.day_index, tick_seconds=self.tick_seconds, actual_log=self.log,
+            day_index=day_key, tick_seconds=self.tick_seconds, actual_log=self.log,
         )
         self.bus_taxi = BusTaxiProcess(
             world, self.assets, tick_seconds=self.tick_seconds, actual_log=self.log
         )
         self.road_works = RoadWorksProcess(
-            world, self.assets, master_seed=self.master_seed, day_index=self.day_index,
+            world, self.assets, master_seed=_env_seed, day_index=day_key,  # 10f(S1): 環境の側
             tick_seconds=self.tick_seconds, actual_log=self.log,
         )
         self.hotel = HotelProcess(
@@ -259,15 +292,15 @@ class WorldProcessRunner:
             world, tick_seconds=self.tick_seconds, actual_log=self.log
         )
         self.large_event = LargeEventProcess(
-            world, agents, rail=self.rail, master_seed=self.master_seed,
-            day_index=self.day_index, tick_seconds=self.tick_seconds, actual_log=self.log,
+            world, agents, rail=self.rail, master_seed=_env_seed,  # 10f(S1): 環境の側
+            day_index=day_key, tick_seconds=self.tick_seconds, actual_log=self.log,
         )
         self.dispatch = PublicServiceDispatchProcess(
-            world, master_seed=self.master_seed, day_index=self.day_index,
+            world, master_seed=self.master_seed, day_index=day_key,
             tick_seconds=self.tick_seconds, actual_log=self.log,
         )
         self.salient = SalientProcess(
-            world, agents, master_seed=self.master_seed, day_index=self.day_index,
+            world, agents, master_seed=self.master_seed, day_index=day_key,
             tick_seconds=self.tick_seconds, dispatch=self.dispatch, press=self.press,
             environment=self.environment,
             ablation=_p_notice_ablation(p_notice_ablation, enabled),
@@ -301,7 +334,8 @@ class WorldProcessRunner:
 
         # 域外に住む個体をランの最初に外へ置く(U10 §1.1・書き込みは resolve の口)。
         # **計画実行層のラン**では母数も配置も層が決める(``PlanExecutor.initialize``)。
-        if not self.plan_executor and self.is_enabled("rail") and self.rail.active:
+        # 10d: 再開(``initial_placement=False``)では置かない=保存した位置を読む(A11 の「域外の配置」)。
+        if initial_placement and not self.plan_executor and self.is_enabled("rail") and self.rail.active:
             ext = self.rail.external_home_agents()
             if ext.size:
                 R.place_at_external(agents, ext, self.rail.external_line[ext])
@@ -317,6 +351,52 @@ class WorldProcessRunner:
         self.hotel.external_home = np.asarray(presence.home_out, dtype=bool)
         self.large_event.presence = presence
         self.rail.presence = presence  # LLM の乗車で域外へ出た体の張り直し(D-66 §4)
+
+    # ------------------------------------------------------------------ 本人の体の層(第 3 期 3-5)
+    def attach_body(self, body: Any) -> None:
+        """本人の体の層(``engine.body.BodyModel``)を環境の過程へ挿す(組み立てが 1 回だけ呼ぶ)。
+
+        体感温度の値は体の層の口が返し(腕 reserve=TM5 の予約の来た体と移動した体だけ)、書くのは ``resolve.set_thermal``。
+        実行器の属性は増やさない(持つのは環境の過程の ``body``=参照)。
+        """
+        self.environment.body = body
+
+    # ------------------------------------------------------------------ 出来事の記録(第 1 期 1-3)
+    def attach_events(self, events: Any) -> None:
+        """出来事の記録を挿す(組み立てが 1 回だけ呼ぶ)。ActualLog の行ごとに出来事を 1 行書き、行に id の目印を付ける。
+
+        台帳の過程の id(``rail_operation_static`` など)→ 実行器の過程の名(``rail`` など=語彙表の「過程」)の表を渡す。
+        記録の物は ActualLog の口(``event_sink``)だけが持つ(実行器の属性は増やさない)。
+        """
+        from shibuya.engine.events.links import ActualLogLink
+
+        proc_of = {pid: key for key in PROCESS_ORDER for pid in getattr(self._procs[key], "process_ids", ())}
+        self.log.event_sink = ActualLogLink(events, proc_of)
+
+    # ------------------------------------------------------------------ 第 1 期 1-5: 権利台帳
+    @property
+    def rights(self):
+        """権利台帳(``engine.rights.ledger.Rights``・持ち主は開閉の過程=1-5 の置き場・仮採用)。"""
+        return self.opening.rights
+
+    def role_act_check(self):
+        """判断の応答の役割語を権利台帳で確かめる口(``engine.rights.record.RoleActCheck``・``LLMBridge`` に挿す)。"""
+        from shibuya.engine.rights.record import RoleActCheck
+
+        return RoleActCheck(self.opening)
+
+    def rights_fields(self) -> dict[str, Any]:
+        """manifest の ``rights``(権利台帳の行数と分布・空欄のつなぎの台帳の行・許可のない行動の数=計器)。
+
+        役割語の数えは判断の口の持ち物(``engine.rights.record.manifest_fields`` が足す)。
+        """
+        from shibuya.engine.rights import initial as _RI
+
+        return {
+            **self.opening.rights.tally(),
+            "blank_bridges": dict(_RI.BLANK_BRIDGES),
+            "unauthorized": self.opening.unauthorized_tally(),
+        }
 
     # ------------------------------------------------------------------ トグル
     def _names_of(self, key: str) -> tuple[str, ...]:
@@ -368,9 +448,30 @@ class WorldProcessRunner:
             self.phase_seconds[key] += time.perf_counter() - t0
         self.n_steps += 1
 
-    def end_of_day(self, tick: int) -> int:
-        """日末の締め: 最終 tick に発車する便を流し切り、``ActualLog`` を畳む(D-R2-6)。"""
-        if self.is_enabled("rail") and self.rail.active:
+    def relay_day(self, day: int, *, ticks_per_day: int) -> None:
+        """10d: ``day`` 日目の日の頭で、各過程の「その日の分」の表を張り直す(暦の口の日から決まる=再開でも同じ)。
+
+        鉄道の時刻表(T の座標で末尾に足す)・天気の実日・営業時間の曜日の行(W7・``table_weekday(日)``)・
+        日ごとの乱数の表(入荷の時刻・工事・大きな催しの会場=``day_key(日)``)・宅配のその日の配達済み。日の鍵は日番号
+        (10a の real・〔第330・RET〕day_index のモードと顕著行為・出動の stateful の流れは消した)。
+        """
+        d = int(day)
+        key = int(self.calendar.day_key(d))
+        self.rail.append_day(d, ticks_per_day=int(ticks_per_day))
+        self.environment.pick_day(d)
+        self.opening.relay_day(int(self.calendar.opening_row(d)))  # 〔第330〕祝日は W7 の PH の行
+        self.delivery_inbound.relay_day(key)
+        self.road_works.relay_day(key)
+        self.large_event.relay_day(key)
+        self.last_mile.relay_day()
+
+    def end_of_day(self, tick: int, *, flush_rail: bool = True) -> int:
+        """日末の締め: 最終 tick に発車する便を流し切り、``ActualLog`` を畳む(D-R2-6)。
+
+        10d: 複数日のランの途中の日の締め(``flush_rail=False``)では便を流さない。次の日の頭の tick の
+        ``rail.step`` が同じ便を流す(流すと同じ発車を 2 度処理する)。ランの最後の日だけ流す(今のまま)。
+        """
+        if flush_rail and self.is_enabled("rail") and self.rail.active:
             self.rail.step(int(tick) + 1)  # 発車は 1 tick 遅れで処理する(rail.step 参照)
         return int(self.log.evict_expired(int(tick)))
 

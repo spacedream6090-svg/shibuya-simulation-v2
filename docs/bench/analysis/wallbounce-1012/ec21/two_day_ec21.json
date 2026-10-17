@@ -1,0 +1,3275 @@
+{
+ "tool": "ec21/tools/stage2_two_day.py",
+ "agents": 5000,
+ "seed": 1,
+ "start": "2026-08-24",
+ "runs": [
+  {
+   "arm": "off",
+   "parts": [],
+   "agents": 5000,
+   "seed": 1,
+   "start": "2026-08-24",
+   "final": "17f89bf0a109f2dd",
+   "calls": 145049,
+   "conserved": true,
+   "money_start": 139548230,
+   "money_end": 125578750,
+   "money_stage2_in": 0,
+   "deposit_total_end": 0,
+   "economy": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 30950,
+    "transfers_amount": 440168822,
+    "transfers_uncaused": 23440,
+    "transfer_events": 7510
+   },
+   "stage2": null,
+   "daily": [
+    {
+     "day": 0,
+     "households_cash_end": 131420830,
+     "money_supply_end": 425121562,
+     "cash_per_agent_change": -1625.48,
+     "money_supply_per_agent_change": null,
+     "rows": 20619,
+     "rows_per_agent": 4.124,
+     "overflow": 0,
+     "flow_sum_ok": true,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 719668,
+      "internal": 7483900,
+      "unregistered": 0,
+      "delta_money": 425121562,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     },
+     "census_flow_ok": true
+    },
+    {
+     "day": 1,
+     "households_cash_end": 125578750,
+     "money_supply_end": 424167138,
+     "cash_per_agent_change": -1168.416,
+     "money_supply_per_agent_change": -190.885,
+     "rows": 10331,
+     "rows_per_agent": 2.066,
+     "overflow": 0,
+     "flow_sum_ok": true,
+     "conservation": {
+      "faucet": 0,
+      "sink": 954424,
+      "internal": 5169600,
+      "unregistered": 0,
+      "delta_money": -954424,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     },
+     "census_flow_ok": true
+    }
+   ],
+   "wall_seconds": 174.4
+  },
+  {
+   "arm": "on",
+   "parts": [
+    "wages",
+    "withdraw",
+    "payment",
+    "tax",
+    "visitors"
+   ],
+   "agents": 5000,
+   "seed": 1,
+   "start": "2026-08-24",
+   "final": "c64b7f6cc6a4e280",
+   "calls": 144954,
+   "conserved": true,
+   "money_start": 139548230,
+   "money_end": 132750930,
+   "money_stage2_in": 7296620,
+   "deposit_total_end": 879242384,
+   "economy": {
+    "raw_capacity": 67500,
+    "raw_rows_per_agent_day": 13.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 3630,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 71130,
+    "transfers_amount": 2334657601,
+    "transfers_uncaused": 33577,
+    "transfer_events": 37553
+   },
+   "stage2": {
+    "arm": "on",
+    "parts": [
+     "wages",
+     "withdraw",
+     "payment",
+     "tax",
+     "visitors"
+    ],
+    "payday_day_of_month": 25,
+    "expedients": {
+     "deposit_days": 30.0,
+     "visitor_account_share": 0.5,
+     "withdraw_trigger_days": 1.0,
+     "withdraw_days": 3.0,
+     "atm_unit_yen": 1000,
+     "default_monthly_hours": 160.0,
+     "fare_default": "IC(口座)",
+     "payment_rule": "財布が足りれば現金・足りなければ口座",
+     "external_store_sales_yen": 0
+    },
+    "hours_source": "w17_work",
+    "plan": {
+     "payday_rule": "毎月 25 日・土休なら前の営業日(暦の口)",
+     "population_scale": 0.012818310700469406,
+     "hours_source": "w17_work",
+     "hourly_source": "最低賃金(規則の表・asof)",
+     "external_store_sales": "0(範囲の外の取引先の資料なし)"
+    },
+    "rules": {
+     "consumption_tax": {
+      "asof": "2026-08-25",
+      "rate": "1/10",
+      "source": "rules:consumption_tax.standard_rate@2019-10-01"
+     },
+     "minimum_wage": {
+      "asof": "2026-08-25",
+      "yen_per_hour": 1226,
+      "source": "anchors.MIN_WAGE_HOURLY"
+     }
+    },
+    "endow": {
+     "deposit_rows": 3958,
+     "deposit_amount": 736710000,
+     "visitor_rows": 1042,
+     "visitor_amount": 36991000
+    },
+    "wages": {
+     "paydays": 1,
+     "paid": 2392,
+     "amount": 112838004,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 112838004,
+     "deductions": 0,
+     "no_hours": 29,
+     "outside_employer": 0,
+     "employer_rows": 2392,
+     "store_rows": 0
+    },
+    "withdraw": {
+     "asked": 25229,
+     "count": 305,
+     "amount": 5950000,
+     "wallet_ok": 24924,
+     "no_deposit": 0
+    },
+    "payment": {
+     "cash_rows": 16184,
+     "cash_amount": 12747300,
+     "account_rows": 28,
+     "account_amount": 25600,
+     "short": 0,
+     "fare_ic_rows": 7339,
+     "fare_ic_amount": 1321020,
+     "fare_cash_rows": 0,
+     "fare_cash_amount": 0
+    },
+    "tax": {
+     "rows": 16212,
+     "amount": 1151765
+    },
+    "external_sales": {
+     "rows": 0,
+     "amount": 0
+    },
+    "faucet_sink_registry": [
+     {
+      "name": "初期の財布",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "参入資本(外界)",
+      "account": "参入資本",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "購入・食事",
+      "account": "消費支出",
+      "payer": "世帯",
+      "payee": "店舗",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "運賃",
+      "account": "持ち出し",
+      "payer": "世帯",
+      "payee": "外界",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "補充の代金(域外仕入)",
+      "account": "域外仕入",
+      "payer": "店舗",
+      "payee": "外界",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "逸脱比例コスト",
+      "account": "逸脱比例コスト",
+      "payer": "店舗",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "域外雇用主の賃金",
+      "account": "賃金",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "預け入れ・口座の入金",
+      "account": "預金純増",
+      "payer": "世帯",
+      "payee": "銀行",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "引き出し・口座の決済",
+      "account": "預金純増",
+      "payer": "銀行",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "初期の預金",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "来街者の持ち込み(口座)",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "賃金(雇用主)",
+      "account": "賃金",
+      "payer": "雇用主",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "2"
+     },
+     {
+      "name": "賃金(店の担当従業者)",
+      "account": "賃金",
+      "payer": "店舗",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "2"
+     },
+     {
+      "name": "賃金の原資(雇用主の外界の売上)",
+      "account": "消費支出",
+      "payer": "外界",
+      "payee": "雇用主",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "外界の売上(店・賃金の原資と範囲の外の取引先)",
+      "account": "消費支出",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "消費税",
+      "account": "税",
+      "payer": "店舗",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "2"
+     },
+     {
+      "name": "給与の天引き(器)",
+      "account": "税",
+      "payer": "世帯",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "2"
+     }
+    ],
+    "faucet_sink_by_cell": [
+     {
+      "account": "消費支出",
+      "payer": "世帯",
+      "payee": "店舗",
+      "kind": "INTERNAL",
+      "amount": 12772900
+     },
+     {
+      "account": "消費支出",
+      "payer": "外界",
+      "payee": "雇用主",
+      "kind": "FAUCET",
+      "amount": 112838004
+     },
+     {
+      "account": "賃金",
+      "payer": "雇用主",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "amount": 112838004
+     },
+     {
+      "account": "域外仕入",
+      "payer": "店舗",
+      "payee": "外界",
+      "kind": "SINK",
+      "amount": 358054
+     },
+     {
+      "account": "税",
+      "payer": "店舗",
+      "payee": "政府",
+      "kind": "SINK",
+      "amount": 1151765
+     },
+     {
+      "account": "預金純増",
+      "payer": "世帯",
+      "payee": "銀行",
+      "kind": "INTERNAL",
+      "amount": 886539004
+     },
+     {
+      "account": "預金純増",
+      "payer": "銀行",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "amount": 7296620
+     },
+     {
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "amount": 913249230
+     },
+     {
+      "account": "持ち出し",
+      "payer": "世帯",
+      "payee": "外界",
+      "kind": "SINK",
+      "amount": 1321020
+     },
+     {
+      "account": "参入資本",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "amount": 286293000
+     }
+    ],
+    "atms": {
+     "n": 43,
+     "cells": 37,
+     "dropped": 0,
+     "kind": {
+      "atm": 7,
+      "shop": 25,
+      "bank": 11
+     },
+     "hours_from": {
+      "tag": 26,
+      "hours_file": 0,
+      "none_24h": 17,
+      "unparsed_24h": 0
+     },
+     "sources": {
+      "poi_tags_overpass_20260928.json": "2b4723293e1d5e633d97516c732b0eb2",
+      "poi_opening_hours_overpass_20260907.json": "03a258825c6c7350d8b6a6cb139ca3c3"
+     }
+    },
+    "credit": {
+     "rows": 0,
+     "balance": 0,
+     "delinquent_count": 0,
+     "delinquent_amount": 0
+    },
+    "wallet": {
+     "p10": 7789,
+     "p50": 20025,
+     "p90": 52604
+    },
+    "deposit": {
+     "p10": 35320,
+     "p50": 194464,
+     "p90": 234752
+    },
+    "wallet_mean": 26550.186,
+    "deposit_mean": 175848.477,
+    "wallet_zero": 0
+   },
+   "daily": [
+    {
+     "day": 0,
+     "households_cash_end": 135355030,
+     "money_supply_end": 1198147865,
+     "cash_per_agent_change": -838.64,
+     "money_supply_per_agent_change": null,
+     "rows": 44118,
+     "rows_per_agent": 8.824,
+     "overflow": 0,
+     "flow_sum_ok": true,
+     "conservation": {
+      "faucet": 1199542230,
+      "sink": 1394365,
+      "internal": 785236320,
+      "unregistered": 0,
+      "delta_money": 1198147865,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     },
+     "census_flow_ok": true,
+     "stage2": {
+      "day": 0,
+      "payday": false,
+      "endow": {
+       "deposit_rows": 3958,
+       "deposit_amount": 736710000,
+       "visitor_rows": 1042,
+       "visitor_amount": 36991000
+      },
+      "wages": {
+       "paydays": 0,
+       "paid": 0,
+       "amount": 0,
+       "unpaid": 0,
+       "unpaid_amount": 0,
+       "funding": 0,
+       "deductions": 0,
+       "no_hours": 0,
+       "outside_employer": 0,
+       "employer_rows": 0,
+       "store_rows": 0
+      },
+      "withdraw": {
+       "asked": 13360,
+       "count": 166,
+       "amount": 3346000,
+       "wallet_ok": 13194,
+       "no_deposit": 0
+      },
+      "payment": {
+       "cash_rows": 9731,
+       "cash_amount": 7539200,
+       "account_rows": 5,
+       "account_amount": 6100,
+       "short": 0,
+       "fare_ic_rows": 3544,
+       "fare_ic_amount": 637920,
+       "fare_cash_rows": 0,
+       "fare_cash_amount": 0
+      },
+      "tax": {
+       "rows": 9736,
+       "amount": 680277
+      },
+      "external_sales": {
+       "rows": 0,
+       "amount": 0
+      },
+      "wallet": {
+       "p10": 8104,
+       "p50": 20402,
+       "p90": 53520
+      },
+      "deposit": {
+       "p10": 35500,
+       "p50": 170820,
+       "p90": 171000
+      },
+      "wallet_mean": 27071.006,
+      "deposit_mean": 153942.196,
+      "wallet_zero": 0
+     }
+    },
+    {
+     "day": 1,
+     "households_cash_end": 132750930,
+     "money_supply_end": 1309549395,
+     "cash_per_agent_change": -520.82,
+     "money_supply_per_agent_change": 22280.306,
+     "rows": 27012,
+     "rows_per_agent": 5.402,
+     "overflow": 3630,
+     "flow_sum_ok": true,
+     "conservation": {
+      "faucet": 112838004,
+      "sink": 1436474,
+      "internal": 234210208,
+      "unregistered": 0,
+      "delta_money": 111401530,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     },
+     "census_flow_ok": true,
+     "stage2": {
+      "day": 1,
+      "payday": true,
+      "endow": {
+       "deposit_rows": 0,
+       "deposit_amount": 0,
+       "visitor_rows": 0,
+       "visitor_amount": 0
+      },
+      "wages": {
+       "paydays": 1,
+       "paid": 2392,
+       "amount": 112838004,
+       "unpaid": 0,
+       "unpaid_amount": 0,
+       "funding": 112838004,
+       "deductions": 0,
+       "no_hours": 29,
+       "outside_employer": 0,
+       "employer_rows": 2392,
+       "store_rows": 0
+      },
+      "withdraw": {
+       "asked": 11869,
+       "count": 139,
+       "amount": 2604000,
+       "wallet_ok": 11730,
+       "no_deposit": 0
+      },
+      "payment": {
+       "cash_rows": 6453,
+       "cash_amount": 5208100,
+       "account_rows": 23,
+       "account_amount": 19500,
+       "short": 0,
+       "fare_ic_rows": 3795,
+       "fare_ic_amount": 683100,
+       "fare_cash_rows": 0,
+       "fare_cash_amount": 0
+      },
+      "tax": {
+       "rows": 6476,
+       "amount": 471488
+      },
+      "external_sales": {
+       "rows": 0,
+       "amount": 0
+      },
+      "wallet": {
+       "p10": 7789,
+       "p50": 20025,
+       "p90": 52604
+      },
+      "deposit": {
+       "p10": 35320,
+       "p50": 194464,
+       "p90": 234752
+      },
+      "wallet_mean": 26550.186,
+      "deposit_mean": 175848.477,
+      "wallet_zero": 0
+     }
+    }
+   ],
+   "wall_seconds": 180.6
+  },
+  {
+   "arm": "on",
+   "parts": [
+    "withdraw",
+    "payment",
+    "tax",
+    "visitors"
+   ],
+   "agents": 5000,
+   "seed": 1,
+   "start": "2026-08-24",
+   "final": "c64b7f6cc6a4e280",
+   "calls": 144954,
+   "conserved": true,
+   "money_start": 139548230,
+   "money_end": 132750930,
+   "money_stage2_in": 7296620,
+   "deposit_total_end": 766404380,
+   "economy": {
+    "raw_capacity": 67500,
+    "raw_rows_per_agent_day": 13.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 64972,
+    "transfers_amount": 1996143589,
+    "transfers_uncaused": 33577,
+    "transfer_events": 31395
+   },
+   "stage2": {
+    "arm": "on",
+    "parts": [
+     "withdraw",
+     "payment",
+     "tax",
+     "visitors"
+    ],
+    "payday_day_of_month": 25,
+    "expedients": {
+     "deposit_days": 30.0,
+     "visitor_account_share": 0.5,
+     "withdraw_trigger_days": 1.0,
+     "withdraw_days": 3.0,
+     "atm_unit_yen": 1000,
+     "default_monthly_hours": 160.0,
+     "fare_default": "IC(口座)",
+     "payment_rule": "財布が足りれば現金・足りなければ口座",
+     "external_store_sales_yen": 0
+    },
+    "hours_source": "w17_work",
+    "plan": {
+     "payday_rule": "毎月 25 日・土休なら前の営業日(暦の口)",
+     "population_scale": 0.012818310700469406,
+     "hours_source": "w17_work",
+     "hourly_source": "最低賃金(規則の表・asof)",
+     "external_store_sales": "0(範囲の外の取引先の資料なし)"
+    },
+    "rules": {
+     "consumption_tax": {
+      "asof": "2026-08-25",
+      "rate": "1/10",
+      "source": "rules:consumption_tax.standard_rate@2019-10-01"
+     }
+    },
+    "endow": {
+     "deposit_rows": 3958,
+     "deposit_amount": 736710000,
+     "visitor_rows": 1042,
+     "visitor_amount": 36991000
+    },
+    "wages": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0
+    },
+    "withdraw": {
+     "asked": 25229,
+     "count": 305,
+     "amount": 5950000,
+     "wallet_ok": 24924,
+     "no_deposit": 0
+    },
+    "payment": {
+     "cash_rows": 16184,
+     "cash_amount": 12747300,
+     "account_rows": 28,
+     "account_amount": 25600,
+     "short": 0,
+     "fare_ic_rows": 7339,
+     "fare_ic_amount": 1321020,
+     "fare_cash_rows": 0,
+     "fare_cash_amount": 0
+    },
+    "tax": {
+     "rows": 16212,
+     "amount": 1151765
+    },
+    "external_sales": {
+     "rows": 0,
+     "amount": 0
+    },
+    "faucet_sink_registry": [
+     {
+      "name": "初期の財布",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "参入資本(外界)",
+      "account": "参入資本",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "購入・食事",
+      "account": "消費支出",
+      "payer": "世帯",
+      "payee": "店舗",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "運賃",
+      "account": "持ち出し",
+      "payer": "世帯",
+      "payee": "外界",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "補充の代金(域外仕入)",
+      "account": "域外仕入",
+      "payer": "店舗",
+      "payee": "外界",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "逸脱比例コスト",
+      "account": "逸脱比例コスト",
+      "payer": "店舗",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "域外雇用主の賃金",
+      "account": "賃金",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "預け入れ・口座の入金",
+      "account": "預金純増",
+      "payer": "世帯",
+      "payee": "銀行",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "引き出し・口座の決済",
+      "account": "預金純増",
+      "payer": "銀行",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "初期の預金",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "来街者の持ち込み(口座)",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "賃金(雇用主)",
+      "account": "賃金",
+      "payer": "雇用主",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "2"
+     },
+     {
+      "name": "賃金(店の担当従業者)",
+      "account": "賃金",
+      "payer": "店舗",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "2"
+     },
+     {
+      "name": "賃金の原資(雇用主の外界の売上)",
+      "account": "消費支出",
+      "payer": "外界",
+      "payee": "雇用主",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "外界の売上(店・賃金の原資と範囲の外の取引先)",
+      "account": "消費支出",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "消費税",
+      "account": "税",
+      "payer": "店舗",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "2"
+     },
+     {
+      "name": "給与の天引き(器)",
+      "account": "税",
+      "payer": "世帯",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "2"
+     }
+    ],
+    "faucet_sink_by_cell": [
+     {
+      "account": "消費支出",
+      "payer": "世帯",
+      "payee": "店舗",
+      "kind": "INTERNAL",
+      "amount": 12772900
+     },
+     {
+      "account": "域外仕入",
+      "payer": "店舗",
+      "payee": "外界",
+      "kind": "SINK",
+      "amount": 358054
+     },
+     {
+      "account": "税",
+      "payer": "店舗",
+      "payee": "政府",
+      "kind": "SINK",
+      "amount": 1151765
+     },
+     {
+      "account": "預金純増",
+      "payer": "世帯",
+      "payee": "銀行",
+      "kind": "INTERNAL",
+      "amount": 773701000
+     },
+     {
+      "account": "預金純増",
+      "payer": "銀行",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "amount": 7296620
+     },
+     {
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "amount": 913249230
+     },
+     {
+      "account": "持ち出し",
+      "payer": "世帯",
+      "payee": "外界",
+      "kind": "SINK",
+      "amount": 1321020
+     },
+     {
+      "account": "参入資本",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "amount": 286293000
+     }
+    ],
+    "atms": {
+     "n": 43,
+     "cells": 37,
+     "dropped": 0,
+     "kind": {
+      "atm": 7,
+      "shop": 25,
+      "bank": 11
+     },
+     "hours_from": {
+      "tag": 26,
+      "hours_file": 0,
+      "none_24h": 17,
+      "unparsed_24h": 0
+     },
+     "sources": {
+      "poi_tags_overpass_20260928.json": "2b4723293e1d5e633d97516c732b0eb2",
+      "poi_opening_hours_overpass_20260907.json": "03a258825c6c7350d8b6a6cb139ca3c3"
+     }
+    },
+    "credit": {
+     "rows": 0,
+     "balance": 0,
+     "delinquent_count": 0,
+     "delinquent_amount": 0
+    },
+    "wallet": {
+     "p10": 7789,
+     "p50": 20025,
+     "p90": 52604
+    },
+    "deposit": {
+     "p10": 35320,
+     "p50": 170640,
+     "p90": 171000
+    },
+    "wallet_mean": 26550.186,
+    "deposit_mean": 153280.876,
+    "wallet_zero": 0
+   },
+   "daily": [
+    {
+     "day": 0,
+     "households_cash_end": 135355030,
+     "money_supply_end": 1198147865,
+     "cash_per_agent_change": -838.64,
+     "money_supply_per_agent_change": null,
+     "rows": 44118,
+     "rows_per_agent": 8.824,
+     "overflow": 0,
+     "flow_sum_ok": true,
+     "conservation": {
+      "faucet": 1199542230,
+      "sink": 1394365,
+      "internal": 785236320,
+      "unregistered": 0,
+      "delta_money": 1198147865,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     },
+     "census_flow_ok": true,
+     "stage2": {
+      "day": 0,
+      "payday": false,
+      "endow": {
+       "deposit_rows": 3958,
+       "deposit_amount": 736710000,
+       "visitor_rows": 1042,
+       "visitor_amount": 36991000
+      },
+      "wages": {
+       "paydays": 0,
+       "paid": 0,
+       "amount": 0,
+       "unpaid": 0,
+       "unpaid_amount": 0,
+       "funding": 0,
+       "deductions": 0,
+       "no_hours": 0,
+       "outside_employer": 0,
+       "employer_rows": 0,
+       "store_rows": 0
+      },
+      "withdraw": {
+       "asked": 13360,
+       "count": 166,
+       "amount": 3346000,
+       "wallet_ok": 13194,
+       "no_deposit": 0
+      },
+      "payment": {
+       "cash_rows": 9731,
+       "cash_amount": 7539200,
+       "account_rows": 5,
+       "account_amount": 6100,
+       "short": 0,
+       "fare_ic_rows": 3544,
+       "fare_ic_amount": 637920,
+       "fare_cash_rows": 0,
+       "fare_cash_amount": 0
+      },
+      "tax": {
+       "rows": 9736,
+       "amount": 680277
+      },
+      "external_sales": {
+       "rows": 0,
+       "amount": 0
+      },
+      "wallet": {
+       "p10": 8104,
+       "p50": 20402,
+       "p90": 53520
+      },
+      "deposit": {
+       "p10": 35500,
+       "p50": 170820,
+       "p90": 171000
+      },
+      "wallet_mean": 27071.006,
+      "deposit_mean": 153942.196,
+      "wallet_zero": 0
+     }
+    },
+    {
+     "day": 1,
+     "households_cash_end": 132750930,
+     "money_supply_end": 1196711391,
+     "cash_per_agent_change": -520.82,
+     "money_supply_per_agent_change": -287.295,
+     "rows": 20854,
+     "rows_per_agent": 4.171,
+     "overflow": 0,
+     "flow_sum_ok": true,
+     "conservation": {
+      "faucet": 0,
+      "sink": 1436474,
+      "internal": 8534200,
+      "unregistered": 0,
+      "delta_money": -1436474,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     },
+     "census_flow_ok": true,
+     "stage2": {
+      "day": 1,
+      "payday": true,
+      "endow": {
+       "deposit_rows": 0,
+       "deposit_amount": 0,
+       "visitor_rows": 0,
+       "visitor_amount": 0
+      },
+      "wages": {
+       "paydays": 0,
+       "paid": 0,
+       "amount": 0,
+       "unpaid": 0,
+       "unpaid_amount": 0,
+       "funding": 0,
+       "deductions": 0,
+       "no_hours": 0,
+       "outside_employer": 0,
+       "employer_rows": 0,
+       "store_rows": 0
+      },
+      "withdraw": {
+       "asked": 11869,
+       "count": 139,
+       "amount": 2604000,
+       "wallet_ok": 11730,
+       "no_deposit": 0
+      },
+      "payment": {
+       "cash_rows": 6453,
+       "cash_amount": 5208100,
+       "account_rows": 23,
+       "account_amount": 19500,
+       "short": 0,
+       "fare_ic_rows": 3795,
+       "fare_ic_amount": 683100,
+       "fare_cash_rows": 0,
+       "fare_cash_amount": 0
+      },
+      "tax": {
+       "rows": 6476,
+       "amount": 471488
+      },
+      "external_sales": {
+       "rows": 0,
+       "amount": 0
+      },
+      "wallet": {
+       "p10": 7789,
+       "p50": 20025,
+       "p90": 52604
+      },
+      "deposit": {
+       "p10": 35320,
+       "p50": 170640,
+       "p90": 171000
+      },
+      "wallet_mean": 26550.186,
+      "deposit_mean": 153280.876,
+      "wallet_zero": 0
+     }
+    }
+   ],
+   "wall_seconds": 182.9
+  },
+  {
+   "arm": "on",
+   "parts": [
+    "wages",
+    "payment",
+    "tax",
+    "visitors"
+   ],
+   "agents": 5000,
+   "seed": 1,
+   "start": "2026-08-24",
+   "final": "87d9cd8c42cbe317",
+   "calls": 144889,
+   "conserved": true,
+   "money_start": 139548230,
+   "money_end": 126836630,
+   "money_stage2_in": 1427020,
+   "deposit_total_end": 885111984,
+   "economy": {
+    "raw_capacity": 67500,
+    "raw_rows_per_agent_day": 13.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 3521,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 71021,
+    "transfers_amount": 2328826709,
+    "transfers_uncaused": 33733,
+    "transfer_events": 37288
+   },
+   "stage2": {
+    "arm": "on",
+    "parts": [
+     "wages",
+     "payment",
+     "tax",
+     "visitors"
+    ],
+    "payday_day_of_month": 25,
+    "expedients": {
+     "deposit_days": 30.0,
+     "visitor_account_share": 0.5,
+     "withdraw_trigger_days": 1.0,
+     "withdraw_days": 3.0,
+     "atm_unit_yen": 1000,
+     "default_monthly_hours": 160.0,
+     "fare_default": "IC(口座)",
+     "payment_rule": "財布が足りれば現金・足りなければ口座",
+     "external_store_sales_yen": 0
+    },
+    "hours_source": "w17_work",
+    "plan": {
+     "payday_rule": "毎月 25 日・土休なら前の営業日(暦の口)",
+     "population_scale": 0.012818310700469406,
+     "hours_source": "w17_work",
+     "hourly_source": "最低賃金(規則の表・asof)",
+     "external_store_sales": "0(範囲の外の取引先の資料なし)"
+    },
+    "rules": {
+     "consumption_tax": {
+      "asof": "2026-08-25",
+      "rate": "1/10",
+      "source": "rules:consumption_tax.standard_rate@2019-10-01"
+     },
+     "minimum_wage": {
+      "asof": "2026-08-25",
+      "yen_per_hour": 1226,
+      "source": "anchors.MIN_WAGE_HOURLY"
+     }
+    },
+    "endow": {
+     "deposit_rows": 3958,
+     "deposit_amount": 736710000,
+     "visitor_rows": 1042,
+     "visitor_amount": 36991000
+    },
+    "wages": {
+     "paydays": 1,
+     "paid": 2392,
+     "amount": 112838004,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 112838004,
+     "deductions": 0,
+     "no_hours": 29,
+     "outside_employer": 0,
+     "employer_rows": 2392,
+     "store_rows": 0
+    },
+    "withdraw": {
+     "asked": 0,
+     "count": 0,
+     "amount": 0,
+     "wallet_ok": 0,
+     "no_deposit": 0
+    },
+    "payment": {
+     "cash_rows": 16154,
+     "cash_amount": 12711600,
+     "account_rows": 121,
+     "account_amount": 107800,
+     "short": 0,
+     "fare_ic_rows": 7329,
+     "fare_ic_amount": 1319220,
+     "fare_cash_rows": 0,
+     "fare_cash_amount": 0
+    },
+    "tax": {
+     "rows": 16275,
+     "amount": 1155948
+    },
+    "external_sales": {
+     "rows": 0,
+     "amount": 0
+    },
+    "faucet_sink_registry": [
+     {
+      "name": "初期の財布",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "参入資本(外界)",
+      "account": "参入資本",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "購入・食事",
+      "account": "消費支出",
+      "payer": "世帯",
+      "payee": "店舗",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "運賃",
+      "account": "持ち出し",
+      "payer": "世帯",
+      "payee": "外界",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "補充の代金(域外仕入)",
+      "account": "域外仕入",
+      "payer": "店舗",
+      "payee": "外界",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "逸脱比例コスト",
+      "account": "逸脱比例コスト",
+      "payer": "店舗",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "域外雇用主の賃金",
+      "account": "賃金",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "預け入れ・口座の入金",
+      "account": "預金純増",
+      "payer": "世帯",
+      "payee": "銀行",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "引き出し・口座の決済",
+      "account": "預金純増",
+      "payer": "銀行",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "初期の預金",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "来街者の持ち込み(口座)",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "賃金(雇用主)",
+      "account": "賃金",
+      "payer": "雇用主",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "2"
+     },
+     {
+      "name": "賃金(店の担当従業者)",
+      "account": "賃金",
+      "payer": "店舗",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "2"
+     },
+     {
+      "name": "賃金の原資(雇用主の外界の売上)",
+      "account": "消費支出",
+      "payer": "外界",
+      "payee": "雇用主",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "外界の売上(店・賃金の原資と範囲の外の取引先)",
+      "account": "消費支出",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "消費税",
+      "account": "税",
+      "payer": "店舗",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "2"
+     },
+     {
+      "name": "給与の天引き(器)",
+      "account": "税",
+      "payer": "世帯",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "2"
+     }
+    ],
+    "faucet_sink_by_cell": [
+     {
+      "account": "消費支出",
+      "payer": "世帯",
+      "payee": "店舗",
+      "kind": "INTERNAL",
+      "amount": 12819400
+     },
+     {
+      "account": "消費支出",
+      "payer": "外界",
+      "payee": "雇用主",
+      "kind": "FAUCET",
+      "amount": 112838004
+     },
+     {
+      "account": "賃金",
+      "payer": "雇用主",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "amount": 112838004
+     },
+     {
+      "account": "域外仕入",
+      "payer": "店舗",
+      "payee": "外界",
+      "kind": "SINK",
+      "amount": 347879
+     },
+     {
+      "account": "税",
+      "payer": "店舗",
+      "payee": "政府",
+      "kind": "SINK",
+      "amount": 1155948
+     },
+     {
+      "account": "預金純増",
+      "payer": "世帯",
+      "payee": "銀行",
+      "kind": "INTERNAL",
+      "amount": 886539004
+     },
+     {
+      "account": "預金純増",
+      "payer": "銀行",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "amount": 1427020
+     },
+     {
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "amount": 913249230
+     },
+     {
+      "account": "持ち出し",
+      "payer": "世帯",
+      "payee": "外界",
+      "kind": "SINK",
+      "amount": 1319220
+     },
+     {
+      "account": "参入資本",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "amount": 286293000
+     }
+    ],
+    "atms": {
+     "n": 43,
+     "cells": 37,
+     "dropped": 0,
+     "kind": {
+      "atm": 7,
+      "shop": 25,
+      "bank": 11
+     },
+     "hours_from": {
+      "tag": 26,
+      "hours_file": 0,
+      "none_24h": 17,
+      "unparsed_24h": 0
+     },
+     "sources": {
+      "poi_tags_overpass_20260928.json": "2b4723293e1d5e633d97516c732b0eb2",
+      "poi_opening_hours_overpass_20260907.json": "03a258825c6c7350d8b6a6cb139ca3c3"
+     }
+    },
+    "credit": {
+     "rows": 0,
+     "balance": 0,
+     "delinquent_count": 0,
+     "delinquent_amount": 0
+    },
+    "wallet": {
+     "p10": 5985,
+     "p50": 18550,
+     "p90": 52518
+    },
+    "deposit": {
+     "p10": 35320,
+     "p50": 196630,
+     "p90": 234752
+    },
+    "wallet_mean": 25367.326,
+    "deposit_mean": 177022.397,
+    "wallet_zero": 0
+   },
+   "daily": [
+    {
+     "day": 0,
+     "households_cash_end": 132031830,
+     "money_supply_end": 1198147865,
+     "cash_per_agent_change": -1503.28,
+     "money_supply_per_agent_change": null,
+     "rows": 43977,
+     "rows_per_agent": 8.795,
+     "overflow": 0,
+     "flow_sum_ok": true,
+     "conservation": {
+      "faucet": 1199542230,
+      "sink": 1394365,
+      "internal": 781913120,
+      "unregistered": 0,
+      "delta_money": 1198147865,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     },
+     "census_flow_ok": true,
+     "stage2": {
+      "day": 0,
+      "payday": false,
+      "endow": {
+       "deposit_rows": 3958,
+       "deposit_amount": 736710000,
+       "visitor_rows": 1042,
+       "visitor_amount": 36991000
+      },
+      "wages": {
+       "paydays": 0,
+       "paid": 0,
+       "amount": 0,
+       "unpaid": 0,
+       "unpaid_amount": 0,
+       "funding": 0,
+       "deductions": 0,
+       "no_hours": 0,
+       "outside_employer": 0,
+       "employer_rows": 0,
+       "store_rows": 0
+      },
+      "withdraw": {
+       "asked": 0,
+       "count": 0,
+       "amount": 0,
+       "wallet_ok": 0,
+       "no_deposit": 0
+      },
+      "payment": {
+       "cash_rows": 9706,
+       "cash_amount": 7516400,
+       "account_rows": 30,
+       "account_amount": 28900,
+       "short": 0,
+       "fare_ic_rows": 3544,
+       "fare_ic_amount": 637920,
+       "fare_cash_rows": 0,
+       "fare_cash_amount": 0
+      },
+      "tax": {
+       "rows": 9736,
+       "amount": 680277
+      },
+      "external_sales": {
+       "rows": 0,
+       "amount": 0
+      },
+      "wallet": {
+       "p10": 7168,
+       "p50": 19580,
+       "p90": 53520
+      },
+      "deposit": {
+       "p10": 35500,
+       "p50": 170820,
+       "p90": 171000
+      },
+      "wallet_mean": 26406.366,
+      "deposit_mean": 154606.836,
+      "wallet_zero": 0
+     }
+    },
+    {
+     "day": 1,
+     "households_cash_end": 126836630,
+     "money_supply_end": 1309557187,
+     "cash_per_agent_change": -1039.04,
+     "money_supply_per_agent_change": 22281.864,
+     "rows": 27044,
+     "rows_per_agent": 5.409,
+     "overflow": 3521,
+     "flow_sum_ok": true,
+     "conservation": {
+      "faucet": 112838004,
+      "sink": 1428682,
+      "internal": 231710308,
+      "unregistered": 0,
+      "delta_money": 111409322,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     },
+     "census_flow_ok": true,
+     "stage2": {
+      "day": 1,
+      "payday": true,
+      "endow": {
+       "deposit_rows": 0,
+       "deposit_amount": 0,
+       "visitor_rows": 0,
+       "visitor_amount": 0
+      },
+      "wages": {
+       "paydays": 1,
+       "paid": 2392,
+       "amount": 112838004,
+       "unpaid": 0,
+       "unpaid_amount": 0,
+       "funding": 112838004,
+       "deductions": 0,
+       "no_hours": 29,
+       "outside_employer": 0,
+       "employer_rows": 2392,
+       "store_rows": 0
+      },
+      "withdraw": {
+       "asked": 0,
+       "count": 0,
+       "amount": 0,
+       "wallet_ok": 0,
+       "no_deposit": 0
+      },
+      "payment": {
+       "cash_rows": 6448,
+       "cash_amount": 5195200,
+       "account_rows": 91,
+       "account_amount": 78900,
+       "short": 0,
+       "fare_ic_rows": 3785,
+       "fare_ic_amount": 681300,
+       "fare_cash_rows": 0,
+       "fare_cash_amount": 0
+      },
+      "tax": {
+       "rows": 6539,
+       "amount": 475671
+      },
+      "external_sales": {
+       "rows": 0,
+       "amount": 0
+      },
+      "wallet": {
+       "p10": 5985,
+       "p50": 18550,
+       "p90": 52518
+      },
+      "deposit": {
+       "p10": 35320,
+       "p50": 196630,
+       "p90": 234752
+      },
+      "wallet_mean": 25367.326,
+      "deposit_mean": 177022.397,
+      "wallet_zero": 0
+     }
+    }
+   ],
+   "wall_seconds": 180.2
+  },
+  {
+   "arm": "on",
+   "parts": [
+    "wages",
+    "withdraw",
+    "tax",
+    "visitors"
+   ],
+   "agents": 5000,
+   "seed": 1,
+   "start": "2026-08-24",
+   "final": "57723bec2e35f7b9",
+   "calls": 145197,
+   "conserved": true,
+   "money_start": 139548230,
+   "money_end": 131773010,
+   "money_stage2_in": 6374000,
+   "deposit_total_end": 880165004,
+   "economy": {
+    "raw_capacity": 67500,
+    "raw_rows_per_agent_day": 13.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 63926,
+    "transfers_amount": 2333789127,
+    "transfers_uncaused": 33629,
+    "transfer_events": 30297
+   },
+   "stage2": {
+    "arm": "on",
+    "parts": [
+     "wages",
+     "withdraw",
+     "tax",
+     "visitors"
+    ],
+    "payday_day_of_month": 25,
+    "expedients": {
+     "deposit_days": 30.0,
+     "visitor_account_share": 0.5,
+     "withdraw_trigger_days": 1.0,
+     "withdraw_days": 3.0,
+     "atm_unit_yen": 1000,
+     "default_monthly_hours": 160.0,
+     "fare_default": "IC(口座)",
+     "payment_rule": "財布が足りれば現金・足りなければ口座",
+     "external_store_sales_yen": 0
+    },
+    "hours_source": "w17_work",
+    "plan": {
+     "payday_rule": "毎月 25 日・土休なら前の営業日(暦の口)",
+     "population_scale": 0.012818310700469406,
+     "hours_source": "w17_work",
+     "hourly_source": "最低賃金(規則の表・asof)",
+     "external_store_sales": "0(範囲の外の取引先の資料なし)"
+    },
+    "rules": {
+     "consumption_tax": {
+      "asof": "2026-08-25",
+      "rate": "1/10",
+      "source": "rules:consumption_tax.standard_rate@2019-10-01"
+     },
+     "minimum_wage": {
+      "asof": "2026-08-25",
+      "yen_per_hour": 1226,
+      "source": "anchors.MIN_WAGE_HOURLY"
+     }
+    },
+    "endow": {
+     "deposit_rows": 3958,
+     "deposit_amount": 736710000,
+     "visitor_rows": 1042,
+     "visitor_amount": 36991000
+    },
+    "wages": {
+     "paydays": 1,
+     "paid": 2392,
+     "amount": 112838004,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 112838004,
+     "deductions": 0,
+     "no_hours": 29,
+     "outside_employer": 0,
+     "employer_rows": 2392,
+     "store_rows": 0
+    },
+    "withdraw": {
+     "asked": 25490,
+     "count": 328,
+     "amount": 6374000,
+     "wallet_ok": 25162,
+     "no_deposit": 0
+    },
+    "payment": {
+     "cash_rows": 16292,
+     "cash_amount": 12831800,
+     "account_rows": 0,
+     "account_amount": 0,
+     "short": 0,
+     "fare_ic_rows": 0,
+     "fare_ic_amount": 0,
+     "fare_cash_rows": 0,
+     "fare_cash_amount": 0
+    },
+    "tax": {
+     "rows": 16292,
+     "amount": 1157088
+    },
+    "external_sales": {
+     "rows": 0,
+     "amount": 0
+    },
+    "faucet_sink_registry": [
+     {
+      "name": "初期の財布",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "参入資本(外界)",
+      "account": "参入資本",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "購入・食事",
+      "account": "消費支出",
+      "payer": "世帯",
+      "payee": "店舗",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "運賃",
+      "account": "持ち出し",
+      "payer": "世帯",
+      "payee": "外界",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "補充の代金(域外仕入)",
+      "account": "域外仕入",
+      "payer": "店舗",
+      "payee": "外界",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "逸脱比例コスト",
+      "account": "逸脱比例コスト",
+      "payer": "店舗",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "域外雇用主の賃金",
+      "account": "賃金",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "預け入れ・口座の入金",
+      "account": "預金純増",
+      "payer": "世帯",
+      "payee": "銀行",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "引き出し・口座の決済",
+      "account": "預金純増",
+      "payer": "銀行",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "初期の預金",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "来街者の持ち込み(口座)",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "賃金(雇用主)",
+      "account": "賃金",
+      "payer": "雇用主",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "2"
+     },
+     {
+      "name": "賃金(店の担当従業者)",
+      "account": "賃金",
+      "payer": "店舗",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "2"
+     },
+     {
+      "name": "賃金の原資(雇用主の外界の売上)",
+      "account": "消費支出",
+      "payer": "外界",
+      "payee": "雇用主",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "外界の売上(店・賃金の原資と範囲の外の取引先)",
+      "account": "消費支出",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "消費税",
+      "account": "税",
+      "payer": "店舗",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "2"
+     },
+     {
+      "name": "給与の天引き(器)",
+      "account": "税",
+      "payer": "世帯",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "2"
+     }
+    ],
+    "faucet_sink_by_cell": [
+     {
+      "account": "消費支出",
+      "payer": "世帯",
+      "payee": "店舗",
+      "kind": "INTERNAL",
+      "amount": 12831800
+     },
+     {
+      "account": "消費支出",
+      "payer": "外界",
+      "payee": "雇用主",
+      "kind": "FAUCET",
+      "amount": 112838004
+     },
+     {
+      "account": "賃金",
+      "payer": "雇用主",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "amount": 112838004
+     },
+     {
+      "account": "域外仕入",
+      "payer": "店舗",
+      "payee": "外界",
+      "kind": "SINK",
+      "amount": 351577
+     },
+     {
+      "account": "税",
+      "payer": "店舗",
+      "payee": "政府",
+      "kind": "SINK",
+      "amount": 1157088
+     },
+     {
+      "account": "預金純増",
+      "payer": "世帯",
+      "payee": "銀行",
+      "kind": "INTERNAL",
+      "amount": 886539004
+     },
+     {
+      "account": "預金純増",
+      "payer": "銀行",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "amount": 6374000
+     },
+     {
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "amount": 913249230
+     },
+     {
+      "account": "持ち出し",
+      "payer": "世帯",
+      "payee": "外界",
+      "kind": "SINK",
+      "amount": 1317420
+     },
+     {
+      "account": "参入資本",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "amount": 286293000
+     }
+    ],
+    "atms": {
+     "n": 43,
+     "cells": 37,
+     "dropped": 0,
+     "kind": {
+      "atm": 7,
+      "shop": 25,
+      "bank": 11
+     },
+     "hours_from": {
+      "tag": 26,
+      "hours_file": 0,
+      "none_24h": 17,
+      "unparsed_24h": 0
+     },
+     "sources": {
+      "poi_tags_overpass_20260928.json": "2b4723293e1d5e633d97516c732b0eb2",
+      "poi_opening_hours_overpass_20260907.json": "03a258825c6c7350d8b6a6cb139ca3c3"
+     }
+    },
+    "credit": {
+     "rows": 0,
+     "balance": 0,
+     "delinquent_count": 0,
+     "delinquent_amount": 0
+    },
+    "wallet": {
+     "p10": 7549,
+     "p50": 19810,
+     "p90": 52606
+    },
+    "deposit": {
+     "p10": 35500,
+     "p50": 194642,
+     "p90": 234752
+    },
+    "wallet_mean": 26354.602,
+    "deposit_mean": 176033.001,
+    "wallet_zero": 0
+   },
+   "daily": [
+    {
+     "day": 0,
+     "households_cash_end": 134897570,
+     "money_supply_end": 1198147608,
+     "cash_per_agent_change": -930.132,
+     "money_supply_per_agent_change": null,
+     "rows": 40579,
+     "rows_per_agent": 8.116,
+     "overflow": 0,
+     "flow_sum_ok": true,
+     "conservation": {
+      "faucet": 1199542230,
+      "sink": 1394622,
+      "internal": 784773200,
+      "unregistered": 0,
+      "delta_money": 1198147608,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     },
+     "census_flow_ok": true,
+     "stage2": {
+      "day": 0,
+      "payday": false,
+      "endow": {
+       "deposit_rows": 3958,
+       "deposit_amount": 736710000,
+       "visitor_rows": 1042,
+       "visitor_amount": 36991000
+      },
+      "wages": {
+       "paydays": 0,
+       "paid": 0,
+       "amount": 0,
+       "unpaid": 0,
+       "unpaid_amount": 0,
+       "funding": 0,
+       "deductions": 0,
+       "no_hours": 0,
+       "outside_employer": 0,
+       "employer_rows": 0,
+       "store_rows": 0
+      },
+      "withdraw": {
+       "asked": 13363,
+       "count": 175,
+       "amount": 3530000,
+       "wallet_ok": 13188,
+       "no_deposit": 0
+      },
+      "payment": {
+       "cash_rows": 9735,
+       "cash_amount": 7542200,
+       "account_rows": 0,
+       "account_amount": 0,
+       "short": 0,
+       "fare_ic_rows": 0,
+       "fare_ic_amount": 0,
+       "fare_cash_rows": 0,
+       "fare_cash_amount": 0
+      },
+      "tax": {
+       "rows": 9735,
+       "amount": 679994
+      },
+      "external_sales": {
+       "rows": 0,
+       "amount": 0
+      },
+      "wallet": {
+       "p10": 7971,
+       "p50": 20291,
+       "p90": 53304
+      },
+      "deposit": {
+       "p10": 35500,
+       "p50": 171000,
+       "p90": 171000
+      },
+      "wallet_mean": 26979.514,
+      "deposit_mean": 154034.2,
+      "wallet_zero": 0
+     }
+    },
+    {
+     "day": 1,
+     "households_cash_end": 131773010,
+     "money_supply_end": 1309554149,
+     "cash_per_agent_change": -624.912,
+     "money_supply_per_agent_change": 22281.308,
+     "rows": 23347,
+     "rows_per_agent": 4.669,
+     "overflow": 0,
+     "flow_sum_ok": true,
+     "conservation": {
+      "faucet": 112838004,
+      "sink": 1431463,
+      "internal": 233809608,
+      "unregistered": 0,
+      "delta_money": 111406541,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     },
+     "census_flow_ok": true,
+     "stage2": {
+      "day": 1,
+      "payday": true,
+      "endow": {
+       "deposit_rows": 0,
+       "deposit_amount": 0,
+       "visitor_rows": 0,
+       "visitor_amount": 0
+      },
+      "wages": {
+       "paydays": 1,
+       "paid": 2392,
+       "amount": 112838004,
+       "unpaid": 0,
+       "unpaid_amount": 0,
+       "funding": 112838004,
+       "deductions": 0,
+       "no_hours": 29,
+       "outside_employer": 0,
+       "employer_rows": 2392,
+       "store_rows": 0
+      },
+      "withdraw": {
+       "asked": 12127,
+       "count": 153,
+       "amount": 2844000,
+       "wallet_ok": 11974,
+       "no_deposit": 0
+      },
+      "payment": {
+       "cash_rows": 6557,
+       "cash_amount": 5289600,
+       "account_rows": 0,
+       "account_amount": 0,
+       "short": 0,
+       "fare_ic_rows": 0,
+       "fare_ic_amount": 0,
+       "fare_cash_rows": 0,
+       "fare_cash_amount": 0
+      },
+      "tax": {
+       "rows": 6557,
+       "amount": 477094
+      },
+      "external_sales": {
+       "rows": 0,
+       "amount": 0
+      },
+      "wallet": {
+       "p10": 7549,
+       "p50": 19810,
+       "p90": 52606
+      },
+      "deposit": {
+       "p10": 35500,
+       "p50": 194642,
+       "p90": 234752
+      },
+      "wallet_mean": 26354.602,
+      "deposit_mean": 176033.001,
+      "wallet_zero": 0
+     }
+    }
+   ],
+   "wall_seconds": 188.8
+  },
+  {
+   "arm": "on",
+   "parts": [
+    "wages",
+    "withdraw",
+    "payment",
+    "visitors"
+   ],
+   "agents": 5000,
+   "seed": 1,
+   "start": "2026-08-24",
+   "final": "e17b652a714d4135",
+   "calls": 144954,
+   "conserved": true,
+   "money_start": 139548230,
+   "money_end": 132750930,
+   "money_stage2_in": 7296620,
+   "deposit_total_end": 879242384,
+   "economy": {
+    "raw_capacity": 67500,
+    "raw_rows_per_agent_day": 13.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 54918,
+    "transfers_amount": 2333505836,
+    "transfers_uncaused": 33577,
+    "transfer_events": 21341
+   },
+   "stage2": {
+    "arm": "on",
+    "parts": [
+     "wages",
+     "withdraw",
+     "payment",
+     "visitors"
+    ],
+    "payday_day_of_month": 25,
+    "expedients": {
+     "deposit_days": 30.0,
+     "visitor_account_share": 0.5,
+     "withdraw_trigger_days": 1.0,
+     "withdraw_days": 3.0,
+     "atm_unit_yen": 1000,
+     "default_monthly_hours": 160.0,
+     "fare_default": "IC(口座)",
+     "payment_rule": "財布が足りれば現金・足りなければ口座",
+     "external_store_sales_yen": 0
+    },
+    "hours_source": "w17_work",
+    "plan": {
+     "payday_rule": "毎月 25 日・土休なら前の営業日(暦の口)",
+     "population_scale": 0.012818310700469406,
+     "hours_source": "w17_work",
+     "hourly_source": "最低賃金(規則の表・asof)",
+     "external_store_sales": "0(範囲の外の取引先の資料なし)"
+    },
+    "rules": {
+     "minimum_wage": {
+      "asof": "2026-08-25",
+      "yen_per_hour": 1226,
+      "source": "anchors.MIN_WAGE_HOURLY"
+     }
+    },
+    "endow": {
+     "deposit_rows": 3958,
+     "deposit_amount": 736710000,
+     "visitor_rows": 1042,
+     "visitor_amount": 36991000
+    },
+    "wages": {
+     "paydays": 1,
+     "paid": 2392,
+     "amount": 112838004,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 112838004,
+     "deductions": 0,
+     "no_hours": 29,
+     "outside_employer": 0,
+     "employer_rows": 2392,
+     "store_rows": 0
+    },
+    "withdraw": {
+     "asked": 25229,
+     "count": 305,
+     "amount": 5950000,
+     "wallet_ok": 24924,
+     "no_deposit": 0
+    },
+    "payment": {
+     "cash_rows": 16184,
+     "cash_amount": 12747300,
+     "account_rows": 28,
+     "account_amount": 25600,
+     "short": 0,
+     "fare_ic_rows": 7339,
+     "fare_ic_amount": 1321020,
+     "fare_cash_rows": 0,
+     "fare_cash_amount": 0
+    },
+    "tax": {
+     "rows": 0,
+     "amount": 0
+    },
+    "external_sales": {
+     "rows": 0,
+     "amount": 0
+    },
+    "faucet_sink_registry": [
+     {
+      "name": "初期の財布",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "参入資本(外界)",
+      "account": "参入資本",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "購入・食事",
+      "account": "消費支出",
+      "payer": "世帯",
+      "payee": "店舗",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "運賃",
+      "account": "持ち出し",
+      "payer": "世帯",
+      "payee": "外界",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "補充の代金(域外仕入)",
+      "account": "域外仕入",
+      "payer": "店舗",
+      "payee": "外界",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "逸脱比例コスト",
+      "account": "逸脱比例コスト",
+      "payer": "店舗",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "域外雇用主の賃金",
+      "account": "賃金",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "預け入れ・口座の入金",
+      "account": "預金純増",
+      "payer": "世帯",
+      "payee": "銀行",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "引き出し・口座の決済",
+      "account": "預金純増",
+      "payer": "銀行",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "初期の預金",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "来街者の持ち込み(口座)",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "賃金(雇用主)",
+      "account": "賃金",
+      "payer": "雇用主",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "2"
+     },
+     {
+      "name": "賃金(店の担当従業者)",
+      "account": "賃金",
+      "payer": "店舗",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "2"
+     },
+     {
+      "name": "賃金の原資(雇用主の外界の売上)",
+      "account": "消費支出",
+      "payer": "外界",
+      "payee": "雇用主",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "外界の売上(店・賃金の原資と範囲の外の取引先)",
+      "account": "消費支出",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "消費税",
+      "account": "税",
+      "payer": "店舗",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "2"
+     },
+     {
+      "name": "給与の天引き(器)",
+      "account": "税",
+      "payer": "世帯",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "2"
+     }
+    ],
+    "faucet_sink_by_cell": [
+     {
+      "account": "消費支出",
+      "payer": "世帯",
+      "payee": "店舗",
+      "kind": "INTERNAL",
+      "amount": 12772900
+     },
+     {
+      "account": "消費支出",
+      "payer": "外界",
+      "payee": "雇用主",
+      "kind": "FAUCET",
+      "amount": 112838004
+     },
+     {
+      "account": "賃金",
+      "payer": "雇用主",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "amount": 112838004
+     },
+     {
+      "account": "域外仕入",
+      "payer": "店舗",
+      "payee": "外界",
+      "kind": "SINK",
+      "amount": 358054
+     },
+     {
+      "account": "預金純増",
+      "payer": "世帯",
+      "payee": "銀行",
+      "kind": "INTERNAL",
+      "amount": 886539004
+     },
+     {
+      "account": "預金純増",
+      "payer": "銀行",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "amount": 7296620
+     },
+     {
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "amount": 913249230
+     },
+     {
+      "account": "持ち出し",
+      "payer": "世帯",
+      "payee": "外界",
+      "kind": "SINK",
+      "amount": 1321020
+     },
+     {
+      "account": "参入資本",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "amount": 286293000
+     }
+    ],
+    "atms": {
+     "n": 43,
+     "cells": 37,
+     "dropped": 0,
+     "kind": {
+      "atm": 7,
+      "shop": 25,
+      "bank": 11
+     },
+     "hours_from": {
+      "tag": 26,
+      "hours_file": 0,
+      "none_24h": 17,
+      "unparsed_24h": 0
+     },
+     "sources": {
+      "poi_tags_overpass_20260928.json": "2b4723293e1d5e633d97516c732b0eb2",
+      "poi_opening_hours_overpass_20260907.json": "03a258825c6c7350d8b6a6cb139ca3c3"
+     }
+    },
+    "credit": {
+     "rows": 0,
+     "balance": 0,
+     "delinquent_count": 0,
+     "delinquent_amount": 0
+    },
+    "wallet": {
+     "p10": 7789,
+     "p50": 20025,
+     "p90": 52604
+    },
+    "deposit": {
+     "p10": 35320,
+     "p50": 194464,
+     "p90": 234752
+    },
+    "wallet_mean": 26550.186,
+    "deposit_mean": 175848.477,
+    "wallet_zero": 0
+   },
+   "daily": [
+    {
+     "day": 0,
+     "households_cash_end": 135355030,
+     "money_supply_end": 1198828142,
+     "cash_per_agent_change": -838.64,
+     "money_supply_per_agent_change": null,
+     "rows": 34382,
+     "rows_per_agent": 6.876,
+     "overflow": 0,
+     "flow_sum_ok": true,
+     "conservation": {
+      "faucet": 1199542230,
+      "sink": 714088,
+      "internal": 785236320,
+      "unregistered": 0,
+      "delta_money": 1198828142,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     },
+     "census_flow_ok": true,
+     "stage2": {
+      "day": 0,
+      "payday": false,
+      "endow": {
+       "deposit_rows": 3958,
+       "deposit_amount": 736710000,
+       "visitor_rows": 1042,
+       "visitor_amount": 36991000
+      },
+      "wages": {
+       "paydays": 0,
+       "paid": 0,
+       "amount": 0,
+       "unpaid": 0,
+       "unpaid_amount": 0,
+       "funding": 0,
+       "deductions": 0,
+       "no_hours": 0,
+       "outside_employer": 0,
+       "employer_rows": 0,
+       "store_rows": 0
+      },
+      "withdraw": {
+       "asked": 13360,
+       "count": 166,
+       "amount": 3346000,
+       "wallet_ok": 13194,
+       "no_deposit": 0
+      },
+      "payment": {
+       "cash_rows": 9731,
+       "cash_amount": 7539200,
+       "account_rows": 5,
+       "account_amount": 6100,
+       "short": 0,
+       "fare_ic_rows": 3544,
+       "fare_ic_amount": 637920,
+       "fare_cash_rows": 0,
+       "fare_cash_amount": 0
+      },
+      "tax": {
+       "rows": 0,
+       "amount": 0
+      },
+      "external_sales": {
+       "rows": 0,
+       "amount": 0
+      },
+      "wallet": {
+       "p10": 8104,
+       "p50": 20402,
+       "p90": 53520
+      },
+      "deposit": {
+       "p10": 35500,
+       "p50": 170820,
+       "p90": 171000
+      },
+      "wallet_mean": 27071.006,
+      "deposit_mean": 153942.196,
+      "wallet_zero": 0
+     }
+    },
+    {
+     "day": 1,
+     "households_cash_end": 132750930,
+     "money_supply_end": 1310701160,
+     "cash_per_agent_change": -520.82,
+     "money_supply_per_agent_change": 22374.604,
+     "rows": 20536,
+     "rows_per_agent": 4.107,
+     "overflow": 0,
+     "flow_sum_ok": true,
+     "conservation": {
+      "faucet": 112838004,
+      "sink": 964986,
+      "internal": 234210208,
+      "unregistered": 0,
+      "delta_money": 111873018,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     },
+     "census_flow_ok": true,
+     "stage2": {
+      "day": 1,
+      "payday": true,
+      "endow": {
+       "deposit_rows": 0,
+       "deposit_amount": 0,
+       "visitor_rows": 0,
+       "visitor_amount": 0
+      },
+      "wages": {
+       "paydays": 1,
+       "paid": 2392,
+       "amount": 112838004,
+       "unpaid": 0,
+       "unpaid_amount": 0,
+       "funding": 112838004,
+       "deductions": 0,
+       "no_hours": 29,
+       "outside_employer": 0,
+       "employer_rows": 2392,
+       "store_rows": 0
+      },
+      "withdraw": {
+       "asked": 11869,
+       "count": 139,
+       "amount": 2604000,
+       "wallet_ok": 11730,
+       "no_deposit": 0
+      },
+      "payment": {
+       "cash_rows": 6453,
+       "cash_amount": 5208100,
+       "account_rows": 23,
+       "account_amount": 19500,
+       "short": 0,
+       "fare_ic_rows": 3795,
+       "fare_ic_amount": 683100,
+       "fare_cash_rows": 0,
+       "fare_cash_amount": 0
+      },
+      "tax": {
+       "rows": 0,
+       "amount": 0
+      },
+      "external_sales": {
+       "rows": 0,
+       "amount": 0
+      },
+      "wallet": {
+       "p10": 7789,
+       "p50": 20025,
+       "p90": 52604
+      },
+      "deposit": {
+       "p10": 35320,
+       "p50": 194464,
+       "p90": 234752
+      },
+      "wallet_mean": 26550.186,
+      "deposit_mean": 175848.477,
+      "wallet_zero": 0
+     }
+    }
+   ],
+   "wall_seconds": 183.4
+  },
+  {
+   "arm": "on",
+   "parts": [
+    "wages",
+    "withdraw",
+    "payment",
+    "tax"
+   ],
+   "agents": 5000,
+   "seed": 1,
+   "start": "2026-08-24",
+   "final": "595e91a29382792c",
+   "calls": 144954,
+   "conserved": true,
+   "money_start": 139548230,
+   "money_end": 131647990,
+   "money_stage2_in": 6193680,
+   "deposit_total_end": 843354324,
+   "economy": {
+    "raw_capacity": 67500,
+    "raw_rows_per_agent_day": 13.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 437,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 67937,
+    "transfers_amount": 2259572661,
+    "transfers_uncaused": 31493,
+    "transfer_events": 36444
+   },
+   "stage2": {
+    "arm": "on",
+    "parts": [
+     "wages",
+     "withdraw",
+     "payment",
+     "tax"
+    ],
+    "payday_day_of_month": 25,
+    "expedients": {
+     "deposit_days": 30.0,
+     "visitor_account_share": 0.5,
+     "withdraw_trigger_days": 1.0,
+     "withdraw_days": 3.0,
+     "atm_unit_yen": 1000,
+     "default_monthly_hours": 160.0,
+     "fare_default": "IC(口座)",
+     "payment_rule": "財布が足りれば現金・足りなければ口座",
+     "external_store_sales_yen": 0
+    },
+    "hours_source": "w17_work",
+    "plan": {
+     "payday_rule": "毎月 25 日・土休なら前の営業日(暦の口)",
+     "population_scale": 0.012818310700469406,
+     "hours_source": "w17_work",
+     "hourly_source": "最低賃金(規則の表・asof)",
+     "external_store_sales": "0(範囲の外の取引先の資料なし)"
+    },
+    "rules": {
+     "consumption_tax": {
+      "asof": "2026-08-25",
+      "rate": "1/10",
+      "source": "rules:consumption_tax.standard_rate@2019-10-01"
+     },
+     "minimum_wage": {
+      "asof": "2026-08-25",
+      "yen_per_hour": 1226,
+      "source": "anchors.MIN_WAGE_HOURLY"
+     }
+    },
+    "endow": {
+     "deposit_rows": 3958,
+     "deposit_amount": 736710000,
+     "visitor_rows": 0,
+     "visitor_amount": 0
+    },
+    "wages": {
+     "paydays": 1,
+     "paid": 2392,
+     "amount": 112838004,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 112838004,
+     "deductions": 0,
+     "no_hours": 29,
+     "outside_employer": 0,
+     "employer_rows": 2392,
+     "store_rows": 0
+    },
+    "withdraw": {
+     "asked": 25229,
+     "count": 279,
+     "amount": 5042000,
+     "wallet_ok": 24757,
+     "no_deposit": 193
+    },
+    "payment": {
+     "cash_rows": 16184,
+     "cash_amount": 12747300,
+     "account_rows": 28,
+     "account_amount": 25600,
+     "short": 0,
+     "fare_ic_rows": 6256,
+     "fare_ic_amount": 1126080,
+     "fare_cash_rows": 1083,
+     "fare_cash_amount": 194940
+    },
+    "tax": {
+     "rows": 16212,
+     "amount": 1151765
+    },
+    "external_sales": {
+     "rows": 0,
+     "amount": 0
+    },
+    "faucet_sink_registry": [
+     {
+      "name": "初期の財布",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "参入資本(外界)",
+      "account": "参入資本",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "購入・食事",
+      "account": "消費支出",
+      "payer": "世帯",
+      "payee": "店舗",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "運賃",
+      "account": "持ち出し",
+      "payer": "世帯",
+      "payee": "外界",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "補充の代金(域外仕入)",
+      "account": "域外仕入",
+      "payer": "店舗",
+      "payee": "外界",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "逸脱比例コスト",
+      "account": "逸脱比例コスト",
+      "payer": "店舗",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "1"
+     },
+     {
+      "name": "域外雇用主の賃金",
+      "account": "賃金",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "1"
+     },
+     {
+      "name": "預け入れ・口座の入金",
+      "account": "預金純増",
+      "payer": "世帯",
+      "payee": "銀行",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "引き出し・口座の決済",
+      "account": "預金純増",
+      "payer": "銀行",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "1"
+     },
+     {
+      "name": "初期の預金",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "来街者の持ち込み(口座)",
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "賃金(雇用主)",
+      "account": "賃金",
+      "payer": "雇用主",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "2"
+     },
+     {
+      "name": "賃金(店の担当従業者)",
+      "account": "賃金",
+      "payer": "店舗",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "stage": "2"
+     },
+     {
+      "name": "賃金の原資(雇用主の外界の売上)",
+      "account": "消費支出",
+      "payer": "外界",
+      "payee": "雇用主",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "外界の売上(店・賃金の原資と範囲の外の取引先)",
+      "account": "消費支出",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "stage": "2"
+     },
+     {
+      "name": "消費税",
+      "account": "税",
+      "payer": "店舗",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "2"
+     },
+     {
+      "name": "給与の天引き(器)",
+      "account": "税",
+      "payer": "世帯",
+      "payee": "政府",
+      "kind": "SINK",
+      "stage": "2"
+     }
+    ],
+    "faucet_sink_by_cell": [
+     {
+      "account": "消費支出",
+      "payer": "世帯",
+      "payee": "店舗",
+      "kind": "INTERNAL",
+      "amount": 12772900
+     },
+     {
+      "account": "消費支出",
+      "payer": "外界",
+      "payee": "雇用主",
+      "kind": "FAUCET",
+      "amount": 112838004
+     },
+     {
+      "account": "賃金",
+      "payer": "雇用主",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "amount": 112838004
+     },
+     {
+      "account": "域外仕入",
+      "payer": "店舗",
+      "payee": "外界",
+      "kind": "SINK",
+      "amount": 358054
+     },
+     {
+      "account": "税",
+      "payer": "店舗",
+      "payee": "政府",
+      "kind": "SINK",
+      "amount": 1151765
+     },
+     {
+      "account": "預金純増",
+      "payer": "世帯",
+      "payee": "銀行",
+      "kind": "INTERNAL",
+      "amount": 849548004
+     },
+     {
+      "account": "預金純増",
+      "payer": "銀行",
+      "payee": "世帯",
+      "kind": "INTERNAL",
+      "amount": 6193680
+     },
+     {
+      "account": "来街者持込",
+      "payer": "外界",
+      "payee": "世帯",
+      "kind": "FAUCET",
+      "amount": 876258230
+     },
+     {
+      "account": "持ち出し",
+      "payer": "世帯",
+      "payee": "外界",
+      "kind": "SINK",
+      "amount": 1321020
+     },
+     {
+      "account": "参入資本",
+      "payer": "外界",
+      "payee": "店舗",
+      "kind": "FAUCET",
+      "amount": 286293000
+     }
+    ],
+    "atms": {
+     "n": 43,
+     "cells": 37,
+     "dropped": 0,
+     "kind": {
+      "atm": 7,
+      "shop": 25,
+      "bank": 11
+     },
+     "hours_from": {
+      "tag": 26,
+      "hours_file": 0,
+      "none_24h": 17,
+      "unparsed_24h": 0
+     },
+     "sources": {
+      "poi_tags_overpass_20260928.json": "2b4723293e1d5e633d97516c732b0eb2",
+      "poi_opening_hours_overpass_20260907.json": "03a258825c6c7350d8b6a6cb139ca3c3"
+     }
+    },
+    "credit": {
+     "rows": 0,
+     "balance": 0,
+     "delinquent_count": 0,
+     "delinquent_amount": 0
+    },
+    "wallet": {
+     "p10": 7748,
+     "p50": 19882,
+     "p90": 52496
+    },
+    "deposit": {
+     "p10": 0,
+     "p50": 194464,
+     "p90": 234752
+    },
+    "wallet_mean": 26329.598,
+    "deposit_mean": 168670.865,
+    "wallet_zero": 0
+   },
+   "daily": [
+    {
+     "day": 0,
+     "households_cash_end": 134599130,
+     "money_supply_end": 1161156865,
+     "cash_per_agent_change": -989.82,
+     "money_supply_per_agent_change": null,
+     "rows": 41510,
+     "rows_per_agent": 8.302,
+     "overflow": 0,
+     "flow_sum_ok": true,
+     "conservation": {
+      "faucet": 1162551230,
+      "sink": 1394365,
+      "internal": 747489420,
+      "unregistered": 0,
+      "delta_money": 1161156865,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     },
+     "census_flow_ok": true,
+     "stage2": {
+      "day": 0,
+      "payday": false,
+      "endow": {
+       "deposit_rows": 3958,
+       "deposit_amount": 736710000,
+       "visitor_rows": 0,
+       "visitor_amount": 0
+      },
+      "wages": {
+       "paydays": 0,
+       "paid": 0,
+       "amount": 0,
+       "unpaid": 0,
+       "unpaid_amount": 0,
+       "funding": 0,
+       "deductions": 0,
+       "no_hours": 0,
+       "outside_employer": 0,
+       "employer_rows": 0,
+       "store_rows": 0
+      },
+      "withdraw": {
+       "asked": 13360,
+       "count": 147,
+       "amount": 2681000,
+       "wallet_ok": 13116,
+       "no_deposit": 97
+      },
+      "payment": {
+       "cash_rows": 9731,
+       "cash_amount": 7539200,
+       "account_rows": 5,
+       "account_amount": 6100,
+       "short": 0,
+       "fare_ic_rows": 3039,
+       "fare_ic_amount": 547020,
+       "fare_cash_rows": 505,
+       "fare_cash_amount": 90900
+      },
+      "tax": {
+       "rows": 9736,
+       "amount": 680277
+      },
+      "external_sales": {
+       "rows": 0,
+       "amount": 0
+      },
+      "wallet": {
+       "p10": 8050,
+       "p50": 20236,
+       "p90": 53356
+      },
+      "deposit": {
+       "p10": 0,
+       "p50": 170820,
+       "p90": 171000
+      },
+      "wallet_mean": 26919.826,
+      "deposit_mean": 146695.176,
+      "wallet_zero": 0
+     }
+    },
+    {
+     "day": 1,
+     "households_cash_end": 131647990,
+     "money_supply_end": 1272558395,
+     "cash_per_agent_change": -590.228,
+     "money_supply_per_agent_change": 22280.306,
+     "rows": 26427,
+     "rows_per_agent": 5.285,
+     "overflow": 437,
+     "flow_sum_ok": true,
+     "conservation": {
+      "faucet": 112838004,
+      "sink": 1436474,
+      "internal": 233863168,
+      "unregistered": 0,
+      "delta_money": 111401530,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     },
+     "census_flow_ok": true,
+     "stage2": {
+      "day": 1,
+      "payday": true,
+      "endow": {
+       "deposit_rows": 0,
+       "deposit_amount": 0,
+       "visitor_rows": 0,
+       "visitor_amount": 0
+      },
+      "wages": {
+       "paydays": 1,
+       "paid": 2392,
+       "amount": 112838004,
+       "unpaid": 0,
+       "unpaid_amount": 0,
+       "funding": 112838004,
+       "deductions": 0,
+       "no_hours": 29,
+       "outside_employer": 0,
+       "employer_rows": 2392,
+       "store_rows": 0
+      },
+      "withdraw": {
+       "asked": 11869,
+       "count": 132,
+       "amount": 2361000,
+       "wallet_ok": 11641,
+       "no_deposit": 96
+      },
+      "payment": {
+       "cash_rows": 6453,
+       "cash_amount": 5208100,
+       "account_rows": 23,
+       "account_amount": 19500,
+       "short": 0,
+       "fare_ic_rows": 3217,
+       "fare_ic_amount": 579060,
+       "fare_cash_rows": 578,
+       "fare_cash_amount": 104040
+      },
+      "tax": {
+       "rows": 6476,
+       "amount": 471488
+      },
+      "external_sales": {
+       "rows": 0,
+       "amount": 0
+      },
+      "wallet": {
+       "p10": 7748,
+       "p50": 19882,
+       "p90": 52496
+      },
+      "deposit": {
+       "p10": 0,
+       "p50": 194464,
+       "p90": 234752
+      },
+      "wallet_mean": 26329.598,
+      "deposit_mean": 168670.865,
+      "wallet_zero": 0
+     }
+    }
+   ],
+   "wall_seconds": 186.4
+  }
+ ]
+}

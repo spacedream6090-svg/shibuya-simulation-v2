@@ -1,0 +1,24 @@
+{
+ "key": "W7#2",
+ "control": "18 歳未満の立入制限を窓として当てない(宣言)vs 23:00-4:00 を当てる(未成年から見た営業中)",
+ "metric": "未成年から見た営業中 POI×時(168 時×{営業中,休業})の分布",
+ "variants": [
+  {
+   "name": "立入窓を当てる",
+   "jsd_bits": 1.1886413941386174e-05,
+   "null_p95": 0.00034936061079824597,
+   "detected": false,
+   "tvd": 0.0014416121604825093,
+   "n_declared": 392616.0,
+   "n_control": 392616.0,
+   "n_bins": 336,
+   "n_poi_affected": 18
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.22721449995879084,
+ "seconds_wall_row": 0.23,
+ "measured_at": "2026-09-30"
+}

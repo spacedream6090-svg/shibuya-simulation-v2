@@ -22,7 +22,9 @@
 - ``apply``: **行動語ぶんのループ**(12 語+エンジン継続=13 分岐)。個体数に比例するループなし。
 - ``advance_body`` の**エネルギー収支**(5 段目 5a・``energy`` を渡したランだけ): 毎 tick の消費と
   語の段の写しは配列演算だけ(逐次ループの新設なし)。``initialize_energy`` の体の定数の抽選は
-  ``engine.energy.EnergyModel.draw_bodies`` の宣言(起動時 1 回・体数ぶん)。
+  ``engine.energy.EnergyModel.draw_bodies`` の宣言(起動時 1 回・体数ぶん)。〔第 3 期 3-5〕値は体の層
+  ``engine.body``(``BodyModel.step``・``initial``)が返し、本モジュールは書くだけ(体の層の逐次ループ宣言は
+  ``engine.body.schedule``=予約の腕 reserve だけ・相異なる予約の刻みの数ぶん)。
 - ``AgentState.freeze/thaw``: フィールド数ぶん(宣言済み)。
 
 expedient(本モジュール分)
@@ -32,9 +34,9 @@ expedient(本モジュール分)
   なお ``initialize`` は幾何を取らないので **tick 0 の ``density_stage`` だけは人/セルの段**
   (edge モードでも)。tick 0 の ``apply`` 末尾で人/m² の Fruin LOS 段へ貼り替わる
   ——tick 0 は全員が自宅で就寝中なので影響は無いが、黙って一本化しないために書いておく。
-- 内受容の自然変動(``advance_body``): 30 tick ごとに空腹+1・疲労+1、休憩で疲労−3、
-  購入で空腹−4、就寝中は疲労−2。世界過程(C4)が入るまでの**駆動源**。
-  値は自前(契約書に無い)。
+- 行為の効果の内受容(``_apply_rest`` と v1 の購入・食事): 休憩で疲労−3、購入と食事で空腹−4。値は自前(契約書に
+  無い)。〔第 3 期 3-5〕体の自然変動(30 刻みごとの空腹+1・疲労+1・就寝中の疲労−2・休みの回復)は本人の体の層
+  ``engine.body``(``rules.BODY_EXPEDIENTS``)へ移した。
 - 断るは C2 では状態を変えない(記録のみ=契約書の効果先が未実装)。通報は **D-113 ②(第267)** で前提「当該事象を知覚済み」を検査する(``_apply_report``・効果先は未実装のまま)。手伝いは
   「相手が援助要求状態」を持たないので必ず失敗(``BAD_TARGET``)。
 - 乗車は**列車が無い**ので必ず ``NO_TRAIN``、降車は契約書どおり ``NO_STOP``(その駅には止まらない)(列車は C4・§2.6 の混雑率受容関数もそこ)。
@@ -55,6 +57,7 @@ expedient(本モジュール分)
 from __future__ import annotations
 
 import time
+import dataclasses
 from dataclasses import dataclass, field
 from typing import Any, Final, Mapping
 
@@ -67,12 +70,18 @@ from shibuya.agents.state import (
     N_WAKE_CONDITIONS,
     REFRACTORY_MINUTES,
     Activity,
-    ActivityKind,
     AgentState,
     ResultCode,
     WakeCondition,
 )
 from shibuya.engine.change_detect import DetectResult
+from shibuya.engine.body import rules as _BODY
+from shibuya.engine.body.rules import (  # 〔第 3 期 3-5〕体の層へ移した値(同じ名で写して出す)
+    ACTIVITY_REST_FATIGUE_RELIEF,
+    ACTIVITY_REST_PERIOD_TICKS,
+    BODY_TICK_PERIOD,
+    SLEEP_FATIGUE_RELIEF,
+)
 from shibuya.engine.energy import INTAKE_DRINK, INTAKE_SNACK, EnergyModel
 from shibuya.engine.geometry import EdgeGeometry
 from shibuya.engine.ledger_api import LedgerBundle
@@ -93,11 +102,16 @@ from shibuya.engine.commit import (
     ACT_TALK,
     ACT_WAIT,
     ENGINE_STEP,
+    S2_MONEY_ACT,
+    S2_PAY_ACCOUNT,
+    S2_PAY_CASH,
+    S2_WITHDRAW,
     WANDER_BAD_TARGET,
     IntentBatch,
 )
 from shibuya.llm.contract import DEFAULT_VOCAB_VERSION, check_vocab_version
 from shibuya.world.state import World
+from shibuya.core.time_consts import MINUTES_PER_DAY
 
 __all__ = [
     "revert_conversation",
@@ -167,22 +181,16 @@ __all__ = [
     "release_indoor",
     "balk_queue",
     "begin_exit_walk",
+    "begin_walk_to",
     "clear_board_intent",
     "EXIT_WALK_FLAG",
     "request_open_close",
 ]
 
-#: 内受容の自然変動の周期[tick](expedient)。
-BODY_TICK_PERIOD: Final[int] = 30
+# 〔第 3 期 3-5〕体の自然変動の値(周期・就寝と休みの回復)は本人の体の層 ``engine.body.rules`` に移した(上の import が
+# 同じ名で写して出す=読み手の import は変えない)。行為の効果(休憩・購入・食事)の値はここに残す。
 REST_FATIGUE_RELIEF: Final[int] = 3
 BUY_HUNGER_RELIEF: Final[int] = 4
-SLEEP_FATIGUE_RELIEF: Final[int] = 2
-#: **二層の段 2(第275 親の決め #1)**: 「休んでいる体」(活動の種別が 在店/その場 で持続中)の
-#: 疲労の回復=**10 tick ごとに −1**(30 分で −3 = 旧 休憩 1 回ぶん・``REST_FATIGUE_RELIEF``)。
-#: ``activity_columns`` のラン(語彙 v3 × ``--activity on``)だけで効く=v1/v2 は 1 バイトも動かない。
-#: expedient(感度腕 5/10/20 tick)。
-ACTIVITY_REST_PERIOD_TICKS: Final[int] = 10
-ACTIVITY_REST_FATIGUE_RELIEF: Final[int] = 1
 
 # ---------------------------------------------------------------- C9b 対象と注意(G3/G4/G7)
 #
@@ -336,12 +344,24 @@ def _require_thawed(*states: object) -> None:
     Raises:
         ValueError: 凍結中の状態へ ``ufunc.at`` を撃とうとした(=書き込み窓の外)。
 
+    1-0 段 A(草案 §2-6 の A ②・K1): 系ごとの許可(``core.write_permit``)では解除口が許可の列だけを解くので、
+    状態の物の ``frozen`` だけでは宣言の外の列への ``ufunc.at`` を止められない。引数に**書く配列そのもの**も渡し、
+    配列ごとに ``flags.writeable`` を見る(``economy/ops.py`` の ``transfer``=旧 ``_apply_cash`` と同じ形)。配列は numpy の配列、
+    状態の物は ``frozen`` を持つ物として見分ける。
+
     Note:
         静的側の相方は ``tests/engine/test_add_at_guard.py``
-        (``world.``/``agents.`` 由来の配列への ``np.<ufunc>.at`` は resolve.py にしか書けない)。
+        (``world.``/``agents.`` 由来の配列への ``np.<ufunc>.at`` は resolve.py にしか書けない・直前の
+        ``_require_thawed`` が書く配列を引数に持つ)。
     """
     for s in states:
-        if bool(getattr(s, "frozen", False)):
+        if isinstance(s, np.ndarray):
+            if not s.flags.writeable:
+                raise ValueError(
+                    "読み取り専用の列へ ufunc.at(np.add.at 等)を撃とうとした。"
+                    "この系の書く列の宣言の外(1-0 段 A・草案 §2-6)か、書き込み窓の外"
+                )
+        elif bool(getattr(s, "frozen", False)):
             raise ValueError(
                 "凍結中の状態へ ufunc.at(np.add.at 等)を撃とうとした。"
                 "書き込みは resolve の writable() 窓の中だけ(運用設計書 §2.2)"
@@ -458,6 +478,9 @@ class ResolveOutcome:
     n_focus_lost: int = 0
     #: **実距離**で成立した会話招待の件数(G7・node/同一セル代理のランでは 0)。
     n_talk_by_distance: int = 0
+    #: 〔第 2 期 2-2 段 11a〕腕 ``--proximity distance`` の判定の規則(``engine.proximity.ProximityRule``)。``None``
+    #: (既定の腕 cell)では 1 分岐も通らない。会話の開始の判定を「同じ層・距離 ≤ d、または同じ B5 の単位」にする。
+    proximity: Any = None
     #: 語彙 v3「並ぶ」を食事/購入へ委譲した件数(第275 #2)。v1/v2 では 0。
     n_queue_to_eat: int = 0
     n_queue_to_buy: int = 0
@@ -470,6 +493,10 @@ class ResolveOutcome:
     leave_conversing: list = field(default_factory=list)
     #: 9a: 退去の効果の切替口(False=第301 以前=IDLE 化と会話相手の解除だけ=旧 golden の再現)。
     leave_effect: bool = True
+    #: 〔第 2 期 2-4 V3〕移動の意図で歩き出した体の在席の印を解く(``engine.seat_release``・既定 walk=True・切替口 legacy=False)。
+    seat_release_walk: bool = False
+    #: 〔第 2 期 2-4 V3〕歩き出しで解いた在席の印の数(診断)。
+    n_seat_released_walk: int = 0
 
     def add_result(self, code: int, n: int) -> None:
         if n:
@@ -484,6 +511,7 @@ def initialize(
     *,
     day_index: int = 0,
     ledger: LedgerBundle | None = None,
+    body: Any = None,
 ) -> None:
     """個体を自宅セルに置き、所持金・種別・内受容の初期段を設定する(**ランの最初に1回**)。
 
@@ -491,10 +519,12 @@ def initialize(
 
     ``ledger`` を渡した場合、初期財布は**直接代入ではなく外界からの transfer**で入れる
     (境界・経済設計書 §2.3 ex nihilo 禁止)。金額は同じなので状態ハッシュは変わらない。
-    """
-    from shibuya.engine.change_detect import INTERO_UP_EDGES
 
+    〔第 3 期 3-5〕刻み 0 の空腹・疲れ・暑さと段(D18)は本人の体の層の口 ``BodyModel.initial``(``body`` を渡さない
+    呼び手は同じ値の ``engine.body.rules.initial_values``)が返し、ここは書くだけ(値は前と同じ)。
+    """
     n = agents.n
+    init = body.initial(n) if body is not None else _BODY.initial_values(n)
     with agents.writable(), world.writable():
         home = np.asarray(schedule.home_cell, dtype=np.int64)[:n]
         # I6 −1 ガード(D-66): 域外居住者は ``home_cell < 0`` のまま来る(計画実行層が
@@ -523,19 +553,11 @@ def initialize(
         else:
             agents.registry.money[:] = money0
         agents.registry.activity[:] = int(Activity.SLEEPING)
-        agents.registry.hunger[:] = 2
-        agents.registry.fatigue[:] = 2
-        agents.registry.thermal[:] = 5
-        for value_field, stage_field in (
-            ("hunger", "hunger_stage"),
-            ("fatigue", "fatigue_stage"),
-            ("thermal", "thermal_stage"),
-        ):
-            v = agents.registry.field(value_field)
-            stage = np.zeros(n, dtype=np.int8)
-            for e in INTERO_UP_EDGES:
-                stage += (v >= e).astype(np.int8)
-            agents.registry.field(stage_field)[:] = stage
+        agents.registry.hunger[:] = init.hunger
+        agents.registry.fatigue[:] = init.fatigue
+        agents.registry.thermal[:] = init.thermal
+        for stage_field in ("hunger_stage", "fatigue_stage", "thermal_stage"):
+            agents.registry.field(stage_field)[:] = init.stages[stage_field]
         world.cells.density[:] = world.compute_density(agents.registry.cell)
         world.cells.density_stage[:] = world.density_stage()
         world.cells.open_count[:] = world.open_count_per_cell(0)
@@ -572,12 +594,11 @@ def set_plan_state(
     agents: AgentState,
     agent_id=None,
     *,
-    activity=None,
     flags=None,
     flags_set: int | None = None,
     flags_clear: int | None = None,
 ) -> None:
-    """``plan_activity`` / ``plan_flags``(D-66 計画実行層の 2 欄)への**唯一の書き込み口**。
+    """``plan_flags``(D-66 計画実行層の欄)への**唯一の書き込み口**(〔第330・RET〕K15 で ``plan_activity`` を消した)。
 
     欄は ``AgentState(plan_columns=True)`` のランにしか無い(帰無腕は欄ごと無い)ので、
     **欄が無ければ黙って何もしない**=帰無腕・既存テストは 1 バイトも動かない。
@@ -585,7 +606,6 @@ def set_plan_state(
     Args:
         agents: 個体状態。
         agent_id: 書く体(``None``=全体に一括代入)。
-        activity: ``ACTIVITY_WORDS`` の索引(``agent_id`` と同じ長さかスカラー)。
         flags: ``plan_flags`` をそのまま置き換える値。
         flags_set / flags_clear: 立てる/落とすビット(``FLAG_*``)。
 
@@ -594,18 +614,12 @@ def set_plan_state(
         ``resolve`` 以外から行わない規律(運用設計書 §2.2)に合わせてここに置く。
     """
     r = agents.registry
-    if "plan_activity" not in r.arrays:
+    if "plan_flags" not in r.arrays:
         return
     a = None if agent_id is None else np.asarray(agent_id, dtype=np.int64).ravel()
     if a is not None and a.size == 0:
         return
     with agents.writable():
-        if activity is not None:
-            v = np.asarray(activity, dtype=np.int8)
-            if a is None:
-                r.plan_activity[:] = v
-            else:
-                r.plan_activity[a] = v
         if flags is not None:
             v = np.asarray(flags, dtype=np.int8)
             if a is None:
@@ -814,8 +828,8 @@ def set_refractory(
             return
     until = (int(tick) + tab[c]).astype(np.int32)
     with agents.writable():
-        _require_thawed(agents)
         cur = agents.registry.refractory_until
+        _require_thawed(agents, cur)
         np.maximum.at(cur, (a, c), until)
 
 
@@ -1071,7 +1085,6 @@ def fail_intent(agents: AgentState, agent_id, code: ResultCode, tick: int) -> No
         r.last_action[a] = r.intent_action[a]
         r.last_result[a] = int(code)
         r.last_result_tick[a] = int(tick)
-        r.fail_streak[a] = np.minimum(r.fail_streak[a].astype(np.int16) + 1, 255).astype(np.uint8)
         moving = a[r.activity[a] == int(Activity.MOVING)]
         r.activity[moving] = int(Activity.IDLE)
         r.target_node[a] = -1
@@ -1098,8 +1111,12 @@ def relabel_intent_failure(agents: AgentState, agent_id, action=None) -> None:
 
 
 # ---------------------------------------------------------------- 身体の自然変動
-def advance_body(agents: AgentState, tick: int, energy: Any = None) -> None:
+def advance_body(agents: AgentState, tick: int, energy: Any = None, body: Any = None) -> None:
     """内受容 3 変数の自然変動(**C4 の世界過程が入るまでの駆動源**・expedient)。
+
+    〔第 3 期 3-5〕値は本人の体の層が返す: ``body``(``engine.body.BodyModel``)を渡したランは ``body.step("interoception",
+    …)``(腕 sweep=全員を見る・腕 reserve=TM5 の予約の来た体と入力の変わった体だけ)、渡さない呼び手は同じ値の
+    ``engine.body.rules.interoception``(全員を見る版)。ここは返った値を書くだけ(式・値・型は下の段落のまま=前と同じ)。
 
     **二層の段 2(第275 親の決め #1)**: ``activity_columns`` のランでは、活動の種別が
     在店/その場 で持続中(``activity_until > tick``)・移動/乗車/就寝中でない体の疲労を
@@ -1112,83 +1129,64 @@ def advance_body(agents: AgentState, tick: int, energy: Any = None) -> None:
     (満腹 1 / ふつう 5 / 空腹 8 / とても空腹 10)に書き直す。疲労・休息の規則は変えない。
     ``None``(既定)は従来と 1 バイトも変わらない。
     """
-    body = int(tick) % BODY_TICK_PERIOD == 0
-    rest = bool(getattr(agents, "activity_columns", False)) and (
-        int(tick) % ACTIVITY_REST_PERIOD_TICKS == 0
-    )
-    if energy is None and not (body or rest):
+    ac = bool(getattr(agents, "activity_columns", False))
+    if body is not None:
+        upd = body.step("interoception", agents.registry, int(tick), energy=energy, activity_columns=ac)
+    else:
+        upd = _BODY.interoception(agents.registry, int(tick), energy=energy, activity_columns=ac)
+    if upd is None:
         return
     with agents.writable():
         r = agents.registry
-        if body:
-            if energy is None:
-                r.hunger[:] = np.minimum(r.hunger.astype(np.int16) + 1, 10).astype(np.uint8)
-            r.fatigue[:] = np.minimum(r.fatigue.astype(np.int16) + 1, 10).astype(np.uint8)
-            sleeping = r.activity == int(Activity.SLEEPING)
-            if sleeping.any():
-                r.fatigue[sleeping] = np.maximum(
-                    r.fatigue[sleeping].astype(np.int16) - SLEEP_FATIGUE_RELIEF, 0
-                ).astype(np.uint8)
-        if rest:
-            kind = r.activity_kind
-            act = r.activity
-            resting = (
-                ((kind == int(ActivityKind.IN_SHOP)) | (kind == int(ActivityKind.IN_PLACE)))
-                & (r.activity_until > int(tick))
-                & (act != int(Activity.MOVING))
-                & (act != int(Activity.RIDING))
-                & (act != int(Activity.SLEEPING))
-            )
-            if resting.any():
-                r.fatigue[resting] = np.maximum(
-                    r.fatigue[resting].astype(np.int16) - ACTIVITY_REST_FATIGUE_RELIEF, 0
-                ).astype(np.uint8)
-        if energy is not None:
-            model: EnergyModel = energy.model
-            mets = model.mets_of(
-                r.activity,
-                r.transit_state,
-                r.activity_kind if getattr(agents, "activity_columns", False) else None,
-            )
-            spent = model.expenditure(r.eer_kcal, mets, energy.bmr)
-            r.since_meal_kcal += spent
-            r.energy_balance -= spent
-            r.hunger[:] = model.hunger_copy(model.stage_of(r.since_meal_kcal, r.eer_kcal))
+        if upd.fatigue is not None:
+            if upd.fatigue_ids is None:
+                r.fatigue[:] = upd.fatigue
+            else:
+                r.fatigue[upd.fatigue_ids] = upd.fatigue
+        if upd.hunger is not None:
+            if upd.hunger_ids is None:
+                r.hunger[:] = upd.hunger
+            else:
+                r.hunger[upd.hunger_ids] = upd.hunger
+        if upd.spent is not None:
+            r.since_meal_kcal[:] = upd.since_meal  # = 前の値 + 消費(float32 の足し算 1 回=前の ``+=`` と同じ値)
+            r.energy_balance -= upd.spent
 
 
 # ---------------------------------------------------------------- 5 段目 5a エネルギー収支
-def initialize_energy(agents: AgentState, energy: Any, seed: int | str) -> None:
+def initialize_energy(agents: AgentState, energy: Any, seed: int | str, body: Any = None) -> None:
     """体の定数(体重・EER)を抽選し、食後の消費・収支・``hunger`` の写しと段を置く(ラン開始時 1 回)。
 
     ``initialize`` の直後・``freeze`` の前に呼ぶ(``energy_columns`` のランだけ)。``hunger_stage``
     (変化検出の前回段)も写しから組み直す=tick 0 に偽の跨ぎを出さない。
-    """
-    from shibuya.engine.change_detect import INTERO_UP_EDGES
 
+    〔第 3 期 3-5〕食後の消費の初期値・空腹の写しと段(D18)は本人の体の層の口 ``BodyModel.initial(energy=…)``(``body`` を
+    渡さない呼び手は同じ値の ``engine.body.rules.initial_energy_values``)が返し、ここは書くだけ(値は前と同じ)。
+    """
     model: EnergyModel = energy.model
     r = agents.registry
     with agents.writable():
-        weight, eer = model.draw_bodies(r.age, r.sex, seed)
+        weight, eer = model.draw_bodies(r.age, r.sex, seed)  # 10e(E4・K19): 鍵の並べ方
         r.weight_kg[:] = weight
         r.eer_kcal[:] = eer
-        r.since_meal_kcal[:] = model.initial_since_meal(eer)
+        init = (body.initial(energy=energy, eer=eer) if body is not None
+                else _BODY.initial_energy_values(energy, eer))
+        r.since_meal_kcal[:] = init.since_meal
         r.energy_balance[:] = 0.0
-        r.hunger[:] = model.hunger_copy(model.stage_of(r.since_meal_kcal, r.eer_kcal))
-        stage = np.zeros(r.hunger.size, dtype=np.int8)
-        for e in INTERO_UP_EDGES:  # 段の刻み 3 本ぶん(体数には比例しない)
-            stage += (r.hunger >= e).astype(np.int8)
-        r.hunger_stage[:] = stage
+        r.hunger[:] = init.hunger
+        r.hunger_stage[:] = init.stages["hunger_stage"]
     if model.rate == "bmr":
         energy.bmr = model.bmr_kcal(r.age, r.sex, r.weight_kg).astype(np.float32)
 
 
 def _tick_minute(energy: Any, tick: int) -> int:
-    return int(int(tick) * float(energy.model.minutes_per_tick)) % 1440
+    return int(int(tick) * float(energy.model.minutes_per_tick)) % MINUTES_PER_DAY
 
 
 def _energy_meal(
     r, ids: np.ndarray, tick: int, energy: Any, *, kind: str,
     slots: np.ndarray | None = None, from_row: np.ndarray | None = None,
+    deferred: np.ndarray | None = None,
 ) -> None:
     """食事の摂取(K7 (a)): 時間帯の比 × EER を収支へ・``since_meal=0``・写しを満腹へ。"""
     ids = np.asarray(ids, dtype=np.int64)
@@ -1202,10 +1200,16 @@ def _energy_meal(
         share = model.meal_share_for_slot(r.age[ids], r.sex[ids], slots)
     kcal = (share * r.eer_kcal[ids].astype(np.float64)).astype(np.float32)
     r.since_meal_kcal[ids] = 0.0
+    if getattr(energy, "meal_reset", None) is not None:  # 第2波 §2B Q-2B-6 (ii): 食事で per_hour の門の H を 0 に
+        energy.meal_reset[ids] = 0.0
     r.energy_balance[ids] += kcal
     r.hunger[ids] = model.hunger_copy(model.stage_of(r.since_meal_kcal[ids], r.eer_kcal[ids]))
-    energy.note(kind, ids, minute, float(kcal.astype(np.float64).sum()), slots=slots,
-                from_row=from_row)
+    if deferred is None:
+        energy.note(kind, ids, minute, float(kcal.astype(np.float64).sum()), slots=slots,
+                    from_row=from_row)
+    else:
+        energy.note(kind, ids, minute, float(kcal.astype(np.float64).sum()), slots=slots,
+                    from_row=from_row, deferred=deferred)
 
 
 def _energy_snack(r, buyers: np.ndarray, bought: np.ndarray, tick: int, energy: Any) -> None:
@@ -1238,18 +1242,45 @@ def _energy_snack(r, buyers: np.ndarray, bought: np.ndarray, tick: int, energy: 
 
 def energy_out_of_area_meal(
     agents: AgentState, energy: Any, agent_id: np.ndarray, slots: np.ndarray,
-    from_row: np.ndarray, tick: int,
+    from_row: np.ndarray, tick: int, deferred: np.ndarray | None = None,
 ) -> int:
     """範囲外の食事(K9 (a)): 域外に居る体の予定の食事=時間帯の比 × EER・``since_meal=0``。
 
     値(誰がいつ)は ``engine.energy.OutOfAreaMeals.due`` が決める。件数を返す。
+    ``deferred``(第2波 §2B 項 1)=起床時に遅らせた既定の食事の印(診断の内数だけ・摂取は同じ式)。
     """
     a = np.asarray(agent_id, dtype=np.int64)
     if a.size == 0:
         return 0
     with agents.writable():
         _energy_meal(agents.registry, a, tick, energy, kind="meal_out",
-                     slots=np.asarray(slots, dtype=np.int64), from_row=from_row)
+                     slots=np.asarray(slots, dtype=np.int64), from_row=from_row,
+                     deferred=deferred)
+    return int(a.size)
+
+
+def energy_home_meal(
+    agents: AgentState, energy: Any, agent_id: np.ndarray, slots: np.ndarray, tick: int,
+) -> int:
+    """**第2波 §2B 項 2(Q35 (a))** 範囲内の自宅の食事行=予定の実行(``engine.energy.HomeMeals.due``)。
+
+    摂取は K9 と同じ(時間帯の比 × EER・``since_meal=0``・写しを満腹へ)。**金と物は動かさない**
+    (台帳・棚・店の席に触らない)。変化検出の前回段 ``hunger_stage`` も新しい段に合わせる=
+    この食事そのものは内受容の起床(下げ跨ぎ)を作らない(予定の実行は驚きではない・起床を足さない・宣言)。
+    件数を返す。
+    """
+    from shibuya.engine.change_detect import INTERO_UP_EDGES
+
+    a = np.asarray(agent_id, dtype=np.int64)
+    if a.size == 0:
+        return 0
+    with agents.writable():
+        r = agents.registry
+        _energy_meal(r, a, tick, energy, kind="meal_home", slots=np.asarray(slots, dtype=np.int64))
+        stage = np.zeros(a.size, dtype=np.int8)
+        for e in INTERO_UP_EDGES:  # 段の刻み 3 本ぶん(体数には比例しない)
+            stage += (r.hunger[a] >= e).astype(np.int8)
+        r.hunger_stage[a] = stage
     return int(a.size)
 
 
@@ -1277,6 +1308,8 @@ def apply(
     energy: Any = None,
     track_events: bool = False,
     leave_effect: bool = True,
+    proximity: Any = None,
+    seat_release_walk: bool = False,
 ) -> ResolveOutcome:
     """Phase C: 確定した intent だけを世界へ適用する(**唯一の書き手**)。
 
@@ -1314,6 +1347,12 @@ def apply(
             「近づく」の目的ノードにだけ効く(焦点は持てないので ``TARGET_GONE`` も出ない)。
         talk_by_distance: **C9b G7**。``True`` で会話の成立判定が「同一セル代理」から
             ``TALK_OPEN_METERS``(2 m)の実距離になる。``False``(既定)は現行のまま。
+        seat_release_walk: 〔第 2 期 2-4 V3〕``True`` で移動の意図(``_apply_move``)で歩き出した体の在席の印
+            (``poi_ref``/``poi_since``)を解く(``engine.seat_release`` の腕 walk=CLI の既定)。``False``(この関数の既定
+            =直に呼ぶ試験・切替口 legacy)は 2-4 より前の挙動(退去・乗車・滞在の上限でしか解かない)。
+        proximity: 〔第 2 期 2-2 段 11a〕腕 ``--proximity distance`` の判定の規則(``engine.proximity.ProximityRule``)。
+            渡すと会話の開始の判定が「舞台の中・同じ層・距離 ≤ d、または同じ B5 の単位」になる(``talk_by_distance``
+            より強い)。``None``(既定)は 1 分岐も通らない。
         track_visits: **4 段目(M13 訪問)**。``True`` で購入/食事の成立した行(体, POI)を
             ``ResolveOutcome.visit_agents``/``visit_pois`` に控える(``engine.familiarity`` が読む)。
             控えるだけ=世界は変えない。
@@ -1347,6 +1386,8 @@ def apply(
         energy=energy,
         track_events=bool(track_events),
         leave_effect=bool(leave_effect),
+        proximity=proximity,
+        seat_release_walk=bool(seat_release_walk),
     )
     r = agents.registry
     with agents.writable(), world.writable():
@@ -1379,6 +1420,10 @@ def apply(
                 kept = intent_kept_by(agents, world, aid[held], code[held], tgt[held])
                 if not bool(kept.all()):
                     _clear_intent_fields(r, aid[held[~kept]])
+
+        # ---- 〔第 2 期 2-1・検収 A1〕経済の段階 2 の腕(既定 off=通らない): 金に触れる行為の呼の id を台帳に控える ----
+        # (列の捌き・購入・食事より前=この刻みの答えの支払いと原因に使う)
+        _stage2_note_calls(plan_confirmed, out)
 
         # ---- D-113 ③ 満席の列の捌き(第268): 席が空いた分だけ並んだ順に入れる ----
         # **新しい意図の適用より前**に置く: 先に並んでいた体が空席を取り、この tick に来た
@@ -1428,10 +1473,16 @@ def apply(
             held = held[r.intent_action[held] != INTENT_NONE]
             if held.size:
                 _clear_intent_fields(r, held)
-            r.fail_streak[la] = np.minimum(r.fail_streak[la].astype(np.int16) + 1, 255).astype(
-                np.uint8
-            )
             out.add_result(ResultCode.LOST_ARBITRATION, int(la.size))
+
+        # ---- 〔第 2 期 2-1〕経済の段階 2 の腕(既定 off=通らない): この刻みに判断した体の引き出し(本人の判断の副の行為) ----
+        if code.size:
+            _acted = code != ENGINE_STEP
+            _stage2_withdraw(
+                agents, aid[_acted], tick, out,
+                call_ids=None if plan_confirmed.call_id is None else plan_confirmed.call_id[_acted],
+                flags=None if plan_confirmed.s2_flags is None else plan_confirmed.s2_flags[_acted],
+            )
 
         # ---- D-51 乗車待ちの捌き(停車中の列車へ FIFO・打ち切り) ----
         # **行動語の適用の後・位置確定の前**に置く: この tick にホームへ着いた体(エンジン継続)と
@@ -1489,7 +1540,6 @@ def _ok(agents: AgentState, aid: np.ndarray, tick: int, out: ResolveOutcome) -> 
     r = agents.registry
     r.last_result[aid] = int(ResultCode.OK)
     r.last_result_tick[aid] = int(tick)
-    r.fail_streak[aid] = 0
     out.add_result(ResultCode.OK, int(aid.size))
 
 
@@ -1501,7 +1551,6 @@ def _fail(
     r = agents.registry
     r.last_result[aid] = int(code)
     r.last_result_tick[aid] = int(tick)
-    r.fail_streak[aid] = np.minimum(r.fail_streak[aid].astype(np.int16) + 1, 255).astype(np.uint8)
     out.add_result(code, int(aid.size))
 
 
@@ -1637,6 +1686,15 @@ def _apply_move(agents, world, aid, tgt, tick, out, schedule) -> None:
             same[good], int(Activity.IDLE), int(Activity.MOVING)
         ).astype(np.int8)
         r.target_node[g] = np.where(same[good], -1, dest_node[good]).astype(np.int32)
+        if out.seat_release_walk:
+            # 〔第 2 期 2-4 V3〕歩き出した体(行き先のノードへ向かう=MOVING)の在席の印を解く=店の席が空く
+            # (2-2 の探り=在席 × 刻みの 4.3% が店のセルの外)。到着済み(same)の体は動かないので解かない。
+            walker = g[~same[good]]
+            seated = walker[r.poi_ref[walker] >= 0]
+            if seated.size:
+                r.poi_ref[seated] = -1
+                r.poi_since[seated] = -1
+                out.n_seat_released_walk += int(seated.size)
         # 「近づく」の対象を**焦点として保持**する(着いたときに居るかを見る=``TARGET_GONE``)。
         # 距離は問わない(遠くの目印に近づくのは正当)=``require_near=False``。
         _set_focus(agents, world, g, tick, out, require_near=False)
@@ -2117,6 +2175,62 @@ def _apply_alight(agents, world, aid, tgt, tick, out, schedule) -> None:
     _ok(agents, win, tick, out)
 
 
+def _stage2_money(out: ResolveOutcome) -> Any:
+    """〔第 2 期 2-1〕経済の段階 2 の中身(``economy.stage2.MoneyStage2``・腕の無いランは ``None``)。"""
+    led = out.ledger
+    money = getattr(led, "money", None) if led is not None else None
+    return getattr(money, "stage2", None) if money is not None else None
+
+
+def _payable(agents: AgentState, out: ResolveOutcome, aid: np.ndarray, price: np.ndarray) -> np.ndarray:
+    """払えるか。腕の無いラン=所持金 ≧ 価格(今のまま)/〔2-1〕支払い(payment)の部品=現金か口座のどちらかで足りる。"""
+    s2 = _stage2_money(out)
+    if s2 is not None and s2.part("payment"):
+        return np.asarray(out.ledger.money.can_pay_many(aid, price), dtype=bool)
+    return agents.registry.money[aid].astype(np.int64) >= price
+
+
+def _stage2_note_calls(batch: IntentBatch, out: ResolveOutcome) -> None:
+    """〔第 2 期 2-1・検収 A1〕意図の行のうち LLM の答えの行為が金に触れる行(購入・食事・並ぶ=``S2_MONEY_ACT``・遠い店へ
+    歩く移動に変えた行も含む)の呼の id と支払いの方法の答え(``S2_PAY_*``)を台帳に控える(``Ledger.note_calls_many``)。
+    購入・食事の金の行の原因 ``LlmCall(call_id)``(着いて実行する意図・列から席へ入った体も同じ呼)。腕の無いランは通らない。"""
+    s2 = _stage2_money(out)
+    if s2 is None or batch.call_id is None or batch.s2_flags is None or len(batch) == 0:
+        return
+    f = batch.s2_flags.astype(np.int64)
+    has = np.fromiter((c is not None for c in batch.call_id), dtype=bool, count=len(batch))
+    m = ((f & S2_MONEY_ACT) != 0) & has
+    if not m.any():
+        return
+    pay = np.where((f & S2_PAY_CASH) != 0, 0, np.where((f & S2_PAY_ACCOUNT) != 0, 1, -1))
+    out.ledger.money.note_calls_many(batch.agent_id[m].astype(np.int64), batch.call_id[m], pay[m])
+
+
+def _stage2_withdraw(agents: AgentState, aid: np.ndarray, step: int, out: ResolveOutcome, *,
+                     call_ids: np.ndarray | None = None, flags: np.ndarray | None = None) -> None:
+    """〔第 2 期 2-1〕引き出し(withdraw の部品): この刻みに判断した体のうち、営業中の ATM・銀行の支店のセルに居る体を台帳に
+    渡す。下ろすか・いくらかは本人の判断(``MoneyStage2.withdraw``=mock と古典の規則・expedient)。世帯の現金は基本操作
+    ``economy.ops.transfer`` が書く(帳簿の口 ``withdraw_many``=口の名の表の外=``apply`` の閉包は ``agents.money`` を
+    もう持つ=試験 ``tests/economy/stage2/test_stage2_writers.py``)。"""
+    s2 = _stage2_money(out)
+    if s2 is None or not s2.part("withdraw") or aid.size == 0:
+        return
+    from shibuya.engine import economy_stage2 as _ES2
+
+    open_cells = _ES2.atm_open_cells(s2.plan, int(step))
+    if open_cells.size == 0:
+        return
+    cell = agents.registry.cell[aid].astype(np.int64)
+    here = (cell >= 0) & (cell < open_cells.size)
+    here[here] = open_cells[cell[here]]
+    who = aid[here]
+    if who.size:
+        # 〔検収 A1〕口が「お金を下ろす」を選んだ行(``S2_WITHDRAW``)は規則を通さない・呼のある行の原因は LlmCall(call_id)
+        wanted = None if flags is None else (np.asarray(flags, dtype=np.int64)[here] & S2_WITHDRAW) != 0
+        cid = None if call_ids is None else np.asarray(call_ids, dtype=object)[here]
+        out.ledger.money.withdraw_many(who, int(step), cause=s2.plan.cause("atm"), wanted=wanted, call_ids=cid)
+
+
 def _apply_buy(agents, world, aid, tgt, tick, out, schedule) -> None:
     """購入: 営業中・在庫>0・所持金≧価格 → 在庫−1・所持金−価格・所持+1・**売上+同額**。
 
@@ -2133,7 +2247,7 @@ def _apply_buy(agents, world, aid, tgt, tick, out, schedule) -> None:
     in_stock = is_open & (world.pois.stock[poi] > 0)
     if led is not None and led.goods is not None and in_stock.any():
         in_stock = in_stock & led.goods.can_sell(poi)  # 棚(SKU 別)が真値
-    can_pay = in_stock & (r.money[aid].astype(np.int64) >= price)
+    can_pay = in_stock & _payable(agents, out, aid, price)  # 〔2-1〕腕の無いランは所持金 ≧ 価格(今のまま)
 
     _fail(agents, aid[~has_target], ResultCode.BAD_TARGET, tick, out)
     _fail(agents, aid[has_target & ~is_open], ResultCode.CLOSED, tick, out)
@@ -2185,13 +2299,16 @@ def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
             buyers, bought, paid = buyers[fits], bought[fits], paid[fits]
             if buyers.size == 0:
                 return
+    # 〔第 2 期 2-4 V4〕レジの税(段階 2 の税の部品が動くランだけ・ほかは 0)=店の売上の写しは税抜き
+    tax = np.zeros(buyers.size, dtype=np.int64)
     if led is not None and led.money is not None:
         status = led.money.purchase_many(buyers, bought, paid, tick)
+        tax = _purchase_tax(led.money, buyers.size)
         ok = np.asarray(status) == 0
         if not ok.all():
             _fail(agents, buyers[~ok], ResultCode.MONEY_SHORT, tick, out)
             out.n_ledger_rejected += int((~ok).sum())
-            buyers, bought, paid = buyers[ok], bought[ok], paid[ok]
+            buyers, bought, paid, tax = buyers[ok], bought[ok], paid[ok], tax[ok]
             if buyers.size == 0:
                 return
     else:
@@ -2216,17 +2333,18 @@ def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
         if not sold.all():
             _fail(agents, buyers[~sold], ResultCode.OUT_OF_STOCK, tick, out)
             out.n_ledger_rejected += int((~sold).sum())
-            buyers, bought, paid = buyers[sold], bought[sold], paid[sold]
+            buyers, bought, paid, tax = buyers[sold], bought[sold], paid[sold], tax[sold]
             if buyers.size == 0:
                 return
         world.pois.stock[bought] = led.goods.aggregate_stock(bought).astype(
             world.pois.stock.dtype
         )
     else:
-        _require_thawed(world)
+        _require_thawed(world, world.pois.stock)
         np.add.at(world.pois.stock, bought, -1)
-    _require_thawed(world)
-    np.add.at(world.pois.revenue, bought, paid)
+    _require_thawed(world, world.pois.revenue)
+    net = paid - tax  # 〔第 2 期 2-4 V4〕税抜き(税の無いランは paid と同じ)
+    np.add.at(world.pois.revenue, bought, net)
     r.holdings[buyers] = np.minimum(r.holdings[buyers].astype(np.int16) + 1, 255).astype(np.uint8)
     if out.energy is None:
         r.hunger[buyers] = np.maximum(
@@ -2245,7 +2363,7 @@ def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
     # 購入の件数は**台帳が通した行だけ**(支払いを却下された行・棚から出なかった行は数えない=
     # 第288 #54 の残りの過大計数の修正。以前は台帳の前の人数を数えていた)。
     out.n_purchases += int(buyers.size)
-    out.revenue_delta += int(paid.sum())
+    out.revenue_delta += int(net.sum())
     if out.track_visits:  # 4 段目(M13): 成立した行だけ(台帳が通した行)
         out.visit_agents.append(np.asarray(buyers, dtype=np.int64).copy())
         out.visit_pois.append(np.asarray(bought, dtype=np.int64).copy())
@@ -2280,7 +2398,7 @@ def _apply_eat(agents, world, aid, tgt, tick, out, schedule) -> None:
         in_eatery = in_eatery & np.asarray(world.eatery_mask, dtype=bool)[poi]
     is_open = in_eatery & world.open_mask(tick)[poi]
     price = world.pois.price[poi].astype(np.int64)
-    can_pay = is_open & (r.money[aid].astype(np.int64) >= price)
+    can_pay = is_open & _payable(agents, out, aid, price)  # 〔2-1〕腕の無いランは所持金 ≧ 価格(今のまま)
 
     _fail(agents, aid[~in_eatery], ResultCode.NOT_IN_EATERY, tick, out)
     _fail(agents, aid[in_eatery & ~is_open], ResultCode.CLOSED, tick, out)
@@ -2307,24 +2425,36 @@ def _apply_eat(agents, world, aid, tgt, tick, out, schedule) -> None:
     _complete_eat(agents, world, aid[win], poi[win], price[win], tick, out)
 
 
+def _purchase_tax(money: Any, n: int) -> np.ndarray:
+    """〔第 2 期 2-4 V4〕直前の ``purchase_many`` の行ごとのレジの税(``Ledger.last_purchase_tax``)。口の無い金の台帳
+    (試験の偽の台帳・段階 2 より前の形)は 0=売上の写しは支払いのまま。"""
+    fn = getattr(money, "last_purchase_tax", None)
+    if fn is None:
+        return np.zeros(int(n), dtype=np.int64)
+    return np.asarray(fn(int(n)), dtype=np.int64)
+
+
 def _complete_eat(agents, world, eaters, shops, paid, tick, out) -> None:
     """食事の完了(支払い・空腹・在店の登録)。``_apply_eat`` の後半を D-113 ③ で関数に
     切り出した(列から席へ入れた体にも同じ完了を使う)。挙動は不変。"""
     r = agents.registry
     led = out.ledger
+    tax = np.zeros(eaters.size, dtype=np.int64)  # 〔第 2 期 2-4 V4〕レジの税(税の部品が動くランだけ)
     if led is not None and led.money is not None:
         status = led.money.purchase_many(eaters, shops, paid, tick)
+        tax = _purchase_tax(led.money, eaters.size)
         ok = np.asarray(status) == 0
         if not ok.all():
             _fail(agents, eaters[~ok], ResultCode.MONEY_SHORT, tick, out)
             out.n_ledger_rejected += int((~ok).sum())
-            eaters, shops, paid = eaters[ok], shops[ok], paid[ok]
+            eaters, shops, paid, tax = eaters[ok], shops[ok], paid[ok], tax[ok]
             if eaters.size == 0:
                 return
     else:
         r.money[eaters] = (r.money[eaters].astype(np.int64) - paid).astype(np.int32)
-    _require_thawed(world)
-    np.add.at(world.pois.revenue, shops, paid)
+    _require_thawed(world, world.pois.revenue)
+    net = paid - tax  # 〔第 2 期 2-4 V4〕税抜き(税の無いランは paid と同じ)
+    np.add.at(world.pois.revenue, shops, net)
     if out.energy is None:
         r.hunger[eaters] = np.maximum(
             r.hunger[eaters].astype(np.int16) - EAT_HUNGER_RELIEF, 0
@@ -2343,7 +2473,7 @@ def _complete_eat(agents, world, eaters, shops, paid, tick, out) -> None:
         out.visit_agents.append(np.asarray(eaters, dtype=np.int64).copy())
         out.visit_pois.append(np.asarray(shops, dtype=np.int64).copy())
     out.meal_yen += int(paid.sum())
-    out.revenue_delta += int(paid.sum())
+    out.revenue_delta += int(net.sum())
     _ok(agents, eaters, tick, out)
 
 
@@ -2434,15 +2564,21 @@ def set_conversing(agents: AgentState, inviters, invitees) -> None:
 _UNADDRESSABLE: Final[tuple[int, ...]] = (int(Activity.CONVERSING), int(Activity.SLEEPING))
 
 
-def talk_within_reach(agents, a, b, *, by_distance: bool) -> np.ndarray:
+def talk_within_reach(agents, a, b, *, by_distance: bool, rule: Any = None) -> np.ndarray:
     """会話が届くか(**C9b G7**)。``by_distance=False`` は現行の「同一セル代理」。
 
     ``True`` のときは同一セルに加えて ``距離 ≤ TALK_OPEN_METERS``(2 m)を課す
     (行動契約書 §3 開始ゲート「同一セル ∧ 距離≦d_talk」の後半を**実距離で**満たす)。
     同一セルを残すのは層(UG/GL/DECK)を跨いだ 2 m を成立させないため。
 
+    〔第 2 期 2-2 段 11a〕``rule``(``engine.proximity.ProximityRule``・腕 ``--proximity distance``)を渡すと、同じセルの
+    条件を外し「舞台の中・同じ層・距離 ≤ d、または同じ B5 の単位」で見る(``by_distance`` より強い)。``None``(既定)は
+    今のまま。
+
     逐次ループ宣言(P4): なし。
     """
+    if rule is not None and rule.is_distance:
+        return rule.reach(agents, a, b)
     r = agents.registry
     ca = np.asarray(r.cell, dtype=np.int64)[a]
     cb = np.asarray(r.cell, dtype=np.int64)[b]
@@ -2464,9 +2600,9 @@ def _apply_talk(agents, world, aid, tgt, tick, out, schedule) -> None:
     has = (tgt >= 0) & (tgt < agents.n) & (tgt != aid)
     partner = np.clip(tgt, 0, max(0, agents.n - 1))
     same_cell = has & talk_within_reach(
-        agents, aid, partner, by_distance=out.talk_by_distance
+        agents, aid, partner, by_distance=out.talk_by_distance, rule=out.proximity
     )
-    if out.talk_by_distance:
+    if out.talk_by_distance or out.proximity is not None:  # 第 2 期 2-2: 腕 distance も実距離の成立を数える
         out.n_talk_by_distance += int(np.count_nonzero(same_cell))
     pact = r.activity[partner]
     addressable = same_cell & ~np.isin(pact, _UNADDRESSABLE)
@@ -2605,11 +2741,13 @@ def restock(
     tick: int,
     *,
     slot: np.ndarray | None = None,
+    cause: Any = None,
 ) -> np.ndarray:
     """店舗補充・納品(外界→棚)。代金は域外仕入(店舗→外界)で払う。
 
     起動するのは店員・納品ドライバーの行動(C4-subH)。ここは**世界への書き戻し口**として
-    ``world.pois.stock``(棚の写し)を更新する役だけを持つ。
+    ``world.pois.stock``(棚の写し)を更新する役だけを持つ。〔第 1 期 1-9〕``cause``(1-3 の原因)は代金の
+    移動(基本操作 ``economy.ops.transfer``)に渡す(出来事を書き、金と物の台帳の行に id の目印を付ける)。
 
     Returns:
         行ごとの成否 bool。
@@ -2617,7 +2755,8 @@ def restock(
     if ledger.goods is None:
         raise ValueError("物の台帳が注入されていない")
     s = np.asarray(stores, dtype=np.int64).ravel()
-    ok = ledger.goods.restock_many(s, qty, tick, money=ledger.money, slot=slot)
+    kw = {} if cause is None else {"cause": cause}
+    ok = ledger.goods.restock_many(s, qty, tick, money=ledger.money, slot=slot, **kw)
     with world.writable():
         touched = s[np.asarray(ok)]
         if touched.size:
@@ -2678,7 +2817,7 @@ def consume(
         have = holdings[a].astype(np.int64) >= q
         ok = np.asarray(ledger.goods.consume_many(sku, np.where(have, q, 0), tick))
         if ok.any():
-            _require_thawed(agents)
+            _require_thawed(agents, holdings)
             np.add.at(holdings, a[ok], (-q[ok]).astype(holdings.dtype))
     return ok
 
@@ -2695,16 +2834,21 @@ def collect_waste(
 # ---------------------------------------------------------------- C4: 世界過程の書き戻し口
 # 世界過程設計書 §3 実装原則3「世界状態への書き込み口は1本(答申原則5=resolve 経由)。
 # **世界過程も例外にしない**」。``engine/processes/*`` は状態を直接触らず、以下の口だけを呼ぶ。
-def set_thermal(agents: AgentState, thermal) -> None:
+def set_thermal(agents: AgentState, thermal, indices=None) -> None:
     """体感温度(内受容3変数の1本)を一括代入する(知覚契約書 §3 内受容・日陰係数0.86)。
 
     Args:
         agents: 個体状態。
         thermal: ``(n,)`` の 0-10 値(呼び出し側で丸め・クリップ済み)。
+        indices: 〔第 3 期 3-5〕書く体(``None``=全員=前と同じ)。TM5 の予約の腕(``engine.body``)は値の変わりうる体だけを
+            渡す(``thermal`` は同じ並び)。
     """
     v = np.asarray(thermal)
     with agents.writable():
-        agents.registry.thermal[:] = np.clip(v, 0, 10).astype(np.uint8)
+        if indices is None:
+            agents.registry.thermal[:] = np.clip(v, 0, 10).astype(np.uint8)
+        else:
+            agents.registry.thermal[np.asarray(indices, dtype=np.int64)] = np.clip(v, 0, 10).astype(np.uint8)
 
 
 def set_notice_state(pstate, heading, task_flag, indices=None) -> None:
@@ -2712,7 +2856,8 @@ def set_notice_state(pstate, heading, task_flag, indices=None) -> None:
 
     ``perception.state.PerceptionState`` は ``agents``/``world`` と同じ凍結規律を持ち、
     ``writable()`` を呼んでよいのは本ファイルだけ(``tests/engine/test_two_phase.py``)。
-    p_notice(知覚契約書 §3.1)の ``m_ecc``/``m_load`` はこの 2 byte/体を読む。
+    p_notice(知覚契約書 §3.1)の ``m_ecc`` は向きを読む。課題従事フラグは受けるだけ(〔第 1 期 1-2〕負荷の係数 ``m_load`` は
+    消した=確率に効かない)。
 
     Args:
         pstate: ``PerceptionState``(型は import しない=engine→perception の依存を増やさない)。
@@ -2994,6 +3139,54 @@ def begin_exit_walk(agents: AgentState, world: World, rail: Any, agent_ids, line
     return route_ok, at_plat, ~(at_plat | route_ok)
 
 
+def begin_walk_to(agents: AgentState, world: World, agent_ids, cells
+                  ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """〔第 6 期 6-2 カレンダー 1b〕本人が決めた行き先のセルへ歩き出す(体の基本動作「歩く」=決定 10-12 §1-4 D1)。
+
+    行き先はセルの代表ノード(``cell_rep_node``)。在圏(``transit_state == 0``)で会話中でない体だけ歩かせる
+    (``activity=MOVING``・``target_node``=行き先・乗車と就寝の意図は落とす=``begin_planned_sleep`` の歩きの枝と同じ形=
+    着いた後の世界の続きは ``_apply_engine_step``)。いつ・どこへは本人の判断(``engine.calendar_self``)が決める。
+
+    Returns:
+        入力と同じ並びの 4 つの bool マスク ``(歩き出した, もう着いている, 会話中=始められない, 歩けない)``
+        (歩けない=在圏でない・セルが無い・経路が無い)。
+    Note:
+        逐次ループ宣言(P4): なし(経路の配列問い合わせ 1 回)。
+    """
+    a = np.asarray(agent_ids, dtype=np.int64).ravel()
+    c = np.asarray(cells, dtype=np.int64).ravel()
+    none = np.zeros(a.size, dtype=bool)
+    if a.size == 0:
+        return none, none, none, none
+    if c.size != a.size:
+        raise ValueError(f"行き先の長さが体数と違う({c.size} != {a.size})")
+    with agents.writable():
+        r = agents.registry
+        inside = np.asarray(r.transit_state)[a] == 0
+        act0 = np.asarray(r.activity)[a]
+        ok_cell = (c >= 0) & (c < world.n_cells)
+        busy = inside & ok_cell & (act0 == int(Activity.CONVERSING))
+        free = inside & ok_cell & ~busy
+        dest = np.full(a.size, -1, dtype=np.int64)
+        dest[ok_cell] = np.asarray(world.assets.cell_rep_node, dtype=np.int64)[c[ok_cell]]
+        node = np.asarray(r.node, dtype=np.int64)[a]
+        here = free & (node == dest) & (dest >= 0)
+        need = free & ~here & (dest >= 0) & (node >= 0)
+        good = np.zeros(a.size, dtype=bool)
+        if need.any():
+            nxt = np.asarray(world.graph.route_next_node(node[need], dest[need]), dtype=np.int64)
+            good[np.flatnonzero(need)] = nxt >= 0
+        walk = a[good]
+        if walk.size:
+            r.activity[walk] = int(Activity.MOVING)
+            r.target_node[walk] = dest[good].astype(r.target_node.dtype)
+            r.board_line[walk] = -1
+            r.board_since[walk] = -1
+            r.sleep_pending[walk] = 0
+    fail = ~(good | here | busy)
+    return good, here, busy, fail
+
+
 def clear_board_intent(agents: AgentState, agent_ids) -> None:
     """乗車の意図(``board_line``/``board_since``)を落とす(9a: 計画の退出を即時に切り替えた体)。"""
     a = np.asarray(agent_ids, dtype=np.int64).ravel()
@@ -3017,7 +3210,6 @@ def balk_queue(agents: AgentState, agent_ids, tick: int) -> None:
         r.activity[a] = int(Activity.IDLE)
         r.last_result[a] = int(ResultCode.INTERRUPTED)
         r.last_result_tick[a] = int(tick)
-        r.fail_streak[a] = np.minimum(r.fail_streak[a].astype(np.int16) + 1, 255).astype(np.uint8)
 
 
 def request_open_close(
@@ -3029,8 +3221,15 @@ def request_open_close(
     tick: int,
     *,
     permitted=None,
+    on_unauthorized=None,
 ) -> np.ndarray:
-    """役割行動「開閉店」(行動契約書 §2.2)。権限=当該 POI の担当従業者だけ。
+    """役割行動「開閉店」(行動契約書 §2.2)。権利=当該 POI の担当従業者(権利台帳の ``employ`` の行)。
+
+    〔第 1 期 1-5・CP3・決定 10-12 §1-4〕**権利の無い行も止めない**: 効果(開閉のフラグ)は権利のある行と同じに確定し、
+    結果も ``OK``(行動は起きた)。権利の無い行は ``on_unauthorized(agent_ids, poi_ids)`` に渡す(呼び手の過程が出来事の
+    記録へ「許可のない行動」として書く=``engine.rights.record.record_unauthorized``。印は出来事の記録にだけ=検収 L2)。
+    止めるのは物理と機械の決まった動きだけ(現場に居るかは呼び手の過程が見る)。今の既定(19 構成)で権利の無い行は
+    0 回(1-5 の数え)=結果は変わらない。
 
     Args:
         agents / world: 状態。
@@ -3038,19 +3237,19 @@ def request_open_close(
         poi_ids: 対象 POI。
         want_open: 開けるなら True。
         tick: 現在 tick。
-        permitted: 行ごとの権限 bool(``None`` なら全て権限なし=``NO_PERMISSION``)。
+        permitted: 行ごとの権利 bool(``None`` なら全て権利なし)。
+        on_unauthorized: 権利の無い行の記録の口(``None`` なら記録しない)。
 
     Returns:
-        行ごとの ``ResultCode``(0=OK / 14=権限なし)。
+        行ごとの ``ResultCode``(全部 0=OK。権利の有無は結果に出さない)。
 
     Note:
         効果は PlanSpec の**実績確定**(``ActualLog``)であり、フラグの反映もここで行う。
-        契約書は失敗の意味論を「権限なし」の 1 つだけ与えている。
     """
     a = np.asarray(agent_ids, dtype=np.int64).ravel()
     p = np.asarray(poi_ids, dtype=np.int64).ravel()
     w = np.asarray(want_open, dtype=bool).ravel()
-    out_code = np.full(a.size, int(ResultCode.NO_PERMISSION), dtype=np.int64)
+    out_code = np.full(a.size, int(ResultCode.OK), dtype=np.int64)
     if a.size == 0:
         return out_code
     ok = (
@@ -3058,14 +3257,11 @@ def request_open_close(
     )
     with agents.writable(), world.writable():
         r = agents.registry
-        if ok.any():
-            world.pois.open_now[p[ok]] = w[ok].astype(np.int8)
-            out_code[ok] = int(ResultCode.OK)
-            r.last_result[a[ok]] = int(ResultCode.OK)
-            r.fail_streak[a[ok]] = 0
-        if (~ok).any():
-            r.last_result[a[~ok]] = int(ResultCode.NO_PERMISSION)
+        world.pois.open_now[p] = w.astype(np.int8)  # 1-5: 権利の無い行も止めない(CP3)
+        r.last_result[a] = int(ResultCode.OK)  # 1-5 検収 L2: 行動は起きた=OK(許可のない印は出来事の記録にだけ)
         r.last_result_tick[a] = int(tick)
+    if (~ok).any() and on_unauthorized is not None:
+        on_unauthorized(a[~ok], p[~ok])
     return out_code
 
 
@@ -3134,3 +3330,148 @@ _ACTION_ORDER_BY_VOCAB: Final[Mapping[str, tuple[int, ...]]] = {
 }
 assert set(_ACTION_ORDER_V3) == set(_APPLY_V3)
 assert _REFRACTORY_TICKS.size == N_WAKE_CONDITIONS
+
+
+# ---------------------------------------------------------------- 10d 再開の書き手(状態を戻す)
+def restore_soa(agents: AgentState, world: World, pstate: Any,
+                soa: Mapping[str, Mapping[str, np.ndarray]]) -> int:
+    """10d: 保存した SoA の列(``engine.resume.collect_soa`` の形)を戻す。返り値=戻した列の数。
+
+    戻す列の集合は状態台帳の軸 2 が ``discardable`` でない列(full-hash と同じ範囲)。保存の側と今の側で
+    列の集合・形・型が 1 つでも違えば止める(構成の取り違え=黙って一部だけ戻さない)。値は配列の中身を
+    書き換える(配列そのものは替えない=世帯の現金を共有する金の台帳の行もそのまま同じ値になる)。
+    """
+    from shibuya.engine import state_ledger as SL
+
+    targets: dict[str, tuple[Any, Any]] = {
+        "agents": (agents, agents.registry),
+        "cells": (world, world.cells),
+        "pois": (world, world.pois),
+        "perception": (pstate, None if pstate is None else pstate.registry),
+    }
+    n = 0
+    for place in ("agents", "cells", "pois", "perception"):
+        owner, reg = targets[place]
+        want = set() if reg is None else {c for c in reg.arrays if c not in SL.full_excluded(place)}
+        got = set(soa.get(place, {}))
+        if want != got:
+            raise ValueError(
+                f"保存した SoA の列が今の構成と違う({place}: 足りない {sorted(want - got)[:5]}・"
+                f"余分 {sorted(got - want)[:5]})"
+            )
+        if reg is None:
+            continue
+        with owner.writable():
+            for name, src in soa[place].items():
+                dst = reg.field(name)
+                src = np.asarray(src)
+                if dst.shape != src.shape or dst.dtype != src.dtype:
+                    raise ValueError(
+                        f"保存した SoA の列の形か型が違う({place}.{name}: 今 {dst.dtype}{dst.shape}・"
+                        f"保存 {src.dtype}{src.shape})"
+                    )
+                dst[...] = src
+                n += 1
+    return n
+
+
+def _restore_array_into(dst: np.ndarray, src: np.ndarray) -> None:
+    """配列の中身を書き換える(読み取り専用の台帳の配列も、書く間だけ書き込みを許す)。"""
+    if not dst.dtype.hasobject and dst.tobytes() == src.tobytes():
+        return  # 同じ値(世帯の現金=agents.money と共有する行は SoA を戻した時点で同じ)
+    was = bool(dst.flags.writeable)
+    if not was:
+        try:
+            dst.flags.writeable = True
+        except ValueError as e:  # 書き込めない土台を持つビュー
+            raise ValueError(f"読み取り専用の配列を戻せない: {e}") from None
+    try:
+        dst[...] = src
+    finally:
+        if not was:
+            dst.flags.writeable = False
+
+
+def _restore_value(cur: Any, saved: Any) -> tuple[bool, Any]:
+    """``cur`` の中身を ``saved`` にする。返り値=(``cur`` をそのまま使えたか, 使う値)。
+
+    配列(同じ形と型)・辞書・リスト・集合・deque は**中身を入れ替える**(同じ物を別の持ち主が指していても
+    そろう: 金の台帳の行と ``agents.money``・``run_day`` の局所のリスト など)。辞書は保存の順に入れ直す(挿入順が
+    挙動を決める行=O8・O39)。それ以外の値(整数・組・dataclass・Generator など)は保存の値に差し替える。
+    """
+    from collections import deque
+
+    if isinstance(cur, np.ndarray) and isinstance(saved, np.ndarray):
+        if cur.shape == saved.shape and cur.dtype == saved.dtype:
+            _restore_array_into(cur, saved)
+            return True, cur
+        return False, saved
+    if isinstance(cur, dict) and isinstance(saved, dict) and type(cur) is type(saved):
+        new: dict[Any, Any] = {}
+        for k, v in saved.items():
+            if k in cur:
+                same, val = _restore_value(cur[k], v)
+                new[k] = cur[k] if same else val
+            else:
+                new[k] = v
+        cur.clear()
+        for k, v in new.items():  # 保存の順(挿入順)
+            cur[k] = v
+        return True, cur
+    if isinstance(cur, list) and isinstance(saved, list) and type(cur) is type(saved):
+        out = []
+        for i, v in enumerate(saved):
+            if i < len(cur):
+                same, val = _restore_value(cur[i], v)
+                out.append(cur[i] if same else val)
+            else:
+                out.append(v)
+        cur[:] = out
+        return True, cur
+    if isinstance(cur, (set, deque)) and type(cur) is type(saved):
+        cur.clear()
+        if isinstance(cur, set):
+            cur.update(saved)
+        else:
+            cur.extend(saved)
+        return True, cur
+    return False, saved
+
+
+def restore_items(owners: Mapping[str, Any], items: Mapping[str, Any]) -> int:
+    """10d: 保存した外の状態(``engine.resume.collect_items`` の形)を持ち主の属性へ戻す。返り値=戻した数。
+
+    道筋の集合が今の台帳の ``full_items`` と違えば止める。「持ち主が無い(腕が立っていない)」の印は、今の側も
+    無いときだけ通す(片方だけ無い=構成の取り違え)。〔第 1 期 1-8b〕腕の行は今の側で持ち主の居る行だけ道筋に足す
+    (``SL.arm_items``)=保存と今で腕が違えば道筋の集合の食い違いで止まる。
+    """
+    from shibuya.engine import state_ledger as SL
+    from shibuya.engine.resume import ABSENT_MARK
+    from shibuya.engine.state_hashes import _ABSENT, resolve_item
+
+    paths = [p for _k, p in SL.full_items() + SL.arm_items(owners, behavior=False)]
+    if set(paths) != set(items):
+        raise ValueError(
+            f"保存した外の状態の道筋が今の台帳と違う(足りない {sorted(set(paths) - set(items))[:5]}・"
+            f"余分 {sorted(set(items) - set(paths))[:5]})"
+        )
+    n = 0
+    for path in paths:
+        saved = items[path]
+        cur = resolve_item(owners, path)
+        if isinstance(saved, str) and saved == ABSENT_MARK:
+            if cur is not _ABSENT:
+                raise ValueError(f"保存では持ち主が無いが今はある: {path}(構成が違う)")
+            continue
+        if cur is _ABSENT:
+            raise ValueError(f"保存では値があるが今は持ち主が無い: {path}(構成が違う)")
+        head, _, attr = path.rpartition(".")
+        parent = resolve_item(owners, head) if "." in head else owners[head]
+        same, val = _restore_value(cur, saved)
+        if not same:
+            try:
+                setattr(parent, attr, val)
+            except (AttributeError, dataclasses.FrozenInstanceError) as e:
+                raise ValueError(f"外の状態を戻せない: {path}({e})") from None
+        n += 1
+    return n

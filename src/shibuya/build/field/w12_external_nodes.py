@@ -7,7 +7,27 @@
 出力
   - ``w12_external_nodes.parquet``: 方面別ノード 10(鉄道8・徒歩1・道路1)。
   - ``w12_generation_weights.parquet``: 方面×目的×手段×時刻の重み(用途は上記3つのみ)。
-  - ``w12_timetables.parquet``: 路線×方向×平日/土休の発時刻(メトロ3線=実・他=等間隔 expedient)。
+  - ``w12_timetables.parquet``: 路線×方向×平日/土休の発時刻。**1.2.0(第 2 期 2-3b)から全 8 線が実ダイヤ**
+    (JR・東急=ユーザーが入手した公式の時刻表の読み取り・京王=ODPT チャレンジ枠・銀座線=ODPT オープン枠の
+    静的データ版 1〈9 月改正=世界の時点より後の版〉・半蔵門線/副都心線=今の 7 月の取得)。読み口と方面の
+    写像の表は :mod:`shibuya.build.field.w12_real_timetables`。等間隔の推定は実データの無い線が出たときだけ
+    使う(今は 0 線=ゲート ``equal_interval_lines_remaining``)。旧値(1.1.0=メトロ3線=実・他=等間隔
+    expedient)は :data:`USE_REAL_TIMETABLES` = False で作れる(切替口)。
+  - ``w12_timetable_versions.json``(1.2.0・実ダイヤのときだけ): 線ごとの版の宣言(世界の時点との前後)と
+    入力の md5。``source`` の列とは別に置く。〔1.3.0〕節 ``rail_events`` に発着の表の要約と直通のまとめの規則(conf つき)。
+  - ``w12_rail_events.parquet``(1.3.0・実ダイヤのときだけ): 渋谷の発着の表(発車の行=``w12_timetables`` の行と 1 対 1+
+    到着の行・直通で結んだ列車の鍵・数える印)。:mod:`shibuya.build.field.w12_rail_events`。**エンジンは読まない**
+    (``w12_timetables.parquet`` は 1.2.0 とバイト一致=活性化しても結果は変わらない)。
+
+版の注
+  - 1.1.0(第330 B3): 等間隔ダイヤの丸め。
+  - 1.2.0(第 2 期 2-3b・回答 10-13 の 7・10-13b §2): 等間隔の 5 線(山手線・埼京線〈湘南新宿ラインを畳む〉・
+    東横線・田園都市線・井の頭線)を実ダイヤに置き換え、銀座線を 9 月改正の版に。オフピーク比・ピーク本数の
+    派生は実ダイヤ(全線)から計算し直す(等間隔の線が残ったときだけ使う)。方面ノード・生成の重み・
+    時間帯配分(``time_dist_12``)・流量(``station_flow_12``)は変えない。
+  - 1.3.0(第 2 期 2-3c・計画 2-3c の行): 渋谷の到着(銀座線・半蔵門線・副都心線=ODPT オープン枠の列車時刻表・
+    井の頭線=チャレンジ枠の列車時刻表)と直通の二重計上のまとめ(東急の上り=地下鉄の行と同じ列車・下りの直通の結び・
+    成田エクスプレス ⊂ 湘南新宿ライン・相鉄線直通)を別の表 ``w12_rail_events.parquet`` に。発車の表は変えない。
 
 流量の作り方(D-W14)
   - 鉄道: 大都市交通センサス第12回(2015)駅別発着表(ticket=合計)の **降車 − 当該路線発の改札内乗換**
@@ -22,23 +42,70 @@ expedient
   - 時間帯配分=time_dist_12(2015)を 2021/2018 の総量に当てる(時点混合)。
   - time_dist_12 の ``～6時台`` を 5・6時へ、``0時台～`` を 0・1時へ等分。
   - 目的×手段の構成は全ノード共通(方面別の目的構成は未取得)。
-  - JR・東急・京王=等間隔ダイヤ(F10)。ピーク本数は国交省 資料3(**朝ピークのみ**=夕ピークは
-    朝と同数に置く)、オフピーク比は**平日/土休それぞれの**メトロ実ダイヤから、ダイヤ端は
-    メトロ平日ダイヤから導く。方向別の内訳が非公開なので上下同数と仮定。
-  - 湘南新宿ラインのピーク本数は資料3に行が無い=**ダイヤ生成の対象外**(空欄)。
+  - (1.1.0 まで・切替口 False のとき)JR・東急・京王=等間隔ダイヤ(F10)。ピーク本数は国交省 資料3
+    (**朝ピークのみ**=夕ピークは朝と同数に置く)、オフピーク比は**平日/土休それぞれの**メトロ実ダイヤから、
+    ダイヤ端はメトロ平日ダイヤから導く。方向別の内訳が非公開なので上下同数と仮定。
+  - (1.1.0 まで)湘南新宿ラインのピーク本数は資料3に行が無い=**ダイヤ生成の対象外**(空欄)。
+  - (1.2.0)実ダイヤの宣言(方面の写像・湘南新宿ラインの畳み・土休の臨時の特急を外す・版の推測)は
+    :mod:`shibuya.build.field.w12_real_timetables` の docstring とヘッダの expedients。
 """
 
 from __future__ import annotations
 
+import math
 from collections import Counter, defaultdict
+from fractions import Fraction
 from typing import Any, Sequence
 
 import numpy as np
 
 from . import common as C
+from . import w12_rail_events as RE
+from . import w12_real_timetables as RT
+from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 STAGE = "W12"
-STAGE_VERSION = "1.0.0"
+#: 1.1.0(第330 B3): 等間隔ダイヤの丸めを「小数で積み切り捨て」に直した(時刻表の行が変わる)。
+#: 1.2.0(第 2 期 2-3b): 等間隔の 5 線を実ダイヤに置き換え・銀座線を 9 月改正の版に(時刻表の行が変わる)。
+#: 1.3.0(第 2 期 2-3c): 渋谷の発着の表 ``w12_rail_events.parquet`` を足す(時刻表の行は変えない=バイト一致)。
+STAGE_VERSION = "1.3.0"
+
+#: 〔2-3b〕実ダイヤの切替口。True(既定)=実ダイヤ(:mod:`w12_real_timetables`)。False=1.1.0 の形
+#: (メトロ 3 線=7 月の取得の実ダイヤ・他の 5 線=等間隔)=旧値の再現(時刻表の parquet が 1.1.0 とバイト一致)。
+USE_REAL_TIMETABLES = True
+#: 〔2-3b〕実ダイヤのとき ODPT の駅の時刻表(7 月の取得)から読む線(銀座線は 9 月改正の列車時刻表から)。
+METRO_LINES_KEPT_WITH_REAL: tuple[str, ...] = ("半蔵門線", "副都心線")
+#: 〔2-3b〕実ダイヤのときの版の表のファイル名(資産の隣)。
+VERSIONS_FILE = "w12_timetable_versions.json"
+
+#: 〔2-3b・検収 H1〕実ダイヤの時刻表の expedient(モジュールの表=つなぎの台帳の走査器 ``engine/bridging/scan.py`` の
+#: 形 B が要素を 1 つずつ数える。台帳 ``docs/design/bridging-ledger.json`` の ``EX-build.field.w12_external_nodes-*`` の行)。
+#: 文を書き換えると台帳の行の同定が変わる(試験 ``tests/engine/bridging`` が落ちて知らせる)。
+REAL_TIMETABLE_EXPEDIENTS: tuple[str, ...] = (
+    "実ダイヤ(2-3b)は渋谷の発車の表だけ(到着の表は使わない=着く体も発車の便から降りる・終点の到着は 2-3c)",
+    "方面の上り/下りの写像: JR 山手線 内回り=上り・外回り=下り(線路名称の品川起点による推測・未リサーチ)・"
+    "相鉄線直通の表は題名の『下り』ではなく向き(南行)で上りに",
+    "湘南新宿ラインの便は埼京線に畳む(エンジンの方面ノード E2 と同じ畳み方・線別の定員表に行が無い)",
+    "土休の ◆ 特急 4 本(踊り子・サフィール踊り子)は ODPT に無いので臨時と見て外す(推測)",
+    "JR の版=2026-03-14 改正と同じと推測(頁は JR 時刻表 2026 年 10 月号に基づく・改正日の記載なし)",
+    "銀座線=世界の時点(2026-07-13)より後の版(2026-09-19 改正・回答 10-13b §2 のユーザー決定)",
+    "井の頭線の版=ODPT チャレンジ枠の dct:issued 2025-03-15/17 が世界の時点に効いていたと推測(改正日の欄は空欄)",
+    "東横線・田園都市線の上り=直通の副都心線・半蔵門線と同じ列車(W12 では線ごとに 1 回ずつ現れる=直通の二重は 2-3c)",
+)
+#: 〔2-3c〕発着の表(``w12_rail_events``)の宣言(モジュールの表=走査器の形 B・台帳の ``EX-build.field.w12_external_nodes-*``)。
+#: 規則 ``down_through``(``w12_rail_events.RULE_CONF`` で conf=expedient)の宣言の文。
+RAIL_EVENT_EXPEDIENTS: tuple[str, ...] = (
+    "下りの直通の結び(2-3c): 地下鉄の渋谷着と東急の下りの渋谷発(当駅始発の印の無い便)を同じ暦・同じ行き先ごとに"
+    "時刻の順に 1 対 1 で結ぶ=同じ行き先の便は渋谷で追い越さないと見る(推測・東急の表に列車番号が無い)",
+)
+#: 〔2-3b・検収 H1〕等間隔ダイヤの道の宣言(切替口 False=1.1.0 の時刻表の再現と、実データの無い線だけで足す)。
+#: 1.1.0 の 5 行(台帳 W12#4〜#8=2-3b で removed)をこの 1 行にまとめた。動的な中身(残る線の名・夕ピークの規則)は
+#: notes(``equal_interval_lines``・``equal_interval_pm_rule``・``pm_peak_note``)に書く。
+EQUAL_INTERVAL_TIMETABLE_EXPEDIENTS: tuple[str, ...] = (
+    "等間隔ダイヤ(F10)の道=切替口 USE_REAL_TIMETABLES=False(1.1.0 の時刻表の再現)と実データの無い線だけ"
+    "(2-3b の既定では 0 線)。上下同数・ピーク本数は資料3(山手線は 16-20 本/h の中央 18・夕は朝と同数か引数の表)・"
+    "オフピーク比と初終発は切替口 False でメトロ実ダイヤ(初終発は平日)・残る線では実ダイヤ全線(平日/土休それぞれ)から",
+)
 
 STATION_FLOW = ("realworld", "transport_census", "station_flow_12.json")
 TIME_DIST = ("realworld", "transport_census", "time_dist_12.json")
@@ -51,6 +118,15 @@ METRO_TIMETABLES: tuple[tuple[str, str], ...] = (
     ("半蔵門線", "station_timetable_metro_hanzomon.json"),
     ("副都心線", "station_timetable_metro_fukutoshin.json"),
 )
+
+
+def metro_timetables_in_use(use_real: bool | None = None) -> tuple[tuple[str, str], ...]:
+    """W12 が実際に読む ODPT の駅の時刻表(線, ファイル名)。実ダイヤのときは半蔵門線・副都心線だけ。"""
+    real = USE_REAL_TIMETABLES if use_real is None else bool(use_real)
+    if not real:
+        return METRO_TIMETABLES
+    return tuple((ln, f) for ln, f in METRO_TIMETABLES if ln in METRO_LINES_KEPT_WITH_REAL)
+
 
 #: 方面別外界ノード(U10: 8-10ノード)。lines はセンサス駅別発着表の路線名。
 NODE_DEFS: tuple[dict[str, Any], ...] = (
@@ -182,6 +258,33 @@ PEAK_HOURS_AM: tuple[int, ...] = (7, 8, 9)
 PEAK_HOURS_PM: tuple[int, ...] = (17, 18, 19)
 #: D-W14 の本数表は朝ピークのみ=夕ピーク本数を朝と同じに置く(expedient・宣言)。
 PM_PEAK_ASSUMED_EQUAL_TO_AM = True
+#: 〔改訂(第330)・答え 10-12b 1-2〕夕ピーク(17-19時)の本数の表(線 → 本/時)。
+#: ``PM_PEAK_ASSUMED_EQUAL_TO_AM`` が False のときだけ読む。**既定の表は無い**(None)=
+#: 夕ピークの本数はどの入手済み資料にも無い。他社の比(例 メトロの夕/朝 0.79)を当てはめて
+#: 埋めない(他社のダイヤの推定になる)。False で表が None か、表に無い線があれば ValueError
+#: (False が黙って夕=朝に戻る=第330 B2 で直した欠陥の再発を防ぐ)。本当の直しは実際の時刻表(答え §2)。
+PM_PEAK_TRAINS_PER_HOUR: dict[str, int] | None = None
+
+
+def pm_peak_for_line(
+    line: str,
+    assumed_equal_to_am: bool,
+    pm_table: dict[str, int] | None,
+) -> int | None:
+    """線ごとに :func:`equal_interval_departures` へ渡す ``peak_tph_pm``。
+
+    True(既定)= None(夕=朝)。False = 表の値(表が無い・線が無いときは ValueError)。
+    """
+    if assumed_equal_to_am:
+        return None
+    if pm_table is None:
+        raise ValueError(
+            "PM_PEAK_ASSUMED_EQUAL_TO_AM=False には夕ピークの本数の表 PM_PEAK_TRAINS_PER_HOUR が要る"
+            "(既定の表は無い・他社の比で埋めない)"
+        )
+    if line not in pm_table:
+        raise ValueError(f"夕ピークの本数の表に {line} の行が無い(黙って夕=朝にしない)")
+    return int(pm_table[line])
 #: オフピーク比を測る時間帯(昼)。
 OFFPEAK_HOURS: tuple[int, ...] = (10, 11, 12, 13, 14, 15)
 
@@ -203,7 +306,7 @@ def hour_shares(time_dist_rows: Sequence[dict], flow: str) -> dict[str, list[flo
         if r["flow"] == flow:
             by_purpose[r["purpose"]].append(r)
     for purpose, rows in by_purpose.items():
-        vec = [0.0] * 24
+        vec = [0.0] * HOURS_PER_DAY
         for r in rows:
             hours = _pt_bin_to_hours(r["bin"])
             for h in hours:
@@ -266,8 +369,8 @@ SERVICE_DAY_CUT_MIN = 240  # 04:00
 def _minute(hhmm: str) -> int:
     """``HH:MM`` → **運行日**の分(00:02 の終電は 24:02 = 1442 になる)。"""
     h, m = hhmm.split(":")
-    v = int(h) * 60 + int(m)
-    return v + 1440 if v < SERVICE_DAY_CUT_MIN else v
+    v = int(h) * MINUTES_PER_HOUR + int(m)
+    return v + MINUTES_PER_DAY if v < SERVICE_DAY_CUT_MIN else v
 
 
 def equal_interval_departures(
@@ -286,10 +389,14 @@ def equal_interval_departures(
         return []
     pm = peak_tph if peak_tph_pm is None else peak_tph_pm
     out: list[str] = []
-    t = first_min
+    # 〔改訂(第330)・答え 10-12b 1-1 (i)〕時刻を**小数で積み**、出す分だけ切り捨てる。旧は間隔を
+    # 整数分に丸めて積んでいた(`round(60/tph)`=偶数への丸めで 24 本/時が 2.5→2 分=30 本/時)。
+    # 有理数で積むので浮動小数の誤差で 1 時間の本数がずれない(間隔が一定の時間帯は本数=宣言)。
+    t = Fraction(first_min)
     while t <= last_min:
-        out.append(C.min_to_hhmm(t))
-        hour = (t // 60) % 24
+        minute = math.floor(t)
+        out.append(C.min_to_hhmm(minute))
+        hour = (minute // MINUTES_PER_HOUR) % HOURS_PER_DAY
         if hour in PEAK_HOURS_AM:
             tph = float(peak_tph)
         elif hour in PEAK_HOURS_PM:
@@ -297,7 +404,7 @@ def equal_interval_departures(
         else:
             tph = peak_tph * offpeak_ratio
         tph = max(tph, 1.0)
-        t += max(int(round(60.0 / tph)), 1)
+        t += Fraction(MINUTES_PER_HOUR) / Fraction(tph)
     return out
 
 
@@ -309,7 +416,7 @@ def offpeak_ratio_from(rows: Sequence[dict[str, Any]]) -> tuple[float, int, floa
     """
     if not rows:
         return 1.0, 0, 0.0
-    per_hour: Counter = Counter(_minute(r["departure"]) // 60 for r in rows)
+    per_hour: Counter = Counter(_minute(r["departure"]) // MINUTES_PER_HOUR for r in rows)
     peak = max((per_hour[h] for h in PEAK_HOURS_AM), default=0)
     off = [per_hour[h] for h in OFFPEAK_HOURS]
     off_mean = sum(off) / len(off) if off else 0.0
@@ -324,8 +431,12 @@ def run(ctx: C.Ctx) -> C.StageResult:
         ctx.path(*PASSENGER_SURVEY),
     ]
     pt_path = ctx.data.joinpath(*PT_CORE).resolve()
-    metro_paths = [ctx.path("odpt", f) for _line, f in METRO_TIMETABLES]
-    for p in [*paths, pt_path, *metro_paths]:
+    use_real = bool(USE_REAL_TIMETABLES)
+    metro_in_use = metro_timetables_in_use(use_real)
+    metro_paths = [ctx.path("odpt", f) for _line, f in metro_in_use]
+    # 〔2-3b〕実ダイヤの入力(切替口 False では空=1.1.0 と同じ input_hash)
+    real_paths = [ctx.data.joinpath(*rel.split("/")) for rel in RT.all_input_rel_paths()] if use_real else []
+    for p in [*paths, pt_path, *metro_paths, *real_paths]:
         if not p.exists():
             raise FileNotFoundError(f"W12 入力が無い: {p}")
     exits_p = ctx.out / "w11_station_exits.parquet"
@@ -515,34 +626,12 @@ def run(ctx: C.Ctx) -> C.StageResult:
     tt_dep: list[str] = []
     tt_src: list[str] = []
     metro_rows: list[dict[str, Any]] = []
-    for line, fname in METRO_TIMETABLES:
+    metro_docs: dict[str, Any] = {}
+    for line, fname in metro_in_use:
         doc = C.load_json(ctx.path("odpt", fname))
+        metro_docs[line] = doc
         for r in parse_metro_timetable(doc):
             metro_rows.append({**r, "line": line})
-    for r in sorted(metro_rows, key=lambda d: (d["line"], d["calendar"], d["direction"], d["departure"])):
-        tt_line.append(r["line"])
-        tt_operator.append("東京メトロ")
-        tt_direction.append(r["direction"])
-        tt_calendar.append("Weekday" if r["calendar"] == "Weekday" else "SaturdayHoliday")
-        tt_dep.append(r["departure"])
-        tt_src.append("real")
-
-    weekday_metro = [r for r in metro_rows if r["calendar"] == "Weekday"]
-    holiday_metro = [r for r in metro_rows if r["calendar"] != "Weekday"]
-    n_metro_dirs = len({(r["line"], r["direction"]) for r in weekday_metro})
-    # 平日と土休で**別の**オフピーク比を実ダイヤから導く(同じ導出式・別の行集合)。
-    offpeak_ratio, peak_am, offpeak_mean = offpeak_ratio_from(weekday_metro)
-    ratio_holiday, peak_am_holiday, offpeak_mean_holiday = offpeak_ratio_from(holiday_metro)
-    offpeak_ratio_by_calendar = {
-        "Weekday": offpeak_ratio,
-        "SaturdayHoliday": ratio_holiday,
-    }
-    metro_mins = sorted(_minute(r["departure"]) for r in weekday_metro)
-    first_min = metro_mins[0] if metro_mins else 300
-    last_min = metro_mins[-1] if metro_mins else 1500
-    if last_min < first_min:
-        last_min += 1440
-
     expedient_lines = {
         "田園都市線": "東急電鉄",
         "東横線": "東急電鉄",
@@ -551,26 +640,114 @@ def run(ctx: C.Ctx) -> C.StageResult:
         "埼京線": "JR東日本",
         "湘南新宿ライン": "JR東日本",
     }
-    for line, operator in sorted(expedient_lines.items()):
+    real: RT.RealTimetables | None = None
+    remaining_lines: list[str] = []
+    real_notes: dict[str, Any] = {}
+    if not use_real:
+        # 1.1.0 の形(切替口 False=旧値の再現)。行の順・値は 1.1.0 と同じ。
+        for r in sorted(metro_rows, key=lambda d: (d["line"], d["calendar"], d["direction"], d["departure"])):
+            tt_line.append(r["line"])
+            tt_operator.append("東京メトロ")
+            tt_direction.append(r["direction"])
+            tt_calendar.append("Weekday" if r["calendar"] == "Weekday" else "SaturdayHoliday")
+            tt_dep.append(r["departure"])
+            tt_src.append("real")
+    else:
+        real = RT.load_real_timetables(ctx.data)
+        # 銀座線(9 月改正)もメトロの派生(metro_* の欄・ゲート)に入れる=メトロ 3 線の意味を保つ
+        metro_rows = metro_rows + [
+            {"railway": "Ginza", "calendar": r["calendar"], "direction": r["direction"],
+             "departure": r["departure"], "line": r["line"]}
+            for r in real.rows if r["line"] == RT.GINZA_SPEC.line
+        ]
+
+    weekday_metro = [r for r in metro_rows if r["calendar"] == "Weekday"]
+    holiday_metro = [r for r in metro_rows if r["calendar"] != "Weekday"]
+    n_metro_dirs = len({(r["line"], r["direction"]) for r in weekday_metro})
+    # 平日と土休で**別の**オフピーク比を実ダイヤから導く(同じ導出式・別の行集合)。
+    offpeak_ratio, peak_am, offpeak_mean = offpeak_ratio_from(weekday_metro)
+    ratio_holiday, peak_am_holiday, offpeak_mean_holiday = offpeak_ratio_from(holiday_metro)
+    holiday_peak_for_gate = peak_am_holiday
+    metro_mins = sorted(_minute(r["departure"]) for r in weekday_metro)
+    first_min = metro_mins[0] if metro_mins else 300
+    last_min = metro_mins[-1] if metro_mins else 1500
+    if last_min < first_min:
+        last_min += MINUTES_PER_DAY
+    first_last_by_calendar = {"Weekday": (first_min, last_min), "SaturdayHoliday": (first_min, last_min)}
+
+    if real is not None:
+        # 〔2-3b〕実ダイヤの全線の行(メトロ 2 線=7 月の取得+実ダイヤの読み口)。派生(オフピーク比・ピーク本数・
+        # 初終発)は**全線の実ダイヤ**から計算し直す(等間隔の線が残ったときだけ使う・今は 0 線)。
+        all_rows: list[dict[str, Any]] = [
+            {"line": r["line"], "operator": "東京メトロ", "direction": r["direction"],
+             "calendar": "Weekday" if r["calendar"] == "Weekday" else "SaturdayHoliday",
+             "departure": r["departure"], "source": "real"}
+            for r in metro_rows if r["line"] in METRO_LINES_KEPT_WITH_REAL
+        ] + list(real.rows)
+        wd_all = [r for r in all_rows if r["calendar"] == "Weekday"]
+        ho_all = [r for r in all_rows if r["calendar"] != "Weekday"]
+        offpeak_ratio, real_peak_wd, real_off_wd = offpeak_ratio_from(wd_all)
+        ratio_holiday, real_peak_ho, real_off_ho = offpeak_ratio_from(ho_all)
+        holiday_peak_for_gate = real_peak_ho
+        for cal, rs in (("Weekday", wd_all), ("SaturdayHoliday", ho_all)):
+            mins = sorted(_minute(r["departure"]) for r in rs)
+            if mins:
+                first_last_by_calendar[cal] = (mins[0], mins[-1])
+        covered = {r["line"] for r in all_rows}
+        covered |= {raw for raw, tgt in real.fold_lines.items() if tgt in covered}
+        remaining_lines = [ln for ln in sorted(expedient_lines) if ln not in covered]
+        real_notes = {
+            "real_peak_am_trains": real_peak_wd,
+            "real_offpeak_mean_trains": round(real_off_wd, 2),
+            "real_peak_am_trains_holiday": real_peak_ho,
+            "real_offpeak_mean_trains_holiday": round(real_off_ho, 2),
+        }
+    else:
+        all_rows = []
+    offpeak_ratio_by_calendar = {
+        "Weekday": offpeak_ratio,
+        "SaturdayHoliday": ratio_holiday,
+    }
+
+    # 等間隔の推定: 1.1.0 は 5 線(湘南新宿ラインは本数が無い=対象外)。実ダイヤでは実データの無い線だけ。
+    eq_lines = sorted(expedient_lines.items()) if real is None else [
+        (ln, expedient_lines[ln]) for ln in remaining_lines
+    ]
+    eq_rows: list[dict[str, Any]] = []
+    for line, operator in eq_lines:
         tph = PEAK_TRAINS_PER_HOUR.get(line)
         if not tph:
             continue
         for calendar in ("Weekday", "SaturdayHoliday"):
             ratio = offpeak_ratio_by_calendar[calendar]
+            f_min, l_min = first_last_by_calendar[calendar] if real is not None else (first_min, last_min)
             for direction in ("上り", "下り"):
                 for dep in equal_interval_departures(
                     tph,
                     ratio,
-                    first_min,
-                    last_min,
-                    peak_tph_pm=None if PM_PEAK_ASSUMED_EQUAL_TO_AM else tph,
+                    f_min,
+                    l_min,
+                    peak_tph_pm=pm_peak_for_line(
+                        line, PM_PEAK_ASSUMED_EQUAL_TO_AM, PM_PEAK_TRAINS_PER_HOUR
+                    ),
                 ):
-                    tt_line.append(line)
-                    tt_operator.append(operator)
-                    tt_direction.append(direction)
-                    tt_calendar.append(calendar)
-                    tt_dep.append(dep)
-                    tt_src.append("equal_interval_expedient")
+                    eq_rows.append({"line": line, "operator": operator, "direction": direction,
+                                    "calendar": calendar, "departure": dep,
+                                    "source": "equal_interval_expedient"})
+    if real is None:
+        out_rows = eq_rows  # 1.1.0 の並び(メトロの行の後に等間隔の行)
+    else:
+        out_rows = sorted(
+            [*all_rows, *eq_rows],
+            key=lambda d: (d["line"], d["calendar"], d["direction"], _minute(d["departure"]), d["source"]),
+        )
+    for r in out_rows:
+        tt_line.append(r["line"])
+        tt_operator.append(r["operator"])
+        tt_direction.append(r["direction"])
+        tt_calendar.append(r["calendar"])
+        tt_dep.append(r["departure"])
+        tt_src.append(r["source"])
 
     tt_cols = {
         "line": tt_line,
@@ -581,6 +758,17 @@ def run(ctx: C.Ctx) -> C.StageResult:
         "departure_min": np.array([_minute(t) for t in tt_dep], dtype=np.int32),
         "source": tt_src,
     }
+    # 線 × 暦の本数(平日と土休の逆転=第330 §6 の欠陥の検査)
+    by_line_cal: dict[str, dict[str, int]] = defaultdict(lambda: {"Weekday": 0, "SaturdayHoliday": 0})
+    for ln, cal in zip(tt_line, tt_calendar):
+        by_line_cal[ln][cal] += 1
+    by_line_cal = {k: dict(v) for k, v in sorted(by_line_cal.items())}
+    lines_holiday_gt_weekday = [ln for ln, v in by_line_cal.items() if v["SaturdayHoliday"] > v["Weekday"]]
+    lines_missing_calendar = [ln for ln, v in by_line_cal.items() if min(v.values()) <= 0]
+    # 〔2-3c〕渋谷の発着の表(発車の行はこの時刻表の行と 1 対 1・時刻表は変えない)
+    events: RE.RailEvents | None = None
+    if real is not None:
+        events = RE.build_rail_events(ctx.data, tt_cols, metro_docs)
 
     params: dict[str, Any] = {
         "nodes": [
@@ -601,10 +789,54 @@ def run(ctx: C.Ctx) -> C.StageResult:
         "pt_source": "docs/bench/pt_shibuya/pt6_summary_core0241.json",
         "generation_weights_usage": "用途=W16/W17生成入力・較正・検証のみ(D-W14)",
     }
+    if not PM_PEAK_ASSUMED_EQUAL_TO_AM:
+        # 〔改訂(第330)〕既定(True)の params には鍵を足さない=既定の param_hash は不変。
+        params["pm_peak_trains_per_hour"] = dict(sorted((PM_PEAK_TRAINS_PER_HOUR or {}).items()))
+    if real is not None:
+        # 〔2-3b〕実ダイヤのときだけ変える・足す(切替口 False の params は 1.1.0 と同じ)。
+        params["offpeak_ratio_rule"] = (
+            "平日/土休それぞれの実ダイヤ(全線)から 昼(10-15時)平均本数 ÷ 朝(7-9時)最大本数"
+            "(等間隔の線が残ったときだけ使う)"
+        )
+        params["real_timetables"] = {
+            "stage": RT.STAGE_TAG,
+            "world_time_point": RT.WORLD_TIME_POINT,
+            "tables": RT.spec_rows(),
+            "fold_lines": dict(sorted(real.fold_lines.items())),
+            "temporary_train_types": list(RT.TEMPORARY_TRAIN_TYPES),
+            "temporary_mark": RT.TEMPORARY_MARK,
+            "metro_lines_kept": list(METRO_LINES_KEPT_WITH_REAL),
+            "odpt_static_dir": "/".join(RT.ODPT_STATIC_DIR),
+            "ginza": {
+                "railway": RT.GINZA_SPEC.railway,
+                "origin_station": RT.GINZA_SPEC.origin_station,
+                "source": RT.GINZA_SPEC.source,
+            },
+            "versions_file": VERSIONS_FILE,
+        }
+        # 〔2-3c〕発着の表の規則(conf つき)と出力の名
+        params["rail_events"] = {
+            "stage": RE.STAGE_TAG,
+            "file": RE.EVENTS_FILE,
+            "columns": list(RE.COLUMNS),
+            "rules": {rid: {"rule": RE.THROUGH_RULES[rid], "conf": RE.RULE_CONF[rid]} for rid in RE.THROUGH_RULES},
+            "through_dwell_max_min": RE.THROUGH_DWELL_MAX_MIN,
+            "tokyu_origin_marks": "/".join((*RT.USER_TIMETABLE_DIR, RT.TOKYU_MARKS_FILE)),
+            "nex_tables": [list(x) for x in RT.NEX_TABLES],
+            "keio_arrival_stem": RT.KEIO_ARRIVAL_STEM,
+        }
+    pm_expedient = (
+        "夕ピーク本数=朝ピークと同数(資料3は朝ピークのみ=D-W14 の空欄)"
+        if PM_PEAK_ASSUMED_EQUAL_TO_AM
+        else "夕ピーク本数=引数の表 PM_PEAK_TRAINS_PER_HOUR(出典は表を渡した側が宣言する)"
+    )
+    metro_rows_count = (
+        sum(1 for s in tt_src if s == "real") if real is None else len(metro_rows)
+    )
     res = C.StageResult(
         stage=STAGE,
         stage_version=STAGE_VERSION,
-        input_hash=C.input_hash([*paths, pt_path, *metro_paths, exits_p, nodes_p, edges_p]),
+        input_hash=C.input_hash([*paths, pt_path, *metro_paths, *real_paths, exits_p, nodes_p, edges_p]),
         param_hash=C.param_hash(params),
         params=params,
         catalog_classes=["外界ノード(方面)", "鉄道運行(計画データ)", "駅・出口", "境界流量"],
@@ -612,11 +844,6 @@ def run(ctx: C.Ctx) -> C.StageResult:
             "時間帯配分=time_dist_12(2015)を 2018/2021 総量へ当てる(時点混合)",
             "time_dist_12 の ～6時台→5,6時・0時台～→0,1時 の等分",
             "目的×手段の構成は全ノード共通(方面別の目的構成は未取得)",
-            "JR・東急・京王=等間隔ダイヤ(F10)・上下同数",
-            "山手線ピーク本数=資料3の 16-20 本/h の中央 18",
-            "オフピーク比はメトロ実ダイヤから移植(平日は平日ダイヤ・土休は土休ダイヤ)",
-            "夕ピーク本数=朝ピークと同数(資料3は朝ピークのみ=D-W14 の空欄)",
-            "初終発時刻はメトロ**平日**ダイヤから移植(土休の初終発は別に測っていない)",
         ],
         notes={
             "generation_weights_usage": "用途=W16/W17生成入力・較正・検証のみ(D-W14)",
@@ -655,8 +882,13 @@ def run(ctx: C.Ctx) -> C.StageResult:
             "gate_cells_walk": len(set(gate_cells_walk)),
             "gate_cells_road": len(set(gate_cells_road)),
             "exits_by_station": {k: len(v) for k, v in sorted(exits_by_station.items())},
-            "metro_timetable_rows": sum(1 for s in tt_src if s == "real"),
-            "metro_timetable_source": "ODPT odpt:StationTimetable JSON(GTFS zip は未使用)",
+            "metro_timetable_rows": metro_rows_count,
+            "metro_timetable_source": (
+                "ODPT odpt:StationTimetable JSON(GTFS zip は未使用)"
+                if real is None
+                else "半蔵門線・副都心線=ODPT odpt:StationTimetable(7 月の取得)・銀座線=ODPT odpt:TrainTimetable"
+                "(オープン枠の静的データ版 1・9 月改正)"
+            ),
             "metro_directions": n_metro_dirs,
             "metro_peak_am_trains": peak_am,
             "metro_offpeak_mean_trains": round(offpeak_mean, 2),
@@ -671,6 +903,10 @@ def run(ctx: C.Ctx) -> C.StageResult:
                 "土休のメトロ実ダイヤに『朝ピーク』の制度的な定義は無い(資料3は朝ラッシュのみ)。"
                 "平日と同じ導出(7-9時の最大本数を分母・10-15時の平均を分子)を土休の行集合に"
                 "当てた実測値をそのまま使う=土休は平日より比が1に近い(昼と朝の差が小さい)。"
+                if real is None
+                else "〔2-3b〕オフピーク比は実ダイヤ(全線)の平日/土休それぞれの行集合から同じ導出で計算し直す"
+                "(7-9時の最大本数を分母・10-15時の平均を分子)。等間隔の線が残ったときだけ使う。"
+                "metro_* の欄はメトロ 3 線(銀座線は 9 月改正)の値。"
             ),
             "pm_peak_assumed_equal_to_am": PM_PEAK_ASSUMED_EQUAL_TO_AM,
             "pm_peak_note": (
@@ -682,12 +918,51 @@ def run(ctx: C.Ctx) -> C.StageResult:
             "expedient_timetable_rows": sum(
                 1 for s in tt_src if s == "equal_interval_expedient"
             ),
-            "timetable_lines_skipped": [
-                ln for ln, v in PEAK_TRAINS_PER_HOUR.items() if v is None
-            ],
+            "timetable_lines_skipped": (
+                [ln for ln, v in PEAK_TRAINS_PER_HOUR.items() if v is None]
+                if real is None
+                else [ln for ln in remaining_lines if not PEAK_TRAINS_PER_HOUR.get(ln)]
+            ),
             "generation_weight_rows": len(w_val),
         },
     )
+    # 〔2-3b・検収 H1〕時刻表の宣言はモジュールの表から足す(星付きの要素で渡さない=走査器が数える形)。
+    if real is not None:
+        res.expedients.extend(REAL_TIMETABLE_EXPEDIENTS)
+    if events is not None:
+        res.expedients.extend(RAIL_EVENT_EXPEDIENTS)
+    if real is None or remaining_lines:
+        res.expedients.extend(EQUAL_INTERVAL_TIMETABLE_EXPEDIENTS)
+    if real is not None and remaining_lines:
+        # 動的な中身(残る線の名・夕ピークの規則)は notes に分ける(宣言の文は固定=台帳の行と 1 対 1)
+        res.notes["equal_interval_lines"] = list(remaining_lines)
+        res.notes["equal_interval_pm_rule"] = pm_expedient
+    if not PM_PEAK_ASSUMED_EQUAL_TO_AM:
+        res.notes["pm_peak_note"] = (
+            "夕ピーク(17-19時)の本数は引数の表 PM_PEAK_TRAINS_PER_HOUR から(既定の表は無い・"
+            "他社の比で埋めない=答え 10-12b 1-2)。"
+        )
+        res.notes["pm_peak_trains_per_hour"] = params["pm_peak_trains_per_hour"]
+    if real is not None:
+        res.notes.update({
+            "timetable_rows_by_source": dict(sorted(Counter(tt_src).items())),
+            "timetable_rows_by_line_calendar": by_line_cal,
+            "lines_holiday_gt_weekday": lines_holiday_gt_weekday,
+            "equal_interval_lines_remaining": remaining_lines,
+            "real_timetable_table_counts": real.table_counts,
+            "temporary_trains_excluded": real.temporary_excluded,
+            "dedup_removed": real.dedup_removed,
+            "ginza_check": real.ginza_check,
+            "fold_lines": dict(sorted(real.fold_lines.items())),
+            "real_first_last_by_calendar": {
+                cal: [C.min_to_hhmm(a), C.min_to_hhmm(b)] for cal, (a, b) in sorted(first_last_by_calendar.items())
+            },
+            **real_notes,
+            "timetable_versions_file": VERSIONS_FILE,
+        })
+    if events is not None:
+        # 〔2-3c〕発着の表の要約(時刻は書かない)。規則と空欄の文は版の表と params にある。
+        res.notes["rail_events"] = {k: v for k, v in events.summary.items() if k not in ("rules", "blanks")}
     res.outputs.append(C.write_parquet(ctx.out, "w12_external_nodes.parquet", node_cols))
     res.outputs.append(
         C.write_parquet(
@@ -703,6 +978,15 @@ def run(ctx: C.Ctx) -> C.StageResult:
         )
     )
     res.outputs.append(C.write_parquet(ctx.out, "w12_timetables.parquet", tt_cols))
+    if real is not None:
+        versions = timetable_versions_doc(
+            ctx, real, by_line_cal, tt_line, tt_operator, tt_src, metro_docs, metro_in_use, remaining_lines
+        )
+        if events is not None:
+            versions["rail_events"] = events.summary  # 〔2-3c〕規則(conf つき)・本数・空欄の宣言
+        res.outputs.append(C.write_json(ctx.out, VERSIONS_FILE, versions, rows=len(versions["lines"])))
+    if events is not None:
+        res.outputs.append(C.write_parquet(ctx.out, RE.EVENTS_FILE, events.columns))
 
     share_sums_ok = all(
         abs(sum(v) - 1.0) < 1e-6 for v in list(hour_share_alight.values()) + list(hour_share_board.values())
@@ -722,7 +1006,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
             round(rail_inflow / mode_external["鉄道"], 2) if mode_external["鉄道"] else None,
             None,
         ),
-        C.Gate("metro_timetable_rows", sum(1 for s in tt_src if s == "real"), None, passed=any(s == "real" for s in tt_src)),
+        C.Gate("metro_timetable_rows", metro_rows_count, None, passed=metro_rows_count > 0),
         C.Gate("metro_first_departure_plausible", C.min_to_hhmm(first_min), None, passed=270 <= first_min <= 330),
         C.Gate(
             "metro_last_departure_plausible",
@@ -735,9 +1019,9 @@ def run(ctx: C.Ctx) -> C.StageResult:
         C.Gate("offpeak_ratio_holiday", round(ratio_holiday, 4), None),
         C.Gate(
             "holiday_timetable_has_own_peak",
-            peak_am_holiday,
+            holiday_peak_for_gate,
             None,
-            passed=peak_am_holiday > 0,
+            passed=holiday_peak_for_gate > 0,
         ),
         C.Gate(
             "generation_weights_sum_to_1",
@@ -747,4 +1031,105 @@ def run(ctx: C.Ctx) -> C.StageResult:
         ),
         C.Gate("timetable_rows", len(tt_dep), None),
     ]
+    if real is not None:
+        n_temp = sum(sum(v.values()) for v in real.temporary_excluded.values())
+        res.gates += [
+            # 〔2-3b〕等間隔の推定で残る線(実データの無い線)=0 を検査する。
+            C.Gate("equal_interval_lines_remaining", len(remaining_lines), 0),
+            C.Gate("real_lines_have_both_calendars", not lines_missing_calendar, True),
+            # 第330 §6 の欠陥(等間隔の推定で土休 > 平日)が実ダイヤで消えたことの検査。
+            C.Gate("lines_holiday_gt_weekday", len(lines_holiday_gt_weekday), 0),
+            C.Gate("temporary_trains_excluded", n_temp, None),
+            C.Gate("dedup_removed", int(sum(real.dedup_removed.values())), None),
+            C.Gate("ginza_departures_from_shibuya", real.ginza_check.get("n_departures_from_origin", 0), None,
+                   passed=real.ginza_check.get("n_departures_from_origin", 0) > 0),
+        ]
+    if events is not None:
+        n_dep_ev = int(events.summary["rows_by_event"].get(RE.EVENT_JA[RE.EVENT_DEPARTURE], 0))
+        n_arr_ev = int(events.summary["rows_by_event"].get(RE.EVENT_JA[RE.EVENT_ARRIVAL], 0))
+        res.gates += [
+            # 〔2-3c〕発着の表の発車の行は時刻表の行と 1 対 1・到着の行がある・残った疑わしい組 0
+            C.Gate("rail_events_departure_rows_match", n_dep_ev == len(tt_dep), True),
+            C.Gate("rail_events_arrival_rows", n_arr_ev, None, passed=n_arr_ev > 0),
+            C.Gate("rail_events_suspicious_pairs", RE.suspicious_total(events.summary), 0),
+            # 〔検収 M1・L2〕同じ分の 2 便で潰れた属性・始発の印の食い違い(どちらも上の和にも入る)
+            C.Gate("rail_events_attr_collapsed", int(events.summary["attr_collapsed"]), 0),
+            C.Gate("rail_events_origin_flag_mismatch",
+                   int(events.summary["metro_dep_join"]["origin_flag_mismatch_station_vs_train_timetable"]), 0),
+        ]
     return res
+
+
+def timetable_versions_doc(
+    ctx: C.Ctx,
+    real: RT.RealTimetables,
+    by_line_cal: dict[str, dict[str, int]],
+    tt_line: Sequence[str],
+    tt_operator: Sequence[str],
+    tt_src: Sequence[str],
+    metro_docs: dict[str, Any],
+    metro_in_use: Sequence[tuple[str, str]],
+    remaining_lines: Sequence[str],
+) -> dict[str, Any]:
+    """〔2-3b〕``w12_timetable_versions.json``: 線ごとの版の宣言(世界の時点との前後)と入力の md5。
+
+    時刻の一覧は書かない(本数と版だけ=チャレンジ枠の生の行を写さない)。
+    """
+    sources: dict[str, set[str]] = defaultdict(set)
+    operator_of: dict[str, str] = {}
+    for ln, op, s in zip(tt_line, tt_operator, tt_src):
+        sources[ln].add(s)
+        operator_of[ln] = op
+    folded_into: dict[str, list[str]] = defaultdict(list)
+    for raw, tgt in sorted(real.fold_lines.items()):
+        folded_into[tgt].append(raw)
+    lines_doc: dict[str, Any] = {}
+    for ln in sorted(by_line_cal):
+        decl = RT.VERSION_DECLARATIONS.get(ln, {"declared": "(宣言なし)", "relation_to_world_time": "unknown"})
+        if ln in remaining_lines:  # 〔2-4〕実データの無い線(京王の切替口 False の井の頭線など)=等間隔の推定
+            decl = {"declared": "実データなし=等間隔の推定(EQUAL_INTERVAL_TIMETABLE_EXPEDIENTS)",
+                    "relation_to_world_time": "unknown"}
+        d: dict[str, Any] = {
+            "operator": operator_of.get(ln, ""),
+            "sources": sorted(sources[ln]),
+            "rows": by_line_cal[ln],
+            **decl,
+            "version_text_in_tables": list(real.version_texts.get(ln, [])),
+        }
+        if ln in metro_docs:
+            d["odpt_station_timetable"] = RT.metro_station_versions(metro_docs[ln])
+        if ln == RT.GINZA_SPEC.line:
+            d["odpt_train_timetable"] = {
+                "dct_issued": real.ginza_check.get("dct_issued", {}),
+                "dc_date": real.ginza_check.get("dc_date", {}),
+            }
+        if folded_into.get(ln):
+            d["folded_lines"] = folded_into[ln]
+        lines_doc[ln] = d
+    inputs: list[dict[str, Any]] = []
+    for fam in RT.INPUT_FAMILIES:
+        for rel in RT.input_rel_paths(fam):
+            p = ctx.data.joinpath(*rel.split("/"))
+            inputs.append({"family": fam, "path": rel, "md5": RT.md5_file(p), "bytes": p.stat().st_size})
+    for _ln, fname in metro_in_use:
+        p = ctx.path("odpt", fname)
+        inputs.append({"family": "odpt_open_station_timetable", "path": f"odpt/{fname}",
+                       "md5": RT.md5_file(p), "bytes": p.stat().st_size})
+    return {
+        "schema": "shibuya.build.field/w12_timetable_versions/1",
+        "stage": RT.STAGE_TAG,
+        "stage_version": STAGE_VERSION,
+        "world_time_point": RT.WORLD_TIME_POINT,
+        "relation_codes": {
+            "before": "世界の時点より前の版(頁か ODPT に改正日の記載)",
+            "before_inferred": "世界の時点より前の版と推測(改正日の記載なし)",
+            "after": "世界の時点より後の版(宣言)",
+            "unknown": "宣言なし",
+        },
+        "lines": lines_doc,
+        "inputs": inputs,
+        "temporary_trains_excluded": real.temporary_excluded,
+        "dedup_removed": real.dedup_removed,
+        "equal_interval_lines_remaining": list(remaining_lines),
+        "note": "時刻の一覧は載せない(本数と版だけ)。ODPT チャレンジ枠の生の行は再配布しない。",
+    }

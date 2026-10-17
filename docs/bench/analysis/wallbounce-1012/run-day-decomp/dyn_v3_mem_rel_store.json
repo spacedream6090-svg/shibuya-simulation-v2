@@ -1,0 +1,2960 @@
+{
+ "config": "v3_mem_rel_store",
+ "kw": {
+  "vocab_version": "v3",
+  "memory": "on",
+  "relations": "on",
+  "store_memory": "on",
+  "rel_copresent": "on"
+ },
+ "n_agents": 1000,
+ "sim_days": 1,
+ "seed": 1,
+ "head": "0389689",
+ "final": "28a316167605d410",
+ "calls": 12698,
+ "window_ticks": 66,
+ "n_snapshots": 1918,
+ "snapshot_seconds": 19.0,
+ "wall_seconds": 40.5,
+ "n_soa_keys": 93,
+ "n_ext_items": 489,
+ "segments": {
+  "day_head": {
+   "visits": 66,
+   "soa": {},
+   "stats": {},
+   "external": {}
+  },
+  "body": {
+   "visits": 66,
+   "soa": {
+    "agents.energy_balance": 66,
+    "agents.fatigue": 7,
+    "agents.hunger": 62,
+    "agents.since_meal_kcal": 66
+   },
+   "stats": {},
+   "external": {
+    "O28:energy.counts": 10,
+    "O28:energy.intake_kcal": 10,
+    "O28:energy.meal_bits": 9,
+    "O28:energy.meal_start_out": 10,
+    "O28:energy.n_meals": 10
+   }
+  },
+  "world": {
+   "visits": 66,
+   "soa": {
+    "agents.activity": 30,
+    "agents.band": 1,
+    "agents.cell": 1,
+    "agents.node": 1,
+    "agents.plan_flags": 1,
+    "agents.poi_ref": 33,
+    "agents.poi_since": 33,
+    "agents.thermal": 13,
+    "agents.transit_ref": 13,
+    "agents.transit_state": 13,
+    "agents.xy": 1,
+    "pois.open_now": 4
+   },
+   "stats": {},
+   "external": {
+    "O36:presence._extra": 10,
+    "O36:presence._skip_depart_at": 5,
+    "O37:presence._pulled_in_today": 1,
+    "O46:runner.salient.budget": 66,
+    "O49:runner.large_event._inside": 1,
+    "O50:runner.rail.occupancy": 13,
+    "O52:runner.shelf.backroom": 20,
+    "O53:runner.street_cleaning.litter_g": 66,
+    "O53:runner.waste._cursor": 20,
+    "O53:runner.waste.waste_g_collected": 20,
+    "O54:runner.road_works.blocked_cells": 1,
+    "O54:runner.road_works.occupied_edges": 1,
+    "O55:runner.infra.power_kwh": 66,
+    "O55:runner.last_mile.delivered": 2,
+    "O55:runner.traffic.cell_vehicles": 2,
+    "O56:runner.environment._shade": 13,
+    "O59:ledger.goods._bin": 20,
+    "O60:ledger.goods._dl_code": 20,
+    "O60:ledger.goods._dl_poi": 20,
+    "O60:ledger.goods._dl_qty": 20,
+    "O60:ledger.goods._dl_tick": 20,
+    "O70:presence.n_departed_by_llm": 13,
+    "O70:presence.n_pulled_in": 1,
+    "O70:presence.n_returned_to_block": 10,
+    "O72:runner.salient.n_broadcast_lines": 3,
+    "O73:runner.bus_taxi.n_arrivals": 60,
+    "O73:runner.crowd.n_released": 33,
+    "O73:runner.crowd.peak_occupancy": 2,
+    "O73:runner.delivery_inbound.n_delayed": 17,
+    "O73:runner.delivery_inbound.n_runs": 20,
+    "O73:runner.delivery_inbound.units_delivered": 20,
+    "O73:runner.environment.n_updates": 13,
+    "O73:runner.infra.water_m3": 66,
+    "O73:runner.large_event.n_in": 1,
+    "O73:runner.last_mile.n_batches": 2,
+    "O73:runner.n_steps": 66,
+    "O73:runner.opening.n_events": 4,
+    "O73:runner.opening.n_fallback": 4,
+    "O73:runner.phase_seconds": 66,
+    "O73:runner.press.n_releases": 3,
+    "O73:runner.rail.n_departed_riders": 13,
+    "O73:runner.rail.n_departures": 56,
+    "O73:runner.road_works.n_started": 1,
+    "O73:runner.waste.n_stops": 20,
+    "O75:runner.crowd.flow": 66,
+    "O75:runner.crowd.occupancy": 48,
+    "O76:runner.environment.daylight": 1,
+    "O76:runner.environment.heat_stage": 2,
+    "O76:runner.environment.wbgt": 4,
+    "O80:ledger.goods._day_waste_g": 20,
+    "O80:ledger.goods._outflow": 20,
+    "O80:ledger.goods._waste_sku": 20,
+    "O80:ledger.goods.store_waste_g_total": 20,
+    "O81:ledger.goods.n_moves": 20,
+    "O93:ledger.goods._dl_pos": 20,
+    "O95:runner.crowd.coherence": 63,
+    "O95:runner.crowd.flow_dir8": 63
+   }
+  },
+  "presence": {
+   "visits": 66,
+   "soa": {
+    "agents.activity": 43,
+    "agents.band": 18,
+    "agents.cell": 43,
+    "agents.node": 43,
+    "agents.plan_activity": 27,
+    "agents.plan_flags": 20,
+    "agents.poi_ref": 8,
+    "agents.poi_since": 8,
+    "agents.target_node": 8,
+    "agents.transit_ref": 42,
+    "agents.transit_state": 43,
+    "agents.xy": 29
+   },
+   "stats": {
+    "stats.layer_counts": 43
+   },
+   "external": {
+    "O36:presence._extra": 10,
+    "O36:presence._skip_depart_at": 14,
+    "O70:presence.n_arrivals": 29,
+    "O70:presence.n_arrive_skipped": 9,
+    "O70:presence.n_arrive_skipped_pulled": 9,
+    "O70:presence.n_depart_dropped": 14,
+    "O70:presence.n_departures": 19,
+    "O70:presence.n_shopping_interrupted": 8
+   }
+  },
+  "perceive_prepare": {
+   "visits": 66,
+   "soa": {},
+   "stats": {},
+   "external": {}
+  },
+  "llm_receive_A": {
+   "visits": 66,
+   "soa": {},
+   "stats": {},
+   "external": {}
+  },
+  "apply_responses": {
+   "visits": 66,
+   "soa": {
+    "agents.activity": 21,
+    "agents.talk_partner": 21
+   },
+   "stats": {
+    "stats.talk_stats": 36
+   },
+   "external": {
+    "O13:poi_resolver.store_choice.by_hour": 42,
+    "O13:poi_resolver.store_choice.choice_poi": 35,
+    "O13:poi_resolver.store_choice.choice_reason": 25,
+    "O13:poi_resolver.store_choice.stats": 42,
+    "O19:rel_layer.chosen_count": 1,
+    "O19:rel_layer.origin_of": 36,
+    "O19:rel_layer.stats": 36,
+    "O26:poi_resolver.move_stats": 32,
+    "O26:poi_resolver.stats": 55,
+    "O34:norm_meter._ctx": 63,
+    "O34:norm_meter.n_actions_counted": 63,
+    "O34:norm_meter.seconds": 63,
+    "O39:conv._next_id": 3,
+    "O39:conv._of_agent": 3,
+    "O39:conv._refusal_until": 20,
+    "O39:conv.pending_invites": 21,
+    "O39:conv.sessions": 3,
+    "O41:conv.n_accepted": 3,
+    "O41:conv.n_declined": 20,
+    "O41:conv.origin_counts": 21,
+    "O43:run_day.pending": 63,
+    "O5:intent_layer._proposals": 1,
+    "O6:intent_layer.stats": 1,
+    "O91:conv.n_opened": 3
+   }
+  },
+  "detect": {
+   "visits": 66,
+   "soa": {
+    "agents.fatigue_stage": 6,
+    "agents.hunger_stage": 63,
+    "agents.thermal_stage": 7,
+    "cells.b4_hash": 66
+   },
+   "stats": {
+    "stats.intero_cross": 63
+   },
+   "external": {
+    "O45:detector._prev_raw": 66,
+    "O66:act_layer.n_cell_suppressed": 63,
+    "O66:act_layer.n_expiry_candidates": 58,
+    "O6:intent_layer.stats": 13
+   }
+  },
+  "plan_boundary": {
+   "visits": 66,
+   "soa": {
+    "agents.activity": 8,
+    "agents.plan_activity": 59
+   },
+   "stats": {
+    "stats.layer_counts": 4
+   },
+   "external": {
+    "O70:presence.sleep_counts": 12
+   }
+  },
+  "home_meal": {
+   "visits": 66,
+   "soa": {},
+   "stats": {},
+   "external": {}
+  },
+  "wake_sources": {
+   "visits": 66,
+   "soa": {},
+   "stats": {},
+   "external": {}
+  },
+  "llm_receive_B": {
+   "visits": 66,
+   "soa": {},
+   "stats": {},
+   "external": {}
+  },
+  "wake_filter": {
+   "visits": 66,
+   "soa": {},
+   "stats": {},
+   "external": {}
+  },
+  "relations_wake": {
+   "visits": 66,
+   "soa": {
+    "agents.rel_last": 1,
+    "agents.rel_n": 1
+   },
+   "stats": {},
+   "external": {
+    "O16:rel_layer._prev_cell": 65,
+    "O18:rel_layer._co_active": 4,
+    "O18:rel_layer._co_day": 1,
+    "O18:rel_layer._co_since": 4,
+    "O19:rel_layer.stats": 3,
+    "O19:rel_layer.wall": 66
+   }
+  },
+  "wake_assemble": {
+   "visits": 66,
+   "soa": {},
+   "stats": {},
+   "external": {}
+  },
+  "arbiter": {
+   "visits": 66,
+   "soa": {},
+   "stats": {
+    "stats.awake_sum": 66,
+    "stats.awake_ticks": 66
+   },
+   "external": {
+    "O42:arbiter._last_tick": 65,
+    "O42:arbiter._pool": 64,
+    "O71:arbiter._diag_total": 57,
+    "O71:arbiter._merged_total": 47,
+    "O71:arbiter._outside_total": 60,
+    "O71:arbiter._sleep_total": 26,
+    "O71:arbiter.budget_unused": 64,
+    "O71:arbiter.n_calls_total": 64
+   }
+  },
+  "decide": {
+   "visits": 66,
+   "soa": {
+    "agents.mem_importance": 6,
+    "agents.mem_last": 16,
+    "agents.mem_n": 16,
+    "agents.refractory_until": 64
+   },
+   "stats": {
+    "stats.calls_by_cond": 64,
+    "stats.layer_counts": 64,
+    "stats.peak_pending": 4,
+    "stats.result": 64
+   },
+   "external": {
+    "O11:mem_layer.recall_stats": 64,
+    "O11:mem_layer.stats": 16,
+    "O15:wom.stats": 16,
+    "O17:rel_layer._acq_until": 1,
+    "O19:rel_layer.stats": 1,
+    "O39:conv.sessions": 16,
+    "O41:conv.closed_by_reason": 3,
+    "O41:conv.n_blocks": 16,
+    "O41:conv.size_hist": 3,
+    "O43:run_day.pending": 64,
+    "O63:renderer._b1_cache": 1,
+    "O63:renderer._b2_cache": 20,
+    "O63:renderer._b3_cache": 13,
+    "O63:renderer._b4_cache": 29,
+    "O64:renderer.signage_exposures": 64,
+    "O84:renderer.cache_hits": 63,
+    "O84:renderer.cache_misses": 30,
+    "O84:renderer.memory_items": 63,
+    "O84:renderer.memory_line_tokens": 63,
+    "O84:renderer.memory_lines": 63,
+    "O84:renderer.near_order_ties": 62,
+    "O84:renderer.near_tie_breaks": 62,
+    "O84:renderer.near_tie_candidates": 62,
+    "O84:renderer.renders": 64,
+    "O84:renderer.signage_by_kind": 64,
+    "O84:renderer.signage_effective_p": 64,
+    "O84:renderer.truncation_count": 5,
+    "O86:bridge.n_calls": 64,
+    "O8:mem_layer._gist_order": 6,
+    "O8:mem_layer.gist": 6,
+    "O9:mem_layer._gist_done": 6
+   }
+  },
+  "phase_a": {
+   "visits": 66,
+   "soa": {},
+   "stats": {
+    "stats.peak_intents": 4
+   },
+   "external": {
+    "O66:act_layer.n_wander_steps": 33
+   }
+  },
+  "phase_b": {
+   "visits": 66,
+   "soa": {},
+   "stats": {},
+   "external": {}
+  },
+  "phase_c": {
+   "visits": 66,
+   "soa": {
+    "agents.activity": 61,
+    "agents.band": 57,
+    "agents.board_line": 52,
+    "agents.board_since": 25,
+    "agents.cell": 63,
+    "agents.energy_balance": 34,
+    "agents.fail_streak": 61,
+    "agents.holdings": 33,
+    "agents.hunger": 24,
+    "agents.last_action": 63,
+    "agents.last_result": 60,
+    "agents.last_result_tick": 63,
+    "agents.money": 45,
+    "agents.node": 63,
+    "agents.poi_ref": 40,
+    "agents.poi_since": 41,
+    "agents.since_meal_kcal": 34,
+    "agents.talk_partner": 19,
+    "agents.target_node": 59,
+    "agents.transit_ref": 13,
+    "agents.transit_state": 13,
+    "agents.xy": 64,
+    "cells.density": 65,
+    "cells.density_stage": 64,
+    "cells.open_count": 4,
+    "pois.revenue": 41,
+    "pois.stock": 33
+   },
+   "stats": {
+    "stats.leave_counts": 39,
+    "stats.per_action_total": 63,
+    "stats.result": 54
+   },
+   "external": {
+    "O28:energy.counts": 34,
+    "O28:energy.intake_kcal": 34,
+    "O28:energy.meal_bits": 20,
+    "O28:energy.meal_start_in": 27,
+    "O28:energy.n_meals": 27,
+    "O28:energy.n_snacks": 19,
+    "O28:energy.snack_start": 19,
+    "O50:runner.rail.occupancy": 13,
+    "O50:runner.rail.peak_ratio": 13,
+    "O57:ledger.money._lines": 45,
+    "O58:ledger.money._raw_amt": 45,
+    "O58:ledger.money._raw_code": 13,
+    "O58:ledger.money._raw_pi": 45,
+    "O58:ledger.money._raw_qi": 41,
+    "O58:ledger.money._raw_qs": 45,
+    "O58:ledger.money._raw_tick": 45,
+    "O59:ledger.goods._shelf": 33,
+    "O59:ledger.goods._sold_today": 17,
+    "O60:ledger.goods._dl_code": 33,
+    "O60:ledger.goods._dl_poi": 33,
+    "O60:ledger.goods._dl_qty": 33,
+    "O60:ledger.goods._dl_slot": 4,
+    "O60:ledger.goods._dl_tick": 33,
+    "O73:runner.rail.n_board_applicants": 13,
+    "O73:runner.rail.n_board_dropped": 7,
+    "O73:runner.rail.n_board_intent": 35,
+    "O73:runner.rail.n_board_waiting": 20,
+    "O73:runner.rail.n_board_walking": 34,
+    "O73:runner.rail.n_boarded_from_queue": 13,
+    "O77:ledger.money._flow": 45,
+    "O79:ledger.goods._household_sku": 33,
+    "O81:ledger.goods.n_moves": 33,
+    "O92:ledger.money._raw_pos": 45,
+    "O92:ledger.money.n_transfers": 45,
+    "O93:ledger.goods._dl_pos": 33
+   }
+  },
+  "conversation": {
+   "visits": 66,
+   "soa": {
+    "agents.activity": 18,
+    "agents.talk_partner": 5
+   },
+   "stats": {},
+   "external": {
+    "O19:rel_layer.origin_of": 36,
+    "O39:conv._of_agent": 3,
+    "O39:conv._pair_invite_until": 22,
+    "O39:conv._refusal_until": 11,
+    "O39:conv._speaker_invite_until": 25,
+    "O39:conv.pending_invites": 19,
+    "O39:conv.sessions": 3,
+    "O41:conv.n_expired_purged": 24,
+    "O41:conv.n_invite_refractory_blocked": 2,
+    "O41:conv.n_invites": 19,
+    "O41:conv.origin_counts": 19
+   }
+  },
+  "activity_intent": {
+   "visits": 66,
+   "soa": {
+    "agents.activity_kind": 62,
+    "agents.activity_until": 63,
+    "agents.intent_action": 1,
+    "agents.intent_kind": 1,
+    "agents.intent_since": 1,
+    "agents.intent_target": 1
+   },
+   "stats": {},
+   "external": {
+    "O1:act_layer.text": 62,
+    "O1:act_layer.until_kind": 61,
+    "O2:act_layer.text_id": 62,
+    "O4:intent_layer._payload": 1,
+    "O5:intent_layer._proposals": 1,
+    "O66:act_layer.kind_counts": 63,
+    "O66:act_layer.n_arrival_expired": 13,
+    "O66:act_layer.n_intent_moves": 1,
+    "O66:act_layer.n_set": 63,
+    "O6:intent_layer.stats": 1
+   }
+  },
+  "memory": {
+   "visits": 66,
+   "soa": {
+    "agents.mem_cell": 64,
+    "agents.mem_importance": 64,
+    "agents.mem_kind": 64,
+    "agents.mem_last": 64,
+    "agents.mem_n": 64,
+    "agents.mem_object": 64,
+    "agents.mem_partner": 64,
+    "agents.mem_result": 56,
+    "agents.mem_tick": 64,
+    "agents.rel_first": 3,
+    "agents.rel_kind": 3,
+    "agents.rel_last": 3,
+    "agents.rel_n": 3,
+    "agents.rel_partner": 3,
+    "agents.rel_sign": 3,
+    "agents.sm_first": 59,
+    "agents.sm_last": 61,
+    "agents.sm_n": 61,
+    "agents.sm_poi": 59,
+    "agents.sm_precision": 61,
+    "agents.sm_source": 60,
+    "agents.sm_valence": 48
+   },
+   "stats": {},
+   "external": {
+    "O10:mem_layer._next_session": 3,
+    "O11:mem_layer.stats": 64,
+    "O12:mem_layer.store.stats": 62,
+    "O19:rel_layer.stats": 3,
+    "O64:renderer.signage_exposures": 64,
+    "O68:poi_resolver.store_choice.first_by_reason": 28,
+    "O68:poi_resolver.store_choice.visits_by_reason": 37,
+    "O9:mem_layer._session_key": 3
+   }
+  },
+  "familiarity": {
+   "visits": 66,
+   "soa": {},
+   "stats": {},
+   "external": {}
+  },
+  "energy_after": {
+   "visits": 66,
+   "soa": {},
+   "stats": {},
+   "external": {
+    "O28:energy.stage_ticks": 66,
+    "O28:energy.stage_ticks_awake_by_hour": 65
+   }
+  },
+  "observe": {
+   "visits": 132,
+   "soa": {},
+   "stats": {
+    "stats.diag_rows": 66,
+    "stats.prev_sessions": 3
+   },
+   "external": {
+    "O34:norm_meter._cowalk_pairs_seen": 10,
+    "O34:norm_meter._pair_keys": 29,
+    "O34:norm_meter._pair_len": 45,
+    "O34:norm_meter._prev_xy": 65,
+    "O34:norm_meter.cowalk_agent_minutes": 31,
+    "O34:norm_meter.cowalk_episodes": 10,
+    "O34:norm_meter.cowalk_pairs_max_tick": 1,
+    "O34:norm_meter.group_size_minutes": 31,
+    "O34:norm_meter.inst_group_count": 45,
+    "O34:norm_meter.inst_grouped_minutes": 45,
+    "O34:norm_meter.inst_pairs_max_tick": 1,
+    "O34:norm_meter.inst_size_minutes": 63,
+    "O34:norm_meter.inst_walker_minutes": 63,
+    "O34:norm_meter.moving_agent_minutes": 63,
+    "O34:norm_meter.n_ticks": 66,
+    "O34:norm_meter.seconds": 66,
+    "O34:norm_meter.tick_ms_max": 4,
+    "O70:presence.exit_cell_by_hour": 4,
+    "O70:presence.exit_stage_max_by_hour": 4,
+    "O70:presence.in_area_by_hour": 4,
+    "O70:presence.match_in_den": 4,
+    "O70:presence.match_in_num": 4,
+    "O70:presence.match_out_den": 4,
+    "O70:presence.match_out_num": 4,
+    "O70:presence.platform_cell_by_hour": 4,
+    "O70:presence.sample_hours": 4,
+    "O70:presence.sample_in_area": 4,
+    "O70:presence.wake_in_area_by_hour": 4
+   }
+  },
+  "checkpoint": {
+   "visits": 66,
+   "soa": {},
+   "stats": {},
+   "external": {}
+  },
+  "day_close": {
+   "visits": 62,
+   "soa": {},
+   "stats": {},
+   "external": {}
+  },
+  "drain": {
+   "visits": 1,
+   "soa": {},
+   "stats": {},
+   "external": {}
+  },
+  "close_final": {
+   "visits": 1,
+   "soa": {
+    "agents.activity": 1,
+    "agents.transit_ref": 1,
+    "agents.transit_state": 1
+   },
+   "stats": {},
+   "external": {
+    "O50:runner.rail.occupancy": 1,
+    "O57:ledger.money._day": 1,
+    "O59:ledger.goods._day": 1,
+    "O59:ledger.goods._sold_today": 1,
+    "O70:presence.n_departed_by_llm": 1,
+    "O73:runner.rail.n_departed_riders": 1,
+    "O73:runner.rail.n_departures": 1,
+    "O77:ledger.money._flow": 1,
+    "O77:ledger.money._last_close": 1,
+    "O79:ledger.goods._shelf_age": 1,
+    "O80:ledger.goods._day_waste_g": 1,
+    "O80:ledger.goods._inflow": 1,
+    "O80:ledger.goods._last_close": 1,
+    "O80:ledger.goods._open_stock": 1,
+    "O80:ledger.goods._outflow": 1,
+    "O80:ledger.goods._waste_g_daily": 1,
+    "O92:ledger.money._day_marks": 1,
+    "O92:ledger.money._flow_daily": 1,
+    "O92:ledger.money._snap": 1,
+    "O93:ledger.goods._dl_marks": 1
+   }
+  },
+  "report": {
+   "visits": 1,
+   "soa": {},
+   "stats": {
+    "stats.sleep_counts": 1
+   },
+   "external": {}
+  }
+ },
+ "soa_meta": {
+  "agents.cell": [
+   "behavior",
+   "required"
+  ],
+  "agents.node": [
+   "behavior",
+   "required"
+  ],
+  "agents.band": [
+   "no",
+   "derivable"
+  ],
+  "agents.xy": [
+   "behavior",
+   "required"
+  ],
+  "agents.path_next_node": [
+   "behavior",
+   "required"
+  ],
+  "agents.target_node": [
+   "behavior",
+   "required"
+  ],
+  "agents.kind": [
+   "behavior",
+   "derivable"
+  ],
+  "agents.age": [
+   "behavior",
+   "derivable"
+  ],
+  "agents.sex": [
+   "behavior",
+   "derivable"
+  ],
+  "agents.hunger": [
+   "behavior",
+   "required"
+  ],
+  "agents.fatigue": [
+   "behavior",
+   "required"
+  ],
+  "agents.thermal": [
+   "behavior",
+   "required"
+  ],
+  "agents.hunger_stage": [
+   "behavior",
+   "required"
+  ],
+  "agents.fatigue_stage": [
+   "behavior",
+   "required"
+  ],
+  "agents.thermal_stage": [
+   "behavior",
+   "required"
+  ],
+  "agents.money": [
+   "behavior",
+   "required"
+  ],
+  "agents.holdings": [
+   "behavior",
+   "required"
+  ],
+  "agents.activity": [
+   "behavior",
+   "required"
+  ],
+  "agents.talk_partner": [
+   "behavior",
+   "required"
+  ],
+  "agents.transit_state": [
+   "behavior",
+   "required"
+  ],
+  "agents.transit_ref": [
+   "behavior",
+   "required"
+  ],
+  "agents.board_line": [
+   "behavior",
+   "required"
+  ],
+  "agents.board_since": [
+   "behavior",
+   "required"
+  ],
+  "agents.sleep_pending": [
+   "behavior",
+   "required"
+  ],
+  "agents.intent_action": [
+   "behavior",
+   "required"
+  ],
+  "agents.intent_target": [
+   "behavior",
+   "required"
+  ],
+  "agents.intent_kind": [
+   "behavior",
+   "required"
+  ],
+  "agents.intent_since": [
+   "behavior",
+   "required"
+  ],
+  "agents.poi_ref": [
+   "behavior",
+   "required"
+  ],
+  "agents.poi_since": [
+   "behavior",
+   "required"
+  ],
+  "agents.queue_poi": [
+   "behavior",
+   "required"
+  ],
+  "agents.queue_since": [
+   "behavior",
+   "required"
+  ],
+  "agents.refractory_until": [
+   "behavior",
+   "required"
+  ],
+  "agents.last_action": [
+   "behavior",
+   "required"
+  ],
+  "agents.last_result": [
+   "behavior",
+   "required"
+  ],
+  "agents.last_result_tick": [
+   "behavior",
+   "required"
+  ],
+  "agents.fail_streak": [
+   "no",
+   "unknown"
+  ],
+  "agents.edge_id": [
+   "behavior",
+   "required"
+  ],
+  "agents.edge_s": [
+   "behavior",
+   "required"
+  ],
+  "agents.focus_target": [
+   "behavior",
+   "required"
+  ],
+  "agents.focus_ttl": [
+   "behavior",
+   "required"
+  ],
+  "agents.weight_kg": [
+   "behavior",
+   "derivable"
+  ],
+  "agents.eer_kcal": [
+   "behavior",
+   "derivable"
+  ],
+  "agents.since_meal_kcal": [
+   "behavior",
+   "required"
+  ],
+  "agents.energy_balance": [
+   "diag",
+   "required"
+  ],
+  "agents.plan_activity": [
+   "no",
+   "unknown"
+  ],
+  "agents.plan_flags": [
+   "behavior",
+   "required"
+  ],
+  "agents.activity_until": [
+   "behavior",
+   "required"
+  ],
+  "agents.activity_kind": [
+   "behavior",
+   "required"
+  ],
+  "agents.fam_thing": [
+   "behavior",
+   "required"
+  ],
+  "agents.fam_first": [
+   "behavior",
+   "required"
+  ],
+  "agents.fam_last": [
+   "no",
+   "required"
+  ],
+  "agents.fam_visits": [
+   "behavior",
+   "required"
+  ],
+  "agents.fam_exposures": [
+   "behavior",
+   "required"
+  ],
+  "agents.mem_kind": [
+   "behavior",
+   "required"
+  ],
+  "agents.mem_tick": [
+   "behavior",
+   "required"
+  ],
+  "agents.mem_last": [
+   "behavior",
+   "required"
+  ],
+  "agents.mem_cell": [
+   "behavior",
+   "required"
+  ],
+  "agents.mem_partner": [
+   "behavior",
+   "required"
+  ],
+  "agents.mem_object": [
+   "behavior",
+   "required"
+  ],
+  "agents.mem_result": [
+   "behavior",
+   "required"
+  ],
+  "agents.mem_importance": [
+   "behavior",
+   "required"
+  ],
+  "agents.mem_n": [
+   "behavior",
+   "required"
+  ],
+  "agents.sm_poi": [
+   "behavior",
+   "required"
+  ],
+  "agents.sm_valence": [
+   "behavior",
+   "required"
+  ],
+  "agents.sm_precision": [
+   "behavior",
+   "required"
+  ],
+  "agents.sm_first": [
+   "behavior",
+   "required"
+  ],
+  "agents.sm_last": [
+   "behavior",
+   "required"
+  ],
+  "agents.sm_n": [
+   "behavior",
+   "required"
+  ],
+  "agents.sm_source": [
+   "behavior",
+   "required"
+  ],
+  "agents.rel_partner": [
+   "behavior",
+   "required"
+  ],
+  "agents.rel_kind": [
+   "behavior",
+   "required"
+  ],
+  "agents.rel_sign": [
+   "behavior",
+   "required"
+  ],
+  "agents.rel_first": [
+   "behavior",
+   "required"
+  ],
+  "agents.rel_last": [
+   "no",
+   "required"
+  ],
+  "agents.rel_n": [
+   "behavior",
+   "required"
+  ],
+  "cells.density": [
+   "behavior",
+   "derivable"
+  ],
+  "cells.density_stage": [
+   "behavior",
+   "derivable"
+  ],
+  "cells.noise_stage": [
+   "behavior",
+   "derivable"
+  ],
+  "cells.open_count": [
+   "no",
+   "derivable"
+  ],
+  "cells.b4_hash": [
+   "no",
+   "derivable"
+  ],
+  "pois.cell": [
+   "behavior",
+   "derivable"
+  ],
+  "pois.node": [
+   "behavior",
+   "derivable"
+  ],
+  "pois.stock": [
+   "behavior",
+   "required"
+  ],
+  "pois.price": [
+   "behavior",
+   "derivable"
+  ],
+  "pois.revenue": [
+   "diag",
+   "required"
+  ],
+  "pois.capacity": [
+   "behavior",
+   "derivable"
+  ],
+  "pois.open_from": [
+   "behavior",
+   "derivable"
+  ],
+  "pois.open_to": [
+   "behavior",
+   "derivable"
+  ],
+  "pois.open_now": [
+   "behavior",
+   "required"
+  ],
+  "perception.heading": [
+   "no",
+   "derivable"
+  ],
+  "perception.task_flag": [
+   "no",
+   "derivable"
+  ],
+  "perception.invocation_distance": [
+   "no",
+   "discardable"
+  ]
+ },
+ "ext_meta": {
+  "O1:act_layer.text": [
+   "behavior",
+   "required"
+  ],
+  "O1:act_layer.until_kind": [
+   "behavior",
+   "required"
+  ],
+  "O2:act_layer.text_id": [
+   "no",
+   "derivable"
+  ],
+  "O2:act_layer._texts": [
+   "no",
+   "derivable"
+  ],
+  "O2:act_layer._text_ids": [
+   "no",
+   "derivable"
+  ],
+  "O2:act_layer._digest_cache": [
+   "no",
+   "derivable"
+  ],
+  "O3:act_layer._bt_agent": [
+   "no",
+   "derivable"
+  ],
+  "O3:act_layer._bt_tick": [
+   "no",
+   "derivable"
+  ],
+  "O3:act_layer._bt_start": [
+   "no",
+   "derivable"
+  ],
+  "O4:intent_layer._payload": [
+   "behavior",
+   "required"
+  ],
+  "O5:intent_layer._proposals": [
+   "no",
+   "discardable"
+  ],
+  "O5:intent_layer._executing": [
+   "no",
+   "discardable"
+  ],
+  "O5:intent_layer._kept_walk": [
+   "no",
+   "discardable"
+  ],
+  "O6:intent_layer.stats": [
+   "diag",
+   "discardable"
+  ],
+  "O6:intent_layer.ticks_sum": [
+   "diag",
+   "discardable"
+  ],
+  "O6:intent_layer.ticks_n": [
+   "diag",
+   "discardable"
+  ],
+  "O7:fam_layer.prev_cell": [
+   "behavior",
+   "required"
+  ],
+  "O8:mem_layer.gist": [
+   "behavior",
+   "required"
+  ],
+  "O8:mem_layer._gist_order": [
+   "behavior",
+   "required"
+  ],
+  "O9:mem_layer._session_key": [
+   "behavior",
+   "required"
+  ],
+  "O9:mem_layer._gist_done": [
+   "behavior",
+   "required"
+  ],
+  "O10:mem_layer._next_session": [
+   "behavior",
+   "required"
+  ],
+  "O10:mem_layer._next_join": [
+   "behavior",
+   "required"
+  ],
+  "O11:mem_layer._target": [
+   "diag",
+   "discardable"
+  ],
+  "O11:mem_layer.stats": [
+   "diag",
+   "discardable"
+  ],
+  "O11:mem_layer.recall_stats": [
+   "diag",
+   "discardable"
+  ],
+  "O12:mem_layer.store.stats": [
+   "diag",
+   "discardable"
+  ],
+  "O13:poi_resolver.store_choice.choice_poi": [
+   "diag",
+   "discardable"
+  ],
+  "O13:poi_resolver.store_choice.choice_reason": [
+   "diag",
+   "discardable"
+  ],
+  "O13:poi_resolver.store_choice.stats": [
+   "diag",
+   "discardable"
+  ],
+  "O13:poi_resolver.store_choice.by_hour": [
+   "diag",
+   "discardable"
+  ],
+  "O14:poi_resolver.store_choice._b_tick": [
+   "no",
+   "derivable"
+  ],
+  "O14:poi_resolver.store_choice._b_off": [
+   "no",
+   "derivable"
+  ],
+  "O15:wom.stats": [
+   "diag",
+   "discardable"
+  ],
+  "O15:wom.top": [
+   "diag",
+   "discardable"
+  ],
+  "O15:wom.unmatched_words": [
+   "diag",
+   "discardable"
+  ],
+  "O16:rel_layer._prev_cell": [
+   "behavior",
+   "required"
+  ],
+  "O17:rel_layer._acq_until": [
+   "behavior",
+   "required"
+  ],
+  "O18:rel_layer._co_since": [
+   "behavior",
+   "required"
+  ],
+  "O18:rel_layer._co_day": [
+   "behavior",
+   "required"
+  ],
+  "O18:rel_layer._co_active": [
+   "behavior",
+   "required"
+  ],
+  "O19:rel_layer._invite_salt": [
+   "diag",
+   "discardable"
+  ],
+  "O19:rel_layer.chosen_count": [
+   "diag",
+   "discardable"
+  ],
+  "O19:rel_layer.origin_of": [
+   "diag",
+   "discardable"
+  ],
+  "O19:rel_layer.stats": [
+   "diag",
+   "discardable"
+  ],
+  "O19:rel_layer.init_audit": [
+   "diag",
+   "discardable"
+  ],
+  "O19:rel_layer.wall": [
+   "diag",
+   "discardable"
+  ],
+  "O20:classical._prev": [
+   "behavior",
+   "required"
+  ],
+  "O21:classical._gate_hazard": [
+   "behavior",
+   "required"
+  ],
+  "O22:classical._condition": [
+   "no",
+   "discardable"
+  ],
+  "O22:classical._tick": [
+   "no",
+   "discardable"
+  ],
+  "O22:classical._eating_tick": [
+   "no",
+   "discardable"
+  ],
+  "O22:classical._eating_cells": [
+   "no",
+   "discardable"
+  ],
+  "O23:classical._b_tick": [
+   "no",
+   "derivable"
+  ],
+  "O23:classical._b_off": [
+   "no",
+   "derivable"
+  ],
+  "O23:classical.counts": [
+   "no",
+   "derivable"
+  ],
+  "O23:classical.by_hour": [
+   "no",
+   "derivable"
+  ],
+  "O24:classical.home_cell": [
+   "no",
+   "derivable"
+  ],
+  "O24:classical.acq_fn": [
+   "no",
+   "derivable"
+  ],
+  "O25:poi_resolver.chooser.last_habit": [
+   "diag",
+   "discardable"
+  ],
+  "O25:poi_resolver.chooser.stats": [
+   "diag",
+   "discardable"
+  ],
+  "O26:poi_resolver._cat_mask_cache": [
+   "diag",
+   "discardable"
+  ],
+  "O26:poi_resolver.stats": [
+   "diag",
+   "discardable"
+  ],
+  "O26:poi_resolver.entropy_sum": [
+   "diag",
+   "discardable"
+  ],
+  "O26:poi_resolver.move_stats": [
+   "diag",
+   "discardable"
+  ],
+  "O27:energy.bmr": [
+   "behavior",
+   "derivable"
+  ],
+  "O28:energy.meal_bits": [
+   "diag",
+   "discardable"
+  ],
+  "O28:energy.n_meals": [
+   "diag",
+   "discardable"
+  ],
+  "O28:energy.n_snacks": [
+   "diag",
+   "discardable"
+  ],
+  "O28:energy.counts": [
+   "diag",
+   "discardable"
+  ],
+  "O28:energy.intake_kcal": [
+   "diag",
+   "discardable"
+  ],
+  "O28:energy.meal_start_home": [
+   "diag",
+   "discardable"
+  ],
+  "O28:energy.meal_start_in": [
+   "diag",
+   "discardable"
+  ],
+  "O28:energy.meal_start_out": [
+   "diag",
+   "discardable"
+  ],
+  "O28:energy.snack_start": [
+   "diag",
+   "discardable"
+  ],
+  "O28:energy.stage_ticks": [
+   "diag",
+   "discardable"
+  ],
+  "O28:energy.stage_ticks_awake_by_hour": [
+   "diag",
+   "discardable"
+  ],
+  "O29:energy.out_of_area.tick": [
+   "no",
+   "derivable"
+  ],
+  "O29:energy.out_of_area.agent": [
+   "no",
+   "derivable"
+  ],
+  "O29:energy.out_of_area.slot": [
+   "no",
+   "derivable"
+  ],
+  "O29:energy.out_of_area.from_row": [
+   "no",
+   "derivable"
+  ],
+  "O29:energy.out_of_area._start": [
+   "no",
+   "derivable"
+  ],
+  "O30:energy.out_of_area.d_agent": [
+   "no",
+   "derivable"
+  ],
+  "O30:energy.out_of_area.d_slot": [
+   "no",
+   "derivable"
+  ],
+  "O30:energy.out_of_area.d_arm_tick": [
+   "no",
+   "derivable"
+  ],
+  "O30:energy.out_of_area.d_eat_tick": [
+   "no",
+   "derivable"
+  ],
+  "O30:energy.out_of_area.d_wake_min": [
+   "no",
+   "derivable"
+  ],
+  "O31:energy.out_of_area.d_armed": [
+   "behavior",
+   "required"
+  ],
+  "O32:energy.home_meals.tick": [
+   "no",
+   "derivable"
+  ],
+  "O32:energy.home_meals.agent": [
+   "no",
+   "derivable"
+  ],
+  "O32:energy.home_meals.slot": [
+   "no",
+   "derivable"
+  ],
+  "O32:energy.home_meals._start": [
+   "no",
+   "derivable"
+  ],
+  "O32:energy.home_meals.home_cell": [
+   "no",
+   "derivable"
+  ],
+  "O33:energy.home_meals.n_not_home": [
+   "diag",
+   "discardable"
+  ],
+  "O33:energy.home_meals.n_asleep": [
+   "diag",
+   "discardable"
+  ],
+  "O33:energy.out_of_area.n_armed": [
+   "diag",
+   "discardable"
+  ],
+  "O33:energy.out_of_area.n_skipped_past_window": [
+   "diag",
+   "discardable"
+  ],
+  "O33:energy.out_of_area.n_deferred_not_out": [
+   "diag",
+   "discardable"
+  ],
+  "O34:norm_meter._prev_xy": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter._pair_keys": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter._pair_len": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter._ctx": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.n_actions_counted": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.n_actions_off_stage": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter._role_rows": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.role_result": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.role_by_kind": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.no_permission_total": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.cowalk_episodes": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter._cowalk_pairs_seen": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.cowalk_agent_minutes": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.moving_agent_minutes": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.cowalk_ticks_skipped": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.cowalk_pairs_max_tick": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.group_size_minutes": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.seconds": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.inst_walker_minutes": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.inst_grouped_minutes": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.inst_size_minutes": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.inst_group_count": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.inst_pairs_max_tick": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.inst_ticks_skipped": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.tick_ms_max": [
+   "no",
+   "discardable"
+  ],
+  "O34:norm_meter.n_ticks": [
+   "no",
+   "discardable"
+  ],
+  "O35:presence._walk_since": [
+   "behavior",
+   "required"
+  ],
+  "O35:presence._walk_line": [
+   "behavior",
+   "required"
+  ],
+  "O35:presence._plan_rider": [
+   "behavior",
+   "required"
+  ],
+  "O35:presence._rewalked": [
+   "behavior",
+   "required"
+  ],
+  "O35:presence._rewalk_ids": [
+   "behavior",
+   "required"
+  ],
+  "O35:presence._rewalk_line": [
+   "behavior",
+   "required"
+  ],
+  "O35:presence._rewalk_deadline": [
+   "behavior",
+   "required"
+  ],
+  "O36:presence._defer_ids": [
+   "behavior",
+   "required"
+  ],
+  "O36:presence._defer_deadline": [
+   "behavior",
+   "required"
+  ],
+  "O36:presence._defer_line": [
+   "behavior",
+   "required"
+  ],
+  "O36:presence._defer_walk": [
+   "behavior",
+   "required"
+  ],
+  "O36:presence._extra": [
+   "behavior",
+   "required"
+  ],
+  "O36:presence._skip_depart_at": [
+   "behavior",
+   "required"
+  ],
+  "O37:presence._pulled_in_today": [
+   "diag",
+   "required"
+  ],
+  "O38:presence.ev_tick": [
+   "no",
+   "derivable"
+  ],
+  "O38:presence.ev_agent": [
+   "no",
+   "derivable"
+  ],
+  "O38:presence.ev_type": [
+   "no",
+   "derivable"
+  ],
+  "O38:presence.ev_arg": [
+   "no",
+   "derivable"
+  ],
+  "O38:presence.ev_act": [
+   "no",
+   "derivable"
+  ],
+  "O38:presence.ev_place": [
+   "no",
+   "derivable"
+  ],
+  "O38:presence.arrival_train_e1": [
+   "no",
+   "derivable"
+  ],
+  "O38:presence.arrival_tick": [
+   "no",
+   "derivable"
+  ],
+  "O38:presence.arrival_cell": [
+   "no",
+   "derivable"
+  ],
+  "O38:presence.arrival_train": [
+   "no",
+   "derivable"
+  ],
+  "O38:presence.absent": [
+   "no",
+   "derivable"
+  ],
+  "O38:presence.blocks": [
+   "no",
+   "derivable"
+  ],
+  "O39:conv.sessions": [
+   "behavior",
+   "required"
+  ],
+  "O39:conv._of_agent": [
+   "behavior",
+   "required"
+  ],
+  "O39:conv._refusal_until": [
+   "behavior",
+   "required"
+  ],
+  "O39:conv._next_id": [
+   "behavior",
+   "required"
+  ],
+  "O39:conv.pending_invites": [
+   "behavior",
+   "required"
+  ],
+  "O39:conv._pair_invite_until": [
+   "behavior",
+   "required"
+  ],
+  "O39:conv._speaker_invite_until": [
+   "behavior",
+   "required"
+  ],
+  "O40:conv.join_events": [
+   "behavior",
+   "required"
+  ],
+  "O41:conv.origin_counts": [
+   "diag",
+   "discardable"
+  ],
+  "O41:conv.n_ignored_invites": [
+   "diag",
+   "discardable"
+  ],
+  "O41:conv.n_gate_rejected": [
+   "diag",
+   "discardable"
+  ],
+  "O41:conv.n_invites": [
+   "diag",
+   "discardable"
+  ],
+  "O41:conv.n_accepted": [
+   "diag",
+   "discardable"
+  ],
+  "O41:conv.n_declined": [
+   "diag",
+   "discardable"
+  ],
+  "O41:conv.n_pending_expired": [
+   "diag",
+   "discardable"
+  ],
+  "O41:conv.n_invite_refractory_blocked": [
+   "diag",
+   "discardable"
+  ],
+  "O41:conv.n_blocks": [
+   "diag",
+   "discardable"
+  ],
+  "O41:conv.n_backchannels": [
+   "diag",
+   "discardable"
+  ],
+  "O41:conv.n_interrupts": [
+   "diag",
+   "discardable"
+  ],
+  "O41:conv.closed_by_reason": [
+   "diag",
+   "discardable"
+  ],
+  "O41:conv.ignored_events": [
+   "diag",
+   "discardable"
+  ],
+  "O41:conv.size_hist": [
+   "diag",
+   "discardable"
+  ],
+  "O41:conv.n_expired_purged": [
+   "diag",
+   "discardable"
+  ],
+  "O42:arbiter._pending": [
+   "behavior",
+   "required"
+  ],
+  "O42:arbiter._pool": [
+   "behavior",
+   "required"
+  ],
+  "O42:arbiter.queue": [
+   "behavior",
+   "required"
+  ],
+  "O42:arbiter._last_tick": [
+   "behavior",
+   "required"
+  ],
+  "O43:run_day.pending": [
+   "behavior",
+   "required"
+  ],
+  "O44:run_day.fleet_deferred": [
+   "behavior",
+   "required"
+  ],
+  "O44:run_day.fleet_waiting": [
+   "behavior",
+   "required"
+  ],
+  "O45:detector._prev_raw": [
+   "behavior",
+   "required"
+  ],
+  "O46:runner.salient.rng": [
+   "behavior",
+   "required"
+  ],
+  "O46:runner.salient.event_seen_tick": [
+   "behavior",
+   "required"
+  ],
+  "O46:runner.salient.budget": [
+   "behavior",
+   "required"
+  ],
+  "O47:runner.dispatch.rng": [
+   "behavior",
+   "required"
+  ],
+  "O47:runner.dispatch.pending": [
+   "behavior",
+   "required"
+  ],
+  "O48:runner.hotel.rooms_occupied": [
+   "behavior",
+   "required"
+  ],
+  "O48:runner.hotel.bed_cell": [
+   "behavior",
+   "required"
+  ],
+  "O49:runner.large_event._inside": [
+   "behavior",
+   "required"
+  ],
+  "O50:runner.rail.occupancy": [
+   "behavior",
+   "required"
+  ],
+  "O50:runner.rail.peak_ratio": [
+   "behavior",
+   "required"
+  ],
+  "O50:runner.rail._return_queue": [
+   "behavior",
+   "required"
+  ],
+  "O50:runner.rail._inbound": [
+   "behavior",
+   "required"
+  ],
+  "O50:runner.rail._inbound_ready": [
+   "behavior",
+   "required"
+  ],
+  "O51:runner.crowd.queue_action": [
+   "behavior",
+   "required"
+  ],
+  "O52:runner.shelf.backroom": [
+   "behavior",
+   "required"
+  ],
+  "O52:runner.shelf._acted_today": [
+   "behavior",
+   "required"
+  ],
+  "O53:runner.waste._cursor": [
+   "no",
+   "required"
+  ],
+  "O53:runner.waste.waste_g_collected": [
+   "no",
+   "required"
+  ],
+  "O53:runner.street_cleaning.litter_g": [
+   "no",
+   "required"
+  ],
+  "O53:runner.street_cleaning.swept_g": [
+   "no",
+   "required"
+  ],
+  "O53:runner.street_cleaning._cursor": [
+   "no",
+   "required"
+  ],
+  "O54:runner.road_works.blocked_cells": [
+   "no",
+   "required"
+  ],
+  "O54:runner.road_works.occupied_edges": [
+   "no",
+   "required"
+  ],
+  "O55:runner.last_mile.delivered": [
+   "no",
+   "derivable"
+  ],
+  "O55:runner.last_mile._cum": [
+   "no",
+   "derivable"
+  ],
+  "O55:runner.traffic.cell_hourly": [
+   "no",
+   "derivable"
+  ],
+  "O55:runner.traffic.cell_vehicles": [
+   "no",
+   "derivable"
+  ],
+  "O55:runner.infra.power_kwh": [
+   "no",
+   "derivable"
+  ],
+  "O55:runner.delivery_inbound.delay_minute": [
+   "no",
+   "derivable"
+  ],
+  "O56:runner.environment.replay_date": [
+   "behavior",
+   "derivable"
+  ],
+  "O56:runner.environment.stratum": [
+   "behavior",
+   "derivable"
+  ],
+  "O56:runner.environment._row": [
+   "behavior",
+   "derivable"
+  ],
+  "O56:runner.environment._shade": [
+   "behavior",
+   "derivable"
+  ],
+  "O57:ledger.money._lines": [
+   "behavior",
+   "required"
+  ],
+  "O57:ledger.money._day": [
+   "behavior",
+   "required"
+  ],
+  "O58:ledger.money._raw_tick": [
+   "no",
+   "discardable"
+  ],
+  "O58:ledger.money._raw_ps": [
+   "no",
+   "discardable"
+  ],
+  "O58:ledger.money._raw_pi": [
+   "no",
+   "discardable"
+  ],
+  "O58:ledger.money._raw_qs": [
+   "no",
+   "discardable"
+  ],
+  "O58:ledger.money._raw_qi": [
+   "no",
+   "discardable"
+  ],
+  "O58:ledger.money._raw_amt": [
+   "no",
+   "discardable"
+  ],
+  "O58:ledger.money._raw_code": [
+   "no",
+   "discardable"
+  ],
+  "O59:ledger.goods._shelf": [
+   "behavior",
+   "required"
+  ],
+  "O59:ledger.goods._bin": [
+   "behavior",
+   "required"
+  ],
+  "O59:ledger.goods._sold_today": [
+   "behavior",
+   "required"
+  ],
+  "O59:ledger.goods._day": [
+   "behavior",
+   "required"
+  ],
+  "O60:ledger.goods._dl_tick": [
+   "no",
+   "discardable"
+  ],
+  "O60:ledger.goods._dl_poi": [
+   "no",
+   "discardable"
+  ],
+  "O60:ledger.goods._dl_slot": [
+   "no",
+   "discardable"
+  ],
+  "O60:ledger.goods._dl_qty": [
+   "no",
+   "discardable"
+  ],
+  "O60:ledger.goods._dl_code": [
+   "no",
+   "discardable"
+  ],
+  "O61:runner.log": [
+   "no",
+   "discardable"
+  ],
+  "O62:undefined.log": [
+   "no",
+   "discardable"
+  ],
+  "O62:undefined.counts": [
+   "no",
+   "discardable"
+  ],
+  "O62:undefined.precedents": [
+   "no",
+   "discardable"
+  ],
+  "O63:renderer._b1_cache": [
+   "no",
+   "derivable"
+  ],
+  "O63:renderer._b2_cache": [
+   "no",
+   "derivable"
+  ],
+  "O63:renderer._b3_cache": [
+   "no",
+   "derivable"
+  ],
+  "O63:renderer._b4_cache": [
+   "no",
+   "derivable"
+  ],
+  "O63:renderer._rank_cell_cache": [
+   "no",
+   "derivable"
+  ],
+  "O63:renderer._acq_cache": [
+   "no",
+   "derivable"
+  ],
+  "O63:renderer._tickc": [
+   "no",
+   "derivable"
+  ],
+  "O64:renderer.acquaintance_fn": [
+   "no",
+   "discardable"
+  ],
+  "O64:renderer.memory_recall": [
+   "no",
+   "discardable"
+  ],
+  "O64:renderer.session_partner_fn": [
+   "no",
+   "discardable"
+  ],
+  "O64:renderer.named_closed_lookup": [
+   "no",
+   "discardable"
+  ],
+  "O64:renderer.signage_exposures": [
+   "no",
+   "discardable"
+  ],
+  "O66:act_layer.n_set": [
+   "diag",
+   "discardable"
+  ],
+  "O66:act_layer.n_expiry_candidates": [
+   "diag",
+   "discardable"
+  ],
+  "O66:act_layer.n_cell_suppressed": [
+   "diag",
+   "discardable"
+  ],
+  "O66:act_layer.n_arrival_expired": [
+   "diag",
+   "discardable"
+  ],
+  "O66:act_layer.n_partner_expired": [
+   "diag",
+   "discardable"
+  ],
+  "O66:act_layer.n_fail_immediate": [
+   "diag",
+   "discardable"
+  ],
+  "O66:act_layer.n_leave_expired": [
+   "diag",
+   "discardable"
+  ],
+  "O66:act_layer.n_wander_steps": [
+   "diag",
+   "discardable"
+  ],
+  "O66:act_layer.n_wander_bad": [
+   "diag",
+   "discardable"
+  ],
+  "O66:act_layer.n_intent_moves": [
+   "diag",
+   "discardable"
+  ],
+  "O66:act_layer.kind_counts": [
+   "diag",
+   "discardable"
+  ],
+  "O67:fam_layer.stats": [
+   "diag",
+   "discardable"
+  ],
+  "O68:poi_resolver.store_choice.first_by_reason": [
+   "diag",
+   "discardable"
+  ],
+  "O68:poi_resolver.store_choice.visits_by_reason": [
+   "diag",
+   "discardable"
+  ],
+  "O69:classical.n_calls": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_arrivals": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_departures": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_arrive_skipped": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_arrive_skipped_in_area": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_arrive_skipped_pulled": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_returned_to_block": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_depart_skipped": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_deferred": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_forced": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_shopping_interrupted": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_queue_balked": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_pulled_in": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_pushed_out": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_departed_by_llm": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_depart_dropped": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_rearmed": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_placed_at_start": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_gate_arrivals": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_spread_moved": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_spread_overflow": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.sleep_counts": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.sample_hours": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.sample_in_area": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.match_in_num": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.match_in_den": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.match_out_num": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.match_out_den": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.in_area_by_hour": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.wake_in_area_by_hour": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_home_out_slept_inside": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_walk_started": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_walk_waiting_at_start": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_walk_boarded": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_walk_departed": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_walk_gone": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_walk_restarted": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_rewalk_queued": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_rewalk_started": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_rewalk_forced": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_rewalk_gone": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_lost_final": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_too_far": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_lost": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_lost_deferred": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_gate_immediate": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_exit_no_platform": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_walk_wakes_suppressed": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.n_walk_calls": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.walk_minutes": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.lost_why": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.fallback_minutes": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.exit_cell_by_hour": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.platform_cell_by_hour": [
+   "diag",
+   "discardable"
+  ],
+  "O70:presence.exit_stage_max_by_hour": [
+   "diag",
+   "discardable"
+  ],
+  "O71:arbiter.budget_unused": [
+   "diag",
+   "discardable"
+  ],
+  "O71:arbiter._diag_total": [
+   "diag",
+   "discardable"
+  ],
+  "O71:arbiter._outside_total": [
+   "diag",
+   "discardable"
+  ],
+  "O71:arbiter._merged_total": [
+   "diag",
+   "discardable"
+  ],
+  "O71:arbiter._sleep_total": [
+   "diag",
+   "discardable"
+  ],
+  "O71:arbiter.n_calls_total": [
+   "diag",
+   "discardable"
+  ],
+  "O72:runner.salient.n_events": [
+   "diag",
+   "discardable"
+  ],
+  "O72:runner.salient.n_noticed": [
+   "diag",
+   "discardable"
+  ],
+  "O72:runner.salient.n_collapse": [
+   "diag",
+   "discardable"
+  ],
+  "O72:runner.salient.n_over_cap": [
+   "diag",
+   "discardable"
+  ],
+  "O72:runner.salient.n_broadcast_lines": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.dispatch.n_dispatched": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.dispatch.n_arrived": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.dispatch.delay_minutes_total": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.hotel.n_checkin": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.hotel.n_no_bed": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.hotel.n_checkout": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.large_event.n_in": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.large_event.n_out": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.press.n_releases": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.infra.water_m3": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_departures": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_arrivals": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_departed_riders": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_fare_rejected": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_left_behind": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_board_applicants": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_board_intent": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_board_walking": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_board_unreachable": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_board_waiting": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_board_timeout": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_board_dropped": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_boarded_from_queue": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_boarded_plan_exit": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_board_waiting_plan_exit": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_return_scheduled": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_return_arrived": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_no_return": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.rail.n_return_no_train": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.crowd.n_released": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.crowd.n_balked": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.crowd.peak_queue": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.crowd.peak_occupancy": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.shelf.n_role_actions": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.shelf.n_fallback": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.shelf.n_no_backroom": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.shelf.n_rejected": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.shelf.units_restocked": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.shelf.yen_paid": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.delivery_inbound.n_runs": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.delivery_inbound.n_delayed": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.delivery_inbound.units_delivered": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.waste.n_stops": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.waste.n_bin_rows": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.waste.n_consumed": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.waste.consumed_g": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.street_cleaning.n_swept_cells": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.last_mile.n_batches": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.bus_taxi.n_arrivals": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.road_works.n_started": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.road_works.n_finished": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.traffic.daily_vehicle_km": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.opening.n_role_actions": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.opening.n_fallback": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.opening.n_events": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.environment.n_updates": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.environment.shadow_missing": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.n_steps": [
+   "diag",
+   "discardable"
+  ],
+  "O73:runner.phase_seconds": [
+   "diag",
+   "discardable"
+  ],
+  "O74:runner.rail.arrival_train": [
+   "behavior",
+   "required"
+  ],
+  "O74:runner.rail.external_line": [
+   "behavior",
+   "required"
+  ],
+  "O75:runner.crowd.occupancy": [
+   "behavior",
+   "unknown"
+  ],
+  "O75:runner.crowd.queue_len": [
+   "behavior",
+   "unknown"
+  ],
+  "O75:runner.crowd.flow": [
+   "behavior",
+   "unknown"
+  ],
+  "O76:runner.environment.daylight": [
+   "behavior",
+   "derivable"
+  ],
+  "O76:runner.environment.heat_stage": [
+   "behavior",
+   "derivable"
+  ],
+  "O76:runner.environment.wbgt": [
+   "behavior",
+   "derivable"
+  ],
+  "O77:ledger.money._flow": [
+   "diag",
+   "required"
+  ],
+  "O77:ledger.money._last_change_day": [
+   "diag",
+   "required"
+  ],
+  "O77:ledger.money._snap0": [
+   "diag",
+   "required"
+  ],
+  "O77:ledger.money._last_close": [
+   "diag",
+   "required"
+  ],
+  "O78:ledger.money.rejections": [
+   "diag",
+   "discardable"
+  ],
+  "O79:ledger.goods._shelf_age": [
+   "behavior",
+   "required"
+  ],
+  "O79:ledger.goods._household_sku": [
+   "behavior",
+   "required"
+  ],
+  "O80:ledger.goods._row_sku": [
+   "diag",
+   "required"
+  ],
+  "O80:ledger.goods._waste_sku": [
+   "diag",
+   "required"
+  ],
+  "O80:ledger.goods._inflow": [
+   "diag",
+   "required"
+  ],
+  "O80:ledger.goods._outflow": [
+   "diag",
+   "required"
+  ],
+  "O80:ledger.goods._residual": [
+   "diag",
+   "required"
+  ],
+  "O80:ledger.goods._open_stock": [
+   "diag",
+   "required"
+  ],
+  "O80:ledger.goods.store_waste_g_total": [
+   "diag",
+   "required"
+  ],
+  "O80:ledger.goods._day_waste_g": [
+   "diag",
+   "required"
+  ],
+  "O80:ledger.goods._waste_g_daily": [
+   "diag",
+   "required"
+  ],
+  "O80:ledger.goods._last_close": [
+   "diag",
+   "required"
+  ],
+  "O81:ledger.goods.n_moves": [
+   "diag",
+   "discardable"
+  ],
+  "O81:ledger.goods.rejections": [
+   "diag",
+   "discardable"
+  ],
+  "O82:undefined.proposals": [
+   "no",
+   "unknown"
+  ],
+  "O82:undefined.vocabulary_extension": [
+   "no",
+   "unknown"
+  ],
+  "O82:undefined._agents": [
+   "no",
+   "unknown"
+  ],
+  "O83:undefined.n_dropped_records": [
+   "diag",
+   "discardable"
+  ],
+  "O83:undefined.n_adjudication_calls": [
+   "diag",
+   "discardable"
+  ],
+  "O83:undefined.n_dictionary_mapped": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.memory_lines": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.memory_items": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.memory_line_tokens": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.memory_items_dropped_for_budget": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.memory_items_dropped_for_channel": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.memory_lines_over_budget": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.near_order_ties": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.near_tie_breaks": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.near_tie_candidates": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.cache_hits": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.cache_misses": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.renders": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.truncation_count": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.intent_lines": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.intent_lines_over_budget": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.named_closed_notes": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.signage_gate_draws": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.signage_gate_shown": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.signage_by_kind": [
+   "diag",
+   "discardable"
+  ],
+  "O84:renderer.signage_effective_p": [
+   "diag",
+   "discardable"
+  ],
+  "O85:bridge._interned": [
+   "no",
+   "required"
+  ],
+  "O86:bridge.n_calls": [
+   "diag",
+   "discardable"
+  ],
+  "O86:bridge.n_parse_errors": [
+   "diag",
+   "discardable"
+  ],
+  "O86:bridge.n_parse_errors_strict": [
+   "diag",
+   "discardable"
+  ],
+  "O86:bridge.n_label_alias": [
+   "diag",
+   "discardable"
+  ],
+  "O86:bridge.n_positional": [
+   "diag",
+   "discardable"
+  ],
+  "O86:bridge.n_dictionary_mapped": [
+   "diag",
+   "discardable"
+  ],
+  "O86:bridge.n_unknown_action": [
+   "diag",
+   "discardable"
+  ],
+  "O86:bridge.n_undefined_mapped": [
+   "diag",
+   "discardable"
+  ],
+  "O86:bridge.n_role_actions": [
+   "diag",
+   "discardable"
+  ],
+  "O86:bridge.n_tape_misses": [
+   "diag",
+   "discardable"
+  ],
+  "O86:bridge.n_deferred": [
+   "diag",
+   "discardable"
+  ],
+  "O86:bridge.n_tape_rows": [
+   "diag",
+   "discardable"
+  ],
+  "O87:bridge.tape._rows": [
+   "no",
+   "discardable"
+  ],
+  "O87:bridge.tape._blocks": [
+   "no",
+   "discardable"
+  ],
+  "O87:bridge.tape._n_written": [
+   "no",
+   "discardable"
+  ],
+  "O87:bridge.tape._n_deferred": [
+   "no",
+   "discardable"
+  ],
+  "O88:fleet_bridge._interned": [
+   "no",
+   "required"
+  ],
+  "O89:fleet_bridge.n_debug_rows": [
+   "diag",
+   "discardable"
+  ],
+  "O89:fleet_bridge.n_debug_skipped": [
+   "diag",
+   "discardable"
+  ],
+  "O89:fleet_bridge.n_calls": [
+   "diag",
+   "discardable"
+  ],
+  "O89:fleet_bridge.n_parse_errors": [
+   "diag",
+   "discardable"
+  ],
+  "O89:fleet_bridge.n_parse_errors_strict": [
+   "diag",
+   "discardable"
+  ],
+  "O89:fleet_bridge.n_label_alias": [
+   "diag",
+   "discardable"
+  ],
+  "O89:fleet_bridge.n_positional": [
+   "diag",
+   "discardable"
+  ],
+  "O89:fleet_bridge.n_dictionary_mapped": [
+   "diag",
+   "discardable"
+  ],
+  "O89:fleet_bridge.n_unknown_action": [
+   "diag",
+   "discardable"
+  ],
+  "O89:fleet_bridge.n_undefined_mapped": [
+   "diag",
+   "discardable"
+  ],
+  "O89:fleet_bridge.n_role_actions": [
+   "diag",
+   "discardable"
+  ],
+  "O89:fleet_bridge.n_deferred": [
+   "diag",
+   "discardable"
+  ],
+  "O89:fleet_bridge.n_deferred_rows": [
+   "diag",
+   "discardable"
+  ],
+  "O89:fleet_bridge.n_tape_rows": [
+   "diag",
+   "discardable"
+  ],
+  "O90:classical._ipf_cache": [
+   "behavior",
+   "required"
+  ],
+  "O91:conv.n_opened": [
+   "behavior",
+   "required"
+  ],
+  "O92:ledger.money._snap": [
+   "diag",
+   "required"
+  ],
+  "O92:ledger.money._flow_daily": [
+   "diag",
+   "required"
+  ],
+  "O92:ledger.money._raw_pos": [
+   "diag",
+   "required"
+  ],
+  "O92:ledger.money._raw_head": [
+   "diag",
+   "required"
+  ],
+  "O92:ledger.money._day_marks": [
+   "diag",
+   "required"
+  ],
+  "O92:ledger.money.n_raw_dropped": [
+   "diag",
+   "required"
+  ],
+  "O92:ledger.money.n_transfers": [
+   "diag",
+   "required"
+  ],
+  "O93:ledger.goods._dl_pos": [
+   "diag",
+   "required"
+  ],
+  "O93:ledger.goods._dl_head": [
+   "diag",
+   "required"
+  ],
+  "O93:ledger.goods._dl_marks": [
+   "diag",
+   "required"
+  ],
+  "O93:ledger.goods.n_delivery_dropped": [
+   "diag",
+   "required"
+  ],
+  "O94:poi_resolver.named_closed": [
+   "behavior",
+   "required"
+  ],
+  "O95:runner.crowd.flow_dir8": [
+   "diag",
+   "unknown"
+  ],
+  "O95:runner.crowd.coherence": [
+   "diag",
+   "unknown"
+  ],
+  "O96:run_day.replay_inbox": [
+   "no",
+   "required"
+  ]
+ }
+}

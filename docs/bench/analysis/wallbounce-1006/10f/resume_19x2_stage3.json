@@ -1,0 +1,311 @@
+{
+ "schema": "shibuya.bench/10f/resume-19x2/1",
+ "how": "byte-check の 19 構成(wave2)× 世界資産 300 体・seed 1・2 日・checkpoint 60 ごと。止める時刻 T=750・1440 で npz+json の状態を書き、再開のランの T 以後の checkpoint(final・behavior-hash・full-hash)が通しと同じか(equal)・呼数の合計が同じか(calls_equal)。bytes は状態のファイルの大きさ",
+ "rows": [
+  {
+   "config": "w6_v3_default",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 101975,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 114016,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "w6_v3_activity_off",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 90822,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 96891,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "w6_v1_default",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 90553,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 96437,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "w6_v1_derive_v2_1",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 90013,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 96043,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "w6_v2",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 90755,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 95889,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "w6_v1_edge",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 90043,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 95939,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "w6_v2_edge",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 90306,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 96220,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "w6_v1_edge_plateau",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 90043,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 95941,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "w6_old_v1_default",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 90509,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 96421,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "w6_old_v1_derive_v2_1",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 89962,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 96037,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "w6_old_v2",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 90719,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 95871,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "w6_old_v1_edge",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 89998,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 95920,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "w6_old_v2_edge",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 90291,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 96191,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "w6_old_v1_edge_plateau",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 89999,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 95921,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "w6_golden_null_arm",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 95980,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 94758,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "v3_mem_store",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 129716,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 160561,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "v3_mem_rel",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 120709,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 146116,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "v3_classical",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 107042,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 123347,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  },
+  {
+   "config": "v3_classical_mem_rel",
+   "stop750": {
+    "file": "state-T00000750.npz",
+    "bytes": 121687,
+    "equal": true,
+    "calls_equal": true
+   },
+   "stop1440": {
+    "file": "state-T00001440.npz",
+    "bytes": 147227,
+    "equal": true,
+    "calls_equal": true
+   },
+   "returncode": 0
+  }
+ ],
+ "all_equal": true
+}

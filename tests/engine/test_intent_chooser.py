@@ -274,32 +274,23 @@ def test_poi_target_switch_values_q13():
     assert res.target_resolution == {}
 
 
-@pytest.mark.skipif(not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="実世界資産が無い")
-def test_poi_target_legacy_reproduces_the_pre_2a_checkpoints_q13(monkeypatch):
-    """親決定 Q13: ``--poi-target legacy`` で段 2a 前の checkpoint(02bd0312・b4ad8140)を再現する。
+@pytest.mark.requires_data("world_v2:w17_schedule.parquet")
+def test_poi_target_legacy_reproduces_the_pre_2a_checkpoints_q13():
+    """親決定 Q13: ``--poi-target legacy``(段 2a 前の対象の選び方)の値を固定する。
 
-    段 2c(第288)で意図の 4 欄(+10 B/体)が既定で確保され、全 checkpoint が欄のぶん動いた。
-    ``legacy`` では意図の層が働かない(欄を確保するだけ)ので、**欄を混ぜないハッシュ**
-    (``Registry.state_hash(exclude=INTENT_FIELDS)``)で旧値がそのまま出る=挙動は 1 バイトも
-    変わっていない。欄を混ぜた新しい値: v3 ``b3287fa8e93305a5`` / 帰無腕 ``e1c182cbb064aa8b``。
+    〔改訂(第330・RET)〕前は段 2a 前の checkpoint(02bd0312 / 36,460・b4ad8140 / 41,072)そのものを、欄を混ぜない
+    ハッシュ(``Registry.state_hash(exclude=INTENT_FIELDS)``)と 10e より前の final の定義・乱数・世界の資産・暦で再現した
+    (ACT の commit で通った)。旧値を再現する切替口を消したので、``legacy``(+上限 1.0・空腹 v1・退去の効果 off)の
+    **今の値**(final=behavior-hash)を固定する。
     """
-    from shibuya.agents.state import INTENT_FIELDS, AgentState
     from shibuya.cli import run as cli_run
 
-    monkeypatch.setattr(
-        AgentState, "state_hash",
-        lambda self: self.registry.state_hash(exclude=INTENT_FIELDS),
-    )
-    # 3 段目(第289): CLI/cli.run の既定が無制限になったので旧挙動の上限(l4_scale=1.0)を明示する
-    # 5 段目 5a(第291): cli.run の空腹の既定が energy になったので旧規則(hunger_model="v1")を明示する
-    # 9a(第302): 退去の効果(所属解除)が既定になったので旧挙動(leave_effect=False)を明示する
-    v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
-                 poi_target="legacy", l4_scale=1.0, hunger_model="v1", leave_effect=False)
-    assert v3.final_hash.startswith("02bd03126d5f41cb") and int(v3.llm_calls) == 36_460
-    null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-                   report_precondition=False, poi_target="legacy", l4_scale=1.0,
-                   hunger_model="v1", leave_effect=False)
-    assert null.final_hash.startswith("b4ad8140fe4176db") and int(null.llm_calls) == 41_072
+    kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), poi_target="legacy", l4_scale=1.0,
+              hunger_model="v1", leave_effect=False)
+    v3 = cli_run(vocab_version="v3", **kw)
+    assert v3.final_hash.startswith("66f0d41736514fa4") and int(v3.llm_calls) == 36_146  # 〔2-4 V1〕前 9bc6929fbb0da5e8 / 36_275  # 〔2-4 V2〕前 bff3eed45a39ea62 / 36_296  # 〔2-4 V4〕前 6d0ad8b13125ea5a / 36_246
+    null = cli_run(plan_executor=False, report_precondition=False, **kw)
+    assert null.final_hash.startswith("cee40ff700954d37") and int(null.llm_calls) == 40_957  # 〔2-4 V1〕前 ce33abec7629c811  # 〔2-4 V2〕前 4679b0a6f6d2fa1e / 40_963  # 〔2-4 V4〕前 319e347ffe08946b
 
 
 def test_category_table_uses_known_w6_values_only():
@@ -312,7 +303,7 @@ def test_category_table_uses_known_w6_values_only():
         assert s <= set(PC.SUBCAT_TOPCAT), word
 
 
-@pytest.mark.skipif(not (WORLD_DIR / "w8_t1_cell.parquet").exists(), reason="実世界資産が無い")
+@pytest.mark.requires_data("world_v2:w8_t1_cell.parquet")
 def test_poi_visibility_is_read_from_w8_on_the_real_world():
     w = World.load_or_synthetic(WORLD_DIR, n_cells=139, seed=1)
     v = w.poi_visibility

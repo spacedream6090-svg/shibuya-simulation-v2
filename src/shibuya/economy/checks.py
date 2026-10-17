@@ -59,9 +59,11 @@ from shibuya.economy.accounts import (
     FlowKind,
     Sector,
     flow_kind,
+    registered_cells,
 )
 
 __all__ = [
+    "conservation_check",
     "RESIDUAL_THRESHOLD_RATIO",
     "HOARD_DAYS",
     "FlowCheck",
@@ -405,3 +407,54 @@ def check_all(ledger, goods=None, close=None) -> CheckReport:
         ex_nihilo_ok=ex_nihilo_ok(ledger),
         faucet_sink=faucet_sink_totals(ledger, flow),
     )
+
+
+#: 〔2-1〕保存則の検算で「部門の残高」に数える部門(貨幣供給量 M と同じ=世帯・店舗・雇用主の現金+預金)。
+_INSIDE: Final[tuple[int, ...]] = (int(Sector.HOUSEHOLD), int(Sector.STORE), int(Sector.EMPLOYER))
+
+
+def conservation_check(close: Any, cells: Mapping[tuple[int, int, int], FlowKind] | None = None) -> dict[str, Any]:
+    """〔第 2 期 2-1・口の約束 1-9 の約束 (3)〕締めの日の保存則の検算(faucet/sink の全登録)。
+
+    部門の残高の合計の変化 ΔM(世帯・店舗・雇用主の現金+預金)= 登録の faucet − 登録の sink を見る。登録
+    (``accounts.FLOW_REGISTRY``)の外の組に額が載っていれば「登録の無い流れ」(``unregistered``)として落とす。
+    残差の科目は 1 つ ``residual`` = ΔM − (faucet − sink)(0 であること)。科目「残差科目」の流れも 0 であること。
+
+    Args:
+        close: ``Ledger.on_day_end`` の締め(``DayClose``)。
+        cells: 登録の組(既定 ``accounts.registered_cells()``・負の対照の試験が差し替える)。
+
+    Returns:
+        ``{"faucet", "sink", "internal", "unregistered", "delta_money", "residual", "residual_code", "ok"}``
+        (どれも円の整数・``ok`` は真偽)。
+
+    逐次ループ宣言(P4): 部門 × 部門 × 科目(540)の走査 1 回。個体数には比例しない。
+    """
+    reg = registered_cells() if cells is None else cells
+    flow = np.asarray(close.flow, dtype=np.int64)
+    sums = {FlowKind.FAUCET: 0, FlowKind.SINK: 0, FlowKind.INTERNAL: 0}
+    unregistered = 0
+    nz = np.argwhere(flow != 0)
+    for a, b, c in nz.tolist():  # 逐次ループ宣言: 額の載った欄の数(≤ 540)
+        amt = int(flow[a, b, c])
+        kind = reg.get((int(c), int(a), int(b)))
+        if kind is None:
+            unregistered += amt
+        elif kind in sums:
+            sums[kind] += amt
+    d_cash = np.asarray(close.d_cash, dtype=np.int64)
+    d_dep = np.asarray(close.d_deposit, dtype=np.int64)
+    delta = int(sum(int(d_cash[s]) + int(d_dep[s]) for s in _INSIDE))
+    faucet, sink = int(sums[FlowKind.FAUCET]), int(sums[FlowKind.SINK])
+    residual = delta - (faucet - sink)
+    residual_code = int(flow[:, :, int(AccountCode.RESIDUAL)].sum())
+    return {
+        "faucet": faucet,
+        "sink": sink,
+        "internal": int(sums[FlowKind.INTERNAL]),
+        "unregistered": int(unregistered),
+        "delta_money": delta,
+        "residual": int(residual),
+        "residual_code": residual_code,
+        "ok": bool(residual == 0 and unregistered == 0 and residual_code == 0),
+    }

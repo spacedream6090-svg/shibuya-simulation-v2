@@ -1,0 +1,192 @@
+{
+ "config": "v3_default",
+ "n_agents": 1000,
+ "final": "a2edde01b409d6a1",
+ "calls": 12614,
+ "procs": {
+  "environment": {
+   "visits": 66,
+   "changed": {
+    "O56:runner.environment._shade": 13,
+    "O73:runner.environment.n_updates": 13,
+    "O76:runner.environment.daylight": 1,
+    "O76:runner.environment.heat_stage": 2,
+    "O76:runner.environment.wbgt": 4,
+    "agents.thermal": 13
+   }
+  },
+  "opening": {
+   "visits": 66,
+   "changed": {
+    "O73:runner.opening.n_events": 4,
+    "O73:runner.opening.n_fallback": 4,
+    "pois.open_now": 4
+   }
+  },
+  "crowd": {
+   "visits": 66,
+   "changed": {
+    "O73:runner.crowd.n_released": 33,
+    "O73:runner.crowd.peak_occupancy": 2,
+    "O75:runner.crowd.flow": 66,
+    "O75:runner.crowd.occupancy": 46,
+    "O95:runner.crowd.coherence": 63,
+    "O95:runner.crowd.flow_dir8": 63,
+    "agents.activity": 26,
+    "agents.poi_ref": 33,
+    "agents.poi_since": 33
+   }
+  },
+  "traffic": {
+   "visits": 66,
+   "changed": {
+    "O55:runner.traffic.cell_vehicles": 2
+   }
+  },
+  "street_cleaning": {
+   "visits": 66,
+   "changed": {
+    "O53:runner.street_cleaning.litter_g": 66
+   }
+  },
+  "road_works": {
+   "visits": 66,
+   "changed": {
+    "O54:runner.road_works.blocked_cells": 1,
+    "O54:runner.road_works.occupied_edges": 1,
+    "O73:runner.road_works.n_started": 1
+   }
+  },
+  "infra": {
+   "visits": 66,
+   "changed": {
+    "O55:runner.infra.power_kwh": 66,
+    "O73:runner.infra.water_m3": 66
+   }
+  },
+  "salient": {
+   "visits": 66,
+   "changed": {
+    "O46:runner.salient.budget": 66,
+    "O72:runner.salient.n_broadcast_lines": 3
+   }
+  },
+  "presence.step_plan_boundaries": {
+   "visits": 59,
+   "changed": {
+    "O70:presence.sleep_counts": 12,
+    "agents.activity": 8,
+    "agents.plan_activity": 59
+   }
+  },
+  "presence.step": {
+   "visits": 66,
+   "changed": {
+    "O36:presence._extra": 9,
+    "O36:presence._skip_depart_at": 14,
+    "O70:presence.n_arrivals": 29,
+    "O70:presence.n_arrive_skipped": 8,
+    "O70:presence.n_arrive_skipped_pulled": 8,
+    "O70:presence.n_depart_dropped": 14,
+    "O70:presence.n_departures": 19,
+    "O70:presence.n_shopping_interrupted": 6,
+    "agents.activity": 43,
+    "agents.band": 18,
+    "agents.cell": 43,
+    "agents.node": 43,
+    "agents.plan_activity": 27,
+    "agents.plan_flags": 20,
+    "agents.poi_ref": 6,
+    "agents.poi_since": 6,
+    "agents.target_node": 6,
+    "agents.transit_ref": 42,
+    "agents.transit_state": 43,
+    "agents.xy": 29
+   }
+  },
+  "rail": {
+   "visits": 66,
+   "changed": {
+    "O36:presence._extra": 10,
+    "O36:presence._skip_depart_at": 5,
+    "O50:runner.rail.occupancy": 13,
+    "O70:presence.n_departed_by_llm": 13,
+    "O70:presence.n_returned_to_block": 10,
+    "O73:runner.rail.n_departed_riders": 13,
+    "O73:runner.rail.n_departures": 56,
+    "agents.activity": 13,
+    "agents.transit_ref": 13,
+    "agents.transit_state": 13
+   }
+  },
+  "delivery_inbound": {
+   "visits": 66,
+   "changed": {
+    "O52:runner.shelf.backroom": 20,
+    "O73:runner.delivery_inbound.n_delayed": 17,
+    "O73:runner.delivery_inbound.n_runs": 20,
+    "O73:runner.delivery_inbound.units_delivered": 20
+   }
+  },
+  "waste": {
+   "visits": 66,
+   "changed": {
+    "O53:runner.waste._cursor": 20,
+    "O53:runner.waste.waste_g_collected": 20,
+    "O59:ledger.goods._bin": 20,
+    "O60:ledger.goods._dl_code": 20,
+    "O60:ledger.goods._dl_poi": 20,
+    "O60:ledger.goods._dl_qty": 20,
+    "O60:ledger.goods._dl_tick": 20,
+    "O73:runner.waste.n_stops": 20,
+    "O80:ledger.goods._day_waste_g": 20,
+    "O80:ledger.goods._outflow": 20,
+    "O80:ledger.goods._waste_sku": 20,
+    "O80:ledger.goods.store_waste_g_total": 20,
+    "O81:ledger.goods.n_moves": 20,
+    "O93:ledger.goods._dl_pos": 20
+   }
+  },
+  "bus_taxi": {
+   "visits": 66,
+   "changed": {
+    "O73:runner.bus_taxi.n_arrivals": 60
+   }
+  },
+  "press": {
+   "visits": 66,
+   "changed": {
+    "O73:runner.press.n_releases": 3
+   }
+  },
+  "last_mile": {
+   "visits": 66,
+   "changed": {
+    "O55:runner.last_mile.delivered": 2,
+    "O73:runner.last_mile.n_batches": 2
+   }
+  },
+  "large_event": {
+   "visits": 66,
+   "changed": {
+    "O37:presence._pulled_in_today": 1,
+    "O49:runner.large_event._inside": 1,
+    "O70:presence.n_pulled_in": 1,
+    "O73:runner.large_event.n_in": 1,
+    "agents.activity": 1,
+    "agents.band": 1,
+    "agents.cell": 1,
+    "agents.node": 1,
+    "agents.plan_flags": 1,
+    "agents.transit_ref": 1,
+    "agents.transit_state": 1,
+    "agents.xy": 1
+   }
+  }
+ },
+ "no_change": [
+  "dispatch",
+  "hotel",
+  "shelf"
+ ]
+}

@@ -24,6 +24,8 @@ from shibuya.perception.renderer import (
 )
 from shibuya.world.state import World
 
+from tests import golden_env as GE
+
 from .test_nearby_vectorized import _reference_nearby_items, crowd
 
 
@@ -150,26 +152,38 @@ def test_cli_flag_and_manifest():
 #: classical 1,500 体・seed 1・v3(実世界資産)の final。
 #: ``hash``(既定)= 第304 Q130 の距離順+Q107 の同点撹拌 / ``hash_order_id`` = 第304(3c86b6b)の既定=並びは行番号の
 #: 昇順(Q130 の前)/ ``classical_tie_id`` = 両方 id = HEAD bb44474 の既定と同じ(Q107 の前=旧 golden)。
-CLASSICAL_1500_GOLDEN = {
-    "hash": ("91732f34f9e2da62d543f77fef773f4600a8b94380f6bafd42203e98f5b8417c", 26_869),
-    "hash_order_id": ("e0a6f3f90fd8fe388312ff4f472239e59cc0194fed50accc4b5073d4bfdfc1a0", 26_845),
-    "classical_tie_id": ("803f04417718539898234b865bb5c6c16b50d7328b28ebd6e412b2b4db311d3b", 26_753),
-}
+#: 第2波 §2A 項 3-1: 3 本とも**交際の相手の旧規則**(``classical_social="near_first"``=近接行の最初の人)の値。
+#: 既定(``acquaintance``)の値は ``CLASSICAL_1500_GOLDEN_ACQ``。
+#: 10f(K26 (1)): 一番外側の鍵は環境の ``platform_id``(``tests/golden_env.py``)。行の無い環境では A/A だけ。値は 10f の前のまま。
+#: 〔改訂(第330・RET)〕前の 3 本は 10e より前の final の定義・乱数・世界の資産・暦の値(hash 91732f34…/26,869・
+#: hash_order_id e0a6f3f9…/26,845・classical_tie_id 803f0441…/26,753=ACT の commit で切替口を通して再現できた)。
+#: 旧値を再現する切替口を消したので、今の値(final=behavior-hash)に張り替えた。
+CLASSICAL_1500_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
+    "hash": ("4b3db260a5320a17a0d99800e70adb3eba82d11504a1ee54bd26a1812e2e153f", 25_335),  # 〔2-4 V1〕前 87492778f4582d8fa067757d32b1953516997c92494089ab124840aaaa765bdb / 25_890  # 〔2-4 V2〕前 26b748695ffbf7f928f57352d9169fea630f12ca86efc13af383693411e0c578 / 25_638  # 〔2-4 V3〕前 e313dfaace60e42505a25a5b9f6a530e0e291dcd426260dea26f2f1a86c0da86 / 25_363  # 〔2-4 V4〕前 e4185ac9f6901403328403d6591c8cd43857a24de2938b3f2158e82a50e9ee3d
+    "hash_order_id": ("c2a7d4823ef8acc1dd893a95b1b931473ff5391cfa5070b51d19675c9e71cfe2", 25_284),  # 〔2-4 V1〕前 b7697fcafb4ba63b18f486b70b99ad12068e4a12b66482a9be13d4ad8414e97b / 25_828  # 〔2-4 V2〕前 0dc35b774a45a23ba0f3e5e2cd79a5cb2f77f5f88ce60dddb9df7b05dc36dc68 / 25_653  # 〔2-4 V3〕前 348df7c410fca9ec4731eb96a6527f4539a6444b30ab14657c8bb7792205c396 / 25_297  # 〔2-4 V4〕前 9a9dc58f833bdfd7c6fc37140b876df695dd6344bb27dc12527c6599670a9080
+    "classical_tie_id": ("0a1ce7b6e5c750d67375acf255306a8743c9817192f054d10a0889cae25c58de", 25_307),  # 〔2-4 V1〕前 49c3fae02c2de5ecb68c93366fcd6d38139b967a7883b2c5960fa16219cd75d3 / 25_877  # 〔2-4 V2〕前 b5373e67f412225616d1ab6084c2e1ac9fcde380f086b8b78d5b1646ba9547c1 / 25_716  # 〔2-4 V3〕前 aaf28867cc84660da16f47da698d457c940eb6d37c680e0ed8aab71da1f9e977 / 25_335  # 〔2-4 V4〕前 ee6d9b7b47b8261812a267bcd81fb7983d1daddcd8d4a2c0a3536d54851a6660
+}}
+#: 今の環境の行(無ければ ``None``=A/A だけ)。
+CLASSICAL_1500_GOLDEN = GE.row(CLASSICAL_1500_GOLDEN_BY_ENV)
 
 
+@pytest.mark.requires_data("world_v2:w2_cells.parquet")
 def test_classical_checkpoint_moves_with_hash_and_id_reproduces_the_old_one():
     from pathlib import Path
 
     from shibuya import cli
 
     world = Path("data/world/v2")
-    if not (world / "w2_cells.parquet").exists():
-        pytest.skip("実世界資産 data/world/v2 が無い")
+    # 〔改訂(第330・RET)〕前は 3 本とも 10e より前の値を切替口(hash full・rng stateful・旧資産・暦)で再現した=今の値に
     kw = dict(n_agents=1500, seed=1, world_dir=str(world), vocab_version="v3", policy="classical",
-              chooser="classical")
+              chooser="classical", classical_social="near_first")
     new = cli.run(**kw)
-    mid = cli.run(near_order="id", **kw)
     old = cli.run(near_tiebreak="id", near_order="id", **kw)
+    if CLASSICAL_1500_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(既定の hash の 1 本)+切替が効くこと
+        GE.assert_aa(lambda: cli.run(**kw), lambda r: (r.final_hash, int(r.llm_calls)), first=new)
+        assert new.final_hash != old.final_hash
+        return
+    mid = cli.run(near_order="id", **kw)
     assert (new.final_hash, int(new.llm_calls)) == CLASSICAL_1500_GOLDEN["hash"]
     assert (mid.final_hash, int(mid.llm_calls)) == CLASSICAL_1500_GOLDEN["hash_order_id"]
     assert (old.final_hash, int(old.llm_calls)) == CLASSICAL_1500_GOLDEN["classical_tie_id"]

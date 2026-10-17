@@ -24,6 +24,7 @@ from shibuya.agents.state import (
 from shibuya.engine import memory as M
 from shibuya.engine import store_memory as SM
 from shibuya.engine.familiarity import place_thing
+from tests import golden_env as GE
 
 SRC = Path("src/shibuya")
 OK = int(ResultCode.OK)
@@ -212,7 +213,7 @@ def test_decay_modes():
 def runs():
     from shibuya.engine.run import run_day
 
-    kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3")
+    kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
     off = run_day(**kw)
     mem = run_day(memory="on", **kw)
     mp = pytest.MonkeyPatch()
@@ -238,9 +239,9 @@ def test_default_has_no_store_table_and_store_on_keeps_behavior(runs):
     m = off.run_manifest_fields()
     assert m["store_memory"] is False and m["store_memory_summary"] == {}
     assert not any(f in off.agents.registry for f in STORE_MEMORY_FIELDS)
-    assert store_wo.final_hash == mem.final_hash                  # 書くだけ=記憶の腕と同じ挙動
-    assert store_wo_all.final_hash == off.final_hash              # 記憶も店も混ぜなければ off と同じ
-    assert store.final_hash != mem.final_hash                     # 店の欄は checkpoint に混ざる
+    assert GE.soa_combined(store_wo.checkpoints[-1]) == GE.soa_combined(mem.checkpoints[-1])                  # 書くだけ=記憶の腕と同じ挙動
+    assert GE.soa_combined(store_wo_all.checkpoints[-1]) == GE.soa_combined(off.checkpoints[-1])              # 記憶も店も混ぜなければ off と同じ
+    assert GE.soa_combined(store.checkpoints[-1]) != GE.soa_combined(mem.checkpoints[-1])                     # 店の欄は checkpoint に混ざる
     assert store.llm_calls == mem.llm_calls == off.llm_calls
 
 

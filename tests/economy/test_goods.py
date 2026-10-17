@@ -128,7 +128,7 @@ def test_inventory_value_feeds_the_money_ledger_and_check_two_still_holds():
     led = Ledger(2, 2)
     led.endow_stores(np.array([50_000, 50_000]), tick=0)
     g.restock_many(np.array([0]), np.array([10]), tick=1, money=led)
-    with led.unlocked():
+    with led._unlocked():  # 〔1-9・検収 M2〕台帳の窓は内部の名(試験だけが外から開ける)
         led.revalue_inventory(int(Sector.STORE), g.inventory_value())
     rep = CK.net_worth_equals_real_assets(led, g)
     assert rep.ok, rep.as_text()

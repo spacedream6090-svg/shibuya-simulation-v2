@@ -1,0 +1,56 @@
+{
+ "agents": 5000,
+ "runs": {
+  "declared_s1": {
+   "returncode": 0,
+   "wall_seconds": 39.3,
+   "final_line": "993276d5e5bb5cbe",
+   "llm_calls": 69978
+  },
+  "declared_s2": {
+   "returncode": 0,
+   "wall_seconds": 39.1,
+   "final_line": "9a58ccb752cf01e3",
+   "llm_calls": 69849
+  },
+  "declared_s3": {
+   "returncode": 0,
+   "wall_seconds": 37.9,
+   "final_line": "ee6e397943764d27",
+   "llm_calls": 70478
+  },
+  "w7_cols_s1": {
+   "returncode": 0,
+   "wall_seconds": 37.2,
+   "final_line": "993276d5e5bb5cbe",
+   "llm_calls": 69978
+  },
+  "w17_v1_s1": {
+   "returncode": 0,
+   "wall_seconds": 28.7,
+   "final_line": "23735ea1de91a783",
+   "llm_calls": 45737
+  }
+ },
+ "wall_seconds": 182.1,
+ "seed_null": {
+  "pairs": {
+   "declared_s1~declared_s2": 0.0021079667793534674,
+   "declared_s1~declared_s3": 0.0017780328715086293,
+   "declared_s2~declared_s3": 0.0009828921199444404
+  },
+  "max": 0.0021079667793534674
+ },
+ "controls": {
+  "W7#3/W7#4/W7#13": {
+   "world": "w7_plan_spec の violability=全 enforced・revising_authority=any_role",
+   "jsd_vs_declared_s1": 0.0,
+   "final_same": true
+  },
+  "W17#1": {
+   "world": "w17_schedule=v1(w17v1_backup)",
+   "jsd_vs_declared_s1": 0.015876394635557685,
+   "final_same": false
+  }
+ }
+}

@@ -358,7 +358,7 @@ def test_parquet_roundtrip_and_outputs(dy, anchors, tmp_path):
     assert Path(paths["json"]).exists() and Path(paths["md"]).exists()
 
 
-def test_parquet_file_path_is_accepted(dy, anchors, tmp_path):
+def test_parquet_file_path_is_accepted(dy, anchors, anchors_file, tmp_path):
     """``--parquet`` に**ファイルパス**を渡せる(下見は w17_trial_<arm>_schedule.parquet)。"""
     p = write_toy_parquet(tmp_path / "trials" / "p1a" / "w17_trial_p1a_schedule.parquet",
                           block=[2] * len(TOY_ROWS), arm="p1a")
@@ -367,7 +367,7 @@ def test_parquet_file_path_is_accepted(dy, anchors, tmp_path):
     assert s.arm == "p1a" and s.block_kind is not None
     assert dy.measure(s, anchors)["arm"] == "p1a"
     # CLI からも通る(ファイル名が w17_schedule.parquet でなくてよい)
-    rc = dy.main(["--parquet", str(p), "--world", str(tmp_path), "--label", "P1a",
+    rc = dy.main(["--anchors", str(anchors_file), "--parquet", str(p), "--world", str(tmp_path), "--label", "P1a",
                   "--out", str(tmp_path / "o")])
     assert rc == 0
     doc = json.loads((tmp_path / "o" / "diversity_yardstick.json").read_text(encoding="utf-8"))
@@ -415,10 +415,11 @@ def test_block_kind_place_mismatch_is_reported(dy, anchors, tmp_path):
     assert "expedient" in hb["rule"]
 
 
-def test_cli_end_to_end(dy, anchors, tmp_path, capsys):
-    """CLI: ``--parquet``/``--before-parquet``/``--floor``/``--out`` が通る。"""
+def test_cli_end_to_end(dy, anchors_file, tmp_path, capsys):
+    """CLI: ``--parquet``/``--before-parquet``/``--floor``/``--out`` が通る(台帳は構築側+作り物=``--anchors``)。"""
     p = write_toy_parquet(tmp_path / "w17_schedule.parquet")
-    rc = dy.main(["--parquet", str(p), "--world", str(tmp_path), "--label", "P0",
+    rc = dy.main(["--anchors", str(anchors_file),
+                  "--parquet", str(p), "--world", str(tmp_path), "--label", "P0",
                   "--before-parquet", str(p), "--before-label", "P0b",
                   "--floor", str(p), str(p), "--out", str(tmp_path / "o")])
     assert rc == 0
@@ -440,3 +441,32 @@ def test_vocabulary_not_duplicated(dy):
     assert dy.ACTIVITY_WORDS is W.ACTIVITY_WORDS and dy.PLACE_WORDS is W.PLACE_WORDS
     assert W.ACTIVITY_WORDS[dy.ACT_WORK] == "勤務"
     assert W.ACTIVITY_WORDS[dy.ACT_RIDE] == "乗車"
+
+
+# ---------------------------------------------------------------- 〔第337〕台帳の 2 本
+
+def test_default_reads_build_and_validation_and_the_guard_blocks_validation(dy, anchors):
+    """既定は 2 本(構築側+検証側)を合わせて読む。試験の中では番人が検証側を無いファイルに差し替えている=落ちる。"""
+    assert dy.DEFAULT_ANCHORS_PATHS[0].name == "diversity_build_anchors_v0.json"
+    assert dy.DEFAULT_ANCHORS_PATHS[1].name == "absent_diversity_validation_anchors.json"
+    with pytest.raises(FileNotFoundError):
+        dy.load_anchors()
+
+
+def test_build_file_holds_only_non_validation_anchors(anchors):
+    """構築側のファイルに検証側(第 30 表・Schneider)の名が無く、p0_prior は構築側にある。"""
+    import json as _json
+
+    from .conftest import BUILD_ANCHORS_PATH, SYNTH_KEYS
+
+    doc = _json.loads(BUILD_ANCHORS_PATH.read_text(encoding="utf-8"))
+    assert not (set(doc["anchors"]) & set(SYNTH_KEYS))
+    assert set(doc["anchors"]) == {"depart_on_00_30_band_by_employment", "song_pi_max", "song_regularity_R",
+                                   "song_top2_locations_share", "activity_set_capacity",
+                                   "activity_set_jaccard_decay_lambda"}
+    assert "p0_prior" in doc and "rules" not in doc
+
+
+def test_merge_refuses_the_same_anchor_twice(dy):
+    with pytest.raises(ValueError):
+        dy.merge_anchor_docs([{"anchors": {"x": {}}}, {"anchors": {"x": {}}}])

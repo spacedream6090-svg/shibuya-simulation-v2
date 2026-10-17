@@ -1,0 +1,126 @@
+{
+ "schema": "pop41c.persona_meter/1",
+ "numbers_outside_money_time": {
+  "short": {
+   "as_built": {
+    "texts": 212897,
+    "texts_with_numbers": 16338,
+    "numbers_total": 16999,
+    "max": 3
+   },
+   "names_masked": {
+    "texts": 212897,
+    "texts_with_numbers": 0,
+    "numbers_total": 0,
+    "max": 0
+   },
+   "same_people": true
+  },
+  "long": {
+   "as_built": {
+    "texts": 212897,
+    "texts_with_numbers": 58937,
+    "numbers_total": 71106,
+    "max": 6
+   },
+   "names_masked": {
+    "texts": 212897,
+    "texts_with_numbers": 0,
+    "numbers_total": 0,
+    "max": 0
+   },
+   "same_people": true
+  }
+ },
+ "compose": {
+  "t300/short": {
+   "n": 500,
+   "chars_median": 711.0,
+   "chars_max": 782,
+   "chars_median_without_persona": 514.5,
+   "budget_chars": 300,
+   "over_budget": 500,
+   "over_budget_without_persona": 500,
+   "numbers_outside_money_time_median": 4.0,
+   "numbers_outside_money_time_median_without_persona": 4.0
+  },
+  "t1000/short": {
+   "n": 500,
+   "chars_median": 1919.0,
+   "chars_max": 1990,
+   "chars_median_without_persona": 1722.5,
+   "budget_chars": 1000,
+   "over_budget": 500,
+   "over_budget_without_persona": 500,
+   "numbers_outside_money_time_median": 21.0,
+   "numbers_outside_money_time_median_without_persona": 21.0
+  },
+  "t300/long": {
+   "n": 500,
+   "chars_median": 1000.0,
+   "chars_max": 1402,
+   "chars_median_without_persona": 553.5,
+   "budget_chars": 300,
+   "over_budget": 500,
+   "over_budget_without_persona": 500,
+   "numbers_outside_money_time_median": 4.0,
+   "numbers_outside_money_time_median_without_persona": 4.0
+  },
+  "t1000/long": {
+   "n": 500,
+   "chars_median": 2208.0,
+   "chars_max": 2610,
+   "chars_median_without_persona": 1761.5,
+   "budget_chars": 1000,
+   "over_budget": 500,
+   "over_budget_without_persona": 500,
+   "numbers_outside_money_time_median": 21.0,
+   "numbers_outside_money_time_median_without_persona": 21.0
+  },
+  "note": "状況=1-10 の評価セットの先頭の件(B5・B6 は材料に無い=人物の文が個体の部分の全部)・人=日本語の型の体から等間隔に選んだ人。目安の字数=トークン × 1.0(6-1 の器の CHARS_PER_TOKEN)"
+ },
+ "cp5_3": {
+  "pois": 5,
+  "poi_index": [
+   1943,
+   1959,
+   1940,
+   1947,
+   1962
+  ],
+  "texts": 212897,
+  "by_id": {
+   "texts_with_hits": 11664,
+   "by_poi_index": {
+    "1940": 2439,
+    "1943": 2395,
+    "1947": 2366,
+    "1959": 2455,
+    "1962": 2320
+   }
+  },
+  "by_name": {
+   "texts_with_hits": 43552,
+   "by_poi_index": {
+    "1943": 2395,
+    "1959": 2455,
+    "1940": 2439,
+    "1947": 2366,
+    "1962": 35832
+   }
+  },
+  "pois_with_the_same_name": {
+   "1943": 1,
+   "1959": 1,
+   "1940": 1,
+   "1947": 1,
+   "1962": 22
+  },
+  "note": "なじみの場所の上位 3 に多い POI 5 つを改変の対象と見立てた例。番号の照合=その POI を文に載せた体・名の照合=同じ名の別の POI(チェーン)を載せた体も数える(名は記録に写さない)"
+ },
+ "example_synthetic": {
+  "ja_short": "人物: 三十代前半の女性。\n暮らし: 例町一丁目で夫と暮らしている。\n仕事: 正社員として事務の仕事をしている(情報通信業)。勤め先は例町二丁目にある業務SaaSの小さな事業所。\n通勤: 家から勤め先まで歩いて11分ほど。\nお金: 月の給料はおよそ31万円。貯蓄はおよそ390万円。\nなじみの場所: 例の喫茶店(飲食店)・例の書店(書店)・例の公園(公園)。",
+  "ja_long": "人物: 三十代前半の女性。\n暮らし: 例町一丁目で夫と暮らしている。\n仕事: 正社員として事務の仕事をしている(情報通信業)。勤め先は例町二丁目にある業務SaaSの小さな事業所。\n通勤: 家から勤め先まで歩いて11分ほど。\nお金: 月の給料はおよそ31万円。貯蓄はおよそ390万円。\nなじみの場所: 例の喫茶店(飲食店)・例の書店(書店)・例の公園(公園)。\n家族: 夫(三十代後半)。\n職場: 同じ部署の同僚が六人いる。上司がいる。\n働き方: 勤め先の名前は(株)例示サンプル。週の勤務はおよそ37時間。\n住まい: 民間の借家。この町に住んで六年ほど。\nお金(詳しく): 年収はおよそ460万円。世帯の貯蓄はおよそ770万円。借入はない。\nほかになじみの場所: 例の食堂(飲食店)・例のコンビニ(コンビニ)。舞台の外にも行きつけの場所がある。",
+  "en_long": "Person: a woman in her early thirties.\nHome: 例町一丁目; lives with husband.\nWork: office work as a regular employee in information and communications. Workplace: a small 業務SaaS workplace in 例町二丁目.\nCommute: an eleven-minute walk from home to work.\nMoney: Monthly pay about ¥310,000. Savings about ¥3.9 million.\nFamiliar places: 例の喫茶店 (restaurant), 例の書店 (bookshop), 例の公園 (park).\nHousehold members: husband (late thirties).\nWorkplace: six colleagues in the same team. Has a supervisor.\nJob details: Employer: (株)例示サンプル. Works about thirty-seven hours a week.\nHousing: private rental housing. Has lived here for about six years.\nMoney details: Annual pay about ¥4.6 million. Household savings about ¥7.7 million. No debts.\nOther familiar places: 例の食堂 (restaurant), 例のコンビニ (convenience store). Also has regular places outside this area."
+ }
+}

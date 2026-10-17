@@ -1,0 +1,289 @@
+{
+ "schema": "shibuya.bench/wallbounce-1003/r66-tape/1",
+ "tape": "c7-day-4(39 万体・実 LLM Qwen3-8B INT8×7・繰り延べ行を除く)",
+ "rows_used": 2691795,
+ "replicas": 7,
+ "routing": "xxh64(call_id) % replicas(fleet.route_primary と同じ。least-in-flight の振り替えは無視)",
+ "column_overlap_blocks": 0,
+ "tokens_in": {
+  "n": 2691795,
+  "mean": 1433.08,
+  "p50": 1431.0,
+  "p95": 1461.0,
+  "max": 3000.0,
+  "sum": 3857561181.0
+ },
+ "tokens_out": {
+  "n": 2691795,
+  "mean": 37.35,
+  "p50": 37.0,
+  "p95": 47.0,
+  "max": 152.0,
+  "sum": 100549660.0
+ },
+ "per_block_shared": {
+  "B0": {
+   "est_tok_mean": 603.0,
+   "chars_mean": 1207.0,
+   "distinct": 1
+  },
+  "B1": {
+   "est_tok_mean": 9.0,
+   "chars_mean": 18.0,
+   "distinct": 5
+  },
+  "B2": {
+   "est_tok_mean": 94.55,
+   "chars_mean": 189.58,
+   "distinct": 520
+  },
+  "B3": {
+   "est_tok_mean": 30.82,
+   "chars_mean": 62.07,
+   "distinct": 288
+  },
+  "B4": {
+   "est_tok_mean": 41.69,
+   "chars_mean": 84.36,
+   "distinct": 152
+  },
+  "B4b": {
+   "est_tok_mean": 11.07,
+   "chars_mean": 22.15,
+   "distinct": 516
+  }
+ },
+ "cell_est_tok": {
+  "n": 2691795,
+  "mean": 147.3,
+  "p50": 146.0,
+  "p95": 164.0,
+  "max": 196.0,
+  "sum": 396506569.0
+ },
+ "cell_list_fraction_chars": 0.5087,
+ "regression_tokens_in_on_est": {
+  "cols": [
+   "const",
+   "B1",
+   "B2",
+   "B3",
+   "B4",
+   "B4b"
+  ],
+  "coef": [
+   1287.7537,
+   -5.3693,
+   1.222,
+   -1.8983,
+   3.2708,
+   0.0249
+  ]
+ },
+ "regression_tokens_in_on_est_groups": {
+  "cols": [
+   "const",
+   "cell(B2+B4+B4b)",
+   "B1+B3"
+  ],
+  "coef": [
+   1323.987,
+   1.236,
+   -1.8326
+  ]
+ },
+ "regression_tokens_in_on_chars_groups": {
+  "cols": [
+   "const",
+   "cell(B2+B4+B4b) 文字",
+   "B1+B3 文字"
+  ],
+  "coef": [
+   1302.9987,
+   0.6119,
+   -0.6381
+  ]
+ },
+ "calls_per_tick": {
+  "n": 1440,
+  "mean": 1869.3,
+  "p50": 2708.0,
+  "p95": 2709.0,
+  "max": 4096.0,
+  "sum": 2691795.0
+ },
+ "prefix_sim": {
+  "now": {
+   "16": {
+    "cached_est_tok_mean": 701.78,
+    "hit_rate_by_block_depth": {
+     "B0": 1.0,
+     "B1": 0.9645,
+     "B2": 0.4988,
+     "B3": 0.4987,
+     "B4": 0.4986,
+     "B4b": 0.4986
+    }
+   },
+   "64": {
+    "cached_est_tok_mean": 717.31,
+    "hit_rate_by_block_depth": {
+     "B0": 1.0,
+     "B1": 0.994,
+     "B2": 0.5849,
+     "B3": 0.5843,
+     "B4": 0.5837,
+     "B4b": 0.5837
+    }
+   },
+   "256": {
+    "cached_est_tok_mean": 719.47,
+    "hit_rate_by_block_depth": {
+     "B0": 1.0,
+     "B1": 0.9995,
+     "B2": 0.5994,
+     "B3": 0.5944,
+     "B4": 0.5915,
+     "B4b": 0.5915
+    }
+   },
+   "inf": {
+    "cached_est_tok_mean": 767.21,
+    "hit_rate_by_block_depth": {
+     "B0": 1.0,
+     "B1": 1.0,
+     "B2": 0.9951,
+     "B3": 0.7403,
+     "B4": 0.7265,
+     "B4b": 0.7253
+    }
+   }
+  },
+  "abolish_keep_order": {
+   "16": {
+    "cached_est_tok_mean": 611.68,
+    "hit_rate_by_block_depth": {
+     "B0": 1.0,
+     "B1": 0.9645
+    }
+   },
+   "64": {
+    "cached_est_tok_mean": 611.94,
+    "hit_rate_by_block_depth": {
+     "B0": 1.0,
+     "B1": 0.994
+    }
+   },
+   "256": {
+    "cached_est_tok_mean": 611.99,
+    "hit_rate_by_block_depth": {
+     "B0": 1.0,
+     "B1": 0.9995
+    }
+   },
+   "inf": {
+    "cached_est_tok_mean": 612.0,
+    "hit_rate_by_block_depth": {
+     "B0": 1.0,
+     "B1": 1.0
+    }
+   }
+  },
+  "abolish_b3_first": {
+   "16": {
+    "cached_est_tok_mean": 641.34,
+    "hit_rate_by_block_depth": {
+     "B0": 1.0,
+     "B1": 0.9645,
+     "B3": 0.9624
+    }
+   },
+   "64": {
+    "cached_est_tok_mean": 642.5,
+    "hit_rate_by_block_depth": {
+     "B0": 1.0,
+     "B1": 0.994,
+     "B3": 0.9913
+    }
+   },
+   "256": {
+    "cached_est_tok_mean": 642.71,
+    "hit_rate_by_block_depth": {
+     "B0": 1.0,
+     "B1": 0.9995,
+     "B3": 0.9966
+    }
+   },
+   "inf": {
+    "cached_est_tok_mean": 642.72,
+    "hit_rate_by_block_depth": {
+     "B0": 1.0,
+     "B1": 1.0,
+     "B3": 0.9969
+    }
+   }
+  },
+  "abolish_b3_first_place_shared": {
+   "16": {
+    "cached_est_tok_mean": 689.76,
+    "hit_rate_by_block_depth": {
+     "B0": 1.0,
+     "B1": 0.9645,
+     "B3": 0.9624,
+     "B2": 0.4987
+    }
+   },
+   "64": {
+    "cached_est_tok_mean": 699.0,
+    "hit_rate_by_block_depth": {
+     "B0": 1.0,
+     "B1": 0.994,
+     "B3": 0.9913,
+     "B2": 0.5843
+    }
+   },
+   "256": {
+    "cached_est_tok_mean": 700.17,
+    "hit_rate_by_block_depth": {
+     "B0": 1.0,
+     "B1": 0.9995,
+     "B3": 0.9966,
+     "B2": 0.5944
+    }
+   },
+   "inf": {
+    "cached_est_tok_mean": 713.81,
+    "hit_rate_by_block_depth": {
+     "B0": 1.0,
+     "B1": 1.0,
+     "B3": 0.9969,
+     "B2": 0.7403
+    }
+   }
+  }
+ },
+ "shuffle_within_tick_seed": 0,
+ "concentration": {
+  "top10_cells_share_of_calls_per_tick": {
+   "n": 1440,
+   "mean": 0.54,
+   "p50": 0.49676941242414774,
+   "p95": 0.9268315018315018,
+   "max": 1.0,
+   "sum": 776.8476269635844
+  },
+  "distinct_b2_per_tick": {
+   "n": 1440,
+   "mean": 227.76,
+   "p50": 243.5,
+   "p95": 448.04999999999995,
+   "max": 515.0,
+   "sum": 327974.0
+  }
+ },
+ "windows_calls": [
+  16,
+  64,
+  256
+ ]
+}

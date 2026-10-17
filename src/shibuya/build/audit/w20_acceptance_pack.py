@@ -31,6 +31,7 @@ import numpy as np
 
 from ..geo import common as C
 from ..vis.png import Canvas, ramp_rgb, write_png
+from shibuya.core.time_consts import MINUTES_PER_HOUR
 
 STAGE = "W20"
 STAGE_VERSION = "1.0.0"
@@ -233,10 +234,17 @@ def run(ctx: C.Ctx) -> C.StageResult:
 
     # --- shadow_noon.png: W9 正午面 -----------------------------------------------------
     shadow_files = sorted(ctx.out.glob("w9_shadow_*.npy"))
+    # 〔改訂(第330 B5)〕影の日が複数あるときは W9 の主の日(ヘッダ notes の replay_date)の面を描く
+    w9_header = ctx.out / "W9.header.json"
+    if w9_header.exists():
+        main_day = C.load_json(w9_header).get("notes", {}).get("replay_date", "")
+        main_file = ctx.out / f"w9_shadow_{main_day}.npy"
+        if main_day and main_file.exists():
+            shadow_files = [main_file]
     shadow_noon_share: float | None = None
     if shadow_files:
         planes = np.load(shadow_files[0])
-        noon = np.unpackbits(planes[(12 * 60) // 5])[: px.shape[0]]
+        noon = np.unpackbits(planes[(12 * MINUTES_PER_HOUR) // 5])[: px.shape[0]]
         shadow_noon_share = float(noon.mean())
         gray_flat = np.full(height * width, 25, dtype=np.uint8)
         acc = np.zeros(height * width, dtype=np.float64)

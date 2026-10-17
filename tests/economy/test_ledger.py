@@ -8,6 +8,8 @@
 
 from __future__ import annotations
 
+import math
+
 import numpy as np
 import pytest
 from hypothesis import HealthCheck, given, settings
@@ -110,7 +112,7 @@ def test_flow_matrix_rows_and_columns_are_balanced(payers, amounts, seed):
 def test_row_column_check_catches_a_direct_balance_assignment():
     """列和検査は「残高の直接代入」(単一API迂回)を捕まえる=これが検算①の本体。"""
     led = _ledger()
-    with led.unlocked():
+    with led._unlocked():  # 〔1-9・検収 M2〕台帳の窓は内部の名(試験だけが外から開ける)
         led.balance(BalanceLine.CASH, S)[0] += 1_000  # 禁じ手(テストのために故意に行う)
     rep = CK.flow_matrix_balanced(led)
     assert rep.rows_zero and not rep.cols_match_cash
@@ -125,7 +127,7 @@ def test_net_worth_equals_real_assets_after_purchases_and_wages():
     led.endow_stores(np.array([10_000, 0, 0, 0]), tick=1)
     led.transfer(EntityRef(S, 0), EntityRef(H, 0), 3_000, AccountCode.WAGE, 6)
     led.transfer(EntityRef(H, 1), EntityRef(B, 0), 2_000, AccountCode.DEPOSIT_NET, 7)
-    with led.unlocked():
+    with led._unlocked():  # 〔1-9・検収 M2〕台帳の窓は内部の名(試験だけが外から開ける)
         led.revalue_inventory(int(S), np.array([50_000, 0, 0, 0], dtype=np.int64))
     rep = CK.net_worth_equals_real_assets(led)
     assert rep.ok, rep.as_text()
@@ -249,7 +251,7 @@ def test_frozen_arrays_reject_writes_outside_the_ledger():
 
 def test_depreciation_reduces_fixed_assets_without_moving_cash():
     led = _ledger()
-    with led.unlocked():
+    with led._unlocked():  # 〔1-9・検収 M2〕台帳の窓は内部の名(試験だけが外から開ける)
         led.balance(BalanceLine.FIXED_ASSET, S)[:] = 10_000
     before = _total_cash(led)
     led.depreciate(int(S), np.array([0, 1]), np.array([1_000, 500]), tick=9)
@@ -297,10 +299,11 @@ MOCK_5K_TRANSFER_ROWS = 213_216 // RAW_ROW_BYTES
 
 
 def test_raw_capacity_is_proportional_to_n():
-    """D-53: リング容量は **N 比例**(3.0 行/体/日 × N × 保持日数)・下限あり。"""
+    """D-53: リング容量は **N 比例**(6.5 行/体/日 × N × 保持日数=〔1-9・K17〕前は 3.0)・下限あり。"""
     assert raw_capacity_for(0) == MIN_RAW_CAPACITY  # 下限
-    assert raw_capacity_for(1_000) == MIN_RAW_CAPACITY  # 3,000 < 下限
-    assert raw_capacity_for(C7_N_AGENTS) == int(TRANSFERS_PER_AGENT_PER_DAY * C7_N_AGENTS)
+    assert raw_capacity_for(1_000) == MIN_RAW_CAPACITY  # 6,500 < 下限
+    # 〔1-9・K17〕6.5 × 奇数の N は整数でない=切り上げ(前は 3.0 × N で整数だったので int と同じだった)
+    assert raw_capacity_for(C7_N_AGENTS) == math.ceil(TRANSFERS_PER_AGENT_PER_DAY * C7_N_AGENTS)
     # 保持窓を伸ばせば容量も伸びる(宣言の retention と同じ日数で数える)
     assert raw_capacity_for(C7_N_AGENTS, 3) == 3 * raw_capacity_for(C7_N_AGENTS, 1)
     # 台帳が自分で決める(明示すればその値のまま=既存の呼び出しは不変)
@@ -331,10 +334,10 @@ def test_the_declaration_alone_never_exceeds_the_cap(n_agents):
     assert rep.ok, rep.as_text()
     row = decls["transfer_log"]
     assert row.declared_projected_bytes(30, n_agents) <= row.cap
-    # cap = 容量 × 24 B = 宣言投影(N が下限を超えていれば**等値**)
+    # cap = 容量 × 24 B = 宣言投影(N が下限を超えていれば**等値**。〔1-9・K17〕6.5 × 奇数の N は切り上げの 1 行未満の差)
     assert row.cap == led.raw_capacity * RAW_ROW_BYTES
     if n_agents >= MIN_RAW_CAPACITY / TRANSFERS_PER_AGENT_PER_DAY:
-        assert row.cap == int(row.declared_projected_bytes(30, n_agents))
+        assert 0 <= row.cap - row.declared_projected_bytes(30, n_agents) < RAW_ROW_BYTES
 
 
 def test_employers_come_from_the_world_asset_or_a_synthetic_fallback():

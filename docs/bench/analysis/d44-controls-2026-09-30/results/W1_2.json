@@ -1,0 +1,29 @@
+{
+ "key": "W1#2",
+ "control": "pendant 除去あり(宣言)vs 除去なし(pendant 列を全 False)",
+ "metric": "W3 セル間距離(上三角)の 10 m 階級分布",
+ "variants": [
+  {
+   "name": "除去なし",
+   "jsd_bits": 0.0,
+   "null_p95": 0.0011036899571426108,
+   "detected": false,
+   "tvd": 0.0,
+   "n_declared": 134940.0,
+   "n_control": 134940.0,
+   "n_bins": 376
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.5266738999634981,
+ "outputs_changed": [
+  "w1_nodes.parquet"
+ ],
+ "notes": [
+  "pendant 列を読むコードは src に無い(grep: w1_walk_graph.py の中だけ)"
+ ],
+ "seconds_wall_row": 1.53,
+ "measured_at": "2026-09-30"
+}

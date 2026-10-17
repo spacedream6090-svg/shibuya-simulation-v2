@@ -1,0 +1,37 @@
+{
+ "key": "W8#8",
+ "control": "1 視点あたり上限 256(宣言)vs 512",
+ "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+ "variants": [
+  {
+   "name": "上限 512: (セル,対象)→見えている視点数",
+   "jsd_bits": 0.0,
+   "null_p95": 0.003298782022654004,
+   "detected": false,
+   "tvd": 0.0,
+   "n_declared": 4943303.0,
+   "n_control": 4943303.0,
+   "n_bins": 43479,
+   "jaccard_pairs": 1.0
+  },
+  {
+   "name": "上限 512: 視点あたり可視数の分布(参考・w8_t1 はエンジンが読まない)",
+   "jsd_bits": 0.0,
+   "null_p95": 0.0001451758938727284,
+   "detected": false,
+   "tvd": 0.0,
+   "n_declared": 356732.0,
+   "n_control": 356732.0,
+   "n_bins": 117,
+   "primary": false
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 1.4183304000180215,
+ "outputs_changed": [],
+ "notes": [],
+ "seconds_wall_row": 19.33,
+ "measured_at": "2026-09-30"
+}

@@ -43,6 +43,7 @@ import numpy as np
 from shibuya.agents.state import STORE_MEMORY_EMPTY
 from shibuya.engine.chooser import draw_index, hunger_stage_of
 from shibuya.engine.store_memory import STORE_SOURCE_BIT, STORE_SOURCES
+from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 __all__ = [
     "CHOICE_REASONS",
@@ -84,7 +85,9 @@ class StoreChoice:
         self.n = int(n_agents)
         self.seed = seed
         self.minutes_per_tick = float(minutes_per_tick)
-        self.ticks_per_hour = max(1, int(round(60.0 / self.minutes_per_tick)))
+        self.ticks_per_hour = max(1, int(round(MINUTES_PER_HOUR / self.minutes_per_tick)))
+        #: 10a: 計画境界の表は日の中の tick。通しの時刻 T は ``T % 1 日の tick 数`` で引く。
+        self._tpd = max(1, int(round(MINUTES_PER_DAY / self.minutes_per_tick)))
         self.intent_max_ticks = int(intent_max_ticks)
         self.recall_first = bool(recall_first)
         self.poi_cell = np.asarray(world.pois.cell, dtype=np.int64)
@@ -115,8 +118,9 @@ class StoreChoice:
         lo, hi = int(self._b_off[aid]), int(self._b_off[aid + 1])
         if hi <= lo:
             return 1 << 30
-        k = lo + int(np.searchsorted(self._b_tick[lo:hi], int(tick), side="right"))
-        return int(self._b_tick[k]) - int(tick) if k < hi else 1 << 30
+        td = int(tick) % self._tpd  # 10a: 通しの時刻 T → 日の中の tick
+        k = lo + int(np.searchsorted(self._b_tick[lo:hi], td, side="right"))
+        return int(self._b_tick[k]) - td if k < hi else 1 << 30
 
     def reachable(self, aid: int, tick: int, cell: int, pois: np.ndarray) -> np.ndarray:
         """``pois`` のうち次の予定までに歩いて届くもの(上限つきの制約・距離減衰ではない)。"""
@@ -137,16 +141,17 @@ class StoreChoice:
         """想起できた店から 1 件(``(POI, 決め手)``)。無ければ ``(-1, "")``(従来の経路へ)。"""
         self.stats["recall:attempts"] += 1
         r = agents.registry
+        c = self.store.columns(agents)  # 〔第 6 期 6-5・検収 M4〕口を通す(既定=体の表の sm_* そのもの)
         i = int(aid)
-        used = np.flatnonzero(r.sm_poi[i] != STORE_MEMORY_EMPTY)
+        used = np.flatnonzero(c.poi[i] != STORE_MEMORY_EMPTY)
         if used.size == 0:
             self.stats["recall:no_rows"] += 1
             return -1, ""
         A = self.store.activation(agents, np.asarray([i]), tick)[0][used]
         v = self.store.valence_now(agents, np.asarray([i]), tick)[0][used]
-        pois = r.sm_poi[i][used].astype(np.int64)
-        prec = r.sm_precision[i][used].astype(np.float64)
-        src = r.sm_source[i][used].astype(np.int64)
+        pois = c.poi[i][used].astype(np.int64)
+        prec = c.precision[i][used].astype(np.float64)
+        src = c.source[i][used].astype(np.int64)
         inside = (pois >= 0) & (pois < fit.size)
         safe = np.where(inside, pois, 0)
         ok = inside & (A >= float(self.memory.tau)) & (np.sign(v) >= 0)
@@ -186,7 +191,7 @@ class StoreChoice:
         code = _REASON_CODE[reason]
         self.choice_poi[int(aid)] = int(poi)
         self.choice_reason[int(aid)] = code
-        hour = (int(tick) // self.ticks_per_hour) % 24
+        hour = (int(tick) // self.ticks_per_hour) % HOURS_PER_DAY
         self.by_hour[hour, code] += 1
         self.stats[f"choice:{reason}"] += 1
 

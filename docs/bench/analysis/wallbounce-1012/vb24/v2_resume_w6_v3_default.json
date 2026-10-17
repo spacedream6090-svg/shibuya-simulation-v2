@@ -1,0 +1,21 @@
+{
+ "label": "V2",
+ "base": "w6_v3_default",
+ "arms": {
+  "proximity": "distance",
+  "economy_stage2": "off",
+  "seat_release": "(口なし)"
+ },
+ "agents": 5000,
+ "seed": 1,
+ "straight_final": "7330047ab379ec19",
+ "resumed_final": "7330047ab379ec19",
+ "same_final": true,
+ "checkpoints_after_boundary_same": true,
+ "n_checkpoints_compared": 4,
+ "calls": [
+  139311,
+  139311
+ ],
+ "wall_s_nondeterministic": 163.9
+}

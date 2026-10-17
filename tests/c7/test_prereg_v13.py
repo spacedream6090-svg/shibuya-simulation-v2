@@ -182,13 +182,17 @@ def test_e_family95_half_width_matches_t995_df2(v13, c7lib):
     seeds = _seeds(c7lib, [{"H4": {"jsd": v}} for v in _NEAR_LINE])
     st = v13.ensemble_verdict(seeds)["metrics"]["H4"]["stats"]["jsd"]
     sd = float(np.std(_NEAR_LINE, ddof=1))
+    # 〔第333〕期待値は道具が返す t 分位から組む(``seed_ensemble.t_quantile_995``=scipy があれば ppf・無ければ表)。
+    # 前は表の 9.925 と rel=1e-9 で比べたので、scipy のある環境(ppf=9.9248…)で必ず落ちた。表の値に近いことは別に見る。
+    t995 = v13.t_quantile_995(2)
+    assert t995 == pytest.approx(T995_DF2, rel=1e-3)
     assert st["sd_ddof1"] == pytest.approx(sd)
-    assert st["half_width"] == pytest.approx(T995_DF2 * sd / math.sqrt(3.0), rel=1e-9)
+    assert st["half_width"] == pytest.approx(t995 * sd / math.sqrt(3.0), rel=1e-9)
     assert st["interval"] == pytest.approx([st["mean"] - st["half_width"],
                                             st["mean"] + st["half_width"]])
     assert st["interval_kind"] == "family95_t"
     assert st["t_quantile"] == pytest.approx(T995_DF2, rel=1e-3)
-    assert v13.family_half_width(sd, 3) == pytest.approx(T995_DF2 * sd / math.sqrt(3.0))
+    assert v13.family_half_width(sd, 3) == pytest.approx(t995 * sd / math.sqrt(3.0))
 
 
 def test_e_alpha_other_than_001_is_refused(v13):

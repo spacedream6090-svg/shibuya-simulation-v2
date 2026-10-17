@@ -187,7 +187,6 @@ def test_leave_releases_store_queue_and_marks_conversation():
         a.registry.queue_since[1] = 1
         a.registry.activity[2] = int(Activity.CONVERSING)
         a.registry.talk_partner[2] = 3
-        a.registry.fail_streak[:] = 2
     out = R.ResolveOutcome(tick=9)
     with a.writable():
         R._apply_leave(a, w, np.array([0, 1, 2]), np.array([-1, -1, -1]), 9, out, None)
@@ -195,7 +194,7 @@ def test_leave_releases_store_queue_and_marks_conversation():
     assert int(r.poi_ref[0]) == -1 and int(r.queue_poi[1]) == -1
     assert (np.asarray(r.activity)[[0, 1, 2]] == int(Activity.IDLE)).all() and int(r.talk_partner[2]) == -1
     assert (np.asarray(r.last_result)[[0, 1, 2]] == int(ResultCode.OK)).all()
-    assert (np.asarray(r.fail_streak)[[0, 1, 2]] == 0).all()           # 失敗しない行動
+    # 〔第330・RET〕K15 で fail_streak を消した(前: 失敗しない行動=0 に戻る)
     assert (out.n_leave, out.n_leave_indoor, out.n_leave_queue, out.n_leave_conversing) == (3, 1, 1, 1)
     assert np.concatenate(out.leave_conversing).tolist() == [2]
     # 切替口 off=第301 以前(所属は残る)
@@ -257,7 +256,8 @@ def test_run_walk_mode_accounts_for_every_exit_and_leave_switch_reproduces_the_o
     pc = dict(walk.process_counters)
     assert pc["rail.boarded_plan_exit"] == ex["walk_boarded"]
     assert walk.fares_paid == int(FARE_YEN) * int(pc["rail.boarded_from_queue"])
-    assert walk.money_start == walk.money_end + walk.revenue_end + walk.fares_paid
+    # 〔第 2 期 2-4 V4〕経済の段階 2 が既定 on=左辺に段階 2 の項(現金の外から入った額−レジの税)を足す(RunResult.conserved の式)
+    assert walk.money_start + walk.money_stage2_in == walk.money_end + walk.revenue_end + walk.fares_paid
     again = cli.run(exit_mode="walk_to_platform", **kw)
     assert again.final_hash == walk.final_hash and again.llm_calls == walk.llm_calls
     imm = cli.run(**kw)

@@ -29,6 +29,7 @@ from shibuya.engine.processes.rail import RailProcess
 from shibuya.engine.run import run_day
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.state import World
+from tests import golden_env as GE
 
 WORLD_DIR = Path("data/world/v2")
 
@@ -45,9 +46,13 @@ def w17_digest(world_dir: Path = WORLD_DIR) -> str:
 
 #: 実 W17 の golden(親再実行値・2026-09-12)。キー= parquet md5 先頭 12 桁。
 #: 11a7129beaea = W17 v1(週 7 日・第 1 弾・w17v1_backup/)/ 3113e9ba7abb = W17 v2(1 日・本番 第 2 回・第168 昇格)。
-W17_GOLDEN = {
+#: 10f(K26 (1)): 一番外側の鍵は環境の ``platform_id``(``tests/golden_env.py``)。行の無い環境では golden と比べず
+#: A/A(同じ設定の 2 回の一致)だけを確かめる。値は 10f の前のまま。
+W17_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     "11a7129beaea": {
-        "null_arm_final": "c96baf821c9a046f", "null_arm_llm_calls": 37_111,
+        # 10e(E1): この表の帰無腕の値は 10e より前の final の定義(``hash_scheme="full"``)の値。
+        # behavior-hash の値は録っていない(W17 v1 はリポに無い=親が再実行して足す)。
+        "null_arm_final_pre10e": "c96baf821c9a046f", "null_arm_llm_calls": 37_111,
         "v1_outside_blocks": 306_410, "v1_outside_dist": [85_766, 214_998, 45_631, 50],
         "s5000_v1": {"n_blocks": 4_918, "zero": 1_107, "outside": 4_077, "in": 841},
         "s5000_v2": {"n_blocks": 4_021, "zero": 1_350, "outside": 3_180, "in": 841},
@@ -84,25 +89,51 @@ W17_GOLDEN = {
         # mock の腕の final と呼数が動いた。5 段目の値(``leave_effect=False`` で再現・下の *_leave_off と
         # ``test_leave_effect_off_reproduces_the_stage_5_checkpoints`` で固定)= 帰無腕 18f8807264d04018 /
         # 100,509・v3 既定 c9ab05383accca2e / 69,603。記録: docs/bench/analysis/presence-shape-2026-09-29/README.md §9a
-        "null_arm_final": "72cb9cd52982da74", "null_arm_llm_calls": 100_439,
-        "null_arm_final_leave_off": "18f8807264d04018", "null_arm_llm_calls_leave_off": 100_509,
-        "null_arm_final_hunger_v1": "e0083baff1ff50b7", "null_arm_llm_calls_hunger_v1": 97_028,
-        "null_arm_final_l4x1": "ed1863e089c8480e", "null_arm_llm_calls_l4x1": 41_141,
+        # **10e(E1・版上げ 1 回目)**: final の定義が behavior-hash になった(``--hash-scheme behavior`` が既定)。
+        # 呼数・行動の件数・テープは不変。旧い final(10e より前の定義)は ``hash_scheme="full"`` で再現
+        # (``*_pre10e`` と ``test_hash_scheme_full_reproduces_the_pre_10e_checkpoints`` で固定)。
+        # 下の ``*_leave_off``・``*_hunger_v1``・``*_l4x1`` は 10e より前の定義の値=試験は ``hash_scheme="full"`` で比べる。
+        # 記録: docs/bench/analysis/wallbounce-1012/10e/README.md §E1
+        # **10e(E2)**: 会話の管理の期限つきの辞書 3 つの掃除で O39 の中身が変わり behavior-hash が動いた(呼数は同じ)。
+        # E1 の値= 帰無腕 db765499cec1fef5・v3 既定 3264c9fc190b3eb9。
+        # **10e(E4)**: 既定の乱数が counter になり、K19 の鍵の並べ方で W16 の抽出(層の並べ替え)・体の定数・配送・工事・
+        # p_notice の引きが変わった=母集団から動く(呼数も動く)。E2 の値(旧い並べ方)は rng_scheme="stateful" で再現
+        # (``*_stateful``)。10e より前の値は hash_scheme="full" と rng_scheme="stateful"(``*_pre10e``)。
+        # **10e 構築側(第330)**: 10e 構築側(第330 B3 丸め・B4 W10 ON+Q7・B5 W13 の年間化)で世界の資産が動いた=既定の 2 行(帰無腕・v3 既定)を張り替えた。
+        # E5 の値= 帰無腕 6c81c5ad8a99437a / 101,969・v3 既定 4fbf61616af1e3d2 / 70,421。段ごとの値は
+        # docs/bench/analysis/wallbounce-1012/10e/README.md §B6-4。*_stateful・*_pre10e・*_leave_off・*_hunger_v1・*_l4x1 は
+        # 旧い世界の資産で録った値=旧資産を読む切替口(エンジン側 B1)で再現する(張り替えない)。
+        # **第330 ACT(版上げ 1 回目の活性化)**: 暦の一本化(既定 real・calendar・開始日 2026-07-13=その日の実際の天気・
+        # 影 6 日)で既定の 2 行が動いた。B6build の値= 帰無腕 aaaa89d936f1674e / 101,773・v3 既定 0483d1165e245bed / 70,501。
+        # 旧値の行(*_stateful・*_pre10e・*_leave_off・*_hunger_v1・*_l4x1)は退避先の資産と day_index・legacy
+        # (``GE.PRE10E_RUN_KW``)で再現する。記録: docs/bench/analysis/wallbounce-1012/10e/README.md §ACT
+        # **第330 RET(切替口の削除)**: 旧値を再現する切替口(hash full・rng stateful・暦 day_index・天気 legacy・旧資産)を
+        # 消した。*_stateful・*_pre10e の行と ``test_hash_scheme_full_reproduces_the_pre_10e_checkpoints`` は消した(ACT の
+        # commit で通った)。*_leave_off・*_hunger_v1・*_l4x1 は生きている切替口(leave_effect・hunger_model・l4_scale)の
+        # 今の値に張り替えた(前の値は記録 §RET の表)。
+        "null_arm_final": "19ee17b1b1caf44c", "null_arm_llm_calls": 96_695,  # 〔2-4 V1〕前 354f49ca9a61b986 / 97_234  # 〔2-4 V2〕前 767f0224d82ba9a9 / 98_046  # 〔2-4 V3〕前 d341ca5c9e3e89d3 / 96_797  # 〔2-4 V4〕前 5c8db46f50eb0945
+        "null_arm_final_leave_off": "aac7b60677cb985d", "null_arm_llm_calls_leave_off": 96_651,  # 〔第330・RET〕前 18f8807264d04018 / 100_509  # 〔2-4 V1〕前 a33c00469ca28832 / 98_017  # 〔2-4 V2〕前 e88892cd271a638d / 97_644  # 〔2-4 V3〕前 62c0de517b1689ec / 97_690  # 〔2-4 V4〕前 de42b93d55c91cb8
+        "null_arm_final_hunger_v1": "c977ca9de2975f1a", "null_arm_llm_calls_hunger_v1": 95_647,  # 〔第330・RET〕前 e0083baff1ff50b7 / 97_028  # 〔2-4 V1〕前 f655d1eb601d7bb4 / 94_435  # 〔2-4 V2〕前 4ced1f4211af5e5f / 94_793  # 〔2-4 V3〕前 eff11abb4169f319 / 94_030  # 〔2-4 V4〕前 3cb80dcb0d5df613 / 95_644
+        "null_arm_final_l4x1": "e539b7c8d5e60a0f", "null_arm_llm_calls_l4x1": 40_976,  # 〔第330・RET〕前 ed1863e089c8480e / 41_141  # 〔2-4 V1〕前 f02d7fd4fbb4dc4f  # 〔2-4 V2〕前 d9e43bf14475a17c / 40_979  # 〔2-4 V4〕前 23d6397b39afb614
         # 第277(二層の段 3): **語彙 v3 の既定**(=CLI の新しい既定・activity on・mock v3 形)。
         # v1 の行は上のまま残す(ライブラリの既定は v1=切替口)。
         # 記録: docs/bench/analysis/two-layer-2026-09-27/README.md §0
-        "v3_default_final": "993276d5e5bb5cbe", "v3_default_llm_calls": 69_978,
-        "v3_default_final_leave_off": "c9ab05383accca2e", "v3_default_llm_calls_leave_off": 69_603,
-        "v3_default_final_hunger_v1": "a1036ab5b06e461c", "v3_default_llm_calls_hunger_v1": 68_781,
-        "v3_default_final_l4x1": "6845e3acb8906210", "v3_default_llm_calls_l4x1": 36_502,
+        "v3_default_final": "b8eadcb51e8705e7", "v3_default_llm_calls": 64_528,  # 〔2-4 V1〕前 5f7ae9ff24005314 / 65_597  # 〔2-4 V2〕前 4bcca9f0216362bb / 65_400  # 〔2-4 V3〕前 7857ecb16b9665cd / 64_635  # 〔2-4 V4〕前 f6488d4d5eadf5ca / 64_526
+        "v3_default_final_leave_off": "2838430451abbac1", "v3_default_llm_calls_leave_off": 64_327,  # 〔第330・RET〕前 c9ab05383accca2e / 69_603  # 〔2-4 V1〕前 1761eef0e3c48dd5 / 65_634  # 〔2-4 V2〕前 53a0856c5fcc1c84 / 65_735  # 〔2-4 V3〕前 210747ea9fa71919 / 64_704  # 〔2-4 V4〕前 da5e1a8ea8544881 / 64_293
+        "v3_default_final_hunger_v1": "0776169f2d8f366a", "v3_default_llm_calls_hunger_v1": 64_223,  # 〔第330・RET〕前 a1036ab5b06e461c / 68_781  # 〔2-4 V1〕前 1767737a4183a436 / 64_977  # 〔2-4 V2〕前 20f96720567a5847 / 65_019  # 〔2-4 V3〕前 62c5ea236fe4271d / 64_268  # 〔2-4 V4〕前 ed20b33a7e53864d / 64_338
+        "v3_default_final_l4x1": "5d227b075985bd68", "v3_default_llm_calls_l4x1": 36_225,  # 〔第330・RET〕前 6845e3acb8906210 / 36_502  # 〔2-4 V1〕前 a18594506e4a0ea5 / 36_172  # 〔2-4 V2〕前 1cc39b43dfc834ee / 36_190  # 〔2-4 V3〕前 b2a1acae57abca9e / 36_239  # 〔2-4 V4〕前 efd48de9c988cf6c / 36_244
         "v1_outside_blocks": 590_430, "v1_outside_dist": [92, 160_033, 133_575, 47_861],
-        "s5000_v1": {"n_blocks": 8_589, "zero": 1, "outside": 7_733, "in": 856},
-        "s5000_v2": {"n_blocks": 6_377, "zero": 150, "outside": 5_521, "in": 856},
+        # 10e(E4): 5,000 体の標本は既定の counter の抽出(層の鍵の並べ方)。stateful の値(10e より前)=
+        # v1 {"n_blocks": 8_589, "zero": 1, "outside": 7_733, "in": 856}・v2 {"n_blocks": 6_377, "zero": 150,
+        # "outside": 5_521, "in": 856}(``sample_population(..., rng_scheme="stateful")`` で再現)
+        "s5000_v1": {"n_blocks": 8_542, "zero": 0, "outside": 7_658, "in": 884},
+        "s5000_v2": {"n_blocks": 6_406, "zero": 154, "outside": 5_522, "in": 884},
     },
-}
-real_data = pytest.mark.skipif(
-    not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="実世界資産が無い"
-)
+}}
+#: 今の環境の行(無ければ ``None``=A/A だけ)。
+W17_GOLDEN = GE.row(W17_GOLDEN_BY_ENV)
+_FINAL_CALLS = (lambda r: (r.final_hash, int(r.llm_calls)))
+real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 
 ACT_SLEEP = ACTIVITY_WORDS.index("就寝")
 ACT_WORK = ACTIVITY_WORDS.index("勤務")
@@ -264,12 +295,16 @@ def test_null_arm_reproduces_the_recorded_checkpoint():
     """
     from shibuya.cli import run as cli_run  # golden は台帳つきの標準入口で録られている
 
-    res = cli_run(
-        n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-        report_precondition=False,
-    )
+    def _run():
+        return cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
+                       report_precondition=False)
+
+    res = _run()
+    if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ
+        GE.assert_aa(_run, _FINAL_CALLS, first=res)
+        return
     g = W17_GOLDEN.get(w17_digest())
-    if g is None:
+    if g is None or "null_arm_final" not in g:
         pytest.skip(f"実 W17 の golden が無い(md5 {w17_digest()})=親が再実行して W17_GOLDEN に足す")
     assert res.final_hash.startswith(g["null_arm_final"])
     assert res.run_manifest_fields()["plan_executor"] is False
@@ -285,6 +320,10 @@ def test_v3_default_reproduces_the_recorded_checkpoint():
     """
     from shibuya.cli import run as cli_run
 
+    if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ
+        GE.assert_aa(lambda: cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3"),
+                     _FINAL_CALLS)
+        return
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final" not in g:
         pytest.skip(f"実 W17 の v3 golden が無い(md5 {w17_digest()})")
@@ -299,22 +338,23 @@ def test_v3_default_reproduces_the_recorded_checkpoint():
 def test_l4_scale_1_reproduces_the_stage_2c_checkpoints():
     """3 段目(D-99 (a′)・D-110): 上限スイッチ ``l4_scale=1.0`` で旧挙動(L4 按分・持ち越し 2 tick)。
 
-    既定=無制限の golden(上の 2 本)とは別に、段 2c の検収値をそのまま再現することを固定する
-    (上限スイッチと従来の配り方 ``call_budget_per_tick``/``POOL_CAP_TICKS`` を残した証拠)。
+    〔改訂(第330・RET)〕前は段 2c の検収値そのもの(10e より前の final の定義・乱数・世界の資産・暦)を再現していた(ACT
+    の commit で通った)。旧値を再現する切替口を消したので、上限スイッチ(+空腹 v1・退去の効果 off)の**今の値**を固定する
+    (上限スイッチと従来の配り方 ``call_budget_per_tick``/``POOL_CAP_TICKS`` が効いている証拠)。
     """
     from shibuya.cli import run as cli_run
 
+    kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), l4_scale=1.0, hunger_model="v1", leave_effect=False)
+    if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(帰無腕の 1 本)
+        GE.assert_aa(lambda: cli_run(plan_executor=False, report_precondition=False, **kw), _FINAL_CALLS)
+        return
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final_l4x1" not in g:
         pytest.skip(f"実 W17 の l4x1 golden が無い(md5 {w17_digest()})")
-    # 5 段目 5a(第291): 段 2c の値は空腹 v1 で録られている=旧規則を明示する
-    # 9a(第302): 退去の効果の前の値=旧挙動(leave_effect=False)を明示する
-    null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-                   report_precondition=False, l4_scale=1.0, hunger_model="v1", leave_effect=False)
+    null = cli_run(plan_executor=False, report_precondition=False, **kw)
     assert null.final_hash.startswith(g["null_arm_final_l4x1"])
     assert int(null.llm_calls) == g["null_arm_llm_calls_l4x1"]
-    v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
-                 l4_scale=1.0, hunger_model="v1", leave_effect=False)
+    v3 = cli_run(vocab_version="v3", **kw)
     assert v3.final_hash.startswith(g["v3_default_final_l4x1"])
     assert int(v3.llm_calls) == g["v3_default_llm_calls_l4x1"]
     assert v3.run_manifest_fields()["l4_exceeded"] is False
@@ -322,23 +362,26 @@ def test_l4_scale_1_reproduces_the_stage_2c_checkpoints():
 
 @real_data
 def test_hunger_model_v1_reproduces_the_stage_3_checkpoints():
-    """5 段目 5a(D-118 K5 (a)): 空腹の旧規則 ``hunger_model="v1"`` で 3 段目の既定値をそのまま再現する。
+    """5 段目 5a(D-118 K5 (a)): 空腹の旧規則 ``hunger_model="v1"``。
 
-    energy の 4 欄は ``energy_columns`` のランだけ確保する=v1 は SoA も挙動も 1 バイトも変わらない。
+    energy の 4 欄は ``energy_columns`` のランだけ確保する=v1 は SoA も挙動も energy の欄を持たない。
+    〔改訂(第330・RET)〕前は 3 段目の既定値そのものを再現していた(ACT の commit で通った)。旧値の切替口を消したので、
+    空腹 v1(+退去の効果 off)の**今の値**を固定する。
     """
     from shibuya.cli import run as cli_run
 
+    kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), hunger_model="v1", leave_effect=False)
+    if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(帰無腕の 1 本)
+        GE.assert_aa(lambda: cli_run(plan_executor=False, report_precondition=False, **kw), _FINAL_CALLS)
+        return
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final_hunger_v1" not in g:
         pytest.skip(f"実 W17 の hunger v1 golden が無い(md5 {w17_digest()})")
-    # 9a(第302): 3 段目の値は退去の効果の前=旧挙動(leave_effect=False)を明示する
-    null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-                   report_precondition=False, hunger_model="v1", leave_effect=False)
+    null = cli_run(plan_executor=False, report_precondition=False, **kw)
     assert null.final_hash.startswith(g["null_arm_final_hunger_v1"])
     assert int(null.llm_calls) == g["null_arm_llm_calls_hunger_v1"]
     assert null.run_manifest_fields()["hunger_model"] == "v1"
-    v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
-                 hunger_model="v1", leave_effect=False)
+    v3 = cli_run(vocab_version="v3", **kw)
     assert v3.final_hash.startswith(g["v3_default_final_hunger_v1"])
     assert int(v3.llm_calls) == g["v3_default_llm_calls_hunger_v1"]
     assert v3.energy == {}
@@ -346,20 +389,25 @@ def test_hunger_model_v1_reproduces_the_stage_3_checkpoints():
 
 @real_data
 def test_leave_effect_off_reproduces_the_stage_5_checkpoints():
-    """9a(第302・D-112 ④): 退去の効果の切替口 ``leave_effect=False`` で 5 段目の既定値をそのまま再現する。
+    """9a(第302・D-112 ④): 退去の効果の切替口 ``leave_effect=False``。
 
     効果は退去を選んだ体の所属解除だけ=off なら resolve の退去は第301 以前の 3 行と同じ。
+    〔改訂(第330・RET)〕前は 5 段目の既定値そのものを再現していた(ACT の commit で通った)。旧値の切替口を消したので、
+    退去の効果 off の**今の値**を固定する。
     """
     from shibuya.cli import run as cli_run
 
+    kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), leave_effect=False)
+    if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(帰無腕の 1 本)
+        GE.assert_aa(lambda: cli_run(plan_executor=False, report_precondition=False, **kw), _FINAL_CALLS)
+        return
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final_leave_off" not in g:
         pytest.skip(f"実 W17 の leave off golden が無い(md5 {w17_digest()})")
-    null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-                   report_precondition=False, leave_effect=False)
+    null = cli_run(plan_executor=False, report_precondition=False, **kw)
     assert null.final_hash.startswith(g["null_arm_final_leave_off"])
     assert int(null.llm_calls) == g["null_arm_llm_calls_leave_off"]
-    v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3", leave_effect=False)
+    v3 = cli_run(vocab_version="v3", **kw)
     assert v3.final_hash.startswith(g["v3_default_final_leave_off"])
     assert int(v3.llm_calls) == g["v3_default_llm_calls_leave_off"]
     assert v3.run_manifest_fields()["leave_effects"]["enabled"] is False
@@ -854,6 +902,10 @@ def test_derive_folding_matches_the_parent_verified_counts():
     ho_full = np.asarray(full.home_cell) < 0
     per_full = PlanBlocks.from_weekly(wk_full, 0, ho_full, derive_rule="v1").blocks_per_agent()
     # **親検証値そのもの**(全 390,067 体・day0・定義 B の集計軸=域外居住者)。表ごとの golden(第170)
+    if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(同じ畳み方をもう 1 回)
+        again = PlanBlocks.from_weekly(wk_full, 0, ho_full, derive_rule="v1").blocks_per_agent()
+        assert np.array_equal(per_full, again)
+        return
     g = W17_GOLDEN.get(w17_digest())
     if g is None:
         pytest.skip(f"実 W17 の golden が無い(md5 {w17_digest()})=親が再実行して W17_GOLDEN に足す")
