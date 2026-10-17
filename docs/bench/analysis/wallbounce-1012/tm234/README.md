@@ -427,3 +427,12 @@ byte-check(19 構成・25 欄)は §6。下の表は 3 つの腕を全部立て�
 - byte-check(本体 `8169d4b` の写し vs 作業木・`w6_v3_default`・テープつき): 既定=25 欄とも同じ(final `b8eadcb51e8705e7`)。
   腕 changed・regional・mora も 1 構成ずつ 25 欄とも同じ(final は前と同じ `b8eadcb51e8705e7`)。
 
+
+## §親の検収(第337・Fable 5.1・rebase の後)
+
+- 本体 2eee9b2(封印の整理の後) へ rebase(実装役が 8169d4b(カレンダー 1b)へ控え+早送り+merge-file で=衝突 13 本は全部「両方が末尾に足した所」(systems 5 本・run.py・manifest_sections・state_ledger・cli・凍結の表の試験 3 本・10f の golden)=並びは本体の分 → 本段の分・`CONFIG_PATHS_SHA256` 02f950ae → ffbed6e3(31 本を外すと戻る)・状態台帳 126/217・台帳 522 行。親が 2eee9b2 へ rebase=衝突なし)→ 80742bc。範囲の試験(`tests/engine` 全体・cp2・c8・tools)****3,138 passed・1 skipped**(1,400 秒・`test_classical_social` も通った=実装役の並列の 1 回だけの落ちは再現せず)**。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・既定)=**final 同じ・25 欄とも差なし**(`parent_head_vs_tm234_4cfg.json`)。腕 3 つの 19 構成(既定・changed・regional)と mora 4 構成は実装役(最後の直しの後に回し直し)と検収役(19/19・19/19・19/19・4/4・植えた欠陥は捕まる)。
+- **data 無しの写し(detached の作業木・junction なし)で CI-1 と同じ引数の全体試験(tests/c7 を含む)=**5,449 passed・285 skipped・failed 0**(1,379 秒・CI の印=`-m "not gpu and not slow" -n 2 --dist loadfile`)**。
+- 親の写し検査: T2 の錨=R-111 §3(モーラ長 0.151 秒=6.6 モーラ/秒・話者 18 人で 0.124〜0.198・CV 0.42・親しい相手 +10.9%/+8.3%)と R-73 #30 の間 7 ms(Stivers 2009)がコードの定数と一致(検収役も独立に照合・d2(18)=3.640 を数値積分で再計算)。
+- 独立検収([review.md](review.md))=条件つき受入(中 6=段 B の宣言漏れ(腕 mora の発話が書く BW/T4W)・実行時の守りなし・同じ会話の束の検査が条件つき・T4 の一致は構造上・39 万体の性能の記述・記録の時点/ 低 7)→ 全部直した(§13)。親の判断: T4 の一致は**構造上**(区域の時計は計器だけ)として条件つきで受け入れ(意味のある確認は T2 の版上げと C1 の後)・T3 は「速くならない」と事実どおりに(縮めるのは驚き駆動の版上げの仕事)・mixed は build で止める。
+- 判定: **受入**(第 6 期 6-3 T2〜T4=腕 3 つ・既定は 19 構成で不変)。
