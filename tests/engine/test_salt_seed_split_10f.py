@@ -192,6 +192,8 @@ _HASH_SITES = {
     ("engine/run.py", "run_salt_for"): "run_salt",
     ("perception/renderer.py", "__init__"): "run_salt",  # near_salt を渡さないときの run_salt の写し(run_day は渡す)
     ("engine/presence.py", "attendance_draw"): "attendance",
+    # 〔第 6 期 6-2〕腕 1b の体ごとの割り振り(動きの seed=salt・母集団の seed は使わない)
+    ("engine/calendar_self.py", "_key_draw"): "calendar_1b",
     ("llm/fleet.py", "seed_for"): "fleet.call_seed",
     ("core/rng.py", "derive_key"): "core.rng の鍵の導出そのもの",
     ("core/hashing.py", "xxh64"): "汎用のハッシュ(引数の名前が seed)",

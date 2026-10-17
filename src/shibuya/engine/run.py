@@ -524,6 +524,10 @@ MOTION_SALTS: dict[str, str] = {
     "run_salt": "blake3(seed‖engine): アービタの同点・適用の順・近接行の同点・歩きの行き先・関係の招待の重み",
     "attendance": "blake3(attendance‖seed‖日): 出勤率の抽選(engine.presence.attendance_draw)",
     "fleet.call_seed": "xxh64(call_id, seed): 艦隊の呼ごとのデコードの種",
+    # 〔第 6 期 6-2〕腕 --calendar 1b だけ。動きの seed(salt)と体の W16 の agent_id から引く決定論の割り振り(乱数の流れを
+    # 使わない=core.rng の用途名は無い)。母集団の seed は使わない=母集団と salt の分離は前のまま
+    "calendar_1b": "blake3(calendar1b:用途:seed) と agent_id の splitmix: 置き場所・余裕・時計を見る位相"
+                   "(engine.calendar_self._key_draw)",
 }
 
 

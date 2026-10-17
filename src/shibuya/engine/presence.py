@@ -1347,7 +1347,7 @@ class PlanExecutor:
         """ARRIVE: **域外に居る体だけ**を降ろす(I2 二重到着なし)。"""
         if ids.size == 0:
             return
-        hook = self.io_hook
+        hook = getattr(self, "io_hook", None)  # 〔6-2〕口の無い持ち主(試験の写しなど)は既定と同じ None
         if hook is not None:  # 〔6-2 カレンダー 1b〕本人が出入りを決める体は W17 の到着を実行しない
             off = np.asarray(hook.io_off, dtype=bool)[ids]
             if off.any():
@@ -1379,7 +1379,7 @@ class PlanExecutor:
         """DEPART: 在圏の体を域外へ(§4 の優先規則: 会話中は繰り延べ・買物/待ちは中断)。"""
         if ids.size == 0:
             return
-        hook = self.io_hook
+        hook = getattr(self, "io_hook", None)  # 〔6-2〕口の無い持ち主(試験の写しなど)は既定と同じ None
         if hook is not None:  # 〔6-2 カレンダー 1b〕本人が出入りを決める体は W17 の退出を実行しない(時刻で退出させない)
             off = np.asarray(hook.io_off, dtype=bool)[ids]
             if off.any():
@@ -1615,7 +1615,7 @@ class PlanExecutor:
         """9a: 歩いて乗る退出の体の**場所の変化(CELL_BLOCK)・到着満了(ACTIVITY_EXPIRY)・計画境界(PLAN_*)**を
         起こさない(段 2c の意図保持と同じ=着いたらエンジンが乗せる・退出そのものが計画境界の実行=即時の形で
         呼ばないのと揃える・驚き/体/会話では起こす)。"""
-        hook = self.io_hook
+        hook = getattr(self, "io_hook", None)  # 〔6-2〕口の無い持ち主(試験の写しなど)は既定と同じ None
         if (self.exit_mode != "walk_to_platform" and hook is None) or agent.size == 0:
             return agent, cond, cls
         a = np.asarray(agent, dtype=np.int64)
@@ -1675,7 +1675,7 @@ class PlanExecutor:
         r = self.agents.registry
         flags = getattr(r, "plan_flags", None)
         outside = np.asarray(r.transit_state) == 2
-        hook = self.io_hook
+        hook = getattr(self, "io_hook", None)  # 〔6-2〕口の無い持ち主(試験の写しなど)は既定と同じ None
         if hook is not None:  # 〔6-2 カレンダー 1b〕本人が出入りを決める体はエンジンが引き込まない(急に現れない)
             outside = outside & ~np.asarray(hook.io_off, dtype=bool)
         if flags is None:
@@ -1712,7 +1712,7 @@ class PlanExecutor:
         **次の**在圏ブロックに ARRIVE を張り直す。
         """
         a = np.asarray(agent_ids, dtype=np.int64).ravel()
-        hook = self.io_hook
+        hook = getattr(self, "io_hook", None)  # 〔6-2〕口の無い持ち主(試験の写しなど)は既定と同じ None
         if hook is not None and a.size:  # 〔6-2 カレンダー 1b〕本人が出入りを決める体は張り直さない(層が持つ)
             off = np.asarray(hook.io_off, dtype=bool)[a]
             if off.any():
