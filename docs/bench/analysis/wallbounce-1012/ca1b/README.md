@@ -309,3 +309,11 @@ W17 の最初の在圏ブロックと W20 の約束の始まりの差は大き�
 **つなぎの台帳**: 本段の行 18 → 24(H1・M2 (a)(c)・L4・L8・L10 の 6 行)・台帳 485 → 491 行。
 
 **試験**: §15 の表の新しい試験 8 本を足した(単体 14 → 19・ランの 13 → 16)。範囲の試験(`tests/engine/{calendar,decision,body,events,tools,bridging,time}`・`tests/economy/cp2`・状態台帳と 10f の 3 本・`test_systems_table`・`-n 2 -m "not slow"`)699 passed(11 分 44 秒)・slow の 5,000 体 1 本 passed(89 秒)・lint-imports 5 kept・0 broken。
+
+## §親の検収(第337・Fable 5.1・rebase の後)
+
+- 本体 7707e87(4-1 段 8〜9 の後) へ rebase(実装役が 32fb262 へ ff・親が 7707e87 へ rebase=衝突はつなぎの台帳の末尾だけ=本体の版 483 行に段の道具 `add_bridges_ca1b.py` を回して 507 行(24 行の追加と 2 行の注=既存の行は末尾の追記だけ・2 回回して同じ))→ 9474be3。範囲の試験(calendar・decision・body・events・tools・bridging・cp2・状態台帳・10f・c8)817 passed の後、**data 無しの写しで範囲の外の 3 本が落ちた**(状態台帳の腕の行の一覧の期待値・`_key_draw` のハッシュの場所の分類・presence の `io_hook` を持たない stub)→ 実装役が直し(engine 3 本+試験 2 本=挙動は不変)→ 親の直しの commit 246d72d → **範囲の試験を `tests/engine` 全体に広げて****3,034 passed・1 skipped**(1,641 秒・4 構成の byte-check も同じ)。`test_classical_social` の golden が並列でだけ 1 回落ちた(単独・連続では通る・本段の腕を立てた値とも違う=順序依存の疑い=data 無しの写しと本体の全体試験で確かめる)。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・既定 w17)=**final 同じ・25 欄とも差なし**(`parent_head_vs_ca1b_4cfg.json`)。実装役の 19 構成の JSON は検収役が全欄を照合。
+- **data 無しの写し(detached の作業木・junction なし)で CI-1 と同じ引数の全体試験(tests/c7 を含む)=**5,339 passed・281 skipped・failed 0**(1,813 秒・CI の印=`-m "not gpu and not slow" -n 2 --dist loadfile`・直しの前は 3 本が落ちた=直しの後は 0・`test_classical_social` も通った)**。
+- 独立検収([review.md](review.md))=条件つき受入(高 1=計画一致率が層の段を見て体の位置を見ない(mock の行為の抽選で勤務中に舞台を出る体 49%)/ 中 2=逆算の検査が帳簿だけ・口の約束との差(Observation・通知の時刻が choose を通らない・LLM のランでも mock の口)/ 低 12)→ 全部直すか宣言した(§15)。検収役の独立の再計算(`rail_arrive`/`rail_depart` の呼び手を記録し体の状態を毎刻み写して鉄道の表を直接引く=時刻で消えた体 0/2,709・急に現れた体 0/2,695・選んだ便 0/2,582・W17 の事象の数が w17 と 1b で同じ・TM8 の見方・`CONFIG_PATHS_SHA256` の 12 本を外すと HEAD の値)は全部一致。親の判断: 位置で数え舞台を出た体は再提示(mock の抽選は変えない)・逆算の検査は AST(域外の時間から前へ進める到着は物理=緩めを受入)・通知とアラームの時刻は choose 経由・Percept への統一とアラームを System 1 へは 1b の既定化の前(宣言)・C1BM の軸 2 required を受入・`tools.n_tools` 7 → 9 は宣言。
+- 判定: **受入**(第 6 期 6-2 カレンダー 1b=腕・既定 w17 は不変・既定化は実 LLM の後)。
