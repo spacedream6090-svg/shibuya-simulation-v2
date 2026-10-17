@@ -3283,7 +3283,7 @@
   {
    "id": "BR-MIN-WAGE-HOURLY-1226",
    "what": "economy/anchors.py の MIN_WAGE_HOURLY = 1_226(東京都の最低賃金の直書き=世界の時点の値)",
-   "why": "口の約束 1-4 の約束 (1)「既存の直書きの係数は 4-2 まで残す=つなぎとして台帳へ」。規則の表の minimum_wage.tokyo(1,280 円・2026-10-01〜)に結ぶ。1,226 円の版は R-106 で △=4-2 で表に足して読み替える(検収 L7)",
+   "why": "口の約束 1-4 の約束 (1)「既存の直書きの係数は 4-2 まで残す=つなぎとして台帳へ」。規則の表の minimum_wage.tokyo(1,280 円・2026-10-01〜)に結ぶ。1,226 円の版は R-106 で △=4-2 で表に足して読み替える(検収 L7)〔第337・2026-10-18〕1,226 円(2025-10-03〜)と 1,163 円(2024-10-01〜)の版を親の一次確認で表に足した=表に版のある日は表の値を読む。直書きは版の無い日(2024-10-01 より前)の戻り道だけに残る(最低賃金の床=anchors.min_wage_floor は直書きに戻らない)",
    "remove_at": "4-2",
    "declared_in": "docs/design/v2-foundation-contracts-2026-10-13.md 1-4 約束 (1)",
    "conf": "expedient",
@@ -3726,12 +3726,12 @@
   {
    "id": "DOC-ec21-wage-hours-and-rate",
    "what": "月の賃金=労働時間 × 時給: 労働時間=W17 の「勤務」の週の分 × 52/12 週(W17 の無いランは 160 時間)・時給=最低賃金(規則の表から asof で読む)",
-   "why": "2-1(EC4)。W16/W17 に賃金の属性が無いので最低賃金を時給にした(賃金の分布は空欄)。属性つきの人口の段で体ごとの時給にする。〔検収 A3〕現実の 1/4 程度の見込み=月の時間の出どころは親が PENDING の判断待ちに(W17 の勤務ブロックか統計=毎月勤労統計の所定内労働時間)",
+   "why": "2-1(EC4)。W16/W17 に賃金の属性が無いので最低賃金を時給にした(賃金の分布は空欄)。属性つきの人口の段で体ごとの時給にする。〔検収 A3〕現実の 1/4 程度の見込み=月の時間の出どころは親が PENDING の判断待ちに(W17 の勤務ブロックか統計=毎月勤労統計の所定内労働時間)〔閉じた・2026-10-17・賃金の小さな版上げ=回答 10-13b §7 の 3〕既定の賃金の腕 occupation で、月の賃金は職業 × 性 × 年齢 × 雇用形態の実データ(賃金構造基本統計調査 令和 7 年=R-107・economy.wages)から=W17 の勤務時間と最低賃金は額に使わない。根拠=5,000 体の母集団の雇用の行のある体の月の賃金の中央値が R-107 第18表の中位数と合う(職種 × 性の点検=記録 wage_occ/README.md §3)。この道は切替口 --wage w17(旧値の再現だけ・次の版上げで消す)と賃金の表の写しの無い写しにだけ残る",
    "remove_at": "4-1",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "inferred",
    "code_at": [
     "src/shibuya/economy/stage2.py",
@@ -5033,24 +5033,30 @@
   {
    "id": "EX-build.pop.w21_build_b-dc566aac",
    "what": "賃金=第18表の職種 × 男女の所定内給与額の階級の度数(階級の中は一様・最も低い階級の下 8 万円・最も高い階級の上は下の 1.5 倍)× 年齢の比(第6表)× 雇用形態の比(第9表)=比は独立の仮定",
-   "why": "構築の段 W21b が宣言した近似(第 4 期 4-1 段 4〜7・モジュールの表 W21B_EXPEDIENTS の 15 番目・記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "why": "構築の段 W21b が宣言した近似(第 4 期 4-1 段 4〜7・モジュールの表 W21B_EXPEDIENTS の 15 番目・記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)〔賃金の小さな版上げ・2026-10-17・検収 M2〕同じ近似が実行時の既定の賃金(2-1 の給料日=economy/wages.py)にも使われる=外す段は第 7 期のまま(感度試験)・版上げで式を変えるときもこの行を直す。〔検収 M1〕39 万体の写せた体で時間あたりの額が東京都の最低賃金 1,226 円を下回るのは 19.3%(記録 wage_occ §12)。そのうち約 11 ポイントは比のかけ合わせ(独立の仮定)で下の裾が広がった分=全国の表そのもの(第18表の 11 職種 × 男女)では約 9%。実行時は給料日に最低賃金法の床(規則の表の minimum_wage.tokyo・machine の行)で下から抑える",
    "remove_at": "7",
    "declared_in": "src/shibuya/build/pop/w21_build_b.py#expedients:dc566aac",
    "conf": "expedient",
    "since": "2026-10-15",
    "status": "active",
-   "remove_basis": "inferred"
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/wages.py"
+   ]
   },
   {
    "id": "EX-build.pop.w21_build_b-18118af0",
    "what": "短時間労働者の時間あたりの賃金=第2表の職種 × 男女 × 第18表の形(分位の値 ÷ 中位数)",
-   "why": "構築の段 W21b が宣言した近似(第 4 期 4-1 段 4〜7・モジュールの表 W21B_EXPEDIENTS の 16 番目・記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "why": "構築の段 W21b が宣言した近似(第 4 期 4-1 段 4〜7・モジュールの表 W21B_EXPEDIENTS の 16 番目・記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)〔賃金の小さな版上げ・2026-10-17・検収 M2〕同じ近似が実行時の既定の賃金(2-1 の給料日=economy/wages.py)にも使われる=外す段は第 7 期のまま(感度試験)・版上げで式を変えるときもこの行を直す",
    "remove_at": "7",
    "declared_in": "src/shibuya/build/pop/w21_build_b.py#expedients:18118af0",
    "conf": "expedient",
    "since": "2026-10-15",
    "status": "active",
-   "remove_basis": "inferred"
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/wages.py"
+   ]
   },
   {
    "id": "EX-build.pop.w21_build_b-3e73a6ed",
@@ -6197,6 +6203,67 @@
    "code_at": [
     "src/shibuya/engine/regional_clock.py",
     "src/shibuya/engine/systems/conductor.py"
+   ]
+  },
+  {
+   "id": "DOC-wage_occ-separate-from-w17-hours",
+   "what": "2-1 の月の賃金は W17 の勤務時間と別に入れた(賃金構造基本統計調査の所定内給与=月の額・W17 の「勤務」のブロックの時間は賃金に使わない)=体が舞台で働く時間と、払われる賃金が対応しない",
+   "why": "ユーザー決定 2026-10-17(回答 10-13b §7 の 3=W17 は直さない(CA1)・賃金は職業ごとの実データから・W17 の勤務時間とは別に入れたことを台帳で宣言する)。W17 の勤務ブロックは月 38 時間(現実の正規の所定内 約 160 時間の約 1/4)。勤務の時刻を統計から作る段(3-1 カレンダー)で、働く時間と賃金の時間をそろえる",
+   "remove_at": "3-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/wage_occ/README.md",
+   "conf": "expedient",
+   "since": "2026-10-17",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/wages.py",
+    "src/shibuya/economy/stage2.py",
+    "src/shibuya/engine/economy_stage2.py"
+   ]
+  },
+  {
+   "id": "DOC-wage_occ-persona-map",
+   "what": "W16 の体の賃金の属性の写像: ペルソナの occupation_major の語(職業大分類の名)→ 賃金構造の職種(同じ名の語)・employment の語 → 雇用形態(正規=正社員・正職員/非正規=正社員・正職員以外/役員・自営業主・家族従業者=対象外なので正社員・正職員の表)・性と年齢は W16。W16 の語に短時間の印が無い=短時間の表(第2表)を使う体は無い",
+   "why": "段 10 の差し替え(第 4 期 4-3=W21 の体)までのつなぎ(発注=W16 の体に賃金を付ける・写像の表=expedient)。ペルソナの職業の語は v1 の生成器の語で国勢調査の抽選ではない。W21 の体は wage_monthly の列(4-1 段 5)をそのまま使う形にした(母集団が列を持てば自動で乗り換わる)",
+   "remove_at": "4-3",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/wage_occ/README.md",
+   "conf": "expedient",
+   "since": "2026-10-17",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/economy/wages.py",
+    "src/shibuya/engine/economy_stage2.py"
+   ]
+  },
+  {
+   "id": "DOC-wage_occ-unmapped-average",
+   "what": "職業の語が写せない体(非就業・通学・ペルソナの無い体=指令ほか・L4 の在庫の体・母集団の無いラン)の月の賃金=雇用形態と年齢(と性)だけの平均(職種ごとの値を第18表の職種 × 性の労働者数で重みづけ・性や年齢が分からなければ男女の平均と年齢の比 1)",
+   "why": "発注(写せない体は雇用形態と年齢だけの平均=宣言)。雇用の行がある体には払う(権利台帳の雇用の行が賃金の根拠)。W21 の体は職業と従業上の地位を持つ=段 10 の差し替えで外す",
+   "remove_at": "4-3",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/wage_occ/README.md",
+   "conf": "expedient",
+   "since": "2026-10-17",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/economy/wages.py"
+   ]
+  },
+  {
+   "id": "DOC-wage_occ-legacy-switch",
+   "what": "賃金の切替口 --wage w17(環境変数 SHIBUYA_WAGE=w17)=2-1 の値(W17 の「勤務」の週の分 × 52/12 週 × 最低賃金)の再現のためだけの道と、賃金の表の写しが無い写し(data の無い CI)の戻り道(月 160 時間=W17 の無いランの既定 × 最低賃金・注記 WageTablesAbsentWarning)",
+   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)。閉じた行 DOC-ec21-wage-hours-and-rate の道がコードに残る分(検収 L4)。次の版上げ(4-3=段 10 の差し替え=版上げ 3 回目の見込み)で消す。表の無い写しの戻り道は、data の無い CI で賃金の表を持てるまで(消すときに CI の扱いを決める)",
+   "remove_at": "4-3",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/wage_occ/README.md",
+   "conf": "expedient",
+   "since": "2026-10-17",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/cli.py",
+    "src/shibuya/economy/stage2.py",
+    "src/shibuya/engine/economy_stage2.py"
    ]
   }
  ]

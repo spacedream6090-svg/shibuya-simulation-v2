@@ -50,6 +50,7 @@ __all__ = [
     "MIN_WAGE_RULE_ID",
     "CONSUMPTION_TAX_RULE_ID",
     "min_wage_hourly",
+    "min_wage_floor",
     "consumption_tax_rate",
     "Anchor",
     "ANCHORS",
@@ -245,6 +246,23 @@ def min_wage_hourly(asof: "str | _dt.date", rules=None) -> tuple[int, str]:  # n
     return int(row.params["yen_per_hour"]), f"rules:{MIN_WAGE_RULE_ID}@{row.asof}"
 
 
+def min_wage_floor(asof: "str | _dt.date", rules=None) -> tuple[int | None, str]:  # noqa: ANN001
+    """〔賃金の小さな版上げ・検収 M1〕最低賃金法の床(4 条 2 項)の値[円/時]と出どころ=規則の表の ``minimum_wage.tokyo``
+    (``kind: machine``)の ``asof`` の日に効いている版だけ。:func:`min_wage_hourly` と違い**直書きの値に戻さない**: 表に版の
+    無い日(施行の前)・表の無い写しは ``(None, "none")``=床なし(宣言=記録 wage_occ §13)。machine でない行は止める。
+    """
+    from shibuya.engine.rules import table as _RT
+
+    try:
+        rt = _RT.default_rules() if rules is None else rules
+        row = rt.get(MIN_WAGE_RULE_ID, asof)
+    except (_RT.RuleNotInForce, FileNotFoundError, KeyError):
+        return None, "none"
+    if str(getattr(row, "kind", "machine")) != "machine":
+        raise ValueError(f"{MIN_WAGE_RULE_ID} は machine の行であること(いま {row.kind!r})")
+    return int(row.params["yen_per_hour"]), f"rules:{MIN_WAGE_RULE_ID}@{row.asof}"
+
+
 def consumption_tax_rate(asof: "str | _dt.date", rules=None) -> tuple[Fraction, str]:  # noqa: ANN001
     """〔2-1〕``asof`` の日に効いている消費税の国+地方の合計の率(分数)と出どころ。
 
@@ -289,6 +307,7 @@ def monthly_wages(
     payer_sector: int | None = None,
     method: int = 0,
     cause=None,  # noqa: ANN001
+    amounts=None,  # noqa: ANN001
 ) -> np.ndarray:
     """雇用主(または域外雇用主)→ 世帯の月次賃金を**一括** transfer する。
 
@@ -308,11 +327,16 @@ def monthly_wages(
         payer_sector: 支払側の部門(``None``=雇用主。``from_row`` が優先)。
         method: 支払いの方法(``ops.METHOD_CASH``=0・``ops.METHOD_ACCOUNT``=1=世帯の口座へ)。
         cause: 1-3 の原因(``None``=出来事を書かない)。
+        amounts: 〔賃金の小さな版上げ〕行ごとの額[円](渡せば ``hours``・``hourly``・``premium`` は使わない=賃金の腕
+            ``occupation`` の月の賃金=``economy.wages``)。``None``=今までどおり 時間 × 時給 × 割増。
 
     Returns:
         行ごとの ``TransferStatus``。
     """
-    amounts = monthly_wage_amounts(hours, premium, hourly=hourly)
+    if amounts is None:
+        amounts = monthly_wage_amounts(hours, premium, hourly=hourly)
+    else:
+        amounts = np.asarray(amounts, dtype=np.int64).ravel()
     hh = np.asarray(households, dtype=np.int64).ravel()
     if from_row:
         payers = np.zeros(hh.size, dtype=np.int64)

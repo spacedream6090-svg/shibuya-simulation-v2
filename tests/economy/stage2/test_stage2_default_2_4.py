@@ -26,9 +26,13 @@ def test_resume_check_uses_the_effective_arm(monkeypatch):
     ES2.check_resume(None, effective=False)  # 台帳なし=off どうし
     with pytest.raises(ValueError, match="経済の段階 2 の腕"):
         ES2.check_resume(None)  # 台帳あり=親 off・今 on
-    ES2.check_resume({"arm": "on", "parts": list(ES2.PARTS)})
+    # 〔賃金の小さな版上げ〕腕 on の見出しは賃金の腕も持つ(見出しに無い=w17=版上げの前の状態)
+    want = {"arm": "on", "parts": list(ES2.PARTS)}
+    if ES2.wage_arm() != ES2.WAGE_W17:
+        want["wage"] = ES2.wage_arm()
+    ES2.check_resume(want)
     with pytest.raises(ValueError):
-        ES2.check_resume({"arm": "on", "parts": list(ES2.PARTS)}, effective=False)
+        ES2.check_resume(want, effective=False)
 
 
 def test_tax_of_and_the_last_purchase_rows():

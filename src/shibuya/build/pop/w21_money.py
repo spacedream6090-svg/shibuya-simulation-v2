@@ -26,6 +26,8 @@ from typing import Any, Final, Mapping
 
 import numpy as np
 
+from shibuya.core import wage_formula as _WG
+
 from . import attr_fns as A
 from . import w21_sources as S
 
@@ -35,11 +37,10 @@ __all__ = ["load_wage_tables", "load_asset_tables", "jicc_holder_rate", "solve_t
 #: 世帯の資産を配る相手の年齢の下限(自前・expedient)。
 ADULT_AGE: Final[int] = 18
 #: 第18表の最も低い階級(～99.9 千円)の下の端と、最も高い階級(1,200 千円～)の上の端の倍率(自前・expedient)。
-WAGE_CLASS_FLOOR_YEN: Final[float] = 80_000.0
-WAGE_TOP_FACTOR: Final[float] = 1.5
+#: 〔賃金の小さな版上げ・2026-10-17〕表の読み解きと一緒に ``economy.wages`` へ移した(同じ値)。
+WAGE_CLASS_FLOOR_YEN: Final[float] = _WG.WAGE_CLASS_FLOOR_YEN
+WAGE_TOP_FACTOR: Final[float] = _WG.WAGE_TOP_FACTOR
 
-_FW = str.maketrans("０１２３４５６７８９", "0123456789")
-_SEXES: Final[tuple[str, str]] = ("男", "女")
 _TYPES: Final[tuple[str, ...]] = ("総世帯", "二人以上の世帯", "単身世帯")
 
 
@@ -52,103 +53,15 @@ def _num(v: Any) -> float:
 
 # ------------------------------------------------------------------------------------------ 賃金
 def load_wage_tables(guard: S.W21Guard) -> dict[str, np.ndarray]:
-    """賃金構造 令和 7 年(第9・6・18 表と短時間 第2表)→ ``AttrTablesB`` の賃金の欄(企業規模計・円と時間)。"""
-    O = len(A.WAGE_OCCUPATIONS)
-    occ_i = {o: i for i, o in enumerate(A.WAGE_OCCUPATIONS)}
-    level = np.zeros((O, 2, 2))
-    bonus = np.zeros((O, 2, 2))
-    hours = np.zeros((O, 2, 2))
-    allw = np.zeros((O, 2))
+    """賃金構造 令和 7 年(第9・6・18 表と短時間 第2表)→ ``AttrTablesB`` の賃金の欄(企業規模計・円と時間)。
+
+    〔賃金の小さな版上げ・2026-10-17〕写しは読み口(``guard``=md5 と元の md5 を照らす)で読み、読み解きは実行時の 2-1 の
+    賃金と同じ ``economy.wages.parse_wage_tables``(移した=同じ式・二重に作らない)。"""
     _d, _it, rows9 = S.read_derived_rows(guard, "wage_t9")
-    forms = {"正社員・正職員計": 0, "正社員・正職員以外計": 1}
-    for occ, sex, cat, v in rows9:  # 逐次: 表の行の数ぶん
-        if occ not in occ_i or sex not in _SEXES:
-            continue
-        o, s = occ_i[occ], _SEXES.index(sex)
-        if cat == "常用労働者計":
-            allw[o, s] = _num(v[5]) * 1000.0
-        elif cat in forms:
-            f = forms[cat]
-            level[o, s, f] = _num(v[5]) * 1000.0
-            bonus[o, s, f] = _num(v[6]) * 1000.0
-            hours[o, s, f] = _num(v[2])
-    # 形態の値が無い(0)ところは常用労働者計で埋める(雇用形態の比=1)
-    for f in (0, 1):
-        level[:, :, f] = np.where(level[:, :, f] > 0, level[:, :, f], allw)
-    hours = np.where(hours > 0, hours, np.nanmax(np.where(hours > 0, hours, np.nan), axis=2, keepdims=True))
-    hours = np.nan_to_num(hours, nan=160.0)
-
     _d, _it, rows6 = S.read_derived_rows(guard, "wage_t6")
-    nA = A.WAGE_AGE_EDGES.size
-    wage_age = np.zeros((O, 2, nA))
-    bonus_age = np.zeros((O, 2, nA))
-    tot_w = np.zeros((O, 2))
-    tot_b = np.zeros((O, 2))
-    for sex, occ, age_lab, v in rows6:  # 逐次: 表の行の数ぶん
-        if occ not in occ_i or sex not in _SEXES:
-            continue
-        o, s = occ_i[occ], _SEXES.index(sex)
-        if age_lab == "計":
-            tot_w[o, s], tot_b[o, s] = _num(v[5]), _num(v[6])
-            continue
-        m = re.search(r"(\d+)", age_lab.translate(_FW))
-        lo = 0 if age_lab.startswith("～") else (int(m.group(1)) if m else 0)
-        a = int(np.searchsorted(A.WAGE_AGE_EDGES, lo, side="right") - 1)
-        wage_age[o, s, a], bonus_age[o, s, a] = _num(v[5]), _num(v[6])
-    wage_age_ratio = np.where(wage_age > 0, np.divide(wage_age, tot_w[:, :, None], out=np.ones_like(wage_age),
-                                                      where=tot_w[:, :, None] > 0), 1.0)
-    bonus_age_ratio = np.where(bonus_age > 0, np.divide(bonus_age, tot_b[:, :, None], out=np.ones_like(bonus_age),
-                                                        where=tot_b[:, :, None] > 0), 1.0)
-
     _d, items18, rows18 = S.read_derived_rows(guard, "wage_t18")
-    col = [list(items18).index(o) for o in A.WAGE_OCCUPATIONS]
-    lo_l: list[float] = []
-    hi_l: list[float] = []
-    freq = {s: [] for s in _SEXES}
-    median = np.zeros((O, 2))
-    for sex, lab, v in rows18:  # 逐次: 表の行の数ぶん
-        if sex not in _SEXES:
-            continue
-        vv = np.array([_num(v[j]) for j in col])
-        if "中" in lab and "位" in lab and "数" in lab and "分位" not in lab:
-            median[:, _SEXES.index(sex)] = vv * 1000.0
-            continue
-        nums = [float(x) for x in re.findall(r"\d+\.\d+", lab)]
-        if not nums or "分位" in lab or "係数" in lab:
-            continue
-        if sex == _SEXES[0]:
-            if lab.endswith("～"):
-                lo_l.append(nums[0] * 1000.0)
-                hi_l.append(nums[0] * 1000.0 * WAGE_TOP_FACTOR)
-            elif len(nums) == 1:
-                lo_l.append(WAGE_CLASS_FLOOR_YEN)
-                hi_l.append((nums[0] + 0.1) * 1000.0)
-            else:
-                lo_l.append(nums[0] * 1000.0)
-                hi_l.append((nums[1] + 0.1) * 1000.0)
-        freq[sex].append(vv)
-    cls_freq = np.stack([np.stack(freq[s], axis=1) for s in _SEXES], axis=1)  # (O, 2, K)
-
     _d, items2, rows2 = S.read_derived_rows(guard, "wage_t2")
-    it = list(items2)
-    pt = {k: np.zeros((O, 2)) for k in ("hourly", "bonus", "hours_day", "days")}
-    keys = {"hourly": "1時間当たり所定内給与額", "bonus": "年間賞与その他特別給与額", "hours_day": "1日当たり所定内実労働時間数",
-            "days": "実労働日数"}
-    for occ, v in rows2:  # 逐次: 表の行の数ぶん
-        if occ not in occ_i:
-            continue
-        o = occ_i[occ]
-        for s, sx in enumerate(_SEXES):
-            for k, lab in keys.items():
-                x = _num(v[it.index(f"{sx}|{lab}")])
-                if x <= 0:
-                    x = _num(v[it.index(f"男女計|{lab}")])
-                pt[k][o, s] = x * (1000.0 if k == "bonus" else 1.0)
-    return {"wage_level": level, "wage_bonus": bonus, "wage_hours": hours, "wage_all": allw,
-            "wage_age_ratio": wage_age_ratio, "bonus_age_ratio": bonus_age_ratio,
-            "wage_cls_lo": np.array(lo_l), "wage_cls_hi": np.array(hi_l), "wage_cls_freq": cls_freq,
-            "wage_median": median, "pt_hourly": pt["hourly"], "pt_bonus": pt["bonus"],
-            "pt_hours_day": pt["hours_day"], "pt_days": pt["days"]}
+    return _WG.parse_wage_tables(rows9, rows6, items18, rows18, items2, rows2)
 
 
 # ------------------------------------------------------------------------------------------ 資産

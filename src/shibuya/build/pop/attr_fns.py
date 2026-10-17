@@ -45,6 +45,7 @@ from typing import Any, Callable, Final, Mapping
 import numpy as np
 
 from shibuya.core.rng import k19_counter_array, philox_array, unit_float
+from shibuya.core import wage_formula as _WG
 
 __all__ = [
     "AttrKey",
@@ -581,19 +582,16 @@ def f_duty_role(attrs, tables: AttrTables, key: AttrKey) -> np.ndarray:
 
 # ------------------------------------------------------------------------------------------ 段 4〜7(W21 の続き)
 #: 職業大分類(国勢調査 A〜K)→ 賃金構造基本統計調査の職種(大分類)の名(同じ分類=日本標準職業分類)。L(分類不能)は無い。
-WAGE_OCCUPATIONS: Final[tuple[str, ...]] = (
-    "管理的職業従事者", "専門的・技術的職業従事者", "事務従事者", "販売従事者", "サービス職業従事者", "保安職業従事者",
-    "農林漁業従事者", "生産工程従事者", "輸送・機械運転従事者", "建設・採掘従事者", "運搬・清掃・包装等従事者",
-)
+#: 〔賃金の小さな版上げ・2026-10-17〕実行時の 2-1 の賃金と共有するため ``economy.wages`` へ移した(同じ物を名前で写す)。
+WAGE_OCCUPATIONS: Final[tuple[str, ...]] = _WG.WAGE_OCCUPATIONS
 #: 従業上の地位(国勢調査 8 区分)→ 賃金構造の雇用形態(0=一般の正社員・正職員・1=一般の正社員・正職員以外・2=短時間労働者・
 #: −1=対象外=役員・業主・家族従業者・内職=R-107 §1-1 の空欄)。派遣は「正社員・正職員以外」・パート等は短時間に寄せる(expedient)。
 WAGE_FORM_OF_STATUS: Final[Mapping[str, int]] = MappingProxyType({
     "regular": 0, "dispatched": 1, "part_time": 2, "executive": -1, "employer": -1, "self_employed": -1,
     "family_worker": -1, "home_worker": -1,
 })
-#: 賃金構造 第6表の年齢階級の下の端(～19・20-24 … 65-69・70～=12 階級)。
-WAGE_AGE_EDGES: Final[np.ndarray] = np.array([0, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70], dtype=np.int64)
-WAGE_AGE_EDGES.flags.writeable = False
+#: 賃金構造 第6表の年齢階級の下の端(～19・20-24 … 65-69・70～=12 階級)。``economy.wages`` へ移した(同じ物)。
+WAGE_AGE_EDGES: Final[np.ndarray] = _WG.WAGE_AGE_EDGES
 #: 全国家計構造調査の世帯の種類(0=総世帯・1=二人以上の世帯・2=単身世帯)。
 HH_TYPES: Final[tuple[str, ...]] = ("total", "multi", "single")
 #: 全国家計構造調査 第4-4表の世帯主の年齢(5 歳階級: 30 歳未満・30-34 … 80-84・85 歳以上=13 階級)の下の端。
@@ -821,17 +819,8 @@ def f_weekly_hours(attrs, tables: AttrTablesB, key: AttrKey) -> np.ndarray:
     return np.round(out, 2)
 
 
-def _wage_quantile(tables: AttrTablesB, occ: np.ndarray, sex: np.ndarray, u: np.ndarray) -> np.ndarray:
-    """第18表の所定内給与額の階級の度数(職種 × 男女)から分位 u の値[円/月](階級の中は一様=宣言)。"""
-    f = tables.wage_cls_freq[occ, sex]  # (n, K)
-    c = np.cumsum(f, axis=1)
-    tot = c[:, -1]
-    k = np.minimum((c < (u * tot)[:, None]).sum(axis=1), f.shape[1] - 1)
-    prev = np.where(k > 0, c[np.arange(k.size), np.maximum(k - 1, 0)], 0.0)
-    fk = f[np.arange(k.size), k]
-    pos = np.divide(u * tot - prev, fk, out=np.full(k.size, 0.5), where=fk > 0)
-    lo, hi = tables.wage_cls_lo[k], tables.wage_cls_hi[k]
-    return np.where(tot > 0, lo + np.clip(pos, 0.0, 1.0) * (hi - lo), np.nan)
+#: 第18表の所定内給与額の階級の度数(職種 × 男女)から分位 u の値[円/月](階級の中は一様=宣言)。``economy.wages`` へ移した。
+_wage_quantile = _WG.wage_quantile
 
 
 def _wage(attrs, tables: AttrTablesB, key: AttrKey) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -840,37 +829,15 @@ def _wage(attrs, tables: AttrTablesB, key: AttrKey) -> tuple[np.ndarray, np.ndar
     一般(正社員・正職員/以外): 第18表の階級の度数(職種 × 男女=雇用形態と年齢をまとめた形)の分位 u の値 × 年齢の比
     (第6表)× 雇用形態の比(第9表の形態 ÷ 常用労働者計)。年の賃金=12 × 月+賞与(第9表の形態 × 第6表の年齢の比)。
     短時間: 第2表の 1 時間あたり × 第18表の形(分位 u の値 ÷ 中位数)・月=時間あたり × 1 日の時間 × 日数・年=12 × 月+賞与。
-    比をかけ合わせるのは独立の仮定(expedient)。"""
+    比をかけ合わせるのは独立の仮定(expedient)。〔賃金の小さな版上げ・2026-10-17〕式は ``economy.wages.wage_values`` へ
+    移した(実行時の 2-1 の賃金と同じ式=二重に作らない)。ここは属性の語を番号にして分位 u を引くだけ。"""
     occ, sex, form, ok = _occ_sex_form(attrs)
-    age = np.asarray(attrs["age"], dtype=np.int64)
     n = occ.size
-    monthly = np.full(n, -1.0)
-    hourly = np.full(n, -1.0)
-    annual = np.full(n, -1.0)
     if not ok.any():
-        return monthly.astype(np.int64), hourly.astype(np.int64), annual.astype(np.int64)
+        m1 = np.full(n, -1.0).astype(np.int64)
+        return m1, m1.copy(), m1.copy()
     u = key.uniform()[:, 0]
-    q = _wage_quantile(tables, occ, sex, u)
-    ac = np.clip(np.searchsorted(WAGE_AGE_EDGES, age, side="right") - 1, 0, WAGE_AGE_EDGES.size - 1)
-    gen = ok & (form <= 1) & np.isfinite(q)
-    if gen.any():
-        o, s, f, a = occ[gen], sex[gen], form[gen], ac[gen]
-        ratio = np.divide(tables.wage_level[o, s, f], tables.wage_all[o, s], out=np.ones(o.size),
-                          where=tables.wage_all[o, s] > 0)
-        m = q[gen] * tables.wage_age_ratio[o, s, a] * ratio
-        h = np.divide(m, tables.wage_hours[o, s, f], out=np.full(o.size, -1.0), where=tables.wage_hours[o, s, f] > 0)
-        monthly[gen], hourly[gen] = m, h
-        annual[gen] = 12.0 * m + tables.wage_bonus[o, s, f] * tables.bonus_age_ratio[o, s, a]
-    pt = ok & (form == 2) & np.isfinite(q) & (tables.pt_hourly[occ, sex] > 0)
-    if pt.any():
-        o, s = occ[pt], sex[pt]
-        shape = np.divide(q[pt], tables.wage_median[o, s], out=np.ones(o.size), where=tables.wage_median[o, s] > 0)
-        h = tables.pt_hourly[o, s] * shape
-        m = h * tables.pt_hours_day[o, s] * tables.pt_days[o, s]
-        hourly[pt], monthly[pt] = h, m
-        annual[pt] = 12.0 * m + tables.pt_bonus[o, s]
-    r = lambda x: np.where(x >= 0, np.round(x), -1).astype(np.int64)  # noqa: E731
-    return r(monthly), r(hourly), r(annual)
+    return _WG.wage_values(tables, occ, sex, form, ok, np.asarray(attrs["age"], dtype=np.int64), u)
 
 
 def f_wage_monthly(attrs, tables: AttrTablesB, key: AttrKey) -> np.ndarray:

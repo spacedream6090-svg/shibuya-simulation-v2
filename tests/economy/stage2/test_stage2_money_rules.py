@@ -175,7 +175,7 @@ def test_payroll_pays_into_the_account_with_exogenous_funding():
     assert day["conservation"]["ok"] is True and day["stage2"]["payday"] is True
     assert day["stage2"]["wages"]["paid"] == 3 and day["stage2"]["wages"]["funding"] == 3 * pay
     rules = led.stage2.s2_meter["rules"]["minimum_wage"]
-    assert rules == {"asof": "2026-08-24", "yen_per_hour": 1_226, "source": "anchors.MIN_WAGE_HOURLY"}
+    assert rules == {"asof": "2026-08-24", "yen_per_hour": 1_226, "source": "rules:minimum_wage.tokyo@2025-10-03"}
 
 
 def test_payroll_part_off_pays_nothing():

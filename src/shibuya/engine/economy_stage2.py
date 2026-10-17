@@ -16,6 +16,12 @@ engine の側の受け持ち(engine は economy を import できない=層の�
   ``atm`` の印に関わらず全部・〔検収 L3〕)の点をセルに写し、営業時間(``opening_hours``)を曜日 × 分の区間に。
 - 引き出しの場所と時刻の検査(``atm_open_cells``): 行為の解決(``engine.resolve.apply``)と候補の口(腕 port の源
   affordance)が読む。
+- 〔賃金の小さな版上げ・2026-10-17・回答 10-13b §7 の 3〕賃金の切替口 ``--wage {occupation,w17}``(環境変数 ``SHIBUYA_WAGE``・
+  :func:`set_wage_arm`・既定 ``occupation``)。``occupation``=体ごとの月の賃金を職業 × 性 × 年齢 × 雇用形態の実データ
+  (賃金構造基本統計調査 令和 7 年=``economy.wages``)から=W17 の勤務時間を読まない。engine の側はペルソナの職業と雇用の語・
+  性・年齢・鍵(:class:`WageInputs`=:func:`wage_inputs`)を渡すだけ(額は economy が出す)。``w17``=2-1 の値(W17 の「勤務」の
+  週の分 × 最低賃金)の再現のためだけの切替口=次の版上げで消す(§0-6)。腕は組み立てのときに読む・再開では見出しの
+  ``economy_stage2.wage`` と比べる(無い見出し=``w17``)。
 
 逐次ループ宣言(P4): ``build_atm_table`` は OSM の要素の数(約 3,500)と引き出しの点の数(数十)ぶん・組み立てで 1 回。
 ``parse_opening_hours`` は規則の数ぶん。ほかは配列演算(刻みごとの営業中のセルは ATM の数ぶんの配列演算)。
@@ -52,6 +58,8 @@ __all__ = [
     "ORIGIN_LATLON", "M_PER_DEG_LAT", "M_PER_DEG_LON", "CELL_M", "AtmTable", "parse_opening_hours",
     "build_atm_table", "set_atm_table", "Stage2Plan", "weekly_work_hours", "attach", "money_stage2",
     "atm_open_cells", "WEEKS_PER_MONTH", "population_total",
+    "WAGE_OCCUPATION", "WAGE_W17", "WAGE_ARMS", "DEFAULT_WAGE", "wage_arm", "set_wage_arm", "PERSONA_POOL_RELPATH",
+    "PERSONA_LAYERS", "PERSONA_FIELDS", "WageInputs", "persona_words", "wage_inputs",
 ]
 
 ARM_OFF: Final[str] = "off"
@@ -84,6 +92,29 @@ DEFAULT_ARM: Final[str] = ARM_ON
 _ARM: str = os.environ.get("SHIBUYA_ECONOMY_STAGE2", DEFAULT_ARM).strip().lower() or DEFAULT_ARM
 if _ARM not in ARMS:
     raise ValueError(f"SHIBUYA_ECONOMY_STAGE2 は {ARMS} のどれか(いま {_ARM!r})")
+
+
+#: 〔賃金の小さな版上げ〕賃金の切替口(``occupation``=既定=職業ごとの実データ・``w17``=2-1 の値の再現だけ=次の版上げで消す)。
+WAGE_OCCUPATION: Final[str] = "occupation"
+WAGE_W17: Final[str] = "w17"
+WAGE_ARMS: Final[tuple[str, ...]] = (WAGE_OCCUPATION, WAGE_W17)
+DEFAULT_WAGE: Final[str] = WAGE_OCCUPATION
+_WAGE: str = os.environ.get("SHIBUYA_WAGE", DEFAULT_WAGE).strip().lower() or DEFAULT_WAGE
+if _WAGE not in WAGE_ARMS:
+    raise ValueError(f"SHIBUYA_WAGE は {WAGE_ARMS} のどれか(いま {_WAGE!r})")
+
+
+def wage_arm() -> str:
+    """いまの賃金の腕(``occupation``=既定・``w17``)。組み立てのときに読む。"""
+    return _WAGE
+
+
+def set_wage_arm(name: str) -> None:
+    """賃金の腕を選ぶ(CLI ``--wage``・試験の切替口)。"""
+    global _WAGE
+    if str(name) not in WAGE_ARMS:
+        raise ValueError(f"--wage は {WAGE_ARMS} のどれか(いま {name!r})")
+    _WAGE = str(name)
 
 
 def parse_parts(spec: Any) -> tuple[str, ...]:
@@ -137,7 +168,11 @@ def header_fields(plan: Any) -> dict[str, Any] | None:
     """〔検収 A5〕状態のファイルの見出しの ``economy_stage2``(腕 off のランは書かない=None=今の見出しのまま)。"""
     if plan is None:
         return None
-    return {"arm": ARM_ON, "parts": list(plan.parts)}
+    out: dict[str, Any] = {"arm": ARM_ON, "parts": list(plan.parts)}
+    wm = str(getattr(plan, "wage_model", WAGE_W17))
+    if wm != WAGE_W17:  # 〔賃金の小さな版上げ〕w17 のランの見出しは今のまま
+        out["wage"] = wm
+    return out
 
 
 def check_resume(saved: Any, *, effective: bool = True) -> None:
@@ -156,6 +191,11 @@ def check_resume(saved: Any, *, effective: bool = True) -> None:
         raise ValueError(f"再開の経済の段階 2 の腕が親と違う(親 arm={s_arm} parts={list(s_parts)}・今 arm={now_arm} "
                          f"parts={list(now_parts)})=--economy-stage2・--economy-stage2-parts(環境変数 "
                          "SHIBUYA_ECONOMY_STAGE2・SHIBUYA_ECONOMY_STAGE2_PARTS)を親にそろえる")
+    # 〔賃金の小さな版上げ〕賃金の腕(見出しに無い=w17=版上げの前の状態)
+    s_wage = str(s.get("wage", WAGE_W17))
+    if now_arm == ARM_ON and s_wage != _WAGE:
+        raise ValueError(f"再開の賃金の腕が親と違う(親 wage={s_wage}・今 wage={_WAGE})=--wage(環境変数 SHIBUYA_WAGE)を"
+                         "親にそろえる")
 
 
 # ================================================================ ATM の表(Fixtures.atms)
@@ -437,6 +477,160 @@ def weekly_work_hours(weekly: Any, n_agents: int) -> tuple[np.ndarray | None, st
     return out, "w17_work"
 
 
+# ================================================================ 賃金の入力(賃金の小さな版上げ)
+#: ペルソナの在庫(W16 の ``pool_layer``・``pool_index`` が指す行)。読むだけ(構築の在庫=data/ の下)。
+PERSONA_POOL_RELPATH: Final[str] = "data/persona_pool_v2"
+#: 読む層(L4=来街者の在庫は読まない=W16 で雇用の行を持つ体がいない・730 MB を読まない。L4 の体に雇用の行が付いたら
+#: 写せない体の平均で払う=宣言)。
+PERSONA_LAYERS: Final[tuple[str, ...]] = ("L1", "L2", "L3", "L5")
+#: 読む語の欄(職業大分類の語・雇用の語)。
+PERSONA_FIELDS: Final[tuple[str, ...]] = ("occupation_major", "employment")
+
+
+@dataclass(frozen=True)
+class WageInputs:
+    """賃金の関数(``economy.wages.occupation_wages``)に渡す体ごとの属性(engine の側が読む・額は economy が出す)。
+
+    Attributes:
+        occ_code / emp_code: 語の番号(``occ_vocab``・``emp_vocab`` の索引・−1=語なし)=ペルソナの ``occupation_major``・
+            ``employment``。
+        sex / age: W16 の性(0 男・1 女)と年齢(−1=分からない)。
+        counters: 乱数の鍵の語(体ごと 1 語=W16 の ``agent_id``・母集団の無いランは体の番号)。
+        seed: 母集団の seed(``schedule.master_seed``)。
+        source: 語の出どころ(``persona_pool``・``pool_absent``・``no_population``)。
+        rows_read: ペルソナの在庫から読んだ行の数(計器)。
+        given: 体ごとに与えられた月の賃金(W21 の ``wage_monthly``=段 10 の差し替えで母集団が持つ列・無ければ ``None``)。
+    """
+
+    occ_code: np.ndarray
+    occ_vocab: tuple[str, ...]
+    emp_code: np.ndarray
+    emp_vocab: tuple[str, ...]
+    sex: np.ndarray
+    age: np.ndarray
+    counters: np.ndarray
+    seed: Any
+    source: str
+    rows_read: int = 0
+    given: np.ndarray | None = None
+
+    def __post_init__(self) -> None:
+        for name in ("occ_code", "emp_code", "sex", "age", "counters", "given"):
+            v = getattr(self, name)
+            if v is None:
+                continue
+            a = np.array(v, copy=True)
+            a.setflags(write=False)
+            object.__setattr__(self, name, a)
+        object.__setattr__(self, "occ_vocab", tuple(str(w) for w in self.occ_vocab))
+        object.__setattr__(self, "emp_vocab", tuple(str(w) for w in self.emp_vocab))
+
+    @property
+    def n(self) -> int:
+        return int(self.occ_code.size)
+
+    def record(self) -> dict[str, Any]:
+        """manifest の ``economy.stage2.rules.wage_build.inputs``(出どころ・読んだ行・語の種類・性と年齢の分からない体の数)。"""
+        return {"source": self.source, "rows_read": int(self.rows_read), "occ_vocab": list(self.occ_vocab),
+                "emp_vocab": list(self.emp_vocab), "sex_unknown": int((self.sex < 0).sum()),
+                "age_unknown": int((self.age < 0).sum()), "given": self.given is not None,
+                "layers": list(PERSONA_LAYERS)}
+
+
+def _vocab(words: np.ndarray) -> tuple[np.ndarray, tuple[str, ...]]:
+    """語の並び → (番号 int16・−1=空, 語の表=昇順)。"""
+    w = np.asarray(words, dtype=object).astype(str)
+    if w.size == 0:
+        return np.zeros(0, np.int16), ()
+    uniq, inv = np.unique(w, return_inverse=True)
+    vocab = tuple(str(x) for x in uniq.tolist() if str(x))
+    lut = np.array([vocab.index(str(x)) if str(x) else -1 for x in uniq.tolist()], dtype=np.int16)  # 逐次: 語の種類
+    return lut[inv], vocab
+
+
+def persona_words(pool_root: Any, layer: Any, index: Any,
+                  fields: tuple[str, ...] = PERSONA_FIELDS) -> tuple[dict[str, np.ndarray], int]:
+    """ペルソナの在庫の ``(pool_layer, pool_index)`` の行の語の欄(行の順=引数の並び・無い行は "")と読んだ行の数。
+
+    層ごとに ``part-*.jsonl`` を名前の順に読み、要る行だけ ``json.loads`` する(``build.sched.pool_facts.read_facts`` と同じ
+    行の数え方=空の行は数えない。build は実行時に import できない=読み口を写した)。:data:`PERSONA_LAYERS` の外の層は読まない。
+    逐次ループ宣言: 読む層の在庫の行の数ぶん(組み立てで 1 回・時間は記録 wage_occ の性能の表)。
+    """
+    root = Path(pool_root)
+    lay = np.asarray(layer, dtype=np.int64)
+    idx = np.asarray(index, dtype=np.int64)
+    out = {f: np.full(lay.size, "", dtype=object) for f in fields}
+    read = 0
+    for name in PERSONA_LAYERS:  # 逐次: 層の数(4)
+        lno = int(name[1:])
+        want = np.flatnonzero((lay == lno) & (idx >= 0))
+        if want.size == 0:
+            continue
+        rows: dict[int, list[int]] = {}
+        for k in want.tolist():  # 逐次: 体の数ぶん(組み立てで 1 回・辞書を作るだけ)
+            rows.setdefault(int(idx[k]), []).append(k)
+        need = len(rows)
+        row_no = 0
+        found = 0
+        for path in sorted((root / name).glob("part-*.jsonl")):
+            if found >= need:
+                break
+            with open(path, "r", encoding="utf-8") as fh:
+                for line in fh:  # 逐次: 在庫の行の数ぶん
+                    if not line.strip():
+                        continue
+                    hit = rows.get(row_no)
+                    if hit is not None:
+                        d = json.loads(line)
+                        for f in fields:
+                            v = d.get(f)
+                            for k in hit:
+                                out[f][k] = "" if v is None else str(v)
+                        found += 1
+                        read += 1
+                    row_no += 1
+                    if found >= need:
+                        break
+    return out, read
+
+
+def wage_inputs(schedule: Any, pop: Any, n_agents: int, *, pool_root: Any = None) -> WageInputs:
+    """賃金の関数の入力を組み立てる(母集団の体=ペルソナの職業と雇用の語+W16 の性と年齢・母集団の無いラン=語も性も年齢も
+    分からない=写せない体の平均)。**W17 の週次表を読まない**(試験が AST で見る)。"""
+    from shibuya.engine.calendar import resolve_repo_path
+
+    n = int(n_agents)
+    sex = np.full(n, -1, dtype=np.int8)
+    age = np.full(n, -1, dtype=np.int16)
+    counters = np.arange(n, dtype=np.int64)
+    words = {f: np.full(n, "", dtype=object) for f in PERSONA_FIELDS}
+    source, read, given = "no_population", 0, None
+    if pop is not None:
+        m = min(n, int(pop.n))
+        sex[:m] = np.asarray(pop.sex, dtype=np.int64)[:m]
+        age[:m] = np.asarray(pop.age, dtype=np.int64)[:m]
+        counters[:m] = np.asarray(pop.source_agent_id, dtype=np.int64)[:m]
+        root = resolve_repo_path(pool_root or PERSONA_POOL_RELPATH)
+        if root.is_dir():
+            got, read = persona_words(root, np.asarray(pop.pool_layer)[:m], np.asarray(pop.pool_index)[:m])
+            for f in PERSONA_FIELDS:
+                words[f][:m] = got[f]
+            source = "persona_pool"
+        else:
+            warnings.warn(f"ペルソナの在庫 {PERSONA_POOL_RELPATH} が無い写し: 賃金は写せない体の平均", DataAbsentWarning,
+                          stacklevel=2)
+            source = "pool_absent"
+        g = getattr(pop, "wage_monthly", None)  # 段 10(W21 への差し替え)で母集団が持つ列=そのまま使う
+        if g is not None:
+            given = np.full(n, -1, dtype=np.int64)
+            given[:m] = np.asarray(g, dtype=np.int64)[:m]
+    occ, occ_v = _vocab(words["occupation_major"])
+    emp, emp_v = _vocab(words["employment"])
+    seed = getattr(schedule, "master_seed", 1)
+    return WageInputs(occ_code=occ, occ_vocab=occ_v, emp_code=emp, emp_vocab=emp_v, sex=sex, age=age,
+                      counters=counters, seed=seed, source=source, rows_read=read, given=given)
+
+
 class Stage2Plan:
     """engine の側の段階 2 の組み立ての物(``Ledger.attach_stage2`` に渡す・``MoneyStage2.plan``)。
 
@@ -446,12 +640,18 @@ class Stage2Plan:
 
     def __init__(self, *, parts: Iterable[str], kinds: Any, monthly_hours: Any, hours_source: str,
                  atms: AtmTable | None, calendar: Any, tick_seconds: int, n_agents: int,
-                 population_scale: float | None, causes: Mapping[str, Any]) -> None:
+                 population_scale: float | None, causes: Mapping[str, Any], wage_model: str = WAGE_W17,
+                 wage_inputs: WageInputs | None = None) -> None:
         self.parts = tuple(p for p in PARTS if p in set(parts))
         self.kinds = np.array(kinds, dtype=np.int64, copy=True)
         self.monthly_hours = None if monthly_hours is None else np.array(monthly_hours, dtype=np.float64, copy=True)
         self.hours_source = str(hours_source)
         self.hourly = None  # W16/W17 に賃金の属性が無い=最低賃金(規則の表)
+        #: 〔賃金の小さな版上げ〕賃金の腕と入力(``occupation`` のランだけ入力がある=額は ``MoneyStage2`` が出す)。
+        if str(wage_model) not in WAGE_ARMS:
+            raise ValueError(f"賃金の腕は {WAGE_ARMS} のどれか(いま {wage_model!r})")
+        self.wage_model = str(wage_model)
+        self.wage_inputs = wage_inputs
         self.atms = atms
         self.calendar = calendar
         self.payday_calendar = dataclasses.replace(calendar, payday_day_of_month=PAYDAY_DAY_OF_MONTH)
@@ -529,10 +729,18 @@ class Stage2Plan:
         return who[first], sec[first], idx[first]
 
     def record(self) -> dict[str, Any]:
-        """manifest の ``economy.stage2.plan``(暦・縮小の比・労働時間の出どころ)。"""
-        return {"payday_rule": f"毎月 {PAYDAY_DAY_OF_MONTH} 日・土休なら前の営業日(暦の口)",
-                "population_scale": self.population_scale, "hours_source": self.hours_source,
-                "hourly_source": "最低賃金(規則の表・asof)", "external_store_sales": "0(範囲の外の取引先の資料なし)"}
+        """manifest の ``economy.stage2.plan``(暦・縮小の比・労働時間の出どころ)。
+
+        〔賃金の小さな版上げ〕賃金の腕が ``occupation`` のランは ``wage_model`` を足す(``w17`` は今のまま)。入力の記録
+        (読んだ行・分からない体の数=母集団の抽出で動く)は観測の ``economy.stage2.rules.wage_build``(``MoneyStage2``)。
+        """
+        out = {"payday_rule": f"毎月 {PAYDAY_DAY_OF_MONTH} 日・土休なら前の営業日(暦の口)",
+               "population_scale": self.population_scale, "hours_source": self.hours_source,
+               "hourly_source": "最低賃金(規則の表・asof)", "external_store_sales": "0(範囲の外の取引先の資料なし)"}
+        if self.wage_model != WAGE_W17:
+            out["hourly_source"] = "使わない(月の賃金=職業 × 性 × 年齢 × 雇用形態の実データ)"
+            out["wage_model"] = self.wage_model
+        return out
 
 
 def atm_open_cells(plan: Stage2Plan, step: int) -> np.ndarray:
@@ -579,11 +787,17 @@ def attach(ledger_bundle: Any, *, schedule: Any, weekly: Any, calendar: Any, wor
     from shibuya.engine.events.log import Process
 
     atms = _ATM_OVERRIDE if _ATM_OVERRIDE is not None else build_atm_table(world)
-    hours, src = weekly_work_hours(weekly, n_agents)
+    if _WAGE == WAGE_W17:  # 2-1 の値の再現だけ(次の版上げで消す)
+        hours, src = weekly_work_hours(weekly, n_agents)
+        winp = None
+    else:  # 〔賃金の小さな版上げ〕W17 の勤務時間は賃金に使わない(読まない)
+        hours, src = None, "none(wage=occupation)"
+        winp = wage_inputs(schedule, pop, n_agents)
     total = population_total(world_dir) if pop is not None else None
     scale = (float(n_agents) / float(total)) if total else None
     plan = Stage2Plan(parts=_PARTS, kinds=np.asarray(schedule.kind)[: int(n_agents)], monthly_hours=hours,
                       hours_source=src, atms=atms, calendar=calendar, tick_seconds=tick_seconds, n_agents=n_agents,
-                      population_scale=scale, causes={n: Process(n) for n in CAUSE_NAMES})
+                      population_scale=scale, causes={n: Process(n) for n in CAUSE_NAMES}, wage_model=_WAGE,
+                      wage_inputs=winp)
     money.attach_stage2(plan)
     return plan

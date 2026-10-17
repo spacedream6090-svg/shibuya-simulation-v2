@@ -22,8 +22,11 @@ H, S, E, B, G, W = (int(s) for s in Sector)
 
 # ================================================================= 規則の表の読み手
 def test_minimum_wage_switches_at_the_version_date():
-    """規則の表の最初の読み手: 2026-10-01 の版の前は直書き 1,226 円(表に版が無い=つなぎ)・その日から表の 1,280 円。"""
-    assert AN.min_wage_hourly("2026-09-30") == (1_226, "anchors.MIN_WAGE_HOURLY")
+    """規則の表の最初の読み手: 版のある日は表の値(1,163 円=2024-10-01〜・1,226 円=2025-10-03〜・1,280 円=2026-10-01〜)・
+    版の無い日(2024-10-01 より前)は直書き 1,226 円(つなぎ)。〔第337〕前の 2 版を表に足した。"""
+    assert AN.min_wage_hourly("2026-09-30") == (1_226, "rules:minimum_wage.tokyo@2025-10-03")
+    assert AN.min_wage_hourly("2025-10-02") == (1_163, "rules:minimum_wage.tokyo@2024-10-01")
+    assert AN.min_wage_hourly("2024-09-30") == (1_226, "anchors.MIN_WAGE_HOURLY")
     assert AN.min_wage_hourly(dt.date(2026, 10, 1)) == (1_280, "rules:minimum_wage.tokyo@2026-10-01")
     assert AN.min_wage_hourly("2027-03-31")[0] == 1_280
     assert AN.MIN_WAGE_HOURLY == 1_226  # 直書きは残す(つなぎの台帳 BR-MIN-WAGE-HOURLY-1226・外す段 4-2)

@@ -126,7 +126,7 @@ def test_all_parts_move_money_and_keep_the_books(on_run):
     names = {r["name"] for r in s2["faucet_sink_registry"]}
     assert {"初期の預金", "賃金の原資(雇用主の外界の売上)", "消費税"} <= names
     assert all(r["kind"] != "UNREGISTERED" for r in s2["faucet_sink_by_cell"])
-    assert s2["rules"]["minimum_wage"]["yen_per_hour"] == 1_226  # 2026-08-25 は表に版が無い=直書き(つなぎ)
+    assert s2["rules"]["minimum_wage"]["yen_per_hour"] == 1_226  # 2026-08-25 は表の 2025-10-03 の版(第337 で足した)
 
 
 @pytest.mark.parametrize("off", ES2.PARTS)

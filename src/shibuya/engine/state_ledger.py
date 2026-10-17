@@ -853,7 +853,9 @@ _EXT: tuple[LedgerRow, ...] = (
     # ---- 第 2 期 2-1(経済の段階 2・腕 --economy-stage2 on): 足す前に軸を決めた行(腕の無いランは持ち主の属性が None) ----
     LedgerRow(
         key="EC", name="経済の段階 2 の中身(MoneyStage2=部品・体の種別・1 日の消費・労働時間・組み立ての物・計器)",
-        place=EXTERNAL, dtype="物(配列 4 本=体の数・dict の計器)", nbytes="", alloc="--economy-stage2 on",
+        place=EXTERNAL, dtype="物(体の数の配列 6 本=種別・1 日の消費・来街者・労働時間・呼の控え 2 本+〔賃金の小さな版上げ〕"
+        "賃金の腕 occupation で 3 本=月の賃金・出どころ・月の時間の目安+組み立ての物の賃金の入力 5 本・dict の計器)", nbytes="",
+        alloc="--economy-stage2 on",
         behavior=BEHAVIOR, restore=DERIVABLE, dead=False,
         basis="economy/stage2.py(MoneyStage2)・economy/ledger.py(attach_stage2・purchase_many・endow_households・"
               "on_day_end)・engine/economy_stage2.py(Stage2Plan・attach)・engine/resolve.py(_payable・_stage2_withdraw)",

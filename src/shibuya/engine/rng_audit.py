@@ -227,7 +227,7 @@ def scan_sites(root: Path, files: Iterable[Path] | None = None) -> list[StreamSi
 
 #: 静的に安全な呼び手(ファイル・関数・用途名)。増えても減っても落とす(10f の時点の 15 か所・〔第330〕B6 で 1 つ足して 16 か所・
 #: 〔第330・RET〕legacy の天気の 2 か所(`EnvironmentProcess._pick_day`・`select_day`)を消して 14 か所・〔第 2 期 2-2〕+1=15 か所・〔第 6 期 6-5〕+1=16 か所・
-#: 〔第 6 期 6-3〕+2=18 か所)。
+#: 〔第 6 期 6-3〕+2=18 か所・〔賃金の小さな版上げ〕+1=19 か所)。
 SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     # 1 語目が無いか定数(隣の流れが無い)7 か所
     ("agents/population.py", "sample_population", "w16.sample.reserved"),
@@ -254,6 +254,8 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     # (0 語目を空け 1〜3 語目に話し手・作った時刻・会話の番号=k19_counters・1 語だけ引く)
     ("engine/speech_clock.py", "person_mora_len_s", "talk.rate"),
     ("engine/speech_clock.py", "utterance_jitter", "talk.jitter"),
+    # 〔賃金の小さな版上げ・2026-10-17〕賃金の分位(0 語目を空け 1 語目に体の鍵=k19_counter_array・1 語だけ引く)
+    ("core/wage_formula.py", "wage_uniform", "economy.wage"),
 })
 
 #: 静的に決まらない呼び手(ファイル・関数・用途名)→ 実行時の検査での扱い。ここに無い呼び手が出たら落とす。

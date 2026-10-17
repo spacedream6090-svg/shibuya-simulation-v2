@@ -34,6 +34,11 @@
   e-Stat の表を取ってから)。
 - 給料日=毎月 25 日(多くの企業の慣行=出典なし)・労働時間=W17 の「勤務」の週の分 × 52/12 週(W17 の無いランは月
   ``DEFAULT_MONTHLY_HOURS``=160 時間)・時給=最低賃金(規則の表から asof で読む=W16/W17 に賃金の属性が無い)。
+  〔賃金の小さな版上げ・2026-10-17・回答 10-13b §7 の 3〕既定の賃金の腕 ``occupation`` では、月の賃金=職業 × 性 × 年齢 ×
+  雇用形態の実データ(賃金構造基本統計調査 令和 7 年の所定内給与=``economy.wages.occupation_wages``)で、W17 の勤務時間も
+  最低賃金も額に使わない(つなぎの台帳 ``DOC-wage_occ-*``・記録 ``wage_occ/README.md``)。上の「労働時間 × 最低賃金」は
+  切替口 ``--wage w17``(旧値の再現だけ=次の版上げで消す)と、賃金の表の写しが無い写し(data の無い CI=月 160 時間 ×
+  最低賃金に戻して注記)の道。
 - 店の外界の売上(範囲の外の取引先)の額は 0(資料なし)。縮小ランの比(体数 / 母集団)を manifest に宣言する。
 
 つなぎの台帳の行(``docs/design/bridging-ledger.json``・宣言の場所=記録 ``ec21/README.md``): ``DOC-ec21-*``。
@@ -44,6 +49,7 @@
 from __future__ import annotations
 
 import datetime as _dt
+import warnings
 from fractions import Fraction
 from typing import Any, Final, Mapping
 
@@ -51,6 +57,7 @@ import numpy as np
 
 from shibuya.economy import anchors as AN
 from shibuya.economy import ops as _OPS
+from shibuya.economy import wages as _WG
 from shibuya.economy.accounts import (
     ACCOUNT_NAMES,
     SECTOR_NAMES,
@@ -75,6 +82,7 @@ __all__ = [
     "EXTERNAL_STORE_SALES_YEN",
     "QUANTILES",
     "BYTES_PER_AGENT",
+    "WAGE_BYTES_PER_AGENT",
     "STAGE2_TRANSFERS_PER_AGENT_PER_DAY",
     "STAGE2_MEASURED_TRANSFERS_PER_AGENT_DAY",
     "STAGE2_MEASURED_LIVE_ROWS_PER_AGENT",
@@ -115,6 +123,10 @@ QUANTILES: Final[tuple[int, ...]] = (10, 50, 90)
 #: 434,368 B。生ログの支払いの方法の列は輪の 1 行 24 B の切り上げの空きに入る(``ledger.RAW_ROW_BYTES`` は不変)。信用の器は
 #: 0 行(空)。
 BYTES_PER_AGENT: Final[int] = 107
+#: 〔賃金の小さな版上げ〕賃金の腕 ``occupation`` のランの体あたりの足し分: 中身の 2 列(月の賃金 8・出どころ 1)+組み立ての
+#: 物の入力 5 列(職業の語の番号 2・雇用の語の番号 2・性 1・年齢 2・乱数の鍵 8)=24 B+〔検収 M1〕月の時間の目安 8 B=32 B
+#: (``w17`` のランは 0=今のまま)。
+WAGE_BYTES_PER_AGENT: Final[int] = 32
 #: 金の生ログの輪の係数(腕のランだけ・行/体/日)。腕 on の 5,000 体 2 日の実測: 0 日目 8.824・1 日目 5.402 行/体
 #: (0 日目=初期の預金の 2 行・IC の運賃の 2 行・税の行を含む)。保持窓 1 日の輪は前の日の行と今日の行を持つ=2 日の和の
 #: 最大 14.226 行/体で 13.5(1 日の最大の 1.5 倍)の輪は 3,630 行溢れた → 2 日の和の最大の 1.1 倍以上かつ 1 日の最大の 1.5 倍
@@ -212,12 +224,29 @@ class MoneyStage2:
             h[: mh.size] = mh
         self.monthly_hours = h
         self.hours_source = str(getattr(plan, "hours_source", "default"))
+        #: 〔賃金の小さな版上げ〕賃金の腕(組み立ての物に無ければ w17=今までの道)と、体ごとの月の賃金[円](``occupation`` の
+        #: ランだけ・−1=値なし)・出どころ(``economy.wages.BASIS_NAMES`` の番号)・点検の記録(manifest の plan.wage)。
+        self.wage_model = str(getattr(plan, "wage_model", "w17"))
+        mw, basis, summary, wsrc, hours = self._occupation_wages(plan, n)
+        self.monthly_wage = mw
+        self.wage_basis = basis
+        #: 〔検収 M1〕体ごとの月の所定内の時間の目安[時](最低賃金の床=時給 × この時間・``economy.wages.month_hours``)。
+        self.wage_hours = hours
+        self.wage_summary = summary
+        self.wage_source = wsrc
         #: ATM の表(``Fixtures.atms`` と同じ物=状態台帳の行 ATM)。
         self.atms = getattr(plan, "atms", None)
         #: 支払い(payment)か税(tax)が動くランは購入を委ねる。
         self.handles_purchase = bool({"payment", "tax"} & self.parts)
         #: 計器(状態台帳の行 EM=diag・discardable)。ランの積算と日の欄(日の締めで 0)。
         self.s2_meter: dict[str, Any] = {"run": _empty_meter(), "day": _empty_meter(), "rules": {}}
+        if self.wage_model != "w17":
+            # 〔賃金の小さな版上げ〕組み立ての賃金の点検は観測(母集団の抽出=seed で動く)=rules.wage_build・plan には道だけ
+            winp = getattr(plan, "wage_inputs", None)
+            self.s2_meter["rules"]["wage_build"] = {
+                "path": wsrc, **(summary or {}),
+                "inputs": winp.record() if winp is not None and hasattr(winp, "record") else None,
+                "floor_at_start": self._floor_record(plan, mw, hours)}
         self._rates: dict[str, tuple[Fraction, str]] = {}
         #: 〔検収 A1〕体ごとの最後の「金に触れる行為」(購入・食事・並ぶ)の呼の id(None=まだ無い)と、その呼の支払いの方法の
         #: 答え(-1=答えなし・0=現金・1=口座)。着いて実行する意図・列から席へ入った体の支払いも同じ呼を原因にする。
@@ -226,9 +255,66 @@ class MoneyStage2:
         #: 〔第 2 期 2-4 V4〕直前の ``purchase`` の行ごとのレジの税[円](店 → 政府へ移せた額・ほかは 0)。``resolve`` が店の売上の
         #: 写し ``pois.revenue`` を税抜きにするのに読む(``Ledger.last_purchase_tax``)。中身だけ変わる箱(組み立ての後は封じる)。
         self._last_tax: dict[str, np.ndarray] = {"rows": np.zeros(0, dtype=np.int64)}
-        for a in (self.kinds, self.daily, self.visitor, self.monthly_hours):
-            a.setflags(write=False)
+        for a in (self.kinds, self.daily, self.visitor, self.monthly_hours, self.monthly_wage, self.wage_basis,
+                  self.wage_hours):
+            if a is not None:
+                a.setflags(write=False)
         object.__setattr__(self, "_sealed", True)
+
+    @staticmethod
+    def _floor_record(plan: Any, mw: np.ndarray | None, hours: np.ndarray | None) -> dict[str, Any] | None:
+        """〔検収 M1〕組み立ての点検: ランの最初の日に効いている最低賃金の床に、何体が当たるか(値のある体の中=観測)。"""
+        if mw is None or hours is None:
+            return None
+        try:
+            asof = plan.date_of(0).isoformat()
+        except (AttributeError, TypeError):
+            return None
+        floor, src = _WG.min_wage_floor(asof)
+        _f, raised = _WG.apply_floor(mw, hours, floor)
+        have = int((mw >= 0).sum())
+        return {"asof": asof, "yen_per_hour": floor, "source": src, "raised": int(raised.sum()), "bodies": have,
+                "raised_share": round(float(raised.sum()) / have, 4) if have else 0.0}
+
+    @staticmethod
+    def _occupation_wages(plan: Any, n: int) -> tuple[Any, Any, Any, str, Any]:
+        """〔賃金の小さな版上げ〕賃金の腕 ``occupation`` の体ごとの月の賃金(``economy.wages``・W17 の勤務時間を読まない)。
+
+        Returns:
+            (月の賃金 int64 か None, 出どころ int8 か None, 点検の記録か None, 道の名, 月の時間の目安 float64 か None)。道の名:
+            ``w17``(腕 w17・今までの道)・``occupation``・``tables_absent``(賃金の表の写しが無い写し=月の時間 × 最低賃金に
+            戻す=注記)。最低賃金の床は給料日に当てる(その日の規則の表の版=:meth:`payroll`)。
+        """
+        if str(getattr(plan, "wage_model", "w17")) == "w17":
+            return None, None, None, "w17", None
+        winp = getattr(plan, "wage_inputs", None)
+        tables = _WG.load_wage_tables()
+        if tables is None or winp is None:
+            warnings.warn(f"賃金の表の写し {_WG.DERIVED_RELDIR} が無い写し: 賃金は 2-1 の道(月の時間 × 最低賃金)に戻す",
+                          _WG.WageTablesAbsentWarning, stacklevel=3)
+            return None, None, {"source": "tables_absent"}, "tables_absent", None
+        got, b = _WG.occupation_wages(
+            tables, occ_code=winp.occ_code, occ_vocab=winp.occ_vocab, emp_code=winp.emp_code,
+            emp_vocab=winp.emp_vocab, sex=winp.sex, age=winp.age, seed=winp.seed, counters=winp.counters,
+            given=winp.given)
+        hrs_got = _WG.month_hours(tables, occ_code=winp.occ_code, occ_vocab=winp.occ_vocab, emp_code=winp.emp_code,
+                                  emp_vocab=winp.emp_vocab, sex=winp.sex)
+        mw = np.full(n, -1, dtype=np.int64)
+        basis = np.full(n, _WG.BASIS_AVERAGE, dtype=np.int8)
+        hours = np.full(n, np.nan, dtype=np.float64)
+        k = min(n, got.size)
+        mw[:k], basis[:k], hours[:k] = got[:k], b[:k], hrs_got[:k]
+        summary = {
+            "source": "賃金構造基本統計調査 令和7年(R-107・一般 第9・6・18表・短時間 第2表・全国・企業規模計)",
+            "md5": dict(tables.md5),
+            "bodies": int(n),
+            "basis": {name: int((basis == i).sum()) for i, name in enumerate(_WG.BASIS_NAMES)},
+            "no_value": int((mw < 0).sum()),
+            "monthly": _q(mw[mw >= 0]),
+            "median_check": _WG.median_check(tables, mw, basis, winp.occ_code, winp.occ_vocab, winp.emp_code,
+                                             winp.emp_vocab, winp.sex, min_n=30),
+        }
+        return mw, basis, summary, "occupation", hours
 
     def __setattr__(self, name: str, value: Any) -> None:
         """〔検収 L1〕組み立ての後は属性を書き換えられない(計器と率の控えは辞書の中身だけが変わる)。"""
@@ -501,7 +587,15 @@ class MoneyStage2:
         agents, sectors, idx = agents[inside], sectors[inside], idx[inside]
         hourly_arr = getattr(self.plan, "hourly", None)
         rate = float(hourly) if hourly_arr is None else np.asarray(hourly_arr, dtype=np.float64)[agents]
-        gross = AN.monthly_wage_amounts(self.monthly_hours[agents], hourly=rate)
+        occupation = self.monthly_wage is not None
+        if occupation:  # 〔賃金の小さな版上げ〕月の賃金=職業 × 性 × 年齢 × 雇用形態(W17 の勤務時間を使わない)
+            # 〔検収 M1〕最低賃金法の床(4 条 2 項)=給料日に効いている規則の表の版(machine の行)。版が無ければ床なし
+            floor, floor_src = _WG.min_wage_floor(asof.isoformat())
+            floored, raised = _WG.apply_floor(self.monthly_wage[agents], self.wage_hours[agents], floor)
+            raised_amount = int((floored - self.monthly_wage[agents])[raised].sum())
+            gross = np.maximum(floored, 0)
+        else:
+            gross = AN.monthly_wage_amounts(self.monthly_hours[agents], hourly=rate)
         ded, _table = payroll_deductions(gross, asof)
         net = gross - ded
         cause = self._cause("payroll")
@@ -522,10 +616,14 @@ class MoneyStage2:
             fst = np.asarray(ledger.transfer_many(_W, np.zeros(uniq.size, dtype=np.int64), sector, uniq, fund,
                                                   int(AccountCode.CONSUMPTION), step, cause=cause))
             self._add("wages", funding=int(fund[fst == int(TransferStatus.OK)].sum()))
-            hrs = self.monthly_hours[who]
-            rate_m = rate if np.ndim(rate) == 0 else np.asarray(rate)[m]
-            st = np.asarray(AN.monthly_wages(ledger, emp, who, hrs, step, hourly=rate_m, payer_sector=sector,
-                                             method=_OPS.METHOD_ACCOUNT, cause=cause))
+            if occupation:
+                st = np.asarray(AN.monthly_wages(ledger, emp, who, np.zeros(who.size), step, amounts=a,
+                                                 payer_sector=sector, method=_OPS.METHOD_ACCOUNT, cause=cause))
+            else:
+                hrs = self.monthly_hours[who]
+                rate_m = rate if np.ndim(rate) == 0 else np.asarray(rate)[m]
+                st = np.asarray(AN.monthly_wages(ledger, emp, who, hrs, step, hourly=rate_m, payer_sector=sector,
+                                                 method=_OPS.METHOD_ACCOUNT, cause=cause))
             ok = st == int(TransferStatus.OK)
             self._add("wages", paid=int(ok.sum()), amount=int(a[ok].sum()), unpaid=int((~ok).sum()),
                       unpaid_amount=int(a[~ok].sum()),
@@ -534,6 +632,17 @@ class MoneyStage2:
             out["amount"] += int(a[ok].sum())
         if int(ded.sum()) > 0:  # 器: 規則の表に行が無い=いつも 0(4-2 で表に)
             raise NotImplementedError("給与の天引きの表は 4-2")
+        if occupation:  # 〔賃金の小さな版上げ〕給料日の計器(払った体の出どころと額の分位)=観測
+            paid = net > 0
+            b = self.wage_basis[agents]
+            self.s2_meter["rules"]["wage_model"] = {
+                "model": self.wage_model, "asof": asof.isoformat(), "employed": int(agents.size),
+                "paid_by_basis": {name: int((paid & (b == i)).sum()) for i, name in enumerate(_WG.BASIS_NAMES)},
+                "no_value": int((~paid).sum()), "paid_amount": _q(net[paid]),
+                "paid_mean": round(float(net[paid].mean()), 3) if paid.any() else 0.0,
+                "floor": {"yen_per_hour": floor, "source": floor_src, "raised": int(raised.sum()),
+                          "raised_share": round(float(raised.sum()) / agents.size, 4) if agents.size else 0.0,
+                          "raised_amount": raised_amount}}
         return out
 
     def external_sales(self, ledger: Any, step: int) -> int:
@@ -554,15 +663,18 @@ class MoneyStage2:
 
         n_atm = int(getattr(self.atms, "n", 0) or 0)
         fixed = n_atm * ATM_ROW_BYTES + int(employers) * EMPLOYER_ROW_BYTES
+        per = int(BYTES_PER_AGENT) + (int(WAGE_BYTES_PER_AGENT) if self.wage_model != "w17" else 0)
+        wage_note = (f"・賃金の腕 {self.wage_model} の足し分 {WAGE_BYTES_PER_AGENT} B(月の賃金と出どころと月の時間+入力 5 列)"
+                     if self.wage_model != "w17" else "")
         return GrowthDeclaration(
-            name="economy_stage2", per_agent_bytes=int(BYTES_PER_AGENT), per_cell_bytes=0, per_day_growth="O(1)",
+            name="economy_stage2", per_agent_bytes=per, per_cell_bytes=0, per_day_growth="O(1)",
             per_day_growth_coef=0.0, retention=Retention(days=None), worst_case_ops_per_tick=0,
-            cap=int(BYTES_PER_AGENT) * 400_000 + fixed + 1_000_000, cap_budget_row="M8(親が割当・要 delta)",
+            cap=per * 400_000 + fixed + 1_000_000, cap_budget_row="M8(親が割当・要 delta)",
             mechanism=False,
-            note=(f"第 2 期 2-1 経済の段階 2 の腕のランだけ。体あたり {BYTES_PER_AGENT} B(中身 4 列+呼の控え 2 列+組み立ての物 2 列)・"
-                  f"ATM の表 {n_atm} 点 × {ATM_ROW_BYTES} B・雇用主の口 {int(employers)} × {EMPLOYER_ROW_BYTES} B は定数。"
-                  "日をまたいで伸びない(実測の増分 0)"),
-            unit="entity", bytes_per_unit=int(BYTES_PER_AGENT),
+            note=(f"第 2 期 2-1 経済の段階 2 の腕のランだけ。体あたり {per} B(中身 4 列+呼の控え 2 列+組み立ての物 2 列"
+                  f"{wage_note})・ATM の表 {n_atm} 点 × {ATM_ROW_BYTES} B・雇用主の口 {int(employers)} × "
+                  f"{EMPLOYER_ROW_BYTES} B は定数。日をまたいで伸びない(実測の増分 0)"),
+            unit="entity", bytes_per_unit=per,
         )
 
     def cash_terms(self) -> int:
@@ -605,6 +717,8 @@ class MoneyStage2:
                    for (c, a, b), v in sorted(flows.items())]
         atm = self.atms.record() if self.atms is not None and hasattr(self.atms, "record") else None
         plan_rec = self.plan.record() if hasattr(self.plan, "record") else {}
+        if self.wage_model != "w17":  # 〔賃金の小さな版上げ〕賃金の道(設定の節=plan の中・点検の値は観測の rules.wage_build)
+            plan_rec = {**plan_rec, "wage_path": self.wage_source}
         return {
             "arm": "on",
             "parts": [p for p in PARTS if p in self.parts],

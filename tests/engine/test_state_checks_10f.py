@@ -306,7 +306,8 @@ def test_k19_static_sites_are_frozen():
     # 〔第 6 期 6-5〕忘れる速さの人ごとのばらつき(forgetting_scale=k19 の並べ方・2 語)を足して 15 → 16
     # 〔第 6 期 6-3 T2〕会話の時計の人ごとの話す速さ(person_mora_len_s)と発言ごとの揺れ(utterance_jitter)=k19 の並べ方・
     # どちらも一様 1 語を足して 16 → 18
-    assert len(RA.SAFE_SITES) == 18 and len(RA.UNDETERMINED_SITES) == 13
+    # 〔賃金の小さな版上げ〕賃金の分位(core/wage_formula.py の wage_uniform=k19 の並べ方・1 語)を足して 18 → 19
+    assert len(RA.SAFE_SITES) == 19 and len(RA.UNDETERMINED_SITES) == 13
     # httpx の client.stream(llm/fleet.py)は乱数ではない=一覧に入らない
     assert all(s.path != "llm/fleet.py" for s in sites)
 

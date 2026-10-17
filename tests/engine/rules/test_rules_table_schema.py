@@ -44,7 +44,10 @@ def test_the_repo_table_has_three_real_rules():
     rules = RT.default_rules()
     assert rules.ids() == ("consumption_tax.standard_rate", "labor.weekly_rest_day", "late_night_alcohol.residential_ban",
                            "minimum_wage.tokyo")
-    assert len(rules) == 4  # 〔第 3 期 3-1〕労働基準法 35 条の週 1 日の休日(親の判断 第337 中 2)を足した
+    assert len(rules) == 6  # 〔第 3 期 3-1〕労働基準法 35 条の週 1 日の休日(親の判断 第337 中 2)を足した
+    # 〔賃金の小さな版上げ・第337 親の一次確認〕東京都の最低賃金の前の 2 版(1,163 円・1,226 円)を足した=4 → 6
+    assert [(r.asof, r.params["yen_per_hour"]) for r in rules.versions("minimum_wage.tokyo")] == [
+        ("2024-10-01", 1163), ("2025-10-03", 1226), ("2026-10-01", 1280)]
     for r in rules:
         assert r.kind in RT.KINDS and r.source
         for s in r.source:
@@ -65,8 +68,17 @@ def test_the_values_are_the_r106_values():
     assert late.applies_to == "plan.law_cap_key == 'shinya_shurui'"
 
 
+#: 〔第337・2026-10-18〕親が一次確認した出典(答申に無い=親の確認の記録が写しの元)。東京都の最低賃金の前の 2 版
+#: (1,163 円・1,226 円)と 1,280 円の改定前の値(記録 wage_occ §13)。
+PARENT_PRIMARY_CHECK: dict[str, str] = {
+    "https://www.mhlw.go.jp/content/11200000/001756130.xlsx": "2026-10-18",
+    "https://www.mhlw.go.jp/content/11200000/001753404.pdf": "2026-10-18",
+}
+
+
 def test_sources_are_copied_from_the_research_tables():
-    """写し検査: e-Gov の法令 ID と版は R-106 §0-2 の表の同じ行にある・URL は答申の本文にある。"""
+    """写し検査: e-Gov の法令 ID と版は R-106 §0-2 の表の同じ行にある・URL は答申の本文にある(親の一次確認の出典は
+    :data:`PARENT_PRIMARY_CHECK` の日付と同じ取得日)。"""
     rows = {line.split("|")[2].strip(): line for line in R106.splitlines() if line.startswith("| ") and line.count("|") >= 5}
     for r in RT.default_rules():
         for s in r.source:
@@ -74,6 +86,8 @@ def test_sources_are_copied_from_the_research_tables():
                 assert s.law_id in rows, (r.id, s.law_id)
                 assert s.version in rows[s.law_id], (r.id, s.law_id, s.version)
                 assert s.url == f"https://laws.e-gov.go.jp/api/2/law_data/{s.law_id}?asof={s.version}"
+            elif s.url in PARENT_PRIMARY_CHECK:
+                assert s.retrieved == PARENT_PRIMARY_CHECK[s.url], (r.id, s.url)
             else:
                 bare = s.url.removeprefix("https://")
                 assert s.url in R106 or bare in W7, (r.id, s.url)
@@ -114,10 +128,14 @@ def test_get_returns_the_version_in_force_on_the_day():
         rules.get("minimum_wage.tokyo", "2026/07/13")
 
 
-def test_the_repo_minimum_wage_has_no_version_on_the_world_date():
-    """世界の時点 2026-07-13 の 1,226 円は R-106 で △ なので表に無い=その日に引くと版が無い(4-2 で足す)。"""
+def test_the_repo_minimum_wage_has_the_version_on_the_world_date():
+    """〔第337・親の一次確認で △ を解消〕世界の時点 2026-07-13 は 1,226 円(2025-10-03 の版)。2024-10-01 より前は版が無い。"""
+    rt = RT.default_rules()
+    w = rt.get("minimum_wage.tokyo", "2026-07-13")
+    assert w.asof == "2025-10-03" and w.params["yen_per_hour"] == 1226 and w.kind == "machine"
+    assert rt.get("minimum_wage.tokyo", "2025-10-02").params["yen_per_hour"] == 1163
     with pytest.raises(RT.RuleNotInForce):
-        RT.default_rules().get("minimum_wage.tokyo", "2026-07-13")
+        rt.get("minimum_wage.tokyo", "2024-09-30")
 
 
 def test_two_rows_with_the_same_id_and_asof_are_refused():

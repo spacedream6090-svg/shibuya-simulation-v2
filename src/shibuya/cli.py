@@ -499,6 +499,7 @@ def run(
                               or _proximity.arm() != _proximity.DEFAULT_MODE  # 〔2-4 V2〕既定は distance
                               or _seat_release.arm() != _seat_release.DEFAULT_MODE  # 〔2-4 V3〕既定は walk
                               or _ES2.arm() != _ES2.DEFAULT_ARM  # 〔2-4 V4〕経済の段階 2 も(既定 on と違えば腕)
+                              or _ES2.wage_arm() != _ES2.DEFAULT_WAGE  # 〔賃金の小さな版上げ〕既定は occupation
                               or not _BATCH.is_default()  # 〔第 3 期 3-2〕まとめの幅(既定 60 秒と違えば腕)
                               or _body.arm() != _body.DEFAULT_ARM  # 〔3-5〕体の予約の腕(既定は sweep)
                               or _calendar_shadow.arm() != _calendar_shadow.DEFAULT_MODE  # 〔3-1〕既定は w17
@@ -1421,6 +1422,14 @@ def main(argv: list[str] | None = None) -> int:
              "(manifest の economy.stage2 に出る・設定の指紋には入らない)。off=2-1 までの既定=切替口(旧値の再現)",
     )
     ap.add_argument(
+        "--wage",
+        choices=("occupation", "w17"),
+        default=None,
+        help="〔賃金の小さな版上げ・2026-10-17〕2-1 の月の賃金の出どころ(既定 occupation=職業 × 性 × 年齢 × 雇用形態の実データ"
+             "=賃金構造基本統計調査 令和 7 年・環境変数 SHIBUYA_WAGE と同じ)。w17=2-1 の値(W17 の勤務時間 × 最低賃金)の再現の"
+             "ためだけの切替口(次の版上げで消す)",
+    )
+    ap.add_argument(
         "--economy-stage2-parts",
         type=str,
         default=None,
@@ -1608,6 +1617,8 @@ def main(argv: list[str] | None = None) -> int:
         _calendar_self.set_arm(str(args.calendar))
     if args.economy_stage2 is not None:  # 第 2 期 2-1: 経済の段階 2 の腕(組み立てと台帳の組み立てが読む)
         _ES2.set_arm(str(args.economy_stage2))
+    if args.wage is not None:  # 〔賃金の小さな版上げ〕賃金の腕(組み立てが読む)
+        _ES2.set_wage_arm(str(args.wage))
     if args.economy_stage2_parts is not None:
         try:
             _ES2.set_parts(str(args.economy_stage2_parts))
