@@ -167,3 +167,11 @@ JST の日の境目で分かれる・ほどくと 1 バイトも違わない(gz 
 - byte-check(既定の 4 構成・本体 `13e9c90` の写し=`HEAD_TREE_FILES` の追跡ファイル+data 3 本の写し・作業用の置き場 `_bc2`): **4/4 で 25 欄とも同じ**([byte_check_seal_4cfg_13e9c90.json](byte_check_seal_4cfg_13e9c90.json)=w6_v3_default `b8eadcb51e8705e7`/64,528・w6_v3_activity_off `c88ba9104f45f897`/50,006・w6_v1_default `e1288e092ddaca86`/51,655・v3_mem_rel `768b2262e3b0999e`/67,794)。つなぎ(junction)は使わず data 3 本を写した(前の回と同じ)。
 - 試験(rebase の後): `tests/c7 tests/tools tests/w17 tests/engine/bridging tests/economy/cp2 tests/c8`(`-n 2 --dist loadfile -m "not slow and not gpu"`)**682 passed・failed 0**(1 分 46 秒・取得の道具の試験は `tests/tools` の中=`tests/realworld_fetch` は無い)。`lint-imports --no-cache` 5 kept・0 broken。秘密の検査 CLEAN。
 
+
+## §親の検収(第337・Fable 5.1・rebase の後)
+
+- 本体 9fc0b71(カレンダー 1b の文書の後) へ rebase(実装役が 13e9c90 へ控え+早送り+merge-file で(`w21_sources.py` は 4-1 と重なる=衝突 0)・親が 8169d4b(カレンダー 1b)→ 9fc0b71 へ rebase=衝突なし)→ e7221b9。範囲の試験(engine・tools・**c7(監査フックつき)**・w17・bridging・cp2・c8)****3,274 passed・1 skipped**(1,265 秒・8169d4b の上で)**。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src)=**final 同じ・25 欄とも差なし**(`parent_head_vs_seal_4cfg.json`)。整理=既定の結果は 1 バイトも変えない(実装役 19/19・検収役 4/4)。
+- **data 無しの写し(detached の作業木・junction なし)で CI-1 と同じ引数の全体試験(tests/c7 を含む)=**5,383 passed・281 skipped・failed 0**(1,232 秒・CI の印=`-m "not gpu and not slow" -n 2 --dist loadfile`・tests/c7 は監査フックつきで通過)**。
+- 独立検収([review.md](review.md))=受入(高 0・中 0・低 7=c7 の監査フック・区分の表の抜け 4 か所・読み手の再試行・錠の掃除・MappingProxyType・boundary_counts の申告・試験名の open)→ 全部直した(§11)。検収役の独立の再計算(錨ごとの md5 17/17・区分の根拠・台帳とログの回転を写しで=バイト一致・書き手が追記し続ける間の回転 1,500 行 × 3 試行で欠け 0・PowerShell の `*>>` が開いている間は busy・守りの負の対照=HEAD では開く 2 本が作業木では開く前に落ちる・tests/c7 を監査フックの下で 168 passed=実在の封印/検証側のファイルを開かない)は全部一致。親の判断: `tests/c7` は L1 の番人つきで**全体試験に戻す**(手元の全体試験の引数から `--ignore=tests/c7` を外す・CI-1 は元から含む)・実体のログの回転と `odpt_rt/` の未圧縮 json 4,988 本の圧縮は取り込みの後に親が回す(検証つき)・区分の 3 件(presence_validation の構築の入力の写し 2 錨・ODPT 乗降人員の区分の食い違い・Schneider の motif_threshold)は PENDING §1-1。
+- 判定: **受入**(整理=結果不変)。
