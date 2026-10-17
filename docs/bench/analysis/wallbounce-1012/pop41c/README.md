@@ -306,3 +306,12 @@ Other familiar places: 例の食堂 (restaurant), 例のコンビニ (convenienc
 **組み直しで変わった数**: `w21c_build_hash` `ebb25fa4…` → `36ac56f8…`(番号の列・未成年の借入の行=前の版の直し・内訳の計器)・人物の表の大きさ(番号の列)・CP5-3 の例の POI(上位 3 の数え方)。変わらない数: 人・文のある人と欄だけの人・字数の分布・数字の計器・段 10 の材料の数(Attributes・地位の分け・体 → 店の行・W16 の在庫)・段 1〜7 の golden。
 
 **rebase**(commit の無い枝=控え+早送り+merge-file): 追跡の変更 7 本の枝の版を `_bc2/mine/`・土台の版を `_bc2/base/` に写し、`checkout -- .` → `merge --ff-only build/spatial-d102-prep`(`ed4640e` → `2113dc6`)→ 5 本を `git merge-file`(衝突なし)・`w20_calendar_1a.py` は本体の版のまま(中 1)・つなぎの台帳は本体の版(467 行)に `ledger_w21c.py` を回して 483 行(2 回回して同じ)。
+
+## §親の検収(第337・Fable 5.1・rebase の後)
+
+- 本体 32fb262(第337 の決定の写しの後)へ rebase(実装役が 2113dc6 へ控え+早送り+merge-file で=衝突はつなぎの台帳だけ=本体の版+`ledger_w21c.py`・483 行。32fb262 との差は文書だけ=親の rebase は衝突なし)→ cb52444。範囲の試験(build_pop・build_sched・bridging・rights・tools・**c8**・cp2・状態台帳・10f・keep_stage)****1,118 passed**(806 秒・rebase の後)**。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src)=**final 同じ・25 欄とも差なし**(`parent_head_vs_pop41c_4cfg.json`)。`src/shibuya/engine` の差分 0(構築側 `build/pop`・`build/sched` の W21 の口だけ=W20 の既定 w17 と param_hash は不変)。
+- **data 無しの写し(detached の作業木・junction なし)で CI-1 と同じ引数の全体試験(tests/c7 を含む)=**5,318 passed・268 skipped・failed 0**(1,240 秒・CI の印=`-m "not gpu and not slow" -n 2 --dist loadfile`・1 回目は利用の制限で裏の仕事ごと死んだので回し直した)**。
+- 親の一次確認: 段 9 の日本語の程度の 6 段 × 国籍の表(`attr_fns.JAPANESE_LEVEL_TABLE`=R-110 §3-2)を**原典(出入国在留管理庁 令和 6 年度 在留外国人に対する基礎調査 報告書 PDF・p.70 全体の行 17.6/17.5/33.3/13.1/16.1/2.4・n 7,291)**で写し検査=全体の行が一致・国籍別の 11 行は R-110 の表とコードが一致(2 段の写し検査=設計 → 答申 ○・答申 → 原典は全体の行で ○・国籍の行は p.71 の表=図の中=同じ頁の続き)。国籍 → 言語の写像は R-110 §3-3(母語の公的な統計は無い)のとおり未リサーチ=expedient の宣言。
+- 独立検収([review.md](review.md))=条件つき受入(中 2=W20cal の param_hash が動く・地位の分けの内訳/ 低 13)→ 全部直した(§14・§15)。検収役の独立の再計算(段 8 の JSD・二重・別人・多様性・段 9 の字数と言語の数・数字の計器・6-1 の器での描画・CP5-3 の意味・段 10 の Attributes 215,792 行が本体の `calendar_from_attributes` に通る・第6-2表の比・雇用の行 9,287 が `Rights.grant` に通る・MANIFEST 135 本・4 回の組み立ての sha 一致・監査フックで検証側 0)は全部一致。親の判断: 4 語は W21 用の別の表(W20 の param_hash 不変)・地位の分けは段 10 で人の表に入れて組み直す(内訳は宣言)・CP5-3 は番号で・段 10 の 10 問の案は仮-33。
+- 判定: **受入**(第 4 期 4-1 段 8〜9+段 10 の材料=資産は活性化しない・既定は不変)。
