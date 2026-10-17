@@ -71,6 +71,12 @@ def sys_presence(ctx: Any, b: Any) -> None:
         # 9a: 歩いて乗る退出の体の活動=目的地つき移動・到着まで(段 2c の意図と同じ形)
         if act_layer is not None and presence.walk_started_now.size:
             act_layer.force_arrival(agents, presence.walk_started_now, tick, count=False)
+        # 〔第 6 期 6-2〕カレンダー 1b(腕 --calendar 1b のランだけ・既定 None): 本人が決める勤務の出入り(計画実行層の後)
+        calendar_self = b.layers.calendar_self
+        if calendar_self is not None:
+            calendar_self.step(tick)
+            if act_layer is not None and calendar_self.walk_started_now.size:
+                act_layer.force_arrival(agents, calendar_self.walk_started_now, tick, count=False)
         phase["presence"] += time.perf_counter() - t0
 
 

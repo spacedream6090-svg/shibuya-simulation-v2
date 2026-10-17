@@ -341,6 +341,11 @@ def build(_call_args: dict[str, Any]) -> Any:
     if _CSH.is_on():
         # 〔第 3 期 3-1〕暦 1a の影の腕は on のときだけ設定の指紋に足す(既定は今の指紋・影は計器だけ=挙動は不変)
         _fp["calendar_shadow"] = _CSH.MODE_1A
+    from shibuya.engine import calendar_self as _CAL1B
+
+    if _CAL1B.is_on():
+        # 〔第 6 期 6-2〕カレンダー 1b の腕は結果を変える(勤務の出入りを本人へ)=1b のときだけ設定の指紋に足す(既定は今の指紋)
+        _fp[_CAL1B.FP_KEY] = _CAL1B.MODE_1B
     # ---- 第 3 期 3-3: 反実仮想の申込書(``cli.run`` が ``engine.experiment.layer.staged`` で置いた物・無ければ None=今の道)。
     # 設定の指紋には入れない(申込書の指紋は manifest の experiment の節=分岐が基準のランの状態から再開できる) ----
     from shibuya.engine.experiment import layer as _EXPL
@@ -1327,6 +1332,15 @@ def build(_call_args: dict[str, Any]) -> Any:
             _fam_renderer.heard_seen_fn = speech_port.report_shown  # 検収 低8: B6 に載せた後で「届いた」に数える
             _fam_renderer.speech_field = True
 
+    # ---- 〔第 6 期 6-2〕カレンダー 1b(腕 --calendar 1b・母集団と計画実行層のあるランだけ・既定 None=今の道)。W20 の時刻つきの
+    # 勤務の約束を持つ体の出入りを本人の判断(仮のモデル=mock/古典)へ渡し、計画実行層に口を挿す(その体の W17 の到着・退出は
+    # 実行しない)。0 日目はここで張る・1 日目からは日の頭の表の張り直し。状態台帳の腕の行 C1B・C1BM ----
+    calendar_self_layer = _CAL1B.build(
+        world_dir, pop, calendar=calendar, agents=agents, world=world, presence=presence, classical=classical_policy,
+        seed=seed, day_key0=int(day_index), step_seconds=int(tick_seconds), steps_per_day=tpd, events=events,
+        tools=_tools_fx.registry,  # 〔検収 L4〕時計の道具の行を読む(見れば分単位=TM8)
+    )
+
     # ---- 第 3 期 3-3: 申込書の持ち主(申込書を渡したランだけ・既定 None=系 experiment が立たない=今の道)。分岐なら LLM の口を
     # T0 で切り替える口に包む(T0 より前はテープ・T0 から今の方策=engine.experiment.branch)。状態台帳の行 X(diag・discardable) ----
     experiment_layer = _EXPL.make_layer(
@@ -1379,6 +1393,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             experiment=experiment_layer,
             body=body_layer,
             calendar_shadow=calendar_shadow_layer,
+            calendar_self=calendar_self_layer,
         ),
         llm=_BX.LlmIo(pending=pending, fleet_deferred=fleet_deferred, fleet_waiting=fleet_waiting,
                       fleet_inflight=fleet_inflight, replay_inbox=replay_inbox),

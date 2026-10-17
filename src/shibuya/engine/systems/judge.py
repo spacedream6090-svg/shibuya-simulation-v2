@@ -324,7 +324,8 @@ def sys_wake_filter(ctx: Any, b: Any) -> None:
     f_exempt = f_cond.astype(np.int64) <= int(WakeCondition.PLAN_TRANSIT)
 
     # ---- 9a: 歩いて乗る退出の体は場所の変化・到着満了・計画境界で起こさない(意図保持と同じ・既定は通らない) ----
-    if presence is not None and presence.exit_mode == "walk_to_platform":
+    # 〔第 6 期 6-2〕カレンダー 1b の口のあるラン(腕 --calendar 1b)でも、本人が決めた出入りの歩きの途中の体に同じ扱い
+    if presence is not None and (presence.exit_mode == "walk_to_platform" or presence.io_hook is not None):
         d_agent, d_cond, d_class = presence.suppress_walker_wakes(d_agent, d_cond, d_class)
         p_agent, p_cond, p_class = presence.suppress_walker_wakes(p_agent, p_cond, p_class)
         e_agent, e_cond, e_class = presence.suppress_walker_wakes(e_agent, e_cond, e_class)

@@ -1699,7 +1699,7 @@
   {
    "id": "BR-W17-IO-SLEEP",
    "what": "W17 の週次表から、エンジンが到着・退出・就寝・起床を実行する(計画実行層 D-66)",
-   "why": "存在の連続性(10-12 §1-3 の 1)=出入りは境界を歩くか乗り物で越え、寝るのは本人が決める。外す時期はカレンダーの段(CA9: 出入りは段 1b・就寝は疲労の後)。計画 6-2 で E4 と一緒に外す〔第 3 期 3-1・量〕W17 v2 の月曜の行(K9 で全部の日)で、来街者(種別 1・6・7)96,006 体のうち 95,975 体の来訪(在圏ブロック=読み口 v2・読み口 v1 なら 95,976)と、就寝の行 493,474 行(388,600 体・舞台に住む体 43,487・宿泊 17,492)をエンジンが実行している(数え方の道具 docs/bench/analysis/wallbounce-1012/ca31/tools/count_w17_bridges_ca31.py)。3-1 は影の段=勤務と授業の影だけを W20 から作り(計器)、出入りと就寝は今のまま(記録 docs/bench/analysis/wallbounce-1012/ca31/README.md)",
+   "why": "存在の連続性(10-12 §1-3 の 1)=出入りは境界を歩くか乗り物で越え、寝るのは本人が決める。外す時期はカレンダーの段(CA9: 出入りは段 1b・就寝は疲労の後)。計画 6-2 で E4 と一緒に外す〔第 3 期 3-1・量〕W17 v2 の月曜の行(K9 で全部の日)で、来街者(種別 1・6・7)96,006 体のうち 95,975 体の来訪(在圏ブロック=読み口 v2・読み口 v1 なら 95,976)と、就寝の行 493,474 行(388,600 体・舞台に住む体 43,487・宿泊 17,492)をエンジンが実行している(数え方の道具 docs/bench/analysis/wallbounce-1012/ca31/tools/count_w17_bridges_ca31.py)。3-1 は影の段=勤務と授業の影だけを W20 から作り(計器)、出入りと就寝は今のまま(記録 docs/bench/analysis/wallbounce-1012/ca31/README.md)〔第 6 期 6-2・腕 --calendar 1b〕外れる部分=その日に時刻つきの勤務の約束を持つ体(W16 の勤め人の大半)の到着・退出(W17 の ARRIVE/DEPART と張り直しの到着)は計画実行層が実行せず、本人の判断(候補の口)と世界(ホームで来た電車・歩き・境界)で動く。残る部分=就寝・起床(全員・疲労の後)・来街者の来訪・授業(時刻が空欄)・自宅で働く体・家も場所も域外の体・出勤率のくじで休む体の出入り。既定(w17)では今のまま(記録 docs/bench/analysis/wallbounce-1012/ca1b/README.md)",
    "remove_at": "6-2",
    "declared_in": "docs/design/v2-wallbounce-decisions-2026-10-12.md §1-3 の 1",
    "conf": "expedient",
@@ -1713,7 +1713,7 @@
   {
    "id": "BR-E4-EXIT-VANISH",
    "what": "計画実行層の E4: 退出の途中で別の行動を選ぶと、その場で範囲外へ消す(退出は即時 rail_depart)",
-   "why": "体は消えず急に現れない(10-12 §1-3 の 1)。計画 6-2(1b 出入りを本人へ)で外す",
+   "why": "体は消えず急に現れない(10-12 §1-3 の 1)。計画 6-2(1b 出入りを本人へ)で外す〔第 6 期 6-2・腕 --calendar 1b〕外れる部分=本人が出入りを決める体は、退出の途中で別の行為を選んでも消さずその場に居続け、次の機会に本人が決め直す(体の連続性の検査 exits_unexplained=0)。残る部分=W17 で出入りする体(来街者ほか)の即時の退出(既定の --exit-mode immediate)と、9a の歩いて乗る退出の打ち切り。既定(w17)では今のまま",
    "remove_at": "6-2",
    "declared_in": "docs/design/v2-wallbounce-decisions-2026-10-12.md §1-3 の 1",
    "conf": "expedient",
@@ -5644,6 +5644,344 @@
    "since": "2026-10-15",
    "status": "active",
    "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-ca1b-scope",
+   "what": "カレンダー 1b で本人へ渡すのは時刻つきの勤務の約束だけ(授業=時刻が空欄・自宅で働く・家も約束の場所も域外の体は W17 のまま)。管理する体はその日の W17 の到着・退出を全部止める(約束の外の来訪も)・来街者の来訪と就寝・起床は W17 のまま",
+   "why": "決定 10-12 §4-1 CA2 (b)・CA9(1b=勤務・通学の出入り・寝る起きる=疲労の後・来街者=判断モデルの後)。学校の時程は空欄(W20cal#7)=授業の出入りは渡せない。約束の外の来訪を止めるのは、同じ体の出入りを W17 と本人の 2 つが動かさないため(仮採用)。〔検収 L9〕外す段=来街者と通学を本人へ渡す段(判断モデルの後=6-6)",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py",
+    "src/shibuya/engine/presence.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-placement-initial",
+   "what": "置き場所の初期の割り振り=アプリ・アラーム・手帳・頭の中を体の鍵で等分(W20 の置き場所の欄は 1a で空欄)",
+   "why": "決定 10-12 §4-1 AT1・CA3(置き場所は性質で書く)。人ごとの置き場所の実データは無い=未リサーチ(expedient)。本人がランの始まりに自分の予定を書く段(初めの個人の予定 (c)=カレンダー段 2・C1 と束ねる=6-4)で置き換える〔検収 L9〕",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-margin",
+   "what": "余裕(出発を早める分)=0・5・10・15 分を体の鍵で等分(仮のモデルの本人の判断)",
+   "why": "決定 10-12 §4-1 AT2「余裕は本人の判断」。判断モデルができるまでの仮の値(錨は空欄=R-89 の時間厳守は検証側)",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-look-interval",
+   "what": "頭の中の予定を思い出す機会=本人が時計を見る間隔 30 分(位相は体の鍵)・思い出したときは予定を入力に載せる",
+   "why": "決定 10-12 §4-1 AT1「頭の中=記憶で思い出せたとき・MR7 までは頭の中の予定も入力に載せるつなぎ」。間隔の錨は無い=未リサーチ(expedient)",
+   "remove_at": "6-5",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-planner-look",
+   "what": "手帳を見る時刻=その日の最初に起きている刻み(見た後は頭の中=時計を見る習慣へ)",
+   "why": "決定 10-12 §4-1 AT1「手帳や壁=見たとき」。いつ見るかは本人の行動=判断モデルまでの仮の習慣(expedient)",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-approx-time",
+   "what": "時計を見ないときの時刻=30 分に丸めた「ごろ」(手帳を見たとき)",
+   "why": "決定 10-12 §4-2 TM8「見なければおおよそ」。丸めの幅は未リサーチ(R-111 §1-3 の空欄=時計を見ない日常の時刻の誤差)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-estimate-initial",
+   "what": "見積りの初期値=舞台の中は W3 の歩行グラフの節の数(1 刻み 1 節)・域外は下の域外の時間・幅=その路線の便の間隔の中央値(待ちの最大)",
+   "why": "決定 10-12 §4-1 AT2(通勤はランの前に積んだ経験=実際の道のりから初期値・見積りは幅)。4-1 段 6 の通勤の道のり w21_prior は人口が活性化していない(本体の母集団は W16)=W3 の最短の道のりから作った。辺の幾何の腕では実際の歩きとずれる(直近の平均で直る)",
+   "remove_at": "4-3",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-estimate-update",
+   "what": "見積りの更新=直近 5 回の行きの実感の値の平均・幅=直近の最小と最大(2 回より少なければ最初の幅)",
+   "why": "決定 10-12 §4-1 AT2「更新は記憶の仕組み(それまでは直近の平均)」。回数と幅の作り方は未リサーチ(expedient)",
+   "remove_at": "6-5",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-outside-time",
+   "what": "域外の時間=W20 の片道の通勤時間(ペルソナの lead)−舞台の中の歩きの時間(下限 0)。域外からは「出発+域外の時間」より後に最初にホームへ入るその路線の便で着く(域外の駅での待ちの分は着く便までの差・乗り残しと遅れは扱わない)",
+   "why": "決定 10-12 §1-3 の 1(範囲の外は粗い形)・§4-1 AT3(第 1 段では遅れを出さない)。片道の時間は v1 の在庫(W20cal#2)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-end-notice",
+   "what": "約束の終わりの時刻に帰りの機会を 1 回(職場の時計=分単位)。本人の記録を参照しない機会(検査の数は end_notices)",
+   "why": "決定 10-12 §4-1 CA9 段 3(雇い主・職場の連絡=C3 と束ねる=6-4)まで。終業のチャイムや同僚の退勤の代わり(仮採用)〔検収 L9〕",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-blank-place-cell",
+   "what": "目的のセルが空欄の約束の場所(担当区域・乗り物の一部)は駅の口のセルを行き先の代わりにする",
+   "why": "W20 の担当区域と一部の乗り物はセルが空欄(W20cal#5)。場所は空間の段と人口の活性化で埋まる(仮採用)",
+   "remove_at": "4-3",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-gate-exit",
+   "what": "非鉄道の方面(8・9)の体と、路線に便もホームも無い体は、駅の口のセルへ歩いて境界を越える(境界のセルの代わり)",
+   "why": "決定 10-12 §1-3 の 1(出入りは境界を歩くか乗り物で越える)。境界のセルは空間の段の宿題(計画実行層の E3 と同じ)",
+   "remove_at": "5-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-commuter-pass",
+   "what": "本人の退出の歩き(自分の路線のホームへ)は計画の退出の印 EXIT_WALK_FLAG を立てる=運賃の免除(定期券の代わり)",
+   "why": "9b の計画の退出の運賃の免除と同じ扱い(所持金が足りない勤め人が帰れなくなる穴を作らない)。支払いの方法と定期券は経済の中身の段",
+   "remove_at": "4-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-retry-cap",
+   "what": "歩きが途切れた体(本人がほかの行為を選んだ・待ちの打ち切り)はその場に居続け、次に時計を見る時刻(30 分後)に出入りをもう一度出す・1 日 8 回まで(上限は安全装置・当たったら数える)",
+   "why": "決定 10-12 §1-3 の 1(体は消えない=E4 を外す)。再提示の時刻と上限は未リサーチ(expedient)・判断モデルまで",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-felt-form",
+   "what": "経過時間の実感=待ちは 1.9+0.72×実際[分](Watkins 2011)・待ち以外(歩く・乗る・域外)は比 1・本人に渡す言葉は 5 分に丸める・見積りの更新は実感の値・実際の値は記録へ。〔検収 L12〕待ちの式は出典の範囲(3〜15 分)の中だけ・外は比 1",
+   "why": "決定 10-12 §4-1「経過時間の実感」(係数は決め打ちせず研究から)。R-111 §1-2 #1 の錨の値そのまま・ほかの項(到着表示・夕方・便数・いらだち)は 0・待ち以外は R-111 §1-3 の空欄",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-provisional-model",
+   "what": "仮のモデル(判断モデルまでのつなぎ): 予定の出発=約束の始まり−見積り(mock=幅の上・古典=幅の真ん中)−余裕・「まだ」のときの次に見る時刻=予定の出発(時計を見ていれば)・帰り=終わりの時刻",
+   "why": "決定 10-12 §4-1 CA5 問い 2(モックは「そのまま」寄り)・回答 10-12 §2-1(GPU の前は仮のモデル)。GPU が届いたら判断モデルの測定と選定から入れる",
+   "remove_at": "6-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-forecast-blank",
+   "what": "道具の台帳の「天気予報」の中身は空欄(範囲の外の実データ=気象庁の府県天気予報の本文の取得物がランの日に無い)",
+   "why": "決定 10-12 §4-4 CT0(天気予報はカレンダー 1b と一緒・範囲の外の情報は実データを境界の入力に)。data/realworld/jma_xml は防災情報 XML の長期フィードの一覧(2026-08-07〜)で、ランの日の予報の本文ではない",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/tools/registry.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-events-what",
+   "what": "出発と帰るの判断の出来事の what は「行為:移動」(語彙に出発・帰るの語が無い)・原因は LlmCall(源 plan と提示の番号)",
+   "why": "口の約束 1-3(閉じた語彙)・1-8 の約束 (3)。語を足すのは語彙の版上げ(6-4 C1 で道具の行為の語と一緒=親の判断)〔検収 L9〕",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-left-at-work",
+   "what": "〔検収 H1〕勤務中に本人の行為(乗車など)で舞台を出た体には、約束が続いている間は歩きの途切れと同じ規則で次の機会を出す(時計を見る習慣の 30 分後・1 日 8 回まで・上限の後は終わりの時刻の機会)=戻るかは本人の判断。mock の行為の抽選は変えない(仮のモデル)",
+   "why": "決定 10-12 §4-1 CA2 (b)(出入りは本人の判断)・§1-3 の 1。再提示の時刻と上限は DOC-ca1b-retry-cap と同じ(未リサーチ)。計画一致率と在場率は体の位置で数える(段の値は *_phase の欄)",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-observation-form",
+   "what": "〔検収 M2 (a)〕判断の入力の観測は 1-2 の Percept(time_view)でなく独自の Observation(読んだ時刻・分かおおよそか・言葉・居る所・きっかけ)",
+   "why": "口の約束 1-2(知覚の事実の形)。域外に居る体の場面(SceneView)・体の段を作る口が無い=Percept を作れない。1b の既定化(6-2 の版上げ)の前に Percept に統一する",
+   "remove_at": "6-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-llm-run-mock-port",
+   "what": "〔検収 M2 (c)〕LLM のランでも 1b の出入りの判断は層が持つ仮のモデル(mock/古典の規則)の口で、ランの判断の口ではない",
+   "why": "回答 10-12 §2-1(GPU の前は仮のモデル)。1b の既定化(6-2 の版上げ)でランの判断の口(J0)に載せる",
+   "remove_at": "6-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-alarm-system1",
+   "what": "〔検収 L4〕アラームは鳴った数を数えるだけ=周りの出来事として System 1(1-2 の Percept の B 群・nearby_change)へは届けていない・寝ていても起こさない(起こすのは W17 の起床のまま)",
+   "why": "決定 10-12 §4-1 AT1「アラーム=鳴る」・CT3(通知は周りの出来事の 1 つとして System 1 へ)。届ける口は C1 の通知の段(6-4)・起こすのは疲労の後",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-tools-n-tools",
+   "what": "〔検収 L8〕道具の台帳に時計と天気予報を足したので、既定(w17)の manifest の tools.n_tools が 7 → 9(25 欄の外・記録だけ・1-7 の C0 は器だけ=既定の候補と描画は不変)",
+   "why": "決定 10-12 §4-4 CT0(天気予報と時計はカレンダー 1b と一緒)。口の約束 1-4 の約束 (3)「既存の欄の値は不変」の例外として宣言(親の判断)",
+   "remove_at": "6-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/tools/registry.py"
+   ]
+  },
+  {
+   "id": "DOC-ca1b-initial-inside",
+   "what": "〔検収 L10〕0 時の初期配置で計画実行層が W17 の在圏ブロック(0 時から)に従って管理する体を舞台に置く(5,000 体で 2 体)=初期の状態(連続性の検査の外)",
+   "why": "決定 10-12 §1-3 の 1「ランの始まりに全員を置くことだけは初期の状態として例外」。初期配置を W20 の約束から作るのは 1b の既定化の段",
+   "remove_at": "6-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/calendar_self.py",
+    "src/shibuya/engine/presence.py"
+   ]
   }
  ]
 }

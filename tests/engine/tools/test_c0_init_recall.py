@@ -18,7 +18,7 @@ def test_init_cannot_be_called_again():
     reg = default_registry()
     with pytest.raises(RuntimeError, match="呼び直せない"):
         reg.__init__()  # type: ignore[misc]
-    assert len(reg) == 7
+    assert len(reg) == 9  # 〔第 6 期 6-2〕時計と天気予報を足した(7 → 9)
 
     g = GroupList(household_id=np.array([0, 0, -1]), org_id=np.array([-1, 1, 1]))
     with pytest.raises(RuntimeError, match="呼び直せない"):
@@ -31,4 +31,4 @@ def test_init_cannot_be_called_again():
     assert t.phone_of(1) == "03"
 
     # 作る口は今までどおり(新しい物は作れる)
-    assert len(PhoneTable()) == 0 and len(GroupList.empty(2)) == 0 and len(default_registry()) == 7
+    assert len(PhoneTable()) == 0 and len(GroupList.empty(2)) == 0 and len(default_registry()) == 9

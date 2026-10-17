@@ -54,6 +54,8 @@ def hash_owners(b: Any) -> dict[str, Any]:
     〔第 3 期 3-5〕その後に ``body``(本人の体の層・状態台帳の行 ``BD``=軸 1 diag・軸 2 discardable・どの腕でも置く)。
     〔第 3 期 3-1〕その後に ``calendar_shadow``(暦 1a の影・状態台帳の行 ``CAL``=軸 1 diag・軸 2 derivable・中身は hash_skip・
     腕 1a のランだけ)。
+    〔第 6 期 6-2〕その後に ``calendar_self``(カレンダー 1b・状態台帳の腕の行 ``C1B``=behavior・required と ``C1BM``=diag・
+    required・腕 1b のランだけ=持ち主が None のランでは 2 つのハッシュにも状態のファイルにも入らない=既定は不変)。
     """
     from shibuya.engine.run import _RunDayLocals
 
@@ -75,6 +77,7 @@ def hash_owners(b: Any) -> dict[str, Any]:
         "batching": getattr(L, "batching", None),
         "body": getattr(L, "body", None),
         "calendar_shadow": getattr(L, "calendar_shadow", None),
+        "calendar_self": getattr(L, "calendar_self", None),
     }
 
 
@@ -160,6 +163,9 @@ def relay_tables(b: Any, d: int) -> None:
     calendar_shadow = b.layers.calendar_shadow
     if calendar_shadow is not None:  # 〔第 3 期 3-1〕暦 1a の影(計器だけ・W20 と暦と日番号から=再開でも同じ)
         calendar_shadow.relay_day(d, w17_weekday=wd)
+    calendar_self = b.layers.calendar_self
+    if calendar_self is not None:  # 〔第 6 期 6-2〕カレンダー 1b(W20・暦・日番号と保存した器から=再開でも同じ)
+        calendar_self.relay_day(d)
     if weekly is not None:
         na, nc, nt, ncell = weekly.boundary_events_full(wd)
     else:

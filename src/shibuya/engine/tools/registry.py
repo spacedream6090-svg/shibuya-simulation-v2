@@ -44,11 +44,11 @@ from typing import Any, Final, Iterable, Iterator, Mapping
 import numpy as np
 
 __all__ = [
-    "SIGNBOARD", "NOTICE", "PHONE", "CONTACTS", "GROUP", "TRANSIT", "MAP", "TOOL_NAMES",
+    "SIGNBOARD", "NOTICE", "PHONE", "CONTACTS", "GROUP", "TRANSIT", "MAP", "CLOCK", "FORECAST", "TOOL_NAMES",
     "REQUIRE_KINDS", "OWNERS", "CONTENT_WRITERS", "CONTENT_ORIGINS", "ORIGIN_REAL", "ORIGIN_SYNTHETIC",
     "ORIGIN_NONE", "KNOWN_KINDS", "KnownBy", "EVERYONE", "NOBODY", "Tool", "TOOL_FIELDS", "ToolRegistry",
     "DEFAULT_TOOLS", "default_registry", "SIGNAGE_BRIDGE", "PHONE_BRIDGE", "NOTICE_BRIDGE", "TOOL_ACTION_WORDS",
-    "affordance_words",
+    "affordance_words", "FORECAST_BRIDGE",
 ]
 
 # ---------------------------------------------------------------- 道具の名(台帳の鍵)
@@ -59,8 +59,11 @@ CONTACTS: Final[str] = "連絡先"
 GROUP: Final[str] = "グループ"
 TRANSIT: Final[str] = "乗換案内"
 MAP: Final[str] = "地図"
+#: 〔第 6 期 6-2〕時計と天気予報(決定 10-12 §4-4 CT0「天気予報と時計はカレンダー 1b と一緒」・台帳の末尾に足した)。
+CLOCK: Final[str] = "時計"
+FORECAST: Final[str] = "天気予報"
 #: 最初の中身の名(並びは台帳の並び)。
-TOOL_NAMES: Final[tuple[str, ...]] = (SIGNBOARD, NOTICE, PHONE, CONTACTS, GROUP, TRANSIT, MAP)
+TOOL_NAMES: Final[tuple[str, ...]] = (SIGNBOARD, NOTICE, PHONE, CONTACTS, GROUP, TRANSIT, MAP, CLOCK, FORECAST)
 
 #: 要るものの種類(決定 10-12 §4-4 CT0「要るもの=持ち物・契約・回線」)。``requires`` の要素は ``"<種類>:<名>"``。
 REQUIRE_KINDS: Final[tuple[str, ...]] = ("持ち物", "契約", "回線")
@@ -80,6 +83,9 @@ SIGNAGE_BRIDGE: Final[str] = "BR-SIGNAGE-FICTION"
 PHONE_BRIDGE: Final[str] = "BR-PHONE-TABLE-BLANK"
 #: 営業時間のうち OSM の実値が無い店のカテゴリの既定値(W7 の構築の段が宣言したつなぎ)。
 NOTICE_BRIDGE: Final[str] = "W7#1"
+#: 〔第 6 期 6-2〕天気予報の中身が空欄であることのつなぎの台帳の行(範囲の外の実データ=気象庁の府県天気予報の本文の取得物が
+#: ランの日に無い=欄だけ)。
+FORECAST_BRIDGE: Final[str] = "DOC-ca1b-forecast-blank"
 
 #: 「知っている/知らない」の表し方の種類(全員・誰も・番号の集合)。
 KNOWN_KINDS: Final[tuple[str, ...]] = ("all", "none", "set")
@@ -290,7 +296,7 @@ class ToolRegistry:
     def usable(self, agent: int, have: Iterable[str] = ()) -> tuple[Tool, ...]:
         """体 ``agent`` が使える道具(知っている・要るものが ``have`` に全部ある・今の世界で使う段=``stage`` が ``None``)。
 
-        台帳の並び。読むだけ。逐次ループ宣言: 台帳の行の数ぶん(7)。
+        台帳の並び。読むだけ。逐次ループ宣言: 台帳の行の数ぶん(9)。
         """
         if not _is_int(agent) or int(agent) < 0:
             raise ValueError(f"agent は 0 以上の体の番号(いま {agent!r})")
@@ -321,6 +327,13 @@ DEFAULT_TOOLS: Final[tuple[Tool, ...]] = (
     Tool(name=TRANSIT, owner="本人", content_writer="機械", requires=("持ち物:スマートフォン", "回線:データ通信"),
          stage="6-4"),
     Tool(name=MAP, owner="本人", content_writer="機械", requires=("持ち物:スマートフォン", "回線:データ通信"), stage="6-4"),
+    # 〔第 6 期 6-2〕時計: 本人が見る(腕時計・スマートフォン・駅や店の時計=持ち物を問わない=要るものなし)。中身は世界の時刻
+    # (暦の口)を機械が書く。見れば分単位・見なければおおよそ(TM8)。使う口はカレンダー 1b の腕(既定は使わない=段 6-2)。
+    Tool(name=CLOCK, owner="本人", content_writer="機械", content_origin=ORIGIN_REAL, stage="6-2"),
+    # 〔第 6 期 6-2〕天気予報: 本人のスマートフォン(テレビ)で見る。中身は範囲の外の実データ(気象庁の府県天気予報)を他人が
+    # 書く=境界の入力。ランの日の取得物が無い=欄だけ(つなぎ DOC-ca1b-forecast-blank)。使う口はカレンダー 1b と一緒(段 6-2)。
+    Tool(name=FORECAST, owner="本人", content_writer="他人", requires=("持ち物:スマートフォン", "回線:データ通信"),
+         content_origin=ORIGIN_NONE, stage="6-2", bridge=FORECAST_BRIDGE),
 )
 assert tuple(t.name for t in DEFAULT_TOOLS) == TOOL_NAMES
 
@@ -340,7 +353,7 @@ def affordance_words(registry: ToolRegistry, agent: int, have: Iterable[str] | N
     if not table:
         return ()
     out: list[str] = []
-    for t in registry.usable(agent, () if have is None else have):  # 逐次ループ宣言: 使える道具の数(≤ 7)
+    for t in registry.usable(agent, () if have is None else have):  # 逐次ループ宣言: 使える道具の数(≤ 9)
         for w in table.get(t.name, ()):
             if w not in out:
                 out.append(w)

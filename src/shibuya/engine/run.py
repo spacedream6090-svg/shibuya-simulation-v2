@@ -134,6 +134,7 @@ from shibuya.engine.decision import layer as _DECISION
 from shibuya.engine.speech import layer as _SPEECH
 from shibuya.engine import proximity as _PROX
 from shibuya.engine import calendar_shadow as _CALENDAR_SHADOW
+from shibuya.engine import calendar_self as _CALENDAR_SELF
 from shibuya.engine.experiment import layer as _EXPERIMENT
 from shibuya.engine import batching as _BATCHING
 from shibuya.engine.body import model as _BODY_MODEL
@@ -1357,6 +1358,10 @@ class RunResult:
             # 3-3 の experiment → 3-2 の batching → 3-5 の body → 3-1。腕 w17(既定)のランは源だけで観測の子は null。記録だけ(final・
             # behavior-hash は manifest を読まない)。列追加のみ ----
             "calendar_shadow": _CALENDAR_SHADOW.manifest_fields(getattr(self, "calendar_shadow_layer", None)),
+            # ---- 〔第 6 期 6-2〕カレンダー 1b(CA2 (b)・CA8): 腕 1b のランだけ末尾に ``calendar_1b``(設定=形の版・腕・口の実装・
+            # W20 の版・置き場所・仮採用の値・つなぎの台帳の行/観測=日ごとの計器・合計・エンジンがしないこと 3 つの検査)。
+            # 既定(w17)のランは欄を足さない=manifest は今のまま。記録だけ(final・behavior-hash は manifest を読まない) ----
+            **_CALENDAR_SELF.manifest_fields(getattr(self, "calendar_self_layer", None)),
         }
 
     def economy_fields(self) -> dict[str, Any]:

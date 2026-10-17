@@ -96,11 +96,14 @@ def test_known_by_kinds():
 # ================================================================= 台帳
 def test_default_registry_contents():
     reg = TR.default_registry()
-    assert reg.names == TR.TOOL_NAMES == ("看板", "掲示", "電話", "連絡先", "グループ", "乗換案内", "地図")
-    assert len(reg) == 7 and all(isinstance(t, Tool) for t in reg)
+    # 〔第 6 期 6-2〕時計と天気予報を末尾に足した(決定 10-12 §4-4 CT0「天気予報と時計はカレンダー 1b と一緒」=段 6-2)
+    assert reg.names == TR.TOOL_NAMES == ("看板", "掲示", "電話", "連絡先", "グループ", "乗換案内", "地図", "時計", "天気予報")
+    assert len(reg) == 9 and all(isinstance(t, Tool) for t in reg)
     assert reg.in_use() == ("看板", "掲示")
-    assert reg.registered_only() == ("電話", "連絡先", "グループ", "乗換案内", "地図")
-    assert {reg.get(n).stage for n in reg.registered_only()} == {"6-4"}  # 中身は第 6 期 C1〜
+    assert reg.registered_only() == ("電話", "連絡先", "グループ", "乗換案内", "地図", "時計", "天気予報")
+    assert {reg.get(n).stage for n in reg.registered_only()} == {"6-4", "6-2"}  # 中身は第 6 期 C1〜・時計と天気予報は 6-2
+    assert reg.get(TR.FORECAST).bridge == TR.FORECAST_BRIDGE and reg.get(TR.FORECAST).content_origin == TR.ORIGIN_NONE
+    assert reg.get(TR.CLOCK).content_writer == "機械" and reg.get(TR.CLOCK).requires == ()
     sign = reg.get(TR.SIGNBOARD)
     assert (sign.content_origin, sign.bridge, sign.owner, sign.content_writer) == (
         TR.ORIGIN_SYNTHETIC, "BR-SIGNAGE-FICTION", "店", "他人")

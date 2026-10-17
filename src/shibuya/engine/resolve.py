@@ -181,6 +181,7 @@ __all__ = [
     "release_indoor",
     "balk_queue",
     "begin_exit_walk",
+    "begin_walk_to",
     "clear_board_intent",
     "EXIT_WALK_FLAG",
     "request_open_close",
@@ -3136,6 +3137,54 @@ def begin_exit_walk(agents: AgentState, world: World, rail: Any, agent_ids, line
                 r.activity[here] = int(Activity.WAITING)
                 r.target_node[here] = -1
     return route_ok, at_plat, ~(at_plat | route_ok)
+
+
+def begin_walk_to(agents: AgentState, world: World, agent_ids, cells
+                  ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """〔第 6 期 6-2 カレンダー 1b〕本人が決めた行き先のセルへ歩き出す(体の基本動作「歩く」=決定 10-12 §1-4 D1)。
+
+    行き先はセルの代表ノード(``cell_rep_node``)。在圏(``transit_state == 0``)で会話中でない体だけ歩かせる
+    (``activity=MOVING``・``target_node``=行き先・乗車と就寝の意図は落とす=``begin_planned_sleep`` の歩きの枝と同じ形=
+    着いた後の世界の続きは ``_apply_engine_step``)。いつ・どこへは本人の判断(``engine.calendar_self``)が決める。
+
+    Returns:
+        入力と同じ並びの 4 つの bool マスク ``(歩き出した, もう着いている, 会話中=始められない, 歩けない)``
+        (歩けない=在圏でない・セルが無い・経路が無い)。
+    Note:
+        逐次ループ宣言(P4): なし(経路の配列問い合わせ 1 回)。
+    """
+    a = np.asarray(agent_ids, dtype=np.int64).ravel()
+    c = np.asarray(cells, dtype=np.int64).ravel()
+    none = np.zeros(a.size, dtype=bool)
+    if a.size == 0:
+        return none, none, none, none
+    if c.size != a.size:
+        raise ValueError(f"行き先の長さが体数と違う({c.size} != {a.size})")
+    with agents.writable():
+        r = agents.registry
+        inside = np.asarray(r.transit_state)[a] == 0
+        act0 = np.asarray(r.activity)[a]
+        ok_cell = (c >= 0) & (c < world.n_cells)
+        busy = inside & ok_cell & (act0 == int(Activity.CONVERSING))
+        free = inside & ok_cell & ~busy
+        dest = np.full(a.size, -1, dtype=np.int64)
+        dest[ok_cell] = np.asarray(world.assets.cell_rep_node, dtype=np.int64)[c[ok_cell]]
+        node = np.asarray(r.node, dtype=np.int64)[a]
+        here = free & (node == dest) & (dest >= 0)
+        need = free & ~here & (dest >= 0) & (node >= 0)
+        good = np.zeros(a.size, dtype=bool)
+        if need.any():
+            nxt = np.asarray(world.graph.route_next_node(node[need], dest[need]), dtype=np.int64)
+            good[np.flatnonzero(need)] = nxt >= 0
+        walk = a[good]
+        if walk.size:
+            r.activity[walk] = int(Activity.MOVING)
+            r.target_node[walk] = dest[good].astype(r.target_node.dtype)
+            r.board_line[walk] = -1
+            r.board_since[walk] = -1
+            r.sleep_pending[walk] = 0
+    fail = ~(good | here | busy)
+    return good, here, busy, fail
 
 
 def clear_board_intent(agents: AgentState, agent_ids) -> None:

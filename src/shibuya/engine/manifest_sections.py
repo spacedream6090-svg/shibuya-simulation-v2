@@ -239,6 +239,12 @@ PATHS: Final[dict[str, str]] = {
     # ---- 第 3 期 3-1: 暦 1a の影(源 w17/1a・W20 の版・週の数=設定/日ごとの記録・影の数・空欄の数=観測。腕 w17 のランは
     # 観測の子が null。子の鍵は engine.calendar_shadow の MANIFEST_CONFIG・MANIFEST_OBSERVED と同じ=試験が突き合わせる) ----
     **_mixed("calendar_shadow", config=("schema", "source", "w20", "weeks"), observed=("days", "shadows", "blanks")),
+    # ---- 第 6 期 6-2: カレンダー 1b(腕 1b のランだけ欄がある=既定の manifest には無い。形の版・腕・口の実装・W20 の版・置き場所・
+    # 仮採用の値・実感の形・つなぎの台帳の行=設定/日ごとの計器・合計・エンジンがしないこと 3 つの検査=観測。子の鍵は
+    # engine.calendar_self の MANIFEST_CONFIG・MANIFEST_OBSERVED と同じ=試験が突き合わせる) ----
+    **_mixed("calendar_1b", config=("schema", "mode", "port", "w20", "placements", "look_interval_min", "margins_min",
+                                    "recent_k", "round_min", "approx_round_min", "felt", "bridges"),
+             observed=("days", "totals", "checks")),
 }
 
 

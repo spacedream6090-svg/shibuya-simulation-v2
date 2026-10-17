@@ -46,6 +46,11 @@ memory(その刻みの記憶の出来事)・conversation(会話の終わり)は 
 world(5 分の窓の体感温度=環境の過程が体の層の口を呼ぶ)は ``BD:body.*`` を足した。close_final は体の層を結果に渡す
 (``layers.body`` を読む)。系の表の変更は宣言の持ち主の付け替え(体の値の書きは resolve の口のまま=``writes.soa`` は前と同じ)。
 
+〔第 6 期 6-2〕カレンダー 1b(腕 ``--calendar 1b``・状態台帳の腕の行 ``C1B``=本人の予定の器・``C1BM``=判断の記録と計器)を
+書く系: day_head(日の頭に約束と機会を張る)と presence(計画実行層の後に本人の出入り=``C1B*:calendar_self.*``・判断の出来事
+``E:events.*``・歩く口 ``begin_walk_to``)。鉄道の発車が計画実行層に知らせる口から器の連続性の手がかりを書く world・day_close・
+close_final は ``C1B:calendar_self.cal_store`` を足した(腕のランだけ=既定では書かない)。close_final は層を結果に渡す。
+
 〔親の決め〕世界過程が持ち主をまたいで書く所(鉄道と大きな催しが計画実行層の O36・O37・O70 と鉄道の O74 を書く)は
 1-0 では宣言で認める(``world`` の ``writes.paths``)。
 
@@ -90,12 +95,14 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          resolve_ops="set_plan_state",
          paths="O3[5-8]:presence.* O70:presence.* O4[6-9]:runner.* O5[0-6]:runner.* O61:runner.* O7[3-6]:runner.* "
                "O95:runner.* "
-               "CAL:calendar_shadow.*",  # 〔第 3 期 3-1〕暦 1a の影(腕 1a のランだけ・計器=状態台帳の行 CAL)
+               "CAL:calendar_shadow.* "  # 〔第 3 期 3-1〕暦 1a の影(腕 1a のランだけ・計器=状態台帳の行 CAL)
+               "C1B*:calendar_self.*",  # 〔第 6 期 6-2〕カレンダー 1b の器と計器(腕 1b のランだけ=状態台帳の腕の行 C1B・C1BM)
          tally="day_heads", reads="cfg.ticks cfg.tpd day.b_agent day.b_cell day.b_cond day.b_start day.b_tick "
                "day.w17_substituted fx.calendar fx.schedule fx.weekly layers.act_layer "
                "layers.classical layers.ledger layers.poi_resolver layers.presence layers.runner "
                "runstats.day_heads soa.agents "
-               "layers.calendar_shadow",
+               "layers.calendar_shadow "
+               "layers.calendar_self",  # 〔第 6 期 6-2〕カレンダー 1b(日の頭に約束と機会を張る)
          origin=f"L0・run.py:3607-3609 @{_E}"),
     # ================================================================ 刻みの中(25+〔3-3〕申込書の系 1)
     # 〔第 3 期 3-3〕申込書の改変を効かせる口(申込書を渡したランだけ立つ・刻みの中の最初=日の頭で張り直した表の後)
@@ -126,16 +133,22 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                # 第 2 期 2-1: 生ログの支払いの方法の列(状態台帳の行 EM)
                "EM:ledger.* "
                # 〔第 3 期 3-5〕体感温度は本人の体の層の口(段の境目の計器・TM5 の予約の列=状態台帳の行 BD)
-               "BD:body.*",
+               "BD:body.* "
+               # 〔第 6 期 6-2〕鉄道の発車が計画実行層に知らせる口からカレンダー 1b の連続性の手がかり(腕 1b のランだけ)
+               "C1B:calendar_self.cal_store",
          reads="layers.runner",
          origin=f"L2・run.py:3629-3630 @{_E}"),
     make("presence", "体", "tick", _BD.sys_presence,
          resolve_ops="balk_queue begin_exit_walk begin_planned_sleep clear_board_intent rail_arrive rail_depart "
-                     "release_indoor set_plan_state wake_from_plan set_activity",
+                     "release_indoor set_plan_state wake_from_plan set_activity "
+                     "begin_walk_to",  # 〔第 6 期 6-2〕カレンダー 1b: 本人が決めた行き先へ歩く(体の基本動作)
          paths="O3[5-8]:presence.* O70:presence.* O66:act_layer.* O1:act_layer.* O2:act_layer.* O5[01]:runner.* "
-               "O73:runner.* O75:runner.*",
+               "O73:runner.* O75:runner.* "
+               # 〔第 6 期 6-2〕カレンダー 1b の器と計器(腕 1b のランだけ)・判断の出来事(行為:移動・原因 LlmCall=候補の源と番号)
+               "C1B*:calendar_self.* E:events.*",
          tally="layer_counts phase", when="presence", reads="cfg.tick_seconds layers.act_layer layers.presence runstats.layer_counts "
-               "runstats.phase soa.agents",
+               "runstats.phase soa.agents "
+               "layers.calendar_self",  # 〔第 6 期 6-2〕カレンダー 1b(計画実行層の後に本人の出入り)
          origin=f"L3・run.py:3633-3643 @{_E}"),
     make("perceive_prepare", "知覚", "tick", _PC.sys_perceive_prepare,
          paths="O63:renderer.* O84:renderer.* "
@@ -356,7 +369,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "O5[7-9]:ledger.* O60:ledger.* O7[7-9]:ledger.* O8[01]:ledger.* O9[23]:ledger.* O70:presence.* "
                "O3[5-8]:presence.* "
                "E:events.* A:ledger.* "  # 1-3: E(診断)の区切りの行(日の締め)・その日の記録の計器と保持窓/1-9: 金の計器の締め
-               "EC:ledger.* EM:ledger.*",  # 2-1: 経済の段階 2(給料日の賃金・日の欄)と生ログの支払いの方法の列
+               "EC:ledger.* EM:ledger.* "  # 2-1: 経済の段階 2(給料日の賃金・日の欄)と生ログの支払いの方法の列
+               "C1B:calendar_self.cal_store",  # 〔6-2〕鉄道の日の締めの発車=カレンダー 1b の連続性の手がかり(腕 1b だけ)
          tally="daily_records state_files result", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.run_id cfg.seat_release cfg.sim_days "
                "cfg.state_out cfg.tick_seconds cfg.tpd fx.calendar fx.env_fields fx.schedule fx.schedule_hash "
                "layers.act_layer layers.arbiter layers.bridge layers.classical layers.conv "
@@ -392,7 +406,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "O5[7-9]:ledger.* O60:ledger.* O7[7-9]:ledger.* O8[01]:ledger.* O9[23]:ledger.* O70:presence.* "
                "O3[5-8]:presence.* O8[5-7]:bridge.* "
                "E:events.* A:ledger.* "  # 1-3: 最後の便の ActualLog の行の出来事・E の区切りの行・計器と保持窓/1-9: 金の計器
-               "EC:ledger.* EM:ledger.*",  # 2-1: 経済の段階 2(最後の日の給料日の賃金・日の欄)と生ログの支払いの方法の列
+               "EC:ledger.* EM:ledger.* "  # 2-1: 経済の段階 2(最後の日の給料日の賃金・日の欄)と生ログの支払いの方法の列
+               "C1B:calendar_self.cal_store",  # 〔6-2〕最後の便の発車=カレンダー 1b の連続性の手がかり(腕 1b だけ)
          tally="daily_records ledger_growth result state_files", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.run_id cfg.seat_release cfg.sim_days "
                "cfg.state_out cfg.stopped cfg.t_end cfg.tick_seconds cfg.total_ticks cfg.tpd fx.calendar fx.env_fields "
                "fx.schedule fx.schedule_hash layers.act_layer layers.arbiter layers.bridge "
@@ -407,7 +422,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.proximity "  # 第 2 期 2-2: 近接の層を結果に渡す(manifest の proximity)
                "layers.experiment "  # 3-3: 申込書の持ち主を結果に渡す(manifest の experiment)
                "layers.body "  # 3-5: 本人の体の層を結果に渡す(manifest の body)
-               "layers.calendar_shadow",  # 〔第 3 期 3-1〕暦 1a の影を結果に渡す(manifest の calendar_shadow)
+               "layers.calendar_shadow "  # 〔第 3 期 3-1〕暦 1a の影を結果に渡す(manifest の calendar_shadow)
+               "layers.calendar_self",  # 〔第 6 期 6-2〕カレンダー 1b を結果に渡す(manifest の末尾の calendar_1b)
          origin=f"E1・run.py:4551-4592 @{_E}"),
     make("report", "計器", "run_end", _RP.report,
          tally="result sleep_counts frozen_sources_map",  # 段 FIX: 欄の別名 ``frozen_sources_map.update``

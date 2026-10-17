@@ -486,6 +486,7 @@ def run(
         from shibuya.engine import batching as _BATCH  # 〔第 3 期 3-2〕まとめの幅の腕(環境変数か --batch-width-s)
         from shibuya.engine import body as _body  # 〔第 3 期 3-5〕TM5 の予約の腕(既定 sweep と違えば腕=結果は同じはず)
         from shibuya.engine import calendar_shadow as _calendar_shadow  # 〔第 3 期 3-1〕暦 1a の影(既定 w17 と違えば腕)
+        from shibuya.engine import calendar_self as _calendar_self  # 〔第 6 期 6-2〕カレンダー 1b(既定 w17 と違えば腕)
         from shibuya.engine import memory_m1 as _memory_m1  # 〔第 6 期 6-5〕記憶の腕(結果を変える腕=既定と違えば腕)
         from shibuya.engine.speech import layer as _speech_layer
 
@@ -498,6 +499,7 @@ def run(
                               or not _BATCH.is_default()  # 〔第 3 期 3-2〕まとめの幅(既定 60 秒と違えば腕)
                               or _body.arm() != _body.DEFAULT_ARM  # 〔3-5〕体の予約の腕(既定は sweep)
                               or _calendar_shadow.arm() != _calendar_shadow.DEFAULT_MODE  # 〔3-1〕既定は w17
+                              or _calendar_self.arm() != _calendar_self.DEFAULT_MODE  # 〔6-2〕既定は w17
                               or _memory_m1.arms_on(),  # 〔6-5〕記憶の腕(--memory-model/-cue/-people/-grain)
                               counterfactual=exp_form is not None)
     if budget is None and scale != 1.0:
@@ -1455,6 +1457,15 @@ def main(argv: list[str] | None = None) -> int:
              "manifest の calendar_shadow に出す(計器だけ=出入りは今の W17 のまま・1a のランだけ設定の指紋に入る・ランの種類は arm)",
     )
     ap.add_argument(
+        "--calendar",
+        choices=("w17", "1b"),
+        default=None,
+        help="第 6 期 6-2 カレンダー 1b の腕(既定 w17・環境変数 SHIBUYA_CALENDAR と同じ。指定すれば環境変数より強い)。"
+             "1b=W20 の時刻つきの勤務の約束を持つ体の出入り(出発するか・いつか・帰るか)を本人の判断(仮のモデル=mock/古典)へ"
+             "渡す(その体の W17 の到着・退出は実行しない・就寝と起床は W17 のまま)。W20 の週の表は <world>/w20_calendar_1a.parquet"
+             "か SHIBUYA_CALENDAR_W20。manifest の末尾に calendar_1b・1b のランだけ設定の指紋に入る・ランの種類は arm",
+    )
+    ap.add_argument(
         "--experiment", type=str, default="",
         help="第 3 期 3-3 反実仮想の申込書(JSON のパス・engine.experiment.form)。既定なし=今と同じ。渡すとランの種類は "
              "counterfactual・申込書の指紋は manifest の experiment に出る(設定の指紋には入らない)",
@@ -1546,6 +1557,10 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine import calendar_shadow as _calendar_shadow
 
         _calendar_shadow.set_arm(str(args.calendar_shadow))
+    if args.calendar is not None:  # 〔第 6 期 6-2〕カレンダー 1b の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine import calendar_self as _calendar_self
+
+        _calendar_self.set_arm(str(args.calendar))
     if args.economy_stage2 is not None:  # 第 2 期 2-1: 経済の段階 2 の腕(組み立てと台帳の組み立てが読む)
         _ES2.set_arm(str(args.economy_stage2))
     if args.economy_stage2_parts is not None:

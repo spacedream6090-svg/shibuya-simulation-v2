@@ -784,6 +784,10 @@ class PlanExecutor:
         self._skip_depart_at = np.full(n, -1, dtype=np.int32)
         #: civic に引き込まれた印(``arrive_skipped`` の内訳を分けるため)。
         self._pulled_in_today = np.zeros(n, dtype=bool)
+        #: 〔第 6 期 6-2 カレンダー 1b〕出入りを本人へ渡す層(``engine.calendar_self.CalendarSelf``・腕 ``--calendar 1b`` の
+        #: ランだけ組み立てが挿す・既定 None=今の道)。挿したランでは、口の ``io_off`` の体の到着と退出(W17 の ARRIVE/DEPART と
+        #: 張り直しの到着)を実行しない(就寝・起床は今のまま)。歩きの途中の体の起床の抑えにも口の ``walk_hold`` を足す。
+        self.io_hook: Any = None
 
         self._build_events()
 
@@ -1343,6 +1347,14 @@ class PlanExecutor:
         """ARRIVE: **域外に居る体だけ**を降ろす(I2 二重到着なし)。"""
         if ids.size == 0:
             return
+        hook = self.io_hook
+        if hook is not None:  # 〔6-2 カレンダー 1b〕本人が出入りを決める体は W17 の到着を実行しない
+            off = np.asarray(hook.io_off, dtype=bool)[ids]
+            if off.any():
+                hook.note_suppressed("arrive", int(off.sum()))
+                ids, cells = ids[~off], cells[~off]
+                if ids.size == 0:
+                    return
         r = self.agents.registry
         here = np.asarray(r.transit_state)[ids] == 0
         ok = (
@@ -1367,6 +1379,14 @@ class PlanExecutor:
         """DEPART: 在圏の体を域外へ(§4 の優先規則: 会話中は繰り延べ・買物/待ちは中断)。"""
         if ids.size == 0:
             return
+        hook = self.io_hook
+        if hook is not None:  # 〔6-2 カレンダー 1b〕本人が出入りを決める体は W17 の退出を実行しない(時刻で退出させない)
+            off = np.asarray(hook.io_off, dtype=bool)[ids]
+            if off.any():
+                hook.note_suppressed("depart", int(off.sum()))
+                ids, lines = ids[~off], lines[~off]
+                if ids.size == 0:
+                    return
         # 域外へ出た体(LLM の乗車/退去・civic の押し出し)の**進行中ブロックの DEPART**は落とす
         drop = self._skip_depart_at[ids] == np.int32(tick)
         if drop.any():
@@ -1595,11 +1615,14 @@ class PlanExecutor:
         """9a: 歩いて乗る退出の体の**場所の変化(CELL_BLOCK)・到着満了(ACTIVITY_EXPIRY)・計画境界(PLAN_*)**を
         起こさない(段 2c の意図保持と同じ=着いたらエンジンが乗せる・退出そのものが計画境界の実行=即時の形で
         呼ばないのと揃える・驚き/体/会話では起こす)。"""
-        if self.exit_mode != "walk_to_platform" or agent.size == 0:
+        hook = self.io_hook
+        if (self.exit_mode != "walk_to_platform" and hook is None) or agent.size == 0:
             return agent, cond, cls
         a = np.asarray(agent, dtype=np.int64)
         c = np.asarray(cond, dtype=np.int64)
         walking = (self._walk_since[a] >= 0) | self._plan_rider[a]
+        if hook is not None:  # 〔6-2 カレンダー 1b〕本人が決めた出入りの歩きの途中の体も同じ扱い
+            walking = walking | np.asarray(hook.walk_hold(a), dtype=bool)
         drop = walking & ((c == 10) | (c == 11) | ((c >= 1) & (c <= 4)))  # CELL_BLOCK / 満了 / PLAN_*
         if not bool(drop.any()):
             return agent, cond, cls
@@ -1652,6 +1675,9 @@ class PlanExecutor:
         r = self.agents.registry
         flags = getattr(r, "plan_flags", None)
         outside = np.asarray(r.transit_state) == 2
+        hook = self.io_hook
+        if hook is not None:  # 〔6-2 カレンダー 1b〕本人が出入りを決める体はエンジンが引き込まない(急に現れない)
+            outside = outside & ~np.asarray(hook.io_off, dtype=bool)
         if flags is None:
             return np.flatnonzero(outside)
         return np.flatnonzero(outside & ((np.asarray(flags) & FLAG_HAS_PLAN) != 0))
@@ -1686,6 +1712,12 @@ class PlanExecutor:
         **次の**在圏ブロックに ARRIVE を張り直す。
         """
         a = np.asarray(agent_ids, dtype=np.int64).ravel()
+        hook = self.io_hook
+        if hook is not None and a.size:  # 〔6-2 カレンダー 1b〕本人が出入りを決める体は張り直さない(層が持つ)
+            off = np.asarray(hook.io_off, dtype=bool)[a]
+            if off.any():
+                hook.note_rode_out(a[off])  # 発車した電車に乗って出た(体の連続性の検査の手がかり)
+            a = a[~off]
         if a.size == 0:
             return
         self.n_departed_by_llm += int(a.size)

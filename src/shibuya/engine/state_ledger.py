@@ -1034,6 +1034,30 @@ _EXT: tuple[LedgerRow, ...] = (
              "この表を読み書きする=軸 1 behavior・表から作れない=軸 2 required(腕 memory は再開を止める=器の側)。この腕では"
              "体の表の sm_* は書かない(空のまま)。書く系は memory・decide・llm_receive(宣言 M0*:mem_layer.memory_store.*=器の"
              "店の行の書く口 put・grow)。行の鍵は O の通し番号でなく M0S"),
+    # ---- 第 6 期 6-2(カレンダー 1b=出入りを本人へ・腕 --calendar 1b): 足す前に軸を決めた行(腕の行=腕のランだけ持ち主がある) ----
+    LedgerRow(
+        key="C1B", name="CalendarSelf.cal_store(本人の予定の器=その日の約束・置き場所・見積り・機会・行き来の時刻・第 6 期 6-2)",
+        place=EXTERNAL, dtype="体ごとの配列の dict(i1/i2/i4/i8/f4/bool・見積りの直近 K=5 は (体, 5) の f4)",
+        nbytes="約 140 B/体(5,000 体で約 0.7 MB)", alloc="--calendar 1b", behavior=BEHAVIOR, restore=REQUIRED,
+        dead=False,
+        basis="engine/calendar_self.py(CalendarSelf.relay_day・step・_opportunities・_finish_go)・"
+              "engine/systems/state_io.py(relay_tables)・engine/systems/body.py(sys_presence)",
+        items=("calendar_self.cal_store",), arm="calendar",
+        note="6-2: 腕 1b で母集団と計画実行層のあるランだけ持ち主を作る(既定 w17 は None=既定の 2 つのハッシュと状態のファイルは"
+             "不変)。約束・置き場所・見積り(直近の実感の値)・次の機会と置いた記録・行き来の時刻・域外からの到着の予約・歩きの"
+             "途中の印は、本人の出入りの判断と実行(いつ出るか・どの便で着くか・どこへ歩くか)を決める=軸 1 behavior・見積りと"
+             "予約と歩きの途中は表から作れない=軸 2 required(再開=通し)。書く系は day_head(日の頭に約束と機会を張る)と "
+             "presence(刻みごとの出入り)(宣言 C1B*:calendar_self.*)。行の鍵は O の通し番号でなく C1B"),
+    LedgerRow(
+        key="C1BM", name="CalendarSelf.cal_meter(判断の記録と計器=日ごとの記録・エンジンがしないこと 3 つの検査・第 6 期 6-2)",
+        place=EXTERNAL, dtype="計数と記録の dict(日ごとの記録・出発と帰る判断の行の列・検査の数)", nbytes="",
+        alloc="--calendar 1b", behavior=DIAG, restore=REQUIRED, dead=False,
+        basis="engine/calendar_self.py(_summary・manifest・_check_continuity・_opportunities)・engine/run.py(manifest の "
+              "calendar_1b)",
+        items=("calendar_self.cal_meter",), arm="calendar",
+        note="6-2: 読み手は manifest の calendar_1b と試験だけ=軸 1 diag(記録の id の通し番号は機会の参照=器の next_ref に写す"
+             "値で、挙動は器の側で数える)。日をまたぐ記録(閉じた日の記録・判断の行・検査の数)は再開で作り直せない=軸 2 required"
+             "(再開でも日ごとの記録が通しと同じ)。書く系は day_head と presence(宣言 C1B*:calendar_self.*)。行の鍵は C1BM"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -1208,6 +1232,8 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "body": ("engine/body/model.py", "BodyModel"),
     # 第 3 期 3-1: 暦 1a の影(状態台帳の行 CAL・腕 --calendar-shadow 1a のランだけ)
     "calendar_shadow": ("engine/calendar_shadow.py", "CalendarShadow"),
+    # 第 6 期 6-2: カレンダー 1b(状態台帳の腕の行 C1B・C1BM・腕 --calendar 1b のランだけ)
+    "calendar_self": ("engine/calendar_self.py", "CalendarSelf"),
 }
 
 #: (ii) キャッシュ・導出。中身は 3 通り: (a) 毎 tick(か事象のある tick)作り直す作業の値・印
@@ -1525,6 +1551,17 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("mem_layer.memory_store.shops", CONST, _FIELD + "(6-5 検収 M4: 腕の行の腕の名 LEDGER_ARM)", "LEDGER_ARM"),
     _x("mem_layer.store", REF, _REFR + "(6-5 検収 M4: 腕 memory の店の行の表=状態は器の子の持ち主 shops の側で数える)",
        "_tab"),
+    # 第 6 期 6-2: カレンダー 1b の層の設定・参照・表と、計画実行層の口(腕 1b のランだけ組み立てが挿す)
+    _x("calendar_self", REF, _REFR + "(6-2: W20 の表・暦・状態・世界・計画実行層・鉄道・判断の口・出来事の記録・道具の台帳)",
+       "table", "calendar", "agents", "world", "presence", "rail", "port", "events", "tools"),
+    _x("calendar_self", CONST, _CFG + "(6-2: 割り振りの種・刻みの幅・1 日の刻みの数・体の数・腕の名)", "seed",
+       "step_seconds", "tpd", "n", "source"),
+    _x("calendar_self", CONST, _FIELD + "(6-2: 腕の行の腕の名 LEDGER_ARM)", "LEDGER_ARM"),
+    _x("calendar_self", CACHE, _TAB + "(6-2: 路線ごとの便の表と便の間隔=鉄道の便から日の頭に作り直す)", "_line_tab",
+       "_headway"),
+    _x("calendar_self", CACHE, "6-2: この刻みに歩き始めた体(刻みの中で使い切る)", "walk_started_now"),
+    _x("presence", REF, _REFR + "(6-2: カレンダー 1b の層=腕 1b のランだけ組み立てが挿す口・状態は層の側で数える)",
+       "io_hook"),
 )
 
 

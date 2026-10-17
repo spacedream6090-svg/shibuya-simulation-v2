@@ -56,6 +56,7 @@ OWNER_NAMES: tuple[str, ...] = (
     "batching",
     "body",
     "calendar_shadow",  # 〔第 3 期 3-1〕暦 1a の影(状態台帳の行 CAL・腕 1a のランだけ・中身は hash_skip=値は変わらない)
+    "calendar_self",  # 〔第 6 期 6-2〕カレンダー 1b(状態台帳の腕の行 C1B・C1BM・腕 1b のランだけ=既定は None で値は変わらない)
 )
 
 
@@ -236,6 +237,9 @@ class Layers:
     #: 〔第 3 期 3-1〕暦 1a の影(``engine.calendar_shadow.CalendarShadow``・状態台帳の行 ``CAL``)。腕 ``--calendar-shadow 1a``
     #: で母集団のあるランだけ組み立てが置く(既定 None=今の道・影は計器だけ)。
     calendar_shadow: Any = None
+    #: 〔第 6 期 6-2〕カレンダー 1b 出入りを本人へ(``engine.calendar_self.CalendarSelf``・状態台帳の腕の行 ``C1B``・``C1BM``)。
+    #: 腕 ``--calendar 1b`` で母集団と計画実行層のあるランだけ組み立てが置く(既定 None=今の道)。
+    calendar_self: Any = None
 
     @property
     def undefined(self) -> Any:
