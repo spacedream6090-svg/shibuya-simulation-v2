@@ -394,6 +394,14 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #116 第 6 期 6-4 CT C1 の仕組み(腕 `--contact c1`・仮のモデル・既定 off は不変)(第337・2026-10-17・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-4(CT0〜CT10)・§4-2 TM1・TM3・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 6-4・回答 2-1・口の約束 1-2・1-3・1-6・1-7・1-8・1-8b。記録 [ct_c1](docs/bench/analysis/wallbounce-1012/ct_c1/README.md)([review.md](docs/bench/analysis/wallbounce-1012/ct_c1/review.md))。取り込み `2d1ea14`。C0 は #92。
+- **`engine/contact/`**(10 本=arm・device・attention・port・deliver・chat_state・calls・book・layer): 届く=エンジン(送信は判断の次の窓の境目 `contact.send`・着信 `contact.ring` も境目・既読と不通・預かり)・System 1=道具の状態(マナーモード・置き場・イヤホン)から SNR の段の形で刺激の強さ・関心の的の門・本人=J0 型の `ContactPort`(今読む/後で/無視・スマホを見る・読む・送る・グループ・かける・出る・切る・宛先・返す/スタンプ/返さない=mock)・通話は `ConversationManager` の子・チャットも会話の器の子(`ChatBook`)・目と心の向き(視線の先・関心の的=刻みの終わりの値・画面を見ている間は周辺視 2.0 m の数だけ=係数なし・割り込みは起床条件 (i)・腕 i/ii/iii)・門の結果は CT1G(顕著行為のキャッシュは書き換えない・memory は `salient_view` から)・監査=発行した呼びの控え CT1Q+AST(偽の LlmCall を植えると落ちる)。`perception/contact_view.py`。
+- **量と呼数**(mock 5,000 体 1 日・seed 1): 畳み方 4 つで連絡の出来事 1,120,765 → 155,148 行・27.9 MB/日(出来事 11.2+原因の表 16.7)・39 万体 約 2.17 GB/日=**1-3 の宣言 256 MB を超える=腕は既定にできない**(台帳 `DOC-ct-c1-not-default`)。`calls_by_model`(腕のときだけ)=判断モデル 240,128・LLM 32,482(主の判断 64,528 の 3.7 倍)。仲裁=主の判断が先(次の刻みへ 10,096 回)。腕 port では「スマホを見る」が候補に 7,963 回出るが mock は選ばない(構造だけ)。
+- 不変: 既定 off は 19 構成で同じ(直しの後 4 構成)・2 日・再開(通話中の日の途中を含む)。段 B は腕 c1 でも宣言の外 0(`BW:batching.*`)。語彙 `連絡` 15 語(版 events-vocab/6-4)・状態台帳の腕の行 CT1D/A/AS/I/IS/C/K/S/M/G/Q・manifest の末尾 `contact_c1`(腕だけ)・`CONFIG_PATHS_SHA256` 改訂・台帳 +24 行。
+- 検収: 別の検収役 1(条件つき受入=高 1・中 5・低 8 → 全部直した)+親。全体試験 5819 passed。仮採用: PENDING §1-1b 仮-38。判断待ち: §1-1「連絡の出来事の記録の予算」。残り: C1 の版上げ(カレンダー 2 と束ねる・実 LLM の後)・CT1Q を日ごとに捨てる・用語集との照合・C2〜C6。
+
 ### #115 賃金を職業ごとの実データから(小さな版上げ=既定 `--wage occupation`・ユーザー決定 2026-10-17)(第337・2026-10-17・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [回答 10-13b](docs/design/v2-answers-2026-10-13b.md) §7 の 3・§0-6・§0-7・R-107・10-12 §4-11 EC2・CLAUDE.md §4(保存則)。記録 [wage_occ](docs/bench/analysis/wallbounce-1012/wage_occ/README.md)([review.md](docs/bench/analysis/wallbounce-1012/wage_occ/review.md))。取り込み `c87d5de`。
