@@ -49,7 +49,7 @@ jobs:
     name: ci-1 単体と結合(not gpu and not slow)
     if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90  # 〔第337〕45 → 90: ci-1 は 25〜38 分で揺れ、C1 の後の push の 2 回が 45 分の上限に当たって cancelled になった(同じ commit の pull_request 側は 25〜27 分で緑)=余裕を倍に(10-13b §0-4 CI-1 は常に緑)
     steps:
       - uses: actions/checkout@v4
         with:
