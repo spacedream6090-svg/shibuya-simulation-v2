@@ -6668,6 +6668,21 @@
     "src/shibuya/engine/energy.py",
     "src/shibuya/engine/body/rules.py"
    ]
+  },
+  {
+   "id": "DOC-fleet-resend-while-waiting",
+   "what": "艦隊の経路は返事を待っている体にも新しい起床で呼びを送る(`n_fleet_resent` を数えるだけ)=D-55 の『既定の枠=体数なら繰り延べ 0』の前提(1 体が同時に待つ呼びは 1 本)を破る既存の穴。本段(meal_w17)が合成の跨ぎの時刻を散らして 24 刻みの試験に出した",
+   "why": "D-55(第289 Q28)・本段の記録 §12・親の推奨=待っている体の起床は返事が届くまで持ち越す(実 LLM の艦隊が戻る前にユーザーが決める=PENDING §1-1)",
+   "remove_at": "6-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/meal_w17/README.md",
+   "conf": "expedient",
+   "since": "2026-10-18",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/systems/decide.py",
+    "src/shibuya/llm/fleet.py"
+   ]
   }
  ]
 }
