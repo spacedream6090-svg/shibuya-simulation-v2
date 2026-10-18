@@ -394,6 +394,15 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #113 封印の分離の残りと ODPT の取得のログの圧縮(整理=結果不変・ユーザー決定 2026-10-17)(第337・2026-10-17・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [回答 10-13b](docs/design/v2-answers-2026-10-13b.md) §7 の 5・§0-6・R-115 §5・PENDING 仮-13・2-4 V6・パターン台帳 §10・CLAUDE.md §7。記録 [seal_tidy](docs/bench/analysis/wallbounce-1012/seal_tidy/README.md)([review.md](docs/bench/analysis/wallbounce-1012/seal_tidy/review.md))。取り込み `e7221b9`。
+- **区分の表**(錨 7 本・世界資産の列・封印の層): 混在が残っていたのは `diversity_anchors_v0.json` だけ → `diversity_build_anchors_v0.json`(6 錨+`p0_prior`)と `diversity_validation_anchors_v0.json`(11 錨)に分離(`tools/instruments/anchor_split.py`・合わせると元と一致・md5 17/17)。読む側=`tools/w17/diversity_yardstick.py`(両方を読み `--anchors` 複数)・`tests/w17` の fixture(構築側+合成の検証側・既定の道を読むと落ちる守り)・古い commit の写しの試験 2 本(その版が開く 2 錨だけ写す)。`read_guard` に `realworld/odpt_rt`・`diversity_validation_anchors`・W21 #16/#57 にも。負の対照 `tests/tools/test_seal_split_337.py`。
+- **`tests/c7`**: 監査フックの下で 168 passed・実在の封印/検証側のファイルを開かない(合成の `kddi_la/la.json` だけ)=**全体試験に戻す**(CI-1 は元から含む)。他の層(kddi_la・shibuya_jinryu・odpt_rt・PT b-4/c-3/c-4)は名前と schema で 1 本 1 区分・`boundary_counts.json` は照合用・区民意識調査の個票は data に無い。列/行の単位の混在(PT c-2・W12 の `station_flow_12`/`transfer_12`・`odpt_survey_*`)は読む側が片側だけ=ファイルは分けない(W19 の凍結)。
+- **ログの回転** `tools/realworld_fetch/logrotate.py`+`ledger.py`+`cli.py`: 原子的な改名・日ごとの gz・展開してバイト単位で照合してから元を消す・ロック・途中で落ちた後の掃除・`append` の再試行・`read_all` が gz を読む・1 日 1 回(`--rotate-logs` で強制)。試験 13 本(書き手が追記し続ける間の回転=欠け 0・重複 0)。写しで台帳 13,914,161 B/32,685 行 → 415,317 B(71 日の gz・バイト一致)・ログ 9.5 MB → 0.1 MB の見込み。**実体の圧縮は取り込みの後に親が回す**(本体の取得の道具が新しい読み書きになってから)。
+- 不変: byte-check 19/19・2 日・再開(final 31c9b194…)。全体(作業木・tests/c7 を含む)5,560 passed・1 failed(既知の ab7=data の junction)・1 skipped・1 xfailed。
+- 検収: 別の検収役 1+親。全体試験 5662 passed(tests/c7 を含む)。仮採用: PENDING §1-1b 仮-35。判断待ち: PENDING §1-1「錨の区分 3 件」。取り込みの後に親が回した: 実体のログの回転(台帳 15.2 MB → 455 KB・72 塊・ログ 9.5 MB → 109 KB・`--report` は gz を読めた)と odpt_rt の未圧縮 json 4,987 本の gz(検証つき・120 MiB → 15 MiB・`_last_fetch.json` は除く)。
+
 ### #112 第 6 期 6-2 カレンダー 1b 出入りを本人へ(腕 `--calendar 1b`・仮のモデル・既定 w17 は不変)(第337・2026-10-17・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-1(CA2 (b)・CA4・CA5・CA7・CA8・AT1〜AT3・経過時間の実感)・§4-4 CT0・§4-2 TM5/TM8・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 6-2・回答 2-1(GPU の前に腕で)。記録 [ca1b](docs/bench/analysis/wallbounce-1012/ca1b/README.md)([review.md](docs/bench/analysis/wallbounce-1012/ca1b/review.md))。取り込み `246d72d`。1a 影は #106。
