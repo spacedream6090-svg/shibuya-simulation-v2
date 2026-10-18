@@ -6253,13 +6253,13 @@
   {
    "id": "DOC-wage_occ-legacy-switch",
    "what": "賃金の切替口 --wage w17(環境変数 SHIBUYA_WAGE=w17)=2-1 の値(W17 の「勤務」の週の分 × 52/12 週 × 最低賃金)の再現のためだけの道と、賃金の表の写しが無い写し(data の無い CI)の戻り道(月 160 時間=W17 の無いランの既定 × 最低賃金・注記 WageTablesAbsentWarning)",
-   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)。閉じた行 DOC-ec21-wage-hours-and-rate の道がコードに残る分(検収 L4)。次の版上げ(4-3=段 10 の差し替え=版上げ 3 回目の見込み)で消す。表の無い写しの戻り道は、data の無い CI で賃金の表を持てるまで(消すときに CI の扱いを決める)",
-   "remove_at": "4-3",
+   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)。閉じた行 DOC-ec21-wage-hours-and-rate の道がコードに残る分(検収 L4)。次の版上げ(4-3=段 10 の差し替え=版上げ 3 回目の見込み)で消す。表の無い写しの戻り道は、data の無い CI で賃金の表を持てるまで(消すときに CI の扱いを決める) 〔第337・食事の段の取り込みで揃えた〕外す段は段の番号ではなく「次の版上げ」(next-bump=食事の段 meal_w17 の検収 L6 が足した語)=賃金と食事の 2 つの旧値の切替口を同じ版上げで消す(親の判断)。",
+   "remove_at": "next-bump",
    "declared_in": "docs/bench/analysis/wallbounce-1012/wage_occ/README.md",
    "conf": "expedient",
    "since": "2026-10-17",
    "status": "active",
-   "remove_basis": "inferred",
+   "remove_basis": "plan",
    "code_at": [
     "src/shibuya/cli.py",
     "src/shibuya/economy/stage2.py",

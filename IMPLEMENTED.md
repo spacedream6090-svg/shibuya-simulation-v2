@@ -394,6 +394,14 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #117 第 18-1 表の置き換え(小さな版上げ=既定の食事時刻と初期の空腹を W17 v2 の日課の分布から・ユーザー決定 2026-10-17=親案 (b))(第337・2026-10-18・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [回答 10-13b](docs/design/v2-answers-2026-10-13b.md) §7 の 2・§0-6・§0-7・R-115 §2・パターン台帳 §10・10-03 §7-1。記録 [meal_w17](docs/bench/analysis/wallbounce-1012/meal_w17/README.md)([review.md](docs/bench/analysis/wallbounce-1012/meal_w17/review.md))。取り込み `2809c4a`。
+- **版上げ(§0-7)**: 直前の commit に安定版のタグ **`stable-v2-before-meal-default-w17`**。**戻す手順**: `git checkout stable-v2-before-meal-default-w17`(または `--meal-default validation`=旧値の再現・次の版上げで消す)。性能(5,000 体 1 日 seed 1・w6_v3_default・この機械・他のランと並走): 実行時間 45.0〜50.4 s → 44.8〜47.7 s・1 刻み 31.3〜35.0 ms → 31.1〜33.1 ms・最大 RSS 468〜489 MiB → 488〜490 MiB・LLM の呼数 64,528 → 64,024・判断モデル 0=前の版より悪化なし(分布を作る 0.06 s)。
+- **中身**(`engine/energy.py`・`engine/body/rules.py`): 範囲外の人の既定の食事時刻を W17 v2 の食事の行の開始の分布(構築側・窓ごと・全員 390,067 体)から体ごとに引く(Philox `energy.meal_default`)・初期の空腹=前夜の夕食からの経過・合成の世界は凍結の表 `W17V2_MEAL_START_HIST_15MIN`・既定 w17 は検証側のファイルを開かない(監査フック+負の対照)・切替口 `--meal-default {w17,validation}`(validation は設定の指紋に入る)・manifest に `energy.meal_default`・`meal_default_use`・2-0 の計器に無効の印 `meal_time_vs_t18_1`・台帳 +4 行(外す段 6-6・4-3)・`CONFIG_PATHS_SHA256` 改訂。
+- **結果**: 既定の食事時刻を使っている体 99.98%(3 つとも 35.3%)・初期の空腹 満腹 5.0/ふつう 69.3/空腹 25.7%(前は全員ふつう)・既定は 19 構成とも final が動く(呼数 −0.06〜−4.6%=空腹の起床の減り・範囲内の食事は古典で +4〜5%)・旧値の再現(validation)19/19。golden を張り替えた試験 8 本(前の値は注に)。**挙動の変化(宣言)**: 旧値は全員に 1 つの時刻と 1 つの初期の比だったので、W17 の無い合成の世界では空腹の起床が 1 刻みに全員一斉に揃っていた(人工物)。本段でその揃いが消え、合成 100 体の会話が減る(seed 1〜8 の 2 日で 12 → 6・跨ぎの総数は同じ・同じセルの組の延べは ±5%=推測)・実データ 5,000 体では会話の番の呼数 −3%(2,905 → 2,813)。10f の負の対照 `test_t4_axis2_required_made_discardable_fails` は 750 までに開く会話が 0 になり効かなくなったので、この試験だけ捨てる刻みを 2,100 に(記録 §8)。
+- 検収: 別の検収役 1+親。全体試験 5840 passed。仮採用: PENDING §1-1b 仮-39。判断待ち: §1-1「艦隊の経路の既存の穴」(待っている体にも新しい起床で呼びを送る=D-55 の前提の破れ。本段が合成の跨ぎの時刻を散らして c6 の試験に出した=試験は刻み 0 の一斉の起床だけを見る形に・台帳 `DOC-fleet-resend-while-waiting`)。5a の report の印(第 18-1 表との比較=置き換えの前は無効・後は検証可)は親がこの commit で付けた。賃金の切替口の行 `DOC-wage_occ-legacy-switch` も `next-bump` に揃えた。残り: 次の版上げで `--meal-default validation` と `--wage w17` を消す・判断モデルの段で既定の食事時刻をなくす(6-6)。
+
 ### #116 第 6 期 6-4 CT C1 の仕組み(腕 `--contact c1`・仮のモデル・既定 off は不変)(第337・2026-10-17・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-4(CT0〜CT10)・§4-2 TM1・TM3・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 6-4・回答 2-1・口の約束 1-2・1-3・1-6・1-7・1-8・1-8b。記録 [ct_c1](docs/bench/analysis/wallbounce-1012/ct_c1/README.md)([review.md](docs/bench/analysis/wallbounce-1012/ct_c1/review.md))。取り込み `2d1ea14`。C0 は #92。
