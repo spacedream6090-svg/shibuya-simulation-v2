@@ -283,3 +283,13 @@ rebase の後(本体 13e9c90 の台帳 483 行・active 472)に足し直した: 
 - 範囲の試験(`tests/economy tests/engine tests/build_pop tests/c8`・`-n 2 --dist loadfile -m "not slow"`): 3,388 passed・1 skipped・1 failed(`test_classical_social::test_run_golden_and_arms`=並列でだけ落ちる順序依存=TM の記録の申告と同じ・単独とファイル単位では通る)。`lint-imports` 5 kept・0 broken。
 - byte-check(`w6_v3_default`・5,000 体・1 本ずつ): TM 80742bc の写し vs 既定 occupation・vs w17 とも 25 欄が同じ(`bc1_tm80_vs_occ.json`・`bc1_tm80_vs_w17.json`・final `b8eadcb5…`)。
 - 給料日を含む 2 日のラン(5,000 体・occupation・開始 2026-08-24): rebase の前(13-7)と final `21e62930…`・帳簿の流れ・残高の sha・計器・床(463 体・19.1%・16,915,883 円)・保存則が全部同じ。
+
+## §親の検収(第337・Fable 5.1・rebase の後・小さな版上げ)
+
+- 本体 cb38b0a へ rebase(衝突なし・重なるファイルなし=本体の 3 commit は TM の記録・封印の文書・小さな整理 2 件(md23 の set_arms・logrotate の rotid)だけなので data 無しの全体試験は rebase の前の 6077920 のまま)→ 9f0bad7。範囲の試験(economy・`tests/engine` 全体・build_pop・c8・rules)**3,389 passed・1 skipped・0 failed(`-n 4 --dist loadfile -m "not slow"`・32 分 55 秒=直した md23 の道具で `test_classical_social` の並列の揺れも消えた)**。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・既定 occupation)=**final 同じ・25 欄とも差なし**(`parent_head_vs_wage_occ_4cfg.json`=1 日のランは給料日を含まないので既定が変わっても同じ)。旧値の再現=切替口 `--wage w17` の 19 構成(実装役・最終の src)と給料日を含む 2 日(w17=HEAD と final・帳簿・残高・保存則まで同じ=検収役と実装役)。
+- **data 無しの写し(detached の作業木・junction なし)で CI-1 と同じ引数の全体試験(tests/c7 を含む)=**5,466 passed・286 skipped・failed 0**(1,336 秒・CI の印=`-m "not gpu and not slow" -n 2 --dist loadfile`・6077920=TM の上の木)**。
+- 親の一次確認: 最低賃金の版=厚生労働省「平成 14 年度から令和 8 年度までの地域別最低賃金改定状況」(xlsx)の東京の行(令和 6 年度 1,163 円・2024-10-01/令和 7 年度 1,226 円・2025-10-03/令和 8 年度 1,280 円・2026-10-01)と「令和 8 年度地域別最低賃金全国一覧」(PDF=東京 1,280・改定前 1,226・令和 8 年 10 月 1 日)=規則の表の版と一致 ○。R-107 の表の写し検査は検収役(事務 × 男の第 9・6・18 表を xlsx から=一致)。
+- **版上げ(§0-6・§0-7)**: 既定が変わる(給料日を含むラン)。直前の本体 HEAD に安定版のタグ **`stable-v2-before-wage-occupation`**。戻す手順=`git checkout stable-v2-before-wage-occupation`(または `--wage w17`=次の版上げで消す=台帳 `DOC-wage_occ-legacy-switch`)。性能=実装役の表(壁時計・刻み・RSS は負荷の下で揺れ悪化なし・+32 B/体)を予算の宣言に写す(空いた機械での測り直しは §0-7 の宿題)。
+- 独立検収([review.md](review.md))=条件つき受入(中 2=最低賃金を下回る体 19.3%(独立の仮定で約 11 ポイント上乗せ)・構築側の近似が実行時の既定に入ったことが台帳に無い/ 低 8)→ 全部直した(§13)。親の判断: 最低賃金法の床を規則の表の版から当てる(machine の行=破れない法則)・世界の時点の版(1,226 円)は親が一次確認して足した・独立の仮定は宣言のまま・`core/wage_formula.py`(build が engine/llm を読まないため)と run.py/rng_audit の 1 行ずつは受入・規則の表の写し検査に親の一次確認の出典の表を足す形は受入。
+- 判定: **受入**(小さな版上げ=賃金は職業ごとの実データ・W17 の勤務時間と別=宣言・1/4 の宣言は removed)。
