@@ -349,3 +349,11 @@
 - `CONFIG_PATHS_SHA256`: 本体の値は `ffbed6e3…` のまま=作業木は `c8d7f1d4…` のまま(本段の 15 本を外すと本体の値)。状態台帳は外 137・全体 228 のまま(本体は 126・217 で変わらず)。`SAFE_SITES` 19(本体)→ 21・決まらない呼び手 13 → 14。
 - 試験(`tests/engine tests/perception tests/economy/cp2 tests/c8 tests/tools`・`-n 2 --dist loadfile -m "not slow"`): **3,593 passed・1 skipped・失敗 0**(腕 c1 の段 B の試験を含む)。lint-imports 0 broken。
 - 既定 1 構成の byte-check(`bac5514` の写し vs 作業木・`w6_v3_default`): 25 欄とも同じ(final `b8eadcb51e8705e7`)=[byte_check_ct_c1_rebase_bac5514_1cfg.json](byte_check_ct_c1_rebase_bac5514_1cfg.json)。腕 c1 の 5,000 体 1 日: final `dfd2a11ac54cf94c`=前と同じ。
+
+## §親の検収(第337・Fable 5.1・rebase の後)
+
+- 本体 068edf2 へ rebase(賃金の版上げの入った bac5514 への載せ替えは実装役が控え+早送り+merge-file で(衝突 4 本=台帳 526+24=550 行・SAFE_SITES 19 → 21・run.py の用途名・10f の数=§15)・親 commit 1a46f82・文書だけの 068edf2 へは衝突なし)→ 233b1ed。範囲の試験(`tests/engine` 全体・perception・cp2・c8・tools)**3,593 passed・1 skipped・0 failed(`-n 4 --dist loadfile -m "not slow"`・23 分 55 秒)**。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・既定 off)=**final 同じ・25 欄とも差なし**(`parent_head_vs_ct_c1_4cfg.json`)。実装役の 19 構成の JSON は検収役が全欄を照合(既定のランで動く欄は `manifest_sections`・`bridges_count`・`bridges_version`=25 欄の外=宣言)。
+- **data 無しの写し(detached の作業木・junction なし)で CI-1 と同じ引数の全体試験(tests/c7 を含む)=**5,535 passed・286 skipped・failed 0**(1,616 秒・CI の印=`-m "not gpu and not slow" -n 2 --dist loadfile`・233b1ed)**。
+- 独立検収([review.md](review.md))=条件つき受入(高 1=系 contact が窓の待ち行列に書くのに宣言が無く腕 c1 の段 B で宣言の外 220 件/ 中 5=顕著行為のキャッシュの書き手が 2 つ・監査が原因の型しか見ない・量の見積り(約 105 MB/日・39 万体 8.2 GB/日)・関心の的が 1 刻み古い・連絡の判断 22.5 万回/日が仲裁と予算の外/ 低 8)→ 全部直した(§13)。検収役の独立の再計算(final・行数・via の内訳・送った/届いた/読んだ・自前の監査 0・着信の遅れ=境目・刺激の段 48 通りの dB・行のバイト 80.7 MB・日の途中の再開 3 本)は全部一致。親の判断: 門の結果は contact の側に・監査は発行した呼びの控えとの突き合わせ+AST・畳み方 4 つを今入れて測り直し(27.9 MB/日・39 万体 2.17 GB/日=1-3 の宣言を超える=既定にできない宣言・残りは §1-1)・関心の的は刻みの終わりの値・「スマホを見る」は主の判断の候補(mock は選ばない=構造だけ)・連絡の判断は別の呼びのまま `calls_by_model` と予算に数える・仲裁は `port.ARBITRATION` と台帳(規則の表は法令の表)・CT1Q(1.9 MB/日)は既定化の前に日ごとに捨てる。
+- 判定: **受入**(第 6 期 6-4 C1 の仕組み=腕・既定 off は不変・既定にできない=記録の予算の判断待ち)。
