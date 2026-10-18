@@ -320,3 +320,16 @@ def test_fresh_lock_moved_by_mistake_is_put_back(tmp_path, monkeypatch):
 def test_spec_table_is_read_only():
     with pytest.raises(TypeError):
         LR._SPEC["x"] = LR.LOGS[0]  # type: ignore[index]
+
+
+def test_two_rotations_in_the_same_clock_tick_keep_the_order(tmp_path, monkeypatch):
+    """〔第337〕時計の刻みが粗い(Windows の Python 3.12)と 2 回の回しが同じ rotid になる → 並びが崩れず・名が重ならない。"""
+    real = LR._rotid
+    monkeypatch.setattr(LR, "_rotid", lambda now=None: "20261018T000000000000Z" if now is None else real(now))
+    rows = _ledger_with(tmp_path)
+    LR.rotate_one(tmp_path, "_ledger.jsonl")
+    more = [_row(900 + k, "2026-10-16T02:00:00Z") for k in range(4)]
+    ledger.append(tmp_path, more)
+    LR.rotate_one(tmp_path, "_ledger.jsonl")
+    assert ledger.read_all(tmp_path) == rows + more
+    assert len({r for r, *_x in LR.archives(tmp_path, "_ledger.jsonl")}) == 2

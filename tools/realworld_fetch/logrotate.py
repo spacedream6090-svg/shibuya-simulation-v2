@@ -39,7 +39,7 @@ import os
 import re
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from types import MappingProxyType
 from typing import Mapping
@@ -82,6 +82,17 @@ def spec_of(name: str) -> LogSpec:
 def _rotid(now: datetime | None = None) -> str:
     dt = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
     return dt.strftime("%Y%m%dT%H%M%S") + f"{dt.microsecond:06d}Z"
+
+
+def _next_rotid(root: Path, name: str, now: datetime | None = None) -> str:
+    """回しの id は前の回しより必ず後(〔第337〕時計の刻みが粗い Windows では数 ms の 2 回の回しが同じ id になり、
+    読み口の並び (rotid, 塊の番) が崩れ・同じ日の gz の名が重なった。時計が戻るときも同じ)。錠の中で呼ぶ。"""
+    rid = _rotid(now)
+    last = max([r for r, *_x in archives(root, name)] + [r for r, _p in pending(root, name)], default="")
+    if rid <= last:
+        prev = datetime.strptime(last[:-1], "%Y%m%dT%H%M%S%f").replace(tzinfo=timezone.utc)
+        rid = _rotid(prev + timedelta(microseconds=1))
+    return rid
 
 
 def _jst_day_of_ts(ts: str | None) -> str | None:
@@ -334,7 +345,7 @@ def rotate_one(root: Path, name: str, *, now: datetime | None = None, tries: int
         live = root / name
         if not live.exists() or live.stat().st_size == 0:
             return {"name": name, "status": "empty", "recovered": recovered}
-        rotid = _rotid(now)
+        rotid = _next_rotid(root, name, now)
         rot = root / f"{name}{ROTATING_TAG}{rotid}"
         for i in range(max(1, tries)):
             try:
