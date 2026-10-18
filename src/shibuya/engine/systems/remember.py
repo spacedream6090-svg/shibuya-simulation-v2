@@ -42,11 +42,7 @@ def sys_memory(ctx: Any, b: Any) -> None:
             visits=(outcome.visit_agents, outcome.visit_pois),
             arrived=outcome.arrived_agents,
             conv=conv,
-            salient_events=(
-                getattr(runner.salient, "events", ())
-                if (runner is not None and runner.is_enabled("salient"))
-                else ()
-            ),
+            salient_events=_salient_for_memory(b, runner, tick),
             signage=_exp,
             # 第 2 期 2-3: この刻みに適用した意図の呼の id(体の出来事の口のあるランだけ読む=行為の成否・会話の始まりの原因)
             calls=(
@@ -55,6 +51,17 @@ def sys_memory(ctx: Any, b: Any) -> None:
             ),
         )
     b.scratch.exposures = _exp
+
+
+def _salient_for_memory(b: Any, runner: Any, tick: int) -> Any:
+    """その刻みの顕著行為(記憶の (c) 気づき)。〔第 6 期 6-4 C1 検収 M1〕連絡の道具の腕 c1 のランは、系 contact が門を通した
+    写し(``ContactLayer.salient_view``=関心の的が周りでなく割り込めなかった体を外した「気づいた体」)を読む(顕著行為の過程の
+    キャッシュは書き換えない)。既定のラン(層なし)は今のまま。"""
+    events = (getattr(runner.salient, "events", ()) if (runner is not None and runner.is_enabled("salient")) else ())
+    contact = b.layers.contact
+    if contact is None or not events:
+        return events
+    return contact.salient_view(events, tick)
 
 
 def sys_familiarity(ctx: Any, b: Any) -> None:

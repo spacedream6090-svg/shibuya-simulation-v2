@@ -73,6 +73,7 @@ from shibuya.engine.systems import run_end as _RE
 from shibuya.engine.systems import talk as _TK
 from shibuya.engine.systems import world as _WD
 from shibuya.engine.experiment import layer as _EXP
+from shibuya.engine.contact import layer as _CTL
 from shibuya.engine.systems.spec import SystemSpec, make
 
 __all__ = ["SYSTEMS", "SPECS", "TICK_ORDER"]
@@ -268,7 +269,9 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                " S8:speech.* S8M:speech.*"  # 1-8b: 腕 on の発話の口(届ける=描画の perceive・話す=会話の番)
                " TCR:talk_clock.* TCC:talk_clock.*"  # 〔第 6 期 6-3 T2〕腕 mora の会話の時計(話す速さの控え・発言の予約・計器)
                # 〔6-3 検収 M1〕腕 mora の発言の予約は全体の窓の待ち行列(行 BW)か区域ごとの時計(行 T4W)に事象を置く
-               " BW:batching.* T4W:clock.*",
+               " BW:batching.* T4W:clock.*"
+               # 〔第 6 期 6-4 C1 検収 M5〕腕 c1+腕 port: 主の判断が候補の「スマホを見る」を選んだ体の控え(同じ刻みの系 contact が読む)
+               " CT1G:contact._look_main CT1M:contact._meter",
          # 第 1 期 1-2: 描いた知覚の事実 ``percepts``(``TickScratch`` の欄・状態台帳の行 P)
          scratch_r="decision outside_now n_parse_errors_fleet", scratch_w="parse_errors percepts",
          tally="calls_by_cond layer_counts n_fleet_resent n_outside_calls peak_backlog peak_pending phase result",
@@ -332,6 +335,17 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          paths="O[1-3]:act_layer.* O66:act_layer.* O[4-6]:intent_layer.*",
          scratch_r="applied_activity", when="act_layer", reads="layers.act_layer layers.conv layers.intent_layer scratch.applied_activity soa.agents",
          origin=f"L19・run.py:4360-4368 @{_E}"),
+    # 〔第 6 期 6-4 C1〕連絡の道具(腕 c1 のランだけ立つ・活動の確定の後=その刻みの判断と会話と活動が決まった後・記憶の前=
+    # 周りの出来事の門=顕著行為の「気づいた体」を記憶の書き手より先に絞る)。書くのは持ち主 contact(状態台帳の腕の行 CT1*)と
+    # 出来事の記録(族 連絡・通話の発話)と進行役の待ち行列(行 BW=送信と着信の予約)。顕著行為の門の結果は連絡の持ち主の側
+    # (腕の行 CT1G)に持ち、顕著行為の過程のキャッシュは書き換えない(〔検収 M1〕記憶の系が salient_view で読む=その刻みに
+    # 門を通していなければ止まる)。窓の境目の処理(送信・着信)は進行役の待ち行列の種類(ContactLayer.bind_queue)
+    make("contact", "連絡", "tick", _CTL.sys_contact,
+         # 〔検収 H1〕送信と着信の予約=系の中から進行役の待ち行列(行 BW)に書く
+         paths="CT1*:contact.* E:events.* BW:batching.*",
+         scratch_r="decision",
+         when="contact", reads="layers.contact layers.conv layers.runner scratch.decision soa.agents soa.world",
+         origin="第 6 期 6-4 C1(新設・HEAD の区間なし)"),
     make("memory", "記憶", "tick", _RM.sys_memory,
          resolve_ops="write_memory write_relations write_store_memory",
          paths="O[89]:mem_layer.* O1[0-2]:mem_layer.* O1[6-9]:rel_layer.* O64:renderer.* O1[34]:poi_resolver.* "
@@ -339,7 +353,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "M0*:mem_layer.memory_store.* "  # 1-6: 記憶の器(この刻みの出来事を器にも覚えさせる・計数と新しい行の録画の印)
                "E:events.* "  # 第 2 期 2-3: 体の出来事の口(この刻みの記憶の出来事を記録へ・腕のランだけ)
                "CT5:rel_layer._contact_flags",  # 1-7: 新しい相手の欄の連絡先の印を消す(関係辺の書き手と同じ所)
-         scratch_r="plan outcome", scratch_w="exposures", reads="layers.conv layers.fam_layer layers.mem_layer layers.renderer layers.runner "
+         scratch_r="plan outcome", scratch_w="exposures", reads="layers.contact layers.conv layers.fam_layer layers.mem_layer layers.renderer layers.runner "
                "scratch.exposures scratch.outcome scratch.plan soa.agents",
          origin=f"L20 前半・run.py:4369-4393 @{_E}"),
     make("familiarity", "記憶", "tick", _RM.sys_familiarity,
@@ -437,7 +451,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.body "  # 3-5: 本人の体の層を結果に渡す(manifest の body)
                "layers.calendar_shadow "  # 〔第 3 期 3-1〕暦 1a の影を結果に渡す(manifest の calendar_shadow)
                "layers.calendar_self "  # 〔第 6 期 6-2〕カレンダー 1b を結果に渡す(manifest の末尾の calendar_1b)
-               "layers.talk_clock layers.step_scope layers.clock",  # 〔第 6 期 6-3〕時計の段の腕の持ち主を結果に渡す
+               "layers.talk_clock layers.step_scope layers.clock "  # 〔第 6 期 6-3〕時計の段の腕の持ち主を結果に渡す
+               "layers.contact",  # 〔第 6 期 6-4 C1〕連絡の道具を結果に渡す(manifest の contact_c1)
          origin=f"E1・run.py:4551-4592 @{_E}"),
     make("report", "計器", "run_end", _RP.report,
          tally="result sleep_counts frozen_sources_map",  # 段 FIX: 欄の別名 ``frozen_sources_map.update``

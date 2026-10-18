@@ -76,6 +76,8 @@ from typing import Final, Iterable, Mapping
 #: 〔第 3 期 3-2〕計算のまとめの窓の行 ``BW``(diag・discardable)も版は上げない(仮採用): どちらのハッシュにも状態のファイルにも入らない。
 #: 〔第 3 期 3-5〕本人の体の層の行 ``BD``(diag・discardable)も同じ理由で版は上げない(仮採用)。
 #: 〔第 3 期 3-1〕暦 1a の影の行 ``CAL``(diag・derivable・中身は全部 hash_skip=CT5 と同じ形)も同じ理由で版は上げない(仮採用)。
+#: 〔第 6 期 6-4 C1〕連絡の道具の腕の行 ``CT1D``・``CT1A``・``CT1AS``・``CT1I``・``CT1IS``・``CT1C``・``CT1K``・``CT1S``・``CT1M``
+#: も版は上げない(仮採用): 腕の行は腕 c1 のランだけハッシュと状態のファイルに入る=既定のランの状態のファイルは前の版と同じ中身。
 LEDGER_VERSION: Final[str] = "state-ledger/10e-ret"
 
 BEHAVIOR: Final[str] = "behavior"
@@ -641,7 +643,9 @@ _EXT: tuple[LedgerRow, ...] = (
            "near_tie_candidates", "cache_hits", "cache_misses", "renders", "truncation_count", "intent_lines",
            "intent_lines_over_budget", "named_closed_notes", "signage_gate_draws", "signage_gate_shown",
            # 第 1 期 1-8b: B6 に足した発話の行の数・個体群の予算で外した描画の数(腕 on のランだけ増える)
-           "speech_lines", "speech_lines_over_budget"))),
+           "speech_lines", "speech_lines_over_budget",
+           # 〔第 6 期 6-4 C1〕B6 に足した連絡の行の数・予算で外した描画の数・割り込めなかった出来事のあった描画の数(腕 c1 だけ)
+           "contact_lines", "contact_lines_over_budget", "contact_unnoticed_renders"))),
     _o(85, "LLMBridge _interned(テープへ書いた共有ブロック)", "engine/llm_bridge.py:554,771-774", "set", N_, R_,
        ("bridge._interned",), note="テープの block 行を 1 回だけ書く印。10d: 記録の継続に要る=required(再開のテープは"
                                    "新しい block だけを持ち、親のテープと連結して読む)"),
@@ -945,7 +949,7 @@ _EXT: tuple[LedgerRow, ...] = (
              "計器(窓の数・事象の数・持ち越し・上限に当たった数)の読み手は manifest の batching(持ち主のメソッド "
              "manifest_fields)と試験だけ(軸 1 diag)。再開のランは進行役がランの始めの刻みから作り直す(軸 2 discardable="
              "どちらのハッシュにも状態のファイルにも入らない=既定の final・full-hash・状態のファイルは不変)。書くのは進行役"
-             "(系の外=窓の境目 WINDOW_MARK に帰属)と刻みの事象の頭の次の予約だけ(〔6-3 検収 M1〕腕 --talk-clock mora のランは"
+             "(系の外=窓の境目 WINDOW_MARK に帰属)と刻みの事象の頭の次の予約と、〔6-4 C1 検収 H1〕腕 c1 の系 contact(送信と着信の予約=宣言 BW:batching.*・予約の控えは連絡の持ち主の行 CT1I)だけ(〔6-3 検収 M1〕腕 --talk-clock mora のランは"
              "会話の番の発言の予約=系 decide・llm_receive も書く=宣言 BW:batching.*)。T2 で刻みの外の事象(会話の番・届く"
              "メッセージ・体の変化の予約)が入ったら軸 1 behavior・軸 2 required へ見直す(版上げ・つなぎの台帳 DOC-tm32-*)。"
              "行の鍵は O の通し番号でなく BW"),
@@ -1112,6 +1116,133 @@ _EXT: tuple[LedgerRow, ...] = (
              "条件=構造上いつも成り立つ一致=〔検収 M4〕)=軸 1 diag・再開では進行役が作り直す=軸 2 discardable。書くのは進行役"
              "(窓の境目 WINDOW_MARK に帰属)と会話の番の発言の予約(〔検収 M1〕系 decide・llm_receive=宣言 T4W:clock.*)。"
              "行の鍵は O の通し番号でなく T4W"),
+    # ---- 第 6 期 6-4 C1(連絡の道具・腕 --contact c1): 足す前に軸を決めた行(腕の行=腕 c1 のランだけ持ち主がある=既定の
+    # 2 つのハッシュと状態のファイルは不変) ----
+    LedgerRow(
+        key="CT1D", name="Devices(道具の状態=電源・電池・マナーモード・置き場・イヤホン・第 6 期 6-4 C1)", place=EXTERNAL,
+        dtype="列(体ごと bool・float32・bool・i1・i1・bool)", nbytes="9 B/体", alloc="--contact c1", behavior=BEHAVIOR,
+        restore=REQUIRED, dead=False,
+        basis="engine/contact/device.py(Devices.stimulus・drain・take_out・put_back)・engine/contact/layer.py(run_step・"
+              "percept_hook)",
+        items=tuple(f"contact.dev.{a}" for a in ("_on", "_battery", "_manner", "_home", "_place", "_ear")),
+        arm="contact-c1",
+        note="6-4 C1: 道具の状態(CT0 の共通の決まり 2・3)は通知の刺激の段・電源(届くか)・知覚の事実の道具の状態を決める=軸 1 "
+             "behavior。電池と置き場は本人の行動と物理で動く=作り直せない=軸 2 required(最初の状態は母集団の側の乱数=作り直せる"
+             "が同じ持ち主にあるので一緒に保存する)。書く系は contact だけ(宣言 CT1*:contact.*)。行の鍵は O の通し番号でなく CT1D"),
+    LedgerRow(
+        key="CT1A", name="Attention(目と心の向き=視線の先・関心の的・前の刻みの活動・最後に気づいた通知・第 6 期 6-4 C1)",
+        place=EXTERNAL, dtype="列(体ごと i1 × 3)・dict(体 → [時刻, 種類, 段, チャネル])", nbytes="3 B/体+気づいた体ごとに約 100 B",
+        alloc="--contact c1", behavior=BEHAVIOR, restore=REQUIRED, dead=False,
+        basis="engine/contact/attention.py(Attention・coarsen・gate_salient)・engine/contact/layer.py(run_step・percept_hook)",
+        items=tuple(f"contact.attn.{a}" for a in ("_gaze", "_focus", "_prev_act", "_notice")),
+        arm="contact-c1",
+        note="6-4 C1: 視線の先と関心の的は知覚の事実の形(周辺視・割り込めなかった出来事)と気づきの門と判断の候補を決める=軸 1 "
+             "behavior。前の刻みの活動(暇になった境目)と最後に気づいた通知(次の刻みの知覚の事実と着信の判断)も同じ=刻みをまたぐ="
+             "軸 2 required。書く系は contact だけ(宣言 CT1*:contact.*)。行の鍵は CT1A"),
+    LedgerRow(
+        key="CT1AS", name="Attention._gaze_since(今の視線になった時刻=画面を見ていた長さの計器の素・第 6 期 6-4 C1)",
+        place=EXTERNAL, dtype="列(体ごと i8)", nbytes="8 B/体", alloc="--contact c1", behavior=DIAG, restore=REQUIRED,
+        dead=False, basis="engine/contact/attention.py(look_at_screen・look_up)・engine/contact/layer.py(計器)",
+        items=("contact.attn._gaze_since",), arm="contact-c1",
+        note="6-4 C1: 読み手は画面を見ていた長さの計器だけ=軸 1 diag。画面を見ている途中の再開で長さが通しと同じになる=軸 2 "
+             "required(O37 と同じ形)。書く系は contact だけ"),
+    LedgerRow(
+        key="CT1I", name="Mailbox(届いた箱・新しく届いた数・網が預かる分・窓の境目の予約・着信と呼び出し・番号・第 6 期 6-4 C1)",
+        place=EXTERNAL,
+        dtype="dict(体 → 届いた行の list)・dict(体 → [数, 時刻])・dict(体 → 行の list)・dict(鍵 → 予約の行)・dict × 2・list[int]",
+        nbytes="届いた行 1 つ約 150 B(本文を含む)・既読は 1 日で落とす", alloc="--contact c1", behavior=BEHAVIOR,
+        restore=REQUIRED, dead=False,
+        basis="engine/contact/deliver.py(Mailbox)・engine/contact/layer.py(_send_now・_ring_now・_read・_system1・bind_queue)",
+        items=tuple(f"contact.mail.{a}" for a in ("_inbox", "_unseen", "_held", "_pending", "_ringing", "_calling",
+                                                 "_next")),
+        arm="contact-c1",
+        note="6-4 C1: 届いた・未読・予約・着信は通知の刺激と判断の候補(読む・出る)と知覚の事実(未読の数)を決める=軸 1 behavior。"
+             "刻みと日をまたぐ=軸 2 required。進行役の待ち行列(行 BW=捨ててよい)に入れた送信と着信は予約の表 _pending に持ち、"
+             "再開では組み立ての後の結び(ContactLayer.bind_queue)が境目の時刻で入れ直す=通しと同じ。書く系は contact と窓の境目の"
+             "処理(進行役の WINDOW_MARK=宣言 conductor.WINDOW_PATHS)。行の鍵は CT1I"),
+    LedgerRow(
+        key="CT1IS", name="Mailbox._sent(送ったメッセージの既読の数=道具の性質・第 6 期 6-4 C1)", place=EXTERNAL,
+        dtype="dict(番号 → [送り手, 道具, 時刻, 届け先の数, 読んだ数])", nbytes="1 通 約 80 B(読み終わるか 1 日で落とす)",
+        alloc="--contact c1", behavior=DIAG, restore=REQUIRED, dead=False,
+        basis="engine/contact/deliver.py(read_all・prune・counts)",
+        items=("contact.mail._sent",), arm="contact-c1",
+        note="6-4 C1: 既読の印(送った側の道具の性質)。本段では送った側の判断の候補にまだ載せない(読み手は計器と掃除だけ)=軸 1 "
+             "diag。日をまたぐ=軸 2 required。送った側の予想とのずれ(驚き)を判断に載せる段で behavior へ"),
+    LedgerRow(
+        key="CT1C", name="ChatBook(チャットの会話の状態=対面の会話の器 ConversationManager の子・第 6 期 6-4 C1)", place=EXTERNAL,
+        dtype="dataclass・辞書(O39・O40・O91 と同じ形)・dict(鍵 → 番号)", nbytes="", alloc="--contact c1", behavior=BEHAVIOR,
+        restore=REQUIRED, dead=False, ordered=True,
+        basis="engine/conversation.py(ConversationManager.step・_close・_terminate・purge_terminal)・"
+              "engine/contact/chat_state.py(ChatBook.on_message・step・partners_of)・engine/contact/layer.py(percept_hook)",
+        items=tuple(f"contact.chats.{a}" for a in (
+            "sessions", "_of_agent", "_refusal_until", "_next_id", "pending_invites", "_pair_invite_until",
+            "_speaker_invite_until", "join_events", "n_opened", "_of_key")),
+        arm="contact-c1",
+        note="6-4 C1: 続いているチャットの相手は知覚の事実(画面の道具の状態)に載る・沈黙で締める=軸 1 behavior・刻みをまたぐ="
+             "軸 2 required。表の挿入順が相手の並び=順を保つ(ordered)。書く系は contact と窓の境目の処理(送った時)"),
+    LedgerRow(
+        key="CT1K", name="CallManager(電話の会話=ConversationManager のセッションと表・第 6 期 6-4 C1)", place=EXTERNAL,
+        dtype="dataclass・辞書(O39・O40・O91 と同じ形)", nbytes="", alloc="--contact c1", behavior=BEHAVIOR,
+        restore=REQUIRED, dead=False, ordered=True,
+        basis="engine/conversation.py(ConversationManager)・engine/contact/calls.py(CallManager)・engine/contact/layer.py"
+              "(_calls_turns・_ring_decisions・run_step)",
+        items=tuple(f"contact.calls.{a}" for a in (
+            "sessions", "_of_agent", "_refusal_until", "_next_id", "pending_invites", "_pair_invite_until",
+            "_speaker_invite_until", "join_events", "n_opened")),
+        arm="contact-c1",
+        note="6-4 C1: 対面の会話と同じ器(行 O39・O40・O91 と同じ属性)=通話の番の話者・終わり・話し中を決める=軸 1 behavior・"
+             "軸 2 required。sessions の走査の順が番の処理の順=順を保つ(ordered)。書く系は contact だけ"),
+    LedgerRow(
+        key="CT1S", name="CallSpeechPort.inbox(通話の相手の次の番に載る発話・第 6 期 6-4 C1)", place=EXTERNAL,
+        dtype="dict(体 → 未読の発話の列)", nbytes="", alloc="--contact c1", behavior=BEHAVIOR, restore=REQUIRED, dead=False,
+        basis="engine/speech/port.py(SpeechPort.say・take_heard)・engine/contact/layer.py(_calls_turns)",
+        items=("contact.speech.inbox",), arm="contact-c1",
+        note="6-4 C1: 通話の発話(1-8b の口そのまま・道具=通話)。相手の次の番の判断の入力(原因の入力の出来事)=軸 1 behavior・"
+             "軸 2 required(行 S8 と同じ形)。書く系は contact だけ"),
+    LedgerRow(
+        key="CT1M", name="連絡の道具の計器(層・チャット・通話・通話の発話の口の計数と分布・通話の切った判断の控え・第 6 期 6-4 C1)",
+        place=EXTERNAL, dtype="計数の dict・分布の dict・dict(通話 → call_id)・list(前の刻みの気づき)", nbytes="",
+        alloc="--contact c1", behavior=DIAG, restore=DISCARDABLE, dead=False,
+        basis="engine/contact/layer.py(_bump・_hist_add・manifest)・engine/contact/chat_state.py(counts)・"
+              "engine/conversation.py(counters)・engine/speech/port.py(observed)",
+        items=("contact._meter", "contact._ct_hist", "contact._hangup", "contact._exposed_prev",
+               "contact.chats._chat_meter",
+               *(f"contact.chats.{a}" for a in (
+                   "n_ignored_invites", "n_gate_rejected", "n_invites", "n_accepted", "n_declined", "n_pending_expired",
+                   "n_invite_refractory_blocked", "n_blocks", "n_backchannels", "n_interrupts", "closed_by_reason",
+                   "ignored_events", "size_hist", "n_expired_purged", "origin_counts")),
+               *(f"contact.calls.{a}" for a in (
+                   "n_ignored_invites", "n_gate_rejected", "n_invites", "n_accepted", "n_declined", "n_pending_expired",
+                   "n_invite_refractory_blocked", "n_blocks", "n_backchannels", "n_interrupts", "closed_by_reason",
+                   "ignored_events", "size_hist", "n_expired_purged", "origin_counts")),
+               "contact.speech.meter", "contact.speech._last_input", "contact.speech._own_last"),
+        arm="contact-c1",
+        note="6-4 C1: 計器=読み手は manifest の contact_c1 と試験だけ(軸 1 diag)・再開は空から(軸 2 discardable)。通話の切った判断の"
+             "控え(通話の終わりの出来事の原因)と前の刻みの気づき(記憶に残ったかの数え)も診断。書く系は contact と窓の境目の処理"),
+    LedgerRow(
+        key="CT1G", name="連絡の層が系の間に渡す値(顕著行為の門を通った気づいた体・仲裁で回した判断・主の判断が選んだ「スマホを見る」・"
+                         "第 6 期 6-4 C1 検収 M1・M5)",
+        place=EXTERNAL, dtype="list[配列]・list[int]・dict(体 → 種類)・dict(体 → [call_id, 番号])", nbytes="",
+        alloc="--contact c1", behavior=BEHAVIOR, restore=REQUIRED, dead=False,
+        basis="engine/contact/layer.py(_salient_gate・salient_view・_person_decisions・take_main・_take_main_looks)・"
+              "engine/systems/remember.py(_salient_for_memory)・engine/decision/layer.py(decide_one)",
+        items=tuple(f"contact.{a}" for a in ("_sal_noticed", "_sal_step", "_defer", "_look_main")),
+        arm="contact-c1",
+        note="6-4 C1 検収 M1: 顕著行為の門の結果(気づいた体)は連絡の持ち主の側に持ち、記憶の系が salient_view で読む(記憶の書き手の "
+             "(c) 気づき=軸 1 behavior・顕著行為の過程のキャッシュは書き換えない)。M5: 仲裁で次の刻みに回した通知と暇の判断・主の判断"
+             "(判断の系)が選んだ「スマホを見る」(同じ刻みの系 contact が読む=刻みの境目では空)も行動を決める=behavior。刻みをまたぐ"
+             "のは _defer だけだが、同じ持ち主の 4 つを一緒に保存する=軸 2 required。書く系は contact と判断の系(_look_main=宣言 "
+             "CT1G:contact._look_main)。行の鍵は CT1G"),
+    LedgerRow(
+        key="CT1Q", name="発行した連絡の判断の呼びの控えと呼び数(監査の突き合わせ・calls_by_model・第 6 期 6-4 C1 検収 M2・M5)",
+        place=EXTERNAL, dtype="i8 の配列(刻み・体・通し番号を詰めた整数)・list[int](控えの数・判断の呼び・文の口の呼び)",
+        nbytes="1 回 8 B(5,000 体 1 日 約 22 万回=約 1.8 MB)", alloc="--contact c1", behavior=DIAG, restore=REQUIRED,
+        dead=False,
+        basis="engine/contact/layer.py(_issue・issued_keys・model_calls・audit_causes)・engine/run.py(_calls_by_model)・"
+              "engine/systems/state_io.py(日次の記録の calls_by_model)",
+        items=("contact._issued", "contact._issued_n"), arm="contact-c1",
+        note="6-4 C1 検収 M2: 読み手は監査(試験と記録の道具)と manifest・日次の記録の calls_by_model だけ=軸 1 diag。再開した"
+             "ランの監査と呼び数が通しと同じになる=軸 2 required。既定化の前に日ごとの監査で捨てる形に改める(量=記録 §5-2)"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -1292,6 +1423,14 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "talk_clock": ("engine/speech_clock.py", "TalkClock"),
     "step_scope": ("engine/step_scope.py", "StepScope"),
     "clock": ("engine/regional_clock.py", "RegionalClock"),
+    # 〔第 6 期 6-4 C1〕連絡の道具(状態台帳の腕の行 CT1*・腕 --contact c1 のランだけ)と子の持ち主
+    "contact": ("engine/contact/layer.py", "ContactLayer"),
+    "contact.dev": ("engine/contact/device.py", "Devices"),
+    "contact.attn": ("engine/contact/attention.py", "Attention"),
+    "contact.mail": ("engine/contact/deliver.py", "Mailbox"),
+    "contact.chats": ("engine/conversation.py", "ConversationManager"),
+    "contact.calls": ("engine/conversation.py", "ConversationManager"),
+    "contact.speech": ("engine/speech/port.py", "SpeechPort"),
 }
 
 #: (ii) キャッシュ・導出。中身は 3 通り: (a) 毎 tick(か事象のある tick)作り直す作業の値・印
@@ -1307,6 +1446,10 @@ OWNER_ALT_CLASSES: Final[dict[str, tuple[tuple[str, str], ...]]] = {
     "rel_layer": (("engine/relations_people.py", "PeopleRelationLayer"),),
     # 〔第 6 期 6-5・検収 M4〕人も記憶の一つの腕の店の評価の記憶=StoreMemory の子クラス(行の口だけ差し替える)
     "mem_layer.store": (("engine/memory_shops.py", "UncappedStoreMemory"),),
+    # 〔第 6 期 6-4 C1〕電話の会話と通話の発話の口=対面の会話と発話の口の子クラス(腕の名だけ足す)
+    "contact.calls": (("engine/contact/calls.py", "CallManager"),),
+    "contact.chats": (("engine/contact/chat_state.py", "ChatBook"),),
+    "contact.speech": (("engine/contact/calls.py", "CallSpeechPort"),),
 }
 
 CACHE: Final[str] = "cache"
@@ -1568,6 +1711,8 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("rel_layer", CACHE, "2-2: 刻みの中だけの控え(腕 distance の辺の見え方=同席と知人出現で共有)", "_ev", "_ev_step"),
     # 第 2 期 2-1: 経済の段階 2 の組み立ての物への参照(状態台帳の行 EC の側で数える)・段階 2 の組を許す印(組み立てで 1 回)
     _x("decision", REF, _REFR + "(2-1: 経済の段階 2 の組み立ての物=ATM の表と部品を読むだけ)", "money_stage2"),
+    _x("decision", REF, _REFR + "(6-4 C1 検収 M5: 連絡の道具の層=候補を足す口と選んだ体を渡す口・状態は連絡の側の行 CT1G)",
+       "contact_offer"),
     # 第 3 期 3-3: 申込書の持ち主の設定(申込書=凍結・T0 とランの範囲の刻み・メンバーと半分)と参照(T0 で切り替える LLM の口)
     _x("experiment", CONST, _CFG + "(申込書は凍結の ExperimentForm・刻みはランの範囲・アンサンブルのメンバーと半分=入口で"
        "決まる)", "form", "t0_step", "begin_step", "end_step", "total_steps", "member", "half"),
@@ -1637,6 +1782,38 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("clock", CACHE, "6-3 T4: 区域の窓の中だけの作業の値(処理中の時刻・窓の終わり・処理し終えた区域=窓を閉じると空)",
        "_rc_now", "_rc_end", "_rc_done"),
     _x("clock", CONST, _FIELD + "(6-3 T4: 持ち主の名・腕の行の腕の名 LEDGER_ARM)", "name", "LEDGER_ARM"),
+    # 〔第 6 期 6-4 C1〕連絡の道具の持ち主と子の持ち主の設定・参照・作業の値
+    _x("contact", CONST, _CFG + "(6-4 C1: 体の数・刻みの幅・下の腕・記憶に残ったかを数えるか=組み立てが 1 回だけ置く)", "n",
+       "step_seconds", "step_ns", "unnoticed_arm", "send_arm", "remember_link"),
+    _x("contact", CONST, _FIELD + "(6-4 C1: 腕の行の腕の名 LEDGER_ARM・主の判断の候補に足す語 MAIN_LOOK_WORD)", "LEDGER_ARM",
+       "MAIN_LOOK_WORD"),
+    _x("contact", CONST, _CFG + "(6-4 C1 検収 M5: 判断の口の腕のランか=組み立てが 1 回だけ置く)", "main_offer"),
+    _x("contact", REF, _REFR + "(6-4 C1: 出来事の記録・体・世界・対面の会話・判断の口・文の口・宛先の読み口・進行役の待ち行列・"
+       "描画=連絡の行の計数を manifest に写すだけ)", "events", "agents", "world", "conv", "port", "text", "book", "_queue",
+       "renderer"),
+    _x("contact", CACHE, "6-4 C1: 待ち行列の予約の番号 → 予約の鍵(ランの始めの結びで作り直す)・その刻みの体ごとの判断の通し番号"
+       "(刻みの頭で空)", "_seq_key", "_codes"),
+    _x("contact.dev", CONST, _CFG + "(6-4 C1: 体の数)", "n"),
+    _x("contact.dev", CONST, _FIELD + "(6-4 C1: 腕の行の腕の名 LEDGER_ARM)", "LEDGER_ARM"),
+    _x("contact.attn", CONST, _CFG + "(6-4 C1: 体の数)", "n"),
+    _x("contact.attn", CONST, _FIELD + "(6-4 C1: 腕の行の腕の名 LEDGER_ARM)", "LEDGER_ARM"),
+    _x("contact.mail", CONST, _FIELD + "(6-4 C1: 腕の行の腕の名 LEDGER_ARM)", "LEDGER_ARM"),
+    _x("contact.chats", CONST, _FIELD + "(6-4 C1: 腕の行の腕の名 LEDGER_ARM=子クラス ChatBook)", "LEDGER_ARM"),
+    _x("contact.chats", CONST, _CFG + "(6-4 C1 検収 L1: 会話の器の設定=チャットの沈黙の閾値・使わない段の長さ)", "master_seed",
+       "domain", "max_turns", "extra_turns_for_important", "max_participants", "accept_probability",
+       "refusal_memory_ticks", "silence_ticks", "max_session_ticks", "walk_over_ticks", "topics_per_session",
+       "important", "origin_names"),
+    _x("contact.calls", CONST, _CFG + "(6-4 C1: 対面の会話と同じ設定=重要度上位の体の集合を含む)", "master_seed", "domain",
+       "max_turns", "extra_turns_for_important", "max_participants", "accept_probability", "refusal_memory_ticks",
+       "silence_ticks", "max_session_ticks", "walk_over_ticks", "topics_per_session", "important", "origin_names"),
+    _x("contact.calls", CONST, _FIELD + "(6-4 C1: 腕の行の腕の名 LEDGER_ARM=子クラス CallManager)", "LEDGER_ARM"),
+    _x("contact.speech", CONST, _CFG, "step_ns", "ttl_steps", "max_per_addressee"),
+    _x("contact.speech", CONST, _FIELD + "(6-4 C1: 実装の名・腕の行の腕の名 LEDGER_ARM=子クラス CallSpeechPort)", "name",
+       "LEDGER_ARM"),
+    _x("contact.speech", REF, _REFR + "(6-4 C1: 出来事の記録・口コミの抽出の口(無し)・通話が開いているかの口)", "events",
+       "wom_fn", "session_active"),
+    _x("renderer", REF, "〔第 6 期 6-4 C1〕連絡の道具の口(組み立てが腕 c1 のランだけ ContactLayer.percept_hook を差し込む・関数・"
+       "状態は連絡の持ち主の側=状態台帳の行 CT1*)", "contact_fn"),
 )
 
 

@@ -264,8 +264,10 @@ def test_word_tables_agree_with_the_memory_and_the_vocab():
     assert B.kind_of_what(V.code_of(B.WHAT_NOTICE)) == M.EVENT_KINDS["notice"]
     assert B.kind_of_what(V.code_of(B.WHAT_SIGNAGE)) == M.EVENT_KINDS["signage"]
     assert B.kind_of_what(V.code_of("過程:rail")) == 0
-    assert V.BODY_PROCESSES == ("resolve", "conversation") and V.CAUSE_PROCESS_NAMES[-2:] == V.BODY_PROCESSES
-    assert B.WHAT_SIGNAGE == TR.SIGNBOARD_WHAT and V.FAMILIES[-1] == "知覚"
+    # 〔第 6 期 6-4 C1〕体の過程の名の後ろに網の名 contact を足した
+    assert V.BODY_PROCESSES == ("resolve", "conversation") and V.CAUSE_PROCESS_NAMES[-3:-1] == V.BODY_PROCESSES
+    assert V.CAUSE_PROCESS_NAMES[-1:] == V.CONTACT_PROCESSES == ("contact",)
+    assert B.WHAT_SIGNAGE == TR.SIGNBOARD_WHAT and V.FAMILIES[-2] == "知覚" and V.FAMILIES[-1] == "連絡"
 
 
 def test_m0l_is_an_arm_row_present_only_with_the_store():

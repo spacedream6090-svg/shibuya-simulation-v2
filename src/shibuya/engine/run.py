@@ -495,6 +495,7 @@ POPULATION_RNG_DOMAINS: dict[str, str] = {
     "memory.forgetting_rate": "〔第 6 期 6-5〕忘れる速さの人ごとのばらつき 15%(MR8・engine.memory_m1・腕 --memory-model m1 のランだけ)",
     "talk.rate": "〔第 6 期 6-3 T2〕人ごとの話す速さ(モーラの長さ・engine.speech_clock・腕 --talk-clock mora のランだけ)",
     "economy.wage": "〔賃金の小さな版上げ〕体ごとの月の賃金の分位(core.wage_formula・第18表の階級の度数・賃金の腕 occupation のランだけ)",
+    "contact.device": "〔第 6 期 6-4 C1〕最初の道具の状態(マナーモード・かばん・イヤホン=engine.contact.device・腕 c1 のランだけ)",
 }
 #: **10f 第 2 段の直し(S1・ユーザー決定 2026-10-07)環境の側の乱数**。``run_day(environment_seed=…)`` の値から引く。
 #: 外から与える舞台の出来事(気象・大きな催し・道路工事)。「天気は同じで動きだけ変える」比較では固定し、
@@ -524,6 +525,8 @@ MOTION_RNG_DOMAINS: dict[str, str] = {
     "world.delivery_inbound": "入荷の抽選(つなぎ: 本来は店の発注と配達員の行動)",
     "world.delivery_last_mile": "配達の予約(引くだけ)",
     "talk.jitter": "〔第 6 期 6-3 T2〕発言ごとの話す速さの揺れ(engine.speech_clock・腕 --talk-clock mora のランだけ・計器)",
+    "contact.mock": "〔第 6 期 6-4 C1〕連絡の本人の判断の仮のモデルの選び(engine.contact.port・腕 c1 のランだけ)",
+    "contact.present": "〔第 6 期 6-4 C1〕連絡の判断の候補の提示の並べ替え(同上)",
 }
 #: 動きの側の、``core.rng`` の用途名を持たない塩(``seed`` から作る)。
 MOTION_SALTS: dict[str, str] = {
@@ -535,6 +538,25 @@ MOTION_SALTS: dict[str, str] = {
     "calendar_1b": "blake3(calendar1b:用途:seed) と agent_id の splitmix: 置き場所・余裕・時計を見る位相"
                    "(engine.calendar_self._key_draw)",
 }
+
+
+def _calls_by_model(llm: int, contact: Any, before: tuple[int, int] = (0, 0)) -> dict[str, Any]:
+    """TM9 の呼び出し数(判断モデル/LLM)。〔第 6 期 6-4 C1 検収 M5 (ii)〕腕 c1 のランは連絡の判断(判断モデル)と文の口(LLM)を
+    足し、内訳を ``contact`` に出す(既定のランは今のまま=判断モデル 0)。``before`` は前の日次の記録までの連絡の分。"""
+    if contact is None:
+        return {"judge_model": 0, "llm": int(llm)}
+    j, t = contact.model_calls()
+    j, t = int(j) - int(before[0]), int(t) - int(before[1])
+    return {"judge_model": j, "llm": int(llm) + t, "contact": {"judge_model": j, "llm": t}}
+
+
+def _contact_c1_field(layer: Any) -> dict[str, Any]:
+    """〔第 6 期 6-4 C1〕manifest の ``contact_c1``(連絡の道具の層のあるラン=腕 c1 だけ・ほかは空=欄を出さない)。"""
+    if layer is None:
+        return {}
+    from shibuya.engine.contact.layer import manifest_fields as _ct_manifest
+
+    return {"contact_c1": _ct_manifest(layer)}
 
 
 def resolve_sub_seed(seed: int | str, sub_seed: int | str | None) -> int | str:
@@ -1330,7 +1352,7 @@ class RunResult:
             "weather": copy.deepcopy(self.weather),
             # ---- 第 1 期 1-1 T0(TM9・GPU 無しの欄・10f と一体): 呼び出し数を判断モデルと LLM に分けた欄(判断モデルは
             # まだ無い=0)・時計の種類と幅・つなぎの台帳の数。列追加のみ ----
-            "calls_by_model": {"judge_model": 0, "llm": int(self.llm_calls)},
+            "calls_by_model": _calls_by_model(int(self.llm_calls), getattr(self, "contact_layer", None)),
             # 〔第 6 期 6-3 T4〕区域ごとの時計のランだけ regional(既定は今の steps)
             "clock_kind": (CLOCK_KIND if getattr(self, "clock_layer", None) is None
                            else _REGIONAL_CLOCK.CLOCK_KIND_REGIONAL),
@@ -1394,6 +1416,11 @@ class RunResult:
             # (既定のランは節を出さない=既定の manifest は不変)。末尾=… → 3-5 の body → 3-1 の calendar_shadow → 6-3。記録だけ
             # (final・behavior-hash は manifest を読まない) ----
             **_tm234_sections(self),
+            # ---- 〔第 6 期 6-4 C1〕連絡の道具(腕 c1 のランだけ欄が立つ=既定のランの一番上の鍵は今のまま)。腕の名・下の腕・
+            # 宛先の出どころ・窓の境目の種類・気づきの門の段・道具の状態の値・目と心の向きの値(設定)と、届いた・気づいた・読んだ・
+            # 返した・無視した・通話・スマホを見た・割り込めなかった出来事・記憶に残ったか・チャットの状態の計器(観測)。末尾=… →
+            # 3-1 の calendar_shadow → 6-4。記録だけ(final・behavior-hash は manifest を読まない) ----
+            **_contact_c1_field(getattr(self, "contact_layer", None)),
         }
 
     def economy_fields(self) -> dict[str, Any]:

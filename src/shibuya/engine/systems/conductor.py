@@ -37,7 +37,7 @@ def run_system(spec: SystemSpec, ctx: Any, box: Any) -> Any:
     return out
 
 
-def declared_check(specs: dict[str, SystemSpec]):
+def declared_check(specs: dict[str, SystemSpec], window_paths: frozenset[str] | None = None):
     """段 B(試験のとき): 系の前後で変わった欄 ⊆ 宣言の書く欄、を見る関数(``probe.Probe.check`` に渡す)。
 
     欄の鍵の族: SoA ``agents.cell`` → ``writes.soa``・外の道筋 ``O39:conv.sessions`` → ``writes.paths``(前方一致の ``*``)・
@@ -48,11 +48,18 @@ def declared_check(specs: dict[str, SystemSpec]):
     会話の時計の発言の事象の処理(行 ``TCC:…``)と区域ごとの時計の窓(行 ``T4W:…``)も窓の境目に帰属する。刻みの頭 ``TICK_HEAD`` は
     前からの素通りのまま(scratch を空にする・出来事の記録の時計を進める=進行役の決まった文の差の帰属先で、系の宣言を
     持たない。1-0 の段 B の形を変えない)。
+
+    〔第 6 期 6-4 C1〕``window_paths``=窓の境目でほかに通す道筋。``None``(既定)は連絡の道具の腕 c1 が立っているときだけ
+    :data:`WINDOW_PATHS`(送信と着信の境目の処理)・ほかは空=既定のランの窓の境目は前のまま行 ``BW`` の鍵だけを通す。
     """
+    if window_paths is None:
+        from shibuya.engine.contact import arm as _CTA
+
+        window_paths = WINDOW_PATHS if _CTA.is_on() else frozenset()
 
     def check(name: str, key: str) -> bool:
         if name == WINDOW_MARK:
-            return key.startswith(WINDOW_MARK_KEYS)
+            return key.startswith(WINDOW_MARK_KEYS) or (bool(window_paths) and path_allowed(key, window_paths))
         sp = specs.get(name)
         if sp is None:
             return True
@@ -79,6 +86,10 @@ WINDOW_MARK = "(window)"
 #: 窓の境目に帰属してよい状態台帳の行の鍵の頭(3-2 の ``BW``・〔第 6 期 6-3〕会話の時計の ``TCC``・区域ごとの時計の ``T4W``)。
 WINDOW_MARK_KEYS: tuple[str, ...] = ("BW:", "TCC:", "T4W:")
 
+#: 〔第 6 期 6-4 C1〕窓の境目で届ける種類(連絡の道具の送信=打ち終わり・着信=``engine.contact.layer.ContactLayer.bind_queue``・
+#: 腕 c1 のランだけ)の処理が書く道筋(連絡の持ち主の腕の行 CT1*・出来事の記録)。窓の境目に帰属する(段 B で宣言の内)。
+WINDOW_PATHS: frozenset[str] = frozenset({"CT1*:contact.*", "E:events.*"})
+
 #: 試験(T4)のとき真: 刻みの頭で scratch を番兵で埋め、その刻みに書かれる前に読むと落とす。
 STRICT_SCRATCH: bool = False
 
@@ -94,6 +105,8 @@ WHEN = {
     "home_meals": lambda b: b.layers.energy is not None and b.layers.energy.home_meals is not None,
     # 〔第 3 期 3-3〕申込書を渡したランだけ(既定のランでは系 experiment が立たない=結果不変)
     "experiment": lambda b: b.layers.experiment is not None,
+    # 〔第 6 期 6-4 C1〕腕 c1 のランだけ(既定のランでは系 contact が立たない=結果不変)
+    "contact": lambda b: b.layers.contact is not None,
 }
 
 
@@ -184,6 +197,8 @@ def conduct(call_args: dict) -> Any:
             run_system(s_close, ctx, box)
 
     queue.register(_BA.KIND_STEP, "step", on_step, rank=0)
+    if box.layers.contact is not None:  # 〔第 6 期 6-4 C1〕連絡の送信と着信の種類(窓の境目)・再開では予約の表を入れ直す
+        box.layers.contact.bind_queue(queue)
     if t_begin < t_end:
         queue.schedule(t_begin * step_ns, _BA.WORLD, _BA.KIND_STEP)
     end_ns = t_end * step_ns

@@ -357,6 +357,13 @@ def build(_call_args: dict[str, Any]) -> Any:
             _fp[_tm_mod.FP_KEY] = _tm_mod.arm()
     if _RCK.arm() == _RCK.ARM_MIXED:  # 〔6-3 検収 L7〕混合の時計は口だけ=組み立ての段で止める
         raise NotImplementedError(_RCK.MIXED_NOTE)
+    from shibuya.engine.contact import arm as _CTA
+
+    _ct_cfg = _CTA.config()
+    if _ct_cfg is not None:
+        # 〔第 6 期 6-4 C1〕連絡の道具の腕は結果を変える=c1 のときだけ設定の指紋に足す(腕と下の腕=再開で取り違えを止める。
+        # 既定 off のランの指紋は今のまま)
+        _fp[_CTA.FP_KEY] = _ct_cfg
     # ---- 第 3 期 3-3: 反実仮想の申込書(``cli.run`` が ``engine.experiment.layer.staged`` で置いた物・無ければ None=今の道)。
     # 設定の指紋には入れない(申込書の指紋は manifest の experiment の節=分岐が基準のランの状態から再開できる) ----
     from shibuya.engine.experiment import layer as _EXPL
@@ -1366,6 +1373,24 @@ def build(_call_args: dict[str, Any]) -> Any:
         total_steps=total_ticks, inherited=_exp_inherited, bridge=bridge, fleet=fleet, entry=_exp_entry,
     )
 
+    # ---- 〔第 6 期 6-4 C1〕連絡の道具(腕 c1 のランだけ・既定 None=系 contact が立たない=今の道)。描画の知覚の事実を目と心の
+    # 向きの形にする口(Renderer.contact_fn)を挿す。窓の境目の種類は進行役が待ち行列を作った後に結ぶ(bind_queue) ----
+    contact_layer = None
+    if _ct_cfg is not None:
+        from shibuya.engine.contact.layer import ContactLayer as _ContactLayer
+
+        contact_layer = _ContactLayer(
+            n_agents=n_agents, seed=seed, population_seed=pop_seed, day_key0=int(day_index),
+            step_seconds=int(tick_seconds), events=events, agents=agents, world=world,
+            groups=_tools_fx.groups, rel_layer=rel_layer, conv=conv,
+            remember_link=bool(_m0s is not None and events.enabled), renderer=_fam_renderer,
+        )
+        if _fam_renderer is not None and hasattr(_fam_renderer, "contact_fn"):
+            _fam_renderer.contact_fn = contact_layer.percept_hook
+        if decision_layer is not None:  # 〔検収 M5 (i)〕腕 port: 暇なときの「スマホを見る」は主の判断の候補
+            decision_layer.contact_offer = contact_layer
+            contact_layer.main_offer = True
+
     # ---- 1-0 段 C: 状態の箱(局所の割り当ての表 local-assignment.json・草案 §2-3)。物はそのまま指す(写しを作らない) ----
     from shibuya.engine import seat_release as _SRB  # 〔第 2 期 2-4 V3〕
 
@@ -1413,6 +1438,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             calendar_self=calendar_self_layer,
             talk_clock=talk_clock,  # 〔第 6 期 6-3 T2〕
             step_scope=step_scope,  # 〔第 6 期 6-3 T3〕
+            contact=contact_layer,  # 〔第 6 期 6-4 C1〕腕 c1 のランだけ
         ),
         llm=_BX.LlmIo(pending=pending, fleet_deferred=fleet_deferred, fleet_waiting=fleet_waiting,
                       fleet_inflight=fleet_inflight, replay_inbox=replay_inbox),

@@ -96,6 +96,7 @@ from shibuya.perception.attention import (
     StripReport,
     strip_imperatives,
 )
+from shibuya.perception import contact_view as CV
 from shibuya.perception.facts import (
     BodyView,
     IntentView,
@@ -1283,6 +1284,13 @@ class Renderer:
         #: 〔1-8b〕B6 に足した発話の行(届いた発話と出力の欄の指示)の数 / 個体群の予算 300 を超えるので外した描画の数。
         self.speech_lines = 0
         self.speech_lines_over_budget = 0
+        #: 〔第 6 期 6-4 C1〕連絡の道具の口 ``Percept → Percept``(組み立てが腕 c1 のランだけ ``ContactLayer.percept_hook`` を
+        #: 差し込む=目と心の向き・道具の状態を知覚の事実に入れる)。``None``(既定)=描画は 1 バイトも変わらない。
+        self.contact_fn: Callable[[Percept], Percept] | None = None
+        #: 〔6-4 C1〕B6 に足した連絡の行の数 / 個体群の予算で外した描画の数 / 割り込めなかった周りの出来事のあった描画の数。
+        self.contact_lines = 0
+        self.contact_lines_over_budget = 0
+        self.contact_unnoticed_renders = 0
 
     # ---------------------------------------------------------- 前計算(1 tick 1 回)
     def prepare_tick(
@@ -1492,7 +1500,7 @@ class Renderer:
             for eid, who, text in got:  # 逐次ループ宣言: 届いた発話の数ぶん(≤ 3)
                 tc.heard[(int(eid[0]), int(eid[1]))] = (int(who), str(text))
             heard = tuple((int(e[0]), int(e[1])) for e, _w, _t in got)
-        return Percept(
+        p = Percept(
             agent_id=i, step=int(step), t_ns=int(tc.t_ns), cell=cell, self_view=me,
             seen_objects=objects, seen_people=people, sounds=scene.sounds, time_view=tv,
             body=BodyView(*vals, *stages), wake=wake, intent=intent, memories=memories,
@@ -1500,6 +1508,9 @@ class Renderer:
             watched_n=0 if self.watched_by is None else int(self.watched_by[i]),
             scene=scene, heard_speech=heard,
         )
+        if self.contact_fn is not None:  # 〔第 6 期 6-4 C1〕腕 c1 のランだけ: 目と心の向き・道具の状態の形にする
+            p = self.contact_fn(p)
+        return p
 
     def _scene(self, cell: int, tc: _TickCache) -> SceneView:
         """セル → その場の事実(``SceneView``)。刻みの中で 1 回だけ作り ``tc.scenes`` に置く(刻みの頭で空になる)。
@@ -1662,6 +1673,8 @@ class Renderer:
         if p.heard_speech or self.speech_field:  # 第 1 期 1-8b(腕 on のランだけ): 発話の行は B5 を組んだ後に足す
             b6 = self._with_speech_lines(p, blocks["B5"], b6)
         blocks["B6"] = b6
+        if self.contact_fn is not None:  # 〔第 6 期 6-4 C1〕腕 c1 のランだけ: 周辺視・割り込めなかった出来事・連絡の行
+            self._contact_blocks(p, blocks, trunc)
 
         # §2.4 ⑧: B0-B4b に個体依存語が無いこと(機械検査)
         shared_ids = [b for b in T.BLOCK_IDS if b not in ("B5", "B6")]
@@ -2039,8 +2052,16 @@ class Renderer:
         """B4(密度・騒音・顕著)。第 1 期 1-2: セル → ``SceneView``(``_scene``)→ 文(``_draw_b4``)。"""
         return self._draw_b4(self._scene(cell, tc), trunc)
 
-    def _draw_b4(self, scene: SceneView, trunc: list[ch.TruncationReport]) -> bytes:
-        """``SceneView`` → B4 の文。キャッシュの鍵は ``(セル, B4 の欄の指紋)``(1-2 の前と同じ)。"""
+    def _scene_is_shared(self, scene: SceneView) -> bool:
+        """〔第 6 期 6-4 C1〕場面がこの刻みのセルの共有の物(``_scene`` が作った物)か。目と心の向きの写し(腕 c1 の
+        ``coarsen`` が顕著行為を落とした場面)は共有でない=セルのキャッシュを読まず書かない(同じセルのほかの体の描画を汚さない)。
+        既定のランの場面はいつも共有の物=キャッシュの使い方は前と同じ。"""
+        return self._tickc.scenes.get(int(scene.cell)) is scene
+
+    def _draw_b4(self, scene: SceneView, trunc: list[ch.TruncationReport], cache: bool = True) -> bytes:
+        """``SceneView`` → B4 の文。キャッシュの鍵は ``(セル, B4 の欄の指紋)``(1-2 の前と同じ)。〔6-4 C1〕``cache=False`` か
+        共有でない場面(目と心の向きの写し)はキャッシュを読まず書かない。"""
+        cache = cache and self._scene_is_shared(scene)
         if not scene.in_area:
             return N.join_lines(
                 [
@@ -2054,7 +2075,7 @@ class Renderer:
                 ]
             ).encode("utf-8")
         key = (int(scene.cell), int(scene.field_hash))
-        got = self._b4_cache.get(key)
+        got = self._b4_cache.get(key) if cache else None
         if got is not None:
             self.cache_hits += 1
             return got
@@ -2078,8 +2099,49 @@ class Renderer:
             else T.TEMPLATES["B4.salient_empty"]
         )
         out = N.join_lines(lines).encode("utf-8")
-        self._b4_cache[key] = out
+        if cache:
+            self._b4_cache[key] = out
         return out
+
+    # ---------------------------------------------------------- 〔第 6 期 6-4 C1〕目と心の向き(腕 c1 のランだけ)
+    def _b2_peripheral(self, cell: int) -> bytes:
+        """画面を見ている体の B2(場所と路面は今のまま・見えるもの・看板・目印は見分けていない=周辺視の行)。"""
+        A = self.assets
+        lines: list[str] = []
+        if 0 <= cell < A.n_cells:
+            band = int(self.world.assets.cell_band[cell])
+            lines.append(T.TEMPLATES["B2.place"].format(place_id=A.place_ids[cell], band=T.BAND_WORDS.get(band, "地上")))
+            ground = T.GROUND_WORDS.get(band, T.GROUND_WORDS[0]) if bool(A.has_street[cell]) else T.GROUND_NO_STREET
+            lines.append(T.TEMPLATES["B2.ground"].format(ground=ground))
+        else:
+            lines.append(T.TEMPLATES["B2.place"].format(place_id="なし", band="地上"))
+        lines.append(CV.B2_PERIPHERAL_LINE)
+        return N.join_lines(lines).encode("utf-8")
+
+    def _contact_blocks(self, p: Percept, blocks: "OrderedDict[str, bytes]", trunc: list[ch.TruncationReport]) -> None:
+        """知覚の事実の目と心の向き(``mind_dir``)と道具の状態(``tool_state``)を描く。B2・B4・B5 の差し替えと B6 の末尾の行。"""
+        att = p.mind_dir if isinstance(p.mind_dir, CV.AttentionView) else None
+        dev = p.tool_state if isinstance(p.tool_state, CV.DeviceView) else None
+        if att is not None and att.peripheral:
+            blocks["B2"] = self._b2_peripheral(int(p.cell))
+            empty = T.TEMPLATES["B5.near_person_empty"]
+            b5 = blocks["B5"].decode("utf-8")
+            if empty in b5:
+                line = CV.B5_PERIPHERAL_NEAR_LINE.format(hint=CV.people_hint_word(att.people_hint))
+                blocks["B5"] = b5.replace(empty, line, 1).encode("utf-8")
+        if att is not None and att.unnoticed:
+            self.contact_unnoticed_renders += 1
+        lines = CV.contact_lines(att, dev, person_word)
+        if not lines:
+            return
+        b6 = blocks["B6"]
+        full = N.join_lines([*b6.decode("utf-8").split(N.LINE_SEPARATOR), *lines]).encode("utf-8")
+        if (ch.estimate_tokens(blocks["B5"].decode("utf-8")) + ch.estimate_tokens(full.decode("utf-8"))
+                > int(T.GROUP_TOKEN_BUDGET["individual"])):
+            self.contact_lines_over_budget += 1
+            return
+        self.contact_lines += len(lines)
+        blocks["B6"] = full
 
     def _b5(self, p: Percept, trunc: list[ch.TruncationReport]) -> bytes:
         """B5(固定枠)。第 1 期 1-2: ``Percept`` だけから描く(体の段・自分の状態・見えた人・被注視の人数)。"""
@@ -2719,7 +2781,8 @@ class Renderer:
         """
         # 第3要素=注視ゲート(D-59 (b))。既定 p_see=1.0 では常に True=従来の 2 要素鍵と同じ。
         key = (int(scene.cell), int(scene.field_hash), bool(shown))
-        got = self._rank_cell_cache.get(key)
+        shared = self._scene_is_shared(scene)  # 〔6-4 C1〕目と心の向きの写しはキャッシュを読まず書かない
+        got = self._rank_cell_cache.get(key) if shared else None
         if got is not None:
             self.cache_hits += 1
             trunc.extend(got[1])
@@ -2735,7 +2798,8 @@ class Renderer:
             return {b: N.join_lines(rows[b]).encode("utf-8") for b in ("B2", "B4", "B4b")}
 
         out, reports = self._pool_render(cand, {}, ("B2", "B4", "B4b"), "cell", 0, build)
-        self._rank_cell_cache[key] = (out, reports)
+        if shared:
+            self._rank_cell_cache[key] = (out, reports)
         trunc.extend(reports)
         return out
 

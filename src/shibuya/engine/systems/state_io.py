@@ -57,6 +57,7 @@ def hash_owners(b: Any) -> dict[str, Any]:
     腕 1a のランだけ)。
     〔第 6 期 6-2〕その後に ``calendar_self``(カレンダー 1b・状態台帳の腕の行 ``C1B``=behavior・required と ``C1BM``=diag・
     required・腕 1b のランだけ=持ち主が None のランでは 2 つのハッシュにも状態のファイルにも入らない=既定は不変)。
+    〔第 6 期 6-4 C1〕その後に ``contact``(連絡の道具・状態台帳の腕の行 ``CT1*``・腕 c1 のランだけ=既定は持ち主が None)。
     """
     from shibuya.engine.run import _RunDayLocals
 
@@ -83,6 +84,7 @@ def hash_owners(b: Any) -> dict[str, Any]:
         "talk_clock": getattr(L, "talk_clock", None),
         "step_scope": getattr(L, "step_scope", None),
         "clock": getattr(L, "clock", None),
+        "contact": getattr(L, "contact", None),  # 〔第 6 期 6-4 C1〕腕の行 CT1*=持ち主の居るランだけハッシュと状態のファイルに入る
     }
 
 
@@ -264,7 +266,17 @@ def day_record(b: Any, d: int) -> None:
     # LLM は発射数の積算 ``RunResult.llm_calls`` のこの記録までの増え=このランの中で数えた分。再開したランの最初の日は
     # 再開した時刻からの分)・時計の種類と幅・つなぎの台帳の数。記録の欄が増えるだけ(状態に入らない)。
     llm_before = sum(int(r["calls_by_model"]["llm"]) for r in b.runstats.daily_records if "calls_by_model" in r)
-    rec["calls_by_model"] = {"judge_model": 0, "llm": int(result.llm_calls) - llm_before}
+    # 〔第 6 期 6-4 C1 検収 M5 (ii)〕腕 c1 のランは連絡の判断と文の口を足す(既定のランは今のまま)
+    ct = getattr(b.layers, "contact", None)
+    if ct is None:
+        rec["calls_by_model"] = {"judge_model": 0, "llm": int(result.llm_calls) - llm_before}
+    else:
+        from shibuya.engine.run import _calls_by_model
+
+        prev = [r["calls_by_model"].get("contact", {}) for r in b.runstats.daily_records if "calls_by_model" in r]
+        llm_before -= sum(int(x.get("llm", 0)) for x in prev)
+        rec["calls_by_model"] = _calls_by_model(int(result.llm_calls) - llm_before, ct, (
+            sum(int(x.get("judge_model", 0)) for x in prev), sum(int(x.get("llm", 0)) for x in prev)))
     # 〔第 6 期 6-3 T4〕時計の種類は区域ごとの時計のランだけ regional(既定は今の steps)
     rec["clock_kind"] = CLOCK_KIND if getattr(b.layers, "clock", None) is None else _CLOCK_KIND_REGIONAL
     rec["step_seconds"] = int(b.cfg.tick_seconds)

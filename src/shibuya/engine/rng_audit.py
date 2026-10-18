@@ -256,6 +256,10 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     ("engine/speech_clock.py", "utterance_jitter", "talk.jitter"),
     # 〔賃金の小さな版上げ・2026-10-17〕賃金の分位(0 語目を空け 1 語目に体の鍵=k19_counter_array・1 語だけ引く)
     ("core/wage_formula.py", "wage_uniform", "economy.wage"),
+    # 〔第 6 期 6-4 C1〕最初の道具の状態(0 語目を空け 1・2 語目に体の番号と欄の番号=k19_counter_array・1 語だけ引く)と
+    # 連絡の判断の仮のモデルの選び(0 語目を空け刻みの鍵・体・判断の番号=k19_counters・1 語だけ引く)
+    ("engine/contact/device.py", "Devices.__init__", "contact.device"),
+    ("engine/contact/port.py", "ContactPort._draw", "contact.mock"),
 })
 
 #: 静的に決まらない呼び手(ファイル・関数・用途名)→ 実行時の検査での扱い。ここに無い呼び手が出たら落とす。
@@ -279,6 +283,9 @@ UNDETERMINED_SITES: Final[dict[tuple[str, str, str], str]] = {
     ("engine/decision/port.py", "present_rng", "decision.present"):
         "Generator を返し、呼び手(present)が permutation(候補の数)を引く。0 語目を空け 1〜3 語目に刻みの鍵・体・候補の数"
         "(k19)=実行時に重なり 0 を見る(第 1 期 1-8 J0)",
+    ("engine/contact/port.py", "ContactPort.choose", "contact.present"):
+        "Generator を present に渡し、present が permutation(候補の数)を引く。0 語目を空け 1〜3 語目に刻みの鍵・体・その刻みの"
+        "その体の判断の番号(k19)=実行時に重なり 0 を見る(第 6 期 6-4 C1)",
     ("llm/mock.py", "MockLLM._stream", "expr:self.domain"):
         "Generator を返し、呼び手(MockLLM の応答)が引く。1 語目は tick=実行時に見る",
     ("perception/attention.py", "gate_stage1", "perception.attention.p_see"):

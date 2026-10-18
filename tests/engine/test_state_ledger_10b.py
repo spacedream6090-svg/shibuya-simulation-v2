@@ -101,7 +101,8 @@ def test_ledger_has_187_rows_in_two_axes():
     # ランだけ持ち主=既定の 2 つのハッシュと状態のファイルは不変・版は上げない=同じ理由・記録 ca1b/README.md)
     # 〔第 6 期 6-3〕その後に時計の段 T2〜T4 の腕の行 TCR・TCC(腕 talk-clock)・T3M(腕 step-scope)・T4W(腕 clock-regional)
     # (どれも diag・discardable=どちらのハッシュにも状態のファイルにも入らない)を 6-2 の C1B・C1BM の後に足して 126・217
-    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 126, "soa": 91, "total": 217}
+    # 〔第 6 期 6-4 C1〕その後に連絡の道具の腕の行 CT1D・CT1A・CT1AS・CT1I・CT1IS・CT1C・CT1K・CT1S・CT1M・CT1G・CT1Q(腕 contact-c1)を足して 137・228
+    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 137, "soa": 91, "total": 228}
     assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
@@ -110,7 +111,9 @@ def test_ledger_has_187_rows_in_two_axes():
                                                                                      "PX", "PX0", "EC", "ATM", "CR", "EM", "X",
                                                                                      "M0L", "BW", "BD", "CAL", "M0M",
                                                                                      "M0C", "M0X", "M0S", "C1B", "C1BM",
-                                                                                     "TCR", "TCC", "T3M", "T4W"]
+                                                                                     "TCR", "TCC", "T3M", "T4W", "CT1D", "CT1A",
+                                                                                     "CT1AS", "CT1I", "CT1IS", "CT1C",
+                                                                                     "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q"]
     assert (SL.row("X").behavior, SL.row("X").restore, SL.row("X").arm) == (SL.DIAG, SL.DISCARDABLE, "")
     assert (SL.row("BW").behavior, SL.row("BW").restore, SL.row("BW").arm) == (SL.DIAG, SL.DISCARDABLE, "")
     assert (SL.row("E").behavior, SL.row("E").restore) == (SL.DIAG, SL.DISCARDABLE)
@@ -127,7 +130,7 @@ def test_ledger_has_187_rows_in_two_axes():
     # 腕の行(1-8b の 2 行+2-3 の M0L+〔第 6 期 6-5〕M0M・M0C・〔検収 M4〕M0S+〔第 6 期 6-2〕C1B・C1BM)
     # 〔第 6 期 6-3〕その後に TCR・TCC・T3M・T4W
     assert [r.key for r in SL.LEDGER if r.arm] == ["S8", "S8M", "M0L", "M0M", "M0C", "M0S", "C1B", "C1BM",
-                                                   "TCR", "TCC", "T3M", "T4W"]
+                                                   "TCR", "TCC", "T3M", "T4W", "CT1D", "CT1A", "CT1AS", "CT1I", "CT1IS", "CT1C", "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q"]  # 〔6-4 C1〕
     for k, arm in (("TCR", "talk-clock"), ("TCC", "talk-clock"), ("T3M", "step-scope"), ("T4W", "clock-regional")):
         assert (SL.row(k).behavior, SL.row(k).restore, SL.row(k).arm) == (SL.DIAG, SL.DISCARDABLE, arm), k
     assert (SL.row("PX").behavior, SL.row("PX").restore, SL.row("PX").items) == (SL.DIAG, SL.DISCARDABLE,
@@ -831,7 +834,9 @@ def test_coverage_fails_when_a_new_state_is_not_declared(monkeypatch, tmp_path):
     assert anchor in src
     fp.write_text(src.replace(anchor, anchor + "        self.new_state_10b = 0\n"), encoding="utf-8")
     uncovered, problems = SA.coverage(root)
-    assert uncovered == {"conv": ["new_state_10b"]} and problems == []
+    # 〔第 6 期 6-4 C1〕電話の会話(持ち主 contact.calls)も同じクラス ConversationManager=どちらの持ち主にも未カバーが出る
+    assert uncovered == {"conv": ["new_state_10b"], "contact.calls": ["new_state_10b"],
+                         "contact.chats": ["new_state_10b"]} and problems == []  # 〔検収 L1〕チャットも会話の器の子
     # (c) 除外に載せた属性がクラスから消えると「古い除外」
     fp.write_text(src.replace("        self.silence_ticks = int(silence_ticks)\n", ""), encoding="utf-8")
     _, problems = SA.coverage(root)
@@ -927,7 +932,8 @@ def test_p1_ordered_rows_keep_the_insertion_order():
     """検収 2-1: 順序が挙動を決める行(O8 要旨の並び・O39 会話の管理)は辞書の挿入順を保つ。"""
     from collections import OrderedDict
 
-    assert {r.key for r in SL.external_rows() if r.ordered} == {"O8", "O39"}
+    # 〔第 6 期 6-4 C1〕チャットの会話の状態 CT1C と電話の会話 CT1K(O39 と同じ形)も順を保つ
+    assert {r.key for r in SL.external_rows() if r.ordered} == {"O8", "O39", "CT1C", "CT1K"}
     a = {7: OrderedDict([(1, None), (2, None)])}
     b = {7: OrderedDict([(2, None), (1, None)])}
     assert SH.to_state(a) != SH.to_state(b)  # OrderedDict は印が無くても順を保つ

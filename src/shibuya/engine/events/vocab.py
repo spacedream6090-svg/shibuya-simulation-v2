@@ -51,6 +51,15 @@
   原因の名に体の過程の名 ``resolve``(行為の解決=エンジンの続き)・``conversation``(会話の始まりと終わり=エンジン)
   (``BODY_PROCESSES``)を末尾(2-1 の ``register`` の後ろ)に足した(``Process(name)`` の名だけ)。版 ``events-vocab/2-3``
   (3-3 の後=版の文字列は段の名)。
+- 〔第 6 期 6-4 C1〕族を 1 つ足した: ``連絡``(連絡の道具 C1=決定 10-12 §4-4 CT0 の共通の決まり 5「使用は全部、出来事の記録へ」・
+  CT9)。語は ``CONTACT_WORDS`` の 15 語(送った・届いた・読んだ・後で・無視・預かった・スマホを見た・顔を上げた・電話をかけた・着信・
+  出た・出ない・不通・切った・通話の終わり=``engine.contact.layer`` が書く・腕 ``--contact c1`` のランだけ)。通話の発話は
+  1-8b の ``行為:発話``(via=通話)。原因の名に網の名 ``contact``(``CONTACT_PROCESSES``=届く・網が預かる・着信・不通=エンジン)を
+  末尾(2-3 の ``conversation`` の後ろ)に足した(``Process(name)`` の名だけ)。**表の末尾(2-3 の ``知覚:気づき`` の後ろ)に
+  足した**=2-3 までの 65 語のコードは動かない(``連絡:送った``=65 〜 ``連絡:通話の終わり``=79)。版 ``events-vocab/6-4``。
+  **仮採用**(族の名と語は実装役の構成=未リサーチ(expedient)・10-13b §0-3)。〔検収 M3〕記録の量を畳むため「既読」の語は
+  置かない(送った側の既読は ``連絡:読んだ`` の whom から作れる)・その位置に「預かった」(電源の切れた相手の分を網が預かった=
+  グループの「届いた」を「送った」の 1 行に畳んだときの例外の行)。
 
 ``via``(CT9 の道具の欄)の語: 対面・通話・メッセージ・グループ・SNS・無し(決定 10-12 §4-4 CT9 (b) の 5 つ+無し)。
 ``where`` の種類: セル・ノード・POI(口の約束 1-3)。
@@ -70,13 +79,13 @@ __all__ = [
     "ACT_WORDS", "WORLD_PROCESSES", "BOUNDARY_PROCESSES", "PROCESS_NAMES", "MONEY_WORDS", "GOODS_WORDS",
     "ACT_EXTRA_WORDS", "CHECK_PROCESSES", "PERCEPTION_PROCESSES", "CAUSE_PROCESS_NAMES", "TOOL_WORDS", "SPEECH_WORDS",
     "MONEY_EXTRA_WORDS", "ECONOMY_PROCESSES", "EXPERIMENT_WORDS", "FAMILY_PERCEPT", "CONVERSATION_WORDS",
-    "PERCEPT_WORDS", "BODY_PROCESSES",
+    "PERCEPT_WORDS", "BODY_PROCESSES", "FAMILY_CONTACT", "CONTACT_WORDS", "CONTACT_PROCESSES",
     "VOCAB", "VOCAB_CODES", "VOCAB_VERSION", "word", "code_of", "family_of",
     "VIA_WORDS", "VIA_NONE", "VIA_CODES", "WHERE_KINDS",
 ]
 
 #: 表の版(語を足したら上げる)。
-VOCAB_VERSION: Final[str] = "events-vocab/2-3"
+VOCAB_VERSION: Final[str] = "events-vocab/6-4"
 
 FAMILY_ACT: Final[str] = "行為"
 FAMILY_PROCESS: Final[str] = "過程"
@@ -88,8 +97,10 @@ FAMILY_TOOL: Final[str] = "道具"
 FAMILY_EXPERIMENT: Final[str] = "実験"
 #: 〔2-3〕体の知覚の出来事の族(族の並びの末尾=3-3 の実験の後ろ)。
 FAMILY_PERCEPT: Final[str] = "知覚"
+#: 〔第 6 期 6-4 C1〕連絡の道具の出来事の族(族の並びの末尾=2-3 の知覚の後ろ)。
+FAMILY_CONTACT: Final[str] = "連絡"
 FAMILIES: Final[tuple[str, ...]] = (FAMILY_ACT, FAMILY_PROCESS, FAMILY_MONEY, FAMILY_GOODS, FAMILY_TOOL,
-                                    FAMILY_EXPERIMENT, FAMILY_PERCEPT)
+                                    FAMILY_EXPERIMENT, FAMILY_PERCEPT, FAMILY_CONTACT)
 
 #: 行為 12 語(語彙 v3 の横断語・並びは v3 の表のまま)。
 ACT_WORDS: Final[tuple[str, ...]] = tuple(ACTION_VOCAB_V3)
@@ -115,9 +126,12 @@ ECONOMY_PROCESSES: Final[tuple[str, ...]] = ("payroll", "atm", "register")
 #: 〔2-3〕体の出来事の過程の名(``Process(name)`` の名だけ)。``resolve``=行為の解決(この刻みに判断の呼の無い行為の成否=
 #: エンジンの続き・移動の到着)・``conversation``=会話の始まりと終わり(エンジンの会話の門と締め)。末尾に足した。
 BODY_PROCESSES: Final[tuple[str, ...]] = ("resolve", "conversation")
-#: ``Process(name)`` の名に使える名(世界過程+区切り+検査+知覚+〔2-1〕経済の段階 2+〔2-3〕体の出来事)。
+#: 〔第 6 期 6-4 C1〕網の名(``Process(name)`` の名だけ)。``contact``=メッセージが届く・既読の印・着信・不通(エンジン=道具と網の
+#: 性質)。末尾に足した(前の名の番号は動かない)。
+CONTACT_PROCESSES: Final[tuple[str, ...]] = ("contact",)
+#: ``Process(name)`` の名に使える名(世界過程+区切り+検査+知覚+〔2-1〕経済の段階 2+〔2-3〕体の出来事+〔6-4〕網)。
 CAUSE_PROCESS_NAMES: Final[tuple[str, ...]] = (PROCESS_NAMES + CHECK_PROCESSES + PERCEPTION_PROCESSES + ECONOMY_PROCESSES
-                                                + BODY_PROCESSES)
+                                                + BODY_PROCESSES + CONTACT_PROCESSES)
 
 #: お金の科目(``economy.accounts.ACCOUNT_NAMES`` の写し・並びも同じ)。
 MONEY_WORDS: Final[tuple[str, ...]] = (
@@ -156,6 +170,11 @@ EXPERIMENT_WORDS: Final[tuple[str, ...]] = ("改変", "届いた情報")
 CONVERSATION_WORDS: Final[tuple[str, ...]] = ("会話の始まり", "会話の終わり")
 #: 〔2-3〕知覚の族の語(顕著行為に気づいた=体の出来事)。``CONVERSATION_WORDS`` の後ろ。
 PERCEPT_WORDS: Final[tuple[str, ...]] = ("気づき",)
+#: 〔第 6 期 6-4 C1〕連絡の族の語(``engine.contact.layer`` が書く・腕 c1 のランだけ)。2-3 の ``PERCEPT_WORDS`` の後ろ。
+CONTACT_WORDS: Final[tuple[str, ...]] = (
+    "送った", "届いた", "読んだ", "後で", "無視", "預かった", "スマホを見た", "顔を上げた", "電話をかけた", "着信", "出た", "出ない",
+    "不通", "切った", "通話の終わり",
+)
 
 #: 表の全部(1-3 の 55 語は族の順 → 族の中の順・その後ろに 1-5 で足した語・その後ろに 1-7 で足した語・その後ろに 1-8b で
 #: 足した語・その後ろに 2-1 で足した金の 2 語・その後ろに 3-3 で足した実験の 2 語・その後ろに 2-3 で足した体の出来事の 3 語)。コードはこの並びの位置(記録の列に入る int16)。
@@ -171,6 +190,7 @@ VOCAB: Final[tuple[str, ...]] = (
     + tuple(f"{FAMILY_EXPERIMENT}:{w}" for w in EXPERIMENT_WORDS)
     + tuple(f"{FAMILY_ACT}:{w}" for w in CONVERSATION_WORDS)
     + tuple(f"{FAMILY_PERCEPT}:{w}" for w in PERCEPT_WORDS)
+    + tuple(f"{FAMILY_CONTACT}:{w}" for w in CONTACT_WORDS)
 )
 VOCAB_CODES: Final[Mapping[str, int]] = MappingProxyType({w: i for i, w in enumerate(VOCAB)})  # 検収 L7: 実行時に語を足せない
 assert len(VOCAB_CODES) == len(VOCAB), "語彙表に同じ語が 2 回ある"

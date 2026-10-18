@@ -183,6 +183,9 @@ class DecisionLayer:
         self.tools = tools
         #: 〔第 2 期 2-1〕経済の段階 2 の組み立ての物(``engine.economy_stage2.Stage2Plan``・腕のランだけ=既定 ``None``)。
         self.money_stage2 = money_stage2
+        #: 〔第 6 期 6-4 C1 検収 M5 (i)〕連絡の道具の層(腕 c1 のランだけ組み立てが置く・既定 None=今の道)。暇なときの
+        #: 「スマホを見る」を主の判断の候補に足し、選んだら層に渡す。
+        self.contact_offer: Any = None
         #: 〔2-1・検収 A1〕口の答えの段階 2 の印の控え(体 → 印・``decide_one`` が書き判断の系が同じ呼の中で取り出す)。
         self._s2_hints: dict[int, int] = {}
         #: 計器(状態台帳の行 J0・軸 1 diag・軸 2 discardable)。
@@ -311,6 +314,8 @@ class DecisionLayer:
                                  affordance_words=self.affordance_words)
         if self.money_stage2 is not None:
             cands = self._stage2_candidates(ctx, cands)
+        if self.contact_offer is not None:  # 〔第 6 期 6-4 C1 検収 M5 (i)〕暇なときの「スマホを見る」(腕 c1 のランだけ)
+            cands = self.contact_offer.offer_main(ctx, cands)
         choice = self.port.choose(ctx, cands)
         res = choice.backend
         m = self.meter
@@ -319,6 +324,8 @@ class DecisionLayer:
             return res, p
         if self.money_stage2 is not None:  # 〔2-1〕副の判断=行為の語は今の道のまま・答えは印で行為の解決へ運ぶ(検収 A1)
             self._note_stage2(int(agent_id), choice)
+        if self.contact_offer is not None and choice.kind == self.contact_offer.MAIN_LOOK_WORD:
+            self.contact_offer.take_main(ctx, choice)  # 〔6-4 C1〕行為の語は今の道のまま(語彙の外=今の道のコード)
         if choice.is_other or choice.kind not in self.vocab:
             code = int(res.action_code)
         else:

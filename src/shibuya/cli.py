@@ -491,6 +491,7 @@ def run(
         from shibuya.engine import regional_clock as _regional_clock  # 〔第 6 期 6-3〕時計の段 T2〜T4 の腕(既定と違えば腕)
         from shibuya.engine import speech_clock as _speech_clock
         from shibuya.engine import step_scope as _step_scope
+        from shibuya.engine.contact import arm as _contact_arm  # 〔第 6 期 6-4 C1〕連絡の道具の腕(c1 は結果を変える=腕)
         from shibuya.engine.speech import layer as _speech_layer
 
         # 第 1 期 1-8b: 発話の口の腕(環境変数か --speech-port・run の引数ではない)は結果を変える=on は腕に数える
@@ -507,7 +508,8 @@ def run(
                               or _memory_m1.arms_on()  # 〔6-5〕記憶の腕(--memory-model/-cue/-people/-grain)
                               # 〔6-3〕会話の時計・何かあった体だけ・場所ごとの時計(既定 table/all/global と違えば腕)
                               or not (_speech_clock.is_default() and _step_scope.is_default()
-                                      and _regional_clock.is_default()),
+                                      and _regional_clock.is_default())
+                              or _contact_arm.is_on(),  # 〔6-4 C1〕連絡の道具の腕(--contact c1)
                               counterfactual=exp_form is not None)
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
@@ -1508,6 +1510,15 @@ def main(argv: list[str] | None = None) -> int:
              "か SHIBUYA_CALENDAR_W20。manifest の末尾に calendar_1b・1b のランだけ設定の指紋に入る・ランの種類は arm",
     )
     ap.add_argument(
+        "--contact",
+        choices=("off", "c1"),
+        default=None,
+        help="第 6 期 6-4 連絡の道具 C1 の腕(既定 off=今の道・環境変数 SHIBUYA_CONTACT と同じ。指定すれば環境変数より強い)。"
+             "c1=1 対 1 とグループのメッセージ・電話・チャットの会話の状態・目と心の向き(届くのはエンジン・気づく/読む/返す/"
+             "出る/切るは本人の判断の口=仮のモデル)。下の腕は環境変数だけ(SHIBUYA_CONTACT_UNNOTICED=i/ii/iii・"
+             "SHIBUYA_CONTACT_SEND=b/c)。c1 は結果を変えるので設定の指紋に入り、ランの種類は腕(manifest の contact_c1 に出る)",
+    )
+    ap.add_argument(
         "--experiment", type=str, default="",
         help="第 3 期 3-3 反実仮想の申込書(JSON のパス・engine.experiment.form)。既定なし=今と同じ。渡すとランの種類は "
              "counterfactual・申込書の指紋は manifest の experiment に出る(設定の指紋には入らない)",
@@ -1615,6 +1626,10 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine import calendar_self as _calendar_self
 
         _calendar_self.set_arm(str(args.calendar))
+    if args.contact is not None:  # 〔第 6 期 6-4 C1〕連絡の道具の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine.contact import arm as _contact_arm
+
+        _contact_arm.set_arm(str(args.contact))
     if args.economy_stage2 is not None:  # 第 2 期 2-1: 経済の段階 2 の腕(組み立てと台帳の組み立てが読む)
         _ES2.set_arm(str(args.economy_stage2))
     if args.wage is not None:  # 〔賃金の小さな版上げ〕賃金の腕(組み立てが読む)

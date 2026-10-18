@@ -249,6 +249,12 @@ def test_l1_window_mark_passes_only_bw_keys_and_tick_head_stays_open():
     for key in ("agents.cell", "stats.n_undefined_total", "E:events._ev_n", "scratch.plan", "buffers.focus_request"):
         assert not check(CD.WINDOW_MARK, key), key
         assert check(CD.TICK_HEAD, key), key  # 刻みの頭は前からの素通り(進行役の決まった文の差)
+    # 〔第 6 期 6-4 C1〕連絡の道具の腕 c1 のときだけ、窓の境目は送信と着信の処理の道筋(CT1*・出来事の記録)も通す
+    # (既定=腕 off は上のまま=出来事の記録の鍵も落とす)。ほかの鍵はどちらでも落とす。
+    check_c1 = CD.declared_check(SPECS, window_paths=CD.WINDOW_PATHS)
+    assert check_c1(CD.WINDOW_MARK, "E:events._ev_n") and check_c1(CD.WINDOW_MARK, "CT1I:contact.mail._inbox")
+    for key in ("agents.cell", "stats.n_undefined_total", "scratch.plan", "O39:conv.sessions"):
+        assert not check_c1(CD.WINDOW_MARK, key), key
 
 
 def test_l1_stage_b_catches_a_non_bw_change_at_the_window_mark(monkeypatch):

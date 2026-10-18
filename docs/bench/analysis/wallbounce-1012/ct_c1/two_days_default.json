@@ -1,0 +1,146 @@
+{
+ "note": "第 6 期 6-4 C1: 既定(腕 off)の 5,000 体・2 日(cli.run・世界の資産 v2・語彙 v3・seed 1・checkpoint 360 刻みごと)。head=本体の候補 4f186fb の写し・wt=作業木の通し・wt_resume=作業木の日の境目(T=1440)で止めて再開(再開のランの呼数は 2 日目だけ)",
+ "same": {
+  "final": true,
+  "checkpoints_head_vs_wt": true,
+  "end_of_day_head_vs_wt": true,
+  "resume_checkpoints_vs_straight_day2": true,
+  "calls_head_vs_wt": true
+ },
+ "head": {
+  "final": "b346bb6e3ecc60af57f507fd2bd9c3b5461fe57751b7c93e80a0051c52ad0158",
+  "calls": 138946,
+  "checkpoints": [
+   [
+    359,
+    "2c8176aaeb60b291ae72db1bc1b6ed6319275abdfae6c572a79612d7b690ffdb",
+    "d56f3d28f814f3443968589670bfed3c13a71ee75444741e06dca4432f2ea605"
+   ],
+   [
+    719,
+    "e88f268c17f61c501e7a8b71c31b4e54b82aaa98897909df80f704ff22af0db1",
+    "b2b79c38b720712790d5166421af2dab70742f63f0563418871c670ab35e896e"
+   ],
+   [
+    1079,
+    "8ebb7fdc26cc4bbe23790d022f1e5f2db929c2ac43a8861831fbe41a0a5a2279",
+    "ed265a9adea37f01da838ffd6afa548d34777de95c1df24e61056c4c151c7030"
+   ],
+   [
+    1439,
+    "b8eadcb51e8705e74863e7e42d5a2cfcb568c739125709332889f2af418a2270",
+    "6382b612708a65609b90f979b65ae7fc8fcb7ce10e9b560f4f6bfad16c15a3e1"
+   ],
+   [
+    1799,
+    "f69ee78d7b98a3745970573805489df8dff24ff25a48005af238923c8ef4a9df",
+    "698ae1bceb41a0bcc2e7dbd0d9f7230019b0adeb6cf54cd0c95b95dc8b219b88"
+   ],
+   [
+    2159,
+    "15b46026a5a43355c8f7587939a7ca6ff0b1d5e22095428d9f700c3bdc27bb54",
+    "854dc2947cde0ed07958d5ff01d5d4e5eff016515977d2d17eeda179cf15cc9f"
+   ],
+   [
+    2519,
+    "ac036653e2483ee09f21bb4fa9ef6d63794c6d2beda21fc546699291fc468fb7",
+    "aa709b3c075a77f18d95194cdb43cb7b472318f7ba08201449e798710caec38a"
+   ],
+   [
+    2879,
+    "b346bb6e3ecc60af57f507fd2bd9c3b5461fe57751b7c93e80a0051c52ad0158",
+    "3bb63ea2e7b1172c7512cd3573ed20ec68a862fdf4cf452a1e0c1a9dc0eb3f28"
+   ]
+  ],
+  "end_of_day": {
+   "behavior_hash": "2e33abc344f89d645e43e37f73308aa7ad6e021f69148d60fcdfab6524e3bfd5",
+   "full_hash": "6466e568af755d09d6b9906fae91849604cba3a22fae93f6e45150a20ee1f372",
+   "full_external_bytes": 3988654
+  },
+  "has_contact_c1": false
+ },
+ "wt": {
+  "final": "b346bb6e3ecc60af57f507fd2bd9c3b5461fe57751b7c93e80a0051c52ad0158",
+  "calls": 138946,
+  "checkpoints": [
+   [
+    359,
+    "2c8176aaeb60b291ae72db1bc1b6ed6319275abdfae6c572a79612d7b690ffdb",
+    "d56f3d28f814f3443968589670bfed3c13a71ee75444741e06dca4432f2ea605"
+   ],
+   [
+    719,
+    "e88f268c17f61c501e7a8b71c31b4e54b82aaa98897909df80f704ff22af0db1",
+    "b2b79c38b720712790d5166421af2dab70742f63f0563418871c670ab35e896e"
+   ],
+   [
+    1079,
+    "8ebb7fdc26cc4bbe23790d022f1e5f2db929c2ac43a8861831fbe41a0a5a2279",
+    "ed265a9adea37f01da838ffd6afa548d34777de95c1df24e61056c4c151c7030"
+   ],
+   [
+    1439,
+    "b8eadcb51e8705e74863e7e42d5a2cfcb568c739125709332889f2af418a2270",
+    "6382b612708a65609b90f979b65ae7fc8fcb7ce10e9b560f4f6bfad16c15a3e1"
+   ],
+   [
+    1799,
+    "f69ee78d7b98a3745970573805489df8dff24ff25a48005af238923c8ef4a9df",
+    "698ae1bceb41a0bcc2e7dbd0d9f7230019b0adeb6cf54cd0c95b95dc8b219b88"
+   ],
+   [
+    2159,
+    "15b46026a5a43355c8f7587939a7ca6ff0b1d5e22095428d9f700c3bdc27bb54",
+    "854dc2947cde0ed07958d5ff01d5d4e5eff016515977d2d17eeda179cf15cc9f"
+   ],
+   [
+    2519,
+    "ac036653e2483ee09f21bb4fa9ef6d63794c6d2beda21fc546699291fc468fb7",
+    "aa709b3c075a77f18d95194cdb43cb7b472318f7ba08201449e798710caec38a"
+   ],
+   [
+    2879,
+    "b346bb6e3ecc60af57f507fd2bd9c3b5461fe57751b7c93e80a0051c52ad0158",
+    "3bb63ea2e7b1172c7512cd3573ed20ec68a862fdf4cf452a1e0c1a9dc0eb3f28"
+   ]
+  ],
+  "end_of_day": {
+   "behavior_hash": "2e33abc344f89d645e43e37f73308aa7ad6e021f69148d60fcdfab6524e3bfd5",
+   "full_hash": "6466e568af755d09d6b9906fae91849604cba3a22fae93f6e45150a20ee1f372",
+   "full_external_bytes": 3988654
+  },
+  "has_contact_c1": false
+ },
+ "wt_resume": {
+  "final": "b346bb6e3ecc60af57f507fd2bd9c3b5461fe57751b7c93e80a0051c52ad0158",
+  "calls": 74418,
+  "checkpoints": [
+   [
+    1799,
+    "f69ee78d7b98a3745970573805489df8dff24ff25a48005af238923c8ef4a9df",
+    "698ae1bceb41a0bcc2e7dbd0d9f7230019b0adeb6cf54cd0c95b95dc8b219b88"
+   ],
+   [
+    2159,
+    "15b46026a5a43355c8f7587939a7ca6ff0b1d5e22095428d9f700c3bdc27bb54",
+    "854dc2947cde0ed07958d5ff01d5d4e5eff016515977d2d17eeda179cf15cc9f"
+   ],
+   [
+    2519,
+    "ac036653e2483ee09f21bb4fa9ef6d63794c6d2beda21fc546699291fc468fb7",
+    "aa709b3c075a77f18d95194cdb43cb7b472318f7ba08201449e798710caec38a"
+   ],
+   [
+    2879,
+    "b346bb6e3ecc60af57f507fd2bd9c3b5461fe57751b7c93e80a0051c52ad0158",
+    "3bb63ea2e7b1172c7512cd3573ed20ec68a862fdf4cf452a1e0c1a9dc0eb3f28"
+   ]
+  ],
+  "end_of_day": {
+   "behavior_hash": "2e33abc344f89d645e43e37f73308aa7ad6e021f69148d60fcdfab6524e3bfd5",
+   "full_hash": "6466e568af755d09d6b9906fae91849604cba3a22fae93f6e45150a20ee1f372",
+   "full_external_bytes": 3988654
+  },
+  "has_contact_c1": false
+ }
+}

@@ -6265,6 +6265,350 @@
     "src/shibuya/economy/stage2.py",
     "src/shibuya/engine/economy_stage2.py"
    ]
+  },
+  {
+   "id": "DOC-ct-c1-device-initial",
+   "what": "最初の道具の状態=全員がスマートフォンを持つ・電池 100%・マナーモードの人 0.5・かばんに入れる人 0.5・イヤホンの人 0.2(母集団の側の乱数で体ごと)",
+   "why": "決定 10-12 §4-4 CT0 の共通の決まり 2(初めは実データ=母集団の側)。持ち物と道具の状態の実データは無い(4-1 段 5 の財布とカードも空欄)=仮の値。4-1 の持ち物の材料が入ったら置き換える",
+   "remove_at": "4-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/contact/device.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-device-sound",
+   "what": "通知の刺激の値=着信音 70 dB(1 m)・置き場の減衰 手 0/ポケット 6/かばん 15 dB・イヤホンの音 75 dB・段の境 SNR −3 dB(強い)/−10 dB(弱い)・騒音の段 → 描画の帯の dB(55/60/65/70)",
+   "why": "CT3(マナーモードやかばんの中なら弱い刺激)・CT0(耳はイヤホンの音を SNR の周りの音として足す)。形は R-78 §5-2(SNR とLazarus の −3 dB・検知 −10 dB は既存答申の自前の設定=錨なし)。値は未リサーチ。空間の段 3(音の伝わり方)で置き換える",
+   "remove_at": "5-3",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/contact/device.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-device-drain",
+   "what": "電池の減り=待ち受け 1%/時・画面 12%/時・通話 8%/時(物理の仮の値)",
+   "why": "CT0 の共通の決まり 2(途中は本人の行動と物理=電池)。端末ごとの実測は未リサーチ。C1 の版上げの前に出典の値へ",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/contact/device.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-no-charging",
+   "what": "充電が無い(充電は本人の行動=本段の判断の候補に無い)=電池が 0 になると電源が切れたまま(届くメッセージは網が預かる・電話は不通)",
+   "why": "CT0(持ち物は本人の行動で動く)。人の手続き(夜に充電する)をコードに書かない(§1-4)=本人の行動の候補を足す段まで無い。1 日のランでは 5,000 体のうち数十体が切れる=計器 devices_off",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/contact/device.py",
+    "src/shibuya/engine/contact/layer.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-device-signal",
+   "what": "電波は舞台の全域と外で届く(圏外なし)・通知の音はイヤホンに流さない(本体の音=イヤホンは周りの音を覆う)",
+   "why": "CT0 の共通の決まり 3(電波を道具の状態に持つ)。地下の圏外の実データは未取得。イヤホンへの通知の音の流し方は端末の設定=未リサーチ",
+   "remove_at": "5-3",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/contact/device.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-attention-peripheral",
+   "what": "周辺視の範囲 2.0 m(2-2 の会話の距離 B3 と同じ値)・範囲の中の人の気配の数を粗い段(なし/1 人/数人/多くの人)で見せる",
+   "why": "CT0(画面を見ている間、周りは周辺視の粗い気配だけ=係数を掛けない)。範囲と細かさの形の値は未リサーチ。空間の段 3(視野と見分ける・気づくの 2 段=SR7)で置き換える",
+   "remove_at": "5-3",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/contact/attention.py",
+    "src/shibuya/perception/contact_view.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-attention-focus-order",
+   "what": "関心の的の決め方の順(通話 > 画面 > 会話 > 周り)・寝たら画面を閉じる・暇な活動=待機と乗車(決定の例「待ち・電車」)",
+   "why": "CT0(関心の的を状態に持つ)・CT3(暇なとき=待ち・電車)。順と範囲は実装役の構成=未リサーチ",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/contact/attention.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-attention-interrupt",
+   "what": "割り込めた=その刻みに起床条件 (i)(セルの B4 の変化=CELL_BLOCK)で起きた体(驚き駆動の入口の代わり)",
+   "why": "CT0(割り込めたときだけ=驚き駆動の入口と同じきっかけ)。驚き駆動(本人の予想との差)は T3(TM6・TM5)=それまで change_detect の (i) の起床で代える",
+   "remove_at": "T3",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/contact/attention.py",
+    "src/shibuya/engine/contact/layer.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-notice-gate",
+   "what": "通知に気づく門の段(関心の的が周り/画面=弱い刺激から・通話/会話=強い刺激だけ=割り込み)・寝ている体は通知に気づかない・1 体 1 刻みに通知の刺激は 1 回(新しく届いた分をまとめて)",
+   "why": "CT3(関心の的が他なら割り込めたときだけ)。段の当て方は実装役の構成=未リサーチ。T3 の驚き駆動の入口で決め直す",
+   "remove_at": "T3",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/contact/layer.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-port-candidates",
+   "what": "連絡の判断の候補の語と源の当て方(今読む/後で/無視・スマホを見る/このまま・画面の 6 つ・宛先・返す/スタンプ/返さない・出る/出ない・待つ/切る・話す/切る)と仮のモデル(mock=候補を語と id の順に並べ乱数の余りで一様に選ぶ)",
+   "why": "CT2・CT3(判断モデルが選ぶ)・回答 2-1(GPU の前は仮のモデル)。判断モデル(6-1)で置き換える=結果の数は振る舞いのモデルではない",
+   "remove_at": "6-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/contact/port.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-port-text",
+   "what": "文の口の定型の文(MOCK_UTTERANCE)・スタンプの一覧 4 語・長さの上限 1,000 字(安全装置)",
+   "why": "CT2(文は LLM・スタンプは一覧から・長さの上限は安全装置だけ=実データはリサーチ C9)。C1 の版上げで LLM の文に",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/contact/port.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-separate-call",
+   "what": "連絡の判断(通知がきっかけの今読む/後で/無視・画面・宛先・返す・出る・待つ・話す)は主の判断の呼び(行為 12 語)と別の呼び(候補の口 J0 の形・同じ型)=道具を使う行為の語を判断の語彙に足さない(TOOL_ACTION_WORDS は空のまま)。呼び数は calls_by_model に数える(〔検収 M5〕)",
+   "why": "CT10・CA9(C1 はカレンダー段 2 と同じ版上げ)。語彙の版上げは版上げ 2 回目の束=それまで連絡の判断は腕の層の中で呼ぶ",
+   "remove_at": "6-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/contact/layer.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-chat-clock",
+   "what": "打つ時間=次の窓の境目(送信の予約=BOUNDARY)・読む間=本人の判断の時刻(刻みの頭)=細かい時計の代わり",
+   "why": "TM1(続いているチャットは対面の会話と同じ細かい時計)・発注(T2 の口が来るまで窓の境目で代える=宣言)。6-3 の T2 で置き換える",
+   "remove_at": "T2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/contact/chat_state.py",
+    "src/shibuya/engine/contact/deliver.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-chat-silence",
+   "what": "チャットの沈黙の閾値=対面の会話の SILENCE_TICKS と同じ値・1 つのチャットの上限 200 通(安全装置)",
+   "why": "TM1・TM3(上限は安全装置だけ)。チャットの沈黙の実データは未リサーチ。T2 の会話の時計で決め直す",
+   "remove_at": "T2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/contact/chat_state.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-book-scope",
+   "what": "宛先の範囲=関係の層の連絡先の印(人も記憶の腕は思い浮かぶ人の関係の種類から)・関係の層の無いランは家族の 1 対 1 とグループ(家族・職場)だけ・連絡先の交換は本人の行動=本段に無い",
+   "why": "CT5(個人の連絡先は関係の記憶に手段ごとの印・交換は本人の行動・交換の頻度は空欄で計器だけ)。交換の候補を足す段まで",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/contact/book.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-habit",
+   "what": "範囲の外の人の習慣(本人の過去の判断から作る)を作らない=いつも判断の口に戻す",
+   "why": "CT4(習慣で決めてかまわない・記録が少ないうちは判断モデルに戻す)・発注(本段では判断の口に戻す形だけ)",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/contact/port.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-calls-form",
+   "what": "電話の会話の差分=場所の門を見ない(cell −1)・出ないで拒否の記憶を書かない(かけ直しを門で止めない)・番の上限は対面と同じmax_turns 3(安全装置)・呼び出し中も関心の的=通話",
+   "why": "CT1(TM3 の会話の仕組みをそのまま使う)・TM3(上限は安全装置だけ)。通話の実データ(長さ)は未リサーチ",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/contact/calls.py",
+    "src/shibuya/engine/contact/layer.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-mail-keep",
+   "what": "読んだメッセージを持つ長さ 1 日(日の頭で古い既読を落とす)・待ち行列の種類の番号 40/41 と順位 −1/−2(刻みの事象の前)",
+   "why": "有界化(D-R2-6)と窓の中の順の宣言(3-2)。値は実装役の構成",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/contact/deliver.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-percept-fields",
+   "what": "知覚の事実の既存の欄に値を入れる(mind_dir=視線の先と関心の的・tool_state=道具の状態と通知・eye_dir は空のまま)・B2/B5/B6 の行の文面(テンプレの版の外)",
+   "why": "口の約束 1-2(欄だけ用意=値は後の段・形を壊さない)。描画の文面は版上げ(カレンダー段 2+C1)でテンプレの版に入れる",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-15",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/perception/contact_view.py",
+    "src/shibuya/perception/renderer.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-arbitration",
+   "what": "仲裁=同じ体が同じ刻みに主の判断(起床して判断の呼び)と連絡の判断の両方を要するときは主の判断が先・連絡の判断はその刻みにしない(通知と暇の判断は次の刻みに回す・画面・着信・呼び出し・通話の番は次の刻みにまた起きる)=port.ARBITRATION",
+   "why": "〔検収 M5 (iii)〕親の判断。1 体 1 刻みに判断の呼びを重ねない形の実装役の構成=未リサーチ。判断モデル(6-1)の 1 呼で両方を選ぶ形にするかは 6-1 で決め直す",
+   "remove_at": "6-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-17",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/contact/layer.py",
+    "src/shibuya/engine/contact/port.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-legacy-idle",
+   "what": "暇なときの「スマホを見る」は判断の口の腕(--decision-port port)のランでは主の判断の候補(源=できること)・腕 legacy のランは主の判断が候補を出さないので連絡の層の別の呼び(暇な活動に入った刻みと暇な間に起きた刻み)で代える",
+   "why": "〔検収 M5 (i)〕CT3(過ごし方の 1 つとして選ぶ)。既定の判断の道が候補の口になる段(6-1)で別の呼びを消す",
+   "remove_at": "6-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-17",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/contact/layer.py",
+    "src/shibuya/engine/decision/layer.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-fold-records",
+   "what": "記録の畳み方=グループの「届いた」を「送った」の 1 行に(届け先=送った時のグループの成員から送り手を除いた体・電源の切れた相手は例外の行 連絡:預かった)・既読の行を書かない(送った側の既読は 連絡:読んだ の whom から作る)・読んだは会話ごとに 1 行(how_much=通数)・判断の呼びの call_id はテープの形(刻み:体:−通し番号)",
+   "why": "〔検収 M3〕CT0 の共通の決まり 5(使用は全部記録へ)を作り直せる形で畳む。畳み方は実装役の構成=未リサーチ。グループの成員が途中で変わる段では例外の行の形を決め直す",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-17",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/contact/layer.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-not-default",
+   "what": "腕 c1 は既定にできない(畳んだ後も 39 万体の外挿で 1-3 の宣言 S1 を超える=記録 §5-2)。残りの差(保持窓・間引き・予算の引き上げ・mock の量)はユーザーの判断",
+   "why": "〔検収 M3〕親の判断=宣言。既定化の条件=記録の量が宣言の内に入る形を決めた後の測り",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-17",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/contact/layer.py"
+   ]
+  },
+  {
+   "id": "DOC-ct-c1-issued-registry",
+   "what": "監査のための発行した判断の呼びの控え(刻み・体・通し番号を詰めた 8 B の整数・ランの間ずっと持つ)",
+   "why": "〔検収 M2〕偽の LlmCall を見つける突き合わせの素。量は 5,000 体 1 日 約 1.8 MB。既定化の前に日ごとの監査で捨てる形へ",
+   "remove_at": "6-4",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/ct_c1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-17",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/contact/layer.py"
+   ]
   }
  ]
 }

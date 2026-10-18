@@ -59,6 +59,7 @@ OWNER_NAMES: tuple[str, ...] = (
     "calendar_self",  # 〔第 6 期 6-2〕カレンダー 1b(状態台帳の腕の行 C1B・C1BM・腕 1b のランだけ=既定は None で値は変わらない)
     # 〔第 6 期 6-3〕時計の段 T2〜T4 の腕の持ち主(状態台帳の腕の行 TCR・TCC・T3M・T4W=軸 1 diag・軸 2 discardable・腕のランだけ)
     "talk_clock", "step_scope", "clock",
+    "contact",  # 〔第 6 期 6-4 C1〕連絡の道具(状態台帳の腕の行 CT1*・腕 c1 のランだけ=既定は None=値は変わらない)
 )
 
 
@@ -251,6 +252,9 @@ class Layers:
     #: 〔第 6 期 6-3 T4〕場所ごとの時計(``engine.regional_clock.RegionalClock``・状態台帳の腕の行 ``T4W``)。腕 ``--clock regional``
     #: のランだけ進行役が窓のループの前に置く(既定 None=全体で 1 つの時計)。
     clock: Any = None
+    #: 〔第 6 期 6-4 C1〕連絡の道具の持ち主(``engine.contact.layer.ContactLayer``・状態台帳の腕の行 ``CT1*``)。腕 ``--contact c1``
+    #: のランだけ組み立てが置く(既定 None=系 ``contact`` が立たない=今の道)。
+    contact: Any = None
 
     @property
     def undefined(self) -> Any:

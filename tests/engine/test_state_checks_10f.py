@@ -307,7 +307,9 @@ def test_k19_static_sites_are_frozen():
     # 〔第 6 期 6-3 T2〕会話の時計の人ごとの話す速さ(person_mora_len_s)と発言ごとの揺れ(utterance_jitter)=k19 の並べ方・
     # どちらも一様 1 語を足して 16 → 18
     # 〔賃金の小さな版上げ〕賃金の分位(core/wage_formula.py の wage_uniform=k19 の並べ方・1 語)を足して 18 → 19
-    assert len(RA.SAFE_SITES) == 19 and len(RA.UNDETERMINED_SITES) == 13
+    # 〔第 6 期 6-4 C1〕最初の道具の状態(Devices.__init__)と連絡の判断の仮のモデルの選び(ContactPort._draw)を足して 19 → 21・
+    # 連絡の判断の候補の提示の並べ替え(ContactPort.choose=permutation)を決まらない呼び手に 13 → 14
+    assert len(RA.SAFE_SITES) == 21 and len(RA.UNDETERMINED_SITES) == 14
     # httpx の client.stream(llm/fleet.py)は乱数ではない=一覧に入らない
     assert all(s.path != "llm/fleet.py" for s in sites)
 

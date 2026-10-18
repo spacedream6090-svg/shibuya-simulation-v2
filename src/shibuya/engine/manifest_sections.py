@@ -274,6 +274,15 @@ PATHS: Final[dict[str, str]] = {
         "boundaries", "cross_moves", "cross_move_delay_ns_max", "hear", "hear_cross", "hear_delay_ns_sum",
         "hear_delay_ns_max", "planned_arrivals", "late_arrivals", "late_minutes_sum", "late_minutes_max",
         "message_delay_ns_max", "pending_at_end", "meeting")),
+    # ---- 〔第 6 期 6-4 C1〕連絡の道具(腕 c1 のランだけ欄が立つ)。形の版・腕と下の腕・宛先の出どころ・窓の境目の種類・気づきの門の
+    # 段・道具の状態と目と心の向きの値・口・スタンプ・定型の文・長さの上限・チャットの沈黙の閾値・仮の値の宣言=設定/計器・判断の
+    # 数・読むまでの時間・通話の長さ・チャット・通話・届いた箱・道具・向き・周りの出来事・記憶に残ったか・体の無い人=観測。
+    # 子の鍵は engine.contact.layer の CONFIG_KEYS・OBSERVED_KEYS と同じ=試験が突き合わせる ----
+    **_mixed("contact_c1", config=(
+        "schema", "arm", "unnoticed_arm", "send_arm", "contacts_source", "queue_kinds", "notice_min_level", "device",
+        "attention", "port", "stamps", "mock_text", "message_max_chars", "chat_silence_steps", "provisional"),
+        observed=("meter", "decisions", "read_delay_minutes", "call_steps", "screen_minutes", "chats", "calls", "mail",
+                  "devices", "attention_now", "salient", "remembered", "bodiless_dropped", "rendered")),
 }
 
 
