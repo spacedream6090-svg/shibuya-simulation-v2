@@ -394,6 +394,14 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #115 賃金を職業ごとの実データから(小さな版上げ=既定 `--wage occupation`・ユーザー決定 2026-10-17)(第337・2026-10-17・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [回答 10-13b](docs/design/v2-answers-2026-10-13b.md) §7 の 3・§0-6・§0-7・R-107・10-12 §4-11 EC2・CLAUDE.md §4(保存則)。記録 [wage_occ](docs/bench/analysis/wallbounce-1012/wage_occ/README.md)([review.md](docs/bench/analysis/wallbounce-1012/wage_occ/review.md))。取り込み `c87d5de`。
+- **版上げ(§0-7)**: 直前の commit に安定版のタグ **`stable-v2-before-wage-occupation`**。**戻す手順**: `git checkout stable-v2-before-wage-occupation`(または既定のまま `--wage w17`=次の版上げで消す)。性能(5,000 体 1 日 seed 1・w6_v3_default・この機械・他のランと並走): 壁時計 HEAD 43.7〜47.5 s / occupation 45.9〜46.2 s・1 刻み 0.030〜0.033 s / 0.032 s・最大の作業集合 479〜489 MiB / 473 MiB・呼数 64,528(同じ)。組み立ての足し分 0.46 秒(39 万体で 11.6 秒)・体あたり +24 B(39 万体 9.4 MB)=前の版より悪化なし。
+- **中身**(`economy/wages.py`): 職業 × 性 × 年齢 × 雇用形態の実データ(R-107 の第 9・6・18・2 表=構築側の写しを md5 で照らす)・4-1 段 5 の式を economy に移して共有(W21b の golden 不変)・体ごとの分位 u=Philox(母集団の seed・`economy.wage`)・写像は expedient(台帳 `DOC-wage_occ-persona-map`・`-unmapped-average`・`-separate-from-w17-hours`)・W17 の勤務時間を読まない(AST+負の対照)・1/4 の宣言の行 `DOC-ec21-wage-hours-and-rate` は removed。
+- **結果**: 月の賃金(5,000 体 2 日・給料日 8/25)=平均 4.7 万 → 31.1 万円(床の前 p10/p50/p90 16.6/27.4/51.0 万円=床の後の値は記録 §12)・職種 × 性の中央値は第 18 表の中位数の 0.83〜1.04 倍・収支=faucet と口座が同じ額・残差 0・現金と預金は月 −1.3 万 → +11.5 万円/体(見込み)。**1 日の 19 構成は既定でも w17 でも不変**(給料日を含まない)・2 日で変わる(賃金の 2 行と預金純増だけ)。
+- 検収: 別の検収役 1+親。全体試験 5751 passed。仮採用: PENDING §1-1b 仮-37。最低賃金法の床=規則の表の版から(親が厚労省の表で一次確認し 1,226 円(2025-10-03)と 1,163 円(2024-10-01)の版を足した)。残り: 次の版上げで `--wage w17` を消す。
+
 ### #114 第 6 期 6-3 TM T2 会話の時計・T3 何かあった人だけ・T4 場所ごとの時計(腕 3 つ・既定は不変)(第337・2026-10-17・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-2(TM1〜TM10)・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 6-3・回答 2-1・R-111 §3(話す速さ)・R-73 #30(間)。記録 [tm234](docs/bench/analysis/wallbounce-1012/tm234/README.md)([review.md](docs/bench/analysis/wallbounce-1012/tm234/review.md))。取り込み `80742bc`。T1 は #103。
