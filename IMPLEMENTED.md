@@ -394,6 +394,15 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #114 第 6 期 6-3 TM T2 会話の時計・T3 何かあった人だけ・T4 場所ごとの時計(腕 3 つ・既定は不変)(第337・2026-10-17・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-2(TM1〜TM10)・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 6-3・回答 2-1・R-111 §3(話す速さ)・R-73 #30(間)。記録 [tm234](docs/bench/analysis/wallbounce-1012/tm234/README.md)([review.md](docs/bench/analysis/wallbounce-1012/tm234/review.md))。取り込み `80742bc`。T1 は #103。
+- **T2 `engine/speech_clock.py`**(腕 `--talk-clock mora`・行 TCR・TCC): 発言の長さ=モーラ数 × 人ごとの話す速さ(R-111 §3=モーラ長 0.151 秒・話者の間の幅 0.124〜0.198・σ=範囲 ÷ d2(18)・揺れ CV 0.42・親しい相手 +9.6%・間 7 ms)・考える時間は二重に数えない・同じ会話の番は 1 束に入れない(同じ `made_ns` で止める)・違う会話はバッチ・上限は安全装置。**会話の番は刻みに 1 回のまま=会話の時計は計器だけ**。5,000 体 1 日の発言 384〜742 本・会話の時計 平均 3.0 秒(今の表 246 秒)。C1 が刺す口 `ChatTiming`(値は空欄)。
+- **T3 `engine/step_scope.py`**(腕 `--step-scope changed`・行 T3M): 内受容の判定と体の反映を「何かあった体だけ」に=全員を見る版と 19/19 一致(植えた欠陥は捕まる)・処理した体 2.4〜6.9%・速くならない(5,000 体=detect 0.341 → 0.351 ms・39 万体でも写しの更新の費用で縮まない=縮めるのは驚き駆動の版上げの仕事)。
+- **T4 `engine/regional_clock.py`**(腕 `--clock regional`・行 T4W・mixed は口だけ=build で止める): 500 m の格子 29 区域+舞台の外・境目で配達・19/19 一致は**構造上**(区域の時計は計器だけで世界を書かない)・区域をまたぐ発言の遅れの最大=W(TM4 の道具で 60/30/10/5/1 秒 × salt 6=世界の結果はどの幅でも同じ・遅刻は計画の表から=W で動かない)。
+- 共有: `owner_guard.py`(3 つの持ち主の `__setattr__` の守り・`MappingProxyType`・書けない配列)・systems 9 本・`batching.now_ns`・`change_detect.detect(scope=)`・状態台帳(行 TCR・TCC・T3M・T4W=diag・discardable・BW/T4W の注に「書くのは decide・llm_receive」)・段 B は発言のある構成で宣言の外 0・manifest の末尾 3 節(腕だけ)・`CONFIG_PATHS_SHA256` 改訂・台帳 +15 行(3-2 の 4 行は注)。既定・changed・regional 19/19・mora 4/4・2 日・再開=通し。
+- 検収: 別の検収役 1(条件つき受入=中 6・低 7 → 全部直した)+親(R-111 §3 の値の写し検査・d2(18)=3.640 の再計算・段 B の負の対照)。全体試験 5733 passed。仮採用: PENDING §1-1b 仮-36。残り: T2 の版上げ(会話の番を窓の中で=C1 と束ねる)・驚き駆動(T3 の版上げ=1b と同じ)・TM4 の既定の幅(版上げの後)。
+
 ### #113 封印の分離の残りと ODPT の取得のログの圧縮(整理=結果不変・ユーザー決定 2026-10-17)(第337・2026-10-17・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [回答 10-13b](docs/design/v2-answers-2026-10-13b.md) §7 の 5・§0-6・R-115 §5・PENDING 仮-13・2-4 V6・パターン台帳 §10・CLAUDE.md §7。記録 [seal_tidy](docs/bench/analysis/wallbounce-1012/seal_tidy/README.md)([review.md](docs/bench/analysis/wallbounce-1012/seal_tidy/review.md))。取り込み `e7221b9`。
