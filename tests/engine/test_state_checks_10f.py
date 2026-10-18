@@ -35,7 +35,8 @@ TPD = 1_440
 #: 10e(E4): 既定 v3・5,000 体・seed 1・1 日の final(乱数 counter・K19 の鍵の並べ方)。
 #: 〔改訂(第330)〕10e 構築側(第330 B3 丸め・B4 W10 ON+Q7・B5 W13 の年間化)で世界の資産が動いた。E5 の値は 4fbf61616af1e3d2。
 #: 〔改訂(第330・ACT)〕版上げ 1 回目の活性化(暦の一本化・開始日 2026-07-13・影 6 日)で動いた。B6build の値は 0483d1165e245bed。
-K19_V3_FINAL_COUNTER = "b8eadcb51e8705e7"  # 〔2-4 V1〕前 5f7ae9ff24005314  # 〔2-4 V2〕前 4bcca9f0216362bb  # 〔2-4 V3〕前 7857ecb16b9665cd  # 〔2-4 V4〕前 f6488d4d5eadf5ca
+K19_V3_FINAL_COUNTER = "333b1820f7849b00"  # 〔小さな版上げ・meal_w17〕前 b8eadcb51e8705e7(--meal-default validation で戻る)
+_K19_PRE_MEAL_W17 = "b8eadcb51e8705e7"  # 〔2-4 V1〕前 5f7ae9ff24005314  # 〔2-4 V2〕前 4bcca9f0216362bb  # 〔2-4 V3〕前 7857ecb16b9665cd  # 〔2-4 V4〕前 f6488d4d5eadf5ca
 
 
 # ================================================================= K24 軸 1(AST)
@@ -198,20 +199,24 @@ def test_axis2_discardable_reset_keeps_the_run_synthetic(syn_straight, monkeypat
 
 def test_t4_axis2_required_made_discardable_fails(syn_straight, monkeypatch):
     """T4 軸 2: O91 の ``conv.n_opened``(10d で再開の試験が見つけた 14 項目の 1 つ・記憶の層が読む)を、わざと
-    discardable にした台帳で通しと「捨てて」を回すと、checkpoint・診断の行・日の締めが食い違う。"""
+    discardable にした台帳で通しと「捨てて」を回すと、checkpoint・診断の行・日の締めが食い違う。
+
+    〔第337〕既定の食事時刻を体ごとに引く形(meal_w17)で合成の世界の一斉の起床が消え、750 までに開く会話が 0 になった
+    (O91 は 0 のまま=差が出ない)ので、両方の腕で会話の開いた刻み 2,007 より後の 2,100 で捨てる(前は 750)。"""
+    T = 2_100
     row = SL.row("O91")
     flipped = tuple(dataclasses.replace(r, restore=SL.DISCARDABLE) if r.key == "O91" else r for r in SL.LEDGER)
     monkeypatch.setattr(SL, "LEDGER", flipped)
     assert "conv.n_opened" in DP.discardable_paths() and row.restore == SL.REQUIRED
     straight = run_day(**SYN_KW)  # 同じ(わざと誤った)台帳で通し
-    rep = DP.install(monkeypatch, 750)
+    rep = DP.install(monkeypatch, T)
     probed = run_day(**SYN_KW)
     monkeypatch.undo()
     assert "conv.n_opened" in rep.reset
-    diff = DP.differences(straight, probed, 750)
+    diff = DP.differences(straight, probed, T)
     assert diff and "first_checkpoint" in diff and "daily" in diff, diff
     # 属性そのもののハッシュだけでなく挙動(final=combined)も後で食い違う
-    a, b = DP.hashes(straight, 750), DP.hashes(probed, 750)
+    a, b = DP.hashes(straight, T), DP.hashes(probed, T)
     assert any(x[1] != y[1] for x, y in zip(a, b))
 
 
@@ -309,7 +314,8 @@ def test_k19_static_sites_are_frozen():
     # 〔賃金の小さな版上げ〕賃金の分位(core/wage_formula.py の wage_uniform=k19 の並べ方・1 語)を足して 18 → 19
     # 〔第 6 期 6-4 C1〕最初の道具の状態(Devices.__init__)と連絡の判断の仮のモデルの選び(ContactPort._draw)を足して 19 → 21・
     # 連絡の判断の候補の提示の並べ替え(ContactPort.choose=permutation)を決まらない呼び手に 13 → 14
-    assert len(RA.SAFE_SITES) == 21 and len(RA.UNDETERMINED_SITES) == 14
+    # 〔小さな版上げ・meal_w17〕既定の食事時刻の引き(MealStartDistribution.draw=k19 の並べ方・3 語)を足して 21 → 22
+    assert len(RA.SAFE_SITES) == 22 and len(RA.UNDETERMINED_SITES) == 14
     # httpx の client.stream(llm/fleet.py)は乱数ではない=一覧に入らない
     assert all(s.path != "llm/fleet.py" for s in sites)
 

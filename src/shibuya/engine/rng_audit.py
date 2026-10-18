@@ -227,8 +227,10 @@ def scan_sites(root: Path, files: Iterable[Path] | None = None) -> list[StreamSi
 
 #: 静的に安全な呼び手(ファイル・関数・用途名)。増えても減っても落とす(10f の時点の 15 か所・〔第330〕B6 で 1 つ足して 16 か所・
 #: 〔第330・RET〕legacy の天気の 2 か所(`EnvironmentProcess._pick_day`・`select_day`)を消して 14 か所・〔第 2 期 2-2〕+1=15 か所・〔第 6 期 6-5〕+1=16 か所・
-#: 〔第 6 期 6-3〕+2=18 か所・〔賃金の小さな版上げ〕+1=19 か所)。
+#: 〔第 6 期 6-3〕+2=18 か所・〔賃金の小さな版上げ〕+1=19 か所・〔第 6 期 6-4 C1〕+2=21 か所・〔小さな版上げ meal_w17〕+1=22 か所)。
 SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
+    # 〔小さな版上げ・meal_w17〕既定の食事時刻の引き(philox_array・k19 の鍵の並べ方・1 ブロック=3 語)
+    ("engine/energy.py", "MealStartDistribution.draw", "energy.meal_default"),
     # 1 語目が無いか定数(隣の流れが無い)7 か所
     ("agents/population.py", "sample_population", "w16.sample.reserved"),
     ("cli.py", "household_wallets", "wallet.initial"),

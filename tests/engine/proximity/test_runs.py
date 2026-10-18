@@ -41,7 +41,8 @@ WORLD = "data/world/v2"
 world_assets = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 #: 本体 HEAD ``2bc7a4b`` の src(``git archive`` の写し)で回した既定の腕の final と呼数(世界資産・300 体・1 日・語彙 v3・
 #: 記憶+関係+同席)。作業木の腕 cell で同じ値=今と同じ(記録 prox22/README.md §6)。
-HEAD_GOLDEN = ("ab5c9d9c0b40a26301286d4b1e8d6ca3ddabcc02b2dd7fc4261823408193e9fe", 3_077)  # 〔2-4 V1〕前 f0503a35ccb501aae79dd64da80a81a65e560df143c8d18da5395a7de17d69ce / 3062  # 〔2-4 V4〕前 f1ec0336ef617de06d985fcb02bbb632476703ca917998c777d6db769f139101
+HEAD_GOLDEN = ("652cd5d900054591718093e3edeb096aaa81c9123a6586fc6cb895fa9ccdac47", 3_049)  # 〔小さな版上げ・meal_w17〕既定の食事時刻 w17 で動いた(前 ab5c9d9c0b40a26301286d4b1e8d6ca3ddabcc02b2dd7fc4261823408193e9fe / 3_077=--meal-default validation で戻る)
+_HEAD_GOLDEN_PRE_MEAL_W17 = ("ab5c9d9c0b40a26301286d4b1e8d6ca3ddabcc02b2dd7fc4261823408193e9fe", 3_077)  # 〔2-4 V1〕前 f0503a35ccb501aae79dd64da80a81a65e560df143c8d18da5395a7de17d69ce / 3062  # 〔2-4 V4〕前 f1ec0336ef617de06d985fcb02bbb632476703ca917998c777d6db769f139101
 GOLDEN_KW = dict(n_agents=300, seed=1, world_dir=WORLD, ticks=1440, vocab_version="v3", memory="on", relations="on",
                  rel_copresent="on")
 

@@ -6609,6 +6609,65 @@
    "code_at": [
     "src/shibuya/engine/contact/layer.py"
    ]
+  },
+  {
+   "id": "BR-MEAL-DEFAULT-W17",
+   "what": "範囲外の人(その時間帯に W17 の食事の行が無い体)の既定の食事時刻は、W17 v2 の日課の食事の行の開始の分布(構築側・朝・昼・夕の窓ごと)から体ごとに引く(回答 10-13b §7 の 2=つなぎ)。外す段は判断モデルの段で、既定の食事時刻をなくし、空腹と本人の判断で食べる時刻を決める形にする(10-03 §7-1「範囲外の人の 1 日を移す」)",
+   "why": "回答 10-13b §7 の 2(ユーザー決定 2026-10-17・親案 (b))=つなぎとして台帳に載せる。外す段は判断モデルの段で、既定の食事時刻をなくし、空腹と本人の判断で食べる時刻を決める形にする(10-03 §7-1「範囲外の人の 1 日を移す」)。段の番号は 6-6(① 人の選択を判断モデルへ)に当てた。記録 docs/bench/analysis/wallbounce-1012/meal_w17/README.md",
+   "remove_at": "6-6",
+   "declared_in": "src/shibuya/engine/energy.py#expedients:c34bb9d1",
+   "conf": "expedient",
+   "since": "2026-10-17",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/energy.py",
+    "src/shibuya/engine/systems/build.py"
+   ]
+  },
+  {
+   "id": "BR-MEAL-DEFAULT-VALIDATION-ARM",
+   "what": "腕 --meal-default validation は旧値の再現のためだけの道(第 18-1 表・15 分の食事率=検証側の錨のファイルを読む)。次の版上げで消す(回答 10-13b §0-6=旧値の再現は安定版のタグで行う)",
+   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら、古い道の切替口は次の版上げで消す=旧値の再現は安定版のタグで行う)。外す段=次の版上げ(next-bump)〔meal_w17 検収 L6・親の判断=前は 4-3 を当てていた〕",
+   "remove_at": "next-bump",
+   "declared_in": "src/shibuya/engine/energy.py#expedients:55eacae3",
+   "conf": "expedient",
+   "since": "2026-10-17",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/energy.py",
+    "src/shibuya/cli.py"
+   ]
+  },
+  {
+   "id": "BR-MEAL-DEFAULT-FROZEN",
+   "what": "世界資産の W17 の無いラン(合成の世界)は凍結の表 W17V2_MEAL_START_HIST_15MIN(W17 2.0.0 の月曜の食事の行の開始の 15 分の度数)から引き、区間の中は一様。その日に行の無い窓は全曜日をまとめる",
+   "why": "回答 10-13b §7 の 2 の置き換えで、W17 の無いランにも構築側の分布が要る(検証側の表に戻さない)。W17 を作り直したら表の写しを作り直す(sha256 を W17V2_FROZEN_SOURCE に持つ)。既定の食事時刻そのものを外す段(6-6)で一緒に外す",
+   "remove_at": "6-6",
+   "declared_in": "src/shibuya/engine/energy.py#expedients:674e4c38",
+   "conf": "expedient",
+   "since": "2026-10-17",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/energy.py"
+   ]
+  },
+  {
+   "id": "BR-MEAL-DEFAULT-INITIAL-HUNGER",
+   "what": "初期の空腹の前夜の夕食の分は、その体の W17 のその日の夕の窓の最後の食事の行の開始(無ければ引いた既定の夕食の時刻)。1 日の表を日ごとに繰り返す=体の既定の時刻は毎日同じ(習慣の代わり)",
+   "why": "回答 10-13b §7 の 2(初期の空腹も W17 v2 の日課から)。自分の行を先に使うのは実装役の仮採用(日を繰り返したときの2 日目の 0:00 と同じ形になる)。既定の食事時刻を外す段(6-6)で一緒に外す",
+   "remove_at": "6-6",
+   "declared_in": "src/shibuya/engine/energy.py#expedients:9e9e27b8",
+   "conf": "expedient",
+   "since": "2026-10-17",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/energy.py",
+    "src/shibuya/engine/body/rules.py"
+   ]
   }
  ]
 }

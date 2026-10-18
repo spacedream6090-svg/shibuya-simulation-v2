@@ -408,8 +408,10 @@ _EXT: tuple[LedgerRow, ...] = (
        "energy.py:810-831", "配列・計数", D_, X_,
        ("energy.meal_bits", "energy.n_meals", "energy.n_snacks", "energy.counts", "energy.intake_kcal",
         "energy.meal_start_home", "energy.meal_start_in", "energy.meal_start_out", "energy.snack_start",
-        "energy.stage_ticks", "energy.stage_ticks_awake_by_hour"),
-       note="日の締めで読み終わってから 0 に戻す宣言(日の途中の再開なら要るに変わる)"),
+        "energy.stage_ticks", "energy.stage_ticks_awake_by_hour", "energy.ate_default"),
+       note="日の締めで読み終わってから 0 に戻す宣言(日の途中の再開なら要るに変わる)。〔小さな版上げ・meal_w17〕"
+            "ate_default=既定の時刻の食事を食べた体の印(計器 meal_default_use)。〔検収 L5〕日の締めで 0 に戻さず状態のファイルにも"
+            "入れない(この行の他の配列と同じ)=複数日は「どこかの日に食べた体」・日の途中の再開の後は再開の後の分だけ(宣言)"),
     _o(29, "OutOfAreaMeals の予定 tick・agent・slot・from_row・_start", "energy.py:610-616", "予定の表", N_, V_,
        ("energy.out_of_area.tick", "energy.out_of_area.agent", "energy.out_of_area.slot",
         "energy.out_of_area.from_row", "energy.out_of_area._start")),
@@ -1528,7 +1530,10 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("energy", CONST, _CFG, "model", "n_agents"),
     _x("energy", REF, "ClassicalPolicy._gate_hazard と同じ配列(O21 で数える)", "meal_reset"),
     _x("energy", CACHE, _TAB, "poi_intake"),
-    _x("energy.out_of_area", CONST, _CFG, "sleep_defer", "_tpd"),
+    _x("energy.out_of_area", CONST, _CFG, "sleep_defer", "_tpd", "meal_default"),
+    # 〔小さな版上げ・meal_w17〕既定の食事時刻の分布・体ごとに引いた既定の時刻・前夜の夕食・計器の表(初期化で作る)
+    _x("energy.out_of_area", CACHE, _TAB + "(既定の食事時刻の分布と体ごとの引き=母集団の seed と W17 から作り直せる)",
+       "distribution", "default_min", "prev_dinner_min", "_default_slots", "_no_plan"),
     _x("energy.out_of_area", CACHE, _TAB + "(予定の行の数と並べ替えの索引)", "n_rows", "n_defaults",
        "n_asleep_defaults", "n_deferrable", "_arm_order", "_eat_order", "_arm_start", "_eat_start"),
     _x("energy.home_meals", CONST, _CFG, "_tpd"),

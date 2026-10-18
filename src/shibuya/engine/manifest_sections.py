@@ -116,11 +116,15 @@ PATHS: Final[dict[str, str]] = {
     **_mixed("energy", config=(
         "rate", "avg_mets", "mets", "mets_out_of_area", "hunger_ratio_edges", "hunger_stage_values",
         "meal_windows_min", "share_source", "drink_share", "default_meal_min", "initial_since_meal", "eer_floor_pal",
-        "anchors", "anchors_md5"), observed=(
+        "anchors", "anchors_md5",
+        # 〔小さな版上げ・回答 10-13b §7 の 2〕既定の食事時刻の腕と分布の出どころ(世界の W17 から決まる=seed で動かない)
+        # 〔meal_w17 検収 L4〕腕 w17 の ``default_meal_min`` は凍結の表の中央値=代表値(どの体にも使われない・体ごとの既定は
+        # 分布から引く)。腕 validation では前と同じ「全員の既定の時刻」=欄の意味が腕で違う(記録 meal_w17 §1)
+        "meal_default", "meal_default_source"), observed=(
         "counts", "intake_kcal", "census", "census_per_agent", "balance_kcal", "balance_kcal_by_meals",
         "balance_over_eer_by_meals", "agents_with_three_meals", "meals_per_agent", "breakfast_skip", "stage_time_share",
         "stage_ticks_awake_by_hour", "meal_start_in_15min", "meal_start_out_15min", "snack_start_15min",
-        "out_of_area_schedule", "weight_kg", "eer_kcal", "home_meal")),
+        "out_of_area_schedule", "weight_kg", "eer_kcal", "home_meal", "meal_default_use")),
     **_mixed("energy.home_meal", config=("mode",), observed=(
         "rows", "agents_with_rows", "not_at_home", "asleep", "meal_start_home_15min")),
     **_mixed("classical", config=("policy", "prior", "meal_gate", "social", "multipliers_identity", "activity_map"),

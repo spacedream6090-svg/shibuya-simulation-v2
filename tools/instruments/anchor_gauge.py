@@ -338,6 +338,26 @@ MANIFEST_KEYS: tuple[str, ...] = ("bridges_count", "rules_version", "bridges_ver
                                   "population_seed", "environment_seed", "clock_kind", "step_seconds")
 
 
+#: 〔小さな版上げ・回答 10-13b §7 の 2〕第 18-1 表(〔検〕)と比べた食事時刻の結果の印。計器はこの比較をしない(〔検〕は
+#: 読まない)。比べる道具の結果に付ける印を、ランの腕(manifest の energy.meal_default)と record の段で開いたファイルから決める。
+MEAL_T18_INVALID = "無効(作る側に使われている=置き換えまで)"
+MEAL_T18_VALID = "検証可(置き換えの後=既定の食事時刻は W17 v2 の分布・エンジンは検証側の錨を開いていない)"
+
+
+def meal_time_validation_mark(meta: Mapping[str, Any]) -> dict[str, Any]:
+    """第 18-1 表と比べた食事時刻の結果の印(置き換えの前の版=``validation``・欄なし=無効/置き換えの後=検証可)。
+
+    ``w17`` でも record の段でエンジンが検証側の空腹の錨を開いていたら無効のまま(置き換えが効いていない)。
+    """
+    mode = str(meta.get("meal_default", "(欄なし)"))
+    opened = [r.get("path", "") for r in (meta.get("record_opened_files") or [])]
+    hit = [q for q in opened if "hunger_energy_validation_anchors" in q or "hunger_energy_anchors_v0" in q]
+    ok = mode == "w17" and not hit
+    return {"meal_default": mode, "status": MEAL_T18_VALID if ok else MEAL_T18_INVALID,
+            "engine_opened_validation_hunger_anchors": hit,
+            "note": "計器は第 18-1 表と比べない(〔検〕)。比べる道具(5a の report ほか)の結果にこの印を写す"}
+
+
 def opened_listing(paths: Sequence[str]) -> list[dict[str, Any]]:
     """ランの段で開いた道筋の一覧。計器の段で落とす語(〔検〕・〔灰〕)に当たる行に印を付ける(値は読まない)。"""
     rows = []
@@ -400,6 +420,8 @@ def record(arm: str, *, out_path: Path, n_agents: int = 5_000, seed: int = 1, wo
         "tick_seconds": STEP_SECONDS, "start_hour": 0, "recorder": bool(use_recorder),
         "wall_s_nondeterministic": round(wall, 1),
         "record_opened_files": opened_listing(run_guard.opened),
+        # 〔小さな版上げ・meal_w17〕既定の食事時刻の腕(第 18-1 表との比較の「無効」の印の材料・欄の無い版は旧の道)
+        "meal_default": str(((mf.get("energy") or {}).get("meal_default")) or "(欄なし)"),
     }
     if not use_recorder:
         return meta
@@ -1097,7 +1119,8 @@ def gauge_arm(J: Mapping[str, Any], S: Static, guard: ReadGuard, *, duty_cache: 
     out: dict[str, Any] = {"meta": {k: meta.get(k) for k in ("arm", "kwargs", "n_agents", "seed", "final_hash",
                                                               "llm_calls", "manifest", "commit",
                                                               "src_diff_files_vs_head", "src_is_worktree", "plan",
-                                                              "journal_arrays_sha16", "record_opened_files")}}
+                                                              "journal_arrays_sha16", "record_opened_files",
+                                                              "meal_default")}}
     out["weights"] = {"omega_by_kind": {str(k): _f(float(omega[kind == k][0]), 3) for k in np.unique(kind)},
                       "n_by_kind": {str(k): int((kind == k).sum()) for k in np.unique(kind)}}
 
@@ -1339,6 +1362,7 @@ def gauge(journals: Mapping[str, Path], *, paths: Mapping[str, Path], out_dir: P
         for arm, jp in journals.items():
             J = load_journal(guard, Path(jp))
             doc["arms"][arm] = gauge_arm(J, S, guard, duty_cache=duty_cache)
+            doc["arms"][arm]["meal_time_vs_t18_1"] = meal_time_validation_mark(doc["arms"][arm].get("meta") or {})
         doc["allow_list"] = dict(roles_table(guard))
         doc["inputs_read"] = files_listing(guard)
         if compare_dir is not None:
@@ -1470,6 +1494,10 @@ def render_markdown(doc: Mapping[str, Any]) -> str:
                      mf.get("rules_version"), m.get("src_diff_files_vs_head"), m.get("n_agents"), m.get("seed")])
     out.append(_table(["腕", "commit", "final", "呼数", "bridges_count", "rules_version", "src の差(ファイル数)",
                        "体数", "seed"], rows))
+    out.append("")
+    out.append("第 18-1 表(〔検〕)と比べた食事時刻の結果の印(計器は比べない・比べる道具の結果に写す): "
+               + "・".join(f"{arm}={(a.get('meal_time_vs_t18_1') or {}).get('status', MEAL_T18_INVALID)}"
+                          for arm, a in doc["arms"].items()))
     out.append("")
     am = doc.get("area_map", {})
     out.append(f"エリアの写像: `area_axes_v0.json`(版 {am.get('axes_version')}・{am.get('axes_status')})・"

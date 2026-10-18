@@ -292,10 +292,15 @@ def test_out_of_area_meals_repeat_by_tick_of_day():
     model = EnergyModel(anc, md5, minutes_per_tick=1.0)
     meals = OutOfAreaMeals(model, 4, TPD)
     ts = np.full(4, 2, dtype=np.int8)                 # 全員域外
-    for t in (int(model.default_meal_min["breakfast"]), int(model.default_meal_min["dinner"])):
-        a0, s0, _ = meals.due(t, ts)
-        a1, s1, _ = meals.due(t + TPD, ts)
-        assert a0.size == 4 and np.array_equal(a0, a1) and np.array_equal(s0, s1)
+    # 〔小さな版上げ・meal_w17〕既定の時刻は体ごと(腕 w17 の引き)=体ごとの朝と夕の時刻で 1 日目と 2 日目を比べる
+    for slot in (0, 2):
+        seen = 0
+        for t in sorted({int(x) for x in meals.default_min[:, slot]}):
+            a0, s0, _ = meals.due(t, ts)
+            a1, s1, _ = meals.due(t + TPD, ts)
+            assert np.array_equal(a0, a1) and np.array_equal(s0, s1)
+            seen += int(np.count_nonzero(s0 == slot))
+        assert seen == 4
 
 
 # ================================================================= 口の制限と manifest

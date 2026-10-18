@@ -68,6 +68,7 @@ from shibuya.engine.energy import check_home_meal
 from shibuya.engine.energy import check_hunger_model
 from shibuya.engine.energy import check_meal_sleep_defer
 from shibuya.engine.energy import load_anchors
+from shibuya.engine import energy as _EN
 from shibuya.engine.familiarity import FAMILIARITY_MODES
 from shibuya.engine.familiarity import FamiliarityLayer
 from shibuya.engine.geometry import EdgeGeometry
@@ -364,6 +365,10 @@ def build(_call_args: dict[str, Any]) -> Any:
         # 〔第 6 期 6-4 C1〕連絡の道具の腕は結果を変える=c1 のときだけ設定の指紋に足す(腕と下の腕=再開で取り違えを止める。
         # 既定 off のランの指紋は今のまま)
         _fp[_CTA.FP_KEY] = _ct_cfg
+    if _EN.meal_default() != _EN.DEFAULT_MEAL_DEFAULT and str(hunger_model) == "energy":
+        # 〔小さな版上げ・回答 10-13b §7 の 2〕既定の食事時刻の旧値の腕(validation)は既定と違うときだけ設定の指紋に足す
+        # (空腹のエネルギー収支のランだけ=腕が効くランだけ)
+        _fp["meal_default"] = _EN.meal_default()
     # ---- 第 3 期 3-3: 反実仮想の申込書(``cli.run`` が ``engine.experiment.layer.staged`` で置いた物・無ければ None=今の道)。
     # 設定の指紋には入れない(申込書の指紋は manifest の experiment の節=分岐が基準のランの状態から再開できる) ----
     from shibuya.engine.experiment import layer as _EXPL
@@ -633,6 +638,10 @@ def build(_call_args: dict[str, Any]) -> Any:
     # ``load_weekly`` / ``restrict_to`` は純粋な読み込み(乱数を 1 語も引かない)なので、
     # ここへ繰り上げても帰無腕のバイト列は動かない。
     weekly = load_weekly(world_dir) if (world_dir is not None and pop is not None) else None
+    # 〔小さな版上げ・回答 10-13b §7 の 2〕既定の食事時刻の分布は週次表の**全員**から(restrict_to の前=体の数に依らない。
+    # 腕 validation と空腹の模型の無いランは作らない=None)
+    _meal_dist = (_EN.meal_start_distribution(weekly, calendar.table_weekday(0))
+                  if energy_on else None)
     if weekly is not None:
         weekly = weekly.restrict_to(pop.source_agent_id)
     # ``--ablate AB-PLAN-EXECUTOR`` / ``--ablate plan_execution`` でも切れる(台帳の約束)。
@@ -718,6 +727,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             out_of_area=OutOfAreaMeals(
                 _emodel, n_agents, ticks, weekly=weekly, day_index=calendar.table_weekday(0),  # 10a #15
                 tick_seconds=tick_seconds, sleep_defer=meal_sleep_defer,
+                seed=pop_seed, distribution=_meal_dist,  # 〔小さな版上げ〕既定の食事時刻は母集団の側の引き
             ),
             # 第2波 §2B 項 2: 自宅が範囲内(W16 の home_cell >= 0)の体の自宅の食事行(既定 off=None)
             home_meals=(

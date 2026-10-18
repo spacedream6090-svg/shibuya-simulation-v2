@@ -24,13 +24,19 @@ from shibuya.perception import templates as T
 from shibuya.perception.renderer import Renderer
 from shibuya.world.state import World
 
-ANC, ANC_MD5 = E.load_anchors()
+# 〔小さな版上げ・meal_w17〕この試験の模型は旧値の再現の腕(validation=第 18-1 表の既定の時刻)で前の版の値を確かめる
+# (既定の腕 w17 は tests/engine/body/test_meal_default_w17.py)。錨のファイルの中身の試験は検証側も読む(エンジンではない)
+ANC, ANC_MD5 = E.load_anchors(mode="validation")
 SRC = Path("src/shibuya")
 CJK = re.compile(r"[぀-ヿ㐀-鿿]")
 
 
 def model(rate: str = "eer") -> E.EnergyModel:
-    return E.EnergyModel(ANC, ANC_MD5, rate=rate)
+    return E.EnergyModel(ANC, ANC_MD5, rate=rate, meal_default="validation")
+
+
+#: 旧値の腕の既定の時刻[分](検証側の表から模型が組んだ値=〔meal_w17 検収 L1〕数値はソースに写さず模型から読む)。
+BM, LM, DM = (model().default_meal_min[k] for k in ("breakfast", "lunch", "dinner"))
 
 
 def layer(n: int, rate: str = "eer") -> E.EnergyLayer:
@@ -65,13 +71,17 @@ def test_anchor_values_are_pinned():
 
 
 def test_default_meal_times_come_from_the_anchors():
-    """範囲外の既定の時刻: 朝 7:29・夕 19:18(第18-1表 東京都 平日)・昼=第7-1表 東京都の最大区分の開始。"""
+    """旧値の腕の範囲外の既定の時刻: 朝と夕=第18-1表 東京都 平日の平均時刻・昼=第7-1表 東京都の最大区分の開始
+    (〔meal_w17 検収 L1〕値はソースに写さず、表から組み直して模型と比べる)。"""
     m = model()
-    assert m.default_meal_min == {"breakfast": 449, "lunch": 735, "dinner": 1158}
+    t18 = ANC["ssb2021_t18_1_weekday"]["tokyo"]
+    assert m.default_meal_min == {"breakfast": int(t18["breakfast_start"]["mean_min"]),
+                                  "lunch": int(ANC["derived"]["lunch_default"]["start_min"]),
+                                  "dinner": int(t18["dinner_start"]["mean_min"])}
     tokyo = ANC["ssb2021_meal_rate_15min"]["series"]["t7_1_weekday_tokyo_total"]["rate_pct"]
     vals = [-1.0 if x is None else float(x) for x in tokyo]
-    assert max(range(96), key=lambda i: (vals[i], -i)) * 15 == 735  # 12:15-12:30 = 35.21%
-    assert 705 <= m.default_meal_min["lunch"] <= 735  # アジェンダの見込み 11:45〜12:15(上端)
+    assert max(range(96), key=lambda i: (vals[i], -i)) * 15 == m.default_meal_min["lunch"]  # 最大区分の開始
+    assert 11 * 60 + 45 <= m.default_meal_min["lunch"] <= 12 * 60 + 15  # アジェンダの見込み 11:45〜12:15(上端)
 
 
 def test_anchor_file_holds_numbers_and_codes_only():
@@ -228,8 +238,8 @@ def test_initialize_energy_places_the_copy_without_a_false_crossing():
         a.sex[:] = [0, 1, 0, 1, -1, 1]
     lay = layer(6)
     R.initialize_energy(a, lay, seed=1)
-    # 初期値 = EER × (1440 − 1158)/1440 → 比 0.5875 → ふつう
-    np.testing.assert_allclose(a.since_meal_kcal, a.eer_kcal * (282 / 1440), rtol=1e-5)
+    # 初期値 = EER × (1440 − 旧値の腕の夕食の分)/1440 → ふつう(旧値の腕=1 つの値)
+    np.testing.assert_allclose(a.since_meal_kcal, a.eer_kcal * ((1440 - DM) / 1440), rtol=1e-5)
     assert set(a.hunger.tolist()) == {5}
     assert set(a.hunger_stage.tolist()) == {1}
     assert float(np.abs(a.energy_balance).sum()) == 0.0
@@ -288,7 +298,7 @@ def test_out_of_area_meal_resets_since_meal_and_adds_the_share():
         a.since_meal_kcal[:] = 1500.0
     eer = a.eer_kcal.astype(np.float64)
     got = R.energy_out_of_area_meal(a, lay, np.array([0, 1]), np.array([0, 0]),
-                                    np.array([True, False]), tick=449)
+                                    np.array([True, False]), tick=BM)
     assert got == 2
     np.testing.assert_array_equal(a.since_meal_kcal, [0.0, 0.0])
     s = ANC["nhns_t13_meal_kcal"]["shares"]
@@ -299,7 +309,7 @@ def test_out_of_area_meal_resets_since_meal_and_adds_the_share():
     np.testing.assert_array_equal(a.hunger, [1, 1])
     assert lay.counts["meals_out_of_area"] == 2
     assert lay.counts["meals_out_from_row"] == 1 and lay.counts["meals_out_default"] == 1
-    assert int(lay.meal_bits[0]) == 1 and int(lay.meal_start_out[449 // 15]) == 2
+    assert int(lay.meal_bits[0]) == 1 and int(lay.meal_start_out[BM // 15]) == 2
 
 
 def test_snack_and_drink_subtract_from_since_meal():
@@ -359,19 +369,19 @@ def test_out_of_area_schedule_uses_meal_rows_then_default_times():
     rows = [
         (0, 0, 420, SLEEP, HOME), (0, 540, 750, WORK, OUT), (0, 750, 780, EAT, OUT),
         (0, 780, 1080, WORK, OUT),
-        (1, 0, 600, SLEEP, HOME),  # 7:29 に就寝中でも既定の時刻どおり(アジェンダ §1-5 の文言)
+        (1, 0, 600, SLEEP, HOME),  # 既定の朝食の時刻に就寝中でも既定の時刻どおり(アジェンダ §1-5 の文言)
     ]
     oom = E.OutOfAreaMeals(model(), 3, 1440, weekly=_weekly(rows, 3), day_index=0)
     ev = sorted(zip(oom.agent.tolist(), oom.tick.tolist(), oom.slot.tolist(), oom.from_row.tolist()))
     assert ev == [
-        (0, 449, 0, False), (0, 750, 1, True), (0, 1158, 2, False),
-        (1, 449, 0, False), (1, 735, 1, False), (1, 1158, 2, False),
-        (2, 449, 0, False), (2, 735, 1, False), (2, 1158, 2, False),
+        (0, BM, 0, False), (0, 750, 1, True), (0, DM, 2, False),
+        (1, BM, 0, False), (1, LM, 1, False), (1, DM, 2, False),
+        (2, BM, 0, False), (2, LM, 1, False), (2, DM, 2, False),
     ]
     out = np.full(3, 2, dtype=np.int8)
-    ids, slots, fr = oom.due(449, out)
+    ids, slots, fr = oom.due(BM, out)
     np.testing.assert_array_equal(ids, [0, 1, 2])
-    ids, _, _ = oom.due(449, np.zeros(3, dtype=np.int8))  # 範囲内なら置かない
+    ids, _, _ = oom.due(BM, np.zeros(3, dtype=np.int8))  # 範囲内なら置かない
     assert ids.size == 0
     ids, slots, fr = oom.due(750, out)
     assert ids.tolist() == [0] and slots.tolist() == [1] and fr.tolist() == [True]
@@ -379,7 +389,7 @@ def test_out_of_area_schedule_uses_meal_rows_then_default_times():
 
 def test_out_of_area_schedule_without_weekly_is_three_default_times():
     oom = E.OutOfAreaMeals(model(), 2, 1440, weekly=None)
-    assert sorted(set(oom.tick.tolist())) == [449, 735, 1158]
+    assert sorted(set(oom.tick.tolist())) == [BM, LM, DM]
     assert oom.n_rows == 0 and oom.n_defaults == 6
 
 
@@ -459,7 +469,9 @@ def test_run_day_default_is_v1_and_energy_is_an_arm():
     m = en.run_manifest_fields()
     assert m["hunger_model"] == "energy" and m["energy_rate"] == "eer"
     e = m["energy"]
-    assert e["avg_mets"] == 1.379 and e["anchors_md5"] == ANC_MD5
+    # 〔小さな版上げ・meal_w17〕既定の腕 w17 のランは構築側の 1 本だけの md5(validation の 2 本の md5 ではない)
+    assert e["avg_mets"] == 1.379 and e["anchors_md5"] == E.load_anchors(mode="w17")[1] != ANC_MD5
+    assert e["meal_default"] == "w17" and e["anchors"] == "docs/bench/anchors/hunger_energy_build_anchors_v0.json"
     assert e["mets"]["sleep"] == {"code": "07030", "mets": 1.0}
     for key in ("counts", "census", "balance_kcal", "breakfast_skip", "stage_time_share",
                 "meal_start_in_15min"):

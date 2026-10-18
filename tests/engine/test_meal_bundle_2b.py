@@ -22,14 +22,21 @@ from shibuya.perception import templates as T
 from shibuya.perception.renderer import HUNGER_WORDS_MODES, Renderer, check_hunger_words
 from shibuya.world.state import World
 
-ANC, ANC_MD5 = E.load_anchors()
+# 〔小さな版上げ・meal_w17〕項 1・項 2 の試験は旧値の腕(validation=前の版の既定の時刻 1 つ)で前の版の挙動を確かめる
+# (既定の腕 w17 の既定の時刻は体ごとの引き=tests/engine/body/test_meal_default_w17.py)
+ANC, ANC_MD5 = E.load_anchors(mode="validation")
 SLEEP, PREP, WORK, EAT = (ACTIVITY_WORDS.index(w) for w in ("就寝", "支度", "勤務", "食事"))
 HOME, OUT, EATERY = (PLACE_WORDS.index(w) for w in ("自宅", "域外", "飲食店"))
-B_MIN, L_MIN, D_MIN = 449, 735, 1158  # 既定の時刻(朝 7:29・昼 12:15・夕 19:18)
 
 
 def model() -> E.EnergyModel:
-    return E.EnergyModel(ANC, ANC_MD5)
+    return E.EnergyModel(ANC, ANC_MD5, meal_default="validation")
+
+
+#: 旧値の腕の既定の時刻[分](朝・昼・夕)。〔meal_w17 検収 L1〕検証側の表の値はソースに写さず、旧値の腕の模型から読む
+#: (朝は 7:00〜8:00 の間・昼と夕は窓の中=下の合成の体の検算はこの並びに依る)。
+B_MIN, L_MIN, D_MIN = (model().default_meal_min[k] for k in ("breakfast", "lunch", "dinner"))
+assert 7 * 60 < B_MIN < 8 * 60
 
 
 def weekly(rows, n_agents: int) -> WeeklySchedule:
@@ -53,7 +60,7 @@ def weekly(rows, n_agents: int) -> WeeklySchedule:
     )
 
 
-# 合成の体(指示書の検算): 0=7:29 に就寝中・8:00 に起床 / 1=11:30 に起床(朝の窓を過ぎる)/
+# 合成の体(指示書の検算): 0=既定の朝食の時刻 に就寝中・8:00 に起床 / 1=11:30 に起床(朝の窓を過ぎる)/
 # 2=7:00 に起床済み / 3=就寝の行が 2 本つながる(5:00・8:20 に起床)/ 4=W17 の行なし
 ROWS_SLEEP = [
     (0, 0, 480, SLEEP, HOME), (0, 480, 600, PREP, HOME),
@@ -101,9 +108,9 @@ def test_sleep_defer_on_moves_the_breakfast_to_the_wake_time_inside_the_window()
     got = run_out_of_area(E.OutOfAreaMeals(model(), N_SLEEP, 1440, weekly=w, sleep_defer="on"))
     breakfast = {a: (t, d) for a, t, s, fr, d in got if s == E.SLOT_BREAKFAST}
     assert breakfast == {
-        0: (480, True),   # 7:29 に就寝中・8:00 に起床 → 8:00 に朝食
+        0: (480, True),   # 既定の朝食の時刻 に就寝中・8:00 に起床 → 8:00 に朝食
         # 1: 11:30 に起床(朝の窓 5:00〜10:59 を過ぎる)→ 朝食なし
-        2: (B_MIN, False),  # 7:00 に起床済み → 7:29 に朝食(旧と同じ)
+        2: (B_MIN, False),  # 7:00 に起床済み → 既定の朝食の時刻 に朝食(旧と同じ)
         3: (500, True),   # 就寝の行 2 本 → 8:20 に朝食
         4: (B_MIN, False),  # W17 の行なし → 旧と同じ
     }
@@ -174,7 +181,7 @@ def test_only_bodies_out_of_area_at_the_default_time_are_deferred():
     def ts(t):
         x = np.full(N_SLEEP, 2, dtype=np.int8)
         if t < 470:
-            x[0] = 0  # 体 0 は 7:29 に範囲内 → 仕掛けない(8:00 に域外でも食べない)
+            x[0] = 0  # 体 0 は 既定の朝食の時刻 に範囲内 → 仕掛けない(8:00 に域外でも食べない)
         if t >= 490:
             x[3] = 0  # 体 3 は 8:10 に範囲内へ → 8:20 の起床時に域外でない → 食べない
         return x
@@ -501,7 +508,7 @@ def test_cli_has_the_three_switches_with_old_defaults():
 
 # ================================================================= 検収後の追加(§2B の直し)
 def test_consecutive_sleep_rows_are_read_as_one_sleep():
-    """就寝 0:00〜7:40 と 7:40〜8:20 の 2 本: 7:29 は 1 本目の中 → 連鎖して 8:20 に起床(つながないと 7:40)。"""
+    """就寝 0:00〜7:40 と 7:40〜8:20 の 2 本: 既定の朝食の時刻 は 1 本目の中 → 連鎖して 8:20 に起床(つながないと 7:40)。"""
     w = weekly([(0, 0, 460, SLEEP, HOME), (0, 460, 500, SLEEP, HOME), (0, 500, 600, PREP, HOME)], 1)
     assert E.w17_wake_minute(w, 1, 0, np.array([0]), np.array([B_MIN])).tolist() == [500]
     got = run_out_of_area(E.OutOfAreaMeals(model(), 1, 1440, weekly=w, sleep_defer="on"),

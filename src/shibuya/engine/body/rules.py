@@ -350,6 +350,9 @@ def initial_energy_values(energy: Any, eer: np.ndarray) -> BodyInitial:
     ``eer`` は ``float32``(``EnergyModel.draw_bodies`` の値=SoA の ``eer_kcal`` と同じ)。
     """
     model = energy.model
-    since = model.initial_since_meal(eer)
+    # 〔小さな版上げ・回答 10-13b §7 の 2〕腕 w17 は体ごとの前夜の夕食の分(EnergyLayer.initial_dinner_min)から。
+    # 無い呼び手(腕 validation・作り物の層)は前と同じ 1 つの既定の分
+    dinner = getattr(energy, "initial_dinner_min", None)
+    since = model.initial_since_meal(eer) if dinner is None else model.initial_since_meal(eer, dinner)
     hun = model.hunger_copy(model.stage_of(since, eer))
     return BodyInitial(hun, None, None, MappingProxyType({"hunger_stage": stage_values(hun)}), since)

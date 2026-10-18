@@ -489,6 +489,7 @@ POPULATION_RNG_DOMAINS: dict[str, str] = {
     "agent.schedule": "mock 日課(拠点・境界の時刻・mock の初期所持金。W16 の体は拠点と種別を上書き)",
     "body.weight": "体重(engine.energy.draw_bodies・体ごと)",
     "body.eer": "推定エネルギー必要量のばらつき(同上)",
+    "energy.meal_default": "〔小さな版上げ・meal_w17〕範囲外の既定の食事時刻の引き(engine.energy.MealStartDistribution.draw・体ごと)",
     "geometry.desired_speed": "希望歩行速度(engine.geometry.desired_speeds・--geometry edge のときだけ)",
     "engine.processes.rail": "域外居住の通勤者の抽選と路線(計画実行層の無いランだけ)",
     "world.synthetic": "合成小世界の店の種別と在庫(世界資産が無いときだけ・舞台の構造)",

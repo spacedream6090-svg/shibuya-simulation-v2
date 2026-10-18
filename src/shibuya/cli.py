@@ -1232,6 +1232,15 @@ def main(argv: list[str] | None = None) -> int:
              "plan=行の開始に自宅に居て起きていれば予定の実行として食べる(金と物は動かさない・照合から外す)",
     )
     ap.add_argument(
+        "--meal-default",
+        choices=("w17", "validation"),
+        default=None,
+        help="小さな版上げ(回答 10-13b §7 の 2): 範囲外の人の既定の食事時刻と初期の空腹の出どころ(既定 w17・環境変数 "
+             "SHIBUYA_MEAL_DEFAULT と同じ。指定すれば環境変数より強い)。w17=W17 v2 の日課の食事の行の開始の分布(構築側)から"
+             "体ごとに引く/validation=旧値の再現のためだけ(第 18-1 表・15 分の食事率=検証側の錨を読む前の版の道・次の版上げで"
+             "消す)。既定と違えば設定の指紋に入る。--hunger-model energy のときだけ効く",
+    )
+    ap.add_argument(
         "--hunger-words",
         choices=("hungry", "all"),
         default="hungry",
@@ -1602,6 +1611,10 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine import seat_release as _seat_release
 
         _seat_release.set_arm(str(args.seat_release))
+    if args.meal_default is not None:  # 〔小さな版上げ〕既定の食事時刻の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine import energy as _energy
+
+        _energy.set_meal_default(str(args.meal_default))
     if args.body_schedule is not None:  # 〔第 3 期 3-5〕TM5 の体の予約の腕(組み立てが読む。指定は環境変数より強い)
         from shibuya.engine import body as _body
 

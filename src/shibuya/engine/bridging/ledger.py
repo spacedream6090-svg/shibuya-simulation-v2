@@ -66,6 +66,9 @@ PLAN_STAGES: Final[frozenset[str]] = frozenset({
     *(f"5-{i}" for i in range(7)),
     *(f"6-{i}" for i in range(1, 8)),
     "7", "T1", "T2", "T3", "T4",
+    # 〔小さな版上げ・meal_w17 検収 L6〕``next-bump``=次の版上げ(回答 10-13b §0-6「版上げで新しい道を既定にしたら、古い道の
+    # 切替口は次の版上げで消す」=旧値の再現のためだけの切替口の行)。段の番号ではなく版上げの順で決まる
+    "next-bump",
 })
 _DOC_PREFIX = "docs/"
 _CODE_PREFIX = "src/"

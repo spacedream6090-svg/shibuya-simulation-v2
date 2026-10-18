@@ -51,7 +51,7 @@ class StubModel:
         return (np.asarray(eer, dtype=np.float32) * np.float32(per_min / AVG_METS) * mets).astype(np.float32)
 
     def initial_since_meal(self, eer):  # noqa: ANN001, ANN201
-        return (np.asarray(eer, dtype=np.float64) * (MINUTES_PER_DAY - 1158) / MINUTES_PER_DAY).astype(np.float32)
+        return (np.asarray(eer, dtype=np.float64) * (MINUTES_PER_DAY - 1140) / MINUTES_PER_DAY).astype(np.float32)
 
 
 def stub_energy() -> SimpleNamespace:
