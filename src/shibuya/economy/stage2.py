@@ -108,6 +108,9 @@ WITHDRAW_TRIGGER_DAYS: Final[float] = 1.0
 WITHDRAW_DAYS: Final[float] = 3.0
 #: ATM の払い出しの単位[円](紙幣=千円・未リサーチ(expedient))。
 ATM_UNIT_YEN: Final[int] = 1_000
+#: 〔第 4 期 4-3 段 10・検収 M3〕外の雇用主の組織の番号(閉じた表の外=``engine.rights.initial.OUTSIDE_EMPLOYER_ORG`` と同じ値=
+#: 試験。経済は engine の権利台帳の模組を import しない=import の契約)。
+OUTSIDE_EMPLOYER_ORG: Final[int] = (1 << 31) - 1
 #: W17 の無いランの月の労働時間[時](週 40 時間 × 4 週・未リサーチ(expedient))。
 DEFAULT_MONTHLY_HOURS: Final[float] = 160.0
 #: 給料日(毎月この日・土休なら前の営業日=暦の口 ``SimCalendar.is_payday``・未リサーチ(expedient))。
@@ -179,7 +182,8 @@ def _empty_meter() -> dict[str, dict[str, int]]:
     return {
         "endow": {"deposit_rows": 0, "deposit_amount": 0, "visitor_rows": 0, "visitor_amount": 0},
         "wages": {"paydays": 0, "paid": 0, "amount": 0, "unpaid": 0, "unpaid_amount": 0, "funding": 0,
-                  "deductions": 0, "no_hours": 0, "outside_employer": 0, "employer_rows": 0, "store_rows": 0},
+                  "deductions": 0, "no_hours": 0, "outside_employer": 0, "employer_rows": 0, "store_rows": 0,
+                  "outside_employer_paid": 0, "outside_employer_amount": 0},
         "withdraw": {"asked": 0, "count": 0, "amount": 0, "wallet_ok": 0, "no_deposit": 0},
         "payment": {"cash_rows": 0, "cash_amount": 0, "account_rows": 0, "account_amount": 0, "short": 0,
                     "fare_ic_rows": 0, "fare_ic_amount": 0, "fare_cash_rows": 0, "fare_cash_amount": 0},
@@ -601,6 +605,20 @@ class MoneyStage2:
         cause = self._cause("payroll")
         self._add("wages", paydays=1, no_hours=int((net <= 0).sum()))
         out = {"paid": 0, "amount": 0}
+        # 〔第 4 期 4-3 段 10・検収 M3〕外の雇用主(閉じた表の外の組織の番号=勤め先のセルはあるが組織の無い体)は外界から払う
+        # (登録済みの faucet「域外雇用主の賃金」=外界 → 世帯の口座・原資の行は無い=外界そのものが払う)
+        oe = (sectors == _E) & (idx == OUTSIDE_EMPLOYER_ORG) & (net > 0)
+        if oe.any():
+            a, who = net[oe], agents[oe]
+            st = np.asarray(AN.monthly_wages(ledger, np.zeros(who.size, dtype=np.int64), who, np.zeros(who.size), step,
+                                             amounts=a, from_row=True, method=_OPS.METHOD_ACCOUNT, cause=cause))
+            ok = st == int(TransferStatus.OK)
+            self._add("wages", paid=int(ok.sum()), amount=int(a[ok].sum()), unpaid=int((~ok).sum()),
+                      unpaid_amount=int(a[~ok].sum()), outside_employer_paid=int(ok.sum()),
+                      outside_employer_amount=int(a[ok].sum()))
+            out["paid"] += int(ok.sum())
+            out["amount"] += int(a[ok].sum())
+        sectors = np.where(oe | ((sectors == _E) & (idx == OUTSIDE_EMPLOYER_ORG)), -1, sectors)
         for sector in (_E, _S):  # 逐次ループ宣言: 払い手の部門 2 つ
             m = (sectors == sector) & (net > 0)
             if sector == _E:

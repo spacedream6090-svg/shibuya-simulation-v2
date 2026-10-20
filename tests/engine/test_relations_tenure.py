@@ -111,9 +111,10 @@ def test_tenure_u_is_rank_independent_of_the_tie_hash():
 # ================================================================= (d) 全母集団
 @pytest.mark.requires_data("world_v2")
 def test_full_population_initial_net_is_uniform_in_every_kind_and_direction():
-    """全 390,067 体(W16+W17)。v2: 種別(世帯/職場/学校)× 向き(元 id の大小)のどれでも在職 2 週未満が
+    """全母集団(W16+W17・〔段 10〕差し替えの世界は 345,858 体)。v2: 種別(世帯/職場/学校)× 向き(元 id の大小)のどれでも在職 2 週未満が
     8.3% ± 1 ポイント・U と同点の順のハッシュの順位相関 < 0.01・u→v と v→u で同じ・τ の再逆算(8b′ と同じ手順=
-    ラン開始時の 15 番目の辺の A の中央値を小数 3 桁で切り下げ)が :data:`REL_TAU_V2`。v1 は同じ網で偏る(旧の事実)。"""
+    ラン開始時の 15 番目の辺の A の中央値を小数 3 桁で切り下げ)が :data:`REL_TAU_V2`(〔段 10〕差し替えの世界では −∞=下の注)。
+    v1 は同じ網で偏る(旧の事実)。"""
     from shibuya.agents.population import load_population
     from shibuya.agents.weekly import load_weekly
 
@@ -137,8 +138,13 @@ def test_full_population_initial_net_is_uniform_in_every_kind_and_direction():
     assert abs(_spearman(RL._tenure_unit(su, sv, "v2"), RL._pair_mix(su, sv).astype(np.float64))) < 0.01
     assert np.array_equal(RL._tenure_weeks(su, sv, 13.0), RL._tenure_weeks(sv, su, 13.0))
     A0 = RL._activation(init.n, init.first, 0, 1.0, RL.REL_D)
-    tau = float(RL.tau_from_edges(init.u, A0, m)["tau"])
-    assert math.floor(tau * 1000.0) / 1000.0 == RL.REL_TAU_V2
+    t = RL.tau_from_edges(init.u, A0, m)
+    # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に=345,858 体)では 15 本の辺を持つ体が半分に届かない
+    # (40.66%=残す W16 の体の辺の中央 0 本・W21 の体 14 本)=8b′ の手順の中央値は −∞(再逆算できない)。既定の τ_rel
+    # REL_TAU_V2(−2.322)は W16 の世界(390,067 体・15 本の体 54.52%)の再逆算の値のまま=親の判断を待つ問い(記録 pop43 §16)。
+    # 前の比べ: math.floor(tau * 1000.0) / 1000.0 == RL.REL_TAU_V2
+    assert t["tau"] == -math.inf and t["share_with_k_edges"] == 0.4066 and t["agents_with_k_edges"] == 140_632
+    assert t["kth_A_quantiles"]["p50"] == -2.0884  # 15 本ある体の 15 番目の A の中央(W16 の世界 −2.089)
 
 
 # ================================================================= (e) 切替口
@@ -171,13 +177,15 @@ def test_switch_is_checked_and_on_the_cli_and_sets_the_default_tau():
 #: 今の値の行 ("v1","behavior") にした。鍵の 2 つ目は final の定義(いまは behavior だけ)。
 REL_ON_5000_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     # 〔小さな版上げ・meal_w17〕v1 前 a2beb00f254b219c / 67_780(--meal-default validation で戻る)
-    ("v1", "behavior"): ("ee4df5ad2dccfa94", 67_233),  # 〔2-4 V1〕前 380e8651a96b1829 / 69_406  # 〔2-4 V2〕前 edc6b366feece21c / 69_306  # 〔2-4 V3〕前 967a0f2eedb3576d / 67_907  # 〔2-4 V4〕前 d696dfa98390e830 / 67_830
+    # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)で動いた(前 v1 ee4df5ad2dccfa94 / 67_233・v2
+    # bf212900153818d2 / 66_844=記録 pop43)
+    ("v1", "behavior"): ("285505540ec73d0d", 66_455),  # 〔2-4 V1〕前 380e8651a96b1829 / 69_406  # 〔2-4 V2〕前 edc6b366feece21c / 69_306  # 〔2-4 V3〕前 967a0f2eedb3576d / 67_907  # 〔2-4 V4〕前 d696dfa98390e830 / 67_830
     # 〔改訂(第330)〕10e 構築側(第330 B3 丸め・B4 W10 ON+Q7・B5 W13 の年間化)で世界の資産が動いた=既定の行だけ張り替えた(E4・E5 は 64f48b6571ec2ea1 / 74,616)。
     # full の 2 行は旧い世界の資産で録った値=旧資産を読む切替口(エンジン側 B1)で再現する(張り替えない)。
     # 〔改訂(第330・ACT)〕版上げ 1 回目の活性化(暦の一本化・開始日 2026-07-13・影 6 日)で既定の行が動いた
     # (B6build の値 25b5ce1304f6db68 / 74,056)。full の 2 行は退避先の資産と day_index・legacy で再現する。
     # 〔小さな版上げ・meal_w17〕v2 前 768b2262e3b0999e / 67_794(validation で戻る)
-    ("v2", "behavior"): ("bf212900153818d2", 66_844),  # 10e(E4) の値(E1 は e27e45f3e9b62749・E2 は fe19250259a7058d)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111  # 〔2-4 V2〕前 c506dec249bb4328 / 69_114  # 〔2-4 V3〕前 874ea26628f6be2e / 68_213  # 〔2-4 V4〕前 4a0db59663ef0d7b / 67_780
+    ("v2", "behavior"): ("d0623491c47e5e2f", 66_374),  # 10e(E4) の値(E1 は e27e45f3e9b62749・E2 は fe19250259a7058d)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111  # 〔2-4 V2〕前 c506dec249bb4328 / 69_114  # 〔2-4 V3〕前 874ea26628f6be2e / 68_213  # 〔2-4 V4〕前 4a0db59663ef0d7b / 67_780
 }}
 #: 今の環境の行(無ければ ``None``=A/A だけ)。
 REL_ON_5000_GOLDEN = GE.row(REL_ON_5000_GOLDEN_BY_ENV)

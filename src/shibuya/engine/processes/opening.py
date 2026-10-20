@@ -153,12 +153,16 @@ class OpeningProcess:
         tick_seconds: int = 60,
         actual_log=None,
         org_of_agent=None,
+        initial_rights=None,
     ) -> None:
         self.world = world
         self.agents = agents
         self.assets = passets
         #: 〔1-5〕体 → W16 の ``org_id``(権利台帳の (a) 雇用の行の材料・``None``=母集団の無いラン)。
         self.org_of_agent = None if org_of_agent is None else np.asarray(org_of_agent, dtype=np.int64).copy()
+        #: 〔第 4 期 4-3 段 10〕差し替えの世界の初期の行(``engine.rights.initial.InitialRows``=店の担当と住まい・読むだけ)。
+        #: ``None``=今の口(担当は丸振り・住まいは 0 行)。
+        self.initial_rights = initial_rights
         self.n_unauthorized = 0
         self.day_index = int(day_index)
         self.tick_seconds = int(tick_seconds)
@@ -186,7 +190,8 @@ class OpeningProcess:
     # ------------------------------------------------------------------ 従業者の割り当て(1-5: 権利台帳から読む)
     def _build_rights(self):
         """〔1-5〕権利台帳の最初の中身を今の SoA の種別から作る(``engine.rights.initial.build_initial``)。"""
-        return _RI.build_initial(self.agents.registry.field("kind"), self.world.n_poi, self.org_of_agent)
+        return _RI.build_initial(self.agents.registry.field("kind"), self.world.n_poi, self.org_of_agent,
+                                 rows=self.initial_rights)
 
     def _staff_from_rights(self) -> np.ndarray:
         """〔1-5〕POI → 担当従業者を権利台帳の ``employ`` の行(体 → 店)から読む。-1=担当なし。

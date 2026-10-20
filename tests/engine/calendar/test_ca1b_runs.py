@@ -22,7 +22,10 @@ from shibuya.engine.presence import EventType, PlanExecutor
 from shibuya.engine.run import run_day
 
 WORLD = Path("data/world/v2")
-W20 = Path("data/world/v2_stage_3-1") / "w20_calendar_1a.parquet"
+#: W20 の週の表。〔第 4 期 4-3 段 10〕世界資産が自分の表を持てばそれ(差し替えの世界=W21 の体の表・エンジンの既定の道筋
+#: ``<world_dir>/w20_calendar_1a.parquet`` と同じ)・無ければ段の資産 v2_stage_3-1 の表(W16 の世界・前のまま)。
+W20 = (WORLD / "w20_calendar_1a.parquet" if (WORLD / "w20_calendar_1a.parquet").is_file()
+       else Path("data/world/v2_stage_3-1") / "w20_calendar_1a.parquet")
 real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 TPD = 1_440
 KW = dict(n_agents=300, seed=1, world_dir=str(WORLD), vocab_version="v3", activity=True)
@@ -31,7 +34,7 @@ KW = dict(n_agents=300, seed=1, world_dir=str(WORLD), vocab_version="v3", activi
 @pytest.fixture
 def w20(monkeypatch):
     if not W20.is_file():
-        pytest.skip("requires_data: data/world/v2_stage_3-1/w20_calendar_1a.parquet が無い")
+        pytest.skip("requires_data: W20 の週の表(data/world/v2 か v2_stage_3-1 の w20_calendar_1a.parquet)が無い")
     monkeypatch.setenv("SHIBUYA_CALENDAR_W20", str(W20))
     return W20
 
@@ -87,7 +90,7 @@ def test_default_two_days_resume_equals_straight(tmp_path, w20):
 @pytest.fixture(scope="module")
 def pair():
     if not W20.is_file():
-        pytest.skip("requires_data: data/world/v2_stage_3-1/w20_calendar_1a.parquet が無い")
+        pytest.skip("requires_data: W20 の週の表(data/world/v2 か v2_stage_3-1 の w20_calendar_1a.parquet)が無い")
     mp = pytest.MonkeyPatch()
     mp.setenv("SHIBUYA_CALENDAR_W20", str(W20))
     counts: dict[str, dict[int, int]] = {}

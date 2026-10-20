@@ -198,6 +198,10 @@ HEAD_TREE_FILES: tuple[str, ...] = (
     "data/calendar/syukujitsu.csv",
     "data/realworld/osm/poi_tags_overpass_20260928.json",
     "data/realworld/osm/poi_opening_hours_overpass_20260907.json",
+    # 〔第 4 期 4-3 検収 L10〕賃金の腕 occupation の入力(``engine.economy_stage2.PERSONA_POOL_RELPATH``=在庫の語・
+    # ``economy.wages.DERIVED_RELDIR``=賃金構造の表の写し)。無い写しでは賃金が平均に落ちて final が HEAD と違って見える
+    "data/persona_pool_v2",
+    "data/research_cache/pop41b/derived",
 )
 
 

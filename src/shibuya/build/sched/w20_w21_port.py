@@ -15,7 +15,11 @@ W16 の口(``attributes_from_columns``)との違い
 - 職業は全員 ``occupation_major`` から(W16 の口は担当の体だけ)。分類不能(L)と空欄は空。
 - 片道の通勤時間: 歩いて通う住民=W21 の歩く道のり ÷ 歩く速さの参照値(``attr_fns.walk_seconds``=人物の文と同じ関数)の分
   (切り上げ=W20 は整数の分・人物の文は四捨五入=丸めた言葉)・
-  自宅で働く人=0・ほか(電車の人)は空欄(−1=W20 が 30 分を入れる=``lead_default`` に数える)。
+  自宅で働く人=0・電車の人は空欄(−1=W20 が 30 分を入れる=``lead_default`` に数える)。〔第 4 期 4-3 段 10・親の判断=
+  検収 L6〕舞台の中の歩く道のり(駅 → 勤め先 中央 241 m)では埋めない=常住地からの電車の時間が無いと片道が数分になり物理に
+  合わない(所要時間の表が構築側に入る段まで W20 の既定のまま=つなぎ)。
+- 〔段 10・仮-33 (4)〕従業上の地位: W21 の 8 区分から第 31/36 表の行へ直接写す口 :func:`employment_from_w21`(W16 の 6 値への
+  写しで派遣と雇人のある/ない業主の区別が落ちないように)。W20 の ``draw_employment_status``(W16 の口)は変えない。
 - 学校: 住民の在学の種類のうち授業のある段階(幼稚園・小学校〜大学院)=授業の約束。保育園・認定こども園・未就学のほかは
   授業でない(W20 の ``TEACHING_STAGES`` に合わせた=認定こども園を授業にしない)。学校のセルは W21 に無い=全員 −1。
 - 席と学校の両方(働く在学者)は勤務を先に(W20 の親の判断 第337 中 1 と同じ=``seat_and_school`` に数える)。W21 の席は
@@ -43,7 +47,8 @@ from ..pop.attr_fns import W16_EMPLOYMENT_OF, walk_seconds
 from . import w20_calendar_1a as W
 
 __all__ = ["UnknownDutyRoleError", "W21_INPUT_COLUMNS", "OCC_OF_MAJOR", "TEACHING_OF_SCHOOL", "WORKPLACE_OF_AREA",
-           "DUTY_ROLE_SPEC_W21", "duty_role_spec", "attributes_from_w21", "lead_minutes"]
+           "DUTY_ROLE_SPEC_W21", "duty_role_spec", "attributes_from_w21", "lead_minutes", "EMP_ROW_OF_W21",
+           "PART_TIME_ROWS", "STATUS_OF_W21", "UnknownEmploymentStatusError", "employment_from_w21"]
 
 #: 読む列(``w21_people`` の名と段 3 の在学の種類)。
 W21_INPUT_COLUMNS: Final[tuple[str, ...]] = (
@@ -103,7 +108,8 @@ def _map(words: np.ndarray, table: Mapping[str, Any], default: Any) -> np.ndarra
 
 
 def lead_minutes(mode: Any, path_m: Any) -> np.ndarray:
-    """片道の通勤時間[分]: 歩き=道のり ÷ 歩く速さの参照値(切り上げ・少なくとも 1)・自宅=0・ほかは −1(空欄)。"""
+    """片道の通勤時間[分]: 歩き=道のり ÷ 歩く速さの参照値(切り上げ・少なくとも 1)・自宅=0・ほか(電車の人)は −1(空欄=W20 の
+    既定 30 分)。"""
     md = _s(mode)
     p = np.asarray(path_m, dtype=np.float64)
     out = np.full(md.size, W.BLANK, dtype=np.int64)
@@ -111,6 +117,63 @@ def lead_minutes(mode: Any, path_m: Any) -> np.ndarray:
     out[walk] = np.maximum(1, np.ceil(walk_seconds(p[walk]) / SECONDS_PER_MINUTE)).astype(np.int64)
     out[md == "home"] = 0
     return out
+
+
+#: 〔段 10・仮-33 (4)〕W21 の従業上の地位(国勢調査の 8 区分=``attr_fns.EMP_STATUS``)→ 第 31/36 表の行(1 つに決まる区分)。
+#: 家庭内職者(``home_worker``)は第 31/36 表に行が無い=雇人のない業主の行(expedient)。パート(``part_time``=国勢調査の
+#: 「パート・アルバイト・その他」)は :data:`PART_TIME_ROWS` の按分。
+EMP_ROW_OF_W21: Final[Mapping[str, str]] = MappingProxyType({
+    "regular": "正規の職員・従業員", "dispatched": "派遣社員", "executive": "会社などの役員", "employer": "雇人のある業主",
+    "self_employed": "雇人のない業主", "family_worker": "家族従業者", "home_worker": "雇人のない業主",
+})
+#: パートの按分の行(第 31 表の非正規の按分 ``employment_mix["非正規"]`` から派遣社員を除いた 4 行の重み=派遣は W21 が持つ)。
+PART_TIME_ROWS: Final[tuple[str, ...]] = ("パート", "アルバイト", "契約社員", "嘱託")
+#: W21 の 8 区分 → 第6-2表の 6 区分(W20 の ``EMPLOYMENT_TO_STATUS`` と同じ読み=非正規は有期・業主は個人業主)。
+STATUS_OF_W21: Final[Mapping[str, int]] = MappingProxyType({
+    "regular": W.ST_INDEF, "part_time": W.ST_FIXED_TERM, "dispatched": W.ST_FIXED_TERM, "executive": W.ST_OFFICER,
+    "employer": W.ST_SOLE, "self_employed": W.ST_SOLE, "home_worker": W.ST_SOLE, "family_worker": W.ST_FAMILY,
+})
+
+
+class UnknownEmploymentStatusError(ValueError):
+    """勤務の約束を持つ体の W21 の地位の語が 8 区分に無い(黙って正規にしない)。"""
+
+
+def employment_from_w21(attrs: W.Attributes, emp_status: Any, anchor: Mapping[str, Any]) -> W.Employment:
+    """W21 の体の従業上の地位(8 区分)→ W20 の ``Employment``(第6-2表の 6 区分・第 31/36 表の行)を直接写す。
+
+    勤務の約束を持つ体(``attrs.employed``)だけ。パートの行は :data:`PART_TIME_ROWS` の重みで、W20 と同じ乱数(``draw_u("emprow",
+    agent_id)``)で引く。語が 8 区分に無ければ :class:`UnknownEmploymentStatusError`。出どころは全員 ``SRC_EMPLOYMENT``。
+    逐次ループ宣言: 区分の数ぶん(8)。
+    """
+    n = attrs.n
+    st8 = _s(emp_status)
+    if st8.size != n:
+        raise ValueError(f"地位の語の数 {st8.size} が体の数 {n} と違う")
+    emp = np.asarray(attrs.employed, dtype=bool)
+    unknown = sorted(set(np.unique(st8[emp]).tolist()) - set(STATUS_OF_W21))
+    if unknown:
+        raise UnknownEmploymentStatusError(f"勤務の約束を持つ体の地位の語が 8 区分に無い: {unknown}")
+    status = np.full(n, W.ST_NONE, dtype=np.int64)
+    source = np.full(n, W.SRC_NONE, dtype=np.int64)
+    row = np.full(n, W.BLANK, dtype=np.int64)
+    idx = {name: i for i, name in enumerate(W.EMP_ROWS)}
+    for word, st in STATUS_OF_W21.items():  # 逐次: 8 区分
+        m = emp & (st8 == word)
+        status[m] = st
+        source[m] = W.SRC_EMPLOYMENT
+        if word in EMP_ROW_OF_W21:
+            row[m] = idx[EMP_ROW_OF_W21[word]]
+    pt = emp & (st8 == "part_time")
+    if pt.any():
+        mix = dict(anchor.get("employment_mix", {}).get("非正規", {}))
+        weights = {k: float(mix.get(k, 0.0)) for k in PART_TIME_ROWS}
+        if sum(weights.values()) <= 0:
+            raise ValueError("錨の employment_mix に非正規の按分(パート・アルバイト・契約社員・嘱託)が無い")
+        row[pt] = W._pick(weights, W.draw_u("emprow", attrs.agent_id)[pt])
+    ctr = {"from_employment": int((source == W.SRC_EMPLOYMENT).sum()), "census_redraw_duty_role": 0,
+           "employment_missing": 0, "w21_direct_rows": int((row >= 0).sum())}
+    return W.Employment(status=status, emp_row=row, source=source, counters=ctr)
 
 
 def attributes_from_w21(people: Mapping[str, Any]) -> W.Attributes:

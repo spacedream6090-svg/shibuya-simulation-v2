@@ -179,6 +179,19 @@ def test_from_weekly_uses_the_day_rows_then_all_days_then_frozen():
     assert E.meal_start_distribution(w, 0, mode="validation") is None
 
 
+#: 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に=W17 は残す体の行+提供者の写し)の W17 の月曜の食事の
+#: 15 分の度数。凍結の表 ``E.W17V2_MEAL_START_HIST_15MIN`` は W17 2.0.0(前の世界の W17)の値のまま(合成の世界の分布・
+#: 前の世界では世界の W17 と一致した=下の試験の旧の比べ)。記録 pop43 §16。
+W21_WORLD_MEAL_START_HIST_15MIN = {
+    "breakfast": (86, 19, 72, 7, 278, 21, 218, 36, 3709, 378, 849, 208, 709, 221, 342, 226, 273, 118, 347, 123, 412, 162,
+                  738, 527),
+    "lunch": (2026, 3414, 9856, 10949, 23977, 13115, 17607, 7060, 6984, 1907, 2154, 764, 1146, 439, 1131, 337, 1072, 433,
+              1276, 505),
+    "dinner": (9257, 3587, 12069, 4354, 14619, 5685, 14746, 4217, 20360, 3631, 6977, 1659, 14378, 1362, 7576, 1718, 5879,
+               1412, 4007, 1323, 3757, 540, 2051, 554, 1387, 171, 838, 261),
+}
+
+
 @real_data
 def test_draw_from_the_world_w17_matches_its_meal_rows_jsd():
     from shibuya.agents.weekly import load_weekly
@@ -194,7 +207,9 @@ def test_draw_from_the_world_w17_matches_its_meal_rows_jsd():
         # 1 分刻み・体の数ぶんの引き(朝は行が 1.1 万本と少ない=引きの揺れの分だけ緩い)
         assert _jsd(got, want) < (0.02 if key == "breakfast" else 0.005), key
         hw = np.bincount((d.sorted_min[s] - lo) // 15, minlength=(hi - lo) // 15)
-        assert np.array_equal(hw, np.asarray(E.W17V2_MEAL_START_HIST_15MIN[key])), "凍結の表が世界の W17 と違う"
+        swapped = (WORLD_DIR / "W21apply.header.json").exists()
+        want = W21_WORLD_MEAL_START_HIST_15MIN if swapped else E.W17V2_MEAL_START_HIST_15MIN
+        assert np.array_equal(hw, np.asarray(want[key])), "凍結の表(差し替えの世界ではその世界の度数)が世界の W17 と違う"
 
 
 # ================================================================= 3. 範囲外の予定・初期の空腹・計器
@@ -378,8 +393,9 @@ def test_validation_arm_reproduces_the_pre_meal_w17_final_on_the_world():
     assert res.run_manifest_fields()["energy"]["meal_default"] == "validation"
 
 
-#: 前の版(旧値の腕)の w6_v3_default の呼数(記録 meal_w17 §3)。
-PRE_MEAL_W17_V3_CALLS = 64_528
+#: 前の版(旧値の腕)の w6_v3_default の呼数(記録 meal_w17 §3)。〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界の旧値の腕の
+#: 呼数(前 64_528=W16 の世界・記録 pop43)。
+PRE_MEAL_W17_V3_CALLS = 64_161
 
 
 @real_data

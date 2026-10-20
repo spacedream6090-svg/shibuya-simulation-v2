@@ -477,8 +477,10 @@ def test_real_static_anchors(G):
     with g.active():
         S = G.load_static(g, paths)
         km = G.w16_static_ratios(S)["kind_map_stage"]
-        assert km["P"]["V_per_Res"] == pytest.approx(2.33, abs=0.01)    # R-115 §3-2 錨 1(kind≠7 ∧ age≥20)
-        assert km["P"]["W_per_Res"] == pytest.approx(5.56, abs=0.01)
+        # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)の値。前(W16 の世界)は V/Res 2.33・W/Res 5.56・
+        # 中核 9 の居住者 8,524(記録 pop43 §16)
+        assert km["P"]["V_per_Res"] == pytest.approx(2.32, abs=0.01)    # R-115 §3-2 錨 1(kind≠7 ∧ age≥20)
+        assert km["P"]["W_per_Res"] == pytest.approx(4.51, abs=0.01)
         anc = G.w12_node_anchors(S)
         ids = anc["ids"]
         assert abs(anc["share"].sum() - 1.0) < 1e-12
@@ -487,7 +489,7 @@ def test_real_static_anchors(G):
         assert len(rail) == 8 and {G.peak_hour(anc["shape"][i]) for i in rail} == {8}
         assert G.peak_hour(anc["shape"][ids.index("ext_walk_gate")]) == 10
         core = G._core9_static(S)
-        assert core["w16_static"]["night"] == 8524                       # W16 の中核 9 の居住者(被覆つき)
+        assert core["w16_static"]["night"] == 8363                       # W16 の中核 9 の居住者(被覆つき・前 8,524)
         assert 100 <= core["mapping"]["n_gl_cells"] <= 180               # 1.39 km² ≒ 139 枚の目安
         assert G.ssb_work_rise(S.ssb)["rise"] == "8:30"
     assert S.area_meta["area_ha_gate_ok"]
@@ -515,7 +517,9 @@ def test_real_record_is_invariant_and_gauge_runs(G, tmp_path):
     for arm in G.ARMS:
         s = doc["arms"][arm]["summary"]
         assert s["3-1/sim/peak/total5"] in G.KDDI_HOURS
-        assert s["3-4/a1/mean"] is not None and s["3-4/a3/rise"] == "8:30"
+        # 〔第 4 期 4-3 段 10〕差し替えの世界では 3-4 の錨 1(ペルソナの在庫の時刻)が W21 の体に値を持たない=None(計器の読み口が
+        # W16 の在庫を読む=問い・記録 pop43 §18)。前(W16 の世界): s["3-4/a1/mean"] is not None
+        assert s["3-4/a1/mean"] is None and s["3-4/a2/mean"] is not None and s["3-4/a3/rise"] == "8:30"
 
 
 # ---------------------------------------------------------------------- 検収の直し(L4・L5・L8・L10・M1)

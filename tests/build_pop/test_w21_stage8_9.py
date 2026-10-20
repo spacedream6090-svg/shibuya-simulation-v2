@@ -67,7 +67,8 @@ def test_registry_has_stage_9_and_10_functions():
     assert names == {"nationality": (9, "1.2.0"), "first_language": (9, "1.2.0"), "japanese_level": (9, "1.2.0"),
                      "commuter_status_split": (10, "1.2.0")}
     assert set(A.registry_versions((9, 10))) == set(names)
-    assert BC.STAGE_VERSION_C == "1.2.0" and BC.STAGE_C == "W21c"
+    # 〔第 4 期 4-3 段 10〕組み立ての版 1.2.0 → 1.3.0(関数の版は不変)
+    assert BC.STAGE_VERSION_C == "1.3.0" and BC.STAGE_C == "W21c"
     # 段 1〜3 と段 4〜7 の manifest に載る版の表は変えない
     assert all(f.version == "1.1.0" for f in A.REGISTRY.values() if 4 <= f.stage <= 6)
 
@@ -374,16 +375,20 @@ def test_persona_is_deterministic_and_short_is_prefix_of_long():
 
 
 def test_persona_languages_and_blank_templates():
+    # 〔第 4 期 4-3 段 10・仮-33 (7)〕型の無い言語の人は日本語の型で代えて印(substitute_ja)を付ける(前の版は欄だけ=
+    # lang "" ・text_status no_template)。本当の第一言語は first_language の欄と文の人物の行に残る
     f = _facts(first_language=["ja", "zh", "en", ""], nationality=[A.JAPAN, "中国", "米国", ""])
     tab = P.build_tables(f)["long"]
-    assert tab["lang"].tolist() == ["ja", "", "en", "ja"]
-    assert tab["lang_basis"].tolist() == ["first_language", "no_template", "first_language", "blank_assumed_ja"]
-    assert tab["text"][1] == "" and tab["text_status"][1] == "no_template" and tab["chars"][1] == 0
+    assert tab["lang"].tolist() == ["ja", "ja", "en", "ja"]
+    assert tab["lang_basis"].tolist() == ["first_language", P.SUBSTITUTE_BASIS, "first_language", "blank_assumed_ja"]
+    assert tab["text_status"].tolist() == ["built"] * 4 and tab["first_language"][1] == "zh"
+    assert tab["text"][1].startswith("人物:") and "第一言語は中国語" in tab["text"][1] and tab["chars"][1] > 0
     assert tab["text"][2].startswith("Person:") and "人物:" not in tab["text"][2]
-    # 外国籍で第一言語が空欄(多言語の国)は欄だけ・国籍も空欄(外から来る人)は日本語の型
+    # 外国籍で第一言語が空欄(多言語の国)も日本語の型で代える・国籍も空欄(外から来る人)は日本語の型
     f2 = _facts(first_language=["ja", "", "en", ""], nationality=[A.JAPAN, "フィリピン", "米国", ""])
     tab2 = P.build_tables(f2)["long"]
-    assert tab2["lang"].tolist() == ["ja", "", "en", "ja"]
+    assert tab2["lang"].tolist() == ["ja", "ja", "en", "ja"]
+    assert tab2["lang_basis"][1] == P.SUBSTITUTE_BASIS and "国籍はフィリピン" in tab2["text"][1]
     with pytest.raises(ValueError):
         P.render(f, "zh", "short")
 
@@ -489,12 +494,12 @@ def test_override_port_reads_new_text_and_keeps_original():
     new2, _ = P.override(new, [0], ["三つ目の文。"], label="second")
     assert new2["text"][0] == "三つ目の文。" and new2["text_original"][0] == before[0]
     assert new2["text_source"][0] == "override:second"
-    # 〔検収 L2〕欄だけの体を差し替えたら text_status が override
+    # 〔検収 L2〕差し替えた体は text_status が override(〔段 10〕型の無い言語の人も日本語の型で代えた=文がある)
     blank = P.build_tables(_facts(first_language=["ja", "zh", "en", ""], nationality=[A.JAPAN, "中国", "米国", ""]))["long"]
-    assert blank["text_status"][1] == "no_template"
+    assert blank["text_status"][1] == "built" and blank["lang_basis"][1] == P.SUBSTITUTE_BASIS
     nb, _ = P.override(blank, [1], ["差し替えた文。"], label="x")
-    assert nb["text_status"][1] == "override" and nb["text"][1] == "差し替えた文。" and nb["text_original"][1] == ""
-    assert nb["text_status"][0] == "built"
+    assert nb["text_status"][1] == "override" and nb["text"][1] == "差し替えた文。"
+    assert nb["text_original"][1] == blank["text"][1] and nb["text_status"][0] == "built"
     with pytest.raises(P.PersonaOverrideError):
         P.override(tab, [99], ["x"], label="a")
     with pytest.raises(P.PersonaOverrideError):
@@ -723,20 +728,26 @@ def test_module_tables_and_defaults():
               WP.WORKPLACE_OF_AREA, WP.DUTY_ROLE_SPEC_W21):
         with pytest.raises(TypeError):
             t["x"] = 1  # type: ignore[index]
-    assert len(BC.W21C_EXPEDIENTS) == 16 and all(0 <= i < 16 for i in BC.STAGE10_ROWS_OF_DECLARATIONS)
+    # 〔第 4 期 4-3 段 10〕16 → 14 行(置き場・W16 の在庫の案・地位の分けを消し、通う駅の口を足した)・段 10 に結ぶ宣言は無い
+    assert len(BC.W21C_EXPEDIENTS) == 14 and BC.STAGE10_ROWS_OF_DECLARATIONS == ()
     assert set(A.NATIONALITY_LANGUAGE.values()) - {""} <= set(A.LANGUAGE_NAMES)
 
 
 # ================================================================================ 実データ
 REAL = pytest.mark.requires_data("world_v2")
 #: golden(記録 pop41c/README.md §資産・seed 20260909)。
-GOLDEN_COUNTS = {"people": 215792, "persona_rows": 215792, "persona_built": 212897, "persona_no_template": 2895}
-GOLDEN_BUILD_HASH_C = "36ac56f8290a9f7ac11368b5f8fbfddf85e0748507290d8a16312fcf1f23b122"
+#: 〔第 4 期 4-3 段 10〕1.3.0(段 4〜7 の 1.2.0 の上・型の無い言語を日本語の型で・通う駅の口)で組み直した値。前の値(1.2.0)は
+#: persona_built 212897・persona_no_template 2895・w21c_build_hash 36ac56f8290a9f7ac11368b5f8fbfddf85e0748507290d8a16312fcf1f23b122
+#: (記録 pop41c)=記録 pop43。
+GOLDEN_COUNTS = {"people": 215792, "persona_rows": 215792, "persona_built": 215792, "persona_no_template": 0}
+GOLDEN_BUILD_HASH_C = "5936be9caf93f447e2b0dc709243a957ae3d0646521220443e66dedb2b1b5c2c"
+#: 段 4〜7 の 1.2.0 の golden(``test_w21_stage4_7.GOLDEN_BUILD_HASH_B`` と同じ)。
+GOLDEN_BUILD_HASH_B12 = "1ccbfb048516d45484895398a58e49ab5a8aede960461e821b4d845fb647542b"
 
 
 def _need_real() -> None:
-    if not (DATA / "world" / BC.BASE_ASSET_C / "w21b_manifest.json").exists():
-        pytest.skip("requires_data: 段 4〜7 の資産 v2_stage_4-1b が無い")
+    if not (DATA / "world" / BC.STAGE13_ASSET / "w21_manifest.json").exists():
+        pytest.skip("requires_data: 段 1〜3 の資産 v2_stage_4-1 が無い")
     for s in (*S.SOURCES, *S.SOURCES_B, *S.SOURCES_C):
         for parts in (s.path, s.derived):
             if parts and not DATA.joinpath(*parts).exists():
@@ -748,19 +759,34 @@ def _sha(p: Path) -> str:
 
 
 @pytest.fixture(scope="module")
-def built(tmp_path_factory):
+def base12(tmp_path_factory):
+    """〔第 4 期 4-3 段 10〕段 4〜7 を 1.2.0(地位の分けを席の前に)で組んだ置き場(段 1〜3 の資産の写しを足す)。"""
+    import shutil
+
+    from shibuya.build.pop import w21_build_b as BB
+
     _need_real()
+    base = tmp_path_factory.mktemp("w21b12")
+    BB.build_b(DATA, base)
+    s13 = DATA / "world" / BC.STAGE13_ASSET
+    for f in ("w21_frame.json", "w21_households.parquet", "w21_persons.parquet", "w21_checks.json", "w21_manifest.json"):
+        shutil.copy2(s13 / f, base / f)
+    return base
+
+
+@pytest.fixture(scope="module")
+def built(tmp_path_factory, base12):
     out = tmp_path_factory.mktemp("w21c")
-    _res, man = BC.build_c(DATA, out)
+    _res, man = BC.build_c(DATA, out, base=base12)
     return out, man
 
 
 @REAL
-def test_real_two_builds_are_byte_identical(built, tmp_path):
+def test_real_two_builds_are_byte_identical(built, base12, tmp_path):
     out, _man = built
-    base = DATA / "world" / BC.BASE_ASSET_C
+    base = base12
     before = {f: _sha(base / f) for names in BC.BASE_FILES_C.values() for f in names}
-    BC.build_c(DATA, tmp_path)
+    BC.build_c(DATA, tmp_path, base=base)
     for f in (*BC.OUTPUTS_C, BC.MANIFEST_C, "W21c.header.json"):
         assert _sha(out / f) == _sha(tmp_path / f), f
     assert {f: _sha(base / f) for f in before} == before  # 段 1〜7 の資産は変わらない
@@ -772,7 +798,7 @@ def test_real_golden_counts_and_hash(built):
     for k, v in GOLDEN_COUNTS.items():
         assert man["counts"][k] == v, k
     assert man["w21c_build_hash"] == GOLDEN_BUILD_HASH_C
-    assert man["base"]["w21b_build_hash"] == "34798bd5d9b67dbeca81457187f8698e9a22ea520c0ba01b3df04fd10160c58f"
+    assert man["base"]["w21b_build_hash"] == GOLDEN_BUILD_HASH_B12
     assert man["base"]["w21_build_hash"] == "ca823451cad3f57b5a2636b65a6cc94806e9a62f9b7a9b7dd6546370c97f00c0"
 
 
@@ -785,7 +811,8 @@ def test_real_structure_and_instruments(built):
     assert k["doubles"]["person_id_duplicates"] == 0 and k["doubles"]["people_with_two_or_more_employ_rows"] == 0
     assert k["diversity"]["dm6_behavior_variance_ratio"] is None
     s10 = c["stage10"]
-    assert s10["seat_recount"]["before_matches_stage4"] is True
+    # 〔第 4 期 4-3 段 10〕分けは段 4(W21b 1.2.0)が入れた=分けの後の数え直しが段 4 の所属と同じ(前の版は分けの前が同じ)
+    assert s10["seat_recount"]["after_matches_stage4"] is True and s10["seat_recount"]["before_matches_stage4"] is False
     assert s10["seat_recount"]["before"]["overflow"] == 34175 and s10["seat_recount"]["overflow_reduction"] > 0
     bd = s10["seat_recount"]["breakdown"]  # 〔検収 中 2〕内訳(候補/候補でない × 得た/失った/勤め先が変わった)
     net = (bd["candidates"]["seated_after"] - bd["candidates"]["seated_before"]
@@ -796,7 +823,8 @@ def test_real_structure_and_instruments(built):
     long_t = pq.read_table(out / "w21_persona_long.parquet").to_pydict()
     assert len(long_t["person_id"]) == man["counts"]["people"]
     assert all(v is None for v in long_t["text_original"][:1000]) and set(long_t["text_source"]) == {"facts"}
-    assert len(long_t["named_poi"]) == len(long_t["person_id"]) and set(long_t["text_status"]) == {"built", "no_template"}
+    assert len(long_t["named_poi"]) == len(long_t["person_id"]) and set(long_t["text_status"]) == {"built"}
+    assert long_t["lang_basis"].count(P.SUBSTITUTE_BASIS) == 2895  # 型の無い言語の人(前の版の欄だけ 2,895 人)
     for kk in P.TIPI_COLUMNS:
         assert all(v is None or v != v for v in long_t[kk][:1000])
     # 分けの比: 外から来て働く人の候補の地位は第6-2表の比(産業ごとの重みの和)に近い

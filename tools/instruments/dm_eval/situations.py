@@ -265,12 +265,15 @@ _MONEY_BEFORE: Final[tuple[str, ...]] = ("¥", "￥")
 _BLOCK_TAG: Final[re.Pattern[str]] = re.compile(r"\[B\d+b?(?: [^\]\n]*)?\]")
 
 
-def numbers_outside_money_time(text: str) -> int:
+def numbers_outside_money_time(text: str, names: Sequence[str] = ()) -> int:
     """数字の並びのうち、時刻(時・分・時間・:)とお金(円・万円・千円・¥)に続かない物の数(DM4 の計器)。
 
-    ブロックの印 ``[Bx …]`` の数字は数えない(文の形の印)。
+    ブロックの印 ``[Bx …]`` の数字は数えない(文の形の印)。〔第 4 期 4-3 段 10・仮-33 (5)〕``names``(文に出る POI と組織の名=
+    人物の表の ``named_poi``・``named_org`` の名)の中の数字も数えない(名は数字の言い方の対象でない・長い名から先に外す)。
     """
     text = _BLOCK_TAG.sub("", str(text))
+    for nm in sorted({str(x) for x in names if x}, key=len, reverse=True):  # 逐次: 名の数
+        text = text.replace(nm, "")
     n = 0
     for m in _NUM.finditer(text):
         after = text[m.end():m.end() + 2]

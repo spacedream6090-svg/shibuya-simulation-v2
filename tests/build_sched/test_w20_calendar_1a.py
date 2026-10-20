@@ -492,7 +492,10 @@ def real5000():
     guard = W.R99Guard()
     with guard.active():
         mat = W.Materials(W.build_materials(DATA, guard=guard))
-        cols = pq.read_table(DATA / "world" / "v2" / "w16_population.parquet").to_pydict()
+        # 〔第 4 期 4-3 段 10〕W16 の世界の母集団(差し替えた本体の v2 なら活性化の退避 v2_pre_4-3=W21 の元の世界)
+        from shibuya.build.pop.w21_build import source_world
+
+        cols = pq.read_table(source_world(DATA, None) / "w16_population.parquet").to_pydict()
         n_all = len(cols["agent_id"])
         idx = np.arange(0, n_all, 78)[:5000]
         sub = {k: [cols[k][i] for i in idx.tolist()] for k in

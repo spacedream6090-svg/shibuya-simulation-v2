@@ -63,11 +63,16 @@ def test_world_5000_one_day_records_with_via_and_audit(world_runs):
 def test_world_ring_arrives_at_the_window_boundary(world_runs):
     r = world_runs["i"]
     evs = list(r.event_log.events())
-    dial = {(e.who, e.whom): e.t_ns for e in evs if e.what == W_DIAL}
+    # 〔第 4 期 4-3 段 10〕同じ組が 1 日に 2 回以上かけることがある(差し替えの世界の 5,000 体で 1 組)=組ごとにかけた時刻の集まり
+    # で見る(前は組ごとに最後の 1 回だけを持っていた)
+    dial: dict[tuple, set] = {}
+    for e in evs:
+        if e.what == W_DIAL:
+            dial.setdefault((e.who, e.whom), set()).add(e.t_ns)
     rings = [e for e in evs if e.what == W_RING]
     for e in rings:  # かけた刻みの次の窓の頭(幅=刻み 60 秒)
-        t_call = dial.get((e.whom, e.who))
-        assert t_call is not None and e.t_ns == t_call + STEP_NS
+        t_calls = dial.get((e.whom, e.who), set())
+        assert (e.t_ns - STEP_NS) in t_calls, (e.t_ns, sorted(t_calls))
     assert r.run_manifest_fields()["batching"]["boundary_events"] >= len(rings)
 
 

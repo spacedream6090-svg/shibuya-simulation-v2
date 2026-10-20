@@ -777,6 +777,8 @@ def build(_call_args: dict[str, Any]) -> Any:
             seat_area_m2=seat_area_table,
             default_seat_area_m2=seat_area_retail_m2,
             org_of_agent=_org_of_agent(pop, n_agents),  # 第 1 期 1-5: 権利台帳の雇用の行(W16 の org_id)
+            # 〔第 4 期 4-3 段 10〕差し替えの世界(母集団が w21_person_id を持つ)だけ初期の行の表を読む=本体の v2 は None
+            initial_rights=_initial_rights(world_dir, pop, n_agents),
         )
     if economy_plan is not None:  # 第 2 期 2-1: 賃金の雇用の行は権利台帳(開閉の過程が持つ)から読む
         economy_plan.runner = runner
@@ -1519,6 +1521,20 @@ def build(_call_args: dict[str, Any]) -> Any:
                     (int(d_.call.agent_id), int(d_.call.condition), int(d_.call.wake_class), int(d_.call.wake_since))
                 )
     return box
+
+
+def _initial_rights(world_dir: Any, pop: Any, n_agents: int) -> Any:
+    """〔第 4 期 4-3 段 10〕差し替えの世界の権利台帳の初期の行(体の番号=ランの SoA の行)。母集団が差し替えの版でなければ
+    ``None``(本体の v2=今の口)。差し替えの版なのに表が無ければ止める(黙って丸振りに戻さない)。"""
+    from shibuya.engine.rights import initial as _RIN
+
+    if pop is None or not getattr(pop, "is_swapped", False):
+        return None
+    m = min(int(n_agents), int(pop.n))
+    rows = _RIN.load_run_rows(world_dir, np.asarray(pop.source_agent_id, dtype=np.int64)[:m])
+    if rows is None:
+        raise ValueError(f"差し替えの母集団の世界に {_RIN.RUN_ROWS_FILE} が無い(店の担当と住まいの行)")
+    return rows
 
 
 def _org_of_agent(pop: Any, n_agents: int) -> Any:

@@ -624,6 +624,16 @@ def wage_inputs(schedule: Any, pop: Any, n_agents: int, *, pool_root: Any = None
         if g is not None:
             given = np.full(n, -1, dtype=np.int64)
             given[:m] = np.asarray(g, dtype=np.int64)[:m]
+        # 〔第 4 期 4-3 段 10〕差し替えの母集団の W21 の人(ペルソナの在庫の行が無い=pool_layer < 0)は、母集団の列の職業の名と
+        # 雇用の語を同じ欄に入れる(月の時間の目安=最低賃金の床に使う・額は ``given``)。W16 の残す行は今のまま(在庫の語)。
+        po = getattr(pop, "persona_occupation", None)
+        pe = getattr(pop, "persona_employment", None)
+        if po is not None and pe is not None:
+            w21 = np.asarray(pop.pool_layer)[:m] < 0
+            words["occupation_major"][:m] = np.where(w21, np.asarray(po, dtype=object)[:m],
+                                                     words["occupation_major"][:m])
+            words["employment"][:m] = np.where(w21, np.asarray(pe, dtype=object)[:m], words["employment"][:m])
+            source = source + "+w21"
     occ, occ_v = _vocab(words["occupation_major"])
     emp, emp_v = _vocab(words["employment"])
     seed = getattr(schedule, "master_seed", 1)

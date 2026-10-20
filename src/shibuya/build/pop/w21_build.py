@@ -121,11 +121,29 @@ def check_out(data: Path, out: Path, world: Path) -> None:
             raise ProtectedOutputError(f"W21 は既存の資産の置き場に書かない: {top}")
 
 
+#: 〔第 4 期 4-3 段 10〕差し替えの資産の印(この見出しがある世界=W16 が W21 に替わった世界)と、活性化の退避の置き場の名。
+SWAPPED_MARK: Final[str] = "W21apply.header.json"
+PRE_SWAP_ASSET: Final[str] = "v2_pre_4-3"
+
+
+def source_world(data: Path, world: Path | None) -> Path:
+    """W21(段 1〜10)を組む元の世界(W16 1.0.0 の世界)。〔段 10〕活性化の後の本体の v2(W16 が W21 に替わった世界=
+    :data:`SWAPPED_MARK` がある)からは組まない=退避 ``data/world/v2_pre_4-3``(活性化の前の本体の v2 の写し)を読む。
+    退避が無ければ止める(差し替えた世界の W16 から W21 を組み直すと、W16 との比べと残す行が自分自身になる)。"""
+    w = Path(world) if world is not None else Path(data) / "world" / "v2"
+    if not (w / SWAPPED_MARK).exists():
+        return w
+    pre = Path(data) / "world" / PRE_SWAP_ASSET
+    if pre.is_dir() and not (pre / SWAPPED_MARK).exists():
+        return pre
+    raise S.MissingSourceError(f"W21 を差し替えた世界({w.name})から組み直さない: 退避 {PRE_SWAP_ASSET} が無い")
+
+
 def build(data: Path, out: Path, *, world: Path | None = None, seed: int | str = DEFAULT_SEED,
           anneal: H.AnnealParams = H.AnnealParams()) -> tuple[C.StageResult, dict[str, Any]]:
     """W21 を組んで ``out`` に書く。返り値は(見出し, manifest)。``out`` は :func:`check_out` で先に確かめる。"""
     data, out = Path(data), Path(out)
-    world = Path(world) if world is not None else data / "world" / "v2"
+    world = source_world(data, world)
     check_out(data, out, world)
     out.mkdir(parents=True, exist_ok=True)
     guard = S.W21Guard.for_build(data, world=world, out=out)
@@ -499,7 +517,7 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
     params = H.AnnealParams(enabled=a.w21_anneal == "on", n_iter=a.anneal_iter)
     try:
-        check_out(a.data.resolve(), a.out.resolve(), (a.world or a.data / "world" / "v2").resolve())
+        check_out(a.data.resolve(), a.out.resolve(), source_world(a.data.resolve(), a.world).resolve())
     except ProtectedOutputError as e:
         print(f"[W21] 止めた(何も書いていない): {e}", file=sys.stderr)
         return 2

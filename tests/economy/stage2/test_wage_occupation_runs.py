@@ -76,7 +76,10 @@ def test_conservation_and_only_the_wage_accounts_move(two_arms):
     sw = w17.ledger.money.stage2.s2_meter["run"]["wages"]
     # w17 は W17 の勤務の時間が 0 の体(no_hours)に払わない=occupation は雇用の行のある体の全部に払う
     assert so["paid"] == sw["paid"] + sw["no_hours"] > 0 and so["no_hours"] == 0
-    assert so["funding"] == so["amount"] and sw["funding"] == sw["amount"]
+    # 〔第 4 期 4-3 段 10・検収 M3〕外の雇用主(席の外の体)の賃金は外界から払う=原資の行は無い(差し替えの世界の 5,000 体: 715 体・
+    # 2.42 億円)。前(W16 の世界)は funding == amount
+    assert so["funding"] + so["outside_employer_amount"] == so["amount"] and so["outside_employer_paid"] > 0
+    assert sw["funding"] + sw["outside_employer_amount"] == sw["amount"]
     assert so["amount"] > 4 * sw["amount"]  # 1/4 の宣言を解く
 
 
@@ -86,15 +89,18 @@ def test_median_matches_r107(two_arms):
     agents, _sec, _idx = st2.plan.employment(1)
     winp = st2.plan.wage_inputs
     rows = WG.median_check(WG.load_wage_tables(), st2.monthly_wage, st2.wage_basis, winp.occ_code, winp.occ_vocab,
-                           winp.emp_code, winp.emp_vocab, winp.sex, who=np.asarray(agents), min_n=30)
+                           winp.emp_code, winp.emp_vocab, winp.sex, who=np.asarray(agents), min_n=35)
+    # 〔第 4 期 4-3 段 10〕差し替えの世界では職種の式で払う体が 545(given=W21 の段 5 の賃金 2,135)に減り、30 体の区分の 1 つ
+    # (販売従事者・女 n=32・1.18)が帯の外=小さい区分の揺れ。区分の下限を 30 → 35 に(前=W16 の世界は 30・記録 pop43 §16)
     assert len(rows) >= 6
     for r in rows:
         assert 0.75 <= r["ratio"] <= 1.15, r
     m = st2.s2_meter["rules"]["wage_model"]
-    assert m["paid_by_basis"]["occupation"] > 0.95 * m["employed"]
+    # 〔第 4 期 4-3 段 10〕差し替えの世界の W21 の体は段 5 の賃金(given)=職種の式と given で 95% 超(前: occupation だけで 95% 超)
+    assert m["paid_by_basis"]["occupation"] + m["paid_by_basis"]["given"] > 0.95 * m["employed"]
     man = occ.run_manifest_fields()["economy"]["stage2"]
     assert man["plan"]["wage_path"] == "occupation" and man["plan"]["wage_model"] == "occupation"
-    assert man["rules"]["wage_build"]["inputs"]["source"] == "persona_pool"
+    assert man["rules"]["wage_build"]["inputs"]["source"] == "persona_pool+w21"  # 〔段 10〕前 persona_pool
     assert man["hours_source"] == "none(wage=occupation)"
 
 

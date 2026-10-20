@@ -131,6 +131,23 @@ W17_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
         # "outside": 5_521, "in": 856}(``sample_population(..., rng_scheme="stateful")`` で再現)
         "s5000_v1": {"n_blocks": 8_542, "zero": 0, "outside": 7_658, "in": 884},
         "s5000_v2": {"n_blocks": 6_406, "zero": 154, "outside": 5_522, "in": 884},
+        "home_out_full": 346_445, "home_out_5000": 4_491,
+    },
+    # 〔第 4 期 4-3 段 10・版上げ 3 回目〕02114fb577f3 = 差し替えの世界(W16 を W21 に)の W17(残す W16 の体の行+W21 の体へ
+    # 提供者の行の写し=記録 pop43)。5,000 体・seed 1・1 日の値は親の検収の前の実装役の実測(記録 pop43 §16)。
+    "02114fb577f3": {
+        "null_arm_final": "90582d704a6d2dcb", "null_arm_llm_calls": 97_250,
+        "null_arm_final_leave_off": "6a2865274fd9e5d7", "null_arm_llm_calls_leave_off": 97_923,
+        "null_arm_final_hunger_v1": "f2d9ae6144d0e8ad", "null_arm_llm_calls_hunger_v1": 95_054,
+        "null_arm_final_l4x1": "2a4e22a1554081a8", "null_arm_llm_calls_l4x1": 41_089,
+        "v3_default_final": "eb759bb4e5be37ec", "v3_default_llm_calls": 63_572,
+        "v3_default_final_leave_off": "e809ee05b495d7e6", "v3_default_llm_calls_leave_off": 63_412,
+        "v3_default_final_hunger_v1": "938434492bf062bd", "v3_default_llm_calls_hunger_v1": 63_600,
+        "v3_default_final_l4x1": "bec0c89bf3ebbf8b", "v3_default_llm_calls_l4x1": 36_759,
+        "v1_outside_blocks": 522_182, "v1_outside_dist": [82, 137_156, 117_612, 43_787],
+        "s5000_v1": {"n_blocks": 8_697, "zero": 1, "outside": 7_730, "in": 967},
+        "s5000_v2": {"n_blocks": 6_413, "zero": 136, "outside": 5_446, "in": 967},
+        "home_out_full": 303_216, "home_out_5000": 4_421,
     },
 }}
 #: 今の環境の行(無ければ ``None``=A/A だけ)。
@@ -912,7 +929,7 @@ def test_derive_folding_matches_the_parent_verified_counts():
     g = W17_GOLDEN.get(w17_digest())
     if g is None:
         pytest.skip(f"実 W17 の golden が無い(md5 {w17_digest()})=親が再実行して W17_GOLDEN に足す")
-    assert int(ho_full.sum()) == 346_445
+    assert int(ho_full.sum()) == g.get("home_out_full", 346_445)  # W16 の世界(11a7・3113 の表)は 346,445
     assert int(per_full[ho_full].sum()) == g["v1_outside_blocks"]
     assert np.bincount(per_full[ho_full], minlength=4)[:4].tolist() == g["v1_outside_dist"]
     # 5,000 体標本(前後測定に使う縮尺)の実測 golden
@@ -922,7 +939,7 @@ def test_derive_folding_matches_the_parent_verified_counts():
     blocks = PlanBlocks.from_weekly(wk, 0, home_out, derive_rule="v1")  # 読み口 v1 の golden
     per = blocks.blocks_per_agent()
     s1 = g["s5000_v1"]
-    assert int(home_out.sum()) == 4_491
+    assert int(home_out.sum()) == g.get("home_out_5000", 4_491)  # W16 の世界は 4,491
     assert blocks.n_blocks == s1["n_blocks"]
     assert int(np.count_nonzero(per == 0)) == s1["zero"]
     assert int(per[home_out].sum()) == s1["outside"]

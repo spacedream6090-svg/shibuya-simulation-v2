@@ -83,7 +83,10 @@ def test_the_first_contents(ledger):
     ids = set(ledger.by_id)
     assert set(PLAN9 + R88 + SEIBU + W16_WEAK) <= ids
     assert len(PLAN9 + R88 + SEIBU) == 16
-    assert {ledger.get(i).remove_at for i in W16_WEAK} == {"4-1"}
+    # 〔第 4 期 4-3 段 10〕3 行とも 4-1 → 6-1(来街者・通学者・乗り換えは判断モデルの後=残る複製は通学者 16,695 と指令 24)
+    # (前の値は 3 行とも 4-1・記録 pop43/README.md)
+    assert {ledger.get(i).remove_at for i in W16_WEAK} == {"6-1"}
+    assert {ledger.get(i).status for i in W16_WEAK} == {"active"}
     assert ledger.get("BR-K9-MONDAY").remove_at == "6-2"  # 〔第336・3-1〕1a は影なので外せない=6-2 へ(親)
     assert ledger.get("BR-W17-IO-SLEEP").remove_at == ledger.get("BR-E4-EXIT-VANISH").remove_at == "6-2"
     assert ledger.get("BR-W12-HOLIDAY-GT-WEEKDAY").remove_at == "2-3b"
@@ -136,7 +139,10 @@ def test_the_counts_by_form(decls):
     # (記録 pop41c/README.md・見出しは足していない)
     # 〔小さな版上げ・meal_w17〕engine/energy.py の表 MEAL_DEFAULT_EXPEDIENTS(4 行)を足した=236 → 240
     # (記録 meal_w17/README.md・見出しは足していない)
-    assert S.count_by_form(decls) == {"conf": 0, "expedients": 240, "docstring": 6, "heading": 84, "process": 18,
+    # 〔第 4 期 4-3 段 10〕build/pop/w21_apply.py の表 W21APPLY_EXPEDIENTS(9 行=検収の直しで 7 → 9)・w21_build_b.py の 1.2.0 の
+    # 1 行(地位の分け)を足し、w21_build_c.py の表を 16 → 14 行(置き場・W16 の在庫の案・地位の分けを消し、通う駅の口を足した)
+    # =240 → 248(記録 pop43/README.md・見出しは足していない)
+    assert S.count_by_form(decls) == {"conf": 0, "expedients": 248, "docstring": 6, "heading": 84, "process": 18,
                                       "fallback": 5}
     heads = [d for d in decls if d.form == S.FORM_HEADING]
     # 〔第 1 期 1-2〕p_notice の expedient の項 m_load(歩きスマホの負荷の係数)を消した=338 → 337(記録 p12/README.md §15)

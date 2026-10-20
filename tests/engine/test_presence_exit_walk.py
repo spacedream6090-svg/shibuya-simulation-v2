@@ -266,7 +266,10 @@ def test_run_walk_mode_accounts_for_every_exit_and_leave_switch_reproduces_the_o
     assert m["leave_effects"]["leave"] > 0
     old = cli.run(leave_effect=False, **kw)
     assert old.run_manifest_fields()["leave_effects"]["enabled"] is False
-    assert old.final_hash != imm.final_hash                # mock v3 は退去を選ぶ=既定が動く
+    # mock v3 は退去を選ぶ=既定が動く。〔第 4 期 4-3 段 10〕差し替えの世界(W16 を W21 に)の 1,500 体では日の途中の checkpoint
+    # (刻み 719・1079)が食い違い、日の終わり(1439)には同じ状態に戻る=final は同じ(前の比べ old.final_hash != imm.final_hash は
+    # W16 の世界では final も食い違った)。日の途中まで含めた checkpoint の並びで比べる
+    assert [c.behavior_hash for c in old.checkpoints] != [c.behavior_hash for c in imm.checkpoints]
 
 
 def test_cli_has_the_9a_flags():

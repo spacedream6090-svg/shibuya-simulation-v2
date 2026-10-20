@@ -73,8 +73,11 @@ def test_rows_equal_households_plus_establishments_on_the_full_population(full):
     hh = np.asarray(pop.household_id)
     org = np.asarray(pop.org_id)
     assert g.n_family == n_hh == np.unique(hh[hh >= 0]).size
-    assert g.n_workplace == n_org == np.unique(org[org >= 0]).size
-    assert len(g) == n_hh + n_org == 27_404 + 9_872  # 検算(記録 c0/README.md §3)
+    # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)では W6 の組織 9,872 のうち 139 に体が居ない(W21 の
+    # 席の割り当ての外=記録 pop43 §16)=職場の行は体の居る組織 9,733。前(W16 の世界)は n_workplace == n_org == 9,872・
+    # len(g) == 27,404 + 9,872(記録 c0/README.md §3)
+    assert g.n_workplace == np.unique(org[org >= 0]).size == 9_733 and n_org == 9_872
+    assert len(g) == n_hh + g.n_workplace == 28_290 + 9_733  # 検算
     t = g.tally()
     assert t["members"] == {FAMILY: int(np.count_nonzero(hh >= 0)), WORKPLACE: int(np.count_nonzero(org >= 0))}
     # 値まで: 世帯の番号の行の成員=その世帯の体(parquet の世帯の番号と一致)

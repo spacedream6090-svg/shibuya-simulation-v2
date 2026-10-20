@@ -1,4 +1,5 @@
-"""W21 段 4〜7(第 4 期 4-1「組織と関係・お金・開始前の経験・外の人」)の組み立て。版 1.1.0。
+"""W21 段 4〜7(第 4 期 4-1「組織と関係・お金・開始前の経験・外の人」)の組み立て。版 1.2.0(1.1.0 に第 4 期 4-3 段 10 の
+地位の分け=外から来て働く人の役員・業主・家族従業者を席の前に=親の判断 仮-33 (2))。
 
     python -m shibuya.build.pop.w21_build_b --out data/world/v2_stage_4-1b --data data
         [--base data/world/v2_stage_4-1] [--world data/world/v2] [--seed 20260909]
@@ -26,7 +27,7 @@ import json
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from types import MappingProxyType
+from types import MappingProxyType, SimpleNamespace
 from typing import Any, Final, Mapping
 
 import numpy as np
@@ -45,13 +46,17 @@ from . import w21_org as O
 from . import w21_outside as X
 from . import w21_prior as P
 from . import w21_sources as S
+from . import w21_port10 as T10
 from . import w21_tables as T
 
 __all__ = ["STAGE_B", "STAGE_VERSION_B", "OUTPUTS_B", "MANIFEST_B", "BASE_FILES", "W21B_EXPEDIENTS", "ParamsB",
            "check_out_b", "build_b", "main", "OWN_ASSET_B", "BASE_ASSET", "WORLD_COLUMNS"]
 
 STAGE_B: Final[str] = "W21b"
-STAGE_VERSION_B: Final[str] = "1.1.0"
+#: 1.1.0 → 1.2.0(第 4 期 4-3 段 10・親の判断 仮-33 (2)=外から来て働く人の地位の分けを席の前に入れた=段 4〜7 を組み直す)。
+STAGE_VERSION_B: Final[str] = "1.2.0"
+#: 段 10 の差し替えの資産の置き場の名(``data/world`` の下・段 4〜7 を組み直してここにも書ける=``check_out_b``)。
+SWAP_ASSET: Final[str] = "v2_stage_4-3"
 OUTPUTS_B: Final[tuple[str, ...]] = (
     "w21_people.parquet", "w21_org.parquet", "w21_rights_initial.parquet", "w21_relations_initial.parquet",
     "w21_money.parquet", "w21_money_households.parquet", "w21_prior_places.parquet", "w21_outside.parquet",
@@ -102,6 +107,7 @@ W21B_EXPEDIENTS: Final[tuple[str, ...]] = (
     "外の人は層の表(人は作らない・層は重なる=外から来て働く人は輪と来る可能性のある人の部分集合を含む)・輪は段 2 と同じ目標の作り方で被覆率の外の分を段 1 の枠(区の総数 − 住民)に比で合わせる・来る可能性のある人=第4表の流入元(浜松市の旧 7 区は 2025 の 3 区に区の単位で寄せる)の 2025 の人口(男女 × 年齢 5 歳)・重み=流入元の通勤通学の割合(表に無い符号を除いて和 1)・出現の確からしさは空欄",
     "訪日の国籍=JNTO 2025 の全国の国籍別の割合(渋谷の訪問率は空欄)・1 日の幅は段 1 の枠",
     "通勤の道のり=W3 のセルの代表の点の間の歩行の最短の道のり(セルの中の道のりは 0)・駅の口=W12 の鉄道の外の口の付くセルのうち最も近いもの",
+    "〔1.2.0〕外から来て働く人の地位の分け(席の前)=段 3 が雇人のない業主に寄せた人を、産業大分類ごとの経済センサス 第6-2表の有給役員・個人業主・無給の家族従業者の人数の比で分ける(民営の表=公務と分類不能は分けない・個人業主は雇人のない業主のまま・人の地位を席の比で決める近似)・分けで住民の席と勤め先も動く(段 10 の親の判断 仮-33 (2)=住民 277 人の席の喪失と 1,292 人の勤め先の変化は記録 pop43 に宣言)",
 )
 
 
@@ -112,6 +118,9 @@ class ParamsB:
     division_arm: bool = False
     affinity: str = "lifestage"
     seat_roles: bool = True
+    #: 〔1.2.0〕外から来て働く人の地位の分けを席の前に入れる(既定=親の判断 仮-33 (2))。偽は 1.1.0 の地位のまま(試験の
+    #: 写しの検査だけ=CLI には出さない)。
+    status_split: bool = True
 
 
 class ProtectedOutputErrorB(ValueError):
@@ -128,7 +137,7 @@ def check_out_b(data: Path, out: Path, world: Path, base: Path) -> None:
     wroot = (Path(data) / "world").resolve()
     if wroot in o.parents:
         top = o.relative_to(wroot).parts[0]
-        if (wroot / top).exists() and not top.startswith(OWN_ASSET_B):
+        if (wroot / top).exists() and not (top.startswith(OWN_ASSET_B) or top == SWAP_ASSET):
             raise ProtectedOutputErrorB(f"段 4〜7 は既存の資産の置き場に書かない: {top}")
 
 
@@ -147,7 +156,7 @@ def build_b(data: Path, out: Path, *, base: Path | None = None, world: Path | No
             seed: int | str = W.DEFAULT_SEED, params: ParamsB = ParamsB()) -> tuple[C.StageResult, dict[str, Any]]:
     """段 4〜7 を組んで ``out`` に書く。返り値は(見出し, manifest)。"""
     data, out = Path(data), Path(out)
-    world = Path(world) if world is not None else data / "world" / "v2"
+    world = W.source_world(data, world)  # 〔段 10〕差し替えた世界からは組まない=退避の W16 の世界
     base = Path(base) if base is not None else data / "world" / BASE_ASSET
     check_out_b(data, out, world, base)
     out.mkdir(parents=True, exist_ok=True)
@@ -257,6 +266,19 @@ def _build_b(guard: S.W21Guard, data: Path, out: Path, world: Path, base: Path, 
                  "employment_status"):  # 逐次: 関数の数ぶん
         ca[name] = A.call(name, ca, tables3, A.AttrKey(seed, f"w21b.commuter.{name}", ccnt))
     ca["origin_muni"] = A.call("origin_muni", ca, tb, A.AttrKey(seed, "w21b.commuter.origin", ccnt))
+    # ---- 〔第 4 期 4-3 段 10・親の判断 仮-33 (2)〕地位の分け: 段 3 が雇人のない業主に寄せた外から来て働く人を、産業大分類ごとの
+    # 第6-2表の有給役員・個人業主・無給の家族従業者の比で分けてから席を埋める(段 10 の材料 W21c の ``commuter_status_split`` と
+    # 同じ関数・同じ乱数の鍵=人ごとの値は W21c 1.2.0 の数え直しと同じ)。雇用の粗い区分(``employment_status``)は分けた地位から
+    # 作り直す(乱数を引かない写像)。分けの前の地位は列 ``emp_status_before_split`` に残す(地位が変わった人だけ・ほかは空欄)。
+    _d62, it62, rows62 = S.read_derived_rows(guard, "ecen21_t6_2")
+    split_before = np.asarray(ca["emp_status"], dtype=np.int64).copy()
+    if params.status_split:
+        tsplit = SimpleNamespace(status_split=T10.status_split_table(rows62, it62))
+        ca["emp_status"] = A.call("commuter_status_split", ca, tsplit,
+                                  A.AttrKey(seed, "w21c.commuter.status_split", ccnt))
+        ca["employment_status"] = A.call("employment_status", ca, tables3,
+                                         A.AttrKey(seed, "w21b.commuter.employment_status", ccnt))
+    split_changed = split_before != np.asarray(ca["emp_status"], dtype=np.int64)
 
     # ---- 人の表(住民+外から来て働く人)
     n = n_res + n_com
@@ -283,7 +305,6 @@ def _build_b(guard: S.W21Guard, data: Path, out: Path, world: Path, base: Path, 
     o_sector = np.asarray(org["sector_detail"], dtype=object).astype(str)
     eligible = (area == O.WORKPLACE_AREAS.index("stage"))
     p_ind = np.where(eligible, industry_key, "")
-    _d62, it62, rows62 = S.read_derived_rows(guard, "ecen21_t6_2")
     useat = _u(seed, "w21b.org.seat", pid)[:, 0]
     if params.seat_roles:
         shares = O.ecen_status_shares(rows62, it62)
@@ -395,6 +416,11 @@ def _build_b(guard: S.W21Guard, data: Path, out: Path, world: Path, base: Path, 
         "home_cell": hcell.astype(np.int32), "origin_muni": origin,
         "labour_status": WA.words(num["labour_status"], A.LABOUR),
         "emp_status": st_words, "employment_status": employment_status,
+        # 〔1.2.0〕分けの前の地位(地位が変わった外から来て働く人だけ・ほかは空欄)
+        "emp_status_before_split": np.r_[np.full(n_res, "", dtype=object),
+                                         np.where(split_changed, np.array([*A.EMP_STATUS, ""], dtype=object)[
+                                             np.where(split_before >= 0, split_before, len(A.EMP_STATUS))], "")
+                                         ].astype(object),
         "industry_major": WA.words(num["industry_major"], A.INDUSTRY_MAJORS), "industry_key": industry_key.astype(object),
         "occupation_major": WA.words(num["occupation_major"], A.OCCUPATION_MAJORS),
         "workplace_area": area_w, "work_chome_key": np.where(wchome >= 0, np.array(stage_keys + [""], dtype=object)
@@ -415,6 +441,16 @@ def _build_b(guard: S.W21Guard, data: Path, out: Path, world: Path, base: Path, 
     checks = _checks(seat_report, N_c, R_c, M_c, s_stage, workers_in_ward, emp80, ward_emp, miss28, status, area_w,
                      kind, industry_key, st_words, seated, roles, duty, rights, rel, money_p, money_h, tb, people_cols,
                      pl, pcounts, strata, ohh, guard, world, deps, tinfo, n, oinfo)
+    _sw = np.array([*A.EMP_STATUS, ""], dtype=object)
+    checks["status_split"] = {
+        "applied": bool(params.status_split),
+        "candidates": int((split_before == A.EMP_STATUS.index("self_employed")).sum()),
+        "changed": int(split_changed.sum()),
+        "after_of_candidates": WC.counts_by(_sw[np.where(np.asarray(ca["emp_status"]) >= 0, ca["emp_status"],
+                                                         len(A.EMP_STATUS))][split_before
+                                                                             == A.EMP_STATUS.index("self_employed")]),
+        "note": "段 3 が雇人のない業主に寄せた外から来て働く人を第6-2表の比で分けた(席の前・親の判断 仮-33 (2))",
+    }
 
     def tbl(d: Mapping[str, Any]) -> dict[str, Any]:
         return {k: (pa.array(v.tolist(), type=pa.string()) if isinstance(v, np.ndarray) and v.dtype == object
@@ -435,8 +471,11 @@ def _build_b(guard: S.W21Guard, data: Path, out: Path, world: Path, base: Path, 
     ]
     build_hash = C.sha256_bytes("".join(o["sha256"] for o in outputs).encode("utf-8"))
     rparams = {"seed": seed, "division_arm": params.division_arm, "affinity": params.affinity,
-               "seat_roles": params.seat_roles,
+               "seat_roles": params.seat_roles, "status_split": params.status_split,
                "attr_fns": A.registry_versions(stages=(4, 5, 6)),
+               # 〔1.2.0〕段 10 の関数のうち段 4 の前に呼ぶもの(地位の分け=乱数の鍵 w21c.commuter.status_split)
+               "attr_fns_stage10": ({"commuter_status_split": A.REGISTRY["commuter_status_split"].version}
+                                    if params.status_split else {}),
                "rng_domains": ["w21b.org.<手順>", "w21b.commuter.<関数>", "w21b.entry", "w21b.money.<量>",
                                "w21b.prior.<側か量>", "w21b.w16_kind"],
                "constants": {"place_capacity_mean": A.PLACE_CAPACITY_MEAN, "place_capacity_cv": A.PLACE_CAPACITY_CV,
@@ -760,7 +799,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--seat-roles", choices=("on", "off"), default="on")
     a = ap.parse_args(argv)
     data = a.data.resolve()
-    world = (a.world or a.data / "world" / "v2").resolve()
+    world = W.source_world(data, a.world).resolve()  # 〔段 10〕差し替えた世界なら退避の W16 の世界
     base = (a.base or a.data / "world" / BASE_ASSET).resolve()
     try:
         check_out_b(data, a.out.resolve(), world, base)

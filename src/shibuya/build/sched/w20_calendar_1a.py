@@ -1300,6 +1300,22 @@ def duty_role_check(attrs: Attributes, materials: Materials, census_area: Mappin
     return out
 
 
+def stage_params(n_weeks: int, rest_rule: Mapping[str, Any]) -> dict[str, Any]:
+    """段の ``params``(``param_hash`` の元)。〔第 4 期 4-3 段 10〕差し替えの母集団で組む口(``build.pop.w21_apply``)も同じ関数を
+    通す=W20cal の ``param_hash`` は母集団に依らない(値は第337 の版と同じ=試験)。"""
+    return {"schema": SCHEMA, "seed_key": SEED_KEY, "week0_monday": WEEK0_MONDAY, "n_weeks": int(n_weeks),
+            "day_classes": dict(DAY_CLASSES), "work_len_min": WORK_LEN_MIN, "work_len_max": WORK_LEN_MAX,
+            "lead_default": LEAD_DEFAULT_MIN, "duty_role_spec": {k: list(v[:2]) + [list(v[2])] + list(v[3:])
+                                                                 for k, v in DUTY_ROLE_SPEC.items()},
+            "employment_to_status": dict(EMPLOYMENT_TO_STATUS), "teaching_stages": sorted(TEACHING_STAGES),
+            "compulsory_age": list(COMPULSORY_AGE), "r99_build_files": dict(R99_BUILD_FILES),
+            # 親の判断 第336: 曜日の予定の率=第74-6表(実現値=予定の下限)・第19表=年間の整合の計器・席があって非就業=空欄
+            "weekday_rate_source": "t74-6", "t19_role": "annual_check", "seat_nonworking": "blank",
+            # 親の判断 第337: 席が先(授業は空欄)・週 1 日の休み(規則の表の行)・切った体の帰宅は終業+通勤
+            "seat_and_school": "work", "weekly_rest_rule": rest_rule, "return_after_clip": "end+lead",
+            "rest_day_choice": "proportional_to_not_working_rate"}
+
+
 def run(ctx: C.Ctx, *, anchor_path: Path | None = None, n_weeks: int = N_WEEKS) -> C.StageResult:
     """段 W20cal: W16+ペルソナ+構築側の表 → ``w20_calendar_1a.parquet``・材料の表・ヘッダ(``calendar_1a.header.json``)。
 
@@ -1342,17 +1358,7 @@ def run(ctx: C.Ctx, *, anchor_path: Path | None = None, n_weeks: int = N_WEEKS) 
     in_labels = ["data/" + "/".join(p) for p in INPUT_FILES] + [
         "docs/bench/anchors/" + ap.name, "<out>/w16_population.parquet", "data/" + "/".join(PF_POOL_DIR) + "/meta.json",
         RULES_TABLE_RELPATH]
-    params = {"schema": SCHEMA, "seed_key": SEED_KEY, "week0_monday": WEEK0_MONDAY, "n_weeks": int(n_weeks),
-              "day_classes": dict(DAY_CLASSES), "work_len_min": WORK_LEN_MIN, "work_len_max": WORK_LEN_MAX,
-              "lead_default": LEAD_DEFAULT_MIN, "duty_role_spec": {k: list(v[:2]) + [list(v[2])] + list(v[3:])
-                                                                   for k, v in DUTY_ROLE_SPEC.items()},
-              "employment_to_status": dict(EMPLOYMENT_TO_STATUS), "teaching_stages": sorted(TEACHING_STAGES),
-              "compulsory_age": list(COMPULSORY_AGE), "r99_build_files": dict(R99_BUILD_FILES),
-              # 親の判断 第336: 曜日の予定の率=第74-6表(実現値=予定の下限)・第19表=年間の整合の計器・席があって非就業=空欄
-              "weekday_rate_source": "t74-6", "t19_role": "annual_check", "seat_nonworking": "blank",
-              # 親の判断 第337: 席が先(授業は空欄)・週 1 日の休み(規則の表の行)・切った体の帰宅は終業+通勤
-              "seat_and_school": "work", "weekly_rest_rule": rest_rule, "return_after_clip": "end+lead",
-              "rest_day_choice": "proportional_to_not_working_rate"}
+    params = stage_params(n_weeks, rest_rule)
     gates = [
         C.Gate("validation_tables_opened", len(set(guard.opened) & {x.lower() for x in R99_VALIDATION_FILES}), 0),
         C.Gate("r99_opened_within_allow", sorted(guard.opened),

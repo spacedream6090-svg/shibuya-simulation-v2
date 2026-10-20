@@ -35,8 +35,8 @@ TPD = 1_440
 #: 10e(E4): 既定 v3・5,000 体・seed 1・1 日の final(乱数 counter・K19 の鍵の並べ方)。
 #: 〔改訂(第330)〕10e 構築側(第330 B3 丸め・B4 W10 ON+Q7・B5 W13 の年間化)で世界の資産が動いた。E5 の値は 4fbf61616af1e3d2。
 #: 〔改訂(第330・ACT)〕版上げ 1 回目の活性化(暦の一本化・開始日 2026-07-13・影 6 日)で動いた。B6build の値は 0483d1165e245bed。
-K19_V3_FINAL_COUNTER = "333b1820f7849b00"  # 〔小さな版上げ・meal_w17〕前 b8eadcb51e8705e7(--meal-default validation で戻る)
-_K19_PRE_MEAL_W17 = "b8eadcb51e8705e7"  # 〔2-4 V1〕前 5f7ae9ff24005314  # 〔2-4 V2〕前 4bcca9f0216362bb  # 〔2-4 V3〕前 7857ecb16b9665cd  # 〔2-4 V4〕前 f6488d4d5eadf5ca
+K19_V3_FINAL_COUNTER = "eb759bb4e5be37ec"  # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界で動いた(前 333b1820f7849b00=記録 pop43)  # 〔小さな版上げ・meal_w17〕前 b8eadcb51e8705e7(--meal-default validation で戻る)
+_K19_PRE_MEAL_W17 = "5b080133301bf13d"  # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界の旧値の腕(前 b8eadcb51e8705e7=記録 pop43)  # 〔2-4 V1〕前 5f7ae9ff24005314  # 〔2-4 V2〕前 4bcca9f0216362bb  # 〔2-4 V3〕前 7857ecb16b9665cd  # 〔2-4 V4〕前 f6488d4d5eadf5ca
 
 
 # ================================================================= K24 軸 1(AST)
@@ -434,5 +434,6 @@ def test_k19_runtime_default_v3_5000_known_counts():
     assert res_c.final_hash.startswith(K19_V3_FINAL_COUNTER)
     # U8: 同じ鍵の作り直しは許可の表の用途名だけ(w16 の抽出が cli と run_day で 2 回走る=186 層+定員先取り層)
     assert {d for d, s in cur.items() if s.same_key_recreated} <= set(RA.K19_RECREATED)
-    assert cur["w16.sample.stratum"].same_key_recreated == 186
+    # 〔第 4 期 4-3 段 10〕差し替えの世界の層の数(種別 8 の W21 の担当の体ほか)=188(前=W16 の世界 186)
+    assert cur["w16.sample.stratum"].same_key_recreated == 188
     assert cur["llm.mock"].streams > 0 and cur["llm.mock"].same_key_recreated == 0  # 〔1-8 J0・検収 M2〕既定の腕

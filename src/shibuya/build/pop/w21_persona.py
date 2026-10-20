@@ -64,6 +64,8 @@ LANGS: Final[tuple[str, ...]] = ("ja", "en")
 VERSIONS: Final[tuple[str, ...]] = ("short", "long")
 #: 名を伏せた文の印(計器が名の中の数字を分けるため)。
 NAME_MASK: Final[str] = "◇"
+#: 〔段 10・仮-33 (7)〕型の無い言語の人を日本語の型で代えた印(``lang_basis`` の語)。
+SUBSTITUTE_BASIS: Final[str] = "substitute_ja"
 #: TIPI-J の 5 次元の欄(川本ほか 2015 の並び=外向性・協調性・勤勉性・神経症傾向・開放性)。値は空欄(腕)。
 TIPI_COLUMNS: Final[tuple[str, ...]] = ("tipi_extraversion", "tipi_agreeableness", "tipi_conscientiousness",
                                         "tipi_neuroticism", "tipi_openness")
@@ -87,7 +89,7 @@ FACT_COLUMNS: Final[tuple[str, ...]] = (
     "home_chome", "institution", "origin_name", "tenure", "residence_period", "residence_years",
     "labour", "emp_status", "occupation", "industry", "org_role", "duty_role", "org_name", "org_sector", "org_size",
     "work_area", "work_chome", "is_org_head", "is_dept_head", "dept_mates", "has_supervisor", "weekly_hours",
-    "school_kind", "school_place", "commute_mode", "commute_m",
+    "school_kind", "school_place", "commute_mode", "commute_m", "commute_line",
     "wage_monthly", "wage_annual", "savings", "debt", "consumer_credit", "hh_size", "hh_savings", "outside_places",
     "org_index",
 )
@@ -694,18 +696,24 @@ def _lines(f: PersonaFacts, lang: str, version: str, *, mask_names: bool) -> lis
         np.int64)  # 文は丸めた言葉(四捨五入)・W20 の片道は整数の分(切り上げ)=同じ関数 walk_seconds を通す
     minw = _lut(mins, lambda m: f"{m}分" if ja else english_number(m) + "-minute")
     ok_m = cm >= 0
+    # 〔第 4 期 4-3 段 10・親の判断 仮-33 (9)〕通う駅の口(W12 の鉄道の外の口の路線の名)を電車の人の通勤の行に足す(区別の事実・
+    # 路線の名は英語の型でも日本語のまま=町丁目の名と同じ扱い)。列が無い事実の表(合成の例)は空欄。
+    cline = _s(c["commute_line"]) if "commute_line" in c else np.full(n, "", dtype=object)
     if ja:
+        by = "電車" + _when(cline != "", "(" + cline + ")")
         com = np.where(mode == "walk", "通勤: 家から勤め先まで歩いて" + minw + "ほど。",
-                       np.where((mode == "rail") & (kind == "resident"), "通勤: 家から駅まで歩いて" + minw + "ほど。電車で通う。",
+                       np.where((mode == "rail") & (kind == "resident"),
+                                "通勤: 家から駅まで歩いて" + minw + "ほど。" + by + "で通う。",
                                 np.where((mode == "rail") & (kind == "commuter"),
-                                         "通勤: 電車で渋谷に来て、駅から勤め先まで歩いて" + minw + "ほど。", "")))
+                                         "通勤: " + by + "で渋谷に来て、駅から勤め先まで歩いて" + minw + "ほど。", "")))
     else:
         aw = _a(minw)
+        by = "by train" + _when(cline != "", " (" + cline + ")")
         com = np.where(mode == "walk", "Commute: " + aw + " walk from home to work.",
                        np.where((mode == "rail") & (kind == "resident"),
-                                "Commute: " + aw + " walk to the station, then by train.",
+                                "Commute: " + aw + " walk to the station, then " + by + ".",
                                 np.where((mode == "rail") & (kind == "commuter"),
-                                         "Commute: comes to Shibuya by train, then " + aw
+                                         "Commute: comes to Shibuya " + by + ", then " + aw
                                          + " walk from the station to work.", "")))
     com = _when(emp & ok_m, com)
     # 5 お金
@@ -861,6 +869,11 @@ def persona_langs(cols: Mapping[str, Any]) -> tuple[np.ndarray, np.ndarray]:
     assume = (fl == "") & (nat == "")
     lang = np.where(assume, "ja", lang).astype(object)
     basis = np.where(assume, "blank_assumed_ja", basis).astype(object)
+    # 〔第 4 期 4-3 段 10・親の判断 仮-33 (7)〕型の無い言語の人(中国語・韓国語ほか)と、外国籍で第一言語が空欄の人は日本語の型で
+    # 代え、言語の印を付ける(``lang_basis="substitute_ja"``・本当の第一言語は ``first_language`` の欄と文の人物の行に残る)。
+    sub = lang == ""
+    lang = np.where(sub, "ja", lang).astype(object)
+    basis = np.where(sub, SUBSTITUTE_BASIS, basis).astype(object)
     return lang, basis
 
 
@@ -1064,7 +1077,7 @@ def facts_from_w21(people: Mapping[str, Any], persons: Mapping[str, Any], househ
                    money: Mapping[str, Any], money_h: Mapping[str, Any], places: Mapping[str, Any],
                    poi: Mapping[str, Any], org_names: Sequence[str], org_table: Mapping[str, Any],
                    lang_cols: Mapping[str, Any], chome_names: Mapping[str, str],
-                   origin_names: Mapping[str, str]) -> PersonaFacts:
+                   origin_names: Mapping[str, str], entry_lines: Mapping[str, str] | None = None) -> PersonaFacts:
     """段 1〜7 の資産の表 → 事実の表(読むだけ)。``people``=``w21_people``(並びが人の並び)・``persons``=段 1〜3 の
     住民(``person_id`` で結ぶ)・``households``・``money``(``person_id``)・``money_h``(``household_id``)・``places``=
     ``w21_prior_places``・``poi``=W6 の POI(``name``・``cat``・``subcat``)・``org_names``=W6 の組織の名(``org_index`` の
@@ -1173,6 +1186,10 @@ def facts_from_w21(people: Mapping[str, Any], persons: Mapping[str, Any], househ
         "weekly_hours": np.asarray(people["weekly_hours_hint"], dtype=np.float64),
         "school_kind": school_kind, "school_place": school_place,
         "commute_mode": _s(people["commute_mode"]), "commute_m": np.asarray(people["commute_path_m"], dtype=np.int64),
+        # 〔段 10・仮-33 (9)〕通う駅の口の路線の名(``entry_lines``=W12 の外の口の番号 → 路線の名・電車の人だけ)
+        "commute_line": np.where(_s(people["commute_mode"]) == "rail",
+                                 _lut(_s(people["entry_node"]) if "entry_node" in people else np.full(n, "", dtype=object),
+                                      lambda k: (entry_lines or {}).get(k, "")), "").astype(object),
         "wage_monthly": from_money("wage_monthly"), "wage_annual": from_money("wage_annual"),
         "savings": from_money("savings"), "debt": from_money("debt"), "consumer_credit": from_money("consumer_credit"),
         "hh_size": hsize.astype(np.int64), "hh_savings": hh_sv.astype(np.int64),

@@ -466,3 +466,34 @@ def test_payroll_has_no_floor_before_the_rule_is_in_force(monkeypatch):
     f = led.stage2.s2_meter["rules"]["wage_model"]["floor"]
     assert f == {"yen_per_hour": None, "source": "none", "raised": 0, "raised_share": 0.0, "raised_amount": 0}
     assert led.meter.last_day["stage2"]["wages"]["amount"] == int(want[[0, 2, 3]].sum())
+
+
+def test_payroll_pays_the_outside_employer_from_the_rest_of_the_world(monkeypatch):
+    """〔第 4 期 4-3 段 10・検収 M3〕外の雇用主(閉じた表の外の組織の番号)の雇用の行は外界から払う(登録済みの faucet
+    「域外雇用主の賃金」=外界 → 世帯の口座)・雇用主の原資の行は無い・保存則の残差 0。"""
+    from shibuya.economy.stage2 import OUTSIDE_EMPLOYER_ORG
+    from shibuya.engine.rights import initial as RI
+
+    assert OUTSIDE_EMPLOYER_ORG == RI.OUTSIDE_EMPLOYER_ORG  # 経済と権利台帳で同じ番号
+
+    tb = _tables()
+    monkeypatch.setattr(WG, "load_wage_tables", lambda root=None: tb)
+    plan = _plan()
+    plan.employment = lambda day: (np.array([0, 2, 3]), np.array([E, E, S]), np.array([OUTSIDE_EMPLOYER_ORG, 2, 1]))
+    led = Ledger(4, 2, 3)
+    led.attach_stage2(plan)
+    st2 = led.stage2
+    want = st2.monthly_wage.copy()
+    led.endow_households(np.full(4, 1_000), 0)
+    dep0 = np.asarray(led.balance(BalanceLine.DEPOSIT, H), dtype=np.int64).copy()
+    led.on_day_end(0)
+    led.on_day_end(1)
+    dep1 = np.asarray(led.balance(BalanceLine.DEPOSIT, H), dtype=np.int64)
+    assert list(dep1 - dep0) == [want[0], 0, want[2], want[3]]
+    day = led.meter.last_day
+    assert day["conservation"]["ok"] is True and day["conservation"]["residual"] == 0
+    w = st2.s2_meter["run"]["wages"]
+    assert w["outside_employer_paid"] == 1 and w["outside_employer_amount"] == int(want[0])
+    assert w["funding"] == int(want[[2, 3]].sum()) and w["amount"] == int(want[[0, 2, 3]].sum())
+    flow = led.flow_daily[-1]
+    assert int(flow[W, H, int(AccountCode.WAGE)]) == int(want[0])  # 外界 → 世帯の賃金(faucet)

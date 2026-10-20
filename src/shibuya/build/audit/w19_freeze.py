@@ -203,8 +203,31 @@ def scan_build_sources(build_root: Path) -> dict[str, list[str]]:
     return hits
 
 
+#: 〔第 4 期 4-3 段 10〕差し替えの世界の W21 の材料の台帳(置き場に manifest があるときだけ読む=本体の v2 は今のまま)。
+W21_MANIFESTS: tuple[str, ...] = ("w21_manifest.json", "w21b_manifest.json", "w21c_manifest.json")
+
+
+def w21_material_paths(out_dir: Path) -> dict[str, str]:
+    """置き場の W21 の manifest の材料(``sources`` の元のファイルと写し)→ {data 根からの相対: manifest の md5}。"""
+    got: dict[str, str] = {}
+    for name in W21_MANIFESTS:  # 逐次: manifest の数(3)
+        p = Path(out_dir) / name
+        if not p.exists():
+            continue
+        for src in C.load_json(p).get("sources", []):  # 逐次: 材料の数(≤ 60)
+            for key, md5 in (("path", "md5"), ("derived", "derived_md5")):
+                rel = src.get(key)
+                if rel:
+                    got.setdefault(str(rel), str(src.get(md5) or ""))
+    return dict(sorted(got.items()))
+
+
 def run(ctx: C.Ctx) -> C.StageResult:
     rel_paths = data_asset_paths(ctx.data)
+    # 〔段 10〕W21 の材料(差し替えの世界=W16 の体の元が W21 になった)を資産の表へ(md5 を manifest と照らす)
+    w21_mat = w21_material_paths(ctx.out)
+    rel_paths = sorted(set(rel_paths) | set(w21_mat))
+    w21_md5_bad: list[str] = []
     assets: list[dict[str, Any]] = []
     missing: list[str] = []
     for rel in rel_paths:
@@ -212,14 +235,20 @@ def run(ctx: C.Ctx) -> C.StageResult:
         if not p.exists():
             missing.append(rel)
             continue
-        assets.append(
-            {
-                "id": rel.replace("/", "."),
-                "path": rel,
-                "sha256": C.sha256_file(p),
-                "bytes": p.stat().st_size,
-            }
-        )
+        row = {
+            "id": rel.replace("/", "."),
+            "path": rel,
+            "sha256": C.sha256_file(p),
+            "bytes": p.stat().st_size,
+        }
+        if rel in w21_mat:
+            import hashlib
+
+            md5 = hashlib.md5(p.read_bytes()).hexdigest()
+            row["w21_md5"] = w21_mat[rel]
+            if w21_mat[rel] and md5 != w21_mat[rel]:
+                w21_md5_bad.append(rel)
+        assets.append(row)
 
     layers: list[dict[str, Any]] = []
     for name, members in HOLDOUT_LAYERS:
@@ -247,7 +276,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
     # --- W0..W18 の出力ダイジェスト(最終 build_hash は build.run が全段階で組む)---
     stage_digests: list[dict[str, Any]] = []
     digests: list[str] = []
-    for path in sorted(ctx.out.glob("W*.header.json"), key=lambda p: int(p.stem.split(".")[0][1:])):
+    for path in C.stage_header_paths(ctx.out):
         h = C.load_json(path)
         if int(h["stage"][1:]) >= int(STAGE[1:]):
             continue
@@ -331,4 +360,9 @@ def run(ctx: C.Ctx) -> C.StageResult:
         C.Gate("seal_scheme", SEAL_SCHEME, "S"),
         C.Gate("partial_build_hash_w0_w18", partial[:16], None),
     ]
+    if w21_mat:  # 〔段 10〕差し替えの世界だけ(本体の v2 の門の表は今のまま)
+        res.gates.append(C.Gate("w21_materials", len(w21_mat), None))
+        res.gates.append(C.Gate("w21_material_md5_mismatch", len(w21_md5_bad), 0))
+        res.notes["w21_materials"] = {"count": len(w21_mat), "md5_mismatch": w21_md5_bad,
+                                      "manifests": [m for m in W21_MANIFESTS if (ctx.out / m).exists()]}
     return res

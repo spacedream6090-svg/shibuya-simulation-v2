@@ -89,7 +89,8 @@ def test_registry_has_stage_4_to_6_functions_with_stage_marks():
     assert all(f.version == "1.1.0" for f in A.REGISTRY.values() if 4 <= f.stage <= 6)
     # 段 1〜3 の manifest に載る版の表は変えない(段 3 の関数だけ)
     assert set(A.registry_versions((3,))) == {f.name for f in A.REGISTRY.values() if f.stage == 3}
-    assert B.STAGE_VERSION_B == "1.1.0" and B.STAGE_B == "W21b"
+    # 〔第 4 期 4-3 段 10〕段 4〜7 の組み立ての版 1.1.0 → 1.2.0(地位の分けを席の前に=親の判断 仮-33 (2)・関数の版は不変)
+    assert B.STAGE_VERSION_B == "1.2.0" and B.STAGE_B == "W21b"
 
 
 # ================================================================================ 段 4
@@ -624,8 +625,10 @@ def test_check_out_b_protects_v2_base_and_existing_dirs(tmp_path):
 # ================================================================================ 実データ
 REAL = pytest.mark.requires_data("world_v2")
 #: golden(記録 pop41b/README.md §資産・seed 20260909・既定の腕)。
-GOLDEN_COUNTS = {"residents": 42642, "commuters": 173150, "people": 215792, "seated": 136537}
-GOLDEN_BUILD_HASH_B = "34798bd5d9b67dbeca81457187f8698e9a22ea520c0ba01b3df04fd10160c58f"
+#: 〔第 4 期 4-3 段 10〕1.2.0(地位の分けを席の前に)で組み直した値。前の値(1.1.0)は seated 136537・
+#: w21b_build_hash 34798bd5d9b67dbeca81457187f8698e9a22ea520c0ba01b3df04fd10160c58f(記録 pop41b)=記録 pop43。
+GOLDEN_COUNTS = {"residents": 42642, "commuters": 173150, "people": 215792, "seated": 147065}
+GOLDEN_BUILD_HASH_B = "1ccbfb048516d45484895398a58e49ab5a8aede960461e821b4d845fb647542b"
 
 
 def _need_real() -> None:
@@ -666,7 +669,7 @@ def test_real_golden_counts_and_hash(built):
     for k, v in GOLDEN_COUNTS.items():
         assert man["counts"][k] == v, k
     assert man["w21b_build_hash"] == GOLDEN_BUILD_HASH_B
-    assert man["stage_version"] == "1.1.0" and man["population_seed"] == B.W.DEFAULT_SEED
+    assert man["stage_version"] == "1.2.0" and man["population_seed"] == B.W.DEFAULT_SEED
     assert man["base"]["w21_build_hash"] == "ca823451cad3f57b5a2636b65a6cc94806e9a62f9b7a9b7dd6546370c97f00c0"
 
 
@@ -710,6 +713,28 @@ def test_real_structure_and_checks(built):
     # 〔検収 L2〕通勤の道のりは種類で分ける
     assert set(c["commute"]["path_m"]) == {"walk_resident_home_to_work", "rail_commuter_station_to_work",
                                            "rail_resident_home_to_station"}
+
+
+@REAL
+def test_real_status_split_is_applied_before_seats(built):
+    """〔第 4 期 4-3 段 10・仮-33 (2)〕外から来て働く人の地位の分けを席の前に入れた(W21c 1.2.0 の数え直しと同じ数)。"""
+    out, _man = built
+    c = json.loads((out / "w21_checks_b.json").read_text(encoding="utf-8"))
+    sp = c["status_split"]
+    assert sp["applied"] is True and sp["candidates"] == 26474 and sp["changed"] == 21919
+    assert sp["after_of_candidates"] == {"executive": 21478, "family_worker": 441, "self_employed": 4555}
+    assert c["seats"]["total"]["overflow"] == 23647 and c["seats"]["total"]["filled"] == 147065
+    p = pq.read_table(out / "w21_people.parquet", columns=["kind", "emp_status", "emp_status_before_split",
+                                                           "employment_status"]).to_pydict()
+    before = np.array(p["emp_status_before_split"], dtype=object)
+    changed = before != ""
+    assert int(changed.sum()) == 21919 and set(before[changed].tolist()) == {"self_employed"}
+    assert set(np.array(p["kind"], dtype=object)[changed].tolist()) == {"commuter"}
+    st = np.array(p["emp_status"], dtype=object)[changed]
+    emp = np.array(p["employment_status"], dtype=object)[changed]
+    assert set(st.tolist()) == {"executive", "family_worker"}
+    assert set(emp[st == "executive"].tolist()) == {"executive"} and set(emp[st == "family_worker"].tolist()) == {
+        "family_worker"}
 
 
 @REAL

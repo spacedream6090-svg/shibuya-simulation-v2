@@ -170,6 +170,7 @@ class WorldProcessRunner:
 
         weather_perturb: bool = False,
         org_of_agent: Any | None = None,
+        initial_rights: Any | None = None,
     ) -> None:
         if world is None or agents is None:
             raise ValueError("WorldProcessRunner は world と agents を要る")
@@ -235,6 +236,7 @@ class WorldProcessRunner:
             world, agents, self.assets,
             day_index=table_weekday, tick_seconds=self.tick_seconds, actual_log=self.log,
             org_of_agent=org_of_agent,  # 1-5: 権利台帳の雇用の行(W16)
+            initial_rights=initial_rights,  # 〔第 4 期 4-3 段 10〕差し替えの世界の店の担当と住まいの行
         )
         self.crowd = CrowdProcess(
             world, agents, tick_seconds=self.tick_seconds,

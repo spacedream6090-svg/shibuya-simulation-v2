@@ -409,9 +409,15 @@ def test_golden_tables_are_keyed_by_platform_and_values_unchanged():
     # 〔改訂(第330・RET)〕*_stateful・*_pre10e と関係 on の full の行は切替口と一緒に消した(前: 4985ff2f…/065a36d2…・
     # 993276d5…/72cb9cd5…・40409ebe…/72,930)。関係 on の v1 は今の値の行
     assert not {k for k in g if k.endswith(("_stateful", "_pre10e"))}
-    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v1", "behavior")] == ("ee4df5ad2dccfa94", 67_233)  # 〔2-4 V1〕前 380e8651a96b1829 / 69_406  # 〔2-4 V2〕前 edc6b366feece21c / 69_306  # 〔2-4 V3〕前 967a0f2eedb3576d / 67_907  # 〔2-4 V4〕前 d696dfa98390e830 / 67_830
+    g21 = TPE.W17_GOLDEN_BY_ENV[GE.PLATFORM_10F]["02114fb577f3"]
+    assert (g21["v3_default_final"], g21["v3_default_llm_calls"]) == ("eb759bb4e5be37ec", 63_572)
+    assert (g21["null_arm_final"], g21["null_arm_llm_calls"]) == ("90582d704a6d2dcb", 97_250)
+    assert set(g21) == set(g)  # 同じ欄(W16 の世界の行と同じ試験が回る)
+    # 〔第 4 期 4-3 段 10・版上げ 3 回目〕関係 on の 2 行は差し替えの世界の値(前 v1 ee4df5ad2dccfa94 / 67_233・v2 bf212900153818d2 /
+    # 66_844=記録 pop43)。W17 の表は W16 の世界の行(3113e9ba7abb)を残し、差し替えの世界の行(02114fb577f3)を足した
+    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v1", "behavior")] == ("285505540ec73d0d", 66_455)  # 〔2-4 V1〕前 380e8651a96b1829 / 69_406  # 〔2-4 V2〕前 edc6b366feece21c / 69_306  # 〔2-4 V3〕前 967a0f2eedb3576d / 67_907  # 〔2-4 V4〕前 d696dfa98390e830 / 67_830
     assert set(TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F]) == {("v1", "behavior"), ("v2", "behavior")}
-    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "behavior")] == ("bf212900153818d2", 66_844)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111  # 〔2-4 V2〕前 c506dec249bb4328 / 69_114  # 〔2-4 V3〕前 874ea26628f6be2e / 68_213  # 〔2-4 V4〕前 4a0db59663ef0d7b / 67_780
+    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "behavior")] == ("d0623491c47e5e2f", 66_374)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111  # 〔2-4 V2〕前 c506dec249bb4328 / 69_114  # 〔2-4 V3〕前 874ea26628f6be2e / 68_213  # 〔2-4 V4〕前 4a0db59663ef0d7b / 67_780
 
 
 # ================================================================= manifest の節(K22 (a)・検収 N1・N3)

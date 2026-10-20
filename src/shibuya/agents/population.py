@@ -17,6 +17,12 @@
          比例配分する(単純無作為ではない=希少セルの消失を防ぐ)。
     乱数は ``core.rng`` の Philox(ドメイン ``w16.sample.*``)だけ。同 seed 同結果。
 
+〔第 4 期 4-3 段 10〕差し替えの母集団(W16 の残す行+W21 の人=``build.pop.w21_apply``)
+    列 ``w21_person_id`` を持つ母集団は差し替えの版で、``wage_monthly``(段 5 の月の賃金)・``persona_occupation``(職業大分類の
+    名)・``persona_employment``(雇用の語=W16 の 6 値)も要る(欠けたら止める=黙って埋めない)。知らない種別・雇用の語・職業の
+    名も止める。W16 の残す行は ``w21_person_id``=−1・賃金 −1・語は空欄。列の無い母集団(本体の v2 の W16)では 4 つとも
+    ``None``(今のまま)。
+
     2026-09-09 の訂正(C5-a 層2レビュー 中-1): 旧実装は「プール層 L5 の全件 ∪ 指令」を
     定員先取り層にしていた=1,316 体(5,000 体ランの 26%)。L5 には機能定員でない役割が
     混ざるので、**役割名の表**へ絞った。
@@ -46,6 +52,8 @@ __all__ = [
     "Population",
     "population_available",
     "load_population",
+    "PopulationSchemaError",
+    "SWAP_COLUMNS",
     "sample_population",
 ]
 
@@ -81,6 +89,9 @@ RESERVED_ROLES: Final[tuple[str, ...]] = (
 #: 役割名が空でも定員先取り層に入れる種別(``AgentKind.DISPATCHER``=素材なしの指令)。
 #: ``duty_role`` の無い旧資産を読んだときの保険でもある。
 RESERVED_KINDS: Final[tuple[int, ...]] = (4,)
+#: 〔第 4 期 4-3 段 10・検収 M2〕役割の名を持っていても先取りしない種別(通勤者 0・従業者 2)。差し替えの母集団の W21 の担当の体の
+#: うち機能定員の外の体(種別 0・2 のまま=統計層で縮尺する)。本体の v2(W16)には役割の名を持つ種別 0・2 の体は居ない=今のまま。
+UNRESERVED_KINDS: Final[tuple[int, ...]] = (0, 2)
 
 _COLUMNS: Final[tuple[str, ...]] = (
     "agent_id", "kind", "purpose", "age", "sex", "home_cell", "work_cell", "school_cell",
@@ -89,6 +100,21 @@ _COLUMNS: Final[tuple[str, ...]] = (
 )
 #: W16 が publish する役割名の列(旧資産には無いので**任意**扱いで読む)。
 _DUTY_ROLE_COLUMN: Final[str] = "duty_role"
+#: 〔段 10〕差し替えの母集団の印の列と、印があるときに要る列(欠けたら止める)。
+SWAP_MARK_COLUMN: Final[str] = "w21_person_id"
+SWAP_COLUMNS: Final[tuple[str, ...]] = ("w21_person_id", "wage_monthly", "persona_occupation", "persona_employment")
+#: 〔段 10〕差し替えの母集団の雇用の語(W16 の 6 値のうち非就業を除く 5 つ+空欄)と職業の名(賃金構造の職種=職業大分類)。
+SWAP_EMPLOYMENT_WORDS: Final[frozenset[str]] = frozenset({"", "正規", "非正規", "役員", "自営業主", "家族従業者"})
+SWAP_OCCUPATION_WORDS: Final[frozenset[str]] = frozenset({
+    "", "管理的職業従事者", "専門的・技術的職業従事者", "事務従事者", "販売従事者", "サービス職業従事者", "保安職業従事者",
+    "農林漁業従事者", "生産工程従事者", "輸送・機械運転従事者", "建設・採掘従事者", "運搬・清掃・包装等従事者",
+})
+#: 種別の番号(``agents.state.AgentKind`` の値=0〜8)。知らない番号は止める。
+KNOWN_KINDS: Final[tuple[int, ...]] = tuple(range(9))
+
+
+class PopulationSchemaError(ValueError):
+    """母集団の列が欠けている・知らない語や番号がある(黙って埋めない)。"""
 
 
 @dataclass(frozen=True)
@@ -119,6 +145,16 @@ class Population:
     is_foreign: np.ndarray
     #: 職務の役割名(``""``=職務者でない)。旧資産(列が無い)では ``None``。
     duty_role: np.ndarray | None = None
+    #: 〔段 10〕差し替えの母集団の列(W21 の人の番号・月の賃金・職業の名・雇用の語)。列の無い母集団では ``None``。
+    w21_person_id: np.ndarray | None = None
+    wage_monthly: np.ndarray | None = None
+    persona_occupation: np.ndarray | None = None
+    persona_employment: np.ndarray | None = None
+
+    @property
+    def is_swapped(self) -> bool:
+        """〔段 10〕差し替えの母集団か(``w21_person_id`` の列がある)。"""
+        return self.w21_person_id is not None
 
     def __len__(self) -> int:
         return int(self.kind.size)
@@ -137,7 +173,13 @@ class Population:
         mask = np.isin(self.kind, np.asarray(RESERVED_KINDS, dtype=self.kind.dtype))
         if self.duty_role is not None:
             roles = np.asarray(self.duty_role, dtype=object)
-            mask = mask | np.isin(roles, np.asarray(RESERVED_ROLES, dtype=object))
+            by_role = np.isin(roles, np.asarray(RESERVED_ROLES, dtype=object))
+            # 〔段 10・検収 M2〕機能定員の外の W21 の担当の体(差し替えの母集団の W21 の行で種別 0・2)は先取りしない。
+            # W16 の行(``w21_person_id``=−1)と列の無い母集団(本体の v2 の W16)は今のまま
+            if self.w21_person_id is not None:
+                by_role &= ~((self.w21_person_id >= 0)
+                             & np.isin(self.kind, np.asarray(UNRESERVED_KINDS, dtype=self.kind.dtype)))
+            mask = mask | by_role
         return mask
 
     def counts_by_duty_role(self) -> dict[str, int]:
@@ -192,6 +234,8 @@ class Population:
                 None if self.duty_role is None
                 else np.asarray(self.duty_role, dtype=object)[rows]
             ),
+            **{name: (None if getattr(self, name) is None else np.asarray(getattr(self, name))[rows])
+               for name in SWAP_COLUMNS},
             **{
                 name: np.asarray(getattr(self, name))[rows]
                 for name in (
@@ -235,16 +279,26 @@ def load_population(
     import pyarrow.parquet as pq  # 遅延 import(母集団が無いランに読み込ませない)
 
     path = Path(world_dir) / POPULATION_FILE
-    have_role = _DUTY_ROLE_COLUMN in pq.read_schema(path).names
-    want = list(_COLUMNS) + ([_DUTY_ROLE_COLUMN] if have_role else [])
+    names = pq.read_schema(path).names
+    have_role = _DUTY_ROLE_COLUMN in names
+    swapped = SWAP_MARK_COLUMN in names
+    missing = [c for c in (*_COLUMNS, *(SWAP_COLUMNS if swapped else ())) if c not in names]
+    if missing:
+        raise PopulationSchemaError(f"母集団 {POPULATION_FILE} に要る列が無い: {missing}")
+    want = list(_COLUMNS) + ([_DUTY_ROLE_COLUMN] if have_role else []) + (list(SWAP_COLUMNS) if swapped else [])
     table = pq.read_table(path, columns=want)
     cols = {name: np.asarray(table.column(name).to_numpy(zero_copy_only=False))
             for name in want}
+    _check_words(cols, swapped)
     pop = Population(
         source=path,
         duty_role=(
             np.asarray(cols[_DUTY_ROLE_COLUMN], dtype=object) if have_role else None
         ),
+        w21_person_id=cols["w21_person_id"].astype(np.int32) if swapped else None,
+        wage_monthly=cols["wage_monthly"].astype(np.int64) if swapped else None,
+        persona_occupation=np.asarray(cols["persona_occupation"], dtype=object) if swapped else None,
+        persona_employment=np.asarray(cols["persona_employment"], dtype=object) if swapped else None,
         source_agent_id=cols["agent_id"].astype(np.int64),
         kind=cols["kind"].astype(np.int8),
         purpose=cols["purpose"].astype(np.int8),
@@ -273,6 +327,21 @@ def load_population(
     if n is None or n >= pop.n:
         return pop
     return sample_population(pop, n, seed)  # 10e(検収 L2): engine と同じ鍵の並べ方
+
+
+def _check_words(cols: dict[str, np.ndarray], swapped: bool) -> None:
+    """知らない種別の番号(全部の母集団)・差し替えの母集団の知らない雇用の語と職業の名で止める。"""
+    kinds = set(np.unique(np.asarray(cols["kind"], dtype=np.int64)).tolist())
+    bad = sorted(kinds - set(KNOWN_KINDS))
+    if bad:
+        raise PopulationSchemaError(f"母集団の種別の番号が AgentKind に無い: {bad}")
+    if not swapped:
+        return
+    for name, known in (("persona_employment", SWAP_EMPLOYMENT_WORDS), ("persona_occupation", SWAP_OCCUPATION_WORDS)):
+        got = set(np.unique(np.asarray(cols[name], dtype=object).astype(str)).tolist())
+        bad_w = sorted(got - known)
+        if bad_w:
+            raise PopulationSchemaError(f"差し替えの母集団の {name} に知らない語: {bad_w[:5]}")
 
 
 def sample_population(pop: Population, n: int, seed: int | str = 1) -> Population:

@@ -46,7 +46,12 @@ __all__ = ["STAGE_C", "STAGE_VERSION_C", "OUTPUTS_C", "MANIFEST_C", "BASE_FILES_
            "check_out_c", "build_c", "load_inputs", "persona_facts", "language_columns", "main"]
 
 STAGE_C: Final[str] = "W21c"
-STAGE_VERSION_C: Final[str] = "1.2.0"
+#: 1.2.0 → 1.3.0(第 4 期 4-3 段 10・親の判断 仮-33: 地位の分けは段 4(W21b 1.2.0)へ移した=本段は分けの記録と数え直しの
+#: 写しの検査だけ (2)・型の無い言語は日本語の型で代えて印 (7)・通う駅の口の路線を文に (9)・W20 の口は 8 区分から第 31/36 表の
+#: 行へ直接 (4)・電車で通う人の片道は段 6 の道のり (4))。
+STAGE_VERSION_C: Final[str] = "1.3.0"
+#: 段 10 の差し替えの資産の置き場の名(段 8〜10 を組み直してここにも書ける=``check_out_c``)。
+SWAP_ASSET_C: Final[str] = "v2_stage_4-3"
 OUTPUTS_C: Final[tuple[str, ...]] = (
     "w21_persona_short.parquet", "w21_persona_long.parquet", "w21_check.json", "w21c_w20_attributes.parquet",
     "w21c_status_split.parquet", "w21c_rights_store_staff.parquet", "w21c_w16_keep.json", "w21_checks_c.json",
@@ -70,6 +75,8 @@ WORLD_COLUMNS_C: Final[Mapping[str, tuple[str, ...]]] = MappingProxyType({
     "w6_poi.parquet": ("name", "cat", "subcat"),
     "w16_population.parquet": ("kind", "age", "sex", "industry_key", "duty_role", "household_id", "home_cell",
                                "work_cell", "synthetic"),
+    # 〔1.3.0〕通う駅の口の路線の名(構築側の欄だけ=乗降人員の欄は読まない)
+    "w12_external_nodes.parquet": ("node_id", "kind", "lines"),
 })
 
 #: 段 8〜10 の近似の宣言(つなぎの台帳の行と 1 対 1)。
@@ -77,33 +84,36 @@ W21C_EXPEDIENTS: Final[tuple[str, ...]] = (
     "国籍=住民の外国人だけを渋谷区の国籍の人数の比(東京都 外国人人口 第3表=住民基本台帳 2026-01-01)で引く・年齢と男女で条件づけない(在留外国人統計 T2 の年齢 × 男女は取り出していない)・外から来て働く人の国籍は空欄(材料なし)",
     "第一言語=国籍 → 主な言語の写像(渋谷区の上位 20 の国籍だけ・フィリピン・インド・シンガポールとほかの国は空欄)=未リサーチ(母語の公的な統計は無い=R-110 §3-3)",
     "日本語の会話の程度=在留外国人に対する基礎調査 令和 6 年度の国籍別の 6 段の割合(R-110 §3-2 の引)で 18 歳以上だけ引く・表に無い国籍は「その他」の行・韓国の行は特別永住者を除く表",
-    "人物の文の言語=第一言語が日本語か英語の人はその言語の型・第一言語も国籍も空欄の人(外から来て働く人)は日本語の型・ほかの言語と外国籍で第一言語が空欄の人は欄だけ(文は空)",
+    "人物の文の言語=第一言語が日本語か英語の人はその言語の型・第一言語も国籍も空欄の人(外から来て働く人)は日本語の型・ほかの言語の人と外国籍で第一言語が空欄の人は日本語の型で代えて印を付ける(lang_basis=substitute_ja・本当の第一言語は欄と人物の行に残る=段 10 の親の判断 仮-33 (7))",
     "人物の文の型(行の並びと語の表)=自前: 年齢は 13 歳未満は歳・ほかは十年ごとの前半/後半・人数と年数は漢数字か英語の綴り・時間と分は日本語の型だけ数字・お金は 2 桁の有効数字・1 億円以上は万円の単位・勤め先の種類と町丁目の名は英語の型でも日本語のまま",
     "短い版=人物・暮らし・仕事と学校・通勤・お金・なじみの場所の上位 3・長い版=短い版に家族・職場・勤め先・住まい・お金(詳しく)・ほかのなじみの場所・言葉の行を足す(TIPI-J の行は腕のときだけ)=自前",
     "通勤の分=歩く道のり ÷ 1.34 m/s(Weidmann の自由速度=engine.geometry の参照値と同じ値・attr_fns.walk_seconds)・人物の文は分に四捨五入(丸めた言葉)・W20 の片道は分に切り上げ(整数の分)・目安のトークン=日本語は字数 × 1.0(6-1 の器と同じ)・英語は字数 ÷ 4(未計測)",
-    "人物の文の判断の入力への置き場=engine に人物の欄が無いので個体の部分の頭(短い版は B6 の前・長い版は B5 の前)",
     "同居人の続き柄=世帯主から見た続き柄の組 → 本人から見た区分の表(決まらない組は親族か同居人)=自前",
-    "外から来て働く人の地位の分け=段 3 が雇人のない業主に寄せた人を、産業大分類ごとの経済センサス 第6-2表の有給役員・個人業主・無給の家族従業者の人数の比で分ける(民営の表=公務と分類不能は分けない・個人業主は雇人のない業主のまま)",
     "権利台帳の体 → 店の雇用の行=店の持ち主の組織に所属した体を組織の店へ順に振る(組織の長 → 部署の長 → 人の番号・店が 2 つ以上なら順に回す)・持ち主の無い店は行なし",
-    "W16 の在庫の行の扱いの案=運輸(鉄道・バス・タクシー)は残す・W21 の体のある層と W21 に同じ担当の語がある群は外す・ほかは残す",
-    "W20 への口=W21 の人の表 → Attributes(職業は occupation_major・担当は DUTY_ROLE_SPEC と DUTY_ROLE_SPEC_W21 の鍵・地位は W21 の値=第6-2表で引き直さない・歩く人の通勤の分=道のり ÷ 1.34 m/s・電車の人は空欄=W20 の 30 分・学校のセルは無い・認定こども園と保育園は授業でない・働く在学者は勤務を先に)",
+    "W20 への口=W21 の人の表 → Attributes(職業は occupation_major・担当は DUTY_ROLE_SPEC と DUTY_ROLE_SPEC_W21 の鍵・地位は W21 の 8 区分から第 31/36 表の行へ直接=家庭内職者は雇人のない業主の行・パートは第 31 表の非正規の按分から派遣社員を除いた 4 行の重み・歩く人の通勤の分=道のり ÷ 1.34 m/s・電車の人は空欄=W20 の 30 分(舞台の中の道のりだけでは数分になる=所要時間の表が構築側に入る段まで)・学校のセルは無い・認定こども園と保育園は授業でない・働く在学者は勤務を先に)",
     "W21 用の担当の語の表 DUTY_ROLE_SPEC_W21 の 4 語(店長・補充・配送作業員・警備員)の職業・産業・中分類・場所・交替制の当てはめ(W20 の DUTY_ROLE_SPEC は土台のまま=W20cal の param_hash は動かない)",
     "点検の比べ方=舞台の分布を区全体の表の形と比べる(従業地 第15-1表・2025 第15-1表・第10表・第6-2表)・W21 の夫婦=世帯主と配偶者だけ・子=続き柄が子",
     "多様性の属性=年齢 5 歳・男女・産業の語・世帯の人数・家のセル・勤め先のセル・ペアの距離=20 万組(Philox の鍵)",
+    "通う駅の口=電車の人の通勤の行に W12 の鉄道の外の口の路線の名(・でつなぐ)を足す(区別の事実=段 10 の親の判断 仮-33 (9)・路線の名は英語の型でも日本語のまま)・路線は W21b の駅の口(大都市交通センサスの路線別の流入の比で引いた=常住地からの経路ではない=同じ文の常住地と食い違いうる・常住地 → 路線の材料が無い)・常住地の市区町村の中の場所は材料が無い",
 )
-#: 段 10 に結ぶ宣言(つなぎの台帳の remove_at=4-3)の番号(0 から)。
-STAGE10_ROWS_OF_DECLARATIONS: Final[tuple[int, ...]] = (7, 10, 11, 12, 13)
+#: 段 10 に結ぶ宣言(つなぎの台帳の remove_at=4-3)の番号(0 から)。〔1.3.0〕段 10 で決めた=4-3 に結ぶ宣言は無い(置き場・W16 の在庫の案=removed・地位の分け=W21b へ・体 → 店と W20 の口と 4 語=外す段を改めた=記録 pop43)。
+STAGE10_ROWS_OF_DECLARATIONS: Final[tuple[int, ...]] = ()
 
 
 class ProtectedOutputErrorC(ValueError):
     """``--out`` が本体の v2・読む世界資産・段 1〜7 の資産・既存の置き場の中を指している(何も書かずに止める)。"""
 
 
-def check_out_c(data: Path, out: Path, world: Path, base: Path) -> None:
+def check_out_c(data: Path, out: Path, world: Path, base: Path, *, in_place: bool = False) -> None:
     """出力先の検査: 本体の ``data/world/v2``・``--world``・``--base``(段 1〜7)・段 1〜3 の資産の中と、``data/world`` の下の
-    既存の置き場(``v2_stage_4-1c*`` を除く)の中なら止める。"""
+    既存の置き場(``v2_stage_4-1c*`` と差し替えの置き場を除く)の中なら止める。
+
+    〔1.3.0〕``in_place``=段 10 の差し替えの資産を組むとき(段 4〜7 を同じ置き場に組み直した=``--base`` と ``--out`` が同じ)
+    だけ、``--base`` と同じ置き場を許す(``--base`` の下の別の置き場は止める)。"""
     o = Path(out).resolve()
-    roots = ((Path(data) / "world" / "v2").resolve(), Path(world).resolve(), Path(base).resolve(),
+    b = Path(base).resolve()
+    roots = ((Path(data) / "world" / "v2").resolve(), Path(world).resolve(),
+             *(() if (in_place and o == b) else (b,)),
              (Path(data) / "world" / STAGE13_ASSET).resolve(), (Path(data) / "world" / BASE_ASSET_C).resolve())
     for root in roots:
         if o == root or root in o.parents:
@@ -111,7 +121,7 @@ def check_out_c(data: Path, out: Path, world: Path, base: Path) -> None:
     wroot = (Path(data) / "world").resolve()
     if wroot in o.parents:
         top = o.relative_to(wroot).parts[0]
-        if (wroot / top).exists() and not top.startswith(OWN_ASSET_C):
+        if (wroot / top).exists() and not (top.startswith(OWN_ASSET_C) or top == SWAP_ASSET_C):
             raise ProtectedOutputErrorC(f"段 8〜10 は既存の資産の置き場に書かない: {top}")
 
 
@@ -136,6 +146,9 @@ def load_inputs(guard: S.W21Guard, data: Path, base: Path, world: Path) -> Simpl
     w6o = guard.read_parquet(world / "w6_org.parquet", WORLD_COLUMNS_C["w6_org.parquet"])
     poi = guard.read_parquet(world / "w6_poi.parquet", WORLD_COLUMNS_C["w6_poi.parquet"])
     w16 = guard.read_parquet(world / "w16_population.parquet", WORLD_COLUMNS_C["w16_population.parquet"])
+    ext = guard.read_parquet(world / "w12_external_nodes.parquet", WORLD_COLUMNS_C["w12_external_nodes.parquet"])
+    entry_lines = {str(nid): "・".join(json.loads(ls or "[]")) for nid, k, ls in
+                   zip(ext["node_id"], ext["kind"], ext["lines"]) if k == "rail"}  # 逐次: 外の口の数(10)
     g = W.prepare(guard, data, world)
     tables3, _unk = WA.build_tables(guard, g.keys80, g.tg.stage_idx, g.tg.coverage, g.tg.ratios["r_pop"])
     org4 = X.origins(guard)
@@ -156,7 +169,8 @@ def load_inputs(guard: S.W21Guard, data: Path, base: Path, world: Path) -> Simpl
                            rights=rd["w21_rights_initial"], money=rd["w21_money"], money_h=rd["w21_money_households"],
                            places=rd["w21_prior_places"], persons=rd["w21_persons"], households=rd["w21_households"],
                            w6o=w6o, poi=poi, w16=w16, g=g, tables3=tables3, rows62=rows62, it62=it62, juki3=juki3,
-                           juki1=juki1, e15=e15, b15=b15, tc=tc, chome_names=chome_names, origin_names=origin_names)
+                           juki1=juki1, e15=e15, b15=b15, tc=tc, chome_names=chome_names, origin_names=origin_names,
+                           entry_lines=entry_lines)
 
 
 def _pk3(pid: np.ndarray) -> np.ndarray:
@@ -184,16 +198,16 @@ def persona_facts(inp: SimpleNamespace, lang_cols: Mapping[str, np.ndarray]) -> 
     """段 9 の事実の表(``w21_persona.facts_from_w21`` に資産の表を渡すだけ)。"""
     return P.facts_from_w21(inp.people, inp.persons, inp.households, inp.money, inp.money_h, inp.places, inp.poi,
                             np.asarray(inp.w6o["name"], dtype=object), inp.org, lang_cols, inp.chome_names,
-                            inp.origin_names)
+                            inp.origin_names, entry_lines=getattr(inp, "entry_lines", None))
 
 
 def build_c(data: Path, out: Path, *, base: Path | None = None, world: Path | None = None,
-            seed: int | str = W.DEFAULT_SEED) -> tuple[C.StageResult, dict[str, Any]]:
+            seed: int | str = W.DEFAULT_SEED, in_place: bool = False) -> tuple[C.StageResult, dict[str, Any]]:
     """段 8〜9 と段 10 の材料を組んで ``out`` に書く。返り値は(見出し, manifest)。"""
     data, out = Path(data), Path(out)
-    world = Path(world) if world is not None else data / "world" / "v2"
+    world = W.source_world(data, world)  # 〔段 10〕差し替えた世界からは組まない=退避の W16 の世界
     base = Path(base) if base is not None else data / "world" / BASE_ASSET_C
-    check_out_c(data, out, world, base)
+    check_out_c(data, out, world, base, in_place=in_place)
     out.mkdir(parents=True, exist_ok=True)
     guard = S.W21Guard.for_build(data, world=world, out=out, extra_dirs=(base,), extra_sources=S.SOURCES_C)
     with guard.active():
@@ -238,13 +252,14 @@ def _build_c(guard: S.W21Guard, data: Path, out: Path, world: Path, base: Path,
     # ================================================================ 段 10 の材料
     people_w20 = {**{c: p[c] for c in WP.W21_INPUT_COLUMNS if c in p}, "school_kind": _school_kind(inp)}
     attrs = WP.attributes_from_w21(people_w20)
-    emp_codes = _codes(p["emp_status"], A.EMP_STATUS)
-    ind_codes = _codes(p["industry_major"], A.INDUSTRY_MAJORS)
-    split = A.call("commuter_status_split", {"kind": kind, "emp_status": emp_codes, "industry_major": ind_codes},
-                   inp.tc, A.AttrKey(seed, "w21c.commuter.status_split", _pk3(pid)))
-    words = np.array([*A.EMP_STATUS, ""], dtype=object)
-    st_before = words[np.where(emp_codes >= 0, emp_codes, len(A.EMP_STATUS))]
-    st_after = words[np.where(split >= 0, split, len(A.EMP_STATUS))]
+    # 〔1.3.0・仮-33 (2)〕地位の分けは段 4(W21b 1.2.0)が席の前に入れた=ここでは分けない(二重に分けない)。分けの前の地位は
+    # W21b の列 ``emp_status_before_split``(地位が変わった人だけ)・分けの後=今の ``emp_status``。数え直しは分けの前と後の両方
+    # (後=段 4 の所属と同じ=写しの検査の門)。
+    st_after = np.asarray(p["emp_status"], dtype=object).astype(str).astype(object)
+    if "emp_status_before_split" not in p:
+        raise S.MissingSourceError("段 4〜7 の資産が 1.2.0 より前(地位の分けの列 emp_status_before_split が無い)")
+    bsplit = np.asarray(p["emp_status_before_split"], dtype=object).astype(str)
+    st_before = np.where(bsplit != "", bsplit, st_after).astype(object)
     o_ind = np.asarray(inp.w6o["industry_key"], dtype=object).astype(str)
     o_seats = np.asarray(inp.w6o["employees"], dtype=np.int64)
     org_b, filled_b, rep_b = T10.seat_recount(p, o_ind, o_seats, inp.rows62, inp.it62, st_before, seed)
@@ -317,6 +332,7 @@ def _build_c(guard: S.W21Guard, data: Path, out: Path, world: Path, base: Path,
                              "before": WC.counts_by(st_before[cand]), "after": WC.counts_by(st_after[cand])},
             "seat_recount": {**seat_tot, "breakdown": _seat_breakdown(cand, kind, st_before, org_b, org_a),
                              "before_matches_stage4": bool(np.array_equal(org_b, org_index)),
+                             "after_matches_stage4": bool(np.array_equal(org_a, org_index)),
                              "overflow_reduction": seat_tot["before"]["overflow"] - seat_tot["after"]["overflow"],
                              "seated_increase": seat_tot["after"]["filled"] - seat_tot["before"]["filled"]},
             "store_staff": {"rows": int(np.asarray(staff["right_id"]).size),
@@ -405,7 +421,7 @@ def _build_c(guard: S.W21Guard, data: Path, out: Path, world: Path, base: Path,
         C.Gate("person_id_duplicates", int(n - np.unique(pid).size), 0),
         C.Gate("persona_rows_equal_people", int(np.asarray(long_t["person_id"]).size), n),
         C.Gate("short_not_prefix_of_long", not_prefix, 0),
-        C.Gate("seat_recount_matches_stage4", bool(np.array_equal(org_b, org_index)), True),
+        C.Gate("seat_recount_matches_stage4", bool(np.array_equal(org_a, org_index)), True),
         C.Gate("language_verify_side_opened", sum(1 for q in read_files if any(t in q for t in VERIFY_SIDE_LANGUAGE)),
                0),
     ]
@@ -440,16 +456,18 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--base", type=Path, default=None, help="段 1〜7 の資産(既定 <data>/world/v2_stage_4-1b・読むだけ)")
     ap.add_argument("--world", type=Path, default=None, help="読む世界資産(既定 <data>/world/v2・読むだけ)")
     ap.add_argument("--seed", type=int, default=W.DEFAULT_SEED)
+    ap.add_argument("--in-place", action="store_true",
+                    help="段 10 の差し替えの資産を組むとき(--base と --out が同じ置き場=段 4〜7 を組み直した置き場)")
     a = ap.parse_args(argv)
     data = a.data.resolve()
-    world = (a.world or a.data / "world" / "v2").resolve()
+    world = W.source_world(data, a.world).resolve()  # 〔段 10〕差し替えた世界なら退避の W16 の世界
     base = (a.base or a.data / "world" / BASE_ASSET_C).resolve()
     try:
-        check_out_c(data, a.out.resolve(), world, base)
+        check_out_c(data, a.out.resolve(), world, base, in_place=a.in_place)
     except ProtectedOutputErrorC as e:
         print(f"[W21c] 止めた(何も書いていない): {e}", file=sys.stderr)
         return 2
-    res, man = build_c(data, a.out.resolve(), base=base, world=world, seed=a.seed)
+    res, man = build_c(data, a.out.resolve(), base=base, world=world, seed=a.seed, in_place=a.in_place)
     print(f"[W21c] people={man['counts']['people']} persona_built={man['counts']['persona_built']} "
           f"w21c_build_hash={man['w21c_build_hash']}")
     return 0 if res.all_passed else 1

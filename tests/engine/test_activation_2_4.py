@@ -24,6 +24,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 WORLD = REPO_ROOT / "data" / "world" / "v2"
 RECORD = REPO_ROOT / "docs" / "bench" / "analysis" / "wallbounce-1012" / "vb24" / "v1_activation_plan.json"
 TOOL = REPO_ROOT / "docs" / "bench" / "analysis" / "wallbounce-1012" / "vb24" / "tools" / "activate_vb24.py"
+RECORD_POP43 = REPO_ROOT / "docs" / "bench" / "analysis" / "wallbounce-1012" / "pop43" / "activation_plan.json"
 
 #: 本物の資産(活性化した本体の v2)を見る試験の印。〔2-4 検収 M1〕前はモジュール全体に付けていた。
 _needs_world = pytest.mark.requires_data("world_v2:build_manifest.json")
@@ -36,7 +37,14 @@ def _manifest() -> dict:
 @_needs_world
 def test_v1_build_hash_is_the_activated_one():
     plan = json.loads(RECORD.read_text(encoding="utf-8"))
-    assert _manifest()["build_hash"] == plan["build_hash_after"]
+    # 〔第 4 期 4-3 段 10・版上げ 3 回目〕段 10 の差し替えの活性化(記録 pop43)の後は、その計画の「前」が本段の「後」で、
+    # 本体の v2 はその計画の「後」(前の値=本段の「後」6a7d34e8…)
+    pop43 = json.loads(RECORD_POP43.read_text(encoding="utf-8"))
+    assert pop43["build_hash_before"] == plan["build_hash_after"]
+    if (WORLD / "W21apply.header.json").exists():
+        assert _manifest()["build_hash"] == pop43["build_hash_after"]
+    else:
+        assert _manifest()["build_hash"] == plan["build_hash_after"]
 
 
 @_needs_world

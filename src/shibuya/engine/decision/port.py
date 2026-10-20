@@ -268,14 +268,18 @@ def options_text(presented: Sequence[Candidate]) -> str:
 _LONG_INSTRUCTION: Final[str] = "先に理由を自由に書き、最後に番号をひとつ書く(その他なら番号のあとに中身)。"
 #: 共通部分(同じ刻み・同じセルの全員で同じ=prefix を共有できる)と人ごとの部分の描画のブロック。
 _COMMON_BLOCKS: Final[tuple[str, ...]] = ("B0", "B1", "B2", "B3", "B4", "B4b")
-_INDIVIDUAL_BLOCKS: Final[Mapping[str, tuple[str, ...]]] = MappingProxyType({"short": ("B6",), "long": ("B5", "B6")})
+#: 〔第 4 期 4-3 段 10・仮-33 (6)〕人物の欄(``engine.decision.persona``)は個体の部分の頭=短い版 ``PS`` は B6 の前・長い版 ``PL`` は
+#: B5 の前(欄の無いブロックの辞書=今までの入力は 1 バイトも変わらない)。
+_INDIVIDUAL_BLOCKS: Final[Mapping[str, tuple[str, ...]]] = MappingProxyType({"short": ("PS", "B6"),
+                                                                            "long": ("PL", "B5", "B6")})
 
 
 def compose(blocks: Mapping[str, str], presented: Sequence[Candidate], *, length: str) -> str:
     """判断の入力の文(DM4: 短い版と長い版を 1 つの仕組みで・共通部分を前に)。J0 では使わない(プロンプトは今のまま)。
 
-    ``blocks`` は描画のブロックの文(``B0``〜``B6``)。並びは 共通(B0〜B4b)→ 人ごと(短い版 B6・長い版 B5+B6)→ 提示 →
-    (長い版だけ)指示。同じ状態からは短い版と長い版の先頭(共通部分)が同じバイトになる。
+    ``blocks`` は描画のブロックの文(``B0``〜``B6``・〔段 10〕人物の欄 ``PS``/``PL``=``engine.decision.persona.persona_blocks``)。
+    並びは 共通(B0〜B4b)→ 人ごと(短い版 PS+B6・長い版 PL+B5+B6)→ 提示 →(長い版だけ)指示。同じ状態からは短い版と長い版の
+    先頭(共通部分)が同じバイトになる。
     """
     if length not in LENGTHS:
         raise ValueError(f"length は {LENGTHS} のどれか(いま {length!r})")

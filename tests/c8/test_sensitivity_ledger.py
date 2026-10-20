@@ -463,7 +463,13 @@ PRE_D44_DIGESTS = {
     # (--read-graph)=3-1 の W20 に加えて W3・W6・W12 の consumers に W21 が増えただけ(行番号を除く engine_sites と
     # verdict・reach は不変・rows と judgment_rows_without_d44 の digest も不変・記録 pop41b/README.md)。旧値は 2 つ:
     # 本体(3-1 の後)c4ea05eed1bced95…・本段の rebase 前(段 1〜3 の後)d32aa76180bd874a…
-    "judgment_rest_without_d44": "49dd536770bf25e9bd08d3630d2ac51ddeb944a4276a1a5420702a22fef3e3ae",
+    # 〔第 4 期 4-3 段 10〕構築側の新しい段 W21apply(build/pop/w21_apply.py=読みのグラフでは W21 の名)が W17 の週次表を読むので、
+    # 読みのグラフを作り直した(--read-graph)=W17 の consumers に W21 が増えただけ(engine_sites・verdict・rows の digest は不変)。
+    # 旧値 49dd536770bf25e9bd08d3630d2ac51ddeb944a4276a1a5420702a22fef3e3ae(記録 pop43/README.md)
+    # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界の build_manifest(build_hash 0b215fcd…=活性化の後の本体の v2)で
+    # 判定を作り直した(--judge-manifest → --read-graph → --triage → --d44)=変わったのは manifest_build_hash だけ(行・読みの
+    # グラフ・3 分類・D-44 は前と同じ)。旧値 bb2e854a4bae35e08684b36dae4e2393845650b0ab0736157e92189b97cbc9e5(記録 pop43)
+    "judgment_rest_without_d44": "ba7f50c455453d59aa052a9d22c418d3c410d179383fb4a1d62ea23abd5b217d",
 }
 D44_DIR_REL = ("docs", "bench", "analysis", "d44-controls-2026-09-30")
 

@@ -1879,13 +1879,13 @@
   {
    "id": "BR-W16-REPLICATED-108142",
    "what": "W16 は複製で足した人を含む(実測 108,142 人=R-109)",
-   "why": "人口の作り直しが済むまでの今の W16 の弱点(計画 第 4 期の注・回答 2-0)。4-1 段 10 で差し替える〔第 4 期 4-1 段 1〜3・W21〕置き換えの資産ができた(data/world/v2_stage_4-1 の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。差し替えは段 10(=4-3)。W21 の住民は複製 0 体(synthetic 0)。通勤・通学の人は段 7。〔第 4 期 4-1 段 4〜7・W21b〕置き換えの資産ができた(data/world/v2_stage_4-1b の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md)。差し替えは段 10(=4-3)。W21b の外から来て働く人の体も複製 0。",
-   "remove_at": "4-1",
+   "why": "人口の作り直しが済むまでの今の W16 の弱点(計画 第 4 期の注・回答 2-0)。4-1 段 10 で差し替える〔第 4 期 4-1 段 1〜3・W21〕置き換えの資産ができた(data/world/v2_stage_4-1 の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。差し替えは段 10(=4-3)。W21 の住民は複製 0 体(synthetic 0)。通勤・通学の人は段 7。〔第 4 期 4-1 段 4〜7・W21b〕置き換えの資産ができた(data/world/v2_stage_4-1b の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md)。差し替えは段 10(=4-3)。W21b の外から来て働く人の体も複製 0。〔第 4 期 4-3 段 10・pop43〕外す段を 4-1 → 6-1: 段 10 で住民・外から来て働く人の複製は消えた(W21=複製 0)。残る複製は W16 のまま残した通学者の 16,695 と指令の 24=16,719 体(検収 M1=通学者は W21 に体が入る段で外す)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)",
+   "remove_at": "6-1",
    "declared_in": "docs/design/v2-implementation-plan-2026-10-12.md 第 4 期の注",
    "conf": "expedient",
    "since": "2026-10-14",
    "status": "active",
-   "remove_basis": "plan",
+   "remove_basis": "inferred",
    "code_at": [
     "src/shibuya/build/pop/w16_population.py"
    ]
@@ -1893,13 +1893,13 @@
   {
    "id": "BR-W16-VISITOR-COUNT-BASIS",
    "what": "W16 の来街者の数の根拠が弱い(通勤+通学 249,157 は現実の 1.3〜1.6 倍=R-109)",
-   "why": "人口の作り直しが済むまでの今の W16 の弱点(計画 第 4 期の注)。4-1 段 1(人数の枠)と段 10〔第 4 期 4-1 段 1〜3・W21〕段 1〜3 で枠の行ができた(data/world/v2_stage_4-1 の w21_frame.json・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。人は段 7 で作る。枠の行: 都市圏の私事・業務の来街は空欄(仮-23)・訪日 4.3〜8.5 万(引)。〔第 4 期 4-1 段 4〜7・W21b〕置き換えの資産ができた(data/world/v2_stage_4-1b の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md)。差し替えは段 10(=4-3)。W21b の外の人は層の表(人は作らない)・都市圏の私事と業務の来街は空欄(仮-23)。",
-   "remove_at": "4-1",
+   "why": "人口の作り直しが済むまでの今の W16 の弱点(計画 第 4 期の注)。4-1 段 1(人数の枠)と段 10〔第 4 期 4-1 段 1〜3・W21〕段 1〜3 で枠の行ができた(data/world/v2_stage_4-1 の w21_frame.json・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。人は段 7 で作る。枠の行: 都市圏の私事・業務の来街は空欄(仮-23)・訪日 4.3〜8.5 万(引)。〔第 4 期 4-1 段 4〜7・W21b〕置き換えの資産ができた(data/world/v2_stage_4-1b の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md)。差し替えは段 10(=4-3)。W21b の外の人は層の表(人は作らない)・都市圏の私事と業務の来街は空欄(仮-23)。〔第 4 期 4-3 段 10・pop43〕外す段を 4-1 → 6-1: 段 10 で来街者・定期来街者・訪日来街者(96,006 行)は W16 のまま残した(親の判断 仮-33 (10)=来街者は判断モデルの後)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)",
+   "remove_at": "6-1",
    "declared_in": "docs/design/v2-implementation-plan-2026-10-12.md 第 4 期の注",
    "conf": "expedient",
    "since": "2026-10-14",
    "status": "active",
-   "remove_basis": "plan",
+   "remove_basis": "inferred",
    "code_at": [
     "src/shibuya/build/pop/w16_population.py"
    ]
@@ -1907,13 +1907,13 @@
   {
    "id": "BR-W16-NO-TRANSFER-ONLY",
    "what": "駅で乗り換えるだけの人が 0(乗り換えか直通 140〜158 万回/日と JR の通過 917,279 人/日は 1 体も無い=R-109)",
-   "why": "人口の作り直しが済むまでの今の W16 の弱点(計画 第 4 期の注)。4-1 段 1(乗り換えだけの人)と段 10〔第 4 期 4-1 段 1〜3・W21〕段 1〜3 で枠の行ができた(data/world/v2_stage_4-1 の w21_frame.json・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。人は段 7 で作る。枠の行: 乗り換えだけの人 70〜80 万・JR の通過 約 46 万(引)。〔第 4 期 4-1 段 4〜7・W21b〕置き換えの資産ができた(data/world/v2_stage_4-1b の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md)。差し替えは段 10(=4-3)。W21b の層の表に乗り換えだけの人と JR の通過の行(枠と分布だけ・人は作らない)。",
-   "remove_at": "4-1",
+   "why": "人口の作り直しが済むまでの今の W16 の弱点(計画 第 4 期の注)。4-1 段 1(乗り換えだけの人)と段 10〔第 4 期 4-1 段 1〜3・W21〕段 1〜3 で枠の行ができた(data/world/v2_stage_4-1 の w21_frame.json・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。人は段 7 で作る。枠の行: 乗り換えだけの人 70〜80 万・JR の通過 約 46 万(引)。〔第 4 期 4-1 段 4〜7・W21b〕置き換えの資産ができた(data/world/v2_stage_4-1b の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md)。差し替えは段 10(=4-3)。W21b の層の表に乗り換えだけの人と JR の通過の行(枠と分布だけ・人は作らない)。〔第 4 期 4-3 段 10・pop43〕外す段を 4-1 → 6-1: 段 10 で乗り換えるだけの人は作っていない(W21 の段 7 は層の表だけ=体は「来るか」の段)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)",
+   "remove_at": "6-1",
    "declared_in": "docs/design/v2-implementation-plan-2026-10-12.md 第 4 期の注",
    "conf": "expedient",
    "since": "2026-10-14",
    "status": "active",
-   "remove_basis": "plan",
+   "remove_basis": "inferred",
    "code_at": [
     "src/shibuya/build/pop/w16_population.py"
    ]
@@ -3378,7 +3378,7 @@
   {
    "id": "BR-RIGHTS-DWELLING-BLANK",
    "what": "権利台帳の住まい(持ち家=所有・借家=賃借)の行は 0(空欄)。国勢調査の住宅の所有の関係(表 18-4・町丁目)は表の場所だけ分かり、値は未取得",
-   "why": "計画 1-5 の最初の中身「住まい=国勢調査の割合」(決定 10-12 §4-5 CP4)。割合の出どころが無いので行を作らない(R-106 §2-1 の表 #40 △=値は未取得)。発注: 住まいの権利は 4-2 で(賃貸借=計画 4-2・持ち家の所有は計画の文に段が無い=実装役が当てた)〔第 4 期 4-1 段 4〜7・W21b〕置き換えの資産ができた(data/world/v2_stage_4-1b の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md)。差し替えは段 10(=4-3)。W21b の権利台帳の開始時点の行に住まい(段 2 の tenure=国勢調査 第7-1表・世帯主 → 住まい)を作った。",
+   "why": "計画 1-5 の最初の中身「住まい=国勢調査の割合」(決定 10-12 §4-5 CP4)。割合の出どころが無いので行を作らない(R-106 §2-1 の表 #40 △=値は未取得)。発注: 住まいの権利は 4-2 で(賃貸借=計画 4-2・持ち家の所有は計画の文に段が無い=実装役が当てた)〔第 4 期 4-1 段 4〜7・W21b〕置き換えの資産ができた(data/world/v2_stage_4-1b の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md)。差し替えは段 10(=4-3)。W21b の権利台帳の開始時点の行に住まい(段 2 の tenure=国勢調査 第7-1表・世帯主 → 住まい)を作った。〔第 4 期 4-3 段 10・pop43〕差し替えの世界(data/world/v2_stage_4-3)では W21b の住まいの行(世帯主 → 住まい=所有と賃借・国勢調査 第7-1表の住宅の所有の関係・27,491 行)を初期の行に入れる(engine.rights.initial の w21_rights_run)=本体の v2 への活性化の後は空欄でない(閉じるのは活性化の後=親)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)",
    "remove_at": "4-2",
    "declared_in": "docs/design/v2-implementation-plan-2026-10-12.md 第 1 期 1-5",
    "conf": "expedient",
@@ -4202,8 +4202,8 @@
   {
    "id": "EX-build.pop.w21_build-60537a44",
    "what": "時点の混ぜ方: 町丁目の表は 2020 の形のまま、区の 2025 の分類ごとの総数へ IPF で合わせる(2025 の小地域の表が出たら差し替える)",
-   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 1 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 4-3 以降=2025 の小地域の表(と小地域の不詳補完値)の公表の後に差し替える(統計局の資料 2 は小地域の公表を「別途」と書く=R-116 §空欄 1)。台帳の段の表に「4-3 以降」が無いので 4-3 と書く(PENDING 仮-23)",
-   "remove_at": "4-3",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 1 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 4-3 以降=2025 の小地域の表(と小地域の不詳補完値)の公表の後に差し替える(統計局の資料 2 は小地域の公表を「別途」と書く=R-116 §空欄 1)。台帳の段の表に「4-3 以降」が無いので 4-3 と書く(PENDING 仮-23)〔第 4 期 4-3 段 10・pop43〕外す段を 4-3 → 7: 段 10 で差し替えたが近似は残る(2025 の小地域の表が無い)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:60537a44",
    "conf": "expedient",
    "since": "2026-10-15",
@@ -4213,8 +4213,8 @@
   {
    "id": "EX-build.pop.w21_build-5af05e9d",
    "what": "町丁目の年齢・配偶関係・家族類型の「不詳」は、区の 2020 の遡及の不詳補完値と原数値の差の比で割り振る",
-   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 2 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 4-3 以降=2025 の小地域の表(と小地域の不詳補完値)の公表の後に差し替える(統計局の資料 2 は小地域の公表を「別途」と書く=R-116 §空欄 1)。台帳の段の表に「4-3 以降」が無いので 4-3 と書く(PENDING 仮-23)",
-   "remove_at": "4-3",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 2 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 4-3 以降=2025 の小地域の表(と小地域の不詳補完値)の公表の後に差し替える(統計局の資料 2 は小地域の公表を「別途」と書く=R-116 §空欄 1)。台帳の段の表に「4-3 以降」が無いので 4-3 と書く(PENDING 仮-23)〔第 4 期 4-3 段 10・pop43〕外す段を 4-3 → 7: 段 10 で差し替えたが近似は残る(不詳の割り振り)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:5af05e9d",
    "conf": "expedient",
    "since": "2026-10-15",
@@ -4224,8 +4224,8 @@
   {
    "id": "EX-build.pop.w21_build-ee7d62b5",
    "what": "町丁目の労働力状態・従業上の地位・従業地・在学・居住期間・住居の種類の「不詳」は、町丁目 × 男女の既知の比で割り振る(不詳は無作為と仮定)",
-   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 3 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 4-3 以降=2025 の小地域の表(と小地域の不詳補完値)の公表の後に差し替える(統計局の資料 2 は小地域の公表を「別途」と書く=R-116 §空欄 1)。台帳の段の表に「4-3 以降」が無いので 4-3 と書く(PENDING 仮-23)",
-   "remove_at": "4-3",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 3 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 4-3 以降=2025 の小地域の表(と小地域の不詳補完値)の公表の後に差し替える(統計局の資料 2 は小地域の公表を「別途」と書く=R-116 §空欄 1)。台帳の段の表に「4-3 以降」が無いので 4-3 と書く(PENDING 仮-23)〔第 4 期 4-3 段 10・pop43〕外す段を 4-3 → 7: 段 10 で差し替えたが近似は残る(不詳の割り振り)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:ee7d62b5",
    "conf": "expedient",
    "since": "2026-10-15",
@@ -4235,8 +4235,8 @@
   {
    "id": "EX-build.pop.w21_build-564cf9e6",
    "what": "2025 の区の表が無い町丁目の表(住宅の所有・建て方・就業・在学・居住期間)は 2020 の形のまま総数を人口・世帯の比で直す",
-   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 4 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 4-3 以降=2025 の小地域の表(と小地域の不詳補完値)の公表の後に差し替える(統計局の資料 2 は小地域の公表を「別途」と書く=R-116 §空欄 1)。台帳の段の表に「4-3 以降」が無いので 4-3 と書く(PENDING 仮-23)",
-   "remove_at": "4-3",
+   "why": "構築の段 W21 が宣言した近似(第 4 期 4-1 段 1〜3・モジュールの表 W21_EXPEDIENTS の 4 番目・記録 docs/bench/analysis/wallbounce-1012/pop41/README.md)。外す段: 4-3 以降=2025 の小地域の表(と小地域の不詳補完値)の公表の後に差し替える(統計局の資料 2 は小地域の公表を「別途」と書く=R-116 §空欄 1)。台帳の段の表に「4-3 以降」が無いので 4-3 と書く(PENDING 仮-23)〔第 4 期 4-3 段 10・pop43〕外す段を 4-3 → 7: 段 10 で差し替えたが近似は残る(2025 の区の表が無い町丁目の表)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/pop/w21_build.py#expedients:564cf9e6",
    "conf": "expedient",
    "since": "2026-10-15",
@@ -4879,8 +4879,8 @@
   {
    "id": "EX-build.pop.w21_build_b-f872ad4e",
    "what": "舞台で働く人の数=区で働く 15 歳以上の就業者(国勢調査 第4表)× 舞台の割合(経済センサス 第28表の町丁目の従業者 × 被覆率 ÷ 区の従業者)=席の配分は経済センサス・人数は国勢調査(仮-23)。町丁目の中は一様",
-   "why": "構築の段 W21b が宣言した近似(第 4 期 4-1 段 4〜7・モジュールの表 W21B_EXPEDIENTS の 1 番目・記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md)。外す段: 4-3 以降=2025 の従業地・通学地集計(町丁目の昼の人口と従業地の結合=統計局の公表の予定 2027-05)の後に見直す(台帳の段の表に「4-3 以降」が無いので 4-3 と書く)。外から来て働く人 173,150 は R-116 §4 の枠「外から来て働く人と学ぶ人 18.5〜25 万」の下の端より少ない=働く人だけ(学ぶ人の舞台の分は空欄)・舞台の割合は町丁目の中を一様と見た近似",
-   "remove_at": "4-3",
+   "why": "構築の段 W21b が宣言した近似(第 4 期 4-1 段 4〜7・モジュールの表 W21B_EXPEDIENTS の 1 番目・記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md)。外す段: 4-3 以降=2025 の従業地・通学地集計(町丁目の昼の人口と従業地の結合=統計局の公表の予定 2027-05)の後に見直す(台帳の段の表に「4-3 以降」が無いので 4-3 と書く)。外から来て働く人 173,150 は R-116 §4 の枠「外から来て働く人と学ぶ人 18.5〜25 万」の下の端より少ない=働く人だけ(学ぶ人の舞台の分は空欄)・舞台の割合は町丁目の中を一様と見た近似〔第 4 期 4-3 段 10・pop43〕外す段を 4-3 → 7: 段 10 で差し替えたが近似は残る(舞台で働く人の数の割り方)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/pop/w21_build_b.py#expedients:f872ad4e",
    "conf": "expedient",
    "since": "2026-10-15",
@@ -5193,12 +5193,12 @@
   {
    "id": "DOC-pop41b-w20-port",
    "what": "W21b の担当の語(duty_role)と人の表は W20 の入力と形が違う: W20 の DUTY_ROLE_SPEC の鍵に無い語(店長・補充・配送作業員・警備員)を W20 は黙って「担当なし」と読み、W20 は種別 0・2(席のある体)の担当を見ない。calendar_inputs_b の 5 列は段 10 の材料で、W20 の入力(Attributes 19 欄と Employment)ではない",
-   "why": "親の判断(検収 M1): 段 10 で W21 から Attributes を作る関数を書く(職業は occupation_major を直接・雇用の語は W16_EMPLOYMENT_OF で写す)・鍵に無い 4 語は DUTY_ROLE_SPEC に足す(勤務場所・交替制)。記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md〔第 4 期 4-1 段 8〜10・W21c〕段 10 の材料ができた(data/world/v2_stage_4-1c・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。差し替えは段 10(=4-3)。build/sched/w20_w21_port.attributes_from_w21(W21 → Attributes 19 欄・職業は occupation_major・知らない担当の語は止める)と DUTY_ROLE_SPEC の 4 語(店長・補充・配送作業員・警備員)を足した。本体の calendar_from_attributes に通る(試験)。",
+   "why": "親の判断(検収 M1): 段 10 で W21 から Attributes を作る関数を書く(職業は occupation_major を直接・雇用の語は W16_EMPLOYMENT_OF で写す)・鍵に無い 4 語は DUTY_ROLE_SPEC に足す(勤務場所・交替制)。記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md〔第 4 期 4-1 段 8〜10・W21c〕段 10 の材料ができた(data/world/v2_stage_4-1c・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。差し替えは段 10(=4-3)。build/sched/w20_w21_port.attributes_from_w21(W21 → Attributes 19 欄・職業は occupation_major・知らない担当の語は止める)と DUTY_ROLE_SPEC の 4 語(店長・補充・配送作業員・警備員)を足した。本体の calendar_from_attributes に通る(試験)。〔第 4 期 4-3 段 10・pop43〕閉じた: 段 10 で W21 → Attributes の口(build/sched/w20_w21_port)で W20cal の週の表を新しい母集団で組んだ(担当の 4 語は DUTY_ROLE_SPEC_W21・地位は 8 区分から直接・param_hash 不変)=宿題は済んだ。残る近似は W21c の行(W20 の口・4 語)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md・取り込みの commit は親)",
    "remove_at": "4-3",
    "declared_in": "docs/bench/analysis/wallbounce-1012/pop41b/README.md",
    "conf": "expedient",
    "since": "2026-10-15",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "plan",
    "code_at": [
     "src/shibuya/build/pop/attr_fns.py"
@@ -5207,12 +5207,12 @@
   {
    "id": "DOC-pop41b-rights-port",
    "what": "W21b の権利台帳の開始時点の行は engine の口と 3 点違う: 店の担当(engine の staff_of_poi が読む「体 → 店」の雇用の行)が無い(店長は duty_role だけ)・店の持ち主の行(組織 → 店の所有)は閉じた表の外(in_closed_table=偽)・体の番号は w21_people.person_id(ランの SoA の番号との対応は段 10)",
-   "why": "検収 L9: 閉じた表の行は Rights.grant が全部受け付けることを試験で確かめた。店の担当の行・店の持ち主の表し方・番号の対応は段 10(W16 の差し替え)で決める。記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md〔第 4 期 4-1 段 8〜10・W21c〕段 10 の材料ができた(data/world/v2_stage_4-1c・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。差し替えは段 10(=4-3)。w21c_rights_store_staff.parquet=体 → 店の雇用の行(店の持ち主の組織の所属・engine の staff_of_poi が読む形・Rights.grant に通る=試験)。店の持ち主の行の閉じた表の外と体の番号の対応は段 10 のまま。",
+   "why": "検収 L9: 閉じた表の行は Rights.grant が全部受け付けることを試験で確かめた。店の担当の行・店の持ち主の表し方・番号の対応は段 10(W16 の差し替え)で決める。記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md〔第 4 期 4-1 段 8〜10・W21c〕段 10 の材料ができた(data/world/v2_stage_4-1c・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。差し替えは段 10(=4-3)。w21c_rights_store_staff.parquet=体 → 店の雇用の行(店の持ち主の組織の所属・engine の staff_of_poi が読む形・Rights.grant に通る=試験)。店の持ち主の行の閉じた表の外と体の番号の対応は段 10 のまま。〔第 4 期 4-3 段 10・pop43〕閉じた: 段 10 で体の番号の対応表(w21_agent_map=agent_id=390,067+person_id)と初期の行の表(w21_rights_run=W21c の店の担当+W21b の住まい)を engine の rights.initial が読む形にした=宿題は済んだ。店の持ち主の行(閉じた表の外)は入れない=DOC-pop43-store-owner-deferred(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md・取り込みの commit は親)",
    "remove_at": "4-3",
    "declared_in": "docs/bench/analysis/wallbounce-1012/pop41b/README.md",
    "conf": "expedient",
    "since": "2026-10-15",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "plan",
    "code_at": [
     "src/shibuya/build/pop/w21_build_b.py"
@@ -5511,12 +5511,12 @@
   {
    "id": "EX-build.pop.w21_build_c-47fdae16",
    "what": "人物の文の言語=第一言語が日本語か英語の人はその言語の型・第一言語も国籍も空欄の人(外から来て働く人)は日本語の型・ほかの言語と外国籍で第一言語が空欄の人は欄だけ(文は空)",
-   "why": "構築の段 W21c が宣言した近似(第 4 期 4-1 段 8〜10・モジュールの表 W21C_EXPEDIENTS の 4 番目・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "why": "構築の段 W21c が宣言した近似(第 4 期 4-1 段 8〜10・モジュールの表 W21C_EXPEDIENTS の 4 番目・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)〔第 4 期 4-3 段 10・pop43〕閉じた: 段 10 で決めて宣言を消したか、文を改めて新しい行にした=後継 EX-build.pop.w21_build_c-02821dbf(言語の印に書き換え)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md・取り込みの commit は親)",
    "remove_at": "7",
    "declared_in": "src/shibuya/build/pop/w21_build_c.py#expedients:47fdae16",
    "conf": "expedient",
    "since": "2026-10-15",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "inferred"
   },
   {
@@ -5544,12 +5544,12 @@
   {
    "id": "EX-build.pop.w21_build_c-ac5e3131",
    "what": "人物の文の判断の入力への置き場=engine に人物の欄が無いので個体の部分の頭(短い版は B6 の前・長い版は B5 の前)",
-   "why": "構築の段 W21c が宣言した近似(第 4 期 4-1 段 8〜10・モジュールの表 W21C_EXPEDIENTS の 8 番目・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。外す段: 段 10(=4-3・W16 の差し替え=版上げ 3 回目)で口と行を決め直す",
+   "why": "構築の段 W21c が宣言した近似(第 4 期 4-1 段 8〜10・モジュールの表 W21C_EXPEDIENTS の 8 番目・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。外す段: 段 10(=4-3・W16 の差し替え=版上げ 3 回目)で口と行を決め直す〔第 4 期 4-3 段 10・pop43〕閉じた: 段 10 で決めて宣言を消したか、文を改めて新しい行にした=後継 DOC-pop43-persona-not-in-live-prompt(engine.decision.persona の正式な欄=解けた)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md・取り込みの commit は親)",
    "remove_at": "4-3",
    "declared_in": "src/shibuya/build/pop/w21_build_c.py#expedients:ac5e3131",
    "conf": "expedient",
    "since": "2026-10-15",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "inferred"
   },
   {
@@ -5566,19 +5566,19 @@
   {
    "id": "EX-build.pop.w21_build_c-9ac4e179",
    "what": "外から来て働く人の地位の分け=段 3 が雇人のない業主に寄せた人を、産業大分類ごとの経済センサス 第6-2表の有給役員・個人業主・無給の家族従業者の人数の比で分ける(民営の表=公務と分類不能は分けない・個人業主は雇人のない業主のまま)",
-   "why": "構築の段 W21c が宣言した近似(第 4 期 4-1 段 8〜10・モジュールの表 W21C_EXPEDIENTS の 10 番目・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "why": "構築の段 W21c が宣言した近似(第 4 期 4-1 段 8〜10・モジュールの表 W21C_EXPEDIENTS の 10 番目・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)〔第 4 期 4-3 段 10・pop43〕閉じた: 段 10 で決めて宣言を消したか、文を改めて新しい行にした=後継 EX-build.pop.w21_build_b-8595e5ed(地位の分けを段 4 の席の前へ移した)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md・取り込みの commit は親)",
    "remove_at": "7",
    "declared_in": "src/shibuya/build/pop/w21_build_c.py#expedients:9ac4e179",
    "conf": "expedient",
    "since": "2026-10-15",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "inferred"
   },
   {
    "id": "EX-build.pop.w21_build_c-5d13fbc8",
    "what": "権利台帳の体 → 店の雇用の行=店の持ち主の組織に所属した体を組織の店へ順に振る(組織の長 → 部署の長 → 人の番号・店が 2 つ以上なら順に回す)・持ち主の無い店は行なし",
-   "why": "構築の段 W21c が宣言した近似(第 4 期 4-1 段 8〜10・モジュールの表 W21C_EXPEDIENTS の 11 番目・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。外す段: 段 10(=4-3・W16 の差し替え=版上げ 3 回目)で口と行を決め直す",
-   "remove_at": "4-3",
+   "why": "構築の段 W21c が宣言した近似(第 4 期 4-1 段 8〜10・モジュールの表 W21C_EXPEDIENTS の 11 番目・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。外す段: 段 10(=4-3・W16 の差し替え=版上げ 3 回目)で口と行を決め直す〔第 4 期 4-3 段 10・pop43〕外す段を 4-3 → 4-2: 段 10 でこの規則のまま初期の行に入れた(店の持ち主の組織の所属を振る)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)",
+   "remove_at": "4-2",
    "declared_in": "src/shibuya/build/pop/w21_build_c.py#expedients:5d13fbc8",
    "conf": "expedient",
    "since": "2026-10-15",
@@ -5588,12 +5588,12 @@
   {
    "id": "EX-build.pop.w21_build_c-2379ec13",
    "what": "W16 の在庫の行の扱いの案=運輸(鉄道・バス・タクシー)は残す・W21 の体のある層と W21 に同じ担当の語がある群は外す・ほかは残す",
-   "why": "構築の段 W21c が宣言した近似(第 4 期 4-1 段 8〜10・モジュールの表 W21C_EXPEDIENTS の 12 番目・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。外す段: 段 10(=4-3・W16 の差し替え=版上げ 3 回目)で口と行を決め直す",
+   "why": "構築の段 W21c が宣言した近似(第 4 期 4-1 段 8〜10・モジュールの表 W21C_EXPEDIENTS の 12 番目・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。外す段: 段 10(=4-3・W16 の差し替え=版上げ 3 回目)で口と行を決め直す〔第 4 期 4-3 段 10・pop43〕閉じた: 段 10 で決めて宣言を消したか、文を改めて新しい行にした=後継 EX-build.pop.w21_apply-96469fbc(残す群と外す群を決めた=解けた)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md・取り込みの commit は親)",
    "remove_at": "4-3",
    "declared_in": "src/shibuya/build/pop/w21_build_c.py#expedients:2379ec13",
    "conf": "expedient",
    "since": "2026-10-15",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "inferred"
   },
   {
@@ -5632,19 +5632,19 @@
   {
    "id": "EX-build.pop.w21_build_c-55a9ed43",
    "what": "W20 への口=W21 の人の表 → Attributes(職業は occupation_major・担当は DUTY_ROLE_SPEC と DUTY_ROLE_SPEC_W21 の鍵・地位は W21 の値=第6-2表で引き直さない・歩く人の通勤の分=道のり ÷ 1.34 m/s・電車の人は空欄=W20 の 30 分・学校のセルは無い・認定こども園と保育園は授業でない・働く在学者は勤務を先に)",
-   "why": "構築の段 W21c が宣言した近似(第 4 期 4-1 段 8〜10・モジュールの表 W21C_EXPEDIENTS の 13 番目・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。外す段: 段 10(=4-3・W16 の差し替え=版上げ 3 回目)で口と行を決め直す",
+   "why": "構築の段 W21c が宣言した近似(第 4 期 4-1 段 8〜10・モジュールの表 W21C_EXPEDIENTS の 13 番目・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。外す段: 段 10(=4-3・W16 の差し替え=版上げ 3 回目)で口と行を決め直す〔第 4 期 4-3 段 10・pop43〕閉じた: 段 10 で決めて宣言を消したか、文を改めて新しい行にした=後継 EX-build.pop.w21_build_c-8969675f(8 区分の直接の行・電車の人は 30 分に書き換え)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md・取り込みの commit は親)",
    "remove_at": "4-3",
    "declared_in": "src/shibuya/build/pop/w21_build_c.py#expedients:55a9ed43",
    "conf": "expedient",
    "since": "2026-10-15",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "inferred"
   },
   {
    "id": "EX-build.pop.w21_build_c-239fd94f",
    "what": "W21 用の担当の語の表 DUTY_ROLE_SPEC_W21 の 4 語(店長・補充・配送作業員・警備員)の職業・産業・中分類・場所・交替制の当てはめ(W20 の DUTY_ROLE_SPEC は土台のまま=W20cal の param_hash は動かない)",
-   "why": "構築の段 W21c が宣言した近似(第 4 期 4-1 段 8〜10・モジュールの表 W21C_EXPEDIENTS の 14 番目・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。外す段: 段 10(=4-3・W16 の差し替え=版上げ 3 回目)で口と行を決め直す",
-   "remove_at": "4-3",
+   "why": "構築の段 W21c が宣言した近似(第 4 期 4-1 段 8〜10・モジュールの表 W21C_EXPEDIENTS の 14 番目・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。外す段: 段 10(=4-3・W16 の差し替え=版上げ 3 回目)で口と行を決め直す〔第 4 期 4-3 段 10・pop43〕外す段を 4-3 → 6-2: 段 10 でこの当てはめのまま W20cal の週の表を組んだ(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)",
+   "remove_at": "6-2",
    "declared_in": "src/shibuya/build/pop/w21_build_c.py#expedients:239fd94f",
    "conf": "expedient",
    "since": "2026-10-15",
@@ -6224,13 +6224,13 @@
   {
    "id": "DOC-wage_occ-persona-map",
    "what": "W16 の体の賃金の属性の写像: ペルソナの occupation_major の語(職業大分類の名)→ 賃金構造の職種(同じ名の語)・employment の語 → 雇用形態(正規=正社員・正職員/非正規=正社員・正職員以外/役員・自営業主・家族従業者=対象外なので正社員・正職員の表)・性と年齢は W16。W16 の語に短時間の印が無い=短時間の表(第2表)を使う体は無い",
-   "why": "段 10 の差し替え(第 4 期 4-3=W21 の体)までのつなぎ(発注=W16 の体に賃金を付ける・写像の表=expedient)。ペルソナの職業の語は v1 の生成器の語で国勢調査の抽選ではない。W21 の体は wage_monthly の列(4-1 段 5)をそのまま使う形にした(母集団が列を持てば自動で乗り換わる)",
-   "remove_at": "4-3",
+   "why": "段 10 の差し替え(第 4 期 4-3=W21 の体)までのつなぎ(発注=W16 の体に賃金を付ける・写像の表=expedient)。ペルソナの職業の語は v1 の生成器の語で国勢調査の抽選ではない。W21 の体は wage_monthly の列(4-1 段 5)をそのまま使う形にした(母集団が列を持てば自動で乗り換わる)〔第 4 期 4-3 段 10・pop43〕外す段を 4-3 → 6-1: 段 10 で W21 の人は月の賃金をそのまま使う(given)=写像は W16 の残す行(来街者・運輸ほか)だけ(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)",
+   "remove_at": "6-1",
    "declared_in": "docs/bench/analysis/wallbounce-1012/wage_occ/README.md",
    "conf": "expedient",
    "since": "2026-10-17",
    "status": "active",
-   "remove_basis": "plan",
+   "remove_basis": "inferred",
    "code_at": [
     "src/shibuya/economy/wages.py",
     "src/shibuya/engine/economy_stage2.py"
@@ -6239,13 +6239,13 @@
   {
    "id": "DOC-wage_occ-unmapped-average",
    "what": "職業の語が写せない体(非就業・通学・ペルソナの無い体=指令ほか・L4 の在庫の体・母集団の無いラン)の月の賃金=雇用形態と年齢(と性)だけの平均(職種ごとの値を第18表の職種 × 性の労働者数で重みづけ・性や年齢が分からなければ男女の平均と年齢の比 1)",
-   "why": "発注(写せない体は雇用形態と年齢だけの平均=宣言)。雇用の行がある体には払う(権利台帳の雇用の行が賃金の根拠)。W21 の体は職業と従業上の地位を持つ=段 10 の差し替えで外す",
-   "remove_at": "4-3",
+   "why": "発注(写せない体は雇用形態と年齢だけの平均=宣言)。雇用の行がある体には払う(権利台帳の雇用の行が賃金の根拠)。W21 の体は職業と従業上の地位を持つ=段 10 の差し替えで外す〔第 4 期 4-3 段 10・pop43〕外す段を 4-3 → 6-1: 段 10 で W21 の人は月の賃金をそのまま使う(given)=平均は W16 の残す行と賃金の無い W21 の人(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)",
+   "remove_at": "6-1",
    "declared_in": "docs/bench/analysis/wallbounce-1012/wage_occ/README.md",
    "conf": "expedient",
    "since": "2026-10-17",
    "status": "active",
-   "remove_basis": "plan",
+   "remove_basis": "inferred",
    "code_at": [
     "src/shibuya/economy/wages.py"
    ]
@@ -6682,6 +6682,193 @@
    "code_at": [
     "src/shibuya/engine/systems/decide.py",
     "src/shibuya/llm/fleet.py"
+   ]
+  },
+  {
+   "id": "EX-build.pop.w21_apply-ebc0a2d2",
+   "what": "W17 の週次表の W21 の人の行=外す W16 の体(種別 0・2・3)から提供者を 1 人選んで 7 日の行を写す(層=種別・勤め先のセルの有無・駅の口の有無・授業の有無・男女・年齢 5 歳・層に居なければ年齢 → 男女 → 授業 → 駅の口 → 勤め先の順に外す・層の中は Philox の並べ替えで使っていない提供者から・足りなければ繰り返す・1 人の提供者は 3 回まで=超えたら止まる)・自宅と職場の行のセルは受け手の家と勤め先・学校の行のセルは提供者のまま(W21 に学校のセルが無い)=W17 は凍結(CA1)・W21 の日課は判断モデルとカレンダー 1b〜3 の段で本人の判断に移す(親の判断=仮採用)",
+   "why": "〔第 4 期 4-3 段 10・pop43〕段 10 の差し替えで宣言した近似(モジュールの表 W21APPLY_EXPEDIENTS の 1 番目・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)。外す段: 第 6 期 6-2(カレンダー 1b〜3=出入り・約束を本人と雇い主へ・W17 の日課のつなぎを外す段)",
+   "remove_at": "6-2",
+   "declared_in": "src/shibuya/build/pop/w21_apply.py#expedients:ebc0a2d2",
+   "conf": "expedient",
+   "since": "2026-10-18",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_apply-7695beb1",
+   "what": "W21 の人の種別=W21b の w16_kind(住民 3・区内で働く住民 2・外から来て働く人 0)・目的=勤務(種別 0)か居住・方面の節点=W12 の外の口の番号(駅の口の語の並び)・機能定員の外の W21 の担当の体(警察官・消防士ほか)は種別 0・2 のまま通勤者の日課(定員先取りに入らない=engine の先取りは種別 0・2 の体を除く)",
+   "why": "〔第 4 期 4-3 段 10・pop43〕段 10 の差し替えで宣言した近似(モジュールの表 W21APPLY_EXPEDIENTS の 2 番目・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_apply.py#expedients:7695beb1",
+   "conf": "expedient",
+   "since": "2026-10-18",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_apply-96469fbc",
+   "what": "W16 の残す群=来街者・定期来街者・訪日来街者・通学者・指令・バス運転士・タクシー運転手・夜間清掃員・救急隊員・路上の役割 9 語(W21 に体が無い=来街者は判断モデルの後・運輸は W6 に会社が無い)・外す群=住民・区内で働く住民・外から来て働く人・議員・警察官・消防士・清掃作業員・納品ドライバー・駅員・電車運転士・車掌(親の判断 仮-33 (1)・(10)・検収 M1)",
+   "why": "〔第 4 期 4-3 段 10・pop43〕段 10 の差し替えで宣言した近似(モジュールの表 W21APPLY_EXPEDIENTS の 3 番目・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)。外す段: 第 6 期 6-1(判断モデルの段=来街者と人物の入力をそこで作り直す)",
+   "remove_at": "6-1",
+   "declared_in": "src/shibuya/build/pop/w21_apply.py#expedients:96469fbc",
+   "conf": "expedient",
+   "since": "2026-10-18",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_apply-16714f74",
+   "what": "通学者(W16 の種別 5・33,385 行・複製 16,695 を含む)は W16 のまま残す(W21 に外から来る通学者の体が無い=段 7 は層の表だけ=W21 に通学者の体が入る段で外す・検収 M1)",
+   "why": "〔第 4 期 4-3 段 10・pop43〕段 10 の差し替えで宣言した近似(モジュールの表 W21APPLY_EXPEDIENTS の 4 番目・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)。外す段: 第 6 期 6-1(判断モデルの段=来街者と人物の入力をそこで作り直す)",
+   "remove_at": "6-1",
+   "declared_in": "src/shibuya/build/pop/w21_apply.py#expedients:16714f74",
+   "conf": "expedient",
+   "since": "2026-10-18",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_apply-3c06c862",
+   "what": "権利台帳の初期の行=雇用(体 → 組織)は母集団の org_id(W21 の org_index)から今の口で・店の担当(体 → 店)は W21c の 9,833 行(担当のいる 284 店)・担当のいない店は今の丸振り(出どころの語を分ける)・住まい(世帯主 → 住まい=所有と賃借)は W21b の行・店の賃借(店 → 区画)は今の口・店の持ち主(組織 → 店=閉じた表の外)は入れない(PENDING §1-1 の判断の後)",
+   "why": "〔第 4 期 4-3 段 10・pop43〕段 10 の差し替えで宣言した近似(モジュールの表 W21APPLY_EXPEDIENTS の 5 番目・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)。外す段: 第 4 期 4-2(権利台帳と規則の表の中身=閉じた表の店・店の持ち主の行)",
+   "remove_at": "4-2",
+   "declared_in": "src/shibuya/build/pop/w21_apply.py#expedients:3c06c862",
+   "conf": "expedient",
+   "since": "2026-10-18",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_apply-4dfef296",
+   "what": "W16 の見出しの近似の宣言と段の版の表は W16 1.0.0 のまま(残す行の作り方)・差し替えの宣言は本表(W21apply)・W16 の見出しの門は差し替えの門に置き換え(W16 1.0.0 の門は notes に残す)",
+   "why": "〔第 4 期 4-3 段 10・pop43〕段 10 の差し替えで宣言した近似(モジュールの表 W21APPLY_EXPEDIENTS の 6 番目・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_apply.py#expedients:4dfef296",
+   "conf": "expedient",
+   "since": "2026-10-18",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_apply-7fadedd5",
+   "what": "W20cal(暦 1a の影)の週の表=残す W16 の体は W16 の口(attributes_from_columns+ペルソナの在庫)・W21 の体は W21 の口(attributes_from_w21+employment_from_w21)で、同じ calendar_from_attributes と同じ params(param_hash 不変)で組む・見出しは ALL_STAGES の外のまま(build_hash に入れない=親の判断)",
+   "why": "〔第 4 期 4-3 段 10・pop43〕段 10 の差し替えで宣言した近似(モジュールの表 W21APPLY_EXPEDIENTS の 7 番目・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_apply.py#expedients:7fadedd5",
+   "conf": "expedient",
+   "since": "2026-10-18",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_apply-27d35d08",
+   "what": "W21 の担当の体の機能定員=外す W16 の乗務員の同じ担当の語の数(警察官 140・消防士 45・清掃作業員 12・納品ドライバー 10・駅員 300・電車運転士 60・車掌 40)を上限に W21 に居る数まで・選ぶ順は人ごとの Philox・選んだ体は種別 8(乗務員)・目的=職務・日課の提供者は外す W16 の乗務員の同じ担当の語から(層=担当の語・男女・年齢 5 歳・担当の語は外さない=居なければ止まる)・定員は W16 の v1 の在庫の数(実の要員規模は未取得=検収 M2・親の判断)",
+   "why": "〔第 4 期 4-3 段 10・pop43〕段 10 の差し替えで宣言した近似(モジュールの表 W21APPLY_EXPEDIENTS の 8 番目・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)。外す段: 第 6 期 6-6 ②(人の仕事を働く人のエージェントへ=乗務員・駅員の要員規模と交代を本人と雇い主の約束に)",
+   "remove_at": "6-6",
+   "declared_in": "src/shibuya/build/pop/w21_apply.py#expedients:27d35d08",
+   "conf": "expedient",
+   "since": "2026-10-18",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_apply-0abb5b47",
+   "what": "外の雇用主=勤め先のセルはあるが組織の無い W21 の体(段 4 の席の外=席の超過と席の無い業種)に、権利台帳の雇用の行を体 → 組織の番号 2^31−1(閉じた表の外の番号=外の雇用主)で 1 行・給料日の賃金は外界から(登録済みの faucet「域外雇用主の賃金」)・額は W21 の月の賃金=雇用主が権利台帳の中身で埋まるまでのつなぎ(検収 M3・親の判断=仮採用)",
+   "why": "〔第 4 期 4-3 段 10・pop43〕段 10 の差し替えで宣言した近似(モジュールの表 W21APPLY_EXPEDIENTS の 9 番目・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)。外す段: 第 4 期 4-2(権利台帳と規則の表の中身=閉じた表の店・店の持ち主の行)",
+   "remove_at": "4-2",
+   "declared_in": "src/shibuya/build/pop/w21_apply.py#expedients:0abb5b47",
+   "conf": "expedient",
+   "since": "2026-10-18",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build_b-8595e5ed",
+   "what": "〔1.2.0〕外から来て働く人の地位の分け(席の前)=段 3 が雇人のない業主に寄せた人を、産業大分類ごとの経済センサス 第6-2表の有給役員・個人業主・無給の家族従業者の人数の比で分ける(民営の表=公務と分類不能は分けない・個人業主は雇人のない業主のまま・人の地位を席の比で決める近似)・分けで住民の席と勤め先も動く(段 10 の親の判断 仮-33 (2)=住民 277 人の席の喪失と 1,292 人の勤め先の変化は記録 pop43 に宣言)",
+   "why": "〔第 4 期 4-3 段 10・pop43〕段 10 の差し替えで宣言した近似(モジュールの表 W21B_EXPEDIENTS の 29 番目・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build_b.py#expedients:8595e5ed",
+   "conf": "expedient",
+   "since": "2026-10-18",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build_c-02821dbf",
+   "what": "人物の文の言語=第一言語が日本語か英語の人はその言語の型・第一言語も国籍も空欄の人(外から来て働く人)は日本語の型・ほかの言語の人と外国籍で第一言語が空欄の人は日本語の型で代えて印を付ける(lang_basis=substitute_ja・本当の第一言語は欄と人物の行に残る=段 10 の親の判断 仮-33 (7))",
+   "why": "〔第 4 期 4-3 段 10・pop43〕段 10 の差し替えで宣言した近似(モジュールの表 W21C_EXPEDIENTS の 4 番目・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build_c.py#expedients:02821dbf",
+   "conf": "expedient",
+   "since": "2026-10-18",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build_c-8969675f",
+   "what": "W20 への口=W21 の人の表 → Attributes(職業は occupation_major・担当は DUTY_ROLE_SPEC と DUTY_ROLE_SPEC_W21 の鍵・地位は W21 の 8 区分から第 31/36 表の行へ直接=家庭内職者は雇人のない業主の行・パートは第 31 表の非正規の按分から派遣社員を除いた 4 行の重み・歩く人の通勤の分=道のり ÷ 1.34 m/s・電車の人は空欄=W20 の 30 分(舞台の中の道のりだけでは数分になる=所要時間の表が構築側に入る段まで)・学校のセルは無い・認定こども園と保育園は授業でない・働く在学者は勤務を先に)",
+   "why": "〔第 4 期 4-3 段 10・pop43〕段 10 の差し替えで宣言した近似(モジュールの表 W21C_EXPEDIENTS の 10 番目・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)。外す段: 第 6 期 6-2(カレンダー 1b〜3=出入り・約束を本人と雇い主へ・W17 の日課のつなぎを外す段)",
+   "remove_at": "6-2",
+   "declared_in": "src/shibuya/build/pop/w21_build_c.py#expedients:8969675f",
+   "conf": "expedient",
+   "since": "2026-10-18",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "EX-build.pop.w21_build_c-09d62e17",
+   "what": "通う駅の口=電車の人の通勤の行に W12 の鉄道の外の口の路線の名(・でつなぐ)を足す(区別の事実=段 10 の親の判断 仮-33 (9)・路線の名は英語の型でも日本語のまま)・路線は W21b の駅の口(大都市交通センサスの路線別の流入の比で引いた=常住地からの経路ではない=同じ文の常住地と食い違いうる・常住地 → 路線の材料が無い)・常住地の市区町村の中の場所は材料が無い",
+   "why": "〔第 4 期 4-3 段 10・pop43〕段 10 の差し替えで宣言した近似(モジュールの表 W21C_EXPEDIENTS の 14 番目・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)。外す段: 第 7 期(置き換える段が計画に無い=主張の前に感度試験で結果を駆動していないことを示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/pop/w21_build_c.py#expedients:09d62e17",
+   "conf": "expedient",
+   "since": "2026-10-18",
+   "status": "active",
+   "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-pop43-store-owner-deferred",
+   "what": "店の持ち主の行(組織 → 店の所有=W21b の 286 行・閉じた表の所有の対象に店が無い)は段 10 の初期の行に入れない",
+   "why": "親の判断 仮-33 (3)(PENDING §1-1「閉じた表に店」の判断の後)。記録 docs/bench/analysis/wallbounce-1012/pop43/README.md",
+   "remove_at": "4-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/pop43/README.md",
+   "conf": "expedient",
+   "since": "2026-10-18",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/build/pop/w21_apply.py",
+    "src/shibuya/engine/rights/initial.py"
+   ]
+  },
+  {
+   "id": "DOC-pop43-store-round-robin-kept",
+   "what": "差し替えの世界で W21c の店の担当のいない店(POI 2,337 のうち 2,053 店)は今の丸振り(種別 従業者の体を店へ決定論で振る)のまま=出どころの語は丸振り(engine.rights.initial.SOURCE_STAFF)・表の担当は w21c の語",
+   "why": "親の判断(検収の問い 6): 担当のいない店の開け閉めがつなぎに落ちないように丸振りを残す。記録 docs/bench/analysis/wallbounce-1012/pop43/README.md",
+   "remove_at": "4-2",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/pop43/README.md",
+   "conf": "expedient",
+   "since": "2026-10-18",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/rights/initial.py"
+   ]
+  },
+  {
+   "id": "DOC-pop43-persona-not-in-live-prompt",
+   "what": "人物の欄(engine.decision.persona=段 9 の短い版と長い版)は compose(6-1 の器と判断モデルの段)だけが読み、今のランの判断の入力(J0 の知覚の描画・mock の呼び)には入れない",
+   "why": "親の判断 仮-33 (6)(判断の入力に短い版・LLM の入力に長い版の正式な欄=読むだけ)。今のランに入れると mock の応答と既定の結果が動く=判断モデルと実 LLM の段で入れる。記録 docs/bench/analysis/wallbounce-1012/pop43/README.md",
+   "remove_at": "6-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/pop43/README.md",
+   "conf": "expedient",
+   "since": "2026-10-18",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/decision/persona.py",
+    "src/shibuya/engine/decision/port.py"
    ]
   }
  ]

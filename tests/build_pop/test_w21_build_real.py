@@ -144,4 +144,10 @@ def test_default_build_is_unchanged():
     before = sorted(p.name for p in (DATA / "world" / "v2").iterdir())
     assert W.main(["--out", str(DATA / "world" / "v2"), "--data", str(DATA)]) == 2
     assert sorted(p.name for p in (DATA / "world" / "v2").iterdir()) == before
-    assert not list((DATA / "world" / "v2").glob("w21_*")) and not (DATA / "world" / "v2" / "W21.header.json").exists()
+    v2 = DATA / "world" / "v2"
+    if (v2 / W.SWAPPED_MARK).exists():
+        # 〔第 4 期 4-3 段 10〕活性化の後の本体の v2(W16 を W21 に差し替えた世界)=W21 の資産は活性化の道具が写した(W21 の
+        # 段は本体の v2 に書かない)。組み直しの元は退避 v2_pre_4-3(``W.source_world``)
+        assert (v2 / "W21.header.json").exists() and W.source_world(DATA, None) != v2
+    else:
+        assert not list(v2.glob("w21_*")) and not (v2 / "W21.header.json").exists()

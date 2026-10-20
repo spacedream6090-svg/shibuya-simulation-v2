@@ -125,7 +125,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
 
     headers: list[dict[str, Any]] = []
     header_paths = []
-    for path in sorted(ctx.out.glob("W*.header.json"), key=lambda p: int(p.stem.split(".")[0][1:])):
+    for path in C.stage_header_paths(ctx.out):
         h = C.load_json(path)
         if int(h["stage"][1:]) >= int(STAGE[1:]):
             continue

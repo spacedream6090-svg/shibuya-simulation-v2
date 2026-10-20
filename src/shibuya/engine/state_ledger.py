@@ -1641,6 +1641,8 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("runner.opening", CACHE, "権利台帳(1-5・SoA の kind と W16 の org_id と POI の数から作る導出・再開では作り直す)",
        "rights"),
     _x("runner.opening", CONST, _CFG + "(1-5: 権利台帳の雇用の行の材料=W16 の org_id)", "org_of_agent"),
+    _x("runner.opening", CONST, _CFG + "(〔第 4 期 4-3 段 10〕差し替えの世界の権利台帳の初期の行=店の担当と住まい・読むだけ)",
+       "initial_rights"),
     _x("runner.environment", REF, _REFR, "calendar", "world", "agents", "assets"),
     _x("runner.environment", CONST, _FIELD + "・" + _CFG, "master_seed", "day_index",
        "tick_seconds", "process_ids"),

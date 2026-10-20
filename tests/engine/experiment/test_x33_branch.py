@@ -98,9 +98,12 @@ def test_world_branch_four_checks(world_branch):
     assert c["coarse"]["first_step"] == T0 + 59 and "behavior_hash" in c["coarse"]["hashes_differ"]
     # 〔検収 L1〕窓=T0 以後の全 checkpoint の走査で決めた区間(一致した最後の checkpoint の次 〜 最初に食い違った checkpoint)
     assert c["window_steps"] == [T0, T0 + 59] and c["branch_repeat_same"] is True and c["reason"] == ""
-    # 〔親の判断 M3〕実行の内訳と §1-1 の判定(4 つの確認とは別の欄): 1,000 体の世界資産は担当 0 人=全部つなぎ
+    # 〔親の判断 M3〕実行の内訳と §1-1 の判定(4 つの確認とは別の欄)。〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を
+    # W21 に)の 1,000 体では全 2,337 店に担当が居る(W21 の担当+残りの店の丸振り)=宛先 200 店とも担当つき・担当の開け閉めの
+    # 行為 1・つなぎ 199(前=W16 の世界: 担当 0 人=staffed_pois 0・role_actions 0=全部つなぎ・記録 pop43)
     ex = rep["execution"]["branch"]
-    assert ex["targets"] == len(ids) and ex["staffed_pois"] == 0 and ex["role_actions"] == 0 and ex["fallback"] > 0
+    assert ex["targets"] == len(ids) and ex["staffed_targets"] == len(ids) and ex["staffed_pois"] == 2337
+    assert ex["role_actions"] == 1 and ex["fallback"] == len(ids) - 1
     assert s["executed_by_agents"] is False and s["ok"] is True
     d = rep["checks"]["d_aa"]
     assert d["ok"] and d["final_same"] and d["probe_first_divergence"] is None and d["final_equals_base"]
@@ -116,10 +119,10 @@ def test_world_branch_replay_and_manifest(world_branch):
     r = m["replay"]
     assert r["replayed_before_t0"] > 0 and r["tape_miss_before_t0"] == 0 and r["live_from_t0"] > 0
     assert not r["stateful_policy"] and m["checks"]["ok"] is True and m["checks"]["c_system"] == "world"
-    # 告知の「届いた情報」: 番号で書いた 3 人に届く。1,000 体の世界資産のランでは店の担当の従業者が 0 人(権利台帳の雇用の
-    # 行が無い)=宛先 staff は誰にも当たらない(開け閉めは今の過程のつなぎ=記録 cf33/README.md の限界)
-    assert m["meter"]["notices"] == 3 and m["meter"]["notice_unreached"] == 0
-    assert int((np.asarray(out.branch.runner.opening.staff_of_poi) >= 0).sum()) == 0
+    # 告知の「届いた情報」: 番号で書いた 3 人+宛先 staff(宛先の店の担当)に届く。〔第 4 期 4-3 段 10〕差し替えの世界の 1,000 体
+    # では店の担当が居る=告知 21(前=W16 の世界: 担当 0 人=番号の 3 人だけ・staff_of_poi ≥ 0 の店 0=記録 cf33/README.md の限界)
+    assert m["meter"]["notices"] == 21 and m["meter"]["notice_unreached"] == 0
+    assert int((np.asarray(out.branch.runner.opening.staff_of_poi) >= 0).sum()) == 2337
     aa = out.twin_a.run_manifest_fields()["experiment"]
     assert aa["aa"] is True and aa["applied"] == 0 and aa["replay"]["tape_miss_before_t0"] == 0
 

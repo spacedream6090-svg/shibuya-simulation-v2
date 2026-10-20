@@ -60,7 +60,9 @@ def test_attributes_from_w21_has_the_19_fields_and_passes_the_calendar():
     assert a.workplace[1] == W.WP_HOME and a.workplace[2] == W.WP_AREA and a.workplace[7] == W.WP_OUTSIDE
     assert a.place_hint[2] == W.PLACE_BUILDING and a.place_hint[4] == W.PLACE_STATION and a.place_hint[8] == W.PLACE_AREA
     assert a.shift.tolist()[3] is True and a.shift.tolist()[2] is False  # 補充=交替制・店長=固定
-    assert a.lead_min.tolist() == [-1, 0, 7, -1, -1, -1, -1, -1, -1]  # 歩き 500 m ÷ 1.34 m/s=6.2 分 → 7
+    # 歩き 500 m ÷ 1.34 m/s=6.2 分 → 7・電車の人は空欄(−1=W20 の 30 分)。〔第 4 期 4-3 段 10〕いったん電車の人を舞台の中の
+    # 道のりで埋めた(3・2・4・9・1)が、親の判断(検収 L6)で空欄に戻した
+    assert a.lead_min.tolist() == [-1, 0, 7, -1, -1, -1, -1, -1, -1]
     assert all(m == () for m in a.census_middles) and not a.seat_nonworking.any()
     m = materials()
     emp = W.draw_employment_status(a, m, ANCHOR)
@@ -122,7 +124,7 @@ def test_w20cal_param_hash_is_unchanged():
 
 def test_lead_minutes():
     got = WP.lead_minutes(np.array(["walk", "walk", "home", "rail", ""], dtype=object), np.array([1, 134 * 60, 0, 300, -1]))
-    assert got.tolist() == [1, 100, 0, -1, -1]
+    assert got.tolist() == [1, 100, 0, -1, -1]  # 〔段 10・親の判断〕電車の人は空欄のまま
 
 
 # ================================================================= 実データ(W21 の人 5,000 人)
