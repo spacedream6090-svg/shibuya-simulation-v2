@@ -476,3 +476,11 @@ W17 は凍結(CA1)で LLM の生成(GPU が要る)。W21 の人に行が無い�
 | `lint-imports` | 5 契約とも KEPT |
 | 秘密の走査(変えた・足したファイル 47 本) | CLEAN |
 | `tests/c7` | 回していない(発注どおり) |
+
+### §親の検収(第 2 部=旧道の切替口の削除・整理)
+
+- 本体 9743268(カレンダー 2 の文書まで)へ rebase(衝突なし)→ b170e93 → 直し 519c0d8(範囲の試験で収集の errors 8=`load_anchors(mode=)` を呼ぶ試験 2 本=実装役の自己申告「0 failed」は errors の見落とし → 直して errors 0)。範囲の試験(`tests/engine` 全体・economy・build_pop・build_sched・c6・c8・tools)**4,046 passed・1 skipped・0 failed・0 errors**(`-n 4`・26 分 0 秒)。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・W21 の世界)=**final 同じ・25 欄とも差なし**(`parent_head_vs_pop43p2_4cfg.json`=1 バイト不変)。実装役の 19 構成も同じ。
+- **data 無しの写しで CI-1 と同じ引数の全体試験(tests/c7 を含む)=5,619 passed・290 skipped・failed 0・errors 0**(1,819 秒・519c0d8)。
+- 親の判断: 消した 8 つは受入(渡すと止まる・旧値の再現は安定版のタグ)。`--hunger-model v1` はライブラリの既定の付け替えが要るので繰り延べ(PENDING §5)。vb24 の 2 回目の腕 3 つ(`--proximity cell`・`--seat-release legacy`・`--economy-stage2 off`)も同じ候補(発注の一覧の外=触っていない)。
+- 判定: **受入**(整理=1 バイト不変)。
