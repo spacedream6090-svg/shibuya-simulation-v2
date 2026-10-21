@@ -43,6 +43,11 @@ def utter(b: Any, agent_id: int, t_now: int, action: Any, comment: str, reason: 
     partner_before = (int(agents.registry.talk_partner[int(agent_id)])
                       if (wom_ex is not None or speech is not None) else -1)
     s = conv.utterance(agent_id, t_now, action=action, comment=comment)
+    cal2 = getattr(b.layers, "calendar2", None)  # 〔第 6 期 6-2 カレンダー 2〕腕 arm のランだけ(既定 None=今の道)
+    if cal2 is not None and s is not None:
+        # 会話の番の控え(誘い・返事・書くの判断は系 calendar_2 が同じ刻みにする=控えるだけ・世界の状態は書かない)
+        cal2.note_turn(f"f:{int(s.session_id)}", int(agent_id), int(t_now),
+                       call_id or f"f:{int(s.session_id)}:{int(s.blocks)}", s.participants)
     talk_clock = getattr(b.layers, "talk_clock", None)  # 〔第 6 期 6-3 T2〕腕 --talk-clock mora のランだけ(既定 None=今の 1 ターンの長さの表)
     if talk_clock is not None:
         # 会話の時計: 発言の長さ=モーラ数 × 話す速さ・発言の事象を窓の待ち行列に時刻順に置く(世界の状態は書かない=計器)

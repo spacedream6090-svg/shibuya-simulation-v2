@@ -624,6 +624,9 @@ DIAG_EXITS: tuple[DiagExit, ...] = (
     # 〔第 6 期 6-3 T4〕場所ごとの時計の遅刻の計器(計画実行層の日の表の到着の刻みとブロックの始めを読むだけ=manifest の clock の
     # late_*=TM4 の指標・行動の選びは決めない)
     DiagExit("engine/regional_clock.py", "RegionalClock._lateness", "遅刻の計器(6-3 T4・manifest の clock・報告)"),
+    # 〔第 6 期 6-2 カレンダー 2〕manifest の calendar_2(メッセージを読むまでの時間=連絡の道具 C1 の計器 CT1M を読むだけ=重ねない・
+    # 行動の選びは決めない)
+    DiagExit("engine/calendar2/layer.py", "Calendar2Layer.manifest", "カレンダー 2 の計器の要約(6-2・manifest の calendar_2・報告)"),
 )
 
 #: 受け手の名前で持ち主を指す別名(``run_day`` の局所の名前など)。既定は持ち主の道筋の最後の名前。

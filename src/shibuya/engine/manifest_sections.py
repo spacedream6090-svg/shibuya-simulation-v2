@@ -287,6 +287,16 @@ PATHS: Final[dict[str, str]] = {
         "attention", "port", "stamps", "mock_text", "message_max_chars", "chat_silence_steps", "provisional"),
         observed=("meter", "decisions", "read_delay_minutes", "call_steps", "screen_minutes", "chats", "calls", "mail",
                   "devices", "attention_now", "salient", "remembered", "bodiless_dropped", "rendered")),
+    # ---- 〔第 6 期 6-2 カレンダー 2〕会話とメッセージから生まれる予定(腕 arm のランだけ欄が立つ)。形の版・腕・口・置き場所の
+    # 性質・行の種類・確かさの語・候補の作り方・思い出しの形・5 分前の分・仲裁・仮の値の宣言=設定/計器・判断の数・約束の数・返事の
+    # 割合・初めの予定・忘れた割合・到着・計画一致率・不可能な予定・読むまでの時間(C1 を読むだけ)・範囲外の計画・実行意図・拒んだ
+    # 予定・変えた予定・生きている行=観測。子の鍵は engine.calendar2.layer の CONFIG_KEYS・OBSERVED_KEYS と同じ=試験が突き合わせる ----
+    **_mixed("calendar_2", config=(
+        "schema", "arm", "port", "placements", "kinds", "certainty", "candidates", "recall", "early_min", "arbitration",
+        "provisional"),
+        observed=("meter", "decisions", "promises", "responses", "initial", "forgot", "arrival", "plan_match",
+                  "impossible", "read_delay_minutes", "outside_plan", "intentions", "rejected", "changes", "live_rows",
+                  "calls")),
 }
 
 

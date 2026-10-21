@@ -107,6 +107,8 @@ WHEN = {
     "experiment": lambda b: b.layers.experiment is not None,
     # 〔第 6 期 6-4 C1〕腕 c1 のランだけ(既定のランでは系 contact が立たない=結果不変)
     "contact": lambda b: b.layers.contact is not None,
+    # 〔第 6 期 6-2 カレンダー 2〕腕 arm のランだけ(既定のランでは系 calendar_2 が立たない=結果不変)
+    "calendar2": lambda b: b.layers.calendar2 is not None,
 }
 
 

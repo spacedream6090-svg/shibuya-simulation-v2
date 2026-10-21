@@ -224,6 +224,9 @@ class ContactLayer:
         self._issued_n: list[int] = [0, 0, 0]
         #: 判断の口の腕(候補)のランか(主の判断が「スマホを見る」を候補に出す=別の暇の判断をしない)。組み立てが置く。
         self.main_offer: bool = False
+        #: 〔第 6 期 6-2 カレンダー 2〕会話の番の控えの口(腕 --calendar-2 arm のランだけ組み立てが
+        #: ``Calendar2Layer.note_turn`` を挿す=参照・既定 None=今の道)。通話の番とメッセージを送る判断で呼ぶ(控えるだけ)。
+        self.turn_sink: Callable[..., None] | None = None
 
     # ================================================================== 小さな口
     def _bump(self, key: str, n: int = 1) -> None:
@@ -641,6 +644,8 @@ class ContactLayer:
                                                via=_DL.VIA_CALL))
                 self.calls.utterance(a, T)
                 self._bump("call_turns")
+                if self.turn_sink is not None:  # 〔6-2 カレンダー 2〕通話の番の控え(腕のランだけ)
+                    self.turn_sink(f"c:{int(s.session_id)}", a, T, cause.call_id, s.participants)
             else:
                 self._hangup[int(s.session_id)] = cause.call_id
                 self.calls.close_now(a, T, "退去")
@@ -845,6 +850,9 @@ class ContactLayer:
         self._reserve(_DL.P_SEND, int(t_ns), [int(a), int(group), int(via), u.text, int(u.mora), cause.call_id,
                                               str(cause.source), int(cause.number or 1), [int(x) for x in u.addressees]])
         self._bump("typed")
+        if self.turn_sink is not None:  # 〔6-2 カレンダー 2〕メッセージを送る判断=チャットの番の控え(腕のランだけ)
+            key = group_key(int(group)) if int(group) >= 0 else pair_key(int(a), int(to[0]))
+            self.turn_sink(key, int(a), int(T), cause.call_id, u.addressees)
 
     def _dial(self, T: int, t_ns: int, a: int, to: tuple[int, ...]) -> None:
         cands = [_P.cand(_P.K_TO, f"P-{b}", id=f"to:{b}") for b in to]

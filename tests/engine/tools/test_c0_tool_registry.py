@@ -227,12 +227,13 @@ def test_negative_control_second_writer_is_found():
 def test_tool_words_are_names_of_the_registry_and_appended_at_the_end():
     assert set(V.TOOL_WORDS) <= set(TR.TOOL_NAMES)
     # 〔第 3 期 3-3〕族の並びに「実験」を足した・〔第 2 期 2-3〕その後ろに「知覚」を足した=道具は後ろから 3 つ目
-    assert V.FAMILIES[-4] == V.FAMILY_TOOL == "道具" and V.FAMILIES[-3] == V.FAMILY_EXPERIMENT == "実験"
-    assert V.FAMILIES[-2] == V.FAMILY_PERCEPT == "知覚"  # 〔第 6 期 6-4 C1〕その後ろに連絡の族
-    assert V.FAMILIES[-1] == V.FAMILY_CONTACT == "連絡"
+    # 〔第 6 期 6-2 カレンダー 2〕連絡の族の後ろに約束の族を足した=道具は後ろから 5 つ目
+    assert V.FAMILIES[-5] == V.FAMILY_TOOL == "道具" and V.FAMILIES[-4] == V.FAMILY_EXPERIMENT == "実験"
+    assert V.FAMILIES[-3] == V.FAMILY_PERCEPT == "知覚"  # 〔第 6 期 6-4 C1〕その後ろに連絡の族
+    assert V.FAMILIES[-2] == V.FAMILY_CONTACT == "連絡" and V.FAMILIES[-1] == V.FAMILY_PROMISE == "約束"
     assert V.VOCAB_CODES["行為:許可のない行動"] == 55 and V.VOCAB_CODES["道具:看板"] == 56  # 1-5 までのコードは動かない
     # 〔第 2 期 2-1〕知覚の名の後ろに経済の段階 2 の過程の名(payroll・atm・register)を足した(知覚の名の位置は動かない)
     assert V.PERCEPTION_PROCESSES == ("perception",)
     assert V.CAUSE_PROCESS_NAMES[len(V.PROCESS_NAMES) + len(V.CHECK_PROCESSES)] == "perception"
-    assert V.CAUSE_PROCESS_NAMES[-6:-3] == V.ECONOMY_PROCESSES  # 〔第 2 期 2-3〕その後ろに体の過程の名 2 つ(〔6-4 C1〕その後ろに網の名 1 つ)
+    assert V.CAUSE_PROCESS_NAMES[-7:-4] == V.ECONOMY_PROCESSES  # 〔第 2 期 2-3〕その後ろに体の過程の名 2 つ(〔6-4 C1〕その後ろに網の名 1 つ・〔6-2 カレンダー 2〕その後ろに予定の道具の名 1 つ)
     assert "過程:perception" not in V.VOCAB_CODES

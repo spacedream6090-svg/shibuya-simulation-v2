@@ -262,6 +262,8 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     # 連絡の判断の仮のモデルの選び(0 語目を空け刻みの鍵・体・判断の番号=k19_counters・1 語だけ引く)
     ("engine/contact/device.py", "Devices.__init__", "contact.device"),
     ("engine/contact/port.py", "ContactPort._draw", "contact.mock"),
+    # 〔第 6 期 6-2 カレンダー 2〕予定の判断の仮のモデルの選び(0 語目を空け刻みの鍵・体・判断の番号=k19_counters・1 語だけ引く)
+    ("engine/calendar2/port.py", "Calendar2Port._draw", "calendar2.mock"),
 })
 
 #: 静的に決まらない呼び手(ファイル・関数・用途名)→ 実行時の検査での扱い。ここに無い呼び手が出たら落とす。
@@ -288,6 +290,9 @@ UNDETERMINED_SITES: Final[dict[tuple[str, str, str], str]] = {
     ("engine/contact/port.py", "ContactPort.choose", "contact.present"):
         "Generator を present に渡し、present が permutation(候補の数)を引く。0 語目を空け 1〜3 語目に刻みの鍵・体・その刻みの"
         "その体の判断の番号(k19)=実行時に重なり 0 を見る(第 6 期 6-4 C1)",
+    ("engine/calendar2/port.py", "Calendar2Port.choose", "calendar2.present"):
+        "Generator を present に渡し、present が permutation(候補の数)を引く。0 語目を空け 1〜3 語目に刻みの鍵・体・その刻みの"
+        "その体の判断の番号(k19)=実行時に重なり 0 を見る(第 6 期 6-2 カレンダー 2)",
     ("llm/mock.py", "MockLLM._stream", "expr:self.domain"):
         "Generator を返し、呼び手(MockLLM の応答)が引く。1 語目は tick=実行時に見る",
     ("perception/attention.py", "gate_stage1", "perception.attention.p_see"):

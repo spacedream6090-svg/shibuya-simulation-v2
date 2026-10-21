@@ -365,6 +365,13 @@ def build(_call_args: dict[str, Any]) -> Any:
         # 〔第 6 期 6-4 C1〕連絡の道具の腕は結果を変える=c1 のときだけ設定の指紋に足す(腕と下の腕=再開で取り違えを止める。
         # 既定 off のランの指紋は今のまま)
         _fp[_CTA.FP_KEY] = _ct_cfg
+    from shibuya.engine.calendar2 import arm as _CA2A
+
+    _ca2_cfg = _CA2A.config()
+    if _ca2_cfg is not None:
+        # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定の腕は結果を変える(本人が約束の場所へ歩く)=arm のときだけ設定の指紋に
+        # 足す(再開で取り違えを止める。既定 off のランの指紋は今のまま)
+        _fp[_CA2A.FP_KEY] = _ca2_cfg
     if _EN.meal_default() != _EN.DEFAULT_MEAL_DEFAULT and str(hunger_model) == "energy":
         # 〔小さな版上げ・回答 10-13b §7 の 2〕既定の食事時刻の旧値の腕(validation)は既定と違うときだけ設定の指紋に足す
         # (空腹のエネルギー収支のランだけ=腕が効くランだけ)
@@ -1403,6 +1410,21 @@ def build(_call_args: dict[str, Any]) -> Any:
             decision_layer.contact_offer = contact_layer
             contact_layer.main_offer = True
 
+    # ---- 〔第 6 期 6-2 カレンダー 2〕会話とメッセージから生まれる予定(腕 arm のランだけ・既定 None=系 calendar_2 が立たない=
+    # 今の道)。会話の番の控えの口を連絡の道具(腕 c1 のラン)に挿す(通話の番とメッセージを送る判断)。対面の会話の番は
+    # engine.systems.llm_io.utter が箱から引く ----
+    calendar2_layer = None
+    if _ca2_cfg is not None:
+        from shibuya.engine.calendar2.layer import Calendar2Layer as _Calendar2Layer
+
+        calendar2_layer = _Calendar2Layer(
+            n_agents=n_agents, seed=seed, population_seed=pop_seed, day_key0=int(day_index),
+            step_seconds=int(tick_seconds), steps_per_day=tpd, events=events, agents=agents, world=world,
+            calendar=calendar, conv=conv, contact=contact_layer, runner=runner,
+        )
+        if contact_layer is not None:
+            contact_layer.turn_sink = calendar2_layer.note_turn
+
     # ---- 1-0 段 C: 状態の箱(局所の割り当ての表 local-assignment.json・草案 §2-3)。物はそのまま指す(写しを作らない) ----
     from shibuya.engine import seat_release as _SRB  # 〔第 2 期 2-4 V3〕
 
@@ -1451,6 +1473,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             talk_clock=talk_clock,  # 〔第 6 期 6-3 T2〕
             step_scope=step_scope,  # 〔第 6 期 6-3 T3〕
             contact=contact_layer,  # 〔第 6 期 6-4 C1〕腕 c1 のランだけ
+            calendar2=calendar2_layer,  # 〔第 6 期 6-2 カレンダー 2〕腕 arm のランだけ
         ),
         llm=_BX.LlmIo(pending=pending, fleet_deferred=fleet_deferred, fleet_waiting=fleet_waiting,
                       fleet_inflight=fleet_inflight, replay_inbox=replay_inbox),

@@ -51,6 +51,11 @@ world(5 分の窓の体感温度=環境の過程が体の層の口を呼ぶ)は 
 ``E:events.*``・歩く口 ``begin_walk_to``)。鉄道の発車が計画実行層に知らせる口から器の連続性の手がかりを書く world・day_close・
 close_final は ``C1B:calendar_self.cal_store`` を足した(腕のランだけ=既定では書かない)。close_final は層を結果に渡す。
 
+〔第 6 期 6-2 カレンダー 2〕会話とメッセージから生まれる予定(腕 ``--calendar-2 arm``・状態台帳の腕の行 ``CA2*``)を書く系:
+calendar_2(新設・連絡の系の後=本人の予定の器・誘い・帳面・計器・判断の出来事 ``E:events.*``・歩く口 ``begin_walk_to``)。会話の番の
+控え(行 ``CA2G``=``calendar2._turns``)は対面の会話の番の発話(decide と llm_receive)と通話の番とメッセージを送る判断(contact)が
+積む(腕のランだけ=既定では書かない)。close_final は層を結果に渡す。
+
 〔親の決め〕世界過程が持ち主をまたいで書く所(鉄道と大きな催しが計画実行層の O36・O37・O70 と鉄道の O74 を書く)は
 1-0 では宣言で認める(``world`` の ``writes.paths``)。
 
@@ -74,6 +79,7 @@ from shibuya.engine.systems import talk as _TK
 from shibuya.engine.systems import world as _WD
 from shibuya.engine.experiment import layer as _EXP
 from shibuya.engine.contact import layer as _CTL
+from shibuya.engine.calendar2 import layer as _CA2L
 from shibuya.engine.systems.spec import SystemSpec, make
 
 __all__ = ["SYSTEMS", "SPECS", "TICK_ORDER"]
@@ -167,13 +173,16 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                " S8:speech.* S8M:speech.* E:events.*"  # 1-8b: 腕 on の到着の発話(未読の列・計器・発話の出来事 1 行)
                " TCR:talk_clock.* TCC:talk_clock.*"  # 〔第 6 期 6-3 T2〕腕 mora の会話の時計(話す速さの控え・発言の予約・計器)
                # 〔6-3 検収 M1〕腕 mora の発言の予約は全体の窓の待ち行列(行 BW)か区域ごとの時計(行 T4W)に事象を置く
-               " BW:batching.* T4W:clock.*",
+               " BW:batching.* T4W:clock.*"
+               # 〔第 6 期 6-2 カレンダー 2〕腕 arm: 到着した会話の番の控え(系 calendar_2 が同じ刻みに読む)
+               " CA2G:calendar2._turns",
          scratch_w="n_parse_errors_fleet", calls_llm="receive",
          tally="phase", reads="cfg.fleet_wait_s cfg.response_delay cfg.store_wom_on cfg.tick_seconds "
                "cfg.vocab_version layers.conv layers.fleet_bridge layers.mem_layer layers.speech layers.wom "
                "llm.fleet_deferred llm.fleet_inflight llm.fleet_waiting llm.pending llm.replay_inbox "
                "runstats.phase scratch.n_parse_errors_fleet soa.agents "
-               "layers.talk_clock",  # 〔第 6 期 6-3 T2〕会話の時計(腕 mora のランだけ)
+               "layers.talk_clock "  # 〔第 6 期 6-3 T2〕会話の時計(腕 mora のランだけ)
+               "layers.calendar2",  # 〔第 6 期 6-2 カレンダー 2〕会話の番の控え(腕 arm のランだけ)
          origin=f"L5(遅れ 1)・L11 前半(遅れ 2)・run.py:3668・3890-3891 @{_E}"),
     make("apply_responses", "判断", "tick", _JG.sys_apply_responses,
          resolve_ops="revert_conversation set_conversing talk_within_reach",
@@ -271,7 +280,9 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                # 〔6-3 検収 M1〕腕 mora の発言の予約は全体の窓の待ち行列(行 BW)か区域ごとの時計(行 T4W)に事象を置く
                " BW:batching.* T4W:clock.*"
                # 〔第 6 期 6-4 C1 検収 M5〕腕 c1+腕 port: 主の判断が候補の「スマホを見る」を選んだ体の控え(同じ刻みの系 contact が読む)
-               " CT1G:contact._look_main CT1M:contact._meter",
+               " CT1G:contact._look_main CT1M:contact._meter"
+               # 〔第 6 期 6-2 カレンダー 2〕腕 arm: 会話の番の控え(系 calendar_2 が同じ刻みに読む)
+               " CA2G:calendar2._turns",
          # 第 1 期 1-2: 描いた知覚の事実 ``percepts``(``TickScratch`` の欄・状態台帳の行 P)
          scratch_r="decision outside_now n_parse_errors_fleet", scratch_w="parse_errors percepts",
          tally="calls_by_cond layer_counts n_fleet_resent n_outside_calls peak_backlog peak_pending phase result",
@@ -284,7 +295,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "runstats.n_outside_calls runstats.peak_backlog runstats.peak_pending runstats.phase "
                "runstats.result scratch.decision scratch.n_parse_errors_fleet scratch.outside_now "
                "scratch.parse_errors scratch.percepts soa.agents fx.tools "
-               "layers.talk_clock",  # 〔第 6 期 6-3 T2〕会話の時計(腕 mora のランだけ)
+               "layers.talk_clock "  # 〔第 6 期 6-3 T2〕会話の時計(腕 mora のランだけ)
+               "layers.calendar2",  # 〔第 6 期 6-2 カレンダー 2〕会話の番の控え(腕 arm のランだけ)
          origin=f"L14・run.py:4002-4127 @{_E}"),
     make("phase_a", "行為の解決", "tick", _AC.sys_phase_a,
          resolve_ops="intent_kept_by",
@@ -342,10 +354,21 @@ SYSTEMS: tuple[SystemSpec, ...] = (
     # 門を通していなければ止まる)。窓の境目の処理(送信・着信)は進行役の待ち行列の種類(ContactLayer.bind_queue)
     make("contact", "連絡", "tick", _CTL.sys_contact,
          # 〔検収 H1〕送信と着信の予約=系の中から進行役の待ち行列(行 BW)に書く
-         paths="CT1*:contact.* E:events.* BW:batching.*",
+         paths="CT1*:contact.* E:events.* BW:batching.* "
+               "CA2G:calendar2._turns",  # 〔第 6 期 6-2 カレンダー 2〕通話の番とメッセージを送る判断の控え(腕 arm のランだけ)
          scratch_r="decision",
          when="contact", reads="layers.contact layers.conv layers.runner scratch.decision soa.agents soa.world",
          origin="第 6 期 6-4 C1(新設・HEAD の区間なし)"),
+    # 〔第 6 期 6-2 カレンダー 2〕会話とメッセージから生まれる予定(腕 arm のランだけ立つ・連絡の系の後=その刻みの会話の番と
+    # メッセージを送る判断が控えに積まれた後・会話の終わり(会話の系と連絡の系の掃除)の後・記憶の系の前)。書くのは持ち主
+    # calendar2(状態台帳の腕の行 CA2*)と出来事の記録(族 約束)と、本人が約束の場所へ歩く口(体の基本動作 begin_walk_to)
+    make("calendar_2", "暦", "tick", _CA2L.sys_calendar_2,
+         resolve_ops="begin_walk_to",
+         paths="CA2*:calendar2.* E:events.*",
+         scratch_r="decision",
+         when="calendar2", reads="layers.calendar2 scratch.decision soa.agents soa.world "
+                                 "layers.conv layers.contact layers.runner",  # 〔検収 L3〕層が参照で読む持ち主
+         origin="第 6 期 6-2 カレンダー 2(新設・HEAD の区間なし)"),
     make("memory", "記憶", "tick", _RM.sys_memory,
          resolve_ops="write_memory write_relations write_store_memory",
          paths="O[89]:mem_layer.* O1[0-2]:mem_layer.* O1[6-9]:rel_layer.* O64:renderer.* O1[34]:poi_resolver.* "
@@ -452,7 +475,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.calendar_shadow "  # 〔第 3 期 3-1〕暦 1a の影を結果に渡す(manifest の calendar_shadow)
                "layers.calendar_self "  # 〔第 6 期 6-2〕カレンダー 1b を結果に渡す(manifest の末尾の calendar_1b)
                "layers.talk_clock layers.step_scope layers.clock "  # 〔第 6 期 6-3〕時計の段の腕の持ち主を結果に渡す
-               "layers.contact",  # 〔第 6 期 6-4 C1〕連絡の道具を結果に渡す(manifest の contact_c1)
+               "layers.contact "  # 〔第 6 期 6-4 C1〕連絡の道具を結果に渡す(manifest の contact_c1)
+               "layers.calendar2",  # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定を結果に渡す(manifest の calendar_2)
          origin=f"E1・run.py:4551-4592 @{_E}"),
     make("report", "計器", "run_end", _RP.report,
          tally="result sleep_counts frozen_sources_map",  # 段 FIX: 欄の別名 ``frozen_sources_map.update``

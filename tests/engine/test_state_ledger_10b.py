@@ -103,7 +103,8 @@ def test_ledger_has_187_rows_in_two_axes():
     # 〔第 6 期 6-3〕その後に時計の段 T2〜T4 の腕の行 TCR・TCC(腕 talk-clock)・T3M(腕 step-scope)・T4W(腕 clock-regional)
     # (どれも diag・discardable=どちらのハッシュにも状態のファイルにも入らない)を 6-2 の C1B・C1BM の後に足して 126・217
     # 〔第 6 期 6-4 C1〕その後に連絡の道具の腕の行 CT1D・CT1A・CT1AS・CT1I・CT1IS・CT1C・CT1K・CT1S・CT1M・CT1G・CT1Q(腕 contact-c1)を足して 137・228
-    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 137, "soa": 91, "total": 228}
+    # 〔第 6 期 6-2 カレンダー 2〕その後に会話から生まれる予定の腕の行 CA2B・CA2O・CA2G・CA2M・CA2Q(腕 calendar-2)を足して 142・233
+    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 142, "soa": 91, "total": 233}
     assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
@@ -114,7 +115,8 @@ def test_ledger_has_187_rows_in_two_axes():
                                                                                      "M0C", "M0X", "M0S", "C1B", "C1BM",
                                                                                      "TCR", "TCC", "T3M", "T4W", "CT1D", "CT1A",
                                                                                      "CT1AS", "CT1I", "CT1IS", "CT1C",
-                                                                                     "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q"]
+                                                                                     "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q",
+                                                                                     "CA2B", "CA2O", "CA2G", "CA2M", "CA2Q"]
     assert (SL.row("X").behavior, SL.row("X").restore, SL.row("X").arm) == (SL.DIAG, SL.DISCARDABLE, "")
     assert (SL.row("BW").behavior, SL.row("BW").restore, SL.row("BW").arm) == (SL.DIAG, SL.DISCARDABLE, "")
     assert (SL.row("E").behavior, SL.row("E").restore) == (SL.DIAG, SL.DISCARDABLE)
@@ -131,7 +133,8 @@ def test_ledger_has_187_rows_in_two_axes():
     # 腕の行(1-8b の 2 行+2-3 の M0L+〔第 6 期 6-5〕M0M・M0C・〔検収 M4〕M0S+〔第 6 期 6-2〕C1B・C1BM)
     # 〔第 6 期 6-3〕その後に TCR・TCC・T3M・T4W
     assert [r.key for r in SL.LEDGER if r.arm] == ["S8", "S8M", "M0L", "M0M", "M0C", "M0S", "C1B", "C1BM",
-                                                   "TCR", "TCC", "T3M", "T4W", "CT1D", "CT1A", "CT1AS", "CT1I", "CT1IS", "CT1C", "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q"]  # 〔6-4 C1〕
+                                                   "TCR", "TCC", "T3M", "T4W", "CT1D", "CT1A", "CT1AS", "CT1I", "CT1IS", "CT1C", "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q",  # 〔6-4 C1〕
+                                                   "CA2B", "CA2O", "CA2G", "CA2M", "CA2Q"]  # 〔6-2 カレンダー 2〕
     for k, arm in (("TCR", "talk-clock"), ("TCC", "talk-clock"), ("T3M", "step-scope"), ("T4W", "clock-regional")):
         assert (SL.row(k).behavior, SL.row(k).restore, SL.row(k).arm) == (SL.DIAG, SL.DISCARDABLE, arm), k
     assert (SL.row("PX").behavior, SL.row("PX").restore, SL.row("PX").items) == (SL.DIAG, SL.DISCARDABLE,

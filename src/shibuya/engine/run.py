@@ -528,6 +528,8 @@ MOTION_RNG_DOMAINS: dict[str, str] = {
     "talk.jitter": "〔第 6 期 6-3 T2〕発言ごとの話す速さの揺れ(engine.speech_clock・腕 --talk-clock mora のランだけ・計器)",
     "contact.mock": "〔第 6 期 6-4 C1〕連絡の本人の判断の仮のモデルの選び(engine.contact.port・腕 c1 のランだけ)",
     "contact.present": "〔第 6 期 6-4 C1〕連絡の判断の候補の提示の並べ替え(同上)",
+    "calendar2.mock": "〔第 6 期 6-2 カレンダー 2〕予定の本人の判断の仮のモデルの選び(engine.calendar2.port・腕 arm のランだけ)",
+    "calendar2.present": "〔第 6 期 6-2 カレンダー 2〕予定の判断の候補の提示の並べ替え(同上)",
 }
 #: 動きの側の、``core.rng`` の用途名を持たない塩(``seed`` から作る)。
 MOTION_SALTS: dict[str, str] = {
@@ -541,14 +543,33 @@ MOTION_SALTS: dict[str, str] = {
 }
 
 
-def _calls_by_model(llm: int, contact: Any, before: tuple[int, int] = (0, 0)) -> dict[str, Any]:
+def _calls_by_model(llm: int, contact: Any, before: tuple[int, int] = (0, 0), *, calendar2: Any = None,
+                    before2: tuple[int, int] = (0, 0)) -> dict[str, Any]:
     """TM9 の呼び出し数(判断モデル/LLM)。〔第 6 期 6-4 C1 検収 M5 (ii)〕腕 c1 のランは連絡の判断(判断モデル)と文の口(LLM)を
-    足し、内訳を ``contact`` に出す(既定のランは今のまま=判断モデル 0)。``before`` は前の日次の記録までの連絡の分。"""
-    if contact is None:
+    足し、内訳を ``contact`` に出す(既定のランは今のまま=判断モデル 0)。``before`` は前の日次の記録までの連絡の分。
+    〔第 6 期 6-2 カレンダー 2〕腕 arm のランはカレンダー 2 の判断と文の口を同じ形で足し、内訳を ``calendar_2`` に出す
+    (``before2``=前の日次の記録までのカレンダー 2 の分・腕の無いランは今のまま)。"""
+    if contact is None and calendar2 is None:
         return {"judge_model": 0, "llm": int(llm)}
-    j, t = contact.model_calls()
-    j, t = int(j) - int(before[0]), int(t) - int(before[1])
-    return {"judge_model": j, "llm": int(llm) + t, "contact": {"judge_model": j, "llm": t}}
+    out: dict[str, Any] = {"judge_model": 0, "llm": int(llm)}
+    for key, layer, b0 in (("contact", contact, before), ("calendar_2", calendar2, before2)):  # 逐次: 腕の数(2)
+        if layer is None:
+            continue
+        j, t = layer.model_calls()
+        j, t = int(j) - int(b0[0]), int(t) - int(b0[1])
+        out["judge_model"] += j
+        out["llm"] += t
+        out[key] = {"judge_model": j, "llm": t}
+    return out
+
+
+def _calendar2_field(layer: Any) -> dict[str, Any]:
+    """〔第 6 期 6-2 カレンダー 2〕manifest の ``calendar_2``(会話から生まれる予定の層のあるラン=腕 arm だけ・ほかは空)。"""
+    if layer is None:
+        return {}
+    from shibuya.engine.calendar2.layer import manifest_fields as _ca2_manifest
+
+    return _ca2_manifest(layer)
 
 
 def _contact_c1_field(layer: Any) -> dict[str, Any]:
@@ -1353,7 +1374,8 @@ class RunResult:
             "weather": copy.deepcopy(self.weather),
             # ---- 第 1 期 1-1 T0(TM9・GPU 無しの欄・10f と一体): 呼び出し数を判断モデルと LLM に分けた欄(判断モデルは
             # まだ無い=0)・時計の種類と幅・つなぎの台帳の数。列追加のみ ----
-            "calls_by_model": _calls_by_model(int(self.llm_calls), getattr(self, "contact_layer", None)),
+            "calls_by_model": _calls_by_model(int(self.llm_calls), getattr(self, "contact_layer", None),
+                                              calendar2=getattr(self, "calendar2_layer", None)),
             # 〔第 6 期 6-3 T4〕区域ごとの時計のランだけ regional(既定は今の steps)
             "clock_kind": (CLOCK_KIND if getattr(self, "clock_layer", None) is None
                            else _REGIONAL_CLOCK.CLOCK_KIND_REGIONAL),
@@ -1422,6 +1444,9 @@ class RunResult:
             # 返した・無視した・通話・スマホを見た・割り込めなかった出来事・記憶に残ったか・チャットの状態の計器(観測)。末尾=… →
             # 3-1 の calendar_shadow → 6-4。記録だけ(final・behavior-hash は manifest を読まない) ----
             **_contact_c1_field(getattr(self, "contact_layer", None)),
+            # ---- 〔第 6 期 6-2 カレンダー 2〕会話とメッセージから生まれる予定(腕 arm のランだけ欄が立つ=既定のランの一番上の鍵は
+            # 今のまま)。末尾=… → 6-4 の contact_c1 → 6-2 の calendar_2。記録だけ(final・behavior-hash は manifest を読まない) ----
+            **_calendar2_field(getattr(self, "calendar2_layer", None)),
         }
 
     def economy_fields(self) -> dict[str, Any]:

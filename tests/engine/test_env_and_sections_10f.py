@@ -125,7 +125,10 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 〔小さな版上げ・meal_w17〕``energy.meal_default``・``energy.meal_default_source``(既定の食事時刻の腕と分布の出どころ=
 #: 世界の W17 から決まる設定)を足した(C1 の後に・前 ``c8d7f1d4…9b8a5f30`` → ``99fd537f…9e8ba6``=この 2 本を外すと前の値に戻る・記録
 #: docs/bench/analysis/wallbounce-1012/meal_w17/README.md)。
-CONFIG_PATHS_SHA256 = "99fd537f618851011a61f0ffd833c4c39b232e4fa80328949c9c813e3f9e8ba6"
+#: 〔第 6 期 6-2 カレンダー 2〕``calendar_2`` の設定の子 11(schema・arm・port・placements・kinds・certainty・candidates・recall・
+#: early_min・arbitration・provisional=腕 arm のランだけ出る節)を足した(meal_w17 の後に・前 ``99fd537f…9e8ba6`` → ``21ef3084…1f077ca``
+#: =この 11 本を外すと前の値に戻る・記録 docs/bench/analysis/wallbounce-1012/ca2/README.md)。
+CONFIG_PATHS_SHA256 = "21ef3084964fa920d40eb95db89619f47536d8b686886c8dbdcefcfaa1f077ca"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 

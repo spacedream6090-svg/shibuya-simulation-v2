@@ -296,5 +296,12 @@
  ],
  "report": [],
  "experiment": [],
- "contact": []
+ "contact": [],
+ "calendar_2": [
+  "agents.activity",
+  "agents.board_line",
+  "agents.board_since",
+  "agents.sleep_pending",
+  "agents.target_node"
+ ]
 }

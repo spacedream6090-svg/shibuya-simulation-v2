@@ -1245,6 +1245,55 @@ _EXT: tuple[LedgerRow, ...] = (
         items=("contact._issued", "contact._issued_n"), arm="contact-c1",
         note="6-4 C1 検収 M2: 読み手は監査(試験と記録の道具)と manifest・日次の記録の calls_by_model だけ=軸 1 diag。再開した"
              "ランの監査と呼び数が通しと同じになる=軸 2 required。既定化の前に日ごとの監査で捨てる形に改める(量=記録 §5-2)"),
+    # ---- 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定(腕 --calendar-2 arm): 足す前に軸を決めた行(腕の行=腕 arm のランだけ
+    # 持ち主がある=既定のランの 2 つのハッシュと状態のファイルは不変) ----
+    LedgerRow(
+        key="CA2B", name="PromiseBook(本人の予定の器=各自が自分の理解の行・第 6 期 6-2 カレンダー 2)", place=EXTERNAL,
+        dtype="dict(行の番号 → 行の dict)・dict(持ち主 → 行の番号の列)・list[int]", nbytes="行 1 つ約 400 B",
+        alloc="--calendar-2 arm", behavior=BEHAVIOR, restore=REQUIRED, dead=False,
+        basis="engine/calendar2/book.py(PromiseBook.write・edit・observe・drop・own_rows)・engine/calendar2/layer.py",
+        items=("calendar2.book.rows", "calendar2.book.by_owner", "calendar2.book.next_id"), arm="calendar-2",
+        note="6-2 カレンダー 2: 本人の行(いつ・どこ・誰と・何を・置き場所・確かさ・元の会話)が見える予定と出発の判断を決める="
+             "軸 1 behavior・表から作れない=軸 2 required。書く系は calendar_2 だけ(宣言 CA2*:calendar2.*)。行の鍵は CA2B"),
+    LedgerRow(
+        key="CA2O", name="Calendar2Layer の誘い・帳面・歩いている行・知らせ・手帳・範囲の外の印(第 6 期 6-2 カレンダー 2)",
+        place=EXTERNAL, dtype="dict(誘い)・list[int]・dict(刻み → [[種類, 行]])・list[int]・dict・dict・bool の配列(体ごと)・dict",
+        nbytes="範囲の外の印 1 B/体", alloc="--calendar-2 arm", behavior=BEHAVIOR, restore=REQUIRED, dead=False,
+        basis="engine/calendar2/layer.py(_propose・_respond・_hear・_settle_offers・_schedule_row・_opportunities・_look・"
+              "_depart・_track・_outside・run_step)",
+        items=tuple(f"calendar2.{a}" for a in ("_offers", "_offer_next", "_agenda", "_watch", "_noticed",
+                                               "_planner_day", "_was_out", "_out_row", "_days")),
+        arm="calendar-2",
+        note="6-2 カレンダー 2: 返事待ちの誘い・本人が選んだ知らせの時刻と行の始まりと終わりの帳面・知らせで次に見える行・手帳を"
+             "開いた日・範囲の外に出た/戻った印は、どれも次の判断と記録を決める=軸 1 behavior・作り直せない=軸 2 required。"
+             "書く系は calendar_2 だけ。行の鍵は CA2O"),
+    LedgerRow(
+        key="CA2G", name="Calendar2Layer が系の間と刻みの間に渡す値(会話の番の控え・仲裁で回した考えた体・第 6 期 6-2 カレンダー 2)",
+        place=EXTERNAL, dtype="list[[会話の鍵, 体, 刻み, 番の id, [相手]]]・dict(体 → 刻み)", nbytes="",
+        alloc="--calendar-2 arm", behavior=BEHAVIOR, restore=REQUIRED, dead=False,
+        basis="engine/calendar2/layer.py(note_turn・run_step・_opportunities)・engine/systems/llm_io.py(utter)・"
+              "engine/contact/layer.py(_calls_turns・_queue_send)",
+        items=("calendar2._turns", "calendar2._think"), arm="calendar-2",
+        note="6-2 カレンダー 2: 会話の番の控えは対面の会話の番(判断の系と到着の系=宣言 CA2G:calendar2._turns)・通話の番とメッセージを"
+             "送る判断(連絡の系)が積み、同じ刻みの系 calendar_2 が読む(刻みの境目では空)。仲裁で次の刻みに回した考えた体は刻みを"
+             "またぐ。どちらも判断を決める=behavior・一緒に保存する=軸 2 required。行の鍵は CA2G"),
+    LedgerRow(
+        key="CA2M", name="カレンダー 2 の計器(計数・分布・体ごとの約束の数・第 6 期 6-2)", place=EXTERNAL,
+        dtype="計数の dict・分布の dict・dict(体 → 数)", nbytes="", alloc="--calendar-2 arm", behavior=DIAG,
+        restore=REQUIRED, dead=False, basis="engine/calendar2/layer.py(_bump・_hist_add・manifest)",
+        items=("calendar2._c2_meter", "calendar2._c2_hist", "calendar2._c2_per_agent", "calendar2._c2_event_of",
+               "calendar2._c2_offer_event"), arm="calendar-2",
+        note="6-2 カレンダー 2: 読み手は manifest の calendar_2 と試験だけ=軸 1 diag。再開した後も 1 週間あたりの約束の数・忘れた割合が"
+             "通しと同じ=軸 2 required(1b の C1BM と同じ形)。〔検収 M3〕書いた出来事と誘った出来事の id(行と誘いの目印=返事の"
+             "判断の入力の目印として原因の表だけが読む)もここ=記録の有無で behavior の行が変わらない(口の約束 1-3 の (1))"),
+    LedgerRow(
+        key="CA2Q", name="発行したカレンダー 2 の判断の呼びの控えと呼び数(監査の突き合わせ・第 6 期 6-2)", place=EXTERNAL,
+        dtype="i8 の配列(刻み・体・通し番号を詰めた整数)・list[int](控えの数・判断の呼び・文の口の呼び)",
+        nbytes="1 回 8 B", alloc="--calendar-2 arm", behavior=DIAG, restore=REQUIRED, dead=False,
+        basis="engine/calendar2/layer.py(_issue・issued_keys・model_calls・audit_causes)",
+        items=("calendar2._c2_issued", "calendar2._c2_issued_n"), arm="calendar-2",
+        note="6-2 カレンダー 2: 読み手は監査(試験と記録の道具)と manifest だけ=軸 1 diag。再開したランの監査が通しと同じ=軸 2 "
+             "required(C1 の CT1Q と同じ形)"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -1433,6 +1482,9 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "contact.chats": ("engine/conversation.py", "ConversationManager"),
     "contact.calls": ("engine/conversation.py", "ConversationManager"),
     "contact.speech": ("engine/speech/port.py", "SpeechPort"),
+    # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定(状態台帳の腕の行 CA2*・腕 --calendar-2 arm のランだけ)と子の持ち主
+    "calendar2": ("engine/calendar2/layer.py", "Calendar2Layer"),
+    "calendar2.book": ("engine/calendar2/book.py", "PromiseBook"),
 }
 
 #: (ii) キャッシュ・導出。中身は 3 通り: (a) 毎 tick(か事象のある tick)作り直す作業の値・印
@@ -1821,6 +1873,17 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "wom_fn", "session_active"),
     _x("renderer", REF, "〔第 6 期 6-4 C1〕連絡の道具の口(組み立てが腕 c1 のランだけ ContactLayer.percept_hook を差し込む・関数・"
        "状態は連絡の持ち主の側=状態台帳の行 CT1*)", "contact_fn"),
+    # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定の持ち主と子の持ち主の設定・参照・作業の値
+    _x("contact", REF, "〔第 6 期 6-2 カレンダー 2〕会話の番の控えの口(組み立てが腕 --calendar-2 arm のランだけ "
+       "Calendar2Layer.note_turn を差し込む・関数・状態はカレンダー 2 の持ち主の側=状態台帳の行 CA2G)", "turn_sink"),
+    _x("calendar2", CONST, _CFG + "(6-2 カレンダー 2: 体の数・刻みの幅・1 日の刻みの数=組み立てが 1 回だけ置く)", "n",
+       "step_seconds", "step_ns", "steps_per_day", "day_ns"),
+    _x("calendar2", CONST, _FIELD + "(6-2 カレンダー 2: 腕の行の腕の名 LEDGER_ARM)", "LEDGER_ARM"),
+    _x("calendar2", REF, _REFR + "(6-2 カレンダー 2: 出来事の記録・体・世界・暦・対面の会話・連絡の道具・世界過程=読むだけ・"
+       "判断の口・頭の中の予定の思い出しの口(人ごとの忘れる速さの倍率=母集団の seed と体の番号から作り直せる))", "events",
+       "agents", "world", "calendar", "conv", "contact", "runner", "port", "recall"),
+    _x("calendar2", CACHE, "6-2 カレンダー 2: その刻みの体ごとの判断の通し番号(刻みの頭で空)", "_codes"),
+    _x("calendar2.book", CONST, _FIELD + "(6-2 カレンダー 2: 腕の行の腕の名 LEDGER_ARM)", "LEDGER_ARM"),
 )
 
 
