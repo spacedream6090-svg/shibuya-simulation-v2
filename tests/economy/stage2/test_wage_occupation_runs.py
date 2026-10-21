@@ -60,7 +60,9 @@ def test_conservation_and_only_the_wage_accounts_move(two_arms):
     so = occ.ledger.money.stage2.s2_meter["run"]["wages"]
     assert so["paid"] > 0 and so["no_hours"] == 0
     # 〔第 4 期 4-3 段 10・検収 M3〕外の雇用主(席の外の体)の賃金は外界から払う=原資の行は無い
-    assert so["funding"] + so["outside_employer_amount"] == so["amount"] and so["outside_employer_paid"] > 0
+    # 〔第 4 期 4-2〕原資=額面+雇用主の社会保険料等の分
+    assert so["funding"] + so["outside_employer_amount"] == so["amount"] + so["employer_share_amount"]
+    assert so["outside_employer_paid"] > 0
     # 〔第 2 部〕前は旧値の腕 w17 と 1 日目の科目を比べた(賃金と原資の科目だけが動く・額は w17 の 4 倍超)=腕と一緒に消した
 
 

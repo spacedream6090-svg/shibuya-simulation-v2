@@ -162,6 +162,8 @@ def header_fields(plan: Any) -> dict[str, Any] | None:
         return None
     out: dict[str, Any] = {"arm": ARM_ON, "parts": list(plan.parts)}
     out["wage"] = str(getattr(plan, "wage_model", DEFAULT_WAGE))  # 〔賃金の小さな版上げ〕賃金の道
+    if getattr(plan, "law", None) is not None:  # 〔第 4 期 4-2〕腕 off のランの見出しは今のまま
+        out["rules_42"] = "on"
     return out
 
 
@@ -186,6 +188,13 @@ def check_resume(saved: Any, *, effective: bool = True) -> None:
     if now_arm == ARM_ON and s_wage != DEFAULT_WAGE:
         raise ValueError(f"再開の賃金の腕が親と違う(親 wage={s_wage}・今 wage={DEFAULT_WAGE})=旧値の腕 w17 は消した"
                          "(安定版のタグ stable-v2-before-wage-occupation で回す)")
+    # 〔第 4 期 4-2〕規則の表の中身の腕(見出しに無い=off=4-2 の前の状態)
+    from shibuya.engine import economy_rules as _ER
+
+    s_law = str(s.get("rules_42", _ER.ARM_OFF))
+    if now_arm == ARM_ON and s_law != _ER.arm():
+        raise ValueError(f"再開の規則の表の中身の腕が親と違う(親 rules_42={s_law}・今 {_ER.arm()})=環境変数 "
+                         "SHIBUYA_RULES_42 を親にそろえる")
 
 
 # ================================================================ ATM の表(Fixtures.atms)
@@ -617,7 +626,7 @@ class Stage2Plan:
     def __init__(self, *, parts: Iterable[str], kinds: Any, monthly_hours: Any, hours_source: str,
                  atms: AtmTable | None, calendar: Any, tick_seconds: int, n_agents: int,
                  population_scale: float | None, causes: Mapping[str, Any], wage_model: str = DEFAULT_WAGE,
-                 wage_inputs: WageInputs | None = None) -> None:
+                 wage_inputs: WageInputs | None = None, law: Any = None) -> None:
         self.parts = tuple(p for p in PARTS if p in set(parts))
         self.kinds = np.array(kinds, dtype=np.int64, copy=True)
         self.monthly_hours = None if monthly_hours is None else np.array(monthly_hours, dtype=np.float64, copy=True)
@@ -638,6 +647,9 @@ class Stage2Plan:
         self.causes = MappingProxyType(dict(causes))
         #: 世界過程の実行器(権利台帳の持ち主=開閉の過程)。組み立てが実行器を作った後に 1 回だけ置く。
         self.runner: Any = None
+        #: 〔第 4 期 4-2〕規則の表の中身の腕(``engine.economy_rules``)が on のランの加入の判定の材料
+        #: (``economy_rules.PayrollInputs``)。``None``=4-2 の前の値の再現(天引き 0・レジの税は売った時点で政府へ)。
+        self.law = law
         for a in (self.kinds, self.monthly_hours):
             if a is not None:
                 a.setflags(write=False)
@@ -767,9 +779,13 @@ def attach(ledger_bundle: Any, *, schedule: Any, weekly: Any, calendar: Any, wor
     winp = wage_inputs(schedule, pop, n_agents)
     total = population_total(world_dir) if pop is not None else None
     scale = (float(n_agents) / float(total)) if total else None
+    from shibuya.engine import economy_rules as _ER  # 〔第 4 期 4-2〕給与の天引きと預かり消費税の腕(組み立てで読む)
+
+    law = (_ER.payroll_inputs(pop, world_dir, n_agents, np.asarray(schedule.kind)[: int(n_agents)])
+           if _ER.arm() == _ER.ARM_ON else None)
     plan = Stage2Plan(parts=_PARTS, kinds=np.asarray(schedule.kind)[: int(n_agents)], monthly_hours=hours,
                       hours_source=src, atms=atms, calendar=calendar, tick_seconds=tick_seconds, n_agents=n_agents,
                       population_scale=scale, causes={n: Process(n) for n in CAUSE_NAMES}, wage_model=DEFAULT_WAGE,
-                      wage_inputs=winp)
+                      wage_inputs=winp, law=law)
     money.attach_stage2(plan)
     return plan

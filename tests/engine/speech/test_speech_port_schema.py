@@ -159,7 +159,8 @@ def test_ledger_arm_rows_and_arm_items():
     # 〔第 6 期 6-3〕その後に時計の段 T2〜T4 の腕の行 TCR・TCC・T3M・T4W
     assert [r.key for r in SL.arm_rows()] == ["S8", "S8M", "M0L", "M0M", "M0C", "M0S", "C1B", "C1BM",
                                              "TCR", "TCC", "T3M", "T4W", "CT1D", "CT1A", "CT1AS", "CT1I", "CT1IS", "CT1C", "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q",  # 〔第 6 期 6-4 C1〕
-                                             "CA2B", "CA2O", "CA2G", "CA2M", "CA2Q"]  # 〔第 6 期 6-2 カレンダー 2〕
+                                             "CA2B", "CA2O", "CA2G", "CA2M", "CA2Q",  # 〔第 6 期 6-2 カレンダー 2〕
+                                             "TXD"]  # 〔第 4 期 4-2〕店の預かり消費税(腕 rules-42)
     assert [(SL.row(k).arm, SL.row(k).arm_owner) for k in ("C1B", "C1BM")] == [
         ("calendar", "calendar_self"), ("calendar", "calendar_self")]
     # 腕の行は静的な表に入らない(既定の 2 つのハッシュと状態のファイルは前と同じ道筋)

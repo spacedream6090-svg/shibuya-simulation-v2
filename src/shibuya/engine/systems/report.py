@@ -443,6 +443,8 @@ def report(ctx: Any, b: Any) -> Any:
     # 〔第 2 期 2-4 V4〕店の売上の写し pois.revenue は税抜き=店から政府へ出たレジの税を左辺から引く
     _s2 = getattr(getattr(ledger, "money", None), "stage2", None) if ledger is not None else None
     result.money_stage2_in = int(_s2.cash_terms()) - int(_s2.register_tax()) if _s2 is not None else 0
+    # 〔第 4 期 4-2・検収 L4〕店の預かり消費税の検算(腕 off・段階 2 の無いランは真)
+    result.money_stage2_deposit_ok = bool(_s2.tax_deposit_ok()) if _s2 is not None and hasattr(_s2, "tax_deposit_ok") else True
     result.min_stock = int(world.pois.stock.min()) if world.n_poi else 0
 
     # ---- 状態成長宣言の検査(D-R2-6) ----

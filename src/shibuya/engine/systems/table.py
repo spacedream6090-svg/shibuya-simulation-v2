@@ -318,7 +318,9 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                # 第 1 期 1-9: 購入・食事・運賃の transfer の目印の列と計器(行 A)・運賃の出来事(原因=過程 rail)
                "A:ledger.* E:events.* "
                # 第 2 期 2-1: 経済の段階 2(行 EC=引き出し・支払いの方法・税の計器・行 EM=生ログの支払いの方法の列)
-               "EC:ledger.* EM:ledger.*",
+               "EC:ledger.* EM:ledger.* "
+               # 第 4 期 4-2: 店の預かり消費税(レジの税を預かり金に積む・腕 SHIBUYA_RULES_42=on)
+               "TXD:ledger.*",
          scratch_r="plan", buffers_r="focus_request", scratch_w="outcome",
          tally="geometry_hops geometry_jammed leave_counts per_action_total phase result",
          reads="buffers.focus_request cfg.attention_on cfg.queue_service cfg.seat_release "
@@ -418,6 +420,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "O3[5-8]:presence.* "
                "E:events.* A:ledger.* "  # 1-3: E(診断)の区切りの行(日の締め)・その日の記録の計器と保持窓/1-9: 金の計器の締め
                "EC:ledger.* EM:ledger.* "  # 2-1: 経済の段階 2(給料日の賃金・日の欄)と生ログの支払いの方法の列
+               "TXD:ledger.* "  # 4-2: 申告の期限の日の締めに預かり消費税を政府へ(腕 SHIBUYA_RULES_42=on)
                "C1B:calendar_self.cal_store",  # 〔6-2〕鉄道の日の締めの発車=カレンダー 1b の連続性の手がかり(腕 1b だけ)
          tally="daily_records state_files result", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.run_id cfg.seat_release cfg.sim_days "
                "cfg.state_out cfg.tick_seconds cfg.tpd fx.calendar fx.env_fields fx.schedule fx.schedule_hash "
@@ -456,6 +459,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "O3[5-8]:presence.* O8[5-7]:bridge.* "
                "E:events.* A:ledger.* "  # 1-3: 最後の便の ActualLog の行の出来事・E の区切りの行・計器と保持窓/1-9: 金の計器
                "EC:ledger.* EM:ledger.* "  # 2-1: 経済の段階 2(最後の日の給料日の賃金・日の欄)と生ログの支払いの方法の列
+               "TXD:ledger.* "  # 4-2: 最後の日の締めの預かり消費税の納付(腕 SHIBUYA_RULES_42=on)
                "C1B:calendar_self.cal_store",  # 〔6-2〕最後の便の発車=カレンダー 1b の連続性の手がかり(腕 1b だけ)
          tally="daily_records ledger_growth result state_files", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.run_id cfg.seat_release cfg.sim_days "
                "cfg.state_out cfg.stopped cfg.t_end cfg.tick_seconds cfg.total_ticks cfg.tpd fx.calendar fx.env_fields "

@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parents[3]
 SRC = ROOT / "src" / "shibuya"
 R106 = (ROOT / "docs" / "research" / "v2-r106-rights-institutions-tax-credit.md").read_text(encoding="utf-8")
 W7 = (ROOT / "docs" / "research" / "v2-w7-law-primary-check-research.md").read_text(encoding="utf-8")
+R118 = (ROOT / "docs" / "research" / "v2-r118-rights-and-rules-contents.md").read_text(encoding="utf-8")
 
 
 def _src(**kw) -> RT.Source:
@@ -42,10 +43,13 @@ def _rule(**kw) -> RT.Rule:
 # ================================================================= リポの表
 def test_the_repo_table_has_three_real_rules():
     rules = RT.default_rules()
-    assert rules.ids() == ("consumption_tax.standard_rate", "labor.weekly_rest_day", "late_night_alcohol.residential_ban",
-                           "minimum_wage.tokyo")
-    assert len(rules) == 6  # 〔第 3 期 3-1〕労働基準法 35 条の週 1 日の休日(親の判断 第337 中 2)を足した
+    first = ("consumption_tax.standard_rate", "labor.weekly_rest_day", "late_night_alcohol.residential_ban",
+             "minimum_wage.tokyo")
+    assert set(first) <= set(rules.ids())
+    # 〔第 3 期 3-1〕労働基準法 35 条の週 1 日の休日(親の判断 第337 中 2)を足した
     # 〔賃金の小さな版上げ・第337 親の一次確認〕東京都の最低賃金の前の 2 版(1,163 円・1,226 円)を足した=4 → 6
+    # 〔第 4 期 4-2〕R-118 の 19 行と消費税の申告の期限の 1 行を足した=6 → 26(id 4 → 24・試験 test_rules42_table.py)
+    assert len(rules) == 26 and len(rules.ids()) == 24
     assert [(r.asof, r.params["yen_per_hour"]) for r in rules.versions("minimum_wage.tokyo")] == [
         ("2024-10-01", 1163), ("2025-10-03", 1226), ("2026-10-01", 1280)]
     for r in rules:
@@ -78,11 +82,14 @@ PARENT_PRIMARY_CHECK: dict[str, str] = {
 
 def test_sources_are_copied_from_the_research_tables():
     """写し検査: e-Gov の法令 ID と版は R-106 §0-2 の表の同じ行にある・URL は答申の本文にある(親の一次確認の出典は
-    :data:`PARENT_PRIMARY_CHECK` の日付と同じ取得日)。"""
+    :data:`PARENT_PRIMARY_CHECK` の日付と同じ取得日)。〔第 4 期 4-2〕世界の時点の版(URL が asof=2026-07-13)の出典は
+    R-118 §1-1 の表の行で見る(``test_rules42_table.py``)・ほかの出典の URL は R-118 の本文にもあってよい。"""
     rows = {line.split("|")[2].strip(): line for line in R106.splitlines() if line.startswith("| ") and line.count("|") >= 5}
     for r in RT.default_rules():
         for s in r.source:
-            if s.law_id:
+            if s.law_id and s.url.endswith("?asof=2026-07-13"):
+                assert s.url == f"https://laws.e-gov.go.jp/api/2/law_data/{s.law_id}?asof=2026-07-13"
+            elif s.law_id:
                 assert s.law_id in rows, (r.id, s.law_id)
                 assert s.version in rows[s.law_id], (r.id, s.law_id, s.version)
                 assert s.url == f"https://laws.e-gov.go.jp/api/2/law_data/{s.law_id}?asof={s.version}"
@@ -90,7 +97,7 @@ def test_sources_are_copied_from_the_research_tables():
                 assert s.retrieved == PARENT_PRIMARY_CHECK[s.url], (r.id, s.url)
             else:
                 bare = s.url.removeprefix("https://")
-                assert s.url in R106 or bare in W7, (r.id, s.url)
+                assert s.url in R106 or bare in W7 or s.url in R118 or bare in R118, (r.id, s.url)
     # 条例 15 条の時間帯の逐語は W7 の一次確認の表にある
     assert "午前零時から午前六時までの時間において営んではならない" in W7
 
@@ -252,8 +259,10 @@ def _readers() -> set[str]:
 def test_only_the_manifest_and_the_daily_record_import_the_table():
     """約束 (1): 規則の表を読んでも挙動は変わらない=読むのは manifest(run.py)と日次の記録(state_io.py)と、ランの始めに
     壊れた表で落とすための組み立て(systems/build.py=読むだけ・検収 L10)だけ。
-    〔第 2 期 2-1〕最初の読み手 ``economy/anchors.py``(最低賃金・消費税の率=経済の段階 2 の腕のランだけが呼ぶ=既定の挙動は不変)。"""
-    assert _readers() == {"engine/run.py", "engine/systems/state_io.py", "engine/systems/build.py", "economy/anchors.py"}
+    〔第 2 期 2-1〕最初の読み手 ``economy/anchors.py``(最低賃金・消費税の率=経済の段階 2 の腕のランだけが呼ぶ=既定の挙動は不変)。
+    〔第 4 期 4-2〕``economy/taxes.py``(税・社会保険・消費税の端数と期限・信用の上限・割増=machine の行の読み手)。"""
+    assert _readers() == {"engine/run.py", "engine/systems/state_io.py", "engine/systems/build.py", "economy/anchors.py",
+                          "economy/taxes.py"}
 
 
 @pytest.mark.parametrize("src,module", [

@@ -16,7 +16,8 @@
 | ``payment`` | 購入・食事・運賃の支払いの方法(現金か口座=カード・電子マネー・IC)を本人が選ぶ。口座=世帯の預金 → 店(本体の
   行は ``金:消費支出`` のまま+銀行の決済の行 ``金:カード``) | ``purchase``・``can_pay``・``pay_fares`` |
 | ``tax`` | レジの消費税(規則の表の率=国 7.8%+地方 22/78=10%)の分を店 → 政府(``金:税``・``Process("register")``)=店の
-  売上は税抜きに | ``purchase`` |
+  売上は税抜きに。〔第 4 期 4-2・Q1〕腕 ``SHIBUYA_RULES_42=on``(既定)では店の預かり金の口に積み(``economy.tax_deposit``)、
+  申告の期限の日の締めに店 → 政府へ移す | ``purchase``・``before_close`` |
 | ``visitors`` | 来街者(種別 1・6・7)にも口座(持ち込み=初期の財布の ``VISITOR_ACCOUNT_SHARE`` を預金へ分ける=合計は不変)=カード払いが効く | ``endow`` |
 
 腕が on なら部品によらず、来街者でない体には初期の預金を入れる(``endow``)。保存則: 新しい流れは全部
@@ -41,6 +42,14 @@
   最低賃金に戻して注記)の道。
 - 店の外界の売上(範囲の外の取引先)の額は 0(資料なし)。縮小ランの比(体数 / 母集団)を manifest に宣言する。
 
+〔第 4 期 4-2〕給与の天引き(``economy.taxes``=規則の表の 6 行・PENDING 仮-40 の Q4・Q7): 腕 ``SHIBUYA_RULES_42=on``(既定・
+組み立ての物 ``plan.law``=加入の判定の材料がある)のランは、給料日に雇用主が額面を払い(雇用主 → 世帯の口座)、本人の分
+(源泉所得税・住民税・健保と介護・支援金・厚年・雇用保険)を世帯の口座 → 政府(``金:税``・登録の sink「給与の天引き(本人 →
+政府)」)・雇用主の分(健保と介護・支援金・厚年・雇用保険)を雇用主 → 政府(「給与の天引き(雇用主 → 政府)」)へ移す。雇用主の
+原資(外界の売上=faucet)は額面+雇用主の分。外の雇用主(閉じた表の外)の体は外界が額面を払い、本人の分だけ政府へ(雇用主の分は
+範囲の外=記録しない)。納付は給料日の締めに即時(現実は翌月 10 日・翌月末=未リサーチ(expedient)・台帳
+``DOC-rules42-remit-timing``)。腕 ``off`` は 4-2 の前の値の再現(天引き 0)=次の版上げで消す。記録 ``rules42/README.md``。
+
 つなぎの台帳の行(``docs/design/bridging-ledger.json``・宣言の場所=記録 ``ec21/README.md``): ``DOC-ec21-*``。
 
 逐次ループ宣言(P4): 新しい逐次ループは無い(どの口も配列演算・Python のループは部門・部品・登録の行の数ぶんだけ)。
@@ -57,7 +66,9 @@ import numpy as np
 
 from shibuya.economy import anchors as AN
 from shibuya.economy import ops as _OPS
+from shibuya.economy import taxes as _TX
 from shibuya.economy import wages as _WG
+from shibuya.economy.tax_deposit import TaxDeposit
 from shibuya.economy.accounts import (
     ACCOUNT_NAMES,
     SECTOR_NAMES,
@@ -88,6 +99,7 @@ __all__ = [
     "STAGE2_MEASURED_LIVE_ROWS_PER_AGENT",
     "ATM_ROW_BYTES",
     "EMPLOYER_ROW_BYTES",
+    "TAX_DEPOSIT_BYTES_PER_STORE",
     "MoneyStage2",
     "payroll_deductions",
     "tax_of",
@@ -139,6 +151,8 @@ STAGE2_MEASURED_TRANSFERS_PER_AGENT_DAY: Final[float] = 8.824
 STAGE2_MEASURED_LIVE_ROWS_PER_AGENT: Final[float] = 14.226
 ATM_ROW_BYTES: Final[int] = 66
 EMPLOYER_ROW_BYTES: Final[int] = 44
+#: 〔第 4 期 4-2〕店の預かり消費税の口=1 店 8 B(int64)× 課税期間 2 つ(期限の前の年と今の年=期限 3 月 31 日の後は 1 つ)。
+TAX_DEPOSIT_BYTES_PER_STORE: Final[int] = 16
 
 _H: Final[int] = _OPS.ACCOUNT_SECTOR
 _S: Final[int] = int(Sector.STORE)
@@ -158,10 +172,22 @@ def tax_of(amounts: np.ndarray, rate: Fraction) -> np.ndarray:
     return (a * num) // (den + num)
 
 
-def payroll_deductions(gross: np.ndarray, asof: "str | _dt.date") -> tuple[np.ndarray, str | None]:
-    """給与の天引き(所得税・住民税・社会保険料)の器。規則の表に行が無い=0(``None``=表なし)。外す段 4-2。"""
-    del asof
-    return np.zeros(np.asarray(gross).shape, dtype=np.int64), None
+def payroll_deductions(gross: np.ndarray, asof: "str | _dt.date", *, inputs: Any = None,
+                       agents: np.ndarray | None = None,
+                       assume_full_time: np.ndarray | None = None) -> tuple[np.ndarray, Any]:
+    """給与の天引き(本人の分の合計[円]と内訳)。
+
+    〔第 4 期 4-2〕``inputs``(加入の判定の材料=``engine.economy_rules.PayrollInputs``)と ``agents``(行の体)を渡せば、給料日
+    ``asof`` に効いている規則の表の 6 行で本人の分を出す(内訳=``economy.taxes.Deductions``=雇用主の分も持つ)。``inputs`` が
+    無い(腕 ``SHIBUYA_RULES_42=off``=4-2 の前の値の再現)ときは 0 と ``None``(器のまま)。
+    """
+    g = np.asarray(gross, dtype=np.int64)
+    if inputs is None:
+        return np.zeros(g.shape, dtype=np.int64), None
+    tables = _TX.payroll_tables(asof)
+    who = np.arange(g.size, dtype=np.int64) if agents is None else np.asarray(agents, dtype=np.int64)
+    got = _TX.deductions(g, tables, _TX.enrollment(inputs, who, tables, assume_full_time=assume_full_time))
+    return got.employee_total, got
 
 
 def _rows_of(cause: Any, rows: np.ndarray) -> Any:
@@ -183,11 +209,19 @@ def _empty_meter() -> dict[str, dict[str, int]]:
         "endow": {"deposit_rows": 0, "deposit_amount": 0, "visitor_rows": 0, "visitor_amount": 0},
         "wages": {"paydays": 0, "paid": 0, "amount": 0, "unpaid": 0, "unpaid_amount": 0, "funding": 0,
                   "deductions": 0, "no_hours": 0, "outside_employer": 0, "employer_rows": 0, "store_rows": 0,
-                  "outside_employer_paid": 0, "outside_employer_amount": 0},
+                  "outside_employer_paid": 0, "outside_employer_amount": 0,
+                  # 〔第 4 期 4-2〕給与の天引き(本人の分=世帯の口座 → 政府・雇用主の分=雇用主 → 政府)の行と額と内訳・加入の数
+                  "employee_rows": 0, "employee_amount": 0, "employer_share_rows": 0, "employer_share_amount": 0,
+                  "net_amount": 0, "deduction_unpaid": 0, "deduction_unpaid_amount": 0, "enrolled_social": 0,
+                  "enrolled_care": 0, "enrolled_employment": 0, "no_basis": 0, "over_gross": 0,
+                  "outside_employer_share_not_recorded": 0,
+                  **{f"employee_{k}": 0 for k in _TX.EMPLOYEE_ITEMS}, **{f"employer_{k}": 0 for k in _TX.EMPLOYER_ITEMS}},
         "withdraw": {"asked": 0, "count": 0, "amount": 0, "wallet_ok": 0, "no_deposit": 0},
         "payment": {"cash_rows": 0, "cash_amount": 0, "account_rows": 0, "account_amount": 0, "short": 0,
                     "fare_ic_rows": 0, "fare_ic_amount": 0, "fare_cash_rows": 0, "fare_cash_amount": 0},
-        "tax": {"rows": 0, "amount": 0},
+        # 〔第 4 期 4-2〕rows・amount=レジの税(腕 off=政府へ移した額・腕 on=預かり金に積んだ額)・remit_*=期限に政府へ
+        "tax": {"rows": 0, "amount": 0, "held_rows": 0, "remit_rows": 0, "remitted": 0, "unpaid_rows": 0,
+                "unpaid_amount": 0},
         "external_sales": {"rows": 0, "amount": 0},
         # 〔検収 A1〕呼の id の配線: 控えた行(金に触れる行為の呼)・口の支払いの答え・原因 LlmCall の購入と食事の行・
         # 原因の無い購入と食事の行・答えを使った支払いの行・原因 LlmCall の引き出し・口が選んだ引き出し
@@ -205,7 +239,7 @@ class MoneyStage2:
         n_employers: 雇用主の口の数(W6 の組織の数・``cli.build_ledger_bundle`` が決める)。
     """
 
-    def __init__(self, plan: Any, *, n_households: int, n_employers: int) -> None:
+    def __init__(self, plan: Any, *, n_households: int, n_employers: int, n_stores: int = 0) -> None:
         self.plan = plan
         self.parts = frozenset(str(p) for p in plan.parts)
         unknown = self.parts - set(PARTS)
@@ -245,8 +279,15 @@ class MoneyStage2:
         self.atms = getattr(plan, "atms", None)
         #: 支払い(payment)か税(tax)が動くランは購入を委ねる。
         self.handles_purchase = bool({"payment", "tax"} & self.parts)
+        #: 〔第 4 期 4-2〕規則の表の中身の腕(``engine.economy_rules``)の加入の判定の材料(``None``=腕 off=4-2 の前の値の再現)と、
+        #: 店の預かり消費税(Q1・税の部品が動くランだけ・状態台帳の腕の行 TXD)。
+        self.law = getattr(plan, "law", None)
+        self.tax_deposit = (TaxDeposit(int(n_stores)) if self.law is not None and "tax" in self.parts else None)
         #: 計器(状態台帳の行 EM=diag・discardable)。ランの積算と日の欄(日の締めで 0)。
         self.s2_meter: dict[str, Any] = {"run": _empty_meter(), "day": _empty_meter(), "rules": {}}
+        if self.law is not None and hasattr(self.law, "material_counts"):
+            # 〔検収 H1〕加入の判定の材料の数(母集団の抽出=seed で動く)は観測の rules.payroll_inputs(rules.wage_build の先例)
+            self.s2_meter["rules"]["payroll_inputs"] = self.law.material_counts()
         # 〔賃金の小さな版上げ〕組み立ての賃金の点検は観測(母集団の抽出=seed で動く)=rules.wage_build・plan には道だけ
         winp = getattr(plan, "wage_inputs", None)
         self.s2_meter["rules"]["wage_build"] = {
@@ -353,6 +394,8 @@ class MoneyStage2:
             got = AN.consumption_tax_rate(d)
             self._rates[d] = got
             self.s2_meter["rules"]["consumption_tax"] = {"asof": d, "rate": str(got[0]), "source": got[1]}
+            if self.law is not None:  # 〔第 4 期 4-2〕レジの端数の行(1 回の購入=1 枚=1 つの税率・切り捨て)
+                self.s2_meter["rules"]["invoice_rounding"] = {"asof": d, **_TX.invoice_rounding(d)}
         return got[0]
 
     # ------------------------------------------------------------------ 初期の預金(組み立て)
@@ -479,7 +522,15 @@ class MoneyStage2:
         self._add("payment", cash_rows=int((ok & ~acct).sum()), cash_amount=int(a[ok & ~acct].sum()),
                   account_rows=int((ok & acct).sum()), account_amount=int(a[ok & acct].sum()),
                   short=int((~ok).sum()))
-        if self.part("tax") and ok.any():
+        if self.part("tax") and ok.any() and self.tax_deposit is not None:  # 〔第 4 期 4-2・Q1〕預かり金に積む
+            tax = tax_of(a[ok], self._tax_rate(step))
+            keep = tax > 0
+            if keep.any():
+                rows = np.flatnonzero(ok)[keep]
+                amt = self.tax_deposit.collect(s[rows], tax[keep], self._date_of_step(step).year)
+                self._add("tax", rows=int(rows.size), amount=amt, held_rows=int(rows.size))
+                last_tax[rows] = tax[keep]
+        elif self.part("tax") and ok.any():
             tax = tax_of(a[ok], self._tax_rate(step))
             keep = tax > 0
             if keep.any():
@@ -570,7 +621,11 @@ class MoneyStage2:
 
     # ------------------------------------------------------------------ 賃金(wages)・日の締め
     def before_close(self, ledger: Any, day: int) -> None:
-        """日の締めの前: 給料日なら賃金を払う(wages の部品)。"""
+        """日の締めの前: 〔第 4 期 4-2〕申告の期限の来た預かり消費税を政府へ移す(腕 on)・給料日なら賃金を払う(wages の部品)。"""
+        if self.tax_deposit is not None:
+            got = self.tax_deposit.remit_due(ledger, self.plan.date_of(int(day)), int(self.plan.close_step(int(day))),
+                                             cause=self._cause("register"))
+            self._add("tax", **got)
         if not self.part("wages"):
             return
         if not bool(self.plan.is_payday(int(day))):
@@ -600,6 +655,9 @@ class MoneyStage2:
             gross = np.maximum(floored, 0)
         else:
             gross = AN.monthly_wage_amounts(self.monthly_hours[agents], hourly=rate)
+        if self.law is not None:  # 〔第 4 期 4-2〕給与の天引き(規則の表の 6 行)と雇用主の分
+            return self._payroll_law(ledger, step, asof, agents, sectors, idx, gross,
+                                     floor_info=(floor, floor_src, raised, raised_amount) if occupation else None)
         ded, _table = payroll_deductions(gross, asof)
         net = gross - ded
         cause = self._cause("payroll")
@@ -663,6 +721,110 @@ class MoneyStage2:
                           "raised_amount": raised_amount}}
         return out
 
+    def _payroll_law(self, ledger: Any, step: int, asof: Any, agents: np.ndarray, sectors: np.ndarray, idx: np.ndarray,
+                     gross: np.ndarray, *, floor_info: Any) -> dict[str, int]:
+        """〔第 4 期 4-2〕給料日: 額面を払い(雇用主 → 世帯の口座)、本人の分を世帯の口座 → 政府・雇用主の分を雇用主 → 政府へ。
+
+        雇用主の原資(外界の売上=faucet)は額面+雇用主の分(雇用主ごとに 1 行)。外の雇用主の体は外界が額面を払い、本人の分だけ
+        政府へ(雇用主の分は範囲の外=記録しない=計器 ``outside_employer_share_not_recorded``)。払えなかった額面の行は天引きも
+        しない。どの transfer も原因 ``Process("payroll")``。
+        """
+        cause = self._cause("payroll")
+        # 〔検収 M2・親の判断〕外の雇用主の体は「被保険者 51 人以上の事業所の正社員」とみなして加入させる
+        ded_total, ded = payroll_deductions(gross, asof, inputs=self.law, agents=agents,
+                                            assume_full_time=(sectors == _E) & (idx == OUTSIDE_EMPLOYER_ORG))
+        tables = _TX.payroll_tables(asof)
+        self.s2_meter["rules"]["payroll_deductions"] = tables.record()
+        er_total = ded.employer_total
+        en = ded.enrollment
+        self._add("wages", paydays=1, no_hours=int((gross <= 0).sum()), enrolled_social=int(en.social.sum()),
+                  enrolled_care=int(en.care.sum()), enrolled_employment=int(en.employment.sum()),
+                  no_basis=int(en.no_basis.sum()), over_gross=int(ded.over_gross.sum()))
+        out = {"paid": 0, "amount": 0}
+        paid = np.zeros(gross.size, dtype=bool)
+        oe_all = (sectors == _E) & (idx == OUTSIDE_EMPLOYER_ORG)
+        oe = oe_all & (gross > 0)
+        if oe.any():
+            a, who = gross[oe], agents[oe]
+            st = np.asarray(AN.monthly_wages(ledger, np.zeros(who.size, dtype=np.int64), who, np.zeros(who.size), step,
+                                             amounts=a, from_row=True, method=_OPS.METHOD_ACCOUNT, cause=cause))
+            ok = st == int(TransferStatus.OK)
+            paid[np.flatnonzero(oe)[ok]] = True
+            self._add("wages", paid=int(ok.sum()), amount=int(a[ok].sum()), unpaid=int((~ok).sum()),
+                      unpaid_amount=int(a[~ok].sum()), outside_employer_paid=int(ok.sum()),
+                      outside_employer_amount=int(a[ok].sum()),
+                      outside_employer_share_not_recorded=int(er_total[np.flatnonzero(oe)[ok]].sum()))
+            out["paid"] += int(ok.sum())
+            out["amount"] += int(a[ok].sum())
+        sec = np.where(oe_all, -1, sectors)
+        for sector in (_E, _S):  # 逐次ループ宣言: 払い手の部門 2 つ
+            m = (sec == sector) & (gross > 0)
+            if sector == _E:
+                bad = m & (idx >= self.n_employers)
+                self._add("wages", outside_employer=int(bad.sum()))
+                m = m & ~bad
+            if not m.any():
+                continue
+            rows = np.flatnonzero(m)
+            a, who, emp = gross[rows], agents[rows], idx[rows]
+            uniq, inv = np.unique(emp, return_inverse=True)
+            need = a + er_total[rows]
+            fund = np.bincount(inv, weights=need.astype(np.float64)).astype(np.int64)
+            fst = np.asarray(ledger.transfer_many(_W, np.zeros(uniq.size, dtype=np.int64), sector, uniq, fund,
+                                                  int(AccountCode.CONSUMPTION), step, cause=cause))
+            self._add("wages", funding=int(fund[fst == int(TransferStatus.OK)].sum()))
+            st = np.asarray(AN.monthly_wages(ledger, emp, who, np.zeros(who.size), step, amounts=a, payer_sector=sector,
+                                             method=_OPS.METHOD_ACCOUNT, cause=cause))
+            ok = st == int(TransferStatus.OK)
+            paid[rows[ok]] = True
+            self._add("wages", paid=int(ok.sum()), amount=int(a[ok].sum()), unpaid=int((~ok).sum()),
+                      unpaid_amount=int(a[~ok].sum()),
+                      **({"employer_rows": int(ok.sum())} if sector == _E else {"store_rows": int(ok.sum())}))
+            out["paid"] += int(ok.sum())
+            out["amount"] += int(a[ok].sum())
+            # 雇用主の分(払えた行の分を雇用主ごとに 1 行)
+            rok = rows[ok]
+            if rok.size:
+                eu, einv = np.unique(idx[rok], return_inverse=True)
+                er_amt = np.bincount(einv, weights=er_total[rok].astype(np.float64)).astype(np.int64)
+                keep = er_amt > 0
+                if keep.any():
+                    est = np.asarray(ledger.transfer_many(sector, eu[keep], _G, np.zeros(int(keep.sum()), dtype=np.int64),
+                                                          er_amt[keep], int(AccountCode.TAX), step, cause=cause))
+                    eok = est == int(TransferStatus.OK)
+                    self._add("wages", employer_share_rows=int(eok.sum()),
+                              employer_share_amount=int(er_amt[keep][eok].sum()))
+                    done = rok[np.isin(idx[rok], eu[keep][eok])]  # 雇用主の分を移せた雇用主の行だけ
+                    for k in _TX.EMPLOYER_ITEMS:  # 逐次: 項目の数(4)
+                        self._add("wages", **{f"employer_{k}": int(np.asarray(ded.employer[k])[done].sum())})
+        # 本人の分(払えた行・額のある行=世帯の口座 → 政府)
+        take = np.flatnonzero(paid & (ded_total > 0))
+        if take.size:
+            st = np.asarray(ledger.transfer_many(_H, agents[take], _G, np.zeros(take.size, dtype=np.int64), ded_total[take],
+                                                 int(AccountCode.TAX), step, cause=cause, method=_OPS.METHOD_ACCOUNT))
+            ok = st == int(TransferStatus.OK)
+            self._add("wages", employee_rows=int(ok.sum()), employee_amount=int(ded_total[take][ok].sum()),
+                      deduction_unpaid=int((~ok).sum()), deduction_unpaid_amount=int(ded_total[take][~ok].sum()),
+                      **{f"employee_{k}": int(np.asarray(ded.employee[k])[take][ok].sum()) for k in _TX.EMPLOYEE_ITEMS})
+            got = np.zeros(gross.size, dtype=np.int64)
+            got[take[ok]] = ded_total[take[ok]]
+        else:
+            got = np.zeros(gross.size, dtype=np.int64)
+        self._add("wages", net_amount=int(gross[paid].sum()) - int(got.sum()))
+        if floor_info is not None:  # 〔賃金の小さな版上げ〕給料日の計器(払った体の出どころと額面の分位)=観測
+            floor, floor_src, raised, raised_amount = floor_info
+            b = self.wage_basis[agents]
+            pd = gross > 0
+            self.s2_meter["rules"]["wage_model"] = {
+                "model": self.wage_model, "asof": asof.isoformat(), "employed": int(agents.size),
+                "paid_by_basis": {name: int((pd & (b == i)).sum()) for i, name in enumerate(_WG.BASIS_NAMES)},
+                "no_value": int((~pd).sum()), "paid_amount": _q(gross[pd]),
+                "paid_mean": round(float(gross[pd].mean()), 3) if pd.any() else 0.0,
+                "floor": {"yen_per_hour": floor, "source": floor_src, "raised": int(raised.sum()),
+                          "raised_share": round(float(raised.sum()) / agents.size, 4) if agents.size else 0.0,
+                          "raised_amount": raised_amount}}
+        return out
+
     def external_sales(self, ledger: Any, step: int) -> int:
         """店の外界の売上(範囲の外の取引先・EC5)。1 店 1 日の額 ``EXTERNAL_STORE_SALES_YEN``(0=資料なし)。"""
         if EXTERNAL_STORE_SALES_YEN <= 0:
@@ -681,6 +843,11 @@ class MoneyStage2:
 
         n_atm = int(getattr(self.atms, "n", 0) or 0)
         fixed = n_atm * ATM_ROW_BYTES + int(employers) * EMPLOYER_ROW_BYTES
+        # 〔第 4 期 4-2〕店の預かり消費税=店の数 × 8 B × 課税期間 2 つ(期限の前の年と今の年)まで=定数
+        dep_note = ""
+        if self.tax_deposit is not None:
+            fixed += int(self.tax_deposit.n) * TAX_DEPOSIT_BYTES_PER_STORE
+            dep_note = f"・預かり消費税 {int(self.tax_deposit.n)} 店 × {TAX_DEPOSIT_BYTES_PER_STORE} B"
         per = int(BYTES_PER_AGENT) + int(WAGE_BYTES_PER_AGENT)
         wage_note = f"・賃金の腕 {self.wage_model} の足し分 {WAGE_BYTES_PER_AGENT} B(月の賃金と出どころと月の時間+入力 5 列)"
         return GrowthDeclaration(
@@ -690,9 +857,20 @@ class MoneyStage2:
             mechanism=False,
             note=(f"第 2 期 2-1 経済の段階 2 の腕のランだけ。体あたり {per} B(中身 4 列+呼の控え 2 列+組み立ての物 2 列"
                   f"{wage_note})・ATM の表 {n_atm} 点 × {ATM_ROW_BYTES} B・雇用主の口 {int(employers)} × "
-                  f"{EMPLOYER_ROW_BYTES} B は定数。日をまたいで伸びない(実測の増分 0)"),
+                  f"{EMPLOYER_ROW_BYTES} B{dep_note} は定数。日をまたいで伸びない(実測の増分 0)"),
             unit="entity", bytes_per_unit=per,
         )
+
+    def tax_deposit_ok(self) -> bool:
+        """〔検収 L4〕預かり消費税の検算(積んだ − 移した − 残高=0・店ごとの残高が負でない)。腕 off のランは真。
+        ``RunResult.conserved`` が読む。"""
+        if self.tax_deposit is None:
+            return True
+        from shibuya.economy import checks as _CK
+
+        t = self.tax_deposit.totals
+        ok = _CK.tax_deposit_check(int(t["collected"]), int(t["remitted"]), self.tax_deposit.held_total())["ok"]
+        return bool(ok and all(bool((v >= 0).all()) for v in self.tax_deposit.held.values()))
 
     def cash_terms(self) -> int:
         """世帯の現金の外から入った額と現金を通らずに払った額の和(引き出し+口座の購入・食事+IC の運賃)=
@@ -714,6 +892,13 @@ class MoneyStage2:
         """日次の記録の ``economy.stage2``(その日の計器と財布・預金の分位)。日の欄を 0 に戻す。"""
         out = {"day": int(day), "payday": bool(self.plan.is_payday(int(day))),
                **{k: dict(v) for k, v in self.s2_meter["day"].items()}, **self._money_view(ledger)}
+        if self.tax_deposit is not None:  # 〔第 4 期 4-2〕預かり消費税の残高と検算(積んだ − 移した = 残高)
+            from shibuya.economy import checks as _CK
+
+            t = self.tax_deposit.totals
+            out["tax"] = {**out["tax"], "held_balance": self.tax_deposit.held_total(),
+                          "deposit_check": _CK.tax_deposit_check(int(t["collected"]), int(t["remitted"]),
+                                                                 self.tax_deposit.held_total())}
         self.s2_meter["day"] = _empty_meter()
         return out
 
@@ -735,6 +920,11 @@ class MoneyStage2:
         atm = self.atms.record() if self.atms is not None and hasattr(self.atms, "record") else None
         plan_rec = self.plan.record() if hasattr(self.plan, "record") else {}
         plan_rec = {**plan_rec, "wage_path": self.wage_source}  # 〔賃金の小さな版上げ〕賃金の道(設定の節=plan の中)
+        if self.law is not None:  # 〔第 4 期 4-2〕規則の表の中身の腕と加入の判定の材料の出どころと定数(設定の節=plan の中)
+            plan_rec = {**plan_rec, "rules_42": "on", "law": self.law.record() if hasattr(self.law, "record") else None}
+        run = {k: dict(v) for k, v in self.s2_meter["run"].items()}
+        if self.tax_deposit is not None:  # 〔第 4 期 4-2〕預かり消費税(累計・残高・課税期間ごとの期限)=観測の tax の中
+            run["tax"] = {**run["tax"], "deposit": self.tax_deposit.record()}
         return {
             "arm": "on",
             "parts": [p for p in PARTS if p in self.parts],
@@ -749,7 +939,7 @@ class MoneyStage2:
             "hours_source": self.hours_source,
             "plan": plan_rec,
             "rules": {k: dict(v) for k, v in self.s2_meter["rules"].items()},
-            **{k: dict(v) for k, v in self.s2_meter["run"].items()},
+            **run,
             "faucet_sink_registry": table,
             "faucet_sink_by_cell": by_cell,
             "atms": atm,

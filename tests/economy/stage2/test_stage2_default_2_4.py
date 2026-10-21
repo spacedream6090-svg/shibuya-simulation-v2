@@ -29,6 +29,10 @@ def test_resume_check_uses_the_effective_arm(monkeypatch):
     # 〔賃金の小さな版上げ〕腕 on の見出しは賃金の腕も持つ(見出しに無い=w17=版上げの前の状態)
     want = {"arm": "on", "parts": list(ES2.PARTS)}
     want["wage"] = ES2.wage_arm()  # 〔第 2 部〕見出しは賃金の道も持つ
+    from shibuya.engine import economy_rules as ER  # 〔第 4 期 4-2〕既定 on の見出しは規則の表の中身の腕も持つ
+
+    if ER.arm() != ER.ARM_OFF:
+        want["rules_42"] = ER.arm()
     ES2.check_resume(want)
     with pytest.raises(ValueError):
         ES2.check_resume(want, effective=False)

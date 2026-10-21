@@ -32,10 +32,11 @@ def _r(**kw):
 # ================================================================= 欄と表
 def test_fields_follow_the_contract():
     assert L.RIGHT_FIELDS == ("holder", "object", "kind", "since_ns", "until_ns", "counterparty", "source", "cause")
-    assert L.KINDS == ("own", "lease", "employ", "licence")
-    assert dict(L.KIND_WORDS) == {"own": "所有", "lease": "賃借", "employ": "雇用", "licence": "許可"}
+    # 〔第 4 期 4-2・Q3〕信用の契約(credit)と物の種類 3 つ(道路の区間・看板・信用の契約)を末尾に足した
+    assert L.KINDS == ("own", "lease", "employ", "licence", "credit")
+    assert dict(L.KIND_WORDS) == {"own": "所有", "lease": "賃借", "employ": "雇用", "licence": "許可", "credit": "信用"}
     assert L.HOLDER_KINDS == ("agent", "org", "store")
-    assert L.OBJECT_KINDS == ("org", "store", "parcel", "dwelling")
+    assert L.OBJECT_KINDS == ("org", "store", "parcel", "dwelling", "road_segment", "signboard", "credit_contract")
     assert set(L.OBJECTS_OF_KIND) == set(L.KINDS)
     assert all(set(v) <= set(L.OBJECT_KINDS) for v in L.OBJECTS_OF_KIND.values())
     assert L.ROW_BYTES == 72
@@ -104,9 +105,10 @@ def test_grant_round_trips_every_value():
     assert led.sources() == ("試験", "区画", "住まい", "許可")
     c = led.tally()
     assert c["rows"] == 4 and c["with_until"] == 1
-    assert c["by_kind"] == {"own": 1, "lease": 1, "employ": 1, "licence": 1}
+    assert c["by_kind"] == {"own": 1, "lease": 1, "employ": 1, "licence": 1, "credit": 0}  # 〔4-2〕credit を足した
     assert c["by_holder_kind"] == {"agent": 1, "org": 1, "store": 2}
-    assert c["by_object_kind"] == {"org": 0, "store": 2, "parcel": 1, "dwelling": 1}
+    assert c["by_object_kind"] == {"org": 0, "store": 2, "parcel": 1, "dwelling": 1, "road_segment": 0, "signboard": 0,
+                                   "credit_contract": 0}
     assert c["by_source"] == {"試験": 1, "区画": 1, "住まい": 1, "許可": 1}
 
 

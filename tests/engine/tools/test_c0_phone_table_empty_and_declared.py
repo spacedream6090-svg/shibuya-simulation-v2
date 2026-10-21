@@ -53,7 +53,8 @@ def test_the_table_is_read_only_after_construction():
 def test_the_blank_is_declared_in_the_bridging_ledger():
     row = {b.id: b for b in BR.default_ledger().active()}[PHONE_BRIDGE]
     # 〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2(版上げ 2 回目では埋めなかった)
-    assert row.remove_at == "4-2" and row.conf == "expedient" and row.status == "active"
+    # 〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7(W6 の POI の欄を足す段が計画に無い)
+    assert row.remove_at == "7" and row.conf == "expedient" and row.status == "active"
     assert row.declared_in.startswith("docs/design/v2-foundation-contracts-2026-10-13.md")
     assert "src/shibuya/engine/tools/places.py" in row.code_at
     assert default_registry().get(PHONE).bridge == PHONE_BRIDGE

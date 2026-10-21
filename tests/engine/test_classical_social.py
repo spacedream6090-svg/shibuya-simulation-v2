@@ -38,7 +38,7 @@ CLASSICAL_1500_GOLDEN_ACQ_BY_ENV = {
     # 〔小さな版上げ・meal_w17〕前 87f051103976be282b5ef5af477bfa015498a014982cef0038cbc8fac799cb84 / 24_793(--meal-default validation で戻る)
     # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)で動いた(前 2089192377b9d318bee1842578a8e6e8e1f275e49a581cb01c79600371fd97e3
     # / 24_877=記録 pop43)
-    GE.PLATFORM_10F: ("427e733df2f4230f845adfeffa9de10197c0eb980c4a01bd925d085aef22dae2", 25_302),  # 前の行の注は下  # 〔2-4 V1〕前 78399f8cedec1c62518b86d600200537f67b532a8500e337feebc17469e48b41 / 25_082  # 〔2-4 V3〕前 faeacf8cff1f1faec7e0649e6cb569d90b3aba20219cea8e97947c0b4e73db4b / 24_813  # 〔2-4 V4〕前 92179becdd6a2ec90daede8d37d45c2fb7147dc9cf62dd5f0d7245f5c787738a
+    GE.PLATFORM_10F: ("62254dd79a3a272fe339472ccc884d5892c64d1fb3707bb29f0c90591d90238b", 25_302),  # 前の行の注は下  # 〔2-4 V1〕前 78399f8cedec1c62518b86d600200537f67b532a8500e337feebc17469e48b41 / 25_082  # 〔2-4 V3〕前 faeacf8cff1f1faec7e0649e6cb569d90b3aba20219cea8e97947c0b4e73db4b / 24_813  # 〔2-4 V4〕前 92179becdd6a2ec90daede8d37d45c2fb7147dc9cf62dd5f0d7245f5c787738a  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 427e733df2f4230f=SHIBUYA_RULES_42=off で戻る・記録 rules42)
 }
 #: 〔第330・RET〕10e より前の値 ``CLASSICAL_1500_GOLDEN_ACQ_PRE10E``(4f78f3c0…ec00a / 25,808=切替口 hash full・rng stateful・
 #: 旧資産・暦で再現した=ACT の commit で通った)は切替口と一緒に消した。

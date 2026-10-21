@@ -64,6 +64,7 @@ from shibuya.economy.accounts import (
 
 __all__ = [
     "conservation_check",
+    "tax_deposit_check",
     "RESIDUAL_THRESHOLD_RATIO",
     "HOARD_DAYS",
     "FlowCheck",
@@ -458,3 +459,17 @@ def conservation_check(close: Any, cells: Mapping[tuple[int, int, int], FlowKind
         "residual_code": residual_code,
         "ok": bool(residual == 0 and unregistered == 0 and residual_code == 0),
     }
+
+
+def tax_deposit_check(collected: int, remitted: int, held: int) -> dict[str, Any]:
+    """〔第 4 期 4-2・Q1〕店の預かり消費税の検算(保存則の科目「店の預かり消費税」)。
+
+    預かり金は店の現金の中にある(部門の残高の検算 :func:`conservation_check` はそのまま)。ここでは「レジで積んだ額の累計 −
+    期限に政府へ移した額の累計 = 預かり額の合計」を見る(残差 0)。
+
+    Returns:
+        ``{"collected", "remitted", "held", "residual", "ok"}``(円の整数・``ok`` は真偽)。
+    """
+    residual = int(collected) - int(remitted) - int(held)
+    return {"collected": int(collected), "remitted": int(remitted), "held": int(held), "residual": residual,
+            "ok": bool(residual == 0 and int(held) >= 0)}

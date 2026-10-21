@@ -405,7 +405,8 @@ class Ledger:
 
         if self.stage2 is not None:
             raise ValueError("経済の段階 2 の腕はもう挿してある")
-        self.stage2 = _S2.MoneyStage2(plan, n_households=self.sizes[0], n_employers=self.sizes[2])
+        self.stage2 = _S2.MoneyStage2(plan, n_households=self.sizes[0], n_employers=self.sizes[2],
+                                      n_stores=self.sizes[1])  # 〔第 4 期 4-2〕店の預かり消費税の口の数
         self.credit = _CR.CreditBook(capacity=0)
 
     @property

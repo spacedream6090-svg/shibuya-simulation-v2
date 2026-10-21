@@ -1294,6 +1294,18 @@ _EXT: tuple[LedgerRow, ...] = (
         items=("calendar2._c2_issued", "calendar2._c2_issued_n"), arm="calendar-2",
         note="6-2 カレンダー 2: 読み手は監査(試験と記録の道具)と manifest だけ=軸 1 diag。再開したランの監査が通しと同じ=軸 2 "
              "required(C1 の CT1Q と同じ形)"),
+    # ---- 〔第 4 期 4-2〕店の預かり消費税(Q1・腕 SHIBUYA_RULES_42=on のランで税の部品が動くときだけ持ち主がある=腕 off の
+    # ランの 2 つのハッシュと状態のファイルは不変) ----
+    LedgerRow(
+        key="TXD", name="TaxDeposit(店の預かり消費税=課税期間の年 → 店ごとの預かり額・累計・第 4 期 4-2)", place=EXTERNAL,
+        dtype="dict(年 → i8 の配列=店の数)・計数の dict", nbytes="課税期間 1 つあたり 8 B/店(2,337 店で 18.7 KB)",
+        alloc="SHIBUYA_RULES_42=on(既定)", behavior=BEHAVIOR, restore=REQUIRED, dead=False,
+        basis="economy/tax_deposit.py(TaxDeposit.collect・remit_due)・economy/stage2.py(purchase・before_close)",
+        items=("ledger.money.stage2.tax_deposit.held", "ledger.money.stage2.tax_deposit.totals"), arm="rules-42",
+        note="4-2(Q1): レジの税を店の預かり金に積み、申告の期限の日の締めに店 → 政府へ移す。預かり額が期限の納付の額を決める="
+             "軸 1 behavior・積んだ額は作り直せない=軸 2 required。書く系は phase_c(レジ)・day_close と close_final(期限の"
+             "納付)=宣言 TXD:ledger.*。累計(積んだ・移した・移せなかった)は保存則の検算(economy.checks.tax_deposit_check)の"
+             "材料=再開の後も通しと同じ。行の鍵は TXD"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -1485,6 +1497,8 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定(状態台帳の腕の行 CA2*・腕 --calendar-2 arm のランだけ)と子の持ち主
     "calendar2": ("engine/calendar2/layer.py", "Calendar2Layer"),
     "calendar2.book": ("engine/calendar2/book.py", "PromiseBook"),
+    # 〔第 4 期 4-2〕店の預かり消費税(状態台帳の腕の行 TXD・腕 SHIBUYA_RULES_42=on のランだけ)
+    "ledger.money.stage2.tax_deposit": ("economy/tax_deposit.py", "TaxDeposit"),
 }
 
 #: (ii) キャッシュ・導出。中身は 3 通り: (a) 毎 tick(か事象のある tick)作り直す作業の値・印
@@ -1884,6 +1898,8 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "agents", "world", "calendar", "conv", "contact", "runner", "port", "recall"),
     _x("calendar2", CACHE, "6-2 カレンダー 2: その刻みの体ごとの判断の通し番号(刻みの頭で空)", "_codes"),
     _x("calendar2.book", CONST, _FIELD + "(6-2 カレンダー 2: 腕の行の腕の名 LEDGER_ARM)", "LEDGER_ARM"),
+    _x("ledger.money.stage2.tax_deposit", CONST, _CFG + "(4-2: 店の数)・" + _FIELD + "(4-2: 腕の行の腕の名 LEDGER_ARM)",
+       "n", "LEDGER_ARM"),
 )
 
 

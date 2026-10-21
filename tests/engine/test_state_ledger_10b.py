@@ -53,7 +53,7 @@ DEAD5 = ("agents.plan_cursor", "agents.invocation_distance", "agents.wake_pendin
 T7_TARGET_SECONDS = 0.100
 T7_SHARE_CAP = 0.01
 #: T7 で確かめる既定 v3 の final(10e の版上げの段ごとに張り替える)。
-T7_V3_FINAL = "eb759bb4e5be37ec"  # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)で動いた(前 333b1820f7849b00=記録 pop43)  # 〔小さな版上げ・meal_w17〕前 b8eadcb51e8705e7(--meal-default validation で戻る)
+T7_V3_FINAL = "bb86f89855172717"  # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)で動いた(前 333b1820f7849b00=記録 pop43)  # 〔小さな版上げ・meal_w17〕前 b8eadcb51e8705e7(--meal-default validation で戻る)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
 # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧値の腕 --meal-default validation の final の定数 _T7_V3_FINAL_PRE_MEAL_W17(最後の値 5b080133301bf13d=差し替えの世界・前 b8eadcb51e8705e7=W16 の世界)は切替口と一緒に消した(再現は安定版のタグ stable-v2-before-meal-default-w17)
 #: A2 (b): 構成で読み手が変わる 6 列(どの構成でも behavior)。
 A2B_SIX = ("age", "sex", "talk_partner", "weight_kg", "sm_last", "mem_last")
@@ -104,7 +104,9 @@ def test_ledger_has_187_rows_in_two_axes():
     # (どれも diag・discardable=どちらのハッシュにも状態のファイルにも入らない)を 6-2 の C1B・C1BM の後に足して 126・217
     # 〔第 6 期 6-4 C1〕その後に連絡の道具の腕の行 CT1D・CT1A・CT1AS・CT1I・CT1IS・CT1C・CT1K・CT1S・CT1M・CT1G・CT1Q(腕 contact-c1)を足して 137・228
     # 〔第 6 期 6-2 カレンダー 2〕その後に会話から生まれる予定の腕の行 CA2B・CA2O・CA2G・CA2M・CA2Q(腕 calendar-2)を足して 142・233
-    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 142, "soa": 91, "total": 233}
+    # 〔第 4 期 4-2〕その後に店の預かり消費税の腕の行 TXD(behavior・required・腕 rules-42=既定 on のランで持ち主がある)を足して
+    # 143・234(腕 off のランの 2 つのハッシュと状態のファイルは不変・記録 rules42/README.md)
+    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 143, "soa": 91, "total": 234}
     assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
@@ -116,7 +118,8 @@ def test_ledger_has_187_rows_in_two_axes():
                                                                                      "TCR", "TCC", "T3M", "T4W", "CT1D", "CT1A",
                                                                                      "CT1AS", "CT1I", "CT1IS", "CT1C",
                                                                                      "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q",
-                                                                                     "CA2B", "CA2O", "CA2G", "CA2M", "CA2Q"]
+                                                                                     "CA2B", "CA2O", "CA2G", "CA2M", "CA2Q",
+                                                                                     "TXD"]
     assert (SL.row("X").behavior, SL.row("X").restore, SL.row("X").arm) == (SL.DIAG, SL.DISCARDABLE, "")
     assert (SL.row("BW").behavior, SL.row("BW").restore, SL.row("BW").arm) == (SL.DIAG, SL.DISCARDABLE, "")
     assert (SL.row("E").behavior, SL.row("E").restore) == (SL.DIAG, SL.DISCARDABLE)
@@ -134,7 +137,8 @@ def test_ledger_has_187_rows_in_two_axes():
     # 〔第 6 期 6-3〕その後に TCR・TCC・T3M・T4W
     assert [r.key for r in SL.LEDGER if r.arm] == ["S8", "S8M", "M0L", "M0M", "M0C", "M0S", "C1B", "C1BM",
                                                    "TCR", "TCC", "T3M", "T4W", "CT1D", "CT1A", "CT1AS", "CT1I", "CT1IS", "CT1C", "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q",  # 〔6-4 C1〕
-                                                   "CA2B", "CA2O", "CA2G", "CA2M", "CA2Q"]  # 〔6-2 カレンダー 2〕
+                                                   "CA2B", "CA2O", "CA2G", "CA2M", "CA2Q",  # 〔6-2 カレンダー 2〕
+                                                   "TXD"]  # 〔第 4 期 4-2〕店の預かり消費税(腕 rules-42)
     for k, arm in (("TCR", "talk-clock"), ("TCC", "talk-clock"), ("T3M", "step-scope"), ("T4W", "clock-regional")):
         assert (SL.row(k).behavior, SL.row(k).restore, SL.row(k).arm) == (SL.DIAG, SL.DISCARDABLE, arm), k
     assert (SL.row("PX").behavior, SL.row("PX").restore, SL.row("PX").items) == (SL.DIAG, SL.DISCARDABLE,

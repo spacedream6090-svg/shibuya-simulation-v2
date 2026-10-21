@@ -105,8 +105,10 @@ def test_all_parts_move_money_and_keep_the_books(on_run):
     # 引き出し・カード・税・来街者の口座
     assert run["withdraw"]["count"] > 0 and run["withdraw"]["amount"] > 0
     assert run["payment"]["account_rows"] > 0 and run["payment"]["account_amount"] > 0
-    assert run["tax"]["amount"] > 0 and _flow(led, AccountCode.TAX, S, G) == run["tax"]["amount"]
-    assert int(np.asarray(led.balance(BalanceLine.CASH, G))[0]) == run["tax"]["amount"]
+    # 〔第 4 期 4-2・Q1〕レジの税は店の預かり金に積む(期限 2027-03-31 の前=政府へは移らない)・政府に入るのは給料日の天引き
+    assert run["tax"]["amount"] > 0 and _flow(led, AccountCode.TAX, S, G) == 0
+    assert led.stage2.tax_deposit.held_total() == run["tax"]["amount"]
+    assert int(np.asarray(led.balance(BalanceLine.CASH, G))[0]) == run["wages"]["employee_amount"] > 0
     assert run["endow"]["visitor_rows"] > 0
     kinds = led.stage2.kinds
     dep = np.asarray(led.balance(BalanceLine.DEPOSIT, H))
@@ -143,8 +145,9 @@ def test_turning_one_part_off_zeroes_its_flow(arm, off):
     if off == "payment":
         assert run["payment"]["account_rows"] == 0 and run["payment"]["fare_ic_rows"] == 0
         assert run["payment"]["cash_rows"] > 0
-    if off == "tax":
-        assert _flow(led, AccountCode.TAX) == 0 and run["tax"]["amount"] == 0
+    if off == "tax":  # 〔第 4 期 4-2〕税の科目に残るのは給料日の天引き(世帯 → 政府)だけ
+        assert _flow(led, AccountCode.TAX, S, G) == 0 and run["tax"]["amount"] == 0
+        assert _flow(led, AccountCode.TAX) == run["wages"]["employee_amount"] and led.stage2.tax_deposit is None
     if off == "visitors":
         dep = np.asarray(led.balance(BalanceLine.DEPOSIT, H))
         vis = np.isin(led.stage2.kinds, S2.VISITOR_KINDS)

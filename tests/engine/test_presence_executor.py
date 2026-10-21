@@ -134,12 +134,12 @@ W17_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     # 〔第 4 期 4-3 段 10・版上げ 3 回目〕02114fb577f3 = 差し替えの世界(W16 を W21 に)の W17(残す W16 の体の行+W21 の体へ
     # 提供者の行の写し=記録 pop43)。5,000 体・seed 1・1 日の値は親の検収の前の実装役の実測(記録 pop43 §16)。
     "02114fb577f3": {
-        "null_arm_final": "90582d704a6d2dcb", "null_arm_llm_calls": 97_250,
-        "null_arm_final_hunger_v1": "09c7907e713e40e6", "null_arm_llm_calls_hunger_v1": 95_208,  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 f2d9ae6144d0e8ad / 95_054=退去の効果 off)
-        "null_arm_final_l4x1": "2a4e22a1554081a8", "null_arm_llm_calls_l4x1": 41_089,  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 2a4e22a1554081a8 / 41_089=退去の効果 off)
-        "v3_default_final": "eb759bb4e5be37ec", "v3_default_llm_calls": 63_572,
-        "v3_default_final_hunger_v1": "4c71d4d44f9f7c57", "v3_default_llm_calls_hunger_v1": 63_618,  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 938434492bf062bd / 63_600=退去の効果 off)
-        "v3_default_final_l4x1": "aea727f0a508f2c7", "v3_default_llm_calls_l4x1": 36_759,  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 bec0c89bf3ebbf8b / 36_759=退去の効果 off)
+        "null_arm_final": "dcebb7c1d04b9d27", "null_arm_llm_calls": 97_250,  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 90582d704a6d2dcb=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+        "null_arm_final_hunger_v1": "730512bf7cc6b877", "null_arm_llm_calls_hunger_v1": 95_208,  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 f2d9ae6144d0e8ad / 95_054=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 09c7907e713e40e6=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+        "null_arm_final_l4x1": "b239860914d1a3b0", "null_arm_llm_calls_l4x1": 41_089,  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 b239860914d1a3b0 / 41_089=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 2a4e22a1554081a8=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+        "v3_default_final": "bb86f89855172717", "v3_default_llm_calls": 63_572,  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+        "v3_default_final_hunger_v1": "2e5ba0c90fc90099", "v3_default_llm_calls_hunger_v1": 63_618,  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 938434492bf062bd / 63_600=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 4c71d4d44f9f7c57=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+        "v3_default_final_l4x1": "b698b0e54a588536", "v3_default_llm_calls_l4x1": 36_759,  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 bec0c89bf3ebbf8b / 36_759=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 aea727f0a508f2c7=SHIBUYA_RULES_42=off で戻る・記録 rules42)
         "v1_outside_blocks": 522_182, "v1_outside_dist": [82, 137_156, 117_612, 43_787],
         "s5000_v1": {"n_blocks": 8_697, "zero": 1, "outside": 7_730, "in": 967},
         "s5000_v2": {"n_blocks": 6_413, "zero": 136, "outside": 5_446, "in": 967},

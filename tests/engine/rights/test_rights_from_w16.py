@@ -57,8 +57,9 @@ def test_the_four_contents_and_their_blanks(full):
     c = led.tally()
     n_org = int(np.count_nonzero(org >= 0))
     n_staff = n_poi if np.any(pop.kind == 2) else 0
-    assert c["by_kind"] == {"own": 0, "lease": n_poi, "employ": n_org + n_staff, "licence": 0}
-    assert c["by_object_kind"] == {"org": n_org, "store": n_staff, "parcel": n_poi, "dwelling": 0}
+    assert c["by_kind"] == {"own": 0, "lease": n_poi, "employ": n_org + n_staff, "licence": 0, "credit": 0}  # 〔4-2〕
+    assert c["by_object_kind"] == {"org": n_org, "store": n_staff, "parcel": n_poi, "dwelling": 0, "road_segment": 0,
+                                   "signboard": 0, "credit_contract": 0}
     assert c["by_source"] == {RI.SOURCE_W16_ORG: n_org, RI.SOURCE_STAFF: n_staff, RI.SOURCE_POI: n_poi}
     assert c["rows"] == len(led) == n_org + n_staff + n_poi
     leases = [r for r in led if r.kind == L.LEASE]
@@ -94,7 +95,8 @@ def test_blank_bridges_are_active_rows_of_the_ledger():
     assert set(RI.BLANK_BRIDGES) == {"lease.rent", "licence", "dwelling"}
     for key, rid in RI.BLANK_BRIDGES.items():
         r = led.get(rid)
-        assert r.status == "active" and r.remove_at == "4-2", (key, rid)
+        # 〔第 4 期 4-2・親の判断(問い 8)〕家賃と営業許可の空欄は外す段 7(段 10 の活性化の後に閉じる住まいは 4-2 のまま)
+        assert r.status == "active" and r.remove_at in ("4-2", "7"), (key, rid)
     for rid in ("BR-RIGHTS-LICENCE-BLANK", "BR-RIGHTS-DWELLING-BLANK"):
         assert led.get(rid).code_at == ("src/shibuya/engine/rights/initial.py",)
     with pytest.raises(TypeError):

@@ -20,6 +20,11 @@
   ``org_id``)・``store``=店(POI の番号の店の主体=お金の台帳の店舗の口座と同じ索引)・``parcel``=区画・
   ``dwelling``=住まい。
 - 権利の種類ごとに取れる物の種類は閉じた表 ``OBJECTS_OF_KIND``(MappingProxyType)。
+- 〔第 4 期 4-2・Q3=PENDING 仮-40〕権利の種類に ``credit``(信用の契約=5 つ目・object は信用の器 ``economy.credit.CreditBook``
+  の行=番号の空間 ``credit_contract``・R-118 §4)、物の種類に ``road_segment``(道路の区間=道路の使用と占用の許可)・
+  ``signboard``(看板=屋外広告物の許可)を足した(どれも行は 0 で始める=道路と看板は空間の段=第 5 期・信用は借りる判断の段)。
+  閉じた表の所有に店を足した(``own → store``=W21b の店の持ち主の行 286 が閉じた表の中になる=``in_closed_table`` の列は
+  世界の作り直しまで偽のまま)。許可は店・道路の区間・看板に取れる。番号の空間と種類は末尾に足した=前からの列のコードは不変。
 
 1-5 では権利を変える行動は無い(``grant`` を呼ぶのは世界の組み立てだけ・``revoke`` の呼び手は無い=決定 CP4「権利を
 変える行動は経済の段に合わせて有効にする」)。台帳は状態台帳の除外の一覧で「導出」(開閉の過程の ``rights``=SoA の
@@ -46,8 +51,9 @@ import numpy as np
 from shibuya.core.types import SimTime
 
 __all__ = [
-    "AGENT", "ORG", "STORE", "PARCEL", "DWELLING", "ENTITY_KINDS", "HOLDER_KINDS", "OBJECT_KINDS",
-    "OWN", "LEASE", "EMPLOY", "LICENCE", "KINDS", "KIND_WORDS", "OBJECTS_OF_KIND",
+    "AGENT", "ORG", "STORE", "PARCEL", "DWELLING", "ROAD_SEGMENT", "SIGNBOARD", "CREDIT_CONTRACT", "ENTITY_KINDS",
+    "HOLDER_KINDS", "OBJECT_KINDS",
+    "OWN", "LEASE", "EMPLOY", "LICENCE", "CREDIT", "KINDS", "KIND_WORDS", "OBJECTS_OF_KIND",
     "Ref", "EventId", "Right", "RIGHT_FIELDS", "Rights", "ROW_BYTES",
 ]
 
@@ -56,26 +62,34 @@ ORG: Final[str] = "org"
 STORE: Final[str] = "store"
 PARCEL: Final[str] = "parcel"
 DWELLING: Final[str] = "dwelling"
-#: 番号の空間(並びが列のコード)。
-ENTITY_KINDS: Final[tuple[str, ...]] = (AGENT, ORG, STORE, PARCEL, DWELLING)
+#: 〔第 4 期 4-2・Q3〕道路の区間(道路の使用と占用の許可の対象)・看板(屋外広告物の許可の対象)・信用の契約(信用の器の行)。
+ROAD_SEGMENT: Final[str] = "road_segment"
+SIGNBOARD: Final[str] = "signboard"
+CREDIT_CONTRACT: Final[str] = "credit_contract"
+#: 番号の空間(並びが列のコード・〔4-2〕末尾に 3 つ足した=前の 5 つのコードは不変)。
+ENTITY_KINDS: Final[tuple[str, ...]] = (AGENT, ORG, STORE, PARCEL, DWELLING, ROAD_SEGMENT, SIGNBOARD, CREDIT_CONTRACT)
 #: 権利を持てるもの(体か組織=口の約束 1-5。店は POI の番号の店の主体=組織の 1 つ)。相手(``counterparty``)も同じ。
 HOLDER_KINDS: Final[tuple[str, ...]] = (AGENT, ORG, STORE)
 #: 権利の対象になるもの(店(POI)・区画・組織・住まい=口の約束 1-5)。
-OBJECT_KINDS: Final[tuple[str, ...]] = (ORG, STORE, PARCEL, DWELLING)
+OBJECT_KINDS: Final[tuple[str, ...]] = (ORG, STORE, PARCEL, DWELLING, ROAD_SEGMENT, SIGNBOARD, CREDIT_CONTRACT)
 
 OWN: Final[str] = "own"
 LEASE: Final[str] = "lease"
 EMPLOY: Final[str] = "employ"
 LICENCE: Final[str] = "licence"
-#: 権利の種類(並びが列のコード)。
-KINDS: Final[tuple[str, ...]] = (OWN, LEASE, EMPLOY, LICENCE)
-KIND_WORDS: Final[Mapping[str, str]] = MappingProxyType({OWN: "所有", LEASE: "賃借", EMPLOY: "雇用", LICENCE: "許可"})
-#: 権利の種類ごとに取れる物の種類(閉じた表)。
+#: 〔第 4 期 4-2・Q3〕信用の契約(借り手=体か組織・object=信用の器の行・相手=貸す側=体のない外の組織=空欄)。
+CREDIT: Final[str] = "credit"
+#: 権利の種類(並びが列のコード・〔4-2〕末尾に credit)。
+KINDS: Final[tuple[str, ...]] = (OWN, LEASE, EMPLOY, LICENCE, CREDIT)
+KIND_WORDS: Final[Mapping[str, str]] = MappingProxyType({OWN: "所有", LEASE: "賃借", EMPLOY: "雇用", LICENCE: "許可",
+                                                         CREDIT: "信用"})
+#: 権利の種類ごとに取れる物の種類(閉じた表・〔4-2〕所有に店・許可に道路の区間と看板・信用に信用の契約)。
 OBJECTS_OF_KIND: Final[Mapping[str, tuple[str, ...]]] = MappingProxyType({
-    OWN: (PARCEL, DWELLING),
+    OWN: (PARCEL, DWELLING, STORE),
     LEASE: (PARCEL, DWELLING),
     EMPLOY: (ORG, STORE),
-    LICENCE: (STORE,),
+    LICENCE: (STORE, ROAD_SEGMENT, SIGNBOARD),
+    CREDIT: (CREDIT_CONTRACT,),
 })
 _ENTITY_CODES: Final[Mapping[str, int]] = MappingProxyType({k: i for i, k in enumerate(ENTITY_KINDS)})
 _KIND_CODES: Final[Mapping[str, int]] = MappingProxyType({k: i for i, k in enumerate(KINDS)})
@@ -411,7 +425,7 @@ class Rights:
         return (self.__st._r_holder_id[rows].astype(np.int64), self.__st._r_object_id[rows].astype(np.int64))
 
     def tally(self) -> dict[str, Any]:
-        """行の数と分布(manifest の ``rights`` の中身=計器)。種類は 4 つとも出す(0 も)。"""
+        """行の数と分布(manifest の ``rights`` の中身=計器)。種類は 5 つとも出す(0 も)。"""
         n = self.__st.n
 
         def dist(col: np.ndarray, names: tuple[str, ...]) -> dict[str, int]:

@@ -67,7 +67,8 @@ def test_rule_ids_point_to_the_rules_table(ledger):
     linked = [r for r in ledger if r.rule_id]
     assert [r.id for r in linked] == ["BR-MIN-WAGE-HOURLY-1226"]
     for r in linked:
-        assert r.rule_id in RT.default_rules().ids() and r.remove_at == "4-2"
+        # 〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7(直書きは表に版の無い日の戻り道だけ=外す段が計画に無い)
+        assert r.rule_id in RT.default_rules().ids() and r.remove_at == "7"
     src = (ROOT / "src" / "shibuya" / "economy" / "anchors.py").read_text(encoding="utf-8")
     assert "MIN_WAGE_HOURLY: Final[int] = 1_226" in src
 

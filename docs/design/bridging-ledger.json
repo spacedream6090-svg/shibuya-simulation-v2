@@ -522,8 +522,8 @@
   {
    "id": "W7#1",
    "what": "カテゴリ既定営業時間・価格帯(cat×subcat 44行・感度=既定±2h対照)",
-   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 1 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#1)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)",
-   "remove_at": "4-2",
+   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 1 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#1)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 4-2 で規則の表に営業の規制の行(R-118)を足したが、W7 の営業時間の窓の写し方(地域の別・特別日・青少年条例)の作り直しは計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/field/w7_planspec.py#expedients:f664d646",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -533,8 +533,8 @@
   {
    "id": "W7#2",
    "what": "18歳未満の立入制限(青少年条例16条)は営業時間の窓として当てない(D-W8 の閉店上限欄=—)",
-   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 2 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#2)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)",
-   "remove_at": "4-2",
+   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 2 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#2)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 4-2 で規則の表に営業の規制の行(R-118)を足したが、W7 の営業時間の窓の写し方(地域の別・特別日・青少年条例)の作り直しは計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/field/w7_planspec.py#expedients:a9e9ce6e",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -544,8 +544,8 @@
   {
    "id": "W7#3",
    "what": "改訂権者=store_manager 固定",
-   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 3 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#3)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)",
-   "remove_at": "4-2",
+   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 3 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#3)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 4-2 で規則の表に営業の規制の行(R-118)を足したが、W7 の営業時間の窓の写し方(地域の別・特別日・青少年条例)の作り直しは計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/field/w7_planspec.py#expedients:ddcbc196",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -555,8 +555,8 @@
   {
    "id": "W7#4",
    "what": "違反可能性の割当(法規上限のある業態=enforced・それ以外=unenforced)",
-   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 4 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#4)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)",
-   "remove_at": "4-2",
+   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 4 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#4)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 4-2 で規則の表に営業の規制の行(R-118)を足したが、W7 の営業時間の窓の写し方(地域の別・特別日・青少年条例)の作り直しは計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/field/w7_planspec.py#expedients:b9eef330",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -566,8 +566,8 @@
   {
    "id": "W7#5",
    "what": "love_hotel は旅館業/店舗型性風俗の判定不能→上限なし",
-   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 5 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#5)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)",
-   "remove_at": "4-2",
+   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 5 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#5)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 4-2 で規則の表に営業の規制の行(R-118)を足したが、W7 の営業時間の窓の写し方(地域の別・特別日・青少年条例)の作り直しは計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/field/w7_planspec.py#expedients:a16ca936",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -577,8 +577,8 @@
   {
    "id": "W7#6",
    "what": "接待飲食等(1-3号)は OSM タグに現れず nightlife 既定=深夜酒類提供(上限なし)",
-   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 6 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#6)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)",
-   "remove_at": "4-2",
+   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 6 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#6)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 4-2 で規則の表に営業の規制の行(R-118)を足したが、W7 の営業時間の窓の写し方(地域の別・特別日・青少年条例)の作り直しは計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/field/w7_planspec.py#expedients:f74b6302",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -588,8 +588,8 @@
   {
    "id": "W7#7",
    "what": "PH(祝日)規則は週表(content)に写像せず、祝日の 1 日ぶんの区間を列 holiday_content に置く(第330 B6・PH の規則の無い POI は空文字=エンジンの祝日の扱いの宣言に従う)。SH(学校休業日)は無視",
-   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 7 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#7)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)",
-   "remove_at": "4-2",
+   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 7 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#7)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 4-2 で規則の表に営業の規制の行(R-118)を足したが、W7 の営業時間の窓の写し方(地域の別・特別日・青少年条例)の作り直しは計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/field/w7_planspec.py#expedients:c4b6d7c7",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -599,8 +599,8 @@
   {
    "id": "W7#8",
    "what": "チェーン既定=OSM 実値の brand 内最頻伝播(公式表の手入力は未取得=空表)",
-   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 8 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#8)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)",
-   "remove_at": "4-2",
+   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 8 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#8)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 4-2 で規則の表に営業の規制の行(R-118)を足したが、W7 の営業時間の窓の写し方(地域の別・特別日・青少年条例)の作り直しは計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/field/w7_planspec.py#expedients:d474574e",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -610,8 +610,8 @@
   {
    "id": "W7#9",
    "what": "**地域条件なしの一律適用**(D-72 ①): 1-3号・5号・深夜酒類提供の窓は営業延長許容地域/住居集合地域の別で決まる(条例4条の2第2項・5条 表・15条)が、law_key_for は cat・subcat・OSM タグだけで決めて全 POI に同じ窓を当てる。告示26町丁の外の54町丁では 1-3号・5号の上限は 0:00(60分厳しい)・住居集合地域では 23:00・深夜酒類は 0:00-6:00 禁止。許容地域の外縁は規則5条ただし書の 20m 緩衝帯で削られる(幹線道路50mは除外しない)。座標・町丁・用途地域を見ないので世界の営業時間が告示外で 60〜120 分ずれる",
-   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 9 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#9)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)",
-   "remove_at": "4-2",
+   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 9 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#9)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 4-2 で規則の表に営業の規制の行(R-118)を足したが、W7 の営業時間の窓の写し方(地域の別・特別日・青少年条例)の作り直しは計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/field/w7_planspec.py#expedients:80b22e18",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -621,8 +621,8 @@
   {
    "id": "W7#10",
    "what": "**特別日なし**(D-72 ⑦): 条例4条の2第1項・4条の3第1号・規則6条1項の「習俗的行事等の特別の事情のある日」の延長(許容地域外でも 1:00 または告示の時)を実装していない。スナップショット日が特別日でなければ無害",
-   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 10 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#10)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)",
-   "remove_at": "4-2",
+   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 10 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#10)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 4-2 で規則の表に営業の規制の行(R-118)を足したが、W7 の営業時間の窓の写し方(地域の別・特別日・青少年条例)の作り直しは計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/field/w7_planspec.py#expedients:2263be74",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -632,8 +632,8 @@
   {
    "id": "W7#11",
    "what": "**青少年条例16条1項の一・二号が未写像**(D-72 ⑧): minor_entry_limit はkaraoke/net_cafe/internet_cafe(三・四号)だけに当たっており、一 興行場(映画館等)・二 ボウリング/スケート/水泳施設が対象に入っていない(写像の追加は W7 の再構築が要るので本修正では行わない)",
-   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 11 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#11)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)",
-   "remove_at": "4-2",
+   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 11 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#11)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 4-2 で規則の表に営業の規制の行(R-118)を足したが、W7 の営業時間の窓の写し方(地域の別・特別日・青少年条例)の作り直しは計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/field/w7_planspec.py#expedients:87af98bb",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -643,8 +643,8 @@
   {
    "id": "W7#12",
    "what": "**D-W8 表にあってコードに無い 2 行=未実装**(D-72 ④): 条例8条(16歳未満のゲームセンター 18:00-22:00 保護者同伴)・条例6条(騒音 dB)",
-   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 12 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#12)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)",
-   "remove_at": "4-2",
+   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 12 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#12)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 4-2 で規則の表に営業の規制の行(R-118)を足したが、W7 の営業時間の窓の写し方(地域の別・特別日・青少年条例)の作り直しは計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/field/w7_planspec.py#expedients:7c8b071f",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -654,8 +654,8 @@
   {
    "id": "W7#13",
    "what": "**violability の修正は保留**(D-72 ③): minor_entry_limit は罰則つき(青少年条例26条六号・30万円以下の罰金)なので enforced 相当だが、窓が空のため現在は unenforced と記録される。violability は生成列で、直すと 18 行が動く=W7 の再構築が要るため親判断待ち",
-   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 13 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#13)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)",
-   "remove_at": "4-2",
+   "why": "構築の段 W7 が宣言した近似(StageResult.expedients の 13 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W7#13)。外す段: 4-2 権利台帳と規則の表の中身(営業の規制・機械が守らせる/人が取り締まるの分け)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 4-2 で規則の表に営業の規制の行(R-118)を足したが、W7 の営業時間の窓の写し方(地域の別・特別日・青少年条例)の作り直しは計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/field/w7_planspec.py#expedients:eb211d72",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -1812,8 +1812,8 @@
   {
    "id": "BR-RENT-BLANK",
    "what": "店の賃借の家賃は空欄(家賃の科目はあるが、払う行為が無い)",
-   "why": "権利台帳の最初の中身=店の賃借は区画にいること(家賃は空欄・宣言)(10-12 §4-5 CP4・計画 1-5)。家賃の額は 4-2(権利台帳と規則の表の中身=賃貸借)で入れる",
-   "remove_at": "4-2",
+   "why": "権利台帳の最初の中身=店の賃借は区画にいること(家賃は空欄・宣言)(10-12 §4-5 CP4・計画 1-5)。家賃の額は 4-2(権利台帳と規則の表の中身=賃貸借)で入れる〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 家賃の水準と事業所の賃借の割合は公的な統計が無い(R-118 §2-2・§8 の 3)=計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "docs/design/v2-wallbounce-decisions-2026-10-12.md §4-5 CP4",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -2145,8 +2145,8 @@
   {
    "id": "HD-build.field.w7_planspec-e861a776",
    "what": "src/shibuya/build/field/w7_planspec.py の docstring の見出し「expedient(全文は ``EXPEDIENTS``=段階ヘッダに載る台帳。ここは要旨)」の下の項 7 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334・同じファイルの StageResult.expedients の要旨(項は第 2 形の行と重なる))。外す段: 4-2 権利台帳と規則の表の中身(営業の規制)",
-   "remove_at": "4-2",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334・同じファイルの StageResult.expedients の要旨(項は第 2 形の行と重なる))。外す段: 4-2 権利台帳と規則の表の中身(営業の規制)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: W7 の見出し=W7#1〜13 と同じ理由(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/field/w7_planspec.py#heading:e861a776",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -2944,8 +2944,8 @@
   {
    "id": "HD-world.processes.records-6ad4df73",
    "what": "src/shibuya/world/processes/records.py の docstring の見出し「expedient(本モジュール分・CLAUDE.md §4)」の下の項 3 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 4-2 規則の表の中身(PlanSpec の軸)",
-   "remove_at": "4-2",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 4-2 規則の表の中身(PlanSpec の軸)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: PlanSpec の軸(規則の表の kind=machine/human/norm)は 4-2 で器を作ったが、PlanSpec への写しは計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/world/processes/records.py#heading:6ad4df73",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3164,8 +3164,8 @@
   {
    "id": "PR-plan.opening_hours",
    "what": "PlanSpec plan.opening_hours(mechanism=False・executor=-・感度 AB-OPENING-TABLE・返済期限「Phase 3(POI 営業時間の実データ取得後・既定表は expedient)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(POI 営業時間の実データ取得後・既定表は expedient)」はデータの取得待ち=話題で当てた: 4-2 規則の表の中身(営業時間=W7 と同じ段)",
-   "remove_at": "4-2",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(POI 営業時間の実データ取得後・既定表は expedient)」はデータの取得待ち=話題で当てた: 4-2 規則の表の中身(営業時間=W7 と同じ段)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 営業時間の実データ(W7 と同じ)=計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:plan.opening_hours",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3283,13 +3283,13 @@
   {
    "id": "BR-MIN-WAGE-HOURLY-1226",
    "what": "economy/anchors.py の MIN_WAGE_HOURLY = 1_226(東京都の最低賃金の直書き=世界の時点の値)",
-   "why": "口の約束 1-4 の約束 (1)「既存の直書きの係数は 4-2 まで残す=つなぎとして台帳へ」。規則の表の minimum_wage.tokyo(1,280 円・2026-10-01〜)に結ぶ。1,226 円の版は R-106 で △=4-2 で表に足して読み替える(検収 L7)〔第337・2026-10-18〕1,226 円(2025-10-03〜)と 1,163 円(2024-10-01〜)の版を親の一次確認で表に足した=表に版のある日は表の値を読む。直書きは版の無い日(2024-10-01 より前)の戻り道だけに残る(最低賃金の床=anchors.min_wage_floor は直書きに戻らない)",
-   "remove_at": "4-2",
+   "why": "口の約束 1-4 の約束 (1)「既存の直書きの係数は 4-2 まで残す=つなぎとして台帳へ」。規則の表の minimum_wage.tokyo(1,280 円・2026-10-01〜)に結ぶ。1,226 円の版は R-106 で △=4-2 で表に足して読み替える(検収 L7)〔第337・2026-10-18〕1,226 円(2025-10-03〜)と 1,163 円(2024-10-01〜)の版を親の一次確認で表に足した=表に版のある日は表の値を読む。直書きは版の無い日(2024-10-01 より前)の戻り道だけに残る(最低賃金の床=anchors.min_wage_floor は直書きに戻らない)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 直書きは表に版の無い日(2024-10-01 より前)の戻り道だけ=外す段が計画に無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "docs/design/v2-foundation-contracts-2026-10-13.md 1-4 約束 (1)",
    "conf": "expedient",
    "since": "2026-10-14",
    "status": "active",
-   "remove_basis": "plan",
+   "remove_basis": "inferred",
    "code_at": [
     "src/shibuya/economy/anchors.py"
    ],
@@ -3364,13 +3364,13 @@
   {
    "id": "BR-RIGHTS-LICENCE-BLANK",
    "what": "権利台帳の営業許可(licence)の行は 0(空欄)。渋谷区の「食品等営業許可・届出一覧」(SHIBUYA OPEN DATA・CC BY 4.0・39,304 件)は記録の上ではあるが取得していない。POI と突き合わせる規則も決まっていない",
-   "why": "口の約束 1-5〔決定(回答 10-13b §3)〕営業許可のオープンデータは許可の一覧の中で探し、無ければ空。記録(R-76 #17・R-106 §2-1 の表)では一覧はあるが data/ に取得の記録が無い=空にして宣言(取得は親に頼む・記録 r15/README.md §2)。中身は 4-2(権利台帳の中身=営業許可・計画 4-2)",
-   "remove_at": "4-2",
+   "why": "口の約束 1-5〔決定(回答 10-13b §3)〕営業許可のオープンデータは許可の一覧の中で探し、無ければ空。記録(R-76 #17・R-106 §2-1 の表)では一覧はあるが data/ に取得の記録が無い=空にして宣言(取得は親に頼む・記録 r15/README.md §2)。中身は 4-2(権利台帳の中身=営業許可・計画 4-2)〔第 4 期 4-2・Q5=PENDING 仮-40〕区の「食品等営業許可・届出一覧」の取得はこの段ではしない(行は空のまま=後の段)。外す段の付け直しは親の判断(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §問い)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: Q5=区の営業許可一覧の取得はこの段ではしない(取得の判断が計画に無い)(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "docs/design/v2-foundation-contracts-2026-10-13.md §1-5",
    "conf": "expedient",
    "since": "2026-10-14",
    "status": "active",
-   "remove_basis": "plan",
+   "remove_basis": "inferred",
    "code_at": [
     "src/shibuya/engine/rights/initial.py"
    ]
@@ -3378,7 +3378,7 @@
   {
    "id": "BR-RIGHTS-DWELLING-BLANK",
    "what": "権利台帳の住まい(持ち家=所有・借家=賃借)の行は 0(空欄)。国勢調査の住宅の所有の関係(表 18-4・町丁目)は表の場所だけ分かり、値は未取得",
-   "why": "計画 1-5 の最初の中身「住まい=国勢調査の割合」(決定 10-12 §4-5 CP4)。割合の出どころが無いので行を作らない(R-106 §2-1 の表 #40 △=値は未取得)。発注: 住まいの権利は 4-2 で(賃貸借=計画 4-2・持ち家の所有は計画の文に段が無い=実装役が当てた)〔第 4 期 4-1 段 4〜7・W21b〕置き換えの資産ができた(data/world/v2_stage_4-1b の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md)。差し替えは段 10(=4-3)。W21b の権利台帳の開始時点の行に住まい(段 2 の tenure=国勢調査 第7-1表・世帯主 → 住まい)を作った。〔第 4 期 4-3 段 10・pop43〕差し替えの世界(data/world/v2_stage_4-3)では W21b の住まいの行(世帯主 → 住まい=所有と賃借・国勢調査 第7-1表の住宅の所有の関係・27,491 行)を初期の行に入れる(engine.rights.initial の w21_rights_run)=本体の v2 への活性化の後は空欄でない(閉じるのは活性化の後=親)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)",
+   "why": "計画 1-5 の最初の中身「住まい=国勢調査の割合」(決定 10-12 §4-5 CP4)。割合の出どころが無いので行を作らない(R-106 §2-1 の表 #40 △=値は未取得)。発注: 住まいの権利は 4-2 で(賃貸借=計画 4-2・持ち家の所有は計画の文に段が無い=実装役が当てた)〔第 4 期 4-1 段 4〜7・W21b〕置き換えの資産ができた(data/world/v2_stage_4-1b の w21_*・記録 docs/bench/analysis/wallbounce-1012/pop41b/README.md)。差し替えは段 10(=4-3)。W21b の権利台帳の開始時点の行に住まい(段 2 の tenure=国勢調査 第7-1表・世帯主 → 住まい)を作った。〔第 4 期 4-3 段 10・pop43〕差し替えの世界(data/world/v2_stage_4-3)では W21b の住まいの行(世帯主 → 住まい=所有と賃借・国勢調査 第7-1表の住宅の所有の関係・27,491 行)を初期の行に入れる(engine.rights.initial の w21_rights_run)=本体の v2 への活性化の後は空欄でない(閉じるのは活性化の後=親)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)〔第 4 期 4-2・親の判断(問い 8)〕段 10 の差し替えの活性化の後に閉じる行(親の判断待ち)=今の段のまま(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
    "remove_at": "4-2",
    "declared_in": "docs/design/v2-implementation-plan-2026-10-12.md 第 1 期 1-5",
    "conf": "expedient",
@@ -3461,8 +3461,8 @@
   {
    "id": "BR-PHONE-TABLE-BLANK",
    "what": "店の番号の場所の表(engine.tools.places.PhoneTable)は空。読み口 phone_of は全部 None。OSM の phone タグを持つ要素の数は数えた(記録 c0/README.md §5)。w6_poi.parquet には OSM の番号の列が無いが、元の JSON(shibuya_osm_wide_v8.json の pois)の行の並びで OSM の番号に結べる見込み(2,259 行・phone 477 行=記録 c0/README.md §5)。2-4 で確かめる",
-   "why": "口の約束 1-7〔決定(回答 10-13b §3)〕店の番号の場所の表は OSM の phone タグから作る(ライセンスを増やさない)。発注(第 1 期 1-7)=データの資産は本段では作らず、構築の段(W6 の POI)に欄を足す形で版上げ 2 回目に埋める(OSM の番号で結べない行の扱いはその前に決める)。外す段: 2-4(版上げ 2 回目)〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2",
-   "remove_at": "4-2",
+   "why": "口の約束 1-7〔決定(回答 10-13b §3)〕店の番号の場所の表は OSM の phone タグから作る(ライセンスを増やさない)。発注(第 1 期 1-7)=データの資産は本段では作らず、構築の段(W6 の POI)に欄を足す形で版上げ 2 回目に埋める(OSM の番号で結べない行の扱いはその前に決める)。外す段: 2-4(版上げ 2 回目)〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 店の番号の表は W6 の POI の欄を足す段=計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "docs/design/v2-foundation-contracts-2026-10-13.md §1-7",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3638,8 +3638,8 @@
   {
    "id": "DOC-ec21-payday-25",
    "what": "給料日=毎月 25 日(土休なら前の営業日=暦の口 SimCalendar.is_payday)・日の締めで払う",
-   "why": "2-1(EC4)。多くの企業の慣行として置いた値で出典は無い(未リサーチ)。雇用契約ごとの給料日は規則と権利の中身の段で契約の欄にする",
-   "remove_at": "4-2",
+   "why": "2-1(EC4)。多くの企業の慣行として置いた値で出典は無い(未リサーチ)。雇用契約ごとの給料日は規則と権利の中身の段で契約の欄にする〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 給料日は雇用契約の欄にする段(R-118 §5 ⑨=法は毎月 1 回以上・一定の期日だけ)=計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3653,8 +3653,8 @@
   {
    "id": "DOC-ec21-atm-fixture",
    "what": "ATM の表(Fixtures.atms)は組み立てで OSM の amenity=atm・atm=yes・amenity=bank(銀行の支店=atm の印に関わらず全部・検収 L3)の 55 点から作る(セル・営業時間・銀行名は持たない)",
-   "why": "2-1(EC4「ATM は実データ(場所・営業時間)」)。世界の資産(W6 の POI)に ATM の行が無いため、取得物(poi_tags_overpass_20260928.json・poi_opening_hours_overpass_20260907.json・ODbL)から組み立てで写す。2-4 で W6 の POI に ATM の行を足して外す〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2",
-   "remove_at": "4-2",
+   "why": "2-1(EC4「ATM は実データ(場所・営業時間)」)。世界の資産(W6 の POI)に ATM の行が無いため、取得物(poi_tags_overpass_20260928.json・poi_opening_hours_overpass_20260907.json・ODbL)から組み立てで写す。2-4 で W6 の POI に ATM の行を足して外す〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: W6 の POI に ATM の行を足す段=計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3667,8 +3667,8 @@
   {
    "id": "DOC-ec21-atm-hours-and-cells",
    "what": "営業時間の無い ATM(単独の ATM・店の中の ATM)は 24 時間・祝日は曜日の規則のまま(OSM の PH を読まない)・セルは地上の層を先に",
-   "why": "2-1。55 点のうち営業時間のある点は一部(24/7 と Mo-Fr 09:00-15:00 だけ)。〔検収 L3〕atm の印の無い銀行を外した理由(窓口だけ)は確かめていなかった=銀行の支店は全部入れ、営業時間の無い支店は DOC-ec21-bank-branch-default-hours。W6 の POI に ATM の行を足す段で営業時間の出どころと合わせて見直す〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2",
-   "remove_at": "4-2",
+   "why": "2-1。55 点のうち営業時間のある点は一部(24/7 と Mo-Fr 09:00-15:00 だけ)。〔検収 L3〕atm の印の無い銀行を外した理由(窓口だけ)は確かめていなかった=銀行の支店は全部入れ、営業時間の無い支店は DOC-ec21-bank-branch-default-hours。W6 の POI に ATM の行を足す段で営業時間の出どころと合わせて見直す〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 同上(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3742,8 +3742,8 @@
   {
    "id": "DOC-ec21-employer-funding-exogenous",
    "what": "雇用主(組織・店の担当従業者の店)の賃金の原資=外界 → 雇用主の消費支出(域外の取引先の支払い)で払う賃金と同じ額を給料日に入れる(外生)",
-   "why": "2-1(第 1 陣の「賃金=雇用主から月次(外生)」のまま)。雇用の内生化(第 2 陣)と規則・権利の中身の段で、雇用主の売上と費用から払う形にする",
-   "remove_at": "4-2",
+   "why": "2-1(第 1 陣の「賃金=雇用主から月次(外生)」のまま)。雇用の内生化(第 2 陣)と規則・権利の中身の段で、雇用主の売上と費用から払う形にする〔第 4 期 4-2〕腕 SHIBUYA_RULES_42=on のランは原資=額面+雇用主の社会保険料等の分(雇用主 → 政府へ払う分も外界から入る=外生のまま・記録 docs/bench/analysis/wallbounce-1012/rules42/README.md)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 雇用主の売上の中身(範囲の外の取引先)は計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3757,12 +3757,12 @@
   {
    "id": "DOC-ec21-payroll-deduction-blank",
    "what": "給与の天引き(所得税・住民税・社会保険料)は器だけ=規則の表に行が無い=0。自営業の納税も無い",
-   "why": "2-1(決定 10-12 §4-11 の税)。源泉と特別徴収・社会保険料の表と版は 4-2(E4 の後)で規則の表に入れる",
+   "why": "2-1(決定 10-12 §4-11 の税)。源泉と特別徴収・社会保険料の表と版は 4-2(E4 の後)で規則の表に入れる〔第 4 期 4-2・2026-10-21 外した=removed〕給料日に規則の表の 6 行(源泉所得税=電算機計算の特例・住民税の特別徴収・健保と介護・子ども・子育て支援金・厚年・雇用保険)で天引きし、雇用主の分も払う(economy/taxes.py・economy/stage2.py の _payroll_law・記録 docs/bench/analysis/wallbounce-1012/rules42/README.md)。自営業の納税(国民年金・国保)は本人の行為=human の行のまま",
    "remove_at": "4-2",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "inferred",
    "code_at": [
     "src/shibuya/economy/stage2.py"
@@ -3770,16 +3770,17 @@
   },
   {
    "id": "DOC-ec21-register-tax-rounding",
-   "what": "レジの消費税=税込の額 × 率 / (1 + 率) の切り捨て(1 行ごと)・軽減税率なし(率は規則の表の標準税率 10%)",
-   "why": "2-1(決定 10-12 §4-11 の税「消費税はレジで」)。端数の処理(1 枚につき税率ごとに 1 回)と軽減税率 6.24% は規則の表の中身の段(4-2)",
-   "remove_at": "4-2",
+   "what": "レジの消費税=税込の額 × 率 / (1 + 率) の切り捨て・軽減税率なし(率は規則の表の標準税率 10%)。〔4-2〕端数は規則の表のconsumption_tax.invoice_rounding(1 枚の適格請求書につき税率ごとに 1 回・方法は任意)を読み、1 回の購入=1 枚のレシート=1 つの税率なので 1 回の切り捨て(方法は任意の中から切り捨てを選んだ)=残るのは軽減税率なしだけ",
+   "why": "2-1(決定 10-12 §4-11 の税「消費税はレジで」)。端数の処理(1 枚につき税率ごとに 1 回)と軽減税率 6.24% は規則の表の中身の段(4-2)〔第 4 期 4-2〕端数の決まりは表の行を読む形にした(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md)。軽減税率(consumption_tax.reduced_rate=表に入れた・読み手 economy.taxes.reduced_rate は器=呼び手なし)は品目(飲食料品か)と店内か持ち帰りかの申告が要る=物の段(品目つき)と食事の行動の後(R-118 §7-2)。計画に段が無い=7",
+   "remove_at": "7",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
    "status": "active",
    "remove_basis": "inferred",
    "code_at": [
-    "src/shibuya/economy/stage2.py"
+    "src/shibuya/economy/stage2.py",
+    "src/shibuya/economy/taxes.py"
    ]
   },
   {
@@ -3799,8 +3800,8 @@
   {
    "id": "DOC-ec21-account-two-rows",
    "what": "口座の決済(カード・IC・振込)を「銀行の決済の行(預金純増)+本体の行」の 2 行で書く(世帯の現金は動かない)",
-   "why": "2-1。検算①の「部門ごとの Σ科目 = Δ現金」と預金脚・検算②をそのまま満たす形(未リサーチ)。生ログの行が増える(K17 の係数を腕 on で測る)。預金の流れの表を持つ形に替えるかは版上げ 2 回目で決める〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2",
-   "remove_at": "4-2",
+   "why": "2-1。検算①の「部門ごとの Σ科目 = Δ現金」と預金脚・検算②をそのまま満たす形(未リサーチ)。生ログの行が増える(K17 の係数を腕 on で測る)。預金の流れの表を持つ形に替えるかは版上げ 2 回目で決める〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 預金の流れの表を持つ形に替えるかは計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3813,8 +3814,8 @@
   {
    "id": "DOC-ec21-consumption-pair-for-outside-sales",
    "what": "域外の取引先の支払い(外界 → 店舗・外界 → 雇用主)を科目「消費支出」に載せる(段階 2 の組 STAGE2_PAIRS=腕のランだけ許す)",
-   "why": "2-1。12 科目に「売上・輸出」が無く、科目を足すと流れの表の形(6 × 6 × 15)が変わり既定のランの残高のハッシュが動くため。科目を足すかは版上げ 2 回目で決める〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2",
-   "remove_at": "4-2",
+   "why": "2-1。12 科目に「売上・輸出」が無く、科目を足すと流れの表の形(6 × 6 × 15)が変わり既定のランの残高のハッシュが動くため。科目を足すかは版上げ 2 回目で決める〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 科目を足すかは計画に段が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3843,8 +3844,8 @@
   {
    "id": "DOC-ec21-bank-branch-default-hours",
    "what": "営業時間の無い(読めない)銀行の支店(amenity=bank・55 点のうち 20 点)は平日 9:00-15:00・土日は閉(BANK_DEFAULT_HOURS・祝日は曜日の規則のまま)。atm の印の無い支店も引き出しの場所に入れる(窓口の引き出し)",
-   "why": "2-1・検収 L3(親の判断)。銀行の窓口の一般的な営業時間として置いた値(未リサーチ)。atm=yes で営業時間の無い支店 7 点は前の版の 24 時間から変わる。W6 の POI に営業時間を足す段で外す〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2",
-   "remove_at": "4-2",
+   "why": "2-1・検収 L3(親の判断)。銀行の窓口の一般的な営業時間として置いた値(未リサーチ)。atm=yes で営業時間の無い支店 7 点は前の版の 24 時間から変わる。W6 の POI に営業時間を足す段で外す〔第334・2-4〕外す段を改めた(親)=2-4 → 4-2〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 同上(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ec21/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -3977,8 +3978,8 @@
   {
    "id": "DOC-cf33-l4-declared",
    "what": "改変の水準 L4(運賃・運休・新しい店・来る人の構成)は申込書の欄だけ(宣言して未実装)",
-   "why": "第 3 期 3-3。運賃と新しい店は権利台帳と規則の表の中身(4-2)・来る人の構成は人口の作り直し(4-1)の後。外す段は 4-2 で代表させた(1 行に 1 段)",
-   "remove_at": "4-2",
+   "why": "第 3 期 3-3。運賃と新しい店は権利台帳と規則の表の中身(4-2)・来る人の構成は人口の作り直し(4-1)の後。外す段は 4-2 で代表させた(1 行に 1 段)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 運賃と新しい店の改変の水準 L4 は計画に段が無い(4-2 は規則の表の中身だけ)(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "docs/bench/analysis/wallbounce-1012/cf33/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
@@ -5577,13 +5578,13 @@
   {
    "id": "EX-build.pop.w21_build_c-5d13fbc8",
    "what": "権利台帳の体 → 店の雇用の行=店の持ち主の組織に所属した体を組織の店へ順に振る(組織の長 → 部署の長 → 人の番号・店が 2 つ以上なら順に回す)・持ち主の無い店は行なし",
-   "why": "構築の段 W21c が宣言した近似(第 4 期 4-1 段 8〜10・モジュールの表 W21C_EXPEDIENTS の 11 番目・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。外す段: 段 10(=4-3・W16 の差し替え=版上げ 3 回目)で口と行を決め直す〔第 4 期 4-3 段 10・pop43〕外す段を 4-3 → 4-2: 段 10 でこの規則のまま初期の行に入れた(店の持ち主の組織の所属を振る)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)",
-   "remove_at": "4-2",
+   "why": "構築の段 W21c が宣言した近似(第 4 期 4-1 段 8〜10・モジュールの表 W21C_EXPEDIENTS の 11 番目・記録 docs/bench/analysis/wallbounce-1012/pop41c/README.md)。外す段: 段 10(=4-3・W16 の差し替え=版上げ 3 回目)で口と行を決め直す〔第 4 期 4-3 段 10・pop43〕外す段を 4-3 → 4-2: 段 10 でこの規則のまま初期の行に入れた(店の持ち主の組織の所属を振る)(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)〔第 4 期 4-2・親の判断(問い 7)〕店の持ち主の行(閉じた表に own → store を足した=初期の行は段 10 のまま)に依る=外す段を次の版上げに付け直した(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "next-bump",
    "declared_in": "src/shibuya/build/pop/w21_build_c.py#expedients:5d13fbc8",
    "conf": "expedient",
    "since": "2026-10-15",
    "status": "active",
-   "remove_basis": "inferred"
+   "remove_basis": "plan"
   },
   {
    "id": "EX-build.pop.w21_build_c-2379ec13",
@@ -5823,8 +5824,8 @@
   {
    "id": "DOC-ca1b-commuter-pass",
    "what": "本人の退出の歩き(自分の路線のホームへ)は計画の退出の印 EXIT_WALK_FLAG を立てる=運賃の免除(定期券の代わり)",
-   "why": "9b の計画の退出の運賃の免除と同じ扱い(所持金が足りない勤め人が帰れなくなる穴を作らない)。支払いの方法と定期券は経済の中身の段",
-   "remove_at": "4-2",
+   "why": "9b の計画の退出の運賃の免除と同じ扱い(所持金が足りない勤め人が帰れなくなる穴を作らない)。支払いの方法と定期券は経済の中身の段〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 定期券(支払いの方法)の段は計画に無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "docs/bench/analysis/wallbounce-1012/ca1b/README.md",
    "conf": "expedient",
    "since": "2026-10-15",
@@ -6731,13 +6732,13 @@
   {
    "id": "EX-build.pop.w21_apply-3c06c862",
    "what": "権利台帳の初期の行=雇用(体 → 組織)は母集団の org_id(W21 の org_index)から今の口で・店の担当(体 → 店)は W21c の 9,833 行(担当のいる 284 店)・担当のいない店は今の丸振り(出どころの語を分ける)・住まい(世帯主 → 住まい=所有と賃借)は W21b の行・店の賃借(店 → 区画)は今の口・店の持ち主(組織 → 店=閉じた表の外)は入れない(PENDING §1-1 の判断の後)",
-   "why": "〔第 4 期 4-3 段 10・pop43〕段 10 の差し替えで宣言した近似(モジュールの表 W21APPLY_EXPEDIENTS の 5 番目・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)。外す段: 第 4 期 4-2(権利台帳と規則の表の中身=閉じた表の店・店の持ち主の行)",
-   "remove_at": "4-2",
+   "why": "〔第 4 期 4-3 段 10・pop43〕段 10 の差し替えで宣言した近似(モジュールの表 W21APPLY_EXPEDIENTS の 5 番目・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)。外す段: 第 4 期 4-2(権利台帳と規則の表の中身=閉じた表の店・店の持ち主の行)〔第 4 期 4-2・親の判断(問い 7)〕店の持ち主の行(閉じた表に own → store を足した=初期の行は段 10 のまま)に依る=外す段を次の版上げに付け直した(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "next-bump",
    "declared_in": "src/shibuya/build/pop/w21_apply.py#expedients:3c06c862",
    "conf": "expedient",
    "since": "2026-10-18",
    "status": "active",
-   "remove_basis": "inferred"
+   "remove_basis": "plan"
   },
   {
    "id": "EX-build.pop.w21_apply-4dfef296",
@@ -6775,8 +6776,8 @@
   {
    "id": "EX-build.pop.w21_apply-0abb5b47",
    "what": "外の雇用主=勤め先のセルはあるが組織の無い W21 の体(段 4 の席の外=席の超過と席の無い業種)に、権利台帳の雇用の行を体 → 組織の番号 2^31−1(閉じた表の外の番号=外の雇用主)で 1 行・給料日の賃金は外界から(登録済みの faucet「域外雇用主の賃金」)・額は W21 の月の賃金=雇用主が権利台帳の中身で埋まるまでのつなぎ(検収 M3・親の判断=仮採用)",
-   "why": "〔第 4 期 4-3 段 10・pop43〕段 10 の差し替えで宣言した近似(モジュールの表 W21APPLY_EXPEDIENTS の 9 番目・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)。外す段: 第 4 期 4-2(権利台帳と規則の表の中身=閉じた表の店・店の持ち主の行)",
-   "remove_at": "4-2",
+   "why": "〔第 4 期 4-3 段 10・pop43〕段 10 の差し替えで宣言した近似(モジュールの表 W21APPLY_EXPEDIENTS の 9 番目・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md)。外す段: 第 4 期 4-2(権利台帳と規則の表の中身=閉じた表の店・店の持ち主の行)〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7: 外の雇用主の口(範囲の外の組織)の作り方は計画に段が無い(4-2 では天引きの加入だけ=DOC-rules42-outside-employer-enrolled)(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
    "declared_in": "src/shibuya/build/pop/w21_apply.py#expedients:0abb5b47",
    "conf": "expedient",
    "since": "2026-10-18",
@@ -6830,8 +6831,8 @@
   {
    "id": "DOC-pop43-store-owner-deferred",
    "what": "店の持ち主の行(組織 → 店の所有=W21b の 286 行・閉じた表の所有の対象に店が無い)は段 10 の初期の行に入れない",
-   "why": "親の判断 仮-33 (3)(PENDING §1-1「閉じた表に店」の判断の後)。記録 docs/bench/analysis/wallbounce-1012/pop43/README.md",
-   "remove_at": "4-2",
+   "why": "親の判断 仮-33 (3)(PENDING §1-1「閉じた表に店」の判断の後)。記録 docs/bench/analysis/wallbounce-1012/pop43/README.md〔第 4 期 4-2・Q3〕閉じた表の所有に店を足した(own → store=engine/rights/ledger.py の OBJECTS_OF_KIND)=閉じた表の外ではなくなった。初期の行は段 10 のまま変えない(発注)=店の持ち主の 286 行は入れないまま。入れる段は親の判断(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §問い)〔第 4 期 4-2・親の判断(問い 7)〕店の持ち主の行(閉じた表に own → store を足した=初期の行は段 10 のまま)に依る=外す段を次の版上げに付け直した(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "next-bump",
    "declared_in": "docs/bench/analysis/wallbounce-1012/pop43/README.md",
    "conf": "expedient",
    "since": "2026-10-18",
@@ -6845,8 +6846,8 @@
   {
    "id": "DOC-pop43-store-round-robin-kept",
    "what": "差し替えの世界で W21c の店の担当のいない店(POI 2,337 のうち 2,053 店)は今の丸振り(種別 従業者の体を店へ決定論で振る)のまま=出どころの語は丸振り(engine.rights.initial.SOURCE_STAFF)・表の担当は w21c の語",
-   "why": "親の判断(検収の問い 6): 担当のいない店の開け閉めがつなぎに落ちないように丸振りを残す。記録 docs/bench/analysis/wallbounce-1012/pop43/README.md",
-   "remove_at": "4-2",
+   "why": "親の判断(検収の問い 6): 担当のいない店の開け閉めがつなぎに落ちないように丸振りを残す。記録 docs/bench/analysis/wallbounce-1012/pop43/README.md〔第 4 期 4-2・親の判断(問い 7)〕店の持ち主の行(閉じた表に own → store を足した=初期の行は段 10 のまま)に依る=外す段を次の版上げに付け直した(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "next-bump",
    "declared_in": "docs/bench/analysis/wallbounce-1012/pop43/README.md",
    "conf": "expedient",
    "since": "2026-10-18",
@@ -7080,6 +7081,237 @@
    "since": "2026-10-21",
    "status": "active",
    "remove_basis": "inferred"
+  },
+  {
+   "id": "DOC-rules42-legacy-switch",
+   "what": "規則の表の中身の腕 SHIBUYA_RULES_42=off(engine/economy_rules.py)=4-2 の前の値の再現(給与の天引き 0・レジの税は売った時点で店 → 政府)のためだけの切替口",
+   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md)",
+   "remove_at": "next-bump",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+   "conf": "expedient",
+   "since": "2026-10-21",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/economy_rules.py",
+    "src/shibuya/economy/stage2.py"
+   ]
+  },
+  {
+   "id": "DOC-rules42-dependents-zero",
+   "what": "源泉所得税の扶養親族等の数=0 人(甲欄・配偶者(特別)控除と扶養控除 31,667 円/人を引かない)・乙欄(2 か所目の給与)は使わない",
+   "why": "扶養控除等申告書の提出は人の行為・体に扶養の数の属性が無い(W21 の世帯の員から作れるが未着手)。R-118 付属の行の note の「属性で代える=expedient の候補」(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+   "conf": "expedient",
+   "since": "2026-10-21",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/taxes.py"
+   ]
+  },
+  {
+   "id": "DOC-rules42-resident-tax-base",
+   "what": "住民税の特別徴収の元の前年の収入=今の月の賃金 × 12(額面)。〔検収 M1〕所得割の元=前年の収入 − 給与所得控除(源泉の別表第一を月の額面に当てた額 × 12)− 社会保険料控除(本人の社会保険料等の月の額 × 12)。基礎控除・調整控除・非課税の限度は入れていない=控除は 2 つだけ=まだ過大の方向。都外に住む体にも東京都の特別区の率と均等割を当てる・月の額は年の額の 12 分の 1 の 1 円未満の切り捨て(6 月分に端数を寄せない)",
+   "why": "Q4=PENDING 仮-40(親の判断・仮採用)。体に前年の所得の履歴が無い(R-118 §5 ⑤)。控除と非課税の限度は R-118 §8 の 12=未確認(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md)〔検収 M1・親の判断〕今ある値で入れられる 2 つの控除だけ入れた。基礎控除・調整控除・非課税の限度は一次の確認の後(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+   "conf": "expedient",
+   "since": "2026-10-21",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/economy/taxes.py"
+   ]
+  },
+  {
+   "id": "DOC-rules42-enrollment-basis",
+   "what": "給与の天引きの加入の判定: 判定の材料(W21b の雇用の行の役割と週の時間の目安)が無い体のうち外の雇用主の体でないもの(W16 の残す体・時間の欄が空の行)は社会保険と雇用保険に未加入(源泉と住民税は天引き)・学生=体の種別 STUDENT だけ・業主と家族従業者と内職は雇われる側でない=天引きなし・役員と代表は時間で判定(雇用保険の役員の除外は入れていない)・31 日以上の雇用の見込みは全員あり・雇用主の被保険者の数=W21b の組織ごとの週 30 時間以上の雇われる側の行の数。〔検収 L2〕厚年と健保の年齢の上限(検収の注の値=厚年 70 歳・健保 75 歳)は一次の確認が無い=入れていない=空欄の宣言",
+   "why": "R-118 §2-3 の加入の範囲(4 分の 3・特定適用事業所 51 人以上・週 20 時間以上・学生でない)の材料がそろっていない分の宣言(発注 4-2 の 2)(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md)〔検収 L2〕年齢の上限の値は R-118 に無い(検収役の記憶の値)=一次の確認の後に規則の表の行へ(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+   "conf": "expedient",
+   "since": "2026-10-21",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/economy_rules.py",
+    "src/shibuya/economy/taxes.py"
+   ]
+  },
+  {
+   "id": "DOC-rules42-full-time-hours",
+   "what": "「通常の労働者」の週の所定労働時間=40 時間(労基法 32 条の上限)=4 分の 3 は 30 時間(社会保険の加入と雇用主の被保険者の数)",
+   "why": "事業所ごとの所定労働時間の資料が無い(R-118 §2-3 の「4 分の 3 未満」の分母)(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+   "conf": "expedient",
+   "since": "2026-10-21",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/economy_rules.py",
+    "src/shibuya/economy/taxes.py"
+   ]
+  },
+  {
+   "id": "DOC-rules42-rounding",
+   "what": "端数: 雇用保険の本人の分も社会保険料と同じ 50 銭の決まり・雇用主の分=全額の 1 円未満の切り捨て − 本人の分(雇用保険の雇用主の分=額面 × 率の切り捨て)・住民税の月の額=年の額 ÷ 12 の切り捨て",
+   "why": "R-118 §8 の 10(雇用保険料の控除の端数は未確認)・額表の注は本人の分だけ。事業主の納付の端数(全員分の合計の扱い)は答申に無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+   "conf": "expedient",
+   "since": "2026-10-21",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/taxes.py"
+   ]
+  },
+  {
+   "id": "DOC-rules42-standard-remuneration-month",
+   "what": "標準報酬月額=今月の額面で毎月決める(定時決定・随時改定なし)・「前月分の保険料を今月の報酬から控除」の 1 か月のずれは入れない(給料日の月の保険料を今月の給料から)",
+   "why": "R-118 §8 の 13(定時決定の時期の一次の頁は未読)・健保法 167 条 1 項と厚年法 84 条 1 項の前月分の控除(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+   "conf": "expedient",
+   "since": "2026-10-21",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/taxes.py",
+    "src/shibuya/economy/stage2.py"
+   ]
+  },
+  {
+   "id": "DOC-rules42-remit-timing",
+   "what": "天引きの納付の時期=給料日の締めに即時(本人の分=世帯の口座 → 政府・雇用主の分=雇用主 → 政府)。現実は源泉と住民税=翌月 10 日・社会保険料=翌月末日(事業主が納める)",
+   "why": "所得税法 183 条 1 項・地方税法 321 条の 5・健保法 164 条(R-106 §3-2)。預かり(事業主の預り金)の口は作っていない(消費税の預かり金だけ Q1)(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+   "conf": "expedient",
+   "since": "2026-10-21",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/stage2.py"
+   ]
+  },
+  {
+   "id": "DOC-rules42-tax-deadline",
+   "what": "店の消費税の課税期間=暦年・申告と納付の期限=翌年 3 月 31 日(個人事業者の決まり)を全部の店に当てる・中間申告なし・期限が土日祝でも動かさない・期限の日の締めに店の現金が足りない分は移せず次の日にまた移す(延滞税なし)。法人の決まり(課税期間の末日の翌日から 2 か月以内・事業年度)は別=入れていない",
+   "why": "Q1=PENDING 仮-40(預かり金に積み申告の期限に納める)。店が法人か個人か・事業年度の資料が無い(R-106 §3-1 の法人=課税期間の末日の翌日から 2 か月以内は使わない)(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+   "conf": "expedient",
+   "since": "2026-10-21",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/tax_deposit.py",
+    "src/shibuya/economy/taxes.py"
+   ]
+  },
+  {
+   "id": "DOC-rules42-card-limit-blank",
+   "what": "カードの枠(割賦販売法 30 条の 2 の 2=包括支払可能見込額 × 大臣の定める割合)の割合は空欄(economy.credit.CARD_LIMIT_RATIO=None)",
+   "why": "R-118 §8 の 14(告示の値は未確認)(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+   "conf": "expedient",
+   "since": "2026-10-21",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/credit.py"
+   ]
+  },
+  {
+   "id": "DOC-rules42-credit-lender-kind",
+   "what": "総量規制の検査の器は貸す側が貸金業者か銀行かを区別しない・除外と例外(規則 10 条の 21・10 条の 23)の号ごとの要件は入れていない・収入の書類は欄だけ(書類の有無は見ない)",
+   "why": "R-118 §2-7(銀行の貸付けは対象外・号ごとの要件は貸す側の判断)。呼び手が無い(借りる判断の段の後)=結果不変(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+   "conf": "expedient",
+   "since": "2026-10-21",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/credit.py"
+   ]
+  },
+  {
+   "id": "DOC-rules42-outside-employer-share",
+   "what": "外の雇用主(閉じた表の外の組織の番号)の体の社会保険料等の雇用主の分は記録しない(範囲の外の組織が範囲の外で払う)・本人の分は世帯の口座 → 政府",
+   "why": "外の雇用主の口は帳簿に無い(段 10 の宣言 EX-build.pop.w21_apply-0abb5b47)。計器 outside_employer_share_not_recorded に額(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+   "conf": "expedient",
+   "since": "2026-10-21",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/stage2.py"
+   ]
+  },
+  {
+   "id": "DOC-rules42-employer-levy-missing",
+   "what": "子ども・子育て拠出金(事業主だけ・厚年の標準報酬 × 0.36%)は天引きの雇用主の分に入れていない=空欄の宣言",
+   "why": "R-118 §2-6 の額表の注(#2)にあるが、19 行と親の一次確認(R-118 §10)の外=親の判断で入れない(一次の確認の後に行を足す)(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+   "conf": "expedient",
+   "since": "2026-10-21",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/taxes.py"
+   ]
+  },
+  {
+   "id": "DOC-rules42-outside-employer-enrolled",
+   "what": "外の雇用主(閉じた表の外の組織の番号)の体は「被保険者 51 人以上の事業所の正社員(週 40 時間)」とみなして社会保険と雇用保険に加入させる(判定の材料=W21b の雇用の行が無い)",
+   "why": "検収 M2・親の判断(材料なし 941 体のうち 715 体=外の雇用主の体が未加入だった)。外の雇用主の雇用の条件の資料が無い(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+   "conf": "expedient",
+   "since": "2026-10-21",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/taxes.py",
+    "src/shibuya/economy/stage2.py"
+   ]
+  },
+  {
+   "id": "DOC-rules42-tax-remit-machine",
+   "what": "消費税の申告と納付(人の手続き=規則の表の consumption_tax.filing_deadline は human)を、店の預かり金を申告の期限の日の締めに機械が店 → 政府へ移す形で代える(読み手は economy.taxes の human の行のつなぎの読み口 _bridge_row)",
+   "why": "検収 L1・親の判断(Q1)。店の持ち主が体で動き、申告して納める行動ができる段=6-6 の人が納める行動(②)で外す(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+   "conf": "expedient",
+   "since": "2026-10-21",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/tax_deposit.py",
+    "src/shibuya/economy/taxes.py"
+   ]
+  },
+  {
+   "id": "DOC-rules42-withholding-special-formula",
+   "what": "源泉所得税は月額表の代わりに電算機計算の特例の式(Q7)。月額表との差は区分の中央で 0〜10 円・端で最大 60 円。105,000 円未満は月額表の甲欄どおり 0 円(差 最大 130 円の帯を除いた=親の判断)",
+   "why": "検収 L9・Q7=PENDING 仮-40(親の判断・仮採用)。どちらも法の認める方法(R-118 §2-6)(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md §11)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+   "conf": "expedient",
+   "since": "2026-10-21",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/taxes.py"
+   ]
   }
  ]
 }

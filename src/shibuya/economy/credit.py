@@ -16,8 +16,14 @@
 に入れていない=呼び手を作る段で登録する(今呼ぶと検算が「登録の無い流れ」で落ちる=試験が確かめる)。状態台帳の行 CR(軸 1 diag=読み手は manifest
 だけ・軸 2 derivable=いつも空・中身は hash_skip)。
 
+〔第 4 期 4-2〕総量規制の検査(:func:`total_volume_check`=貸金業法 13 条の 2 第 2 項・13 条 3 項=規則の表の
+``credit.total_volume_cap``)と利息の上限(:func:`interest_cap_rate`=利息制限法 1 条=``credit.interest_cap``)を器に足した
+(貸す側の機械の検査=決定 10-12 §4-11 C2)。**呼び手は無い**(借りる判断の段の後=結果不変)。除外と例外(規則 10 条の 21・
+10 条の 23)の号ごとの要件は貸す側の判断が入る=入れていない。カードの枠(割賦販売法 30 条の 2 の 2=包括支払可能見込額 ×
+大臣の定める割合)は割合の値が未確認=欄だけ(:data:`CARD_LIMIT_RATIO` は ``None``=空欄・台帳 ``DOC-rules42-card-limit-blank``)。
+
 逐次ループ宣言: ``CreditBook.add`` は 1 行=定数時間(列の倍化は償却)。``repay_due`` は配列演算(返済日の行の数ぶんの
-Python ループ無し)。
+Python ループ無し)。``total_volume_check``・``interest_cap_rate`` は配列演算(上限の帯の数=3 ぶんのループ)。
 """
 
 from __future__ import annotations
@@ -30,7 +36,7 @@ import numpy as np
 from shibuya.economy.accounts import AccountCode, Sector
 
 __all__ = ["KINDS", "KIND_WORDS", "CARD", "MORTGAGE", "CONSUMER", "STORE_LOAN", "LENDER_SECTOR", "CreditBook",
-           "repay_due"]
+           "repay_due", "CARD_LIMIT_RATIO", "TOTAL_VOLUME_KINDS", "total_volume_check", "interest_cap_rate"]
 
 CARD: Final[int] = 0
 MORTGAGE: Final[int] = 1
@@ -41,6 +47,12 @@ KINDS: Final[tuple[int, ...]] = (CARD, MORTGAGE, CONSUMER, STORE_LOAN)
 KIND_WORDS: Final[tuple[str, ...]] = ("カード", "住宅ローン", "消費者ローン", "店の借入")
 #: 貸す側(C2「体のない外の組織」=銀行の部門の口 0)。
 LENDER_SECTOR: Final[int] = int(Sector.BANK)
+#: 〔第 4 期 4-2〕カードの枠の割合(割賦販売法 30 条の 2 の 2 の大臣の定める割合=R-118 §8 の 14=未確認=空欄)。
+CARD_LIMIT_RATIO: Final[None] = None
+#: 〔第 4 期 4-2〕総量規制の対象の貸付の種類(消費者ローン=貸金業者の個人向け。住宅ローンは除外=規則 10 条の 21・カードの
+#: ショッピングは割賦販売法の側・店の借入は個人向けでない=金融庁 Q2-11〜Q2-13)。貸す側が貸金業者か銀行かは区別しない
+#: (銀行のカードローンは対象外=未リサーチ(expedient)の区別なし・台帳 ``DOC-rules42-credit-lender-kind``)。
+TOTAL_VOLUME_KINDS: Final[tuple[int, ...]] = (2,)
 
 _COLS: Final[tuple[tuple[str, type], ...]] = (
     ("kind", np.int8), ("borrower_sector", np.int8), ("borrower", np.int32), ("limit", np.int64),
@@ -141,3 +153,48 @@ def repay_due(book: CreditBook, ledger, day: int, step: int) -> dict[str, int]: 
     out.update(paid=int(ok.sum()), paid_amount=int(amt[ok].sum()), delinquent=int((~ok).sum()),
                delinquent_amount=int(amt[~ok].sum()))
     return out
+
+
+def total_volume_check(annual_income: np.ndarray, balance_all: np.ndarray, balance_this_lender: np.ndarray,
+                       amount: np.ndarray, asof: str) -> dict[str, np.ndarray | str | None]:
+    """〔第 4 期 4-2〕総量規制の検査(貸す側の機械の検査・**呼び手なし**=器)。
+
+    ``annual_income``=年収など・``balance_all``=総量規制の対象の借入れの残高の合計(他社を含む)・``balance_this_lender``=この
+    貸し手の残高・``amount``=新しく貸す額(どれも行ごとの円)。規則の表 ``credit.total_volume_cap`` の ``asof`` の日の版で:
+
+    - ``ok``: 借入れの合計(残高+新しい額)が年収などの 3 分の 1 以下(超えれば貸せない=借り手は処罰されない=Q2-2・Q2-3)。
+    - ``document``: 収入の書類が要るか(この貸し手で 50 万円超、または他社と合わせて 100 万円超=13 条 3 項)=**欄だけ**
+      (書類の有無は本人の持ち物の段の後)。
+
+    行が無い日は ``ok`` 全部真・``document`` 全部偽・``source`` ``"none"``。
+    """
+    from shibuya.economy import taxes as _TX
+
+    inc = np.asarray(annual_income, dtype=np.int64)
+    tot = np.asarray(balance_all, dtype=np.int64) + np.asarray(amount, dtype=np.int64)
+    one = np.asarray(balance_this_lender, dtype=np.int64) + np.asarray(amount, dtype=np.int64)
+    cap = _TX.total_volume_cap(asof)
+    if cap is None:
+        return {"ok": np.ones(inc.shape, dtype=bool), "document": np.zeros(inc.shape, dtype=bool), "source": "none"}
+    r = cap["ratio"]
+    ok = tot * int(r.denominator) <= inc * int(r.numerator)
+    doc = (one > int(cap["document_over_single"])) | (tot > int(cap["document_over_all"]))
+    return {"ok": ok, "document": doc, "source": cap["source"]}
+
+
+def interest_cap_rate(principal: np.ndarray, asof: str) -> tuple[np.ndarray, str]:
+    """〔第 4 期 4-2〕利息制限法 1 条の年率の上限(元本の帯ごと・分母 10,000 の整数=万分率)と出どころ(**呼び手なし**=器)。
+
+    契約の利率が上限を超える部分は無効=機械が上限に置き換える側(R-118 §3 の 2)。行が無い日は −1(上限なし)と ``"none"``。
+    """
+    from shibuya.economy import taxes as _TX
+
+    p = np.asarray(principal, dtype=np.int64)
+    cap = _TX.interest_cap(asof)
+    out = np.full(p.shape, -1, dtype=np.int64)
+    if cap is None:
+        return out, "none"
+    for lo, hi, rate in cap["bands"]:  # 逐次ループ宣言: 上限の帯の数(3)
+        m = (p >= lo) & ((p < hi) if hi is not None else True)
+        out[m] = int(rate * 10_000)
+    return out, str(cap["source"])

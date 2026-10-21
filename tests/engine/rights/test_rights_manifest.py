@@ -47,7 +47,7 @@ def test_values_come_from_the_ledger(res):
     c = led.tally()
     assert {k: m[k] for k in c} == c
     assert m["rows"] == len(led) > 0
-    assert set(m["by_kind"]) == {"own", "lease", "employ", "licence"}
+    assert set(m["by_kind"]) == {"own", "lease", "employ", "licence", "credit"}  # 〔4-2〕credit(行は 0)
     assert m["by_kind"]["licence"] == 0 and m["by_object_kind"]["dwelling"] == 0   # 空欄の 2 つ
     assert m["by_kind"]["lease"] == res.runner.world.n_poi
     assert m["blank_bridges"] == dict(RI.BLANK_BRIDGES)
