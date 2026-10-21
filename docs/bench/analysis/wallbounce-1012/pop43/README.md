@@ -464,12 +464,13 @@ W17 は凍結(CA1)で LLM の生成(GPU が要る)。W21 の人に行が無い�
 - 旧値の再現の試験 → 「切替口が無い・渡すと止まる」試験に置き換え: 食事(`test_removed_switch_env_and_cli_flag_stop` ほか・旧値の腕の 5 本を消した・2 本の腕の parametrize を 1 本に)・賃金(`test_payroll_w17_arm_is_removed`・`test_wage_path_header_and_resume_check`・`test_removed_wage_switch_env_and_cli_flag_stop`・ランの試験は occupation の 1 本に)・退去の効果・対象の決め方(Q13 の legacy の 5,000 体の golden を消した)・近接の並び(古典 1,500 体の 3 行のうち 2 行を消した)・関係(v1 の行を消した)・応答の遅れ(+2 のテープの再生は止まる)・W12(1.1.0 の形の再現の試験を消し、夕ピークの切替口の試験は京王の切替口 off=井の頭線の等間隔で回す)。
 - 生きている切替口(空腹 v1・上限 1.0)の 5,000 体の golden は退去の効果 off を外した今の値に張り替えた(W17 の鍵の 2 行=W16 の世界は退避 `v2_pre_4-3`・W21 の世界は本体の v2 で測った): W21 の世界 帰無腕 空腹 v1 `09c7907e…` / 95,208・v3 `4c71d4d4…` / 63,618・上限 1.0 `2a4e22a1…` / 41,089(同じ)・v3 `aea727f0…` / 36,759。W16 の世界 `73719034…` / 94,249・`825f3dc2…` / 64,183・`ca19a13d…` / 40,976・`8ae5600a…` / 36,225。`*_leave_off` の行は消した。
 - 数の張り替え: `run_day` の引数の数・コードの宣言の数・設定の道筋の digest・manifest の一番上の鍵。
+- 〔親の範囲の試験の後の直し〕`tests/engine/test_energy_balance.py`・`test_meal_bundle_2b.py` が `load_anchors(mode="validation")` で 2 本を読み旧値の腕の模型を作っていた=構築側の 1 本だけを読む形に。既定の時刻を全員 1 つの値にする試験は分布 `_single_distribution`(凍結の表の中央値=1 体の週次表の食事の行)で組み、検証側の錨の値を確かめるケース(第 10 表・第 18-1 表・第 7-1 表の既定の時刻)は消した(検証側のファイルを開かない負の対照は `test_meal_default_w17.py` に残る)。
 
 ### 19-6 試験
 
 | 試験 | 結果 |
 |---|---|
-| 範囲 `tests/engine tests/economy tests/build_pop tests/build_sched tests/c6 tests/c8 tests/tools`(`-n 2 --dist loadfile -m "not slow"`・本体の世界=W21) | **3,998 passed・0 failed**・1 skipped(Ruri の重み) |
+| 範囲 `tests/engine tests/economy tests/build_pop tests/build_sched tests/c6 tests/c8 tests/tools`(`-n 2 --dist loadfile -m "not slow"`・本体の世界=W21) | 前の報告の 3,998 passed は集計の誤り(収集で 2 本の模組が `load_anchors(mode=...)` の `TypeError` で落ちた 8 errors を数えていなかった)。直した後: 収集 4,047(94 deselected)=errors 0 → **4,046 passed・0 failed・0 errors**・1 skipped(Ruri の重み) |
 | 追加の範囲 `tests/perception tests/build_field tests/test_cli*.py tests/vocab tests/llm tests/core`(同じ引数) | 1,029 passed・1 failed・1 xfailed。落ちた 1 本 `test_ab7_seed1_open_matches_the_parent_report` は作業木の data がつなぎ(junction)でテープの相対の道筋が作れない=本体の先端の写し(`ad164ba`)でも同じく落ちる(消した切替口と無関係) |
 | 変えた試験のファイル 22 本の slow | 5 passed |
 | `lint-imports` | 5 契約とも KEPT |

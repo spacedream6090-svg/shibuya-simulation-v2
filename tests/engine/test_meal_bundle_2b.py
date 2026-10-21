@@ -22,21 +22,45 @@ from shibuya.perception import templates as T
 from shibuya.perception.renderer import HUNGER_WORDS_MODES, Renderer, check_hunger_words
 from shibuya.world.state import World
 
-# 〔小さな版上げ・meal_w17〕項 1・項 2 の試験は旧値の腕(validation=前の版の既定の時刻 1 つ)で前の版の挙動を確かめる
-# (既定の腕 w17 の既定の時刻は体ごとの引き=tests/engine/body/test_meal_default_w17.py)
-ANC, ANC_MD5 = E.load_anchors(mode="validation")
+# 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕錨は構築側の 1 本だけ。項 1・項 2 の試験は既定の時刻が全員 1 つの値の分布
+# (``_single_distribution``=凍結の表の中央値)で前の版と同じ形を確かめる(前は旧値の腕 validation=第 18-1 表の時刻 1 つ・
+# 腕は消した)。既定の腕 w17 の体ごとの引きは tests/engine/body/test_meal_default_w17.py
+ANC, ANC_MD5 = E.load_anchors()
 SLEEP, PREP, WORK, EAT = (ACTIVITY_WORDS.index(w) for w in ("就寝", "支度", "勤務", "食事"))
 HOME, OUT, EATERY = (PLACE_WORDS.index(w) for w in ("自宅", "域外", "飲食店"))
 
 
 def model() -> E.EnergyModel:
-    return E.EnergyModel(ANC, ANC_MD5, meal_default="validation")
+    return E.EnergyModel(ANC, ANC_MD5)
 
 
-#: 旧値の腕の既定の時刻[分](朝・昼・夕)。〔meal_w17 検収 L1〕検証側の表の値はソースに写さず、旧値の腕の模型から読む
+#: 既定の時刻の代表値[分](朝・昼・夕=凍結の表の中央値・模型から読む)
 #: (朝は 7:00〜8:00 の間・昼と夕は窓の中=下の合成の体の検算はこの並びに依る)。
 B_MIN, L_MIN, D_MIN = (model().default_meal_min[k] for k in ("breakfast", "lunch", "dinner"))
 assert 7 * 60 < B_MIN < 8 * 60
+
+
+def _single_distribution(b: int, l: int, d: int) -> E.MealStartDistribution:
+    """既定の食事時刻が全員 1 つの値になる分布(1 体・朝昼夕の食事の行 1 本ずつの週次表から)。〔第 4 期 4-3 版上げ 3 回目の
+    第 2 部〕前は旧値の腕 validation(全員 1 つの値)で組んだ=腕を消したので、同じ形を分布で作る。"""
+    eat, out = ACTIVITY_WORDS.index("食事"), PLACE_WORDS.index("域外")
+    starts = (int(b), int(l), int(d))
+    counts = np.zeros(N_DAYS, dtype=np.int64)
+    counts[0] = 3
+    offset = np.zeros(N_DAYS + 1, dtype=np.int64)
+    np.cumsum(counts, out=offset[1:])
+    w = WeeklySchedule(source=None, agent_id=np.arange(1, dtype=np.int64), day_offset=offset,
+                       start_min=np.asarray(starts, dtype=np.int16), end_min=np.asarray([s + 30 for s in starts], dtype=np.int16),
+                       activity=np.full(3, eat, dtype=np.int8), place_kind=np.full(3, out, dtype=np.int8),
+                       target_cell=np.full(3, -1, dtype=np.int32), seq=np.arange(3, dtype=np.int16))
+    return E.MealStartDistribution.from_weekly(w, 0)
+
+SINGLE = _single_distribution(B_MIN, L_MIN, D_MIN)
+
+
+def _oom(*a, **k) -> E.OutOfAreaMeals:
+    """既定の時刻が全員 B_MIN・L_MIN・D_MIN の範囲外の食事の予定(〔第 2 部〕前は旧値の腕の模型で同じ形)。"""
+    return E.OutOfAreaMeals(*a, **{"distribution": SINGLE, **k})
 
 
 def weekly(rows, n_agents: int) -> WeeklySchedule:
@@ -105,7 +129,7 @@ def test_w17_wake_minute_reads_the_sleep_row_and_chains_consecutive_rows():
 # ================================================================= 項 1: 予定の検算
 def test_sleep_defer_on_moves_the_breakfast_to_the_wake_time_inside_the_window():
     w = weekly(ROWS_SLEEP, N_SLEEP)
-    got = run_out_of_area(E.OutOfAreaMeals(model(), N_SLEEP, 1440, weekly=w, sleep_defer="on"))
+    got = run_out_of_area(_oom(model(), N_SLEEP, 1440, weekly=w, sleep_defer="on"))
     breakfast = {a: (t, d) for a, t, s, fr, d in got if s == E.SLOT_BREAKFAST}
     assert breakfast == {
         0: (480, True),   # 既定の朝食の時刻 に就寝中・8:00 に起床 → 8:00 に朝食
@@ -121,21 +145,21 @@ def test_sleep_defer_on_moves_the_breakfast_to_the_wake_time_inside_the_window()
 
 def test_sleep_defer_off_is_the_old_schedule():
     w = weekly(ROWS_SLEEP, N_SLEEP)
-    old = run_out_of_area(E.OutOfAreaMeals(model(), N_SLEEP, 1440, weekly=w))
-    off = run_out_of_area(E.OutOfAreaMeals(model(), N_SLEEP, 1440, weekly=w, sleep_defer="off"))
+    old = run_out_of_area(_oom(model(), N_SLEEP, 1440, weekly=w))
+    off = run_out_of_area(_oom(model(), N_SLEEP, 1440, weekly=w, sleep_defer="off"))
     assert old == off
     assert sorted(a for a, t, s, fr, d in off if s == E.SLOT_BREAKFAST and t == B_MIN) == list(range(N_SLEEP))
     assert not any(d for *_, d in off)
     # due(3 本)は due_with_deferred の先頭 3 本と同じ
-    oom = E.OutOfAreaMeals(model(), N_SLEEP, 1440, weekly=w)
+    oom = _oom(model(), N_SLEEP, 1440, weekly=w)
     ts = np.full(N_SLEEP, 2, dtype=np.int8)
     for t in (B_MIN, L_MIN, D_MIN, 480):
         a3 = oom.due(t, ts)
-        a4 = E.OutOfAreaMeals(model(), N_SLEEP, 1440, weekly=w).due_with_deferred(t, ts)
+        a4 = _oom(model(), N_SLEEP, 1440, weekly=w).due_with_deferred(t, ts)
         for x, y in zip(a3, a4[:3]):
             np.testing.assert_array_equal(x, y)
     with pytest.raises(ValueError):
-        E.OutOfAreaMeals(model(), N_SLEEP, 1440, weekly=w, sleep_defer="yes")
+        _oom(model(), N_SLEEP, 1440, weekly=w, sleep_defer="yes")
 
 
 def test_invariants_awake_inside_window_and_once_per_slot():
@@ -152,7 +176,7 @@ def test_invariants_awake_inside_window_and_once_per_slot():
         if rng.random() < 0.3:
             rows.append((a, 1380, 1440, SLEEP, HOME))
     w = weekly(rows, n)
-    oom = E.OutOfAreaMeals(model(), n, 1440, weekly=w, sleep_defer="on")
+    oom = _oom(model(), n, 1440, weekly=w, sleep_defer="on")
     got = run_out_of_area(oom, transit=np.full(n, 2, dtype=np.int8))
     a = np.asarray([g[0] for g in got])
     t = np.asarray([g[1] for g in got])
@@ -186,7 +210,7 @@ def test_only_bodies_out_of_area_at_the_default_time_are_deferred():
             x[3] = 0  # 体 3 は 8:10 に範囲内へ → 8:20 の起床時に域外でない → 食べない
         return x
 
-    oom = E.OutOfAreaMeals(model(), N_SLEEP, 1440, weekly=w, sleep_defer="on")
+    oom = _oom(model(), N_SLEEP, 1440, weekly=w, sleep_defer="on")
     got = run_out_of_area(oom, transit_fn=ts)
     breakfast = sorted(a for a, t, s, fr, d in got if s == E.SLOT_BREAKFAST)
     assert breakfast == [2, 4]
@@ -213,7 +237,7 @@ def test_three_meal_day_still_closes_to_zero_with_deferred_breakfast():
     w = weekly(ROWS_SLEEP, N_SLEEP)
     for mode in ("off", "on"):
         a, lay = _bodies(N_SLEEP, transit=2)
-        lay.out_of_area = E.OutOfAreaMeals(lay.model, N_SLEEP, 1440, weekly=w, sleep_defer=mode)
+        lay.out_of_area = _oom(lay.model, N_SLEEP, 1440, weekly=w, sleep_defer=mode)
         with a.writable():
             a.energy_balance[:] = 0.0
         for t in range(1440):  # テストの道具
@@ -511,7 +535,7 @@ def test_consecutive_sleep_rows_are_read_as_one_sleep():
     """就寝 0:00〜7:40 と 7:40〜8:20 の 2 本: 既定の朝食の時刻 は 1 本目の中 → 連鎖して 8:20 に起床(つながないと 7:40)。"""
     w = weekly([(0, 0, 460, SLEEP, HOME), (0, 460, 500, SLEEP, HOME), (0, 500, 600, PREP, HOME)], 1)
     assert E.w17_wake_minute(w, 1, 0, np.array([0]), np.array([B_MIN])).tolist() == [500]
-    got = run_out_of_area(E.OutOfAreaMeals(model(), 1, 1440, weekly=w, sleep_defer="on"),
+    got = run_out_of_area(_oom(model(), 1, 1440, weekly=w, sleep_defer="on"),
                           transit=np.full(1, 2, dtype=np.int8))
     assert [(t, d) for a, t, s, fr, d in got if s == E.SLOT_BREAKFAST] == [(500, True)]
 
@@ -520,7 +544,7 @@ def test_consecutive_sleep_rows_are_read_as_one_sleep():
 def test_breakfast_window_edge_is_fixed(wake, want):
     """窓は [5:00, 11:00): 10:59 に起床 → 10:59 に朝食・11:00 に起床 → 朝食なし。"""
     w = weekly([(0, 0, wake, SLEEP, HOME), (0, wake, 900, PREP, HOME)], 1)
-    oom = E.OutOfAreaMeals(model(), 1, 1440, weekly=w, sleep_defer="on")
+    oom = _oom(model(), 1, 1440, weekly=w, sleep_defer="on")
     got = run_out_of_area(oom, transit=np.full(1, 2, dtype=np.int8))
     assert [(t, d) for a, t, s, fr, d in got if s == E.SLOT_BREAKFAST] == want
     assert oom.n_skipped_past_window == (1 if not want else 0)
