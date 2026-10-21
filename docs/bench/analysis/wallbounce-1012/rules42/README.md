@@ -406,3 +406,11 @@ Q1 預かり金と申告の期限(期限の行は human・移す機械の側は�
 年齢の上限と子ども・子育て拠出金は空欄の宣言・天引きの納付は給料日に即時・1 日のランで 4 欄が動くのは受入(版上げ=宣言)・
 腕は環境変数だけ(`SWITCH_ENV` は親)。
 
+## §親の検収(第337・Fable 5.1・rebase の後・小さな版上げ)
+
+- 本体 6f07eff へ rebase(9743268 からの載せ替えは実装役が控え+早送り+merge-file で(衝突=`economy/stage2.py` 2 か所・`engine/economy_stage2.py` 4 か所・台帳・golden=4-3 第 2 部で w17 の道が消えた分)・6f07eff へは衝突なし)→ 05faf98。範囲の試験(economy・`tests/engine` 全体・c8・tools)**3,535 passed・1 skipped・0 failed・0 errors(`-n 4 --dist loadfile -m "not slow"`・24 分 8 秒)**。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・W21 の世界)=**3 面**: 既定 on は **4 欄(final・full_last・behavior_last・end_of_day)だけ動き 21 欄は同じ**(w6_v3_default/activity_off/v1_default/v3_mem_rel の 4 構成とも final・full_last・behavior_last・end_of_day の 4 欄だけ(side の JSON に腕の鍵は出ない=本体の 10e の道具にはまだ `SHIBUYA_RULES_42` が無い・off が 25 欄同じことが切替口の効きの証拠)=`parent_head_vs_r42_on_4cfg.json`=レジの税が店の現金に残る+状態の行 TXD=版上げ=宣言どおり)/ 切替口 `SHIBUYA_RULES_42=off`(side の env に残ることを JSON で確認)は **final 同じ・25 欄とも差なし**(`parent_head_vs_r42_off_4cfg.json`)。実装役の 19 構成 × 2 と検収役の 4 構成 × 2 も同じ。
+- **data 無しの写し(detached の作業木・junction なし)で CI-1 と同じ引数の全体試験(tests/c7 を含む)=**5,665 passed・290 skipped・failed 0・errors 0**(1,814 秒・CI の印=`-m "not gpu and not slow" -n 2 --dist loadfile`・05faf98・faulthandler 900 s で traceback なし)**。
+- 独立検収([review.md](review.md))=条件つき受入(高 1=抽出で動く数が manifest の設定の節に入り 5,000 体の交換可能性の試験が落ちる/ 中 2=住民税に控除が無く約 2.5 倍・判定の材料が無い体 941 が未加入/ 低 9)→ 全部直した(§11)。検収役の独立の再計算=天引きの例(額面 30 万円)は電卓と差 0・5,000 体の給料日 2,726 行の体ごとの検算 0・保存則の 4 本の流れと預かり金の検算 0・期限をまたぐ合成のラン ○。親の判断: (1) 住民税は給与所得控除と社会保険料控除だけ(基礎控除・調整控除・非課税の限度・年齢の上限 70/75・子ども・子育て拠出金 0.36% は一次確認の後=空欄の宣言=**親の宿題**)。(2) 外の雇用主の体は 51 人以上の正社員とみなして加入(expedient)。(3) 105,000 円未満の源泉は月額表どおり 0。(4) 申告の期限の行は human・期限に移す機械の側はつなぎ(外す段 6-6 ②)。(5) 消費税の期限は全店 翌年 3/31(expedient・法人は別)。(6) 外す段 4-2 の 35 行=店の持ち主に依る 4 行は next-bump・30 行は 7。(7) 腕は環境変数だけ(`SWITCH_ENV` に親が足した)。
+- **版上げ(§0-6・§0-7)**: 既定が変わる(給料日を含むランで天引きと納付・1 日でもレジの税の預かりで 4 欄)。直前の本体 HEAD に安定版のタグ **`stable-v2-before-rules-42`**。戻す手順=`git checkout stable-v2-before-rules-42`(または `SHIBUYA_RULES_42=off`=次の版上げで消す=台帳 `DOC-rules42-legacy-switch`・next-bump)。性能=実装役の表(2 日の壁時計 86.0 → 86.3〜86.9 s・判断の呼び 143,286 で同じ・状態の外 +18,906 B/checkpoint・加入の材料の組み立て 0.14 s/全母集団)=悪化なし(予算の宣言に写す)。
+- 判定: **受入**(小さな版上げ=4-2 の R-118 §7-1 の分。営業許可・道路・屋外広告物の行は第 5 期と区のデータの判断の後)。
