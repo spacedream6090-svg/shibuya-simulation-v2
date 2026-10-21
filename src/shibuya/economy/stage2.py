@@ -228,9 +228,12 @@ class MoneyStage2:
             h[: mh.size] = mh
         self.monthly_hours = h
         self.hours_source = str(getattr(plan, "hours_source", "default"))
-        #: 〔賃金の小さな版上げ〕賃金の腕(組み立ての物に無ければ w17=今までの道)と、体ごとの月の賃金[円](``occupation`` の
-        #: ランだけ・−1=値なし)・出どころ(``economy.wages.BASIS_NAMES`` の番号)・点検の記録(manifest の plan.wage)。
-        self.wage_model = str(getattr(plan, "wage_model", "w17"))
+        #: 〔賃金の小さな版上げ〕賃金の道(``occupation`` だけ=〔第 2 部〕旧値の腕 w17 は消した=渡すと止まる)と、体ごとの
+        #: 月の賃金[円](−1=値なし)・出どころ(``economy.wages.BASIS_NAMES`` の番号)・点検の記録(manifest の plan.wage)。
+        self.wage_model = str(getattr(plan, "wage_model", "occupation"))
+        if self.wage_model != "occupation":
+            raise ValueError(f"賃金の道は occupation だけ(いま {self.wage_model!r}=旧値の腕 w17 は消した・安定版のタグ "
+                             "stable-v2-before-wage-occupation で回す)")
         mw, basis, summary, wsrc, hours = self._occupation_wages(plan, n)
         self.monthly_wage = mw
         self.wage_basis = basis
@@ -244,13 +247,12 @@ class MoneyStage2:
         self.handles_purchase = bool({"payment", "tax"} & self.parts)
         #: 計器(状態台帳の行 EM=diag・discardable)。ランの積算と日の欄(日の締めで 0)。
         self.s2_meter: dict[str, Any] = {"run": _empty_meter(), "day": _empty_meter(), "rules": {}}
-        if self.wage_model != "w17":
-            # 〔賃金の小さな版上げ〕組み立ての賃金の点検は観測(母集団の抽出=seed で動く)=rules.wage_build・plan には道だけ
-            winp = getattr(plan, "wage_inputs", None)
-            self.s2_meter["rules"]["wage_build"] = {
-                "path": wsrc, **(summary or {}),
-                "inputs": winp.record() if winp is not None and hasattr(winp, "record") else None,
-                "floor_at_start": self._floor_record(plan, mw, hours)}
+        # 〔賃金の小さな版上げ〕組み立ての賃金の点検は観測(母集団の抽出=seed で動く)=rules.wage_build・plan には道だけ
+        winp = getattr(plan, "wage_inputs", None)
+        self.s2_meter["rules"]["wage_build"] = {
+            "path": wsrc, **(summary or {}),
+            "inputs": winp.record() if winp is not None and hasattr(winp, "record") else None,
+            "floor_at_start": self._floor_record(plan, mw, hours)}
         self._rates: dict[str, tuple[Fraction, str]] = {}
         #: 〔検収 A1〕体ごとの最後の「金に触れる行為」(購入・食事・並ぶ)の呼の id(None=まだ無い)と、その呼の支払いの方法の
         #: 答え(-1=答えなし・0=現金・1=口座)。着いて実行する意図・列から席へ入った体の支払いも同じ呼を原因にする。
@@ -286,11 +288,9 @@ class MoneyStage2:
 
         Returns:
             (月の賃金 int64 か None, 出どころ int8 か None, 点検の記録か None, 道の名, 月の時間の目安 float64 か None)。道の名:
-            ``w17``(腕 w17・今までの道)・``occupation``・``tables_absent``(賃金の表の写しが無い写し=月の時間 × 最低賃金に
-            戻す=注記)。最低賃金の床は給料日に当てる(その日の規則の表の版=:meth:`payroll`)。
+            ``occupation``・``tables_absent``(賃金の表の写しが無い写し=月の時間の既定 × 最低賃金に戻す=注記)。最低賃金の
+            床は給料日に当てる(その日の規則の表の版=:meth:`payroll`)。
         """
-        if str(getattr(plan, "wage_model", "w17")) == "w17":
-            return None, None, None, "w17", None
         winp = getattr(plan, "wage_inputs", None)
         tables = _WG.load_wage_tables()
         if tables is None or winp is None:
@@ -681,9 +681,8 @@ class MoneyStage2:
 
         n_atm = int(getattr(self.atms, "n", 0) or 0)
         fixed = n_atm * ATM_ROW_BYTES + int(employers) * EMPLOYER_ROW_BYTES
-        per = int(BYTES_PER_AGENT) + (int(WAGE_BYTES_PER_AGENT) if self.wage_model != "w17" else 0)
-        wage_note = (f"・賃金の腕 {self.wage_model} の足し分 {WAGE_BYTES_PER_AGENT} B(月の賃金と出どころと月の時間+入力 5 列)"
-                     if self.wage_model != "w17" else "")
+        per = int(BYTES_PER_AGENT) + int(WAGE_BYTES_PER_AGENT)
+        wage_note = f"・賃金の腕 {self.wage_model} の足し分 {WAGE_BYTES_PER_AGENT} B(月の賃金と出どころと月の時間+入力 5 列)"
         return GrowthDeclaration(
             name="economy_stage2", per_agent_bytes=per, per_cell_bytes=0, per_day_growth="O(1)",
             per_day_growth_coef=0.0, retention=Retention(days=None), worst_case_ops_per_tick=0,
@@ -735,8 +734,7 @@ class MoneyStage2:
                    for (c, a, b), v in sorted(flows.items())]
         atm = self.atms.record() if self.atms is not None and hasattr(self.atms, "record") else None
         plan_rec = self.plan.record() if hasattr(self.plan, "record") else {}
-        if self.wage_model != "w17":  # 〔賃金の小さな版上げ〕賃金の道(設定の節=plan の中・点検の値は観測の rules.wage_build)
-            plan_rec = {**plan_rec, "wage_path": self.wage_source}
+        plan_rec = {**plan_rec, "wage_path": self.wage_source}  # 〔賃金の小さな版上げ〕賃金の道(設定の節=plan の中)
         return {
             "arm": "on",
             "parts": [p for p in PARTS if p in self.parts],

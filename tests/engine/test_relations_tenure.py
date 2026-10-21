@@ -148,22 +148,22 @@ def test_full_population_initial_net_is_uniform_in_every_kind_and_direction():
 
 
 # ================================================================= (e) 切替口
-def test_switch_is_checked_and_on_the_cli_and_sets_the_default_tau():
+def test_run_switch_is_removed_and_the_default_tau_is_v2():
+    """〔第 4 期 4-3 版上げ 3 回目の第 2 部〕ランの口の切替口 --rel-tenure-hash(v1=旧)は消した=渡すと止まる(関係の部品の
+    在職期間のハッシュの版の引数は単体試験の口として残す=上の (a)〜(d))。"""
     from shibuya.engine.run import run_day
 
-    with pytest.raises(ValueError):
-        run_day(n_agents=10, ticks=2, memory="on", relations="on", rel_tenure_hash="v3")
+    with pytest.raises(TypeError):
+        run_day(n_agents=10, ticks=2, memory="on", relations="on", rel_tenure_hash="v1")
     text = (SRC / "cli.py").read_text(encoding="utf-8")
-    assert '"--rel-tenure-hash"' in text and "rel_tenure_hash=str(args.rel_tenure_hash)" in text
-    assert RL.check_rel_tenure_hash("v1") == "v1" and RL.REL_TENURE_HASHES == ("v2", "v1")
+    assert '"--rel-tenure-hash"' not in text and "rel_tenure_hash" not in text
     D.skip_unless("world_v2")  # 前の assert は data なしでも回す
     from shibuya import cli
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", relations="on", ticks=30)
-    for ver, tau in (("v2", RL.REL_TAU_V2), ("v1", RL.REL_TAU_V1)):
-        s = cli.run(rel_tenure_hash=ver, **kw).run_manifest_fields()["relations"]
-        assert s["tau"] == tau and s["init"]["tenure_hash"] == ver
-    s = cli.run(rel_tenure_hash="v1", rel_tau=-2.0, **kw).run_manifest_fields()["relations"]
+    s = cli.run(**kw).run_manifest_fields()["relations"]
+    assert s["tau"] == RL.REL_TAU_V2 and s["init"]["tenure_hash"] == "v2"
+    s = cli.run(rel_tau=-2.0, **kw).run_manifest_fields()["relations"]
     assert s["tau"] == -2.0                                            # 明示の τ が優先
 
 
@@ -179,7 +179,8 @@ REL_ON_5000_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     # 〔小さな版上げ・meal_w17〕v1 前 a2beb00f254b219c / 67_780(--meal-default validation で戻る)
     # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)で動いた(前 v1 ee4df5ad2dccfa94 / 67_233・v2
     # bf212900153818d2 / 66_844=記録 pop43)
-    ("v1", "behavior"): ("285505540ec73d0d", 66_455),  # 〔2-4 V1〕前 380e8651a96b1829 / 69_406  # 〔2-4 V2〕前 edc6b366feece21c / 69_306  # 〔2-4 V3〕前 967a0f2eedb3576d / 67_907  # 〔2-4 V4〕前 d696dfa98390e830 / 67_830
+    # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕ランの口の切替口 --rel-tenure-hash を消したので ("v1","behavior") の行
+    # (285505540ec73d0d / 66,455=差し替えの世界)は消した(再現は安定版のタグ)  # 〔2-4 V1〕前 380e8651a96b1829 / 69_406  # 〔2-4 V2〕前 edc6b366feece21c / 69_306  # 〔2-4 V3〕前 967a0f2eedb3576d / 67_907  # 〔2-4 V4〕前 d696dfa98390e830 / 67_830
     # 〔改訂(第330)〕10e 構築側(第330 B3 丸め・B4 W10 ON+Q7・B5 W13 の年間化)で世界の資産が動いた=既定の行だけ張り替えた(E4・E5 は 64f48b6571ec2ea1 / 74,616)。
     # full の 2 行は旧い世界の資産で録った値=旧資産を読む切替口(エンジン側 B1)で再現する(張り替えない)。
     # 〔改訂(第330・ACT)〕版上げ 1 回目の活性化(暦の一本化・開始日 2026-07-13・影 6 日)で既定の行が動いた
@@ -197,9 +198,10 @@ def test_relations_on_arm_golden_old_and_new():
 
     kw = dict(n_agents=5000, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", relations="on")
     if REL_ON_5000_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(既定の v2)
-        GE.assert_aa(lambda: cli.run(rel_tenure_hash="v2", **kw), lambda r: (r.final_hash[:16], int(r.llm_calls)))
+        GE.assert_aa(lambda: cli.run(**kw), lambda r: (r.final_hash[:16], int(r.llm_calls)))
         return
     for (ver, scheme), (final, calls) in REL_ON_5000_GOLDEN.items():
         assert scheme == "behavior"  # 〔第330・RET〕final の定義は behavior だけ
-        r = cli.run(rel_tenure_hash=ver, **kw)
+        assert ver == "v2"  # 〔第 2 部〕既定の v2 だけ
+        r = cli.run(**kw)
         assert (r.final_hash[:16], int(r.llm_calls)) == (final, calls), (ver, scheme)

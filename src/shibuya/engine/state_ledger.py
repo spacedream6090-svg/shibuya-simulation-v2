@@ -1534,7 +1534,7 @@ _DAY = "10d: 日の頭で暦の口の日から張り直す値(曜日の行・日
 
 #: 明示の除外の一覧(親の答え 1 の (ii)〜(iv))。
 EXCLUDED: Final[tuple[Excluded, ...]] = (
-    _x("act_layer", CONST, _CFG, "n", "salt", "minutes_per_tick", "_tpd", "leave_effect"),
+    _x("act_layer", CONST, _CFG, "n", "salt", "minutes_per_tick", "_tpd"),
     _x("act_layer", CACHE, "ぶらつきの近傍の表(資産から作る)", "_nbr_start", "_nbr_cells"),
     _x("intent_layer", CONST, _CFG, "n", "max_ticks"),
     _x("intent_layer", REF, _REFR, "world"),

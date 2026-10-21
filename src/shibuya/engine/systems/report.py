@@ -62,7 +62,6 @@ def report(ctx: Any, b: Any) -> Any:
     intent_max_ticks = cfg.intent_max_ticks
     intent_mode = cfg.intent_mode
     l4_scale = cfg.l4_scale
-    leave_effect = cfg.leave_effect
     meal_sleep_defer = cfg.meal_sleep_defer
     memory_n = cfg.memory_n
     memory_on = cfg.memory_on
@@ -70,8 +69,6 @@ def report(ctx: Any, b: Any) -> Any:
     mock_out_of_cell_target_p = cfg.mock_out_of_cell_target_p
     move_search_radius = cfg.move_search_radius
     n_agents = cfg.n_agents
-    near_order = cfg.near_order
-    near_tiebreak = cfg.near_tiebreak
     occupancy_path = cfg.occupancy_path
     outside_suppression = cfg.outside_suppression
     p_notice_ablation = cfg.p_notice_ablation
@@ -79,7 +76,6 @@ def report(ctx: Any, b: Any) -> Any:
     parent_run = cfg.parent_run
     plan_exec_on = cfg.plan_exec_on
     plan_sleep = cfg.plan_sleep
-    poi_target = cfg.poi_target
     policy = cfg.policy
     refractory_scale_norm = cfg.refractory_scale_norm
     response_delay = cfg.response_delay
@@ -262,7 +258,6 @@ def report(ctx: Any, b: Any) -> Any:
     result.decision_layers = decision_layers_summary(layer_counts)
     # 〔第 1 期 1-2〕看板の注視の活動の乗数は消した=manifest の欄 ``p_see_activity`` は残して値は null
     result.p_see_activity = None
-    result.poi_target = str(poi_target)
     result.target_resolution = (
         resolution_summary(poi_resolver.stats, poi_resolver.entropy_sum)
         if poi_resolver is not None
@@ -364,12 +359,11 @@ def report(ctx: Any, b: Any) -> Any:
         result.intent["b6_named_closed_notes"] = int(getattr(_rr, "named_closed_notes", 0))
     result.intent_max_ticks = int(intent_max_ticks)
     _nr = getattr(perception, "renderer", None) if perception is not None else None
+    # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕並び(distance)と同点の切り方(hash)はランの口では選べない=設定の欄 mode・order は
+    # 消した(旧値 id の再現は安定版のタグ)。同点を切った数・並べた行に距離の同点があった描画の数は観測
     result.near_tiebreak = {
-        "mode": str(near_tiebreak),
         "ties_broken": int(getattr(_nr, "near_tie_breaks", 0)),
         "tie_candidates": int(getattr(_nr, "near_tie_candidates", 0)),
-        # 第304 Q130: 近接行の並び(distance/id)と、並べた行に距離の同点があった描画の数
-        "order": str(near_order),
         "order_ties": int(getattr(_nr, "near_order_ties", 0)),
     }
     result.group_norms = (  # 第308 D-107 (a)・第309 Q150 の切替口
@@ -420,7 +414,7 @@ def report(ctx: Any, b: Any) -> Any:
             result.walkable_area_median_m2 = float(np.median(_wk))
             result.walkable_area_min_m2 = float(_wk.min())
     result.attention = bool(attention_on)
-    result.leave_effects = {"enabled": bool(leave_effect), "leave": int(leave_counts["n_leave"]),
+    result.leave_effects = {"leave": int(leave_counts["n_leave"]),
                             "released_indoor": int(leave_counts["n_leave_indoor"]),
                             "left_queue": int(leave_counts["n_leave_queue"]),
                             "was_conversing": int(leave_counts["n_leave_conversing"]),

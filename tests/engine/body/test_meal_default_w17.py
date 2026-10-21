@@ -2,13 +2,13 @@
 
 受入(発注 meal_w17):
 - エンジンが検証側の錨のファイル(``hunger_energy_validation_anchors_v0.json``・``presence_validation_anchors_v0.json``)を
-  開かない(open の監査フック・負の対照=旧値の腕と「読む行を植えた」ランは落ちる)。
+  開かない(open の監査フック・負の対照=「読む行を植えた」ランは落ちる)。
 - 既定 w17 の決定性(同じ seed で同じ・鍵は体の番号=体の数に依らない)・分布から引いた時刻が W17 の分布と一致(JSD)・
-  初期の空腹の範囲・既定の食事時刻を使っている体の割合の計器・2 日のラン・再開=通し(両方の腕)。
-- 腕 validation は旧値の再現(前の版の既定の時刻=1 つの値・初期の空腹も 1 つの既定の分)。19 構成の byte-check は記録
-  ``docs/bench/analysis/wallbounce-1012/meal_w17/README.md``。
+  初期の空腹の範囲・既定の食事時刻を使っている体の割合の計器・2 日のラン・再開=通し。
+- 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧値の腕 validation と切替口(``--meal-default``・``SHIBUYA_MEAL_DEFAULT``)は消した
+  (旧値の再現は安定版のタグ ``stable-v2-before-meal-default-w17``)=腕が無いこと・環境変数を与えると止まることを見る。
 
-**検証側の値(第 18-1 表の数値)はこの試験に写さない**(旧値の腕は「前の版の模型と同じ」で比べる)。
+**検証側の値(第 18-1 表の数値)はこの試験に写さない**。
 """
 
 from __future__ import annotations
@@ -61,12 +61,6 @@ class _watch:
         _WATCH["on"] = False
 
 
-@pytest.fixture(autouse=True)
-def _arm_back():
-    yield
-    E.set_meal_default(E.DEFAULT_MEAL_DEFAULT)
-
-
 def _weekly(rows, n_agents):
     rows = sorted(rows, key=lambda r: (r[0], r[1]))
     counts = np.zeros(n_agents * N_DAYS, dtype=np.int64)
@@ -97,7 +91,7 @@ def _jsd(p: np.ndarray, q: np.ndarray) -> float:
 
 
 def _model(mode: str = "w17") -> E.EnergyModel:
-    anc, md5 = E.load_anchors(mode=mode)
+    anc, md5 = E.load_anchors()
     return E.EnergyModel(anc, md5, meal_default=mode)
 
 
@@ -114,15 +108,9 @@ def test_default_engine_never_opens_the_validation_anchor_files():
     assert E.anchors_paths() == (E.ANCHORS_BUILD_PATH,)
 
 
-def test_negative_control_validation_arm_and_a_planted_read_are_caught(monkeypatch):
-    # (a) 旧値の腕は検証側を読む=フックが見つける(フックが働いていることの確かめ)
-    E.set_meal_default("validation")
-    with _watch() as opened:
-        run_day(ticks=60, **SYN)
-    assert "hunger_energy_validation_anchors_v0.json" in opened
-    # (b) 既定の腕に「読む行」を植えると落ちる(錨の読み口が 2 本を返すように差し替える)
-    E.set_meal_default("w17")
-    monkeypatch.setattr(E, "anchors_paths", lambda mode=None: E.ANCHORS_PATHS)
+def test_negative_control_a_planted_read_is_caught(monkeypatch):
+    # 「読む行」を植えると落ちる(錨の読み口が検証側のファイルを開くように差し替える=フックが働いていることの確かめ)
+    monkeypatch.setattr(E, "ANCHORS_BUILD_PATH", E.ANCHORS_VALIDATION_PATH)
     with _watch() as opened:
         try:
             run_day(ticks=60, **SYN)
@@ -132,12 +120,25 @@ def test_negative_control_validation_arm_and_a_planted_read_are_caught(monkeypat
 
 
 def test_energy_source_names_no_validation_file():
-    """コードの読み口: 既定の腕で開く道筋に検証側の名が無い(錨の名は構築側だけ)。"""
-    assert all("validation" not in q.name for q in E.anchors_paths("w17"))
-    assert E.anchors_rel("w17") == "docs/bench/anchors/hunger_energy_build_anchors_v0.json"
-    assert E.anchors_rel("validation") == E.ANCHORS_REL
+    """コードの読み口: 開く道筋に検証側の名が無い(錨の名は構築側だけ)。〔第 2 部〕旧値の腕は消した=渡すと止まる。"""
+    assert all("validation" not in q.name for q in E.anchors_paths())
+    assert E.anchors_rel() == "docs/bench/anchors/hunger_energy_build_anchors_v0.json"
+    assert E.MEAL_DEFAULT_MODES == ("w17",) and E.meal_default() == "w17"
+    assert not hasattr(E, "set_meal_default") and not hasattr(E, "MEAL_DEFAULT_VALIDATION")
     with pytest.raises(ValueError):
-        E.EnergyModel(*E.load_anchors(mode="w17"), meal_default="validation")  # 旧の腕に構築側だけ=止める
+        E.EnergyModel(*E.load_anchors(), meal_default="validation")
+
+
+def test_removed_switch_env_and_cli_flag_stop():
+    """〔第 2 部〕消した切替口: 環境変数 SHIBUYA_MEAL_DEFAULT を与えると読み込みで止まる・CLI の --meal-default は無い。"""
+    import subprocess
+
+    env = {**os.environ, "SHIBUYA_MEAL_DEFAULT": "validation", "PYTHONIOENCODING": "utf-8"}
+    r = subprocess.run([sys.executable, "-c", "import shibuya.engine.energy"], env=env, capture_output=True, text=True,
+                       encoding="utf-8")
+    assert r.returncode != 0 and "消した切替口" in r.stderr
+    with pytest.raises(SystemExit):
+        cli.main(["--meal-default", "validation"])
 
 
 # ================================================================= 2. 分布と引き(決定性・体の数に依らない・JSD)
@@ -176,7 +177,7 @@ def test_from_weekly_uses_the_day_rows_then_all_days_then_frozen():
     d3 = E.MealStartDistribution.from_weekly(w, 3)
     assert d3.kinds == (E.SOURCE_FROZEN, E.SOURCE_W17_ALL_DAYS, E.SOURCE_W17_ALL_DAYS)
     assert E.MealStartDistribution.from_weekly(None).kinds == (E.SOURCE_FROZEN,) * 3
-    assert E.meal_start_distribution(w, 0, mode="validation") is None
+    assert E.meal_start_distribution(w, 0).kinds == d.kinds
 
 
 #: 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に=W17 は残す体の行+提供者の写し)の W17 の月曜の食事の
@@ -244,22 +245,6 @@ def test_out_of_area_defaults_are_drawn_per_body_and_rows_are_kept():
     assert use["agents_without_plan_day"] == n - 2 and use["default_slots_by_slot"]["dinner"] == n - 1
 
 
-def test_validation_arm_keeps_the_single_old_default_times():
-    w = _weekly(_rows3(), 2)
-    m = _model("validation")
-    oom = E.OutOfAreaMeals(m, 4, TPD, weekly=w, seed=11)
-    assert oom.distribution is None and oom.prev_dinner_min is None
-    for s, key in enumerate(("breakfast", "lunch", "dinner")):
-        assert set(oom.default_min[:, s].tolist()) == {m.default_meal_min[key]}
-    lay = E.EnergyLayer(model=m, n_agents=4, out_of_area=oom)
-    assert lay.initial_dinner_min is None
-    eer = np.asarray([2000.0, 1800.0, 2400.0, 1500.0], dtype=np.float32)
-    from shibuya.engine.body import rules as BR
-
-    got = BR.initial_energy_values(lay, eer).since_meal
-    assert np.array_equal(got, m.initial_since_meal(eer))  # 前の版と同じ 1 つの既定の分
-
-
 def test_initial_hunger_comes_from_the_previous_dinner_and_stays_in_range():
     from shibuya.engine.body import rules as BR
 
@@ -299,31 +284,11 @@ def test_manifest_has_the_source_and_the_share_gauge():
     assert use["mode"] == "w17" and use["agents"] == SYN["n_agents"]
     assert use["share_with_default_slot"] == 1.0 and use["agents_without_plan_day"] == SYN["n_agents"]  # 合成=計画なし
     assert set(use["ate"]) == {"agents", "share", "meals"}
-    E.set_meal_default("validation")
-    ev = run_day(ticks=60, **SYN).run_manifest_fields()["energy"]
-    assert ev["meal_default"] == "validation" and ev["anchors"] == E.ANCHORS_REL
-    assert ev["meal_default_source"]["kind"].startswith("validation_anchors")
+    assert e["anchors"] == "docs/bench/anchors/hunger_energy_build_anchors_v0.json"
 
 
-def test_cli_flag_and_the_fingerprint_stop_a_resume_with_the_other_arm(tmp_path):
-    import inspect
-
-    assert '"--meal-default"' in inspect.getsource(cli.main)
-    E.set_meal_default("validation")
-    a = run_day(ticks=120, state_out=tmp_path / "s", stop_at_tick=60, **SYN)
-    path = tmp_path / "s" / a.resume["state_files"][-1]["file"]
-    E.set_meal_default("w17")
-    with pytest.raises(ValueError):
-        run_day(ticks=120, resume_from=path, **SYN)
-    E.set_meal_default("validation")
-    b = run_day(ticks=120, resume_from=path, **SYN)
-    assert b.final_hash == run_day(ticks=120, **SYN).final_hash
-
-
-# ================================================================= 4. 2 日のラン・再開=通し(両方の腕)
-@pytest.mark.parametrize("mode", ["w17", "validation"])
-def test_two_day_run_resume_equals_straight(tmp_path, mode):
-    E.set_meal_default(mode)
+# ================================================================= 4. 2 日のラン・再開=通し
+def test_two_day_run_resume_equals_straight(tmp_path):
     kw = dict(SYN, ticks=TPD, sim_days=2, checkpoint_every=360)
     straight = run_day(**kw)
     a = run_day(state_out=tmp_path / "s", stop_at_tick=TPD + 300, **kw)
@@ -333,22 +298,12 @@ def test_two_day_run_resume_equals_straight(tmp_path, mode):
     got = [(c.tick, c.combined) for c in b.checkpoints if c.tick >= TPD + 300]
     assert want and got == want
     assert b.final_hash == straight.final_hash
-    assert straight.run_manifest_fields()["energy"]["meal_default"] == mode
+    assert straight.run_manifest_fields()["energy"]["meal_default"] == "w17"
 
 
-def test_w17_moves_the_result_and_validation_keeps_one_time_for_any_seed():
-    """〔検収 L3〕1 日: 既定 w17 は旧値と違う結果(版上げ=変わった量は記録の表)。旧値の腕の既定の時刻は seed に依らず
-    全員 1 つの値(引きを使わない)、w17 は seed で変わる。"""
-    kw = dict(SYN, ticks=TPD)
-    w17 = run_day(**kw).final_hash
-    E.set_meal_default("validation")
-    old = run_day(**kw).final_hash
-    assert w17 != old
-    mv, mw = _model("validation"), _model("w17")
-    for seed in (1, 2, 99):
-        dv = E.OutOfAreaMeals(mv, 50, TPD, weekly=None, seed=seed).default_min
-        assert all(np.unique(dv[:, s]).size == 1 for s in range(3))
-        assert np.array_equal(dv, E.OutOfAreaMeals(mv, 50, TPD, weekly=None, seed=1).default_min)
+def test_w17_default_times_move_with_the_seed():
+    """〔検収 L3〕既定の時刻は seed で変わる(体ごとの引き)。〔第 2 部〕seed に依らない 1 つの値の旧値の腕は消した。"""
+    mw = _model("w17")
     a = E.OutOfAreaMeals(mw, 50, TPD, weekly=None, seed=1).default_min
     b = E.OutOfAreaMeals(mw, 50, TPD, weekly=None, seed=2).default_min
     assert not np.array_equal(a, b)
@@ -380,36 +335,14 @@ def test_frozen_table_is_pinned_and_read_only():
 
 
 @real_data
-def test_validation_arm_reproduces_the_pre_meal_w17_final_on_the_world():
-    """〔検収 M1〕旧値の再現を守る: 世界資産 5,000 体・1 日・seed 1・語彙 v3(w6_v3_default)を旧値の腕で回すと、前の版の
-    final と呼数(定数 ``_K19_PRE_MEAL_W17``・``_T7_V3_FINAL_PRE_MEAL_W17``)と同じ。"""
-    from tests.engine.test_state_checks_10f import _K19_PRE_MEAL_W17
-    from tests.engine.test_state_ledger_10b import _T7_V3_FINAL_PRE_MEAL_W17
-
-    assert _K19_PRE_MEAL_W17 == _T7_V3_FINAL_PRE_MEAL_W17
-    E.set_meal_default("validation")
-    res = cli.run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3", activity=True)
-    assert res.final_hash[:16] == _T7_V3_FINAL_PRE_MEAL_W17 and int(res.llm_calls) == PRE_MEAL_W17_V3_CALLS
-    assert res.run_manifest_fields()["energy"]["meal_default"] == "validation"
-
-
-#: 前の版(旧値の腕)の w6_v3_default の呼数(記録 meal_w17 §3)。〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界の旧値の腕の
-#: 呼数(前 64_528=W16 の世界・記録 pop43)。
-PRE_MEAL_W17_V3_CALLS = 64_161
-
-
-@real_data
-@pytest.mark.parametrize("mode", ["w17", "validation"])
-def test_world_two_day_resume_equals_straight(tmp_path, mode):
-    E.set_meal_default(mode)
+def test_world_two_day_resume_equals_straight(tmp_path):
     kw = dict(n_agents=300, seed=1, world_dir=str(WORLD_DIR), sim_days=2, vocab_version="v3", activity=True)
     straight = cli.run(**kw)
     a = cli.run(state_out=tmp_path / "s", stop_at_tick=TPD + 420, **kw)
     b = cli.run(resume_from=tmp_path / "s" / a.resume["state_files"][-1]["file"], **kw)
     assert b.final_hash == straight.final_hash
     e = straight.run_manifest_fields()["energy"]
-    assert e["meal_default"] == mode
-    if mode == "w17":
-        assert e["meal_default_source"]["kind"]["dinner"] == E.SOURCE_W17_DAY
-        use = e["meal_default_use"]
-        assert 0.0 < use["share_with_default_slot"] <= 1.0 and use["agents_without_plan_day"] == 0
+    assert e["meal_default"] == "w17"
+    assert e["meal_default_source"]["kind"]["dinner"] == E.SOURCE_W17_DAY
+    use = e["meal_default_use"]
+    assert 0.0 < use["share_with_default_slot"] <= 1.0 and use["agents_without_plan_day"] == 0

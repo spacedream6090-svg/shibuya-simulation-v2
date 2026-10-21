@@ -113,7 +113,6 @@ class RunConfig:
     classical_tau: float
     familiarity_k: int
     intent_max_ticks: int
-    leave_effect: bool
     memory_n: int
     move_search_radius: int
     occupancy_every: int
@@ -148,9 +147,6 @@ class RunConfig:
     meal_sleep_defer: str
     mock_move_target_p: float
     mock_out_of_cell_target_p: float
-    near_order: str
-    near_tiebreak: str
-    poi_target: str
     policy: str
     role_words: Any
     # ---- 組み立てで決めた値 ----

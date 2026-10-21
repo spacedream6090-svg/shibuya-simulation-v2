@@ -25,62 +25,43 @@ pytestmark = [pytest.mark.slow,
 KW = dict(seed=1, world_dir="data/world/v2", sim_days=2, vocab_version="v3", start_sim_datetime="2026-08-24")
 
 
-def _arm(monkeypatch, wage: str) -> None:
+def _arm(monkeypatch) -> None:
     monkeypatch.setattr(ES2, "_ARM", ES2.ARM_ON)
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
     monkeypatch.setattr(ES2, "_ATM_OVERRIDE", None)
-    monkeypatch.setattr(ES2, "_WAGE", wage)
 
 
 @pytest.fixture(scope="module")
 def two_arms():
+    """〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧値の腕 w17 は消した=既定(occupation)の 1 本だけ(名は前のまま)。"""
     if WG.load_wage_tables() is None:
         pytest.skip("requires_data: 賃金の表の写し(research_cache/pop41b/derived)が無い")
     from shibuya import cli
 
     mp = pytest.MonkeyPatch()
-    out = {}
     try:
-        for wage in ("occupation", "w17"):
-            _arm(mp, wage)
-            out[wage] = cli.run(n_agents=5_000, **KW)
+        _arm(mp)
+        return {"occupation": cli.run(n_agents=5_000, **KW)}
     finally:
         mp.undo()
-    return out
 
 
 def test_conservation_and_only_the_wage_accounts_move(two_arms):
-    occ, w17 = two_arms["occupation"], two_arms["w17"]
-    for res in (occ, w17):
-        for d in res.run_manifest_fields()["daily"]:
-            c = d["economy"]["conservation"]
-            assert c["ok"] is True and c["residual"] == 0, c
-        assert res.conserved
-    fo, fw = occ.ledger.money.flow_daily, w17.ledger.money.flow_daily
-    assert np.array_equal(np.asarray(fo[0]), np.asarray(fw[0]))  # 給料日の前の日は同じ
-    d1o, d1w = np.asarray(fo[1]).copy(), np.asarray(fw[1]).copy()
+    occ = two_arms["occupation"]
+    for d in occ.run_manifest_fields()["daily"]:
+        c = d["economy"]["conservation"]
+        assert c["ok"] is True and c["residual"] == 0, c
+    assert occ.conserved
+    f1 = np.asarray(occ.ledger.money.flow_daily[1]).copy()
     wage = int(AccountCode.WAGE)
-    cons = int(AccountCode.CONSUMPTION)
-    row = int(Sector.ROW)
     dep = int(AccountCode.DEPOSIT_NET)
-    for f, res in ((d1o, occ), (d1w, w17)):
-        # 賃金は世帯の口座へ=預金純増(世帯 → 銀行)の行も同じ額(1 日目の預け入れは賃金だけ)
-        assert int(f[int(Sector.HOUSEHOLD), int(Sector.BANK), dep]) == int(f[:, :, wage].sum()) > 0
-        f[int(Sector.HOUSEHOLD), int(Sector.BANK), dep] = 0
-    for f in (d1o, d1w):
-        f[:, :, wage] = 0
-        f[row, int(Sector.EMPLOYER), cons] = 0  # 原資(外界 → 雇用主)
-        f[row, int(Sector.STORE), cons] = 0  # 原資(外界 → 店=担当従業者の賃金・店の外界の売上は 0)
-    assert np.array_equal(d1o, d1w)  # 賃金と原資のほかの科目は同じ(給料日は日の締め)
+    # 賃金は世帯の口座へ=預金純増(世帯 → 銀行)の行も同じ額(1 日目の預け入れは賃金だけ)
+    assert int(f1[int(Sector.HOUSEHOLD), int(Sector.BANK), dep]) == int(f1[:, :, wage].sum()) > 0
     so = occ.ledger.money.stage2.s2_meter["run"]["wages"]
-    sw = w17.ledger.money.stage2.s2_meter["run"]["wages"]
-    # w17 は W17 の勤務の時間が 0 の体(no_hours)に払わない=occupation は雇用の行のある体の全部に払う
-    assert so["paid"] == sw["paid"] + sw["no_hours"] > 0 and so["no_hours"] == 0
-    # 〔第 4 期 4-3 段 10・検収 M3〕外の雇用主(席の外の体)の賃金は外界から払う=原資の行は無い(差し替えの世界の 5,000 体: 715 体・
-    # 2.42 億円)。前(W16 の世界)は funding == amount
+    assert so["paid"] > 0 and so["no_hours"] == 0
+    # 〔第 4 期 4-3 段 10・検収 M3〕外の雇用主(席の外の体)の賃金は外界から払う=原資の行は無い
     assert so["funding"] + so["outside_employer_amount"] == so["amount"] and so["outside_employer_paid"] > 0
-    assert sw["funding"] + sw["outside_employer_amount"] == sw["amount"]
-    assert so["amount"] > 4 * sw["amount"]  # 1/4 の宣言を解く
+    # 〔第 2 部〕前は旧値の腕 w17 と 1 日目の科目を比べた(賃金と原資の科目だけが動く・額は w17 の 4 倍超)=腕と一緒に消した
 
 
 def test_median_matches_r107(two_arms):
@@ -104,13 +85,12 @@ def test_median_matches_r107(two_arms):
     assert man["hours_source"] == "none(wage=occupation)"
 
 
-@pytest.mark.parametrize("wage", ["occupation", "w17"])
-def test_resume_equals_straight(tmp_path, monkeypatch, wage):
+def test_resume_equals_straight(tmp_path, monkeypatch):
     from shibuya import cli
 
     if WG.load_wage_tables() is None:
         pytest.skip("requires_data: 賃金の表の写しが無い")
-    _arm(monkeypatch, wage)
+    _arm(monkeypatch)
     kw = dict(n_agents=1_000, checkpoint_every=360, **KW)
     straight = cli.run(**kw)
     a = cli.run(state_out=tmp_path / "s", stop_at_tick=2_190, **kw)
@@ -124,8 +104,4 @@ def test_resume_equals_straight(tmp_path, monkeypatch, wage):
     for d in b.daily:
         assert d["economy"]["conservation"] == s_days[int(d["day"])]["conservation"]
     assert straight.ledger.money.stage2.s2_meter["run"]["wages"]["paid"] > 0
-    # 腕の違う再開は止まる
-    other = "w17" if wage == "occupation" else "occupation"
-    monkeypatch.setattr(ES2, "_WAGE", other)
-    with pytest.raises(ValueError, match="賃金の腕"):
-        cli.run(resume_from=tmp_path / "s" / a.resume["state_files"][-1]["file"], **kw)
+    # 〔第 2 部〕腕の違う再開(旧値の腕 w17)は消した=見出しの検査は test_wage_occupation.py の単体の試験

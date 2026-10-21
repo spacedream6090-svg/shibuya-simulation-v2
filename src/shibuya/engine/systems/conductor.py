@@ -113,13 +113,9 @@ WHEN = {
 
 
 def tick_plan(box: Any, specs: tuple[SystemSpec, ...]) -> list[SystemSpec]:
-    """刻みの中で呼ぶ系の並び(表の順・立たない系を外す・``llm_receive`` の位置を応答の遅れで選ぶ=草案 §2-2)。"""
-    plan = [s for s in specs if s.timing == "tick" and WHEN[s.when](box)]
-    if int(box.cfg.response_delay) == 2:  # 位置 B(旧): wake_sources の後
-        rec = next(s for s in plan if s.name == "llm_receive")
-        plan.remove(rec)
-        plan.insert(next(k for k, s in enumerate(plan) if s.name == "wake_sources") + 1, rec)
-    return plan
+    """刻みの中で呼ぶ系の並び(表の順・立たない系を外す=草案 §2-2)。〔第 2 部〕``llm_receive`` の位置 B(応答の遅れ 2=旧)の
+    切替口は消した=表の位置 A だけ。"""
+    return [s for s in specs if s.timing == "tick" and WHEN[s.when](box)]
 
 
 def conduct(call_args: dict) -> Any:

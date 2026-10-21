@@ -149,8 +149,7 @@ def data_asset_paths(data_root: Path) -> list[str]:
     # 実ダイヤの入力 3 層(ユーザー提供の時刻表の読み取り・ODPT チャレンジ枠・ODPT オープン枠の静的データ版 1)を足す。
     for _line, fname in w12_external_nodes.metro_timetables_in_use():
         rel.add(f"odpt/{fname}")
-    if w12_external_nodes.USE_REAL_TIMETABLES:
-        rel.update(w12_real_timetables.all_input_rel_paths())
+    rel.update(w12_real_timetables.all_input_rel_paths())
     # 〔改訂(第330 B5)〕W13 が実際に読むファイルだけ(窓の CSV 2 本と祝日 CSV)。旧は
     # data/realworld/amedas を rglob して、構築が読まない日次取得の日まで載せうる形だった。
     for parts in w13_weather.INPUT_FILES:

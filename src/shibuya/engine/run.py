@@ -98,7 +98,6 @@ from shibuya.engine.relations import (
     REL_D,
     REL_K,
     REL_TENURE_WEEKS,
-    DEFAULT_REL_TENURE_HASH,
 )
 from shibuya.engine.store_memory import DEFAULT_STORE_DECAY, STORE_MEMORY_N
 from shibuya.engine.energy import DEFAULT_ENERGY_RATE, DEFAULT_HOME_MEAL, DEFAULT_MEAL_SLEEP_DEFER
@@ -120,7 +119,7 @@ from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.processes.opening import rows_of_day as _opening_rows_of_day
 from shibuya.engine.presence import DERIVE_RULES as PRESENCE_DERIVE_RULES
 from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
-from shibuya.engine.poi_target import DEFAULT_POI_TARGET, MOVE_SEARCH_RADIUS_CELLS
+from shibuya.engine.poi_target import MOVE_SEARCH_RADIUS_CELLS
 from shibuya.engine.llm_bridge import DEFAULT_LANE, delta_think_ticks
 from shibuya.engine.scheduler import DIAG_COLUMNS
 from shibuya.engine.state_hashes import FINAL_DEFINITION
@@ -143,10 +142,6 @@ from shibuya.engine import step_scope as _STEP_SCOPE  # 〔第 6 期 6-3 T3〕
 from shibuya.engine.body import model as _BODY_MODEL
 from shibuya.perception.renderer import (
     DEFAULT_HUNGER_WORDS,
-    DEFAULT_NEAR_ORDER,
-    DEFAULT_NEAR_TIEBREAK,
-    NEAR_ORDERS,
-    NEAR_TIEBREAKS,
     SIGNAGE_P_SEE_DEFAULT,
 )
 from shibuya.perception.templates import INTENT_MODES, VOCAB_VERSIONS, check_vocab_version
@@ -238,56 +233,25 @@ DECISION_LAYERS: Final[tuple[str, ...]] = ("system1", "system1_5", "system2")
 L4_CONVERSATION_SHARE_LINE: Final[float] = 0.15
 
 
-#: 応答の遅れの切替口(10a・A9)。1=新(既定・発射 +1 tick で反映)/ 2=旧(+2 tick・旧テープの再生用)。
-RESPONSE_DELAYS: Final[tuple[int, ...]] = (1, 2)
+#: 応答の遅れ(10a・A9)=1(発射 +1 tick で反映)だけ。〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧(+2 tick・10a より前の
+#: テープの再生用)の切替口 ``--response-delay 2`` は消した=10a より前のテープ(meta に値が無い・2 の記録)は再生しない
+#: (旧値の再現は安定版のタグ)。manifest の ``response_delay`` とテープの meta の値は 1 のまま書く(読み手の互換)。
+RESPONSE_DELAYS: Final[tuple[int, ...]] = (1,)
 DEFAULT_RESPONSE_DELAY: Final[int] = 1
 
 
-def check_response_delay(value: int) -> int:
-    """``--response-delay`` の値を検査して返す。"""
-    v = int(value)
-    if v not in RESPONSE_DELAYS:
-        raise ValueError(f"response_delay は {RESPONSE_DELAYS} のどれか(いま {value!r})")
-    return v
-
-
-class ResponseDelayWarning(UserWarning):
-    """再生するテープに応答の遅れの値が無い(10a より前の録画)ときの警告。"""
-
-
-#: 「値が無いので 2 とみなす」の警告を出したテープ(1 回だけ出すため)。
-_WARNED_DELAY: set[str] = set()
-
-
-def _resolve_response_delay(value: int | None, mode: str, replay: Any) -> int:
-    """応答の遅れの値を決める(検収後 P3)。
-
-    - 録画・mock: 渡された値(``None`` は既定 1)。
-    - 再生: テープの脇の meta(``run_meta.json``)の ``response_delay`` と突き合わせ、違えば止める
-      (文言に両方の値)。meta に値が無いテープ(10a より前の録画)は **2 とみなし**、警告を 1 回出す。
-      このとき値を渡していなければ 2 で再生する(旧テープを既定のままで正しく回すため)。
-    """
-    given = value is not None
-    v = check_response_delay(value if given else DEFAULT_RESPONSE_DELAY)
+def _resolve_response_delay(mode: str, replay: Any) -> int:
+    """応答の遅れの値(1)。再生ではテープの脇の meta(``run_meta.json``)の ``response_delay`` が 1 でなければ止める
+    (値の無いテープ=10a より前の録画・2 の録画=消した旧の道)。"""
+    v = DEFAULT_RESPONSE_DELAY
     if mode != "replay" or replay is None:
         return v
     tape_dir = _replay_tape_dir(replay)
     rec = read_run_meta(tape_dir).get("response_delay")
-    if rec is None:
-        key = str(tape_dir)
-        if key not in _WARNED_DELAY:
-            _WARNED_DELAY.add(key)
-            warnings.warn(
-                f"再生するテープに response_delay の記録が無い(10a より前の録画): 2 とみなす({Path(key).name})",
-                ResponseDelayWarning, stacklevel=3,
-            )
-        rec = 2
-        if not given:
-            v = 2
-    if int(rec) != v:
+    if rec is None or int(rec) != v:
         raise ValueError(
-            f"応答の遅れがテープと違う: テープは response_delay={int(rec)}・今の設定は {v}"
-            "(--response-delay を録画と同じ値にする)"
+            f"応答の遅れがテープと違う: テープは response_delay={rec}(None=10a より前の録画)・今は {v}"
+            "=旧(+2 tick)の再生の切替口は消した(安定版のタグで回す)"
         )
     return v
 
@@ -746,11 +710,7 @@ class RunResult:
     eatery: str = "food"
     #: **選び手**(段 2a・D-114 (a)・``engine.chooser``)。既定 ``nearest``(憲法⑥の宣言つき暫定)。
     chooser: str = DEFAULT_CHOOSER
-    #: 購入/食事/並ぶの対象の決め方(段 2a・親決定 Q13)。``candidates``=候補 → 選び手(既定)/
-    #: ``legacy``=現在セルの最小 id(旧 checkpoint の再現)。
-    poi_target: str = DEFAULT_POI_TARGET
     #: 購入/食事/並ぶの対象の解決の内訳(段 2a・``engine.poi_target.resolution_summary``)。
-    #: ``legacy`` のランは空 dict(数えない)。
     #: 段 2b: 移動の行き先の解決の内訳(``engine.poi_target.move_resolution_summary``)。
     move_resolution: dict[str, Any] = field(default_factory=dict)
     #: 段 2b: カテゴリ語の近傍探索で見る近いセルの数(``--move-search-radius``)。
@@ -1278,7 +1238,6 @@ class RunResult:
             "eatery": str(self.eatery),
             # ---- 段 2a(D-114 (a)): 選び手と対象の解決の内訳 (i)〜(iv)。列追加のみ ----
             "chooser": str(self.chooser),
-            "poi_target": str(self.poi_target),
             "target_resolution": dict(self.target_resolution),
             # ---- 段 2b(D-112 ②): 移動の行き先の解決の内訳。列追加のみ ----
             "move_resolution": dict(self.move_resolution),
@@ -2004,14 +1963,11 @@ def run_day(
     intent_mode: str = INTENT_MODES[0],
     vocab_version: str = VOCAB_VERSIONS[0],
     role_words: bool | str = True,
-    near_tiebreak: str = DEFAULT_NEAR_TIEBREAK,
-    near_order: str = DEFAULT_NEAR_ORDER,
     group_norms: bool | str = True,
     budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
     salient_rate_per_10k: float | None = None,
     report_precondition: bool = True,
     queue_service: bool = True,
-    leave_effect: bool = True,
     population: "Population | bool | None" = None,
     occupancy_every: int = 0,
     occupancy_path: "str | Path | None" = None,
@@ -2030,7 +1986,6 @@ def run_day(
     activity: bool | str = True,
     eatery: str = "food",
     chooser: str = DEFAULT_CHOOSER,
-    poi_target: str = DEFAULT_POI_TARGET,
     move_search_radius: int = MOVE_SEARCH_RADIUS_CELLS,
     mock_move_target_p: float = 0.0,
     intent_max_ticks: int = INTENT_MAX_TICKS,
@@ -2067,7 +2022,6 @@ def run_day(
     rel_init_density: float = 1.0,
     conv_max_participants: int = 2,
     rel_tenure_weeks: float = REL_TENURE_WEEKS,
-    rel_tenure_hash: str = DEFAULT_REL_TENURE_HASH,
     rel_invite: bool | str = True,
     rel_acq_wake: bool | str = True,
     rel_copresent: bool | str = False,
@@ -2075,7 +2029,6 @@ def run_day(
     start_sim_datetime: "datetime | str | None" = None,
     holiday_csv: "str | Path" = DEFAULT_HOLIDAY_CSV,
     school_holidays: Any = (),
-    response_delay: int | None = None,
 
     state_out: "str | Path | None" = None,
     stop_at_tick: int | None = None,
@@ -2191,13 +2144,6 @@ def run_day(
             再生では ``False`` を渡す)。mock の checkpoint は B0 を読まないので不変。
             既定では**1 バイトも変わらない**(テンプレ本体・``template_sha256`` も不変)。
             ``INTENT_MODES`` 以外は ``ValueError``。
-        near_tiebreak: **小さいもの①(第300 Q107)** B5 近接行の距離の同点の切り方。``"hash"``(既定)=
-            run_salt の決定論ハッシュ(観る体 × 相手)で撹拌 / ``"id"`` = 旧挙動(セル内の並び=行番号の順=
-            旧 golden)。文面・近接行の並び(id 昇順)は変えない=採る人だけ。``NEAR_TIEBREAKS`` 以外は ``ValueError``。
-        near_order: **小さいもの 第 2 批①(第304 Q130)** B5 近接行の並び。``"distance"``(既定)= 距離の昇順・
-            同点は ``near_tiebreak`` の順 / ``"id"`` = 旧挙動(行番号の昇順=旧 golden)。焦点の先頭・知人の常時掲載・
-            文面は変えない。mock は B5 を読まないので final は動かない(プロンプトは動く)。
-            ``renderer`` を明示注入したランでは**このフラグは効かない**(注入側が持つ)。
         group_norms: **第309(Q150)** 群・規範の計器(D-107 (a)・``engine.norm_meter``=読むだけ)を回すか。
             ``True``/``"on"``(既定=第308 のまま)/ ``False``/``"off"`` で計器の 3 つの口を通さない(manifest
             ``group_norms`` は ``{"enabled": False}``)。計器は状態・乱数・テープに触れないので**どちらでも final は同じ**。
@@ -2220,8 +2166,6 @@ def run_day(
         report_precondition: **D-113 ②(第267)** 通報の前提「当該事象を知覚済み」(直近 5 tick に
             自分のセルの B4 に顕著行為の行が出た)を検査する(既定 True)。``False`` は従来どおり
             通報が必ず成功する挙動(=帰無腕・第266 以前の checkpoint ``ba01bd0b`` を再現)。
-        leave_effect: **9a(D-112 ④)** 退去=所属解除(在店・待ち行列・会話を解く・活動欄「なし」なら次の tick に
-            満了)。既定 True=欠陥の修正。``False`` は第301 以前の挙動(IDLE 化と会話相手の解除だけ=旧 golden)。
         queue_service: **D-113 ③(第268)** 満席で並んだ体を、席が空いた分だけ並んだ順に席へ
             入れて購入/食事を完了させる(既定 True)。``False`` は第267 以前の挙動(誰も捌かず
             15 tick で ``INTERRUPTED``)。既定の mock 5,000 では列が立たないので checkpoint 不変。
@@ -2299,10 +2243,6 @@ def run_day(
             ``"nearest"``=可視(W8 の視点数)の降順 → POI 索引(憲法⑥の宣言つき暫定)。
             それまでの「現在セルの最小 id」から**既定 checkpoint が動く**(版の台帳
             ``docs/bench/analysis/intent-chooser-2026-09-28/``)。
-        poi_target: **対象の決め方の切替口**(親決定 Q13)。``"candidates"``(既定)=上の
-            候補 → 選び手 / ``"legacy"``=段 2a 前の「現在セルの最小 id」(``commit._poi_in_cell``)
-            をそのまま通す=**旧 checkpoint(02bd0312 等)を再現する**。``legacy`` では
-            ``target_resolution`` を数えない(空 dict)。**段 2b の移動の行き先も従来のまま**。
         move_search_radius: **段 2b**(行き先を対象欄から・D-112 ②)のカテゴリ語の近傍探索で
             見る近いセルの数(現在セル・見えている POI の次に ``cell_dist`` の昇順で R 個・宣言・
             既定 5)。0 なら近傍探索をしない。
@@ -2312,8 +2252,8 @@ def run_day(
             並ぶ/会話/就寝の対象が現在セルに無く解決できるとき、行為を意図(SoA 4 欄・既定で確保)に
             保存して目的地つき移動を始め、着いたら LLM を呼ばずに実行する。歩いてこの tick を
             超えたら ``TOO_FAR``(宣言 60・expedient・感度腕 30/120)。意図の層は**活動層が立ち
-            (語彙 v3・``activity=True``)かつ ``poi_target="candidates"``** のランだけ働く
-            (v1/v2・``--activity off``・``legacy`` は欄を確保するだけ=挙動は段 2b のまま)。
+            (語彙 v3・``activity=True``)** のランだけ働く
+            (v1/v2・``--activity off`` は欄を確保するだけ=挙動は段 2b のまま)。
         mock_out_of_cell_target_p: 既定 mock(語彙 v3)の購入/食事/並ぶの対象に B2 の「見えるもの」
             の名(括弧内の店名があればそれ)を出す確率(段 2c の経路を mock で通す腕・既定 0)。
         familiarity: **4 段目(記憶の先行部品=M13 訪問+M17 露出)**。``True``/``"on"`` で体×K 行の
@@ -2382,15 +2322,11 @@ def run_day(
             True)``・16 B/辺)を確保し、W16+W17 の機械的初期化と、記憶のエピソード(会話・手伝い)から辺を書く
             (``engine.relations``)。B5 近接行の「知人」の印に結線する(v1.4)。**``memory`` が on のランでだけ**。
             既定 ``False``=表を確保しない=**既定 checkpoint 不変**。
-        rel_k / rel_tau / rel_d / rel_init_density: 辺の数(既定 15・感度 5/50)・閾値 τ_rel(既定 None=``rel_tenure_hash`` の版ごとの再逆算 v2 −2.322 / v1 −2.346・感度
+        rel_k / rel_tau / rel_d / rel_init_density: 辺の数(既定 15・感度 5/50)・閾値 τ_rel(既定 None=全母集団の再逆算 v2 −2.322・感度
             ±0.5)・減衰 d(既定 0.5・感度 0.25/0.75)・初期網の密度の腕(0.5/1.0/2.0)。
         conv_max_participants: **C10 8a(D-93 (d))の 3 人会話の口**。3 なら会話中の相手に話しかけた体が
             そのセッションに加わる(``talk_partner``=名指しした相手=主相手・参加者はセッション表)。既定 2=不変。
         rel_tenure_weeks: C10 8b(第299 Q89/Q90): 初期辺の在職期間 T_uv の上限[週](既定 13・感度 26)。
-        rel_tenure_hash: **第2波 §2A 項 2** 初期辺の在職期間のハッシュの版。``"v2"``(既定)=同点の順のハッシュと
-            独立な混ぜ合わせ / ``"v1"``=旧(元 id_u < 元 id_v の辺で同点の順と同じ値=在職の短い相手ほど選ばれる欠陥)。
-            ``rel_tau`` を渡さない(``None``)ときの τ_rel は版ごとの再逆算値(``REL_TAU_BY_TENURE_HASH``: v2 −2.322・
-            v1 −2.346=旧)。関係 on のランだけ効く。
         rel_invite / rel_acq_wake / rel_copresent: **C10 8b**(``relations`` が on のランだけ効く)。
             ``rel_invite``(既定 on)=名指しの無い会話の相手を関係辺の重み(内側 5 人 40%・次の 10 人 20%・残り
             40%・居る層で再正規化)+seed つき乱択で引く・2 m 内の知人を第一候補(偶然)・classical 方策の相手も
@@ -2416,11 +2352,6 @@ def run_day(
             読んだ md5 を manifest の ``calendar.holiday_csv_md5`` に書く。
         school_holidays: 学校の長期休みの区間の一覧(``"YYYY-MM-DD:YYYY-MM-DD,…"`` か組の列)。開始日の検査で
             当たれば止める。既定は空(表の中身は K7 の判断待ち)。
-        response_delay: **10a(A9)の応答の遅れの切替口**(``None``=未指定は 1。再生ではテープの脇の meta の値と
-            突き合わせて違えば止め、値の無い旧テープは 2 とみなす=検収後 P3)。``1``=艦隊/再生の到着の受け取りを①の
-            直前に置き下限 ``max(t_apply, tick)``(発射 +1 tick で反映)/ ``2``=旧(受け取りは④′・下限
-            ``tick + 1``=+2 tick)。旧い実 LLM テープの再生は ``2`` で回す。mock(``fleet=None`` かつ再生の
-            到着が無い)はこの分岐を通らない=結果は動かない。
         (乱数: 10c・10e の counter=顕著行為の発生を ``(seed, 名前, T)``・出動の遅れを ``(seed, 名前, T, セル, k)`` から毎回
         作る・K19 の鍵の並べ方。〔第330・RET〕10e より前の ``stateful`` と切替口 ``rng_scheme`` は消した。manifest の
         ``rng_scheme`` は ``counter`` の記録)
@@ -2493,10 +2424,6 @@ def add_fleet_args(ap: "argparse.ArgumentParser") -> None:
     )
     ap.add_argument("--fleet-wait-s", type=float, default=0.0,
                     help="④′ で未応答が残るとき tick ごとに最大この秒数だけ艦隊を待つ(既定 0=純非ブロッキング・本番の運用は 120)")
-    ap.add_argument("--response-delay", type=int, choices=RESPONSE_DELAYS, default=None,
-                    help=("応答の遅れ(10a・A9)。1=発射 +1 tick で反映(既定・受け取りを①の直前へ)/"
-                          " 2=旧(+2 tick)。再生ではテープの記録と突き合わせ、違えば止める。記録の無い旧テープは"
-                          " 2 とみなす(未指定なら 2 で再生)"))
     ap.add_argument("--fleet-queue-capacity", type=int, default=0,
                     help=("艦隊の受理待ち+実行中の合計上限(既定 0=FleetConfig の既定 max_in_flight×4)。"
                           "C7 本番(D-55/D-58): 計画呼数 2,709/tick に対し既定 1,792 だと 33.8%% が queue full で"
@@ -2526,14 +2453,12 @@ def add_calendar_args(ap: "argparse.ArgumentParser") -> None:
 
 
 def calendar_kwargs_from_args(args: Any) -> dict[str, Any]:
-    """``add_calendar_args``(10d の ``--sim-days``・``--resume-from``・``--state-out``・10e の ``--weather-perturb`` を含む)と
-    ``--response-delay`` の結果 → ``run_day`` の引数。"""
+    """``add_calendar_args``(10d の ``--sim-days``・``--resume-from``・``--state-out``・10e の ``--weather-perturb`` を含む)の
+    結果 → ``run_day`` の引数。"""
     out: dict[str, Any] = {
         "start_sim_datetime": (getattr(args, "start_date", "") or None),
         "holiday_csv": str(getattr(args, "holiday_csv", DEFAULT_HOLIDAY_CSV)),
         "school_holidays": str(getattr(args, "school_holidays", "") or ""),
-        # None=未指定(録画・mock は 1、再生はテープの記録に合わせる=``_resolve_response_delay``)
-        "response_delay": getattr(args, "response_delay", None),
     }
     # 10d: 複数日と再開の口(既定のときは欄を足さない=既定の引数は今のまま)
     if int(getattr(args, "sim_days", 1) or 1) != 1:
@@ -2609,10 +2534,6 @@ def main(argv: list[str] | None = None) -> int:
                     help="D-66 計画実行層(engine.presence)を切る(=現行挙動・帰無腕)")
     ap.add_argument("--group-norms", choices=("on", "off"), default="on",
                     help="群・規範の計器(D-107 (a)・読むだけ)を回すか(第309 Q150・既定 on)")
-    ap.add_argument("--near-order", choices=NEAR_ORDERS, default=DEFAULT_NEAR_ORDER,
-                    help="B5 近接行の並び(第304 Q130)。distance=距離の昇順・同点は --near-tiebreak の順(既定)/ id=旧挙動")
-    ap.add_argument("--near-tiebreak", choices=NEAR_TIEBREAKS, default=DEFAULT_NEAR_TIEBREAK,
-                    help="B5 近接行の距離の同点の切り方(第300 Q107)。hash=run_salt で撹拌(既定)/ id=旧挙動")
     ap.add_argument("--exit-mode", choices=PRESENCE_EXIT_MODES, default="immediate",
                     help="退出の実行形(immediate のみ実装・他は予約)")
     ap.add_argument("--attendance-rate", type=float, default=1.0, metavar="RATE",
@@ -2659,8 +2580,6 @@ def main(argv: list[str] | None = None) -> int:
         plan_sleep=not args.no_plan_sleep,
         plan_executor=not args.no_plan_executor,
         exit_mode=str(args.exit_mode),
-        near_tiebreak=str(args.near_tiebreak),
-        near_order=str(args.near_order),
         group_norms=str(args.group_norms),
         attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),

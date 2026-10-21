@@ -11,8 +11,8 @@
     (JR・東急=ユーザーが入手した公式の時刻表の読み取り・京王=ODPT チャレンジ枠・銀座線=ODPT オープン枠の
     静的データ版 1〈9 月改正=世界の時点より後の版〉・半蔵門線/副都心線=今の 7 月の取得)。読み口と方面の
     写像の表は :mod:`shibuya.build.field.w12_real_timetables`。等間隔の推定は実データの無い線が出たときだけ
-    使う(今は 0 線=ゲート ``equal_interval_lines_remaining``)。旧値(1.1.0=メトロ3線=実・他=等間隔
-    expedient)は :data:`USE_REAL_TIMETABLES` = False で作れる(切替口)。
+    使う(今は 0 線=ゲート ``equal_interval_lines_remaining``)。〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧値(1.1.0=メトロ
+    3 線=実・他=等間隔 expedient)を作る切替口 ``USE_REAL_TIMETABLES=False`` は消した(再現は安定版のタグ)。
   - ``w12_timetable_versions.json``(1.2.0・実ダイヤのときだけ): 線ごとの版の宣言(世界の時点との前後)と
     入力の md5。``source`` の列とは別に置く。〔1.3.0〕節 ``rail_events`` に発着の表の要約と直通のまとめの規則(conf つき)。
   - ``w12_rail_events.parquet``(1.3.0・実ダイヤのときだけ): 渋谷の発着の表(発車の行=``w12_timetables`` の行と 1 対 1+
@@ -70,9 +70,6 @@ STAGE = "W12"
 #: 1.3.0(第 2 期 2-3c): 渋谷の発着の表 ``w12_rail_events.parquet`` を足す(時刻表の行は変えない=バイト一致)。
 STAGE_VERSION = "1.3.0"
 
-#: 〔2-3b〕実ダイヤの切替口。True(既定)=実ダイヤ(:mod:`w12_real_timetables`)。False=1.1.0 の形
-#: (メトロ 3 線=7 月の取得の実ダイヤ・他の 5 線=等間隔)=旧値の再現(時刻表の parquet が 1.1.0 とバイト一致)。
-USE_REAL_TIMETABLES = True
 #: 〔2-3b〕実ダイヤのとき ODPT の駅の時刻表(7 月の取得)から読む線(銀座線は 9 月改正の列車時刻表から)。
 METRO_LINES_KEPT_WITH_REAL: tuple[str, ...] = ("半蔵門線", "副都心線")
 #: 〔2-3b〕実ダイヤのときの版の表のファイル名(資産の隣)。
@@ -102,7 +99,7 @@ RAIL_EVENT_EXPEDIENTS: tuple[str, ...] = (
 #: 1.1.0 の 5 行(台帳 W12#4〜#8=2-3b で removed)をこの 1 行にまとめた。動的な中身(残る線の名・夕ピークの規則)は
 #: notes(``equal_interval_lines``・``equal_interval_pm_rule``・``pm_peak_note``)に書く。
 EQUAL_INTERVAL_TIMETABLE_EXPEDIENTS: tuple[str, ...] = (
-    "等間隔ダイヤ(F10)の道=切替口 USE_REAL_TIMETABLES=False(1.1.0 の時刻表の再現)と実データの無い線だけ"
+    "等間隔ダイヤ(F10)の道=実データの無い線だけ"
     "(2-3b の既定では 0 線)。上下同数・ピーク本数は資料3(山手線は 16-20 本/h の中央 18・夕は朝と同数か引数の表)・"
     "オフピーク比と初終発は切替口 False でメトロ実ダイヤ(初終発は平日)・残る線では実ダイヤ全線(平日/土休それぞれ)から",
 )
@@ -120,11 +117,8 @@ METRO_TIMETABLES: tuple[tuple[str, str], ...] = (
 )
 
 
-def metro_timetables_in_use(use_real: bool | None = None) -> tuple[tuple[str, str], ...]:
-    """W12 が実際に読む ODPT の駅の時刻表(線, ファイル名)。実ダイヤのときは半蔵門線・副都心線だけ。"""
-    real = USE_REAL_TIMETABLES if use_real is None else bool(use_real)
-    if not real:
-        return METRO_TIMETABLES
+def metro_timetables_in_use() -> tuple[tuple[str, str], ...]:
+    """W12 が実際に読む ODPT の駅の時刻表(線, ファイル名)=半蔵門線・副都心線だけ(銀座線は実ダイヤの読み口)。"""
     return tuple((ln, f) for ln, f in METRO_TIMETABLES if ln in METRO_LINES_KEPT_WITH_REAL)
 
 
@@ -431,11 +425,10 @@ def run(ctx: C.Ctx) -> C.StageResult:
         ctx.path(*PASSENGER_SURVEY),
     ]
     pt_path = ctx.data.joinpath(*PT_CORE).resolve()
-    use_real = bool(USE_REAL_TIMETABLES)
-    metro_in_use = metro_timetables_in_use(use_real)
+    metro_in_use = metro_timetables_in_use()
     metro_paths = [ctx.path("odpt", f) for _line, f in metro_in_use]
-    # 〔2-3b〕実ダイヤの入力(切替口 False では空=1.1.0 と同じ input_hash)
-    real_paths = [ctx.data.joinpath(*rel.split("/")) for rel in RT.all_input_rel_paths()] if use_real else []
+    # 〔2-3b〕実ダイヤの入力
+    real_paths = [ctx.data.joinpath(*rel.split("/")) for rel in RT.all_input_rel_paths()]
     for p in [*paths, pt_path, *metro_paths, *real_paths]:
         if not p.exists():
             raise FileNotFoundError(f"W12 入力が無い: {p}")
@@ -643,23 +636,13 @@ def run(ctx: C.Ctx) -> C.StageResult:
     real: RT.RealTimetables | None = None
     remaining_lines: list[str] = []
     real_notes: dict[str, Any] = {}
-    if not use_real:
-        # 1.1.0 の形(切替口 False=旧値の再現)。行の順・値は 1.1.0 と同じ。
-        for r in sorted(metro_rows, key=lambda d: (d["line"], d["calendar"], d["direction"], d["departure"])):
-            tt_line.append(r["line"])
-            tt_operator.append("東京メトロ")
-            tt_direction.append(r["direction"])
-            tt_calendar.append("Weekday" if r["calendar"] == "Weekday" else "SaturdayHoliday")
-            tt_dep.append(r["departure"])
-            tt_src.append("real")
-    else:
-        real = RT.load_real_timetables(ctx.data)
-        # 銀座線(9 月改正)もメトロの派生(metro_* の欄・ゲート)に入れる=メトロ 3 線の意味を保つ
-        metro_rows = metro_rows + [
-            {"railway": "Ginza", "calendar": r["calendar"], "direction": r["direction"],
-             "departure": r["departure"], "line": r["line"]}
-            for r in real.rows if r["line"] == RT.GINZA_SPEC.line
-        ]
+    real = RT.load_real_timetables(ctx.data)
+    # 銀座線(9 月改正)もメトロの派生(metro_* の欄・ゲート)に入れる=メトロ 3 線の意味を保つ
+    metro_rows = metro_rows + [
+        {"railway": "Ginza", "calendar": r["calendar"], "direction": r["direction"],
+         "departure": r["departure"], "line": r["line"]}
+        for r in real.rows if r["line"] == RT.GINZA_SPEC.line
+    ]
 
     weekday_metro = [r for r in metro_rows if r["calendar"] == "Weekday"]
     holiday_metro = [r for r in metro_rows if r["calendar"] != "Weekday"]

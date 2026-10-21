@@ -30,8 +30,7 @@ def test_resume_stops_when_the_arm_or_parts_differ(arm, tmp_path):
     first, _ = TR._run(sim_days=2, state_out=tmp_path / "s", stop_at_tick=STOP)
     path = tmp_path / "s" / first.resume["state_files"][-1]["file"]
     want = {"arm": "on", "parts": list(ES2.PARTS)}
-    if ES2.wage_arm() != ES2.WAGE_W17:  # 〔賃金の小さな版上げ〕既定 occupation の見出しは賃金の腕も持つ
-        want["wage"] = ES2.wage_arm()
+    want["wage"] = ES2.wage_arm()  # 〔賃金の小さな版上げ〕見出しは賃金の道も持つ(〔第 2 部〕w17 の腕は消した)
     assert RS.read_state(path).header["economy_stage2"] == want
     ES2.set_parts(("wages", "payment"))
     with pytest.raises(ValueError, match="経済の段階 2 の腕が親と違う"):

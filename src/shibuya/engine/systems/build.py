@@ -81,7 +81,6 @@ from shibuya.engine.memory import MEMORY_MODES
 from shibuya.engine.memory import MemoryLayer
 from shibuya.engine.memory import STORE_RECALL_SCOPES
 from shibuya.engine.poi_target import TargetResolver
-from shibuya.engine.poi_target import check_poi_target
 from shibuya.engine.presence import DERIVE_RULES as PRESENCE_DERIVE_RULES
 from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
 from shibuya.engine.presence import PlanExecutor
@@ -91,8 +90,8 @@ from shibuya.engine.processes.salient import check_d50_scale as _check_d50_scale
 from shibuya.engine.relations import REL_INIT_DENSITIES
 from shibuya.engine.relations import REL_MODES
 from shibuya.engine.relations import REL_ORIGINS
+from shibuya.engine.relations import DEFAULT_REL_TENURE_HASH
 from shibuya.engine.relations import REL_TAU_BY_TENURE_HASH
-from shibuya.engine.relations import check_rel_tenure_hash
 from shibuya.engine.relations import initial_edges as _rel_initial_edges
 from shibuya.engine.store_choice import StoreChoice
 from shibuya.engine.store_choice import walk_m_per_tick as _walk_m_per_tick
@@ -111,8 +110,6 @@ from shibuya.perception.channels import BudgetMode
 from shibuya.perception.renderer import PerceptionAssets
 from shibuya.perception.renderer import Renderer as PerceptionRenderer
 from shibuya.perception.renderer import check_hunger_words
-from shibuya.perception.renderer import check_near_order
-from shibuya.perception.renderer import check_near_tiebreak
 from shibuya.perception.renderer import check_signage_p_see
 from shibuya.perception.templates import check_intent_mode
 from shibuya.perception.templates import check_role_words
@@ -185,14 +182,11 @@ def build(_call_args: dict[str, Any]) -> Any:
     intent_mode = _call_args['intent_mode']
     vocab_version = _call_args['vocab_version']
     role_words = _call_args['role_words']
-    near_tiebreak = _call_args['near_tiebreak']
-    near_order = _call_args['near_order']
     group_norms = _call_args['group_norms']
     budget_mode = _call_args['budget_mode']
     salient_rate_per_10k = _call_args['salient_rate_per_10k']
     report_precondition = _call_args['report_precondition']
     queue_service = _call_args['queue_service']
-    leave_effect = _call_args['leave_effect']
     population = _call_args['population']
     occupancy_every = _call_args['occupancy_every']
     occupancy_path = _call_args['occupancy_path']
@@ -211,7 +205,6 @@ def build(_call_args: dict[str, Any]) -> Any:
     activity = _call_args['activity']
     eatery = _call_args['eatery']
     chooser = _call_args['chooser']
-    poi_target = _call_args['poi_target']
     move_search_radius = _call_args['move_search_radius']
     mock_move_target_p = _call_args['mock_move_target_p']
     intent_max_ticks = _call_args['intent_max_ticks']
@@ -248,7 +241,6 @@ def build(_call_args: dict[str, Any]) -> Any:
     rel_init_density = _call_args['rel_init_density']
     conv_max_participants = _call_args['conv_max_participants']
     rel_tenure_weeks = _call_args['rel_tenure_weeks']
-    rel_tenure_hash = _call_args['rel_tenure_hash']
     rel_invite = _call_args['rel_invite']
     rel_acq_wake = _call_args['rel_acq_wake']
     rel_copresent = _call_args['rel_copresent']
@@ -256,7 +248,6 @@ def build(_call_args: dict[str, Any]) -> Any:
     start_sim_datetime = _call_args['start_sim_datetime']
     holiday_csv = _call_args['holiday_csv']
     school_holidays = _call_args['school_holidays']
-    response_delay = _call_args['response_delay']
     state_out = _call_args['state_out']
     stop_at_tick = _call_args['stop_at_tick']
     resume_from = _call_args['resume_from']
@@ -290,7 +281,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     _RT.rules_version()
     # ---- 10a(A1・A1-1・A1-2・A1-3・A9): 暦の口・通しの時刻 T・応答の遅れ(世界を触る前に検査) ----
     check_replay_tape(mode, replay)  # 〔第330・RET〕10e より前・活性化より前の録画は止める
-    response_delay = _resolve_response_delay(response_delay, mode, replay)
+    response_delay = _resolve_response_delay(mode, replay)
 
     if mode == "replay" and replay is not None:  # 10f: 録画した環境が違えば警告を 1 行(挙動は変えない)
         _rtd = _replay_tape_dir(replay)
@@ -372,10 +363,6 @@ def build(_call_args: dict[str, Any]) -> Any:
         # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定の腕は結果を変える(本人が約束の場所へ歩く)=arm のときだけ設定の指紋に
         # 足す(再開で取り違えを止める。既定 off のランの指紋は今のまま)
         _fp[_CA2A.FP_KEY] = _ca2_cfg
-    if _EN.meal_default() != _EN.DEFAULT_MEAL_DEFAULT and str(hunger_model) == "energy":
-        # 〔小さな版上げ・回答 10-13b §7 の 2〕既定の食事時刻の旧値の腕(validation)は既定と違うときだけ設定の指紋に足す
-        # (空腹のエネルギー収支のランだけ=腕が効くランだけ)
-        _fp["meal_default"] = _EN.meal_default()
     # ---- 第 3 期 3-3: 反実仮想の申込書(``cli.run`` が ``engine.experiment.layer.staged`` で置いた物・無ければ None=今の道)。
     # 設定の指紋には入れない(申込書の指紋は manifest の experiment の節=分岐が基準のランの状態から再開できる) ----
     from shibuya.engine.experiment import layer as _EXPL
@@ -445,8 +432,6 @@ def build(_call_args: dict[str, Any]) -> Any:
     # ---- D-66 計画実行層の腕: 値の検査は**層が休むランでも**する(manifest が嘘をつかない) ----
     if str(exit_mode) not in PRESENCE_EXIT_MODES:
         raise ValueError(f"exit_mode は {PRESENCE_EXIT_MODES} のどれか(いま {exit_mode!r})")
-    near_tiebreak = check_near_tiebreak(near_tiebreak)
-    near_order = check_near_order(near_order)
     if isinstance(group_norms, str) and group_norms not in ("on", "off"):
         raise ValueError(f"group_norms は 'on'/'off' か bool(いま {group_norms!r})")
     group_norms_on = (group_norms == "on") if isinstance(group_norms, str) else bool(group_norms)
@@ -534,8 +519,10 @@ def build(_call_args: dict[str, Any]) -> Any:
         raise ValueError("relations は memory='on' のランでだけ使える(書き手がエピソードの書き手に乗る)")
     if int(rel_k) < 1:
         raise ValueError(f"rel_k は 1 以上(いま {rel_k})")
-    rel_tenure_hash = check_rel_tenure_hash(rel_tenure_hash)
-    if rel_tau is None:  # 第2波 §2A 項 2: 既定の τ は在職期間ハッシュの版ごとの再逆算値
+    # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕在職期間のハッシュは v2 だけ(旧値 v1 の切替口 --rel-tenure-hash は消した=再現は
+    # 安定版のタグ)。既定の τ は v2 の再逆算値
+    rel_tenure_hash = DEFAULT_REL_TENURE_HASH
+    if rel_tau is None:
         rel_tau = REL_TAU_BY_TENURE_HASH[rel_tenure_hash]
     if not (0.0 < float(rel_d) < 1.0) or not np.isfinite(float(rel_tau)):
         raise ValueError(f"rel_d は 0〜1・rel_tau は有限(いま d={rel_d}・τ={rel_tau})")
@@ -578,7 +565,6 @@ def build(_call_args: dict[str, Any]) -> Any:
             raise ValueError("policy='classical' は再生・艦隊と併用できない")
         if vocab_version != "v3":
             raise ValueError("policy='classical' は語彙 v3 だけ(5 ラベルの応答文)")
-    poi_target = check_poi_target(poi_target)
     #: 語彙 v3 の対象ヒント(「対象: 自宅/職場/学校」→ 拠点セル)は活動層と独立に効かせる。
     v3_hints = vocab_version == "v3"
     # ---- ablation ③: **ランの実効不応期表**を 1 本組む(既定=§6 の表そのもの) ----
@@ -588,16 +574,11 @@ def build(_call_args: dict[str, Any]) -> Any:
     # 渡された World を使い回しても前のランの切替口が残らないよう、**毎ラン必ず書く**。
     world.set_eatery_mode(eatery)
     # ---- 段 2a: 購入/食事/並ぶの対象=候補 → 選び手(1 ランに 1 つ・世界は読むだけ) ----
-    # ``legacy``(Q13)は resolver を作らない=``intents_from_responses`` が従来の最小 id を通す。
-    poi_resolver = (
-        TargetResolver(
-            world=world,
-            chooser=make_chooser(chooser, p_h=float(classical_habit_p), tau=float(classical_tau)),
-            seed=seed,
-            move_search_radius=int(move_search_radius),
-        )
-        if poi_target == "candidates"
-        else None
+    poi_resolver = TargetResolver(
+        world=world,
+        chooser=make_chooser(chooser, p_h=float(classical_habit_p), tau=float(classical_tau)),
+        seed=seed,
+        move_search_radius=int(move_search_radius),
     )
     mock_move_target_p = float(mock_move_target_p)
     if not (0.0 <= mock_move_target_p <= 1.0):
@@ -646,7 +627,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     # ここへ繰り上げても帰無腕のバイト列は動かない。
     weekly = load_weekly(world_dir) if (world_dir is not None and pop is not None) else None
     # 〔小さな版上げ・回答 10-13b §7 の 2〕既定の食事時刻の分布は週次表の**全員**から(restrict_to の前=体の数に依らない。
-    # 腕 validation と空腹の模型の無いランは作らない=None)
+    # 空腹の模型の無いランは作らない=None)
     _meal_dist = (_EN.meal_start_distribution(weekly, calendar.table_weekday(0))
                   if energy_on else None)
     if weekly is not None:
@@ -870,9 +851,7 @@ def build(_call_args: dict[str, Any]) -> Any:
                 intent_mode=intent_mode,
                 vocab_version=vocab_version,
                 role_words=role_words,
-                near_tiebreak=near_tiebreak,
                 near_salt=run_salt_for(seed),
-                near_order=near_order,
                 hunger_words=hunger_words,
                 # 第 1 期 1-2: 知覚の事実の時刻の見方(暦の日の種類)。描画の文は読まない
                 day_kind_fn=lambda T_: calendar.day_kind(calendar.day_of(T_)),
@@ -1037,8 +1016,6 @@ def build(_call_args: dict[str, Any]) -> Any:
         if activity_on
         else None
     )
-    if act_layer is not None:
-        act_layer.leave_effect = bool(leave_effect)  # 9a: 退去の効果の切替口と揃える
     # ---- 段 2c: 意図の保持(活動層+候補の解決がある=語彙 v3・activity on・candidates) ----
     intent_layer: IntentLayer | None = (
         IntentLayer(n_agents, world, max_ticks=int(intent_max_ticks))
@@ -1434,7 +1411,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             checkpoint_every=checkpoint_every, day_index=day_index, l4_scale=l4_scale, mode=mode, lane=lane,
             census_out=census_out, attendance_rate=attendance_rate, exit_mode=exit_mode, derive_rule=derive_rule,
             checkpoint_detail=checkpoint_detail, classical_habit_p=classical_habit_p, classical_tau=classical_tau,
-            familiarity_k=familiarity_k, intent_max_ticks=intent_max_ticks, leave_effect=leave_effect,
+            familiarity_k=familiarity_k, intent_max_ticks=intent_max_ticks,
             memory_n=memory_n, move_search_radius=move_search_radius, occupancy_every=occupancy_every,
             occupancy_path=occupancy_path, outside_suppression=outside_suppression,
             p_notice_ablation=p_notice_ablation, p_notice_d50_scale=p_notice_d50_scale, plan_sleep=plan_sleep,
@@ -1446,7 +1423,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             energy_rate=energy_rate, geometry=geometry, home_meal=home_meal, hunger_model=hunger_model,
             hunger_words=hunger_words, intent_mode=intent_mode, meal_sleep_defer=meal_sleep_defer,
             mock_move_target_p=mock_move_target_p, mock_out_of_cell_target_p=mock_out_of_cell_target_p,
-            near_order=near_order, near_tiebreak=near_tiebreak, poi_target=poi_target, policy=policy,
+            policy=policy,
             role_words=role_words,
             pop_seed=pop_seed, env_seed=env_seed, tpd=tpd, total_ticks=total_ticks, t_begin=t_begin, t_end=t_end,
             activity_on=activity_on, energy_on=energy_on, familiarity_on=familiarity_on, memory_on=memory_on,

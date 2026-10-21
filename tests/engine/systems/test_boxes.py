@@ -21,6 +21,11 @@ BOX_CLASSES = {
 BOX_ATTR = {"stats": "runstats"}
 #: 表の欄の名 → 箱の欄の名(名の衝突を避けて変えたもの)。
 FIELD_RENAMES = {("stats", "sleep_counts"): "sleep_tally"}
+#: 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧道の切替口と一緒に消した設定の欄(表は HEAD ee3abc7 の割り当ての記録=凍結のまま)。
+REMOVED_FIELDS = {("cfg", "leave_effect"), ("cfg", "poi_target"), ("cfg", "near_tiebreak"), ("cfg", "near_order")}
+#: 〔第 2 部〕run_day の引数から消した切替口(leave_effect・poi_target・near_tiebreak・near_order・rel_tenure_hash・
+#: response_delay=113 → 107)。
+REMOVED_PARAMS = ("leave_effect", "poi_target", "near_tiebreak", "near_order", "rel_tenure_hash", "response_delay")
 
 
 def _fields(cls) -> set[str]:
@@ -48,6 +53,9 @@ def test_box_targets_exist():
         box, fld = to[4:].split(".", 1)
         fld = fld.split("(")[0]
         fld = FIELD_RENAMES.get((box, fld), fld)
+        if (box, fld) in REMOVED_FIELDS:
+            assert fld not in _fields(BOX_CLASSES[box]), f"消した欄が残っている: {box}.{fld}"
+            continue
         if fld not in _fields(BOX_CLASSES[box]):
             missing.append(f"{name} → {to}")
     assert not missing, missing
@@ -125,7 +133,7 @@ def test_run_day_signature_is_unchanged_and_build_unpacks_every_argument():
     from shibuya.engine import run as RUN
 
     params = list(inspect.signature(RUN.run_day).parameters)
-    assert len(params) == 113
+    assert len(params) == 113 - len(REMOVED_PARAMS) and not set(REMOVED_PARAMS) & set(params)
     src = inspect.getsource(RUN.run_day)
     body = ast.parse(src).body[0].body
     first = body[1] if isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant) else body[0]

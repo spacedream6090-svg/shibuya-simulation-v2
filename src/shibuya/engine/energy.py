@@ -7,11 +7,11 @@
 - 錨 ``docs/bench/anchors/hunger_energy_build_anchors_v0.json``(構築側)と ``hunger_energy_validation_anchors_v0.json``
   (検証側)の 2 本〔第 2 期 2-4 V6=前は 1 本 ``hunger_energy_anchors_v0.json`` に混在〕(追跡ファイル・
   ``tools/hunger/build_hunger_anchors.py`` が ``data/calib/hunger/`` から決定論で生成)。
-  **〔小さな版上げ・回答 10-13b §7 の 2・§0-6〕既定の腕 ``--meal-default w17`` では構築側の 1 本だけを読む**
-  (:func:`load_anchors`)。範囲外の人の既定の食事時刻と初期の空腹は **W17 v2 の日課の食事の行の開始の分布**
+  **〔小さな版上げ・回答 10-13b §7 の 2・§0-6〕構築側の 1 本だけを読む**(:func:`load_anchors`)。範囲外の人の既定の食事時刻と初期の空腹は **W17 v2 の日課の食事の行の開始の分布**
   (構築側=:class:`MealStartDistribution`)から体ごとに引く。第 18-1 表と 15 分の食事率は検証専用のまま(エンジンは
-  検証側のファイルを開かない=試験 ``tests/engine/body/test_meal_default_w17.py``)。腕 ``validation`` は**旧値の再現の
-  ためだけ**の道(2 本を読み、前と同じ既定の時刻=次の版上げで消す=つなぎの台帳)。
+  検証側のファイルを開かない=試験 ``tests/engine/body/test_meal_default_w17.py``)。〔第 4 期 4-3 版上げ 3 回目の第 2 部〕
+  旧値の再現の腕 ``validation``(2 本を読み第 18-1 表の時刻を使う道)は消した=旧値の再現は安定版のタグ
+  ``stable-v2-before-meal-default-w17``。
   **エンジンは data/ を読まない**(W17 は組み立てが世界資産から読んだ表を受け取る)。
 
 本モジュールの役割
@@ -35,10 +35,9 @@
 - 語(K2 (a)): ``since_meal / (eer/3)`` の比 → 満腹 <0.25 / ふつう / 空腹 ≥0.75 / とても空腹 ≥1.5。
   ``hunger`` はその写し(1 / 5 / 8 / 10)= ``INTERO_UP_EDGES=(4,7,9)`` の跨ぎがそのまま段の跨ぎ。
 - 範囲外の食事(K9 (a)): W17 の食事行の開始(その時刻に域外)+食事行の無い時間帯は既定の時刻。
-  既定の時刻は腕 ``w17``(既定)=体ごとに W17 v2 の食事の行の開始の分布(朝・昼・夕の窓ごと)から Philox で引く
-  (鍵=母集団の seed・体の番号)。腕 ``validation``=旧(第18-1表 東京都 平日の朝と夕・第7-1表 平日 東京都 総数の
-  最大区分の開始の昼=検証側の表=旧値の再現のためだけ)。
-- 初期の空腹(腕 ``w17``): 0:00 の食後の消費=EER ×(1440 − 前夜の夕食の分)/1440。前夜の夕食の分は、その体の
+  既定の時刻は体ごとに W17 v2 の食事の行の開始の分布(朝・昼・夕の窓ごと)から Philox で引く
+  (鍵=母集団の seed・体の番号)。
+- 初期の空腹: 0:00 の食後の消費=EER ×(1440 − 前夜の夕食の分)/1440。前夜の夕食の分は、その体の
   W17 のその日の夕の窓の食事の行(最後の行の開始)があればそれ、無ければ既定の夕食の時刻(上で引いた値)
   (1 日の表を日ごとに繰り返す=前の日も同じ予定・仮採用)。
 
@@ -54,8 +53,8 @@
 6. ``MealStartDistribution``(既定の食事時刻・起動時 1 回): 時間帯 3 つぶん。体の引きは ``philox_array``
    (配列演算・ブロックの数ぶん)。新しい逐次ループは無い。
 
-既定の食事時刻(小さな版上げ・回答 10-13b §7 の 2・腕 ``--meal-default {w17,validation}``・環境変数
-``SHIBUYA_MEAL_DEFAULT``・既定 ``w17``)
+既定の食事時刻(小さな版上げ・回答 10-13b §7 の 2=``w17`` だけ。〔第 2 部〕切替口 ``--meal-default``・環境変数
+``SHIBUYA_MEAL_DEFAULT`` は消した=環境変数を与えると止まる)
 - 分布の出どころ: 組み立てが世界資産の W17(週次表の全員・``restrict_to`` の前)から作る=その日(暦の曜日)の
   食事の行の開始(朝・昼・夕の窓ごとの分の値そのもの)。その日に行の無い窓は全曜日をまとめ、それも無ければ
   凍結の表 :data:`W17V2_MEAL_START_HIST_15MIN`(W17 2.0.0 の月曜の 15 分の度数・世界資産の無いラン=合成の世界)。
@@ -101,7 +100,6 @@ __all__ = [
     "ANCHORS_BUILD_PATH",
     "ANCHORS_VALIDATION_PATH",
     "ANCHORS_PATHS",
-    "ANCHORS_REL",
     "HUNGER_MODELS",
     "DEFAULT_HUNGER_MODEL",
     "ENERGY_RATES",
@@ -139,7 +137,6 @@ __all__ = [
     "check_home_meal",
     "w17_wake_minute",
     "MEAL_DEFAULT_W17",
-    "MEAL_DEFAULT_VALIDATION",
     "MEAL_DEFAULT_MODES",
     "DEFAULT_MEAL_DEFAULT",
     "MEAL_DEFAULT_ENV",
@@ -149,21 +146,21 @@ __all__ = [
     "W17V2_FROZEN_SOURCE",
     "check_meal_default",
     "meal_default",
-    "set_meal_default",
     "anchors_paths",
     "anchors_rel",
     "MealStartDistribution",
     "meal_start_distribution",
 ]
 
-#: **小さな版上げ(回答 10-13b §7 の 2・§0-6)** 範囲外の人の既定の食事時刻と初期の空腹の出どころ(``--meal-default``)。
-#: ``w17``(既定)=W17 v2 の日課の食事の行の開始の分布(構築側)から体ごとに引く。``validation``=**旧値の再現のためだけ**
-#: (第 18-1 表・15 分の食事率=検証側の錨のファイルを読む前の版の道=次の版上げで消す=つなぎの台帳)。
+#: **小さな版上げ(回答 10-13b §7 の 2・§0-6)** 範囲外の人の既定の食事時刻と初期の空腹の出どころ=``w17``
+#: (W17 v2 の日課の食事の行の開始の分布(構築側)から体ごとに引く)だけ。〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧値の再現の
+#: 腕 ``validation``(第 18-1 表・15 分の食事率=検証側の錨のファイルを読む道)と切替口(``--meal-default``・環境変数)は
+#: 消した=旧値の再現は安定版のタグ ``stable-v2-before-meal-default-w17``。manifest の ``energy.meal_default`` は出どころの
+#: 印として残す(2-0 の計器が読む)。
 MEAL_DEFAULT_W17: Final[str] = "w17"
-MEAL_DEFAULT_VALIDATION: Final[str] = "validation"
-MEAL_DEFAULT_MODES: Final[tuple[str, ...]] = (MEAL_DEFAULT_W17, MEAL_DEFAULT_VALIDATION)
+MEAL_DEFAULT_MODES: Final[tuple[str, ...]] = (MEAL_DEFAULT_W17,)
 DEFAULT_MEAL_DEFAULT: Final[str] = MEAL_DEFAULT_W17
-#: 腕の環境変数(CLI ``--meal-default`` と同じ・指定は CLI が強い)。
+#: 消した切替口の環境変数(与えると止まる=黙って無視しない)。
 MEAL_DEFAULT_ENV: Final[str] = "SHIBUYA_MEAL_DEFAULT"
 #: 体ごとの既定の食事時刻の乱数の鍵の領域(鍵=母集団の seed・体の番号=k19 の並べ方)。
 MEAL_DEFAULT_RNG_DOMAIN: Final[str] = "energy.meal_default"
@@ -172,16 +169,14 @@ MEAL_DEFAULT_EXPEDIENTS: Final[tuple[str, ...]] = (
     "範囲外の人(その時間帯に W17 の食事の行が無い体)の既定の食事時刻は、W17 v2 の日課の食事の行の開始の分布"
     "(構築側・朝・昼・夕の窓ごと)から体ごとに引く(回答 10-13b §7 の 2=つなぎ)。外す段は判断モデルの段で、既定の"
     "食事時刻をなくし、空腹と本人の判断で食べる時刻を決める形にする(10-03 §7-1「範囲外の人の 1 日を移す」)",
-    "腕 --meal-default validation は旧値の再現のためだけの道(第 18-1 表・15 分の食事率=検証側の錨のファイルを読む)。"
-    "次の版上げで消す(回答 10-13b §0-6=旧値の再現は安定版のタグで行う)",
     "世界資産の W17 の無いラン(合成の世界)は凍結の表 W17V2_MEAL_START_HIST_15MIN(W17 2.0.0 の月曜の食事の行の"
     "開始の 15 分の度数)から引き、区間の中は一様。その日に行の無い窓は全曜日をまとめる",
     "初期の空腹の前夜の夕食の分は、その体の W17 のその日の夕の窓の最後の食事の行の開始(無ければ引いた既定の夕食の"
     "時刻)。1 日の表を日ごとに繰り返す=体の既定の時刻は毎日同じ(習慣の代わり)",
 )
-_MEAL_DEFAULT: str = os.environ.get(MEAL_DEFAULT_ENV, DEFAULT_MEAL_DEFAULT).strip().lower() or DEFAULT_MEAL_DEFAULT
-if _MEAL_DEFAULT not in MEAL_DEFAULT_MODES:
-    raise ValueError(f"{MEAL_DEFAULT_ENV} は {MEAL_DEFAULT_MODES} のどれか(いま {_MEAL_DEFAULT!r})")
+if os.environ.get(MEAL_DEFAULT_ENV, "").strip():
+    raise ValueError(f"{MEAL_DEFAULT_ENV} は消した切替口(第 4 期 4-3 版上げ 3 回目の第 2 部・旧値の再現は安定版のタグ "
+                     "stable-v2-before-meal-default-w17)=環境変数を外す")
 
 #: 凍結の表(世界資産の W17 の無いランだけが使う): W17 2.0.0(``w17_schedule.parquet``・下の sha256)の月曜(d0)の
 #: 全員 390,067 体の活動語「食事」の行の開始を、時間帯の窓(``MEAL_WINDOWS_MIN``)の頭から 15 分ごとに数えた度数。
@@ -216,14 +211,8 @@ def check_meal_default(value: str) -> str:
 
 
 def meal_default() -> str:
-    """いまの腕(``w17``=既定・``validation``=旧値の再現)。組み立てのとき(``EnergyModel`` を作るとき)に読む。"""
-    return _MEAL_DEFAULT
-
-
-def set_meal_default(name: str) -> None:
-    """腕を選ぶ(CLI ``--meal-default``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。"""
-    global _MEAL_DEFAULT
-    _MEAL_DEFAULT = check_meal_default(name)
+    """既定の食事時刻の出どころ(``w17`` だけ=〔第 2 部〕旧値の腕と切替口は消した)。"""
+    return DEFAULT_MEAL_DEFAULT
 
 #: **第2波 §2B 項 1(Q34 (b))** 就寝中に既定の食事時刻が来た体の扱い(``--meal-sleep-defer``)。
 #: ``off``=旧(W17 の就寝中かどうかは見ない)・``on``=起床の時刻へ遅らせ、窓の中なら食べる。
@@ -240,19 +229,16 @@ _ANCHORS_DIR: Final[Path] = Path(__file__).resolve().parents[3] / "docs" / "benc
 ANCHORS_BUILD_PATH: Final[Path] = _ANCHORS_DIR / "hunger_energy_build_anchors_v0.json"
 ANCHORS_VALIDATION_PATH: Final[Path] = _ANCHORS_DIR / "hunger_energy_validation_anchors_v0.json"
 ANCHORS_PATHS: Final[tuple[Path, Path]] = (ANCHORS_BUILD_PATH, ANCHORS_VALIDATION_PATH)
-#: manifest の ``energy.anchors`` に書く道筋(リポ直下からの相対・2 本を ``+`` でつなぐ)=腕 ``validation`` の形。
-ANCHORS_REL: Final[str] = "+".join(f"docs/bench/anchors/{q.name}" for q in ANCHORS_PATHS)
 
 
-def anchors_paths(mode: str | None = None) -> tuple[Path, ...]:
-    """腕ごとにエンジンが読む錨のファイル。``w17``(既定)=構築側の 1 本だけ・``validation``=2 本(旧値の再現)。"""
-    m = meal_default() if mode is None else check_meal_default(mode)
-    return ANCHORS_PATHS if m == MEAL_DEFAULT_VALIDATION else (ANCHORS_BUILD_PATH,)
+def anchors_paths() -> tuple[Path, ...]:
+    """エンジンが読む錨のファイル=構築側の 1 本だけ(〔第 2 部〕検証側を読む旧値の腕は消した)。"""
+    return (ANCHORS_BUILD_PATH,)
 
 
-def anchors_rel(mode: str | None = None) -> str:
-    """manifest の ``energy.anchors`` の道筋(腕ごと)。"""
-    return "+".join(f"docs/bench/anchors/{q.name}" for q in anchors_paths(mode))
+def anchors_rel() -> str:
+    """manifest の ``energy.anchors`` の道筋。"""
+    return "+".join(f"docs/bench/anchors/{q.name}" for q in anchors_paths())
 
 #: 空腹のモデル(``--hunger-model``)。``v1``=旧規則(+1/30 分・購入/食事で −4)。
 HUNGER_MODELS: Final[tuple[str, ...]] = ("v1", "energy")
@@ -411,34 +397,20 @@ def w17_wake_minute(
     return out
 
 
-def load_anchors(path: str | Path | None = None, *, mode: str | None = None) -> tuple[dict[str, Any], str]:
+def load_anchors(path: str | Path | None = None) -> tuple[dict[str, Any], str]:
     """錨の追跡ファイルを読む → ``(辞書, md5)``。
 
-    〔小さな版上げ・回答 10-13b §7 の 2〕``path`` を省くと腕(``mode``・省けば :func:`meal_default`)のファイル
-    (:func:`anchors_paths`)を読む。既定の ``w17`` は**構築側の 1 本だけ**(検証側のファイルは開かない)。md5 はその
-    バイト列。腕 ``validation``(旧値の再現のためだけ)は〔第 2 期 2-4 V6〕の形=構築側と検証側の 2 本を読み、1 つの辞書に
-    戻す(表と ``sources`` を合わせる・見出しは構築側・``split_from`` の注は落とす=分ける前の 1 本と同じ辞書)。md5 は
-    2 本のバイト列をこの順につないだもの。``path`` を渡せばその 1 本だけ(分ける前の形の試験の口)。
+    〔小さな版上げ・回答 10-13b §7 の 2〕``path`` を省くと**構築側の 1 本だけ**(検証側のファイルは開かない・
+    ``split_from`` の注は落とす)。md5 はそのバイト列。``path`` を渡せばその 1 本だけ(分ける前の形の試験の口)。
+    〔第 2 部〕検証側と 2 本を合わせて読む旧値の腕 ``validation`` の道は消した(再現は安定版のタグ)。
     """
     if path is not None:
         raw = Path(path).read_bytes()
         return json.loads(raw.decode("utf-8")), hashlib.md5(raw).hexdigest()
-    paths = anchors_paths(mode)
-    if len(paths) == 1:
-        raw = paths[0].read_bytes()
-        out1 = dict(json.loads(raw.decode("utf-8")))
-        out1.pop("split_from", None)
-        return out1, hashlib.md5(raw).hexdigest()
-    raws = [q.read_bytes() for q in paths]
-    docs = [json.loads(r.decode("utf-8")) for r in raws]
-    out = dict(docs[0])
-    for k, v in docs[1].items():
-        if k == "sources" and isinstance(v, dict):
-            out[k] = {**out.get(k, {}), **v}
-        elif k not in out:
-            out[k] = v
-    out.pop("split_from", None)
-    return out, hashlib.md5(b"".join(raws)).hexdigest()
+    raw = ANCHORS_BUILD_PATH.read_bytes()
+    out1 = dict(json.loads(raw.decode("utf-8")))
+    out1.pop("split_from", None)
+    return out1, hashlib.md5(raw).hexdigest()
 
 
 def _sex_rows(male: list[float], female: list[float]) -> np.ndarray:
@@ -517,20 +489,9 @@ class EnergyModel:
         self.mets_sitting = float(mets[METS_CODE["sitting"]])
         self.mets_walk_dest = float(mets[METS_CODE["walk_dest"]])
         self.mets_wander = float(mets[METS_CODE["wander"]])
-        if self.meal_default == MEAL_DEFAULT_VALIDATION:
-            # 旧値の再現のためだけ(検証側の表=第 18-1 表・15 分の食事率の導出・次の版上げで消す)
-            if "ssb2021_t18_1_weekday" not in a:
-                raise ValueError("腕 validation の既定の食事時刻は検証側の錨が要る(load_anchors(mode='validation'))")
-            t18 = a["ssb2021_t18_1_weekday"]["tokyo"]
-            self.default_meal_min = {
-                "breakfast": int(t18["breakfast_start"]["mean_min"]),
-                "lunch": int(a["derived"]["lunch_default"]["start_min"]),
-                "dinner": int(t18["dinner_start"]["mean_min"]),
-            }
-        else:
-            # 腕 w17: 体ごとの既定は MealStartDistribution から引く(OutOfAreaMeals)。ここは代表値(凍結の表の中央値=
-            # 体ごとの引きの無い呼び手=initial_since_meal を dinner_min なしで呼ぶ口と manifest の default_meal_min だけ)
-            self.default_meal_min = MealStartDistribution.frozen().medians()
+        # 体ごとの既定は MealStartDistribution から引く(OutOfAreaMeals)。ここは代表値(凍結の表の中央値=体ごとの引きの
+        # 無い呼び手=initial_since_meal を dinner_min なしで呼ぶ口と manifest の default_meal_min だけ)
+        self.default_meal_min = MealStartDistribution.frozen().medians()
         self.ticks_per_day = MINUTES_PER_DAY / float(self.minutes_per_tick)
 
     # ---- 体の定数(ラン開始時に 1 回) ----
@@ -652,8 +613,7 @@ class EnergyModel:
     def initial_since_meal(self, eer: np.ndarray, dinner_min: np.ndarray | None = None) -> np.ndarray:
         """ランの始め(0:00)の食後の消費=前夜の夕食から 0:00 まで基準日の速さ(宣言)。
 
-        ``dinner_min``(体ごとの前夜の夕食の分・腕 ``w17`` の ``OutOfAreaMeals.prev_dinner_min``)を省くと既定の分
-        (腕 ``validation`` は前と同じ 1 つの値=旧値の再現)。"""
+        ``dinner_min``(体ごとの前夜の夕食の分・``OutOfAreaMeals.prev_dinner_min``)を省くと既定の分(凍結の表の中央値)。"""
         if dinner_min is None:
             frac = (MINUTES_PER_DAY - self.default_meal_min["dinner"]) / MINUTES_PER_DAY
             return (np.asarray(eer, dtype=np.float64) * frac).astype(np.float32)
@@ -694,12 +654,10 @@ class EnergyModel:
                             "snack = snack/(4 meals)); other slots use lunch",
             "drink_share": DRINK_SHARE,
             "default_meal_min": dict(self.default_meal_min),
-            "initial_since_meal": (
-                "eer x (1440 - default dinner min)/1440" if self.meal_default == MEAL_DEFAULT_VALIDATION
-                else "eer x (1440 - previous dinner min)/1440 (own W17 dinner row, else the drawn default dinner)"),
+            "initial_since_meal": "eer x (1440 - previous dinner min)/1440 (own W17 dinner row, else the drawn default dinner)",
             "eer_floor_pal": EER_FLOOR_PAL,
-            # 〔小さな版上げ〕既定 w17=構築側の 1 本・validation=構築側+検証側の 2 本(旧値の再現)
-            "anchors": anchors_rel(self.meal_default),
+            # 〔小さな版上げ〕構築側の 1 本だけ
+            "anchors": anchors_rel(),
             "anchors_md5": self.anchors_md5,
             "meal_default": self.meal_default,
         }
@@ -840,11 +798,8 @@ class MealStartDistribution:
         return out
 
 
-def meal_start_distribution(weekly: Any, day_index: int = 0, mode: str | None = None) -> MealStartDistribution | None:
-    """組み立ての口: 腕 ``w17`` なら週次表(全員)から分布を作る・``validation`` なら None(旧の道は使わない)。"""
-    m = meal_default() if mode is None else check_meal_default(mode)
-    if m != MEAL_DEFAULT_W17:
-        return None
+def meal_start_distribution(weekly: Any, day_index: int = 0) -> MealStartDistribution:
+    """組み立ての口: 週次表(全員)から分布を作る(週次表が無ければ凍結の表)。"""
     return MealStartDistribution.from_weekly(weekly, day_index)
 
 
@@ -854,7 +809,7 @@ class OutOfAreaMeals:
     - W17 の**食事行**(活動語「食事」)の開始 → その時刻に域外(``transit_state==2``)なら食事。
     - 時間帯(朝/昼/夕)に食事行が 1 本も無い体は**既定の時刻**に、その時刻に域外なら食事(アジェンダ §1-5 の
       文言どおり=W17 の就寝中かどうかは見ない)。既定の時刻は腕 ``w17``(既定)=体ごとに W17 v2 の食事の行の開始の
-      分布(:class:`MealStartDistribution`)から引いた値・腕 ``validation``=旧値の再現のためだけの 1 つの値。
+      分布(:class:`MealStartDistribution`)から引いた値。
     - 週次表の無いラン(合成・母集団なし)は全員に既定の時刻だけ(域外に居なければ何も起きない)。
 
     **第2波 §2B 項 1(Q34 (b)・``sleep_defer="on"``)**: 既定の時刻に W17 が「就寝」の体は、その時刻には
@@ -881,7 +836,7 @@ class OutOfAreaMeals:
     ) -> None:
         """``seed``=母集団の seed(腕 ``w17`` の体ごとの引きの鍵・組み立てが渡す・試験は省いて 0)。``distribution``=
         既定の食事時刻の分布(組み立ては週次表の**全員**から作って渡す=:func:`meal_start_distribution`。省くと渡した
-        ``weekly`` から作る・腕 ``validation`` では使わない)。"""
+        ``weekly`` から作る)。"""
         self.sleep_defer = check_meal_sleep_defer(sleep_defer)
         self.meal_default = str(model.meal_default)
         #: 10a: 表は 1 日ぶん(日の中の tick)。通しの時刻 T は ``T % 1 日の tick 数`` で引く
@@ -924,19 +879,14 @@ class OutOfAreaMeals:
                 has_row[a_eat[in_window], slot[in_window]] = True
                 dn = slot == SLOT_DINNER
                 np.maximum.at(own_dinner, a_eat[dn], s_eat[dn])
-        # ---- 既定の時刻: 腕 w17=体ごとに分布から引く・validation=旧(1 つの値=旧値の再現のためだけ) ----
-        self.distribution: MealStartDistribution | None = None
-        self.prev_dinner_min: np.ndarray | None = None
-        if self.meal_default == MEAL_DEFAULT_W17:
-            dist = distribution if distribution is not None else MealStartDistribution.from_weekly(weekly, day_index)
-            self.distribution = dist
-            drawn = dist.draw(n, seed)
-            self.default_min = drawn
-            # 初期の空腹の前夜の夕食=自分の W17 の夕の窓の最後の食事の行、無ければ引いた既定の夕食(仮採用)
-            self.prev_dinner_min = np.where(own_dinner >= 0, own_dinner, drawn[:, SLOT_DINNER]).astype(np.int64)
-        else:
-            self.default_min = np.repeat(
-                np.asarray([[model.default_meal_min[k] for k in _SLOT_KEYS]], dtype=np.int64), n, axis=0)
+        # ---- 既定の時刻: 体ごとに分布から引く(〔第 2 部〕1 つの値の旧値の腕 validation は消した) ----
+        dist = distribution if distribution is not None else MealStartDistribution.from_weekly(weekly, day_index)
+        self.distribution: MealStartDistribution | None = dist
+        drawn = dist.draw(n, seed)
+        self.default_min = drawn
+        # 初期の空腹の前夜の夕食=自分の W17 の夕の窓の最後の食事の行、無ければ引いた既定の夕食(仮採用)
+        self.prev_dinner_min: np.ndarray | None = np.where(
+            own_dinner >= 0, own_dinner, drawn[:, SLOT_DINNER]).astype(np.int64)
         for s, key in enumerate(("breakfast", "lunch", "dinner")):
             need = np.flatnonzero(~has_row[:, s])
             agent_parts.append(need.astype(np.int64))
@@ -1385,11 +1335,10 @@ class EnergyLayer:
         n = max(1, int(self.n_agents))
         use = oom.default_use_summary() | {"ate": {"agents": ate, "share": round(ate / n, 6),
                                                    "meals": int(self.counts.get("meals_out_default", 0))}}
-        src = (oom.distribution.manifest() if oom.distribution is not None
-               else {"kind": "validation_anchors(旧値の再現のためだけ・次の版上げで消す)"})
+        src = oom.distribution.manifest() if oom.distribution is not None else {}
         return {"meal_default_source": src, "meal_default_use": use}
 
     @property
     def initial_dinner_min(self) -> np.ndarray | None:
-        """初期の空腹の前夜の夕食の分(体ごと・腕 ``w17``)。腕 ``validation`` と範囲外の予定の無い層は None(既定の分)。"""
+        """初期の空腹の前夜の夕食の分(体ごと)。範囲外の予定の無い層は None(既定の分)。"""
         return None if self.out_of_area is None else self.out_of_area.prev_dinner_min

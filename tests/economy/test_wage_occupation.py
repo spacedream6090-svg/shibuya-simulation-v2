@@ -328,21 +328,13 @@ def test_payroll_pays_occupation_wages_with_matching_funding(monkeypatch):
         st2.monthly_wage[0] = 1  # 読み取り専用
 
 
-def test_payroll_w17_arm_keeps_the_old_amount(monkeypatch):
-    monkeypatch.setattr(WG, "load_wage_tables", lambda root=None: pytest.fail("w17 は賃金の表を読まない"))
+def test_payroll_w17_arm_is_removed(monkeypatch):
+    """〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧値の腕 w17(W17 の勤務時間 × 最低賃金)は消した=渡すと止まる(再現は安定版の
+    タグ stable-v2-before-wage-occupation)。"""
     led = Ledger(4, 2, 3)
-    led.attach_stage2(_plan(wage_model="w17"))
-    assert led.stage2.monthly_wage is None and led.stage2.wage_source == "w17"
-    led.endow_households(np.full(4, 1_000), 0)
-    dep0 = np.asarray(led.balance(BalanceLine.DEPOSIT, H), dtype=np.int64).copy()
-    led.on_day_end(0)
-    led.on_day_end(1)
-    pay = int(round(S2.DEFAULT_MONTHLY_HOURS * 1_226))
-    assert list(np.asarray(led.balance(BalanceLine.DEPOSIT, H), dtype=np.int64) - dep0) == [pay, 0, pay, pay]
-    assert "wage_model" not in led.stage2.s2_meter["rules"]
-    rec = led.stage2.manifest_record(led)
-    assert "wage_path" not in rec["plan"] and "wage_build" not in rec["rules"]
-    assert led.stage2.growth_declaration(employers=3).per_agent_bytes == S2.BYTES_PER_AGENT
+    with pytest.raises(ValueError, match="occupation だけ"):
+        led.attach_stage2(_plan(wage_model="w17"))
+    assert not hasattr(ES2, "WAGE_W17") and not hasattr(ES2, "set_wage_arm") and not hasattr(ES2, "weekly_work_hours")
 
 
 def test_tables_absent_falls_back_with_a_note(monkeypatch):
@@ -359,36 +351,38 @@ def test_tables_absent_falls_back_with_a_note(monkeypatch):
 
 
 # ================================================================ 切替口・見出し・再開
-def test_arm_switch_header_and_resume_check(monkeypatch):
-    assert ES2.DEFAULT_WAGE == "occupation" and ES2.WAGE_ARMS == ("occupation", "w17")
-    with pytest.raises(ValueError):
-        ES2.set_wage_arm("hours")
+def test_wage_path_header_and_resume_check(monkeypatch):
+    """賃金の道は occupation だけ(〔第 2 部〕腕 w17 と切替口は消した)。見出しは賃金の道を持ち、見出しに無い(版上げの前)・
+    違う道の再開は止まる。"""
+    assert ES2.DEFAULT_WAGE == "occupation" and ES2.WAGE_ARMS == ("occupation",) and ES2.wage_arm() == "occupation"
     monkeypatch.setattr(ES2, "_ARM", ES2.ARM_ON)
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
     plan_occ = types.SimpleNamespace(parts=ES2.PARTS, wage_model="occupation")
-    plan_w17 = types.SimpleNamespace(parts=ES2.PARTS, wage_model="w17")
     assert ES2.header_fields(plan_occ) == {"arm": "on", "parts": list(ES2.PARTS), "wage": "occupation"}
-    assert ES2.header_fields(plan_w17) == {"arm": "on", "parts": list(ES2.PARTS)}  # w17 の見出しは今のまま
-    monkeypatch.setattr(ES2, "_WAGE", "occupation")
     ES2.check_resume({"arm": "on", "parts": list(ES2.PARTS), "wage": "occupation"})
     with pytest.raises(ValueError, match="賃金の腕"):
         ES2.check_resume({"arm": "on", "parts": list(ES2.PARTS)})  # 見出しに無い=w17(版上げの前の状態)
-    monkeypatch.setattr(ES2, "_WAGE", "w17")
-    ES2.check_resume({"arm": "on", "parts": list(ES2.PARTS)})
+    with pytest.raises(ValueError, match="賃金の腕"):
+        ES2.check_resume({"arm": "on", "parts": list(ES2.PARTS), "wage": "w17"})
     ES2.check_resume({"arm": "off"}, effective=False)
 
 
-def test_cli_wage_switch(monkeypatch):
+def test_removed_wage_switch_env_and_cli_flag_stop():
+    """〔第 2 部〕消した切替口: 環境変数 SHIBUYA_WAGE を与えると読み込みで止まる・CLI の --wage は無い。"""
+    import os
+    import subprocess
+    import sys
+
     from shibuya import cli
 
-    seen = []
-    monkeypatch.setattr(ES2, "set_wage_arm", lambda name: seen.append(name))
-    monkeypatch.setattr(cli, "run", lambda **kw: types.SimpleNamespace())
+    env = {**os.environ, "SHIBUYA_WAGE": "w17", "PYTHONIOENCODING": "utf-8"}
+    r = subprocess.run([sys.executable, "-c", "import shibuya.engine.economy_stage2"], env=env, capture_output=True,
+                       text=True, encoding="utf-8")
+    assert r.returncode != 0 and "消した切替口" in r.stderr
     src = inspect.getsource(cli)
-    assert '"--wage"' in src and "set_wage_arm(str(args.wage))" in src
-    assert "_ES2.wage_arm() != _ES2.DEFAULT_WAGE" in src  # 既定と違えば腕のラン
+    assert '"--wage"' not in src and "set_wage_arm" not in src
     with pytest.raises(SystemExit):
-        cli.main(["--wage", "hours"])
+        cli.main(["--wage", "w17"])
 
 
 # ================================================================ 〔検収 M1〕最低賃金法の床

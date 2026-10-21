@@ -91,7 +91,7 @@ PATHS: Final[dict[str, str]] = {
     # ---- 腕(設定) ----
     "p_notice_ablation": _C, "p_notice_d50_scale": _C, "refractory_scale": _C, "signage": _C, "signage_p_see": _C,
     "intent_mode": _C, "vocab_version": _C, "role_words": _C, "activity": _C, "eatery": _C, "chooser": _C,
-    "poi_target": _C, "move_search_radius": _C, "mock_move_target_p": _C, "intent_max_ticks": _C,
+    "move_search_radius": _C, "mock_move_target_p": _C, "intent_max_ticks": _C,
     "mock_out_of_cell_target_p": _C, "familiarity": _C, "familiarity_k": _C, "hunger_model": _C, "energy_rate": _C,
     "meal_sleep_defer": _C, "home_meal": _C, "hunger_words": _C, "policy": _C, "memory": _C, "memory_n": _C,
     "store_memory": _C, "synonym_table_version": _C, "sleep_suppression": _C, "plan_sleep": _C,
@@ -175,10 +175,10 @@ PATHS: Final[dict[str, str]] = {
         "departures", "deferred", "forced_after_defer", "shopping_interrupted", "queue_balked",
         "exit_cell_in_area_by_hour", "platform_cell_in_area_by_hour", "exit_cell_density_stage_max_by_hour",
         "immediate")),
-    **_mixed("leave_effects", config=("enabled", "seat_release"), observed=(
+    **_mixed("leave_effects", config=("seat_release",), observed=(
         "leave", "released_indoor", "left_queue", "was_conversing", "sessions_closed",
         "released_on_walk")),  # 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く腕(設定)と解いた数(観測)
-    **_mixed("near_tiebreak", config=("mode", "order"), observed=("ties_broken", "tie_candidates", "order_ties")),
+    **_mixed("near_tiebreak", config=(), observed=("ties_broken", "tie_candidates", "order_ties")),
     **_mixed("group_norms", config=("enabled", "declared"), observed=(
         "cowalk", "instant_group_walk", "conversation_group_size_a1", "context_entropy", "role_words",
         "propagation")),

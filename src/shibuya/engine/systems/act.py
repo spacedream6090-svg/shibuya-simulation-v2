@@ -87,7 +87,6 @@ def sys_phase_c(ctx: Any, b: Any) -> None:
     focus_request = b.buffers.focus_request
     geom = b.fx.geom
     leave_counts = b.runstats.leave_counts
-    leave_effect = b.cfg.leave_effect
     ledger = b.layers.ledger
     mem_layer = b.layers.mem_layer
     norm_meter = b.layers.norm_meter
@@ -118,7 +117,6 @@ def sys_phase_c(ctx: Any, b: Any) -> None:
         salient=None if runner is None or not runner.is_enabled("salient") else runner.salient,
         report_precondition=bool(report_precondition),
         queue_service=bool(queue_service),
-        leave_effect=bool(leave_effect),
         vocab_version=vocab_version,
         geometry=geom,
         focus_request=focus_request,

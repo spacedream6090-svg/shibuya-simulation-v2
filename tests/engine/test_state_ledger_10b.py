@@ -54,7 +54,7 @@ T7_TARGET_SECONDS = 0.100
 T7_SHARE_CAP = 0.01
 #: T7 で確かめる既定 v3 の final(10e の版上げの段ごとに張り替える)。
 T7_V3_FINAL = "eb759bb4e5be37ec"  # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)で動いた(前 333b1820f7849b00=記録 pop43)  # 〔小さな版上げ・meal_w17〕前 b8eadcb51e8705e7(--meal-default validation で戻る)
-_T7_V3_FINAL_PRE_MEAL_W17 = "5b080133301bf13d"  # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界の旧値の腕(前 b8eadcb51e8705e7=記録 pop43)  # 〔改訂(第330・ACT)〕活性化の値(B6build は 0483d1165e245bed・E4・E5 は 4fbf61616af1e3d2・E1 は 3264c9fc190b3eb9・E2 は 4985ff2fb3c771c4)  # 〔2-4 V1〕前 5f7ae9ff24005314  # 〔2-4 V2〕前 4bcca9f0216362bb  # 〔2-4 V3〕前 7857ecb16b9665cd  # 〔2-4 V4〕前 f6488d4d5eadf5ca
+# 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧値の腕 --meal-default validation の final の定数 _T7_V3_FINAL_PRE_MEAL_W17(最後の値 5b080133301bf13d=差し替えの世界・前 b8eadcb51e8705e7=W16 の世界)は切替口と一緒に消した(再現は安定版のタグ stable-v2-before-meal-default-w17)
 #: A2 (b): 構成で読み手が変わる 6 列(どの構成でも behavior)。
 A2B_SIX = ("age", "sex", "talk_partner", "weight_kg", "sm_last", "mem_last")
 

@@ -70,7 +70,6 @@ def _run(tmp: Path, keio: bool, monkeypatch) -> tuple[C.StageResult, dict]:
     tmp.mkdir(parents=True, exist_ok=True)
     for n in _UPSTREAM:
         shutil.copy2(WORLD / n, tmp / n)
-    monkeypatch.setattr(w12, "USE_REAL_TIMETABLES", True)
     monkeypatch.setattr(RT, "USE_ODPT_CHALLENGE", keio)
     res = w12.run(C.Ctx(data=DATA_DIR, out=tmp))
     return res, C.read_parquet_columns(tmp / "w12_timetables.parquet")

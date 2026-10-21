@@ -184,7 +184,7 @@ def test_no_rail_line_is_left_for_equal_interval_statically():
     covered = {s.line for s in RT.USER_TABLES} | set(w12.METRO_LINES_KEPT_WITH_REAL) | {RT.GINZA_SPEC.line}
     covered |= {RT.FOLD_LINES.get(ln, ln) for ln in list(covered)}
     assert node_lines - covered == set()
-    assert w12.USE_REAL_TIMETABLES is True
+    assert not hasattr(w12, "USE_REAL_TIMETABLES")  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕1.1.0 の再現の切替口は消した
     # 〔第 2 期 2-3c〕1.3.0=発着の表を足した(時刻表の行は 1.2.0 と同じ=tests/build_rail/test_w12_arrivals_2_3c.py)
     assert w12.STAGE_VERSION == "1.3.0"
 
@@ -231,11 +231,10 @@ def _golden() -> dict:
     return json.loads(m.group(1))
 
 
-def _run(tmp: Path, use_real: bool, monkeypatch) -> tuple[C.StageResult, dict]:
+def _run(tmp: Path, monkeypatch) -> tuple[C.StageResult, dict]:
     tmp.mkdir(parents=True, exist_ok=True)
     for n in _UPSTREAM:
         shutil.copy2(WORLD / n, tmp / n)
-    monkeypatch.setattr(w12, "USE_REAL_TIMETABLES", use_real)
     res = w12.run(C.Ctx(data=DATA_DIR, out=tmp))
     return res, C.read_parquet_columns(tmp / "w12_timetables.parquet")
 
@@ -243,7 +242,7 @@ def _run(tmp: Path, use_real: bool, monkeypatch) -> tuple[C.StageResult, dict]:
 @needs_data
 def test_real_run_counts_match_the_record_golden(tmp_path, monkeypatch):
     g = _golden()
-    res, tt = _run(tmp_path / "real", True, monkeypatch)
+    res, tt = _run(tmp_path / "real", monkeypatch)
     gates = {x.name: x.to_json() for x in res.gates}
     assert all(v["pass"] for v in gates.values()), {k: v for k, v in gates.items() if not v["pass"]}
     by = Counter(zip(tt["line"], tt["calendar"]))
@@ -292,21 +291,8 @@ def test_hhmm_check_catches_a_planted_time():
     assert HHMM.findall(ISO_DATETIME.sub("", clean)) == []
 
 
-@needs_data
-def test_switch_false_reproduces_the_110_shape_and_nodes_do_not_move(tmp_path, monkeypatch):
-    g = _golden()
-    res_r, _tt_r = _run(tmp_path / "real", True, monkeypatch)
-    res_l, tt_l = _run(tmp_path / "legacy", False, monkeypatch)
-    src = Counter(tt_l["source"])
-    assert len(tt_l["line"]) == g["legacy_110"]["rows_total"]
-    assert src["equal_interval_expedient"] == g["legacy_110"]["equal_interval_rows"]
-    assert src["real"] == g["legacy_110"]["real_rows"]
-    assert not (tmp_path / "legacy" / w12.VERSIONS_FILE).exists()
-    out_r = {o["path"]: o["sha256"] for o in res_r.outputs}
-    out_l = {o["path"]: o["sha256"] for o in res_l.outputs}
-    for name in ("w12_external_nodes.parquet", "w12_generation_weights.parquet"):
-        assert out_r[name] == out_l[name], f"{name} が動いた(方面ノードと重みは 2-3b で変えない)"
-    assert out_r["w12_timetables.parquet"] != out_l["w12_timetables.parquet"]
+# 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕切替口 USE_REAL_TIMETABLES=False(1.1.0 の時刻表の形の再現)は消した=前の試験
+# test_switch_false_reproduces_the_110_shape_and_nodes_do_not_move も消した(旧値の再現は安定版のタグ)。
 
 
 _G01 = tuple(

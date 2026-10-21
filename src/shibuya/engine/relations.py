@@ -374,7 +374,7 @@ def _weekly64(weekly: Any) -> Any:
 
 
 def check_rel_tenure_hash(version: str) -> str:
-    """``--rel-tenure-hash`` の値を検める。"""
+    """在職期間のハッシュの版を検める(関係の部品の単体の口・〔第 2 部〕ランの口の切替口 --rel-tenure-hash は消した)。"""
     if str(version) not in REL_TENURE_HASHES:
         raise ValueError(f"rel_tenure_hash は {REL_TENURE_HASHES} のどれか(いま {version!r})")
     return str(version)

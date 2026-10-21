@@ -423,12 +423,12 @@
   {
    "id": "EX-build.field.w12_external_nodes-f2cc7f0a",
    "what": "等間隔ダイヤ(F10)の道=切替口 USE_REAL_TIMETABLES=False(1.1.0 の時刻表の再現)と実データの無い線だけ(2-3b の既定では 0 線)。上下同数・ピーク本数は資料3(山手線は 16-20 本/h の中央 18・夕は朝と同数か引数の表)・オフピーク比と初終発は切替口 False でメトロ実ダイヤ(初終発は平日)・残る線では実ダイヤ全線(平日/土休それぞれ)から",
-   "why": "構築の段 W12 が宣言した近似(2-3b の実ダイヤ・モジュールの表 EQUAL_INTERVAL_TIMETABLE_EXPEDIENTS の 1 番目・記録 docs/bench/analysis/wallbounce-1012/tt23b/README.md)。外す段: 2-4 活性化(切替口 False=1.1.0 の時刻表の再現の道を、活性化の後に残すかを決める段)〔第334・2-4〕外す段を改めた(親)=2-4 → 7(等間隔の推定の道は京王の切替口(USE_ODPT_CHALLENGE=False)と実データの無い線が使う=残す・外す段が計画に無い=主張の前に感度試験で示す)",
+   "why": "構築の段 W12 が宣言した近似(2-3b の実ダイヤ・モジュールの表 EQUAL_INTERVAL_TIMETABLE_EXPEDIENTS の 1 番目・記録 docs/bench/analysis/wallbounce-1012/tt23b/README.md)。外す段: 2-4 活性化(切替口 False=1.1.0 の時刻表の再現の道を、活性化の後に残すかを決める段)〔第334・2-4〕外す段を改めた(親)=2-4 → 7(等間隔の推定の道は京王の切替口(USE_ODPT_CHALLENGE=False)と実データの無い線が使う=残す・外す段が計画に無い=主張の前に感度試験で示す)〔第 4 期 4-3 版上げ 3 回目の第 2 部・pop43〕閉じた: 切替口 USE_REAL_TIMETABLES=False(1.1.0 の時刻表の再現)を消し、宣言の文を改めた=後継 EX-build.field.w12_external_nodes-d25ee17b。旧値の再現は安定版のタグ(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md §19・取り込みの commit は親)",
    "remove_at": "7",
    "declared_in": "src/shibuya/build/field/w12_external_nodes.py#expedients:f2cc7f0a",
    "conf": "expedient",
    "since": "2026-10-14",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "inferred"
   },
   {
@@ -6253,12 +6253,12 @@
   {
    "id": "DOC-wage_occ-legacy-switch",
    "what": "賃金の切替口 --wage w17(環境変数 SHIBUYA_WAGE=w17)=2-1 の値(W17 の「勤務」の週の分 × 52/12 週 × 最低賃金)の再現のためだけの道と、賃金の表の写しが無い写し(data の無い CI)の戻り道(月 160 時間=W17 の無いランの既定 × 最低賃金・注記 WageTablesAbsentWarning)",
-   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)。閉じた行 DOC-ec21-wage-hours-and-rate の道がコードに残る分(検収 L4)。次の版上げ(4-3=段 10 の差し替え=版上げ 3 回目の見込み)で消す。表の無い写しの戻り道は、data の無い CI で賃金の表を持てるまで(消すときに CI の扱いを決める) 〔第337・食事の段の取り込みで揃えた〕外す段は段の番号ではなく「次の版上げ」(next-bump=食事の段 meal_w17 の検収 L6 が足した語)=賃金と食事の 2 つの旧値の切替口を同じ版上げで消す(親の判断)。",
+   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)。閉じた行 DOC-ec21-wage-hours-and-rate の道がコードに残る分(検収 L4)。次の版上げ(4-3=段 10 の差し替え=版上げ 3 回目の見込み)で消す。表の無い写しの戻り道は、data の無い CI で賃金の表を持てるまで(消すときに CI の扱いを決める) 〔第337・食事の段の取り込みで揃えた〕外す段は段の番号ではなく「次の版上げ」(next-bump=食事の段 meal_w17 の検収 L6 が足した語)=賃金と食事の 2 つの旧値の切替口を同じ版上げで消す(親の判断)。〔第 4 期 4-3 版上げ 3 回目の第 2 部・pop43〕閉じた: 賃金の切替口 --wage w17(環境変数 SHIBUYA_WAGE)と W17 の勤務時間 × 最低賃金の道を消した(環境変数を与えると止まる)。旧値の再現は安定版のタグ stable-v2-before-wage-occupation(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md §19・取り込みの commit は親)",
    "remove_at": "next-bump",
    "declared_in": "docs/bench/analysis/wallbounce-1012/wage_occ/README.md",
    "conf": "expedient",
    "since": "2026-10-17",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "plan",
    "code_at": [
     "src/shibuya/cli.py",
@@ -6628,12 +6628,12 @@
   {
    "id": "BR-MEAL-DEFAULT-VALIDATION-ARM",
    "what": "腕 --meal-default validation は旧値の再現のためだけの道(第 18-1 表・15 分の食事率=検証側の錨のファイルを読む)。次の版上げで消す(回答 10-13b §0-6=旧値の再現は安定版のタグで行う)",
-   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら、古い道の切替口は次の版上げで消す=旧値の再現は安定版のタグで行う)。外す段=次の版上げ(next-bump)〔meal_w17 検収 L6・親の判断=前は 4-3 を当てていた〕",
+   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら、古い道の切替口は次の版上げで消す=旧値の再現は安定版のタグで行う)。外す段=次の版上げ(next-bump)〔meal_w17 検収 L6・親の判断=前は 4-3 を当てていた〕〔第 4 期 4-3 版上げ 3 回目の第 2 部・pop43〕閉じた: 既定の食事時刻の旧値の腕 --meal-default validation(環境変数 SHIBUYA_MEAL_DEFAULT)と検証側の錨を読む道を消した(宣言の文も消した・環境変数を与えると止まる)。旧値の再現は安定版のタグ stable-v2-before-meal-default-w17(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md §19・取り込みの commit は親)",
    "remove_at": "next-bump",
    "declared_in": "src/shibuya/engine/energy.py#expedients:55eacae3",
    "conf": "expedient",
    "since": "2026-10-17",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "plan",
    "code_at": [
     "src/shibuya/engine/energy.py",
@@ -7069,6 +7069,17 @@
    "code_at": [
     "src/shibuya/engine/calendar2/layer.py"
    ]
+  },
+  {
+   "id": "EX-build.field.w12_external_nodes-d25ee17b",
+   "what": "等間隔ダイヤ(F10)の道=実データの無い線だけ(2-3b の既定では 0 線)。上下同数・ピーク本数は資料3(山手線は 16-20 本/h の中央 18・夕は朝と同数か引数の表)・オフピーク比と初終発は切替口 False でメトロ実ダイヤ(初終発は平日)・残る線では実ダイヤ全線(平日/土休それぞれ)から",
+   "why": "〔第 4 期 4-3 版上げ 3 回目の第 2 部・pop43〕W12 の等間隔の道の宣言の文を改めた(切替口 USE_REAL_TIMETABLES=False を消した=実データの無い線だけの道)。前の行 EX-build.field.w12_external_nodes-f2cc7f0a の外す段のまま(記録 docs/bench/analysis/wallbounce-1012/pop43/README.md §19)。前の行の理由: 構築の段 W12 が宣言した近似(2-3b の実ダイヤ・モジュールの表 EQUAL_INTERVAL_TIMETABLE_EXPEDIENTS の 1 番目・記録 docs/bench/analysis/wallbounce-1012/tt23b/README.md)。外す段: 2-4 活性化(切替口 False=1.1.0 の時刻表の再現の道を、活性化の後に残すかを決める段)〔第334・2-4〕外す段を改めた(親)=2-4 → 7(等間隔の推定の道は京王の切替口(USE_ODPT_CHALLENGE=False)と実データの無い線が使う=残す・外す段が計画に無い=主張の前に感度試験で示す)",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/field/w12_external_nodes.py#expedients:d25ee17b",
+   "conf": "expedient",
+   "since": "2026-10-21",
+   "status": "active",
+   "remove_basis": "inferred"
   }
  ]
 }

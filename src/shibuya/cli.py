@@ -70,11 +70,7 @@ from shibuya.perception.templates import (
 )
 from shibuya.world.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE, hash_free_cat_code
 from shibuya.engine.chooser import CHOOSER_NAMES, DEFAULT_CHOOSER
-from shibuya.engine.poi_target import (
-    DEFAULT_POI_TARGET,
-    MOVE_SEARCH_RADIUS_CELLS,
-    POI_TARGET_MODES,
-)
+from shibuya.engine.poi_target import MOVE_SEARCH_RADIUS_CELLS
 from shibuya.engine.intent import INTENT_MAX_TICKS
 from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES
 from shibuya.engine.memory import MEMORY_MODES, MEMORY_N, RECALL_TAU
@@ -501,7 +497,6 @@ def run(
                               or _proximity.arm() != _proximity.DEFAULT_MODE  # 〔2-4 V2〕既定は distance
                               or _seat_release.arm() != _seat_release.DEFAULT_MODE  # 〔2-4 V3〕既定は walk
                               or _ES2.arm() != _ES2.DEFAULT_ARM  # 〔2-4 V4〕経済の段階 2 も(既定 on と違えば腕)
-                              or _ES2.wage_arm() != _ES2.DEFAULT_WAGE  # 〔賃金の小さな版上げ〕既定は occupation
                               or not _BATCH.is_default()  # 〔第 3 期 3-2〕まとめの幅(既定 60 秒と違えば腕)
                               or _body.arm() != _body.DEFAULT_ARM  # 〔3-5〕体の予約の腕(既定は sweep)
                               or _calendar_shadow.arm() != _calendar_shadow.DEFAULT_MODE  # 〔3-1〕既定は w17
@@ -975,26 +970,6 @@ def main(argv: list[str] | None = None) -> int:
         help="第309(Q150): 群・規範の計器(D-107 (a)・読むだけ=final は変わらない)を回すか(既定 on)",
     )
     ap.add_argument(
-        "--near-order",
-        choices=("distance", "id"),
-        default="distance",
-        help="小さいもの 第 2 批①(第304 Q130): B5 近接行の並び。distance=距離の昇順・同点は --near-tiebreak の順"
-             "(既定)/ id=旧挙動(行番号の昇順=旧 golden)。焦点の先頭・知人の常時掲載・文面は変えない",
-    )
-    ap.add_argument(
-        "--near-tiebreak",
-        choices=("hash", "id"),
-        default="hash",
-        help="小さいもの①(第300 Q107): B5 近接行の距離の同点の切り方。hash=run_salt の決定論ハッシュで撹拌(既定)/"
-             " id=旧挙動(セル内の並び=行番号の順=旧 golden)。文面と並びは変えない",
-    )
-    ap.add_argument(
-        "--leave-effect",
-        choices=("on", "off"),
-        default="on",
-        help="9a(D-112 ④): 退去=所属解除(在店・列・会話を解く)。off=第301 以前の挙動(IDLE 化だけ=旧 golden)",
-    )
-    ap.add_argument(
         "--queue-service",
         choices=("on", "off"),
         default="on",
@@ -1059,13 +1034,6 @@ def main(argv: list[str] | None = None) -> int:
         default=RANK_TAU,
         metavar="TAU",
         help="--chooser classical の満足化の走査順の揺らぎ τ(宣言 1.0・感度 0.5/2.0)",
-    )
-    ap.add_argument(
-        "--poi-target",
-        choices=POI_TARGET_MODES,
-        default=DEFAULT_POI_TARGET,
-        help="段 2a(親決定 Q13): 購入/食事/並ぶの対象の決め方。candidates=候補(店舗系 cat・営業中・"
-             "意図に合う)→ 選び手(既定)/legacy=段 2a 前の現在セルの最小 id(旧 checkpoint の再現)",
     )
     ap.add_argument(
         "--move-search-radius",
@@ -1178,17 +1146,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--rel-k", type=int, default=15, metavar="K",
                     help="関係辺の数(既定 15・感度 5/50)")
     ap.add_argument("--rel-tau", type=float, default=None, metavar="TAU",
-                    help="辺として残る A の閾値 τ_rel(既定=--rel-tenure-hash の版ごとの全母集団の逆算: v2 −2.322・"
-                         "v1 −2.346・感度 ±0.5)")
+                    help="辺として残る A の閾値 τ_rel(既定=在職期間のハッシュ v2 での全母集団の逆算 −2.322・感度 ±0.5)")
     ap.add_argument("--rel-d", type=float, default=0.5, metavar="D",
                     help="関係辺の A の減衰 d(既定 0.5=記憶と同じ・感度 0.25/0.75)")
     ap.add_argument("--rel-init-density", type=float, choices=(0.5, 1.0, 2.0), default=1.0,
                     help="初期網の密度の腕(0.5=共在が中央値以上・1.0=共在 > 0・2.0=共在 0 の組も入れる)")
     ap.add_argument("--rel-tenure-weeks", type=float, default=13.0, metavar="W",
                     help="C10 8b(Q89/Q90): 初期辺の在職期間 T_uv の上限[週](既定 13・感度 26)")
-    ap.add_argument("--rel-tenure-hash", choices=("v2", "v1"), default="v2",
-                    help="第2波 §2A 項 2: 初期辺の在職期間のハッシュ。v2=同点の順のハッシュと独立(既定)/ v1=旧"
-                         "(同点の多い組で在職の短い相手ほど選ばれる欠陥・旧 golden の再現用)")
     ap.add_argument("--rel-invite", choices=("off", "on"), default="on",
                     help="C10 8b: 名指しの無い会話の相手を関係辺の重み(5 人 40%%・10 人 20%%・残り 40%%)で引く"
                          "(--relations on のときだけ効く・既定 on)")
@@ -1232,15 +1196,6 @@ def main(argv: list[str] | None = None) -> int:
         default="off",
         help="第2波 §2B 項 2(Q35 (a)): 範囲内の自宅の食事行。off=旧(食事は飲食店でしか成立しない・既定)/"
              "plan=行の開始に自宅に居て起きていれば予定の実行として食べる(金と物は動かさない・照合から外す)",
-    )
-    ap.add_argument(
-        "--meal-default",
-        choices=("w17", "validation"),
-        default=None,
-        help="小さな版上げ(回答 10-13b §7 の 2): 範囲外の人の既定の食事時刻と初期の空腹の出どころ(既定 w17・環境変数 "
-             "SHIBUYA_MEAL_DEFAULT と同じ。指定すれば環境変数より強い)。w17=W17 v2 の日課の食事の行の開始の分布(構築側)から"
-             "体ごとに引く/validation=旧値の再現のためだけ(第 18-1 表・15 分の食事率=検証側の錨を読む前の版の道・次の版上げで"
-             "消す)。既定と違えば設定の指紋に入る。--hunger-model energy のときだけ効く",
     )
     ap.add_argument(
         "--hunger-words",
@@ -1435,14 +1390,6 @@ def main(argv: list[str] | None = None) -> int:
              "(manifest の economy.stage2 に出る・設定の指紋には入らない)。off=2-1 までの既定=切替口(旧値の再現)",
     )
     ap.add_argument(
-        "--wage",
-        choices=("occupation", "w17"),
-        default=None,
-        help="〔賃金の小さな版上げ・2026-10-17〕2-1 の月の賃金の出どころ(既定 occupation=職業 × 性 × 年齢 × 雇用形態の実データ"
-             "=賃金構造基本統計調査 令和 7 年・環境変数 SHIBUYA_WAGE と同じ)。w17=2-1 の値(W17 の勤務時間 × 最低賃金)の再現の"
-             "ためだけの切替口(次の版上げで消す)",
-    )
-    ap.add_argument(
         "--economy-stage2-parts",
         type=str,
         default=None,
@@ -1623,10 +1570,6 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine import seat_release as _seat_release
 
         _seat_release.set_arm(str(args.seat_release))
-    if args.meal_default is not None:  # 〔小さな版上げ〕既定の食事時刻の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.engine import energy as _energy
-
-        _energy.set_meal_default(str(args.meal_default))
     if args.body_schedule is not None:  # 〔第 3 期 3-5〕TM5 の体の予約の腕(組み立てが読む。指定は環境変数より強い)
         from shibuya.engine import body as _body
 
@@ -1661,8 +1604,6 @@ def main(argv: list[str] | None = None) -> int:
         _calendar2_arm.set_arm(str(args.calendar_2))
     if args.economy_stage2 is not None:  # 第 2 期 2-1: 経済の段階 2 の腕(組み立てと台帳の組み立てが読む)
         _ES2.set_arm(str(args.economy_stage2))
-    if args.wage is not None:  # 〔賃金の小さな版上げ〕賃金の腕(組み立てが読む)
-        _ES2.set_wage_arm(str(args.wage))
     if args.economy_stage2_parts is not None:
         try:
             _ES2.set_parts(str(args.economy_stage2_parts))
@@ -1690,12 +1631,9 @@ def main(argv: list[str] | None = None) -> int:
         plan_sleep=not args.no_plan_sleep,
         plan_executor=not args.no_plan_executor,
         exit_mode=str(args.exit_mode),
-        near_tiebreak=str(args.near_tiebreak),
-        near_order=str(args.near_order),
         group_norms=str(args.group_norms),
         report_precondition=(str(args.report_precondition) == "on"),
         queue_service=(str(args.queue_service) == "on"),
-        leave_effect=(str(args.leave_effect) == "on"),
         activity=(str(args.activity) == "on"),
         eatery=str(args.eatery),
         chooser=str(args.chooser),
@@ -1705,7 +1643,6 @@ def main(argv: list[str] | None = None) -> int:
         meal_gate=str(args.meal_gate),
         classical_habit_p=float(args.classical_habit_p),
         classical_tau=float(args.classical_tau),
-        poi_target=str(args.poi_target),
         move_search_radius=int(args.move_search_radius),
         intent_max_ticks=int(args.intent_max_ticks),
         familiarity=str(args.familiarity),
@@ -1724,7 +1661,6 @@ def main(argv: list[str] | None = None) -> int:
         rel_init_density=float(args.rel_init_density),
         conv_max_participants=int(args.conv_max_participants),
         rel_tenure_weeks=float(args.rel_tenure_weeks),
-        rel_tenure_hash=str(args.rel_tenure_hash),
         rel_invite=str(args.rel_invite),
         rel_acq_wake=str(args.rel_acq_wake),
         rel_copresent=str(args.rel_copresent),
@@ -1754,7 +1690,7 @@ def main(argv: list[str] | None = None) -> int:
         occupancy_path=getattr(args, "occupancy_out", "") or None,
         census_out=getattr(args, "census_out", "") or None,
         tape_path=args.tape or None,
-        **calendar_kwargs_from_args(args),  # 10a: 暦の口と応答の遅れ(--response-delay)
+        **calendar_kwargs_from_args(args),  # 10a: 暦の口(〔第 2 部〕応答の遅れの切替口は消した)
         **({"mode": "replay", "replay": args.replay} if args.replay else {}),
     )
     if args.experiment_aa and not args.experiment:

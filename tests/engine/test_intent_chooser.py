@@ -28,8 +28,6 @@ from shibuya.engine.poi_target import (
     BUYABLE_CATS,
     CATEGORY_WORDS,
     GENERIC_WORDS,
-    POI_TARGET_MODES,
-    check_poi_target,
     KIND_CATEGORY,
     KIND_NAMED,
     KIND_NONE,
@@ -224,7 +222,7 @@ def test_run_day_records_chooser_and_target_resolution_in_the_manifest():
     assert set(tr) == {"i_named", "ii_category", "iii_none", "iv_no_candidate", "attempts",
                        "iv_by_kind", "chooser_entropy_mean_bits", "v_intent",
                        "named_out_of_cell_detail"}
-    assert m["poi_target"] == "candidates"
+    assert "poi_target" not in m  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕対象の決め方の切替口を消した=欄も無い
     assert set(tr["iv_no_candidate"]) == {"bad_target", "not_in_eatery", "closed",
                                           "out_of_stock", "named_out_of_cell"}
     with pytest.raises(ValueError):
@@ -264,34 +262,19 @@ def test_generic_words_read_as_none_q11():
     assert len(CATEGORY_WORDS) == 59
 
 
-def test_poi_target_switch_values_q13():
-    assert POI_TARGET_MODES == ("candidates", "legacy")
-    with pytest.raises(ValueError):
-        check_poi_target("min_id")
-    res = run_day(n_agents=20, seed=1, ticks=10, renderer="stub", poi_target="legacy",
-                  checkpoint_every=10)
-    assert res.run_manifest_fields()["poi_target"] == "legacy"
-    assert res.target_resolution == {}
+def test_poi_target_switch_is_removed_q13():
+    """〔第 4 期 4-3 版上げ 3 回目の第 2 部〕親決定 Q13 の切替口 ``--poi-target legacy``(段 2a 前の現在セルの最小 id=旧
+    checkpoint の再現)は消した=渡すと止まる(旧値の再現は安定版のタグ。前は legacy の今の値を 5,000 体で固定した=
+    最後の値 v3 0932d666332e6084 / 36,742・帰無腕 e6f4670bcab0b4b6 / 41,031=差し替えの世界)。"""
+    import shibuya.engine.poi_target as PT
 
+    assert not hasattr(PT, "POI_TARGET_MODES") and not hasattr(PT, "check_poi_target")
+    with pytest.raises(TypeError):
+        run_day(n_agents=20, seed=1, ticks=10, renderer="stub", poi_target="legacy", checkpoint_every=10)
+    from shibuya import cli
 
-@pytest.mark.requires_data("world_v2:w17_schedule.parquet")
-def test_poi_target_legacy_reproduces_the_pre_2a_checkpoints_q13():
-    """親決定 Q13: ``--poi-target legacy``(段 2a 前の対象の選び方)の値を固定する。
-
-    〔改訂(第330・RET)〕前は段 2a 前の checkpoint(02bd0312 / 36,460・b4ad8140 / 41,072)そのものを、欄を混ぜない
-    ハッシュ(``Registry.state_hash(exclude=INTENT_FIELDS)``)と 10e より前の final の定義・乱数・世界の資産・暦で再現した
-    (ACT の commit で通った)。旧値を再現する切替口を消したので、``legacy``(+上限 1.0・空腹 v1・退去の効果 off)の
-    **今の値**(final=behavior-hash)を固定する。
-    """
-    from shibuya.cli import run as cli_run
-
-    kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), poi_target="legacy", l4_scale=1.0,
-              hunger_model="v1", leave_effect=False)
-    v3 = cli_run(vocab_version="v3", **kw)
-    # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)で動いた(前 v3 66f0d41736514fa4 / 36_146・帰無腕 cee40ff700954d37 / 40_957=記録 pop43)
-    assert v3.final_hash.startswith("0932d666332e6084") and int(v3.llm_calls) == 36_742  # 〔2-4 V1〕前 9bc6929fbb0da5e8 / 36_275  # 〔2-4 V2〕前 bff3eed45a39ea62 / 36_296  # 〔2-4 V4〕前 6d0ad8b13125ea5a / 36_246
-    null = cli_run(plan_executor=False, report_precondition=False, **kw)
-    assert null.final_hash.startswith("e6f4670bcab0b4b6") and int(null.llm_calls) == 41_031  # 〔2-4 V1〕前 ce33abec7629c811  # 〔2-4 V2〕前 4679b0a6f6d2fa1e / 40_963  # 〔2-4 V4〕前 319e347ffe08946b
+    with pytest.raises(SystemExit):
+        cli.main(["--poi-target", "legacy"])
 
 
 def test_category_table_uses_known_w6_values_only():

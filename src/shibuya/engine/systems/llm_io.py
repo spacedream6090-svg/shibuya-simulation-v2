@@ -6,8 +6,7 @@ HEAD ``ee3abc7`` の ``run_day`` の入れ子の関数 ``_utter``・``_receive_a
   ``decide`` の両方から呼ぶ=草案 §3-3 の 7)。
 - ``receive_arrivals``: ④′ 艦隊(と再生の代役)の到着を受け取る(10a・A9)。届いた応答は ``max(t_apply, floor)`` で
   ``LlmIo.pending`` へ入る。
-- ``sys_llm_receive``: 系。``response_delay=1`` は ``perceive_prepare`` の後(下限 ``tick``)・``2`` は ``wake_sources`` の後
-  (下限 ``tick + 1``)に進行役が置く(HEAD は位置 A で ``0`` を入れ、位置 B で ``2`` のときだけ受け取る=同じ値)。
+- ``sys_llm_receive``: 系。``perceive_prepare`` の後(下限 ``tick``=応答の遅れ 1)。〔第 2 部〕位置 B(遅れ 2=旧)は消した。
 
 逐次ループ宣言: 到着の件数ぶん(HEAD と同じ・本番の poll と同じ件数)。
 """
@@ -78,9 +77,8 @@ def utter(b: Any, agent_id: int, t_now: int, action: Any, comment: str, reason: 
 def receive_arrivals(b: Any, tick: int, floor: int) -> int:
     """④′ 艦隊(と再生の代役)の到着を受け取る(10a・A9)。返り値=書式エラーの件数。
 
-    届いた応答は ``max(t_apply, floor)`` で ``pending`` へ入る。``response_delay=1``(既定)は①の直前で
-    ``floor=tick``(=発射 +1 刻みの①で反映)、``2`` は旧の位置(②〜会話ターン起床の後)で
-    ``floor=tick + 1``(=+2 刻み)。mock(``fleet_bridge is None`` かつ ``replay_inbox`` が空)は何もしない。
+    届いた応答は ``max(t_apply, floor)`` で ``pending`` へ入る。①の直前で ``floor=tick``(=発射 +1 刻みの①で反映)。
+    mock(``fleet_bridge is None`` かつ ``replay_inbox`` が空)は何もしない。
     """
     from shibuya.engine import run as _RUN
 
@@ -152,5 +150,5 @@ def receive_arrivals(b: Any, tick: int, floor: int) -> int:
 def sys_llm_receive(ctx: Any, b: Any) -> None:
     """系 llm_receive(L5・L11 前半): 艦隊/再生の到着を受け取り、書式エラーの件数を scratch に置く。"""
     tick = ctx.T
-    floor = tick if b.cfg.response_delay == 1 else tick + 1
+    floor = tick
     b.scratch.n_parse_errors_fleet = receive_arrivals(b, tick, floor)

@@ -142,7 +142,9 @@ def test_the_counts_by_form(decls):
     # 〔第 4 期 4-3 段 10〕build/pop/w21_apply.py の表 W21APPLY_EXPEDIENTS(9 行=検収の直しで 7 → 9)・w21_build_b.py の 1.2.0 の
     # 1 行(地位の分け)を足し、w21_build_c.py の表を 16 → 14 行(置き場・W16 の在庫の案・地位の分けを消し、通う駅の口を足した)
     # =240 → 248(記録 pop43/README.md・見出しは足していない)
-    assert S.count_by_form(decls) == {"conf": 0, "expedients": 248, "docstring": 6, "heading": 84, "process": 18,
+    # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕engine/energy.py の表 MEAL_DEFAULT_EXPEDIENTS から旧値の腕 validation の 1 行を消した
+    # =248 → 247(W12 の等間隔の道の 1 行は文を改めただけ=数は同じ・記録 pop43/README.md §19)
+    assert S.count_by_form(decls) == {"conf": 0, "expedients": 247, "docstring": 6, "heading": 84, "process": 18,
                                       "fallback": 5}
     heads = [d for d in decls if d.form == S.FORM_HEADING]
     # 〔第 1 期 1-2〕p_notice の expedient の項 m_load(歩きスマホの負荷の係数)を消した=338 → 337(記録 p12/README.md §15)

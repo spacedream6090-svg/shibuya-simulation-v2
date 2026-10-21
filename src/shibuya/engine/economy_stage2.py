@@ -16,12 +16,12 @@ engine の側の受け持ち(engine は economy を import できない=層の�
   ``atm`` の印に関わらず全部・〔検収 L3〕)の点をセルに写し、営業時間(``opening_hours``)を曜日 × 分の区間に。
 - 引き出しの場所と時刻の検査(``atm_open_cells``): 行為の解決(``engine.resolve.apply``)と候補の口(腕 port の源
   affordance)が読む。
-- 〔賃金の小さな版上げ・2026-10-17・回答 10-13b §7 の 3〕賃金の切替口 ``--wage {occupation,w17}``(環境変数 ``SHIBUYA_WAGE``・
-  :func:`set_wage_arm`・既定 ``occupation``)。``occupation``=体ごとの月の賃金を職業 × 性 × 年齢 × 雇用形態の実データ
-  (賃金構造基本統計調査 令和 7 年=``economy.wages``)から=W17 の勤務時間を読まない。engine の側はペルソナの職業と雇用の語・
-  性・年齢・鍵(:class:`WageInputs`=:func:`wage_inputs`)を渡すだけ(額は economy が出す)。``w17``=2-1 の値(W17 の「勤務」の
-  週の分 × 最低賃金)の再現のためだけの切替口=次の版上げで消す(§0-6)。腕は組み立てのときに読む・再開では見出しの
-  ``economy_stage2.wage`` と比べる(無い見出し=``w17``)。
+- 〔賃金の小さな版上げ・2026-10-17・回答 10-13b §7 の 3〕体ごとの月の賃金は職業 × 性 × 年齢 × 雇用形態の実データ
+  (賃金構造基本統計調査 令和 7 年=``economy.wages``)から=W17 の勤務時間を読まない(``occupation``)。engine の側はペルソナの
+  職業と雇用の語・性・年齢・鍵(:class:`WageInputs`=:func:`wage_inputs`)を渡すだけ(額は economy が出す)。再開では見出しの
+  ``economy_stage2.wage`` と比べる(無い見出し=版上げの前の状態=止める)。〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧値の再現の
+  切替口 ``--wage w17``(環境変数 ``SHIBUYA_WAGE``・W17 の「勤務」の週の分 × 最低賃金の道)は消した=旧値の再現は安定版の
+  タグ ``stable-v2-before-wage-occupation``(環境変数を与えると止まる)。
 
 逐次ループ宣言(P4): ``build_atm_table`` は OSM の要素の数(約 3,500)と引き出しの点の数(数十)ぶん・組み立てで 1 回。
 ``parse_opening_hours`` は規則の数ぶん。ほかは配列演算(刻みごとの営業中のセルは ATM の数ぶんの配列演算)。
@@ -56,9 +56,9 @@ __all__ = [
     "ARM_OFF", "ARM_ON", "ARMS", "DEFAULT_ARM", "PARTS", "arm", "set_arm", "parts", "set_parts", "parse_parts", "active_parts",
     "WITHDRAW_WORD", "PAYMENT_NOTE", "CAUSE_NAMES", "PAYDAY_DAY_OF_MONTH", "OSM_TAGS_RELPATH", "OSM_HOURS_RELPATH",
     "ORIGIN_LATLON", "M_PER_DEG_LAT", "M_PER_DEG_LON", "CELL_M", "AtmTable", "parse_opening_hours",
-    "build_atm_table", "set_atm_table", "Stage2Plan", "weekly_work_hours", "attach", "money_stage2",
-    "atm_open_cells", "WEEKS_PER_MONTH", "population_total",
-    "WAGE_OCCUPATION", "WAGE_W17", "WAGE_ARMS", "DEFAULT_WAGE", "wage_arm", "set_wage_arm", "PERSONA_POOL_RELPATH",
+    "build_atm_table", "set_atm_table", "Stage2Plan", "attach", "money_stage2",
+    "atm_open_cells", "population_total",
+    "WAGE_OCCUPATION", "WAGE_ARMS", "DEFAULT_WAGE", "wage_arm", "PERSONA_POOL_RELPATH",
     "PERSONA_LAYERS", "PERSONA_FIELDS", "WageInputs", "persona_words", "wage_inputs",
 ]
 
@@ -75,8 +75,6 @@ PAYMENT_NOTE: Final[str] = "支払いは現金かカード"
 CAUSE_NAMES: Final[tuple[str, ...]] = ("payroll", "atm", "register")
 #: 給料日(毎月この日・``economy.stage2.PAYDAY_DAY_OF_MONTH`` と同じ)。
 PAYDAY_DAY_OF_MONTH: Final[int] = 25
-#: 月の週の数(年 52 週 ÷ 12 か月=W17 の週の勤務の分 → 月の労働時間)。
-WEEKS_PER_MONTH: Final[float] = 52.0 / 12.0
 
 #: OSM の取得物(許可済み・ODbL・ライセンス台帳に記載済み=発注)。
 OSM_TAGS_RELPATH: Final[str] = "data/realworld/osm/poi_tags_overpass_20260928.json"
@@ -94,27 +92,21 @@ if _ARM not in ARMS:
     raise ValueError(f"SHIBUYA_ECONOMY_STAGE2 は {ARMS} のどれか(いま {_ARM!r})")
 
 
-#: 〔賃金の小さな版上げ〕賃金の切替口(``occupation``=既定=職業ごとの実データ・``w17``=2-1 の値の再現だけ=次の版上げで消す)。
+#: 〔賃金の小さな版上げ〕賃金の道=``occupation``(職業ごとの実データ)だけ。〔第 2 部〕旧値の腕 ``w17`` と切替口は消した
+#: (旧値の再現は安定版のタグ ``stable-v2-before-wage-occupation``)。
 WAGE_OCCUPATION: Final[str] = "occupation"
-WAGE_W17: Final[str] = "w17"
-WAGE_ARMS: Final[tuple[str, ...]] = (WAGE_OCCUPATION, WAGE_W17)
+WAGE_ARMS: Final[tuple[str, ...]] = (WAGE_OCCUPATION,)
 DEFAULT_WAGE: Final[str] = WAGE_OCCUPATION
-_WAGE: str = os.environ.get("SHIBUYA_WAGE", DEFAULT_WAGE).strip().lower() or DEFAULT_WAGE
-if _WAGE not in WAGE_ARMS:
-    raise ValueError(f"SHIBUYA_WAGE は {WAGE_ARMS} のどれか(いま {_WAGE!r})")
+#: 消した切替口の環境変数(与えると止まる=黙って無視しない)。
+WAGE_ENV_REMOVED: Final[str] = "SHIBUYA_WAGE"
+if os.environ.get(WAGE_ENV_REMOVED, "").strip():
+    raise ValueError(f"{WAGE_ENV_REMOVED} は消した切替口(第 4 期 4-3 版上げ 3 回目の第 2 部・旧値の再現は安定版のタグ "
+                     "stable-v2-before-wage-occupation)=環境変数を外す")
 
 
 def wage_arm() -> str:
-    """いまの賃金の腕(``occupation``=既定・``w17``)。組み立てのときに読む。"""
-    return _WAGE
-
-
-def set_wage_arm(name: str) -> None:
-    """賃金の腕を選ぶ(CLI ``--wage``・試験の切替口)。"""
-    global _WAGE
-    if str(name) not in WAGE_ARMS:
-        raise ValueError(f"--wage は {WAGE_ARMS} のどれか(いま {name!r})")
-    _WAGE = str(name)
+    """賃金の道(``occupation`` だけ)。"""
+    return DEFAULT_WAGE
 
 
 def parse_parts(spec: Any) -> tuple[str, ...]:
@@ -169,9 +161,7 @@ def header_fields(plan: Any) -> dict[str, Any] | None:
     if plan is None:
         return None
     out: dict[str, Any] = {"arm": ARM_ON, "parts": list(plan.parts)}
-    wm = str(getattr(plan, "wage_model", WAGE_W17))
-    if wm != WAGE_W17:  # 〔賃金の小さな版上げ〕w17 のランの見出しは今のまま
-        out["wage"] = wm
+    out["wage"] = str(getattr(plan, "wage_model", DEFAULT_WAGE))  # 〔賃金の小さな版上げ〕賃金の道
     return out
 
 
@@ -191,11 +181,11 @@ def check_resume(saved: Any, *, effective: bool = True) -> None:
         raise ValueError(f"再開の経済の段階 2 の腕が親と違う(親 arm={s_arm} parts={list(s_parts)}・今 arm={now_arm} "
                          f"parts={list(now_parts)})=--economy-stage2・--economy-stage2-parts(環境変数 "
                          "SHIBUYA_ECONOMY_STAGE2・SHIBUYA_ECONOMY_STAGE2_PARTS)を親にそろえる")
-    # 〔賃金の小さな版上げ〕賃金の腕(見出しに無い=w17=版上げの前の状態)
-    s_wage = str(s.get("wage", WAGE_W17))
-    if now_arm == ARM_ON and s_wage != _WAGE:
-        raise ValueError(f"再開の賃金の腕が親と違う(親 wage={s_wage}・今 wage={_WAGE})=--wage(環境変数 SHIBUYA_WAGE)を"
-                         "親にそろえる")
+    # 〔賃金の小さな版上げ〕賃金の道(見出しに無い=版上げの前の状態=w17 の道=〔第 2 部〕消した道=再開できない)
+    s_wage = str(s.get("wage", "(見出しに無い=版上げの前)"))
+    if now_arm == ARM_ON and s_wage != DEFAULT_WAGE:
+        raise ValueError(f"再開の賃金の腕が親と違う(親 wage={s_wage}・今 wage={DEFAULT_WAGE})=旧値の腕 w17 は消した"
+                         "(安定版のタグ stable-v2-before-wage-occupation で回す)")
 
 
 # ================================================================ ATM の表(Fixtures.atms)
@@ -453,30 +443,6 @@ def set_atm_table(table: AtmTable | None) -> None:
 
 
 # ================================================================ 段階 2 の組み立ての物
-def weekly_work_hours(weekly: Any, n_agents: int) -> tuple[np.ndarray | None, str]:
-    """W17 の週次表の「勤務」の週の分 → 月の労働時間[時](``WEEKS_PER_MONTH`` 週)。W17 の無いランは ``(None, "default")``。
-
-    週次表の体の行は ``restrict_to(母集団の agent_id)`` の後=ランの体の番号の順(計画実行層と同じ並び)。
-    """
-    if weekly is None:
-        return None, "default"
-    from shibuya.agents.weekly import ACTIVITY_WORDS
-
-    work = ACTIVITY_WORDS.index("勤務")
-    n = int(n_agents)
-    off = np.asarray(weekly.day_offset, dtype=np.int64)
-    rows = np.repeat(np.arange(int(weekly.n_agents), dtype=np.int64), np.diff(off[:: _N_DAYS][: int(weekly.n_agents) + 1]))
-    dur = (np.asarray(weekly.end_min, dtype=np.int64) - np.asarray(weekly.start_min, dtype=np.int64))
-    is_work = np.asarray(weekly.activity) == work
-    m = min(rows.size, dur.size)
-    minutes = np.bincount(rows[:m][is_work[:m]], weights=dur[:m][is_work[:m]].astype(np.float64),
-                          minlength=int(weekly.n_agents))
-    out = np.zeros(n, dtype=np.float64)
-    k = min(n, minutes.size)
-    out[:k] = minutes[:k] * WEEKS_PER_MONTH / float(MINUTES_PER_HOUR)
-    return out, "w17_work"
-
-
 # ================================================================ 賃金の入力(賃金の小さな版上げ)
 #: ペルソナの在庫(W16 の ``pool_layer``・``pool_index`` が指す行)。読むだけ(構築の在庫=data/ の下)。
 PERSONA_POOL_RELPATH: Final[str] = "data/persona_pool_v2"
@@ -650,7 +616,7 @@ class Stage2Plan:
 
     def __init__(self, *, parts: Iterable[str], kinds: Any, monthly_hours: Any, hours_source: str,
                  atms: AtmTable | None, calendar: Any, tick_seconds: int, n_agents: int,
-                 population_scale: float | None, causes: Mapping[str, Any], wage_model: str = WAGE_W17,
+                 population_scale: float | None, causes: Mapping[str, Any], wage_model: str = DEFAULT_WAGE,
                  wage_inputs: WageInputs | None = None) -> None:
         self.parts = tuple(p for p in PARTS if p in set(parts))
         self.kinds = np.array(kinds, dtype=np.int64, copy=True)
@@ -741,15 +707,14 @@ class Stage2Plan:
     def record(self) -> dict[str, Any]:
         """manifest の ``economy.stage2.plan``(暦・縮小の比・労働時間の出どころ)。
 
-        〔賃金の小さな版上げ〕賃金の腕が ``occupation`` のランは ``wage_model`` を足す(``w17`` は今のまま)。入力の記録
+        〔賃金の小さな版上げ〕``wage_model`` を足す。入力の記録
         (読んだ行・分からない体の数=母集団の抽出で動く)は観測の ``economy.stage2.rules.wage_build``(``MoneyStage2``)。
         """
         out = {"payday_rule": f"毎月 {PAYDAY_DAY_OF_MONTH} 日・土休なら前の営業日(暦の口)",
                "population_scale": self.population_scale, "hours_source": self.hours_source,
                "hourly_source": "最低賃金(規則の表・asof)", "external_store_sales": "0(範囲の外の取引先の資料なし)"}
-        if self.wage_model != WAGE_W17:
-            out["hourly_source"] = "使わない(月の賃金=職業 × 性 × 年齢 × 雇用形態の実データ)"
-            out["wage_model"] = self.wage_model
+        out["hourly_source"] = "使わない(月の賃金=職業 × 性 × 年齢 × 雇用形態の実データ)"
+        out["wage_model"] = self.wage_model
         return out
 
 
@@ -797,17 +762,14 @@ def attach(ledger_bundle: Any, *, schedule: Any, weekly: Any, calendar: Any, wor
     from shibuya.engine.events.log import Process
 
     atms = _ATM_OVERRIDE if _ATM_OVERRIDE is not None else build_atm_table(world)
-    if _WAGE == WAGE_W17:  # 2-1 の値の再現だけ(次の版上げで消す)
-        hours, src = weekly_work_hours(weekly, n_agents)
-        winp = None
-    else:  # 〔賃金の小さな版上げ〕W17 の勤務時間は賃金に使わない(読まない)
-        hours, src = None, "none(wage=occupation)"
-        winp = wage_inputs(schedule, pop, n_agents)
+    # 〔賃金の小さな版上げ〕W17 の勤務時間は賃金に使わない(読まない=週次表 ``weekly`` は賃金の口に渡さない)
+    hours, src = None, "none(wage=occupation)"
+    winp = wage_inputs(schedule, pop, n_agents)
     total = population_total(world_dir) if pop is not None else None
     scale = (float(n_agents) / float(total)) if total else None
     plan = Stage2Plan(parts=_PARTS, kinds=np.asarray(schedule.kind)[: int(n_agents)], monthly_hours=hours,
                       hours_source=src, atms=atms, calendar=calendar, tick_seconds=tick_seconds, n_agents=n_agents,
-                      population_scale=scale, causes={n: Process(n) for n in CAUSE_NAMES}, wage_model=_WAGE,
+                      population_scale=scale, causes={n: Process(n) for n in CAUSE_NAMES}, wage_model=DEFAULT_WAGE,
                       wage_inputs=winp)
     money.attach_stage2(plan)
     return plan

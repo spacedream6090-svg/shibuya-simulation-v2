@@ -115,16 +115,14 @@ W17_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
         "null_arm_final": "7bb4d2a43405333b", "null_arm_llm_calls": 95_981,  # 〔2-4 V1〕前 354f49ca9a61b986 / 97_234  # 〔2-4 V2〕前 767f0224d82ba9a9 / 98_046  # 〔2-4 V3〕前 d341ca5c9e3e89d3 / 96_797  # 〔2-4 V4〕前 5c8db46f50eb0945
         # 〔小さな版上げ・meal_w17〕退去の効果 off の帰無腕 前 aac7b60677cb985d / 96_651・v3 前 2838430451abbac1 / 64_327(validation で戻る)。
         # 帰無腕は退去の効果 off でも既定と同じ値になった(この 5,000 体 1 日で退去の効果が結果に効く行が無い=記録 meal_w17 §4)
-        "null_arm_final_leave_off": "7bb4d2a43405333b", "null_arm_llm_calls_leave_off": 95_981,  # 〔第330・RET〕前 18f8807264d04018 / 100_509  # 〔2-4 V1〕前 a33c00469ca28832 / 98_017  # 〔2-4 V2〕前 e88892cd271a638d / 97_644  # 〔2-4 V3〕前 62c0de517b1689ec / 97_690  # 〔2-4 V4〕前 de42b93d55c91cb8
-        "null_arm_final_hunger_v1": "c977ca9de2975f1a", "null_arm_llm_calls_hunger_v1": 95_647,  # 〔第330・RET〕前 e0083baff1ff50b7 / 97_028  # 〔2-4 V1〕前 f655d1eb601d7bb4 / 94_435  # 〔2-4 V2〕前 4ced1f4211af5e5f / 94_793  # 〔2-4 V3〕前 eff11abb4169f319 / 94_030  # 〔2-4 V4〕前 3cb80dcb0d5df613 / 95_644
-        "null_arm_final_l4x1": "e539b7c8d5e60a0f", "null_arm_llm_calls_l4x1": 40_976,  # 〔第330・RET〕前 ed1863e089c8480e / 41_141  # 〔2-4 V1〕前 f02d7fd4fbb4dc4f  # 〔2-4 V2〕前 d9e43bf14475a17c / 40_979  # 〔2-4 V4〕前 23d6397b39afb614
+        "null_arm_final_hunger_v1": "7371903431c3206f", "null_arm_llm_calls_hunger_v1": 94_249,  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 c977ca9de2975f1a / 95_647=退去の効果 off)  # 〔第330・RET〕前 e0083baff1ff50b7 / 97_028  # 〔2-4 V1〕前 f655d1eb601d7bb4 / 94_435  # 〔2-4 V2〕前 4ced1f4211af5e5f / 94_793  # 〔2-4 V3〕前 eff11abb4169f319 / 94_030  # 〔2-4 V4〕前 3cb80dcb0d5df613 / 95_644
+        "null_arm_final_l4x1": "ca19a13d7066d618", "null_arm_llm_calls_l4x1": 40_976,  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 e539b7c8d5e60a0f / 40_976=退去の効果 off)  # 〔第330・RET〕前 ed1863e089c8480e / 41_141  # 〔2-4 V1〕前 f02d7fd4fbb4dc4f  # 〔2-4 V2〕前 d9e43bf14475a17c / 40_979  # 〔2-4 V4〕前 23d6397b39afb614
         # 第277(二層の段 3): **語彙 v3 の既定**(=CLI の新しい既定・activity on・mock v3 形)。
         # v1 の行は上のまま残す(ライブラリの既定は v1=切替口)。
         # 記録: docs/bench/analysis/two-layer-2026-09-27/README.md §0
         "v3_default_final": "333b1820f7849b00", "v3_default_llm_calls": 64_024,  # 〔2-4 V1〕前 5f7ae9ff24005314 / 65_597  # 〔2-4 V2〕前 4bcca9f0216362bb / 65_400  # 〔2-4 V3〕前 7857ecb16b9665cd / 64_635  # 〔2-4 V4〕前 f6488d4d5eadf5ca / 64_526
-        "v3_default_final_leave_off": "6552c2f5da167ac7", "v3_default_llm_calls_leave_off": 64_217,  # 〔第330・RET〕前 c9ab05383accca2e / 69_603  # 〔2-4 V1〕前 1761eef0e3c48dd5 / 65_634  # 〔2-4 V2〕前 53a0856c5fcc1c84 / 65_735  # 〔2-4 V3〕前 210747ea9fa71919 / 64_704  # 〔2-4 V4〕前 da5e1a8ea8544881 / 64_293
-        "v3_default_final_hunger_v1": "0776169f2d8f366a", "v3_default_llm_calls_hunger_v1": 64_223,  # 〔第330・RET〕前 a1036ab5b06e461c / 68_781  # 〔2-4 V1〕前 1767737a4183a436 / 64_977  # 〔2-4 V2〕前 20f96720567a5847 / 65_019  # 〔2-4 V3〕前 62c5ea236fe4271d / 64_268  # 〔2-4 V4〕前 ed20b33a7e53864d / 64_338
-        "v3_default_final_l4x1": "5d227b075985bd68", "v3_default_llm_calls_l4x1": 36_225,  # 〔第330・RET〕前 6845e3acb8906210 / 36_502  # 〔2-4 V1〕前 a18594506e4a0ea5 / 36_172  # 〔2-4 V2〕前 1cc39b43dfc834ee / 36_190  # 〔2-4 V3〕前 b2a1acae57abca9e / 36_239  # 〔2-4 V4〕前 efd48de9c988cf6c / 36_244
+        "v3_default_final_hunger_v1": "825f3dc2b7c501ea", "v3_default_llm_calls_hunger_v1": 64_183,  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 0776169f2d8f366a / 64_223=退去の効果 off)  # 〔第330・RET〕前 a1036ab5b06e461c / 68_781  # 〔2-4 V1〕前 1767737a4183a436 / 64_977  # 〔2-4 V2〕前 20f96720567a5847 / 65_019  # 〔2-4 V3〕前 62c5ea236fe4271d / 64_268  # 〔2-4 V4〕前 ed20b33a7e53864d / 64_338
+        "v3_default_final_l4x1": "8ae5600a1f39d196", "v3_default_llm_calls_l4x1": 36_225,  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 5d227b075985bd68 / 36_225=退去の効果 off)  # 〔第330・RET〕前 6845e3acb8906210 / 36_502  # 〔2-4 V1〕前 a18594506e4a0ea5 / 36_172  # 〔2-4 V2〕前 1cc39b43dfc834ee / 36_190  # 〔2-4 V3〕前 b2a1acae57abca9e / 36_239  # 〔2-4 V4〕前 efd48de9c988cf6c / 36_244
         "v1_outside_blocks": 590_430, "v1_outside_dist": [92, 160_033, 133_575, 47_861],
         # 10e(E4): 5,000 体の標本は既定の counter の抽出(層の鍵の並べ方)。stateful の値(10e より前)=
         # v1 {"n_blocks": 8_589, "zero": 1, "outside": 7_733, "in": 856}・v2 {"n_blocks": 6_377, "zero": 150,
@@ -137,13 +135,11 @@ W17_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     # 提供者の行の写し=記録 pop43)。5,000 体・seed 1・1 日の値は親の検収の前の実装役の実測(記録 pop43 §16)。
     "02114fb577f3": {
         "null_arm_final": "90582d704a6d2dcb", "null_arm_llm_calls": 97_250,
-        "null_arm_final_leave_off": "6a2865274fd9e5d7", "null_arm_llm_calls_leave_off": 97_923,
-        "null_arm_final_hunger_v1": "f2d9ae6144d0e8ad", "null_arm_llm_calls_hunger_v1": 95_054,
-        "null_arm_final_l4x1": "2a4e22a1554081a8", "null_arm_llm_calls_l4x1": 41_089,
+        "null_arm_final_hunger_v1": "09c7907e713e40e6", "null_arm_llm_calls_hunger_v1": 95_208,  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 f2d9ae6144d0e8ad / 95_054=退去の効果 off)
+        "null_arm_final_l4x1": "2a4e22a1554081a8", "null_arm_llm_calls_l4x1": 41_089,  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 2a4e22a1554081a8 / 41_089=退去の効果 off)
         "v3_default_final": "eb759bb4e5be37ec", "v3_default_llm_calls": 63_572,
-        "v3_default_final_leave_off": "e809ee05b495d7e6", "v3_default_llm_calls_leave_off": 63_412,
-        "v3_default_final_hunger_v1": "938434492bf062bd", "v3_default_llm_calls_hunger_v1": 63_600,
-        "v3_default_final_l4x1": "bec0c89bf3ebbf8b", "v3_default_llm_calls_l4x1": 36_759,
+        "v3_default_final_hunger_v1": "4c71d4d44f9f7c57", "v3_default_llm_calls_hunger_v1": 63_618,  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 938434492bf062bd / 63_600=退去の効果 off)
+        "v3_default_final_l4x1": "aea727f0a508f2c7", "v3_default_llm_calls_l4x1": 36_759,  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 bec0c89bf3ebbf8b / 36_759=退去の効果 off)
         "v1_outside_blocks": 522_182, "v1_outside_dist": [82, 137_156, 117_612, 43_787],
         "s5000_v1": {"n_blocks": 8_697, "zero": 1, "outside": 7_730, "in": 967},
         "s5000_v2": {"n_blocks": 6_413, "zero": 136, "outside": 5_446, "in": 967},
@@ -364,7 +360,7 @@ def test_l4_scale_1_reproduces_the_stage_2c_checkpoints():
     """
     from shibuya.cli import run as cli_run
 
-    kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), l4_scale=1.0, hunger_model="v1", leave_effect=False)
+    kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), l4_scale=1.0, hunger_model="v1")  # 〔第 2 部〕退去の効果 off を外した
     if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(帰無腕の 1 本)
         GE.assert_aa(lambda: cli_run(plan_executor=False, report_precondition=False, **kw), _FINAL_CALLS)
         return
@@ -390,7 +386,7 @@ def test_hunger_model_v1_reproduces_the_stage_3_checkpoints():
     """
     from shibuya.cli import run as cli_run
 
-    kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), hunger_model="v1", leave_effect=False)
+    kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), hunger_model="v1")  # 〔第 2 部〕退去の効果 off を外した
     if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(帰無腕の 1 本)
         GE.assert_aa(lambda: cli_run(plan_executor=False, report_precondition=False, **kw), _FINAL_CALLS)
         return
@@ -407,30 +403,15 @@ def test_hunger_model_v1_reproduces_the_stage_3_checkpoints():
     assert v3.energy == {}
 
 
-@real_data
-def test_leave_effect_off_reproduces_the_stage_5_checkpoints():
-    """9a(第302・D-112 ④): 退去の効果の切替口 ``leave_effect=False``。
-
-    効果は退去を選んだ体の所属解除だけ=off なら resolve の退去は第301 以前の 3 行と同じ。
-    〔改訂(第330・RET)〕前は 5 段目の既定値そのものを再現していた(ACT の commit で通った)。旧値の切替口を消したので、
-    退去の効果 off の**今の値**を固定する。
-    """
+def test_leave_effect_switch_is_removed():
+    """〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果の切替口 ``leave_effect=False``(第301 以前=9a の前)は消した=渡すと
+    止まる(旧値の再現は安定版のタグ)。前は退去の効果 off の今の値を固定した(*_leave_off の行=消した)。"""
     from shibuya.cli import run as cli_run
 
-    kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), leave_effect=False)
-    if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(帰無腕の 1 本)
-        GE.assert_aa(lambda: cli_run(plan_executor=False, report_precondition=False, **kw), _FINAL_CALLS)
-        return
-    g = W17_GOLDEN.get(w17_digest())
-    if g is None or "v3_default_final_leave_off" not in g:
-        pytest.skip(f"実 W17 の leave off golden が無い(md5 {w17_digest()})")
-    null = cli_run(plan_executor=False, report_precondition=False, **kw)
-    assert null.final_hash.startswith(g["null_arm_final_leave_off"])
-    assert int(null.llm_calls) == g["null_arm_llm_calls_leave_off"]
-    v3 = cli_run(vocab_version="v3", **kw)
-    assert v3.final_hash.startswith(g["v3_default_final_leave_off"])
-    assert int(v3.llm_calls) == g["v3_default_llm_calls_leave_off"]
-    assert v3.run_manifest_fields()["leave_effects"]["enabled"] is False
+    with pytest.raises(TypeError):
+        cli_run(n_agents=10, ticks=2, leave_effect=False)
+    rows = [r for t in W17_GOLDEN_BY_ENV.values() for r in t.values()]
+    assert not any(k.endswith("_leave_off") for r in rows for k in r)
 
 
 # ================================================================= ③ T4 規模不変

@@ -537,8 +537,7 @@ def test_manifest_intent_and_the_layer_is_off_outside_v3_activity_candidates():
     assert set(m["intent"]) == set(intent_summary({}, 0, 0)) | {
         "b5_lines", "b5_lines_over_budget", "b6_named_closed_notes"}
     assert {"kept", "bed_skipped_sleep_pending"} <= set(m["intent"])
-    for kw in ({"vocab_version": "v1"}, {"vocab_version": "v3", "activity": False},
-               {"vocab_version": "v3", "poi_target": "legacy"}):
+    for kw in ({"vocab_version": "v1"}, {"vocab_version": "v3", "activity": False}):  # 〔第 2 部〕poi_target legacy は消した
         r2 = run_day(n_agents=20, seed=1, ticks=10, renderer="stub", checkpoint_every=10, **kw)
         assert r2.intent == {}
     with pytest.raises(ValueError):

@@ -419,3 +419,59 @@ W17 は凍結(CA1)で LLM の生成(GPU が要る)。W21 の人に行が無い�
 - 独立検収([review.md](review.md))=条件つき受入(中 4=通学者が置き換えでなく消える・先取り 907 体が標本の 18%・席の外の体が給料日に払われない・verify が置き換えた分しか見ない/ 低 11)→ 全部直した(§15。L8 の路線は常住地の材料が無く宣言)。親の判断: (1) W17 に W21 の行が無い → 提供者の写しは**つなぎとして仮採用**(外す段 6-2・弱点 3 つ=勤務の時刻が地位から来ない・担当の体が通勤者の日課・なじみの場所が別人のもの、は記録に宣言)。(2) 通学者は W16 の 33,385 行を残す(W21 に外から来る通学者の体が無い・外す段 6-1)。(3) 先取りは機能定員(W16 の乗務員の数を W21 に居る数で頭打ち)まで・種別 8・乗務員の提供者。(4) 席の外の体 29,979 には**外の雇用主**(閉じた表の外・既存の faucet「域外雇用主の賃金」)の雇用の行=**仮採用(§1-1b)**・外す段 4-2。(5) 電車の人の片道は W20 の既定 30 分(舞台の中の道のりでは埋めない・外す段=構築側の所要時間の表の後)。(6) 担当の無い店は HEAD の丸振りを残す(出どころの語を分ける・外す段 4-2)。(7) 実装役の問い: `REL_TAU_V2` は W16 の値のまま(宣言・関係の段で再逆算)・C0 の約束は「体の居る事業所」に(宣言)・2-0 の 3-4 錨 1 は W21 の体に値が無い(宣言)・賃金の検算の区分の下限 30 → 35 受入・合成の食事の凍結の表は W17 2.0.0 のまま受入。
 - **版上げ(§0-6・§0-7)**: 既定の世界が変わる(19 構成とも)。直前の本体 HEAD に安定版のタグ **`stable-v2-before-pop-w21`**。**戻す手順**=`git checkout stable-v2-before-pop-w21` と `python docs/bench/analysis/wallbounce-1012/pop43/tools/activate_pop43.py revert`(退避 `data/world/v2_pre_4-3` を戻す)、または旧値の再現だけなら `--world data/world/v2_pre_4-3`。活性化=親が本体で `apply`(退避 → 写し → sha の照合 → 入れ替え)・`verify` の結果(2026-10-21・親が本体で `apply` → 写す 52 本=置き換え 16・追加 36・退避 `v2_pre_4-3` 103 本・`verify --want after` 同じ=build_hash `0b215fcdac476463`・違うファイル 0)。活性化の後の本体の全体試験(tests/c7 を含む)**5,875 passed・1 skipped・1 xfailed・0 failed**(28 分 26 秒)。性能=実装役の表(5,000 体 1 日・壁時計 44.1〜42.3 s・29〜30 ms/刻み・486〜506 MiB・呼数 −0.7%・組み立て 約 2 分・母集団 11.9 → 16.4 B/体)=悪化なし(予算の宣言に写す)。
 - 判定: **受入**(第 4 期 4-1 段 10=W16 → W21c・既定の世界が動く=版上げ 3 回目の第 1 部。第 2 部=旧道の切替口の削除は別の commit)。
+
+## §19 第 2 部=旧道の切替口の削除(版上げ 3 回目の締め・回答 10-13b §0-6)
+
+> 土台: 本体の先端 `ad164ba`(第 1 部 5118ec5+記録 2313e1b+文書 93f5b37+カレンダー 2 c977041+記録 ad164ba)へ `merge --ff-only` で進めてから消した。本体の `data/world/v2` は W21 の世界。commit・`git add` はしていない。
+
+### 19-1 消した切替口
+
+| 切替口 | 消したもの | 渡したら | 旧値の再現 |
+|---|---|---|---|
+| `--wage w17`(`SHIBUYA_WAGE`) | CLI の引数・環境変数の読み・`set_wage_arm`・`WAGE_W17`・`_WAGE`・W17 の勤務時間 × 最低賃金の道(`weekly_work_hours`・`WEEKS_PER_MONTH`・組み立ての分かれ)・ランの種類の判定の行・経済の側の `w17` の道(払い分けの分かれ・バイトの宣言の分かれ・plan の記録の分かれ)。見出しの `economy_stage2.wage` は常に書く(見出しに無い=版上げの前=再開は止まる) | 環境変数=読み込みで止まる(「消した切替口」)・CLI=引数の誤り・経済に `wage_model="w17"` の計画=止まる | `stable-v2-before-wage-occupation` |
+| `--meal-default validation`(`SHIBUYA_MEAL_DEFAULT`) | CLI の引数・環境変数の読み・`set_meal_default`・`MEAL_DEFAULT_VALIDATION`・設定の指紋の鍵 `meal_default`・検証側の錨を 2 本合わせて読む道(`load_anchors` は構築側の 1 本だけ・引数 `mode` も消した)・第 18-1 表の 1 つの時刻の道(`EnergyModel`・`OutOfAreaMeals`・`meal_start_distribution`)・宣言の 1 行。manifest の `energy.meal_default`(値 `w17`)は出どころの印として残す(2-0 の計器の印が読む) | 環境変数=読み込みで止まる・CLI=引数の誤り・`EnergyModel(meal_default="validation")`=止まる | `stable-v2-before-meal-default-w17` |
+| 構築 `w12_external_nodes.USE_REAL_TIMETABLES=False` | 切替口の定数・1.1.0 の形の分かれ(メトロ 3 線だけを実ダイヤにする道)・W19 の分かれ・`metro_timetables_in_use` の引数。**等間隔の推定の関数は残す**(実データの無い線・京王の切替口 off の道) | 定数が無い | 安定版のタグ(W12 の 1.1.0 の時刻表) |
+| `--leave-effect off`(`leave_effect=False`) | CLI・`run_day` の引数・設定の箱の欄・`resolve` の欄と第301 以前の分かれ・活動の層の印・会話の閉じ方の分かれ・状態台帳の行の欄・系の表の読み・manifest の設定の欄 `leave_effects.enabled` | `TypeError`(知らない引数)・CLI=引数の誤り | 安定版のタグ |
+| `--poi-target legacy` | CLI・`run_day` の引数・箱の欄・`POI_TARGET_MODES`・`check_poi_target`・resolver を作らない分かれ・manifest の一番上の鍵 `poi_target` | `TypeError`・CLI=引数の誤り | 安定版のタグ |
+| `--near-tiebreak id`・`--near-order id` | CLI(`cli.py`・`run.py` の main)・`run_day` の引数・箱の欄・manifest の設定の欄 `near_tiebreak.mode`・`order`(観測の 3 欄は残す)。**知覚の部品 `Renderer` の引数は単体試験の基準の口として残す**(知覚の試験 7 本が旧の並びを基準に使う=ランの口からは選べない) | `TypeError`・CLI=引数の誤り | 安定版のタグ |
+| `--rel-tenure-hash v1` | CLI・`run_day` の引数(組み立ては v2 の τ を使う)。**関係の部品の `_tenure_unit`・`initial_edges` の版の引数は単体試験の口として残す**(試験が旧の偏りの事実を見る) | `TypeError`・CLI=引数の誤り | 安定版のタグ |
+| `--response-delay 2` | `run_day` の引数・CLI(`run.py` の暦の引数)・`calendar_kwargs_from_args` の欄・`check_response_delay`・`ResponseDelayWarning`・進行役の位置 B の差し替え・受け取りの下限の分かれ。`RESPONSE_DELAYS=(1,)`。manifest の `response_delay` とテープの脇の meta の値(1)は読み手の互換で残す | `TypeError`・CLI=引数の誤り・**10a より前のテープ(meta に値が無い)と 2 の録画の再生は止める**(前は 2 とみなして警告) | 安定版のタグ |
+
+### 19-2 残した切替口と理由
+
+| 切替口 | 理由 |
+|---|---|
+| `--hunger-model v1` | **`run_day` のライブラリの既定が v1**(CLI の既定だけ energy)。消すにはライブラリの既定を energy に付け替える要がある=合成の世界で `run_day` を直に呼ぶ試験の golden が広く動く(CLI の 19 構成は動かない)。親の判断が要る(問い 1) |
+| `--l4-scale 1.0` | 予算の腕 D-99 として意味がある(vb24 の見立てのまま) |
+| `report_precondition=False`・`queue_service=False`・`plan_executor=False` | 帰無腕(退化検査の要・vb24 の見立てのまま) |
+| `SHIBUYA_WRITE_GUARD=off`・`SHIBUYA_EVENTS=off` | 運用の口(旧値ではない) |
+| 知覚 `Renderer(near_tiebreak=, near_order=)`・関係 `initial_edges(tenure_hash=)` | 部品の単体試験の基準の口(ランの口からは選べない=上の表) |
+| vb24 の版上げ 2 回目の腕 `--proximity cell`・`--seat-release legacy`・`--economy-stage2 off` | 発注の一覧(pop43 §10・vb24 §V7-2)の外=触っていない(問い 2) |
+
+### 19-3 台帳
+
+- つなぎの台帳 [ledger_pop43_part2.py](tools/ledger_pop43_part2.py)(冪等=2 回目は変化 0): 585 → **586 行**。閉じた 3 行=`DOC-wage_occ-legacy-switch`・`BR-MEAL-DEFAULT-VALIDATION-ARM`・`EX-build.field.w12_external_nodes-f2cc7f0a`(文を改めた=後継 `EX-build.field.w12_external_nodes-d25ee17b`=実データの無い線だけの道・外す段は前のまま 7)。why の末尾に理由と「旧値の再現は安定版のタグ」と「取り込みの commit は親」。`PLAN_STAGES` の `next-bump` の語は残す。
+- コードの宣言の数: expedients 248 → **247**(食事の旧値の腕の 1 行)。
+- 状態台帳: `act_layer` の除外の欄から `leave_effect` を消した(腕の行は無かった)。
+- 設定の道筋 `CONFIG_PATHS_SHA256`: `21ef3084…1f077ca` → **`ceb58699c5edc4477aa7d236b2f6d202f27df8b80c1060a1185af540bcba7901`**(消した 4 本=`leave_effects.enabled`・`near_tiebreak.mode`・`near_tiebreak.order`・`poi_target`)。manifest の一番上の鍵の凍結の表から `poi_target` を消した。`run_day` の引数 113 → 107。
+
+### 19-4 1 バイト不変(19 構成・5,000 体・seed 1・1 日・本体の世界=W21)
+
+10e の道具で、本体の先端 `ad164ba` の写し(`git archive`+data へのつなぎ・`tree_missing` 空・env 空)vs 消した後の作業木: **19/19 構成で 25 欄とも同じ**=[bc19_part2_head_vs_wt.json](bc19_part2_head_vs_wt.json)(w6_v3_default `eb759bb4e5be37ec` / 63,572・呼数の合計 1,106,861)。2 日(08-24 → 25=給料日): `88b1d279` / 143,286・残差 0・0・払った体 2,726(外の雇用主 715 体・2.42 億円)=第 1 部の差し替えの後と同じ。
+
+### 19-5 張り替え・置き換えた試験
+
+- 旧値の再現の試験 → 「切替口が無い・渡すと止まる」試験に置き換え: 食事(`test_removed_switch_env_and_cli_flag_stop` ほか・旧値の腕の 5 本を消した・2 本の腕の parametrize を 1 本に)・賃金(`test_payroll_w17_arm_is_removed`・`test_wage_path_header_and_resume_check`・`test_removed_wage_switch_env_and_cli_flag_stop`・ランの試験は occupation の 1 本に)・退去の効果・対象の決め方(Q13 の legacy の 5,000 体の golden を消した)・近接の並び(古典 1,500 体の 3 行のうち 2 行を消した)・関係(v1 の行を消した)・応答の遅れ(+2 のテープの再生は止まる)・W12(1.1.0 の形の再現の試験を消し、夕ピークの切替口の試験は京王の切替口 off=井の頭線の等間隔で回す)。
+- 生きている切替口(空腹 v1・上限 1.0)の 5,000 体の golden は退去の効果 off を外した今の値に張り替えた(W17 の鍵の 2 行=W16 の世界は退避 `v2_pre_4-3`・W21 の世界は本体の v2 で測った): W21 の世界 帰無腕 空腹 v1 `09c7907e…` / 95,208・v3 `4c71d4d4…` / 63,618・上限 1.0 `2a4e22a1…` / 41,089(同じ)・v3 `aea727f0…` / 36,759。W16 の世界 `73719034…` / 94,249・`825f3dc2…` / 64,183・`ca19a13d…` / 40,976・`8ae5600a…` / 36,225。`*_leave_off` の行は消した。
+- 数の張り替え: `run_day` の引数の数・コードの宣言の数・設定の道筋の digest・manifest の一番上の鍵。
+
+### 19-6 試験
+
+| 試験 | 結果 |
+|---|---|
+| 範囲 `tests/engine tests/economy tests/build_pop tests/build_sched tests/c6 tests/c8 tests/tools`(`-n 2 --dist loadfile -m "not slow"`・本体の世界=W21) | **3,998 passed・0 failed**・1 skipped(Ruri の重み) |
+| 追加の範囲 `tests/perception tests/build_field tests/test_cli*.py tests/vocab tests/llm tests/core`(同じ引数) | 1,029 passed・1 failed・1 xfailed。落ちた 1 本 `test_ab7_seed1_open_matches_the_parent_report` は作業木の data がつなぎ(junction)でテープの相対の道筋が作れない=本体の先端の写し(`ad164ba`)でも同じく落ちる(消した切替口と無関係) |
+| 変えた試験のファイル 22 本の slow | 5 passed |
+| `lint-imports` | 5 契約とも KEPT |
+| 秘密の走査(変えた・足したファイル 47 本) | CLEAN |
+| `tests/c7` | 回していない(発注どおり) |

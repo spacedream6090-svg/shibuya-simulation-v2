@@ -143,17 +143,15 @@ def test_cli_switches_and_defaults():
     args = ap.parse_args([])
     kw = calendar_kwargs_from_args(args)
     # 〔改訂(第330・RET)〕calendar_weekday と rng_scheme の欄は切替口と一緒に消した(ACT: None・None)
+    # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕応答の遅れの切替口 --response-delay(2=旧)は消した=欄も引数も無い
     assert kw == {"start_sim_datetime": None,
-                  "holiday_csv": "data/calendar/syukujitsu.csv", "school_holidays": "",
-                  "response_delay": None}     # 未指定(録画・mock は 1・再生はテープに合わせる=検収後 P3)
+                  "holiday_csv": "data/calendar/syukujitsu.csv", "school_holidays": ""}
     assert DEFAULT_RESPONSE_DELAY == 1
-    args = ap.parse_args(["--start-date", "2026-08-03", "--response-delay", "2",
-                          "--school-holidays", "2026-07-21:2026-08-31"])
+    args = ap.parse_args(["--start-date", "2026-08-03", "--school-holidays", "2026-07-21:2026-08-31"])
     kw = calendar_kwargs_from_args(args)
-    assert kw["start_sim_datetime"] == "2026-08-03"
-    assert kw["response_delay"] == 2 and kw["school_holidays"] == "2026-07-21:2026-08-31"
+    assert kw["start_sim_datetime"] == "2026-08-03" and kw["school_holidays"] == "2026-07-21:2026-08-31"
     with pytest.raises(SystemExit):
-        ap.parse_args(["--response-delay", "3"])
+        ap.parse_args(["--response-delay", "2"])
     with pytest.raises(SystemExit):
         ap.parse_args(["--calendar-weekday", "real"])  # 〔第330・RET〕切替口を消した
 
@@ -162,7 +160,7 @@ def test_cli_main_accepts_the_switches():
     from shibuya import cli
 
     ap_args = ["--agents", "20", "--world", "no-such-world", "--cells", "9", "--ticks", "5",
-               "--start-date", "2026-07-13", "--response-delay", "2"]  # 〔第330・RET〕--calendar-weekday を消した
+               "--start-date", "2026-07-13"]  # 〔第330・RET〕--calendar-weekday・〔第 2 部〕--response-delay を消した
     assert cli.main(ap_args) in (0, 1)
 
 

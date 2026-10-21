@@ -138,15 +138,18 @@ def test_default_salt_is_the_run_salt_of_the_seed():
     assert r2._near_salt64 != r._near_salt64
 
 
-def test_cli_flag_and_manifest():
+def test_cli_has_no_near_tiebreak_flag():
     from shibuya import cli
     from shibuya.engine import run as RUN
 
+    # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕ランの口の切替口 --near-tiebreak(id=旧挙動)は消した=CLI・run_day に無い
+    # (知覚の部品 Renderer の引数は単体試験の基準の口として残す=この表の上の試験)
     src = open(cli.__file__, encoding="utf-8").read()
-    assert '"--near-tiebreak"' in src and "near_tiebreak=str(args.near_tiebreak)" in src
-    assert '"--near-tiebreak"' in open(RUN.__file__, encoding="utf-8").read()
-    with pytest.raises(ValueError):
-        RUN.run_day(n_agents=10, ticks=2, near_tiebreak="random")
+    assert '"--near-tiebreak"' not in src and '"--near-tiebreak"' not in open(RUN.__file__, encoding="utf-8").read()
+    with pytest.raises(TypeError):
+        RUN.run_day(n_agents=10, ticks=2, near_tiebreak="id")
+    with pytest.raises(SystemExit):
+        cli.main(["--near-tiebreak", "id"])
 
 
 #: classical 1,500 体・seed 1・v3(実世界資産)の final。
@@ -164,15 +167,15 @@ CLASSICAL_1500_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     # 〔小さな版上げ・meal_w17〕前 hash 4b3db260…e153f / 25_335・hash_order_id c2a7d482…1cfe2 / 25_284・classical_tie_id 0a1ce7b6…c58de / 25_307
     # (--meal-default validation で戻る)
     "hash": ("fbe9456439ec195d72bfe2b0a68d5d6e1ea4ebd53236cf9f544dc0e50c6c27a1", 26_053),  # 〔2-4 V1〕前 87492778f4582d8fa067757d32b1953516997c92494089ab124840aaaa765bdb / 25_890  # 〔2-4 V2〕前 26b748695ffbf7f928f57352d9169fea630f12ca86efc13af383693411e0c578 / 25_638  # 〔2-4 V3〕前 e313dfaace60e42505a25a5b9f6a530e0e291dcd426260dea26f2f1a86c0da86 / 25_363  # 〔2-4 V4〕前 e4185ac9f6901403328403d6591c8cd43857a24de2938b3f2158e82a50e9ee3d
-    "hash_order_id": ("c234caf7f39dea5eee29c191435048b5db7177d05446ba387e8aa4bb2f33bb57", 26_061),  # 〔2-4 V1〕前 b7697fcafb4ba63b18f486b70b99ad12068e4a12b66482a9be13d4ad8414e97b / 25_828  # 〔2-4 V2〕前 0dc35b774a45a23ba0f3e5e2cd79a5cb2f77f5f88ce60dddb9df7b05dc36dc68 / 25_653  # 〔2-4 V3〕前 348df7c410fca9ec4731eb96a6527f4539a6444b30ab14657c8bb7792205c396 / 25_297  # 〔2-4 V4〕前 9a9dc58f833bdfd7c6fc37140b876df695dd6344bb27dc12527c6599670a9080
-    "classical_tie_id": ("c609c5d2b7e992059fd78fcedc0a22cec5251c33709cf3c27513a5ae646e0d4e", 26_120),  # 〔2-4 V1〕前 49c3fae02c2de5ecb68c93366fcd6d38139b967a7883b2c5960fa16219cd75d3 / 25_877  # 〔2-4 V2〕前 b5373e67f412225616d1ab6084c2e1ac9fcde380f086b8b78d5b1646ba9547c1 / 25_716  # 〔2-4 V3〕前 aaf28867cc84660da16f47da698d457c940eb6d37c680e0ed8aab71da1f9e977 / 25_335  # 〔2-4 V4〕前 ee6d9b7b47b8261812a267bcd81fb7983d1daddcd8d4a2c0a3536d54851a6660
+    # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕ランの口の切替口(--near-order id・--near-tiebreak id)を消したので hash_order_id
+    # (c234caf7f39dea5e / 26,061)と classical_tie_id(c609c5d2b7e99205 / 26,120)の 2 行は消した(再現は安定版のタグ)
 }}
 #: 今の環境の行(無ければ ``None``=A/A だけ)。
 CLASSICAL_1500_GOLDEN = GE.row(CLASSICAL_1500_GOLDEN_BY_ENV)
 
 
 @pytest.mark.requires_data("world_v2:w2_cells.parquet")
-def test_classical_checkpoint_moves_with_hash_and_id_reproduces_the_old_one():
+def test_classical_checkpoint_with_the_default_hash_order():
     from pathlib import Path
 
     from shibuya import cli
@@ -182,19 +185,13 @@ def test_classical_checkpoint_moves_with_hash_and_id_reproduces_the_old_one():
     kw = dict(n_agents=1500, seed=1, world_dir=str(world), vocab_version="v3", policy="classical",
               chooser="classical", classical_social="near_first")
     new = cli.run(**kw)
-    old = cli.run(near_tiebreak="id", near_order="id", **kw)
-    if CLASSICAL_1500_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(既定の hash の 1 本)+切替が効くこと
+    if CLASSICAL_1500_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(既定の hash の 1 本)
         GE.assert_aa(lambda: cli.run(**kw), lambda r: (r.final_hash, int(r.llm_calls)), first=new)
-        assert new.final_hash != old.final_hash
         return
-    mid = cli.run(near_order="id", **kw)
     assert (new.final_hash, int(new.llm_calls)) == CLASSICAL_1500_GOLDEN["hash"]
-    assert (mid.final_hash, int(mid.llm_calls)) == CLASSICAL_1500_GOLDEN["hash_order_id"]
-    assert (old.final_hash, int(old.llm_calls)) == CLASSICAL_1500_GOLDEN["classical_tie_id"]
     m = new.run_manifest_fields()["near_tiebreak"]
-    assert m["mode"] == "hash" and m["ties_broken"] > 0 and m["order"] == "distance" and m["order_ties"] > 0
-    assert old.run_manifest_fields()["near_tiebreak"] == {"mode": "id", "ties_broken": 0, "tie_candidates": 0,
-                                                          "order": "id", "order_ties": 0}
+    # 〔第 2 部〕設定の欄 mode・order(切替口の値)は消した=観測の欄だけ
+    assert set(m) == {"ties_broken", "tie_candidates", "order_ties"} and m["ties_broken"] > 0 and m["order_ties"] > 0
 
 
 # ---------------------------------------------------------------- 第304 Q130: 近接行の並び=距離順
@@ -263,12 +260,12 @@ def test_id_order_reproduces_the_previous_order():
     assert r_i.near_order_ties == 0
 
 
-def test_cli_has_the_near_order_flag():
+def test_cli_has_no_near_order_flag():
     from shibuya import cli
     from shibuya.engine import run as RUN
 
+    # 〔第 2 部〕ランの口の切替口 --near-order(id=旧挙動)は消した=CLI・run_day に無い(Renderer の引数は単体試験の口)
     src = open(cli.__file__, encoding="utf-8").read()
-    assert '"--near-order"' in src and "near_order=str(args.near_order)" in src
-    assert '"--near-order"' in open(RUN.__file__, encoding="utf-8").read()
-    with pytest.raises(ValueError):
-        RUN.run_day(n_agents=10, ticks=2, near_order="random")
+    assert '"--near-order"' not in src and '"--near-order"' not in open(RUN.__file__, encoding="utf-8").read()
+    with pytest.raises(TypeError):
+        RUN.run_day(n_agents=10, ticks=2, near_order="id")

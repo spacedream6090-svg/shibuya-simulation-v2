@@ -22,7 +22,7 @@ from shibuya.engine import run as RUN
 from shibuya.engine.systems import build as BLD  # 1-0: 層の組み立ての名前の差し替えの的
 from shibuya.engine.calendar import CalendarWarning, SimCalendar, load_holidays, resolve_repo_path
 from shibuya.engine.energy import HomeMeals
-from shibuya.engine.run import ResponseDelayWarning, run_day
+from shibuya.engine.run import run_day
 from shibuya.engine.tape import RUN_META_FILENAME, read_run_meta
 from shibuya.world.state import World
 
@@ -79,14 +79,13 @@ def test_start_must_be_midnight():
 
 
 # ================================================================= P3
-def _record(tmp_path, name, delay):
+def _record(tmp_path, name):
     servers = [FakeVLLM(), FakeVLLM()]
     try:
         for srv in servers:
             srv.total_delay_s = 0.02
         client = make_client_d58(servers, per_replica_in_flight=4, queue_capacity=8)
-        return run_day(fleet=client, tape_path=tmp_path / name, fleet_wait_s=2.0, budget=30.0,
-                       response_delay=delay, **common(20))
+        return run_day(fleet=client, tape_path=tmp_path / name, fleet_wait_s=2.0, budget=30.0, **common(20))
     finally:
         for s in servers:
             s.close()
@@ -101,46 +100,32 @@ def _replay(path, **kw):
     return run_day(mode="replay", replay=path, llm=BoomLLM(), budget=30.0, **common(20), **kw)
 
 
-def test_the_tape_carries_the_response_delay_and_mismatches_stop(tmp_path):
-    rec1 = _record(tmp_path, "d1", 1)
-    rec2 = _record(tmp_path, "d2", 2)
+def test_the_tape_carries_the_response_delay_and_old_tapes_stop(tmp_path):
+    """テープの脇の meta に応答の遅れ(1)を書く・〔第 4 期 4-3 版上げ 3 回目の第 2 部〕+2(旧)の切替口は消した=値 2 の
+    テープ・値の無いテープ(10a より前)は再生しない(前は 2 で録って 2 で再生でき、値が無ければ 2 とみなして警告した)。"""
+    import json
+
+    rec1 = _record(tmp_path, "d1")
     # 10f: 環境の欄(env_id・environment)も書く=それを除いた形は今までと同じ
     # 10e(E4): 乱数の既定は counter
     # 〔改訂(第330・ACT)〕暦の規則(calendar_weekday・weather_scheme)も書く(親の決定 (5)・再生の既定)
     cal = {"calendar_weekday": "real", "weather_scheme": "calendar"}
     assert _meta_wo_env(read_run_meta(tmp_path / "d1")) == {"response_delay": 1, "rng_scheme": "counter", "rng_layout": "10e", **cal}
-    assert _meta_wo_env(read_run_meta(tmp_path / "d2")) == {"response_delay": 2, "rng_scheme": "counter", "rng_layout": "10e", **cal}
-    with pytest.raises(ValueError, match="テープは response_delay=1・今の設定は 2"):
+    assert _replay(tmp_path / "d1").final_hash == rec1.final_hash
+    with pytest.raises(TypeError):
         _replay(tmp_path / "d1", response_delay=2)
-    with pytest.raises(ValueError, match="テープは response_delay=2・今の設定は 1"):
-        _replay(tmp_path / "d2", response_delay=1)
-    assert _replay(tmp_path / "d1").final_hash == rec1.final_hash          # 未指定=既定 1 で一致
-    assert _replay(tmp_path / "d2", response_delay=2).final_hash == rec2.final_hash
-
-
-def test_a_tape_without_the_value_is_replayed_as_2_with_one_warning(tmp_path):
-    """〔改訂(第330・RET)〕前は meta のファイルごと消した(10a より前の録画の形)。meta の無いテープは 10e より前の録画として
-    止まる(``check_replay_tape``)ので、``response_delay`` の欄だけを消して「値が無ければ 2」を見る。"""
-    import json
-
-    rec = _record(tmp_path, "old", 2)
-    mp = tmp_path / "old" / RUN_META_FILENAME
+    mp = tmp_path / "d1" / RUN_META_FILENAME
     d = json.loads(mp.read_text(encoding="utf-8"))
+    mp.write_text(json.dumps({**d, "response_delay": 2}) + "\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="テープは response_delay=2"):
+        _replay(tmp_path / "d1")
     d.pop("response_delay")
     mp.write_text(json.dumps(d) + "\n", encoding="utf-8")
-    with pytest.warns(ResponseDelayWarning) as got:
-        rep = _replay(tmp_path / "old")
-    assert len([w for w in got if issubclass(w.category, ResponseDelayWarning)]) == 1
-    assert rep.final_hash == rec.final_hash and rep.tape_miss_count == 0
-    assert rep.run_manifest_fields()["response_delay"] == 2
-    with warnings.catch_warnings():
-        warnings.simplefilter("error", ResponseDelayWarning)
-        _replay(tmp_path / "old")                              # 同じテープで 2 回目は警告しない
-    with pytest.raises(ValueError, match="テープは response_delay=2・今の設定は 1"):
-        _replay(tmp_path / "old", response_delay=1)
+    with pytest.raises(ValueError, match="テープは response_delay=None"):
+        _replay(tmp_path / "d1")
     os.remove(mp)                                              # meta の無いテープ=10e より前の録画は止める
     with pytest.raises(ValueError, match="10e より前"):
-        _replay(tmp_path / "old")
+        _replay(tmp_path / "d1")
 
 
 # ================================================================= P4
@@ -175,30 +160,13 @@ def test_payday_moved_back_across_the_month_boundary(table):
         date(2026, 7, 1), date(2026, 7, 31), date(2026, 9, 1), date(2026, 10, 1)]
 
 
-# ================================================================= T1 +2 の経路の既知の答え
-#: HEAD(3342b65・src は a08109a と同じ)の写しで取った final(偽 vLLM・pair_talk・合成世界 2 セル・
-#: 200 体 × 600 tick・fleet_wait_s=10・stub・過程なし)。HEAD には切替口が無い=旧の +2。
-#: 〔改訂(第330・RET)〕前の値 79821d778ea4addf は 10e より前の final の定義と乱数(hash full・rng stateful)で HEAD を
-#: 再現した値(ACT の commit で通った)。切替口を消したので今の値(同じ設定・final=behavior-hash・暦 2026-07-13)に張り替えた。
-#: 会話 7・呼数 414 は今の値の記録(試験では見ない)。
-HEAD_PLUS2_FINAL = "3dc9605f573de1be"
-
-
-def test_plus2_path_reproduces_the_head_final():
-    from tests.engine.test_fleet_wiring import CONV_AGENTS, CONV_TICKS, _conv_world, make_client
-
-    servers = [FakeVLLM(), FakeVLLM(), FakeVLLM()]
-    try:
-        for s in servers:
-            s.pair_talk = True
-        res = run_day(n_agents=CONV_AGENTS, seed=1, world=_conv_world(), ticks=CONV_TICKS,
-                      fleet=make_client(servers), fleet_wait_s=10.0, renderer="stub", processes=False,
-                      population=False, world_dir=None, response_delay=2)
-    finally:
-        for s in servers:
-            s.close()
-    assert res.conversation_sessions > 0
-    assert res.final_hash[:16] == HEAD_PLUS2_FINAL
+# ================================================================= T1 +2 の経路(〔第 2 部〕消した)
+def test_plus2_path_is_gone():
+    """〔第 2 部〕+2(旧)の道(受け取りの位置 B)は消した=``run_day(response_delay=2)`` は止まる(前は HEAD の final
+    ``HEAD_PLUS2_FINAL`` を再現した)。"""
+    with pytest.raises(TypeError):
+        run_day(n_agents=4, ticks=2, renderer="stub", processes=False, population=False, world_dir=None,
+                response_delay=2)
 
 
 # ================================================================= T2〜T6

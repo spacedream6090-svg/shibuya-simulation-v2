@@ -128,7 +128,10 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 〔第 6 期 6-2 カレンダー 2〕``calendar_2`` の設定の子 11(schema・arm・port・placements・kinds・certainty・candidates・recall・
 #: early_min・arbitration・provisional=腕 arm のランだけ出る節)を足した(meal_w17 の後に・前 ``99fd537f…9e8ba6`` → ``21ef3084…1f077ca``
 #: =この 11 本を外すと前の値に戻る・記録 docs/bench/analysis/wallbounce-1012/ca2/README.md)。
-CONFIG_PATHS_SHA256 = "21ef3084964fa920d40eb95db89619f47536d8b686886c8dbdcefcfaa1f077ca"
+#: 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧道の切替口を消した=設定の道筋 4 本(leave_effects.enabled・near_tiebreak.mode・
+#: near_tiebreak.order・poi_target)を消した(カレンダー 2 の後に・前 ``21ef3084…1f077ca`` → ``ceb58699…bcba7901``=この 4 本を
+#: 戻すと前の値に戻る・記録 docs/bench/analysis/wallbounce-1012/pop43/README.md §19)。
+CONFIG_PATHS_SHA256 = "ceb58699c5edc4477aa7d236b2f6d202f27df8b80c1060a1185af540bcba7901"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 
@@ -418,8 +421,9 @@ def test_golden_tables_are_keyed_by_platform_and_values_unchanged():
     assert set(g21) == set(g)  # 同じ欄(W16 の世界の行と同じ試験が回る)
     # 〔第 4 期 4-3 段 10・版上げ 3 回目〕関係 on の 2 行は差し替えの世界の値(前 v1 ee4df5ad2dccfa94 / 67_233・v2 bf212900153818d2 /
     # 66_844=記録 pop43)。W17 の表は W16 の世界の行(3113e9ba7abb)を残し、差し替えの世界の行(02114fb577f3)を足した
-    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v1", "behavior")] == ("285505540ec73d0d", 66_455)  # 〔2-4 V1〕前 380e8651a96b1829 / 69_406  # 〔2-4 V2〕前 edc6b366feece21c / 69_306  # 〔2-4 V3〕前 967a0f2eedb3576d / 67_907  # 〔2-4 V4〕前 d696dfa98390e830 / 67_830
-    assert set(TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F]) == {("v1", "behavior"), ("v2", "behavior")}
+    # 〔第 2 部〕("v1","behavior") の行(285505540ec73d0d / 66_455)は切替口 --rel-tenure-hash と一緒に消した
+    assert ("v1", "behavior") not in TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F]
+    assert set(TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F]) == {("v2", "behavior")}
     assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "behavior")] == ("d0623491c47e5e2f", 66_374)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111  # 〔2-4 V2〕前 c506dec249bb4328 / 69_114  # 〔2-4 V3〕前 874ea26628f6be2e / 68_213  # 〔2-4 V4〕前 4a0db59663ef0d7b / 67_780
 
 

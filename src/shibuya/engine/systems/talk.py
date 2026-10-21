@@ -69,7 +69,6 @@ def sys_conversation(ctx: Any, b: Any) -> None:
     applied_now = b.scratch.applied_now
     attention_on = b.cfg.attention_on
     conv = b.layers.conv
-    leave_effect = b.cfg.leave_effect
     outcome = b.scratch.outcome
     plan = b.scratch.plan
     rel_layer = b.layers.rel_layer
@@ -97,7 +96,7 @@ def sys_conversation(ctx: Any, b: Any) -> None:
         # ①(返事待ちの解決)は **Phase C の前**に済んでいる(``_settle_pending_invites``)。
 
         # ---- 9a(D-112 ④): 退去した会話中の体のセッションを閉じる(理由「退去」→ CLOSING → TERMINAL) ----
-        if leave_effect and outcome.leave_conversing:
+        if outcome.leave_conversing:
             for _lv in np.unique(np.concatenate(outcome.leave_conversing)).tolist():
                 # 逐次ループ宣言: この刻みに退去した会話中の体の数ぶん(≤ 1 刻みの呼数)
                 if conv.close_now(int(_lv), tick, "退去") is not None:

@@ -1,8 +1,7 @@
 """engine.systems.table — 系の宣言の表 ``SYSTEMS``(呼ぶ順の 1 つの表)(第 1 期 1-0・草案 §2-2・§2-5)。
 
 - 並び=呼ぶ順(ランの頭 → 日の頭 → 刻みの中 25 → 日の終わり → ランの終わり)。進行役はこの順にしか呼ばない。
-  ``llm_receive`` は 1 つの系で、位置が 2 つ(``response_delay=1`` は ``perceive_prepare`` の後・``2`` は ``wake_sources`` の後)。
-  表には 1 回だけ載せ、進行役が設定で位置を選ぶ(草案 §2-2)。
+  ``llm_receive`` は ``perceive_prepare`` の後(〔第 2 部〕応答の遅れ 2=旧の位置 B の切替口は消した)。
 - ``writes.soa`` は ``resolve_ops`` の静的な閉包(``spec.make``・手で書かない)。``resolve_ops``・``writes.paths``・
   scratch・tally は手で書く表(下書き: 6 構成の観測・HEAD の系ごとの差の測り・層のメソッドの静的な到達)。
 - 外の道筋は ``鍵:道筋``(末尾の ``*`` で前方一致・``[...]`` で行の範囲)。行は割らない(草案 §0-2)。
@@ -177,7 +176,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                # 〔第 6 期 6-2 カレンダー 2〕腕 arm: 到着した会話の番の控え(系 calendar_2 が同じ刻みに読む)
                " CA2G:calendar2._turns",
          scratch_w="n_parse_errors_fleet", calls_llm="receive",
-         tally="phase", reads="cfg.fleet_wait_s cfg.response_delay cfg.store_wom_on cfg.tick_seconds "
+         tally="phase", reads="cfg.fleet_wait_s cfg.store_wom_on cfg.tick_seconds "
                "cfg.vocab_version layers.conv layers.fleet_bridge layers.mem_layer layers.speech layers.wom "
                "llm.fleet_deferred llm.fleet_inflight llm.fleet_waiting llm.pending llm.replay_inbox "
                "runstats.phase scratch.n_parse_errors_fleet soa.agents "
@@ -322,7 +321,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "EC:ledger.* EM:ledger.*",
          scratch_r="plan", buffers_r="focus_request", scratch_w="outcome",
          tally="geometry_hops geometry_jammed leave_counts per_action_total phase result",
-         reads="buffers.focus_request cfg.attention_on cfg.leave_effect cfg.queue_service cfg.seat_release "
+         reads="buffers.focus_request cfg.attention_on cfg.queue_service cfg.seat_release "
                "cfg.report_precondition cfg.vocab_version fx.geom fx.schedule layers.energy "
                "layers.fam_layer layers.ledger layers.mem_layer layers.norm_meter layers.runner "
                "runstats.geometry_hops runstats.geometry_jammed runstats.leave_counts "
@@ -336,7 +335,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "E:events.* "  # 第 2 期 2-3: 会話の終わりの出来事(体の出来事の口・腕のランだけ)
                "TCC:talk_clock.*",  # 〔第 6 期 6-3 T2〕腕 mora の会話の時計(終わった会話の長さ・時計の行を消す)
          scratch_r="plan applied_now outcome", tally="leave_closed",
-         when="conv", reads="cfg.attention_on cfg.leave_effect layers.conv layers.rel_layer runstats.leave_closed "
+         when="conv", reads="cfg.attention_on layers.conv layers.rel_layer runstats.leave_closed "
                "scratch.applied_now scratch.outcome scratch.plan soa.agents "
                "layers.proximity "  # 第 2 期 2-2: 腕 distance の判定の規則(招待・3 人会話・離脱)
                "layers.mem_layer "  # 第 2 期 2-3: 体の出来事の口(記憶の器が持つ)
@@ -485,12 +484,12 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "cfg.classical_tau cfg.day_index cfg.derive_rule cfg.eatery cfg.energy_on "
                "cfg.energy_rate cfg.exit_mode cfg.familiarity_k cfg.familiarity_on cfg.geometry "
                "cfg.home_meal cfg.hunger_model cfg.hunger_words cfg.intent_max_ticks cfg.intent_mode "
-               "cfg.l4_scale cfg.leave_effect cfg.meal_sleep_defer cfg.memory_n cfg.memory_on "
+               "cfg.l4_scale cfg.meal_sleep_defer cfg.memory_n cfg.memory_on "
                "cfg.mock_move_target_p cfg.mock_out_of_cell_target_p cfg.move_search_radius "
-               "cfg.n_agents cfg.near_order cfg.near_tiebreak cfg.occupancy_path "
+               "cfg.n_agents cfg.occupancy_path "
                "cfg.outside_suppression cfg.p_notice_ablation cfg.p_notice_d50_scale "
                "cfg.parent_run cfg.plan_exec_on "
-               "cfg.plan_sleep cfg.poi_target cfg.policy cfg.refractory_scale_norm cfg.response_delay "
+               "cfg.plan_sleep cfg.policy cfg.refractory_scale_norm cfg.response_delay "
                "cfg.role_words cfg.run_id cfg.seat_area_eatery_m2 cfg.seat_area_retail_m2 cfg.seat_release cfg.signage "
                "cfg.signage_p_see cfg.sim_days cfg.sleep_suppression cfg.stopped cfg.store_memory_on "
                "cfg.store_recall_scope cfg.store_signage_on cfg.store_wom_on cfg.t_begin cfg.t_end "
@@ -514,5 +513,5 @@ SYSTEMS: tuple[SystemSpec, ...] = (
 )
 
 SPECS: dict[str, SystemSpec] = {s.name: s for s in SYSTEMS}
-#: 刻みの中の系の呼ぶ順(``llm_receive`` は位置 A=``perceive_prepare`` の後に置いた順。位置 B は進行役が選ぶ)。
+#: 刻みの中の系の呼ぶ順(``llm_receive`` は ``perceive_prepare`` の後)。
 TICK_ORDER: tuple[str, ...] = tuple(s.name for s in SYSTEMS if s.timing == "tick")

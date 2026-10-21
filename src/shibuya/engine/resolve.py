@@ -491,8 +491,6 @@ class ResolveOutcome:
     n_leave_conversing: int = 0
     #: 退去した**会話中の**体(``engine.run`` が会話マネージャの終了経路=CLOSING で閉じる)。
     leave_conversing: list = field(default_factory=list)
-    #: 9a: 退去の効果の切替口(False=第301 以前=IDLE 化と会話相手の解除だけ=旧 golden の再現)。
-    leave_effect: bool = True
     #: 〔第 2 期 2-4 V3〕移動の意図で歩き出した体の在席の印を解く(``engine.seat_release``・既定 walk=True・切替口 legacy=False)。
     seat_release_walk: bool = False
     #: 〔第 2 期 2-4 V3〕歩き出しで解いた在席の印の数(診断)。
@@ -1307,7 +1305,6 @@ def apply(
     track_visits: bool = False,
     energy: Any = None,
     track_events: bool = False,
-    leave_effect: bool = True,
     proximity: Any = None,
     seat_release_walk: bool = False,
 ) -> ResolveOutcome:
@@ -1385,7 +1382,6 @@ def apply(
         track_visits=bool(track_visits),
         energy=energy,
         track_events=bool(track_events),
-        leave_effect=bool(leave_effect),
         proximity=proximity,
         seat_release_walk=bool(seat_release_walk),
     )
@@ -2632,11 +2628,6 @@ def _apply_leave(agents, world, aid, tgt, tick, out, schedule) -> None:
     """
     r = agents.registry
     if aid.size == 0:
-        return
-    if not out.leave_effect:  # 切替口 off=第301 以前の挙動
-        r.activity[aid] = int(Activity.IDLE)
-        r.talk_partner[aid] = -1
-        _ok(agents, aid, tick, out)
         return
     indoor = aid[r.poi_ref[aid] >= 0]
     if indoor.size:

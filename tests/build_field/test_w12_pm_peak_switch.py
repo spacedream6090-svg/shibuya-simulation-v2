@@ -10,8 +10,9 @@
   False で表が無い・線が無いときは ValueError(黙って夕=朝に戻さない)。他社の比で埋めない。
 
 〔第 2 期 2-3b〕W12 1.2.0 から既定は実ダイヤ(等間隔の線 0)。夕ピークの切替口は等間隔の推定の道(実データの
-無い線が出たとき)にだけ効くので、``run()`` を通す試験は実ダイヤの切替口 ``USE_REAL_TIMETABLES=False``(1.1.0 の形=
-5 線が等間隔)で回す。
+無い線が出たとき)にだけ効くので、``run()`` を通す試験は等間隔の線が出る形で回す。〔第 4 期 4-3 版上げ 3 回目の第 2 部〕
+前は 1.1.0 の形の切替口 ``USE_REAL_TIMETABLES=False``(5 線が等間隔)を使った=消したので、京王の切替口
+``USE_ODPT_CHALLENGE=False``(井の頭線が等間隔=``test_w12_keio_switch_2_4.py``)で回す。
 """
 
 from __future__ import annotations
@@ -24,6 +25,7 @@ import pytest
 
 from shibuya.build.field import common as C
 from shibuya.build.field import w12_external_nodes as w12
+from shibuya.build.field import w12_real_timetables as RT
 from tests import _data_ids as D
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -31,8 +33,8 @@ DATA_DIR = REPO_ROOT / "data"
 WORLD = DATA_DIR / "world" / "v2"
 _UPSTREAM = ("w11_station_exits.parquet", "w1_nodes.parquet", "w1_edges.parquet")
 
-#: 等間隔ダイヤを作る 5 線(湘南新宿ラインは本数が無い=対象外)。
-LINES = ("田園都市線", "東横線", "井の頭線", "山手線", "埼京線")
+#: 等間隔ダイヤを作る線(京王の切替口 off=井の頭線だけ・〔第 2 部〕前は 1.1.0 の形の 5 線)。
+LINES = ("井の頭線",)
 
 
 def test_pm_peak_for_line_rules():
@@ -76,7 +78,7 @@ def _per_hour(tt: dict, line: str, hours: range) -> dict[int, int]:
 
 @needs_data
 def test_switch_changes_pm_peak_in_run_output(tmp_path, monkeypatch):
-    monkeypatch.setattr(w12, "USE_REAL_TIMETABLES", False)  # 〔2-3b〕等間隔の道(1.1.0 の形)で回す
+    monkeypatch.setattr(RT, "USE_ODPT_CHALLENGE", False)  # 〔第 2 部〕等間隔の道=井の頭線(京王の切替口 off)
     res0, tt0 = _run_w12(tmp_path / "default")
     assert "pm_peak_trains_per_hour" not in res0.params  # 既定の param_hash は不変
     table = {ln: 10 for ln in LINES}  # 試験用の小さな表(出典の無い値=試験の中だけ)
@@ -105,7 +107,7 @@ def test_switch_changes_pm_peak_in_run_output(tmp_path, monkeypatch):
 
 @needs_data
 def test_switch_without_table_raises(tmp_path, monkeypatch):
-    monkeypatch.setattr(w12, "USE_REAL_TIMETABLES", False)  # 〔2-3b〕等間隔の道(1.1.0 の形)で回す
+    monkeypatch.setattr(RT, "USE_ODPT_CHALLENGE", False)  # 〔第 2 部〕等間隔の道=井の頭線(京王の切替口 off)
     monkeypatch.setattr(w12, "PM_PEAK_ASSUMED_EQUAL_TO_AM", False)
     monkeypatch.setattr(w12, "PM_PEAK_TRAINS_PER_HOUR", None)
     with pytest.raises(ValueError):
