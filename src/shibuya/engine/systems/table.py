@@ -169,7 +169,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "O8:mem_layer.* O9:mem_layer.* O1[01]:mem_layer.* O12:mem_layer.* O15:wom.* O8[89]:fleet_bridge.* "
                "O87:bridge.* O62:undefined.* O8[23]:undefined.* "
                "M0*:mem_layer.memory_store.*"  # 1-6: 記憶の器(会話の発話の記憶・テープの列の控え)
-               " S8:speech.* S8M:speech.* E:events.*"  # 1-8b: 腕 on の到着の発話(未読の列・計器・発話の出来事 1 行)
+               " S8:speech.* S8M:speech.* S8E:speech.* E:events.*"  # 1-8b: 腕 on の到着の発話(未読の列・計器・発話の出来事 1 行)
                " TCR:talk_clock.* TCC:talk_clock.*"  # 〔第 6 期 6-3 T2〕腕 mora の会話の時計(話す速さの控え・発言の予約・計器)
                # 〔6-3 検収 M1〕腕 mora の発言の予約は全体の窓の待ち行列(行 BW)か区域ごとの時計(行 T4W)に事象を置く
                " BW:batching.* T4W:clock.*"
@@ -274,7 +274,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                # 1-8 J0: 腕 port の候補の口の計器・営業中の店の控えと判断の出来事の行/1-7: 看板を読んだ出来事(作り物の印・
                # 腕 SHIBUYA_TOOL_EVENTS・既定 off)=E:events.* は 1-8 と 1-7 で 1 つ
                " J0:decision.* E:events.*"
-               " S8:speech.* S8M:speech.*"  # 1-8b: 腕 on の発話の口(届ける=描画の perceive・話す=会話の番)
+               " S8:speech.* S8M:speech.* S8E:speech.*"  # 1-8b: 腕 on の発話の口(届ける=描画の perceive・話す=会話の番)
                " TCR:talk_clock.* TCC:talk_clock.*"  # 〔第 6 期 6-3 T2〕腕 mora の会話の時計(話す速さの控え・発言の予約・計器)
                # 〔6-3 検収 M1〕腕 mora の発言の予約は全体の窓の待ち行列(行 BW)か区域ごとの時計(行 T4W)に事象を置く
                " BW:batching.* T4W:clock.*"

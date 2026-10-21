@@ -155,20 +155,24 @@ def test_ledger_arm_rows_and_arm_items():
     assert (s8.behavior, s8.restore, s8.items, s8.arm, s8.arm_owner) == (
         SL.BEHAVIOR, SL.REQUIRED, ("speech.inbox",), "speech-port", "speech")
     assert (s8m.behavior, s8m.restore) == (SL.DIAG, SL.DISCARDABLE)
+    # 〔1-3 の (1) の直し〕口の目印 → 記録の id の診断の表と口の通し番号の控え(diag・required)
+    s8e = SL.row("S8E")
+    assert (s8e.behavior, s8e.restore, s8e.items, s8e.arm) == (
+        SL.DIAG, SL.REQUIRED, ("speech._mark_event_of",), "speech-port")
     # 〔第 2 期 2-3〕M0L・〔第 6 期 6-5〕M0M・M0C・〔検収 M4〕M0S・〔第 6 期 6-2〕カレンダー 1b の C1B・C1BM(腕 calendar)
     # 〔第 6 期 6-3〕その後に時計の段 T2〜T4 の腕の行 TCR・TCC・T3M・T4W
-    assert [r.key for r in SL.arm_rows()] == ["S8", "S8M", "M0L", "M0M", "M0C", "M0S", "C1B", "C1BM",
+    assert [r.key for r in SL.arm_rows()] == ["S8", "S8M", "S8E", "M0L", "M0M", "M0C", "M0S", "C1B", "C1BM",
                                              "TCR", "TCC", "T3M", "T4W", "CT1D", "CT1A", "CT1AS", "CT1I", "CT1IS", "CT1C", "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q",  # 〔第 6 期 6-4 C1〕
                                              "CA2B", "CA2O", "CA2G", "CA2M", "CA2Q",  # 〔第 6 期 6-2 カレンダー 2〕
                                              "TXD"]  # 〔第 4 期 4-2〕店の預かり消費税(腕 rules-42)
     assert [(SL.row(k).arm, SL.row(k).arm_owner) for k in ("C1B", "C1BM")] == [
         ("calendar", "calendar_self"), ("calendar", "calendar_self")]
     # 腕の行は静的な表に入らない(既定の 2 つのハッシュと状態のファイルは前と同じ道筋)
-    assert all(k not in ("S8", "S8M") for k, _ in SL.behavior_items() + SL.full_items())
+    assert all(k not in ("S8", "S8M", "S8E") for k, _ in SL.behavior_items() + SL.full_items())
     assert SL.arm_items({"speech": None}, behavior=True) == () == SL.arm_items({}, behavior=False)
     port = P.SpeechPort()
     assert SL.arm_items({"speech": port}, behavior=True) == (("S8", "speech.inbox"),)
-    assert SL.arm_items({"speech": port}, behavior=False) == (("S8", "speech.inbox"),)
+    assert SL.arm_items({"speech": port}, behavior=False) == (("S8", "speech.inbox"), ("S8E", "speech._mark_event_of"))
     assert SL.OWNER_CLASSES["speech"] == ("engine/speech/port.py", "SpeechPort")
     # 検収 低7: 持ち主の腕の名(LEDGER_ARM)を行の arm と照合する=別の腕の物を同じ根の名に挿すと落ちる
     assert P.SpeechPort.LEDGER_ARM == s8.arm

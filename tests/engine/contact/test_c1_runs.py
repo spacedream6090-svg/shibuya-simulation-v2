@@ -108,6 +108,12 @@ def test_arm_rows_enter_the_hashes_only_when_the_owner_exists():
             assert r.items and all(it.startswith("contact.") for it in r.items), r.key
     beh = {r.key for r in SL.arm_rows() if r.arm == "contact-c1" and r.behavior == SL.BEHAVIOR}
     assert beh == {"CT1D", "CT1A", "CT1I", "CT1C", "CT1K", "CT1S", "CT1G"}  # 〔検収 M1・M5〕CT1G
+    # 〔1-3 の (1) の直し〕出来事の id の診断の表は diag・required の行 CT1Q(behavior の行には無い)
+    q = SL.row("CT1Q")
+    assert (q.behavior, q.restore) == (SL.DIAG, SL.REQUIRED)
+    assert {"contact._ct_event_of", "contact.speech._mark_event_of"} <= set(q.items)
+    assert not any(it in ("contact._ct_event_of", "contact.speech._mark_event_of")
+                   for r in SL.arm_rows() if r.behavior == SL.BEHAVIOR for it in r.items)
 
 
 def test_cli_run_kind_is_arm(monkeypatch):

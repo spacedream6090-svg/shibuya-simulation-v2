@@ -36,6 +36,11 @@
 :func:`audit_causes` は本人の語の原因がこの控えにあり・体が同じで・判断の種類が語に合うかを突き合わせる(偽の ``LlmCall`` を
 植えると落ちる)。
 
+記録の有無(〔第 6 期 6-4 C1 の直し=口の約束 1-3 の (1)〕): 出来事の記録の id(``(t_ns, seq)``)は behavior の行に置かない。届いた行の
+目印は層の診断の表 ``_ct_event_of``(体 → 未読の届いた行の目印・読んだら落とす)・通話の発話の目印は発話の口の診断の表
+``SpeechPort._mark_event_of``(口の通し番号 → 出来事の id)に持ち(どちらも腕の行 ``CT1Q``=diag・required)、読む判断と通話の番の
+判断の原因の入力(``LlmCall`` の入力の出来事 id=原因の表)だけが読む=記録 on/off で behavior-hash・final・checkpoint が同じ。
+
 呼び数(〔検収 M5〕): 連絡の判断は主の判断と別の呼び(宣言)だが、manifest と日次の記録の ``calls_by_model`` に数える
 (判断の呼び=判断モデル・文の口=LLM)。暇なときの「スマホを見る」は、判断の口の腕(``--decision-port port``)のランでは**主の
 判断の候補**(源=できること)に入れる(:meth:`offer_main`・選んだら :meth:`take_main`・主の行為のコードは今のまま)。腕 legacy
@@ -222,6 +227,10 @@ class ContactLayer:
         self._issued: np.ndarray = np.zeros(1024, dtype=np.int64)
         #: ``[控えの数, 判断の呼び(判断モデル), 文の口の呼び(LLM)]``。
         self._issued_n: list[int] = [0, 0, 0]
+        # ---- 〔1-3 の (1) の直し〕出来事の id の診断の表(腕の行 CT1Q=記録 on/off で behavior の行が変わらない) ----
+        #: 体 → 未読の届いた行の出来事の目印 ``[[メッセージの番号, t_ns, seq], …]``(届いた順・読む判断の原因の入力だけが読む・
+        #: 読んだら落とす=記録しないランは空)。
+        self._ct_event_of: dict[int, list[list[int]]] = {}
         #: 判断の口の腕(候補)のランか(主の判断が「スマホを見る」を候補に出す=別の暇の判断をしない)。組み立てが置く。
         self.main_offer: bool = False
         #: 〔第 6 期 6-2 カレンダー 2〕会話の番の控えの口(腕 --calendar-2 arm のランだけ組み立てが
@@ -412,8 +421,8 @@ class ContactLayer:
             else:
                 eid = self._log(t, r, W_DELIVERED, _P_CONTACT, whom=int(sender), via=via_w, received_ns=t,
                                 origin=origin)
-            if eid is not None:
-                self.mail.note_delivery_event(r, eid)
+            if eid is not None:  # 〔1-3 の (1)〕目印は診断の表へ(届いた行は記録に依らない)
+                self._ct_event_of.setdefault(int(r), []).append([int(msg), int(eid[0]), int(eid[1])])
         for r in held:  # 逐次: 預かった体の数ぶん(畳んだときの例外の行)
             self._log(t, r, W_HELD, _P_CONTACT, whom=int(sender), via=via_w, origin=origin)
         self._bump("sent_group" if int(group) >= 0 else "sent_messages")
@@ -630,7 +639,7 @@ class ContactLayer:
                 continue
             partner = next(q for q in s.participants if q != a)
             heard = self.speech.take_heard(a, T)
-            basis = tuple((int(e[0]), int(e[1])) for e, _w, _t in heard)
+            basis = self.speech.event_ids(a, [e for e, _w, _t in heard])  # 〔1-3 の (1)〕口の目印 → 出来事の id(診断の表)
             c, cause = self._decide(T, t_ns, a, _P.P_TURN, [_P.cand(_P.K_TALK, basis=basis), _P.cand(_P.K_HANG)])
             if c.kind == _P.K_TALK:
                 text, capped = _P.cap_text(self._write_text(kind="call", sender=a, addressees=(partner,))
@@ -722,7 +731,24 @@ class ContactLayer:
                 self._idle_decision(T, t_ns, a)
 
     def _unread_basis(self, a: int) -> tuple[tuple[int, int], ...]:
-        return tuple((int(r[9]), int(r[10])) for r in self.mail.unread(a) if len(r) >= 11)
+        """未読の届いた行の出来事の目印(診断の表から・届いた順)=読む判断の原因の入力。記録しないランは空。"""
+        marks = self._ct_event_of.get(int(a))
+        if not marks:
+            return ()
+        un = {int(r[0]) for r in self.mail.unread(a)}
+        return tuple((int(x[1]), int(x[2])) for x in marks if int(x[0]) in un)
+
+    def _drop_read_marks(self, a: int) -> None:
+        """読んだ行の目印を診断の表から落とす(未読の行の目印だけ残す=有界)。"""
+        marks = self._ct_event_of.get(int(a))
+        if marks is None:
+            return
+        un = {int(r[0]) for r in self.mail.unread(a)}
+        keep = [x for x in marks if int(x[0]) in un]
+        if keep:
+            marks[:] = keep
+        else:
+            del self._ct_event_of[int(a)]
 
     def _notice_decision(self, T: int, t_ns: int, a: int) -> None:
         basis = self._unread_basis(a)
@@ -783,6 +809,7 @@ class ContactLayer:
 
     def _read(self, T: int, t_ns: int, a: int, cause: LlmCall) -> None:
         rows = self.mail.read_all(a, t_ns)
+        self._drop_read_marks(a)
         for r in rows:  # 逐次: 読んだ数ぶん
             self._hist_add("read_delay_minutes", (int(t_ns) - int(r[5])) // (SECONDS_PER_MINUTE * NS_PER_SECOND))
         self._bump("read_messages", len(rows))

@@ -825,15 +825,30 @@ _EXT: tuple[LedgerRow, ...] = (
              "腕の行を足す前と同じ)。書く系は decide(届ける=描画の perceive が take_heard・話す=会話の番の発話)と "
              "llm_receive(艦隊と再生の到着の発話)(宣言 S8:speech.*)。行の鍵は O の通し番号でなく S8"),
     LedgerRow(
-        key="S8M", name="SpeechPort の計器・直近の入力の目印・口の通し番号(第 1 期 1-8b)", place=EXTERNAL,
-        dtype="計数の dict・体 → 目印の組の dict・(t_ns, seq) の組", nbytes="", alloc="--speech-port on",
+        key="S8M", name="SpeechPort の計器・直近の入力の目印・渡した発話の記録の id の控え(第 1 期 1-8b)", place=EXTERNAL,
+        dtype="計数の dict・体 → 目印の組の dict・体 → dict(口の目印 → 記録の id)", nbytes="", alloc="--speech-port on",
         behavior=DIAG, restore=DISCARDABLE, dead=False,
-        basis="engine/speech/port.py(meter・take_input_ids・_write)・engine/run.py(manifest の speech_port)",
-        items=("speech.meter", "speech._last_input", "speech._own_last"), arm="speech-port",
+        basis="engine/speech/port.py(meter・take_heard・report_shown・event_ids・take_input_ids)・engine/run.py(manifest の "
+              "speech_port)",
+        items=("speech.meter", "speech._last_input", "speech._own_last", "speech._heard_taken"), arm="speech-port",
         note="1-8b: 計器(会話の番・発話・届いた数・口コミに渡った数ほか)は診断=読み手は manifest の speech_port と試験だけ。"
-             "直近の入力の目印は次の発話の出来事の原因の入力(出来事ログ=診断)・口の通し番号は出来事ログを書かないランの"
-             "目印(描画は目印を読まない)=軸 1 diag・軸 2 discardable(再開のランは空から)。書く系は decide・llm_receive"
-             "(宣言 S8M:speech.*)"),
+             "直近の入力の目印は次の発話の出来事の原因の入力(出来事ログ=診断)=軸 1 diag・軸 2 discardable(再開のランは空から)。"
+             "〔1-3 の (1) の直し〕take_heard で渡した発話の記録の id の控え _heard_taken は同じ刻みの report_shown・event_ids が"
+             "引く(刻みの中の一時=次の take_heard で置き換わる)=diag・discardable。口の通し番号の控え _own_last は未読の列の"
+             "目印を決めるが刻みの中でだけ効く(同じ時刻の 2 つ目の発話に 1 を振る・再開は刻みの境目=次の発話は新しい時刻=0 から"
+             "=通しと同じ)=discardable のまま(口の欄は付け替えられない=戻す口が無い)。"
+             "書く系は decide・llm_receive(宣言 S8M:speech.*)"),
+    LedgerRow(
+        key="S8E", name="SpeechPort の口の目印 → 出来事の記録の id の診断の表(第 1 期 1-8b・1-3 の (1) の直し)",
+        place=EXTERNAL, dtype="dict((t_ns, 通し番号) → (t_ns, seq))",
+        nbytes="未読の列にある発話ごとに 1 組(届け先ごとに 3 件まで)", alloc="--speech-port on", behavior=DIAG,
+        restore=REQUIRED, dead=False,
+        basis="engine/speech/port.py(say・_next_mark・_forget_mark・take_heard)",
+        items=("speech._mark_event_of",), arm="speech-port",
+        note="1-3 の (1) の直し: 未読の列(行 S8=behavior)の目印は記録に依らない口の通し番号だけにし、記録に書いた出来事の id は"
+             "ここに持つ=読み手は次の発話の原因の入力(出来事ログ=診断)だけ=軸 1 diag(記録 on/off で behavior-hash と final が"
+             "同じ)。未読が刻みをまたぐ=再開したランの原因の入力が通しと同じ=軸 2 required(C1 の CT1Q・カレンダー 2 の CA2M と"
+             "同じ形)。書く系は decide・llm_receive(宣言 S8E:speech.*)"),
     # ---- 第 2 期 2-2 段 11a(近接の判定の切替口): 足す前に軸を決めた行(腕の裏=既定の腕 cell では持ち主が None) ----
     LedgerRow(
         key="PX", name="ProximityLayer(近接の層の計器・第 2 期 2-2 段 11a)", place=EXTERNAL,
@@ -1161,7 +1176,8 @@ _EXT: tuple[LedgerRow, ...] = (
         note="6-4 C1: 届いた・未読・予約・着信は通知の刺激と判断の候補(読む・出る)と知覚の事実(未読の数)を決める=軸 1 behavior。"
              "刻みと日をまたぐ=軸 2 required。進行役の待ち行列(行 BW=捨ててよい)に入れた送信と着信は予約の表 _pending に持ち、"
              "再開では組み立ての後の結び(ContactLayer.bind_queue)が境目の時刻で入れ直す=通しと同じ。書く系は contact と窓の境目の"
-             "処理(進行役の WINDOW_MARK=宣言 conductor.WINDOW_PATHS)。行の鍵は CT1I"),
+             "処理(進行役の WINDOW_MARK=宣言 conductor.WINDOW_PATHS)。行の鍵は CT1I。〔1-3 の (1) の直し〕届いた行は出来事の"
+             "記録の id を持たない(診断の表 contact._ct_event_of=行 CT1Q)=記録 on/off で行が同じ"),
     LedgerRow(
         key="CT1IS", name="Mailbox._sent(送ったメッセージの既読の数=道具の性質・第 6 期 6-4 C1)", place=EXTERNAL,
         dtype="dict(番号 → [送り手, 道具, 時刻, 届け先の数, 読んだ数])", nbytes="1 通 約 80 B(読み終わるか 1 日で落とす)",
@@ -1200,7 +1216,8 @@ _EXT: tuple[LedgerRow, ...] = (
         basis="engine/speech/port.py(SpeechPort.say・take_heard)・engine/contact/layer.py(_calls_turns)",
         items=("contact.speech.inbox",), arm="contact-c1",
         note="6-4 C1: 通話の発話(1-8b の口そのまま・道具=通話)。相手の次の番の判断の入力(原因の入力の出来事)=軸 1 behavior・"
-             "軸 2 required(行 S8 と同じ形)。書く系は contact だけ"),
+             "軸 2 required(行 S8 と同じ形)。書く系は contact だけ。〔1-3 の (1) の直し〕未読の列の目印は記録に依らない口の通し番号"
+             "(t_ns, 通し番号)だけ=出来事の id は診断の表 contact.speech._mark_event_of(行 CT1Q・発話の口の行 S8E と同じ形)"),
     LedgerRow(
         key="CT1M", name="連絡の道具の計器(層・チャット・通話・通話の発話の口の計数と分布・通話の切った判断の控え・第 6 期 6-4 C1)",
         place=EXTERNAL, dtype="計数の dict・分布の dict・dict(通話 → call_id)・list(前の刻みの気づき)", nbytes="",
@@ -1217,7 +1234,8 @@ _EXT: tuple[LedgerRow, ...] = (
                    "n_ignored_invites", "n_gate_rejected", "n_invites", "n_accepted", "n_declined", "n_pending_expired",
                    "n_invite_refractory_blocked", "n_blocks", "n_backchannels", "n_interrupts", "closed_by_reason",
                    "ignored_events", "size_hist", "n_expired_purged", "origin_counts")),
-               "contact.speech.meter", "contact.speech._last_input", "contact.speech._own_last"),
+               "contact.speech.meter", "contact.speech._last_input", "contact.speech._own_last",
+               "contact.speech._heard_taken"),
         arm="contact-c1",
         note="6-4 C1: 計器=読み手は manifest の contact_c1 と試験だけ(軸 1 diag)・再開は空から(軸 2 discardable)。通話の切った判断の"
              "控え(通話の終わりの出来事の原因)と前の刻みの気づき(記憶に残ったかの数え)も診断。書く系は contact と窓の境目の処理"),
@@ -1236,15 +1254,23 @@ _EXT: tuple[LedgerRow, ...] = (
              "のは _defer だけだが、同じ持ち主の 4 つを一緒に保存する=軸 2 required。書く系は contact と判断の系(_look_main=宣言 "
              "CT1G:contact._look_main)。行の鍵は CT1G"),
     LedgerRow(
-        key="CT1Q", name="発行した連絡の判断の呼びの控えと呼び数(監査の突き合わせ・calls_by_model・第 6 期 6-4 C1 検収 M2・M5)",
-        place=EXTERNAL, dtype="i8 の配列(刻み・体・通し番号を詰めた整数)・list[int](控えの数・判断の呼び・文の口の呼び)",
-        nbytes="1 回 8 B(5,000 体 1 日 約 22 万回=約 1.8 MB)", alloc="--contact c1", behavior=DIAG, restore=REQUIRED,
-        dead=False,
-        basis="engine/contact/layer.py(_issue・issued_keys・model_calls・audit_causes)・engine/run.py(_calls_by_model)・"
+        key="CT1Q", name="発行した連絡の判断の呼びの控えと呼び数・出来事の id の診断の表(監査の突き合わせ・calls_by_model・原因の入力・"
+                         "第 6 期 6-4 C1 検収 M2・M5・1-3 の (1) の直し)",
+        place=EXTERNAL, dtype="i8 の配列(刻み・体・通し番号を詰めた整数)・list[int](控えの数・判断の呼び・文の口の呼び)・"
+                              "dict(体 → [[番号, t_ns, seq]])・dict((t_ns, 通し番号) → (t_ns, seq))",
+        nbytes="1 回 8 B(5,000 体 1 日 約 22 万回=約 1.8 MB)・未読の届いた行と未読の通話の発話ごとに目印 1 つ", alloc="--contact c1",
+        behavior=DIAG, restore=REQUIRED, dead=False,
+        basis="engine/contact/layer.py(_issue・issued_keys・model_calls・audit_causes・_send_now・_unread_basis・_drop_read_marks・"
+              "_calls_turns)・engine/speech/port.py(SpeechPort.say・event_ids)・engine/run.py(_calls_by_model)・"
               "engine/systems/state_io.py(日次の記録の calls_by_model)",
-        items=("contact._issued", "contact._issued_n"), arm="contact-c1",
+        items=("contact._issued", "contact._issued_n", "contact._ct_event_of", "contact.speech._mark_event_of"),
+        arm="contact-c1",
         note="6-4 C1 検収 M2: 読み手は監査(試験と記録の道具)と manifest・日次の記録の calls_by_model だけ=軸 1 diag。再開した"
-             "ランの監査と呼び数が通しと同じになる=軸 2 required。既定化の前に日ごとの監査で捨てる形に改める(量=記録 §5-2)"),
+             "ランの監査と呼び数が通しと同じになる=軸 2 required。既定化の前に日ごとの監査で捨てる形に改める(量=記録 §5-2)。"
+             "〔1-3 の (1) の直し〕出来事の記録の id(届いた行の目印 _ct_event_of・通話の発話の目印 speech._mark_event_of=行 S8E と同じ形)"
+             "もここ=読み手は"
+             "読む判断と通話の番の判断の原因の入力(原因の表)だけ=軸 1 diag(記録 on/off で behavior の行 CT1I・CT1S が変わらない)。"
+             "再開したランの原因の入力が通しと同じ=軸 2 required(カレンダー 2 の CA2M と同じ形)"),
     # ---- 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定(腕 --calendar-2 arm): 足す前に軸を決めた行(腕の行=腕 arm のランだけ
     # 持ち主がある=既定のランの 2 つのハッシュと状態のファイルは不変) ----
     LedgerRow(

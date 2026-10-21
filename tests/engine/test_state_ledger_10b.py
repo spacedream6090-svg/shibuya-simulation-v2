@@ -106,12 +106,13 @@ def test_ledger_has_187_rows_in_two_axes():
     # 〔第 6 期 6-2 カレンダー 2〕その後に会話から生まれる予定の腕の行 CA2B・CA2O・CA2G・CA2M・CA2Q(腕 calendar-2)を足して 142・233
     # 〔第 4 期 4-2〕その後に店の預かり消費税の腕の行 TXD(behavior・required・腕 rules-42=既定 on のランで持ち主がある)を足して
     # 143・234(腕 off のランの 2 つのハッシュと状態のファイルは不変・記録 rules42/README.md)
-    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 143, "soa": 91, "total": 234}
+    # 〔1-3 の (1) の直し〕発話の口の口の目印 → 記録の id の診断の表の行 S8E(diag・required・腕 speech-port)を S8M の後に足して 144・235(4-2 の TXD の後の数)
+    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 144, "soa": 91, "total": 235}
     assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
     assert [r.key for r in SL.external_rows()] == [f"O{i}" for i in range(1, 97)] + ["E", "M0", "M0R", "A", "P", "J0",
-                                                                                     "CT5", "S8", "S8M",
+                                                                                     "CT5", "S8", "S8M", "S8E",
                                                                                      "PX", "PX0", "EC", "ATM", "CR", "EM", "X",
                                                                                      "M0L", "BW", "BD", "CAL", "M0M",
                                                                                      "M0C", "M0X", "M0S", "C1B", "C1BM",
@@ -133,9 +134,10 @@ def test_ledger_has_187_rows_in_two_axes():
     assert set(SL.row("CT5").hash_skip) == set(SL.row("CT5").items) == {"rel_layer._contact_flags"}
     assert (SL.row("S8").behavior, SL.row("S8").restore, SL.row("S8").arm) == (SL.BEHAVIOR, SL.REQUIRED, "speech-port")
     assert (SL.row("S8M").behavior, SL.row("S8M").restore) == (SL.DIAG, SL.DISCARDABLE)
+    assert (SL.row("S8E").behavior, SL.row("S8E").restore, SL.row("S8E").arm) == (SL.DIAG, SL.REQUIRED, "speech-port")
     # 腕の行(1-8b の 2 行+2-3 の M0L+〔第 6 期 6-5〕M0M・M0C・〔検収 M4〕M0S+〔第 6 期 6-2〕C1B・C1BM)
     # 〔第 6 期 6-3〕その後に TCR・TCC・T3M・T4W
-    assert [r.key for r in SL.LEDGER if r.arm] == ["S8", "S8M", "M0L", "M0M", "M0C", "M0S", "C1B", "C1BM",
+    assert [r.key for r in SL.LEDGER if r.arm] == ["S8", "S8M", "S8E", "M0L", "M0M", "M0C", "M0S", "C1B", "C1BM",
                                                    "TCR", "TCC", "T3M", "T4W", "CT1D", "CT1A", "CT1AS", "CT1I", "CT1IS", "CT1C", "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q",  # 〔6-4 C1〕
                                                    "CA2B", "CA2O", "CA2G", "CA2M", "CA2Q",  # 〔6-2 カレンダー 2〕
                                                    "TXD"]  # 〔第 4 期 4-2〕店の預かり消費税(腕 rules-42)

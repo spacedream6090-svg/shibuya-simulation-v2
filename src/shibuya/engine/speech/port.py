@@ -24,8 +24,12 @@
 状態(状態台帳の行 ``S8``・``S8M``・腕 ``--speech-port on`` のランだけ持ち主がある)
 - ``inbox``(届け先 → 未読の発話の列)=軸 1 behavior(次の入力の文に載る)・軸 2 required(刻みをまたぐ)。腕の行
   (``LedgerRow.arm``)=持ち主の居るランだけ 2 つのハッシュと状態のファイルに入る(既定 off のランは印も入らない=final 不変)。
-- ``meter``・``_last_input``・``_own_last``=診断(``S8M``=軸 1 diag・軸 2 discardable)。``_last_input`` は次の発話の原因の入力の
-  出来事 id(出来事ログの原因=診断)・``_own_last`` は出来事ログを書かないランの口の通し番号。
+- ``meter``・``_last_input``・``_own_last``・``_heard_taken``=診断(``S8M``=軸 1 diag・軸 2 discardable)。``_last_input`` は次の発話の
+  原因の入力の出来事 id(出来事ログの原因=診断)・``_own_last`` は口の通し番号の控え(刻みの中でだけ効く)・``_heard_taken`` は
+  ``take_heard`` で渡した発話の口の目印 → 記録の id(同じ刻みの ``report_shown``・``event_ids`` が引く)。
+- 〔1-3 の (1) の直し〕未読の列の目印は**いつも口の通し番号** ``(t_ns, 通し番号)``(記録の有無に依らない=記録 on/off で
+  behavior-hash と final が同じ)。記録に書いた出来事の id は診断の表 ``_mark_event_of``(口の目印 → 記録の id・未読の列にある
+  発話だけ=``S8E``=軸 1 diag・軸 2 required=再開したランの原因の入力が通しと同じ)に持ち、原因の入力だけが読む。
 
 届く範囲(つなぎ=台帳の行 ``DOC-s8b-reach-session``・``DOC-s8b-reach-hearing``): 当面セッションの参加者(距離・遮蔽・騒音を
 見ない)。近接 11a(2-2)で距離の範囲へ・空間の段 3(5-3)で「聞こえた範囲」へ。
@@ -209,8 +213,12 @@ class SpeechPort:
         self.meter: dict[str, int] = {k: 0 for k in METER_KEYS}
         #: 体 → その体の直近の入力に載せた発話の目印(次の発話の原因の入力の出来事 id・S8M)。
         self._last_input: dict[int, tuple[EventId, ...]] = {}
-        #: 出来事ログを書かないランの口の通し番号の控え ``(t_ns, 次の seq)``(S8M)。
+        #: 口の通し番号の控え ``(t_ns, 次の通し番号)``(S8M=刻みの中でだけ効く=再開は刻みの境目=次の発話は新しい時刻)。
         self._own_last: tuple[int, int] = (-1, 0)
+        #: 〔1-3 の (1)〕口の目印 → 出来事の記録の id(未読の列にある発話だけ・記録しないランは空・S8E)。
+        self._mark_event_of: dict[tuple[int, int], tuple[int, int]] = {}
+        #: 体 → 直近の ``take_heard`` で渡した発話の 口の目印 → 記録の id(``report_shown``・``event_ids`` が引く・S8M)。
+        self._heard_taken: dict[int, dict[tuple[int, int], tuple[int, int]]] = {}
 
     def __setattr__(self, name: str, value: Any) -> None:
         # 欄は組み立ての 1 回だけ置ける(書く口は say・take_heard。付け替えは口の中で object.__setattr__)
@@ -231,7 +239,11 @@ class SpeechPort:
             raise TypeError(f"SpeechPort.say の ctx は SpeechContext(いま {type(ctx)!r})")
         if utterance.event_id is not None:
             raise ValueError("Utterance.event_id は口が付ける(書いた発話は書き直せない)")
-        eid = self._write(ctx, utterance)
+        logged = self._write(ctx, utterance)
+        mark = self._next_mark(int(utterance.t_ns))  # 〔1-3 の (1)〕未読の列の目印=記録に依らない口の通し番号
+        if logged is not None:
+            self._mark_event_of[mark] = logged
+        eid = logged if logged is not None else mark
         said = dataclasses.replace(utterance, event_id=eid)
         m = self.meter
         m["said"] += 1
@@ -239,9 +251,10 @@ class SpeechPort:
             m["zero_mora"] += 1
         for a in said.addressees:  # 逐次ループ宣言: 届け先の数ぶん(≤ 2)
             q = self.inbox.setdefault(a, [])
-            q.append((eid, said.speaker, said.text, int(said.t_ns), int(ctx.session)))
+            q.append((mark, said.speaker, said.text, int(said.t_ns), int(ctx.session)))
             m["posted"] += 1
             if len(q) > self.max_per_addressee:
+                self._forget_mark(q[0][0])
                 del q[0]
                 m["overflow"] += 1
         if self.wom_fn is not None:
@@ -249,7 +262,8 @@ class SpeechPort:
             m["wom_passed"] += 1
         return eid
 
-    def _write(self, ctx: SpeechContext, u: Utterance) -> EventId:
+    def _write(self, ctx: SpeechContext, u: Utterance) -> EventId | None:
+        """出来事ログに 1 回書き、書いた出来事の id を返す(記録しないランは ``None``)。"""
         log = self.events
         if log is not None and bool(getattr(log, "enabled", False)):
             from shibuya.engine.events.log import Event, LlmCall
@@ -261,11 +275,18 @@ class SpeechPort:
             if eid is not None:
                 self.meter["events"] += 1
                 return (int(eid[0]), int(eid[1]))
-        t = int(u.t_ns)
+        return None
+
+    def _next_mark(self, t: int) -> tuple[int, int]:
+        """口の通し番号の目印 ``(t_ns, 通し番号)``(同じ時刻の発話に 0 から振る・記録の有無に依らない)。"""
         t0, seq = self._own_last
-        seq = seq if t == t0 else 0
-        object.__setattr__(self, "_own_last", (t, seq + 1))
-        return (t, seq)
+        seq = seq if int(t) == t0 else 0
+        object.__setattr__(self, "_own_last", (int(t), seq + 1))
+        return (int(t), seq)
+
+    def _forget_mark(self, mark: EventId) -> None:
+        """未読の列から落ちた発話の目印を診断の表から落とす(有界)。"""
+        self._mark_event_of.pop((int(mark[0]), int(mark[1])), None)
 
     # ------------------------------------------------------------------ 読み口(描画の perceive だけ)
     def take_heard(self, agent: int, step: int) -> tuple[tuple[EventId, int, str], ...]:
@@ -278,18 +299,27 @@ class SpeechPort:
         a = int(agent)
         now = int(step) * self.step_ns
         self._last_input.pop(a, None)
+        self._heard_taken.pop(a, None)
         q = self.inbox.get(a)
         out: list[tuple[EventId, int, str]] = []
         if q:
             keep: list[tuple[EventId, int, str, int, int]] = []
+            taken: dict[tuple[int, int], tuple[int, int]] = {}
             for item in q:  # 逐次ループ宣言: 未読の数ぶん(≤ HEARD_MAX_PER_ADDRESSEE)
                 eid, who, text, t, sid = item
                 if t >= now:
                     keep.append(item)
                 elif int(sid) >= 0 and (now - t) // self.step_ns > self.ttl_steps and not self._open(sid):
+                    self._forget_mark(eid)
                     self.meter["expired"] += 1
                 else:
                     out.append((eid, int(who), str(text)))
+                    k = (int(eid[0]), int(eid[1]))
+                    logged = self._mark_event_of.pop(k, None)
+                    if logged is not None:
+                        taken[k] = logged
+            if taken:
+                self._heard_taken[a] = taken
             if keep:
                 q[:] = keep
             else:
@@ -307,8 +337,22 @@ class SpeechPort:
         m["delivered"] += len(shown)
         m["all_imperative"] += int(all_imperative)
         m["dropped_budget"] += int(dropped_budget)
-        if shown:
-            self._last_input[int(agent)] = tuple((int(t), int(q)) for t, q in shown)
+        ids = self.event_ids(int(agent), shown)  # 〔1-3 の (1)〕口の目印 → 記録の id(記録しないランは空)
+        if ids:
+            self._last_input[int(agent)] = ids
+
+    def event_ids(self, agent: int, marks: Any) -> tuple[EventId, ...]:
+        """直近の ``take_heard`` で体 ``agent`` に渡した発話の口の目印 → 出来事の記録の id(原因の入力)。引いたら控えを落とす。
+        記録しないランは空。"""
+        taken = self._heard_taken.pop(int(agent), None)
+        if not taken:
+            return ()
+        out: list[EventId] = []
+        for m in marks:  # 逐次ループ宣言: 渡した発話の数ぶん(≤ HEARD_MAX_PER_ADDRESSEE)
+            e = taken.get((int(m[0]), int(m[1])))
+            if e is not None:
+                out.append(e)
+        return tuple(out)
 
     def take_input_ids(self, agent: int) -> tuple[EventId, ...]:
         """体の直近の入力に載せた発話の目印(その体の次の発話の原因の入力)を返して外す(診断=出来事ログの原因だけ)。"""

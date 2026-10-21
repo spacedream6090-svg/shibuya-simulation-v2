@@ -143,7 +143,9 @@ def test_heard_line_and_field_line_at_the_end_of_b6(reason, want_field):
     assert out.blocks["B6"].decode("utf-8") == "\n".join([base.blocks["B6"].decode("utf-8"), *tail])
     assert r.speech_lines == len(tail) and r.speech_lines_over_budget == 0
     assert out.group_tokens["individual"] <= T.GROUP_TOKEN_BUDGET["individual"]
-    assert port.meter["delivered"] == 1 and port.take_input_ids(4) == (eid,)  # B6 に載せた後で数える(低8)
+    assert port.meter["delivered"] == 1  # B6 に載せた後で数える(低8)
+    # 〔1-3 の (1) の直し〕次の発話の原因の入力は記録の id だけ(この口は記録を持たない=目印は口の通し番号=原因の入力は空)
+    assert port.take_input_ids(4) == ()
     # 次の入力には載らない(1 回だけ)
     r.prepare_tick(702)
     assert r.render(4, tick=702, wake_reason=3).percept.heard_speech == ()

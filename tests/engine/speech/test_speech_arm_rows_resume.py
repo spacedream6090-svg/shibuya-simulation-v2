@@ -32,7 +32,9 @@ def test_resume_right_after_an_utterance_gives_the_straight_result(straight, tmp
     path = next(tmp_path.glob("state-T*.npz"))
     bundle = RS.read_state(path)
     full = [p for _k, p in SL.full_items()]
-    assert list(bundle.items)[: len(full)] == full and list(bundle.items)[len(full):] == ["speech.inbox"]
+    # 〔1-3 の (1) の直し〕腕の行 S8(未読の列)と S8E(口の目印 → 記録の id=diag・required)
+    assert list(bundle.items)[: len(full)] == full and list(bundle.items)[len(full):] == [
+        "speech.inbox", "speech._mark_event_of"]
     assert bundle.items["speech.inbox"], "止めた刻みに未読が残っていない(試験の前提)"
     assert bundle.header["fingerprint"]["speech_port"] == "on"
     resumed = run_small("on", resume_from=str(path))
@@ -57,5 +59,5 @@ def test_the_unread_queue_moves_both_hashes_only_when_the_arm_is_on():
     b0, f0 = SH.external_digest(owners, items_b)[0], SH.external_digest(owners, items_f)[0]
     port.say(P.SpeechContext(step=1, call_id="1:0:0"), P.Utterance(speaker=0, t_ns=NS, text="やあ", addressees=(1,)))
     assert SH.external_digest(owners, items_b)[0] != b0 and SH.external_digest(owners, items_f)[0] != f0
-    # 計器(S8M=診断)は 2 つのハッシュに入らない
-    assert all(k == "S8" for k, _ in items_b + items_f)
+    # 計器(S8M=診断)は 2 つのハッシュに入らない。〔1-3 の (1) の直し〕S8E(diag・required)は full だけ
+    assert all(k == "S8" for k, _ in items_b) and {k for k, _ in items_f} == {"S8", "S8E"}

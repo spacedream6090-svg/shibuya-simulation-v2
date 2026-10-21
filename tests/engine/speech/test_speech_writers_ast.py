@@ -19,10 +19,11 @@ from tests.engine.ast_writers import UNKNOWN, scan_writes
 
 SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya"
 PORT = "engine/speech/port.py"
-COLS = frozenset({"inbox", "meter", "_last_input"})
+#: 〔1-3 の (1) の直し〕口の目印 → 記録の id の診断の表(S8E)と渡した発話の控え(S8M)も同じく口だけが書く。
+COLS = frozenset({"inbox", "meter", "_last_input", "_mark_event_of", "_heard_taken"})
 #: 口の中だけで書いてよい(持ち主のメソッド)。
 ALLOWED = frozenset({"SpeechPort.__init__", "SpeechPort.say", "SpeechPort._write", "SpeechPort.take_heard",
-                     "SpeechPort.report_shown",
+                     "SpeechPort.report_shown", "SpeechPort.event_ids", "SpeechPort._forget_mark",
                      "SpeechPort.take_input_ids", "SpeechPort.note", "SpeechPort.__setattr__", "SpeechPort.__delattr__"})
 #: 同じ名の欄を持つ別の持ち主の置き場(1-8b の対象の外)。
 OTHER_OWNERS = frozenset({"engine/decision/layer.py", "economy/ops.py", "economy/ledger.py"})

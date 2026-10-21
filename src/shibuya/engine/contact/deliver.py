@@ -8,6 +8,7 @@
 持ち主 :class:`Mailbox`(状態台帳の腕の行 ``CT1I``=軸 1 behavior・軸 2 required・道筋 ``contact.mail``):
 
 - ``_inbox``: 体 → 届いたメッセージの行 ``[番号, 送った人, グループ(−1), 道具, 送った時刻, 届いた時刻, 読んだ時刻(−1), モーラ数, 本文]``。
+  届いた出来事の記録の id は行に持たない(〔1-3 の (1) の直し〕層の診断の表 ``ContactLayer._ct_event_of``=記録 on/off で行が同じ)。
 - ``_unseen``: 体 → ``[まだ System 1 に入れていない届いた数, 最初に届いた時刻]``(通知の刺激の素=その刻みに 1 回の刺激)。
 - ``_sent``: メッセージの番号 → ``[送った人, 道具, 送った時刻, 届け先の数, 読んだ数]``(既読の印=道具の性質)。
 - ``_held``: 電源の切れた体 → 網が預かっているメッセージ(電源が入ったら届く=本段は充電が無い=預かったまま)。
@@ -125,10 +126,6 @@ class Mailbox:
                 self._held.setdefault(int(r), []).append(row)
                 held.append(int(r))
         return got, held
-
-    def note_delivery_event(self, agent: int, eid: tuple[int, int]) -> None:
-        """届いた行(その体の最後の行)に、届いた出来事の目印 ``(t_ns, seq)`` を足す(読む判断の原因の入力)。"""
-        self._inbox[int(agent)][-1].extend((int(eid[0]), int(eid[1])))
 
     def take_unseen(self) -> list[tuple[int, int, int]]:
         """System 1 に入れる「新しく届いた」体 ``(体, 数, 最初に届いた時刻)``(体の番号の昇順)。取ったら空にする。"""

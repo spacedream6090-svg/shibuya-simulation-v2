@@ -357,3 +357,74 @@
 - **data 無しの写し(detached の作業木・junction なし)で CI-1 と同じ引数の全体試験(tests/c7 を含む)=**5,535 passed・286 skipped・failed 0**(1,616 秒・CI の印=`-m "not gpu and not slow" -n 2 --dist loadfile`・233b1ed)**。
 - 独立検収([review.md](review.md))=条件つき受入(高 1=系 contact が窓の待ち行列に書くのに宣言が無く腕 c1 の段 B で宣言の外 220 件/ 中 5=顕著行為のキャッシュの書き手が 2 つ・監査が原因の型しか見ない・量の見積り(約 105 MB/日・39 万体 8.2 GB/日)・関心の的が 1 刻み古い・連絡の判断 22.5 万回/日が仲裁と予算の外/ 低 8)→ 全部直した(§13)。検収役の独立の再計算(final・行数・via の内訳・送った/届いた/読んだ・自前の監査 0・着信の遅れ=境目・刺激の段 48 通りの dB・行のバイト 80.7 MB・日の途中の再開 3 本)は全部一致。親の判断: 門の結果は contact の側に・監査は発行した呼びの控えとの突き合わせ+AST・畳み方 4 つを今入れて測り直し(27.9 MB/日・39 万体 2.17 GB/日=1-3 の宣言を超える=既定にできない宣言・残りは §1-1)・関心の的は刻みの終わりの値・「スマホを見る」は主の判断の候補(mock は選ばない=構造だけ)・連絡の判断は別の呼びのまま `calls_by_model` と予算に数える・仲裁は `port.ARBITRATION` と台帳(規則の表は法令の表)・CT1Q(1.9 MB/日)は既定化の前に日ごとに捨てる。
 - 判定: **受入**(第 6 期 6-4 C1 の仕組み=腕・既定 off は不変・既定にできない=記録の予算の判断待ち)。
+
+## 16. 記録の有無で腕 c1 の結果が変わる欠陥の直し(口の約束 1-3 の (1)・カレンダー 2 の検収 M3 と同じ形)
+
+カレンダー 2 の独立検収 M3([ca2 review.md](../ca2/review.md))で見つかった形が C1 にもあった。出来事の記録の id(`(t_ns, seq)`)が behavior の行に入っていたので、記録 on/off で checkpoint の behavior-hash(合成 80 体では刻み 59 から)と final が違った。直し方は [ca2 §14](../ca2/README.md) の M3 と同じで、出来事の id を diag の別の表に移した。土台は本体の先端 `6f07eff`(W21 の世界)。
+
+### 16-1. 移した欄
+
+| 行(behavior) | 欄 | 前 | 後 |
+|---|---|---|---|
+| CT1I `contact.mail._inbox` | 届いた行の 10・11 番目(届いた出来事の目印=1 対 1 は `連絡:届いた`・グループは畳んだ `連絡:送った` の行) | 記録 on のときだけ行に足した(行の長さ 11)・off は 9 | 行は 9 欄だけ。目印は層の診断の表 `contact._ct_event_of`(体 → 未読の届いた行の `[番号, t_ns, seq]`・届いた順・読んだら落とす) |
+| CT1S `contact.speech.inbox` | 未読の発話の目印(通話の番の発話) | 記録 on は記録の id・off は口の通し番号(値が違う) | いつも口の通し番号 `(t_ns, 通し番号)`(記録に依らない)。記録の id は診断の表 `contact.speech._mark_event_of`(口の目印 → 記録の id・未読の列から出たら落とす=有界)。直しは親のクラス `SpeechPort` に入れた(§16-6) |
+
+- ほかの behavior の行(CT1D・CT1A・CT1C・CT1K・CT1G)は出来事の id を持たない(洗い出した。CT1G の `_look_main` は call_id と番号・`_exposed_prev` は CT1M=diag)。
+- 2 つの表は腕の行 **CT1Q(diag・required)** の items に足した(CA2M と同じ軸=再開したランの原因の入力が通しと同じ)。行の数は変えていない(外 142・全体 233 のまま)。CT1I・CT1S の注に直しを書いた。
+- 読み手は読む判断(`_unread_basis`=未読の行の番号で表を絞る)と通話の番の判断(`SpeechPort.event_ids`)の原因の入力(`LlmCall` の入力の出来事 id=原因の表)だけ。仮のモデルは候補の `basis` を読まない。監査 `audit_causes` は記録の原因を見る=変えていない。
+- 名前: 発話の口の表は `_event_of` だと `engine/events/links.py` の `ActualLogLink._event_of` と名前がぶつかる(10f の軸 1 の AST 検査)。最初は `_call_event_of` にし、§16-6 で親のクラスへ移したときに `_mark_event_of` に替えた。
+- 置き換えの口(最初の形・§16-6 で消した): `CallSpeechPort.say` が親の口を呼んだ後に積んだ行の目印を置き換えていた(`_write` の上書きは権利台帳の AST 検査 `test_nothing_outside_touches_the_ledger` が `super()._write` を「他の物の _write」と数える)。いまは `CallSpeechPort` は腕の名と口の名だけの子に戻した。
+- 消したもの: `Mailbox.note_delivery_event`(行に目印を足す口)。
+- 通し番号の控え `contact.speech._own_last` は CT1M(捨ててよい)のまま(口の欄は付け替えられない=状態のファイルから戻す口が無い)。未読の列の目印を決めるのは刻みの中だけで、再開は刻みの境目=次の発話は新しい時刻=通し番号 0 から=通しと同じ(L8 の通話中の再開の試験・§16-3 の再開の試験で確かめた)。
+
+### 16-2. 記録 on/off の一致
+
+- 合成 80 体・720 刻み・腕 c1(記憶・関係あり=メッセージとグループの道): 直す前は記録 on/off で final が違い、checkpoint の behavior-hash が刻み 59 から全部違った。直した後は final(`2d1c187d…`=直す前の記録 off と同じ)と checkpoint 12 個が同じ。
+- 合成 80 体・240 刻み・通話を起こす仮のモデル(L8 と同じ形・関係 off): 記録 on/off で final・checkpoint・通話の未読の列が同じ。
+- 記録 on の出来事の記録(原因と入力の出来事 id を含む全部の行)は直す前と同じ: 合成のメッセージの道 4,323 行・通話の道 453 行とも全部の行のハッシュが `6f07eff` の写しと一致(scratch の確かめ・`_bc/probe_eventlog.py`)。
+- **5,000 体・1 日**(腕 c1・mock・seed 1・W21 の世界・[c1_5000_onoff_fix.json](c1_5000_onoff_fix.json)・道具 [tools/run_c1_onoff.py](tools/run_c1_onoff.py)・1 本ずつ):
+
+| ラン | final | checkpoint の behavior-hash(4 個) | 連絡の出来事の行 | 監査の食い違い | 届いた行の長さ |
+|---|---|---|---|---|---|
+| 直す前・記録 on | `567b69385e7b742a` | 記録 off と刻み 359 から違う | 95,879 | 0 | 11 |
+| 直す前・記録 off | `b4bdb1545f28446b` | — | 0 | 0 | 9 |
+| 直した後・記録 on | `b4bdb1545f28446b` | **記録 off と 4 個とも同じ** | 95,879 | 0(控え 154,570 件) | 9 |
+| 直した後・記録 off | `b4bdb1545f28446b` | 直す前の記録 off とも同じ | 0 | 0 | 9 |
+
+- 腕 c1 の final の新旧: 記録 on のラン `567b69385e7b742a` → `b4bdb1545f28446b`(行の中身が減るため=腕の数)。記録 off のランは新旧で同じ(`b4bdb154…`)。計器(manifest の `contact_c1.meter` から記録の側の数 `events:*` を除いた全部)は 4 本とも同じ・連絡の出来事の行の数と語ごとの内訳は記録 on の 2 本で同じ。
+- 終わりの診断の表: 届いた行の目印 57,815 個(未読の行の数ぶん)・通話の目印 0 個(この構成は関係の層が無い=電話の宛先が無い)。
+- 壁時計(参考・ほかの試験と並んだ機械): 直した後 on 85.1 秒・off 75.7 秒/直す前 on 86.4 秒・off 78.6 秒。
+
+### 16-3. 試験
+
+`tests/engine/contact/test_c1_event_log_onoff.py`(新・5 本):
+
+- `test_event_log_on_off_does_not_change_the_c1_arm_run`: 合成 80 体+腕 c1・記録 on/off で final と checkpoint の behavior-hash が同じ・届いた箱が同じ(9 欄)・表は on だけ・読んだ行の原因の入力が記録にある届いた/送った行を指す・監査 0。
+- `…_with_calls`: 通話を起こす合成のランで同じ・通話の未読の列が同じ・番の発話の原因の入力が記録の発話の行を指す・監査 0。
+- `test_resume_restores_the_event_id_tables`: 刻み 97(通話中)で止めて再開=通しと final が同じ・再開した後の連絡と発話の行と原因(入力の出来事 id を含む)が通しと同じ。
+- `test_call_speech_inbox_holds_only_log_independent_marks`: 通話の発話の口の単体(記録 on/off で未読の列が同じ・渡した分は表から落ち・引いたら控えも落ちる=§16-6 の形)。
+- `test_negative_control_eid_in_the_behavior_row_breaks_the_on_off_equality`: 届いた行に出来事の id を戻す(直す前の形)と記録 on/off で behavior-hash が違う。
+
+直した既存の試験: `test_c1_flow.py::test_group_message_and_chat_state`(届いた行の 10・11 番目を読んでいた → 行は 9 欄・目印は表か読んだ行の原因の入力)・`test_c1_runs.py::test_arm_rows_enter_the_hashes_only_when_the_owner_exists`(CT1Q の軸と items・behavior の行に表が無い)。
+
+件数: §16-5。
+
+### 16-4. 既定 off の 4 構成(1 バイト不変)
+
+本体 `6f07eff` の写し(`git archive`+`HEAD_TREE_FILES`+data へのつなぎ=回した後に .NET で外した・`tree_missing` 空)vs 作業木・W21 の世界: `w6_v3_default`・`w6_v3_activity_off`・`w6_v1_default`・`v3_mem_rel` で **4/4 構成 × 25 欄 同じ**(final `eb759bb4e5be37ec`/63,572・`b75cfc27c763f279`・`7be9d5083bdad119`・`d0623491c47e5e2f`・両側の `env` 空)=[byte_check_ct_c1_onoff_fix_4cfg.json](byte_check_ct_c1_onoff_fix_4cfg.json)。
+
+### 16-5. 試験の件数・触った共有ファイル
+
+- 範囲(`tests/engine tests/perception tests/economy/cp2 tests/c8 tests/tools`・`-m "not slow"`・`-n 2 --dist loadfile`・最後のコード): **3,665 passed・0 failed・0 errors・1 skipped**(49 分 37 秒)。段 B(`test_c1_fixes.py` の H1=合成 80 体・`SHIBUYA_SYSTEMS_CHECK=1`)は宣言の外 0。その前の 1 回は 1 failed(`tests/engine/rights/test_rights_schema.py::test_nothing_outside_touches_the_ledger`=`_write` の上書きの `super()._write`)→ `say` の上書きに直した(§16-1)。
+- `tests/engine/contact`(slow の `test_c1_world.py`=5,000 体を含む)+`tests/engine/speech`+`tests/engine/test_state_ledger_10b.py`(最後のコード): **265 passed・0 failed・0 errors**。
+- lint-imports: 5 kept・0 broken。秘密の検査(変えたファイル全部): CLEAN。
+- 腕 c1 の 5,000 体の 2 本(記録 on/off)は最後のコードで回し直した(final・checkpoint・計器が前の 2 本と同じ)。既定 off の 4 構成は最後の直し(`say` の上書き)の前に回した=その直しは腕 c1 の通話の口の中だけ(既定 off のランは連絡の層を作らない)。
+
+触った共有ファイル: `src/shibuya/engine/state_ledger.py`(自分の行 CT1I・CT1S の注と CT1Q の名・型・items・注だけ=行の数と並びは不変)。ほか(腕の中): `engine/contact/layer.py`・`deliver.py`・`calls.py`。試験: `tests/engine/contact/test_c1_event_log_onoff.py`(新)・`test_c1_flow.py`・`test_c1_runs.py`。記録: 本節・[c1_5000_onoff_fix.json](c1_5000_onoff_fix.json)・[byte_check_ct_c1_onoff_fix_4cfg.json](byte_check_ct_c1_onoff_fix_4cfg.json)・[tools/run_c1_onoff.py](tools/run_c1_onoff.py)。つなぎの台帳・manifest の鍵・設定の指紋・`CONFIG_PATHS` は変えていない。
+
+### 16-6. 発話の口(行 S8)の同じ形も直した(親の判断=問い 3)
+
+- 直しは親のクラス `engine/speech/port.py` の `SpeechPort` に入れた=腕 `--speech-port on` の口(行 S8)と通話の口 `CallSpeechPort`(行 CT1S)が同じコードを通る。記録は [s8b/README.md](../s8b/README.md) §18。
+- C1 の側で変わったこと: 表の名 `contact.speech._call_event_of` → `contact.speech._mark_event_of`(行 CT1Q)・渡した発話の控え `contact.speech._heard_taken`(行 CT1M=捨ててよい)・`CallSpeechPort` の `say`・`event_ids`・`prune_events` の上書きを消した・層の `_calls_turns` は `speech.event_ids(体, 目印)`・日の頭の掃除を消した(未読の列から出た目印はその場で表から落ちる)。
+- 腕 c1 の 5,000 体 1 日(最後のコード・記録 on/off): s8b §18 の表の C1 の行。合成の試験(`test_c1_event_log_onoff.py` の 5 本)は最後のコードで通る。
+- 試験の件数と触った共有ファイル(最後のコード=§16 と s8b §18 の両方): s8b §18-5(範囲 3,670 passed・0 failed・0 errors・slow 6 passed)。§16-5 の「行の数は不変」は §16-6 の後は変わった(行 S8E を足した=外 143・全体 234)・系の表 `systems/table.py` も触った。

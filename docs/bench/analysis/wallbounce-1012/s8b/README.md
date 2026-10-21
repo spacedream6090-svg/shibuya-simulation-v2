@@ -373,3 +373,57 @@ SHIBUYA_SPEECH_PORT=on PYTHONPATH=src python $D/tools/arm_meters.py --only $ONLY
 - 親の判断 8 件(§14)と「返事も窓なし」(§16=届かない率 全体 67.7% → 10.8%・残りはランの終わりの未読)。B6 の枠は予算の宣言に「腕 on では ≤ 93 tok・0.015%・門にしない」と書く(親)。
 - 腕の行(LedgerRow.arm)は共有の仕組みとして仮採用(PENDING 仮-17)=他の段の腕にも使ってよい(持ち主の LEDGER_ARM と行の arm を照合する形を守る)。
 - 判定: 受入(第 1 期 1-8b の完了=第 1 期 13 段が全部完了)。
+
+## 18. 記録の有無で腕 on の結果が変わる欠陥の直し(口の約束 1-3 の (1)・第 6 期 6-4 C1 の直しと同じ形)
+
+C1 の直し([ct_c1/README.md](../ct_c1/README.md) §16)の報告で、同じ形が発話の口にもあると分かった(親の判断=同じ作業木で同じ方法で直す)。未読の列(行 S8=behavior)の目印に、記録 on なら記録の id・off なら口の通し番号が入っていた=記録 on/off で checkpoint の behavior-hash が違った(合成 200 体で刻み 359・479・5,000 体で刻み 359 から)。土台は本体の先端 `6f07eff`(W21 の世界)・作業木 `C:\wt_c1fix`(枝 `6-4/contact-c1-event-id-fix`=C1 の直しと同じ枝)。
+
+### 18-1. 直し(`engine/speech/port.py` の `SpeechPort`=通話の口 `CallSpeechPort` も同じコードを通る)
+
+| 欄 | 前 | 後 |
+|---|---|---|
+| 未読の列 `speech.inbox`(S8=behavior)の目印 | 記録 on は記録の id `(t_ns, seq)`・off は口の通し番号 | **いつも口の通し番号** `(t_ns, 通し番号)`(`_next_mark`=同じ時刻の発話に 0 から振る=記録の有無に依らない) |
+| 記録の id | 未読の列の中 | 診断の表 `speech._mark_event_of`(口の目印 → 記録の id・未読の列にある発話だけ=溢れ・期限切れ・渡したときに落とす=有界)=**新しい行 S8E(diag・required・腕 speech-port)** |
+| 次の発話の原因の入力 `_last_input` | 描画が報告した目印そのもの | `report_shown` が渡した発話の控え `_heard_taken`(体 → 口の目印 → 記録の id・S8M=捨ててよい・刻みの中の一時)から記録の id に替える(記録しないランは空) |
+| `say` の返す値・口コミの口に渡す `Utterance.event_id` | 記録 on は記録の id・off は口の通し番号 | 同じ(変えていない) |
+
+- `_write` は記録に書いた出来事の id を返す(記録しないランは `None`)=口の通し番号の振り方は `say` の `_next_mark` に移した(記録 off のランの目印の値は前と同じ=記録 off のランは直す前と 1 バイト同じ)。
+- 新しい口 `event_ids(体, 目印)`(渡した発話の目印 → 記録の id・引いたら控えを落とす)=`report_shown` と C1 の通話の番(`ContactLayer._calls_turns`)が使う。
+- 口の通し番号の控え `_own_last` は S8M(捨ててよい)のまま。未読の列の目印を決めるが刻みの中でだけ効く(再開は刻みの境目=次の発話は新しい時刻=0 から=通しと同じ)。required にすると、口の欄は付け替えられない(`__setattr__`)ので状態のファイルから戻せない(試した=`外の状態を戻せない: speech._own_last`)。
+- 状態台帳: 行 S8E を S8M の後に足した(外 142 → 143・全体 233 → 234)・S8M の items に `_heard_taken`・C1 の行 CT1Q の items は `contact.speech._mark_event_of`(前の名 `_call_event_of`)・CT1M に `contact.speech._heard_taken`。系の表 `systems/table.py` の decide と llm_receive の宣言に `S8E:speech.*` を足した(段 B=`test_speech_writes_declared.py`)。
+- 書く口の AST の試験(`test_speech_writers_ast.py`)の対象に `_mark_event_of`・`_heard_taken` を足し、口の中の書き手に `event_ids`・`_forget_mark` を足した。
+
+### 18-2. 記録 on/off の一致
+
+- 合成 200 体・720 刻み(`_s8b.SMALL`・腕 on): 記録 on/off で final(`382fb7eeec394b3f`)と checkpoint 12 個の behavior-hash が同じ(直す前は 359・479 が違った)・計器(`events` を除く)と未読の列が同じ。
+- 記録 on の出来事の記録(原因と入力の出来事 id を含む全部の行)は直す前と同じ: 合成 200 体の 132 行のハッシュが `6f07eff` の写しと一致(C1 の合成の 2 本も一致のまま)。
+- **5,000 体・1 日**(腕 on・記憶と関係 on・mock・seed 1・W21・[s8_5000_onoff_fix.json](s8_5000_onoff_fix.json)・道具 [tools/run_s8_onoff.py](tools/run_s8_onoff.py)・1 本ずつ):
+
+| ラン | final | checkpoint の behavior-hash(4 個) | 発話の行 | 原因の入力(うち発話) |
+|---|---|---|---|---|
+| 直す前・記録 on | `765210c893882d8c` | 記録 off と刻み 359 から違う | 2,869 | 639(639) |
+| 直す前・記録 off | `608559eeb58c98f0` | — | 0 | 0 |
+| 直した後・記録 on | `608559eeb58c98f0` | **記録 off と 4 個とも同じ** | 2,869 | 639(639) |
+| 直した後・記録 off | `608559eeb58c98f0` | 直す前の記録 off とも同じ | 0 | 0 |
+
+- 腕 on の final の新旧: 記録 on のラン `765210c893882d8c` → `608559eeb58c98f0`(未読の列の中身が記録に依らなくなったため)・記録 off は新旧で同じ。計器(`events` を除く=発話 2,869・届いた 2,584 ほか)は 4 本とも同じ。終わりの未読 147 件・表の行 147(記録 on のときだけ)。
+- 腕 c1 の 5,000 体 1 日(最後のコード・記録 on/off): final `b4bdb1545f28446b` で同じ・C1 §16 のコードの値とも同じ(`ct_c1/c1_5000_onoff_fix.json` の `after_s8_fix`)。
+- 壁時計(参考): 直した後 on 54.2 秒・off 54.6 秒/直す前 on 55.9 秒・off 55.0 秒。
+
+### 18-3. 試験
+
+`tests/engine/speech/test_s8_event_log_onoff.py`(新・5 本): 合成 200 体の記録 on/off(final・checkpoint・計器・未読の列)・発話の原因の入力が記録の発話の行を指す・発話の直後で止めた再開=通し(再開した後の発話の行と原因が同じ・表が戻る)・口の単体(記録 on/off で未読の列が同じ・溢れと期限切れで表から落ちる・描画の報告で記録の id に替わる)・負の対照(未読の列に記録の id を戻すと behavior-hash が違う)。
+
+直した既存の試験: `test_speech_port_schema.py`(S8E の行・腕の行の並び・full の腕の項)・`test_speech_arm_rows_resume.py`(状態のファイルの腕の項に `speech._mark_event_of`・S8E は full だけ)・`test_speech_on_reaches_addressee.py`(記録を持たない口の次の発話の原因の入力は空)・`test_speech_writers_ast.py`・`tests/engine/test_state_ledger_10b.py`(行の数 143・234 と並び)・C1 の `test_c1_event_log_onoff.py`・`test_c1_runs.py`。
+
+### 18-4. 既定 off の 4 構成(1 バイト不変)
+
+本体 `6f07eff` の写し(`git archive`+`HEAD_TREE_FILES`+data へのつなぎ=回した後に .NET で外した・`tree_missing` 空)vs 作業木(最後のコード)・W21 の世界: **4/4 構成 × 25 欄 同じ**(final `eb759bb4e5be37ec`・`b75cfc27c763f279`・`7be9d5083bdad119`・`d0623491c47e5e2f`・`env` 空)=[byte_check_s8_onoff_fix_4cfg.json](byte_check_s8_onoff_fix_4cfg.json)。
+
+### 18-5. 試験の件数・触った共有ファイル
+
+- 範囲(`tests/engine tests/perception tests/economy/cp2 tests/c8 tests/tools`・`tests/engine/speech` を含む・`-m "not slow"`・`-n 2 --dist loadfile`・最後のコード=C1 §16 と本節の両方): **3,670 passed・0 failed・0 errors・1 skipped**(49 分 52 秒)。
+- slow(`tests/engine/contact`・`tests/engine/speech` の `-m slow`=C1 の 5,000 体の 6 本): **6 passed・0 failed・0 errors**。
+- lint-imports: 5 kept・0 broken。秘密の検査(変えたファイル全部): CLEAN。
+
+触った共有ファイル: `src/shibuya/engine/state_ledger.py`(行 S8E を S8M の後に足した=外 143・全体 234・S8M の items と注・C1 の行 CT1I・CT1S・CT1M・CT1Q)・`src/shibuya/engine/systems/table.py`(decide と llm_receive の宣言に `S8E:speech.*`)・`src/shibuya/engine/speech/port.py`。腕の中: `engine/contact/layer.py`・`calls.py`・`deliver.py`。試験は §18-3。記録: 本節・[s8_5000_onoff_fix.json](s8_5000_onoff_fix.json)・[byte_check_s8_onoff_fix_4cfg.json](byte_check_s8_onoff_fix_4cfg.json)・[tools/run_s8_onoff.py](tools/run_s8_onoff.py)。つなぎの台帳・manifest の鍵・設定の指紋・`CONFIG_PATHS` は変えていない。

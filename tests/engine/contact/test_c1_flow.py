@@ -155,7 +155,11 @@ def test_group_message_and_chat_state(monkeypatch):
     assert not [e for e in _of(h, W_DELIVERED) if e.via == "グループ"]
     for r in (1, 2):
         rows = [x for x in h.layer.mail._inbox.get(r, []) if int(x[2]) == 2]
-        assert rows and (int(rows[0][9]), int(rows[0][10])) == g[0].id
+        assert rows and len(rows[0]) == 9  # 〔1-3 の (1) の直し〕届いた行は出来事の id を持たない
+        # 目印は診断の表(未読の間)か、読んだ行の原因の入力(読んだら表から落ちる)
+        marks = [(int(x[1]), int(x[2])) for x in h.layer._ct_event_of.get(r, []) if int(x[0]) == int(rows[0][0])]
+        read_in = [tuple(i) for e in _of(h, W_READ) if e.who == r for i in e.cause.input_event_ids]
+        assert tuple(g[0].id) in marks + read_in
     s = h.layer.chats.session("g:2")
     assert s is not None and s.state is ConvState.PARTICIPATING and s.blocks >= 2  # 返事で続いているチャット
     assert sent0 == []  # 刻み 0 の窓の中では送らない(打ち終わりは境目)

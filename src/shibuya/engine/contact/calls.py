@@ -41,7 +41,12 @@ class CallManager(ConversationManager):
 
 
 class CallSpeechPort(SpeechPort):
-    """通話の発話の口(発話の口そのまま・道具=通話)。"""
+    """通話の発話の口(発話の口そのまま・道具=通話)。
+
+    〔第 6 期 6-4 C1 の直し=口の約束 1-3 の (1)〕未読の列(``inbox``=状態台帳の腕の行 ``CT1S``=behavior)の目印は親の口のとおり
+    記録に依らない口の通し番号だけ。出来事の記録の id は親の口の診断の表 ``_mark_event_of``(腕の行 ``CT1Q``=diag・required)に
+    あり、相手の次の番の判断の原因の入力(親の口の ``event_ids``)だけが読む。
+    """
 
     name: str = "call"
     LEDGER_ARM: str = LEDGER_ARM
