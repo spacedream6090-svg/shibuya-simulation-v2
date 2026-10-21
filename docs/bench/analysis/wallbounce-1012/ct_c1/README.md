@@ -428,3 +428,11 @@
 - C1 の側で変わったこと: 表の名 `contact.speech._call_event_of` → `contact.speech._mark_event_of`(行 CT1Q)・渡した発話の控え `contact.speech._heard_taken`(行 CT1M=捨ててよい)・`CallSpeechPort` の `say`・`event_ids`・`prune_events` の上書きを消した・層の `_calls_turns` は `speech.event_ids(体, 目印)`・日の頭の掃除を消した(未読の列から出た目印はその場で表から落ちる)。
 - 腕 c1 の 5,000 体 1 日(最後のコード・記録 on/off): s8b §18 の表の C1 の行。合成の試験(`test_c1_event_log_onoff.py` の 5 本)は最後のコードで通る。
 - 試験の件数と触った共有ファイル(最後のコード=§16 と s8b §18 の両方): s8b §18-5(範囲 3,670 passed・0 failed・0 errors・slow 6 passed)。§16-5 の「行の数は不変」は §16-6 の後は変わった(行 S8E を足した=外 143・全体 234)・系の表 `systems/table.py` も触った。
+
+### §親の検収(小さな整理=C1/S8 の行の出来事の id を diag へ・第337・Fable 5.1)
+
+- 本体 34c69b7 へ rebase(衝突=`test_state_ledger_10b.py` の注と数=4-2 の TXD の後なので 144・235 に親が合わせた)→ f483f98(文書だけの df0ce45 へは衝突なし)。範囲の試験(`tests/engine` 全体・perception・build_pop・economy・c6・c8・tools)**4,232 passed・1 skipped・0 failed・0 errors**(`-n 4`・26 分 20 秒)。`test_state_ledger_10b.py`+`test_state_checks_10f.py` 98 passed。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・W21 の世界・既定 off)=**final 同じ・25 欄とも差なし**(`parent_head_vs_c1fix_4cfg.json`=1 バイト不変)。実装役の 4 構成も同じ。
+- **data 無しの写しで CI-1 と同じ引数の全体試験(tests/c7 を含む)=5,675 passed・290 skipped・failed 0・errors 0**(1,820 秒・f483f98)。
+- 親の判断: 新しい行は作らず CT1Q(diag・required)に足す形(問い 1)と `_mark_event_of`(問い 2)は受入。S8(発話の口)の同じ形も同じ作業木で直した(行 S8E=diag・required・外 142 → 143)。口の通し番号の控え `_own_last` は S8M(捨ててよい)のまま=刻みの中でだけ効き再開は刻みの境目(宣言)。記録 on/off の一致は実装役が合成と 5,000 体で確かめ、記録 on の出来事の記録は直す前とハッシュ一致。
+- 判定: **受入**(整理=既定 off は 1 バイト不変・腕 c1/speech-port は記録 on のランの final だけ動く=行の中身が減るため)。
