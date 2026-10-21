@@ -447,3 +447,11 @@ C1 に触っていない)。
   (50 分 55 秒)。
 - `tests/engine/calendar2`(slow を含む・1 プロセス): **42 passed**(段 B と負の対照・2 日と再開=合成・5,000 体の日の途中の再開を含む)。
 - lint-imports: 5 kept・0 broken。
+
+## §親の検収(第337・Fable 5.1・rebase の後)
+
+- 本体 93f5b37 へ rebase(段 10 の入った 2313e1b への載せ替えは実装役が控え+早送り+merge-file で(衝突はつなぎの台帳だけ=571+14=585 行)・親 commit 28979e8・文書だけの 93f5b37 へは衝突なし)→ c977041。範囲の試験(`tests/engine` 全体・cp2・c8・tools)**3,284 passed・1 skipped・0 failed(`-n 4 --dist loadfile -m "not slow"`・29 分 49 秒)**。
+- 親の byte-check 4 構成(本体 HEAD の src vs 作業木の src・W21 の世界・既定 off)=**final 同じ・25 欄とも差なし**(`parent_head_vs_ca2_4cfg.json`)。実装役の 19 構成(土台 2809c4a・W16 の世界)と 4 構成(2313e1b・W21 の世界)も同じ。検収役の 4 構成も同じ。
+- **data 無しの写し(detached の作業木・junction なし)で CI-1 と同じ引数の全体試験(tests/c7 を含む)=**5,625 passed・295 skipped・failed 0**(2,259 秒・CI の印=`-m "not gpu and not slow" -n 2 --dist loadfile`・c977041・faulthandler 900 s で traceback なし)**。
+- 独立検収([review.md](review.md))=条件つき受入(中 3=知らせの時刻が約束の変更に追従しない・思い出せていない頭の中の行を変えられる・行の behavior に出来事の id=記録の on/off で結果が変わる(口の約束 1-3 (1))/ 低 10)→ 全部直した(§14)。親の判断: (1) 出来事の id は diag の表へ(C1 の同じ形=CT1* の behavior は別の小さな整理で親が直す)。(2) 確かさは本人の判断(エンジンが返事から決めない)。(3) 候補の上限 120 は安全装置(`LlmCall.number` ≤ 127・本人が日 → 正時で絞る・当たった回数 0)=受入。(4) 記憶の器には足さない(6-5 の版上げで)。(5) 量(C1 と束ねると判断 37 万回/日・記録 約 26 MB/日)は既定にしない=C1 の記録の予算の判断と一緒に §1-1。(6) 艦隊の経路は段 B で未確認=宣言。(7) 壁時計の伸び(C1+arm 194 → 379 s・W21 の世界では 157 s)は腕の中だけ=記録 §14-3・測り直しは空いた機械で。(8) 用語集の 7 語は親が足す。10e の `SWITCH_ENV` に `SHIBUYA_CALENDAR_2` を親が足した。
+- 判定: **受入**(第 6 期 6-2 カレンダー 2=腕・既定 off は不変・既定化は実 LLM の後=6-2 の版上げ)。
