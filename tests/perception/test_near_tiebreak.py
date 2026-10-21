@@ -166,7 +166,8 @@ CLASSICAL_1500_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     # hash_order_id 91f9a601124e81dc…074e70 / 25_443・classical_tie_id edd9d6c8067f2da3…32db1a / 25_329=記録 pop43)
     # 〔小さな版上げ・meal_w17〕前 hash 4b3db260…e153f / 25_335・hash_order_id c2a7d482…1cfe2 / 25_284・classical_tie_id 0a1ce7b6…c58de / 25_307
     # (--meal-default validation で戻る)
-    "hash": ("fbe9456439ec195d72bfe2b0a68d5d6e1ea4ebd53236cf9f544dc0e50c6c27a1", 26_053),  # 〔2-4 V1〕前 87492778f4582d8fa067757d32b1953516997c92494089ab124840aaaa765bdb / 25_890  # 〔2-4 V2〕前 26b748695ffbf7f928f57352d9169fea630f12ca86efc13af383693411e0c578 / 25_638  # 〔2-4 V3〕前 e313dfaace60e42505a25a5b9f6a530e0e291dcd426260dea26f2f1a86c0da86 / 25_363  # 〔2-4 V4〕前 e4185ac9f6901403328403d6591c8cd43857a24de2938b3f2158e82a50e9ee3d
+    # 〔第337 4-2 規則の表と天引き(小さな版上げ・既定 on)〕レジの消費税が店の預かり金に残る分で final が動いた(前 fbe9456439ec195d72bfe2b0a68d5d6e1ea4ebd53236cf9f544dc0e50c6c27a1 / 26_053=SHIBUYA_RULES_42=off で戻る・呼数は同じ)
+    "hash": ("f2309ff29b8f1678c2a93778d3eb5d8076c504975f4502eb5ac4888c389e624e", 26_053),  # 〔2-4 V1〕前 87492778f4582d8fa067757d32b1953516997c92494089ab124840aaaa765bdb / 25_890  # 〔2-4 V2〕前 26b748695ffbf7f928f57352d9169fea630f12ca86efc13af383693411e0c578 / 25_638  # 〔2-4 V3〕前 e313dfaace60e42505a25a5b9f6a530e0e291dcd426260dea26f2f1a86c0da86 / 25_363  # 〔2-4 V4〕前 e4185ac9f6901403328403d6591c8cd43857a24de2938b3f2158e82a50e9ee3d
     # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕ランの口の切替口(--near-order id・--near-tiebreak id)を消したので hash_order_id
     # (c234caf7f39dea5e / 26,061)と classical_tie_id(c609c5d2b7e99205 / 26,120)の 2 行は消した(再現は安定版のタグ)
 }}

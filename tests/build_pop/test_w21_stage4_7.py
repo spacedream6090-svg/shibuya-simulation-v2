@@ -739,12 +739,20 @@ def test_real_status_split_is_applied_before_seats(built):
 
 @REAL
 def test_real_rights_rows_pass_engine_grant(built):
-    """〔検収 L9〕閉じた表の行は engine の ``Rights.grant`` が全部受け付け、店の持ち主の行(閉じた表の外)ははじかれる。"""
-    from shibuya.engine.rights.ledger import Right, Rights
+    """〔検収 L9〕閉じた表の行は engine の ``Rights.grant`` が全部受け付け、閉じた表の外の行ははじかれる。
+
+    〔第337 4-2〕閉じた表の正は engine の ``OBJECTS_OF_KIND``(4-2 で ``own → store`` が入り、店の持ち主の行 286 は中になった)。
+    資産の列 ``in_closed_table`` は組んだ時の表の値なので、ここでは engine の表から引き直して比べる(列との差は店の持ち主の行だけ)。
+    """
+    from shibuya.engine.rights.ledger import OBJECTS_OF_KIND, Right, Rights
 
     out, _man = built
     r = pq.read_table(out / "w21_rights_initial.parquet").to_pydict()
-    closed = np.array(r["in_closed_table"])
+    closed = np.array([r["object_kind"][k] in OBJECTS_OF_KIND.get(r["kind"][k], ()) for k in range(len(r["kind"]))])
+    col = np.array(r["in_closed_table"])
+    diff = closed & ~col
+    assert not (col & ~closed).any()  # 列で中のものは engine でも中
+    assert all(r["kind"][k] == "own" and r["object_kind"][k] == "store" for k in np.flatnonzero(diff))  # 差は own → store だけ
     book = Rights(capacity=int(closed.sum()))
     n_ok = n_bad = 0
     for k in range(len(r["right_id"])):  # 逐次: 行の数ぶん(試験だけ)
