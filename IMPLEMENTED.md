@@ -394,6 +394,13 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #119 第 6 期 6-2 カレンダー 2=会話とメッセージから生まれる予定(腕 `--calendar-2`・既定 off=結果不変・GPU の前に mock で)(第337・2026-10-18〜21・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-1(CA2 (c)(d)・CA3・CA4・CA6・CA7・CA8・CA11)・§4-4 CT0〜CT3・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 6-2・回答 2-1(第 6 期のコードを GPU の前に)・口の約束 1-3/1-8/1-5。記録 [ca2](docs/bench/analysis/wallbounce-1012/ca2/README.md)([review.md](docs/bench/analysis/wallbounce-1012/ca2/review.md))。取り込み `ad164ba`。1b は #112・C1 は #116。
+- **中身**(`engine/calendar2/`=book・recall・port・layer): 各自の約束の行 `PromiseBook`(欄=いつ・どこ・誰と・何を・置き場所(性質)・確かさ・元の会話・他人の行の `edit` は `PermissionError`・変更は最新値+出来事の記録 1 行)・頭の中の予定は記憶 M1 の式で思い出せたときだけ見える・J0 型の mock の口(持ちかける/受ける/断る/置き場所/知らせ/実行意図/出発/範囲外の計画=全部本人)・会話の番の控え `note_turn`(対面 `llm_io.utter`・通話・メッセージ=控えるだけ)・壊れた予定だけ拒む・知らせとアラームは時刻の変更に追従・間に合わない/閉店中(始まりの日の営業の表)/過ぎたは記録だけ・初めの予定は空(つなぎ)・監査 `audit_causes`・`calls_by_model` に内訳・出来事の id は diag の表(behavior に入れない)・語彙 族「約束」13 語・計器 CA8・manifest `calendar_2`。
+- **結果**(mock 5,000 体 1 日・W21 の世界): 既定 off は 19 構成(土台)と 4 構成(W21)で 25 欄同じ。arm=約束の行 270・断る 82・C1+arm=37,774 行・判断 37 万回/日・出来事の記録 約 26 MB/日=**既定にしない**(`DOC-ca2-not-default`)・監査の食い違い 0・2 日と再開 同じ・段 B 宣言の外 0・記録 on/off で final 同じ・1b の腕と束ねた 1 日も通る。
+- 検収: 別の検収役 1(条件つき受入=中 3・低 10 → 全部直した)+親。全体試験 5918 passed。仮採用: PENDING §1-1b 仮-42。用語集に 7 語(置き場所・確かさ・元の会話・本人の計画・実行意図・誘い・控え)。残り: 既定化は実 LLM の後(6-2 の版上げ)・C1 の behavior の出来事の id(同じ形)は別の整理・カレンダー 3 雇い主・祝日(C3 と束ねる)。
+
 ### #118 第 4 期 4-1 段 10 差し替え=W16 → W21c(4-3 版上げ 3 回目の第 1 部・既定の世界が動く=動いた量を記録)(第337・2026-10-18〜21・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 第 4 期 段 10・§3 版上げ 3 回目・[設計書](docs/design/v2-persona-population-rebuild-design.md) §2-11・回答 10-13b §0-6・§0-7・PENDING 仮-33(10 問の親案)。記録 [pop43](docs/bench/analysis/wallbounce-1012/pop43/README.md)([review.md](docs/bench/analysis/wallbounce-1012/pop43/review.md))。取り込み `2313e1b`。段 1〜3 は #104・段 4〜7 は #109・段 8〜9 は #111。
