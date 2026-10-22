@@ -252,3 +252,13 @@
 
 値と挙動は変えていない(規則の表の sha は出典の文と URL の分だけ動く=`3a22317cf609aad6` → `1490c5a2fdc8beb4`)。
 - 直した後の試験: `tests/engine/rules tests/economy`(`-n 2 --dist loadfile -m "not slow"`)434 passed・0 failed・0 errors・`tests/engine/bridging` 49 passed・`lint-imports` 5 kept・0 broken・`scan_secrets` CLEAN。
+
+## §親の検収(第337・2026-10-23・Fable 5.1)
+
+- **実在と差分**: 作業木の 29 本(src 5・tests 8+新規 2・docs 15・表と台帳)を親がディスクで確かめ、明示の一覧で stage(`commit_check` 一覧 29=ステージ 29・秘密スキャン CLEAN・絶対パスと個人名 0・CR 0・新しい識別子に `open`/`tick` 0)。親 commit ad4b682 → 本体 01649bb(カレンダー 3 の後)へ rebase=衝突 2(`byte_check_10e.py` の `SWITCH_ENV`=両方の行を残す・`bridging-ledger.json`=本体の台帳を取って `add_bridges_r42b.py` を再適用=620 行・active 595・重複 0)=`c4c7f1f`。rebase の後の台帳・規則・カレンダー 3 の試験 180 passed。
+- **値の正**: 入れた値は親が原典で確かめた R-118 §10-2 のとおり(写し検査=検収役が 1 つずつ突き合わせ・親も規則の表の 4 行と 2 欄を読んだ)。法令 ID 5 つと読んだ版は親の取得と同じ。出典の URL は親が読んだ形(asof なし・版は文)。
+- **既定の byte-check(親・4 構成)**: 本体 01649bb の src の写しと作業木 c4c7f1f の src で `w6_v3_default`・`w6_v3_activity_off`・`w6_v1_default`・`v3_mem_rel` の 25 欄が全部同じ(1 日のランは給料日を含まない=動くのは給料日の帳簿だけ・[byte_check_r42b_parent_4cfg.json](byte_check_r42b_parent_4cfg.json))。給料日を含む 2 日の動いた量と体ごとの検算 0 は実装役と検収役が別の実装で出した(§8・review.md)。
+- **範囲の試験(親・-n 4・not slow)**: `tests/economy tests/engine tests/perception tests/build_pop tests/c8 tests/tools`=**4,249 passed・1 skipped・0 failed・0 errors**(27 分 44 秒)。
+- **data 無しの写しの全体試験(CI-1 と同じ印・c4c7f1f)**: **5,781 passed・290 skipped(data 無し)・0 failed・0 errors**(33 分 15 秒・faulthandler 900 秒の門に当たらず)。
+- **親の判断**: 検収の低 1〜6 は直し済み(URL の形・未読の条の印・docstring・端数の文・README の注)。低 5(再開の `conserved` が偽=本段の前から・帳簿の起点のずれ)は PENDING §5 に親案(小さな整理で起点を揃える)で載せる。空欄の宣言 3 行の外す段 7 は受入。小さな版上げ=安定版のタグ `stable-v2-before-rules-42b` を 01649bb に打ち、`SHIBUYA_RULES_42B` は next-bump で消す。
+- **読んだ所**: `economy/taxes.py`(`resident_tax_monthly` の基礎控除・調整控除・非課税の分岐・`enrollment` の `pension`/`age`・`deductions` の拠出金=厚年の標準報酬 × 率の切り捨て・雇用主だけ)・`engine/economy_rules.py`(腕)・`docs/design/rules-table.json`(新 4 行と 2 欄の出典)。
