@@ -394,6 +394,13 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #122 第 4 期 4-2b 規則の表の空欄 3 件を埋める(住民税の控除 3 つ・年齢の上限 70/75・子ども・子育て拠出金 0.36%=小さな版上げ・既定 on)(第337・2026-10-22〜23・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: 親の一次確認 [R-118 §10-2](docs/research/v2-r118-rights-and-rules-contents.md)(地方税法 314 条の 2・314 条の 6・295 条/厚年法 9 条/健保法 3 条・36 条と高確法 50 条/子ども・子育て支援法施行令 27 条=e-Gov 法令 API で実読・都主税局と年金機構の頁)・[指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §1-12・§4-11・回答 10-13b §0-6・§0-7。記録 [rules42b](docs/bench/analysis/wallbounce-1012/rules42b/README.md)([review.md](docs/bench/analysis/wallbounce-1012/rules42b/review.md))。取り込み `a04b46d`。安定版のタグ `stable-v2-before-rules-42b`(戻す=`git checkout stable-v2-before-rules-42b`)。4-2 は #120。
+- **中身**: 規則の表 26 → 30 行(`resident_tax.basic_deduction`・`resident_tax.adjustment_credit_tokyo_ward`・`resident_tax.non_taxable_tokyo_ward`・`child_care_contribution.rate`=machine・asof の下限の印・出典は asof なしの API の形と読んだ版の文)+既存の行に `age_max_exclusive`(厚年 70・健保 75)。`economy/taxes.py`: 住民税=課税所得(合計所得 − 社会保険料控除 − 基礎控除)× 10% − 調整控除(5 万円の 5%・200 万円超は下限 2,500 円)+均等割・非課税(45 万円・未成年者 135 万円)で 0/ `Enrollment` に `pension`(70 歳未満)と `age`・健保は 75 歳未満/ `EMPLOYER_ITEMS` に `child_care_contribution`(厚年の標準報酬 × 0.36%・雇用主 → 政府の科目)。腕 `SHIBUYA_RULES_42B {on,off}`(既定 on・off=4-2 の値・台帳 `DOC-rules42b-legacy-switch`=next-bump)。台帳 +4/直し 3(`-resident-tax-base`・`-enrollment-basis`・`-rounding`)/removed 1(`-employer-levy-missing`)。
+- **結果**(W21・5,000 体): off は f27377a と 19/19・25 欄同じ。on の 1 日も同じ(給料日なし)。給料日を含む 2 日(08-24〜): 本人の天引き 195.7 → 182.8 百万円(住民税 53.2 → 43.2)・雇用主 77.8 → 77.6(拠出金 +1.72・年齢の上限で厚年と健保が減る)・2,726 行 × 11 項目の体ごとの検算 0(実装役と検収役が別の実装で)・保存則 残差 0・4 本の流れ 一致・再開=通し・段 B 0・記録 on/off 同じ。額面 30 万円の住民税 16,099 → 12,308 円。影響=18 歳未満 19・70〜74 歳 68・75 歳以上 52・非課税 0 体。
+- 検収: 別の検収役 1(条件つき受入=高 0・中 0・低 6 → 全部直した)+親。全体試験 6,069 passed。仮採用: PENDING §1-1b 仮-45。持ち越し: 再開の `conserved` の起点のずれ(本段の前から=PENDING §5)。次の版上げで `SHIBUYA_RULES_42B` を消す。
+
 ### #121 第 6 期 6-2 カレンダー 3=雇い主・祝日+C3 職場の連絡+C1 の充電のつなぎ(腕 `--calendar-3`・既定 off=結果不変・GPU の前に mock で)(第337・2026-10-21〜22・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-1(CA1 正規は毎週固定・非正規とシフトは週ごと=雇い主がエージェントになるまでのつなぎ・休むかどうかは本人・祝日を含むランは第 3 段まで回さない・CA10・CA11)・§4-4 CT1 C3・§1-1 CP6・§2 の 2(祝日=外からの決定)・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 6-2・回答 2-1。記録 [ca3](docs/bench/analysis/wallbounce-1012/ca3/README.md)([review.md](docs/bench/analysis/wallbounce-1012/ca3/review.md))。取り込み `6115860`。1b は #112・2 は #119・C1 は #116。
