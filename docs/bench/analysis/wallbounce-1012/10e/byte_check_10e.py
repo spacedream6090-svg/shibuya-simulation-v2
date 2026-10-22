@@ -178,6 +178,7 @@ SWITCH_ENV: tuple[str, ...] = (
     "SHIBUYA_CONTACT", "SHIBUYA_CONTACT_SEND", "SHIBUYA_CONTACT_UNNOTICED",
     "SHIBUYA_CALENDAR_2",  # 〔第337 6-2 カレンダー 2 の腕〕
     "SHIBUYA_RULES_42",  # 〔第337 4-2 規則の表と天引き=旧値の再現の切替口(next-bump)〕
+    "SHIBUYA_CALENDAR_3", "SHIBUYA_CALENDAR_3_TRIAL",  # 〔第337 6-2 カレンダー 3 の腕と試験用の印〕
     "SHIBUYA_MEAL_DEFAULT", "SHIBUYA_WAGE",
 )
 
