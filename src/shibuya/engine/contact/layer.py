@@ -134,6 +134,8 @@ def issued_key(step: int, agent: int, serial: int) -> int:
         raise ValueError(f"判断の呼びの控えの範囲の外: 刻み {t}・体 {a}・通し番号 {c}")
     return (t << _ISS_T_SHIFT) | (a << _ISS_A_SHIFT) | c
 _P_CONTACT: Final[Process] = Process("contact")
+#: 範囲の外に居る体の ``transit_state``(〔つなぎ BR-CT1-CHARGE-AT-HOME〕住まいが範囲の外の体の家での充電)。
+_TRANSIT_OUTSIDE: Final[int] = 2
 _P_CONV: Final[Process] = Process("conversation")
 _P_PERCEPTION: Final[Process] = Process("perception")
 _W_NOTICE: Final[str] = V.word(V.FAMILY_PERCEPT, "気づき")
@@ -171,7 +173,7 @@ class ContactLayer:
     def __init__(self, *, n_agents: int, seed: int | str, population_seed: int | str, day_key0: int,
                  step_seconds: int, events: Any, agents: Any, world: Any, groups: Any = None, rel_layer: Any = None,
                  conv: Any = None, remember_link: bool = False, unnoticed_arm: str | None = None,
-                 send_arm: str | None = None, renderer: Any = None) -> None:
+                 send_arm: str | None = None, renderer: Any = None, home_cell: Any = None) -> None:
         n = int(n_agents)
         self.n = n
         self.step_seconds = int(step_seconds)
@@ -186,6 +188,8 @@ class ContactLayer:
         self.conv = conv
         self.renderer = renderer
         self.remember_link = bool(remember_link)
+        #: 〔つなぎ BR-CT1-CHARGE-AT-HOME〕体 → 住まいのセル(−1=範囲の外)。``None``=充電なし(住まいの表の無い呼び手)。
+        self.home_cell = None if home_cell is None else np.asarray(home_cell, dtype=np.int64)[:n].copy()
         # ---- 子の持ち主(状態台帳の腕の行) ----
         self.dev = _DV.Devices(n, population_seed)
         self.attn = _AT.Attention(n)
@@ -236,6 +240,11 @@ class ContactLayer:
         #: 〔第 6 期 6-2 カレンダー 2〕会話の番の控えの口(腕 --calendar-2 arm のランだけ組み立てが
         #: ``Calendar2Layer.note_turn`` を挿す=参照・既定 None=今の道)。通話の番とメッセージを送る判断で呼ぶ(控えるだけ)。
         self.turn_sink: Callable[..., None] | None = None
+        #: 〔第 6 期 6-2 カレンダー 3=C3 職場の連絡〕網が送った(打ち終わり)メッセージの番号と送った判断の call_id を知らせる口・
+        #: 読む判断で読んだメッセージを知らせる口(腕 --calendar-3 arm のランだけ組み立てが ``Calendar3Layer.note_sent``・
+        #: ``note_read`` を挿す=参照・既定 None=今の道)。控えるだけ(読んだ中身を使うのは系 calendar_3)。
+        self.sent_sink: Callable[..., None] | None = None
+        self.read_sink: Callable[..., None] | None = None
 
     # ================================================================== 小さな口
     def _bump(self, key: str, n: int = 1) -> None:
@@ -260,6 +269,26 @@ class ContactLayer:
         if eid is not None:
             self._bump(f"events:{what}")
         return None if eid is None else (int(eid[0]), int(eid[1]))
+
+    def _charge_at_home(self, t_ns: int, cells: np.ndarray, sleeping: np.ndarray, agents: Any) -> None:
+        """〔つなぎ BR-CT1-CHARGE-AT-HOME・外す段=判断モデルの段 6-6〕家に居る体の電池を増やす(エンジン規則=充電が本人の行動に
+        なるまで)。家に居る=住まいのセルに居る(範囲の中)か、住まいが範囲の外の体が範囲の外で寝ている(住まいの場所が無い=宣言)。
+        職場では増えない。電源が入った体には網が預かっていたメッセージを届ける(出来事 ``連絡:届いた``=原因 過程 contact)。"""
+        home = self.home_cell
+        transit = np.asarray(agents.registry.transit_state, dtype=np.int64)
+        inside_home = (home >= 0) & (cells == home) & (transit == 0)
+        outside_home = (home < 0) & (transit == _TRANSIT_OUTSIDE) & sleeping
+        n, back = self.dev.charge(inside_home | outside_home, self.step_seconds)
+        if n:
+            self._bump("charge:agent_steps", n)
+        if back.size:
+            self._bump("charge:power_on", int(back.size))
+            for a, msg, sender, group, via in self.mail.release_held(back.tolist(), t_ns):  # 逐次: 届けた預かりの数ぶん
+                eid = self._log(t_ns, int(a), W_DELIVERED, _P_CONTACT, whom=int(sender), via=_DL.VIAS[int(via)],
+                                received_ns=int(t_ns), origin=self._origin_of(int(sender)))
+                if eid is not None:
+                    self._ct_event_of.setdefault(int(a), []).append([int(msg), int(eid[0]), int(eid[1])])
+                self._bump("held_released")
 
     def _screen_end(self, a: Any, t_ns: int, reason: str) -> None:
         """視線を画面から前に戻す(本人の判断・寝た・電池が切れた・電話を耳に当てた)。画面を見ていた長さ[分]を数える。"""
@@ -413,6 +442,8 @@ class ContactLayer:
         whom: Any = f"group:{int(group)}" if int(group) >= 0 else int(to[0])
         sent = self._log(t, int(sender), W_SENT, cause, whom=whom, via=via_w, how_much=int(mora), origin=origin)
         msg = self.mail.new_message_id()
+        if self.sent_sink is not None:  # 〔6-2 カレンダー 3=C3〕送った判断の call_id とメッセージの番号の控え(腕のランだけ)
+            self.sent_sink(int(msg), str(call_id))
         got, held = self.mail.deliver(msg, int(sender), [int(x) for x in to], int(group), int(via), t, int(mora),
                                       str(text), lambda a: bool(self.dev._on[a]))
         for r in got:  # 逐次: 届いた体の数ぶん
@@ -497,6 +528,8 @@ class ContactLayer:
         off_now = self.dev.drain(use, self.step_seconds)
         if off_now:
             self._bump("devices_off", off_now)
+        if self.home_cell is not None:  # 〔つなぎ BR-CT1-CHARGE-AT-HOME〕家に居る体の充電(エンジン規則)・電源が入った体に預かりを届ける
+            self._charge_at_home(t_ns, cells, sleeping, agents)
         dead = np.flatnonzero(screen & ~self.dev._on).astype(np.int64)
         if dead.size:  # 電池が切れた=画面が消えた(物理)
             self._screen_end(dead, t_ns, "battery")
@@ -821,6 +854,8 @@ class ContactLayer:
             self._log(t_ns, a, W_READ, cause, whom=f"group:{int(key)}" if kind == "g" else int(key), via=via,
                       received_ns=int(t_ns), read_ns=int(t_ns), how_much=len(sub))
         self._bump("read_rows", len(convs))
+        if self.read_sink is not None and rows:  # 〔6-2 カレンダー 3=C3〕読んだメッセージの控え(腕のランだけ・控えるだけ)
+            self.read_sink(int(T), int(a), [[int(r[0]), int(r[1]), int(r[2]), int(r[3])] for r in rows])
         for kind, key, _m in convs:  # 逐次: 読んだ会話の数ぶん
             self._reply_decision(T, t_ns, a, kind, key)
 
@@ -885,11 +920,50 @@ class ContactLayer:
         cands = [_P.cand(_P.K_TO, f"P-{b}", id=f"to:{b}") for b in to]
         c, cause = self._decide(T, t_ns, a, _P.P_WHOM, cands)
         b = int(c.id.split(":", 1)[1])
+        self._place_call(T, t_ns, a, b, cause)
+
+    def _place_call(self, T: int, t_ns: int, a: int, b: int, cause: LlmCall) -> None:
+        """電話をかける(本人の判断の答え ``cause`` の後=呼び出しの予約・着信は窓の境目)。"""
         self.mail.start_calling(a, b, t_ns)
         self._log(t_ns, a, W_DIAL, cause, whom=b, via=_DL.VIA_CALL)
         self._reserve(_DL.P_RING, int(t_ns), [int(a), int(b), int(t_ns)])
         self._screen_end([a], t_ns, "dial")  # 耳に当てる
         self._bump("calls_placed")
+
+    def workplace_send(self, T: int, t_ns: int, a: int, target: int, *, groups: Sequence[int] = (),
+                       words: str = "") -> tuple[str, str] | None:
+        """〔第 6 期 6-2 カレンダー 3=C3 職場の連絡〕職場の連絡を C1 の口で送る(呼ぶのは系 calendar_3=腕のランだけ)。
+
+        手段と宛先は本人の連絡の判断(J0・判断の種類=宛先 ``P_WHOM``=相手にメッセージ・相手に電話・職場のグループ)・文は文の口
+        (腕 (c) は選択の言葉 ``words``=何の連絡か)・送るのは今の口(``_queue_send``=打ち終わりは次の窓の境目・``_place_call``)。
+        職場の相手は初めから連絡先に持つ(CT5 (c))。寝ている・電源が切れた・通話中・呼び出し中の体は送れない(``None``=呼び手が
+        控えて送り直す)。返り値=``(手段 msg/call/group, 送った判断の call_id)``。"""
+        a, b = int(a), int(target)
+        why = ("asleep" if int(self.agents.registry.activity[a]) == int(Activity.SLEEPING) else
+               "device_off" if not bool(self.dev._on[a]) else
+               "in_call" if self.calls.is_busy(a) or self.mail.calling_of(a) is not None else
+               "no_target" if not (0 <= b < self.n) or b == a else "")
+        if why:
+            self._bump(f"c3:cannot_send:{why}")
+            return None
+        cands = [_P.cand(_P.K_TO, f"P-{b}(メッセージ)", id=f"msg:{b}"), _P.cand(_P.K_TO, f"P-{b}(電話)", id=f"call:{b}")]
+        cands += [_P.cand(_P.K_GROUP, f"{self.book.group_kind(int(g))}のグループ", id=f"group:{int(g)}") for g in groups]
+        c, cause = self._decide(T, t_ns, a, _P.P_WHOM, cands)
+        how, _, x = c.id.partition(":")
+        self._bump(f"c3:{how}")
+        if how == "call":
+            self._place_call(T, t_ns, a, b, cause)
+            return how, cause.call_id
+        if how == "group":
+            g = int(x)
+            members = [m for m in self.book.members(g) if m != a]
+            text = (self._write_text(kind="group", sender=a, addressees=tuple(members)) if self.send_arm == "b"
+                    else str(words or c.text))
+            self._queue_send(T, t_ns, a, members, g, _DL.VIAS.index(_DL.VIA_GROUP), text, cause)
+            return how, cause.call_id
+        text = self._write_text(kind="message", sender=a, addressees=(b,)) if self.send_arm == "b" else str(words or c.text)
+        self._queue_send(T, t_ns, a, [b], -1, _DL.VIAS.index(_DL.VIA_MESSAGE), text, cause)
+        return how, cause.call_id
 
     def _call_ended(self, T: int, t_ns: int, s: Any) -> None:
         cid = self._hangup.pop(int(s.session_id), None)
@@ -916,7 +990,9 @@ class ContactLayer:
             "device": {"ring_db_1m": _DV.RING_DB_1M, "place_atten_db": list(_DV.PLACE_ATTEN_DB),
                        "earphone_db": _DV.EARPHONE_DB, "snr_clear_db": _DV.SNR_CLEAR_DB,
                        "snr_detect_db": _DV.SNR_DETECT_DB, "noise_stage_db": list(_DV.NOISE_STAGE_DB),
-                       "drain_per_hour": list(_DV.DRAIN_PER_HOUR), "shares0": {
+                       "drain_per_hour": list(_DV.DRAIN_PER_HOUR),
+                       # 〔つなぎ BR-CT1-CHARGE-AT-HOME〕家での充電の速さ(住まいの表の無いランは null=充電なし)
+                       "charge_per_hour": None if self.home_cell is None else _DV.CHARGE_PER_HOUR, "shares0": {
                            "manner": _DV.MANNER_SHARE0, "bag": _DV.BAG_SHARE0, "earphones": _DV.EARPHONE_SHARE0}},
             "attention": {"peripheral_range_m": _AT.PERIPHERAL_RANGE_M,
                           "interrupt_conditions": sorted(int(x) for x in _AT.INTERRUPT_CONDITIONS),

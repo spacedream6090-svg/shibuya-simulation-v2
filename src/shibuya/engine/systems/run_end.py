@@ -125,6 +125,8 @@ def sys_close_final(ctx: Any, b: Any) -> None:
     result.contact_layer = L.contact  # type: ignore[attr-defined]
     # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定(腕 arm のランだけ・既定 None)も同じ形で渡す(manifest の calendar_2 が読む)
     result.calendar2_layer = L.calendar2  # type: ignore[attr-defined]
+    # 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日(腕 arm のランだけ・既定 None)も同じ形で渡す(manifest の calendar_3 が読む)
+    result.calendar3_layer = L.calendar3  # type: ignore[attr-defined]
     # AB7 の M1-M3(接地率・未定義率・上位未定義語)は §7 の台帳が持つ。``runner`` と同じく
     # **後付けの属性**として渡すだけ(RunResult の欄は増やさない=既存の出力は不変)。
     result.undefined_registry = bridge.undefined  # type: ignore[attr-defined]

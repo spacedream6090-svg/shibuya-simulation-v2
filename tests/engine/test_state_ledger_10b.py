@@ -107,7 +107,8 @@ def test_ledger_has_187_rows_in_two_axes():
     # 〔第 4 期 4-2〕その後に店の預かり消費税の腕の行 TXD(behavior・required・腕 rules-42=既定 on のランで持ち主がある)を足して
     # 143・234(腕 off のランの 2 つのハッシュと状態のファイルは不変・記録 rules42/README.md)
     # 〔1-3 の (1) の直し〕発話の口の口の目印 → 記録の id の診断の表の行 S8E(diag・required・腕 speech-port)を S8M の後に足して 144・235(4-2 の TXD の後の数)
-    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 144, "soa": 91, "total": 235}
+    # 〔第 6 期 6-2 カレンダー 3〕その後(TXD の後)に雇い主・祝日の腕の行 CA3S・CA3P・CA3G・CA3M・CA3Q(腕 calendar-3)を足して 149・240
+    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 149, "soa": 91, "total": 240}
     assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
@@ -120,7 +121,8 @@ def test_ledger_has_187_rows_in_two_axes():
                                                                                      "CT1AS", "CT1I", "CT1IS", "CT1C",
                                                                                      "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q",
                                                                                      "CA2B", "CA2O", "CA2G", "CA2M", "CA2Q",
-                                                                                     "TXD"]
+                                                                                     "TXD",
+                                                                                     "CA3S", "CA3P", "CA3G", "CA3M", "CA3Q"]
     assert (SL.row("X").behavior, SL.row("X").restore, SL.row("X").arm) == (SL.DIAG, SL.DISCARDABLE, "")
     assert (SL.row("BW").behavior, SL.row("BW").restore, SL.row("BW").arm) == (SL.DIAG, SL.DISCARDABLE, "")
     assert (SL.row("E").behavior, SL.row("E").restore) == (SL.DIAG, SL.DISCARDABLE)
@@ -140,7 +142,8 @@ def test_ledger_has_187_rows_in_two_axes():
     assert [r.key for r in SL.LEDGER if r.arm] == ["S8", "S8M", "S8E", "M0L", "M0M", "M0C", "M0S", "C1B", "C1BM",
                                                    "TCR", "TCC", "T3M", "T4W", "CT1D", "CT1A", "CT1AS", "CT1I", "CT1IS", "CT1C", "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q",  # 〔6-4 C1〕
                                                    "CA2B", "CA2O", "CA2G", "CA2M", "CA2Q",  # 〔6-2 カレンダー 2〕
-                                                   "TXD"]  # 〔第 4 期 4-2〕店の預かり消費税(腕 rules-42)
+                                                   "TXD",  # 〔第 4 期 4-2〕店の預かり消費税(腕 rules-42)
+                                                   "CA3S", "CA3P", "CA3G", "CA3M", "CA3Q"]  # 〔6-2 カレンダー 3〕
     for k, arm in (("TCR", "talk-clock"), ("TCC", "talk-clock"), ("T3M", "step-scope"), ("T4W", "clock-regional")):
         assert (SL.row(k).behavior, SL.row(k).restore, SL.row(k).arm) == (SL.DIAG, SL.DISCARDABLE, arm), k
     assert (SL.row("PX").behavior, SL.row("PX").restore, SL.row("PX").items) == (SL.DIAG, SL.DISCARDABLE,

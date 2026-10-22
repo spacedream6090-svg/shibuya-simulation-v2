@@ -34,7 +34,7 @@ from shibuya.engine.calendar2.arm import LEDGER_ARM
 
 __all__ = [
     "PLACEMENTS", "PL_APP", "PL_ALARM", "PL_PLANNER", "PL_HEAD", "PLACEMENT_TRAITS", "KINDS", "K_PROMISE", "K_OWN",
-    "K_PLAN", "K_ALARM", "K_INTENT", "STATES", "ST_LIVE", "ST_CANCELLED", "ST_NOT_GOING", "ST_DONE", "CERTAINTY",
+    "K_PLAN", "K_ALARM", "K_INTENT", "K_WORK", "STATES", "ST_LIVE", "ST_CANCELLED", "ST_NOT_GOING", "ST_DONE", "CERTAINTY",
     "PERSON_FIELDS", "OBSERVED_FIELDS", "EDITABLE_FIELDS", "broken", "PromiseBook",
 ]
 
@@ -53,8 +53,10 @@ PLACEMENT_TRAITS: Final[Mapping[str, Mapping[str, Any]]] = MappingProxyType({
                                 "思い出し方": "記憶で思い出せたとき", "重なりの警告": False}),
 })
 #: 行の種類(5-1: スマホに入れるような予定は全部・CA6 の本人の計画・CA7 のアラームと実行意図)。
-KINDS: Final[tuple[str, ...]] = ("二人の約束", "本人の予定", "本人の計画", "アラーム", "出来事の実行意図")
-K_PROMISE, K_OWN, K_PLAN, K_ALARM, K_INTENT = range(5)
+#: 〔第 6 期 6-2 カレンダー 3〕末尾に「勤務」(雇い主が組んだシフトを働く人が書いた行=``engine.calendar3.layer`` だけが書く=
+#: 腕 ``--calendar-3 arm`` のランだけ・カレンダー 2 の見える予定と出発の判断・重なりの警告の外)を足した(前の番号は動かない)。
+KINDS: Final[tuple[str, ...]] = ("二人の約束", "本人の予定", "本人の計画", "アラーム", "出来事の実行意図", "勤務")
+K_PROMISE, K_OWN, K_PLAN, K_ALARM, K_INTENT, K_WORK = range(6)
 #: 行の状態。
 STATES: Final[tuple[str, ...]] = ("有効", "取り消し", "行かない", "済み")
 ST_LIVE, ST_CANCELLED, ST_NOT_GOING, ST_DONE = range(4)

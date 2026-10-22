@@ -22,6 +22,11 @@
 
 電池(物理): 1 刻みごとに 使い方(通話>画面>待ち受け)の減り方で減り、0 になると電源が切れる(切れた体へのメッセージは網で
 預かる・電話は不通)。充電は本人の行動(本段に無い=つなぎの台帳 ``DOC-ct-c1-no-charging``)。
+〔第 6 期 6-2 カレンダー 3 の後・つなぎ ``BR-CT1-CHARGE-AT-HOME``〕充電は本人の行動になるまで(判断モデルの段 6-6)エンジン規則で
+つなぐ(決定 10-12 §2 の 2「まだ人の行動で作れない変化はエンジン規則でつなぐ=conf 宣言つき」): 体が家に居る刻みは電池が
+``CHARGE_PER_HOUR`` で増える(:meth:`Devices.charge`)・電池が 0 でなくなった体は電源が入る(充電中に電源が入る=宣言)。職場では
+増えない(本人の行動=判断モデルの後)。家に居る=住まいのセルに居る(範囲の中)か、住まいが範囲の外の体が範囲の外で寝ている刻み
+(住まいの場所が無い=宣言)。
 
 **未リサーチ(expedient)**の値(記録 ct_c1/README.md の表とつなぎの台帳 ``DOC-ct-c1-device-*``): 最初の電池 100%・マナーモードの
 人の割合 0.5・かばんに入れている人の割合 0.5・イヤホンの人の割合 0.2(どれも実データが無い=最初の世界の状態の仮の値・母集団の
@@ -48,7 +53,7 @@ __all__ = [
     "PLACE_HAND", "PLACE_POCKET", "PLACE_BAG", "PLACE_WORDS", "LEVEL_NONE", "LEVEL_WEAK", "LEVEL_STRONG",
     "LEVEL_WORDS", "CH_SOUND", "CH_VIBRATION", "CH_SCREEN", "CHANNEL_WORDS", "DEVICE_DOMAIN", "INITIAL_BATTERY",
     "MANNER_SHARE0", "BAG_SHARE0", "EARPHONE_SHARE0", "RING_DB_1M", "PLACE_ATTEN_DB", "EARPHONE_DB", "SNR_CLEAR_DB",
-    "SNR_DETECT_DB", "NOISE_STAGE_DB", "DRAIN_PER_HOUR", "USE_STANDBY", "USE_SCREEN", "USE_CALL", "Devices",
+    "SNR_DETECT_DB", "NOISE_STAGE_DB", "DRAIN_PER_HOUR", "CHARGE_PER_HOUR", "USE_STANDBY", "USE_SCREEN", "USE_CALL", "Devices",
     "signal_ok", "power_sum_db", "noise_db_of_stage", "channel_words", "PROVISIONAL_VALUES",
 ]
 
@@ -91,6 +96,8 @@ NOISE_STAGE_DB: Final[tuple[float, ...]] = tuple(float(re.match(r"\d+", w).group
 #: 電池の減り[1 時間あたりの割合](待ち受け・画面・通話)。
 USE_STANDBY, USE_SCREEN, USE_CALL = 0, 1, 2
 DRAIN_PER_HOUR: Final[tuple[float, float, float]] = (0.01, 0.12, 0.08)
+#: 〔つなぎ BR-CT1-CHARGE-AT-HOME〕家での充電の速さ[1 時間あたりの割合](満充電まで 2 時間相当=仮の値・expedient)。
+CHARGE_PER_HOUR: Final[float] = 0.5
 
 #: 本モジュールの仮の値の宣言(記録とつなぎの台帳の行 DOC-ct-c1-device-* と 1 対 1=文を変えたら台帳も直す)。
 PROVISIONAL_VALUES: Final[tuple[str, ...]] = (
@@ -206,6 +213,21 @@ class Devices:
             self._on[off] = False
         return n_off
 
+    def charge(self, at_home: np.ndarray, step_seconds: int) -> tuple[int, np.ndarray]:
+        """〔つなぎ BR-CT1-CHARGE-AT-HOME〕1 刻みの家での充電(エンジン規則=本人の行動になるまで)。``at_home``=体ごとの家に居るか。
+        電池が 0 でなくなった体は電源が入る。→(充電した体の数・新しく電源が入った体の番号)。"""
+        home = np.asarray(at_home, dtype=bool)
+        dt = np.float32(int(step_seconds) / SECONDS_PER_HOUR)
+        need = home & (self._battery < np.float32(INITIAL_BATTERY))
+        n = int(np.count_nonzero(need))
+        if n:
+            nb = np.minimum(self._battery + np.float32(CHARGE_PER_HOUR) * dt, np.float32(INITIAL_BATTERY))
+            self._battery[:] = np.where(need, nb, self._battery).astype(np.float32)
+        back = np.flatnonzero(~self._on & (self._battery > np.float32(0.0))).astype(np.int64)
+        if back.size:
+            self._on[back] = True
+        return n, back
+
     def summary(self) -> dict[str, Any]:
         """計器: 電池の最小・平均・電源の切れた数・初めの状態の数。"""
         b = self._battery.astype(np.float64)
@@ -213,6 +235,7 @@ class Devices:
             "battery_min": round(float(b.min()), 4) if b.size else None,
             "battery_mean": round(float(b.mean()), 4) if b.size else None,
             "off": int(np.count_nonzero(~self._on)),
+            "battery_zero": int(np.count_nonzero(self._battery <= np.float32(0.0))),
             "manner": int(np.count_nonzero(self._manner)),
             "bag_home": int(np.count_nonzero(self._home == PLACE_BAG)),
             "earphones": int(np.count_nonzero(self._ear)),

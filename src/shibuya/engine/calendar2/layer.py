@@ -1018,7 +1018,10 @@ class Calendar2Layer:
             "rejected": {"reasons": pick("rejected:"), "shown": int(m.get("rejected_shown", 0)),
                          "silent": int(m.get("rejected_silent", 0))},
             "changes": {**pick("changes:"), "candidates_capped": int(m.get("edit_candidates_capped", 0))},
-            "live_rows": {"rows": len(self.book), "offers": len(self._offers), "watch": len(self._watch),
+            # 〔第 6 期 6-2 カレンダー 3 検収 L4〕勤務の行(カレンダー 3 が書く=腕 --calendar-3 arm のランだけ)は rows に数えず work_rows に分ける
+            "live_rows": {"rows": sum(1 for r in self.book.rows.values() if int(r["kind"]) != _B.K_WORK),
+                          "work_rows": sum(1 for r in self.book.rows.values() if int(r["kind"]) == _B.K_WORK),
+                          "offers": len(self._offers), "watch": len(self._watch),
                           "agenda_steps": len(self._agenda)},
             # 判断の呼び(判断モデル)と文の口の呼び(LLM)=TM9 の呼び数の内訳(calls_by_model には足していない=親の判断)
             "calls": dict(zip(("judge_model", "llm"), self.model_calls())),

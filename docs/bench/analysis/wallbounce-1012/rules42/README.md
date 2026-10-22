@@ -59,7 +59,7 @@
 | `minimum_wage.tokyo`(既存・3 版) | machine | 2025-10-03 ほか | `economy.anchors`・`economy.wages` | 給料日 |
 | `food_business.licence` | human | 2025-06-01(下限) | なし(許可の行は空=Q5) | ― |
 | `building_lease.termination_notice` | human | 2026-05-21(下限) | なし | ― |
-| `labor.statutory_hours` | human | 2026-06-24(下限) | なし | ― |
+| `labor.statutory_hours` | human | 2026-06-24(下限) | なし〔第 6 期 6-2 カレンダー 3 の後: `engine.calendar3.layer.labor_params`=計器=読むだけ・超えた数を数える(腕 `--calendar-3 arm` のランだけ・`labor.weekly_rest_day` も同じ)・記録 [ca3](../ca3/README.md)〕 | ― |
 | `road_use.police_permit` | human | 2026-06-14(下限) | なし | ― |
 | `road_occupancy.shibuya_ward_road` | human | 2026-04-01 | なし | ― |
 | `outdoor_ad.tokyo_permit` | human | 2026-01-01(下限) | なし | ― |

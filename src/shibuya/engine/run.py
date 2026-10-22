@@ -494,6 +494,8 @@ MOTION_RNG_DOMAINS: dict[str, str] = {
     "contact.present": "〔第 6 期 6-4 C1〕連絡の判断の候補の提示の並べ替え(同上)",
     "calendar2.mock": "〔第 6 期 6-2 カレンダー 2〕予定の本人の判断の仮のモデルの選び(engine.calendar2.port・腕 arm のランだけ)",
     "calendar2.present": "〔第 6 期 6-2 カレンダー 2〕予定の判断の候補の提示の並べ替え(同上)",
+    "calendar3.mock": "〔第 6 期 6-2 カレンダー 3〕雇い主と働く人の勤務の判断の仮のモデルの選び(engine.calendar3.port・腕 arm のランだけ)",
+    "calendar3.present": "〔第 6 期 6-2 カレンダー 3〕勤務の判断の候補の提示の並べ替え(同上)",
 }
 #: 動きの側の、``core.rng`` の用途名を持たない塩(``seed`` から作る)。
 MOTION_SALTS: dict[str, str] = {
@@ -508,15 +510,19 @@ MOTION_SALTS: dict[str, str] = {
 
 
 def _calls_by_model(llm: int, contact: Any, before: tuple[int, int] = (0, 0), *, calendar2: Any = None,
-                    before2: tuple[int, int] = (0, 0)) -> dict[str, Any]:
+                    before2: tuple[int, int] = (0, 0), calendar3: Any = None,
+                    before3: tuple[int, int] = (0, 0)) -> dict[str, Any]:
     """TM9 の呼び出し数(判断モデル/LLM)。〔第 6 期 6-4 C1 検収 M5 (ii)〕腕 c1 のランは連絡の判断(判断モデル)と文の口(LLM)を
     足し、内訳を ``contact`` に出す(既定のランは今のまま=判断モデル 0)。``before`` は前の日次の記録までの連絡の分。
     〔第 6 期 6-2 カレンダー 2〕腕 arm のランはカレンダー 2 の判断と文の口を同じ形で足し、内訳を ``calendar_2`` に出す
-    (``before2``=前の日次の記録までのカレンダー 2 の分・腕の無いランは今のまま)。"""
-    if contact is None and calendar2 is None:
+    (``before2``=前の日次の記録までのカレンダー 2 の分・腕の無いランは今のまま)。〔第 6 期 6-2 カレンダー 3〕腕 arm のランは
+    カレンダー 3 の判断(雇い主の枠・働く人の書く/申し出る/休みにする/遅れ)を同じ形で足し、内訳を ``calendar_3`` に出す
+    (C3 の連絡の送る判断と文は C1 の口=内訳 ``contact`` に入る・``before3``=前の日次の記録までの分)。"""
+    if contact is None and calendar2 is None and calendar3 is None:
         return {"judge_model": 0, "llm": int(llm)}
     out: dict[str, Any] = {"judge_model": 0, "llm": int(llm)}
-    for key, layer, b0 in (("contact", contact, before), ("calendar_2", calendar2, before2)):  # 逐次: 腕の数(2)
+    for key, layer, b0 in (("contact", contact, before), ("calendar_2", calendar2, before2),
+                           ("calendar_3", calendar3, before3)):  # 逐次: 腕の数(3)
         if layer is None:
             continue
         j, t = layer.model_calls()
@@ -534,6 +540,15 @@ def _calendar2_field(layer: Any) -> dict[str, Any]:
     from shibuya.engine.calendar2.layer import manifest_fields as _ca2_manifest
 
     return _ca2_manifest(layer)
+
+
+def _calendar3_field(layer: Any) -> dict[str, Any]:
+    """〔第 6 期 6-2 カレンダー 3〕manifest の ``calendar_3``(雇い主・祝日の層のあるラン=腕 arm だけ・ほかは空)。"""
+    if layer is None:
+        return {}
+    from shibuya.engine.calendar3.layer import manifest_fields as _ca3_manifest
+
+    return _ca3_manifest(layer)
 
 
 def _contact_c1_field(layer: Any) -> dict[str, Any]:
@@ -1337,7 +1352,8 @@ class RunResult:
             # ---- 第 1 期 1-1 T0(TM9・GPU 無しの欄・10f と一体): 呼び出し数を判断モデルと LLM に分けた欄(判断モデルは
             # まだ無い=0)・時計の種類と幅・つなぎの台帳の数。列追加のみ ----
             "calls_by_model": _calls_by_model(int(self.llm_calls), getattr(self, "contact_layer", None),
-                                              calendar2=getattr(self, "calendar2_layer", None)),
+                                              calendar2=getattr(self, "calendar2_layer", None),
+                                              calendar3=getattr(self, "calendar3_layer", None)),
             # 〔第 6 期 6-3 T4〕区域ごとの時計のランだけ regional(既定は今の steps)
             "clock_kind": (CLOCK_KIND if getattr(self, "clock_layer", None) is None
                            else _REGIONAL_CLOCK.CLOCK_KIND_REGIONAL),
@@ -1409,6 +1425,9 @@ class RunResult:
             # ---- 〔第 6 期 6-2 カレンダー 2〕会話とメッセージから生まれる予定(腕 arm のランだけ欄が立つ=既定のランの一番上の鍵は
             # 今のまま)。末尾=… → 6-4 の contact_c1 → 6-2 の calendar_2。記録だけ(final・behavior-hash は manifest を読まない) ----
             **_calendar2_field(getattr(self, "calendar2_layer", None)),
+            # ---- 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日(腕 arm のランだけ欄が立つ=既定のランの一番上の鍵は今のまま)。
+            # 末尾=… → calendar_2 → calendar_3。記録だけ(final・behavior-hash は manifest を読まない) ----
+            **_calendar3_field(getattr(self, "calendar3_layer", None)),
         }
 
     def economy_fields(self) -> dict[str, Any]:

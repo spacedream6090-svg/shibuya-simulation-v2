@@ -297,6 +297,14 @@ PATHS: Final[dict[str, str]] = {
         observed=("meter", "decisions", "promises", "responses", "initial", "forgot", "arrival", "plan_match",
                   "impossible", "read_delay_minutes", "outside_plan", "intentions", "rejected", "changes", "live_rows",
                   "calls")),
+    # ---- 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日(腕 arm のランだけ欄が立つ)。形の版・腕・試験用の印・口・組む形・労働時間の
+    # 行(読むだけ)・仲裁・店の決まり(枠)・仮の値の宣言=設定/計器・判断の数・雇い主の口の表・組んだ数・勤務日数の分布・休みの
+    # 申し出・C3 の連絡・勤務の行・遅れ・労働時間の行を超えた数・祝日・暦の常識・生きている控え・呼び数=観測。子の鍵は
+    # engine.calendar3.layer の CONFIG_KEYS・OBSERVED_KEYS と同じ=試験が突き合わせる ----
+    **_mixed("calendar_3", config=(
+        "schema", "arm", "trial", "port", "compose", "labor", "arbitration", "store_rules", "provisional"),
+        observed=("meter", "decisions", "roster", "composed", "work_days_per_week", "rest", "contacts", "rows", "late",
+                  "labor_over", "holiday", "common_knowledge", "live", "calls")),
 }
 
 

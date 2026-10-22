@@ -11,7 +11,8 @@
   届いた出来事の記録の id は行に持たない(〔1-3 の (1) の直し〕層の診断の表 ``ContactLayer._ct_event_of``=記録 on/off で行が同じ)。
 - ``_unseen``: 体 → ``[まだ System 1 に入れていない届いた数, 最初に届いた時刻]``(通知の刺激の素=その刻みに 1 回の刺激)。
 - ``_sent``: メッセージの番号 → ``[送った人, 道具, 送った時刻, 届け先の数, 読んだ数]``(既読の印=道具の性質)。
-- ``_held``: 電源の切れた体 → 網が預かっているメッセージ(電源が入ったら届く=本段は充電が無い=預かったまま)。
+- ``_held``: 電源の切れた体 → 網が預かっているメッセージ(電源が入ったら届く=〔つなぎ BR-CT1-CHARGE-AT-HOME〕家で充電して電源が
+  入った刻みに :meth:`Mailbox.release_held`)。
 - ``_pending``: 予約の鍵 → 窓の境目で届ける事象(送信=打ち終わり・着信)の行 ``[種類, 頼んだ時刻, 境目の時刻, …]``。進行役の待ち行列は捨ててよい(状態台帳の行 BW)=予約の
   中身はここに持ち、再開では組み立ての後の結び(``ContactLayer.bind_queue``)が待ち行列に入れ直す。
 - ``_ringing``: 着信中の体 → ``[かけた人, 鳴った時刻, かけた時刻]``・``_calling``: かけた体 → ``[相手, かけた時刻, 段 0=予約/1=鳴っている]``。
@@ -126,6 +127,22 @@ class Mailbox:
                 self._held.setdefault(int(r), []).append(row)
                 held.append(int(r))
         return got, held
+
+    def release_held(self, agents: Any, t_ns: int) -> list[list[Any]]:
+        """〔つなぎ BR-CT1-CHARGE-AT-HOME〕電源が入った体に網が預かっていたメッセージを届ける(届いた時刻=``t_ns``)。
+        → 届けた行 ``[体, メッセージの番号, 送った人, グループ, 道具]`` の列(体の番号の昇順・預かった順)。"""
+        out: list[list[Any]] = []
+        for a in sorted(int(x) for x in agents):  # 逐次: 電源が入った体の数ぶん
+            rows = self._held.pop(int(a), None)
+            if not rows:
+                continue
+            for row in rows:  # 逐次: 預かった行の数ぶん
+                row[_RECV] = int(t_ns)
+                self._inbox.setdefault(int(a), []).append(row)
+                u = self._unseen.setdefault(int(a), [0, int(t_ns)])
+                u[0] += 1
+                out.append([int(a), int(row[_MSG]), int(row[_SENDER]), int(row[_GROUP]), int(row[_VIA])])
+        return out
 
     def take_unseen(self) -> list[tuple[int, int, int]]:
         """System 1 に入れる「新しく届いた」体 ``(体, 数, 最初に届いた時刻)``(体の番号の昇順)。取ったら空にする。"""

@@ -260,9 +260,11 @@ def test_only_the_manifest_and_the_daily_record_import_the_table():
     """約束 (1): 規則の表を読んでも挙動は変わらない=読むのは manifest(run.py)と日次の記録(state_io.py)と、ランの始めに
     壊れた表で落とすための組み立て(systems/build.py=読むだけ・検収 L10)だけ。
     〔第 2 期 2-1〕最初の読み手 ``economy/anchors.py``(最低賃金・消費税の率=経済の段階 2 の腕のランだけが呼ぶ=既定の挙動は不変)。
-    〔第 4 期 4-2〕``economy/taxes.py``(税・社会保険・消費税の端数と期限・信用の上限・割増=machine の行の読み手)。"""
+    〔第 4 期 4-2〕``economy/taxes.py``(税・社会保険・消費税の端数と期限・信用の上限・割増=machine の行の読み手)。
+    〔第 6 期 6-2 カレンダー 3〕``engine/calendar3/layer.py``(労働時間の human の行を読むだけ=超えた数を記録=止めない・腕 arm の
+    ランだけ=既定の挙動は不変)。"""
     assert _readers() == {"engine/run.py", "engine/systems/state_io.py", "engine/systems/build.py", "economy/anchors.py",
-                          "economy/taxes.py"}
+                          "economy/taxes.py", "engine/calendar3/layer.py"}
 
 
 @pytest.mark.parametrize("src,module", [

@@ -55,6 +55,12 @@ calendar_2(新設・連絡の系の後=本人の予定の器・誘い・帳面�
 控え(行 ``CA2G``=``calendar2._turns``)は対面の会話の番の発話(decide と llm_receive)と通話の番とメッセージを送る判断(contact)が
 積む(腕のランだけ=既定では書かない)。close_final は層を結果に渡す。
 
+〔第 6 期 6-2 カレンダー 3〕雇い主・祝日(腕 ``--calendar-3 arm``・状態台帳の腕の行 ``CA3*``)を書く系: calendar_3(新設・連絡の系の
+後・カレンダー 2 の系の前=雇い主の記録・C3 の連絡の控え・帳面・計器・判断の出来事 ``E:events.*``・働く人の行=カレンダー 2 の
+器 ``CA2B:calendar2.book.*``・C3 の連絡を送る C1 の口=``CT1*:contact.*``・``BW:batching.*``・送る判断の会話の番の控え
+``CA2G:calendar2._turns``)。読んだ C3 の連絡の控え(行 ``CA3G``=``calendar3._reads``)は連絡の系の読む判断が積む(腕のランだけ)。
+close_final は層を結果に渡す。
+
 〔親の決め〕世界過程が持ち主をまたいで書く所(鉄道と大きな催しが計画実行層の O36・O37・O70 と鉄道の O74 を書く)は
 1-0 では宣言で認める(``world`` の ``writes.paths``)。
 
@@ -79,6 +85,7 @@ from shibuya.engine.systems import world as _WD
 from shibuya.engine.experiment import layer as _EXP
 from shibuya.engine.contact import layer as _CTL
 from shibuya.engine.calendar2 import layer as _CA2L
+from shibuya.engine.calendar3 import layer as _CA3L
 from shibuya.engine.systems.spec import SystemSpec, make
 
 __all__ = ["SYSTEMS", "SPECS", "TICK_ORDER"]
@@ -356,10 +363,21 @@ SYSTEMS: tuple[SystemSpec, ...] = (
     make("contact", "連絡", "tick", _CTL.sys_contact,
          # 〔検収 H1〕送信と着信の予約=系の中から進行役の待ち行列(行 BW)に書く
          paths="CT1*:contact.* E:events.* BW:batching.* "
-               "CA2G:calendar2._turns",  # 〔第 6 期 6-2 カレンダー 2〕通話の番とメッセージを送る判断の控え(腕 arm のランだけ)
+               "CA2G:calendar2._turns "  # 〔第 6 期 6-2 カレンダー 2〕通話の番とメッセージを送る判断の控え(腕 arm のランだけ)
+               "CA3G:calendar3._reads",  # 〔第 6 期 6-2 カレンダー 3〕読む判断で読んだ C3 の連絡の控え(腕 arm のランだけ)
          scratch_r="decision",
          when="contact", reads="layers.contact layers.conv layers.runner scratch.decision soa.agents soa.world",
          origin="第 6 期 6-4 C1(新設・HEAD の区間なし)"),
+    # 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日(腕 arm のランだけ立つ・連絡の系の後=その刻みに読んだ C3 の連絡が控えに積まれた後・
+    # カレンダー 2 の系の前=C3 の連絡を送る判断の会話の番の控えをカレンダー 2 が同じ刻みに読む)。書くのは持ち主 calendar3(状態台帳の
+    # 腕の行 CA3*)と出来事の記録(族 勤務)と、働く人の行(カレンダー 2 の器=行 CA2B)と、C3 の連絡を送る C1 の口(行 CT1*・BW・
+    # 送る判断の控え CA2G)
+    make("calendar_3", "暦", "tick", _CA3L.sys_calendar_3,
+         paths="CA3*:calendar3.* E:events.* CA2B:calendar2.book.* CT1*:contact.* BW:batching.* CA2G:calendar2._turns",
+         scratch_r="decision",
+         when="calendar3", reads="layers.calendar3 scratch.decision soa.agents soa.world "
+                                 "layers.contact layers.calendar2 layers.runner",  # 層が参照で読む持ち主
+         origin="第 6 期 6-2 カレンダー 3(新設・HEAD の区間なし)"),
     # 〔第 6 期 6-2 カレンダー 2〕会話とメッセージから生まれる予定(腕 arm のランだけ立つ・連絡の系の後=その刻みの会話の番と
     # メッセージを送る判断が控えに積まれた後・会話の終わり(会話の系と連絡の系の掃除)の後・記憶の系の前)。書くのは持ち主
     # calendar2(状態台帳の腕の行 CA2*)と出来事の記録(族 約束)と、本人が約束の場所へ歩く口(体の基本動作 begin_walk_to)
@@ -479,7 +497,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.calendar_self "  # 〔第 6 期 6-2〕カレンダー 1b を結果に渡す(manifest の末尾の calendar_1b)
                "layers.talk_clock layers.step_scope layers.clock "  # 〔第 6 期 6-3〕時計の段の腕の持ち主を結果に渡す
                "layers.contact "  # 〔第 6 期 6-4 C1〕連絡の道具を結果に渡す(manifest の contact_c1)
-               "layers.calendar2",  # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定を結果に渡す(manifest の calendar_2)
+               "layers.calendar2 "  # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定を結果に渡す(manifest の calendar_2)
+               "layers.calendar3",  # 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日を結果に渡す(manifest の calendar_3)
          origin=f"E1・run.py:4551-4592 @{_E}"),
     make("report", "計器", "run_end", _RP.report,
          tally="result sleep_counts frozen_sources_map",  # 段 FIX: 欄の別名 ``frozen_sources_map.update``

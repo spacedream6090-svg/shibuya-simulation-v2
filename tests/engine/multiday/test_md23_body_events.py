@@ -266,11 +266,13 @@ def test_word_tables_agree_with_the_memory_and_the_vocab():
     assert B.kind_of_what(V.code_of("過程:rail")) == 0
     # 〔第 6 期 6-4 C1〕体の過程の名の後ろに網の名 contact を足した
     # 〔第 6 期 6-2 カレンダー 2〕その後ろに予定の道具の名 calendar2 と約束の族を足した
-    assert V.BODY_PROCESSES == ("resolve", "conversation") and V.CAUSE_PROCESS_NAMES[-4:-2] == V.BODY_PROCESSES
-    assert V.CAUSE_PROCESS_NAMES[-2:-1] == V.CONTACT_PROCESSES == ("contact",)
-    assert V.CAUSE_PROCESS_NAMES[-1:] == V.CALENDAR2_PROCESSES == ("calendar2",)
-    assert B.WHAT_SIGNAGE == TR.SIGNBOARD_WHAT and V.FAMILIES[-3] == "知覚" and V.FAMILIES[-2] == "連絡"
-    assert V.FAMILIES[-1] == "約束"
+    # 〔第 6 期 6-2 カレンダー 3〕その後ろに勤務の予定の道具の名 calendar3 と勤務の族を足した
+    assert V.BODY_PROCESSES == ("resolve", "conversation") and V.CAUSE_PROCESS_NAMES[-5:-3] == V.BODY_PROCESSES
+    assert V.CAUSE_PROCESS_NAMES[-3:-2] == V.CONTACT_PROCESSES == ("contact",)
+    assert V.CAUSE_PROCESS_NAMES[-2:-1] == V.CALENDAR2_PROCESSES == ("calendar2",)
+    assert V.CAUSE_PROCESS_NAMES[-1:] == V.CALENDAR3_PROCESSES == ("calendar3",)
+    assert B.WHAT_SIGNAGE == TR.SIGNBOARD_WHAT and V.FAMILIES[-4] == "知覚" and V.FAMILIES[-3] == "連絡"
+    assert V.FAMILIES[-2] == "約束" and V.FAMILIES[-1] == "勤務"
 
 
 def test_m0l_is_an_arm_row_present_only_with_the_store():

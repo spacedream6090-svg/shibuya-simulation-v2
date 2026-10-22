@@ -51,11 +51,16 @@ def declared_check(specs: dict[str, SystemSpec], window_paths: frozenset[str] | 
 
     〔第 6 期 6-4 C1〕``window_paths``=窓の境目でほかに通す道筋。``None``(既定)は連絡の道具の腕 c1 が立っているときだけ
     :data:`WINDOW_PATHS`(送信と着信の境目の処理)・ほかは空=既定のランの窓の境目は前のまま行 ``BW`` の鍵だけを通す。
+    〔第 6 期 6-2 カレンダー 3〕腕 --calendar-3 arm が立っているときは :data:`WINDOW_PATHS_CA3`(網の打ち終わりの口 sent_sink が
+    送った判断の call_id の中身をメッセージの番号へ移す)も足す。
     """
     if window_paths is None:
+        from shibuya.engine.calendar3 import arm as _CA3A
         from shibuya.engine.contact import arm as _CTA
 
         window_paths = WINDOW_PATHS if _CTA.is_on() else frozenset()
+        if _CTA.is_on() and _CA3A.is_on():
+            window_paths = window_paths | WINDOW_PATHS_CA3
 
     def check(name: str, key: str) -> bool:
         if name == WINDOW_MARK:
@@ -89,6 +94,8 @@ WINDOW_MARK_KEYS: tuple[str, ...] = ("BW:", "TCC:", "T4W:")
 #: 〔第 6 期 6-4 C1〕窓の境目で届ける種類(連絡の道具の送信=打ち終わり・着信=``engine.contact.layer.ContactLayer.bind_queue``・
 #: 腕 c1 のランだけ)の処理が書く道筋(連絡の持ち主の腕の行 CT1*・出来事の記録)。窓の境目に帰属する(段 B で宣言の内)。
 WINDOW_PATHS: frozenset[str] = frozenset({"CT1*:contact.*", "E:events.*"})
+#: 〔第 6 期 6-2 カレンダー 3〕窓の境目の送信(打ち終わり)で網が C3 の連絡の控えを移す道筋(腕 --calendar-3 arm のランだけ)。
+WINDOW_PATHS_CA3: frozenset[str] = frozenset({"CA3P:calendar3._out", "CA3P:calendar3._msg"})
 
 #: 試験(T4)のとき真: 刻みの頭で scratch を番兵で埋め、その刻みに書かれる前に読むと落とす。
 STRICT_SCRATCH: bool = False
@@ -109,6 +116,8 @@ WHEN = {
     "contact": lambda b: b.layers.contact is not None,
     # 〔第 6 期 6-2 カレンダー 2〕腕 arm のランだけ(既定のランでは系 calendar_2 が立たない=結果不変)
     "calendar2": lambda b: b.layers.calendar2 is not None,
+    # 〔第 6 期 6-2 カレンダー 3〕腕 arm のランだけ(既定のランでは系 calendar_3 が立たない=結果不変)
+    "calendar3": lambda b: b.layers.calendar3 is not None,
 }
 
 

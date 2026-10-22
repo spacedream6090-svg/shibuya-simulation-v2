@@ -1332,6 +1332,55 @@ _EXT: tuple[LedgerRow, ...] = (
              "軸 1 behavior・積んだ額は作り直せない=軸 2 required。書く系は phase_c(レジ)・day_close と close_final(期限の"
              "納付)=宣言 TXD:ledger.*。累計(積んだ・移した・移せなかった)は保存則の検算(economy.checks.tax_deposit_check)の"
              "材料=再開の後も通しと同じ。行の鍵は TXD"),
+    # ---- 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日(C3 職場の連絡と束ねる・腕 --calendar-3 arm): 足す前に軸を決めた行(腕の行=
+    # 腕 arm のランだけ持ち主がある=既定のランの 2 つのハッシュと状態のファイルは不変) ----
+    LedgerRow(
+        key="CA3S", name="Calendar3Layer の雇い主の記録(組んだ週・組んだシフト・第 6 期 6-2 カレンダー 3)", place=EXTERNAL,
+        dtype="dict(単位 → 週の最初の日)・dict(単位 → {働く人: [[日, 枠の番号]]})・dict(シフトを組む人 → 週の最初の日)",
+        nbytes="働く人 1 人 1 週 7 組", alloc="--calendar-3 arm", behavior=BEHAVIOR, restore=REQUIRED, dead=False,
+        basis="engine/calendar3/layer.py(_begin_compose・_compose・_answer・_due_units・_act)",
+        items=("calendar3._composed", "calendar3._plan", "calendar3._compose_due"), arm="calendar-3",
+        note="6-2 カレンダー 3: 雇い主が組んだシフト(自分の記録)と組んだ週が、次に組むかと休みの申し出の返事の後の記録を決める="
+             "軸 1 behavior・作り直せない=軸 2 required。書く系は calendar_3 だけ(宣言 CA3*:calendar3.*)。行の鍵は CA3S"),
+    LedgerRow(
+        key="CA3P", name="Calendar3Layer の C3 の連絡の控え・帳面・勤務の行の表・知らせの印・通し番号(第 6 期 6-2 カレンダー 3)",
+        place=EXTERNAL, dtype="dict(call_id → 中身)・dict(メッセージの番号 → 中身)・dict(体 → 中身)・dict(体 → 中身の列)・"
+                              "dict(刻み → [[種類, 行]])・dict(行 → [働く人, 単位, 雇い主, 日])・dict(体 → 行の列)・list[int]",
+        nbytes="中身 1 つ約 200 B", alloc="--calendar-3 arm", behavior=BEHAVIOR, restore=REQUIRED, dead=False,
+        basis="engine/calendar3/layer.py(note_sent・_send・_poll_calls・_deliver・_write_rows・_schedule_row・_agenda_step・"
+              "_act・_prune・run_step)",
+        items=tuple(f"calendar3.{a}" for a in ("_out", "_msg", "_calls", "_wait", "_agenda", "_work_rows", "_noticed", "_next",
+                                               "_days")),
+        arm="calendar-3",
+        note="6-2 カレンダー 3: 送った/送れなかった/電話の C3 の連絡の中身・本人が選んだ知らせの時刻と行の終わりの帳面・勤務の行の"
+             "雇い主と単位・知らせが鳴った行は、どれも次の判断と記録を決める=軸 1 behavior・作り直せない=軸 2 required。送った判断の "
+             "call_id → メッセージの番号は網の打ち終わり(窓の境目=C1 の _send_now の口 sent_sink)が移す。書く系は calendar_3。"
+             "行の鍵は CA3P"),
+    LedgerRow(
+        key="CA3G", name="Calendar3Layer が系の間と刻みの間に渡す値(読んだ C3 の連絡の控え・仲裁で回した考えた体・第 6 期 6-2)",
+        place=EXTERNAL, dtype="list[[体, メッセージの番号, 送った人, グループ, 道具]]・dict(体 → 刻み)", nbytes="",
+        alloc="--calendar-3 arm", behavior=BEHAVIOR, restore=REQUIRED, dead=False,
+        basis="engine/calendar3/layer.py(note_read・run_step・_opportunities)・engine/contact/layer.py(_read)",
+        items=("calendar3._reads", "calendar3._think"), arm="calendar-3",
+        note="6-2 カレンダー 3: 読んだ C3 の連絡の控えは連絡の系の読む判断(宣言 CA3G:calendar3._reads)が積み、同じ刻みの系 "
+             "calendar_3 が読む(刻みの境目では空)。仲裁で次の刻みに回した考えた体は刻みをまたぐ。どちらも判断を決める=behavior・"
+             "一緒に保存する=軸 2 required。行の鍵は CA3G"),
+    LedgerRow(
+        key="CA3M", name="カレンダー 3 の計器(計数・分布・休みの申し出の出来事の id・第 6 期 6-2)", place=EXTERNAL,
+        dtype="計数の dict・分布の dict・dict(申し出の番号 → 出来事の id)", nbytes="", alloc="--calendar-3 arm",
+        behavior=DIAG, restore=REQUIRED, dead=False, basis="engine/calendar3/layer.py(_bump・_hist_add・_ask_rest・manifest)",
+        items=("calendar3._c3_meter", "calendar3._c3_hist", "calendar3._c3_event_of"), arm="calendar-3",
+        note="6-2 カレンダー 3: 読み手は manifest の calendar_3 と試験だけ=軸 1 diag。再開した後も計器が通しと同じ=軸 2 required"
+             "(カレンダー 2 の CA2M と同じ形)。休みの申し出の出来事の id(返事の判断の入力の目印=原因の表だけが読む)もここ=記録の"
+             "有無で behavior の行が変わらない(口の約束 1-3 の (1))"),
+    LedgerRow(
+        key="CA3Q", name="発行したカレンダー 3 の判断の呼びの控えと呼び数(監査の突き合わせ・第 6 期 6-2)", place=EXTERNAL,
+        dtype="i8 の配列(刻み・体・通し番号を詰めた整数)・list[int](控えの数・判断の呼び・文の口の呼び)",
+        nbytes="1 回 8 B", alloc="--calendar-3 arm", behavior=DIAG, restore=REQUIRED, dead=False,
+        basis="engine/calendar3/layer.py(_issue・issued_keys・model_calls・audit_causes)",
+        items=("calendar3._c3_issued", "calendar3._c3_issued_n"), arm="calendar-3",
+        note="6-2 カレンダー 3: 読み手は監査(試験と記録の道具)と manifest・calls_by_model だけ=軸 1 diag。再開したランの監査が"
+             "通しと同じ=軸 2 required(CA2Q と同じ形)"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -1525,6 +1574,8 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "calendar2.book": ("engine/calendar2/book.py", "PromiseBook"),
     # 〔第 4 期 4-2〕店の預かり消費税(状態台帳の腕の行 TXD・腕 SHIBUYA_RULES_42=on のランだけ)
     "ledger.money.stage2.tax_deposit": ("economy/tax_deposit.py", "TaxDeposit"),
+    # 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日(状態台帳の腕の行 CA3*・腕 --calendar-3 arm のランだけ)
+    "calendar3": ("engine/calendar3/layer.py", "Calendar3Layer"),
 }
 
 #: (ii) キャッシュ・導出。中身は 3 通り: (a) 毎 tick(か事象のある tick)作り直す作業の値・印
@@ -1887,6 +1938,8 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("contact", CONST, _FIELD + "(6-4 C1: 腕の行の腕の名 LEDGER_ARM・主の判断の候補に足す語 MAIN_LOOK_WORD)", "LEDGER_ARM",
        "MAIN_LOOK_WORD"),
     _x("contact", CONST, _CFG + "(6-4 C1 検収 M5: 判断の口の腕のランか=組み立てが 1 回だけ置く)", "main_offer"),
+    _x("contact", CONST, _CFG + "(〔つなぎ BR-CT1-CHARGE-AT-HOME〕体 → 住まいのセル=母集団の予定表の写し・組み立てが 1 回だけ置く)",
+       "home_cell"),
     _x("contact", REF, _REFR + "(6-4 C1: 出来事の記録・体・世界・対面の会話・判断の口・文の口・宛先の読み口・進行役の待ち行列・"
        "描画=連絡の行の計数を manifest に写すだけ)", "events", "agents", "world", "conv", "port", "text", "book", "_queue",
        "renderer"),
@@ -1924,6 +1977,22 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "agents", "world", "calendar", "conv", "contact", "runner", "port", "recall"),
     _x("calendar2", CACHE, "6-2 カレンダー 2: その刻みの体ごとの判断の通し番号(刻みの頭で空)", "_codes"),
     _x("calendar2.book", CONST, _FIELD + "(6-2 カレンダー 2: 腕の行の腕の名 LEDGER_ARM)", "LEDGER_ARM"),
+    # 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日の持ち主の設定・参照・作業の値と、連絡の道具に挿す控えの口
+    _x("contact", REF, "〔第 6 期 6-2 カレンダー 3〕送った/読んだメッセージの控えの口(組み立てが腕 --calendar-3 arm のランだけ "
+       "Calendar3Layer.note_sent・note_read を差し込む・関数・状態はカレンダー 3 の持ち主の側=状態台帳の行 CA3P・CA3G)",
+       "sent_sink", "read_sink"),
+    _x("calendar3", CONST, _CFG + "(6-2 カレンダー 3: 体の数・刻みの幅・1 日の刻みの数=組み立てが 1 回だけ置く)", "n",
+       "step_seconds", "step_ns", "steps_per_day", "day_ns"),
+    _x("calendar3", CONST, _FIELD + "(6-2 カレンダー 3: 腕の行の腕の名 LEDGER_ARM)", "LEDGER_ARM"),
+    _x("calendar3", CONST, _CFG + "(6-2 カレンダー 3: 労働時間の行の値(規則の表の human の行を読んだ写し)・試験用の印=組み立てが"
+       "1 回だけ置く)", "labor", "trial"),
+    _x("calendar3", REF, _REFR + "(6-2 カレンダー 3: 出来事の記録・体・世界・暦・連絡の道具・カレンダー 2(本人の予定の器)・世界過程"
+       "=読むだけ・雇い主の口の表を作る口・判断の口・暦の常識の口・店の決まりの口)",
+       "events", "agents", "world", "calendar", "contact", "calendar2", "runner", "roster_fn", "port", "cc", "rules"),
+    _x("calendar3", CACHE, "〔6-2 カレンダー 3 検収 H1〕雇い主の口の表とシフトを組む人 → 受け持つ単位(権利台帳の雇用の行・W20・役割の"
+       "語から作る導出=組み立てでは作らず最初の刻みの頭に作る=再開では状態を戻して権利台帳を作り直した rebuild_derived の後に"
+       "作り直す=通しと同じ台帳・同じ並びの単位)", "roster", "sched_units"),
+    _x("calendar3", CACHE, "6-2 カレンダー 3: その刻みの体ごとの判断の通し番号(刻みの頭で空)", "_codes"),
     _x("ledger.money.stage2.tax_deposit", CONST, _CFG + "(4-2: 店の数)・" + _FIELD + "(4-2: 腕の行の腕の名 LEDGER_ARM)",
        "n", "LEDGER_ARM"),
 )

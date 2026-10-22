@@ -297,6 +297,7 @@
  "report": [],
  "experiment": [],
  "contact": [],
+ "calendar_3": [],
  "calendar_2": [
   "agents.activity",
   "agents.board_line",
