@@ -33,6 +33,8 @@ def test_resume_check_uses_the_effective_arm(monkeypatch):
 
     if ER.arm() != ER.ARM_OFF:
         want["rules_42"] = ER.arm()
+        if ER.arm_42b() != ER.ARM_OFF:  # 〔第 4 期 4-2b〕空欄 3 件を埋めた値の腕(off の見出しは 4-2 のまま)
+            want["rules_42b"] = ER.arm_42b()
     ES2.check_resume(want)
     with pytest.raises(ValueError):
         ES2.check_resume(want, effective=False)

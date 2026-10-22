@@ -1,0 +1,215 @@
+{
+ "config": "w6_v3_default",
+ "rules_42b": "(既定)",
+ "events": "(既定)",
+ "resume_stop": null,
+ "final": "a5a3eb6f62efae57",
+ "final_full": "a5a3eb6f62efae5787df5d996ba71c8acab0f17d1009490a2e89d1758732e053",
+ "src_is_worktree": true,
+ "checkpoints_behavior": [
+  "1380fd3228d52e57",
+  "86285de8f50538b9",
+  "f048d6005ea9fde3",
+  "cca30c324b2b0098",
+  "bdc509057a88843e",
+  "7fe126db48a80997",
+  "6541d7a0a541fecc",
+  "a5a3eb6f62efae57"
+ ],
+ "checkpoints_full": [
+  "67bab80266ad0437",
+  "659b62020506bd5c",
+  "5fbf640a50d9d48e",
+  "25177e9295afaa5f",
+  "79c48119e217337d",
+  "21b80988231eaa04",
+  "a9da04ddc5a451dd",
+  "0e51b680e2b3feb9"
+ ],
+ "llm_calls": 143286,
+ "wall_s": 72.2,
+ "peak_rss_bytes": 512040960,
+ "run_wall_s": 71.77,
+ "wages": {
+  "paydays": 1,
+  "paid": 2726,
+  "amount": 897159093,
+  "unpaid": 0,
+  "unpaid_amount": 0,
+  "funding": 733243032,
+  "deductions": 0,
+  "no_hours": 0,
+  "outside_employer": 0,
+  "employer_rows": 1945,
+  "store_rows": 66,
+  "outside_employer_paid": 715,
+  "outside_employer_amount": 241508385,
+  "employee_rows": 2719,
+  "employee_amount": 182754344,
+  "employer_share_rows": 995,
+  "employer_share_amount": 77592324,
+  "net_amount": 714404749,
+  "deduction_unpaid": 0,
+  "deduction_unpaid_amount": 0,
+  "enrolled_social": 2159,
+  "enrolled_care": 1049,
+  "enrolled_employment": 2263,
+  "no_basis": 226,
+  "over_gross": 0,
+  "outside_employer_share_not_recorded": 36510083,
+  "employee_health": 39664306,
+  "employee_child_support": 851247,
+  "employee_pension": 64497435,
+  "employee_employment": 3854131,
+  "employee_income_tax": 30697050,
+  "employee_resident_tax": 43190175,
+  "employer_health": 26972211,
+  "employer_child_support": 580165,
+  "employer_pension": 43817520,
+  "employer_employment": 4498460,
+  "employer_child_care_contribution": 1723968,
+  "enrolled_pension": 2109,
+  "age_70_plus": 120,
+  "age_75_plus": 52,
+  "minors": 19,
+  "resident_non_taxable": 0
+ },
+ "flows": {
+  "wage_E_H": 634445184,
+  "wage_S_H": 21205524,
+  "wage_W_H": 241508385,
+  "funding_W_E": 712037508,
+  "funding_W_S": 21205524,
+  "tax_H_G": 182754344,
+  "tax_E_G": 77592324,
+  "tax_S_G": 0
+ },
+ "government_cash": 260346668,
+ "household_deposit_total": 1438282973,
+ "rules": {
+  "payroll_deductions": {
+   "asof": "2026-08-25",
+   "sources": {
+    "income_tax": "rules:income_tax.withholding_monthly@2026-01-01",
+    "resident_tax": "rules:resident_tax.special_collection_tokyo_ward@2026-06-01",
+    "health": "rules:health_insurance.kyoukai_tokyo@2026-03-01",
+    "child_support": "rules:child_support_levy.rate@2026-04-01",
+    "pension": "rules:pension.employees_rate@2017-09-01",
+    "employment": "rules:employment_insurance.rate_general@2026-04-01",
+    "basic_deduction": "rules:resident_tax.basic_deduction@2026-06-01",
+    "adjustment_credit": "rules:resident_tax.adjustment_credit_tokyo_ward@2026-06-01",
+    "non_taxable": "rules:resident_tax.non_taxable_tokyo_ward@2026-06-01",
+    "child_care_contribution": "rules:child_care_contribution.rate@2025-04-01"
+   },
+   "age_max_exclusive": {
+    "pension": 70,
+    "health": 75
+   }
+  }
+ },
+ "plan_rules_42b": "on",
+ "days": [
+  {
+   "day": 0,
+   "conservation": {
+    "faucet": 1133339611,
+    "sink": 685961,
+    "internal": 744469244,
+    "unregistered": 0,
+    "delta_money": 1132653650,
+    "residual": 0,
+    "residual_code": 0,
+    "ok": true
+   },
+   "deposit_check": {
+    "collected": 686409,
+    "remitted": 0,
+    "held": 686409,
+    "residual": 0,
+    "ok": true
+   }
+  },
+  {
+   "day": 1,
+   "conservation": {
+    "faucet": 974751417,
+    "sink": 261299476,
+    "internal": 1745237805,
+    "unregistered": 0,
+    "delta_money": 713451941,
+    "residual": 0,
+    "residual_code": 0,
+    "ok": true
+   },
+   "deposit_check": {
+    "collected": 1192445,
+    "remitted": 0,
+    "held": 1192445,
+    "residual": 0,
+    "ok": true
+   }
+  }
+ ],
+ "conserved": true,
+ "phase_seconds": {
+  "presence": 0.46,
+  "detect": 0.76,
+  "arbiter": 0.52,
+  "llm": 47.55,
+  "fleet_wait": 0.0,
+  "phase_a": 3.5,
+  "phase_b": 0.35,
+  "phase_c": 5.0,
+  "movement": 0.36,
+  "movement_cpu": 0.22,
+  "checkpoint": 0.06,
+  "group_norms": 1.22,
+  "group_norms_tick_ms_max": 2.41
+ },
+ "paydays_captured": 1,
+ "verify": [
+  {
+   "asof": "2026-08-25",
+   "rows": 2726,
+   "mismatch_rows_by_item": {
+    "health": 0,
+    "child_support": 0,
+    "pension": 0,
+    "employment": 0,
+    "income_tax": 0,
+    "resident_tax": 0,
+    "er_health": 0,
+    "er_child_support": 0,
+    "er_pension": 0,
+    "er_employment": 0,
+    "er_child_care_contribution": 0
+   },
+   "mismatch_total": 0,
+   "recomputed_employee_total": 182754344,
+   "recomputed_employer_total": 114102407,
+   "code_employee_total": 182754344,
+   "code_employer_total": 114102407,
+   "code_employee_total_paid_rows": 182754344,
+   "code_employer_total_inside_paid_rows": 77592324,
+   "code_employer_total_outside_paid_rows": 36510083,
+   "child_care_total": 2537604,
+   "child_care_rows": 2109,
+   "resident_exempt_recomputed": 0,
+   "resident_exempt_code": 0,
+   "age_dist": {
+    "unknown": 0,
+    "lt18": 19,
+    "18_39": 1218,
+    "40_64": 1277,
+    "65_69": 92,
+    "70_74": 68,
+    "75_plus": 52
+   },
+   "affected": {
+    "pension_age_out": 90,
+    "health_age_out": 40,
+    "minors_paid": 19
+   }
+  }
+ ]
+}

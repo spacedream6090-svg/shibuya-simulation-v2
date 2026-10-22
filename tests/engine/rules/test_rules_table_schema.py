@@ -14,6 +14,7 @@ import ast
 import dataclasses
 import datetime as dt
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -49,7 +50,8 @@ def test_the_repo_table_has_three_real_rules():
     # 〔第 3 期 3-1〕労働基準法 35 条の週 1 日の休日(親の判断 第337 中 2)を足した
     # 〔賃金の小さな版上げ・第337 親の一次確認〕東京都の最低賃金の前の 2 版(1,163 円・1,226 円)を足した=4 → 6
     # 〔第 4 期 4-2〕R-118 の 19 行と消費税の申告の期限の 1 行を足した=6 → 26(id 4 → 24・試験 test_rules42_table.py)
-    assert len(rules) == 26 and len(rules.ids()) == 24
+    # 〔第 4 期 4-2b〕空欄 3 件を埋めた 4 行(住民税の基礎控除・調整控除・非課税・子ども・子育て拠出金)=26 → 30(id 24 → 28)
+    assert len(rules) == 30 and len(rules.ids()) == 28
     assert [(r.asof, r.params["yen_per_hour"]) for r in rules.versions("minimum_wage.tokyo")] == [
         ("2024-10-01", 1163), ("2025-10-03", 1226), ("2026-10-01", 1280)]
     for r in rules:
@@ -80,6 +82,14 @@ PARENT_PRIMARY_CHECK: dict[str, str] = {
 }
 
 
+#: 〔第 4 期 4-2b〕R-118 §10-2(親の宿題=4-2 の空欄の一次確認・2026-10-22)の本文と、その出典の取得日。
+R118_10_2 = R118.split("### §10-2", 1)[1]
+R118_10_2_RETRIEVED = "2026-10-22"
+#: 〔4-2b 検収 低 1〕親は e-Gov 法令 API を asof なしで条を指して読んだ=URL は ``?elm=MainProvision-Article_<条>``・版は文で。
+R118_10_2_URL = r"^https://laws\.e-gov\.go\.jp/api/2/law_data/{law_id}\?elm=MainProvision-Article_\d+(_\d+)?$"
+R118_10_2_VERSION = r"(\d{{4}}-\d{{2}}-\d{{2}}) 施行の版\(2026-10-22 取得\)$"
+
+
 def test_sources_are_copied_from_the_research_tables():
     """写し検査: e-Gov の法令 ID と版は R-106 §0-2 の表の同じ行にある・URL は答申の本文にある(親の一次確認の出典は
     :data:`PARENT_PRIMARY_CHECK` の日付と同じ取得日)。〔第 4 期 4-2〕世界の時点の版(URL が asof=2026-07-13)の出典は
@@ -89,6 +99,11 @@ def test_sources_are_copied_from_the_research_tables():
         for s in r.source:
             if s.law_id and s.url.endswith("?asof=2026-07-13"):
                 assert s.url == f"https://laws.e-gov.go.jp/api/2/law_data/{s.law_id}?asof=2026-07-13"
+            elif s.law_id and s.retrieved == R118_10_2_RETRIEVED:
+                # 〔第 4 期 4-2b〕R-118 §10-2(親の一次確認)の出典=法令名と読んだ版(施行日)が §10-2 の本文にある
+                m = re.search(R118_10_2_VERSION.format(), s.version)
+                assert m and s.law in R118_10_2 and f"{m.group(1)} 施行の版" in R118_10_2, (r.id, s.law, s.version)
+                assert re.match(R118_10_2_URL.format(law_id=s.law_id), s.url), (r.id, s.url)
             elif s.law_id:
                 assert s.law_id in rows, (r.id, s.law_id)
                 assert s.version in rows[s.law_id], (r.id, s.law_id, s.version)

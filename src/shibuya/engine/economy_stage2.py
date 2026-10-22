@@ -164,6 +164,8 @@ def header_fields(plan: Any) -> dict[str, Any] | None:
     out["wage"] = str(getattr(plan, "wage_model", DEFAULT_WAGE))  # 〔賃金の小さな版上げ〕賃金の道
     if getattr(plan, "law", None) is not None:  # 〔第 4 期 4-2〕腕 off のランの見出しは今のまま
         out["rules_42"] = "on"
+        if bool(getattr(plan.law, "rules_42b", True)):  # 〔第 4 期 4-2b〕腕 off のランの見出しは 4-2 のまま
+            out["rules_42b"] = "on"
     return out
 
 
@@ -195,6 +197,11 @@ def check_resume(saved: Any, *, effective: bool = True) -> None:
     if now_arm == ARM_ON and s_law != _ER.arm():
         raise ValueError(f"再開の規則の表の中身の腕が親と違う(親 rules_42={s_law}・今 {_ER.arm()})=環境変数 "
                          "SHIBUYA_RULES_42 を親にそろえる")
+    # 〔第 4 期 4-2b〕空欄 3 件を埋めた値の腕(見出しに無い=off=4-2 の値の状態・規則の表の中身の腕が on のランだけ)
+    s_42b = str(s.get("rules_42b", _ER.ARM_OFF))
+    if now_arm == ARM_ON and _ER.arm() == _ER.ARM_ON and s_42b != _ER.arm_42b():
+        raise ValueError(f"再開の規則の表の空欄 3 件の腕が親と違う(親 rules_42b={s_42b}・今 {_ER.arm_42b()})=環境変数 "
+                         f"{_ER.ENV_42B} を親にそろえる")
 
 
 # ================================================================ ATM の表(Fixtures.atms)

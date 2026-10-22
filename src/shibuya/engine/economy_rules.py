@@ -9,6 +9,12 @@
 状態のファイルとハッシュには、腕の行(状態台帳 ``TXD``=店の預かり消費税)が持ち主の居るランだけ入る=``off`` のランは
 腕を足す前と同じバイト。
 
+〔第 4 期 4-2b〕腕(旧道の切替口): 環境変数 ``SHIBUYA_RULES_42B`` {``on``,``off``}(:func:`set_arm_42b`・既定 ``on``)。
+``on``=規則の表の空欄 3 件を埋めた値(R-118 §10-2=住民税の基礎控除・調整控除・非課税/厚年 70 歳・健保 75 歳の年齢の上限/
+子ども・子育て拠出金 0.36%=事業主だけ)で天引きする。``off``=4-2 の値(f27377a)の再現=**次の版上げで消す**(つなぎの台帳
+``DOC-rules42b-legacy-switch``)。``SHIBUYA_RULES_42=on`` のランだけに効く(off なら天引きそのものが無い)。組み立てで読み、
+:class:`PayrollInputs` の ``rules_42b`` に載せる(経済の側は ``economy.taxes.payroll_tables`` の ``r42b`` で値を選ぶ)。
+
 加入の判定の材料(:class:`PayrollInputs`=engine は economy を import できない=値だけ渡す):
 
 - 役割と週の時間の目安: 差し替えの世界の初期の権利の表 ``w21_rights_initial.parquet`` の雇用の行(体 → 組織)の ``role``・
@@ -17,7 +23,7 @@
 - 雇用主の被保険者の数: 同じ表の組織ごとに、週の時間の目安が「通常の労働者の 4 分の 3」以上で役割が雇われる側の行の数
   (母集団の全体=縮小ランの抽出によらない)。短時間の加入(特定適用事業所=被保険者 51 人以上・R-118 §2-3)の判定に使う。
 - 学生: 体の種別 ``STUDENT``(W16 の種別)だけ(W21 の通学の欄は住民の表だけにある=使っていない=宣言)。
-- 年齢: 母集団の ``age``(介護保険 40〜64 歳)。
+- 年齢: 母集団の ``age``(介護保険 40〜64 歳・〔4-2b〕厚年 70 歳・健保 75 歳の上限と住民税の未成年者の非課税)。
 
 逐次ループ宣言: なし(組み立てで 1 回・配列演算。役割の語の種類の数だけの Python ループ)。
 """
@@ -34,7 +40,8 @@ import numpy as np
 
 __all__ = [
     "ARM_ON", "ARM_OFF", "ARMS", "DEFAULT_ARM", "arm", "set_arm", "RIGHTS_INITIAL_FILE", "PayrollInputs",
-    "payroll_inputs", "FULL_TIME_WEEKLY_HOURS", "NON_EMPLOYEE_ROLES",
+    "payroll_inputs", "FULL_TIME_WEEKLY_HOURS", "NON_EMPLOYEE_ROLES", "ENV_42B", "DEFAULT_ARM_42B", "arm_42b",
+    "set_arm_42b",
 ]
 
 ARM_ON: Final[str] = "on"
@@ -44,6 +51,12 @@ DEFAULT_ARM: Final[str] = ARM_ON
 _ARM: str = os.environ.get("SHIBUYA_RULES_42", DEFAULT_ARM).strip().lower() or DEFAULT_ARM
 if _ARM not in ARMS:
     raise ValueError(f"SHIBUYA_RULES_42 は {ARMS} のどれか(いま {_ARM!r})")
+#: 〔第 4 期 4-2b〕空欄 3 件を埋めた値の腕の環境変数(旧道の切替口=次の版上げで消す)。
+ENV_42B: Final[str] = "SHIBUYA_RULES_42B"
+DEFAULT_ARM_42B: Final[str] = ARM_ON
+_ARM_42B: str = os.environ.get(ENV_42B, DEFAULT_ARM_42B).strip().lower() or DEFAULT_ARM_42B
+if _ARM_42B not in ARMS:
+    raise ValueError(f"{ENV_42B} は {ARMS} のどれか(いま {_ARM_42B!r})")
 
 #: 差し替えの世界の初期の権利の表(W21b・役割と週の時間の目安を持つ)。
 RIGHTS_INITIAL_FILE: Final[str] = "w21_rights_initial.parquet"
@@ -67,6 +80,19 @@ def set_arm(name: str) -> None:
     _ARM = str(name)
 
 
+def arm_42b() -> str:
+    """〔第 4 期 4-2b〕いまの腕(``on``=既定=空欄 3 件を埋めた値・``off``=4-2 の値の再現)。組み立てのときに読む。"""
+    return _ARM_42B
+
+
+def set_arm_42b(name: str) -> None:
+    """〔第 4 期 4-2b〕腕を選ぶ(試験と byte-check の切替口)。"""
+    global _ARM_42B
+    if str(name) not in ARMS:
+        raise ValueError(f"{ENV_42B} は {ARMS} のどれか(いま {name!r})")
+    _ARM_42B = str(name)
+
+
 @dataclass(frozen=True)
 class PayrollInputs:
     """給与の天引きの加入の判定の材料(体ごと・読むだけ)。
@@ -81,6 +107,8 @@ class PayrollInputs:
         age: 年齢(−1=不明)。
         source: 材料の出どころ(``w21_rights_initial`` か ``absent``・``no_population``)。
         matched: 材料のある体の数(計器)。
+        rules_42b: 〔第 4 期 4-2b〕空欄 3 件を埋めた値で天引きするか(組み立てのときの腕 ``SHIBUYA_RULES_42B``・
+            直に作るときの既定は真=既定の腕と同じ)。
     """
 
     role_code: np.ndarray
@@ -91,6 +119,7 @@ class PayrollInputs:
     age: np.ndarray
     source: str
     matched: int = 0
+    rules_42b: bool = True
 
     def __post_init__(self) -> None:
         for name in ("role_code", "weekly_hours", "employer_insured", "student", "age"):
@@ -127,7 +156,7 @@ class PayrollInputs:
 def _empty(n: int, kinds: Any, age: Any, source: str) -> PayrollInputs:
     return PayrollInputs(role_code=np.full(n, -1, np.int16), role_vocab=(), weekly_hours=np.full(n, np.nan, np.float32),
                          employer_insured=np.full(n, -1, np.int32), student=_student(kinds, n), age=_age(age, n),
-                         source=source)
+                         source=source, rules_42b=_ARM_42B == ARM_ON)
 
 
 def _student(kinds: Any, n: int) -> np.ndarray:
@@ -204,4 +233,4 @@ def payroll_inputs(pop: Any, world_dir: Any, n_agents: int, kinds: Any) -> Payro
     ei[got] = np.where(o < insured.size, insured[np.clip(o, 0, max(insured.size - 1, 0))], 0).astype(np.int32)
     return PayrollInputs(role_code=rc, role_vocab=vocab, weekly_hours=wh, employer_insured=ei,
                          student=_student(kinds, n), age=_age(age, n), source="w21_rights_initial",
-                         matched=int(got.size))
+                         matched=int(got.size), rules_42b=_ARM_42B == ARM_ON)

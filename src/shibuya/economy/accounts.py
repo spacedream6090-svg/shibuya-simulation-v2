@@ -386,6 +386,7 @@ FLOW_REGISTRY: Final[tuple[RegisteredFlow, ...]] = (
     RegisteredFlow("消費税", AccountCode.TAX, _S, _G, FlowKind.SINK, "2", "stage2.purchase"),
     # 〔第 4 期 4-2〕給与の天引き(本人の分=世帯の口座 → 政府・雇用主の分=雇用主・店 → 政府)と、店の預かり消費税の納付
     # (Q1=申告の期限に店 → 政府)。腕 SHIBUYA_RULES_42=off のランは 4-2 の前のまま(器=0・消費税は売った時点)
+    # 〔第 4 期 4-2b〕子ども・子育て拠出金(事業主だけ)は雇用主の分に足して同じ「雇用主 → 政府」の流れで移す(新しい登録なし)
     RegisteredFlow("給与の天引き(本人 → 政府)", AccountCode.TAX, _H, _G, FlowKind.SINK, "2", "stage2._payroll_law"),
     RegisteredFlow("給与の天引き(雇用主 → 政府)", AccountCode.TAX, _E, _G, FlowKind.SINK, "2", "stage2._payroll_law"),
     RegisteredFlow("給与の天引き(店の担当従業者の雇用主 → 政府)", AccountCode.TAX, _S, _G, FlowKind.SINK, "2",

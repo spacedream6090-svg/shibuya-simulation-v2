@@ -9,9 +9,15 @@
 |---|---|---|
 | ``income_tax.withholding_monthly`` | :func:`income_tax_withholding`(電算機計算の特例・甲欄・扶養 0 人=Q7) | 給料日 |
 | ``resident_tax.special_collection_tokyo_ward`` | :func:`resident_tax_monthly`(前年の所得=月の賃金 × 12=Q4) | 給料日 |
-| ``health_insurance.kyoukai_tokyo`` | :func:`deductions`(健保+介護 40〜64 歳・等級表・折半・50 銭)| 給料日 |
+| ``resident_tax.basic_deduction``(4-2b) | :func:`resident_tax_monthly`(基礎控除 43/29/15 万円・0) | 給料日 |
+| ``resident_tax.adjustment_credit_tokyo_ward``(4-2b) | :func:`resident_tax_monthly`(調整控除 5%) | 給料日 |
+| ``resident_tax.non_taxable_tokyo_ward``(4-2b) | :func:`resident_tax_monthly`(非課税 45 万円・未成年者 135 万円) | 給料日 |
+| ``health_insurance.kyoukai_tokyo`` | :func:`deductions`(健保+介護 40〜64 歳・等級表・折半・50 銭)・:func:`enrollment`
+  (〔4-2b〕``age_max_exclusive``=75 歳未満)| 給料日 |
 | ``child_support_levy.rate`` | :func:`deductions`(健保の標準報酬・折半・50 銭) | 給料日 |
-| ``pension.employees_rate`` | :func:`deductions`(厚年の等級表・折半・50 銭) | 給料日 |
+| ``pension.employees_rate`` | :func:`deductions`(厚年の等級表・折半・50 銭)・:func:`enrollment`
+  (〔4-2b〕``age_max_exclusive``=70 歳未満) | 給料日 |
+| ``child_care_contribution.rate``(4-2b) | :func:`deductions`(厚年の標準報酬 × 率・事業主だけ・切り捨て) | 給料日 |
 | ``employment_insurance.rate_general`` | :func:`deductions`(賃金の総額 × 率) | 給料日 |
 | ``consumption_tax.invoice_rounding`` | :func:`invoice_rounding`(1 回の購入=1 枚のレシート=1 つの税率・切り捨て) | レジ |
 | ``consumption_tax.filing_deadline``(human) | :func:`filing_deadline`=つなぎの読み口(課税期間=暦年・翌年 3 月 31 日=Q1・
@@ -27,6 +33,12 @@
 本人の分も同じ決まりで丸める(控除の端数は答申に無い=未リサーチ(expedient)・台帳 ``DOC-rules42-rounding``)。雇用主の分=
 全額の 1 円未満の切り捨て − 本人の分(未リサーチ(expedient)・同じ台帳の行)。源泉所得税=10 円未満の四捨五入(告示)・控除の
 額の 1 円未満は切り上げ(告示)。住民税の月の額=年の額の 12 分の 1 の 1 円未満の切り捨て(未リサーチ(expedient)・同じ行)。
+
+〔第 4 期 4-2b〕規則の表の空欄 3 件を埋めた値(R-118 §10-2=親の一次確認): 住民税の基礎控除・調整控除・非課税(扶養 0 の
+世界)/厚年 70 歳・健保 75 歳の年齢の上限(75 歳以上の後期高齢者医療の保険料は天引きしない=空欄の宣言
+``DOC-rules42b-late-elderly-medical-blank``)/子ども・子育て拠出金(事業主だけ・厚年の被保険者の標準報酬 × 0.36%)。
+:func:`payroll_tables` の ``r42b``(腕 ``SHIBUYA_RULES_42B``=``engine.economy_rules.PayrollInputs.rules_42b``・既定 真)が
+偽なら 4-2 の値の再現(旧道=次の版上げで消す・台帳 ``DOC-rules42b-legacy-switch``)。
 
 〔検収 L5〕下限の印(``asof_basis=lower_bound``)の行を下限より前の日に引いたとき・``valid_until`` の後の日は、黙って
 「規則なし」にせず ``RuleNotInForce`` で止める(施行の初日が分からない=効いていたかどうか分からない)。
@@ -47,7 +59,8 @@ __all__ = [
     "INCOME_TAX_RULE_ID", "RESIDENT_TAX_RULE_ID", "HEALTH_RULE_ID", "CHILD_SUPPORT_RULE_ID", "PENSION_RULE_ID",
     "EMPLOYMENT_RULE_ID", "INVOICE_RULE_ID", "DEADLINE_RULE_ID", "REDUCED_RULE_ID", "TOTAL_VOLUME_RULE_ID",
     "INTEREST_RULE_ID", "OVERTIME_RULE_ID", "READ_RULES", "BRIDGE_READ_RULES", "CARE_AGE", "FULL_TIME_BASE_HOURS", "EMPLOYEE_ITEMS",
-    "EMPLOYER_ITEMS",
+    "EMPLOYER_ITEMS", "EMPLOYER_ITEMS_42", "BASIC_DEDUCTION_RULE_ID", "ADJUSTMENT_RULE_ID", "NON_TAXABLE_RULE_ID",
+    "CHILD_CARE_RULE_ID",
     "PayrollTables", "payroll_tables", "standard_monthly", "share_50sen", "income_tax_withholding",
     "resident_tax_monthly", "Enrollment", "enrollment", "Deductions", "deductions", "invoice_rounding",
     "filing_deadline", "reduced_rate", "total_volume_cap", "interest_cap", "overtime_premium",
@@ -65,10 +78,16 @@ REDUCED_RULE_ID: Final[str] = "consumption_tax.reduced_rate"
 TOTAL_VOLUME_RULE_ID: Final[str] = "credit.total_volume_cap"
 INTEREST_RULE_ID: Final[str] = "credit.interest_cap"
 OVERTIME_RULE_ID: Final[str] = "labor.overtime_premium"
+#: 〔第 4 期 4-2b〕空欄 3 件を埋めた行(R-118 §10-2)。
+BASIC_DEDUCTION_RULE_ID: Final[str] = "resident_tax.basic_deduction"
+ADJUSTMENT_RULE_ID: Final[str] = "resident_tax.adjustment_credit_tokyo_ward"
+NON_TAXABLE_RULE_ID: Final[str] = "resident_tax.non_taxable_tokyo_ward"
+CHILD_CARE_RULE_ID: Final[str] = "child_care_contribution.rate"
 #: 本モジュールが読む machine の行(試験が規則の表の machine の行と突き合わせる)。
 READ_RULES: Final[tuple[str, ...]] = (
     INCOME_TAX_RULE_ID, RESIDENT_TAX_RULE_ID, HEALTH_RULE_ID, CHILD_SUPPORT_RULE_ID, PENSION_RULE_ID,
-    EMPLOYMENT_RULE_ID, INVOICE_RULE_ID, REDUCED_RULE_ID, TOTAL_VOLUME_RULE_ID, INTEREST_RULE_ID, OVERTIME_RULE_ID)
+    EMPLOYMENT_RULE_ID, INVOICE_RULE_ID, REDUCED_RULE_ID, TOTAL_VOLUME_RULE_ID, INTEREST_RULE_ID, OVERTIME_RULE_ID,
+    BASIC_DEDUCTION_RULE_ID, ADJUSTMENT_RULE_ID, NON_TAXABLE_RULE_ID, CHILD_CARE_RULE_ID)
 #: 〔検収 L1〕つなぎとして読む human の行(人の手続きの値を機械が使う=宣言つき・台帳 ``DOC-rules42-tax-remit-machine``)。
 BRIDGE_READ_RULES: Final[tuple[str, ...]] = (DEADLINE_RULE_ID,)
 #: 介護保険の第 2 号被保険者の年齢(40〜64 歳・協会けんぽの頁=規則の表の行の ``care_rate_age_40_64`` の名が持つ範囲)。
@@ -79,8 +98,10 @@ FULL_TIME_BASE_HOURS: Final[float] = 40.0
 #: 本人の分の項目(天引きの内訳=計器の名)。
 EMPLOYEE_ITEMS: Final[tuple[str, ...]] = ("health", "child_support", "pension", "employment", "income_tax",
                                           "resident_tax")
-#: 雇用主の分の項目。
-EMPLOYER_ITEMS: Final[tuple[str, ...]] = ("health", "child_support", "pension", "employment")
+#: 雇用主の分の項目(〔第 4 期 4-2b〕子ども・子育て拠出金=事業主だけ を末尾に足した)。
+EMPLOYER_ITEMS: Final[tuple[str, ...]] = ("health", "child_support", "pension", "employment", "child_care_contribution")
+#: 〔第 4 期 4-2b〕4-2 の雇用主の分の項目(腕 ``SHIBUYA_RULES_42B=off``=4-2 の値の再現=次の版上げで消す)。
+EMPLOYER_ITEMS_42: Final[tuple[str, ...]] = EMPLOYER_ITEMS[:4]
 
 
 def _rules(rules: Any) -> Any:
@@ -182,33 +203,77 @@ class PayrollTables:
     health_grades: Any = None
     pension_grades: Any = None
     sources: Mapping[str, str] = field(default_factory=dict)
+    #: 〔第 4 期 4-2b〕空欄 3 件を埋めた値か(偽=4-2 の値の再現=旧道)と、その行(無い項目は ``None``=0)・年齢の上限
+    #: (``age_max_exclusive``・``None``=上限なし)。
+    r42b: bool = False
+    basic_deduction: Any = None
+    adjustment_credit: Any = None
+    non_taxable: Any = None
+    child_care: Any = None
+    pension_age_max: int | None = None
+    health_age_max: int | None = None
+
+    @property
+    def employer_items(self) -> tuple[str, ...]:
+        """雇用主の分の項目(4-2b の値なら拠出金を含む 5 項目・4-2 の値の再現なら 4 項目)。"""
+        return EMPLOYER_ITEMS if self.r42b else EMPLOYER_ITEMS_42
 
     def record(self) -> dict[str, Any]:
-        return {"asof": self.asof, "sources": dict(self.sources)}
+        out: dict[str, Any] = {"asof": self.asof, "sources": dict(self.sources)}
+        if self.r42b:  # 〔4-2b〕腕 off の記録は 4-2 のまま
+            out["age_max_exclusive"] = {"pension": self.pension_age_max, "health": self.health_age_max}
+        return out
 
 
-_TABLE_CACHE: dict[str, PayrollTables] = {}
+_TABLE_CACHE: dict[tuple[str, bool], PayrollTables] = {}
 
 
-def payroll_tables(asof: "str | _dt.date", rules: Any = None) -> PayrollTables:
-    """``asof`` の日に効いている天引きの 6 行(リポの表なら日ごとに 1 回だけ作る)。"""
+def _age_max(row: Any) -> int | None:
+    """〔4-2b〕行の年齢の上限(``age_max_exclusive``=この年齢に達したら被保険者でない・欄が無ければ ``None``)。"""
+    if row is None or not hasattr(row.params, "get") or row.params.get("age_max_exclusive") is None:
+        return None
+    return int(row.params["age_max_exclusive"])
+
+
+def payroll_tables(asof: "str | _dt.date", rules: Any = None, *, r42b: bool = True) -> PayrollTables:
+    """``asof`` の日に効いている天引きの 6 行(リポの表なら日ごとに 1 回だけ作る)。
+
+    〔第 4 期 4-2b〕``r42b``(既定 真)なら空欄 3 件を埋めた行(住民税の基礎控除・調整控除・非課税=住民税の行がある日だけ引く
+    (下限の印の行=住民税の年度の始まり)・子ども・子育て拠出金)と、健保・厚年の行の年齢の上限も引く。偽は 4-2 の値の再現。
+    """
     day = asof.isoformat() if isinstance(asof, _dt.date) else str(_dt.date.fromisoformat(str(asof)))
-    if rules is None and day in _TABLE_CACHE:
-        return _TABLE_CACHE[day]
+    key = (day, bool(r42b))
+    if rules is None and key in _TABLE_CACHE:
+        return _TABLE_CACHE[key]
     it = _row(INCOME_TAX_RULE_ID, day, rules)
     rt = _row(RESIDENT_TAX_RULE_ID, day, rules)
     hi = _row(HEALTH_RULE_ID, day, rules)
     cs = _row(CHILD_SUPPORT_RULE_ID, day, rules)
     pe = _row(PENSION_RULE_ID, day, rules)
     ei = _valid(_row(EMPLOYMENT_RULE_ID, day, rules), day)
+    sources = {"income_tax": _src(it), "resident_tax": _src(rt), "health": _src(hi), "child_support": _src(cs),
+               "pension": _src(pe), "employment": _src(ei)}
+    extra: dict[str, Any] = {}
+    if r42b:  # 〔第 4 期 4-2b〕空欄 3 件を埋めた行
+        bd = ac = nt = None
+        if rt is not None:  # 住民税の行がある日だけ(控除の 3 行は住民税の年度の始まりに下限の印)
+            bd = _row(BASIC_DEDUCTION_RULE_ID, day, rules)
+            ac = _row(ADJUSTMENT_RULE_ID, day, rules)
+            nt = _row(NON_TAXABLE_RULE_ID, day, rules)
+        cc = _row(CHILD_CARE_RULE_ID, day, rules)
+        if cc is not None and _frac(cc.params["employee_share"]) != 0:
+            raise ValueError(f"{CHILD_CARE_RULE_ID} は事業主だけの拠出金(employee_share 0)であること")
+        extra = dict(r42b=True, basic_deduction=bd, adjustment_credit=ac, non_taxable=nt, child_care=cc,
+                     pension_age_max=_age_max(pe), health_age_max=_age_max(hi))
+        sources.update({"basic_deduction": _src(bd), "adjustment_credit": _src(ac), "non_taxable": _src(nt),
+                        "child_care_contribution": _src(cc)})
     out = PayrollTables(
         asof=day, income_tax=it, resident_tax=rt, health=hi, child_support=cs, pension=pe, employment=ei,
         health_grades=None if hi is None else _Grades.of(hi.params["grades"]),
         pension_grades=None if pe is None else _Grades.of(pe.params["grades"]),
-        sources={"income_tax": _src(it), "resident_tax": _src(rt), "health": _src(hi), "child_support": _src(cs),
-                 "pension": _src(pe), "employment": _src(ei)})
+        sources=sources, **extra)
     if rules is None:
-        _TABLE_CACHE[day] = out
+        _TABLE_CACHE[key] = out
     return out
 
 
@@ -295,28 +360,99 @@ def income_tax_withholding(a: np.ndarray, tables: PayrollTables, dependents: np.
 
 
 # ================================================================ 住民税の特別徴収
-def resident_tax_monthly(gross: np.ndarray, tables: PayrollTables, social: np.ndarray | None = None) -> np.ndarray:
-    """住民税の特別徴収の月の額=(所得割の元 × (都民税 4%+区民税 6%)+均等割 1,000+3,000+森林環境税 1,000)÷ 12。
+def resident_tax_monthly(gross: np.ndarray, tables: PayrollTables, social: np.ndarray | None = None,
+                         age: np.ndarray | None = None) -> np.ndarray:
+    """住民税の特別徴収の月の額=(所得割+均等割 1,000+3,000+森林環境税 1,000)÷ 12 の 1 円未満の切り捨て。
 
     前年の収入=今の月の賃金 × 12(Q4=未リサーチ(expedient)・台帳 ``DOC-rules42-resident-tax-base``)。〔検収 M1・親の判断〕
-    所得割の元=前年の収入 − 給与所得控除(源泉の別表第一を月の額面に当てた額 × 12)− 社会保険料控除(``social``=本人の
-    社会保険料等の月の額 × 12)。基礎控除・調整控除・非課税の限度は一次の確認が無い=入れていない(まだ過大の方向=同じ行)。
+    合計所得=前年の収入 − 給与所得控除(源泉の別表第一を月の額面に当てた額 × 12)。
+
+    - 4-2 の値(``tables.r42b`` 偽=旧道): 所得割=(合計所得 − 社会保険料控除(``social``=本人の社会保険料等の月の額 × 12))×
+      (都民税 4%+区民税 6%)。
+    - 〔第 4 期 4-2b〕課税所得=合計所得 − 社会保険料控除 − 基礎控除(:func:`_basic_deduction`)・所得割=課税所得 × 10% −
+      調整控除(:func:`_adjustment_credit`・0 を下回らない)・非課税(:func:`resident_non_taxable`=``age``=今の年齢)の行は均等割も
+      所得割も 0。所得割の 100 円未満の切り捨てと 6 月の端数寄せは入れていない(台帳 ``DOC-rules42b-resident-tax-rounding``)。
+
     行が無い日(6 月より前の年度)は 0。
     """
+    return _resident_tax(gross, tables, social, age)[0]
+
+
+def _resident_tax(gross: np.ndarray, tables: PayrollTables, social: np.ndarray | None,
+                  age: np.ndarray | None) -> tuple[np.ndarray, np.ndarray]:
+    """(住民税の月の額, 非課税の行の真偽)。"""
     g = np.maximum(np.asarray(gross, dtype=np.int64), 0)
     row = tables.resident_tax
     if row is None:
-        return np.zeros(g.shape, dtype=np.int64)
+        return np.zeros(g.shape, dtype=np.int64), np.zeros(g.shape, dtype=bool)
     p = row.params
     rate = _frac(p["income_levy_rate_metro"]) + _frac(p["income_levy_rate_ward"])
     eid = (_bands_value(g, tables.income_tax.params["employment_income_deduction"], ceil=True)
            if tables.income_tax is not None else np.zeros(g.shape, dtype=np.int64))
     si = np.zeros(g.shape, dtype=np.int64) if social is None else np.asarray(social, dtype=np.int64)
-    base = np.maximum(g - eid - si, 0) * 12
-    income = (base * int(rate.numerator)) // int(rate.denominator)
     per_capita = int(p["per_capita_metro_yen"]) + int(p["per_capita_ward_yen"]) + int(p["forest_environment_tax_yen"])
-    annual = np.where(g > 0, income + per_capita, 0)
-    return annual // 12
+    if not tables.r42b:  # 4-2 の値の再現(旧道=次の版上げで消す)
+        base = np.maximum(g - eid - si, 0) * 12
+        income = (base * int(rate.numerator)) // int(rate.denominator)
+        annual = np.where(g > 0, income + per_capita, 0)
+        return annual // 12, np.zeros(g.shape, dtype=bool)
+    total = np.maximum(g - eid, 0) * 12  # 合計所得(前年の収入 − 給与所得控除)
+    taxable = np.maximum(total - si * 12 - _basic_deduction(total, tables.basic_deduction), 0)
+    income = (taxable * int(rate.numerator)) // int(rate.denominator)
+    income = np.maximum(income - _adjustment_credit(total, taxable, tables.adjustment_credit), 0)
+    exempt = resident_non_taxable(total, age, tables.non_taxable) & (g > 0)
+    annual = np.where((g > 0) & ~exempt, income + per_capita, 0)
+    return annual // 12, exempt
+
+
+def _basic_deduction(total: np.ndarray, row: Any) -> np.ndarray:
+    """〔4-2b〕住民税の基礎控除(地方税法 314 条の 2 第 2 項=合計所得の帯ごとの額・行が無ければ 0)。"""
+    t = np.asarray(total, dtype=np.int64)
+    out = np.zeros(t.shape, dtype=np.int64)
+    if row is None:
+        return out
+    done = np.zeros(t.shape, dtype=bool)
+    last = None
+    for b in row.params["bands"]:  # 逐次ループ宣言: 帯の数(4)
+        hi = b["total_income_to_incl"]
+        if last is not None and (hi is not None and int(hi) <= last):
+            raise ValueError(f"{row.id} の帯は昇順(上限なしは最後)であること")
+        m = ~done & ((t <= int(hi)) if hi is not None else True)
+        out[m] = int(b["deduction_yen"])
+        done |= m
+        last = None if hi is None else int(hi)
+    return out
+
+
+def _adjustment_credit(total: np.ndarray, taxable: np.ndarray, row: Any) -> np.ndarray:
+    """〔4-2b〕住民税の調整控除(扶養 0=人的控除額の差は基礎控除の差だけ・都+区の率をまとめて 1 円未満の切り捨て)。
+
+    課税所得が閾値以下=min(差, 課税所得)× 率・閾値超=max(差 −(課税所得 − 閾値), 下限)× 率・合計所得が上の値を超えれば 0。
+    行が無ければ 0。
+    """
+    tx = np.asarray(taxable, dtype=np.int64)
+    if row is None:
+        return np.zeros(tx.shape, dtype=np.int64)
+    p = row.params
+    diff = int(p["personal_deduction_difference_no_dependents_yen"])
+    th = int(p["taxable_income_threshold_yen"])
+    r = _frac(p["rate_metro"]) + _frac(p["rate_ward"])
+    base = np.where(tx <= th, np.minimum(diff, tx), np.maximum(diff - (tx - th), int(p["floor_base_yen"])))
+    credit = (base * int(r.numerator)) // int(r.denominator)
+    return np.where(np.asarray(total, dtype=np.int64) > int(p["not_applied_total_income_over_yen"]), 0, credit)
+
+
+def resident_non_taxable(total: np.ndarray, age: np.ndarray | None, row: Any) -> np.ndarray:
+    """〔4-2b〕住民税の非課税(扶養 0・23 区): 合計所得が限度以下、または未成年者(今の年齢が ``minor_age_below`` 未満・
+    年齢 −1=不明は未成年者でない)で特別の限度以下。障害者・寡婦・ひとり親は材料が無い=入れていない
+    (台帳 ``DOC-rules42b-non-taxable-only-minor``)。行が無ければ偽。"""
+    t = np.asarray(total, dtype=np.int64)
+    if row is None:
+        return np.zeros(t.shape, dtype=bool)
+    p = row.params
+    a = np.full(t.shape, -1, dtype=np.int64) if age is None else np.asarray(age, dtype=np.int64)
+    minor = (a >= 0) & (a < int(p["minor_age_below"]))
+    return (t <= int(p["no_dependents_total_income_max_yen"])) | (minor & (t <= int(p["special_total_income_max_yen"])))
 
 
 # ================================================================ 加入の判定
@@ -329,6 +465,10 @@ class Enrollment:
     taxed: np.ndarray
     no_basis: np.ndarray
     care: np.ndarray
+    #: 〔第 4 期 4-2b〕厚年の加入(``social``=健保の加入(75 歳未満)とは別=70 歳未満)と行の年齢(−1=不明)。
+    #: ``None``=``social`` と同じ(4-2 の値)・年齢なし。
+    pension: np.ndarray | None = None
+    age: np.ndarray | None = None
 
 
 def enrollment(inputs: Any, agents: np.ndarray, tables: PayrollTables,
@@ -337,7 +477,9 @@ def enrollment(inputs: Any, agents: np.ndarray, tables: PayrollTables,
     4 分の 3 未満は特定適用事業所(被保険者 ``employer_min_insured`` 人以上)で週 ``min_weekly_hours`` 時間以上かつ学生でない
     人だけ/雇用保険=週 20 時間以上(31 日以上の雇用の見込みは全員あるとみなす=宣言)/業主・家族従業者・内職は雇われる側で
     ない=どれも天引きしない(本人で納める=human)/判定の材料が無い体(役割も時間も無い)は社会保険と雇用保険に未加入
-    (宣言)・源泉と住民税は雇われる側として天引きする。年齢の上限(厚年・健保)は答申に無い=入れていない(宣言)。
+    (宣言)・源泉と住民税は雇われる側として天引きする。〔第 4 期 4-2b〕年齢の上限: ``social``(健保・介護・支援金)は
+    健保の行の ``age_max_exclusive``(75)未満・``pension``(厚年・子ども・子育て拠出金)は厚年の行の ``age_max_exclusive``
+    (70)未満(年齢 −1=不明は上限の内=宣言)。``tables.r42b`` が偽(4-2 の値)は上限なし=``pension`` は ``social`` と同じ。
 
     〔検収 M2・親の判断〕``assume_full_time``(行ごとの真偽=外の雇用主の体)の行は「被保険者 51 人以上の事業所の正社員
     (週 40 時間)」とみなす(未リサーチ(expedient)・台帳 ``DOC-rules42-outside-employer-enrolled``)。2027-10 からの
@@ -347,7 +489,8 @@ def enrollment(inputs: Any, agents: np.ndarray, tables: PayrollTables,
     n = a.size
     if inputs is None:
         z = np.zeros(n, dtype=bool)
-        return Enrollment(social=z, employment=z, taxed=np.ones(n, dtype=bool), no_basis=np.ones(n, dtype=bool), care=z)
+        return Enrollment(social=z, employment=z, taxed=np.ones(n, dtype=bool), no_basis=np.ones(n, dtype=bool), care=z,
+                          pension=z, age=np.full(n, -1, dtype=np.int64))
     hours = np.asarray(inputs.weekly_hours, dtype=np.float64)[a].copy()
     emp_like = inputs.employee_like()[a].copy()
     insured = np.asarray(inputs.employer_insured)[a].copy()
@@ -374,8 +517,14 @@ def enrollment(inputs: Any, agents: np.ndarray, tables: PayrollTables,
     employment = np.zeros(n, dtype=bool)
     if ei is not None:
         employment = emp_like & known & (hours >= float(ei.params["min_weekly_hours"]))
+    pension = social  # 4-2 の値=厚年の加入は健保と同じ
+    if tables.pension_age_max is not None:  # 〔4-2b〕厚年 70 歳未満(厚年法 9 条)
+        pension = social & (age < int(tables.pension_age_max))
+    if tables.health_age_max is not None:  # 〔4-2b〕健保 75 歳未満(後期高齢者医療へ=健保法 3 条 1 項 7 号)
+        social = social & (age < int(tables.health_age_max))
     care = social & (age >= CARE_AGE[0]) & (age <= CARE_AGE[1])
-    return Enrollment(social=social, employment=employment, taxed=emp_like, no_basis=emp_like & ~known, care=care)
+    return Enrollment(social=social, employment=employment, taxed=emp_like, no_basis=emp_like & ~known, care=care,
+                      pension=pension, age=age)
 
 
 # ================================================================ 天引き(1 か月分)
@@ -387,6 +536,8 @@ class Deductions:
     employer: Mapping[str, np.ndarray]
     over_gross: np.ndarray
     enrollment: Enrollment
+    #: 〔第 4 期 4-2b〕住民税の非課税の行(``None``=4-2 の値)。
+    resident_exempt: np.ndarray | None = None
 
     @property
     def employee_total(self) -> np.ndarray:
@@ -400,18 +551,22 @@ class Deductions:
 
 
 def deductions(gross: np.ndarray, tables: PayrollTables, enroll: Enrollment) -> Deductions:
-    """給料日の天引き(本人の分 6 項目と雇用主の分 4 項目)。
+    """給料日の天引き(本人の分 6 項目と雇用主の分 4 項目・〔4-2b〕5 項目=子ども・子育て拠出金)。
 
     社会保険(健保+介護・支援金・厚年)は報酬月額=今月の額面で標準報酬月額を決める(定時決定と「前月分を控除」の時期は答申に
     無い・今月の額面で代える=未リサーチ(expedient)・台帳 ``DOC-rules42-standard-remuneration-month``)。雇用保険=額面 × 率。
     源泉所得税=額面 − 本人の社会保険料等の残りに特例の式。住民税=:func:`resident_tax_monthly`。本人の社会保険料等が額面を
     超える行は何も天引きしない(``over_gross``・計器)。本人の分の合計が額面を超えないように住民税を削る。
+
+    〔第 4 期 4-2b〕厚年は ``enroll.pension``(70 歳未満)だけ・子ども・子育て拠出金=厚年の標準報酬月額 × 率(事業主だけ・
+    1 円未満の切り捨て=雇用主の分の既存の形)・住民税は基礎控除・調整控除・非課税(``enroll.age``)を入れた値。
     """
     g = np.maximum(np.asarray(gross, dtype=np.int64), 0)
     z = np.zeros(g.shape, dtype=np.int64)
     emp = {k: z.copy() for k in EMPLOYEE_ITEMS}
-    er = {k: z.copy() for k in EMPLOYER_ITEMS}
+    er = {k: z.copy() for k in tables.employer_items}
     soc = np.asarray(enroll.social, dtype=bool)
+    pen = soc if enroll.pension is None else np.asarray(enroll.pension, dtype=bool)
     if tables.health is not None and soc.any():
         std = standard_monthly(g, tables.health_grades)
         rate = _frac(tables.health.params["rate"])
@@ -423,10 +578,13 @@ def deductions(gross: np.ndarray, tables: PayrollTables, enroll: Enrollment) -> 
         if tables.child_support is not None:
             e, c = _half_share(std[soc], _frac(tables.child_support.params["rate"]))
             emp["child_support"][soc], er["child_support"][soc] = e, c
-    if tables.pension is not None and soc.any():
-        std_p = standard_monthly(g[soc], tables.pension_grades)
+    if tables.pension is not None and pen.any():
+        std_p = standard_monthly(g[pen], tables.pension_grades)
         e, c = _half_share(std_p, _frac(tables.pension.params["rate"]))
-        emp["pension"][soc], er["pension"][soc] = e, c
+        emp["pension"][pen], er["pension"][pen] = e, c
+        if tables.child_care is not None:  # 〔4-2b〕子ども・子育て拠出金(事業主だけ・切り捨て)
+            cr = _frac(tables.child_care.params["rate"])
+            er["child_care_contribution"][pen] = (std_p * int(cr.numerator)) // int(cr.denominator)
     em = np.asarray(enroll.employment, dtype=bool)
     if tables.employment is not None and em.any():
         re_ = _frac(tables.employment.params["employee_rate"])
@@ -437,14 +595,15 @@ def deductions(gross: np.ndarray, tables: PayrollTables, enroll: Enrollment) -> 
     over = si > g
     taxed = np.asarray(enroll.taxed, dtype=bool) & ~over
     emp["income_tax"][taxed] = income_tax_withholding(g[taxed] - si[taxed], tables)
-    rt = resident_tax_monthly(g, tables, social=si)
+    rt, exempt = _resident_tax(g, tables, si, enroll.age)
     room = np.maximum(g - si - emp["income_tax"], 0)
     emp["resident_tax"][taxed] = np.minimum(rt[taxed], room[taxed])
     for k in EMPLOYEE_ITEMS:  # 逐次: 項目の数
         emp[k][over] = 0
-    for k in EMPLOYER_ITEMS:
+    for k in er:
         er[k][over] = 0
-    return Deductions(employee=emp, employer=er, over_gross=over, enrollment=enroll)
+    return Deductions(employee=emp, employer=er, over_gross=over, enrollment=enroll,
+                      resident_exempt=(exempt & taxed) if tables.r42b else None)
 
 
 # ================================================================ 消費税(端数・期限・軽減税率)

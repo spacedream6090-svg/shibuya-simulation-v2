@@ -24,8 +24,10 @@ R118 = (ROOT / "docs/research/v2-r118-rights-and-rules-contents.md").read_text(e
 WORLD = "2026-07-13"
 #: 4-2 で 19 行に足した値の欄(読み手が引く欄=答申の本文と付属の等級表から)。
 ADDED_PARAMS = {
-    "health_insurance.kyoukai_tokyo": {"grades", "full_time_share", "short_time_coverage"},
-    "pension.employees_rate": {"grades"},
+    # 〔第 4 期 4-2b〕年齢の上限と出典(R-118 §10-2)を健保と厚年の行に足した
+    "health_insurance.kyoukai_tokyo": {"grades", "full_time_share", "short_time_coverage", "age_max_exclusive",
+                                       "age_max_exclusive_source"},
+    "pension.employees_rate": {"grades", "age_max_exclusive", "age_max_exclusive_source"},
     "employment_insurance.rate_general": {"min_weekly_hours"},
     "income_tax.withholding_monthly": {"kou_zero_below_yen"},  # 〔親の判断(問い 3)〕月額表の甲欄の 105,000 円未満 0 円
 }
@@ -44,7 +46,10 @@ OLD_PARAMS = {
 }
 LOWER_BOUND = {"food_business.licence", "building_lease.termination_notice", "labor.statutory_hours",
                "labor.overtime_premium", "road_use.police_permit", "outdoor_ad.tokyo_permit", "credit.total_volume_cap",
-               "credit.interest_cap", "late_night_alcohol.residential_ban", "consumption_tax.filing_deadline"}
+               "credit.interest_cap", "late_night_alcohol.residential_ban", "consumption_tax.filing_deadline",
+               # 〔第 4 期 4-2b〕住民税の年度の始まり・年金機構の頁の年度の始まりを下限に置いた 4 行
+               "resident_tax.basic_deduction", "resident_tax.adjustment_credit_tokyo_ward",
+               "resident_tax.non_taxable_tokyo_ward", "child_care_contribution.rate"}
 
 
 def _thaw(v):
@@ -68,7 +73,7 @@ def test_the_19_rows_are_the_draft_rows_and_in_force_on_the_world_date():
         else:
             assert r.note == d["note"], d["id"]
         assert len(rules.versions(d["id"])) == 1
-    assert len(rules) == 6 + 19 + 1 and len(rules.ids()) == 4 + 19 + 1
+    assert len(rules) == 6 + 19 + 1 + 4 and len(rules.ids()) == 4 + 19 + 1 + 4  # 〔4-2b〕空欄 3 件の 4 行
 
 
 def test_the_grade_tables_are_the_research_copies():

@@ -362,6 +362,8 @@ def test_wage_path_header_and_resume_check(monkeypatch):
     from shibuya.engine import economy_rules as ER  # 〔第 4 期 4-2〕見出しの規則の表の中身の腕(既定 on)もそろえる
 
     law = {} if ER.arm() == ER.ARM_OFF else {"rules_42": ER.arm()}
+    if law and ER.arm_42b() != ER.ARM_OFF:  # 〔第 4 期 4-2b〕空欄 3 件を埋めた値の腕(既定 on)も見出しにそろえる
+        law["rules_42b"] = ER.arm_42b()
     ES2.check_resume({"arm": "on", "parts": list(ES2.PARTS), "wage": "occupation", **law})
     with pytest.raises(ValueError, match="賃金の腕"):
         ES2.check_resume({"arm": "on", "parts": list(ES2.PARTS), **law})  # 見出しに無い=w17(版上げの前の状態)

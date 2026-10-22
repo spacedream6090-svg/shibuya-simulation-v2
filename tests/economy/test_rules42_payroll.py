@@ -25,6 +25,9 @@ from shibuya.economy import taxes as TX
 from shibuya.engine import economy_rules as ER
 
 ASOF = "2026-08-25"
+#: 〔第 4 期 4-2b〕本書は 4-2 の値(腕 ``SHIBUYA_RULES_42B=off``=旧道)の手計算をそのまま通す。4-2b の値(基礎控除・調整控除・
+#: 非課税・年齢の上限・子ども・子育て拠出金)は ``test_rules42b_payroll.py``。
+R42B = False
 
 
 def _inputs(hours, age, insured=100, roles=None, student=None) -> ER.PayrollInputs:
@@ -39,7 +42,7 @@ def _inputs(hours, age, insured=100, roles=None, student=None) -> ER.PayrollInpu
 
 
 def _ded(gross, inp):
-    t = TX.payroll_tables(ASOF)
+    t = TX.payroll_tables(ASOF, r42b=R42B)
     g = np.asarray(gross, dtype=np.int64)
     return TX.deductions(g, t, TX.enrollment(inp, np.arange(g.size), t))
 
@@ -63,7 +66,7 @@ def test_the_care_rate_is_only_for_ages_40_to_64():
 
 
 def test_special_formula_versus_the_monthly_table_bracket():
-    t = TX.payroll_tables(ASOF)
+    t = TX.payroll_tables(ASOF, r42b=R42B)
     got = TX.income_tax_withholding(np.array([105_000, 106_000, 107_000 - 1]), t).tolist()
     table = 170  # 月額表 甲欄 105,000〜107,000 円未満・扶養 0 人(R-118 §1-2 #9・付属の行の note)
     assert got[0] == 130 and got[1] == 180
@@ -89,7 +92,7 @@ def test_enrollment_by_hours_employer_size_students_roles_and_missing_basis():
     student = [False, False, False, True, False, False, False, False]
     roles = ["正社員", "パート・アルバイト", "パート・アルバイト", "パート・アルバイト", "パート・アルバイト",
              "パート・アルバイト", "", "業主"]
-    t = TX.payroll_tables(ASOF)
+    t = TX.payroll_tables(ASOF, r42b=R42B)
     en = TX.enrollment(_inputs(hours, [30] * 8, insured, roles, student), np.arange(8), t)
     assert en.social.tolist() == [True, True, False, False, False, True, False, False]
     assert en.employment.tolist() == [True, True, True, True, False, True, False, False]
@@ -101,19 +104,19 @@ def test_enrollment_by_hours_employer_size_students_roles_and_missing_basis():
 
 
 def test_without_inputs_nothing_is_enrolled_but_taxes_apply():
-    t = TX.payroll_tables(ASOF)
+    t = TX.payroll_tables(ASOF, r42b=R42B)
     en = TX.enrollment(None, np.arange(2), t)
     assert not en.social.any() and en.taxed.all()
 
 
 def test_rows_not_in_force_give_zero():
-    t = TX.payroll_tables("2026-05-25")  # 住民税の令和 8 年度の行は 6 月から
+    t = TX.payroll_tables("2026-05-25", r42b=R42B)  # 住民税の令和 8 年度の行は 6 月から
     assert int(TX.resident_tax_monthly(np.array([300_000]), t)[0]) == 0
     # 〔検収 L5〕雇用保険の率の適用期間(〜2027-03-31)の後は黙って 0 にせず止まる
     from shibuya.engine.rules import table as RT
 
     with pytest.raises(RT.RuleNotInForce):
-        TX.payroll_tables("2027-04-25")
+        TX.payroll_tables("2027-04-25", r42b=R42B)
 
 
 def test_social_insurance_over_the_gross_takes_nothing():
@@ -133,7 +136,7 @@ def test_employee_total_never_exceeds_gross(gross):
 
 def test_resident_tax_takes_the_two_deductions():
     """〔検収 M1〕所得割の元=額面 − 給与所得控除(別表第一)− 社会保険料(本人の分)の 12 か月分。"""
-    t = TX.payroll_tables(ASOF)
+    t = TX.payroll_tables(ASOF, r42b=R42B)
     g = np.array([300_000, 300_000, 50_000])
     got = TX.resident_tax_monthly(g, t, social=np.array([46_500, 0, 0])).tolist()
     assert got[0] == (((300_000 - 96_667 - 46_500) * 12) // 10 + 5_000) // 12 == 16_099
@@ -143,7 +146,7 @@ def test_resident_tax_takes_the_two_deductions():
 
 def test_outside_employer_rows_are_enrolled_as_full_time():
     """〔検収 M2〕材料の無い行でも外の雇用主の行は「51 人以上の事業所の正社員」とみなす。"""
-    t = TX.payroll_tables(ASOF)
+    t = TX.payroll_tables(ASOF, r42b=R42B)
     inp = _inputs([np.nan, np.nan], [45, 30], insured=-1, roles=["", ""])
     en = TX.enrollment(inp, np.arange(2), t, assume_full_time=np.array([True, False]))
     assert en.social.tolist() == [True, False] and en.employment.tolist() == [True, False]
@@ -158,4 +161,4 @@ def test_lower_bound_rows_stop_before_the_bound():
         TX.total_volume_cap("2020-01-01")
     with pytest.raises(RT.RuleNotInForce):
         TX.filing_deadline(2025)
-    assert TX.payroll_tables("2025-12-25").income_tax is None  # 源泉の令和 8 年分の行は in_force=施行の前は無い
+    assert TX.payroll_tables("2025-12-25", r42b=R42B).income_tax is None  # 源泉の令和 8 年分の行は in_force=施行の前は無い
