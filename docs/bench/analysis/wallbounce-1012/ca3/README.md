@@ -372,3 +372,13 @@ W20 の表・`manifest_keys_frozen.json`・`tick_word_allow.json`・`time_litera
 - slow の world `tests/engine/calendar3/test_ca3_world.py`(1 本だけで): 1 passed。lint-imports: 5 kept・0 broken。
 - 既定 off の 4 構成(本体 `71c53bd` の写し vs 充電の後の作業木の src): **4/4 構成 × 25 欄 同じ**(final `bb86f898…`・`3cdf9dbf…`・`8fca095b…`・
   `94becde2…`・`tree_missing` 空・`env` 空・`src_is_worktree` 真)=[byte_check_ca3_fix_4cfg.json](byte_check_ca3_fix_4cfg.json)(充電の後に上書き)。
+
+## §親の検収(第337・2026-10-22・Fable 5.1)
+
+- **実在と差分**: 作業木の 53 本(src 17・tests 15+新規 2 組・docs 3・台帳)を親がディスクで確かめ、明示の一覧で stage(`commit_check` 一覧 53=ステージ 53・秘密スキャン CLEAN・絶対パスと個人名 0・CR 0・新しい識別子に `open`/`tick` 0)。親 commit 25f4b16 → 本体 f27377a へ rebase(衝突なし)=`c378eff`。
+- **親の判断(§15)**: 問い 1=`DOC-ct-c1-no-charging` を **removed** にした(台帳 616 行・active 593 → 592・`why` に置き換えの注・ct_c1 README §12 の仮採用 1 に注)。問い 2=住まいが範囲の外の体の「家」=範囲の外で寝ている刻み、は台帳の行の宣言のまま受入(住まいの場所が無い体の扱いは第 5 期 段 7 の外の人の層で見直す)。
+- **既定 off の byte-check(親・4 構成)**: 本体 f27377a の src の写しと作業木 c378eff の src で `w6_v3_default`・`w6_v3_activity_off`・`w6_v1_default`・`v3_mem_rel` の 25 欄が全部同じ(差の欄 0/4 構成・[byte_check_ca3_parent_4cfg.json](byte_check_ca3_parent_4cfg.json))。
+- **範囲の試験(親・-n 4・not slow)**: `tests/engine tests/economy tests/perception tests/build_pop tests/c8 tests/tools`=**4,189 passed・1 skipped・0 failed・0 errors**(25 分 11 秒)。台帳の試験(`tests/engine/bridging`+c8 の感度)は removed の後で 91 passed。
+- **data 無しの写しの全体試験(CI-1 と同じ印・c378eff)**: **5,721 passed・290 skipped(data 無し)・0 failed・0 errors**(27 分 22 秒・faulthandler 900 秒の門に当たらず)。
+- **読んだ所**: `calendar3/roster.py`(表は組み立てで作らず最初の刻みの頭=復元の後)・`calendar3/layer.py`(`_begin_compose`=金曜の頭・起きていて主の判断が無い最初の刻み)・`contact/device.py`(`Devices.charge`=家に居る刻みに 0.5/時・職場では増えない)・`contact/deliver.py`(`release_held`)・`systems/build.py`(試験用の印の口は腕 arm のときだけ)。
+- **残り(親)**: `SWITCH_ENV` に `SHIBUYA_CALENDAR_3`/`_TRIAL`(本体の docs の commit で)・用語集に 5 語・ct_c1 §16 の参照値の注(4-2 の後 `2b9c9346…`・充電のつなぎの後 `59930cf3…`=腕 c1 だけの 5,000 体 1 日)。5,000 体の段 B は本段では回していない(合成の段 B は範囲の試験の中)。
