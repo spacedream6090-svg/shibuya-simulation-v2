@@ -64,6 +64,7 @@ PLAN_STAGES: Final[frozenset[str]] = frozenset({
     *(f"3-{i}" for i in range(1, 6)),
     "4-1", "4-1b", "4-2", "4-3",
     *(f"5-{i}" for i in range(7)),
+    "5-1b",  # 〔第 5 期 空間の段 1 の再検収 H1・親の判断〕抽出のランの密度の推定の直し(段 1 の後の小さな段)
     *(f"6-{i}" for i in range(1, 8)),
     "7", "T1", "T2", "T3", "T4",
     # 〔小さな版上げ・meal_w17 検収 L6〕``next-bump``=次の版上げ(回答 10-13b §0-6「版上げで新しい道を既定にしたら、古い道の

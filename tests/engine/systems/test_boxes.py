@@ -26,6 +26,8 @@ REMOVED_FIELDS = {("cfg", "leave_effect"), ("cfg", "poi_target"), ("cfg", "near_
 #: 〔第 2 部〕run_day の引数から消した切替口(leave_effect・poi_target・near_tiebreak・near_order・rel_tenure_hash・
 #: response_delay=113 → 107)。
 REMOVED_PARAMS = ("leave_effect", "poi_target", "near_tiebreak", "near_order", "rel_tenure_hash", "response_delay")
+#: 〔第 5 期 空間の段 1〕run_day の引数に足した切替口(space=107 → 108)。
+ADDED_PARAMS = ("space",)
 
 
 def _fields(cls) -> set[str]:
@@ -133,7 +135,8 @@ def test_run_day_signature_is_unchanged_and_build_unpacks_every_argument():
     from shibuya.engine import run as RUN
 
     params = list(inspect.signature(RUN.run_day).parameters)
-    assert len(params) == 113 - len(REMOVED_PARAMS) and not set(REMOVED_PARAMS) & set(params)
+    assert len(params) == 113 - len(REMOVED_PARAMS) + len(ADDED_PARAMS) and not set(REMOVED_PARAMS) & set(params)
+    assert set(ADDED_PARAMS) <= set(params)
     src = inspect.getsource(RUN.run_day)
     body = ast.parse(src).body[0].body
     first = body[1] if isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant) else body[0]

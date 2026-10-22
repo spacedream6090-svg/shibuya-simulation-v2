@@ -36,6 +36,7 @@ from shibuya.agents.weekly import load_weekly
 from shibuya.core.rng import RNG_SCHEME
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
+from shibuya.engine.space import nav1 as _NAV1
 from shibuya.engine import resume as RS
 from shibuya.engine.activity import ActivityLayer
 from shibuya.engine.arbiter import Arbiter
@@ -199,6 +200,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     derive_rule = _call_args['derive_rule']
     geometry = _call_args['geometry']
     area_source = _call_args['area_source']
+    space = _call_args['space']
     seat_area_eatery_m2 = _call_args['seat_area_eatery_m2']
     seat_area_retail_m2 = _call_args['seat_area_retail_m2']
     census_out = _call_args['census_out']
@@ -460,6 +462,25 @@ def build(_call_args: dict[str, Any]) -> Any:
         raise ValueError(f"derive_rule は {PRESENCE_DERIVE_RULES} のどれか(いま {derive_rule!r})")
     # ---- C9 位置幾何の腕: 値の検査は**SoA を確保する前**にする(欄が 1 本変わるため) ----
     geometry = check_geometry(geometry)
+    # ---- 〔第 5 期 空間の段 1〕移動の切替口 --space(既定 legacy=段 1 は腕・指定は環境変数 SHIBUYA_SPACE より強い)。資産(nav1_*)の無い
+    # 合成の世界では legacy で回し、manifest の space.effective と reason に書く(つなぎ=engine.space.nav1.NAV1_EXPEDIENTS の 5)。
+    # 〔段 1 の検収 問い 4〕本番の世界(build_manifest.json の build_hash を持つ世界)で資産が無ければ止める(黙って legacy にしない) ----
+    space_mode = _NAV1.check_space(_NAV1.space_env_override(space))  # 名 space は後で資源の表に使う
+    space_reason = ""
+    nav_on = False
+    if space_mode == "nav1":
+        if world_dir is None or str(getattr(world.assets, "source", "synthetic")) == "synthetic":
+            space_reason = "合成の世界(ナビメッシュの資産なし)"
+        elif not _NAV1.space_available(world_dir):
+            if _NAV1.is_production_world(world_dir):
+                raise FileNotFoundError(
+                    "本番の世界(build_manifest.json の build_hash を持つ世界)に nav1_* の資産が無い=活性化の前か apply 忘れ。"
+                    "docs/bench/analysis/spatial-2026-10/sp1/tools/activate_sp1.py apply で資産を入れるか、旧値の移動で回すなら "
+                    "--space legacy(space='legacy')を渡す")
+            space_reason = "世界の置き場に nav1_* の資産が無い(build_hash を持たない世界)"
+        else:
+            nav_on = True
+    space_effective = "nav1" if nav_on else "legacy"
     # ---- C9c-1 歩行可能面積の出所: 資産を読む前に検査(manifest が嘘をつかない) ----
     area_source = check_area_source(area_source)
     # ---- C9c-1 席面積の感度腕: **None なら表に触らない**(既定は 1 バイトも変わらない) ----
@@ -673,7 +694,8 @@ def build(_call_args: dict[str, Any]) -> Any:
     # 規則はここで作る(古典の交際の候補の閉包が使う)・層は関係の層の後(気づいた印の読み口=関係の層を渡す)
     _px_rule = (
         _PXM.rule_from(mode=_PXM.MODE_DISTANCE, d_m=_PXM.d(), seed=seed, day_key0=int(day_index),
-                       step_seconds=int(tick_seconds), geometry=str(geometry), poi_cell=world.pois.cell,
+                       step_seconds=int(tick_seconds), geometry=("nav1" if nav_on else str(geometry)),
+                       poi_cell=world.pois.cell,
                        cell_band=world.assets.cell_band)  # 〔2-4 V2〕体の層はセルから導く
         if _PXM.arm() == _PXM.MODE_DISTANCE else None
     )
@@ -693,6 +715,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         store_memory_n=int(store_memory_n),
         relation_columns=relations_on,
         rel_k=int(rel_k),
+        nav_columns=nav_on,
     )
     if ledger is not None and ledger.money is not None:
         # 世帯の現金行 = 個体 SoA の money(写しを作らない・台帳の書き込み窓は resolve が持つ)
@@ -969,6 +992,19 @@ def build(_call_args: dict[str, Any]) -> Any:
         if geometry == "edge"
         else None
     )
+    # ---- 〔第 5 期 空間の段 1〕nav1: 位置幾何をナビメッシュの移動に替える(edge の道具は作らない・欄は geometry のまま) ----
+    if nav_on:
+        # 〔段 1 の検収 M4〕密度の分母の抽出の割合=経済と同じ population_scale(体の数 ÷ 母集団の総数・総数が無ければ 1)
+        from shibuya.engine.economy_stage2 import population_total as _pop_total
+
+        _pt = _pop_total(world_dir) if pop is not None else None
+        geom = _NAV1.load_space(world_dir, world.assets, seed=seed, n_agents=n_agents, tick_seconds=tick_seconds,
+                                population_seed=pop_seed, slope_model=_NAV1.slope_arm(),
+                                turn_weight_mode=_NAV1.turn_arm(),
+                                population_scale=(float(n_agents) / float(_pt)) if _pt else 1.0)
+        if not _resuming:  # 再開では保存した位置を読む(置き直さない)
+            R.nav_place(agents, world, geom)
+        frozen_sources_map.update({f"nav1:{k}": v for k, v in sorted(geom.mesh.sources.items())})
     #: edge 幾何の診断(ラン通算)。node では 0 のまま。
     geometry_hops = 0
     geometry_jammed = 0
@@ -1142,7 +1178,8 @@ def build(_call_args: dict[str, Any]) -> Any:
             poi_resolver.store_choice = StoreChoice(
                 mem_layer, world, n_agents, seed=seed,
                 boundary_agent=b_agent, boundary_tick=b_tick,
-                walk_m_per_tick=_walk_m_per_tick(world, n_agents, geometry=str(geometry), geom=geom,
+                walk_m_per_tick=_walk_m_per_tick(world, n_agents, geometry=("nav1" if nav_on else str(geometry)),
+                                                  geom=geom,
                                                   tick_seconds=int(tick_seconds)),
                 intent_max_ticks=int(intent_max_ticks),
                 minutes_per_tick=float(tick_seconds) / SECONDS_PER_MINUTE,
@@ -1382,10 +1419,18 @@ def build(_call_args: dict[str, Any]) -> Any:
     # ---- 〔第 6 期 6-2〕カレンダー 1b(腕 --calendar 1b・母集団と計画実行層のあるランだけ・既定 None=今の道)。W20 の時刻つきの
     # 勤務の約束を持つ体の出入りを本人の判断(仮のモデル=mock/古典)へ渡し、計画実行層に口を挿す(その体の W17 の到着・退出は
     # 実行しない)。0 日目はここで張る・1 日目からは日の頭の表の張り直し。状態台帳の腕の行 C1B・C1BM ----
+    # 〔段 1 の検収 M5〕nav1 のランでは道のりの見積りを本人の歩く速さで(節 1 つ=W1 の辺長の平均 ÷ 本人の m/刻み の刻み)。
+    # legacy は None=節 1 つ 1 刻み(今の見積り=B8 の node の歩く速さ)のまま
+    _hop_steps = None
+    if nav_on:
+        _el = np.asarray(getattr(world.assets, "edge_len_m", np.zeros(0)), dtype=np.float64)
+        _hop_steps = (float(_el.mean()) if _el.size else 1.0) / _walk_m_per_tick(
+            world, n_agents, geometry="nav1", geom=geom, tick_seconds=int(tick_seconds))
     calendar_self_layer = _CAL1B.build(
         world_dir, pop, calendar=calendar, agents=agents, world=world, presence=presence, classical=classical_policy,
         seed=seed, day_key0=int(day_index), step_seconds=int(tick_seconds), steps_per_day=tpd, events=events,
         tools=_tools_fx.registry,  # 〔検収 L4〕時計の道具の行を読む(見れば分単位=TM8)
+        hop_steps=_hop_steps,
     )
     # ---- 〔第 6 期 6-3〕時計の段 T2 の会話の時計(腕 mora のランだけ・既定 table は None=今の道)・T3 の変化の印(腕 changed の
     # ランだけ)。会話の時計の事象を置く口(窓の待ち行列か区域ごとの時計)は進行役が挿す(状態台帳の腕の行 TCR・TCC・T3M) ----
@@ -1429,7 +1474,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         calendar2_layer = _Calendar2Layer(
             n_agents=n_agents, seed=seed, population_seed=pop_seed, day_key0=int(day_index),
             step_seconds=int(tick_seconds), steps_per_day=tpd, events=events, agents=agents, world=world,
-            calendar=calendar, conv=conv, contact=contact_layer, runner=runner,
+            calendar=calendar, conv=conv, contact=contact_layer, runner=runner, hop_steps=_hop_steps,
         )
         if contact_layer is not None:
             contact_layer.turn_sink = calendar2_layer.note_turn
@@ -1488,7 +1533,8 @@ def build(_call_args: dict[str, Any]) -> Any:
             signage=signage, signage_p_see=signage_p_see, sim_days=sim_days, sleep_suppression=sleep_suppression,
             state_out=state_out, store_recall_scope=store_recall_scope, vocab_version=vocab_version,
             activity_region=activity_region, area_source=area_source, chooser=chooser, eatery=eatery,
-            energy_rate=energy_rate, geometry=geometry, home_meal=home_meal, hunger_model=hunger_model,
+            energy_rate=energy_rate, geometry=geometry, space=space_mode, space_effective=space_effective,
+            space_reason=space_reason, home_meal=home_meal, hunger_model=hunger_model,
             hunger_words=hunger_words, intent_mode=intent_mode, meal_sleep_defer=meal_sleep_defer,
             mock_move_target_p=mock_move_target_p, mock_out_of_cell_target_p=mock_out_of_cell_target_p,
             policy=policy,

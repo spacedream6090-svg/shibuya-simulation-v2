@@ -52,7 +52,8 @@ def test_manifest_keys_match_the_frozen_list(two_days):
                                    "decision_port", "tools", "speech_port", "proximity", "experiment",  # 〔3-3〕
                                    "batching",  # 〔第 3 期 3-2〕計算のまとめの窓
                                    "body",  # 〔3-5〕本人の体の層
-                                   "calendar_shadow"]  # 〔3-1〕暦 1a の影
+                                   "calendar_shadow",  # 〔3-1〕暦 1a の影
+                                   "space"]  # 〔第 5 期 空間の段 1〕移動の切替口と計器(末尾)
 
 
 def test_manifest_tm9_values(two_days):

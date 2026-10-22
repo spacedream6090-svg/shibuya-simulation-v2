@@ -182,6 +182,7 @@ SWITCH_ENV: tuple[str, ...] = (
     "SHIBUYA_RULES_42B",  # 〔4-2b 規則の表の空欄 3 件=4-2 の値の再現の切替口(next-bump)〕
     "SHIBUYA_MEAL_DEFAULT", "SHIBUYA_WAGE",
     "SHIBUYA_DUTIES",  # 〔第 6 期 6-6 ② 第 1 部〕店の仕事の腕
+    "SHIBUYA_SPACE", "SHIBUYA_SLOPE", "SHIBUYA_TURN_WEIGHT",  # 〔第 5 期 空間の段 1〕移動の切替口と腕
 )
 
 

@@ -142,6 +142,10 @@ class RunConfig:
     eatery: str
     energy_rate: str
     geometry: str
+    #: 〔第 5 期 空間の段 1〕切替口 --space(頼んだ値・実際の値・理由)。
+    space: str
+    space_effective: str
+    space_reason: str
     home_meal: str
     hunger_model: str
     hunger_words: str

@@ -56,6 +56,9 @@ def report(ctx: Any, b: Any) -> Any:
     familiarity_k = cfg.familiarity_k
     familiarity_on = cfg.familiarity_on
     geometry = cfg.geometry
+    space = cfg.space
+    space_effective = cfg.space_effective
+    space_reason = cfg.space_reason
     home_meal = cfg.home_meal
     hunger_model = cfg.hunger_model
     hunger_words = cfg.hunger_words
@@ -399,6 +402,9 @@ def report(ctx: Any, b: Any) -> Any:
     result.attendance_rate = float(attendance_rate)
     result.derive_rule = str(derive_rule)
     result.geometry = str(geometry)
+    result.space = str(space)
+    result.space_effective = str(space_effective)
+    result.space_reason = str(space_reason)
     result.geometry_hops = int(rs.geometry_hops)
     result.geometry_jammed = int(rs.geometry_jammed)
     result.area_source = str(area_source)

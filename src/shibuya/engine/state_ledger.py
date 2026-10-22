@@ -187,6 +187,9 @@ R_, V_, X_, U_ = REQUIRED, DERIVABLE, DISCARDABLE, UNKNOWN
 
 _ALLOW_BAND = (AstAllow("world/assets.py", 'cells["band"]',
                         "資産の表(W2 の parquet)の列 band を読む行。SoA の agents.band ではない(材料 §2-4 の誤検出 1)"),
+               # 〔第 5 期 空間の段 1〕ナビメッシュの資産の階の表(nav1_meta.json の floors の band)を読む行。SoA ではない
+               AstAllow("world/navmesh.py", 'f["band"] for f in floors',
+                        "ナビメッシュの資産の階の表の band を読む行。SoA の agents.band ではない(第 5 期 段 1)"),
                # 〔第 2 期 2-2 段 11a〕腕 --proximity distance の読み手。〔改訂(第 2 期 2-4 V2)〕近接の既定が distance に
                # なったので、組み立ての規則(rule_from)は体の層を behavior の列 agents.cell から導く(cell_band[cell]=値は同じ)
                # =この列を読むのは cell_band を持たない規則(試験の合成の規則)の道だけ。描画(B5 の近接行の自分の層)の読みは
@@ -295,6 +298,15 @@ _SOA: tuple[LedgerRow, ...] = (
     _s("agents", "rel_first", "i4x15", "60", "腕 relations", B, R_, "agents/state.py:695・relations.py:737"),
     _s("agents", "rel_last", "i4x15", "60", "腕 relations", N_, R_, "agents/state.py:697・AST: 読み 0(表の行の一部・将来の読み手)"),
     _s("agents", "rel_n", "u2x15", "30", "腕 relations", B, R_, "agents/state.py:699・relations.py:738"),
+    # ---- 〔第 5 期 空間の段 1〕ナビメッシュの位置と経路(--space nav1 で資産のあるランだけ・agents/state.py:719-737) ----
+    _s("agents", "nav_ox", "f4", "4", "space nav1", B, R_, "agents/state.py:721・resolve.py _nav_step(経路の出発の点)"),
+    _s("agents", "nav_oy", "f4", "4", "space nav1", B, R_, "agents/state.py:724・resolve.py _nav_step"),
+    _s("agents", "nav_of", "i1", "1", "space nav1", B, R_, "agents/state.py:726・resolve.py _nav_step"),
+    _s("agents", "nav_tgt", "i4", "4", "space nav1", B, R_, "agents/state.py:728・resolve.py _nav_step・_nav_stop"),
+    _s("agents", "nav_t", "f4", "4", "space nav1", B, R_, "agents/state.py:730・resolve.py _nav_step(進んだ時間)"),
+    _s("agents", "nav_fi", "i1", "1", "space nav1", B, R_, "agents/state.py:732・resolve.py _nav_positions(位置の階)"),
+    _s("agents", "nav_wait", "i4", "4", "space nav1", B, R_, "agents/state.py:734・engine/space/nav1.py advance(先着順)"),
+    _s("agents", "nav_node", "i4", "4", "space nav1", B, R_, "agents/state.py:736・resolve.py _nav_positions"),
     # ---- cells(5 列・world/state.py:121-130) ----
     _s("cells", "density", "i4", "4", "既定", B, V_, "world/state.py:121・resolve.py:1487,1511(agents.cell から毎 tick 再計算)"),
     _s("cells", "density_stage", "u1", "1", "既定", B, V_, "world/state.py:123・salient.py:484・presence.py:1715"),
@@ -1951,6 +1963,8 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("calendar_self", CONST, _CFG + "(6-2: 割り振りの種・刻みの幅・1 日の刻みの数・体の数・腕の名)", "seed",
        "step_seconds", "tpd", "n", "source"),
     _x("calendar_self", CONST, _FIELD + "(6-2: 腕の行の腕の名 LEDGER_ARM)", "LEDGER_ARM"),
+    _x("calendar_self", CONST, _CFG + "(第 5 期 空間の段 1・検収 M5: 節 1 つを歩く刻み=W1 の辺長の平均 ÷ 本人の m/刻み・"
+       "組み立てが 1 回だけ置く=体の属性と世界から作り直せる・legacy は None)", "hop_steps"),
     _x("calendar_self", CACHE, _TAB + "(6-2: 路線ごとの便の表と便の間隔=鉄道の便から日の頭に作り直す)", "_line_tab",
        "_headway"),
     _x("calendar_self", CACHE, "6-2: この刻みに歩き始めた体(刻みの中で使い切る)", "walk_started_now"),
@@ -2013,6 +2027,8 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("calendar2", CONST, _CFG + "(6-2 カレンダー 2: 体の数・刻みの幅・1 日の刻みの数=組み立てが 1 回だけ置く)", "n",
        "step_seconds", "step_ns", "steps_per_day", "day_ns"),
     _x("calendar2", CONST, _FIELD + "(6-2 カレンダー 2: 腕の行の腕の名 LEDGER_ARM)", "LEDGER_ARM"),
+    _x("calendar2", CONST, _CFG + "(第 5 期 空間の段 1・検収 M5: 節 1 つを歩く刻み=W1 の辺長の平均 ÷ 本人の m/刻み・"
+       "組み立てが 1 回だけ置く=体の属性と世界から作り直せる・legacy は None)", "hop_steps"),
     _x("calendar2", REF, _REFR + "(6-2 カレンダー 2: 出来事の記録・体・世界・暦・対面の会話・連絡の道具・世界過程=読むだけ・"
        "判断の口・頭の中の予定の思い出しの口(人ごとの忘れる速さの倍率=母集団の seed と体の番号から作り直せる))", "events",
        "agents", "world", "calendar", "conv", "contact", "runner", "port", "recall"),

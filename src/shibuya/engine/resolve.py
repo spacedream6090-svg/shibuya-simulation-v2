@@ -1430,7 +1430,10 @@ def apply(
         # 以降の適用関数は全て「体はノードに居る」前提で ``node`` からセル・経路を引く
         # (``_cell_of_node`` / ``_apply_move`` / ``_apply_buy`` …)。ここで 1 回だけ吸着すれば
         # 個々の適用関数に幾何を配らなくて済む。エンジン継続(移動の続き)は対象外。
-        if geometry is not None and code.size:
+        if _is_nav(geometry) and code.size:
+            # 第 5 期 段 1(nav1): 新しい行動を選んだ体は**その場に止まる**(吸着の瞬間移動をしない)・経路を捨てる
+            _nav_stop(agents, geometry, aid[code != ENGINE_STEP])
+        elif geometry is not None and code.size:
             act = aid[code != ENGINE_STEP]
             if act.size:
                 act = act[r.path_next_node[act] >= 0]
@@ -1499,6 +1502,12 @@ def apply(
             r.xy[:] = world.assets.node_xy[np.maximum(node, 0)]
             world.cells.density[:] = world.compute_density(r.cell)
             world.cells.density_stage[:] = world.density_stage()
+        elif _is_nav(geometry):
+            # 第 5 期 段 1(nav1): 位置は (xy, 階)・セルは面から導く・移動の外で node が変わった体は節の点へ
+            _nav_positions(agents, world, geometry)
+            world.cells.density[:] = world.compute_density(r.cell)
+            # 〔段 1 の検収 M4 (a)〕密度の段の分子は面の上に居て建物の中でない体だけ
+            world.cells.density_stage[:] = geometry.density_stage(geometry.surface_counts(r))
         else:
             # C9 edge: 辺に乗っていてよいのは「移動中かつ目的あり」の体だけ。
             # 乗車・降車・外界配置などで ``node`` を直に書き換えた体はここで降ろす
@@ -1529,6 +1538,140 @@ def apply(
         out.movement_seconds = time.perf_counter() - t0
         out.movement_cpu_seconds = time.thread_time() - c0
     return out
+
+
+# ---------------------------------------------------------------- 第 5 期 空間の段 1(nav1)
+def _is_nav(geometry: Any) -> bool:
+    """位置幾何がナビメッシュの移動(``engine.space.nav1.NavSpace``)か。"""
+    return bool(getattr(geometry, "is_nav", False))
+
+
+def _nav_stop(agents: AgentState, nav: Any, act: np.ndarray) -> None:
+    """新しい行動を選んだ体のうち経路の途中の体: その場に止まり(位置は変えない)、経路を捨て、node を面の上の点に最も
+    近い W1 の節にする(行為の適用関数が node を見るため・つなぎ=``engine.space.nav1.NAV1_EXPEDIENTS`` の 4)。"""
+    r = agents.registry
+    act = np.asarray(act, dtype=np.int64)
+    if act.size == 0:
+        return
+    sel = act[r.nav_tgt[act] >= 0]
+    if sel.size == 0:
+        return
+    nav.drop(sel)
+    r.nav_tgt[sel] = -1
+    r.nav_t[sel] = 0.0
+    r.nav_wait[sel] = -1
+    # 域外・車内の体(node < 0)は面の上に居ない=node を書き換えない(位置の確定が経路と階を片づける)
+    on = sel[(r.nav_fi[sel] >= 0) & (r.node[sel] >= 0)]
+    if on.size:
+        # スロープの中(線の上=面の外)で止まった体は同じ階の面の最も近い点へ(〔段 1 の検収 L3〕面の外に居ない)
+        sx, sy = nav.onto_surface(r.xy[on, 0], r.xy[on, 1], r.nav_fi[on])
+        r.xy[on, 0] = sx.astype(np.float32)
+        r.xy[on, 1] = sy.astype(np.float32)
+        nd = nav.nearest_nodes(r.xy[on, 0], r.xy[on, 1], r.nav_fi[on])
+        r.node[on] = nd.astype(np.int32)
+        r.nav_node[on] = nd.astype(np.int32)
+    nav.nav_meter.stops_mid_route += int(sel.size)
+
+
+def _nav_step(agents: AgentState, world: World, aid: np.ndarray, tgt: np.ndarray, tick: int,
+              out: ResolveOutcome, nav: Any) -> tuple[np.ndarray, np.ndarray]:
+    """エンジン継続(nav1): 経路を(要れば)引き、1 刻みぶん面の上を進む。返り値 ``(arrived, stuck)``。
+
+    逐次ループ宣言(P4): 経路の要る体の数ぶん(``NavSpace.ensure_routes``)と、移動中の体の numba のループ。
+    """
+    r = agents.registry
+    aid = np.asarray(aid, dtype=np.int64)
+    tgt = np.asarray(tgt, dtype=np.int64)
+    arrived = np.zeros(aid.size, dtype=bool)
+    stuck = np.zeros(aid.size, dtype=bool)
+    if aid.size == 0:
+        return arrived, stuck
+    changed, nox, noy, nof, ok = nav.ensure_routes(
+        aid, r.xy[aid, 0], r.xy[aid, 1], r.nav_fi[aid], tgt, r.nav_tgt[aid], r.nav_ox[aid], r.nav_oy[aid],
+        r.nav_of[aid])
+    r.nav_ox[aid] = nox
+    r.nav_oy[aid] = noy
+    r.nav_of[aid] = nof
+    r.nav_t[aid] = np.where(changed, 0.0, r.nav_t[aid]).astype(np.float32)
+    r.nav_wait[aid] = np.where(changed, -1, r.nav_wait[aid]).astype(np.int32)
+    r.nav_tgt[aid] = np.where(ok, tgt, -1).astype(np.int32)
+    stuck[~ok] = True
+    okq = np.flatnonzero(ok)
+    go = aid[okq]
+    if go.size:
+        # 〔段 1 の検収 M4 (a)〕混み具合=面の上に居て建物の中でない体の数(刻みの頭の状態から=再開でも同じ)
+        fac = nav.kladek_factor(r.cell[go], nav.surface_counts(r))
+        n_jam = int(np.count_nonzero(fac <= 0.0))
+        out.n_jammed += n_jam
+        nav.nav_meter.jammed_agent_steps += n_jam
+        res = nav.advance(go, r.nav_t[go], fac, r.nav_wait[go], int(tick))
+        r.nav_t[go] = res["t"].astype(np.float32)
+        r.nav_wait[go] = res["wait"].astype(np.int32)
+        r.xy[go, 0] = res["x"].astype(np.float32)
+        r.xy[go, 1] = res["y"].astype(np.float32)
+        r.nav_fi[go] = res["fi"].astype(np.int8)
+        passed = res["node"] >= 0
+        if passed.any():
+            r.node[go[passed]] = res["node"][passed].astype(np.int32)
+            r.nav_node[go[passed]] = res["node"][passed].astype(np.int32)
+        arr = np.asarray(res["arrived"], dtype=bool)
+        arrived[okq[arr]] = True
+        done = go[arr]
+        if done.size:
+            r.node[done] = tgt[okq[arr]].astype(np.int32)
+            r.nav_node[done] = r.node[done]
+            nav.trip_done(done)
+            r.nav_tgt[done] = -1
+            r.nav_t[done] = 0.0
+            r.nav_wait[done] = -1
+    if stuck.any():
+        bad = aid[stuck]
+        nav.drop(bad)
+        r.nav_wait[bad] = -1
+    return arrived, stuck
+
+
+def _nav_positions(agents: AgentState, world: World, nav: Any) -> None:
+    """位置の確定(nav1): 経路の外れた体の掃除・移動の外で node が変わった体を節の点へ・(xy, 階) → セル・層。"""
+    r = agents.registry
+    stale = np.flatnonzero((r.nav_tgt >= 0) & ((r.activity != int(Activity.MOVING)) | (r.target_node < 0)
+                                                | (r.node < 0)))
+    if stale.size:
+        nav.drop(stale)
+        r.nav_tgt[stale] = -1
+        r.nav_t[stale] = 0.0
+        r.nav_wait[stale] = -1
+        st_on = stale[r.nav_fi[stale] >= 0]
+        if st_on.size:  # スロープの中で経路の外れた体も面の上の点へ(〔段 1 の検収 L3〕)
+            sx, sy = nav.onto_surface(r.xy[st_on, 0], r.xy[st_on, 1], r.nav_fi[st_on])
+            r.xy[st_on, 0] = sx.astype(np.float32)
+            r.xy[st_on, 1] = sy.astype(np.float32)
+    ext = np.flatnonzero((r.node != r.nav_node) & (r.nav_tgt < 0))
+    if ext.size:
+        nd = r.node[ext].astype(np.int64)
+        on = ext[nd >= 0]
+        if on.size:
+            x, y, f = nav.anchor_of(r.node[on])
+            r.xy[on, 0] = x.astype(np.float32)
+            r.xy[on, 1] = y.astype(np.float32)
+            r.nav_fi[on] = f
+            nav.nav_meter.placed_at_anchor += int(on.size)
+        off = ext[nd < 0]
+        if off.size:
+            r.nav_fi[off] = -1
+        r.nav_node[ext] = r.node[ext]
+    cell, band = nav.cells(r.xy[:, 0], r.xy[:, 1], r.nav_fi)
+    cell = np.where(r.node >= 0, cell, -1).astype(np.int32)
+    r.cell[:] = cell
+    r.band[:] = np.where(cell >= 0, band, 0).astype(np.int8)
+
+
+def nav_place(agents: AgentState, world: World, nav: Any) -> None:
+    """ランの頭(nav1): 体を節の点へ置き、セルと層を面から導く(初期化と域外の配置の後に 1 回・再開では呼ばない)。"""
+    with agents.writable(), world.writable():
+        _nav_positions(agents, world, nav)
+        world.cells.density[:] = world.compute_density(agents.registry.cell)
+        world.cells.density_stage[:] = nav.density_stage(nav.surface_counts(agents.registry))
 
 
 # ---------------------------------------------------------------- 行動語ごとの適用
@@ -1564,6 +1707,8 @@ def _apply_engine_step(agents, world, aid, tgt, tick, out, schedule) -> None:
         new_node, arrived = world.graph.step_once(r.node[aid], tgt)
         stuck = (new_node.astype(np.int64) == r.node[aid].astype(np.int64)) & (~arrived)
         r.node[aid] = new_node
+    elif _is_nav(geom):
+        arrived, stuck = _nav_step(agents, world, aid, tgt, tick, out, geom)
     else:
         budget = geom.tick_budget_m(aid, r.cell[aid], world.cells.density)
         out.n_jammed += int(np.count_nonzero(budget <= 0.0))
@@ -1723,7 +1868,7 @@ def _approach_dest_node(agents, world, aid, dest_node, out) -> np.ndarray:
     r = agents.registry
     geom = out.geometry
     person = np.clip(f, 0, max(0, int(agents.n) - 1))
-    if geom is None:
+    if geom is None or _is_nav(geom):
         pn = r.node[person].astype(np.int64)
     else:
         pn, _nx, _s, _e = geom.snap_to_nearest_node(

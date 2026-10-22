@@ -526,7 +526,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.contact "  # 〔第 6 期 6-4 C1〕連絡の道具を結果に渡す(manifest の contact_c1)
                "layers.calendar2 "  # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定を結果に渡す(manifest の calendar_2)
                "layers.calendar3 "  # 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日を結果に渡す(manifest の calendar_3)
-               "layers.duties",  # 〔第 6 期 6-6 ② 第 1 部〕店の仕事を結果に渡す(manifest の duties)
+               "layers.duties "  # 〔第 6 期 6-6 ② 第 1 部〕店の仕事を結果に渡す(manifest の duties)
+               "fx.geom",  # 〔第 5 期 空間の段 1〕ナビメッシュの移動の道具を結果に渡す(manifest の space)
          origin=f"E1・run.py:4551-4592 @{_E}"),
     make("report", "計器", "run_end", _RP.report,
          tally="result sleep_counts frozen_sources_map",  # 段 FIX: 欄の別名 ``frozen_sources_map.update``
@@ -543,6 +544,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "cfg.plan_sleep cfg.policy cfg.refractory_scale_norm cfg.response_delay "
                "cfg.role_words cfg.run_id cfg.seat_area_eatery_m2 cfg.seat_area_retail_m2 cfg.seat_release cfg.signage "
                "cfg.signage_p_see cfg.sim_days cfg.sleep_suppression cfg.stopped cfg.store_memory_on "
+               "cfg.space cfg.space_effective cfg.space_reason "  # 〔第 5 期 空間の段 1〕切替口 --space
                "cfg.store_recall_scope cfg.store_signage_on cfg.store_wom_on cfg.t_begin cfg.t_end "
                "cfg.tick_seconds cfg.vocab_version day.w17_substituted fx.calendar fx.fleet "
                "fx.perception fx.renderer_obj fx.schedule fx.start_check fx.walkable layers.act_layer "

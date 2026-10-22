@@ -49,9 +49,10 @@ def test_the_fields_are_at_the_end_and_frozen(two_days):
     # 〔第 3 期 3-2〕その後ろに batching(計算のまとめの窓)・〔第 3 期 3-5〕その後ろに body(本人の体の層)を足した=1-4 の 3 欄は
     # 末尾の 10 前まで
     # 〔第 3 期 3-1〕その後ろ(末尾)に calendar_shadow を足した=1-4 の 3 欄は末尾の 11 前まで
-    assert keys == TOP and keys[-14:-11] == R14 and keys[-15] == "bridges_count"
-    assert keys[-11:] == ["economy", "percept", "rights", "decision_port", "tools", "speech_port", "proximity",
-                          "experiment", "batching", "body", "calendar_shadow"]
+    assert keys == TOP and keys[-15:-12] == R14 and keys[-16] == "bridges_count"  # 〔第 5 期 段 1〕space の分 1 つずれた
+    # 〔第 5 期 空間の段 1〕その後ろ(末尾)に space=末尾の 12
+    assert keys[-12:] == ["economy", "percept", "rights", "decision_port", "tools", "speech_port", "proximity",
+                          "experiment", "batching", "body", "calendar_shadow", "space"]
 
 
 def test_values_match_the_ledger_and_the_table(two_days):

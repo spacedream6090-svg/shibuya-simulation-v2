@@ -469,7 +469,10 @@ PRE_D44_DIGESTS = {
     # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界の build_manifest(build_hash 0b215fcd…=活性化の後の本体の v2)で
     # 判定を作り直した(--judge-manifest → --read-graph → --triage → --d44)=変わったのは manifest_build_hash だけ(行・読みの
     # グラフ・3 分類・D-44 は前と同じ)。旧値 bb2e854a4bae35e08684b36dae4e2393845650b0ab0736157e92189b97cbc9e5(記録 pop43)
-    "judgment_rest_without_d44": "ba7f50c455453d59aa052a9d22c418d3c410d179383fb4a1d62ea23abd5b217d",
+    # 〔第 5 期 空間の段 1〕エンジンの移動(engine/space/nav1.py)が W1 の w1_edge_geometry.npz を読む(曲がる向き)ので、W1 の
+    # engine_sites に 1 行足した(手で・verdict・reach・consumers・rows の digest は不変・記録 spatial-2026-10/sp1/README.md)。
+    # 旧値 ba7f50c455453d59aa052a9d22c418d3c410d179383fb4a1d62ea23abd5b217d
+    "judgment_rest_without_d44": "e16aefb0bba45be86a54b999be41999cdd3736fa379d737752ff1a22316781c2",
 }
 D44_DIR_REL = ("docs", "bench", "analysis", "d44-controls-2026-09-30")
 

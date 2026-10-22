@@ -108,6 +108,8 @@ def sys_close_final(ctx: Any, b: Any) -> None:
     result.speech_layer = L.speech  # type: ignore[attr-defined]
     # 第 2 期 2-2 段 11a: 近接の層(腕 distance のランだけ・既定 None)も同じ形で渡す(manifest の proximity が読む)
     result.proximity_layer = L.proximity  # type: ignore[attr-defined]
+    # 〔第 5 期 空間の段 1〕ナビメッシュの移動の道具(nav1 のランだけ・ほかは None)も同じ形で渡す(manifest の space が読む)
+    result.space_layer = b.fx.geom if getattr(b.fx.geom, "is_nav", False) else None  # type: ignore[attr-defined]
     # 〔第 3 期 3-3〕申込書の持ち主(申込書を渡したランだけ・既定 None)も同じ形で渡す(manifest の experiment が読む)
     result.experiment_layer = L.experiment  # type: ignore[attr-defined]
     # 〔第 3 期 3-5〕本人の体の層(どの腕でも組み立てが置く)も同じ形で渡す(manifest の body が読む)

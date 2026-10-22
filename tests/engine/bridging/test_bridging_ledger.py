@@ -145,7 +145,9 @@ def test_the_counts_by_form(decls):
     # =240 → 248(記録 pop43/README.md・見出しは足していない)
     # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕engine/energy.py の表 MEAL_DEFAULT_EXPEDIENTS から旧値の腕 validation の 1 行を消した
     # =248 → 247(W12 の等間隔の道の 1 行は文を改めただけ=数は同じ・記録 pop43/README.md §19)
-    assert S.count_by_form(decls) == {"conf": 0, "expedients": 247, "docstring": 6, "heading": 84, "process": 18,
+    # 〔第 5 期 空間の段 1〕build/space/navmesh1.py の表 NAVMESH1_EXPEDIENTS(9 行)と engine/space/nav1.py の表
+    # NAV1_EXPEDIENTS(6 行)を足した=247 → 262・〔段 1 の検収の直し〕構築 4 行(切れ目と閉じ・端を寄せる・回廊・セルで切る)と移動 2 行(広い探索・密度の縮尺)=268(記録 spatial-2026-10/sp1/README.md・見出しは足していない)
+    assert S.count_by_form(decls) == {"conf": 0, "expedients": 268, "docstring": 6, "heading": 84, "process": 18,
                                       "fallback": 5}
     heads = [d for d in decls if d.form == S.FORM_HEADING]
     # 〔第 1 期 1-2〕p_notice の expedient の項 m_load(歩きスマホの負荷の係数)を消した=338 → 337(記録 p12/README.md §15)

@@ -101,6 +101,7 @@ __all__ = [
     "LOOK_INTERVAL_MIN", "MARGINS_MIN", "RECENT_K", "ROUND_MIN", "APPROX_ROUND_MIN", "FELT_WAIT_INTERCEPT",
     "FELT_WAIT_SLOPE", "MAX_RETRIES", "Observation", "Prediction", "CommuteMockPort", "CommuteClassicalPort",
     "commute_candidates", "observe_time", "felt_minutes", "duration_words", "validate_commitments", "route_steps",
+    "hop_walk_steps",
     "Estimate", "update_estimate", "CalendarSelf", "manifest_fields", "build", "BRIDGES",
 ]
 
@@ -413,6 +414,15 @@ def update_estimate(recent: Sequence[float], initial: Estimate) -> Estimate:
     return Estimate(lo=max(c - w / 2.0, 0.0), hi=c + w / 2.0)
 
 
+def hop_walk_steps(steps: Any, hop_steps: Any, ids: Any) -> np.ndarray:
+    """節の数 → 歩く刻み(〔第 5 期 空間の段 1・検収 M5〕)。``hop_steps`` が None なら 1 刻み 1 節(legacy の見積り=B8)・
+    nav1 のランは節 1 つの刻み(W1 の辺長の平均 ÷ 本人の m/刻み)を掛ける(体 ``ids`` ごと)。"""
+    st = np.asarray(steps)
+    if hop_steps is None:
+        return st
+    return st.astype(np.float64) * np.asarray(hop_steps, dtype=np.float64)[np.asarray(ids, dtype=np.int64)]
+
+
 def route_steps(world: Any, src_node: np.ndarray, dst_node: np.ndarray, *, cap: int = 4_000) -> np.ndarray:
     """歩行グラフ(W3 の next-hop)で src → dst の節の数(着かなければ −1)。体はベクトル・ループは道のりの節の数ぶん。"""
     s = np.asarray(src_node, dtype=np.int64).ravel()
@@ -471,8 +481,11 @@ class CalendarSelf:
 
     def __init__(self, table: Any, *, calendar: Any, agents: Any, world: Any, presence: Any, port: DecisionPort,
                  agent_key: Any, seed: int | str, step_seconds: int, steps_per_day: int, events: Any = None,
-                 tools: Any = None) -> None:
+                 tools: Any = None, hop_steps: Any = None) -> None:
         self.table = table
+        #: 〔第 5 期 空間の段 1・検収 M5〕節 1 つを歩く刻み(体ごと)。None=1 刻み 1 節(legacy の見積り=B8)・nav1 のランは
+        #: W1 の辺長の平均 ÷ 本人の m/刻み(``store_choice.walk_m_per_tick``)
+        self.hop_steps = None if hop_steps is None else np.asarray(hop_steps, dtype=np.float64)
         self.calendar = calendar
         self.agents = agents
         self.world = world
@@ -827,7 +840,7 @@ class CalendarSelf:
         src[rloc] = node_of(s["home_cell"][ids[rloc]])
         dst[rloc] = node_of(s["place_cell"][ids[rloc]])
         steps = route_steps(world, src, dst)
-        walk = np.where(steps >= 0, self._minutes(steps), 0.0)
+        walk = np.where(steps >= 0, self._minutes(hop_walk_steps(steps, self.hop_steps, ids)), 0.0)
         lead = s["lead"][ids].astype(np.float64)
         d_out = np.where(rloc, 0.0, np.maximum(lead - walk, 0.0))
         head = np.array([self._headway.get(int(li), 0.0) if li >= 0 else 0.0 for li in s["line"][ids].tolist()],
@@ -1708,7 +1721,7 @@ def manifest_fields(layer: CalendarSelf | None) -> dict[str, Any]:
 
 def build(world_dir: Any, pop: Any, *, calendar: Any, agents: Any, world: Any, presence: Any, classical: Any,
           seed: int | str, day_key0: int, step_seconds: int, steps_per_day: int, events: Any = None,
-          tools: Any = None) -> CalendarSelf | None:
+          tools: Any = None, hop_steps: Any = None) -> CalendarSelf | None:
     """組み立ての口: 腕 1b のランの層を作り、0 日目を張り、計画実行層に口を挿す(腕 w17 は ``None``)。
 
     Raises:
@@ -1727,7 +1740,7 @@ def build(world_dir: Any, pop: Any, *, calendar: Any, agents: Any, world: Any, p
     port: DecisionPort = CommuteClassicalPort(**pkw) if classical is not None else CommuteMockPort(**pkw)
     layer = CalendarSelf(table, calendar=calendar, agents=agents, world=world, presence=presence, port=port,
                          agent_key=pop.source_agent_id, seed=seed, step_seconds=step_seconds,
-                         steps_per_day=steps_per_day, events=events, tools=tools)
+                         steps_per_day=steps_per_day, events=events, tools=tools, hop_steps=hop_steps)
     layer.relay_day(0)
     presence.io_hook = layer
     return layer

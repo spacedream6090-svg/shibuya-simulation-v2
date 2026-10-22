@@ -50,6 +50,7 @@ from shibuya.engine import resolve as R
 from shibuya.engine import run_kind as _RK
 from shibuya.engine.arbiter import call_budget_per_tick
 from shibuya.engine.geometry import DEFAULT_GEOMETRY, GEOMETRY_MODES
+from shibuya.engine.space import nav1 as _NAV1
 from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.run import (
     MINUTES_PER_SIM_DAY,
@@ -510,7 +511,9 @@ def run(
                               or _contact_arm.is_on()  # 〔6-4 C1〕連絡の道具の腕(--contact c1)
                               or _calendar2_arm.is_on()  # 〔6-2 カレンダー 2〕会話から生まれる予定の腕(--calendar-2 arm)
                               or _calendar3_arm.is_on()  # 〔6-2 カレンダー 3〕雇い主・祝日の腕(--calendar-3 arm)
-                              or _duties_arm.is_on(),  # 〔6-6 ② 第 1 部〕店の仕事の腕(--duties arm)
+                              or _duties_arm.is_on()  # 〔6-6 ② 第 1 部〕店の仕事の腕(--duties arm)
+                              # 〔第 5 期 空間の段 1〕移動の腕(引数か環境変数 SHIBUYA_SPACE で nav1=坂と曲がる重みの腕は nav1 の中だけ)
+                              or _NAV1.space_env_override(kwargs.get("space")) != _NAV1.DEFAULT_SPACE,
                               counterfactual=exp_form is not None)
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
@@ -790,6 +793,8 @@ def _arm_norm(key: str, v: Any) -> Any:
 
     if key == "budget_mode" and v is not None:
         return BudgetMode.parse(v).value
+    if key == "space" and (v is None or v == _NAV1.DEFAULT_SPACE):
+        return None  # 〔第 5 期 空間の段 1〕既定(legacy)を明示で渡しても腕ではない(環境変数の nav1 は下の decide で数える)
     if isinstance(v, enum.Enum):
         v = v.value
     if v is True or v == "on":
@@ -1245,6 +1250,7 @@ def main(argv: list[str] | None = None) -> int:
              "edge=辺上の連続位置(edge_id・辺上距離・向き)+希望速度 Uniform(1.00,1.60) m/s"
              "+Kladek 式の密度減速。edge では密度段が人/m² の Fruin LOS 段になる",
     )
+    _NAV1.add_space_args(ap)
     ap.add_argument(
         "--area-source",
         choices=AREA_SOURCES,
@@ -1713,6 +1719,7 @@ def main(argv: list[str] | None = None) -> int:
         outside_suppression=not args.no_outside_suppression,
         geometry=str(args.geometry),
         area_source=str(args.area_source),
+        space=_NAV1.space_from_args(args),
         seat_area_eatery_m2=args.seat_area_eatery,
         seat_area_retail_m2=args.seat_area_retail,
         intent_mode=str(args.intent_mode),

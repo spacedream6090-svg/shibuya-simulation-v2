@@ -63,8 +63,8 @@ _REASON_CODE: Final[dict[str, int]] = {r: i for i, r in enumerate(CHOICE_REASONS
 
 def walk_m_per_tick(world: Any, n_agents: int, *, geometry: str = "node", geom: Any = None,
                     tick_seconds: int = 60) -> np.ndarray:
-    """体ごとの歩速[m/tick](エンジンの移動の物差し)。node=W1 の辺長の平均・edge=希望速度 × tick 秒。"""
-    if geometry == "edge" and geom is not None and getattr(geom, "v_desired", None) is not None:
+    """体ごとの歩速[m/tick](エンジンの移動の物差し)。node=W1 の辺長の平均・edge と nav1=希望速度 × tick 秒。"""
+    if geometry in ("edge", "nav1") and geom is not None and getattr(geom, "v_desired", None) is not None:
         v = np.asarray(geom.v_desired, dtype=np.float64)[: int(n_agents)] * float(tick_seconds)
         return np.maximum(v, 1e-6)
     el = np.asarray(getattr(world.assets, "edge_len_m", np.zeros(0)), dtype=np.float64)

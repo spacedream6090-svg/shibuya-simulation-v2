@@ -53,7 +53,7 @@ DEAD5 = ("agents.plan_cursor", "agents.invocation_distance", "agents.wake_pendin
 T7_TARGET_SECONDS = 0.100
 T7_SHARE_CAP = 0.01
 #: T7 で確かめる既定 v3 の final(10e の版上げの段ごとに張り替える)。
-T7_V3_FINAL = "bb86f89855172717"  # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)で動いた(前 333b1820f7849b00=記録 pop43)  # 〔小さな版上げ・meal_w17〕前 b8eadcb51e8705e7(--meal-default validation で戻る)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+T7_V3_FINAL = "bb86f89855172717"  # 〔第 5 期 空間の段 1〕既定は legacy のまま(nav1 の腕の値 d8b2d497eef28887=--space nav1・記録 spatial-2026-10/sp1)  # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)で動いた(前 333b1820f7849b00=記録 pop43)  # 〔小さな版上げ・meal_w17〕前 b8eadcb51e8705e7(--meal-default validation で戻る)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
 # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧値の腕 --meal-default validation の final の定数 _T7_V3_FINAL_PRE_MEAL_W17(最後の値 5b080133301bf13d=差し替えの世界・前 b8eadcb51e8705e7=W16 の世界)は切替口と一緒に消した(再現は安定版のタグ stable-v2-before-meal-default-w17)
 #: A2 (b): 構成で読み手が変わる 6 列(どの構成でも behavior)。
 A2B_SIX = ("age", "sex", "talk_partner", "weight_kg", "sm_last", "mem_last")
@@ -109,7 +109,8 @@ def test_ledger_has_187_rows_in_two_axes():
     # 〔1-3 の (1) の直し〕発話の口の口の目印 → 記録の id の診断の表の行 S8E(diag・required・腕 speech-port)を S8M の後に足して 144・235(4-2 の TXD の後の数)
     # 〔第 6 期 6-2 カレンダー 3〕その後(TXD の後)に雇い主・祝日の腕の行 CA3S・CA3P・CA3G・CA3M・CA3Q(腕 calendar-3)を足して 149・240
     # 〔第 6 期 6-6 ② 第 1 部〕その後(CA3Q の後)に店の仕事の腕の行 DUS・DUG・DUM・DUQ(腕 duties)を足して 153・244
-    assert c == {"agents": 74, "cells": 5, "pois": 9, "perception": 3, "external": 153, "soa": 91, "total": 244}
+    # 〔第 5 期 空間の段 1〕ナビメッシュの位置と経路の 8 列(nav_*・space nav1)を足して agents 82・soa 99・total 252
+    assert c == {"agents": 82, "cells": 5, "pois": 9, "perception": 3, "external": 153, "soa": 99, "total": 252}
     assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
@@ -196,7 +197,7 @@ def test_ledger_declarations_from_the_decisions():
 def _all_columns_state(n: int = 3) -> tuple[AgentState, World, PerceptionState]:
     a = AgentState(n, plan_columns=True, edge_columns=True, attention_columns=True, activity_columns=True,
                    familiarity_columns=True, energy_columns=True, memory_columns=True,
-                   store_memory_columns=True, relation_columns=True)
+                   store_memory_columns=True, relation_columns=True, nav_columns=True)
     return a, World.synthetic(n_cells=9, seed=1), PerceptionState(n, include_invocation_distance=True)
 
 
@@ -307,13 +308,14 @@ def test_ast_false_positives_band_and_b4_hash_are_explicit(scanned):
     1 か所に集めた読み・``perception/renderer.py`` の B5 の近接行の自分の層)の許可を足した(3 個=誤検出 1 と合わせて)。
     〔第 2 期 2-4 V2〕近接の既定が distance になり、組み立ての規則と描画は体の層を ``agents.cell`` から導く形に替えた=
     描画の許可は消した(2 個=誤検出 1+試験の合成の規則の道)。"""
-    n_allow = {"agents.band": 2, "cells.b4_hash": 1}
+    # 〔第 5 期 空間の段 1〕ナビメッシュの資産の階の表の band(world/navmesh.py)の誤検出を 1 つ足した=3 個
+    n_allow = {"agents.band": 3, "cells.b4_hash": 1}
     for key, path in (("agents.band", "world/assets.py"), ("cells.b4_hash", "world/state.py")):
         r = SL.row(key)
         assert r.behavior == SL.NO and len(r.ast_allow) == n_allow[key] and r.ast_allow[0].path == path
         hits = [s for s in scanned.loose[r.name] if SA._allowed(s, r.ast_allow)]
         assert hits, key
-    assert [a.path for a in SL.row("agents.band").ast_allow[1:]] == ["engine/proximity.py"]
+    assert [a.path for a in SL.row("agents.band").ast_allow[1:]] == ["world/navmesh.py", "engine/proximity.py"]
     # b4_hash のプロパティ World.b4_hash の呼び手は 0(属性 .b4_hash の読みはプロパティの中の 1 か所だけ)
     assert [str(s) for s in scanned.loose["b4_hash"]] == [str(s) for s in scanned.loose["b4_hash"]
                                                          if s.path == "world/state.py"]

@@ -7724,6 +7724,342 @@
     "src/shibuya/engine/processes/opening.py",
     "src/shibuya/engine/processes/goods_flow.py"
    ]
+  },
+  {
+   "id": "BR-NAV1-B1",
+   "what": "LOD1 しか無い幹線(tertiary 以上)は道の外の縁から 2.0 m(仮)だけを歩ける帯にする(SR10 (a)・外す段: 点群・基盤地図情報・航空写真で実際の幅が分かった区間から置き換え=SR1 の承認の後)",
+   "why": "第 5 期 空間の段 1 のナビメッシュの構築の仮採用(StageResult.expedients=NAVMESH1_EXPEDIENTS・記録 docs/bench/analysis/spatial-2026-10/sp1/README.md §5)。 外す段: 7",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/space/navmesh1.py#expedients:6f84467a",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/build/space/navmesh1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-B2",
+   "what": "どの面にも載らない道の幅は OSM の width(付与 0.3%)→ 道の種類の既定幅(LINE_WIDTH_M)・横断の帯は幅 4.0 m(仮)(SR10 (a)・外す段: 実際の幅のデータの後)",
+   "why": "第 5 期 空間の段 1 のナビメッシュの構築の仮採用(StageResult.expedients=NAVMESH1_EXPEDIENTS・記録 docs/bench/analysis/spatial-2026-10/sp1/README.md §5)。 外す段: 7",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/space/navmesh1.py#expedients:63bf5fc9",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/build/space/navmesh1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-B3",
+   "what": "道の種類は PLATEAU の tran:function の 2(一般国道)・3(都道府県道)を幹線の型とし、不明(9020)ほかの地物だけ格子の目ごとに最も近い W1 の車の辺の種類を写す(住宅街の型/幹線の型の 2 つ・地物ごとに多い方)",
+   "why": "第 5 期 空間の段 1 のナビメッシュの構築の仮採用(StageResult.expedients=NAVMESH1_EXPEDIENTS・記録 docs/bench/analysis/spatial-2026-10/sp1/README.md §5)。 外す段: 7",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/space/navmesh1.py#expedients:009c69e7",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/build/space/navmesh1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-B4",
+   "what": "W1 で行けるのに面が切れている所は、辺の近くの 2 つの塊の最も近い 2 点を幅 2 m の帯で結ぶ(つなぎ=bridge_w1)・面から 30 m より遠い W1 の節は面までの短い帯(anchor_stub)(外す段: 実際の横断と通路のデータ=5-2 以降)",
+   "why": "第 5 期 空間の段 1 のナビメッシュの構築の仮採用(StageResult.expedients=NAVMESH1_EXPEDIENTS・記録 docs/bench/analysis/spatial-2026-10/sp1/README.md §5)。 外す段: 7",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/space/navmesh1.py#expedients:382627c2",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/build/space/navmesh1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-B5",
+   "what": "デッキの高さは橋梁の上面が無い所で地面 + 5.0 m(仮)・地下は 1 階あたり 5.0 m(仮)(外す段: 5-2 の建物の中と縦の照合)",
+   "why": "第 5 期 空間の段 1 のナビメッシュの構築の仮採用(StageResult.expedients=NAVMESH1_EXPEDIENTS・記録 docs/bench/analysis/spatial-2026-10/sp1/README.md §5)。 外す段: 5-2",
+   "remove_at": "5-2",
+   "declared_in": "src/shibuya/build/space/navmesh1.py#expedients:b5f7f80a",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/build/space/navmesh1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-B6",
+   "what": "PLATEAU の地下出入口 4020 は種類の属性が無いので階段と置く・幅の分からない階段は 2.0 m(仮)(外す段: 5-4 駅の構内)",
+   "why": "第 5 期 空間の段 1 のナビメッシュの構築の仮採用(StageResult.expedients=NAVMESH1_EXPEDIENTS・記録 docs/bench/analysis/spatial-2026-10/sp1/README.md §5)。 外す段: 5-4",
+   "remove_at": "5-4",
+   "declared_in": "src/shibuya/build/space/navmesh1.py#expedients:b04c9635",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/build/space/navmesh1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-B7",
+   "what": "エレベーターの運行の間隔 60 s(仮)=待ち 30 s(SR11 (d))・定員 11 人(R-64)(外す段: 5-5 の物理でかごを動かす=SR11 (f))",
+   "why": "第 5 期 空間の段 1 のナビメッシュの構築の仮採用(StageResult.expedients=NAVMESH1_EXPEDIENTS・記録 docs/bench/analysis/spatial-2026-10/sp1/README.md §5)。 外す段: 5-5",
+   "remove_at": "5-5",
+   "declared_in": "src/shibuya/build/space/navmesh1.py#expedients:e233f77a",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/build/space/navmesh1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-B8",
+   "what": "地下街の床は層の高さの近い方の階に割り当て、階の間の階段・斜路は W1 と歩行空間ネットワークの接続口だけでつなぐ(外す段: 5-2 の建物の中・5-4 駅の構内)",
+   "why": "第 5 期 空間の段 1 のナビメッシュの構築の仮採用(StageResult.expedients=NAVMESH1_EXPEDIENTS・記録 docs/bench/analysis/spatial-2026-10/sp1/README.md §5)。 外す段: 5-2",
+   "remove_at": "5-2",
+   "declared_in": "src/shibuya/build/space/navmesh1.py#expedients:39c087e7",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/build/space/navmesh1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-E1",
+   "what": "経路の選びは既定の重み(曲がる 1 回 50 m・上り 1 m 3.8 m・SR12 (a))で引く=本人の判断ではない(外す段: 段 3 と判断モデルの回=NavPlanner.candidates の 3 つの候補を本人が選ぶ)",
+   "why": "第 5 期 空間の段 1 の移動の仮採用(NAV1_EXPEDIENTS・manifest の space.expedients・記録 sp1 §5)。 外す段: 5-3",
+   "remove_at": "5-3",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:9a2e7974",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/space/nav1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-E2",
+   "what": "移動は衝突なし(人と人はぶつからない・混み具合は前の刻みのセルの人数で Kladek の減速だけ)(外す段: 5-5 の物理=D 層)",
+   "why": "第 5 期 空間の段 1 の移動の仮採用(NAV1_EXPEDIENTS・manifest の space.expedients・記録 sp1 §5)。 外す段: 5-5",
+   "remove_at": "5-5",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:b9b5b63f",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/space/nav1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-E3",
+   "what": "接続口の階段は高さ ÷ 上下の速さ(24.6° の階段のふつうの速さ × 本人の速さ ÷ 1.40)・水平の長さのうち段の水平の分を超える残りは平らに歩く・エレベーターのかごの速さ 0.75 m/s(仮)・容量を超えた分は先着順で前で待つ・階段と ES と EV の中に居る間は入口の端(所要時間の半分まで)か出口の端に居る=半分で跳ぶ(外す段: 5-5 の物理と縦の照合=SR17)",
+   "why": "第 5 期 空間の段 1 の移動の仮採用(NAV1_EXPEDIENTS・manifest の space.expedients・記録 sp1 §5)。 外す段: 5-5",
+   "remove_at": "5-5",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:d360d13a",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/space/nav1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-E4",
+   "what": "新しい行動を選んだ体はその場に止まり、node は面の上の点に最も近い W1 の節にする(建物の中は段 2 まで入口の点=節の点)(外す段: 5-2 の場所の表と建物の中)",
+   "why": "第 5 期 空間の段 1 の移動の仮採用(NAV1_EXPEDIENTS・manifest の space.expedients・記録 sp1 §5)。 外す段: 5-2",
+   "remove_at": "5-2",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:86cbf0ee",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/space/nav1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-E5",
+   "what": "合成の世界(build_manifest.json の build_hash を持たない世界)で nav1 を頼んだランは今のセルの移動で回し、manifest の space.effective に legacy と書く(本番の世界で資産が無ければ止める)(外す段: 次の版上げ=legacy の切替口を消すとき)",
+   "why": "第 5 期 空間の段 1 の移動の仮採用(NAV1_EXPEDIENTS・manifest の space.expedients・記録 sp1 §5)。 外す段: 7",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:a375b4fc",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/space/nav1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-E6",
+   "what": "坂の勾配は経路に沿った前後 10 m(基線 20 m)の DEM の標高の差でならす(DEM の 2 m の壁・のり面のとがりを拾わない・外す段: 点群の床の高さ=SR1 の承認の後)",
+   "why": "第 5 期 空間の段 1 の移動の仮採用(NAV1_EXPEDIENTS・manifest の space.expedients・記録 sp1 §5)。 外す段: 7",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:16d9047b",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/space/nav1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-B9",
+   "what": "W1 の階をまたぐ辺で種類の分からないもの(steps・elevator 以外)と歩行空間 NW のスロープは、勾配が 1/12 以下(高さ 16 cm 以下は 1/8 以下=R-64 §4)ならスロープ(歩く・中に居る間は両端を結ぶ線の上・線が W2 のセルの外を通るものは端の点)、超えれば階段と置く・辺の形は面に塗らず接続口 1 本(外す段: 5-2・5-4)",
+   "why": "第 5 期 空間の段 1 のナビメッシュの構築の仮採用(StageResult.expedients=NAVMESH1_EXPEDIENTS・記録 docs/bench/analysis/spatial-2026-10/sp1/README.md §5)。 外す段: 5-2",
+   "remove_at": "5-2",
+   "declared_in": "src/shibuya/build/space/navmesh1.py#expedients:194f644e",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/build/space/navmesh1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-B10",
+   "what": "細い道の口の短い切れ目(W1 の住宅街の型の線の上で両側が歩ける面)は 12 m(仮)以下なら埋める・塗りの閉じは幅 1 m 以下の隙間と角だけで触れる所(外す段: 実際の幅のデータ=SR1 の承認の後)",
+   "why": "第 5 期 空間の段 1 のナビメッシュの構築の仮採用(StageResult.expedients=NAVMESH1_EXPEDIENTS・記録 docs/bench/analysis/spatial-2026-10/sp1/README.md §5)。 外す段: 7",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/space/navmesh1.py#expedients:718fc804",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/build/space/navmesh1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-B11",
+   "what": "接続口の端は 15 m(地下出入口は地上 20 m・地下 40 m)の中の面に寄せる・面から遠い W1 の節の短い帯は 300 m の中の面まで(外す段: 5-2・5-4 の構内と建物の中)",
+   "why": "第 5 期 空間の段 1 のナビメッシュの構築の仮採用(StageResult.expedients=NAVMESH1_EXPEDIENTS・記録 docs/bench/analysis/spatial-2026-10/sp1/README.md §5)。 外す段: 5-2",
+   "remove_at": "5-2",
+   "declared_in": "src/shibuya/build/space/navmesh1.py#expedients:73d0567c",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/build/space/navmesh1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-B12",
+   "what": "経路の回廊は W1 の道筋の辺から 40 m(仮・全部の階)の帯(外す段: 回廊の幅の感度=5,000 体のスクリーニングの後)",
+   "why": "第 5 期 空間の段 1 のナビメッシュの構築の仮採用(StageResult.expedients=NAVMESH1_EXPEDIENTS・記録 docs/bench/analysis/spatial-2026-10/sp1/README.md §5)。 外す段: 7",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/space/navmesh1.py#expedients:5e2d694e",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/build/space/navmesh1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-B13",
+   "what": "歩ける面は W2 のセルの被覆で切る(セルの無い 100 m の升の面を消す・範囲の外は今のセル)。ただしつなぎの帯(bridge_w1)は切らず、その上の体のセルは最も近い W2 のセル(升の中心の距離)に倒す=範囲の外をつなぐ帯(外す段: W2 のセルの範囲の見直し)",
+   "why": "第 5 期 空間の段 1 のナビメッシュの構築の仮採用(StageResult.expedients=NAVMESH1_EXPEDIENTS・記録 docs/bench/analysis/spatial-2026-10/sp1/README.md §5)。 外す段: 7",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/build/space/navmesh1.py#expedients:9fe53a40",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/build/space/navmesh1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-E7",
+   "what": "回廊(W1 の道筋から 40 m)の中で着けない経路は全面の A*(広い探索)に落ちる=そのときは曲がる重みが効かない(1 日の新しい経路の約 1 割)(外す段: 回廊の幅の感度=5,000 体のスクリーニングの後)",
+   "why": "第 5 期 空間の段 1 の移動の仮採用(NAV1_EXPEDIENTS・manifest の space.expedients・記録 sp1 §5)。 外す段: 7",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:65284f0c",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/space/nav1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-DENSITY-SAMPLE-SCALE",
+   "what": "密度(人/m²)の分母はナビメッシュのセルの歩ける面積 × 抽出の割合(体の数 ÷ 母集団の総数=経済の population_scale と同じ値・全数のランと合成の世界は 1)=体 1 つが 1/割合 の人を代表する・分子=面の上に居て建物の中でない体だけ(在店・並び・購入・就寝と、経路の外で入口の点に立ち止まった体は数えない=建物の中は段 2・駅の中は段 4 まで入口の点)・あたりで節に着いて立ち止まった体も建物の中に数える=通りの混み具合を少なめに数える向き(L8)・Fruin の段の境と Kladek の式は変えない(外す段: 全数=39 万体のラン・抽出のランの詰まり H1 は段 5-1b)",
+   "why": "第 5 期 空間の段 1 の移動の仮採用(NAV1_EXPEDIENTS・manifest の space.expedients・記録 sp1 §5)。外すのは全数=39 万体のラン(段の番号ではない=7)。 外す段: 7",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:f884b7b4",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/space/nav1.py"
+   ]
+  },
+  {
+   "id": "DOC-nav1-presence-same-step-depart-arrive",
+   "what": "在不在の層(engine/presence.py の PlanExecutor._depart_now → _do_arrive)が同じ刻みに退出と到着をした体は、その刻みに乗った列車の行き先の節の点へ移る(物理ではできない動き・1 日 約 20 件・最大 約 1.4 km・地上 → 地下を含む)=段 1 では直さない(直すと legacy の値が動く)・受入の試験 3-4-5 の (a) では別の欄 same_step_depart_arrive に数える",
+   "why": "第 5 期 空間の段 1 の検収 M2(親の判断=本段では直さず隠さない・PENDING §1-1b)。",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/spatial-2026-10/sp1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/presence.py"
+   ]
+  },
+  {
+   "id": "DOC-nav1-w1-interband-flat-edges",
+   "what": "W1 の階をまたぐ辺のうち勾配が 0.01 未満の 2 本(辺 1489 の 1,030 m・辺 4576 の 616 m・高さの差 0.35 m)は W1 の層の付け違いの疑い=スロープの接続口のまま(navmesh1.header.json の notes.w1_interband_flat)",
+   "why": "第 5 期 空間の段 1 の検収 問い 2(親の判断=台帳に書き、段 0 の材料の見直しで外す)。",
+   "remove_at": "5-0",
+   "declared_in": "docs/bench/analysis/spatial-2026-10/sp1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/build/space/navmesh1.py"
+   ]
+  },
+  {
+   "id": "DOC-nav1-density-sample-jam",
+   "what": "既知の欠陥 H1: nav1 の腕の抽出のラン(5,000 体)で、Kladek の速さ 0 の詰まりが解けずに固まる(止まった移動中の体が密度の分子に入り続ける・小さい面の升は数体で詰まりの密度に届く)。1 日の進めない体刻み=帰無腕 241,543・w6_v3_activity_off 20,296・w6_v2 14,864・w6_v1_default 13,876・v3 既定 184(段 1 の再検収 review.md §B)=段 1 は既定 legacy の腕として着地し、nav1 は既定にしない",
+   "why": "第 5 期 空間の段 1 の再検収 H1(親の判断=段 1 のうちには直さない・段 5-1b で 3 案=セルごと/近傍で均す/抽出の割合を掛けない を 5,000 体のスクリーニングで測って選び、確かめてから小さな版上げで既定にする=回答 10-13b §0-6)。",
+   "remove_at": "5-1b",
+   "declared_in": "docs/bench/analysis/spatial-2026-10/sp1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-23",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/space/nav1.py"
+   ]
   }
  ]
 }

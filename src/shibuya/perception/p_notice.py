@@ -282,8 +282,11 @@ def p1_primary(
     np.divide(d50, d, out=s, where=ok)
     e = TTPF_E_BASE + TTPF_E_SLOPE * s
     se = np.zeros_like(d)
-    np.power(s, e, out=se, where=ok & (s > 0.0))
-    p1 = np.where(ok, se / (1.0 + se), 0.0)
+    # 〔第 5 期 空間の段 1〕連続の位置ではごく近い距離(d ≪ d50)で s^e が溢れる(inf/inf=NaN)=溢れた所は極限の 1
+    # (溢れない値は今までと同じ式・同じバイト)
+    with np.errstate(over="ignore", invalid="ignore"):
+        np.power(s, e, out=se, where=ok & (s > 0.0))
+        p1 = np.where(ok, np.where(np.isinf(se), 1.0, se / (1.0 + se)), 0.0)
     # d=0(同一点)は確実に見える
     p1 = np.where((d == 0.0) & (d50 > 0.0), 1.0, p1)
     return p1

@@ -132,6 +132,7 @@ from shibuya.perception.facts import percept_manifest as _percept_manifest
 from shibuya.engine.decision import layer as _DECISION
 from shibuya.engine.speech import layer as _SPEECH
 from shibuya.engine import proximity as _PROX
+from shibuya.engine.space import nav1 as _NAV1
 from shibuya.engine import calendar_shadow as _CALENDAR_SHADOW
 from shibuya.engine import calendar_self as _CALENDAR_SELF
 from shibuya.engine.experiment import layer as _EXPERIMENT
@@ -454,7 +455,8 @@ POPULATION_RNG_DOMAINS: dict[str, str] = {
     "body.weight": "体重(engine.energy.draw_bodies・体ごと)",
     "body.eer": "推定エネルギー必要量のばらつき(同上)",
     "energy.meal_default": "〔小さな版上げ・meal_w17〕範囲外の既定の食事時刻の引き(engine.energy.MealStartDistribution.draw・体ごと)",
-    "geometry.desired_speed": "希望歩行速度(engine.geometry.desired_speeds・--geometry edge のときだけ)",
+    "geometry.desired_speed": "希望歩行速度(engine.geometry.desired_speeds・--geometry edge と〔第 5 期 段 1〕--space nav1 のラン)",
+    "space.nav1.turn_weight": "〔第 5 期 空間の段 1〕人ごとの曲がる重み 32〜62 m(engine.space.nav1.turn_weights・腕 --turn-weight person のランだけ)",
     "engine.processes.rail": "域外居住の通勤者の抽選と路線(計画実行層の無いランだけ)",
     "world.synthetic": "合成小世界の店の種別と在庫(世界資産が無いときだけ・舞台の構造)",
     "memory.forgetting_rate": "〔第 6 期 6-5〕忘れる速さの人ごとのばらつき 15%(MR8・engine.memory_m1・腕 --memory-model m1 のランだけ)",
@@ -820,6 +822,10 @@ class RunResult:
     #: **C9 位置幾何の腕**(G1・2026-09-17 ユーザー決定)。``"node"``=現行の 1 tick=1 ノード
     #: (既定・バイト不変)/``"edge"``=辺上の連続位置+希望速度 1.00〜1.60 m/s+Kladek 減速。
     geometry: str = DEFAULT_GEOMETRY
+    #: 〔第 5 期 空間の段 1〕切替口 ``--space``(頼んだ値・実際の値・実際の値が違う理由)。
+    space: str = _NAV1.DEFAULT_SPACE
+    space_effective: str = "legacy"
+    space_reason: str = ""
     #: edge 幾何の診断(ホップ反復の延べ回数=P4 実測・詰め込み密度で歩けなかった延べ体数)。
     #: node では 0。
     geometry_hops: int = 0
@@ -1445,6 +1451,11 @@ class RunResult:
             # ---- 〔第 6 期 6-6 ② 第 1 部〕店の仕事(腕 --duties arm のランだけ欄が立つ=既定のランの一番上の鍵は今のまま)。
             # 末尾=… → calendar_3 → duties。記録だけ(final・behavior-hash は manifest を読まない) ----
             **_duties_field(getattr(self, "duties_layer", None)),
+            # ---- 〔第 5 期 空間の段 1〕ナビメッシュの移動の切替口(頼んだ値・実際の値・理由・坂の式・曲がる重み・ナビメッシュの
+            # 大きさ=設定/経路と接続口と歩いた長さの計器=観測)。末尾=… → 6-2 の calendar_2 → 5-1。記録だけ(final・
+            # behavior-hash は manifest を読まない) ----
+            "space": _NAV1.manifest_section(str(self.space), str(self.space_effective), str(self.space_reason),
+                                            getattr(self, "space_layer", None)),
         }
 
     def economy_fields(self) -> dict[str, Any]:
@@ -1580,6 +1591,9 @@ class RunResult:
                 f"{DESIRED_SPEED_MIN_MS:.2f}〜{DESIRED_SPEED_MAX_MS:.2f} m/s・Kladek 減速)"
                 f"/ ホップ反復 {self.geometry_hops:,} / 詰まり {self.geometry_jammed:,}"
             )
+        # 〔第 5 期 空間の段 1〕ナビメッシュの移動のランだけ 1 行
+        if str(self.space_effective) == "nav1":
+            lines.append("  " + _NAV1.summary_line(getattr(self, "space_layer", None)))
         # C9c-1: 面積を実測に切り替えたランだけ 1 行(既定 legacy の summary は不変)
         if str(self.area_source) != DEFAULT_AREA_SOURCE:
             lines.append(
@@ -2020,6 +2034,7 @@ def run_day(
     derive_rule: str = "v2",
     geometry: str = DEFAULT_GEOMETRY,
     area_source: str = DEFAULT_AREA_SOURCE,
+    space: str | None = None,
     seat_area_eatery_m2: float | None = None,
     seat_area_retail_m2: float | None = None,
     census_out: str | Path | None = None,
@@ -2585,6 +2600,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--geometry", choices=GEOMETRY_MODES, default=DEFAULT_GEOMETRY,
                     help="位置幾何(C9 G1/G2)。node=1 tick 1 ノード(既定・バイト不変)/"
                          "edge=辺上の連続位置+希望速度 1.00〜1.60 m/s+Kladek 減速")
+    _NAV1.add_space_args(ap)
     ap.add_argument("--area-source", choices=AREA_SOURCES, default=DEFAULT_AREA_SOURCE,
                     help="歩行可能面積の出所(C9c-1 G8 (b))。legacy=街路点×6.25 m²(既定・"
                          "バイト不変)/ plateau=c9c_walkable_area.parquet(PLATEAU 歩道部+"
@@ -2626,6 +2642,7 @@ def main(argv: list[str] | None = None) -> int:
         outside_suppression=not args.no_outside_suppression,
         geometry=str(args.geometry),
         area_source=str(args.area_source),
+        space=_NAV1.space_from_args(args),
         **calendar_kwargs_from_args(args),
     )
     print(res.summary())

@@ -186,7 +186,7 @@ REL_ON_5000_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     # 〔改訂(第330・ACT)〕版上げ 1 回目の活性化(暦の一本化・開始日 2026-07-13・影 6 日)で既定の行が動いた
     # (B6build の値 25b5ce1304f6db68 / 74,056)。full の 2 行は退避先の資産と day_index・legacy で再現する。
     # 〔小さな版上げ・meal_w17〕v2 前 768b2262e3b0999e / 67_794(validation で戻る)
-    ("v2", "behavior"): ("94becde2c4fdb0d2", 66_374),  # 10e(E4) の値(E1 は e27e45f3e9b62749・E2 は fe19250259a7058d)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111  # 〔2-4 V2〕前 c506dec249bb4328 / 69_114  # 〔2-4 V3〕前 874ea26628f6be2e / 68_213  # 〔2-4 V4〕前 4a0db59663ef0d7b / 67_780  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 d0623491c47e5e2f=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+    ("v2", "behavior"): ("94becde2c4fdb0d2", 66_374),  # 〔第 5 期 空間の段 1〕既定は legacy のまま(nav1 の腕の値 7cfa8bad2676996e / 63_877=--space nav1・記録 spatial-2026-10/sp1)  # 10e(E4) の値(E1 は e27e45f3e9b62749・E2 は fe19250259a7058d)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111  # 〔2-4 V2〕前 c506dec249bb4328 / 69_114  # 〔2-4 V3〕前 874ea26628f6be2e / 68_213  # 〔2-4 V4〕前 4a0db59663ef0d7b / 67_780  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 d0623491c47e5e2f=SHIBUYA_RULES_42=off で戻る・記録 rules42)
 }}
 #: 今の環境の行(無ければ ``None``=A/A だけ)。
 REL_ON_5000_GOLDEN = GE.row(REL_ON_5000_GOLDEN_BY_ENV)

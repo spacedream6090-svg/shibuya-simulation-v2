@@ -61,6 +61,7 @@ CA8 の計器の定義。
 
 from __future__ import annotations
 
+import math
 from types import MappingProxyType
 from typing import Any, Final, Iterable, Mapping, Sequence
 
@@ -179,7 +180,9 @@ class Calendar2Layer:
 
     def __init__(self, *, n_agents: int, seed: int | str, population_seed: int | str, day_key0: int,
                  step_seconds: int, steps_per_day: int, events: Any, agents: Any, world: Any, calendar: Any = None,
-                 conv: Any = None, contact: Any = None, runner: Any = None) -> None:
+                 conv: Any = None, contact: Any = None, runner: Any = None, hop_steps: Any = None) -> None:
+        #: 〔第 5 期 空間の段 1・検収 M5〕節 1 つを歩く刻み(体ごと)。None=1 刻み 1 節(legacy=B8)・nav1 は本人の歩く速さから
+        self.hop_steps = None if hop_steps is None else np.asarray(hop_steps, dtype=np.float64)
         self.n = int(n_agents)
         self.step_seconds = int(step_seconds)
         self.step_ns = self.step_seconds * NS_PER_SECOND
@@ -617,7 +620,8 @@ class Calendar2Layer:
         return False
 
     def _impossible(self, T: int, t_ns: int, a: int, fields: Mapping[str, Any], *, at: str) -> None:
-        """不可能な予定を数える(記録だけ=拒まない): 間に合わない(今の居場所から歩く節の数 × 刻み > 始まりまで)・閉店中。"""
+        """不可能な予定を数える(記録だけ=拒まない): 間に合わない(今の居場所から歩く節の数 × 節 1 つの刻み > 始まりまで・
+        節 1 つの刻みは legacy で 1・nav1 で本人の歩く速さから)・閉店中。"""
         start = int(fields["start_ns"])
         cell = int(fields["cell"])
         if start <= int(t_ns):
@@ -628,10 +632,11 @@ class Calendar2Layer:
         node = int(self.agents.registry.node[a])
         dest = int(np.asarray(self.world.assets.cell_rep_node, dtype=np.int64)[cell])
         if node >= 0 and dest >= 0 and int(self.agents.registry.transit_state[a]) == 0:
-            from shibuya.engine.calendar_self import route_steps
+            from shibuya.engine.calendar_self import hop_walk_steps, route_steps
 
             steps = int(route_steps(self.world, np.asarray([node]), np.asarray([dest]))[0])
-            if steps >= 0 and int(t_ns) + steps * self.step_ns > start:
+            walk_ns = int(math.ceil(float(hop_walk_steps(np.asarray([steps]), self.hop_steps, [a])[0]))) * self.step_ns
+            if steps >= 0 and int(t_ns) + walk_ns > start:
                 self._bump(f"impossible:{at}:間に合わない")
         if self._closed_at(cell, start, int(t_ns) // self.day_ns):
             self._bump(f"impossible:{at}:閉店中")

@@ -435,6 +435,7 @@ class AgentState:
         store_memory_n: int = 32,
         relation_columns: bool = False,
         rel_k: int = 15,
+        nav_columns: bool = False,
     ) -> None:
         """
         Args:
@@ -470,6 +471,10 @@ class AgentState:
             store_memory_columns / store_memory_n: **店の評価の記憶**(D-120 7a・N1 (a)・
                 ``engine.memory``)の表(体 × M 行 × 7 欄・実 23 B/行・宣言 24 B/行)を確保するか・
                 行数 M(既定 32)。``--store-memory on`` のランだけ True=**既定 checkpoint は動かない**。
+            nav_columns: **第 5 期 空間の段 1 ナビメッシュの位置と経路**(``engine.space.nav1``)の 8 欄(``nav_ox``・
+                ``nav_oy``・``nav_of``・``nav_tgt``・``nav_t``・``nav_fi``・``nav_wait``・``nav_node``・+26 B/体)を確保するか。
+                ``engine.run`` は ``space="nav1"`` で資産があるランだけ True=**``--space legacy`` の checkpoint は 1 バイトも
+                動かない**。
             relation_columns / rel_k: **関係辺**(C10 8a・R1 (a)・``engine.relations``)の表(体 × k 辺 × 6 欄・
                 実=宣言 16 B/辺)を確保するか・辺の数 k(既定 15)。``--relations on`` のランだけ True。
         """
@@ -496,6 +501,8 @@ class AgentState:
         #: C10 8a: 関係辺の表を確保するか・辺の数 k(``engine.relations.REL_K``)。
         self.relation_columns = bool(relation_columns)
         self.rel_k = int(rel_k)
+        #: 第 5 期 空間の段 1: ナビメッシュの位置と経路の 8 欄を確保するか。
+        self.nav_columns = bool(nav_columns)
         if self.relation_columns and self.rel_k < 1:
             raise ValueError(f"rel_k は 1 以上(いま {rel_k})")
         if self.familiarity_columns and self.familiarity_k < 1:
@@ -709,6 +716,26 @@ class AgentState:
         r.declare("last_result_tick", np.int32, byte_budget_per_agent=4, mechanism=True,
                   doc="last_result を書いた tick(古い失敗を出さないため)")
         # 〔第330・RET〕K15(10-06): 書くだけで誰も読まない ``fail_streak``(u1)はここにあった=消した(軸 1 no=final は動かない)
+        # ---- 第 5 期 空間の段 1: ナビメッシュの位置と経路(nav_columns のランだけ・+26 B/体) ----
+        if self.nav_columns:
+            r.declare("nav_ox", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="いまの経路を引いた出発の点の x[m](経路は (出発の点・階・行き先・人ごとの重み) の純関数="
+                          "再開で引き直せる・engine.space.nav1)")
+            r.declare("nav_oy", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="いまの経路を引いた出発の点の y[m]")
+            r.declare("nav_of", np.int8, byte_budget_per_agent=1, mechanism=True,
+                      doc="いまの経路を引いた出発の点の階(ナビメッシュの階の添字)")
+            r.declare("nav_tgt", np.int32, byte_budget_per_agent=4, mechanism=True,
+                      doc="いまの経路の行き先の W1 の節(-1=経路なし)。target_node と違えば経路を引き直す")
+            r.declare("nav_t", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="経路の上で進んだ時間[s](歩く区間は自由な速さの時間・接続口は所要時間)")
+            r.declare("nav_fi", np.int8, byte_budget_per_agent=1, mechanism=True,
+                      doc="いまの位置の階(ナビメッシュの階の添字・-1=面の上に居ない=域外・車内)。位置=(xy, 階)")
+            r.declare("nav_wait", np.int32, byte_budget_per_agent=4, mechanism=True,
+                      doc="接続口の前で待ち始めた刻み(-1=待っていない・容量を超えた分は前で待つ=SR11 (a)・先着順の鍵)")
+            r.declare("nav_node", np.int32, byte_budget_per_agent=4, mechanism=True,
+                      doc="前の刻みの終わりの node(移動の外で node が書き換わった体=乗車・降車・外界・初期配置を見つけて"
+                          "面の上の節の点へ置く)")
 
 
         # 既定値(0 では意味が壊れる欄だけ)
@@ -746,6 +773,11 @@ class AgentState:
             self.registry.sm_last[:] = -1
         if self.relation_columns:
             self.registry.rel_partner[:] = REL_EMPTY
+        if self.nav_columns:
+            self.registry.nav_tgt[:] = -1
+            self.registry.nav_fi[:] = -1
+            self.registry.nav_wait[:] = -1
+            self.registry.nav_node[:] = -1
         self._frozen = False
 
     # ---- フィールドの素通し(``st.money`` で配列を引く) ----
