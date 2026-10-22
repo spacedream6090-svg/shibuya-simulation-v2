@@ -634,6 +634,9 @@ class LLMBridge:
         #: 〔1-5〕役割語のうち権利台帳で許可の無かった数・判定しなかった(職務の語)数(計器・状態台帳の O86)。
         self.n_role_unauthorized = 0
         self.n_role_unjudged = 0
+        #: 〔第 6 期 6-6 ② 第 1 部〕役割語「補充」「開閉店」を効かせる口(``engine.duties.layer.DutiesLayer.note_role_word``・腕
+        #: ``--duties arm`` のランだけ組み立てが挿す・``None``=今の道=待機(v3 は なし)に落とすだけ)。
+        self.role_sink: Any | None = None
         self.n_tape_misses = 0
         #: 再生で**繰り延べ行**を引いた回数(D-58)。record 経路(mock)では常に 0。
         self.n_deferred = 0
@@ -873,6 +876,10 @@ class LLMBridge:
                     self.n_role_unjudged += 1
             # 役割語は effects 先が C4。当面は安全弁(待機・**語彙 v3 は なし**)へ落とす(expedient)。
             action_code = int(self._engine_codes[safe_action_word(self.vocab_version)])
+            if self.role_sink is not None:
+                # 〔第 6 期 6-6 ② 第 1 部〕腕 --duties arm: 「補充」「開閉店」は店の仕事の持ち主に渡して効かせる(体の行為は
+                # 店の中の作業=安全弁の語のまま・効果は系 duties が担当の体の行動として実行する=店に居なければ起きない)
+                self.role_sink(int(agent_id), int(step), str(parse.action), request.call_id)
         if not parse.format_ok:
             self.n_parse_errors += 1  # 実効(別名許容後)
         if not parse.strict_format_ok:

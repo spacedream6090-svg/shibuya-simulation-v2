@@ -305,6 +305,12 @@ PATHS: Final[dict[str, str]] = {
         "schema", "arm", "trial", "port", "compose", "labor", "arbitration", "store_rules", "provisional"),
         observed=("meter", "decisions", "roster", "composed", "work_days_per_week", "rest", "contacts", "rows", "late",
                   "labor_over", "holiday", "common_knowledge", "live", "calls")),
+    # ---- 〔第 6 期 6-6 ② 第 1 部〕店の仕事を働く人の体へ(腕 --duties arm のランだけ欄が立つ)。形の版・腕・口・店の決まりと気づきの
+    # 形・仲裁・残したつなぎ・仮の値の宣言=設定/計器・判断の数・開閉・補充・廃棄・カバー率・遅れの分布・労働時間と店の決まりの外・
+    # 役割語・常識の文・呼び数=観測。子の鍵は engine.duties.layer の CONFIG_KEYS・OBSERVED_KEYS と同じ=試験が突き合わせる ----
+    **_mixed("duties", config=("schema", "arm", "port", "rules", "arbitration", "bridges", "provisional"),
+             observed=("meter", "decisions", "shop", "shelf", "waste", "coverage", "delay_minutes", "labor_over",
+                       "role_words", "common_knowledge", "calls")),
 }
 
 

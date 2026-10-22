@@ -271,8 +271,9 @@ def test_word_tables_agree_with_the_memory_and_the_vocab():
     assert V.CAUSE_PROCESS_NAMES[-3:-2] == V.CONTACT_PROCESSES == ("contact",)
     assert V.CAUSE_PROCESS_NAMES[-2:-1] == V.CALENDAR2_PROCESSES == ("calendar2",)
     assert V.CAUSE_PROCESS_NAMES[-1:] == V.CALENDAR3_PROCESSES == ("calendar3",)
-    assert B.WHAT_SIGNAGE == TR.SIGNBOARD_WHAT and V.FAMILIES[-4] == "知覚" and V.FAMILIES[-3] == "連絡"
-    assert V.FAMILIES[-2] == "約束" and V.FAMILIES[-1] == "勤務"
+    # 〔第 6 期 6-6 ② 第 1 部〕その後ろに仕事の族を足した(道具の名は足していない=原因の名の並びは前のまま)
+    assert B.WHAT_SIGNAGE == TR.SIGNBOARD_WHAT and V.FAMILIES[-5] == "知覚" and V.FAMILIES[-4] == "連絡"
+    assert V.FAMILIES[-3] == "約束" and V.FAMILIES[-2] == "勤務" and V.FAMILIES[-1] == "仕事"
 
 
 def test_m0l_is_an_arm_row_present_only_with_the_store():

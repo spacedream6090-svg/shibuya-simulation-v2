@@ -1,0 +1,1530 @@
+{
+ "arm1": {
+  "mode": "one",
+  "arm": "arm",
+  "agents": 5000,
+  "seed": 1,
+  "days": 1,
+  "events": "on",
+  "machine": {
+   "os": "Windows-11",
+   "machine": "AMD64",
+   "python": "3.12.10"
+  },
+  "final": "4cbe146311ffd25b1a5de1fda2a33a7c429d0e1eadbadf31d78bf91e8db976fb",
+  "llm_calls": 63515,
+  "wall_s": 39.5,
+  "ms_per_step": 27.46,
+  "peak_rss_mb": 498.2,
+  "calls_by_model": {
+   "judge_model": 78,
+   "llm": 63515,
+   "duties": {
+    "judge_model": 78,
+    "llm": 0
+   }
+  },
+  "events_by_what": {
+   "仕事:捨てた": 5,
+   "仕事:補充した": 5,
+   "仕事:閉めた": 11,
+   "仕事:開けた": 12
+  },
+  "event_log": {
+   "rows": 43974,
+   "nbytes": 3166128,
+   "cause_nbytes": 377052,
+   "duty_rows": 33
+  },
+  "process_counters": {
+   "opening": {
+    "events": 6525.0,
+    "role_actions": 0.0,
+    "fallback": 6525.0,
+    "open_now": 535.0,
+    "staffed_pois": 2337.0
+   },
+   "shelf": {
+    "role_actions": 5.0,
+    "fallback": 42.0,
+    "no_backroom": 0.0,
+    "rejected": 0.0,
+    "units": 277.0,
+    "yen": 63057.0,
+    "backroom_now": 13745.0
+   },
+   "waste": {
+    "stops": 234.0,
+    "collected_g": 910750.0,
+    "to_bin_rows": 1544.0,
+    "consumed": 1195.0,
+    "consumed_g": 418250.0,
+    "day_waste_g": 0.0
+   }
+  },
+  "shelf_store_minutes": {
+   "empty:staffed": 11600,
+   "empty:unstaffed": 0,
+   "low:staffed": 101966,
+   "low:unstaffed": 0
+  },
+  "staffed_stores": 2337,
+  "stores": 2337,
+  "checkpoints_behavior": [
+   [
+    359,
+    "acc4b3541d5469db122935ecfcefc7fc88c878e6820fca5f5d71a1282d6a8ec7"
+   ],
+   [
+    719,
+    "137597ee940b8f616d8fb56b719fa20d22e0fed78fa85ff9f14c66a4cf10aa1f"
+   ],
+   [
+    1079,
+    "dd3bcd6ce5ce28230ddc87ccbe5a59bd21eaa77a2710afc3844724446a1adaee"
+   ],
+   [
+    1439,
+    "4cbe146311ffd25b1a5de1fda2a33a7c429d0e1eadbadf31d78bf91e8db976fb"
+   ]
+  ],
+  "audit": {
+   "events": 33,
+   "violations": 0,
+   "examples": []
+  },
+  "duties": {
+   "schema": "shibuya.engine.duties/2",
+   "arm": "arm",
+   "port": "duties-mock",
+   "rules": {
+    "source": "W7 の営業時間の表のその日の行(OpeningProcess.open_matrix)=雇用の行(体 → 店)の体だけが引ける・出どころの印=W7 の列 src(osm_opening_hours=実データ・chain_default/category_default=作り物の印)",
+    "rule_sources": [
+     "category_default",
+     "chain_default",
+     "osm_opening_hours"
+    ],
+    "lead_minutes": 15,
+    "restock_notice_every_minutes": 5,
+    "notice": "棚の残りが補充点の下(ShelfRestockProcess.reorder_point)・営業中・バックヤードに在庫がある",
+    "waste": "雇用の行の体が閉めた店に売れ残りがある(閉店の作業)",
+    "staff": "その店の雇用の行を持つ体なら誰でも(店のセルに居て起きていて主の判断が無い)・1 店 1 刻みの判断は雇用の行の順で最初の 1 人"
+   },
+   "arbitration": {
+    "main_first": "その刻みに主の判断の呼びのあった体には候補を出さない(次に条件がそろった刻みに出す)",
+    "awake": "寝ている体には候補を出さない(雇用の行の体が店で寝ているだけの店はエンジンのつなぎ)",
+    "one_per_store": "1 店 1 刻みの判断は 1 人まで=雇用の行の順で最初の、店に居て起きていて主の判断の無い体",
+    "role_words": "主の判断の役割語(補充・開閉店)は同じ刻みに本人の行動として実行する(雇用の行の店に居るときだけ)"
+   },
+   "bridges": {
+    "shop": "雇用の行の体が店に居て起きていない店=OpeningProcess の REPLACEMENT(conf 0.5)",
+    "shelf": "雇用の行の体が店に居て起きていない店=10:00 の engine_rule(conf 0.5)",
+    "waste": "雇用の行の体が捨てなかった店=05:00 の売れ残り → ビン",
+    "initial": "開始の刻みの最初の設定(open_now が負の店)はエンジン"
+   },
+   "provisional": [
+    "判断の候補の語と源の当て方(開閉=店を開ける/店を閉める/まだ・補充=棚に補充する/接客する/待つ・廃棄=売れ残りを捨てる/まだ)",
+    "仮のモデル(mock)は候補を語と id の順に並べ乱数の余りで一様に選ぶ(判断モデルの代わり)"
+   ],
+   "decisions": {
+    "shelf": 16,
+    "shop": 50,
+    "waste": 12
+   },
+   "shop": {
+    "not_yet": 27,
+    "stores": 2337,
+    "stores_with_employment": 2337,
+    "stores_with_2plus_employment": 29,
+    "employment_rows": 2435,
+    "employment_agents": 290,
+    "stores_by_staff_origin": {
+     "none": 0,
+     "w21c": 68,
+     "round_robin": 2269
+    }
+   },
+   "shelf": {
+    "empty_store_minutes:none": 0,
+    "empty_store_minutes:round_robin": 10926,
+    "empty_store_minutes:w21c": 708,
+    "low_store_minutes:none": 0,
+    "low_store_minutes:round_robin": 95551,
+    "low_store_minutes:w21c": 6665,
+    "no_notice_empty_backroom": 132,
+    "person_units": 30,
+    "serve": 7,
+    "wait": 4
+   },
+   "waste": {
+    "not_yet": 7,
+    "person_bin": 5,
+    "person_units": 9
+   },
+   "coverage": {
+    "total": {
+     "unlock": {
+      "person": 12,
+      "bridge": 2109,
+      "person_share": 0.005657708628005658
+     },
+     "lock": {
+      "person": 11,
+      "bridge": 2079,
+      "person_share": 0.005263157894736842
+     },
+     "restock": {
+      "person": 5,
+      "bridge": 42,
+      "person_share": 0.10638297872340426
+     },
+     "discard_rows": {
+      "person": 5,
+      "bridge": 1544,
+      "person_share": 0.0032278889606197547
+     }
+    },
+    "by_employment_origin": {
+     "unlock": {
+      "round_robin": {
+       "person": 8,
+       "bridge": 2052,
+       "person_share": 0.003883495145631068
+      },
+      "w21c": {
+       "person": 4,
+       "bridge": 57,
+       "person_share": 0.06557377049180328
+      }
+     },
+     "lock": {
+      "round_robin": {
+       "person": 8,
+       "bridge": 2022,
+       "person_share": 0.003940886699507389
+      },
+      "w21c": {
+       "person": 3,
+       "bridge": 57,
+       "person_share": 0.05
+      }
+     },
+     "restock": {
+      "round_robin": {
+       "person": 3,
+       "bridge": 41,
+       "person_share": 0.06818181818181818
+      },
+      "w21c": {
+       "person": 2,
+       "bridge": 1,
+       "person_share": 0.6666666666666666
+      }
+     },
+     "discard_rows": {
+      "round_robin": {
+       "person": 2,
+       "bridge": 1484,
+       "person_share": 0.0013458950201884253
+      },
+      "w21c": {
+       "person": 3,
+       "bridge": 60,
+       "person_share": 0.047619047619047616
+      }
+     }
+    },
+    "by_rule_source": {
+     "unlock": {
+      "category_default": {
+       "person": 8,
+       "bridge": 1660,
+       "person_share": 0.004796163069544364
+      },
+      "chain_default": {
+       "person": 0,
+       "bridge": 8,
+       "person_share": 0.0
+      },
+      "osm_opening_hours": {
+       "person": 4,
+       "bridge": 441,
+       "person_share": 0.008988764044943821
+      }
+     },
+     "lock": {
+      "category_default": {
+       "person": 9,
+       "bridge": 1648,
+       "person_share": 0.005431502715751358
+      },
+      "chain_default": {
+       "person": 0,
+       "bridge": 7,
+       "person_share": 0.0
+      },
+      "osm_opening_hours": {
+       "person": 2,
+       "bridge": 424,
+       "person_share": 0.004694835680751174
+      }
+     },
+     "restock": {
+      "category_default": {
+       "person": 2,
+       "bridge": 11,
+       "person_share": 0.15384615384615385
+      },
+      "chain_default": {
+       "person": 1,
+       "bridge": 6,
+       "person_share": 0.14285714285714285
+      },
+      "osm_opening_hours": {
+       "person": 2,
+       "bridge": 25,
+       "person_share": 0.07407407407407407
+      }
+     },
+     "discard_rows": {
+      "category_default": {
+       "person": 3,
+       "bridge": 1035,
+       "person_share": 0.002890173410404624
+      },
+      "chain_default": {
+       "person": 0,
+       "bridge": 59,
+       "person_share": 0.0
+      },
+      "osm_opening_hours": {
+       "person": 2,
+       "bridge": 450,
+       "person_share": 0.004424778761061947
+      }
+     }
+    }
+   },
+   "delay_minutes": {
+    "shop_begin:category_default": {
+     "-15": 2,
+     "-14": 2,
+     "-12": 1,
+     "-10": 1,
+     "-3": 1,
+     "-2": 1
+    },
+    "shop_begin:osm_opening_hours": {
+     "-15": 1,
+     "-13": 1,
+     "-12": 1,
+     "0": 1
+    },
+    "shop_end:category_default": {
+     "-15": 3,
+     "-14": 4,
+     "-4": 2
+    },
+    "shop_end:osm_opening_hours": {
+     "-15": 1,
+     "3": 1
+    }
+   },
+   "labor_over": {
+    "over_day_hours": 9,
+    "lock_early_in_window": 10,
+    "unlock_early_in_window": 11,
+    "labor": {
+     "source": [
+      "labor.statutory_hours",
+      "labor.weekly_rest_day"
+     ],
+     "kind": [
+      "human",
+      "human"
+     ],
+     "max_hours_per_week": 40,
+     "max_hours_per_day": 8,
+     "min_rest_days_per_week": 1,
+     "enforced": false
+    },
+    "enforced": false
+   },
+   "role_words": {},
+   "common_knowledge": {
+    "line": "店の決まり: 営業 0:00〜24:00。(出どころ category_default=作り物の印)"
+   },
+   "calls": {
+    "judge_model": 78,
+    "llm": 0
+   }
+  },
+  "meter": {
+   "bridge:discard_rows:round_robin:category_default": 1008,
+   "bridge:discard_rows:round_robin:chain_default": 55,
+   "bridge:discard_rows:round_robin:osm_opening_hours": 421,
+   "bridge:discard_rows:w21c:category_default": 27,
+   "bridge:discard_rows:w21c:chain_default": 4,
+   "bridge:discard_rows:w21c:osm_opening_hours": 29,
+   "bridge:lock:round_robin:category_default": 1616,
+   "bridge:lock:round_robin:chain_default": 7,
+   "bridge:lock:round_robin:osm_opening_hours": 399,
+   "bridge:lock:w21c:category_default": 32,
+   "bridge:lock:w21c:osm_opening_hours": 25,
+   "bridge:restock:round_robin:category_default": 11,
+   "bridge:restock:round_robin:chain_default": 6,
+   "bridge:restock:round_robin:osm_opening_hours": 24,
+   "bridge:restock:w21c:osm_opening_hours": 1,
+   "bridge:unlock:round_robin:category_default": 1630,
+   "bridge:unlock:round_robin:chain_default": 7,
+   "bridge:unlock:round_robin:osm_opening_hours": 415,
+   "bridge:unlock:w21c:category_default": 30,
+   "bridge:unlock:w21c:chain_default": 1,
+   "bridge:unlock:w21c:osm_opening_hours": 26,
+   "chosen:なし": 38,
+   "chosen:廃棄": 5,
+   "chosen:接客": 7,
+   "chosen:補充": 5,
+   "chosen:開閉店": 23,
+   "decisions:shelf": 16,
+   "decisions:shop": 50,
+   "decisions:waste": 12,
+   "events:仕事:捨てた": 5,
+   "events:仕事:補充した": 5,
+   "events:仕事:閉めた": 11,
+   "events:仕事:開けた": 12,
+   "hours:lock_early_in_window": 10,
+   "hours:unlock_early_in_window": 11,
+   "labor:over_day_hours": 9,
+   "person:discard_rows:round_robin:category_default": 2,
+   "person:discard_rows:w21c:category_default": 1,
+   "person:discard_rows:w21c:osm_opening_hours": 2,
+   "person:lock:round_robin:category_default": 8,
+   "person:lock:w21c:category_default": 1,
+   "person:lock:w21c:osm_opening_hours": 2,
+   "person:restock:round_robin:category_default": 2,
+   "person:restock:round_robin:osm_opening_hours": 1,
+   "person:restock:w21c:chain_default": 1,
+   "person:restock:w21c:osm_opening_hours": 1,
+   "person:unlock:round_robin:category_default": 5,
+   "person:unlock:round_robin:osm_opening_hours": 3,
+   "person:unlock:w21c:category_default": 3,
+   "person:unlock:w21c:osm_opening_hours": 1,
+   "present:asleep_rows": 2367,
+   "present:main_first_rows": 250,
+   "present:second_or_later": 933,
+   "present:store_steps": 13941,
+   "shelf:empty_store_minutes:none": 0,
+   "shelf:empty_store_minutes:round_robin": 10926,
+   "shelf:empty_store_minutes:w21c": 708,
+   "shelf:low_store_minutes:none": 0,
+   "shelf:low_store_minutes:round_robin": 95551,
+   "shelf:low_store_minutes:w21c": 6665,
+   "shelf:no_notice_empty_backroom": 132,
+   "shelf:person_units": 30,
+   "shelf:serve": 7,
+   "shelf:wait": 4,
+   "shop:not_yet": 27,
+   "waste:not_yet": 7,
+   "waste:person_bin": 5,
+   "waste:person_units": 9
+  }
+ },
+ "off1": {
+  "mode": "one",
+  "arm": "off",
+  "agents": 5000,
+  "seed": 1,
+  "days": 1,
+  "events": "on",
+  "machine": {
+   "os": "Windows-11",
+   "machine": "AMD64",
+   "python": "3.12.10"
+  },
+  "final": "bb86f8985517271743702a8faa376b134c1986fd9c0bed27f30b317eb04d18ee",
+  "llm_calls": 63572,
+  "wall_s": 37.8,
+  "ms_per_step": 26.24,
+  "peak_rss_mb": 508.2,
+  "calls_by_model": {
+   "judge_model": 0,
+   "llm": 63572
+  },
+  "events_by_what": {},
+  "event_log": {
+   "rows": 44005,
+   "nbytes": 3168360,
+   "cause_nbytes": 375999,
+   "duty_rows": 0
+  },
+  "process_counters": {
+   "opening": {
+    "events": 6546.0,
+    "role_actions": 22.0,
+    "fallback": 6524.0,
+    "open_now": 535.0,
+    "staffed_pois": 2337.0
+   },
+   "shelf": {
+    "role_actions": 3.0,
+    "fallback": 43.0,
+    "no_backroom": 19.0,
+    "rejected": 0.0,
+    "units": 271.0,
+    "yen": 62697.0,
+    "backroom_now": 13751.0
+   },
+   "waste": {
+    "stops": 234.0,
+    "collected_g": 910750.0,
+    "to_bin_rows": 1544.0,
+    "consumed": 1195.0,
+    "consumed_g": 418250.0,
+    "day_waste_g": 0.0
+   }
+  },
+  "shelf_store_minutes": {
+   "empty:staffed": 11538,
+   "empty:unstaffed": 0,
+   "low:staffed": 102485,
+   "low:unstaffed": 0
+  },
+  "staffed_stores": 2337,
+  "stores": 2337,
+  "checkpoints_behavior": [
+   [
+    359,
+    "8a4bce823373de0faf19579519724e9cbc3f5a86255111a284a01bf495d58caa"
+   ],
+   [
+    719,
+    "6701937f1f0e74eeb9dcfc55c2e7c5559a19269e4e29f53fad8457238fdefd40"
+   ],
+   [
+    1079,
+    "8267375d5205629aa4057200a4eaf60377ce63164bac58edcc42627bf09f1974"
+   ],
+   [
+    1439,
+    "bb86f8985517271743702a8faa376b134c1986fd9c0bed27f30b317eb04d18ee"
+   ]
+  ]
+ },
+ "arm2": {
+  "mode": "one",
+  "arm": "arm",
+  "agents": 5000,
+  "seed": 1,
+  "days": 2,
+  "events": "on",
+  "machine": {
+   "os": "Windows-11",
+   "machine": "AMD64",
+   "python": "3.12.10"
+  },
+  "final": "b2bdfaa2d0de0d4b273c4daaf68ddb1340edf176f2037f1fd2607170ccaaf641",
+  "llm_calls": 139355,
+  "wall_s": 81.6,
+  "ms_per_step": 28.33,
+  "peak_rss_mb": 505.9,
+  "calls_by_model": {
+   "judge_model": 185,
+   "llm": 139355,
+   "duties": {
+    "judge_model": 185,
+    "llm": 0
+   }
+  },
+  "events_by_what": {
+   "仕事:捨てた": 12,
+   "仕事:補充した": 20,
+   "仕事:閉めた": 21,
+   "仕事:開けた": 30
+  },
+  "event_log": {
+   "rows": 85080,
+   "nbytes": 6125760,
+   "cause_nbytes": 677586,
+   "duty_rows": 83
+  },
+  "process_counters": {
+   "opening": {
+    "events": 10765.0,
+    "role_actions": 0.0,
+    "fallback": 10765.0,
+    "open_now": 537.0,
+    "staffed_pois": 2337.0
+   },
+   "shelf": {
+    "role_actions": 20.0,
+    "fallback": 194.0,
+    "no_backroom": 0.0,
+    "rejected": 0.0,
+    "units": 1628.0,
+    "yen": 371824.0,
+    "backroom_now": 26416.0
+   },
+   "waste": {
+    "stops": 467.0,
+    "collected_g": 1745950.0,
+    "to_bin_rows": 2932.0,
+    "consumed": 4333.0,
+    "consumed_g": 1490400.0,
+    "day_waste_g": 0.0
+   }
+  },
+  "shelf_store_minutes": {
+   "empty:staffed": 46772,
+   "empty:unstaffed": 0,
+   "low:staffed": 342157,
+   "low:unstaffed": 0
+  },
+  "staffed_stores": 2337,
+  "stores": 2337,
+  "checkpoints_behavior": [
+   [
+    359,
+    "acc4b3541d5469db122935ecfcefc7fc88c878e6820fca5f5d71a1282d6a8ec7"
+   ],
+   [
+    719,
+    "137597ee940b8f616d8fb56b719fa20d22e0fed78fa85ff9f14c66a4cf10aa1f"
+   ],
+   [
+    1079,
+    "dd3bcd6ce5ce28230ddc87ccbe5a59bd21eaa77a2710afc3844724446a1adaee"
+   ],
+   [
+    1439,
+    "4cbe146311ffd25b1a5de1fda2a33a7c429d0e1eadbadf31d78bf91e8db976fb"
+   ],
+   [
+    1799,
+    "9df204246f7fdf82a0fc45e3a982436cb8334efd90f855f5f962290b192b4e75"
+   ],
+   [
+    2159,
+    "f799c5214974b9d98b7b862f8b2139a8fbb819ee27e95922c621a1cee54d896b"
+   ],
+   [
+    2519,
+    "d0227ae21981ffb36ebd37439dffbd6a9db867ad1d29454a3e20e656dc75675b"
+   ],
+   [
+    2879,
+    "b2bdfaa2d0de0d4b273c4daaf68ddb1340edf176f2037f1fd2607170ccaaf641"
+   ]
+  ],
+  "audit": {
+   "events": 83,
+   "violations": 0,
+   "examples": []
+  },
+  "duties": {
+   "schema": "shibuya.engine.duties/2",
+   "arm": "arm",
+   "port": "duties-mock",
+   "rules": {
+    "source": "W7 の営業時間の表のその日の行(OpeningProcess.open_matrix)=雇用の行(体 → 店)の体だけが引ける・出どころの印=W7 の列 src(osm_opening_hours=実データ・chain_default/category_default=作り物の印)",
+    "rule_sources": [
+     "category_default",
+     "chain_default",
+     "osm_opening_hours"
+    ],
+    "lead_minutes": 15,
+    "restock_notice_every_minutes": 5,
+    "notice": "棚の残りが補充点の下(ShelfRestockProcess.reorder_point)・営業中・バックヤードに在庫がある",
+    "waste": "雇用の行の体が閉めた店に売れ残りがある(閉店の作業)",
+    "staff": "その店の雇用の行を持つ体なら誰でも(店のセルに居て起きていて主の判断が無い)・1 店 1 刻みの判断は雇用の行の順で最初の 1 人"
+   },
+   "arbitration": {
+    "main_first": "その刻みに主の判断の呼びのあった体には候補を出さない(次に条件がそろった刻みに出す)",
+    "awake": "寝ている体には候補を出さない(雇用の行の体が店で寝ているだけの店はエンジンのつなぎ)",
+    "one_per_store": "1 店 1 刻みの判断は 1 人まで=雇用の行の順で最初の、店に居て起きていて主の判断の無い体",
+    "role_words": "主の判断の役割語(補充・開閉店)は同じ刻みに本人の行動として実行する(雇用の行の店に居るときだけ)"
+   },
+   "bridges": {
+    "shop": "雇用の行の体が店に居て起きていない店=OpeningProcess の REPLACEMENT(conf 0.5)",
+    "shelf": "雇用の行の体が店に居て起きていない店=10:00 の engine_rule(conf 0.5)",
+    "waste": "雇用の行の体が捨てなかった店=05:00 の売れ残り → ビン",
+    "initial": "開始の刻みの最初の設定(open_now が負の店)はエンジン"
+   },
+   "provisional": [
+    "判断の候補の語と源の当て方(開閉=店を開ける/店を閉める/まだ・補充=棚に補充する/接客する/待つ・廃棄=売れ残りを捨てる/まだ)",
+    "仮のモデル(mock)は候補を語と id の順に並べ乱数の余りで一様に選ぶ(判断モデルの代わり)"
+   ],
+   "decisions": {
+    "shelf": 51,
+    "shop": 112,
+    "waste": 22
+   },
+   "shop": {
+    "not_yet": 61,
+    "stores": 2337,
+    "stores_with_employment": 2337,
+    "stores_with_2plus_employment": 29,
+    "employment_rows": 2435,
+    "employment_agents": 290,
+    "stores_by_staff_origin": {
+     "none": 0,
+     "w21c": 68,
+     "round_robin": 2269
+    }
+   },
+   "shelf": {
+    "empty_store_minutes:none": 0,
+    "empty_store_minutes:round_robin": 43587,
+    "empty_store_minutes:w21c": 3269,
+    "low_store_minutes:none": 0,
+    "low_store_minutes:round_robin": 322660,
+    "low_store_minutes:w21c": 19899,
+    "no_notice_empty_backroom": 697,
+    "person_units": 158,
+    "serve": 17,
+    "wait": 14
+   },
+   "waste": {
+    "not_yet": 10,
+    "person_bin": 12,
+    "person_units": 21
+   },
+   "coverage": {
+    "total": {
+     "unlock": {
+      "person": 30,
+      "bridge": 4226,
+      "person_share": 0.007048872180451127
+     },
+     "lock": {
+      "person": 21,
+      "bridge": 4202,
+      "person_share": 0.0049727681742836845
+     },
+     "restock": {
+      "person": 20,
+      "bridge": 194,
+      "person_share": 0.09345794392523364
+     },
+     "discard_rows": {
+      "person": 12,
+      "bridge": 2932,
+      "person_share": 0.004076086956521739
+     }
+    },
+    "by_employment_origin": {
+     "unlock": {
+      "round_robin": {
+       "person": 17,
+       "bridge": 4117,
+       "person_share": 0.004112239961296565
+      },
+      "w21c": {
+       "person": 13,
+       "bridge": 109,
+       "person_share": 0.10655737704918032
+      }
+     },
+     "lock": {
+      "round_robin": {
+       "person": 14,
+       "bridge": 4088,
+       "person_share": 0.0034129692832764505
+      },
+      "w21c": {
+       "person": 7,
+       "bridge": 114,
+       "person_share": 0.05785123966942149
+      }
+     },
+     "restock": {
+      "round_robin": {
+       "person": 11,
+       "bridge": 187,
+       "person_share": 0.05555555555555555
+      },
+      "w21c": {
+       "person": 9,
+       "bridge": 7,
+       "person_share": 0.5625
+      }
+     },
+     "discard_rows": {
+      "round_robin": {
+       "person": 6,
+       "bridge": 2827,
+       "person_share": 0.002117896223085069
+      },
+      "w21c": {
+       "person": 6,
+       "bridge": 105,
+       "person_share": 0.05405405405405406
+      }
+     }
+    },
+    "by_rule_source": {
+     "unlock": {
+      "category_default": {
+       "person": 16,
+       "bridge": 3320,
+       "person_share": 0.004796163069544364
+      },
+      "chain_default": {
+       "person": 0,
+       "bridge": 16,
+       "person_share": 0.0
+      },
+      "osm_opening_hours": {
+       "person": 14,
+       "bridge": 890,
+       "person_share": 0.015486725663716814
+      }
+     },
+     "lock": {
+      "category_default": {
+       "person": 17,
+       "bridge": 3308,
+       "person_share": 0.005112781954887218
+      },
+      "chain_default": {
+       "person": 0,
+       "bridge": 15,
+       "person_share": 0.0
+      },
+      "osm_opening_hours": {
+       "person": 4,
+       "bridge": 879,
+       "person_share": 0.004530011325028313
+      }
+     },
+     "restock": {
+      "category_default": {
+       "person": 8,
+       "bridge": 54,
+       "person_share": 0.12903225806451613
+      },
+      "chain_default": {
+       "person": 2,
+       "bridge": 40,
+       "person_share": 0.047619047619047616
+      },
+      "osm_opening_hours": {
+       "person": 10,
+       "bridge": 100,
+       "person_share": 0.09090909090909091
+      }
+     },
+     "discard_rows": {
+      "category_default": {
+       "person": 9,
+       "bridge": 2000,
+       "person_share": 0.004479840716774514
+      },
+      "chain_default": {
+       "person": 0,
+       "bridge": 83,
+       "person_share": 0.0
+      },
+      "osm_opening_hours": {
+       "person": 3,
+       "bridge": 849,
+       "person_share": 0.0035211267605633804
+      }
+     }
+    }
+   },
+   "delay_minutes": {
+    "shop_begin:category_default": {
+     "-15": 5,
+     "-14": 2,
+     "-12": 1,
+     "-11": 2,
+     "-10": 2,
+     "-7": 1,
+     "-6": 1,
+     "-3": 1,
+     "-2": 1
+    },
+    "shop_begin:osm_opening_hours": {
+     "-15": 5,
+     "-13": 4,
+     "-12": 2,
+     "-7": 1,
+     "-1": 1,
+     "0": 1
+    },
+    "shop_end:category_default": {
+     "-15": 7,
+     "-14": 5,
+     "-9": 1,
+     "-7": 1,
+     "-6": 1,
+     "-4": 2
+    },
+    "shop_end:osm_opening_hours": {
+     "-15": 1,
+     "-10": 1,
+     "-1": 1,
+     "3": 1
+    }
+   },
+   "labor_over": {
+    "over_day_hours": 18,
+    "lock_early_in_window": 20,
+    "unlock_early_in_window": 29,
+    "labor": {
+     "source": [
+      "labor.statutory_hours",
+      "labor.weekly_rest_day"
+     ],
+     "kind": [
+      "human",
+      "human"
+     ],
+     "max_hours_per_week": 40,
+     "max_hours_per_day": 8,
+     "min_rest_days_per_week": 1,
+     "enforced": false
+    },
+    "enforced": false
+   },
+   "role_words": {},
+   "common_knowledge": {
+    "line": "店の決まり: 営業 0:00〜24:00。(出どころ category_default=作り物の印)"
+   },
+   "calls": {
+    "judge_model": 185,
+    "llm": 0
+   }
+  },
+  "meter": {
+   "bridge:discard_rows:round_robin:category_default": 1950,
+   "bridge:discard_rows:round_robin:chain_default": 78,
+   "bridge:discard_rows:round_robin:osm_opening_hours": 799,
+   "bridge:discard_rows:w21c:category_default": 50,
+   "bridge:discard_rows:w21c:chain_default": 5,
+   "bridge:discard_rows:w21c:osm_opening_hours": 50,
+   "bridge:lock:round_robin:category_default": 3245,
+   "bridge:lock:round_robin:chain_default": 14,
+   "bridge:lock:round_robin:osm_opening_hours": 829,
+   "bridge:lock:w21c:category_default": 63,
+   "bridge:lock:w21c:chain_default": 1,
+   "bridge:lock:w21c:osm_opening_hours": 50,
+   "bridge:restock:round_robin:category_default": 53,
+   "bridge:restock:round_robin:chain_default": 38,
+   "bridge:restock:round_robin:osm_opening_hours": 96,
+   "bridge:restock:w21c:category_default": 1,
+   "bridge:restock:w21c:chain_default": 2,
+   "bridge:restock:w21c:osm_opening_hours": 4,
+   "bridge:unlock:round_robin:category_default": 3260,
+   "bridge:unlock:round_robin:chain_default": 14,
+   "bridge:unlock:round_robin:osm_opening_hours": 843,
+   "bridge:unlock:w21c:category_default": 60,
+   "bridge:unlock:w21c:chain_default": 2,
+   "bridge:unlock:w21c:osm_opening_hours": 47,
+   "chosen:なし": 85,
+   "chosen:廃棄": 12,
+   "chosen:接客": 17,
+   "chosen:補充": 20,
+   "chosen:開閉店": 51,
+   "decisions:shelf": 51,
+   "decisions:shop": 112,
+   "decisions:waste": 22,
+   "events:仕事:捨てた": 12,
+   "events:仕事:補充した": 20,
+   "events:仕事:閉めた": 21,
+   "events:仕事:開けた": 30,
+   "hours:lock_early_in_window": 20,
+   "hours:unlock_early_in_window": 29,
+   "labor:over_day_hours": 18,
+   "person:discard_rows:round_robin:category_default": 6,
+   "person:discard_rows:w21c:category_default": 3,
+   "person:discard_rows:w21c:osm_opening_hours": 3,
+   "person:lock:round_robin:category_default": 14,
+   "person:lock:w21c:category_default": 3,
+   "person:lock:w21c:osm_opening_hours": 4,
+   "person:restock:round_robin:category_default": 7,
+   "person:restock:round_robin:osm_opening_hours": 4,
+   "person:restock:w21c:category_default": 1,
+   "person:restock:w21c:chain_default": 2,
+   "person:restock:w21c:osm_opening_hours": 6,
+   "person:unlock:round_robin:category_default": 10,
+   "person:unlock:round_robin:osm_opening_hours": 7,
+   "person:unlock:w21c:category_default": 6,
+   "person:unlock:w21c:osm_opening_hours": 7,
+   "present:asleep_rows": 4175,
+   "present:main_first_rows": 591,
+   "present:second_or_later": 2083,
+   "present:store_steps": 29445,
+   "shelf:empty_store_minutes:none": 0,
+   "shelf:empty_store_minutes:round_robin": 43587,
+   "shelf:empty_store_minutes:w21c": 3269,
+   "shelf:low_store_minutes:none": 0,
+   "shelf:low_store_minutes:round_robin": 322660,
+   "shelf:low_store_minutes:w21c": 19899,
+   "shelf:no_notice_empty_backroom": 697,
+   "shelf:person_units": 158,
+   "shelf:serve": 17,
+   "shelf:wait": 14,
+   "shop:not_yet": 61,
+   "waste:not_yet": 10,
+   "waste:person_bin": 12,
+   "waste:person_units": 21
+  }
+ },
+ "off2": {
+  "mode": "one",
+  "arm": "off",
+  "agents": 5000,
+  "seed": 1,
+  "days": 2,
+  "events": "on",
+  "machine": {
+   "os": "Windows-11",
+   "machine": "AMD64",
+   "python": "3.12.10"
+  },
+  "final": "38d5d5674b90f99390df6a766b5effcf86b09fe311230be42439492995fa6c06",
+  "llm_calls": 138821,
+  "wall_s": 80.6,
+  "ms_per_step": 27.99,
+  "peak_rss_mb": 491.7,
+  "calls_by_model": {
+   "judge_model": 0,
+   "llm": 138821
+  },
+  "events_by_what": {},
+  "event_log": {
+   "rows": 85090,
+   "nbytes": 6126480,
+   "cause_nbytes": 667485,
+   "duty_rows": 0
+  },
+  "process_counters": {
+   "opening": {
+    "events": 10810.0,
+    "role_actions": 38.0,
+    "fallback": 10772.0,
+    "open_now": 537.0,
+    "staffed_pois": 2337.0
+   },
+   "shelf": {
+    "role_actions": 12.0,
+    "fallback": 194.0,
+    "no_backroom": 97.0,
+    "rejected": 0.0,
+    "units": 1568.0,
+    "yen": 356451.0,
+    "backroom_now": 26476.0
+   },
+   "waste": {
+    "stops": 467.0,
+    "collected_g": 1744750.0,
+    "to_bin_rows": 2937.0,
+    "consumed": 4308.0,
+    "consumed_g": 1481900.0,
+    "day_waste_g": 0.0
+   }
+  },
+  "shelf_store_minutes": {
+   "empty:staffed": 46340,
+   "empty:unstaffed": 0,
+   "low:staffed": 337051,
+   "low:unstaffed": 0
+  },
+  "staffed_stores": 2337,
+  "stores": 2337,
+  "checkpoints_behavior": [
+   [
+    359,
+    "8a4bce823373de0faf19579519724e9cbc3f5a86255111a284a01bf495d58caa"
+   ],
+   [
+    719,
+    "6701937f1f0e74eeb9dcfc55c2e7c5559a19269e4e29f53fad8457238fdefd40"
+   ],
+   [
+    1079,
+    "8267375d5205629aa4057200a4eaf60377ce63164bac58edcc42627bf09f1974"
+   ],
+   [
+    1439,
+    "bb86f8985517271743702a8faa376b134c1986fd9c0bed27f30b317eb04d18ee"
+   ],
+   [
+    1799,
+    "33ad59c497ba00cb27ce5fc97639546a03005be6708401126a8dddb077c126c9"
+   ],
+   [
+    2159,
+    "379f590e5c4afaf078fb6b3ba78d18ba3281a65c3e9c9004dc836d566aa9a617"
+   ],
+   [
+    2519,
+    "45d6f455d6a0a3c607d8edb414c40977f24ef4f5bf1fda3a639f02c41d61acad"
+   ],
+   [
+    2879,
+    "38d5d5674b90f99390df6a766b5effcf86b09fe311230be42439492995fa6c06"
+   ]
+  ]
+ },
+ "arm1_ev_off": {
+  "mode": "one",
+  "arm": "arm",
+  "agents": 5000,
+  "seed": 1,
+  "days": 1,
+  "events": "off",
+  "machine": {
+   "os": "Windows-11",
+   "machine": "AMD64",
+   "python": "3.12.10"
+  },
+  "final": "4cbe146311ffd25b1a5de1fda2a33a7c429d0e1eadbadf31d78bf91e8db976fb",
+  "llm_calls": 63515,
+  "wall_s": 39.9,
+  "ms_per_step": 27.68,
+  "peak_rss_mb": 500.1,
+  "calls_by_model": {
+   "judge_model": 78,
+   "llm": 63515,
+   "duties": {
+    "judge_model": 78,
+    "llm": 0
+   }
+  },
+  "events_by_what": {},
+  "event_log": {
+   "rows": 0,
+   "nbytes": 0,
+   "cause_nbytes": 0,
+   "duty_rows": 0
+  },
+  "process_counters": {
+   "opening": {
+    "events": 6525.0,
+    "role_actions": 0.0,
+    "fallback": 6525.0,
+    "open_now": 535.0,
+    "staffed_pois": 2337.0
+   },
+   "shelf": {
+    "role_actions": 5.0,
+    "fallback": 42.0,
+    "no_backroom": 0.0,
+    "rejected": 0.0,
+    "units": 277.0,
+    "yen": 63057.0,
+    "backroom_now": 13745.0
+   },
+   "waste": {
+    "stops": 234.0,
+    "collected_g": 910750.0,
+    "to_bin_rows": 1544.0,
+    "consumed": 1195.0,
+    "consumed_g": 418250.0,
+    "day_waste_g": 0.0
+   }
+  },
+  "shelf_store_minutes": {
+   "empty:staffed": 11600,
+   "empty:unstaffed": 0,
+   "low:staffed": 101966,
+   "low:unstaffed": 0
+  },
+  "staffed_stores": 2337,
+  "stores": 2337,
+  "checkpoints_behavior": [
+   [
+    359,
+    "acc4b3541d5469db122935ecfcefc7fc88c878e6820fca5f5d71a1282d6a8ec7"
+   ],
+   [
+    719,
+    "137597ee940b8f616d8fb56b719fa20d22e0fed78fa85ff9f14c66a4cf10aa1f"
+   ],
+   [
+    1079,
+    "dd3bcd6ce5ce28230ddc87ccbe5a59bd21eaa77a2710afc3844724446a1adaee"
+   ],
+   [
+    1439,
+    "4cbe146311ffd25b1a5de1fda2a33a7c429d0e1eadbadf31d78bf91e8db976fb"
+   ]
+  ],
+  "audit": {
+   "events": 0,
+   "violations": 0,
+   "examples": []
+  },
+  "duties": {
+   "schema": "shibuya.engine.duties/2",
+   "arm": "arm",
+   "port": "duties-mock",
+   "rules": {
+    "source": "W7 の営業時間の表のその日の行(OpeningProcess.open_matrix)=雇用の行(体 → 店)の体だけが引ける・出どころの印=W7 の列 src(osm_opening_hours=実データ・chain_default/category_default=作り物の印)",
+    "rule_sources": [
+     "category_default",
+     "chain_default",
+     "osm_opening_hours"
+    ],
+    "lead_minutes": 15,
+    "restock_notice_every_minutes": 5,
+    "notice": "棚の残りが補充点の下(ShelfRestockProcess.reorder_point)・営業中・バックヤードに在庫がある",
+    "waste": "雇用の行の体が閉めた店に売れ残りがある(閉店の作業)",
+    "staff": "その店の雇用の行を持つ体なら誰でも(店のセルに居て起きていて主の判断が無い)・1 店 1 刻みの判断は雇用の行の順で最初の 1 人"
+   },
+   "arbitration": {
+    "main_first": "その刻みに主の判断の呼びのあった体には候補を出さない(次に条件がそろった刻みに出す)",
+    "awake": "寝ている体には候補を出さない(雇用の行の体が店で寝ているだけの店はエンジンのつなぎ)",
+    "one_per_store": "1 店 1 刻みの判断は 1 人まで=雇用の行の順で最初の、店に居て起きていて主の判断の無い体",
+    "role_words": "主の判断の役割語(補充・開閉店)は同じ刻みに本人の行動として実行する(雇用の行の店に居るときだけ)"
+   },
+   "bridges": {
+    "shop": "雇用の行の体が店に居て起きていない店=OpeningProcess の REPLACEMENT(conf 0.5)",
+    "shelf": "雇用の行の体が店に居て起きていない店=10:00 の engine_rule(conf 0.5)",
+    "waste": "雇用の行の体が捨てなかった店=05:00 の売れ残り → ビン",
+    "initial": "開始の刻みの最初の設定(open_now が負の店)はエンジン"
+   },
+   "provisional": [
+    "判断の候補の語と源の当て方(開閉=店を開ける/店を閉める/まだ・補充=棚に補充する/接客する/待つ・廃棄=売れ残りを捨てる/まだ)",
+    "仮のモデル(mock)は候補を語と id の順に並べ乱数の余りで一様に選ぶ(判断モデルの代わり)"
+   ],
+   "decisions": {
+    "shelf": 16,
+    "shop": 50,
+    "waste": 12
+   },
+   "shop": {
+    "not_yet": 27,
+    "stores": 2337,
+    "stores_with_employment": 2337,
+    "stores_with_2plus_employment": 29,
+    "employment_rows": 2435,
+    "employment_agents": 290,
+    "stores_by_staff_origin": {
+     "none": 0,
+     "w21c": 68,
+     "round_robin": 2269
+    }
+   },
+   "shelf": {
+    "empty_store_minutes:none": 0,
+    "empty_store_minutes:round_robin": 10926,
+    "empty_store_minutes:w21c": 708,
+    "low_store_minutes:none": 0,
+    "low_store_minutes:round_robin": 95551,
+    "low_store_minutes:w21c": 6665,
+    "no_notice_empty_backroom": 132,
+    "person_units": 30,
+    "serve": 7,
+    "wait": 4
+   },
+   "waste": {
+    "not_yet": 7,
+    "person_bin": 5,
+    "person_units": 9
+   },
+   "coverage": {
+    "total": {
+     "unlock": {
+      "person": 12,
+      "bridge": 2109,
+      "person_share": 0.005657708628005658
+     },
+     "lock": {
+      "person": 11,
+      "bridge": 2079,
+      "person_share": 0.005263157894736842
+     },
+     "restock": {
+      "person": 5,
+      "bridge": 42,
+      "person_share": 0.10638297872340426
+     },
+     "discard_rows": {
+      "person": 5,
+      "bridge": 1544,
+      "person_share": 0.0032278889606197547
+     }
+    },
+    "by_employment_origin": {
+     "unlock": {
+      "round_robin": {
+       "person": 8,
+       "bridge": 2052,
+       "person_share": 0.003883495145631068
+      },
+      "w21c": {
+       "person": 4,
+       "bridge": 57,
+       "person_share": 0.06557377049180328
+      }
+     },
+     "lock": {
+      "round_robin": {
+       "person": 8,
+       "bridge": 2022,
+       "person_share": 0.003940886699507389
+      },
+      "w21c": {
+       "person": 3,
+       "bridge": 57,
+       "person_share": 0.05
+      }
+     },
+     "restock": {
+      "round_robin": {
+       "person": 3,
+       "bridge": 41,
+       "person_share": 0.06818181818181818
+      },
+      "w21c": {
+       "person": 2,
+       "bridge": 1,
+       "person_share": 0.6666666666666666
+      }
+     },
+     "discard_rows": {
+      "round_robin": {
+       "person": 2,
+       "bridge": 1484,
+       "person_share": 0.0013458950201884253
+      },
+      "w21c": {
+       "person": 3,
+       "bridge": 60,
+       "person_share": 0.047619047619047616
+      }
+     }
+    },
+    "by_rule_source": {
+     "unlock": {
+      "category_default": {
+       "person": 8,
+       "bridge": 1660,
+       "person_share": 0.004796163069544364
+      },
+      "chain_default": {
+       "person": 0,
+       "bridge": 8,
+       "person_share": 0.0
+      },
+      "osm_opening_hours": {
+       "person": 4,
+       "bridge": 441,
+       "person_share": 0.008988764044943821
+      }
+     },
+     "lock": {
+      "category_default": {
+       "person": 9,
+       "bridge": 1648,
+       "person_share": 0.005431502715751358
+      },
+      "chain_default": {
+       "person": 0,
+       "bridge": 7,
+       "person_share": 0.0
+      },
+      "osm_opening_hours": {
+       "person": 2,
+       "bridge": 424,
+       "person_share": 0.004694835680751174
+      }
+     },
+     "restock": {
+      "category_default": {
+       "person": 2,
+       "bridge": 11,
+       "person_share": 0.15384615384615385
+      },
+      "chain_default": {
+       "person": 1,
+       "bridge": 6,
+       "person_share": 0.14285714285714285
+      },
+      "osm_opening_hours": {
+       "person": 2,
+       "bridge": 25,
+       "person_share": 0.07407407407407407
+      }
+     },
+     "discard_rows": {
+      "category_default": {
+       "person": 3,
+       "bridge": 1035,
+       "person_share": 0.002890173410404624
+      },
+      "chain_default": {
+       "person": 0,
+       "bridge": 59,
+       "person_share": 0.0
+      },
+      "osm_opening_hours": {
+       "person": 2,
+       "bridge": 450,
+       "person_share": 0.004424778761061947
+      }
+     }
+    }
+   },
+   "delay_minutes": {
+    "shop_begin:category_default": {
+     "-15": 2,
+     "-14": 2,
+     "-12": 1,
+     "-10": 1,
+     "-3": 1,
+     "-2": 1
+    },
+    "shop_begin:osm_opening_hours": {
+     "-15": 1,
+     "-13": 1,
+     "-12": 1,
+     "0": 1
+    },
+    "shop_end:category_default": {
+     "-15": 3,
+     "-14": 4,
+     "-4": 2
+    },
+    "shop_end:osm_opening_hours": {
+     "-15": 1,
+     "3": 1
+    }
+   },
+   "labor_over": {
+    "over_day_hours": 9,
+    "lock_early_in_window": 10,
+    "unlock_early_in_window": 11,
+    "labor": {
+     "source": [
+      "labor.statutory_hours",
+      "labor.weekly_rest_day"
+     ],
+     "kind": [
+      "human",
+      "human"
+     ],
+     "max_hours_per_week": 40,
+     "max_hours_per_day": 8,
+     "min_rest_days_per_week": 1,
+     "enforced": false
+    },
+    "enforced": false
+   },
+   "role_words": {},
+   "common_knowledge": {
+    "line": "店の決まり: 営業 0:00〜24:00。(出どころ category_default=作り物の印)"
+   },
+   "calls": {
+    "judge_model": 78,
+    "llm": 0
+   }
+  },
+  "meter": {
+   "bridge:discard_rows:round_robin:category_default": 1008,
+   "bridge:discard_rows:round_robin:chain_default": 55,
+   "bridge:discard_rows:round_robin:osm_opening_hours": 421,
+   "bridge:discard_rows:w21c:category_default": 27,
+   "bridge:discard_rows:w21c:chain_default": 4,
+   "bridge:discard_rows:w21c:osm_opening_hours": 29,
+   "bridge:lock:round_robin:category_default": 1616,
+   "bridge:lock:round_robin:chain_default": 7,
+   "bridge:lock:round_robin:osm_opening_hours": 399,
+   "bridge:lock:w21c:category_default": 32,
+   "bridge:lock:w21c:osm_opening_hours": 25,
+   "bridge:restock:round_robin:category_default": 11,
+   "bridge:restock:round_robin:chain_default": 6,
+   "bridge:restock:round_robin:osm_opening_hours": 24,
+   "bridge:restock:w21c:osm_opening_hours": 1,
+   "bridge:unlock:round_robin:category_default": 1630,
+   "bridge:unlock:round_robin:chain_default": 7,
+   "bridge:unlock:round_robin:osm_opening_hours": 415,
+   "bridge:unlock:w21c:category_default": 30,
+   "bridge:unlock:w21c:chain_default": 1,
+   "bridge:unlock:w21c:osm_opening_hours": 26,
+   "chosen:なし": 38,
+   "chosen:廃棄": 5,
+   "chosen:接客": 7,
+   "chosen:補充": 5,
+   "chosen:開閉店": 23,
+   "decisions:shelf": 16,
+   "decisions:shop": 50,
+   "decisions:waste": 12,
+   "hours:lock_early_in_window": 10,
+   "hours:unlock_early_in_window": 11,
+   "labor:over_day_hours": 9,
+   "person:discard_rows:round_robin:category_default": 2,
+   "person:discard_rows:w21c:category_default": 1,
+   "person:discard_rows:w21c:osm_opening_hours": 2,
+   "person:lock:round_robin:category_default": 8,
+   "person:lock:w21c:category_default": 1,
+   "person:lock:w21c:osm_opening_hours": 2,
+   "person:restock:round_robin:category_default": 2,
+   "person:restock:round_robin:osm_opening_hours": 1,
+   "person:restock:w21c:chain_default": 1,
+   "person:restock:w21c:osm_opening_hours": 1,
+   "person:unlock:round_robin:category_default": 5,
+   "person:unlock:round_robin:osm_opening_hours": 3,
+   "person:unlock:w21c:category_default": 3,
+   "person:unlock:w21c:osm_opening_hours": 1,
+   "present:asleep_rows": 2367,
+   "present:main_first_rows": 250,
+   "present:second_or_later": 933,
+   "present:store_steps": 13941,
+   "shelf:empty_store_minutes:none": 0,
+   "shelf:empty_store_minutes:round_robin": 10926,
+   "shelf:empty_store_minutes:w21c": 708,
+   "shelf:low_store_minutes:none": 0,
+   "shelf:low_store_minutes:round_robin": 95551,
+   "shelf:low_store_minutes:w21c": 6665,
+   "shelf:no_notice_empty_backroom": 132,
+   "shelf:person_units": 30,
+   "shelf:serve": 7,
+   "shelf:wait": 4,
+   "shop:not_yet": 27,
+   "waste:not_yet": 7,
+   "waste:person_bin": 5,
+   "waste:person_units": 9
+  }
+ },
+ "resume2": {
+  "mode": "resume",
+  "agents": 5000,
+  "seed": 1,
+  "days": 2,
+  "stop": 1440,
+  "state_file": "state-T00001440.npz",
+  "machine": {
+   "os": "Windows-11",
+   "machine": "AMD64",
+   "python": "3.12.10"
+  },
+  "straight": {
+   "final": "b2bdfaa2d0de0d4b273c4daaf68ddb1340edf176f2037f1fd2607170ccaaf641",
+   "wall_s": 87.1
+  },
+  "resumed": {
+   "final": "b2bdfaa2d0de0d4b273c4daaf68ddb1340edf176f2037f1fd2607170ccaaf641",
+   "wall_s": 86.7
+  },
+  "final_same": true,
+  "checkpoints_after_stop_same": true,
+  "n_checkpoints_after_stop": 24,
+  "manifest_same": {
+   "meter": true,
+   "decisions": true,
+   "shop": true,
+   "shelf": true,
+   "waste": true,
+   "coverage": true,
+   "delay_minutes": true,
+   "labor_over": true,
+   "role_words": true,
+   "calls": true
+  }
+ }
+}

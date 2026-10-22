@@ -61,6 +61,12 @@ calendar_2(新設・連絡の系の後=本人の予定の器・誘い・帳面�
 ``CA2G:calendar2._turns``)。読んだ C3 の連絡の控え(行 ``CA3G``=``calendar3._reads``)は連絡の系の読む判断が積む(腕のランだけ)。
 close_final は層を結果に渡す。
 
+〔第 6 期 6-6 ② 第 1 部〕店の仕事を働く人の体へ(腕 ``--duties arm``・状態台帳の腕の行 ``DU*``)を書く系: duties(新設・カレンダー 2 の
+系の後・記憶の系の前=担当が店に居る店の開閉・補充・廃棄の本人の判断と行動=``request_open_close``・``restock``・``discard_to_bin``・
+世界過程の開閉/補充/廃棄の持ち物と ActualLog・金と物の台帳・出来事 ``E:events.*``)。主の判断の役割語「補充」「開閉店」の控え
+(行 ``DUG``=``duties._role_asks``)は判断の系(decide と llm_receive=LLMBridge の口)が積む(腕のランだけ)。close_final は層を結果に
+渡す。
+
 〔親の決め〕世界過程が持ち主をまたいで書く所(鉄道と大きな催しが計画実行層の O36・O37・O70 と鉄道の O74 を書く)は
 1-0 では宣言で認める(``world`` の ``writes.paths``)。
 
@@ -86,6 +92,7 @@ from shibuya.engine.experiment import layer as _EXP
 from shibuya.engine.contact import layer as _CTL
 from shibuya.engine.calendar2 import layer as _CA2L
 from shibuya.engine.calendar3 import layer as _CA3L
+from shibuya.engine.duties import layer as _DUL
 from shibuya.engine.systems.spec import SystemSpec, make
 
 __all__ = ["SYSTEMS", "SPECS", "TICK_ORDER"]
@@ -148,7 +155,9 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                # 〔第 3 期 3-5〕体感温度は本人の体の層の口(段の境目の計器・TM5 の予約の列=状態台帳の行 BD)
                "BD:body.* "
                # 〔第 6 期 6-2〕鉄道の発車が計画実行層に知らせる口からカレンダー 1b の連続性の手がかり(腕 1b のランだけ)
-               "C1B:calendar_self.cal_store",
+               "C1B:calendar_self.cal_store "
+               # 〔第 6 期 6-6 ② 第 1 部〕補充と廃棄のつなぎが代わりにした店を店の仕事の計器に数える(腕 --duties arm のランだけ)
+               "DUM:duties._du_meter",
          reads="layers.runner",
          origin=f"L2・run.py:3629-3630 @{_E}"),
     make("presence", "体", "tick", _BD.sys_presence,
@@ -181,7 +190,9 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                # 〔6-3 検収 M1〕腕 mora の発言の予約は全体の窓の待ち行列(行 BW)か区域ごとの時計(行 T4W)に事象を置く
                " BW:batching.* T4W:clock.*"
                # 〔第 6 期 6-2 カレンダー 2〕腕 arm: 到着した会話の番の控え(系 calendar_2 が同じ刻みに読む)
-               " CA2G:calendar2._turns",
+               " CA2G:calendar2._turns"
+               # 〔第 6 期 6-6 ② 第 1 部〕腕 --duties arm: 到着した判断の役割語の控え(系 duties が同じ刻みに読む)
+               " DUG:duties._role_asks",
          scratch_w="n_parse_errors_fleet", calls_llm="receive",
          tally="phase", reads="cfg.fleet_wait_s cfg.store_wom_on cfg.tick_seconds "
                "cfg.vocab_version layers.conv layers.fleet_bridge layers.mem_layer layers.speech layers.wom "
@@ -288,7 +299,9 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                # 〔第 6 期 6-4 C1 検収 M5〕腕 c1+腕 port: 主の判断が候補の「スマホを見る」を選んだ体の控え(同じ刻みの系 contact が読む)
                " CT1G:contact._look_main CT1M:contact._meter"
                # 〔第 6 期 6-2 カレンダー 2〕腕 arm: 会話の番の控え(系 calendar_2 が同じ刻みに読む)
-               " CA2G:calendar2._turns",
+               " CA2G:calendar2._turns"
+               # 〔第 6 期 6-6 ② 第 1 部〕腕 --duties arm: 判断の役割語の控え(系 duties が同じ刻みに読む)
+               " DUG:duties._role_asks",
          # 第 1 期 1-2: 描いた知覚の事実 ``percepts``(``TickScratch`` の欄・状態台帳の行 P)
          scratch_r="decision outside_now n_parse_errors_fleet", scratch_w="parse_errors percepts",
          tally="calls_by_cond layer_counts n_fleet_resent n_outside_calls peak_backlog peak_pending phase result",
@@ -388,6 +401,20 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          when="calendar2", reads="layers.calendar2 scratch.decision soa.agents soa.world "
                                  "layers.conv layers.contact layers.runner",  # 〔検収 L3〕層が参照で読む持ち主
          origin="第 6 期 6-2 カレンダー 2(新設・HEAD の区間なし)"),
+    # 〔第 6 期 6-6 ② 第 1 部〕店の仕事を働く人の体へ(腕 --duties arm のランだけ立つ・カレンダー 2 の系の後・記憶の系の前=その刻みの
+    # 主の判断が決まった後)。書くのは持ち主 duties(状態台帳の腕の行 DU*)と出来事の記録(族 仕事・ActualLog の行の出来事)と、
+    # 本人の行動の口(開閉=request_open_close・補充=restock・廃棄=discard_to_bin)が書く世界過程の持ち物(開閉の権利の印・
+    # 補充のバックヤードと計器・ActualLog)と金と物の台帳
+    make("duties", "仕事", "tick", _DUL.sys_duties,
+         resolve_ops="request_open_close restock discard_to_bin",
+         # 〔検収 L1〕書く行だけ: 持ち主・出来事・補充の過程の持ち物(O52・O53)・ActualLog(O61)・計数(O73)・金と物の台帳・
+         # 金の移動の目印(A)・支払いの方法の列(EM)
+         paths="DU*:duties.* E:events.* O5[23]:runner.* O61:runner.* O73:runner.* "
+               "O5[7-9]:ledger.* O60:ledger.* O7[7-9]:ledger.* O8[01]:ledger.* O9[23]:ledger.* A:ledger.* EM:ledger.*",
+         scratch_r="decision",
+         when="duties", reads="layers.duties scratch.decision soa.agents soa.world "
+                              "layers.runner",  # 層が参照で読む持ち主(世界過程の開閉・補充・廃棄)
+         origin="第 6 期 6-6 ② 第 1 部(新設・HEAD の区間なし)"),
     make("memory", "記憶", "tick", _RM.sys_memory,
          resolve_ops="write_memory write_relations write_store_memory",
          paths="O[89]:mem_layer.* O1[0-2]:mem_layer.* O1[6-9]:rel_layer.* O64:renderer.* O1[34]:poi_resolver.* "
@@ -498,7 +525,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.talk_clock layers.step_scope layers.clock "  # 〔第 6 期 6-3〕時計の段の腕の持ち主を結果に渡す
                "layers.contact "  # 〔第 6 期 6-4 C1〕連絡の道具を結果に渡す(manifest の contact_c1)
                "layers.calendar2 "  # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定を結果に渡す(manifest の calendar_2)
-               "layers.calendar3",  # 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日を結果に渡す(manifest の calendar_3)
+               "layers.calendar3 "  # 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日を結果に渡す(manifest の calendar_3)
+               "layers.duties",  # 〔第 6 期 6-6 ② 第 1 部〕店の仕事を結果に渡す(manifest の duties)
          origin=f"E1・run.py:4551-4592 @{_E}"),
     make("report", "計器", "run_end", _RP.report,
          tally="result sleep_counts frozen_sources_map",  # 段 FIX: 欄の別名 ``frozen_sources_map.update``

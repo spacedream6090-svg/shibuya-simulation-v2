@@ -373,6 +373,15 @@ def build(_call_args: dict[str, Any]) -> Any:
             raise ValueError("腕 --calendar-3 arm は --contact c1(職場の連絡を送る口)と --calendar-2 arm(本人の予定の器)の"
                              "ランだけ(層を再利用する=二重に作らない)")
         _fp[_CA3A.FP_KEY] = _ca3_cfg
+    from shibuya.engine.duties import arm as _DUA
+
+    _du_cfg = _DUA.config()
+    if _du_cfg is not None:
+        # 〔第 6 期 6-6 ② 第 1 部〕店の仕事の腕は結果を変える(担当が店に居る店の開閉・補充・廃棄が本人の判断になる)=arm のとき
+        # だけ設定の指紋に足す(再開で取り違えを止める。既定 off のランの指紋は今のまま)。世界過程の無いランは組み立てで止める
+        if not processes:
+            raise ValueError("腕 --duties arm は世界過程(開閉店・補充・廃棄)のあるランだけ")
+        _fp[_DUA.FP_KEY] = _du_cfg
     # ---- 第 3 期 3-3: 反実仮想の申込書(``cli.run`` が ``engine.experiment.layer.staged`` で置いた物・無ければ None=今の道)。
     # 設定の指紋には入れない(申込書の指紋は manifest の experiment の節=分岐が基準のランの状態から再開できる) ----
     from shibuya.engine.experiment import layer as _EXPL
@@ -1445,6 +1454,22 @@ def build(_call_args: dict[str, Any]) -> Any:
         contact_layer.sent_sink = calendar3_layer.note_sent
         contact_layer.read_sink = calendar3_layer.note_read
 
+    # ---- 〔第 6 期 6-6 ② 第 1 部〕店の仕事を働く人の体へ(腕 --duties arm のランだけ・既定 None=系 duties が立たない=今の道)。
+    # 世界過程の開閉店・補充・廃棄に持ち主を挿す(担当が店に居る店はエンジンが代わりにしない)・判断の口の役割語「補充」「開閉店」を
+    # 効かせる口を LLMBridge に挿す ----
+    duties_layer = None
+    if _du_cfg is not None:
+        from shibuya.engine.duties.layer import DutiesLayer as _DutiesLayer
+
+        duties_layer = _DutiesLayer(
+            n_agents=n_agents, seed=seed, day_key0=int(day_index), step_seconds=int(tick_seconds), steps_per_day=tpd,
+            events=events, agents=agents, world=world, calendar=calendar, runner=runner,
+        )
+        runner.opening.duties = duties_layer
+        runner.shelf.duties = duties_layer
+        runner.waste.duties = duties_layer
+        bridge.role_sink = duties_layer.note_role_word
+
     # ---- 1-0 段 C: 状態の箱(局所の割り当ての表 local-assignment.json・草案 §2-3)。物はそのまま指す(写しを作らない) ----
     from shibuya.engine import seat_release as _SRB  # 〔第 2 期 2-4 V3〕
 
@@ -1495,6 +1520,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             contact=contact_layer,  # 〔第 6 期 6-4 C1〕腕 c1 のランだけ
             calendar2=calendar2_layer,  # 〔第 6 期 6-2 カレンダー 2〕腕 arm のランだけ
             calendar3=calendar3_layer,  # 〔第 6 期 6-2 カレンダー 3〕腕 arm のランだけ
+            duties=duties_layer,  # 〔第 6 期 6-6 ② 第 1 部〕腕 --duties arm のランだけ
         ),
         llm=_BX.LlmIo(pending=pending, fleet_deferred=fleet_deferred, fleet_waiting=fleet_waiting,
                       fleet_inflight=fleet_inflight, replay_inbox=replay_inbox),

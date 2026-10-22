@@ -29,6 +29,11 @@
 直す。開閉店を権利の無い体が行っても止めない(``resolve.request_open_close`` が権利の無い行を返し、この過程が出来事の
 記録へ ``行為:許可のない行動`` を書いて数える=CP3・記録の口は ActualLog の ``event_sink`` から引く)。
 
+〔第 6 期 6-6 ② 第 1 部〕腕 ``--duties arm`` のランだけ、組み立てが店の仕事の持ち主(``engine.duties.layer.DutiesLayer``)を
+``duties`` に挿す。挿してあれば、その店の雇用の行を持つ体が店のセルに居て起きている店の開け閉めはこの過程がしない(本人の判断=
+系 ``duties`` が ``resolve.request_open_close`` を通して開け閉めする)。開始の刻みの最初の設定(``open_now`` がまだ負の店=世界の
+最初の状態)とほかの店はつなぎ(REPLACEMENT=担当の役割行動として代打しない)。既定 off は ``duties`` が ``None``=今の道(1 バイトも変えない)。
+
 expedient(本モジュール分)
 - 担当従業者の割り当て(``kind=従業者`` を POI へ決定論で丸振り)。規則は権利台帳の組み立て
   (``engine.rights.initial``)へ移し、ここは台帳の ``employ`` の行から読む。組織台帳(W6 org)との対応は無い。
@@ -181,6 +186,8 @@ class OpeningProcess:
         ) if passets.has_plan_spec else np.zeros((0, 0), dtype=bool)
         self.rights = self._build_rights()
         self.staff_of_poi = self._staff_from_rights()
+        #: 〔第 6 期 6-6 ② 第 1 部〕店の仕事の持ち主(腕 ``--duties arm`` のランだけ組み立てが挿す・参照・既定 None=今の道)。
+        self.duties = None
 
     @property
     def active(self) -> bool:
@@ -290,6 +297,14 @@ class OpeningProcess:
             present[ok] = (
                 self.agents.registry.cell[staff[ok]] == self.world.pois.cell[changed[ok]]
             )
+        if self.duties is not None:
+            # 〔第 6 期 6-6 ② 第 1 部・検収 M1〕その店の雇用の行を持つ体が店のセルに居て起きている店(最初の設定の済んだ店)は本人の
+            # 判断に任せる(この過程はしない)。ほかの店(最初の設定を含む)はつなぎ(担当の役割行動として代打しない=REPLACEMENT)
+            left = self.duties.staffed_now(changed) & (now[changed] >= 0)
+            changed, staff = changed[~left], staff[~left]
+            present = np.zeros(changed.size, dtype=bool)
+            if changed.size == 0:
+                return
         want = desired[changed].astype(np.int8)
         by_staff = changed[present]
         if by_staff.size:

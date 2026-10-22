@@ -74,6 +74,12 @@
   (6-2 の ``calendar2`` の後ろ)に足した。**表の末尾(``約束:知らせ`` の後ろ)に足した**=カレンダー 2 までの 93 語のコードは
   動かない(``勤務:枠を決めた``=93 〜 ``勤務:知らせ``=100)。版 ``events-vocab/6-2-ca3``。**仮採用**(族の名と語は実装役の構成=
   未リサーチ(expedient)・10-13b §0-3)。
+- 〔第 6 期 6-6 ② 第 1 部〕族を 1 つ足した: ``仕事``(店の仕事を働く人の体へ=決定 10-12 §1-5 の ②)。語は ``DUTY_WORDS`` の 4 語
+  (開けた・閉めた・補充した・捨てた=``engine.duties.layer`` が書く・腕 ``--duties arm`` のランだけ・どれも本人の語=原因は判断の
+  呼び)。道具の名は足さない(担当の居ない店のつなぎは今の世界過程の ActualLog の行=族 ``過程``)。**表の末尾(``勤務:知らせ`` の
+  後ろ)に足した**=カレンダー 3 までの 101 語のコードは動かない(``仕事:開けた``=101 〜 ``仕事:捨てた``=104)。版
+  ``events-vocab/6-6-w1``(並行の段と取り込みで親が合わせる)。**仮採用**(族の名と語は実装役の構成=未リサーチ(expedient)・
+  10-13b §0-3)。
 
 ``via``(CT9 の道具の欄)の語: 対面・通話・メッセージ・グループ・SNS・無し(決定 10-12 §4-4 CT9 (b) の 5 つ+無し)。
 ``where`` の種類: セル・ノード・POI(口の約束 1-3)。
@@ -95,13 +101,13 @@ __all__ = [
     "MONEY_EXTRA_WORDS", "ECONOMY_PROCESSES", "EXPERIMENT_WORDS", "FAMILY_PERCEPT", "CONVERSATION_WORDS",
     "PERCEPT_WORDS", "BODY_PROCESSES", "FAMILY_CONTACT", "CONTACT_WORDS", "CONTACT_PROCESSES",
     "FAMILY_PROMISE", "PROMISE_WORDS", "CALENDAR2_PROCESSES",
-    "FAMILY_WORK", "WORK_WORDS", "CALENDAR3_PROCESSES",
+    "FAMILY_WORK", "WORK_WORDS", "CALENDAR3_PROCESSES", "FAMILY_DUTY", "DUTY_WORDS",
     "VOCAB", "VOCAB_CODES", "VOCAB_VERSION", "word", "code_of", "family_of",
     "VIA_WORDS", "VIA_NONE", "VIA_CODES", "WHERE_KINDS",
 ]
 
 #: 表の版(語を足したら上げる)。
-VOCAB_VERSION: Final[str] = "events-vocab/6-2-ca3"
+VOCAB_VERSION: Final[str] = "events-vocab/6-6-w1"
 
 FAMILY_ACT: Final[str] = "行為"
 FAMILY_PROCESS: Final[str] = "過程"
@@ -119,8 +125,11 @@ FAMILY_CONTACT: Final[str] = "連絡"
 FAMILY_PROMISE: Final[str] = "約束"
 #: 〔第 6 期 6-2 カレンダー 3〕雇い主のシフトと職場の連絡から生まれる勤務の予定の族(族の並びの末尾=約束の後ろ)。
 FAMILY_WORK: Final[str] = "勤務"
+#: 〔第 6 期 6-6 ② 第 1 部〕店の仕事(開閉店・補充・廃棄)を働く人の体がした出来事の族(族の並びの末尾=勤務の後ろ)。
+FAMILY_DUTY: Final[str] = "仕事"
 FAMILIES: Final[tuple[str, ...]] = (FAMILY_ACT, FAMILY_PROCESS, FAMILY_MONEY, FAMILY_GOODS, FAMILY_TOOL,
-                                    FAMILY_EXPERIMENT, FAMILY_PERCEPT, FAMILY_CONTACT, FAMILY_PROMISE, FAMILY_WORK)
+                                    FAMILY_EXPERIMENT, FAMILY_PERCEPT, FAMILY_CONTACT, FAMILY_PROMISE, FAMILY_WORK,
+                                    FAMILY_DUTY)
 
 #: 行為 12 語(語彙 v3 の横断語・並びは v3 の表のまま)。
 ACT_WORDS: Final[tuple[str, ...]] = tuple(ACTION_VOCAB_V3)
@@ -216,6 +225,9 @@ PROMISE_WORDS: Final[tuple[str, ...]] = (
 WORK_WORDS: Final[tuple[str, ...]] = (
     "枠を決めた", "書いた", "休みを申し出た", "受けた", "断った", "休みにした", "遅れると伝えた", "知らせ",
 )
+#: 〔第 6 期 6-6 ② 第 1 部〕仕事の族の語(``engine.duties.layer`` が書く・腕 ``--duties arm`` のランだけ)。カレンダー 3 の
+#: ``WORK_WORDS`` の後ろ。どれも本人の語(原因=判断の呼び)=店を開けた・店を閉めた・棚に補充した・売れ残りを捨てた。
+DUTY_WORDS: Final[tuple[str, ...]] = ("開けた", "閉めた", "補充した", "捨てた")
 
 #: 表の全部(1-3 の 55 語は族の順 → 族の中の順・その後ろに 1-5 で足した語・その後ろに 1-7 で足した語・その後ろに 1-8b で
 #: 足した語・その後ろに 2-1 で足した金の 2 語・その後ろに 3-3 で足した実験の 2 語・その後ろに 2-3 で足した体の出来事の 3 語)。コードはこの並びの位置(記録の列に入る int16)。
@@ -234,6 +246,7 @@ VOCAB: Final[tuple[str, ...]] = (
     + tuple(f"{FAMILY_CONTACT}:{w}" for w in CONTACT_WORDS)
     + tuple(f"{FAMILY_PROMISE}:{w}" for w in PROMISE_WORDS)
     + tuple(f"{FAMILY_WORK}:{w}" for w in WORK_WORDS)
+    + tuple(f"{FAMILY_DUTY}:{w}" for w in DUTY_WORDS)
 )
 VOCAB_CODES: Final[Mapping[str, int]] = MappingProxyType({w: i for i, w in enumerate(VOCAB)})  # 検収 L7: 実行時に語を足せない
 assert len(VOCAB_CODES) == len(VOCAB), "語彙表に同じ語が 2 回ある"

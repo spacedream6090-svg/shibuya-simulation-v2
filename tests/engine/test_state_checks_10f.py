@@ -319,7 +319,9 @@ def test_k19_static_sites_are_frozen():
     # (Calendar2Port.choose=permutation)を決まらない呼び手に 14 → 15
     # 〔第 6 期 6-2 カレンダー 3〕勤務の判断の仮のモデルの選び(Calendar3Port._draw)を足して 23 → 24・候補の提示の並べ替え
     # (Calendar3Port.choose=permutation)を決まらない呼び手に 15 → 16
-    assert len(RA.SAFE_SITES) == 24 and len(RA.UNDETERMINED_SITES) == 16
+    # 〔第 6 期 6-6 ② 第 1 部〕店の仕事の判断の仮のモデルの選び(DutiesPort._draw)を足して 24 → 25・候補の提示の並べ替え
+    # (DutiesPort.choose=permutation)を決まらない呼び手に 16 → 17
+    assert len(RA.SAFE_SITES) == 25 and len(RA.UNDETERMINED_SITES) == 17
     # httpx の client.stream(llm/fleet.py)は乱数ではない=一覧に入らない
     assert all(s.path != "llm/fleet.py" for s in sites)
 

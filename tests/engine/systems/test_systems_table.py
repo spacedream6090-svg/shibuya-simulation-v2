@@ -32,6 +32,7 @@ ORDER = (
     "contact",  # 〔第 6 期 6-4 C1〕連絡の道具の系(腕 c1 のランだけ立つ)
     "calendar_3",  # 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日の系(腕 arm のランだけ立つ・連絡の系の後・カレンダー 2 の前)
     "calendar_2",  # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定の系(腕 arm のランだけ立つ)
+    "duties",  # 〔第 6 期 6-6 ② 第 1 部〕店の仕事の系(腕 --duties arm のランだけ立つ・カレンダー 2 の後・記憶の前)
     "memory", "familiarity", "energy_after", "observe",
     "checkpoint",
     "day_close", "drain", "close_final", "report",
@@ -40,7 +41,7 @@ ORDER = (
 
 def test_order_and_counts():
     assert tuple(s.name for s in SYSTEMS) == ORDER
-    assert sum(1 for s in SYSTEMS if s.timing == "tick") == 29  # 〔3-3〕25+申込書の系 experiment・〔6-4 C1〕+連絡の系 contact・〔6-2 カレンダー 2〕+calendar_2・〔6-2 カレンダー 3〕+calendar_3
+    assert sum(1 for s in SYSTEMS if s.timing == "tick") == 30  # 〔3-3〕25+申込書の系 experiment・〔6-4 C1〕+連絡の系 contact・〔6-2 カレンダー 2〕+calendar_2・〔6-2 カレンダー 3〕+calendar_3・〔6-6 ② 第 1 部〕+duties
     ranks = [TIMINGS.index(s.timing) for s in SYSTEMS]
     assert ranks == sorted(ranks)  # ランの頭 → 日の頭 → tick → 日の終わり → ランの終わり
     assert all(s.fn is not None and s.group and s.origin for s in SYSTEMS)

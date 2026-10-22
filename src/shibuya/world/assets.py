@@ -883,6 +883,11 @@ class ProcessAssets:
     #: 〔第330・10e E3・ACT〕W7 に祝日の規則(``PH``=列 ``holiday_content``)を持つ店(昇順)。資産に無ければ ``None``。
     #: 祝日の区間は ``plan_day == 7``。``[]``=祝日は休み・空文字/列なし=祝日の規則なし(日曜の行)。
     plan_ph_poi: np.ndarray | None = None
+    #: 〔第 6 期 6-6 ② 第 1 部〕W7 の列 ``src``(営業時間の行の出どころ=``osm_opening_hours``・``chain_default``・
+    #: ``category_default``)の名の表(昇順)と、店(POI)→ 名の番号(−1=行が無い)。店の決まりの口が出どころの印に使う
+    #: (読むだけ=腕 ``--duties arm`` のランだけが読む・既定の挙動は不変)。列の無い資産は ``()`` と ``None``。
+    plan_src_names: tuple[str, ...] = ()
+    plan_poi_src: np.ndarray | None = None
     edge_klass_code: np.ndarray | None = None
     edge_cell: np.ndarray | None = None
     edge_length_m: np.ndarray | None = None
@@ -1287,6 +1292,8 @@ def load_process_assets(
     # ---- W6/W7: POI カテゴリと営業時間 PlanSpec ----
     plan_poi = plan_day = plan_start = plan_end = None
     plan_ph_poi = None
+    plan_src_names: tuple[str, ...] = ()
+    plan_poi_src = None
     poi_cat_code = None
     poi_cat_names: tuple[str, ...] = ()
     fp = p / PROCESS_FILES["plan_spec"]
@@ -1302,9 +1309,17 @@ def load_process_assets(
             # 空文字=PH の規則なし=日曜の行・``[]``=祝日は休み)から読む(親の決定 (1)=構築側の形に合わせる)。
             # 列の無い W7(1.1.0 より前の資産・合成の資産)は PH の規則なし。週表 ``content`` は曜日 0〜6 の 7 要素だけを読む。
             _ps_cols = ["poi_id", "kind", "content"]
-            if "holiday_content" in pq.read_schema(fp).names:
+            _ps_names = pq.read_schema(fp).names
+            if "holiday_content" in _ps_names:
                 _ps_cols.append("holiday_content")
+            if "src" in _ps_names:  # 〔第 6 期 6-6 ② 第 1 部〕営業時間の行の出どころ(読むだけ)
+                _ps_cols.append("src")
             ps = pq.read_table(fp, columns=_ps_cols).to_pydict()
+            src_col = ps.get("src")
+            if src_col is not None:
+                plan_src_names = tuple(sorted({str(x) for x, k in zip(src_col, ps["kind"])
+                                               if str(k) == "opening_hours"}))
+                plan_poi_src = np.full(len(poi_index), -1, dtype=np.int16)
             hol = ps.get("holiday_content")
             rp: list[int] = []
             ph: set[int] = set()
@@ -1318,6 +1333,8 @@ def load_process_assets(
                 j = poi_index.get(str(ps["poi_id"][i]), -1)
                 if j < 0:
                     continue
+                if plan_poi_src is not None:
+                    plan_poi_src[j] = plan_src_names.index(str(src_col[i]))
                 try:
                     week = json.loads(str(ps["content"][i]))
                 except (ValueError, TypeError):
@@ -1391,6 +1408,8 @@ def load_process_assets(
         plan_start=plan_start,
         plan_end=plan_end,
         plan_ph_poi=plan_ph_poi,
+        plan_src_names=plan_src_names,
+        plan_poi_src=plan_poi_src,
         edge_klass_code=edge_klass_code,
         edge_cell=edge_cell,
         edge_length_m=edge_len,

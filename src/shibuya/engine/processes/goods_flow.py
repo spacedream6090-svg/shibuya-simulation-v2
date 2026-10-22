@@ -183,6 +183,9 @@ class ShelfRestockProcess:
         self.units_restocked = 0
         self.yen_paid = 0
         self._acted_today = np.zeros(n, dtype=bool)
+        #: 〔第 6 期 6-6 ② 第 1 部〕店の仕事の持ち主(腕 ``--duties arm`` のランだけ組み立てが挿す・参照・既定 None=今の道)。
+        #: 挿してあればその店の雇用の行を持つ体が店に居て起きている店の補充はこの過程がしない(本人の判断=:meth:`restock_by_staff`)。
+        self.duties = None
 
     @property
     def active(self) -> bool:
@@ -239,7 +242,13 @@ class ShelfRestockProcess:
         engine_rows = (~present) & (~self._acted_today[low]) if fallback_now else np.zeros(
             low.size, dtype=bool
         )
-        act = present | engine_rows
+        # 〔第 6 期 6-6 ② 第 1 部〕腕 --duties arm: その店の雇用の行を持つ体が店に居て起きている店は本人の判断に任せる(役割行動の
+        # 代打をしない)。〔検収 M4〕「居る」は開閉と同じ判定(店のセルに居て起きている=種別を見ない)。ほかの店はフォールバック
+        # 時刻のつなぎ(今日まだ補充していない店=二重の補充は _acted_today が防ぐ)
+        if self.duties is not None:
+            present = self.duties.staffed_now(low)
+            engine_rows = (~present) & (~self._acted_today[low]) if fallback_now else np.zeros(low.size, dtype=bool)
+        act = engine_rows if self.duties is not None else (present | engine_rows)
         rows = low[act]
         if rows.size == 0:
             return
@@ -273,6 +282,8 @@ class ShelfRestockProcess:
             self.backroom[done] -= q[ok]
             self.units_restocked += int(q[ok].sum())
             self._acted_today[done] = True
+            if self.duties is not None:  # 〔第 6 期 6-6 ② 第 1 部〕つなぎが代わりにした店(計器=カバー率の分母)
+                self.duties.note_bridge("restock", done)
             by_staff = present[act][live][ok]
             self.n_role_actions += int(np.count_nonzero(by_staff))
             self.n_fallback += int(np.count_nonzero(~by_staff))
@@ -282,6 +293,54 @@ class ShelfRestockProcess:
                     np.full(done.size, int(tick), dtype=np.int64),
                     np.where(by_staff, _SCHEDULED, _REPLACEMENT).astype(np.int8),
                 )
+
+    # ------------------------------------------------------------------ 〔第 6 期 6-6 ② 第 1 部〕担当の体の補充
+    def restock_by_staff(self, stores, step: int) -> tuple[np.ndarray, np.ndarray]:
+        """担当の体が選んだ補充(品出し)を実行する(呼ぶのは系 ``duties``=腕 arm のランだけ)。量は :meth:`step` の役割行動と
+        同じ(満杯までの差とバックヤードの小さい方・その店で一番減っている棚)・代金は域外仕入(原因=過程 shelf=今と同じ)・
+        ActualLog は ``SCHEDULED``(バックヤードが空なら ``SKIPPED``)。返り値は店ごとの (できたか, 個数)。"""
+        s = np.asarray(stores, dtype=np.int64).ravel()
+        done = np.zeros(s.size, dtype=bool)
+        got = np.zeros(s.size, dtype=np.int64)
+        if not self.active or s.size == 0:
+            return done, got
+        goods = self.ledger.goods
+        stock = goods.aggregate_stock()
+        want = np.maximum(0, self.capacity[s] - stock[s])
+        qty = np.minimum(want, self.backroom[s])
+        empty = qty <= 0
+        if empty.any():
+            self.n_no_backroom += int(empty.sum())
+            if self.log is not None:
+                self.log.append_many(
+                    self.process_ids[0], s[empty],
+                    np.full(int(empty.sum()), int(step), dtype=np.int64),
+                    np.full(int(empty.sum()), _SKIPPED, dtype=np.int8),
+                )
+        live = np.flatnonzero(~empty)
+        if live.size == 0:
+            return done, got
+        st, q = s[live], qty[live]
+        slot = _best_slot(goods.shelf, goods.poi_sku, st)
+        cost = np.asarray(goods.unit_cost, dtype=np.int64)[st] * q
+        ok = np.asarray(R.restock(self.world, self.ledger, st, q, int(step), slot=slot, cause=RESTOCK_CAUSE), dtype=bool)
+        self.n_rejected += int((~ok).sum())
+        if ok.any():
+            self.yen_paid += int(cost[ok].sum())
+            fin = st[ok]
+            self.backroom[fin] -= q[ok]
+            self.units_restocked += int(q[ok].sum())
+            self._acted_today[fin] = True
+            self.n_role_actions += int(fin.size)
+            if self.log is not None:
+                self.log.append_many(
+                    self.process_ids[0], fin,
+                    np.full(fin.size, int(step), dtype=np.int64),
+                    np.full(fin.size, _SCHEDULED, dtype=np.int8),
+                )
+            done[live[ok]] = True
+            got[live[ok]] = q[ok]
+        return done, got
 
     # ------------------------------------------------------------------ 診断
     def counters(self) -> dict[str, float]:
@@ -443,6 +502,9 @@ class WasteCollectionProcess:
         #: 第304 Q135: 世帯の消費で廃棄 sink へ入った質量[g](``goods.consume_many`` が足す分と同じ・報告だけ)。
         self.consumed_g = 0.0
         self._cursor = 0
+        #: 〔第 6 期 6-6 ② 第 1 部〕店の仕事の持ち主(腕 ``--duties arm`` のランだけ組み立てが挿す・参照・既定 None=今の道)。
+        #: 挿してあれば、前の売れ残りの時刻から担当の体が捨てた店(``duties.binned_mask()``)はこの過程が捨てない。
+        self.duties = None
 
     @property
     def active(self) -> bool:
@@ -472,6 +534,9 @@ class WasteCollectionProcess:
         sku = np.asarray(goods.poi_sku, dtype=np.int64)
         per = np.where(sku >= 0, rate[np.maximum(sku, 0)], 0.0)
         qty = np.floor(shelf * per).astype(np.int64)
+        if self.duties is not None:
+            # 〔第 6 期 6-6 ② 第 1 部〕担当の体が閉店の作業で捨てた店は捨てない(担当の居ない店・捨てなかった店は今のつなぎ)
+            qty[np.asarray(self.duties.binned_mask(), dtype=bool)] = 0
         rows, cols = np.nonzero(qty > 0)
         if rows.size == 0:
             return
@@ -479,6 +544,43 @@ class WasteCollectionProcess:
             self.world, self.ledger, rows, qty[rows, cols], tick, slot=cols
         )
         self.n_bin_rows += int(np.count_nonzero(np.asarray(ok)))
+        if self.duties is not None:  # 〔第 6 期 6-6 ② 第 1 部〕つなぎが捨てた行(計器=カバー率の分母)
+            self.duties.note_bridge("discard_rows", rows[np.asarray(ok, dtype=bool)])
+
+    # ---- 〔第 6 期 6-6 ② 第 1 部〕担当の体の閉店の作業: 売れ残り → ビン ----
+    def leftovers_of(self, stores) -> np.ndarray:
+        """店ごとの売れ残りの量(:meth:`_sell_leftovers_to_bin` と同じ式=棚 × SKU の廃棄率の切り捨ての和)。"""
+        s = np.asarray(stores, dtype=np.int64).ravel()
+        if not self.active or s.size == 0:
+            return np.zeros(s.size, dtype=np.int64)
+        goods = self.ledger.goods
+        shelf = np.asarray(goods.shelf, dtype=np.int64)[s]
+        rate = np.asarray(goods.sku.waste_rate, dtype=np.float64)
+        sku = np.asarray(goods.poi_sku, dtype=np.int64)[s]
+        per = np.where(sku >= 0, rate[np.maximum(sku, 0)], 0.0)
+        return np.floor(shelf * per).astype(np.int64).sum(axis=1)
+
+    def bin_by_staff(self, stores, step: int) -> tuple[np.ndarray, int]:
+        """担当の体が選んだ「売れ残りを捨てる」を実行する(呼ぶのは系 ``duties``=腕 arm のランだけ)。量は 05:00 のつなぎと
+        同じ式・棚 → ビン(``resolve.discard_to_bin``)。返り値は (店ごとの捨てた個数, 捨てた行=店 × 棚の数)。``n_bin_rows`` は
+        つなぎの行だけを数える(担当の体の分は持ち主の計器)。"""
+        s = np.asarray(stores, dtype=np.int64).ravel()
+        out = np.zeros(s.size, dtype=np.int64)
+        if not self.active or s.size == 0:
+            return out, 0
+        goods = self.ledger.goods
+        shelf = np.asarray(goods.shelf, dtype=np.int64)[s]
+        rate = np.asarray(goods.sku.waste_rate, dtype=np.float64)
+        sku = np.asarray(goods.poi_sku, dtype=np.int64)[s]
+        per = np.where(sku >= 0, rate[np.maximum(sku, 0)], 0.0)
+        qty = np.floor(shelf * per).astype(np.int64)
+        rows, cols = np.nonzero(qty > 0)
+        if rows.size == 0:
+            return out, 0
+        ok = np.asarray(R.discard_to_bin(self.world, self.ledger, s[rows], qty[rows, cols], int(step), slot=cols),
+                        dtype=bool)
+        np.add.at(out, rows[ok], qty[rows, cols][ok])
+        return out, int(np.count_nonzero(ok))
 
     # ---- C 類排出: 世帯の消費(所持 → sink) ----
     def _household_consumption(self, tick: int) -> None:

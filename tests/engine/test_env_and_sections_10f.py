@@ -134,7 +134,10 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 〔第 6 期 6-2 カレンダー 3〕``calendar_3`` の設定の子 9(schema・arm・trial・port・compose・labor・arbitration・store_rules・
 #: provisional=腕 arm のランだけ出る節)を足した(前 ``ceb58699…bcba7901`` → ``94fe399f…99682dea``=この 9 本を外すと前の値に
 #: 戻る・記録 docs/bench/analysis/wallbounce-1012/ca3/README.md)。
-CONFIG_PATHS_SHA256 = "94fe399f83211cca2c8eb8ba706d0724b5bd95a9571cb108bbee7d6899682dea"
+#: 〔第 6 期 6-6 ② 第 1 部〕``duties`` の設定の子 7(schema・arm・port・rules・arbitration・bridges・provisional=腕 arm のランだけ
+#: 出る節)を足した(前 ``94fe399f…99682dea`` → ``91c11fdf…bd1f085e``=この 7 本を外すと前の値に戻る・記録
+#: docs/bench/analysis/wallbounce-1012/duties1/README.md)。
+CONFIG_PATHS_SHA256 = "91c11fdf8047579c1b66989ea5103f1c077a23e396981858855e1b01bd1f085e"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 

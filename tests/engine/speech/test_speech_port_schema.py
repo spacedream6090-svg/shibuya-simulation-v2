@@ -119,7 +119,7 @@ def test_the_word_is_appended_to_the_1_3_vocabulary():
     assert V.VOCAB[58:60] == ("金:引き出し", "金:カード")  # 2-1(その後ろに 3-3 の実験の族の 2 語)
     assert V.VOCAB[62:65] == ("行為:会話の始まり", "行為:会話の終わり", "知覚:気づき")  # 〔第 2 期 2-3〕体の出来事の 3 語(3-3 の後ろ・〔6-4 C1〕その後ろに連絡の族)
     assert "発話" not in V.ACT_WORDS  # 判断の語彙(v3 の 12 語)の外
-    assert V.VOCAB_VERSION == "events-vocab/6-2-ca3"  # 〔第 6 期 6-4 C1〕連絡の族の 15 語を表の末尾に足して版を上げた(前 events-vocab/2-3・前の語のコードは動かない)・〔第 6 期 6-2 カレンダー 2〕約束の族の 13 語をその後ろに足して版を上げた(前 events-vocab/6-4)・〔第 6 期 6-2 カレンダー 3〕勤務の族の 8 語をその後ろに足して版を上げた(前 events-vocab/6-2-ca2)
+    assert V.VOCAB_VERSION == "events-vocab/6-6-w1"  # 〔第 6 期 6-4 C1〕連絡の族の 15 語を表の末尾に足して版を上げた(前 events-vocab/2-3・前の語のコードは動かない)・〔第 6 期 6-2 カレンダー 2〕約束の族の 13 語をその後ろに足して版を上げた(前 events-vocab/6-4)・〔第 6 期 6-2 カレンダー 3〕勤務の族の 8 語をその後ろに足して版を上げた(前 events-vocab/6-2-ca2)・〔第 6 期 6-6 ② 第 1 部〕仕事の族の 4 語をその後ろに足して版を上げた(前 events-vocab/6-2-ca3)
 
 
 def test_the_field_line_is_the_same_text_in_llm_and_perception():
@@ -165,7 +165,8 @@ def test_ledger_arm_rows_and_arm_items():
                                              "TCR", "TCC", "T3M", "T4W", "CT1D", "CT1A", "CT1AS", "CT1I", "CT1IS", "CT1C", "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q",  # 〔第 6 期 6-4 C1〕
                                              "CA2B", "CA2O", "CA2G", "CA2M", "CA2Q",  # 〔第 6 期 6-2 カレンダー 2〕
                                              "TXD",  # 〔第 4 期 4-2〕店の預かり消費税(腕 rules-42)
-                                             "CA3S", "CA3P", "CA3G", "CA3M", "CA3Q"]  # 〔第 6 期 6-2 カレンダー 3〕
+                                             "CA3S", "CA3P", "CA3G", "CA3M", "CA3Q",  # 〔第 6 期 6-2 カレンダー 3〕
+                                             "DUS", "DUG", "DUM", "DUQ"]  # 〔第 6 期 6-6 ② 第 1 部〕
     assert [(SL.row(k).arm, SL.row(k).arm_owner) for k in ("C1B", "C1BM")] == [
         ("calendar", "calendar_self"), ("calendar", "calendar_self")]
     # 腕の行は静的な表に入らない(既定の 2 つのハッシュと状態のファイルは前と同じ道筋)

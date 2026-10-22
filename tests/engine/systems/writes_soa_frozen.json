@@ -298,6 +298,12 @@
  "experiment": [],
  "contact": [],
  "calendar_3": [],
+ "duties": [
+  "agents.last_result",
+  "agents.last_result_tick",
+  "pois.open_now",
+  "pois.stock"
+ ],
  "calendar_2": [
   "agents.activity",
   "agents.board_line",

@@ -118,6 +118,8 @@ WHEN = {
     "calendar2": lambda b: b.layers.calendar2 is not None,
     # 〔第 6 期 6-2 カレンダー 3〕腕 arm のランだけ(既定のランでは系 calendar_3 が立たない=結果不変)
     "calendar3": lambda b: b.layers.calendar3 is not None,
+    # 〔第 6 期 6-6 ② 第 1 部〕腕 --duties arm のランだけ(既定のランでは系 duties が立たない=結果不変)
+    "duties": lambda b: b.layers.duties is not None,
 }
 
 

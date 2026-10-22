@@ -41,7 +41,8 @@ def _guard_on():
 
 
 def test_declaring_systems():
-    assert [s.name for s in SYSTEMS if PAT in s.writes.paths] == ["world", "phase_c", "day_close", "close_final"]
+    # 〔第 6 期 6-6 ② 第 1 部〕系 duties(担当の体の補充の代金=原因 過程 shelf の transfer・腕 --duties arm のランだけ)を足した
+    assert [s.name for s in SYSTEMS if PAT in s.writes.paths] == ["world", "phase_c", "duties", "day_close", "close_final"]
     assert "E:events.*" in SPECS["phase_c"].writes.paths
     items = [f"{r.key}:{it}" for r in SL.external_rows() for it in r.items]
     c_items = [k for k in items if fnmatch.fnmatchcase(k, PAT)]

@@ -1381,6 +1381,45 @@ _EXT: tuple[LedgerRow, ...] = (
         items=("calendar3._c3_issued", "calendar3._c3_issued_n"), arm="calendar-3",
         note="6-2 カレンダー 3: 読み手は監査(試験と記録の道具)と manifest・calls_by_model だけ=軸 1 diag。再開したランの監査が"
              "通しと同じ=軸 2 required(CA2Q と同じ形)"),
+    # ---- 〔第 6 期 6-6 ② 第 1 部〕店の仕事を働く人の体へ(腕 --duties arm): 足す前に軸を決めた行(腕の行=腕 arm のランだけ持ち主が
+    # ある=既定のランの 2 つのハッシュと状態のファイルは不変) ----
+    LedgerRow(
+        key="DUS", name="DutiesLayer の閉店の作業の印(雇用の行の体が閉めた店・売れ残りを捨てた店・第 6 期 6-6 ② 第 1 部)",
+        place=EXTERNAL, dtype="bool の配列(店の数)× 2", nbytes="店 1 つ 2 B", alloc="--duties arm",
+        behavior=BEHAVIOR, restore=REQUIRED, dead=False,
+        basis="engine/duties/layer.py(run_step・_set_shop・_discard・binned_mask)・engine/processes/goods_flow.py"
+              "(WasteCollectionProcess._sell_leftovers_to_bin)",
+        items=("duties._closed_by_me", "duties._binned"), arm="duties",
+        note="6-6 ② 第 1 部: 担当が閉めた店は売れ残りを捨てる候補の機会を、担当が捨てた店は 05:00 のつなぎが捨てないことを決める="
+             "軸 1 behavior・作り直せない=軸 2 required。書く系は duties だけ(宣言 DU*:duties.*)・廃棄の過程(系 world)は読むだけ。"
+             "行の鍵は DUS"),
+    LedgerRow(
+        key="DUG", name="DutiesLayer が系の間に渡す値(主の判断の役割語の控え・第 6 期 6-6 ② 第 1 部)", place=EXTERNAL,
+        dtype="list[[体, 刻み, 語, call_id]]", nbytes="", alloc="--duties arm", behavior=BEHAVIOR, restore=REQUIRED,
+        dead=False, basis="engine/duties/layer.py(note_role_word・run_step)・engine/llm_bridge.py(_after_render の role_sink)",
+        items=("duties._role_asks",), arm="duties",
+        note="6-6 ② 第 1 部: 判断の系(decide・llm_receive=LLMBridge の口 role_sink)が積み、同じ刻みの系 duties が読む(刻みの境目"
+             "では空)。行動を決める=behavior・一緒に保存する=軸 2 required。行の鍵は DUG"),
+    LedgerRow(
+        key="DUM", name="店の仕事の計器(計数・遅れの分布・前の刻みの店の開閉・雇用の行の店に居た分・日の数・第 6 期 6-6 ② 第 1 部)",
+        place=EXTERNAL, dtype="計数の dict・分布の dict・int8 の配列(店の数)・int32 の配列(体の数)・bool の配列(体の数)・list[int]",
+        nbytes="店 1 つ 1 B・体 1 つ 5 B", alloc="--duties arm", behavior=DIAG, restore=REQUIRED, dead=False,
+        basis="engine/duties/layer.py(_bump・_hist_add・_labor・run_step・note_bridge・manifest)",
+        items=("duties._du_meter", "duties._du_hist", "duties._du_prev", "duties._du_minutes", "duties._du_over",
+               "duties._days"),
+        arm="duties",
+        note="6-6 ② 第 1 部: 読み手は manifest の duties と試験だけ=軸 1 diag(前の刻みの店の開閉はエンジンのつなぎが開け閉めした"
+             "店を数えるだけ・雇用の行の店に居た分は労働時間の行を超えた体を数えるだけ・〔検収 L5〕日の数は計器の日の頭を決める"
+             "だけ)。再開した後も計器が通しと同じ=軸 2 required。書く系は duties と、つなぎの店を数える world(宣言 "
+             "DUM:duties._du_meter=補充と廃棄の過程が note_bridge を呼ぶ)"),
+    LedgerRow(
+        key="DUQ", name="発行した店の仕事の判断の呼びの控えと呼び数・役割語の道の call_id(監査の突き合わせ・第 6 期 6-6 ② 第 1 部)",
+        place=EXTERNAL, dtype="i8 の配列(刻み・体・通し番号を詰めた整数)・list[int]・list[str]", nbytes="1 回 8 B",
+        alloc="--duties arm", behavior=DIAG, restore=REQUIRED, dead=False,
+        basis="engine/duties/layer.py(_issue・issued_keys・role_call_ids・model_calls・audit_causes)",
+        items=("duties._du_issued", "duties._du_issued_n", "duties._du_role_ids"), arm="duties",
+        note="6-6 ② 第 1 部: 読み手は監査(試験と記録の道具)と manifest・calls_by_model だけ=軸 1 diag。再開したランの監査が"
+             "通しと同じ=軸 2 required(CA3Q と同じ形)"),
 )
 
 #: 状態台帳(163 行)。**読み口はこれと下の関数だけ**。
@@ -1576,6 +1615,8 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "ledger.money.stage2.tax_deposit": ("economy/tax_deposit.py", "TaxDeposit"),
     # 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日(状態台帳の腕の行 CA3*・腕 --calendar-3 arm のランだけ)
     "calendar3": ("engine/calendar3/layer.py", "Calendar3Layer"),
+    # 〔第 6 期 6-6 ② 第 1 部〕店の仕事(状態台帳の腕の行 DU*・腕 --duties arm のランだけ)
+    "duties": ("engine/duties/layer.py", "DutiesLayer"),
 }
 
 #: (ii) キャッシュ・導出。中身は 3 通り: (a) 毎 tick(か事象のある tick)作り直す作業の値・印
@@ -1993,6 +2034,26 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "語から作る導出=組み立てでは作らず最初の刻みの頭に作る=再開では状態を戻して権利台帳を作り直した rebuild_derived の後に"
        "作り直す=通しと同じ台帳・同じ並びの単位)", "roster", "sched_units"),
     _x("calendar3", CACHE, "6-2 カレンダー 3: その刻みの体ごとの判断の通し番号(刻みの頭で空)", "_codes"),
+    # 〔第 6 期 6-6 ② 第 1 部〕店の仕事の持ち主の設定・参照・作業の値と、世界過程と LLMBridge に挿す口
+    _x("duties", CONST, _CFG + "(6-6 ② 第 1 部: 体の数・店の数・刻みの幅・1 日の刻みの数・1 刻みの分=組み立てが 1 回だけ置く)",
+       "n", "n_poi", "step_seconds", "step_ns", "steps_per_day", "step_minutes"),
+    _x("duties", CONST, _FIELD + "(6-6 ② 第 1 部: 腕の行の腕の名 LEDGER_ARM)", "LEDGER_ARM"),
+    _x("duties", CONST, _CFG + "(6-6 ② 第 1 部: 労働時間の行の値=規則の表の human の行を読んだ写し・組み立てが 1 回だけ置く)",
+       "labor"),
+    _x("duties", REF, _REFR + "(6-6 ② 第 1 部: 出来事の記録・体・世界・暦・世界過程の実行器と開閉/補充/廃棄の過程=読むだけと本人の"
+       "行動の口・判断の口・店の決まりの口)", "events", "agents", "world", "calendar", "runner", "shops", "shelf", "waste",
+       "port", "rules"),
+    _x("duties", CACHE, "6-6 ② 第 1 部: その刻みの体ごとの判断の通し番号(刻みの頭で空)", "_codes"),
+    _x("duties", CACHE, "〔6-6 ② 第 1 部 検収 M1〕雇用の行(体 → 店)の表・出どころ(W21c/丸振り)・店ごとの担当の出どころ(権利台帳と"
+       "差し替えの世界の初期の行の表から作る導出=最初に使うときに作る=再開では状態を戻して権利台帳を作り直した後)",
+       "_emp_agent", "_emp_store", "_emp_w21c", "_store_origin"),
+    _x("runner.opening", REF, "〔第 6 期 6-6 ② 第 1 部〕店の仕事の持ち主(腕 --duties arm のランだけ組み立てが挿す・参照・状態は持ち主の"
+       "側=状態台帳の行 DU*)", "duties"),
+    _x("runner.shelf", REF, "〔第 6 期 6-6 ② 第 1 部〕店の仕事の持ち主(腕 --duties arm のランだけ組み立てが挿す・参照)", "duties"),
+    _x("runner.waste", REF, "〔第 6 期 6-6 ② 第 1 部〕店の仕事の持ち主(腕 --duties arm のランだけ組み立てが挿す・参照=捨てた店の印を"
+       "読むだけ)", "duties"),
+    _x("bridge", REF, "〔第 6 期 6-6 ② 第 1 部〕役割語「補充」「開閉店」を店の仕事の持ち主に渡す口(腕 --duties arm のランだけ組み立てが"
+       "DutiesLayer.note_role_word を挿す・関数・状態は持ち主の側=状態台帳の行 DUG)", "role_sink"),
     _x("ledger.money.stage2.tax_deposit", CONST, _CFG + "(4-2: 店の数)・" + _FIELD + "(4-2: 腕の行の腕の名 LEDGER_ARM)",
        "n", "LEDGER_ARM"),
 )

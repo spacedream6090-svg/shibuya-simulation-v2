@@ -227,11 +227,12 @@ def test_negative_control_second_writer_is_found():
 def test_tool_words_are_names_of_the_registry_and_appended_at_the_end():
     assert set(V.TOOL_WORDS) <= set(TR.TOOL_NAMES)
     # 〔第 3 期 3-3〕族の並びに「実験」を足した・〔第 2 期 2-3〕その後ろに「知覚」を足した=道具は後ろから 3 つ目
-    # 〔第 6 期 6-2 カレンダー 2〕連絡の族の後ろに約束の族を足した・〔6-2 カレンダー 3〕その後ろに勤務の族=道具は後ろから 6 つ目
-    assert V.FAMILIES[-6] == V.FAMILY_TOOL == "道具" and V.FAMILIES[-5] == V.FAMILY_EXPERIMENT == "実験"
-    assert V.FAMILIES[-4] == V.FAMILY_PERCEPT == "知覚"  # 〔第 6 期 6-4 C1〕その後ろに連絡の族
-    assert V.FAMILIES[-3] == V.FAMILY_CONTACT == "連絡" and V.FAMILIES[-2] == V.FAMILY_PROMISE == "約束"
-    assert V.FAMILIES[-1] == V.FAMILY_WORK == "勤務"
+    # 〔第 6 期 6-2 カレンダー 2〕連絡の族の後ろに約束の族を足した・〔6-2 カレンダー 3〕その後ろに勤務の族・〔6-6 ② 第 1 部〕その後ろに
+    # 仕事の族=道具は後ろから 7 つ目
+    assert V.FAMILIES[-7] == V.FAMILY_TOOL == "道具" and V.FAMILIES[-6] == V.FAMILY_EXPERIMENT == "実験"
+    assert V.FAMILIES[-5] == V.FAMILY_PERCEPT == "知覚"  # 〔第 6 期 6-4 C1〕その後ろに連絡の族
+    assert V.FAMILIES[-4] == V.FAMILY_CONTACT == "連絡" and V.FAMILIES[-3] == V.FAMILY_PROMISE == "約束"
+    assert V.FAMILIES[-2] == V.FAMILY_WORK == "勤務" and V.FAMILIES[-1] == V.FAMILY_DUTY == "仕事"
     assert V.VOCAB_CODES["行為:許可のない行動"] == 55 and V.VOCAB_CODES["道具:看板"] == 56  # 1-5 までのコードは動かない
     # 〔第 2 期 2-1〕知覚の名の後ろに経済の段階 2 の過程の名(payroll・atm・register)を足した(知覚の名の位置は動かない)
     assert V.PERCEPTION_PROCESSES == ("perception",)

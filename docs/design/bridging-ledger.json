@@ -2999,7 +2999,7 @@
   {
    "id": "PR-store_opening",
    "what": "世界過程 store_opening(mechanism=False・executor=engine_rule・感度 AB-OPENING-EXECUTOR・返済期限「Phase 3(店主エージェントの開閉店行動へ返済・§1 D-R2-1「一時的にフォールバック側」)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(店主エージェントの開閉店行動へ返済・§1 D-R2-1「一時的にフォールバック側」)」=6-6 ②(人の仕事を働く人のエージェントへ)",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(店主エージェントの開閉店行動へ返済・§1 D-R2-1「一時的にフォールバック側」)」=6-6 ②(人の仕事を働く人のエージェントへ)。〔6-6 ② 第 1 部〕腕 --duties arm では雇用の行の体が居て起きている店で開閉が本人の行動に置き換わる(本人の行動の割合 0.5%(本人 23/つなぎ 4,188・W21c 5.8%/丸振り 0.4%)=記録 docs/bench/analysis/wallbounce-1012/duties1/README.md §5 の 5,000 体 1 日)・既定 off では今のまま(外すのは既定化のとき=DOC-du1-not-default)",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:store_opening",
    "conf": "expedient",
@@ -3010,7 +3010,7 @@
   {
    "id": "PR-shelf_stock_restock",
    "what": "世界過程 shelf_stock_restock(mechanism=False・executor=llm_agent・感度 AB-SHELF-REORDER・返済期限「Phase 3(SKU 粒度・棚卸閾値・初期在庫・補充閾値/ロットの較正データ取得後)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(SKU 粒度・棚卸閾値・初期在庫・補充閾値/ロットの較正データ取得後)」はデータの取得待ち=話題で当てた: 2-1 経済 EC(SKU 粒度・補充の閾値とロットの較正)",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(SKU 粒度・棚卸閾値・初期在庫・補充閾値/ロットの較正データ取得後)」はデータの取得待ち=話題で当てた: 2-1 経済 EC(SKU 粒度・補充の閾値とロットの較正)。〔6-6 ② 第 1 部〕腕 --duties arm では雇用の行の体が居て起きている店で補充が本人の行動に置き換わる(本人の行動の割合 10.6%(本人 5/つなぎ 42・W21c 2/3/丸振り 6.8%)=記録 docs/bench/analysis/wallbounce-1012/duties1/README.md §5 の 5,000 体 1 日)・既定 off では今のまま(外すのは既定化のとき=DOC-du1-not-default)",
    "remove_at": "2-1",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:shelf_stock_restock",
    "conf": "expedient",
@@ -3032,7 +3032,7 @@
   {
    "id": "PR-waste_collection",
    "what": "世界過程 waste_collection(mechanism=False・executor=llm_agent・感度 AB-WASTE-ROUTE・返済期限「Phase 3(区の収集ルート・積載の実データ取得後)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(区の収集ルート・積載の実データ取得後)」はデータの取得待ち=話題で当てた: 6-6 ②(収集は働く人のエージェントへ)",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(区の収集ルート・積載の実データ取得後)」はデータの取得待ち=話題で当てた: 6-6 ②(収集は働く人のエージェントへ)。〔6-6 ② 第 1 部〕腕 --duties arm では雇用の行の体が居て起きている店で売れ残りの廃棄が本人の行動に置き換わる(本人の行動の割合 0.3%(本人 5 行/つなぎ 1,544 行・W21c 4.8%/丸振り 0.1%)=記録 docs/bench/analysis/wallbounce-1012/duties1/README.md §5 の 5,000 体 1 日)・既定 off では今のまま(外すのは既定化のとき=DOC-du1-not-default)",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:waste_collection",
    "conf": "expedient",
@@ -3219,7 +3219,7 @@
   {
    "id": "FB-store_opening",
    "what": "フォールバック台帳の行 store_opening → plan.opening_hours(executor=engine_rule・conf 0.5・被覆「bbox 内 POI の営業時間表による開閉」・返済期限「Phase 3(店主エージェントの開閉店行動)」)",
-   "why": "コードの宣言(第 6 形=CLAUDE.md §3「エンジン規則でつなぐ(conf 宣言つき・カバー率を台帳へ)」の台帳=WorldRegistry.fallback_ledger() の行・検収 M1。同じ過程の第 5 形の行 PR-store_opening と重なる)。外す段: 返済期限「Phase 3(店主エージェントの開閉店行動)」=6-6 ②(人の仕事を働く人のエージェントへ)",
+   "why": "コードの宣言(第 6 形=CLAUDE.md §3「エンジン規則でつなぐ(conf 宣言つき・カバー率を台帳へ)」の台帳=WorldRegistry.fallback_ledger() の行・検収 M1。同じ過程の第 5 形の行 PR-store_opening と重なる)。外す段: 返済期限「Phase 3(店主エージェントの開閉店行動)」=6-6 ②(人の仕事を働く人のエージェントへ)。〔6-6 ② 第 1 部〕腕 --duties arm では雇用の行の体が居て起きている店で開閉が本人の行動に置き換わる(本人の行動の割合 0.5%(本人 23/つなぎ 4,188・W21c 5.8%/丸振り 0.4%)=記録 docs/bench/analysis/wallbounce-1012/duties1/README.md §5 の 5,000 体 1 日)・既定 off では今のまま(外すのは既定化のとき=DOC-du1-not-default)",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/registry.py#fallback:store_opening|plan.opening_hours",
    "conf": "expedient",
@@ -7571,6 +7571,158 @@
    "remove_basis": "inferred",
    "code_at": [
     "src/shibuya/economy/taxes.py"
+   ]
+  },
+  {
+   "id": "DOC-du1-port-candidates",
+   "what": "店の仕事の判断の候補の語と源の当て方(開閉=店を開ける/店を閉める/まだ・補充=棚に補充する/接客する/待つ・廃棄=売れ残りを捨てる/まだ。語は語彙 v3 の役割語 開閉店・補充・接客と安全弁の語 なし+本段の語 廃棄)と仮のモデル(mock=候補を語と id の順に並べ乱数の余りで一様に選ぶ)",
+   "why": "回答 2-1(GPU の前は仮のモデル)。数は振る舞いのモデルではない(開店の遅れ・補充の数は mock の一様な選びで偏る)=判断モデル(6-1)と LLM で置き換える",
+   "remove_at": "6-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/duties1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/duties/port.py",
+    "src/shibuya/engine/duties/layer.py"
+   ]
+  },
+  {
+   "id": "DOC-du1-shop-window",
+   "what": "開閉の候補を出す条件=雇用の行の体が店のセルに居て起きていて主の判断の呼びが無い刻みに、店の決まり(営業時間)で SHOP_LEAD_MINUTES=15 分後に営業なのに閉まっている/15 分後に休みなのに開いている(区切りの 15 分前から食い違う間ずっと)。〔検収 L6〕先読みが夜中をまたぐと次の日の曜日の行ではなく今日の行列を巻き戻して読む(開閉の過程のつなぎも今日の行列=食い違いは無い)",
+   "why": "発注「候補の口が出す条件=店の決まりの時刻の前後=宣言・時刻を直書きしない」。幅 15 分は実装役の値=未リサーチ(expedient)。いつ開け閉めを考えるかを本人が決めるのは判断モデルの段(6-6 第 2 部以降)",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/duties1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/duties/layer.py",
+    "src/shibuya/engine/duties/knowledge.py"
+   ]
+  },
+  {
+   "id": "DOC-du1-store-rules",
+   "what": "店の決まり(営業時間)=W7 の営業時間の表のその日の行(開閉の過程の行列・申込書の決定 L1 を含む)を、その店の雇用の行(体 → 店)の体だけが店の決まりの口(ShopRules=カレンダー 3 の StoreRules の子)で引ける。〔検収 M3〕答えに出どころの印(W7 の列 src=osm_opening_hours=実データ/chain_default・category_default=構築側の既定=作り物の印・記録の origin=store_rules:<出どころ>)を付け、計器を出どころで分ける(既定の行の店も答える)。組織の雇用の行から店を引く口は無い・W7 に行の無い店と合成の世界は決まりが無い(候補を出さない)",
+   "why": "決定 10-12 §1-4(人の手続きは住人の知識から)・CA11(店の決まりは組織の口が知らせる)・§1-5 の 6(作り物の印)。組織 → 店の対応と店の決まりの知らせ方(掲示・研修・店長の指示)は店のエージェントの段(6-6 第 2 部以降)",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/duties1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/duties/knowledge.py",
+    "src/shibuya/engine/duties/layer.py",
+    "src/shibuya/world/assets.py"
+   ]
+  },
+  {
+   "id": "DOC-du1-shelf-notice",
+   "what": "棚の知覚=店の中の気づき(System 1 の刺激・知覚の事実 Percept の形と版は変えない): 雇用の行の体が店に居て、棚の残りが補充点(ShelfRestockProcess.reorder_point=容量の 95%)の下・営業中・〔検収 M2〕バックヤードに在庫がある(本人は在庫を知っている=空なら候補を出さない・出さなかった数を計器に)で、補充の評価の刻み(5 分)ごとに候補を出す。補充の量と代金の原因(過程 shelf)は今の役割行動と同じ",
+   "why": "発注「知覚の事実の既存の欄に棚の残りの段を入れる・無理なら店の中の気づきとして System 1 の刺激=宣言」。Percept に棚の段を入れると描画と本文が変わる=本段は気づきの形にした。補充点と刻みは今の補充の過程の expedient の写し",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/duties1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/duties/layer.py",
+    "src/shibuya/engine/processes/goods_flow.py"
+   ]
+  },
+  {
+   "id": "DOC-du1-unstaffed-bridge",
+   "what": "その店の雇用の行を持つ体が店のセルに居て起きていない店(雇用の行の無い店・体が別の場所に居る店・体が店で寝ている店)は今の conf 宣言つきのつなぎのまま=開閉は OpeningProcess の REPLACEMENT(conf 0.5)・補充は 10:00 の engine_rule・売れ残りは 05:00 に棚 → ビン(雇用の行の体が閉店の作業で捨てた店は除く)。開始の刻みの最初の設定(open_now が負の店)もエンジン(担当の役割行動として代打しない)。〔検収 M4〕補充と開閉の「居る」は同じ判定(種別を見ない)",
+   "why": "決定 10-12 §2 の 2(まだ人の行動で作れない変化はエンジン規則でつなぐ=conf 宣言つき・カバー率を台帳へ)。カバー率は manifest の duties.coverage(雇用の行の出どころ別・店の決まりの出どころ別)と記録 §5",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/duties1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/processes/opening.py",
+    "src/shibuya/engine/processes/goods_flow.py",
+    "src/shibuya/engine/duties/layer.py"
+   ]
+  },
+  {
+   "id": "DOC-du1-no-cleanup",
+   "what": "閉店の作業は売れ残りの廃棄だけ(閉店の後の片付け・清掃・レジ締めは無い)。廃棄の候補は雇用の行の体が閉めた店に売れ残り(棚 × SKU の廃棄率の切り捨て)があるとき・前の 05:00 から 1 回",
+   "why": "発注「閉店の後の片付けは本段に無い=宣言」。収集(06:00〜10:00 の清掃作業員)は第 2 部",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/duties1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/duties/layer.py",
+    "src/shibuya/engine/processes/goods_flow.py"
+   ]
+  },
+  {
+   "id": "DOC-du1-labor-record-only",
+   "what": "労働時間の行(規則の表の human の行 labor.statutory_hours=1 日 8 時間)と店の決まりの外の開け閉め(〔検収 L2〕幅の中で早め/幅の外=決まりの時間中に閉めた・決まりの外に開けた、を分ける)は読むだけで止めない=数えるだけ。働いた時間=雇用の行の店のセルに起きて居た分(〔検収 L3〕店で寝ている刻みは数えない・休憩・ほかの勤め先は数えない)",
+   "why": "CP3(法は止めずに記録)・rules42 の形。勤務の時間をカレンダー 3 の勤務の行から数えるのは 6-6 第 2 部以降",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/duties1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/duties/layer.py"
+   ]
+  },
+  {
+   "id": "DOC-du1-role-word-path",
+   "what": "主の判断の役割語「補充」「開閉店」(LLMBridge.role_sink=腕 arm のランだけ)は、その体が雇用の行を持つ店のセルに居れば同じ刻みに本人の行動として実行する(開閉店=今の状態の逆・原因=主の判断の call_id)。〔検収 L7〕補充は気づきと同じ条件(営業中・棚が補充点の下)のときだけ(ほかは数えるだけ)。体の行為は安全弁の語(なし)のまま=店の中の作業。ほかの役割語(接客・価格改定など)は数えるだけ。仮のモデルの主の判断は役割語を出さない(実 LLM の段で効く)",
+   "why": "発注「役割語「補充」を効くように=llm_bridge の「待機」落ちを腕のときだけ外す」。行為の適用の表(_APPLY)に役割語の分岐は無い=効果は店の仕事の持ち主が引き受けた(体の行為の語は変えない)",
+   "remove_at": "6-1",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/duties1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/llm_bridge.py",
+    "src/shibuya/engine/duties/layer.py"
+   ]
+  },
+  {
+   "id": "DOC-du1-not-default",
+   "what": "店の仕事の腕(--duties arm)は既定にしない=既定のランは今の世界過程のつなぎ(開閉・補充・廃棄をエンジンが代わりにする)のまま。PR-store_opening・FB-store_opening・PR-shelf_stock_restock・PR-waste_collection の行は既定化のときに外す",
+   "why": "回答 2-1(GPU の前は腕で構造だけ)。既定化は判断モデル(6-1)の後の版上げ",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/duties1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/systems/build.py",
+    "src/shibuya/engine/duties/layer.py"
+   ]
+  },
+  {
+   "id": "DOC-du1-employment-candidates",
+   "what": "〔検収 M1〕店の仕事の候補を出す体=その店の雇用の行(権利台帳の 体 → 店)を持つ体なら誰でも(店のセルに居て起きていて主の判断の呼びが無い)。1 店 1 刻みの判断は雇用の行の順で最初の 1 人。カバー率は行動した体の雇用の行の出どころ(W21c の担当/丸振り)で分ける(つなぎは店の担当の表の体の出どころ)。丸振り(1 人の従業者が多くの店)の偏りは母集団の側の行 DOC-pop43-store-round-robin-kept に残す",
+   "why": "親の判断(問い 1)。W21 の 5,000 体では最初の雇用の行の出どころが W21c 68 店/丸振り 2,269 店・雇用の行が 2 行以上の店は 29。シフトの担当(カレンダー 3 の勤務の行)と結ぶのは 6-6 第 2 部以降",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/wallbounce-1012/duties1/README.md",
+   "conf": "expedient",
+   "since": "2026-10-22",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/duties/layer.py",
+    "src/shibuya/engine/processes/opening.py",
+    "src/shibuya/engine/processes/goods_flow.py"
    ]
   }
  ]

@@ -161,7 +161,7 @@ def test_extra_money_words_map_to_deposit_net_and_are_in_the_vocab():
     assert all(w in V.VOCAB_CODES for w in OPS.MONEY_EXTRA_WHAT)
     # 〔第 3 期 3-3〕その後ろに実験の族の 2 語(版 events-vocab/3-3)=金の 2 語のコードは 58・59 のまま
     # 〔第 2 期 2-3〕その後ろに体の出来事の 3 語(版 events-vocab/2-3)と過程の名 2 つ(経済の過程の名の位置は動かない)
-    assert V.VOCAB[58:60] == ("金:引き出し", "金:カード") and V.VOCAB_VERSION == "events-vocab/6-2-ca3"  # 〔第 6 期 6-4 C1〕連絡の族の 15 語を表の末尾に足して版を上げた(前 events-vocab/2-3・前の語のコードは動かない)・〔第 6 期 6-2 カレンダー 2〕約束の族の 13 語をその後ろに足して版を上げた(前 events-vocab/6-4)・〔第 6 期 6-2 カレンダー 3〕勤務の族の 8 語をその後ろに足して版を上げた(前 events-vocab/6-2-ca2)
+    assert V.VOCAB[58:60] == ("金:引き出し", "金:カード") and V.VOCAB_VERSION == "events-vocab/6-6-w1"  # 〔第 6 期 6-4 C1〕連絡の族の 15 語を表の末尾に足して版を上げた(前 events-vocab/2-3・前の語のコードは動かない)・〔第 6 期 6-2 カレンダー 2〕約束の族の 13 語をその後ろに足して版を上げた(前 events-vocab/6-4)・〔第 6 期 6-2 カレンダー 3〕勤務の族の 8 語をその後ろに足して版を上げた(前 events-vocab/6-2-ca2)・〔第 6 期 6-6 ② 第 1 部〕仕事の族の 4 語をその後ろに足して版を上げた(前 events-vocab/6-2-ca3)
     assert V.ECONOMY_PROCESSES == ("payroll", "atm", "register") and V.CAUSE_PROCESS_NAMES[-8:-5] == V.ECONOMY_PROCESSES  # 〔6-4 C1〕網の名を末尾に足した・〔6-2 カレンダー 2〕予定の道具の名をその後ろに・〔6-2 カレンダー 3〕勤務の予定の道具の名をその後ろに
     led = _led()
     _deposit(led, [0], [5_000])

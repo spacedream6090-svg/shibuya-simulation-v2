@@ -60,6 +60,7 @@ def hash_owners(b: Any) -> dict[str, Any]:
     〔第 6 期 6-4 C1〕その後に ``contact``(連絡の道具・状態台帳の腕の行 ``CT1*``・腕 c1 のランだけ=既定は持ち主が None)。
     〔第 6 期 6-2 カレンダー 2〕その後に ``calendar2``(会話から生まれる予定・状態台帳の腕の行 ``CA2*``・腕 arm のランだけ)。
     〔第 6 期 6-2 カレンダー 3〕その後に ``calendar3``(雇い主・祝日・状態台帳の腕の行 ``CA3*``・腕 arm のランだけ)。
+    〔第 6 期 6-6 ② 第 1 部〕その後に ``duties``(店の仕事・状態台帳の腕の行 ``DU*``・腕 --duties arm のランだけ)。
     """
     from shibuya.engine.run import _RunDayLocals
 
@@ -89,6 +90,7 @@ def hash_owners(b: Any) -> dict[str, Any]:
         "contact": getattr(L, "contact", None),  # 〔第 6 期 6-4 C1〕腕の行 CT1*=持ち主の居るランだけハッシュと状態のファイルに入る
         "calendar2": getattr(L, "calendar2", None),  # 〔第 6 期 6-2 カレンダー 2〕腕の行 CA2*=持ち主の居るランだけ
         "calendar3": getattr(L, "calendar3", None),  # 〔第 6 期 6-2 カレンダー 3〕腕の行 CA3*=持ち主の居るランだけ
+        "duties": getattr(L, "duties", None),  # 〔第 6 期 6-6 ② 第 1 部〕腕の行 DU*=持ち主の居るランだけ
     }
 
 
@@ -273,7 +275,8 @@ def day_record(b: Any, d: int) -> None:
     # 〔第 6 期 6-4 C1 検収 M5 (ii)〕腕 c1 のランは連絡の判断と文の口を足す(既定のランは今のまま)
     ct = getattr(b.layers, "contact", None)
     c2 = getattr(b.layers, "calendar2", None)  # 〔第 6 期 6-2 カレンダー 2〕腕 arm のランは同じ形で内訳 calendar_2
-    if ct is None and c2 is None:
+    du = getattr(b.layers, "duties", None)  # 〔第 6 期 6-6 ② 第 1 部〕腕 --duties arm のランは同じ形で内訳 duties
+    if ct is None and c2 is None and du is None:
         rec["calls_by_model"] = {"judge_model": 0, "llm": int(result.llm_calls) - llm_before}
     else:
         from shibuya.engine.run import _calls_by_model
@@ -283,13 +286,16 @@ def day_record(b: Any, d: int) -> None:
         # 〔第 6 期 6-2 カレンダー 3〕腕 arm のランは同じ形で内訳 calendar_3(腕の無いランは今のまま)
         c3 = getattr(b.layers, "calendar3", None)
         prev3 = [r["calls_by_model"].get("calendar_3", {}) for r in b.runstats.daily_records if "calls_by_model" in r]
+        prev_du = [r["calls_by_model"].get("duties", {}) for r in b.runstats.daily_records if "calls_by_model" in r]
         llm_before -= (sum(int(x.get("llm", 0)) for x in prev) + sum(int(x.get("llm", 0)) for x in prev2)
-                       + sum(int(x.get("llm", 0)) for x in prev3))
+                       + sum(int(x.get("llm", 0)) for x in prev3) + sum(int(x.get("llm", 0)) for x in prev_du))
         rec["calls_by_model"] = _calls_by_model(int(result.llm_calls) - llm_before, ct, (
             sum(int(x.get("judge_model", 0)) for x in prev), sum(int(x.get("llm", 0)) for x in prev)), calendar2=c2,
             before2=(sum(int(x.get("judge_model", 0)) for x in prev2), sum(int(x.get("llm", 0)) for x in prev2)),
             calendar3=c3,
-            before3=(sum(int(x.get("judge_model", 0)) for x in prev3), sum(int(x.get("llm", 0)) for x in prev3)))
+            before3=(sum(int(x.get("judge_model", 0)) for x in prev3), sum(int(x.get("llm", 0)) for x in prev3)),
+            duties=du,
+            before_du=(sum(int(x.get("judge_model", 0)) for x in prev_du), sum(int(x.get("llm", 0)) for x in prev_du)))
     # 〔第 6 期 6-3 T4〕時計の種類は区域ごとの時計のランだけ regional(既定は今の steps)
     rec["clock_kind"] = CLOCK_KIND if getattr(b.layers, "clock", None) is None else _CLOCK_KIND_REGIONAL
     rec["step_seconds"] = int(b.cfg.tick_seconds)
