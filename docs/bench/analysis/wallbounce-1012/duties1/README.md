@@ -358,3 +358,12 @@ manifest の形の版 `shibuya.engine.duties/2`(`coverage` は `total`・`by_emp
 `processes/opening.py`・`goods_flow.py`(腕の分岐を `staffed_now` に・つなぎの口 `note_bridge`)・`systems/table.py`(duties の宣言を
 絞った・world に `DUM:duties._du_meter`)・`state_ledger.py`(DUS/DUM の項・除外の CACHE)・`state_ledger_ast.py`(前に足した 1 行を消した=
 本体と同じ)。
+
+## §親の検収(第337・2026-10-23・Fable 5.1)
+
+- **実在と差分**: 作業木の 48 本(src 17・tests 新規 4+張り替え・docs 7・台帳)を親がディスクで確かめ、明示の一覧で stage(`commit_check` 一覧 48=ステージ 48・秘密スキャン CLEAN・絶対パスと個人名 0・CR 0)。試験の補助の名 `_engine_opens` に `open` が入っていたので親が `_engine_unlocks` に直した(12 passed)。親 commit cca1988 → 本体 091f1bc(4-2b の後)へ rebase=衝突は台帳だけ(3 方向の行の合わせ=段の土台 6115860 → 本段の差分(足した 10 行・変えた 4 行)を本体の台帳の上に当てた=630 行・active 605・重複 0・両側が同じ id を変えた行 0)=`8147874`。`SWITCH_ENV` は 3 段の行がそろっている。
+- **既定 off の byte-check(親・4 構成)**: 本体 091f1bc の src の写しと作業木 8147874 の src で `w6_v3_default`・`w6_v3_activity_off`・`w6_v1_default`・`v3_mem_rel` の 25 欄が全部同じ(W7 の列 src の読み足しを含む・[byte_check_du1_parent_4cfg.json](byte_check_du1_parent_4cfg.json))。
+- **範囲の試験(親・-n 4・not slow)**: `tests/engine tests/economy tests/perception tests/build_pop tests/c8 tests/tools`=**4,289 passed・1 skipped・0 failed・0 errors**(28 分 0 秒)。
+- **data 無しの写しの全体試験(CI-1 と同じ印・8147874)**: **5,821 passed・290 skipped(data 無し)・0 failed・0 errors**(35 分 32 秒・faulthandler 900 秒の門に当たらず)。
+- **親の判断**: 検収の中 4・低 8 は直し済み(担当はその店の雇用の行を持つ体なら誰でも・バックヤードが空なら候補を出さない・店の決まりに出どころの印・補充の「居る」は開閉と同じ・宣言の絞り込み・計器の鍵と分け・労働時間は起きている刻み・`_days` は diag・夜中の先読みは宣言・役割語の補充に条件・道具の冪等)。カバー率が低い(開閉 0.5%)のは丸振りの体がその店に居ないため=母集団の側の行(`DOC-pop43-store-round-robin-kept`=next-bump)に残す=本段では直さない。語彙のコード 101〜 は並走の 6-4(c2)とぶつかる=後に着地する c2 の rebase で付け直す。
+- **読んだ所**: `engine/duties/layer.py`(`staffed_now`=セルに居て起きている・`first_per_store`・`notice &= backroom > 0`・`_coverage` の出どころ別)・`engine/duties/knowledge.py`(`ShopRules.source`・雇用の行の体だけ)・`processes/goods_flow.py` の腕の分岐(`has_permission` を使わない)・`systems/table.py` の duties の宣言。
