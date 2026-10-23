@@ -1304,6 +1304,7 @@ class Renderer:
         queues: Sequence[tuple[int, str, int]] | None = None,
         activity_rows: Mapping[int, Sequence[tuple[str, int]]] | None = None,
         near: object = None,
+        los_stage: np.ndarray | None = None,
     ) -> None:
         """この tick のセル配列とハッシュを作る(**セル数ぶんの xxh64 が 1 本**)。
 
@@ -1321,15 +1322,20 @@ class Renderer:
             near: 〔第 2 期 2-2 段 11a〕腕 ``--proximity distance`` の ``NearView``(規則・この刻みの索引・印の読み口)。渡すと B5 の
                 近接行を「同じ層・半径の中・同じ B5 の単位」の体から選ぶ(:meth:`_nearby_people_distance`)。``None``
                 (既定)では 1 バイトも変わらない。
+            los_stage: 〔段 5-1b〕密度の段(Fruin の LOS)を外から渡す(nav1 のラン=``world.cells.density_stage``=
+                ``NavSpace.per_m2`` の推定=段と Kladek と同じ 1 つの密度)。``None``(legacy)は今の ``density ÷ 歩ける面積``。
         """
         w = self.world
         n = w.n_cells
         when = self.clock_fn(int(tick))
-        dens = w.cells.density if density is None else np.asarray(density)
-        per_m2 = np.asarray(dens, dtype=np.float64) / np.maximum(
-            self.assets.walkable_area_m2, 1.0
-        )
-        los = N.peg_stage_array(per_m2, T.DENSITY_LOS_EDGES_PER_M2)
+        if los_stage is not None:
+            los = np.asarray(los_stage, dtype=np.uint8).copy()
+        else:
+            dens = w.cells.density if density is None else np.asarray(density)
+            per_m2 = np.asarray(dens, dtype=np.float64) / np.maximum(
+                self.assets.walkable_area_m2, 1.0
+            )
+            los = N.peg_stage_array(per_m2, T.DENSITY_LOS_EDGES_PER_M2)
 
         if noise_stage is not None:
             ns = np.asarray(noise_stage, dtype=np.uint8)
@@ -1432,6 +1438,8 @@ class Renderer:
             逐次ループ宣言(P4)1: **1 起床につき 1 回**。個体数ぶんのループは持たない。
         """
         if self._tickc.tick != int(tick):
+            # 〔段 5-1b 検収 L4〕前計算の無い刻みの道は ``los_stage`` を渡さない=nav1 のランでここを通ると B4 の密度の段が前の式
+            # (density ÷ 歩ける面積)になる。今の回り方(毎刻み perceive_prepare が前計算する)では通らない(単体の描画と試験の道だけ)
             self.prepare_tick(int(tick))
         hits0, misses0 = self.cache_hits, self.cache_misses
         p = self.perceive(

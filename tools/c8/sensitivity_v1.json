@@ -4015,7 +4015,7 @@
       "W20"
      ],
      "engine_sites": [
-      "w1_edge_geometry.npz ← engine/space/nav1.py:584",
+      "w1_edge_geometry.npz ← engine/space/nav1.py:725",
       "w1_edges.parquet ← world/assets.py:96",
       "w1_nodes.parquet ← world/assets.py:95"
      ],

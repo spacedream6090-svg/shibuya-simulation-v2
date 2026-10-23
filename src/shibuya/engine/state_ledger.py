@@ -1781,6 +1781,8 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "silence_ticks", "max_session_ticks", "walk_over_ticks", "topics_per_session", "important", "origin_names"),
     _x("arbiter", CONST, _CFG, "n_agents", "run_salt", "budget", "classes", "_pool_cap"),
     _x("detector", CONST, _CFG, "n_agents", "n_cells"),
+    # 〔段 5-1b〕nav1 のランでは B4 の密度の段を world.cells.density_stage から取る印(組み立てが置く・ランの間に変わらない)
+    _x("detector", CONST, _CFG + "(nav1 の密度の段の口=段 5-1b)", "los_from_stage"),
     _x("detector", CACHE, "歩行可能面積(資産)と毎 tick 使い回す作業の配列", "walkable_area_m2", "_b1", "_b2", "_b3", "_up",
        "_dn", "_hit", "_any", "_cell_mask", "_wake_buf"),
     _x("runner", REF, _REFR + "(過程の辞書 _procs を含む)", "registry", "world", "agents", "assets", "clock",

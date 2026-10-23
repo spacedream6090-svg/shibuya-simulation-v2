@@ -248,7 +248,7 @@ def test_l4_space_argument_beats_the_environment(monkeypatch):
     assert N.space_env_override("nav1") == "nav1"
     assert N.space_env_override(None) == "legacy"
     monkeypatch.delenv("SHIBUYA_SPACE")
-    assert N.space_env_override(None) == N.DEFAULT_SPACE == "legacy"  # 〔段 1 の再検収 H1〕段 1 は既定 legacy の腕
+    assert N.space_env_override(None) == N.DEFAULT_SPACE == "nav1"  # 〔段 5-1b・版上げ 4 回目〕既定は nav1(段 1 は legacy)
     import inspect
 
     assert inspect.signature(N.NavSpace.__init__).parameters["tick_seconds"].default is inspect.Parameter.empty

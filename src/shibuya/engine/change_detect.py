@@ -130,6 +130,7 @@ def b4_block_raw(
     noise_stage: np.ndarray | None = None,
     flow: np.ndarray | None = None,
     salient_digest: np.ndarray | None = None,
+    los_stage: np.ndarray | None = None,
 ) -> np.ndarray:
     """セル動的ブロック B4 の**描画欄** ``(n_cells, 4)`` int32(``B4_FIELD_COLUMNS`` の順)。
 
@@ -146,6 +147,8 @@ def b4_block_raw(
         noise_stage: 騒音段(None なら ``world.noise_stage_for_tick(tick)``)。
         flow: 流れ 0-2(None なら 0)。
         salient_digest: 顕著行為ダイジェスト(None なら 0)。
+        los_stage: 〔段 5-1b〕密度の段(Fruin の LOS)を外から渡す(nav1 のラン=``world.cells.density_stage``=
+            ``NavSpace.per_m2`` の推定と同じ値)。None(legacy)なら ``density ÷ walkable_area_m2`` から。
 
     Note:
         **営業中POI数は欄から外した**。店が開いても B4 の描画バイトは変わらない
@@ -154,11 +157,14 @@ def b4_block_raw(
         顕著行為の到達)にも営業中POI数は無い。
     """
     n = world.n_cells
-    area = DEFAULT_WALKABLE_AREA_M2 if walkable_area_m2 is None else walkable_area_m2
-    per_m2 = np.asarray(world.cells.density, dtype=np.float64) / np.maximum(
-        np.asarray(area, dtype=np.float64), 1.0
-    )
-    los = PN.peg_stage_array(per_m2, PT.DENSITY_LOS_EDGES_PER_M2)
+    if los_stage is not None:
+        los = np.asarray(los_stage, dtype=np.uint8)
+    else:
+        area = DEFAULT_WALKABLE_AREA_M2 if walkable_area_m2 is None else walkable_area_m2
+        per_m2 = np.asarray(world.cells.density, dtype=np.float64) / np.maximum(
+            np.asarray(area, dtype=np.float64), 1.0
+        )
+        los = PN.peg_stage_array(per_m2, PT.DENSITY_LOS_EDGES_PER_M2)
     ns = world.noise_stage_for_tick(tick) if noise_stage is None else np.asarray(noise_stage)
     fl = np.zeros(n, dtype=np.uint8) if flow is None else np.asarray(flow)
     sal = np.zeros(n, dtype=np.int32) if salient_digest is None else np.asarray(salient_digest)
@@ -271,6 +277,9 @@ class ChangeDetector:
         self.n_agents = int(n_agents)
         self.n_cells = int(n_cells)
         self.walkable_area_m2 = walkable_area_m2
+        #: 〔段 5-1b〕nav1 のランでは B4 の密度の段を ``world.cells.density_stage``(``NavSpace.per_m2`` の推定)から取る
+        #: (組み立てが True にする・legacy は False=今の ``density ÷ walkable_area_m2``)
+        self.los_from_stage = False
         self._prev_raw: np.ndarray | None = None
         # scratch(1 tick ごとの確保を避ける=Windows のページフォルトが P6 を食う)
         self._b1 = np.empty(self.n_agents, dtype=bool)
@@ -288,7 +297,8 @@ class ChangeDetector:
         self, world: World, tick: int, field_rows: np.ndarray | None = None
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         if field_rows is None:
-            raw = b4_block_raw(world, tick, walkable_area_m2=self.walkable_area_m2)
+            raw = b4_block_raw(world, tick, walkable_area_m2=self.walkable_area_m2,
+                               los_stage=world.cells.density_stage if self.los_from_stage else None)
         else:
             raw = np.ascontiguousarray(np.asarray(field_rows, dtype=np.int32))
         if self._prev_raw is None or self._prev_raw.shape != raw.shape:

@@ -513,7 +513,9 @@ def run(
                               or _calendar3_arm.is_on()  # 〔6-2 カレンダー 3〕雇い主・祝日の腕(--calendar-3 arm)
                               or _duties_arm.is_on()  # 〔6-6 ② 第 1 部〕店の仕事の腕(--duties arm)
                               # 〔第 5 期 空間の段 1〕移動の腕(引数か環境変数 SHIBUYA_SPACE で nav1=坂と曲がる重みの腕は nav1 の中だけ)
-                              or _NAV1.space_env_override(kwargs.get("space")) != _NAV1.DEFAULT_SPACE,
+                              or _NAV1.space_env_override(kwargs.get("space")) != _NAV1.DEFAULT_SPACE
+                              # 〔段 5-1b〕nav1 が既定になったので、坂・曲がる重み・密度の推定の腕も nav1 のランでは腕に数える
+                              or (_NAV1.space_env_override(kwargs.get("space")) == "nav1" and _NAV1.arms_on()),
                               counterfactual=exp_form is not None)
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
@@ -794,7 +796,7 @@ def _arm_norm(key: str, v: Any) -> Any:
     if key == "budget_mode" and v is not None:
         return BudgetMode.parse(v).value
     if key == "space" and (v is None or v == _NAV1.DEFAULT_SPACE):
-        return None  # 〔第 5 期 空間の段 1〕既定(legacy)を明示で渡しても腕ではない(環境変数の nav1 は下の decide で数える)
+        return None  # 〔第 5 期 空間の段 1・5-1b〕既定(nav1)を明示で渡しても腕ではない(環境変数の legacy は下の decide で数える)
     if isinstance(v, enum.Enum):
         v = v.value
     if v is True or v == "on":

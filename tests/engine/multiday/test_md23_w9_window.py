@@ -45,7 +45,9 @@ def test_bridging_rows_after_2_3():
 
 
 @pytest.mark.requires_data("world_stage_2-3:w9_shadow_2026-07-19.npy", "world_v2")
-def test_stage_asset_has_the_window_and_the_fallback_is_used_only_outside():
+def test_stage_asset_has_the_window_and_the_fallback_is_used_only_outside(monkeypatch):
+    # 〔段 5-1b〕既定は nav1=段の世界(build_hash あり・nav1_* なし)は止まる → 前の移動(legacy)で回す(この試験は天気の窓を見る)
+    monkeypatch.setenv("SHIBUYA_SPACE", "legacy")
     for d in WINDOW:
         assert (STAGE / f"w9_shadow_{d}.npy").exists(), d
     assert not (STAGE / "w9_shadow_2026-07-20.npy").exists()

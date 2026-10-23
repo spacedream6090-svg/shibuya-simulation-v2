@@ -184,6 +184,7 @@ SWITCH_ENV: tuple[str, ...] = (
     "SHIBUYA_MEAL_DEFAULT", "SHIBUYA_WAGE",
     "SHIBUYA_DUTIES",  # 〔第 6 期 6-6 ② 第 1 部〕店の仕事の腕
     "SHIBUYA_SPACE", "SHIBUYA_SLOPE", "SHIBUYA_TURN_WEIGHT",  # 〔第 5 期 空間の段 1〕移動の切替口と腕
+    "SHIBUYA_NAV1_DENSITY",  # 〔段 5-1b〕抽出のランの密度の推定の腕
 )
 
 

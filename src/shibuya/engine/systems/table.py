@@ -177,7 +177,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "PX:proximity.*",  # 第 2 期 2-2: 腕 distance の近傍の索引の計器(状態台帳の行 PX)
          scratch_w="field_rows near_index", reads="cfg.tick_seconds fx.perception layers.act_layer layers.runner scratch.field_rows "
                "soa.agents soa.world "
-               "layers.proximity scratch.near_index",  # 第 2 期 2-2: 腕 distance の近傍の索引(既定 None)
+               "layers.proximity scratch.near_index "  # 第 2 期 2-2: 腕 distance の近傍の索引(既定 None)
+               "fx.geom",  # 〔段 5-1b〕nav1 のランは B4 の密度の段を位置の確定で書いた段から
          origin=f"L4・run.py:3649-3664 @{_E}"),
     make("llm_receive", "判断", "tick", _LIO.sys_llm_receive,
          resolve_ops="write_memory write_store_memory",

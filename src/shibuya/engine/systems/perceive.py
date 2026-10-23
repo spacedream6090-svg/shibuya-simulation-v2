@@ -46,6 +46,8 @@ def sys_perceive_prepare(ctx: Any, b: Any) -> None:
                 else {}
             ),
             **({} if near_index is None else {"near": proximity.view(agents, near_index)}),
+            # 〔段 5-1b〕nav1 のランは B4 の密度の段を位置の確定で書いた段(NavSpace.per_m2 の推定)から=密度を 1 つに
+            **({"los_stage": world.cells.density_stage} if getattr(b.fx.geom, "is_nav", False) else {}),
         )
         field_rows = perception.b4_field_rows
     b.scratch.field_rows = field_rows

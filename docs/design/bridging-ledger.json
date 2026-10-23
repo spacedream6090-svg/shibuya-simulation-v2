@@ -3580,12 +3580,12 @@
   {
    "id": "DOC-prox22-b8-node-walk-speed",
    "what": "node 幾何の歩く速さ 0.41 m/s(1 刻み 1 node)に基づく量(移動中の分・群れ歩き・同行・移動中の露出)=「暫定・node の歩く速さ」の印(manifest の proximity.marks.B8・node 幾何のランだけ)",
-   "why": "10-03 の決定 B8。空間の段 1 で歩く速さが実際の値になれば外す",
+   "why": "10-03 の決定 B8。空間の段 1 で歩く速さが実際の値になれば外す〔段 5-1b・版上げ 4 回目〕閉じた: 既定が nav1(歩く速さは本人の希望歩行速度)になり、既定のランから B8 の印が外れた(段 1 の記録 sp1/README.md §7 の予定どおり)。B8 の印は旧値の再現の切替口 --space legacy のランだけに残る=BR-NAV1-LEGACY-SWITCH(next-bump)(この removed は親の判断で受入=段 1 §7 の予定どおり・記録 sp1b/README.md §6)",
    "remove_at": "5-1",
    "declared_in": "docs/bench/analysis/wallbounce-1012/prox22/README.md",
    "conf": "expedient",
    "since": "2026-10-14",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "plan",
    "code_at": [
     "src/shibuya/engine/proximity.py"
@@ -7853,10 +7853,10 @@
   },
   {
    "id": "BR-NAV1-E2",
-   "what": "移動は衝突なし(人と人はぶつからない・混み具合は前の刻みのセルの人数で Kladek の減速だけ)(外す段: 5-5 の物理=D 層)",
-   "why": "第 5 期 空間の段 1 の移動の仮採用(NAV1_EXPEDIENTS・manifest の space.expedients・記録 sp1 §5)。 外す段: 5-5",
+   "what": "移動は衝突なし(人と人はぶつからない・混み具合は刻みの頭の面の上の体の数から推定した人/m²(既定は近傍 1 段)で Kladek の減速だけ)(外す段: 5-5 の物理=D 層)",
+   "why": "第 5 期 空間の段 1 の移動の仮採用(NAV1_EXPEDIENTS・manifest の space.expedients・記録 sp1 §5)。 外す段: 5-5〔段 5-1b 検収 L1〕文を今の形に(混み具合=刻みの頭の面の上の体の数から推定した人/m²・既定は近傍 1 段)",
    "remove_at": "5-5",
-   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:b9b5b63f",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:d48b0e99",
    "conf": "expedient",
    "since": "2026-10-22",
    "status": "active",
@@ -8007,10 +8007,10 @@
   },
   {
    "id": "BR-NAV1-DENSITY-SAMPLE-SCALE",
-   "what": "密度(人/m²)の分母はナビメッシュのセルの歩ける面積 × 抽出の割合(体の数 ÷ 母集団の総数=経済の population_scale と同じ値・全数のランと合成の世界は 1)=体 1 つが 1/割合 の人を代表する・分子=面の上に居て建物の中でない体だけ(在店・並び・購入・就寝と、経路の外で入口の点に立ち止まった体は数えない=建物の中は段 2・駅の中は段 4 まで入口の点)・あたりで節に着いて立ち止まった体も建物の中に数える=通りの混み具合を少なめに数える向き(L8)・Fruin の段の境と Kladek の式は変えない(外す段: 全数=39 万体のラン・抽出のランの詰まり H1 は段 5-1b)",
-   "why": "第 5 期 空間の段 1 の移動の仮採用(NAV1_EXPEDIENTS・manifest の space.expedients・記録 sp1 §5)。外すのは全数=39 万体のラン(段の番号ではない=7)。 外す段: 7",
+   "what": "密度(人/m²)の推定は近傍 1 段(腕 SHIBUYA_NAV1_DENSITY=neighborhood・既定): そのセルと、同じ層で歩ける面が接する W2 の 8 近傍のセル(0.5 m の升の辺か角=8 連結・同じ階の升だけ・階をまたぐ接続口では近傍にしない・違う層の組は外す)の分子と分母を足してから割る・分母=歩ける面積の和(セルごとの下限 1 m² は前のまま)× 抽出の割合(体の数 ÷ 母集団の総数=経済の population_scale と同じ値・全数のランと合成の世界は 1)=体 1 つが 1/割合 の人を代表する・局所の混み(混んだ升の隣が空いている所)を薄める向き・近傍の無い孤立した断片(近傍を足しても 500 m² 未満の 20 セル=デッキと地下の小さい面)はセルだけのまま量子化が残る(5,000 体の19 構成・1 日で進めない体刻みは帰無腕の 469/日だけ=セル 392 の 16.75 m²・約 2 体が約 4 時間・2 日目は 519=約 7 時間)・2 日のランでは日の境(在不在の層が体を一斉に張り直す刻み)に大きいセルも 2〜3 刻み止まって解ける(帰無腕の 2 日目 1,790 の大半がセル 291・w6_v2 の 2 日目 33=セル 329・v3 既定の 2 日は 0)・分子=面の上に居て建物の中でない体だけ(在店・並び・購入・就寝と、経路の外で入口の点に立ち止まった体は数えない=建物の中は段 2・駅の中は段 4 まで入口の点)・止まった体も数える・あたりで節に着いて立ち止まった体も建物の中に数える=通りの混み具合を少なめに数える向き(L8)・Fruin の段の境と Kladek の式は変えない(外す段: 全数=39 万体のラン)",
+   "why": "第 5 期 空間の段 1 の移動の仮採用(NAV1_EXPEDIENTS・manifest の space.expedients・記録 sp1 §5)。外すのは全数=39 万体のラン(段の番号ではない=7)。 外す段: 7〔段 5-1b・親の判断〕3 案(cell/neighborhood/unscaled)を 5,000 体の 19 構成で測り、neighborhood(近傍 1 段)を既定にした(H1 の進めない体刻みがほぼ 0・密度の段が生きる・偏りは局所の混みを薄める向き=宣言)。近傍の決め方の細部(8 連結・角で接する斜めも近傍・違う層の組は外す・接続口では近傍にしない・面積の下限は前のまま)と孤立の断片 20 セルをセルのまま残すことは親の判断(近傍 2 段は新しい値を足すので入れない)。記録 sp1b/README.md",
    "remove_at": "7",
-   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:f884b7b4",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:a93f2ecb",
    "conf": "expedient",
    "since": "2026-10-22",
    "status": "active",
@@ -8050,12 +8050,12 @@
   {
    "id": "DOC-nav1-density-sample-jam",
    "what": "既知の欠陥 H1: nav1 の腕の抽出のラン(5,000 体)で、Kladek の速さ 0 の詰まりが解けずに固まる(止まった移動中の体が密度の分子に入り続ける・小さい面の升は数体で詰まりの密度に届く)。1 日の進めない体刻み=帰無腕 241,543・w6_v3_activity_off 20,296・w6_v2 14,864・w6_v1_default 13,876・v3 既定 184(段 1 の再検収 review.md §B)=段 1 は既定 legacy の腕として着地し、nav1 は既定にしない",
-   "why": "第 5 期 空間の段 1 の再検収 H1(親の判断=段 1 のうちには直さない・段 5-1b で 3 案=セルごと/近傍で均す/抽出の割合を掛けない を 5,000 体のスクリーニングで測って選び、確かめてから小さな版上げで既定にする=回答 10-13b §0-6)。",
+   "why": "第 5 期 空間の段 1 の再検収 H1(親の判断=段 1 のうちには直さない・段 5-1b で 3 案=セルごと/近傍で均す/抽出の割合を掛けない を 5,000 体のスクリーニングで測って選び、確かめてから小さな版上げで既定にする=回答 10-13b §0-6)。〔段 5-1b・版上げ 4 回目〕閉じた: 密度の推定を neighborhood(近傍 1 段)にして nav1 を既定にした=19 構成の進めない体刻みは記録 sp1b/README.md の表(残りは孤立した小さい断片=BR-NAV1-DENSITY-SAMPLE-SCALE に宣言)。cell の形は腕 BR-NAV1-DENSITY-ARM-CELL として残る",
    "remove_at": "5-1b",
    "declared_in": "docs/bench/analysis/spatial-2026-10/sp1/README.md",
    "conf": "expedient",
    "since": "2026-10-23",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "plan",
    "code_at": [
     "src/shibuya/engine/space/nav1.py"
@@ -8238,6 +8238,111 @@
    "remove_basis": "inferred",
    "code_at": [
     "src/shibuya/engine/contact/tools.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-DENSITY-ARM-CELL",
+   "what": "腕 SHIBUYA_NAV1_DENSITY=cell(そのセルの数 ÷(そのセルの歩ける面積 × 抽出の割合)=段 1 の形)は比べるための腕として残す: 抽出のランで面の小さい升が量子化し、止まった体が分子に残って Kladek の速さ 0 の詰まりが解けない(H1・段 5-1b 第 1 段階の計測で帰無腕 284,557 体刻み/日)(外す段: 全数=39 万体のランで近傍との差を測ったとき)",
+   "why": "第 5 期 空間の段 5-1b(抽出のランの密度の推定・版上げ 4 回目・NAV1_EXPEDIENTS・manifest の space.expedients・記録 docs/bench/analysis/spatial-2026-10/sp1b/README.md)。 外す段: 7",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:139873b3",
+   "conf": "expedient",
+   "since": "2026-10-23",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/space/nav1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-DENSITY-ARM-UNSCALED",
+   "what": "腕 SHIBUYA_NAV1_DENSITY=unscaled(抽出の割合を掛けない=体 1 つを 1 人と数える)は比べるための腕として残す: 抽出のランでは密度を 1/割合 倍小さく数える(5,000 体の 19 構成で密度の段が 1 日中 0=混み具合の仕組みが働かない)・全数のランでは cell と同じ値(外す段: 全数=39 万体のラン)",
+   "why": "第 5 期 空間の段 5-1b(抽出のランの密度の推定・版上げ 4 回目・NAV1_EXPEDIENTS・manifest の space.expedients・記録 docs/bench/analysis/spatial-2026-10/sp1b/README.md)。 外す段: 7",
+   "remove_at": "7",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:5ad73740",
+   "conf": "expedient",
+   "since": "2026-10-23",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/space/nav1.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-LEGACY-SWITCH",
+   "what": "切替口 --space legacy(環境変数 SHIBUYA_SPACE=legacy)は版上げ 4 回目(段 5-1b)の前の値=セルの移動の再現のためだけの道(1 刻み 1 node・人/セルの密度の段・B8 の印)(外す段: 次の版上げ=回答 10-13b §0-6・旧値の再現は安定版のタグ)",
+   "why": "第 5 期 空間の段 5-1b(抽出のランの密度の推定・版上げ 4 回目・NAV1_EXPEDIENTS・manifest の space.expedients・記録 docs/bench/analysis/spatial-2026-10/sp1b/README.md)。 外す段: next-bump",
+   "remove_at": "next-bump",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:6f2f6c96",
+   "conf": "expedient",
+   "since": "2026-10-23",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/space/nav1.py",
+    "src/shibuya/engine/systems/build.py",
+    "src/shibuya/cli.py"
+   ]
+  },
+  {
+   "id": "BR-NAV1-B4-LOS-FROM-STAGE",
+   "what": "変化検出と描画の B4 の密度の段(Fruin の LOS)は nav1 では位置の確定で書いた world.cells.density_stage(NavSpace.per_m2 の推定=段と Kladek と同じ 1 つの密度)から取る=建物の中の体は B4 の混み具合に入らない(legacy は今の density ÷ 歩ける面積)(外す段: 5-2 の建物の中)",
+   "why": "第 5 期 空間の段 5-1b(抽出のランの密度の推定・版上げ 4 回目・NAV1_EXPEDIENTS・manifest の space.expedients・記録 docs/bench/analysis/spatial-2026-10/sp1b/README.md)。 外す段: 5-2",
+   "remove_at": "5-2",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:7c956536",
+   "conf": "expedient",
+   "since": "2026-10-23",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/space/nav1.py",
+    "src/shibuya/engine/change_detect.py",
+    "src/shibuya/perception/renderer.py",
+    "src/shibuya/engine/systems/perceive.py"
+   ]
+  },
+  {
+   "id": "DOC-nav1-arms-inert-edge-plateau",
+   "what": "nav1(既定)のランでは幾何の腕 geometry=edge(辺の上の位置=nav1 の面の上の位置が置き換える)と W10 の台地の面積の腕(area_source=plateau=B4 の密度の段が nav1 の推定から取られて知覚の歩ける面積を使わない)が効かない(19 構成で w6_v1_edge・w6_v1_edge_plateau が w6_v1_default と同じ呼数・w6_v1_edge_plateau の final は w6_v1_edge と同じ)=この 2 つの腕は --space legacy のランで使う",
+   "why": "第 5 期 空間の段 5-1b 第 2 段階の親の判断(19 構成の記録の注・記録 docs/bench/analysis/spatial-2026-10/sp1b/README.md §4-2)。外す段=次の版上げ(legacy の切替口を消す束で腕の扱いを決め直す)",
+   "remove_at": "next-bump",
+   "declared_in": "docs/bench/analysis/spatial-2026-10/sp1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-23",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/systems/build.py",
+    "src/shibuya/engine/space/nav1.py"
+   ]
+  },
+  {
+   "id": "DOC-nav1-density-isolated-fragments",
+   "what": "密度の推定 neighborhood で近傍を足しても歩ける面が 500 m² 未満のまま残る孤立した断片 20 セル(デッキと地下の小さい面・例: セル 392 デッキ 16.75 m²)は面の小さい升の量子化が残る=5,000 体の 19 構成・1 日で進めない体刻みは帰無腕の 469/日だけ(同時に最大 3 体・約 2 体が約 4 時間止まり続ける=止まった体が分子に残る H1 と同じ形)・2 日目は 519(約 7 時間)=近傍 1 段のまま(近傍 2 段は新しい値を足すので入れない)。断片の扱いは段 2(建物とデッキの面の材料)で見直す",
+   "why": "第 5 期 空間の段 5-1b 第 2 段階の親の判断と検収 L2・M2 (b)(記録 docs/bench/analysis/spatial-2026-10/sp1b/README.md §4-5・§8)。",
+   "remove_at": "5-2",
+   "declared_in": "docs/bench/analysis/spatial-2026-10/sp1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-23",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/space/nav1.py"
+   ]
+  },
+  {
+   "id": "DOC-nav1-density-day-boundary-surge",
+   "what": "2 日以上のランの日の境(在不在の層が体を一斉に張り直す刻み 1,440〜1,446)で、大きいセルでも面の上の体が一斉に増えて近傍の推定がKladek の速さ 0 の境(5.4 人/m²)を超え、2〜3 刻み止まって解ける(吸い込む状態ではない)=帰無腕の 2 日目 2,309 体刻みのうち日の境1,790(検収の計測=セル 291 で面の上の体 10 → 750・5.62 人/m²・6 刻みで解ける)・w6_v2 系 4 構成の 2 日目 33(セル 329・3 刻み)・v3 既定ほか 14 構成の 2 日は 0=在不在の層の日の境の張り直しの性質(密度の推定は変えない)",
+   "why": "第 5 期 空間の段 5-1b 検収 M2 (a)(親の判断=受入・記録 docs/bench/analysis/spatial-2026-10/sp1b/README.md §4-5)。外す段=カレンダー 1b の既定化(6-2)と同じ束(日の境の張り直しを本人の予定の出入りに替えるとき)",
+   "remove_at": "6-2",
+   "declared_in": "docs/bench/analysis/spatial-2026-10/sp1b/README.md",
+   "conf": "expedient",
+   "since": "2026-10-23",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/presence.py",
+    "src/shibuya/engine/space/nav1.py"
    ]
   }
  ]

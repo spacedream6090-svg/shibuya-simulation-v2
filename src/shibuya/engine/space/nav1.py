@@ -10,8 +10,8 @@ SR12 (a)+(d)/記録 ``docs/bench/analysis/spatial-2026-10/sp1/README.md``。
   Dijkstra(**SR12 (a)**: 曲がる 1 回 = 50 m・上り 1 m = 3.8 m)、面の上の線は帯の A* と funnel
   (``world.navmesh_route.NavPlanner``)。経路の選びは本人の判断(段 3/判断モデルの後)=今は既定の重み(つなぎ)。
 - 時間: 歩く区間は本人の歩く速さ(体の属性=``engine.geometry.desired_speeds``=10f K21 (a))× 坂の係数(**SR12 (d)**:
-  Wood 2023 の舗装路の式・腕 Tobler)。区間は 5 m 以下に切って DEM の勾配を当てる。混み具合は前の刻みのセルの人数 ÷
-  ナビメッシュのセルの歩ける面積で Kladek の式(C9 G2 (b) と同じ)。
+  Wood 2023 の舗装路の式・腕 Tobler)。区間は 5 m 以下に切って DEM の勾配を当てる。混み具合は刻みの頭の面の上の体の数から推定した人/m²
+  (既定は近傍 1 段=:meth:`NavSpace.per_m2`・腕 ``SHIBUYA_NAV1_DENSITY``)で Kladek の式(C9 G2 (b) と同じ)。
 - 接続口(**SR11 (a)+(d)**): 階段=高さ ÷ 上下の速さ(Fujiyama & Tyler 2004 の 24.6° の階段のふつうの速さの水平成分 ×
   tan・本人の速さの比を掛ける)・エスカレーター=高さ ÷ sin30° ÷ 30 m/分・エレベーター=高さ ÷ かごの速さ + 待ち(運行の
   間隔の半分)・スロープ=歩く(勾配は ±1/8 で切る)。階段・エスカレーター・エレベーターの水平の長さのうち段の水平の分を
@@ -67,6 +67,13 @@ __all__ = [
     "DEFAULT_SLOPE_MODEL",
     "TURN_WEIGHT_MODES",
     "DEFAULT_TURN_WEIGHT_MODE",
+    "DENSITY_MODES",
+    "DEFAULT_DENSITY_MODE",
+    "DENSITY_NEIGHBOR_RINGS",
+    "check_density_mode",
+    "density_arm",
+    "cell_contacts",
+    "neighborhood_pairs",
     "TURN_WEIGHT_M",
     "TURN_WEIGHT_PERSON_RANGE_M",
     "CLIMB_WEIGHT_M_PER_M",
@@ -84,16 +91,27 @@ __all__ = [
     "is_production_world",
 ]
 
-#: 切替口の値(``legacy``=今のセルの移動・``nav1``=ナビメッシュの移動の腕)。〔段 1 の再検収 H1・親の判断〕段 1 は既定 legacy の
-#: 腕として着地する(nav1 は抽出のランの密度の詰まり=H1 を段 5-1b で直し、確かめてから小さな版上げで既定にする=§0-6)。
+#: 切替口の値(``legacy``=前のセルの移動・``nav1``=ナビメッシュの移動)。〔段 5-1b・版上げ 4 回目〕既定は nav1(密度の推定は
+#: neighborhood=H1 を直した)。legacy は旧値の再現だけ(次の版上げで消す=台帳 BR-NAV1-LEGACY-SWITCH・next-bump)。
 SPACE_MODES: Final[tuple[str, ...]] = ("legacy", "nav1")
-DEFAULT_SPACE: Final[str] = "legacy"
+DEFAULT_SPACE: Final[str] = "nav1"
 #: 坂の速さの式(SR12 (d): Wood 2023 の舗装路を既定・Tobler を腕)。
 SLOPE_MODELS: Final[tuple[str, ...]] = ("wood", "tobler")
 DEFAULT_SLOPE_MODEL: Final[str] = "wood"
 #: 曲がる重み(SR12 (a): 既定 50 m・腕 person=人ごとに 32〜62 m の一様)。
 TURN_WEIGHT_MODES: Final[tuple[str, ...]] = ("fixed", "person")
 DEFAULT_TURN_WEIGHT_MODE: Final[str] = "fixed"
+#: 〔段 5-1b〕抽出のランの密度(人/m²)の推定の腕(環境変数 ``SHIBUYA_NAV1_DENSITY``・nav1 のときだけ効く)。どの案も分子=面の上に
+#: 居て建物の中でない体(止まった体も数える)・Fruin の段の境と Kladek の式は変えない。
+#: ``cell``=そのセルの数 ÷(そのセルの歩ける面積 × 抽出の割合)=段 1 の形(腕)/``neighborhood``=そのセルと、同じ層で歩ける面が
+#: 接する W2 の 8 近傍のセル(近傍 1 段)の数と面積を足してから割る(抽出の割合は同じ)/``unscaled``=そのセルの数 ÷ 歩ける面積
+#: (抽出の割合を掛けない=段 1 の直す前の形)。〔段 5-1b 第 2 段階・親の判断〕既定は neighborhood(5,000 体の 19 構成・1 日で H1 の
+#: 進めない体刻みは帰無腕の 469/日だけ=孤立の断片セル 392・2 日の帰無腕は 2,778=記録 sp1b §4-5)。cell(H1 が残る)と unscaled
+#: (抽出のランで密度の段が 0 のまま)は腕。
+DENSITY_MODES: Final[tuple[str, ...]] = ("cell", "neighborhood", "unscaled")
+DEFAULT_DENSITY_MODE: Final[str] = "neighborhood"
+#: 近傍の推定の帯域(W2 のセルの環の数=1 段=8 近傍・宣言)。
+DENSITY_NEIGHBOR_RINGS: Final[int] = 1
 #: 曲がる 1 回の重み[m](R-61 §3 のフロア 32〜62 m の中ほど・指示書 10-06 SR12 (a))。
 TURN_WEIGHT_M: Final[float] = 50.0
 #: 人ごとの曲がる重みの幅[m](R-61 結論 2 の都市の間の幅・SR12 の腕)。
@@ -131,7 +149,8 @@ WEIGHT_REFERENCE_MS: Final[float] = 1.34
 NAV1_EXPEDIENTS: Final[tuple[str, ...]] = (
     "経路の選びは既定の重み(曲がる 1 回 50 m・上り 1 m 3.8 m・SR12 (a))で引く=本人の判断ではない(外す段: 段 3 と判断モデルの回"
     "=NavPlanner.candidates の 3 つの候補を本人が選ぶ)",
-    "移動は衝突なし(人と人はぶつからない・混み具合は前の刻みのセルの人数で Kladek の減速だけ)(外す段: 5-5 の物理=D 層)",
+    "移動は衝突なし(人と人はぶつからない・混み具合は刻みの頭の面の上の体の数から推定した人/m²(既定は近傍 1 段)で Kladek の"
+    "減速だけ)(外す段: 5-5 の物理=D 層)",
     "接続口の階段は高さ ÷ 上下の速さ(24.6° の階段のふつうの速さ × 本人の速さ ÷ 1.40)・水平の長さのうち段の水平の分を超える"
     "残りは平らに歩く・エレベーターのかごの速さ 0.75 m/s(仮)・容量を超えた分は先着順で前で待つ・階段と ES と EV の中に居る間は"
     "入口の端(所要時間の半分まで)か出口の端に居る=半分で跳ぶ(外す段: 5-5 の物理と縦の照合=SR17)",
@@ -143,11 +162,27 @@ NAV1_EXPEDIENTS: Final[tuple[str, ...]] = (
     "外す段: 点群の床の高さ=SR1 の承認の後)",
     "回廊(W1 の道筋から 40 m)の中で着けない経路は全面の A*(広い探索)に落ちる=そのときは曲がる重みが効かない(1 日の新しい"
     "経路の約 1 割)(外す段: 回廊の幅の感度=5,000 体のスクリーニングの後)",
-    "密度(人/m²)の分母はナビメッシュのセルの歩ける面積 × 抽出の割合(体の数 ÷ 母集団の総数=経済の population_scale と同じ値・"
-    "全数のランと合成の世界は 1)=体 1 つが 1/割合 の人を代表する・分子=面の上に居て建物の中でない体だけ(在店・並び・購入・就寝と、"
-    "経路の外で入口の点に立ち止まった体は数えない=建物の中は段 2・駅の中は段 4 まで入口の点)・あたりで節に着いて立ち止まった体も"
-    "建物の中に数える=通りの混み具合を少なめに数える向き(L8)・Fruin の段の境と Kladek の式は変えない(外す段: 全数=39 万体の"
-    "ラン・抽出のランの詰まり H1 は段 5-1b)",
+    "密度(人/m²)の推定は近傍 1 段(腕 SHIBUYA_NAV1_DENSITY=neighborhood・既定): そのセルと、同じ層で歩ける面が接する W2 の 8 近傍の"
+    "セル(0.5 m の升の辺か角=8 連結・同じ階の升だけ・階をまたぐ接続口では近傍にしない・違う層の組は外す)の分子と分母を足してから"
+    "割る・分母=歩ける面積の和(セルごとの下限 1 m² は前のまま)× 抽出の割合(体の数 ÷ 母集団の総数=経済の population_scale と"
+    "同じ値・全数のランと合成の世界は 1)=体 1 つが 1/割合 の人を代表する・局所の混み(混んだ升の隣が空いている所)を薄める向き・"
+    "近傍の無い孤立した断片(近傍を足しても 500 m² 未満の 20 セル=デッキと地下の小さい面)はセルだけのまま量子化が残る(5,000 体の"
+    "19 構成・1 日で進めない体刻みは帰無腕の 469/日だけ=セル 392 の 16.75 m²・約 2 体が約 4 時間・2 日目は 519=約 7 時間)・2 日のランでは日の境(在不在の層が体を一斉に張り直す刻み)に大きいセルも 2〜3 刻み止まって解ける(帰無腕の 2 日目 1,790 の大半が"
+    "セル 291・w6_v2 の 2 日目 33=セル 329・v3 既定の 2 日は 0)・分子=面の上に居て建物の中でない体だけ(在店・並び・購入・就寝と、経路の外で"
+    "入口の点に立ち止まった体は数えない=建物の中は段 2・駅の中は段 4 まで入口の点)・止まった体も数える・あたりで節に着いて立ち"
+    "止まった体も建物の中に数える=通りの混み具合を少なめに数える向き(L8)・Fruin の段の境と Kladek の式は変えない(外す段: 全数"
+    "=39 万体のラン)",
+    "腕 SHIBUYA_NAV1_DENSITY=cell(そのセルの数 ÷(そのセルの歩ける面積 × 抽出の割合)=段 1 の形)は比べるための腕として残す: "
+    "抽出のランで面の小さい升が量子化し、止まった体が分子に残って Kladek の速さ 0 の詰まりが解けない(H1・段 5-1b 第 1 段階の計測で帰無腕 284,557 体刻み/日)"
+    "(外す段: 全数=39 万体のランで近傍との差を測ったとき)",
+    "腕 SHIBUYA_NAV1_DENSITY=unscaled(抽出の割合を掛けない=体 1 つを 1 人と数える)は比べるための腕として残す: 抽出のランでは密度を"
+    " 1/割合 倍小さく数える(5,000 体の 19 構成で密度の段が 1 日中 0=混み具合の仕組みが働かない)・全数のランでは cell と同じ値"
+    "(外す段: 全数=39 万体のラン)",
+    "切替口 --space legacy(環境変数 SHIBUYA_SPACE=legacy)は版上げ 4 回目(段 5-1b)の前の値=セルの移動の再現のためだけの道"
+    "(1 刻み 1 node・人/セルの密度の段・B8 の印)(外す段: 次の版上げ=回答 10-13b §0-6・旧値の再現は安定版のタグ)",
+    "変化検出と描画の B4 の密度の段(Fruin の LOS)は nav1 では位置の確定で書いた world.cells.density_stage(NavSpace.per_m2 の推定"
+    "=段と Kladek と同じ 1 つの密度)から取る=建物の中の体は B4 の混み具合に入らない(legacy は今の density ÷ 歩ける面積)"
+    "(外す段: 5-2 の建物の中)",
 )
 
 
@@ -162,6 +197,13 @@ def check_slope_model(value: str) -> str:
     text = str(value)
     if text not in SLOPE_MODELS:
         raise ValueError(f"slope は {SLOPE_MODELS} のどれか(いま {value!r})")
+    return text
+
+
+def check_density_mode(value: str) -> str:
+    text = str(value)
+    if text not in DENSITY_MODES:
+        raise ValueError(f"SHIBUYA_NAV1_DENSITY は {DENSITY_MODES} のどれか(いま {value!r})")
     return text
 
 
@@ -506,6 +548,93 @@ def _cells_of(lut, cx0, cy0, cell_m, xs, ys, fis, floor_band, out):
             out[q] = cell_of(lut, cx0, cy0, cell_m, xs[q], ys[q], floor_band[f])
 
 
+# ====================================================================== 〔段 5-1b〕近傍の表(資産から前もって)
+@nb.njit(cache=True)
+def cell_contacts(lut, cx0, cy0, cell_m, row_base, row_ptr, run_x0, run_x1, floor_band, floor_ox, floor_oy, floor_ny,
+                  res, n_cells):
+    """同じ階の歩ける升(0.5 m)が辺か角で接する 2 つのセルの印 ``(n_cells, n_cells)`` uint8(対称・対角は 0)。
+
+    升のセルは升の中心の :func:`~shibuya.world.navmesh.cell_of`(面の上の体のセルと同じ写し)。同じランの中の隣の升・上の行の
+    ランの升のうち横の差が 1 以内のもの(8 連結)を比べる。違う階の升は比べない(階をまたぐのは接続口だけ)。
+
+    逐次ループ宣言(P4): 階 × 行 × ランの升の数ぶんの numba のループ(組み立ての 1 回・毎刻みではない)。
+    """
+    touch = np.zeros((n_cells, n_cells), dtype=np.uint8)
+    for f in range(floor_ox.shape[0]):
+        band = floor_band[f]
+        ox = floor_ox[f]
+        oy = floor_oy[f]
+        for j in range(floor_ny[f]):
+            b = row_base[f] + j
+            lo = row_ptr[b]
+            hi = row_ptr[b + 1]
+            y = oy + (j + 0.5) * res
+            for r in range(lo, hi):  # 同じランの中の隣の升
+                prev = -1
+                for i in range(run_x0[r], run_x1[r]):
+                    c = cell_of(lut, cx0, cy0, cell_m, ox + (i + 0.5) * res, y, band)
+                    if i > run_x0[r] and c >= 0 and prev >= 0 and c != prev:
+                        touch[c, prev] = 1
+                        touch[prev, c] = 1
+                    prev = c
+            if j + 1 >= floor_ny[f]:
+                continue
+            lo2 = row_ptr[b + 1]
+            hi2 = row_ptr[b + 2]
+            y2 = y + res
+            q0 = lo2
+            for r in range(lo, hi):  # 上の行のラン(横の差 1 以内=辺か角で接する)
+                a0 = run_x0[r]
+                a1 = run_x1[r]
+                while q0 < hi2 and run_x1[q0] < a0:
+                    q0 += 1
+                q = q0
+                while q < hi2 and run_x0[q] <= a1:
+                    b0 = run_x0[q]
+                    b1 = run_x1[q]
+                    for i in range(max(a0, b0 - 1), min(a1, b1 + 1)):
+                        c = cell_of(lut, cx0, cy0, cell_m, ox + (i + 0.5) * res, y, band)
+                        if c < 0:
+                            continue
+                        for d in range(-1, 2):
+                            i2 = i + d
+                            if i2 < b0 or i2 >= b1:
+                                continue
+                            c2 = cell_of(lut, cx0, cy0, cell_m, ox + (i2 + 0.5) * res, y2, band)
+                            if c2 >= 0 and c2 != c:
+                                touch[c, c2] = 1
+                                touch[c2, c] = 1
+                    q += 1
+    return touch
+
+
+def neighborhood_pairs(touch: np.ndarray, cell_ix, cell_iy, cell_band) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
+    """近傍の表 → (行のセル, 足すセル) の組の配列(自分自身を含む)と manifest の数。
+
+    近傍=歩ける面が接する(:func:`cell_contacts`)うち、W2 の 8 近傍(列と行の差がどちらも 1 以内)で同じ層のセルだけ。
+    層の違う組(層のセルが無い升が地上のセルへ倒れた所)と、8 近傍でない組(つなぎの帯の升が最も近いセルへ倒れた所)は入れず、
+    数だけを manifest に出す。
+    """
+    n = int(touch.shape[0])
+    ix = np.asarray(cell_ix, dtype=np.int64)
+    iy = np.asarray(cell_iy, dtype=np.int64)
+    bd = np.asarray(cell_band, dtype=np.int64)
+    p0, p1 = np.nonzero(touch)
+    same_band = bd[p0] == bd[p1]
+    near = (np.abs(ix[p0] - ix[p1]) <= DENSITY_NEIGHBOR_RINGS) & (np.abs(iy[p0] - iy[p1]) <= DENSITY_NEIGHBOR_RINGS)
+    keep = same_band & near
+    selfs = np.arange(n, dtype=np.int64)
+    src = np.concatenate([selfs, p0[keep].astype(np.int64)])
+    dst = np.concatenate([selfs, p1[keep].astype(np.int64)])
+    deg = np.bincount(p0[keep], minlength=n)
+    info = {"rings": DENSITY_NEIGHBOR_RINGS, "contact": "0.5 m の升の辺か角(8 連結)・同じ階",
+            "filter": "W2 の 8 近傍・同じ層", "pairs": int(keep.sum() // 2),
+            "cells_with_neighbors": int((deg > 0).sum()), "degree_mean": round(float(deg[deg > 0].mean()), 3)
+            if (deg > 0).any() else 0.0, "degree_max": int(deg.max()) if deg.size else 0,
+            "dropped_other_band": int((~same_band).sum() // 2), "dropped_not_w2_neighbor": int((same_band & ~near).sum() // 2)}
+    return src, dst, info
+
+
 # ====================================================================== 計器
 @dataclass
 class NavMeter:
@@ -547,7 +676,7 @@ class NavSpace:
     def __init__(self, mesh: NavMesh, assets: Any, *, world_dir: Any, seed: int | str, n_agents: int,
                  tick_seconds: int, population_seed: int | str | None = None,
                  slope_model: str = DEFAULT_SLOPE_MODEL, turn_weight_mode: str = DEFAULT_TURN_WEIGHT_MODE,
-                 population_scale: float = 1.0) -> None:
+                 population_scale: float = 1.0, density_mode: str = DEFAULT_DENSITY_MODE) -> None:
         self.mesh = mesh
         self.assets = assets
         self.n_agents = int(n_agents)
@@ -575,6 +704,21 @@ class NavSpace:
         self.walkable_area_raw_m2 = area
         #: 密度の分母[m²](物理の面積 × 抽出の割合)
         self.density_area_m2 = self.walkable_area_m2 * self.population_scale
+        #: 〔段 5-1b〕密度の推定の腕(cell=上の分母・neighborhood=近傍で足す・unscaled=抽出の割合を掛けない)
+        self.density_mode = check_density_mode(density_mode)
+        self.density_nb_src: np.ndarray | None = None
+        self.density_nb_dst: np.ndarray | None = None
+        self.density_nb_info: dict[str, Any] | None = None
+        self.density_nb_area_m2: np.ndarray | None = None
+        if self.density_mode == "neighborhood":
+            touch = cell_contacts(self.lut, self.cx0, self.cy0, 100.0, mesh.row_base, mesh.row_ptr, mesh.run_x0,
+                                  mesh.run_x1, mesh.floor_band, mesh.floor_ox, mesh.floor_oy, mesh.floor_ny, mesh.res,
+                                  int(assets.n_cells))
+            self.density_nb_src, self.density_nb_dst, self.density_nb_info = neighborhood_pairs(
+                touch, assets.cell_ix, assets.cell_iy, assets.cell_band)
+            #: 近傍の分母[m²](近傍の歩ける面積の和 × 抽出の割合)
+            self.density_nb_area_m2 = np.bincount(self.density_nb_src, weights=self.walkable_area_m2[self.density_nb_dst],
+                                                  minlength=self.walkable_area_m2.size) * self.population_scale
         # 接続口の時間(基準の速さ)と重み
         self.link_t_ab, self.link_t_ba = self.link_times(np.full(mesh.n_links, WEIGHT_REFERENCE_MS))
         rise = np.asarray(mesh.link_rise_m, dtype=np.float64)
@@ -813,16 +957,25 @@ class NavSpace:
         sel = on & ~inside
         return np.bincount(cell[sel], minlength=n_cells).astype(np.float64)
 
+    def per_m2(self, density) -> np.ndarray:
+        """〔段 5-1b〕セルごとの人/m²(``density``=:meth:`surface_counts` の数)。推定の形は腕 ``density_mode``。"""
+        d = np.asarray(density, dtype=np.float64)
+        if self.density_mode == "unscaled":
+            return d / self.walkable_area_m2
+        if self.density_mode == "neighborhood":
+            num = np.bincount(self.density_nb_src, weights=d[self.density_nb_dst], minlength=d.size)
+            return num / self.density_nb_area_m2
+        return d / self.density_area_m2
+
     def kladek_factor(self, cell, density) -> np.ndarray:
         c = np.asarray(cell, dtype=np.int64)
-        d = np.asarray(density, dtype=np.float64)
-        fac_cell = kladek_speed_factor(d / self.density_area_m2)
+        fac_cell = kladek_speed_factor(self.per_m2(density))
         return np.where((c >= 0) & (c < fac_cell.size), fac_cell[np.clip(c, 0, max(fac_cell.size - 1, 0))], 1.0)
 
     def density_stage(self, density) -> np.ndarray:
         from shibuya.world.state import DENSITY_STAGE_EDGES_PER_M2
 
-        per_m2 = np.asarray(density, dtype=np.float64) / self.density_area_m2
+        per_m2 = self.per_m2(density)
         return np.searchsorted(np.asarray(DENSITY_STAGE_EDGES_PER_M2), per_m2, side="right").astype(np.uint8)
 
     def advance(self, aid, t_in, factor, nav_wait, tick: int):
@@ -934,17 +1087,20 @@ class NavSpace:
             "navmesh": {"runs": m.run_count, "strips": m.n_strips, "links": m.n_links, "floors": m.n_floors,
                         "stage_version": str(m.meta.get("stage_version", "")),
                         "density_population_scale": self.population_scale,
+                        # 〔段 5-1b〕密度の推定の腕と近傍の表の数(neighborhood のときだけ)
+                        "density_mode": self.density_mode,
+                        "density_neighborhood": self.density_nb_info,
                         "ramps_on_end_points": int(self.ramp_lines_outside_cells)},
             "meter": self.nav_meter.as_dict(),
         }
 
 
 def load_space(world_dir: Any, assets: Any, *, seed, n_agents, tick_seconds, population_seed, slope_model,
-               turn_weight_mode, population_scale: float = 1.0) -> NavSpace:
+               turn_weight_mode, population_scale: float = 1.0, density_mode: str = DEFAULT_DENSITY_MODE) -> NavSpace:
     mesh = load_navmesh(world_dir)
     return NavSpace(mesh, assets, world_dir=world_dir, seed=seed, n_agents=n_agents, tick_seconds=tick_seconds,
                     population_seed=population_seed, slope_model=slope_model, turn_weight_mode=turn_weight_mode,
-                    population_scale=population_scale)
+                    population_scale=population_scale, density_mode=density_mode)
 
 
 # ====================================================================== 腕(環境変数と CLI)・manifest・要約
@@ -970,6 +1126,12 @@ def slope_arm() -> str:
     return _SLOPE
 
 
+def density_arm() -> str:
+    """〔段 5-1b〕密度の推定の腕(環境変数 ``SHIBUYA_NAV1_DENSITY``・既定 ``neighborhood``)。組み立てのときに読む(nav1 のときだけ効く)。"""
+    env = os.environ.get("SHIBUYA_NAV1_DENSITY", "").strip().lower()
+    return check_density_mode(env) if env else DEFAULT_DENSITY_MODE
+
+
 def turn_arm() -> str:
     """曲がる重みの腕(``fixed``=既定 50 m・``person``=人ごとに 32〜62 m)。環境変数 ``SHIBUYA_TURN_WEIGHT``・``--turn-weight``。"""
     return _TURN
@@ -986,17 +1148,17 @@ def set_turn_arm(name: str) -> None:
 
 
 def arms_on() -> bool:
-    """坂と曲がる重みの腕が既定と違うか(ランの種類を arm にする=結果が変わる腕)。"""
-    return _SLOPE != DEFAULT_SLOPE_MODEL or _TURN != DEFAULT_TURN_WEIGHT_MODE
+    """坂・曲がる重み・密度の推定の腕が既定と違うか(ランの種類を arm にする=結果が変わる腕・nav1 のランだけ効く)。"""
+    return _SLOPE != DEFAULT_SLOPE_MODEL or _TURN != DEFAULT_TURN_WEIGHT_MODE or density_arm() != DEFAULT_DENSITY_MODE
 
 
 def add_space_args(ap: Any) -> None:
     """CLI の旗 ``--space``・``--slope``・``--turn-weight``。"""
     ap.add_argument("--space", choices=SPACE_MODES, default=None,
-                    help="第 5 期 空間の段 1 の移動の切替口。legacy=今のセルの移動(既定)/nav1=ナビメッシュの上を衝突なしで"
-                         "進む腕(位置は (x, y, 階)・合成の世界では legacy で回して manifest の space.effective に書く・本番の"
-                         "世界で資産 nav1_* が無ければ止める・既知の欠陥 H1=抽出のランの密度の詰まり=段 5-1b)。環境変数 "
-                         "SHIBUYA_SPACE より強い")
+                    help="第 5 期 空間の段 1 の移動の切替口。nav1=ナビメッシュの上を衝突なしで進む(既定・位置は (x, y, 階)・"
+                         "合成の世界では legacy で回して manifest の space.effective に書く・本番の世界で資産 nav1_* が無ければ"
+                         "止める・密度の推定は環境変数 SHIBUYA_NAV1_DENSITY=neighborhood(既定)/cell/unscaled)/legacy=前のセルの"
+                         "移動(旧値の再現だけ・次の版上げで消す)。環境変数 SHIBUYA_SPACE より強い")
     ap.add_argument("--slope", choices=SLOPE_MODELS, default=None,
                     help="坂の速さの式の腕(SR12 (d)・既定 wood=Wood 2023 舗装路・tobler=Tobler・環境変数 SHIBUYA_SLOPE と同じ)")
     ap.add_argument("--turn-weight", choices=TURN_WEIGHT_MODES, default=None,

@@ -90,26 +90,40 @@ def test_l4_space_argument_beats_the_environment_in_a_run(monkeypatch):
     assert a.run_manifest_fields()["space"]["requested"] == "nav1"
 
 
-# 〔段 1 の再検収 H1・親の判断〕段 1 は既定 legacy の腕。nav1 の腕の golden は資産を足した本番の世界(apply の後)でだけ回す
+# 〔段 5-1b・版上げ 4 回目〕既定は nav1+密度の推定 neighborhood。golden は資産を足した本番の世界(apply の後)でだけ回す
 MAIN = Path("data/world/v2")
-#: nav1 の腕の w6_v3_default(5,000 体・seed 1・1 日・v3)の final と呼数(記録 spatial-2026-10/sp1 §8-1)
-NAV1_ARM_GOLDEN = ("d8b2d497eef28887", 61_261)
+#: w6_v3_default(5,000 体・seed 1・1 日・v3)の final と呼数(記録 spatial-2026-10/sp1b)。既定=nav1+neighborhood・腕は
+#: 環境変数 SHIBUYA_NAV1_DENSITY(cell・unscaled)。段 1 の nav1(cell・B4 の密度の段は人/セル)の値は d8b2d497eef28887/61,261
+NAV1_GOLDEN = {
+    None: ("7bfe215641b792ac", 62_176),
+    "cell": ("6cc4f835866c1ebd", 63_853),
+    "unscaled": ("ef9999b0d56e50da", 61_234),
+}
 
 
 @pytest.mark.skipif(not navmesh_available(MAIN), reason="本番の世界に nav1 の資産が無い(活性化の前)")
-def test_nav1_arm_golden_w6_v3_default_on_the_activated_world():
+@pytest.mark.parametrize("density", [None, pytest.param("cell", marks=pytest.mark.slow),
+                                     pytest.param("unscaled", marks=pytest.mark.slow)])
+def test_nav1_golden_w6_v3_default_on_the_activated_world(monkeypatch, density):
     from tests import golden_env as GE
 
-    res = cli.run(n_agents=5000, seed=1, world_dir=str(MAIN), vocab_version="v3", space="nav1")
-    assert res.run_manifest_fields()["space"]["effective"] == "nav1"
-    if GE.platform_id() in GE.REGISTERED:
-        assert (res.final_hash[:16], int(res.llm_calls)) == NAV1_ARM_GOLDEN
+    monkeypatch.delenv("SHIBUYA_SPACE", raising=False)
+    if density is None:
+        monkeypatch.delenv("SHIBUYA_NAV1_DENSITY", raising=False)
     else:
-        GE.warn_unregistered("nav1 の腕の w6_v3_default")
+        monkeypatch.setenv("SHIBUYA_NAV1_DENSITY", density)
+    res = cli.run(n_agents=5000, seed=1, world_dir=str(MAIN), vocab_version="v3")
+    sp = res.run_manifest_fields()["space"]
+    assert sp["effective"] == "nav1" and sp["navmesh"]["density_mode"] == (density or "neighborhood")
+    if GE.platform_id() in GE.REGISTERED:
+        assert (res.final_hash[:16], int(res.llm_calls)) == NAV1_GOLDEN[density]
+    else:
+        GE.warn_unregistered(f"nav1 の w6_v3_default({density or '既定'})")
 
 
 @needs_stage
-def test_default_is_legacy_on_the_staged_world():
+def test_default_is_nav1_on_the_staged_world(monkeypatch):
+    monkeypatch.delenv("SHIBUYA_SPACE", raising=False)
     res = cli.run(n_agents=50, seed=1, ticks=2, world_dir=str(STAGE))
     sp = res.run_manifest_fields()["space"]
-    assert sp["requested"] == "legacy" and sp["effective"] == "legacy"
+    assert sp["requested"] == "nav1" and sp["effective"] == "nav1"

@@ -12,6 +12,10 @@
 (B) byte-check の 19 構成(``wave2_bytecheck.configs()``)× 代表の刻み(朝・昼・夕の 3 つの窓=各構成 3 刻み以上で描画が
     ある)で、ランの中の描画を全部双子と比べる(世界資産が要る=``requires_data("world_v2")``)。5,000 体・1 日の全部の
     呼の一致は byte-check(テープの ``prompt_hash`` の列の sha)が見る(記録 p12/README.md)。
+
+〔段 5-1b 検収 L5〕nav1 のランは前計算に ``los_stage``(密度の段)を渡す。HEAD の双子の口には無いので、双子には同じ段を写して B4 の欄と
+指紋を今の ``perception.hashes`` で作り直す=この 2 欄(``b4_field_rows``・``b4_field_hash``)は双子と独立には比べていない(文・ブロック・
+指紋・トークンほか残りの欄は比べている)。
 """
 
 from __future__ import annotations
@@ -268,7 +272,20 @@ def _shadow(monkeypatch: pytest.MonkeyPatch) -> dict:
         if id(self) not in twins:
             twins[id(self)] = twin(self)
             stats["pairs"].append((self, twins[id(self)]))
-        twins[id(self)].prepare_tick(tick, **kw)
+        # 〔段 5-1b〕nav1 のランは密度の段(los_stage)を材料として渡す(HEAD の双子の口には無い)=双子には同じ段を写して
+        # B4 の欄を同じ式で作り直す(描画の比べは「同じ材料 → 同じ文」のまま)
+        los = kw.get("los_stage")
+        h = twins[id(self)]
+        h.prepare_tick(tick, **{k: v for k, v in kw.items() if k != "los_stage"})
+        if los is not None:
+            import dataclasses as _dc
+
+            from shibuya.perception import hashes as _H
+
+            tc = h._tickc
+            ls = np.asarray(los, dtype=np.uint8).copy()
+            rows = _H.b4_field_row(ls, tc.noise_stage, tc.flow, tc.salient_digest)
+            h._tickc = _dc.replace(tc, los_stage=ls, b4_field_rows=rows, b4_field_hash=_H.field_row_hashes(rows))
 
     def render(self, agent_id, tick, wake_reason=3, last_result=None, last_action=None, inviter=None):  # noqa: ANN001
         out = orig_render(self, agent_id, tick, wake_reason, last_result, last_action, inviter)

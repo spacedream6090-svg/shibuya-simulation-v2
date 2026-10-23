@@ -462,7 +462,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         raise ValueError(f"derive_rule は {PRESENCE_DERIVE_RULES} のどれか(いま {derive_rule!r})")
     # ---- C9 位置幾何の腕: 値の検査は**SoA を確保する前**にする(欄が 1 本変わるため) ----
     geometry = check_geometry(geometry)
-    # ---- 〔第 5 期 空間の段 1〕移動の切替口 --space(既定 legacy=段 1 は腕・指定は環境変数 SHIBUYA_SPACE より強い)。資産(nav1_*)の無い
+    # ---- 〔第 5 期 空間の段 1・5-1b〕移動の切替口 --space(既定 nav1=版上げ 4 回目・legacy は旧値の再現だけ・指定は環境変数 SHIBUYA_SPACE より強い)。資産(nav1_*)の無い
     # 合成の世界では legacy で回し、manifest の space.effective と reason に書く(つなぎ=engine.space.nav1.NAV1_EXPEDIENTS の 5)。
     # 〔段 1 の検収 問い 4〕本番の世界(build_manifest.json の build_hash を持つ世界)で資産が無ければ止める(黙って legacy にしない) ----
     space_mode = _NAV1.check_space(_NAV1.space_env_override(space))  # 名 space は後で資源の表に使う
@@ -1001,9 +1001,12 @@ def build(_call_args: dict[str, Any]) -> Any:
         geom = _NAV1.load_space(world_dir, world.assets, seed=seed, n_agents=n_agents, tick_seconds=tick_seconds,
                                 population_seed=pop_seed, slope_model=_NAV1.slope_arm(),
                                 turn_weight_mode=_NAV1.turn_arm(),
-                                population_scale=(float(n_agents) / float(_pt)) if _pt else 1.0)
+                                population_scale=(float(n_agents) / float(_pt)) if _pt else 1.0,
+                                density_mode=_NAV1.density_arm())  # 〔段 5-1b〕密度の推定の腕(SHIBUYA_NAV1_DENSITY)
         if not _resuming:  # 再開では保存した位置を読む(置き直さない)
             R.nav_place(agents, world, geom)
+        # 〔段 5-1b〕変化検出の B4 の密度の段も同じ推定(位置の確定で書いた world.cells.density_stage)から=密度を 1 つに
+        detector.los_from_stage = True
         frozen_sources_map.update({f"nav1:{k}": v for k, v in sorted(geom.mesh.sources.items())})
     #: edge 幾何の診断(ラン通算)。node では 0 のまま。
     geometry_hops = 0
